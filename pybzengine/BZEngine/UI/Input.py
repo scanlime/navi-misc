@@ -144,6 +144,19 @@ class KeyAxis(Event.Event):
         self(-self.scale)
 
 
+class MousePress(Event.Event):
+    """An event that fires when a specified mouse button is pressed"""
+    def __init__(self, viewport, button, modifiers=None):
+        Event.Event.__init__(self)
+        self.button = button
+        self.modifiers = Modifiers(modifiers)
+        viewport.onMouseButtonDown.observe(self.handleButtonDown)
+
+    def handleButtonDown(self, event):
+        if event.button == self.button and self.modifiers.test():
+            self()
+
+
 class MouseWheel(Event.Event):
     """An event that fires when the mous wheel is pressed.
        The event handler gets a positive or negative copy of

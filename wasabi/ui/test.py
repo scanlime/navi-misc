@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from BZEngine.UI import Viewport, ThreeDRender, Sequencer, Layout, HUD
+from BZEngine.UI import Viewport, ThreeDRender, Sequencer, Layout, HUD, ThreeDControl
 from BZEngine import Event
 from Wasabi import Logos, Menu, Icon
 from math import *
@@ -10,18 +10,7 @@ loop = Event.EventLoop()
 viewport = Viewport.OpenGLViewport(loop)
 viewport.setCaption("Wasabi Test")
 view = ThreeDRender.View(viewport)
-
-
-# Run in fullscreen
-#viewport.display.toggle_fullscreen()
-#pygame.mouse.set_visible(False)
-
-
-# Add a global exit handler for the escape key so we can get out of fullscreen mode
-def globalKeyDown(ev):
-    if ev.key == pygame.K_ESCAPE:
-        loop.stop()
-viewport.onKeyDown.observe(globalKeyDown)
+control = ThreeDControl.Viewing(view, viewport)
 
 
 # A sequencer page that displays a piece of text in the center of the screen, over a background image

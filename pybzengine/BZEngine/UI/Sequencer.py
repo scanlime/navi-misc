@@ -28,8 +28,8 @@ define transitions or other modifiers.
 
 from __future__ import division
 from BZEngine import Event, Animated
-from BZEngine.UI import GLOrtho
-import gc
+from BZEngine.UI import GLOrtho, Input
+import gc, pygame
 
 
 class Page:
@@ -298,10 +298,12 @@ def UserPageInterrupter(page):
        or pressing the space bar.
        """
     def factory(book):
-        # Instantiate the page
-        p = page(book)
-
-        # Add event handlers to the page's viewport
+        events = [
+            Input.KeyPress(book.viewport, pygame.K_RETURN),
+            Input.KeyPress(book.viewport, pygame.K_SPACE),
+            Input.MousePress(book.viewport, 1),
+            ]
+        return PageInterrupter(events, page)(book)
     return factory
 
 
