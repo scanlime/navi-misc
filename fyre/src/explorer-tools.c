@@ -352,7 +352,7 @@ static void tool_initial_offset(Explorer *self, ToolInput *i) {
 static void tool_initial_scale(Explorer *self, ToolInput *i) {
   g_object_set(self->map,
 	       "initial_xscale", DE_JONG(self->map)->initial_xscale + i->delta_x * 0.001,
-	       "initial_yscale", DE_JONG(self->map)->initial_yscale + i->delta_y * 0.001,
+	       "initial_yscale", DE_JONG(self->map)->initial_yscale - i->delta_y * 0.001,
 	       NULL);
 }
 
