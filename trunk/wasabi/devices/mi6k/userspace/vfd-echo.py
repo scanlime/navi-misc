@@ -14,9 +14,9 @@ parser.add_option("-f", "--fade", dest="fade", type="float",
                   help="Fade from full to minimum brightness over a "
 		       "specified period of time.",
 		  metavar="SECONDS")
-parser.add_option("-b", "--brightness", dest="brightness", type="float",
-                  help="The VFD brightness level, between 0 and 1.",
-		  metavar="LEVEL")
+parser.add_option("-b", "--brightness", dest="brightness",
+                  metavar="LEVEL", default=0.1, type="float",
+                  help="The VFD brightness level, between 0 and 1.")
 parser.add_option("-a", "--align", dest="align",
                   metavar="X", default=0.0, type="float",
                   help="The horizontal alignment for text. 0 is left "
@@ -46,10 +46,7 @@ for i, line in enumerate(args):
                      gravity=(0, i-1000),
                      ellipses=ellipsesChar))
 
-if options.brightness:
-    vfd.setBrightness(options.brightness)
-
-# Draw our widgets to the VFD
+vfd.setBrightness(options.brightness)
 surface.update()
 vfd.writeLines(surface.draw())
 
