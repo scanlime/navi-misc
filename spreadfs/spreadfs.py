@@ -333,7 +333,7 @@ if __name__ == "__main__":
     try:
         nfsRpc.loop()
     finally:
-        mntRpc.stop()
+        mountRpc.stop()
         nfsRpc.stop()
         mntRpc.unregister()
         nfsRpc.unregister()
