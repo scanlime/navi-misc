@@ -80,7 +80,8 @@ class Menu(Sequencer.Page):
         self.viewport.mode = Viewport.GL.UnclearedMode()
 
         # Draw a background image
-        self.background = HUD.Background(self.overlay, "calm.png")
+        import Settings
+        self.background = HUD.Background(self.overlay, Settings.getCurrentBackground())
 
 
 class DockMenu(Menu):

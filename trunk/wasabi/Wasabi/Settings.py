@@ -40,23 +40,27 @@ class SettingsMenu(Menu.ArcMenu):
         Menu.ArcMenu.__init__(self, book, items, "Settings")
 
 
-backgroundList = []
+backgroundItems = []
 
 class BackgroundLoader(Menu.LoaderPage):
     """Loads backgrounds into memory before the backgrounds menu itself runs"""
     def run(self):
-        global backgroundList
-        if not backgroundList:
+        global backgroundItems
+        if not backgroundItems:
             bgc = BackgroundCache()
             for file in getBackgroundList():
-                backgroundList.append(bgc.load(file))
+                item = Menu.Item(Icon.Icon(bgc.load(file), imageAspect=4/3))
+                item.file = file
+                backgroundItems.append(item)
 
 
 class BackgroundsMenu(Menu.ImageMenu):
     def __init__(self, book):
-        global backgroundList
-        items = [Menu.Item(Icon.Icon(texture, imageAspect=4/3)) for texture in backgroundList]
-        Menu.ImageMenu.__init__(self, book, items)
+        global backgroundItems
+        Menu.ImageMenu.__init__(self, book, backgroundItems)
+
+    def onSelected(self, item):
+        setCurrentBackground(item.file)
 
 
 def getBackgroundList():
@@ -72,6 +76,20 @@ def getBackgroundList():
         }
     exec open(Util.dataFile('backgrounds.py')) in ns
     return ns['list']
+
+
+def getCurrentBackground():
+    """Return the absolute path of the current background file"""
+    try:
+        return open(os.path.expanduser("~/.wasabi/current_background")).read().strip()
+    except IOError:
+        # Return the default background
+        return os.path.abspath(getBackgroundList()[0])
+
+
+def setCurrentBackground(path):
+    """Save the given path as the current background file"""
+    open(os.path.expanduser("~/.wasabi/current_background"), "w").write(os.path.abspath(path))
 
 
 class BackgroundCache:
