@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="../style.xsl"?>
 
-<set name="stance set 1" level="orange">
+<set name="coordination set 1" level="purple">
   <steps>
     <step>
       Step back into a left neutral bow while executing a left vertical
