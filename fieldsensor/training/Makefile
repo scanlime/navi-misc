@@ -19,24 +19,9 @@ default: x.model y.model z.model
 split_log: $(INPUT_FILE)
 	./split-efs-log.py $(INPUT_FILE) tmp/x.training tmp/y.training tmp/z.training
 
-tmp/x.training: split_training_set
-tmp/y.training: split_training_set
-tmp/z.training: split_training_set
-
-split_training_set: tmp/training-set.log
-	./split-efs-log.py tmp/training-set.log tmp/x.training tmp/y.training tmp/z.training
-
-tmp/x.training: split_training_set
-tmp/y.training: split_training_set
-tmp/z.training: split_training_set
-
-# Scale the training sets, saving the scaling parameters
-tmp/x.training.scaled: tmp/x.training
-	svm-scale -s tmp/x.scale tmp/x.training > tmp/x.training.scaled
-tmp/y.training.scaled: tmp/y.training
-	svm-scale -s tmp/y.scale tmp/y.training > tmp/y.training.scaled
-tmp/z.training.scaled: tmp/z.training
-	svm-scale -s tmp/z.scale tmp/z.training > tmp/z.training.scaled
+tmp/x.training: split_log
+tmp/y.training: split_log
+tmp/z.training: split_log
 
 # Train the SVMs
 x.model: tmp/x.training
@@ -46,3 +31,5 @@ y.model: tmp/y.training
 z.model: tmp/z.training
 	svm-train $(SVMFLAGS) tmp/z.training z.model
 
+clean:
+	rm -f *.model tmp/*
