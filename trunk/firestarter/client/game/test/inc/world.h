@@ -56,7 +56,7 @@ class CTestWorld : public CBaseObject
 		// other stuff here for all the other world things that we need to do.
 
 	protected:
-		int							worldDrawable;
+		int							worldDrawables[2];
 };
 
 #endif //_TEST_WORLD_H_

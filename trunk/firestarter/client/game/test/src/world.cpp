@@ -27,7 +27,8 @@ void CTestWorld::Load ( trWorldInfo &info, bool draw )
 {
 	if (draw)
 	{
-		worldDrawable = CDrawManager::instance().New("World",this);
+		worldDrawables[0] = CDrawManager::instance().New("sky",this);
+		worldDrawables[1] = CDrawManager::instance().New("ground",this);
 	}
 }
 

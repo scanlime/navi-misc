@@ -40,6 +40,7 @@ CGameManger::~CGameManger()
 	gameModuleMap::iterator itr =	gameModules.begin();
 	while (itr != gameModules.end())
 	{
+		itr->second->Kill();
 		delete(itr->second);
 		itr++;
 	}

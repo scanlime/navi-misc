@@ -43,7 +43,7 @@ void CDrawManager::Init ( void )
 void CDrawManager::Register ( CBaseDrawableFactory* factory, const char* name )
 {
 	std::string className = name;
-	if (factory)
+	if (!factory)
 		return;
 
 	factories[name] = factory;

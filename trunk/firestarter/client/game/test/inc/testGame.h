@@ -16,6 +16,8 @@
 
 #include "gameManager.h"
 #include "world.h"
+#include "drawManager.h"
+#include <vector>
 
 class CTestGame : public CBaseGame
 {
@@ -29,8 +31,13 @@ class CTestGame : public CBaseGame
 
 		virtual bool Think ( void );
 
+		virtual void Kill ( void );
+
 	protected:
 	CTestWorld			world;
+
+	void registerFactory (const char* name,CBaseDrawableFactory* factory);
+	std::vector<CBaseDrawableFactory*>	factoryList;
 };
 
 #endif //_TEST_GAME_H_
