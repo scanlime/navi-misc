@@ -109,6 +109,7 @@ irc_network_new (ircnet *net)
 
 	if (net == NULL) {
 		n->net = NULL;
+		n->servers = NULL;
 		return n;
 	}
 
@@ -167,11 +168,15 @@ irc_network_save (IrcNetwork *network)
 	if (network->use_global)  flags |= FLAG_USE_GLOBAL;
 	net->flags = flags;
 
-	for (s = net->servlist; s; s = g_slist_next (s))
-		g_free (((ircserver *) s->data)->hostname);
-	g_slist_foreach (net->servlist, g_free, NULL);
-	g_slist_free (net->servlist);
-	net->servlist = network->servers;
+	while (net->servlist) {
+		ircserver *is = net->servlist->data;
+		if (is && is->hostname)
+			servlist_server_remove (net, is);
+	}
+	for (s = network->servers; s; s = g_slist_next (s)) {
+		ircserver *is = s->data;
+		servlist_server_add (net, is->hostname);
+	}
 
 	servlist_save ();
 }
