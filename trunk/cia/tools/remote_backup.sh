@@ -6,10 +6,10 @@
 #
 
 CIA_HOST=cia@flapjack
-BACKUPDIR=/navi/backups/cia
+BACKUPDIR=~/backups/cia
 
 DUMP_FILE=`date "+cia-%F.dump.bz2"`
 
-ssh $CIA_HOST 'database=cia; user=root; . ~/.cia_db; nice -n 19 mysqldump -u $user --password=$passwd $database | ~/cia/tools/io_throttle.py 150000 | nice -n 19 gzip' | gunzip | bzip2 > $BACKUPDIR/$DUMP_FILE
+ssh $CIA_HOST 'database=cia; user=root; . ~/.cia_db; nice -n 19 mysqldump -u $user --password=$passwd $database | /usr/local/bin/io-throttle 0.8 | nice -n 19 gzip' | gunzip | bzip2 > $BACKUPDIR/$DUMP_FILE
 
 
