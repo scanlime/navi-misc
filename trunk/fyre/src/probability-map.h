@@ -53,6 +53,9 @@ struct _ProbabilityMap {
 
     gdouble image_scale_x;
     gdouble image_scale_y;
+
+    gdouble energy;
+    int current;
 };
 
 struct _ProbabilityMapClass {
