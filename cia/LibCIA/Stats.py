@@ -59,10 +59,8 @@ class StatsURIHandler(Ruleset.RegexURIHandler):
         # Stick the URI's path and the content together into a stats
         # path, URI-encoding the content first. This combined with
         # our statsDirectory gives us the local path for a stats target.
-        t = StatsTarget(os.path.join(self.statsDirectory, self.parseURI(uri)['path'], uriencode(content)))
-
-        # Count this freshly received messages among our stats
-        t.increment()
+        StatsTarget(os.path.join(self.statsDirectory, self.parseURI(uri)['path'],
+                                 uriencode(content))).deliver(message)
 
 
 def uriencode(s, allowedChars = string.ascii_letters + string.digits + "-_"):
@@ -89,6 +87,7 @@ class StatsTarget(object):
         self.path = path
         self.createIfNecessary(path)
         self.counters = IntervalCounters(os.path.join(self.path, 'counters.xml'))
+        self.recentMessages = MessageBuffer(os.path.join(self.path, 'recent_messages.xml'))
 
     def createIfNecessary(self, path):
         try:
@@ -96,9 +95,10 @@ class StatsTarget(object):
         except OSError:
             pass
 
-    def increment(self):
-        """An event has occurred which should be logged in this stats target"""
+    def deliver(self, message):
+        """A message has been received which should be logged by this stats target"""
         self.counters.increment()
+        self.recentMessages.push(message)
 
 
 class TimeInterval(object):
@@ -203,6 +203,28 @@ class CounterList(XML.XMLStorage):
         if not self.counters.has_key(name):
             self.counters[name] = Counter(name=name)
         return self.counters[name]
+
+
+class MessageBuffer(XML.XMLStorage):
+    """A FIFO holding the last n messages delivered to it"""
+    def __init__(self, fileName, size=100):
+        self.size = size
+        XML.XMLStorage.__init__(self, fileName, 'messages')
+
+    def emptyStorage(self):
+        self.buffer = []
+
+    def store(self, xml):
+        self.buffer.append(Message.Message(xml))
+
+    def flatten(self):
+        return self.buffer
+
+    def push(self, message):
+        self.buffer.append(message)
+        while len(self.buffer) > self.size:
+            del self.buffer[0]
+        self.save()
 
 
 class IntervalCounters(CounterList):
