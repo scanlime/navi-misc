@@ -16,7 +16,7 @@
 CFLAGS += -Wall $(shell libusb-config --cflags)
 LDFLAGS += $(shell libusb-config --libs)
 
-all: 	bootload i2c-rom i2c-header
+all: 	bootload i2c-rom
 
 tusb.o: tusb.c tusb.h
 
@@ -28,10 +28,8 @@ i2c-rom.o: i2c-rom.c tusb.h
 
 i2c-rom: i2c-rom.o tusb.o
 
-i2c-header.o: i2c-header.c tusb.h
-
 %: %.o
 	$(CC) -o $@ $^ $(LDFLAGS)
 
 clean:
-	rm -f bootload i2c-rom i2c-header *.o
+	rm -f bootload i2c-rom *.o
