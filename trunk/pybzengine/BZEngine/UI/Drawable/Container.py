@@ -65,7 +65,7 @@ class Transformer(GLDrawable):
         self.child.draw(rstate)
         for transform in self.reversedTransforms:
             transform.unapply()
-        
+
 
 class Transform:
     """Abstract base class for transforms designed for use with Transformer"""
