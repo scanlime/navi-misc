@@ -529,6 +529,7 @@ static int find_upper_pow2(int x) {
 static void de_jong_reset_calc(DeJong *self) {
   /* Reset the histogram and calculation state */
   histogram_imager_clear(HISTOGRAM_IMAGER(self));
+  self->iterations = 0;
 
   /* Random starting point */
   self->point_x = uniform_variate();
