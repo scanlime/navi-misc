@@ -209,12 +209,18 @@ class IndexPage(ModPython.Page):
 
 
 class SourceLookupPage(ModPython.Page):
-    """A page that directs all children to SourcePages"""
+    """A page that directs all children to SourcePages. This page itself returns
+       a plaintext list of source names.
+       """
     def __init__(self, db):
         self.db = db
 
     def render(self, context):
-        return apache.HTTP_NOT_FOUND
+        req = context['request']
+        req.content_type = 'text/plain'
+        for source in self.db.iterSources():
+            req.write("%s\n" % source.name)
+        return apache.OK
 
     def getChild(self, name):
         source = self.db.getSource(name)
@@ -444,7 +450,7 @@ class SourceLatestPage(ModPython.Page):
         req.content_type = self.contentType
 
         if self.key:
-            req.write(str(latest[self.key]))
+            req.write("%s\n" % latest[self.key])
         else:
             for key, value in latest.iteritems():
                 req.write("%s: %s\n" % (key, value))
