@@ -136,6 +136,10 @@ void animation_keyframe_append(Animation *self, DeJong *dejong) {
 		     -1);
 }
 
+void animation_clear(Animation *self) {
+  gtk_list_store_clear(self->model);
+}
+
 
 /************************************************************************************/
 /************************************************************************* File I/O */
@@ -146,13 +150,43 @@ void animation_load_file(Animation *self, const gchar *filename) {
   ChunkType type;
   gsize length;
   guchar* data;
+  GtkTreeIter iter;
+  GdkPixbufLoader *pixbuf_loader;
 
   g_return_if_fail(f = fopen(filename, "rb"));
   g_return_if_fail(chunked_file_read_signature(f, FILE_SIGNATURE));
 
+  animation_clear(self);
+
   while (chunked_file_read_chunk(f, &type, &length, &data)) {
     switch (type) {
 
+    case CHUNK_KEYFRAME_START:
+      /* Start a new keyframe, point iter at it */
+      gtk_list_store_append(self->model, &iter);
+      break;
+
+    case CHUNK_KEYFRAME_END:
+      /* Ending a keyframe. We don't yet need this for anything */
+      break;
+
+    case CHUNK_DE_JONG_PARAMS:
+      /* Set the de Jong parameters for this keyframe */
+      gtk_list_store_set(self->model, &iter,
+			 ANIMATION_MODEL_PARAMS, data,
+			 -1);
+      break;
+
+    case CHUNK_THUMBNAIL:
+      /* Set the thumbnail for this keyframe */
+      pixbuf_loader = gdk_pixbuf_loader_new();
+      gdk_pixbuf_loader_write(pixbuf_loader, data, length, NULL);
+      gdk_pixbuf_loader_close(pixbuf_loader, NULL);
+      gtk_list_store_set(self->model, &iter,
+			 ANIMATION_MODEL_THUMBNAIL, gdk_pixbuf_loader_get_pixbuf(pixbuf_loader),
+			 -1);
+      g_object_unref(pixbuf_loader);
+      break;
 
     default:
       chunked_file_warn_unknown_type(type);

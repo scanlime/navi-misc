@@ -433,16 +433,11 @@ static void on_widget_toggle(GtkWidget *widget, gpointer user_data) {
     gtk_widget_hide(toggled);
 }
 
-
-/************************************************************************************/
-/********************************************************************** Load / Save */
-/************************************************************************************/
-
 static void on_load_from_image(GtkWidget *widget, gpointer user_data) {
   Explorer *self = EXPLORER(user_data);
   GtkWidget *dialog;
 
-  dialog = gtk_file_selection_new("Load Parameters");
+  dialog = gtk_file_selection_new("Open Image Parameters");
 
   if(gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_OK) {
     const gchar *filename;
@@ -457,7 +452,7 @@ static void on_save(GtkWidget *widget, gpointer user_data) {
   Explorer *self = EXPLORER(user_data);
   GtkWidget *dialog;
 
-  dialog = gtk_file_selection_new("Save");
+  dialog = gtk_file_selection_new("Save PNG Image");
   gtk_file_selection_set_filename(GTK_FILE_SELECTION(dialog), "rendering.png");
 
   if(gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_OK) {
@@ -942,12 +937,36 @@ static void on_anim_new(GtkWidget *widget, gpointer user_data) {
 }
 
 static void on_anim_open(GtkWidget *widget, gpointer user_data) {
+  Explorer *self = EXPLORER(user_data);
+  GtkWidget *dialog;
+
+  dialog = gtk_file_selection_new("Open Animation Keyframes");
+
+  if(gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_OK) {
+    const gchar *filename;
+    filename = gtk_file_selection_get_filename(GTK_FILE_SELECTION(dialog));
+    animation_load_file(self->animation, filename);
+  }
+  gtk_widget_destroy(dialog);
 }
 
 static void on_anim_save(GtkWidget *widget, gpointer user_data) {
+  on_anim_save_as(widget, user_data);
 }
 
 static void on_anim_save_as(GtkWidget *widget, gpointer user_data) {
+  Explorer *self = EXPLORER(user_data);
+  GtkWidget *dialog;
+
+  dialog = gtk_file_selection_new("Save Animation Keyframes");
+  gtk_file_selection_set_filename(GTK_FILE_SELECTION(dialog), "animation.dja");
+
+  if(gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_OK) {
+    const gchar *filename;
+    filename = gtk_file_selection_get_filename(GTK_FILE_SELECTION(dialog));
+    animation_save_file(self->animation, filename);
+  }
+  gtk_widget_destroy(dialog);
 }
 
 /* The End */
