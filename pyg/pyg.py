@@ -89,12 +89,16 @@ class MainWindow:
 
     def set(self, quad, item):
         self.quads[quad].add(item)
-	item.show_all()
+        item.show_all()
+
+class SourceNotebook(gtk.Notebook):
+    def __init__(self):
+        gtk.Notebook.__init__(self)
+        self.set_scrollable(gtk.TRUE)
 
 main = MainWindow()
 
-sources = gtk.Notebook()
-sources.set_scrollable(gtk.TRUE)
+sources = SourceNotebook()
 sources.append_page(gtk.Label('Left Top Squad!'), gtk.Label('Look Ma! A Tab!'))
 main.set(0, sources)
 
