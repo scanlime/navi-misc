@@ -23,9 +23,6 @@ Web Interface
 - Detect URLs in commit messages in the XHTML formatters and automatically generate links.
   Gnome commits often contain bug tracker URLs.
 
-- Detect changelog entries in commits and represent them as unordered lists. In HTML,
-  the asterisks look rather ugly.
-
 - Some of the stats catalogs are getting rather big and it would be good
   to make the full message list accessable and searchable. An SQL-aware table
   widget for this has been started in the cia-data-driven-tables branch.
