@@ -1,8 +1,8 @@
 #!/usr/bin/env python
-'''	trough
-	Simple command-line interface to trough.
-	It really is, believe me.  Uh-huh.
-	'''
+''' trough
+    Simple command-line interface to trough.
+    It really is, believe me.  Uh-huh.
+    '''
 
 from types import *
 import sys
@@ -15,21 +15,21 @@ version = '0.0.0'
 import CommandLine
 parser = CommandLine.OptionParser (version=version)
 parser.add_option('-a','--add',dest='add',action="store_true",
-		help="recursively add path(s) to the playlist")
+        help="recursively add path(s) to the playlist")
 parser.add_option('-b','--break',dest='breakup',action="store_true",
-		help="break up grouped files already in tree")
+        help="break up grouped files already in tree")
 parser.add_option('-m','--mask',dest="mask",action="store_true",
-		help="mask path(s)")
+        help="mask path(s)")
 parser.add_option('-p','--playlist',dest="playlist",type="string",
-		help="path to playlist file")
+        help="path to playlist file")
 parser.add_option('-r','--remove',dest='remove',action="store_true",
-		help="recursively remove path(s) to the playlist")
+        help="recursively remove path(s) to the playlist")
 #parser.add_option('-i','--info',dest='info',action="store_true",
-#		help="retrieve information on current playlist")
+#        help="retrieve information on current playlist")
 parser.add_option('-u','--unmask',dest="unmask",action="store_true",
-		help="unmask path(s)")
+        help="unmask path(s)")
 parser.add_option('-v','--verbose',dest="verbose",action="store_true",
-		help="give verbose output")
+        help="give verbose output")
 (options,arguments) = parser.parse_args()
 
 # Deal with command line options & arguments
@@ -39,28 +39,28 @@ from Trough.PlayList import PlayList
 
 playlist = PlayList(options.playlist)
 if options.add and options.remove:
-	parser.error("can't simultaneously add and remove")
+    parser.error("can't simultaneously add and remove")
 if options.add:
-	print 'adding ',arguments
-	playlist.getGroupList().addPaths(arguments)
-	playlist.dump()
-	sys.exit(0)
+    print 'adding ',arguments
+    playlist.getGroupList().addPaths(arguments)
+    playlist.dump()
+    sys.exit(0)
 if options.remove:
-	print 'removing ',arguments
-	playlist.getGroupList().removePaths(arguments)
-	playlist.dump()
-	sys.exit(0)
+    print 'removing ',arguments
+    playlist.getGroupList().removePaths(arguments)
+    playlist.dump()
+    sys.exit(0)
 if options.breakup:
-	print 'breaking ',arguments
-	playlist.getGroupList().breakGroups(arguments)
-	playlist.dump()
-	sys.exit(0)
+    print 'breaking ',arguments
+    playlist.getGroupList().breakGroups(arguments)
+    playlist.dump()
+    sys.exit(0)
 
 # At some point, this may be replaced by code that actually plays something
 #
 p = playlist.getGroupList()
 
 print playlist.getGroupList().getCount()
-                                                                                
+ 
 for x in Trough.Select.Select(p):
-	print x.getPath()
+    print x.getPath()
