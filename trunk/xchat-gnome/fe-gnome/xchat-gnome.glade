@@ -46,7 +46,7 @@
 			  <accelerator key="O" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image88">
+			    <widget class="GtkImage" id="image92">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-open</property>
 			      <property name="icon_size">1</property>
@@ -146,7 +146,7 @@
 		      <child>
 			<widget class="GtkCheckMenuItem" id="ban_list1">
 			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">Ban List...</property>
+			  <property name="label" translatable="yes">Ban List</property>
 			  <property name="use_underline">True</property>
 			  <property name="active">False</property>
 			  <signal name="activate" handler="on_ban_list1_activate" last_modification_time="Fri, 23 Jan 2004 04:17:43 GMT"/>
@@ -157,7 +157,7 @@
 		      <child>
 			<widget class="GtkCheckMenuItem" id="channel_list1">
 			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">Channel List...</property>
+			  <property name="label" translatable="yes">Channel List</property>
 			  <property name="use_underline">True</property>
 			  <property name="active">False</property>
 			  <signal name="activate" handler="on_channel_list1_activate" last_modification_time="Fri, 23 Jan 2004 04:10:03 GMT"/>
@@ -169,7 +169,7 @@
 			<widget class="GtkCheckMenuItem" id="downloads1">
 			  <property name="visible">True</property>
 			  <property name="tooltip" translatable="yes">Show file transfer progress window</property>
-			  <property name="label" translatable="yes">File Transfers...</property>
+			  <property name="label" translatable="yes">File Transfers</property>
 			  <property name="use_underline">True</property>
 			  <property name="active">False</property>
 			  <signal name="activate" handler="on_downloads1_activate" last_modification_time="Fri, 23 Jan 2004 03:27:51 GMT"/>
@@ -217,7 +217,7 @@
 			  <accelerator key="I" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image89">
+			    <widget class="GtkImage" id="image93">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-dialog-info</property>
 			      <property name="icon_size">1</property>
@@ -246,7 +246,7 @@
 			  <accelerator key="R" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image90">
+			    <widget class="GtkImage" id="image94">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-refresh</property>
 			      <property name="icon_size">1</property>
@@ -269,7 +269,7 @@
 			  <accelerator key="D" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image91">
+			    <widget class="GtkImage" id="image95">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-stop</property>
 			      <property name="icon_size">1</property>
@@ -303,7 +303,7 @@
 			  <signal name="activate" handler="on_save_transcript1_activate" last_modification_time="Fri, 23 Jan 2004 03:52:08 GMT"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image92">
+			    <widget class="GtkImage" id="image96">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-save-as</property>
 			      <property name="icon_size">1</property>
