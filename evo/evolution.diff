@@ -1,10 +1,26 @@
+? .swp
+? calendar/gui/.svn
+? calendar/gui/e-cal-event.c
+? calendar/gui/e-cal-event.h
+? calendar/gui/files
+? help/C/evolution-2.2-C.omf
+? help/C/evolution-2.2.xml
+? mail/default/zh_CN/Makefile
+? mail/default/zh_CN/Makefile.in
+? plugins/calendar-weather
+? plugins/mail-notification
+? plugins/publish-calendar
+? plugins/groupwise-account-setup/Makefile
+? plugins/groupwise-account-setup/Makefile.in
+? plugins/groupwise-account-setup/org-gnome-gw-account-setup.eplug
+? widgets/misc/test-title-bar
 Index: configure.in
 ===================================================================
 RCS file: /cvs/gnome/evolution/configure.in,v
-retrieving revision 1.755
-diff -u -r1.755 configure.in
---- configure.in	23 Dec 2004 07:00:30 -0000	1.755
-+++ configure.in	30 Dec 2004 05:23:01 -0000
+retrieving revision 1.756
+diff -u -r1.756 configure.in
+--- configure.in	3 Jan 2005 18:43:25 -0000	1.756
++++ configure.in	7 Jan 2005 00:21:29 -0000
 @@ -1232,6 +1232,11 @@
  	AC_MSG_ERROR(no)
  fi
@@ -21,9 +37,9 @@ diff -u -r1.755 configure.in
  AC_ARG_ENABLE(plugins, [  --enable-plugins=[no/all/list]      Enable plugins.],enable_plugins="$enableval",enable_plugins=base)
  
  dnl Add any new plugins here
--plugins_base="calendar-http groupwise-account-setup plugin-manager" 
-+plugins_base="calendar-http calendar-weather groupwise-account-setup plugin-manager" 
- plugins_all="bbdb subject-thread save-attachments prefer-plain save-calendar select-one-source copy-tool mail-to-meeting mail-to-task folder-unsubscribe mark-calendar-offline audio-inline mailing-list-actions groupwise-account-setup"
+-plugins_base="calendar-http groupwise-account-setup plugin-manager backup-restore" 
++plugins_base="calendar-http calendar-weather groupwise-account-setup plugin-manager backup-restore" 
+ plugins_all="bbdb subject-thread save-attachments prefer-plain save-calendar select-one-source copy-tool mail-to-meeting mail-to-task folder-unsubscribe mark-calendar-offline audio-inline mailing-list-actions groupwise-account-setup itip-formatter backup-restore itip-formatter"
  
  case x"$enable_plugins" in
 @@ -1535,6 +1540,7 @@
@@ -37,91 +53,120 @@ diff -u -r1.755 configure.in
 Index: calendar/ChangeLog
 ===================================================================
 RCS file: /cvs/gnome/evolution/calendar/ChangeLog,v
-retrieving revision 1.2598
-diff -u -r1.2598 ChangeLog
---- calendar/ChangeLog	27 Dec 2004 13:36:04 -0000	1.2598
-+++ calendar/ChangeLog	30 Dec 2004 05:23:02 -0000
-@@ -1,3 +1,7 @@
-+2004-12-29  David Trowbridge <trowbrds@cs.colorado.edu>
+retrieving revision 1.2606
+diff -u -r1.2606 ChangeLog
+--- calendar/ChangeLog	6 Jan 2005 09:25:21 -0000	1.2606
++++ calendar/ChangeLog	7 Jan 2005 00:21:30 -0000
+@@ -1,3 +1,9 @@
++2005-01-06  David Trowbridge  <trowbrds@cs.colorado.edu>
 +
-+	* gui/migration.c: Added creation of weather source group
++	* gui/e-cal-event[hc]: initial import of ECalEvent targets
 +
- 2004-12-26  Rodrigo Moya <rodrigo@novell.com>
++	* gui/migration.c (migrate_calendars): add component.migration event
++
+ 2005-01-06  Chenthill Palanisamy <pchenthill@novell.com>
+ 	
+ 	merging send options
+Index: calendar/gui/Makefile.am
+===================================================================
+RCS file: /cvs/gnome/evolution/calendar/gui/Makefile.am,v
+retrieving revision 1.301
+diff -u -r1.301 Makefile.am
+--- calendar/gui/Makefile.am	23 Dec 2004 02:42:11 -0000	1.301
++++ calendar/gui/Makefile.am	7 Jan 2005 00:21:30 -0000
+@@ -105,6 +105,8 @@
+ 	e-cal-component-preview.h		\
+ 	e-cal-config.c				\
+ 	e-cal-config.h				\
++	e-cal-event.c				\
++	e-cal-event.h				\
+ 	e-cal-menu.c				\
+ 	e-cal-menu.h				\
+ 	e-cal-model-calendar.h			\
+Index: calendar/gui/main.c
+===================================================================
+RCS file: /cvs/gnome/evolution/calendar/gui/main.c,v
+retrieving revision 1.171
+diff -u -r1.171 main.c
+--- calendar/gui/main.c	31 Dec 2004 16:59:18 -0000	1.171
++++ calendar/gui/main.c	7 Jan 2005 00:21:30 -0000
+@@ -49,6 +49,7 @@
+ #include "e-cal-config.h"
+ #include "e-cal-popup.h"
+ #include "e-cal-menu.h"
++#include "e-cal-event.h"
  
- 	* gui/e-cal-model.c (search_by_uid_and_client): removed superfluous if
+ #define FACTORY_ID "OAFIID:GNOME_Evolution_Calendar_Factory:" BASE_VERSION
+ 
+@@ -146,6 +147,7 @@
+ 	e_plugin_hook_register_type (e_cal_popup_hook_get_type());
+ 	e_plugin_hook_register_type (e_cal_menu_hook_get_type());
+ 	e_plugin_hook_register_type (e_cal_config_hook_get_type ());
++	e_plugin_hook_register_type (e_cal_event_hook_get_type ());
+ }
+ 
+ 
 Index: calendar/gui/migration.c
 ===================================================================
 RCS file: /cvs/gnome/evolution/calendar/gui/migration.c,v
 retrieving revision 1.32
 diff -u -r1.32 migration.c
 --- calendar/gui/migration.c	7 Oct 2004 21:03:36 -0000	1.32
-+++ calendar/gui/migration.c	30 Dec 2004 05:23:03 -0000
-@@ -362,6 +362,7 @@
- }
++++ calendar/gui/migration.c	7 Jan 2005 00:21:30 -0000
+@@ -47,6 +47,7 @@
+ #include <libedataserver/e-xml-hash-utils.h>
+ #include "calendar-config.h"
+ #include "calendar-config-keys.h"
++#include "e-cal-event.h"
+ #include "migration.h"
  
- 
-+#define WEATHER_BASE_URI "weather://"
- #define WEBCAL_BASE_URI "webcal://"
- #define CONTACTS_BASE_URI "contacts://"
- #define BAD_CONTACTS_BASE_URI "contact://"
-@@ -393,7 +394,8 @@
- 			 ESourceGroup **on_this_computer,
- 			 ESource **personal_source,
- 			 ESourceGroup **on_the_web,
--			 ESourceGroup **contacts)
-+			 ESourceGroup **contacts,
-+			 ESourceGroup **weather)
+ static e_gconf_map_t calendar_display_map[] = {
+@@ -700,6 +701,8 @@
  {
- 	GSList *groups;
- 	ESourceGroup *group;
-@@ -402,6 +404,7 @@
- 	*on_this_computer = NULL;
- 	*on_the_web = NULL;
- 	*contacts = NULL;
-+	*weather = NULL;
- 	*personal_source = NULL;
- 
- 	base_uri = g_build_filename (calendar_component_peek_base_directory (component),
-@@ -486,7 +489,15 @@
- 
- 		*contacts = group;
- 	}
--	
-+
-+	if (!*weather) {
-+		/* Create the Weather source group */
-+		group = e_source_group_new (_("Weather"), WEATHER_BASE_URI);
-+		e_source_list_add_group (source_list, group, -1);
-+
-+		*weather = group;
-+	}
-+
- 	g_free (base_uri_proto);
- 	g_free (base_uri);
- }
-@@ -698,14 +709,14 @@
- gboolean
- migrate_calendars (CalendarComponent *component, int major, int minor, int revision, GError **err)
- {
--	ESourceGroup *on_this_computer = NULL, *on_the_web = NULL, *contacts = NULL;
-+	ESourceGroup *on_this_computer = NULL, *on_the_web = NULL, *contacts = NULL, *weather = NULL;
+ 	ESourceGroup *on_this_computer = NULL, *on_the_web = NULL, *contacts = NULL;
  	ESource *personal_source = NULL;
++	ECalEvent *ece;
++	ECalEventTargetComponent *target;
  	gboolean retval = FALSE;
  
  	/* we call this unconditionally now - create_groups either
- 	   creates the groups/sources or it finds the necessary
- 	   groups/sources. */
--	create_calendar_sources (component, calendar_component_peek_source_list (component), &on_this_computer, &personal_source, &on_the_web, &contacts);
-+	create_calendar_sources (component, calendar_component_peek_source_list (component), &on_this_computer, &personal_source, &on_the_web, &contacts, &weather);
+@@ -833,6 +836,21 @@
+ 	}
  
- 	if (major == 1) {
- 		xmlDocPtr config_doc = NULL;
-@@ -841,6 +852,8 @@
- 		g_object_unref (on_the_web);
- 	if (contacts)
- 		g_object_unref (contacts);
-+	if (weather)
-+		g_object_unref (weather);
- 	if (personal_source)
- 		g_object_unref (personal_source);
- 
+ 	e_source_list_sync (calendar_component_peek_source_list (component), NULL);
++
++	/** @Event: component.migration
++	 * @Title: Migration step in component initialization
++	 * @Target: ECalEventTargetComponent
++	 * 
++	 * component.migration is emitted during the calendar component
++	 * initialization process. This allows new calendar backend types
++	 * to be distributed as an e-d-s backend and a plugin without
++	 * reaching their grubby little fingers into migration.c
++	 */
++	/* Fire off migration event */
++	ece = e_cal_event_peek ();
++	target = e_cal_event_target_new_component (ece, calendar_component_peek (), 0);
++	e_event_emit ((EEvent *) ece, "component.migration", (EEventTarget *) target);
++
+ 	retval = TRUE;
+ fail:
+ 	if (on_this_computer)
+Index: doc/devel/build-eplugin-manual.pl
+===================================================================
+RCS file: /cvs/gnome/evolution/doc/devel/build-eplugin-manual.pl,v
+retrieving revision 1.3
+diff -u -r1.3 build-eplugin-manual.pl
+--- doc/devel/build-eplugin-manual.pl	28 Oct 2004 09:30:28 -0000	1.3
++++ doc/devel/build-eplugin-manual.pl	7 Jan 2005 00:21:31 -0000
+@@ -240,6 +240,10 @@
+ 	    { 'type' => 'HookPoint-EMPopup',
+ 	      'files' => [ 'em-folder-tree.c', 'em-folder-view.c', 'em-format-html-display.c', '../composer/e-msg-composer-attachment-bar.c' ],
+ 	      'module' => 'mail' },
++	   'ecal-events.xml' =>
++	    { 'type' => 'Event',
++	      'files' => [ 'gui/migration.c' ],
++	      'module' => 'calendar' },
+ 	   'ecal-popups.xml' =>
+ 	    { 'type' => 'HookPoint-ECalPopup',
+ 	      'files' => [ 'gui/e-calendar-view.c', 'gui/calendar-component.c', 'gui/e-calendar-view.c', 'gui/tasks-component.c' ],
