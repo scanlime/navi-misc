@@ -27,7 +27,7 @@
 static GtkDialogClass *parent_class = NULL;
 
 static void
-check_input (UrlEditorDialog2 *dialog)
+check_input (UrlEditorDialog *dialog)
 {
 	gint n = 0;
 	GSList *sources;
@@ -51,13 +51,56 @@ fail:
 }
 
 static void
-source_selection_changed (ESourceSelector *selector, UrlEditorDialog2 *dialog)
+source_selection_changed (ESourceSelector *selector, UrlEditorDialog *dialog)
 {
 	check_input (dialog);
 }
 
 static void
-type_selector_changed (GtkComboBox *combo, UrlEditorDialog2 *dialog)
+publish_service_changed (GtkComboBox *combo, UrlEditorDialog *dialog)
+{
+	gint selected = gtk_combo_box_get_active (combo);
+
+	switch (selected) {
+	case TYPE_SMB:
+		gtk_label_set_text_with_mnemonic (GTK_LABEL (dialog->port_label), "S_hare:");
+		break;
+	case TYPE_SSH:
+	case TYPE_FTP:
+	case TYPE_DAV:
+	case TYPE_DAVS:
+		gtk_label_set_text_with_mnemonic (GTK_LABEL (dialog->server_label), "_Server:");
+		gtk_label_set_text_with_mnemonic (GTK_LABEL (dialog->port_label), "_Port:");
+		gtk_widget_show (dialog->file_hbox);
+		gtk_widget_show (dialog->optional_label);
+		gtk_widget_show (dialog->port_hbox);
+		gtk_widget_show (dialog->username_hbox);
+		gtk_widget_show (dialog->password_hbox);
+		gtk_widget_show (dialog->remember_pw);
+		break;
+	case TYPE_ANON_FTP:
+		gtk_label_set_text_with_mnemonic (GTK_LABEL (dialog->server_label), "_Server:");
+		gtk_label_set_text_with_mnemonic (GTK_LABEL (dialog->port_label), "_Port:");
+		gtk_widget_show (dialog->file_hbox);
+		gtk_widget_show (dialog->optional_label);
+		gtk_widget_show (dialog->port_hbox);
+		gtk_widget_hide (dialog->username_hbox);
+		gtk_widget_hide (dialog->password_hbox);
+		gtk_widget_hide (dialog->remember_pw);
+		break;
+	case TYPE_URI:
+		gtk_label_set_text_with_mnemonic (GTK_LABEL (dialog->server_label), "_Location (URI):");
+		gtk_widget_hide (dialog->file_hbox);
+		gtk_widget_hide (dialog->optional_label);
+		gtk_widget_hide (dialog->port_hbox);
+		gtk_widget_hide (dialog->username_hbox);
+		gtk_widget_hide (dialog->password_hbox);
+		gtk_widget_hide (dialog->remember_pw);
+	}
+}
+
+static void
+type_selector_changed (GtkComboBox *combo, UrlEditorDialog *dialog)
 {
 	gint selected = gtk_combo_box_get_active (combo);
 
@@ -71,7 +114,7 @@ type_selector_changed (GtkComboBox *combo, UrlEditorDialog2 *dialog)
 }
 
 static gboolean
-url_editor_dialog_construct2 (UrlEditorDialog2 *dialog)
+url_editor_dialog_construct (UrlEditorDialog *dialog)
 {
 	GladeXML *gui;
 	GtkWidget *toplevel;
@@ -99,6 +142,20 @@ url_editor_dialog_construct2 (UrlEditorDialog2 *dialog)
 	GW(username_entry);
 	GW(password_entry);
 	GW(remember_pw);
+
+	GW(optional_label);
+
+	GW(port_hbox);
+	GW(username_hbox);
+	GW(password_hbox);
+	GW(server_hbox);
+	GW(file_hbox);
+
+	GW(port_label);
+	GW(username_label);
+	GW(password_label);
+	GW(server_label);
+	GW(file_label);
 #undef GW
 
 	g_return_val_if_fail (gui != NULL, FALSE);
@@ -144,6 +201,7 @@ url_editor_dialog_construct2 (UrlEditorDialog2 *dialog)
 	if (uri == NULL) {
 		gtk_combo_box_set_active (GTK_COMBO_BOX (dialog->publish_frequency), 0);
 		gtk_combo_box_set_active (GTK_COMBO_BOX (dialog->type_selector), 0);
+		gtk_combo_box_set_active (GTK_COMBO_BOX (dialog->publish_service), 1);
 
 		dialog->uri = g_new0 (EPublishUri, 1);
 		uri = dialog->uri;
@@ -173,6 +231,9 @@ url_editor_dialog_construct2 (UrlEditorDialog2 *dialog)
 		gtk_combo_box_set_active (GTK_COMBO_BOX (dialog->publish_frequency), uri->publish_frequency);
 		gtk_combo_box_set_active (GTK_COMBO_BOX (dialog->type_selector), uri->publish_format);
 
+		/* FIXME */
+		/* gtk_combo_box_set_active (GTK_COMBO_BOX (dialog->publish_service), uri->publish_service); */
+
 		uri->password = e_passwords_get_password ("Calendar", uri->location);
 		if (uri->password) {
 			if (strlen (uri->password) != 0) {
@@ -185,6 +246,7 @@ url_editor_dialog_construct2 (UrlEditorDialog2 *dialog)
 	}
 
 	/* FIXME - url */
+	g_signal_connect (G_OBJECT (dialog->publish_service), "changed", G_CALLBACK(publish_service_changed), dialog);
 	g_signal_connect (G_OBJECT (dialog->type_selector), "changed", G_CALLBACK (type_selector_changed), dialog);
 	g_signal_connect (G_OBJECT (dialog->events_selector), "selection_changed", G_CALLBACK (source_selection_changed), dialog);
 	g_signal_connect (G_OBJECT (dialog->tasks_selector), "selection_changed", G_CALLBACK (source_selection_changed), dialog);
@@ -195,15 +257,15 @@ url_editor_dialog_construct2 (UrlEditorDialog2 *dialog)
 }
 
 GtkWidget *
-url_editor_dialog_new2 (GtkTreeModel *url_list_model, EPublishUri *uri)
+url_editor_dialog_new (GtkTreeModel *url_list_model, EPublishUri *uri)
 {
-	UrlEditorDialog2 *dialog;
+	UrlEditorDialog *dialog;
 
-	dialog = (UrlEditorDialog2 *) g_object_new (URL_EDITOR_DIALOG_TYPE, NULL);
+	dialog = (UrlEditorDialog *) g_object_new (URL_EDITOR_DIALOG_TYPE, NULL);
 	dialog->url_list_model = g_object_ref (url_list_model);
 	dialog->uri = uri;
 
-	if (url_editor_dialog_construct2 (dialog))
+	if (url_editor_dialog_construct (dialog))
 		return GTK_WIDGET (dialog);
 
 	g_object_unref (dialog);
@@ -211,9 +273,9 @@ url_editor_dialog_new2 (GtkTreeModel *url_list_model, EPublishUri *uri)
 }
 
 static void
-url_editor_dialog_dispose2 (GObject *obj)
+url_editor_dialog_dispose (GObject *obj)
 {
-	UrlEditorDialog2 *dialog = (UrlEditorDialog2 *) obj;
+	UrlEditorDialog *dialog = (UrlEditorDialog *) obj;
 
 	if (dialog->url_list_model) {
 		g_object_unref (dialog->url_list_model);
@@ -224,45 +286,45 @@ url_editor_dialog_dispose2 (GObject *obj)
 }
 
 static void
-url_editor_dialog_class_init2 (UrlEditorDialogClass2 *klass)
+url_editor_dialog_class_init (UrlEditorDialogClass *klass)
 {
 	GObjectClass *object_class;
 
 	object_class = (GObjectClass *) klass;
 	parent_class = g_type_class_ref (GTK_TYPE_DIALOG);
 
-	object_class->dispose = url_editor_dialog_dispose2;
+	object_class->dispose = url_editor_dialog_dispose;
 }
 
 static void
-url_editor_dialog_init2 (UrlEditorDialog2 *dialog)
+url_editor_dialog_init (UrlEditorDialog *dialog)
 {
 }
 
 GType
-url_editor_dialog_get_type2 (void)
+url_editor_dialog_get_type (void)
 {
 	static GType type = 0;
 
 	if (!type) {
 		static GTypeInfo info = {
-			sizeof (UrlEditorDialogClass2),
+			sizeof (UrlEditorDialogClass),
 			NULL, NULL,
-			(GClassInitFunc) url_editor_dialog_class_init2,
+			(GClassInitFunc) url_editor_dialog_class_init,
 			NULL, NULL,
-			sizeof (UrlEditorDialog2),
+			sizeof (UrlEditorDialog),
 			0,
-			(GInstanceInitFunc) url_editor_dialog_init2,
+			(GInstanceInitFunc) url_editor_dialog_init,
 		};
 
-		type = g_type_register_static (GTK_TYPE_DIALOG, "UrlEditorDialog2", &info, 0);
+		type = g_type_register_static (GTK_TYPE_DIALOG, "UrlEditorDialog", &info, 0);
 	}
 
 	return type;
 }
 
 void
-url_editor_dialog_run2 (UrlEditorDialog2 *dialog)
+url_editor_dialog_run (UrlEditorDialog *dialog)
 {
 	gint response;
 
