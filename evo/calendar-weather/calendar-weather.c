@@ -180,7 +180,7 @@ build_location_path (GtkTreeModel *model, GtkTreeIter *iter)
 }
 
 static void
-location_clicked (GtkButton *button, gpointer data)
+location_clicked (GtkButton *button, ESource *source)
 {
 	GtkDialog *dialog = create_source_selector ();
 	gint response;
@@ -196,15 +196,29 @@ location_clicked (GtkButton *button, gpointer data)
 		GtkTreeModel *model;
 		GtkTreeIter iter;
 		GtkWidget *label;
-		gchar *type, *url, *name;
-		gchar *path;
+		gchar *type, *code, *name;
+		gchar *path, *uri;
 
 		gtk_tree_selection_get_selected (selection, &model, &iter);
-		gtk_tree_model_get (model, &iter, 0, &name, 2, &url, 3, &type, -1);
+		gtk_tree_model_get (model, &iter, 0, &name, 1, &code, 3, &type, -1);
 		path = build_location_path (model, &iter);
 
 		label = gtk_bin_get_child (GTK_BIN (button));
 		gtk_label_set_text (GTK_LABEL (label), path);
+
+		uri = g_strdup_printf ("%s/%s/%s", type, code, name);
+		/* FIXME - url_encode (&uri); */
+		e_source_set_relative_uri (source, uri);
+		g_print ("setting URI to %s\n");
+		g_free (uri);
+	} else {
+		GtkWidget *label;
+		gchar *text;
+
+		label = gtk_bin_get_child (GTK_BIN (button));
+		text = gtk_label_get_text (GTK_LABEL (label));
+		if (strcmp (text, _("None")) == 0)
+			e_source_set_relative_uri (source, "");
 	}
 
 	gtk_widget_destroy (GTK_WIDGET (dialog));
@@ -246,7 +260,7 @@ e_calendar_weather_location (EPlugin *epl, EConfigHookItemFactoryData *data)
 	gtk_table_attach (GTK_TABLE (parent), label, 0, 1, row, row+1, GTK_FILL, 0, 0, 0);
 
 	button = gtk_button_new ();
-	g_signal_connect (G_OBJECT (button), "clicked", G_CALLBACK (location_clicked), NULL);
+	g_signal_connect (G_OBJECT (button), "clicked", G_CALLBACK (location_clicked), source);
 	gtk_widget_show (button);
 
 	text = gtk_label_new (_("None"));
@@ -419,12 +433,13 @@ e_calendar_weather_check (EPlugin *epl, EConfigHookPageCheckData *data)
 	gboolean ok = FALSE;
 	ESourceGroup *group = e_source_peek_group (t->source);
 
+	/* always return TRUE if this isn't a weather source */
 	if (strncmp (e_source_group_peek_base_uri (group), "weather", 7))
 		return TRUE;
 
 	uri = e_uri_new (e_source_get_uri (t->source));
-	/* FIXME - check location */
-	ok = TRUE;
+	/* make sure that the protocol is weather:// and that the path isn't empty */
+	ok = (uri->path && strlen (uri->path));
 	e_uri_free (uri);
 
 	return ok;
