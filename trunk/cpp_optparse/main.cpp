@@ -25,7 +25,8 @@ main (int argc, char **argv)
 		parser.error("Incorrect number of arguments.");
 
 	cout << "infile: " << parser.options["infile"] << endl
-		<< "boo: " << parser.options["boo"] << endl;
+		<< "boo: " << parser.options["boo"] << endl
+		<< "savefile: " << parser.options["savefile"] << endl;
 
 	return 0;
 }
