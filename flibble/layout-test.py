@@ -125,4 +125,4 @@ if __name__ == '__main__':
         Edge(3,5),
         ])
 
-    runLayout(test)
+    runLayout(cia)
