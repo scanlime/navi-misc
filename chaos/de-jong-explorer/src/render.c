@@ -343,8 +343,12 @@ void run_iterations(int count) {
       if (iy < 0) iy += count_height;
     }
     else {
-      /* Otherwise, clip off the edges */
-      if (ix < 0 || ix >= count_width || iy < 0 || iy >= count_height)
+      /* Otherwise, clip off the edges.
+       * Cast ix and iy to unsigned so our comparison against
+       * the width/height also implicitly compares against zero.
+       */
+      if (((unsigned int)ix) >= count_width  ||
+	  ((unsigned int)iy) >= count_height)
 	continue;
     }
 
