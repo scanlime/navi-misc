@@ -145,7 +145,7 @@ class Page(Nouvelle.Twisted.Page):
 
         tag('html', xmlns="http://www.w3.org/1999/xhtml")[
             tag('head')[
-                xml('<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />'),
+                xml('<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />'),
                 tag('title')[ place("pageTitle") ],
                 tag('style', type="text/css", media="all")[ "@import url(/style.css);" ],
                 ],
