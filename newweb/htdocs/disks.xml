@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="style.xsl"?>
 
-<page title="Navi disk status">
+<page title="Navi disk status" subtitle="Its big. And stuff.">
   <section title="charts">
     Insert charts here.
   </section>
