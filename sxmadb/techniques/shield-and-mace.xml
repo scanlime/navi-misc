@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="../style.xsl"?>
+
+<technique name="shield and mace" level="blue" category="punch">
+  <attack>step through right straight punch</attack>
+  <stances>
+    <attacker>left neutral bow</attacker>
+    <defender>natural</defender>
+  </stances>
+  <steps>
+    <step>
+      Step forward into a left neutral bow as you perform a right vertical
+      outward block and a left straight punch to the ribs.
+    </step>
+    <step>
+      Pivot into a left forward bow and execute a right reverse punch, also
+      to the ribs.
+    </step>
+    <step>
+      Pivot back into a neutral bow as you perform a left inward horizontal
+      palm heel to the back of the head. Continue the motion of your left
+      arm and check your opponent's right arm into their body.
+    </step>
+    <step>
+      Pivot back into a left forward bow as you strike your opponent's face
+      with a right inward circular palm heel claw.
+    </step>
+    <step>
+      Continue the motion of your right hand circularly as you drop into a
+      close kneel. Strike the top of your opponent's calf with a right
+      hand sword.
+    </step>
+    <step>
+      Keeping your body low, perform a step-through right knife-edge side
+      kick to the back of your opponent's left leg.
+    </step>
+  </steps>
+</technique>

@@ -5,4 +5,5 @@
 <techniques>
   <technique name="lone kimono" href="lone-kimono.xml" level="orange" category="grab"/>
   <technique name="broken ram" href="broken-ram.xml" level="blue" category="grab"/>
+  <technique name="shield and mace" href="shield-and-mace.xml" level="blue" category="punch"/>
 </techniques>
