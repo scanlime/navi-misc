@@ -293,4 +293,57 @@ class ADS1112(i2c.Device):
         self.dataRate = (reg & 3) >> 2
         self.gain = reg & 3
 
+
+class ADS7828(i2c.Device):
+    """The ADS7828 is a 12-bit differential A/D converter and 8-channel mux"""
+    busAddressBase = 0x48
+
+    # Convert CH* channel numbers to codes used in the command byte
+    channelTable = {
+        0: 0,  2: 1,  4: 2,  6: 3,
+        1: 4,  3: 5,  5: 6,  7: 7,
+        }
+
+    def read(self, channel, returnType=float, powerMode=0, differential=False):
+        """Sample the given channel number, blocking until it is complete.
+
+           In the default power mode (0) the converter is put into standby mode
+           between conversions.
+
+           If differential==false, the default, 'channel' is
+           the CH number to sample, referenced against COM. If differential==true,
+           'channel' is the CH number to sample, referenced against the other channel
+           in the pair. (CH0/CH1, CH2/CH3, CH4/CH5, and CH6/CH7 are paired).
+
+           The default return type is floating point, scaled such that the converter's
+           reference voltage is 1.0
+        """
+        assert powerMode <= 3 and powerMode >= 0
+        assert channel <= 7 and channel >= 0
+
+        # Pack a command byte, as described in the data sheet
+        if differential:
+            sd = 0x00
+        else:
+            sd = 0x80
+        commandByte = sd | (channel << 4) | (powerMode << 2) 
+
+        high, low = self.busWriteRead([commandByte], 2)
+        return self._decode(high, low, returnType)
+
+    def _decode(self, high, low, returnType):
+        """Given the high and low bytes returned by the ADC,
+           convert them to the required return type. Floating
+           point values are scaled such that the reference
+           voltage is 1.0, integers are unconverted codes.
+           """
+        code = (high << 8) | low
+
+        if returnType is float:
+            return code / 4096.0
+        elif returnType is int:
+            return code
+        else:
+            raise ValueError("Unsupported return type '%r'" % returnType)
+
 ### The End ###
