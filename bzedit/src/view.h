@@ -50,6 +50,8 @@ struct _View
   Light **lights;
   guint nlights;
   GLDrawingArea *context;
+
+  gdouble mouse[2];
 };
 
 struct _ViewClass
