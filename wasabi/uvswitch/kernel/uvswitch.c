@@ -261,6 +261,8 @@ static ssize_t uvswitch_write(struct file *file, const char *buffer, size_t coun
 {
 	struct usb_uvswitch *dev = (struct usb_uvswitch *)file->private_data;
 	int retval = 0;
+	char kbuffer[256];
+	unsigned char video, w_audio, r_audio, bypass;
 
 	/* lock this object */
 	down(&dev->sem);
@@ -271,12 +273,22 @@ static ssize_t uvswitch_write(struct file *file, const char *buffer, size_t coun
 		goto exit;
 	}
 
-	dbg("write count %d", count);
-
-	uvswitch_switch(dev, 3,6,6,0);
-
-
+	/* Copy the write to our buffer, without overflowing it */
+	if (count > sizeof(kbuffer)-1)
+		count = sizeof(kbuffer)-1;
+	if (copy_from_user(kbuffer, buffer, count)) {
+		retval = -EFAULT;
+		goto exit;
+	}
+	kbuffer[count] = 0;
 	retval = count;
+
+	video = simple_strtol(kbuffer, NULL, 10);
+	w_audio = video;
+	r_audio = video;
+	bypass = 0;
+
+	uvswitch_switch(dev, video, w_audio, r_audio, bypass);
 
 exit:
 	/* unlock the device */
