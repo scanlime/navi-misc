@@ -21,6 +21,7 @@ desktop_DATA = xchat-gnome.desktop
 
 xchat_gnome_DATA =				\
 	channel-list.glade			\
+	irc-network-editor.glade		\
 	transfers.glade				\
 	setup-dialog.glade			\
 	topic-change.glade			\
