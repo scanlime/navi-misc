@@ -157,6 +157,13 @@
 				<File
 					RelativePath="..\ui\src\ui.cpp">
 				</File>
+				<Filter
+					Name="menus"
+					Filter="">
+					<File
+						RelativePath="..\ui\src\mainMenu.cpp">
+					</File>
+				</Filter>
 			</Filter>
 			<Filter
 				Name="game"
@@ -204,6 +211,13 @@
 				<File
 					RelativePath="..\ui\inc\ui.h">
 				</File>
+				<Filter
+					Name="menus"
+					Filter="">
+					<File
+						RelativePath="..\ui\inc\mainMenu.h">
+					</File>
+				</Filter>
 			</Filter>
 			<Filter
 				Name="game"

@@ -13,12 +13,12 @@
 
 
 #ifndef _MAIN_MENU_H_
-#define __MAIN_MENU_H__H_
+#define _MAIN_MENU_H_
 
 #include "ui.h"
 
 
-class CMainMenu
+class CMainMenu : public CBaseUIPanel
 {
 public:
 	CMainMenu();
@@ -26,8 +26,10 @@ public:
 
 	virtual Init ( CBaseGameLoop * pGameLoop );
 	virtual void Attach ( void );
-	virtual void Release ( void ;
+	virtual void Release ( void );
 	virtual tePanelReturn Process ( std::string &next );
 
 protected:
 };
+
+#endif //_MAIN_MENU_H_
