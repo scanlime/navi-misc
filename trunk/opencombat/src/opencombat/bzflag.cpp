@@ -1582,8 +1582,6 @@ int WINAPI		WinMain(HINSTANCE instance, HINSTANCE, LPSTR _cmdLine, int)
 	if (strrchr(appName,'\\'))
 		*strrchr(appName,'\\') = NULL;
 
-  LPCTSTR cmdLine2 = GetCommandLine();
-
   // make argument list and assign arguments
   char** argv = new char*[argc];
 
