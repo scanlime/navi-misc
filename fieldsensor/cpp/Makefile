@@ -1,4 +1,4 @@
-BINS = raw_test new_net train_net net_test pong breakout
+BINS = raw_test new_net train_net net_test pong breakout pg_driver old_pong
 
 LIBSRC = \
 	lib/FieldSensor.o \
@@ -30,7 +30,7 @@ LIBS = lib/libfield.so
 all: $(LIBS) $(BINS)
 
 $(BINS): %: src/%.cpp $(INCLUDES)
-	g++ -o $@ $< $(CPPFLAGS) $(LDFLAGS) $(LIBS) `sdl-config --libs` -lGL -lGLU
+	g++ -o $@ $< $(CPPFLAGS) $(LDFLAGS) $(LIBS) `sdl-config --libs` -lGL -lGLU -lpgui
 
 lib/libfield.so: $(LIBSRC)
 	g++ -shared -fPIC -o $@ $(LIBSRC)

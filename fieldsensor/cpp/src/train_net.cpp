@@ -16,7 +16,7 @@ int main(void) {
 
     while (1) {
       /* Train the net a bit... */
-      net.train(pattern, epochsPerRound, 0.99, 0.0, false);
+      net.train(pattern, epochsPerRound, 0.7, 0.0, false);
       numEpochs += epochsPerRound;
 
       /* Save our progress */

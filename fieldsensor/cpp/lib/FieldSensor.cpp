@@ -178,7 +178,10 @@ Vector3 FieldSensor::getPosition(void) {
     }
   }
 
-  return x;
+  /* Return the filter output, clamped to [0,1] */
+  return Vector3(fmax(0,fmin(1,x[0])),
+		 fmax(0,fmin(1,x[1])),
+		 fmax(0,fmin(1,x[2])));
 }
 
 /* The End */
