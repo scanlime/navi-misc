@@ -87,15 +87,15 @@ request_setStatus
 	copybit	STATUS_C1_C,		porta_select+1, 1, 1
 	copybit	STATUS_C1_C,		porta_select+3, 1, 1
 
-	copybit	STATUS_C2_A,		porta_select+0, 3, 1
-	copybit	STATUS_C2_A,		porta_select+1, 3, 1
-	copybit	STATUS_C2_B,		porta_select+2, 3, 1
-	copybit	STATUS_C2_B,		porta_select+3, 3, 1
+	copybit	STATUS_C2_A,		porta_select+0, 2, 1
+	copybit	STATUS_C2_A,		porta_select+1, 2, 1
+	copybit	STATUS_C2_B,		porta_select+2, 2, 1
+	copybit	STATUS_C2_B,		porta_select+3, 2, 1
 
-	copybit	STATUS_C2_START,	porta_select+0, 4, 1
-	copybit	STATUS_C2_START,	porta_select+1, 4, 1
-	copybit	STATUS_C2_C,		porta_select+2, 4, 1
-	copybit	STATUS_C2_C,		porta_select+3, 4, 1
+	copybit	STATUS_C2_START,	porta_select+0, 3, 1
+	copybit	STATUS_C2_START,	porta_select+1, 3, 1
+	copybit	STATUS_C2_C,		porta_select+2, 3, 1
+	copybit	STATUS_C2_C,		porta_select+3, 3, 1
 
 	copybit	STATUS_POWER,		PIN_POWER, 0
 
