@@ -45,10 +45,17 @@ rulesetStorage = Ruleset.DatabaseRulesetStorage(hub, uriRegistry)
 # bootstraps our security system by creating a powerful user.
 Security.User().saveKey('~/.cia_key', 'universe')
 
-# Our front page renders the documentation root, but unless otherwise specified
+# Create components we'll need in multiple places later
+doc   = Web.Doc.Component('doc')
+stats = Web.Stats.Component()
+
+# Present an overview page at the top of our web site, using the documentation
+# system's default sidebar to give us an easy way to navigate the site.
+frontPage = Web.Overview.OverviewPage(doc.resource, stats)
+
+# Our front page gives us an overview of CIA, but unless otherwise specified
 # we load other pages from the 'htdocs' directory, as static files.
-doc = Web.Doc.Component('doc')
-webRoot = Web.Server.StaticJoiner('htdocs', doc.resource)
+webRoot = Web.Server.StaticJoiner('htdocs', frontPage)
 site = Web.Server.Site(webRoot)
 
 # Add a VHostMonster we can use to safely proxy requests from Apache running on a different port
@@ -71,7 +78,7 @@ rpc.putSubHandler('debug', Debug.DebugInterface())
 webRoot.putChild('RPC2', rpc)
 
 # The user-navigable areas of our site are all Component instances
-site.putComponent('stats', Web.Stats.Component())
+site.putComponent('stats', stats)
 site.putComponent('doc', doc)
 site.putComponent('irc', Web.BotStatus.Component(botNet))
 site.putComponent('rulesets', Web.RulesetBrowser.Component(rulesetStorage))

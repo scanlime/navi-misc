@@ -65,6 +65,20 @@ def SubscriptionLink(url, content, icon="/images/rss.png", iconSize=(36,14)):
            ]
 
 
+def SectionGrid(*rows):
+    """Create a grid of sections, for layouts showing a lot of small boxes
+       in a regular pattern.
+       """
+    # FIXME: this CSS is crufty
+    return tag('table', _class="columns")[[
+        tag('tr')[[
+            tag('td', _class="main")[
+                cell
+            ] for cell in row
+        ]] for row in rows
+    ]]
+
+
 def MessageHeaders(d):
     """A factory for displaying message headers from a dictionary-like object.
        If order is important (it probably is) use twisted.python.util.OrderedDict.
