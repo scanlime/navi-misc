@@ -5,19 +5,6 @@ import posixpath
 class PythonFilter(CommitFilter):
     project = 'python'
 
-    def pullLine(self):
-        """Read one line from the message, with support for looking ahead one line"""
-        if self.pushedLines:
-            l = self.pushedLines[0]
-            del self.pushedLines[0]
-            return l
-        else:
-            return self.body.readline()
-
-    def pushLine(self, line):
-        """Push back one line, for lookahead"""
-        self.pushedLines.append(line)
-
     def readFiles(self, directory):
         # We're in an added, removed, or modified files section. Split the space-separated
         # list of files up and add them to the message, stopping when we hit a line that
@@ -54,8 +41,6 @@ class PythonFilter(CommitFilter):
         self.addLog("\n".join(lines))
 
     def parse(self):
-        self.pushedLines = []
-
         # Directory name is the second token in the subject. Only the part
         # after the first slash is the actual directory name, the first part
         # is the module.
