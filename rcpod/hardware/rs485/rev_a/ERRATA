@@ -18,3 +18,8 @@ Errata for the revision A rcpod-485 PCB and schematic
        back side of the GPIO header
      - Likewise solder a 1k resistor between RS-485- and GND
 
+4. The electrolytic cap's position makes removing the PIC
+   inconvenient. It should be moved out of the path of the
+   flatbladed screwdriver I generally use to pry out U1
+
+5. The mounting holes should be grounded, to reduce ESD concerns
