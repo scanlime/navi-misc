@@ -528,11 +528,12 @@ class Counters:
                        (Database.quote(self.target.path, 'varchar'),
                         Database.quote(name, 'varchar')))
         row = cursor.fetchone()
-        return {
-            'firstEventTime': row[0],
-            'lastEventTime':  row[1],
-            'eventCount':     row[2],
-            }
+        if row is not None:
+            return {
+                'firstEventTime': row[0],
+                'lastEventTime':  row[1],
+                'eventCount':     row[2],
+                }
 
     def clear(self):
         """Delete all counters for this target. Returns a Deferred"""

@@ -95,9 +95,6 @@ class Request(server.Request):
                     tag('p')[
                         tag('pre')[ reason.getTraceback() ],
                     ],
-
-                    # Some fluff at the bottom...
-                    tag('p')[ tag('hr') ],
                 ],
             ]))
         self.finish()
