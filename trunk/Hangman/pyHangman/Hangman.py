@@ -83,6 +83,7 @@ class HangmanGUI:
 		self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
 		self.window.set_title("Hangman")
 		self.window.set_border_width(10)
+		self.window.set_size_request(600, 400)
 
 		self.window.connect("delete_event", self.Quit)
 
@@ -110,11 +111,12 @@ class HangmanGUI:
 		self.quit.connect("clicked", self.Quit)
 
 		# Gallows.
-		gallowsAlign = gtk.Alignment()
+		gallowsFrame = gtk.Frame()
+		gallowsFrame.set_shadow_type(gtk.SHADOW_IN)
 		self.gallows = Gallows()
-		gallowsAlign.add(self.gallows)
+		gallowsFrame.add(self.gallows)
 		self.gallows.show()
-		gallowsAlign.show()
+		gallowsFrame.show()
 
 		# Boxes for window layout.
 		
@@ -136,7 +138,7 @@ class HangmanGUI:
 		# text field for entering guesses.
 		box2 = gtk.VBox(spacing=20)
 		box2.pack_start(textBox, gtk.FALSE, gtk.FALSE, 5)
-		box2.pack_start(gallowsAlign, gtk.TRUE, gtk.TRUE, 5)
+		box2.pack_start(gallowsFrame, gtk.TRUE, gtk.TRUE, 5)
 		box2.pack_start(box1, gtk.FALSE, gtk.FALSE)
 		self.window.add(box2)
 		box2.show()
@@ -152,6 +154,7 @@ class HangmanGUI:
 		self.Update()
 
 	def Quit(self, widget, data=None):
+		""" Quit. """
 		gtk.main_quit()
 		return gtk.FALSE
 
@@ -184,28 +187,35 @@ class HangmanGUI:
 
 		return box
 
-	def Update(self, correct=" ", guessed=" "):
-		self.correctText.set_text(correct.join(self.controller.correct))
-		self.guessedText.set_text(guessed.join(self.controller.guesses))
+	def Update(self): 
+		""" Update the window with the new information. """
+		self.correctText.set_text(" ".join(self.controller.correct))
+		self.guessedText.set_text(" ".join(self.controller.guesses))
 
 	def NewGame(self, widget, data=None):
+		""" Begin a new game. """
 		self.controller.NewGame()
 		self.Update()
 		self.guessField.grab_focus()
 
 class Gallows(gtk.DrawingArea):
+	""" gtk.DrawingArea subclass for drawing the gallows and hanged man. """
 	def __init__(self):
 		gtk.DrawingArea.__init__(self)
-		self.colorMap = self.get_colormap()
-		self.bgColor = self.colorMap.alloc_color('white')
-		self.connect("realize", self.gallowsRealized)
+		# Minimum size of drawing window.
+		self.set_size_request(100, 100)
+		# Event handlers.
+		self.connect_after("configure_event", self.gallowsRealize)
 		self.connect("expose_event", self.redraw)
 
-	def gallowsRealized(self, widget):
-		self.gc = self.style.fg_gc[gtk.STATE_NORMAL]
-		self.gc.set_background(self.bgColor)
-
+	def gallowsRealize(self, widget, event):
+		""" When the drawing area is realized set up a graphics context for it. """
+		# Get a color map and set the foreground to white in the graphics context.
+		colormap = self.get_colormap()
+		fgColor = colormap.alloc_color('white')
+		self.gc = self.window.new_gc(foreground=fgColor)
 
 	def redraw(self, widget, event):
+		""" Redraw the screen because of an expose_event. """
 		x , y, width, height = event.area
-		widget.window.draw_rectangle(self.gc, gtk.false, x, y, width/2, height/2)
+		widget.window.draw_rectangle(self.gc, gtk.TRUE, x, y, width, height)
