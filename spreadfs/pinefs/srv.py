@@ -113,7 +113,7 @@ class NfsSrv (rfc1094.NFS_PROGRAM_2, HostAccessControl):
             as.status = rfc1094.NFS_OK
             as._data = fil
         return as
-    
+
     def NFSPROC_SETATTR (self, sattrargs):
         rv = rfc1094.attrstat ()
         try:

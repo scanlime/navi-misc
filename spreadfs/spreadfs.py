@@ -135,6 +135,11 @@ class SpreadFileBase(pinefs.fsbase.FileObj):
     """A Pinefs file object representing one file or directory on the
        DiskSet. This is an abstract base class, subclasses implement
        files and directories.
+
+       These file objects act as a server-side cache, synchronized
+       to the on-disk data using FAM. The syncrhonization between this
+       and the client-side cache is maintained through GETATTR requests,
+       and this file's mtime.
        """
     def __init__(self, fs, path, type, size=0):
         self.monitorKeys = []
@@ -182,12 +187,15 @@ class SpreadFile(SpreadFileBase):
         self.fileStat = os.stat(self.absPath)
         self.openedFile = None
 
-        self.mode = self.fileStat.st_mode
-        self.uid = self.fileStat.st_uid
-        self.gid = self.fileStat.st_gid
-
         SpreadFileBase.__init__(self, fs, path, rfc1094.NFREG,
                                 size=self.fileStat.st_size)
+
+        self.mode = self.fileStat.st_mode | pinefs.fsbase.typ_to_mode[self.type]
+        self.uid = self.fileStat.st_uid
+        self.gid = self.fileStat.st_gid
+        self.mtime = pinefs.fsbase.mk_time(self.fileStat.st_mtime, 0)
+        self.atime = pinefs.fsbase.mk_time(self.fileStat.st_atime, 0)
+        self.ctime = pinefs.fsbase.mk_time(self.fileStat.st_ctime, 0)
 
     def read(self, offset, count):
         if not self.openedFile:
@@ -214,7 +222,35 @@ class SpreadDirectory(SpreadFileBase):
 
     def __init__(self, fs, path=''):
         self.dirCache = None
+        self.mtime = pinefs.fsbase.mk_time(0, 0)
+        self.atime = pinefs.fsbase.mk_time(0, 0)
+        self.ctime = pinefs.fsbase.mk_time(0, 0)
+
         SpreadFileBase.__init__(self, fs, path, rfc1094.NFDIR)
+        self.updateStat()
+
+    def updateStat(self):
+        """Unlike SpreadFile objects, SpreadDirectories may have their stat()
+           info updated dynamically due to FAM events. This is necessary to get
+           clients to update themselves when a directory changes. Most stat info
+           comes from an arbitrary directory, but all timestamps are the newest
+           of all directories.
+           """
+        for path in self.fs.diskSet.findIter(self.path):
+            st = os.stat(path)
+
+            self.mode = st.st_mode | pinefs.fsbase.typ_to_mode[self.type]
+            self.uid = st.st_uid
+            self.gid = st.st_gid
+
+            self.mtime = pinefs.fsbase.mk_time(max(
+                self.mtime.seconds, st.st_mtime), 0)
+            self.atime = pinefs.fsbase.mk_time(max(
+                self.atime.seconds, st.st_atime), 0)
+            self.ctime = pinefs.fsbase.mk_time(max(
+                self.ctime.seconds, st.st_ctime), 0)
+
+        print "mtime %r -> %r" % (self.path, self.mtime.seconds)
 
     def getChild(self, name):
         """Get either a SpreadFile or SpreadDirectory for a child of this object"""
@@ -229,6 +265,10 @@ class SpreadDirectory(SpreadFileBase):
 
     def onMonitorEvent(self, event):
         code = event.code2str()
+
+        # Might this have caused a stat() change?
+        if code in ('deleted', 'changed', 'created'):
+            self.updateStat()
 
         # Do we have a cached object this affects?
         obj = self.fs.mapper.objectCache.get(os.path.join(self.path, event.filename))
@@ -381,7 +421,7 @@ class SpreadFilesystem:
        search for it on any of the disks. When creating a new file, it is put
        on whichever disk has the most available space.
        """
-    maxOpenFiles = 100
+    maxOpenFiles = 128
 
     def __init__(self, diskSet, fileMonitor):
         self.diskSet = diskSet
@@ -401,6 +441,7 @@ class SpreadFilesystem:
     def get_fil(self, handle):
         """Get a file object, given its handle.
            Returns None if the file handle is stale.
+           This marks the file as clean from the current client's point of view.
            """
         return self.mapper.getObjectFromHandle(handle)
 
@@ -425,8 +466,6 @@ class SpreadNfsServer(pinefs.srv.NfsSrv):
     prog = 100013
 
     def check_host_ok (self, host, cred, verf):
-        # FIXME: Before read-write support, we should at least restrict
-        #        this to hosts on the local submet.
         return True
 
     def NFSPROC_STATFS(self, fh):
