@@ -64,8 +64,10 @@ class PalantirWindow:
         in the UI, however the UI sees fit.
 	'''
     if user:
-      nick = '<' + self.GetNick(user) + '>'
+      nick = self.GetNick(user)
+      nickends = (' <','> ')
     else:
+      nickends = ('','')
       nick = ''
     if self.tree.get_widget('time_stamps').get_active():
       time = self.GetFormattedTime()
@@ -75,11 +77,11 @@ class PalantirWindow:
       addressed = True
     else:
       addressed = False
-    self.chatWindow.DisplayText(time, nick, msg, addressed)
+    self.chatWindow.DisplayText(time, nick, msg, nickends, addressed)
 
   def meReceive(self, user, channel, msg):
     ''' When someone does a '/me' display the action. '''
-    nick = '* ' + self.GetNick(user)
+    nick = self.GetNick(user)
     if self.tree.get_widget('time_stamps').get_active():
       time = self.GetFormattedTime()
     else:
@@ -88,7 +90,7 @@ class PalantirWindow:
       addressed = True
     else:
       addressed = False
-    self.chatWindow.DisplayText(time, nick, msg, addressed)
+    self.chatWindow.DisplayText(time, nick, msg, (' * ',' '), addressed)
 
   def nickReceive(self, oldNick, channel, newNick):
     ''' When someone changes a nick display it. '''
