@@ -67,7 +67,7 @@ public class cacher
         else
 	{
 	    if(message.startsWith("/me"))
-		message = nick + " " + message.substring(4);
+		message = "*" + nick + " " + message.substring(4);
 	    else
 		message = nick + " says: " + message;
 	    Justin.me.say(message);
