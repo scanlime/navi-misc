@@ -465,6 +465,16 @@ static GtkWidget *get_color_icon(int c, GtkStyle *s) {
 	return image;
 }
 
+static void color_code_activate(GtkMenuItem *item, gpointer data) {
+	int color = (int) data;
+	GtkWidget *entry = glade_xml_get_widget(gui.xml, "text entry");
+	char *code = g_strdup_printf("%%C%d", color);
+	int position = gtk_editable_get_position(GTK_EDITABLE(entry));
+	gtk_editable_insert_text(GTK_EDITABLE(entry), code, strlen(code), &position);
+	gtk_editable_set_position(GTK_EDITABLE(entry), position + strlen(code));
+	g_free(code);
+}
+
 static void entry_context(GtkEntry *entry, GtkMenu *menu, gpointer user_data) {
 	GtkWidget *item;
 	GtkWidget *submenu;
@@ -478,51 +488,67 @@ static void entry_context(GtkEntry *entry, GtkMenu *menu, gpointer user_data) {
 
 	item = gtk_image_menu_item_new_with_label("Black");
 	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), get_color_icon(1, gtk_widget_get_style(item)));
+	g_signal_connect(G_OBJECT(item), "activate", G_CALLBACK(color_code_activate), (gpointer) 1);
 	gtk_menu_shell_append(GTK_MENU_SHELL(submenu), item);
 	item = gtk_image_menu_item_new_with_label("Dark Blue");
 	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), get_color_icon(2, gtk_widget_get_style(item)));
+	g_signal_connect(G_OBJECT(item), "activate", G_CALLBACK(color_code_activate), (gpointer) 2);
 	gtk_menu_shell_append(GTK_MENU_SHELL(submenu), item);
 	item = gtk_image_menu_item_new_with_label("Dark Green");
 	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), get_color_icon(3, gtk_widget_get_style(item)));
+	g_signal_connect(G_OBJECT(item), "activate", G_CALLBACK(color_code_activate), (gpointer) 3);
 	gtk_menu_shell_append(GTK_MENU_SHELL(submenu), item);
 	item = gtk_image_menu_item_new_with_label("Red");
 	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), get_color_icon(4, gtk_widget_get_style(item)));
+	g_signal_connect(G_OBJECT(item), "activate", G_CALLBACK(color_code_activate), (gpointer) 4);
 	gtk_menu_shell_append(GTK_MENU_SHELL(submenu), item);
 	item = gtk_image_menu_item_new_with_label("Brown");
 	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), get_color_icon(5, gtk_widget_get_style(item)));
+	g_signal_connect(G_OBJECT(item), "activate", G_CALLBACK(color_code_activate), (gpointer) 5);
 	gtk_menu_shell_append(GTK_MENU_SHELL(submenu), item);
 	item = gtk_image_menu_item_new_with_label("Purple");
 	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), get_color_icon(6, gtk_widget_get_style(item)));
+	g_signal_connect(G_OBJECT(item), "activate", G_CALLBACK(color_code_activate), (gpointer) 6);
 	gtk_menu_shell_append(GTK_MENU_SHELL(submenu), item);
 	item = gtk_image_menu_item_new_with_label("Orange");
 	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), get_color_icon(7, gtk_widget_get_style(item)));
+	g_signal_connect(G_OBJECT(item), "activate", G_CALLBACK(color_code_activate), (gpointer) 7);
 	gtk_menu_shell_append(GTK_MENU_SHELL(submenu), item);
 	item = gtk_image_menu_item_new_with_label("Yellow");
 	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), get_color_icon(8, gtk_widget_get_style(item)));
+	g_signal_connect(G_OBJECT(item), "activate", G_CALLBACK(color_code_activate), (gpointer) 8);
 	gtk_menu_shell_append(GTK_MENU_SHELL(submenu), item);
 	item = gtk_image_menu_item_new_with_label("Light Green");
 	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), get_color_icon(9, gtk_widget_get_style(item)));
+	g_signal_connect(G_OBJECT(item), "activate", G_CALLBACK(color_code_activate), (gpointer) 9);
 	gtk_menu_shell_append(GTK_MENU_SHELL(submenu), item);
 	item = gtk_image_menu_item_new_with_label("Aqua");
 	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), get_color_icon(10, gtk_widget_get_style(item)));
+	g_signal_connect(G_OBJECT(item), "activate", G_CALLBACK(color_code_activate), (gpointer) 10);
 	gtk_menu_shell_append(GTK_MENU_SHELL(submenu), item);
 	item = gtk_image_menu_item_new_with_label("Light Blue");
 	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), get_color_icon(11, gtk_widget_get_style(item)));
+	g_signal_connect(G_OBJECT(item), "activate", G_CALLBACK(color_code_activate), (gpointer) 11);
 	gtk_menu_shell_append(GTK_MENU_SHELL(submenu), item);
 	item = gtk_image_menu_item_new_with_label("Blue");
 	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), get_color_icon(12, gtk_widget_get_style(item)));
+	g_signal_connect(G_OBJECT(item), "activate", G_CALLBACK(color_code_activate), (gpointer) 12);
 	gtk_menu_shell_append(GTK_MENU_SHELL(submenu), item);
 	item = gtk_image_menu_item_new_with_label("Violet");
 	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), get_color_icon(13, gtk_widget_get_style(item)));
+	g_signal_connect(G_OBJECT(item), "activate", G_CALLBACK(color_code_activate), (gpointer) 13);
 	gtk_menu_shell_append(GTK_MENU_SHELL(submenu), item);
 	item = gtk_image_menu_item_new_with_label("Grey");
 	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), get_color_icon(14, gtk_widget_get_style(item)));
+	g_signal_connect(G_OBJECT(item), "activate", G_CALLBACK(color_code_activate), (gpointer) 14);
 	gtk_menu_shell_append(GTK_MENU_SHELL(submenu), item);
 	item = gtk_image_menu_item_new_with_label("Light Grey");
 	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), get_color_icon(15, gtk_widget_get_style(item)));
+	g_signal_connect(G_OBJECT(item), "activate", G_CALLBACK(color_code_activate), (gpointer) 15);
 	gtk_menu_shell_append(GTK_MENU_SHELL(submenu), item);
 	item = gtk_image_menu_item_new_with_label("White");
 	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), get_color_icon(0, gtk_widget_get_style(item)));
+	g_signal_connect(G_OBJECT(item), "activate", G_CALLBACK(color_code_activate), (gpointer) 0);
 	gtk_menu_shell_append(GTK_MENU_SHELL(submenu), item);
 
 	gtk_widget_show_all(submenu);
