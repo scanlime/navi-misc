@@ -30,6 +30,7 @@ a.navigation {
   font: 120% sans-serif;
   text-decoration: none;
   color: #9f4747;
+  text-align: right;
 }
 
 a:hover {
@@ -45,6 +46,10 @@ a {
 div.navigation {
   min-width:	180pt;
   position:	fixed;
+}
+
+div.navigation:before {
+  content:	"xchat-gnome cha cha cha";
 }
 
 div.content {
