@@ -18,19 +18,21 @@ Handles reading and writing of user prefs.
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-import string, os.path
+import string, os, sys
 from Common.Palantir import dataDir
 
 class Prefs:
   def __init__(self):
-    if os.path.exists(os.path.abspath('.palantirrc')):
-      file = open(os.path.abspath('.palantirrc'))
-      print 'opening ~/.palantirrc'
+    # If we're on linux and we've got a ~/.palantirrc use that.
+    if string.find(sys.platform, 'linux') != -1 and \
+       os.path.exists(os.path.join(os.environ['HOME'],'.palantirrc')):
+      file = open(os.path.join(os.environ['HOME'],'.palantirrc'))
+    # Otherwise use the config in the data directory.
     else:
       file = open(os.path.join(dataDir, 'palantirrc'))
-      print 'opening %s/palantirrc' % dataDir
 
     lines = file.readlines()
+    # Set the preferences' values as attributes of the object.
     for line in lines:
       pref = line.split('=')
       setattr(self, pref[0].strip(), string.join(pref[1:]).strip())
