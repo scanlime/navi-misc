@@ -53,7 +53,6 @@ struct _Editor
   guint editor_status_context;
 
   GtkTreeView *element_list;
-  GtkTreeStore *element_store;
 
   Scene *scene;
   View *view;

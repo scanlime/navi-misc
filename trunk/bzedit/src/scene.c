@@ -79,6 +79,9 @@ scene_init (Scene *self)
   }
 
   self->views = NULL;
+
+  /* ----------------------------------------- object name -- object icon ---- scene pointer - object pointer */
+  self->element_store = gtk_tree_store_new (4, G_TYPE_STRING, GDK_TYPE_PIXBUF, G_TYPE_POINTER, G_TYPE_POINTER);
 }
 
 Scene*
@@ -92,6 +95,7 @@ scene_erase (Scene *self)
 {
   g_hash_table_destroy (self->objects);
   self->objects = g_hash_table_new (g_direct_hash, g_direct_equal);
+  gtk_tree_store_clear (self->element_store);
   self->dirty = TRUE;
 }
 
@@ -99,8 +103,13 @@ void
 scene_add (Scene *self, SceneObject *object)
 {
   GList *drawables, *view;
+  SceneObjectClass *klass = SCENE_OBJECT_CLASS (G_OBJECT_GET_CLASS (object));
+  GtkTreeIter iter;
 
   drawables = scene_object_get_drawables (object);
+
+  gtk_tree_store_append (self->element_store, &iter, NULL);
+  gtk_tree_store_set (self->element_store, &iter, 0, g_type_name (G_TYPE_FROM_INSTANCE (object)), 1, klass->get_icon (), 2, self, 3, object, -1);
 
   g_hash_table_insert (self->objects, (gpointer) object, (gpointer) drawables);
   self->dirty = TRUE;

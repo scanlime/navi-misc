@@ -107,23 +107,24 @@ editor_init (Editor *editor)
   editor->eventbox = glade_xml_get_widget (editor->xml, "event box");
   gtk_container_add (GTK_CONTAINER (editor->eventbox), editor->glarea);
 
+  editor->scene = scene_new ();
+
   editor->element_list = GTK_TREE_VIEW (glade_xml_get_widget (editor->xml, "element list"));
-  editor->element_store = gtk_tree_store_new(5, G_TYPE_STRING, GDK_TYPE_PIXBUF, G_TYPE_POINTER, G_TYPE_BOOLEAN, GDK_TYPE_PIXBUF);
-  gtk_tree_view_set_model (editor->element_list, GTK_TREE_MODEL (editor->element_store));
+  gtk_tree_view_set_model (editor->element_list, GTK_TREE_MODEL (editor->scene->element_store));
 
   icon_renderer = gtk_cell_renderer_pixbuf_new();
   text_renderer = gtk_cell_renderer_text_new();
+  g_object_set (G_OBJECT (text_renderer), "editable", TRUE, NULL);
   column = gtk_tree_view_column_new();
+  gtk_tree_view_column_set_spacing (column, 4);
   gtk_tree_view_column_pack_start (column, icon_renderer, FALSE);
-  gtk_tree_view_column_pack_start (column, text_renderer, TRUE);
   gtk_tree_view_column_set_attributes (column, icon_renderer, "pixbuf", 1, NULL);
-  gtk_tree_view_column_set_attributes (column, text_renderer, "text", 0, "editable", TRUE, NULL);
+  gtk_tree_view_column_pack_start (column, text_renderer, TRUE);
+  gtk_tree_view_column_set_attributes (column, text_renderer, "text", 0, NULL);
   gtk_tree_view_append_column (editor->element_list, column);
 
   editor->statusbar = GTK_STATUSBAR (glade_xml_get_widget (editor->xml, "statusbar"));
   editor->editor_status_context = gtk_statusbar_get_context_id (editor->statusbar, "Editor status");
-
-  editor->scene = scene_new ();
 
   types = find_type_leaves (PARAMETER_HOLDER_TYPE);
   addmenu = GTK_MENU_ITEM (glade_xml_get_widget (editor->xml, "addmenu"));

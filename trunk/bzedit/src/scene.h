@@ -50,6 +50,8 @@ struct _Scene
   GHashTable* objects;
   gboolean dirty;
   GList* views;
+
+  GtkTreeStore *element_store;
 };
 
 struct _SceneClass
