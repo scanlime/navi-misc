@@ -42,20 +42,20 @@ typedef struct _ParameterEditor      ParameterEditor;
 typedef struct _ParameterEditorClass ParameterEditorClass;
 
 struct _ParameterEditor {
-  GtkVBox parent;
+    GtkVBox parent;
 
-  ParameterHolder *holder;
-  GtkSizeGroup *label_sizegroup;
-  gchar *previous_group;
+    ParameterHolder *holder;
+    GtkSizeGroup *label_sizegroup;
+    gchar *previous_group;
 
-  gboolean suppress_notify;
-  gboolean suppress_changed;
+    gboolean suppress_notify;
+    gboolean suppress_changed;
 };
 
 struct _ParameterEditorClass {
-  GtkVBoxClass parent_class;
+    GtkVBoxClass parent_class;
 
-  void (* parameter_editor) (ParameterEditor *cb);
+    void (* parameter_editor) (ParameterEditor *cb);
 };
 
 

@@ -51,278 +51,278 @@ static void image_render_main      (DeJong      *dejong,
 static void acquire_console        (void);
 
 int main(int argc, char ** argv) {
-  DeJong* dejong;
-  Animation* animation;
-  gboolean animate = FALSE;
-  gboolean have_gtk;
-  enum {INTERACTIVE, RENDER, SCREENSAVER, REMOTE} mode = INTERACTIVE;
-  const gchar *outputFile = NULL;
-  int c, option_index=0;
-  gulong target_density = 10000;
+    DeJong* dejong;
+    Animation* animation;
+    gboolean animate = FALSE;
+    gboolean have_gtk;
+    enum {INTERACTIVE, RENDER, SCREENSAVER, REMOTE} mode = INTERACTIVE;
+    const gchar *outputFile = NULL;
+    int c, option_index=0;
+    gulong target_density = 10000;
 
-  g_random_set_seed(time(NULL));
-  g_type_init();
-  have_gtk = gtk_init_check(&argc, &argv);
+    g_random_set_seed(time(NULL));
+    g_type_init();
+    have_gtk = gtk_init_check(&argc, &argv);
 
-  dejong = de_jong_new();
-  animation = animation_new();
+    dejong = de_jong_new();
+    animation = animation_new();
 
-  while (1) {
-    static struct option long_options[] = {
-      {"help",        0, NULL, 'h'},
-      {"read",        1, NULL, 'i'},
-      {"animate",     1, NULL, 'n'},
-      {"output",      1, NULL, 'o'},
-      {"param",       1, NULL, 'p'},
-      {"size",        1, NULL, 's'},
-      {"oversample",  1, NULL, 'S'},
-      {"density",     1, NULL, 'd'},
-      {"remote",      0, NULL, 'r'},
-      {"screensaver", 0, NULL, 1000},   /* Undocumented, still experimental */
-      {NULL},
-    };
-    c = getopt_long(argc, argv, "hi:n:o:p:s:S:d:r",
-		    long_options, &option_index);
-    if (c == -1)
-      break;
+    while (1) {
+	static struct option long_options[] = {
+	    {"help",        0, NULL, 'h'},
+	    {"read",        1, NULL, 'i'},
+	    {"animate",     1, NULL, 'n'},
+	    {"output",      1, NULL, 'o'},
+	    {"param",       1, NULL, 'p'},
+	    {"size",        1, NULL, 's'},
+	    {"oversample",  1, NULL, 'S'},
+	    {"density",     1, NULL, 'd'},
+	    {"remote",      0, NULL, 'r'},
+	    {"screensaver", 0, NULL, 1000},   /* Undocumented, still experimental */
+	    {NULL},
+	};
+	c = getopt_long(argc, argv, "hi:n:o:p:s:S:d:r",
+			long_options, &option_index);
+	if (c == -1)
+	    break;
 
-    switch (c) {
+	switch (c) {
 
-    case 'i':
-      histogram_imager_load_image_file(HISTOGRAM_IMAGER(dejong), optarg);
-      break;
+	case 'i':
+	    histogram_imager_load_image_file(HISTOGRAM_IMAGER(dejong), optarg);
+	    break;
 
-    case 'n':
-      animation_load_file(animation, optarg);
-      animate = TRUE;
-      break;
+	case 'n':
+	    animation_load_file(animation, optarg);
+	    animate = TRUE;
+	    break;
 
-    case 'o':
-      mode = RENDER;
-      outputFile = optarg;
-      break;
+	case 'o':
+	    mode = RENDER;
+	    outputFile = optarg;
+	    break;
 
-    case 'p':
-      parameter_holder_load_string(PARAMETER_HOLDER(dejong), optarg);
-      break;
+	case 'p':
+	    parameter_holder_load_string(PARAMETER_HOLDER(dejong), optarg);
+	    break;
 
-    case 's':
-      parameter_holder_set(PARAMETER_HOLDER(dejong), "size" , optarg);
-      break;
+	case 's':
+	    parameter_holder_set(PARAMETER_HOLDER(dejong), "size" , optarg);
+	    break;
 
-    case 'S':
-      parameter_holder_set(PARAMETER_HOLDER(dejong), "oversample", optarg);
-      break;
+	case 'S':
+	    parameter_holder_set(PARAMETER_HOLDER(dejong), "oversample", optarg);
+	    break;
 
-    case 'd':
-      target_density = atol(optarg);
-      break;
+	case 'd':
+	    target_density = atol(optarg);
+	    break;
 
-    case 'r':
-      mode = REMOTE;
-      break;
+	case 'r':
+	    mode = REMOTE;
+	    break;
 
-    case 1000:
-      mode = SCREENSAVER;
-      break;
+	case 1000:
+	    mode = SCREENSAVER;
+	    break;
 
-    case 'h':
-    default:
-      usage(argv);
-      return 1;
+	case 'h':
+	default:
+	    usage(argv);
+	    return 1;
+	}
     }
-  }
 
-  if (optind < argc) {
-    usage(argv);
-    return 1;
-  }
-
-  switch (mode) {
-
-  case INTERACTIVE:
-    if (!have_gtk) {
-      fprintf(stderr, "GTK intiailization failed, can't start in interactive mode\n");
-      return 1;
+    if (optind < argc) {
+	usage(argv);
+	return 1;
     }
-    explorer_new(ITERATIVE_MAP(dejong), animation);
-    gtk_main();
-    break;
 
-  case RENDER:
-    acquire_console();
-    if (animate)
-      animation_render_main(dejong, animation, outputFile, target_density);
-    else
-      image_render_main(dejong, outputFile, target_density);
-    break;
+    switch (mode) {
 
-  case REMOTE:
-    remote_main_loop(remote_new(ITERATIVE_MAP(dejong), animation, have_gtk));
-    break;
+    case INTERACTIVE:
+	if (!have_gtk) {
+	    fprintf(stderr, "GTK intiailization failed, can't start in interactive mode\n");
+	    return 1;
+	}
+	explorer_new(ITERATIVE_MAP(dejong), animation);
+	gtk_main();
+	break;
 
-  case SCREENSAVER:
-    if (!have_gtk) {
-      fprintf(stderr, "GTK intiailization failed, can't start in screensaver mode\n");
-      return 1;
+    case RENDER:
+	acquire_console();
+	if (animate)
+	    animation_render_main(dejong, animation, outputFile, target_density);
+	else
+	    image_render_main(dejong, outputFile, target_density);
+	break;
+
+    case REMOTE:
+	remote_main_loop(remote_new(ITERATIVE_MAP(dejong), animation, have_gtk));
+	break;
+
+    case SCREENSAVER:
+	if (!have_gtk) {
+	    fprintf(stderr, "GTK intiailization failed, can't start in screensaver mode\n");
+	    return 1;
+	}
+	screensaver_new(ITERATIVE_MAP(dejong), animation);
+	gtk_main();
+	break;
     }
-    screensaver_new(ITERATIVE_MAP(dejong), animation);
-    gtk_main();
-    break;
-  }
 
-  return 0;
+    return 0;
 }
 
 static void usage(char **argv) {
-  acquire_console();
-  fprintf(stderr,
-     "Usage: %s [options]\n"
-	 "Interactive exploration and high quality rendering of chaotic maps\n"
-	 "\n"
-	 "Actions:\n"
-	 "  -i, --read FILE         Load all parameters from the tEXt chunk of any\n"
-	 "                            .png image file generated by this program.\n"
-	 "  -n, --animate FILE      Load an animation from FILE. If an output file is\n"
-	 "                            also specified, this renders the animation.\n"
-	 "  -o, --output FILE       Instead of presenting an interactive GUI, render\n"
-	 "                            an image or animation with the provided settings\n"
-	 "                            noninteractively, and store it in FILE.\n"
-	 "  -r, --remote            Remote control mode. This is an automation-friendly\n"
-	 "                            interface provided on stdin and stdout.\n"
-	 "\n"
-	 "Parameters:\n"
-	 "  -p, --param KEY=VALUE   Set a calculation or rendering parameter, using the\n"
-	 "                            same key/value format used to store parameters in\n"
-         "                            image metadata.\n"
-	 "\n"
-	 "Quality:\n"
-	 "  -s, --size X[xY]        Set the image size in pixels. If only one value is\n"
-	 "                            given, a square image is produced\n"
-	 "  -S, --oversample SCALE  Calculate the image at some integer multiple of the\n"
-	 "                            output resolution, downsampling when generating the\n"
-	 "                            final image. This improves the quality of sharp\n"
-	 "                            edges on most images, but will increase memory usage\n"
-	 "                            quadratically. Recommended values are between 1\n"
-	 "                            (no oversampling) and 4 (heavy oversampling)\n"
-	 "  -t, --density DENSITY   In noninteractive rendering, set the peak density\n"
-	 "                            to stop rendering at. Larger numbers give smoother\n"
-	 "                            and more detailed results, but increase running time\n"
-	 "                            linearly\n",
-	 argv[0]);
+    acquire_console();
+    fprintf(stderr,
+	    "Usage: %s [options]\n"
+	    "Interactive exploration and high quality rendering of chaotic maps\n"
+	    "\n"
+	    "Actions:\n"
+	    "  -i, --read FILE         Load all parameters from the tEXt chunk of any\n"
+	    "                            .png image file generated by this program.\n"
+	    "  -n, --animate FILE      Load an animation from FILE. If an output file is\n"
+	    "                            also specified, this renders the animation.\n"
+	    "  -o, --output FILE       Instead of presenting an interactive GUI, render\n"
+	    "                            an image or animation with the provided settings\n"
+	    "                            noninteractively, and store it in FILE.\n"
+	    "  -r, --remote            Remote control mode. This is an automation-friendly\n"
+	    "                            interface provided on stdin and stdout.\n"
+	    "\n"
+	    "Parameters:\n"
+	    "  -p, --param KEY=VALUE   Set a calculation or rendering parameter, using the\n"
+	    "                            same key/value format used to store parameters in\n"
+	    "                            image metadata.\n"
+	    "\n"
+	    "Quality:\n"
+	    "  -s, --size X[xY]        Set the image size in pixels. If only one value is\n"
+	    "                            given, a square image is produced\n"
+	    "  -S, --oversample SCALE  Calculate the image at some integer multiple of the\n"
+	    "                            output resolution, downsampling when generating the\n"
+	    "                            final image. This improves the quality of sharp\n"
+	    "                            edges on most images, but will increase memory usage\n"
+	    "                            quadratically. Recommended values are between 1\n"
+	    "                            (no oversampling) and 4 (heavy oversampling)\n"
+	    "  -t, --density DENSITY   In noninteractive rendering, set the peak density\n"
+	    "                            to stop rendering at. Larger numbers give smoother\n"
+	    "                            and more detailed results, but increase running time\n"
+	    "                            linearly\n",
+	    argv[0]);
 }
 
 static void image_render_main (DeJong     *dejong,
 			       const char *filename,
 			       gulong      target_density) {
-  /* Main function for noninteractive rendering. This renders an image with the
-   * current settings until render.current_density reaches target_density. We show helpful
-   * progress doodads on stdout while the poor user has to wait.
-   */
-  float elapsed, remaining;
-
-  while (HISTOGRAM_IMAGER(dejong)->peak_density < target_density) {
-    iterative_map_calculate(ITERATIVE_MAP(dejong), 1000000);
-
-    /* This should be a fairly accurate time estimate, since (asymptotically at least)
-     * current_density increases linearly with the number of iterations performed.
-     * Elapsed time and time remaining are in seconds.
+    /* Main function for noninteractive rendering. This renders an image with the
+     * current settings until render.current_density reaches target_density. We show helpful
+     * progress doodads on stdout while the poor user has to wait.
      */
-    elapsed = histogram_imager_get_elapsed_time(HISTOGRAM_IMAGER(dejong));
-    remaining = elapsed * target_density / HISTOGRAM_IMAGER(dejong)->peak_density - elapsed;
+    float elapsed, remaining;
 
-    /* After each batch of iterations, show the percent completion, number
-     * of iterations (in scientific notation), iterations per second,
-     * density / target density, and elapsed time / remaining time.
-     */
-    printf("%6.02f%%   %.3e   %.2e/sec   %6ld / %ld   %02d:%02d:%02d / %02d:%02d:%02d\n",
-	   100.0 * HISTOGRAM_IMAGER(dejong)->peak_density / target_density,
-	   ITERATIVE_MAP(dejong)->iterations, ITERATIVE_MAP(dejong)->iterations / elapsed,
-	   HISTOGRAM_IMAGER(dejong)->peak_density, target_density,
-	   ((int)elapsed) / (60*60), (((int)elapsed) / 60) % 60, ((int)elapsed)%60,
-	   ((int)remaining) / (60*60), (((int)remaining) / 60) % 60, ((int)remaining)%60);
-  }
+    while (HISTOGRAM_IMAGER(dejong)->peak_density < target_density) {
+	iterative_map_calculate(ITERATIVE_MAP(dejong), 1000000);
+
+	/* This should be a fairly accurate time estimate, since (asymptotically at least)
+	 * current_density increases linearly with the number of iterations performed.
+	 * Elapsed time and time remaining are in seconds.
+	 */
+	elapsed = histogram_imager_get_elapsed_time(HISTOGRAM_IMAGER(dejong));
+	remaining = elapsed * target_density / HISTOGRAM_IMAGER(dejong)->peak_density - elapsed;
+
+	/* After each batch of iterations, show the percent completion, number
+	 * of iterations (in scientific notation), iterations per second,
+	 * density / target density, and elapsed time / remaining time.
+	 */
+	printf("%6.02f%%   %.3e   %.2e/sec   %6ld / %ld   %02d:%02d:%02d / %02d:%02d:%02d\n",
+	       100.0 * HISTOGRAM_IMAGER(dejong)->peak_density / target_density,
+	       ITERATIVE_MAP(dejong)->iterations, ITERATIVE_MAP(dejong)->iterations / elapsed,
+	       HISTOGRAM_IMAGER(dejong)->peak_density, target_density,
+	       ((int)elapsed) / (60*60), (((int)elapsed) / 60) % 60, ((int)elapsed)%60,
+	       ((int)remaining) / (60*60), (((int)remaining) / 60) % 60, ((int)remaining)%60);
+    }
 
 #ifdef HAVE_EXR
-  /* Save as an OpenEXR file if it has a .exr extension, otherwise use PNG */
-  if (strlen(filename) > 4 && strcmp(".exr", filename + strlen(filename) - 4)==0) {
-    printf("Creating OpenEXR image...\n");
-    exr_save_image_file(HISTOGRAM_IMAGER(dejong), filename);
-  }
-  else
+    /* Save as an OpenEXR file if it has a .exr extension, otherwise use PNG */
+    if (strlen(filename) > 4 && strcmp(".exr", filename + strlen(filename) - 4)==0) {
+	printf("Creating OpenEXR image...\n");
+	exr_save_image_file(HISTOGRAM_IMAGER(dejong), filename);
+    }
+    else
 #endif
-  {
-    printf("Creating PNG image...\n");
-    histogram_imager_save_image_file(HISTOGRAM_IMAGER(dejong), filename);
-  }
+	{
+	    printf("Creating PNG image...\n");
+	    histogram_imager_save_image_file(HISTOGRAM_IMAGER(dejong), filename);
+	}
 }
 
 static void animation_render_main (DeJong      *dejong,
 				   Animation   *animation,
 				   const gchar *filename,
 				   gulong      target_density) {
-  const double frame_rate = 24;
-  AnimationIter iter;
-  ParameterHolderPair frame;
-  guint frame_count = 0;
-  gboolean continuation;
-  AviWriter *avi = avi_writer_new(fopen(filename, "wb"),
-				  HISTOGRAM_IMAGER(dejong)->width,
-				  HISTOGRAM_IMAGER(dejong)->height,
-				  frame_rate);
+    const double frame_rate = 24;
+    AnimationIter iter;
+    ParameterHolderPair frame;
+    guint frame_count = 0;
+    gboolean continuation;
+    AviWriter *avi = avi_writer_new(fopen(filename, "wb"),
+				    HISTOGRAM_IMAGER(dejong)->width,
+				    HISTOGRAM_IMAGER(dejong)->height,
+				    frame_rate);
 
-  animation_iter_get_first(animation, &iter);
-  frame.a = PARAMETER_HOLDER(de_jong_new());
-  frame.b = PARAMETER_HOLDER(de_jong_new());
+    animation_iter_get_first(animation, &iter);
+    frame.a = PARAMETER_HOLDER(de_jong_new());
+    frame.b = PARAMETER_HOLDER(de_jong_new());
 
-  while (animation_iter_read_frame(animation, &iter, &frame, frame_rate)) {
+    while (animation_iter_read_frame(animation, &iter, &frame, frame_rate)) {
 
-    continuation = FALSE;
-    do {
-      iterative_map_calculate_motion(ITERATIVE_MAP(dejong), 100000, continuation,
-			       PARAMETER_INTERPOLATOR(parameter_holder_interpolate_linear),
-			       &frame);
-      printf("Frame %d, %e iterations, %ld density\n", frame_count, ITERATIVE_MAP(dejong)->iterations, HISTOGRAM_IMAGER(dejong)->peak_density);
-      continuation = TRUE;
-    } while (HISTOGRAM_IMAGER(dejong)->peak_density < target_density);
+	continuation = FALSE;
+	do {
+	    iterative_map_calculate_motion(ITERATIVE_MAP(dejong), 100000, continuation,
+					   PARAMETER_INTERPOLATOR(parameter_holder_interpolate_linear),
+					   &frame);
+	    printf("Frame %d, %e iterations, %ld density\n", frame_count, ITERATIVE_MAP(dejong)->iterations, HISTOGRAM_IMAGER(dejong)->peak_density);
+	    continuation = TRUE;
+	} while (HISTOGRAM_IMAGER(dejong)->peak_density < target_density);
 
 
-    histogram_imager_update_image(HISTOGRAM_IMAGER(dejong));
-    avi_writer_append_frame(avi, HISTOGRAM_IMAGER(dejong)->image);
+	histogram_imager_update_image(HISTOGRAM_IMAGER(dejong));
+	avi_writer_append_frame(avi, HISTOGRAM_IMAGER(dejong)->image);
 
-    frame_count++;
-  }
+	frame_count++;
+    }
 
-  avi_writer_close(avi);
+    avi_writer_close(avi);
 }
 
 #ifdef WIN32
 void sleep_at_exit()
 {
-  printf("\nFinished.\n");
-  while (1)
-    sleep(10);
+    printf("\nFinished.\n");
+    while (1)
+	sleep(10);
 }
 
 static void acquire_console()
 {
-  /* This will give us a new console window- a little disconcerting
-   * when running Fyre from the command line, but still usable. We
-   * have to use a little bit of black magic to reattach that to stdout
-   * and stderr.
-   */
-  HANDLE hfile;
-  int fd;
-  FILE *file;
+    /* This will give us a new console window- a little disconcerting
+     * when running Fyre from the command line, but still usable. We
+     * have to use a little bit of black magic to reattach that to stdout
+     * and stderr.
+     */
+    HANDLE hfile;
+    int fd;
+    FILE *file;
 
-  AllocConsole();
-  hfile = GetStdHandle(STD_OUTPUT_HANDLE);
-  fd = _open_osfhandle((LONG) hfile, O_WRONLY);
-  file = fdopen(fd, "w");
-  *stdout = *file;
-  *stderr = *file;
+    AllocConsole();
+    hfile = GetStdHandle(STD_OUTPUT_HANDLE);
+    fd = _open_osfhandle((LONG) hfile, O_WRONLY);
+    file = fdopen(fd, "w");
+    *stdout = *file;
+    *stderr = *file;
 
-  atexit(sleep_at_exit);
+    atexit(sleep_at_exit);
 }
 #else
 static void acquire_console() {}

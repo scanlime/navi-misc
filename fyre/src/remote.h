@@ -42,21 +42,21 @@ typedef struct _Remote      Remote;
 typedef struct _RemoteClass RemoteClass;
 
 struct _Remote {
-  GObject object;
+    GObject object;
 
-  IterativeMap *map;
-  Animation *animation;
-  gboolean have_gtk;
+    IterativeMap *map;
+    Animation *animation;
+    gboolean have_gtk;
 
-  FILE* output_f;
-  FILE* input_f;
-  GHashTable *command_hash;
+    FILE* output_f;
+    FILE* input_f;
+    GHashTable *command_hash;
 
-  gboolean main_loop_running;
+    gboolean main_loop_running;
 };
 
 struct _RemoteClass {
-  GObjectClass parent_class;
+    GObjectClass parent_class;
 };
 
 

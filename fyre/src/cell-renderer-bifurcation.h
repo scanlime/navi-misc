@@ -43,16 +43,16 @@ typedef struct _CellRendererBifurcation      CellRendererBifurcation;
 typedef struct _CellRendererBifurcationClass CellRendererBifurcationClass;
 
 struct _CellRendererBifurcation {
-  GtkCellRenderer parent;
+    GtkCellRenderer parent;
 
-  Animation *animation;
-  GtkTreeIter keyframe;
+    Animation *animation;
+    GtkTreeIter keyframe;
 };
 
 struct _CellRendererBifurcationClass {
-  GtkCellRendererClass parent_class;
+    GtkCellRendererClass parent_class;
 
-  void (* cell_renderer_bifurcation) (CellRendererBifurcation *cb);
+    void (* cell_renderer_bifurcation) (CellRendererBifurcation *cb);
 };
 
 GType            cell_renderer_bifurcation_get_type();

@@ -43,25 +43,25 @@ typedef struct _ColorButton      ColorButton;
 typedef struct _ColorButtonClass ColorButtonClass;
 
 struct _ColorButton {
-  GtkButton button;
+    GtkButton button;
 
-  GtkWidget *frame;
-  GtkWidget *drawing_area;
-  GtkWidget *dialog;
+    GtkWidget *frame;
+    GtkWidget *drawing_area;
+    GtkWidget *dialog;
 
-  gchar *title;
-  GdkColor previous_color;
-  GdkColor color;
-  guint16 previous_alpha;
-  guint16 alpha;
+    gchar *title;
+    GdkColor previous_color;
+    GdkColor color;
+    guint16 previous_alpha;
+    guint16 alpha;
 
-  gboolean ignore_changes;
+    gboolean ignore_changes;
 };
 
 struct _ColorButtonClass {
-  GtkButtonClass parent_class;
+    GtkButtonClass parent_class;
 
-  void (* color_button) (ColorButton *cb);
+    void (* color_button) (ColorButton *cb);
 };
 
 GType      color_button_get_type(void);

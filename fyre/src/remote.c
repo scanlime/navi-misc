@@ -56,63 +56,63 @@ static void       remote_init_commands (Remote*          self);
 /************************************************************************************/
 
 GType remote_get_type(void) {
-  static GType anim_type = 0;
+    static GType anim_type = 0;
 
-  if (!anim_type) {
-    static const GTypeInfo dj_info = {
-      sizeof(RemoteClass),
-      NULL, /* base_init */
-      NULL, /* base_finalize */
-      (GClassInitFunc) remote_class_init,
-      NULL, /* class_finalize */
-      NULL, /* class_data */
-      sizeof(Remote),
-      0,
-      (GInstanceInitFunc) remote_init,
-    };
+    if (!anim_type) {
+	static const GTypeInfo dj_info = {
+	    sizeof(RemoteClass),
+	    NULL, /* base_init */
+	    NULL, /* base_finalize */
+	    (GClassInitFunc) remote_class_init,
+	    NULL, /* class_finalize */
+	    NULL, /* class_data */
+	    sizeof(Remote),
+	    0,
+	    (GInstanceInitFunc) remote_init,
+	};
 
-    anim_type = g_type_register_static(G_TYPE_OBJECT, "Remote", &dj_info, 0);
-  }
+	anim_type = g_type_register_static(G_TYPE_OBJECT, "Remote", &dj_info, 0);
+    }
 
-  return anim_type;
+    return anim_type;
 }
 
 static void remote_class_init(RemoteClass *klass) {
-  GObjectClass *object_class;
-  object_class = (GObjectClass*) klass;
+    GObjectClass *object_class;
+    object_class = (GObjectClass*) klass;
 
-  object_class->dispose      = remote_dispose;
+    object_class->dispose      = remote_dispose;
 }
 
 static void remote_dispose(GObject *gobject) {
-  Remote *self = REMOTE(gobject);
+    Remote *self = REMOTE(gobject);
 
-  if (self->command_hash) {
-    g_hash_table_destroy(self->command_hash);
-    self->command_hash = NULL;
-  }
+    if (self->command_hash) {
+	g_hash_table_destroy(self->command_hash);
+	self->command_hash = NULL;
+    }
 }
 
 static void remote_init(Remote *self) {
-  self->command_hash = g_hash_table_new(g_str_hash, g_str_equal);
+    self->command_hash = g_hash_table_new(g_str_hash, g_str_equal);
 
-  self->output_f = stdout;
-  self->input_f = stdin;
+    self->output_f = stdout;
+    self->input_f = stdin;
 
-  remote_init_commands(self);
+    remote_init_commands(self);
 }
 
 Remote*    remote_new        (IterativeMap* map,
 			      Animation*    animation,
 			      gboolean      have_gtk)
 {
-  Remote *self = REMOTE(g_object_new(remote_get_type(), NULL));
+    Remote *self = REMOTE(g_object_new(remote_get_type(), NULL));
 
-  self->map = map;
-  self->animation = animation;
-  self->have_gtk = have_gtk;
+    self->map = map;
+    self->animation = animation;
+    self->have_gtk = have_gtk;
 
-  return self;
+    return self;
 }
 
 
@@ -125,64 +125,64 @@ static void       remote_send_response (Remote*          self,
 					const char*      response_message,
 					...)
 {
-  va_list ap;
+    va_list ap;
 
-  fprintf(self->output_f, "%d ", response_code);
+    fprintf(self->output_f, "%d ", response_code);
 
-  va_start(ap, response_message);
-  vfprintf(self->output_f, response_message, ap);
-  va_end(ap);
+    va_start(ap, response_message);
+    vfprintf(self->output_f, response_message, ap);
+    va_end(ap);
 
-  fprintf(self->output_f, "\n");
-  fflush(self->output_f);
+    fprintf(self->output_f, "\n");
+    fflush(self->output_f);
 }
 
 static void       remote_send_binary   (Remote*          self,
 					unsigned char*   data,
 					unsigned long    length)
 {
-  remote_send_response(self, 380, "%d byte binary response", length);
-  fwrite(data, length, 1, self->output_f);
-  fflush(self->output_f);
+    remote_send_response(self, 380, "%d byte binary response", length);
+    fwrite(data, length, 1, self->output_f);
+    fflush(self->output_f);
 }
 
 static void       remote_add_command   (Remote*          self,
 					const char*      command,
 					RemoteCallback   callback)
 {
-  g_hash_table_insert(self->command_hash, (void*) command, callback);
+    g_hash_table_insert(self->command_hash, (void*) command, callback);
 }
 
 void              remote_main_loop     (Remote* self)
 {
-  char line[1024];
-  char* args;
-  RemoteCallback callback;
+    char line[1024];
+    char* args;
+    RemoteCallback callback;
 
-  remote_send_response(self, 220, "Fyre rendering server ready");
+    remote_send_response(self, 220, "Fyre rendering server ready");
 
-  while (fgets(line, sizeof(line)-1, self->input_f)) {
-    line[sizeof(line)-1] = '\0';
-    args = strchr(line, '\n');
-    if (args)
-      *args = '\0';
+    while (fgets(line, sizeof(line)-1, self->input_f)) {
+	line[sizeof(line)-1] = '\0';
+	args = strchr(line, '\n');
+	if (args)
+	    *args = '\0';
 
-    args = strchr(line, ' ');
-    if (args) {
-      *args = '\0';
-      args++;
+	args = strchr(line, ' ');
+	if (args) {
+	    *args = '\0';
+	    args++;
+	}
+	else
+	    args = "";
+
+	callback = (RemoteCallback) g_hash_table_lookup(self->command_hash, line);
+
+	if (callback)
+	    callback(self, line, args);
+	else
+	    remote_send_response(self, 500, "Command not recognized");
+
     }
-    else
-      args = "";
-
-    callback = (RemoteCallback) g_hash_table_lookup(self->command_hash, line);
-
-    if (callback)
-      callback(self, line, args);
-    else
-      remote_send_response(self, 500, "Command not recognized");
-
-  }
 }
 
 
@@ -194,37 +194,37 @@ static void       cmd_set_param        (Remote*          self,
 					const char*      command,
 					const char*      parameters)
 {
-  parameter_holder_set_from_line(PARAMETER_HOLDER(self->map), parameters);
-  remote_send_response(self, 250, "ok");
+    parameter_holder_set_from_line(PARAMETER_HOLDER(self->map), parameters);
+    remote_send_response(self, 250, "ok");
 }
 
 static void       cmd_calculate_timed  (Remote*          self,
 					const char*      command,
 					const char*      parameters)
 {
-  iterative_map_calculate_timed(self->map, atof(parameters));
-  remote_send_response(self, 251, "iterations=%.3e density=%ld",
-		       self->map->iterations, HISTOGRAM_IMAGER(self->map)->peak_density);
+    iterative_map_calculate_timed(self->map, atof(parameters));
+    remote_send_response(self, 251, "iterations=%.3e density=%ld",
+			 self->map->iterations, HISTOGRAM_IMAGER(self->map)->peak_density);
 }
 
 static void       cmd_get_histogram_stream (Remote*          self,
 					    const char*      command,
 					    const char*      parameters)
 {
-  guchar buffer[512 * 1024];
-  gsize size;
+    guchar buffer[512 * 1024];
+    gsize size;
 
-  size = histogram_imager_export_stream(HISTOGRAM_IMAGER(self->map),
-					buffer, sizeof(buffer));
-  remote_send_binary(self, buffer, size);
+    size = histogram_imager_export_stream(HISTOGRAM_IMAGER(self->map),
+					  buffer, sizeof(buffer));
+    remote_send_binary(self, buffer, size);
 }
 
 static void       remote_init_commands (Remote*          self)
 {
-  remote_add_command(self, "set_param",            cmd_set_param);
-  remote_add_command(self, "calculate_timed",      cmd_calculate_timed);
+    remote_add_command(self, "set_param",            cmd_set_param);
+    remote_add_command(self, "calculate_timed",      cmd_calculate_timed);
 
-  remote_add_command(self, "get_histogram_stream", cmd_get_histogram_stream);
+    remote_add_command(self, "get_histogram_stream", cmd_get_histogram_stream);
 }
 
 

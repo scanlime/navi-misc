@@ -44,33 +44,33 @@ typedef struct _AnimationRenderUi      AnimationRenderUi;
 typedef struct _AnimationRenderUiClass AnimationRenderUiClass;
 
 struct _AnimationRenderUi {
-  GObject object;
+    GObject object;
 
-  GladeXML *xml;
+    GladeXML *xml;
 
-  Animation *animation;
+    Animation *animation;
 
-  const gchar *filename;
-  gdouble frame_rate;
-  guint width, height, oversample;
-  gulong target_density;
+    const gchar *filename;
+    gdouble frame_rate;
+    guint width, height, oversample;
+    gulong target_density;
 
-  IterativeMap *map;
-  AviWriter *avi;
-  AnimationIter iter;
-  ParameterHolderPair frame;
-  gboolean continuation;
-  guint idler;
+    IterativeMap *map;
+    AviWriter *avi;
+    AnimationIter iter;
+    ParameterHolderPair frame;
+    gboolean continuation;
+    guint idler;
 
-  gdouble elapsed_anim_time;
-  gdouble anim_length;
-  gboolean render_in_progress;
+    gdouble elapsed_anim_time;
+    gdouble anim_length;
+    gboolean render_in_progress;
 };
 
 struct _AnimationRenderUiClass {
-  GObjectClass parent_class;
+    GObjectClass parent_class;
 
-  void (* animation_render_ui) (AnimationRenderUi *self);
+    void (* animation_render_ui) (AnimationRenderUi *self);
 };
 
 

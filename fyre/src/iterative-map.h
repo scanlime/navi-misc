@@ -41,26 +41,26 @@ typedef struct _IterativeMap      IterativeMap;
 typedef struct _IterativeMapClass IterativeMapClass;
 
 struct _IterativeMap {
-  HistogramImager parent;
+    HistogramImager parent;
 
-  /* Current calculation state */
-  gdouble iterations;
+    /* Current calculation state */
+    gdouble iterations;
 
-  /* Estimated iterations per second, for calculate_timed and friends */
-  gdouble iter_speed_estimate;
+    /* Estimated iterations per second, for calculate_timed and friends */
+    gdouble iter_speed_estimate;
 };
 
 struct _IterativeMapClass {
-  HistogramImagerClass parent_class;
+    HistogramImagerClass parent_class;
 
-  /* Overrideable methods */
-  void (*calculate)        (IterativeMap          *self,
-                            guint                  iterations);
-  void (*calculate_motion) (IterativeMap          *self,
-                            guint                  iterations,
-                            gboolean               continuation,
-                            ParameterInterpolator *interp,
-                            gpointer               interp_data);
+    /* Overrideable methods */
+    void (*calculate)        (IterativeMap          *self,
+			      guint                  iterations);
+    void (*calculate_motion) (IterativeMap          *self,
+			      guint                  iterations,
+			      gboolean               continuation,
+			      ParameterInterpolator *interp,
+			      gpointer               interp_data);
 };
 
 /************************************************************************************/

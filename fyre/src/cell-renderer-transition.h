@@ -42,17 +42,17 @@ typedef struct _CellRendererTransition      CellRendererTransition;
 typedef struct _CellRendererTransitionClass CellRendererTransitionClass;
 
 struct _CellRendererTransition {
-  GtkCellRenderer parent;
+    GtkCellRenderer parent;
 
-  double duration;
-  Spline *spline;
-  guint spline_size;
+    double duration;
+    Spline *spline;
+    guint spline_size;
 };
 
 struct _CellRendererTransitionClass {
-  GtkCellRendererClass parent_class;
+    GtkCellRendererClass parent_class;
 
-  void (* cell_renderer_transition) (CellRendererTransition *cb);
+    void (* cell_renderer_transition) (CellRendererTransition *cb);
 };
 
 GType            cell_renderer_transition_get_type();

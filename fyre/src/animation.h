@@ -39,35 +39,35 @@ typedef struct _Animation      Animation;
 typedef struct _AnimationClass AnimationClass;
 
 struct _Animation {
-  GObject object;
+    GObject object;
 
-  GtkListStore *model;
+    GtkListStore *model;
 };
 
 struct _AnimationClass {
-  GObjectClass parent_class;
+    GObjectClass parent_class;
 };
 
 /* Items in the GdkListStore holding our keyframes */
 enum {
-  ANIMATION_MODEL_THUMBNAIL,    /* The thumbnail, as a GdkPixbuf */
-  ANIMATION_MODEL_PARAMS,       /* The parameters, serialized to a string */
-  ANIMATION_MODEL_DURATION,     /* The duration of the following transition, in seconds */
-  ANIMATION_MODEL_SPLINE,       /* The interpolation spline, a boxed Spline instance */
-  ANIMATION_MODEL_ITER,         /* A GtkTreeIter pointing to this node */
-  ANIMATION_MODEL_BIFURCATION,  /* Cached BifurcationDiagram instance for this keyframe */
+    ANIMATION_MODEL_THUMBNAIL,    /* The thumbnail, as a GdkPixbuf */
+    ANIMATION_MODEL_PARAMS,       /* The parameters, serialized to a string */
+    ANIMATION_MODEL_DURATION,     /* The duration of the following transition, in seconds */
+    ANIMATION_MODEL_SPLINE,       /* The interpolation spline, a boxed Spline instance */
+    ANIMATION_MODEL_ITER,         /* A GtkTreeIter pointing to this node */
+    ANIMATION_MODEL_BIFURCATION,  /* Cached BifurcationDiagram instance for this keyframe */
 };
 
 typedef struct _AnimationIter {
-  GtkTreeIter keyframe;
-  gboolean valid;
-  gdouble absolute_time;
-  gdouble time_after_keyframe;
+    GtkTreeIter keyframe;
+    gboolean valid;
+    gdouble absolute_time;
+    gdouble time_after_keyframe;
 } AnimationIter;
 
 typedef struct {
-  Animation *self;
-  GtkTreeIter iter;
+    Animation *self;
+    GtkTreeIter iter;
 } AnimChunkState;
 
 

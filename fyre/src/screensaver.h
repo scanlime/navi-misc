@@ -40,25 +40,25 @@ typedef struct _ScreenSaver      ScreenSaver;
 typedef struct _ScreenSaverClass ScreenSaverClass;
 
 struct _ScreenSaver {
-  GObject object;
+    GObject object;
 
-  IterativeMap *map;
-  Animation *animation;
+    IterativeMap *map;
+    Animation *animation;
 
-  gdouble framerate;
-  IterativeMap **frame_renders;
-  ParameterHolderPair *frame_parameters;
-  int num_frames, current_frame;
-  int direction;
+    gdouble framerate;
+    IterativeMap **frame_renders;
+    ParameterHolderPair *frame_parameters;
+    int num_frames, current_frame;
+    int direction;
 
-  GtkWidget *window;
-  GtkWidget *view;
+    GtkWidget *window;
+    GtkWidget *view;
 
-  guint idler;
+    guint idler;
 };
 
 struct _ScreenSaverClass {
-  GObjectClass parent_class;
+    GObjectClass parent_class;
 };
 
 

@@ -3,7 +3,7 @@
    "Keep this file name-space clean" means, talk to drepper@gnu.org
    before changing it!
    Copyright (C) 1987,88,89,90,91,92,93,94,95,96,98,99,2000,2001,2002
-   	Free Software Foundation, Inc.
+   Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -162,32 +162,32 @@ int optopt = '?';
 
 /* Describe how to deal with options that follow non-option ARGV-elements.
 
-   If the caller did not specify anything,
-   the default is REQUIRE_ORDER if the environment variable
-   POSIXLY_CORRECT is defined, PERMUTE otherwise.
+If the caller did not specify anything,
+the default is REQUIRE_ORDER if the environment variable
+POSIXLY_CORRECT is defined, PERMUTE otherwise.
 
-   REQUIRE_ORDER means don't recognize them as options;
-   stop option processing when the first non-option is seen.
-   This is what Unix does.
-   This mode of operation is selected by either setting the environment
-   variable POSIXLY_CORRECT, or using `+' as the first character
-   of the list of option characters.
+REQUIRE_ORDER means don't recognize them as options;
+stop option processing when the first non-option is seen.
+This is what Unix does.
+This mode of operation is selected by either setting the environment
+variable POSIXLY_CORRECT, or using `+' as the first character
+of the list of option characters.
 
-   PERMUTE is the default.  We permute the contents of ARGV as we scan,
-   so that eventually all the non-options are at the end.  This allows options
-   to be given in any order, even with programs that were not written to
-   expect this.
+PERMUTE is the default.  We permute the contents of ARGV as we scan,
+so that eventually all the non-options are at the end.  This allows options
+to be given in any order, even with programs that were not written to
+expect this.
 
-   RETURN_IN_ORDER is an option available to programs that were written
-   to expect options and other ARGV-elements in any order and that care about
-   the ordering of the two.  We describe each non-option ARGV-element
-   as if it were the argument of an option with character code 1.
-   Using `-' as the first character of the list of option characters
-   selects this mode of operation.
+RETURN_IN_ORDER is an option available to programs that were written
+to expect options and other ARGV-elements in any order and that care about
+the ordering of the two.  We describe each non-option ARGV-element
+as if it were the argument of an option with character code 1.
+Using `-' as the first character of the list of option characters
+selects this mode of operation.
 
-   The special argument `--' forces an end of option-scanning regardless
-   of the value of `ordering'.  In the case of RETURN_IN_ORDER, only
-   `--' can cause `getopt' to return -1 with `optind' != ARGC.  */
+The special argument `--' forces an end of option-scanning regardless
+of the value of `ordering'.  In the case of RETURN_IN_ORDER, only
+`--' can cause `getopt' to return -1 with `optind' != ARGC.  */
 
 static enum
 {
@@ -628,16 +628,16 @@ _getopt_internal (argc, argv, optstring, longopts, longind, long_only)
 
   /* Check whether the ARGV-element is a long option.
 
-     If long_only and the ARGV-element has the form "-f", where f is
-     a valid short option, don't consider it an abbreviated form of
-     a long option that starts with f.  Otherwise there would be no
-     way to give the -f short option.
+  If long_only and the ARGV-element has the form "-f", where f is
+  a valid short option, don't consider it an abbreviated form of
+  a long option that starts with f.  Otherwise there would be no
+  way to give the -f short option.
 
-     On the other hand, if there's a long option "fubar" and
-     the ARGV-element is "-fu", do consider that an abbreviation of
-     the long option, just like "--fu", and not "-f" with arg "u".
+  On the other hand, if there's a long option "fubar" and
+  the ARGV-element is "-fu", do consider that an abbreviation of
+  the long option, just like "--fu", and not "-f" with arg "u".
 
-     This distinction seems to be the most useful approach.  */
+  This distinction seems to be the most useful approach.  */
 
   if (longopts != NULL
       && (argv[optind][1] == '-'
@@ -892,8 +892,8 @@ _getopt_internal (argc, argv, optstring, longopts, longind, long_only)
 	if (print_errors)
 	  {
 #if defined _LIBC && defined USE_IN_LIBIO
-	      char *buf;
-	      int n;
+	    char *buf;
+	    int n;
 #endif
 
 	    if (posixly_correct)
@@ -1121,8 +1121,8 @@ _getopt_internal (argc, argv, optstring, longopts, longind, long_only)
 	      }
 	    return pfound->val;
 	  }
-	  nextchar = NULL;
-	  return 'W';	/* Let the application handle it.   */
+	nextchar = NULL;
+	return 'W';	/* Let the application handle it.   */
       }
     if (temp[1] == ':')
       {
