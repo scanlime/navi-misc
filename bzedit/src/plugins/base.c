@@ -31,5 +31,8 @@ g_module_check_init(GModule *module)
   BOX_TYPE;
   WORLD_TYPE;
 
+  /* and permanently insert ourself */
+  g_module_make_resident(module);
+
   return NULL;
 }
