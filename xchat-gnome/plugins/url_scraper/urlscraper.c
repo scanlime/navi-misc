@@ -40,7 +40,7 @@ static void make_window ()
 	gtk_window_set_default_size (GTK_WINDOW(window), 400, 400);
 	g_signal_connect (G_OBJECT(window), "delete-event", G_CALLBACK(delete_cb), 0);
 
-	list_store = gtk_list_store_new (3, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
+	list_store = gtk_list_store_new (4, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_BOOLEAN);
 
 	scrolled = gtk_scrolled_window_new (NULL, NULL);
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW(scrolled),
@@ -73,7 +73,7 @@ static void make_window ()
 	gtk_widget_show_all (window);
 }
 
-static void add_match (char **word, regmatch_t match)
+static void add_match (char **word, regmatch_t match, gboolean isurl)
 {
 	int len;
 	const char *chan;
@@ -109,7 +109,7 @@ static void add_match (char **word, regmatch_t match)
 		urls++;
 
 	gtk_list_store_append (list_store, &iter);
-	gtk_list_store_set (list_store, &iter, 0, word[1], 1, channel, 2, url_match, -1);
+	gtk_list_store_set (list_store, &iter, 0, word[1], 1, channel, 2, url_match, 3, isurl, -1);
 }
 
 static int grabURL (char **word, void *userdata)
@@ -117,9 +117,9 @@ static int grabURL (char **word, void *userdata)
 	regmatch_t match;
 
 	if (regexec (url, word[2], 1, &match, REG_NOTBOL | REG_NOTEOL) == 0)
-		add_match (word, match);
+		add_match (word, match, TRUE);
 	else if (regexec (email, word[2], 1, &match, REG_NOTBOL | REG_NOTEOL) == 0)
-		add_match (word, match);
+		add_match (word, match, FALSE);
 
 	return XCHAT_EAT_NONE;
 }
@@ -137,6 +137,7 @@ void url_open (GtkTreeView *treeview, GtkTreePath *path,
 		GtkTreeViewColumn *column, gpointer user_data)
 {
 	gchar *cur_url = NULL;
+	gboolean isurl;
 	GtkTreeModel *model;
 	GtkTreeSelection *selection;
 	GError *err = NULL;
@@ -145,8 +146,9 @@ void url_open (GtkTreeView *treeview, GtkTreePath *path,
 	model = gtk_tree_view_get_model (treeview);
 	selection = gtk_tree_view_get_selection (treeview);
 	if (gtk_tree_selection_get_selected (selection, &model, &iter)) {
-		gtk_tree_model_get (model, &iter, 2, &cur_url, -1);
-		gnome_url_show (cur_url, &err);
+		gtk_tree_model_get (model, &iter, 2, &cur_url, 3, &isurl, -1);
+		if (isurl)
+			gnome_url_show (cur_url, &err);
 	}
 }
 
