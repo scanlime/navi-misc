@@ -89,6 +89,7 @@ irc_network_editor_get_type (void)
 static void
 irc_network_editor_populate (IrcNetworkEditor *e)
 {
+	g_print ("name = 0x%x\nname = %s\n\n", e->network->name, e->network->name);
 	gtk_entry_set_text           (GTK_ENTRY         (e->network_name),     e->network->name);
 
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (e->autoconnect),      e->network->autoconnect);
@@ -104,6 +105,10 @@ irc_network_editor_populate (IrcNetworkEditor *e)
 		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (e->use_globals), TRUE);
 	else
 		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (e->use_custom), TRUE);
+
+	gtk_dialog_add_button (GTK_DIALOG (e), GTK_STOCK_APPLY,  GTK_RESPONSE_APPLY);
+	gtk_dialog_add_button (GTK_DIALOG (e), GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL);
+	gtk_dialog_add_button (GTK_DIALOG (e), GTK_STOCK_OK,     GTK_RESPONSE_OK);
 }
 
 IrcNetworkEditor *
@@ -119,4 +124,8 @@ irc_network_editor_new (IrcNetwork *network)
 void
 irc_network_editor_run (IrcNetworkEditor *editor)
 {
+	gint response;
+
+	response = gtk_dialog_run (editor);
+	gtk_widget_hide (editor);
 }
