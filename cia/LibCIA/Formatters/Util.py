@@ -25,10 +25,18 @@ from LibCIA import XML
 import re
 
 
+def getCrunchedLog(xml):
+    """Given the DOM node for a <log> tag, return the log as
+       a string with all groups of one or more whitespace
+       characters replaced with a single space.
+       """
+    return re.sub("\s+", " ", XML.shallowText(xml)).strip()
+
+
 def getNormalizedLog(xml, tabWidth=8):
     """Given the DOM node for a <log> tag, return a list of
        text lines with whitespace normalized appropriately.
-       This strips all whitespace from the white side, and homogeneously
+       This strips all whitespace from the right side, and homogeneously
        strips whitespace from the left side as much as possible.
        Leading and trailing blank lines are removed, but internal
        blank lines are not.
