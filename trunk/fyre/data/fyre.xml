@@ -6,8 +6,6 @@
 			<match type="string" value="Fyre Animation\x0A\x0D\xFF\x0A" offset="0"/>
 			<match type="string" value="de Jong Explorer Animation\x0A\x0D\xFF\x0A" offset="0"/>
 		</magic>
-		<magic priority="40">
-		</magic>
 		<glob pattern="*.fa"/>
 		<glob pattern="*.dja"/>
 	</mime-type>
