@@ -272,14 +272,14 @@ Main
 	clrf	COUNTER
 
 MainLoop
+	bcf	INTCON,T0IF
+	pagesel ServiceUSB
+	call	ServiceUSB	; see if there are any USB tokens to process
+
 	pagesel MainLoop
 	banksel	INTCON
 	btfss	INTCON,T0IF
 	goto	MainLoop    ; Wait for a timer interrupt
-
-	bcf	INTCON,T0IF
-	pagesel ServiceUSB
-	call	ServiceUSB	; see if there are any USB tokens to process
 
 	ConfiguredUSB		; macro to check configuration status
 	pagesel MainLoop
