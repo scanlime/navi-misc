@@ -10,7 +10,7 @@
 ;      GP0: Battery voltage sensor (470Kohms to battery+, 470K to ground)
 ;      GP1: Transmitter data
 ;      GP2: Transmitter power
-;      GP3: Unused input-only pin, external 4.7k pullup resistor to I2C power
+;      GP3: Unused input. For convenience, tied to GP4
 ;      GP4: I2C data, 4.7k pullup resistor to VCC
 ;      GP5: I2C clock
 ;
@@ -42,8 +42,8 @@
 ;         - 6-bit station ID
 ;         - 5-bit packet sequence number
 ;         - 10-bit battery voltage
-;         - 16-bit temperature accumulator
-;         - 8-bit temperature sample count
+;         - 16-bit temperature numerator (total)
+;         - 8-bit temperature denominator (sample count)
 ;	  - 16-bit CRC-16 of the above
 ;      - 6-bit Flag sequence
 ;
@@ -57,13 +57,13 @@
 
 ;----------------------------------------------------- Device configuration
 
-STATION_ID	equ	1	; A unique ID between 0 and 63
-TC74_ADDR	equ	7	; The address marked on this station's TC74
+STATION_ID	equ	2	; A unique ID between 0 and 63
+TC74_ADDR	equ	5	; The address marked on this station's TC74
 
-N_THERM_SAMPLES	equ	.50	; Number of temperature readings per RF burst.
-				;   This also determines the interval between
-				;   RF bursts, in 2.3-second units.
-N_PACKETS	equ	.5	; Number of duplicate packets sent in a burst
+SAMPLE_DELAY	equ	.4	; Delay between temperature readings, in 2.3-second units
+N_THERM_SAMPLES	equ	.15	; Number of temperature readings per RF burst.
+
+N_PACKETS	equ	.3	; Number of duplicate packets sent in a burst
 
 
 ;----------------------------------------------------- Constants
@@ -109,43 +109,54 @@ TX_LONG_DELAY	equ (.258 - (TX_LONG / 4))
 ;----------------------------------------------------- Main Loop
 	org 0
 
+	;; One-time-only setup
 	clrf	packet_seq
 	call	tc74_flush
+	call	init_low_power
+
 main_loop
 	incf	packet_seq, f
 
-	;; Power up the transmitter and related fluff, and sample the battery volts
-	call	init_high_power
+	call	battvolts_acquire	; Take a short nap while acquiring battery voltage
+	call	init_timer_nap		;   (use a lot of precharge time due to the very high impedance)
+	sleep
+	call	init_high_power		; Set up power and timers for transmitting
 	call	init_timer_normal
-	call	battvolts_acquire
-	call	tx_send_preamble ; Send preamble bits while sampling
-	call	battvolts_sample
-	call	tx_send_preamble
+	call	battvolts_sample	; Start the battery voltage A/D conversion
+	call	tx_send_preamble	; Send preamble bits while sampling
 
-	;; Send a burst of packets. Note that the first packet we send after
-	;; powering up will have no therm data (zero samples).
-	;; This lets the receiver detect resets or battery changes if necessary.
-	movlw	N_PACKETS
-	movwf	main_iter
-packet_burst_loop
+	movlw	N_PACKETS		; Send a burst of packets. Note that the first packet we send after
+	movwf	main_iter		;   powering up will have no therm data (zero samples).
+packet_burst_loop			;   This lets the receiver detect resets or battery changes if necessary.
 	call	tx_packet
 	decfsz	main_iter, f
 	goto	packet_burst_loop
 
-	;; Take several therm readings, sleeping 2.3 seconds between each
-	call	tc74_flush
+	call	tc74_flush		; Take several therm readings...
 	movlw	N_THERM_SAMPLES
 	movwf	main_iter
 therm_sample_loop
-	call	init_low_power
+
+	call	init_low_power		; Turn on the TC74
 	call	tc74_init
-	call	init_timer_sleep
+	call	init_timer_nap		; Take a short nap while it samples
 	sleep
-	call	tc74_read
-	decfsz	main_iter, f
+	call	tc74_read		; Read the sample and shut it down
+	call	tc74_shutdown
+
+	call	init_low_power		; Go into low power long-duration sleep between samples
+	call	init_timer_sleep
+	movlw	SAMPLE_DELAY
+	movwf	temp
+long_sleep_loop
+	sleep
+	decfsz	temp, f
+	goto	long_sleep_loop
+
+	decfsz	main_iter, f		; Next therm sample...
 	goto	therm_sample_loop
 
-	goto	main_loop
+	goto	main_loop		; Next RF packet...
 
 
 ;----------------------------------------------------- Power Management
@@ -195,18 +206,25 @@ init_timer_normal
 	clrwdt
 	return
 
-	;; Prepare the timers for low-power sleep
+	;; Prepare the timers for the longest period sleep possible, 2.3 seconds
 init_timer_sleep
-	;; Assign a 1:128 prescaler to the WDT. Each 'sleep' we do now
-	;; will last as long as possible, about 2.3 seconds.
 	clrwdt			; Clear the watchdog
 	clrf	TMR0		; Clear the prescaler
-	movlw	0xDF		; Reassign prescaler
+	movlw	0xDF		; Reassign prescaler (1:128)
 	bsf	STATUS, RP0
 	movwf	OPTION_REG
 	bcf	STATUS, RP0
 	return
 
+	;; Prepare the timers for a short 0.28 second nap, long enough for a temperature sample
+init_timer_nap
+	clrwdt			; Clear the watchdog
+	clrf	TMR0		; Clear the prescaler
+	movlw	0xDC		; Reassign prescaler (1:16)
+	bsf	STATUS, RP0
+	movwf	OPTION_REG
+	bcf	STATUS, RP0
+	return
 
 	;; Start acquiring the battery voltage
 battvolts_acquire
@@ -236,6 +254,21 @@ tc74_init
 	movwf	temp
 	call	i2c_send_byte
 	movlw	0x00		; Out of standby mode
+	movwf	temp
+	call	i2c_send_byte
+	call	i2c_stop
+	return
+
+	;; Put the TC74 into its own low-power shutdown mode
+tc74_shutdown
+	call	i2c_start
+	movlw	TC74_ADDR_WRITE	; Address it
+	movwf	temp
+	call	i2c_send_byte
+	movlw	0x01		; Select the CONFIG register
+	movwf	temp
+	call	i2c_send_byte
+	movlw	0x80		; Into standby mode
 	movwf	temp
 	call	i2c_send_byte
 	call	i2c_stop
