@@ -105,7 +105,7 @@ int main(int argc, char ** argv) {
 	    {"auto-cluster", 0, NULL, 'C'},
 	    {"screensaver",  0, NULL, 1000},   /* Undocumented, still experimental */
 	    {"hidden",       0, NULL, 1001},
-	    {"chdir",        0, NULL, 1002},   /* Undocumented, used by win32 file associations */
+	    {"chdir",        1, NULL, 1002},   /* Undocumented, used by win32 file associations */
 	    {NULL},
 	};
 	c = getopt_long(argc, argv, "hi:n:o:p:s:S:t:rvP:c:C",

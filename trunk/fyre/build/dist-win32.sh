@@ -150,6 +150,22 @@ $NSIS - <<EOF
       WriteRegDWORD HKLM "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Fyre" "NoRepair" 1
       WriteUninstaller "uninstall.exe"
 
+      ; Set up file associations- fyre is the default for .fa (Fyre Animation)
+      ; and we at least show up in the menu for PNG files.
+      WriteRegStr HKCR ".fa" "" "Fyre.fa"
+      WriteRegStr HKCR ".fa" "Content Type" "application/x-fyre-animation"
+      WriteRegStr HKCR ".png\\OpenWithProgids" "Fyre.png" ""
+
+      WriteRegStr HKCR "Fyre.fa" "" "Fyre Animation"
+      WriteRegStr HKCR "Fyre.fa\\shell" "" "Open"
+      WriteRegStr HKCR "Fyre.fa\\shell\\Open\\command" "" '\$INSTDIR\\lib\\fyre.exe --chdir "\$INSTDIR" -n "%1"'
+      WriteRegStr HKCR "Fyre.fa\\DefaultIcon" "" '\$INSTDIR\\lib\\fyre.exe,1'
+
+      WriteRegStr HKCR "Fyre.png" "" "Fyre Image"
+      WriteRegStr HKCR "Fyre.png\\shell" "" "Open"
+      WriteRegStr HKCR "Fyre.png\\shell\\Open\\command" "" '\$INSTDIR\\lib\\fyre.exe --chdir "\$INSTDIR" -i "%1"'
+      WriteRegStr HKCR "Fyre.png\\DefaultIcon" "" '\$INSTDIR\\lib\\fyre.exe,0'
+
     SectionEnd
 
     Section "Start Menu Shortcuts"
@@ -163,6 +179,12 @@ $NSIS - <<EOF
 
     SectionEnd
 
+    Section "Desktop Shortcut"
+
+      CreateShortCut "\$DESKTOP\\Fyre $VERSION.lnk" "\$INSTDIR\\lib\\fyre.exe"
+
+    SectionEnd
+
     ;--------------------------------
 
     ; Uninstaller
@@ -173,9 +195,16 @@ $NSIS - <<EOF
       DeleteRegKey HKLM "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Fyre"
       DeleteRegKey HKLM SOFTWARE\\Fyre
 
+      DeleteRegKey HKCR ".fa"
+      DeleteRegValue HKCR ".png\\OpenWithProgids" "Fyre.png"
+      DeleteRegKey HKCR "Fyre.fa"
+      DeleteRegKey HKCR "Fyre.png"
+
       ; Remove directories used
       RMDir /r "\$SMPROGRAMS\\Fyre"
       RMDir /r "\$INSTDIR"
+
+      Delete "\$DESKTOP\\Fyre $VERSION.lnk"
 
     SectionEnd
 
