@@ -1,13 +1,6 @@
 """ LibCIA.XMLRPC
 
-A simple XMLRPC interface used for delivering messages and other
-simple unidirectional activities that should be easy to access from
-any language.
-
-A more complex interface supporting the addition of new filters
-and callbacks is available though the Perspective Broker interface
-to CIA, but that is only convenient to use from Python whereas this
-XML-RPC interface is meant to be universal.
+A simple interface for delivering messages to CIA over XML-RPC
 """
 #
 # CIA open source notification system
@@ -36,7 +29,7 @@ import sys, traceback
 from twisted.python import log
 
 
-class SimpleCIAInterface(xmlrpc.XMLRPC):
+class Interface(xmlrpc.XMLRPC):
     """A simple interface to CIA over XML-RPC.
        Must be constructed with a reference to a Message.Hub
        """

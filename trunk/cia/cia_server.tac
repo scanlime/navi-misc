@@ -5,19 +5,18 @@
 
 from twisted.application import service, internet
 from twisted.web import server
-from LibCIA import Message, XMLRPC, IRCBot, IRCMessage
+from LibCIA import Message, XMLRPC, Ruleset, IRC
 
 application = service.Application("cia_server")
-
-# The Hub is the central object responsible for delivering
-# messages between components of CIA
 hub = Message.Hub()
 
-# Control a network of IRC bots using messages sent through the Hub
-botNet = IRCBot.BotNetwork(nickFormat="CIA-%d")
-hl = IRCMessage.HubListener(hub, botNet, defaultHost="irc.freenode.net")
+uriRegistry = Ruleset.URIRegistry([
+    IRC.URIHandler(IRC.BotNetwork("CIA-%d")),
+    ])
 
-# The XMLRPC.SimpleCIAInterface is a simple XML-RPC interface
-# to CIA, used for initially delivering messages among other things
-f = server.Site(XMLRPC.SimpleCIAInterface(hub))
+storage = Ruleset.RulesetStorage("data/rulesets.xml", hub, uriRegistry)
+Ruleset.RulesetController(hub, storage)
+
+# Add an XML-RPC interface for delivering messages
+f = server.Site(XMLRPC.Interface(hub))
 internet.TCPServer(3910, f).setServiceParent(application)

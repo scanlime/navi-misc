@@ -22,7 +22,7 @@ Utilities for dealing with objects built on top of XML trees
 #
 
 from twisted.xish import domish
-import types
+import types, os
 
 
 class XMLObject(object):
@@ -100,6 +100,74 @@ class XMLFunction(XMLObject):
     def unknownElement(self, element):
         """An unknown element was found, by default just generates an exception"""
         raise XMLValidityError("Unknown element name in %s: %r" % (self.__class__.__name__, element.name))
+
+
+class XMLStorage(object):
+    """A container for XMLObjects that supports loading and saving them to disk
+       as child nodes of a given root element. This is an abstract implementation
+       that doesn't specify how the items are stored in memory.
+       """
+    def __init__(self, fileName, rootName='storage', heading=''):
+        self.fileName = fileName
+        self.rootName = rootName
+        self.heading = heading
+
+        # Empty our storage and load existing data if it exists
+        self.emptyStorage()
+        if os.path.isfile(fileName):
+            self.load()
+
+    def load(self):
+        """Read items from disk into memory. Called automatically on initialization
+           if our file exists.
+           """
+        self.emptyStorage()
+        f = open(self.fileName)
+        # This is a gross hack that works around how domish doesn't
+        # understand XML processing instructions.
+        f.readline()
+        xml = parseString(f.read())
+        f.close()
+
+        for tag in xml.children:
+            if isinstance(tag, domish.Element):
+                self.store(tag)
+
+    def save(self):
+        """Flatten our storage to a list and output each node to disk
+           inside our root node. Sorts each object by its attributes,
+           so the output might be in a consistent order.
+           """
+        f = open(self.fileName, "w")
+        f.write('<?xml version="1.0"?>\n')
+        f.write(self.heading)
+        f.write('<%s>\n' % self.rootName)
+
+        objects = self.flatten()
+        objects.sort(lambda a, b: cmp(a.xml.attributes, b.xml.attributes))
+        for obj in objects:
+            f.write("\n%s\n" % obj.xml.toXml())
+
+        f.write('\n</%s>\n' % self.rootName)
+        f.close()
+
+    def emptyStorage(self):
+        """Subclasses must implement this to clear whatever storage is being
+           used to keep XMLObjects in.
+           """
+        pass
+
+    def storage(self, xml):
+        """Subclasses must implement this to add the given object to the storage.
+           'xml' will be a domish.Element instance.
+           """
+        pass
+
+    def flatten(self):
+        """Subclasses must implement this to return a flat list of XMLObject
+           instances in the storage.
+           """
+        pass
 
 
 class XMLValidityError(Exception):
