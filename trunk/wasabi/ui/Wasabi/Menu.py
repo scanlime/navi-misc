@@ -70,7 +70,7 @@ class RingMenu(Menu):
         self.viewport.onKeyDown.observe(self.keyDown)
 
     def keyDown(self, ev):
-        if ev.key == pygame.K_SPACE or ev.key == pygame.K_RETURN:
+        if ev.key == pygame.K_SPACE or ev.key == pygame.K_RETURN or ev.key == pygame.K_UP:
             self.selectCurrent()
         elif ev.key == pygame.K_LEFT:
             self.spinLeft()
