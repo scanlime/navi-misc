@@ -21,6 +21,7 @@
  */
 
 using System;
+using GLib;
 using Gtk;
 using Glade;
 
@@ -38,6 +39,11 @@ public class PipelineEditor
 	/* Editor workspace (right) */
 	[Widget] Gtk.ScrolledWindow	pipeline_window;
 	[Widget] Gtk.DrawingArea	pipeline_drawing;
+	
+	/* Current tooltip */
+	private Gtk.Window		current_tooltip;
+	private uint			tooltip_timeout;
+	private Gdk.Rectangle		tip_rect;
 
 	public static void Main (string[] args)
 	{
@@ -67,6 +73,14 @@ public class PipelineEditor
 		column.AddAttribute (text_renderer, "text", 1);
 
 		element_list.AppendColumn (column);
+		
+		element_list.AddEvents ((int) Gdk.EventMask.PointerMotionMask);
+		element_list.AddEvents ((int) Gdk.EventMask.LeaveNotifyMask);
+
+		element_list.MotionNotifyEvent += MotionNotifyEvent;
+		element_list.LeaveNotifyEvent += LeaveNotifyEvent;
+		current_tooltip = null;
+		tooltip_timeout = 0;
 
 		/* Set up plugins directory */
 		plugin_manager = new PluginManager ("/usr/share/fyre/2.0");
@@ -75,8 +89,52 @@ public class PipelineEditor
 
 		/* Finally, run the application */
 		Application.Run();
+	}
+	
+	void MotionNotifyEvent (object o, MotionNotifyEventArgs args)
+	{
+		System.Console.WriteLine("MotionNotifyEvent!");
+		Gdk.EventMotion ev = args.Event;
+		if (tooltip_timeout != 0) {
+			if ((ev.Y > tip_rect.Y) && ((ev.Y - tip_rect.Height) < tip_rect.Y))
+				return;
+			/* We've moved outside the current cell. Destroy the
+			   timeout and create a new one */
+			GLib.Source.Remove (tooltip_timeout);
+		}
+
+		Gtk.TreePath path;
+		element_list.GetPathAtPos ((int) ev.X, (int) ev.Y, out path);
+		tip_rect = element_list.GetCellArea (path, null);
+		
+		tooltip_timeout = GLib.Timeout.Add (200, new GLib.TimeoutHandler(TooltipTimeout));
+	}
+
+	bool TooltipTimeout ()
+	{
+		Gtk.TreePath path;
+		Gtk.TreeIter iter;
+		if (!element_list.GetPathAtPos (tip_rect.X, tip_rect.Y, out path))
+			return false;
+		sorted_store.GetIter (out iter, path);
+		current_tooltip = (Gtk.Window) sorted_store.GetValue (iter, 3);
+		current_tooltip.ShowAll ();
+		tooltip_timeout = 0;
+		return false;
+	}
+
+        void LeaveNotifyEvent (object o, LeaveNotifyEventArgs args)
+        {
+        	if (tooltip_timeout != 0) {
+        		GLib.Source.Remove (tooltip_timeout);
+        		tooltip_timeout = 0;
+        	}
+        	if (current_tooltip != null) {
+        		current_tooltip.Hide ();
+        		current_tooltip = null;
+        	}
         }
-        
+
         private void AddElementType (Type t)
         {
         	object[] i = {};

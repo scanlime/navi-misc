@@ -55,25 +55,26 @@ public class ElementTooltip
 
 	/* Create a 2xn table from a list of strings */
 	private Gtk.Table CreateDescTable (string[,] s)
-	{
+	{	
 		uint len = (uint) s.Length / 2;
 		Gtk.Table t = new Gtk.Table (len, 2, false);
 		for (uint i = 0; i < len; i++) {
 			Gtk.Label variable = new Gtk.Label ();
 			Gtk.Label desc     = new Gtk.Label ();
 			
-			variable.Markup =
-				"<span size=\"small\">" +
-				s[i,0] +
-				"</span>";
-			desc.Markup =
-				"<span size=\"small\">" +
-				s[i,1] +
-				"</span>";
+			variable.Markup = BuildString (s[i,0]);
+			desc.Markup     = BuildString (s[i,1]);
 		
 			t.Attach (variable, 0, 1, i, i+1);
 			t.Attach (desc,     1, 2, i, i+1);
+			t.ColumnSpacing = 6;
+			t.RowSpacing = 3;
 		}
 		return t;
+	}
+
+	string BuildString (string n)
+	{
+		return "<span size=\"small\">" + n + "</span>";
 	}
 }
