@@ -118,11 +118,11 @@ update_double_if_necessary (gdouble new_value, gboolean *dirty, gdouble *param, 
 }
 
 static void
-update_float_if_necessary (gfloat new_value, gboolean *dirty, gfloat *param, gfloat epsilon)
+update_float_if_necessary (gdouble new_value, gboolean *dirty, gfloat *param, gfloat epsilon)
 {
-  if (fabs (new_value - *param) > epsilon)
+  if (fabs ((gfloat)new_value - *param) > epsilon)
   {
-    *param = new_value;
+    *param = (gfloat) new_value;
     *dirty = TRUE;
   }
 }

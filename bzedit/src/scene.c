@@ -108,6 +108,7 @@ scene_add (Scene *self, SceneObject *object)
   for (view = self->views; view; view = view->next)
   {
     g_signal_connect (object, "dirty", G_CALLBACK (scene_view_redraw), view->data);
+    view_render (VIEW (view->data));
   }
 }
 
@@ -149,6 +150,7 @@ scene_preprocess (Scene *self)
 {
   GList *render_sort, *filter_sort;
   GList *i;
+
   /* rebuilds rendering passes. This operation clears the 'dirty' flag, and
    * is called automatically when a dirty scene needs rendering
    */
@@ -218,6 +220,7 @@ scene_add_view (Scene *self, gpointer view)
 {
   self->views = g_list_append (self->views, view);
   g_hash_table_foreach (self->objects, (GHFunc) scene_add_view_iterate, view);
+  view_render (view);
 }
 
 SceneObject*

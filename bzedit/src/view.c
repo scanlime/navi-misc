@@ -152,10 +152,10 @@ view_new (Scene *scene, GLDrawingArea *context)
   if (scene == NULL)
     scene = scene_new ();
 
-  scene_add_view (scene, (gpointer) view);
-
   view->scene = scene;
   view->context = context;
+
+  scene_add_view (scene, (gpointer) view);
 
   gl_drawing_area_make_current (context);
 
