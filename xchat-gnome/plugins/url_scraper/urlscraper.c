@@ -5,6 +5,7 @@
 #include "xchat-plugin.h"
 
 #define VERSION "0.2"
+#define MAXURLS 10
 
 static xchat_plugin *ph;	// Plugin handle.
 static regex_t email;		// Regex that matches e-mail addresses.
@@ -36,10 +37,36 @@ static void make_window ()
 	url_rend = gtk_cell_renderer_text_new ();
 	url_col = gtk_tree_view_column_new_with_attributes ("URL", url_rend, 0);
 
+	gtk_widget_show_all (window);
 }
 
-static int grabURL (char **word, char **userdata)
+static int grabURL (char **word, void *userdata)
 {
+	GtkTreeIter iter;
+
+	char *chan;
+	size_t len;
+	regmatch_t *match;
+
+	if (regexec(&email, word[4], len, match, 0) == 0 ||
+		regexec(&url, word[4], len, match, 0) == 0)
+	{
+		chan = xchat_get_info(ph, "channel");
+
+		if (urls >= MAXURLS)
+		{
+			gtk_tree_model_get_iter_first (GTK_TREE_MODEL(list_store), &iter);
+			gtk_list_store_remove (list_store, &iter);
+		}
+		else
+		{
+			urls++;
+		}
+
+		gtk_list_store_append (list_store, &iter);
+		gtk_list_store_set (list_store, &iter, 0, word[3], 1, chan, 2, match, -1);
+	}
+
 	return XCHAT_EAT_NONE;
 }
 
@@ -59,6 +86,8 @@ int xchat_plugin_init (xchat_plugin *plugin_handle,
 	regcomp (&url, "(ht|f)tps?://[^\s\>\]\)]+", REG_ICASE);
 
 	urls = 0;
+
+	make_window ();
 
 	xchat_hook_print (ph, "Channel Message", XCHAT_PRI_NORM, grabURL, 0);
 
