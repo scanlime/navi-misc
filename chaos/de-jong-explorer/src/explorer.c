@@ -102,6 +102,8 @@ static void on_anim_save_as(GtkWidget *widget, gpointer user_data);
 static void on_anim_scale_changed(GtkWidget *widget, gpointer user_data);
 static void on_anim_set_linear(GtkWidget *widget, gpointer user_data);
 static void on_anim_set_smooth(GtkWidget *widget, gpointer user_data);
+static void on_anim_curve_changed(GtkWidget *widget, gpointer user_data);
+static void on_keyframe_duration_change(GtkWidget *widget, gpointer user_data);
 
 static void tool_grab(Explorer *self, ToolInput *i);
 static void tool_blur(Explorer *self, ToolInput *i);
@@ -209,6 +211,7 @@ static void explorer_init(Explorer *self) {
   glade_xml_signal_connect_data(self->xml, "on_anim_scale_changed",           G_CALLBACK(on_anim_scale_changed),           self);
   glade_xml_signal_connect_data(self->xml, "on_anim_set_linear",              G_CALLBACK(on_anim_set_linear),              self);
   glade_xml_signal_connect_data(self->xml, "on_anim_set_smooth",              G_CALLBACK(on_anim_set_smooth),              self);
+  glade_xml_signal_connect_data(self->xml, "on_keyframe_duration_change",     G_CALLBACK(on_keyframe_duration_change),     self);
 
   /* Set up the drawing area
    */
@@ -240,6 +243,7 @@ static void explorer_init(Explorer *self) {
    */
   self->anim_curve = curve_editor_new();
   gtk_container_add(GTK_CONTAINER(glade_xml_get_widget(self->xml, "anim_curve_box")), self->anim_curve);
+  g_signal_connect(self->anim_curve, "changed", G_CALLBACK(on_anim_curve_changed), self);
   gtk_widget_show_all(self->anim_curve);
 
   /* Set up the statusbar
@@ -993,6 +997,8 @@ static void on_keyframe_view_cursor_changed(GtkWidget *widget, gpointer user_dat
    */
   Explorer *self = EXPLORER(user_data);
   GtkTreeIter iter;
+  Spline *spline;
+  gdouble keyframe_duration;
 
   explorer_get_current_keyframe(self, &iter);
 
@@ -1009,6 +1015,17 @@ static void on_keyframe_view_cursor_changed(GtkWidget *widget, gpointer user_dat
 
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(glade_xml_get_widget(self->xml, "anim_play_button")), FALSE);
   }
+
+  /* Load this keyframe's transition parameters into our GUI */
+  self->allow_transition_changes = FALSE;
+  gtk_tree_model_get(GTK_TREE_MODEL(self->animation->model), &iter,
+		     ANIMATION_MODEL_DURATION, &keyframe_duration,
+		     ANIMATION_MODEL_SPLINE,   &spline,
+		     -1);
+  gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "keyframe_duration")), keyframe_duration);
+  curve_editor_set_spline(CURVE_EDITOR(self->anim_curve), spline);
+  spline_free(spline);
+  self->allow_transition_changes = TRUE;
 }
 
 static gboolean on_anim_window_delete(GtkWidget *widget, GdkEvent *event, gpointer user_data) {
@@ -1071,7 +1088,7 @@ static void explorer_update_animation_length(Explorer *self) {
     length = 1;
 
   gtk_range_set_adjustment(GTK_RANGE(scale),
-			   GTK_ADJUSTMENT(gtk_adjustment_new(0, 0, length, 0.01, 1, 0)));
+			   GTK_ADJUSTMENT(gtk_adjustment_new(gtk_range_get_value(GTK_RANGE(scale)), 0, length, 0.01, 1, 0)));
   gtk_widget_set_sensitive(scale, enable);
   gtk_widget_set_sensitive(glade_xml_get_widget(self->xml, "anim_play_button"), enable);
 }
@@ -1119,6 +1136,44 @@ static void on_anim_set_linear(GtkWidget *widget, gpointer user_data) {
 static void on_anim_set_smooth(GtkWidget *widget, gpointer user_data) {
   Explorer *self = EXPLORER(user_data);
   curve_editor_set_spline(CURVE_EDITOR(self->anim_curve), &spline_template_smooth);
+}
+
+static void on_keyframe_duration_change(GtkWidget *widget, gpointer user_data) {
+  /* The user just changed the current keyframe's duration.
+   * Update the tree model, and recalculate the size of our animation.
+   */
+  Explorer *self = EXPLORER(user_data);
+  GtkTreeIter iter;
+
+  if (!self->allow_transition_changes)
+    return;
+
+  explorer_get_current_keyframe(self, &iter);
+
+  gtk_list_store_set(self->animation->model, &iter,
+		     ANIMATION_MODEL_DURATION, (gdouble) gtk_spin_button_get_value(GTK_SPIN_BUTTON(widget)),
+		     -1);
+
+  explorer_update_animation_length(self);
+}
+
+static void on_anim_curve_changed(GtkWidget *widget, gpointer user_data) {
+  /* The user just changed the current keyframe's spline, update the model
+   */
+  Explorer *self = EXPLORER(user_data);
+  GtkTreeIter iter;
+  Spline *spline;
+
+  if (!self->allow_transition_changes)
+    return;
+
+  explorer_get_current_keyframe(self, &iter);
+
+  spline = curve_editor_get_spline(CURVE_EDITOR(self->anim_curve));
+  gtk_list_store_set(self->animation->model, &iter,
+		     ANIMATION_MODEL_SPLINE, spline,
+		     -1);
+  spline_free(spline);
 }
 
 /* The End */

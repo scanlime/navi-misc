@@ -249,7 +249,7 @@ void animation_load_file(Animation *self, const gchar *filename) {
       gtk_list_store_set(self->model, &iter,
 			 ANIMATION_MODEL_SPLINE, spline,
 			 -1);
-      g_boxed_free(SPLINE_TYPE, spline);
+      spline_free(spline);
       break;
 
     default:
@@ -309,7 +309,7 @@ void animation_save_file(Animation *self, const gchar *filename) {
       buffer = spline_serialize(spline, &buffer_len);
       chunked_file_write_chunk(f, CHUNK_SPLINE, buffer_len, buffer);
       g_free(buffer);
-      g_boxed_free(SPLINE_TYPE, spline);
+      spline_free(spline);
     }
 
     chunked_file_write_chunk(f, CHUNK_KEYFRAME_END, 0, NULL);
@@ -411,6 +411,7 @@ void animation_iter_load_dejong(Animation *self, AnimationIter *iter, DeJong *de
   gdouble keyframe_duration;
   DeJong *a, *b;
   gdouble alpha;
+  Spline *spline;
 
   g_return_if_fail(iter->valid);
 
@@ -428,11 +429,21 @@ void animation_iter_load_dejong(Animation *self, AnimationIter *iter, DeJong *de
     b = g_object_ref(a);
   }
 
-  /* Find out how far along we are in this keyframe */
   gtk_tree_model_get(model, &iter->keyframe,
 		     ANIMATION_MODEL_DURATION, &keyframe_duration,
+		     ANIMATION_MODEL_SPLINE,   &spline,
 		     -1);
+
+  /* Alpha is 0 at the first keyframe and 1 at the second keyframe,
+   * increasing linearly. It could be used as-is for linear interpolation.
+   */
   alpha = iter->time_after_keyframe / keyframe_duration;
+
+  /* We, however, will pass alpha through a spline to give the user
+   * more control over the interpolation.
+   */
+  alpha = spline_solve_and_eval(spline, alpha);
+  spline_free(spline);
 
   /* Only do linear interpolation for now */
   de_jong_interpolate_linear(dejong, a, b, alpha);

@@ -68,6 +68,7 @@ struct _Explorer {
 
   GtkWidget *fgcolor_button, *bgcolor_button;
   GtkWidget *anim_curve;
+  gboolean allow_transition_changes;
 
   gboolean seeking_animation;
   gboolean playing_animation;
