@@ -19,11 +19,11 @@
  *
  */
 
-#ifndef __XCHAT_GNOME_NAVTREE_H__
-#define __XCHAT_GNOME_NAVTREE_H__
-
 #include <gnome.h>
 #include "../common/xchat.h"
+
+#ifndef __XCHAT_GNOME_NAVTREE_H__
+#define __XCHAT_GNOME_NAVTREE_H__
 
 G_BEGIN_DECLS
 
