@@ -19,8 +19,8 @@ view.camera.elevation = 2.4
 view.camera.jump()
 
 title = HUD.Text(viewport.region(viewport.rect), "wasabi",
-                 color     = (0, 0, 0, 0.75),
-                 fontSize  = viewport.size[1] / 6,
+                 color     = (0, 0, 0, 1),
+                 fontSize  = viewport.size[1] / 5,
                  alignment = (0.5, 0.5),
                  fontName  = "geodesic.ttf")
 
@@ -52,9 +52,6 @@ orbitParticles = ("green_flame.particle", "green_nebula.particle")
 orbits = [OrbitingParticles(cPickle.load(open(Util.dataFile(name)))) for name in orbitParticles]
 for orbit in orbits:
     view.scene.add(orbit)
-
-view.scene.add(cPickle.load(open(Util.dataFile("galaxy.particle"))))
-
 
 time = Animated.Timekeeper()
 def setupFrame():
