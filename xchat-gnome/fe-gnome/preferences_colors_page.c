@@ -30,6 +30,7 @@ static void gconf_palette_changed (GConfClient *client, guint cnxn_id, const gch
 
 static void
 set_color_buttons (int selection, GtkWidget **color_buttons)
+/* Change the color buttons to reflect the selected color scheme. */
 {
 	load_colors (selection);
 	palette_alloc (GTK_WIDGET (gui.xtext));
@@ -44,6 +45,7 @@ set_color_buttons (int selection, GtkWidget **color_buttons)
 
 static void
 set_palette_buttons (int selection, GtkWidget **palette_buttons)
+/* Change the palette color buttons to reflect the selected palette scheme. */
 {
 	int i;
 
@@ -57,6 +59,7 @@ set_palette_buttons (int selection, GtkWidget **palette_buttons)
 
 static void
 colors_changed (GtkComboBox *combo_box, gpointer data)
+/* Color scheme has been changed. */
 {
 	GtkWidget **color_buttons = (GtkWidget **) data;
 	int i, selection;
@@ -77,6 +80,7 @@ colors_changed (GtkComboBox *combo_box, gpointer data)
 
 static void
 palette_changed (GtkComboBox *combo_box, gpointer data)
+/* Palette scheme has been changed. */
 {
 	GtkWidget **palette_buttons = (GtkWidget **) data;
 	int i, selection;
@@ -109,20 +113,26 @@ initialize_preferences_colors_page ()
 
 	client = gconf_client_get_default ();
 
+	/* Set up the palette. */
 	palette_init();
 
 	table = glade_xml_get_widget (gui.xml, "palette table");
+	/* Initialize the palette color buttons. 2 rows of buttons and 8 columns. */
 	for (i = 0; i < 8; i++)
 	{
 		for (j = 0; j < 2; j++)
 		{
+			/* Create the palette color button. */
 			palette_buttons[j * 8 + i] = gtk_color_button_new ();
 			gtk_widget_set_sensitive (palette_buttons[j * 8 + i], FALSE);
 			gtk_widget_show (palette_buttons[j * 8 + i]);
 			gtk_color_button_set_color (GTK_COLOR_BUTTON (palette_buttons[j * 8 + i]), &colors[j * 8 + i]);
+			/* Place the button in the table. */
 			gtk_table_attach_defaults (GTK_TABLE (table), palette_buttons[j * 8 + i], i, i+1, j, j+1);
 		}
 	}
+
+	/* Set up the color scheme. */
 	color_buttons[0] = gtk_color_button_new ();
 	color_buttons[1] = gtk_color_button_new ();
 	color_buttons[2] = gtk_color_button_new ();
@@ -131,6 +141,10 @@ initialize_preferences_colors_page ()
 	gtk_color_button_set_color (GTK_COLOR_BUTTON (color_buttons[1]), &colors[19]);
 	gtk_color_button_set_color (GTK_COLOR_BUTTON (color_buttons[2]), &colors[17]);
 	gtk_color_button_set_color (GTK_COLOR_BUTTON (color_buttons[3]), &colors[16]);
+
+	/* Color buttons are insensitive unless the custom color scheme is selected.
+	 * By default the custom scheme is not selected.
+	 */
 	gtk_widget_set_sensitive (color_buttons[0], FALSE);
 	gtk_widget_set_sensitive (color_buttons[1], FALSE);
 	gtk_widget_set_sensitive (color_buttons[2], FALSE);
@@ -162,6 +176,7 @@ initialize_preferences_colors_page ()
 	gtk_size_group_add_widget (group, widget);
 	g_object_unref (group);
 
+	/* Combo boxes for selecting color and palette schemes. */
 	color_schemes = gtk_combo_box_new_text ();
 	gtk_combo_box_append_text (GTK_COMBO_BOX (color_schemes), "Black on White");
 	gtk_combo_box_append_text (GTK_COMBO_BOX (color_schemes), "White on Black");
