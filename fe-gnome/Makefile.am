@@ -50,6 +50,10 @@ EXTRA_DIST =				\
 	userlist.c			\
 	userlist_gui.h			\
 	userlist_gui.c			\
+	xtext2.h			\
+	xtext2.c			\
+	xtextbuffer.h			\
+	xtextbuffer.c			\
 	channel-list.glade		\
 	transfers.glade			\
 	xchat-gnome.glade
@@ -101,7 +105,9 @@ xchat_gnome_SOURCES =			\
 	xtext.h				\
 	xtext.c				\
 	xtext2.h			\
-	xtext2.c
+	xtext2.c			\
+	xtextbuffer.h			\
+	xtextbuffer.c
 
 xchat_gnome_DATA =			\
 	channel-list.glade		\
