@@ -1,6 +1,6 @@
 CIA open source notification system
 -----------------------------------
-Version pre-0.80
+Version pre-0.81
 
 CIA is at its heart a system for distributing commit messages from the
 version control systems used by open source projects worldwide. It started
