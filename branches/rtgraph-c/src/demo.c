@@ -6,16 +6,9 @@
 #include "bptree.h"
 
 
-gint compare_int_func(gconstpointer _a, gconstpointer _b, gpointer)
+gint compare_int_func(gconstpointer a, gconstpointer b, gpointer user_data)
 {
-  int a = *(int*) _a;
-  int b = *(int*) _b;
-  if (a<b)
-    return -1;
-  else if (a>b)
-    return 1;
-  else
-    return 0;
+  return (*(const int*)a) - (*(const int*)b);
 }
 
 int main(int argc, char** argv)
@@ -32,16 +25,10 @@ int main(int argc, char** argv)
   tree = rtg_bptree_new(storage, "My Tree", sizeof(key), sizeof(value),
 			compare_int_func, NULL);
 
-  foo = rtg_page_storage_find_name("MyFooWidget Plus!"
-  foo = rtg_page_storage_alloc(storage);
-  printf("Allocated page %d\n", foo);
 
-  strcpy(rtg_page_storage_lookup(storage, foo), "Boing");
-  printf("Filled page with stuff\n");
 
-  rtg_page_storage_add_name(storage, "foo", foo);
-  printf("Stored a named pointer to the page\n");
-
+  rtg_bptree_close(tree);
+  rtg_page_storage_close(storage);
   return 0;
 }
 
