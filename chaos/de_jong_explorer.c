@@ -106,7 +106,7 @@ GtkWidget *build_sidebar() {
   ds = gtk_spin_button_new_with_range(-4.0, 4.0, 0.001);
   gtk_spin_button_set_value(GTK_SPIN_BUTTON(ds), d);
   gtk_table_attach(GTK_TABLE(table), ds, 1, 2, 3, 4, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
-  ls = gtk_spin_button_new_with_range(0.001, 0.1, 0.001);
+  ls = gtk_spin_button_new_with_range(0.001, 1, 0.001);
   gtk_spin_button_set_value(GTK_SPIN_BUTTON(ls), bright);
   gtk_table_attach(GTK_TABLE(table), ls, 1, 2, 4, 5, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
   g_signal_connect(G_OBJECT(as), "changed", G_CALLBACK(spinnerchanged), NULL);
