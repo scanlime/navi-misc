@@ -114,26 +114,42 @@ class IndexPage(ModPython.Page):
         }
         .mainTemperature {
             font: 180% sans-serif;
+            vertical-align: middle;
         }
         .temperatureSeparator {
             font: 180% sans-serif;
             font-weight: bold;
             color: #666;
+            vertical-align: middle;
         }
         .altTemperature {
             font: 120% sans-serif;
             color: #666;
+            vertical-align: middle;
         }
 
         .extraInfo {
             margin: 0.75em 0em 0em 0em;
             font: 80% sans-serif;
         }
-        span.batteryVoltage {
-            margin: 0em 0.5em;
-            font: 80% sans-serif;
-            background: #DEECE7;
-            border: 1px solid #8CBBAC;
+        span.bargraph {
+            font: 5px sans-serif;
+            margin: 0em 2em 0em 1em;
+            background: #FFF;
+            border: 1px solid #777;
+            padding: 3px 1px 3px 0px;
+            vertical-align: middle;
+        }
+        span.filledBar {
+            background: #338;
+            margin: 1px 0px 1px 1px;
+            vertical-align: middle;
+            padding: 2px;
+        }
+        span.emptyBar {
+            margin: 1px 0px 1px 1px;
+            vertical-align: middle;
+            padding: 2px;
         }
     """
 
@@ -177,14 +193,8 @@ class IndexPage(ModPython.Page):
             minVoltage = 6.5
             maxVoltage = 9.0
             qualitative = (voltage - minVoltage) / (maxVoltage - minVoltage)
-            qualitative = max(0, min(1, qualitative))
-
             info.append(tag('div', _class='extraInfo')[
-                "Battery: ",
-                tag('span', _class='batteryVoltage', style='padding: 0.1em %fem;' % (
-                    qualitative * 5.0)) [
-                    "%.03f V" % voltage
-                ],
+                "Battery: ", self.renderBargraph(qualitative), "%.03f V" % voltage,
             ])
 
         if latest.get('time'):
@@ -195,6 +205,17 @@ class IndexPage(ModPython.Page):
             ])
 
         return tag('div', _class='source')[info]
+
+    def renderBargraph(self, alpha, numBars=30):
+        alpha = max(0, min(1, alpha))
+        filledBars = int(alpha * numBars + 0.5)
+        bars = []
+        for i in xrange(numBars):
+            if i < filledBars:
+                bars.append(tag('span', _class="filledBar")[ " " ])
+            else:
+                bars.append(tag('span', _class="emptyBar")[ " " ])
+        return tag('span', _class="bargraph")[ bars ]
 
 index = IndexPage()
 
