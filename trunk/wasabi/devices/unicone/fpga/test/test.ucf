@@ -5,5 +5,3 @@ NET "led" LOC=P19;
 
 NET "scl" LOC=P18;
 NET "sda" LOC=P23;
-
-NET "serial_out" LOC="P45";
