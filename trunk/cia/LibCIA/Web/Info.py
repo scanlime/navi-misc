@@ -27,7 +27,7 @@ from LibCIA import TimeUtil, XML, Database, Units, Cache
 from Nouvelle import place, tag
 import LibCIA, Nouvelle
 from twisted.internet import defer
-import time, sys
+import time, sys, os
 
 
 class Component(Server.Component):
@@ -211,8 +211,8 @@ class System(Template.Section):
     def render_load(self, context):
         # Also only works on linux now
         try:
-            load = map(float, open("/proc/loadavg").read().split()[:3])
-        except:
+            load = os.getloadavg()
+        except OSError:
             return "Load average unknown"
         else:
             return ["Load average: ",
