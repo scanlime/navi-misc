@@ -26,6 +26,11 @@ int main()
   printf("Time        : %s\n", bf->time);
   printf("Length      : %d bytes\n", bf->length);
 
+  if (strcmp(bf->part_number, "4010xlpc84")) {
+    printf("This design is for an incompatible part\n");
+    return 1;
+  }
+
   /* Read the bitstream itself */
   if (bitfile_read_content(bf) < 0) {
     perror("bitfile_read_content");

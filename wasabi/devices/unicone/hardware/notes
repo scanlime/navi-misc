@@ -17,7 +17,7 @@ TUSB3410 (Keyspan HS-19US, firmware removed):
  RS-232 RxD (2) -
  RS-232 TxD (3) - Debugging serial port, TxD (3)
  RS-232 DTR (4) - FPGA 'DIN' (pin 71), via 1k resistor
- RS-232 DSR (6) -
+ RS-232 DSR (6) - FPGA general-purpose input (pin 69)
  RS-232 RTS (7) - FPGA 'PROGRAM' (pin 55), via 1k resistor
  RS-232 CTS (8) - FPGA 'DONE' (pin 53)
  RS-232 RI  (9) -
@@ -31,6 +31,41 @@ XC4010XL (Xess XS40, everything except FPGA, oscillator, and SRAM removed):
  P19            - White status LED, via NPN transistor and appropriate resistors
  P18            - I2C Clock (TUSB3410 header pin 4)
  P23            - I2C Data (TUSB3410 header pin 5)
+ P69            - General purpose output to DSR (6) on the TUSB3410
+
+ External I/O:
+  P6            - DB-25 pin 2
+  P7            - DB-25 pin 3
+  P8            - DB-25 pin 4
+  P9            - DB-25 pin 5
+  P14           - DB-25 pin 6
+  P20           - DB-25 pin 7
+  P24           - DB-25 pin 8
+  P25           - DB-25 pin 9
+  P26           - DB-25 pin 10
+  P27           - DB-25 pin 11
+  P29           - DB-25 pin 12
+  P32           - DB-25 pin 13
+  P34           - DB-25 pin 14
+  P36           - DB-25 pin 15
+  P37           - DB-25 pin 16
+  P44           - DB-25 pin 17
+  P45           - DB-25 pin 18
+  P46           - DB-25 pin 19
+  P47           - DB-25 pin 20
+  P48           - DB-25 pin 21
+  P49           - DB-25 pin 22
+  P66           - DB-25 pin 23
+  P67           - DB-25 pin 24
+  P68           - DB-25 pin 25
+
+ Unused:
+  P70
+  P75
+  P77
+
+ SRAM connected as originally wired on the XS40 board.
+
 
 24xx-series I2C configuration memory:
 
@@ -43,4 +78,7 @@ XC4010XL (Xess XS40, everything except FPGA, oscillator, and SRAM removed):
  WP  (7)        - N/C
  Vcc (8)        - TUSB3410, 3.3v supply (0.1uf decoupling cap)
 
+DB-25 male I/O port
 
+ Pin 1          - Ground
+ (All others connected to FPGA)
