@@ -1,3 +1,8 @@
+Wed Feb 04 21:50:41 PST 2004  Christian Hammond <chipx86@gnupdate.org>
+
+	* src/Fadey.cpp:
+	  - Exit if we can't find the images, instead of segfaulting.
+
 Mon Feb 02 17:33:41 PST 2004  Christian Hammond <chipx86@gnupdate.org>
 
 	* src/main.cpp:
