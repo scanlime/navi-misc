@@ -151,32 +151,42 @@
      borderopacity="1.0"
      inkscape:pageopacity="1.0000000"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.15349816"
-     inkscape:cx="1626.8108"
-     inkscape:cy="278.58926"
+     inkscape:zoom="0.21707918"
+     inkscape:cx="1203.3409"
+     inkscape:cy="2186.2970"
      inkscape:window-width="1394"
      inkscape:window-height="1113"
-     showgrid="false"
-     snaptogrid="false"
-     inkscape:window-x="188"
-     inkscape:window-y="0"
+     showgrid="true"
+     snaptogrid="true"
+     inkscape:window-x="128"
+     inkscape:window-y="22"
      showborder="true"
      showguides="true"
-     snaptoguides="true">
+     snaptoguides="true"
+     gridspacingy="0.50000000in"
+     gridspacingx="0.50000000in">
     <sodipodi:guide
        orientation="vertical"
-       position="2457.6286"
+       position="2452.7981"
        id="guide2637" />
     <sodipodi:guide
        orientation="vertical"
-       position="140.50173"
+       position="146.58156"
        id="guide2641" />
+    <sodipodi:guide
+       orientation="vertical"
+       position="1332.2635"
+       id="guide2651" />
+    <sodipodi:guide
+       orientation="vertical"
+       position="1267.1162"
+       id="guide2652" />
   </sodipodi:namedview>
   <text
      xml:space="preserve"
      style="fill:#000000;stroke:none;font-family:Luxi Sans;font-style:normal;font-weight:normal;font-size:50.000000;font-stretch:normal;font-variant:normal;text-anchor:start;writing-mode:lr;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
      x="179.50000"
-     y="903.06309"
+     y="803.79718"
      id="text1669"
      sodipodi:linespacing="120%"><tspan
        id="tspan1670"
@@ -185,85 +195,81 @@
        sodipodi:role="line"
        id="tspan1717"
        x="179.50000"
-       y="963.06311"
+       y="863.79718"
        style="letter-spacing:0.48858014;">an image, and at each iteration the current state's pixel is darkened partially or completely. With this method, either the resulting</tspan><tspan
        sodipodi:role="line"
        id="tspan1719"
        x="179.50000"
-       y="1023.0631"
+       y="923.79718"
        style="letter-spacing:0.60707343;">image is very low quality, or the system must run for a long time before any usable image is generated. This makes it difficult to</tspan><tspan
        sodipodi:role="line"
        id="tspan1721"
        x="179.50000"
-       y="1083.0631">experiment with a system's parameters and render high quality images from them.</tspan><tspan
+       y="983.79719">experiment with a system's parameters and render high quality images from them.</tspan><tspan
        sodipodi:role="line"
        id="tspan1682"
        x="179.50000"
-       y="1143.0631"></tspan><tspan
+       y="1043.7972"></tspan><tspan
        sodipodi:role="line"
        id="tspan1684"
        x="179.50000"
-       y="1203.0631"
+       y="1103.7972"
        style="letter-spacing:-0.28568152;">Our method treats the image as a two dimensional histogram, and divides the rendering process into two steps: collecting histogram</tspan><tspan
        sodipodi:role="line"
        id="tspan2604"
        x="179.50000"
-       y="1263.0631"
+       y="1163.7972"
        style="letter-spacing:0.49751425;">samples, and generating an image from the histogram. Like pixels in the traditional technique, each histogram bucket maps to a</tspan><tspan
        sodipodi:role="line"
        id="tspan2608"
        x="179.50000"
-       y="1323.0631"
-       style="letter-spacing:-0.19194221;">range of states in the chaotic system. As the system iterates, the histogram buckets sample the probability that the chaotic system's</tspan><tspan
+       y="1223.7972"
+       style="letter-spacing:0.47385740;">range of states in the chaotic system. As the system iterates, the histogram buckets each sample the probability that the chaotic</tspan><tspan
        sodipodi:role="line"
-       id="tspan2614"
+       id="tspan2642"
        x="179.50000"
-       y="1383.0631"
-       style="letter-spacing:-0.15586288;">state falls within its region. To create an image in the second step, the histogram buckets are mapped to pixels and the probabilities</tspan><tspan
+       y="1283.7972"
+       style="letter-spacing:0.33924684;">system's state falls within its range of states. To create an image in the second step, the histogram buckets are mapped to pixels</tspan><tspan
        sodipodi:role="line"
-       id="tspan2616"
+       id="tspan2644"
        x="179.50000"
-       y="1443.0631">are mapped to colors. Normally each bucket corresponds to one pixel, but oversampling may be implemented by mapping multiple</tspan><tspan
+       y="1343.7972">and the probabilities are mapped to colors. Normally each bucket corresponds to one pixel, but oversampling may be implemented</tspan><tspan
        sodipodi:role="line"
-       id="tspan2635"
+       id="tspan2646"
        x="179.50000"
-       y="1503.0631">buckets to one pixel.</tspan><tspan
+       y="1403.7972">by mapping multiple buckets to one pixel.</tspan><tspan
        sodipodi:role="line"
        id="tspan2610"
        x="179.50000"
-       y="1563.0631"></tspan><tspan
+       y="1463.7972"></tspan><tspan
        sodipodi:role="line"
        id="tspan2620"
        x="179.50000"
-       y="1623.0631"
+       y="1523.7972"
        style="letter-spacing:0.48967928;">Unlike the traditional technique's images, these histograms will converge over time rather than diverge. This means that a crude</tspan><tspan
        sodipodi:role="line"
        id="tspan2622"
        x="179.50000"
-       y="1683.0631">rendering can be generated very quickly, then progressively refined. As the histogram is refined, the relatively fast conversion from</tspan><tspan
+       y="1583.7972">rendering can be generated very quickly, then progressively refined. As the histogram is refined, the relatively fast conversion from</tspan><tspan
        sodipodi:role="line"
        id="tspan2624"
        x="179.50000"
-       y="1743.0631"
+       y="1643.7972"
        style="letter-spacing:0.35989168;">histogram to image can be repeated, showing this refinement in real-time. The ability to show a complete but possibly low quality</tspan><tspan
        sodipodi:role="line"
        id="tspan2626"
        x="179.50000"
-       y="1803.0631"
+       y="1703.7972"
        style="letter-spacing:-0.034377716;">image at any time gives this technique excellent interactivity, making it suitable as a tool for artists and everyday computer users to</tspan><tspan
        sodipodi:role="line"
        id="tspan2628"
        x="179.50000"
-       y="1863.0631"
-       style="letter-spacing:0.58311778;">explore chaotic maps. Current desktop computers can achieve very smooth interactivity in our implementation at modest image</tspan><tspan
-       sodipodi:role="line"
-       id="tspan2630"
-       x="179.50000"
-       y="1923.0632">sizes.</tspan><tspan
+       y="1763.7972"
+       style="letter-spacing:-0.45247805;">explore chaotic maps. Current desktop computers can achieve very smooth interactivity in our implementation at modest image sizes.</tspan><tspan
        sodipodi:role="line"
        id="tspan1712"
        x="179.50000"
-       y="1983.0632"
+       y="1823.7972"
        style="letter-spacing:13.819841;"></tspan></text>
   <rect
      style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke-width:13.875000;stroke:#000000;stroke-opacity:1.0000000;stroke-dasharray:none;"
@@ -276,184 +282,199 @@
      xml:space="preserve"
      style="fill:#000000;stroke:none;font-family:helvetica;font-style:normal;font-weight:normal;font-size:12px;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
      x="47.077332"
-     y="22.720779"
+     y="21.647196"
      id="text842"
      transform="scale(18.15221,18.15221)"><tspan
        id="tspan843"
        style="fill:#000000;fill-opacity:1.0000000;">Mapping Chaos</tspan></text>
   <g
-     id="g910"
-     transform="translate(48.57939,0.000000)">
+     id="g867"
+     transform="translate(302.9437,-70.93750)"
+     style="">
+    <text
+       xml:space="preserve"
+       style="fill:#000000;stroke:none;font-family:helvetica;font-style:normal;font-weight:normal;font-size:12px;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
+       x="42.640923"
+       y="100.71604"
+       id="text855"
+       transform="scale(6.466470,6.466470)"><tspan
+         id="tspan856"
+         style="fill:#000000;fill-opacity:1.0000000;">David Trowbridge</tspan></text>
+    <text
+       xml:space="preserve"
+       style="fill:#000000;stroke:none;font-family:helvetica;font-style:normal;font-weight:normal;font-size:12px;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
+       x="50.126904"
+       y="154.85270"
+       id="text861"
+       transform="scale(4.790458,4.790458)"><tspan
+         id="tspan862"
+         style="fill:#000000;fill-opacity:1.0000000;">trowbrds@cs.colorado.edu</tspan></text>
+  </g>
+  <g
+     id="g874"
+     transform="translate(855.0803,-70.93750)"
+     style="">
+    <text
+       xml:space="preserve"
+       style="fill:#000000;stroke:none;font-family:helvetica;font-style:normal;font-weight:normal;font-size:12px;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
+       x="198.81442"
+       y="100.78794"
+       id="text858"
+       transform="scale(6.466470,6.466470)"><tspan
+         id="tspan859"
+         style="fill:#000000;fill-opacity:1.0000000;">Micah Dowty</tspan></text>
+    <text
+       xml:space="preserve"
+       style="fill:#000000;stroke:none;font-family:helvetica;font-style:normal;font-weight:normal;font-size:12px;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
+       x="274.20767"
+       y="154.85270"
+       id="text864"
+       transform="scale(4.790458,4.790458)"><tspan
+         id="tspan865"
+         style="fill:#000000;fill-opacity:1.0000000;">micah@navi.cx</tspan></text>
+  </g>
+  <g
+     id="g2771"
+     transform="translate(1888.935,-3537.348)"
+     style="fill:#000000;fill-opacity:1.0000000;">
     <g
-       id="g867"
-       transform="translate(313.5216,0.000000)"
-       style="">
+       id="g2749"
+       transform="translate(-370.5256,-411.2428)"
+       style="fill:#000000;fill-opacity:1.0000000;">
+      <image
+         xlink:href="images/base-larger.png"
+         sodipodi:absref="/home/micah/navi-misc/docs/fyre_poster/images/base-larger.png"
+         width="720.00000"
+         height="720.00000"
+         id="image828"
+         x="146.35362"
+         y="7375.7090"
+         style="fill:#000000;fill-opacity:1.0000000;" />
       <text
          xml:space="preserve"
-         style="fill:#000000;stroke:none;font-family:helvetica;font-style:normal;font-weight:normal;font-size:12px;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
-         x="42.640923"
-         y="100.71604"
-         id="text855"
-         transform="scale(6.466470,6.466470)"><tspan
-           id="tspan856"
-           style="fill:#000000;fill-opacity:1.0000000;">David Trowbridge</tspan></text>
-      <text
-         xml:space="preserve"
-         style="fill:#000000;stroke:none;font-family:helvetica;font-style:normal;font-weight:normal;font-size:12px;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
-         x="50.126904"
-         y="154.85270"
-         id="text861"
-         transform="scale(4.790458,4.790458)"><tspan
-           id="tspan862"
-           style="fill:#000000;fill-opacity:1.0000000;">trowbrds@cs.colorado.edu</tspan></text>
+         style="font-size:50.000000;stroke-width:3.0000000pt;font-family:Luxi Sans;font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;text-anchor:start;writing-mode:lr;fill:#000000;fill-opacity:1.0000000;"
+         x="372.37863"
+         y="8122.9928"
+         id="text854"
+         sodipodi:linespacing="100%"><tspan
+           id="tspan855"
+           style="fill:#000000;fill-opacity:1.0000000;">Base Image</tspan></text>
     </g>
     <g
-       id="g874"
-       transform="translate(859.1308,0.000000)"
-       style="">
+       id="g2754"
+       transform="translate(-427.5296,-411.2428)"
+       style="fill:#000000;fill-opacity:1.0000000;">
+      <image
+         xlink:href="images/increased-exposure-larger.png"
+         sodipodi:absref="/home/micah/navi-misc/docs/fyre_poster/images/increased-exposure-larger.png"
+         width="720.00000"
+         height="720.00000"
+         id="image832"
+         x="883.17694"
+         y="7375.7090"
+         style="fill:#000000;fill-opacity:1.0000000;" />
       <text
          xml:space="preserve"
-         style="fill:#000000;stroke:none;font-family:helvetica;font-style:normal;font-weight:normal;font-size:12px;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
-         x="198.81442"
-         y="100.78794"
-         id="text858"
-         transform="scale(6.466470,6.466470)"><tspan
-           id="tspan859"
-           style="fill:#000000;fill-opacity:1.0000000;">Micah Dowty</tspan></text>
-      <text
-         xml:space="preserve"
-         style="fill:#000000;stroke:none;font-family:helvetica;font-style:normal;font-weight:normal;font-size:12px;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
-         x="274.20767"
-         y="154.85270"
-         id="text864"
-         transform="scale(4.790458,4.790458)"><tspan
-           id="tspan865"
-           style="fill:#000000;fill-opacity:1.0000000;">micah@navi.cx</tspan></text>
+         style="font-size:50.000000;stroke-width:3.0000000pt;font-family:Luxi Sans;font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;text-anchor:start;writing-mode:lr;fill:#000000;fill-opacity:1.0000000;"
+         x="1020.1020"
+         y="8125.8727"
+         id="text860"
+         sodipodi:linespacing="100%"><tspan
+           id="tspan861"
+           style="fill:#000000;fill-opacity:1.0000000;">Increased Exposure</tspan></text>
     </g>
   </g>
   <g
-     id="g1440"
-     transform="translate(0.000000,5654.370)">
-    <image
-       xlink:href="images/base-larger.png"
-       sodipodi:absref="/home/micah/navi-misc/docs/fyre_poster/images/base-larger.png"
-       width="736.82327"
-       height="736.82327"
-       id="image828"
-       x="46.801678"
-       y="1902.7559"
-       transform="translate(99.55195,-198.2405)"
-       style="" />
-    <image
-       xlink:href="images/increased-exposure-larger.png"
-       sodipodi:absref="/home/micah/navi-misc/docs/fyre_poster/images/increased-exposure-larger.png"
-       width="736.82327"
-       height="736.82327"
-       id="image832"
-       x="783.62497"
-       y="1902.7559"
-       transform="translate(99.55195,-198.2405)"
-       style="" />
-    <image
-       xlink:href="images/increased-gamma-larger.png"
-       sodipodi:absref="/home/micah/navi-misc/docs/fyre_poster/images/increased-gamma-larger.png"
-       width="736.82316"
-       height="736.82316"
-       id="image834"
-       x="1520.4483"
-       y="1902.7559"
-       transform="translate(99.55195,-198.2405)"
-       style="" />
-    <image
-       xlink:href="images/decreased-exposure-increased-gamma-larger.png"
-       sodipodi:absref="/home/micah/navi-misc/docs/fyre_poster/images/decreased-exposure-increased-gamma-larger.png"
-       width="736.82321"
-       height="736.82321"
-       id="image835"
-       x="2257.2713"
-       y="1902.7559"
-       transform="translate(99.55195,-198.2405)"
-       style="" />
-    <text
-       xml:space="preserve"
-       style="fill:#000000;stroke:none;font-family:Luxi Sans;font-style:normal;font-weight:normal;font-size:60.000000;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;font-stretch:normal;font-variant:normal;text-anchor:start;writing-mode:lr;"
-       x="353.99526"
-       y="2481.7756"
-       id="text854"
-       sodipodi:linespacing="100%"><tspan
-         id="tspan855"
-         style="fill:#000000;fill-opacity:1.0000000;">Base Image</tspan></text>
-    <text
-       xml:space="preserve"
-       style="fill:#000000;stroke:none;font-family:Luxi Sans;font-style:normal;font-weight:normal;font-size:60.000000;font-stretch:normal;font-variant:normal;text-anchor:start;writing-mode:lr;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
-       x="983.89857"
-       y="2484.6555"
-       id="text860"><tspan
-         id="tspan861"
-         style="fill:#000000;fill-opacity:1.0000000;">Increased Exposure</tspan></text>
-    <text
-       xml:space="preserve"
-       style="fill:#000000;stroke:none;font-family:Luxi Sans;font-style:normal;font-weight:normal;font-size:60.000000;font-stretch:normal;font-variant:normal;text-anchor:start;writing-mode:lr;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
-       x="1739.6218"
-       y="2484.6560"
-       id="text863"><tspan
-         id="tspan864"
-         style="fill:#000000;fill-opacity:1.0000000;">Increased Gamma</tspan></text>
-    <text
-       xml:space="preserve"
-       style="fill:#000000;stroke:none;font-family:Luxi Sans;font-style:normal;font-weight:normal;font-size:60.000000;font-stretch:normal;font-variant:normal;text-anchor:middle;writing-mode:lr;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
-       x="2725.2349"
-       y="2484.6555"
-       id="text866"
-       sodipodi:linespacing="120%"><tspan
-         id="tspan867"
-         style="fill:#000000;fill-opacity:1.0000000;">Decreased Exposure,</tspan><tspan
-         sodipodi:role="line"
-         id="tspan869"
-         x="2725.2349"
-         y="2556.6555"
-         style="fill:#000000;fill-opacity:1.0000000;">Increased Gamma</tspan></text>
+     id="g2782"
+     transform="translate(134.3403,-3187.181)">
+    <g
+       id="g2759"
+       transform="translate(-81.43420,-12.21519)">
+      <image
+         xlink:href="images/increased-gamma-larger.png"
+         sodipodi:absref="/home/micah/navi-misc/docs/fyre_poster/images/increased-gamma-larger.png"
+         width="720.00000"
+         height="720.00000"
+         id="image834"
+         x="1620.0002"
+         y="7375.7090"
+         style="" />
+      <text
+         xml:space="preserve"
+         style="font-size:50.000000;stroke-width:3.0000000pt;font-family:Luxi Sans;font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;text-anchor:middle;writing-mode:lr;"
+         x="1980.0002"
+         y="8125.8736"
+         id="text863"
+         sodipodi:linespacing="120%"><tspan
+           id="tspan864"
+           style="fill:#000000;fill-opacity:1.0000000;">Increased Gamma</tspan></text>
+    </g>
+    <g
+       id="g2764"
+       transform="translate(-154.7250,-12.21513)">
+      <image
+         xlink:href="images/decreased-exposure-increased-gamma-larger.png"
+         sodipodi:absref="/home/micah/navi-misc/docs/fyre_poster/images/decreased-exposure-increased-gamma-larger.png"
+         width="720.00000"
+         height="720.00000"
+         id="image835"
+         x="2356.8232"
+         y="7375.7089"
+         style="" />
+      <text
+         xml:space="preserve"
+         style="font-size:50.000000;stroke-width:3.0000000pt;font-family:Luxi Sans;text-anchor:middle;font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;writing-mode:lr;"
+         x="2716.8232"
+         y="8125.8727"
+         id="text866"
+         sodipodi:linespacing="120%"><tspan
+           id="tspan867"
+           style="fill:#000000;fill-opacity:1.0000000;">Decreased Exposure,</tspan><tspan
+           sodipodi:role="line"
+           id="tspan869"
+           x="2716.8232"
+           y="8185.8726"
+           style="fill:#000000;fill-opacity:1.0000000;">Increased Gamma</tspan></text>
+    </g>
   </g>
-  <g
-     id="g1475"
-     transform="translate(0.000000,4738.905)">
-    <image
-       xlink:href="images/goodbif-large.png"
-       sodipodi:absref="/home/micah/navi-misc/docs/fyre_poster/images/goodbif-large.png"
-       width="1319.4247"
-       height="439.80820"
-       id="image1459"
-       x="235.79959"
-       y="1493.5368"
-       style=""
-       transform="translate(20.08220,0.000000)" />
-    <image
-       xlink:href="images/goodbif-large.png"
-       sodipodi:absref="/home/micah/navi-misc/docs/fyre_poster/images/goodbif-large.png"
-       width="1319.4247"
-       height="439.80820"
-       id="image1460"
-       x="1644.6113"
-       y="1493.5367"
-       transform="translate(20.08220,0.000000)"
-       style="" />
-    <text
-       xml:space="preserve"
-       style="fill:#000000;stroke:none;font-family:Luxi Sans;font-style:normal;font-weight:normal;font-size:60.000000;font-stretch:normal;font-variant:normal;text-anchor:start;writing-mode:lr;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
-       x="630.71414"
-       y="2062.7996"
-       id="text1464"><tspan
-         id="tspan1465"
-         style="fill:#000000;fill-opacity:1.0000000;">Traditional Rendering</tspan></text>
-    <text
-       xml:space="preserve"
-       style="fill:#000000;stroke:none;font-family:Luxi Sans;font-style:normal;font-weight:normal;font-size:60.000000;font-stretch:normal;font-variant:normal;text-anchor:start;writing-mode:lr;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
-       x="2040.7558"
-       y="2062.7996"
-       id="text1467"><tspan
-         id="tspan1468"
-         style="fill:#000000;fill-opacity:1.0000000;">Histogram Rendering</tspan></text>
-  </g>
+  <image
+     xlink:href="images/goodbif-large.png"
+     sodipodi:absref="/home/micah/navi-misc/docs/fyre_poster/images/goodbif-large.png"
+     width="1400.6683"
+     height="466.88943"
+     id="image1459"
+     x="180.00000"
+     y="2056.7400"
+     style="" />
+  <image
+     xlink:href="images/goodbif-large.png"
+     sodipodi:absref="/home/micah/navi-misc/docs/fyre_poster/images/goodbif-large.png"
+     width="1400.6683"
+     height="466.88940"
+     id="image1460"
+     x="183.22694"
+     y="2667.7811"
+     style="" />
+  <text
+     xml:space="preserve"
+     style="font-size:50.000000;stroke-width:3.0000000pt;font-family:Luxi Sans;font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;text-anchor:start;writing-mode:lr;fill:#000000;fill-opacity:1.0000000;"
+     x="591.87097"
+     y="2459.2931"
+     id="text1464"
+     transform="scale(1.061576,1.061576)"
+     sodipodi:linespacing="100%"><tspan
+       id="tspan1465"
+       style="fill:#000000;fill-opacity:1.0000000;">Traditional Rendering</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-size:50.000000;stroke-width:3.0000000pt;font-family:Luxi Sans;font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;text-anchor:start;writing-mode:lr;fill:#000000;fill-opacity:1.0000000;"
+     x="595.93652"
+     y="3034.8939"
+     id="text1467"
+     transform="scale(1.061575,1.061575)"
+     sodipodi:linespacing="100%"><tspan
+       id="tspan1468"
+       style="fill:#000000;fill-opacity:1.0000000;">Histogram Rendering</tspan></text>
   <g
      id="g1490"
      transform="translate(50.27412,276.3968)"
@@ -477,254 +498,300 @@
          id="tspan1488"
          style="fill:#000000;fill-opacity:1.0000000;">Los Angeles, California</tspan></text>
   </g>
-  <g
-     id="g1578"
-     transform="translate(0.000000,4988.267)">
-    <image
-       xlink:href="images/clamped-pre-interp.png"
-       sodipodi:absref="/home/micah/navi-misc/docs/fyre_poster/images/clamped-pre-interp.png"
-       width="720.00000"
-       height="720.00000"
-       id="image1035"
-       x="809.73941"
-       y="2933.1016"
-       style=""
-       transform="translate(25.88790,765.8496)" />
-    <image
-       xlink:href="images/clamped-post-interp.png"
-       sodipodi:absref="/home/micah/navi-misc/docs/fyre_poster/images/clamped-post-interp.png"
-       width="720.00000"
-       height="720.00000"
-       id="image1036"
-       x="1676.7099"
-       y="2933.1016"
-       style=""
-       transform="translate(25.88790,765.8496)" />
-    <g
-       id="g1381"
-       transform="translate(120.8993,775.7419)"
-       style="">
-      <rect
-         style="fill:url(#linearGradient941);fill-rule:evenodd;stroke:#000000;stroke-width:6.6815262;"
-         id="rect825"
-         width="382.81645"
-         height="382.81645"
-         ry="0.0000000"
-         x="172.48779"
-         y="3098.0086" />
-      <path
-         sodipodi:type="arc"
-         style="fill:#000000;fill-opacity:1.0000000;fill-rule:evenodd;stroke-width:3.0000000pt;"
-         id="path837"
-         sodipodi:cx="162.67107"
-         sodipodi:cy="403.83731"
-         sodipodi:rx="5.0384841"
-         sodipodi:ry="5.0384841"
-         d="M 167.70955 403.83731 A 5.0384841 5.0384841 0 1 0 157.63258,403.83731 A 5.0384841 5.0384841 0 1 0 167.70955 403.83731 z"
-         transform="matrix(2.672611,0.000000,0.000000,2.672611,-204.0624,2336.324)" />
-      <path
-         sodipodi:type="arc"
-         style="fill:#ff753a;fill-opacity:1.0000000;fill-rule:evenodd;stroke-width:3.0000000pt;"
-         id="path838"
-         sodipodi:cx="162.67107"
-         sodipodi:cy="403.83731"
-         sodipodi:rx="5.0384841"
-         sodipodi:ry="5.0384841"
-         d="M 167.70955 403.83731 A 5.0384841 5.0384841 0 1 0 157.63258,403.83731 A 5.0384841 5.0384841 0 1 0 167.70955 403.83731 z"
-         transform="matrix(2.672611,0.000000,0.000000,2.672611,-111.7248,2107.404)" />
-      <text
-         xml:space="preserve"
-         style="font-size:12.000000;fill-opacity:1.0000000;stroke-width:3.0000000pt;font-family:helvetica;fill:#000000;"
-         x="95.674985"
-         y="1282.1260"
-         id="text1328"
-         transform="scale(2.672611,2.672611)"><tspan
-           id="tspan1329"
-           style="fill:#000000;fill-opacity:1.0000000;">Background</tspan></text>
-      <text
-         xml:space="preserve"
-         style="font-size:12.000000;fill-opacity:1.0000000;stroke-width:3.0000000pt;font-family:helvetica;fill:#ffffff;"
-         x="129.50483"
-         y="1196.4719"
-         id="text845"
-         transform="scale(2.672611,2.672611)"><tspan
-           id="tspan846"
-           style="fill:#ffffff;fill-opacity:1.0000000;">Foreground</tspan></text>
-      <path
-         style="fill:url(#linearGradient920);fill-rule:evenodd;stroke:url(#linearGradient925);stroke-width:2.3719418;stroke-linecap:round;stroke-linejoin:round;"
-         d="M 239.39893,3395.6075 L 311.63741,3215.2593 L 311.63741,3215.2593"
-         id="path849" />
-      <path
-         style="fill:url(#linearGradient919);fill-rule:evenodd;stroke:url(#linearGradient924);stroke-width:2.3719418;stroke-linecap:round;stroke-linejoin:round;"
-         d="M 316.02161,3205.2748 L 304.22837,3218.4349 L 314.81309,3222.6683 L 316.02161,3205.2748 z "
-         id="path850" />
-      <text
-         xml:space="preserve"
-         style="fill:#272727;stroke:none;font-family:helvetica;font-style:normal;font-weight:normal;font-size:12px;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
-         x="144.22608"
-         y="1686.3734"
-         id="text1336"
-         transform="scale(2.084623,2.084623)"><tspan
-           id="tspan871"
-           style="fill:#272727;fill-opacity:1.0000000;">Colorspace</tspan></text>
-    </g>
-    <g
-       id="g1361"
-       transform="translate(3.877950,775.7419)"
-       style="">
-      <rect
-         style="fill:url(#linearGradient936);fill-rule:evenodd;stroke:#000000;stroke-width:6.6815262;"
-         id="rect890"
-         width="382.81644"
-         height="382.81644"
-         ry="0.0000000"
-         x="2569.0309"
-         y="3098.0085" />
-      <path
-         sodipodi:type="arc"
-         style="fill:#000000;fill-opacity:1.0000000;fill-rule:evenodd;stroke-width:3.0000000pt;"
-         id="path891"
-         sodipodi:cx="162.67107"
-         sodipodi:cy="403.83731"
-         sodipodi:rx="5.0384841"
-         sodipodi:ry="5.0384841"
-         d="M 167.70955 403.83731 A 5.0384841 5.0384841 0 1 0 157.63258,403.83731 A 5.0384841 5.0384841 0 1 0 167.70955 403.83731 z"
-         transform="matrix(2.672611,0.000000,0.000000,2.672611,2192.481,2336.324)" />
-      <path
-         sodipodi:type="arc"
-         style="fill:#ff753a;fill-opacity:1.0000000;fill-rule:evenodd;stroke-width:3.0000000pt;"
-         id="path892"
-         sodipodi:cx="162.67107"
-         sodipodi:cy="403.83731"
-         sodipodi:rx="5.0384841"
-         sodipodi:ry="5.0384841"
-         d="M 167.70955 403.83731 A 5.0384841 5.0384841 0 1 0 157.63258,403.83731 A 5.0384841 5.0384841 0 1 0 167.70955 403.83731 z"
-         transform="matrix(2.672611,0.000000,0.000000,2.672611,2284.818,2107.404)" />
-      <text
-         xml:space="preserve"
-         style="font-size:12.000000;fill-opacity:1.0000000;stroke-width:3.0000000pt;font-family:helvetica;fill:#000000;"
-         x="992.37988"
-         y="1282.1260"
-         id="text893"
-         transform="scale(2.672611,2.672611)"><tspan
-           id="tspan894"
-           style="fill:#000000;fill-opacity:1.0000000;">Background</tspan></text>
-      <text
-         xml:space="preserve"
-         style="font-size:12.000000;fill-opacity:1.0000000;stroke-width:3.0000000pt;font-family:helvetica;fill:#ffffff;"
-         x="1026.2096"
-         y="1196.4719"
-         id="text896"
-         transform="scale(2.672611,2.672611)"><tspan
-           id="tspan897"
-           style="fill:#ffffff;fill-opacity:1.0000000;">Foreground</tspan></text>
-      <path
-         style="fill:url(#linearGradient927);fill-rule:evenodd;stroke:url(#linearGradient929);stroke-width:3.2071328;stroke-linecap:round;stroke-linejoin:round;"
-         d="M 2635.9420,3395.6075 L 2708.1804,3215.2593 L 2708.1804,3215.2593"
-         id="path899" />
-      <path
-         style="fill:url(#linearGradient926);fill-rule:evenodd;stroke:url(#linearGradient928);stroke-width:1.5282189;stroke-linecap:round;stroke-linejoin:round;"
-         d="M 2712.5647,3205.2748 L 2700.7714,3218.4349 L 2711.3562,3222.6683 L 2712.5647,3205.2748 z "
-         id="path900" />
-      <path
-         style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:url(#linearGradient931);stroke-width:2.3719418;stroke-linecap:round;stroke-linejoin:round;"
-         d="M 2726.7558,3168.9205 L 2750.5604,3110.4293 L 2940.6569,3111.1094"
-         id="path905"
-         sodipodi:nodetypes="ccc" />
-      <path
-         style="fill:#ffffff;fill-rule:evenodd;stroke:url(#linearGradient930);stroke-width:2.3719418;stroke-linecap:round;stroke-linejoin:round;"
-         d="M 2944.5148,3111.4957 L 2927.9206,3105.4210 L 2927.9125,3116.8208 L 2944.5148,3111.4957 z "
-         id="path906" />
-      <text
-         xml:space="preserve"
-         style="fill:#272727;stroke:none;font-family:helvetica;font-style:normal;font-weight:normal;font-size:12px;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
-         x="1293.8551"
-         y="1686.3734"
-         id="text907"
-         transform="scale(2.084623,2.084623)"><tspan
-           id="tspan908"
-           style="fill:#272727;fill-opacity:1.0000000;">Colorspace</tspan></text>
-    </g>
-    <text
-       xml:space="preserve"
-       style="fill:#000000;stroke:none;font-family:Luxi Sans;font-style:normal;font-weight:normal;font-size:60.000000;font-stretch:normal;font-variant:normal;text-anchor:start;writing-mode:lr;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
-       x="805.80725"
-       y="4555.4260"
-       id="text1538"><tspan
-         id="tspan1539"
-         style="fill:#000000;fill-opacity:1.0000000;">Clamped Before Interpolation</tspan></text>
-    <text
-       xml:space="preserve"
-       style="fill:black;stroke:none;font-family:Luxi Sans;font-style:normal;font-weight:normal;font-size:60.000000;font-stretch:normal;font-variant:normal;text-anchor:start;writing-mode:lr;fill-opacity:0.75;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
-       x="1697.7979"
-       y="4555.4260"
-       id="text1541"><tspan
-         id="tspan1542">Clamped After Interpolation</tspan></text>
-  </g>
   <text
      xml:space="preserve"
-     style="fill:#000000;stroke:none;font-family:Luxi Sans;font-style:normal;font-weight:normal;font-size:60.000000;font-stretch:normal;font-variant:normal;text-anchor:start;writing-mode:lr;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
-     x="240.36008"
-     y="8359.5679"
+     style="font-size:50.000000;stroke-width:3.0000000pt;font-family:Luxi Sans;font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;text-anchor:start;writing-mode:lr;fill:#000000;fill-opacity:1.0000000;"
+     x="560.40103"
+     y="4259.1533"
+     id="text1538"
+     sodipodi:linespacing="100%"><tspan
+       id="tspan1539"
+       style="fill:#000000;fill-opacity:1.0000000;">Clamped Before Interpolation</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-size:50.000000;fill-opacity:1.0000000;stroke-width:3.0000000pt;font-family:Luxi Sans;font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;text-anchor:start;writing-mode:lr;fill:#000000;"
+     x="581.25113"
+     y="4985.3501"
+     id="text1541"
+     sodipodi:linespacing="100%"><tspan
+       id="tspan1542"
+       style="fill:#000000;fill-opacity:1.0000000;">Clamped After Interpolation</tspan></text>
+  <text
+     xml:space="preserve"
+     style="fill:#000000;stroke:none;font-family:Luxi Sans;font-style:normal;font-weight:normal;font-size:40.000000;font-stretch:normal;font-variant:normal;text-anchor:start;writing-mode:lr;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
+     x="182.82695"
+     y="3342.4061"
      id="text1619"
      sodipodi:linespacing="120%"><tspan
        id="tspan1620"
-       style="fill:#000000;fill-opacity:1.0000000;">The extra detail stored in the original high dynamic range histogram can also be expressed with the help</tspan><tspan
+       style="letter-spacing:0.60004151;">The extra detail stored in the original high dynamic range histogram can also</tspan><tspan
        sodipodi:role="line"
-       id="tspan1622"
-       x="240.36008"
-       y="8431.5684"
-       style="fill:#000000;fill-opacity:1.0000000;">of color. We take an approach that mirrors the way natural objects appear in photography. Very bright</tspan><tspan
+       id="tspan2807"
+       x="182.82695"
+       y="3390.4060"
+       style="letter-spacing:0.21430056;">be expressed with the help of color. We take an approach that mirrors the way</tspan><tspan
        sodipodi:role="line"
-       id="tspan1624"
-       x="240.36008"
-       y="8503.5684"
-       style="fill:#000000;fill-opacity:1.0000000;">objects, for example, saturate the image and always appear white. By clamping each color component</tspan><tspan
+       id="tspan2809"
+       x="182.82695"
+       y="3438.4060"
+       style="letter-spacing:-0.30751830;">natural objects appear in photography. Very bright objects, for example, saturate</tspan><tspan
        sodipodi:role="line"
-       id="tspan1626"
-       x="240.36008"
-       y="8575.5684"
-       style="fill:#000000;fill-opacity:1.0000000;">as late as possible in the rendering process, a similar saturation effect can be achieved:</tspan></text>
+       id="tspan2817"
+       x="182.82695"
+       y="3486.4060">the image and always appear white. By clamping each color component as late</tspan><tspan
+       sodipodi:role="line"
+       id="tspan2819"
+       x="182.82695"
+       y="3534.4060"
+       style="letter-spacing:-0.16085768;">as possible in the rendering process, a similar saturation effect can be achieved:</tspan></text>
   <text
      xml:space="preserve"
-     style="fill:#000000;stroke:none;font-family:Luxi Sans;font-style:normal;font-weight:normal;font-size:60.000000;font-stretch:normal;font-variant:normal;text-anchor:start;writing-mode:lr;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
-     x="240.36008"
-     y="6954.8282"
+     style="fill:#000000;stroke:none;font-family:Luxi Sans;font-style:normal;font-weight:normal;font-size:40.000000;font-stretch:normal;font-variant:normal;text-anchor:start;writing-mode:lr;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
+     x="1664.9293"
+     y="3076.3653"
      id="text1628"
      sodipodi:linespacing="120%"><tspan
        id="tspan1629"
-       style="fill:#000000;fill-opacity:1.0000000;">The histogram data collected while iterating the chaotic system is treated as a high dynamic range</tspan><tspan
+       style="letter-spacing:0.26576617;">The histogram data collected while iterating the chaotic system is treated as a</tspan><tspan
        sodipodi:role="line"
-       id="tspan1639"
-       x="240.36008"
-       y="7026.8281">image. As is common with high dynamic range image processing, we can perform gamma and exposure</tspan><tspan
+       id="tspan2721"
+       x="1664.9293"
+       y="3124.3652"
+       style="letter-spacing:1.3210143;">high dynamic range image. As is common with high dynamic range image </tspan><tspan
        sodipodi:role="line"
-       id="tspan1641"
-       x="240.36008"
-       y="7098.8281">adjustment at the original image's full precision, and use various settings to bring out different details</tspan><tspan
+       id="tspan2733"
+       x="1664.9293"
+       y="3172.3652"
+       style="letter-spacing:0.68125981;">processing, we can perform gamma and exposure adjustment at the original</tspan><tspan
        sodipodi:role="line"
-       id="tspan1643"
-       x="240.36008"
-       y="7170.8281">in the image. This step is computationally cheap and performed separately from the chaotic system</tspan><tspan
+       id="tspan2735"
+       x="1664.9293"
+       y="3220.3652"
+       style="letter-spacing:0.42653832;">image's full precision, and use various settings to bring out different details in</tspan><tspan
        sodipodi:role="line"
-       id="tspan1645"
-       x="240.36008"
-       y="7242.8281">calculations. The exposure, gamma adjustment, and colorization parameters can all be adjusted in</tspan><tspan
+       id="tspan2737"
+       x="1664.9293"
+       y="3268.3652"
+       style="letter-spacing:0.38886997;">the image. This is all done while converting the histogram to an image, so the</tspan><tspan
        sodipodi:role="line"
-       id="tspan1647"
-       x="240.36008"
-       y="7314.8281">real-time without restarting any calculations, making it easy to explore the hidden details in a histogram:</tspan></text>
+       id="tspan2743"
+       x="1664.9293"
+       y="3316.3652"
+       style="letter-spacing:0.15562886;">exposure, gamma adjustment, and colorization parameters can all be adjusted</tspan><tspan
+       sodipodi:role="line"
+       id="tspan2745"
+       x="1664.9293"
+       y="3364.3652"
+       style="letter-spacing:0.40307873;">in real-time without restarting any calculations. This makes it particularly easy</tspan><tspan
+       sodipodi:role="line"
+       id="tspan2747"
+       x="1664.9293"
+       y="3412.3652">to explore the hidden details in a single histogram:</tspan></text>
   <text
      xml:space="preserve"
-     style="fill:#000000;stroke:none;font-family:Luxi Sans;font-style:normal;font-weight:normal;font-size:60.000000;font-stretch:normal;font-variant:normal;text-anchor:start;writing-mode:lr;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
-     x="240.36008"
-     y="6046.8365"
+     style="fill:#000000;stroke:none;font-family:Luxi Sans;font-style:normal;font-weight:normal;font-size:40.000000;font-stretch:normal;font-variant:normal;text-anchor:start;writing-mode:lr;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
+     x="192.50195"
+     y="1906.3664"
      id="text1651"
      sodipodi:linespacing="120%"><tspan
        id="tspan1652"
-       style="fill:#000000;fill-opacity:1.0000000;">The logistic map bifurcation diagram is an omnipresent image in the study of chaotic maps. By using a</tspan><tspan
+       style="letter-spacing:0.36215508;">The logistic map bifurcation diagram is an omnipresent image in the study of</tspan><tspan
        sodipodi:role="line"
-       id="tspan1664"
-       x="240.36008"
-       y="6118.8364">histogram-based imaging technique to render it, a striking amount of additional detail is uncovered:</tspan></text>
+       id="tspan2676"
+       x="192.50195"
+       y="1954.3665"
+       style="letter-spacing:0.53638667;">chaotic maps. By using a histogram-based imaging technique to render it, a</tspan><tspan
+       sodipodi:role="line"
+       id="tspan2678"
+       x="192.50195"
+       y="2002.3665">striking amount of additional detail is uncovered.</tspan></text>
+  <text
+     xml:space="preserve"
+     style="fill:#000000;stroke:none;font-family:Luxi Sans;font-style:normal;font-weight:normal;font-size:40.000000;font-stretch:normal;font-variant:normal;text-anchor:start;writing-mode:lr;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
+     x="1668.5176"
+     y="1906.3660"
+     id="text2680"
+     sodipodi:linespacing="120%"><tspan
+       id="tspan2681"
+       style="letter-spacing:2.4592769;"
+       dy="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2.7384432e-08 0 0 0 0 0 0">The interactive properties of histogram rendering make it easy to find</tspan><tspan
+       sodipodi:role="line"
+       id="tspan2701"
+       x="1668.5176"
+       y="1954.3660">appealing images and tweak them with an artistic eye rather than mathematics.</tspan></text>
+  <g
+     id="g2899"
+     transform="translate(0.000000,-2486.220)">
+    <g
+       id="g2861">
+      <g
+         id="g1381"
+         transform="translate(161.3550,3070.332)"
+         style="">
+        <rect
+           style="fill:url(#linearGradient941);fill-rule:evenodd;stroke:#000000;stroke-width:6.6815262;"
+           id="rect825"
+           width="382.81645"
+           height="382.81645"
+           ry="0.0000000"
+           x="172.48779"
+           y="3098.0086" />
+        <path
+           sodipodi:type="arc"
+           style="fill:#000000;fill-opacity:1.0000000;fill-rule:evenodd;stroke-width:3.0000000pt;"
+           id="path837"
+           sodipodi:cx="162.67107"
+           sodipodi:cy="403.83731"
+           sodipodi:rx="5.0384841"
+           sodipodi:ry="5.0384841"
+           d="M 167.70955 403.83731 A 5.0384841 5.0384841 0 1 0 157.63258,403.83731 A 5.0384841 5.0384841 0 1 0 167.70955 403.83731 z"
+           transform="matrix(2.672611,0.000000,0.000000,2.672611,-204.0624,2336.324)" />
+        <path
+           sodipodi:type="arc"
+           style="fill:#ff753a;fill-opacity:1.0000000;fill-rule:evenodd;stroke-width:3.0000000pt;"
+           id="path838"
+           sodipodi:cx="162.67107"
+           sodipodi:cy="403.83731"
+           sodipodi:rx="5.0384841"
+           sodipodi:ry="5.0384841"
+           d="M 167.70955 403.83731 A 5.0384841 5.0384841 0 1 0 157.63258,403.83731 A 5.0384841 5.0384841 0 1 0 167.70955 403.83731 z"
+           transform="matrix(2.672611,0.000000,0.000000,2.672611,-111.7248,2107.404)" />
+        <text
+           xml:space="preserve"
+           style="font-size:12.000000;fill-opacity:1.0000000;stroke-width:3.0000000pt;font-family:helvetica;fill:#000000;"
+           x="95.674985"
+           y="1282.1260"
+           id="text1328"
+           transform="scale(2.672611,2.672611)"><tspan
+             id="tspan1329"
+             style="fill:#000000;fill-opacity:1.0000000;">Background</tspan></text>
+        <text
+           xml:space="preserve"
+           style="font-size:12.000000;fill-opacity:1.0000000;stroke-width:3.0000000pt;font-family:helvetica;fill:#ffffff;"
+           x="129.50483"
+           y="1196.4719"
+           id="text845"
+           transform="scale(2.672611,2.672611)"><tspan
+             id="tspan846"
+             style="fill:#ffffff;fill-opacity:1.0000000;">Foreground</tspan></text>
+        <path
+           style="fill:url(#linearGradient920);fill-rule:evenodd;stroke:url(#linearGradient925);stroke-width:2.3719418;stroke-linecap:round;stroke-linejoin:round;"
+           d="M 239.39893,3395.6075 L 311.63741,3215.2593 L 311.63741,3215.2593"
+           id="path849" />
+        <path
+           style="fill:url(#linearGradient919);fill-rule:evenodd;stroke:url(#linearGradient924);stroke-width:2.3719418;stroke-linecap:round;stroke-linejoin:round;"
+           d="M 316.02161,3205.2748 L 304.22837,3218.4349 L 314.81309,3222.6683 L 316.02161,3205.2748 z "
+           id="path850" />
+        <text
+           xml:space="preserve"
+           style="fill:#272727;stroke:none;font-family:helvetica;font-style:normal;font-weight:normal;font-size:12px;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
+           x="144.22608"
+           y="1686.3734"
+           id="text1336"
+           transform="scale(2.084623,2.084623)"><tspan
+             id="tspan871"
+             style="fill:#272727;fill-opacity:1.0000000;">Colorspace</tspan></text>
+      </g>
+    </g>
+    <image
+       xlink:href="images/clamped-pre-interp-large.png"
+       sodipodi:absref="/home/micah/navi-misc/docs/fyre_poster/images/clamped-pre-interp-large.png"
+       width="585.00000"
+       height="585.00000"
+       id="image2897"
+       x="855.00000"
+       y="6075.0000" />
+  </g>
+  <g
+     id="g2917"
+     transform="translate(0.000000,-2570.024)">
+    <g
+       id="g2878">
+      <g
+         id="g1361"
+         transform="translate(-2235.188,3880.332)"
+         style="">
+        <rect
+           style="fill:url(#linearGradient936);fill-rule:evenodd;stroke:#000000;stroke-width:6.6815262;"
+           id="rect890"
+           width="382.81644"
+           height="382.81644"
+           ry="0.0000000"
+           x="2569.0309"
+           y="3098.0085" />
+        <path
+           sodipodi:type="arc"
+           style="fill:#000000;fill-opacity:1.0000000;fill-rule:evenodd;stroke-width:3.0000000pt;"
+           id="path891"
+           sodipodi:cx="162.67107"
+           sodipodi:cy="403.83731"
+           sodipodi:rx="5.0384841"
+           sodipodi:ry="5.0384841"
+           d="M 167.70955 403.83731 A 5.0384841 5.0384841 0 1 0 157.63258,403.83731 A 5.0384841 5.0384841 0 1 0 167.70955 403.83731 z"
+           transform="matrix(2.672611,0.000000,0.000000,2.672611,2192.481,2336.324)" />
+        <path
+           sodipodi:type="arc"
+           style="fill:#ff753a;fill-opacity:1.0000000;fill-rule:evenodd;stroke-width:3.0000000pt;"
+           id="path892"
+           sodipodi:cx="162.67107"
+           sodipodi:cy="403.83731"
+           sodipodi:rx="5.0384841"
+           sodipodi:ry="5.0384841"
+           d="M 167.70955 403.83731 A 5.0384841 5.0384841 0 1 0 157.63258,403.83731 A 5.0384841 5.0384841 0 1 0 167.70955 403.83731 z"
+           transform="matrix(2.672611,0.000000,0.000000,2.672611,2284.818,2107.404)" />
+        <text
+           xml:space="preserve"
+           style="font-size:12.000000;fill-opacity:1.0000000;stroke-width:3.0000000pt;font-family:helvetica;fill:#000000;"
+           x="992.37988"
+           y="1282.1260"
+           id="text893"
+           transform="scale(2.672611,2.672611)"><tspan
+             id="tspan894"
+             style="fill:#000000;fill-opacity:1.0000000;">Background</tspan></text>
+        <text
+           xml:space="preserve"
+           style="font-size:12.000000;fill-opacity:1.0000000;stroke-width:3.0000000pt;font-family:helvetica;fill:#ffffff;"
+           x="1026.2096"
+           y="1196.4719"
+           id="text896"
+           transform="scale(2.672611,2.672611)"><tspan
+             id="tspan897"
+             style="fill:#ffffff;fill-opacity:1.0000000;">Foreground</tspan></text>
+        <path
+           style="fill:url(#linearGradient927);fill-rule:evenodd;stroke:url(#linearGradient929);stroke-width:3.2071328;stroke-linecap:round;stroke-linejoin:round;"
+           d="M 2635.9420,3395.6075 L 2708.1804,3215.2593 L 2708.1804,3215.2593"
+           id="path899" />
+        <path
+           style="fill:url(#linearGradient926);fill-rule:evenodd;stroke:url(#linearGradient928);stroke-width:1.5282189;stroke-linecap:round;stroke-linejoin:round;"
+           d="M 2712.5647,3205.2748 L 2700.7714,3218.4349 L 2711.3562,3222.6683 L 2712.5647,3205.2748 z "
+           id="path900" />
+        <path
+           style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:url(#linearGradient931);stroke-width:2.3719418;stroke-linecap:round;stroke-linejoin:round;"
+           d="M 2726.7558,3168.9205 L 2750.5604,3110.4293 L 2940.6569,3111.1094"
+           id="path905"
+           sodipodi:nodetypes="ccc" />
+        <path
+           style="fill:#ffffff;fill-rule:evenodd;stroke:url(#linearGradient930);stroke-width:2.3719418;stroke-linecap:round;stroke-linejoin:round;"
+           d="M 2944.5148,3111.4957 L 2927.9206,3105.4210 L 2927.9125,3116.8208 L 2944.5148,3111.4957 z "
+           id="path906" />
+        <text
+           xml:space="preserve"
+           style="fill:#272727;stroke:none;font-family:helvetica;font-style:normal;font-weight:normal;font-size:12px;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
+           x="1293.8551"
+           y="1686.3734"
+           id="text907"
+           transform="scale(2.084623,2.084623)"><tspan
+             id="tspan908"
+             style="fill:#272727;fill-opacity:1.0000000;">Colorspace</tspan></text>
+      </g>
+    </g>
+    <image
+       xlink:href="images/clamped-post-interp-large.png"
+       sodipodi:absref="/home/micah/navi-misc/docs/fyre_poster/images/clamped-post-interp-large.png"
+       width="585.00000"
+       height="585.00000"
+       id="image2898"
+       x="855.00000"
+       y="6885.0000" />
+  </g>
 </svg>
