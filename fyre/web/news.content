@@ -1,3 +1,12 @@
+<div class="heading">03 March 2005 - More Packaging</div>
+<p>
+    Fedora users rejoice, for we now have RPMs! Thanks Mirco!
+</p>
+<ul>
+    <li><a href="http://flapjack.navi.cx/releases/fyre/fyre-1.0.0-1.src.rpm">fyre-1.0.0-1.src.rpm</a></li>
+    <li><a href="http://flapjack.navi.cx/releases/fyre/fyre-1.0.0-1.i686.rpm">fyre-1.0.0-1.i686.rpm</a></li>
+</ul>
+
 <div class="heading">24 February 2005 - Packaging</div>
 <p>
     Thanks to Christoph Haas, we've got a debian package now. It'll be a little bit until it's fetchable
