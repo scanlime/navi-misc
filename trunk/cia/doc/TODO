@@ -30,6 +30,18 @@ Web
 Code
 -----
 
+- CIA is now keeping a graph associating related stats targets. It doesn't yet
+  do anything with the data. This stats_relations table can be used to implement
+  several neat features, including:
+
+  - A 'related items' list on each stats target, including links from projects
+    to authors and vice versa. The edges containing the current stats target
+    could be sorted first by parent, then by association strength.
+
+  - Use Graphviz or similar to actually plot the graphs. A big-picture graph
+    showing all the clusters of people and projects could be quite spiffy,
+    as well as having graphs showing each stats target's nearest neighbours.
+
 - Web interface for editing rulesets and stats metadata- how would we handle
   authentication, if necessary?
 
@@ -81,13 +93,4 @@ Code
   it hyperlinks to the stats target that results from running the message through that
   ruleset. If there are multiple messages with matching path= attributes, it would have
   some way to determine which one is best.
-
-- Associations between related stats targets. This would be quite cool in the context
-  of, say, being able to see what projects a person works on, or who works on a particular
-  project. Right now there's a table definition in rev 3 of the database schema that
-  can store this type of information. If possible, this should be made more efficient
-  before implementing, but with a small number of stats rulesets it shouldn't be too bad.
-  It's cool enough I'm tempted to throw efficiency to the wind ;)
-
-
 
