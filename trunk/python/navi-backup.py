@@ -347,8 +347,12 @@ class CatalogIndex:
                 i = self.iterCatalogs()
 
         # All other catalogs need indexing
-        for file in i:
-            self.reindexFile(file)
+        for latest in i:
+            self.reindexFile(latest)
+
+        # Save a new latest catalog
+        self.cache[''] = latest
+        self.cache.sync()
 
     def prettifyDate(self, date):
         """Convert the filename date codes into a tuple of easier
