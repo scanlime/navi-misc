@@ -2,6 +2,7 @@
 #include <regex.h>
 #include <gtk/gtk.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "xchat-plugin.h"
 
@@ -64,39 +65,42 @@ static void make_window ()
 	gtk_widget_show_all (window);
 }
 
+static void add_match (char **word, regmatch_t match)
+{
+	int len;
+	const char *chan;
+	char *url_match, *channel;
+	GtkTreeIter iter;
+
+	len = match.rm_eo - match.rm_so;
+
+	url_match = malloc (len + 1);
+
+	strncpy (url_match, word[2], len);
+
+	chan = xchat_get_info (ph, "channel");
+	channel = malloc (strlen (chan) + 1);
+	strncpy (channel, chan, strlen (chan)+1);
+
+	if (urls >= MAXURLS) {
+		gtk_tree_model_get_iter_first (GTK_TREE_MODEL(list_store), &iter);
+		gtk_list_store_remove (list_store, &iter);
+	}
+	else
+		urls++;
+
+	gtk_list_store_append (list_store, &iter);
+	gtk_list_store_set (list_store, &iter, 0, word[1], 1, channel, 2, url_match, -1);
+}
+
 static int grabURL (char **word, void *userdata)
 {
-	GtkTreeIter iter;
-	int ret_val;
-	const char *chan;
 	regmatch_t match;
 
-	ret_val = regexec (url, word[2], 1, &match, REG_NOTBOL | REG_NOTEOL);
-
-	if (ret_val)
-		ret_val = regexec (email, word[2], 1, &match, REG_NOTBOL | REG_NOTEOL);
-
-	if (ret_val == 0)
-	{
-		chan = xchat_get_info (ph, "channel");
-		xchat_print (ph, "URL found.\n");
-
-		if (urls >= MAXURLS)
-		{
-			gtk_tree_model_get_iter_first (GTK_TREE_MODEL(list_store), &iter);
-			gtk_list_store_remove (list_store, &iter);
-		}
-		else
-		{
-			urls++;
-		}
-
-		//gtk_list_store_append (list_store, &iter);
-		//gtk_list_store_set (list_store, &iter, 0, word[3], 1, chan, 2, match, -1);
-	}
-
-	if (chan)
-		free (chan);
+	if (regexec (url, word[2], 1, &match, REG_NOTBOL | REG_NOTEOL) == 0)
+		add_match (word, match);
+	else if (regexec (email, word[2], 1, &match, REG_NOTBOL | REG_NOTEOL) == 0)
+		add_match (word, match);
 
 	return XCHAT_EAT_NONE;
 }
