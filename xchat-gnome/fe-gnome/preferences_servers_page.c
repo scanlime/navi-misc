@@ -210,6 +210,15 @@ server_selection_changed (GtkTreeSelection *selection, gpointer data)
 static void
 add_server_clicked (GtkButton *button, gpointer data)
 {
+	GtkWidget *treeview;
+	GtkListStore *store;
+	GtkTreeIter iter;
+
+	treeview = glade_xml_get_widget (gui.xml, "server config servers");
+	store = GTK_LIST_STORE (gtk_tree_view_get_model (GTK_TREE_VIEW (treeview)));
+	gtk_list_store_append (store, &iter);
+
+
 }
 
 static void
@@ -258,6 +267,11 @@ remove_autojoin_clicked (GtkButton *button, gpointer data)
 
 static void
 populate_channels_list (GtkListStore *store, ircnet *net)
+{
+}
+
+static void
+server_entry_edited (GtkCellRendererText *renderer, gchar *arg1, gchar *arg2, gpointer data)
 {
 }
 
@@ -391,6 +405,7 @@ edit_clicked (GtkWidget *button, gpointer data)
 		gtk_tree_view_column_set_attributes (column, renderer, "text", 0, NULL);
 		gtk_tree_view_append_column (GTK_TREE_VIEW (widget), column);
 		g_object_set (G_OBJECT (renderer), "editable", TRUE, NULL);
+		g_signal_connect (G_OBJECT (renderer), "edited", G_CALLBACK(server_entry_edited), NULL);
 
 		select = gtk_tree_view_get_selection (GTK_TREE_VIEW (widget));
 		g_signal_connect (G_OBJECT (select), "changed", G_CALLBACK(server_selection_changed), NULL);
