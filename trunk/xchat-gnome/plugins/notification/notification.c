@@ -34,7 +34,7 @@
 
 typedef enum
 {
-	NOTIF_NONE,
+	NOTIF_NONE = 0,
 	NOTIF_DATA,
 	NOTIF_MSG,
 	NOTIF_NICK
@@ -42,16 +42,13 @@ typedef enum
 
 
 static xchat_plugin *ph;			// Plugin handle.
-//static NotifStatus status = NOTIF_NONE;		// Current status level.
+static NotifStatus status = NOTIF_NONE;		// Current status level.
 static gboolean window_visible = TRUE;		// Keep track of whether the window is visible.
 static NavTree *nav_tree;			// A reference to the navigation tree.
 static EggTrayIcon *notification;		// Notification area icon.
 //static GtkMenu *menu;				// The menu that pops up.
 static GtkWidget *image;			// The image displayed by the icon.
-static GdkPixbuf *logo,				// Pixbufs
-		 *nick_said,
-		 *msg_said,
-		 *new_data;
+static GdkPixbuf *pixbufs[4];		// Pixbufs
 
 static gboolean notification_clicked_cb (GtkWidget *widget, GdkEventButton *event, gpointer data);
 static int new_text_cb (char **word, void *data);
@@ -97,41 +94,33 @@ xchat_plugin_init (xchat_plugin *plugin_handle, char **plugin_name,
 {
 	GtkWidget *box;
 	GdkPixbuf *p;
-	//void *mp;
-	//NavTree *(*get_nt)(void);
-	//char *error;
 
-	/*mp = dlopen (NULL, RTLD_NOW);
-	dlerror ();
-	get_nt = dlsym (mp, "get_navigation_tree");
-	error = dlerror ();
-	if (error) {
-		g_print ("%s\n\n", error);
-		return FALSE;
-	}
-	*/
 	ph = plugin_handle;
 
 	/* Set the plugin info. */
 	xchat_plugin_get_info (plugin_name, plugin_desc, plugin_version, NULL);
 
 	/* Load the pixbufs. */
+	/* xchat-gnome logo. */
 	p = gdk_pixbuf_new_from_file (XCHATSHAREDIR"/xchat-gnome-small.png", 0);
-	logo = gdk_pixbuf_scale_simple (p, 16, 16, GDK_INTERP_BILINEAR);
+	pixbufs[0] = gdk_pixbuf_scale_simple (p, 16, 16, GDK_INTERP_BILINEAR);
 
-	p = gdk_pixbuf_new_from_file (XCHATSHAREDIR"/nicksaid.png", 0);
-	nick_said = gdk_pixbuf_scale_simple (p, 16, 16, GDK_INTERP_BILINEAR);
-
-	p = gdk_pixbuf_new_from_file (XCHATSHAREDIR"/global-message.png", 0);
-	msg_said = gdk_pixbuf_scale_simple (p, 16, 16, GDK_INTERP_BILINEAR);
-
+	/* New data image. */
 	p = gdk_pixbuf_new_from_file (XCHATSHAREDIR"/newdata.png", 0);
-	new_data = gdk_pixbuf_scale_simple (p, 16, 16, GDK_INTERP_BILINEAR);
+	pixbufs[1] = gdk_pixbuf_scale_simple (p, 16, 16, GDK_INTERP_BILINEAR);
+
+	/* New message image. */
+	p = gdk_pixbuf_new_from_file (XCHATSHAREDIR"/global-message.png", 0);
+	pixbufs[2] = gdk_pixbuf_scale_simple (p, 16, 16, GDK_INTERP_BILINEAR);
+
+	/* Nick said image. */
+	p = gdk_pixbuf_new_from_file (XCHATSHAREDIR"/nicksaid.png", 0);
+	pixbufs[3] = gdk_pixbuf_scale_simple (p, 16, 16, GDK_INTERP_BILINEAR);
 
 	/* Create the notification icon. */
 	notification = egg_tray_icon_new ("xchat-gnome");
 	box = gtk_event_box_new ();
-	image = gtk_image_new_from_pixbuf (logo);
+	image = gtk_image_new_from_pixbuf (pixbufs[0]);
 
 	g_signal_connect (G_OBJECT (box), "button-press-event", G_CALLBACK (notification_clicked_cb), NULL);
 
@@ -216,9 +205,43 @@ notification_clicked_cb (GtkWidget *widget, GdkEventButton *event, gpointer data
 	return TRUE;
 }
 
+gboolean
+check_channel (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, gpointer channel)
+{
+	gchar *chan;
+	gint stat;
+
+	gtk_tree_model_get (model, iter, 1, &chan, 3, &stat, -1);
+	if (strcmp((char*)channel, chan) == 0) {
+		if (stat > status) {
+			gtk_widget_hide (image);
+			gtk_image_set_from_pixbuf (GTK_IMAGE (image), pixbufs[stat]);
+			gtk_widget_show (image);
+			status = stat;
+		}
+
+		return TRUE;
+	}
+	return FALSE;
+}
+
 static int
 new_text_cb (char **word, void *data)
 {
+	const char *chan;
+	GtkTreeModel *model, *store;
+
+	chan = xchat_get_info (ph, "channel");
+
+	if (nav_tree == NULL)
+		xchat_print (ph, "no nav tree");
+
+	model = gtk_tree_view_get_model (GTK_TREE_VIEW (nav_tree));
+	store = gtk_tree_model_sort_get_model (GTK_TREE_MODEL_SORT (model));
+	gtk_tree_model_foreach (store, check_channel, (gpointer)chan);
+
 	return 0;
 }
+
+
 /*** The End ***/
