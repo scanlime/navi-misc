@@ -59,6 +59,12 @@ parse_subtree (GtkTreeStore *store, GtkTreeIter *parent, xmlNode *node)
 			for (attr = node->properties; attr; attr = attr->next) {
 				if (strcmp (attr->name, "name") == 0)
 					gtk_tree_store_set (store, &iter, 0, attr->children->content, -1);
+				else if (strcmp (attr->name, "code") == 0)
+					gtk_tree_store_set (store, &iter, 1, attr->children->content, -1);
+				else if (strcmp (attr->name, "url") == 0)
+					gtk_tree_store_set (store, &iter, 2, attr->children->content, -1);
+				else if (strcmp (attr->name, "type") == 0)
+					gtk_tree_store_set (store, &iter, 3, attr->children->content, -1);
 			}
 		}
 	}
@@ -90,6 +96,78 @@ load_locations ()
 		parse_subtree (store, NULL, child);
 	xmlFreeDoc (doc);
 	return store;
+}
+
+static void
+selection_changed (GtkTreeSelection *selection, GtkDialog *dialog)
+{
+	GtkTreeModel *model;
+	GtkTreeIter iter;
+
+	if (gtk_tree_selection_get_selected (selection, &model, &iter)) {
+		gchar *code;
+		gtk_tree_model_get (model, &iter, 1, code, -1);
+		if (code != NULL)
+			gtk_dialog_set_response_sensitive (GTK_DIALOG (dialog), GTK_RESPONSE_OK, TRUE);
+	} else {
+		gtk_dialog_set_response_sensitive (GTK_DIALOG (dialog), GTK_RESPONSE_OK, FALSE);
+	}
+}
+
+static GtkDialog *
+create_source_selector ()
+{
+	GtkWidget *dialog, *treeview, *scrolledwindow;
+	GtkCellRenderer *text;
+	GtkTreeStore *store;
+	GtkTreeSelection *selection;
+
+	store = load_locations ();
+	if (store == NULL)
+		return NULL;
+
+	dialog = gtk_dialog_new_with_buttons (
+	    		_("Select a location"),
+	    		NULL, GTK_DIALOG_MODAL,
+			GTK_STOCK_OK, GTK_RESPONSE_OK,
+			GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+			NULL);
+
+	scrolledwindow = gtk_scrolled_window_new (NULL, NULL);
+	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolledwindow), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+	gtk_widget_show (scrolledwindow);
+	treeview = gtk_tree_view_new_with_model (GTK_TREE_MODEL (store));
+	gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (treeview), FALSE);
+	gtk_widget_show (treeview);
+	gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW (scrolledwindow), treeview);
+
+	text = gtk_cell_renderer_text_new ();
+	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (treeview), -1, "location", text, "text", 0, NULL);
+
+	gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), scrolledwindow);
+
+	gtk_dialog_set_response_sensitive (GTK_DIALOG (dialog), GTK_RESPONSE_OK, FALSE);
+	gtk_window_set_default_size (GTK_WINDOW (dialog), 420, 340);
+
+	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
+	gtk_tree_selection_set_mode (selection, GTK_SELECTION_BROWSE);
+	g_signal_connect (G_OBJECT (selection), "changed", G_CALLBACK (selection_changed), dialog);
+
+	return GTK_DIALOG (dialog);
+}
+
+static void
+location_clicked (GtkButton *button, gpointer data)
+{
+	GtkDialog *dialog = create_source_selector ();
+	gint response;
+
+	response = gtk_dialog_run (dialog);
+
+	if (response == GTK_RESPONSE_OK) {
+	}
+
+	gtk_widget_destroy (dialog);
 }
 
 GtkWidget *
@@ -128,6 +206,7 @@ e_calendar_weather_location (EPlugin *epl, EConfigHookItemFactoryData *data)
 	gtk_table_attach (GTK_TABLE (parent), label, 0, 1, row, row+1, GTK_FILL, 0, 0, 0);
 
 	button = gtk_button_new ();
+	g_signal_connect (G_OBJECT (button), "clicked", G_CALLBACK (location_clicked), NULL);
 	gtk_widget_show (button);
 
 	text = gtk_label_new (_("None"));
