@@ -17,10 +17,29 @@ surface = Surface(20, 2)
 surface.add(LoopingScroller("Wibble wibble wibble wibble splat", priority=10))
 surface.add(LoopingScroller("Whee", (0, 1)))
 surface.add(Clock(gravity=(2, 1)))
-surface.add(Text("*", (1, 1), background='~'))
+surface.add(Text(vfd.allocCharacter([
+    [ 0, 0, 0, 0, 0 ],
+    [ 0, 0, 0, 0, 0 ],
+    [ 0, 1, 1, 1, 0 ],
+    [ 0, 1, 1, 1, 0 ],
+    [ 0, 1, 1, 1, 0 ],
+    [ 0, 0, 0, 0, 0 ],
+    [ 0, 0, 0, 0, 0 ],
+    ]), (1, 1), background='~'))
+
+ellipsesChar = vfd.allocCharacter([
+    [ 0, 0, 0, 0, 0 ],
+    [ 0, 0, 0, 0, 0 ],
+    [ 0, 0, 0, 0, 0 ],
+    [ 0, 0, 0, 0, 0 ],
+    [ 0, 0, 0, 0, 0 ],
+    [ 0, 0, 0, 0, 0 ],
+    [ 1, 0, 1, 0, 1 ] ])
 
 surface.add(Text('OSD Message goes here, or something',
-                 gravity=(0, 10), priority=100, ellipses='...'),
+                 gravity=(0, 10),
+                 priority=100,
+                 ellipses=ellipsesChar),
             lifetime=10)
 
 while 1:
