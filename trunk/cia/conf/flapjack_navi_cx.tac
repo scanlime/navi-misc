@@ -26,15 +26,17 @@ class DonationSection(Web.Template.Section):
 	    " server. Any help paying the bills would be greatly appreciated!",
         ],
         tag('form', action='https://www.paypal.com/cgi-bin/webscr', method='post')[
-            tag('input', type='hidden', _name='cmd', value='_xclick'),
-            tag('input', type='hidden', _name='business', value='micahjd@users.sourceforge.net'),
-            tag('input', type='hidden', _name='item_name', value='CIA Open Source Notification System'),
-            tag('input', type='hidden', _name='no_note', value='1'),
-            tag('input', type='hidden', _name='currency_code', value='USD'),
-            tag('input', type='hidden', _name='tax', value='0'),
-            tag('input', type='image', _name='submit',
-                src='http://www.paypal.com/en_US/i/btn/x-click-but21.gif',
-                alt='Make a donation via PayPal'),
+            tag('div')[
+                tag('input', type='hidden', _name='cmd', value='_xclick'),
+                tag('input', type='hidden', _name='business', value='micahjd@users.sourceforge.net'),
+                tag('input', type='hidden', _name='item_name', value='CIA Open Source Notification System'),
+                tag('input', type='hidden', _name='no_note', value='1'),
+                tag('input', type='hidden', _name='currency_code', value='USD'),
+                tag('input', type='hidden', _name='tax', value='0'),
+                tag('input', type='image', _name='submit',
+                    src='http://www.paypal.com/en_US/i/btn/x-click-but21.gif',
+                    alt='Make a donation via PayPal'),
+            ],
         ],
     ]
 
