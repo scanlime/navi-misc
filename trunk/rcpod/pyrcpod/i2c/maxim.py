@@ -40,7 +40,6 @@ class MAX7300(i2c.Device):
 
     def pinHigh(self, p):
         """Bring one pin high, given its port number"""
-        print p
         self.busWrite([0x20 + p, 0x01])
 
     def pinLow(self, p):

@@ -216,16 +216,22 @@ static int softi2c_write_read(rcpod_dev *rcpod, rcpod_i2c_dev *idev,
 static int i2c_set_dev(rcpod_dev *rcpod, rcpod_i2c_dev *idev) {
   /* Set the current I2C device, returns nonzero on error */
   int retval;
+  unsigned char converted_speed;
 
   /* Nothing to change? */
   if (rcpod->last_i2c_dev_valid &&
       memcmp(&rcpod->last_i2c_dev, idev, sizeof(rcpod_i2c_dev))==0)
     return;
 
+  /* FIXME: The hardware doesn't yet support speed adjustment,
+   *        it always runs at around 30 KHz.
+   */
+  converted_speed = 0;
+
   retval = usb_control_msg(rcpod->usbdevh, USB_TYPE_VENDOR | USB_ENDPOINT_OUT,
 			   RCPOD_CTRL_I2C_SET,
 			   (idev->clock << 8) | idev->data,
-			   (idev->speed << 8) | idev->address,
+			   (converted_speed << 8) | idev->address,
 			   NULL, 0, RCPOD_TIMEOUT);
   if (retval < 0) {
     rcpod_HandleError("i2c_set_dev", errno, strerror(errno));
