@@ -1,9 +1,7 @@
 #!/usr/bin/env python
-import pyrcpod, i2c
+import i2c
 
-dev = pyrcpod.devices[0].open()
-mbus = i2c.MultiBus(dev)
-sampler = i2c.ThermSampler(mbus)
+sampler = i2c.ThermSampler()
 therms = i2c.getTherms()
 
 while 1:
