@@ -6,13 +6,15 @@
 #include <uinput_mouse.h>
 #include <getopt.h>
 
-void interactive_camshift(int n_cameras = 1,
-			  bool show_backprojections = true,
-			  bool mirror = false) {
+void interactive_camshift(int n_cameras) {
   IplImage **images;
   MultiCamshiftUI *tracker = NULL;
+  SDL_Event event;
+  bool show_ui = true;
+  bool show_backprojections = true;
+  bool mirror = false;
 
-  do {
+  while (1) {
     images = cv_dc1394_capture_yuv(n_cameras);
 
     if (!tracker)
@@ -22,17 +24,43 @@ void interactive_camshift(int n_cameras = 1,
       for (int i=0; i<n_cameras; i++)
 	cvFlip(images[i], images[i], 1);
 
-    tracker->track(images);
-  } while (tracker->processEvents());
+    tracker->updateEventState();
+
+    while (SDL_PollEvent(&event)) {
+      if (tracker->processEvent(&event))
+	continue;
+      if (!cv_sdl_event_handler(&event))
+	return;
+
+      switch (event.type) {
+      case SDL_KEYDOWN:
+	switch (event.key.keysym.sym) {
+
+	case 'b':
+	  show_backprojections = !show_backprojections;
+	  break;
+
+	case 'i':
+	  mirror = !mirror;
+	  break;
+
+	case 'u':
+	  show_ui = !show_ui;
+	  break;
+
+	}
+      }
+    }
+
+    tracker->track(images, show_ui, show_backprojections);
+  }
 }
 
 static void usage(char **argv) {
   printf("Usage: %s [options]\n"
 	 "Interactive frontend for OpenCV's CAMSHIFT implementation\n"
 	 "\n"
-	 "  -b, --hide-backprojection  Hide the backprojection images shown below the cameras\n"
-	 "  -c. --cameras N            Set the number of cameras to use\n"
-	 "  -m, --mirror               Mirror mode, flips the video horizontally\n",
+	 "  -c. --cameras N            Set the number of cameras to use\n",
 	 argv[0]);
 }
 
@@ -45,9 +73,7 @@ int main(int argc, char **argv) {
   while (1) {
     static struct option long_options[] = {
       {"help",                0, NULL, 'h'},
-      {"hide-backprojection", 0, NULL, 'b'},
       {"cameras",             1, NULL, 'c'},
-      {"mirror",              0, NULL, 'm'},
       NULL,
     };
     c = getopt_long(argc, argv, "hbc:m",
@@ -57,16 +83,8 @@ int main(int argc, char **argv) {
 
     switch (c) {
 
-    case 'b':
-      show_backprojections = false;
-      break;
-
     case 'c':
       n_cameras = atoi(optarg);
-      break;
-
-    case 'm':
-      mirror = true;
       break;
 
     case 'h':
@@ -84,7 +102,7 @@ int main(int argc, char **argv) {
   cv_dc1394_init();
   uinput_mouse_init("CamShift");
 
-  interactive_camshift(n_cameras, show_backprojections, mirror);
+  interactive_camshift(n_cameras);
   return 0;
 }
 

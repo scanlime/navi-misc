@@ -201,12 +201,12 @@ static void draw_crosshairs(IplImage *image, float x, float y, float size, doubl
   endpoint1.y = (int)(y * 16 + 0.5);
   endpoint2.x = (int)((x + size/2) * 16 + 0.5);
   endpoint2.y = (int)(y * 16 + 0.5);
-  cvLine(image, endpoint1, endpoint2, color, 4);
+  cvLineAA(image, endpoint1, endpoint2, color, 4);
   endpoint1.y = (int)((y - size/2) * 16 + 0.5);
   endpoint1.x = (int)(x * 16 + 0.5);
   endpoint2.y = (int)((y + size/2) * 16 + 0.5);
   endpoint2.x = (int)(x * 16 + 0.5);
-  cvLine(image, endpoint1, endpoint2, color, 4);
+  cvLineAA(image, endpoint1, endpoint2, color, 4);
 }
 
 void MultiCamshiftUI::drawResults(int camera, IplImage *image) {
@@ -229,48 +229,40 @@ void MultiCamshiftUI::drawResults(int camera, IplImage *image) {
   draw_crosshairs(image, box->center.x, box->center.y);
 }
 
-bool MultiCamshiftUI::processEvents() {
-  if (!SDL_GetVideoSurface())
-    return true;
-
-  Uint8 *keystate = SDL_GetKeyState(NULL);
-  int mouse_x, mouse_y, mouse_camera, mouse_buttons;
-  SDL_Event event;
-
-  /* If we don't discover a good reason to use the sample square below, don't */
-  draw_sample_square = false;
-  sample_from_sample_square = false;
-
-  /* Process SDL events... */
-  while (SDL_PollEvent(&event))
-    switch (event.type) {
+bool MultiCamshiftUI::processEvent(SDL_Event *event) {
+  switch (event->type) {
 
     case SDL_MOUSEBUTTONDOWN:
       /* Use the scroll wheel to change sample square size */
-      switch (event.button.button) {
+      switch (event->button.button) {
       case 5:
 	sample_square_size -= 2;
 	if (sample_square_size < 1)
 	  sample_square_size = 1;
 	draw_sample_square = true;
-	break;
+	return true;
 
       case 4:
 	sample_square_size += 2;
 	draw_sample_square = true;
-	break;
+	return true;
       }
       break;
 
-    case SDL_KEYDOWN:
-      switch (event.key.keysym.sym) {
-      }
-      break;
-
-    default:
-      if (!cv_sdl_event_handler(&event))
-	return false;
     }
+  return false;
+}
+
+void MultiCamshiftUI::updateEventState() {
+  if (!SDL_GetVideoSurface())
+    return;
+
+  Uint8 *keystate = SDL_GetKeyState(NULL);
+  int mouse_x, mouse_y, mouse_camera, mouse_buttons;
+
+  /* If we don't discover a good reason to use the sample square below, don't */
+  draw_sample_square = false;
+  sample_from_sample_square = false;
 
   /* The spacebar just shows the rectangle */
   if (keystate[' '])
@@ -304,8 +296,6 @@ bool MultiCamshiftUI::processEvents() {
     sample_from_sample_square = true;
     draw_sample_square = true;
   }
-
-  return true;
 }
 
 /* The End */
