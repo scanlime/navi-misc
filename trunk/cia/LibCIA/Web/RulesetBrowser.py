@@ -25,6 +25,7 @@ import Template
 import Nouvelle
 from Nouvelle import tag, place
 from twisted.protocols import http
+from twisted.web import error
 import urllib
 
 
@@ -189,13 +190,8 @@ class SingleRulesetEditor(SingleRulesetPage):
 
 class Ruleset404(SingleRulesetPage):
     """A page for rulesets that don't exist"""
-    def preRender(self, context):
-        context['request'].setResponseCode(http.NOT_FOUND)
-
-    mainColumn = [ Template.StaticSection('URI not found') [
-        tag('h3')["404"],
-        tag('p')["This URI was not found in the ruleset database"],
-        ]]
+    def render(self, request):
+        return error.NoResource("No ruleset for %r" % self.uri).render(request)
 
 
 class RulesetList(Template.Page):
