@@ -79,7 +79,6 @@ struct usb_mi6k {
 	int			ir_rx_head;		/* empty slot for the next received value */
 	int			ir_rx_tail;		/* slot for the oldest value in the buffer */
 	wait_queue_head_t	ir_rx_wait;		/* wait queue for processes reading IR data */
-	int			ir_rx_clients;		/* number of processes reading from the IR device */
 	struct urb		ir_rx_urb;		/* URB for receiver interrupt transfers */
 	unsigned char		ir_rx_tbuffer[IR_URB_BUFFER_SIZE]; /* Buffer holding one interrupt transfer */
 	lirc_t			pulse_flag;		/* flag that alternates, indicating whether we're currently
@@ -191,10 +190,6 @@ static void mi6k_ir_rx_store(struct usb_mi6k *dev, unsigned char *buffer, size_t
 	 * timers to the highest value lirc_t supports.
 	 */
 	lirc_t value;
-
-	/* If nobody's listening, don't bother saving the data */
-	if (dev->ir_rx_clients == 0)
-		return;
 
 	while (count >= 2) {
 		value = ((lirc_t)buffer[0]) + (((lirc_t)buffer[1]) << 8);
@@ -536,8 +531,6 @@ static ssize_t mi6k_lirc_read(struct file *file, char *buffer, size_t count, lof
 		goto exit;
 	}
 
-	dev->ir_rx_clients++;
-
 	/* If there's no data available yet, release our lock temporarily and
 	 * block the process until there is data available.
 	 */
@@ -561,7 +554,6 @@ static ssize_t mi6k_lirc_read(struct file *file, char *buffer, size_t count, lof
 			down(&dev->sem);
 		}
 
-		dev->ir_rx_clients--;
 		current->state = TASK_RUNNING;
 		remove_wait_queue(&dev->ir_rx_wait, &wait);
 	}
