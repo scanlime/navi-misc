@@ -2,37 +2,38 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <link href="style.css" type="text/css" rel="stylesheet" />
+<title>xchat-gnome - building instructions</title>
 </head>
 <body>
 <div class="navigation">
 <h1>xchat-gnome</h1>
-<a class="navigation" href="/">main</a><br>
-<a class="navigation" href="screenshots/">screenshots</a><br>
-<a class="navigation" href="http://navi.cx/svn/misc/trunk/xchat-gnome/">subversion</a><br>
-<a class="navigation" href="http://cia.navi.cx/stats/project/navi-misc/xchat-gnome/">CIA</a><br>
+<a class="navigation" href="/">main</a><br/>
+<a class="navigation" href="screenshots/">screenshots</a><br/>
+<a class="navigation" href="http://navi.cx/svn/misc/trunk/xchat-gnome/">subversion</a><br/>
+<a class="navigation" href="http://cia.navi.cx/stats/project/navi-misc/xchat-gnome/">CIA</a><br/>
 </div>
 <div class="content">
 <p>
 Building xchat-gnome is not a super trivial operation at this point. Here are some basic
 instructions, but as is often the case with young projects such as this, your mileage may
-vary.<br><br>
+vary.<br/><br/>
 </p>
 <div class="code">
-$ cvs -d :pserver:anonymous@cvs.sf.net:/cvsroot/xchat co xchat2<br>
+$ cvs -d :pserver:anonymous@cvs.sf.net:/cvsroot/xchat co xchat2<br/>
 $ cd xchat2
-xchat2$ svn co <a href="http://navi.cx/svn/misc/trunk/xchat-gnome/buildsystem.diff">http://navi.cx/svn/misc/trunk/xchat-gnome/buildsystem.diff</a><br>
-xchat2$ patch -p1 &lt; buildsystem.diff<br>
-xchat2$ svn co <a href="http://navi.cx/svn/misc/trunk/xchat-gnome/common.diff">http://navi.cx/svn/misc/trunk/xchat-gnome/common.diff</a><br>
-xchat2$ patch -p1 &lt; common.diff<br>
-xchat2$ pushd src<br>
-src$ svn co <a href="http://navi.cx/svn/misc/trunk/xchat-gnome/fe-gnome/">http://navi.cx/svn/misc/trunk/xchat-gnome/fe-gnome/</a><br>
-src$ popd<br>
-xchat2$ ./autogen.sh<br>
-xchat2$ ./configure --enable-maintainer-mode --enable-xft --enable-gnomefe<br>
-(make sure that gnome support was found, and gtkspell if desired)<br>
-xchat2$ make<br>
-xchat2$ cd src/fe-gnome<br>
-fe-gnome$ ./xchat-gnome<br>
+xchat2$ svn co <a href="http://navi.cx/svn/misc/trunk/xchat-gnome/buildsystem.diff">http://navi.cx/svn/misc/trunk/xchat-gnome/buildsystem.diff</a><br/>
+xchat2$ patch -p1 &lt; buildsystem.diff<br/>
+xchat2$ svn co <a href="http://navi.cx/svn/misc/trunk/xchat-gnome/common.diff">http://navi.cx/svn/misc/trunk/xchat-gnome/common.diff</a><br/>
+xchat2$ patch -p1 &lt; common.diff<br/>
+xchat2$ pushd src<br/>
+src$ svn co <a href="http://navi.cx/svn/misc/trunk/xchat-gnome/fe-gnome/">http://navi.cx/svn/misc/trunk/xchat-gnome/fe-gnome/</a><br/>
+src$ popd<br/>
+xchat2$ ./autogen.sh<br/>
+xchat2$ ./configure --enable-maintainer-mode --enable-xft --enable-gnomefe<br/>
+(make sure that gnome support was found, and gtkspell if desired)<br/>
+xchat2$ make<br/>
+xchat2$ cd src/fe-gnome<br/>
+fe-gnome$ ./xchat-gnome<br/>
 </div>
 </div>
 <div class="footer">
