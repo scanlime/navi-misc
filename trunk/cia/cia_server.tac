@@ -1,10 +1,11 @@
 #
 # This is a .tac configuration file that sets up a CIA server.
-# Start the server by running 'twistd -y' on this file.
+# Start the server by running 'twistd -oy' on this file.
 #
 
 from twisted.application import service, internet
 from twisted.web import server
+from twisted.persisted import sob
 from LibCIA import Message, XMLRPC, Ruleset, IRC, Stats
 
 application = service.Application("cia_server")
