@@ -9,10 +9,10 @@ class TestMain(Main.Main):
     def getPages(self):
         return [Menu.defaultFades(TestMenu)]
 
-class TestMenu(Menu.VerticalMenu):
+class TestMenu(Menu.ThreeColumnMenu):
     def __init__(self, book):
         # Show all icons
         items = [Menu.Item(Icon.load(name)) for name in Icon.getIconDict().keys()]
-        Menu.VerticalMenu.__init__(self, book, items)
+        Menu.ThreeColumnMenu.__init__(self, book, items)
 
 TestMain().run()
