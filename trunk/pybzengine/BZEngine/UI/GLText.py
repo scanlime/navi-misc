@@ -218,11 +218,23 @@ class Font:
                 rendered = self.sizes[self.sortedSizes[-1]]
         return rendered
 
-    def draw(self, text, size=defaultSize):
+    def draw(self, text, size=defaultSize, alignment=None):
         """Draw the given text using the current OpenGL transform and color.
            All glyph escapements will cause the OpenGL modelview matrix to
            be translated.
+
+           'alignment' specifies the text's justification relative
+           to the origin. (0,0) places the top-left corner at the origin,
+           (1,1) places the bottom bottom-right at the origin,
+           (0.5, 0.5) is centered, etc.
+           The default is equivalent to (0,0)
            """
+        if alignment:
+            textSize = self.size(text, size)
+            glTranslatef(-textSize[0] * alignment[0],
+                         -textSize[1] * alignment[1],
+                         0)
+
         # Prepare the OpenGL state
         GLExtension.disableMultitex()
         glEnable(GL_TEXTURE_2D)
@@ -285,21 +297,15 @@ def findFont(fontName=None):
     return font
 
 
-def draw(text, fontSize=None, fontName=None):
+def draw(text, fontSize=None, fontName=None, alignment=None):
     if fontSize is None:
         fontSize = defaultSize
-    findFont(fontName).draw(text, fontSize)
+    findFont(fontName).draw(text, fontSize, alignment)
 
 
 def size(text, fontSize=None, fontName=None):
     if fontSize is None:
         fontSize = defaultSize
     return findFont(fontName).size(text, fontSize)
-
-
-def drawCentered(text, fontSize=None, fontName=None):
-    if fontSize is None:
-        fontSize = defaultSize
-    findFont(fontName).drawCentered(text, fontSize)
 
 ### The End ###

@@ -47,21 +47,21 @@ def drawFrame():
     dt = time.step()
     spin.integrate(dt)
     zoom.integrate(dt)
-    GLText.drawCentered("Spinny-widget", 30)
+    GLText.draw("Spinny-widget", 30, alignment=(0.5, 0.5))
 
     glColor3f(0,0,0)
     glLoadIdentity()
     glTranslatef(floor(viewport.size[0]/2), floor(viewport.size[1] * 0.75), 0)
-    GLText.drawCentered("Not-so-spinny-widget")
+    GLText.draw("Not-so-spinny-widget", alignment=(0.5, 0.5))
 
     glLoadIdentity()
     glTranslatef(floor(viewport.size[0]/2), floor(viewport.size[1] * 0.85), 0)
-    GLText.drawCentered("(small print)", GLText.smallSize)
+    GLText.draw("(small print)", GLText.smallSize, alignment=(0.5, 0.5))
 
     glLoadIdentity()
     glTranslatef(floor(viewport.size[0]/2), floor(viewport.size[1] * 0.95), 0)
     glColor3f(0,0,1)
-    GLText.drawCentered("bold", fontName="VeraBd.ttf")
+    GLText.draw("bold", fontName="VeraBd.ttf", alignment=(0.5, 0.5))
 
 viewport.onDrawFrame.observe(drawFrame)
 frameRateInstrument = Instrument.FrameRate(viewport)
