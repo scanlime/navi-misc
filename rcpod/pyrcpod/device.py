@@ -444,6 +444,9 @@ class AvailableDevice:
         self.version = bcdToString(usbdev_getDeviceVersion(usbdev))
         self.filename = "%s/%s" % (usbdev_getDirname(usbdev), usbdev_getFilename(usbdev))
 
+    def __del__(self):
+        pyrcpod_deleteDevice(self.usbdev)
+
     def __repr__(self):
         return "<pyrcpod.AvailableDevice version %s at %r>" % (self.version, self.filename)
 
@@ -464,14 +467,17 @@ devices = []
 def scanForDevices():
     """Scans for available rcpod devices, updates the 'devices' list"""
     global devices
+    del devices[:]
     pyrcpod_findDevices()
 
     # Convert librcpod's linked list into a python list, wrapping
-    # each device in an AvailableDevice instance
+    # each device in an AvailableDevice instance. We must duplicate
+    # all devices so that the AvailableDevice has one guaranteed
+    # to last as long as it does. Otherwise, the nest findDevices()
+    # could nuke a usb_device struct still in use by an AvailableDevice.
     llist = rcpod_GetDevices()
-    del devices[:]
     while llist:
-        devices.append(AvailableDevice(llist))
+        devices.append(AvailableDevice(pyrcpod_copyDevice(llist)))
         llist = pyrcpod_nextDevice(llist)
 
 # Initialize librcpod and build an initial list of attached devices

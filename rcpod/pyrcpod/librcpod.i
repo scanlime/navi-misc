@@ -82,10 +82,24 @@
  */
 %array_functions(unsigned char, ucharArray)
 
-/* Helper to follow the 'next' pointer in librcpod's device linked list */
+/* usb_device helpers */
 %inline %{
   struct usb_device *pyrcpod_nextDevice(struct usb_device *dev) {
     return dev->next;
+  }
+
+  struct usb_device *pyrcpod_copyDevice(struct usb_device *dev) {
+    struct usb_device *newdev = malloc(sizeof(struct usb_device));
+    if (newdev) {
+      memcpy(newdev, dev, sizeof(struct usb_device));
+      newdev->next = NULL;
+      newdev->prev = NULL;
+    }
+    return newdev;
+  }
+
+  void pyrcpod_deleteDevice(struct usb_device *dev) {
+    free(dev);
   }
   %}
 
