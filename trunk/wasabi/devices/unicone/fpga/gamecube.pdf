@@ -11,7 +11,7 @@ HDL netlist format=Auto
 generics=MAX
 sim_mode=FUNC
 library_net=ON
-lib_order=155 155 155 155 155 155 155 155 155 155 155 155 155 155 155 133 155
+lib_order=155 155 155 155 155 155 133 155
 [libraries]
 133=c:\fndtn\active\syslib\simprims
 155=c:\fndtn\active\syslib\xc4000x
@@ -19,8 +19,9 @@ lib_order=155 155 155 155 155 155 155 155 155 155 155 155 155 155 155 133 155
 oid=0
 lid=0
 format=19
-source=C:\unicone\fpga\lib\util.v
-server_hwnd=2622094
+source=c:\unicone\fpga\gamecube\gamecube.v
+server_hwnd=3932706
+
 
 
 
@@ -92,7 +93,7 @@ i2c.v=
 hde/util=0,0,66,66,1026,795,util.v
 hde/n_serial=0,0,88,88,1048,817,n_serial.v
 hde/pwm=0,0,132,132,1182,881,pwm.v
-hde/gamecube=0,0,108,10,1268,966,gamecube.v
+hde/gamecube=8913170,1,108,10,1268,966,gamecube.v
 hde/i2c=0,0,44,44,1094,793,i2c.v
 [netlist]
 external=FALSE
@@ -121,6 +122,7 @@ foo=
 emu=
 poll=
 ram=
+all_gcc=
 [Schematic]
 Table01=Project
 Table02=Sheet
@@ -135,7 +137,7 @@ part=4010XLPC84-09
 xilinx=4010XLPC84-09
 functional=ver1
 optimized=ver1-Optimized
-design=i2c_slave_32byte_sram,c:\unicone\fpga\gamecube\i2c.v
+design=gamecube,c:\unicone\fpga\gamecube\gamecube.v
 [xilinx]
 family=2
 xfam=XC4000XL

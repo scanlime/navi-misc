@@ -64,6 +64,31 @@ endmodule
 
 
 /*
+ * Synchronous edge triggered set/reset latch. A rising edge on 'set'
+ * brings the output high, a rising edge on 'clear' brings the output low.
+ * If both 'set' and 'clear' have rising edges on the same clock cycle,
+ * 'set' takes precedence. Default state is 0.
+ */
+module rising_edge_latch (clk, reset, set, clear, out);
+	input clk, reset, set, clear;
+	output out;
+	reg out;
+
+	wire set_edge, clear_edge;
+	rising_edge_detector set_edgedet(clk, reset, set, set_edge);
+	rising_edge_detector clear_edgedet(clk, reset, clear, clear_edge);
+
+	always @(posedge clk or posedge reset)
+		if (reset)
+			out <= 0;
+		else if (set_edge)
+			out <= 1;
+		else if (clear_edge)
+			out <= 0;
+endmodule
+
+
+/*
  * Wrappers around platform-specific embedded SRAM.
  */
 module sram_32byte_dualport (clk, we, d1_in, a1, d1_out, a2, d2_out);
@@ -122,6 +147,106 @@ module sram_16byte_dualport (clk, we, d1_in, a1, d1_out, a2, d2_out);
 	RAM16X1D bit7(.DPO(d2_out[7]), .SPO(d1_out[7]), .A0(a1[0]), .A1(a1[1]), .A2(a1[2]), .A3(a1[3]),
 	              .D(d1_in[7]), .DPRA0(a2[0]), .DPRA1(a2[1]), .DPRA2(a2[2]), .DPRA3(a2[3]),
 	              .WCLK(clk), .WE(we));
+endmodule
+
+/*
+ * Allow four devices with suitable handshaking to share
+ * one SRAM chip with an arbitrary-width address bus.
+ * addr_out connects to the SRAM device, the other pins all
+ * connect to the four cooperating devices.
+ *
+ * Each device, to read a byte, does the following:
+ *  1. Place the requested address on dev#_addr.
+ *  2. Transition dev#_request from low to high
+ *  3. On the same cycle that dev#_ack is asserted, your address
+ *     will be made available to the SRAM.
+ *
+ * Device 1 is the highest priority and 4 the lowest, in the
+ * event of a conflict.
+ */
+module sram_arbiter4 (clk, reset, addr_out,
+                      dev1_addr, dev1_request, dev1_ack,
+                      dev2_addr, dev2_request, dev2_ack,
+                      dev3_addr, dev3_request, dev3_ack,
+                      dev4_addr, dev4_request, dev4_ack);
+	parameter ADDR_WIDTH = 5;
+
+	input clk, reset;
+	output [ADDR_WIDTH-1:0] addr_out;
+
+	input [ADDR_WIDTH-1:0] dev1_addr;
+	input dev1_request;
+	output dev1_ack;
+	input [ADDR_WIDTH-1:0] dev2_addr;
+	input dev2_request;
+	output dev2_ack;
+	input [ADDR_WIDTH-1:0] dev3_addr;
+	input dev3_request;
+	output dev3_ack;
+	input [ADDR_WIDTH-1:0] dev4_addr;
+	input dev4_request;
+	output dev4_ack;
+	
+	reg addr_out;
+	reg dev1_ack;
+	reg dev2_ack;
+	reg dev3_ack;
+	reg dev4_ack;
+	
+	/* Generate the 'pending' signals for each device. They go high
+	 * when a request edge is detected, and low on ack.
+	 */
+	wire dev1_pending;
+	wire dev2_pending;
+	wire dev3_pending;
+	wire dev4_pending;
+	rising_edge_latch dev1_pending_latch(clk, reset, dev1_request, dev1_ack, dev1_pending);
+	rising_edge_latch dev2_pending_latch(clk, reset, dev2_request, dev2_ack, dev2_pending);
+	rising_edge_latch dev3_pending_latch(clk, reset, dev3_request, dev3_ack, dev3_pending);
+	rising_edge_latch dev4_pending_latch(clk, reset, dev4_request, dev4_ack, dev4_pending);
+		
+	always @(posedge clk or posedge reset)
+		if (reset) begin	
+			addr_out <= 0;
+			dev1_ack <= 0;
+			dev2_ack <= 0;
+			dev3_ack <= 0;
+			dev4_ack <= 0;	
+		end
+		else if (dev1_pending) begin
+			addr_out <= dev1_addr;
+			dev1_ack <= 1;
+			dev2_ack <= 0;
+			dev3_ack <= 0;
+			dev4_ack <= 0;	
+		end
+		else if (dev2_pending) begin
+			addr_out <= dev2_addr;
+			dev1_ack <= 0;
+			dev2_ack <= 1;
+			dev3_ack <= 0;
+			dev4_ack <= 0;	
+		end
+		else if (dev3_pending) begin
+			addr_out <= dev3_addr;
+			dev1_ack <= 0;
+			dev2_ack <= 0;
+			dev3_ack <= 1;
+			dev4_ack <= 0;	
+		end
+		else if (dev4_pending) begin
+			addr_out <= dev4_addr;
+			dev1_ack <= 0;
+			dev2_ack <= 0;
+			dev3_ack <= 0;
+			dev4_ack <= 1;	
+		end
+		else begin
+			dev1_ack <= 0;
+			dev2_ack <= 0;
+			dev3_ack <= 0;
+			dev4_ack <= 0;	
+		end		
 endmodule
 
 
