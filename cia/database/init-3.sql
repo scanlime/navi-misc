@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS meta
     value        VARCHAR(255),
 );
 
-INSERT IGNORE INTO meta VALUES( 'version', 2 );
+INSERT IGNORE INTO meta VALUES( 'version', 3 );
 
 
 ------------------------------------------------------------------------
@@ -95,22 +95,30 @@ CREATE TABLE IF NOT EXISTS stats_messages
     FOREIGN KEY (target_path) REFERENCES stats_catalog(target_path) ON DELETE CASCADE
 ) TYPE=INNODB;
 
--- This table keeps track of relationships between stats targets. When a message is delivered
--- to multiple stats targets, a relationship is formed or strengthened between those pairs of
--- stats targets. If a message is delivered to many stats targets this can make insertion
--- slow, but retrieval will be fast.
--- When the relation is strengthened, the 'strength' is incremented and the 'freshness'
--- is set to the current time. This can be used, for example, to see what projects someone
--- has been working on recently.
+-- This table represents an undirected graph, the vertices of which are stats
+-- targets. Edges have an associated 'strength' and 'freshness'. When a message
+-- is delivered to multiple stats targets, all edges between those stats
+-- targets are strengthened by incrementing their 'strength' and setting the
+-- 'freshness' to the current time.
+--
+-- As the graph is undirected, edge uniqueness is maintained by requiring
+-- that target_a_path <= target_b_path.
+--
+-- This graph can be used to create nifty reports showing other targets
+-- related to any one target, and it could even be used to graphically
+-- represent the connections between projects and authors.
 CREATE TABLE IF NOT EXISTS stats_relations
 (
-    target_path  VARCHAR(128),
-    related_path VARCHAR(128),
-    strength     INT NOT NULL DEFAULT 0,
-    freshness    BIGINT.
+    target_a_path  VARCHAR(128),
+    target_b_path  VARCHAR(128),
+    strength       INT NOT NULL DEFAULT 0,
+    freshness      BIGINT.
 
-    INDEX (target_path),
-    FOREIGN KEY (target_path) REFERENCES stats_catalog(target_path) ON DELETE CASCADE
+    INDEX (target_a_path),
+    INDEX (target_b_path),
+    PRIMARY KEY (target_a_path, target_b_path),
+    FOREIGN KEY (target_a_path) REFERENCES stats_catalog(target_path) ON DELETE CASCADE,
+    FOREIGN KEY (target_b_path) REFERENCES stats_catalog(target_path) ON DELETE CASCADE
 ) TYPE=INNODB;
 
 -- Store metadata keys, times, and values for each target
