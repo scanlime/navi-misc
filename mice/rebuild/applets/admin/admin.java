@@ -79,6 +79,17 @@ public class admin extends java.applet.Applet implements ActionListener
 	}
 	
 	/**
+	 * This method removes a Checkbox from the applet
+	 * @param foo The Checkbox that gets removed.
+	 * @author Brandon Smith
+	 * @version 2.0
+	 */
+	public void rm(Checkbox foo)
+	{
+		remove(foo);
+	}
+	
+	/**
 	 * This method adds a TextField to the applet
 	 * @param foo The TextField that gets added.
 	 * @author Brandon Smith
@@ -107,6 +118,17 @@ public class admin extends java.applet.Applet implements ActionListener
 	 * @version 2.0
 	 */
 	public void ad(Button foo)
+	{
+		add(foo);
+	}
+	
+	/**
+	 * This method adds a Checkbox to the applet
+	 * @param foo The Checkbox that gets added.
+	 * @author Brandon Smith
+	 * @version 2.0
+	 */
+	public void ad(Checkbox foo)
 	{
 		add(foo);
 	}
