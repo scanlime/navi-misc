@@ -95,6 +95,7 @@ static void on_anim_new(GtkWidget *widget, gpointer user_data);
 static void on_anim_open(GtkWidget *widget, gpointer user_data);
 static void on_anim_save(GtkWidget *widget, gpointer user_data);
 static void on_anim_save_as(GtkWidget *widget, gpointer user_data);
+static void on_anim_scale_changed(GtkWidget *widget, gpointer user_data);
 
 static void tool_grab(Explorer *self, ToolInput *i);
 static void tool_blur(Explorer *self, ToolInput *i);
@@ -199,6 +200,7 @@ static void explorer_init(Explorer *self) {
   glade_xml_signal_connect_data(self->xml, "on_anim_open",                    G_CALLBACK(on_anim_open),                    self);
   glade_xml_signal_connect_data(self->xml, "on_anim_save",                    G_CALLBACK(on_anim_save),                    self);
   glade_xml_signal_connect_data(self->xml, "on_anim_save_as",                 G_CALLBACK(on_anim_save_as),                 self);
+  glade_xml_signal_connect_data(self->xml, "on_anim_scale_changed",           G_CALLBACK(on_anim_scale_changed),           self);
 
   /* Set up the drawing area
    */
@@ -969,6 +971,24 @@ static void on_anim_save_as(GtkWidget *widget, gpointer user_data) {
     animation_save_file(self->animation, filename);
   }
   gtk_widget_destroy(dialog);
+}
+
+static void on_anim_scale_changed(GtkWidget *widget, gpointer user_data) {
+  double v = gtk_range_get_adjustment(GTK_RANGE(widget))->value;
+  Explorer *self = EXPLORER(user_data);
+  DeJong *from = de_jong_new();
+  DeJong *to = de_jong_new();
+  GtkTreeIter iter;
+  explorer_get_current_keyframe(self, &iter);
+
+  animation_keyframe_load_dejong(self->animation, &iter, from);
+  gtk_tree_model_iter_next(GTK_TREE_MODEL(self->animation->model), &iter);
+  animation_keyframe_load_dejong(self->animation, &iter, to);
+
+  de_jong_interpolate_linear(self->dejong, from, to, v);
+
+  g_object_unref(from);
+  g_object_unref(to);
 }
 
 /* The End */
