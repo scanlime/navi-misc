@@ -31,7 +31,7 @@ static void explorer_dispose(GObject *gobject);
 
 static int explorer_idle_handler(gpointer user_data);
 static void explorer_get_params(Explorer *self);
-static void explorer_resize(Explorer *self);
+static void explorer_resize_notify(HistogramImager *imager, GParamSpec *spec, Explorer *self);
 static gboolean explorer_auto_limit_update_rate(Explorer *self);
 static void explorer_get_current_keyframe(Explorer *self, GtkTreeIter *iter);
 static gboolean limit_update_rate(GTimeVal *last_update, float max_rate);
@@ -143,7 +143,11 @@ Explorer* explorer_new(DeJong *dejong, Animation *animation) {
   gtk_widget_show_all(editor);
 
   explorer_init_animation(self);
-  explorer_resize(self);
+
+  /* Do the first resize, and connect to notify signals for future resizes */
+  explorer_resize_notify(HISTOGRAM_IMAGER(self->dejong), NULL, self);
+  g_signal_connect(self->dejong, "notify::width", G_CALLBACK(explorer_resize_notify), self);
+  g_signal_connect(self->dejong, "notify::height", G_CALLBACK(explorer_resize_notify), self);
 
   self->idler = g_idle_add(explorer_idle_handler, self);
 }
@@ -210,7 +214,6 @@ static void on_load_from_image(GtkWidget *widget, gpointer user_data) {
     const gchar *filename;
     filename = gtk_file_selection_get_filename(GTK_FILE_SELECTION(dialog));
     histogram_imager_load_image_file(HISTOGRAM_IMAGER(self->dejong), filename);
-    explorer_resize(self);
   }
   gtk_widget_destroy(dialog);
 }
@@ -270,7 +273,7 @@ void explorer_run_iterations(Explorer *self) {
   g_timer_destroy(timer);
 }
 
-static void explorer_resize(Explorer *self) {
+static void explorer_resize_notify(HistogramImager *imager, GParamSpec *spec, Explorer *self) {
   guint width = HISTOGRAM_IMAGER(self->dejong)->width;
   guint height = HISTOGRAM_IMAGER(self->dejong)->height;
 
