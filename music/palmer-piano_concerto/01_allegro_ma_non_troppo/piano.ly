@@ -398,7 +398,32 @@ mvmtOnePianoSectSixRight = \relative b'' {
     \times 4/5 { fis ais cis e g} \times 4/5 { d' ais eis cis bis }
   | << { \times 4/5 { fis'' c g fis dis } r g \times 2/3 { fis g a }
          r cis, d e r cis \times 2/3 { d e fis } } \\
-       { r4 <a fis cis a> <g e b g> <fis cis ais fis> } >>
+       { r4 <a fis cis> <g e b> <fis cis ais> } >>
+  
+  % 122
+  | \times 2/3 { g16 d b } ais b d a' fis d
+    << { cis'8. b16 ais8. g16 } \\
+       { r16 fis eis r r d cis r } >>
+  | fis32 g fis e \times 2/3 { fis16 cis' b } a fis' d a
+    << { a'8. g16 fis8. d16 } \\
+       { r16 f, e r r ees c r } >>
+  
+  % 124
+  | <eis gis, eis>4 s2.
+  #(set-octavation 1)
+  | << { 
+         | cis''16 gis' cis, gis' cis, gis' cis, gis' gis gis gis gis gis gis gis gis 
+         | gis gis gis gis gis gis gis gis gis gis gis gis gis gis a b
+       } \\ { 
+         | r32 gis,16 gis b b a a gis gis d' d e e d d cis cis32~
+         | cis32 dis16 dis dis dis dis eis dis eis dis eis dis eis dis eis dis eis32
+       } >>
+  | <eis' cis>32 cis b a gis e cis b
+    #(set-octavation 0)
+    a gis eis cis b a gis eis 
+    \change Staff = pianoLeft
+    cis b a gis eis cis b a gis' eis cis b a gis eis d
+  \change Staff = pianoRight
 }
 
 mvmtOnePianoSectSixLeft = \relative b, {
@@ -418,6 +443,24 @@ mvmtOnePianoSectSixLeft = \relative b, {
   | <cis cis,> <bes bes,> <a a,> <c c,>
   | <aes aes,> <g g,> <b b,> <eis, eis,> 
   | <fis fis,> <a' a,> <g g,> <fis fis,>
+
+  % 122
+  | <e e,>2 ais16 d cis gis g b a e
+  | <d d,>2 ais'16 d cis a d, b' a fis
+
+  % 124
+  | << { r8 \times 2/3 { b16 a gis }
+         \times 2/3 { cis eis cis } \times 2/3 { bis cis 
+           \change Staff = pianoRight gis' }
+         \times 2/3 { b a gis } \times 2/3 { cis eis cis }
+         \times 2/3 { bis cis gis' } \times 2/3 { b a gis } } \\
+       { \change Staff = pianoLeft
+         <cis,,, cis,>2 s2 } >>
+  \clef treble
+  | eis''2 \trill b' \trill
+  | b1 \trill
+  \clef bass
+  | s1
 }
 
 
