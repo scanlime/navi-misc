@@ -27,7 +27,21 @@ the actual stats target using part of the message.
 #
 
 import Ruleset
-import re
+import re, string, os
+
+
+def urlencode(s, allowedChars = string.ascii_letters + string.digits + "-_"):
+    """Return a URL-encoded version of 's', all characters not in the
+       given list will be replaced with their hexadecimal value prefixed
+       with '%'.
+       """
+    chars = []
+    for char in s:
+        if char in allowedChars:
+            chars.append(char)
+        else:
+            chars.append("%%%02X" % ord(char))
+    return "".join(chars)
 
 
 class URIHandler(Ruleset.RegexURIHandler):
@@ -43,7 +57,22 @@ class URIHandler(Ruleset.RegexURIHandler):
         Ruleset.RegexURIHandler.__init__(self)
 
     def message(self, uri, message, content):
-        path = self.parseURI(uri)['path']
-        print "BOING", path
+        # Stick the URI's path and the content together into a stats
+        # path, URL-encoding the content first.
+        path = self.parseURI(uri)['path'] + "/" + urlencode(content)
+
+        # Form a complete path to the stats directory in question,
+        # and increment its counters and such.
+        incrementStats(os.path.join(self.statsDirectory, path))
+
+
+def incrementStats(path):
+    """Increment the stats stored at the given path, creating it if necessary"""
+    try:
+        os.path.makedirs(path)
+    except OSError:
+        # Directory probably already exists
+        pass
+
 
 ### The End ###

@@ -281,22 +281,17 @@ class BaseURIHandler(object):
 
 class RegexURIHandler(BaseURIHandler):
     """A URIHandler that validates and parses URIs using a regular expression.
-       This class compiles a regular expression on initialization and provides
-       a parseURI method that generates a dictionary of groups matched in the
-       regex, or raises an UnsupportedURI exception if the regex does not match.
-       It implements a default assigned() function that runs parseURI just to
-       cause an error in setting the URI if it's invalid.
+       This class provides  a parseURI method that generates a dictionary of
+       groups matched in the regex, or raises an UnsupportedURI exception if
+       the regex does not match. It implements a default assigned() function
+       that runs parseURI just to cause an error in setting the URI if it's invalid.
        """
     regex = None
     regexFlags = re.VERBOSE
 
-    def __init__(self):
-        # Compile the regex
-        self.compiledRegex = re.compile(self.regex, self.regexFlags)
-
     def parseURI(self, uri):
         """Given a valid URI, return a dictionary of named groups in the regex match"""
-        match = self.compiledRegex.match(uri)
+        match = re.match(self.regex, uri, self.regexFlags)
         if not match:
             raise InvalidURIException("Invalid URI: %r" % uri)
         return match.groupdict()
