@@ -38,23 +38,23 @@ void initialize_text_gui() {
   GConfClient *client;
   gchar *font;
 
-	gui.xtext = GTK_XTEXT(gtk_xtext_new(colors, TRUE));
-	frame = glade_xml_get_widget(gui.xml, "text area frame");
-	gtk_container_add(GTK_CONTAINER(frame), gui.xtext);
-	scrollbar = glade_xml_get_widget(gui.xml, "text area scrollbar");
-	gtk_range_set_adjustment(GTK_RANGE(scrollbar), gui.xtext->adj);
+  gui.xtext = GTK_XTEXT(gtk_xtext_new(colors, TRUE));
+  frame = glade_xml_get_widget(gui.xml, "text area frame");
+  gtk_container_add(GTK_CONTAINER(frame), gui.xtext);
+  scrollbar = glade_xml_get_widget(gui.xml, "text area scrollbar");
+  gtk_range_set_adjustment(GTK_RANGE(scrollbar), gui.xtext->adj);
 
-	palette_alloc(GTK_WIDGET(gui.xtext));
-	gtk_xtext_set_palette(gui.xtext, colors);
-	gtk_xtext_set_max_lines(gui.xtext, 3000);
-	gtk_xtext_set_show_separator(gui.xtext, TRUE);
-	gtk_xtext_set_indent(gui.xtext, TRUE);
-	gtk_xtext_set_max_indent(gui.xtext, 500);
-	gtk_xtext_set_thin_separator(gui.xtext, TRUE);
-	gtk_xtext_set_wordwrap(gui.xtext, TRUE);
-	gtk_xtext_set_urlcheck_function(gui.xtext, check_word);
-	g_signal_connect(G_OBJECT(gui.xtext), "word_click", G_CALLBACK(clicked_word), NULL);
- 
+  palette_alloc(GTK_WIDGET(gui.xtext));
+  gtk_xtext_set_palette(gui.xtext, colors);
+  gtk_xtext_set_max_lines(gui.xtext, 3000);
+  gtk_xtext_set_show_separator(gui.xtext, TRUE);
+  gtk_xtext_set_indent(gui.xtext, TRUE);
+  gtk_xtext_set_max_indent(gui.xtext, 500);
+  gtk_xtext_set_thin_separator(gui.xtext, TRUE);
+  gtk_xtext_set_wordwrap(gui.xtext, TRUE);
+  gtk_xtext_set_urlcheck_function(gui.xtext, check_word);
+  g_signal_connect(G_OBJECT(gui.xtext), "word_click", G_CALLBACK(clicked_word), NULL);
+
   /* Set the font. */
   client = gconf_client_get_default ();
   gconf_client_add_dir(client, "/apps/xchat/main_window", GCONF_CLIENT_PRELOAD_NONE, NULL);
@@ -71,7 +71,7 @@ void initialize_text_gui() {
   g_object_unref (client);
   g_free (font);
 
-	gtk_widget_show_all(GTK_WIDGET(gui.xtext));
+  gtk_widget_show_all(GTK_WIDGET(gui.xtext));
 }
 
 void text_gui_add_text_buffer(struct session *sess) {
