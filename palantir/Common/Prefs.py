@@ -56,7 +56,17 @@ class Prefs:
 
   def Save(self):
     ''' Write the current preference settings to ~/.palantirrc '''
-    # FIXME: filename.
-    file = open('~/.palantirrc', 'w')
-    print self.__dict__
+    prefs = {}
+
+    if string.find(sys.platform, 'linux') != -1:
+      file = open(os.path.join(os.environ['HOME'], '.palantirrc'), 'w')
+    else:
+      # FIXME: Do we really want to overwrite the default rc file in windows?
+      file = open(os.path.join(dataDir, 'palantirrc'), 'w')
+
+    # For now we'll just write all of the prefs to the file, in the future
+    # we may only write the values that differ from defaults.
+    file.writelines([string.join(key, value, ' = ') \
+        for key, value in self.__dict__.iteritems()])
+
     file.close()
