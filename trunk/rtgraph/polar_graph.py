@@ -9,10 +9,14 @@ import rtgraph, gtk
 
 functions = [
     "(1, t % (pi*2))",
+    "(sin(t), t+1)",
+    "(cos(t), t+2)",
+    "(sin(t*20)*0.3 + 0.5, t+3)",
     ]
 
 varDict = {'t': rtgraph.TimeVariable()}
 channels = [rtgraph.FunctionChannel(f, vars=varDict) for f in functions]
 win = rtgraph.GraphUIWindow(channels, rtgraph.PolarVectorGraph())
 win.connect("destroy", gtk.mainquit)
+win.set_size_request(500,300)
 gtk.main()
