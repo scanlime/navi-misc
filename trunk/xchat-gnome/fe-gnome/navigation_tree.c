@@ -285,23 +285,18 @@ static void disconnect_server(gpointer data, guint action, GtkWidget *widget) {
 }
 
 void server_context(GtkWidget *treeview, session *selected) {
-	static GtkItemFactoryEntry entries[] = {
-		{"/Server",			NULL, NULL,			0, "<Branch>"},
-		{"/Server/_Information",	NULL, NULL,			0, "<StockItem>", GTK_STOCK_DIALOG_INFO},
-		{"/Server/Separator1",		NULL, NULL,			0, "<Separator>"},
-		{"/Server/_Reconnect",		NULL, NULL,			0, "<StockItem>", GTK_STOCK_REFRESH},
-		{"/Server/_Disconnect",		NULL, disconnect_server,	0, "<StockItem>", GTK_STOCK_STOP},
-		{"/Server/Separator2",		NULL, NULL,			0, "<Separator>"},
-		{"/Server/_Channels",		NULL, NULL,			0, "<StockItem>", GNOME_STOCK_TEXT_BULLETED_LIST}
+	static GnomeUIInfo server_context[] = {
+		GNOMEUIINFO_ITEM_STOCK("_Information", NULL, NULL, GTK_STOCK_DIALOG_INFO),
+		GNOMEUIINFO_SEPARATOR,
+		GNOMEUIINFO_ITEM_STOCK("_Reconnect", NULL, NULL, GTK_STOCK_REFRESH),
+		GNOMEUIINFO_ITEM_STOCK("_Disconnect", disconnect_server, NULL, GTK_STOCK_STOP),
+		GNOMEUIINFO_SEPARATOR,
+		GNOMEUIINFO_ITEM_STOCK("_Channels", NULL, NULL, GNOME_STOCK_TEXT_BULLETED_LIST)
 	};
-	GtkItemFactory *factory;
 	GtkWidget *menu;
 
-	factory = gtk_item_factory_new(GTK_TYPE_MENU, "<XChatGnomeNavigationServerContext>", NULL);
-	gtk_item_factory_create_items(factory, 7, entries, NULL);
-	menu = gtk_item_factory_get_widget(factory, "/Server");
-
-	gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 0, 0);
+	menu = gnome_popup_menu_new(server_context);
+	gnome_popup_menu_do_popup(menu, NULL, NULL, NULL, NULL, treeview);
 }
 
 static void leave_dialog(gpointer data, guint action, GtkWidget *widget) {
