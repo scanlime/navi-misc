@@ -77,6 +77,7 @@ void         animation_save_file(Animation *self, const gchar *filename);
 void         animation_keyframe_store_dejong(Animation *self, GtkTreeIter *iter, DeJong *dejong);
 void         animation_keyframe_load_dejong(Animation *self, GtkTreeIter *iter, DeJong *dejong);
 void         animation_keyframe_append(Animation *self, DeJong *dejong);
+gdouble      animation_keyframe_get_time(Animation *self, GtkTreeIter *iter);
 
 /* Animation iterators */
 gdouble      animation_get_length(Animation *self);
