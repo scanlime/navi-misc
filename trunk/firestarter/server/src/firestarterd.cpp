@@ -34,6 +34,8 @@ float	listServerUpdateTime = 120;
 
 bool registerAsPublic = true;
 
+bool eventCycle ( void );
+
 bool getServerInfo ( void )
 {
 	CCommandLineArgs	&args = CCommandLineArgs::instance();
@@ -151,7 +153,7 @@ int main (int argc, char **argv)
 	while (!done)
 	{
 		CTimer::instance().Update();
-		//done = eventCycle();
+		done = eventCycle();
 		if (done)
 			done = updateListServ();
 		OSSleep(0.001f);
@@ -163,4 +165,9 @@ int main (int argc, char **argv)
 			return errorOut("list server connection error","serverListServerConnection.Add(serverInfo)");
 	}
 	return 0;
+}
+
+bool eventCycle ( void )
+{
+	return false;
 }
