@@ -197,17 +197,6 @@ Main
 	pagesel	InitUSB
 	call	InitUSB
 
-	; All our transmitter LC tanks are hooked up on PORTB.
-	; PORTB is initially loaded with 01010101 binary, then complemented
-	; at each TMR2 interrupt. Unused transmitters are tristated,
-	; active transmitters are made outputs. The alternating bits provide
-	; differential drive, so the transmit electrode voltage is 10*Q,
-	; where Q is the quality constant for the LC tank. This normally
-	; reaches hundreds of volts.
-	movlw	0x55
-	banksel	PORTB
-	movwf	PORTB
-
 ;******************************************************************* Main Loop
 
 MainLoop
