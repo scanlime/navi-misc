@@ -57,15 +57,46 @@ if __name__ == '__main__':
     print graph
 
     # Randomize the initial positions
-    positions = RandomArray.uniform(0, 10, (len(graph.nodeList), 2))
+    positions = RandomArray.uniform(0, 100, (len(graph.nodeList), 2))
 
-    while True:
-        energy = 0
-        for a, b in graph.edgeArray:
-            d = positions[a] - positions[b]
-            energy += abs(Numeric.dot(d,d))
-            d *= 0.01
-            positions[a] -= d
-            positions[b] += d
-        print energy
+    # Solve for a local minimum in the energy of our spring system
+    springLen = 5
+    try:
+        while 1:
+            energy = 0
+            for a, b in graph.edgeArray:
+                ab = positions[a] - positions[b]
+                magnitude = Numeric.dot(ab, ab)
+                unitv = ab / magnitude
+                forceMag = (magnitude - springLen) * 0.2
+                energy += abs(forceMag)
+                force = unitv * forceMag
+                positions[a] -= force
+                positions[b] += force
+            print energy
+    except KeyboardInterrupt:
+        pass
 
+    # Begin the SVG
+    svg = open('graph.svg', 'w')
+    svg.write('<?xml version="1.0" encoding="UTF-8"?>\n'
+              '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"\n'
+              '  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">\n'
+              '<svg\n'
+              '  xmlns="http://www.w3.org/2000/svg" version="1"\n'
+              '  x="0" y="0" width="100" height="100">\n')
+
+    # Write all edges
+    for a, b in graph.edgeArray:
+        va = positions[a]
+        vb = positions[b]
+        svg.write('<line x1="%f" y1="%f" x2="%f" y2="%f" stroke="black" stroke-width="0.1"/>\n' %
+                  (va[0], va[1], vb[0], vb[1]))
+
+    # Write all nodes
+    for x, y in positions:
+        svg.write('<circle cx="%f" cy="%f" r="0.2" stroke="black" fill="yellow" stroke-width="0.05"/>\n' %
+                  (x, y))
+
+    svg.write('</svg>\n')
+    print "Graph written"
