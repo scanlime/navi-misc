@@ -11,6 +11,7 @@ OBJS	= 			\
 	src/main.o		\
 	src/parameter-editor.o	\
 	src/parameter-holder.o	\
+	src/plugins.o		\
 	src/sceneobject.o
 
 $(BIN):	$(OBJS)

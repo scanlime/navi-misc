@@ -25,6 +25,8 @@
 #include "editor.h"
 #include "gldrawingarea.h"
 #include "parameter-editor.h"
+#include "plugins.h"
+#include "sceneobject.h"
 
 static void editor_class_init   (EditorClass *klass);
 static void editor_init         (Editor      *editor);
@@ -76,6 +78,11 @@ editor_init (Editor *editor)
   GdkGLConfig *config;
   GtkCellRenderer *icon_renderer, *text_renderer;
   GtkTreeViewColumn *column;
+  GType *t, *t2;
+  guint n, n2, i, i2;
+
+  load_plugins();
+  g_print ("\n");
 
   editor->xml = glade_xml_new (GLADEDIR "/bzedit.glade", NULL, NULL);
   editor->window = glade_xml_get_widget (editor->xml, "editor window");
@@ -104,6 +111,22 @@ editor_init (Editor *editor)
 
   editor->statusbar = GTK_STATUSBAR(glade_xml_get_widget(editor->xml, "statusbar"));
   editor->editor_status_context = gtk_statusbar_get_context_id(editor->statusbar, "Editor status");
+
+
+  g_print ("%s\n", g_type_name (PARAMETER_HOLDER_TYPE));
+  t = g_type_children (PARAMETER_HOLDER_TYPE, &n);
+  for (i = 0; i < n; i++)
+  {
+    g_print (" +- %s\n", g_type_name (t[i]));
+    t2 = g_type_children (t[i], &n2);
+    for (i2 = 0; i < n2; i++)
+    {
+      g_print ("      +- %s\n", g_type_name (t2[i]));
+    }
+    g_free (t2);
+  }
+  g_free (t);
+
 }
 
 static void

@@ -1,5 +1,5 @@
 /*
- * base.c - Interface for the base plugin
+ * plugins.h - Load all of the plugins in the plugins/ directory
  *
  * BZEdit
  * Copyright (C) 2004 David Trowbridge
@@ -20,21 +20,9 @@
  *
  */
 
-#include <gmodule.h>
-#include "box.h"
-#include "world.h"
+#ifndef __PLUGINS_H__
+#define __PLUGINS_H__
 
-const gchar*
-g_module_check_init(GModule *module)
-{
-  static GType box, world;
+void load_plugins(void);
 
-  /* permanently insert ourself */
-  g_module_make_resident (module);
-
-  /* and register our types */
-  box = BOX_TYPE;
-  world = WORLD_TYPE;
-
-  return NULL;
-}
+#endif
