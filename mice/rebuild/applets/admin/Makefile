@@ -1,5 +1,4 @@
 CLASSES=\
-	info.class\
 	net.class\
 	keyinfo.class\
 	key.class\
@@ -9,9 +8,6 @@ CLASSES=\
 	admin.class
 
 app: $(CLASSES)
-
-info.class: info.java
-	javac info.java
 
 net.class: net.java
 	javac net.java
