@@ -45,13 +45,13 @@ public class build
 		int interviews, i;
 		interviews = Integer.parseInt(net.read());
 		approve = new Button[interviews];
+		question = new TextArea("",6,60,TextArea.SCROLLBARS_VERTICAL_ONLY);
 		for(i=0;i<interviews;i++)
 		{
 			String foobar = net.read();
 			approve[i] = new Button("Approve for " + foobar);
-			approve[i].addActionListener(new accept(i,question));
+			approve[i].addActionListener(new accepted(i,question));
 		}
-		question = new TextArea("",6,60,TextArea.SCROLLBARS_VERTICAL_ONLY);
 		getb = new Button("Get Question");
 		getb.addActionListener(new get(question));
 		rejectb = new Button("Reject");

@@ -51,6 +51,8 @@ public class amoderate
 	{
 		if(current != null) return null;
 		current = input.pop();
+		if(current == null)
+			return "No Questions\r\nAt This Time";
 		return current.toNet();
 	}
 	

@@ -79,10 +79,9 @@ public class njavamod extends nbase
 				if(moder.current == null)
 					write(moder.getQuestion());
 				else
-				{
-					write("No questions at this time");
-					write("by nobody who you would know.");
-				}
+					write("Please accept or reject: " + moder.current.toNet());
+				break;
+			case 'n': //send a notice
 				break;
 			}
 		}

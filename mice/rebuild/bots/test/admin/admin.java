@@ -31,11 +31,15 @@ public class admin
 		net.write(key.encrypt(keys,"mee"));
 		System.out.println(net.read());
 
-		net.write("1");
+		net.write("3");
 		keys = net.read();
 		System.out.println(keys);
-		net.write(key.encrypt(keys,"me"));
-		net.write(key.encrypt(keys,"mee"));
+		net.write(key.encrypt(keys,"ne"));
+		net.write(key.encrypt(keys,"nee"));
+		net.write(key.encrypt(keys,"oe"));
+		net.write(key.encrypt(keys,"oee"));
+		net.write(key.encrypt(keys,"pe"));
+		net.write(key.encrypt(keys,"pee"));
 		System.out.println(net.read());
 		
 		net.write("localhost");
@@ -45,6 +49,26 @@ public class admin
 		net.write("localhost");
 		net.write("8082");
 		net.read();
+		net.closeConnection();
+		
+		net.openConnection("localhost",8080);
+		net.write("jsub\r\nBrandon1 (Senior/Philosophy)\r\nWhat is the meaning of a duck?");
+		net.closeConnection();
+
+		net.openConnection("localhost",8080);
+		net.write("jsub\r\nBrandon2 (Senior/Philosophy)\r\nWhat is the meaning of a duck?");
+		net.closeConnection();
+
+		net.openConnection("localhost",8080);
+		net.write("jsub\r\nBrandon3 (Senior/Philosophy)\r\nWhat is the meaning of a duck?");
+		net.closeConnection();
+		
+		net.openConnection("localhost",8080);
+		net.write("jsub\r\nBrandon4 (Senior/Philosophy)\r\nWhat is the meaning of a duck?");
+		net.closeConnection();
+		
+				net.openConnection("localhost",8080);
+		net.write("jsub\r\nBrandon5 (Senior/Philosophy)\r\nWhat is the meaning of a duck?");
 		net.closeConnection();
 	}
 }

@@ -2,6 +2,7 @@ SRC=\
 	net.class\
 	key.class\
 	keyinfo.class\
+	get.class\
 	submit.class\
 	reject.class\
 	quit.class\
@@ -17,6 +18,9 @@ key.class: key.java
 
 keyinfo.class: keyinfo.java
 	javac keyinfo.java
+
+get.class: get.java
+	javac get.java
 
 submit.class: submit.java
 	javac submit.java
