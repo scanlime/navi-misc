@@ -155,7 +155,6 @@ static void explorer_dispose(GObject *gobject) {
     self->idler = 0;
   }
 
-  explorer_dispose_tools(self);
   explorer_dispose_animation(self);
 }
 
@@ -391,6 +390,7 @@ static int explorer_idle_handler(gpointer user_data) {
   explorer_run_iterations(self);
   explorer_update_gui(self);
   explorer_update_animation(self);
+  explorer_update_tools(self);
   return 1;
 }
 

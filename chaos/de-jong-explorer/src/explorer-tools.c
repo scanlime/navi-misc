@@ -49,7 +49,6 @@ typedef struct _ToolInfo {
 
 
 static const ToolInfo* explorer_get_current_tool(Explorer *self);
-static int explorer_tools_idle_handler(gpointer user_data);
 static void explorer_fill_toolinput_relative_positions(Explorer *self, ToolInput *ti);
 
 static gboolean on_motion_notify(GtkWidget *widget, GdkEvent *event, gpointer user_data);
@@ -104,15 +103,6 @@ void explorer_init_tools(Explorer *self) {
   glade_xml_signal_connect_data(self->xml, "on_button_release", G_CALLBACK(on_button_release), self);
 
   self->current_tool = "None";
-
-  self->tools_idler = g_idle_add(explorer_tools_idle_handler, self);
-}
-
-void explorer_dispose_tools(Explorer *self) {
-  if (self->tools_idler) {
-    g_source_remove(self->tools_idler);
-    self->tools_idler = 0;
-  }
 }
 
 
@@ -206,10 +196,10 @@ static gboolean on_button_release(GtkWidget *widget, GdkEvent *event, gpointer u
   explorer_set_params(self);
 }
 
-static int explorer_tools_idle_handler(gpointer user_data) {
-  /* If we're using a tool that needs to be updated when idle, do it
+gboolean explorer_update_tools(Explorer *self) {
+  /* If we're using a tool that needs to be updated when idle, do it.
+   * Returns a boolean indicating whether a tool is active or not.
    */
-  Explorer *self = EXPLORER(user_data);
   const ToolInfo *tool = explorer_get_current_tool(self);
   ToolInput ti;
   gint ix, iy;
@@ -229,9 +219,11 @@ static int explorer_tools_idle_handler(gpointer user_data) {
 
   if (tool && self->tool_active && (tool->flags & TOOL_USE_IDLE)) {
     tool->handler(self, &ti);
+    return TRUE;
   }
-
-  return 1;
+  else {
+    return FALSE;
+  }
 }
 
 
