@@ -401,13 +401,16 @@ void fe_set_throttle (server *serv) {
 		sess = list->data;
 		if(sess->server == serv) {
 			tgui = (session_gui*) sess->gui;
-			tgui->queue_value = per;
-			if(tgui->queue_text)
-				free(tgui->queue_text);
-			if(per != 0) {
-				tgui->queue_text = strdup(tip);
-			} else {
-				tgui->queue_text = NULL;
+			if (tgui)
+			{
+				tgui->queue_value = per;
+				if(tgui->queue_text)
+					free(tgui->queue_text);
+				if(per != 0) {
+					tgui->queue_text = strdup(tip);
+				} else {
+					tgui->queue_text = NULL;
+				}
 			}
 		}
 		list = list->next;
