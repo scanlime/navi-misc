@@ -18,8 +18,3 @@ These are when the chat is in progress, and are completed with an answer, or a r
 4)	Continuing the interivew w/o a question waiting
 5)	Ending the interview w/ a question waiting
 6)	Ending the interview w/o a question waiting
-
-C: howdy
-S: who are you
-C: I am me!
-S: OK, I have a question for you
