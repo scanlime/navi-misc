@@ -138,23 +138,23 @@ LIB32=link.exe -lib
 # PROP Default_Filter "c;cxx"
 # Begin Source File
 
-SOURCE=..\..\src\common\Bundle.cxx
+SOURCE=..\..\src\common\Bundle.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\common\BundleMgr.cxx
+SOURCE=..\..\src\common\BundleMgr.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\common\bz_Locale.cxx
+SOURCE=..\..\src\common\bz_Locale.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\common\BZDBCache.cxx
+SOURCE=..\..\src\common\BZDBCache.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\common\bzfio.cxx
+SOURCE=..\..\src\common\bzfio.cpp
 # End Source File
 # Begin Source File
 
@@ -162,83 +162,83 @@ SOURCE=..\..\src\common\bzsignal.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\common\CommandManager.cxx
+SOURCE=..\..\src\common\CommandManager.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\common\ConfigFileManager.cxx
+SOURCE=..\..\src\common\ConfigFileManager.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\common\Country.cxx
+SOURCE=..\..\src\common\Country.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\common\ErrorHandler.cxx
+SOURCE=..\..\src\common\ErrorHandler.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\common\FileManager.cxx
+SOURCE=..\..\src\common\FileManager.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\common\Flag.cxx
+SOURCE=..\..\src\common\Flag.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\common\global.cxx
+SOURCE=..\..\src\common\global.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\common\KeyManager.cxx
+SOURCE=..\..\src\common\KeyManager.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\common\Language.cxx
+SOURCE=..\..\src\common\Language.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\common\md5.cxx
+SOURCE=..\..\src\common\md5.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\common\OSFile.cxx
+SOURCE=..\..\src\common\OSFile.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\common\PlayerState.cxx
+SOURCE=..\..\src\common\PlayerState.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\common\PositionTracker.cxx
+SOURCE=..\..\src\common\PositionTracker.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\common\ShotUpdate.cxx
+SOURCE=..\..\src\common\ShotUpdate.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\common\StateDatabase.cxx
+SOURCE=..\..\src\common\StateDatabase.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\common\Team.cxx
+SOURCE=..\..\src\common\Team.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\common\TimeBomb.cxx
+SOURCE=..\..\src\common\TimeBomb.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\common\TimeKeeper.cxx
+SOURCE=..\..\src\common\TimeKeeper.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\common\VotingBooth.cxx
+SOURCE=..\..\src\common\VotingBooth.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\common\WordFilter.cxx
+SOURCE=..\..\src\common\WordFilter.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"

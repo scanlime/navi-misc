@@ -25,7 +25,7 @@
 				PreprocessorDefinitions="_WINDOWS;WIN32;_DEBUG"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				PrecompiledHeaderFile=".\..\..\src\opencombat\debug/bzflag.pch"
+				PrecompiledHeaderFile=".\..\..\src\opencombat\debug/opencombat.pch"
 				AssemblerListingLocation=".\..\..\src\opencombat\debug/"
 				ObjectFile=".\..\..\src\opencombat\debug/"
 				ProgramDataBaseFileName=".\..\..\src\opencombat\debug/"
@@ -39,12 +39,12 @@
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="FALSE"
 				AdditionalDependencies="ws2_32.lib dsound.lib winmm.lib glu32.lib opengl32.lib odbc32.lib odbccp32.lib"
-				OutputFile="..\..\src\opencombat\debug\bzflagGTX.exe"
+				OutputFile="..\..\src\opencombat\debug\opencombat.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="..\..\src\3D\debug"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile=".\..\..\src\opencombat\debug/bzflag.pdb"
+				ProgramDatabaseFile=".\..\..\src\opencombat\debug/opencombat.pdb"
 				SubSystem="2"
 				TargetMachine="1"/>
 			<Tool
@@ -53,7 +53,7 @@
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName=".\..\..\src\opencombat\debug/bzflag.tlb"
+				TypeLibraryName=".\..\..\src\opencombat\debug/opencombat.tlb"
 				HeaderFileName=""/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -97,7 +97,7 @@ copy debug\*.pdb ..\..\*.pdb
 				StringPooling="TRUE"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="TRUE"
-				PrecompiledHeaderFile=".\Release/bzflag.pch"
+				PrecompiledHeaderFile=".\Release/opencombat.pch"
 				AssemblerListingLocation=".\Release/"
 				ObjectFile=".\Release/"
 				ProgramDataBaseFileName=".\Release/"
@@ -109,10 +109,10 @@ copy debug\*.pdb ..\..\*.pdb
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="ws2_32.lib dsound.lib winmm.lib glu32.lib opengl32.lib odbc32.lib odbccp32.lib"
-				OutputFile="..\..\src\opencombat\bzflagGTX.exe"
+				OutputFile="..\..\src\opencombat\opencombat.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				ProgramDatabaseFile="../src/bzflag/bzflag.pdb"
+				ProgramDatabaseFile="../src/opencombat/opencombat.pdb"
 				SubSystem="2"
 				TargetMachine="1"/>
 			<Tool
@@ -121,7 +121,7 @@ copy debug\*.pdb ..\..\*.pdb
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName=".\..\bin/bzflag.tlb"
+				TypeLibraryName=".\..\src\opencombat\opencombat.tlb"
 				HeaderFileName=""/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -179,20 +179,20 @@ copy debug\*.pdb ..\..\*.pdb
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\bzflag.rc">
+				RelativePath="..\opencombat.rc">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
 						Name="VCResourceCompilerTool"
 						PreprocessorDefinitions=""
-						AdditionalIncludeDirectories="\Documents and Settings\JeffM\Desktop\bzflag\win32"/>
+						AdditionalIncludeDirectories="\Documents and Settings\JeffM\Desktop\opencombat\win32"/>
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32">
 					<Tool
 						Name="VCResourceCompilerTool"
 						PreprocessorDefinitions=""
-						AdditionalIncludeDirectories="\Documents and Settings\JeffM\Desktop\bzflag\win32"/>
+						AdditionalIncludeDirectories="\Documents and Settings\JeffM\Desktop\opencombat\win32"/>
 				</FileConfiguration>
 			</File>
 			<File
@@ -1002,7 +1002,7 @@ copy debug\*.pdb ..\..\*.pdb
 			Name="Resource Files"
 			Filter="ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe">
 			<File
-				RelativePath="bzflag.ico">
+				RelativePath="opencombat.ico">
 			</File>
 		</Filter>
 	</Files>

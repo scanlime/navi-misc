@@ -141,67 +141,67 @@ LIB32=link.exe -lib
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=..\..\src\platform\BzfDisplay.cxx
+SOURCE=..\..\src\platform\BzfDisplay.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\platform\BzfJoystick.cxx
+SOURCE=..\..\src\platform\BzfJoystick.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\platform\BzfMedia.cxx
+SOURCE=..\..\src\platform\BzfMedia.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\platform\BzfVisual.cxx
+SOURCE=..\..\src\platform\BzfVisual.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\platform\BzfWindow.cxx
+SOURCE=..\..\src\platform\BzfWindow.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\platform\PlatformFactory.cxx
+SOURCE=..\..\src\platform\PlatformFactory.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\platform\SDLDisplay.cxx
+SOURCE=..\..\src\platform\SDLDisplay.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\platform\SDLJoystick.cxx
+SOURCE=..\..\src\platform\SDLJoystick.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\platform\SDLMedia.cxx
+SOURCE=..\..\src\platform\SDLMedia.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\platform\wave.cxx
+SOURCE=..\..\src\platform\wave.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\platform\WinDisplay.cxx
+SOURCE=..\..\src\platform\WinDisplay.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\platform\WinJoystick.cxx
+SOURCE=..\..\src\platform\WinJoystick.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\platform\WinMedia.cxx
+SOURCE=..\..\src\platform\WinMedia.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\platform\WinPlatformFactory.cxx
+SOURCE=..\..\src\platform\WinPlatformFactory.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\platform\WinVisual.cxx
+SOURCE=..\..\src\platform\WinVisual.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\platform\WinWindow.cxx
+SOURCE=..\..\src\platform\WinWindow.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"

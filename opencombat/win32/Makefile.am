@@ -1,8 +1,8 @@
 SUBDIRS = VC6 VC71
 
 EXTRA_DIST =	\
-	bzflag.ico	\
-	bzflag.rc
+	opencombat.ico	\
+	opencombat.rc
 
 MAINTAINERCLEANFILES = \
 	Makefile.in

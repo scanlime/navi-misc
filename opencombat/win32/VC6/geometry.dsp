@@ -144,148 +144,148 @@ LIB32=link.exe -lib
 # PROP Default_Filter ""
 # Begin Source File
 
-SOURCE=..\..\src\geometry\models\tank\high_barrel.cxx
+SOURCE=..\..\src\geometry\models\tank\high_barrel.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\geometry\models\tank\high_body.cxx
+SOURCE=..\..\src\geometry\models\tank\high_body.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\geometry\models\tank\high_ltread.cxx
+SOURCE=..\..\src\geometry\models\tank\high_ltread.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\geometry\models\tank\high_rtread.cxx
+SOURCE=..\..\src\geometry\models\tank\high_rtread.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\geometry\models\tank\high_turret.cxx
+SOURCE=..\..\src\geometry\models\tank\high_turret.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\geometry\models\tank\low_barrel.cxx
+SOURCE=..\..\src\geometry\models\tank\low_barrel.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\geometry\models\tank\low_body.cxx
+SOURCE=..\..\src\geometry\models\tank\low_body.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\geometry\models\tank\low_ltread.cxx
+SOURCE=..\..\src\geometry\models\tank\low_ltread.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\geometry\models\tank\low_rtread.cxx
+SOURCE=..\..\src\geometry\models\tank\low_rtread.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\geometry\models\tank\low_turret.cxx
+SOURCE=..\..\src\geometry\models\tank\low_turret.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\geometry\models\tank\medium_barrel.cxx
+SOURCE=..\..\src\geometry\models\tank\medium_barrel.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\geometry\models\tank\medium_body.cxx
+SOURCE=..\..\src\geometry\models\tank\medium_body.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\geometry\models\tank\medium_ltread.cxx
+SOURCE=..\..\src\geometry\models\tank\medium_ltread.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\geometry\models\tank\medium_rtread.cxx
+SOURCE=..\..\src\geometry\models\tank\medium_rtread.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\geometry\models\tank\medium_turret.cxx
+SOURCE=..\..\src\geometry\models\tank\medium_turret.cpp
 # End Source File
 # End Group
 # Begin Source File
 
-SOURCE=..\..\src\geometry\BillboardSceneNode.cxx
+SOURCE=..\..\src\geometry\BillboardSceneNode.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\geometry\BoltSceneNode.cxx
+SOURCE=..\..\src\geometry\BoltSceneNode.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\geometry\EighthDBaseSceneNode.cxx
+SOURCE=..\..\src\geometry\EighthDBaseSceneNode.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\geometry\EighthDBoxSceneNode.cxx
+SOURCE=..\..\src\geometry\EighthDBoxSceneNode.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\geometry\EighthDimSceneNode.cxx
+SOURCE=..\..\src\geometry\EighthDimSceneNode.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\geometry\EighthDPyrSceneNode.cxx
+SOURCE=..\..\src\geometry\EighthDPyrSceneNode.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\geometry\FlagSceneNode.cxx
+SOURCE=..\..\src\geometry\FlagSceneNode.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\geometry\FlagWarpSceneNode.cxx
+SOURCE=..\..\src\geometry\FlagWarpSceneNode.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\geometry\LaserSceneNode.cxx
+SOURCE=..\..\src\geometry\LaserSceneNode.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\geometry\PolyWallSceneNode.cxx
+SOURCE=..\..\src\geometry\PolyWallSceneNode.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\geometry\PTSceneNode.cxx
+SOURCE=..\..\src\geometry\PTSceneNode.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\geometry\QuadWallSceneNode.cxx
+SOURCE=..\..\src\geometry\QuadWallSceneNode.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\geometry\Ray.cxx
+SOURCE=..\..\src\geometry\Ray.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\geometry\SceneNode.cxx
+SOURCE=..\..\src\geometry\SceneNode.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\geometry\ShellSceneNode.cxx
+SOURCE=..\..\src\geometry\ShellSceneNode.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\geometry\SphereSceneNode.cxx
+SOURCE=..\..\src\geometry\SphereSceneNode.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\geometry\TankSceneNode.cxx
+SOURCE=..\..\src\geometry\TankSceneNode.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\geometry\TracerSceneNode.cxx
+SOURCE=..\..\src\geometry\TracerSceneNode.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\geometry\TriWallSceneNode.cxx
+SOURCE=..\..\src\geometry\TriWallSceneNode.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\geometry\ViewFrustum.cxx
+SOURCE=..\..\src\geometry\ViewFrustum.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\geometry\WallSceneNode.cxx
+SOURCE=..\..\src\geometry\WallSceneNode.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"

@@ -138,31 +138,31 @@ LIB32=link.exe -lib
 # PROP Default_Filter "c;cxx"
 # Begin Source File
 
-SOURCE=..\..\src\game\CommandsStandard.cxx
+SOURCE=..\..\src\game\CommandsStandard.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\game\DelayQueue.cxx
+SOURCE=..\..\src\game\DelayQueue.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\game\DirectoryNames.cxx
+SOURCE=..\..\src\game\DirectoryNames.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\game\LagInfo.cxx
+SOURCE=..\..\src\game\LagInfo.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\game\NetHandler.cxx
+SOURCE=..\..\src\game\NetHandler.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\game\PlayerInfo.cxx
+SOURCE=..\..\src\game\PlayerInfo.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\game\VotingArbiter.cxx
+SOURCE=..\..\src\game\VotingArbiter.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"

@@ -136,27 +136,27 @@ LIB32=link.exe -lib
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=..\..\src\3D\3DOptionsManager.cxx
+SOURCE=..\..\src\3D\3DOptionsManager.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\3D\DisplayListManager.cxx
+SOURCE=..\..\src\3D\DisplayListManager.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\3D\DrawablesManager.cxx
+SOURCE=..\..\src\3D\DrawablesManager.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\3D\FontManager.cxx
+SOURCE=..\..\src\3D\FontManager.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\3D\TextureFont.cxx
+SOURCE=..\..\src\3D\TextureFont.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\3D\TextureManager.cxx
+SOURCE=..\..\src\3D\TextureManager.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"

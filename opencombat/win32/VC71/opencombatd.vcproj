@@ -27,7 +27,7 @@
 				StringPooling="TRUE"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="TRUE"
-				PrecompiledHeaderFile=".\Release/bzfs.pch"
+				PrecompiledHeaderFile=".\Release/opencombatd.pch"
 				AssemblerListingLocation=".\Release/"
 				ObjectFile=".\Release/"
 				ProgramDataBaseFileName=".\Release/"
@@ -42,12 +42,12 @@
 				OutputFile=".\..\..\src\opencombatd\bzflagGTXserver.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				ProgramDatabaseFile="../src/bzfs/bzfs.pdb"
+				ProgramDatabaseFile="../src/opencombatd/opencombatd.pdb"
 				SubSystem="1"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\..\bin/bzfs.tlb"
+				TypeLibraryName=".\..\src\opencombatd\opencombatd.tlb"
 				HeaderFileName=""/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -86,7 +86,7 @@
 				PreprocessorDefinitions="_CONSOLE;WIN32;_DEBUG"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				PrecompiledHeaderFile=".\..\..\src\opencombatd\debug/bzfs.pch"
+				PrecompiledHeaderFile=".\..\..\src\opencombatd\debug/opencombatd.pch"
 				AssemblerListingLocation=".\..\..\src\opencombatd\debug/"
 				ObjectFile=".\..\..\src\opencombatd\debug/"
 				ProgramDataBaseFileName=".\..\..\src\opencombatd\debug/"
@@ -103,12 +103,12 @@
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile=".\..\..\src\opencombatd\debug/bzfs.pdb"
+				ProgramDatabaseFile=".\..\..\src\opencombatd\debug/opencombatd.pdb"
 				SubSystem="1"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\..\..\src\opencombatd\debug/bzfs.tlb"
+				TypeLibraryName=".\..\..\src\opencombatd\debug/opencombatd.tlb"
 				HeaderFileName=""/>
 			<Tool
 				Name="VCPostBuildEventTool"
