@@ -380,28 +380,4 @@ class RenderCache(Cache.AbstractStringCache):
     def _finishedRendering(self, d, f, result):
         result.callback(f.getvalue())
 
-
-def main():
-    f = open("foo.png", "w")
-
-    def done(result):
-        print result
-        f.flush()
-        f.close()
-        reactor.stop()
-    def oops(result):
-        print result
-        reactor.stop()
-
-    g = RelationGrapher(
-        PrefixSelector('project/', color='#FF0000', shape='box'),
-        PrefixSelector('author/', color='#0000FF'),
-        )
-    l = GraphLayout(g)
-    r = SvgRasterizer(l, dpi=3, background='white')
-
-#    RenderCache().get(r).addCallback(done).addErrback(oops)
-    r.render(f).addCallback(done).addErrback(oops)
-    reactor.run()
-
 ### The End ###
