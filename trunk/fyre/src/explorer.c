@@ -275,7 +275,6 @@ update_image_preview (GtkFileChooser *chooser, GtkImage *image) {
     GdkPixbuf *image_pixbuf, *temp;
     static GdkPixbuf *emblem_pixbuf = NULL;
     gchar *filename;
-    gboolean have_preview;
     GdkPixmap *pixmap;
     gint width, height;
 
@@ -288,11 +287,18 @@ update_image_preview (GtkFileChooser *chooser, GtkImage *image) {
     }
 
     filename = gtk_file_chooser_get_filename (chooser);
+    if (filename == NULL) {
+	gtk_file_chooser_set_preview_widget_active (chooser, FALSE);
+	return;
+    }
 
     image_pixbuf = gdk_pixbuf_new_from_file_at_size (filename, 112, 112, NULL);
+    if (image_pixbuf == NULL) {
+	gtk_file_chooser_set_preview_widget_active (chooser, FALSE);
+	return;
+    }
     width = gdk_pixbuf_get_width (image_pixbuf);
     height = gdk_pixbuf_get_height (image_pixbuf);
-    have_preview = (image_pixbuf != NULL);
 
     pixmap = gdk_pixmap_new (GTK_WIDGET (image)->window, width + 16, height + 16, -1);
     gdk_draw_rectangle (pixmap, GTK_WIDGET (image)->style->bg_gc[GTK_STATE_NORMAL], TRUE, 0, 0, width + 16, height + 16);
@@ -312,7 +318,7 @@ update_image_preview (GtkFileChooser *chooser, GtkImage *image) {
 
     gtk_image_set_from_pixmap (GTK_IMAGE (image), pixmap, NULL);
     gdk_pixmap_unref (pixmap);
-    gtk_file_chooser_set_preview_widget_active (chooser, have_preview);
+    gtk_file_chooser_set_preview_widget_active (chooser, TRUE);
 }
 #endif
 
