@@ -31,11 +31,7 @@ class Page:
       '''
   serializer = Nouvelle.Serializer
 
-  def __init__(self):
-    self.document = None
-
   def __call__(self):
-    if self.document:
+    if hasattr(self, 'document'):
       doc = Page.serializer().render(self.document)
       return string.join(doc,'')
-    return ''
