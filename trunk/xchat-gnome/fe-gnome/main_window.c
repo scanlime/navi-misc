@@ -4,6 +4,10 @@
 #include "userlist.h"
 #include "../common/xchatc.h"
 
+#ifdef HAVE_GTKSPELL
+#include <gtkspell/gtkspell.h>
+#endif
+
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -27,6 +31,10 @@ void initialize_main_window() {
 
 	entry = glade_xml_get_widget(gui.xml, "text entry");
 	g_signal_connect(G_OBJECT(entry), "key-release-event", G_CALLBACK(on_text_entry_activate), NULL);
+
+#ifdef HAVE_GTKSPELL
+	gtkspell_new_attach(GTK_TEXT_VIEW(entry), NULL, NULL);
+#endif
 }
 
 void on_preferences_menu_activate(GtkWidget *widget, gpointer data) {
