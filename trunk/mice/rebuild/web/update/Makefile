@@ -1,7 +1,7 @@
 CLASSES=\
 	keyinfo.class\
 	key.class\
-	question.class
+	element.class
 
 update: $(CLASSES)
 
@@ -11,8 +11,8 @@ keyinfo.class: keyinfo.java
 key.class: key.java
 	javac key.java
 
-question.class: question.java
-	javac question.java
+element.class: element.java
+	javac element.java
 
 clean:
 	rm -Rf *.class *~
