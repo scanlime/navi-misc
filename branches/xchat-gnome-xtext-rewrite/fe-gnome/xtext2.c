@@ -15,6 +15,8 @@ static void       xtext2_size_request    (GtkWidget *widget, GtkRequisition *req
 static void       xtext2_size_allocate   (GtkWidget *widget, GtkAllocation *allocation);
 static gboolean   xtext2_expose          (GtkWidget *widget, GdkEventExpose *event);
 
+static void       backend_init           (XText2 *xtext);
+
 static void       paint                  (GtkWidget *widget, GdkRectangle *area);
 static void       draw_bg                (XText2 *xtext, int x, int y, int width, int height);
 static textentry* nth                    (XText2 *xtext, int line, int *subline);
@@ -77,6 +79,23 @@ struct _XText2Private
   XTextBuffer *current_buffer;
   XTextBuffer *original_buffer;
   XTextBuffer *selection_buffer;
+
+  /* backend state */
+#ifdef USE_XFT
+  XftColor     color[20];
+  XftColor    *xft_fg;               /* both of these point into */
+  XftColor    *xft_bg;               /* the color[20] array */
+  XftDraw     *xft_draw;
+  XftFont     *xft_font;
+#else
+  struct
+  {
+    PangoFontDescription *font;
+    int ascent;
+    int descent;
+  } *font, pango_font;
+  PangoLayout *layout;
+#endif
 };
 
 typedef struct _XTextFormat XTextFormat;
@@ -348,6 +367,8 @@ xtext2_realize (GtkWidget *widget)
   xtext->priv->draw_buffer = widget->window;
 
   gdk_window_set_back_pixmap (widget->window, NULL, FALSE);
+
+  backend_init (xtext);
 }
 
 static void
@@ -388,6 +409,26 @@ xtext2_expose (GtkWidget *widget, GdkEventExpose *event)
   paint (widget, &event->area);
   return FALSE;
 }
+
+#ifdef USE_XFT
+/* ========================================= */
+/* ========== XFT 1 and 2 BACKEND ========== */
+/* ========================================= */
+#else
+/* ======================================= */
+/* ============ PANGO BACKEND ============ */
+/* ======================================= */
+static void
+backend_init (XText2 *xtext)
+{
+  if (xtext->priv->layout == NULL)
+  {
+    xtext->priv->layout = gtk_widget_create_pango_layout (GTK_WIDGET (xtext), 0);
+    if (xtext->priv->font)
+      pango_layout_set_font_description (xtext->priv->layout, xtext->priv->font->font);
+  }
+}
+#endif
 
 static void
 paint (GtkWidget *widget, GdkRectangle *area)
