@@ -13,7 +13,7 @@
 #
 
 from __future__ import division
-import gtk, rtgraph, threading, pyrcpod, time
+import gtk, rtgraph, threading, pyrcpod, time, os
 
 class AdcChannel(rtgraph.Channel):
     def strValue(self):

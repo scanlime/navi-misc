@@ -17,7 +17,7 @@
 #
 
 from __future__ import division
-import gtk, rtgraph, threading, time, sys
+import gtk, rtgraph, threading, time, sys, os
 import pyrcpod
 import pyrcpod.i2c
 
