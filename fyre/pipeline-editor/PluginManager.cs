@@ -51,7 +51,6 @@ class PluginManager
 
 		foreach (Type type in asm_plugins) {
 			plugin_types.Add (type);
-			Console.WriteLine ("Adding type '" + type.FullName + "'");
 		}
 	}
 
@@ -92,11 +91,9 @@ class PluginManager
 		ArrayList asm_plugins = new ArrayList ();
 		bool found_one = false;
 
-		foreach (Type type in types) {
-			Console.WriteLine ("Type found: " + type.FullName);
+		foreach (Type type in types)
 			if (type.BaseType == typeof (Element))
 				asm_plugins.Add (type);
-		}
 
 		return asm_plugins;
 	}

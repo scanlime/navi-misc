@@ -3,7 +3,8 @@
 
 SOURCES = \
 ./AssemblyInfo.cs \
-./Transform.cs
+./Transform.cs \
+./MatrixMultiply.cs
 
 PKG_REFERENCES = \
 gtk-sharp

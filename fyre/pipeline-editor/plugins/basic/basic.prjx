@@ -2,6 +2,7 @@
   <Contents>
     <File name="./AssemblyInfo.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name="./Transform.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name="./MatrixMultiply.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
   </Contents>
   <References>
     <Reference type="Project" refto="pipeline-editor" localcopy="True" />
