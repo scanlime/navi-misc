@@ -113,7 +113,7 @@ class Device:
            print pic.peek(0x0B)
            pic.poke(0x11, 123)
        """
-    def __init__(self, devPattern="/dev/usb/rcpod*"):
+    def __init__(self, devPattern="/dev/usb/rcpod*", reset=True):
         devs = glob.glob(devPattern)
         if not devs:
             raise IOError, "No rcpod device found"
@@ -124,6 +124,9 @@ class Device:
             'registerTable': dict(registerTable),
             'dev': dev,
             })
+
+        if reset:
+            self.reset()
 
     def peek(self, address):
         """Return the byte at the given 9-bit address"""
@@ -146,5 +149,28 @@ class Device:
     def __getattr__(self, register):
         """Map our object attributes to register names"""
         return self.peek(self.registerTable[register])
+
+    def reset(self):
+        """Give power-on values to all registers not used internally by rcpod
+           that have defined values at powerup.
+           """
+        self.TRISA = 0xFF
+        self.TRISB = 0xFF
+        self.TRISC = 0xFF
+        self.TRISD = 0xFF
+        self.TRISE = 0xFF
+        self.PORTA = 0x00
+        self.PORTB = 0x00
+        self.PORTC = 0x00
+        self.PORTD = 0x00
+        self.PORTE = 0x00
+        self.T1CON = 0x00
+        self.T2CON = 0x00
+        self.CCP1CON = 0x00
+        self.CCP2CON = 0x00
+        self.RCSTA = 0x00
+        self.TXSTA = 0x02
+        self.ADCON0 = 0x00
+        self.ADCON1 = 0x00
 
 ### The End ###
