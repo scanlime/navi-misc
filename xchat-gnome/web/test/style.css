@@ -43,13 +43,15 @@ a {
 }
 
 div.navigation {
-  float: right;
+  min-width:	150px;
+  position:	fixed;
 }
 
 div.content {
   padding-top: 1.5em;
   padding-bottom: 2em;
   width: 75%;
+  margin-left: 150px;
 }
 
 div.footer {
