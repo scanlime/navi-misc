@@ -4,13 +4,47 @@ import sys, gtk
 from GTKsheet import GTKsheet
 from Character import Character
 
+def Menu():
+  ''' Return a menu with accelerators. '''
+  items = (('/_File', None, None, 0, '<Branch>'),
+	   ('/File/_New', '<control>N', NewSheet, 0, None),
+	   ('/File/_Open', '<control>O', OpenSheet, 0, None),
+	   ('/File/ ',None, None, 0, None),
+	   ('/File/separator', None, None, 0, '<Separator>'),
+	   ('/File/_Quit', '<control>Q', lambda w, d: gtk.main_quit(), 0, None),
+	   ('/Help', None, None, 0, '<Branch>'),
+	   ('/Help/About', None, None, 0, None))
+
+  accelerator = gtk.AccelGroup()
+  itemFactory = gtk.ItemFactory(gtk.MenuBar, '<main>', accelerator)
+  itemFactory.create_items(items)
+  menubar = itemFactory.get_widget('<main>')
+  menubar.show()
+  
+  return (menubar, accelerator)
+
+def NewSheet():
+  ''' Create a new character. '''
+  print 'Not Implemented.'
+
+def OpenSheet():
+  ''' Open a sheet. '''
+  print 'Not Implemented.'
+
 character = Character()
 character.readCharacter(sys.argv[1])
 sheet = GTKsheet(character)
 
 window = gtk.Window(gtk.WINDOW_TOPLEVEL)
 window.connect('delete_event', lambda w, d: gtk.main_quit())
-window.add(sheet.root)
+
+menu, accelGroup = Menu()
+window.add_accel_group(accelGroup)
+box = gtk.VBox()
+box.pack_start(menu, gtk.FALSE)
+box.pack_start(sheet.root)
+box.show()
+window.add(box)
 sheet.root.show()
 window.show()
 gtk.main()
