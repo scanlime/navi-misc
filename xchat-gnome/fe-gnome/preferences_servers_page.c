@@ -23,6 +23,8 @@
 #include "preferences_servers_page.h"
 #include "preferences.h"
 #include "error_dialog.h"
+#include "irc-network.h"
+#include "irc-network-editor.h"
 #include "../common/xchat.h"
 #include "../common/servlist.h"
 
@@ -284,6 +286,26 @@ server_entry_edited (GtkCellRendererText *renderer, gchar *arg1, gchar *arg2, Gt
 static void
 edit_clicked (GtkWidget *button, gpointer data)
 {
+	IrcNetwork *n;
+	IrcNetworkEditor *e;
+	GtkWidget *treeview;
+	GtkTreeSelection *select;
+	GtkTreeIter iter;
+	GtkTreeModel *model;
+	ircnet *net;
+
+	treeview = glade_xml_get_widget (gui.xml, "configure server list");
+
+	select = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
+	if (!gtk_tree_selection_get_selected (select, &model, &iter))
+		return;
+	gtk_tree_model_get (model, &iter, 2, &net, -1);
+
+	n = irc_network_new (net);
+	e = irc_network_editor_new (n);
+
+	irc_network_editor_run (n);
+	gtk_widget_destroy (n);
 }
 
 static void
