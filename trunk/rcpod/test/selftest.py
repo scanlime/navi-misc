@@ -357,7 +357,7 @@ class SelfTest(RcpodTestCase):
            This can't test that correct data is being transmitted, and it can do almost nothing
            to test the receive APIs.
            """
-        for rate in (2400, 9600, 300, 57600):
+        for rate in (2400, 300000, 300, 57600, 9600):
             self.rcpod.serialInit(rate)
 
         # Make sure buffers that are too large cause an exception
@@ -372,7 +372,12 @@ class SelfTest(RcpodTestCase):
         self.rcpod.serialTxRxStart([], 0)
         self.rcpod.serialTxRxStart("", 5)
         self.rcpod.serialTxRxStart("Hello, World!", 0)
-        self.rcpod.serialTxRxStart("U" * pyrcpod.device.RCPOD_SCRATCHPAD_SIZE, pyrcpod.device.RCPOD_SCRATCHPAD_SIZE)
+
+        txe = self.rcpod.rd4
+        txe.output().assert_()
+        self.rcpod.serialSetTxEnable(txe)
+        self.rcpod.serialTx("U" * 20)
+        self.rcpod.serialUnsetTxEnable()
         self.assertEqual(self.rcpod.serialRxFinish(), [])
 
 

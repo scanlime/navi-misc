@@ -284,7 +284,13 @@ class OpenedDevice:
            It will be asserted immediately before transmitting and deasserted
            after the transmission is completely finished.
            """
-        rcpod_SerialSetTxEnable(self.dev, pin.value)
+        if pin:
+            rcpod_SerialSetTxEnable(self.dev, pin.value)
+        else:
+            rcpod_SerialSetTxEnable(self.dev, RCPOD_PIN_NONE)
+
+    def serialUnsetTxEnable(self):
+        self.serialSetTxEnable(None)
 
 
 class Pin:
