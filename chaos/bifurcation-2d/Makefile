@@ -1,6 +1,7 @@
 CFLAGS += -march=i686
 CFLAGS += -O3 -ffast-math
-BINS   += params-ab params-cd logscale
+CFLAGS += -g
+BINS   += params-ab params-cd logscale henon
 
 all: $(BINS)
 
