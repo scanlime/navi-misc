@@ -64,7 +64,6 @@ class StatsURIHandler(Ruleset.RegexURIHandler):
 
         if message == self.lastMessage:
             for prevTarget in self.messageTargets:
-                print prevTarget, target
                 Relation(prevTarget, target).reinforce()
         else:
             self.messageTargets = []
