@@ -28,7 +28,9 @@ def formatRoll(user, times, sides, rolls, total):
        getNick(user) + ' rolled a ' + times + 'd' + sides + ': => ' + total)
 
 def formatCTCP(user, to, message):
-  print 'Not implemented.'
+  ''' Format a CTCP message and return it in a tuple along with the time. '''
+  print message
+  return (None, None)
 
 def getNick(user, isAction):
   ''' Return the nickname from the user name passed as the argument. '''
@@ -50,4 +52,14 @@ def getTime():
   return (hour, min, sec)
 
 def nickComplete(text, nicks):
-  print 'Not implemented.'
+  ''' Try and complete text from the list nicks.  Returns a tuple where
+      the first item is the longest matching substring in all the nicks
+      and every subsequent item is a possible completion.  If there is a
+      complete match the tuple have only the matching item in it.
+      '''
+  match = [text]
+  for nick in nicks:
+    if nick.find(text) != -1:
+      match.append(nick)
+
+  return match
