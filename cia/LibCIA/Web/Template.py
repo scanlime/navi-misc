@@ -156,6 +156,22 @@ class Table(Nouvelle.ResortableTable):
             indicator,
             ]
 
+    def getCookieHyperlink(self, context, cookie):
+        """Since CIA can sometimese use POST requests with large amounts
+           of possibly security sensitive data, we hack this up a bit to only
+           include existing args that were passed through a GET.
+           """
+        if context['request'].method == "GET":
+            newArgs = dict(context['args'])
+        else:
+            newArgs = {}
+        newArgs[self.sortArgName] = [cookie]
+        pairs = []
+        for key in newArgs:
+            for value in newArgs[key]:
+                pairs.append('%s=%s' % (key, value))
+        return '?' + '&'.join(pairs)
+
 
 class StaticSection(Section):
     """A section containing static content, usable with tag-like syntax:
