@@ -115,6 +115,7 @@ static int uvswitch_open(struct inode *inode, struct file *file);
 static int uvswitch_release(struct inode *inode, struct file *file);
 static int uvswitch_ioctl(struct inode *inode, struct file *file, unsigned int cmd, unsigned long arg);
 static ssize_t uvswitch_read(struct file *file, char *buffer, size_t count, loff_t *ppos);
+static unsigned int uvswitch_poll(struct file *file, poll_table *wait);
 
 static inline void uvswitch_delete(struct usb_uvswitch *dev);
 static void * uvswitch_probe(struct usb_device *udev, unsigned int ifnum, const struct usb_device_id *id);
@@ -579,6 +580,29 @@ exit:
 	return retval;
 }
 
+static unsigned int uvswitch_poll(struct file *file, poll_table *wait)
+{
+	struct uvswitch_fd_private *prv;
+	struct usb_uvswitch *dev;
+	int retval = 0;
+
+	prv =(struct uvswitch_fd_private *)file->private_data;
+	if (prv == NULL) {
+		dbg("object is NULL");
+		return -ENODEV;
+	}
+	dev = prv->dev;
+
+	poll_wait(file, &dev->adc_wait, wait);
+
+	/* Was the device unplugged? */
+	if (dev->udev == NULL)
+		return POLLERR | POLLHUP;
+
+	/* Assume there's data availalbe becase we were awakened */
+	return POLLIN | POLLRDNORM;
+}
+
 
 static struct file_operations uvswitch_dev_fops = {
 	owner:		THIS_MODULE,        /* This automates updating the module's use count */
@@ -588,6 +612,7 @@ static struct file_operations uvswitch_dev_fops = {
 	release:	uvswitch_release,
 	read:		uvswitch_read,
 	write:		uvswitch_write,
+	poll:		uvswitch_poll,
 };
 
 
