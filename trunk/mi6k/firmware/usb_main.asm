@@ -307,6 +307,7 @@ Main
 	clrf	ir_tx_Tail
 	clrf	ir_rx_Head
 	clrf	ir_rx_Tail
+	banksel	ir_tx_Mask
 	movlw	IR_TX_MASK	; First transmission is a pulse
 	movwf	ir_tx_Mask
 
@@ -337,9 +338,18 @@ Main
 	banksel	T2CON
 	movwf	T2CON
 
-	movlw	0x88		; Pullups disabled, interrupt on falling edge of IR signal, TMR0 on instruction clock
 	banksel	OPTION_REG
+	
+	; Initialize TMR0 according to example 6-1 in the PIC16C745 data sheet
+	banksel	OPTION_REG
+	movlw	0x87		; Pullups disabled, interrupt on falling edge of IR signal
 	movwf	OPTION_REG
+	banksel	TMR0
+	clrf	TMR0		; Clear TMR0 and prescaler
+	banksel	OPTION_REG
+	movlw	0x8F		; Assign the prescaler to the WDT, TMR0 now runs at the instruction frequency
+	movwf	OPTION_REG
+	clrwdt				; Necessary to prevent the WDT from unexpectedly resetting
 
 	;banksel	INTCON
 	;bsf		INTCON, INTE ; External (IR receiver) interrupt enable
