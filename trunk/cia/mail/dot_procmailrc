@@ -21,6 +21,7 @@ $CIADIR/mail.log
 
 :0
 * ^To: kde-cvs@kde.org
+* ^X-Commit-Directories:
 | $CIADIR/mail/filter_kde.py
 
 :0
