@@ -25,9 +25,6 @@
 #include <string.h>
 #include <math.h>
 
-/* DEBUGGATIVE CRUFT */
-#include "heap.h"
-
 static void de_jong_check_dirty_flags(DeJong *self);
 static void de_jong_reset_calc(DeJong *self);
 static void de_jong_require_histogram(DeJong *self);
@@ -40,16 +37,6 @@ static gulong de_jong_get_max_usable_density(DeJong *self);
 static float uniform_variate();
 static float normal_variate();
 static int find_upper_pow2(int x);
-
-typedef struct {
-  guint column_number;
-  gulong peak_density;
-  gdouble point_x, point_y;
-} BifurcationColumn;
-
-static int column_cmp_inverse_density(const BifurcationColumn *a,
-				      const BifurcationColumn *b,
-				      gpointer data);
 
 
 /************************************************************************************/
@@ -538,16 +525,6 @@ static gulong de_jong_get_max_usable_density(DeJong *self) {
 /************************************************************* Bifurcation Diagrams */
 /************************************************************************************/
 
-static int column_cmp_inverse_density(const BifurcationColumn *a,
-				      const BifurcationColumn *b,
-				      gpointer data) {
-  if (a->peak_density > b->peak_density)
-    return -1;
-  else if (a->peak_density < b->peak_density)
-    return 1;
-  return 0;
-}
-
 void de_jong_calculate_bifurcation(DeJong             *self,
 				   DeJongInterpolator *interp,
 				   gpointer            interp_data,
@@ -571,22 +548,23 @@ void de_jong_calculate_bifurcation(DeJong             *self,
 
     interpolant = de_jong_new();
 
-    if (!self->column_heap) {
-      /* Create columns, toss them on the heap */
-      self->column_heap = heap_new(hist_width, (GCompareDataFunc) column_cmp_inverse_density, NULL);
+    if (!self->columns) {
+      /* Create columns */
+      self->columns = g_new0(BifurcationColumn, hist_width);
       for (i=0; i<hist_width; i++) {
-	column = g_new0(BifurcationColumn, 1);
+	column = &self->columns[i];
 	column->column_number = i;
 	column->point_x = uniform_variate();
 	column->point_y = uniform_variate();
-	heap_insert(self->column_heap, column);
       }
     }
 
     for (i=iterations; i;) {
 
-      /* Using the heap, find the column with the lowest peak density. */
-      column = heap_extract_maximum(self->column_heap);
+      /* Next column */
+      column = &self->columns[self->current_column++];
+      if (self->current_column >= hist_width)
+	self->current_column = 0;
 
       /* At each iteration block, we pick a new interpolated set of points
        * and the corresponding X coordinate on our histogram.
@@ -603,7 +581,7 @@ void de_jong_calculate_bifurcation(DeJong             *self,
       c = interpolant->c;
       d = interpolant->d;
 
-      for(block=500; i && block; --i, --block) {
+      for(block=5000; i && block; --i, --block) {
 	/* These are the actual Peter de Jong map equations. The new point value
 	 * gets stored into 'point', then we go on and mess with x and y before plotting.
 	 */
@@ -625,11 +603,10 @@ void de_jong_calculate_bifurcation(DeJong             *self,
 	}
       }
 
-      /* Update the column and re-add it to the heap */
+      /* Update the column */
       column->peak_density = density;
       column->point_x = point_x;
       column->point_y = point_y;
-      heap_insert(self->column_heap, column);
     }
 
     /* We report the 'peak density' as the lowest column peak density,
@@ -660,9 +637,9 @@ static void de_jong_reset_calc(DeJong *self) {
   self->point_y = uniform_variate();
 
   /* DEBUGGATIVE CRUFT */
-  if (self->column_heap) {
-    heap_free(self->column_heap, g_free);
-    self->column_heap = NULL;
+  if (self->columns) {
+    g_free(self->columns);
+    self->columns = NULL;
   }
 
   self->calc_dirty_flag = FALSE;

@@ -13,8 +13,7 @@ HEADERS = \
 	src/curve-editor.h	\
 	src/spline.h		\
 	src/cell-renderer-transition.h \
-	src/cell-renderer-bifurcation.h	\
-	src/heap.h
+	src/cell-renderer-bifurcation.h
 
 OBJS    = \
 	src/main.o		\
@@ -29,8 +28,7 @@ OBJS    = \
 	src/explorer-tools.o	\
 	src/explorer-animation.o \
 	src/cell-renderer-transition.o \
-	src/cell-renderer-bifurcation.o \
-	src/heap.o
+	src/cell-renderer-bifurcation.o
 
 
 $(BIN): $(OBJS)

@@ -28,9 +28,6 @@
 
 #include <gtk/gtk.h>
 
-/* DEBUGGATIVE CRUFT */
-#include "heap.h"
-
 G_BEGIN_DECLS
 
 #define DE_JONG_TYPE            (de_jong_get_type ())
@@ -41,6 +38,15 @@ G_BEGIN_DECLS
 
 typedef struct _DeJong      DeJong;
 typedef struct _DeJongClass DeJongClass;
+
+
+/* DEBUGGATIVE CRUFT */
+typedef struct {
+  guint column_number;
+  gulong peak_density;
+  gdouble point_x, point_y;
+} BifurcationColumn;
+
 
 struct _DeJong {
   GObject object;
@@ -88,7 +94,8 @@ struct _DeJong {
   guint32 *color_table;
 
   /* DEBUGGATIVE CRUFT */
-  Heap *column_heap;
+  BifurcationColumn *columns;
+  guint current_column;
 };
 
 struct _DeJongClass {
