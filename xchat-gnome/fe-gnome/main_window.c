@@ -445,6 +445,7 @@ static void
 on_discussion_close_activate (GtkWidget *widget, gpointer data)
 {
 	session *s = gui.current_session;
+/*	navigation_tree_select_next_channel (gui.server_tree, TRUE);*/
 	if (s->type == SESS_CHANNEL)
 	{
 		gchar *text;
@@ -455,7 +456,6 @@ on_discussion_close_activate (GtkWidget *widget, gpointer data)
 		s->server->p_part (s->server, s->channel, text);
 		g_free (text);
 	}
-	navigation_tree_select_prev_channel (gui.server_tree, TRUE);
 	navigation_tree_remove (gui.server_tree, s);
 	text_gui_remove_text_buffer (s);
 }
