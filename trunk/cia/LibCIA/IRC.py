@@ -516,7 +516,7 @@ class ColortextFormatter(object):
         # we hit actual text. This prevents sequences from appearing in the output
         # where several codes are applied then immediately erased by a 'normal' code.
         # This also handles optimizing out formatting codes with no children.
-        while isinstance(codes[-1], FormattingCode):
+        while codes and isinstance(codes[-1], FormattingCode):
             del codes[-1]
 
         # Now stick on a 'normal' code and the contents of our codeStack
@@ -545,14 +545,14 @@ class ColortextFormatter(object):
                 codes.append(xml['bg'])
                 codes.append('reverse')
             else:
-                raise XMLValidityError("%r is not a color" % xml['bg'])
+                raise XML.XMLValidityError("%r is not a color" % xml['bg'])
         except KeyError:
             pass
         try:
             if xml['fg'] in ColorText.allowedColors:
                 codes.append(xml['fg'])
             else:
-                raise XMLValidityError("%r is not a color" % xml['fg'])
+                raise XML.XMLValidityError("%r is not a color" % xml['fg'])
         except KeyError:
             pass
         return self.codeWrap(xml, codeStack, *codes)
