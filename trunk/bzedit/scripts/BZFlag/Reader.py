@@ -31,10 +31,15 @@ class Reader:
             float = Combine(Word('+-'+nums, nums) +
                             Optional(Literal('.') + Optional(Word(nums))) +
                             Optional(CaselessLiteral('E') + Word('+-'+nums, nums)))
+            int = Word('+-'+nums, nums)
             TwoDPoint = float + float
             ThreeDPoint = float + float + float
             globalReference = Word(alphanums + '/:*_?')
             flagShortName = Word(alphas, min=1, max=2)
+
+            phydrv = Group(CaselessLiteral('phydrv') + Word(alphanums))
+            smoothbounce = CaselessLiteral('smoothbounce')
+            flatshading = CaselessLiteral('flatshading')
 
             end = Suppress(CaselessLiteral('end'))
             name = CaselessLiteral('name')
@@ -69,8 +74,8 @@ class Reader:
               | obstacleProperty
             pyramid = Group(CaselessLiteral('pyramid') + OneOrMore(pyramidProperty) + end)
 
-            baseProperty =                            \
-                CaselessLiteral('color') + Word(nums) \
+            baseProperty =                     \
+                CaselessLiteral('color') + int \
               | obstacleProperty
             base = Group(CaselessLiteral('base') + OneOrMore(baseProperty) + end)
 
@@ -91,7 +96,7 @@ class Reader:
               | Literal('?')         \
               | Literal('*')
             teleporterSpec = \
-                Word(nums)   \
+                int          \
               | Combine(globalReference + Optional(Literal(':') + teleporterSide))
             linkProperty =                                      \
                 Group(CaselessLiteral('to') + teleporterSpec)   \
@@ -100,16 +105,29 @@ class Reader:
             link = Group(CaselessLiteral('link') + OneOrMore(linkProperty) + end)
 
             # FIXME - add material to this object
-            arcProperty =                                                  \
-                CaselessLiteral('divisions') + Word(nums)                  \
-              | CaselessLiteral('angle') + float                           \
-              | CaselessLiteral('ratio') + float                           \
-              | CaselessLiteral('texsize') + float + float + float + float \
-              | CaselessLiteral('phydrv') + Word(alphanums)                \
-              | CaselessLiteral('smoothbounce')                            \
-              | CaselessLiteral('flatshading')                             \
+            arcProperty =                                                         \
+                Group(CaselessLiteral('divisions') + int)                         \
+              | Group(CaselessLiteral('angle') + float)                           \
+              | Group(CaselessLiteral('ratio') + float)                           \
+              | Group(CaselessLiteral('texsize') + float + float + float + float) \
+              | phydrv                                                            \
+              | smoothbounce                                                      \
+              | flatshading                                                       \
               | obstacleProperty
             arc = Group(CaselessLiteral('arc') + OneOrMore(arcProperty) + end)
+
+            # FIXME - add material to this object
+            hemisphere = CaselessLiteral('hemisphere') | CaselessLiteral('hemi')
+            sphereProperty =                                      \
+                Group(CaselessLiteral('divisions') + int)         \
+              | Group(CaselessLiteral('radius') + float)          \
+              | hemisphere                                        \
+              | Group(CaselessLiteral('texsize') + float + float) \
+              | phydrv                                            \
+              | smoothbounce                                      \
+              | flatshading                                       \
+              | obstacleProperty
+            sphere = Group(CaselessLiteral('sphere') + OneOrMore(sphereProperty) + end)
 
             # FIXME - add material to this object
             tetraProperty =                              \
@@ -123,10 +141,10 @@ class Reader:
                 CaselessLiteral('good') \
               | CaselessLiteral('bad')  \
               | flagShortName
-            zoneProperty =                                        \
-                CaselessLiteral('flag') + OneOrMore(flagSpec)     \
-              | CaselessLiteral('team') + OneOrMore(Word(nums))   \
-              | CaselessLiteral('safety') + OneOrMore(Word(nums)) \
+            zoneProperty =                                    \
+                CaselessLiteral('flag') + OneOrMore(flagSpec) \
+              | CaselessLiteral('team') + OneOrMore(int)      \
+              | CaselessLiteral('safety') + OneOrMore(int)    \
               | locationProperty
             zone = Group(CaselessLiteral('zone') + OneOrMore(zoneProperty) + end)
 
@@ -137,14 +155,24 @@ class Reader:
               | locationProperty
             weapon = Group(CaselessLiteral('weapon') + OneOrMore(weaponProperty) + end)
 
+            # FIXME - add material to this object
+            waterLevelProperty =                         \
+                Group(CaselessLiteral('height') + float) \
+              | objectProperty
+            waterLevel = Group(CaselessLiteral('waterLevel') + OneOrMore(waterLevelProperty) + end)
+
             worldObject =  \
-                box        \
-              | pyramid    \
+                arc        \
+              | box        \
               | base       \
-              | teleporter \
               | link       \
-              | arc        \
+              | pyramid    \
+              | sphere     \
+              | teleporter \
               | tetra      \
+              | waterLevel \
+              | weapon     \
+              | world      \
               | zone
 
             self.grammar = OneOrMore(worldObject)
