@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <libgnome/gnome-url.h>
+#include <gconf/gconf-client.h>
 
 #include "xchat-plugin.h"
 
@@ -16,7 +17,8 @@
 static xchat_plugin *ph;	// Plugin handle.
 static regex_t *email;		// Regex that matches e-mail addresses.
 static regex_t *url;		// Regex that matches urls.
-static int urls;			// Current total in the scraper.
+static gint urls;			// Current total in the scraper.
+static gboolean timestamps;	// Show timestamps?
 
 static GtkWidget *window;
 static GtkListStore *list_store;
@@ -159,6 +161,8 @@ int xchat_plugin_init (xchat_plugin *plugin_handle,
 		char **plugin_version,
 		char *arg)
 {
+	GConfClient *client = gconf_client_get_default ();
+
 	ph = plugin_handle;
 
 	xchat_plugin_get_info (plugin_name, plugin_desc, plugin_version);
@@ -175,7 +179,9 @@ int xchat_plugin_init (xchat_plugin *plugin_handle,
 		return 0;
 	}
 
-	urls = 0;
+	/* Set our prefs from GConf. */
+	urls = gconf_client_get_int (client, "/apps/xchat/urlscraper/history", NULL);
+	timestamps = gconf_client_get_bool (client, "/apps/xchat/urlscraper/timestamps", NULL);
 
 	make_window ();
 
