@@ -57,13 +57,7 @@ public class qqueue
 		question toreturn;
 		/* wait for the thing to become "unlocked" */
 		while(locked) 
-		{
-			try
-			{
-				Thread.sleep(4);
-			} 
-			catch (InterruptedException e) {}
-		}
+			sleep(4);
 		locked = true;
 		try
 		{
@@ -72,6 +66,7 @@ public class qqueue
 		}
 		catch(ArrayIndexOutOfBoundsException exception)
 		{
+			locked = false;
 			return null;
 		}
 		locked = false;
@@ -88,13 +83,7 @@ public class qqueue
 	public void insert(question toadd, int location)
 	{
 		while(locked) 
-		{
-			try
-			{
-				Thread.sleep(4);
-			} 
-			catch (InterruptedException e) {}
-		}
+			sleep(4);
 		try
 		{
 			questions.insertElementAt(toadd,location);
@@ -104,6 +93,21 @@ public class qqueue
 			questions.addElement(toadd);
 		}
 		locked = false;
+	}
+	
+	/**
+	 * This method makes this thread sleep for 4 miliseconds in the hopes that it
+	 * the other threads let execution complete.
+	 * @author Brandon Smith
+	 * @version 2.0
+	 */
+	private void sleep(int miliseconds)
+	{
+		try
+		{
+			Thread.sleep(4);
+		} 
+		catch (InterruptedException e) {}
 	}
 	
 	/**
