@@ -83,7 +83,6 @@ struct gui_state {
   struct {
     GtkListStore *keyframe_list;
     GtkTreeView *keyframe_view;
-    GtkTreeIter current_keyframe;
   } anim;
 };
 
@@ -111,6 +110,8 @@ void run_iterations(int count);
 
 /* ui-main.c */
 void interactive_main(int argc, char **argv);
+void restart_rendering();
+void write_gui_params();
 
 /* ui-animation.c */
 void animation_ui_init();
