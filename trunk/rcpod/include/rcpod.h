@@ -83,6 +83,14 @@ void rcpod_Init(void);
 /* Scan the USB device tree for rcpods. Must be called after usb_init, usb_find_busses,
  * and usb_find_devices, must be called again if usb_find_busses/usb_find_devices are
  * called again.
+ *
+ * Environment variables affecting this function:
+ *
+ *   RCPOD_FORCE_DEV=<dev_number>
+ *      Instead of loading all devices, this only loads the device that would
+ *      have been given the dev_number'th position in the device list.
+ *      Useful for forcing programs to use a particular rcpod device when they're
+ *      written to just open the first one.
  */
 void rcpod_FindDevices(void);
 
