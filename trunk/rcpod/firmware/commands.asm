@@ -35,7 +35,8 @@
 	global	txe_pin
 
 bank0	udata
-txe_pin	res	1		; Pin number for transmit enable
+txe_pin	res	1		 ; Pin number for transmit enable
+last_poke_addr res 2 ; Address of the last byte of the most recently completed 'poke'
 
 	code
 
@@ -59,6 +60,18 @@ CheckVendor
 	pagesel	PeekRequest
 	btfsc	STATUS,Z
 	goto	PeekRequest
+
+	movf	BufferData+bRequest,w
+	xorlw	RCPOD_CTRL_POKE4
+	pagesel	Poke4Request
+	btfsc	STATUS,Z
+	goto	Poke4Request
+
+	movf	BufferData+bRequest,w
+	xorlw	RCPOD_CTRL_PEEK8
+	pagesel	Peek8Request
+	btfsc	STATUS,Z
+	goto	Peek8Request
 
 	movf	BufferData+bRequest,w
 	xorlw	RCPOD_CTRL_ANALOG_ALL
@@ -85,34 +98,28 @@ CheckVendor
 	goto	TxeRequest
 
 	movf	BufferData+bRequest,w
-	xorlw	RCPOD_CTRL_PIN_OUTPUT
-	pagesel	PinOutputRequest
+	xorlw	RCPOD_CTRL_GPIO_ASSERT
+	pagesel	GpioAssertRequest
 	btfsc	STATUS,Z
-	goto	PinOutputRequest
+	goto	GpioAssertRequest
 
 	movf	BufferData+bRequest,w
-	xorlw	RCPOD_CTRL_PIN_INPUT
-	pagesel	PinInputRequest
+	xorlw	RCPOD_CTRL_GPIO_READ
+	pagesel	GpioReadRequest
 	btfsc	STATUS,Z
-	goto	PinInputRequest
+	goto	GpioReadRequest
 
 	movf	BufferData+bRequest,w
-	xorlw	RCPOD_CTRL_PIN_HIGH
-	pagesel	PinHighRequest
+	xorlw	RCPOD_CTRL_SYNC_TX
+	pagesel	SyncTxRequest
 	btfsc	STATUS,Z
-	goto	PinHighRequest
+	goto	SyncTxRequest
 
 	movf	BufferData+bRequest,w
-	xorlw	RCPOD_CTRL_PIN_LOW
-	pagesel	PinLowRequest
+	xorlw	RCPOD_CTRL_SYNC_RX
+	pagesel	SyncRxRequest
 	btfsc	STATUS,Z
-	goto	PinLowRequest
-
-	movf	BufferData+bRequest,w
-	xorlw	RCPOD_CTRL_PIN_READ
-	pagesel	PinReadRequest
-	btfsc	STATUS,Z
-	goto	PinReadRequest
+	goto	SyncRxRequest
 
 	pagesel	wrongstate		; Not a recognized request
 	goto	wrongstate
@@ -325,86 +332,6 @@ TxeRequest
 	; Acknowledge the request
 	pagesel	Send_0Len_pkt
 	call	Send_0Len_pkt
-	return
-
-	;********************* IO pin requests
-
-PinOutputRequest
-	banksel	BufferData
-	movf	BufferData+wValue, w
-	banksel	io_pin
-	movwf	io_pin
-
-	pagesel	io_Output
-	call	io_Output
-
-	pagesel Send_0Len_pkt
-	call	Send_0Len_pkt
-	return
-
-PinInputRequest
-	banksel	BufferData
-	movf	BufferData+wValue, w
-	banksel	io_pin
-	movwf	io_pin
-
-	pagesel	io_Input
-	call	io_Input
-
-	pagesel Send_0Len_pkt
-	call	Send_0Len_pkt
-	return
-
-PinHighRequest
-	banksel	BufferData
-	movf	BufferData+wValue, w
-	banksel	io_pin
-	movwf	io_pin
-
-	pagesel	io_High
-	call	io_High
-
-	pagesel Send_0Len_pkt
-	call	Send_0Len_pkt
-	return
-
-PinLowRequest
-	banksel	BufferData
-	movf	BufferData+wValue, w
-	banksel	io_pin
-	movwf	io_pin
-
-	pagesel	io_Low
-	call	io_Low
-
-	pagesel Send_0Len_pkt
-	call	Send_0Len_pkt
-	return
-
-PinReadRequest
-	banksel	BufferData
-	movf	BufferData+wValue, w
-	banksel	io_pin
-	movwf	io_pin
-
-	pagesel	io_Read
-	call	io_Read
-
-	movwf	temp		; Save the pin value in temp
-
-	banksel	BD0IAL
-	movf	low BD0IAL,w	; get address of buffer
-	movwf	FSR
-	bsf 	STATUS,IRP	; indirectly to banks 2-3
-
-	movf	temp, w		;  Write the saved byte to our buffer
-	movwf	INDF
-	banksel	BD0IBC
-	bsf 	STATUS, RP0
-	movlw	0x01
-	movwf	BD0IBC		; set byte count to 1
-	movlw	0xc8		; DATA1 packet, DTS enabled
-	movwf	BD0IST		; give buffer back to SIE
 	return
 
 	end
