@@ -46,7 +46,7 @@ module gamecube (clk, reset,
 */
 	assign led = 1;
 	assign int_sda_out[0] = 1;
-		
+
 	/* Four I2C-addressable Gamecube controller emulators */
 	gc_i2c #(7'h40) gc_core(
 		clk, reset,
