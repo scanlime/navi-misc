@@ -92,15 +92,14 @@ class Socket:
             # local read buffer then from the socket itself.
             # If we can't read the complete packet, return
             # None and keep the partial packet buffered.
-            received = self.readBuffer[:size]
-            while len(received) < size:
-                chunk = self.recv(size - len(received))
+            while len(self.readBuffer) < size:
+                chunk = self.recv(size - len(self.readBuffer))
                 if not chunk:
-                    self.readBuffer = received
                     return None
-                received += chunk
-            self.readBuffer = received[size:]
-            return received[:size]
+                self.readBuffer += chunk
+            received = self.readBuffer[:size]
+            self.readBuffer = self.readBuffer[size:]
+            return received
         else:
             # Zero size
             return ''
