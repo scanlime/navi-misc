@@ -25,6 +25,7 @@
 #include "preferences-page-plugins.h"
 #include "preferences-dialog.h"
 #include "plugins.h"
+#include "util.h"
 #include "../common/xchat.h"
 #define PLUGIN_C
 typedef struct session xchat_context;
@@ -104,9 +105,12 @@ load_unload (char *filename, gboolean loaded, PreferencesPluginsPage *page, GtkT
 
 	} else {
 		/* Load the plugin. */
-		if (plugin_load (gui.current_session, filename, NULL) == NULL) {
+		gchar *err = plugin_load (gui.current_session, filename, NULL);
+		if ( err == NULL) {
 			gtk_list_store_set (page->plugin_store, &iter, 4, TRUE, -1);
 			enabled_plugins = g_slist_append (enabled_plugins, filename);
+		} else {
+			error_dialog (_("Plugin Load Failed"), err);
 		}
 	}
 
@@ -196,7 +200,6 @@ row_activated (GtkTreeView *treeview, GtkTreePath *path, GtkTreeViewColumn *colu
 	select = gtk_tree_view_get_selection (GTK_TREE_VIEW (page->plugins_list));
 	if (gtk_tree_selection_get_selected (select, &model, &iter)) {
 		gtk_tree_model_get (model, &iter, 3, &filename, 4, &loaded, -1);
-		gtk_list_store_set (GTK_LIST_STORE (model), &iter, 4, !loaded, -1);
 		/* Apparently setting the loaded field in the list store no longer causes
 		 * the toggle signal to be emitted. So we explicitly call load_unload
 		 * here.
