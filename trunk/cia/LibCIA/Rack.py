@@ -152,9 +152,7 @@ class BaseRack(object):
 
 
 class UnlistedRack(BaseRack):
-    """A BaseRack subclass that doesn't support iteration over its contents,
-       and doesn't show up in the parent namespace's catalog.
-       """
+    """A BaseRack subclass that doesn't support iteration over its contents"""
     pass
 
 
@@ -270,28 +268,45 @@ class Rack(BaseRack):
         """Return a LinkedList holding all namespaces directly under this one"""
         return LinkedList(InternalRack(self, 2))
 
-    def _newKey(self, key):
-        """Append a new key to the linked list for this namespace"""
-        keyList = self._getKeyList()
-        if len(keyList) == 0:
-            # We're the first key, add this to our parent namespace's subnamespace list
+    def _testKeySubNsAdd(self):
+        """To be run before adding a new key or subnamespace,
+           checks whether this is the first one and if so adds
+           this to the parent's subnamespace list.
+           """
+        if len(self._getKeyList()) == 0 and len(self._getSubNsList()) == 0:
             parent = self.parent()
             if parent:
-                parent._getSubNsList().append(self.path[-1])
+                parent._newChild(self.path[-1])
 
-        # Always add new keys to the key list
-        keyList.append(key)
+    def _testKeySubNsDel(self):
+        """To be run after deleting a key or subnamespace,
+           checks whether that was the last one and if so
+           deletes this from the parent's subnamespace list.
+           """
+        if len(self._getKeyList()) == 0 and len(self._getSubNsList()) == 0:
+            parent = self.parent()
+            if parent:
+                parent._delChild(self.path[-1])
+
+    def _newKey(self, key):
+        """Append a new key to the linked list for this namespace"""
+        self._testKeySubNsAdd()
+        self._getKeyList().append(key)
 
     def _delKey(self, key):
         """Delete a key from the linked list for this namespace"""
-        keyList = self._getKeyList()
-        keyList.remove(key)
+        self._getKeyList().remove(key)
+        self._testKeySubNsDel()
 
-        if len(keyList) == 0:
-            # We just removed the last key, remove this from the parent's subnamespace list
-            parent = self.parent()
-            if parent:
-                parent._getSubNsList().remove(self.path[-1])
+    def _newChild(self, child):
+        """Add a new child namespace to this rack's subnamespace catalog"""
+        self._testKeySubNsAdd()
+        self._getSubNsList().append(child)
+
+    def _delChild(self, child):
+        """Delete a child from this rack's subnamespace catalog"""
+        self._getSubNsList().remove(child)
+        self._testKeySubNsDel()
 
     def clear(self):
         for key in self:
