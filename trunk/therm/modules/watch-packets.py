@@ -22,7 +22,7 @@ except (KeyError, IndexError):
 packet = source.getLatestPacket()
 while 1:
     for packet in source.iterPacketsAfter(packet['id']):
-        print " ".join(["%s=%-14s" % i for i in packet.iteritems()])
+        print " ".join(["%s=%r" % i for i in packet.iteritems()])
     time.sleep(0.2)
 
 ### The End ###

@@ -52,7 +52,7 @@ class ThermSource:
 
     def getLatestPacket(self):
        for row in self.db.iterDictQuery(
-           "SELECT P.id, P.time, T.average, V.voltage FROM packets P "
+           "SELECT * FROM packets P "
            "LEFT OUTER JOIN temperatures T ON (T.packet = P.id) "
            "LEFT OUTER JOIN battery_voltage V ON (V.packet = P.id) "
            "WHERE source = %d ORDER BY P.time DESC LIMIT 1" % self.id):
@@ -61,7 +61,7 @@ class ThermSource:
     def iterPacketsAfter(self, id):
         """Iterate over packets after the given ID"""
         return self.db.iterDictQuery(
-            "SELECT P.id, P.time, T.average, V.voltage FROM packets P "
+            "SELECT * FROM packets P "
             "LEFT OUTER JOIN temperatures T ON (T.packet = P.id) "
             "LEFT OUTER JOIN battery_voltage V ON (V.packet = P.id) "
             "WHERE source = %d AND P.id > %d" % (self.id, id))
