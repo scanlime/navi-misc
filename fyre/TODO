@@ -4,3 +4,4 @@ Cluster autodetection (UDP broadcast)
 	- command line and GUI to autodetect remote servers
 No-detach and verbose cluster mode (show clients, show render status)
 Remote control of GUI
+File associations (both linux & windows)
