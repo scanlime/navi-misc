@@ -250,6 +250,9 @@ class CInputManager
 
 		// new API
 		// action API
+
+		void init ( RenderWindow *theWindow );
+		void update ( void );
 		
 		// action binding/retreval
 		CAction* getAction ( const char* name );
@@ -284,6 +287,9 @@ class CInputManager
 
 		bool configDevice ( int device );
 		bool configDevice ( const char* device );
+
+		const char* getCurentDeviceItem ( int device );
+		const char* getCurentDeviceItem ( const char* device );
 
 protected:
 	// ogre input stuff
