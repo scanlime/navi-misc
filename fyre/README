@@ -40,11 +40,11 @@ Contact info and the latest version of Fyre is available from:
 Loading and Saving
 ------------------
 
-All images saved using the GTK+ frontend or the -o command line option
-are standard PNG files containing an extra 'tEXt' chunk with all the
-parameters used to create the image. This means the image can be loaded
-back in using the -i command line option or the "Parameters -> Load from image"
-menu item.
+Unless given a .exr extension, all images saved using the GTK+ frontend or
+the -o command line option are standard PNG files containing an extra 'tEXt'
+chunk with all the parameters used to create the image. This means the image
+can be loaded back in using the -i command line option or the "Parameters ->
+Load from image" menu item.
 
 One convenient use of this is to save small low-quality images using the
 GUI, then use the -i, -t, -s, and -o options to render very high quality
@@ -64,13 +64,13 @@ These lines include:
 Animation
 ---------
 
-Fyre now includes a somewhat experimental animation system. From the main
-explorer window, use View -> Animation window to open the animation interface.
-Animations are represented as a list of keyframes, with a transition after
-each. Keyframes can be manipulated with the buttons at the top of the window.
-Transitions consist of a duration, in seconds, and an editable curve. This
-curve's presets can be used to transition linearly or ease in and out of
-keyframes, but you can also edit the curve for more complex effects.
+Fyre now includes an animation system. From the main explorer window, use
+View -> Animation window to open the animation interface. Animations are
+represented as a list of keyframes, with a transition after each. Keyframes
+can be manipulated with the buttons at the top of the window. Transitions
+consist of a duration, in seconds, and an editable curve. This curve's
+presets can be used to transition linearly or ease in and out of keyframes,
+but you can also edit the curve for more complex effects.
 
 Each keyframe in the list also shows you the bifurcation diagram between
 that keyframe's parameters and the next. Intense black dots or lines in
@@ -88,6 +88,15 @@ Animations can also be rendered from the command line using the -n and
 -o options together.
 
 
+Clustering
+----------
+
+As of 0.7, Fyre supports cluster rendering. On each worker node, start up
+fyre with the -r command-line switch. On the head node, select your cluster
+nodes using either the GUI or -c on the command line. If you're dealing
+with a large cluster, the cluster-utils.sh file will probably prove useful.
+
+
 Dependencies
 ------------
 
@@ -98,14 +107,8 @@ Dependencies
 Compiling
 ---------
 
-Nothing fancy, just type 'make'. Currently the i686 architecture is
-turned on automatically if your CPU implements mmx, as on modern
-ia32 machines this gives a major speed boost. This has been tested on
-Athlon XP, Pentium 4, Itanium2 and PowerPC G3 CPUs.
-
-If you have the Intel C compiler installed, you can use this by setting
-your CC environment variable to "icc". On a 1500MHz ia64 test, using the
-intel compiler compiler resulted in a 25% speed increase.
+Standard autotools procedure. configure, make, make install, you know
+the drill.
 
 Fyre supports Windows now. You'll need windows versions of gcc, binutils,
 gtk, libglade, and their dependencies to compile it. More information on
