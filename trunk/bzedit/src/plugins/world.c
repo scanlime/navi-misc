@@ -26,7 +26,7 @@ static void world_class_init   (WorldClass *klass);
 static void world_init         (World *world);
 static void world_set_property (GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec);
 static void world_get_property (GObject *object, guint prop_id, GValue *value, GParamSpec *pspec);
-static void world_dispose      (GObject *object);
+static void world_finalize     (GObject *object);
 static void world_init_params  (GObjectClass *object_class);
 
 enum
@@ -74,7 +74,7 @@ world_class_init (WorldClass *klass)
 
   object_class->set_property = world_set_property;
   object_class->get_property = world_get_property;
-  object_class->dispose = world_dispose;
+  object_class->finalize = world_finalize;
 
   world_init_params (object_class);
 }
@@ -143,7 +143,7 @@ world_get_property (GObject *object, guint prop_id, GValue *value, GParamSpec *p
 }
 
 static void
-world_dispose (GObject *object)
+world_finalize (GObject *object)
 {
 }
 

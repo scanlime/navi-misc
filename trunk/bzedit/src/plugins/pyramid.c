@@ -1,5 +1,5 @@
 /*
- * box.c - Definition for the box object
+ * pyramid.c - Definition for the pyramid object
  *
  * BZEdit
  * Copyright (C) 2004 David Trowbridge
@@ -20,16 +20,16 @@
  *
  */
 
-#include "box.h"
+#include "pyramid.h"
 
-static void box_class_init           (BoxClass *klass);
-static void box_init                 (Box *box);
-static void box_set_property         (GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec);
-static void box_get_property         (GObject *object, guint prop_id, GValue *value, GParamSpec *pspec);
-static void box_finalize             (GObject *object);
-static void box_init_position_params (GObjectClass *object_class);
-static void box_init_size_params     (GObjectClass *object_class);
-static void box_init_other_params    (GObjectClass *object_class);
+static void pyramid_class_init           (PyramidClass *klass);
+static void pyramid_init                 (Pyramid *pyramid);
+static void pyramid_set_property         (GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec);
+static void pyramid_get_property         (GObject *object, guint prop_id, GValue *value, GParamSpec *pspec);
+static void pyramid_finalize             (GObject *object);
+static void pyramid_init_position_params (GObjectClass *object_class);
+static void pyramid_init_size_params     (GObjectClass *object_class);
+static void pyramid_init_other_params    (GObjectClass *object_class);
 
 enum
 {
@@ -48,50 +48,50 @@ enum
 static gpointer parent_class = NULL;
 
 GType
-box_get_type (void)
+pyramid_get_type (void)
 {
-  static GType box_type = 0;
+  static GType pyramid_type = 0;
 
-  if (!box_type)
+  if (!pyramid_type)
+  {
+    static const GTypeInfo pyramid_info =
     {
-      static const GTypeInfo box_info =
-      {
-	sizeof (BoxClass),
-	NULL,               /* base init */
-	NULL,               /* base finalize */
-	(GClassInitFunc)    box_class_init,
-	NULL,               /* class finalize */
-	NULL,               /* class data */
-	sizeof (Box),
-	0,                  /* n preallocs */
-	(GInstanceInitFunc) box_init,
-      };
+      sizeof (PyramidClass),
+      NULL,               /* base init */
+      NULL,               /* base finalize */
+      (GClassInitFunc)    pyramid_class_init,
+      NULL,               /* class finalize */
+      NULL,               /* class data */
+      sizeof (Pyramid),
+      0,                  /* n preallocs */
+      (GInstanceInitFunc) pyramid_init,
+    };
 
-      box_type = g_type_register_static (SCENE_OBJECT_TYPE, "Box", &box_info, 0);
-    }
+    pyramid_type = g_type_register_static (SCENE_OBJECT_TYPE, "Pyramid", &pyramid_info, 0);
+  }
 
-  return box_type;
+  return pyramid_type;
 }
 
 static void
-box_class_init (BoxClass *klass)
+pyramid_class_init (PyramidClass *klass)
 {
   GObjectClass *object_class;
 
   parent_class = g_type_class_ref (G_TYPE_OBJECT);
   object_class = (GObjectClass*) klass;
 
-  object_class->set_property = box_set_property;
-  object_class->get_property = box_get_property;
-  object_class->finalize = box_finalize;
+  object_class->set_property = pyramid_set_property;
+  object_class->get_property = pyramid_get_property;
+  object_class->finalize = pyramid_finalize;
 
-  box_init_position_params (object_class);
-  box_init_size_params (object_class);
-  box_init_other_params (object_class);
+  pyramid_init_position_params (object_class);
+  pyramid_init_size_params (object_class);
+  pyramid_init_other_params (object_class);
 }
 
 static void
-box_init (Box *box)
+pyramid_init (Pyramid *pyramid)
 {
   /* nothing to do here yet, since everything is set up by the G_PARAM_CONSTRUCT properties */
 }
@@ -117,9 +117,9 @@ update_boolean_if_necessary (gboolean new_value, gboolean *dirty, gboolean *para
 }
 
 static void
-box_set_property (GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec)
+pyramid_set_property (GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec)
 {
-  Box *self = BOX (object);
+  Pyramid *self = PYRAMID (object);
 
   switch (prop_id)
   {
@@ -166,9 +166,9 @@ box_set_property (GObject *object, guint prop_id, const GValue *value, GParamSpe
 }
 
 static void
-box_get_property (GObject *object, guint prop_id, GValue *value, GParamSpec *pspec)
+pyramid_get_property (GObject *object, guint prop_id, GValue *value, GParamSpec *pspec)
 {
-  Box *self = BOX (object);
+  Pyramid *self = PYRAMID (object);
 
   switch (prop_id)
   {
@@ -211,19 +211,19 @@ box_get_property (GObject *object, guint prop_id, GValue *value, GParamSpec *psp
 }
 
 static void
-box_finalize (GObject *object)
+pyramid_finalize (GObject *object)
 {
 }
 
 static void
-box_init_position_params (GObjectClass *object_class)
+pyramid_init_position_params (GObjectClass *object_class)
 {
   GParamSpec *spec;
   const gchar *current_group = "Position";
 
   spec = g_param_spec_double       ("x",
                                    "X",
-			           "Position of the box along the X axis",
+			           "Position of the pyramid along the X axis",
 			           -1000, 1000, 0,
 			           G_PARAM_READWRITE | G_PARAM_CONSTRUCT |
 				   G_PARAM_LAX_VALIDATION | PARAM_IN_GUI);
@@ -233,7 +233,7 @@ box_init_position_params (GObjectClass *object_class)
 
   spec = g_param_spec_double      ("y",
                                    "Y",
-				   "Position of the box along the Y axis",
+				   "Position of the pyramid along the Y axis",
 				   -1000, 1000, 0,
 				   G_PARAM_READWRITE | G_PARAM_CONSTRUCT |
 				   G_PARAM_LAX_VALIDATION | PARAM_IN_GUI);
@@ -243,7 +243,7 @@ box_init_position_params (GObjectClass *object_class)
 
   spec = g_param_spec_double      ("z",
                                    "Z",
-				   "Position of the box along the Z axis",
+				   "Position of the pyramid along the Z axis",
 				   0, 1000, 0,
 				   G_PARAM_READWRITE | G_PARAM_CONSTRUCT |
 				   G_PARAM_LAX_VALIDATION | PARAM_IN_GUI);
@@ -253,7 +253,7 @@ box_init_position_params (GObjectClass *object_class)
 
   spec = g_param_spec_double      ("rotation",
                                    "Rotation",
-				   "Rotation of the box around it's origin",
+				   "Rotation of the pyramid around it's origin",
 				   0, 360, 0,
 				   G_PARAM_READWRITE | G_PARAM_CONSTRUCT |
 				   G_PARAM_LAX_VALIDATION | PARAM_IN_GUI);
@@ -263,15 +263,15 @@ box_init_position_params (GObjectClass *object_class)
 }
 
 static void
-box_init_size_params (GObjectClass *object_class)
+pyramid_init_size_params (GObjectClass *object_class)
 {
   GParamSpec *spec;
   const gchar *current_group = "Size";
 
   spec = g_param_spec_double      ("width",
                                    "Width",
-				   "Width of the box",
-				   0, 1000, 30,
+				   "Width of the pyramid",
+				   0, 1000, 8.2,
 				   G_PARAM_READWRITE | G_PARAM_CONSTRUCT |
 				   G_PARAM_LAX_VALIDATION | PARAM_IN_GUI);
   param_spec_set_group            (spec, current_group);
@@ -280,8 +280,8 @@ box_init_size_params (GObjectClass *object_class)
 
   spec = g_param_spec_double      ("depth",
                                    "Depth",
-				   "Depth of the box",
-				   0, 1000, 30,
+				   "Depth of the pyramid",
+				   0, 1000, 8.2,
 				   G_PARAM_READWRITE | G_PARAM_CONSTRUCT |
 				   G_PARAM_LAX_VALIDATION | PARAM_IN_GUI);
   param_spec_set_group            (spec, current_group);
@@ -290,8 +290,8 @@ box_init_size_params (GObjectClass *object_class)
 
   spec = g_param_spec_double      ("height",
                                    "Height",
-				   "Height of the box",
-				   0, 1000, 9.42,
+				   "Height of the pyramid",
+				   0, 1000, 10.25,
 				   G_PARAM_READWRITE | G_PARAM_CONSTRUCT |
 				   G_PARAM_LAX_VALIDATION | PARAM_IN_GUI);
   param_spec_set_group            (spec, current_group);
@@ -300,14 +300,14 @@ box_init_size_params (GObjectClass *object_class)
 }
 
 static void
-box_init_other_params (GObjectClass *object_class)
+pyramid_init_other_params (GObjectClass *object_class)
 {
   GParamSpec *spec;
   const gchar *current_group = "Doopy";
 
   spec = g_param_spec_boolean     ("drive-through",
                                    "Drive through",
-				   "Whether or not tanks can drive through the box",
+				   "Whether or not tanks can drive through the pyramid",
 				   FALSE,
 				   G_PARAM_READWRITE | G_PARAM_CONSTRUCT |
 				   PARAM_IN_GUI);
@@ -316,7 +316,7 @@ box_init_other_params (GObjectClass *object_class)
 
   spec = g_param_spec_boolean     ("shoot-through",
                                    "Shoot through",
-				   "Whether or not bullets pass through the box",
+				   "Whether or not bullets pass through the pyramid",
 				   FALSE,
 				   G_PARAM_READWRITE | G_PARAM_CONSTRUCT |
 				   PARAM_IN_GUI);
@@ -324,8 +324,8 @@ box_init_other_params (GObjectClass *object_class)
   g_object_class_install_property (object_class, PROP_SHOOT_THROUGH, spec);
 }
 
-Box*
-box_new (void)
+Pyramid*
+pyramid_new (void)
 {
-  return BOX (g_object_new (box_get_type (), NULL));
+  return PYRAMID (g_object_new (pyramid_get_type (), NULL));
 }
