@@ -80,7 +80,7 @@ static guint32 update_crc(guint32 crc, const guchar *buf, guint len) {
 }
 
 /* Return the CRC of a data field and a type field */
-static guint32 chunk_crc(ChunkType type, gulong length, const guchar* data) {
+static guint32 chunk_crc(ChunkType type, gsize length, const guchar* data) {
   guint32 c = 0xffffffffL;
   guint32 word;
 
@@ -116,7 +116,7 @@ gboolean chunked_file_read_signature(FILE* self, const gchar* signature) {
   return TRUE;
 }
 
-void chunked_file_write_chunk(FILE* self, ChunkType type, gulong length, const guchar* data) {
+void chunked_file_write_chunk(FILE* self, ChunkType type, gsize length, const guchar* data) {
   guint32 word;
 
   word = GUINT32_TO_BE(length);
@@ -131,7 +131,7 @@ void chunked_file_write_chunk(FILE* self, ChunkType type, gulong length, const g
   fwrite(&word, sizeof(word), 1, self);
 }
 
-gboolean chunked_file_read_chunk(FILE* self, ChunkType *type, gulong *length, guchar** data) {
+gboolean chunked_file_read_chunk(FILE* self, ChunkType *type, gsize *length, guchar** data) {
   /* Try to read the next chunk from the file. Returns FALSE on EOF or
    * unrecoverable error. Returns TRUE on success, and sets type, length, and data
    * to hold the chunk contents. If this returns TRUE, the caller must free the
