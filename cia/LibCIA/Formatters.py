@@ -115,21 +115,19 @@ class CommitToIRC(CommitFormatter):
 
     def format_author(self, author):
         import IRC
-        return IRC.format(author, 'green')
+        return IRC.format(CommitFormatter.format_author(self, author), 'green')
+
+    def format_revision(self, rev):
+        import IRC
+        return IRC.format(CommitFormatter.format_revision(self, rev), 'bold')
 
 
 class CommitToXHTML(CommitFormatter):
     """Converts commit messages to XHTML"""
     medium = 'xhtml'
 
-    def format_log(self, logString):
-        return XML.domish.escapeToXml(logString)
-
-    def format_author(self, author):
-        return XML.domish.escapeToXml(author)
-
-    def format_files(self, commit):
-        return XML.domish.escapeToXml(CommitFormatter.format_files(self, commit))
+    def format_default(self, obj):
+        return XML.domish.escapeToXml(obj)
 
 
 class ColortextToXHTML(Message.Formatter):
