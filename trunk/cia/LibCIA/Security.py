@@ -55,7 +55,7 @@ class SecurityInterface(xmlrpc.XMLRPC):
         self.caps.faultIfMissing(key, 'universe')
         return self.caps.grant(capability)
 
-    def xmlrpc_list(self):
+    def xmlrpc_list(self, key):
         """Return a list of all capabilities that have been assigned keys"""
         self.caps.faultIfMissing(key, 'universe', 'security.list')
         return self.caps.list()
