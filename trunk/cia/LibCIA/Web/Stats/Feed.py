@@ -126,6 +126,9 @@ class CustomizeRSS(Template.Page):
         Template.Page.__init__(self)
         self.statsPage = statsPage
 
+    def parent(self):
+        return self.statsPage
+
     def preRender(self, context):
         context['component'] = self.statsPage.component
 
