@@ -21,6 +21,3 @@ Would be nice to fix, and most of these are simple:
 	  it'll still output to stdout. Should pop up an error message in this case.
 	* The 'save' menu item in the animation window is 'save as' for now
 	* File dialogs don't remember their previous directory
-
-For 2.0:
-	* Generalized plugin/graph architecture
