@@ -57,19 +57,9 @@ class CIAClient(object):
         self.clearCache()
         self.queryRulesets()
 
-    def message(self, bodyContent):
-        """Given the text to put inside the <body> tag, send a
-           message to the CIA server and return the result.
-           This includes a <generator> tag with information about us.
-           """
-        generatorName = "PyGTK/Glade ruleset editor"
-        generator = "<generator><name>%s</name></generator>" % generatorName
-        message = "<message>%s<body>%s</body></message>" % (generator, bodyContent)
-        return self.server.deliverMessage(message)
-
     def queryUriList(self):
         """Return a list of all URIs with rulesets assigned"""
-        return self.message("<queryUriList/>")
+        return self.server.ruleset.getUriList()
 
     def queryRulesets(self, uri=None):
         """Return a list of rulesets, optionally constrained to the given URI"""
@@ -77,16 +67,21 @@ class CIAClient(object):
             return self.rulesetCache[uri]
         else:
             if uri:
-                result = self.message("<queryRulesets uri='%s'/>" % uri)
+                result = [self.server.ruleset.getRuleset(uri)]
             else:
-                result = self.message("<queryRulesets/>")
+                result = self.server.ruleset.getRulesetMap().values()
             self.rulesetCache[uri] = result
             return result
 
-    def setRuleset(self, uri, ruleset):
+    def setRuleset(self, ruleset, uri=None):
         """Set a new ruleset for the given URI, also updating our cache"""
-        self.message(ruleset)
-        self.rulesetCache[uri] = [ruleset]
+        self.server.ruleset.store(ruleset)
+        if uri:
+            self.rulesetCache[uri] = [ruleset]
+
+    def deleteRuleset(self, uri):
+        """Set an empty ruleset for the given URI"""
+        self.setRuleset("<ruleset uri=%r/>" % uri, uri)
 
     def clearCache(self):
         """Clear our ruleset cache"""
@@ -227,12 +222,12 @@ class URIList(GladeUI):
 
     def newRuleset(self, ruleset):
         """Called by the 'new ruleset' dialog when a new ruleset is successfully created"""
-        self.client.message(ruleset)
+        self.client.setRuleset(ruleset)
         self.refresh()
 
     def on_DeleteButton_clicked(self, button):
         # Send an empty ruleset to delete it
-        self.client.message("<ruleset uri=%r/>" % self.currentURI)
+        self.client.deleteRuleset(self.currentURI)
         self.refresh()
 
 
@@ -284,7 +279,7 @@ class RulesetEditor(GladeUI):
     def on_ApplyButton_clicked(self, button):
         """Send a modified ruleset to the server"""
         ruleset = self.buffer.get_text(*self.buffer.get_bounds())
-        self.client.setRuleset(self.currentURI, ruleset)
+        self.client.setRuleset(ruleset, self.currentURI)
         self.buffer.set_modified(gtk.FALSE)
 
 
