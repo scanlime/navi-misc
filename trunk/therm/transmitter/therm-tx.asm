@@ -43,6 +43,7 @@
 ;         - 5-bit packet sequence number
 ;         - 10-bit battery voltage
 ;         - For each attached TC74 sensor:
+;	    - 3-bit sensor address
 ;           - 8-bit sensor value
 ;         - 8-bit frame check sequence (CRC-8 of above)
 ;      - 6-bit Flag sequence
@@ -83,7 +84,8 @@ TX_LONG_DELAY	equ .74		; 364.6us
 ;----------------------------------------------------- Variables
 
 	cblock 0x20
-		temp, consecutive_ones, crc_reg, temp2, packet_seq
+		temp, consecutive_ones, crc_reg, temp2
+		packet_seq, i2c_address, i2c_data
 	endc
 
 
@@ -98,6 +100,14 @@ start
 	bsf	STATUS, RP0
 	movwf	TRISIO
 	bcf	STATUS, RP0
+
+	;; Set up the A/D converter, start an acquisition on channel 0
+	bsf	STATUS, RP0
+	movlw	0x31		; RC osc, only AN0 is analog
+	movwf	ANSEL
+	bcf	STATUS, RP0
+	movlw	0x81		; Right justified, VDD reference, channel 0, converter on
+	movwf	ADCON0
 
 	;; Calibrate the oscillator
 	bsf	STATUS, RP0
@@ -135,24 +145,53 @@ start
 	movwf	temp
 	call	tx_content_6bit
 
+	bsf	ADCON0, GO	; Start converting the battery voltage
+
 	movf	packet_seq, w	; 5-bit packet sequence number
 	movwf	temp
 	call	tx_content_5bit
+
+	bsf	STATUS, RP0	; 10-bit battery voltage
+	movf	ADRESL, w
+	bcf	STATUS, RP0
+	movwf	temp
+	call	tx_content_8bit
+	movf	ADRESH, w
+	movwf	temp
+	call	tx_content_2bit
+
+	clrf	i2c_address	; Loop over all I2C sensors (0-7)
+sensors_loop
+
+	movf	i2c_address, w	; The sensor was valid. Send 3-bit address, 8-bit data
+	movwf	temp
+	call	tx_content_3bit
+	movf	i2c_data, w
+	movwf	temp
+	call	tx_content_8bit
+
+invalid_sensor
+	incf	i2c_address, f	; Next sensor...
+	btfss	i2c_address, 3	; Quit when we hit 8
+	goto	sensors_loop
 
 	call	tx_end_content
 
 
 ;----------------------------------------------------- Shutdown
 
-	;; Turn off all peripherals, assign a 1:128 prescaler to the WDT, and hit the sack
-	clrf	GPIO		; Peripherals off
+	clrf	GPIO		; Turn off external peripherals
+	clrf	ADCON0		; Turn off the A/D converter
+
+	;; Assign a 1:128 prescaler to the WDT, and hit the sack
 	clrwdt			; Clear the watchdog
 	clrf	TMR0		; Clear the prescaler
 	movlw	0xDF		; Reassign prescaler
 	bsf	STATUS, RP0
 	movwf	OPTION_REG
 	bcf	STATUS, RP0
-	;; 	sleep			; Clear the watchdog and sleep until it resets us
+	sleep			; Clear the watchdog and sleep until it resets us
+
 	goto	start		; Reinitialize and send another packet
 
 
