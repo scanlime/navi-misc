@@ -5,9 +5,6 @@
   that will never be executed on their own but should be referenceable from inside
   others.
 
-- The Security module currently assumes that a particular python object will
-  always pickle to the same value, which is flawed.
-
 - Formatters need to be able to take parameters, so they can be generalized more.
   For example, IRCProjectName should be refactored into a generic prefixing
   formatter that could instead prepend a module name, for channels that only
