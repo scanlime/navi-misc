@@ -22,6 +22,8 @@
  * Author: Aristeu Sergio Rozanski Filho <aris@cathedrallabs.org>
  * 
  * Changes/Revisions:
+ *	0.2	16/10/2004
+ *		- added force feedback support
  *	0.1	20/06/2002
  *		- first public version
  */
@@ -29,9 +31,24 @@
 #define UINPUT_MINOR		223
 #define UINPUT_NAME		"uinput"
 #define UINPUT_BUFFER_SIZE	16
+#define UINPUT_NUM_REQUESTS	16
 
 /* state flags => bit index for {set|clear|test}_bit ops */
 #define UIST_CREATED		0
+
+struct uinput_request {
+	int			id;
+	int			code;	/* UI_FF_UPLOAD, UI_FF_ERASE */
+
+	int			retval;
+	wait_queue_head_t	waitq;
+	int			completed;
+
+	union {
+		int		effect_id;
+		struct ff_effect* effect;
+	} u;
+};
 
 struct uinput_device {
 	struct input_dev	*dev;
@@ -41,6 +58,10 @@ struct uinput_device {
 				head,
 				tail;
 	struct input_event	buff[UINPUT_BUFFER_SIZE];
+
+	struct uinput_request	*requests[UINPUT_NUM_REQUESTS];
+	wait_queue_head_t	requests_waitq;
+	struct semaphore	requests_sem;
 };
 #endif	/* __KERNEL__ */
 

@@ -20,6 +20,8 @@
  * Author: Aristeu Sergio Rozanski Filho <aris@cathedrallabs.org>
  *
  * Changes/Revisions:
+ *	0.2	16/10/2004
+ *		- added force feedback support
  *	0.1	20/06/2002
  *		- first public version
  */
@@ -60,14 +62,82 @@ static int uinput_dev_event(struct input_dev *dev, unsigned int type, unsigned i
 	return 0;
 }
 
+static int uinput_request_alloc_id(struct input_dev *dev, struct uinput_request *request)
+{
+	/* Atomically allocate an ID for the given request. Returns 0 on success. */
+	struct uinput_device *udev = (struct uinput_device *)dev->private;
+	int id;
+
+	down(&udev->requests_sem);
+	for (id=0; id<UINPUT_NUM_REQUESTS; id++)
+		if (!udev->requests[id]) {
+			udef->requests[id] = request;
+			request->id = id;
+			up(&udev->requests_sem);
+			return 0;
+		}
+	up(&udev->requests_sem);
+	return -1;
+}
+
+static void uinput_request_init(struct input_dev *dev, struct uinput_request *request, int code)
+{
+	struct uinput_device *udev = (struct uinput_device *)dev->private;
+
+	memset(request, 0, sizeof(struct uinput_request));
+	request->code = code;
+	init_waitqueue_head(&request->waitq);
+
+	/* Allocate an ID. If none are available right away, wait. */
+	request->retval = wait_event_interruptible(&udev->requests_waitq,
+						   !uinput_request_alloc_id(dev, request));
+}
+
+static void uinput_request_submit(struct input_dev *dev, struct uinput_request *request)
+{
+	struct uinput_device *udev = (struct uinput_device *)dev->private;
+	int retval;
+
+	/* Tell our userspace app about this new request by queueing an input event */
+	uinput_dev_event(dev, EV_UINPUT, request->code, request->id);
+
+	/* Wait for the request to complete */
+	retval = wait_event_interruptible(&request->waitq, request->completed);
+	if (retval)
+		request->retval = retval;
+
+	/* Release this request's ID */
+	udev->requests[request->id] = NULL;
+}
+
 static int uinput_dev_upload_effect(struct input_dev *dev, struct ff_effect *effect)
 {
-	return 0;
+	struct uinput_request request;
+
+	if (!test_bit(EV_FF, dev->evbit))
+		return -ENOSYS;
+
+	uinput_request_init(dev, &request, UI_FF_UPLOAD);
+	if (request.retval)
+		return request.retval;
+	request.u.effect = effect;
+	uinput_request_submit(dev, &request);
+	return request.retval;
 }
 
 static int uinput_dev_erase_effect(struct input_dev *dev, int effect_id)
 {
-	return 0;
+	struct uinput_request request;
+
+	if (!test_bit(EV_FF, dev->evbit))
+		return -ENOSYS;
+
+	uinput_request_init(dev, &request, UI_FF_ERASE);
+	if (request.retval)
+		return request.retval;
+	request.u.effect_id = effect_id;
+	uinput_request_submit(dev, &request);
+	return request.retval;
 }
 
 static int uinput_create_device(struct uinput_device *udev)
@@ -116,6 +186,7 @@ static int uinput_open(struct inode *inode, struct file *file)
 	if (!newdev)
 		goto error;
 	memset(newdev, 0, sizeof(struct uinput_device));
+	init_MUTEX(&newdev->requests_sem);
 
 	newinput = kmalloc(sizeof(struct input_dev), GFP_KERNEL);
 	if (!newinput)
