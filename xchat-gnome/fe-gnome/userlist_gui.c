@@ -55,6 +55,22 @@ void initialize_userlist() {
 	g_signal_connect(G_OBJECT(userlist_view), "button_press_event", G_CALLBACK(userlist_click), NULL);
 }
 
+struct User *userlist_get_selected() {
+	GtkWidget *treeview;
+	GtkTreeSelection *select;
+	GtkTreeModel *model;
+	GtkTreeIter iter;
+	struct User *u;
+
+	treeview = glade_xml_get_widget(gui.xml, "userlist");
+	select = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
+	if(gtk_tree_selection_get_selected(select, &model, &iter)) {
+		gtk_tree_model_get(model, &iter, 2, &u, -1);
+		return u;
+	}
+	return NULL;
+}
+
 gboolean userlist_click(GtkWidget *view, GdkEventButton *event, gpointer data) {
 	GtkTreePath *path;
 	GtkTreeSelection *select;
@@ -85,22 +101,6 @@ gboolean userlist_click(GtkWidget *view, GdkEventButton *event, gpointer data) {
 		return TRUE;
 	}
 	return FALSE;
-}
-
-struct User *userlist_get_selected() {
-	GtkWidget *treeview;
-	GtkTreeSelection *select;
-	GtkTreeModel *model;
-	GtkTreeIter iter;
-	struct User *u;
-
-	treeview = glade_xml_get_widget(gui.xml, "userlist");
-	select = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
-	if(gtk_tree_selection_get_selected(select, &model, &iter)) {
-		gtk_tree_model_get(model, &iter, 2, &u, -1);
-		return u;
-	}
-	return NULL;
 }
 
 void userlist_context(GtkWidget *treeview, struct User *user) {
