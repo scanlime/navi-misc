@@ -20,7 +20,35 @@
  */
 
 #include "preferences_colors_page.h"
+#include "preferences.h"
 #include "palette.h"
+#include "gui.h"
+#include "xtext.h"
+
+static void set_color_buttons(int selection, GtkWidget **color_buttons) {
+	load_colors(selection);
+	palette_alloc(GTK_WIDGET(gui.xtext));
+	gtk_xtext_set_palette(gui.xtext, colors);
+	gtk_xtext_set_tint(gui.xtext, colors[19].red, colors[19].green, colors[19].blue);
+	gtk_xtext_set_background(gui.xtext, NULL, FALSE, FALSE);
+	gtk_xtext_refresh(gui.xtext, FALSE);
+	gtk_color_button_set_color(GTK_COLOR_BUTTON(color_buttons[0]), &colors[18]);
+	gtk_color_button_set_color(GTK_COLOR_BUTTON(color_buttons[1]), &colors[19]);
+	gtk_color_button_set_color(GTK_COLOR_BUTTON(color_buttons[2]), &colors[17]);
+	gtk_color_button_set_color(GTK_COLOR_BUTTON(color_buttons[3]), &colors[16]);
+}
+
+static void set_palette_buttons(int selection, GtkWidget **palette_buttons) {
+	int i;
+
+	load_palette(selection);
+	for(i = 0; i < 16; i++) {
+		gtk_color_button_set_color(GTK_COLOR_BUTTON(palette_buttons[i]), &colors[i]);
+	}
+	palette_alloc(GTK_WIDGET(gui.xtext));
+	gtk_xtext_set_palette(gui.xtext, colors);
+	gtk_xtext_refresh(gui.xtext, FALSE);
+}
 
 static void colors_changed(GtkComboBox *combo_box, gpointer data) {
 	GtkWidget **color_buttons = (GtkWidget **) data;
@@ -31,18 +59,11 @@ static void colors_changed(GtkComboBox *combo_box, gpointer data) {
 		for(i = 0; i < 4; i++)
 			gtk_widget_set_sensitive(color_buttons[i], TRUE);
 	} else {
-		colors[16] = color_schemes[selection][2];
-		colors[17] = color_schemes[selection][3];
-		colors[18] = color_schemes[selection][1];
-		colors[19] = color_schemes[selection][0];
-		colors[23] = color_schemes[selection][4];
-		gtk_color_button_set_color(GTK_COLOR_BUTTON(color_buttons[0]), &colors[18]);
-		gtk_color_button_set_color(GTK_COLOR_BUTTON(color_buttons[1]), &colors[19]);
-		gtk_color_button_set_color(GTK_COLOR_BUTTON(color_buttons[2]), &colors[17]);
-		gtk_color_button_set_color(GTK_COLOR_BUTTON(color_buttons[3]), &colors[16]);
 		for(i = 0; i < 4; i++)
 			gtk_widget_set_sensitive(color_buttons[i], FALSE);
 	}
+	preferences_set_color_scheme(selection);
+	set_color_buttons(selection, color_buttons);
 }
 
 static void palette_changed(GtkComboBox *combo_box, gpointer data) {
@@ -55,11 +76,11 @@ static void palette_changed(GtkComboBox *combo_box, gpointer data) {
 			gtk_widget_set_sensitive(palette_buttons[i], TRUE);
 	} else {
 		for(i = 0; i < 16; i++) {
-			colors[i] = default_palette[i];
-			gtk_color_button_set_color(GTK_COLOR_BUTTON(palette_buttons[i]), &colors[i]);
 			gtk_widget_set_sensitive(palette_buttons[i], FALSE);
 		}
 	}
+	preferences_set_palette_scheme(selection);
+	set_palette_buttons(selection, palette_buttons);
 }
 
 void initialize_preferences_colors_page() {
@@ -69,6 +90,8 @@ void initialize_preferences_colors_page() {
 	static GtkWidget *palette_buttons[16];
 	static GtkWidget *color_buttons[4];
 	int i, j;
+
+	palette_init();
 
 	table = glade_xml_get_widget(gui.xml, "palette table");
 	for(i = 0; i < 8; i++) {
@@ -123,12 +146,12 @@ void initialize_preferences_colors_page() {
 	gtk_combo_box_append_text(GTK_COMBO_BOX(color_schemes), "Black on White");
 	gtk_combo_box_append_text(GTK_COMBO_BOX(color_schemes), "White on Black");
 	gtk_combo_box_append_text(GTK_COMBO_BOX(color_schemes), "Custom");
-	gtk_combo_box_set_active(GTK_COMBO_BOX(color_schemes), 0);
+	gtk_combo_box_set_active(GTK_COMBO_BOX(color_schemes), preferences_get_color_scheme());
 	g_signal_connect(G_OBJECT(color_schemes), "changed", G_CALLBACK(colors_changed), (gpointer) color_buttons);
 	palette_schemes = gtk_combo_box_new_text();
 	gtk_combo_box_append_text(GTK_COMBO_BOX(palette_schemes), "X-Chat Default");
 	gtk_combo_box_append_text(GTK_COMBO_BOX(palette_schemes), "Custom");
-	gtk_combo_box_set_active(GTK_COMBO_BOX(palette_schemes), 0);
+	gtk_combo_box_set_active(GTK_COMBO_BOX(palette_schemes), preferences_get_palette_scheme());
 	g_signal_connect(G_OBJECT(palette_schemes), "changed", G_CALLBACK(palette_changed), (gpointer) palette_buttons);
 
 	hbox = glade_xml_get_widget(gui.xml, "foreground background hbox");

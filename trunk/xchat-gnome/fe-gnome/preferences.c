@@ -38,6 +38,7 @@ gboolean preferences_exist() {
 
 void load_preferences() {
 	GConfClient *client;
+	int color_scheme, palette_scheme;
 
 	client = gconf_client_get_default();
 
@@ -46,6 +47,11 @@ void load_preferences() {
 	strcpy(prefs.awayreason, gconf_client_get_string(client, "/apps/xchat/irc/awaymsg", NULL));
 	strcpy(prefs.quitreason, gconf_client_get_string(client, "/apps/xchat/irc/quitmsg", NULL));
 	strcpy(prefs.partreason, gconf_client_get_string(client, "/apps/xchat/irc/partmsg", NULL));
+
+	color_scheme = gconf_client_get_int(client, "/apps/xchat/irc/color_scheme", NULL);
+	load_colors(color_scheme);
+	palette_scheme = gconf_client_get_int(client, "/apps/xchat/irc/palette_scheme", NULL);
+	load_palette(palette_scheme);
 }
 
 char *preferences_nickname() {
@@ -70,4 +76,28 @@ gboolean preferences_show_timestamp() {
 	client = gconf_client_get_default();
 
 	return gconf_client_get_bool(client, "/apps/xchat/irc/showtimestamps", NULL);
+}
+
+int preferences_get_color_scheme() {
+	GConfClient *client;
+	client = gconf_client_get_default();
+	return gconf_client_get_int(client, "/apps/xchat/irc/color_scheme", NULL);
+}
+
+int preferences_get_palette_scheme() {
+	GConfClient *client;
+	client = gconf_client_get_default();
+	return gconf_client_get_int(client, "/apps/xchat/irc/palette_scheme", NULL);
+}
+
+void preferences_set_color_scheme(int selection) {
+	GConfClient *client;
+	client = gconf_client_get_default();
+	gconf_client_set_int(client, "/apps/xchat/irc/color_scheme", selection, NULL);
+}
+
+void preferences_set_palette_scheme(int selection) {
+	GConfClient *client;
+	client = gconf_client_get_default();
+	gconf_client_set_int(client, "/apps/xchat/irc/palette_scheme", selection, NULL);
 }

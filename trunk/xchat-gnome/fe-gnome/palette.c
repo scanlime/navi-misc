@@ -23,6 +23,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <gnome.h>
+#include "preferences.h"
 #include "../common/xchat.h"
 #include "../common/util.h"
 #include "../common/cfgfiles.h"
@@ -71,6 +72,14 @@ const GdkColor colors_black_on_white[] = {
 	{0, 0x9999, 0x9999, 0x9999}, /* away user (grey) */
 };
 
+GdkColor custom_colors[5];
+
+const GdkColor *color_schemes[] = {
+	colors_white_on_black,
+	colors_black_on_white,
+	custom_colors,
+};
+
 const GdkColor default_palette[] = {
 	{0, 0xcf3c, 0xcf3c, 0xcf3c}, /* 0  white */
 	{0, 0x0000, 0x0000, 0x0000}, /* 1  black */
@@ -90,9 +99,54 @@ const GdkColor default_palette[] = {
 	{0, 0x9999, 0x9999, 0x9999}, /* 15 light grey */
 };
 
-const GdkColor *color_schemes[] = {
-	colors_white_on_black,
-	colors_black_on_white,
-	NULL,
+GdkColor custom_palette[16];
+
+const GdkColor *palette_schemes[] = {
+	default_palette,
+	custom_palette,
 };
+
+void load_colors(int selection) {
+	colors[19] = color_schemes[selection][0];
+	colors[18] = color_schemes[selection][1];
+	colors[16] = color_schemes[selection][2];
+	colors[17] = color_schemes[selection][3];
+	colors[23] = color_schemes[selection][4];
+}
+
+void load_palette(int selection) {
+	int i;
+
+	for(i = 0; i < 16; i++) {
+		colors[i] = palette_schemes[selection][i];
+	}
+}
+
+void palette_init() {
+	int i;
+
+	for(i = 0; i < 16; i++) {
+		custom_palette[i] = palette_schemes[0][i];
+	}
+	for(i = 0; i < 5; i++) {
+		custom_colors[i] = color_schemes[0][i];
+	}
+}
+
+void palette_alloc(GtkWidget *widget) {
+	static gboolean done = FALSE;
+	GdkColormap *cmap;
+	int i;
+
+	cmap = gtk_widget_get_colormap(widget);
+
+	if(done)
+		gdk_colormap_free_colors(cmap, colors, 24);
+
+	for(i = 0; i < 24; i++)
+		gdk_colormap_alloc_color(cmap, &colors[i], FALSE, TRUE);
+
+	done = TRUE;
+}
+
 #define MAX_COL 23
