@@ -33,7 +33,7 @@ if have_wasabi_hardware:
     plugin.activate('uvswitch.input', args=(4, 'NES', 'nes'))
     plugin.activate('uvswitch.input', args=(5, 'Nintendo Gamecube', 'gamecube'))
     plugin.activate('uvswitch.input', args=(6, 'Sega Genesis', 'sega'))
-    plugin.activate('uvswitch.input', args=(7, 'Video Input', 'video_input'))
+    plugin.activate('uvswitch.input', args=(7, 'Atari', 'atari'))
     plugin.activate('uvswitch.input', args=(8, 'Video Input', 'video_input'))
 
 # Our remote has a pretty high repeat rate, make these more sensitive
