@@ -18,7 +18,7 @@ zf = open(zFile, "w")
 
 for line in open(logFile):
     values = map(float, line.split())
-    trainingData = " ".join(["%d:%f" % (i, values[i]) for i in xrange(8)])
+    trainingData = " ".join(["%d:%f" % (i+1, values[i]) for i in xrange(8)])
     x = values[8]
     y = values[9]
     z = values[10]

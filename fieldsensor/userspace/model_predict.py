@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import svm, efs, time
+import svm, efs, rtgraph, gtk
 
 models = [svm.svm_model("../training/x.model"),
           svm.svm_model("../training/y.model"),
@@ -7,9 +7,18 @@ models = [svm.svm_model("../training/x.model"),
 
 sensor = efs.FieldSensor()
 sensor.initScan()
+channel = rtgraph.Channel()
 
-while 1:
+def poll_handler():
     reading = sensor.readAverages()
-    vector = [model.predict(reading) for model in models]
-    print vector
-    time.sleep(0.1)
+    channel.value = [model.predict(reading) for model in models]
+    gtk.timeout_add(10, poll_handler)
+gtk.timeout_add(10, poll_handler)
+
+graph = rtgraph.IsometricVectorGraph(channels=[channel])
+
+win = gtk.Window(gtk.WINDOW_TOPLEVEL)
+win.add(graph)
+win.show_all()
+win.connect("destroy", gtk.mainquit)
+gtk.main()
