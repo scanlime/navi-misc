@@ -44,7 +44,7 @@ a {
 
 div.navigation {
   min-width:	150px;
-  position:	fixed;
+  position:	static;
 }
 
 div.content {
