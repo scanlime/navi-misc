@@ -253,7 +253,7 @@ class BotNetwork:
             for reqBot in request.bots:
                 # Make note of the bots and channels this request needs,
                 # and if the bot is already marked as inactive, cancel that.
-                usedBots.setdefault(reqBot, {})[request.channel] = True
+                usedBots.setdefault(reqBot, util.InsensitiveDict())[request.channel] = True
 
                 # Make sure that any referenced bots are no longer marked inactive
                 if reqBot in self.inactiveBots:
