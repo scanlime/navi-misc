@@ -1,0 +1,37 @@
+<?xml version="1.0" ?>
+<freevo>
+<skin include="blurr" geometry="640x480">
+
+    <!-- ***************************************************
+    *********************** Main Menu **********************
+    **************************************************** -->
+
+    <image label="background" filename="wasabi/background.png"/>
+    <image label="logo" filename="gant/logo.png"/>
+
+    <main imagedir="wasabi">
+        <item label="video" name="Play a Video" image="wasabi/playstation.png"/>
+        <item label="audio" name="Listen to Music" image="wasabi/nes.png"/>
+        <item label="image" name="Browse Images"/>
+    </main>
+
+    <menuset label="main menu">
+        <screen layout="screen watermark" visible="yes">
+            <area x="0" y="0" width="640" height="480"/>
+        </screen>
+        <listing layout="main listing" visible="yes">
+            <area x="230" y="280" width="360" height="240"/>
+        </listing>
+        <listing layout="list_main" x="230" y="180" width="380" height="390"/>
+        <view visible="no"/>
+    </menuset>
+
+    <layout label="screen watermark">
+        <background>
+            <image image="background" x="0" y="0" label="background"/>
+            <image x="100" y="112" width="256" height="256" label="watermark"/>
+        </background>
+    </layout>
+
+</skin>
+</freevo>
