@@ -24,7 +24,7 @@ the graphs.
 from __future__ import generators, division
 import time, gtk, math, gobject
 
-__version__ = "pre-0.70"
+__version__ = "0.70"
 
 __all__ = ["Channel", "FunctionChannel", "TimeVariable", "Graph",
            "StaticGridGraph", "HScrollGraph", "HScrollLineGraph",
