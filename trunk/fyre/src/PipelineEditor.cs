@@ -42,7 +42,7 @@ public class PipelineEditor
 
 	// Editor workspace (right)
 	[Widget] Gtk.ScrolledWindow	pipeline_window;
-	[Widget] Gtk.DrawingArea	pipeline_drawing;
+	private PipelineDrawing		pipeline_drawing;
 
 	// Current tooltip
 	private ElementTooltip		current_tooltip;
@@ -127,6 +127,10 @@ public class PipelineEditor
 
 	void SetupDrawingCanvas ()
 	{
+		// create the canvas
+		pipeline_drawing = new PipelineDrawing();
+		pipeline_window.Add (pipeline_drawing);
+
 		// Set up drag-and-drop for the canvas
 		Gtk.Drag.DestSet (pipeline_drawing, Gtk.DestDefaults.All, targets, Gdk.DragAction.Copy);
 	}
