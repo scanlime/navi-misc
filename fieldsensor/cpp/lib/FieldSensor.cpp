@@ -27,6 +27,8 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/termios.h>
+#include <sys/ioctl.h>
+#include <netinet/in.h>
 
 #include <FieldSensor.h>
 
@@ -34,10 +36,10 @@
 FieldSensor::FieldSensor(const char *serialPort) {
   struct termios options;
 
-  fd = open(serialPort, O_RDWRITE | O_NCTTY);
+  fd = open(serialPort, O_NOCTTY | O_RDWR);
 
-  tcgetattr(mouse_fd, &options);
-  cfsetispeed(&options, B1200);                /* 19200 baud rates */
+  tcgetattr(fd, &options);
+  cfsetspeed(&options, B19200);                /* 19200 baud rate */
   options.c_cflag |= (CLOCAL | CREAD);         /* Enable receiver and set the local mode */
   options.c_cflag &= ~PARENB;                  /* None parity */
   options.c_cflag &= ~CSIZE;                   /* Mask the character bit size */
@@ -47,7 +49,7 @@ FieldSensor::FieldSensor(const char *serialPort) {
   options.c_iflag &= ~(IXON | IXOFF | IXANY);  /* Disable software flow control */
   options.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG); /* Set raw input and output */
   options.c_oflag &= ~OPOST;
-  tcsetattr(mouse_fd, TCSANOW, &options);
+  tcsetattr(fd, TCSANOW, &options);
 
   reset();
 }
@@ -57,13 +59,58 @@ FieldSensor::~FieldSensor(void) {
 }
 
 void FieldSensor::reset(void) {
-  ioctl(fd, TIOCMBIC, TIOCM_RTS);
-  ioctl(fd, TIOCMBIS, TIOCM_DTR);
-  usleep(5);
-  ioctl(fd, TIOCMBIC, TIOCM_DTR);
+  /* Reset the microcontroller */
+  int x;
+  x = TIOCM_RTS;
+  ioctl(fd, TIOCMBIC, &x);
+  x = TIOCM_DTR;
+  ioctl(fd, TIOCMBIS, &x);
+  usleep(5000);
+  x = TIOCM_DTR;
+  ioctl(fd, TIOCMBIC, &x);
+
+  /* Instruct the bootloader to run our code */
+  sendSlowly("0000hg");
 }
 
-std::vector<float> FieldSensor::read(void) {
+std::vector<float> FieldSensor::readPacket(void) {
+  unsigned char c, theirChecksum, ourChecksum;
+  union {
+    unsigned short shorts[8];
+    unsigned char bytes[16];
+  } rawPacket;
+  int i;
+  std::vector<float> results;
+
+  while (1) {
+    /* Synchronize to 0x80 synchronization byte */
+    do {
+      read(fd, &c, 1);
+    } while (c != 0x80);
+    
+    read(fd, &rawPacket, 16);
+    read(fd, &theirChecksum, 1);
+
+    /* Verify the checksum byte */
+    ourChecksum = 0;
+    for (i=0;i<16;i++)
+      ourChecksum += rawPacket.bytes[i];
+    if (ourChecksum != theirChecksum)
+      continue;
+
+    /* Convert the received big-endian integers to floating point */
+    for (i=0;i<8;i++)
+      results.push_back(ntohs(rawPacket.shorts[i]) / 65535.0);
+    return results;
+  }
+}
+
+void FieldSensor::sendSlowly(const char *str) {
+  while (*str) {
+    usleep(5000);
+    write(fd, str, 1);
+    str++;
+  }
 }
 
 /* The End */
