@@ -62,7 +62,7 @@ class IrcURIHandler(Ruleset.RegexURIHandler):
 
         # Create a new channel queue if we need one
         if not self.channelQueueMap.has_key(t):
-            self.channelQueueMap[t] = Bots.ChannelMessageQueue(self.botNet, t[0], t[1])
+            self.channelQueueMap[t] = ChannelMessageQueue(self.botNet, t[0], t[1])
 
     def unassigned(self, uri):
         t = self.uriToTuple(uri)
@@ -72,5 +72,33 @@ class IrcURIHandler(Ruleset.RegexURIHandler):
 
     def message(self, uri, message, content):
         self.channelQueueMap[self.uriToTuple(uri)].send(content)
+
+
+class ChannelMessageQueue:
+    """A way to deliver buffered messages to a particular IRC server and
+       channel, handling flood protection and load balancing when necessary.
+       """
+    def __init__(self, botNet, server, channel):
+        self.request = Bots.ChannelRequest(botNet, server, channel)
+        self.queuedLines = []
+
+    def send(self, message):
+        """Split up a message into lines and queue it for transmission"""
+        self.queuedLines.extend(message.split('\n'))
+        self.checkQueue()
+
+    def cancel(self):
+        """Cancel the request associated with this message queue"""
+        self.request.cancel()
+
+    def checkQueue(self):
+        # FIXME: for now, send the whole queue contents to the first bot.
+        #        This is where rate limiting and load balancing goes.
+        while self.queuedLines:
+            if not self.request.bots:
+                return
+            self.request.bots[0].msg(self.request.channel, self.queuedLines[0])
+            del self.queuedLines[0]
+
 
 ### The End ###

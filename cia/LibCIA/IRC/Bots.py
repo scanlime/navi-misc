@@ -27,33 +27,6 @@ from twisted.python import log
 import time
 
 
-class ChannelMessageQueue:
-    """A way to deliver buffered messages to a particular IRC server and
-       channel, handling flood protection and load balancing when necessary.
-       """
-    def __init__(self, botNet, server, channel):
-        self.request = ChannelRequest(botNet, server, channel)
-        self.queuedLines = []
-
-    def send(self, message):
-        """Split up a message into lines and queue it for transmission"""
-        self.queuedLines.extend(message.split('\n'))
-        self.checkQueue()
-
-    def cancel(self):
-        """Cancel the request associated with this message queue"""
-        self.request.cancel()
-
-    def checkQueue(self):
-        # FIXME: for now, send the whole queue contents to the first bot.
-        #        This is where rate limiting and load balancing goes.
-        while self.queuedLines:
-            if not self.request.bots:
-                return
-            self.request.bots[0].msg(self.request.channel, self.queuedLines[0])
-            del self.queuedLines[0]
-
-
 class Request:
     """The Request object is an abstract base class for needs that can
        be fulfilled by a set of IRC bots.
@@ -240,9 +213,6 @@ class BotNetwork:
         # Lists all bots we're thinking about deleting due to inactivity.
         # Maps from Bot instance to a DelayedCall.
         self.inactiveBots = {}
-
-        # Map (server, channel) tuples to message queues
-        self.messageQueueMap = {}
 
         # Start the bot checking cycle
         self.checkBots()
