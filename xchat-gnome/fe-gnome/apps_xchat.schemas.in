@@ -18,6 +18,7 @@
       <applyto>/apps/xchat/irc/nickname</applyto>
       <owner>xchat</owner>
       <type>string</type>
+      <default></default>
       <locale name="C">
         <short>Default nickname used by servers without special options set</short>
       </locale>
@@ -29,6 +30,7 @@
       <applyto>/apps/xchat/irc/realname</applyto>
       <owner>xchat</owner>
       <type>string</type>
+      <default></default>
       <locale name="C">
         <short>Default real name used by servers without special options set</short>
       </locale>
