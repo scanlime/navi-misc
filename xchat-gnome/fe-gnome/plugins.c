@@ -32,6 +32,7 @@
 typedef int (xchat_init_func) (xchat_plugin *, char **, char **, char **, char *);
 typedef int (xchat_deinit_func) (xchat_plugin *);
 typedef void (xchat_plugin_get_info) (char **, char **, char **, char **);
+typedef int (xchat_gnome_plugin_init) (xchat_gnome_plugin *);
 
 GSList *enabled_plugins;
 
@@ -62,7 +63,31 @@ unload_plugin (char *filename)
 	return plugin_kill (filename, 1);
 }
 
+xchat_gnome_plugin *
+new_xg_plugin ()
+{
+	xchat_gnome_plugin *plugin = malloc (sizeof (xchat_gnome_plugin));
+	plugin->xg_get_nav_tree = get_navigation_tree;
+
+	return plugin;
+}
+
 char *
 load_plugin (session *sess, char *filename, char *arg)
 {
+	void *handle;
+	gpointer xg_init_func;
+	xchat_gnome_plugin *pl;
+	char *err = plugin_load (sess, filename, arg);
+
+	if (!err)
+		return err;
+
+	handle = g_module_open (filename, 0);
+	if (handle != NULL && g_module_symbol (handle, "xchat_gnome_plugin_init", &xg_init_func)) {
+		pl = new_xg_plugin();
+		((xchat_gnome_plugin_init*) xg_init_func) (pl);
+	}
+
+	return NULL;
 }

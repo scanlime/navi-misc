@@ -19,32 +19,27 @@
  *
  */
 
+#include "../common/xchat.h"
+#include "navigation-tree.h"
+
 #ifndef XCHAT_GNOME_PLUGINS_H
 #define XCHAT_GNOME_PLUGINS_H
 
-#ifdef PLUGIN_C
+typedef struct _xchat_gnome_plugin xchat_gnome_plugin;
 /* This is our own plugin struct that we use for passing in function
  * pointers specific to our GUI.
  */
-typedef struct _xchat_gnome_plugin
+struct _xchat_gnome_plugin
 {
-	NavTree *(*xg_get_nav_tree) (xchat_gnome_plugin *ph);
-} xchat_gnome_plugin;
+	NavTree *(*xg_get_nav_tree) ();
+};
 
-#else
 extern GSList *enabled_plugins;
 
 void plugins_initialize ();
 void autoload_plugins ();
 int unload_plugin (char *filename);
 char *load_plugin (session *sess, char *filename, char *arg);
-#endif
 
 #endif
 
-#ifdef PLUGIN_C
-#ifndef XG_PLUGIN_HANDLE
-#define XG_PLUGIN_HANDLE (ph)
-#endif
-#define xg_get_nav_tree ((XG_PLUGIN_HANDLE)->xg_get_nav_tree)
-#endif
