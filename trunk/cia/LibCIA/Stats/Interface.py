@@ -35,7 +35,7 @@ class StatsInterface(RpcServer.Interface):
     def __init__(self):
         RpcServer.Interface.__init__(self)
         self.putSubHandler('metadata', MetadataInterface())
-        self.putSubHandler('subscribe', Subscription.SubscriptionInterface())
+        self.putSubHandler('subscribe', SubscriptionInterface())
 
     def xmlrpc_catalog(self, path=''):
         """Return a list of subdirectories within this stats path"""

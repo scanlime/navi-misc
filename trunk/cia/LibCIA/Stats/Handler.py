@@ -24,6 +24,7 @@ The stats:// URI handler
 from LibCIA import Ruleset
 import time, posixpath
 from Target import StatsTarget
+from Graph import Relation
 
 
 class StatsURIHandler(Ruleset.RegexURIHandler):
