@@ -185,10 +185,10 @@ static void render_main(const char *filename) {
 }
 
 void set_defaults() {
-  params.a = 1.4191403;
-  params.b = -2.2841323;
-  params.c = 2.4275403;
-  params.d = -2.177196;
+  params.a = 1.41914;
+  params.b = -2.28413;
+  params.c = 2.42754;
+  params.d = -2.17719;
   params.zoom = 1;
   params.xoffset = 0;
   params.yoffset = 0;
