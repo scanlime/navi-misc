@@ -105,6 +105,8 @@ static int config_detect_mouse = 0;
 static int config_detect_keyboard = 0;
 static int config_detect_all = 0;
 static char *config_input_path = "/dev/input";
+static int config_connect_led_number = -1;
+static int config_connect_led_polarity = 1;
 
 #define connection_message(self, fmt, ...) do { \
     if (config_verbose) \
@@ -137,6 +139,9 @@ static void               connection_add_fds  (struct connection *self,
 static int                connection_poll     (struct connection *self,
 					       fd_set *fd_read);
 
+static void               connection_set_status_led (struct connection *self,
+						     int connected);
+
 static void               connection_list_add_fds   (int *fd_max,
 						     fd_set *fd_read);
 static void               connection_list_poll      (fd_set *fd_read);
@@ -151,9 +156,11 @@ static int                hotplug_detect      (int fd);
 static void               event_from_server   (struct server *svr,
 					       int evdev);
 static void               usage               (char *progname);
+
 static void               repack_bits         (unsigned long *src,
 					       unsigned char *dest,
 					       int len);
+static int                led_name_to_number  (unsigned char *name);
 
 
 /***********************************************************************/
@@ -512,16 +519,18 @@ static struct connection* connection_new(const char *evdev_path,
   self->evdev_path = strdup(evdev_path);
   assert(self->evdev_path != NULL);
 
-  connection_message(self, "New connection to %s", host_and_port);
+  connection_message(self, "Connecting to '%s'...", host_and_port);
 
-  self->server = server_new(host_and_port);
-  if (!self->server) {
+  self->evdev_fd = evdev_new(evdev_path);
+  if (self->evdev_fd <= 0) {
     connection_delete(self);
     return NULL;
   }
 
-  self->evdev_fd = evdev_new(evdev_path);
-  if (self->evdev_fd <= 0) {
+  connection_set_status_led(self, 0);
+
+  self->server = server_new(host_and_port);
+  if (!self->server) {
     connection_delete(self);
     return NULL;
   }
@@ -534,6 +543,7 @@ static struct connection* connection_new(const char *evdev_path,
 
   connection_list_append(self);
   connection_message(self, "Connected");
+  connection_set_status_led(self, 1);
 
   return self;
 }
@@ -543,10 +553,12 @@ static void connection_delete(struct connection *self)
   connection_message(self, "Disconnected");
   connection_list_remove(self);
 
+  if (self->evdev_fd > 0) {
+    connection_set_status_led(self, 0);
+    evdev_delete(self->evdev_fd);
+  }
   if (self->server)
     server_delete(self->server);
-  if (self->evdev_fd > 0)
-    evdev_delete(self->evdev_fd);
   free(self);
 }
 
@@ -590,6 +602,20 @@ static int connection_poll(struct connection *self, fd_set *fd_read)
   }
 
   return 0;
+}
+
+static void connection_set_status_led (struct connection *self, int connected)
+{
+  if (config_connect_led_number >= 0) {
+    struct input_event ev;
+    ev.type = EV_LED;
+    ev.code = config_connect_led_number;
+    if (connected)
+      ev.value = config_connect_led_polarity;
+    else
+      ev.value = !config_connect_led_polarity;
+    write(self->evdev_fd, &ev, sizeof(ev));
+  }
 }
 
 static void connection_list_append(struct connection *c)
@@ -837,6 +863,34 @@ static int hotplug_detect(int fd)
   return 0;
 }
 
+static int led_name_to_number(unsigned char *name)
+{
+  int i;
+  struct {
+    const char *name;
+    int number;
+  } table[] = {
+    {"NUML",    LED_NUML},
+    {"CAPSL",   LED_CAPSL},
+    {"SCROLLL", LED_SCROLLL},
+    {"COMPOSE", LED_COMPOSE},
+    {"KANA",    LED_KANA},
+    {"SLEEP",   LED_SLEEP},
+    {"SUSPEND", LED_SUSPEND},
+    {"MUTE",    LED_MUTE},
+    {"MISC",    LED_MISC},
+    {NULL,      0},
+  };
+
+  for (i=0; table[i].name; i++) {
+    if (!strcasecmp(table[i].name, name))
+      return table[i].number;
+  }
+
+  printf("Unknown LED name '%s'\n", name);
+  exit(1);
+}
+
 static void usage(char *progname)
 {
   fprintf(stderr,
@@ -852,8 +906,14 @@ static void usage(char *progname)
 	  "\n"
 	  "  -h, --help                     This text\n"
 	  "  -q, --quiet                    Suppress normal log output\n"
-	  "  -p, --input-path PATH          Set the path to scan for hotpluggable\n"
+	  "  -p PATH, --input-path PATH     Set the path to scan for hotpluggable\n"
 	  "                                 input devices [%s]\n"
+	  "  -l LED, --connect-led LED      Use the given LED on a device, if\n"
+	  "                                 present, to indicate server connection.\n"
+	  "                                 The LED name is one defined by the kernel\n"
+	  "                                 (numl, capsl, scroll, sleep, misc...)\n"
+	  "                                 and may be preceeded with a '~' to make\n"
+	  "                                 it active-low.\n"
 	  "  -j, --hotplug-js               Detect and export joystick devices\n"
 	  "  -m, --hotplug-mice             Detect and export mouse devices\n"
 	  "  -k, --hotplug-kb               Detect and export keyboard devices\n"
@@ -878,10 +938,11 @@ int main(int argc, char **argv)
       {"hotplug-mice", 0, 0, 'm'},
       {"hotplug-kb",   0, 0, 'k'},
       {"hotplug-all",  0, 0, 'a'},
+      {"connect-led",  1, 0, 'l'},
       {0},
     };
 
-    c = getopt_long(argc, argv, "hqp:jmka",
+    c = getopt_long(argc, argv, "hqp:jmkal:",
 		    long_options, NULL);
     if (c == -1)
       break;
@@ -913,6 +974,17 @@ int main(int argc, char **argv)
     case 'a':
       config_detect_all = 1;
       config_hotplug_polling = 1;
+      break;
+
+    case 'l':
+      if (optarg[0] == '~') {
+	config_connect_led_number = led_name_to_number(optarg+1);
+	config_connect_led_polarity = 0;
+      }
+      else {
+	config_connect_led_number = led_name_to_number(optarg);
+	config_connect_led_polarity = 1;
+      }
       break;
 
     case 'h':
