@@ -39,7 +39,7 @@ used to store and query rulesets in a RulesetStorage.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import XML, Message, Interface
+import XML, Message
 from twisted.python import log
 from twisted.xish.xpath import XPathQuery
 from twisted.web import xmlrpc
@@ -49,6 +49,7 @@ import sys, traceback, re
 class RulesetInterface(xmlrpc.XMLRPC):
     """An XML-RPC interface used to set and query the rulesets in a RulesetStorage"""
     def __init__(self, caps, storage):
+        xmlrpc.XMLRPC.__init__(self)
         self.caps = caps
         self.storage = storage
 
@@ -68,7 +69,7 @@ class RulesetInterface(xmlrpc.XMLRPC):
             self.storage.store(dom)
             self.storage.save()
         except:
-            Interface.catchFault()
+            Message.catchFault()
         return True
 
     def xmlrpc_getUriKey(self, uri, key):

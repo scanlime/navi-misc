@@ -28,13 +28,27 @@ from twisted.xish.xpath import XPathQuery
 from twisted.python import log
 import time
 import sys, traceback
-import XML, Interface
+import XML
+
+
+def catchFault(message="Exception occurred"):
+    """Put this in the 'except' section of a try block to convert the exception
+       that just occurred to an XMLRPC Fault and log it.
+       Not related to Messages, but this is as good a place as any for it right now...
+       """
+    e = sys.exc_info()[1]
+    if isinstance(e, xmlrpc.Fault):
+        raise
+    else:
+        log.msg(message + "\n" + "".join(traceback.format_exception(*sys.exc_info())))
+        raise xmlrpc.Fault(e.__class__.__name__, str(e))
 
 
 class HubInterface(xmlrpc.XMLRPC):
     """A simple interface for delivering XML messages to the hub over XML-RPC
        """
     def __init__(self, caps, hub):
+        xmlrpc.XMLRPC.__init__(self)
         self.caps = caps
         self.hub = hub
 
@@ -52,7 +66,7 @@ class HubInterface(xmlrpc.XMLRPC):
                 return True
             return result
         except:
-            Interface.catchFault("Exception occurred while delivering the message:\n%s\n--------" % xml)
+            catchFault("Exception occurred while delivering the message:\n%s\n--------" % xml)
 
 
 class Message(XML.XMLObject):
