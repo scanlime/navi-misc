@@ -389,6 +389,9 @@ static ssize_t mi6k_lirc_read(struct file *file, char *buffer, size_t count, lof
 	/* If there's no data available yet, release our lock temporarily and
 	 * block the process until there is data available.
 	 */
+	dbg("available = %d", mi6k_ir_rx_available(dev));
+
+	/*
 	if (!mi6k_ir_rx_available(dev)) {
 		add_wait_queue(&dev->ir_rx_wait, &wait);
 		current->state = TASK_INTERRUPTIBLE;
@@ -412,6 +415,7 @@ static ssize_t mi6k_lirc_read(struct file *file, char *buffer, size_t count, lof
 		current->state = TASK_RUNNING;
 		remove_wait_queue(&dev->ir_rx_wait, &wait);
 	}
+	*/
 
 	/* If we're still running successfully, start shuffling values from
 	 * the ring buffer into the process' provided userspace buffer.
@@ -629,7 +633,7 @@ static void * mi6k_probe(struct usb_device *udev, unsigned int ifnum, const stru
 				     S_IFCHR | S_IRUSR | S_IWUSR |
 				     S_IRGRP | S_IWGRP | S_IROTH,
 				     &mi6k_dev_fops, NULL);
-	info("MI6K device now attached to %s", name);
+	info("mi6k device now attached to %s", name);
 
 	/* Initialize our LIRC-compatible character device */
 	sprintf(name, "lirc%d", dev->minor);
@@ -683,7 +687,7 @@ static void mi6k_disconnect(struct usb_device *udev, void *ptr)
 		up(&dev->sem);
 	}
 
-	info("MI6K #%d now disconnected", minor);
+	info("mi6k #%d now disconnected", minor);
 	up(&minor_table_mutex);
 }
 
