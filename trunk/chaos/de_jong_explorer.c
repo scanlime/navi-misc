@@ -31,46 +31,66 @@ struct {
   double x,y;
 } point;
 
+struct {
+  double a, b, c, d;
+  double zoom, xoffset, yoffset;
+} params;
+
+struct {
+  guint width, height;
+  guint *counts;
+  guchar *pixels;
+
+  double iterations;
+  guint currentDensity;
+
+  double exposure;
+  guint targetDensity;
+} render;
+
+struct {
+  GtkWidget *window, *drawing_area, *iterl;
+  GtkWidget *as, *bs, *cs, *ds, *ls, *zs, *xos, *yos;
+  GtkWidget *start, *stop, *save, *randbutton;
+  GdkGC *gc;
+  guint idler;
+} gui;
+
+
 /* Convert a gray level from 0 to 255 to an ARGB color in little endian.
  * This macro can be redefined to colorize the image differently.
  */
 #define GRAY_TO_RGBA(gray) (GUINT32_TO_LE( gray | (gray<<8) | (gray<<16) | 0xFF000000UL ))
 
-GtkWidget *window, *drawing_area, *iterl;
-GtkWidget *as, *bs, *cs, *ds, *ls, *zs, *xos, *yos;
-GtkWidget *start, *stop, *save, *randbutton;
-double iterations;
-GdkGC *gc;
-guint *counts;
-int width, height;
-guint countsMax;
-guchar *pixels;
-double a, b, c, d, exposure, zoom, xoffset, yoffset;
-guint idler;
-
-void update_gui();
-void update_pixels();
-void clear();
-void usage();
-void resize(int w, int h);
+void usage(char **argv);
+void interactive_main(int argc, char ** argv);
+void render_main(const char *filename);
 void set_defaults();
+GtkWidget *build_sidebar();
+void resize(int w, int h);
+int limit_update_rate(float max_rate);
+int auto_limit_update_rate(void);
 float get_pixel_scale();
+void fast_update_pixels(int steps);
+void update_pixels();
+void update_gui();
 void update_drawing_area();
-void load_parameters_from_file(const char *name);
-void interactive_main(int argc, char **argv);
-void render_main(const char *filename, guint targetDensity);
-void save_to_file(const char *name);
+void clear();
 void run_iterations(int count);
 int interactive_idle_handler(gpointer user_data);
 gboolean expose(GtkWidget *widget, GdkEventExpose *event, gpointer user_data);
-void param_spinner_changed(GtkWidget *widget, gpointer user_data);
-void exposure_changed(GtkWidget *widget, gpointer user_data);
+gboolean deletee(GtkWidget *widget, GdkEvent *event, gpointer user_data);
 void startclick(GtkWidget *widget, gpointer user_data);
 void stopclick(GtkWidget *widget, gpointer user_data);
-void saveclick(GtkWidget *widget, gpointer user_data);
+void param_spinner_changed(GtkWidget *widget, gpointer user_data);
+void exposure_changed(GtkWidget *widget, gpointer user_data);
+float generate_random_param();
 void randomclick(GtkWidget *widget, gpointer user_data);
-gboolean deletee(GtkWidget *widget, GdkEvent *event, gpointer user_data);
-GtkWidget *build_sidebar();
+gchar* save_parameters();
+void load_parameters(const gchar *params);
+void load_parameters_from_file(const char *name);
+void save_to_file(const char *name);
+void saveclick(GtkWidget *widget, gpointer user_data);
 
 
 int main(int argc, char ** argv) {
@@ -78,7 +98,6 @@ int main(int argc, char ** argv) {
   const char *outputFile;
   int opt;
   char *cptr;
-  guint targetDensity = 5000;
 
   srand(time(NULL));
   g_type_init();
@@ -90,32 +109,29 @@ int main(int argc, char ** argv) {
       break;
 
     switch (opt) {
-    case 'a':  a        = atof(optarg);  break;
-    case 'b':  b        = atof(optarg);  break;
-    case 'c':  c        = atof(optarg);  break;
-    case 'd':  d        = atof(optarg);  break;
-    case 'e':  exposure = atof(optarg);  break;
-    case 'x':  xoffset  = atof(optarg);  break;
-    case 'y':  yoffset  = atof(optarg);  break;
-    case 'z':  zoom     = atof(optarg);  break;
+    case 'a':  params.a             = atof(optarg);  break;
+    case 'b':  params.b             = atof(optarg);  break;
+    case 'c':  params.c             = atof(optarg);  break;
+    case 'd':  params.d             = atof(optarg);  break;
+    case 'x':  params.xoffset       = atof(optarg);  break;
+    case 'y':  params.yoffset       = atof(optarg);  break;
+    case 'z':  params.zoom          = atof(optarg);  break;
+    case 'e':  render.exposure      = atof(optarg);  break;
+    case 't':  render.targetDensity = atol(optarg);  break;
 
     case 's':
       /* A single number can be given to make a square image,
        * or a size in WIDTHxHEIGHT form can be given.
        */
-      width = strtol(optarg, &cptr, 10);
+      render.width = strtol(optarg, &cptr, 10);
       if (*cptr == 'x')
-	height = atoi(cptr+1);
+	render.height = atoi(cptr+1);
       else
-	height = width;
+	render.height = render.width;
       break;
 
     case 'i':
       load_parameters_from_file(optarg);
-      break;
-
-    case 't':
-      targetDensity = atol(optarg);
       break;
 
     case 'o':
@@ -124,17 +140,17 @@ int main(int argc, char ** argv) {
       break;
 
     default:
-      usage(argv, targetDensity);
+      usage(argv);
       return 1;
     }
   }
 
   if (optind < argc) {
-    usage(argv, targetDensity);
+    usage(argv);
     return 1;
   }
 
-  resize(width, height);
+  resize(render.width, render.height);
 
   switch (mode) {
 
@@ -143,14 +159,14 @@ int main(int argc, char ** argv) {
     break;
 
   case RENDER:
-    render_main(outputFile, targetDensity);
+    render_main(outputFile);
     break;
   }
 
   return 0;
 }
 
-void usage(const char **argv, guint defaultDensity) {
+void usage(char **argv) {
   printf("Usage: %s [options]\n"
 	 "Interactive exploration of the Peter de Jong attractor\n"
 	 "\n"
@@ -159,10 +175,12 @@ void usage(const char **argv, guint defaultDensity) {
 	 "  -b VALUE           Set the 'b' parameter [%f]\n"
 	 "  -c VALUE           Set the 'c' parameter [%f]\n"
 	 "  -d VALUE           Set the 'd' parameter [%f]\n"
-	 "  -e EXPOSURE        Set the image exposure [%f]\n"
 	 "  -x OFFSET          Set the X offest [%f]\n"
 	 "  -y OFFSET          Set the Y offset [%f]\n"
 	 "  -z ZOOM            Set the zoom factor [%f]\n"
+	 "\n"
+	 "Rendering:\n"
+	 "  -e EXPOSURE        Set the image exposure [%f]\n"
 	 "\n"
 	 "Quality:\n"
 	 "  -s WIDTH[xHEIGHT]  Set the image size in pixels. If only one value is\n"
@@ -178,8 +196,9 @@ void usage(const char **argv, guint defaultDensity) {
 	 "  -o FILE            Instead of presenting an interactive GUI, render\n"
 	 "                       an image with the provided settings and write it\n"
 	 "                       in PNG format to FILE.\n",
-	 argv[0], a, b, c, d, exposure, xoffset, yoffset, zoom,
-	 width, defaultDensity);
+	 argv[0],
+	 params.a, params.b, params.c, params.d, params.xoffset, params.yoffset, params.zoom,
+	 render.exposure, render.width, render.targetDensity);
 }
 
 void interactive_main(int argc, char ** argv) {
@@ -190,50 +209,51 @@ void interactive_main(int argc, char ** argv) {
   GtkWidget *hbox, *vsep;
   gtk_init(&argc, &argv);
 
-  window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-  g_signal_connect(G_OBJECT(window), "delete-event", G_CALLBACK(deletee), NULL);
-  drawing_area = gtk_drawing_area_new();
+  gui.window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+  g_signal_connect(G_OBJECT(gui.window), "delete-event", G_CALLBACK(deletee), NULL);
+  gui.drawing_area = gtk_drawing_area_new();
   vsep = gtk_vseparator_new();
   hbox = gtk_hbox_new(FALSE, 0);
   gtk_box_pack_start(GTK_BOX(hbox), build_sidebar(), TRUE, TRUE, 0);
   gtk_box_pack_start(GTK_BOX(hbox), vsep, FALSE, FALSE, 0);
-  gtk_box_pack_end(GTK_BOX(hbox), drawing_area, FALSE, FALSE, 0);
-  gtk_container_add(GTK_CONTAINER(window), hbox);
-  g_signal_connect(G_OBJECT(drawing_area), "expose-event", G_CALLBACK(expose), NULL);
-  gtk_widget_show_all(window);
+  gtk_box_pack_end(GTK_BOX(hbox), gui.drawing_area, FALSE, FALSE, 0);
+  gtk_container_add(GTK_CONTAINER(gui.window), hbox);
+  g_signal_connect(G_OBJECT(gui.drawing_area), "expose-event", G_CALLBACK(expose), NULL);
+  gtk_widget_show_all(gui.window);
 
-  gc = gdk_gc_new(drawing_area->window);
-  gtk_widget_set_size_request(drawing_area, width, height);
+  gui.gc = gdk_gc_new(gui.drawing_area->window);
+  gtk_widget_set_size_request(gui.drawing_area, render.width, render.height);
   update_gui();
 
-  idler = g_idle_add(interactive_idle_handler, NULL);
+  gui.idler = g_idle_add(interactive_idle_handler, NULL);
   gtk_main();
 }
 
-void render_main(const char *filename, guint targetDensity) {
+void render_main(const char *filename) {
   /* Main function for noninteractive rendering. This renders an image with the
-   * current settings until countsMax reaches the provided targetDensity.
-   * We show helpful progress doodads on stdout while the poor user has to wait.
+   * current settings until render.currentDensity reaches targetDensity. We show helpful
+   * progress doodads on stdout while the poor user has to wait.
    */
   time_t start_time, now, elapsed, remaining;
   start_time = time(NULL);
 
-  while (countsMax < targetDensity) {
+  while (render.currentDensity < render.targetDensity) {
     run_iterations(1000000);
 
-    /* This should be a fairly accurate time estimate, since countsMax increases linearly */
+    /* This should be a fairly accurate time estimate, since currentDensity increases linearly */
     now = time(NULL);
     elapsed = now - start_time;
-    remaining = ((float)elapsed) * targetDensity / countsMax - elapsed;
+    remaining = ((float)elapsed) * render.targetDensity / render.currentDensity - elapsed;
 
     /* After each batch of iterations, show the percent completion, number
      * of iterations (in scientific notation), iterations per second,
      * density / target density, and elapsed time / remaining time.
      */
     if (elapsed > 0) {
-      printf("%6.02f%%   %.3e   %.2e/sec %6d / %d   %02d:%02d:%02d / %02d:%02d:%02d\n",
-	     100.0 * countsMax / targetDensity,
-	     iterations, iterations / elapsed, countsMax, targetDensity,
+      printf("%6.02f%%   %.3e   %.2e/sec   %6d / %d   %02d:%02d:%02d / %02d:%02d:%02d\n",
+	     100.0 * render.currentDensity / render.targetDensity,
+	     render.iterations, render.iterations / elapsed,
+	     render.currentDensity, render.targetDensity,
 	     elapsed / (60*60), (elapsed / 60) % 60, elapsed % 60,
 	     remaining / (60*60), (remaining / 60) % 60, remaining % 60);
     }
@@ -244,16 +264,16 @@ void render_main(const char *filename, guint targetDensity) {
 }
 
 void set_defaults() {
-  a = 1.4191403;
-  b = -2.2841323;
-  c = 2.4275403;
-  d = -2.177196;
-  exposure = 0.05;
-  zoom = 1;
-  xoffset = 0;
-  yoffset = 0;
-  width = 800;
-  height = 800;
+  params.a = 1.4191403;
+  params.b = -2.2841323;
+  params.c = 2.4275403;
+  params.d = -2.177196;
+  params.zoom = 1;
+  params.xoffset = 0;
+  params.yoffset = 0;
+  render.exposure = 0.05;
+  render.width = 800;
+  render.height = 800;
 }
 
 GtkWidget *build_sidebar() {
@@ -294,85 +314,85 @@ GtkWidget *build_sidebar() {
 
   /* Spin buttons */
   {
-    as = gtk_spin_button_new_with_range(-9.999, 9.999, 0.001);
-    gtk_spin_button_set_value(GTK_SPIN_BUTTON(as), a);
-    gtk_table_attach(GTK_TABLE(table), as, 1, 2, 0, 1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
-    g_signal_connect(G_OBJECT(as), "changed", G_CALLBACK(param_spinner_changed), NULL);
+    gui.as = gtk_spin_button_new_with_range(-9.999, 9.999, 0.001);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui.as), params.a);
+    gtk_table_attach(GTK_TABLE(table), gui.as, 1, 2, 0, 1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
+    g_signal_connect(G_OBJECT(gui.as), "changed", G_CALLBACK(param_spinner_changed), NULL);
 
-    bs = gtk_spin_button_new_with_range(-9.999, 9.999, 0.001);
-    gtk_spin_button_set_value(GTK_SPIN_BUTTON(bs), b);
-    gtk_table_attach(GTK_TABLE(table), bs, 1, 2, 1, 2, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
-    g_signal_connect(G_OBJECT(bs), "changed", G_CALLBACK(param_spinner_changed), NULL);
+    gui.bs = gtk_spin_button_new_with_range(-9.999, 9.999, 0.001);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui.bs), params.b);
+    gtk_table_attach(GTK_TABLE(table), gui.bs, 1, 2, 1, 2, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
+    g_signal_connect(G_OBJECT(gui.bs), "changed", G_CALLBACK(param_spinner_changed), NULL);
 
-    cs = gtk_spin_button_new_with_range(-9.999, 9.999, 0.001);
-    gtk_spin_button_set_value(GTK_SPIN_BUTTON(cs), c);
-    gtk_table_attach(GTK_TABLE(table), cs, 1, 2, 2, 3, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
-    g_signal_connect(G_OBJECT(cs), "changed", G_CALLBACK(param_spinner_changed), NULL);
+    gui.cs = gtk_spin_button_new_with_range(-9.999, 9.999, 0.001);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui.cs), params.c);
+    gtk_table_attach(GTK_TABLE(table), gui.cs, 1, 2, 2, 3, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
+    g_signal_connect(G_OBJECT(gui.cs), "changed", G_CALLBACK(param_spinner_changed), NULL);
 
-    ds = gtk_spin_button_new_with_range(-9.999, 9.999, 0.001);
-    gtk_spin_button_set_value(GTK_SPIN_BUTTON(ds), d);
-    gtk_table_attach(GTK_TABLE(table), ds, 1, 2, 3, 4, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
-    g_signal_connect(G_OBJECT(ds), "changed", G_CALLBACK(param_spinner_changed), NULL);
+    gui.ds = gtk_spin_button_new_with_range(-9.999, 9.999, 0.001);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui.ds), params.d);
+    gtk_table_attach(GTK_TABLE(table), gui.ds, 1, 2, 3, 4, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
+    g_signal_connect(G_OBJECT(gui.ds), "changed", G_CALLBACK(param_spinner_changed), NULL);
 
-    zs = gtk_spin_button_new_with_range(0.01, 100, 0.01);
-    gtk_spin_button_set_value(GTK_SPIN_BUTTON(zs), zoom);
-    gtk_table_attach(GTK_TABLE(table), zs, 1, 2, 4, 5, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
-    g_signal_connect(G_OBJECT(zs), "changed", G_CALLBACK(param_spinner_changed), NULL);
+    gui.zs = gtk_spin_button_new_with_range(0.01, 100, 0.01);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui.zs), params.zoom);
+    gtk_table_attach(GTK_TABLE(table), gui.zs, 1, 2, 4, 5, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
+    g_signal_connect(G_OBJECT(gui.zs), "changed", G_CALLBACK(param_spinner_changed), NULL);
 
-    xos = gtk_spin_button_new_with_range(-1.999, 1.999, 0.001);
-    gtk_spin_button_set_value(GTK_SPIN_BUTTON(xos), xoffset);
-    gtk_table_attach(GTK_TABLE(table), xos, 1, 2, 5, 6, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
-    g_signal_connect(G_OBJECT(xos), "changed", G_CALLBACK(param_spinner_changed), NULL);
+    gui.xos = gtk_spin_button_new_with_range(-1.999, 1.999, 0.001);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui.xos), params.xoffset);
+    gtk_table_attach(GTK_TABLE(table), gui.xos, 1, 2, 5, 6, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
+    g_signal_connect(G_OBJECT(gui.xos), "changed", G_CALLBACK(param_spinner_changed), NULL);
 
-    yos = gtk_spin_button_new_with_range(-1.999, 1.999, 0.001);
-    gtk_spin_button_set_value(GTK_SPIN_BUTTON(yos), yoffset);
-    gtk_table_attach(GTK_TABLE(table), yos, 1, 2, 6, 7, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
-    g_signal_connect(G_OBJECT(yos), "changed", G_CALLBACK(param_spinner_changed), NULL);
+    gui.yos = gtk_spin_button_new_with_range(-1.999, 1.999, 0.001);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui.yos), params.yoffset);
+    gtk_table_attach(GTK_TABLE(table), gui.yos, 1, 2, 6, 7, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
+    g_signal_connect(G_OBJECT(gui.yos), "changed", G_CALLBACK(param_spinner_changed), NULL);
 
-    ls = gtk_spin_button_new_with_range(0.001, 9.999, 0.001);
-    gtk_spin_button_set_value(GTK_SPIN_BUTTON(ls), exposure);
-    gtk_table_attach(GTK_TABLE(table), ls, 1, 2, 7, 8, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
-    g_signal_connect(G_OBJECT(ls), "changed", G_CALLBACK(exposure_changed), NULL);
+    gui.ls = gtk_spin_button_new_with_range(0.001, 9.999, 0.001);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui.ls), render.exposure);
+    gtk_table_attach(GTK_TABLE(table), gui.ls, 1, 2, 7, 8, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
+    g_signal_connect(G_OBJECT(gui.ls), "changed", G_CALLBACK(exposure_changed), NULL);
   }
 
   /* Iteration counter */
-  iterl = gtk_label_new("");
-  gtk_table_attach(GTK_TABLE(table), iterl, 0, 2, 8, 9, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
+  gui.iterl = gtk_label_new("");
+  gtk_table_attach(GTK_TABLE(table), gui.iterl, 0, 2, 8, 9, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
 
   /* Buttons */
   {
-    start = gtk_button_new_from_stock(GTK_STOCK_APPLY);
-    gtk_widget_set_sensitive(start, FALSE);
-    g_signal_connect(G_OBJECT(start), "clicked", G_CALLBACK(startclick), NULL);
-    gtk_table_attach(GTK_TABLE(table), start, 0, 2, 9, 10, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
+    gui.start = gtk_button_new_from_stock(GTK_STOCK_APPLY);
+    gtk_widget_set_sensitive(gui.start, FALSE);
+    g_signal_connect(G_OBJECT(gui.start), "clicked", G_CALLBACK(startclick), NULL);
+    gtk_table_attach(GTK_TABLE(table), gui.start, 0, 2, 9, 10, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
 
-    stop = gtk_button_new_from_stock(GTK_STOCK_STOP);
-    g_signal_connect(G_OBJECT(stop), "clicked", G_CALLBACK(stopclick), NULL);
-    gtk_table_attach(GTK_TABLE(table), stop, 0, 2, 10, 11, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
+    gui.stop = gtk_button_new_from_stock(GTK_STOCK_STOP);
+    g_signal_connect(G_OBJECT(gui.stop), "clicked", G_CALLBACK(stopclick), NULL);
+    gtk_table_attach(GTK_TABLE(table), gui.stop, 0, 2, 10, 11, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
 
-    save = gtk_button_new_from_stock(GTK_STOCK_SAVE);
-    g_signal_connect(G_OBJECT(save), "clicked", G_CALLBACK(saveclick), NULL);
-    gtk_table_attach(GTK_TABLE(table), save, 0, 2, 11, 12, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
+    gui.save = gtk_button_new_from_stock(GTK_STOCK_SAVE);
+    g_signal_connect(G_OBJECT(gui.save), "clicked", G_CALLBACK(saveclick), NULL);
+    gtk_table_attach(GTK_TABLE(table), gui.save, 0, 2, 11, 12, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
 
-    randbutton = gtk_button_new_with_label("Random");
-    g_signal_connect(G_OBJECT(randbutton), "clicked", G_CALLBACK(randomclick), NULL);
-    gtk_table_attach(GTK_TABLE(table), randbutton, 0, 2, 12, 13, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
+    gui.randbutton = gtk_button_new_with_label("Random");
+    g_signal_connect(G_OBJECT(gui.randbutton), "clicked", G_CALLBACK(randomclick), NULL);
+    gtk_table_attach(GTK_TABLE(table), gui.randbutton, 0, 2, 12, 13, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
   }
 
   return table;
 }
 
 void resize(int w, int h) {
-  width = w;
-  height = h;
+  render.width = w;
+  render.height = h;
 
-  if (counts)
-    g_free(counts);
-  counts = g_malloc(sizeof(counts[0]) * width * height);
+  if (render.counts)
+    g_free(render.counts);
+  render.counts = g_malloc(sizeof(render.counts[0]) * render.width * render.height);
 
-  if (pixels)
-    g_free(pixels);
-  pixels = g_malloc(4 * width * height);
+  if (render.pixels)
+    g_free(render.pixels);
+  render.pixels = g_malloc(4 * render.width * render.height);
 
   clear();
 }
@@ -411,7 +431,7 @@ int auto_limit_update_rate(void) {
    * the image changes much less and a very slow frame rate will leave more
    * CPU for calculations.
    */
-  return limit_update_rate(200 / (1 + (log(iterations) - 9.21) * 4));
+  return limit_update_rate(200 / (1 + (log(render.iterations) - 9.21) * 4));
 }
 
 float get_pixel_scale() {
@@ -426,13 +446,13 @@ float get_pixel_scale() {
    *
    * iterations / (width * height) gives us the average density of counts[].
    */
-  density = iterations / (width * height);
+  density = render.iterations / (render.width * render.height);
 
   /* fscale is a floating point number that, when multiplied by a raw
    * counts[] value, gives values between 0 and 1 corresponding to full
    * white and full black.
    */
-  fscale = (exposure * zoom) / density;
+  fscale = (render.exposure * params.zoom) / density;
 
   /* The very first frame we render will often be very underexposed.
    * If fscale > 0.5, this makes countsclamp negative and we get incorrect
@@ -452,7 +472,7 @@ void fast_update_pixels(int steps) {
    *
    * 'steps' MUST be a power of two!
    */
-  const int rowstride = width * 4;
+  const int rowstride = render.width * 4;
   const int progressive_mask = steps - 1;
   guchar *row;
   guint32 *p;
@@ -470,13 +490,13 @@ void fast_update_pixels(int steps) {
    */
   iscale = (guint32)(fscale * 0xFF000000L);
 
-  row = pixels;
-  count_row = counts;
-  for (y=0; y<height; y++) {
+  row = render.pixels;
+  count_row = render.counts;
+  for (y=0; y<render.height; y++) {
     if ((y & progressive_mask) == progressive_row) {
       p = (guint32*) row;
       count_p = count_row;
-      for (x=0; x<width; x++) {
+      for (x=0; x<render.width; x++) {
 
 	dval = *(count_p++);
 	if (dval > countsclamp)
@@ -488,7 +508,7 @@ void fast_update_pixels(int steps) {
       }
     }
     row += rowstride;
-    count_row += width;
+    count_row += render.width;
   }
 
   progressive_row = (progressive_row + 1) & progressive_mask;
@@ -498,7 +518,7 @@ void update_pixels() {
   /* A slower but higher quality method of converting counts[] to pixels[].
    * This uses floating point math, and doesn't perform any progressive rendering.
    */
-  const int rowstride = width * 4;
+  const int rowstride = render.width * 4;
   guchar *row;
   guint32 *p;
   guint32 gray;
@@ -507,13 +527,13 @@ void update_pixels() {
   float fscale = get_pixel_scale();
   float luma;
 
-  row = pixels;
-  count_row = counts;
+  row = render.pixels;
+  count_row = render.counts;
 
-  for (y=0; y<height; y++) {
+  for (y=0; y<render.height; y++) {
     p = (guint32*) row;
     count_p = count_row;
-    for (x=0; x<width; x++) {
+    for (x=0; x<render.width; x++) {
 
       luma = *(count_p++) * fscale;
       if (luma > 1)
@@ -523,7 +543,7 @@ void update_pixels() {
       *(p++) = GRAY_TO_RGBA(gray);
     }
     row += rowstride;
-    count_row += width;
+    count_row += render.width;
   }
 }
 
@@ -538,8 +558,8 @@ void update_gui() {
     return;
 
   /* Update the iteration counter */
-  iters = g_strdup_printf("Iterations:\n%.3e\n\nmax density:\n%d", iterations, countsMax);
-  gtk_label_set_text(GTK_LABEL(iterl), iters);
+  iters = g_strdup_printf("Iterations:\n%.3e\n\nmax density:\n%d", render.iterations, render.currentDensity);
+  gtk_label_set_text(GTK_LABEL(gui.iterl), iters);
   g_free(iters);
 
   /* Update our pixels[] from counts[], 1/4 of the rows at a time */
@@ -550,15 +570,15 @@ void update_gui() {
 
 void update_drawing_area() {
   /* Update our drawing area */
-  gdk_draw_rgb_32_image(drawing_area->window, gc,
-			0, 0, width, height, GDK_RGB_DITHER_NORMAL,
-			pixels, width * 4);
+  gdk_draw_rgb_32_image(gui.drawing_area->window, gui.gc,
+			0, 0, render.width, render.height, GDK_RGB_DITHER_NORMAL,
+			render.pixels, render.width * 4);
 }
 
 void clear() {
-  memset(counts, 0, width * height * sizeof(int));
-  countsMax = 0;
-  iterations = 0;
+  memset(render.counts, 0, render.width * render.height * sizeof(int));
+  render.currentDensity = 0;
+  render.iterations = 0;
   point.x = ((float) rand()) / RAND_MAX;
   point.y = ((float) rand()) / RAND_MAX;
 }
@@ -568,30 +588,30 @@ void run_iterations(int count) {
   unsigned int i, ix, iy;
   guint *p;
   guint d;
-  const double xcenter = width / 2.0;
-  const double ycenter = height / 2.0;
-  const double scale = xcenter / 2.5 * zoom;
+  const double xcenter = render.width / 2.0;
+  const double ycenter = render.height / 2.0;
+  const double scale = xcenter / 2.5 * params.zoom;
 
   for(i=count; i; --i) {
-    x = sin(a * point.y) - cos(b * point.x);
-    y = sin(c * point.x) - cos(c * point.y);
+    x = sin(params.a * point.y) - cos(params.b * point.x);
+    y = sin(params.c * point.x) - cos(params.c * point.y);
     point.x = x;
     point.y = y;
 
-    ix = (int)((x + xoffset) * scale + xcenter);
-    iy = (int)((y + yoffset) * scale + ycenter);
+    ix = (int)((x + params.xoffset) * scale + xcenter);
+    iy = (int)((y + params.yoffset) * scale + ycenter);
 
     /* Clip to the size of our image. Note that ix and iy are
      * unsigned, so we only have to make one comparison each.
      */
-    if (ix < width && iy < height) {
-      p = counts + ix + width * iy;
+    if (ix < render.width && iy < render.height) {
+      p = render.counts + ix + render.width * iy;
       d = *p = *p + 1;
-      if (d > countsMax)
-	countsMax = d;
+      if (d > render.currentDensity)
+	render.currentDensity = d;
     }
   }
-  iterations += count;
+  render.iterations += count;
 }
 
 int interactive_idle_handler(gpointer user_data) {
@@ -609,28 +629,28 @@ gboolean expose(GtkWidget *widget, GdkEventExpose *event, gpointer user_data) {
 }
 
 gboolean deletee(GtkWidget *widget, GdkEvent *event, gpointer user_data) {
-  g_source_remove(idler);
+  g_source_remove(gui.idler);
   gtk_main_quit();
 }
 
 void startclick(GtkWidget *widget, gpointer user_data) {
-  gtk_widget_set_sensitive(stop, TRUE);
-  gtk_widget_set_sensitive(start, FALSE);
+  gtk_widget_set_sensitive(gui.stop, TRUE);
+  gtk_widget_set_sensitive(gui.start, FALSE);
   clear();
-  a = gtk_spin_button_get_value(GTK_SPIN_BUTTON(as));
-  b = gtk_spin_button_get_value(GTK_SPIN_BUTTON(bs));
-  c = gtk_spin_button_get_value(GTK_SPIN_BUTTON(cs));
-  d = gtk_spin_button_get_value(GTK_SPIN_BUTTON(ds));
-  zoom = gtk_spin_button_get_value(GTK_SPIN_BUTTON(zs));
-  xoffset = gtk_spin_button_get_value(GTK_SPIN_BUTTON(xos));
-  yoffset = gtk_spin_button_get_value(GTK_SPIN_BUTTON(yos));
-  idler = g_idle_add(interactive_idle_handler, NULL);
+  params.a = gtk_spin_button_get_value(GTK_SPIN_BUTTON(gui.as));
+  params.b = gtk_spin_button_get_value(GTK_SPIN_BUTTON(gui.bs));
+  params.c = gtk_spin_button_get_value(GTK_SPIN_BUTTON(gui.cs));
+  params.d = gtk_spin_button_get_value(GTK_SPIN_BUTTON(gui.ds));
+  params.zoom = gtk_spin_button_get_value(GTK_SPIN_BUTTON(gui.zs));
+  params.xoffset = gtk_spin_button_get_value(GTK_SPIN_BUTTON(gui.xos));
+  params.yoffset = gtk_spin_button_get_value(GTK_SPIN_BUTTON(gui.yos));
+  gui.idler = g_idle_add(interactive_idle_handler, NULL);
 }
 
 void stopclick(GtkWidget *widget, gpointer user_data) {
-  gtk_widget_set_sensitive(stop, FALSE);
-  gtk_widget_set_sensitive(start, TRUE);
-  g_source_remove(idler);
+  gtk_widget_set_sensitive(gui.stop, FALSE);
+  gtk_widget_set_sensitive(gui.start, TRUE);
+  g_source_remove(gui.idler);
 }
 
 void param_spinner_changed(GtkWidget *widget, gpointer user_data) {
@@ -639,20 +659,20 @@ void param_spinner_changed(GtkWidget *widget, gpointer user_data) {
 }
 
 void exposure_changed(GtkWidget *widget, gpointer user_data) {
-  exposure = gtk_spin_button_get_value(GTK_SPIN_BUTTON(ls));
+  render.exposure = gtk_spin_button_get_value(GTK_SPIN_BUTTON(gui.ls));
   fast_update_pixels(1);
   update_drawing_area();
 }
 
-float generateRandomParameter() {
+float generate_random_param() {
   return ((float) rand()) / RAND_MAX * 12 - 6;
 }
 
 void randomclick(GtkWidget *widget, gpointer user_data) {
-  gtk_spin_button_set_value(GTK_SPIN_BUTTON(as), generateRandomParameter());
-  gtk_spin_button_set_value(GTK_SPIN_BUTTON(bs), generateRandomParameter());
-  gtk_spin_button_set_value(GTK_SPIN_BUTTON(cs), generateRandomParameter());
-  gtk_spin_button_set_value(GTK_SPIN_BUTTON(ds), generateRandomParameter());
+  gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui.as), generate_random_param());
+  gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui.bs), generate_random_param());
+  gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui.cs), generate_random_param());
+  gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui.ds), generate_random_param());
 
   stopclick(widget, user_data);
   startclick(widget, user_data);
@@ -668,10 +688,12 @@ gchar* save_parameters() {
 			 "xoffset = %f\n"
 			 "yoffset = %f\n"
 			 "exposure = %f\n",
-			 a, b, c, d, zoom, xoffset, yoffset, exposure);
+			 params.a, params.b, params.c, params.d,
+			 params.zoom, params.xoffset, params.yoffset,
+			 render.exposure);
 }
 
-void load_parameters(const gchar *params) {
+void load_parameters(const gchar *paramstring) {
   /* Load all recognized parameters from a string given in the same
    * format as the one produced by save_parameters()
    */
@@ -680,7 +702,7 @@ void load_parameters(const gchar *params) {
   float value;
 
   /* Make a copy of the parameters, since we'll be modifying it */
-  copy = g_strdup(params);
+  copy = g_strdup(paramstring);
 
   /* Iterate over lines... */
   line = copy;
@@ -698,21 +720,21 @@ void load_parameters(const gchar *params) {
 
       /* We found a valid key/value line.. see if we recognize the key */
       if (!strcmp(key, "a"))
-	a = value;
+	params.a = value;
       else if (!strcmp(key, "b"))
-	b = value;
+	params.b = value;
       else if (!strcmp(key, "c"))
-	c = value;
+	params.c = value;
       else if (!strcmp(key, "d"))
-	d = value;
+	params.d = value;
       else if (!strcmp(key, "zoom"))
-	zoom = value;
+	params.zoom = value;
       else if (!strcmp(key, "xoffset"))
-	xoffset = value;
+	params.xoffset = value;
       else if (!strcmp(key, "yoffset"))
-	yoffset = value;
+	params.yoffset = value;
       else if (!strcmp(key, "exposure"))
-	exposure = value;
+	render.exposure = value;
       else
 	printf(" (unrecognized)");
 
@@ -744,8 +766,8 @@ void save_to_file(const char *name) {
   /* Get a higher quality rendering */
   update_pixels();
 
-  pixbuf = gdk_pixbuf_new_from_data(pixels, GDK_COLORSPACE_RGB, TRUE,
-				    8, width, height, width*4, NULL, NULL);
+  pixbuf = gdk_pixbuf_new_from_data(render.pixels, GDK_COLORSPACE_RGB, TRUE,
+				    8, render.width, render.height, render.width*4, NULL, NULL);
 
   /* Save our current parameters in a tEXt chunk, using a format that
    * is both human-readable and easy to load parameters from automatically.
@@ -782,7 +804,7 @@ void saveclick(GtkWidget *widget, gpointer user_data) {
 #if (GTK_MAJOR_VERSION > 2) || (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 3)
   GtkWidget *dialog, *preview;
 
-  dialog = gtk_file_chooser_dialog_new("Save", GTK_WINDOW(window), GTK_FILE_CHOOSER_ACTION_SAVE,
+  dialog = gtk_file_chooser_dialog_new("Save", GTK_WINDOW(gui.window), GTK_FILE_CHOOSER_ACTION_SAVE,
   				       GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
 				       GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
 				       NULL);
