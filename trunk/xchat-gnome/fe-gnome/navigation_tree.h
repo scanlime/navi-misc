@@ -107,11 +107,11 @@ GType navigation_model_get_type (void) G_GNUC_CONST;
 NavModel* navigation_model_new  (void);
 
 /* Add/remove server/channel functions. */
-void navigation_model_add_new_network (NavModel *model, struct session *sess);
-void navigation_model_add_new_channel (NavModel *model, struct session *sess);
-void navigation_model_remove          (NavModel *model, struct session *sess);
+void navigation_model_add_new_network  (NavModel *model, struct session *sess);
+void navigation_model_add_new_channel  (NavModel *model, struct session *sess);
+void navigation_model_remove           (NavModel *model, struct session *sess);
 
-void navigation_model_get_iter        (NavModel *model, GtkTreeIter *iter, struct session *sess);
+GtkTreeIter* navigation_model_get_iter (NavModel *model, struct session *sess);
 
 G_END_DECLS
 
