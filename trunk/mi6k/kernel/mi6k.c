@@ -370,6 +370,8 @@ static ssize_t mi6k_lirc_read(struct file *file, char *buffer, size_t count, lof
 	DECLARE_WAITQUEUE(wait, current);
 	struct usb_mi6k *dev = (struct usb_mi6k *)file->private_data;
 	int retval = 0;
+	lirc_t value;
+	int available;
 
 	/* lock this object */
 	down (&dev->sem);
@@ -380,18 +382,9 @@ static ssize_t mi6k_lirc_read(struct file *file, char *buffer, size_t count, lof
 		goto exit;
 	}
 
-	/* We only support read sizes that are a multiple of sizeof(lirc_t) */
-	if (count % sizeof(lirc_t) != 0) {
-		retval = -EINVAL;
-		goto exit;
-	}
-
 	/* If there's no data available yet, release our lock temporarily and
 	 * block the process until there is data available.
 	 */
-	dbg("available = %d", mi6k_ir_rx_available(dev));
-
-	/*
 	if (!mi6k_ir_rx_available(dev)) {
 		add_wait_queue(&dev->ir_rx_wait, &wait);
 		current->state = TASK_INTERRUPTIBLE;
@@ -415,19 +408,20 @@ static ssize_t mi6k_lirc_read(struct file *file, char *buffer, size_t count, lof
 		current->state = TASK_RUNNING;
 		remove_wait_queue(&dev->ir_rx_wait, &wait);
 	}
-	*/
+	if (retval != 0)
+		goto exit;
 
-	/* If we're still running successfully, start shuffling values from
-	 * the ring buffer into the process' provided userspace buffer.
-	 */
-	/*
-	if (retval == 0) {
-		while (count > 0 && mi6k_ir_rx_available(dev)
-
-
-
+	/* Shuffle values from the ring buffer into the process' provided userspace buffer */
+	available = mi6k_ir_rx_available(dev);
+	while (count >= sizeof(value) && available > 0) {
+		if (copy_to_user(buffer, &value, sizeof(value))) {
+			retval = -EFAULT;
+			goto exit;
+		}
+		buffer += sizeof(value);
+		count -= sizeof(value);
+		available--;
 	}
-	*/
 
 exit:
 	/* unlock the device */
@@ -624,6 +618,7 @@ static void * mi6k_probe(struct usb_device *udev, unsigned int ifnum, const stru
 	dev->udev = udev;
 	dev->interface = interface;
 	dev->minor = minor;
+	init_waitqueue_head(&dev->ir_rx_wait);
 
 	/* Initialize the devfs node for this device and register it */
 	sprintf(name, MI6K_DEV_NAMEFORMAT, dev->minor);
