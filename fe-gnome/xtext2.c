@@ -113,6 +113,7 @@ struct _XText2Private
   /* view settings */
   gboolean     indent;               /* indent text? */
   gboolean     show_separator;       /* show the separator bar? */
+  gboolean     thinline;             /* thin separator bar? */
   GdkColor     tint;                 /* tint color */
   gboolean     word_wrap;            /* wrap words? */
   int          fontsize;             /* width in pixels of the space ' ' character */
@@ -158,6 +159,7 @@ struct _XText2Private
   gboolean     parsing_backcolor;
   gboolean     render_hilights_only;
   gboolean     indent_changed;
+  gboolean     moving_separator;     /* moving the separator bar? */
   gboolean     auto_indent;          /* automatically change indent */
   gboolean     skip_stamp;           /* skip timestamp */
   gboolean     add_io_tag;           /* "" when adding new text */
@@ -332,6 +334,7 @@ xtext2_init (XText2 *xtext)
   xtext->priv->show_separator = TRUE;
   xtext->priv->word_wrap = TRUE;
   xtext->priv->pixel_offset = 0;
+  xtext->priv->thinline = TRUE;
   xtext->priv->clip_x = 0;
   xtext->priv->clip_x2 = 1000000;
   xtext->priv->clip_y = 0;
@@ -1297,7 +1300,49 @@ render_str (XText2 *xtext, XTextFormat *f, int y, textentry *ent, unsigned char 
 
       switch (str[i])
       {
-	/* FIXME */
+	case '\n':
+	  break;
+	case ATTR_REVERSE:
+	  x += render_flush (xtext, x, y, pstr, j, gc, ent->multibyte);
+	  pstr += j + 1;
+	  j = 0;
+	  tmp = xtext->priv->col_fore;
+	  xtext->priv->col_fore = xtext->priv->col_back;
+	  xtext->priv->col_back = tmp;
+	  if (!mark)
+	  {
+	    set_fg (xtext, gc, xtext->priv->col_fore);
+	    set_bg (xtext, gc, xtext->priv->col_fore);
+	  }
+	  if (xtext->priv->col_back != 19)
+	    xtext->priv->backcolor = TRUE;
+          else
+	    xtext->priv->backcolor = FALSE;
+	  break;
+	case ATTR_BOLD:
+	  x += render_flush (xtext, x, y, pstr, j, gc, ent->multibyte);
+	  xtext->priv->bold = !xtext->priv->bold;
+	  pstr += j + 1;
+	  j = 0;
+	  break;
+	case ATTR_UNDERLINE:
+	  x += render_flush (xtext, x, y, pstr, j, gc, ent->multibyte);
+	  xtext->priv->underline = !xtext->priv->underline;
+	  pstr += j + 1;
+	  j = 0;
+	  break;
+	case ATTR_RESET:
+	  x += render_flush (xtext, x, y, pstr, j, gc, ent->multibyte);
+	  pstr += j + 1;
+	  j = 0;
+	  reset (xtext, mark, !xtext->priv->in_hilight);
+	  break;
+	case ATTR_COLOR:
+	  x += render_flush (xtext, x, y, pstr, j, gc, ent->multibyte);
+	  xtext->priv->parsing_color = TRUE;
+	  pstr += j + 1;
+	  j = 0;
+	  break;
 	default:
 	  tmp = charlen (str + i);
 	  /* invalid utf8 safeguard */
@@ -1619,6 +1664,9 @@ draw_sep (XText2 *xtext, int y)
 {
   int x, height;
   GdkGC *light, *dark;
+  XTextFormat *f;
+
+  f = g_hash_table_lookup (xtext->priv->buffer_info, xtext->priv->current_buffer);
 
   if (y == -1)
   {
@@ -1636,14 +1684,90 @@ draw_sep (XText2 *xtext, int y)
     light = xtext->priv->light_gc;
     dark  = xtext->priv->dark_gc;
 
-    /* x = indent */
+     x = f->indent - ((xtext->priv->spacewidth + 1) / 2);
+     if (x < 1)
+       return;
+     if (xtext->priv->thinline)
+     {
+       if (xtext->priv->moving_separator)
+	 gdk_draw_line (xtext->priv->draw_buffer, light, x, y, x, y + height);
+       else
+	 gdk_draw_line (xtext->priv->draw_buffer, xtext->priv->thin_gc, x, y, x, y + height);
+     }
+     else
+     {
+       if (xtext->priv->moving_separator)
+       {
+	 gdk_draw_line (xtext->priv->draw_buffer, light, x - 1, y, x - 1, y + height);
+	 gdk_draw_line (xtext->priv->draw_buffer, dark, x, y, x, y + height);
+       }
+       else
+       {
+	 gdk_draw_line (xtext->priv->draw_buffer, dark, x - 1, y, x - 1, y + height);
+	 gdk_draw_line (xtext->priv->draw_buffer, light, x, y, x, y + height);
+       }
+     }
   }
 }
 
 static textentry*
 nth (XText2 *xtext, int line, int *subline)
 {
-  /* FIXME */
+  int lines = 0;
+  textentry *ent;
+  XTextFormat *f;
+
+  f = g_hash_table_lookup (xtext->priv->buffer_info, xtext->priv->current_buffer);
+
+  ent = f->wrapped_first;
+
+  /* --optimization-- try to make a short-cut using the pagetop ent */
+  if (f->pagetop)
+  {
+    if (line == f->pagetop_line)
+    {
+      *subline = f->pagetop_subline;
+      return f->pagetop;
+    }
+    else if (line > f->pagetop_line)
+    {
+      /* start from the pagetop instead of the absolute beginning */
+      ent = f->pagetop;
+      lines = f->pagetop_line - f->pagetop_subline;
+    }
+    else if (line > f->pagetop_line - line)
+    {
+      /* move backwards from pagetop */
+      ent = f->pagetop;
+      lines = f->pagetop_line - f->pagetop_subline;
+
+      while (1)
+      {
+	if (line <= lines)
+	{
+	  *subline = line - lines;
+	  return ent;
+	}
+	ent = ent->prev;
+	if (!ent)
+	  break;
+	lines -= ent->lines_taken;
+      }
+      return NULL;
+    }
+  }
+
+  while (ent)
+  {
+    lines += ent->lines_taken;
+    if (lines > line)
+    {
+      *subline = ent->lines_taken - (lines - line);
+      return ent;
+    }
+    ent = ent->next;
+  }
+
   return NULL;
 }
 
