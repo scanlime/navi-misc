@@ -135,22 +135,14 @@ on_load_plugin_clicked (GtkButton *button, gpointer user_data)
 
 	/* Ooooh... something's highlighted... */
   if (gtk_tree_selection_get_selected (selection, &model, &iter)) {
-    char *buf;
-
 		/* Yay! We got a filename! */
     gtk_tree_model_get (model, &iter, 3, &filename, -1);
-    buf = malloc (strlen (filename) + 9);
 
-		/* Use the /LOAD command to load the plugin, rather than rewriting all that code
-		 * ourselves, aren't we clever.
+		/* Ya know what's more clever than using /LOAD to load the plugin?
+		 * using the plugin_load function provided by the core... way to go
+		 * evan, you dumbass.
 		 */
-    if (strchr (filename, ' '))
-      snprintf (buf, strlen (filename) + 9, "LOAD \"%s\"", filename);
-    else
-      snprintf (buf, strlen (filename) + 9, "LOAD %s", filename);
-
-    handle_command (gui.current_session, buf, FALSE);
-    free (buf);
+		plugin_load (gui.current_session, filename, NULL);
   }
 }
 
@@ -168,23 +160,9 @@ on_unload_plugin_clicked (GtkButton *button, gpointer user_data)
   selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
 
   if (gtk_tree_selection_get_selected (selection, &model, &iter)) {
-    char *buf;
-
-		/* With the exception of the larger buffer size and the addition of the letters
-		 * U and N here, this function is the same as the one just above it. I'm sure
-		 * you can figure it out.
-		 */
     gtk_tree_model_get (model, &iter, 3, &filename, -1);
-    buf = malloc (strlen (filename) + 10);
-
-    if (strchr (filename, ' '))
-      snprintf (buf, strlen (filename) + 10, "UNLOAD \"%s\"", filename);
-    else
-      snprintf (buf, strlen (filename) + 10, "UNLOAD %s", filename);
-
-    handle_command (gui.current_session, buf, FALSE);
-    free (buf);
-
+		if (plugin_kill (filename, TRUE) == 1)
+			gtk_list_store_set (GTK_LIST_STORE (model), &iter, 4, FALSE, -1);
   }
 }
 
