@@ -65,6 +65,8 @@ void on_help_about_menu_activate(GtkWidget *widget, gpointer data);
 
 void on_text_entry_activate(GtkWidget *widget, GdkEventKey *event, gpointer data);
 
+gboolean on_resize(GtkWidget *widget, GdkEventConfigure *event, gpointer data);
+
 void initialize_main_window() {
 	GtkWidget *entry;
 
@@ -109,7 +111,13 @@ void initialize_main_window() {
 }
 
 void run_main_window() {
+	int width, height;
+
+	preferences_get_main_window_size(&width, &height);
 	gtk_widget_show_all(GTK_WIDGET(gui.main_window));
+	if(!(width == 0 || height == 0))
+		gtk_window_set_default_size(GTK_WINDOW(gui.main_window), width, height);
+	g_signal_connect(G_OBJECT(gui.main_window), "configure-event", G_CALLBACK(on_resize), NULL);
 }
 
 void on_irc_connect_menu_activate(GtkWidget *widget, gpointer data) {
@@ -244,4 +252,9 @@ void on_text_entry_activate(GtkWidget *widget, GdkEventKey *event, gpointer data
 		handle_multiline(gui.current_session, entry_text, TRUE, FALSE);
 		gtk_text_buffer_set_text(buffer, "", -1);
 	}
+}
+
+gboolean on_resize(GtkWidget *widget, GdkEventConfigure *event, gpointer data) {
+	preferences_set_main_window_size(event->width, event->height);
+	return FALSE;
 }

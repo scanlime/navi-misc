@@ -1,5 +1,6 @@
 #include <gnome.h>
 #include "channel_list.h"
+#include "preferences.h"
 
 static GSList *chanlists = NULL;
 
@@ -43,6 +44,11 @@ static void chanlist_selected(GtkTreeSelection *selection, channel_list_window *
 	gtk_widget_set_sensitive(button, gtk_tree_selection_get_selected(selection, NULL, NULL));
 }
 
+static gboolean chanlist_resize(GtkWidget *widget, GdkEventConfigure *event, gpointer data) {
+	preferences_set_channel_list_window_size(event->width, event->height);
+	return FALSE;
+}
+
 void create_channel_list(session *sess) {
 	channel_list_window *win;
 	GtkWidget *treeview, *widget;
@@ -50,6 +56,7 @@ void create_channel_list(session *sess) {
 	GtkTreeViewColumn *channel_c, *users_c, *topic_c;
 	GtkSizeGroup *group;
 	GtkTreeSelection *select;
+	int width, height;
 
 	if(sess == NULL)
 		return;
@@ -87,7 +94,7 @@ void create_channel_list(session *sess) {
 	gtk_widget_set_sensitive(widget, FALSE);
 	g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(chanlist_join), win);
 
-	win->store = gtk_list_store_new(4, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_POINTER);
+	win->store = gtk_list_store_new(5, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_POINTER, G_TYPE_INT);
 	win->sort = GTK_TREE_MODEL_SORT(gtk_tree_model_sort_new_with_model(GTK_TREE_MODEL(win->store)));
 	gtk_tree_view_set_model(GTK_TREE_VIEW(treeview), GTK_TREE_MODEL(win->sort));
 	gtk_tree_view_set_headers_clickable(GTK_TREE_VIEW(treeview), TRUE);
@@ -100,7 +107,7 @@ void create_channel_list(session *sess) {
 	users_r = gtk_cell_renderer_text_new();
 	users_c = gtk_tree_view_column_new_with_attributes("Users", users_r, "text", 1, NULL);
 	gtk_tree_view_column_set_resizable(users_c, TRUE);
-	gtk_tree_view_column_set_sort_column_id(users_c, 1);
+	gtk_tree_view_column_set_sort_column_id(users_c, 4);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), users_c);
 	topic_r = gtk_cell_renderer_text_new();
 	topic_c = gtk_tree_view_column_new_with_attributes("Topic", topic_r, "text", 2, NULL);
@@ -132,6 +139,14 @@ void create_channel_list(session *sess) {
 	gtk_tree_selection_set_mode(select, GTK_SELECTION_SINGLE);
 	g_signal_connect(G_OBJECT(select), "changed", G_CALLBACK(chanlist_selected), win);
 
+
+	widget = glade_xml_get_widget(win->xml, "window 1");
+	gtk_widget_show_all(widget);
+	preferences_get_channel_list_window_size(&width, &height);
+	if(!(width == 0 || height == 0))
+		gtk_window_resize(GTK_WINDOW(widget), width, height);
+	g_signal_connect(G_OBJECT(widget), "configure-event", G_CALLBACK(chanlist_resize), NULL);
+
 	g_slist_append(chanlists, win);
 }
 
@@ -142,6 +157,7 @@ void channel_list_append(server *serv, char *channel, char *users, char *topic) 
 	GtkTreeIter iter;
 	GSList *element;
 	channel_list_window *win;
+	int nusers;
 
 	element = g_slist_find_custom(chanlists, serv, (GCompareFunc) chanlist_compare_p);
 	if(element == NULL)
@@ -152,8 +168,10 @@ void channel_list_append(server *serv, char *channel, char *users, char *topic) 
 	sort = GTK_TREE_MODEL_SORT(gtk_tree_view_get_model(GTK_TREE_VIEW(treeview)));
 	store = GTK_LIST_STORE(gtk_tree_model_sort_get_model(sort));
 
+	nusers = atoi(users);
+
 	gtk_list_store_append(store, &iter);
-	gtk_list_store_set(store, &iter, 0, channel, 1, users, 2, topic, 3, serv, -1);
+	gtk_list_store_set(store, &iter, 0, channel, 1, users, 2, topic, 3, serv, 4, nusers, -1);
 }
 
 void repopulate_channel_list(channel_list_window *win) {
