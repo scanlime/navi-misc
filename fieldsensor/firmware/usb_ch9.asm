@@ -39,9 +39,9 @@
 ;
 ;################################################################################
 
-#include <p16C765.inc>
+#include <p16C745.inc>
 #include "usb_defs.inc"
-#include "../include/fieldsensor_protocol.h"
+#include "../include/efs_protocol.h"
 
 	errorlevel -302		; supress "register not in bank0, check page bits" message
 
