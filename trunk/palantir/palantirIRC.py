@@ -34,23 +34,28 @@ class PalantirClient(irc.IRCClient):
     for channel in self.factory.channels:
       self.join(channel)
 
+  def joined(self, channel):
+    ''' When we join a channel get a list of who is in the channel. '''
+    self.sendLine('WHO ' + channel)
+    self.factory.ui.messageReceive(None, channel, 'Joined ' + channel)
+
+  def irc_RPL_WHOREPLY(self, prefix, params):
+    ''' When we get a reply from a WHO query send the nick and channel to the ui. '''
+    self.factory.ui.AddUserToList(params[5], params[1])
+
+  def noticed(self, user, channel, message):
+    self.factory.ui.messageReceive(user, channel, message)
+
   def privmsg(self, user, channel, msg):
     ''' Called when a private message is recieved. '''
-    if self.factory.ui:
-      self.factory.ui.messageReceive(user, channel, msg)
-    else:
-      print '<', user, '>', msg, '\n'
+    self.factory.ui.messageReceive(user, channel, msg)
 
   def action(self, user, channel, msg):
     ''' Called when someone emotes something. '''
-    if self.factory.ui:
-      self.factory.ui.meReceive(user, channel, msg)
-    else:
-      print '*', user, ' ', msg, '\n'
+    self.factory.ui.meReceive(user, channel, msg)
 
-  #def irc_NICK(self, prefix, params):
-    #if self.factory.ui:
-      #self.factory.ui.nickReceive(params[0])
+  def topicUpdated(self, user, channel, newTopic):
+    self.factory.ui.SetTopic(user, channel, newTopic)
 
 class PalantirClientFactory(protocol.ClientFactory):
   ''' Factory to create the IRC client.  The factory will be used as an interface
@@ -107,6 +112,9 @@ class PalantirClientFactory(protocol.ClientFactory):
     self.nickname = nick
     if hasattr(self, 'client'):
       self.client.setNick(self.nickname)
+
+  def topic(self, channel, topic):
+    self.client.topic(channel, topic)
 
 
 # Just for a little testing.
