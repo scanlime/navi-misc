@@ -10,7 +10,8 @@ INCLUDES =						\
 	-I$(top_builddir)/calendar/libical/src/libical	\
 	-I$(top_srcdir)/addressbook			\
 	-I$(top_builddir)/addressbook			\
-	$(EVOLUTION_CALENDAR_CFLAGS)
+	$(EVOLUTION_CALENDAR_CFLAGS)			\
+	$(SOUP_CFLAGS)
 
 noinst_LTLIBRARIES = libecalbackendweather.la
 
@@ -23,5 +24,6 @@ libecalbackendweather_la_SOURCES =	\
 	e-weather-source-ccf.h
 
 libecalbackendweather_la_LIBADD =	\
-	$(top_builddir)/calendar/libedata-cal/libedata-cal.la
+	$(top_builddir)/calendar/libedata-cal/libedata-cal.la	\
+	$(SOUP_LIBS)
 
