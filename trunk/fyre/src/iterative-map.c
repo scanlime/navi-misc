@@ -36,6 +36,7 @@ enum {
 static void iterative_map_class_init(IterativeMapClass *klass);
 static void iterative_map_init(IterativeMap *self);
 static int  iterative_map_idle_handler(gpointer user_data);
+static guint limit_iterations(guint iters);
 
 static guint iterative_map_signals[LAST_SIGNAL] = { 0 };
 
@@ -122,23 +123,32 @@ void iterative_map_calculate_motion(IterativeMap          *self,
     g_signal_emit(G_OBJECT(self), iterative_map_signals[CALCULATION_FINISHED_SIGNAL], 0);
 }
 
+static guint limit_iterations(guint iters)
+{
+    /* Put both upper and lower limits on the number of iters to run
+     * at once- if the iteration count is too low, our next speed estimate
+     * will be way off, and if it's too high we could have problems with
+     * memory allocated per-iteration.
+     */
+    return MAX(MIN(iters, 10000000), 1000);
+}
+
 void iterative_map_calculate_timed(IterativeMap          *self,
 				   double                 seconds) {
     GTimer *timer;
-    gulong elapsed;
+    double elapsed;
     guint iterations;
 
-    iterations = (guint)(self->iter_speed_estimate * seconds + 0.5);
-    if (iterations < 1000)
-	iterations = 1000;
+    iterations = limit_iterations(self->iter_speed_estimate * seconds + 0.5);
     timer = g_timer_new();
     g_timer_start(timer);
 
     iterative_map_calculate(self, iterations);
 
-    g_timer_elapsed(timer, &elapsed);
+    elapsed = g_timer_elapsed(timer, NULL);
     g_timer_destroy(timer);
-    self->iter_speed_estimate = iterations / (elapsed / 1000000.0);
+
+    self->iter_speed_estimate = iterations / elapsed;
 }
 
 void iterative_map_calculate_motion_timed(IterativeMap          *self,
@@ -148,20 +158,19 @@ void iterative_map_calculate_motion_timed(IterativeMap          *self,
 					  gpointer               interp_data) {
 
     GTimer *timer;
-    gulong elapsed;
+    double elapsed;
     guint iterations;
 
-    iterations = (guint)(self->iter_speed_estimate * seconds + 0.5);
-    if (iterations < 1000)
-	iterations = 1000;
+    iterations = limit_iterations(self->iter_speed_estimate * seconds + 0.5);
     timer = g_timer_new();
     g_timer_start(timer);
 
     iterative_map_calculate_motion(self, iterations, continuation, interp, interp_data);
 
-    g_timer_elapsed(timer, &elapsed);
+    elapsed = g_timer_elapsed(timer, NULL);
     g_timer_destroy(timer);
-    self->iter_speed_estimate = iterations / (elapsed / 1000000.0);
+
+    self->iter_speed_estimate = iterations / elapsed;
 }
 
 static int    iterative_map_idle_handler(gpointer user_data)

@@ -70,6 +70,11 @@ enum {
 GType          cluster_model_get_type         ();
 ClusterModel*  cluster_model_new              (IterativeMap*         master_map);
 
+/* Return a new reference to the ClusterModel associated with a particular
+ * IterativeMap, allocating a new one if necessary.
+ */
+ClusterModel*  cluster_model_get              (IterativeMap*         master_map);
+
 RemoteClient*  cluster_model_add_node         (ClusterModel*         self,
 					       const gchar*          hostname,
 					       gint                  port);
