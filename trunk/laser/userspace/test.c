@@ -59,7 +59,7 @@ void enqueue(usb_dev_handle *d, float x, float y, int duration, int coil_enable,
   buffer[3] = iy >> 8;
 
   for (ix=0; ix<64; ix++)
-    buffer[ix] = 0;
+    buffer[ix] = rand();
 
   if (usb_bulk_write(d, 1, buffer, sizeof(buffer), 1000) < 0) {
     perror("usb_bulk_write");

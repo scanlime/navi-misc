@@ -45,8 +45,6 @@ unsigned char i2c_read_byte(bit is_last) {
 }
 
 void dac_write(unsigned char addr, unsigned short value) {
-  printf("%d %04X\n", addr, value);
-
   /* Write a value to the temporary register of the given DAC */
   I2CADR = ((0x4C | (addr<<1)) << 1);  /* Write to the DAC */
   I2CSTA = ERR | S1_4 | TIE;           /* Clear error flag, 400khz mode, no stop condition */
