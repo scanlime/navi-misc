@@ -124,7 +124,7 @@ public class server extends Thread
 	/* get the hostname (probably localhost) */
 	temp = in.read();
 	System.out.println("KEY DONE:\n" + temp);
-	while(temp != 0);
+	while(temp != 0)
 	{
 	    host = host + (char) temp;
 	    temp = in.read();
