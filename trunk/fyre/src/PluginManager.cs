@@ -45,6 +45,7 @@ class PluginManager
 
 		string [] files = Directory.GetFiles (directory, "*.dll");
 
+		// Pull in types from assemblies
 		foreach (string file in files) {
 			try {
 				ArrayList asm_types = FindPluginTypesInFile (file);
@@ -69,6 +70,8 @@ class PluginManager
 		Type [] types = asm.GetTypes ();
 		ArrayList plugin_types = new ArrayList ();
 
+		// Grab Element types. Eventually, we might want to convert this
+		// to just load everything and keep a hash for different plugin hooks
 		foreach (Type type in types)
 			if (type.BaseType == typeof (Element))
 				plugin_types.Add (type);

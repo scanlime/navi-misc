@@ -29,9 +29,8 @@ public abstract class Element
 	abstract public string		Description ();
 	abstract public Gdk.Pixbuf	Icon ();
 
-	/* These are expected to be in pango markup, for any
-	 * necessary subscripts, UTF-8 trickery, etc
-	 */
+	// These are expected to be in pango markup, for any
+	// necessary subscripts, UTF-8 trickery, etc
 	abstract public string[,]	InputDesc ();
 	abstract public string[,]	OutputDesc ();
 }
