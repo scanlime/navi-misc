@@ -129,7 +129,6 @@ class PalantirClientFactory(protocol.ClientFactory):
     else:
       self.channels.append(channel)
     self.client.join(channel)
-    print self.channels
 
   def close(self, channel, reason='Leaving...'):
     self.channels.remove(channel)
