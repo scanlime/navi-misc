@@ -26,7 +26,7 @@ Fixes bug #170266 [http://bugzilla.gnome.org/show_bug.cgi?id=170266] (Doug Quale
 <timestamp>1110923531</timestamp></message>
 """
 
-r = range(40)
+r = range(200)
 start = time.time()
 for i in r:
     m = Message.Message(messageText)
