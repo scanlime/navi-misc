@@ -30,7 +30,10 @@ e_weather_source_ccf_parse (EWeatherSource *source, const char *buffer)
 	/* CCF gives us either 7 or 8 days into the future, depending on whether
 	 * we've fetched the morning or afternoon forecast. There are actually
 	 * 14 data points, but we'll just have to "average" them since there's
-	 * no real way to create a "nighttime" event */
+	 * no real way to create a "nighttime" event. In general, we can just
+	 * display the daytime forecast, and the current day's weather will
+	 * update to be the nighttime version when it fetches the afternoon forecast.
+	 */
 }
 
 static void
