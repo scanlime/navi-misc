@@ -104,15 +104,31 @@ void CPlayerDrawObject::Think ( void )
 }
 
 // camera drawables
-CCameraObject::CBaseDrawable()
+CBaseDrawable* CCameraObjectFactory::New ( CBaseObject* parent )
+{
+	CBaseDrawable* obj = new CCameraDrawObject;
+	obj->Set(parent);
+	return obj;
+
+}
+
+void CCameraObjectFactory::Delete ( CBaseDrawable* object ) 
+{
+	delete(object);
+}
+
+CCameraDrawObject::CCameraDrawObject()
 {
 }
 
-CCameraObject::~CCameraObject()
+CCameraDrawObject::~CCameraDrawObject()
+{
+}
+void CCameraDrawObject::Init ( void )
 {
 }
 
-void CCameraObject::Think ( void )
+void CCameraDrawObject::Think ( void )
 {
 	float pos[3];
 	float rot[3];

@@ -13,6 +13,7 @@
 #include "input.h"
 #include "firestarter.h"
 #include "prefs.h"
+#include "timer.h"
 
 // the drawables for this game
 #include "worldDrawables.h"
@@ -213,6 +214,8 @@ void CTestGame::OnMessage ( CNetworkPeer &peer, CNetworkMessage &message )
 				if (playerID != localPlayer->idNumber)
 					newPlayer = players[playerID];
 
+				newPlayer->updateTime = CTimer::instance().GetTime();
+
 				if (newPlayer->active)
 				{
 					message.ReadV(newPlayer->pos);
@@ -231,3 +234,22 @@ void CTestGame::OnMessage ( CNetworkPeer &peer, CNetworkMessage &message )
 			outMessage.Send(peer,false);
 	}
 }
+
+bool CTestGame::GetPos ( float *pos )
+{
+	if (!localPlayer)
+		return false;
+
+	memcpy(pos,localPlayer->pos,sizeof(float)*3);
+	return true;
+}
+
+bool CTestGame::GetRot ( float *rot )
+{	
+	if (!localPlayer)
+		return false;
+
+	memcpy(rot,localPlayer->rot,sizeof(float)*3);
+		return true;
+}
+
