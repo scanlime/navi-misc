@@ -105,6 +105,7 @@ static int mi6k_ir_rx_available(struct usb_mi6k *dev);
 static void mi6k_ir_rx_push(struct usb_mi6k *dev, lirc_t x);
 static int mi6k_ir_rx_pop(struct usb_mi6k *dev);
 static void mi6k_ir_rx_store(struct usb_mi6k *dev, unsigned char *buffer, size_t count);
+static void mi6k_ir_tx_send(struct usb_mi6k *dev, lirc_t pulse, lirc_t space);
 static int mi6k_open(struct inode *inode, struct file *file);
 static int mi6k_release(struct inode *inode, struct file *file);
 static ssize_t mi6k_dev_write(struct file *file, const char *buffer, size_t count, loff_t *ppos);
@@ -189,6 +190,20 @@ static void mi6k_ir_rx_store(struct usb_mi6k *dev, unsigned char *buffer, size_t
 		count -= sizeof(lirc_t);
 	}
 	wake_up_interruptible(&dev->ir_rx_wait);
+}
+
+static void mi6k_ir_tx_send(struct usb_mi6k *dev, lirc_t pulse, lirc_t space)
+{
+	/* Send a pulse and space to the device synchronously.
+	 * This converts from LIRC's microsecond units to the hardware's ~26.3 microsecond units 
+	 */
+	pulse = (pulse & PULSE_MASK) * 100 / 263;
+	if (pulse > 0xFFFF) pulse = 0xFFFF;
+	space = (space & PULSE_MASK) * 100 / 263;
+	if (space > 0xFFFF) space = 0xFFFF;
+
+	dbg("ir_send %d %d", pulse, space);
+	mi6k_request(dev, MI6K_CTRL_IR_SEND, pulse, space);
 }
 
 
@@ -465,11 +480,10 @@ exit:
 
 static ssize_t mi6k_lirc_write(struct file *file, const char *buffer, size_t count, loff_t *ppos)
 {
-	struct usb_mi6k *dev;
+	struct usb_mi6k *dev = (struct usb_mi6k *)file->private_data;
 	int retval = 0;
-	lirc_t value;
-
-	dev =(struct usb_mi6k *)file->private_data;
+	lirc_t value, pulse;
+	int pulse_flag = 1;
 
 	/* lock this object */
 	down(&dev->sem);
@@ -480,19 +494,37 @@ static ssize_t mi6k_lirc_write(struct file *file, const char *buffer, size_t cou
 		goto exit;
 	}
 
-	/* verify that we actually have some data to write */
-	if (count < sizeof(value)) {
-		dbg("write request of %d bytes", count);
-		retval = count;
-		goto exit;
+	while (count >= sizeof(lirc_t)) {
+		/* Grab a value from userspace */
+		if (copy_from_user(&value, buffer, sizeof(value))) {
+			retval = -EFAULT;
+			goto exit;
+		}
+		retval += sizeof(lirc_t);
+		count -= sizeof(lirc_t);
+		buffer += sizeof(lirc_t);
+
+		if (pulse_flag) {
+			/* We just got a pulse. Store it, but don't send
+			 * anything until we get a corresponding space or we have no more data.
+			 */
+			pulse = value;
+			pulse_flag = 0;
+		}
+		else {
+			/* Send a pulse/space pair */
+			mi6k_ir_tx_send(dev, pulse, value);
+			pulse_flag = 1;
+		}
 	}
 
-	/* grab one lirc_t value at a time to write */
-	if (copy_from_user(&value, buffer, sizeof(value))) {
-		retval = -EFAULT;
-		goto exit;
+	if (!pulse_flag) {
+		/* We ended our write on a pulse, send it with a space of zero */
+		mi6k_ir_tx_send(dev, pulse, 0);
 	}
-	retval = 4;
+
+	/* Ignore any leftover bytes */
+	retval += count;
 
 exit:
 	/* unlock the device */
