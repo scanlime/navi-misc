@@ -10,7 +10,7 @@ void finished (GList *list)
 	do
 	{
 		WeatherForecast *f = data->data;
-		g_print ("%s:\n\t%f/%f\n\t%d\n%d%%\n\n", ctime (&f->curtime), f->high, f->low, f->conditions, f->pop);
+		g_print ("%s\tTemp:\t%f/%f\n\tCond:\t%d\n\tPOP:\t%d%%\n\n", ctime (&f->curtime), f->high, f->low, f->conditions, f->pop);
 	} while (data = g_list_next (data));
 	done = TRUE;
 }
