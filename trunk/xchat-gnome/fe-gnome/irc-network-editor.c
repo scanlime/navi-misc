@@ -20,6 +20,7 @@
  */
 
 #include "irc-network-editor.h"
+#include "error_dialog.h"
 #include <gtk/gtk.h>
 #include <string.h>
 
@@ -472,6 +473,17 @@ apply_changes (IrcNetworkEditor *e)
 	irc_network_save (net);
 }
 
+static gboolean
+check_input (IrcNetworkEditor *editor)
+{
+	if (!strlen (gtk_entry_get_text (GTK_ENTRY (editor->network_name)))) {
+		error_dialog (_("Invalid input"), _("You must enter a network name"));
+		gtk_notebook_set_current_page (GTK_NOTEBOOK (editor->toplevel), 0);
+		gtk_widget_grab_focus (editor->network_name);
+		return FALSE;
+	}
+}
+
 void
 irc_network_editor_run (IrcNetworkEditor *editor)
 {
@@ -479,10 +491,16 @@ irc_network_editor_run (IrcNetworkEditor *editor)
 
 	response = gtk_dialog_run (GTK_DIALOG (editor));
 	while (response == GTK_RESPONSE_APPLY) {
-		apply_changes (editor);
+		if (check_input (editor))
+			apply_changes (editor);
 		response = gtk_dialog_run (GTK_DIALOG (editor));
 	}
-	if (response == GTK_RESPONSE_OK)
-		apply_changes (editor);
+	while (response == GTK_RESPONSE_OK) {
+		if (check_input (editor)) {
+			apply_changes (editor);
+			break;
+		}
+		response = gtk_dialog_run (GTK_DIALOG (editor));
+	}
 	gtk_widget_hide (GTK_WIDGET (editor));
 }
