@@ -13,7 +13,11 @@ class VideoDetector:
         self.read()
 
     def read(self):
-        newActiveList = map(int, self.dev.readline().strip().split(" "))
+        line = self.dev.readline().strip()
+        if line:
+            newActiveList = map(int, line.split(" "))
+        else:
+            newActiveList = []
         for channel in newActiveList:
             if not channel in self.activeList:
                 self.channelOn(channel)
