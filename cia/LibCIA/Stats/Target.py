@@ -106,6 +106,23 @@ class StatsTarget:
         else:
             result.callback('Stats')
 
+    def getMTime(self):
+        """Get the modification time of this stats target, in seconds since the epoch.
+           Currently this ignores metadata changes and reports the lastEventTime of the
+           'forever' event counter. The result will be delivered via a Deferred.
+           """
+        result = defer.Deferred()
+        self.counters.getCounter('forever').addCallback(
+            self._getMTime, result
+            ).addErrback(result.errback)
+        return result
+
+    def _getMTime(self, counter, result):
+        if counter:
+            result.callback(counter['lastEventTime'])
+        else:
+            result.callback(None)
+
     def clear(self):
         """Delete everything associated with this stats target. Returns a Deferred
            indicating the completion of this operation.
