@@ -29,7 +29,7 @@ or IDs to use for new files.
 
 import os, time, sys, cPickle
 from twisted.internet import defer, reactor
-from RioKarma import Request, Metadata
+from RioKarma import Request, Metadata, Progress
 
 
 class AllocationTree:
@@ -280,9 +280,11 @@ class FileManager:
 
     def unlock(self):
         """Release any locks currently held"""
-        result = defer.Deferred()
-        self.protocol.sendRequest(Request.ReleaseIOLock()).addCallback(
-            self._updateStamp, result).addErrback(result.errback)
+        result = Progress.Deferred()
+        self.protocol.sendRequest(Request.ReleaseIOLock()).addStatusback(
+            result.statusback).addCallback(
+            self._updateStamp, result).addErrback(
+            result.errback)
         return result
 
     def _updateStamp(self, retval, result):
@@ -406,12 +408,13 @@ class FileManager:
            Returns a Deferred signalling completion.
            """
         remoteFile.loadMetadataFrom(localFilename)
-        result = defer.Deferred()
+        result = Progress.Deferred()
 
         transfer = ContentTransfer(Request.WriteFileChunk, self.protocol,
                                    remoteFile, open(localFilename, "rb"), blockSize)
 
-        transfer.start().addCallback(
+        transfer.start().addStatusback(
+            result.statusback).addCallback(
             self._updateDetailsAfterLoad, remoteFile, result).addErrback(
             result.errback)
         return result
@@ -425,13 +428,14 @@ class FileManager:
 
     def saveToDisk(self, remoteFile, localFilename, blockSize=None):
         """Save this file's content to disk. Returns a deferred signalling completion."""
-        result = defer.Deferred()
+        result = Progress.Deferred()
 
         dest = open(localFilename, "wb")
         transfer = ContentTransfer(Request.ReadFileChunk, self.protocol,
                                    remoteFile, dest, blockSize)
 
-        transfer.start().addCallback(
+        transfer.start().addStatusback(
+            result.statusback).addCallback(
             self._finishSaveToDisk, dest, result.callback).addErrback(
             self._finishSaveToDisk, dest, result.errback)
         return result
@@ -576,7 +580,7 @@ class ContentTransfer:
         """Begins the transfer, and returns a Deferred signalling its completion"""
         self.offset = 0
         self.remaining = self.remoteFile.details['length']
-        self.result = defer.Deferred()
+        self.result = Progress.Deferred()
         self._next()
         return self.result
 
@@ -608,17 +612,18 @@ class ContentTransfer:
         self.remaining -= chunkLen
         self.offset += chunkLen
 
+        # Send a status update
+        self.result.statusback(self.offset, self.offset + self.remaining,
+                               'bytes', str(self.remoteFile))
+
         if self.remaining <= 0:
             # This is the last one, chain to our deferred and
             # stop setting up transfers.
             d.addCallback(self.result.callback)
             d.addErrback(self._error)
         else:
-            # FIXME: real progress updates should be triggered here
-            d.addCallback(lambda x: sys.stderr.write("."))
-            d.addErrback(self._error)
-
             # Queue up the next block once Protocol thinks we should
+            d.addErrback(self._error)
             self.protocol.throttle(self._next)
 
 ### The End ###

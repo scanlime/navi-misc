@@ -30,9 +30,13 @@ statusback
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
+from __future__ import division
+import sys
+from cStringIO import StringIO
 from twisted.internet import defer
 
-def StatusMixin:
+
+class StatusMixin:
     """This is a mix-in class that implements statusback functionality.
        Status callbacks have four parameters:
 
@@ -56,6 +60,7 @@ def StatusMixin:
         if self.statusbacks is None:
             self.statusbacks = []
         self.statusbacks.append(sb)
+        return self
 
     def statusback(self, completed, total, units=None, name=None):
         if self.statusbacks:
@@ -73,6 +78,7 @@ def StatusMixin:
 class Deferred(StatusMixin, defer.Deferred):
     pass
 
+
 class DeferredList(StatusMixin, defer.DeferredList):
     def __init__(self, deferredList, **kwargs):
         defer.DeferredList.__init__(self, deferredList, **kwargs)
@@ -82,11 +88,146 @@ class DeferredList(StatusMixin, defer.DeferredList):
             index += 1
         self._sbResults = [None] * index
 
-    def statusback(self, completed
+    # FIXME: This won't work, needs a statusback() implementation
+    #        that will aggregate results properly.
 
 def gatherResults(deferredList):
     d = DeferredList(deferredList, fireOnOneErrback=1)
     d.addCallback(defer._parseDListResult)
     return d
+
+
+class Reporter:
+    """This is an abstract base class for objects that can report
+       progress updates to an end user.
+       """
+    def statusback(self, completed, total, units=None, name=None):
+        """This is our interface to the Progress.Deferred,
+           defined here in the subclass to avoid exposing a
+           relatively fragile interface to each UI.
+           """
+        self.completed = completed
+        self.total = total
+        self.units = units
+        self.name = name
+
+        # Extra calculations based on the Deferred-provided raw data
+        self.fraction = max(0, min(1, self.completed / self.total))
+        self.percent = "%3.0f%%" % (self.fraction * 100)
+
+        # Now get the UI to update itself
+        self.update()
+
+    def update(self):
+        """Subclasses must define this to actually deliver
+           the news to a user somehow.
+           """
+        pass
+
+
+class ConsoleReporter(Reporter):
+    """A simple Progress.Reporter implementation for command line use.
+       In order to maintain the console's state cleanly, this can intercept
+       normal output to stdout/stderr and places it above the progress
+       bar.
+       """
+    buffer = ''
+    currentMessage = None
+
+    def __init__(self,
+                 barWidth      = 40,
+                 completedChar = '#',
+                 remainingChar = '-',
+                 spinner       = r"-\|/",
+                 install       = True
+                 ):
+        self.barWidth = barWidth
+        self.completedChar = completedChar
+        self.remainingChar = remainingChar
+        self.spinner = spinner
+
+        if install:
+            self.install()
+
+    def install(self):
+        """Set up this ConsoleReporter to intercept normal stdout/stderr text"""
+        self._savedStdout = sys.stdout
+        self._savedStderr = sys.stderr
+        sys.stdout = self
+        sys.stderr = self
+
+    def uninstall(self):
+        """Reverse the effects of install()"""
+        sys.stdout = self._savedStdout
+        sys.stderr = self._savedStderr
+
+    def write(self, text):
+        """This method receives normal text written to stdout/stderr while
+           this console reporter is installed. It is line buffered, then
+           written out in a progress-bar-safe way.
+           """
+        lines = (self.buffer + text).split("\n")
+        if len(lines) >= 2:
+            # We have at least one complete line to write
+            self.writeLines(lines[:-1])
+            self.buffer = lines[-1]
+        elif len(lines) == 1:
+            # No complete lines, keep this in the buffer
+            self.buffer = lines[0]
+        else:
+            self.buffer = ''
+
+    def writeLines(self, lines):
+        """Write one or more complete lines, without disturbing the progress
+           bar. This must clear the progress bar if there is one, write
+           the lines, then redraw the progress bar.
+           """
+        buffer = StringIO()
+
+        if self.currentMessage is not None:
+            buffer.write('\b' * len(self.currentMessage))
+            buffer.write(' ' * len(self.currentMessage))
+            buffer.write('\b' * len(self.currentMessage))
+
+        for line in lines:
+            buffer.write(line + '\n')
+
+        if self.currentMessage is not None:
+            buffer.write(self.currentMessage)
+
+        self._savedStderr.write(buffer.getvalue())
+
+    def setMessage(self, message):
+        """Replace the currently displayed progress message,
+           erasing the old one first. The message may be
+           None to clear the old without writing a new one.
+           """
+        buffer = StringIO()
+
+        if self.currentMessage is not None:
+            buffer.write('\b' * len(self.currentMessage))
+            buffer.write(' ' * len(self.currentMessage))
+            buffer.write('\b' * len(self.currentMessage))
+
+        self.currentMessage = message
+        if self.currentMessage is not None:
+            buffer.write(self.currentMessage)
+
+        self._savedStderr.write(buffer.getvalue())
+
+    def update(self):
+        completed = int(self.fraction * self.barWidth + 0.5)
+        if completed < self.barWidth:
+            spinnerChar = self.spinner[0]
+            self.spinner = self.spinner[1:] + spinnerChar
+        else:
+            spinnerChar = ''
+
+        self.setMessage("%s %s%s%s %s " % (
+            self.percent,
+            self.completedChar * completed,
+            spinnerChar,
+            self.remainingChar * (self.barWidth - completed - 1),
+            self.name))
 
 ### The End ###
