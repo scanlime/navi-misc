@@ -50,10 +50,7 @@ Web.Template.Page.site_hostingNotice = [
         ],
     ]
 Web.Template.Page.site_mainServerNotice = []
-Web.Template.Page.site_belowLeftColumn = [
-        DonationSection(),
-        Web.Template.SiteSearch(),
-    ]
+Web.Template.Page.site_belowFirstSidebox = [DonationSection()]
 
 
 application = service.Application("cia_server")

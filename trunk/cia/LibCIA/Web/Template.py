@@ -280,6 +280,7 @@ class Page(Nouvelle.Twisted.Page):
 
     # Placeholders for site-specific customization
     site_aboveLeftColumn = []
+    site_belowFirstSidebox = []
     site_belowLeftColumn = [
             SiteSearch(),
         ]
@@ -328,9 +329,7 @@ class Page(Nouvelle.Twisted.Page):
                 # The page body. We really shouldn't still be using a table for this...
                 tag('table', _class="columns")[ tag('tr')[
                     tag('td', _class="left")[
-                        place("site_aboveLeftColumn"),
-                        place("leftColumn"),
-                        place("site_belowLeftColumn"),
+                        place("templateLeftColumn"),
                     ],
                     tag('td', _class="main")[
                         place("mainColumn")
@@ -405,6 +404,17 @@ class Page(Nouvelle.Twisted.Page):
 
         # Otherwise, stick the title and site name together
         result.callback([title, ' - ', siteName])
+
+    def render_templateLeftColumn(self, context):
+        """A sneaky little rendering function that runs render_leftColumn,
+           but then sticks in the site_* modifiers where possible. Note that
+           this won't work if render_leftColumn returns a Deferred, but
+           nothing in the CIA server does this yet.
+           """
+        boxes = (self.site_aboveLeftColumn +
+                 self.render_leftColumn(context) +
+                 self.site_belowLeftColumn)
+        return [boxes[0]] + self.site_belowFirstSidebox + boxes[1:]
 
     def render_siteName(self, context):
         return self.siteName
