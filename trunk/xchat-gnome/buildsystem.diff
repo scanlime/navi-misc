@@ -4,7 +4,7 @@ RCS file: /cvsroot/xchat/xchat2/configure.in,v
 retrieving revision 1.59
 diff -u -r1.59 configure.in
 --- configure.in	7 Apr 2004 06:03:45 -0000	1.59
-+++ configure.in	3 May 2004 22:15:36 -0000
++++ configure.in	3 May 2004 23:16:57 -0000
 @@ -84,9 +84,9 @@
  [  --enable-textfe         build the text frontend (default: no)],
          textfe=$enableval, textfe=no)
@@ -27,7 +27,7 @@ diff -u -r1.59 configure.in
  	zvt=no
  	COMMON_LIBS="$GLIB_LIBS"
  	COMMON_CFLAGS="$GLIB_CFLAGS"
-@@ -171,22 +171,35 @@
+@@ -171,22 +171,37 @@
  GUI_LIBS="$GUI_LIBS $GTK_LIBS"
  GUI_CFLAGS="$GUI_CFLAGS $GTK_CFLAGS"
  
@@ -73,13 +73,15 @@ diff -u -r1.59 configure.in
 +		AC_MSG_RESULT(ok)
 +	fi
 +
-+	AC_PATH_PROG(GCONFTOOL, gconftool-2, no)
-+	AM_GCONF_SOURCE_2
 +fi
++
++# GConf
++AC_PATH_PROG(GCONFTOOL, gconftool-2, no)
++AM_GCONF_SOURCE_2
  
  dnl *********************************************************************
  dnl ** XFT **************************************************************
-@@ -465,6 +478,7 @@
+@@ -465,6 +480,7 @@
  AM_CONDITIONAL(USE_OPENSSL, test "x$openssl" = "xyes")
  AM_CONDITIONAL(DO_TEXT, test "x$textfe" = "xyes")
  AM_CONDITIONAL(DO_GTK, test "x$gtkfe" = "xyes")
@@ -87,7 +89,7 @@ diff -u -r1.59 configure.in
  AM_CONDITIONAL(DO_PERL, test "x$perl" = "xyes")
  AM_CONDITIONAL(DO_PYTHON, test "x$python" = "xyes")
  AM_CONDITIONAL(DO_TCL, test "x$tcl" = "xyes")
-@@ -648,6 +662,8 @@
+@@ -648,6 +664,8 @@
  src/Makefile
  src/common/Makefile
  src/fe-text/Makefile
@@ -96,7 +98,7 @@ diff -u -r1.59 configure.in
  src/fe-gtk/Makefile
  src/pixmaps/Makefile
  plugins/Makefile
-@@ -661,8 +677,9 @@
+@@ -661,8 +679,9 @@
  echo
  echo xchat $VERSION
  echo
