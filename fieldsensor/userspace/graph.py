@@ -36,7 +36,7 @@ def main():
 
     tweaker = Tweak.List([
         Tweak.Quantity(ParamTweaker(efs, 3, default=227), 'value', range=(0,255), name="Period"),
-        Tweak.Quantity(ParamTweaker(efs, 4, default=226), 'value', range=(0,255), name="Phase"),
+        Tweak.Quantity(ParamTweaker(efs, 4, default=233), 'value', range=(0,255), name="Phase"),
         ])
 
     win = gtk.Window(gtk.WINDOW_TOPLEVEL)

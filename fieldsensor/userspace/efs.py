@@ -22,7 +22,7 @@ class FieldSensor:
                 self.setParam(block, 1, xor)      # EFS_PARAM_LC_PORT_XOR
                 self.setParam(block, 2, adcon)    # EFS_PARAM_ADCON_INIT
                 self.setParam(block, 3, 227)      # EFS_PARAM_PERIOD
-                self.setParam(block, 4, 226)      # EFS_PARAM_PHASE
+                self.setParam(block, 4, 233)      # EFS_PARAM_PHASE
                 self.setParam(block, 5, 30)       # EFS_PARAM_NUM_HALF_PERIODS
                 self.setParam(block, 6, 0xFF-xor) # EFS_PARAM_LC_TRIS_INIT
                 self.setParam(block, 7, 0x55)     # EFS_PARAM_LC_PORT_INIT
