@@ -25,6 +25,15 @@ from BZEngine import Event
 import socket, os
 
 
+class LircError(Exception):
+    """An error in communication with lircd"""
+    pass
+
+class LircTransmitError(Exception):
+    """An error in communication with lircd, while transmitting"""
+    pass
+
+
 class Code:
     """An object representing an lircd IR code. Can be constructed from a line
        of the form (hex repeat name remote) as sent over the lircd socket.
@@ -120,5 +129,50 @@ class ButtonPress(Event.Event):
         if self.repeat is not None and self.repeat != code.repeat:
             return
         self()
+
+
+class Transmitter:
+    """A simple class for transmitting IR codes via lircd. Doesn't require
+       an event loop. Runs on a separate socket so this doesn't have to be
+       nonblocking, and so the responses from lircd don't get mixed in
+       with the received codes.
+       """
+    def __init__(self, socketName="/dev/lircd"):
+        # Open the lircd connection
+        self.socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        self.socket.connect(socketName)
+        self.socketf = os.fdopen(self.socket.fileno())
+
+    def sendStart(self, remote, codeName):
+        """Start sending a code repeatedly"""
+        self.write("send_start %s %s\n" % (remote, codeName))
+
+    def sendStop(self, remote, codeName):
+        """Stop sending a code started with sendStart"""
+        self.write("send_stop %s %s\n" % (remote, codeName))
+
+    def sendOnce(self, remote, codeName):
+        """Send a code only once"""
+        self.write("send_once %s %s\n" % (remote, codeName))
+
+    def write(self, command):
+        """Write a preformatted command line to lircd"""
+        os.write(self.socket.fileno(), command)
+
+        # Read the response packet lircd sends back, everything between BEGIN and END
+        response = []
+        while self.socketf.readline().strip() != "BEGIN":
+            pass
+        while True:
+            line = self.socketf.readline().strip()
+            if line == "END":
+                break
+            response.append(line)
+
+        if response[0].strip() != command.strip():
+            raise LircTransmitError("Command was not echoed")
+
+        if response[1] != "SUCCESS":
+            raise LircTransmitError(response[-1])
 
 ### The End ###
