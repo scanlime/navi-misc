@@ -461,11 +461,11 @@ GtkWidget *build_sidebar() {
     add_to_sidebar(table, &row, 1, 2, gui.gamma);
     g_signal_connect(G_OBJECT(gui.gamma), "changed", G_CALLBACK(rendering_param_changed), NULL);
 
-    gui.fgcolor = color_button_new_with_color(&render.fgcolor);
+    gui.fgcolor = color_button_new("Foreground Color", &render.fgcolor);
     add_to_sidebar(table, &row, 1, 2, gui.fgcolor);
     g_signal_connect(G_OBJECT(gui.fgcolor), "changed", G_CALLBACK(rendering_param_changed), NULL);
 
-    gui.bgcolor = color_button_new_with_color(&render.bgcolor);
+    gui.bgcolor = color_button_new("Background Color", &render.bgcolor);
     add_to_sidebar(table, &row, 1, 2, gui.bgcolor);
     g_signal_connect(G_OBJECT(gui.bgcolor), "changed", G_CALLBACK(rendering_param_changed), NULL);
 
