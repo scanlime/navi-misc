@@ -44,12 +44,18 @@ void init_settings() {
   GtkCellRenderer *icon, *text;
   GtkTreeViewColumn *icon_column, *text_column;
   GtkTreeSelection *select;
-  GdkPixbuf *file_transfers, *irc_prefs, *user_interface;
+  GdkPixbuf *file_transfers, *irc_prefs, *servers;
 
   group = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
   widget = glade_xml_get_widget(xml, "dcc transfer destination");
   gtk_size_group_add_widget(group, widget);
   widget = glade_xml_get_widget(xml, "completed dcc destination");
+  gtk_size_group_add_widget(group, widget);
+  g_object_unref(group);
+  group = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
+  widget = glade_xml_get_widget(xml, "download label");
+  gtk_size_group_add_widget(group, widget);
+  widget = glade_xml_get_widget(xml, "completed label");
   gtk_size_group_add_widget(group, widget);
   g_object_unref(group);
 
@@ -67,11 +73,17 @@ void init_settings() {
   g_object_unref(group);
 
   group = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
+  widget = glade_xml_get_widget(xml, "nick name");
+  gtk_size_group_add_widget(group, widget);
+  widget = glade_xml_get_widget(xml, "real name");
+  gtk_size_group_add_widget(group, widget);
   widget = glade_xml_get_widget(xml, "quit message");
   gtk_size_group_add_widget(group, widget);
   widget = glade_xml_get_widget(xml, "part message");
   gtk_size_group_add_widget(group, widget);
   widget = glade_xml_get_widget(xml, "away message");
+  gtk_size_group_add_widget(group, widget);
+  widget = glade_xml_get_widget(xml, "highlight list");
   gtk_size_group_add_widget(group, widget);
   g_object_unref(group);
 
@@ -91,11 +103,14 @@ void init_settings() {
 
   file_transfers = gdk_pixbuf_scale_simple(gdk_pixbuf_new_from_file("data/dcc.png", NULL), 24, 24, GDK_INTERP_BILINEAR);
   irc_prefs = gdk_pixbuf_scale_simple(gdk_pixbuf_new_from_file("data/irc.png", NULL), 24, 24, GDK_INTERP_BILINEAR);
+  servers = gdk_pixbuf_scale_simple(gdk_pixbuf_new_from_file("data/servers.png", NULL), 24, 24, GDK_INTERP_BILINEAR);
 
   gtk_list_store_append(store, &iter);
   gtk_list_store_set(store, &iter, 0, irc_prefs, 1, "IRC Preferences", 2, 0, -1);
   gtk_list_store_append(store, &iter);
-  gtk_list_store_set(store, &iter, 0, file_transfers, 1, "File Transfers", 2, 1, -1);
+  gtk_list_store_set(store, &iter, 0, file_transfers, 1, "File Transfers & DCC", 2, 1, -1);
+  gtk_list_store_append(store, &iter);
+  gtk_list_store_set(store, &iter, 0, servers, 1, "Servers", 2, 2, -1);
 
   notebook = glade_xml_get_widget(xml, "settings notebook");
   gtk_notebook_set_show_tabs(GTK_NOTEBOOK(notebook), FALSE);
