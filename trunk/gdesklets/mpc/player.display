@@ -1,25 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-
-<!-- **********************************************************************
-     * This is the SideCandy template.
-     * You can use the template for your own desklets in SideCandy style.
-     ********************************************************************** -->
+<!-- This display file was shamelessly stolen and modified from the mpc
+     gdesklet created by Jonas Haggqvist.
+	 -->
 
 <display id="win" anchor="ne"
          window-flags="sticky, below">
 
-
-<!-- **********************************************************************
-     * Enter your name and other meta information here:
-     ********************************************************************** -->
-
-  <meta name="SideCandy MPC"
-        version="0.21"
-        preview="gfx/mpc.svg"
-        author="Jonas Haggqvist"
+  <meta name="Moose"
+        version="0.1"
+        preview="images/mpc.svg"
+        author="W. Evan Sheehan"
         category="media/status,media/control"
-        description="SideCandy MPD client"/>
+        description="MPD client"/>
 
 <!-- ********************************************************************** -->
 
@@ -33,66 +26,36 @@
          on-enter="if (sc_behavior == 'enter'): slide(self, SC_IN, SC_OUT)"
          on-leave="if (sc_behavior == 'enter'): slide(self, SC_IN, SC_OUT)">
 
-
-<!-- **********************************************************************
-     * You can change the height of the display here.
-     * But please leave the width as it is to ensure a uniform look between
-     * all SideCandies!
-     ********************************************************************** -->
-
     <group id="panel" width="5cm" height="1.7cm">
 
-<!-- ********************************************************************** -->
-
-
       <!-- the background image -->
-      <group id="bg" width="100%" height="100%" bg-uri="gfx/bg.png"/>
+      <group id="bg" width="100%" height="100%" bg-uri="images/bg.png"/>
 
 
       <group id="icon_group" y="0.1cm" width="1cm">
 
-
-<!-- **********************************************************************
-     * The icon area is a narrow area where SideCandies show an icon or
-     * information in a compressed way. This area is visible when the
-     * display is slid in.
-     ********************************************************************** -->
-
-        <image uri="gfx/mpc.svg" image-width="1cm" image-height="1cm"/>
+        <image uri="images/mpc.svg" image-width="1cm" image-height="1cm"/>
         <label id="lbl_state" anchor="center" x="50%" y="1.3cm" value="Playing" font="Sans 0.20cm" color="black"/>
-
-<!-- ********************************************************************** -->
 
       </group>
 
 
       <group id="info_group" y="0.1cm" width="3.8cm" height="1.5cm">
 
-
-<!-- **********************************************************************
-     * This is the main area of the display.
-     * Put your stuff in here:
-     ********************************************************************** -->
-
         <label id="artist"   font="Sans Bold 0.3cm" color="black"                   value="Artist"/>
         <label id="title"    font="Sans Bold 0.3cm" color="black" y="0.5cm"         value="Songtitle"/>
         <label id="progress" font="Sans Bold 0.4cm" color="black" anchor="se" y="100%"   x="95%" value="--:--"/>
 
-        <image uri="gfx/crystal_prev.png" anchor="sw" y="95%" x="0.0cm" image-width="0.4cm" image-height="0.4cm"
+        <image uri="images/crystal_prev.png" anchor="sw" y="95%" x="0.0cm" image-width="0.4cm" image-height="0.4cm"
                on-click="mpc.prev = 1" id="prevbutton" />
-        <image uri="gfx/crystal_pause.png" anchor="sw" y="95%" x="0.4cm" image-width="0.4cm" image-height="0.4cm"
+        <image uri="images/crystal_pause.png" anchor="sw" y="95%" x="0.4cm" image-width="0.4cm" image-height="0.4cm"
                on-click="playpause()" id="playpause" />
-        <image uri="gfx/crystal_stop.png"  anchor="sw" y="95%" x="0.8cm" image-width="0.4cm" image-height="0.4cm"
+        <image uri="images/crystal_stop.png"  anchor="sw" y="95%" x="0.8cm" image-width="0.4cm" image-height="0.4cm"
                on-click="mpc.stop = 1" id="stopbutton" />
-        <image uri="gfx/crystal_next.png"   anchor="sw" y="95%" x="1.2cm" image-width="0.4cm" image-height="0.4cm"
+        <image uri="images/crystal_next.png"   anchor="sw" y="95%" x="1.2cm" image-width="0.4cm" image-height="0.4cm"
                on-click="mpc.next = 1" id="nextbutton"/>
-        
-
-<!-- ********************************************************************** -->
 
       </group>
-
-    </group>
 
   </group>
 
@@ -192,21 +155,21 @@ def slideout():
             add_timer(slidetime*1000, slidein)
     except:
         pass
-        
+
 def slidein():
     slide(Dsp.slider, SC_IN, SC_OUT)
 
 def updateplaypausebutton():
-    if mpc.state != 'play' and Dsp.playpause.uri == "gfx/%s_pause.png" % (buttontheme):
-        Dsp.playpause.uri = "gfx/%s_play.png" % (buttontheme)
-    elif mpc.state == 'play' and Dsp.playpause.uri != "gfx/%s_pause.png" % (buttontheme):
-        Dsp.playpause.uri = "gfx/%s_pause.png" % (buttontheme)
+    if mpc.state != 'play' and Dsp.playpause.uri == "images/%s_pause.png" % (buttontheme):
+        Dsp.playpause.uri = "images/%s_play.png" % (buttontheme)
+    elif mpc.state == 'play' and Dsp.playpause.uri != "images/%s_pause.png" % (buttontheme):
+        Dsp.playpause.uri = "images/%s_pause.png" % (buttontheme)
 
 def updatebuttons():
-    Dsp.prevbutton.uri = "gfx/%s_prev.png" % (buttontheme)
+    Dsp.prevbutton.uri = "images/%s_prev.png" % (buttontheme)
     updateplaypausebutton()
-    Dsp.stopbutton.uri = "gfx/%s_stop.png" % (buttontheme)
-    Dsp.nextbutton.uri = "gfx/%s_next.png" % (buttontheme)
+    Dsp.stopbutton.uri = "images/%s_stop.png" % (buttontheme)
+    Dsp.nextbutton.uri = "images/%s_next.png" % (buttontheme)
 
 def playpause():
     mpc.playpause = 1
