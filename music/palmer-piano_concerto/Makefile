@@ -5,6 +5,7 @@ BASSOON = 01_allegro_ma_non_troppo/bassoon.ly
 CELLO = 01_allegro_ma_non_troppo/cello.ly
 FLUTE = 01_allegro_ma_non_troppo/flute.ly
 PIANO = 01_allegro_ma_non_troppo/piano.ly
+TEMPO = 01_allegro_ma_non_troppo/tempo.ly
 TEXT = 01_allegro_ma_non_troppo/text.ly
 TIMPANI = 01_allegro_ma_non_troppo/timpani.ly
 
@@ -20,7 +21,7 @@ cello.pdf: cello.ly $(CELLO) $(TEXT)
 flute.pdf: flute.ly $(FLUTE) $(TEXT)
 	lilypond flute.ly
 
-piano.pdf: piano.ly $(PIANO) $(TEXT)
+piano.pdf: piano.ly $(PIANO) $(TEXT) $(TEMPO)
 	lilypond piano.ly
 
 score.pdf: score.ly $(BASS) $(BASSOON) $(CELLO) $(FLUTE) $(PIANO) $(TEXT) $(TIMPANI)
