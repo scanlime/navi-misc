@@ -30,7 +30,7 @@
 #include <linux/usb.h>
 #include <uvswitch_dev.h>
 
-#define DRIVER_VERSION "v0.2"
+#define DRIVER_VERSION "v0.3"
 #define DRIVER_AUTHOR "Micah Dowty <micah@navi.cx>"
 #define DRIVER_DESC "USB Video Switch driver"
 
@@ -60,8 +60,10 @@ struct usb_uvswitch {
 	unsigned char		minor;			/* the starting minor number for this device */
 	int			open_count;		/* number of times this port has been opened */
 
-	struct uvswitch_calibration calibration;	/* Tweakable values for the video detector */
 	struct uvswitch_status	status;			/* Status of the device's switches */
+	int                     status_mode;            /* A MODE_* constant */
+	struct urb*		status_urb;		/* URB for setting switch status */
+	struct usb_ctrlrequest  status_request;
 
 	struct urb*		adc_urb;		/* URB for the video detector A/D converters */
        	unsigned char*		adc_buffer;
@@ -72,6 +74,7 @@ struct usb_uvswitch {
 	int			adc_samples;		/* Number of samples in adc_accumulator */
 	wait_queue_head_t	adc_wait;		/* Processes waiting for video detection input changes */
 	int			adc_change_id;		/* Incremented every time active_inputs changes */
+	struct uvswitch_calibration calibration;	/* Tweakable values for the video detector */
 
 	struct semaphore	sem;			/* locks this structure */
 };
@@ -89,11 +92,18 @@ static DECLARE_MUTEX (disconnect_sem);
 /* 1 second timeout for control requests */
 #define REQUEST_TIMEOUT HZ
 
+/* Switch modes */
+#define MODE_MANUAL     0
+#define MODE_AUTOMATIC  1
+
 
 static int          uvswitch_updateStatus      (struct usb_uvswitch *dev);
 static int          uvswitch_updateCalibration (struct usb_uvswitch *dev);
 static int          uvswitch_initCalibration   (struct usb_uvswitch *dev);
 static void         uvswitch_adc_irq           (struct urb *urb, struct pt_regs *regs);
+static void         uvswitch_status_irq        (struct urb *urb, struct pt_regs *regs);
+static void         uvswitch_updateAutoStatus  (struct usb_uvswitch *dev);
+static int          uvswitch_getFirstActiveChannel(struct usb_uvswitch *dev);
 
 static int          uvswitch_open              (struct inode *inode, struct file *file);
 static int          uvswitch_release           (struct inode *inode, struct file *file);
@@ -138,16 +148,15 @@ static struct usb_driver uvswitch_driver = {
 /************************************************** Device Communications *****/
 /******************************************************************************/
 
-/* Update the device's switches from the current stored status */
+/* Update the device's switches from the current stored status.
+ * Must be callable from process or interrupt context, so it doesn't block until
+ * we get a response to the command.
+ */
 static int uvswitch_updateStatus(struct usb_uvswitch *dev)
 {
-	return usb_control_msg(dev->udev, usb_sndctrlpipe(dev->udev, 0),
-			       UVSWITCH_CTRL_SWITCH, 0x40,
-			       dev->status.video_channel |
-			       (((int)dev->status.bypass_switch)<<8),
-			       dev->status.red_audio_channel |
-			       (((int)dev->status.white_audio_channel)<<8),
-			       NULL, 0, REQUEST_TIMEOUT);
+	dev->status_request.wValue = dev->status.video_channel | (((int)dev->status.bypass_switch)<<8);
+	dev->status_request.wIndex = dev->status.red_audio_channel | (((int)dev->status.white_audio_channel)<<8);
+	return usb_submit_urb(dev->status_urb, GFP_KERNEL);
 }
 
 /* Update the device's ADC settings from our calibration structure */
@@ -234,11 +243,53 @@ static void uvswitch_adc_irq(struct urb *urb, struct pt_regs *regs)
 
 			dev->adc_change_id++;
 			wake_up_interruptible(&dev->adc_wait);
+			uvswitch_updateAutoStatus(dev);
 		}
 	}
 
 	usb_submit_urb(urb, SLAB_ATOMIC);
 }
+
+static void uvswitch_status_irq(struct urb *urb, struct pt_regs *regs)
+{
+	/* This is invoked when a status update completes. Currently we
+	 * don't care about this.
+	 */
+}
+
+/* Update the device status when entering a different automatic switch
+ * mode, or when input status changes. May be called from interrupt or
+ * process context.
+ */
+static void uvswitch_updateAutoStatus  (struct usb_uvswitch *dev)
+{
+	int channel;
+	switch (dev->status_mode) {
+
+	case MODE_AUTOMATIC:
+		/* Basic automatic switching- turn on the first active input.
+		 * If no inputs are active, enable the bypass switch.
+		 */
+		channel = uvswitch_getFirstActiveChannel(dev);
+		dev->status.video_channel = channel;
+		dev->status.white_audio_channel = channel;
+		dev->status.red_audio_channel = channel;
+		dev->status.bypass_switch = channel == 0 ? 1 : 0;
+		uvswitch_updateStatus(dev);
+		break;
+
+	}
+}
+
+static int uvswitch_getFirstActiveChannel(struct usb_uvswitch *dev)
+{
+	int i;
+	for (i=0; i<UVSWITCH_CHANNELS; i++)
+		if (dev->active_inputs[i])
+			return i+1;
+	return 0;
+}
+
 
 /******************************************************************************/
 /************************************************** Main character device *****/
@@ -493,7 +544,7 @@ static ssize_t uvswitch_write(struct file *file, const char *buffer, size_t coun
 	char kbuffer[256];
 	char *token;
 	char *pkbuf;
-	static char delim[] = " \t";
+	static char delim[] = " \t\n";
 	int v;
 
 	prv =(struct uvswitch_fd_private *)file->private_data;
@@ -523,9 +574,20 @@ static ssize_t uvswitch_write(struct file *file, const char *buffer, size_t coun
 	retval = count;
 	pkbuf = kbuffer;
 
+	/* Assume manual mode unless we find otherwise... */
+	dev->status_mode = MODE_MANUAL;
+
 	/* First token - video/audio channels */
 	token = strsep(&pkbuf, delim);
 	if (token) {
+
+		/* Is it the special "auto" keyword? */
+		if (!strcmp(token, "auto")) {
+			dev->status_mode = MODE_AUTOMATIC;
+			uvswitch_updateAutoStatus(dev);
+			goto success;
+		}
+
 		v = simple_strtol(token, NULL, 10);
 		if (v < 0 || v > 8) {
 			retval = -EINVAL;
@@ -576,6 +638,7 @@ static ssize_t uvswitch_write(struct file *file, const char *buffer, size_t coun
 
 	retval = uvswitch_updateStatus(dev);
 
+success:
 	if (retval == 0) {
 		/* On success indicate that we've written all bytes */
 		retval = count;
@@ -625,6 +688,10 @@ static inline void uvswitch_delete(struct usb_uvswitch *dev)
 	}
 	if (dev->adc_buffer) {
 		usb_buffer_free(dev->udev, UVSWITCH_CHANNELS, dev->adc_buffer, dev->adc_dma);
+	}
+	if (dev->status_urb) {
+		usb_unlink_urb(dev->status_urb);
+		usb_free_urb(dev->status_urb);
 	}
 	kfree(dev);
 }
@@ -677,6 +744,20 @@ static int uvswitch_probe(struct usb_interface *interface, const struct usb_devi
 		retval = -ENODEV;
 		goto error;
 	}
+
+	/* We need another URB for updating video switch status */
+	dev->status_urb = usb_alloc_urb(0, GFP_KERNEL);
+	if (!dev->status_urb) {
+		retval = -ENODEV;
+		goto error;
+	}
+
+	/* Fill in most of the URB we'll use to update switch status */
+	dev->status_request.bRequestType = USB_TYPE_VENDOR;
+	dev->status_request.bRequest = UVSWITCH_CTRL_SWITCH;
+	usb_fill_control_urb(dev->status_urb, udev, usb_sndctrlpipe(udev, 0),
+			     (unsigned char*) &dev->status_request,
+			     NULL, 0, uvswitch_status_irq, dev);
 
 	/* Set up default ADC calibration */
 	uvswitch_initCalibration(dev);
