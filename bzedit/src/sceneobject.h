@@ -49,11 +49,13 @@ struct _SceneObjectClass
   void       (*serialize)      (SceneObject *self, GIOChannel *out);
   gboolean   (*creatable)      (void);
   GdkPixbuf* (*get_icon)       (void);
+  GList*     (*get_drawables)  (SceneObject *self);
 };
 
-GType      scene_object_get_type  (void) G_GNUC_CONST;
-void       scene_object_render    (SceneObject *self, guint name);
-void       scene_object_serialize (SceneObject *self, GIOChannel *out);
+GType      scene_object_get_type      (void) G_GNUC_CONST;
+void       scene_object_render        (SceneObject *self, guint name);
+void       scene_object_serialize     (SceneObject *self, GIOChannel *out);
+GList*     scene_object_get_drawables (SceneObject *self);
 
 G_END_DECLS
 

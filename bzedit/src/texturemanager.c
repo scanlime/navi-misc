@@ -23,8 +23,9 @@
 #include <string.h>
 #include "texturemanager.h"
 
-static void texture_manager_class_init (TextureManagerClass *klass);
-static void texture_manager_init       (TextureManager *tm);
+static void     texture_manager_class_init (TextureManagerClass *klass);
+static void     texture_manager_init       (TextureManager *tm);
+static gpointer texture_manager_load       (TextureManager *tm, gchar *name);
 
 GType
 texture_manager_get_type (void)
@@ -61,4 +62,52 @@ static void
 texture_manager_init (TextureManager *tm)
 {
   tm->textures = g_hash_table_new (g_str_hash, g_str_equal);
+}
+
+void
+texture_manager_bind (TextureManager *tm, gchar *name)
+{
+  gpointer id;
+  GLuint glid;
+
+  id = g_hash_table_lookup (tm->textures, (gpointer) name);
+  if (!id)
+    id = texture_manager_load (tm, name);
+  glid = GPOINTER_TO_UINT (id);
+
+  glBindTexture (GL_TEXTURE_2D, glid);
+}
+
+static gpointer
+texture_manager_load (TextureManager *tm, gchar *name)
+{
+  gpointer id;
+  GLuint glid;
+  GdkPixbuf *image;
+  guint width, height;
+  const void *data;
+
+  image = gdk_pixbuf_new_from_file (name, NULL);
+
+  glGenTextures (1, &glid);
+  glBindTexture (GL_TEXTURE_2D, glid);
+
+  glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  glHint (GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+
+  width = gdk_pixbuf_get_width (image);
+  height = gdk_pixbuf_get_height (image);
+  data = (const void*) gdk_pixbuf_get_pixels (image);
+
+  gluBuild2DMipmaps (GL_TEXTURE_2D, 3, width, height, GL_RGB, GL_UNSIGNED_BYTE, data);
+
+  gdk_pixbuf_unref (image);
+
+  id = GUINT_TO_POINTER (glid);
+  g_hash_table_insert (tm->textures, (gpointer) name, id);
+
+  return id;
 }

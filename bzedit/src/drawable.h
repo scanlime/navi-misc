@@ -31,10 +31,10 @@
 G_BEGIN_DECLS
 
 #define DRAWABLE_TYPE            (drawable_get_type ())
-#define DRAWABLE(obj)            (G_OBJECT_INSTANCE_CAST ((obj), DRAWABLE_TYPE, Drawable))
-#define DRAWABLE_CLASS(klass)    (G_OBJECT_CLASS_CAST ((klass), DRAWABLE_TYPE, DrawableClass))
-#define IS_DRAWABLE(obj)         (G_OBJECT_CHECK_INSTANCE_TYPE ((obj), DRAWABLE_TYPE))
-#define IS_DRAWABLE_CLASS(klass) (G_OBJECT_CHECK_CLASS_TYPE ((klass), DRAWABLE_TYPE))
+#define DRAWABLE(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), DRAWABLE_TYPE, Drawable))
+#define DRAWABLE_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), DRAWABLE_TYPE, DrawableClass))
+#define IS_DRAWABLE(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), DRAWABLE_TYPE))
+#define IS_DRAWABLE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), DRAWABLE_TYPE))
 
 typedef struct _Drawable      Drawable;
 typedef struct _DrawableClass DrawableClass;
@@ -49,9 +49,12 @@ struct _Drawable
 struct _DrawableClass
 {
   GObjectClass parent_class;
+
+  void (*draw) (Drawable *drawable);
 };
 
 GType drawable_get_type (void) G_GNUC_CONST;
+void  drawable_draw     (Drawable *drawable);
 
 G_END_DECLS
 
