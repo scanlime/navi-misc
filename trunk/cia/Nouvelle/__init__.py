@@ -126,6 +126,7 @@ del sys
 del string
 
 # Convenience imports
+import Serial, Table
 from Serial import *
 from Table import *
 

@@ -31,7 +31,7 @@ from __future__ import generators
 from Serial import tag
 import re
 
-__all__ = ['Table', 'Column', 'AttributeColumn', 'IndexedColumn',
+__all__ = ['BaseTable', 'Column', 'AttributeColumn', 'IndexedColumn',
            'ResortableTable']
 
 
@@ -92,7 +92,7 @@ class IndexedColumn(Column):
         return row[self.index]
 
 
-class Table:
+class BaseTable:
     """A renderable that creates an XHTML table viewing some dataset using
        a list of Column instances. The Columns are used to generate headings
        and data cells for each column of the table.
@@ -139,7 +139,7 @@ class Table:
 
     def render_row(self, context, row):
         """Return a list of dataTag instances for each column in the given row"""
-        return [self.dataTag[c.render_data(context, row)] for c in self.columns]
+        return [self.dataTag[c.render_data(context, row)] for c in self.getVisibleColumns(context)]
 
     def getColumnValues(self, column):
         """Return an iterator that iterates over all values in the specified column"""
@@ -164,7 +164,7 @@ class Table:
             self.rows.sort(column.cmp)
 
 
-class ResortableTable(Table):
+class ResortableTable(BaseTable):
     """A Table with hyperlinks on each table column that set that column
        as the sort column, or if it's already the sort column reverse the
        order.
@@ -186,7 +186,7 @@ class ResortableTable(Table):
                  ):
         self.defaultSortColumnIndex = defaultSortColumnIndex
         self.defaultSortReversed = defaultSortReversed
-        Table.__init__(self, rows, columns)
+        BaseTable.__init__(self, rows, columns)
 
     def render(self, context={}):
         cookie = self.getCookieFromContext(context)
@@ -196,7 +196,7 @@ class ResortableTable(Table):
             self.sortColumnIndex = self.defaultSortColumnIndex
             self.sortReversed = self.defaultSortReversed
         self.sortByColumn(self.columns[self.sortColumnIndex], self.sortReversed)
-        return Table.render(self, context)
+        return BaseTable.render(self, context)
 
     def render_heading(self, context, column):
         """Override render_heading to insert hyperlinks generated with createSortCookie"""
