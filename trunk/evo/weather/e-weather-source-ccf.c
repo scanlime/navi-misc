@@ -23,9 +23,67 @@
 #include <string.h>
 #include <stdlib.h>
 #include <libgnome/gnome-i18n.h>
+#include <libxml/parser.h>
+#include <libxml/tree.h>
 #include "e-weather-source-ccf.h"
 
 #define DATA_SIZE 5000
+
+static gchar *
+parse_for_url (char *code, char *name, xmlNode *parent)
+{
+	xmlNode *child;
+	if (parent->type == XML_ELEMENT_NODE) {
+		if (strcmp (parent->name, "location") == 0) {
+			child = parent->children;
+			g_assert (child->type == XML_TEXT_NODE);
+			if (strcmp (child->content, name) == 0) {
+				xmlAttr *attr;
+				gchar *url = NULL;
+				for (attr = parent->properties; attr; attr = attr->next) {
+					if (strcmp (attr->name, "code") == 0) {
+						if (strcmp (attr->children->content, code) != 0)
+							return NULL;
+					}
+					if (strcmp (attr->name, "url") == 0)
+						url = attr->children->content;
+				}
+				return g_strdup (url);
+			}
+			return NULL;
+		} else {
+			for (child = parent->children; child; child = child->next) {
+				gchar *url = parse_for_url (code, name, child);
+				if (url)
+					return url;
+			}
+		}
+	}
+	return NULL;
+}
+
+static void
+find_station_url (gchar *station, EWeatherSourceCCF *source)
+{
+	xmlDoc *doc;
+	xmlNode *root;
+	gchar **sstation;
+	gchar *url;
+
+	sstation = g_strsplit (station, "/", 2);
+
+	doc = xmlParseFile ("/home/jupiter/navi-misc/evo/Locations.xml.in");
+	g_assert (doc != NULL);
+
+	root = xmlDocGetRootElement (doc);
+
+	url = parse_for_url (sstation[0], sstation[1], root);
+
+	source->url = g_strdup (url);
+	source->substation = g_strdup (sstation[0]);
+
+	g_strfreev (sstation);
+}
 
 EWeatherSource*
 e_weather_source_ccf_new (const char *uri)
@@ -36,21 +94,8 @@ e_weather_source_ccf_new (const char *uri)
 	 * the CCF file. If not present, BBB is assumed to be the same station as AAA.
 	 */
 	EWeatherSourceCCF *source = E_WEATHER_SOURCE_CCF (g_object_new (e_weather_source_ccf_get_type (), NULL));
-	char *station;
 
-	station = g_strdup (strchr (uri, '/') + 1);
-	if (strchr (station, '/'))
-	{
-		/* we've got the extended format station code */
-		source->substation = g_strdup (strchr (station, '/') + 1);
-		source->station = g_strndup (station, 3);
-		g_free (station);
-	}
-	else
-	{
-		source->station = station;
-		source->substation = g_strdup (station);
-	}
+	find_station_url (strchr (uri, '/') + 1, source);
 	return E_WEATHER_SOURCE (source);
 }
 
@@ -362,19 +407,16 @@ e_weather_source_ccf_parse (EWeatherSource *source, EWeatherSourceFinished done,
 {
 	EWeatherSourceCCF *ccfsource = (EWeatherSourceCCF*) source;
 	SoupMessage *soup_message;
-	char *url;
 
 	ccfsource->finished_data = data;
 
-	url = g_strdup_printf ("http://www.crh.noaa.gov/data/%s/CCF%s", ccfsource->station, ccfsource->station);
 	ccfsource->done = done;
 
 	if (!ccfsource->soup_session)
 		ccfsource->soup_session = soup_session_async_new ();
-	soup_message = soup_message_new (SOUP_METHOD_GET, url);
+	soup_message = soup_message_new (SOUP_METHOD_GET, ccfsource->url);
 	soup_message_set_flags (soup_message, SOUP_MESSAGE_NO_REDIRECT);
 	soup_session_queue_message (ccfsource->soup_session, soup_message, (SoupMessageCallbackFn) retrieval_done, source);
-	g_free (url);
 }
 
 static void
@@ -390,7 +432,7 @@ e_weather_source_ccf_class_init (EWeatherSourceCCFClass *class)
 static void
 e_weather_source_ccf_init (EWeatherSourceCCF *source)
 {
-	source->station = NULL;
+	source->url = NULL;
 	source->substation = NULL;
 	source->soup_session = NULL;
 }

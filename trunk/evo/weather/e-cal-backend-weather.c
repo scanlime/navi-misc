@@ -1,7 +1,7 @@
 /* Evolution calendar - weather backend
  *
  * Copyright (C) 2000 Ximian, Inc.
- * Copyright (C) 2003 David Trowbridge
+ * Copyright (C) 2004 David Trowbridge
  *
  * Authors: David Trowbridge <trowbrds@cs.colorado.edu>
  *
@@ -135,7 +135,8 @@ finished_retrieval_cb (GList *forecasts, ECalBackendWeather *cbw)
 		icomp = e_cal_component_get_icalcomponent (E_CAL_COMPONENT (l->data));
 		e_cal_backend_notify_object_removed (E_CAL_BACKEND (cbw),
 			icalcomponent_get_uid (icomp),
-			icalcomponent_as_ical_string (icomp));
+			icalcomponent_as_ical_string (icomp),
+			NULL);
 		g_object_unref (G_OBJECT (l->data));
 	}
 	g_list_free (l);
@@ -215,10 +216,9 @@ create_weather (ECalBackendWeather *cbw, WeatherForecast *report)
 	icalcomponent *ical_comp;
 	struct icaltimetype itt;
 	ECalComponentDateTime dt;
-	const char *name, *uid;
+	const char *uid;
 	GSList *text_list = NULL;
 	ECalComponentText *description;
-	int i;
 	char *pop, *snow;
 
 	g_return_val_if_fail (E_IS_CAL_BACKEND_WEATHER (cbw), NULL);
@@ -262,16 +262,16 @@ create_weather (ECalBackendWeather *cbw, WeatherForecast *report)
 	if (report->pop != 0)
 		pop = g_strdup_printf ("%d%% chance of precipitation\n", report->pop);
 	else
-		pop = g_strdup_printf ("\0");
+		pop = "";
 	if (report->snowhigh == 0)
-		snow = g_strdup_printf ("\0");
+		snow = "";
 	else if (report->snowhigh == report->snowlow)
 		snow = g_strdup_printf ("%d\" snowfall\n", (int) report->snowhigh);
 	else
 		snow = g_strdup_printf ("%d-%d\" snowfall\n", (int) report->snowlow, (int) report->snowhigh);
 	description = g_new0 (ECalComponentText, 1);
 	description->value = g_strdup_printf ("%s\n%s%s", getConditions (report), pop, snow);
-	description->altrep = g_strdup_printf ("");
+	description->altrep = "";
 	text_list = g_slist_append (text_list, description);
 	e_cal_component_set_description_list (cal_comp, text_list);
 

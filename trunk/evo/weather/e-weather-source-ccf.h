@@ -43,7 +43,8 @@ typedef struct _EWeatherSourceCCFClass EWeatherSourceCCFClass;
 struct _EWeatherSourceCCF {
 	EWeatherSource parent;
 
-	char *station, *substation;
+	char *url;
+	char *substation;
 	EWeatherSourceFinished done;
 	SoupSession *soup_session;
 	gpointer finished_data;
