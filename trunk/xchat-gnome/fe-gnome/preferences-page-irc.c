@@ -331,4 +331,5 @@ void
 preferences_page_irc_free (PreferencesIrcPage *page)
 {
 	gdk_pixbuf_unref (page->icon);
+	g_free (page);
 }
