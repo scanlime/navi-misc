@@ -1,7 +1,9 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="../style.xsl"?>
 
-<set name="kicking set 1" level="orange">
+<set name="kicking set 1" level="orange"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:noNamespaceSchemaLocation="schema.xsd">
   <steps>
     <step>
       From your meditating horse stance, step back with the right foot
