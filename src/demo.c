@@ -1,5 +1,6 @@
 #include <config.h>
 #include <gtk/gtk.h>
+#include <stdio.h>
 #include <string.h>
 #include "pagestorage.h"
 
@@ -10,8 +11,8 @@ int main(int argc, char** argv)
 
   gtk_init(&argc, &argv);
 
-  storage = rtg_page_storage_temp_new(0);
-  printf("Created an empty temporary page storage\n");
+  storage = rtg_page_storage_mapped_new("foo.rtg", 0);
+  printf("Created new storage %p, page size %d\n", storage, storage->page_size);
 
   foo = rtg_page_storage_alloc(storage);
   printf("Allocated page %d\n", foo);

@@ -40,16 +40,27 @@ typedef unsigned long long RtgAddress;
 #error Can't find an integer type of equal size to this architecture's pointers
 #endif
 
+#define RTG_IS_POWER2(x)       (((x) & ((x)-1)) == 0)
+
 /* Sanity check- make sure G_MEM_ALIGN is a power of two */
-#if ((G_MEM_ALIGN) & ((G_MEM_ALIGN)-1)) != 0
+#if !RTG_IS_POWER2(G_MEM_ALIGN)
 #error G_MEM_ALIGN doesnt appear to be a power of two
 #endif
 
-/* Round an address or size down to a multiple of G_MEM_ALIGN */
-#define RTG_ALIGN_FLOOR(x)  ((x) & (~((RtgAddress)((G_MEM_ALIGN)-1))))
+/* Check whether address x is already aligned at a multiple of y.
+ * y must be a power of two.
+ */
+#define RTG_ROUND_TEST(x, y)   (((x) & ((y)-1)) == 0)
 
-/* Round an address or size up to a multiple of G_MEM_ALIGN */
-#define RTG_ALIGN_CEIL(x)   (RTG_ALIGN_FLOOR(x) + (G_MEM_ALIGN))
+/* Round an address (x) up or down to the nearest multiple of y.
+ * y must be a power of two.
+ */
+#define RTG_ROUND_FLOOR(x, y)  ((x) & (~((RtgAddress)((y)-1))))
+#define RTG_ROUND_CEIL(x, y)   (RTG_ROUND_TEST(x,y) ? (x) : (RTG_ROUND_FLOOR(x,y) + (y)))
+
+/* Round an address up or down to the nearest alignment boundary */
+#define RTG_ALIGN_FLOOR(x)     RTG_ROUND_FLOOR(x, G_MEM_ALIGN)
+#define RTG_ALIGN_CEIL(x)      RTG_ROUND_CEIL(x, G_MEM_ALIGN)
 
 G_END_DECLS
 
