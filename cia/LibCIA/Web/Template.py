@@ -184,6 +184,7 @@ class Page(Nouvelle.Twisted.Page):
                 tag('title')[ place("pageTitle") ],
                 place('baseTag'),
                 tag('link', rel='stylesheet', href='/default.css', type='text/css'),
+                tag('link', rel='shortcut icon', href='/favicon.ico', type='image/png'),
                 place('extraHeaders'),
                 ],
             tag('body')[
