@@ -123,6 +123,9 @@ class Hub(object):
         """Add a callable object to the list of those notified when new messages
            arrive. If filter is not None, the callable is only called if the filter
            evaluates to True.
+           If the callable returns non-None, the returned value will be returned
+           by deliver(). If multiple client callables return non-None, the last
+           seen value is used.
            """
         self.clients[callable] = filter
         self.updateClients()
@@ -142,11 +145,14 @@ class Hub(object):
         """Given a Message instance, determine who's interested
            in its contents and delivers it to them.
            """
+        result = None
         for callable, filter in self.clientItems:
-            if filter is None:
-                callable(message)
-            elif filter(message):
-                callable(message)
+            if filter and not filter(message):
+                continue
+            itemResult = callable(message)
+            if itemResult is not None:
+                result = itemResult
+        return result
 
 
 class Filter(XMLObject):
@@ -212,6 +218,14 @@ class Filter(XMLObject):
          >>> f(msg)
          True
          >>> Filter('<find path="/message/source/project">navi-miscski</find>')(msg)
+         False
+
+       The <find> tag with an empty search string can be used to test for the
+       existence of an XPath match:
+
+         >>> Filter('<find path="/message/body/commit"/>')(msg)
+         True
+         >>> Filter('<find path="/message/body/snail"/>')(msg)
          False
 
        For completeness, there are tags that always evaluate to a constant value:
@@ -332,9 +346,16 @@ class Filter(XMLObject):
             text = str(element).strip().lower()
 
         def filterMatch(msg):
-            # Any of the XPath matches can make our match true
-            matchStrings = xp.queryForStringList(msg.xml)
-            if matchStrings:
+            # Use queryForNodes then str() so that matched
+            # nodes without any text still give us at least
+            # the empty string. This is important so that <find>
+            # with an empty search string can be used to test
+            # for the existence of an XPath match.
+            nodes = xp.queryForNodes(msg.xml)
+            if nodes:
+                matchStrings = map(str, nodes)
+
+                # Any of the XPath matches can make our match true
                 for matchString in matchStrings:
                     if caseSensitive:
                         matchString = matchString.strip()
