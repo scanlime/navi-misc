@@ -97,8 +97,10 @@ For now, here is a list of the XML client scripts available locally:
 ciabot_cvs.pl_   Petr Baudis    CVS           Perl       email or XML-RPC, simple filtering
 ciabot_svn.py_   Micah Dowty    Subversion    Python     XML-RPC only, can extract branch/module
 ciabot_svn.sh_   Micah Dowty    Subversion    Shell      very simple, email only
+ciabot_bk.sh_    Chris Larson   BitKeeper     Shell
 ================ ============== ============= ========== =========================================
 
-.. _ciabot_cvs.pl: /clients/ciabot_cvs.pl
-.. _ciabot_svn.py: /clients/ciabot_svn.py
-.. _ciabot_svn.sh: /clients/ciabot_svn.sh
+.. _ciabot_cvs.pl: /clients/cvs/ciabot_cvs.pl
+.. _ciabot_svn.py: /clients/svn/ciabot_svn.py
+.. _ciabot_svn.sh: /clients/svn/ciabot_svn.sh
+.. _ciabot_bk.sh: /clients/bk/
