@@ -221,10 +221,8 @@ class Page(Nouvelle.Twisted.Page):
 
     def render_tabs(self, context):
         """The page's tabs show all named components"""
-        components = context['request'].site.components
-        components.sort(lambda a,b: cmp(a.name, b.name))
         tabs = []
-        for component in components:
+        for component in context['request'].site.components:
             if component.name:
                 if self in component:
                     id = 'active'

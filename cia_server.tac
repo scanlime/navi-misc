@@ -38,7 +38,6 @@ Security.caps.saveKey('universe', '~/.cia_key')
 webRoot = Web.Server.StaticJoiner('htdocs', Web.Doc.Page('doc/welcome'))
 webRoot.putChild('rulesets', Web.RulesetBrowser.RulesetList(rulesetStorage))
 webRoot.putChild('stats', Web.Stats.Browser.Page())
-webRoot.putChild('info', Web.Info.Page())
 webRoot.putChild('irc', Web.BotStatus.IRCBotPage(botNet))
 webRoot.putChild('doc', Web.Doc.Page('doc'))
 
@@ -58,6 +57,7 @@ webRoot.putChild('RPC2', rpc)
 site = Web.Server.Site(webRoot)
 
 site.putComponent('rulesets', Web.RulesetBrowser.Component(rulesetStorage))
+site.putComponent('info', Web.Info.Component())
 
 # Now create an HTTP server holding both our XML-RPC and web interfaces
 internet.TCPServer(3910, site).setServiceParent(application)

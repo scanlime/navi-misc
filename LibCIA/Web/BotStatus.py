@@ -21,7 +21,7 @@ A web interface showing the current status of the BotNetwork
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import Template
+import Template, Server
 from LibCIA import TimeUtil
 from Nouvelle import tag, place
 import Nouvelle
