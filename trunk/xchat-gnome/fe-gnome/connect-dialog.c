@@ -23,6 +23,55 @@
 #include "../common/xchat.h"
 #include "../common/servlist.h"
 
+static GtkDialogClass *parent_class;
+
+static void
+connect_dialog_class_init (ConnectDialogClass *klass)
+{
+}
+
+static void
+connect_dialog_init (ConnectDialog *dialog)
+{
+}
+
+GType
+connect_dialog_get_type (void)
+{
+	static GType connect_dialog_type = 0;
+	if (!connect_dialog_type) {
+		static const GTypeInfo connect_dialog_info = {
+			sizeof (ConnectDialogClass),
+			NULL, NULL,
+			(GClassInitFunc) connect_dialog_class_init,
+			NULL, NULL,
+			sizeof (ConnectDialog),
+			0,
+			(GInstanceInitFunc) connect_dialog_init,
+		};
+		connect_dialog_type = g_type_register_static (GTK_TYPE_DIALOG, "ConnectDialog", &connect_dialog_info, 0);
+
+		parent_class = g_type_class_ref (GTK_TYPE_DIALOG);
+	}
+
+	return connect_dialog_type;
+}
+
+ConnectDialog *
+connect_dialog_new ()
+{
+	ConnectDialog *dialog = g_object_new (connect_dialog_get_type(), 0);
+	if (dialog->toplevel == NULL) {
+		g_object_unref (dialog);
+		return NULL;
+	}
+	return dialog;
+}
+
+/**********************************************************************
+ * CRUFT BARRIER ******************************************************
+ **********************************************************************/
+
 static void connection_dialog_close (GtkWidget *widget, gpointer data);
 static void connection_dialog_connect (GtkWidget *widget, gpointer data);
 
