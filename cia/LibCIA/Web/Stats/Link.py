@@ -22,6 +22,7 @@ Classes for forming hyperlinks between stats browser pages
 #
 
 from Nouvelle import tag
+from urllib import quote
 from LibCIA.Web import Template
 import posixpath
 
@@ -36,12 +37,23 @@ class TargetRelativeLink:
         # Make this an absolute URL- currently it's required for
         # links placed in the RSS and XML feeds, and won't
         # hurt elsewhere.
-        protocol, hostname, port = context['request'].host
-        server = "http://" + hostname
-        if port != 80:
-            server += ':' + str(port)
-        return server + posixpath.join(context['component'].url,
-                                       *(tuple(self.target.pathSegments) + self.relativePathSegments))
+        req = context['request']
+        protocol, hostname, port = req.host
+        if req.isSecure():
+            default = 443
+        else:
+            default = 80
+        if port == default:
+            hostport = ''
+        else:
+            hostport = ':%d' % port
+        path = posixpath.join(context['component'].url,
+                              *(tuple(self.target.pathSegments) + self.relativePathSegments))
+        return quote('http%s://%s%s%s' % (
+            req.isSecure() and 's' or '',
+            hostname,
+            hostport,
+            path), "/:")
 
 
 class StatsLink(TargetRelativeLink):

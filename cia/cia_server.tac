@@ -6,8 +6,10 @@
 
 from twisted.application import service, internet
 from twisted.web import vhost
+from twisted.internet import ssl
 from LibCIA import Message, Ruleset, IRC, Stats, IncomingMail, Cron
 from LibCIA import Debug, Security, RpcServer, RpcClient, Web, Cache
+
 
 application = service.Application("cia_server")
 hub = Message.Hub()
@@ -71,3 +73,9 @@ site.putComponent('info', Web.Info.Component())
 
 # Now create an HTTP server holding both our XML-RPC and web interfaces
 internet.TCPServer(3910, site).setServiceParent(application)
+
+# ...and an HTTPS server, which we'll refer to for web logins.
+# XML-RPC clients should also use the secure server when they're sending keys.
+sslContext = ssl.DefaultOpenSSLContextFactory("data/server.key", "data/server.crt")
+internet.SSLServer(3914, site, sslContext).setServiceParent(application)
+
