@@ -50,6 +50,7 @@ static void on_anim_render(GtkWidget *widget, gpointer user_data);
 static void on_anim_render_closed(GtkWidget *widget, gpointer user_data);
 static void on_keyframe_duration_change(GtkWidget *widget, gpointer user_data);
 
+static char *current_filename = NULL;
 
 /************************************************************************************/
 /**************************************************** Initialization / Finalization */
@@ -496,6 +497,11 @@ static void on_anim_new(GtkWidget *widget, gpointer user_data) {
     Explorer *self = EXPLORER(user_data);
     animation_clear(self->animation);
     explorer_update_animation_length(self);
+
+    if (current_filename) {
+	g_free (current_filename);
+	current_filename = NULL;
+    }
 }
 
 static void on_anim_open (GtkWidget *widget, gpointer user_data) {
@@ -515,7 +521,9 @@ static void on_anim_open (GtkWidget *widget, gpointer user_data) {
 	filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
 	animation_load_file (self->animation, filename);
 	explorer_update_animation_length (self);
-	g_free (filename);
+	if (current_filename);
+	    g_free (current_filename);
+	current_filename = filename;
     }
 #else
     dialog = gtk_file_selection_new ("Open Animation Keyframes");
@@ -525,13 +533,22 @@ static void on_anim_open (GtkWidget *widget, gpointer user_data) {
 	filename = gtk_file_selection_get_filename (GTK_FILE_SELECTION(dialog));
 	animation_load_file (self->animation, filename);
 	explorer_update_animation_length (self);
+	if (current_filename)
+	    g_free (current_filename);
+	current_filename = g_strdup (filename);
     }
 #endif
     gtk_widget_destroy (dialog);
 }
 
 static void on_anim_save(GtkWidget *widget, gpointer user_data) {
-    on_anim_save_as(widget, user_data);
+    Explorer *self = EXPLORER (user_data);
+
+    if (!current_filename) {
+        on_anim_save_as(widget, user_data);
+	return;
+    }
+    animation_save_file (self->animation, current_filename);
 }
 
 static void on_anim_save_as (GtkWidget *widget, gpointer user_data) {
@@ -551,7 +568,9 @@ static void on_anim_save_as (GtkWidget *widget, gpointer user_data) {
         gchar *filename;
 	filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
 	animation_save_file (self->animation, filename);
-	g_free (filename);
+	if (current_filename)
+	    g_free (current_filename);
+	current_filename = filename;
     }
 #else
     dialog = gtk_file_selection_new ("Save Animation Keyframes");
@@ -561,6 +580,9 @@ static void on_anim_save_as (GtkWidget *widget, gpointer user_data) {
 	const gchar *filename;
 	filename = gtk_file_selection_get_filename (GTK_FILE_SELECTION (dialog));
 	animation_save_file (self->animation, filename);
+	if (current_filename)
+	    g_free (current_filename);
+	current_filename = g_strdup (filename);
     }
 #endif
     gtk_widget_destroy(dialog);
