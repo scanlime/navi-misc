@@ -1,4 +1,7 @@
-- We need a stats browser
+- FIXME for hardcoding URLs in the ruleset browser
+
+- Web interface for editing rulesets and stats metadata- how would we handle
+  authentication, if necessary?
 
 - Rulesets could use some sort of subroutine call, maybe by embedding a <ruleset>
   tag with a different ruleset's URI. A new URI scheme could be added for rulesets
