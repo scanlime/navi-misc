@@ -108,6 +108,16 @@ class Page(Template.Page):
             Info.Clock(),
             ]
 
+    def render_extraHeaders(self, context):
+        # Add a <link> tag pointing at our RSS feed. Some RSS
+        # aggregators can use this to automatically detect feeds.
+        return tag('link',
+                   rel   = 'alternate',
+                   type  = 'application/rss+xml',
+                   title = 'RSS',
+                   href  = Link.RSSLink(self.target).getURL(context),
+                   )
+
 
 class Counters(Template.Section):
     """A Section displaying the counters from a StatsTarget"""
