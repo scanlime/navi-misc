@@ -154,7 +154,7 @@ cdef class Graph:
         for i from 0 <= i < self.numEdges:
             edge = &self.edges[i]
             energy = energy + applySpring(&self.vertices[edge.a], &self.vertices[edge.b],
-                                          50, 0.1)
+                                          50, 0.01)
 
         # Apply much longer springs to all other pairs of vertices
         for i from 0 <= i < self.numVertices:
