@@ -201,14 +201,14 @@ class XMLStorage(object):
 
 class XMLDict(XMLStorage):
     """A simple XMLStorage subclass for storing a dictionary in which keys are
-       converted to XML elements and values are the elements' contents as strings.
+       converted to XML <key> elements and values are the elements' contents as strings.
        """
     def emptyStorage(self):
         self.dict = {}
 
     def store(self, xml):
         obj = XMLObject(xml)
-        self.dict[obj.xml.name] = str(obj.xml)
+        self.dict[obj.xml.getAttribute('name')] = str(obj.xml)
 
     def flatten(self):
         results = []
@@ -216,8 +216,9 @@ class XMLDict(XMLStorage):
         keys = self.dict.keys()
         keys.sort()
         for key in keys:
-            element = domish.Element((None, key))
-            value = self.dict[key]
+            element = domish.Element((None, 'key'))
+            element['name'] = key
+            value = str(self.dict[key])
             element.addContent(value)
             results.append(XMLObject(element))
         return results
