@@ -168,6 +168,7 @@ class drop_down(hbox):
     self.button = None
     self.menu = gtk.Combo()
     self.pack_start(self.menu)
+    self.beenPressed = False
     #for i in range(int(self.attributes.get('quantity', "1"))):
       #self.menu.append(gtk.Combo())
       #self.menu[i].connect("activate", self.setButton)
@@ -191,8 +192,14 @@ class drop_down(hbox):
     ''' Roll the dice object. '''
     values = re.search('\[([1-9]*)d([1-9]*)\]', self.menu.entry.get_text())
     if values is not None:
+      if not self.beenPressed:
+	self.beenPressed = True
+	self.button.data['times'].append(int(values.group(1)))
+	#self.button.data['mods'].append(int(values.group(3).strip('+')))
+      else:
+	self.button.data['times'][len(self.button.data['times']) - 1] = int(values.group(1))
+	#self.button.data['mods'][len(self.button.data['mods'])] = values.group(3).strip('+')
       self.button.attributes['sides'] = values.group(2)
-      self.button.data['times'] = [int(values.group(1))]
       dice.roll(self.button)
 
 class drop_down_item(sheetElement):
