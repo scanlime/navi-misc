@@ -63,7 +63,7 @@ int main(int argc, char ** argv) {
     Animation* animation;
     gboolean animate = FALSE;
     gboolean have_gtk;
-    gboolean dofork = TRUE;
+    gboolean verbose = FALSE;
     enum {INTERACTIVE, RENDER, SCREENSAVER, REMOTE} mode = INTERACTIVE;
     const gchar *outputFile = NULL;
     int c, option_index=0;
@@ -99,13 +99,13 @@ int main(int argc, char ** argv) {
 	    {"oversample",  1, NULL, 'S'},
 	    {"density",     1, NULL, 't'},
 	    {"remote",      0, NULL, 'r'},
-	    {"nofork",      0, NULL, 'D'},
+	    {"verbose",     0, NULL, 'v'},
 	    {"port",        1, NULL, 'P'},
 	    {"cluster",     1, NULL, 'c'},
 	    {"screensaver", 0, NULL, 1000},   /* Undocumented, still experimental */
 	    {NULL},
 	};
-	c = getopt_long(argc, argv, "hi:n:o:p:s:S:t:rDP:c:",
+	c = getopt_long(argc, argv, "hi:n:o:p:s:S:t:rvP:c:",
 			long_options, &option_index);
 	if (c == -1)
 	    break;
@@ -148,8 +148,8 @@ int main(int argc, char ** argv) {
 	    mode = REMOTE;
 	    break;
 
-	case 'D':
-	    dofork = FALSE;
+	case 'v':
+	    verbose = TRUE;
 	    break;
 
 	case 'P':
@@ -229,16 +229,19 @@ int main(int argc, char ** argv) {
 
     case REMOTE: {
 #ifdef HAVE_GNET
-#  ifdef HAVE_FORK
-	/* FIXME: Don't assume HAVE_FORK means that daemon() will work */
-	if (dofork) {
-	    if (daemon(0, 0) < 0) {
-	        perror("daemon");
-	        return 1;
-	    }
+        if (verbose) {
+	    acquire_console();
 	}
+	else {
+#  ifdef HAVE_FORK
+	    /* FIXME: Don't assume HAVE_FORK means that daemon() will work */
+	    if (daemon(0, 0) < 0) {
+		perror("daemon");
+		return 1;
+	    }
 #  endif
-	remote_server_main_loop(port_number, have_gtk);
+	}
+	remote_server_main_loop(port_number, have_gtk, verbose);
 #else
 	fprintf(stderr,
 		"This Fyre binary was compiled without gnet support.\n"
@@ -287,6 +290,8 @@ static void usage(char **argv) {
 	    "  -r, --remote            Remote control mode. This is an automation-friendly\n"
 	    "                            interface provided on stdin and stdout.\n"
 	    "  -P N, --port N          Set the TCP port number used for remote control mode\n"
+	    "  -v, --verbose           In remote control mode, display status messages on the\n"
+	    "                            console and don't run as a daemon.\n"
 	    "  -c LIST, --cluster LIST Use a rendering cluster, specified as a comma-separated\n"
 	    "                            list of hostnames, optionally of the form host:port.\n"
 	    "\n"

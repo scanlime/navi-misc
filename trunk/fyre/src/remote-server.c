@@ -41,6 +41,7 @@ struct _RemoteServer {
     GServer*             gserver;
     GHashTable*          command_hash;
     gboolean             have_gtk;
+    gboolean             verbose;
 };
 
 struct _RemoteServerConn {
@@ -88,20 +89,29 @@ static void       remote_server_init_commands (RemoteServer*         self);
 /************************************************************************************/
 
 void              remote_server_main_loop     (int        port_number,
-					       gboolean   have_gtk)
+					       gboolean   have_gtk,
+					       gboolean   verbose)
 {
     RemoteServer self;
 
     self.have_gtk = have_gtk;
+    self.verbose = verbose;
+
     self.gserver = gnet_server_new(NULL, port_number,
 				   remote_server_connect, &self);
     self.command_hash = g_hash_table_new(g_str_hash, g_str_equal);
     remote_server_init_commands(&self);
 
+    if (self.verbose)
+	printf("Fyre server listening on port %d\n", port_number);
+
     if (have_gtk)
 	gtk_main();
     else
 	g_main_loop_run(g_main_loop_new(NULL, FALSE));
+
+    if (self.verbose)
+	printf("Fyre server shutting down.\n");
 
     gnet_server_delete(self.gserver);
     g_hash_table_destroy(self.command_hash);
@@ -123,6 +133,9 @@ static void       remote_server_connect       (GServer*              gserver,
 
     remote_server_send_response(self, FYRE_RESPONSE_READY,
 				"Fyre rendering server ready");
+
+    if (self->server->verbose)
+	printf("[%s:%d] Connected\n", gconn->hostname, gconn->port);
 }
 
 static void       remote_server_callback      (GConn*                gconn,
@@ -150,6 +163,9 @@ static void       remote_server_callback      (GConn*                gconn,
 
 static void       remote_server_disconnect    (RemoteServerConn*     self)
 {
+    if (self->server->verbose)
+	printf("[%s:%d] Disconnected\n", self->gconn->hostname, self->gconn->port);
+
     gnet_conn_delete(self->gconn);
     iterative_map_stop_calculation(self->map);
     g_object_unref(self->map);
@@ -165,6 +181,9 @@ static void       remote_server_dispatch_line (RemoteServerConn*     self,
 {
     char* args;
     RemoteServerCallback callback;
+
+    if (self->server->verbose)
+	printf("[%s:%d] - %s\n", line);
 
     args = strchr(line, ' ');
     if (args) {
