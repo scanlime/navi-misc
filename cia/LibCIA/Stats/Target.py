@@ -25,7 +25,7 @@ interacting with stats targets.
 from twisted.internet import defer
 from twisted.python import log
 from LibCIA import Ruleset, Database, TimeUtil, XML
-import time, posixpath, sys, cPickle
+import time, posixpath, sys, cPickle, random
 from Metadata import Metadata
 
 
@@ -424,6 +424,9 @@ class Maintenance:
     # Maximum number of messages to keep around for each stats target
     maxTargetMessages = 200
 
+    def __init__(self):
+        self.targetQueue = []
+
     def run(self):
         """Performs one stats maintenance cycle, returning a Deferred that
            yields None when the maintenance is complete.
@@ -470,12 +473,25 @@ class Maintenance:
         self.checkOneRollover(cursor, 'lastWeek', 'thisWeek')
         self.checkOneRollover(cursor, 'lastMonth', 'thisMonth')
 
-    def pruneTargets(self, cursor):
-        """Find all stats targets, running pruneTarget on each"""
-        cursor.execute("SELECT target_path FROM stats_catalog")
-        for row in cursor.fetchall():
-            self.pruneTarget(cursor, row[0])
-        cursor.execute("OPTIMIZE TABLE stats_messages")
+    def pruneTargets(self, cursor, quantity=25):
+        """Eventually prune all stats targets. To avoid a huge database load
+           all at once, this randomly queues all stats targets then prunes them
+           just a few at a time.
+           """
+        for i in xrange(quantity):
+
+            if not self.targetQueue:
+                cursor.execute("SELECT target_path FROM stats_catalog")
+                self.targetQueue = list(cursor.fetchall())
+                random.shuffle(self.targetQueue)
+
+                # Optimize the table after every complete cycle
+                cursor.execute("OPTIMIZE TABLE stats_messages")
+
+                if not self.targetQueue:
+                    return
+
+            self.pruneTarget(cursor, self.targetQueue.pop())
 
     def pruneTarget(self, cursor, path):
         """Delete messages that are too old, from one particular stats target"""
