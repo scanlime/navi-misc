@@ -62,9 +62,17 @@ class Device(object):
         if speed is not None:
             self.speed = speed
         self.bus = bus
-        self.address = self.busAddressBase | address
+        self.setAddress(address)
         self._idev = new_i2cDev(self.speed, bus.clock.value,
                                 bus.data.value, self.address)
+
+    def setAddress(self, address):
+        """Set the device's I2C address given a device-specific address.
+           The given address generally matches the one set with configuration
+           pins, or the one pre-programmed into a device. Subclasses can
+           override this for devices with more complex addressing.
+           """
+        self.address = self.busAddressBase | address
 
     def __repr__(self):
         return "<i2c.Device at address 0x%02X on %r>" % (
