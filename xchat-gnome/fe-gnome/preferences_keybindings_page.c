@@ -27,32 +27,23 @@
 #undef USE_FBLEVEL
 #endif
 
-typedef enum {
-  ALWAYS_VISIBLE,
-  N_WORKSPACES_GT
-} KeyListEntryVisibility;
-
 typedef struct
 {
   const char *name;
-  KeyListEntryVisibility visibility;
   gint data;
 } KeyListEntry;
 
-const KeyListEntry desktop_key_list[] =
+const KeyListEntry navigation_key_list[] =
 {
-  { "/apps/gnome_settings_daemon/keybindings/help", ALWAYS_VISIBLE, 0 },
+  { "/apps/xchat/keybindings/prev_network", 0 },
+  { "/apps/xchat/keybindings/next_network", 0 },
+  { "/apps/xchat/keybindings/prev_discussion", 0 },
+  { "/apps/xchat/keybindings/next_discussion", 0 },
   { NULL }
 };
-const KeyListEntry sounds_key_list[] =
+const KeyListEntry server_key_list[] =
 {
-  { "/apps/gnome_settings_daemon/keybindings/volume_mute", ALWAYS_VISIBLE, 0 },
-  { NULL }
-};
-
-const KeyListEntry metacity_key_list[] =
-{
-  { "/apps/metacity/window_keybindings/activate_window_menu", ALWAYS_VISIBLE,  0 },
+  { "/apps/xchat/keybindings/close_discussion", 0 },
   { NULL }
 };
 
@@ -332,27 +323,6 @@ count_rows_foreach (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, g
   return FALSE;
 }
 
-static gboolean
-should_show_key (const KeyListEntry *entry)
-{
-  gint workspaces;
-
-  switch (entry->visibility) {
-  case ALWAYS_VISIBLE:
-    return TRUE;
-  case N_WORKSPACES_GT:
-    workspaces = gconf_client_get_int (gconf_client_get_default (),
-				       "/apps/metacity/general/num_workspaces", NULL);
-    if (workspaces > entry->data)
-      return TRUE;
-    else
-      return FALSE;
-    break;
-  }
-
-  return FALSE;
-}
-
 static void
 append_keys_to_tree (const gchar        *title,
 		     const KeyListEntry *keys_list)
@@ -382,9 +352,6 @@ append_keys_to_tree (const gchar        *title,
       GtkTreeIter iter;
       const gchar *key_string;
       gchar *key_value;
-
-      if (!should_show_key (&keys_list[j]))
-	g_print("hey there, you probably aren't running metacity. fyi...\n");
 
       key_string = keys_list[j].name;
 
@@ -465,10 +432,8 @@ reload_key_entries ()
 {
   clear_old_model (glade_xml_get_widget (gui.xml, "shortcut_treeview"));
 
-  append_keys_to_tree (_("Minkeys"), desktop_key_list);
-  append_keys_to_tree (_("Sound"), sounds_key_list);
-
-  append_keys_to_tree (_("Window Management"), metacity_key_list);
+  append_keys_to_tree (_("Navigation"), navigation_key_list);
+  append_keys_to_tree (_("Server"), server_key_list);
 }
 
 static void
@@ -755,8 +720,8 @@ void initialize_preferences_keybindings_page ()
 
   gtk_tree_view_append_column (GTK_TREE_VIEW (glade_xml_get_widget (gui.xml, "shortcut_treeview")), column);
   /* N_COLUMNS is just a place to stick the extra sort function */
-  gtk_tree_view_column_set_sort_column_id (column, N_COLUMNS); 
-  
+  gtk_tree_view_column_set_sort_column_id (column, N_COLUMNS);
+
   gconf_client_add_dir (client, "/apps/gnome_keybinding_properties", GCONF_CLIENT_PRELOAD_ONELEVEL, NULL);
   gconf_client_add_dir (client, "/apps/metacity/general", GCONF_CLIENT_PRELOAD_ONELEVEL, NULL);
   gconf_client_notify_add (client,
