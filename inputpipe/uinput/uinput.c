@@ -85,6 +85,16 @@ static int uinput_request_alloc_id(struct input_dev *dev, struct uinput_request 
 	return -1;
 }
 
+static struct uinput_request* uinput_request_find(struct uinput_device *udev, int id)
+{
+	/* Find an input request, by ID. Returns NULL if the ID isn't valid. */
+	if (id >= UINPUT_NUM_REQUESTS || id < 0)
+		return NULL;
+	if (udev->requests[id]->completed)
+		return NULL;
+	return udev->requests[id];
+}
+
 static void uinput_request_init(struct input_dev *dev, struct uinput_request *request, int code)
 {
 	struct uinput_device *udev = (struct uinput_device *)dev->private;
@@ -111,8 +121,9 @@ static void uinput_request_submit(struct input_dev *dev, struct uinput_request *
 	if (retval)
 		request->retval = retval;
 
-	/* Release this request's ID */
+	/* Release this request's ID, let others know it's available */
 	udev->requests[request->id] = NULL;
+	wake_up_interruptible(&udev->requests_waitq);
 }
 
 static int uinput_dev_upload_effect(struct input_dev *dev, struct ff_effect *effect)
@@ -192,6 +203,7 @@ static int uinput_open(struct inode *inode, struct file *file)
 		goto error;
 	memset(newdev, 0, sizeof(struct uinput_device));
 	init_MUTEX(&newdev->requests_sem);
+	init_waitqueue_head(&newdev->requests_waitq);
 
 	newinput = kmalloc(sizeof(struct input_dev), GFP_KERNEL);
 	if (!newinput)
@@ -383,6 +395,10 @@ static int uinput_ioctl(struct inode *inode, struct file *file, unsigned int cmd
 {
 	int			retval = 0;
 	struct uinput_device	*udev;
+	void __user             *p = (void __user *)arg;
+	struct uinput_ff_upload ff_up;
+	struct uinput_ff_erase  ff_erase;
+	struct uinput_request   *req;
 
 	udev = (struct uinput_device *)file->private_data;
 
@@ -463,8 +479,74 @@ static int uinput_ioctl(struct inode *inode, struct file *file, unsigned int cmd
 			set_bit(arg, udev->dev->ffbit);
 			break;
 
+		case UI_BEGIN_FF_UPLOAD:
+			if (copy_from_user(&ff_up, p, sizeof(ff_up))) {
+				retval = -EFAULT;
+				break;
+			}
+			req = uinput_request_find(udev, ff_up.request_id);
+			if (!(req && req->code==UI_FF_UPLOAD && req->u.effect)) {
+				retval = -EINVAL;
+				break;
+			}
+			ff_up.retval = 0;
+			memcpy(&ff_up.effect, req->u.effect, sizeof(struct ff_effect));
+			if (copy_to_user(p, &ff_up, sizeof(ff_up))) {
+				retval = -EFAULT;
+				break;
+			}
+			break;
+
+		case UI_BEGIN_FF_ERASE:
+			if (copy_from_user(&ff_erase, p, sizeof(ff_erase))) {
+				retval = -EFAULT;
+				break;
+			}
+			req = uinput_request_find(udev, ff_erase.request_id);
+			if (!(req && req->code==UI_FF_ERASE)) {
+				retval = -EINVAL;
+				break;
+			}
+			ff_erase.retval = 0;
+			ff_erase.effect_id = req->u.effect_id;
+			if (copy_to_user(p, &ff_erase, sizeof(ff_erase))) {
+				retval = -EFAULT;
+				break;
+			}
+			break;
+
+		case UI_END_FF_UPLOAD:
+			if (copy_from_user(&ff_up, p, sizeof(ff_up))) {
+				retval = -EFAULT;
+				break;
+			}
+			req = uinput_request_find(udev, ff_up.request_id);
+			if (!(req && req->code==UI_FF_UPLOAD && req->u.effect)) {
+				retval = -EINVAL;
+				break;
+			}
+			req->retval = ff_up.retval;
+			req->completed = 1;
+			wake_up_interruptible(&req->waitq);
+			break;
+
+		case UI_END_FF_ERASE:
+			if (copy_from_user(&ff_erase, p, sizeof(ff_erase))) {
+				retval = -EFAULT;
+				break;
+			}
+			req = uinput_request_find(udev, ff_erase.request_id);
+			if (!(req && req->code==UI_FF_ERASE)) {
+				retval = -EINVAL;
+				break;
+			}
+			req->retval = ff_erase.retval;
+			req->completed = 1;
+			wake_up_interruptible(&req->waitq);
+			break;
+
 		default:
-			retval = -EFAULT;
+			retval = -EINVAL;
 	}
 	return retval;
 }
