@@ -1,0 +1,19 @@
+Package: fyre
+Version: 1.0.0
+Revision: 1
+Maintainer: David Trowbridge <trowbrds@cs.colorado.edu>
+GCC: 3.3
+Source: http://flapjack.navi.cx/releases/fyre/%n-%v.tar.gz
+Source-MD5: ba80360afb10fb7d2b2034310cfaa9e5
+SourceDirectory: %n-%v
+Depends: openexr (>= 1.2.1-1), gnet2, gnet2-shlibs, gtk+2, gtk+2-shlibs
+BuildDepends: openexr-dev (>= 1.2.1-1), gnet2, gnet2-shlibs, gtk+2, gtk+2-dev, gtk+2-shlibs
+Description: Peter de Jong chaotic function viewer
+DescDetail: <<
+Fyre is a tool for producing computational artwork based on histograms  of iterated chaotic functions. At the moment, it implements the Peter  de Jong map in a fixed-function pipeline with an interactive GTK+  frontend and a command line interface for easy and efficient rendering  of high-resolution, high quality images.
+<<
+DescPackaging: <<
+ Originally packaged by Christopher Howard.
+<<
+License: GPL
+Homepage: http://fyre.navi.cx/
