@@ -20,10 +20,38 @@
  */
 
 #include "gui.h"
+#include <gconf/gconf-client.h>
 
 #ifndef XCHAT_GNOME_PREFERENCES_DIALOG_H
 #define XCHAT_GNOME_PREFERENCES_DIALOG_H
 
+G_BEGIN_DECLS
+
+typedef struct _PreferencesDialog      PreferencesDialog;
+typedef struct _PreferencesDialogClass PreferencesDialogClass;
+#define PREFERENCES_DIALOG_TYPE            (preferences_dialog_get_type ());
+#define PREFERENCES_DIALOG(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), PREFERENCES_DIALOG_TYPE, PreferencesDialog))
+#define PREFERENCES_DIALOG_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), PREFERENCES_DIALOG_TYPE, PreferencesDialogClass))
+#define IS_PREFERENCES_DIALOG(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), PREFERENCES_DIALOG_TYPE))
+#define IS_PREFERENCES_DIALOG_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), PREFERENCES_DIALOG_TYPE))
+
+struct _PreferencesDialog
+{
+	GtkDialog parent;
+
+	GConfClient *gconf;
+};
+
+struct _PreferencesDialogClass
+{
+	GtkDialogClass parent_class;
+};
+
+GType              preferences_dialog_get_type (void) G_GNUC_CONST;
+PreferencesDialog *preferences_dialog_new ();
+
 void initialize_preferences_dialog ();
+
+G_END_DECLS
 
 #endif
