@@ -9,4 +9,6 @@
   for the remainder of the image. This would let us have a 'quality'
   parameter that's proportional to samples per bucket.
 
+* Undo/redo
+
 * Get .fa document icon working in linux
