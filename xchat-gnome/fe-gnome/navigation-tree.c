@@ -50,6 +50,7 @@ static void row_expanded                 (GtkTreeView *treeview, GtkTreeIter *it
 static void on_server_information        (GtkAction *action, gpointer data);
 static void on_server_reconnect          (GtkAction *action, gpointer data);
 static void on_server_disconnect         (GtkAction *action, gpointer data);
+static void on_server_close		         (GtkAction *action, gpointer data);
 static void on_server_channel_list       (GtkAction *action, gpointer data);
 static void on_save                      (GtkAction *action, gpointer data);
 static void on_close                     (GtkAction *action, gpointer data);
@@ -64,6 +65,7 @@ static GtkActionEntry action_entries [] = {
 	{ "ServerInformation", GTK_STOCK_DIALOG_INFO, _("_Information"), "", NULL, G_CALLBACK (on_server_information)},
 	{ "ServerReconnect", GTK_STOCK_REFRESH, _("_Reconnect"), "", NULL, G_CALLBACK (on_server_reconnect)},
 	{ "ServerDisconnect", GTK_STOCK_STOP, _("_Disconnect"), "", NULL, G_CALLBACK (on_server_disconnect)},
+	{ "ServerClose", GTK_STOCK_CLOSE, _("_Close"), "", NULL, G_CALLBACK (on_server_close)},
 	{ "ServerChannels", GTK_STOCK_INDEX, _("_Channels..."), "", NULL, G_CALLBACK (on_server_channel_list)},
 
 	/* Channel context menu */
@@ -1197,6 +1199,27 @@ on_server_disconnect (GtkAction *action, gpointer data)
 	if (gtk_tree_selection_get_selected (select, &model, &iter)) {
 		gtk_tree_model_get (model, &iter, 2, &s, -1);
 		s->server->disconnect (s, TRUE, -1);
+	}
+}
+
+static void
+on_server_close (GtkAction *action, gpointer data)
+{
+	GtkTreeView *treeview;
+	GtkTreeSelection *select;
+	GtkTreeModel *model;
+	GtkTreeIter iter;
+	session *sess;
+
+	treeview = GTK_TREE_VIEW (gui.server_tree);
+	select = gtk_tree_view_get_selection (treeview);
+
+	if (gtk_tree_selection_get_selected (select, &model, &iter)) {
+		gtk_tree_model_get (model, &iter, 2, &sess, -1);
+		/* Disconnect the server. */
+		sess->server->disconnect (sess, TRUE, -1);
+		/* Close the server. */
+		navigation_tree_remove (gui.server_tree, sess);
 	}
 }
 
