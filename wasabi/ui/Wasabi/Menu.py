@@ -71,7 +71,7 @@ class RingMenu(Menu):
            """
         radius = self.viewport.size[1] * 0.04
         theta = -x * 2*pi + pi/2
-        size = pow(sin(theta)*0.5+0.5, 3) * 120 + 40
+        size = (pow(sin(theta)*0.5+0.5, 3) * 0.20 + 0.06) * self.viewport.size[1]
         center = (self.viewport.size[0] * 0.5,
                   self.viewport.size[1] * 0.25)
         aspect = 2.9
