@@ -51,7 +51,7 @@ env.Install(dir=includeDir, source=libHeader)
 
 
 # Optional targets, only enabled if we have swig available
-if Tool('swig').exists(env):
+if 'swig' in env['TOOLS']:
     print " - Found SWIG, building Python package"
 
     # There doesn't seem to be any good way to do this yet...
