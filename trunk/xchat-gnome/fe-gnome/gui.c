@@ -6,6 +6,7 @@
 #include "about.h"
 #include "textgui.h"
 #include "userlist.h"
+#include "pixmaps.h"
 
 XChatGUI gui;
 
@@ -13,6 +14,7 @@ gboolean initialize_gui() {
 	gui.xml = glade_xml_new("xchat-gnome.glade", NULL, NULL);
 	if(!gui.xml)
 		return FALSE;
+	pixmaps_init();
 	initialize_main_window();
 	initialize_text_gui();
 	initialize_preferences_dialog();
