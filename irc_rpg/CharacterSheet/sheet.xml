@@ -23,6 +23,13 @@
 
 			<text_field label="Dexterity" path="/character/dexterity">
 			</text_field>
+			<hbox>
+				<drop_down>
+					<drop_down_item label="Strength">/character/strength</drop_down_item>
+					<drop_down_item label="Dexterity">/character/dexterity</drop_down_item>
+				</drop_down>
+				<dice label="Damage" sides="10"/>
+			</hbox>
 		</tab>
 
 		<tab label="Combat">
