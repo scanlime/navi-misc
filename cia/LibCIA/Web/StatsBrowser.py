@@ -255,9 +255,13 @@ class StatsPage(page.Page):
         """Given a duration in seconds, convert it to more appropriate units"""
         return widgets.Text(self.addTimeUnits(data.original))
 
-    def wvfactory_conditional(self, request, node, data):
+    def wvfactory_if(self, request, node, data):
         """Hide the children of this widget if our model evaluates to False"""
-        return Conditional(condition=data.original)
+        return Conditional(condition = data.original)
+
+    def wvfactory_ifNot(self, request, node, data):
+        """Hide the children of this widget if our model evaluates to True"""
+        return Conditional(condition = not data.original)
 
     def wvfactory_fullDate(self, request, node, data):
         """Convert UNIX time in UTC to a complete date and time"""
