@@ -171,4 +171,15 @@ void   db_packet_add_temperature (MYSQL*                mysql,
 		  num_samples);
 }
 
+void db_begin_transaction (MYSQL* mysql)
+{
+  db_query_printf(mysql, "SET AUTOCOMMIT=0");
+  db_query_printf(mysql, "BEGIN WORK");
+}
+
+void db_commit_transaction (MYSQL* mysql)
+{
+  db_query_printf(mysql, "COMMIT");
+}
+
 /* The End */

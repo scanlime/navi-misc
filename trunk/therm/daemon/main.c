@@ -73,7 +73,9 @@ int main(int argc, char **argv) {
 	/* We have a packet from the radio. Decode it and
 	 * store it somewhere if we can
 	 */
+	db_begin_transaction(&mysql);
 	store_packet(&mysql, packet);
+	db_commit_transaction(&mysql);
 	packet_free(packet);
       }
       else {
@@ -81,7 +83,9 @@ int main(int argc, char **argv) {
 	 * to sample the local temperature
 	 */
 	if (receiver_get_local_temp(rx, &t) >= 0) {
+	  db_begin_transaction(&mysql);
 	  average_local_temperature(&mysql, t);
+	  db_commit_transaction(&mysql);
 	}
 	else {
 	  /* This shouldn't fail- reconnect, there could be something up with our device. */
