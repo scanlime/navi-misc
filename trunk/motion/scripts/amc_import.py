@@ -31,6 +31,27 @@ import Blender
 from Blender.Armature.Bone import ROT, LOC
 import AMCReader
 
+dofTable = {}
+
+def getQuat(object, bone, rot):
+    try:
+        dof = dofTable[bone]
+    except KeyError:
+        dof = object.getProperty('%s-dof' % bone).getData().split(',')
+        dofTable[bone] = dof
+    r = [0.0, 0.0, 0.0]
+    i = 0
+    if dof:
+        for d in dof:
+            if d == 'rx':
+                r[0] = rot[i]
+            elif d == 'ry':
+                r[2] = rot[i]
+            else:
+                r[1] = rot[i]
+            i += 1
+    return r
+
 def importData (reader, object, filename):
     action = Blender.Armature.NLA.NewAction(filename)
     action.setActive(object)
@@ -47,22 +68,24 @@ def importData (reader, object, filename):
         context.currentFrame(frame.number)
 
         # set root position/rotation
-        loc = frame.bones['root'][0:3]
-        loc[0], loc[2], loc[1] = loc
+        #loc = frame.bones['root'][0:3]
+        #loc[0], loc[2], loc[1] = loc
         rot = frame.bones['root'][3:6]
         rot[0], rot[2], rot[1] = rot
         euler = Blender.Mathutils.Euler(rot)
         quat = euler.toQuat()
-        b['root'].setLoc(loc)
+        #b['root'].setLoc(loc)
         b['root'].setQuat(quat)
-        b['root'].setPose([ROT,LOC], action)
+        #b['root'].setPose([ROT,LOC], action)
+        b['root'].setPose([ROT], action)
+
+        print frame.number
 
         for bname, bone in frame.bones.iteritems():
             if bname == 'root':
                 continue
             rot = frame.bones[bname]
-            print bname, rot
-            rot[0], rot[2], rot[1] = rot
+            rot = getQuat(object, bname, rot)
             euler = Blender.Mathutils.Euler(rot)
             quat = euler.toQuat()
             b[bname].setQuat(quat)
