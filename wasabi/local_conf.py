@@ -9,7 +9,7 @@ START_FULLSCREEN_X  = 1
 ROM_DRIVES = [
 	('/mnt/cdrom', '/dev/cdrom', 'DVD'),
 	]
-HIDE_UNUSABLE_DISCS = 1               
+HIDE_UNUSABLE_DISCS = 1
 ROM_SPEED = 8
 
 ENABLE_SHUTDOWN_SYS = 1
@@ -42,7 +42,8 @@ plugin.remove('tv')
 plugin.remove('games')
 
 # Show navigational and OSD information on the MI6K
-plugin.activate('mi6k_display')
+plugin.activate('mi6k_vfd')
+VFD_TITLE = "Wasabi"
 
 # Add the USB Video Switch plugin and map all our inputs
 plugin.activate('uvswitch.detector')
