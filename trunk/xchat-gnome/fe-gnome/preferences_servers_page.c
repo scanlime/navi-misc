@@ -81,6 +81,12 @@ static void edit_clicked(GtkWidget *button, gpointer data) {
 	widget = glade_xml_get_widget(gui.xml, "server config cycle");
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), (net->flags & FLAG_CYCLE));
 
+	widget = glade_xml_get_widget(gui.xml, "server config network name");
+	char *name = g_strdup_printf("<span weight=\"bold\">%s</span>", net->name);
+	gtk_label_set_text(GTK_LABEL(widget), name);
+	gtk_label_set_use_markup(GTK_LABEL(widget), TRUE);
+	g_free(name);
+
 	gtk_widget_show_all(dialog);
 }
 
