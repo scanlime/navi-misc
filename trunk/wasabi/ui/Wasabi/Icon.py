@@ -176,6 +176,7 @@ class Dock(object):
                  iconApproachSpeed = 8,
                  selectionIndex    = 0.0,
                  ):
+        self.dockIconMap = {}
         self.viewport = viewport
         self.trackFunction = trackFunction
         self.iconSpacing = iconSpacing
@@ -198,13 +199,17 @@ class Dock(object):
 
     def add(self, *icons):
         """Add a list of icons to the dock, animating their entry."""
-        self.icons.extend([DockIcon(self, icon) for icon in icons])
+        for icon in icons:
+            dockIcon = DockIcon(self, icon)
+            self.dockIconMap[icon] = dockIcon
+            self.icons.append(dockIcon)
         self.respaceIcons()
 
     def remove(self, *icons):
         """Remove the given icons from the menu"""
         for icon in icons:
-            self.icons.remove(icon)
+            self.icons.remove(self.dockIconMap[icon])
+            del self.dockIconMap[icon]
         self.respaceIcons()
 
     def jump(self):

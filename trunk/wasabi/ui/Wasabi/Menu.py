@@ -65,6 +65,7 @@ class Menu(Sequencer.Page):
 class RingMenu(Menu):
     def __init__(self, book, items=[]):
         Menu.__init__(self, book)
+        self.items = items
         self.dock = Icon.Dock(self.overlay, self.trackFunction, [item.icon for item in items])
         self.bindings = Input.load(self.viewport, self, 'ringmenu_keys.py')
 
@@ -110,5 +111,16 @@ class RingMenu(Menu):
         # Break a circular reference (self -> self.dock -> self.dock.trackFunction)
         # that python's GC seems to have trouble with, at least in version 2.2.3
         self.dock = None
+
+    def add(self, *items):
+        """Adds one or more items to the menu"""
+        self.items.extend(items)
+        self.dock.add(*[item.icon for item in items])
+
+    def remove(self, *items):
+        """Removes one or more items from the menu"""
+        for item in items:
+            self.items.remove(item)
+        self.dock.remove(*[item.icon for item in items])
 
 ### The End ###

@@ -121,7 +121,7 @@ class MainMenu(Menu.RingMenu):
         # Add items for video devices that are already active
         self.channelItems = {}
         for channel in self.hardware.uvswitch.activeChannels:
-            item = VideoInput(channel)
+            item = VideoInput(self, channel)
             self.channelItems[channel] = item
             menuItems.append(item)
 
@@ -135,9 +135,9 @@ class MainMenu(Menu.RingMenu):
         """Observing the uvswitch onChannelActive event, this is called when a new
            channel becomes active, to add an icon to the menu.
            """
-        item = VideoInput(channel)
+        item = VideoInput(self, channel)
         self.channelItems[channel] = item
-        self.dock.add(item)
+        self.add(item)
 
     def removeChannel(self, channel):
         """Observing the uvswitch onChannelInactive event, this is called when a new
@@ -145,6 +145,6 @@ class MainMenu(Menu.RingMenu):
            """
         item = self.channelItems[channel]
         del self.channelItems[channel]
-        self.dock.remove(item)
+        self.remove(item)
 
 ### The End ###
