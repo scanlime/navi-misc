@@ -30,6 +30,7 @@ import vfdwidgets
 import time
 import threading
 import thread
+import re
 
 
 def findPlayingItem():
@@ -79,32 +80,43 @@ class MediaTitleWidget(MediaWidgetMixin, vfdwidgets.LoopingScroller):
         return getattr(item, 'title', None) or getattr(item, 'name', None)
 
 
-class MediaElapsedWidget(MediaWidgetMixin, vfdwidgets.Text):
-    """A widget that shows the amount of elapsed time
-       in the currently playing media file
+class MediaTimesWidget(MediaWidgetMixin, vfdwidgets.Text):
+    """A widget that shows the amount of elapsed and remaining time in
+       the currently playing media file.
        """
     def formatItem(self, item):
+        elapsed = self.formatElapsed(item)
+        total = self.formatTotal(item)
+        if elapsed and total:
+            return "%s / %s" % (elapsed, total)
+        elif elapsed:
+            return elapsed
+        elif total:
+            return total
+
+    def formatElapsed(self, item):
         try:
             elapsed = item['elapsed']
         except:
             return None
 
         if isinstance(elapsed, str):
-            # The item already formatted it for us
-            return elapsed
+            # The item already formatted it for us. Ignore it if we can't
+            # find any nonzero digits in it though- freevo currently doesn't
+            # get elapsed time info from xine, and it will be stuck at zero.
+            if re.search("[1-9]", elapsed):
+                return elapsed
+            else:
+                return
 
+        # Also ignore numeric elapsed times if they're stuck at zero
         if elapsed > 3600:
             # Format it with hours
             return "%d:%02d:%02d" % (elapsed/3600, (elapsed/60)%60, elapsed%60)
-        else:
+        elif elapsed > 0:
             return "%02d:%02d" % (elapsed/60, elapsed%60)
 
-
-class MediaLengthWidget(MediaWidgetMixin, vfdwidgets.Text):
-    """A widget that shows the total length
-       of the currently playing media file
-       """
-    def formatItem(self, item):
+    def formatTotal(self, item):
         try:
             length = item['runtime']
         except:
@@ -114,8 +126,7 @@ class MediaLengthWidget(MediaWidgetMixin, vfdwidgets.Text):
                 length = item['length']
             except:
                 length = None
-        if length:
-            return "/ %s" % length
+        return length
 
 
 class UpdaterThread(threading.Thread):
@@ -230,8 +241,7 @@ class PluginInterface(plugin.DaemonPlugin):
 
         # The status of the current media file
         self.surface.add(MediaTitleWidget(gravity=(0,-1), priority=10))
-        self.surface.add(MediaElapsedWidget(gravity=(10,1), priority=5))
-        self.surface.add(MediaLengthWidget(gravity=(11,1), priority=3))
+        self.surface.add(MediaTimesWidget(gravity=(10,1), priority=5))
 
     def drawBegin(self):
         """Called before any draw_* handler, or even if we have no handler
