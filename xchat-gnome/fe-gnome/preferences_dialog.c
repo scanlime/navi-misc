@@ -21,6 +21,7 @@
 
 #include "preferences_dialog.h"
 #include "preferences_servers_page.h"
+#include "pixmaps.h"
 
 void initialize_pages_list();
 void hide_preferences_dialog(GtkWidget *widget, gpointer data);
@@ -56,7 +57,6 @@ void initialize_pages_list() {
 	GtkCellRenderer *icon_renderer, *text_renderer;
 	GtkTreeViewColumn *icon_column, *text_column;
 	GtkTreeSelection *select;
-	GdkPixbuf *file_transfers, *irc_prefs, *servers, *plugins;
 
 	options_list = glade_xml_get_widget(gui.xml, "settings page list");
 
@@ -74,18 +74,14 @@ void initialize_pages_list() {
 	gtk_tree_selection_set_mode(select, GTK_SELECTION_SINGLE);
 	g_signal_connect(G_OBJECT(select), "changed", G_CALLBACK(settings_page_changed), NULL);
 
-	irc_prefs = gdk_pixbuf_scale_simple(gdk_pixbuf_new_from_file("data/irc.png", NULL), 24, 24, GDK_INTERP_BILINEAR);
 	gtk_list_store_append(store, &iter);
-	gtk_list_store_set(store, &iter, 0, irc_prefs, 1, "IRC Preferences", 2, 0, -1);
-	file_transfers = gdk_pixbuf_scale_simple(gdk_pixbuf_new_from_file("data/dcc.png", NULL), 24, 24, GDK_INTERP_BILINEAR);
+	gtk_list_store_set(store, &iter, 0, pix_prefs_irc, 1, "IRC Preferences", 2, 0, -1);
 	gtk_list_store_append(store, &iter);
-	gtk_list_store_set(store, &iter, 0, file_transfers, 1, "File Transfers & DCC", 2, 1, -1);
-	servers = gdk_pixbuf_scale_simple(gdk_pixbuf_new_from_file("data/servers.png", NULL), 24, 24, GDK_INTERP_BILINEAR);
+	gtk_list_store_set(store, &iter, 0, pix_prefs_dcc, 1, "File Transfers & DCC", 2, 1, -1);
 	gtk_list_store_append(store, &iter);
-	gtk_list_store_set(store, &iter, 0, servers, 1, "Networks", 2, 2, -1);
-	plugins = gdk_pixbuf_scale_simple(gdk_pixbuf_new_from_file("data/plugin-manager.png", NULL), 24, 24, GDK_INTERP_BILINEAR);
+	gtk_list_store_set(store, &iter, 0, pix_prefs_networks, 1, "Networks", 2, 2, -1);
 	gtk_list_store_append(store, &iter);
-	gtk_list_store_set(store, &iter, 0, plugins, 1, "Scripts and Plugins", 2, 3, -1);
+	gtk_list_store_set(store, &iter, 0, pix_prefs_plugins, 1, "Scripts and Plugins", 2, 3, -1);
 }
 
 void initialize_irc_preferences_page() {
