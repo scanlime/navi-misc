@@ -247,7 +247,7 @@ and <a href="http://ee-staff.ethz.ch/~oetiker/webtools/rrdtool/">rrdtool</a>
                     "DEF:%s_max=%s:temperature:MAX" % (therm.vname, therm.rrdfile),
                     "CDEF:%s_span=%s_max,%s_min,-" % (therm.vname, therm.vname, therm.vname),
                     "AREA:%s_min" % therm.vname,
-                    "STACK:%s_span%s" % (therm.vname, therm.color.blend(Color(1,1,1), 0.6)),
+                    "STACK:%s_span%s" % (therm.vname, therm.color.blend(Color(1,1,1), 0.7)),
                     ])
 
             # Draw averages for each therm
