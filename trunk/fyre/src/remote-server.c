@@ -183,9 +183,6 @@ static void       remote_server_dispatch_line (RemoteServerConn*     self,
     char* args;
     RemoteServerCallback callback;
 
-    if (self->server->verbose)
-	printf("[%s:%d] - %s\n", self->gconn->hostname, self->gconn->port, line);
-
     args = strchr(line, ' ');
     if (args) {
 	*args = '\0';
@@ -264,6 +261,9 @@ static void       cmd_calc_start       (RemoteServerConn*  self,
 					const char*        command,
 					const char*        parameters)
 {
+    if (self->server->verbose)
+	printf("[%s:%d] Starting calculation\n", self->gconn->hostname, self->gconn->port);
+
     iterative_map_start_calculation(self->map);
     remote_server_send_response(self, FYRE_RESPONSE_OK, "ok");
 }
@@ -272,6 +272,9 @@ static void       cmd_calc_stop        (RemoteServerConn*  self,
 					const char*        command,
 					const char*        parameters)
 {
+    if (self->server->verbose)
+	printf("[%s:%d] Pausing calculation\n", self->gconn->hostname, self->gconn->port);
+
     iterative_map_stop_calculation(self->map);
     remote_server_send_response(self, FYRE_RESPONSE_OK, "ok");
 }
@@ -280,6 +283,11 @@ static void       cmd_calc_status      (RemoteServerConn*  self,
 					const char*        command,
 					const char*        parameters)
 {
+    if (self->server->verbose)
+	printf("[%s:%d]  iterations: %.5e  density: %ld\n",
+	       self->gconn->hostname, self->gconn->port,
+	       self->map->iterations, HISTOGRAM_IMAGER(self->map)->peak_density);
+
     remote_server_send_response(self, FYRE_RESPONSE_PROGRESS, "iterations=%.20e density=%ld",
 				self->map->iterations, HISTOGRAM_IMAGER(self->map)->peak_density);
 }
