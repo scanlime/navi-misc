@@ -60,6 +60,7 @@ int main() {
   cv_dc1394_init();
   calib = calibrate();
 
+  printf("Displaying undistorted images");
   while (cv_sdl_process_events()) {
     images = cv_dc1394_capture_yuv(2);
     calib->Undistort(images, images);
