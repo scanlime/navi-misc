@@ -154,6 +154,7 @@ class Page(Nouvelle.Twisted.Page):
             tag('head')[
                 xml('<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />'),
                 tag('title')[ place("pageTitle") ],
+		place('baseTag'),
                 tag('style', type="text/css", media="all")[ "@import url(/style.css);" ],
                 place('extraHeaders'),
                 ],
@@ -245,6 +246,16 @@ class Page(Nouvelle.Twisted.Page):
             places.insert(0, node.render_link(context))
             node = node.parent()
         return places
+
+    def render_baseTag(self, context):
+        """Return an HTML <base> tag pointing at this page's original URL.
+           This keeps the page from breaking if it's saved to disk or copied elsewhere.
+           """
+        protocol, hostname, port = context['request'].host
+        server = "http://" + hostname
+        if port != 80:
+            server += ':' + str(port)
+        return tag('base', href = server + context['request'].path)
 
     def render_link(self, context):
         """Return a serializable object that should be used to link to this page.
