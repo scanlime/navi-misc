@@ -22,7 +22,6 @@ class AnalogUpdaterThread(threading.Thread):
 
     def run(self):
         while self.running:
-            # Perform an analog reading, using the array helpers
             readings = self.rcpod.analogReadAll()
             for i in xrange(len(readings)):
                 self.channels[i].value = readings[i]
