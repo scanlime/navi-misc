@@ -58,7 +58,7 @@ class Page(Template.Page):
        """
     def __init__(self, component, target=None):
         if target is None:
-            target = Stats.StatsTarget()
+            target = Stats.Target.StatsTarget()
         self.component = component
         self.target = target
 

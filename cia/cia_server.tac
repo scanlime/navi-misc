@@ -17,14 +17,14 @@ botNet = IRC.Bots.BotNetwork(IRC.Bots.SequentialNickAllocator("CIA-"))
 
 # Set up periodic maintenance tasks
 Cron.Scheduler(
-    Cron.Event(Cron.hourly, Stats.Maintenance().run, "stats maintenance"),
+    Cron.Event(Cron.hourly, Stats.Target.Maintenance().run, "stats maintenance"),
     Cron.Event(Cron.hourly, Cache.Maintenance().run, "cache maintenance"),
     )
 
 # A list of URI handlers that can be used as targets for rulesets
 uriRegistry = Ruleset.URIRegistry(
     IRC.Handler.IrcURIHandler(botNet),
-    Stats.StatsURIHandler(),
+    Stats.Handler.StatsURIHandler(),
     RpcClient.XmlrpcURIHandler(),
     )
 
@@ -48,7 +48,7 @@ rpc = RpcServer.Interface()
 rpc.putSubHandler('hub', Message.HubInterface(hub))
 rpc.putSubHandler('mail', IncomingMail.MailInterface(hub))
 rpc.putSubHandler('ruleset', Ruleset.RulesetInterface(rulesetStorage))
-rpc.putSubHandler('stats', Stats.StatsInterface())
+rpc.putSubHandler('stats', Stats.Interface.StatsInterface())
 rpc.putSubHandler('security', Security.SecurityInterface())
 rpc.putSubHandler('debug', Debug.DebugInterface())
 webRoot.putChild('RPC2', rpc)
