@@ -2,7 +2,6 @@
 <!DOCTYPE glade-interface SYSTEM "http://glade.gnome.org/glade-2.0.dtd">
 
 <glade-interface>
-<requires lib="gnome"/>
 
 <widget class="GtkWindow" id="explorer_window">
   <property name="title" translatable="yes">Fyre</property>
@@ -11,6 +10,11 @@
   <property name="modal">False</property>
   <property name="resizable">True</property>
   <property name="destroy_with_parent">False</property>
+  <property name="decorated">True</property>
+  <property name="skip_taskbar_hint">False</property>
+  <property name="skip_pager_hint">False</property>
+  <property name="type_hint">GDK_WINDOW_TYPE_HINT_NORMAL</property>
+  <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <signal name="delete_event" handler="on_quit" last_modification_time="Sun, 15 Feb 2004 09:09:15 GMT"/>
 
   <child>
@@ -538,6 +542,11 @@
   <property name="default_height">500</property>
   <property name="resizable">True</property>
   <property name="destroy_with_parent">False</property>
+  <property name="decorated">True</property>
+  <property name="skip_taskbar_hint">False</property>
+  <property name="skip_pager_hint">False</property>
+  <property name="type_hint">GDK_WINDOW_TYPE_HINT_NORMAL</property>
+  <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <signal name="delete_event" handler="on_anim_window_delete" last_modification_time="Sun, 22 Feb 2004 05:43:16 GMT"/>
 
   <child>
@@ -773,6 +782,7 @@
 		  <property name="visible">True</property>
 		  <property name="can_focus">True</property>
 		  <property name="relief">GTK_RELIEF_NORMAL</property>
+		  <property name="focus_on_click">True</property>
 		  <property name="active">False</property>
 		  <property name="inconsistent">False</property>
 		  <signal name="toggled" handler="on_anim_play_toggled" last_modification_time="Wed, 18 Feb 2004 23:29:37 GMT"/>
@@ -784,6 +794,10 @@
 		      <property name="yalign">0.5</property>
 		      <property name="xscale">0</property>
 		      <property name="yscale">0</property>
+		      <property name="top_padding">0</property>
+		      <property name="bottom_padding">0</property>
+		      <property name="left_padding">0</property>
+		      <property name="right_padding">0</property>
 
 		      <child>
 			<widget class="GtkHBox" id="hbox10">
@@ -842,6 +856,7 @@
 		  <property name="label">gtk-add</property>
 		  <property name="use_stock">True</property>
 		  <property name="relief">GTK_RELIEF_NORMAL</property>
+		  <property name="focus_on_click">True</property>
 		  <signal name="clicked" handler="on_keyframe_add" last_modification_time="Thu, 19 Feb 2004 02:24:03 GMT"/>
 		</widget>
 	      </child>
@@ -853,6 +868,7 @@
 		  <property name="can_default">True</property>
 		  <property name="can_focus">True</property>
 		  <property name="relief">GTK_RELIEF_NORMAL</property>
+		  <property name="focus_on_click">True</property>
 		  <signal name="clicked" handler="on_keyframe_replace" last_modification_time="Thu, 19 Feb 2004 03:06:10 GMT"/>
 
 		  <child>
@@ -862,6 +878,10 @@
 		      <property name="yalign">0.5</property>
 		      <property name="xscale">0</property>
 		      <property name="yscale">0</property>
+		      <property name="top_padding">0</property>
+		      <property name="bottom_padding">0</property>
+		      <property name="left_padding">0</property>
+		      <property name="right_padding">0</property>
 
 		      <child>
 			<widget class="GtkHBox" id="hbox11">
@@ -921,6 +941,7 @@
 		  <property name="label">gtk-delete</property>
 		  <property name="use_stock">True</property>
 		  <property name="relief">GTK_RELIEF_NORMAL</property>
+		  <property name="focus_on_click">True</property>
 		  <signal name="clicked" handler="on_keyframe_delete" last_modification_time="Wed, 18 Feb 2004 23:15:54 GMT"/>
 		</widget>
 	      </child>
@@ -1121,6 +1142,7 @@
 			      <property name="label" translatable="yes">Linear</property>
 			      <property name="use_underline">True</property>
 			      <property name="relief">GTK_RELIEF_NORMAL</property>
+			      <property name="focus_on_click">True</property>
 			      <signal name="clicked" handler="on_anim_set_linear" last_modification_time="Sun, 22 Feb 2004 17:43:32 GMT"/>
 			    </widget>
 			    <packing>
@@ -1140,6 +1162,7 @@
 			      <property name="label" translatable="yes">Smooth</property>
 			      <property name="use_underline">True</property>
 			      <property name="relief">GTK_RELIEF_NORMAL</property>
+			      <property name="focus_on_click">True</property>
 			      <signal name="clicked" handler="on_anim_set_smooth" last_modification_time="Sun, 22 Feb 2004 17:43:40 GMT"/>
 			    </widget>
 			    <packing>
