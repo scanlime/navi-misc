@@ -37,7 +37,12 @@ public class key
     {
 	keystring = key.keygen();
     }
-    
+
+    public key(String kei)
+    {
+	keystring = kei;
+    }
+
     public String encrypt(String text)
     {
 	return key.encrypt(keystring,text);
@@ -45,7 +50,7 @@ public class key
     
     public String decrypt(String text)
     {
-	return key.decrpyt(keystring,text);
+	return key.decrypt(keystring,text);
     }
 
     public String getKey()
