@@ -131,7 +131,7 @@
         An 8-port video/audio switch and signal detector, controlled over USB
       </description>
       <status>
-        Revision A hardware designed, PCB being fabricated
+        Revision A hardware, firmware, and kernel module all built and working
       </status>
       <people>
         Micah
