@@ -30,16 +30,9 @@ public class PipelineEditor
 	PluginManager plugin_manager;
 
 	/* Widgets */
-	/* Element list (upper left) */
+	/* Element list (left) */
 	private Gtk.TreeStore		element_store;
 	[Widget] Gtk.TreeView		element_list;
-
-	/* Element information (bottom left) */
-	[Widget] Gtk.Image		element_image;
-	[Widget] Gtk.Label		element_name;
-	[Widget] Gtk.Label		element_description;
-	[Widget] Gtk.Label		element_inputs;
-	[Widget] Gtk.Label		element_outputs;
 
 	/* Editor workspace (right) */
 	[Widget] Gtk.ScrolledWindow	pipeline_window;
@@ -99,27 +92,9 @@ public class PipelineEditor
 				element_store.AppendValues (iter, pixbuf, name, t);
 			}
 		}
-		
-		element_list.Selection.Changed += OnSelectionChanged;
 
 		/* Finally, run the application */
 		Application.Run();
-        }
-
-        void OnSelectionChanged (object o, EventArgs args)
-        {
-        	TreeIter iter;
-        	TreeModel model;
-        	
-        	if (((TreeSelection)o).GetSelected (out model, out iter)) {
-        		Type t = (Type) model.GetValue (iter, 2);
-        		if (t != null) {
-				object[] i = {};
-				Element e = (Element) t.GetConstructor(Type.EmptyTypes).Invoke(i);
-			
-				this.SetInfo (e);
-			}
-        	}
         }
 
 	/* Event handlers - most of these come from the glade file */
@@ -168,14 +143,5 @@ public class PipelineEditor
 	/* 'Edit' Menu events */
 	public void OnMenuEditDelete (object o, EventArgs args)
 	{
-	}
-	
-	public void SetInfo (Element e)
-	{
-		element_name.Markup = "<span weight=\"bold\" size=\"large\">" + e.Name () + "</span>";
-		element_image.Pixbuf = e.Icon ();
-		element_description.Markup = "<span size=\"small\">" + e.Description () + "</span>";
-		element_inputs.Markup = "<span size=\"small\">" + e.InputDesc () + "</span>";
-		element_outputs.Markup = "<span size=\"small\">" + e.OutputDesc () + "</span>";
 	}
 }
