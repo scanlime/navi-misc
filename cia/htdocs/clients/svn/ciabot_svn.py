@@ -68,6 +68,12 @@ class config:
     #
     pathRegex = None
 
+    # If your repository is accessable over the web, put its base URL here
+    # and 'uri' attributes will be given to all <file> elements. This means
+    # that in CIA's online message viewer, each file in the tree will link
+    # directly to the file in your repository
+    repositoryURI = None
+
     # This can be the http:// URI of the CIA server to deliver commits over
     # XML-RPC, or it can be an email address to deliver using SMTP. The
     # default here should work for most people. If you need to use e-mail
@@ -88,14 +94,45 @@ class config:
 
 ############# Normally the rest of this won't need modification
 
-import sys, os, re
+import sys, os, re, urllib
+
+
+class File:
+    """A file in a Subversion repository. According to our current
+    configuration, this may have a module, branch, and URI in addition
+    to a path."""
+
+    def __init__(self, fullPath):
+        self.fullPath = fullPath
+        self.path = fullPath
+
+    def getURI(self, repo):
+        """Get the URI of this file, given the repository's URI. This
+        encodes the full path and joins it to the given URI."""
+        quotedPath = urllib.quote(self.fullPath)
+        if quotedPath[0] == '/':
+            quotedPath = quotedPath[1:]
+        if repo[-1] != '/':
+            repo = repo + '/'
+        return repo + quotedPath
+
+    def makeTag(self, config):
+        """Return an XML tag for this file, using the given config"""
+        attrs = {}
+
+        if config.repositoryURI is not None:
+            attrs['uri'] = self.getURI(config.repositoryURI)
+
+        attrString = ''.join([' %s="%s"' % (key, escapeToXml(value,1))
+                              for key, value in attrs.iteritems()])
+        return "<file%s>%s</file>" % (attrString, escapeToXml(self.path))
 
 
 class SvnClient:
     """A CIA client for Subversion repositories. Uses svnlook to
     gather information"""
     name = 'Python Subversion client for CIA'
-    version = '1.12'
+    version = '1.13'
 
     def __init__(self, repository, revision, config):
         self.repository = repository
@@ -167,8 +204,8 @@ class SvnClient:
 
     def makeFileTags(self):
         """Return XML tags for our file list"""
-        return "<files>%s</files>" % \
-               ''.join(["<file>%s</file>" % file for file in self.files])
+        return "<files>%s</files>" % ''.join([file.makeTag(self.config)
+                                              for file in self.files])
 
     def svnlook(self, command):
         """Run the given svnlook command on our current repository and
@@ -188,7 +225,7 @@ class SvnClient:
         for line in self.svnlook('changed').split('\n'):
             line = line[2:].strip()
             if line:
-                files.append(line)
+                files.append(File(line))
 
         if self.config.pathRegex:
             # We have a regex we'll be applying to each path to try to
@@ -198,7 +235,7 @@ class SvnClient:
             prevMatchDict = None
             regex = re.compile(self.config.pathRegex, re.VERBOSE)
             for file in files:
-                match = regex.match(file)
+                match = regex.match(file.fullPath)
                 if not match:
                     # Give up, it must match every file
                     return files
@@ -213,9 +250,10 @@ class SvnClient:
             # the same results.  Now filter the matched portion out of
             # each file and store the matches we found.
             self.__dict__.update(prevMatchDict)
-            return [regex.sub('', file) for file in files]
-        else:
-            return files
+            for file in files:
+                file.path = regex.sub('', file.fullPath)
+
+        return files
 
 
 def escapeToXml(text, isAttrib=0):
