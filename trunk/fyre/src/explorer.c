@@ -103,9 +103,9 @@ static void explorer_init(Explorer *self) {
 static void explorer_dispose(GObject *gobject) {
   Explorer *self = EXPLORER(gobject);
 
-  if (self->dejong) {
-    g_object_unref(self->dejong);
-    self->dejong = NULL;
+  if (self->map) {
+    g_object_unref(self->map);
+    self->map = NULL;
   }
   if (self->idler) {
     g_source_remove(self->idler);
@@ -115,22 +115,22 @@ static void explorer_dispose(GObject *gobject) {
   explorer_dispose_animation(self);
 }
 
-Explorer* explorer_new(DeJong *dejong, Animation *animation) {
+Explorer* explorer_new(IterativeMap *map, Animation *animation) {
   Explorer *self = EXPLORER(g_object_new(explorer_get_type(), NULL));
   GtkWidget *editor, *window, *scroll;
   GtkRequisition win_req;
 
   self->animation = ANIMATION(g_object_ref(animation));
-  self->dejong = DE_JONG(g_object_ref(dejong));
+  self->map = ITERATIVE_MAP(g_object_ref(map));
 
   /* Create the parameter editor */
-  editor = parameter_editor_new(PARAMETER_HOLDER(dejong));
+  editor = parameter_editor_new(PARAMETER_HOLDER(map));
   gtk_box_pack_start(GTK_BOX(glade_xml_get_widget(self->xml, "parameter_editor_box")),
 		     editor, FALSE, FALSE, 0);
   gtk_widget_show_all(editor);
 
   /* Create the view */
-  self->view = histogram_view_new(HISTOGRAM_IMAGER(dejong));
+  self->view = histogram_view_new(HISTOGRAM_IMAGER(map));
   gtk_container_add(GTK_CONTAINER(glade_xml_get_widget(self->xml, "drawing_area_viewport")), self->view);
   gtk_widget_show_all(self->view);
 
@@ -164,7 +164,7 @@ static gdouble generate_random_param() {
 static void on_randomize(GtkWidget *widget, gpointer user_data) {
   Explorer *self = EXPLORER(user_data);
 
-  g_object_set(self->dejong,
+  g_object_set(self->map,
 	       "a", generate_random_param(),
 	       "b", generate_random_param(),
 	       "c", generate_random_param(),
@@ -174,7 +174,7 @@ static void on_randomize(GtkWidget *widget, gpointer user_data) {
 
 static void on_load_defaults(GtkWidget *widget, gpointer user_data) {
   Explorer *self = EXPLORER(user_data);
-  parameter_holder_reset_to_defaults(PARAMETER_HOLDER(self->dejong));
+  parameter_holder_reset_to_defaults(PARAMETER_HOLDER(self->map));
 }
 
 
@@ -213,7 +213,7 @@ static void on_load_from_image(GtkWidget *widget, gpointer user_data) {
   if(gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_OK) {
     const gchar *filename;
     filename = gtk_file_selection_get_filename(GTK_FILE_SELECTION(dialog));
-    histogram_imager_load_image_file(HISTOGRAM_IMAGER(self->dejong), filename);
+    histogram_imager_load_image_file(HISTOGRAM_IMAGER(self->map), filename);
   }
   gtk_widget_destroy(dialog);
 }
@@ -228,7 +228,7 @@ static void on_save(GtkWidget *widget, gpointer user_data) {
   if(gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_OK) {
     const gchar *filename;
     filename = gtk_file_selection_get_filename(GTK_FILE_SELECTION(dialog));
-    histogram_imager_save_image_file(HISTOGRAM_IMAGER(self->dejong), filename);
+    histogram_imager_save_image_file(HISTOGRAM_IMAGER(self->map), filename);
   }
   gtk_widget_destroy(dialog);
 }
@@ -266,7 +266,7 @@ void explorer_run_iterations(Explorer *self) {
   g_timer_start(timer);
 
   do {
-    de_jong_calculate(self->dejong, 5000);
+    iterative_map_calculate(ITERATIVE_MAP(self->map), 5000);
     g_timer_elapsed(timer, &elapsed);
   } while (elapsed < 13000);
 
@@ -306,7 +306,7 @@ static gboolean explorer_auto_limit_update_rate(Explorer *self) {
   const float ramp_down_seconds = 3;
   float rate, elapsed;
 
-  elapsed = histogram_imager_get_elapsed_time(HISTOGRAM_IMAGER(self->dejong));
+  elapsed = histogram_imager_get_elapsed_time(HISTOGRAM_IMAGER(self->map));
   rate = initial_rate + (final_rate - initial_rate) * (elapsed / ramp_down_seconds);
   if (rate < final_rate)
     rate = final_rate;
@@ -321,15 +321,15 @@ void explorer_update_gui(Explorer *self) {
    */
 
   /* Skip frame rate limiting if we have parameter or status changes to show quickly */
-  if (!(HISTOGRAM_IMAGER(self->dejong)->render_dirty_flag || self->status_dirty_flag)) {
+  if (!(HISTOGRAM_IMAGER(self->map)->render_dirty_flag || self->status_dirty_flag)) {
     if (explorer_auto_limit_update_rate(self))
       return;
   }
 
   /* We don't want to update the status bar if we're trying to show rendering changes quickly */
-  if (!HISTOGRAM_IMAGER(self->dejong)->render_dirty_flag) {
+  if (!HISTOGRAM_IMAGER(self->map)->render_dirty_flag) {
     gchar *iters = g_strdup_printf("Iterations:    %.3e    \tPeak density:    %d    \tCurrent tool: %s",
-				   self->dejong->iterations, HISTOGRAM_IMAGER(self->dejong)->peak_density, self->current_tool);
+				   self->map->iterations, HISTOGRAM_IMAGER(self->map)->peak_density, self->current_tool);
     if (self->render_status_message_id)
       gtk_statusbar_remove(self->statusbar, self->render_status_context, self->render_status_message_id);
     self->render_status_message_id = gtk_statusbar_push(self->statusbar, self->render_status_context, iters);

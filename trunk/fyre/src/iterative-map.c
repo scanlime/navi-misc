@@ -62,7 +62,8 @@ static void iterative_map_init(IterativeMap *self) {
 }
 
 void iterative_map_calculate(IterativeMap *self, guint iterations) {
-  self->calculate(self, iterations);
+  IterativeMapClass *class = ITERATIVE_MAP_CLASS(G_OBJECT_GET_CLASS(self));
+  class->calculate(self, iterations);
 }
 
 void iterative_map_calculate_motion(IterativeMap          *self,
@@ -70,5 +71,6 @@ void iterative_map_calculate_motion(IterativeMap          *self,
                                     gboolean               continuation,
                                     ParameterInterpolator *interp,
                                     gpointer               interp_data) {
-  self->calculate_motion(self, iterations, continuation, interp, interp_data);
+  IterativeMapClass *class = ITERATIVE_MAP_CLASS(G_OBJECT_GET_CLASS(self));
+  class->calculate_motion(self, iterations, continuation, interp, interp_data);
 }
