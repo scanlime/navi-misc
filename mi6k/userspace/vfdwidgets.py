@@ -31,6 +31,9 @@ to, and a priority that controls which widgets are hidden if space becomes scarc
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
+from __future__ import division
+
+
 class Widget(object):
     """Abstract base class for all widgets. Subclasses must override
        at least 'draw', and many of this class' attributes should be
@@ -56,7 +59,6 @@ class Widget(object):
     visible = True
     height = 1
     minWidth = 0
-    maxWidth = None
     sizeWeight = 1
 
     priority = 1
@@ -66,13 +68,57 @@ class Widget(object):
            The widget is responsible for adjusting itself to the given size
            in the best way possible.
            """
-        raise NotImplemented
+        raise NotImplementedError
 
     def update(self, dt):
         """Animated widgets override this to update their state. 'dt' is the
            delta time since the last update, in seconds.
            """
         pass
+
+
+class Text(Widget):
+    """A simple fixed-size text widget, with no scrolling, aligned somehow
+       in its allocated rectangle. The default is for it to be centered.
+       """
+    def __init__(self, text='', gravity=(-1, -1), align=(0.5, 0.5), priority=1):
+        Widget.__init__(self)
+        self.text = text
+        self.align = align
+        self.gravity = gravity
+        self.priority = priority
+
+    def setText(self, text):
+        self._text = text
+        self.textChanged()
+
+    def getText(self):
+        return self._text
+
+    text = property(getText, setText)
+
+    def textChanged(self):
+        self._lines = self._text.split("\n")
+        w = 0
+        for line in self._lines:
+            w = max(w, len(line))
+        self.minWidth = w
+        self.height = len(self._lines)
+
+    def draw(self, width, height):
+        buffer = []
+        x = int((width - self.minWidth) * self.align[0] + 0.5)
+        y = int((height - self.height) * self.align[1] + 0.5)
+
+        buffer.extend([" "*width] * y)
+        for line in self._lines[:height]:
+            if len(line) > width:
+                buffer.append(line[:width])
+            else:
+                buffer.append(" "*x + line + " "*(width-len(line)-x))
+        while len(buffer) < height:
+            buffer.append(" "*width)
+        return buffer
 
 
 class Rect:
@@ -177,13 +223,16 @@ class LayoutLine:
                 extraWidth -= widget.minWidth
                 totalWeight += widget.sizeWeight
 
+        # Account for padding
+        extraWidth -= len(unbiased)-1
+
         # Lay out the unbiased widgets using this extra space
         if rNeighbour:
             pad, remaining = remaining.splitRight(1)
         for widget in unbiased:
             if lNeighbour:
                 pad, remaining = remaining.splitLeft(1)
-            width = widget.minWidth + extraWidth * widget.sizeWeight / totalWeight
+            width = widget.minWidth + extraWidth * widget.sizeWeight // totalWeight
             wrect, remaining = remaining.splitLeft(width)
             lNeighbour = widget
             widgetRects[widget] = wrect
@@ -191,10 +240,35 @@ class LayoutLine:
 
 class Surface(object):
     """A fixed-size character array where widgets can be placed"""
-    def __init__(self, width, height, widgets=()):
+    def __init__(self, width, height, widgets=(), background=" "):
         self.width = width
         self.height = height
         self.widgets = list(widgets)
+        self.background = background
+        self.widgetRects = {}
+
+    def draw(self):
+        """Ask each widget to draw itself and copy them into their
+           rectangles on our surface buffer. layout() must have already
+           been run since the last change to the widget lists or to
+           widget sizes or priorities.
+           """
+        buffer = [self.background * self.width] * self.height
+        for widget, rect in self.widgetRects.iteritems():
+            w = widget.draw(rect.width, rect.height)
+            for y in xrange(rect.height):
+                line = buffer[rect.y + y]
+                buffer[rect.y + y] = line[:rect.x] + w[y] + line[rect.x + rect.width:]
+        return buffer
+
+    def show(self):
+        """Mostly for debugging, this will draw() the surface then
+           display it to stdout.
+           """
+        print "+" + "-"*self.width + "+"
+        for line in self.draw():
+            print "|"+line+"|"
+        print "+" + "-"*self.width + "+"
 
     def layout(self):
         """Examine our list of widgets and find a place for as many as
@@ -208,14 +282,30 @@ class Surface(object):
         toPlace = [widget for widget in self.widgets if widget.visible]
 
         # Attempt the layout, removing a widget each time it fails
-        while not self.layoutIteration(toPlace):
-            toPlace.remove(toRemove[0])
-            del toRemove[0]
+        while True:
+            result = self.layoutIteration(toPlace)
+            if result is True:
+                return
+            elif result is False:
+                # Vertical failure, remove the lowest priority widget no matter what
+                toPlace.remove(toRemove[0])
+                del toRemove[0]
+            else:
+                # Horizontal failure, remove one of the suggested widgets, starting
+                # with the lowest priorities
+                for w in toRemove:
+                    if w in result:
+                        toPlace.remove(w)
+                        toRemove.remove(w)
+                        break
 
     def layoutIteration(self, widgets):
-        """Attempt to lay out all given widgets. Returns True on success
-           or False if we run out of space.
+        """Attempt to lay out all given widgets. Returns True on success.
+           If we have a horizontal placement error this returns a list of
+           failed widgets. If we have a vertical placement error, returns False.
            """
+        unplaceable = []
+
         # Divide all widgets into layout lines according to their Y gravity
         layoutLines = {}
         for widget in widgets:
@@ -225,7 +315,10 @@ class Surface(object):
                 line = LayoutLine(self.width, widget.gravity[1])
                 layoutLines[widget.gravity[1]] = line
             if not line.add(widget):
-                return False
+                unplaceable.append(widget)
+
+        if unplaceable:
+            return unplaceable
 
         # See if we ran out of vertical space
         totalHeight = 0
@@ -258,11 +351,14 @@ class Surface(object):
 
 
 if __name__ == "__main__":
-    w = [Widget() for i in xrange(50)]
-    w[0].gravity = (-1,-1)
-    s = Surface(20, 10, w)
+    w = [Text("Wgt%d" % i) for i in xrange(5)]
+    w[0].gravity = (0,-1)
+    w[1].gravity = (1,1)
+    w[2].gravity = (1,2)
+    w[3].gravity = (1,2)
+    w[4].gravity = (-1,2)
+    s = Surface(20, 5, w)
     s.layout()
-    for r in s.widgetRects.itervalues():
-        print r
+    s.show()
 
 ### The End ###
