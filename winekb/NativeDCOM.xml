@@ -3,9 +3,11 @@
 <kbpage title="Installing native DCOM" backlink="index">
 
   <section title="What is it?">
-    DCOM is a complex subsystem of Windows that certain programs make heavy use of, in particular <b>InstallShield</b>
-    which will not always work correctly with Wines built in DCOM. Therefore to install some programs you may need to
-    first install native DCOM, which Microsoft makes available as a standalone installer.
+    DCOM is a complex subsystem of Windows that certain programs make heavy use
+    of, in particular <b>InstallShield</b> which will not always work correctly
+    with Wines built in DCOM. Therefore to install some programs you may need to
+    first install native DCOM, which Microsoft makes available as a standalone
+    installer.
   </section>
   
   <section title="How to install">
