@@ -159,8 +159,8 @@ class Lights(object):
        """
     def __init__(self, dev):
         self.dev = dev
-        self._white = 0
-        self._blue = 0
+        self._white = None
+        self._blue = None
 
     def set(self, white, blue):
         ioctl(self.dev, 0x3601, struct.pack("HH",
@@ -168,14 +168,16 @@ class Lights(object):
                                             min(1, max(0, blue )) * 0xFFFF))
 
     def setWhite(self, white):
-        self.set(white, self._blue)
-        self._white = white
-        self.dev.flush()
+        if self._white != white:
+            self.set(white, self._blue)
+            self._white = white
+            self.dev.flush()
 
     def setBlue(self, blue):
-        self.set(self._white, blue)
-        self._blue = blue
-        self.dev.flush()
+        if self._blue != blue:
+            self.set(self._white, blue)
+            self._blue = blue
+            self.dev.flush()
 
     def getWhite(self):
         return self._white
