@@ -22,7 +22,6 @@ desktop_DATA = xchat-gnome.desktop
 xchat_gnome_DATA =				\
 	channel-list.glade			\
 	irc-network-editor.glade		\
-	transfers.glade				\
 	preferences-dialog.glade		\
 	setup-dialog.glade			\
 	topic-change.glade			\
@@ -86,8 +85,6 @@ EXTRA_DIST =					\
 	setup-dialog.c				\
 	textgui.h				\
 	textgui.c				\
-	transfers.h				\
-	transfers.c				\
 	userlist.h				\
 	userlist.c				\
 	userlist-gui.h				\
@@ -148,8 +145,6 @@ xchat_gnome_SOURCES =				\
 	setup-dialog.c				\
 	textgui.h				\
 	textgui.c				\
-	transfers.h				\
-	transfers.c				\
 	userlist.h				\
 	userlist.c				\
 	userlist-gui.h				\
