@@ -62,12 +62,12 @@ enet_peer_throttle_configure (ENetPeer * peer, enet_uint32 interval, enet_uint32
 int
 enet_peer_throttle (ENetPeer * peer, enet_uint32 rtt)
 {
-    if (peer -> lastRoundTripTime <= peer -> lastRoundTripTimeVariance)
+    if (peer -> bestRoundTripTime <= peer -> roundTripTimeVariance)
     {
         peer -> packetThrottle = peer -> packetThrottleLimit;
     }
     else
-    if (rtt < peer -> lastRoundTripTime)
+    if (rtt < peer -> bestRoundTripTime - peer -> roundTripTimeVariance)
     {
         peer -> packetThrottle += peer -> packetThrottleAcceleration;
 
@@ -77,7 +77,7 @@ enet_peer_throttle (ENetPeer * peer, enet_uint32 rtt)
         return 1;
     }
     else
-    if (rtt > peer -> lastRoundTripTime + 2 * peer -> lastRoundTripTimeVariance)
+    if (rtt > peer -> bestRoundTripTime + peer -> roundTripTimeVariance)
     {
         if (peer -> packetThrottle > peer -> packetThrottleDeceleration)
           peer -> packetThrottle -= peer -> packetThrottleDeceleration;
@@ -284,36 +284,6 @@ enet_peer_reset_incoming_commands (ENetList * queue)
     }
 }
 
-void
-enet_peer_reset_queues (ENetPeer * peer)
-{
-    ENetChannel * channel;
-
-    while (enet_list_empty (& peer -> acknowledgements) == 0)
-      enet_free (enet_list_remove (enet_list_begin (& peer -> acknowledgements)));
-
-    enet_peer_reset_outgoing_commands (& peer -> sentReliableCommands);
-    enet_peer_reset_outgoing_commands (& peer -> sentUnreliableCommands);
-    enet_peer_reset_outgoing_commands (& peer -> outgoingReliableCommands);
-    enet_peer_reset_outgoing_commands (& peer -> outgoingUnreliableCommands);
-
-    if (peer -> channels != NULL && peer -> channelCount > 0)
-    {
-        for (channel = peer -> channels;
-             channel < & peer -> channels [peer -> channelCount];
-             ++ channel)
-        {
-            enet_peer_reset_incoming_commands (& channel -> incomingReliableCommands);
-            enet_peer_reset_incoming_commands (& channel -> incomingUnreliableCommands);
-        }
-
-        enet_free (peer -> channels);
-    }
-
-    peer -> channels = NULL;
-    peer -> channelCount = 0;
-}
-
 /** Forcefully disconnects a peer.
     @param peer peer to forcefully disconnect
     @remarks The foreign host represented by the peer is not notified of the disconnection and will timeout
@@ -322,6 +292,8 @@ enet_peer_reset_queues (ENetPeer * peer)
 void
 enet_peer_reset (ENetPeer * peer)
 {
+    ENetChannel * channel;
+
     peer -> outgoingPeerID = 0xFFFF;
     peer -> challenge = 0;
 
@@ -351,18 +323,53 @@ enet_peer_reset (ENetPeer * peer)
     peer -> packetThrottleAcceleration = ENET_PEER_PACKET_THROTTLE_ACCELERATION;
     peer -> packetThrottleDeceleration = ENET_PEER_PACKET_THROTTLE_DECELERATION;
     peer -> packetThrottleInterval = ENET_PEER_PACKET_THROTTLE_INTERVAL;
-    peer -> lastRoundTripTime = ENET_PEER_DEFAULT_ROUND_TRIP_TIME;
-    peer -> lowestRoundTripTime = ENET_PEER_DEFAULT_ROUND_TRIP_TIME;
-    peer -> lastRoundTripTimeVariance = 0;
-    peer -> highestRoundTripTimeVariance = 0;
+    peer -> bestRoundTripTime = ENET_PEER_DEFAULT_ROUND_TRIP_TIME;
     peer -> roundTripTime = ENET_PEER_DEFAULT_ROUND_TRIP_TIME;
     peer -> roundTripTimeVariance = 0;
     peer -> mtu = peer -> host -> mtu;
     peer -> reliableDataInTransit = 0;
     peer -> outgoingReliableSequenceNumber = 0;
-    peer -> windowSize = ENET_PROTOCOL_MAXIMUM_WINDOW_SIZE;
 
-    enet_peer_reset_queues (peer);
+    if (peer -> host -> outgoingBandwidth == 0)
+      peer -> windowSize = ENET_PROTOCOL_MAXIMUM_WINDOW_SIZE;
+    else
+      peer -> windowSize = (peer -> host -> outgoingBandwidth / 
+                             ENET_PEER_WINDOW_SIZE_SCALE) * ENET_PROTOCOL_MINIMUM_WINDOW_SIZE;
+
+    if (peer -> windowSize < ENET_PROTOCOL_MINIMUM_WINDOW_SIZE)
+      peer -> windowSize = ENET_PROTOCOL_MINIMUM_WINDOW_SIZE;
+    else
+    if (peer -> windowSize > ENET_PROTOCOL_MAXIMUM_WINDOW_SIZE)
+      peer -> windowSize = ENET_PROTOCOL_MAXIMUM_WINDOW_SIZE;
+    
+    while (enet_list_empty (& peer -> acknowledgements) == 0)
+      enet_free (enet_list_remove (enet_list_begin (& peer -> acknowledgements)));
+
+    enet_peer_reset_outgoing_commands (& peer -> sentReliableCommands);
+    enet_peer_reset_outgoing_commands (& peer -> sentUnreliableCommands);
+    enet_peer_reset_outgoing_commands (& peer -> outgoingReliableCommands);
+    enet_peer_reset_outgoing_commands (& peer -> outgoingUnreliableCommands);
+
+    if (peer -> channels != NULL && peer -> channelCount > 0)
+    {
+        for (channel = peer -> channels;
+             channel < & peer -> channels [peer -> channelCount];
+             ++ channel)
+        {
+            channel -> outgoingReliableSequenceNumber = 0;
+            channel -> outgoingUnreliableSequenceNumber = 0;
+            channel -> incomingReliableSequenceNumber = 0;
+            channel -> incomingUnreliableSequenceNumber = 0;
+             
+            enet_peer_reset_incoming_commands (& channel -> incomingReliableCommands);
+            enet_peer_reset_incoming_commands (& channel -> incomingUnreliableCommands);
+        }
+
+        enet_free (peer -> channels);
+    }
+
+    peer -> channels = NULL;
+    peer -> channelCount = 0;
 }
 
 /** Sends a ping request to a peer.
@@ -388,42 +395,11 @@ enet_peer_ping (ENetPeer * peer)
     enet_peer_queue_outgoing_command (peer, & command, NULL, 0, 0);
 }
 
-/** Force an immediate disconnection from a peer.
-    @param peer peer to disconnect
-    @remarks No ENET_EVENT_DISCONNECT event will be generated. The foreign peer is not
-    guarenteed to receive the disconnect notification, and is reset immediately upon
-    return from this function.
-*/
-void
-enet_peer_disconnect_now (ENetPeer * peer)
-{
-    ENetProtocol command;
-
-    if (peer -> state != ENET_PEER_STATE_DISCONNECTED)
-      return;
-
-    if (peer -> state != ENET_PEER_STATE_ZOMBIE &&
-        peer -> state != ENET_PEER_STATE_DISCONNECTING)
-    {
-        enet_peer_reset_queues (peer);
-
-        command.header.command = ENET_PROTOCOL_COMMAND_DISCONNECT;
-        command.header.channelID = 0xFF;
-        command.header.flags = 0;
-        command.header.commandLength = sizeof (ENetProtocolDisconnect);
-
-        enet_peer_queue_outgoing_command (peer, & command, NULL, 0, 0);
-
-        enet_host_flush (peer -> host);
-    }
-
-    enet_peer_reset (peer);
-}
-
 /** Request a disconnection from a peer.
     @param peer peer to request a disconnection
     @remarks An ENET_EVENT_DISCONNECT event will be generated by enet_host_service()
-    once the disconnection is complete.
+    once the disconnection is complete.  Any packets that arrive until the disconnection
+    completes will still be received as if peer were still connected.
 */
 void
 enet_peer_disconnect (ENetPeer * peer)
@@ -431,29 +407,17 @@ enet_peer_disconnect (ENetPeer * peer)
     ENetProtocol command;
 
     if (peer -> state == ENET_PEER_STATE_DISCONNECTING ||
-        peer -> state == ENET_PEER_STATE_DISCONNECTED ||
-        peer -> state == ENET_PEER_STATE_ZOMBIE)
+        peer -> state == ENET_PEER_STATE_DISCONNECTED)
       return;
 
-    enet_peer_reset_queues (peer);
+    peer -> state = ENET_PEER_STATE_DISCONNECTING;
 
     command.header.command = ENET_PROTOCOL_COMMAND_DISCONNECT;
     command.header.channelID = 0xFF;
-    command.header.flags = 0;
+    command.header.flags = ENET_PROTOCOL_FLAG_ACKNOWLEDGE;
     command.header.commandLength = sizeof (ENetProtocolDisconnect);
 
-    if (peer -> state == ENET_PEER_STATE_CONNECTED)
-      command.header.flags |= ENET_PROTOCOL_FLAG_ACKNOWLEDGE;
-    
     enet_peer_queue_outgoing_command (peer, & command, NULL, 0, 0);
-
-    if (peer -> state == ENET_PEER_STATE_CONNECTED)
-      peer -> state = ENET_PEER_STATE_DISCONNECTING;
-    else
-    {
-        enet_host_flush (peer -> host);
-        enet_peer_reset (peer);
-    }
 }
 
 ENetAcknowledgement *

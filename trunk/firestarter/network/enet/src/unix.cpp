@@ -5,6 +5,15 @@
 #ifndef WIN32
 
 #include <sys/types.h>
+
+// temporary nasty for older apple gcc posix stubbornness
+// so that we get socklen_t from sys/socket.h
+#if __APPLE__
+#  ifndef _BSD_SOCKLEN_T_
+#    define _BSD_SOCKLEN_T_ int
+#  endif
+#endif
+
 #include <sys/socket.h>
 #include <sys/ioctl.h>
 #include <sys/time.h>
@@ -14,8 +23,7 @@
 #include <errno.h>
 #include <time.h>
 
-#define ENET_BUILDING_LIB 1
-#include "enet/enet.h"
+#include "enet.h"
 
 #ifdef HAS_FCNTL
 #include <fcntl.h>
@@ -228,7 +236,7 @@ enet_socket_send (ENetSocket socket,
         sin.sin_port = ENET_HOST_TO_NET_16 (address -> port);
         sin.sin_addr.s_addr = address -> host;
 
-        msgHdr.msg_name = & sin;
+        msgHdr.msg_name = (caddr_t) & sin;
         msgHdr.msg_namelen = sizeof (struct sockaddr_in);
     }
 
@@ -262,7 +270,7 @@ enet_socket_receive (ENetSocket socket,
 
     if (address != NULL)
     {
-        msgHdr.msg_name = & sin;
+        msgHdr.msg_name = (caddr_t) & sin;
         msgHdr.msg_namelen = sizeof (struct sockaddr_in);
     }
 
