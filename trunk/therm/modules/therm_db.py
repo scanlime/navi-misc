@@ -85,7 +85,7 @@ class ThermDatabase:
 
     def iterSources(self):
         """Iterate over all source objects in the database"""
-        for row in self.iterDictQuery("SELECT * FROM sources"):
+        for row in self.iterDictQuery("SELECT * FROM sources ORDER BY name"):
             yield ThermSource(self, **row)
 
     def getSource(self, name):
