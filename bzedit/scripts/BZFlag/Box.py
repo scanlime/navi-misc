@@ -80,3 +80,37 @@ class Box(Object):
 
     def set_spin(self, spin=[0, 0, 0, 0]):
         self.spin = [float(n) for n in spin]
+
+    def setBlenderProperties(self, object):
+        Blender.setProperties(self, object)
+        object.addProperty('drivethrough', self.drivethrough, 'INT')
+        object.addProperty('shootthrough', self.shootthrough, 'INT')
+
+    def loadBlenderProperties(self, object):
+        Object.loadBlenderProperties(self, object)
+        try:
+            self.drive_through = object.getProperty('driveThrough').getData()
+        except AttributeError:
+            # No property, set default
+            self.drive_through = 0
+
+        try:
+            self.shoot_through = object.getProperty('shootThrough').getData()
+        except AttributeError:
+            # No property, set default
+            self.shoot_through = 0
+
+    def transformBlenderObject(self, obj):
+        """Set the transformation on the given Blender object
+           to match our position, size, and rotation. This will
+           be used both by the Box object and by other objects
+           with similar interfaces that subclass Box.
+           """
+        if not self.world:
+            return
+
+    def loadBlenderTransform(self, obj):
+        """Retrieves the object's position, size, and rotation
+           from a Blender object- the inverse of transformBlenderObject().
+           """
+        pass
