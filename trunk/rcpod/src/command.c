@@ -91,7 +91,7 @@ void rcpod_AnalogReadAll(rcpod_dev* rcpod, unsigned char buffer[8]) {
 
 void rcpod_UsartTxRx(rcpod_dev* rcpod, int address, int txBytes, int rxBytes) {
   int retval;
-  retval = usb_control_msg(rcpod->usbdevh, USB_TYPE_VENDOR, RCPOD_CTRL_POKE,
+  retval = usb_control_msg(rcpod->usbdevh, USB_TYPE_VENDOR, RCPOD_CTRL_USART_TXRX,
 			   txBytes | (((int)rxBytes) << 8), address, NULL, 0, RCPOD_TIMEOUT);
   if (retval < 0)
     rcpod_HandleError("rcpod_UsartTxRx", errno, strerror(errno));
@@ -272,6 +272,85 @@ unsigned char rcpod_AnalogReadChannel(rcpod_dev* rcpod, int channel) {
    * the USB interface is slow enough the result should already be ready
    */
   return rcpod_Peek(rcpod, RCPOD_REG_ADRES);
+}
+
+
+/*************************************************************************************/
+/************************************************** Serial I/O ***********************/
+/*************************************************************************************/
+
+void rcpod_SerialInit(rcpod_dev* rcpod, int baudRate) {
+  int spbrg;
+  int brgh;
+
+  /* Calculate the value of the SPBRG register for BRGH=1 and SYNC=0:
+   *    baud = Fint / (16 * (SPBRG+1))
+   *    Fint = 24000000
+   *    16 * (SPBRG+1) = Fint / baud
+   *    SPBRG = Fint / (baud * 16) - 1
+   */
+  spbrg = 24000000 / (baudRate * 16) - 1;
+  brgh = 0x04;
+
+  /* SPBRG is an 8-bit register, if our baud rate is slow enough that
+   * its value is over 255 we'll have to switch to BRGH=0:
+   *    SPBRG = Fint / (baud * 64) - 1
+   */
+  if (spbrg > 255) {
+    spbrg = 24000000 / (baudRate * 64) - 1;
+    brgh = 0x00;
+  }
+
+  rcpod_Poke(rcpod, RCPOD_REG_SPBRG, spbrg);        /* Set baud rate */
+  rcpod_Poke(rcpod, RCPOD_REG_RCSTA, 0x90);         /* Enable the serial port */
+  rcpod_Poke(rcpod, RCPOD_REG_TXSTA, 0x22 | brgh);  /* Enable async transmitter, set BRGH */
+
+  rcpod_GpioAssert(rcpod, RCPOD_OUTPUT(RCPOD_PIN_RC6));  /* Transmit pin should be output */
+  rcpod_GpioAssert(rcpod, RCPOD_INPUT(RCPOD_PIN_RC7));   /* Receive pin should be input */
+}
+
+
+void rcpod_SerialTxRxStart(rcpod_dev* rcpod, unsigned char* buffer, int txBytes, int rxBytes) {
+  if (txBytes > RCPOD_SCRATCHPAD_SIZE || rxBytes > RCPOD_SCRATCHPAD_SIZE) {
+    rcpod_HandleError("rcpod_SerialTxRxStart", EINVAL, "Size of transmission/reception exceeds scratchpad size");
+    return;
+  }
+
+  /* Load the transmission into the scratchpad, if we have one */
+  if (txBytes > 0)
+    rcpod_PokeBuffer(rcpod, RCPOD_REG_SCRATCHPAD, buffer, txBytes);
+
+  /* Perform the transmission, and start the receive */
+  rcpod_UsartTxRx(rcpod, RCPOD_REG_SCRATCHPAD, txBytes, rxBytes);
+}
+
+
+void rcpod_SerialTx(rcpod_dev* rcpod, unsigned char* buffer, int count) {
+  rcpod_SerialTxRxStart(rcpod, buffer, count, 0);
+}
+
+
+void rcpod_SerialRxStart(rcpod_dev* rcpod, int count) {
+  rcpod_SerialTxRxStart(rcpod, NULL, 0, count);
+}
+
+
+int rcpod_SerialRxFinish(rcpod_dev* rcpod, unsigned char* buffer, int count) {
+  int receivedBytes;
+  receivedBytes = rcpod_UsartRxEnd(rcpod);
+
+  /* Copy back the received data from the rcpod's scratchpad */
+  if (count > receivedBytes)
+    count = receivedBytes;
+  if (count > 0)
+    rcpod_PeekBuffer(rcpod, RCPOD_REG_SCRATCHPAD, buffer, count);
+
+  return receivedBytes;
+}
+
+
+int rcpod_SerialSetTxEnable(rcpod_dev* rcpod, rcpod_pin pin) {
+  rcpod_UsartTxe(rcpod, pin);
 }
 
 /* The End */
