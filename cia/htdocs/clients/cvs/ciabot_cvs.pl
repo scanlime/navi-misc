@@ -24,7 +24,7 @@
 #
 #     ALL $CVSROOT/CVSROOT/ciabot_cvs.pl %{,,,%s} $USER project from_email dest_email ignore_regexp
 #
-# IMPORTANT: The %{,,,s} in loginfo is new, and is required for proper operation.
+# IMPORTANT: The %{,,,%s} in loginfo is new, and is required for proper operation.
 #
 #            Make sure that you add the script to 'checkoutlist' and give it
 #            0755 permissions -before- committing it or adding it.
