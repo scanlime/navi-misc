@@ -1,7 +1,7 @@
 BINS = \
 	loader_tool \
 	gc_test \
-	pyunicone/_libunicone.so \
+	PyUnicone/_libunicone.so \
 	firmware.bin
 
 COMMON_OBJS = \
@@ -19,7 +19,7 @@ GC_TEST_OBJS = $(COMMON_OBJS) \
 
 PYUNICONE_OBJS = $(COMMON_OBJS) \
 	src/progress_python.o \
-	pyunicone/libunicone_wrap.o
+	PyUnicone/libunicone_wrap.o
 
 TUSB_DIR = ../../../tusb
 
@@ -48,7 +48,7 @@ loader_tool: $(LOADER_TOOL_OBJS)
 gc_test: $(GC_TEST_OBJS)
 	$(CC) -o $@ $(GC_TEST_OBJS) $(LDFLAGS)
 
-pyunicone/_libunicone.so: $(PYUNICONE_OBJS)
+PyUnicone/_libunicone.so: $(PYUNICONE_OBJS)
 	$(CC) -o $@ $(PYUNICONE_OBJS) $(LDFLAGS) -shared
 
 firmware/firmware.ihx: $(FIRMWARE_OBJS)
@@ -63,12 +63,12 @@ firmware.bin: firmware/firmware.ihx
 %.o: %.c include/*.h src/*.h
 	$(CC) -o $@ -c $< $(CFLAGS)
 
-pyunicone/libunicone_wrap.c: pyunicone/libunicone.i include/*.h src/*.h
+PyUnicone/libunicone_wrap.c: PyUnicone/libunicone.i include/*.h src/*.h
 	swig $(SWIGFLAGS) $<
 
 clean:
 	rm -f $(BINS)
-	rm -f src/*.o pyunicone/libunicone_wrap.c
+	rm -f src/*.o PyUnicone/libunicone_wrap.c
 	rm -f firmware/*.ihx firmware/*.lnk firmware/*.lst firmware/*.map
 	rm -f firmware/*.mem firmware/*.rel firmware/*.rst firmware/*.sym
 	rm -f firmware/*.asm firmware/*.bin firmware/*.rel
