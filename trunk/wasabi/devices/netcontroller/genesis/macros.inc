@@ -117,4 +117,23 @@ loop
 	goto	loop
 	endm
 
+
+copybit	macro	fromByte, fromBit, destByte, destBit, invert
+	local	bit_on
+	local	bit_end
+	pagesel	bit_on
+	if invert
+	btfss	fromByte, fromBit
+	else
+	btfsc	fromByte, fromBit
+	endif
+	goto	bit_on
+	bcf	destByte, destBit
+	pagesel	bit_end
+	goto	bit_end
+bit_on
+	bsf	destByte, destBit
+bit_end
+	endm
+
 ;### The End ###
