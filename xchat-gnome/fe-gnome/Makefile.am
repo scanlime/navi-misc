@@ -55,8 +55,6 @@ EXTRA_DIST =					\
 	irc-network.h				\
 	irc-network-editor.c			\
 	irc-network-editor.h			\
-	gtkutil.h				\
-	gtkutil.c				\
 	gui.h					\
 	gui.c					\
 	main_window.h				\
@@ -114,8 +112,6 @@ xchat_gnome_SOURCES =				\
 	irc-network.h				\
 	irc-network-editor.c			\
 	irc-network-editor.h			\
-	gtkutil.h				\
-	gtkutil.c				\
 	gui.h					\
 	gui.c					\
 	main_window.h				\
