@@ -36,8 +36,7 @@ pixmaps_init (void)
 	if (!pix_voice)
 		pix_voice = gdk_pixbuf_new_from_inline(-1, voicepng, FALSE, 0);
 
-	pix_newdata = gdk_pixbuf_new_from_file("/usr/share/icons/gnome/24x24/net/stock_post-message.png", 0);
-	pix_nicksaid = NULL;
-//	pix_nicksaid = gdk_pixbuf_new_from_file();
+	pix_newdata = gdk_pixbuf_new_from_file("/usr/share/icons/gnome/24x24/stock/net/stock_post-message.png", 0);
+	pix_nicksaid = gdk_pixbuf_new_from_file("/usr/share/icons/gnome/24x24/stock/generic/stock_edit.png", 0);
 	pix_msgsaid = gdk_pixbuf_new_from_file("data/global-message.png", 0);
 }
