@@ -286,7 +286,7 @@ class SpreadDirectory(SpreadFileBase):
 
         # Sometimes FAM gives us absolute paths- we always want paths
         # relative to this directory, so strip off everything before the last slash
-        filename = event.filename.rsplit(os.sep, 1)[-1]
+        filename = event.filename.split(os.sep, 1)[-1]
 
         # Transform deletion events into changed events when the underlying
         # path still exists on at least one other disk.
