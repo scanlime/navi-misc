@@ -160,6 +160,10 @@ void rcpod_Reset(rcpod_dev *rcpod) {
   /* This resets relevant registers to their power-on defaults,
    * as per the PIC16C745/765 data sheet.
    */
+
+  /* Cancel a serial receive if one is happening */
+  rcpod_UsartRxEnd(rcpod);
+
   rcpod_Poke(rcpod, RCPOD_REG_PORTA, 0);
   rcpod_Poke(rcpod, RCPOD_REG_PORTB, 0);
   rcpod_Poke(rcpod, RCPOD_REG_PORTC, 0);
