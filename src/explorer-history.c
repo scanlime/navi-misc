@@ -33,23 +33,40 @@
  * thumbnail are both owned by the history node.
  */
 typedef struct {
-    GTimeVal   timestamp;
-    GdkPixbuf* thumbnail;
-    gchar*     params;
+    GTimeVal   timestamp;   /* The time at which this node was created */
+    GdkPixbuf* thumbnail;   /* Scaled-down version of the current histogram */
+    gchar*     params;      /* Serialized image parameters */
+    Explorer*  explorer;    /* For convenience in callbacks */
 } HistoryNode;
+
+struct delete_after_data {
+    GtkWidget *menu;
+    GtkWidget *separator;
+    gboolean triggered;
+};
+
+static void         delete_after       (GtkWidget *item, gpointer user_data);
 
 static HistoryNode* history_node_new   (HistogramImager* map);
 static void         history_node_apply (HistoryNode* self, HistogramImager* map);
 static void         history_node_free  (HistoryNode* self);
 
-static void         on_go_back         (GtkWidget *widget,       Explorer *self);
-static void         on_go_forward      (GtkWidget *widget,       Explorer *self);
+static void         on_go_back         (GtkWidget *widget, Explorer *self);
+static void         on_go_forward      (GtkWidget *widget, Explorer *self);
+static void         on_go_menu_show    (GtkWidget *menu, Explorer *self);
+static void         on_go_menu_hide    (GtkWidget *menu, Explorer *self);
+static void         on_go_menu_item    (GtkWidget *menu, gpointer user_data);
 static void         on_change_notify   (ParameterHolder *holder, GParamSpec* spec, Explorer *self);
 static gboolean     on_record_change   (gpointer user_data);
 
 static void         explorer_append_history (Explorer* self, HistoryNode *node);
 static void         explorer_prune_history  (Explorer* self, int max_nodes);
 static void         explorer_update_history_sensitivity (Explorer* self);
+
+static gdouble      timeval_subtract          (GTimeVal *a, GTimeVal *b);
+static gchar*       explorer_strdup_time      (GTimeVal *tv);
+static void         explorer_add_go_item      (Explorer *self, GList *node_link);
+static void         explorer_cleanup_go_items (Explorer *self);
 
 
 /************************************************************************************/
@@ -58,16 +75,20 @@ static void         explorer_update_history_sensitivity (Explorer* self);
 
 void explorer_init_history(Explorer *self)
 {
+    GtkWidget *menu = glade_xml_get_widget(self->xml, "go_menu_menu");
+
     self->history_queue = g_queue_new();
 
     /* Connect signal handlers
      */
-    glade_xml_signal_connect_data(self->xml, "on_go_back",     G_CALLBACK(on_go_back),       self);
-    glade_xml_signal_connect_data(self->xml, "on_go_forward",  G_CALLBACK(on_go_forward),    self);
-    g_signal_connect             (self->map, "notify",         G_CALLBACK(on_change_notify), self);
+    glade_xml_signal_connect_data(self->xml, "on_go_back",     G_CALLBACK(on_go_back),        self);
+    glade_xml_signal_connect_data(self->xml, "on_go_forward",  G_CALLBACK(on_go_forward),     self);
+    g_signal_connect             (self->map, "notify",         G_CALLBACK(on_change_notify),  self);
+    g_signal_connect             (menu,      "show",           G_CALLBACK(on_go_menu_show),   self);
+    g_signal_connect             (menu,      "hide",           G_CALLBACK(on_go_menu_hide),   self);
 
-    /* Put the defaults in our history */
-    explorer_append_history(self, history_node_new(HISTOGRAM_IMAGER(self->map)));
+    /* Record the default state after it's rendered a bit */
+    self->history_timer = g_timeout_add(200, on_record_change, self);
 }
 
 void explorer_dispose_history(Explorer *self)
@@ -84,14 +105,6 @@ void explorer_dispose_history(Explorer *self)
     }
 }
 
-void explorer_history_record_now(Explorer *self)
-{
-}
-
-void explorer_history_record_timed(Explorer *self)
-{
-}
-
 
 /************************************************************************************/
 /****************************************************************** History Nodes ***/
@@ -102,9 +115,13 @@ static HistoryNode* history_node_new   (HistogramImager* map)
     HistoryNode* self = g_new0(HistoryNode, 1);
     gint width, height;
 
+    g_get_current_time(&self->timestamp);
     self->params = parameter_holder_save_string(PARAMETER_HOLDER(map));
 
+    /* Use the normal icon size plus a little extra */
     gtk_icon_size_lookup(GTK_ICON_SIZE_MENU, &width, &height);
+    width *= 1.5;
+    height *= 1.5;
     self->thumbnail = histogram_imager_make_thumbnail(map, width, height);
 
     return self;
@@ -135,12 +152,11 @@ static void         history_node_free  (HistoryNode* self)
 
 static void         explorer_append_history (Explorer* self, HistoryNode *node)
 {
+    node->explorer = self;
     g_queue_push_tail(self->history_queue, node);
 
-    /* By my quick back-of-the-envelope calculations, this should
-     * keep the history, at worst, at about 1MB of memory.
-     */
-    explorer_prune_history(self, 100);
+    /* Seems like a reasonable length... */
+    explorer_prune_history(self, 128);
 
     /* Our new node is now the current one for back/forward navigation */
     self->history_current_link = g_queue_peek_tail_link(self->history_queue);
@@ -172,10 +188,97 @@ static void         explorer_update_history_sensitivity (Explorer* self)
 
 
 /************************************************************************************/
+/******************************************************************* Time Utilities */
+/************************************************************************************/
+
+static gdouble      timeval_subtract(GTimeVal *a, GTimeVal *b)
+{
+    return (a->tv_sec - b->tv_sec) +
+	(a->tv_usec - b->tv_usec) / 1000000.0;
+}
+
+static gchar*       explorer_strdup_time      (GTimeVal *tv)
+{
+    double units;
+    GTimeVal now;
+    g_get_current_time(&now);
+    units = timeval_subtract(&now, tv);
+
+    if (units < 120.0)
+	return g_strdup_printf("%.01f seconds ago", units);
+    units /= 60.0;
+
+    if (units < 120.0)
+	return g_strdup_printf("%.01f minutes ago", units);
+    units /= 60.0;
+
+    if (units < 120.0)
+	return g_strdup_printf("%.02f hours ago", units);
+    units /= 24.0;
+
+    return g_strdup_printf("%.02f days ago", units);
+}
+
+
+/************************************************************************************/
+/***************************************************************** Menu Maintenance */
+/************************************************************************************/
+
+static void         explorer_add_go_item      (Explorer *self, GList *node_link)
+{
+    GtkWidget *menu = glade_xml_get_widget(self->xml, "go_menu_menu");
+    HistoryNode *node = node_link->data;
+    GtkWidget *item, *image;
+    gchar* label;
+
+    /* Add the timestamp */
+    label = explorer_strdup_time(&node->timestamp);
+    item = gtk_image_menu_item_new_with_label(label);
+    g_free(label);
+
+    /* Add the thumbnail */
+    image = gtk_image_new_from_pixbuf(node->thumbnail);
+    gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), image);
+
+    /* Set up a callback to activate this node.
+     * Note that its data is our node_link, not the Explorer.
+     */
+    g_signal_connect(item, "activate", G_CALLBACK(on_go_menu_item), node_link);
+
+    /* Add it to the menu */
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
+    gtk_widget_show(item);
+}
+
+static void         delete_after              (GtkWidget *item, gpointer user_data)
+{
+    struct delete_after_data *data = (struct delete_after_data*) user_data;
+
+    if (item == data->separator)
+	data->triggered = TRUE;
+    else if (data->triggered)
+	gtk_container_remove(GTK_CONTAINER(data->menu), item);
+}
+
+static void         explorer_cleanup_go_items (Explorer *self)
+{
+    /* Remove all items in the 'go' menu after our marked separator
+     */
+    GtkWidget *menu = glade_xml_get_widget(self->xml, "go_menu_menu");
+    struct delete_after_data data;
+
+    data.menu = menu;
+    data.separator = glade_xml_get_widget(self->xml, "history_separator");
+    data.triggered = FALSE;
+    gtk_container_foreach(GTK_CONTAINER(menu), delete_after, &data);
+}
+
+
+/************************************************************************************/
 /******************************************************************** GUI Callbacks */
 /************************************************************************************/
 
-static void on_go_back       (GtkWidget *widget,       Explorer *self)
+static void         on_go_back        (GtkWidget *widget, Explorer *self)
 {
     self->history_current_link = self->history_current_link->prev;
     explorer_update_history_sensitivity(self);
@@ -185,7 +288,7 @@ static void on_go_back       (GtkWidget *widget,       Explorer *self)
     self->history_freeze = FALSE;
 }
 
-static void on_go_forward    (GtkWidget *widget,       Explorer *self)
+static void         on_go_forward     (GtkWidget *widget, Explorer *self)
 {
     self->history_current_link = self->history_current_link->next;
     explorer_update_history_sensitivity(self);
@@ -195,7 +298,75 @@ static void on_go_forward    (GtkWidget *widget,       Explorer *self)
     self->history_freeze = FALSE;
 }
 
-static void on_change_notify (ParameterHolder *holder, GParamSpec* spec, Explorer *self)
+static void         on_go_menu_show    (GtkWidget *menu, Explorer *self)
+{
+    const int max_linear_items = 4;
+    const int max_scaled_items = 10;
+    int i, num_scaled_items;
+    GList *current = g_queue_peek_tail_link(self->history_queue);
+    gdouble t_total, t;
+    GTimeVal *scaled_reference;
+    HistoryNode* node;
+    explorer_cleanup_go_items(self);
+
+    /* The first five items are straight from the most recent list */
+    for (i=0; i<max_linear_items; i++) {
+	explorer_add_go_item(self, current);
+	if (!(current = current->prev))
+	    return;
+    }
+
+    /* The rest of the list is spread evenly over time, from the end
+     * of the above section back to the oldest history we have.
+     */
+    node = current->data;
+    scaled_reference = &node->timestamp;
+    t_total = timeval_subtract(scaled_reference,
+			       &((HistoryNode*)g_queue_peek_head(self->history_queue))->timestamp);
+    num_scaled_items = MIN(self->history_queue->length - max_linear_items,
+			   max_scaled_items);
+    if (num_scaled_items <= 0)
+	return;
+
+    for (i=0; i<num_scaled_items; i++) {
+
+	/* For each item on the scaled_items list, find the
+	 * node at the proper position in time.
+	 */
+	while (1) {
+	    node = current->data;
+	    t  = timeval_subtract(scaled_reference, &node->timestamp);
+
+	    if (t > (i*t_total/num_scaled_items))
+		break;
+	    if (!(current = current->prev))
+		return;
+	}
+
+	explorer_add_go_item(self, current);
+    }
+}
+
+static void         on_go_menu_hide    (GtkWidget *menu, Explorer *self)
+{
+    explorer_cleanup_go_items(self);
+}
+
+static void         on_go_menu_item    (GtkWidget *menu, gpointer user_data)
+{
+    GList *link = user_data;
+    HistoryNode *node = link->data;
+    Explorer *self = node->explorer;
+
+    self->history_current_link = link;
+    explorer_update_history_sensitivity(self);
+
+    self->history_freeze = TRUE;
+    history_node_apply(self->history_current_link->data, HISTOGRAM_IMAGER(self->map));
+    self->history_freeze = FALSE;
+}
+
+static void         on_change_notify   (ParameterHolder *holder, GParamSpec* spec, Explorer *self)
 {
     /* In a history_freeze, we don't record changes automatically */
     if (self->history_freeze)
@@ -209,9 +380,8 @@ static void on_change_notify (ParameterHolder *holder, GParamSpec* spec, Explore
 	g_source_remove(self->history_timer);
 	self->history_timer = 0;
     }
-    self->history_timer = g_timeout_add(100, on_record_change, self);
+    self->history_timer = g_timeout_add(150, on_record_change, self);
 }
-
 static gboolean     on_record_change   (gpointer user_data)
 {
     Explorer* self = EXPLORER(user_data);
