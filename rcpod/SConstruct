@@ -87,6 +87,7 @@ if 'swig' in env['TOOLS']:
             env.Install(dir=modPath, source='pyrcpod/__init__.py')
             env.Install(dir=modPath, source='pyrcpod/librcpod.py')
             env.Install(dir=modPath, source='pyrcpod/device.py')
+	    env.Install(dir=modPath, source='pyrcpod/board.py')
 
     else:
         print " - Can't guess the path to Python.h, not building the Python package"
