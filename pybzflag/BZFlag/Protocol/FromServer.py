@@ -143,8 +143,15 @@ class MsgGetWorld(Common.DataMessage):
         StructEntry(UInt32, 'remaining'),
         ]
 
-class MsgWantWHash(Common.DataMessage):
+class MsgWantWHash(Common.Message):
     messageId = 0x7768
+    entries = [
+        StructEntry(Enum(Int8, {
+        ord('p'): 'permanent',
+        ord('t'): 'temporary',
+        }), 'lifetime'),
+        StructEntry(StringField(33), 'hash'),
+        ]
 
 MsgPlayerUpdate = Common.MsgPlayerUpdate
 

@@ -24,6 +24,7 @@ and saving worlds in binary and text formats.
 
 from BZFlag.Protocol import BinaryWorld, Common
 from BZFlag import Errors
+import os
 
 class World:
     """Abstraction for a BZFlag world. Currently this can only be created
@@ -48,6 +49,8 @@ class World:
             except KeyError:
                 raise Errors.ProtocolError(
                     "Unknown block type 0x%04X in binary world data" % header.id)
+            if isinstance(block, BinaryWorld.EndOfData):
+                break
 
             # Read the block body
             packedBody = bin.read(block.getSize() - len(packedHeader))
@@ -55,7 +58,52 @@ class World:
                 raise Errors.ProtocolError("Incomplete block in binary world data")
             block.unmarshall(packedHeader + packedBody)
             blocks.append(block)
-        print blocks
+
+        #for block in blocks:
+        #    print block.__class__.__name__
+        #    print block.__dict__
+        print "%d blocks in world. Done." % (len(blocks))
+
+
+class Cache:
+    """Cache worlds on disk according to a server-generated hash,
+       so we don't always have to send them over the wire.
+       """
+    def __init__(self, path="~/.bzflag-cache"):
+        self.path = os.path.expanduser(path)
+        try:
+            os.makedirs(self.path)
+        except OSError:
+            # Path could already exist or it could be unreachable. We don't care.
+            pass
+
+    def getFilename(self, hash):
+        return os.path.join(self.path, hash) + ".bwc"
+
+    def hasWorld(self, hash):
+        try:
+            return os.path.isfile(self.getFilename(hash))
+        except OSError:
+            return 0
+
+    def storeWorld(self, hash, data):
+        try:
+            f = open(self.getFilename(hash), "wb")
+            f.write(data)
+            f.close()
+        except OSError:
+            # In case the file was corrupted (if the disk was full, for example)
+            # try to remove it before giving up completely.
+            try:
+                os.remove(self.getFilename(hash))
+            except OSError:
+                pass
+
+    def openWorld(self, hash):
+        # Don't catch OSError here. If the cache wasn't valid we
+        # should have stopped after hasWorld() returned zero.
+        # At this point, we're committed to using the cache.
+        return open(self.getFilename(hash), "rb")
 
 ### The End ###
         

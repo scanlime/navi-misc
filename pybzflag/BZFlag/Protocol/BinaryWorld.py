@@ -33,14 +33,12 @@ class BlockHeader(Struct):
         StructEntry(UInt16,   'id'),
         ]
 
-
 class Block(Common.Message):
     """The world binary is made up of a header followed by a number of blocks.
        This is like a Message, but without the length field.
        """
     headerClass = BlockHeader
     messageId = None
-
 
 class Style(Block):
     messageId = 0x7374
@@ -60,8 +58,65 @@ class Style(Block):
         StructEntry(UInt32,           'serverTime'),
         ]
 
+class TeamBase(Block):
+    messageId = 0x6261
+    entries = [
+        StructEntry(Common.TeamColor, 'team'),
+        StructEntry(Common.Vector3,   'center'),
+        StructEntry(Float,            'angle'),
+        StructEntry(Common.Vector2,   'size'),
+        StructEntry(Common.Vector3,   'safety'),
+        ]
 
+class Wall(Block):
+    messageId = 0x776C
+    entries = [
+        StructEntry(Common.Vector3,   'center'),
+        StructEntry(Float,            'angle'),
+        StructEntry(Common.Vector2,   'size'),
+        ]
 
+class Box(Block):
+    messageId = 0x6278
+    entries = [
+        StructEntry(Common.Vector3,   'center'),
+        StructEntry(Float,            'angle'),
+        StructEntry(Common.Vector3,   'size'),
+        StructEntry(UInt8,            'driveThrough'),
+        StructEntry(UInt8,            'shootThrough'),
+        ]
+
+class Pyramid(Block):
+    messageId = 0x7079
+    entries = [
+        StructEntry(Common.Vector3,   'center'),
+        StructEntry(Float,            'angle'),
+        StructEntry(Common.Vector3,   'size'),
+        StructEntry(UInt8,            'driveThrough'),
+        StructEntry(UInt8,            'shootThrough'),
+        StructEntry(UInt8,            'flipZ'),
+        ]
+
+class Teleporter(Block):
+    messageId = 0x7465
+    entries = [
+        StructEntry(Common.Vector3,   'center'),
+        StructEntry(Float,            'angle'),
+        StructEntry(Common.Vector3,   'size'),
+        StructEntry(UInt8,            'driveThrough'),
+        StructEntry(UInt8,            'shootThrough'),
+        StructEntry(Float,            'border'),
+        ]
+
+class TeleporterLink(Block):
+    messageId = 0x6C6E
+    entries = [
+        StructEntry(UInt16, 'from'),
+        StructEntry(UInt16, 'to'),
+        ]
+
+class EndOfData(Block):
+    messageId = 0x6564
 
 ### The End ###
         
