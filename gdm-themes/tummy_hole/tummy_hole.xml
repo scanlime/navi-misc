@@ -62,6 +62,7 @@
               <item type="pixmap">
                 <pos anchor="w" y="50%"/>
                 <normal file="head1.png"/>
+                <prelight file="head3.png"/>
               </item>
               <item type="label">
                 <pos anchor="w" y="50%"/>
@@ -77,6 +78,7 @@
               <item type="pixmap">
                 <pos anchor="w" y="50%"/>
                 <normal file="moongoat.png"/>
+                <prelight file="moongoat2.png"/>
               </item>
               <item type="label">
                 <pos anchor="w" y="50%"/>
@@ -92,6 +94,7 @@
               <item type="pixmap">
                 <pos anchor="w" y="50%"/>
                 <normal file="head2.png"/>
+                <prelight file="head3.png"/>
               </item>
               <item type="label">
                 <pos anchor="w" y="50%"/>
