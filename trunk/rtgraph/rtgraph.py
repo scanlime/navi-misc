@@ -22,8 +22,7 @@ the graphs.
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 """
 from __future__ import generators, division
-import colorsys, time, gtk, math, gobject
-import Tweak
+import time, gtk, math, gobject
 
 __version__ = "pre-0.70"
 
@@ -145,6 +144,7 @@ class Channel(object):
         """A generator that indefinitely yields color values to use when
            autocoloring channels.
            """
+        import colorsys
         while True:
             for luma in (0.9, 0.5):
                 for hue in (0.66, 0, 0.33, 0.75):
@@ -518,6 +518,7 @@ class HScrollGraph(Graph):
         pass
 
     def getTweakControls(self):
+        import Tweak
         return Graph.getTweakControls(self) + [
             Tweak.Quantity(self, 'scrollRate', range=(0,200), name="Scroll Rate")
             ]
@@ -925,6 +926,7 @@ class GraphUI(gtk.VPaned):
 
     def createTweakList(self):
         """Create the widget holding our graph's tweakable settings"""
+        import Tweak
         tweaks = Tweak.List(self.graph.getTweakControls())
         tweaks.show()
         return tweaks
@@ -945,7 +947,7 @@ class GraphUI(gtk.VPaned):
         return frame
 
 
-def GraphUIWindow(channels, graph=None, title=None):
+def GraphUIWindow(channels, graph=None, title=None, defaultSize=(400,400)):
     """Creates a window containing a GraphUI widget"""
     win = gtk.Window(gtk.WINDOW_TOPLEVEL)
     ui = GraphUI(channels, graph)
@@ -954,6 +956,8 @@ def GraphUIWindow(channels, graph=None, title=None):
     win.set_border_width(8)
     ui.show()
     win.add(ui)
+    win.set_default_size(*defaultSize)
+    win.show()
     return win
 
 ### The End ###
