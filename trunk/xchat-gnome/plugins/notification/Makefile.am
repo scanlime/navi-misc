@@ -10,7 +10,4 @@ INCLUDES = $(COMMON_CFLAGS) \
 		   -I$(srcdir)/.. \
 		   -I$(top_srcdir)/src/fe-gnome \
 		   -DEGG_COMPILATION \
-		   -DGTK_DISABLE_DEPRECATED \
-		   -DGDK_DISABLE_DEPRECATED \
-		   -DG_DISABLE_DEPRECATED \
 		   -DXCHATSHAREDIR="\"$(datadir)/xchat\""
