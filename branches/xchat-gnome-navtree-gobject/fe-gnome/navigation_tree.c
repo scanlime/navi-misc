@@ -79,6 +79,7 @@ navigation_tree_init (NavTree *navtree)
 
 	navtree->current_path = NULL;
 	navtree->model = NULL;
+  navtree->selection_changed_id = 0;
 
 	/* This sets up all our columns. */
   column = gtk_tree_view_column_new();
@@ -102,7 +103,7 @@ navigation_tree_init (NavTree *navtree)
 	 */
 
 	/* Connect the callbacks. */
-  g_signal_connect(G_OBJECT(select), "changed", G_CALLBACK(navigation_selection_changed), NULL);
+  navtree->selection_changed_id = g_signal_connect(G_OBJECT(select), "changed", G_CALLBACK(navigation_selection_changed), NULL);
 	g_signal_connect(G_OBJECT(navtree), "row-expanded", G_CALLBACK(row_expanded), NULL);
   g_signal_connect(G_OBJECT(navtree), "button_press_event", G_CALLBACK(click), NULL);
   g_signal_connect(G_OBJECT(navtree), "button_release_event", G_CALLBACK(declick), NULL);
@@ -766,10 +767,12 @@ static void
 row_expanded (GtkTreeView *treeview, GtkTreeIter *iter, GtkTreePath *path, gpointer user_data)
 {
 	/* If we had something selected before the row was collapsed make sure it gets selected. */
-	if (NAVTREE(treeview)->current_path) {
+	if (NAVTREE(treeview)->current_path && gtk_tree_path_is_ancestor(path, NAVTREE(treeview)->current_path)) {
 		GtkTreeSelection *selection;
 		selection = gtk_tree_view_get_selection(treeview);
+    g_signal_handler_block((gpointer)selection, NAVTREE(treeview)->selection_changed_id);
 		gtk_tree_selection_select_path(selection, NAVTREE(treeview)->current_path);
+    g_signal_handler_unblock((gpointer)selection, NAVTREE(treeview)->selection_changed_id);
 	}
 }
 /********** NavModel **********/
