@@ -39,9 +39,11 @@ public:
 	virtual tePanelReturn Process ( std::string &next );
 
 protected:
-	SceneNode	*ships[4];
-	Overlay* mainMenu;
-	SceneNode * mGroundNode;
+	SceneNode		*ships[4];
+	Overlay*		mainMenu;
+	SceneNode		*mGroundNode;
+
+	int					currentItem;
 };
 
 #endif //_MAIN_MENU_H_

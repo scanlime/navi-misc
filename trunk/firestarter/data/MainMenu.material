@@ -17,6 +17,22 @@ material menu/logoMaterial
 	}
 }
 
+material menu/menuOutline
+{
+	technique
+	{
+		pass
+		{
+			lighting off
+			scene_blend alpha_blend
+
+			texture_unit
+			{
+				texture outline.png
+			}
+		}
+	}
+}
 
 material menu/menuArrowMaterial
 {

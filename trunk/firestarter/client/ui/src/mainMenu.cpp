@@ -40,6 +40,8 @@ void CMainMenu::Init ( void  )
 
 	// init other stuff here
 	ships[0] = ships[1] = ships[2] = ships[3] = NULL;
+
+	currentItem = 0;
 }
 
 void CMainMenu::Attach ( void )
@@ -95,7 +97,6 @@ void CMainMenu::Attach ( void )
 	ships[3]->translate(0,-rad,z); 
 
 	Entity* mShip4 = gameLoop.GetSceneManager()->createEntity("MK3-4", "MK3.mesh");
-//	mShip4->getMesh()->getSubMeshIterator().getNext()->setMaterialName("BlackMK3");
 	ships[2] = static_cast<SceneNode*>(gameLoop.GetSceneManager()->getRootSceneNode()->createChild());
 	ships[2]->attachObject(mShip4);
 	ships[2]->rotate(Vector3(0,0,1),0);
@@ -107,27 +108,10 @@ void CMainMenu::Release ( void )
 	CFirestarterLoop &gameLoop = CFirestarterLoop::instance();
 
 	mainMenu->hide();
-//	OverlayManager::getSingleton().unload(mainMenu);
 	mainMenu = NULL;
 
-/*	gameLoop.GetSceneManager()->getRootSceneNode()->removeAllChildren();
-	gameLoop.GetSceneManager()->destroyAllOverlays();
-	gameLoop.GetSceneManager()->removeAllEntities();
-	gameLoop.GetSceneManager()->removeAllLights();
-
-	return;
-	ships[0]->detachAllObjects();
-	gameLoop.GetSceneManager()->destroySceneNode(ships[0]->getName());
-	ships[1]->detachAllObjects();
-	gameLoop.GetSceneManager()->destroySceneNode(ships[1]->getName());
-	ships[2]->detachAllObjects();
-	gameLoop.GetSceneManager()->destroySceneNode(ships[2]->getName());
-	ships[3]->detachAllObjects();
-	gameLoop.GetSceneManager()->destroySceneNode(ships[3]->getName()); */
 	ships[0] = ships[1] = ships[2] = ships[3] = NULL;
 
-//	mGroundNode->detachAllObjects();
-//	gameLoop.GetSceneManager()->destroySceneNode(mGroundNode->getName());
 	mGroundNode = NULL;
 
 	gameLoop.ClearScene();
@@ -157,6 +141,20 @@ tePanelReturn CMainMenu::Process ( std::string &next )
 		gameLoop.SetGameStartString("test");
 		return ePanelStart;
 	}
+
+	// do the menu stuff here
+	if (CInputManager::instance().KeyDown(KEY_DOWN))
+		currentItem ++;
+	else if (CInputManager::instance().KeyDown(KEY_UP))
+		currentItem --;
+
+	if (currentItem < 0)
+		currentItem = 0;
+	else if (currentItem > 1)
+		currentItem = 1;
+
+	GuiContainer* selction = mainMenu->getChild("main/selection");
+	selction->setPosition(-200-64-10,175+currentItem*100);
 
 	if (CInputManager::instance().KeyDown(KEY_Q))
 		return ePanelBack;
