@@ -22,6 +22,7 @@
 
 #include <gtk/gtk.h>
 #include <gconf/gconf-client.h>
+#include <dlfcn.h>
 
 #include "xchat-plugin.h"
 #include "navigation_tree.h"
@@ -73,12 +74,24 @@ notification_menu_add_channel (GtkTreeModel *model, GtkTreePath *path, GtkTreeIt
 	return FALSE;
 }
 
-void
+int
 xchat_plugin_init (xchat_plugin *plugin_handle, char **plugin_name,
 		char **plugin_desc, char **plugin_version, char *arg)
 {
 	GtkWidget *box;
 	GdkPixbuf *p;
+	void *mp;
+	NavTree *(*get_nt)(void);
+	char *error;
+
+	mp = dlopen (NULL, RTLD_NOW);
+	dlerror ();
+	get_nt = dlsym (mp, "get_navigation_tree");
+	error = dlerror ();
+	if (error) {
+		g_print ("%s\n\n", error);
+		return FALSE;
+	}
 
 	ph = plugin_handle;
 
@@ -108,12 +121,14 @@ xchat_plugin_init (xchat_plugin *plugin_handle, char **plugin_name,
 
 	/* Create the menu. */
 	menu = GTK_MENU (gtk_menu_new ());
-	nav_tree = get_navigation_tree();
+	nav_tree = get_nt ();
 	gtk_tree_model_foreach (nav_tree->model->sorted,
 			(GtkTreeModelForeachFunc)notification_menu_add_channel, NULL);
 	gtk_widget_show (GTK_WIDGET (menu));
 
 	xchat_print (ph, "Notification plugin loaded.\n");
+
+	return TRUE;
 }
 
 int
