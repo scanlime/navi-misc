@@ -159,7 +159,7 @@ static void on_ok_clicked(GtkWidget *widget, AnimationRenderUi *self) {
     self->width = gtk_spin_button_get_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "width")));
     self->height = gtk_spin_button_get_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "height")));
     self->oversample = gtk_spin_button_get_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "oversample")));
-    self->target_density = gtk_spin_button_get_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "target_density")));
+    self->quality = gtk_spin_button_get_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "quality")));
     self->frame_rate = gtk_spin_button_get_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "frame_rate")));
 
     animation_render_ui_start(self);
@@ -296,7 +296,7 @@ static int animation_render_ui_idle_handler(gpointer user_data) {
     animation_render_ui_run_timed_calculation(self);
 
     /* Figure out how complete this frame is */
-    frame_completion = ((gdouble) HISTOGRAM_IMAGER(self->map)->peak_density) / self->target_density;
+    frame_completion = histogram_imager_compute_quality(HISTOGRAM_IMAGER(self->map)) / self->quality;
     if (frame_completion >= 1) {
 	frame_completion = 1;
 

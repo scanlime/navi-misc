@@ -53,7 +53,7 @@ struct _AnimationRenderUi {
     const gchar *filename;
     gdouble frame_rate;
     guint width, height, oversample;
-    gulong target_density;
+    double quality;
 
     IterativeMap *map;
     AviWriter *avi;
