@@ -38,9 +38,6 @@
 ;
 ;################################################################################
 
-; Vendor specific config requests
-#define VFD_WRITE		0x00
-
 ; Edit these as appropriate for your descriptors
 #define	NUM_CONFIGURATIONS	1
 #define	NUM_INTERFACES		1

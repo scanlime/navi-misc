@@ -1,3 +1,19 @@
+;################################################################################
+;
+; usb_ch9.asm - Implementation of chapter 9 of the USB specification. This is mostly
+;               untouched code from the Microchip USB implementation, but hooks have
+;               been added implementing vendor-specific commands used by the MI6K.
+;
+; This file is part of the MI6K project. This file is based on the revision 2.00
+; USB firmware distributed by Microchip for use with the PIC16C745 and PIC16C765
+; microcontrollers. New code added for the MI6K project is placed in the public domain.
+;
+; MI6K modifications done by Micah Dowty <micah@picogui.org>
+;
+;###############################################################################
+;
+; The original license agreement and author information for the USB firmware follow:
+;
 ;                            Software License Agreement
 ;
 ; The software supplied herewith by Microchip Technology Incorporated (the "Company")
@@ -17,30 +33,14 @@
 ; COMPANY SHALL NOT, IN ANY CIRCUMSTANCES, BE LIABLE FOR SPECIAL, INCIDENTAL OR
 ; CONSEQUENTIAL DAMAGES, FOR ANY REASON WHATSOEVER.
 ;
-; ###############################################################################
-;	filename:	USB_CH9.ASM
-;
-; Implements the chapter 9 enumeration commands for Microchip's
-; PIC16C7x5 parts.
-;
-; ###############################################################################
-;
-;	Author(s):		Dan Butler and Reston Condit
+;	Author:			Dan Butler and Reston Condit
 ;	Company:		Microchip Technology Inc
-;
-;	Revision:		2.00
-;	Date:			06 November 2002
-;	Assembled using:	MPASM 2.80
-;################################################################################
-;
-;	include files:
-;		P16C765.inc	Rev 1.00
-;		usb_defs.inc	Rev 2.00
 ;
 ;################################################################################
 
 #include <p16C745.inc>
 #include "usb_defs.inc"
+#include "protocol.h"
 
 	errorlevel -302		; supress "register not in bank0, check page bits" message
 
@@ -1724,7 +1724,7 @@ SetConfiguration
 ; *********************************************************************
 CheckVendor
 	movf	BufferData+bRequest,w ; It's a VFD write request
-	xorlw	VFD_WRITE
+	xorlw	MI6K_CTRL_VFD_WRITE
 	pagesel	VFDWriteRequest
 	btfsc	STATUS,Z
 	goto	VFDWriteRequest
@@ -1764,6 +1764,4 @@ VFDWriteRequest
 
 	end
 
-
-
-
+;### The End ###

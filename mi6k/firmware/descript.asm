@@ -1,3 +1,17 @@
+;################################################################################
+;
+; descript.asm - USB descriptors for the MI6K project
+;
+; This file is part of the MI6K project. This file is based on the revision 2.00
+; USB firmware distributed by Microchip for use with the PIC16C745 and PIC16C765
+; microcontrollers. New code added for the MI6K project is placed in the public domain.
+;
+; MI6K modifications done by Micah Dowty <micah@picogui.org>
+;
+;###############################################################################
+;
+; The original license agreement and author information for the USB firmware follow:
+;
 ;                            Software License Agreement
 ;
 ; The software supplied herewith by Microchip Technology Incorporated (the "Company")
@@ -17,28 +31,14 @@
 ; COMPANY SHALL NOT, IN ANY CIRCUMSTANCES, BE LIABLE FOR SPECIAL, INCIDENTAL OR
 ; CONSEQUENTIAL DAMAGES, FOR ANY REASON WHATSOEVER.
 ;
-; ###############################################################################
-;	filename:	DESCRIPT.ASM
-;
-; This file contains a set of descriptors for a standard mouse.  
-;
-; ###############################################################################
-;
 ;	Author:			Dan Butler and Reston Condit
 ;	Company:		Microchip Technology Inc
 ;
-;	Revision:		2.00
-;	Date:			06 November 2002
-;	Assembled using:	MPASM 2.80
 ;################################################################################
-;
-;	include files:
-;		P16C765.inc	Rev 1.00
-;		usb_defs.inc	Rev 2.00
-;
-;################################################################################
+
 #include <p16C745.inc>
 #include "usb_defs.inc"
+#include "protocol.h"
 
 USBBANK	code
 	global	Config_desc_index
@@ -98,12 +98,12 @@ StartDevDescr
 	retlw	0x00		; bDeviceSubClass
 	retlw	0x00		; bDeviceProtocol
 	retlw	0x08		; bMaxPacketSize0 - inited in UsbInit()
-	retlw	0x61		; idVendor - 0xE461 (hopefully unclaimed)
-	retlw	0xE4		; high order byte
-	retlw	0x01		; idProduct - 0x0001
-	retlw	0x00
-	retlw	0x00		; bcdDevice
-	retlw	0x00
+	retlw	MI6K_VENDOR_ID & 0xFF	; idVendor
+	retlw	MI6K_VENDOR_ID >> 8
+	retlw	MI6K_PRODUCT_ID & 0xFF	; idProduct
+	retlw	MI6K_PRODUCT_ID >> 8
+	retlw	MI6K_PROTOCOL_VERSION & 0xFF	; bcdDevice
+	retlw	MI6K_PROTOCOL_VERSION >> 8
 	retlw	0x01		; iManufacturer
 	retlw	0x02		; iProduct
 	retlw	0x00		; iSerialNumber - 3
@@ -192,43 +192,80 @@ String0
 String1
 	retlw	String2-String1	; length of string
 	retlw	0x03		; string descriptor type 3
-	retlw	'T'
+	retlw	'M'
 	retlw	0x00
-	retlw	'a'
-	retlw	0x00
-	retlw	'c'
-	retlw	0x00
-	retlw	'o'
-	retlw	0x00
-	retlw	'b'
-	retlw	0x00
-	retlw	'e'
-	retlw	0x00
-	retlw	'a'
-	retlw	0x00
-	retlw	'm'
-	retlw	0x00
-	retlw	' '
-	retlw	0x00
-	retlw	'T'
-	retlw	0x00
-	retlw	'e'
+	retlw	'i'
 	retlw	0x00
 	retlw	'c'
+	retlw	0x00
+	retlw	'a'
 	retlw	0x00
 	retlw	'h'
 	retlw	0x00
-	retlw	'n'
+	retlw	' '
+	retlw	0x00
+	retlw	'D'
 	retlw	0x00
 	retlw	'o'
 	retlw	0x00
-	retlw	'l'
+	retlw	'w'
+	retlw	0x00
+	retlw	't'
+	retlw	0x00
+	retlw	'y'
+	retlw	0x00
+	retlw	' '
+	retlw	0x00
+	retlw	'<'
+	retlw	0x00
+	retlw	'm'
+	retlw	0x00
+	retlw	'i'
+	retlw	0x00
+	retlw	'c'
+	retlw	0x00
+	retlw	'a'
+	retlw	0x00
+	retlw	'h'
+	retlw	0x00
+	retlw	'@'
+	retlw	0x00
+	retlw	'p'
+	retlw	0x00
+	retlw	'i'
+	retlw	0x00
+	retlw	'c'
 	retlw	0x00
 	retlw	'o'
 	retlw	0x00
 	retlw	'g'
 	retlw	0x00
-	retlw	'y'
+	retlw	'u'
+	retlw	0x00
+	retlw	'i'
+	retlw	0x00
+	retlw	'.'
+	retlw	0x00
+	retlw	'o'
+	retlw	0x00
+	retlw	'r'
+	retlw	0x00
+	retlw	'g'
+	retlw	0x00
+	retlw	'>'
+	retlw	0x00
+String2
+	retlw	String3-String2
+	retlw	0x03
+	retlw	'M'
+	retlw	0x00
+	retlw	'e'
+	retlw	0x00
+	retlw	'd'
+	retlw	0x00
+	retlw	'i'
+	retlw	0x00
+	retlw	'a'
 	retlw	0x00
 	retlw	' '
 	retlw	0x00
@@ -236,32 +273,13 @@ String1
 	retlw	0x00
 	retlw	'n'
 	retlw	0x00
-	retlw	'c'
+	retlw	'f'
 	retlw	0x00
-	retlw	'.'
+	retlw	'r'
 	retlw	0x00
-String2
-	retlw	String3-String2
-	retlw	0x03
-	retlw	'U'
+	retlw	'a'
 	retlw	0x00
-	retlw	'S'
-	retlw	0x00
-	retlw	'B'
-	retlw	0x00
-	retlw	' '
-	retlw	0x00
-	retlw	'T'
-	retlw	0x00
-	retlw	'e'
-	retlw	0x00
-	retlw	's'
-	retlw	0x00
-	retlw	't'
-	retlw	0x00
-	retlw	' '
-	retlw	0x00
-	retlw	'W'
+	retlw	'w'
 	retlw	0x00
 	retlw	'i'
 	retlw	0x00
@@ -273,5 +291,17 @@ String2
 	retlw	0x00
 	retlw	't'
 	retlw	0x00
+	retlw	' '
+	retlw	0x00
+	retlw	'6'
+	retlw	0x00
+	retlw	'0'
+	retlw	0x00
+	retlw	'0'
+	retlw	0x00
+	retlw	'0'
+	retlw	0x00
 String3
 	end
+
+;### The End ###
