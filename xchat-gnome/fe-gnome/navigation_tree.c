@@ -25,6 +25,7 @@
 #include "pixmaps.h"
 #include "palette.h"
 #include "channel_list.h"
+#include "main_window.h"
 
 void navigation_selection_changed(GtkTreeSelection *selection, gpointer data);
 gboolean navigation_click(GtkWidget *treeview, GdkEventButton *event, gpointer data);
@@ -187,6 +188,7 @@ void navigation_selection_changed(GtkTreeSelection *selection, gpointer data) {
 		gui.current_session = sess;
 		userlist_display(tgui);
 		set_nickname(sess->server, NULL);
+		rename_main_window(sess->server->networkname, sess->channel);
 		/* remove any icon that exists */
 		store = gtk_tree_model_sort_get_model(GTK_TREE_MODEL_SORT(model));
 		gtk_tree_model_sort_convert_iter_to_child_iter(GTK_TREE_MODEL_SORT(model), &newiter, &iter);
