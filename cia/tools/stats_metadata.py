@@ -7,6 +7,7 @@ stats browser. For example:
 ./stats_metadata -k stats.key project/pigomatic title 'Pig-O-Matic (tm)'
 """
 
+import sys, os; sys.path[0] = os.path.join(sys.path[0], '..')
 from twisted.python import usage
 from LibCIA import Client
 import os

@@ -3,6 +3,7 @@
 A client providing easy access to common debugging features
 """
 
+import sys, os; sys.path[0] = os.path.join(sys.path[0], '..')
 from LibCIA import Client
 
 class Options(Client.Options):
