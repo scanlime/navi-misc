@@ -45,12 +45,25 @@ class Graph(gtk.DrawingArea):
 
         # Set up a timer that gets called frequently to handle
         # updating the graph if necessary.
-        self.gtkTimeout = gtk.timeout_add(pollInterval, self.timerHandler)
+        self.gtkTimeout = None
         self.lastUpdateTime = None
+        self.setPollInterval(pollInterval)
 
         # Until we've been mapped onto the screen and configured by gtk,
         # our width and height are undefined
         self.width = self.height = None
+
+    def setPollInterval(self, interval):
+        """Set the minimum interval between calls to integrate(),
+           in milliseconds. This is the reciprocal of the maximum frame
+           rate. An interval of None will disable calls to integrate().
+           """
+        if self.gtkTimeout:
+            gtk.timeout_remove(self.gtkTimeout)
+        if interval is None:
+            self.gtkTimeout = None
+        else:
+            self.gtkTimeout = gtk.timeout_add(interval, self.timerHandler)
 
     def initStyle(self):
         """Setup colors important for this widget, but not specific
