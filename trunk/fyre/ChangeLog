@@ -1,4 +1,4 @@
-0.7-pre
+0.7
 	* Brand New Cluster support!
 	* GtkFileChooser support for gtk+ 2.4+
 	* Tweakable interactivity
@@ -6,6 +6,8 @@
 	* Autoconf support
 	* Added binreloc support for relocatability
 	* Added windows support
+	* Adjustable interactivity settings
+	* Various bug fixes
 
 0.6 (11 August 2004)
 	* Support 64-bit machines and Intel icc
