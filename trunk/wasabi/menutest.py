@@ -4,11 +4,10 @@
 #
 
 from Wasabi import Main, Menu, Icon
-from BZEngine.UI import Sequencer
 
 class TestMain(Main.Main):
     def getPages(self):
-        return [Sequencer.FadeIn(0.5, (0,0,0), Sequencer.FadeOut(0.25, (0,0,0), TestMenu))]
+        return [Menu.defaultFades(TestMenu)]
 
 class TestMenu(Menu.ArcMenu):
     def __init__(self, book):
