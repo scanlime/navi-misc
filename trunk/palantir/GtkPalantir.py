@@ -34,8 +34,12 @@ class PalantirWindow:
     # Set up our user list with a column for pixbufs and a column for text.
     list = self.tree.get_widget('UserList')
     list.set_model(model=gtk.ListStore(gtk.gdk.Pixbuf, gobject.TYPE_STRING))
+    # Columns in the tree view.
     list.append_column(gtk.TreeViewColumn('Icons', gtk.CellRendererPixbuf(), pixbuf=0))
     list.append_column(gtk.TreeViewColumn('Users', gtk.CellRendererText(), text=1))
+    # Set the column spacing, doesn't appear to do anything, ATM.
+    list.get_column(0).set_spacing(5)
+    list.get_column(1).set_spacing(5)
 
     # Create a chat buffer from our custom widget.
     self.chatWindow = GtkChatBuffer()
@@ -44,10 +48,6 @@ class PalantirWindow:
 
     # Client factory.
     self.factory = palantirIRC.PalantirClientFactory('nuku-nuku', ui=self)
-
-  def MessageFormat(self, user, msg, action=False):
-    ''' Format an incoming message. '''
-    text = ''
 
   def GetFormattedTime(self):
     hour, min, sec = self.GetTime()
@@ -79,13 +79,24 @@ class PalantirWindow:
 
   def meReceive(self, user, channel, msg):
     ''' When someone does a '/me' display the action. '''
-    text = self.MessageFormat(user, msg, True)
-    #self.PrintText(text)
+    nick = '* ' + self.GetNick(user)
+    if self.tree.get_widget('time_stamps').get_active():
+      time = self.GetFormattedTime()
+    else:
+      time = ''
+    if msg.find(self.factory.nickname) is not -1:
+      addressed = True
+    else:
+      addressed = False
+    self.chatWindow.DisplayText(time, nick, msg, addressed)
 
   def nickReceive(self, oldNick, channel, newNick):
     ''' When someone changes a nick display it. '''
-    text = self.MessageFormat(None, oldNick + ' is now known as ' + newNick)
-    #self.PrintText(text)
+    if self.tree.get_widget('time_stamps').get_active():
+      time = self.GetFormattedTime()
+    else:
+      time = ''
+    self.chatWindow.DisplayText(time, '', oldNick + ' is now known as ' + newNick)
 
   def topicReceive(self, user, channel, topic):
     ''' Recieved a topic change, so set the topic bar to the new topic. '''
@@ -119,7 +130,6 @@ class PalantirWindow:
       else:
 	message = messages[0][0]
       text = 'Received a CTCP ' + message + ' from ' + nick + ' (to ' + channel + ')'
-      print messages
 
     self.messageReceive(None, channel, text)
 
@@ -280,10 +290,6 @@ class PalantirWindow:
     store = list.get_model()
     store.set(store.append(), 1, nick)
 
-  def PrintText(self, text):
-    ''' Print the text in the chat buffer. '''
-    print text
-
   def SendRoll(self, times, sides, rolls, total):
     ''' Implemented for the DieRoller used when loading character sheets.  Sends a CTCP
         to the channel with the roll information and displays the information on your
@@ -298,7 +304,7 @@ class PalantirWindow:
       time = '[' + hour + ':' + min + ':' + sec + ']'
     else:
       time = ''
-    self.PrintText(time + 'You rolled a ' + str(len(rolls)) + 'd' + str(sides) + ': ' + str(rolls) + ' => ' + str(total) + '\n')
+    self.chatWindow.DisplayText(time, '', 'You rolled a ' + str(len(rolls)) + 'd' + str(sides) + ': ' + str(rolls) + ' => ' + str(total) + '\n')
 
   def GetTime(self):
     ''' Return the local hour, minute and seconds. '''
