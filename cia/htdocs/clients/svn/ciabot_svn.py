@@ -28,13 +28,22 @@
 #    project's name to the commandline in that project's post-commit
 #    hook:
 #
-#      $REPOS/hooks/ciabot_svn.py "$REPOS" "$REV" "My Project" &
+#      $REPOS/hooks/ciabot_svn.py "$REPOS" "$REV" "ProjectName" &
 #
 ############# There are some parameters for this script that you can customize:
 
 class config:
-    # Replace this with your project's name, or always provide a
-    # project name on the commandline.
+    # Replace this with your project's name, or always provide a project
+    # name on the commandline.
+    #
+    # NOTE: This shouldn't be a long description of your project. Ideally
+    #       it is a short identifier with no spaces, punctuation, or
+    #       unnecessary capitalization. This will be used in URLs related
+    #       to your project, as an internal identifier, and in IRC messages.
+    #       If you want a longer name shown for your project on the web
+    #       interface, please use the "title" metadata key rather than
+    #       putting that here.
+    #
     project = "YOUR_PROJECT_NAME_HERE"
 
     # Subversion's normal directory hierarchy is powerful enough that

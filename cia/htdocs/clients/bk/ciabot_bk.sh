@@ -11,6 +11,15 @@
 ############# There are some parameters for this script that you can customize:
 
 # Project information
+#
+# NOTE: This shouldn't be a long description of your project. Ideally
+#       it is a short identifier with no spaces, punctuation, or
+#       unnecessary capitalization. This will be used in URLs related
+#       to your project, as an internal identifier, and in IRC messages.
+#       If you want a longer name shown for your project on the web
+#       interface, please use the "title" metadata key rather than
+#       putting that here.
+#
 project_name="openembedded"
 return_address="oe@handhelds.org"
 
