@@ -132,12 +132,29 @@ int   packet_read_int(struct rx_packet* self, int width)
   int i = 0;
   int mask = 1;
 
+  assert(width <= (sizeof(int)*8));
+
   while (width > 0) {
     if (packet_read_bit(self))
       i |= mask;
     mask <<= 1;
     width--;
   }
+  return i;
+}
+
+int packet_read_signed_int(struct rx_packet* self, int width)
+{
+  int i = packet_read_int(self, width);
+
+  assert(width <= (sizeof(int)*8) - 1);
+
+  /* Is it negative? */
+  if (i & (1<<(width-1))) {
+    /* Sign extend */
+    i -= 1<<width;
+  }
+
   return i;
 }
 
