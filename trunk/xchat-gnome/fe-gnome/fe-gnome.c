@@ -231,7 +231,7 @@ fe_is_banwindow (struct session *sess)
 }
 
 void
-fe_add_ban_list (struct session *sess, char *mask, char *who, char *when)
+fe_add_ban_list (struct session *sess, char *mask, char *who, char *when, int is_exemption)
 {
 	/* FIXME: implement */
 }
