@@ -117,6 +117,17 @@ void create_channel_list(session *sess) {
 	gtk_size_group_add_widget(group, widget);
 	g_object_unref(group);
 
+	group = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
+	widget = glade_xml_get_widget(win->xml, "minusers label");
+	gtk_size_group_add_widget(group, widget);
+	widget = glade_xml_get_widget(win->xml, "maxusers label");
+	gtk_size_group_add_widget(group, widget);
+	widget = glade_xml_get_widget(win->xml, "filter label");
+	gtk_size_group_add_widget(group, widget);
+	widget = glade_xml_get_widget(win->xml, "applyto label");
+	gtk_size_group_add_widget(group, widget);
+	g_object_unref(group);
+
 	select = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
 	gtk_tree_selection_set_mode(select, GTK_SELECTION_SINGLE);
 	g_signal_connect(G_OBJECT(select), "changed", G_CALLBACK(chanlist_selected), win);

@@ -73,7 +73,7 @@
 		      <property name="spacing">6</property>
 
 		      <child>
-			<widget class="GtkLabel" id="label5">
+			<widget class="GtkLabel" id="minusers label">
 			  <property name="visible">True</property>
 			  <property name="label" translatable="yes">Minimum Users:</property>
 			  <property name="use_underline">False</property>
@@ -109,7 +109,6 @@
 			  <property name="padding">0</property>
 			  <property name="expand">False</property>
 			  <property name="fill">True</property>
-			  <property name="pack_type">GTK_PACK_END</property>
 			</packing>
 		      </child>
 		    </widget>
@@ -127,7 +126,7 @@
 		      <property name="spacing">6</property>
 
 		      <child>
-			<widget class="GtkLabel" id="label6">
+			<widget class="GtkLabel" id="maxusers label">
 			  <property name="visible">True</property>
 			  <property name="label" translatable="yes">Maximum Users:</property>
 			  <property name="use_underline">False</property>
@@ -163,7 +162,6 @@
 			  <property name="padding">0</property>
 			  <property name="expand">False</property>
 			  <property name="fill">True</property>
-			  <property name="pack_type">GTK_PACK_END</property>
 			</packing>
 		      </child>
 		    </widget>
@@ -181,7 +179,7 @@
 		      <property name="spacing">6</property>
 
 		      <child>
-			<widget class="GtkLabel" id="label7">
+			<widget class="GtkLabel" id="filter label">
 			  <property name="visible">True</property>
 			  <property name="label" translatable="yes">Text Filter:</property>
 			  <property name="use_underline">False</property>
@@ -217,7 +215,6 @@
 			  <property name="padding">0</property>
 			  <property name="expand">False</property>
 			  <property name="fill">True</property>
-			  <property name="pack_type">GTK_PACK_END</property>
 			</packing>
 		      </child>
 		    </widget>
@@ -235,9 +232,9 @@
 		      <property name="spacing">6</property>
 
 		      <child>
-			<widget class="GtkLabel" id="label4">
+			<widget class="GtkLabel" id="applyto label">
 			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">Apply Text Filter To:</property>
+			  <property name="label" translatable="yes">Apply Text Filter To:    </property>
 			  <property name="use_underline">False</property>
 			  <property name="use_markup">False</property>
 			  <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -256,53 +253,38 @@
 		      </child>
 
 		      <child>
-			<widget class="GtkVBox" id="vbox3">
+			<widget class="GtkCheckButton" id="checkbutton2">
 			  <property name="visible">True</property>
-			  <property name="homogeneous">False</property>
-			  <property name="spacing">6</property>
-
-			  <child>
-			    <widget class="GtkCheckButton" id="checkbutton1">
-			      <property name="visible">True</property>
-			      <property name="can_focus">True</property>
-			      <property name="label" translatable="yes">Channel _Name</property>
-			      <property name="use_underline">True</property>
-			      <property name="relief">GTK_RELIEF_NORMAL</property>
-			      <property name="active">False</property>
-			      <property name="inconsistent">False</property>
-			      <property name="draw_indicator">True</property>
-			    </widget>
-			    <packing>
-			      <property name="padding">0</property>
-			      <property name="expand">False</property>
-			      <property name="fill">False</property>
-			      <property name="pack_type">GTK_PACK_END</property>
-			    </packing>
-			  </child>
-
-			  <child>
-			    <widget class="GtkCheckButton" id="checkbutton2">
-			      <property name="visible">True</property>
-			      <property name="can_focus">True</property>
-			      <property name="label" translatable="yes">Channel _Topic</property>
-			      <property name="use_underline">True</property>
-			      <property name="relief">GTK_RELIEF_NORMAL</property>
-			      <property name="active">False</property>
-			      <property name="inconsistent">False</property>
-			      <property name="draw_indicator">True</property>
-			    </widget>
-			    <packing>
-			      <property name="padding">0</property>
-			      <property name="expand">False</property>
-			      <property name="fill">False</property>
-			      <property name="pack_type">GTK_PACK_END</property>
-			    </packing>
-			  </child>
+			  <property name="can_focus">True</property>
+			  <property name="label" translatable="yes">Channel _Topic</property>
+			  <property name="use_underline">True</property>
+			  <property name="relief">GTK_RELIEF_NORMAL</property>
+			  <property name="active">False</property>
+			  <property name="inconsistent">False</property>
+			  <property name="draw_indicator">True</property>
 			</widget>
 			<packing>
 			  <property name="padding">0</property>
-			  <property name="expand">True</property>
-			  <property name="fill">True</property>
+			  <property name="expand">False</property>
+			  <property name="fill">False</property>
+			</packing>
+		      </child>
+
+		      <child>
+			<widget class="GtkCheckButton" id="checkbutton1">
+			  <property name="visible">True</property>
+			  <property name="can_focus">True</property>
+			  <property name="label" translatable="yes">Channel _Name</property>
+			  <property name="use_underline">True</property>
+			  <property name="relief">GTK_RELIEF_NORMAL</property>
+			  <property name="active">False</property>
+			  <property name="inconsistent">False</property>
+			  <property name="draw_indicator">True</property>
+			</widget>
+			<packing>
+			  <property name="padding">0</property>
+			  <property name="expand">False</property>
+			  <property name="fill">False</property>
 			</packing>
 		      </child>
 		    </widget>
