@@ -35,6 +35,7 @@ struct _XText2Class
 GType      xtext2_get_type    (void) G_GNUC_CONST;
 GtkWidget* xtext2_new         (void);
 void       xtext2_set_palette (XText2 *xtext, GdkColor palette[]);
+void       xtext2_show_buffer (XText2 *xtext, XTextBuffer *buffer);
 
 G_END_DECLS
 
