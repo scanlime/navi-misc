@@ -30,7 +30,7 @@ public:
     // not all platforms support vsnprintf so we'll use vsprintf and a
     // big temporary buffer and hope for the best.
     char buffer[8192];
-    vsnprintf(buffer, 8192, fmt, args);
+    vsprintf(buffer, fmt, args);
     return std::string(buffer);
   }
   inline static std::string format(const char* fmt, ...) {
