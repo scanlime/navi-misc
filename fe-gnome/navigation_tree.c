@@ -364,6 +364,7 @@ navigation_tree_select_next_network (NavTree *navtree)
 /* Misc. Functions. */
 static gboolean
 navigation_tree_set_channel_name_iterate(GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, gpointer data)
+/* Iterator function for set_channel_name. */
 {
 	gpointer s;
 	gtk_tree_model_get(model, iter, 2, &s, -1);
