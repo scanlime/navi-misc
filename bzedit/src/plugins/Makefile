@@ -17,6 +17,7 @@ CORE_SO_OBJS		=			\
 
 RENDERPASSES_SO_OBJS	=			\
 			basicrenderpass.o	\
+			blendedrenderpass.o	\
 			renderpasses.o
 
 all:			$(PLUGINS)

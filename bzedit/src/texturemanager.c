@@ -79,6 +79,10 @@ texture_manager_bind (TextureManager *tm, gchar *name)
   gpointer id;
   GLuint glid;
 
+  /* non-textured object */
+  if (!strlen(name))
+    return;
+
   id = g_hash_table_lookup (tm->textures, (gpointer) name);
   if (!id)
     id = texture_manager_load (tm, name);

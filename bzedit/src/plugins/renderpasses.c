@@ -22,17 +22,19 @@
 
 #include <gmodule.h>
 #include "basicrenderpass.h"
+#include "blendedrenderpass.h"
 
 const gchar*
 g_module_check_init (GModule *module)
 {
-  static GType basic;
+  static GType basic, blended;
 
   /* permanently insert ourself */
   g_module_make_resident (module);
 
   /* and register our types */
   basic = BASIC_RENDER_PASS_TYPE;
+  blended = BLENDED_RENDER_PASS_TYPE;
 
   return NULL;
 }

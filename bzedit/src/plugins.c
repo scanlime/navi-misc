@@ -75,3 +75,24 @@ find_type_leaves (GType base)
 
   return ret;
 }
+
+GList*
+find_type_children (GType base)
+{
+  GType *children, *t;
+  guint n, i, c;
+  GList *ret = NULL;
+
+  children = g_type_children (base, &n);
+  for (i = 0; i < n; i++)
+  {
+    t = g_type_children (children[i], &c);
+    ret = g_list_append (ret, GUINT_TO_POINTER (children[i]));
+    if (c != 0)
+      ret = g_list_concat (ret, find_type_children (children[i]));
+    g_free (t);
+  }
+  g_free (children);
+
+  return ret;
+}

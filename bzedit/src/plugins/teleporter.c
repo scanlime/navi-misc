@@ -22,16 +22,20 @@
 
 #include "teleporter.h"
 
-static void       teleporter_class_init           (TeleporterClass *klass);
-static void       teleporter_init                 (Teleporter *teleporter);
-static void       teleporter_set_property         (GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec);
-static void       teleporter_get_property         (GObject *object, guint prop_id, GValue *value, GParamSpec *pspec);
-static void       teleporter_finalize             (GObject *object);
-static void       teleporter_init_position_params (GObjectClass *object_class);
-static void       teleporter_init_size_params     (GObjectClass *object_class);
-static void       teleporter_init_other_params    (GObjectClass *object_class);
-static GdkPixbuf* teleporter_get_icon             (void);
-static GList*     teleporter_get_drawables        (SceneObject *self);
+static void       teleporter_class_init                  (TeleporterClass *klass);
+static void       teleporter_init                        (Teleporter *teleporter);
+static void       teleporter_set_property                (GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec);
+static void       teleporter_get_property                (GObject *object, guint prop_id, GValue *value, GParamSpec *pspec);
+static void       teleporter_finalize                    (GObject *object);
+static void       teleporter_init_position_params        (GObjectClass *object_class);
+static void       teleporter_init_size_params            (GObjectClass *object_class);
+static void       teleporter_init_other_params           (GObjectClass *object_class);
+static GdkPixbuf* teleporter_get_icon                    (void);
+static GList*     teleporter_get_drawables               (SceneObject *self);
+
+static void       teleporter_field_drawable_class_init   (TeleporterFieldDrawableClass *klass);
+static void       teleporter_field_drawable_init         (TeleporterFieldDrawable *tfd);
+static void       teleporter_field_drawable_draw_to_list (DisplayList *dl);
 
 enum
 {
@@ -102,6 +106,10 @@ static void
 teleporter_init (Teleporter *teleporter)
 {
   teleporter->drawables = NULL;
+  teleporter->field = teleporter_field_drawable_new ();
+  teleporter->field->parent = (SceneObject*) teleporter;
+
+  teleporter->drawables = g_list_append (teleporter->drawables, (gpointer) teleporter->field);
 }
 
 static void
@@ -110,6 +118,16 @@ update_double_if_necessary (gdouble new_value, gboolean *dirty, gdouble *param, 
   if (fabs (new_value - *param) > epsilon)
   {
     *param = new_value;
+    *dirty = TRUE;
+  }
+}
+
+static void
+update_float_if_necessary (gdouble new_value, gboolean *dirty, gfloat *param, gfloat epsilon)
+{
+  if (fabs ((gfloat)new_value - *param) > epsilon)
+  {
+    *param = (gfloat) new_value;
     *dirty = TRUE;
   }
 }
@@ -133,26 +151,62 @@ teleporter_set_property (GObject *object, guint prop_id, const GValue *value, GP
   {
     case PROP_POSITION_X:
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.position[0], 0.09);
+      update_float_if_necessary (g_value_get_double  (value), &DISPLAY_LIST (self->field)->dirty,
+                                 &TELEPORTER_FIELD_DRAWABLE (self->field)->position[0], 0.09);
+      if (self->state_dirty)
+	g_signal_emit_by_name (object, "dirty");
+      if (DISPLAY_LIST (self->field)->dirty)
+	g_signal_emit_by_name (G_OBJECT (self->field), "dirty");
       break;
 
     case PROP_POSITION_Y:
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.position[1], 0.09);
+      update_float_if_necessary (g_value_get_double  (value), &DISPLAY_LIST (self->field)->dirty,
+                                 &TELEPORTER_FIELD_DRAWABLE (self->field)->position[1], 0.09);
+      if (self->state_dirty)
+	g_signal_emit_by_name (object, "dirty");
+      if (DISPLAY_LIST (self->field)->dirty)
+	g_signal_emit_by_name (G_OBJECT (self->field), "dirty");
       break;
 
     case PROP_POSITION_Z:
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.position[2], 0.09);
+      update_float_if_necessary (g_value_get_double  (value), &DISPLAY_LIST (self->field)->dirty,
+                                 &TELEPORTER_FIELD_DRAWABLE (self->field)->position[2], 0.09);
+      if (self->state_dirty)
+	g_signal_emit_by_name (object, "dirty");
+      if (DISPLAY_LIST (self->field)->dirty)
+	g_signal_emit_by_name (G_OBJECT (self->field), "dirty");
       break;
 
     case PROP_ROTATION:
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.rotation, 0.09);
+      update_float_if_necessary (g_value_get_double  (value), &DISPLAY_LIST (self->field)->dirty,
+                                 &TELEPORTER_FIELD_DRAWABLE (self->field)->rotation, 0.09);
+      if (self->state_dirty)
+	g_signal_emit_by_name (object, "dirty");
+      if (DISPLAY_LIST (self->field)->dirty)
+	g_signal_emit_by_name (G_OBJECT (self->field), "dirty");
       break;
 
     case PROP_SIZE_WIDTH:
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.size[0], 0.09);
+      update_float_if_necessary (g_value_get_double  (value), &DISPLAY_LIST (self->field)->dirty,
+                                 &TELEPORTER_FIELD_DRAWABLE (self->field)->size[0], 0.09);
+      if (self->state_dirty)
+	g_signal_emit_by_name (object, "dirty");
+      if (DISPLAY_LIST (self->field)->dirty)
+	g_signal_emit_by_name (G_OBJECT (self->field), "dirty");
       break;
 
     case PROP_SIZE_HEIGHT:
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.size[1], 0.09);
+      update_float_if_necessary (g_value_get_double  (value), &DISPLAY_LIST (self->field)->dirty,
+                                 &TELEPORTER_FIELD_DRAWABLE (self->field)->size[1], 0.09);
+      if (self->state_dirty)
+	g_signal_emit_by_name (object, "dirty");
+      if (DISPLAY_LIST (self->field)->dirty)
+	g_signal_emit_by_name (G_OBJECT (self->field), "dirty");
       break;
 
     case PROP_BORDER_WIDTH:
@@ -362,4 +416,90 @@ teleporter_get_drawables (SceneObject *self)
 {
   Teleporter *t = TELEPORTER (self);
   return t->drawables;
+}
+
+GType
+teleporter_field_drawable_get_type (void)
+{
+  static GType tfd_type = 0;
+  if (!tfd_type)
+  {
+    static const GTypeInfo tfd_info =
+    {
+      sizeof (TeleporterFieldDrawableClass),
+      NULL,               /* base init */
+      NULL,               /* base finalize */
+      (GClassInitFunc)    teleporter_field_drawable_class_init,
+      NULL,               /* class finalize */
+      NULL,               /* class data */
+      sizeof (TeleporterFieldDrawable),
+      0,                  /* n preallocs */
+      (GInstanceInitFunc) teleporter_field_drawable_init,
+    };
+
+    tfd_type = g_type_register_static (DISPLAY_LIST_TYPE, "TeleporterFieldDrawable", &tfd_info, 0);
+  }
+
+  return tfd_type;
+}
+
+static void
+teleporter_field_drawable_class_init (TeleporterFieldDrawableClass *klass)
+{
+  DisplayListClass *dlc;
+
+  dlc = (DisplayListClass*) klass;
+  dlc->draw_to_list = teleporter_field_drawable_draw_to_list;
+}
+
+static void
+teleporter_field_drawable_init (TeleporterFieldDrawable *tfd)
+{
+  Drawable *d = DRAWABLE (tfd);
+
+  d->texture = "";
+  d->render.blended = TRUE;
+}
+
+Drawable*
+teleporter_field_drawable_new (void)
+{
+  return DRAWABLE (g_object_new (teleporter_field_drawable_get_type (), NULL));
+}
+
+static void
+teleporter_field_drawable_draw_to_list (DisplayList *dl)
+{
+  TeleporterFieldDrawable *tfd = TELEPORTER_FIELD_DRAWABLE (dl);
+  float width, height;
+
+  width = tfd->size[0];
+  height = tfd->size[1];
+
+  glPushMatrix ();
+  glTranslatef (tfd->position[0], tfd->position[1], tfd->position[2]);
+  glRotatef (tfd->rotation, 0.0, 0.0, 1.0);
+
+  glColor4f (0.0, 0.0, 0.0, 0.5);
+
+  glBegin (GL_QUADS);
+  {
+    /* X+ side */
+    glNormal3f (1.0, 0.0, 0.0);
+    glVertex3f (0,  width, 0);
+    glVertex3f (0,  width, height);
+    glVertex3f (0, -width, height);
+    glVertex3f (0, -width, 0);
+
+    /* X- side */
+    glNormal3f (-1.0, 0.0, 0.0);
+    glVertex3f (0, -width, 0);
+    glVertex3f (0, -width, height);
+    glVertex3f (0,  width, height);
+    glVertex3f (0,  width, 0);
+  }
+  glEnd ();
+
+  glColor4f (1.0, 1.0, 1.0, 1.0);
+  glPopMatrix ();
 }

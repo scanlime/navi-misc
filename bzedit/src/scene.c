@@ -71,7 +71,7 @@ scene_init (Scene *self)
   self->dirty = FALSE;
 
   self->render_passes = NULL;
-  render_pass_types = find_type_leaves (RENDER_PASS_TYPE);
+  render_pass_types = find_type_children (RENDER_PASS_TYPE);
   for (type = render_pass_types; type; type = type->next)
   {
     RenderPass *pass = RENDER_PASS (g_object_new (GPOINTER_TO_UINT (type->data), NULL));
@@ -145,10 +145,11 @@ filter_priority_compare (RenderPass *p1, RenderPass *p2)
 static void
 scene_preprocess_iterate (SceneObject *object, GList *drawables, GList *passes)
 {
-  GList *drawable, *pass;
+  GList *drawable, *pass, *filter_sort;
 
+  filter_sort = g_list_sort (passes, (GCompareFunc) filter_priority_compare);
   for (drawable = drawables; drawable; drawable = drawable->next)
-    for (pass = passes; pass; pass = pass->next)
+    for (pass = filter_sort; pass; pass = pass->next)
       if (render_pass_filter (RENDER_PASS (pass->data), DRAWABLE (drawable->data)))
         render_pass_add (RENDER_PASS (pass->data), DRAWABLE (drawable->data));
 }
@@ -156,7 +157,7 @@ scene_preprocess_iterate (SceneObject *object, GList *drawables, GList *passes)
 void
 scene_preprocess (Scene *self)
 {
-  GList *render_sort, *filter_sort;
+  GList *render_sort;
   GList *i;
 
   /* rebuilds rendering passes. This operation clears the 'dirty' flag, and
@@ -164,8 +165,6 @@ scene_preprocess (Scene *self)
    */
 
   render_sort = g_list_sort (self->render_passes, (GCompareFunc) render_priority_compare);
-  filter_sort = g_list_sort (self->render_passes, (GCompareFunc) filter_priority_compare);
-
   for (i = render_sort; i; i = i->next)
   {
     RenderPass *pass = RENDER_PASS (i->data);
@@ -175,6 +174,7 @@ scene_preprocess (Scene *self)
   /* divy up the drawables into rendering passes using the passes' filter function */
   g_hash_table_foreach (self->objects, (GHFunc) scene_preprocess_iterate, (gpointer) self->render_passes);
 
+  render_sort = g_list_sort (self->render_passes, (GCompareFunc) render_priority_compare);
   /* give each pass a chance to preprocess */
   for (i = render_sort; i; i = i->next)
   {
@@ -183,8 +183,6 @@ scene_preprocess (Scene *self)
   }
 
   self->dirty = FALSE;
-
-  self->render_passes = render_sort;
 }
 
 void
