@@ -41,20 +41,20 @@ class World:
             header = BinaryWorld.BlockHeader()
             packedHeader = bin.read(header.getSize())
             if len(packedHeader) < header.getSize():
-                raise Errors.ProtocolException("Premature end of binary world data")
+                raise Errors.ProtocolError("Premature end of binary world data")
             header.unmarshall(packedHeader)
-
+            
             # Look up the block type and instantiate it
             try:
                 block = blockDict[header.id]()
             except KeyError:
-                raise Errors.ProtocolException(
+                raise Errors.ProtocolError(
                     "Unknown block type 0x%04X in binary world data" % header.id)
 
             # Read the block body
             packedBody = bin.read(block.getSize() - len(packedHeader))
             if len(packedBody) < (block.getSize() - len(packedHeader)):
-                raise Errors.ProtocolException("Incomplete block in binary world data")
+                raise Errors.ProtocolError("Incomplete block in binary world data")
             block.unmarshall(packedHeader + packedBody)
             blocks.append(block)
         print blocks
