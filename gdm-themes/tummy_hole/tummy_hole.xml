@@ -57,7 +57,7 @@
         <pos anchor="se" x="100%" y="100%" width="box" height="100%"/>
         <box orientation="horizontal" xpadding="10" spacing="10">
           <item type="rect" id="system_button" button="true">
-            <pos anchor="sw" y="100%" width="box" height="box"/>
+            <pos anchor="sw" y="100%" height="box"/>
             <box orientation="horizontal">
               <item type="pixmap">
                 <pos anchor="w" y="50%"/>
