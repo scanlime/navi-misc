@@ -21,9 +21,9 @@ public class element
 	public String fork;
 
 	/**
-	 * The all powerful constructor.  It processes the string and makes it happy.
+	 * The all powerful constructor. This one handles notices
 	 * @param prev The previous element in the linked list.
-	 * @param 
+	 * @param notice The notice text.
 	 * @author Brandon Smith
 	 * @version 2.0
 	 */
