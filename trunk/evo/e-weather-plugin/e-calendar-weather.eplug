@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<e-plugin-list>
+    <e-plugin
+     type="shlib"
+     location="/home/jupiter/navi-misc/evo/e-weather-plugin/e-calendar-weather.so"
+     id="com.novell.evolution.calendar.weather"
+     name="weather calendar plugin">
+        <hook class="com.novell.evolution.calendar.config:1.0">
+            <group
+	     target="source"
+	     id="com.novell.evolution.calendar.calendarProperties">
+                <item
+		 type="item_table"
+		 path="00.general/00.source/20.location"
+		 factory="e_calendar_weather_location"/>
+            </group>
+        </hook>
+    </e-plugin>
+</e-plugin-list>
