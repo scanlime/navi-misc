@@ -14,22 +14,38 @@
 
  Useful test sets provided by this module:
 
-   safe    : All tests that can be run without setting any of the rcpod's
-             I/O ports to output mode. This won't affect any hardware plugged
-             into the rcpod, but can't test much. Tests all rcpod devices
-             found on the USB bus.
+   safe
+   ----
 
-   single  : Tests all API and hardware features possible with a single rcpod.
-             This can verify API sanity in most cases, but only partially
-             verifies hardware sanity. Note that this will modify the I/O
-             port states, and it should NOT be run with any external hardware
-             hooked up to the rcpod. Tests all rcpod devices found on the USB
-             bus.
+    * All tests that can be run without setting any of the rcpod's
+      I/O ports to output mode. This won't affect any hardware plugged
+      into the rcpod, but can't test much.
 
-   dual    : Requires two rcpod units, with all I/O pins (excluding power,
-             USB, and oscillator) connected to each other. Also runs the equivalent
-             of a 'single' test on both rcpods. This uses each rcpod to test the I/O
-             features on the other.
+    * Tests all rcpod devices found on the USB bus.
+
+   single
+   ------
+
+    * Tests all API and hardware features possible with a single rcpod.
+      This can verify API sanity in most cases, but only partially
+      verifies hardware sanity.
+
+    * Note that this will modify the I/O port states, and it
+      MUST NOT be run with any external hardware hooked up to the rcpod.
+
+    * Also runs all tests covered by 'safe'
+
+    * Tests all rcpod devices found on the USB bus.
+
+   dual
+   ----
+
+    * Requires two rcpod units, with all I/O pins (excluding power,
+      USB, and oscillator) connected to each other. This uses each rcpod
+      to test the I/O features on the other.
+
+    * Also runs all tests covered by 'single'
+
 
  -- Micah Dowty <micah@picogui.org>
 """
@@ -61,9 +77,10 @@ class safe(SimpleRcpodTestCase):
 
     def testPokePeek(self):
         """Tests whether poke and peek work on 1 byte, using the scratchpad"""
+        address = 'scratchpad'
         for byte in testBytes:
-            self.rcpod.poke('scratchpad', byte)
-            result = self.rcpod.peek('scratchpad')
+            self.rcpod.poke(address, byte)
+            result = self.rcpod.peek(address)
             self.assertEqual(byte, result)
 
 
