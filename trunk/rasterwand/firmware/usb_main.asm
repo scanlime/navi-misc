@@ -72,7 +72,9 @@ epByteTemp	res 1
 	extern	TokenDone
 	extern	USB_dev_req
 	extern	finish_set_address
+
 	extern	display_poll
+	extern	display_init
 
 STARTUP	code
 	pagesel	Main
@@ -211,6 +213,8 @@ Main
 	movlf	ADCON1_VALUE, ADCON1
 	movlf	T1CON_VALUE, T1CON
 
+	pagesel	display_init
+	call	display_init
 
 ;******************************************************************* Main Loop
 
