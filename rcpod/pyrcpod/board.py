@@ -24,7 +24,7 @@ AvailableRcpod's open() method.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from device import *
+import device, time
 
 # These are the symbols that will be pulled from this module
 # into the 'pyrcpod' package.
@@ -36,12 +36,12 @@ class MnetError(Exception):
     pass
 
 
-class Rcpod485(OpenedRcpod):
+class Rcpod485(device.OpenedRcpod):
     """Implements the special features of the rcpod-485 board.
        This board includes two LEDs and an RS-485 transceiver.
        """
     def __init__(self, *args, **kwargs):
-        OpenedRcpod.__init__(self, *args, **kwargs)
+        device.OpenedRcpod.__init__(self, *args, **kwargs)
 
         # Set up LEDs
         self.led1 = self.rc2
@@ -73,7 +73,7 @@ class Rcpod485(OpenedRcpod):
         packet = [destination, source, len(data)] + list(data)
         csum = 0xFF
         for byte in packet:
-            csum = (csum - byte) & 0x100
+            csum = (csum - byte) & 0xFF
         packet.append(csum)
 
         # Set the baud rate and send our packet, receiving
@@ -81,7 +81,7 @@ class Rcpod485(OpenedRcpod):
         self.serialInit(9600)
         self.serialTxRxStart(packet, device.RCPOD_SCRATCHPAD_SIZE)
         time.sleep(timeout)
-        retPacket = sself.serialRxFinish()
+        retPacket = self.serialRxFinish()
 
         # Validate the received packet
         if not retPacket:
