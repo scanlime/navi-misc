@@ -352,6 +352,7 @@ static void on_load_from_image(GtkWidget *widget, gpointer user_data) {
     filename = gtk_file_selection_get_filename(GTK_FILE_SELECTION(dialog));
     de_jong_load_image_file(self->dejong, filename);
     explorer_set_params(self);
+    explorer_resize(self);
   }
   gtk_widget_destroy(dialog);
 }
