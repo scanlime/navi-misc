@@ -1,10 +1,10 @@
 Index: configure.in
 ===================================================================
 RCS file: /cvsroot/xchat/xchat2/configure.in,v
-retrieving revision 1.72
-diff -u -r1.72 configure.in
---- configure.in	29 Nov 2004 06:26:07 -0000	1.72
-+++ configure.in	15 Dec 2004 05:07:49 -0000
+retrieving revision 1.73
+diff -u -r1.73 configure.in
+--- configure.in	31 Dec 2004 03:46:37 -0000	1.73
++++ configure.in	16 Jan 2005 22:26:04 -0000
 @@ -2,7 +2,7 @@
  
  AC_INIT(src)
@@ -20,7 +20,7 @@ diff -u -r1.72 configure.in
  
 +AC_ARG_ENABLE(profiling,
 +[  --enable-profiling      turn on profiling support (default: no)],
-++       profiling=$enableval, profiling=no)
++        profiling=$enableval, profiling=no)
 +
  AC_ARG_ENABLE(socks,
  [  --enable-socks          enable use of SOCKS5 (default: no)],
@@ -49,16 +49,15 @@ diff -u -r1.72 configure.in
  AC_ARG_ENABLE(plugin,
  [  --disable-plugin        disable plugin support],
          plugin=$enableval, plugin=yes)
-@@ -160,7 +168,7 @@
+@@ -160,7 +168,6 @@
  fi
  
  if test "$gtkfe" != yes; then
 -	gnome=no
-+	gnomefe=no
  	zvt=no
  	COMMON_LIBS="$GLIB_LIBS"
  	COMMON_CFLAGS="$GLIB_CFLAGS"
-@@ -173,22 +181,38 @@
+@@ -173,22 +180,38 @@
  GUI_LIBS="$GUI_LIBS $GTK_LIBS"
  GUI_CFLAGS="$GUI_CFLAGS $GTK_CFLAGS"
  
@@ -113,7 +112,7 @@ diff -u -r1.72 configure.in
  
  dnl *********************************************************************
  dnl ** XFT **************************************************************
-@@ -467,9 +491,11 @@
+@@ -467,9 +490,11 @@
  AM_CONDITIONAL(USE_OPENSSL, test "x$openssl" = "xyes")
  AM_CONDITIONAL(DO_TEXT, test "x$textfe" = "xyes")
  AM_CONDITIONAL(DO_GTK, test "x$gtkfe" = "xyes")
@@ -125,7 +124,7 @@ diff -u -r1.72 configure.in
  AM_CONDITIONAL(DO_PLUGIN, test "x$plugin" = "xyes")
  
  dnl *********************************************************************
-@@ -563,6 +589,10 @@
+@@ -563,6 +588,10 @@
  	fi
  fi
  
@@ -136,7 +135,7 @@ diff -u -r1.72 configure.in
  dnl *********************************************************************
  dnl ** FUNCTIONS/LIBS/CFLAGS ********************************************
  dnl *********************************************************************
-@@ -650,12 +680,16 @@
+@@ -650,12 +679,16 @@
  src/Makefile
  src/common/Makefile
  src/fe-text/Makefile
@@ -153,7 +152,7 @@ diff -u -r1.72 configure.in
  intl/Makefile
  po/Makefile.in
  ])
-@@ -663,10 +697,13 @@
+@@ -663,10 +696,13 @@
  echo
  echo xchat $VERSION
  echo
@@ -170,30 +169,13 @@ diff -u -r1.72 configure.in
  echo
  echo mmx tinting ......... : $mmx
  echo XShm tinting ........ : $shm\	plugin interface .... : $plugin
-Index: src/Makefile.am
-===================================================================
-RCS file: /cvsroot/xchat/xchat2/src/Makefile.am,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 Makefile.am
---- src/Makefile.am	28 Nov 2002 10:39:00 -0000	1.1.1.1
-+++ src/Makefile.am	15 Dec 2004 05:08:03 -0000
-@@ -11,4 +11,8 @@
- gtk_fe = fe-gtk
- endif
- 
--SUBDIRS = pixmaps common $(gtk_fe) $(text_fe)
-+if DO_GNOME
-+gnome_fe = fe-gnome
-+endif
-+
-+SUBDIRS = pixmaps common $(gtk_fe) $(text_fe) $(gnome_fe)
 Index: plugins/Makefile.am
 ===================================================================
 RCS file: /cvsroot/xchat/xchat2/plugins/Makefile.am,v
 retrieving revision 1.4
 diff -u -r1.4 Makefile.am
 --- plugins/Makefile.am	13 Jan 2003 07:29:36 -0000	1.4
-+++ plugins/Makefile.am	15 Dec 2004 05:50:46 -0000
++++ plugins/Makefile.am	16 Jan 2005 22:26:04 -0000
 @@ -20,5 +20,9 @@
  tcldir = tcl
  endif
@@ -205,3 +187,20 @@ diff -u -r1.4 Makefile.am
  #SUBDIRS = . $(pythondir) $(perldir) mailcheck xdcc
 -SUBDIRS = . $(pythondir) $(perldir) $(tcldir)
 +SUBDIRS = . $(pythondir) $(perldir) $(tcldir) $(urlscrprdir)
+Index: src/Makefile.am
+===================================================================
+RCS file: /cvsroot/xchat/xchat2/src/Makefile.am,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 Makefile.am
+--- src/Makefile.am	28 Nov 2002 10:39:00 -0000	1.1.1.1
++++ src/Makefile.am	16 Jan 2005 22:26:04 -0000
+@@ -11,4 +11,8 @@
+ gtk_fe = fe-gtk
+ endif
+ 
+-SUBDIRS = pixmaps common $(gtk_fe) $(text_fe)
++if DO_GNOME
++gnome_fe = fe-gnome
++endif
++
++SUBDIRS = pixmaps common $(gtk_fe) $(text_fe) $(gnome_fe)
