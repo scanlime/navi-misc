@@ -15,5 +15,4 @@
 * Connect dialog should have a "connect in new ???" option. Maybe just do
   that as the default and let users close other connections, since replacing
   the current server is weird.
-* Desensitize non-implemented menu items.
 * Double-clicking a server in the networks page should open it's edit dialog
