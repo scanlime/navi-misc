@@ -51,6 +51,9 @@ int               packet_read_bit (struct rx_packet* self);
 int               packet_read_int (struct rx_packet* self,
 				   int               width);
 
+int               packet_read_signed_int (struct rx_packet* self,
+					  int               width);
+
 /* If the receiver device can be successfully opened, returns it.
  * Otherwise this returns NULL. If it finds any devices without firmware,
  * it will download it to them and return NULL.

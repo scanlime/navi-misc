@@ -141,7 +141,7 @@ void store_packet_therm0(MYSQL* mysql, struct rx_packet* packet)
   sequence = packet_read_int(packet, 5);
   voltage.numerator = packet_read_int(packet, 10) * 10;
   voltage.denominator = 1024;
-  temp_total = packet_read_int(packet, 16);
+  temp_total = packet_read_signed_int(packet, 16);
   temp_count = packet_read_int(packet, 8);
 
   /* Look up a source ID for this packet */
