@@ -28,14 +28,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
-#include <unistd.h>
 #include "therm-daemon.h"
 
 #define LOCAL_MS_PER_SAMPLE      4000    /* Approximate milliseconds per local temperature sample */
 #define LOCAL_SAMPLES_PER_STORE  15      /* Number of local samples to average before storing */
 
-
-double timef                     ();
 char*  strdup_vprintf            (const char* format, va_list ap);
 char*  strdup_printf             (const char* format, ...);
 
@@ -89,14 +86,6 @@ int main(int argc, char **argv) {
   }
 
   return 0;
-}
-
-double timef()
-{
-  /* A floating point version of time() */
-  struct timeval tv;
-  gettimeofday(&tv);
-  return tv.tv_sec + tv.tv_usec / 1000000.0;
 }
 
 char* strdup_vprintf(const char* format, va_list ap)
@@ -190,8 +179,8 @@ int db_packet_new(MYSQL* mysql, int source_id)
    * Returns the new packet ID on success, or -1 on failure.
    */
   if (db_query_printf(mysql,
-		      "INSERT INTO packets (time, source) VALUES (%f, %d)",
-		      timef(), source_id))
+		      "INSERT INTO packets (time, source) VALUES (CURRENT_TIMESTAMP, %d)",
+		      source_id))
     return  -1;
   return mysql_insert_id(mysql);
 }
@@ -201,8 +190,8 @@ int db_packet_new_full(MYSQL* mysql, int source_id, int sequence, float strength
   /* Create a new packet in the database, specifying all parameters */
   if (db_query_printf(mysql,
 		      "INSERT INTO packets (time, source, sequence, "
-		      "signal_strength) VALUES (%f, %d, %d, %f)",
-		      timef(), source_id, sequence, strength))
+		      "signal_strength) VALUES (CURRENT_TIMESTAMP, %d, %d, %f)",
+		      source_id, sequence, strength))
     return  -1;
   return mysql_insert_id(mysql);
 }
