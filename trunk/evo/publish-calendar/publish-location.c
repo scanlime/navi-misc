@@ -76,7 +76,11 @@ migrateURI (const gchar *xml, xmlDocPtr doc)
 		uri->last_pub_time = publish_time;
 
 	password = e_passwords_get_password ("Calendar", location);
-	e_passwords_forget_password ("Calendar", location);
+	if (password) {
+		e_passwords_forget_password ("Calendar", location);
+		e_passwords_add_password (uri->location, password);
+		e_passwords_remember_password ("Calendar", uri->location);
+	}
 
 	for (p = root->children; p != NULL; p = p->next) {
 		xmlChar *uid = xmlGetProp (p, "uid");
