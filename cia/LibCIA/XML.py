@@ -22,8 +22,6 @@ Utilities for dealing with objects built on top of XML trees
 #
 
 from twisted.xish import domish
-from twisted.xish.xpath import XPathQuery
-import time
 
 
 class XMLObject(object):
@@ -99,7 +97,5 @@ class DomishStringParser(domish.SuxElementStream):
 
     def docEnd(self):
         self.done = 1
-
-
 
 ### The End ###

@@ -1,7 +1,7 @@
-""" LibCIA.Message
+""" LibCIA.Formatters
 
-Classes to represent, distribute, and filter messages represented
-by XML documents.
+A collection of Formatter subclasses that may be referred to by name
+elsewhere, for example in IRC filters.
 """
 #
 # CIA open source notification system
@@ -61,6 +61,34 @@ class Message(XML.XMLObject):
         # Stamp it with the current time if it has no timestamp yet
         if not self.xml.timestamp:
             self.xml.addElement("timestamp", content="%d" % time.time())
+
+
+class Formatter(object):
+    """An abstract object capable of creating and/or modifying alternate
+       representations of a Message. This could include converting it to HTML,
+       converting it to plaintext, or annotating the result of another Formatter
+       with additional information.
+       """
+    def format(self, message, input=None):
+        """Given a message and optionally the result of a previous Formatter,
+           return a formatted representation of the message.
+           """
+        pass
+
+
+def getFormatter(name):
+    """Retrieve a Formatter subclass from the Formatters module given
+       a name. Raises a KeyError if the name doesn't exist or doesn't
+       refer to a Formatter subclass.
+       """
+    import Formatters
+    try:
+        cls = Formatters.__dict__[name]
+    except KeyError:
+        raise KeyError("No such formatter %r" % name)
+    if not issubclass(cls, Formatter):
+        raise KeyError("%r is not a formatter" % name)
+    return cls
 
 
 class Hub(object):
@@ -392,74 +420,6 @@ class Filter(XML.XMLObject):
         newFilter = Filter()
         newFilter.matchFunc = lambda msg: not self(msg)
         return newFilter
-
-
-class Formatter(object):
-    """An abstract object capable of creating and/or modifying alternate
-       representations of a Message. This could include converting it to HTML,
-       converting it to plaintext, or annotating the result of another Formatter
-       with additional information.
-       """
-    # If non-none, this is a filter function that can be called against
-    # a message to detect whether this formatter is applicable.
-    self.detector = None
-
-    # A string identifying this formatter's output medium. Could be 'html',
-    # 'irc', etc.
-    self.medium = None
-
-    def format(self, message, input=None):
-        """Given a message and optionally the result of a previous Formatter,
-           return a formatted representation of the message.
-           """
-        pass
-
-
-class AutoFormatter(Formatter):
-    """A meta-formatter that, based on the provided output medium, automatically
-       finds an applicable formatter and runs it.
-
-       The AutoFormatter is constructed with the target medium you're interested in.
-       All formatters with that target medium are loaded. When a message must be
-       formatted, the first one with a matching detector filter is chosen and
-       invoked.
-       """
-    def __init__(self, medium):
-        # Load all formatters with the given medium and a non-None detector
-        import Formatters
-        self.formatters = []
-        for cls in Formatters.__dict__.itervalues():
-            if issubclass(cls, Formatter):
-                if cls.medium == medium and obj.detector is not None:
-                    # Load the formatter's detector function
-                    # and make a list of (Formatter, Filter) instance
-                    # tuples
-                    filter = Filter(cls.detector)
-                    self.formatters.append(cls(), filter)
-
-    def format(self, message, input=None):
-        """Find and invoke a formatter applicable to this message"""
-        for formatter, filter in self.formatters:
-            if filter(message):
-                return formatter.format(message, input)
-
-
-class NamedFormatter(Formatter):
-    """A meta-formatter that loads a named Formatter class from the Formatters
-       module and invokes it.
-       """
-    def __init__(self, name):
-        import Formatters
-        try:
-            cls = Formatters.__dict__[name]
-        except KeyError:
-            raise KeyError("No such formatter %r" % name)
-        if not issubclass(cls, Formatter):
-            raise KeyError("%r is not a formatter" % name)
-        self.formatter = cls()
-
-    def format(self, message, input=None):
-        return self.formatter.format(message, input)
 
 
 def _test():
