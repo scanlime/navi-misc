@@ -3,6 +3,7 @@
     <File name="./Main.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name="./AssemblyInfo.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name="./pipeline-editor.glade" subtype="Code" buildaction="EmbedAsResource" dependson="" data="" />
+    <File name="./Element.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
   </Contents>
   <References>
     <Reference type="Gac" refto="gtk-sharp, Version=1.0.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" localcopy="True" />
