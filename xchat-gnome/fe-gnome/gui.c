@@ -5,6 +5,7 @@
 #include "navigation_tree.h"
 #include "about.h"
 #include "textgui.h"
+#include "userlist.h"
 
 XChatGUI gui;
 
@@ -17,6 +18,7 @@ gboolean initialize_gui() {
 	initialize_preferences_dialog();
 	initialize_connection_dialog();
 	initialize_navigation_tree();
+	initialize_userlist();
 	return TRUE;
 }
 
