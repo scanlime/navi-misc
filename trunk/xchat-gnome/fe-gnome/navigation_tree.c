@@ -761,10 +761,16 @@ navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_dat
 		tgui->entry = g_strdup(gtk_entry_get_text(GTK_ENTRY(entry)));
 
 		/* Update current_path. */
-		if(gui.server_tree->current_path)
+		if(gui.server_tree->current_path) {
+			navigation_model_path_deref(gui.tree_model, gui.server_tree->current_path);
 		  gtk_tree_path_free(gui.server_tree->current_path);
-	  gui.server_tree->current_path = gtk_tree_model_get_path(model, &iter);
+		  gtk_tree_selection_get_selected(treeselection, &model, &iter);
+		}
+	  
+		gui.server_tree->current_path = gtk_tree_model_get_path(model, &iter);
+		navigation_model_path_ref(gui.tree_model, gui.server_tree->current_path);
 
+		gtk_tree_selection_get_selected(treeselection, &model, &iter);
 		/* Get the session for the new selection. */
 		gtk_tree_model_get(model, &iter, 2, &s, -1);
 		sess = (session *) s;
@@ -860,7 +866,8 @@ navigation_model_get_type (void)
 static void
 navigation_model_init (NavModel *navmodel)
 {
-  navmodel->store = gtk_tree_store_new(5, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_POINTER, G_TYPE_INT, GDK_TYPE_COLOR);
+	/* FIXME: comment this up so we know what all the columns are. */
+  navmodel->store = gtk_tree_store_new(6, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_POINTER, G_TYPE_INT, GDK_TYPE_COLOR, G_TYPE_INT);
 	navmodel->sorted = gtk_tree_model_sort_new_with_model(GTK_TREE_MODEL(navmodel->store));
   gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(navmodel->sorted), 1, GTK_SORT_ASCENDING);
 
@@ -913,7 +920,7 @@ navigation_model_add_new_network (NavModel *model, struct session *sess)
 	iter = g_new(GtkTreeIter, 1);
 
 	gtk_tree_store_append(model->store, iter, NULL);
-	gtk_tree_store_set(model->store, iter, 1, "<none>", 2, sess, 3, 0, 4, NULL, -1);
+	gtk_tree_store_set(model->store, iter, 1, "<none>", 2, sess, 3, 0, 4, NULL, 5, 0, -1);
 
 	g_hash_table_insert(model->session_iters, (gpointer) sess, (gpointer) iter);
 }
@@ -933,7 +940,7 @@ navigation_model_create_new_channel_entry_iterate (GtkTreeModel *model, GtkTreeP
 
 		gtk_tree_store_append(GTK_TREE_STORE(model), child, iter);
 		g_hash_table_insert(gui.tree_model->session_iters, (gpointer) data, (gpointer) child);
-		gtk_tree_store_set(GTK_TREE_STORE(model), child, 1, data->channel, 2, data, 3, 0, 4, NULL, -1);
+		gtk_tree_store_set(GTK_TREE_STORE(model), child, 1, data->channel, 2, data, 3, 0, 4, NULL, 5, 0, -1);
 
 		gtk_tree_model_sort_convert_child_iter_to_iter(sort, &sorted, iter);
 
@@ -997,9 +1004,9 @@ static gboolean
 navigation_model_set_hilight_iterate(GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, gpointer data)
 {
 	gpointer s;
-	gint e;
-	gtk_tree_model_get(model, iter, 2, &s, 3, &e, -1);
-	if(s == data) {
+	gint e, ref;
+	gtk_tree_model_get(model, iter, 2, &s, 3, &e, 5, &ref, -1);
+	if(s == data && ref == 0) {
 		struct session *sess = s;
 		if(sess->nick_said) {
 			gtk_tree_store_set(GTK_TREE_STORE(model), iter, 0, pix_nicksaid, 3, 3, -1);
@@ -1027,4 +1034,32 @@ navigation_model_set_hilight (NavModel *model, struct session *sess)
 		return;
 	}
 	gtk_tree_model_foreach(model->store, navigation_model_set_hilight_iterate, (gpointer) sess);
+}
+
+void
+navigation_model_path_ref (NavModel *model, GtkTreePath *path)
+{
+	gint ref_count;
+	GtkTreeIter iter;
+	GtkTreePath *unsorted = gtk_tree_model_sort_convert_path_to_child_path(GTK_TREE_MODEL_SORT(model->sorted),path);
+
+	gtk_tree_model_get_iter(GTK_TREE_MODEL(model->store), &iter, unsorted);
+	gtk_tree_model_get(GTK_TREE_MODEL(model->store), &iter, 5, &ref_count, -1);
+	gtk_tree_store_set(model->store, &iter, 5, ref_count+1, -1);
+	gtk_tree_path_free(unsorted);
+}
+
+void
+navigation_model_path_deref (NavModel *model, GtkTreePath *path)
+{
+	gint ref_count;
+	GtkTreeIter iter;
+	GtkTreePath *unsorted = gtk_tree_model_sort_convert_path_to_child_path(GTK_TREE_MODEL_SORT(model->sorted),path);
+
+	gtk_tree_model_get_iter(GTK_TREE_MODEL(model->store), &iter, unsorted);
+	gtk_tree_model_get(GTK_TREE_MODEL(model->store), &iter, 5, &ref_count, -1);
+
+	if (ref_count > 0)
+		gtk_tree_store_set(model->store, &iter, 5, ref_count-1, -1);
+	gtk_tree_path_free(unsorted);
 }

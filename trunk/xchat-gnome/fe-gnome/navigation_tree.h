@@ -112,6 +112,8 @@ void navigation_model_remove           (NavModel *model, struct session *sess);
 void navigation_model_set_disconn      (NavModel *model, struct session *sess);
 void navigation_model_set_hilight      (NavModel *model, struct session *sess);
 
+void navigation_model_path_ref         (NavModel *model, GtkTreePath *path);
+void navigation_model_path_deref       (NavModel *model, GtkTreePath *path);
 GtkTreeIter* navigation_model_get_iter (NavModel *model, struct session *sess);
 
 G_END_DECLS
