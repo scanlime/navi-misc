@@ -97,7 +97,8 @@ void interactive_camshift(int n_cameras, bool show_backprojections) {
   int i;
   int num_views = 0;
   CvRect windowIn[n_cameras];
-  int sample_square_size = 32;
+  int sample_square_size = 20;
+  int num_histogram_samples = 0;
 
   /* Take a reference frame from each camera */
   images = cv_dc1394_capture_yuv(n_cameras);
@@ -151,25 +152,39 @@ void interactive_camshift(int n_cameras, bool show_backprojections) {
 	gray_to_yuv(backprojection, yuv_backprojections[i]);
       }
 
-      /* Run the output through the CAMSHIFT algorithm to locate objects */
-      CvBox2D box;
-      CvConnectedComp comp;
-      cvCamShift(backprojection, windowIn[i],
-		 cvTermCriteria(CV_TERMCRIT_ITER, 20, 0),
-		 &comp, &box);
-      windowIn[i] = comp.rect;
+      if (num_histogram_samples > 0) {
+	/* Run the output through the CAMSHIFT algorithm to locate objects */
+	CvBox2D box;
+	CvConnectedComp comp;
+	cvCamShift(backprojection, windowIn[i],
+		   cvTermCriteria(CV_TERMCRIT_ITER, 20, 0),
+		   &comp, &box);
+	windowIn[i] = comp.rect;
 
-      if (box.size.width > 0 && box.size.height > 0) {
-	/* If we found something, draw it */
-	draw_box(images[i], box);
-	plot_crosshairs(images[i], cvPoint((int)box.center.x, (int)box.center.y));
-      }
-      else {
-	/* If not, reset our search window */
-	windowIn[i].x = 0;
-	windowIn[i].y = 0;
-	windowIn[i].width = images[i]->width;
-	windowIn[i].height = images[i]->height;
+	if (box.size.width > 0 && box.size.height > 0) {
+	  /* If we found something, draw it */
+	  plot_crosshairs(images[i], cvPoint((int)box.center.x, (int)box.center.y));
+
+	  /* Check the roll quality. For aspect ratios near 1, the box rotation
+	   * can't be measured accurately. In these situations, we draw the box
+	   * as a circle, to convey this information.
+	   */
+	  float q = box.size.height / box.size.width;
+	  if (q < 1.25) {
+	    cvCircleAA(images[i], cvPoint((int)box.center.x, (int)box.center.y),
+		       (int)((box.size.height + box.size.width)/4), CV_RGB(0,255,128));
+	  }
+	  else {
+	    draw_box(images[i], box);
+	  }
+	}
+	else {
+	  /* If not, reset our search window */
+	  windowIn[i].x = 0;
+	  windowIn[i].y = 0;
+	  windowIn[i].width = images[i]->width;
+	  windowIn[i].height = images[i]->height;
+	}
       }
     }
 
@@ -182,16 +197,23 @@ void interactive_camshift(int n_cameras, bool show_backprojections) {
       Uint8 *keystate = SDL_GetKeyState(NULL);
       CvRect sample_rect;
       int mouse_x, mouse_y, mouse_camera, mouse_buttons;
+      bool show_rectangle = false;
 
       /* The < and > keys change the size of the sample square */
       if (keystate[',']) {
 	sample_square_size -= 4;
 	if (sample_square_size < 1)
 	  sample_square_size = 1;
+	show_rectangle = true;
       }
       if (keystate['.']) {
 	sample_square_size += 4;
+	show_rectangle = true;
       }
+
+      /* The spacebar just shows the rectangle */
+      if (keystate[' '])
+	show_rectangle = true;
 
       /* Get the current sampling rect, centered on the mouse cursor */
       mouse_buttons = SDL_GetMouseState(&mouse_x, &mouse_y);
@@ -205,6 +227,7 @@ void interactive_camshift(int n_cameras, bool show_backprojections) {
       /* The right mouse button clears our histogram */
       if (mouse_buttons & SDL_BUTTON(3)) {
 	cvClearHist(object_hist[mouse_camera]);
+	num_histogram_samples = 0;
       }
 
       /* If the left mouse button is down, use this image to collect samples towards a
@@ -228,12 +251,16 @@ void interactive_camshift(int n_cameras, bool show_backprojections) {
 	 * what we're interested in.
 	 */
 	windowIn[mouse_camera] = sample_rect;
+
+	show_rectangle = true;
+	num_histogram_samples++;
       }
 
       /* Draw a box around the current sampling rectangle */
-      cvRectangle(images[mouse_camera], cvPoint(sample_rect.x-1, sample_rect.y-1),
-		  cvPoint(sample_rect.x + sample_rect.width + 1, sample_rect.y + sample_rect.width + 1),
-		  CV_RGB(128,128,255), 1);
+      if (show_rectangle)
+	cvRectangle(images[mouse_camera], cvPoint(sample_rect.x-1, sample_rect.y-1),
+		    cvPoint(sample_rect.x + sample_rect.width + 1, sample_rect.y + sample_rect.width + 1),
+		    CV_RGB(128,128,255), 1);
     }
 
     cv_sdl_show_yuv_tiles(view_grid, num_views, n_cameras);
