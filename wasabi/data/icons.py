@@ -12,4 +12,5 @@ dreamcast    = Icon('icon_dreamcast.png',  'Dreamcast',     imageAspect = 1.66  
 nintendo     = Icon('icon_nes.png',        'Nintendo',      imageAspect = 1.594 )
 genesis      = Icon('icon_sega.png',       'Genesis',       imageAspect = 1.679 )
 unknownInput = Icon('icon_rca_cables.png', 'Unknown Input', imageAspect = 0.732 )
+settings     = Icon('icon_hammer.png',     'Settings',      imageAspect = 0.474 )
 
