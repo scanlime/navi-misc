@@ -133,7 +133,7 @@ $NSIS - <<EOF
     ; Use the trendy Modern UI
     !include "MUI.nsh"
 
-    Name "Fyre $VERSION"
+    Name "Fyre"
 
     OutFile "$OUTPUTDIR\\$TARGET_NAME.exe"
 
@@ -144,19 +144,19 @@ $NSIS - <<EOF
     ; overwrite the old one automatically)
     InstallDirRegKey HKLM Software\\Fyre "Install_Dir"
 
+    ; LZMA gives us very nice compression ratios- about 0.5MB smaller than the .zip
     SetCompressor /FINAL lzma
 
     ; ---- UI Settings
 
     !define MUI_HEADERIMAGE
-    !define MUI_WELCOMEFINISHPAGE_BITMAP "\${NSISDIR}\\Contrib\\Graphics\\Wizard\\orange.bmp"
+    !define MUI_WELCOMEFINISHPAGE_BITMAP "images\installer-swirl.bmp"
     !define MUI_UNWELCOMEFINISHPAGE_BITMAP "\${NSISDIR}\\Contrib\\Graphics\\Wizard\\orange-uninstall.bmp"
     !define MUI_COMPONENTSPAGE_SMALLDESC
 
     ; ---- Pages
 
-    !define MUI_WELCOMEPAGE_TITLE "Welcome to the Fyre Setup Wizard"
-    !define MUI_WELCOMEPAGE_TEXT "This wizard will guide you through the installation of Fyre $VERSION.\\r\\n\\r\\n\$_CLICK"
+    !define MUI_WELCOMEPAGE_TEXT "This wizard will install Fyre $VERSION.\\r\\n\\r\\nFyre is Open Source software, licensed under the GNU General Public License. We won't ask you to agree to it, because it doesn't restrict your rights in using our software. If you are a developer and wish to modify Fyre or use parts of it in other projects, the GPL grants you rights to do so as long as you pass those rights on to others. For details, see the full text of the license in your Start menu after installation.\\r\\n\\r\\n \$_CLICK"
 
     !insertmacro MUI_PAGE_WELCOME
     !insertmacro MUI_PAGE_COMPONENTS
@@ -224,7 +224,7 @@ $NSIS - <<EOF
 
     Section "Desktop Shortcut"
 
-      CreateShortCut "\$DESKTOP\\Fyre $VERSION.lnk" "\$INSTDIR\\lib\\fyre.exe"
+      CreateShortCut "\$DESKTOP\\Fyre.lnk" "\$INSTDIR\\lib\\fyre.exe"
 
     SectionEnd
 
@@ -246,7 +246,7 @@ $NSIS - <<EOF
       RMDir /r "\$SMPROGRAMS\\Fyre"
       RMDir /r "\$INSTDIR"
 
-      Delete "\$DESKTOP\\Fyre $VERSION.lnk"
+      Delete "\$DESKTOP\\Fyre.lnk"
 
     SectionEnd
 
