@@ -3,6 +3,7 @@
 #include "about.h"
 #include "userlist.h"
 #include "../common/xchatc.h"
+#include "gui.h"
 
 #ifdef HAVE_GTKSPELL
 #include <gtkspell/gtkspell.h>
@@ -124,7 +125,8 @@ void on_network_reconnect_menu_activate(GtkWidget *widget, gpointer data) {
 }
 
 void on_network_disconnect_menu_activate(GtkWidget *widget, gpointer data) {
-	/* FIXME: implement */
+	session *s = gui.current_session;
+	s->server->disconnect(s, TRUE, -1);
 }
 
 void on_network_file_transfers_menu_activate(GtkWidget *widget, gpointer data) {
@@ -160,7 +162,8 @@ void on_discussion_find_next_activate(GtkWidget *widget, gpointer data) {
 }
 
 void on_discussion_clear_window_activate(GtkWidget *widget, gpointer data) {
-	/* FIXME: implement */
+	session *s = gui.current_session;
+	clear_buffer(s);
 }
 
 void on_discussion_bans_activate(GtkWidget *widget, gpointer data) {

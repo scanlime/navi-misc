@@ -242,15 +242,30 @@ static void clear_dialog(gpointer data, guint action, GtkWidget *widget) {
 	}
 }
 
+static void disconnect_server(gpointer data, guint action, GtkWidget *widget) {
+	GtkWidget *treeview;
+	GtkTreeSelection *select;
+	GtkTreeModel *model;
+	GtkTreeIter iter;
+	session *s;
+
+	treeview = glade_xml_get_widget(gui.xml, "server channel list");
+	select = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
+	if(gtk_tree_selection_get_selected(select, &model, &iter)) {
+		gtk_tree_model_get(model, &iter, 2, &s, -1);
+		s->server->disconnect(s, TRUE, -1);
+	}
+}
+
 void server_context(GtkWidget *treeview, session *selected) {
 	static GtkItemFactoryEntry entries[] = {
-		{"/Server",			NULL, NULL, 0, "<Branch>"},
-		{"/Server/_Information",	NULL, NULL, 0, "<StockItem>", GTK_STOCK_DIALOG_INFO},
-		{"/Server/Separator1",		NULL, NULL, 0, "<Separator>"},
-		{"/Server/_Reconnect",		NULL, NULL, 0, "<StockItem>", GTK_STOCK_REFRESH},
-		{"/Server/_Disconnect",		NULL, NULL, 0, "<StockItem>", GTK_STOCK_STOP},
-		{"/Server/Separator2",		NULL, NULL, 0, "<Separator>"},
-		{"/Server/_Channels",		NULL, NULL, 0, "<StockItem>", GNOME_STOCK_TEXT_BULLETED_LIST}
+		{"/Server",			NULL, NULL,			0, "<Branch>"},
+		{"/Server/_Information",	NULL, NULL,			0, "<StockItem>", GTK_STOCK_DIALOG_INFO},
+		{"/Server/Separator1",		NULL, NULL,			0, "<Separator>"},
+		{"/Server/_Reconnect",		NULL, NULL,			0, "<StockItem>", GTK_STOCK_REFRESH},
+		{"/Server/_Disconnect",		NULL, disconnect_server,	0, "<StockItem>", GTK_STOCK_STOP},
+		{"/Server/Separator2",		NULL, NULL,			0, "<Separator>"},
+		{"/Server/_Channels",		NULL, NULL,			0, "<StockItem>", GNOME_STOCK_TEXT_BULLETED_LIST}
 	};
 	GtkItemFactory *factory;
 	GtkWidget *menu;
