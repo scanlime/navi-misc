@@ -155,7 +155,7 @@ xchat_plugin_init (xchat_plugin *plugin_handle, char **plugin_name,
 int
 xchat_gnome_plugin_init (xchat_gnome_plugin *xg_plugin)
 {
-	nav_tree = xg_plugin->xg_get_nav_tree();
+	xg_plugin->xg_get_nav_tree(&nav_tree);
 
 	return 1;
 }
@@ -235,6 +235,8 @@ new_text_cb (char **word, void *data)
 
 	if (nav_tree == NULL)
 		xchat_print (ph, "no nav tree");
+	else
+		xchat_print (ph, "yay! navtree");
 
 	model = gtk_tree_view_get_model (GTK_TREE_VIEW (nav_tree));
 	store = gtk_tree_model_sort_get_model (GTK_TREE_MODEL_SORT (model));
