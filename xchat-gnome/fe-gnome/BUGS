@@ -11,3 +11,4 @@
 * high-speed DCC transfers tend to make the whole application crap out. Other
   DCCs die, lag becomes astronomical. This is almost certainly a real xchat
   bug
+* nick completion segfaults if the position isn't at the end of the entry
