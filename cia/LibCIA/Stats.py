@@ -88,6 +88,10 @@ class StatsInterface(xmlrpc.XMLRPC):
     def __init__(self, storage):
         self.storage = storage
 
+    def xmlrpc_isPathValid(self, path):
+        """Returns 'true' if the given stats path exists at all"""
+        return self.storage.getPathTarget(path).exists()
+
     def xmlrpc_catalog(self, path=''):
         """Return a list of subdirectories within this stats path.
            Defaults to the root of the stats:// namespace if 'path'
@@ -104,6 +108,19 @@ class StatsInterface(xmlrpc.XMLRPC):
             return recentMessages.getLatest(limit)
         else:
             return []
+
+    def xmlrpc_getCounters(self, path):
+        """Returns a list of counters for the given path, as a dictionary
+           mapping from counter name to the counter represented as raw XML.
+           """
+        return self.storage.getPathTarget(path).getCounterXml()
+
+    def xmlrpc_catalogCounters(self, path):
+        """Runs 'catalog' on the given path to determine it's subdirectories,
+           then creates a mapping from subdirectory name to getCounters results
+           and returns that.
+           """
+        return self.storage.getPathTarget(path).catalogCounters()
 
 
 class StatsTarget(object):
@@ -162,6 +179,26 @@ class StatsTarget(object):
         except OSError:
             # Nonexistant stats targets have no subdirectories
             return []
+
+    def getCounterXml(self):
+        """Return a mapping from counter name to the raw XML representing the counter"""
+        results = {}
+        if self.counters:
+            for key, value in self.counters.counters.iteritems():
+                # Convert Counter instances to strings
+                results[key] = str(value)
+        return results
+
+    def child(self, name):
+        """Return the StatsTarget for the given subdirectory name under this one"""
+        return StatsTarget(os.path.join(self.path, name))
+
+    def catalogCounters(self):
+        """Return a mapping from subdirectory name to getCounterXml results for each subdirectory"""
+        results = {}
+        for child in self.catalog():
+            results[child] = self.child(child).getCounterXml()
+        return results
 
 
 class TimeInterval(object):
@@ -260,6 +297,10 @@ class CounterList(XML.XMLStorage):
 
     def flatten(self):
         return self.counters.values()
+
+    def getNames(self):
+        """Return all currently valid counter names"""
+        return self.counters.keys()
 
     def getCounter(self, name, create=True):
         """Get a counter with the given name. If 'create' is True, it
