@@ -293,6 +293,13 @@ class CommitToIRC(CommitFormatter):
         return "%s%s %s" % (" ".join(metadata), self.colorFormatter(':', 'bold'), log)
 
 
+class CommitToPlaintext(CommitFormatter):
+    """Converts commit messages to plain text. Currently this is the same as
+       the default commit formatting.
+       """
+    medium = 'plaintext'
+
+
 class CommitToXHTML(CommitFormatter):
     """Converts commit messages to XHTML, represented as a Nouvelle tag tree."""
     medium = 'xhtml'
@@ -375,26 +382,37 @@ class CommitTitle(CommitFormatter):
         return log
 
 
-class ColortextTitle(Message.Formatter):
-    """Extracts a title from colorText messages"""
+class ColortextFormatter(Message.Formatter):
+    """Abstract base class for formatters that operate on colorText messages"""
     detector = Message.Filter('<find path="/message/body/colorText"/>')
+
+
+class ColortextTitle(ColortextFormatter):
+    """Extracts a title from colorText messages"""
     medium = 'title'
     widthLimit = 80
 
     def format(self, message, input=None):
         # Extract plaintext from the entire message, collapse whitespace, and truncate
-        log = re.sub("\s+", " ", XML.allText(message.xml.body.colorText))
+        log = re.sub("\s+", " ", XML.allText(message.xml.body.colorText).strip())
         if len(log) > self.widthLimit:
             log = log[:self.widthLimit] + " ..."
         return log
 
 
-class ColortextToXHTML(Message.Formatter):
+class ColortextToPlaintext(ColortextFormatter):
+    """Extracts uncolorized plaintext from colorText messages"""
+    medium = 'plaintext'
+
+    def format(self, message, input=None):
+        return XML.allText(message.xml.body.colorText).strip()
+
+
+class ColortextToXHTML(ColortextFormatter):
     """Converts messages with colorText content to XHTML (using Nouvelle)
        with inline CSS representing the colorText formatting.
        Returns an object that can be serialized into XHTML by a Nouvelle.Serializer.
        """
-    detector = Message.Filter('<find path="/message/body/colorText"/>')
     medium = 'xhtml'
 
     def format(self, message, input=None):
