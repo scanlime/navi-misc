@@ -19,26 +19,78 @@
  *
  */
 
-#include <gtk/gtkversion.h>
-#include <gtk/gtktable.h>
-#include <gtk/gtkspinbutton.h>
-#include <gtk/gtkoptionmenu.h>
-#include <gtk/gtklabel.h>
-#include <gtk/gtkhbox.h>
-#include <gtk/gtkbutton.h>
-#include <gtk/gtkmenu.h>
-#include <gtk/gtkmenuitem.h>
+#include <gtk/gtk.h>
 #include <e-util/e-config.h>
 #include <calendar/gui/e-cal-config.h>
 #include <libedataserver/e-source.h>
 #include <libedataserver/e-url.h>
 #include <libgnome/gnome-i18n.h>
+#include <libxml/parser.h>
+#include <libxml/tree.h>
 #include <string.h>
 
 GtkWidget *e_calendar_weather_location (EPlugin *epl, EConfigHookItemFactoryData *data);
 GtkWidget *e_calendar_weather_refresh (EPlugin *epl, EConfigHookItemFactoryData *data);
 gboolean   e_calendar_weather_check (EPlugin *epl, EConfigHookPageCheckData *data);
 
+static void
+parse_subtree (GtkTreeStore *store, GtkTreeIter *parent, xmlNode *node)
+{
+	GtkTreeIter iter;
+	xmlNode *child;
+
+	if (node->type == XML_ELEMENT_NODE) {
+		gtk_tree_store_append (store, &iter, parent);
+		if (strcmp (node->name, "location") == 0) {
+			xmlAttr *attr;
+
+			child = node->children;
+			g_assert (child->type == XML_TEXT_NODE);
+			gtk_tree_store_set (store, &iter, 0, child->content, -1);
+
+			for (attr = node->properties; attr; attr = attr->next) {
+			}
+		} else {
+			xmlAttr *attr;
+
+			for (child = node->children; child; child = child->next)
+				parse_subtree (store, &iter, child);
+
+			for (attr = node->properties; attr; attr = attr->next) {
+				if (strcmp (attr->name, "name") == 0)
+					gtk_tree_store_set (store, &iter, 0, attr->children->content, -1);
+			}
+		}
+	}
+}
+
+static GtkTreeStore *
+load_locations ()
+{
+	xmlDoc *doc;
+	xmlNode *root, *child;
+	GtkTreeStore *store;
+
+	LIBXML_TEST_VERSION
+
+	doc = xmlParseFile("/home/jupiter/navi-misc/evo/Locations.xml.in");
+	if (doc == NULL) {
+		g_warning ("failed to read locations file");
+		return NULL;
+	}
+
+	store = gtk_tree_store_new (4,
+		G_TYPE_STRING,	/* name */
+		G_TYPE_STRING,	/* code */
+		G_TYPE_STRING,	/* URL  */
+		G_TYPE_STRING);	/* type */
+
+	root = xmlDocGetRootElement (doc);
+	for (child = root->children; child; child = child->next)
+		parse_subtree (store, NULL, child);
+	xmlFreeDoc (doc);
+	return store;
+}
 
 GtkWidget *
 e_calendar_weather_location (EPlugin *epl, EConfigHookItemFactoryData *data)
