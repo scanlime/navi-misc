@@ -16,13 +16,8 @@
 
 ######## Noncritical
 
-- Commit formatter should include the asterisk, hilighted module name
-
 - The commit formatter should differentiate between files in multiple
   directories: "(2 files in 2 dirs)"
-
-- Fix whitespace in the commit formatter: for now, just chop off leading
-  and trailing space
 
 - The XML parser (somewhat hacked up domish) breaks when messages specify
   a namespace.
