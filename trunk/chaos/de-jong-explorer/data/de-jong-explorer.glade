@@ -1866,22 +1866,4 @@ Settings&lt;/b&gt;</property>
   </child>
 </widget>
 
-<widget class="GtkWindow" id="window1">
-  <property name="visible">True</property>
-  <property name="title" translatable="yes">window1</property>
-  <property name="type">GTK_WINDOW_TOPLEVEL</property>
-  <property name="window_position">GTK_WIN_POS_NONE</property>
-  <property name="modal">False</property>
-  <property name="resizable">True</property>
-  <property name="destroy_with_parent">False</property>
-
-  <child>
-    <widget class="GtkHButtonBox" id="vbuttonbox1">
-      <property name="visible">True</property>
-      <property name="layout_style">GTK_BUTTONBOX_DEFAULT_STYLE</property>
-      <property name="spacing">8</property>
-    </widget>
-  </child>
-</widget>
-
 </glade-interface>
