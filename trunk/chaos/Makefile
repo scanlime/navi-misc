@@ -1,4 +1,4 @@
-CFLAGS = -O3
+CFLAGS = -O3 -g
 BIN = de_jong_explorer
 
 all: $(BIN)
