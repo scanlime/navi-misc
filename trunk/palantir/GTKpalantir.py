@@ -11,7 +11,7 @@ from twisted.internet import gtk2reactor
 gtk2reactor.install()
 
 import re, gtk, gtk.glade, palantirIRC
-from random import randint
+from dieRoller import DieRoller
 from CharacterSheet.Character import Character
 from CharacterSheet.GTKsheet import GTKsheet
 from twisted.internet import reactor
@@ -242,40 +242,13 @@ class PalantirWindow:
     buffer.insert(buffer.get_end_iter(), text)
     self.tree.get_widget('ChatArea').scroll_to_iter(buffer.get_end_iter(), 0.0)
 
-
-class DieRoller:
-  ''' This is the class that handles the dice rolling for the client.  When a character
-      sheet is loaded into the window it will get an instance of this class to use for
-      button presses.
-      '''
-  def __init__(self, ui):
-    ''' The roller needs to have a reference to the UI so that it can display the results
-        of the dice rolls.
+  def SendRoll(self, times, sides, total):
+    ''' Implemented for the DieRoller used when loading character sheets.  Sends a CTCP
+        to the channel with the roll information and displays the information on your
+	screen as well.
 	'''
-    self.ui = ui
-
-  # All action objects for the character sheet are required to have this function.
-  def roll(self, times, sides, mods):
-    ''' Roll the dice. '''
-    total = 0
-    totalTimes = 0
-    rolls = []
-
-    # Roll the dice and store each individual roll as well as a running total
-    for time in times:
-      totalTimes += time
-
-    for roll in range(totalTimes):
-	rolls.append(randint(1, sides))
-	total += rolls[len(rolls) - 1]
-
-    # Add the modifiers to the total.
-    for mod in mods:
-      total += mod
-
-    # For now we're just printing this to stdout.
-    self.ui.factory.Send(self.ui.factory.channels[0],
-	'Rolled: ' + str(totalTimes) + 'd' + str(sides) + ' => ' + str(total))
+    text = str(times) + 'd' + str(sides) + ' => ' + str(total)
+    self.messageReceive(None, self.factory.channels[0], 'You rolled: ' + text)
 
 ### This was created for doing tabbed chatting, so that you could connect to multiple
 ### channels.  The client still supports multiple channels, but the UI does not.  I'm

@@ -15,11 +15,15 @@ class GTKsheet:
       objects in GTKsheetElements.
       '''
   def __init__(self, characterData, actionObject):
+    # Record the data for the character.
     self.character = characterData
+
     # The action object will handle the button presses in the character sheet.
     # This way the actions are more easily customizable depending on how the sheet
     # is opened.
     self.actionObject = actionObject
+
+    # Read the layout file and build the sheet.
     self.readSheet(self.character.getLayoutFile())
 
   def readSheet(self, layoutFile):
@@ -33,13 +37,14 @@ class GTKsheet:
     else:
       node = self.dom.getElementsByTagName('character_sheet')[0]
       self.root = GTKsheetElements.character_sheet(node, self.character)
+      # This list keeps a reference to all the objects in the sheet that can be edited.
       self.root.editables = []
 
       for child in node.childNodes:
 	if child.nodeType is xml.dom.Node.ELEMENT_NODE:
-	  self.root.packChild(self.makeObjects(child, self.root, self.root.editables))
+	  self.root.packChild(self.makeObjects(child, self.root))
 
-  def makeObjects(self, newNode, parent, editList):
+  def makeObjects(self, newNode, parent):
     ''' Make objects out of the node passed. '''
     # Tag represents a layout object.
     try:
@@ -50,11 +55,14 @@ class GTKsheet:
       print "Unknown tag:", newNode.tagName
 
     else:
-      newObject.addEditable(editList)
+      # Every sheet element has an addEditable method, but if the object contains nothing
+      # that can be edited the method does nothing.
+      newObject.addEditable(self.root.editables)
 
+      # Add all the children of the current node
       for node in newNode.childNodes:
 	if node.nodeType is xml.dom.Node.ELEMENT_NODE:
-	  newObject.packChild(self.makeObjects(node, newObject, editList))
+	  newObject.packChild(self.makeObjects(node, newObject))
 
       # If the new object needs to know about the action object then we'll add the action
       # object to the new object.
