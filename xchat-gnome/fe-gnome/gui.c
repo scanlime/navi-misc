@@ -14,6 +14,7 @@ gboolean initialize_gui() {
 	gui.xml = glade_xml_new("xchat-gnome.glade", NULL, NULL);
 	if(!gui.xml)
 		return FALSE;
+	gui.current_session = NULL;
 	pixmaps_init();
 	initialize_main_window();
 	initialize_text_gui();
