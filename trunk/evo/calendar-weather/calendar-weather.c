@@ -117,16 +117,13 @@ selection_changed (GtkTreeSelection *selection, GtkDialog *dialog)
 }
 
 static GtkDialog *
-create_source_selector ()
+create_source_selector (ESource *source)
 {
 	GtkWidget *dialog, *treeview, *scrolledwindow;
 	GtkCellRenderer *text;
 	GtkTreeSelection *selection;
 
-	/* Try to load - if it still fails, quit */
-	/* FIXME - should show an error here */
-	if (store == NULL)
-		load_locations ();
+	/* FIXME - should show an error here if it fails*/
 	if (store == NULL)
 		return NULL;
 
@@ -160,17 +157,51 @@ create_source_selector ()
 	return GTK_DIALOG (dialog);
 }
 
+static struct
+{
+	gchar **ids;
+	GtkTreeIter *result;
+} find_data;
+
+static gboolean
+find_location_func (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *node, gpointer data)
+{
+	gchar *type, *code, *name;
+	gtk_tree_model_get (model, node, 0, &name, 1, &code, 3, &type, -1);
+	if (name == NULL || code == NULL || type == NULL)
+		return FALSE;
+	if ((!strcmp (type, find_data.ids[0])) &&
+	    (!strcmp (code, find_data.ids[1])) &&
+	    (!strcmp (name, find_data.ids[2]))) {
+		find_data.result = gtk_tree_iter_copy (node);
+		return TRUE;
+	}
+	return FALSE;
+}
+
+static GtkTreeIter *
+find_location (gchar *relative_url)
+{
+	/* type/code/name */
+	find_data.ids = g_strsplit (relative_url, "/", -1);
+	find_data.result = NULL;
+	gtk_tree_model_foreach (GTK_TREE_MODEL (store), (GtkTreeModelForeachFunc) find_location_func, NULL);
+
+	g_strfreev (find_data.ids);
+	return find_data.result;
+}
+
 static gchar *
-build_location_path (GtkTreeModel *model, GtkTreeIter *iter)
+build_location_path (GtkTreeIter *iter)
 {
 	GtkTreeIter parent;
 	gchar *path, *temp1, *temp2;
 
-	gtk_tree_model_get (model, iter, 0, &temp1, -1);
+	gtk_tree_model_get (GTK_TREE_MODEL (store), iter, 0, &temp1, -1);
 	path = g_strdup (temp1);
 
-	while (gtk_tree_model_iter_parent (model, &parent, iter)) {
-		gtk_tree_model_get (model, &parent, 0, &temp1, -1);
+	while (gtk_tree_model_iter_parent (GTK_TREE_MODEL (store), &parent, iter)) {
+		gtk_tree_model_get (GTK_TREE_MODEL (store), &parent, 0, &temp1, -1);
 		temp2 = g_strdup_printf ("%s : %s", temp1, path);
 		g_free (path);
 		path = temp2;
@@ -182,7 +213,7 @@ build_location_path (GtkTreeModel *model, GtkTreeIter *iter)
 static void
 location_clicked (GtkButton *button, ESource *source)
 {
-	GtkDialog *dialog = create_source_selector ();
+	GtkDialog *dialog = create_source_selector (source);
 	gint response;
 
 	if (dialog == NULL)
@@ -201,7 +232,7 @@ location_clicked (GtkButton *button, ESource *source)
 
 		gtk_tree_selection_get_selected (selection, &model, &iter);
 		gtk_tree_model_get (model, &iter, 0, &name, 1, &code, 3, &type, -1);
-		path = build_location_path (model, &iter);
+		path = build_location_path (&iter);
 
 		label = gtk_bin_get_child (GTK_BIN (button));
 		gtk_label_set_text (GTK_LABEL (label), path);
@@ -209,13 +240,12 @@ location_clicked (GtkButton *button, ESource *source)
 		uri = g_strdup_printf ("%s/%s/%s", type, code, name);
 		/* FIXME - url_encode (&uri); */
 		e_source_set_relative_uri (source, uri);
-		g_print ("setting URI to %s\n");
 		g_free (uri);
 	} else {
 		GtkWidget *label;
-		gchar *text;
+		const gchar *text;
 
-		label = gtk_bin_get_child (GTK_BIN (button));
+		label = GTK_WIDGET (gtk_bin_get_child (GTK_BIN (button)));
 		text = gtk_label_get_text (GTK_LABEL (label));
 		if (strcmp (text, _("None")) == 0)
 			e_source_set_relative_uri (source, "");
@@ -236,6 +266,9 @@ e_calendar_weather_location (EPlugin *epl, EConfigHookItemFactoryData *data)
 	char *uri_text;
 	static GtkWidget *hidden;
 
+	if (store == NULL)
+		load_locations ();
+
 	if (!hidden)
 		hidden = gtk_label_new ("");
 
@@ -248,7 +281,6 @@ e_calendar_weather_location (EPlugin *epl, EConfigHookItemFactoryData *data)
 		e_uri_free (uri);
 		return hidden;
 	}
-	e_uri_free (uri);
 
 	parent = data->parent;
 
@@ -263,12 +295,20 @@ e_calendar_weather_location (EPlugin *epl, EConfigHookItemFactoryData *data)
 	g_signal_connect (G_OBJECT (button), "clicked", G_CALLBACK (location_clicked), source);
 	gtk_widget_show (button);
 
-	text = gtk_label_new (_("None"));
+	if (uri->path && strlen (uri->path)) {
+		GtkTreeIter *iter = find_location (uri_text + 10);
+		gchar *location = build_location_path (iter);
+		text = gtk_label_new (location);
+		g_free (location);
+	} else
+		text = gtk_label_new (_("None"));
 	gtk_widget_show (text);
 #if (GTK_CHECK_VERSION(2, 6, 0))
 	gtk_label_set_ellipsize (GTK_LABEL (text), PANGO_ELLIPSIZE_START);
 #endif
 	gtk_container_add (GTK_CONTAINER (button), text);
+	e_uri_free (uri);
+	g_free (uri_text);
 
 	gtk_table_attach (GTK_TABLE (parent), button, 1, 2, row, row+1, GTK_EXPAND | GTK_FILL, 0, 0, 0);
 
