@@ -28,7 +28,6 @@ from OpenGL.GL import *
 
 class SimpleParticles(SpriteArray):
     def __init__(self, position=(0,0,0), numParticles=250):
-        print "init"
         self.numParticles = numParticles
         self.model = ParticleSystem.SpriteFountain(numParticles)
         SpriteArray.__init__(self, numParticles, allowPointSprite=False)
