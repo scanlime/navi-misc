@@ -141,6 +141,7 @@ static void               repack_bits         (unsigned long *src,
 					       unsigned char *dest,
 					       int len);
 static int                led_name_to_number  (unsigned char *name);
+static int                is_output_event     (struct input_event *ev);
 
 
 /***********************************************************************/
@@ -234,7 +235,8 @@ static void evdev_delete(int evdev)
  * on the network we want them packed in bytes. This copies 'len'
  * bit mask bytes, rearranging them as necessary.
  */
-static void repack_bits(unsigned long *src, unsigned char *dest, int len) {
+static void repack_bits(unsigned long *src, unsigned char *dest, int len)
+{
   int i;
   unsigned long word;
   while (len >= sizeof(long)) {
@@ -246,6 +248,19 @@ static void repack_bits(unsigned long *src, unsigned char *dest, int len) {
     src++;
     len -= sizeof(long);
   }
+}
+
+static int is_output_event(struct input_event *ev)
+{
+  switch (ev->type) {
+    case EV_MSC:
+    case EV_LED:
+    case EV_SND:
+    case EV_REP:
+    case EV_FF:
+      return 1;
+  }
+  return 0;
 }
 
 /* Send all metadata from our event device to the server,
@@ -339,8 +354,13 @@ static int evdev_send_event(int evdev, struct server *svr)
     return 0;
   }
 
-  /* Translate and send this event */
+  /* Translate and send this event. If it's an event we think should
+   * only be sent from app to device, assume it's an echo from
+   * a write and discard it.
+   */
   hton_input_event(&ip_ev, &ev);
+  if (is_output_event(&ev))
+    return 0;
   packet_socket_write(svr->socket, IPIPE_EVENT, sizeof(ip_ev), &ip_ev);
 
 #ifdef EV_SYN
@@ -492,9 +512,13 @@ static void connection_received_packet (struct connection *self,
 	break;
       }
       ntoh_input_event(&ev, ip_ev);
-
-      printf("Writing event: type=%d code=%d value=%d\n", ev.type, ev.code, ev.value);
-      write(self->evdev_fd, &ev, sizeof(ev));
+      
+      /* Any event we write to the evdev will get echo'ed back to us.
+       * In order to avoid echoes we can't detect, which will lead to
+       * infinite loops, we only allow writing event types we know about.
+       */
+      if (is_output_event(&ev))      
+        write(self->evdev_fd, &ev, sizeof(ev));
     }
     break;
 
@@ -510,17 +534,12 @@ static void connection_received_packet (struct connection *self,
       }
       response.request_id = ipipe_up->request_id;
       ntoh_ff_effect(&effect, &ipipe_up->effect);
-
-      printf("upload effect: request=%d effect=%d type=%d\n",
-	     htonl(ipipe_up->request_id), effect.id, effect.type);
+      
       retval = ioctl(self->evdev_fd, EVIOCSFF, &effect);
-
       if (retval < 0)
 	response.retval = htonl(-errno);
       else
 	response.retval = htonl(retval);
-
-      printf("retval=%d effect=%d\n", ntohl(response.retval), effect.id);
 
       hton_ff_effect(&response.effect, &effect);
       packet_socket_write(self->server->socket, IPIPE_UPLOAD_EFFECT_RESPONSE,
