@@ -10,6 +10,7 @@ CLASSFILES=\
 	aupdatei.class\
 	aupdate.class\
 	nbase.class\
+	njavaadmin.class\
 	njavasub.class\
 	nperlsub.class\
 	njavaint.class\
@@ -31,6 +32,9 @@ nperlsub.class: nperlsub.java
 
 njavaint.class: njavaint.java
 	javac njavaint.java
+
+njavaadmin.class: njavaadmin.java
+	javac njavaadmin.java
 
 keyinfo.class: keyinfo.java
 	javac keyinfo.java

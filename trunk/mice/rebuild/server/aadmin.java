@@ -23,4 +23,14 @@ public class aadmin
 	
 	/** This holds the password for the admin */
 	public static String pass = "pizze";
+	
+	/** This holds the moderator usernames */
+	public static String[] muns;
+	/** This holds the moderator passwords */
+	public static String[] mpas;
+	
+	/** This holds the interview usernames */
+	public static String[] iuns;
+	/** This holds the interview passwords */
+	public static String[] ipas;
 }

@@ -30,7 +30,58 @@ public class njavaadmin extends nbase
 	 */
 	public void run()
 	{
+		int moderators, interviews;
 		if(!auth()) return;
+		moderators = mods();
+		interviews = ints();
+	}
+	
+	/**
+	 * This method handles the acceptance of the interview peoples
+	 * @author Brandon Smith
+	 * @version 2.0
+	 * @return The number of people being interviewed.
+	 */
+	public int ints()
+	{
+		String newkey = key.keygen();
+		int interviews,i;
+		interviews = Integer.parseInt(read());
+		write(newkey);
+		aadmin.iuns = new String[interviews];
+		aadmin.ipas = new String[interviews];
+		for(i=0;i<interviews;i++)
+		{
+			aadmin.iuns[i] = key.decrypt(newkey,read());
+			aadmin.ipas[i] = key.decrypt(newkey,read());
+		}
+		write("+OK");
+		aadmin.confstate = 2;
+		return interviews;
+	}
+	
+	/**
+	 * This method handles the acceptance of the moderators
+	 * @author Brandon Smith
+	 * @version 2.0
+	 * @return The number of moderators involved in the chat.
+	 */
+	public int mods()
+	{
+		String newkey = key.keygen();
+		int moderators, i;
+		moderators = Integer.parseInt(read());
+		write(newkey);
+		aadmin.muns = new String[moderators];
+		aadmin.mpas = new String[moderators];
+		for(i=0;i<moderators;i++)
+		{
+			aadmin.muns[i] = key.decrypt(newkey,read());
+			aadmin.mpas[i] = key.decrypt(newkey,read());
+		}
+		write("+OK");
+		aadmin.confstate = 1;
+		return moderators;
 	}
 	
 	/**

@@ -126,7 +126,16 @@ public class moderator implements ActionListener
 			if(temp.startsWith("pass")) return false;
 			if(temp.compareTo("") == 0) return false;
 		}
-		// Kick them across the network to the server */
+		/* Now I do the net transfer stuff. */
+		net.write(""+count);
+		temp = net.read();
+		for(i=0;i<count;i++)
+		{
+			net.write(key.encrypt(temp,usernames[i].getText()));
+			net.write(key.encrypt(temp,passwords[i].getText()));
+		}
+		if(net.read().charAt(0) != '+')
+			return false;
 		return true;
 	}
 }
