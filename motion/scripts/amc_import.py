@@ -31,6 +31,12 @@ import Blender
 from Blender.Armature.Bone import ROT, LOC, SIZE
 import AMCReader
 
+# make it faster?
+try:
+    import psyco
+except:
+    pass
+
 dofTable = {}
 axisTable = {}
 baxisTable = {}
@@ -47,12 +53,10 @@ def getRot(object, bone, rot):
         axis = axisTable[bone]
         baxis = baxisTable[bone]
     except KeyError:
-        axis = [float(n) for n in object.getProperty('%s-axis' % bone).getData().split(',')]
-        axis = Blender.Mathutils.Quaternion(axis)
+        axis = map(float, object.getProperty ('%s-axis' % bone).getData ().split (','))
         axisTable[bone] = axis
 
-        baxis = [float(n) for n in object.getProperty('%s-baxis' % bone).getData().split(',')]
-        baxis = Blender.Mathutils.Quaternion(baxis)
+        baxis = map(float, object.getProperty ('%s-baxis' % bone).getData ().split (','))
         baxisTable[bone] = baxis
     r = [0.0, 0.0, 0.0]
     i = 0
@@ -64,11 +68,12 @@ def getRot(object, bone, rot):
         else:
             r[2] = rot[i]
         i += 1
-    euler = Blender.Mathutils.Euler(r)
+    #euler = Blender.Mathutils.Euler(r)
+    for i in range(len(baxis)):
+        baxis[i] *= -1
+    euler = Blender.Mathutils.Euler(baxis)
     quat = euler.toQuat()
-    baxis.inverse()
-    axisCorrection = baxis + axis
-    return (quat + axisCorrection)
+    return (quat)
 
 def importData (reader, object, filename):
     action = Blender.Armature.NLA.NewAction(filename.split('/')[-1])
