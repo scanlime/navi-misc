@@ -61,7 +61,8 @@ div.title {
 }
 
 div.subtitle {
-  font: 100% italic;
+  font: 100% sans-serif;
+  font-style: italic;
   margin: 0em 3em;
 }
 
