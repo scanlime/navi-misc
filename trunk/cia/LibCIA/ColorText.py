@@ -180,9 +180,9 @@ class ColorTextParser:
            back on and treat it as plain text.
            """
         if tag == "bold":
-            self.parsedState.bold = True
+            self.parsedState.bold = not self.parsedState.bold
         elif tag == "underline":
-            self.parsedState.underline = True
+            self.parsedState.underline = not self.parsedState.underline
         elif tag == "reverse":
             self.parsedState.reverseVideo()
         elif tag == "normal":
