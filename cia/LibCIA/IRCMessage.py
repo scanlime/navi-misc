@@ -31,72 +31,116 @@ import Message, XML
 class HubListener(object):
     """Receives messages from the Message.Hub, directing
        them at a BotNetwork as necessary. This listens for
-       commands instructing it to add and remove filters that
-       collect messages from the Hub, format them, and send
-       them to a particular IRC channel via the BotNetwork.
+       commands instructing it to add and remove rulesets
+       that transform messages from the Hub into formatted
+       messages sent to a particular IRC channel via
+       a supplied BotNetwork instance.
        """
-    def __init__(self, hub, botNet):
+    def __init__(self, hub, botNet, defaultHost, defaultPort=6667):
         self.hub = hub
         self.botNet = botNet
+        self.defaultHost = defaultHost
+        self.defaultPort = defaultPort
         self.addClients()
+
+        # Maps (serverTuple, channel) tuples to IRCRuleset instances
+        self.rulesets = {}
 
     def addClients(self):
         """Add all our initial clients to the hub"""
-        self.hub.addClient(self.handleIrcFilters, Message.Filter(
-            '<find path="/message/body/ircFilters">'))
-        self.hub.addClient(self.handleGetIrcFilters, Message.Filter(
-            '<find path="/message/body/getIrcFilters">'))
+        self.hub.addClient(self.setIrcRuleset, Message.Filter(
+            '<find path="/message/body/setIrcRuleset">'))
+        self.hub.addClient(self.getIrcRuleset, Message.Filter(
+            '<find path="/message/body/getIrcRuleset">'))
 
-    def handleIrcFilters(self, message):
-        """Process messages containing and <ircFilters> tag in
-           their body. These messages set the list of filters
-           and formatters being used by a particular IRC channel.
-           An empty <ircFilters/> tag removes all filters.
-           The BotNetwork is automatically updated so that if a
-           channel has any filters assigned, a bot will inhabit it.
+    def setIrcRuleset(self, message):
+        """Handle messages instructing us to add, modify, or remove
+           the IRCRuleset instance for a particular channel.
+           These messages are of the form:
 
-           An <ircFilters> tag has attributes specifying the server,
-           port, and channel it applies to. The leading '#' on a channel
-           name is optional.
-           It contains zero or more <ircFilter> tags, followed by tags
-           describing transforms applied to all messages delivered to the channel.
+           <message><body>
+               <setIrcRuleset channel="commits" server="irc.foo.net:6667">
+                   <ruleset>
+                       ...
+                   </ruleset>
+               </setIrcRuleset>
+           </body></message>
 
-           An <ircFilter> tag's first child must be a valid Message.Filter.
-           All other children are treated as transforms applied to the
-           message, in order, resulting in the text finally delivered
-           to the channel.
+           The leading '#' on a channel name is optional. The server can
+           also be specified without a port or left off entirely, defaulting
+           to the default server for this HubListener.
 
-           An couple example <ircFilters> messages..
-
-              <message><body>
-                 <ircFilters channel="commits" host="irc.freenode.net" port="6667">
-                    <ircFilter>
-                       <find path="/message/body/commit"/>
-                       <formatter name="commit"/>
-                    </ircFilter>
-                    <ircFilter>
-                       <find path="/message/body/colorText"/>
-                       <formatter name="colorText"/>
-                    </ircFilter>
-                    <formatter name="projectPrefix"/>
-                 </ircFilters>
-              </body></message>
+           An empty <setIrcRuleset> removes the ruleset associated with
+           its channel, also causing the bot network to leave it.
            """
-        ircFilters = message.xml.body.ircFilters
-        server = ircFilters['host'], int(ircFilters['port'])
-        channel = ircFilters['channel']
+        # Extract the channel and server
+        tag = message.xml.body.setIrcRuleset
+        channel = tag.getAttribute('channel')
+        if not channel:
+            raise XML.XMLValidityError("The 'channel' attribute on <setIrcRuleset> is required")
         if channel[0] != '#':
             channel = '#' + channel
+        server = tag.getAttribute('server', self.defaultHost)
 
-        if ircFilters.ircFilter:
-            self.botNet.addChannel(server, channel)
+        # Split the server into host and port, using our default if we can't
+        if server.find(":") > 0:
+            serverTuple = server.split(":")
         else:
-            self.botNet.delChannel(server, channel)
+            serverTuple = server, self.defaultPort
 
-    def handleGetIrcFilters(self, message):
+        # Make sure the ruleset parses before we do anything permanent
+        if tag.ruleset:
+            ruleset = Message.Ruleset(tag.ruleset)
+        else:
+            ruleset = None
+
+        # Remove this channel's old IRCRuleset if it has one
+        try:
+            oldRuleset = self.rulesets[(serverTuple, channel)]
+            del self.rulesets[(serverTuple, channel)]
+            self.hub.delClient(oldRuleset)
+        except KeyError:
+            pass
+
+        if ruleset:
+            # We have a ruleset. Make this channel part of the bot network
+            # if it isn't already, and set up an IRCRuleset.
+            self.botNet.addChannel(serverTuple, channel)
+            ircRuleset = IRCRuleset(self.botNet, serverTuple, channel, ruleset)
+
+            # Install the new ruleset
+            self.rulesets[(serverTuple, channel)] = ircRuleset
+            self.hub.addClient(ircRuleset)
+        else:
+            # No ruleset, we're removing this channel
+            self.botNet.delChannel(serverTuple, channel)
+
+    def getIrcRuleset(self, message):
         """Return the current <ircFilters> tag with attributes matching
            those of the <getIrcFilters> tag.
            """
         return 42
+
+
+class IRCRuleset(object):
+    """Ties together an IRC channel, BotNetwork, and Ruleset
+       into one object that can be used as a client to the
+       Message.Hub.
+       """
+    def __init__(self, botNet, server, channel, ruleset):
+        self.botNet = botNet
+        self.server = server
+        self.channel = channel
+        self.ruleset = ruleset
+
+    def __call__(self, message):
+        """When the IRCRuleset is used as a client to the
+           message.Hub, it is called to deliver a message.
+           This runs the message through our ruleset, and
+           if a result pops out, sends it to our IRC channel.
+           """
+        result = self.ruleset(message)
+        if result:
+            self.botNet.msg(self.server, self.channel, result)
 
 ### The End ###
