@@ -30,13 +30,16 @@
 ;// Return an 8-byte packet with the current edge buffer (4 16-bit LE words)
 #define RWAND_CTRL_READ_EDGES		0x01
 
-;// Return a 5-byte packet containing:
+;// Return a 8-byte packet containing:
 ;//   * Predicted period as a 16-bit Little Endian value in 16-cycle (2.66us) units
 ;//   * Predicted phase, same format as the period
 ;//   * Edge counter, 8-bit unsigned int. Increments once for each synchronization edge.
 ;//     This can be used to detect a stalled wand or other condition that would give bad
 ;//     predictions.
-#define RWAND_CTRL_READ_PREDICTION	0x02
+;//   * Mode bits, 8-bit unsigned int.
+;//   * Page flip status, 8-bit unsigned int. Nonzero when a flip is in progress
+;//   * Button status, 8-bit unsigned int. Copy of the PORTA inputs.
+#define RWAND_CTRL_READ_STATUS		0x02
 
 ;// Set the phase to wValue and the period to wIndex
 #define RWAND_CTRL_SET_PREDICTION	0x03
@@ -62,14 +65,6 @@
 ;// confirmed to be completed.
 #define RWAND_CTRL_FLIP				0x09
 
-;// Check the status of a flip requested with RWAND_CTRL_FLIP.
-;// Returns 1 byte, nonzero if the flip is still in progress.
-#define RWAND_CTRL_CHECK_FLIP		0x0A
-
-;// Check the status of all buttons. This returns PORTA directly,
-;// so it can be used with up to 6 buttons.
-#define RWAND_CTRL_CHECK_BUTTONS	0x0B
-
 
 ;//************************************************** Mode bits
 
@@ -92,6 +87,15 @@
 ;// This must be off for normal display.
 #define RWAND_MODE_COIL_DEBUG_BIT	3
 #define RWAND_MODE_COIL_DEBUG		0x08
+
+
+;//************************************************** Interrpt Endpoints
+
+;// The following packets are broadcast on the EP1 endpoint:
+
+;// Bye
+
+
 
 #endif
 

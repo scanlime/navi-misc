@@ -31,11 +31,13 @@
 	global	display_poll
 	global	display_init
 	global	display_request_flip
-	global	display_check_flip
+	global	display_check_flip	
+	global	display_save_status
 
 	global	edge_buffer
 	global	wand_period
 	global	wand_phase
+	global	edge_counter
 	global	coil_window_min
 	global	coil_window_max
 	global	mode_flags
@@ -59,7 +61,6 @@ display_fwd_phase	res	2	; The wand_phase value to start forward display at
 display_rev_phase	res 2	; The wand_phase value to start reverse display at
 display_column_width res 2	; The wand_phase width of each column of pixels
 
-; The next three variables must stay together, they're sent all at once as a USB packet
 wand_period		res	2	; The wand oscillation period, 16-bit little endian in 16-cycle units
 wand_phase		res	2	; The current phase angle of the want, ranging from 0 to wand_period-1
 edge_counter	res	1	; A counter that increments every time our synchronization algorithm runs at an
@@ -155,6 +156,37 @@ display_check_flip
 	btfss	FLAG_FLIP_REQUEST
 	retlw	0x00
 	retlw	0xFF
+
+
+	; Starting at the location in IRP:FSR, save an 8-byte status
+	; packet as described in rwand_protocol.h for RWAND_CTRL_READ_STATUS.
+display_save_status
+	banksel	wand_period
+	movf	wand_period, f		; 1
+	movwf	INDF
+	incf	FSR, f
+	movf	wand_period+1, f	; 2
+	movwf	INDF
+	incf	FSR, f
+	movf	wand_phase, f		; 3
+	movwf	INDF
+	incf	FSR, f
+	movf	wand_phase+1, f		; 4
+	movwf	INDF
+	incf	FSR, f
+	movf	edge_counter, f		; 5
+	movwf	INDF
+	incf	FSR, f
+	movf	mode_flags, f		; 6
+	movwf	INDF
+	incf	FSR, f
+	pagesel	display_check_flip	; 7
+	movwf	INDF
+	incf	FSR, f
+	banksel	BUTTON_PORT			; 8
+	movf	BUTTON_PORT
+	movwf	INDF
+	return
 
 
 ;*****************************************************************************************

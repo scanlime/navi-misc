@@ -47,7 +47,7 @@
 	extern	display_column_width
 
 	extern	display_request_flip
-	extern	display_check_flip
+	extern	display_save_status
 
 bank0	udata
 
@@ -69,7 +69,7 @@ defineRequest	macro	id,	handler
 
 CheckVendor
 	defineRequest	RWAND_CTRL_READ_EDGES,		request_readEdges
-	defineRequest	RWAND_CTRL_READ_PREDICTION,	request_readPrediction
+	defineRequest	RWAND_CTRL_READ_STATUS,		request_readStatus
 	defineRequest	RWAND_CTRL_SET_PREDICTION,	request_setPrediction
 	defineRequest	RWAND_CTRL_SET_COIL_PHASE,	request_setCoilPhase
 	defineRequest	RWAND_CTRL_SET_MODES,		request_setModes
@@ -77,8 +77,6 @@ CheckVendor
 	defineRequest	RWAND_CTRL_SET_COLUMN_WIDTH, request_setColumnWidth
 	defineRequest	RWAND_CTRL_RANDOM_WRITE3,	request_randomWrite3
 	defineRequest	RWAND_CTRL_FLIP,			request_flip
-	defineRequest	RWAND_CTRL_CHECK_FLIP,		request_checkFlip
-	defineRequest	RWAND_CTRL_CHECK_BUTTONS,	request_checkButtons
 
 	pagesel	wrongstate		; Not a recognized request
 	goto	wrongstate
@@ -167,9 +165,25 @@ returnByte    macro
 request_readEdges
 	returnBuffer edge_buffer, 8
 
-	; Return prediction values
-request_readPrediction
-	returnBuffer wand_period, 5
+
+	; Return a status packet
+request_readStatus
+    banksel BD0IAL
+    movf    low BD0IAL,w			; Get the address of the EP0 IN buffer
+    movwf   FSR
+    bsf     STATUS,IRP				; indirectly to banks 2-3
+
+	pagesel	display_save_status
+	call	display_save_status
+
+    banksel BD0IBC
+    bsf     STATUS, RP0
+    movlw   8
+    movwf   BD0IBC                  ; set byte count
+    movlw   0xc8                    ; DATA1 packet, DTS enabled
+    movwf   BD0IST                  ; give buffer back to SIE
+    return
+
 
 	; Set prediction balues: wValue -> phase, wIndex -> period
 request_setPrediction
@@ -279,21 +293,6 @@ request_randomWrite3
 	movf	BufferData+(wIndex+1), w	; Write 3...
 	movwf	INDF
 	returnEmpty
-
-
-	; Return a byte that's nonzero if a flip is in progress
-request_checkFlip
-	pagesel	display_check_flip
-	call	display_check_flip
-	returnByte
-
-
-	; Return button status
-request_checkButtons
-	banksel	BUTTON_PORT
-	movf	BUTTON_PORT, w
-	returnByte
-
 
 	end
 

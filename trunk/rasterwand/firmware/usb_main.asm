@@ -75,6 +75,7 @@ epByteTemp	res 1
 
 	extern	display_poll
 	extern	display_init
+	extern	display_save_status
 
 STARTUP	code
 	pagesel	Main
@@ -225,8 +226,34 @@ MainLoop
 	pagesel	display_poll
 	call	display_poll
 
-	pagesel	MainLoop
-	goto	MainLoop
+	ConfiguredUSB           ; macro to check configuration status
+	pagesel MainLoop
+	btfss   STATUS,Z        ; Z = 1 when configured
+	goto    MainLoop    ; Wait until we're configured
+
+	; The rest of this loop puts status packets on EP1 when it's ready
+	banksel BD1IST          ; If we don't own the EP1 buffer, keep waiting
+	btfsc   BD1IST, UOWN
+	goto    MainLoop
+
+	movlw	8				; Set byte count
+	movwf	BD1IBC
+
+	movf	BD1IAL, w		; Point IRP:FSR at the EP1 buffer
+	bsf		STATUS, IRP
+
+	banksel	display_save_status	; Save the status packet
+	call	display_save_status
+
+	banksel	BD1IST
+	movf	BD1IST,w
+	andlw	0x40		; save only the data 0/1 bit
+	xorlw	0x40		; toggle the data o/1 bit
+	iorlw	0x88		; set owns bit and DTS bit
+	movwf	BD1IST
+
+	pagesel MainLoop
+	goto    MainLoop
 
 	end
 
