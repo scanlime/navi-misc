@@ -17,8 +17,13 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 import BZFlag
+import sys
 
 reader = BZFlag.Reader()
-x = reader.parse('../river.bzw')
+if len(sys.argv) == 2:
+    filename = sys.argv[1]
+else:
+    filename = '../river.bzw'
+x = reader.parse(filename)
 for object in x:
     print object
