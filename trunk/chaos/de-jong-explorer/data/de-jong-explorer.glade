@@ -42,7 +42,7 @@
 		      <accelerator key="i" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image90">
+			<widget class="GtkImage" id="image100">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-zoom-in</property>
 			  <property name="icon_size">1</property>
@@ -64,7 +64,7 @@
 		      <accelerator key="s" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image91">
+			<widget class="GtkImage" id="image101">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-save-as</property>
 			  <property name="icon_size">1</property>
@@ -97,7 +97,7 @@
 		      <accelerator key="q" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image92">
+			<widget class="GtkImage" id="image102">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-quit</property>
 			  <property name="icon_size">1</property>
@@ -132,7 +132,7 @@
 		      <accelerator key="o" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image93">
+			<widget class="GtkImage" id="image103">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-open</property>
 			  <property name="icon_size">1</property>
@@ -154,7 +154,7 @@
 		      <accelerator key="d" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image94">
+			<widget class="GtkImage" id="image104">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-new</property>
 			  <property name="icon_size">1</property>
@@ -176,7 +176,7 @@
 		      <accelerator key="r" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image95">
+			<widget class="GtkImage" id="image105">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-refresh</property>
 			  <property name="icon_size">1</property>
@@ -218,7 +218,7 @@
 		      <property name="visible">True</property>
 		      <property name="label" translatable="yes">Grab</property>
 		      <property name="use_underline">True</property>
-		      <property name="active">False</property>
+		      <property name="active">True</property>
 		      <property name="group">tool_none</property>
 		      <signal name="activate" handler="on_tool_activate" last_modification_time="Wed, 18 Feb 2004 03:57:55 GMT"/>
 		      <accelerator key="g" modifiers="0" signal="activate"/>
@@ -230,7 +230,7 @@
 		      <property name="visible">True</property>
 		      <property name="label" translatable="yes">Blur</property>
 		      <property name="use_underline">True</property>
-		      <property name="active">False</property>
+		      <property name="active">True</property>
 		      <property name="group">tool_none</property>
 		      <signal name="activate" handler="on_tool_activate" last_modification_time="Wed, 18 Feb 2004 03:57:55 GMT"/>
 		      <accelerator key="b" modifiers="0" signal="activate"/>
@@ -242,7 +242,7 @@
 		      <property name="visible">True</property>
 		      <property name="label" translatable="yes">Zoom</property>
 		      <property name="use_underline">True</property>
-		      <property name="active">False</property>
+		      <property name="active">True</property>
 		      <property name="group">tool_none</property>
 		      <signal name="activate" handler="on_tool_activate" last_modification_time="Wed, 18 Feb 2004 03:57:55 GMT"/>
 		      <accelerator key="z" modifiers="0" signal="activate"/>
@@ -254,7 +254,7 @@
 		      <property name="visible">True</property>
 		      <property name="label" translatable="yes">Rotate</property>
 		      <property name="use_underline">True</property>
-		      <property name="active">False</property>
+		      <property name="active">True</property>
 		      <property name="group">tool_none</property>
 		      <signal name="activate" handler="on_tool_activate" last_modification_time="Wed, 18 Feb 2004 03:57:55 GMT"/>
 		      <accelerator key="r" modifiers="0" signal="activate"/>
@@ -266,7 +266,7 @@
 		      <property name="visible">True</property>
 		      <property name="label" translatable="yes">Exposure / Gamma</property>
 		      <property name="use_underline">True</property>
-		      <property name="active">False</property>
+		      <property name="active">True</property>
 		      <property name="group">tool_none</property>
 		      <signal name="activate" handler="on_tool_activate" last_modification_time="Wed, 18 Feb 2004 03:57:55 GMT"/>
 		      <accelerator key="e" modifiers="0" signal="activate"/>
@@ -284,9 +284,10 @@
 		      <property name="visible">True</property>
 		      <property name="label" translatable="yes">A / B</property>
 		      <property name="use_underline">True</property>
-		      <property name="active">False</property>
+		      <property name="active">True</property>
 		      <property name="group">tool_none</property>
 		      <signal name="activate" handler="on_tool_activate" last_modification_time="Wed, 18 Feb 2004 03:57:55 GMT"/>
+		      <accelerator key="a" modifiers="0" signal="activate"/>
 		    </widget>
 		  </child>
 
@@ -295,7 +296,7 @@
 		      <property name="visible">True</property>
 		      <property name="label" translatable="yes">A / C</property>
 		      <property name="use_underline">True</property>
-		      <property name="active">False</property>
+		      <property name="active">True</property>
 		      <property name="group">tool_none</property>
 		      <signal name="activate" handler="on_tool_activate" last_modification_time="Wed, 18 Feb 2004 03:57:55 GMT"/>
 		    </widget>
@@ -306,7 +307,7 @@
 		      <property name="visible">True</property>
 		      <property name="label" translatable="yes">A / D</property>
 		      <property name="use_underline">True</property>
-		      <property name="active">False</property>
+		      <property name="active">True</property>
 		      <property name="group">tool_none</property>
 		      <signal name="activate" handler="on_tool_activate" last_modification_time="Wed, 18 Feb 2004 03:57:55 GMT"/>
 		    </widget>
@@ -317,7 +318,7 @@
 		      <property name="visible">True</property>
 		      <property name="label" translatable="yes">B / C</property>
 		      <property name="use_underline">True</property>
-		      <property name="active">False</property>
+		      <property name="active">True</property>
 		      <property name="group">tool_none</property>
 		      <signal name="activate" handler="on_tool_activate" last_modification_time="Wed, 18 Feb 2004 03:57:55 GMT"/>
 		    </widget>
@@ -328,7 +329,7 @@
 		      <property name="visible">True</property>
 		      <property name="label" translatable="yes">B / D</property>
 		      <property name="use_underline">True</property>
-		      <property name="active">False</property>
+		      <property name="active">True</property>
 		      <property name="group">tool_none</property>
 		      <signal name="activate" handler="on_tool_activate" last_modification_time="Wed, 18 Feb 2004 03:57:55 GMT"/>
 		    </widget>
@@ -339,9 +340,10 @@
 		      <property name="visible">True</property>
 		      <property name="label" translatable="yes">C / D</property>
 		      <property name="use_underline">True</property>
-		      <property name="active">False</property>
+		      <property name="active">True</property>
 		      <property name="group">tool_none</property>
 		      <signal name="activate" handler="on_tool_activate" last_modification_time="Wed, 18 Feb 2004 03:57:55 GMT"/>
+		      <accelerator key="c" modifiers="0" signal="activate"/>
 		    </widget>
 		  </child>
 
@@ -356,9 +358,10 @@
 		      <property name="visible">True</property>
 		      <property name="label" translatable="yes">AB / CD</property>
 		      <property name="use_underline">True</property>
-		      <property name="active">False</property>
+		      <property name="active">True</property>
 		      <property name="group">tool_none</property>
 		      <signal name="activate" handler="on_tool_activate" last_modification_time="Wed, 18 Feb 2004 03:57:55 GMT"/>
+		      <accelerator key="d" modifiers="0" signal="activate"/>
 		    </widget>
 		  </child>
 
@@ -367,7 +370,7 @@
 		      <property name="visible">True</property>
 		      <property name="label" translatable="yes">AC / BD</property>
 		      <property name="use_underline">True</property>
-		      <property name="active">False</property>
+		      <property name="active">True</property>
 		      <property name="group">tool_none</property>
 		      <signal name="activate" handler="on_tool_activate" last_modification_time="Wed, 18 Feb 2004 03:57:55 GMT"/>
 		    </widget>
