@@ -280,6 +280,8 @@ static int uinput_alloc_device(struct file *file, const char __user *buffer, siz
 
 	if (NULL != dev->name)
 		kfree(dev->name);
+	if (NULL != dev->phys)
+		kfree(dev->phys);
 
 	size = strnlen(user_dev->name, UINPUT_MAX_NAME_SIZE) + 1;
 	dev->name = kmalloc(size, GFP_KERNEL);
@@ -380,6 +382,11 @@ static int uinput_burn_device(struct uinput_device *udev)
 	if (test_bit(UIST_CREATED, &(udev->state)))
 		uinput_destroy_device(udev);
 
+	if (NULL != udev->dev->name)
+		kfree(udev->dev->name);
+	if (NULL != udev->dev->phys)
+		kfree(udev->dev->phys);
+
 	kfree(udev->dev);
 	kfree(udev);
 
@@ -399,22 +406,13 @@ static int uinput_ioctl(struct inode *inode, struct file *file, unsigned int cmd
 	struct uinput_ff_upload ff_up;
 	struct uinput_ff_erase  ff_erase;
 	struct uinput_request   *req;
+	int                     length;
 
 	udev = (struct uinput_device *)file->private_data;
 
 	/* device attributes can not be changed after the device is created */
-	switch (cmd) {
-		case UI_SET_EVBIT:
-		case UI_SET_KEYBIT:
-		case UI_SET_RELBIT:
-		case UI_SET_ABSBIT:
-		case UI_SET_MSCBIT:
-		case UI_SET_LEDBIT:
-		case UI_SET_SNDBIT:
-		case UI_SET_FFBIT:
-			if (test_bit(UIST_CREATED, &(udev->state)))
-				return -EINVAL;
-	}
+	if (cmd >= UI_SET_EVBIT && test_bit(UIST_CREATED, &(udev->state)))
+		return -EINVAL;
 
 	switch (cmd) {
 		case UI_DEV_CREATE:
@@ -487,6 +485,24 @@ static int uinput_ioctl(struct inode *inode, struct file *file, unsigned int cmd
 				break;
 			}
 			set_bit(arg, udev->dev->ffbit);
+			break;
+
+		case UI_SET_PHYS:
+			if (NULL != udev->dev->phys)
+				kfree(udev->dev->phys);
+			length = strnlen_user(p, 1024);
+			udev->dev->phys = kmalloc(length, GFP_KERNEL);
+			if (!udev->dev->phys) {
+				retval = -ENOMEM;
+				break;
+			}
+			if (copy_from_user(udev->dev->phys, p, length)) {
+				retval = -EFAULT;
+				kfree(udev->dev->phys);
+				udev->dev->phys = NULL;
+				break;
+			}
+			udev->dev->phys[length-1] = '\0';
 			break;
 
 		case UI_BEGIN_FF_UPLOAD:
