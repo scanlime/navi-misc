@@ -1,5 +1,9 @@
 #include "textgui.h"
 #include "palette.h"
+#include "../common/text.h"
+
+int check_word(GtkWidget *xtext, char *word);
+void clicked_word(GtkWidget *xtext, char *word, GdkEventButton *even, session *sess);
 
 void initialize_text_gui() {
 	GtkBox *box;
@@ -16,6 +20,8 @@ void initialize_text_gui() {
 	gtk_xtext_set_max_indent(gui.xtext, 500);
 	gtk_xtext_set_thin_separator(gui.xtext, TRUE);
 	gtk_xtext_set_wordwrap(gui.xtext, TRUE);
+//	gtk_xtext_set_urlcheck_function(gui.xtext, check_url);
+//	g_signal_connect(G_OBJECT(gui.xtext), "word_click", G_CALLBACK(clicked_word), NULL);
 
 	if(!gtk_xtext_set_font(gui.xtext, "Bitstream Vera Sans Mono 9"))
 		g_print("Failed to open BV Sans Mono font!\n");
@@ -110,4 +116,47 @@ void set_gui_topic(struct session *sess, char *topic) {
 void clear_buffer(struct session *sess) {
 	session_gui *sgui = sess->gui;
 	gtk_xtext_clear(sgui->buffer);
+}
+
+int check_word(GtkWidget *xtext, char *word) {
+	return text_word_check(word);
+}
+
+void clicked_word(GtkWidget *xtext, char *word, GdkEventButton *event, session *sess) {
+	sess = gui.current_session;
+
+	if(event->button == 1) {
+		/* left click */
+		return;
+	}
+	if(event->button == 2) {
+		/* middle click */
+		return;
+	}
+	switch(check_word(xtext, word)) {
+	case 0:
+		/* FIXME: show default context menu */
+		return;
+	case WORD_URL:
+	case WORD_HOST:
+		/* FIXME: show url context menu */
+		g_print("its a url!\n");
+		return;
+	case WORD_NICK:
+		/* FIXME: show nickname context menu */
+		g_print("its a nickname!\n");
+		return;
+	case WORD_CHANNEL:
+		/* FIXME: show nickname context menu */
+		g_print("its a channel!\n");
+		return;
+	case WORD_EMAIL:
+		/* FIXME: show nickname context menu */
+		g_print("its a email address!\n");
+		return;
+	case WORD_DIALOG:
+		/* FIXME: show nickname context menu */
+		g_print("its a nickname dialog!\n");
+		return;
+	}
 }
