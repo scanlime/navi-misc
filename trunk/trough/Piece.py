@@ -4,7 +4,7 @@ import types
 
 class Piece:
 	''' Piece
-		A media file group.
+		Conglomeration of media.
 	'''
 
 	def __init__ (self, name, where):
