@@ -44,8 +44,8 @@
 
 	errorlevel -302		; supress "register not in bank0, check page bits" message
 
-#define	SHOW_ENUM_STATUS
-#define COUNTERRORS
+;#define	SHOW_ENUM_STATUS
+;#define COUNTERRORS
 
 unbanked	udata_shr		; these will get assigned to unbanked RAM (0x70-0x7F)
 temp			res	1	; short term temp register used in Get Interface
