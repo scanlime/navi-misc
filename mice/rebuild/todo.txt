@@ -1,0 +1,7 @@
+Make the moderator able to approve questions for multiple people
+	Add question duplication 
+	Add protocol support for it
+	Add support for it in the applet
+
+Logging Support
+
