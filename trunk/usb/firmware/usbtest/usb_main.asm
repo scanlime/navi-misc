@@ -81,6 +81,10 @@ PIRmasked	res	1
 USBMaskedInterrupts  res  1
 BUFFER		res	8	; Location for data to be sent to host
 COUNTER		res	1   
+ByteCount	res	1
+SerialByte	res 1
+DelayTemp	res 1
+BitCount	res 1
 
 	extern	InitUSB
 	extern	PutEP1
@@ -251,6 +255,7 @@ Main
 	clrf	TRISB		; Set PORTB as all outputs
 	movlw	0x10
 	movwf	TRISA		; Set RA4 as input
+
 	movlw	0x07
 	movwf	OPTION_REG	; Prescaler -> Timer0, (7 gives 1:256 scaling), 10.9mS
 
@@ -259,7 +264,7 @@ Main
 				;  the USB (wait for host enumeration) then wait
 				;  until the enumeration process to complete.
 
-;*******************************************************************
+;******************************************************************* Main Loop
 
 	banksel COUNTER
 	clrf	COUNTER
@@ -279,13 +284,16 @@ MainLoop
 	btfss	STATUS,Z	; Z = 1 when configured
 	goto	MainLoop    ; Wait until we're configured
 
-	pagesel GetEP1		; Read endpoint 1 into PORTB
-	bankisel PORTB
-	movlw	PORTB
+	pagesel GetEP1		; Read endpoint 1, calling VFD_SendBuffer with any received bytes
+	bankisel BUFFER
+	movlw	BUFFER
 	movwf	FSR
 	call	GetEP1
+	pagesel	VFD_SendBuffer
+	btfsc	STATUS, C
+	call	VFD_SendBuffer
 
-	pagesel	PutEP1
+	pagesel	PutEP1	    ; Send a 4-byte packet consisting of a counter followed by 01 02 03
 	banksel COUNTER
 	movf	COUNTER, w
 	banksel	BUFFER
@@ -305,6 +313,67 @@ MainLoop
 	incf	COUNTER, f
 
 	goto	MainLoop
+
+;******************************************************************* VFD functions
+; Note that the PIC16C745 has a built-in USART, but we don't use it
+; since it has no invert bit and we'd rather not have to use a real
+; serial line driver to communicate with the VFD.
+
+	; Send 'w' bytes to the VFD, starting at BUFFER
+VFD_SendBuffer:
+	banksel	ByteCount
+	movwf	ByteCount
+	bankisel BUFFER
+	movlw	BUFFER
+	movwf	FSR
+byteLoop:
+	pagesel	VFD_SendByte
+	movf	INDF, w
+	call	VFD_SendByte
+	incf	FSR, f
+	pagesel	byteLoop
+	decfsz	ByteCount, f
+	goto	byteLoop
+	return
+
+	; Macro to put a space on the VFD serial line
+VFD_SerialSpace	macro
+	bcf		PORTB, 7
+	endm
+
+	; Macro to put a mark on the VFD serial line
+VFD_SerialMark	macro
+	bsf		PORTB, 7
+	endm
+
+	; Delay for one bit length at 19200 baud and 6 MIPS
+	; This should waste 312 clock cycles.
+VFD_SerialDelay:
+	movlw	0x67
+	movwf	DelayTemp
+delayLoop:
+	decfsz	DelayTemp
+	goto	delayLoop
+	return
+
+	; Send a byte to the VFD from 'w'
+VFD_SendByte:
+	movwf	SerialByte		; Save input byte
+	movlw	8
+	movwf	BitCount
+	VFD_SerialMark			; Start bit
+	call	VFD_SerialDelay
+bitLoop:
+	rrf		SerialByte		; Shift out the LSB
+	VFD_SerialSpace			; Assume space
+	btfss	STATUS, C
+	VFD_SerialMark			; Set a mark if necessary
+	call	VFD_SerialDelay
+	decfsz	BitCount
+	goto	bitLoop
+	VFD_SerialSpace			; Stop bit
+	call	VFD_SerialDelay
+	return
 
 	end
 
