@@ -50,7 +50,7 @@ public class element
 	 * @author Brandon Smith
 	 * @version 2.0
 	 */
-	public element(question prev, String qt, String qb, String at, String ab)
+	public element(element prev, String qt, String qb, String at, String ab)
 	{
 		String temp;
 		next = prev;
