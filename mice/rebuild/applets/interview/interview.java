@@ -8,13 +8,19 @@ import java.io.*;
 
 public class interview extends java.applet.Applet implements ActionListener
 {
-	TextField username, password;
-	TextArea question, answer;
-	Button button1, button2, button3;
+	public TextField username, password, realname;
+	public TextArea question, answer;
+	public Button button1, button2, button3;
 
+	/**
+	 * This initializes the applet
+	 * @author Brandon Smith
+	 * @version 2.0
+	 */
 	public void init()
 	{
 		//set up the various fields from the information class
+		realname = new TextField("Please put your name as you want it to appear next to your answers.",50);
 		username = new TextField("username",20);
 		password = new TextField("password",20);
 		question = new TextArea("",6,50,TextArea.SCROLLBARS_VERTICAL_ONLY);
@@ -24,16 +30,33 @@ public class interview extends java.applet.Applet implements ActionListener
 		button3 = new Button("Quit");
         
 		//add the various objects to the applet
+		add(realname);
 		add(username);
 		add(password);
 		add(button1);
 		button1.addActionListener(this);
 	}
 	
+	/**
+	 * This is the action handler for the initialization of the applet
+	 * @param e The Action Event variable... its not used.
+	 * @author Brandon Smith
+	 * @version 2.0
+	 */
 	public void actionPerformed(ActionEvent e)
 	{
+		buttonconfig();
+	}
+	
+	/**
+	 * This sets up the buttons to be in their final form
+	 * @author Brandon Smith
+	 * @version 2.0
+	 */
+	public void buttonconfig()
+	{
+		remove(realname);
 		remove(button1);
-		remove(button2);
 		remove(username);
 		remove(password);
 		button1.removeActionListener(this);
