@@ -74,11 +74,20 @@
 
 ;//************************************************** Control requests
 
-;// So far these are all just for debugging
-
 ;// Set a parameter byte in a block of 8 of the above buffers.
 ;// Address in wIndex, value in wValue.
 #define EFS_CTRL_SET_PARAM_BYTE		0x01
+
+;// Retrieve all 8 bytes of a parameter block. The parameter block
+;// number should be in wIndex.
+#define EFS_CTRL_GET_PARAM_BLOCK	0x02
+
+;// Take a reading immediately using all parameter blocks, and
+;// return an 8-byte packet with the results. This has the same
+;// effect as using the EP1 IN interrupt endpoint, but guarantees
+;// the results are fresh and makes the device usable in environments
+;// that don't support interrupt requests, like libusb.
+#define EFS_CTRL_READ_SENSORS		0x03
 
 
 ;//************************************************** Endpoints

@@ -41,6 +41,7 @@
 	global	sensor_sampler
 	global	sensor_sample_all
 	global	sensor_buffer
+	global	parameter_buffers
 
 ;************************************************** Variables
 
