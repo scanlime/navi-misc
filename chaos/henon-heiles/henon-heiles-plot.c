@@ -7,7 +7,7 @@
 #define INDEX(length, min, max, value)   (((value)-(min))*(length)/((max)-(min)))
 // #define ENERGY 0.08333
 #define ENERGY 0.125
-#define POINTS 4000
+#define POINTS 1000
 
 /* axes:
  * x:  [-0.5, 1.0]
@@ -86,7 +86,8 @@ long hhrun (float *point)
 
 	g_free (scratch);
 
-	return i;
+	iterations += i;
+	return POINTS;
 }
 
 int main (int argc, char **argv)
@@ -94,6 +95,7 @@ int main (int argc, char **argv)
 	int i;
 	float point[5];
 	gchar *filename;
+	long points;
 
 	g_type_init ();
 	hi = histogram_imager_new ();
@@ -102,10 +104,7 @@ int main (int argc, char **argv)
 
 	srand (time (NULL));
 
-	iterations = 0;
-
-	histogram_imager_get_hist_size (hi, &w, &h);
-	histogram_imager_prepare_plots (hi, &plot);
+	points = 0;
 
 	if (argc >= 3) {
 		point[0] = atof (argv[1]);
@@ -120,17 +119,20 @@ int main (int argc, char **argv)
 
 	py (point);
 
+	histogram_imager_get_hist_size (hi, &w, &h);
+	histogram_imager_prepare_plots (hi, &plot);
+
 	fprintf (stderr, "running integration for point (%f, %f, %f, %f)\n", point[0], point[1], point[2], point[3]);
 	while (1) {
-		iterations += hhrun (point);
+		points += hhrun (point);
 		point[0] = -point[0];
-		iterations += hhrun (point);
+		hhrun (point);
 		point[0] = -point[0];
 
 		histogram_imager_finish_plots (hi, &plot);
-		filename = g_strdup_printf ("%f-%f-%f-%f--%d.png", point[0], point[1], point[2], point[3], iterations);
+		filename = g_strdup_printf ("%f-%f-%f-%f--%d.png", point[0], point[1], point[2], point[3], points);
 		histogram_imager_save_image_file (hi, filename);
 		g_free (filename);
-		g_print ("Completed %d iterations\n", iterations);
+		g_print ("Completed %lld iterations, %d points plotted\n", iterations, points);
 	}
 }
