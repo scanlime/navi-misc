@@ -31,7 +31,7 @@ an eye on Subversion ;)
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-__version__ = "pre-0.91"
+__version__ = "0.91svn"
 
 
 # Check the python version here before we proceed further
