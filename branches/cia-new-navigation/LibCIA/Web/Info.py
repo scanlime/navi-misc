@@ -21,11 +21,22 @@ Just a cute little page with informational doodads on it.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from LibCIA.Web import Template
+import Template, Server
 from LibCIA import TimeUtil, XML
 from Nouvelle import place, tag
 import LibCIA
 import time, sys
+
+
+class Component(Server.Component):
+    """A server component showing the info page"""
+    name = 'Server Info'
+
+    def __init__(self):
+        self.resource = Page()
+
+    def __contains__(self, page):
+        return isinstance(page, Page)
 
 
 class Clock(Template.Section):
