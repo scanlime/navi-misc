@@ -41,7 +41,7 @@ used to store and query rulesets in a RulesetStorage.
 
 import XML, Message, Debug, Security, RpcServer, Formatters
 from twisted.python import log
-from twisted.internet import defer
+from twisted.internet import defer, reactor
 import sys, traceback, re, os
 
 
@@ -438,7 +438,16 @@ class RulesetStorage:
         self.uriRegistry = uriRegistry
         self.hub = hub
         self._emptyStorage()
-        self.refresh()
+        self.refreshUntilDone()
+
+    def refreshUntilDone(self, interval=5):
+        """Refresh rulesets, retrying if an error occurs"""
+        self.refresh().addErrback(self._reRefresh, interval)
+
+    def _reRefresh(self, failure, interval):
+        log.msg("Refresh failed, retrying in %r seconds (%r)" %
+                (interval, failure))
+        reactor.callLater(interval, self.refreshUntilDone)
 
     def refresh(self):
         """Begin the process of loading our rulesets in from the SQL database.
