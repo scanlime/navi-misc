@@ -27,31 +27,67 @@ public class admin extends java.applet.Applet
 		info.auth = new authenticate(this);
 	}
 	
+	/**
+	 * This method removes a TextField from the applet
+	 * @param foo The TextField that gets removed.
+	 * @author Brandon Smith
+	 * @version 2.0
+	 */
 	public void rm(TextField foo)
 	{
 		remove(foo);
 	}
 	
+	/**
+	 * This method removes a TextArea from the applet
+	 * @param foo The TextArea that gets removed.
+	 * @author Brandon Smith
+	 * @version 2.0
+	 */	
 	public void rm(TextArea foo)
 	{
 		remove(foo);
 	}
 	
+	/**
+	 * This method removes a Button from the applet
+	 * @param foo The Button that gets removed.
+	 * @author Brandon Smith
+	 * @version 2.0
+	 */
 	public void rm(Button foo)
 	{
 		remove(foo);
 	}
 	
+	/**
+	 * This method adds a TextField to the applet
+	 * @param foo The TextField that gets added.
+	 * @author Brandon Smith
+	 * @version 2.0
+	 */
 	public void ad(TextField foo)
 	{
 		add(foo);
 	}
 	
+	/**
+	 * This method adds a TextArea to the applet
+	 * @param foo The TextArea that gets added.
+	 * @author Brandon Smith
+	 * @version 2.0
+	 */
 	public void ad(TextArea foo)
 	{
 		add(foo);
 	}
 	
+	/**
+	 * This method adds a Button to the applet
+	 * @param foo The Button that gets added.
+	 * @author Brandon Smith
+	 * @version 2.0
+	 */
 	public void ad(Button foo)
 	{
 		add(foo);
