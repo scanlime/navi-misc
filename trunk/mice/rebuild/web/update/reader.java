@@ -6,11 +6,14 @@
  
 public class reader
 {
-	//My information
-	private String header = "";
-	private String footer = "";
-	private String notice = "";
-	private String question="";
+	/** The header that has all the form stuff and whatnot. */
+	public String header = "";
+	/** The footer that finishes the form stuff off. */
+	public String footer = "";
+	/** The platonic form of an administrator/moderator notice. */
+	public String notice = "";
+	/** The platonic form of a question. */
+	public String question="";
 	
 	/**
 	 * This constructs the template information from the file
