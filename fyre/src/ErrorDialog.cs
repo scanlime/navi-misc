@@ -20,17 +20,15 @@
  *
  */
 
-using System;
-
 namespace Fyre
 {
-	class ErrorDialog : Gtk.Dialog
+	class Dialog : Gtk.Dialog
 	{
 		[Glade.Widget] Gtk.HBox		toplevel;
-		[Glade.Widget] Gtk.Label	label;
+		[Glade.Widget] Gtk.Label	label1, label2;
 
 		public
-		ErrorDialog (string summary, string description)
+		Dialog (string summary, string description)
 		{
 			Title = "";
 			BorderWidth = 6;
@@ -41,15 +39,26 @@ namespace Fyre
 			Glade.XML xml = new Glade.XML (null, "error-dialog.glade", "toplevel", null);
 			xml.Autoconnect (this);
 
-			label.Markup = "<span weight=\"bold\" size=\"larger\">" + summary + "</span>\n\n" + description;
+			label1.Markup = "<span weight=\"bold\" size=\"larger\">" + summary + "</span>";
+			label2.Text = description;
 
 			VBox.PackStart (toplevel, true, true, 0);
+		}
+	}
 
+	class ErrorDialog : Dialog
+	{
+		[Glade.Widget] Gtk.Image	image;
+
+		public
+		ErrorDialog (string summary, string description) : base (summary, description)
+		{
+			image.SetFromStock (Gtk.Stock.DialogError, Gtk.IconSize.Dialog);
 			AddButton (Gtk.Stock.Ok, Gtk.ResponseType.Ok);
 		}
 	}
 
-	class WarningDialog : ErrorDialog
+	class WarningDialog : Dialog
 	{
 		[Glade.Widget] Gtk.Image	image;
 
@@ -57,6 +66,18 @@ namespace Fyre
 		WarningDialog (string summary, string description) : base (summary, description)
 		{
 			image.SetFromStock (Gtk.Stock.DialogWarning, Gtk.IconSize.Dialog);
+			AddButton (Gtk.Stock.Ok, Gtk.ResponseType.Ok);
+		}
+	}
+
+	class ConfirmDialog : Dialog
+	{
+		[Glade.Widget] Gtk.Image	image;
+
+		public
+		ConfirmDialog (string summary, string description) : base (summary, description)
+		{
+			image.SetFromStock (Gtk.Stock.DialogQuestion, Gtk.IconSize.Dialog);
 		}
 	}
 }
