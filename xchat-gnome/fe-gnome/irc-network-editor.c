@@ -75,10 +75,23 @@ edit_server_clicked (GtkButton *button, IrcNetworkEditor *e)
 }
 
 static void
+server_selection_changed (GtkTreeSelection *selection, IrcNetworkEditor *e)
+{
+	if (gtk_tree_selection_get_selected (selection, NULL, NULL)) {
+		gtk_widget_set_sensitive (e->edit_server, TRUE);
+		gtk_widget_set_sensitive (e->remove_server, TRUE);
+	} else {
+		gtk_widget_set_sensitive (e->edit_server, FALSE);
+		gtk_widget_set_sensitive (e->remove_server, FALSE);
+	}
+}
+
+static void
 irc_network_editor_init (IrcNetworkEditor *dialog)
 {
 	GtkSizeGroup *group;
 	gchar **enc;
+	GtkTreeSelection *selection;
 
 	dialog->gconf = NULL;
 	dialog->network = NULL;
@@ -157,6 +170,9 @@ irc_network_editor_init (IrcNetworkEditor *dialog)
 	g_signal_connect (G_OBJECT (dialog->use_globals), "toggled", G_CALLBACK (use_globals_set),     dialog);
 	g_signal_connect (G_OBJECT (dialog->use_custom),  "toggled", G_CALLBACK (use_custom_set),      dialog);
 	g_signal_connect (G_OBJECT (dialog->edit_server), "clicked", G_CALLBACK (edit_server_clicked), dialog);
+
+	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (dialog->servers));
+	g_signal_connect (G_OBJECT (selection), "changed", G_CALLBACK(server_selection_changed), dialog);
 }
 
 GType
@@ -230,6 +246,11 @@ irc_network_editor_populate (IrcNetworkEditor *e)
 		gtk_entry_set_text (GTK_ENTRY (e->nickname), e->network->nick);
 		gtk_entry_set_text (GTK_ENTRY (e->realname), e->network->real);
 	}
+
+	gtk_widget_set_sensitive (e->edit_server, FALSE);
+	gtk_widget_set_sensitive (e->remove_server, FALSE);
+	gtk_widget_set_sensitive (e->edit_autojoin, FALSE);
+	gtk_widget_set_sensitive (e->remove_autojoin, FALSE);
 
 	gtk_entry_set_text (GTK_ENTRY (e->password), e->network->password);
 
