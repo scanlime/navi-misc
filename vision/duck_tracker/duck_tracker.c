@@ -121,6 +121,14 @@ struct point_info {
     } camera[2];
 };
 
+struct trail {
+    struct {
+	int x,y;
+	int active;
+    } camera[2];
+} trails[64];
+int trail_head;
+
 struct point_info current_point;
 struct point_info origin_point;
 struct point_info x_point;
@@ -321,19 +329,20 @@ void calculate_position(unsigned char *image)
 
 void display_frames()
 {
-    int camera;
+    int camera, i, j;
 
     if(!freeze && adaptor>=0){
 	for (camera=0; camera < numCameras; camera++)
 	    {
 		unsigned char *cam = (unsigned char*) cameras[camera].capture_buffer;
 		unsigned char *dest = frame_buffer + camera*frame_length;
-		int i=0,j=0;
 		const int NumPixels = device_width*device_height;
 		int y0, y1, y2, y3, u, v;
 		int x, y;
 		int weight=0;
 		float x_sum=0, y_sum=0, total=0;
+
+		i=j=0;
 		for (y=0; y<device_height; y++)
 		    for (x=0; x<device_width; x+=4) {
 			u  = cam[i++];
@@ -390,8 +399,26 @@ void display_frames()
 		    current_point.camera[camera].x = x_sum;
 		    current_point.camera[camera].y = y_sum;
 		    plop_cross(dest, x_sum, y_sum, 50);
+
+		    trails[trail_head].camera[camera].x = x_sum;
+		    trails[trail_head].camera[camera].y = y_sum;
+		    trails[trail_head].camera[camera].active = 1;
+		}
+		else {
+		    trails[trail_head].camera[camera].active = 0;
 		}
 	    }
+
+	trail_head++;
+	if (trail_head >= sizeof(trails)/sizeof(trails[0]))
+	    trail_head=0;
+	for (i=0; i<sizeof(trails)/sizeof(trails[0]); i++) {
+	    for (camera=0; camera<2; camera++) {
+		if (trails[i].camera[camera].active)
+		    plop_cross(frame_buffer + camera*frame_length,
+			       trails[i].camera[camera].x, trails[i].camera[camera].y, 3);
+	    }
+	}
 
 	calculate_position(frame_buffer);
 
