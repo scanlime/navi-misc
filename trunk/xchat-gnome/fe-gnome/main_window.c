@@ -316,7 +316,7 @@ setup_menu ()
 void
 initialize_main_window ()
 {
-	GtkWidget *entry, *topicbox, *topicchange, *menu_vbox;
+	GtkWidget *entry, *topicbox, *topicchange, *menu_vbox, *find;
 	GError *error = NULL;
 
 	gui.main_window = GNOME_APP (glade_xml_get_widget (gui.xml, "xchat-gnome"));
@@ -483,7 +483,7 @@ run_main_window ()
 	pane = glade_xml_get_widget (gui.xml, "HPane");
 	g_signal_connect (G_OBJECT (pane), "notify::position", G_CALLBACK (on_hpane_move), NULL);
 
-	gtk_widget_show_all (GTK_WIDGET (gui.main_window));
+	gtk_widget_show (GTK_WIDGET (gui.main_window));
 }
 
 void
@@ -567,7 +567,7 @@ on_edit_clear_activate (GtkAction *action, gpointer data)
 static void
 on_edit_preferences_activate (GtkAction *action, gpointer data)
 {
-	gtk_widget_show_all (GTK_WIDGET (gui.preferences_dialog));
+	gtk_widget_show (GTK_WIDGET (gui.preferences_dialog));
 }
 
 static void
@@ -1070,7 +1070,7 @@ on_topic_change (GtkButton *widget, gpointer data)
 
 		gtk_text_buffer_get_start_iter (buffer, &start);
 		gtk_text_buffer_get_end_iter (buffer, &end);
-		gtk_widget_hide_all (dialog);
+		gtk_widget_hide (dialog);
 		gtk_text_view_set_wrap_mode (GTK_TEXT_VIEW (entry), GTK_WRAP_NONE);
 		newtopic = gtk_text_buffer_get_text (buffer, &start, &end, FALSE);
 		gui.current_session->server->p_topic(gui.current_session->server, gui.current_session->channel, newtopic);
