@@ -223,7 +223,18 @@ class User:
         return Database.pool.runInteraction(self._test, *capabilities)
 
     def _test(self, cursor, *capabilities):
-        return bool(cursor.execute(self._createTestQuery(self._getUid(cursor), capabilities)))
+        # If the user has been disabled, they have no capabilities
+        cursor.execute("SELECT active FROM users WHERE uid = %d" % self._getUid(cursor))
+        if not int(cursor.fetchone()[0]):
+            return False
+
+        if cursor.execute(self._createTestQuery(self._getUid(cursor), capabilities)):
+            # We do have permission, update the key's access time and return
+            cursor.execute("UPDATE users SET key_atime = %d WHERE uid = %d" %
+                            (time.time(), self._getUid(cursor)))
+            return True
+        else:
+            return False
 
     def grant(self, *capabilities):
         """Grant all capabilities in the given list, ignoring any the user already has"""
