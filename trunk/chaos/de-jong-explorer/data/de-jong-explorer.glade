@@ -42,7 +42,7 @@
 		      <accelerator key="i" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image55">
+			<widget class="GtkImage" id="image80">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-zoom-in</property>
 			  <property name="icon_size">1</property>
@@ -64,7 +64,7 @@
 		      <accelerator key="s" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image56">
+			<widget class="GtkImage" id="image81">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-save-as</property>
 			  <property name="icon_size">1</property>
@@ -97,7 +97,7 @@
 		      <accelerator key="q" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image57">
+			<widget class="GtkImage" id="image82">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-quit</property>
 			  <property name="icon_size">1</property>
@@ -132,7 +132,7 @@
 		      <accelerator key="o" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image58">
+			<widget class="GtkImage" id="image83">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-open</property>
 			  <property name="icon_size">1</property>
@@ -154,7 +154,7 @@
 		      <accelerator key="d" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image59">
+			<widget class="GtkImage" id="image84">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-new</property>
 			  <property name="icon_size">1</property>
@@ -176,7 +176,7 @@
 		      <accelerator key="r" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image60">
+			<widget class="GtkImage" id="image85">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-refresh</property>
 			  <property name="icon_size">1</property>
@@ -186,6 +186,165 @@
 			  <property name="ypad">0</property>
 			</widget>
 		      </child>
+		    </widget>
+		  </child>
+		</widget>
+	      </child>
+	    </widget>
+	  </child>
+
+	  <child>
+	    <widget class="GtkMenuItem" id="mouse_menu">
+	      <property name="visible">True</property>
+	      <property name="label" translatable="yes">Tools</property>
+	      <property name="use_underline">True</property>
+
+	      <child>
+		<widget class="GtkMenu" id="mouse_menu_menu">
+
+		  <child>
+		    <widget class="GtkRadioMenuItem" id="tool_none">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">None</property>
+		      <property name="use_underline">True</property>
+		      <property name="active">True</property>
+		      <accelerator key="n" modifiers="0" signal="activate"/>
+		    </widget>
+		  </child>
+
+		  <child>
+		    <widget class="GtkRadioMenuItem" id="tool_grab">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">Grab</property>
+		      <property name="use_underline">True</property>
+		      <property name="active">False</property>
+		      <property name="group">tool_none</property>
+		      <accelerator key="g" modifiers="0" signal="activate"/>
+		    </widget>
+		  </child>
+
+		  <child>
+		    <widget class="GtkRadioMenuItem" id="tool_blur">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">Blur</property>
+		      <property name="use_underline">True</property>
+		      <property name="active">False</property>
+		      <property name="group">tool_none</property>
+		      <accelerator key="b" modifiers="0" signal="activate"/>
+		    </widget>
+		  </child>
+
+		  <child>
+		    <widget class="GtkRadioMenuItem" id="tool_zoom">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">Zoom</property>
+		      <property name="use_underline">True</property>
+		      <property name="active">False</property>
+		      <property name="group">tool_none</property>
+		      <accelerator key="z" modifiers="0" signal="activate"/>
+		    </widget>
+		  </child>
+
+		  <child>
+		    <widget class="GtkRadioMenuItem" id="tool_rotate">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">Rotate</property>
+		      <property name="use_underline">True</property>
+		      <property name="active">False</property>
+		      <property name="group">tool_none</property>
+		      <accelerator key="r" modifiers="0" signal="activate"/>
+		    </widget>
+		  </child>
+
+		  <child>
+		    <widget class="GtkMenuItem" id="separator1">
+		      <property name="visible">True</property>
+		    </widget>
+		  </child>
+
+		  <child>
+		    <widget class="GtkRadioMenuItem" id="tool_a_b">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">A / B</property>
+		      <property name="use_underline">True</property>
+		      <property name="active">False</property>
+		      <property name="group">tool_none</property>
+		    </widget>
+		  </child>
+
+		  <child>
+		    <widget class="GtkRadioMenuItem" id="tool_a_c">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">A / C</property>
+		      <property name="use_underline">True</property>
+		      <property name="active">False</property>
+		      <property name="group">tool_none</property>
+		    </widget>
+		  </child>
+
+		  <child>
+		    <widget class="GtkRadioMenuItem" id="tool_a_d">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">A / D</property>
+		      <property name="use_underline">True</property>
+		      <property name="active">False</property>
+		      <property name="group">tool_none</property>
+		    </widget>
+		  </child>
+
+		  <child>
+		    <widget class="GtkRadioMenuItem" id="tool_b_c">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">B / C</property>
+		      <property name="use_underline">True</property>
+		      <property name="active">False</property>
+		      <property name="group">tool_none</property>
+		    </widget>
+		  </child>
+
+		  <child>
+		    <widget class="GtkRadioMenuItem" id="tool_b_d">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">B / D</property>
+		      <property name="use_underline">True</property>
+		      <property name="active">False</property>
+		      <property name="group">tool_none</property>
+		    </widget>
+		  </child>
+
+		  <child>
+		    <widget class="GtkRadioMenuItem" id="tool_c_d">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">C / D</property>
+		      <property name="use_underline">True</property>
+		      <property name="active">False</property>
+		      <property name="group">tool_none</property>
+		    </widget>
+		  </child>
+
+		  <child>
+		    <widget class="GtkMenuItem" id="separator3">
+		      <property name="visible">True</property>
+		    </widget>
+		  </child>
+
+		  <child>
+		    <widget class="GtkRadioMenuItem" id="tool_ab_cd">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">AB / CD</property>
+		      <property name="use_underline">True</property>
+		      <property name="active">False</property>
+		      <property name="group">tool_none</property>
+		    </widget>
+		  </child>
+
+		  <child>
+		    <widget class="GtkRadioMenuItem" id="tool_ac_bd">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">AC / BD</property>
+		      <property name="use_underline">True</property>
+		      <property name="active">False</property>
+		      <property name="group">tool_none</property>
 		    </widget>
 		  </child>
 		</widget>
@@ -1011,6 +1170,8 @@ Settings&lt;/b&gt;</property>
 		    <widget class="GtkDrawingArea" id="main_drawingarea">
 		      <property name="visible">True</property>
 		      <signal name="expose_event" handler="on_expose" last_modification_time="Sun, 15 Feb 2004 05:43:44 GMT"/>
+		      <signal name="motion_notify_event" handler="on_motion_notify" last_modification_time="Wed, 18 Feb 2004 01:59:20 GMT"/>
+		      <signal name="button_press_event" handler="on_button_press" last_modification_time="Wed, 18 Feb 2004 02:59:29 GMT"/>
 		    </widget>
 		  </child>
 		</widget>
