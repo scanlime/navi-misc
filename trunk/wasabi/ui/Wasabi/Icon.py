@@ -75,11 +75,8 @@ class Icon:
        imageAspect is the width/height ratio for the image.
        """
     def __init__(self, imageName, text, imageAspect=1):
-        # Load the texture, disable wrapping to avoid half-pixel
-        # artifacts at the edges of the icon.
-        self.texture = Texture.load(imageName)
-        self.texture.setRepeat(GL.GL_CLAMP, GL.GL_CLAMP)
-
+        self.imageName = imageName
+        self.texture = None
         self.text = text
         self.imageAspect = imageAspect
 
@@ -88,6 +85,13 @@ class Icon:
            height and with the specified style. Assumes the OpenGL context
            is already in a GLOrtho-friendly state.
            """
+        # Lazy texture loading
+        if not self.texture:
+            # Load the texture, disable wrapping to avoid half-pixel
+            # artifacts at the edges of the icon.
+            self.texture = Texture.load(self.imageName)
+            self.texture.setRepeat(GL.GL_CLAMP, GL.GL_CLAMP)
+
         # Calculate an aspect-correct width for the icon and draw it centered at the origin
         width = self.imageAspect * height
         GLOrtho.setColor(1,1,1,1)
