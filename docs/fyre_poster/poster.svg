@@ -152,14 +152,14 @@
      inkscape:pageopacity="1.0000000"
      inkscape:pageshadow="2"
      inkscape:zoom="0.61399264"
-     inkscape:cx="2034.4704"
-     inkscape:cy="1039.2964"
+     inkscape:cx="1849.5804"
+     inkscape:cy="2241.6136"
      inkscape:window-width="1394"
      inkscape:window-height="1113"
      showgrid="true"
      snaptogrid="true"
-     inkscape:window-x="140"
-     inkscape:window-y="26"
+     inkscape:window-x="68"
+     inkscape:window-y="15"
      showborder="true"
      showguides="true"
      snaptoguides="true"
@@ -182,6 +182,37 @@
        position="1267.1162"
        id="guide2652" />
   </sodipodi:namedview>
+  <image
+     xlink:href="images/badbif-large.png"
+     sodipodi:absref="/home/micah/navi-misc/docs/fyre_poster/images/badbif-large.png"
+     width="1400.4000"
+     height="467.10001"
+     id="image1138"
+     x="183.49523"
+     y="2059.2967" />
+  <g
+     id="g1087"
+     transform="translate(45.00000,114.7151)"
+     style="">
+    <image
+       xlink:href="images/increased-gamma-larger.png"
+       sodipodi:absref="/home/micah/navi-misc/docs/fyre_poster/images/increased-gamma-larger.png"
+       width="630.00000"
+       height="630.00000"
+       id="image834"
+       x="1672.9062"
+       y="4205.8512"
+       style="" />
+    <image
+       xlink:href="images/decreased-exposure-increased-gamma-larger.png"
+       sodipodi:absref="/home/micah/navi-misc/docs/fyre_poster/images/decreased-exposure-increased-gamma-larger.png"
+       width="630.00000"
+       height="630.00000"
+       id="image835"
+       x="2336.4385"
+       y="4205.8511"
+       style="" />
+  </g>
   <text
      xml:space="preserve"
      style="fill:#000000;stroke:none;font-family:Luxi Sans;font-style:normal;font-weight:normal;font-size:50.000000;font-stretch:normal;font-variant:normal;text-anchor:start;writing-mode:lr;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
@@ -333,68 +364,6 @@
          id="tspan865"
          style="fill:#000000;fill-opacity:1.0000000;">micah@navi.cx</tspan></text>
   </g>
-  <g
-     id="g2782"
-     transform="translate(134.3403,-3187.181)">
-    <g
-       id="g2759"
-       transform="translate(-81.43420,-12.21519)">
-      <image
-         xlink:href="images/increased-gamma-larger.png"
-         sodipodi:absref="/home/micah/navi-misc/docs/fyre_poster/images/increased-gamma-larger.png"
-         width="720.00000"
-         height="720.00000"
-         id="image834"
-         x="1620.0002"
-         y="7375.7090"
-         style="" />
-      <text
-         xml:space="preserve"
-         style="font-size:50.000000;stroke-width:3.0000000pt;font-family:Luxi Sans;font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;text-anchor:middle;writing-mode:lr;"
-         x="1980.0002"
-         y="8125.8736"
-         id="text863"
-         sodipodi:linespacing="120%"><tspan
-           id="tspan864"
-           style="fill:#000000;fill-opacity:1.0000000;">Increased Gamma</tspan></text>
-    </g>
-    <g
-       id="g2764"
-       transform="translate(-154.7250,-12.21513)">
-      <image
-         xlink:href="images/decreased-exposure-increased-gamma-larger.png"
-         sodipodi:absref="/home/micah/navi-misc/docs/fyre_poster/images/decreased-exposure-increased-gamma-larger.png"
-         width="720.00000"
-         height="720.00000"
-         id="image835"
-         x="2356.8232"
-         y="7375.7089"
-         style="" />
-      <text
-         xml:space="preserve"
-         style="font-size:50.000000;stroke-width:3.0000000pt;font-family:Luxi Sans;text-anchor:middle;font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;writing-mode:lr;"
-         x="2716.8232"
-         y="8125.8727"
-         id="text866"
-         sodipodi:linespacing="120%"><tspan
-           id="tspan867"
-           style="fill:#000000;fill-opacity:1.0000000;">Decreased Exposure,</tspan><tspan
-           sodipodi:role="line"
-           id="tspan869"
-           x="2716.8232"
-           y="8185.8726"
-           style="fill:#000000;fill-opacity:1.0000000;">Increased Gamma</tspan></text>
-    </g>
-  </g>
-  <image
-     xlink:href="images/goodbif-large.png"
-     sodipodi:absref="/home/micah/navi-misc/docs/fyre_poster/images/goodbif-large.png"
-     width="1400.6683"
-     height="466.88943"
-     id="image1459"
-     x="180.00000"
-     y="2056.7400"
-     style="" />
   <image
      xlink:href="images/goodbif-large.png"
      sodipodi:absref="/home/micah/navi-misc/docs/fyre_poster/images/goodbif-large.png"
@@ -493,49 +462,6 @@
        x="182.82695"
        y="3534.4060"
        style="letter-spacing:-0.16085768;">as possible in the rendering process, a similar saturation effect can be achieved:</tspan></text>
-  <text
-     xml:space="preserve"
-     style="fill:#000000;stroke:none;font-family:Luxi Sans;font-style:normal;font-weight:normal;font-size:40.000000;font-stretch:normal;font-variant:normal;text-anchor:start;writing-mode:lr;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
-     x="1664.9293"
-     y="3076.3653"
-     id="text1628"
-     sodipodi:linespacing="120%"><tspan
-       id="tspan1629"
-       style="letter-spacing:0.26576617;">The histogram data collected while iterating the chaotic system is treated as a</tspan><tspan
-       sodipodi:role="line"
-       id="tspan2721"
-       x="1664.9293"
-       y="3124.3652"
-       style="letter-spacing:1.3210143;">high dynamic range image. As is common with high dynamic range image </tspan><tspan
-       sodipodi:role="line"
-       id="tspan2733"
-       x="1664.9293"
-       y="3172.3652"
-       style="letter-spacing:0.68125981;">processing, we can perform gamma and exposure adjustment at the original</tspan><tspan
-       sodipodi:role="line"
-       id="tspan2735"
-       x="1664.9293"
-       y="3220.3652"
-       style="letter-spacing:0.42653832;">image's full precision, and use various settings to bring out different details in</tspan><tspan
-       sodipodi:role="line"
-       id="tspan2737"
-       x="1664.9293"
-       y="3268.3652"
-       style="letter-spacing:0.38886997;">the image. This is all done while converting the histogram to an image, so the</tspan><tspan
-       sodipodi:role="line"
-       id="tspan2743"
-       x="1664.9293"
-       y="3316.3652"
-       style="letter-spacing:0.15562886;">exposure, gamma adjustment, and colorization parameters can all be adjusted</tspan><tspan
-       sodipodi:role="line"
-       id="tspan2745"
-       x="1664.9293"
-       y="3364.3652"
-       style="letter-spacing:0.40307873;">in real-time without restarting any calculations. This makes it particularly easy</tspan><tspan
-       sodipodi:role="line"
-       id="tspan2747"
-       x="1664.9293"
-       y="3412.3652">to explore the hidden details in a single histogram:</tspan></text>
   <text
      xml:space="preserve"
      style="fill:#000000;stroke:none;font-family:Luxi Sans;font-style:normal;font-weight:normal;font-size:40.000000;font-stretch:normal;font-variant:normal;text-anchor:start;writing-mode:lr;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
@@ -744,54 +670,152 @@
        y="6885.0000" />
   </g>
   <g
-     id="g2771"
-     transform="translate(1888.935,-3537.348)"
-     style="fill:#000000;fill-opacity:1.0000000;">
-    <g
-       id="g2749"
-       transform="translate(-370.5256,-411.2428)"
-       style="fill:#000000;fill-opacity:1.0000000;">
-      <image
-         xlink:href="images/base-larger.png"
-         sodipodi:absref="/home/micah/navi-misc/docs/fyre_poster/images/base-larger.png"
-         width="720.00000"
-         height="720.00000"
-         id="image828"
-         x="146.35362"
-         y="7375.7090"
-         style="fill:#000000;fill-opacity:1.0000000;" />
-      <text
-         xml:space="preserve"
-         style="font-size:50.000000;stroke-width:3.0000000pt;font-family:Luxi Sans;font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;text-anchor:start;writing-mode:lr;fill:#000000;fill-opacity:1.0000000;"
-         x="372.37863"
-         y="8122.9928"
-         id="text854"
-         sodipodi:linespacing="100%"><tspan
-           id="tspan855"
-           style="fill:#000000;fill-opacity:1.0000000;">Base Image</tspan></text>
-    </g>
-    <g
-       id="g2754"
-       transform="translate(-427.5296,-411.2428)"
-       style="fill:#000000;fill-opacity:1.0000000;">
-      <image
-         xlink:href="images/increased-exposure-larger.png"
-         sodipodi:absref="/home/micah/navi-misc/docs/fyre_poster/images/increased-exposure-larger.png"
-         width="720.00000"
-         height="720.00000"
-         id="image832"
-         x="883.17694"
-         y="7375.7090"
-         style="fill:#000000;fill-opacity:1.0000000;" />
-      <text
-         xml:space="preserve"
-         style="font-size:50.000000;stroke-width:3.0000000pt;font-family:Luxi Sans;font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;text-anchor:start;writing-mode:lr;fill:#000000;fill-opacity:1.0000000;"
-         x="1020.1020"
-         y="8125.8727"
-         id="text860"
-         sodipodi:linespacing="100%"><tspan
-           id="tspan861"
-           style="fill:#000000;fill-opacity:1.0000000;">Increased Exposure</tspan></text>
-    </g>
+     id="g1078"
+     transform="translate(45.00000,46.83103)"
+     style="">
+    <text
+       xml:space="preserve"
+       style="font-size:50.000000;stroke-width:3.0000000pt;font-family:Luxi Sans;text-anchor:middle;"
+       x="1987.9063"
+       y="4926.4775"
+       id="text863"
+       sodipodi:linespacing="120%"><tspan
+         id="tspan864"
+         style="fill:#000000;fill-opacity:1.0000000;">Increased Gamma</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:50.000000;stroke-width:3.0000000pt;font-family:Luxi Sans;text-anchor:middle;"
+       x="2651.4385"
+       y="4926.4776"
+       id="text866"
+       sodipodi:linespacing="120%"><tspan
+         id="tspan867"
+         style="fill:#000000;fill-opacity:1.0000000;">Decreased Exposure,</tspan><tspan
+         sodipodi:role="line"
+         id="tspan869"
+         x="2651.4385"
+         y="4986.4775"
+         style="fill:#000000;fill-opacity:1.0000000;">Increased Gamma</tspan></text>
   </g>
+  <g
+     id="g1090"
+     transform="translate(45.00000,156.8633)"
+     style="">
+    <image
+       xlink:href="images/base-larger.png"
+       sodipodi:absref="/home/micah/navi-misc/docs/fyre_poster/images/base-larger.png"
+       width="630.00000"
+       height="630.00000"
+       id="image828"
+       x="1672.9062"
+       y="3517.1179"
+       style="" />
+    <image
+       xlink:href="images/increased-exposure-larger.png"
+       sodipodi:absref="/home/micah/navi-misc/docs/fyre_poster/images/increased-exposure-larger.png"
+       width="630.00000"
+       height="630.00000"
+       id="image832"
+       x="2336.4385"
+       y="3517.1179"
+       style="" />
+  </g>
+  <g
+     id="g1071"
+     transform="translate(45.00000,149.9220)"
+     style="">
+    <text
+       xml:space="preserve"
+       style="font-size:50.000000;stroke-width:3.0000000pt;font-family:Luxi Sans;"
+       x="1853.9312"
+       y="4174.4017"
+       id="text854"
+       sodipodi:linespacing="100%"><tspan
+         id="tspan855"
+         style="fill:#000000;fill-opacity:1.0000000;">Base Image</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:50.000000;stroke-width:3.0000000pt;font-family:Luxi Sans;"
+       x="2428.3633"
+       y="4176.8018"
+       id="text860"
+       sodipodi:linespacing="100%"><tspan
+         id="tspan861"
+         style="fill:#000000;fill-opacity:1.0000000;">Increased Exposure</tspan></text>
+  </g>
+  <image
+     xlink:href="images/100-percent-organic-large.png"
+     sodipodi:absref="/home/micah/navi-misc/docs/fyre_poster/images/100-percent-organic-large.png"
+     width="585.00000"
+     height="585.00000"
+     id="image1029"
+     x="1755.0000"
+     y="2025.0000" />
+  <image
+     xlink:href="images/energy-ribbon-large.png"
+     sodipodi:absref="/home/micah/navi-misc/docs/fyre_poster/images/energy-ribbon-large.png"
+     width="585.00000"
+     height="585.00000"
+     id="image1030"
+     x="2385.0000"
+     y="2655.0000" />
+  <text
+     xml:space="preserve"
+     style="fill:#000000;stroke:none;font-family:Luxi Sans;font-style:normal;font-weight:normal;font-size:40.000000;font-stretch:normal;font-variant:normal;text-anchor:start;writing-mode:lr;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
+     x="1664.9293"
+     y="3345.5889"
+     id="text1628"
+     sodipodi:linespacing="120%"><tspan
+       id="tspan1629"
+       style="letter-spacing:0.26576617;">The histogram data collected while iterating the chaotic system is treated as a</tspan><tspan
+       sodipodi:role="line"
+       id="tspan2721"
+       x="1664.9293"
+       y="3393.5889"
+       style="letter-spacing:1.3210143;">high dynamic range image. As is common with high dynamic range image </tspan><tspan
+       sodipodi:role="line"
+       id="tspan2733"
+       x="1664.9293"
+       y="3441.5889"
+       style="letter-spacing:0.68125981;">processing, we can perform gamma and exposure adjustment at the original</tspan><tspan
+       sodipodi:role="line"
+       id="tspan2735"
+       x="1664.9293"
+       y="3489.5889"
+       style="letter-spacing:0.42653832;">image's full precision, and use various settings to bring out different details in</tspan><tspan
+       sodipodi:role="line"
+       id="tspan2737"
+       x="1664.9293"
+       y="3537.5889"
+       style="letter-spacing:0.38886997;">the image. This is all done while converting the histogram to an image, so the</tspan><tspan
+       sodipodi:role="line"
+       id="tspan2743"
+       x="1664.9293"
+       y="3585.5889"
+       style="letter-spacing:0.15562886;">exposure, gamma adjustment, and colorization parameters can all be adjusted</tspan><tspan
+       sodipodi:role="line"
+       id="tspan2745"
+       x="1664.9293"
+       y="3633.5889"
+       style="letter-spacing:0.40307873;">in real-time without restarting any calculations. This makes it particularly easy</tspan><tspan
+       sodipodi:role="line"
+       id="tspan2747"
+       x="1664.9293"
+       y="3681.5889">to explore the hidden details in a single histogram:</tspan></text>
+  <image
+     xlink:href="images/red-gaussian2-large.png"
+     sodipodi:absref="/home/micah/navi-misc/docs/fyre_poster/images/red-gaussian2-large.png"
+     width="585.00000"
+     height="585.00000"
+     id="image1031"
+     x="2385.0000"
+     y="2025.0000" />
+  <image
+     xlink:href="images/19-large.png"
+     sodipodi:absref="/home/micah/navi-misc/docs/fyre_poster/images/19-large.png"
+     width="585.00000"
+     height="585.00000"
+     id="image1032"
+     x="1755.0000"
+     y="2655.0000" />
 </svg>
