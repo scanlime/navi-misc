@@ -521,6 +521,39 @@ class Metadata:
            """
         return Database.pool.runInteraction(self._getValue, name, default, typePrefix)
 
+    def getMTime(self, name, default=None):
+        """Returns a Deferred that eventually results in the modification
+           time for the specified metadata object, in seconds since the epoch.
+           This returns the specified default if the item doesn't exist. Note that
+           None might be returned if the object was created before mtime support
+           was included in the metadata table.
+           """
+        return Database.pool.runInteraction(self._getMTime, name, default)
+
+    def getThumbnail(self, name, size):
+        """Returns a thumbnail of the given metadata object
+           (which must have an image/* mime type) no larger than the given size.
+           The return value is a (value, type) tuple.
+           """
+        # First we have to look up the modification time, so old
+        # cached thumbnails can be invalidated.
+        result = defer.Deferred()
+        self.getMTime(name).addCallback(
+            self._getThumbnailWithMTime, name, size, result).addErrback(result.errback)
+        return result
+
+    def _getThumbnailWithMTime(self, mtime, name, size, result):
+        # The rest of getThumbnail. We have the modification time now, so we can
+        # ask the cache to either retrieve or create a thumbnail image.
+        cache = MetadataThumbnailCache()
+        cache.get(self.target.path, name, size, mtime).addCallback(
+            self._finishGetThumbnail, cache, result).addErrback(result.errback)
+
+    def _finishGetThumbnail(self, value, cache, result):
+        # The last step of getThumbnail. We have the finished thumbnail,
+        # return it and the mime type to the result deferred.
+        result.callback((value, cache.mimeType))
+
     def set(self, name, value, mimeType='text/plain'):
         """Set a metadata key, creating it if it doesn't exist"""
         return Database.pool.runInteraction(self._set, name, value, mimeType)
@@ -572,6 +605,16 @@ class Metadata:
                             (mimeType, typePrefix))
         return value
 
+    def _getMTime(self, cursor, name, default):
+        cursor.execute("SELECT mtime FROM stats_metadata WHERE target_path = %s AND name = %s" %
+                       (Database.quote(self.target.path, 'varchar'),
+                        Database.quote(name, 'varchar')))
+        row = cursor.fetchone()
+        if row:
+            return row[0]
+        else:
+            return default
+
     def _dict(self, cursor):
         """Database interaction to return to implement dict()"""
         cursor.execute("SELECT name, value, mime_type FROM stats_metadata WHERE target_path = %s" %
@@ -619,11 +662,14 @@ class Metadata:
 
 
 class MetadataThumbnailCache(Cache.AbstractStringCache):
-    """A cache for thumbnails of image metadata, generated using PIL"""
+    """A cache for thumbnails of image metadata, generated using PIL.
+       The cache is keyed by a target path, metadata key, maximum
+       thumbnail size, and metadata key modification time.
+       """
     # The mime type our generated thumbnails should be in
     mimeType = 'image/png'
 
-    def miss(self, targetPath, metadataKey, size):
+    def miss(self, targetPath, metadataKey, size, mtime=None):
         # Get the metadata value first
         result = defer.Deferred()
         StatsTarget(targetPath).metadata.getValue(metadataKey, typePrefix='image/').addCallback(

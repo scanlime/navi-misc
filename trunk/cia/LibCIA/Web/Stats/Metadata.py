@@ -185,7 +185,8 @@ class MetadataValuePage(resource.Resource):
 
     def render(self, request):
         # Retrieve the metadata value, rendering the page once it arrives
-        self.target.metadata.get(self.key).addCallback(self._render, request).addErrback(request.processingFailed)
+        self.target.metadata.get(self.key).addCallback(
+            self._render, request).addErrback(request.processingFailed)
         return server.NOT_DONE_YET
 
     def _render(self, t, request):
@@ -224,7 +225,7 @@ class ThumbnailRootPage(resource.Resource):
         return ThumbnailPage(self.target, self.key, (width, height))
 
 
-class ThumbnailPage(resource.Resource):
+class ThumbnailPage(MetadataValuePage):
     """A web resource that returns a dynamically generated and cached thumbnail
        of a metadata value that happens to be an image.
        """
@@ -235,15 +236,10 @@ class ThumbnailPage(resource.Resource):
         resource.Resource.__init__(self)
 
     def render(self, request):
-        # Retrieve the thumbnail, rendering our page once it arrives
-        Stats.MetadataThumbnailCache().get(self.target.path, self.key, self.size).addCallback(
+        # Retrieve the thumbnail, rendering the page once it arrives
+        self.target.metadata.getThumbnail(self.key, self.size).addCallback(
             self._render, request).addErrback(request.processingFailed)
         return server.NOT_DONE_YET
-
-    def _render(self, value, request):
-        request.setHeader('content-type', Stats.MetadataThumbnailCache.mimeType)
-        request.write(value)
-        request.finish()
 
 
 class MetadataPage(Template.Page):
