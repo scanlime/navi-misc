@@ -39,8 +39,8 @@ class BaseFeed(Nouvelle.Twisted.Page):
         Nouvelle.Twisted.Page.__init__(self)
 
     def preRender(self, context):
+        context['component'] = self.statsPage.component
         context['request'].setHeader('content-type', 'text/xml')
-        context['statsRootPath'] = self.statsPage.findRootPath(context['request'], 1, absolute=True)
 
     def render_title(self, context):
         return self.target.getTitle()
