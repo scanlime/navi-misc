@@ -65,7 +65,7 @@
 ;        usb_defs.inc   Rev 2.00
 ;
 ;################################################################################
-#include <p16c765.inc>
+#include <p16c745.inc>
 #include "usb_defs.inc"
 
 	__CONFIG  _H4_OSC & _WDT_OFF & _PWRTE_OFF & _CP_OFF
@@ -79,8 +79,6 @@ PCLATH_save	res	1	;  during ISR
 FSR_save	res	1
 PIRmasked	res	1
 USBMaskedInterrupts  res  1
-Button_RA4	res	1	; Makes sure RemoteWakeup is executed just once per RA4 button press
-CUR_STAT	res	1	; Direction cursor moves on the screen
 BUFFER		res	8	; Location for data to be sent to host
 COUNTER		res	1   
 
@@ -247,7 +245,6 @@ Main
 	goto	$-1		; to use for the delay counter.
 
 	clrf	STATUS		; Bank0
-	clrf	Button_RA4	
 	clrf	PORTB
 	clrf	PORTA
 	banksel	TRISA		; Bank 1
@@ -263,46 +260,51 @@ Main
 				;  until the enumeration process to complete.
 
 ;*******************************************************************
-; CursorDemo
-; Generate USB mouse data and send it to the PC
-;*******************************************************************
 
-CursorDemo
-	pagesel CursorDemo
+	banksel COUNTER
+	clrf	COUNTER
+
+MainLoop
+	pagesel MainLoop
 	banksel	INTCON
 	btfss	INTCON,T0IF
-	goto	CursorDemo  ; Wait for a timer interrupt
+	goto	MainLoop    ; Wait for a timer interrupt
 
 	bcf	INTCON,T0IF
 	pagesel ServiceUSB
 	call	ServiceUSB	; see if there are any USB tokens to process
 
 	ConfiguredUSB		; macro to check configuration status
-	pagesel CursorDemo
+	pagesel MainLoop
 	btfss	STATUS,Z	; Z = 1 when configured
-	goto	CursorDemo  ; Wait until we're configured
+	goto	MainLoop    ; Wait until we're configured
 
-	pagesel GetEP1		; Read endpoint 1 into PORTB
-	bankisel PORTB
-	movlw	PORTB
-	movwf	FSR
-	call	GetEP1
+;	pagesel GetEP1		; Read endpoint 1 into PORTB
+;	bankisel PORTB
+;	movlw	PORTB
+;	movwf	FSR
+;	call	GetEP1
 
 	pagesel	PutEP1
-	bankisel BUFFER
-	clrf	BUFFER
+	banksel COUNTER
+	movf	COUNTER, w
+	banksel	BUFFER
+	movwf	BUFFER
 	movlw	1
 	movwf	BUFFER+1
 	movlw	2
 	movwf	BUFFER+2
 	movlw	3
 	movwf	BUFFER+3
+	bankisel BUFFER
 	movlw	BUFFER
 	movwf	FSR
 	movlw	4
 	call	PutEP1
+	btfsc	STATUS, C
+	incf	COUNTER, f
 
-	goto	CursorDemo
+	goto	MainLoop
 
 	end
 

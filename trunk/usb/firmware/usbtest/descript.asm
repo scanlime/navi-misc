@@ -37,7 +37,7 @@
 ;		usb_defs.inc	Rev 2.00
 ;
 ;################################################################################
-#include <p16C765.inc>
+#include <p16C745.inc>
 #include "usb_defs.inc"
 
 USBBANK	code
