@@ -15,7 +15,6 @@ if b.probe() != "memory":
 f = open(sys.argv[1], "rb")
 
 addr = 0x0000
-sys.stdout.write("\n")
 while addr < 0x8000:
     sys.stdout.write("\r0x%04X (%.02f%%)" % (addr, addr * 100.0 / 0x8000))
     b.write(addr, f.read(32))
