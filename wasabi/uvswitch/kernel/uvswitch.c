@@ -100,6 +100,7 @@ static DECLARE_MUTEX(minor_table_mutex);
 
 static int uvswitch_updateStatus(struct usb_uvswitch *dev);
 static int uvswitch_updateCalibration(struct usb_uvswitch *dev);
+static int uvswitch_initCalibration(struct usb_uvswitch *dev);
 
 static int uvswitch_open(struct inode *inode, struct file *file);
 static int uvswitch_release(struct inode *inode, struct file *file);
@@ -137,6 +138,17 @@ static int uvswitch_updateCalibration(struct usb_uvswitch *dev)
 			       dev->calibration.integration_reads,
 			       dev->calibration.precharge_reads,
 			       NULL, 0, REQUEST_TIMEOUT);
+}
+
+/* Set up default values for the ADC calibration */
+static int uvswitch_initCalibration(struct usb_uvswitch *dev)
+{
+	dev->calibration.precharge_reads = 10;
+	dev->calibration.integration_reads = 150;
+	dev->calibration.integration_packets = 10;
+	dev->calibration.threshold = 200;
+
+	uvswitch_updateCalibration(dev);
 }
 
 /* Callback for handling incoming data from the device's interrupt endpoint.
@@ -275,7 +287,7 @@ static int uvswitch_ioctl(struct inode *inode, struct file *file, unsigned int c
 
 	switch(cmd) {
 
-	case UVSWITCHIO_CALIBRATE:
+	case UVSWITCHIO_ADC_CALIBRATE:
 		if (copy_from_user(&dev->calibration, (struct uvswitch_calibration*) arg, sizeof(dev->calibration))) {
 			retval = -EFAULT;
 			break;
@@ -288,6 +300,10 @@ static int uvswitch_ioctl(struct inode *inode, struct file *file, unsigned int c
 			retval = -EFAULT;
 			break;
 		}
+		break;
+
+	case UVSWITCHIO_ADC_RESET:
+		uvswitch_initCalibration(dev);
 		break;
 
 	default:
@@ -501,6 +517,9 @@ static void * uvswitch_probe(struct usb_device *udev, unsigned int ifnum, const 
 	 * above in the Big Giant Memset)
 	 */
 	uvswitch_updateStatus(dev);
+
+	/* Set up default ADC calibration */
+	uvswitch_initCalibration(dev);
 
 	/* Initialize the devfs node for this device and register it */
 	sprintf(name, UVSWITCH_DEV_NAMEFORMAT, dev->minor);
