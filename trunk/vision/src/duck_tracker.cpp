@@ -112,16 +112,19 @@ public:
 int main() {
   IplImage** images;
   int i;
-  DuckTracker trackers[2];
+  int n_cameras;
 
   cv_dc1394_init();
+  n_cameras = cv_dc1394_get_camera_count();
+
+  DuckTracker trackers[n_cameras];
 
   while (cv_sdl_process_events()) {
-    images = cv_dc1394_capture_yuv(2);
+    images = cv_dc1394_capture_yuv(n_cameras);
 
-    for (i=0; i<2; i++)
+    for (i=0; i<n_cameras; i++)
       trackers[i].track_and_show(images[i]);
 
-    cv_sdl_show_yuv_tiles(images, 2, 2);
+    cv_sdl_show_yuv_tiles(images, n_cameras, n_cameras);
   }
 }
