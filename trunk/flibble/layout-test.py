@@ -86,7 +86,7 @@ if __name__ == '__main__':
     # Load the edges into a high-level graph object
     cia = Graph([Edge(a, b) for a, b, s, f in rows])
 
-    test = Graph([
+    testEdges = [
         Edge(1, 2),
         Edge(2, 3),
         Edge(4, 5),
@@ -107,6 +107,10 @@ if __name__ == '__main__':
         Edge(4, 10),
         Edge(5, 11),
         Edge(6, 12),
-        ])
+        Edge(1, 0),
+        ]
+    for i in xrange(40):
+        testEdges.append(Edge(0, 100+i))
+    test = Graph(testEdges)
 
     runLayout(test)

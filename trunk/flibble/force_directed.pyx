@@ -51,7 +51,7 @@ cdef float applySpring(ArrayVertex* v1, ArrayVertex* v2, float naturalLength, fl
     v1.x = v1.x - force.x
     v1.y = v1.y - force.y
     v2.x = v2.x + force.x
-    v2.y = v2.x + force.y
+    v2.y = v2.y + force.y
     return fabs(forceMag)
 
 
@@ -70,7 +70,7 @@ cdef float repel(ArrayVertex* v1, ArrayVertex* v2, float strength):
     length = sqrtf(ab.x * ab.x + ab.y * ab.y)
 
     # Calculate the magnitude of the spring force
-    forceMag = -strength
+    forceMag = -strength / length
 
     # Calculate the actual force using ab's direction and forceMag
     force.x = ab.x / length * forceMag
@@ -80,7 +80,7 @@ cdef float repel(ArrayVertex* v1, ArrayVertex* v2, float strength):
     v1.x = v1.x - force.x
     v1.y = v1.y - force.y
     v2.x = v2.x + force.x
-    v2.y = v2.x + force.y
+    v2.y = v2.y + force.y
     return fabs(forceMag)
 
 
@@ -150,15 +150,15 @@ cdef class Graph:
         energy = 0
 
         # Apply spring forces between the vertices of each edge
-#        for i from 0 <= i < self.numEdges:
-#            edge = &self.edges[i]
-#            energy = energy + applySpring(&self.vertices[edge.a], &self.vertices[edge.b],
-#                                          5, 0.2)
+        for i from 0 <= i < self.numEdges:
+            edge = &self.edges[i]
+            energy = energy + applySpring(&self.vertices[edge.a], &self.vertices[edge.b],
+                                          5, 0.1)
 
         # Apply much longer springs to all other pairs of vertices
         for i from 0 <= i < self.numVertices:
             for j from i < j < self.numVertices:
-                energy = energy + repel(&self.vertices[i], &self.vertices[j], 0.001)
+                energy = energy + repel(&self.vertices[i], &self.vertices[j], 0.01)
 
         return energy
 
