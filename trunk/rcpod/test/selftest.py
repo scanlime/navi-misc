@@ -63,10 +63,11 @@ class SelfTest(RcpodTestCase):
         # Note that this can't test PORT*, since reading them reads the current pin
         # states rather than the output driver states.
 
-        # Test the tristate registers for the first three ports.
-        # The other two can't be reliably tested, since on PIC16C745 hardware they're
-        # not implemented.
-        self.assertEqual(self.rcpod.peek('trisa', 3), [0x3F, 0xFF, 0xC7])
+        # Test the tristate registers for the first three ports on the '745, or all ports on the '765
+        if self.rcpod.model == "PIC16C745":
+            self.assertEqual(self.rcpod.peek('trisa', 3), [0x3F, 0xFF, 0xC7])
+        else:
+            self.assertEqual(self.rcpod.peek('trisa', 5), [0x3F, 0xFF, 0xC7, 0xFF, 0x07])
 
         # Other miscellaneous registers that should be initialized...
         self.assertEqual(self.rcpod.peek('t1con'), 0)
@@ -75,7 +76,7 @@ class SelfTest(RcpodTestCase):
         self.assertEqual(self.rcpod.peek('ccp2con'), 0)
         self.assertEqual(self.rcpod.peek('adcon0'), 0)
         self.assertEqual(self.rcpod.peek('adcon1'), 0)
-        self.assertEqual(self.rcpod.peek('rcsta'), 0)
+        self.assertEqual(self.rcpod.peek('rcsta') & 0xF0, 0)  # Mask off status bits
         self.assertEqual(self.rcpod.peek('txsta'), 2)
 
     def testPinDescInstances(self):
