@@ -141,6 +141,7 @@ void CTestWorld::sendMapTo ( CNetworkPeer &peer )
 	message.AddStr(name.c_str());
 	message.AddStr(skybox.c_str());
 	message.AddStr(groundMaterial.c_str());
+	message.AddStr(wallMaterial.c_str());
 	message.AddF(wallHeight);
 	message.AddF(textureRepeat);
 	message.AddF(size[0]);

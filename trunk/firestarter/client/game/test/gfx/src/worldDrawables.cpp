@@ -83,7 +83,7 @@ void CGroundObject::Init ( void )
 
 #ifdef _DEBUG
 	// make the Xaxis stuff
-	Entity  *ball = CFirestarterLoop::instance().GetSceneManager()->createEntity("xball", "xball.mesh");
+/*	Entity  *ball = CFirestarterLoop::instance().GetSceneManager()->createEntity("xball", "xball.mesh");
 	SceneNode *ballNode = static_cast<SceneNode*>(CFirestarterLoop::instance().GetSceneManager()->getRootSceneNode()->createChild());
 	ballNode->attachObject(ball);
 	ballNode->translate(10,0,0);
@@ -94,7 +94,7 @@ void CGroundObject::Init ( void )
 	ballNode->attachObject(ball);
 	ballNode->translate(0,10,0);
 	ballNode->rotate(Vector3(1,0,0),90);
-
+*/
 	// make the Zaxis stuff
 	ball = CFirestarterLoop::instance().GetSceneManager()->createEntity("zball", "zball.mesh");
 	ballNode = static_cast<SceneNode*>(CFirestarterLoop::instance().GetSceneManager()->getRootSceneNode()->createChild());
@@ -160,7 +160,7 @@ void CWallObjectFactory::Delete ( CBaseDrawable* object )
 // wall object
 CWallObject::CWallObject()
 {
-	mGroundNode = NULL;
+	mWallNode[0] = mWallNode[1] = mWallNode[2] = mWallNode[3] = NULL;
 }
 
 CWallObject::~CWallObject()
@@ -169,15 +169,63 @@ CWallObject::~CWallObject()
 
 void CWallObject::Init ( void )
 {
-	Mesh* mesh = MeshManager::getSingleton().createPlane("wall0", Plane (Vector3(0,1,0),Vector3(0,0,0),Vector3(1,0,0)),parent->GetValueF("groundSizeX"), parent->GetValueF("groundSizeY"),1,1,true,1,parent->GetValueF("groundTextureRepeat"),parent->GetValueF("groundTextureRepeat"));
+	float x = parent->GetValueF("groundSizeX");
+	float y = parent->GetValueF("groundSizeY");
+	float h = parent->GetValueF("wallHeight");
+	float rep = parent->GetValueF("groundTextureRepeat");
+	std::string	wallTex = parent->GetValueS("wallTexture");
+
+	Mesh* mesh = MeshManager::getSingleton().createPlane("wall0", Plane (Vector3(0,1,0),Vector3(0,0,0),Vector3(1,0,0)),x,h,1,1,true,1,rep,h/x*rep);
 	if (mesh && mesh->getSubMeshIterator().hasMoreElements())
 	{
-		mesh->getSubMeshIterator().getNext()->setMaterialName(parent->GetValueS("wallTexture"));
+		mesh->getSubMeshIterator().getNext()->setMaterialName(wallTex.c_str());
 	}
-	Entity *mWallEntity[0] = CFirestarterLoop::instance().GetSceneManager()->createEntity("Ground","GroundPlane");
-	mGroundEntity->setRenderQueueGroup(RENDER_QUEUE_2);
-	mGroundNode = static_cast<SceneNode*>(CFirestarterLoop::instance().GetSceneManager()->getRootSceneNode()->createChild());
-	mGroundNode->attachObject(mGroundEntity);
+	Entity *mWallEntity = CFirestarterLoop::instance().GetSceneManager()->createEntity("wall01","wall0");
+	mWallEntity->setRenderQueueGroup(RENDER_QUEUE_2);
+	mWallNode[0] = static_cast<SceneNode*>(CFirestarterLoop::instance().GetSceneManager()->getRootSceneNode()->createChild());
+	mWallNode[0]->attachObject(mWallEntity);
+	mWallNode[0]->pitch(90.0f);
+	mWallNode[0]->translate(0,y*0.5f,h*0.5f);
+
+	Mesh* mesh2 = MeshManager::getSingleton().createPlane("wall1", Plane (Vector3(0,1,0),Vector3(0,0,0),Vector3(1,0,0)),x,h,1,1,true,1,rep,h/x*rep);
+	if (mesh2 && mesh2->getSubMeshIterator().hasMoreElements())
+	{
+		mesh2->getSubMeshIterator().getNext()->setMaterialName(wallTex.c_str());
+	}
+	Entity *mWallEntity2 = CFirestarterLoop::instance().GetSceneManager()->createEntity("wall02","wall1");
+	mWallEntity2->setRenderQueueGroup(RENDER_QUEUE_2);
+	mWallNode[1] = static_cast<SceneNode*>(CFirestarterLoop::instance().GetSceneManager()->getRootSceneNode()->createChild());
+	mWallNode[1]->attachObject(mWallEntity2);
+	mWallNode[1]->roll(180.0);
+	mWallNode[1]->pitch(90.0f);
+	mWallNode[1]->translate(0,-y*0.5f,h*0.5f);
+
+	Mesh* mesh3 = MeshManager::getSingleton().createPlane("wall2", Plane (Vector3(0,1,0),Vector3(0,0,0),Vector3(1,0,0)),y,h,1,1,true,1,rep,h/y*rep);
+	if (mesh3 && mesh3->getSubMeshIterator().hasMoreElements())
+	{
+		mesh3->getSubMeshIterator().getNext()->setMaterialName(wallTex.c_str());
+	}
+	Entity *mWallEntity3 = CFirestarterLoop::instance().GetSceneManager()->createEntity("wall03","wall2");
+	mWallEntity3->setRenderQueueGroup(RENDER_QUEUE_2);
+	mWallNode[2] = static_cast<SceneNode*>(CFirestarterLoop::instance().GetSceneManager()->getRootSceneNode()->createChild());
+	mWallNode[2]->attachObject(mWallEntity3);
+	mWallNode[2]->roll(90.0);
+	mWallNode[2]->pitch(90.0f);
+	mWallNode[2]->translate(-x*0.5f,0,h*0.5f);
+
+
+	Mesh* mesh4 = MeshManager::getSingleton().createPlane("wall3", Plane (Vector3(0,1,0),Vector3(0,0,0),Vector3(1,0,0)),y,h,1,1,true,1,rep,h/y*rep);
+	if (mesh4 && mesh4->getSubMeshIterator().hasMoreElements())
+	{
+		mesh4->getSubMeshIterator().getNext()->setMaterialName(wallTex.c_str());
+	}
+	Entity *mWallEntity4 = CFirestarterLoop::instance().GetSceneManager()->createEntity("wall04","wall3");
+	mWallEntity4->setRenderQueueGroup(RENDER_QUEUE_2);
+	mWallNode[3] = static_cast<SceneNode*>(CFirestarterLoop::instance().GetSceneManager()->getRootSceneNode()->createChild());
+	mWallNode[3]->attachObject(mWallEntity4);
+	mWallNode[3]->roll(-90.0);
+	mWallNode[3]->pitch(90.0f);
+	mWallNode[3]->translate(x*0.5f,0,h*0.5f);
 }
 
 void CWallObject::Think ( void )
