@@ -40,6 +40,10 @@ EXTRA_DIST =				\
 	channel_list.c			\
 	connect_dialog.h		\
 	connect_dialog.c		\
+	eggaccelerators.c		\
+	eggaccelerators.h		\
+	eggcellrendererkeys.c		\
+	eggcellrendererkeys.h		\
 	fe-gnome.c			\
 	gtkutil.h			\
 	gtkutil.c			\
@@ -63,6 +67,8 @@ EXTRA_DIST =				\
 	preferences_irc_page.c		\
 	preferences_plugins_page.h	\
 	preferences_plugins_page.c	\
+	preferences_keybindings_page.c	\
+	preferences_keybindings_page.h	\
 	preferences_servers_page.h	\
 	preferences_servers_page.c	\
 	setup_dialog.h			\
@@ -87,6 +93,10 @@ xchat_gnome_SOURCES =			\
 	channel_list.c			\
 	connect_dialog.h		\
 	connect_dialog.c		\
+	eggaccelerators.c		\
+	eggaccelerators.h		\
+	eggcellrendererkeys.c		\
+	eggcellrendererkeys.h		\
 	fe-gnome.c			\
 	gtkutil.h			\
 	gtkutil.c			\
@@ -111,6 +121,8 @@ xchat_gnome_SOURCES =			\
 	preferences_irc_page.c		\
 	preferences_plugins_page.h	\
 	preferences_plugins_page.c	\
+	preferences_keybindings_page.c	\
+	preferences_keybindings_page.h	\
 	preferences_servers_page.h	\
 	preferences_servers_page.c	\
 	setup_dialog.h			\

@@ -23,6 +23,7 @@
 #include "preferences_irc_page.h"
 #include "preferences_servers_page.h"
 #include "preferences_colors_page.h"
+#include "preferences_keybindings_page.h"
 #include "preferences_plugins_page.h"
 #include "pixmaps.h"
 
@@ -45,6 +46,7 @@ initialize_preferences_dialog ()
 	initialize_file_transfers_page ();
 	initialize_preferences_servers_page ();
 	initialize_preferences_colors_page ();
+	initialize_preferences_keybindings_page ();
 	initialize_preferences_plugins_page ();
 
 	close_button = glade_xml_get_widget (gui.xml, "close preferences");
