@@ -1,5 +1,5 @@
 #WARN    := -W -Wall -Wstrict-prototypes -Wmissing-prototypes
-WARN    :=
+WARN	:=
 INCLUDE := -isystem /lib/modules/`uname -r`/build/include
 CFLAGS  := -O2 -DMODULE -D__KERNEL__ ${WARN} ${INCLUDE}
 CC      := gcc
