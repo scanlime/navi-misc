@@ -4224,6 +4224,8 @@
 
 <widget class="GtkDialog" id="connect to network">
   <property name="border_width">12</property>
+  <property name="width_request">320</property>
+  <property name="height_request">240</property>
   <property name="title" translatable="yes">connect to network</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_NONE</property>
