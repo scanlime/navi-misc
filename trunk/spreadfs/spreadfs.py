@@ -16,7 +16,7 @@
 #
 
 import os, sys, stat, statvfs, random
-import threading, time, anydbm
+import threading, time
 import pinefs.srv
 import pinefs.rpc
 import pinefs.memfs
@@ -187,6 +187,7 @@ class SpreadFile(SpreadFileBase):
         if not self.openedFile:
             self.open()
 
+        print "%s (%d @%d)" % (self.absPath, count, offset)
         self.openedFile.seek(offset)
         return self.openedFile.read(count)
 
@@ -249,42 +250,67 @@ class SpreadMapper:
     DB_HANDLE = "h"
     DB_PATH = "p"
 
-    def __init__(self, fs, filename="mapper.db"):
+    def __init__(self, fs, dbPath="mapper.db"):
         self.fs = fs
         self.lastId = random.randint(0, 0x7FFFFFFF)
         self.handleFactory = pinefs.fsbase.Ctr()
-        self.db = anydbm.open(filename, 'c')
         self.objectCache = {}
+
+        self.dbPath = dbPath
+        for keytype in (self.DB_HANDLE, self.DB_PATH):
+            try:
+                os.makedirs(os.path.join(self.dbPath, keytype))
+            except OSError:
+                pass
+
+    def makeDbKey(self, type, name):
+        """Create a new filename to use as a key for our fs-based database"""
+        # Escape slashes with commas
+        name = name.replace(",", ",,").replace("/", ",_")
+        return os.path.join(self.dbPath, type, name)
+
+    def writeDbKey(self, type, name, value):
+        """Write a value to a database key, overwriting any old value"""
+        k = self.makeDbKey(type, name)
+        if os.path.islink(k):
+            os.unlink(k)
+        try:
+            os.symlink(value, k)
+        except OSError:
+            if not os.path.islink(k):
+                raise
 
     def newHandle(self):
         """Allocate a new handle, ensuring that it doesn't already exist"""
         while 1:
             self.lastId = (self.lastId+1) & 0x7FFFFFFF
             handle = pinefs.fsbase.Ctr.fmt % self.lastId
-            if self.DB_HANDLE + handle not in self.db:
+            if not os.path.islink(self.makeDbKey(self.DB_HANDLE, handle)):
                 return handle
 
     def getObjectFromHandle(self, handle):
-        try:
-            path = self.db[self.DB_HANDLE + handle]
-        except KeyError:
-            return None
-        return self.getObjectFromPath(path)
+        k = self.makeDbKey(self.DB_HANDLE, handle)
+        if os.path.islink(k):
+            path = os.readlink(k)
+            return self.getObjectFromPath(path)
 
     def getHandleFromPath(self, path):
-        try:
-            return self.db[self.DB_PATH + path]
-        except KeyError:
+        k = self.makeDbKey(self.DB_PATH, path)
+        if os.path.islink(k):
+            return os.readlink(k)
+        else:
 
             # Special case- the root handle is hardcoded
             # so that mount points are always valid.
-            if path:
-                handle = self.newHandle()
-            else:
+            if path == '/':
                 handle = pinefs.fsbase.Ctr.fmt % 1
+            else:
+                handle = self.newHandle()
 
-            self.db[self.DB_PATH + path] = handle
-            self.db[self.DB_HANDLE + handle] = path
+            # Add these to our database
+            self.writeDbKey(self.DB_PATH, path, handle)
+            self.writeDbKey(self.DB_HANDLE, handle, path)
+
             return handle
 
     def getObjectFromPath(self, path):
@@ -325,7 +351,7 @@ class SpreadFilesystem:
         self.diskSet = diskSet
         self.openFiles = []
         self.mapper = SpreadMapper(self)
-        self.rootHandle = self.mapper.getHandleFromPath('')
+        self.rootHandle = self.mapper.getHandleFromPath('/')
 
     def mount(self, path):
         """Mount this file system starting at the given path.
@@ -369,9 +395,9 @@ class SpreadNfsServer(pinefs.srv.NfsSrv):
     def NFSPROC_STATFS(self, fh):
         """Use the DiskSet's statvfs() implementation"""
         vfstat = self.fs.diskSet.statvfs()
-        stat = rfc1094.statfsres ()
+        stat = rfc1094.statfsres()
         stat.status = rfc1094.NFS_OK
-        stat._data = stat.info (
+        stat._data = stat.info(
             tsize  = 1024 * 16,  # Optimum transfer size
             bsize  = vfstat[statvfs.F_BSIZE],
             blocks = vfstat[statvfs.F_BLOCKS],
