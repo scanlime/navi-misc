@@ -3,5 +3,6 @@
   The master list of sets
 -->
 <sets>
-  <set name="blocking set 1" href="blocking-set-1.xml"/>
+  <set name="blocking set 1" href="blocking-set-1.xml" level="yellow"/>
+  <set name="kicking set 1" href="kicking-set-1.xml" level="orange"/>
 </sets>
