@@ -1,7 +1,4 @@
 #include <FieldSensor.h>
-#include <SDL/SDL.h>
-#include <GL/gl.h>
-#include <GL/glu.h>
 #include <math.h>
 
 class game {
@@ -141,24 +138,6 @@ private:
   
 
 int main(void) {
-  SDL_Init(SDL_INIT_VIDEO);
-  SDL_Surface *surface = SDL_SetVideoMode(1024,768,0,SDL_OPENGL);
-
-  glEnable(GL_BLEND);
-  glEnable(GL_LINE_SMOOTH);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glShadeModel(GL_SMOOTH);
-  glClearColor(0.0, 0.0, 0.0, 0.0);
-  glClearDepth(1.0);
-  glDepthFunc(GL_LEQUAL);
-
-  glViewport(0, 0, surface->w, surface->h);
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-  gluPerspective(45, 1.0*surface->w/surface->h, 0.1, 100.0);
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
-
   game g;
   Uint32 oldTicks = SDL_GetTicks();
 
