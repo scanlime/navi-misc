@@ -114,11 +114,13 @@ class CommitFilter(Filter):
         self.deliverable = True
         self.xml.body.commit.addElement('url', content=url)
 
-    def addFile(self, file):
+    def addFile(self, path, action=None):
         self.deliverable = True
         if not self.xml.body.commit.files:
             self.xml.body.commit.addElement('files')
-        self.xml.body.commit.files.addElement('file', content=file)
+        element = self.xml.body.commit.files.addElement('file', content=path)
+        if action:
+            element['action'] = action
 
     def addLog(self, log):
         self.deliverable = True
