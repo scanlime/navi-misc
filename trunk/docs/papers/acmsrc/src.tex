@@ -86,7 +86,6 @@ Histogram-based imaging techniques have been used previously in the rendering of
 internals of the \emph{Electric Sheep} screen-saver software\cite{sd}.
 
 \section{Uniqueness of the Approach}
-\subsection{Histogram Imaging in Real Time}
 Because total histogram density is maintained during the computation run, the actual
 tone-mapping step can be performed at any time.  This allows a low quality image to
 be produced almost immediately, while further iterations merely add more detail.  Like
@@ -97,13 +96,19 @@ to complete, frames can be rendered at preset time intervals, allowing a user to
 through input parameters until the desired image is seen.  As soon as the parameters
 stop changing, the image quality will start to improve.
 
+This approach makes the algorithm particularly suitable to parallel processing.  If the
+system being visualized converges toward a single attractor, many iteraton or integration
+runs can be performed simultaneously.  Periodically, the histograms produced by each
+of these can be merged.  This can dramatically improve the quality of images, and makes
+this technique feasable even for slow computations and high-dimensional systems where a
+plane of section is used to produce the image.
 
 \section{Results and Contributions}
 
 \begin{thebibliography}{77}
 \bibitem{kd} Devlin, Kate: ``A Review of Tone Reproduction Techniques'' {\it Technical Report CSTR-02-005,} Department of Computer Science, University of Bristol, November 2002.
 \bibitem{sd} Draves, Scott: ``The Fractal Flame Algorithm.'' Available online, http://flam3.com/flame.pdf
-\bibitem{fdjd} Durand, F. and J. Dorsey: ``Interactive Tone Mapping,'' {\it Rendering Techniques 2000: 11th Eurographics Workshop on Rendering,} pp. 219-230, Eurographics, June 2000. ISBN 3-211-83535.
+% \bibitem{fdjd} Durand, F. and J. Dorsey: ``Interactive Tone Mapping,'' {\it Rendering Techniques 2000: 11th Eurographics Workshop on Rendering,} pp. 219-230, Eurographics, June 2000. ISBN 3-211-83535.
 \bibitem{jt} Tumblin, Jack: {\it Three Methods of Detail-Preserving Contrast Reduction for Displayed Images.} Phd thesis, Georgia Institute of Technology, December 1999.
 \bibitem{jtjhbg} Tumblin, J., J.K. Hodgins and B.K. Guenter: ``Two Methods for Display of High Contrast Images.'' {\it ACM Transactions on Graphics,} 18(1):56-94, January 1999, ISSN 0730-0301.
 \bibitem{gw} Ward, Gregory: ``High dynamic range imaging,'' In {\it Proceedings of the Ninth Colour Imaging Conference,} November 2001.
