@@ -1,6 +1,5 @@
 before release:
   autotools:
-    * remove gtkspell checks for now
     * check for an adequate version of gnome-icon-theme, etc
 
 -----
