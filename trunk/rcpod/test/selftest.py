@@ -369,12 +369,11 @@ class SelfTest(RcpodTestCase):
         self.rcpod.serialTxRxStart("", pyrcpod.device.RCPOD_SCRATCHPAD_SIZE)
 
         self.rcpod.serialTxRxStart([1,36,72,3], 5)
-        self.rcpod.serialTxRxStart([], 5)
-        self.rcpod.serialTxRxStart("", 0)
+        self.rcpod.serialTxRxStart([], 0)
+        self.rcpod.serialTxRxStart("", 5)
         self.rcpod.serialTxRxStart("Hello, World!", 0)
-        while 1:
-            self.rcpod.serialTxRxStart("UUUUUUUUUUUU", 0)
-#            self.rcpod.serialTxRxStart("U" * pyrcpod.device.RCPOD_SCRATCHPAD_SIZE, 0)
+        self.rcpod.serialTxRxStart("U" * pyrcpod.device.RCPOD_SCRATCHPAD_SIZE, pyrcpod.device.RCPOD_SCRATCHPAD_SIZE)
+        self.assertEqual(self.rcpod.serialRxFinish(), [])
 
 
 if __name__ == '__main__':

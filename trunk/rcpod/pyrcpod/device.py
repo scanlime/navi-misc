@@ -258,7 +258,7 @@ class OpenedDevice:
 
     def serialTx(self, txData):
         """Transmit the contents of txData, which may be a list of byte values or a string."""
-        self.serialTxRxStart(TxData, 0)
+        self.serialTxRxStart(txData, 0)
 
     def serialRxStart(self, count):
         """Start receiving up to 'count' bytes"""
@@ -270,8 +270,8 @@ class OpenedDevice:
            """
         buffer = new_ucharArray(RCPOD_SCRATCHPAD_SIZE)
         count = rcpod_SerialRxFinish(self.dev, buffer, RCPOD_SCRATCHPAD_SIZE)
-        data = from_ucharArray(buffer)[:count]
-        delete_ucharArray(arr)
+        data = from_ucharArray(buffer, count)
+        delete_ucharArray(buffer)
         if retType == str:
             s = ""
             for value in data:
