@@ -343,7 +343,13 @@ class SvgRasterizer:
        This provides a render() function that writes the resulting PNG
        image to a file-like object.
        """
-    def __init__(self, dataSource, dpi=None, background=None, bin="sodipodi"):
+    def __init__(self, dataSource,
+                 width      = None,
+                 height     = None,
+                 dpi        = None,
+                 size       = None,
+                 background = None,
+                 bin        = "sodipodi"):
         self.dataSource = dataSource
         self.bin = bin
         self.args = [bin, "-f", "-", "-e", "/dev/stdout"]
@@ -351,6 +357,12 @@ class SvgRasterizer:
             self.args.extend(["-d", str(dpi)])
         if background:
             self.args.extend(["-b", str(background)])
+        if size:
+            self.args.extend(["-w", str(size[0]), "-h", str(size[1])])
+        if width:
+            self.args.extend(["-w", str(width)])
+        if height:
+            self.args.extend(["-h", str(height)])
 
     def __repr__(self):
         return "<SvgRasterizer for %r using %r>" % (self.dataSource, self.args)
@@ -363,14 +375,37 @@ class SvgRasterizer:
 
 
 class RenderCache(Cache.AbstractStringCache):
-    """A cache for the results of running a class' render() function
-       on a file-like object. The results are captured in a StringIO and
-       stored in the cache.
+    """A cache that transparently wraps any object with a render(f) function
+       that writes its results to a file-like object and has a repr() that
+       uniquely represents its state.
 
-       The class must have a repr() that uniquely represents its state
-       for the cache to work properly.
+       Cached results expire after 1 hour by default.
        """
+    def __init__(self, obj, lifespan=60*60):
+        self.obj = obj
+        self.lifespan = lifespan
+
+    def __repr__(self):
+        return "<RenderCache of %r>" % self.obj
+
+    def render(self, f):
+        """A render() function that should appear to work just like the
+           original object's render() function.
+           """
+        result = defer.Deferred()
+        self.get(self.obj).addCallback(
+            self._render, f, result).addErrback(result.errback)
+        return result
+
+    def _render(self, value, f, result):
+        f.write(value)
+        result.callback(None)
+
     def miss(self, obj):
+        """The cache miss function, as required by AbstractStringCache.
+           The cache is keyed on our renderable object, and this eventually
+           returns a string.
+           """
         f = StringIO()
         result = defer.Deferred()
         defer.maybeDeferred(obj.render, f).addCallback(
