@@ -28,7 +28,6 @@
 #include "gameloop.h"
 #include "events.h"
 #include "osfile.h"
-#include <SDL.h>
 
 // C RunTime Header Files
 #include <stdlib.h>
@@ -41,12 +40,6 @@ void OSSleep ( float time )
 {
 #ifdef _WIN32
   Sleep((DWORD)(1000.0f * time));
-	MSG  msg;		// should not need this
-	while( PeekMessage( &msg, NULL, 0U, 0U, PM_REMOVE ) )
-	{
-		TranslateMessage( &msg );
-		DispatchMessage( &msg );
-	} 
 #else
   usleep((unsigned int )(100000 * time));
 #endif
@@ -92,8 +85,6 @@ bool CBaseGameLoop::Main ( int argc, char *argv[] )
 
 void CBaseGameLoop::ClearScene ( void )
 {
-//	return;
-
 	mWindow->removeAllViewports();
 	GetSceneManager()->removeAllCameras();
 	GetSceneManager()->clearScene();
@@ -134,9 +125,6 @@ bool CBaseGameLoop::Run ( void )
 	showDebug = args.GetDataB("showDebug");
 	showDebugOverlay(showDebug);
 
-//	if(!SDL_WasInit(SDL_INIT_EVENTTHREAD))
-//		SDL_InitSubSystem(SDL_INIT_EVENTTHREAD);
-
   if(OnInit())
   {
     OnKill();
@@ -145,15 +133,7 @@ bool CBaseGameLoop::Run ( void )
   mRoot->addFrameListener(this);
 
 	mRoot->startRendering();
-	/*
-  while ( !mWindow->isClosed() && mRoot->renderOneFrame())
-    OSSleep(0.001f);
-
-  if (!mWindow->isClosed())
-    mRoot->shutdown();
-*/
   OnKill();
-//	SDL_Quit();
   return true;
 }
 
@@ -257,31 +237,7 @@ void CBaseGameLoop::OnFrameEnd ( void )
 
 bool CBaseGameLoop::Process ( void )
 {
-  SDL_Event event;
-
   bool bDone = false;
-
-  // Get all the events and dispatch them,
-  // then call game loop.
-	/*SDL_PumpEvents();
-  while (SDL_PollEvent(&event)) 
-  {
-    switch(event.type)
-    {
-      case SDL_QUIT:
-        bDone = true;
-      break;
-
-      case SDL_ACTIVEEVENT:
-        if (event.active.gain == 1)
-	  OnActivate();
-        else
-	  OnDeactivate();
-      break;
-    }
-    CallEventHandaler(event.type,&event);
-  }  */
-  
   input.Process();
   timer.Update();
 	
