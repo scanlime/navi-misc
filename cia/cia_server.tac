@@ -4,7 +4,7 @@
 #
 
 from twisted.application import service, internet
-from twisted.web import server, xmlrpc, static
+from twisted.web import server, xmlrpc, static, vhost
 from LibCIA import Message, Ruleset, IRC, Stats
 from LibCIA import IncomingMail, Interface, Security
 from LibCIA.Web import StatsBrowser, RulesetBrowser
@@ -35,6 +35,9 @@ caps.saveKey('universe', 'data/universe.key')
 webRoot = static.File("htdocs")
 webRoot.putChild('rulesets', RulesetBrowser.RulesetPage(caps=caps, storage=rulesetStorage))
 webRoot.putChild('stats', StatsBrowser.StatsPage(caps=caps, storage=statsStorage))
+
+# Add a VHostMonster we can use to safely proxy requests from Apache running on a different port
+webRoot.putChild('vhost', vhost.VHostMonsterResource())
 
 # Create a root XML-RPC object, with interfaces attached for each subsystem
 rpc = xmlrpc.XMLRPC()
