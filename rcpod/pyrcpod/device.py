@@ -103,9 +103,22 @@ class OpenedRcpod:
         # automatically in reset(), or set manually if reset has been disabled.
         self.setModel(None)
 
+        # Look up our serial number if we have one
+        serialIndex = usbdev_getSerialIndex(availableDevice.usbdev)
+        if serialIndex > 0:
+            self.serial = usbdevh_getString(self.dev, serialIndex)
+            if not self.serial:
+                # Unable to get the serial number?
+                self.serial = None
+        else:
+            self.serial = None
+
         if reset:
             self.reset()
         availableDevice.opened = True
+
+    def __repr__(self):
+        return "<OpenedRcpod model %s, serial %s>" % (self.model, self.serial)
 
     def close(self):
         """Terminate our connection to the rcpod. No attributes
@@ -412,6 +425,12 @@ class Pin:
         return Pin(self.rcpod, self.value | RCPOD_PIN_TRIS | RCPOD_PIN_HIGH)
 
 
+def bcdToString(bcd):
+    """Convert a USB-style BCD version number to a string"""
+    h = hex(bcd)
+    return h[2:-2] + '.' + h[-2:]
+
+
 class AvailableDevice:
     """A class representing an available but not opened rcpod device.
        Wraps the usb_device structure used by librcpod, and provides
@@ -420,6 +439,16 @@ class AvailableDevice:
     def __init__(self, usbdev):
         self.usbdev = usbdev
         self.opened = False
+
+        # Collect info from our descriptor
+        self.version = bcdToString(usbdev_getDeviceVersion(usbdev))
+        self.filename = "%s/%s" % (usbdev_getDirname(usbdev), usbdev_getFilename(usbdev))
+
+    def __repr__(self):
+        return "<pyrcpod.AvailableDevice version %s at %r>" % (self.version, self.filename)
+
+    def __cmp__(self, other):
+        return cmp(self.filename, other.filename)
 
     def open(self, cls=OpenedRcpod, reset=True):
         """Open the device, and wrap it in an OpenedDevice class.

@@ -26,7 +26,7 @@ pattern = range(12, 22)
 while 1:
     for port in pattern:
         io.pinLow(port)
-        time.sleep(0.05)
+        time.sleep(0.02)
     for port in pattern:
         io.pinHigh(port)
-        time.sleep(0.05)
+        time.sleep(0.02)

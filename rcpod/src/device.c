@@ -154,6 +154,9 @@ rcpod_dev* rcpod_Open(struct usb_device *usbdev) {
   return rcpod;
 }
 
+struct usb_dev_handle* rcpod_GetDevHandle(rcpod_dev *rcpod) {
+  return rcpod->usbdevh;
+}
 
 void rcpod_Close(rcpod_dev *rcpod) {
   usb_close(rcpod->usbdevh);

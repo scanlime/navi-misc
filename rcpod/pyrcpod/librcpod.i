@@ -107,4 +107,37 @@
   }
 %}
 
+/* Helpers for looking at the descriptors of devices not yet opened */
+%inline %{
+  int usbdev_getDeviceVersion(struct usb_device *dev) {
+    return dev->descriptor.bcdDevice;
+  }
+
+  int usbdev_getSerialIndex(struct usb_device *dev) {
+    return dev->descriptor.iSerialNumber;
+  }
+
+  const char* usbdev_getFilename(struct usb_device *dev) {
+    return dev->filename;
+  }
+
+  const char* usbdev_getDirname(struct usb_device *dev) {
+    return dev->bus->dirname;
+  }
+  %}
+
+/* You have to open devices before retrieving string descriptors */
+%inline %{
+  const char* usbdevh_getString(rcpod_dev *dev, int index) {
+    /* swig will copy this to a new python string, and we're holding
+     * the interpreter lock- so this is safe, although a bit suboptimal.
+     */
+    static char buffer[256];
+    buffer[0] = 0;
+    buffer[sizeof(buffer)-1] = 0;
+    usb_get_string_simple(rcpod_GetDevHandle(dev), index, buffer, sizeof(buffer));
+    return buffer;
+  }
+  %}
+
 /* The End */
