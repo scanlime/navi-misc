@@ -67,9 +67,9 @@ public class cacher
         else
 	{
 	    if(message.startsWith("/me"))
-		message = "*AIM:"+nick+ message.substring(4);
+		message = nick + " " + message.substring(4);
 	    else
-		message = "<AIM:"+nick+"> " + message;
+		message = nick + " says: " + message;
 	    Justin.me.say(message);
 	}
     }
