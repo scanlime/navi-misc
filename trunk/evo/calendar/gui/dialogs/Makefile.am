@@ -79,9 +79,7 @@ libcal_dialogs_la_SOURCES =	\
 	task-details-page.c	\
 	task-details-page.h	\
 	task-page.c		\
-	task-page.h		
-#	url-editor-dialog.c	\
-#	url-editor-dialog.h	
+	task-page.h
 
 glade_DATA =				\
 	alarm-dialog.glade		\
