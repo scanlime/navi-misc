@@ -1,6 +1,0 @@
-- Add a Nouvelle.CGI module for writing quick CGI scripts using Nouvelle
-
-- A glue module for mod_python. This could provide a callable class with
-  a 'document' member that could easily be used with the Publisher Handler.
-
-- Test cases, real documentation :)
