@@ -1,7 +1,23 @@
 CLASSES=\
+	info.java\
+	authenticate.class\
+	interview.class\
+	moderator.class\
 	admin.class
 
 app: $(CLASSES)
+
+info.class: info.java
+	javac info.java
+
+authenticate.class: authenticate.java
+	javac authenticate.java
+
+interview.class: interview.java
+	javac interview.java
+
+moderator.class: moderator.java
+	javac moderator.java
 
 admin.class: admin.java
 	javac admin.java
