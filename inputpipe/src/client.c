@@ -75,29 +75,67 @@ struct server {
   int received_header;
 };
 
-static struct server* server_new          (const char *host_and_port);
-static void           server_delete       (struct server *self);
+/* One input device and one server struct. We have one connection
+ * for each opened input device we're forwarding.
+ */
+struct connection {
+  char *evdev_path;
+  int evdev_fd;
+  struct server* server;
 
-static void           server_write        (struct server *self,
-				           int packet_type,
-				           int length,
-				           void *content);
-static int            server_read         (struct server *self,
-				           int *length,
-				           void **content);
-static void           server_flush        (struct server *self);
+  int in_connection_list;
+  struct connection *prev, *next;
+};
 
-static int            evdev_new           (const char *path);
-static int            evdev_send_metadata (int evdev, struct server *svr);
-static int            evdev_send_event    (int evdev, struct server *svr);
+/* Global linked list of connections */
+static struct connection *connection_list_head = NULL;
+static struct connection *connection_list_tail = NULL;
 
-static int            event_loop          (struct server *svr,
-					   int evdev);
-static void           event_from_server   (struct server *svr,
-					   int evdev);
-static void           repack_bits         (unsigned long *src,
-					   unsigned char *dest,
-					   int len);
+static int config_verbose = 1;
+
+#define connection_message(self, fmt, ...) do { \
+    if (config_verbose) \
+        fprintf(stderr, "[Device %s] " fmt "\n", self->evdev_path, ## __VA_ARGS__); \
+  } while (0);
+
+static struct server*     server_new          (const char *host_and_port);
+static void               server_delete       (struct server *self);
+
+static void               server_write        (struct server *self,
+					       int packet_type,
+					       int length,
+					       void *content);
+static int                server_read         (struct server *self,
+					       int *length,
+					       void **content);
+static void               server_flush        (struct server *self);
+
+static int                evdev_new           (const char *path);
+static void               evdev_delete        (int evdev);
+static int                evdev_send_metadata (int evdev, struct server *svr);
+static int                evdev_send_event    (int evdev, struct server *svr);
+
+static struct connection* connection_new      (const char *evdev_path,
+					       const char *host_and_port);
+static void               connection_delete   (struct connection *self);
+static void               connection_add_fds  (struct connection *self,
+					       int *fd_max,
+					       fd_set *fd_read);
+static int                connection_poll     (struct connection *self,
+					       fd_set *fd_read);
+
+static void               connection_list_add_fds(int *fd_max,
+						  fd_set *fd_read);
+static void               connection_list_poll(fd_set *fd_read);
+static void               connection_list_append(struct connection *c);
+static void               connection_list_remove(struct connection *c);
+
+static int                event_loop          (void);
+static void               event_from_server   (struct server *svr,
+					       int evdev);
+static void               repack_bits         (unsigned long *src,
+					       unsigned char *dest,
+					       int len);
 
 
 /***********************************************************************/
@@ -285,6 +323,11 @@ static int evdev_new(const char *path)
   return fd;
 }
 
+static void evdev_delete(int evdev)
+{
+  close(evdev);
+}
+
 /* Our bits come from the kernel packed in longs, but for portability
  * on the network we want them packed in bytes. This copies 'len'
  * bit mask bytes, rearranging them as necessary.
@@ -435,6 +478,166 @@ static int evdev_send_event(int evdev, struct server *svr)
 
 
 /***********************************************************************/
+/******************************************************* Connections ***/
+/***********************************************************************/
+
+static struct connection* connection_new(const char *evdev_path,
+					 const char *host_and_port)
+{
+  struct connection* self;
+
+  /* Allocate the new server object */
+  self = malloc(sizeof(struct connection));
+  assert(self != NULL);
+  memset(self, 0, sizeof(struct connection));
+
+  self->evdev_path = strdup(evdev_path);
+  assert(self->evdev_path != NULL);
+
+  connection_message(self, "New connection to %s", host_and_port);
+
+  self->server = server_new(host_and_port);
+  if (!self->server) {
+    connection_delete(self);
+    return NULL;
+  }
+
+  self->evdev_fd = evdev_new(evdev_path);
+  if (self->evdev_fd <= 0) {
+    connection_delete(self);
+    return NULL;
+  }
+
+  /* Tell the server about our device */
+  if (evdev_send_metadata(self->evdev_fd, self->server)) {
+    connection_delete(self);
+    return NULL;
+  }
+
+  connection_list_append(self);
+  connection_message(self, "Connected");
+
+  return self;
+}
+
+static void connection_delete(struct connection *self)
+{
+  connection_message(self, "Disconnected");
+  connection_list_remove(self);
+
+  if (self->server)
+    server_delete(self->server);
+  if (self->evdev_fd > 0)
+    evdev_delete(self->evdev_fd);
+  free(self);
+}
+
+static void connection_add_fds(struct connection *self,
+			       int *fd_max,
+			       fd_set *fd_read)
+{
+  if (fd_max) {
+    if (*fd_max <= self->server->tcp_fd)
+      *fd_max = self->server->tcp_fd + 1;
+    if (*fd_max <= self->evdev_fd)
+      *fd_max = self->evdev_fd + 1;
+  }
+  if (fd_read) {
+    FD_SET(self->server->tcp_fd, fd_read);
+    FD_SET(self->evdev_fd, fd_read);
+  }
+}
+
+static int connection_poll(struct connection *self, fd_set *fd_read)
+{
+  int retval;
+
+  /* Can we read from the server? */
+  if (FD_ISSET(self->server->tcp_fd, fd_read)) {
+    if (feof(self->server->tcp_file)) {
+      connection_message(self, "Connection lost");
+      return 1;
+    }
+    event_from_server(self->server, self->evdev_fd);
+  }
+
+  /* Can we read from the event device?
+   * Poll it whether or not we see any read
+   * activity, to detect device disconnects.
+   */
+  retval = evdev_send_event(self->evdev_fd, self->server);
+  if (retval) {
+    connection_message(self, "Error reading from event device");
+    return retval;
+  }
+
+  return 0;
+}
+
+static void connection_list_append(struct connection *c)
+{
+  if (c->in_connection_list)
+    remove;
+  c->in_connection_list = 1;
+
+  if (connection_list_tail) {
+    c->prev = connection_list_tail;
+    c->prev->next = c;
+  }
+  else {
+    assert(connection_list_head == NULL);
+    connection_list_head = c;
+  }
+  connection_list_tail = c;
+}
+
+static void connection_list_remove(struct connection *c)
+{
+  if (!c->in_connection_list)
+    return;
+  c->in_connection_list = 0;
+
+  if (c->next) {
+    c->next->prev = c->prev;
+  }
+  else {
+    assert(connection_list_tail == c);
+    connection_list_tail = c->prev;
+  }
+  if (c->prev) {
+    c->prev->next = c->next;
+  }
+  else {
+    assert(connection_list_head == c);
+    connection_list_head = c->next;
+  }
+}
+
+static void connection_list_add_fds(int *fd_max, fd_set *fd_read)
+{
+  struct connection *i, *next;
+  i = connection_list_head;
+  while (i) {
+    next = i->next;
+    connection_add_fds(i, fd_max, fd_read);
+    i = next;
+  }
+}
+
+static void connection_list_poll(fd_set *fd_read)
+{
+  struct connection *i, *next;
+  i = connection_list_head;
+  while (i) {
+    next = i->next;
+    if (connection_poll(i, fd_read))
+      connection_delete(i);
+    i = next;
+  }
+}
+
+
+/***********************************************************************/
 /******************************************************* Event Loop ****/
 /***********************************************************************/
 
@@ -458,56 +661,34 @@ static void event_from_server(struct server *svr, int evdev)
   }
 }
 
-/* Listen for input from the server and from the event device,
- * forwarding the received data from one to the other.
- */
-static int event_loop(struct server *svr, int evdev) {
+static int event_loop(void) {
   fd_set fd_read;
-  int fd_count;
+  int fd_max;
   int n;
   struct timeval timeout;
 
-  fd_count = svr->tcp_fd + 1;
-  if (evdev >= fd_count)
-    fd_count = evdev + 1;
-
   while (1) {
     FD_ZERO(&fd_read);
-    FD_SET(svr->tcp_fd, &fd_read);
-    FD_SET(evdev, &fd_read);
+    fd_max = 0;
 
-    timeout.tv_sec = 2;
+    connection_list_add_fds(&fd_max, &fd_read);
+
+    timeout.tv_sec = 1;
     timeout.tv_usec = 0;
 
-    n = select(fd_count, &fd_read, NULL, NULL, &timeout);
+    n = select(fd_max, &fd_read, NULL, NULL, &timeout);
     if (n<0) {
       perror("select");
-      return 1;
+      exit(1);
     }
 
-    /* Can we read from the server? */
-    if (FD_ISSET(svr->tcp_fd, &fd_read)) {
-      if (feof(svr->tcp_file)) {
-        fprintf(stderr, "Connection lost\n");
-	return 1;
-      }
-      event_from_server(svr, evdev);
-    }
-
-    /* Can we read from the event device?
-     * Poll it whether or not we see any read
-     * activity, to detect device disconnects.
-     */
-    n = evdev_send_event(evdev, svr);
-    if (n)
-      return n;
+    connection_list_poll(&fd_read);
   }
-  return 0;
 }
 
 
 int main(int argc, char **argv) {
-  struct server *svr;
+  struct connection *conn;
   int evdev;
 
   if (argc != 3 || argv[1][0]=='-' || argv[2][0]=='-') {
@@ -518,18 +699,11 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-  svr = server_new(argv[1]);
-  if (!svr)
+  conn = connection_new(argv[2], argv[1]);
+  if (!conn)
     return 1;
 
-  evdev = evdev_new(argv[2]);
-  if (evdev < 0)
-    return 1;
-
-  /* Tell the server about our device, then just start forwarding data */
-  if (evdev_send_metadata(evdev, svr))
-    return 1;
-  return event_loop(svr, evdev);
+  return event_loop();
 }
 
 /* The End */
