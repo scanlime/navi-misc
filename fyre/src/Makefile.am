@@ -27,4 +27,26 @@ fyre_SOURCES = 				\
 	screensaver.c			\
 	prefix.c
 
+noinst_HEADERS =			\
+	animation.h			\
+	animation-render-ui.h		\
+	avi-writer.h			\
+	bifurcation-diagram.h		\
+	cell-renderer-bifurcation.h	\
+	cell-renderer-transition.h	\
+	chunked-file.h			\
+	color-button.h			\
+	curve-editor.h			\
+	de-jong.h			\
+	explorer.h			\
+	histogram-imager.h		\
+	histogram-view.h		\
+	iterative-map.h			\
+	math-util.h			\
+	parameter-editor.h		\
+	parameter-holder.h		\
+	prefix.h			\
+	screensaver.h			\
+	spline.h
+
 fyre_LDADD = $(BINRELOC_LIBS) $(PACKAGE_LIBS)
