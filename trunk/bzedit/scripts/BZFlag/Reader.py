@@ -190,21 +190,34 @@ class Reader:
               | objectProperty
             physics = Group(CaselessLiteral('physics') + OneOrMore(physicsProperty) + end)
 
-            worldObject =    \
-                arc          \
-              | box          \
-              | base         \
-              | cone         \
-              | dynamicColor \
-              | link         \
-              | physics      \
-              | pyramid      \
-              | sphere       \
-              | teleporter   \
-              | tetra        \
-              | waterLevel   \
-              | weapon       \
-              | world        \
+            textureMatrixProperty = \
+                Group(CaselessLiteral('fixedshift') + TwoDPoint) \
+              | Group(CaselessLiteral('fixedscale') + TwoDPoint) \
+              | Group(CaselessLiteral('fixedspin') + float) \
+              | Group(CaselessLiteral('fixedcenter') + TwoDPoint) \
+              | Group(CaselessLiteral('shift') + float + float) \
+              | Group(CaselessLiteral('spin') + float) \
+              | Group(CaselessLiteral('scale') + float + float + float + float) \
+              | Group(CaselessLiteral('center') + TwoDPoint) \
+              | objectProperty
+            textureMatrix = Group(CaselessLiteral('textureMatrix') + OneOrMore(textureMatrixProperty) + end)
+
+            worldObject =     \
+                arc           \
+              | box           \
+              | base          \
+              | cone          \
+              | dynamicColor  \
+              | link          \
+              | physics       \
+              | pyramid       \
+              | sphere        \
+              | teleporter    \
+              | tetra         \
+              | textureMatrix \
+              | waterLevel    \
+              | weapon        \
+              | world         \
               | zone
 
             self.grammar = OneOrMore(worldObject)
