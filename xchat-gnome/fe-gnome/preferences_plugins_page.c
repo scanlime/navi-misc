@@ -35,12 +35,10 @@ typedef void (xchat_plugin_get_info) (char **, char **, char **);
 extern GSList *plugin_list; // xchat's list of loaded plugins.
 extern XChatGUI gui;
 
-static void
-on_load_plugin_clicked (GtkButton *button, gpointer user_data);
-static void
-on_unload_plugin_clicked (GtkButton *button, gpointer user_data);
-static void
-xchat_gnome_plugin_add (char *filename);
+static void on_load_plugin_clicked (GtkButton *button, gpointer user_data);
+static void on_unload_plugin_clicked (GtkButton *button, gpointer user_data);
+static void xchat_gnome_plugin_add (char *filename);
+static gboolean set_loaded_if_match (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, gpointer data);
 
 void
 initialize_preferences_plugins_page ()
@@ -97,12 +95,12 @@ void
 preferences_plugins_page_populate()
 {
 	GtkWidget *treeview;
-	GtkListStore *store;
+	GtkTreeModel *model;
 	GSList *list;
 	xchat_plugin *plugin;
 
 	treeview = glade_xml_get_widget (gui.xml, "plugins list");
-	store = GTK_LIST_STORE (gtk_tree_view_get_model (GTK_TREE_VIEW (treeview)));
+	model = gtk_tree_view_get_model (GTK_TREE_VIEW (treeview));
 
 	/* Put our fun, happy plugins of joy into the great list store of pluginny goodness.
 	 * starting with the list of plugins we keep and then the list of plugins loaded by
@@ -115,8 +113,7 @@ preferences_plugins_page_populate()
 		plugin = list->data;
 		if (plugin->version[0] != 0)
 		{
-    	printf ("%s %s\n", plugin->filename, plugin->name);
-			/* FIXME: Code to toggle loaded thingy goes here */
+			gtk_tree_model_foreach (model, set_loaded_if_match, plugin->filename);
 		}
 		list = list->next;
 	}
@@ -202,9 +199,10 @@ xchat_gnome_plugin_add (char *filename)
 	xchat_plugin_get_info *info_func;
 	char *name, *desc, *version;
 
+
 	treeview = glade_xml_get_widget (gui.xml, "plugins list");
 	store = GTK_LIST_STORE (gtk_tree_view_get_model (GTK_TREE_VIEW (treeview)));
-	
+
 	/* For now we are just assuming it's ok to use gmodule, if this is a mistake
 	 * we can change this to match the common plugins stuff so that we use
 	 * gmodule if it's available, otherwise we'll do something else.
@@ -216,12 +214,32 @@ xchat_gnome_plugin_add (char *filename)
 		return;
 	}
 
+	gtk_list_store_append (store, &iter);
+
 	if (g_module_symbol (handle, "xchat_plugin_get_info", (gpointer *)&info_func)) {
 		/* Create a new plugin instance and add it to our list of known plugins. */
 		((xchat_plugin_get_info*)info_func) (&name, &desc, &version);
-		gtk_list_store_append (store, &iter);
 		gtk_list_store_set (store, &iter, 0, name, 1, version, 2, desc, 3, filename, -1);
 	}
-	else
-		printf ("%s: No xchat_plugin_info symbol\n", filename);
+	else {
+		name = rindex (filename, '/') + 1;
+		version = "unknown";
+		desc = "unkown";
+		gtk_list_store_set (store, &iter, 0, name, 1, version, 2, desc, 3, filename, -1);
+	}
+}
+
+static gboolean
+set_loaded_if_match (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, gpointer data)
+{
+	char *filename;
+
+	gtk_tree_model_get (model, iter, 3, &filename, -1);
+
+	if (strcmp ((char*)data, filename) == 0) {
+		gtk_list_store_set (GTK_LIST_STORE (model), iter, 4, TRUE, -1);
+		return TRUE;
+	}
+
+	return FALSE;
 }
