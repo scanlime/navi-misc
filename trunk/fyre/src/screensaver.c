@@ -23,6 +23,7 @@
 
 #include "screensaver.h"
 #include "histogram-view.h"
+#include "de-jong.h"
 
 static void screensaver_class_init(ScreenSaverClass *klass);
 static void screensaver_init(ScreenSaver *self);
