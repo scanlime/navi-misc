@@ -1,29 +1,35 @@
 #!/usr/bin/env python
 ''' trough
     Simple command-line interface to the trough core.
-    It really is.  Believe me.  Yep.
+    It really is.  Believe me.  Yep. Golly.  I wonder why there's a docstring
+    here.
     '''
 
-import CommandLine
+# find a command line interface
+try:    # python 2.3 case
+    import optparse
+except:    # revert to python 2.2 case
+    import optik as optparse
+from Trough import version
 
-# This really needs to go somewhere better.  But for the meantime... it won't.
-version = '0.2.0alpha'
+description = '''Select a random group of files from a cached directory tree.  Prints a randomly selected list of paths to stdout when run without arguments.'''
+
 
 # Set up and run command line parser
 #
-parser = CommandLine.OptionParser (version=version)
+parser = optparse.OptionParser (version=version, description=description)
 parser.add_option('-a','--add',dest='add',action="store_true",
-        help="recursively add path(s) to the playlist")
-parser.add_option('-c','--config',dest='conffile',type="string",
-        help="use alternate config directory (default: ~/.trough)")
+        help="add path(s) in argument(s) to the stored directory trees")
+parser.add_option('-c','--config',dest='confdir',type="string",
+        help="use alternate config directory (default is ~/.trough)")
 parser.add_option('-d','--delete',dest='delete',action="store_true",
-        help="delete trees from tree database")
+        help="remove path(s) in argument(s) to the stored directory trees")
 parser.add_option('-i','--info',dest='info',action="store_true",
-        help="retrieve information about the current trees")
+        help="retrieve stored tree information")
 parser.add_option('-l','--list',dest='list',action="store_true",
-        help="list roots of stored trees")
+        help="list roots stored tree root(s)")
 parser.add_option('-r','--refresh',dest='refresh',action="store_true",
-        help="refresh all trees in database")
+        help="refresh stored trees in database")
 #parser.add_option('-p','--playlist',dest="playlist",type="string",
 #        help="path to playlist file")
 #parser.add_option('-v','--verbose',dest="verbose",action="store_true",
@@ -37,8 +43,8 @@ import Trough.GroupList
 import sys
 import string
 
-if options.conffile:
-    conf = Trough.Config.Config(options.conffile)
+if options.confdir:
+    conf = Trough.Config.Config(options.confdir)
 else:
     conf = Trough.Config.Config()
 conf.readTrees()
