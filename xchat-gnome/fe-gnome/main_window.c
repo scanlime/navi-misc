@@ -130,6 +130,8 @@ void rename_main_window(gchar *server, gchar *channel) {
 	
 	new_title = g_strconcat (server, ": ", channel, NULL);
 	gtk_window_set_title(GTK_WINDOW(gui.main_window), new_title);
+
+	g_free(new_title);
 }
 
 void on_irc_connect_menu_activate(GtkWidget *widget, gpointer data) {
