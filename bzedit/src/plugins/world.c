@@ -406,21 +406,47 @@ wall_sides_drawable_draw_to_list (DisplayList *dl)
   glLightModeli (GL_LIGHT_MODEL_TWO_SIDE, 1);
 
   glBegin (GL_QUADS);
+  {
+    glNormal3f (0, -1, 0);
+    glTexCoord2f ( wrep,  0);
+    glVertex3f   ( width, depth, 0);
+    glTexCoord2f ( wrep,  1);
+    glVertex3f   ( width, depth, height);
+    glTexCoord2f ( 0,     1);
+    glVertex3f   (-width, depth, height);
+    glTexCoord2f ( 0,     0);
+    glVertex3f   (-width, depth, 0);
 
-  glNormal3f (0, -1, 0);
+    glNormal3f (1, 0, 0);
+    glTexCoord2f ( hrep,   0);
+    glVertex3f   (-width,  depth, 0);
+    glTexCoord2f ( hrep,   1);
+    glVertex3f   (-width,  depth, height);
+    glTexCoord2f ( 0,      1);
+    glVertex3f   (-width, -depth, height);
+    glTexCoord2f ( 0,      1);
+    glVertex3f   (-width, -depth, 0);
 
-  glTexCoord2f ( wrep,  0);
-  glVertex3f   ( width, depth, 0);
+    glNormal3f (0, 1, 0);
+    glTexCoord2f ( 0,      0);
+    glVertex3f   (-width, -depth, 0);
+    glTexCoord2f ( 0,      1);
+    glVertex3f   (-width, -depth, height);
+    glTexCoord2f ( wrep,   1);
+    glVertex3f   ( width, -depth, height);
+    glTexCoord2f ( wrep,   0);
+    glVertex3f   ( width, -depth, 0);
 
-  glTexCoord2f ( wrep,  1);
-  glVertex3f   ( width, depth, height);
-
-  glTexCoord2f ( 0,     1);
-  glVertex3f   (-width, depth, height);
-
-  glTexCoord2f ( 0,     0);
-  glVertex3f   (-width, depth, 0);
-
+    glNormal3f (-1, 0, 0);
+    glTexCoord2f ( 0,     0);
+    glVertex3f   (width, -depth, 0);
+    glTexCoord2f ( 0,     1);
+    glVertex3f   (width, -depth, height);
+    glTexCoord2f ( hrep,  1);
+    glVertex3f   (width,  depth, height);
+    glTexCoord2f ( hrep,  0);
+    glVertex3f   (width,  depth, 0);
+  }
   glEnd ();
 
   glEnable (GL_CULL_FACE);
