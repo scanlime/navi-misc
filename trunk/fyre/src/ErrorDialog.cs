@@ -24,13 +24,24 @@ namespace Fyre
 {
 	class ErrorDialog : Gtk.Dialog
 	{
+		[Glade.Widget] Gtk.HBox		toplevel;
+		[Glade.Widget] Gtk.Label	label;
+
 		public
-		ErrorDialog ()
+		ErrorDialog (string summary, string description)
 		{
 			Title = "";
 			BorderWidth = 6;
 			Resizable = false;
 			HasSeparator = false;
+
+
+			Glade.XML xml = new Glade.XML (null, "error-dialog.glade", "toplevel", null);
+			xml.Autoconnect (this);
+
+			label.Markup = "<span weight=\"bold\" size=\"larger\">" + summary + "</span>\n\n" + description;
+
+			AddButton (Gtk.Stock.Ok, Gtk.ResponseType.Ok);
 		}
 	}
 }
