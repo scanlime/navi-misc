@@ -49,7 +49,9 @@ def test():
             textureUnits = []
             unit = OpenGL.GL.ARB.multitexture.GL_TEXTURE0_ARB
             while True:
+                # Verify that this texture unit actually works
                 OpenGL.GL.ARB.multitexture.glActiveTextureARB(unit)
+                GL.glDisable(GL.GL_TEXTURE_2D)
                 textureUnits.append(unit)
                 unit += 1
         except:
