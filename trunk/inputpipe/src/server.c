@@ -83,6 +83,7 @@ struct listener {
 static char* config_uinput_path = "/dev/uinput";
 static int   config_tcp_port    = IPIPE_DEFAULT_PORT;
 static int   config_verbose     = 1;
+static int   config_inetd_mode  = 0;
 
 /* Global doubly-linked list of clients */
 static struct client* client_list_head = NULL;
@@ -97,7 +98,8 @@ static fd_set fd_request_read, fd_request_write, fd_request_except;
 static fd_set fd_read, fd_write, fd_except;
 int fd_count = 0;
 
-static struct client*   client_new             (int socket_fd);
+static struct client*   client_new             (int tcp_fd,
+						struct sockaddr_in *addr);
 static void             client_delete          (struct client* self);
 static void             client_poll            (struct client* self);
 static const char*      client_format_addr     (struct client* self);
@@ -121,7 +123,7 @@ static int              main_loop              (void);
  */
 #define client_message(self, fmt, ...) do { \
     if (config_verbose) \
-        printf("[Client %s] " fmt "\n", client_format_addr(self), ## __VA_ARGS__); \
+        fprintf(stderr, "[Client %s] " fmt "\n", client_format_addr(self), ## __VA_ARGS__); \
   } while (0);
 
 
@@ -132,25 +134,20 @@ static int              main_loop              (void);
 /* Accept a connection from the given socket fd, returning
  * a new client for that connection.
  */
-static struct client* client_new(int socket_fd)
+static struct client* client_new(int tcp_fd, struct sockaddr_in *addr)
 {
   struct client *self;
-  socklen_t addrlen = sizeof(struct sockaddr_in);
 
   /* Create and init the client itself */
   self = malloc(sizeof(struct client));
   assert(self != NULL);
   memset(self, 0, sizeof(struct client));
 
-  /* Accept the client's connection, save this as our TCP socket */
-  self->tcp_fd = accept(socket_fd, (struct sockaddr*) &self->addr, &addrlen);
-  if (self->tcp_fd < 0) {
-    perror("Accepting client");
-    client_delete(self);
-    return NULL;
-  }
+  /* If we got the address of our client, save that */
+  if (addr)
+    memcpy(&self->addr, addr, sizeof(*addr));
 
-  /* Create a FILE* for our socket, to make buffered I/O easy */
+  self->tcp_fd = tcp_fd;
   self->tcp_file = fdopen(self->tcp_fd, "rw");
   assert(self->tcp_file);
 
@@ -190,12 +187,17 @@ static void client_delete(struct client* self)
 
 static const char* client_format_addr (struct client* self)
 {
-  static char buffer[25];
-  unsigned char *ip = (unsigned char*) &self->addr.sin_addr.s_addr;
-  int port = ntohs(self->addr.sin_port);
-  sprintf(buffer, "%d.%d.%d.%d:%d",
-	  ip[0], ip[1], ip[2], ip[3], port);
-  return buffer;
+  if (self->tcp_fd == fileno(stdin)) {
+    return "stdin";
+  }
+  else {
+    static char buffer[25];
+    unsigned char *ip = (unsigned char*) &self->addr.sin_addr.s_addr;
+    int port = ntohs(self->addr.sin_port);
+    sprintf(buffer, "%d.%d.%d.%d:%d",
+	    ip[0], ip[1], ip[2], ip[3], port);
+    return buffer;
+  }
 }
 
 static void client_poll(struct client* self)
@@ -518,7 +520,7 @@ static struct listener* listener_new(int sock_type, int port)
     fd_count = self->fd + 1;
 
   if (config_verbose) {
-    printf("Listening on port %d\n", port);
+    fprintf(stderr, "Listening on port %d\n", port);
   }
 
   return self;
@@ -536,11 +538,20 @@ static void listener_delete(struct listener* self)
 static void listener_poll(struct listener* self)
 {
   struct client *c;
+  socklen_t addrlen = sizeof(struct sockaddr_in);
+  struct sockaddr_in in_addr;
 
   if (FD_ISSET(self->fd, &fd_read)) {
-    c = client_new(self->fd);
-    if (c)
-      client_list_insert(c);
+    /* Accept the client's connection, save this as our TCP socket */
+    int fd = accept(self->fd, (struct sockaddr*) &in_addr, &addrlen);
+    if (fd < 0) {
+      perror("Accepting client");
+    }
+    else {
+      c = client_new(fd, &in_addr);
+      if (c)
+	client_list_insert(c);
+    }
   }
 }
 
@@ -558,9 +569,22 @@ static int main_loop(void) {
   FD_ZERO(&fd_request_write);
   FD_ZERO(&fd_request_except);
 
-  tcp_listener = listener_new(SOCK_STREAM, config_tcp_port);
-  if (!tcp_listener)
-    return 1;
+  if (config_inetd_mode) {
+    /* In inetd mode, we only have one client connected to stdin.
+     * Otherwise, we create a listener that generates new clients for us.
+     */
+    struct client *c;
+    tcp_listener = NULL;
+    c = client_new(fileno(stdin), NULL);
+    if (c == NULL)
+      return 1;
+    client_list_insert(c);
+  }
+  else {
+    tcp_listener = listener_new(SOCK_STREAM, config_tcp_port);
+    if (!tcp_listener)
+      return 1;
+  }
 
   while (1) {
     memcpy(&fd_read, &fd_request_read, sizeof(fd_set));
@@ -575,7 +599,8 @@ static int main_loop(void) {
     else if (n>0) {
 
       /* Poll all listeners */
-      listener_poll(tcp_listener);
+      if (tcp_listener)
+	listener_poll(tcp_listener);
 
       /* Poll all clients */
       client_iter = client_list_head;
@@ -586,23 +611,29 @@ static int main_loop(void) {
 	client_iter = next_client;
       }
     }
+
+    /* In inetd mode, die after our client disconnects */
+    if (config_inetd_mode && !client_list_head)
+      break;
   }
   return 0;
 }
 
 void usage(char *progname) {
-  printf("Usage: %s [options]\n"
-	 "\n"
-	 "Wait for inputpipe-client processes to connect. Each client process\n"
-	 "can create and control one input device on this system, via the Linux\n"
-	 "'uinput' device.\n"
-	 "\n"
-	 "  -h, --help                     This text\n"
-	 "  -d PATH, --uinput-device=PATH  Set the location of the uinput device node.\n"
-	 "                                 [%s]\n"
-	 "  -p PORT, --port=PORT           Set the port number to listen on [%d]\n"
-	 "  -q, --quiet                    Suppress normal log output\n",
-	 progname, config_uinput_path, config_tcp_port);
+  fprintf(stderr,
+	  "Usage: %s [options]\n"
+	  "\n"
+	  "Wait for inputpipe-client processes to connect. Each client process\n"
+	  "can create and control one input device on this system, via the Linux\n"
+	  "'uinput' device.\n"
+	  "\n"
+	  "  -h, --help                     This text\n"
+	  "  -d PATH, --uinput-device=PATH  Set the location of the uinput device node.\n"
+	  "                                 [%s]\n"
+	  "  -p PORT, --port=PORT           Set the port number to listen on [%d]\n"
+	  "  -i, --inetd                    For running from inetd\n"
+	  "  -q, --quiet                    Suppress normal log output\n",
+	  progname, config_uinput_path, config_tcp_port);
 }
 
 int main(int argc, char **argv) {
@@ -614,10 +645,11 @@ int main(int argc, char **argv) {
       {"uinput-device", 1, 0, 'd'},
       {"port",          1, 0, 'p'},
       {"quiet",         0, 0, 'q'},
+      {"inetd",         0, 0, 'i'},
       {0},
     };
 
-    c = getopt_long(argc, argv, "d:p:q",
+    c = getopt_long(argc, argv, "d:p:qi",
 		    long_options, NULL);
     if (c == -1)
       break;
@@ -633,6 +665,10 @@ int main(int argc, char **argv) {
 
     case 'q':
       config_verbose = 0;
+      break;
+
+    case 'i':
+      config_inetd_mode = 1;
       break;
 
     case 'h':
