@@ -22,10 +22,11 @@ usual XML-RPC support with our own security and exception handling code.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
+from LibCIA import Database
 from twisted.web import xmlrpc, server
 from twisted.internet import defer
 from twisted.python import log
-import xmlrpclib
+import xmlrpclib, time, cPickle
 
 
 class Interface(xmlrpc.XMLRPC):
@@ -148,15 +149,44 @@ class Interface(xmlrpc.XMLRPC):
 
             # A callback invoked when our key is successfully validated
             def keyValidated(x=None):
-                defer.maybeDeferred(f, *args).chainDeferred(result)
+                d = defer.maybeDeferred(f, *args)
+                d.chainDeferred(result)
+                d.addBoth(self.logProtectedCall, path, args, user)
 
             # Check the capabilities asynchronously (requires a database query)
             import Security
-            d = Security.User(key=key).require(*caps)
+            user = Security.User(key=key)
+            d = user.require(*caps)
             d.addCallback(keyValidated)
             d.addErrback(result.errback)
+            d.addErrback(self.logProtectedCall, path, args, user, allowed=False)
             return result
         return rpcWrapper
+
+    def logProtectedCall(self, result, path, args, user, allowed=True):
+        """This should be called when a protected call was attempted,
+           successful or not. It logs the attempt and its results in the
+           audit_trail database. This audit trail can be used for several things-
+           listing recently updated metadata (perhaps for a 'whats new?' page)
+           or detecting and recovering from malicious use of keys.
+           """
+        # Store the first argument separately so we can relatively efficiently search for it
+        if args:
+            main_param = str(args[0])
+        else:
+            main_param = None
+
+        Database.pool.runOperation(
+            "INSERT INTO audit_trail (timestamp, uid, action_domain, action_name,"
+            " main_param, params, allowed, results)"
+            " VALUES(%d, %s, 'protected_call', %s, %s, '%s', %d, '%s')" % (
+            time.time(),
+            Database.quote(user.getCachedUid(), 'bigint'),
+            Database.quote(".".join(path), 'text'),
+            Database.quote(main_param, 'text'),
+            Database.quoteBlob(cPickle.dumps(args, -1)),
+            allowed,
+            Database.quoteBlob(cPickle.dumps(result, -1))))
 
     def _cbRender(self, result, request):
         """Wrap the default _cbRender, converting None (which can't be serialized) into True"""

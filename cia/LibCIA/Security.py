@@ -128,6 +128,13 @@ class User:
             self._validatedUid = self._uncachedGetUid(cursor)
         return self._validatedUid
 
+    def getCachedUid(self):
+        """If we've already looked up this UID before, this will immediately
+           return the UID. It returns None instead of a deferred if we don't
+           know what our UID is yet.
+           """
+        return self._validatedUid
+
     def _uncachedGetUid(self, cursor):
         """Internal function to find a valid UID, without caching"""
         if self._uid is not None:
@@ -226,7 +233,8 @@ class User:
         uid = self._getUid(cursor)
         for capability in capabilities:
             rep = repr(capability)
-            cursor.execute("INSERT IGNORE INTO capabilities (uid, cap_md5, cap_repr) VALUES(%d, %s, %s)" % (
+            cursor.execute("INSERT IGNORE INTO capabilities (uid, cap_md5, cap_repr)"
+                           " VALUES(%d, %s, %s)" % (
                 uid,
                 Database.quote(md5.new(rep).hexdigest(), 'char'),
                 Database.quote(rep, 'text')))
