@@ -154,8 +154,8 @@ class SubscriptionInterface(RpcServer.Interface):
            is a list of URLs the client is interested in monitoring- we have
            to convert those into stats targets.
            """
-        log.msg("RSS 2.0 subscription request: %r" %
-                ((procedureName, clientPort, responderPath, protocol, urls),))
+        log.msg("RSS 2.0 subscription request: %r from client at %r" %
+                ((procedureName, clientPort, responderPath, protocol, urls), self.getClientIP()))
 
 
 class StatsTarget:

@@ -87,4 +87,21 @@ CREATE TABLE IF NOT EXISTS stats_counters
     FOREIGN KEY (target_path) REFERENCES stats_catalog(target_path) ON DELETE CASCADE
 ) TYPE=INNODB;
 
+-- Users can subscribe to changes in stats targets.
+-- Each subscription has an expiration timestamp, so it's not necessary
+-- to check foreign key constraints. Subscriptions have an optional 'scope'
+-- that indicates what part of the stats target they refer to. The 'trigger'
+-- is a pickled (callable, args, kwargs) tuple. callable(*args, **kwargs)
+-- is called when the stats target is modified in a way that matches 'scope'.
+CREATE TABLE IF NOT EXISTS stats_subscriptions
+(
+    target_path  VARCHAR(128) NOT NULL,
+    expiration   BIGINT NOT NULL,
+    scope        VARCHAR(32) NOT NULL,
+    trigger      BLOB NOT NULL,
+
+    INDEX (target_path),
+    INDEX (expiration),
+);
+
 --- The End ---

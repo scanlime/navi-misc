@@ -31,6 +31,35 @@ class Interface(xmlrpc.XMLRPC):
     """A web resource representing a set of XML-RPC functions, optionally
        with other Interfaces attached as subhandlers.
        """
+    _request = None
+
+    def render(self, request):
+        """This is an ugly hack to make the request object available
+           to functions while they're executing without them really being
+           aware of it. This will break horribly if two functions are being
+           processed concurrently.
+           """
+        self._request = request
+        return xmlrpc.XMLRPC.render(self, request)
+
+    def getRequest(self):
+        """Return the current Request instance being serviced, None if
+           we're not currently servicing a request.
+           """
+        return self._request
+
+    def getClientIP(self):
+        """Get the real IP address of our client. This is aware of proxies
+           that support the X-Forwarded-For HTTP header.
+           """
+        # First see if there's an X-Forwarded-For header
+        xff = self._request.getHeader('X-Forwarded-For')
+        if xff:
+            return xff.split(',', 1)[0].strip()
+
+        # Nope, use the IP address as our request is seeing it
+        return self._request.getClientIP()
+
     def _getFunction(self, fqname):
         """Override the default _getFunction with our own that:
            - fixes a bug in nested subhandlers which was present in Twisted until after version 1.1.1
