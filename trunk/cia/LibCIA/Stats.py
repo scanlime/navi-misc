@@ -97,6 +97,18 @@ class StatsInterface(xmlrpc.XMLRPC):
         except:
             Debug.catchFault()
 
+    def xmlrpc_clearTarget(self, path, key):
+        """Deletes any data stored at the stats target with the given path.
+           This is not recursive.
+           """
+        self.caps.faultIfMissing(key, 'universe', 'stats', 'stats.clearTarget', ('stats.path', path))
+        try:
+            self.storage.getPathTarget(path).clear()
+            log.msg("Clearing stats path %r" % path)
+            return True
+        except:
+            Debug.catchFault()
+
 
 class MetadataInterface(xmlrpc.XMLRPC):
     """An XML-RPC interface for querying and modifying stats metadata"""
@@ -337,6 +349,14 @@ class StatsTarget(object):
             return self.pathSegments[-1]
         return 'Stats'
 
+    def clear(self):
+        """Effectively delete this stats target- delete all of its counters,
+           clear its recent messages, clear all of its metadata.
+           """
+        self.counters.clear()
+        self.recentMessages.clear()
+        self.metadata.clear()
+
 
 class Counters(object):
     """A set of counters which are used together to track events
@@ -412,6 +432,12 @@ class Counters(object):
         self.incrementCounter('thisWeek')
         self.incrementCounter('thisMonth')
         self.incrementCounter('forever')
+
+    def clear(self):
+        """Delete all counters"""
+        self.rack.clear()
+        for child in self.rack.catalog():
+            self.rack.child(child).clear()
 
 
 def _test():

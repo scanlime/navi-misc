@@ -859,6 +859,22 @@ class RingBuffer(object):
             self.count -= 1
         self.db['count'] = self.count
 
+    def clear(self):
+        """Delete all contents of this ring buffer"""
+        try:
+            self._load(False)
+        except KeyError:
+            return
+
+        for i in xrange(self.size):
+            try:
+                del self.db[i]
+            except KeyError:
+                pass
+        del self.db['count']
+        del self.db['head']
+        del self.db['size']
+
     def _iter(self, key, count, increment=1):
         """A general iterator for the RingBuffer that starts
            at the given key (after wrapping if necessary) and returns
