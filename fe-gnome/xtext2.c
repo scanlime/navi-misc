@@ -513,7 +513,7 @@ xtext2_realize (GtkWidget *widget)
    * the palette, this will do colors. At init the colors are all set to 0 */
   set_fg (xtext, xtext->priv->fgc, 18);
   set_bg (xtext, xtext->priv->fgc, 19);
-  set_fg (xtext, xtext->priv->fgc, 19);
+  set_fg (xtext, xtext->priv->bgc, 19);
 
   /* draw_directly to window */
   xtext->priv->draw_buffer = widget->window;
@@ -1192,7 +1192,6 @@ render_page (XText2 *xtext)
       {
 	area.x = 0;
 	area.width = width;
-	paint (GTK_WIDGET (xtext), &area);
       }
       f->grid_dirty = TRUE;
       return;
@@ -2369,7 +2368,7 @@ xtext2_refresh (XText2 *xtext)
 #if defined(USE_XLIB) || defined(WIN32)
     if (xtext->priv->transparent)
     {
-      /*
+      /* FIXME
       free_trans (xtext);
       load_trans (xtext);
       */
