@@ -1,4 +1,6 @@
 before release:
+* add/remove in the server list
+* set unimplemented controls unsensitive
   autotools:
     * check for an adequate version of gnome-icon-theme, etc
 
