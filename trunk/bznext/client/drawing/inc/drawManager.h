@@ -60,6 +60,7 @@ public:
 	
 	int New ( const char* name, CBaseObject* parent );
 	bool Delete ( int item );
+	void ClearAll ( void );
 
 protected:
 	typedef std::map<std::string,CBaseDrawableFactory*> factoryMap;
