@@ -22,7 +22,7 @@ Viewers and editors for the metadata associated with each stats target
 #
 
 from twisted.internet import defer
-from twisted.web import resource, server, error
+from twisted.web import resource, server, error, static
 from twisted.protocols import http
 from LibCIA.Web import Template, Keyring
 from LibCIA import Units, Stats, RpcServer
@@ -248,27 +248,30 @@ class MetadataValuePage(resource.Resource):
             ).addErrback(request.processingFailed)
         return server.NOT_DONE_YET
 
+    def renderNoResource(self, request):
+        """Render a 404 error for this request"""
+        request.write(error.NoResource("No such metadata key %r" % self.key).render(request))
+        request.finish()
+
     def _render(self, resultList, request):
         t, mtime = resultList
-        if t:
-            value, mimeType = t
-            request.setHeader('content-type', mimeType)
+        if not t:
+            return self.renderNoResource(request)
 
-            # If this was a conditional If-Modified-Since request,
-            # this will send a NOT_MODIFIED response and no data when
-            # necessary. If we're sending back data, this automatically
-            # sticks on the right Last-Modified header. This will let
-            # browsers cache metadata intelligently, yay.
-            # Note the short circuit logic necessary to avoid the
-            # setLastModified call if we don't know what the modification
-            # time is.
-            if (mtime is None) or (request.setLastModified(mtime) is not http.CACHED):
-                request.write(value)
+        value, mimeType = t
+        request.setHeader('content-type', mimeType)
 
-            request.finish()
-        else:
-            request.write(error.NoResource("No such metadata key %r" % self.key).render(request))
-            request.finish()
+        # If this was a conditional If-Modified-Since request,
+        # this will send a NOT_MODIFIED response and no data when
+        # necessary. If we're sending back data, this automatically
+        # sticks on the right Last-Modified header. This will let
+        # browsers cache metadata intelligently, yay.
+        # Note the short circuit logic necessary to avoid the
+        # setLastModified call if we don't know what the modification
+        # time is.
+        if (mtime is None) or (request.setLastModified(mtime) is not http.CACHED):
+            request.write(value)
+        request.finish()
 
 
 class ThumbnailRootPage(resource.Resource):
@@ -316,6 +319,27 @@ class ThumbnailPage(MetadataValuePage):
             self._render, request
             ).addErrback(request.processingFailed)
         return server.NOT_DONE_YET
+
+    def _render(self, resultList, request):
+        t, mtime = resultList
+        if not t:
+            return self.renderNoResource(request)
+
+        fileObject, mimeType = t
+        request.setHeader('content-type', mimeType)
+
+        if (mtime is not None) and (request.setLastModified(mtime) is http.CACHED):
+            # setLastModified handles sending our mtime to the client. If the client
+            # asked to only retrieve this resource if it's changed, don't send it.
+            request.finish()
+            return
+
+        # Get twisted.static to send over our file efficiently
+        fileObject.seek(0, 2)
+        size = fileObject.tell()
+        fileObject.seek(0)
+        request.setHeader('content-length', str(size))
+        static.FileTransfer(fileObject, size, request)
 
 
 class MetadataPage(Template.Page):

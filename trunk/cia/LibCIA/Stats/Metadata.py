@@ -62,7 +62,7 @@ class Metadata:
     def getThumbnail(self, name, size):
         """Returns a thumbnail of the given metadata object
            (which must have an image/* mime type) no larger than the given size.
-           The return value is a (value, type) tuple.
+           The return value is a (fileObject, type) tuple.
            """
         # First we have to look up the modification time, so old
         # cached thumbnails can be invalidated.
@@ -78,10 +78,10 @@ class Metadata:
         cache.get(self.target, name, size, mtime).addCallback(
             self._finishGetThumbnail, cache, result).addErrback(result.errback)
 
-    def _finishGetThumbnail(self, value, cache, result):
+    def _finishGetThumbnail(self, fileObject, cache, result):
         # The last step of getThumbnail. We have the finished thumbnail,
         # return it and the mime type to the result deferred.
-        result.callback((value, cache.mimeType))
+        result.callback((fileObject, cache.mimeType))
 
     def set(self, name, value, mimeType='text/plain'):
         """Set a metadata key, creating it if it doesn't exist"""
@@ -190,7 +190,7 @@ class Metadata:
         return results
 
 
-class MetadataThumbnailCache(Cache.AbstractStringCache):
+class MetadataThumbnailCache(Cache.AbstractFileCache):
     """A cache for thumbnails of image metadata, generated using PIL.
        The cache is keyed by a target, metadata key, maximum
        thumbnail size, and metadata key modification time.
@@ -224,8 +224,9 @@ class MetadataThumbnailCache(Cache.AbstractStringCache):
         bg.paste(i, (0,0))
 
         bg.thumbnail(size, Image.ANTIALIAS)
-        s = StringIO()
-        bg.save(s, 'PNG')
-        result.callback(s.getvalue())
+
+        tempFilename = self.getTempFilename()
+        bg.save(tempFilename, 'PNG')
+        result.callback(tempFilename)
 
 ### The End ###
