@@ -145,9 +145,128 @@ module n_serial_tx (clk, reset,
 		{tx_stopbit, tx_data}, strobe,
 		{buffered_stopbit, buffered_data}, buffer_clear);
 
+	/* Split the output of the buffer into stop bits and normal bits */
+	wire normal_byte_ready = buffer_full && !tx_stopbit;
+	wire stop_bit_ready = buffer_full && tx_stopbit;
+	wire normal_byte_ack;
+	reg stop_bit_ack;
+	assign buffer_clear = normal_byte_ack || stop_bit_ack;
+
+	/* Serialize the buffered data stream. Note that this
+	 * will not proceed if it encounters a stop bit.
+	 * If ser_ready is high and new data is coming in, ser_strobe
+	 * will go high for each new bit output on ser_data.
+	 */
+	wire ser_data, ser_strobe;
+	reg ser_ready;
+	serializer ser(clk, reset, buffered_data, normal_byte_ready,
+		       normal_byte_ack, ser_data, ser_ready, ser_strobe);
 	
+	/* Our actual serial transmission is divided
+	 * Into four quarters, plus wait states. The four
+	 * quarters correspond to each 1us section of the
+	 * protocol's 4us-long bits.
+	 */
+	reg [2:0] state;
+	parameter
+		S_WAIT_FOR_BIT = 0,
+		S_WAIT = 1,
+		S_WAIT_FOR_TICK = 2,
+		S_Q1 = 3,
+		S_Q2 = 4,
+		S_Q3 = 5;
 
+	reg current_bit;
 
+	always @(posedge clk or posedge reset)
+		if (reset) begin
+
+			state <= S_WAIT_FOR_BIT;
+			ser_ready <= 0;
+			serial_out <= 1;
+			current_bit <= 0;
+			stop_bit_ack <= 0;
+
+		end
+		else case (state)
+
+			S_WAIT_FOR_BIT: begin
+				// Emit a ser_ready pulse to let the serializer know we're
+				// ready for a bit. This is necessary to ensure we alternate
+				// asking for a bit and checking to see whether we got it-
+				// otherwise we will get two bits when we want one.
+
+				if (stop_bit_ready) begin
+					// Insert a stop bit
+					current_bit <= 1;
+					ser_ready <= 0;
+					state <= S_WAIT_FOR_TICK;
+					stop_bit_ack <= 1;
+					ser_ready <= 0;
+				end
+				else if (ser_strobe) begin
+					// Insert a normal bit
+					current_bit <= ser_data;
+					state <= S_WAIT_FOR_TICK;
+					ser_ready <= 0;
+				end
+				else begin
+					// Ask for another bit. Stall for one clock cycle
+					// while the serializer gets it for us.
+					ser_ready <= 1;
+					current_bit <= 0;
+					state <= S_WAIT;
+				end
+			end
+
+			S_WAIT: begin
+				// Do nothing for one cycle, immediately go back to S_WAIT_FOR_BIT
+				state <= S_WAIT_FOR_BIT;
+				ser_ready <= 0;
+			end
+			
+			S_WAIT_FOR_TICK: begin
+				// Between S_WAIT_FOR_BIT and S_Q1, sync to a clock tick
+				if (tick) begin
+					state <= S_Q1;
+					serial_out <= 0;
+				end
+				stop_bit_ack <= 0;
+			end
+
+			S_Q1: begin
+				// First quarter of the output bit, always 1.
+				// The next state is always S_Q2, reflecting the current bit
+				if (tick) begin
+					state <= S_Q2;
+					serial_out <= current_bit;
+				end
+				stop_bit_ack <= 0;
+			end				
+				
+			S_Q2: begin
+				// Second quarter of the output bit, reflects the current bit.
+				// Next state is S_Q3, but serial_out doesn't change.
+				if (tick) begin
+					state <= S_Q3;
+					serial_out <= current_bit;
+				end
+				stop_bit_ack <= 0;
+			end	
+			
+			S_Q3: begin
+				// Third quarter of the output bit, reflects the current bit.
+				// The fourth quarter is always 1. We set that up here, but
+				// there is no explicit state for it- it extends from after this
+				// state until before S_Q1 recurs.
+				if (tick) begin
+					state <= S_WAIT_FOR_BIT;
+					serial_out <= 1;
+				end
+				stop_bit_ack <= 0;
+			end				
+
+		endcase
 endmodule
 
 /* The End */
