@@ -38,7 +38,7 @@ if test "x$MCS" = "x" ; then
         AC_MSG_ERROR([Can't find "mcs" in your PATH])
 fi
 
-PKG_CHECK_MODULES(FYRE, gtk-sharp-2.0 glade-sharp-2.0)
+PKG_CHECK_MODULES(FYRE, gtk-sharp-2.0 glade-sharp-2.0 gnome-sharp-2.0)
 AC_SUBST(FYRE_LIBS)
 
 dnl ################################################################
