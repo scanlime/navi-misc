@@ -24,26 +24,27 @@
 void on_about_close(GtkWidget *widget, gpointer data);
 
 void initialize_about_dialog() {
-	GdkPixbuf *soap;
+	GdkPixbuf *logo;
 	const gchar *authors[] = {
-		"David Trowbridge",
+		"Evan Sheehan",
 		"Dan Kuester",
+		"David Trowbridge",
 		NULL
 	};
 	const gchar *documentors[] = {
 		NULL
 	};
 
-	soap = gdk_pixbuf_new_from_file("data/xchat-gnome-small.png", NULL);
+	logo = gdk_pixbuf_new_from_file("data/xchat-gnome-small.png", NULL);
 	gui.about = GNOME_ABOUT(gnome_about_new(
 		"X-Chat GNOME",
-		"x.x",
-		"Copyright (c) 2004\nDavid Trowbridge and Daniel Kuester",
+		"0.01",
+		"Copyright (c) 2004",
 		"It has been well observed that a trombone\nis not a suitable instrument for a gentleman",
 		authors,
 		documentors,
 		"",
-		soap));
+		logo));
 }
 
 void show_about_dialog() {
