@@ -1,13 +1,11 @@
 <Root>
     <commands>
-        <cmd name="EPublishCalendarPublish" _label="_Publish Calendar Information" />
+        <cmd name="EPublishCalendarPublish"/>
     </commands>
 
     <menu>
         <submenu name="Actions">
-	    <placeholder name="ComponentActionsPlaceholder">
-                <menuitem name="EPublishCalendarPublish" verb="" />
-	    </placeholder>
+            <menuitem verb="EPublishCalendarPublish" _label="_Publish Calendar Information" />
         </submenu>
     </menu>
 </Root>
