@@ -26,19 +26,32 @@ import java.net.*;
 import java.io.*;
 import java.util.*;
 
-public class connection extends Thread
+public class pipe extends Thread
 {
-	public Socket external;
-	public Socket internal;
+	public InputStream in;
+	public OutputStream out;
 	
-	public connection(Socket exter, Socket inter)
+	public pipe(InputStream from, OutputStream to)
 	{
-		external = exter;
-		internal = inter;
+		in = from;
+		out = to;
 	}
 	
 	public void run()
 	{
-		System.out.println("stuff..");
+		int temp;
+		try
+		{
+			while(true)
+			{
+				temp = in.read();
+				if(temp == -1) return;
+				out.write(temp);
+			}
+		}
+		catch(Exception e)
+		{
+			System.out.println(e);
+		}
 	}
 }

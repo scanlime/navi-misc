@@ -1,11 +1,11 @@
 CLASSES =\
-	connection.class\
+	pipe.class\
 	smain.class
 
 prog: $(CLASSES)
 
-connection.class: connection.java
-	javac connection.java
+pipe.class: pipe.java
+	javac pipe.java
 
 smain.class: smain.java
 	javac smain.java
