@@ -77,8 +77,6 @@ void navigation_tree_select_prev_network (NavTree *navtree);
 
 /* Misc. functions. */
 void navigation_tree_set_channel_name (NavTree *navtree, struct session *sess);
-void navigation_tree_set_disconn      (NavTree *navtree, struct session *sess);
-void navigation_tree_set_hilight      (NavTree *navtree, struct session *sess);
 
 /***** NavModel *****/
 #define NAVMODEL_TYPE            (navigation_model_get_type ())
@@ -110,6 +108,9 @@ NavModel* navigation_model_new  (void);
 void navigation_model_add_new_network  (NavModel *model, struct session *sess);
 void navigation_model_add_new_channel  (NavModel *model, struct session *sess);
 void navigation_model_remove           (NavModel *model, struct session *sess);
+
+void navigation_model_set_disconn      (NavModel *model, struct session *sess);
+void navigation_model_set_hilight      (NavModel *model, struct session *sess);
 
 GtkTreeIter* navigation_model_get_iter (NavModel *model, struct session *sess);
 
