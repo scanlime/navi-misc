@@ -306,7 +306,8 @@ class LocalCache(BaseCache):
         # Use the mtime as a stamp to see if our cache is still valid
         mtime = os.stat(filename).st_mtime
         cached = self._getFile(filename)
-        if cached and cached.get('mtime') == str(mtime):
+
+        if cached and int(cached.get('mtime')) == int(mtime):
             # Yay, still valid
             return cached['details']
 

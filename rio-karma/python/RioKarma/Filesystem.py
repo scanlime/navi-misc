@@ -460,8 +460,9 @@ class FileManager:
            objects for its children.
            """
         results = []
-        for details in playlist.details['playlist']:
-            results.extend(self.cache.findFiles(**details))
+        if 'playlist' in playlist.details:
+            for details in playlist.details['playlist']:
+                results.extend(self.cache.findFiles(**details))
         return results
 
     def setPlaylistFiles(self, playlist, children):
