@@ -63,7 +63,10 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 </head>
 <body>
 <h1>PyCAPTCHA Example</h1>
-<h2>%s</h2>
+<p>
+  <b>%s</b>:
+  %s
+</p>
 
 <p><img src="/images/%s"/></p>
 <p>
@@ -82,7 +85,7 @@ Or try...
 
 </body>
 </html>
-""" % (test.__class__.__name__, test.id, test.id, others))
+""" % (test.__class__.__name__, test.__doc__, test.id, test.id, others))
 
     def handleImagePage(self, id):
         test = self.captchaFactory.get(id)
