@@ -74,7 +74,7 @@ mvmtOneFlute = \relative c'' {
 
   % 160
   | b,4\mp \trill ais32( b dis gis ais gis dis b cis[ dis fis b dis fis]) r16
-  | R2.*7
+  | R2.*8
 
   % 168
   | r4. r16 fis,\f fis-. g-. g-. g-.
