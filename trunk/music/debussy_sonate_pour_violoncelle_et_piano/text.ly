@@ -27,3 +27,9 @@ serenadeTempo = \markup {
   \note #"4" #1
   \large \bold ")"
 }
+
+animandoPocoAPocoAgitato = \markup {
+  \large\bold "Animando poco a poco ("
+  Agitato
+  \large\bold ")"
+}
