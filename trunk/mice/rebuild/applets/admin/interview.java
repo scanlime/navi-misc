@@ -147,8 +147,20 @@ public class interview implements ActionListener
 			if(temp.compareTo("") == 0) return false;
 		}
 
-		
-
+		net.write(""+count);
+		temp = net.read();
+		for(i=0;i<count;i++)
+		{
+			if(cbgs[i].getSelectedCheckbox().getLabel().charAt(1) == 'C') //aim
+				net.write(key.encrypt(temp,"AIM0" + usernames[i].getText()));
+			//else if(cbgs[i].getSelectedCheckbox().getLabel().charAt(1) == 'I') //irc
+			//	net.write(key.encrypt(temp,"IRC0" + usernames[i].getText()));
+			else
+				net.write(key.encrypt(temp,usernames[i].getText()));
+			net.write(key.encrypt(temp,passwords[i].getText()));
+		}
+		if(net.read().charAt(0) != '+')
+			return false;
 		return true;
 	}
 }
