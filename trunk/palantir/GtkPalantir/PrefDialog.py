@@ -23,34 +23,36 @@ from Common.Prefs import Prefs
 
 class PrefDialog:
   def __init__(self, tree):
-    self.dialog = tree.get_widget('Preferences')
-    self.navigation = tree.get_widget('prefs navigation')
+    self.tree = tree
+    dialog = tree.get_widget('Preferences')
     self.SetUpNav()
 
     self.prefs = Prefs()
-    
-    self.general = GenPrefs(tree)
+
+    self.general = GenPrefs(self.tree)
     self.general.Set(self.prefs)
 
     # Hook up the buttons.
-    tree.get_widget('pref cancel').connect('clicked',lambda w: self.dialog.hide())
+    tree.get_widget('pref cancel').connect('clicked',lambda w: dialog.hide())
     tree.get_widget('pref apply').connect('clicked', self.SavePrefs)
     tree.get_widget('pref ok').connect('clicked', self.SavePrefs)
-    tree.get_widget('pref ok').connect('clicked', lambda w: self.dialog.hide())
+    tree.get_widget('pref ok').connect('clicked', lambda w: dialog.hide())
 
   def SetUpNav(self):
+    navigation = self.tree.get_widget('prefs navigation')
+
     store = gtk.ListStore(gobject.TYPE_STRING)
-    self.navigation.set_model(model=store)
-    self.navigation.append_column(
-        gtk.TreeViewColumn(cell_renderer=gtk.CellRendererText(), text=1))
-    store.append_row(['General'])
+    navigation.set_model(model=store)
+    navigation.append_column(gtk.TreeViewColumn('Pages', gtk.CellRendererText(), text=1))
+    store.set_value(store.append(), 0,
+        self.tree.get_widget('pref notebook').get_tab_label(self.general.page).get_text())
 
   def SavePrefs(self, widget, data=None):
     self.general.Save(self.prefs)
     self.prefs.Save()
 
   def GetNick(self):
-    return self.prefs.nickname
+    return getattr(self.prefs, 'nickname', '')
 
   def GetQuitMsg(self):
     return self.prefs.quitmsg
