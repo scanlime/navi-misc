@@ -30,8 +30,10 @@ from twisted.python import log
 from twisted.web import xmlrpc
 from twisted.internet import defer, reactor
 from urlparse import urlparse
-import Ruleset, Message, TimeUtil, RpcServer, Database
+import Ruleset, Message, TimeUtil, RpcServer, Database, Cache
 import string, os, time, posixpath, sys, cPickle
+from cStringIO import StringIO
+import Image
 
 
 class StatsURIHandler(Ruleset.RegexURIHandler):
@@ -614,6 +616,26 @@ class Metadata:
                 break
             results.append(row[0])
         return results
+
+
+class MetadataThumbnailCache(Cache.AbstractStringCache):
+    """A cache for thumbnails of image metadata, generated using PIL"""
+    # The mime type our generated thumbnails should be in
+    mimeType = 'image/png'
+
+    def miss(self, targetPath, metadataKey, size):
+        # Get the metadata value first
+        result = defer.Deferred()
+        StatsTarget(targetPath).metadata.getValue(metadataKey, typePrefix='image/').addCallback(
+            self.makeThumbnail, size, result).addErrback(result.errback)
+        return result
+
+    def makeThumbnail(self, imageData, size, result):
+        i = Image.open(StringIO(imageData))
+        i.thumbnail(size, Image.ANTIALIAS)
+        s = StringIO()
+        i.save(s, 'PNG')
+        result.callback(s.getvalue())
 
 
 class Counters:

@@ -101,6 +101,7 @@ Requirements
 - MySQL with support for the InnoDB table type
 - Nouvelle 0.91 or later <http://freshmeat.net/projects/nouvelle/>
 - Docutils <http://docutils.sourceforge.net/>
+- the Python Imaging Library
 
 
 Contacts
