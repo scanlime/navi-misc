@@ -18,9 +18,11 @@ RESPONSE_UNSUPPORTED  = 502
 
 
 class FyreException(Exception):
-    def __init__(self, code, message, command):
-        Exception.__init__(self, "%d %s (in response to %r)" %
-                           (code, message, command))
+    def __init__(self, code, message, command=None):
+        msg = "%d %s" % (code, message)
+        if command:
+            msg = "%s (in response to %r" % (msg, command)
+        Exception.__init__(self, msg)
 
 
 class FyreServer:
@@ -32,6 +34,11 @@ class FyreServer:
         self.socket.connect((host, port))
         self.file = self.socket.makefile()
         self.asyncQueue = []
+
+        # Read the server's greeting
+        code, message = self._readResponse()
+        if code != RESPONSE_READY:
+            raise FyreException(code, message)
 
     def flush(self):
         """Send all pending asynchronous commands. If any
