@@ -20,7 +20,7 @@ $result = mysql_query( $query )
 $lastID = mysql_insert_id();
 
 echo 'add processed<br>servername=' . $servername . ':' . $port;
-echo '<br>id=' . $lastID;
+echo '<br>id=' . $lastID.'&nbsp';
 
 echo '</body></html>';
 
