@@ -13,7 +13,7 @@ schema_DATA	= apps_xchat.schemas.in.in
 
 # @INTLTOOL_SCHEMAS_RULE@
 
-desktopdir = /usr/share/applications
+desktopdir = $(datadir)/applications
 desktop_DATA = xchat-gnome.desktop
 
 xchat_gnome_DATA =			\
