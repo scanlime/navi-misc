@@ -47,20 +47,33 @@ public class PipelineEditor
                 Application.Quit ();
                 args.RetVal = true;
         }
+        
+        /* Shared events - menus/toolbars */
+		public void OnNew (object o, EventArgs args)
+		{
+		}
+		
+		public void OnOpen (object o, EventArgs args)
+		{
+		}
+		
+		public void OnSave (object o, EventArgs args)
+		{
+		}
+		
+		public void OnCut (object o, EventArgs args)
+		{
+		}
+		
+		public void OnCopy (object o, EventArgs args)
+		{
+		}
+		
+		public void OnPaste (object o, EventArgs args)
+		{
+		}
 
 		/* 'File' Menu events */
-		public void OnMenuFileNew (object o, EventArgs args)
-		{
-		}
-		
-		public void OnMenuFileOpen (object o, EventArgs args)
-		{
-		}
-		
-		public void OnMenuFileSave (object o, EventArgs args)
-		{
-		}
-		
 		public void OnMenuFileSaveAs (object o, EventArgs args)
 		{
 		}
@@ -70,19 +83,7 @@ public class PipelineEditor
 				Application.Quit ();
 		}
 		
-		/* 'Edit' Menu events */
-		public void OnMenuEditCut (object o, EventArgs args)
-		{
-		}
-		
-		public void OnMenuEditCopy (object o, EventArgs args)
-		{
-		}
-		
-		public void OnMenuEditPaste (object o, EventArgs args)
-		{
-		}
-		
+		/* 'Edit' Menu events */		
 		public void OnMenuEditDelete (object o, EventArgs args)
 		{
 		}
