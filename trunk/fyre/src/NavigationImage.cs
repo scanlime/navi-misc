@@ -81,22 +81,31 @@ namespace Fyre
 			background.DrawRectangle (black, false, 0, 0, size[0] - 1, size[1] - 1);
 		}
 
-		void Draw ()
+		void DrawArea (Gdk.Rectangle area)
 		{
 			int vx =  visible[0] / 2;
 			int vy =  visible[1] / 2;
-			backing.DrawDrawable (white, background, 0, 0, 0, 0, size[0], size[1]);
+			backing.DrawDrawable (white, background, area.X, area.Y, area.X, area.Y, area.Width, area.Height);
 			if (mouse[0] == -1)
 				return;
 
-			backing.DrawRectangle (black, false, mouse[0] - vx, mouse[1] - vy, visible[0], visible[1]);
+			Gdk.Rectangle mouse_r = new Gdk.Rectangle ();
+			mouse_r.X = mouse[0] - vx;
+			mouse_r.Y = mouse[1] - vy;
+			mouse_r.Width = visible[0];
+			mouse_r.Height = visible[1];
+
+			Gdk.Rectangle i;
+			if (area.Intersect (mouse_r, out i))
+				backing.DrawRectangle (black, false, mouse_r);
 		}
 
 		protected override bool OnExposeEvent (Gdk.EventExpose ev)
 		{
-			Draw ();
-
 			Gdk.Rectangle r = ev.Area;
+
+			DrawArea (r);
+
 			GdkWindow.DrawDrawable (white, backing, r.X, r.Y, r.X, r.Y, r.Width, r.Height);
 
 			return true;
@@ -104,13 +113,17 @@ namespace Fyre
 
 		public void SetMouse (int mx, int my)
 		{
+			// If the mouse hasn't actually moved (usually triggered by moving
+			// it around outside the window), don't do anything.
 			if (mouse[0] == mx && mouse[1] == my)
 				return;
+
+			Gdk.Rectangle r = new Gdk.Rectangle ();
+
 
 			mouse[0] = mx;
 			mouse[1] = my;
 
-			Gdk.Rectangle r = new Gdk.Rectangle ();
 			r.X = 0; r.Y = 0;
 			r.Width  = size[0];
 			r.Height = size[1];
