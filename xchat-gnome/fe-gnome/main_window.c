@@ -278,11 +278,39 @@ void on_go_previous_discussion_activate(GtkWidget *widget, gpointer data) {
 	/* Make sure we've got something selected and a session. */
 	if(gtk_tree_selection_get_selected(selection, &model, &iter) &&
 			gui.current_session) {
-		/* Get the path to the current selection, move it backward one and
-		 * set the selection to the new path.
-		 */
+
+		/* Get the path to the current selection. */
 		path = gtk_tree_model_get_path(model, &iter);
-		gtk_tree_path_prev(path);
+
+		/* If we've got a server selected we'll jump to the last
+		 * channel on that server.
+		 */
+		if(gtk_tree_model_iter_has_child(model, &iter)) {
+			gtk_tree_path_down(path);
+			gtk_tree_model_get_iter(model, &iter, path);
+		}
+
+		/* Try to move the path back one node, if we can't, wrap
+		 * around to the last channel in the list.
+		 */
+		if(!gtk_tree_path_prev(path)) {
+			GtkTreeIter parent;
+			gint children;
+
+			/* Get the parent (server) of our current channel. */
+			gtk_tree_model_iter_parent(model, &parent, &iter);
+
+			/* Move iter to the last child of parent. */
+			children = gtk_tree_model_iter_n_children(model, &parent);
+			gtk_tree_model_iter_nth_child(model, &iter, &parent, children-1);
+
+			/* Set path to the last child. */
+			path = gtk_tree_model_get_path(model, &iter);
+		}
+
+		/* Return if we don't have a path, otherwise move the selection to the
+		 * new path.
+		 */
 		if(path == NULL)
 			return;
 		gtk_tree_selection_select_path(selection, path);
@@ -303,12 +331,41 @@ void on_go_next_discussion_activate(GtkWidget *widget, gpointer data) {
 	/* Make sure we've got something selected and a session. */
 	if(gtk_tree_selection_get_selected(selection, &model, &iter) &&
 			gui.current_session) {
-		/* iter contains a GtkTreeIter at the selected location. Get the GtkTreePath
-		 * to that location, advance it one space and set the selection to that new
-		 * path.
-		 */
+		/* Get the path for iter. */
 		path = gtk_tree_model_get_path(model, &iter);
-		gtk_tree_path_next(path);
+
+		/* If the node at iter has children it must be a server
+		 * so move the path to the first child.
+		 */
+		if(gtk_tree_model_iter_has_child(model, &iter))
+			gtk_tree_path_down(path);
+
+		/* If iter isn't referring to a server... */
+		else {
+			GtkTreePath *path_to_bottom;
+			GtkTreeIter parent;
+
+			/* Get the path to the last node for comparison later. */
+			gtk_tree_model_iter_parent(model, &parent, &iter);
+			gtk_tree_model_iter_nth_child(model, &iter, &parent,
+					gtk_tree_model_iter_n_children(model, &parent) - 1);
+			path_to_bottom = gtk_tree_model_get_path(model, &iter);
+
+			/* Advance the path one node. */
+			gtk_tree_path_next(path);
+
+			/* If our new path goes beyond the path to the last node
+			 * we need to wrap around to the top.
+			 */
+			if(gtk_tree_path_compare(path_to_bottom, path) == -1) {
+				gtk_tree_path_up(path);
+				gtk_tree_path_down(path);
+			}
+		}
+
+		/* If we don't have a valid path, return, otherwise move
+		 * the selection to our new path.
+		 */
 		if(path == NULL)
 			return;
 		gtk_tree_selection_select_path(selection, path);
