@@ -11,6 +11,8 @@ This is just a preliminary roadmap, subject to whatever people want to work on.
 -	Fix the plugin toggle bug				- Evan (done)
 -	Plugin prefs page needs to check whether a
 	plugin was successfully loaded				- Evan
+-	Split each transient dialog out of into a
+	separate glade file & object				- David
 
 0.5:	Features
 -	Redo DCC UI						- David
@@ -32,7 +34,6 @@ This is just a preliminary roadmap, subject to whatever people want to work on.
 
 undetermined:
 -	Autopackage/binreloc/relaytool
--	Split each transient dialog out of into its own glade file
 -	Make URLs in xtext show up as blue (gconf configurable color?)
 -	Make text surrounded by asterisks show up as bold, text
 	surrouned by underscores show up as underlined, etc
