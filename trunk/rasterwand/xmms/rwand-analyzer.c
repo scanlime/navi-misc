@@ -48,7 +48,7 @@ void *refresh_thread(void *foo) {
 	frame[i] = 0;
       }
 
-      columns[i] -= 1500;
+      columns[i] -= 400;
       if (columns[i] < 0)
 	columns[i] = 0;
     }
@@ -72,9 +72,9 @@ static void plugin_init(void) {
    * by low frequencies it looks centered.
    */
   ioctl(fd, RWANDIO_GET_SETTINGS, &s);
-  s.display_center = 37838;
-  s.display_width  = 29256;
-  s.duty_cycle     = 45250;
+  s.display_center = 0xFFFF * 0.53;
+  s.display_width  = 0xFFFF * 0.45;
+  s.duty_cycle     = 0xFFFF * 0.66;
   s.fine_adjust    = 0;
   ioctl(fd, RWANDIO_PUT_SETTINGS, &s);
 
