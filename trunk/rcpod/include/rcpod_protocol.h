@@ -86,9 +86,10 @@
 ;// Cancels an ongoing USART receive, returns the number of bytes actually received
 #define RCPOD_CTRL_USART_RX_END 0x21
 
-;// Sets the pin descriptor to use as a USART transmit enable. When transmitting,
-;// this pin is asserted, then after the transmission is complete it is deasserted.
-;// This feature is disabled by setting the pin to zero (a no-op pin descriptor)
+;// Sets the pin descriptor to use as a USART transmit enable, in wValue.
+;// When transmitting, this pin is asserted, then after the transmission is
+;// complete it is deasserted. This feature is disabled by setting the pin to
+;// zero (a no-op pin descriptor)
 #define RCPOD_CTRL_USART_TXE    0x23
 
 ;//------------------ General purpose I/O

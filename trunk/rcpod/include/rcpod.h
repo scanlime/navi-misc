@@ -23,18 +23,14 @@
 #ifndef __RCPOD_H
 #define __RCPOD_H
 
-#include <usb.h>
-
 /*************************************************************************************/
-/************************************************** Data structures ******************/
+/************************************************** Data types ***********************/
 /*************************************************************************************/
 
-/* Represents an open rcpod device. This is returned by rcpod_init_simple
+/* An opaque type representing an open rcpod device. This is returned by rcpod_init_simple
  * or rcpod_open. It must be freed with rcpod_close.
  */
-typedef struct {
-  struct usb_dev_handle *usbdevh;     /* Opened USB device corresponding to the rcpod */
-} rcpod_dev;
+typedef struct tag_rcpod_dev rcpod_dev;
 
 /* A librcpod error handler function, as passed to rcpod_SetErrorHandler.
  *   function: Name of the function where the error was first reported
@@ -45,10 +41,27 @@ typedef void (rcpod_errorHandler)(const char *function, int err, const char *mes
 
 /* A pin descriptor, used in the low-level commands to specify general purpose
  * I/O pins in a generic way. It is made up of several bitfields described in detail in
- * rcpod_protocol.h. Pin descriptors can be constructed and manipulated using the RCPOD_PIN* 
+ * rcpod_protocol.h. Pin descriptors can be constructed and manipulated using the RCPOD_PIN*
  * constants and macros defined below.
  */
 typedef unsigned char rcpod_pin;
+
+
+/*************************************************************************************/
+/************************************************** High-level initialization ********/
+/*************************************************************************************/
+
+/* Initializes libusb and librcpod, finds the first rcpod device,
+ * opens it, and resets it. If your application needs finer control
+ * over the initialization steps, it may need to use the low-level functions directly.
+ */
+rcpod_dev* rcpod_InitSimple(void);
+
+/* Like rcpod_InitSimple, but skip resetting the device. This is useful for programs
+ * that only need to deal with one rcpod device, but need to preserve the previous
+ * state of the device.
+ */
+rcpod_dev* rcpod_InitSimpleWithoutReset(void);
 
 
 /*************************************************************************************/
@@ -96,83 +109,17 @@ rcpod_errorHandler *rcpod_SetErrorHandler(rcpod_errorHandler *handler);
 
 
 /*************************************************************************************/
-/************************************************** High-level initialization ********/
+/************************************************** Memory Access ********************/
 /*************************************************************************************/
 
-/* Initializes libusb and librcpod, finds the first rcpod device,
- * opens it, and resets it. If your application needs finer control
- * over the initialization steps, it may need to use the above functions directly.
+/* Write one byte to the given 9-bit address in the rcpod's RAM
+ * For interesting RAM addresses, refer to the constants section and
+ * to the PIC16C745/765 data sheet.
  */
-rcpod_dev* rcpod_InitSimple(void);
-
-/* Like rcpod_InitSimple, but skip resetting the device. This is useful for programs
- * that only need to deal with one rcpod device, but need to preserve the previous
- * state of the device.
- */
-rcpod_dev* rcpod_InitSimpleWithoutReset(void);
-
-
-/*************************************************************************************/
-/************************************************** Low-level commands ***************/
-/*************************************************************************************/
-
-/*
- * All functions in this section map directly to commands handled by the
- * rcpod firmware. This includes functions to read and write the rcpod's
- * address space, turn on and off GPIO pins, and set up serial transfers.
- */
-
-/* Write one byte to the given 9-bit address in the rcpod's RAM */
 void rcpod_Poke(rcpod_dev* rcpod, int address, unsigned char data);
 
 /* Read one byte from the given 9-bit address in the rcpod's RAM */
 unsigned char rcpod_Peek(rcpod_dev* rcpod, int address);
-
-/* Write 4 bytes after the last byte poke'd */
-void rcpod_Poke4(rcpod_dev* rcpod, unsigned char data[4]);
-
-/* Read 8 bytes starting at the given 9-bit address in the rcpod's RAM,
- * into the provided buffer
- */
-void rcpod_Peek8(rcpod_dev* rcpod, int address, unsigned char data[8]);
-
-/* Sample all 8 of the 8-bit A/D converter channels, fills the provided buffer */
-void rcpod_AnalogReadAll(rcpod_dev* rcpod, unsigned char buffer[8]);
-
-/* Using current USART settings, transmit 'txBytes' bytes from the buffer at the
- * given address in the rcpod's RAM. Then, start listening for up to 'rxBytes'
- * to be placed in the same buffer. The receive runs in the background until
- * this byte count has been reached, or UsartRxEnd is called. Either byte
- * count may be zero to perform only a transmit/receive.
- */
-void rcpod_UsartTxRx(rcpod_dev* rcpod, int address, int txBytes, int rxBytes);
-
-/* Cancel the current receive started with UsartTxRx, return the number of
- * bytes actually received
- */
-int rcpod_UsartRxEnd(rcpod_dev* rcpod);
-
-/* Set the pin descriptor used as a USART transmit enable, for RS-485 or similar
- * protocols that require enabling a line driver. May be zero (a no-op pin descriptor)
- * to disable this feature.
- */
-void rcpod_UsartTxe(rcpod_dev* rcpod, rcpod_pin txe);
-
-/* Assert the given four pin descriptors, setting them to their active state */
-void rcpod_GpioAssert4(rcpod_dev* rcpod, rcpod_pin pins[4]);
-
-/* Read the value of the given pin descriptor */
-int rcpod_GpioRead(rcpod_dev* rcpod, rcpod_pin pin);
-
-
-/*************************************************************************************/
-/************************************************** Higher-level commands ************/
-/*************************************************************************************/
-
-/*
- * These commands are convenience functions and hardware abstractions based
- * on the low-level commands defined above
- */
 
 /* Peek an arbitrary-sized block of the PIC's address space in the most efficient way.
  * reads 'bytes' bytes of data from the indicated address into the provided buffer.
@@ -187,10 +134,10 @@ void rcpod_PeekBuffer(rcpod_dev* rcpod, int address, unsigned char *buffer, int 
  */
 void rcpod_PokeBuffer(rcpod_dev* rcpod, int address, unsigned char *buffer, int bytes);
 
-/* Read one of the 8 8-bit A/D converter channels.
- * The result is undefined if the channel is not in the range [0,7].
- */
-unsigned char rcpod_AnalogReadChannel(rcpod_dev* rcpod, int channel);
+
+/*************************************************************************************/
+/************************************************** General-Purpose I/O **************/
+/*************************************************************************************/
 
 /* Assert one pin descriptor, setting it to its active state */
 void rcpod_GpioAssert(rcpod_dev* rcpod, rcpod_pin pin);
@@ -211,6 +158,33 @@ void rcpod_GpioDeassert(rcpod_dev* rcpod, rcpod_pin pin);
  */
 void rcpod_GpioDeassertBuffer(rcpod_dev* rcpod, rcpod_pin *pins, int count);
 
+/* Read the value of the given pin descriptor */
+int rcpod_GpioRead(rcpod_dev* rcpod, rcpod_pin pin);
+
+
+/*************************************************************************************/
+/************************************************** Analog I/O ***********************/
+/*************************************************************************************/
+
+/* Sample all 8 of the 8-bit A/D converter channels, fills the provided buffer.
+ * Faster than calling AnalogReadChannel, even when reading only one channel.
+ */
+void rcpod_AnalogReadAll(rcpod_dev* rcpod, unsigned char buffer[8]);
+
+/* Read one of the 8 8-bit A/D converter channels. The result is undefined
+ * if the channel is not in the range [0,7]. Always slower than using
+ * rcpod_AnalogReadAll, but this function may be necessary if you require
+ * extra aquisition time for reading high-impedance signals or you have other
+ * special requirements.
+ */
+unsigned char rcpod_AnalogReadChannel(rcpod_dev* rcpod, int channel);
+
+
+/*************************************************************************************/
+/************************************************** Serial I/O ***********************/
+/*************************************************************************************/
+
+
 
 /*************************************************************************************/
 /************************************************** Constants ************************/
@@ -218,6 +192,12 @@ void rcpod_GpioDeassertBuffer(rcpod_dev* rcpod, rcpod_pin *pins, int count);
 
 /* Size of the address space reachable via peek and poke */
 #define RCPOD_MEM_SIZE          0x0200
+
+/* The PIC's 3rd memory bank is designated as a scratchpad area.
+ * Note that this is used in librcpod for serial I/O.
+ */
+#define RCPOD_MEM_SCRATCHPAD    0x0120
+#define RCPOD_SCRATCHPAD_SIZE   0x0050
 
 /* A subset of the PIC's hardware registers. Those that couldn't possibly
  * be useful to poke at via the rcpod have been omitted.
@@ -298,6 +278,10 @@ void rcpod_GpioDeassertBuffer(rcpod_dev* rcpod, rcpod_pin *pins, int count);
  * Note that most of these pins default to general purpose I/O but that may be overridden
  * by using the PIC's built-in peripherals. Also note that RA4 is an open-drain output
  * (only able to drive to 0v or float, can't drive to 5v)
+ *
+ * Also note that pins supporting analog input (RA* except for RA4, RE*) default to analog
+ * mode rather than digital. This is necessary because analog voltage levels on a pin
+ * configured for digital may be damaging.
  */
 #define RCPOD_PIN_RA0      (RCPOD_PIN_PORTA | RCPOD_PIN_PORT | RCPOD_PIN_BIT(0) | RCPOD_PIN_HIGH)
 #define RCPOD_PIN_RA1      (RCPOD_PIN_PORTA | RCPOD_PIN_PORT | RCPOD_PIN_BIT(1) | RCPOD_PIN_HIGH)

@@ -5,13 +5,14 @@
 
 int main() {
   unsigned char buffer[8];
-  int i;
+  int channel;
   rcpod_dev *rcpod = rcpod_InitSimple();
 
   while (1) {
     rcpod_AnalogReadAll(rcpod, buffer);
-    for (i=0; i < sizeof(buffer); i++)
-      printf("%d ", buffer[i]);
+
+    for (channel=0; channel < sizeof(buffer); channel++)
+      printf("%d ", buffer[channel]);
     printf("\n");
   }
 
