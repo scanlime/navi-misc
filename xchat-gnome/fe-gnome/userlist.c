@@ -164,7 +164,6 @@ userlist_insert (Userlist *userlist, session *sess, struct User *newuser, int ro
   Store *store = (Store*) g_hash_table_lookup (userlist->stores, sess);
   GtkTreeIter iter;
   GdkPixbuf *icon;
-  GList *items;
 
   if (!store)
     store = create_userlist (userlist, sess);
@@ -174,9 +173,6 @@ userlist_insert (Userlist *userlist, session *sess, struct User *newuser, int ro
   gtk_list_store_insert (store->liststore, &iter, row);
   gtk_list_store_set (store->liststore, &iter, 0, icon, 1, newuser->nick, 2, newuser, 3, newuser->away ? &colors[23] : NULL, -1);
 
-  items = g_list_append (NULL, newuser->nick);
-  g_completion_add_items (store->completion, items);
-  g_list_free (items);
 }
 
 static GtkTreeIter*
