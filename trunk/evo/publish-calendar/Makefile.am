@@ -12,6 +12,8 @@ plugin_LTLIBRARIES = liborg-gnome-publish-calendar.la
 
 liborg_gnome_publish_calendar_la_SOURCES =	\
 	publish-calendar.c			\
+	publish-location.c			\
+	publish-location.h			\
 	url-editor-dialog.c			\
 	url-editor-dialog.h
 
