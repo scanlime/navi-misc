@@ -129,16 +129,15 @@ class CustomizeRSS(Template.Page):
     def preRender(self, context):
         context['component'] = self.statsPage.component
 
-    def render_mainTitle(self, context):
-        return [
-            "Customized RSS for ",
-            self.statsPage.render_mainTitle(context),
-            ]
+    def render_subTitle(self, context):
+        return ["for ", self.statsPage.render_mainTitle(context)]
 
     def render_form(self, context):
         return tag('form',
                    action = Link.RSSLink(self.statsPage.target).getURL(context),
                    )[place('formContent')]
+
+    mainTitle = "Customized RSS"
 
     leftColumn = [
         Template.StaticSection('information')[
