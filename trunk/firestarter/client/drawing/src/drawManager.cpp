@@ -27,7 +27,6 @@ CDrawManager* Singleton<CDrawManager>::_instance = (CDrawManager*)0;
 
 CDrawManager::CDrawManager()
 {
-	gameLoop = NULL;
 	lastID = -1;
 }
 
@@ -36,9 +35,9 @@ CDrawManager::~CDrawManager()
 	ClearAll();
 }
 
-void CDrawManager::Init ( CBaseGameLoop * pGameLoop )
+void CDrawManager::Init ( void )
 {
-	gameLoop = pGameLoop;
+
 }
 
 void CDrawManager::Register ( CBaseDrawableFactory* factory, const char* name )
@@ -65,7 +64,6 @@ int CDrawManager::New ( const char* name, CBaseObject* parent )
 	lastID++;
 
 	object->SetName(name);
-	object->Set(gameLoop);
 	object->Init();
 	drawables[lastID] = object;
 

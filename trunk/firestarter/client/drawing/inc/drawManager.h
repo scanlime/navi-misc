@@ -38,7 +38,6 @@ public:
 	virtual ~CBaseDrawable(){return;}
 
 	void Set ( CBaseObject* pParent ){parent = pParent;}
-	void Set ( CBaseGameLoop *pGameLoop ){gameLoop = pGameLoop;}
 
 	virtual void Init ( void ) = 0;
 	virtual void Think ( void ) = 0;
@@ -47,7 +46,6 @@ public:
 	void SetName ( const char* name ){className = name;}
 	const char* GetName ( void ){return className.c_str();}
 protected:
-	CBaseGameLoop		*gameLoop;
 	CBaseObject			*parent;
 	std::string			className;
 };
@@ -68,7 +66,7 @@ public:
   CDrawManager();
   ~CDrawManager();
 
-	void Init ( CBaseGameLoop * pGameLoop );
+	void Init ( void );
 	void Register ( CBaseDrawableFactory* factory, const char* name );
 	
 	int New ( const char* name, CBaseObject* parent );
@@ -82,8 +80,6 @@ protected:
 	factoryMap	factories;
 	typedef std::map<int,CBaseDrawable*> drawableMap;
 	drawableMap	drawables;
-
-	CBaseGameLoop		*gameLoop;
 	int							lastID;
 };
 
