@@ -3,6 +3,11 @@
 # Gnome applet to show therm readings in real time.
 # Requires PyGTK 2 and gnome-python.
 #
+# Still quite experimental. The outdoor temperature
+# display usually works, but the dropdown menu that
+# is supposed to show all temperature readings
+# doesn't work yet.
+#
 # --Micah Dowty <micah@picogui.org>
 #
 import xmlrpclib, socket
