@@ -1,6 +1,5 @@
 BINS = \
 	loader_tool \
-	led_test \
 	gc_test \
 	pyunicone/_libunicone.so \
 	firmware.bin
@@ -14,9 +13,6 @@ COMMON_OBJS = \
 
 LOADER_TOOL_OBJS = $(COMMON_OBJS) \
 	src/loader_tool.o
-
-LED_TEST_OBJS = $(COMMON_OBJS) \
-	src/led_test.o
 
 GC_TEST_OBJS = $(COMMON_OBJS) \
 	src/gc_test.o
@@ -32,8 +28,10 @@ FIRMWARE_OBJS = \
 
 TUSB_DIR = ../../../tusb
 
-CFLAGS += -I include -I src -I /usr/include/python2.3
-LDFLAGS += -lusb
+CFLAGS    += -I include -I src
+PY_CFLAGS += -I /usr/include/python2.3
+LDFLAGS   += -lusb
+SWIGFLAGS += -python -Isrc -Iinclude
 
 FW_CFLAGS = -I $(TUSB_DIR)/include -I include
 FW_LDFLAGS = --xram-loc 0xF800 --xram-size 0x500 -L $(TUSB_DIR)/src -ltusb
@@ -43,9 +41,6 @@ all: $(BINS)
 
 loader_tool: $(LOADER_TOOL_OBJS)
 	$(CC) -o $@ $(LOADER_TOOL_OBJS) $(LDFLAGS)
-
-led_test: $(LED_TEST_OBJS)
-	$(CC) -o $@ $(LED_TEST_OBJS) $(LDFLAGS) -lm
 
 gc_test: $(GC_TEST_OBJS)
 	$(CC) -o $@ $(GC_TEST_OBJS) $(LDFLAGS)
@@ -66,10 +61,14 @@ firmware.bin: firmware/firmware.ihx
 	$(CC) -o $@ -c $< $(CFLAGS)
 
 pyunicone/libunicone_wrap.c: pyunicone/libunicone.i include/*.h src/*.h
-	swig -python -Isrc -Iinclude $<
+	swig $(SWIGFLAGS) $<
+
+pyunicone/libunicone_wrap.o: pyunicone/libunicone_wrap.c include/*.h src/*.h
+	$(CC) -o $@ -c $< $(CFLAGS) $(PY_CFLAGS)
 
 clean:
-	rm -f $(BINS) src/*.o pyunicone/libunicone_wrap.c
+	rm -f $(BINS)
+	rm -f src/*.o pyunicone/libunicone_wrap.c
 	rm -f firmware/*.ihx firmware/*.lnk firmware/*.lst firmware/*.map
 	rm -f firmware/*.mem firmware/*.rel firmware/*.rst firmware/*.sym
 	rm -f firmware/*.asm firmware/*.bin firmware/*.rel
