@@ -819,6 +819,7 @@ on_topic_change (GtkButton *widget, gpointer data)
 	GtkWidget *entry;
 	gint response;
 	GtkTextBuffer *buffer;
+	gchar *title;
 
 	xml = glade_xml_new ("topic-change.glade", NULL, NULL);
 	if (!xml)
@@ -830,10 +831,13 @@ on_topic_change (GtkButton *widget, gpointer data)
 	dialog = glade_xml_get_widget (xml, "topic change");
 	entry = glade_xml_get_widget (xml, "topic entry box");
 
+	title = g_strdup_printf ("Changing topic for %s", gui.current_session->channel);
+	gtk_window_set_title (GTK_WINDOW (dialog), title);
+	g_free (title);
+
 	buffer = gtk_text_buffer_new (NULL);
 	gtk_text_view_set_buffer (GTK_TEXT_VIEW (entry), buffer);
-	/* FIXME - set old topic */
-/*	gtk_text_buffer_set_text (buffer, topic, -1);*/
+	gtk_text_buffer_set_text (buffer, gui.current_session->topic, -1);
 
 	response = gtk_dialog_run (GTK_DIALOG (dialog));
 	g_print ("got response %d\n", response);
