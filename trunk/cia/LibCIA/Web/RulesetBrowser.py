@@ -111,7 +111,6 @@ class RulesetEditorSection(Template.Section):
     title = "ruleset"
 
 
-
 class RulesetTotalsSection(Template.Section):
     """A Section that displays fun-filled facts about our ruleset database"""
     def __init__(self, storage):
@@ -127,9 +126,6 @@ class RulesetTotalsSection(Template.Section):
                     host = hostAndPath.split("/", 1)[0]
                     self.ircServers[host] = True
 
-    def render_totalRulesets(self, context):
-        return self.total
-
     def render_schemeTotal(self, context, scheme):
         return self.schemeTotals.get(scheme, 0)
 
@@ -138,7 +134,7 @@ class RulesetTotalsSection(Template.Section):
 
     title = "totals"
     rows = [[
-        Template.value[ place('totalRulesets') ],
+        Template.value[ place('total') ],
         ' total rulesets are registered. This includes ',
         Template.value[ place('schemeTotal', 'irc') ],
         ' IRC channels on ',
@@ -195,12 +191,6 @@ class RulesetList(Template.Page):
     def getChildWithDefault(self, name, request):
         return singleRulesetPageFactory(self.caps, self.storage, name)
 
-    def render_mainTitle(self, context):
-        return "Ruleset List"
-
-    def render_subTitle(self, context):
-        return "the little tidbits of XML that make CIA work"
-
     def render_mainColumn(self, context):
         return [
             URIList(self.storage),
@@ -211,6 +201,8 @@ class RulesetList(Template.Page):
             RulesetTotalsSection(self.storage),
             ]
 
+    mainTitle = "Ruleset List"
+    subTitle = "the little tidbits of XML that make CIA work"
     headingTabs = [
         Template.headingTab(href='/')['CIA'],
         ]
