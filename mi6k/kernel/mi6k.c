@@ -245,11 +245,12 @@ static void mi6k_ir_rx_store(struct usb_mi6k *dev, unsigned char *buffer, size_t
 			value |= dev->pulse_flag;
 		}
 
-		lirc_buffer_write_1(dev->ir_rx_buffer, &value);
+		lirc_buffer_write_1(&dev->ir_rx_buffer,
+				    (unsigned char*)&value);
 		buffer += 2;
 		count -= 2;
 	}
-	wake_up(&dev->ir_rx_buffer->wait_poll);
+	wake_up(&dev->ir_rx_buffer.wait_poll);
 }
 
 /* Convert a pulse or space value from microseconds to the transmitter's ~12.8us units */
@@ -675,12 +676,6 @@ static int mi6k_lirc_ioctl(struct inode *inode, struct file *file, unsigned int 
 
 	switch(cmd) {
 
-	case LIRC_GET_FEATURES:
-		retval = put_user(LIRC_CAN_SEND_PULSE |
-				  LIRC_CAN_REC_MODE2,
-				  (unsigned long *) arg);
-		break;
-
 	case LIRC_GET_SEND_MODE:
 		retval = put_user(LIRC_SEND2MODE(LIRC_CAN_SEND_PULSE),
 				  (unsigned long *) arg);
@@ -712,9 +707,7 @@ static int mi6k_lirc_ioctl(struct inode *inode, struct file *file, unsigned int 
 		break;
 
 	default:
-		/* Indicate that we didn't understand this ioctl */
-		retval = -ENOTTY;
-		break;
+		retval = -ENOIOCTLCMD;
 	}
 
 	/* unlock the device */
@@ -725,11 +718,13 @@ static int mi6k_lirc_ioctl(struct inode *inode, struct file *file, unsigned int 
 
 static int mi6k_lirc_use_inc(void *data)
 {
+	dbg("use_inc");
 	return 0;
 }
 
 static void mi6k_lirc_use_dec(void *data)
 {
+	dbg("use_dec");
 }
 
 
@@ -773,7 +768,6 @@ static int mi6k_probe(struct usb_interface *interface, const struct usb_device_i
 
 	init_MUTEX(&dev->sem);
 	dev->udev = udev;
-	init_waitqueue_head(&dev->ir_rx_wait);
 
 	usb_set_intfdata(interface, dev);
 	retval = usb_register_dev(interface, &mi6k_class);
@@ -784,7 +778,7 @@ static int mi6k_probe(struct usb_interface *interface, const struct usb_device_i
 	}
 
 	/* Initialize our LIRC plugin */
-	lirc_buffer_init(&dev->ir_rx_rbuffer, sizeof(lirc_t), RBUF_LEN);
+	lirc_buffer_init(&dev->ir_rx_buffer, sizeof(lirc_t), RBUF_LEN);
 	memcpy(&dev->ir_plugin, &mi6k_lirc_plugin, sizeof(struct lirc_plugin));
 	dev->ir_plugin.rbuf = &dev->ir_rx_buffer;
 	if ((dev->ir_plugin.minor = lirc_register_plugin(&dev->ir_plugin)) < 0) {
@@ -838,7 +832,7 @@ static void mi6k_disconnect(struct usb_interface *interface)
 
 	usb_deregister_dev(interface, &mi6k_class);
 
-	lirc_buffer_free(&dev->ir_rx_rbuffer);
+	lirc_buffer_free(&dev->ir_rx_buffer);
 	lirc_unregister_plugin(mi6k_lirc_plugin.minor);
 
 	/* if the device is not opened, then we clean up right now */
