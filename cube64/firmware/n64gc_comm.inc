@@ -233,7 +233,7 @@ not_last_bit
 	;; *********************************************************** Receiver **********
 	;; *******************************************************************************
 
-	;; Receive 'w' bytes of data over the indicated pin, starting at IRP:FSR.
+	;; Receive byte_count bytes of data over the indicated pin, starting at IRP:FSR.
 	;; Again, this macro works with the GC or the N64. This could block indefinitely
 	;; waiting for data. If this happens, the watchdog will reset us.
 	;;
@@ -243,14 +243,12 @@ not_last_bit
 	;;
 	;; This leaves FSR pointing at the last byte received.
 	;;
-n64gc_rx_buffer macro port, bit, clear_watchdog
+n64gc_rx_buffer macro port, bit, byte_count, clear_watchdog
 	local	bit_loop
 	local	not_last_bit
 	local	not_last_byte
 	local	edge_det_1
 	local	edge_det_2
-
-	movwf	byte_count	; Stow our byte count
 
 	;; We poll for the low state signalling the beginning of a bit, time out 2us
 	;; (putting us right in the middle of the bit) and then sample. This probably isn't

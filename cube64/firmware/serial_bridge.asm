@@ -159,6 +159,7 @@ nintendo_tx
 	n64gc_tx_buffer NINTENDO_TRIS, 0
 
 nintendo_rx
-	n64gc_rx_buffer NINTENDO_PIN, 0
+	movwf	byte_count
+	n64gc_rx_buffer NINTENDO_PIN, byte_count, 0
 
 	end
