@@ -2,6 +2,8 @@
 \include "prologue-piano.ly"
 \include "serenade-cello.ly"
 \include "serenade-piano.ly"
+\include "finale-cello.ly"
+\include "finale-piano.ly"
 
 #(set-global-staff-size 16)
 
@@ -42,11 +44,27 @@
       \serenadeCello
     >>
     \context PianoStaff <<
-    \context Staff=serenadePianoTreble << \serenadePianoTreble >>
-    \context Staff=serenadePianoBass   << \serenadePianoBass >>
+      \context Staff=serenadePianoTreble << \serenadePianoTreble >>
+      \context Staff=serenadePianoBass   << \serenadePianoBass >>
     >>
   >>
   \header {
     piece = "Sérénade"
+  }
+}
+
+\score {
+  \context Score <<
+    \context Staff=finaleCello <<
+      \finaleCello
+    >>
+    \context PianoStaff <<
+      \override PianoStaff.VerticalAlignment #'forced-distance = #15
+      \context Staff=finalePianoTreble << \finalePianoTreble >>
+      \context Staff=finalePianoBass   << \finalePianoBass >>
+    >>
+  >>
+  \header {
+    piece = "Finale"
   }
 }
