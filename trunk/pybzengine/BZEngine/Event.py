@@ -42,16 +42,13 @@ class Event:
        set up Event wrappers on member functions in bulk.
        """
     def __init__(self, *args):
-        # Our client dict maps from callback IDs to callables.
-        # This makes using weakref proxy objects easy without making unobserve() a pain.
-        # Note that we must use the id rather than the object itself, since the whole
-        # point is to avoid requiring a reference to the callable.
-        self.clients = {}
+        self.empty()
+
         for arg in args:
             self.observe(arg)
         self.unhandledCallback = None
 
-    def observe(self, callback):
+    def observe(self, callback, index=-1):
         """Call the supplied calllback with the same arguments when this event is called.
            Callbacks are referenced weakly, so their observation ends when the callback
            is not used anywhere else.
@@ -66,31 +63,51 @@ class Event:
            It is usually best to replace lambda expressions with class member functions.
            The same is true of functions declared inside another function's body.
            """
-        if type(callback) is types.MethodType:
-            # We tread bound method objects as a special case. Bound methods
-            # are created when a class.method expression is evaluated, tying
-            # the class and method together into a single callable object.
-            # Unfortunately, these objects don't have the lifetime of the class
-            # in question, they are usually discarded immediately. Here we
-            # detect bound methods, and store proper weakrefs to the method
-            # and the class.
-            self.clients[hash(callback)] = EventMethodObserver(self, callback)
-        else:
-            # The default wrapper for weak references. This class handles
-            # deleting the client list entry properly when the callback
-            # is deleted.
-            self.clients[hash(callback)] = EventObserver(self, callback)
+        if not self.clients.has_key(hash(callback)):
+            if type(callback) is types.MethodType:
+                # We tread bound method objects as a special case. Bound methods
+                # are created when a class.method expression is evaluated, tying
+                # the class and method together into a single callable object.
+                # Unfortunately, these objects don't have the lifetime of the class
+                # in question, they are usually discarded immediately. Here we
+                # detect bound methods, and store proper weakrefs to the method
+                # and the class.
+                callable = EventMethodObserver(self, callback)
+            else:
+                # The default wrapper for weak references. This class handles
+                # deleting the client list entry properly when the callback
+                # is deleted.
+                callable = EventObserver(self, callback)
 
-    def strongObserve(self, callback):
+            # Store the callable in the clients hash and in the callables list.
+            # Insert it in the given position. We add the list length if our index
+            # is negative, to be consistent with python indexing.
+            self.clients[hash(callback)] = callable
+            if index < 0:
+                index += len(self.callables)
+            self.callables.insert(index, callable)
+
+    def strongObserve(self, callback, index=-1):
         """Like observe(), but use a normal reference rather than a weak ref. This is
            necessary for using lambdas or other types of temporary functions as obsrvers.
            The only way for these observers to be removed is explicitly calling unobserve().
            """
-        # We don't need to worry with a wrapper class since we don't need a weakref
-        self.clients[hash(callback)] = callback
+        if not self.clients.has_key(hash(callback)):
+            # We don't need to worry with a wrapper class since we don't need a weakref
+            self.clients[hash(callback)] = callback
+            if index < 0:
+                index += len(self.callables)
+            self.callables.insert(index, callback)
 
     def empty(self):
+        # Our client dict maps from callback IDs to callables.
+        # This makes using weakref proxy objects easy without making unobserve() a pain.
+        # Note that we must use the id rather than the object itself, since the whole
+        # point is to avoid requiring a reference to the callable.
         self.clients = {}
+
+        # A list of callables, to preserve insertion order
+        self.callables = []
 
     def replace(self, callback):
         """Remove all existing observers for this event, and add the given one"""
@@ -99,14 +116,16 @@ class Event:
 
     def unobserve(self, callback):
         """Stop calling callback() when this event is triggered"""
+        callable = self.clients[hash(callback)]
         del self.clients[hash(callback)]
+        self.callables.remove(callable)
 
     def __call__(self, *args, **kw):
         """Trigger this event by calling it. The parameters passed to the event will
            be broadcast to all of its observers.
            """
-        if self.clients:
-            for client in self.clients.values():
+        if self.callables:
+            for client in self.callables:
                 r = client(*args, **kw)
                 # Allow the client to abort
                 if r:
@@ -177,6 +196,7 @@ class EventObserver:
     def unref(self, ref):
         try:
             del self.event.clients[self.callbackHash]
+            self.event.callables.remove(self)
         except KeyError:
             # Hmm, something else already deleted it
             pass
@@ -203,6 +223,7 @@ class EventMethodObserver:
     def unref(self, ref):
         try:
             del self.event.clients[self.callbackHash]
+            self.event.callables.remove(self)
         except KeyError:
             # Hmm, something else already deleted it
             pass
