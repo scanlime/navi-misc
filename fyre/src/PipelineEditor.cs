@@ -49,10 +49,10 @@ namespace Fyre
 		uint					tooltip_timeout;
 		Gdk.Rectangle				tip_rect;
 
-		// status bar
+		// Status bar
 		[Glade.Widget] Gtk.Statusbar		statusbar;
 
-		// image browsing
+		// Image browsing
 		[Glade.Widget] Gtk.Image		navigation_image;
 		[Glade.Widget] Gtk.EventBox		navigation_event;
 

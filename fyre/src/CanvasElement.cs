@@ -23,7 +23,6 @@ using System.Drawing;
 
 namespace Fyre
 {
-
 	/*
 	 * The basic structure of an element on the canvas has 3 pieces:
 	 * 	name
