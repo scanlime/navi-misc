@@ -5,12 +5,13 @@
   <!-- Background image -->
   <item type="pixmap">
     <normal file="spheres.png" tint="#dddddd"/>
-    <pos x="0" y="0" width="100%" height="100%"/>
+    <pos x="0" y="0" width="100%" height="90%"/>
   </item>
 
+  <!-- user/passwd entry -->
   <item type="rect">
     <normal alpha="0.0"/>
-    <pos anchor="nw" x="10%" y="10%" width="box" height="box"/>
+    <pos anchor="ne" x="95%" y="5%" width="box" height="box"/>
     <box orientation="vertical" min-width="340" xpadding="30" ypadding="30" spacing="10">
       <item type="label">
         <pos anchor="n" x="50%"/>
@@ -44,5 +45,15 @@
         <stock type="caps-lock-warning"/>
       </item>
     </box>
+  </item>
+
+  <item type="rect">
+    <normal color="#ffffff"/>
+    <pos anchor="sw" x="0" y="100%" width="100%" height="10%"/>
+  </item>
+
+  <item type="pixmap">
+    <pos anchor="sw" x="5%" y="95%"/>
+    <normal file="tummy_hole.png"/>
   </item>
 </greeter>
