@@ -7,7 +7,6 @@ Copyright (C) 2003 W. Evan Sheehan <evan@navi.picogui.org>
 """
 
 import xml.dom, xml.dom.minidom, gtk
-from sheetLayout import sheetLayout
 
 class GTKsheet:
   def readSheet(self, layoutFile):
@@ -101,8 +100,8 @@ class dice(gtk.Button):
     gtk.Button.__init__(self)
     self.node = node
     # Will this work?
-    #self.connect("clicked", self.roll)
+    self.connect("clicked", self.roll)
     self.times = 0
 
-  def roll(self):
+  def roll(self, widget):
     print "roll not implemented"
