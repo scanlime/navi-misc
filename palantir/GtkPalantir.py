@@ -398,6 +398,8 @@ class PalantirWindow:
     dialog.show()
 
   def Connect(self, server, channel=None, dialog=None):
+    if hasattr(self.factory, 'client') and self.factory.client:
+      self.factory.quit()
     if channel:
       self.factory.channels[0] = channel
     self.factory.SetServer(server)
