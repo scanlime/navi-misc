@@ -180,8 +180,11 @@ void event_loop(struct unicone_device *dev, int evdevs[4])
       }
     }
 
-    if (need_update)
+    if (need_update) {
       gc_send_update(dev, controllers);
+
+      unicone_device_set_led(dev, 0.3, 0.005);
+    }
   }
 }
 

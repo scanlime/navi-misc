@@ -64,8 +64,14 @@
 /******************************************************** I2C Devices *****/
 /**************************************************************************/
 
-/* Write 16-bit big-endian values to change the LED brightness */
-#define UNICONE_I2C_LED         0x21
+/* Write 16-bit big-endian values to change the LED brightness.
+ * This command is implemented by multiple FPGA configurations, but
+ * all implementations should be compatible.
+ */
+#define UNICONE_I2C_LED                 0x21
+
+/* A writeable register, holding all controller status information */
+#define UNICONE_I2C_CONTROLLER_STATUS   0x40
 
 
 /**************************************************************************/
@@ -108,6 +114,11 @@
 
 /* Force us to reboot back into the TUSB bootloader */
 #define UNICONE_REQ_REBOOT               0x34
+
+/* Set the current LED brightness (wValue) and the amount it decays each
+ * cycle through the firmware's main loop (wIndex).
+ */
+#define UNICONE_REQ_SET_LED              0x35
 
 
 /**************************************************************************/
