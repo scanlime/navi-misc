@@ -121,7 +121,7 @@ ToolInfoPH*       parameter_holder_get_tools          (ParameterHolder *self);
 
 /*
  * These functions make it easy to assign extra metadata to GParamSpecs
- * that can be used when automatically builting GUIs for ParameterHolder instances.
+ * that can be used when automatically building GUIs for ParameterHolder instances.
  */
 
 void              param_spec_set_group      (GParamSpec  *pspec,
@@ -132,9 +132,15 @@ void              param_spec_set_increments (GParamSpec  *pspec,
 					     gdouble      page,
 					     int          digits);
 
+void              param_spec_set_dependency (GParamSpec  *pspec,
+					     GParamSpec  *dependency);
+
 const gchar*      param_spec_get_group      (GParamSpec  *pspec);
 
 const ParameterIncrements* param_spec_get_increments (GParamSpec  *pspec);
+
+GParamSpec*       param_spec_get_dependency (GParamSpec  *pspec,
+					     GParamSpec  *dependency);
 
 
 G_END_DECLS

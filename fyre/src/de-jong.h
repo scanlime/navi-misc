@@ -50,10 +50,13 @@ struct _DeJong {
   gdouble zoom, xoffset, yoffset, rotation;
   gdouble blur_radius, blur_ratio;
   gboolean tileable;
+  gboolean emphasize_transient;
+  guint transient_iterations;
   gboolean calc_dirty_flag;
 
   /* Current calculation state */
   gdouble point_x, point_y;
+  guint remaining_transient_iterations;
 };
 
 struct _DeJongClass {

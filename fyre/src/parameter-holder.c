@@ -360,12 +360,22 @@ void param_spec_set_increments (GParamSpec  *pspec,
   g_param_spec_set_qdata_full(pspec, g_quark_from_static_string("increments"), pi, g_free);
 }
 
+void param_spec_set_dependency (GParamSpec  *pspec,
+				GParamSpec  *dependency) {
+  g_param_spec_set_qdata(pspec, g_quark_from_static_string("dependency"), (gpointer) dependency);
+}
+
 const gchar* param_spec_get_group (GParamSpec  *pspec) {
   return g_param_spec_get_qdata(pspec, g_quark_from_static_string("group-name"));
 }
 
 const ParameterIncrements* param_spec_get_increments (GParamSpec  *pspec) {
   return g_param_spec_get_qdata(pspec, g_quark_from_static_string("increments"));
+}
+
+GParamSpec* param_spec_get_dependency (GParamSpec  *pspec,
+				       GParamSpec  *dependency) {
+  return g_param_spec_get_qdata(pspec, g_quark_from_static_string("dependency"));
 }
 
 /* The End */
