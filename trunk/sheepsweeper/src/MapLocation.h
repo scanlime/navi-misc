@@ -16,6 +16,9 @@ class MapLocation
 		int getY() const;
 		int getLayer() const;
 
+		bool isEvenRow() const;
+		bool isOddRow() const;
+
 	private:
 		int x;
 		int y;

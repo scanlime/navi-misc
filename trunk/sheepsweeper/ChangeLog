@@ -1,3 +1,9 @@
+Wed Mar 17 21:56:23 PST 2004  Christian Hammond <chipx86@gnupdate.org>
+
+	* src/MapLocation.cpp:
+	* src/MapLocation.h:
+	  - Added MapLocation::isEvenRow() and isOddRow().
+
 Wed Feb 04 21:50:41 PST 2004  Christian Hammond <chipx86@gnupdate.org>
 
 	* src/Fadey.cpp:
