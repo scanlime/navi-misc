@@ -47,7 +47,7 @@ struct _Scene
   GObject parent;
 
   GList* render_passes;
-  GList* objects;
+  GHashTable* objects;
   gboolean dirty;
 };
 
@@ -60,6 +60,7 @@ GType        scene_get_type      (void) G_GNUC_CONST;
 Scene*       scene_new           (void);
 gboolean     scene_has_main_view (Scene *self);
 void         scene_erase         (Scene *self);
+void         scene_add           (Scene *self, SceneObject *object);
 void         scene_preprocess    (Scene *self);
 void         scene_render        (Scene *self, RenderState *rstate);
 SceneObject* scene_pick          (Scene *self, RenderState *rstate, guint position[2]);

@@ -54,7 +54,7 @@ load_plugins (void)
 }
 
 GList*
-find_leaves (GType base)
+find_type_leaves (GType base)
 {
   GType *children, *t;
   guint n, i, c;
@@ -65,7 +65,7 @@ find_leaves (GType base)
   {
     t = g_type_children (children[i], &c);
     if (c != 0)
-      ret = g_list_concat (ret, find_leaves (children[i]));
+      ret = g_list_concat (ret, find_type_leaves (children[i]));
     else {
       ret = g_list_append (ret, GUINT_TO_POINTER (children[i]));
     }

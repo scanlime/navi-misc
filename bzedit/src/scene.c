@@ -25,9 +25,10 @@
 
 #include "scene.h"
 #include "renderpass.h"
+#include "plugins.h"
 
-static void scene_class_init (SceneClass *klass);
-static void scene_init       (Scene *self);
+static void   scene_class_init    (SceneClass *klass);
+static void   scene_init          (Scene *self);
 
 GType
 scene_get_type (void)
@@ -62,9 +63,18 @@ scene_class_init (SceneClass *klass)
 static void
 scene_init (Scene *self)
 {
-  self->render_passes = NULL;
-  self->objects = NULL;
+  GList *render_pass_types, *type;
+
+  self->objects = g_hash_table_new (g_direct_hash, g_direct_equal);
   self->dirty = FALSE;
+  
+  self->render_passes = NULL;
+  render_pass_types = find_type_leaves (RENDER_PASS_TYPE);
+  for (type = render_pass_types; type; type = type->next)
+  {
+    RenderPass *pass = RENDER_PASS (g_object_new (GPOINTER_TO_UINT (type->data), NULL));
+    self->render_passes = g_list_append (self->render_passes, (gpointer) pass);
+  }
 }
 
 Scene*
@@ -81,8 +91,19 @@ scene_has_main_view (Scene *self)
 void
 scene_erase (Scene *self)
 {
-  g_list_free (self->objects);
-  self->objects = NULL;
+  g_hash_table_destroy (self->objects);
+  self->objects = g_hash_table_new (g_direct_hash, g_direct_equal);
+  self->dirty = TRUE;
+}
+
+void
+scene_add (Scene *self, SceneObject *object)
+{
+  GList *drawables;
+
+  drawables = scene_object_get_drawables (object);
+
+  g_hash_table_insert (self->objects, (gpointer) object, (gpointer) drawables);
   self->dirty = TRUE;
 }
 
@@ -108,6 +129,17 @@ filter_priority_compare (RenderPass *p1, RenderPass *p2)
   return (c1->filter_priority - c2->filter_priority);
 }
 
+static void
+scene_preprocess_iterate (SceneObject *object, GList *drawables, GList *passes)
+{
+  GList *drawable, *pass;
+
+  for (drawable = drawables; drawable; drawable = drawable->next)
+    for (pass = passes; pass; pass = pass->next)
+      if (render_pass_filter (RENDER_PASS (pass->data), DRAWABLE (drawable->data)))
+	render_pass_add (RENDER_PASS (pass->data), DRAWABLE (drawable->data));
+}
+
 void
 scene_preprocess (Scene *self)
 {
@@ -127,6 +159,7 @@ scene_preprocess (Scene *self)
   }
 
   /* divy up the drawables into rendering passes using the passes' filter function */
+  g_hash_table_foreach (self->objects, (GHFunc) scene_preprocess_iterate, (gpointer) self->render_passes);
 
   /* give each pass a chance to preprocess */
   for (i = render_sort; i; i = i->next)
