@@ -7,6 +7,7 @@ INCLUDES =					\
 
 plugin_DATA = 					\
 	org-gnome-publish-calendar.eplug	\
+	org-gnome-publish-calendar.xml		\
 	publish-calendar.glade
 plugin_LTLIBRARIES = liborg-gnome-publish-calendar.la
 
