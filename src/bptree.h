@@ -2,9 +2,8 @@
  * bptree.h - A somewhat generic B+-Tree implementation used by rtgraph
  *            channels internally. Keys and values are stored in the nodes
  *            themselves, and are arbitrary but fixed sizes. User-defined
- *            comparison and allocation functions are used. All pointers
- *            are relative to a user-defined base, so this will work with
- *            memory-mapped files.
+ *            comparison and allocation functions are used. Nodes are allocated
+ *            as pages in an RtgPageStorage, for optional disk backing.
  *
  * rtgraph real-time graphing package
  * Copyright (C) 2004 Micah Dowty <micah@navi.cx>
@@ -29,56 +28,63 @@
 #define __RTG_BPTREE_H__
 
 #include <gtk/gtk.h>
+#include "pagestorage.h"
 
 G_BEGIN_DECLS
 
 typedef struct _RtgBPTree       RtgBPTree;
-typedef struct _RtgBPTreeHeader RtgBPTreeHeader;
-typedef struct _RtgBPTreeIter   RtgBPTreeIter;
-
-typedef gpointer                RtgBPIndexPointer;
-typedef gpointer                RtgBPLeafPointer;
+typedef struct _RtgBPIter       RtgBPIter;
 
 /* The B+-Tree object itself. This contains pointers that can't be
  * stored persistently, so it must always be recreated every time
  * a B+-Tree is loaded.
  */
 struct _RtgBPTree {
-  int        (*compare_keys)(gpointer a, gpointer b);
-  gpointer   (*malloc)(gsize bytes);
-  void       (*free)(gpointer p);
+    /* Data types */
+    gsize      sizeof_key;
+    gsize      sizeof_value;
+    GCompareDataFunc compare;
+    gpointer   compare_user_data;
 
-  /* Data types. These should be rounded up if necessary for alignment */
-  gsize      sizeof_key;
-  gsize      sizeof_value;
+    /* Offsets and lengths within our index nodes */
+    struct {
+	int parent_offset;
+	int keys_offset;
+	int keys_count;
+	int child_offset;
+	int child_count;
+    } index;
 
-  /* Tree proportions */
-  int        index_size;
-  int        leaf_size;
+    /* Offsets and lengths within our leaf nodes */
+    struct{
+	int prev_offset;
+	int next_offset;
+	int parent_offset;
+	int keys_offset;
+	int keys_count;
+	int values_offset;
+	int values_count;
+    } leaf;
 
-  /* Endpoints in our doubly-linked list of leaves */
-  RtgBPLeafPointer *first_leaf, *last_leaf;
+    /* Our storage, and the address of our root page */
+    RtgPageStorage *storage;
+    RtgPageAddress root;
 
-  /* Optional memory address offset */
-  gpointer   pointer_base;
+    /* Endpoints in our doubly-linked list of leaves */
+    RtgPageAddress first_leaf, last_leaf;
 
-  /* Memory management hooks */
-
+    /* A version stamp used to track iterator validity */
+    int stamp;
 };
 
-struct _RtgChannelClass {
-  GObjectClass parent_class;
-};
 
-struct _RtgChannelIter {
-
-};
-
-enum {
-  RTG_INTERPOLATION_PREVIOUS,
-  RTG_INTERPOLATION_NEAREST,
-  RTG_INTERPOLATION_LINEAR,
-  RTG_INTERPOLATION_SMOOTH,
+/* An opaque structure representing a marked position in a B+-Tree.
+ * It is invalidated by modifying the tree.
+ */
+struct _RtgBPIter {
+    int             stamp;
+    RtgPageAddress  leaf_page;
+    int             leaf_index;
 };
 
 
@@ -86,6 +92,82 @@ enum {
 /******************************************************************* Public Methods */
 /************************************************************************************/
 
+/* Create a new RtgBPTree object, backed by pages in the given storage.
+ * The tree is identified by a name string. If the tree already exists
+ * in the storage, this will just refer to the existing data. If no such
+ * tree exists, this will create an empty one.
+ *
+ * Any key/value type may be used, as long as the sizes of each are provided
+ * along with a comparison function. The keys and values are expected to be
+ * small compared to the storage's page size. If larger data must be stored,
+ * page addresses should be given as the keys/values with the real data stored
+ * indirectly at those addresses.
+ *
+ * The data sizes given here must match the sizes used when creating the
+ * page storage, however we have no way of checking this at runtime.
+ */
+RtgBPTree*        rtg_bptree_new                 (RtgPageStorage*   storage,
+						  const char*       name,
+						  gsize             sizeof_key,
+						  gsize             sizeof_value,
+						  GCompareDataFunc  compare,
+						  gpointer          compare_user_data);
+
+/* Delete the RtgBPTree object. This doesn't affect data in our page storage */
+void              rtg_bptree_close               (RtgBPTree*        self);
+
+/* Add a new key/value pair. Multiple values with the same key may exist.
+ * If 'iter' is non-NULL, it will be positioned at the new node very quickly.
+ */
+void              rtg_bptree_insert              (RtgBPTree*        self,
+						  gpointer          key,
+						  gpointer          value,
+						  RtgBPIter*        iter);
+
+/* Position an iterator at the first occurrance of a key exactly equal
+ * to the given one.
+ */
+void              rtg_bptree_find_equal          (RtgBPTree*        self,
+						  gpointer          key,
+						  RtgBPIter*        iter);
+
+/* Position one iterator to the nearest item less than the given key,
+ * and the other to the nearest item greater than the given key. Either
+ * iterator may be NULL to disregard that value. If the given key exists
+ * in the tree, both returned iterators will point to an instance of it.
+ */
+
+/* Seek an iterator to the first/last values in the tree */
+void              rtg_bptree_first               (RtgBPTree*        self,
+						  RtgBPIter*        iter);
+void              rtg_bptree_last                (RtgBPTree*        self,
+						  RtgBPIter*        iter);
+
+/* Advance an itertator to the next/previous record
+ */
+gpointer          rtg_bptree_prev                (RtgBPTree*        self,
+						  RtgBPIter*        iter);
+gpointer          rtg_bptree_next                (RtgBPTree*        self,
+						  RtgBPIter*        iter);
+
+/* Read the current key/value at an iterator. Returns NULL if
+ * the iterator is invalid. The resulting pointer becomes invalid
+ * if the tree is modified or if any allocations are performed in
+ * the same RtgPageStorage.
+ */
+gpointer          rtg_bptree_read_key            (RtgBPTree*        self,
+						  RtgBPIter*        iter);
+gpointer          rtg_bptree_read_value          (RtgBPTree*        self,
+						  RtgBPIter*        iter);
+
+/* Replace the current value pointed to by an iterator */
+void              rtg_bptree_write_value         (RtgBPTree*        self,
+						  RtgBPIter*        iter,
+						  gpointer          key);
+
+/* Delete the current key and value pointed to by an iterator */
+void              rtg_bptree_delete              (RtgBPTree*        self,
+						  RtgBPIter*        iter);
 
 G_END_DECLS
 
