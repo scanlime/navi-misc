@@ -502,6 +502,9 @@ class Box(BZObject):
            be used both by the Box object and by other objects
            with similar interfaces that subclass Box.
            """
+        if not self.world:
+            return
+
         mat = Blender.Mathutils.Matrix(
             [self.size[0], 0,            0,            0],
             [0,            self.size[1], 0,            0],
@@ -558,6 +561,16 @@ class Box(BZObject):
             math.sqrt(mat[0][0]**2 + mat[0][1]**2 + mat[0][2]**2),
             math.sqrt(mat[1][0]**2 + mat[1][1]**2 + mat[1][2]**2),
             math.sqrt(mat[2][0]**2 + mat[2][1]**2 + mat[2][2]**2)]
+
+        # There are only two allowed orientations in bzflag:
+        # (0, 0, x) and (180, 0, x). We don't strictly enforce these,
+        # but we do assume that if euler[0] > 90, it's in this second
+        # orientation and it's an upside-down object. This only makes
+        # sense in the case of pyramids- the origin is moved back to the
+        # bottom, and the Z size is flipped.
+        if euler[0] > 90 or euler[0] < -90:
+            self.position[2] -= self.size[2]
+            self.size[2] *= -1
 
 
 class Pyramid(Box):
