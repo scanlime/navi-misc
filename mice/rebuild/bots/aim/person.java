@@ -50,7 +50,7 @@ public class person
 	public person(person previous, botmain bot, String ick)
 	{
 		mybot = bot;
-		nick = ick.toUpperCase();
+		nick = ick;
 		status = 0;
 		next = previous;
 		mybot.sendMessage(nick,"Hello " + nick + " to make me be quiet, just type 'quit' at any time.");
