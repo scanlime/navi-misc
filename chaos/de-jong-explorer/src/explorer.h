@@ -60,6 +60,7 @@ struct _Explorer {
   gboolean just_resized;
   GTimeVal last_update;
 
+  guint tools_idler;
   gchar* current_tool;
   gboolean tool_active;
   double last_mouse_x, last_mouse_y;
@@ -87,6 +88,18 @@ struct _ExplorerClass {
 
 GType      explorer_get_type();
 Explorer*  explorer_new(DeJong *dejong, Animation *animation);
+
+
+/************************************************************************************/
+/***************************************************************** Internal methods */
+/************************************************************************************/
+
+void explorer_init_tools(Explorer *self);
+void explorer_dispose_tools(Explorer *self);
+
+void explorer_run_iterations(Explorer *self);
+void explorer_update_gui(Explorer *self);
+void explorer_set_params(Explorer *self);
 
 
 G_END_DECLS
