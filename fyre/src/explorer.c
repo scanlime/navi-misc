@@ -41,6 +41,7 @@ static gboolean limit_update_rate               (GTimer* timer, float max_rate);
 static gdouble  explorer_get_iter_speed         (Explorer *self);
 static gchar*   explorer_strdup_status          (Explorer *self);
 static gchar*   explorer_strdup_speed           (Explorer *self);
+static void     explorer_update_status_bar      (Explorer *self);
 
 static gdouble generate_random_param();
 
@@ -141,7 +142,8 @@ static void explorer_init(Explorer *self) {
     self->statusbar = GTK_STATUSBAR(glade_xml_get_widget(self->xml, "statusbar"));
     self->render_status_context = gtk_statusbar_get_context_id(self->statusbar, "Rendering status");
     self->speed_timer = g_timer_new();
-    self->update_rate_timer = g_timer_new();
+    self->auto_update_rate_timer = g_timer_new();
+    self->status_update_rate_timer = g_timer_new();
 }
 
 static void explorer_dispose(GObject *gobject) {
@@ -155,9 +157,13 @@ static void explorer_dispose(GObject *gobject) {
 	self->speed_timer = NULL;
     }
 
-    if (self->update_rate_timer) {
-	g_timer_destroy(self->update_rate_timer);
-	self->update_rate_timer = NULL;
+    if (self->auto_update_rate_timer) {
+	g_timer_destroy(self->auto_update_rate_timer);
+	self->auto_update_rate_timer = NULL;
+    }
+    if (self->status_update_rate_timer) {
+	g_timer_destroy(self->status_update_rate_timer);
+	self->status_update_rate_timer = NULL;
     }
 
     if (self->map) {
@@ -612,7 +618,7 @@ static gboolean explorer_auto_limit_update_rate(Explorer *self) {
     else
 	rate = 1.0 / pow(pow_initial_period + pow_period_scale * elapsed, one_over_gamma);
 
-    return limit_update_rate(self->update_rate_timer, rate);
+    return limit_update_rate(self->auto_update_rate_timer, rate);
 }
 
 void explorer_update_gui(Explorer *self) {
@@ -621,23 +627,52 @@ void explorer_update_gui(Explorer *self) {
      * frames to the drawing area.
      */
 
-    /* Skip frame rate limiting if we have parameter or status changes to show quickly */
-    if (!(HISTOGRAM_IMAGER(self->map)->render_dirty_flag || self->status_dirty_flag)) {
-	if (explorer_auto_limit_update_rate(self))
-	    return;
+    /* If we have rendering changes we're trying to push through as quickly
+     * as possible, don't bother with the status bar or with frame rate limiting.
+     */
+    if (HISTOGRAM_IMAGER(self->map)->render_dirty_flag) {
+	histogram_view_update(HISTOGRAM_VIEW(self->view));
+	return;
     }
 
-    /* We don't want to update the status bar if we're trying to show rendering changes quickly */
-    if (!HISTOGRAM_IMAGER(self->map)->render_dirty_flag) {
-	gchar *status = explorer_strdup_status(self);
-	if (self->render_status_message_id)
-	    gtk_statusbar_remove(self->statusbar, self->render_status_context, self->render_status_message_id);
-	self->render_status_message_id = gtk_statusbar_push(self->statusbar, self->render_status_context, status);
-	g_free(status);
-	self->status_dirty_flag = FALSE;
+    /* If we have an important status change to report, update both
+     * the status bar and the view without frame rate limiting.
+     */
+    if (self->status_dirty_flag) {
+	explorer_update_status_bar(self);
+	histogram_view_update(HISTOGRAM_VIEW(self->view));
+	return;
     }
 
-    histogram_view_update(HISTOGRAM_VIEW(self->view));
+    /* Update the status bar at a fixed rate. This will give the user
+     * the impression that things are moving along steadily even when
+     * we're actually updating the view very slowly later in the render.
+     */
+    if (!limit_update_rate(self->status_update_rate_timer, 2.0 )) {
+	explorer_update_status_bar(self);
+    }
+
+    /* Use our funky automatic frame rate adjuster to time normal view updates.
+     * This will slow down updates nonlinearly as rendering progresses,
+     * to give good interactive response while making batch rendering
+     * still fairly efficient.
+     */
+    if (!explorer_auto_limit_update_rate(self)) {
+	histogram_view_update(HISTOGRAM_VIEW(self->view));
+    }
+}
+
+static void explorer_update_status_bar(Explorer *self)
+{
+    gchar *status = explorer_strdup_status(self);
+
+    if (self->render_status_message_id)
+	gtk_statusbar_remove(self->statusbar, self->render_status_context, self->render_status_message_id);
+
+    self->render_status_message_id = gtk_statusbar_push(self->statusbar, self->render_status_context, status);
+    g_free(status);
+
+    self->status_dirty_flag = FALSE;
 }
 
 static gchar*   explorer_strdup_status (Explorer *self)

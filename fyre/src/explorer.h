@@ -66,7 +66,8 @@ struct _Explorer {
     guint                render_status_context;
     gboolean             status_dirty_flag;
 
-    GTimer*              update_rate_timer;
+    GTimer*              auto_update_rate_timer;
+    GTimer*              status_update_rate_timer;
     GTimer*              speed_timer;
     double               last_iterations;
     double               iter_speed;
