@@ -281,6 +281,12 @@ static int evdev_send_metadata(int evdev, struct server *svr)
   buffer[sizeof(buffer)-1] = '\0';
   packet_socket_write(svr->socket, IPIPE_DEVICE_NAME, strlen(buffer), buffer);
 
+  /* Send the physical path */
+  buffer[0] = '\0';
+  ioctl(evdev, EVIOCGPHYS(sizeof(buffer)), buffer);
+  buffer[sizeof(buffer)-1] = '\0';
+  packet_socket_write(svr->socket, IPIPE_DEVICE_PHYS, strlen(buffer), buffer);
+
   /* Send device ID */
   ioctl(evdev, EVIOCGID, id);
   hton_input_id(&ip_id, id);

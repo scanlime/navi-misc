@@ -22,8 +22,9 @@
  * Author: Aristeu Sergio Rozanski Filho <aris@cathedrallabs.org>
  * 
  * Changes/Revisions:
- *	0.2	16/10/2004
+ *	0.2	16/10/2004 (Micah Dowty <micah@navi.cx>)
  *		- added force feedback support
+ *              - added UI_SET_PHYS
  *	0.1	20/06/2002
  *		- first public version
  */

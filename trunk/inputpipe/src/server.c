@@ -254,6 +254,25 @@ static void client_received_packet(struct client* self,
     self->dev_info.name[length] = 0;
     break;
 
+  case IPIPE_DEVICE_PHYS:
+    /* The client's given us their original physical path. We use
+     * this to build a full path of the form ipipe://client:port/path
+     */
+    {
+      char buffer[1024];
+      int prefix_len, copy_len;
+      prefix_len = snprintf(buffer, sizeof(buffer), IPIPE_PHYS_PREFIX "%s/",
+			    client_format_addr(self));
+      copy_len = sizeof(buffer) - prefix_len - 1;
+      if (copy_len > length)
+	copy_len = length;
+      memcpy(buffer+prefix_len, content, copy_len);
+      buffer[prefix_len + copy_len] = '\0';
+      if (ioctl(self->uinput_fd, UI_SET_PHYS, buffer) < 0)
+	perror("ioctl UI_SET_PHYS");
+    }
+    break;
+
   case IPIPE_DEVICE_ID:
     {
       struct ipipe_input_id* ip_id = (struct ipipe_input_id*) content;
