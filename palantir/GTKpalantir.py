@@ -45,7 +45,7 @@ class PalantirWindow:
     if user:
       nick = re.search('([^!]*).*', user).group(1)
       if action:
-	nick = '* ' + nick
+	nick = '* ' + nick + ' '
       else:
 	nick = '<' + nick + '>  '
       text += nick
@@ -91,10 +91,11 @@ class PalantirWindow:
     self.tree.get_widget('Topic').set_text('')
 
   def ctcpReceive(self, user, channel, messages):
-    if 'roll' in messages[0]:
-      print messages
+    nick = re.search('([^!]*).*', user).group(1)
+    if 'ROLL' in messages[0]:
+      data = re.search('(\[.*\]) ([0-9]*) ([0-9]*)', messages[0][1])
+      text = nick + ' rolled a ' + str(len(data.group(1).split())) + 'd' + data.group(2) + ': ' + data.group(1) + ' => ' + data.group(3)
     else:
-      nick = re.search('([^!]*).*', user).group(1)
       message = string.join(messages[0])
       text = 'Received a CTCP ' + message + ' from ' + nick + ' (to ' + channel + ')'
 
@@ -203,7 +204,7 @@ class PalantirWindow:
     channelLabel = gtk.Label('Channel:')
     channelLabel.show()
     channelArea = gtk.Entry()
-    channelArea.connect('activate', lambda w: self.Connect(serverAre.get_text(),
+    channelArea.connect('activate', lambda w: self.Connect(serverArea.get_text(),
                                                            channelArea.get_text(),
 							   dialog))
     channelArea.show()
@@ -232,7 +233,7 @@ class PalantirWindow:
 
   def Connect(self, server, channel=None, dialog=None):
     if channel:
-      self.factory.AddChannel(channel)
+      self.factory.channels[0] = channel
     self.factory.SetServer(server)
     if dialog:
       dialog.destroy()
