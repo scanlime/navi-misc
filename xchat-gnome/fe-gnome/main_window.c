@@ -394,11 +394,13 @@ initialize_main_window ()
 	g_signal_connect (G_OBJECT (topicchange), "clicked", G_CALLBACK (on_topic_change), NULL);
 	topicbox = glade_xml_get_widget (gui.xml, "topic hbox");
 	gui.topic_label = GTK_LABEL (gtk_label_new(""));
+	gtk_widget_show (GTK_WIDGET (gui.topic_label));
 	gtk_box_pack_start (GTK_BOX (topicbox), GTK_WIDGET (gui.topic_label), TRUE, TRUE, 0);
 	gtk_box_reorder_child (GTK_BOX (topicbox), GTK_WIDGET (gui.topic_label), 1);
 	gtk_label_set_selectable (gui.topic_label, TRUE);
 #if (GTK_CHECK_VERSION(2,5,0))
 	gui.topic_expander = GTK_EXPANDER (gtk_expander_new (NULL));
+	gtk_widget_show (GTK_WIDGET (gui.topic_expander));
 	gtk_box_pack_start (GTK_BOX (topicbox), GTK_WIDGET (gui.topic_expander), FALSE, TRUE, 0);
 	gtk_box_reorder_child (GTK_BOX (topicbox), GTK_WIDGET (gui.topic_expander), 0);
 	gtk_expander_set_expanded (GTK_EXPANDER (gui.topic_expander), FALSE);
