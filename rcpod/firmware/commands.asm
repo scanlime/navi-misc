@@ -119,12 +119,15 @@ CheckVendor
 	; A 9-bit address in wIndex, 8-bit data in wValue
 PokeRequest
 	banksel BufferData
-
 	movf	BufferData+wIndex, w	; Save this poke address
+	banksel	last_poke_addr
 	movwf	last_poke_addr
+	banksel	BufferData
 	movf	BufferData+(wIndex+1), w
+	banksel	last_poke_addr
 	movwf	last_poke_addr+1
 
+	banksel	BufferData
 	bcf	STATUS, IRP	; Transfer bit 8 of wIndex into IRP
 	btfsc	BufferData+wIndexHigh, 0
 	bsf	STATUS, IRP
