@@ -386,7 +386,7 @@ class CustomizeRSS(Template.Page):
                 "possible information from CIA is to use the raw XML feeds."
             ],
             tag('p')[
-                "There seems to have been a 'changedpage' module in the works for RSS 1.0 that provides "
+                "There was a 'changedpage' module in the works for RSS 1.0 that would have provided "
                 "features similar to the <cloud> element mentioned above for RSS 2.0, however the page "
                 "for it seems to have disappeared. Please contact us with more information if you have any."
             ],
