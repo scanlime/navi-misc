@@ -3,7 +3,7 @@
 
 <glade-interface>
 
-<widget class="GtkWindow" id="window1">
+<widget class="GtkWindow" id="window 1">
   <property name="border_width">12</property>
   <property name="visible">True</property>
   <property name="title" translatable="yes">window1</property>
@@ -29,11 +29,11 @@
 	  <property name="window_placement">GTK_CORNER_TOP_LEFT</property>
 
 	  <child>
-	    <widget class="GtkTreeView" id="treeview1">
+	    <widget class="GtkTreeView" id="channel list">
 	      <property name="visible">True</property>
 	      <property name="can_focus">True</property>
 	      <property name="headers_visible">True</property>
-	      <property name="rules_hint">False</property>
+	      <property name="rules_hint">True</property>
 	      <property name="reorderable">True</property>
 	      <property name="enable_search">True</property>
 	    </widget>
@@ -94,7 +94,7 @@
 		      </child>
 
 		      <child>
-			<widget class="GtkSpinButton" id="spinbutton2">
+			<widget class="GtkSpinButton" id="minimum users">
 			  <property name="visible">True</property>
 			  <property name="can_focus">True</property>
 			  <property name="climb_rate">1</property>
@@ -103,7 +103,7 @@
 			  <property name="update_policy">GTK_UPDATE_ALWAYS</property>
 			  <property name="snap_to_ticks">False</property>
 			  <property name="wrap">False</property>
-			  <property name="adjustment">1 0 100 1 10 10</property>
+			  <property name="adjustment">1 0 9999 1 10 10</property>
 			</widget>
 			<packing>
 			  <property name="padding">0</property>
@@ -148,7 +148,7 @@
 		      </child>
 
 		      <child>
-			<widget class="GtkSpinButton" id="spinbutton1">
+			<widget class="GtkSpinButton" id="maximum users">
 			  <property name="visible">True</property>
 			  <property name="can_focus">True</property>
 			  <property name="climb_rate">1</property>
@@ -157,7 +157,7 @@
 			  <property name="update_policy">GTK_UPDATE_ALWAYS</property>
 			  <property name="snap_to_ticks">False</property>
 			  <property name="wrap">False</property>
-			  <property name="adjustment">1 0 100 1 10 10</property>
+			  <property name="adjustment">0 0 9999 1 10 10</property>
 			</widget>
 			<packing>
 			  <property name="padding">0</property>
@@ -202,7 +202,7 @@
 		      </child>
 
 		      <child>
-			<widget class="GtkEntry" id="entry1">
+			<widget class="GtkEntry" id="text filter">
 			  <property name="visible">True</property>
 			  <property name="can_focus">True</property>
 			  <property name="editable">True</property>
