@@ -21,8 +21,7 @@
 #
 #       ALL        $CVSROOT/CVSROOT/ciabot.pl %s $USER project from_email dest_email ignore_regexp
 #
-# Additionally, you'll need to make sure the name of this script is in the 'checkoutlist'
-# file for it to appear in non-RCS'ed form in the server's CVSROOT directory.
+# Make sure that you add the script to 'checkoutlist' and give it 0755 permissions.
 #
 # Note that the last four parameters are optional, you can alternatively change
 # the defaults below in the configuration section.
