@@ -133,13 +133,13 @@ void              param_spec_set_increments (GParamSpec  *pspec,
 					     int          digits);
 
 void              param_spec_set_dependency (GParamSpec  *pspec,
-					     GParamSpec  *dependency);
+					     const gchar *dependency_name);
 
 const gchar*      param_spec_get_group      (GParamSpec  *pspec);
 
 const ParameterIncrements* param_spec_get_increments (GParamSpec  *pspec);
 
-GParamSpec*       param_spec_get_dependency (GParamSpec  *pspec);
+const gchar*      param_spec_get_dependency (GParamSpec  *pspec);
 
 
 G_END_DECLS

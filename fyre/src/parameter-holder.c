@@ -385,8 +385,8 @@ void param_spec_set_increments (GParamSpec  *pspec,
 }
 
 void param_spec_set_dependency (GParamSpec  *pspec,
-				GParamSpec  *dependency) {
-  g_param_spec_set_qdata(pspec, g_quark_from_static_string("dependency"), (gpointer) dependency);
+				const gchar *dependency_name) {
+  g_param_spec_set_qdata(pspec, g_quark_from_static_string("dependency"), (gpointer) dependency_name);
 }
 
 const gchar* param_spec_get_group (GParamSpec  *pspec) {
@@ -397,7 +397,7 @@ const ParameterIncrements* param_spec_get_increments (GParamSpec  *pspec) {
   return g_param_spec_get_qdata(pspec, g_quark_from_static_string("increments"));
 }
 
-GParamSpec* param_spec_get_dependency (GParamSpec  *pspec) {
+const gchar* param_spec_get_dependency (GParamSpec  *pspec) {
   return g_param_spec_get_qdata(pspec, g_quark_from_static_string("dependency"));
 }
 

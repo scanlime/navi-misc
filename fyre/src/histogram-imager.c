@@ -42,10 +42,10 @@ static void histogram_imager_require_histogram(HistogramImager *self);
 static void histogram_imager_require_image(HistogramImager *self);
 static void histogram_imager_require_oversample_tables(HistogramImager *self);
 
-static void update_double_if_necessary(gdouble new_value, gboolean *dirty_flag, gdouble *param, gdouble epsilon);
-static void update_uint_if_necessary(guint new_value, gboolean *dirty_flag, guint *param);
-static void update_boolean_if_necessary(gboolean new_value, gboolean *dirty_flag, gboolean *param);
-static void update_color_if_necessary(const GdkColor* new_value, gboolean *dirty_flag, GdkColor *param);
+static gboolean update_double_if_necessary(gdouble new_value, gboolean *dirty_flag, gdouble *param, gdouble epsilon);
+static gboolean update_uint_if_necessary(guint new_value, gboolean *dirty_flag, guint *param);
+static gboolean update_boolean_if_necessary(gboolean new_value, gboolean *dirty_flag, gboolean *param);
+static gboolean update_color_if_necessary(const GdkColor* new_value, gboolean *dirty_flag, GdkColor *param);
 static gchar* describe_color(GdkColor *c);
 
 enum {
@@ -53,6 +53,7 @@ enum {
   PROP_WIDTH,
   PROP_HEIGHT,
   PROP_OVERSAMPLE,
+  PROP_OVERSAMPLE_ENABLED,
   PROP_SIZE,
   PROP_EXPOSURE,
   PROP_GAMMA,
@@ -140,6 +141,13 @@ static void histogram_imager_init_size_params(GObjectClass *object_class) {
   param_spec_set_increments        (spec, 1, 1, 0);
   g_object_class_install_property  (object_class, PROP_OVERSAMPLE, spec);
 
+  spec = g_param_spec_boolean      ("oversample_enabled",
+				    "Oversampling Enabled",
+				    "Indicates when oversampling has been enabled with the 'oversample' property",
+				    FALSE,
+				    G_PARAM_READABLE);
+  g_object_class_install_property  (object_class, PROP_OVERSAMPLE_ENABLED, spec);
+
   spec = g_param_spec_string       ("size",
 				    "Size",
 				    "Image size as a WIDTH or WIDTHxHEIGHT string",
@@ -181,6 +189,7 @@ static void histogram_imager_init_render_params(GObjectClass *object_class) {
 				    G_PARAM_LAX_VALIDATION | PARAM_INTERPOLATE | PARAM_IN_GUI);
   param_spec_set_group             (spec, current_group);
   param_spec_set_increments        (spec, 0.01, 0.1, 3);
+  param_spec_set_dependency        (spec, "oversample-enabled");
   g_object_class_install_property  (object_class, PROP_OVERSAMPLE_GAMMA, spec);
 
   spec = g_param_spec_string       ("fgcolor",
@@ -296,32 +305,40 @@ static void histogram_imager_resize_from_string(HistogramImager *self, const gch
   g_object_set(self, "width", width, "height", height, NULL);
 }
 
-static void update_double_if_necessary(double new_value, gboolean *dirty_flag, double *param, double epsilon) {
+static gboolean update_double_if_necessary(double new_value, gboolean *dirty_flag, double *param, double epsilon) {
   if (fabs(new_value - *param) > epsilon) {
     *param = new_value;
     *dirty_flag = TRUE;
+    return TRUE;
   }
+  return FALSE;
 }
 
-static void update_uint_if_necessary(guint new_value, gboolean *dirty_flag, guint *param) {
+static gboolean update_uint_if_necessary(guint new_value, gboolean *dirty_flag, guint *param) {
   if (new_value != *param) {
     *param = new_value;
     *dirty_flag = TRUE;
+    return TRUE;
   }
+  return FALSE;
 }
 
-static void update_boolean_if_necessary(gboolean new_value, gboolean *dirty_flag, gboolean *param) {
+static gboolean update_boolean_if_necessary(gboolean new_value, gboolean *dirty_flag, gboolean *param) {
   if (new_value != *param) {
     *param = new_value;
     *dirty_flag = TRUE;
+    return TRUE;
   }
+  return FALSE;
 }
 
-static void update_color_if_necessary(const GdkColor* new_value, gboolean *dirty_flag, GdkColor *param) {
+static gboolean update_color_if_necessary(const GdkColor* new_value, gboolean *dirty_flag, GdkColor *param) {
   if (new_value->red != param->red || new_value->green != param->green || new_value->blue != param->blue) {
     *param = *new_value;
     *dirty_flag = TRUE;
+    return TRUE;
   }
+  return FALSE;
 }
 
 static void histogram_imager_set_property (GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec) {
@@ -339,7 +356,8 @@ static void histogram_imager_set_property (GObject *object, guint prop_id, const
     break;
 
   case PROP_OVERSAMPLE:
-    update_uint_if_necessary(g_value_get_uint(value), &self->size_dirty_flag, &self->oversample);
+    if (update_uint_if_necessary(g_value_get_uint(value), &self->size_dirty_flag, &self->oversample))
+      g_object_notify(object, "oversample-enabled");
     break;
 
   case PROP_SIZE:
@@ -414,6 +432,10 @@ static void histogram_imager_get_property (GObject *object, guint prop_id, GValu
 
   case PROP_OVERSAMPLE:
     g_value_set_uint(value, self->oversample);
+    break;
+
+  case PROP_OVERSAMPLE_ENABLED:
+    g_value_set_boolean(value, self->oversample > 1);
     break;
 
   case PROP_CLAMPED:

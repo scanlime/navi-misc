@@ -33,7 +33,7 @@ static void parameter_editor_attach(ParameterEditor *self, ParameterHolder *hold
 static void parameter_editor_add_paramspec(ParameterEditor *self, GParamSpec *spec);
 static void parameter_editor_add_group_heading(ParameterEditor *self, const gchar *group);
 static void parameter_editor_add_row(ParameterEditor *self, GParamSpec *spec, GtkWidget *row);
-static void parameter_editor_add_dependency(ParameterEditor *self, GtkWidget *widget, GParamSpec *dependency);
+static void parameter_editor_add_dependency(ParameterEditor *self, GtkWidget *widget, const gchar *dependency_name);
 static void parameter_editor_add_labeled_row(ParameterEditor *self, GParamSpec *spec, GtkWidget *row);
 
 static void parameter_editor_connect_notify(ParameterEditor *self,
@@ -196,7 +196,7 @@ static void parameter_editor_add_group_heading(ParameterEditor *self, const gcha
 }
 
 static void parameter_editor_add_row(ParameterEditor *self, GParamSpec *spec, GtkWidget *row) {
-  GParamSpec *dep;
+  const gchar *dep;
 
   gtk_box_pack_start(GTK_BOX(self), row, FALSE, FALSE, 2);
 
@@ -221,15 +221,19 @@ static void parameter_editor_add_labeled_row(ParameterEditor *self, GParamSpec *
   parameter_editor_add_row(self, spec, hbox);
 }
 
-static void parameter_editor_add_dependency(ParameterEditor *self, GtkWidget *widget, GParamSpec *dependency) {
+static void parameter_editor_add_dependency(ParameterEditor *self, GtkWidget *widget, const gchar *dependency_name) {
   /* Add a notify callback to our dependency that enables or disables the given widget.
    * Call the notify callback once right away to set up our initial sensitivity.
    */
   gchar *signal_name;
-  signal_name = g_strdup_printf("notify::%s", dependency->name);
+  GParamSpec *spec;
+
+  signal_name = g_strdup_printf("notify::%s", dependency_name);
   g_signal_connect(self->holder, signal_name, G_CALLBACK(on_notify_dependency), widget);
   g_free(signal_name);
-  on_notify_dependency(self->holder, dependency, widget);
+
+  spec = g_object_class_find_property(G_OBJECT_GET_CLASS(self->holder), dependency_name);
+  on_notify_dependency(self->holder, spec, widget);
 }
 
 
