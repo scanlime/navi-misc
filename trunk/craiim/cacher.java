@@ -59,7 +59,6 @@ public class cacher
 
 	if(nick.equals("gonkulator2"))
 	{
-	    // Special case for gonkulator, since he talks a lot and nobody wants to have to read his nick twice
             if(message.startsWith("/me"))
                 Justin.me.sayAction(message.substring(3));
             else
@@ -71,8 +70,8 @@ public class cacher
 		message = "*AIM:"+nick+ message.substring(3);
 	    else
 		message = "<AIM:"+nick+"> " + message;
+	    Justin.me.say(message);
 	}
-	Justin.me.say(message);
     }
 
     public void flush()

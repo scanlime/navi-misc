@@ -134,9 +134,13 @@ public class Justin
 	Justin justin = new Justin( server, 6667, channame, key );
 	Debug.setDebugLevel(Debug.FAULT);
 	Justin.me = justin;
-	botmain foo = new botmain("tacobeambot","reinquist");
+	botmain foo;
+	do
+	{
+	    foo = new botmain("tacobeambot","effer");
+	    Thread.sleep(10000);
+	}
+	while(!foo.connected);
 	justin.connect();
     }   
 }
-
-
