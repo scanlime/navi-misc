@@ -10,7 +10,7 @@
 	;;
 	;; This firmware is designed to run on a PIC16F84A microcontroller
 	;; clocked at 20 MHz. The Nintendo device's bidirectional data line
-	;; is on RB0, serial receive is on RB1, serial transmit is on RB2.
+	;; is on RA0, serial receive is on RB0, serial transmit is on RB1.
 	;;
 	;; This accepts commands of the following form over the serial port,
 	;; which is configured for 38400 baud, 8-N-1:
@@ -33,10 +33,10 @@
 	__CONFIG   _CP_OFF & _PWRTE_OFF & _WDT_ON & _HS_OSC
 
 	;; Hardware declarations
-	#define NINTENDO_PIN	PORTB, 0
-	#define NINTENDO_TRIS	TRISB, 0
-	#define RX232_PIN	PORTB, 1
-	#define TX232_PIN	PORTB, 2
+	#define NINTENDO_PIN	PORTA, 0
+	#define NINTENDO_TRIS	TRISA, 0
+	#define RX232_PIN	PORTB, 0
+	#define TX232_PIN	PORTB, 1
 
 	;; Reset and interrupt vectors
 	org 0
@@ -62,8 +62,8 @@ startup
 	clrf	PORTA
 	clrf	PORTB
 	bsf	STATUS, RP0
-	clrf	TRISA
-	movlw	0x03
+	movlw	0x01
+	movwf	TRISA
 	movwf	TRISB
 
 	n64gc_init
