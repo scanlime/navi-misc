@@ -161,11 +161,13 @@ void on_irc_connect_menu_activate(GtkWidget *widget, gpointer data) {
 }
 
 void on_main_window_close(GtkWidget *widget, GdkEvent *event, gpointer data) {
+	hide_transfers_window();
 	gui.quit = TRUE;
 	xchat_exit();
 }
 
 void on_irc_quit_menu_activate(GtkWidget *widget, gpointer data) {
+	hide_transfers_window();
 	gui.quit = TRUE;
 	xchat_exit();
 }
