@@ -53,7 +53,10 @@ class CTestGame : public CBaseGame , CNetworkMessageProcessor, CBaseObject
 
 		CNetworkClient			network;
 		tmPlayerMap					players;
-		CPlayerObject				*localPlayer;									
+		CPlayerObject				*localPlayer;						
+
+		// game methods
+		bool processPlayerInput ( void );
 };
 
 #endif //_TEST_GAME_H_
