@@ -18,6 +18,8 @@ EXTRA_DIST =				\
 	gui.c				\
 	main_window.h			\
 	main_window.c			\
+	navigation_tree.h		\
+	navigation_tree.c		\
 	palette.h			\
 	palette.c			\
 	preferences_dialog.h		\
@@ -37,6 +39,8 @@ xchat_gnome_SOURCES =			\
 	main_window.h			\
 	main_window.c			\
 	$(mmx_cmod_S)			\
+	navigation_tree.h		\
+	navigation_tree.c		\
 	palette.h			\
 	palette.c			\
 	preferences_dialog.h		\
