@@ -39,6 +39,18 @@ PKG_CHECK_MODULES(PACKAGE, [$pkg_modules])
 AC_SUBST(PACKAGE_CFLAGS)
 AC_SUBST(PACKAGE_LIBS)
 
+# Check for windows, enable compiling windows resources if we find it
+AC_MSG_CHECKING([for Win32])
+case "$host" in
+  *mingw*)
+    WIN32_LIBS=fyre-win32-res.o
+    ;;
+  *)
+    WIN32_LIBS=
+    ;;
+esac
+AC_SUBST(WIN32_LIBS)
+
 # Check for getopt. If we're missing it, include our own version
 AC_CHECK_FUNC(getopt_long, have_getopt=yes)
 AM_CONDITIONAL([HAVE_GETOPT], [test "x$have_getopt" = "xyes"])

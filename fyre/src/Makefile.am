@@ -11,7 +11,14 @@ fyre_LDADD = \
 	$(BINRELOC_LIBS)		\
 	$(PACKAGE_LIBS)			\
 	$(EXR_LIBS)			\
-	$(GNET_LIBS)
+	$(GNET_LIBS)			\
+	$(WIN32_LIBS)
+
+fyre_DEPENDENCIES = \
+	$(WIN32_LIBS)
+
+fyre-win32-res.o: fyre.rc fyre.ico
+	$(WINDRES) fyre.rc fyre-win32-res.o
 
 if HAVE_EXR
 EXR_SRC = \
@@ -74,8 +81,7 @@ fyre_SOURCES = 				\
 	$(EXR_SRC)			\
 	$(BINRELOC_SRC)			\
 	$(GETOPT_SRC)			\
-	$(GNET_SRC)			\
-	$(WIN32_SRC)
+	$(GNET_SRC)
 
 noinst_HEADERS =			\
 	animation.h			\
