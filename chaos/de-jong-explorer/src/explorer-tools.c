@@ -176,6 +176,8 @@ static void on_tool_activate(GtkWidget *widget, gpointer user_data) {
 
   if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget)))
     gtk_label_get(GTK_LABEL(gtk_bin_get_child(GTK_BIN(widget))), &self->current_tool);
+
+  self->status_dirty_flag = TRUE;
 }
 
 static gboolean on_button_press(GtkWidget *widget, GdkEvent *event, gpointer user_data) {

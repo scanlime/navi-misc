@@ -470,20 +470,17 @@ void explorer_update_gui(Explorer *self) {
    * update rate, updating the iteration count display, and actually rendering
    * frames to the drawing area.
    */
-  GtkWidget *statusbar;
-  gchar *iters;
 
-  /* Skip frame rate limiting and updating the iteration counter if we're in
-   * a hurry to show the user the result of a modified rendering parameter.
-   */
-  if (!HISTOGRAM_IMAGER(self->dejong)->render_dirty_flag) {
-
+  /* Skip frame rate limiting if we have parameter or status changes to show quickly */
+  if (!(HISTOGRAM_IMAGER(self->dejong)->render_dirty_flag || self->status_dirty_flag)) {
     if (explorer_auto_limit_update_rate(self))
       return;
+  }
 
-    /* Update the iteration counter, removing the previous one if it existed */
-    iters = g_strdup_printf("Iterations:    %.3e    \tPeak density:    %d    \tCurrent tool: %s",
-			    self->dejong->iterations, HISTOGRAM_IMAGER(self->dejong)->peak_density, self->current_tool);
+  /* We don't want to update the status bar if we're trying to show rendering changes quickly */
+  if (!HISTOGRAM_IMAGER(self->dejong)->render_dirty_flag) {
+    gchar *iters = g_strdup_printf("Iterations:    %.3e    \tPeak density:    %d    \tCurrent tool: %s",
+				   self->dejong->iterations, HISTOGRAM_IMAGER(self->dejong)->peak_density, self->current_tool);
     if (self->render_status_message_id)
       gtk_statusbar_remove(self->statusbar, self->render_status_context, self->render_status_message_id);
     self->render_status_message_id = gtk_statusbar_push(self->statusbar, self->render_status_context, iters);
@@ -501,6 +498,7 @@ void explorer_update_gui(Explorer *self) {
 			HISTOGRAM_IMAGER(self->dejong)->width * 4);
 
   HISTOGRAM_IMAGER(self->dejong)->render_dirty_flag = FALSE;
+  self->status_dirty_flag = FALSE;
 }
 
 static gboolean on_viewport_expose(GtkWidget *widget, GdkEventExpose *event, gpointer user_data) {
