@@ -2,6 +2,7 @@
 <!DOCTYPE glade-interface SYSTEM "http://glade.gnome.org/glade-2.0.dtd">
 
 <glade-interface>
+<requires lib="gnome"/>
 
 <widget class="GtkWindow" id="window">
   <property name="visible">True</property>
@@ -35,20 +36,22 @@
 		<widget class="GtkMenu" id="menuitem4_menu">
 
 		  <child>
-		    <widget class="GtkImageMenuItem" id="new">
+		    <widget class="GtkMenuItem" id="New">
 		      <property name="visible">True</property>
-		      <property name="label">gtk-new</property>
-		      <property name="use_stock">True</property>
-		      <signal name="activate" handler="on_new_activate" last_modification_time="Thu, 08 Jan 2004 09:55:46 GMT"/>
+		      <property name="label" translatable="yes">_New</property>
+		      <property name="use_underline">True</property>
+		      <signal name="activate" handler="on_New_activate" last_modification_time="Thu, 08 Jan 2004 21:48:20 GMT"/>
+		      <accelerator key="N" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 		    </widget>
 		  </child>
 
 		  <child>
-		    <widget class="GtkImageMenuItem" id="open">
+		    <widget class="GtkMenuItem" id="Open">
 		      <property name="visible">True</property>
-		      <property name="label">gtk-open</property>
-		      <property name="use_stock">True</property>
-		      <signal name="activate" handler="on_open_activate" last_modification_time="Thu, 08 Jan 2004 09:55:46 GMT"/>
+		      <property name="label" translatable="yes">_Open</property>
+		      <property name="use_underline">True</property>
+		      <signal name="activate" handler="on_Open_activate" last_modification_time="Thu, 08 Jan 2004 21:48:20 GMT"/>
+		      <accelerator key="O" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 		    </widget>
 		  </child>
 
@@ -102,8 +105,65 @@
       </child>
 
       <child>
-	<placeholder/>
+	<widget class="GtkScrolledWindow" id="scrolledwindow1">
+	  <property name="visible">True</property>
+	  <property name="can_focus">True</property>
+	  <property name="hscrollbar_policy">GTK_POLICY_ALWAYS</property>
+	  <property name="vscrollbar_policy">GTK_POLICY_ALWAYS</property>
+	  <property name="shadow_type">GTK_SHADOW_NONE</property>
+	  <property name="window_placement">GTK_CORNER_TOP_LEFT</property>
+
+	  <child>
+	    <widget class="GtkViewport" id="SheetViewPort">
+	      <property name="visible">True</property>
+	      <property name="shadow_type">GTK_SHADOW_ETCHED_IN</property>
+
+	      <child>
+		<placeholder/>
+	      </child>
+	    </widget>
+	  </child>
+	</widget>
+	<packing>
+	  <property name="padding">0</property>
+	  <property name="expand">True</property>
+	  <property name="fill">True</property>
+	</packing>
       </child>
+    </widget>
+  </child>
+</widget>
+
+<widget class="GtkFileSelection" id="OpenSheetDialog">
+  <property name="border_width">10</property>
+  <property name="title" translatable="yes">Select File</property>
+  <property name="type">GTK_WINDOW_TOPLEVEL</property>
+  <property name="window_position">GTK_WIN_POS_NONE</property>
+  <property name="modal">False</property>
+  <property name="resizable">True</property>
+  <property name="destroy_with_parent">False</property>
+  <property name="show_fileops">True</property>
+  <signal name="close" handler="on_OpenSheetDialog_close" last_modification_time="Thu, 08 Jan 2004 21:41:57 GMT"/>
+
+  <child internal-child="cancel_button">
+    <widget class="GtkButton" id="cancel_button">
+      <property name="visible">True</property>
+      <property name="can_default">True</property>
+      <property name="can_focus">True</property>
+      <property name="relief">GTK_RELIEF_NORMAL</property>
+      <signal name="clicked" handler="on_cancel_button_clicked" last_modification_time="Thu, 08 Jan 2004 21:42:33 GMT"/>
+      <accelerator key="Escape" modifiers="0" signal="clicked"/>
+    </widget>
+  </child>
+
+  <child internal-child="ok_button">
+    <widget class="GtkButton" id="ok_button">
+      <property name="visible">True</property>
+      <property name="can_default">True</property>
+      <property name="can_focus">True</property>
+      <property name="has_focus">True</property>
+      <property name="relief">GTK_RELIEF_NORMAL</property>
+      <signal name="clicked" handler="on_ok_button_clicked" last_modification_time="Thu, 08 Jan 2004 21:43:20 GMT"/>
     </widget>
   </child>
 </widget>

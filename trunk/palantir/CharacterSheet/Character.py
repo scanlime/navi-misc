@@ -11,6 +11,10 @@ import xml.dom.minidom, xml.xpath, string
 
 class Character:
   """ Holds a dom of the character data. """
+  def __init__(self, filename):
+    if filename:
+      self.readCharacter(filename)
+
   def readCharacter(self, filename):
     """ Create a dom from an XML file. """
     self.filename = filename

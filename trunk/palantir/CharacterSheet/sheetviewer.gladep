@@ -2,7 +2,6 @@
 <!DOCTYPE glade-project SYSTEM "http://glade.gnome.org/glade-project-2.0.dtd">
 
 <glade-project>
-  <name>sheetViewer</name>
-  <program_name>sheetviewer</program_name>
-  <gnome_support>FALSE</gnome_support>
+  <name></name>
+  <program_name></program_name>
 </glade-project>
