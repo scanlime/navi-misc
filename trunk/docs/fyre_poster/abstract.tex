@@ -26,6 +26,7 @@
 
 \maketitle
 
+\section{Introduction}
 \copyrightspace
 Iterated Function Systems are a celebrated class of dynamical systems in the
 computer graphics world. By defining a constrictive set of functions and
@@ -38,15 +39,19 @@ iterate a single equation. This creates a single reproducable orbit through
 the space occupied by the attractor. As the point jumps around it exposes
 itself onto the image region, leaving a characteristic picture of the map.
 
-Generally the literature discussing these maps is full of black and white
-images, created where each pixel is darkened as the point $(x_n, y_n)$
-moves around the image region. This technique is often sufficient for
-analyzing the structure of a map but does not provide a sound basis for
-the use of the map as an artistic entity. The structure of the attractor
-is only minimally visible using such techniques, because a long iteration
-run will quickly result in a completely black image.
+insert more relavent, poignant, short paragraph here
 
-Instead, the entire image region is treated as a two dimensional histogram.
+\section{Exposition}
+Generally the literature discussing chaotic maps and other systems which
+produce density fields is full of black and white images, created where
+each pixel is darkened as the point moves around the image region. This
+technique is often sufficient for analyzing the structure of a map but
+does not provide a sound basis for the use of the map as an artistic
+entity. The structure of the attractor is only minimally visible using
+such techniques, because a long iteration run will quickly result in a
+completely black image.
+
+Instead, our technique treats the entire image region as a two dimensional histogram.
 Unlike previous techniques, where each $x_n$ and $y_n$ plotted by darkening a
 a pixel directly, this histogram technique maintains total image intensity as
 more iterations are performed. As more samples accumulate in the histogram,
@@ -69,8 +74,9 @@ de Jong map tend to create the most visually interesting attractors.
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=1.5in]{1.png}
-\caption{A typical attractor rendered as a two-dimensional histogram.}
+\includegraphics[width=2.5in]{1.png}
+\caption{A complex attractor rendered as a two-dimensional histogram.
+Fine details are made easily visible by color and shading}
 %% FIXME: add more explaination to the caption
 \end{figure}
 
@@ -84,5 +90,11 @@ can zoom through parameter space quickly, viewing only what the CPU has time
 to render. As soon as the user stops changing parameters, the image quality
 will begin to improve.
 
+Because a particular histogram bucket may contain tens of thousands of hits,
+high-dynamic-range image processing techniques can be applied. By using a
+non-linear exposure function and gamma correction, even more information
+and detail can be extracted from the image.
+
+\section{Conclusion}
 
 \end{document}
