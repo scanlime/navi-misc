@@ -44,16 +44,19 @@ static void parameter_editor_connect_notify(ParameterEditor *self,
 static void parameter_editor_add_numeric(ParameterEditor *self, GParamSpec *spec);
 static void parameter_editor_add_color(ParameterEditor *self, GParamSpec *spec);
 static void parameter_editor_add_boolean(ParameterEditor *self, GParamSpec *spec);
+static void parameter_editor_add_enum(ParameterEditor *self, GParamSpec *spec);
 
 static void on_changed_numeric(GtkWidget *widget, ParameterEditor *self);
 static void on_changed_color(GtkWidget *widget, ParameterEditor *self);
 static void on_changed_boolean(GtkWidget *widget, ParameterEditor *self);
+static void on_changed_enum(GtkWidget *widget, ParameterEditor *self);
 
 static void on_notify_numeric(ParameterHolder *holder, GParamSpec *spec, GtkWidget *widget);
 static void on_notify_color(ParameterHolder *holder, GParamSpec *spec, GtkWidget *widget);
 static void on_notify_opacity(ParameterHolder *holder, GParamSpec *spec, GtkWidget *widget);
 static void on_notify_boolean(ParameterHolder *holder, GParamSpec *spec, GtkWidget *widget);
 static void on_notify_dependency(ParameterHolder *holder, GParamSpec *spec, GtkWidget *widget);
+static void on_notify_enum(ParameterHolder *holder, GParamSpec *spec, GtkWidget *widget);
 
 
 /************************************************************************************/
@@ -166,6 +169,9 @@ static void parameter_editor_add_paramspec(ParameterEditor *self, GParamSpec *sp
 
   else if (spec->value_type == G_TYPE_BOOLEAN)
     parameter_editor_add_boolean(self, spec);
+
+  else if (g_type_is_a (spec->value_type, G_TYPE_ENUM))
+    parameter_editor_add_enum (self, spec);
 
   else
     g_log(G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
@@ -368,6 +374,39 @@ static void parameter_editor_add_boolean(ParameterEditor *self, GParamSpec *spec
   parameter_editor_add_labeled_row(self, spec, check);
 }
 
+static void parameter_editor_add_enum(ParameterEditor *self, GParamSpec *spec) {
+  GtkWidget *combo;
+  GValue gv;
+  GEnumClass *klass;
+  gint i;
+
+  klass = (GEnumClass*) g_type_class_ref (spec->value_type);
+
+  combo = gtk_combo_box_new_text ();
+  for (i = 0; i < klass->n_values; i++)
+  {
+    GEnumValue *value;
+
+    value = g_enum_get_value (klass, i);
+
+    gtk_combo_box_append_text (GTK_COMBO_BOX (combo), value->value_nick);
+  }
+
+  /* Get the parameter's current value */
+  memset (&gv, 0, sizeof (gv));
+  g_value_init (&gv, spec->value_type);
+  g_object_get_property (G_OBJECT (self->holder), spec->name, &gv);
+  gtk_combo_box_set_active (GTK_COMBO_BOX (combo), g_value_get_enum (&gv));
+  g_value_unset (&gv);
+
+  /* Set up our callback on change */
+  g_object_set_data (G_OBJECT (combo), "ParamSpec", spec);
+  g_signal_connect (combo, "changed", G_CALLBACK (on_changed_enum), self);
+
+  parameter_editor_connect_notify (self, combo, spec->name, G_CALLBACK (on_notify_enum));
+  parameter_editor_add_labeled_row (self, spec, combo);
+}
+
 
 /************************************************************************************/
 /***************************************************************** Widget callbacks */
@@ -437,6 +476,23 @@ static void on_changed_boolean(GtkWidget *widget, ParameterEditor *self) {
   g_object_set(self->holder,
 	       spec->name, active,
 	       NULL);
+  self->suppress_notify = FALSE;
+}
+
+static void on_changed_enum(GtkWidget *widget, ParameterEditor *self) {
+  GParamSpec *spec = g_object_get_data (G_OBJECT (widget), "ParamSpec");
+  gint active;
+
+  if (self->suppress_changed)
+    return;
+
+  active = gtk_combo_box_get_active (GTK_COMBO_BOX (widget));
+
+  self->suppress_notify = TRUE;
+  g_object_set (self->holder,
+                spec->name,
+		active,
+		NULL);
   self->suppress_notify = FALSE;
 }
 
@@ -515,5 +571,24 @@ static void on_notify_dependency(ParameterHolder *holder, GParamSpec *spec, GtkW
   g_object_get(holder, spec->name, &active, NULL);
   gtk_widget_set_sensitive(widget, active);
 }
+
+static void on_notify_enum(ParameterHolder *holder, GParamSpec *spec, GtkWidget *widget) {
+  ParameterEditor *self = g_object_get_data (G_OBJECT (widget), "ParameterEditor");
+  GValue gv;
+
+  if (self->suppress_notify)
+    return;
+
+  memset (&gv, 0, sizeof (gv));
+  g_value_init (&gv, spec->value_type);
+  g_object_get_property (G_OBJECT (holder), spec->name, &gv);
+
+  self->suppress_changed = TRUE;
+  gtk_combo_box_set_active (GTK_COMBO_BOX (widget), g_value_get_enum (&gv));
+  self->suppress_changed = FALSE;
+
+  g_value_unset (&gv);
+}
+
 
 /* The End */
