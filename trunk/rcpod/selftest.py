@@ -54,6 +54,15 @@ import pyrcpod, unittest, sys, random
 # 'checkerboard' bit patterns, and tests for MSB/LSB alignment.
 testBytes = (0x00, 0xFF, 0xAA, 0x55, 0x01, 0x02, 0x80, 0x40)
 
+# A list of pin names to run I/O tests on
+testPins = (
+    'ra0', 'ra1', 'ra2', 'ra3', 'ra4', 'ra5',
+    'rb0', 'rb1', 'rb2', 'rb3', 'rb4', 'rb5', 'rb6', 'rb7',
+    'rc0', 'rc1', 'rc2',                      'rc6', 'rc7',
+    'rd0', 'rd1', 'rd2', 'rd3', 'rd4', 'rd5', 'rd6', 'rd7',
+    're0', 're1', 're2',
+    )
+
 
 class SimpleRcpodTestCase(unittest.TestCase):
     """A TestCase subclass that opens the first available
@@ -94,6 +103,48 @@ class safe(SimpleRcpodTestCase):
         self.rcpod.poke(address, testPattern)
         result = self.rcpod.peek(address, len(testPattern))
         self.assertEqual(testPattern, result)
+
+    def testPokePeekBlockSizes(self):
+        """poke and peek with block sizes that are corner cases for librcpod"""
+        address = 'scratchpad'
+        for size in (0, 1, 2, 4, 5, 7, 8, 9):
+            testPattern = [random.randint(0, 255) for i in range(*self.rcpod.scratchpadRange)[:size]]
+            self.rcpod.poke(address, testPattern)
+            result = self.rcpod.peek(address, len(testPattern), retType=list)
+            self.assertEqual(testPattern, result)
+
+    def testResetValues(self):
+        """verify that relevant registers have the proper power-on-reset values"""
+        # Note that this can't test PORT*, since reading them reads the current pin
+        # states rather than the output driver states.
+
+        # Test the tristate registers for the first three ports.
+        # The other two can't be reliably tested, since on PIC16C745 hardware they're
+        # not implemented.
+        self.assertEqual(self.rcpod.peek('trisa', 3), [0x3F, 0xFF, 0xC7])
+
+        # Other miscellaneous registers that should be initialized...
+        self.assertEqual(self.rcpod.peek('t1con'), 0)
+        self.assertEqual(self.rcpod.peek('t2con'), 0)
+        self.assertEqual(self.rcpod.peek('ccp1con'), 0)
+        self.assertEqual(self.rcpod.peek('ccp2con'), 0)
+        self.assertEqual(self.rcpod.peek('adcon0'), 0)
+        self.assertEqual(self.rcpod.peek('adcon1'), 0)
+        self.assertEqual(self.rcpod.peek('rcsta'), 0)
+        self.assertEqual(self.rcpod.peek('txsta'), 2)
+
+    def testPinDescInstances(self):
+        """verify that all pins have valid Pin instances"""
+        for pinName in testPins:
+            pin = getattr(self.rcpod, pinName)
+            self.assert_(isinstance(pin, pyrcpod.device.Pin))
+
+    def testPinResetDirections(self):
+        """verify, using pin descriptors, that all pins are initialized as inputs"""
+        for pinName in testPins:
+            pin = getattr(self.rcpod, pinName)
+            self.assertEqual(pin.input().test(), True, "%s is not True" % pin.input())
+            self.assertEqual(pin.output().test(), False, "%s is an False" % pin.output())
 
 
 if __name__ == '__main__':

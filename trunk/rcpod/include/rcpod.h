@@ -158,8 +158,8 @@ void rcpod_GpioDeassert(rcpod_dev* rcpod, rcpod_pin pin);
  */
 void rcpod_GpioDeassertBuffer(rcpod_dev* rcpod, rcpod_pin *pins, int count);
 
-/* Read the value of the given pin descriptor */
-int rcpod_GpioRead(rcpod_dev* rcpod, rcpod_pin pin);
+/* Test the value of the given pin descriptor */
+int rcpod_GpioTest(rcpod_dev* rcpod, rcpod_pin pin);
 
 
 /*************************************************************************************/

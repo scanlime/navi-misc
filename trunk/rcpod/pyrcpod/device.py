@@ -68,6 +68,16 @@ class OpenedDevice:
         self.scratchpadRange = (RCPOD_REG_SCRATCHPAD,
                                 RCPOD_REG_SCRATCHPAD + RCPOD_SCRATCHPAD_SIZE)
 
+        # Create pin descriptors corresponding to the ones in librcpod
+        # of the form R*. (The others are building blocks for pin
+        # descriptors, rather than complete descriptors for actual pins)
+        for key, value in globals().iteritems():
+            if key.startswith("RCPOD_PIN_R"):
+                # Hack off the "RCPOD_PIN_" part and lowercase it
+                pinName = key[10:].lower()
+
+                # Wrap it in a Pin class
+                self.__dict__[pinName] = Pin(self, value)
 
     def close(self):
         """Terminate our connection to the rcpod. No attributes
@@ -140,8 +150,10 @@ class OpenedDevice:
                 data = from_ucharArray(arr, length)
             finally:
                 delete_ucharArray(arr)
-        else:
+        elif length == 1:
             data = [rcpod_Peek(self.dev, address)]
+        else:
+            data = []
 
         # data is now a list, convert it if necessary
         if retType == str:
@@ -152,6 +164,68 @@ class OpenedDevice:
         if retType == int and length == 1:
             return data[0]
         return data
+
+
+class Pin:
+    """Encapsulates an rcpod pin descriptor, a value which describes
+       one bit on an I/O port or it's tristate register, and its polarity.
+
+       Normally a pin descriptor is first encountered as an attribute
+       of an OpenedDevice, then modified if necessary using the pin
+       descriptor's attributes.
+       """
+    def __init__(self, rcpod, value):
+        self.rcpod = rcpod
+        self.value = value
+
+    def __repr__(self):
+        """Decode the pin descriptor bitfields to give a human-readable representation"""
+        polarityBit = self.value & RCPOD_PIN_HIGH
+        trisBit = self.value & RCPOD_PIN_TRIS
+        portBits = self.value & 0x38
+        bitBits = self.value & 0x07
+
+        if self.value == 0:
+            return "<Pin (none)>"
+        if portBits < RCPOD_PIN_PORTA or portBits > RCPOD_PIN_PORTE:
+            return "<Pin (invalid)>"
+
+        if trisBit:
+            if polarityBit:
+                desc = "input"
+            else:
+                desc = "output"
+        else:
+            if polarityBit:
+                desc = "high"
+            else:
+                desc = "low"
+        name = "R%s%s" % (" ABCDE"[portBits >> 3], bitBits)
+        return "<Pin %s %s>" % (name, desc)
+
+    def assert_(self):
+        """Place this pin descriptor in its active state, setting the pin
+           high if it is active-high, or low if it is active-low.
+           """
+        rcpod_GpioAssert(self.rcpod.dev, self.value)
+
+    def test(self):
+        """Return a boolean indicating whether this pin is currently asserted or not"""
+        return bool(rcpod_GpioTest(self.rcpod.dev, self.value))
+
+    def negate(self):
+        """Return a new pin descriptor equivalent to this one except with
+           the polarity reversed- active high becomes active low and vice versa.
+           """
+        return Pin(self.rcpod, self.value ^ RCPOD_PIN_HIGH)
+
+    def output(self):
+        """Return a pin descriptor that is asserted when this pin is an output"""
+        return Pin(self.rcpod, (self.value | RCPOD_PIN_TRIS) & ~RCPOD_PIN_HIGH)
+
+    def input(self):
+        """Return a pin descriptor that is asserted when this pin is an input"""
+        return Pin(self.rcpod, self.value | RCPOD_PIN_TRIS | RCPOD_PIN_HIGH)
 
 
 class AvailableDevice:

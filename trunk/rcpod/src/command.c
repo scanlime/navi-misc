@@ -134,14 +134,14 @@ void rcpod_GpioAssert4(rcpod_dev* rcpod, rcpod_pin pins[4]) {
 }
 
 
-int rcpod_GpioRead(rcpod_dev* rcpod, rcpod_pin pin) {
+int rcpod_GpioTest(rcpod_dev* rcpod, rcpod_pin pin) {
   int retval;
   unsigned char byte;
   /* Send the address in wIndex, expect a 1-byte response packet with the data */
   retval = usb_control_msg(rcpod->usbdevh, USB_TYPE_VENDOR | USB_ENDPOINT_IN,
 			   RCPOD_CTRL_GPIO_READ, 0, pin, (char*) &byte, 1, RCPOD_TIMEOUT);
   if (retval < 0) {
-    rcpod_HandleError("rcpod_GpioRead", errno, strerror(errno));
+    rcpod_HandleError("rcpod_GpioTest", errno, strerror(errno));
     return 0;
   }
   return byte;
