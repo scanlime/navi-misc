@@ -19,6 +19,7 @@ from Box import Box
 from Material import Material
 from Mesh import Mesh
 from Pyramid import Pyramid
+from Teleporter import Teleporter
 from World import World
 
 typeMap = {
@@ -37,7 +38,7 @@ typeMap = {
     'physics'       : None,
     'pyramid'       : Pyramid,
     'sphere'        : None,
-    'teleporter'    : None,
+    'teleporter'    : Teleporter,
     'tetra'         : None,
     'textureMatrix' : None,
     'transform'     : None,
