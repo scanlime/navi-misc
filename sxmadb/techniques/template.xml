@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="../style.xsl"?>
+
+<technique name="" level="" category=""
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:noNamespaceSchemaLocation="schema.xsd">
+  <attack></attack>
+  <stances>
+    <attacker><stance side=""></stance></attacker>
+    <defender><stance></stance></defender>
+  </stances>
+  <steps>
+    <step>
+    </step>
+  </steps>
+</technique>
