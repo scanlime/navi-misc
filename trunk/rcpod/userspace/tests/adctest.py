@@ -17,23 +17,27 @@ class AnalogSampler:
         # Initialize the ADC speed and turn it on
         pic.ADCON0 = 0x81
 
-    def read(self, repeats=1):
+    def readChannel(self, channel):
+        """Read one ADC channel, return a value in the range [0,1]"""
+        # Select a channel and start the conversion
+        self.pic.ADCON0 = 0x81 | (channel << 3)
+        self.pic.ADCON0 = 0x85 | (channel << 3)
+
+        # Normally we'd poll ADCON0 now to see if the conversion is done,
+        # but rcpod is slow enough we don't need to worry about this.
+        return self.pic.ADRES / 255.0
+
+    def readAll(self, repeats=1, channels=xrange(8)):
         """Read all ADC channels, return a list of floats.
            In order to provide more stable readings with high impedance inputs,
            this can optionally repeat each channel's reading several times to let
            the ADC's holding capacitor charge over a longer period of time.
            """
-        results = [0] * 8
+        results = []
         for channel in xrange(8):
             for i in xrange(repeats):
-                # Select a channel and start the conversion
-                self.pic.ADCON0 = 0x85 | (channel << 3)
-
-                # Normally we'd poll ADCON0 now to see if the conversion is done,
-                # but rcpod is slow enough we don't need to worry about this.
-
-            # Store result
-            results[channel] = self.pic.ADRES / 255.0
+                v = self.readChannel(channel)
+            results.append(v)
         return results
 
 
@@ -60,7 +64,7 @@ class ChannelGraph:
             for event in pygame.event.get():
                 if event.type == QUIT:
                     return
-            self.drawChannels(sampler.read())
+            self.drawChannels(sampler.readAll())
             pygame.display.flip()
 
 
