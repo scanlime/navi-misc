@@ -163,8 +163,6 @@ CShotDrawObject::~CShotDrawObject()
 
 void CShotDrawObject::Init ( void )
 {
-	char	temp[512];
-
 	std::string	mesh = parent->GetValueS("mesh");
 	if (!mesh.size())
 		mesh = "shot.mesh";
@@ -172,7 +170,6 @@ void CShotDrawObject::Init ( void )
 	std::string name = parent->GetValueS("name");
 
 	Entity* shot = CFirestarterLoop::instance().GetSceneManager()->createEntity(name.c_str(), mesh.c_str());
-	parent->GetMaterial(NULL,temp);
 	node = static_cast<SceneNode*>(CFirestarterLoop::instance().GetSceneManager()->getRootSceneNode()->createChild());
 
 	if (!node)

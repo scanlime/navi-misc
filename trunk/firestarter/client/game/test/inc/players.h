@@ -56,6 +56,8 @@ public:
 
 	bool				forceHidden;
 	bool				dontUpdate;
+
+	float				lastShotTime;
 protected:
 	int					drawable;
 };
@@ -90,8 +92,10 @@ public:
 	std::string mesh;
 
 protected:
+	int					owner;
 	int					drawable;
-	float				updateTime;
+	float				lanchTime;
+	float				timeToLive;
 };
 
 typedef std::vector<CShotObject*> tvShotList;

@@ -260,12 +260,12 @@ int Curl_pgrsUpdate(struct connectdata *conn)
   data->progress.timespent = timespent;
 
   /* The average download speed this far */
-  data->progress.dlspeed =
-    data->progress.downloaded/(timespent>0.01?timespent:1);
+  data->progress.dlspeed = (curl_off_t)
+    (data->progress.downloaded/(timespent>0.01?timespent:1));
 
   /* The average upload speed this far */
-  data->progress.ulspeed =
-    data->progress.uploaded/(timespent>0.01?timespent:1);
+  data->progress.ulspeed =(curl_off_t)
+    (data->progress.uploaded/(timespent>0.01?timespent:1));
 
   if(data->progress.lastshow == Curl_tvlong(now))
     return 0; /* never update this more than once a second if the end isn't 
@@ -309,9 +309,9 @@ int Curl_pgrsUpdate(struct connectdata *conn)
       span_ms=1; /* at least one millisecond MUST have passed */
 
     /* Calculate the average speed the last 'countindex' seconds */
-    data->progress.current_speed =
-      (data->progress.speeder[nowindex]-
-       data->progress.speeder[checkindex])/((double)span_ms/1000);
+    data->progress.current_speed = (curl_off_t)
+      ((data->progress.speeder[nowindex]-
+       data->progress.speeder[checkindex])/((double)span_ms/1000));
   }
   else
     /* the first second we use the main average */

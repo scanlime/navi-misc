@@ -244,7 +244,7 @@ bool CTestGameServer::add ( int playerID, CNetworkPeer &peer )
 	info.rot[0] = info.rot[1] = info.rot[2] = 0;
 	info.vec[0] = info.vec[1] = info.vec[2] = 0;
 	info.bot = NULL;
-	info.lastStamp = CTimer::instance().GetTime();
+	info.lastStamp = (float)CTimer::instance().GetTime();
 	users[playerID] = info;
 
 	CNetworkMessage	message;
@@ -317,7 +317,7 @@ void CTestGameServer::addBot (int playerID, const char* name, const char* config
 	info.rot[0] = info.rot[1] = info.rot[2] = 0;
 	info.vec[0] = info.vec[1] = info.vec[2] = 0;
 	info.bot = new CRobotPlayer;
-	info.lastStamp = CTimer::instance().GetTime();
+	info.lastStamp = (float)CTimer::instance().GetTime();
 	users[playerID] = info;
 
 	info.bot->init(name,config,&users[playerID]);
@@ -351,7 +351,7 @@ void CTestGameServer::addBot (int playerID, const char* name, const char* config
 	message.SetType(_MESSAGE_SPAWN);
 	message.AddI(playerID);
 	message.AddV(users[playerID].pos);
-	message.AddV(users[playerID]rot);
+	message.AddV(users[playerID].rot);
 	message.AddV(users[playerID].vec);
 	message.AddF(users[playerID].lastStamp);
 
@@ -438,7 +438,7 @@ void CTestGameServer::spawnPlayer ( int playerID )
 	itr->second.vec[0] = itr->second.vec[1] = 0;
 	itr->second.vec[2] = grav;
 
-	itr->second.lastStamp = CTime::instance().GetTime();
+	itr->second.lastStamp = (float)CTimer::instance().GetTime();
 }
 
 // bots
@@ -490,7 +490,7 @@ bool CRobotPlayer::think ( void )
 	playerInfo->pos[1] += playerInfo->vec[1]*updateTime;
 	playerInfo->pos[2] += playerInfo->vec[2]*updateTime;
 
-	playerInfo->lastStamp = CTimer::instance().GetTime();
+	playerInfo->lastStamp = (float)CTimer::instance().GetTime();
 	if (playerInfo->pos[2] < 0 )
 		playerInfo->pos[2] = 0;
 

@@ -38,6 +38,18 @@ void CTestGame::Init ( void )
 	registerFactory("camera",new CCameraObjectFactory);
 	registerFactory("shot",new CShotObjectFactory);
 
+	gameParams.reloadTime = 5.0f;
+	gameParams.rotspeed = 60.0f;
+	gameParams.linspeed = 100.0f;
+	gameParams.reversemod = -0.5f;
+	gameParams.friction = 0.5f;
+	gameParams.stoptol = 1.0f;
+	gameParams.grav = -10.0f;
+	gameParams.tankRad = 2.0f;
+	gameParams.bounceFriction = -0.5f;
+	gameParams.bonceBuffer = 0.1f;
+	gameParams.shotSpeed = 50.0f;
+
 	lastSyncPingTime = -1;
 	syncPingInterval = CPrefsManager::instance().GetItemF("syncUpdateTime");
 }
@@ -158,6 +170,20 @@ bool CTestGame::Think ( void )
 	
 	if (!exit)
 	{
+		// move the shots
+		tvShotList::iterator shotItr = shots.begin();
+		while (shotItr != shots.end())
+		{
+			if (!(*shotItr)->Think())
+			{
+				(*shotItr)->Kill();
+				delete((*shotItr));
+				shotItr = shots.erase(shotItr);
+			}
+			else
+				shotItr++;
+		}
+
 		// process the player DR
 		tmPlayerMap::iterator itr = players.begin();
 
@@ -385,24 +411,16 @@ bool CTestGame::processPlayerInput ( void )
 	if (!localPlayer)
 		return true;
 
-	float rotspeed = 60.0f;
-	float linspeed = 100.0f;
-	float reversemod = -0.5f;
-	float friction = 0.5f;
-	float stoptol = 1.0f;
-	float grav = -10.0f;
-	float tankRad = 2.0f;
-
 	float frameTime = timer.GetFrameTime();
 
 	// compute a new rotation
 	if (input.KeyDown(KEY_LEFT))
 	{
-		localPlayer->rot[2] += rotspeed*frameTime;
+		localPlayer->rot[2] += gameParams.rotspeed*frameTime;
 	}
 	else if (input.KeyDown(KEY_RIGHT))
 	{
-		localPlayer->rot[2] -= rotspeed*frameTime;
+		localPlayer->rot[2] -= gameParams.rotspeed*frameTime;
 	}
 
 	float h,v;
@@ -419,22 +437,48 @@ bool CTestGame::processPlayerInput ( void )
 	{
 		if (input.KeyDown(KEY_UP))
 		{
-			localPlayer->vec[0] = linspeed*h;
-			localPlayer->vec[1] = linspeed*v;
+			localPlayer->vec[0] = gameParams.linspeed*h;
+			localPlayer->vec[1] = gameParams.linspeed*v;
 			moved = true;
 		}
 		else if (input.KeyDown(KEY_DOWN))
 		{
-			localPlayer->vec[0] = linspeed*h*reversemod;
-			localPlayer->vec[1] = linspeed*v*reversemod;
+			localPlayer->vec[0] = gameParams.linspeed*h*gameParams.reversemod;
+			localPlayer->vec[1] = gameParams.linspeed*v*gameParams.reversemod;
 			moved = true;
 		}
 	}
 	
 	if (!moved)
 	{
-		localPlayer->vec[0] -= localPlayer->vec[0]*friction*frameTime;
-		localPlayer->vec[1] -= localPlayer->vec[1]*friction*frameTime;
+		localPlayer->vec[0] -= localPlayer->vec[0]*gameParams.friction*frameTime;
+		localPlayer->vec[1] -= localPlayer->vec[1]*gameParams.friction*frameTime;
+	}
+
+	if (input.KeyDown(KEY_SPACE))
+	{
+		if (CTimer::instance().GetTime() - localPlayer->lastShotTime > gameParams.reloadTime)
+		{
+			localPlayer->lastShotTime = CTimer::instance().GetTime();
+			CShotObject *newShot = new CShotObject;
+			
+			float pos[3];
+			memcpy(pos,localPlayer->pos,sizeof(float)*3);
+			pos[2] += 1.5f;
+			int type = 0;
+
+			newShot->Shoot(localPlayer->idNumber,pos,localPlayer->rot,gameParams.shotSpeed,type,timer.GetTime());
+			shots.push_back(newShot);
+
+			// send a message saying we shot
+		/*	CNetworkMessage	message;
+			message.SetType(_MESSAGE_CREATE_SHOT);
+			message.AddI(type);
+			message.AddV(localPlayer->pos);
+			message.AddV(localPlayer->rot);
+			message.AddF(gameParams.shotSpeed);
+			message.AddF(timer.GetTime()); */
+		}
 	}
 
 	if (input.KeyDown(KEY_END))
@@ -443,56 +487,64 @@ bool CTestGame::processPlayerInput ( void )
 		localPlayer->vec[1] = 0;
 	}
 
-	if (localPlayer->vec[0]*localPlayer->vec[0] + localPlayer->vec[1]*localPlayer->vec[1] < stoptol*stoptol)
+	// this is actual physics stuff
+	if (localPlayer->vec[0]*localPlayer->vec[0] + localPlayer->vec[1]*localPlayer->vec[1] < gameParams.stoptol*gameParams.stoptol)
 		localPlayer->vec[0] = localPlayer->vec[1] = 0;
 
 	// apply gravity if above 0;
 
 	if (localPlayer->pos[2] > 0)
 	{
-		if ( localPlayer->vec[2] <= 0.1f)
-			localPlayer->vec[2] = grav;
+		if ( localPlayer->pos[2] >= 0.1f)
+			localPlayer->vec[2] = gameParams.grav;
 	}
 	else
 		localPlayer->vec[2] = 0;
 
+	// run the vector
+//	float frameTime = CSyncedClock::instance().GetFrameTime();
+	localPlayer->pos[0] += localPlayer->vec[0]*frameTime;
+	localPlayer->pos[1] += localPlayer->vec[1]*frameTime;
+	localPlayer->pos[2] += localPlayer->vec[2]*frameTime;
+
+	if (localPlayer->pos[2] < 0)
+		localPlayer->pos[2] = 0;
+
 	bool smack = false;
 
-	float bounceFriction = -0.5f;
-	float bonceBuffer = 0.1f;
-
-	if ( localPlayer->pos[0] > world.GetXSize()*0.5f-tankRad )
+	if ( localPlayer->pos[0] > world.GetXSize()*0.5f-gameParams.tankRad )
 	{
-		localPlayer->vec[0] *= bounceFriction;
-		localPlayer->vec[1] *= (float)fabs(bounceFriction);
-		localPlayer->pos[0] = world.GetXSize()*0.5f-tankRad-bonceBuffer;
+		localPlayer->vec[0] *= gameParams.bounceFriction;
+		localPlayer->vec[1] *= (float)fabs(gameParams.bounceFriction);
+		localPlayer->pos[0] = world.GetXSize()*0.5f-gameParams.tankRad-gameParams.bonceBuffer;
 		smack = true;
 	}
-	else if ( localPlayer->pos[0] < world.GetXSize()*-0.5f+tankRad )
+	else if ( localPlayer->pos[0] < world.GetXSize()*-0.5f+gameParams.tankRad )
 	{
-		localPlayer->vec[0] *= bounceFriction;
-		localPlayer->vec[1] *= (float)fabs(bounceFriction);;
-		localPlayer->pos[0] = world.GetXSize()*-0.5f+tankRad+bonceBuffer;
+		localPlayer->vec[0] *= gameParams.bounceFriction;
+		localPlayer->vec[1] *= (float)fabs(gameParams.bounceFriction);;
+		localPlayer->pos[0] = world.GetXSize()*-0.5f+gameParams.tankRad+gameParams.bonceBuffer;
 		smack = true;
 	}
 	
-	if ( localPlayer->pos[1] > world.GetYSize()*0.5f-tankRad )
+	if ( localPlayer->pos[1] > world.GetYSize()*0.5f-gameParams.tankRad )
 	{
-		localPlayer->vec[0] *= (float)fabs(bounceFriction);;
-		localPlayer->vec[1] *= bounceFriction;
-		localPlayer->pos[1] = world.GetYSize()*0.5f-tankRad-bonceBuffer;
+		localPlayer->vec[0] *= (float)fabs(gameParams.bounceFriction);;
+		localPlayer->vec[1] *= gameParams.bounceFriction;
+		localPlayer->pos[1] = world.GetYSize()*0.5f-gameParams.tankRad-gameParams.bonceBuffer;
 		smack = true;
 	}
-	else if ( localPlayer->pos[1] < world.GetYSize()*-0.5f+tankRad )
+	else if ( localPlayer->pos[1] < world.GetYSize()*-0.5f+gameParams.tankRad )
 	{
-		localPlayer->vec[0] *= (float)fabs(bounceFriction);;
-		localPlayer->vec[1] *= bounceFriction;
-		localPlayer->pos[1] = world.GetYSize()*-0.5f+tankRad+bonceBuffer;
+		localPlayer->vec[0] *= (float)fabs(gameParams.bounceFriction);;
+		localPlayer->vec[1] *= gameParams.bounceFriction;
+		localPlayer->pos[1] = world.GetYSize()*-0.5f+gameParams.tankRad+gameParams.bonceBuffer;
 		smack = true;
 	}
 
 	if (smack)
 	{
+		// do some sora effect here
 	//	localPlayer->vec[0] = 0;
 	//	localPlayer->vec[1] = 0;
 	}

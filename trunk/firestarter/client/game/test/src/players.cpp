@@ -27,6 +27,7 @@ CPlayerObject::CPlayerObject()
 	material = "default";
 	forceHidden = false;
 	dontUpdate = false;
+	lastShotTime = -1;
 }
 
 CPlayerObject::~CPlayerObject()
@@ -168,7 +169,9 @@ CShotObject::CShotObject()
 
 	mesh = "shot.mesh";
 	drawable = -1;
-	updateTime = -1;
+	lanchTime = -1;
+	timeToLive = 0;
+	owner = -1;
 }
 
 CShotObject::~CShotObject()
@@ -191,6 +194,9 @@ bool CShotObject::Think ( void )
 	pos[1] += vec[1]*frameTime;
 	pos[2] += vec[2]*frameTime;
 
+	if ( CSyncedClock::instance().GetTime() - lanchTime >= timeToLive)
+		return false;
+
 	return true;
 }
 
@@ -201,12 +207,49 @@ void CShotObject::Kill ( void )
 	drawable = -1;
 }
 
-void CShotObject::Shoot ( int player, float *pos, float* rot, float speed, int shotClass, float startTime )
+void CShotObject::Shoot ( int player, float *pPos, float* pRot, float speed, int shotClass, float startTime )
 {
+	owner = player;
+	lanchTime = startTime;
+
+	float thisTime = (float)CSyncedClock::instance().GetTime();
+
+	float timeOffset = thisTime - lanchTime;
+
+	float deg2rad = 0.017453292519943295769236907684886f;
+	float h = cos((rot[2]+90)*deg2rad);
+	float v = sin((rot[2]+90)*deg2rad);
+
+	memcpy(pos,pPos,sizeof(float)*3);
+	memcpy(rot,pRot,sizeof(float)*3);
+
+	vec[0] = h * speed;
+	vec[1] = v * speed;
+	vec[2] = 0;
+
+	// get us to where we are NOW
+	pos[0] += vec[0]*timeOffset;
+	pos[1] += vec[1]*timeOffset;
+	pos[2] += vec[2]*timeOffset;
+
+	timeToLive = 45.0f;
+
+	Init(true);
 }
 
 const char* CShotObject::GetValueS ( const char *item )
 {
+	std::string name = item;
+
+	if ( name == "mesh")
+		return "MK3.mesh";
+
+	if ( name == "name")
+	{
+		static char	temp[256];
+		sprintf(temp,"shot:%d",(unsigned int)this);
+		return temp;
+	}
 	return NULL;
 }
 
@@ -218,17 +261,26 @@ float CShotObject::GetValueF ( const char *item )
 int CShotObject::GetValueI ( const char *item )
 {
 	return 0;
-
 }
 
 bool CShotObject::GetPos ( float *pPos )
 {
-	return false;
+	if (!pPos)
+		return false;
+
+	memcpy(pPos,pos,sizeof(float)*3);
+	return true;
+
 }
 
 bool CShotObject::GetRot ( float *pRot )
 {
-	return false;
+	if (!pRot)
+		return false;
+
+	memcpy(pRot,rot,sizeof(float)*3);
+	return true;
+
 }
 
 
