@@ -818,6 +818,10 @@ class Bot(irc.IRCClient):
             except ValueError:
                 pass
 
+    def action(self, user, channel, message):
+        if message.lower().strip() == 'hugs %s' % self.nickname.lower():
+            self.me(channel, 'hugs %s' % user.split('!')[0])
+
 
 class BotFactory(protocol.ClientFactory):
     """Twisted ClientFactory for creating Bot instances"""
