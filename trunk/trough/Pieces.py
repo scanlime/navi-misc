@@ -1,8 +1,8 @@
-#!/usr/bin/env python
-
 import FSTree
 from Piece import Piece
+
 from types import *
+import sys
 
 class Pieces:
 	''' Pieces
@@ -73,12 +73,21 @@ class Pieces:
 	def getPiece (self, num):
 		return self.pieces[num]
 
-	def delPiece (self, piece):
-		self.pieces.remove(piece)
-		
-if __name__ == "__main__":
-	import sys
-	import time
+	def removePaths (self, paths):
+		for path in paths:
+			for i in xrange(0,len(self.roots)):
+				dir = self.roots[i].find(path)
+				if dir:
+					dir.destroy();
+					del dir
+					break
+			else:
+				sys.stderr.write('warning: '+path+' not found in tree\n')
 
-	p = Pieces()
-	p.addPaths (sys.argv[1:])
+	def delPiece (self, piece):
+		'''	Pieces.delPiece
+
+			Called by individual pieces to make sure they're cleaned
+			up happily.
+	'''
+		self.pieces.remove(piece)
