@@ -227,6 +227,7 @@
 
       <child>
 	<widget class="GtkVPaned" id="vpaned2">
+	  <property name="border_width">5</property>
 	  <property name="visible">True</property>
 	  <property name="can_focus">True</property>
 	  <property name="position">381</property>

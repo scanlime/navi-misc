@@ -14,7 +14,7 @@ def formatMessage(user, msg, isAction=False, ourName=None):
       a string and a boolean value; the string is the nick of the
       person who spoke plus the message and the boolean indicates
       whether or not the our nick was said.'''
-  if ourName and msg.find(ourName) != -1 and user.find(ourName) != -1:
+  if ourName and msg.find(ourName) != -1 and user.find(ourName) == -1:
     addressed = True
   else:
     addressed = False
@@ -25,7 +25,7 @@ def formatMessage(user, msg, isAction=False, ourName=None):
     nick = ' <' + getNick(user, isAction) + '> '
   else:
     nick = ''
-  return (getTime(), nick + msg, addressed)
+  return (getTime(), nick, msg, addressed)
 
 def formatRoll(user, times, sides, rolls, total):
   ''' Returns a tuple with the time and a formatted string of the die
