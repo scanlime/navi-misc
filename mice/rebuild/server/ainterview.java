@@ -47,6 +47,7 @@ public class ainterview
 	 * @param pass The password for the interviewee
 	 * @author Brandon Smith
 	 * @version 2.0
+	 * @return True on sucess, false on failure
 	 */
 	public boolean intinit(qbase root, String name, String pass)
 	{

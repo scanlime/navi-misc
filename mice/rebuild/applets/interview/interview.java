@@ -45,6 +45,8 @@ public class interview extends java.applet.Applet implements ActionListener
 	 */
 	public void actionPerformed(ActionEvent e)
 	{
+		net.openConnection("localhost",8080);
+		net.write("jint");
 		buttonconfig();
 	}
 	
@@ -64,7 +66,10 @@ public class interview extends java.applet.Applet implements ActionListener
 		add(question);
 		add(answer);
 		add(button1);
+		button1.addActionListener(new submit());
 		add(button2);
+		button2.addActionListener(new reject());
 		add(button3);
+		button3.addActionListener(new quit());
 	}
 }
