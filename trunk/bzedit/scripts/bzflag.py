@@ -22,8 +22,10 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 
+import Blender
 from Blender import NMesh
 import math
+
 
 def meshify(vertex, face):
     mesh = NMesh.GetRaw()
@@ -39,9 +41,46 @@ def meshify(vertex, face):
         mesh.faces.append(face)
     return NMesh.PutRaw(mesh)
 
+
 class CommentLine(str):
     """Placeholder for a comment line, loaded or saved in a BZFlag world"""
     pass
+
+
+class Logger:
+    """This is a singleton that collects error and warning messages, presenting
+       them to the user in batches.
+       """
+    def __init__(self):
+        self.clear()
+
+    def clear(self):
+        self.log = []
+        self.numErrors = 0
+        self.numMessages = 0
+        self.numWarnings = 0
+
+    def msg(self, s):
+        """Log a nonfatal message"""
+        self.log.append(s)
+        self.numMessages += 1
+
+    def err(self, s):
+        """Log an error"""
+        self.log.append("ERROR: %s" % s)
+        self.numErrors += 1
+
+    def warn(self, s):
+        """Log a nonfatal warning"""
+        self.log.append("Warning: %s" % s)
+        self.numWarnings += 1
+
+    def report(self, title="Errors reported"):
+        """Report errors to the user"""
+        Blender.Draw.PupMenu("%s:%%t|%s" % (title, "|".join(self.log)))
+        self.clear()
+
+log = Logger()
 
 
 class WorldReader:
@@ -107,7 +146,7 @@ class WorldReader:
             try:
                 obj = typeRegistry.dict[type]()
             except KeyError:
-                print "Warning: skipping unknown object type %s in world" % type
+                log.warn("skipping unknown object type %s in world" % type)
                 for line in content:
                     pass
             else:
@@ -149,7 +188,7 @@ class WorldWriter:
 
     def writeObject(self, object):
         """Write a BZObject instance to the world file"""
-        self.writeBlock(object.serialize)
+        self.writeBlock(object.type, object.serialize)
 
 
 class BZObject(object):
@@ -190,9 +229,9 @@ class BZObject(object):
                     except TypeError:
                         # This probably means the number of arguments
                         # were wrong, but we don't verify this yet.
-                        print "Warning: line %r probably has the wrong number of parameters"
+                        log.warn("line %r probably has the wrong number of parameters" % line)
                 else:
-                    print "Warning: ignoring unknown line type %r in %r object" % (line[0], self.type)
+                    log.warn("ignoring unknown line type %r in %r object" % (line[0], self.type))
 
     def toBlender(self):
         """Create a new Blender object representing this one,
@@ -240,7 +279,7 @@ class ObjectTypeRegistry:
            and load its parameters from the blender object. Returns a new
            BZObject instance.
            """
-        bztype = self.object.getProperty('bztype').getData()
+        bztype = object.getProperty('bztype').getData()
         bzo = self.dict[bztype]()
         bzo.fromBlender(object)
         return bzo
@@ -253,6 +292,20 @@ def getTypeRegistry():
     if not _typeRegistry:
         _typeRegistry = ObjectTypeRegistry(globals())
     return _typeRegistry
+
+
+class World(BZObject):
+    """Represents the size of the bzflag world and other global attributes"""
+    type = 'world'
+
+    def __init__(self):
+        self.set_size()
+
+    def set_size(self, size=400):
+        self.size = size
+
+    def serialize(self, writer):
+        writer(("size", self.size))
 
 
 class Box(BZObject):
@@ -273,6 +326,11 @@ class Box(BZObject):
 
     def set_size(self, x=1, y=1, z=1):
         self.size = [x,y,z]
+
+    def serialize(self, writer):
+        writer(("position",) + tuple(self.position))
+        writer(("size",) + tuple(self.size))
+        writer(("rotation", self.rotation))
 
     def toBlender(self):
         verts = [( 1,  1, 1),
@@ -305,6 +363,7 @@ class Box(BZObject):
             self.position[2] / 10.0
             )
         box.setEuler((0, 0, self.rotation / 180.0 * math.pi))
+
 
 class Pyramid(Box):
     """A tetrahedron, pointing straight up or down, with rotation in the Z axis"""
