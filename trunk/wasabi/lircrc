@@ -1,3 +1,93 @@
+
+########################### Buttons to relay to other IR devices
+
+begin
+    prog = irexec
+    button = power
+    config = irsend send_once sony_tv power
+end
+
+############################ X-10 appliances
+
+# The button names here are meaningless, each
+# appliance from O1 to O5 is mapped to a column,
+# with rows for on, off, bright, and dim.
+
+begin
+    prog = irexec
+    button = ph
+    config = heyu2 on O1
+    repeat = 0
+end
+begin
+    prog = irexec
+    button = tape1
+    config = heyu2 on O2 
+    repeat = 0
+end
+begin
+    prog = irexec
+    button = tape2
+    config = heyu2 on O3 
+    repeat = 0
+end
+begin
+    prog = irexec
+    button = v3
+    config = heyu2 off O1
+    repeat = 0
+end
+begin
+    prog = irexec
+    button = v4
+    config = heyu2 off O2 
+    repeat = 0
+end
+begin
+    prog = irexec
+    button = v5
+    config = heyu2 off O3 
+    repeat = 0
+end
+begin
+    prog = irexec
+    button = zone
+    config = heyu2 bright O1 4 
+    repeat = 0
+end
+begin
+    prog = irexec
+    button = preset
+    config = heyu2 bright O2 4 
+    repeat = 0
+end
+begin
+    prog = irexec
+    button = sur+
+    config = heyu2 bright O3 4 
+    repeat = 0
+end
+begin
+    prog = irexec
+    button = ta
+    config = heyu2 dim O1 4 
+    repeat = 0
+end
+begin
+    prog = irexec
+    button = tp
+    config = heyu2 dim O2 4 
+    repeat = 0
+end
+begin
+    prog = irexec
+    button = display
+    config = heyu2 dim O3 4 
+    repeat = 0
+end
+
+############################ Freevo config
+
 begin
     prog = freevo
     button = preset
@@ -45,11 +135,6 @@ begin
 end
 begin
     prog = freevo
-    button = v5
-    config = REC
-end
-begin
-    prog = freevo
     button = up
     config = UP
 end
@@ -77,11 +162,6 @@ begin
     prog = freevo
     button = right
     config = RIGHT
-end
-begin
-    prog = freevo
-    button = power
-    config = MENU
 end
 begin
     prog = freevo
