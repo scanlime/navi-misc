@@ -1,4 +1,5 @@
 #include <tusb.h>
+#include <stdio.h>
 
 /* GPIO allocation on the Keyspan USA-19HS board */
 #define LED          P3_0
@@ -39,41 +40,28 @@ void uart_init() {
   DLL  = 8;
 }
 
-void uart_write(char *s) {
-  while (*s) {
-    LED = 0;
-    while (!(LSR & LSR_TxE))
-      watchdog_reset();
-    LED = 1;
-    TDR = *s;
-    s++;
-  }
+void putchar(char c) {
+  while (!(LSR & LSR_TxE))
+    watchdog_reset();
+  TDR = c;
+
+  /* Convert \n into \n\r */
+  if (c == '\n')
+    putchar('\r');
 }
 
 void main() {
   EA = 0;           /* Global interrupt disable */
 
   uart_init();
+  puts("\n---- Startup ----");
 
-  while (1) {
-    uart_write("\n\rHello World!\n\r");
-    delay(20000);
-  }
-
-#if 0
   usb_init();
+  puts("USB initialized");
 
   while (1) {
-
-    switch (VECINT) {
-
-    case 0:
-      LED = 0;
-      break;
-    }
-
-    watchdog_reset();
+    printf("VECINT = 0x%02X\n", VECINT);
+    delay(60000);
   }
-#endif
 }
 
