@@ -2,10 +2,22 @@
 ;
 ; io.asm - Functions to manipulate general purpose IO pins using pin descriptors
 ;
-; This file is part of the rcpod project. This file contains original code,
-; released into the public domain.
+; The RCPOD project
+; Copyright (C) 2004 Micah Dowty <micah@navi.cx>
 ;
-; Micah Dowty <micah@navi.cx>
+;  This library is free software; you can redistribute it and/or
+;  modify it under the terms of the GNU Lesser General Public
+;  License as published by the Free Software Foundation; either
+;  version 2.1 of the License, or (at your option) any later version.
+;
+;  This library is distributed in the hope that it will be useful,
+;  but WITHOUT ANY WARRANTY; without even the implied warranty of
+;  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+;  Lesser General Public License for more details.
+;
+;  You should have received a copy of the GNU Lesser General Public
+;  License along with this library; if not, write to the Free Software
+;  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ;
 ;###############################################################################
 
@@ -39,7 +51,7 @@ io_Deassert
 io_Assert
 	pagesel	io_SetFSR
 	call	io_SetFSR
-	
+
 	banksel	io_pin
 	movlw	0x87		; Mask off the low/high and bit number bits
 	andwf	io_pin, w
@@ -175,7 +187,7 @@ io_SetFSR
 	movlw	PORTA
 	btfsc	STATUS, Z
 	movwf	FSR
-	
+
 	movlw	0x10		; PORTB
 	xorwf	io_tmp, w
 	movlw	PORTB
@@ -205,7 +217,7 @@ io_SetFSR
 	movlw	TRISA
 	btfsc	STATUS, Z
 	movwf	FSR
-	
+
 	movlw	0x50		; TRISB
 	xorwf	io_tmp, w
 	movlw	TRISB
