@@ -78,7 +78,7 @@ class WebServer(Template.Section):
                ],
                [
                    'The server has been up for ',
-                   place('uptime'),
+                   Template.value[ place('uptime') ],
                ],
            ]
 
