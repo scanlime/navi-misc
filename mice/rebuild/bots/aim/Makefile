@@ -1,4 +1,6 @@
 CLASSES=\
+	keyinfo.class\
+	key.class\
 	net.class\
 	person.class\
 	personindex.class\
@@ -7,6 +9,12 @@ CLASSES=\
 	aimup.class
 
 bot: $(CLASSES)
+
+keyinfo.class: keyinfo.java
+	javac keyinfo.java
+
+key.class: key.java
+	javac key.java
 
 net.class: net.java
 	javac net.java
