@@ -65,7 +65,10 @@ fe_init (void)
 	palette_init ();
 	initialize_gui_1 ();
 	if (!preferences_exist ())
+	{
+		initialize_setup_druid ();
 		run_setup_druid ();
+	}
 	load_preferences ();
 	initialize_gui_2 ();
 	run_main_window ();

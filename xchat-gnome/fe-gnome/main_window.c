@@ -133,14 +133,19 @@ initialize_main_window ()
 
   /* XXX: Is this a leak?? */
 	topicbox = glade_xml_get_widget (gui.xml, "topic hbox");
-#if (GTK_CHECK_VERSION(2,5,0))
-	gui.topic_expander = gtk_expander_new (NULL);
-	gtk_box_pack_start (GTK_BOX (topicbox), GTK_WIDGET (gui.topic_expander), TRUE, FALSE, 0);
-	gtk_box_reorder_child (GTK_BOX (topicbox), GTK_WIDGET (gui.topic_expander), 0);
-#endif
 	gui.topic_label = GTK_LABEL (gtk_label_new(""));
 	gtk_box_pack_start (GTK_BOX (topicbox), GTK_WIDGET (gui.topic_label), TRUE, TRUE, 0);
 	gtk_box_reorder_child (GTK_BOX (topicbox), GTK_WIDGET (gui.topic_label), 1);
+	gtk_label_set_selectable (gui.topic_label, TRUE);
+#if (GTK_CHECK_VERSION(2,5,0))
+	gui.topic_expander = gtk_expander_new (NULL);
+	gtk_box_pack_start (GTK_BOX (topicbox), GTK_WIDGET (gui.topic_expander), FALSE, TRUE, 0);
+	gtk_box_reorder_child (GTK_BOX (topicbox), GTK_WIDGET (gui.topic_expander), 0);
+	gtk_expander_set_expanded (GTK_EXPANDER (gui.topic_expander), FALSE);
+	gtk_label_set_ellipsize (gui.topic_label, PANGO_ELLIPSIZE_END);
+#else
+	gtk_label_set_line_wrap (gui.topic_label, TRUE)
+#endif
 	// FIXME
 //	g_signal_connect(G_OBJECT(entry), "activate", G_CALLBACK(on_topic_entry_activate), NULL);
 
