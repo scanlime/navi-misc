@@ -61,8 +61,10 @@ div.topic {
 div.date {
   font-variant: small-caps;
   font-style: italic;
-  text-decoration: underline;
-  padding-left: 2em;
+  border-bottom-width: thin;
+  border-bottom-color: black;
+  border-bottom-style: solid;
+  padding-left: 1em;
 }
 
 img.header {
