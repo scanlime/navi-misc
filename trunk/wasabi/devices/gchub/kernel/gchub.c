@@ -58,6 +58,15 @@ struct gchub_controller_status {
 	int triggers[2];
 };
 
+struct gchub_controller_outputs {
+	int rumble;
+	int red_led;
+	int green_led;
+
+	int dirty;
+	spinlock_t lock;
+};
+
 struct gchub_controller {
 	struct input_dev dev;
 	int attached;            /* Nonzero if this controller is physically present */
@@ -68,8 +77,9 @@ struct gchub_controller {
 	struct work_struct reg_work, unreg_work;
 	spinlock_t reg_lock;
 
-	struct gchub_controller_status current_status;
-	struct gchub_controller_status calibration_status;
+	struct gchub_controller_status  current_status;
+	struct gchub_controller_status  calibration_status;
+	struct gchub_controller_outputs outputs;
 };
 
 struct gchub_dev {
@@ -82,8 +92,6 @@ struct gchub_dev {
 	dma_addr_t              irq_dma;
 
 	struct gchub_controller ports[NUM_PORTS];
-
-	struct semaphore	sem;			/* locks this structure */
 };
 
 #define REQUEST_TIMEOUT    (HZ/10)  /* 1/10 second timeout for control requests */
@@ -121,8 +129,11 @@ static void   controller_status_diff   (struct gchub_controller_status* a,
 					struct gchub_controller_status* out);
 static void   controller_attach        (void*                           data);
 static void   controller_detach        (void*                           data);
-
-
+static void   controller_set_rumble    (struct gchub_controller*        ctl,
+					int                             rumble);
+static void   controller_set_leds      (struct gchub_controller*        ctl,
+					int                             red,
+					int                             green);
 
 /* Table of devices that work with this driver */
 static struct usb_device_id gchub_table [] = {
@@ -154,6 +165,8 @@ static int controller_init(struct gchub_controller* ctl,
 
 	memset(ctl, 0, sizeof(*ctl));
 	spin_lock_init(&ctl->reg_lock);
+	spin_lock_init(&ctl->outputs.lock);
+	ctl->outputs.dirty = 1;
 
 	/* Create a name string for this controller, and copy it to
 	 * a dynamically allocated buffer.
@@ -208,9 +221,10 @@ static int controller_init(struct gchub_controller* ctl,
 		case ABS_Y:
 		case ABS_RX:
 		case ABS_RY:
-			ctl->dev.absmax[axis]  =  127;
-			ctl->dev.absmin[axis]  = -127;
-			ctl->dev.absflat[axis] =  5;
+			ctl->dev.absmax[axis]  =  110;
+			ctl->dev.absmin[axis]  = -110;
+			ctl->dev.absflat[axis] =  16;
+			ctl->dev.absfuzz[axis] =  2;
 			break;
 
 		case ABS_HAT0X:
@@ -221,7 +235,7 @@ static int controller_init(struct gchub_controller* ctl,
 
 		case ABS_Z:
 		case ABS_RZ:
-			ctl->dev.absmax[axis]  = 255;
+			ctl->dev.absmax[axis]  = 250;
 			ctl->dev.absmin[axis]  = 0;
 			break;
 
@@ -365,6 +379,27 @@ static void controller_detach(void *data)
 	ctl->reg_in_progress = 0;
 }
 
+static void controller_set_rumble(struct gchub_controller* ctl,
+				  int rumble)
+{
+	unsigned long flags;
+	spin_lock_irqsave(&ctl->outputs.lock, flags);
+	ctl->outputs.rumble = rumble;
+	ctl->outputs.dirty = 1;
+	spin_unlock_irqrestore(&ctl->outputs.lock, flags);
+}
+
+static void controller_set_leds(struct gchub_controller* ctl,
+				int red, int green)
+{
+	unsigned long flags;
+	spin_lock_irqsave(&ctl->outputs.lock, flags);
+	ctl->outputs.red_led = red;
+	ctl->outputs.green_led = green;
+	ctl->outputs.dirty = 1;
+	spin_unlock_irqrestore(&ctl->outputs.lock, flags);
+}
+
 
 /******************************************************************************/
 /************************************************** Device Communications *****/
@@ -481,7 +516,6 @@ static int gchub_probe(struct usb_interface *interface, const struct usb_device_
 	}
 	memset(dev, 0, sizeof(*dev));
 
-	init_MUTEX(&dev->sem);
 	dev->udev = udev;
 	dev->interface = interface;
 	usb_set_intfdata(interface, dev);
