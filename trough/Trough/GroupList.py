@@ -1,3 +1,7 @@
+''' Trough.GroupList
+    Ick... a lot of this needs to be rewritten.
+    '''
+
 import FSTree
 from Group import Group
 
@@ -55,7 +59,7 @@ class GroupList:
                     self.addFilesSeparate (dir.getName(),dir.getFiles())
             else:
                 self.addFilesSeparate (dir.getPath(),dir.getFiles())
-        
+
         for subdir in dir.getDirectories():
             self.addDirectory (subdir)
 
@@ -89,10 +93,9 @@ class GroupList:
     def breakGroups (self, paths):
         for path in paths:
             for p in self.group:
-                if(os.path.commonprefix([p.getWhere()[0].getPath(),path]) == path): 
+                if(os.path.commonprefix([p.getWhere()[0].getPath(),path]) == path):
                     self.addFilesSeparate(p.getWhere()[0].getPath(),p.getWhere())
                     self.delGroup(p)
-    
 
     def delGroup (self, group):
         ''' GroupList.delGroup
