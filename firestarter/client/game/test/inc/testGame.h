@@ -21,6 +21,21 @@
 #include "networking.h"
 #include "players.h"
 
+typedef struct 
+{
+	float	reloadTime;
+	float rotspeed;
+	float linspeed;
+	float reversemod;
+	float friction;
+	float stoptol;
+	float grav;
+	float tankRad;
+	float bounceFriction;
+	float bonceBuffer;
+	float	shotSpeed;
+}trGameParams;
+
 class CTestGame : public CBaseGame , CNetworkMessageProcessor, CBaseObject
 {
 	public:
@@ -53,6 +68,7 @@ class CTestGame : public CBaseGame , CNetworkMessageProcessor, CBaseObject
 
 		CNetworkClient			network;
 		tmPlayerMap					players;
+		tvShotList					shots;
 		CPlayerObject				*localPlayer;						
 
 		float								lastNetUpdateTime;
@@ -60,6 +76,9 @@ class CTestGame : public CBaseGame , CNetworkMessageProcessor, CBaseObject
 		float								syncPingInterval;
 
 		int									camera;
+		// game info
+		trGameParams				gameParams;
+
 		// game methods
 		bool processPlayerInput ( void );
 };

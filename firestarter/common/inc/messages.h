@@ -35,5 +35,6 @@
 #define _MESSAGE_SPAWN 0x5053				//SP
 #define _MESSAGE_TIME_PING	 0x5054			//TP
 #define _MESSAGE_WORLD_INFO	 0x4957			//WI
+#define _MESSAGE_CREATE_SHOT	 0x5343			//CS
 
 #endif //_MESSAGES_H_
