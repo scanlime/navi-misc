@@ -272,11 +272,11 @@ xtext2_init (XText2 *xtext)
 
   gtk_widget_set_double_buffered (GTK_WIDGET (xtext), FALSE);
 
+  /* each XText owns an empty buffer */
+  xtext->priv->original_buffer = xtext_buffer_new ();
+  xtext->priv->current_buffer = xtext->priv->original_buffer;
+
   xtext->priv->buffer_info = g_hash_table_new (g_direct_hash, g_direct_equal);
-  g_print ("xtext2_init()\n");
-  g_print ("  xtext       is 0x%x\n", xtext);
-  g_print ("  buffer_info is 0x%x\n", xtext->priv->buffer_info);
-  g_print ("\n");
 }
 
 GtkWidget*
@@ -805,6 +805,10 @@ render_page (XText2 *xtext)
   xtext->priv->pixel_offset = 0;
 #endif
 
+  /* HACK HACK HACK */
+  if (xtext->priv->buffer_info == NULL)
+    xtext->priv->buffer_info = g_hash_table_new (g_direct_hash, g_direct_equal);
+
   f = g_hash_table_lookup (xtext->priv->buffer_info, xtext->priv->current_buffer);
 
   if (f == NULL)
@@ -1182,13 +1186,11 @@ xtext2_show_buffer (XText2 *xtext, XTextBuffer *buffer)
 {
   XTextFormat *f;
 
-  g_assert (IS_XTEXT2 (xtext));
+  /* HACK HACK HACK */
+  if (xtext->priv->buffer_info == NULL)
+    xtext->priv->buffer_info = g_hash_table_new (g_direct_hash, g_direct_equal);
 
   f = g_hash_table_lookup (xtext->priv->buffer_info, buffer);
-  g_print ("xtext2_show_buffer()\n");
-  g_print ("  xtext       is 0x%x\n", xtext);
-  g_print ("  buffer_info is 0x%x\n", xtext->priv->buffer_info);
-  g_print ("\n");
   if (f == NULL)
   {
     /* this isn't a buffer we've seen before */
