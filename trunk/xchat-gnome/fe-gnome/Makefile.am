@@ -105,6 +105,7 @@ xchat_gnome_SOURCES =			\
 
 xchat_gnome_DATA =			\
 	channel-list.glade		\
+	transfers.glade			\
 	xchat-gnome.glade
 xchat_gnomedir = $(xchatsharedir)
 
