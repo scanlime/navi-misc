@@ -11,6 +11,7 @@ ps2          = Icon('icon_ps2.png',          'Playstation 2', imageAspect = 0.98
 dreamcast    = Icon('icon_dreamcast.png',    'Dreamcast',     imageAspect = 1.66  )
 nintendo     = Icon('icon_nes.png',          'Nintendo',      imageAspect = 1.594 )
 genesis      = Icon('icon_sega.png',         'Genesis',       imageAspect = 1.679 )
+gamecube     = Icon('icon_gamecube.png',     'Game Cube',     imageAspect = 0.888 )
 unknownInput = Icon('icon_rca_cables.png',   'Unknown Input', imageAspect = 0.732 )
 settings     = Icon('icon_hammer.png',       'Settings',      imageAspect = 0.474 )
 background   = Icon('icon_paint_roller.png', 'Background',    imageAspect = 0.638 )
