@@ -59,20 +59,33 @@ void fe_message(char *msg, int wait) {
 }
 
 int fe_input_add(int sok, int flags, void *func, void *data) {
-  /* FIXME: implement */
-  return 0;
+  int tag, type = 0;
+  GIOChannel *channel;
+
+  channel = g_io_channel_unix_new(sok);
+
+  if(flags & FIA_READ)
+    type |= G_IO_IN | G_IO_HUP | G_IO_ERR;
+  if(flags & FIA_WRITE)
+    type |= G_IO_OUT | G_IO_ERR;
+  if(flags & FIA_EX)
+    type |= G_IO_PRI;
+
+  tag = g_io_add_watch(channel, type, (GIOFunc) func, data);
+  g_io_channel_unref(channel);
+
+  return tag;
 }
 
 void fe_input_remove(int tag) {
-  /* FIXME: implement */
+  g_source_remove(tag);
 }
 
 void fe_idle_add(void *func, void *data) {
-  /* FIXME: implement */
+  g_idle_add(func, data);
 }
 
 void fe_set_topic(struct session *sess, char *topic) {
-  /* FIXME: implement */
 }
 
 void fe_set_hilight(struct session *sess) {
