@@ -98,9 +98,19 @@ class SourceNotebook(gtk.Notebook):
 
 class CompileOutput(gtk.TextView):
     def __init__(self):
-        gtk.TextView.__init__(self, buffer=None)
+        gtk.TextView.__init__(self)
         self.set_editable(gtk.FALSE)
         self.set_cursor_visible(gtk.FALSE)
+        self.buffer = self.get_buffer()
+
+    def set_text(self, string):
+        self.buffer.set_text(string)
+
+class ScrollArea(gtk.ScrolledWindow):
+    def __init__(self, child):
+        gtk.ScrolledWindow.__init__(self)
+        self.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        self.add(child)
 
 main = MainWindow()
 
@@ -109,7 +119,12 @@ sources.append_page(gtk.Label('Left Top Squad!'), gtk.Label('Look Ma! A Tab!'))
 main.set(0, sources)
 
 compiler_output = CompileOutput()
-main.set(1, compiler_output)
+infile = open('pyg.py', 'r')
+if infile:
+    string = infile.read()
+    infile.close()
+    compiler_output.set_text(string)
+main.set(1, ScrollArea(compiler_output))
 
 main.set(2, gtk.Label(' Right Top  '))
 main.set(3, gtk.Label('Right Bottom'))
