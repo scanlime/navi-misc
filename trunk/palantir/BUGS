@@ -1,1 +1,2 @@
 * Chat buffer doesn't scroll properly with new text.
+* Weird highlighting bug when you say your own nick.
