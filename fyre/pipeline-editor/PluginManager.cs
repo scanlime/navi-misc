@@ -41,6 +41,8 @@ class PluginManager
 		dir_watcher.Created += OnPluginCreated;
 		dir_watcher.Deleted += OnPluginDeleted;
 		dir_watcher.EnableRaisingEvents = true;
+		
+		plugin_types = FindPluginTypes ();
 	}
 
 	void OnPluginCreated (object sender, FileSystemEventArgs args)
@@ -49,12 +51,33 @@ class PluginManager
 
 		foreach (Type type in asm_plugins) {
 			plugin_types.Add (type);
+			Console.WriteLine ("Adding type '" + type.FullName + "'");
 		}
 	}
 
 	void OnPluginDeleted (object sender, FileSystemEventArgs args)
 	{
 		/* Not sure we really want to deal with this */
+	}
+	
+	ArrayList FindPluginTypes ()
+	{
+		ArrayList all_plugin_types = new ArrayList ();
+
+		string [] files = Directory.GetFiles (directory, "*.dll");
+
+		foreach (string file in files) {
+			try {
+				ArrayList asm_plugins = FindPluginTypesInFile (file);
+				foreach (Type type in asm_plugins) {
+					all_plugin_types.Add (type);
+				}
+			} catch (Exception e) {
+				Console.WriteLine ("Error loading plugin: {0}", e);
+			}
+		}
+
+		return all_plugin_types;
 	}
 
 	static ArrayList FindPluginTypesInFile (string filepath)
@@ -69,9 +92,11 @@ class PluginManager
 		ArrayList asm_plugins = new ArrayList ();
 		bool found_one = false;
 
-		foreach (Type type in types)
+		foreach (Type type in types) {
+			Console.WriteLine ("Type found: " + type.FullName);
 			if (type.BaseType == typeof (Element))
 				asm_plugins.Add (type);
+		}
 
 		return asm_plugins;
 	}

@@ -25,6 +25,10 @@ using Glade;
 
 public class PipelineEditor
 {
+	/* Plugin stuff */
+	PluginManager plugin_manager;
+
+	/* Widgets */
 	/* Element list (upper left) */
 	private Gtk.TreeStore		element_store;
 	[Widget] Gtk.TreeView		element_list;
@@ -67,6 +71,9 @@ public class PipelineEditor
 		column.AddAttribute (text_renderer, "text", 1);
 
 		element_list.AppendColumn (column);
+		
+		/* Set up plugins directory */
+		plugin_manager = new PluginManager ("/home/david/projects/navi-misc/fyre/pipeline-editor/plugins/basic/bin/Debug");
 
 		/* Finally, run the application */
 		Application.Run();
