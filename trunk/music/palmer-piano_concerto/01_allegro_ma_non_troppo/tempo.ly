@@ -8,7 +8,7 @@ mvmtOneTempo = {
   | s1*0_\tempoI
   s1*45
   | s2.*0_\andante
-  s2.*40
+  s2.*44
   | s1*0_\moderatoMaestoso
   s1*13
   | s1*0_\andante
