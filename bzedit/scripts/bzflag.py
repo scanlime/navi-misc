@@ -25,6 +25,20 @@
 from Blender import NMesh
 import math
 
+def meshify(vertex, face):
+    mesh = NMesh.GetRaw()
+    verts = []
+    for v in vertex:
+        v = NMesh.Vert(v[0], v[1], v[2])
+        mesh.verts.append(v)
+        verts.append(v)
+    for f in face:
+        face = NMesh.Face()
+        for v in f:
+            face.v.append(verts[v])
+        mesh.faces.append(face)
+    return NMesh.PutRaw(mesh)
+
 class CommentLine(str):
     """Placeholder for a comment line, loaded or saved in a BZFlag world"""
     pass
@@ -261,71 +275,25 @@ class Box(BZObject):
         self.size = [x,y,z]
 
     def toBlender(self):
-        mesh = NMesh.GetRaw()
-        face = NMesh.Face()
+        verts = [( 1,  1, 1),
+                 ( 1,  1, 0),
+                 ( 1, -1, 1),
+                 ( 1, -1, 0),
+                 (-1,  1, 1),
+                 (-1,  1, 0),
+                 (-1, -1, 1),
+                 (-1, -1, 0),
+                ]
+        faces = [(0, 1, 3, 2), # X+
+                 (6, 7, 5, 4), # X-
+                 (0, 4, 5, 1), # Y+
+                 (6, 2, 3, 7), # Y-
+                 (0, 2, 6, 4), # Z+
+                 (1, 5, 7, 3), # Z-
+                ]
 
-        v = range(8)
-        v[0] = NMesh.Vert( 1.0,  1.0, 1.0) # X+, Y+, Z+
-        v[1] = NMesh.Vert( 1.0,  1.0, 0.0) # X+, Y+, Z-
-        v[2] = NMesh.Vert( 1.0, -1.0, 1.0) # X+, Y-, Z+
-        v[3] = NMesh.Vert( 1.0, -1.0, 0.0) # X+, Y-, Z-
-        v[4] = NMesh.Vert(-1.0,  1.0, 1.0) # X-, Y+, Z+
-        v[5] = NMesh.Vert(-1.0,  1.0, 0.0) # X-, Y+, Z-
-        v[6] = NMesh.Vert(-1.0, -1.0, 1.0) # X-, Y-, Z+
-        v[7] = NMesh.Vert(-1.0, -1.0, 0.0) # X-, Y-, Z-
+        box = meshify(verts, faces)
 
-        for vert in v:
-            mesh.verts.append(vert)
-
-        # X+ side
-        px = NMesh.Face()
-        px.v.append(v[0]) # X+, Y+, Z+
-        px.v.append(v[1]) # X+, Y+, Z-
-        px.v.append(v[3]) # X+, Y-, Z-
-        px.v.append(v[2]) # X+, Y-, Z+
-        mesh.faces.append(px)
-
-        # X- side
-        nx = NMesh.Face()
-        nx.v.append(v[6]) # X-, Y-, Z+
-        nx.v.append(v[7]) # X-, Y-, Z-
-        nx.v.append(v[5]) # X-, Y+, Z-
-        nx.v.append(v[4]) # X-, Y+, Z+
-        mesh.faces.append(nx)
-
-        # Y+ side
-        py = NMesh.Face()
-        py.v.append(v[0]) # X+, Y+, Z+
-        py.v.append(v[4]) # X-, Y+, Z+
-        py.v.append(v[5]) # X-, Y+, Z-
-        py.v.append(v[1]) # X+, Y+, Z-
-        mesh.faces.append(py)
-
-        # Y- side
-        ny = NMesh.Face()
-        ny.v.append(v[6]) # X-, Y-, Z+
-        ny.v.append(v[2]) # X+, Y-, Z+
-        ny.v.append(v[3]) # X+, Y-, Z-
-        ny.v.append(v[7]) # X-, Y-, Z-
-        mesh.faces.append(ny)
-
-        # Z+ side
-        pz = NMesh.Face()
-        pz.v.append(v[0]) # X+, Y+, Z+
-        pz.v.append(v[2]) # X+, Y-, Z+
-        pz.v.append(v[6]) # X-, Y-, Z+
-        pz.v.append(v[4]) # X-, Y+, Z+
-        mesh.faces.append(pz)
-
-        # Z- side
-        nz = NMesh.Face()
-        nz.v.append(v[1]) # X+, Y+, Z-
-        nz.v.append(v[5]) # X-, Y+, Z-
-        nz.v.append(v[7]) # X-, Y-, Z-
-        nz.v.append(v[3]) # X+, Y-, Z-
-        mesh.faces.append(nz)
-
-        box = NMesh.PutRaw(mesh)
         box.setSize(
             self.size[0] / 10.0,
             self.size[1] / 10.0,
