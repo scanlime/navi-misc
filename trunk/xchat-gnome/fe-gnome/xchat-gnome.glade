@@ -518,7 +518,6 @@
 		      <child>
 			<widget class="GtkImageMenuItem" id="previous_network1">
 			  <property name="visible">True</property>
-			  <property name="sensitive">False</property>
 			  <property name="label" translatable="yes">Pre_vious Network</property>
 			  <property name="use_underline">True</property>
 			  <signal name="activate" handler="on_go_previous_network_activate" last_modification_time="Sat, 03 Apr 2004 07:22:15 GMT"/>
@@ -541,7 +540,6 @@
 		      <child>
 			<widget class="GtkImageMenuItem" id="next_network1">
 			  <property name="visible">True</property>
-			  <property name="sensitive">False</property>
 			  <property name="label" translatable="yes">Nex_t Network</property>
 			  <property name="use_underline">True</property>
 			  <signal name="activate" handler="on_go_next_network_activate" last_modification_time="Sat, 03 Apr 2004 07:22:15 GMT"/>

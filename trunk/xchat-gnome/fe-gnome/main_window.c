@@ -257,14 +257,70 @@ void on_discussion_bans_activate(GtkWidget *widget, gpointer data) {
 }
 
 void on_go_previous_network_activate(GtkWidget *widget, gpointer data) {
-	/* FIXME: implement */
+	GtkTreeIter iter;
+	GtkTreePath *path;
+	GtkTreeModel *model;
+	GtkTreeView *view;
+	GtkTreeSelection *selection;
+
+	/* Get our tree view and selection. */
+	view = GTK_TREE_VIEW (glade_xml_get_widget(gui.xml, "server channel list"));
+	selection = gtk_tree_view_get_selection(view);
+
+	/* Make sure we get our iterator and model and that we have a gui session. */
+	if(gtk_tree_selection_get_selected(selection, &model, &iter) &&
+			gui.current_session) {
+		/* Store the path to the iterator. */
+		path = gtk_tree_model_get_path(model, &iter);
+
+		/* If we have no children at this iterator we have a channel selected
+		 * so we need to move the path up one level.
+		 */
+		if(!gtk_tree_model_iter_has_child(model, &iter))
+			gtk_tree_path_up(path);
+
+		/* Move the path to the previous node. If we succeed change the selection
+		 * to the new path.
+		 */
+		if(gtk_tree_path_prev(path))
+			gtk_tree_selection_select_path(selection, path);
+	}
 }
 
 void on_go_next_network_activate(GtkWidget *widget, gpointer data) {
-	/* FIXME: implement */
+	/* FIXME: Doesn't wrap from last server to first. */
+	GtkTreeIter iter;
+	GtkTreeModel *model;
+	GtkTreeView *view;
+	GtkTreeSelection *selection;
+
+	/* Get our tree view and selection. */
+	view = GTK_TREE_VIEW (glade_xml_get_widget(gui.xml, "server channel list"));
+	selection = gtk_tree_view_get_selection(view);
+
+	/* Make sure we get our iterator and model and that we have a gui session. */
+	if(gtk_tree_selection_get_selected(selection, &model, &iter) &&
+			gui.current_session) {
+
+		/* If the current node doesn't have a child we've got a channel selected
+		 * so make iter point to it's parent node.
+		 */
+		if(!gtk_tree_model_iter_has_child(model, &iter)) {
+			GtkTreeIter parent;
+			gtk_tree_model_iter_parent(model, &parent, &iter);
+			iter = parent;
+		}
+
+		/* If we successfully move the iter forward a node change the selection
+		 * to the new iter.
+		 */
+		if(gtk_tree_model_iter_next(model, &iter))
+			gtk_tree_selection_select_iter(selection, &iter);
+	}
 }
 
 void on_go_previous_discussion_activate(GtkWidget *widget, gpointer data) {
+	/* FIXME: Doesn't wrap from first server to last. */
 	GtkTreeIter iter;
 	GtkTreePath *path;
 	GtkTreeModel *model;
