@@ -63,6 +63,29 @@ irc_network_get_type (void)
 IrcNetwork *
 irc_network_new (ircnet *net)
 {
+	IrcNetwork *n = IRC_NETWORK (g_object_new (irc_network_get_type (), 0));
+
+	n->name        = g_strdup (net->name);
+	n->autoconnect = net->flags & FLAG_AUTO_CONNECT;
+	n->use_ssl     = net->flags & FLAG_USE_SSL;
+	n->cycle       = net->flags & FLAG_CYCLE;
+	/* FIXME */
+	/*
+	n->reconnect   = net->flags & FLAG_;
+	n->novegiveup  = net->flags & FLAG_;
+	*/
+
+	n->password    = g_strdup(net->pass);
+	/* FIXME */
+	n->encoding    = 0;
+
+	n->use_global  = net->flags & FLAG_USE_GLOBAL;
+	n->nick        = g_strdup (net->nick);
+	n->real        = g_strdup (net->real);
+	/* FIXME */
+	n->autojoin    = NULL;
+
+	n->net = net;
 }
 
 void
