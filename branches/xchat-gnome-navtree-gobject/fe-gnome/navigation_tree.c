@@ -48,7 +48,6 @@ navigation_tree_get_type (void)
 {
   static GType navigation_tree_type = 0;
 
-	printf("navigation tree get type\n");
 	/* If we haven't registered the type yet. */
   if (!navigation_tree_type) {
     static const GTypeInfo navigation_tree_info =
@@ -78,7 +77,6 @@ navigation_tree_init (NavTree *navtree)
   GtkTreeViewColumn *column;
   GtkTreeSelection *select;
 
-	printf("navigation tree init\n");
 	navtree->current_path = NULL;
 	navtree->model = NULL;
 
@@ -114,7 +112,6 @@ navigation_tree_class_init (NavTreeClass *klass)
 {
 	GObjectClass *object_class = (GObjectClass*) klass;
 
-	printf("navigation tree class init\n");
 	object_class->dispose = navigation_tree_dispose;
 	object_class->finalize = navigation_tree_finalize;
 }
@@ -665,7 +662,6 @@ GType
 navigation_model_get_type (void)
 {
   static GType navigation_model_type = 0;
-  printf("navigation model get type\n");
 	/* If we haven't registered our type yet. */
   if (!navigation_model_type) {
     static const GTypeInfo navigation_model_info =
@@ -691,7 +687,6 @@ navigation_model_get_type (void)
 static void
 navigation_model_init (NavModel *navmodel)
 {
-	printf("navigation_model_init\n");
   navmodel->store = gtk_tree_store_new(5, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_POINTER, G_TYPE_INT, GDK_TYPE_COLOR);
 	navmodel->sorted = gtk_tree_model_sort_new_with_model(GTK_TREE_MODEL(navmodel->store));
   gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(navmodel->sorted), 1, GTK_SORT_ASCENDING);
@@ -702,7 +697,6 @@ navigation_model_class_init (NavModelClass *klass)
 {
 	GObjectClass *object_class = (GObjectClass*) klass;
 	object_class->dispose = navigation_model_dispose;
-	printf("navigation model class init\n");
 }
 
 static void
