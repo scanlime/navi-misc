@@ -49,9 +49,6 @@ static struct usb_device_id uvswitch_table [] = {
 };
 MODULE_DEVICE_TABLE(usb, uvswitch_table);
 
-/* We need to be able to receive ADC samples, one for each video channel */
-#define ADC_BUFFER_SIZE  8
-
 /* Status of all the device's switches */
 struct uvswitch_status {
 	unsigned char		video_channel;
@@ -62,15 +59,22 @@ struct uvswitch_status {
 
 /* Structure to hold all of our device specific stuff */
 struct usb_uvswitch {
-	struct uvswitch_status	status;			/* Status of the device's switches */
 	struct usb_device *	udev;			/* save off the usb device pointer */
 	struct usb_interface *	interface;		/* the interface for this device */
 	devfs_handle_t		devfs;			/* main devfs device node */
 	unsigned char		minor;			/* the starting minor number for this device */
 	int			open_count;		/* number of times this port has been opened */
+
+	struct uvswitch_calibration calibration;	/* Tweakable values for the video detector */
+	struct uvswitch_status	status;			/* Status of the device's switches */
+
 	struct urb		adc_urb;		/* URB for the video detector A/D converters */
-       	unsigned char		adc_buffer[ADC_BUFFER_SIZE]; /* Buffer used by adc_urb */
-	unsigned char           adc_values[ADC_BUFFER_SIZE]; /* ADC readings, copied from adc_buffer after reception */
+       	unsigned char		adc_buffer[UVSWITCH_CHANNELS]; /* Buffer used by adc_urb */
+	int			adc_accumulator[UVSWITCH_CHANNELS]; /* Values being accumulated after each packet received */
+	int			adc_accumulated[UVSWITCH_CHANNELS]; /* Finished ADC values */
+	int			active_inputs[UVSWITCH_CHANNELS]; /* Nonzero values for active video inputs */
+	int			adc_samples;		/* Number of samples in adc_accumulator */
+
 	struct semaphore	sem;			/* locks this structure */
 };
 
@@ -86,8 +90,8 @@ static struct usb_uvswitch *minor_table[MAX_DEVICES];
 /* lock to protect the minor_table structure */
 static DECLARE_MUTEX(minor_table_mutex);
 
-/* 1/2 second timeout for control requests */
-#define REQUEST_TIMEOUT (HZ / 2)
+/* 1 second timeout for control requests */
+#define REQUEST_TIMEOUT HZ
 
 
 /******************************************************************************/
@@ -95,6 +99,7 @@ static DECLARE_MUTEX(minor_table_mutex);
 /******************************************************************************/
 
 static int uvswitch_updateStatus(struct usb_uvswitch *dev);
+static int uvswitch_updateCalibration(struct usb_uvswitch *dev);
 
 static int uvswitch_open(struct inode *inode, struct file *file);
 static int uvswitch_release(struct inode *inode, struct file *file);
@@ -124,14 +129,41 @@ static int uvswitch_updateStatus(struct usb_uvswitch *dev)
 			       NULL, 0, REQUEST_TIMEOUT);
 }
 
+/* Update the device's ADC settings from our calibration structure */
+static int uvswitch_updateCalibration(struct usb_uvswitch *dev)
+{
+	return usb_control_msg(dev->udev, usb_sndctrlpipe(dev->udev, 0),
+			       UVSWITCH_CTRL_SWITCH, 0x40,
+			       dev->calibration.integration_reads,
+			       dev->calibration.precharge_reads,
+			       NULL, 0, REQUEST_TIMEOUT);
+}
+
+/* Callback for handling incoming data from the device's interrupt endpoint.
+ * This receives an 8-byte packet about 8 times a second with A/D converter readings.
+ */
 static void uvswitch_adc_irq(struct urb *urb)
 {
+	int active_inputs[UVSWITCH_CHANNELS];
+	int i;
+
 	/* Callback for processing incoming interrupt transfers from the IR receiver */
 	struct usb_uvswitch *dev = (struct usb_uvswitch*)urb->context;
 
 	if (dev && urb->status == 0 && urb->actual_length == 8) {
-		/* Make our successfully received buffer current */
-		memcpy(dev->adc_values, dev->adc_buffer, ADC_BUFFER_SIZE);
+		/* Add this packet to the accumulator */
+		for (i=0; i<UVSWITCH_CHANNELS; i++) {
+			dev->adc_accumulator[i] += dev->adc_buffer[i];
+		}
+		dev->adc_samples++;
+
+		/* Do we have enough samples to get a final analog value yet? */
+		if (dev->adc_samples >= dev->calibration.integration_packets) {
+			/* Copy adc_accumulator to adc_accumulated and zero the accumulator */
+			memcpy(dev->adc_accumulated, dev->adc_accumulator, sizeof(dev->adc_accumulated));
+			memset(dev->adc_accumulator, 0, sizeof(dev->adc_accumulator));
+			dev->adc_samples = 0;
+		}
 	}
 	else {
 		dbg("Bad URB status/size: status=%d, length=%d", urb->status, urb->actual_length);
@@ -243,6 +275,20 @@ static int uvswitch_ioctl(struct inode *inode, struct file *file, unsigned int c
 
 	switch(cmd) {
 
+	case UVSWITCHIO_CALIBRATE:
+		if (copy_from_user(&dev->calibration, (struct uvswitch_calibration*) arg, sizeof(dev->calibration))) {
+			retval = -EFAULT;
+			break;
+		}
+		uvswitch_updateCalibration(dev);
+		break;
+
+	case UVSWITCHIO_ADC_READ_RAW:
+		if (copy_to_user((int*) arg, dev->adc_accumulated, sizeof(dev->adc_accumulated))) {
+			retval = -EFAULT;
+			break;
+		}
+		break;
 
 	default:
 		/* Indicate that we didn't understand this ioctl */
@@ -469,7 +515,7 @@ static void * uvswitch_probe(struct usb_device *udev, unsigned int ifnum, const 
 	/* Begin our interrupt transfer polling the video detector ADC */
 	FILL_INT_URB(&dev->adc_urb, dev->udev,
 		     usb_rcvintpipe(dev->udev, endpoint->bEndpointAddress),
-		     dev->adc_buffer, ADC_BUFFER_SIZE,
+		     dev->adc_buffer, UVSWITCH_CHANNELS,
 		     uvswitch_adc_irq, dev, endpoint->bInterval);
 	dbg("Submitting adc_urb, interval %d", endpoint->bInterval);
 	i = usb_submit_urb(&dev->adc_urb);
