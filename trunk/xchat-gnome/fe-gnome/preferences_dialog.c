@@ -67,7 +67,7 @@ void initialize_irc_preferences_page() {
 	gtk_size_group_add_widget(group, widget);
 	widget = glade_xml_get_widget(gui.xml, "away message");
 	gtk_size_group_add_widget(group, widget);
-	widget = glade_xml_get_widget(gui.xml, "highlight list");
+	widget = glade_xml_get_widget(gui.xml, "highlight list container");
 	gtk_size_group_add_widget(group, widget);
 	g_object_unref(group);
 }
