@@ -3,6 +3,7 @@ from Piece import Piece
 
 from types import *
 import sys
+import os.path
 
 class Pieces:
 	''' Pieces
@@ -18,6 +19,7 @@ class Pieces:
 			self.pieces.append(Piece(files,[files],self))
 		else:
 			for file in files:
+				name = os.path.splitext(file.getName())[0]
 				self.pieces.append(Piece(name,file,self))
 	
 	def addFilesGrouped (self, name, files):
@@ -79,15 +81,22 @@ class Pieces:
 				dir = self.roots[i].find(path)
 				if dir:
 					dir.destroy();
-					del dir
 					break
 			else:
 				sys.stderr.write('warning: '+path+' not found in tree\n')
+
+	def breakPieces (self, paths):
+		for path in paths:
+			for p in self.pieces:
+				if(os.path.commonprefix([p.getWhere()[0].getPath(),path]) == path): 
+					self.addFilesSeparate(p.getWhere()[0].getPath(),p.getWhere())
+					self.delPiece(p)
+	
 
 	def delPiece (self, piece):
 		'''	Pieces.delPiece
 
 			Called by individual pieces to make sure they're cleaned
 			up happily.
-	'''
+		'''
 		self.pieces.remove(piece)
