@@ -116,6 +116,13 @@ int                       unicone_device_upload_bitstream (struct unicone_device
 /************************************************** Low-level Communications **/
 /******************************************************************************/
 
+/* Update the device's status LED. This requires FPGA support for the LED
+ * brightness control I2C core, but we get the firmware's help in performing fades.
+ */
+int                       unicone_device_set_led          (struct unicone_device*    self,
+							   float                     brightness,
+							   float                     decay_rate);
+
 /* Make a generic I2C write to the FPGA. Returns 0 on success, -1 on USB error. I2C errors
  * are not yet reported via this function, they will appear on the serial port.
  */

@@ -44,45 +44,19 @@ volatile xdata at 0xFD40 unsigned char ep2_out_x[64];
  */
 volatile code at 0x1FEC unsigned char firmware_version_stamp[20] = "";
 
+unsigned short led_brightness;
+unsigned short led_decay_rate;
 
-void i2c_write_packets(unsigned char *packets, int length)
-{
-  unsigned char wr_addr, wr_len;
+void frequent_updates();
+void infrequent_updates();
+void i2c_write_packets(unsigned char *packets, int length);
+void led_update();
+void show_firmware_version();
 
-  /* Write multiple I2C data packets */
-  while (length > 2) {
 
-    /* Read the header- one byte address, one byte length */
-    wr_addr = *(packets++);
-    wr_len = *(packets++);
-    length -= 2;
-
-    /* Validate the header */
-    if (wr_len > length || wr_len < 1)
-      return;
-
-    /* Perform the write */
-    length -= wr_len;
-    i2c_start(wr_addr);
-    while (wr_len > 1) {
-      i2c_write_byte(*(packets++), 0);
-      wr_len--;
-    }
-    i2c_write_byte(*(packets++), 1);
-    if (i2c_status() < 0)
-      printf("I2C error\n");
-  }
-}
-
-void show_firmware_version()
-{
-  int i;
-  printf("\n---- Unicone firmware v%x.%02x [",
-	 UNICONE_VERSION >> 8, UNICONE_VERSION & 0xFF);
-  for (i=0; i<sizeof(firmware_version_stamp); i++)
-    printf("%02x", firmware_version_stamp[i]);
-  printf("] ----\n");
-}
+/******************************************************************************/
+/***************************************************************** Main Loop **/
+/******************************************************************************/
 
 void main()
 {
@@ -100,27 +74,59 @@ void main()
   usb_dma_unstall(EDB_OEP2);
   usb_dma_setup(EDB_OEP2, ep2_out_x, sizeof(ep2_out_x));
 
+  /* This chip doesn't have have a timer, so we just divide
+   * updates into 'frequent' and 'infrequent'- frequent updates are run
+   * several times for every infrequent update.
+   */
   while (1) {
-    int c;
-
-    watchdog_reset();
-    usb_poll();
-
-    /* If we have data on EP1 OUT, configure the FPGA with it and look for more */
-    c = usb_dma_status(EDB_OEP1);
-    if (c) {
-      fpga_config_write(ep1_out_x, c);
-      usb_dma_setup(EDB_OEP1, ep1_out_x, sizeof(ep1_out_x));
-    }
-
-    /* If we have data on EP2_OUT, break it into I2C writes to execute, and look for more */
-    c = usb_dma_status(EDB_OEP2);
-    if (c) {
-      i2c_write_packets(ep2_out_x, c);
-      usb_dma_setup(EDB_OEP2, ep2_out_x, sizeof(ep2_out_x));
-    }
+    unsigned char i;
+    infrequent_updates();
+    for (i=100;i;i--)
+      frequent_updates();
   }
 }
+
+void infrequent_updates()
+{
+  led_update();
+}
+
+void frequent_updates()
+{
+  int c;
+
+  watchdog_reset();
+  usb_poll();
+
+  /* If we have data on EP1 OUT, configure the FPGA with it and look for more */
+  c = usb_dma_status(EDB_OEP1);
+  if (c) {
+    fpga_config_write(ep1_out_x, c);
+    usb_dma_setup(EDB_OEP1, ep1_out_x, sizeof(ep1_out_x));
+  }
+
+  /* If we have data on EP2_OUT, break it into I2C writes to execute, and look for more */
+  c = usb_dma_status(EDB_OEP2);
+  if (c) {
+    i2c_write_packets(ep2_out_x, c);
+    usb_dma_setup(EDB_OEP2, ep2_out_x, sizeof(ep2_out_x));
+  }
+}
+
+void show_firmware_version()
+{
+  int i;
+  printf("\n---- Unicone firmware v%x.%02x [",
+	 UNICONE_VERSION >> 8, UNICONE_VERSION & 0xFF);
+  for (i=0; i<sizeof(firmware_version_stamp); i++)
+    printf("%02x", firmware_version_stamp[i]);
+  printf("] ----\n");
+}
+
+
+/******************************************************************************/
+/************************************************************** USB Requests **/
+/******************************************************************************/
 
 void usb_handle_vendor_request()
 {
@@ -157,8 +163,57 @@ void usb_handle_vendor_request()
     while (1);             /* Wait for the WDT to reset us */
     break;
 
+  case UNICONE_REQ_SET_LED:
+    usb_write_ack();
+    led_brightness = usb_setup_buffer.wValue;
+    led_decay_rate = usb_setup_buffer.wIndex;
+    break;
+
   default:
     printf("Unknown vendor request %d\n", usb_setup_buffer.bRequest);
+  }
+}
+
+void i2c_write_packets(unsigned char *packets, int length)
+{
+  unsigned char wr_addr, wr_len;
+
+  /* Write multiple I2C data packets */
+  while (length > 2) {
+
+    /* Read the header- one byte address, one byte length */
+    wr_addr = *(packets++);
+    wr_len = *(packets++);
+    length -= 2;
+
+    /* Validate the header */
+    if (wr_len > length || wr_len < 1)
+      return;
+
+    /* Perform the write */
+    length -= wr_len;
+    i2c_start(wr_addr);
+    while (wr_len > 1) {
+      i2c_write_byte(*(packets++), 0);
+      wr_len--;
+    }
+    i2c_write_byte(*(packets++), 1);
+    if (i2c_status() < 0)
+      printf("I2C error\n");
+  }
+}
+
+void led_update()
+{
+  if (led_brightness > led_decay_rate)
+    led_brightness -= led_decay_rate;
+  else
+    led_brightness = 0;
+
+  if (fpga_done()) {
+    i2c_start(UNICONE_I2C_LED);
+    i2c_write_byte(led_brightness >> 8, 0);
+    i2c_write_byte(led_brightness & 0xFF, 1);
   }
 }
 

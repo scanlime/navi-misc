@@ -585,5 +585,18 @@ int                       unicone_device_i2c_write        (struct unicone_device
   return 0;
 }
 
+int                       unicone_device_set_led          (struct unicone_device*    self,
+							   float                     brightness,
+							   float                     decay_rate)
+{
+  if (usb_control_msg(self->usbdev, USB_TYPE_VENDOR | 0x80,
+		      UNICONE_REQ_SET_LED,
+		      brightness * 0xFFFF + 0.5,
+		      decay_rate * 0xFFFF + 0.5,
+		      NULL, 0, TIMEOUT) < 0)
+    return -1;
+
+  return 0;
+}
 
 /* The End */
