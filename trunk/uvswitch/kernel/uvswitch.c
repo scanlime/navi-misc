@@ -156,7 +156,7 @@ static int uvswitch_updateStatus(struct usb_uvswitch *dev)
 {
 	dev->status_request.wValue = dev->status.video_channel | (((int)dev->status.bypass_switch)<<8);
 	dev->status_request.wIndex = dev->status.red_audio_channel | (((int)dev->status.white_audio_channel)<<8);
-	return usb_submit_urb(dev->status_urb, GFP_KERNEL);
+	return usb_submit_urb(dev->status_urb, SLAB_ATOMIC);
 }
 
 /* Update the device's ADC settings from our calibration structure */
@@ -187,8 +187,8 @@ static int uvswitch_initCalibration(struct usb_uvswitch *dev)
 	dev->calibration.precharge_reads = 10;
 	dev->calibration.integration_reads = 50;
 	dev->calibration.interval = 10;
-	dev->calibration.integration_packets = 50;
-	dev->calibration.threshold = 800;
+	dev->calibration.integration_packets = 100;
+	dev->calibration.threshold = 1600;
 
 	return uvswitch_updateCalibration(dev);
 }
