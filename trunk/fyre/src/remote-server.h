@@ -35,47 +35,12 @@
 
 G_BEGIN_DECLS
 
-#define REMOTE_SERVER_TYPE            (remote_server_get_type ())
-#define REMOTE_SERVER(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), REMOTE_SERVER_TYPE, RemoteServer))
-#define REMOTE_SERVER_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), REMOTE_SERVER_TYPE, RemoteServerClass))
-#define IS_REMOTE_SERVER(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), REMOTE_SERVER_TYPE))
-#define IS_REMOTE_SERVER_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), REMOTE_SERVER_TYPE))
-
-typedef struct _RemoteServer      RemoteServer;
-typedef struct _RemoteServerClass RemoteServerClass;
-
-struct _RemoteServer {
-    GObject object;
-
-    IterativeMap *map;
-    Animation *animation;
-    gboolean have_gtk;
-
-    FILE* output_f;
-    FILE* input_f;
-    GHashTable *command_hash;
-
-    gboolean main_loop_running;
-};
-
-struct _RemoteServerClass {
-    GObjectClass parent_class;
-};
-
-
 /************************************************************************************/
 /******************************************************************* Public Methods */
 /************************************************************************************/
 
-typedef void   (*RemoteServerCallback)     (RemoteServer*          remote_server,
-					    const char*      command,
-					    const char*      parameters);
-
-GType          remote_server_get_type      ();
-RemoteServer*  remote_server_new           (IterativeMap*    map,
-					    Animation*       animation,
-					    gboolean         have_gtk);
-void           remote_server_main_loop     (RemoteServer*          self);
+void              remote_server_main_loop     (int        port_number,
+					       gboolean   have_gtk);
 
 
 /************************************************************************************/

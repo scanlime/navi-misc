@@ -59,6 +59,7 @@ int main(int argc, char ** argv) {
     const gchar *outputFile = NULL;
     int c, option_index=0;
     gulong target_density = 10000;
+    int port_number = 7931;
 
     g_random_set_seed(time(NULL));
     g_type_init();
@@ -78,6 +79,7 @@ int main(int argc, char ** argv) {
 	    {"oversample",  1, NULL, 'S'},
 	    {"density",     1, NULL, 'd'},
 	    {"remote",      0, NULL, 'r'},
+	    {"port",        1, NULL, 'P'},
 	    {"screensaver", 0, NULL, 1000},   /* Undocumented, still experimental */
 	    {NULL},
 	};
@@ -122,6 +124,10 @@ int main(int argc, char ** argv) {
 	    mode = REMOTE;
 	    break;
 
+	case 'P':
+	    port_number = atol(optarg);
+	    break;
+
 	case 1000:
 	    mode = SCREENSAVER;
 	    break;
@@ -159,7 +165,7 @@ int main(int argc, char ** argv) {
 
     case REMOTE:
 #ifdef HAVE_GNET
-	remote_server_main_loop(remote_server_new(ITERATIVE_MAP(dejong), animation, have_gtk));
+	remote_server_main_loop(port_number, have_gtk);
 #else
 	fprintf(stderr,
 		"This Fyre binary was compiled without gnet support.\n"
@@ -196,6 +202,7 @@ static void usage(char **argv) {
 	    "                            noninteractively, and store it in FILE.\n"
 	    "  -r, --remote            Remote control mode. This is an automation-friendly\n"
 	    "                            interface provided on stdin and stdout.\n"
+	    "  -P N, --port N          Set the TCP port number used for remote control mode\n"
 	    "\n"
 	    "Parameters:\n"
 	    "  -p, --param KEY=VALUE   Set a calculation or rendering parameter, using the\n"
