@@ -184,6 +184,11 @@ class ArcMenu(DockMenu):
         else:
             theta = -pow(-thetaCoeff * x, thetaExp)
 
+        if theta > pi:
+            theta = pi
+        if theta < -pi:
+            theta = -pi
+
         return (
             (hCenter + cos(theta) * radius,
              vCenter + sin(theta) * radius),
