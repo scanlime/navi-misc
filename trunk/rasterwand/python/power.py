@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 #
-# Change the power mode. Pass either "off", "auto", or "on"
-# on the command line. "auto" uses the device's power switch.
+# Change the power mode. Pass, as the sole argument, either:
+#    on     - Forces the device to be on
+#    off    - Forces it off
+#    switch - Uses the power switch
+#    auto   - On when the device is open
 #
 
 import rasterwand, sys
