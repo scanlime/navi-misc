@@ -163,6 +163,7 @@ static void explorer_init_keyframe_view(Explorer *self) {
 		 "ypad", 0,
 		 "animation", self->animation,
 		 NULL);
+    CELL_RENDERER_BIFURCATION(renderer)->tree = tv;
 
     gtk_tree_view_column_pack_start(col, renderer, TRUE);
     gtk_tree_view_column_set_attributes(col, renderer,

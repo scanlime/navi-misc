@@ -47,6 +47,9 @@ struct _CellRendererBifurcation {
 
     Animation *animation;
     gulong row_id;
+
+    /* Our parent - yes, I know this makes baby jesus cry. */
+    GtkTreeView *tree;
 };
 
 struct _CellRendererBifurcationClass {
