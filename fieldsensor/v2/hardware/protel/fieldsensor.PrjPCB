@@ -89,6 +89,20 @@ AnnotateStartValue=1
 AnnotateSuffix=
 DoLibraryUpdate=1
 DoDatabaseUpdate=1
+[Document12]
+DocumentPath=CAMtastic8.Cam
+AnnotationEnabled=1
+AnnotateStartValue=1
+AnnotateSuffix=
+DoLibraryUpdate=1
+DoDatabaseUpdate=1
+[Document13]
+DocumentPath=CAMtastic9.Cam
+AnnotationEnabled=1
+AnnotateStartValue=1
+AnnotateSuffix=
+DoLibraryUpdate=1
+DoDatabaseUpdate=1
 [GeneratedDocument1]
 DocumentPath=Project Outputs for fieldsensor\PCB1.DRL
 [GeneratedDocument2]
@@ -207,53 +221,53 @@ OutputDefault2=0
 Name=Fabrication Outputs
 Description=
 PrinterOptions=Record=PrinterOptions|Copies=1|Duplex=1|TrueTypeOptions=3|Collate=1|PrintWhat=1
-OutputType1=ODB
-OutputName1=ODB++ Files
+OutputType1=Drill
+OutputName1=Drill Drawing/Guides
 OutputDocumentPath1=
 OutputEnabled1=1
 OutputDefault1=0
-OutputType2=NC Drill
-OutputName2=NC Drill Files
+PageOptions1=Record=PageOptions|SelectedOnly=False|CenterHorizontal=True|CenterVertical=True|PrintScale=1.00|XCorrection=1.00|YCorrection=1.00|PrintKind=1|BorderSize=5000000|LeftOffset=0|BottomOffset=0|Orientation=2|PaperLength=1000|PaperWidth=1000|Scale=100|PaperSource=7|PrintQuality=-4|MediaType=1|DitherType=10|PaperKind=A4
+OutputType2=Mask
+OutputName2=Solder/Paste Mask Prints
 OutputDocumentPath2=
 OutputEnabled2=1
 OutputDefault2=0
-Configuration2_Name1=OutputConfigurationParameter1
-Configuration2_Item1=NumberOfDecimals=3|NumberOfUnits=2|OptimizeChangeLocationCommands=True|OriginPosition=Relative|Record=DrillView|Units=Imperial|ZeroesMode=SuppressTrailingZeroes
-OutputType3=Test Points
-OutputName3=Test Point Report
+PageOptions2=Record=PageOptions|SelectedOnly=False|CenterHorizontal=True|CenterVertical=True|PrintScale=1.00|XCorrection=1.00|YCorrection=1.00|PrintKind=1|BorderSize=5000000|LeftOffset=0|BottomOffset=0|Orientation=2|PaperLength=1000|PaperWidth=1000|Scale=100|PaperSource=7|PrintQuality=-4|MediaType=1|DitherType=10|PaperKind=A4
+OutputType3=Final
+OutputName3=Final Artwork Prints
 OutputDocumentPath3=
 OutputEnabled3=1
 OutputDefault3=0
-OutputType4=Plane
-OutputName4=Power-Plane Prints
+PageOptions3=Record=PageOptions|SelectedOnly=False|CenterHorizontal=True|CenterVertical=True|PrintScale=1.00|XCorrection=1.00|YCorrection=1.00|PrintKind=1|BorderSize=5000000|LeftOffset=0|BottomOffset=0|Orientation=2|PaperLength=1000|PaperWidth=1000|Scale=100|PaperSource=7|PrintQuality=-4|MediaType=1|DitherType=10|PaperKind=A4
+OutputType4=CompositeDrill
+OutputName4=Composite Drill Drawing
 OutputDocumentPath4=
 OutputEnabled4=1
 OutputDefault4=0
 PageOptions4=Record=PageOptions|SelectedOnly=False|CenterHorizontal=True|CenterVertical=True|PrintScale=1.00|XCorrection=1.00|YCorrection=1.00|PrintKind=1|BorderSize=5000000|LeftOffset=0|BottomOffset=0|Orientation=2|PaperLength=1000|PaperWidth=1000|Scale=100|PaperSource=7|PrintQuality=-4|MediaType=1|DitherType=10|PaperKind=A4
-OutputType5=Mask
-OutputName5=Solder/Paste Mask Prints
+OutputType5=NC Drill
+OutputName5=NC Drill Files
 OutputDocumentPath5=
 OutputEnabled5=1
 OutputDefault5=0
-PageOptions5=Record=PageOptions|SelectedOnly=False|CenterHorizontal=True|CenterVertical=True|PrintScale=1.00|XCorrection=1.00|YCorrection=1.00|PrintKind=1|BorderSize=5000000|LeftOffset=0|BottomOffset=0|Orientation=2|PaperLength=1000|PaperWidth=1000|Scale=100|PaperSource=7|PrintQuality=-4|MediaType=1|DitherType=10|PaperKind=A4
-OutputType6=Drill
-OutputName6=Drill Drawing/Guides
+Configuration5_Name1=OutputConfigurationParameter1
+Configuration5_Item1=NumberOfDecimals=3|NumberOfUnits=2|OptimizeChangeLocationCommands=True|OriginPosition=Relative|Record=DrillView|Units=Imperial|ZeroesMode=SuppressTrailingZeroes
+OutputType6=ODB
+OutputName6=ODB++ Files
 OutputDocumentPath6=
 OutputEnabled6=1
 OutputDefault6=0
-PageOptions6=Record=PageOptions|SelectedOnly=False|CenterHorizontal=True|CenterVertical=True|PrintScale=1.00|XCorrection=1.00|YCorrection=1.00|PrintKind=1|BorderSize=5000000|LeftOffset=0|BottomOffset=0|Orientation=2|PaperLength=1000|PaperWidth=1000|Scale=100|PaperSource=7|PrintQuality=-4|MediaType=1|DitherType=10|PaperKind=A4
-OutputType7=CompositeDrill
-OutputName7=Composite Drill Drawing
+OutputType7=Plane
+OutputName7=Power-Plane Prints
 OutputDocumentPath7=
 OutputEnabled7=1
 OutputDefault7=0
 PageOptions7=Record=PageOptions|SelectedOnly=False|CenterHorizontal=True|CenterVertical=True|PrintScale=1.00|XCorrection=1.00|YCorrection=1.00|PrintKind=1|BorderSize=5000000|LeftOffset=0|BottomOffset=0|Orientation=2|PaperLength=1000|PaperWidth=1000|Scale=100|PaperSource=7|PrintQuality=-4|MediaType=1|DitherType=10|PaperKind=A4
-OutputType8=Final
-OutputName8=Final Artwork Prints
+OutputType8=Test Points
+OutputName8=Test Point Report
 OutputDocumentPath8=
 OutputEnabled8=1
 OutputDefault8=0
-PageOptions8=Record=PageOptions|SelectedOnly=False|CenterHorizontal=True|CenterVertical=True|PrintScale=1.00|XCorrection=1.00|YCorrection=1.00|PrintKind=1|BorderSize=5000000|LeftOffset=0|BottomOffset=0|Orientation=2|PaperLength=1000|PaperWidth=1000|Scale=100|PaperSource=7|PrintQuality=-4|MediaType=1|DitherType=10|PaperKind=A4
 OutputType9=Gerber
 OutputName9=Gerber Files
 OutputDocumentPath9=
