@@ -138,9 +138,15 @@ def getRotation (bone, rotation, d):
     name = bone.getName ()
 
     # Retrieve the axis as stored in the ASF file from the ASFReader, and the blender
-    # axes from the rest matrix of the bone.
+    # axes from the rest matrix of the bone. Create a correction euler to convert
+    # between these two reference frames
     axis = Blender.Mathutils.Euler (map (float, d.asfReader.bones[name].axis[0:3]))
     baxis = bone.getRestMatrix ('worldspace').rotationPart ().toEuler ()
+    correction = Blender.Mathutils.Euler ([
+        axis.x - baxis.x,
+        axis.y - baxis.y,
+        axis.z - baxis.z,
+        ])
 
     # Find the degrees of freedom supported by this joint and map our rotation
     # parameter onto a 3-tuple based on this
@@ -148,12 +154,23 @@ def getRotation (bone, rotation, d):
     euler = [0.0, 0.0, 0.0]
     for i in range (len (dof)):
         if dof[i] == 'rx':
-            euler[0] = rotation[i]
+            euler[0] = rotation[i] + correction.x
         if dof[i] == 'ry':
-            euler[1] = rotation[i]
+            euler[1] = rotation[i] + correction.y
         if dof[i] == 'rz':
-            euler[2] = rotation[i]
-    print name,euler
+            euler[2] = rotation[i] + correction.z
+    euler = Blender.Mathutils.Euler (euler)
+
+    quat = euler.toQuat ()
+    parent = bone
+    while parent.hasParent ():
+        parent = parent.getParent ()
+        parentRotation = parent.getQuat ().toEuler ()
+        euler.x = euler.x - parentRotation.x
+        euler.y = euler.y - parentRotation.y
+        euler.z = euler.z - parentRotation.z
+
+    return euler.toQuat ()
 
 def loadAMC (filename, d):
     amcReader = AMCReader.AMCReader ()
@@ -203,8 +220,8 @@ def loadAMC (filename, d):
                 continue
             bone = d.bones[name]
             quat = getRotation (bone, rotation, d)
-            #d.bones[name].setQuat (quat)
-            #d.bones[name].setPose ([ROT])
+            d.bones[name].setQuat (quat)
+            d.bones[name].setPose ([ROT])
 
     # No more wait indicators, since we're done
     Blender.Window.WaitCursor (False)
