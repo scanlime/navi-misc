@@ -1,12 +1,19 @@
+OBJS = hello.rel uart_driver.rel usb_driver.rel util.rel
+CC = sdcc
+CFLAGS = -I ../include
+
 hello: hello.ihx
 	objcopy -I ihex -O binary hello.ihx hello
 
 install: hello
 	../bootload/bootload hello
 
-hello.ihx: hello.c
-	sdcc -o hello.ihx -I ../include hello.c
+hello.ihx: $(OBJS)
+	sdcc -o hello.ihx $(OBJS)
+
+%.rel: %.c *.h ../include/*.h
+	sdcc -o $@ -c $< $(CFLAGS)
 
 clean:
-	rm -f *.ihx *.lnk *.lst *.map *.mem *.rel *.rst *.sym
-	rm -f hello hello.asm
+	rm -f *.ihx *.lnk *.lst *.map *.mem *.rel *.rst *.sym *.asm
+	rm -f hello
