@@ -31,7 +31,7 @@ public class aimup
 	public static void main(String[] args)
 	{
 		int i,j;
-		personindex index = new personindex();
+		personindex index = new personindex(6);
 		bot = new botmain[6];
 		bot[0] = new botmain("MICEBot","password",index);
 		for(i=1;i<6;i++)
@@ -40,17 +40,10 @@ public class aimup
 			bot[i] = new botmain("MICEBot"+i,"password",index);
 		}
 		
-		sleep(6);
-		for(j=0;j<10;j++)
-			for(i=0;i<6;i++)
-			{
-				//bot[i].sendMessage("Joshonthinkpad","Hi Josh, this is from bot number:"+i);
-				//bot[i].sendMessage("haighthd7000","ding " + i);
-				//bot[i].sendMessage("gonkulator3","ding " + i);
-				//bot[i].sendMessage("kittikins5","Hi Katie!");
-				sleep(4);
-			}
-		sleep(600);
+		while(true)
+		{
+			sleep(100);
+		}
 	}
 	
 	public static void sleep(int seconds)
