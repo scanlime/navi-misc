@@ -1,5 +1,3 @@
-* gconf schemas aren't being installed properly
-
 * completion does not properly replace the common base (capitalization-wise)
   when there are multiple matches
 
