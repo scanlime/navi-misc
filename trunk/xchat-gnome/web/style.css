@@ -53,9 +53,8 @@ div.content {
 }
 
 div.footer {
-  float: bottom;
-  bottom: 0;
-  margin: 0;
+  padding: 1em;
+  margin: 2em 0em 0em 0em;
 }
 
 div.code {
