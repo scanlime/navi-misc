@@ -47,14 +47,14 @@ class SimpleCIAInterface(xmlrpc.XMLRPC):
            If the message generates a reply, returns that.
            Otherwise, returns True.
            """
-#        try:
-        result = self.hub.deliver(Message(xml))
-#        except:
-#            e = sys.exc_info()[1]
-#            return xmlrpc.Fault(e.__class__.__name__, str(e))
-#        if result is not None:
-#            return result
-#        return True
+        try:
+            result = self.hub.deliver(Message(xml))
+        except:
+            e = sys.exc_info()[1]
+            return xmlrpc.Fault(e.__class__.__name__, str(e))
+        if result is not None:
+            return result
+        return True
 
     def xmlrpc_processEmail(self, message):
         """Given the raw text of an email message, log it and process it if applicable"""
