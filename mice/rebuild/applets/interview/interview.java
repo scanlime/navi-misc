@@ -6,10 +6,18 @@ import java.net.*;
 import java.util.*;
 import java.io.*;
 
+/**
+ * This class is the main class for the java interview applet.
+ * @author Brandon Smith
+ * @version 2.0
+ */
 public class interview extends java.applet.Applet implements ActionListener
 {
+	/** Text Fields for the various jobs we have. */
 	public TextField username, password, realname;
+	/** Text Areas for the brunt of the work. */
 	public TextArea question, answer;
+	/** Buttons... I love buttons. */
 	public Button button1, button2, button3, button4;
 
 	/**
