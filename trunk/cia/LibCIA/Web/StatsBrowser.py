@@ -68,7 +68,7 @@ class StatsPage(page.Page):
     def wmfactory_metadata(self, request):
         """Return a dictionary of all metadata for this stats target"""
         if self.target.metadata:
-            return self.target.metadata
+            return self.target.metadata.dict
         return {}
 
     def wmfactory_title(self, requeset):
@@ -76,8 +76,8 @@ class StatsPage(page.Page):
            is loaded from the 'title' metadata item if that exists, otherwise
            it's an un-URI-encoded version of the last item in our path.
            """
-        if self.target.metadata and self.target.metadata.has_key('title'):
-            return self.target.metadata['title']
+        if self.target.metadata and self.target.metadata.dict.has_key('title'):
+            return self.target.metadata.dict['title']
         return urllib.unquote(self.path.split('/')[-1])
 
     def wvfactory_statsLink(self, request, node, data):
