@@ -31,6 +31,7 @@
 #include "userlist.h"
 #include "preferences.h"
 #include "setup_druid.h"
+#include "palette.h"
 
 int fe_args(int argc, char *argv[]) {
 	if(argc > 1) {
@@ -45,11 +46,12 @@ int fe_args(int argc, char *argv[]) {
 
 void fe_init(void) {
 	servlist_init();
-	initialize_gui();
+	palette_init();
 	if(!preferences_exist()) {
 		run_setup_druid();
 	}
 	load_preferences();
+	initialize_gui();
 	run_main_window();
 	prefs.use_server_tab = TRUE;
 }
