@@ -1,9 +1,7 @@
 <?xml version="1.0"?>
-<!--
-  The master list of sets
--->
+
 <sets>
-  <set name="blocking set 1" href="blocking-set-1.xml" level="yellow"/>
-  <set name="kicking set 1" href="kicking-set-1.xml" level="orange"/>
-  <set name="stance set 1" href="stance-set-1.xml" level="orange"/>
+	<set href="stance-set-1.xml" level="orange" name="stance set 1"/>
+	<set href="blocking-set-1.xml" level="yellow" name="blocking set 1"/>
+	<set href="kicking-set-1.xml" level="orange" name="kicking set 1"/>
 </sets>

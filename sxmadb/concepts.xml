@@ -1,7 +1,5 @@
 <?xml version="1.0"?>
-<!--
-  The master list of concepts
--->
+
 <concepts>
-  <concept name="circle in circle" href="circle-in-circle.xml"/>
+	<concept href="circle-in-circle.xml" name="circle in circle"/>
 </concepts>
