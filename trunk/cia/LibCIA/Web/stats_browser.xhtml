@@ -9,6 +9,8 @@
         <div class="title" model="title" view="Text"/>
         <div class="subtitle">More wet kittens than you can shake a cheese grater at</div>
         <div class="headingTabs">
+            <a class="headingTab" view="statsLink" model="root"/>
+            <a class="headingTab" view="statsLink" model="root/child/project"/>
         </div>
     </div>
     <table class="columns">
@@ -20,16 +22,27 @@
                 <div class="row" model="currentTime" view="fullDate"/>
             </div>
 
-            <span class="section">catalog</span>
+            <span class="section">catagories</span>
             <div class="section">
                 <div class="sectionTop"/>
-                <div class="row"><ul model="root/child/project/catalog" view="List" class="catalog">
+                <div class="row"><ul model="root/catalog" view="List" class="catalog">
                     <li pattern="listItem"><a view="statsLink"/></li>
                 </ul></div>
             </div>
 
         </td>
         <td class="main">
+
+            <div view="if" model="catalog">
+                <span class="section">catalog</span>
+                <div class="section">
+                    <div class="sectionTop"/>
+                    <div class="row"><ul model="catalog" view="List" class="catalog">
+                        <li pattern="listItem"><a view="statsLink"/></li>
+                    </ul></div>
+                </div>
+            </div>
+
 
             <div view="if" model="counters/forever/eventCount">
                 <span class="section">event counters</span>
@@ -42,15 +55,15 @@
                         <b model="counters/forever/lastEventTime" view="fullDate"/>
                     </div>
                     <div class="row">
-                        <b model="counters/today/eventCount" view="Text"/> messages today,
+                        <b model="counters/today/eventCount" view="Text"/> messages so far today,
                         <b model="counters/yesterday/eventCount" view="Text"/> messages yesterday
                     </div>
                     <div class="row">
-                        <b model="counters/thisWeek/eventCount" view="Text"/> messages this week,
+                        <b model="counters/thisWeek/eventCount" view="Text"/> messages so far this week,
                         <b model="counters/lastWeek/eventCount" view="Text"/> messages last week
                     </div>
                     <div class="row">
-                        <b model="counters/thisMonth/eventCount" view="Text"/> messages this month,
+                        <b model="counters/thisMonth/eventCount" view="Text"/> messages so far this month,
                         <b model="counters/lastMonth/eventCount" view="Text"/> messages last month
                     </div>
                     <div class="row">
