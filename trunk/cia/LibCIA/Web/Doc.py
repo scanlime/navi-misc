@@ -33,6 +33,7 @@ as both our web site and our package's standalone documentation.
 from docutils import core, writers, nodes
 from Nouvelle import tag, place
 import Template
+import os
 
 
 class NouvelleTranslator(nodes.NodeVisitor):
@@ -165,44 +166,56 @@ class NouvelleWriter(writers.Writer):
         self.docSubtitle = visitor.docSubtitle
 
 
-class ObjectOutput:
-    """A File-like object that just saves the object written to it as
-       self.data. This is a hack that seems to be necessary to output
-       Nouvelle trees from docutils.
-       """
+class NullFile:
     def write(self, data):
-        self.data = data
-
+        pass
     def close(self):
         pass
 
 
 class Page(Template.Page):
     """A web page holding a docutils-formatted document"""
-    writerFactory = NouvelleWriter
+    def __init__(self, path):
+        self.path = path
 
-    def __init__(self, source_path=None, source=None):
-        self.source = source
-        self.source_path = source_path
+    def render(self, request):
+        """Overrides the default render() function for pages. This checks
+           whether our path is really a file or a directory- if it's a
+           directory, we show a directory listing page. If it's a file,
+           this formats our document and passes control on to the usual
+           rendering processes.
+           """
+        # Is this actually a directory
+        if os.path.isdir(self.path):
+            return "No directory list yet"
 
-    def preRender(self, context):
-        self.writer = self.writerFactory()
+        # Find a sidebar document and format it
+        self.leftColumn = self.formatDocument(self.findSidebarPath()).output
 
-        out = ObjectOutput()
-        core.publish_file(source      = self.source,
-                          source_path = self.source_path,
-                          writer      = self.writer,
-                          destination = out,
+        # Format the main document, storing its body and our titles
+        mainDoc = self.formatDocument(self.path)
+        self.mainColumn = mainDoc.output
+        self.mainTitle = mainDoc.docTitle
+        if mainDoc.docSubtitle:
+            self.subTitle = mainDoc.docSubtitle
+        return Template.Page.render(self, request)
+
+    def findSidebarPath(self):
+        if os.path.isfile(self.path + '.sidebar'):
+            return self.path + '.sidebar'
+        else:
+            return os.path.join(os.path.split(self.path)[0], 'default.sidebar')
+
+    def formatDocument(self, path):
+        """Format a document, returning the NouvelleWriter instance
+           containing the Nouvelle tree and other document information.
+           """
+        w = NouvelleWriter()
+        core.publish_file(source_path = path,
+                          writer      = w,
+                          destination = NullFile(),
                           settings_overrides = {'output_encoding': 'unicode'}
                           )
-
-        self.body = out.data
-        self.mainTitle = self.writer.docTitle
-        if self.writer.docSubtitle:
-            self.subTitle = self.writer.docSubtitle
-
-    mainColumn = [
-        place('body'),
-        ]
+        return w
 
 ### The End ###
