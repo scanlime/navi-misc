@@ -32,9 +32,9 @@ VisPlugin *get_vplugin_info(void) {
 }
 
 void *refresh_thread(void *foo) {
-  unsigned char frame[NUM_COLUMNS+2];
-  int i, level;
-  unsigned char levels[9] = {0x00, 0x80, 0xC0, 0xA0, 0x90, 0x88, 0x84, 0x82, 0x81};
+  unsigned char frame[NUM_COLUMNS];
+  int i, level, mean = 0, tmean;;
+   unsigned char levels[9] = {0x00, 0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01};
   const float scale = 14 / log(256);
   struct timeval then, now;
   float dt;
@@ -47,8 +47,7 @@ void *refresh_thread(void *foo) {
     dt = (now.tv_sec - then.tv_sec) + (now.tv_usec - then.tv_usec)/1000000.0;
     then = now;
     
-    frame[0] = 0xFF;
-    frame[17] = 0xFF;
+    mean = 0;
 
     for (i=0; i<NUM_COLUMNS; i++) {
       /* Scale our columns logarithmically and draw them to the frame */
@@ -56,10 +55,11 @@ void *refresh_thread(void *foo) {
 	level = log((columns[i]>>8)) * scale;
 	if (level > 8)
 	  level = 8;
-	frame[i+1] = levels[level];
+	frame[i] = levels[level];
+	mean += level;
       }
       else {
-	frame[i+1] = 0;
+	frame[i] = 0;
       }
 
       /* Decay our original column values linearly, giving an exponential
@@ -70,6 +70,24 @@ void *refresh_thread(void *foo) {
 	columns[i] = 0;
     }
 
+    /* Divide the sum to get the average for the base bar */
+    mean /= NUM_COLUMNS;
+
+    /* Tack the base bar onto the bottom. */
+    for(i=0;i<NUM_COLUMNS; i++)
+    {
+      tmean = mean;
+      if(tmean != 0)
+	while(tmean)
+	  frame[i] ^= levels[tmean--];
+      else
+      {	 
+	frame[i] ^= levels[1];
+	if(!frame[i])
+	  frame[i] |= levels[8];
+      }
+    }
+
     /* Write this frame, blocking until it blits to the front buffer */
     write(fd, frame, sizeof(frame));
   }
@@ -77,24 +95,12 @@ void *refresh_thread(void *foo) {
 }
 
 static void plugin_init(void) {
-  struct rwand_settings s;
 
   fd = open("/dev/usb/rwand0", O_WRONLY);
   if (fd < 0) {
     perror("open");
     return;
   }
-
-  /* Set up the display parameters to give us a more spectrum-analyzer-looking
-   * output. This makes our pixels fairly wide, so they look like the LEDs
-   * on a stereo. We also skew the display toward the right so when it's dominated
-   * by low frequencies it looks centered.
-   */
-  ioctl(fd, RWANDIO_GET_SETTINGS, &s);
-  s.display_center = 0xFFFF * 0.53;
-  s.display_width  = 0xFFFF * 0.45;
-  s.duty_cycle     = 0xFFFF * 0.66;
-  ioctl(fd, RWANDIO_PUT_SETTINGS, &s);
 
   pthread_create(&my_thread,NULL,refresh_thread,NULL);
 }
