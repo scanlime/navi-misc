@@ -23,6 +23,7 @@
 #include <gtk/gtkdialog.h>
 #include <gtk/gtkliststore.h>
 #include <gtk/gtkcellrenderer.h>
+#include <gtk/gtktreeviewcolumn.h>
 #include <glade/glade.h>
 #include <gconf/gconf-client.h>
 
@@ -65,6 +66,7 @@ struct _IrcNetworkEditor
 	GtkWidget *remove_server;
 	GtkCellRenderer *server_renderer;
 	GtkListStore *server_store;
+	GtkTreeViewColumn *server_column;
 
 	GtkWidget *use_globals;
 	GtkWidget *use_custom;
@@ -77,6 +79,7 @@ struct _IrcNetworkEditor
 	GtkWidget *remove_autojoin;
 	GtkCellRenderer *autojoin_renderer;
 	GtkListStore *autojoin_store;
+	GtkTreeViewColumn *autojoin_column;
 
 	GtkWidget *toplevel;
 };
