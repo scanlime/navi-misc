@@ -32,9 +32,11 @@ as both our web site and our package's standalone documentation.
 
 from docutils import core, writers, nodes
 from Nouvelle import tag, place
-import Template, Server
+from LibCIA import Cache
+from LibCIA.Web import Template, Server
 import os, posixpath
-from twisted.web import error
+from twisted.internet import defer
+from twisted.web import error, server
 from twisted.protocols import http
 from twisted.web.woven import dirlist
 
@@ -192,30 +194,21 @@ class NullFile:
         pass
 
 
-formattedDocCache = {}
-
-def getFormattedDoc(path):
-    """Returns a NouvelleWriter instance representing a formatted version of the
-       given path. Formatted documents are cached, but the cache is invalidated
-       when the source document's modification date changes.
+class DocumentCache(Cache.AbstractObjectCache):
+    """A cache that formats reStructuredText documents as Nouvelle trees,
+       keyed on the document's path and its modification time.
        """
-    global formattedDocCache
-    mtime = os.stat(path).st_mtime
-    try:
-        w = formattedDocCache[path]
-        if w.mtime == mtime:
-            return w
-    except KeyError:
-        pass
-    w = NouvelleWriter()
-    core.publish_file(source_path = path,
-                      writer      = w,
-                      destination = NullFile(),
-                      settings_overrides = {'output_encoding': 'unicode'}
-                      )
-    w.mtime = mtime
-    formattedDocCache[path] = w
-    return w
+    def miss(self, path, mtime):
+        w = NouvelleWriter()
+        core.publish_file(source_path = path,
+                          writer      = w,
+                          destination = NullFile(),
+                          settings_overrides = {'output_encoding': 'unicode'}
+                          )
+        w.mtime = mtime
+        print dir(w)
+        del w.document
+        return w
 
 
 class Page(Template.Page):
@@ -226,7 +219,6 @@ class Page(Template.Page):
         self.component = component
         self.path = path
         self.fsPath = self.getFilesystemPath()
-        self.load()
         Template.Page.__init__(self)
 
     def getFilesystemPath(self):
@@ -241,21 +233,44 @@ class Page(Template.Page):
                     return os.path.join(p, indexName)
         return p
 
+    def formatDoc(self, path):
+        """Get a formatted document, via our cache"""
+        mtime = os.stat(path).st_mtime
+        return DocumentCache().get(path, mtime)
+
     def load(self):
-        """Load our formatted document from disk, via getFormattedDoc's cache"""
+        """Load our formatted document from disk, returnign a Deferred
+           signalling completion.
+           """
+        result = defer.Deferred()
+
         if os.path.isfile(self.fsPath):
-            # It's a normal document. Get the document itself and its sidebar,
-            # and store the formatter results that we're interested in.
-            self.mainDoc = getFormattedDoc(self.fsPath)
-            self.mainColumn = Template.pageBody[self.mainDoc.output]
-            self.mainTitle = self.mainDoc.docTitle
-            if self.mainDoc.docSubtitle:
-                self.subTitle = self.mainDoc.docSubtitle
-            self.leftColumn = self.loadSidebar(self.findSidebarPath(self.fsPath))
+            self.formatDoc(self.fsPath).addCallback(
+                self._load, result).addErrback(result.errback)
 
         elif os.path.isdir(self.fsPath):
             # If we have a directory with no index, make our title the directory name
             self.mainTitle = self.path.split('/')[-1]
+            result.callback(None)
+
+        else:
+            # Nothing to load
+            result.callback(None)
+
+        return result
+
+    def _load(self, mainDoc, result):
+        # It's a normal document. Get the document itself and its sidebar,
+        # and store the formatter results that we're interested in.
+        self.mainDoc = mainDoc
+        self.mainColumn = Template.pageBody[self.mainDoc.output]
+        self.mainTitle = self.mainDoc.docTitle
+        if self.mainDoc.docSubtitle:
+            self.subTitle = self.mainDoc.docSubtitle
+        self.leftColumn = self.loadSidebar(self.findSidebarPath(self.fsPath))
+
+        print "_load finished"
+        result.callback(None)
 
     def getChild(self, path, request):
         if not path:
@@ -272,27 +287,33 @@ class Page(Template.Page):
         if self.path:
             return Page(self.component, posixpath.split(self.path)[0])
 
-    def render(self, request):
-        """Intercept the normal rendering process if necessary to display
-           a 'file not found' error or a directory listing page.
-           """
-        # This is redundant if we've just created this Page, but
-        # for pages that stick around for a while like the root document
-        # this is necessary to let the page update at all. A bit messy, but
-        # not really slow because of the cache.
-        self.load()
+    def preRender(self, context):
+        """Before rendering, load our document and see if we need to abort"""
+        result = defer.Deferred()
+        self.load().addCallback(self._checkRender, result, context).addErrback(result.errback)
+        return result
 
+    def _checkRender(self, loaded, result, context):
+        print "in _checkRender"
+
+        # Is this actually a directory we need to list?
         if os.path.isdir(self.fsPath):
-            return dirlist.DirectoryLister(self.fsPath).render(request)
-        elif not os.path.isfile(self.fsPath):
-            return error.NoResource("File not found.").render(request)
+            result.callback(dirlist.DirectoryLister(self.fsPath).render(context['request']))
+            return
 
-        # Support the Last-MOdified and If-Modified-Since headers,
+        # Is this a 404?
+        if not os.path.isfile(self.fsPath):
+            result.callback(error.NoResource("File not found.").render(context['request']))
+            return
+
+        # Support the Last-Modified and If-Modified-Since headers,
         # don't bother rendering the page if the browser already has an up to date copy.
-        if request.setLastModified(self.mainDoc.mtime) is http.CACHED:
-            return ''
+        if context['request'].setLastModified(self.mainDoc.mtime) is http.CACHED:
+            result.callback('')
+            return
 
-        return Template.Page.render(self, request)
+        # Normal render
+        result.callback(None)
 
     def findSidebarPath(self, path, format=".%s.sidebar"):
         if os.path.isfile(format % path):
