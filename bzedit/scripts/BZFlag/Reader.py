@@ -37,6 +37,9 @@ class Reader:
             globalReference = Word(alphanums + '/:*_?')
             flagShortName = Word(alphas, min=1, max=2)
 
+            rgbColor = Group(float + float + float) | Word(alphanums)
+            rgbaColor = rgbColor + Optional(float)
+
             phydrv = Group(CaselessLiteral('phydrv') + Word(alphanums))
             smoothbounce = CaselessLiteral('smoothbounce')
             flatshading = CaselessLiteral('flatshading')
@@ -263,12 +266,37 @@ class Reader:
 
             options = Group(CaselessLiteral('options') + SkipTo(LineStart() + end, include=True))
 
+            groupProperty = \
+                Group(CaselessLiteral('team') + int) \
+              | Group(CaselessLiteral('tint') + rgbaColor) \
+              | Group(CaselessLiteral('matref') + Word(alphanums)) \
+              | phydrv \
+              | obstacleProperty
+            group = Group(CaselessLiteral('group') + OneOrMore(groupProperty) + end)
+
+            groupMember =  \
+                arc        \
+              | box        \
+              | base       \
+              | cone       \
+              | group      \
+              | mesh       \
+              | meshbox    \
+              | meshpyr    \
+              | pyramid    \
+              | sphere     \
+              | teleporter \
+              | tetra
+            define = Group(CaselessLiteral('define') + Word(alphanums) + OneOrMore(groupMember) + CaselessLiteral('enddef'))
+
             worldObject =     \
                 arc           \
               | box           \
               | base          \
               | cone          \
+              | define        \
               | dynamicColor  \
+              | group         \
               | link          \
               | mesh          \
               | meshbox       \
