@@ -32,8 +32,9 @@ struct _XText2Class
   void (*word_click) (XText2 * xtext, char *word, GdkEventButton *event);
 };
 
-GType      xtext2_get_type           (void) G_GNUC_CONST;
-GtkWidget* xtext2_new                (void);
+GType      xtext2_get_type    (void) G_GNUC_CONST;
+GtkWidget* xtext2_new         (void);
+void       xtext2_set_palette (XText2 *xtext, GdkColor palette[]);
 
 G_END_DECLS
 
