@@ -153,7 +153,7 @@ void fe_notify_update(char *name) {
 }
 
 void fe_text_clear(struct session *sess) {
-	/* FIXME: implement */
+	clear_buffer(sess);
 }
 
 void fe_close_window(struct session *sess) {
