@@ -156,8 +156,8 @@ irc_network_editor_populate (IrcNetworkEditor *e)
 		gtk_entry_set_text (GTK_ENTRY (e->realname), e->network->real);
 	}
 
-	gtk_entry_set_text           (GTK_ENTRY         (e->password),         e->network->password);
-	gtk_combo_box_set_active     (GTK_COMBO_BOX     (e->encoding),         e->network->encoding);
+	gtk_entry_set_text (GTK_ENTRY (e->password), e->network->password);
+	gtk_combo_box_set_active (GTK_COMBO_BOX (e->encoding), e->network->encoding);
 
 	gtk_dialog_add_button (GTK_DIALOG (e), GTK_STOCK_APPLY,  GTK_RESPONSE_APPLY);
 	gtk_dialog_add_button (GTK_DIALOG (e), GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL);
