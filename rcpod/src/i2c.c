@@ -221,7 +221,7 @@ static int i2c_set_dev(rcpod_dev *rcpod, rcpod_i2c_dev *idev) {
   /* Nothing to change? */
   if (rcpod->last_i2c_dev_valid &&
       memcmp(&rcpod->last_i2c_dev, idev, sizeof(rcpod_i2c_dev))==0)
-    return;
+    return 0;
 
   /* FIXME: The hardware doesn't yet support speed adjustment,
    *        it always runs at around 30 KHz.
