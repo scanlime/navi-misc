@@ -6,6 +6,7 @@ This is just a preliminary roadmap, subject to whatever people want to work on.
 -	URLScraper plugin					- Evan
 -	Verify that all hardcoded strings are
 	enclosed in intltool _() macros
+-	Implement searching (firefox style would be nice!)
 
 0.4:
 -	Redo DCC UI						- David
