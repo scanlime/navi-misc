@@ -30,6 +30,7 @@ public:
 	virtual tePanelReturn Process ( std::string &next );
 
 protected:
+	SceneNode	*ships[4];
 };
 
 #endif //_MAIN_MENU_H_

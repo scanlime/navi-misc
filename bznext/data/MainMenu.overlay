@@ -14,8 +14,8 @@ menu/mainMenu
 		material menu/logoMaterial
 	}
 
-container Panel(main/menuPanel)
-{
+	container Panel(main/menuPanel)
+	{
 		metrics_mode pixels
 		horz_align center
 		vert_align top
@@ -37,5 +37,21 @@ container Panel(main/menuPanel)
 			colour_top 1 1 1
 			colour_bottom 1 1 1
 		}
+
+		element TextArea(main/Enter)
+		{
+			metrics_mode pixels
+			left 64
+			top 200
+			width 256
+			height 128
+			font_name HanSolo64
+			char_height 18
+			caption Press Enter To Begin
+			colour_top 1 1 1
+			colour_bottom 1 1 1
+		}
+
+	}
 }
 

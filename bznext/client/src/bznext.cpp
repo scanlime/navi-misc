@@ -94,7 +94,7 @@ bool CBZNextLoop::GameLoop ( void )
 {
 	// check for sreenshot
 	float togleTime = 0.5f;
-	if (GetInput().KeyDown(KC_SYSRQ) && (lastScreenShotTime < GetTimer().GetTime()+togleTime))
+	if (GetInput().KeyDown(KEY_SYSRQ) && (lastScreenShotTime < GetTimer().GetTime()+togleTime))
 	{
 		char tmp[20];
 		sprintf(tmp, "screenshot_%d.png", ++numScreenShots);

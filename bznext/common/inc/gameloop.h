@@ -79,6 +79,9 @@ public:
 	// global quit handaler
 	void SetQuit ( bool set ) {quit = set;}
 
+	void SetGameName ( const char* name );
+	void SetGameStartString ( const char *startString );
+
 protected:
 	bool LoadPlugins ( void );
   bool SetupConfigure ( void );
@@ -101,6 +104,8 @@ protected:
   RenderWindow* mWindow;
 
 	bool				quit;
+	std::string	gameName;
+	std::string gameStartString;
 };
 
 #endif //_GAME_LOOP_H_

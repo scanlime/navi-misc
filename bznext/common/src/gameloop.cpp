@@ -330,5 +330,22 @@ bool CBaseGameLoop::GameLoop ( void )
 	return true;
 }
 
+void CBaseGameLoop::SetGameName ( const char* name )
+{
+	if(!name)
+		gameName = "";
+	else
+		gameName = name;
+}
+
+void CBaseGameLoop::SetGameStartString ( const char *startString )
+{
+	if(!startString)
+		gameStartString = "";
+	else
+		gameStartString = startString;
+}
+
+
 
 
