@@ -287,6 +287,7 @@ class CommitToXHTML(CommitFormatter):
             <autoHide><n:b><version/></n:b></autoHide>
             <autoHide>r<n:b><revision/></n:b></autoHide>
             <n:b><module/></n:b>/<files/>:
+            <autoHide>(<url/>)</autoHide>
         </n:div>
         <n:div style='padding: 0em; margin: 0.5em 0em;'>
             <log/>
@@ -351,6 +352,13 @@ class CommitToXHTML(CommitFormatter):
                 attrs[str(attr.name)] = attr.value
             return [tag(node.nodeName[2:], **attrs)[ self.walkComponents(node.childNodes, args) ]]
         return CommitFormatter.evalComponent(self, node, args)
+
+    def component_url(self, element, args):
+        element = XML.dig(args.message.xml, "message", "body", "commit", "url")
+        if element:
+            return [tag('a', href=XML.shallowText(element))[ 'link' ]]
+        else:
+            return [Message.MarkAsHidden()]
 
     def component_log(self, element, args):
         """Convert the log message to HTML. If the message seems to be preformatted
