@@ -745,9 +745,14 @@ class PropertyFileReader(LineBufferedReader):
         if self._readIter is None:
             self._readIter = self.db.iteritems()
         try:
-            return "%s=%s\n" % self._readIter.next()
+            key, value = self._readIter.next()
         except StopIteration:
             return ""
+
+        # If we get a unicode value, encode it in UTF-8
+        if type(value) is unicode:
+            value = value.encode('utf-8')
+        return "%s=%s\n" % (key, value)
 
     def rewind(self):
         """Seek back to the beginning of the buffer. This also revalidates
@@ -760,12 +765,36 @@ class PropertyFileWriter(LineBufferedWriter):
     """This is a writeable object that populates a dictionary-like object
        using the 'properties file' key-value format.
        """
+
+    # By default we decode as strings, but this table ensures
+    # that our human-readable metadata is unicode and we get integers
+    # where we should.
+    keyTypes = {
+        'artist':         unicode,
+        'title':          unicode,
+        'source':         unicode,
+        'length':         int,
+        'ctime':          int,
+        'fid_generation': int,
+        'fid':            int,
+        'file_id':        int,
+        'duration':       int,
+        'samplerate':     int,
+        'tracknr':        int,
+        }
+
     def __init__(self, db):
         self.db = db
 
     def writeLine(self, line):
         """Write a complete key=value line"""
         key, value = line.strip().split("=", 1)
+
+        keyType = self.keyTypes.get(key)
+        if keyType is unicode:
+            value = unicode(value, 'utf-8')
+        elif keyType:
+            value = keyType(value)
         self.db[key] = value
 
 
@@ -983,63 +1012,8 @@ class Cache:
 
 
 ############################################################################
-######################################################  File Management  ###
+##################################################  Metadata Collection  ###
 ############################################################################
-
-class Filesystem:
-    """The Filesystem coordinates the activity of several File objects
-       through one Protocol, and provides ways of discovering Files.
-       It owns a local cache of the rio's database, which it can synchronize.
-       """
-    def __init__(self, protocol, cacheDir="~/.riokarma-py/cache"):
-        self.protocol = protocol
-        self.cache = Cache(cacheDir)
-        self.cache.open()
-
-    def synchronize(self):
-        """Update our local database if necessary. Returns a Deferred
-           signalling completion. This has the side-effect of acquiring
-           a read lock.
-           """
-        d = defer.Deferred()
-        self.protocol.sendRequest(Request_RequestIOLock('read')).addCallback(
-            self._startSynchronize, d).addErrback(d.errback)
-        return d
-
-    def _startSynchronize(self, retval, d):
-        if self.isCacheDirty():
-            # Empty and rebuild all database files
-            self.cache.empty()
-            self.protocol.sendRequest(Request_GetAllFileDetails(
-                self._storeFileDetails)).addCallback(
-                self._finishSynchronize, d).addErrback(d.errback)
-        else:
-            d.callback(None)
-
-    def _finishSynchronize(self, retval, d):
-        # Before signalling completion, sync the cache
-        self.cache.sync()
-        d.callback(None)
-
-    def isCacheDirty(self):
-        """This function determines whether our local cache of the database
-           is still valid. If not, we should retrieve a new copy.
-           """
-        # FIXME
-        if len(self.cache.fileDetails) == 0:
-            return True
-        else:
-            return False
-
-    def _storeFileDetails(self, details):
-        """Add a file details dictionary to our database cache. This is used to populate
-           the database when synchronizing from the device.
-           """
-        self.cache.fileIdAllocator.allocate(int(details['fid']))
-        self.cache.fileDetails[details['fid']] = details
-
-        print hex(int(details['fid']))
-
 
 class RidCalculator:
     """This object calculates the RID of a file- a sparse digest used by Rio Karma.
@@ -1095,22 +1069,13 @@ class RidCalculator:
             return self.fromSection(f, 0, length)
 
 
-class File:
-    """A File represents one media or data file corresponding to an entry in
-       the device's database and our copy of that database. File objects
-       have lifetimes disjoint from that of the actual files on disk- if a
-       file ID is provided, existing metadata is looked up. If an ID isn't
-       provided, we generate a new ID and metadata will be uploaded.
-
-       Files are responsible for holding metadata, extracting that metadata
-       from real files on disk, and for transferring a file's content to and
-       from disk. Since the real work of metadata extraction is done by
-       mmpython, this mostly concerns translating mmpython's metadata into
-       the Rio's metadata format.
+class MetadataConverter:
+    """This object manages the connection between different kinds of
+       metadata- the data stored within a file on disk, mmpython attributes,
+       Rio attributes, and file extensions.
        """
-
-    # This table maps mmpython classes to codec names for all
-    # formats the player hardware supports.
+    # Maps mmpython classes to codec names for all formats the player
+    # hardware supports.
     codecNames = {
         mmpython.audio.eyed3info.eyeD3Info: 'mp3',
         mmpython.audio.flacinfo.FlacInfo:   'flac',
@@ -1126,6 +1091,205 @@ class File:
         'vorbis': 'ogg',
         }
 
+    def filenameFromDetails(self, details, replaceSpaces=True, lowercase=True):
+        """Determine a good filename to use for a file with the given metadata
+           in the Rio 'details' format. If it's a data file, this will use the
+           original file as stored in 'title'. Otherwise, it cleans up the filename
+           (always removing slashes, optionally replacing spaces with underscores)
+           and adds an extension.
+           """
+        if details.get('type') == 'taxi':
+            return details['title']
+
+        name = details['title']
+        name = name.replace(os.sep, "")
+        if replaceSpaces:
+            name = name.replace(" ", "_")
+        if lowercase:
+            name = name.lower()
+
+        codec = details.get('codec')
+        extension = self.codecExtensions.get(codec, codec)
+        if extension:
+            name += '.' + extension
+        return name
+
+    def detailsFromDisk(self, filename, details):
+        """Automagically load media metadata out of the provided filename,
+           adding entries to details. This works on any file type
+           mmpython recognizes, and other files should be tagged
+           appropriately for Rio Taxi.
+           """
+        info = mmpython.parse(filename)
+        st = os.stat(filename)
+
+        # Generic details for any file. Note that we start out assuming
+        # all files are unreadable, and label everything for Rio Taxi.
+        # Later we'll mark supported formats as music.
+        details['length'] = st.st_size
+        details['type'] = 'taxi'
+
+        # We get the bulk of our metadata via mmpython if possible
+        if info:
+            self.detailsFromMM(info, details)
+
+        if details['type'] == 'taxi':
+            # All taxi files get their filename as their title, regardless of what mmpython said
+            details['title'] = os.path.basename(filename)
+
+            # Taxi files also always get a codec of 'taxi'
+            details['codec'] = 'taxi'
+
+        else:
+            # All non-taxi files...
+
+            # Music files that still don't get a title get their filename minus the extension
+            if not details.get('title'):
+                details['title'] = os.path.splitext(os.path.basename(filename))[0]
+
+            # Music files get an 'RID' message digest
+            details['rid'] = RidCalculator().fromFile(filename, st.st_size, info)
+
+    def detailsFromMM(self, info, details):
+        """Update Rio-style 'details' metadata from MMPython info"""
+        # Mime types aren't implemented consistently in mmpython, but
+        # we can look at the type of the returned object to decide
+        # whether this is a format that the Rio probably supports.
+        # This dictionary maps mmpython clases to Rio codec names.
+        for cls, codec in self.codecNames.iteritems():
+            if isinstance(info, cls):
+                details['type'] = 'tune'
+                details['codec'] = codec
+                break
+
+        # Map simple keys that don't require and hackery
+        for fromKey, toKey in (
+            ('artist', 'artist'),
+            ('title', 'title'),
+            ('album', 'source'),
+            ('date', 'year'),
+            ('samplerate', 'samplerate'),
+            ):
+            v = info[fromKey]
+            if v is not None:
+                details[toKey] = v
+
+        # The rio uses a two-letter prefix on bit rates- the first letter
+        # is 'f' or 'v', presumably for fixed or variable. The second is
+        # 'm' for mono or 's' for stereo. There doesn't seem to be a good
+        # way to get VBR info out of mmpython, so currently this always
+        # reports a fixed bit rate. We also have to kludge a bit because
+        # some metdata sources give us bits/second while some give us
+        # kilobits/second. And of course, there are multiple ways of
+        # reporting stereo...
+        kbps = info['bitrate']
+        if kbps and kbps > 0:
+            stereo = bool( (info['channels'] and info['channels'] >= 2) or
+                           (info['mode'] and info['mode'].find('stereo') >= 0) )
+            if kbps > 8000:
+                kbps = kbps // 1000
+            details['bitrate'] = ('fm', 'fs')[stereo] + str(kbps)
+
+        # If mmpython gives us a length it seems to always be in seconds,
+        # whereas the Rio expects milliseconds.
+        length = info['length']
+        if length:
+            details['duration'] = int(length * 1000)
+
+        # mmpython often gives track numbers as a fraction- current/total.
+        # The Rio only wants the current track, and we might as well also
+        # strip off leading zeros and such.
+        trackNo = info['trackno']
+        if trackNo:
+            details['tracknr'] = int(trackNo.split("/", 1)[0])
+
+
+############################################################################
+######################################################  File Management  ###
+############################################################################
+
+class Filesystem:
+    """The Filesystem coordinates the activity of several File objects
+       through one Protocol, and provides ways of discovering Files.
+       It owns a local cache of the rio's database, which it can synchronize.
+
+       The Filesystem is responsible for organizing metadata, but not for
+       collecting it, or for dealing with file contents.
+       """
+    def __init__(self, protocol, cacheDir="~/.riokarma-py/cache"):
+        self.protocol = protocol
+        self.cache = Cache(cacheDir)
+        self.cache.open()
+
+    def synchronize(self):
+        """Update our local database if necessary. Returns a Deferred
+           signalling completion. This has the side-effect of acquiring
+           a read lock.
+           """
+        d = defer.Deferred()
+        self.protocol.sendRequest(Request_RequestIOLock('read')).addCallback(
+            self._startSynchronize, d).addErrback(d.errback)
+        return d
+
+    def _startSynchronize(self, retval, d):
+        if self.isCacheDirty():
+            # Empty and rebuild all database files
+            self.cache.empty()
+            self.protocol.sendRequest(Request_GetAllFileDetails(
+                self._cacheFileDetails)).addCallback(
+                self._finishSynchronize, d).addErrback(d.errback)
+        else:
+            d.callback(None)
+
+    def _finishSynchronize(self, retval, d):
+        # Before signalling completion, sync the cache
+        self.cache.sync()
+        d.callback(None)
+
+    def isCacheDirty(self):
+        """This function determines whether our local cache of the database
+           is still valid. If not, we should retrieve a new copy.
+           """
+        # FIXME: this should compare datestamps, or free space on the disk, to
+        #        be able to invalidate the cache when the rio is externally modified.
+        if len(self.cache.fileDetails) == 0:
+            return True
+        else:
+            return False
+
+    def _cacheFileDetails(self, details):
+        """Add a file details dictionary to our database cache. This is used to populate
+           the database when synchronizing from the device, and it's used internally
+           by updateFileDetails().
+           """
+        self.cache.fileIdAllocator.allocate(int(details['fid']))
+        self.cache.fileDetails[str(details['fid'])] = details
+
+        # FIXME: Report progress near here, at least for synchronization
+        print hex(int(details['fid']))
+
+    def updateFileDetails(self, f):
+        """Update our cache and the device itself with the latest details dictionary
+           from this file object. Returns a Deferred signalling completion.
+           """
+        self._cacheFileDetails(f.details)
+        self.cache.sync()
+        return self.protocol.sendRequest(Request_UpdateFileDetails(f.fileID, f.details))
+
+
+class File:
+    """A File represents one media or data file corresponding to an entry in
+       the device's database and our copy of that database. File objects
+       have lifetimes disjoint from that of the actual files on disk- if a
+       file ID is provided, existing metadata is looked up. If an ID isn't
+       provided, we generate a new ID and metadata will be uploaded.
+
+       Files are responsible for holding metadata, extracting that metadata
+       from real files on disk, and for transferring a file's content to and
+       from disk. Since the real work of metadata extraction is done by
+       mmpython, this mostly concerns translating mmpython's metadata into
+       the Rio's metadata format.
+       """
     def __init__(self, filesystem, fileID=None):
         self.filesystem = filesystem
 
@@ -1143,115 +1307,72 @@ class File:
             self.fileID = int(fileID)
             self.details = self.filesystem.cache.fileDetails[str(fileID)]
 
-    def pickFilename(self, replaceSpaces=True, lowercase=True):
-        """Determine a good filename to use for this file. If it's a data file,
-           this will use the original file as stored in 'title'. Otherwise,
-           it cleans up the filename (always removing slashes, optionally
-           replacing spaces with underscores) and adds an extension.
+    def loadFromDisk(self, filename):
+        """Load this file's metadata and content from a file on disk.
+           Returns a Deferred signalling completion.
            """
-        if self.details.get('type') == 'taxi':
-            return self.details['title']
+        MetadataConverter().detailsFromDisk(filename, slf.details)
+        self.filesystem.updateFileDetails(self)
+        return self.loadContentFrom(open(filename, "rb"))
 
-        name = self.details['title']
-        name = name.replace(os.sep, "")
-        if replaceSpaces:
-            name = name.replace(" ", "_")
-        if lowercase:
-            name = name.lower()
+    def saveToDisk(self, filename):
+        """Save this file's content to disk. Returns a deferred signalling completion."""
+        # We make sure to explicitly close it, so that
+        # when this returns you're sure the file is complete.
+        result = defer.Deferred()
+        dest = open(filename, "wb")
+        self.saveContentTo(dest).addCallback(
+            self._finishSaveToDisk, dest, result.callback).addErrback(
+            self._finishSaveToDisk, dest, result.errback)
+        return result
 
-        codec = self.details.get('codec')
-        extension = self.codecExtensions.get(codec, codec)
-        if extension:
-            name += '.' + extension
+    def _finishSaveToDisk(self, retval, dest, chainTo):
+        dest.close()
+        chainTo(retval)
 
-        return name
-
-    def loadMetadataFrom(self, filename):
-        """Automagically load media metadata out of the provided filedata,
-           adding entries to self.details. This works on any file type
-           mmpython recognizes, and other files should be tagged appropriately
-           for Rio Taxi.
+    def loadContentFrom(self, fileObj):
+        """Load this file's content from a file-like object.
+           Returns a Deferred signalling completion.
            """
-        info = mmpython.parse(filename)
-        st = os.stat(filename)
+        pass
 
-        # Generic details for any file. Note that we start out assuming
-        # all files are unreadable, and label everything for Rio Taxi.
-        # Later we'll mark supported formats as music.
-        self.details['length'] = st.st_size
-        self.details['type'] = 'taxi'
+    def saveContentTo(self, fileObj, blockSize=8192):
+        """Save this file's content to a file-like object.
+           Returns a deferred signalling completion.
+           """
+        offset = 0
+        length = self.details['length']
+        result = defer.Deferred()
 
-        if info:
-            # Mime types aren't implemented consistently in mmpython, but
-            # we can look at the type of the returned object to decide
-            # whether this is a format that the Rio probably supports.
-            # This dictionary maps mmpython clases to Rio codec names.
-            for cls, codec in self.codecNames.iteritems():
-                if isinstance(info, cls):
-                    self.details['type'] = 'tune'
-                    self.details['codec'] = codec
-                    break
+        # This queues up all our read chunks immediately, so that they can overlap.
+        # They always go in order and are protected by TCP- we have errbacks for all
+        # of them, but our completion is triggered by the last one. The sizes returned
+        # on each read are pretty worthless, so there's no harm in ignoring them.
 
-            # Map simple keys that don't require and hackery
-            for fromKey, toKey in (
-                ('artist', 'artist'),
-                ('title', 'title'),
-                ('album', 'source'),
-                ('date', 'year'),
-                ('samplerate', 'samplerate'),
-                ):
-                v = info[fromKey]
-                if v is not None:
-                    self.details[toKey] = v
+        # FIXME: This puts a lot of stress on our request queue, on big files
+        #        it might be a significant bottleneck. This should be redone to
+        #        keep only a small set of requests buffered at once- perhaps it
+        #        would get a callback from the Protocol when data is removed
+        #        from the queue, and this would only add new requests if the queue
+        #        was under some minimum length.
 
-            # The rio uses a two-letter prefix on bit rates- the first letter
-            # is 'f' or 'v', presumably for fixed or variable. The second is
-            # 'm' for mono or 's' for stereo. There doesn't seem to be a good
-            # way to get VBR info out of mmpython, so currently this always
-            # reports a fixed bit rate. We also have to kludge a bit because
-            # some metdata sources give us bits/second while some give us
-            # kilobits/second. And of course, there are multiple ways of
-            # reporting stereo...
-            kbps = info['bitrate']
-            if kbps and kbps > 0:
-                stereo = bool( (info['channels'] and info['channels'] >= 2) or
-                               (info['mode'] and info['mode'].find('stereo') >= 0) )
-                if kbps > 8000:
-                    kbps = kbps // 1000
-                self.details['bitrate'] = ('fm', 'fs')[stereo] + str(kbps)
+        while length > 0:
+            # Read the next chunk...
+            chunkLen = min(length, blockSize)
+            d = self.filesystem.protocol.sendRequest(Request_ReadFileChunk(
+                self.fileID, offset, chunkLen, fileObj))
+            length -= chunkLen
+            offset += chunkLen
 
-            # If mmpython gives us a length it seems to always be in seconds,
-            # whereas the Rio expects milliseconds.
-            length = info['length']
-            if length:
-                self.details['duration'] = str(int(length * 1000))
+            if length <= 0:
+                # This is the last one, chain to our deferred
+                d.addCallback(result.callback)
+            else:
+                # FIXME: progress updates should be triggered here
+                #d.addCallback(fileProgress)
+                pass
 
-            # mmpython often gives track numbers as a fraction- current/total.
-            # The Rio only wants the current track, and we might as well also
-            # strip off leading zeros and such.
-            trackNo = info['trackno']
-            if trackNo:
-                self.details['tracknr'] = str(int(trackNo.split("/", 1)[0]))
-
-        if self.details['type'] == 'taxi':
-
-            # All taxi files get their filename as their title, regardless of what mmpython said
-            self.details['title'] = os.path.basename(filename)
-
-            # Taxi files also always get a codec of 'taxi'
-            self.details['codec'] = 'taxi'
-
-        elif not self.details.get('title'):
-
-            # Music files that still don't get a title get their filename minus the extension
-            self.details['title'] = os.path.splitext(os.path.basename(filename))[0]
-
-            # Music files get an 'RID' message digest
-            RidCalculator().fromFile(filename, st.st_size, info)
-
-    def loadFrom(self, filename):
-        """Load this file's metadata and content from a file on disk"""
-
-
+            d.addErrback(result.errback)
+        return result
 
 ### The End ###

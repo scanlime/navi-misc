@@ -20,38 +20,28 @@ def synchronized(retval):
 
     def nextFile(i):
         f = RioKarma.File(fs, i.next())
-        length = int(f.details.get('length'))
-        destName = f.pickFilename()
-        dest = open(destName, "wb")
+        destName = RioKarma.MetadataConverter().filenameFromDetails(f.details)
 
         print
         print
-        print "         Title: %s" % f.details.get('title')
-        print "         Album: %s" % f.details.get('source')
-        print "        Artist: %s" % f.details.get('artist')
-        print "Downloading to: %s" % destName
-        print "        Length: %s" % length
+        print "          Title: %s" % f.details.get('title')
+        print "          Album: %s" % f.details.get('source')
+        print "         Artist: %s" % f.details.get('artist')
+        print "         Length: %s" % f.details.get('length')
+        print " Downloading To: %s" % destName
 
-        nextChunk(0, f, 0, length, dest, i)
+        f.saveToDisk(destName).addCallback(finishFile, i).addErrback(log.err)
 
-    def nextChunk(readSize, f, offset, length, dest, i):
-        sys.stderr.write(".")
+    def finishFile(retval, i):
+        nextFile(i)
 
-        offset += readSize
-        length -= readSize
-        blockSize = min(length, 64*1024)
+    # Upload files
+    for filename in sys.argv[1:]:
+        f = RioKarma.File(fs)
+        RioKarma.MetadataConverter().detailsFromDisk(filename, f.details)
+        print f.details
 
-        if length > 0:
-            fs.protocol.sendRequest(RioKarma.Request_ReadFileChunk(f.fileID, offset, blockSize, dest)).addCallback(
-                nextChunk, f, offset, length, dest, i).addErrback(log.err)
-        else:
-            nextFile(i)
-
-    #for filename in sys.argv[1:]:
-        #f = RioKarma.File(fs)
-        #f.loadMetadataFrom(filename)
-        #print f.details
-
+    # Download files
     nextFile(fs.cache.fileDetails.iterkeys())
 
 
