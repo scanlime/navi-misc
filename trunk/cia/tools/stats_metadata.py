@@ -19,7 +19,7 @@ class Options(Client.Options):
         ]
 
     optParameters = [
-        ['type', 't', None, "Sets the key's MIME type"]
+        ['type', 't', 'text/plain', "The MIME type to use when setting a key value"]
         ]
 
     def getSynopsis(self):
@@ -45,17 +45,10 @@ class MetadataTool(Client.App):
             value = xmlrpclib.Binary(open(value, 'rb').read())
 
         if self.config['remove']:
-            metadata.delKeys(self.key, self.config['path'], [self.config['dataKey']])
+            metadata.remove(self.key, self.config['path'], [self.config['dataKey']])
 
         if self.config['dataValue'] is not None:
-            metadata.setKeyValues(self.key, self.config['path'], {
-                self.config['dataKey']: value,
-                })
-
-        if self.config['type'] is not None:
-            metadata.setKeyTypes(self.key, self.config['path'], {
-                self.config['dataKey']: self.config['type'],
-                })
+            metadata.set(self.key, self.config['path'], self.config['dataKey'], value, self.config['type'])
 
 if __name__ == '__main__':
     MetadataTool().main()
