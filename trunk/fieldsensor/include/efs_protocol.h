@@ -28,7 +28,7 @@
 ;//************************************************** Control requests
 
 ;// Set the modulation frequency for the channel given in wIndex.
-;// wValue = 6.0e6 / frequency
+;// wValue = 3.0e6 / frequency
 ;// 0 <= wValue <= 255
 #define EFS_CTRL_SET_FREQUENCY		0x10
 
