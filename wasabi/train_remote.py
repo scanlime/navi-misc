@@ -3,7 +3,7 @@
 # A utility to interactively train the learning remote used with Wasabi
 #
 
-import os, sys, time
+import os, sys, time, mi6k
 from Wasabi import IR
 
 remoteDir = "remotes"
@@ -27,18 +27,22 @@ After a code name is given:
 """
 
 tx = IR.Transmitter()
+lights = mi6k.Device().lights
 
 try:
     for code in codes:
         print code
+        lights.blue = 1
         tx.sendStart(remoteName, code)
         sys.stdin.readline()
         tx.sendStop(remoteName, code)
-        time.sleep(0.5)
+        lights.blue = 0
+        time.sleep(0.2)
 finally:
     # Make sure to stop repeating the code if we were interrupted
     try:
         tx.sendStop(remoteName, code)
+        lights.blue = 0
     except:
         pass
 
