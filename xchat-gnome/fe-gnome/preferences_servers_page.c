@@ -24,6 +24,26 @@
 #include "../common/xchat.h"
 #include "../common/servlist.h"
 
+static const char *encodings[] =
+{
+  "UTF-8",
+  "ISO-8859-15 (Western Europe)",
+  "ISO-8859-2 (Central Europe)",
+  "ISO-8859-7 (Greek)",
+  "ISO-8859-8 (Hebrew)",
+  "ISO-8859-9 (Turkish)",
+  "ISO-2022-JP (Japanese)",
+  "SJIS (Japanese)",
+  "CP949 (Korean)",
+  "CP1251 (Cyrillic)",
+  "CP1256 (Arabic)",
+  "GB18030 (Chinese)",
+  NULL
+};
+static GHashTable *enctoindex;
+static GHashTable *indextoenc;
+static gboolean initialized = FALSE;
+
 void preferences_servers_selected(GtkTreeSelection *selection, gpointer data);
 
 static void add_clicked (GtkWidget *button, gpointer data) {
@@ -144,6 +164,24 @@ static void edit_clicked(GtkWidget *button, gpointer data) {
 	real = glade_xml_get_widget (gui.xml, "server config realname");
 	gtk_size_group_add_widget (group, real);
 	encoding = glade_xml_get_widget (gui.xml, "encoding combo");
+	if (!initialized) {
+	  char **enc = encodings;
+	  guint index = 0;
+
+	  indextoenc = g_hash_table_new (g_direct_hash, g_direct_equal);
+	  enctoindex = g_hash_table_new (g_str_hash, g_str_equal);
+
+	  do
+	  {
+	    gtk_combo_box_append_text (GTK_COMBO_BOX (encoding), *enc);
+	    g_hash_table_insert (indextoenc, GUINT_TO_POINTER (index), *enc);
+	    g_hash_table_insert (enctoindex, *enc, GUINT_TO_POINTER (index));
+
+	    index++;
+	    enc++;
+	  } while (*enc);
+	  initialized = TRUE;
+	}
 	gtk_size_group_add_widget (group, encoding);
 	g_object_unref (group);
 
@@ -193,6 +231,19 @@ static void edit_clicked(GtkWidget *button, gpointer data) {
 	g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(edit_cancel_clicked), NULL);
 
 	widget = glade_xml_get_widget (gui.xml, "encoding combo");
+	{
+	  guint index;
+	  if (net->encoding == NULL)
+	  {
+	    index = 0;
+	    net->encoding = g_strdup (encodings[0]);
+	  }
+	  else
+	  {
+	    index = GPOINTER_TO_UINT (g_hash_table_lookup (enctoindex, net->encoding));
+	  }
+	  gtk_combo_box_set_active (GTK_COMBO_BOX (widget), index);
+	}
 	g_signal_connect (G_OBJECT (widget), "changed", G_CALLBACK (encoding_changed), NULL);
 
 	gtk_widget_show_all(dialog);
