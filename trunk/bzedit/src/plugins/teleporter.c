@@ -345,7 +345,7 @@ teleporter_get_icon (void)
 
   if (icon == NULL)
   {
-    icon = gdk_pixbuf_new_from_file ("data/teleicon.png", NULL);
+    icon = gdk_pixbuf_new_from_file ("data/teleporter.png", NULL);
   }
 
   return gdk_pixbuf_ref (icon);

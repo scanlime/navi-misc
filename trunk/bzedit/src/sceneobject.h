@@ -38,10 +38,11 @@ typedef struct _SceneObjectClass SceneObjectClass;
 
 struct _SceneObject
 {
-  ParameterHolder parent;
+  ParameterHolder holder;
 
   gboolean selected;
   GtkTreeIter iter;
+  SceneObject *parent;
 };
 
 struct _SceneObjectClass
@@ -50,6 +51,7 @@ struct _SceneObjectClass
 
   gboolean creatable;
   gboolean autocreate;
+  gboolean canparent;
 
   /* signal handlers */
   void       (*dirty)          (SceneObject *self);
