@@ -333,7 +333,7 @@ timeout_10us	macro	port, bit, found_bit
 	;;
 	;; This leaves FSR pointing at the last byte received.
 	;;
-n64gc_rx_buffer macro port, bit, byte_count, timeout
+n64gc_rx_buffer macro port, bit, timeout
 	local	bit_loop
 	local	not_last_bit
 	local	not_last_byte
@@ -341,6 +341,9 @@ n64gc_rx_buffer macro port, bit, byte_count, timeout
 	local	edge_det_2
 	local	found_bit
 	local	done
+
+	bsf	STATUS, RP0	; Stow our count and start looping over bytes
+	movwf	byte_count
 
 	;; We poll for the low state signalling the beginning of a bit, time out 2us
 	;; (putting us right in the middle of the bit) and then sample. This probably isn't

@@ -100,8 +100,7 @@ poll_controller	macro	port_number
 	movlw	gamecube_buffer		; Receive the controller's 8-byte status packet
 	movwf	FSR
 	movlw	8
-	movwf	byte_count
-	n64gc_rx_buffer	PORTA, byte_count, port_number, timeout
+	n64gc_rx_buffer	PORTA, port_number, timeout
 
 	;; Send back analog status
 	movlw	GCHUB_PACKET_ANALOG | port_number
