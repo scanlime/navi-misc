@@ -11,6 +11,7 @@
 			\context Staff = mvmtOneBassoon <<
 				\set Staff.midiInstrument = "bassoon"
 				\set Score.skipBars = ##t
+                #(set-accidental-style 'modern-voice)
 				\mvmtOneBassoon
 			>>
 		>>

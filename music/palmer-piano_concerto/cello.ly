@@ -11,6 +11,7 @@
 			\context Staff = mvmtOneCello <<
 				\set Staff.midiInstrument = "cello"
 				\set Score.skipBars = ##t
+                #(set-accidental-style 'modern-voice)
 				\keepWithTag #'part \mvmtOneCello
 			>>
 		>>

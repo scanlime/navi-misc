@@ -10,6 +10,7 @@
 		\context PianoStaff <<
 			\set Score.skipBars = ##t
 			\set PianoStaff.connectArpeggios = ##t
+            #(set-accidental-style 'piano)
 			\context Staff = "pianoRight" {
                 \set Staff.midiInstrument = "piano"
 				\mvmtOnePianoRight
