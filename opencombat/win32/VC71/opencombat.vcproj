@@ -38,13 +38,13 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="FALSE"
-				AdditionalDependencies="ws2_32.lib dsound.lib winmm.lib glu32.lib opengl32.lib odbc32.lib odbccp32.lib"
+				AdditionalDependencies="ws2_32.lib dsound.lib winmm.lib glu32.lib opengl32.lib odbc32.lib odbccp32.lib 3d.lib"
 				OutputFile="..\..\src\opencombat\debug\opencombat.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="..\..\src\3D\debug"
+				AdditionalLibraryDirectories="..\..\src\3d\debug"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile=".\..\..\src\opencombat\debug/opencombat.pdb"
+				ProgramDatabaseFile=".\..\..\src\opencombat\debug\opencombat.pdb"
 				SubSystem="2"
 				TargetMachine="1"/>
 			<Tool
@@ -179,23 +179,6 @@ copy debug\*.pdb ..\..\*.pdb
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\opencombat.rc">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCResourceCompilerTool"
-						PreprocessorDefinitions=""
-						AdditionalIncludeDirectories="\Documents and Settings\JeffM\Desktop\opencombat\win32"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCResourceCompilerTool"
-						PreprocessorDefinitions=""
-						AdditionalIncludeDirectories="\Documents and Settings\JeffM\Desktop\opencombat\win32"/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="..\..\src\opencombat\callbacks.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -259,6 +242,23 @@ copy debug\*.pdb ..\..\*.pdb
 						Optimization="2"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\opencombat.rc">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCResourceCompilerTool"
+						PreprocessorDefinitions=""
+						AdditionalIncludeDirectories="\Documents and Settings\JeffM\Desktop\opencombat\win32"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCResourceCompilerTool"
+						PreprocessorDefinitions=""
+						AdditionalIncludeDirectories="\Documents and Settings\JeffM\Desktop\opencombat\win32"/>
 				</FileConfiguration>
 			</File>
 			<File

@@ -16,11 +16,11 @@
 #include "GeoUtils.h"
 #include <stdio.h>
 
-class ViewFrustum : public BaseFrustum
+class ViewFrustumGL : public BaseFrustum
 {
 public:
-	ViewFrustum();
-	virtual ~ViewFrustum();
+	ViewFrustumGL();
+	virtual ~ViewFrustumGL();
 	void Get();/// load frustum from GL
 };
 

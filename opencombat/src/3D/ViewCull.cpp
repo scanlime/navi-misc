@@ -17,14 +17,14 @@
 
 // view frustum class
 
-ViewFrustum::ViewFrustum()
+ViewFrustumGL::ViewFrustumGL()
 {
 	m_bSet = false;
 }
 
-ViewFrustum::~ViewFrustum(){}
+ViewFrustumGL::~ViewFrustumGL(){}
 
-void ViewFrustum::Get()
+void ViewFrustumGL::Get()
 {    
 	float   proj[16];								// projection matrix
 	float   modl[16];								// modelview matrix

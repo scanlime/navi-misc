@@ -19,7 +19,6 @@
 /* implementation common headers */
 #include "MathUtils.h"
 
-
 /* private */
 
 /* protected */
