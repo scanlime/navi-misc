@@ -1,8 +1,9 @@
 """ LibCIA.Security
 
-Implements CIA's simple security model. CIA uses a simple capabilities
-system, where a particular capability is represented on the wire as an
-unguessable random key, and internally by any hashable python object.
+Implements CIA's simple security model. CIA uses a simple
+capabilities-like system, where a particular capability is represented
+on the wire as an unguessable random key, and internally by any python
+object that can be serialized into a capability.
 
 Generally the 'universe' key will be saved somewhere only the server's
 owner can access it on startup. The 'universe' key can be used to grant
@@ -11,6 +12,24 @@ other keys, which can then be distributed to other people or machines.
 Keys are represented in the database as a chunk of random binary data,
 but they are represented everywhere else base64-encoded, to make them
 XML-friendly.
+
+Note that this system has many of the same qualities as traditional
+capabilities, but is not implemented in the same way. In traditional
+capabilities, the unguessable keys map directly to objects that provide
+whatever interface that key grants permissions to. This is simple and
+effective, and any number of proxy objects can be created to grant
+different keys to one set of functionality. However, this is also a
+problem- every time a capability was granted, a new object would be
+created. With CIA's simple request-based interfaces, there would be
+no way to determine when a capability was no longer needed.
+
+The current system simplifies this in some ways by making keys associate
+with simple identifiers that are checked for manually in any externally
+accessable functions that need protection. Currently there is no way
+to assign multiple keys to one capability- this might be implemented by
+using shelve instead of anydbm and representing capability keys as lists.
+This however presents some of the same challenges as just implementing
+a real capabilities system.
 """
 #
 # CIA open source notification system
