@@ -20,17 +20,40 @@
 * email: jeffm2501@sbcglobal.net
 */
 
-#ifndef _FIRESTARTERD_H_
-#define _FIRESTARTERD_H_
+#ifndef _LISTSERVER_H_
+#define _LISTSERVER_H_
 
-#include "listserver.h"
+#include <string>
 
-// server globals
-extern trServerInfo		serverInfo;
-extern CListServerServerConnection	serverListServerConnection;
-extern bool registerAsPublic;
+typedef struct 
+{
+	std::string		name;
+	std::string		address;
+	int						port;
+	std::string		game;
+	float					version;
+	std::string		os;
+	int						maxPlayers;
+	int						currentPlayers;
+	int						token;
+}trServerInfo;
 
-// functions
-int errorOut ( const char * error, const char* place = NULL, int ret = 1 );
+class CListServerServerConnection
+{
+public:
+	CListServerServerConnection();
+	~CListServerServerConnection();
 
-#endif //_FIRESTARTERD_H_
+	bool add ( trServerInfo &info );
+	bool update ( trServerInfo &info );
+	bool remove ( trServerInfo &info );
+
+	size_t writeMemoryCallback(void *ptr, size_t inSize, size_t nmemb, void *data);
+
+protected:
+	void clearPageData ( void );
+	char			*memory;
+	size_t		size;
+};
+
+#endif //_LISTSERVER_H_

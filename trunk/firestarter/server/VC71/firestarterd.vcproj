@@ -32,7 +32,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="WSOCK32.LIB Ws2_32.lib libcurl.lib"
+				AdditionalDependencies="WSOCK32.LIB Ws2_32.lib libcurl.lib sdl.lib"
 				OutputFile="$(OutDir)/firestarterd.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="../../common/curl/lib/Debug"
@@ -120,6 +120,9 @@
 			<File
 				RelativePath="..\src\firestarterd.cpp">
 			</File>
+			<File
+				RelativePath="..\src\listserver.cpp">
+			</File>
 			<Filter
 				Name="Core"
 				Filter="">
@@ -127,10 +130,16 @@
 					RelativePath="..\..\common\src\commandargs.cpp">
 				</File>
 				<File
+					RelativePath="..\..\common\src\events.cpp">
+				</File>
+				<File
 					RelativePath="..\..\common\src\osfile.cpp">
 				</File>
 				<File
 					RelativePath="..\..\common\src\prefs.cpp">
+				</File>
+				<File
+					RelativePath="..\..\common\src\timer.cpp">
 				</File>
 			</Filter>
 			<Filter
@@ -173,6 +182,9 @@
 			<File
 				RelativePath="..\inc\firestarterd.h">
 			</File>
+			<File
+				RelativePath="..\inc\listserver.h">
+			</File>
 			<Filter
 				Name="Core"
 				Filter="">
@@ -180,10 +192,16 @@
 					RelativePath="..\..\common\inc\commandargs.h">
 				</File>
 				<File
+					RelativePath="..\..\common\inc\events.h">
+				</File>
+				<File
 					RelativePath="..\..\common\inc\osfile.h">
 				</File>
 				<File
 					RelativePath="..\..\common\inc\prefs.h">
+				</File>
+				<File
+					RelativePath="..\..\common\inc\timer.h">
 				</File>
 			</Filter>
 			<Filter
