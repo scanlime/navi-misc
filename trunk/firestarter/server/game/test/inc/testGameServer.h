@@ -22,6 +22,7 @@ typedef struct
 {
 	bool player;
 	std::string name;
+	std::string material;
 	CNetworkPeer	*peer;
 	float					pos[3];
 	float					rot[3];

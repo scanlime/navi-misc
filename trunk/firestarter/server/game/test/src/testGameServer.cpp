@@ -64,6 +64,7 @@ bool CTestGameServer::message ( int playerID, CNetworkPeer &peer, CNetworkMessag
 			spawn = true;
 			itr->second.player = true;
 			itr->second.name = message.ReadStr();
+			itr->second.material = message.ReadStr();
 			break;
 
 		case _MESSAGE_USER_PART:		// UP
@@ -151,7 +152,7 @@ bool CTestGameServer::add ( int playerID, CNetworkPeer &peer )
 	message.ClearData();
 
 	// send it a user add and client info for everyone else
-	std::map<int,trPlayerInfo>::iterator itr = users.begin();
+	itr = users.begin();
 	while (itr != users.end())
 	{
 		if (itr->first !=playerID)
@@ -163,8 +164,8 @@ bool CTestGameServer::add ( int playerID, CNetworkPeer &peer )
 
 			message.SetType(_MESSAGE_CLIENT_INFO);	
 			message.AddI(itr->first);
-			message.AddStr(itr->second->name.c_str());
-			message.AddStr(itr->second->material.c_str());
+			message.AddStr(itr->second.name.c_str());
+			message.AddStr(itr->second.material.c_str());
 			message.Send(peer,true);
 			message.ClearData();
 
