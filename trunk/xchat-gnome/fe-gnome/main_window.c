@@ -59,6 +59,7 @@ void on_network_collapse_expand_activate(GtkWidget *widget, gpointer data);
 void on_discussion_save_activate(GtkWidget *widget, gpointer data);
 void on_discussion_save_as_activate(GtkWidget *widget, gpointer data);
 void on_discussion_leave_activate(GtkWidget *widget, gpointer data);
+void on_discussion_close_activate(GtkWidget *widget, gpointer data);
 void on_discussion_find_activate(GtkWidget *widget, gpointer data);
 void on_discussion_find_next_activate(GtkWidget *widget, gpointer data);
 void on_discussion_clear_window_activate(GtkWidget *widget, gpointer data);
@@ -105,6 +106,7 @@ void initialize_main_window() {
 	g_signal_connect(G_OBJECT(glade_xml_get_widget(gui.xml, "save_transcript1")), "activate", G_CALLBACK(on_discussion_save_activate), NULL);
 	g_signal_connect(G_OBJECT(glade_xml_get_widget(gui.xml, "save_as1")), "activate", G_CALLBACK(on_discussion_save_as_activate), NULL);
 	g_signal_connect(G_OBJECT(glade_xml_get_widget(gui.xml, "leave1")), "activate", G_CALLBACK(on_discussion_leave_activate), NULL);
+	g_signal_connect(G_OBJECT(glade_xml_get_widget(gui.xml, "close1")), "activate", G_CALLBACK(on_discussion_close_activate), NULL);
 	g_signal_connect(G_OBJECT(glade_xml_get_widget(gui.xml, "find1")), "activate", G_CALLBACK(on_discussion_find_activate), NULL);
 	g_signal_connect(G_OBJECT(glade_xml_get_widget(gui.xml, "find_next1")), "activate", G_CALLBACK(on_discussion_find_next_activate), NULL);
 	g_signal_connect(G_OBJECT(glade_xml_get_widget(gui.xml, "clear_window1")), "activate", G_CALLBACK(on_discussion_clear_window_activate), NULL);
@@ -309,6 +311,14 @@ void on_discussion_save_as_activate(GtkWidget *widget, gpointer data) {
 }
 
 void on_discussion_leave_activate(GtkWidget *widget, gpointer data) {
+	session *s = gui.current_session;
+	if(s->type == SESS_CHANNEL) {
+		s->server->p_part(s->server, s->channel, "ex-chat");
+		/* FIXME: part reason */
+	}
+}
+
+void on_discussion_close_activate(GtkWidget *widget, gpointer data) {
 	session *s = gui.current_session;
 	if(s->type == SESS_CHANNEL) {
 		s->server->p_part(s->server, s->channel, "ex-chat");
