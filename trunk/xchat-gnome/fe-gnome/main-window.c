@@ -602,7 +602,8 @@ on_edit_preferences_activate (GtkAction *action, gpointer data)
 	PreferencesDialog *dialog;
 
 	dialog = preferences_dialog_new ();
-	gtk_widget_show_all (GTK_WIDGET (dialog));
+	gtk_dialog_run (GTK_DIALOG (dialog));
+	gtk_widget_destroy (GTK_WIDGET (dialog));
 }
 
 static void
