@@ -208,6 +208,12 @@ class BZObject(object):
     faces = []
     materials = []
 
+    # If a world is associated with this object, it will be used
+    # in computing transformations between blender coordinates
+    # and bzflag coordinates such that all other objects are sized
+    # and positioned relative to the world.
+    world = None
+
     def serialize(self, writer):
         """Store this BZFlag object to a world file by calling the
            given writer for each tuple or comment to be included
