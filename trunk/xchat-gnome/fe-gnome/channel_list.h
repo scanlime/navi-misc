@@ -1,12 +1,12 @@
 #include "../common/xchat.h"
+#include <glade/glade.h>
 
 #ifndef XCHAT_GNOME_CHANNEL_LIST_H
 #define XCHAT_GNOME_CHANNEL_LIST_H
 
 typedef struct {
-	GtkWidget *window;
-	GtkWidget *listview;
 	GtkListStore *store;
+	GladeXML *xml;
 	struct server *server;
 } channel_list_window;
 

@@ -25,6 +25,7 @@
 #include "userlist.h"
 #include "../common/xchatc.h"
 #include "gui.h"
+#include "channel_list.h"
 
 #ifdef HAVE_GTKSPELL
 #include <gtkspell/gtkspell.h>
@@ -159,6 +160,7 @@ void on_network_file_transfers_menu_activate(GtkWidget *widget, gpointer data) {
 }
 
 void on_network_channels_menu_activate(GtkWidget *widget, gpointer data) {
+	create_channel_list(NULL);
 	/* FIXME: implement */
 }
 

@@ -24,6 +24,7 @@
 #include "userlist.h"
 #include "pixmaps.h"
 #include "palette.h"
+#include "channel_list.h"
 
 void navigation_selection_changed(GtkTreeSelection *selection, gpointer data);
 gboolean navigation_click(GtkWidget *treeview, GdkEventButton *event, gpointer data);
@@ -306,6 +307,22 @@ static void disconnect_server(gpointer data, guint action, GtkWidget *widget) {
 	}
 }
 
+static void show_channel_list(gpointer data, guint action, GtkWidget *widget) {
+	g_print("channel list!\n");
+	GtkWidget *treeview;
+	GtkTreeSelection *select;
+	GtkTreeModel *model;
+	GtkTreeIter iter;
+	session *s;
+
+	treeview = glade_xml_get_widget(gui.xml, "server channel list");
+	select = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
+	if(gtk_tree_selection_get_selected(select, &model, &iter)) {
+		gtk_tree_model_get(model, &iter, 2, &s, -1);
+		create_channel_list(s);
+	}
+}
+
 void server_context(GtkWidget *treeview, session *selected) {
 	static GnomeUIInfo server_context[] = {
 		GNOMEUIINFO_ITEM_STOCK("_Information", NULL, NULL, GTK_STOCK_DIALOG_INFO),
@@ -313,7 +330,7 @@ void server_context(GtkWidget *treeview, session *selected) {
 		GNOMEUIINFO_ITEM_STOCK("_Reconnect", NULL, NULL, GTK_STOCK_REFRESH),
 		GNOMEUIINFO_ITEM_STOCK("_Disconnect", disconnect_server, NULL, GTK_STOCK_STOP),
 		GNOMEUIINFO_SEPARATOR,
-		GNOMEUIINFO_ITEM_STOCK("_Channels", NULL, NULL, GNOME_STOCK_TEXT_BULLETED_LIST)
+		GNOMEUIINFO_ITEM_STOCK("_Channels", show_channel_list, NULL, GNOME_STOCK_TEXT_BULLETED_LIST)
 	};
 	GtkWidget *menu;
 
