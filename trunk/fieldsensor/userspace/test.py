@@ -17,10 +17,10 @@ class FieldSensor:
 
 
 class ParamTweaker(object):
-    def __init__(self, efs, num):
+    def __init__(self, efs, num, default):
         self.efs = efs
         self.num = num
-        self._value = 0
+        self.set(default)
 
     def set(self, value):
         for block in xrange(8):
@@ -48,19 +48,20 @@ def main():
                             rtgraph.HScrollLineGraph(range=(0,255)),
                             valueUpdateInterval = 500)
 
-    for block in xrange(8):
-        efs.setParam(block, 0, block)    # EFS_PARAM_RESULT_NUM
-        efs.setParam(block, 1, 0x03)     # EFS_PARAM_LC_PORT_XOR
-        efs.setParam(block, 2, 0x81)     # EFS_PARAM_ADCON_INIT
-        efs.setParam(block, 3, 0)        # EFS_PARAM_PERIOD
-        efs.setParam(block, 4, 0)        # EFS_PARAM_PHASE
-        efs.setParam(block, 5, 30)       # EFS_PARAM_NUM_HALF_PERIODS
-        efs.setParam(block, 6, 0x00)     # EFS_PARAM_LC_TRIS_INIT
-        efs.setParam(block, 7, 0x01)     # EFS_PARAM_LC_PORT_INIT
+    block = 0
+    for adcon in (0x81, 0x89):
+        for xor in (0x03, 0x0C, 0x30, 0xC0):
+            efs.setParam(block, 0, block)    # EFS_PARAM_RESULT_NUM
+            efs.setParam(block, 1, xor)      # EFS_PARAM_LC_PORT_XOR
+            efs.setParam(block, 2, adcon)    # EFS_PARAM_ADCON_INIT
+            efs.setParam(block, 5, 30)       # EFS_PARAM_NUM_HALF_PERIODS
+            efs.setParam(block, 6, 0x00)     # EFS_PARAM_LC_TRIS_INIT
+            efs.setParam(block, 7, 0x55)     # EFS_PARAM_LC_PORT_INIT
+            block += 1
 
     tweaker = Tweak.List([
-        Tweak.Quantity(ParamTweaker(efs, 3), 'value', range=(0,255), name="Period"),
-        Tweak.Quantity(ParamTweaker(efs, 4), 'value', range=(0,255), name="Phase"),
+        Tweak.Quantity(ParamTweaker(efs, 3, default=227), 'value', range=(0,255), name="Period"),
+        Tweak.Quantity(ParamTweaker(efs, 4, default=226), 'value', range=(0,255), name="Phase"),
         ])
 
     win = gtk.Window(gtk.WINDOW_TOPLEVEL)
