@@ -73,17 +73,17 @@ class PalantirClientFactory(protocol.ClientFactory):
       '''
   protocol = PalantirClient
 
-  def __init__(self, nick, server='irc.freenode.net', channels='', ui=None):
+  def __init__(self, nick, server='irc.freenode.net', channels=None, ui=None):
     ''' 'channels' should be a string of channels, separated by commas that the client
         will join upon connecting.  'ui' should be a reference to the ui that the client
 	will use.  The rest should be apparent.
 	'''
     self.nickname = nick
     self.server = server
-    if channels != '':
+    if channels:
       self.channels = [channel.strip() for channel in channels.split(',')]
     else:
-      self.channels = []
+      self.channels = [None]
     self.ui = ui
 
   def clientConnectionLost(self, connector, reason):
