@@ -52,7 +52,7 @@ class PeriodChannel(rtgraph.Channel):
     def getValue(self):
         buffer = chr(0)*struct.calcsize(self._struct)
         f = struct.unpack(self._struct, fcntl.ioctl(self.fd, 0x3B03, buffer))
-        return (f[0] - 40000) * 0.001
+        return (f[0] - 39500) / 10000.0
 
 
 def main():
