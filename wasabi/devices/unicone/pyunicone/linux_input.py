@@ -42,6 +42,7 @@ def iocGetAbs(fd, axis):
     """Get information about an absolute axis given its number. Returns
        a dict with 'value', 'min', 'max', 'fuzz', and 'flat'.
        """
+    axis = Event.codeMaps['EV_ABS'].toNumber(axis)
     fmt = "i" * 5
     buffer = "\0" * struct.calcsize(fmt)
     values = struct.unpack(fmt, ioctl(fd, EVIOCGABS + axis, buffer))
@@ -105,7 +106,7 @@ class Event:
     length = struct.calcsize(format)
 
     typeMap = EnumDict({
-        0x00: "EV_RST",
+        0x00: "EV_SYN",
         0x01: "EV_KEY",
         0x02: "EV_REL",
         0x03: "EV_ABS",
@@ -447,6 +448,22 @@ class Event:
         "EV_SND": EnumDict({
         0x00: "SND_CLICK",
         0x01: "SND_BELL",
+        }),
+
+        "EV_FF": EnumDict({
+        0x50: "FF_RUMBLE",
+        0x51: "FF_PERIODIC",
+        0x52: "FF_CONSTANT",
+        0x53: "FF_SPRING",
+        0x54: "FF_FRICTION",
+        0x58: "FF_SQUARE",
+        0x59: "FF_TRIANGLE",
+        0x5a: "FF_SINE",
+        0x5b: "FF_SAW_UP",
+        0x5c: "FF_SAW_DOWN",
+        0x5d: "FF_CUSTOM",
+        0x60: "FF_GAIN",
+        0x61: "FF_AUTOCENTER",
         }),
         }
 
