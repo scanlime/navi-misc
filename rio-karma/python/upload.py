@@ -36,7 +36,7 @@ class RioUploader:
             self.findMediaFiles(root, files, {})
         print "Found %d files to upload" % len(files)
 
-        #flow.Deferred(self.upload(files)).addCallback(self.finished).addErrback(self.failed)
+        flow.Deferred(self.upload(files)).addCallback(self.finished).addErrback(self.failed)
 
     def finished(self, retval=None):
         print "\nDone"
@@ -49,13 +49,15 @@ class RioUploader:
     def upload(self, files):
         print "Obtaining write lock..."
         yield self.fileManager.writeLock()
+        print
 
         for filename in files:
             print filename
 
             f = self.fileManager.createFile()
             f.loadMetadataFrom(filename)
-            yield self.fileManager.loadFromDisk( f, filename )
+            yield self.fileManager.loadFromDisk( f, filename ).addStatusback(
+                self.reporter.statusback)
 
     def findMediaFiles(self, top, results, memo):
         """Starting at the given root directory, follow the directory
