@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import gtk
+import gtk, gtk.gl
 
 class MainWindow:
     def print_hello(self, w, data):
@@ -112,6 +112,10 @@ class ScrollArea(gtk.ScrolledWindow):
         self.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
         self.add(child)
 
+class GLView(gtk.gl.Area):
+    def __init__(self):
+        gtk.DrawingArea.__init__(self)
+
 main = MainWindow()
 
 sources = SourceNotebook()
@@ -126,7 +130,9 @@ if infile:
     compiler_output.set_text(string)
 main.set(1, ScrollArea(compiler_output))
 
-main.set(2, gtk.Label(' Right Top  '))
+view = GLView()
+main.set(2, view)
+
 main.set(3, gtk.Label('Right Bottom'))
 
 gtk.main()
