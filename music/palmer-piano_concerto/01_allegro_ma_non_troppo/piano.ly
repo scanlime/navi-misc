@@ -422,8 +422,38 @@ mvmtOnePianoSectSixRight = \relative b'' {
     #(set-octavation 0)
     a gis eis cis b a gis eis 
     \change Staff = pianoLeft
+    \bar ""
     cis b a gis eis cis b a gis' eis cis b a gis eis d
   \change Staff = pianoRight
+  \clef bass
+  | cis'16. gis16 eis32 d'16 cis16. gis16 eis32 d'16 cis16. gis16 eis d' cis d cis d32
+  | fis,8 fis'32 a cis fis
+    \clef treble
+    <a cis,>4 
+    \clef bass
+    fis,,8
+    \clef treble
+    a'32 cis fis a <cis fis,>4
+  | \clef bass
+    cis,,8
+    \clef treble
+    b''32 gis d b
+    \clef bass
+    <cis eis,>4 d,8 
+    \clef treble
+    fis''32 d a fis <a d,>4
+  | \clef bass
+    b,,8 fis'32 b d fis
+    \clef treble
+    <b d,>8 d,32 fis b d <fis b,>8 b,32 d fis b <d fis,>4
+  | << { <cis eis,>4 s <e b gis eis> s } \\
+       { <gis,, gis,>4 s <cis cis,> s } >>
+  | <fis' d a fis>4( <e cis a e>) r2
+  | r2 r4 <a, fis d b>4
+  | <d, b gis d> 
+    << { <cis a fis>~ <cis a fis> } \\ { d, dis } >> 
+    <b' gis eis>
+  | <a fis cis a>2 <fis dis b>
 }
 
 mvmtOnePianoSectSixLeft = \relative b, {
@@ -461,6 +491,25 @@ mvmtOnePianoSectSixLeft = \relative b, {
   | b1 \trill
   \clef bass
   | s1
+  #(set-octavation -1)
+  | cis,,,,16 gis eis d' cis gis eis d' cis gis eis d' cis d cis d
+  | fis,8
+    #(set-octavation 0)
+    a'32 cis fis a <fis fis,>4 fis,,8 cis''32 fis a cis <a a,>4
+  | <cis,, cis,>8 gis''32 eis b gis <gis cis,>4
+    <d d,>8 d''32 a fis d <fis fis,>4
+  | <b,, b,>8 b'32 d fis b <fis fis,>8 fis32 b d fis <d d,>8
+    \clef treble
+    d32 fis b d <b b,>4
+  \clef bass
+  | << { s4 <cis, eis,> s <e b gis eis> } \\
+       { s4 <gis,, gis,>4 s <cis cis,> } >>
+  | <d' a fis d>4( <cis a e cis>) r2
+  | r2 r4 <fis, d b a>4
+  | <b gis eis b>4 
+    << { <a fis cis>~ <a fis cis> } \\ { d, dis } >>
+    <gis eis b>
+  | <fis c a fis>2 <fis dis b fis>
 }
 
 
