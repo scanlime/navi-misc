@@ -28,12 +28,15 @@ import glob
 class Device(object):
     """Abstraction for one uvswitch device. The device's input channels and
        bypass switch are accessable as attributes of this object.
+
+       If an eventLoop is provided, this will also set up events for detecting
+       changes in the video input status.
        """
-    def __init__(self, devPattern="/dev/usb/uvswitch*"):
+    def __init__(self, devPattern="/dev/usb/uvswitch*", eventLoop=None):
         devs = glob.glob(devPattern)
         if not devs:
             raise IOError, "No uvswitch device found"
-        self.dev = open(devs[0], "w")
+        self.dev = open(devs[0], "rw")
 
         # Default settings show video from wasabi, with no external input selected
         self._videoChannel = 0
@@ -41,6 +44,13 @@ class Device(object):
         self._whiteAudioChannel = 0
         self._redAudioChannel = 0
         self.update()
+
+        # Add ourselves to the main loop if we have one
+        self.activeChannels = []
+        Event.attach(self, "onChannelActive", "onChannelInactive")
+
+        if eventLoop:
+            eventLoop.add(self)
 
     def update(self):
         """Send all current settings to the device"""
@@ -92,5 +102,33 @@ class Device(object):
     audioChannel = property(getWhiteAudioChannel, setAudioChannel)
     whiteAudioChannel = property(getWhiteAudioChannel, setWhiteAudioChannel)
     redAudioChannel = property(getRedAudioChannel, setRedAudioChannel)
+
+    def getSelectable(self):
+        """Called by the main loop to see what items we have for its select()"""
+        return self.dev
+
+    def needsWrite(self):
+        """Called by the main loop to see if we need to poll for writing.
+           We don't, since writes to uvswitch are relatively fast.
+           """
+        return False
+
+    def pollRead(self, eventLoop):
+        """Called by the main loop when we have new data from the device.
+           From the uvswitch, this will be a line of text indicating which
+           input ports are active.
+           """
+        line = self.dev.readline().strip()
+        if line:
+            newActiveChannels = map(int, line.split(" "))
+        else:
+            newActiveChannels = []
+        for channel in newActiveChannels:
+            if not channel in self.activeChannels:
+                self.onChannelActive(channel)
+        for channel in self.activeChannels:
+            if not channel in newActiveChannels:
+                self.onChannelInactive(channel)
+        self.activeChannels = newActiveList
 
 ### The End ###
