@@ -15,7 +15,8 @@
 # Copyright (C) 2005 Micah Dowty
 #
 
-import os, sys, stat, statvfs, threading, time
+import os, sys, stat, statvfs, random
+import threading, time, shelve
 import pinefs.srv
 import pinefs.rpc
 import pinefs.memfs
@@ -53,8 +54,11 @@ class DiskSet:
         """List the contents of a directory, using data from all mounts"""
         contents = {}
         for p in self.findIter(dir, os.path.isdir):
-            for f in os.listdir(p):
-                contents[f] = 1
+            try:
+                for f in os.listdir(p):
+                    contents[f] = 1
+            except OSError:
+                pass
         return contents.iterkeys()
 
     def create(self, path):
@@ -137,12 +141,6 @@ class SpreadFileBase(pinefs.fsbase.FileObj):
         self.dir = dir
         self.size = size
         self.blocks = (size-1)/self.blocksize+1
-
-        # Register our file ID
-        self.fileid = self.fs.handleFactory.next()
-        self.fileHandle = self.fs.handleFactory.fmt % self.fileid
-        self.fs.handleMap[self.fileHandle] = self
-
         pinefs.fsbase.FileObj.__init__(self)
 
     def isValid(self):
@@ -210,30 +208,14 @@ class SpreadDirectory(SpreadFileBase):
     dirCacheLifetime = 5.0
 
     def __init__(self, fs, path=''):
-        self.childCache = {}
         self.dirCache = None
         self.dirCacheExpiration = None
         SpreadFileBase.__init__(self, fs, path, rfc1094.NFDIR)
 
     def getChild(self, name):
         """Get either a SpreadFile or SpreadDirectory for a child of this object"""
-
-        child = self.childCache.get(name)
-        if child and not child.isValid():
-            # Invalidate a child that's disappeared
-            del self.fs.handleMap[child.fileHandle]
-            child = None
-
-        if not child:
-            # Create a new file object
-            path = os.path.join(self.path, name)
-            try:
-                child = SpreadFile(self.fs, path)
-            except FileTypeException:
-                child = SpreadDirectory(self.fs, path)
-
-        self.childCache[name] = child
-        return child
+        path = os.path.join(self.path, name)
+        return self.fs.mapper.getObjectFromPath(path)
 
     def get_dir(self):
         """Return a directory listing, as a mapping from child names to their file handles"""
@@ -257,6 +239,81 @@ class SpreadDirectory(SpreadFileBase):
         return self.dirCache
 
 
+class SpreadMapper:
+    """The Mapper is responsible for maintaining a persistent association between
+       file handles and paths. Unlike traditional filesystems that map handles
+       to inodes, we map to paths since we shoudln't care which physical disk
+       a file is on. These randomly assigned mappings are persistent and act
+       like inodes.
+       """
+    DB_HANDLE = "h"
+    DB_PATH = "p"
+
+    def __init__(self, fs, filename="mapper.db"):
+        self.fs = fs
+        self.lastId = random.randint(0, 0x7FFFFFFF)
+        self.handleFactory = pinefs.fsbase.Ctr()
+        self.db = shelve.open(filename)
+        self.objectCache = {}
+
+    def newHandle(self):
+        """Allocate a new handle, ensuring that it doesn't already exist"""
+        while 1:
+            self.lastId = (self.lastId+1) & 0x7FFFFFFF
+            handle = pinefs.fsbase.Ctr.fmt % self.lastId
+            if self.DB_HANDLE + handle not in self.db:
+                return handle
+
+    def getObjectFromHandle(self, handle):
+        try:
+            path = self.db[self.DB_HANDLE + handle]
+        except KeyError:
+            return None
+        return self.getObjectFromPath(path)
+
+    def getHandleFromPath(self, path):
+        try:
+            return self.db[self.DB_PATH + path]
+        except KeyError:
+
+            # Special case- the root handle is hardcoded
+            # so that mount points are always valid.
+            if path:
+                handle = self.newHandle()
+            else:
+                handle = pinefs.fsbase.Ctr.fmt % 1
+
+            self.db[self.DB_PATH + path] = handle
+            self.db[self.DB_HANDLE + handle] = path
+            self.db.sync()
+            return handle
+
+    def getObjectFromPath(self, path):
+        obj = self.objectCache.get(path)
+
+        if obj and not obj.isValid():
+            # Invalidate this object in our cache
+            del self.objectCache[path]
+            obj = None
+
+        if not obj:
+            # Create a new file object
+            try:
+                obj = SpreadFile(self.fs, path)
+            except FileTypeException:
+                obj = SpreadDirectory(self.fs, path)
+            if not obj:
+                return None
+
+            # It will need a file handle
+            obj.fileHandle = self.getHandleFromPath(path)
+            obj.fileid = int(obj.fileHandle, 16)
+
+            self.objectCache[path] = obj
+
+        return obj
+
+
 class SpreadFilesystem:
     """This is a Pinefs filesystem object implementing our 'spread' filesystem.
        Data is spread across several physical disks. When opening a file, we
@@ -267,10 +324,9 @@ class SpreadFilesystem:
 
     def __init__(self, diskSet):
         self.diskSet = diskSet
-        self.handleFactory = pinefs.fsbase.Ctr()
-        self.handleMap = {}
         self.openFiles = []
-        self.root = SpreadDirectory(self)
+        self.mapper = SpreadMapper(self)
+        self.rootHandle = self.mapper.getHandleFromPath('')
 
     def mount(self, path):
         """Mount this file system starting at the given path.
@@ -278,13 +334,13 @@ class SpreadFilesystem:
            Currently we only support mounting the filesystem's root.
            """
         if path == '/':
-            return self.root.fileHandle
+            return self.rootHandle
 
     def get_fil(self, handle):
         """Get a file object, given its handle.
            Returns None if the file handle is stale.
            """
-        return self.handleMap.get(handle)
+        return self.mapper.getObjectFromHandle(handle)
 
     def create_fil(self, parentHandle, name, **kw):
         raise NotImplementedError
