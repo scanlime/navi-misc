@@ -177,6 +177,13 @@
 					<File
 						RelativePath="..\game\test\src\testGame.cpp">
 					</File>
+					<Filter
+						Name="world"
+						Filter="">
+						<File
+							RelativePath="..\game\test\src\world.cpp">
+						</File>
+					</Filter>
 				</Filter>
 			</Filter>
 		</Filter>
@@ -238,6 +245,13 @@
 					<File
 						RelativePath="..\game\test\inc\testGame.h">
 					</File>
+					<Filter
+						Name="world"
+						Filter="">
+						<File
+							RelativePath="..\game\test\inc\world.h">
+						</File>
+					</Filter>
 				</Filter>
 			</Filter>
 		</Filter>
