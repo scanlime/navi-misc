@@ -40,118 +40,71 @@ from Nouvelle import tag, place, xml, ModPython
 from mod_python import apache
 
 
-class IndexPage(ModPython.Page):
-    """The root page of the web site- gives a summary of each individual sensor,
-       graph thumbnails, and links to the other pages.
-       """
-    isLeaf = False
-    document = [
-        xml('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"'
-            ' "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">\n'),
-        tag('html', xmlns="http://www.w3.org/1999/xhtml")[
-            tag('head')[
-                tag('title')[ "Navi - Therm Server" ],
-                xml('<meta http-equiv="refresh" content="30" />'),
-                tag('link', rel='stylesheet', type='text/css', href='style.css'),
-            ],
-            tag('body')[
-                place('sources'),
-                tag('div', _class='footer')[
-                   "Page generated on ", place('date'),
-                ],
-            ],
-        ],
-    ]
+class template:
+    """This is a namespace used for common web page components"""
 
-    def __init__(self):
-        self.db = database.open()
-        self.children = {
-            'style.css': StylesheetPage(),
-            'source': SourceLookupPage(self.db),
-            }
+    doctype = xml('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"'
+                  ' "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">\n')
+    htmlTag = tag('html', xmlns="http://www.w3.org/1999/xhtml")
+    refresh = xml('<meta http-equiv="refresh" content="30" />')
 
-    def render_date(self, context):
-        return time.ctime()
+    footer = tag('div', _class='footer')[
+        "Page generated on ", lambda context: time.ctime()
+        ]
 
-    def render_sources(self, context):
-        results = []
-        for source in self.db.iterSources():
-            results.append(self.renderSource(source, context))
-        return results
-
-    def renderSource(self, source, context):
-        latest = source.getLatestPacket()
-
-        info = []
-
-        if latest.get('average'):
-            degC = latest['average']
-            degF = units.degCtoF(degC)
-            info.append(tag('div', _class='temperatures')[
-                tag('span', _class='mainTemperature')[ "%.01f" % degF, xml("&deg;"), "F" ],
-                tag('span', _class='temperatureSeparator')[ " / " ],
-                tag('span', _class='altTemperature')[ "%.01f" % degC, xml("&deg;"), "C" ],
-                ])
-
-        info.extend([
-            tag('div', _class='name')[ source ],
-            tag('div', _class='description')[ source.description ],
-            tag('div', _class='thumbnails')[[
-                tag('img', _class='thumbnail',
-                    width=168, height=50,
-                    src="source/%s/graph/temperature:%s/scale/x50" %
-                    (source.name, interval))
-                for interval in ('day', 'week', 'month', 'year')
-            ]],
-        ])
-
-        if latest.get('voltage'):
-            voltage = latest['voltage']
-            minVoltage = 6.5
-            maxVoltage = 9.0
-            qualitative = (voltage - minVoltage) / (maxVoltage - minVoltage)
-            info.append(tag('div', _class='extraInfo')[
-                "Battery: ", self.renderBargraph(qualitative), "%.03f V" % voltage,
-            ])
-
-        if latest.get('time'):
-            delta = time.time() - latest['time'].ticks()
-            info.append(tag('div', _class='extraInfo')[
-                "Last reading received ",
-                tag('strong')[ units.time.format(delta) ], " ago",
-            ])
-
-        return tag('div', _class='source')[info]
-
-    def renderBargraph(self, alpha, numBars=30):
-        alpha = max(0, min(1, alpha))
-        filledBars = int(alpha * numBars + 0.5)
-        bars = []
-        for i in xrange(numBars):
-            if i < filledBars:
-                bars.append(tag('span', _class="filledBar")[ " " ])
-            else:
-                bars.append(tag('span', _class="emptyBar")[ " " ])
-        return tag('span', _class="bargraph")[ bars ]
-
-
-class StylesheetPage(ModPython.Page):
-    contentType = 'text/css'
-    document = """
+    stylesheet = tag('style', type='text/css')["""
+h1 {
+    font: 190% sans-serif;
+    font-weight: bold;
+    color: #333;
+    border-bottom: 1px solid #777;
+    margin: 0em 0em 1px 0em;
+    padding: 0.1em 0em 0.2em 0.1em;
+}
+h2 {
+    font: 120% sans-serif;
+    font-weight: bold;
+    color: #333;
+    margin: 0.25em;
+    padding: 0em;
+}
 .footer {
     text-align: center;
     border-top: 1px solid #777;
     color: #777;
     font: 80% normal;
-    padding: 0.5em 0.5em 1em 0.5em;
+    margin: 1em 0em;
+    padding: 1em;
+}
+
+div.navigation {
+    border-bottom: 1px solid #777;
+    margin: 0em 0em 0.6em 0em;
+    padding: 0px 0px 1px 0px;
+    text-align: center;
+}
+a.navigation {
+    margin: 0.1em 0em;
+    padding: 0em 1em;
+    text-decoration: none;
+    color: blue;
+}
+a.navigation:hover {
+    background: #DDF;
 }
 
 .source {
+    display: block;
     background: #DDD;
     border: 1px solid #777;
     margin: 2em 2em;
     padding: 0.5em;
+    text-decoration: none;
+    color: black;
 }
+.source:hover {
+}
+
 .name {
     font: 100% sans-serif;
     font-weight: bold;
@@ -191,6 +144,13 @@ img.thumbnail {
     border: 1px solid #777;
     margin: 0em 0.6em 0em 0em;
 }
+.graphs {
+    text-align: center;
+}
+img.graph {
+    margin: 0.4em;
+    padding: 1px;
+}
 
 .extraInfo {
     margin: 0.75em 0em 0em 0em;
@@ -215,7 +175,109 @@ span.emptyBar {
     vertical-align: middle;
     padding: 2px;
 }
-"""
+"""]
+
+
+def renderTemperature(latest, _class='temperatures'):
+    degC = latest['average']
+    degF = units.degCtoF(degC)
+    return tag('div', _class=_class)[
+        tag('span', _class='mainTemperature')[ "%.01f" % degF, xml("&deg;"), "F" ],
+        tag('span', _class='temperatureSeparator')[ " / " ],
+        tag('span', _class='altTemperature')[ "%.01f" % degC, xml("&deg;"), "C" ],
+        ]
+
+def renderBargraph(alpha, numBars=30):
+    alpha = max(0, min(1, alpha))
+    filledBars = int(alpha * numBars + 0.5)
+    bars = []
+    for i in xrange(numBars):
+        if i < filledBars:
+            bars.append(tag('span', _class="filledBar")[ " " ])
+        else:
+            bars.append(tag('span', _class="emptyBar")[ " " ])
+    return tag('span', _class="bargraph")[ bars ]
+
+def renderBatteryBargraph(latest):
+    voltage = latest['voltage']
+    minVoltage = 6.5
+    maxVoltage = 9.0
+    qualitative = (voltage - minVoltage) / (maxVoltage - minVoltage)
+    return [
+        "Battery: ", renderBargraph(qualitative), "%.03f V" % voltage,
+        ]
+
+def renderTimestamp(latest):
+    delta = time.time() - latest['time'].ticks()
+    return [
+        "Last reading received ",
+        tag('strong')[ units.time.format(delta) ], " ago",
+        ]
+
+
+class IndexPage(ModPython.Page):
+    """The root page of the web site- gives a summary of each individual sensor,
+       graph thumbnails, and links to the other pages.
+       """
+    isLeaf = False
+    document = [
+        template.doctype,
+        template.htmlTag[
+            tag('head')[
+                tag('title')[ "Navi - Therm Server" ],
+                template.refresh,
+                template.stylesheet,
+            ],
+            tag('body')[
+                place('sources'),
+                template.footer,
+            ],
+        ],
+    ]
+
+    def __init__(self):
+        self.db = database.open()
+        self.children = dict(source=SourceLookupPage(self.db))
+
+    def render_date(self, context):
+        return time.ctime()
+
+    def render_sources(self, context):
+        results = []
+        for source in self.db.iterSources():
+            results.append(self.renderSource(source, context))
+        return results
+
+    def renderSource(self, source, context):
+        latest = source.getLatestPacket()
+        info = []
+
+        if latest.get('average'):
+            info.append(renderTemperature(latest))
+
+        info.extend([
+            tag('div', _class='name')[ source ],
+            tag('div', _class='description')[ source.description ],
+            tag('div', _class='thumbnails')[[
+                tag('img', _class='thumbnail',
+                    width=168, height=50,
+                    src="source/%s/graph/temperature:%s/scale/x50" %
+                    (source.name, interval))
+                for interval in ('day', 'week', 'month', 'year')
+            ]],
+        ])
+
+        if latest.get('voltage'):
+            info.append(tag('div', _class='extraInfo')[
+                renderBatteryBargraph(latest),
+                ])
+
+        if latest.get('time'):
+            info.append(tag('div', _class='extraInfo')[
+                renderTimestamp(latest),
+                ])
+
+        return tag('a', _class='source', href="source/%s/" % source.name)[ info ]
 
 
 class SourceLookupPage(ModPython.Page):
@@ -237,14 +299,94 @@ class SourcePage(ModPython.Page):
        pages for rendering graphs for that source.
        """
     isLeaf = False
-    document = "FIXME"
+    document = [
+        template.doctype,
+        template.htmlTag[
+            tag('head')[
+                tag('title')[ "Therm - ", place('source') ],
+                template.refresh,
+                template.stylesheet,
+            ],
+            tag('body')[
+                tag('h1')[ place('source') ],
+                place('navigation'),
+                place('intervals'),
+                template.footer,
+            ],
+        ],
+    ]
+
+    sectionLinks = [[
+        tag('a', href='#%s' % name)["[%s]" % name]
+        for name in ('temperatures', 'voltages')
+        ]]
+
+    # Each interval is a (name, length, anchor) tuple
+    intervals = [
+        ('Now',         None,     'top'),
+        ('Today',       'day',    'day'),
+        ('This Week',   'week',   'week'),
+        ('This Month',  'month',  'month'),
+        ('This Year',   'year',   'year'),
+        ]
 
     def __init__(self, source):
         self.source = source
+        self.children = dict(graph=SourceGraphs(source))
+        self.latest = source.getLatestPacket()
 
-        self.children = {
-            'graph': SourceGraphs(source),
-            }
+    def render_navigation(self, context):
+        return tag('div', _class='navigation')[[
+            tag('a', _class='navigation', href="#%s" % anchor or 'top')[ name ]
+            for name, length, anchor in self.intervals]]
+
+    def render_intervals(self, context):
+        return [[
+            tag('a', _name=anchor, id=anchor),
+            tag('h2')[ name ],
+            self.renderInterval(length),
+        ] for name, length, anchor in self.intervals]
+
+    def renderInterval(self, length):
+        if not length:
+            return self.renderLatest()
+        graphs = []
+
+        if self.latest.get('average'):
+            graphs.append(tag('img', _class='graph',
+                              src="graph/temperature:%s" % length))
+
+        if self.latest.get('voltage'):
+            graphs.append(tag('img', _class='graph',
+                              src="graph/voltage:%s" % length))
+
+        if self.latest.get('signal_strength'):
+            graphs.append(tag('img', _class='graph',
+                              src="graph/signal:%s" % length))
+
+        return tag('div', _class='graphs')[ graphs ]
+
+    def renderLatest(self):
+        info = []
+
+        if self.latest.get('average'):
+            info.append(renderTemperature(self.latest))
+
+        info.extend([
+            tag('div', _class='description')[ self.source.description ],
+        ])
+
+        if self.latest.get('voltage'):
+            info.append(tag('div', _class='extraInfo')[
+                renderBatteryBargraph(self.latest),
+                ])
+
+        if self.latest.get('time'):
+            info.append(tag('div', _class='extraInfo')[
+                renderTimestamp(self.latest),
+                ])
+
+        return tag('div', _class='source')[info]
 
 
 class SourceGraphs(ModPython.Page):
@@ -328,9 +470,7 @@ class ImageResourcePage(ModPython.Page):
     contentType = "image/png"
     def __init__(self, resource):
         self.resource = resource
-        self.children = {
-            'scale': ImageScalerPage(self.resource),
-            }
+        self.children = dict(scale=ImageScalerPage(self.resource))
 
     def render(self, context):
         req = context['request']
