@@ -3,6 +3,12 @@ Before release:
   * Refactoring
   * Error checking!!!!
 
+------
+
+* Chat buffer:
+  * Needs nicer formatting, more xtext like.
+  * How about some colors too...
+
 * Finish off /who command
 * Finish implementing handlers for IRC protocol (e.g. kicks, bans, motd, etc.)
 * Tweak dice rolling systems to handle critical failures
