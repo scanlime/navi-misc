@@ -127,6 +127,14 @@
       </a>
     </li>
   </xsl:template>
+  <xsl:template match="//forms/form">
+    <li>
+      <a>
+        <xsl:attribute name="href"><xsl:value-of select="@href"/></xsl:attribute>
+        <xsl:value-of select="@name"/>
+      </a>
+    </li>
+  </xsl:template>
 
   <!-- ================================ Content -->
   <xsl:template match="overview">
