@@ -1,7 +1,7 @@
 """ LibCIA.Message
 
-Abstractly represents a notification message and ways it may
-be formatted, filtered, and distributed.
+Classes to represent, distribute, and filter messages represented
+by XML documents.
 """
 #
 # CIA open source notification system
