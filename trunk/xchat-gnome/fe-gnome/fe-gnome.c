@@ -218,11 +218,11 @@ void fe_print_text(struct session *sess, char *text) {
 }
 
 void fe_userlist_insert(struct session *sess, struct User *newuser, int row, int sel) {
-	userlist_insert(sess, newuser, row, sel);
+	userlist_insertg(sess, newuser, row, sel);
 }
 
 int fe_userlist_remove(struct session *sess, struct User *user) {
-	return userlist_remove(sess, user);
+	return userlist_removeg(sess, user);
 }
 
 void fe_userlist_rehash(struct session *sess, struct User *user) {

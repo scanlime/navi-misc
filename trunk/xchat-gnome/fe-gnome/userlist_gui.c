@@ -103,7 +103,7 @@ void create_userlist(session *sess) {
 	gtk_tree_view_set_model(GTK_TREE_VIEW(treeview), GTK_TREE_MODEL(store));
 }
 
-void userlist_insert(session *sess, struct User *newuser, int row, int sel) {
+void userlist_insertg(session *sess, struct User *newuser, int row, int sel) {
 	GtkWidget *userlist_view;
 	GtkListStore *store;
 	GdkPixbuf *pix;
@@ -145,7 +145,7 @@ static GtkTreeIter *find_row(GtkTreeView *view, GtkTreeModel *model, struct User
 	return NULL;
 }
 
-gboolean userlist_remove(session *sess, struct User *user) {
+gboolean userlist_removeg(session *sess, struct User *user) {
 	GtkTreeIter *iter;
 	GtkWidget *userlist_view;
 	GtkTreeModel *model;
