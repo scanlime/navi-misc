@@ -20,8 +20,6 @@
 * email: jeffm@gibbscam.com
 */
 
-// events.cpp
-
 #ifdef _WIN32
 	#pragma warning( disable : 4786 )  // Disable warning message
 #else
