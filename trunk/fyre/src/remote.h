@@ -25,14 +25,53 @@
 #ifndef __REMOTE_H__
 #define __REMOTE_H__
 
+#include <gtk/gtk.h>
 #include "animation.h"
 #include "iterative-map.h"
 
 G_BEGIN_DECLS
 
-void    remote_main (IterativeMap*  map,
-		     Animation*     animation,
-		     gboolean       have_gtk);
+#define REMOTE_TYPE            (remote_get_type ())
+#define REMOTE(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), REMOTE_TYPE, Remote))
+#define REMOTE_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), REMOTE_TYPE, RemoteClass))
+#define IS_REMOTE(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), REMOTE_TYPE))
+#define IS_REMOTE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), REMOTE_TYPE))
+
+typedef struct _Remote      Remote;
+typedef struct _RemoteClass RemoteClass;
+
+struct _Remote {
+  GObject object;
+
+  IterativeMap *map;
+  Animation *animation;
+  gboolean have_gtk;
+
+  FILE* output_f;
+  FILE* input_f;
+  GHashTable *command_hash;
+
+  gboolean main_loop_running;
+};
+
+struct _RemoteClass {
+  GObjectClass parent_class;
+};
+
+
+/************************************************************************************/
+/******************************************************************* Public Methods */
+/************************************************************************************/
+
+typedef void (*RemoteCallback)  (Remote*          remote,
+				 const char*      command,
+				 const char*      parameters);
+
+GType      remote_get_type      ();
+Remote*    remote_new           (IterativeMap*    map,
+				 Animation*       animation,
+				 gboolean         have_gtk);
+void       remote_main_loop     (Remote*          self);
 
 G_END_DECLS
 
