@@ -28,10 +28,12 @@ class GTKsheet:
     # All character sheets must have atleast one <character_sheet> tag.
     if len(self.dom.getElementsByTagName('character_sheet')) < 1:
       print 'Tag Error: no <character_sheet>'
-    # For each <character_sheet> create a window.
     else:
-      for element in self.dom.getElementsByTagName('character_sheet'):
-        self.makeObjects(element, None, editables).show()
+      node = self.dom.getElementsByTagName('character_sheet')[0]
+      self.root = GTKsheetElements.__dict__['character_sheet'](node, self.character)
+      for child in node.childNodes:
+	if child.nodeType is xml.dom.Node.ELEMENT_NODE: 
+	  self.root.packChild(self.makeObjects(child, self.root, editables))
 
   def makeObjects(self, newNode, parent, editList):
     ''' Make objects out of the node passed. '''
