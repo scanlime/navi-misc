@@ -38,8 +38,8 @@ void initialize_text_gui() {
 	gtk_range_set_adjustment(GTK_RANGE(scrollbar), gui.xtext->adj);
 
 	palette_alloc(GTK_WIDGET(gui.xtext));
+	xtext2_set_palette(gui.xtext, colors);
 	/*
-	gtk_xtext_set_palette(gui.xtext, colors);
 	gtk_xtext_set_max_lines(gui.xtext, 3000);
 	gtk_xtext_set_show_separator(gui.xtext, TRUE);
 	gtk_xtext_set_indent(gui.xtext, TRUE);

@@ -20,7 +20,9 @@ static void       backend_deinit         (XText2 *xtext);
 inline static int backend_get_char_width (XText2 *xtext, unsigned char *str, int *mbl_ret);
 
 static void       paint                  (GtkWidget *widget, GdkRectangle *area);
+static void       render_page            (XText2 *xtext);
 static void       draw_bg                (XText2 *xtext, int x, int y, int width, int height);
+static void       draw_sep               (XText2 *xtext, int y);
 static textentry* nth                    (XText2 *xtext, int line, int *subline);
 static textentry* find_char              (XText2 *xtext, int x, int y, int *offset, gboolean *out_of_bounds);
 static int        find_x                 (XText2 *xtext, int x, textentry *ent, int subline, int line, gboolean *out_of_bounds);
@@ -89,6 +91,7 @@ struct _XText2Private
   /* state data */
   int          pixel_offset;         /* number of pixels the top line is chopped by */
   int          window_width;         /* width of the window when last rendered */
+  int          window_height;        /* height of the window when last rendered */
 
   /* state associated with rendering specific buffers */
   GHashTable  *buffer_info;          /* stores an XTextFormat for each buffer we observe */
@@ -356,8 +359,8 @@ xtext2_realize (GtkWidget *widget)
   val.subwindow_mode = GDK_INCLUDE_INFERIORS;
   val.graphics_exposures = 0;
 
-  xtext->priv->bgc       = gdk_gc_new_with_values (widget->window, &val, GDK_GC_EXPOSURES | GDK_GC_SUBWINDOW);
-  xtext->priv->fgc       = gdk_gc_new_with_values (widget->window, &val, GDK_GC_EXPOSURES | GDK_GC_SUBWINDOW);
+  xtext->priv->bgc      = gdk_gc_new_with_values (widget->window, &val, GDK_GC_EXPOSURES | GDK_GC_SUBWINDOW);
+  xtext->priv->fgc      = gdk_gc_new_with_values (widget->window, &val, GDK_GC_EXPOSURES | GDK_GC_SUBWINDOW);
   xtext->priv->light_gc = gdk_gc_new_with_values (widget->window, &val, GDK_GC_EXPOSURES | GDK_GC_SUBWINDOW);
   xtext->priv->dark_gc  = gdk_gc_new_with_values (widget->window, &val, GDK_GC_EXPOSURES | GDK_GC_SUBWINDOW);
   xtext->priv->thin_gc  = gdk_gc_new_with_values (widget->window, &val, GDK_GC_EXPOSURES | GDK_GC_SUBWINDOW);
@@ -419,6 +422,8 @@ xtext2_size_allocate (GtkWidget *widget, GtkAllocation *allocation)
   if (GTK_WIDGET_REALIZED (widget))
   {
     /* FIXME: stuff! */
+    xtext->priv->window_width = allocation->width;
+    xtext->priv->window_height = allocation->height;
     gdk_window_move_resize (widget->window, allocation->x, allocation->y, allocation->width, allocation->height);
   }
 }
@@ -537,9 +542,68 @@ xit:
 }
 
 static void
+render_page (XText2 *xtext)
+{
+  textentry *ent;
+  int line = 0;
+  int lines_max;
+  int width;
+  int height;
+  int subline;
+  int startline = xtext->adj->value;
+
+  if (!GTK_WIDGET_REALIZED (xtext))
+    return;
+
+  /* indent */
+
+  gdk_drawable_get_size (GTK_WIDGET (xtext)->window, &width, &height);
+
+  if (width < 34 || height < xtext->priv->fontsize /* || indent */)
+    return;
+
+  ent = NULL; /* FIXME */
+  while (ent)
+  {
+  }
+
+  /* fill any space below the last line with our background GC */
+  draw_bg (xtext, 0, line, width + MARGIN, height - line);
+
+  /* draw the separator line */
+  draw_sep (xtext, -1);
+}
+
+static void
 draw_bg (XText2 *xtext, int x, int y, int width, int height)
 {
   gdk_draw_rectangle (xtext->priv->draw_buffer, xtext->priv->bgc, 1, x, y, width, height);
+}
+
+static void
+draw_sep (XText2 *xtext, int y)
+{
+  int x, height;
+  GdkGC *light, *dark;
+
+  if (y == -1)
+  {
+    y = 0;
+    height = GTK_WIDGET (xtext)->allocation.height;
+  }
+  else
+  {
+    height = xtext->priv->fontsize;
+  }
+
+  /* draw the separator line */
+  if (xtext->priv->show_separator /* && indent */)
+  {
+    light = xtext->priv->light_gc;
+    dark  = xtext->priv->dark_gc;
+
+    /* x = indent */
+  }
 }
 
 static textentry*
@@ -579,7 +643,7 @@ xtext2_set_palette (XText2 *xtext, GdkColor palette[])
 {
   int i;
 
-  for (i = 0; i < 19; i++)
+  for (i = 0; i <= 19; i++)
   {
 #ifdef USE_XFT
     xtext->priv->color[i].color.red   = palette[i].red;
@@ -595,7 +659,7 @@ xtext2_set_palette (XText2 *xtext, GdkColor palette[])
   {
     set_fg (xtext, xtext->priv->fgc, 18);
     set_bg (xtext, xtext->priv->fgc, 19);
-    set_fg (xtext, xtext->priv->fgc, 19);
+    set_fg (xtext, xtext->priv->bgc, 19);
   }
 }
 
@@ -681,6 +745,20 @@ xtext2_show_buffer (XText2 *xtext, XTextBuffer *buffer)
   {
     /* this isn't a buffer we've seen before */
     f = allocate_buffer (xtext, buffer);
+  }
+}
+
+void
+xtext2_refresh (XText2 *xtext)
+{
+  if (GTK_WIDGET_REALIZED (GTK_WIDGET (xtext)))
+  {
+#if defined(USE_XLIB) || defined(WIN32)
+    if (xtext->priv->transparent)
+    {
+    }
+#endif
+    render_page (xtext);
   }
 }
 
