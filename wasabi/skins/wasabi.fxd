@@ -4,7 +4,8 @@
 
     <!-- *********************************************************** Common -->
 
-    <image label="background" filename="wasabi/background.png"/>
+    <image label="background" filename="wasabi/bg-brushed_metal.png"/>
+    <image label="hiragana" filename="wasabi/hiragana.png"/>
     <image label="logo" filename="wasabi/logo.png"/>
 
 
@@ -48,9 +49,17 @@
         <title visible="no"/>
     </menuset>
 
+    <layout label="screen">
+        <background>
+	    <image image="background" x="0" y="0" label="background"/>
+	    <image image="hiragana" x="470" y="60" width="78" height="310" label="hiragana"/>
+	</background>
+    </layout>
+
     <layout label="screen watermark">
         <background>
             <image image="background" x="0" y="0" label="background"/>
+	    <image image="hiragana" x="470" y="60" width="78" height="310" label="hiragana"/>
             <image x="300" y="112" width="256" height="256" label="watermark"/>
         </background>
     </layout>
