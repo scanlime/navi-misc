@@ -1,5 +1,5 @@
 /*
- * preferences-servers-page.h - helpers for the servers preferences page
+ * preferences-page-networks.h - helpers for the servers preferences page
  *
  * Copyright (C) 2004-2005 xchat-gnome team
  *
@@ -20,9 +20,26 @@
  */
 
 #include "gui.h"
+#include <glade/glade-xml.h>
 
 #ifndef XCHAT_GNOME_PREFERENCES_SERVERS_PAGE_H
 #define XCHAT_GNOME_PREFERENCES_SERVERS_PAGE_H
+
+typedef struct
+{
+	GtkWidget *network_list;
+	GtkWidget *network_add;
+	GtkWidget *network_edit;
+	GtkWidget *network_remove;
+
+	GtkListStore *network_store;
+	GtkTreeModelSort *sort_model;
+
+	GdkPixbuf *icon;
+} PreferencesNetworksPage;
+
+PreferencesNetworksPage *preferences_page_networks_new (gpointer prefs_dialog, GladeXML *xml);
+void preferences_page_networks_free (PreferencesNetworksPage *page);
 
 void initialize_preferences_servers_page ();
 void preferences_servers_page_populate ();
