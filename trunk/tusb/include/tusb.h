@@ -263,6 +263,11 @@ xdata at 0xFFF1 unsigned char I2CDAO;           /* I2C data-output register */
 xdata at 0xFFF2 unsigned char I2CDAI;           /* I2C data-input register */
 xdata at 0xFFF3 unsigned char I2CADR;           /* I2C adress register */
 xdata at 0xFFF6 unsigned char VIDSTA;           /* VID/PID status register */
+xdata at 0xFFFB unsigned char MODECNFG;         /* Mode configuration register */
+        #define TXCNTL   (1<<0)                 /* Firmware tx switching enabled */
+        #define SOFTSW   (1<<1)                 /* TX buffer enable */
+        #define CLKOUTEN (1<<2)                 /* Enable clock output */
+        #define CLKSLCT  (1<<3)                 /* 0=UART baud clock is output, 1=3.556MHz clock is output */
 xdata at 0xFFFC unsigned char USBCTL;           /* USB control register */
         #define DIR      (1<<0)                 /* Data direction */
         #define SIR      (1<<1)                 /* Setup interrupt status */
@@ -330,7 +335,8 @@ xdata at 0xFFA6 unsigned char MSR;              /* Modem status register */
         #define MSR_LDSR     (1<<5)             /* DSR input, during loopback */
         #define MSR_LRI      (1<<6)             /* Ring input, during loopback */
         #define MSR_LCD      (1<<7)             /* Carrier Detect input, during loopback */
-xdata at 0xFFA7 unsigned short DL;              /* Baud rate divisor register */
+xdata at 0xFFA7 unsigned char DLL;              /* Baud rate divisor register, low byte */
+xdata at 0xFFA8 unsigned char DLH;              /* Baud rate divisor register, high byte */
 xdata at 0xFFA9 unsigned char XON;              /* Xon character register */
 xdata at 0xFFAA unsigned char XOFF;             /* Xoff character register */
 xdata at 0xFFAB unsigned char UART_MASK;        /* UART interrupt mask register */
