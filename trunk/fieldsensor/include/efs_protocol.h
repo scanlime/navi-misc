@@ -22,7 +22,7 @@
 ;// Device vendor and product IDs.
 ;// The device class and protocol are both set to 'vendor-specific'.
 #define EFS_VENDOR_ID   0xE461
-#define EFS_PRODUCT_ID  0x0003
+#define EFS_PRODUCT_ID  0x0004
 
 
 ;//************************************************** Control requests
