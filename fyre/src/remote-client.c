@@ -314,6 +314,13 @@ static void       remote_client_recv_line     (RemoteClient*         self,
 /************************************************************** Low-level Interface */
 /************************************************************************************/
 
+static void    set_param_callback             (RemoteClient*     self,
+					       RemoteResponse*   response,
+					       gpointer          user_data)
+{
+    self->pending_param_changes--;
+}
+
 void           remote_client_send_param       (RemoteClient*     self,
 					       ParameterHolder*  ph,
 					       const gchar*      name)
@@ -332,7 +339,8 @@ void           remote_client_send_param       (RemoteClient*     self,
     g_value_init(&strval, G_TYPE_STRING);
     g_value_transform(&val, &strval);
 
-    remote_client_command(self, NULL, NULL, "set_param %s = %s",
+    self->pending_param_changes++;
+    remote_client_command(self, set_param_callback, NULL, "set_param %s = %s",
 			  name, g_value_get_string(&strval));
 
     g_value_unset(&strval);
@@ -362,6 +370,15 @@ static void    histogram_merge_callback       (RemoteClient*     self,
 					       gpointer          user_data)
 {
     HistogramImager *dest = HISTOGRAM_IMAGER(user_data);
+
+    if (self->pending_param_changes) {
+	/* This data is for an old parameter set, ignore it.
+	 * FIXME: This doesn't distinguish between parameters that
+	 *        actaully affect calculation and those that don't.
+	 */
+	printf("Ignoring %d bytes of data rendered with old parameters\n", response->data_length);
+	return;
+    }
 
     printf("merging %d bytes\n", response->data_length);
     histogram_imager_merge_stream(dest, response->data, response->data_length);
