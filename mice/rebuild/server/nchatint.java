@@ -24,6 +24,7 @@ public class nchatint extends nbase
 	public nchatint(Socket gonnection, BufferedReader IN, OutputStreamWriter OUT)
 	{
 		super(gonnection,IN,OUT);
+		netdebug = true;
 	}
 	
 	/**
@@ -98,7 +99,7 @@ public class nchatint extends nbase
 		String uname, pword, rname;
 		String mykey = key.keygen();
 		write(mykey);
-		uname = "AIM0" + read();
+		uname = "AIM0" + read().toUpperCase();
 		pword = key.decrypt(mykey,read());
 		rname = read();
 		view = new ainterview(rname);
