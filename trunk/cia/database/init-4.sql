@@ -64,15 +64,18 @@ CREATE TABLE IF NOT EXISTS capabilities
 
 CREATE TABLE IF NOT EXISTS audit_trail
 (
-    id            BIGINT PRIMARY KEY AUTO_INCREMENT,
-    timestamp     BIGINT NOT NULL,
-    uid           BIGINT NOT NULL,
+    id               BIGINT PRIMARY KEY AUTO_INCREMENT,
+    timestamp        BIGINT NOT NULL,
+    uid              BIGINT NOT NULL,
 
-    action_domain VARCHAR(32) NOT NULL,
-    action_name   TEXT NOT NULL,
+    action_domain    VARCHAR(32) NOT NULL,
+    action_name      TEXT NOT NULL,
 
-    main_param    TEXT,
-    params        LONGBLOB,
+    main_param       TEXT,
+    params           LONGBLOB,
+
+    allowed          BOOL NOT NULL,
+    results          LONGBLOB,
 
     FOREIGN KEY (uid) REFERENCES users(uid) ON DELETE CASCADE,
     INDEX (id),
