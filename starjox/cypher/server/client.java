@@ -37,7 +37,7 @@ public class client extends Thread
 
     /** The ultimate destination of the information. */
     public String rhost;
-    public int rport;
+    public String rport;
 
     /** The proxy server's listening socket. */
     public ServerSocket server;
@@ -51,7 +51,7 @@ public class client extends Thread
      * @author Brandon Smith
      * @version 1.0
      */
-    public client(int lport, String rTarget, String rHost, int rPort)
+    public client(int lport, String rTarget, String rHost, String rPort)
     {
 	myport = lport;
 	rtarget = rTarget;
@@ -115,19 +115,38 @@ public class client extends Thread
     {
 	int i;
 	key foo;
-	String kei = "";
+	int[] kei = new int[256];
 	InputStream in = client.getInputStream();
+	System.out.println("Getting the key");
 	for(i=0;i<256;i++)
-	    kei = kei + (char) in.read();
+	{
+	    kei[i] = in.read();
+	    System.out.println(kei[i]);
+	}
 	foo = new key(kei);
 	return foo;
     }
 
     public void initConnection(Socket client) throws Exception
     {
-	OutputStreamWriter out = new OutputStreamWriter( client.getOutputStream() );
-	out.write(rhost+"\n");
-	out.write(rport+"\n");
+	OutputStream out = client.getOutputStream();
+	int i;
+	System.out.println("KEY DONE:");
+	for(i=0;i<rhost.length();i++)
+	{
+	    out.write(rhost.charAt(i));
+	    System.out.println((int)rhost.charAt(i));
+	    out.flush();
+	}
+	out.write(0);
+	out.flush();
+	
+	for(i=0;i<rport.length();i++)
+	{
+	    out.write(rport.charAt(i));
+	    out.flush();
+	}
+	out.write(0);
 	out.flush();
     }
 
@@ -141,7 +160,6 @@ public class client extends Thread
 	try
         {
 	    server = new ServerSocket(myport);
-	    server.accept();
 	}
 	catch(Exception e)
 	{
@@ -155,13 +173,13 @@ public class client extends Thread
 	int lport = 0;
 	String server="";
 	String thost="";
-	int tport=0;
+	String tport="";
 	try
 	{
 	    lport = Integer.parseInt(args[0]);
 	    server = args[1];
 	    thost = args[2];
-	    tport = Integer.parseInt(args[3]);
+	    tport = args[3];
 	}
 	catch(Exception e)
 	{

@@ -60,7 +60,7 @@ public class epipe extends Thread
     public void run()
     {
 	int temp;
-	String s;
+	int[] s = new int[1];
 	try
 	{
 	    while(true)
@@ -68,9 +68,9 @@ public class epipe extends Thread
 		temp = in.read();
 		if(temp != -1) 
 		{
-		    s = "" + (char) temp;
+		    s[0] = temp;
 		    s = nukey.encrypt(s);
-		    temp = s.charAt(0);
+		    temp = s[0];
 		    System.out.println("epipe: " +s);
 		}
 		out.write(temp);
