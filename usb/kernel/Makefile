@@ -15,3 +15,5 @@ clean:
 test: usbwidget.o
 	rmmod usbwidget || true
 	insmod usbwidget.o
+	echo -ne "\n\nHello World" > /dev/usb/widget
+	dmesg

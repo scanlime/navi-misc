@@ -35,7 +35,23 @@ struct usb_widget {
 	unsigned char read_data[BUFFER_SIZE];
 	unsigned char write_data[BUFFER_SIZE];
 	int open;
+	struct usb_endpoint_descriptor *endpoint;
 };
+
+static void usb_widget_read_complete(struct urb *urb)
+{
+	struct usb_widget *widget = urb->context;
+	unsigned char *data = widget->read_data;
+
+	if (urb->status) return;
+
+       	dbg("Received %d bytes - %02X %02X %02X %02X", urb->actual_length, data[0], data[1], data[2], data[3]);
+}
+
+static void usb_widget_write_complete(struct urb *urb)
+{
+	dbg("Write complete, status %d, wrote %d bytes, interval %d", urb->status, urb->actual_length, urb->interval);
+}
 
 static int usb_widget_dev_open (struct inode *inode, struct file *file)
 {
@@ -56,17 +72,29 @@ static ssize_t usb_widget_dev_write (struct file *file, const char *buffer, size
 	if (count) {
 		/* We have at least one byte to write, write one */
 		unsigned char byte;
-		int status;
+		int status, write_pipe;
 
 		if (copy_from_user(&byte, buffer, 1))
 			return -EFAULT;
+
+		/* Initialize a write URB */
+		write_pipe = usb_sndintpipe(widget->usbdev, widget->endpoint->bEndpointAddress);
+		usb_unlink_urb(&widget->write_urb);
+		usb_fill_int_urb(&widget->write_urb, widget->usbdev, write_pipe, widget->write_data, 1,
+				 usb_widget_write_complete, widget, 255);
 
 		dbg("Sending byte: %02X %c", byte, byte);
 		widget->write_data[0] = byte;
 		widget->write_urb.transfer_buffer_length = 1;
 
+		dbg("interval %d", widget->write_urb.interval);
+
 		status = usb_submit_urb(&widget->write_urb);
 		dbg("usb_submit_usb status %d", status);
+
+		set_current_state(TASK_INTERRUPTIBLE);
+		schedule_timeout(10);
+		usb_unlink_urb(&widget->write_urb);
 
 		return 1;
 	}
@@ -83,21 +111,6 @@ static struct file_operations usb_widget_fops = {
 	release:	usb_widget_dev_release,
 };
 
-static void usb_widget_read_complete(struct urb *urb)
-{
-	struct usb_widget *widget = urb->context;
-	unsigned char *data = widget->read_data;
-
-	if (urb->status) return;
-
-       	//dbg("Received %d bytes - %02X %02X %02X %02X", urb->actual_length, data[0], data[1], data[2], data[3]);
-}
-
-static void usb_widget_write_complete(struct urb *urb)
-{
-	dbg("Write complete, status %d, wrote %d bytes", urb->status, urb->actual_length);
-}
-
 static void *usb_widget_probe(struct usb_device *dev, unsigned int ifnum,
 			     const struct usb_device_id *id)
 {
@@ -105,7 +118,7 @@ static void *usb_widget_probe(struct usb_device *dev, unsigned int ifnum,
 	struct usb_interface_descriptor *interface;
 	struct usb_endpoint_descriptor *endpoint;
 	struct usb_widget *widget;
-	int read_pipe, write_pipe;
+	int read_pipe;
 	const char *name;
 
 	if ((dev->descriptor.idVendor != USB_WIDGET_VENDOR_ID) ||
@@ -127,17 +140,7 @@ static void *usb_widget_probe(struct usb_device *dev, unsigned int ifnum,
 	memset(widget, 0, sizeof(struct usb_widget));
 
 	widget->usbdev = dev;
-
-	/* Initialize USB request buffers */
-	read_pipe = usb_rcvintpipe(dev, endpoint->bEndpointAddress);
-	FILL_INT_URB(&widget->read_urb, dev, read_pipe, widget->read_data,
-		     min(usb_maxpacket(dev, read_pipe, usb_pipeout(read_pipe)), BUFFER_SIZE),
-		     usb_widget_read_complete, widget, endpoint->bInterval);
-
-	write_pipe = usb_sndintpipe(dev, endpoint->bEndpointAddress);
-	FILL_INT_URB(&widget->write_urb, dev, write_pipe, widget->write_data,
-		     min(usb_maxpacket(dev, write_pipe, usb_pipein(write_pipe)), BUFFER_SIZE),
-		     usb_widget_write_complete, widget, 0);
+	widget->endpoint = endpoint;
 
 	/* Create a devfs entry */
 	widget->devfs = devfs_register (usb_devfs_handle, USB_WIDGET_DEV_NAME,
@@ -148,10 +151,20 @@ static void *usb_widget_probe(struct usb_device *dev, unsigned int ifnum,
 					&usb_widget_fops, widget);
 	dbg("Registered /dev/usb/%s", USB_WIDGET_DEV_NAME);
 
+	/* Initialize read URB */
+	/*
+	read_pipe = usb_rcvintpipe(dev, endpoint->bEndpointAddress);
+	usb_fill_int_urb(&widget->read_urb, dev, read_pipe, widget->read_data,
+			 min(usb_maxpacket(dev, read_pipe, usb_pipeout(read_pipe)), BUFFER_SIZE),
+			 usb_widget_read_complete, widget, endpoint->bInterval);
+	*/
+
 	/* Start up our interrupt read transfer */
+	/*
 	widget->read_urb.dev = widget->usbdev;
 	if (usb_submit_urb(&widget->read_urb))
-		return NULL;
+	        return NULL;
+	*/
 
 	return widget;
 }
