@@ -11,6 +11,8 @@
 import sys, os, time, md5
 sys.path[0] = os.path.join(sys.path[0], "..")
 from LibCIA import Database
+
+Database.init()
 cursor = Database.pool.connect().cursor()
 
 # Make sure we're starting with version 3

@@ -158,4 +158,20 @@ def generate(rev=None):
            randomLog,
            rev)
 
+
+def benchmark(server, numMessages=5000, verbose=True):
+    """Deliver many random messages, and time their delivery to the server.
+       Returns the average speed in messages per second.
+       """
+    if verbose:
+        print "Generating messages..."
+    messages = [generate(rev=i) for i in xrange(numMessages)]
+    startTime = time.time()
+    for i, message in enumerate(messages):
+        server.hub.deliver(message)
+        speed = (i+1) / (time.time() - startTime)
+        if verbose:
+            print "Message %d/%d...\taverage %.02f messages/second" % (i, len(messages), speed)
+    return speed
+
 ### The End ###
