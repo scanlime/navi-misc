@@ -43,6 +43,9 @@ static void       remote_client_recv_line     (RemoteClient*         self,
 static void       remote_client_update_status (RemoteClient*         self,
 					       const gchar*          fmt,
 					       ...);
+static void       histogram_merge_callback    (RemoteClient*     self,
+					       RemoteResponse*   response,
+					       gpointer          user_data);
 
 
 /************************************************************************************/
@@ -240,7 +243,8 @@ static void       remote_client_recv_binary   (RemoteClient*         self,
     g_assert(closure != NULL);
 
     response->data = event->buffer;
-    closure->callback(self, response, closure->user_data);
+    if (closure->callback)
+	closure->callback(self, response, closure->user_data);
 
     g_free(closure);
     g_free(response->message);
@@ -253,6 +257,7 @@ static void       remote_client_recv_line     (RemoteClient*         self,
 					       GConnEvent*           event)
 {
     RemoteResponse *response = g_new0(RemoteResponse, 1);
+    RemoteClosure *closure;
 
     response->code = strtol(event->buffer, &response->message, 10);
     if (*response->message)
@@ -261,38 +266,108 @@ static void       remote_client_recv_line     (RemoteClient*         self,
 
     if (response->code == FYRE_RESPONSE_BINARY) {
 	/* Extract the length of the binary response, then start
-	 * reading the binary data itself.
+	 * reading the binary data itself. Note that if we
+	 * have a zero-length binary message, skip the next
+	 * stage and fall through to processing a normal message.
 	 */
-	response->data_length = strtol(response->message, &response->message, 10);
-	if (*response->message)
-	    response->message++;
+	response->data_length = strtol(response->message, NULL, 10);
 
-	self->current_binary_response = response;
-	gnet_conn_readn(self->gconn, response->data_length);
+	if (response->data_length > 0) {
+	    self->current_binary_response = response;
+	    gnet_conn_readn(self->gconn, response->data_length);
+	    return;
+	}
+    }
+
+    /* We're done, signal the callback and start waiting
+     * for another normal response line.
+     */
+    closure = g_queue_pop_tail(self->response_queue);
+
+    if (closure) {
+	/* This was an answer to some request. Invoke the callback
+	 * if one was specified.
+	 */
+	if (closure->callback)
+	    closure->callback(self, response, closure->user_data);
+	g_free(closure);
     }
     else {
-	/* We're done, signal the callback and start waiting
-	 * for another normal response line.
-	 */
-	RemoteClosure* closure = g_queue_pop_tail(self->response_queue);
-
-	if (closure) {
-	    /* This was an answer to some request. Invoke the callback */
-	    closure->callback(self, response, closure->user_data);
-	    g_free(closure);
-	}
-	else {
-	    /* This was unsolicited- should only occur for the server ready message */
-	    g_assert(response->code == FYRE_RESPONSE_READY);
-	    self->is_ready = TRUE;
-	    remote_client_update_status(self, "Ready");
-	}
-
-	g_free(response->message);
-	g_free(response);
-
-	gnet_conn_readline(self->gconn);
+	/* This was unsolicited- should only occur for the server ready message */
+	g_assert(response->code == FYRE_RESPONSE_READY);
+	self->is_ready = TRUE;
+	remote_client_update_status(self, "Ready");
     }
+
+    g_free(response->message);
+    g_free(response);
+
+    gnet_conn_readline(self->gconn);
+}
+
+
+/************************************************************************************/
+/************************************************************** Low-level Interface */
+/************************************************************************************/
+
+void           remote_client_send_param       (RemoteClient*     self,
+					       ParameterHolder*  ph,
+					       const gchar*      name)
+{
+    /* Serialize one parameter value, and send it to the server */
+
+    GValue val, strval;
+    GParamSpec *spec = g_object_class_find_property(G_OBJECT_GET_CLASS(ph), name);
+    g_assert(spec != NULL);
+
+    memset(&val, 0, sizeof(val));
+    g_value_init(&val, spec->value_type);
+    g_object_get_property(G_OBJECT(ph), name, &val);
+
+    memset(&strval, 0, sizeof(strval));
+    g_value_init(&strval, G_TYPE_STRING);
+    g_value_transform(&val, &strval);
+
+    remote_client_command(self, NULL, NULL, "set_param %s = %s",
+			  name, g_value_get_string(&strval));
+
+    g_value_unset(&strval);
+    g_value_unset(&val);
+}
+
+void           remote_client_send_all_params  (RemoteClient*     self,
+					       ParameterHolder*  ph)
+{
+    /* Find all serializable parameters, and send them */
+
+    guint n_properties;
+    GParamSpec** properties;
+    int i;
+
+    properties = g_object_class_list_properties(G_OBJECT_GET_CLASS(ph), &n_properties);
+
+    for (i=0; i<n_properties; i++)
+	if (properties[i]->flags & PARAM_SERIALIZED)
+	    remote_client_send_param(self, ph, properties[i]->name);
+
+    g_free(properties);
+}
+
+static void    histogram_merge_callback       (RemoteClient*     self,
+					       RemoteResponse*   response,
+					       gpointer          user_data)
+{
+    HistogramImager *dest = HISTOGRAM_IMAGER(user_data);
+
+    printf("merging %d bytes\n", response->data_length);
+    histogram_imager_merge_stream(dest, response->data, response->data_length);
+}
+
+void           remote_client_merge_histogram  (RemoteClient*     self,
+					       HistogramImager*  dest)
+{
+    remote_client_command(self, histogram_merge_callback, dest,
+			  "get_histogram_stream");
 }
 
 /* The End */

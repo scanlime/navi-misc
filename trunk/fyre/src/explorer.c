@@ -128,9 +128,7 @@ static void explorer_dispose(GObject *gobject) {
     }
 
     explorer_dispose_animation(self);
-#ifdef HAVE_GNET
     explorer_dispose_cluster(self);
-#endif
 }
 
 Explorer* explorer_new(IterativeMap *map, Animation *animation) {
@@ -157,17 +155,13 @@ Explorer* explorer_new(IterativeMap *map, Animation *animation) {
 
     explorer_init_animation(self);
     explorer_init_tools(self);
-#ifdef HAVE_GNET
     explorer_init_cluster(self);
-#else
-    /* If we have no cluster support, disable that menu item */
-    gtk_widget_set_sensitive(glade_xml_get_widget(self->xml, "toggle_cluster_window"), FALSE);
-#endif
 
     /* Start the iterative map rendering in the background, and get a callback every time a block
      * of calculations finish so we can update the GUI.
      */
     iterative_map_start_calculation(self->map);
+    explorer_cluster_start(self);
     g_signal_connect(G_OBJECT(self->map), "calculation-finished",
 		     G_CALLBACK(on_calculation_finished), self);
 
@@ -186,6 +180,28 @@ Explorer* explorer_new(IterativeMap *map, Animation *animation) {
 
     return self;
 }
+
+
+/************************************************************************************/
+/*********************************************************************** Clustering */
+/************************************************************************************/
+
+#ifndef HAVE_GNET
+/* Fake cluster functions, if gnet support is not available */
+
+void      explorer_init_cluster          (Explorer *self)
+{
+    /* If we have no cluster support, disable that menu item */
+    gtk_widget_set_sensitive(glade_xml_get_widget(self->xml, "toggle_cluster_window"), FALSE);
+}
+
+void      explorer_dispose_cluster       (Explorer *self) {}
+void      explorer_cluster_update_params (Explorer *self) {}
+void      explorer_cluster_start         (Explorer *self) {}
+void      explorer_cluster_stop          (Explorer *self) {}
+void      explorer_cluster_merge_results (Explorer *self) {}
+
+#endif /* !HAVE_GNET */
 
 
 /************************************************************************************/
@@ -312,10 +328,14 @@ static gboolean on_cluster_window_delete(GtkWidget *widget, GdkEvent *event, gpo
 
 static void on_pause_rendering_toggle(GtkWidget *widget, gpointer user_data) {
     Explorer *self = EXPLORER(user_data);
-    if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget)))
+    if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget))) {
 	iterative_map_stop_calculation(self->map);
-    else
+	explorer_cluster_stop(self);
+    }
+    else {
 	iterative_map_start_calculation(self->map);
+	explorer_cluster_start(self);
+    }
 }
 
 static void on_calculation_finished(IterativeMap *map, gpointer user_data)
@@ -382,6 +402,12 @@ void explorer_update_gui(Explorer *self) {
 	if (explorer_auto_limit_update_rate(self))
 	    return;
     }
+
+    /* Merge in cluster results at the same rate we update our view.
+     * Note that the results of this merge won't be available right
+     * away- this is just here to get the update rate right.
+     */
+    explorer_cluster_merge_results(self);
 
     /* We don't want to update the status bar if we're trying to show rendering changes quickly */
     if (!HISTOGRAM_IMAGER(self->map)->render_dirty_flag) {

@@ -112,7 +112,10 @@ void           remote_client_command          (RemoteClient*     self,
 
 /* High-level interface */
 
-void           remote_client_send_params      (RemoteClient*     self,
+void           remote_client_send_param       (RemoteClient*     self,
+					       ParameterHolder*  ph,
+					       const gchar*      name);
+void           remote_client_send_all_params  (RemoteClient*     self,
 					       ParameterHolder*  ph);
 void           remote_client_merge_histogram  (RemoteClient*     self,
 					       HistogramImager*  dest);
