@@ -1,0 +1,52 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Fyre - About</title>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+<body>
+    <div class="title">
+        <div class="titlename">
+	    <img src="title.png" alt="Fyre" />
+	</div>
+    </div>
+
+    <table border="0" cellpadding="0" cellspacing="0" summary="" width="100%">
+    <tbody>
+        <tr style="height: 100%;" valign="top">
+	    <td height="100%" class="sidebar">
+	        <!--#include file="navigation.inc" -->
+	    </td>
+	    <td class="body">
+		<p>Fyre provides a rendering of the Peter de Jong map, with an interactive
+		GTK+ frontend and a command line interface for easy and efficient rendering
+		of high-resolution, high quality images.</p>
+		<p>This program was previously known as 'de Jong Explorer', but has been
+		renamed to make way for supporting other chaotic functions.</p>
+		<p>All the images you can create with this program are based on the simple
+		Peter de Jong map equations:
+		<br/>x' = sin(a * y) - cos(b * x)
+		<br/>y' = sin(c * x) - cos(d * y)
+		</p>
+		<p>For most values of a,b,c and d the point (x,y) moves chaotically. The
+		resulting image is a map of the probability that the point lies within
+		the area represented by each pixel. As you let Fyre render longer it collects
+		more samples and this probability map and the image becomes more accurate.</p>
+		<p>The resulting probability map is treated as a High Dynamic Range image.
+		This software includes some image manipulation features that let you
+		apply linear interpolation and gamma correction at the full internal
+		precision, producing a much higher quality image than if you tried to
+		create the same effects using standard image processing tools.
+		Additionally, Gaussian blurs can be applied to the image using a
+		stochastic process that produces much more natural-looking images than
+		most programs, again without losing any of the image's original precision.</p>
+	    </td>
+	</tr>
+    </tbody>
+    </table>
+
+    <div class="footer">
+        Copyright &copy; 2004 David Trowbridge and Micah Dowty
+    </div>
+</body>
+</html>
