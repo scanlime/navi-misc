@@ -3,7 +3,6 @@
 # Runs doctests for all applicable CIA modules
 #
 
-import os; os.chdir('..')
 import sys; sys.path[0] += '/..'
 import doctest
 
