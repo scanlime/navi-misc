@@ -64,6 +64,8 @@ void on_quit(GtkWidget *widget, gpointer user_data);
 void on_pause_rendering_toggle(GtkWidget *widget, gpointer user_data);
 void on_load_from_image(GtkWidget *widget, gpointer user_data);
 void on_resize(GtkWidget *widget, gpointer user_data);
+void on_resize_cancel(GtkWidget *widget, gpointer user_data);
+void on_resize_ok(GtkWidget *widget, gpointer user_data);
 gboolean on_viewport_expose(GtkWidget *widget, gpointer user_data);
 GtkWidget *custom_color_button_new(gchar *widget_name, gchar *string1, gchar *string2, gint int1, gint int2);
 
@@ -98,7 +100,7 @@ static void gui_resize(int width, int height) {
 
   /* A bit of a hack to make the default window size more sane */
   gtk_widget_set_size_request(glade_xml_get_widget(gui.xml, "drawing_area_viewport"),
-			      width+5, height+5);
+			      MIN(1000, width+5), MIN(1000, height+5));
   gui.just_resized = TRUE;
 }
 
@@ -342,10 +344,29 @@ void on_pause_rendering_toggle(GtkWidget *widget, gpointer user_data) {
     gui.idler = g_idle_add(interactive_idle_handler, NULL);
 }
 
+void on_resize(GtkWidget *widget, gpointer user_data) {
+  gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(gui.xml, "resize_width")), render.width);
+  gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(gui.xml, "resize_height")), render.height);
+  gtk_widget_show(glade_xml_get_widget(gui.xml, "resize_window"));
+}
 
-void on_load_from_image(GtkWidget *widget, gpointer user_data);
-void on_resize(GtkWidget *widget, gpointer user_data);
+void on_resize_cancel(GtkWidget *widget, gpointer user_data) {
+  gtk_widget_hide(glade_xml_get_widget(gui.xml, "resize_window"));
+}
 
+void on_resize_ok(GtkWidget *widget, gpointer user_data) {
+  int new_width, new_height;
+
+  gtk_widget_hide(glade_xml_get_widget(gui.xml, "resize_window"));
+  new_width = gtk_spin_button_get_value(GTK_SPIN_BUTTON(glade_xml_get_widget(gui.xml, "resize_width")));
+  new_height = gtk_spin_button_get_value(GTK_SPIN_BUTTON(glade_xml_get_widget(gui.xml, "resize_height")));
+
+  resize(new_width, new_height);
+  gui_resize(new_width, new_height);
+}
+
+void on_load_from_image(GtkWidget *widget, gpointer user_data) {
+}
 
 GtkWidget *custom_color_button_new(gchar *widget_name, gchar *string1,
 				   gchar *string2, gint int1, gint int2) {
