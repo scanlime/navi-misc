@@ -203,9 +203,12 @@ class CommitToIRC(CommitFormatter):
 
     defaultComponentTree = """
     <format>
-        <author/> <branch/> *
-        <version/><autoHide>r<revision/></autoHide>
-        <module/>/<files/>:
+        <autoHide><color fg='green'><author/></color></autoHide>
+        <autoHide><color fg='orange'><branch/></color></autoHide>
+        *
+        <autoHide><b><version/></b></autoHide>
+        <autoHide>r<b><revision/></b></autoHide>
+        <color fg='aqua'><module/></color>/<files/><b>:</b>
         <log/>
     </format>
     """
