@@ -23,7 +23,7 @@ Views and utilities for rendering the Heads Up Display
 
 from __future__ import division
 from OpenGL.GL import *
-from BZEngine.UI import GLText, GLExtension
+from BZEngine.UI import GLText, GLExtension, GLOrtho
 from BZEngine import Animated
 
 
