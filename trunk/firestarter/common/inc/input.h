@@ -28,6 +28,7 @@
 
 using namespace Ogre;
 
+// standard keys
 enum InputKeyCode
 {
 	KEY_ESCAPE          =0x01,
@@ -188,6 +189,10 @@ public:
 
 typedef std::vector<CActionListener*> tvActionListenerList;
 
+#define _ALL_TEXT	"ALL"
+#define _KEYBOARD "std_keyboard"
+#define _MOUSE		"std_mouse"
+
 class CAction
 {
 public:
@@ -205,6 +210,9 @@ public:
 
 	virtual float getMaxRaw ( void );
 	virtual float getMinRaw ( void );
+
+	// mostly for text based actions, like "chat"
+	virtual char getChar ( void );
 
 	// listener functions
 	void addListener ( CActionListener* listener );
