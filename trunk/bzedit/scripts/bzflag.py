@@ -30,6 +30,7 @@ boxMaterial = Material.New('newMat')
 boxMaterial.rgbCol = [1.0, 0.6, 0.6]
 boxMaterial.setName('BoxColor')
 
+
 def meshify(vertex, face):
     mesh = NMesh.GetRaw()
     verts = []
@@ -202,6 +203,11 @@ class BZObject(object):
     type = None
     comment = None
 
+    # Attributes controlling how this BZObject is represented in Blender
+    verts = []
+    faces = []
+    materials = []
+
     def serialize(self, writer):
         """Store this BZFlag object to a world file by calling the
            given writer for each tuple or comment to be included
@@ -238,17 +244,40 @@ class BZObject(object):
 
     def toBlender(self):
         """Create a new Blender object representing this one,
-           and return it. The default implementation creates the
-           object and assigns its 'bztype' property, but further
-           object creation must be performed by subclasses.
+           and return it.
            """
-        pass
+        obj = self.createBlenderObject()
+        self.transformBlenderObject(obj)
+        self.setBlenderProperties(obj)
+        return obj
 
     def fromBlender(self, object):
         """Load this object's settings from the given Blender object.
            Must be implemented by subclasses.
            """
         pass
+
+    def createBlenderObject(self):
+        """Create a new blender object representing this BZFlag object.
+           The default implementation creates a mesh using our 'verts',
+           'faces', and 'materials' attributes.
+           """
+        obj = meshify(self.verts, self.faces)
+        obj.setMaterials(self.materials)
+        return obj
+
+    def transformBlenderObject(self, object):
+        """Transform the given Blender object using our BZFlag properties.
+           This must be implemented by subclasses in an object-dependent way.
+           """
+        pass
+
+    def setBlenderProperties(self, object):
+        """This sets extra properties on our corresponding Blender object.
+           The default implementation only sets 'bztype', but subclasses
+           may add more properties to this.
+           """
+        object.addProperty('bztype', self.type, 'STRING')
 
 
 class ObjectTypeRegistry:
@@ -301,6 +330,16 @@ class World(BZObject):
     """Represents the size of the bzflag world and other global attributes"""
     type = 'world'
 
+    verts = [( 1,  1, 0),
+             (-1,  1, 0),
+             (-1, -1, 0),
+             ( 1, -1, 0),
+             ]
+
+    faces = [(0, 1, 2, 3), # Floor top
+             (3, 2, 1, 0), # Floor bottom
+             ]
+
     def __init__(self):
         self.set_size()
 
@@ -310,10 +349,36 @@ class World(BZObject):
     def serialize(self, writer):
         writer(("size", self.size))
 
+    def transformBlenderObject(self, world):
+        world.setSize(self.size / 10.0,
+                      self.size / 10.0,
+                      1)
+        world.setLocation(0,0,0)
+
 
 class Box(BZObject):
     """A rectangular prism, with translation and with rotation in the Z axis"""
     type = 'box'
+
+    verts = [( 1,  1, 1),
+             ( 1,  1, 0),
+             ( 1, -1, 1),
+             ( 1, -1, 0),
+             (-1,  1, 1),
+             (-1,  1, 0),
+             (-1, -1, 1),
+             (-1, -1, 0),
+             ]
+
+    faces = [(0, 1, 3, 2), # X+
+             (6, 7, 5, 4), # X-
+             (0, 4, 5, 1), # Y+
+             (6, 2, 3, 7), # Y-
+             (0, 2, 6, 4), # Z+
+             (1, 5, 7, 3), # Z-
+             ]
+
+    materials = [boxMaterial]
 
     def __init__(self):
         # Load defaults
@@ -335,31 +400,7 @@ class Box(BZObject):
         writer(("size",) + tuple(self.size))
         writer(("rotation", self.rotation))
 
-    def toBlender(self):
-        verts = [( 1,  1, 1),
-                 ( 1,  1, 0),
-                 ( 1, -1, 1),
-                 ( 1, -1, 0),
-                 (-1,  1, 1),
-                 (-1,  1, 0),
-                 (-1, -1, 1),
-                 (-1, -1, 0),
-                ]
-        faces = [(0, 1, 3, 2), # X+
-                 (6, 7, 5, 4), # X-
-                 (0, 4, 5, 1), # Y+
-                 (6, 2, 3, 7), # Y-
-                 (0, 2, 6, 4), # Z+
-                 (1, 5, 7, 3), # Z-
-                ]
-
-        box = meshify(verts, faces)
-        self.setTransform(box)
-        return box
-
-        box.setMaterials([boxMaterial])
-
-    def setTransform(self, obj):
+    def transformBlenderObject(self, obj):
         """Set the transformation on the given Blender object
            to match our position, size, and rotation. This will
            be used both by the Box object and by other objects
@@ -382,26 +423,22 @@ class Pyramid(Box):
     """A tetrahedron, pointing straight up or down, with rotation in the Z axis"""
     type = 'pyramid'
 
+    verts = [( 1,  1, 0),
+             (-1,  1, 0),
+             (-1, -1, 0),
+             ( 1, -1, 0),
+             ( 0,  0, 1),
+             ]
+
+    faces = [(0, 4, 3),    # X+
+             (2, 4, 1),    # X-
+             (1, 4, 0),    # Y+
+             (3, 4, 2),    # Y-
+             (0, 1, 2, 3), # Z-
+             ]
+
     def set_size(self, x=8.2, y=8.2, z=10.25):
         # Pyramids have different size defaults than the box
         self.size = [x,y,z]
-
-    def toBlender(self):
-        verts = [( 1,  1, 0),
-                 (-1,  1, 0),
-                 (-1, -1, 0),
-                 ( 1, -1, 0),
-                 ( 0,  0, 1),
-                ]
-        faces = [(0, 4, 3),    # X+
-                 (2, 4, 1),    # X-
-                 (1, 4, 0),    # Y+
-                 (3, 4, 2),    # Y-
-                 (0, 1, 2, 3), # Z-
-                ]
-
-        pyramid = meshify(verts, faces)
-        self.setTransform(pyramid)
-        return pyramid
 
 ### The End ###
