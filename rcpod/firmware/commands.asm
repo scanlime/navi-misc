@@ -411,16 +411,10 @@ TxRxRequest
 	bcf	STATUS, IRP	; Transfer bit 8 of wIndex into IRP
 	btfsc	BufferData+(wIndex+1), 0
 	bsf	STATUS, IRP
-	movf	STATUS, w	; Save STATUS, containing the buffer's IRP bit, for receiving later
-	banksel	rx_status
-	movwf	rx_status
 
 	banksel	BufferData
 	movf	BufferData+wIndex, w ; Load address bits 0-7 into FSR
 	movwf	FSR
-	banksel	rx_fsr		; And save it for receiving later
-	movwf	rx_fsr
-	movwf	rx_fsr_initial
 
 txLoop
 	pagesel	txLoop
@@ -460,6 +454,23 @@ skipTx
 	bsf		RCSTA, CREN
 	banksel	RCREG
 	movf	RCREG, w
+
+	; Store the STATUS register containing IRP from bit 8 of wIndex,
+	; so we point to the right half of our address space when receiving
+	banksel BufferData
+	bcf	STATUS, IRP
+	btfsc	BufferData+(wIndex+1), 0
+	bsf	STATUS, IRP
+	movf	STATUS, w
+	banksel	rx_status
+	movwf	rx_status
+
+	; Save the lower 8 bits of wIndex for receiving
+	banksel	BufferData
+	movf	BufferData+wIndex, w
+	banksel	rx_fsr
+	movwf	rx_fsr
+	movwf	rx_fsr_initial
 
 	; Store the number of bytes to receive before rolling over
 	banksel	BufferData
