@@ -21,13 +21,12 @@ A web interface, built using nevow, for viewing and editin CIA's rulesets
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import Base
+import Template
 
 
-class RulesetPage(Base.Template):
+class RulesetPage(Template.Page):
     def __init__(self, caps, storage):
         self.caps = caps
         self.storage = storage
-        Base.Template.__init__(self)
 
 ### The End ###
