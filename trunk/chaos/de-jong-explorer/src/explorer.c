@@ -400,13 +400,30 @@ void explorer_run_iterations(Explorer *self) {
   GTimer *timer;
   gulong elapsed;
 
+#ifdef BIFURCATION_TOY
+  DeJongPair pair;
+  pair.a = self->dejong;
+  pair.b = de_jong_new();
+#endif
+
   timer = g_timer_new();
   g_timer_start(timer);
   do {
+
+#ifdef BIFURCATION_TOY
+    de_jong_calculate_bifurcation(self->dejong, DE_JONG_INTERPOLATOR(de_jong_interpolate_linear),
+				  &pair, 500000);
+#endif
+
     de_jong_calculate(self->dejong, 5000);
+
     g_timer_elapsed(timer, &elapsed);
   } while (elapsed < 13000);
   g_timer_destroy(timer);
+
+#ifdef BIFURCATION_TOY
+  g_object_unref(pair.b);
+#endif
 }
 
 static void explorer_resize(Explorer *self) {

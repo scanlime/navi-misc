@@ -525,78 +525,86 @@ static gulong de_jong_get_max_usable_density(DeJong *self) {
 /************************************************************* Bifurcation Diagrams */
 /************************************************************************************/
 
-GdkPixbuf* de_jong_make_bifurcation_diagram(DeJongInterpolator *interp,
-					    gpointer            interp_data,
-					    gdouble             x_projection,
-					    gdouble             y_projection,
-					    gdouble             y_min,
-					    gdouble             y_max,
-					    guint               width,
-					    guint               height,
-					    gulong              transient_iterations,
-					    gulong              rendered_iterations) {
-  /* A bifurcation diagram shows when a system becomes chaotic across
-   * some range of parameters. Parameters are interpolated across the X axis
-   * using the given interpolation function. The Y axis is a 1-dimensional
-   * projection of the point position, using [x_projection y_projection] as
-   * a 2x1 projection matrix and plotting the range [y_min, y_max)
-   *
-   * A given number of transient_iterations are calculated but not rendered,
-   * to eliminate the appearance of transient conditions when the (possibly)
-   * chaotic system is first starting. Afterwards, rendered_iterations are
-   * run and plotted. This process repeats for each column of pixels in the graph.
-   */
+void de_jong_calculate_bifurcation(DeJong             *self,
+				   DeJongInterpolator *interp,
+				   gpointer            interp_data,
+				   guint               iterations) {
+  de_jong_check_dirty_flags(self);
+  de_jong_require_histogram(self);
 
-  guint column;
-  gulong i;
-  GdkPixbuf *pixbuf;
-  DeJong *self;
-  gdouble a, b, c, d;
-  gdouble x, y;
-  gdouble point_x, point_y;
-  guint32 *pixel_p;
+  {
+    guint* const histogram = self->histogram;
+    const int count_width = self->width * self->oversample;
+    const int count_height = self->height * self->oversample;
+    const gdouble y_min = -5;
+    const gdouble y_max = 5;
 
-  self = de_jong_new();
-  pixbuf = gdk_pixbuf_new(GDK_COLORSPACE_RGB, TRUE, 8, width, height);
-  pixel_p = (guint32*) gdk_pixbuf_get_pixels(pixbuf);
-  memset(pixel_p, 0, 4 * width * height);
+    DeJong *interpolant;
+    double x, y, a, b, c, d, alpha, point_x, point_y;
+    gulong density, bucket;
+    int i, block, ix, iy;
+    guint *p;
+    struct {
+      double x, y;
+    } *points;
 
-  for (column=0; column<width; column++) {
-    /* Interpolate and retrieve the de jong parameters for this column. */
-    interp(self, ((double)column) / (width-1), interp_data);
-    a = self->a;
-    b = self->b;
-    c = self->c;
-    d = self->d;
+    density = self->current_density;
+    interpolant = de_jong_new();
+    points = g_malloc(count_width * sizeof(points[0]));
 
-    point_x = uniform_variate();
-    point_y = uniform_variate();
+    for (i=iterations; i;) {
 
-    /* Run one block of iterations to skip the transient */
-    for (i=0; i<transient_iterations; i++) {
-      x = sin(a * point_y) - cos(b * point_x);
-      y = sin(c * point_x) - cos(d * point_y);
-      point_x = x;
-      point_y = y;
-    }
+      /* At each iteration block, we pick a new interpolated set of points
+       * and the corresponding X coordinate on our histogram.
+       */
+      alpha = uniform_variate();
+      interp(interpolant, alpha, interp_data);
+      self->calc_dirty_flag = FALSE;
+      ix = alpha * (count_width - 1);
 
-    /* Now run the rendering iterations */
-    for (i=0; i<rendered_iterations; i++) {
-      x = sin(a * point_y) - cos(b * point_x);
-      y = sin(c * point_x) - cos(d * point_y);
-      point_x = x;
-      point_y = y;
+      a = interpolant->a;
+      b = interpolant->b;
+      c = interpolant->c;
+      d = interpolant->d;
 
-      y = x * x_projection + y * y_projection;
-      if (y >= y_min && y < y_max) {
-	pixel_p[column + width * ((int)( (y - y_min) / (y_max - y_min) * height ))] = 0xFF000000;
+      /* If we haven't seen this point recently, make a new random starting point */
+      point_x = points[ix].x;
+      point_y = points[ix].y;
+      if (point_x == 0 && point_y == 0) {
+	point_x = uniform_variate();
+	point_y = uniform_variate();
       }
+
+      for(block=1000; i && block; --i, --block) {
+	/* These are the actual Peter de Jong map equations. The new point value
+	 * gets stored into 'point', then we go on and mess with x and y before plotting.
+	 */
+	x = sin(a * point_y) - cos(b * point_x);
+	y = sin(c * point_x) - cos(d * point_y);
+	point_x = x;
+	point_y = y;
+
+	if (y >= y_min && y < y_max) {
+	  iy = (int)( (y - y_min) / (y_max - y_min) * count_height );
+
+	  /* Plot our point in the counts array, updating the peak density */
+	  p = histogram + ix + count_width * iy;
+	  bucket = *p = *p + 1;
+	  if (bucket > density)
+	    density = bucket;
+	}
+
+	self->iterations++;
+      }
+
+      points[ix].x = point_x;
+      points[ix].y = point_y;
     }
 
+    self->current_density = density;
+    g_object_unref(interpolant);
+    g_free(points);
   }
-
-  g_object_unref(self);
-  return pixbuf;
 }
 
 

@@ -234,9 +234,9 @@ static void cell_renderer_bifurcation_render(GtkCellRenderer      *cell,
     animation_keyframe_load_dejong(self->animation, &self->keyframe, self->pair.a);
     animation_keyframe_load_dejong(self->animation, &next_keyframe, self->pair.b);
 
+    /*
     pixbuf = de_jong_make_bifurcation_diagram(DE_JONG_INTERPOLATOR(de_jong_interpolate_linear),
-					      &self->pair, 1, 1, -5, 5,
-					      cell_area->width, cell_area->height,
+					      &self->pair, cell_area->width, cell_area->height,
 					      500, 100);
 
     gdk_draw_pixbuf(window, GTK_WIDGET(widget)->style->fg_gc[GTK_STATE_NORMAL], pixbuf,
@@ -244,6 +244,8 @@ static void cell_renderer_bifurcation_render(GtkCellRenderer      *cell,
 		    GDK_RGB_DITHER_NONE, 0, 0);
 
     gdk_pixbuf_unref(pixbuf);
+
+    */
   }
 }
 

@@ -27,7 +27,7 @@
 static void animation_class_init(AnimationClass *klass);
 static void animation_init(Animation *self);
 static void animation_dispose(GObject *gobject);
-static void animation_set_default_transition(Animation *self, GtkTreeIter *iter);
+static void animation_keyframe_append_default(Animation *self, GtkTreeIter *iter);
 
 /* Animations are serialized using chunked-file.
  * These are the chunk types and file signature
@@ -130,25 +130,21 @@ void animation_keyframe_load_dejong(Animation *self, GtkTreeIter *iter, DeJong *
 
 void animation_keyframe_append(Animation *self, DeJong *dejong) {
   GtkTreeIter iter;
-
-  gtk_list_store_append(self->model, &iter);
-  gtk_list_store_set(self->model, &iter,
-		     ANIMATION_MODEL_ITER, &iter,
-		     -1);
-
+  animation_keyframe_append_default(self, &iter);
   animation_keyframe_store_dejong(self, &iter, dejong);
-  animation_set_default_transition(self, &iter);
+}
+
+static void animation_keyframe_append_default(Animation *self, GtkTreeIter *iter) {
+  gtk_list_store_append(self->model, iter);
+  gtk_list_store_set(self->model, iter,
+		     ANIMATION_MODEL_ITER, iter,
+		     ANIMATION_MODEL_DURATION, (gdouble) 5.0,
+		     ANIMATION_MODEL_SPLINE,   &spline_template_smooth,
+		     -1);
 }
 
 void animation_clear(Animation *self) {
   gtk_list_store_clear(self->model);
-}
-
-static void animation_set_default_transition(Animation *self, GtkTreeIter *iter) {
-  gtk_list_store_set(self->model, iter,
-		     ANIMATION_MODEL_DURATION, (gdouble) 5.0,
-		     ANIMATION_MODEL_SPLINE,   &spline_template_smooth,
-		     -1);
 }
 
 gdouble animation_keyframe_get_time(Animation *self, GtkTreeIter *iter) {
@@ -202,8 +198,7 @@ void animation_load_file(Animation *self, const gchar *filename) {
 
     case CHUNK_KEYFRAME_START:
       /* Start a new keyframe, point iter at it */
-      gtk_list_store_append(self->model, &iter);
-      animation_set_default_transition(self, &iter);
+      animation_keyframe_append_default(self, &iter);
       break;
 
     case CHUNK_KEYFRAME_END:
