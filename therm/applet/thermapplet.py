@@ -83,6 +83,11 @@ class ThermSource:
         result.callback(filename)
 
 
+def degCtoF(degC):
+    """Convert degrees centigrade to fahrenheit"""
+    return degC * 9.0 / 5.0 + 32
+
+
 class ThermServer:
     """An abstraction for our mod_python based therm server, running on
        an arbitrary URL. This can retrieve individual therm sources, or iterate
@@ -121,7 +126,7 @@ class ThermWidget(gtk.HBox):
        widgets can be arranged into a table sharing one ColumnSet.
        """
     def __init__(self, source, columnSet, graphHeight=24):
-        gtk.HBox.__init__(self)
+        gtk.HBox.__init__(self, spacing=8)
         self.source = source
         self.columnSet = columnSet
         self.graphHeight = graphHeight
@@ -131,7 +136,7 @@ class ThermWidget(gtk.HBox):
             widget = getattr(self, "init_" + name)()
             self.widgets.append(widget)
             self.columnSet.sizeGroups[index].add_widget(widget)
-            self.pack_start(widget, padding=4)
+            self.pack_start(widget)
 
         self.update()
 
@@ -158,11 +163,15 @@ class ThermWidget(gtk.HBox):
         self.source.getLatest('average').addCallback(self._update_average, widget)
 
     def _update_average(self, temperature, widget):
-        if temperature:
-            degrees = "\302\260"
-            widget.set_markup("<big><b>%.01f%sC</b></big>" % (temperature, degrees))
-        else:
+        if not temperature:
             widget.set_text("No data")
+            return
+
+        degrees = "\302\260"
+        degF = "%.01f%sF" % (degCtoF(temperature), degrees)
+        degC = "%.01f%sC" % (temperature, degrees)
+
+        widget.set_markup("<big><b>%s</b> / %s</big>" % (degF, degC))
 
     def update_graph(self, widget):
         self.source.getGraph('temperature', height=self.graphHeight
