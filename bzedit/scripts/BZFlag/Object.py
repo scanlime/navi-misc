@@ -21,6 +21,7 @@ can serialize itself and be converted to/from blender objects.
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 from Blender import NMesh, Material, Image, Texture
+import string
 
 def createTexture(name, filename):
     material = Material.New(name)
@@ -70,7 +71,7 @@ class Object:
     # relative to the world
     world = None
 
-    def set_name(self, *name):
+    def set_name(self, name):
         self.name = string.join(name, ' ')
 
     def toBlender(self):
