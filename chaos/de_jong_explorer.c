@@ -185,8 +185,8 @@ void flip() {
 void clear() {
   memset(data, 0, WIDTH * HEIGHT * sizeof(int));
   iterations = 0;
-  point.x = rand() / RAND_MAX;
-  point.y = rand() / RAND_MAX;
+  point.x = ((float) rand()) / RAND_MAX;
+  point.y = ((float) rand()) / RAND_MAX;
 }
 
 static int draw_more(void *extra) {
