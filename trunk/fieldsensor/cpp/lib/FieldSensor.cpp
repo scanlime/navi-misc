@@ -61,7 +61,7 @@ FieldSensor::FieldSensor(const char *serialPort, const char *netFile)
   /* Initial conditions for the Kalman filter */
   Q.set(0.00001, 0.00001, 0.00001);  /* Process noise variance */
   R.set(0.05, 0.05, 0.05);           /* Measurement noise variance */
-  x.set(0.5, 0.5, 0.5);              /* Initial estimate */
+  x.set(0.5, 0.5, 1.0);              /* Initial estimate */
   P.set(1.0, 1.0, 1.0);              /* Initial variance estimate */
 
   pthread_create(&thread_id, NULL, &readerThread, this);
