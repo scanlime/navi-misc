@@ -25,7 +25,7 @@
 #include <libgnome/gnome-i18n.h>
 #include "e-weather-source-ccf.h"
 
-#define DATA_SIZE 65535	/* 64k should be enough for anyone :P */
+#define DATA_SIZE 5000
 
 EWeatherSource*
 e_weather_source_ccf_new (const char *uri)
@@ -144,10 +144,76 @@ ftoc (char *data)
 }
 
 static void
+e_weather_source_ccf_do_parse (EWeatherSourceCCF *source)
+{
+	/* CCF gives us either 2 or 7 days of forecast data. IFPS WFO's
+	 * will produce 7 day forecasts, whereas pre-IFPS WFO's are only
+	 * mandated 2 (but may do 7). The morning forecast will give us either 2
+	 * or 7 days worth of data. The evening forecast will give us the evening's
+	 * low temperature plus 2 or 7 days forecast.
+	 *
+	 * The CCF format is described in NWS directive 10-503, but it's usually
+	 * easier to look at a summary put up by one of the stations:
+	 * http://www.crh.noaa.gov/lmk/product_guide/products/forecast/ccf.htm
+	 */
+	WeatherForecast *forecasts = g_new0 (WeatherForecast, 7);
+	GSList *tokens = tokenize (source->buffer);
+	GSList *date;
+	GSList *current = tokens;
+	GList *fc = NULL;
+	struct tm tms;
+	int i;
+
+	date = g_slist_nth (tokens, 3);
+	date2tm (date->data, &tms);
+	g_print ("date is %s\n", asctime (&tms));
+
+	/* fast-forward to the particular station we're interested in */
+	current = g_slist_nth (tokens, 5);
+	while (strcmp(current->data, source->station))
+		current = g_slist_next (current);
+
+	for (i = 0; i < 7; i++)
+		fc = g_list_append (fc, &forecasts[i]);
+}
+
+static void
 e_weather_source_ccf_finish_read (GnomeVFSAsyncHandle *handle, GnomeVFSResult result, gpointer buffer,
                                   GnomeVFSFileSize requested, GnomeVFSFileSize body_len, gpointer data)
 {
 	EWeatherSourceCCF *source = (EWeatherSourceCCF*) data;
+	char *body;
+
+	g_return_if_fail (source != NULL);
+	g_return_if_fail (handle == source->handle);
+
+	body = (char *) buffer;
+	body[body_len] = '\0';
+
+	if (source->buffer == NULL)
+		source->buffer = g_strdup (body);
+	else
+	{
+		char *temp = g_strdup (source->buffer);
+		g_free (source->buffer);
+		source->buffer = g_strdup_printf ("%s%s", temp, body);
+		g_free (temp);
+	}
+
+	if (result == GNOME_VFS_ERROR_EOF)
+	{
+		e_weather_source_ccf_do_parse (source);
+	}
+	else if (result != GNOME_VFS_OK)
+	{
+		g_print ("%s", gnome_vfs_result_to_string (result));
+		g_warning (_("Failed to get CCF data.\n"));
+	}
+	else
+	{
+		gnome_vfs_async_read (handle, body, DATA_SIZE - 1, e_weather_source_ccf_finish_read, data);
+		return;
+	}
 }
 
 static void
@@ -155,10 +221,14 @@ e_weather_source_ccf_finish_open (GnomeVFSAsyncHandle *handle, GnomeVFSResult re
 {
 	EWeatherSourceCCF *source = (EWeatherSourceCCF*) data;
 	char *body;
-	int body_len;
-	gboolean success = FALSE;
+
+	g_return_if_fail (source != NULL);
+	g_return_if_fail (handle == source->handle);
 
 	body = g_malloc0 (DATA_SIZE);
+	if (source->buffer)
+		g_free (source->buffer);
+	source->buffer = NULL;
 
 	if (result != GNOME_VFS_OK)
 	{
@@ -176,45 +246,12 @@ e_weather_source_ccf_finish_open (GnomeVFSAsyncHandle *handle, GnomeVFSResult re
 static void
 e_weather_source_ccf_parse (EWeatherSource *source, SourceFinished done)
 {
-	/* CCF gives us either 2 or 7 days of forecast data. IFPS WFO's
-	 * will produce 7 day forecasts, whereas pre-IFPS WFO's are only
-	 * mandated 2 (but may do 7). The morning forecast will give us either 2
-	 * or 7 days worth of data. The evening forecast will give us the evening's
-	 * low temperature plus 2 or 7 days forecast.
-	 *
-	 * The CCF format is described in NWS directive 10-503, but it's usually
-	 * easier to look at a summary put up by one of the stations:
-	 * http://www.crh.noaa.gov/lmk/product_guide/products/forecast/ccf.htm
-	 */
 	EWeatherSourceCCF *ccfsource = (EWeatherSourceCCF*) source;
-	WeatherForecast *forecasts = g_new0 (WeatherForecast, 7);
 	char *url;
 
 	url = g_strdup_printf ("http://www.crh.noaa.gov/data/%s/CCF%s", ccfsource->station, ccfsource->station);
 	ccfsource->done = done;
-	gnome_vfs_async_open (ccfsource->handle, url, GNOME_VFS_OPEN_READ, 0, e_weather_source_ccf_finish_open, source);
-#if 0
-	GSList *tokens = tokenize (buffer);
-	GSList *date;
-	GSList *current = tokens;
-	GList *fc = NULL;
-	struct tm tms;
-	int i;
-
-	date = g_slist_nth (tokens, 3);
-	date2tm (date->data, &tms);
-	g_print ("date is %s\n", asctime (&tms));
-
-	/* fast-forward to the particular station we're interested in */
-	current = g_slist_nth (tokens, 5);
-	while (strcmp(current->data, ccfsource->station))
-		current = g_slist_next (current);
-
-	for (i = 0; i < 7; i++)
-		fc = g_list_append (fc, &forecasts[i]);
-
-	return fc;
-#endif
+	gnome_vfs_async_open (&ccfsource->handle, url, GNOME_VFS_OPEN_READ, 0, e_weather_source_ccf_finish_open, source);
 }
 
 static void
@@ -230,7 +267,8 @@ e_weather_source_ccf_class_init (EWeatherSourceCCFClass *class)
 static void
 e_weather_source_ccf_init (EWeatherSourceCCF *source)
 {
-	/* nothing to do here */
+	source->handle = NULL;
+	source->buffer = NULL;
 }
 
 GType
