@@ -24,3 +24,5 @@
 	in #commits, for example.
 
 * Add a TreeModelSort.
+
+* Don't keep redundant copies of urls/emails.
