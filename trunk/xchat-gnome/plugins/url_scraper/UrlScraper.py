@@ -19,7 +19,7 @@ and displaying them in a separate window.
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-import xchat, string, pygtk, gtk
+import xchat, string, pygtk, gtk, re
 
 __module_name__ = 'URL Scraper'
 __module_version__ = '0.1-pre'
@@ -32,15 +32,24 @@ window = gtk.Window( gtk.WINDOW_TOPLEVEL )
 window.connect( 'destroy', close)
 window.show()
 
+def grabbedURL( nick, match ):
+    print '%s said a URL: %s' % (nick, match.group())
+
+def grabbedEmail( nick, match ):
+    print '%s said an email address: %s' % (nick, match.group())
+
+regexes = {
+    re.compile('(ht|f)tps?://[^\s\>\]\)]+'):                 grabbedURL,
+    re.compile('[\w\.\-\+]+@([0-9a-zA-Z\-]+\.)+[a-zA-Z]+'):  grabbedEmail,
+    }
+
 def grabURL( word, word_eol, user_data ):
     ''' Check a message for a URL. '''
     nick = word[0]
-    words = word[1].split()
-    for x in words:
-        if string.find( x, 'http' ) != -1:
-            url = x
-            print '%s said %s' % (nick, url)
-            break
+    message = word[1]
+    for regex, handler in regexes.iteritems():
+        for match in regex.finditer(message):
+            handler(nick, natch)
     return xchat.EAT_NONE
 
 def unload( user_data ):
