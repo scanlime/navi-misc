@@ -1,10 +1,7 @@
 before release:
-* fix paths so that you can install into a prefix / start with any cwd
-
   autotools:
     * remove gtkspell checks for now
     * check for an adequate version of gnome-icon-theme, etc
-    * make the autotools stuff install the gnome frontend
 
 -----
 
