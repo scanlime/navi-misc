@@ -32,6 +32,10 @@
 static xchat_plugin *ph;			// Plugin handle.
 static EggTrayIcon *notification;	// Notification area icon.
 static GtkWidget *image;			// The image displayed by the icon.
+static GdkPixbuf *logo,				// Pixbufs for the notification area.
+				 *new_data,
+				 *msg_said,
+				 *nick_said;
 
 static gboolean notification_clicked_cb (GtkWidget *widget, GdkEventButton *event, gpointer data);
 
@@ -54,15 +58,43 @@ xchat_plugin_init (xchat_plugin *plugin_handle, char **plugin_name,
 {
 	GtkWidget *box;
 
+	ph = plugin_handle;
+
 	/* Set the plugin info. */
 	xchat_plugin_get_info (plugin_name, plugin_desc, plugin_version, NULL);
+
+	/* Load the pixbufs. */
+	xchat_printf (ph, "%s\n", XCHATSHAREDIR);
+	logo = gdk_pixbuf_new_from_file (XCHATSHAREDIR"/xchat-gnome-small.png", 0);
+	new_data = gdk_pixbuf_new_from_file (XCHATSHAREDIR"/newdata.png", 0);
+	msg_said = gdk_pixbuf_new_from_file (XCHATSHAREDIR"/global-message.png", 0);
+	nick_said = gdk_pixbuf_new_from_file (XCHATSHAREDIR"/nicksaid.png", 0);
 
 	/* Create the notification icon. */
 	notification = egg_tray_icon_new ("xchat-gnome");
 	box = gtk_event_box_new ();
-	image = gtk_image_new ();
+	image = gtk_image_new_from_pixbuf (logo);
 
 	g_signal_connect (G_OBJECT (box), "button-press-event", G_CALLBACK (notification_clicked_cb), NULL);
+
+	gtk_container_add (GTK_CONTAINER (box), image);
+	gtk_container_add (GTK_CONTAINER (notification), box);
+
+	gtk_widget_show_all (GTK_WIDGET (notification));
+
+	g_object_ref (G_OBJECT (notification));
+
+	xchat_print (ph, "Notification plugin loaded.\n");
+}
+
+int
+xchat_plugin_deinit ()
+{
+	gtk_widget_destroy (GTK_WIDGET (notification));
+
+	xchat_print (ph, "Notification plugin unloaded.\n");
+
+	return 1;
 }
 
 static gboolean
