@@ -25,11 +25,12 @@ float delta_time() {
   return delta;
 }
 
-
 int main()
 {
   struct unicone_device* dev;
   float theta, brightness;
+  int i_brightness;
+  unsigned char led_data[2];
 
   unicone_usb_init();
   dev = unicone_device_new();
@@ -43,10 +44,13 @@ int main()
 
     brightness = sin(theta) * 0.4 + 0.5;
     brightness = pow(brightness, 1.8);
+    i_brightness = (int)(brightness * 0xFFFF + 0.5);
 
-    if (usb_control_msg(dev->usbdev, USB_TYPE_VENDOR, UNICONE_REQ_LED_BRIGHTNESS,
-			(int)(brightness * 0xFFFF + 0.5), 0, NULL, 0, 1000) < 0) {
-      perror("usb_control_msg");
+    led_data[0] = i_brightness >> 8;
+    led_data[1] = i_brightness & 0xFF;
+
+    if (unicone_device_i2c_write(dev, UNICONE_I2C_LED, led_data, sizeof(led_data)) < 0) {
+      perror("unicone_device_i2c_write");
       return 1;
     }
   }

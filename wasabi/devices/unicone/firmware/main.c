@@ -34,10 +34,39 @@
 
 
 /* We reserve space starting at 0xFD00 for endpoint buffers.
- * EP1 OUT is used for configuring the FPGA.
  */
 volatile xdata at 0xFD00 unsigned char ep1_out_x[64];
+volatile xdata at 0xFD40 unsigned char ep2_out_x[64];
 
+
+void i2c_write_packets(unsigned char *packets, int length)
+{
+  unsigned char wr_addr, wr_len;
+
+  /* Write multiple I2C data packets */
+  while (length > 2) {
+
+    /* Read the header- one byte address, one byte length */
+    wr_addr = *(packets++);
+    wr_len = *(packets++);
+    length -= 2;
+
+    /* Validate the header */
+    if (wr_len > length || wr_len < 1)
+      return;
+
+    /* Perform the write */
+    length -= wr_len;
+    i2c_start(wr_addr);
+    while (wr_len > 1) {
+      i2c_write_byte(*(packets++), 0);
+      wr_len--;
+    }
+    i2c_write_byte(*(packets++), 1);
+    if (i2c_status() < 0)
+      printf("I2C error when setting LED brightness\n");
+  }
+}
 
 void main()
 {
@@ -51,9 +80,11 @@ void main()
   usb_init();
   puts("USB initialized");
 
-  /* Set up the first EP1 OUT transfer */
+  /* Initialize bulk endpoints */
   usb_dma_unstall(EDB_OEP1);
   usb_dma_setup(EDB_OEP1, ep1_out_x, sizeof(ep1_out_x));
+  usb_dma_unstall(EDB_OEP2);
+  usb_dma_setup(EDB_OEP2, ep2_out_x, sizeof(ep2_out_x));
 
   while (1) {
     watchdog_reset();
@@ -65,17 +96,14 @@ void main()
       fpga_config_write(ep1_out_x, c);
       usb_dma_setup(EDB_OEP1, ep1_out_x, sizeof(ep1_out_x));
     }
-  }
-}
 
-void led_set_brightness(int v)
-{
-  /* Send the brightness to our FPGA over I2C */
-  i2c_start(0x21);
-  i2c_write_byte(v >> 8, 0);
-  i2c_write_byte(v & 0xFF, 1);
-  if (i2c_status() < 0)
-    printf("I2C error when setting LED brightness\n");
+    /* If we have data on EP2_OUT, break it into I2C writes to execute, and look for more */
+    c = usb_dma_status(EDB_OEP2);
+    if (c) {
+      i2c_write_packets(ep2_out_x, c);
+      usb_dma_setup(EDB_OEP2, ep2_out_x, sizeof(ep2_out_x));
+    }
+  }
 }
 
 void usb_handle_vendor_request()
@@ -97,11 +125,6 @@ void usb_handle_vendor_request()
   case UNICONE_REQ_FPGA_STATUS:
     retval = fpga_config_status();
     usb_write_ep0_buffer(&retval, 1);
-    break;
-
-  case UNICONE_REQ_LED_BRIGHTNESS:
-    led_set_brightness(usb_setup_buffer.wValue);
-    usb_write_ack();
     break;
 
   case UNICONE_REQ_REBOOT:

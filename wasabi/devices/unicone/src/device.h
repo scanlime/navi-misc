@@ -76,6 +76,14 @@ int                       unicone_device_upload_bitstream (struct unicone_device
 							   struct progress_reporter* progress,
 							   int                       verbose);
 
+/* Make a generic I2C write to the FPGA. Returns 0 on success, -1 on USB error. I2C errors
+ * are not yet reported via this function, they will appear on the serial port.
+ */
+int                       unicone_device_i2c_write        (struct unicone_device*    self,
+							   int                       i2c_addr,
+							   const unsigned char*      data,
+							   int                       length);
+
 #endif /* _H_LOADER */
 
 /* The End */
