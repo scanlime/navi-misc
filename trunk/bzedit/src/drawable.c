@@ -63,3 +63,10 @@ drawable_init (Drawable *drawable)
 {
   drawable->texture = NULL;
 }
+
+void
+drawable_draw (Drawable *drawable)
+{
+  DrawableClass *class = DRAWABLE_CLASS (G_OBJECT_GET_CLASS (drawable));
+  class->draw (drawable);
+}

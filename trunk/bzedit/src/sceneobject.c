@@ -22,8 +22,8 @@
 
 #include "sceneobject.h"
 
-static void scene_object_class_init (SceneObjectClass *klass);
-static void scene_object_init       (SceneObject *self);
+static void   scene_object_class_init (SceneObjectClass *klass);
+static void   scene_object_init       (SceneObject *self);
 
 GType
 scene_object_get_type (void)
@@ -74,4 +74,11 @@ scene_object_serialize (SceneObject *self, GIOChannel *out)
 {
   SceneObjectClass *class = SCENE_OBJECT_CLASS (G_OBJECT_GET_CLASS (self));
   class->serialize (self, out);
+}
+
+GList*
+scene_object_get_drawables (SceneObject *self)
+{
+  SceneObjectClass *class = SCENE_OBJECT_CLASS (G_OBJECT_GET_CLASS (self));
+  return class->get_drawables (self);
 }

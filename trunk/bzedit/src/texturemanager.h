@@ -25,6 +25,7 @@
 
 #include <gtk/gtk.h>
 #include <GL/gl.h>
+#include <GL/glu.h>
 
 G_BEGIN_DECLS
 
@@ -51,6 +52,7 @@ struct _TextureManagerClass
 
 GType           texture_manager_get_type (void) G_GNUC_CONST;
 TextureManager* texture_manager_new (void);
+void            texture_manager_bind (TextureManager *tm, gchar *name);
 
 G_END_DECLS
 
