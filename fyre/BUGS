@@ -1,21 +1,17 @@
 Definitely fix before the next release:
-
-- The win32 build hasn't been tested in a while, make sure it still
-  works with all the new gnet and openexr stuff.
+	* The win32 build hasn't been tested in a while, make sure it still
+	  works with all the new gnet and openexr stuff.
 
 Probably fix before the next release, definitely for 1.0:
-
-- Fyre has no icon
-- The AVI files exported by Fyre don't play in windows media player.
-  Is the exporter broken, or can WMP just not handle uncompressed RGB?
-- Arbitrary function support?
+	* Fyre has no icon
+	* The AVI files exported by Fyre don't play in windows media player.
+	  Is the exporter broken, or can WMP just not handle uncompressed RGB?
+	  This is probably actually the lack of an index
 
 Would be nice to fix, and most of these are simple:
+	* Errors in opening or saving files aren't reported properly
+	* The 'save' menu items actually are 'save as' for now
+	* File dialogs don't remember their previous directory
 
-- Errors in opening or saving files aren't reported properly
-
-- The 'save' menu items actually are 'save as' for now
-
-- File dialogs don't remember their previous directory
-
-
+For 2.0:
+	* Generalized plugin/graph architecture
