@@ -10,8 +10,8 @@
    height="1052.36218"
    id="svg548"
    sodipodi:version="0.32"
-   sodipodi:docname="/home/evan/Hangman/pyHangman/burton-gallows.svg"
-   sodipodi:docbase="/home/evan/Hangman/pyHangman/"
+   sodipodi:docname="/home/evan/Hangman/pyHangman/graphics/burton-gallows.svg"
+   sodipodi:docbase="/home/evan/Hangman/pyHangman/graphics/"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -258,7 +258,7 @@
   </g>
   <g
      id="g889"
-     transform="translate(117.5000,-61.25003)">
+     transform="translate(397.4356,-395.5191)">
     <g
        id="g850"
        transform="translate(-226.2500,-45.00003)"
@@ -318,7 +318,7 @@
   </g>
   <g
      id="g898"
-     transform="translate(132.5000,-377.5000)">
+     transform="translate(28.55767,-38.50627)">
     <g
        id="g863"
        transform="translate(35.00000,-65.00006)"

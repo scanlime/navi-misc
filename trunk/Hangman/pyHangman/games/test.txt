@@ -1,5 +1,5 @@
-micah roomate 1
-david roomate 2
+micah roommate 1
+david roommate 2
 rob pony
 bob no one
 rar oh no
