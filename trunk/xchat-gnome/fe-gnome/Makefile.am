@@ -11,6 +11,8 @@ endif
 EXTRA_DIST =				\
 	about.h				\
 	about.c				\
+	channel_list.h			\
+	channel_list.c			\
 	connect_dialog.h		\
 	connect_dialog.c		\
 	fe-gnome.c			\
@@ -41,6 +43,8 @@ xchat_gnome_LDADD = ../common/libxchatcommon.a $(GUI_LIBS)
 xchat_gnome_SOURCES =			\
 	about.h				\
 	about.c				\
+	channel_list.h			\
+	channel_list.c			\
 	connect_dialog.h		\
 	connect_dialog.c		\
 	fe-gnome.c			\
