@@ -24,6 +24,7 @@ Viewers and editors for the metadata associated with each stats target
 from twisted.internet import defer
 from twisted.web import resource, server, error
 from LibCIA.Web import Template
+from LibCIA import Units
 from Nouvelle import tag, subcontext
 import Nouvelle
 import Link
@@ -124,14 +125,31 @@ class MetadataTypeColumn(Nouvelle.Column):
         return item[1][1]
 
 
+class MetadataSizeColumn(Nouvelle.Column):
+    """A column that displays the size of a metadata key's value in bytes.
+       Rows are expected to be (name, (value, type)) tuples.
+       """
+    heading = 'size'
+
+    def __init__(self):
+        self.formatter = Units.StorageUnits().format
+
+    def getValue(self, item):
+        return len(item[1][0])
+
+    def render_data(self, context, item):
+        return self.formatter(self.getValue(item))
+
+
 class MetadataSection(Template.Section):
     """A section displaying a table of metadata keys for one stats target"""
     title = "metadata"
 
     columns = [
         MetadataKeyColumn(),
-        MetadataTypeColumn(),
         MetadataValueColumn(),
+        MetadataTypeColumn(),
+        MetadataSizeColumn(),
         ]
 
     def __init__(self, target):

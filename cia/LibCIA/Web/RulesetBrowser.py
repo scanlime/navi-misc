@@ -24,6 +24,7 @@ A web interface for CIA's ruleset database
 import Template
 import Nouvelle
 from Nouvelle import tag, place
+from LibCIA import Units
 from twisted.protocols import http
 from twisted.web import error
 import urllib
@@ -70,27 +71,32 @@ class RulesetSizeColumn(Nouvelle.Column):
     """A table column that shows a ruleset's size in bytes"""
     heading = "size"
 
+    def __init__(self):
+        self.formatter = Units.StorageUnits().format
+
     def getValue(self, ruleset):
         return len(str(ruleset))
 
-    def render_data(self, context, ruleset):
-        return "%d bytes" % self.getValue(ruleset)
+    def render_data(self, context, item):
+        return self.formatter(self.getValue(item))
 
 
 class RulesetListSection(Template.Section):
     """Displays a list of URIs in a particular RulesetStorage"""
     title = "rulesets"
 
+    columns = [
+        RulesetURIColumn(),
+        RulesetSchemeColumn(),
+        RulesetSizeColumn(),
+        ]
+
     def __init__(self, storage):
         # Extract the rulesets from the RulesetStorage's map of URIs to RulesetDelivery objects
         self.rulesets = [delivery.ruleset for delivery in storage.rulesetMap.itervalues()]
 
     def render_rows(self, context):
-        return [Template.Table(self.rulesets, [
-            RulesetURIColumn(),
-            RulesetSizeColumn(),
-            RulesetSchemeColumn(),
-            ], id='ruleset')]
+        return [Template.Table(self.rulesets, self.columns, id='ruleset')]
 
 
 def singleRulesetPageFactory(storage, uri):
