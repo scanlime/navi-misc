@@ -31,7 +31,7 @@ Requires Twisted and mmpython.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import struct, md5, os, random, time
+import struct, md5, os, random, time, sys
 import shelve, cPickle
 from cStringIO import StringIO
 from twisted.internet import protocol, defer, reactor
@@ -439,12 +439,13 @@ class Request_WriteFileChunk(StructRequest):
 
     def __init__(self, fileID, offset, size, dataSource, storageID=0):
         self.dataSource = dataSource
+        self.size = size
         self.parameters = (offset, size, fileID, storageID)
         StructRequest.__init__(self)
 
     def sendTo(self, fileObj):
         StructRequest.sendTo(self, fileObj)
-        AlignedBlockWriter().next(self.dataSource, fileObj)
+        AlignedBlockWriter(self.size).next(self.dataSource, fileObj)
 
     def receivedResponse(self, source, status):
         self.decodeStatus(status)
@@ -669,14 +670,26 @@ class AlignedBlockWriter:
     """This object copies all data from the source into one
        4-byte-aligned block in the destination.
        """
-    bufferSize = 16384
+    def __init__(self, readLimit=None, bufferSize=16384):
+        self.bufferSize = bufferSize
+        self.readLimit = readLimit
 
     def next(self, source, destination):
         totalLength = 0
+        block = ''
 
         # Copy as many complete buffers as we can, tracking the total size
         while 1:
-            block = source.read(self.bufferSize)
+            # Enforce the readLimit, if we have one
+            readSize = self.bufferSize
+            if self.readLimit is not None:
+                readSize = min(readSize, self.readLimit - totalLength)
+                if readSize <= 0:
+                    break
+
+            block = source.read(readSize)
+            if not block:
+                raise IOError("Unexpected end of file")
             totalLength += len(block)
             if len(block) == self.bufferSize:
                 destination.write(block)
@@ -1224,14 +1237,31 @@ class Filesystem:
         self.cache = Cache(cacheDir)
         self.cache.open()
 
+    def readLock(self):
+        """Acquire a read-only lock on this filesystem- necessary for most
+           operations, but also automatic on syncrhonization. The device
+           is still usable as normal when a read lock is active.
+           """
+        return self.protocol.sendRequest(Request_RequestIOLock('read'))
+
+    def writeLock(self):
+        """Acquire a read-write lock on this filesystem. This is necessary
+           to modify anything, but it puts the device into an unusable
+           state. Release this lock as soon as possible after you're done.
+           """
+        return self.protocol.sendRequest(Request_RequestIOLock('write'))
+
+    def unlock(self):
+        """Release any locks currently held"""
+        return self.protocol.sendRequest(Request_ReleaseIOLock())
+
     def synchronize(self):
         """Update our local database if necessary. Returns a Deferred
            signalling completion. This has the side-effect of acquiring
            a read lock.
            """
         d = defer.Deferred()
-        self.protocol.sendRequest(Request_RequestIOLock('read')).addCallback(
-            self._startSynchronize, d).addErrback(d.errback)
+        self.readLock().addCallback(self._startSynchronize, d).addErrback(d.errback)
         return d
 
     def _startSynchronize(self, retval, d):
@@ -1269,7 +1299,7 @@ class Filesystem:
         self.cache.fileDetails[str(details['fid'])] = details
 
         # FIXME: Report progress near here, at least for synchronization
-        print hex(int(details['fid']))
+        print "FID: 0x%05X" % details['fid']
 
     def updateFileDetails(self, f):
         """Update our cache and the device itself with the latest details dictionary
@@ -1303,7 +1333,7 @@ class File:
             self.details = {
                 'ctime': now,
                 'fid_generation': now,
-                'fid': str(self.fileID),
+                'fid': self.fileID,
                 }
         else:
             # Load this file from the cache
@@ -1314,9 +1344,14 @@ class File:
         """Load this file's metadata and content from a file on disk.
            Returns a Deferred signalling completion.
            """
-        MetadataConverter().detailsFromDisk(filename, slf.details)
-        self.filesystem.updateFileDetails(self)
-        return self.loadContentFrom(open(filename, "rb"))
+        MetadataConverter().detailsFromDisk(filename, self.details)
+        result = defer.Deferred()
+        self.loadContentFrom(open(filename, "rb")).addCallback(
+            self._updateDetailsAfterLoad, result).addErrback(result.errback)
+        return result
+
+    def _updateDetailsAfterLoad(self, retval, result):
+        self.filesystem.updateFileDetails(self).chainDeferred(result)
 
     def saveToDisk(self, filename):
         """Save this file's content to disk. Returns a deferred signalling completion."""
@@ -1333,16 +1368,20 @@ class File:
         dest.close()
         chainTo(retval)
 
+    def saveContentTo(self, fileObj):
+        """Save this file's content to a file-like object.
+           Returns a deferred signalling completion.
+           """
+        return self._transferContent(Request_ReadFileChunk, fileObj)
+
     def loadContentFrom(self, fileObj):
         """Load this file's content from a file-like object.
            Returns a Deferred signalling completion.
            """
-        pass
+        return self._transferContent(Request_WriteFileChunk, fileObj)
 
-    def saveContentTo(self, fileObj, blockSize=8192):
-        """Save this file's content to a file-like object.
-           Returns a deferred signalling completion.
-           """
+    def _transferContent(self, request, fileObj, blockSize=8192):
+        """Transfer content, in either direction, in small blocks"""
         offset = 0
         length = self.details['length']
         result = defer.Deferred()
@@ -1362,7 +1401,7 @@ class File:
         while length > 0:
             # Read the next chunk...
             chunkLen = min(length, blockSize)
-            d = self.filesystem.protocol.sendRequest(Request_ReadFileChunk(
+            d = self.filesystem.protocol.sendRequest(request(
                 self.fileID, offset, chunkLen, fileObj))
             length -= chunkLen
             offset += chunkLen
@@ -1371,9 +1410,8 @@ class File:
                 # This is the last one, chain to our deferred
                 d.addCallback(result.callback)
             else:
-                # FIXME: progress updates should be triggered here
-                #d.addCallback(fileProgress)
-                pass
+                # FIXME: real progress updates should be triggered here
+                d.addCallback(lambda x: sys.stderr.write("."))
 
             d.addErrback(result.errback)
         return result
