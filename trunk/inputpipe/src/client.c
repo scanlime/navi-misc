@@ -53,13 +53,18 @@ struct server {
   int port;
 };
 
+struct evdev {
+  char *path;
+  int fd;
+  unsigned char evbits[64];
+};
+
 /* One input device and one server struct. We have one connection
  * for each opened input device we're forwarding.
  */
 struct connection {
-  char *evdev_path;
-  int evdev_fd;
   struct server* server;
+  struct evdev evdev;
 
   int in_connection_list;
   struct connection *prev, *next;
@@ -83,16 +88,17 @@ static int config_connect_led_polarity = 1;
 
 #define connection_message(self, fmt, ...) do { \
     if (config_verbose) \
-        fprintf(stderr, "[Device %s] " fmt "\n", self->evdev_path, ## __VA_ARGS__); \
+        fprintf(stderr, "[Device %s] " fmt "\n", self->evdev.path, ## __VA_ARGS__); \
   } while (0);
 
 static struct server*     server_new          (const char *host_and_port);
 static void               server_delete       (struct server *self);
 
-static int                evdev_new           (const char *path);
-static void               evdev_delete        (int evdev);
-static int                evdev_send_metadata (int evdev, struct server *svr);
-static int                evdev_send_event    (int evdev, struct server *svr);
+static int                evdev_init          (struct evdev *self,
+					       const char *path);
+static void               evdev_close         (struct evdev *self);
+static int                evdev_send_metadata (struct evdev *self, struct server *svr);
+static int                evdev_send_event    (struct evdev *self, struct server *svr);
 
 static struct connection* connection_new      (const char *evdev_path,
 					       const char *host_and_port);
@@ -206,18 +212,33 @@ static void server_delete(struct server *self)
 /********************************************* Event device interface **/
 /***********************************************************************/
 
-static int evdev_new(const char *path)
+
+static int evdev_init(struct evdev *self, const char *path)
 {
-  int fd;
-  fd = open(path, O_RDWR | O_NONBLOCK);
-  if (fd < 0)
+  self->path = strdup(path);
+  assert(self->path);
+
+  self->fd = open(path, O_RDWR | O_NONBLOCK);
+  if (self->fd < 0) {
     perror("Opening event device");
-  return fd;
+    return -1;
+  }
+
+  if (ioctl(self->fd, EVIOCGBIT(0, sizeof(self->evbits)), self->evbits) < 0) {
+    close(self->fd);
+    return -1;
+  }
+
+  return 0;
 }
 
-static void evdev_delete(int evdev)
+static void evdev_close(struct evdev *self)
 {
-  close(evdev);
+  close(self->fd);
+  if (self->path) {
+    free(self->path);
+    self->path = NULL;
+  }
 }
 
 /* Our bits come from the kernel packed in longs, but for portability
@@ -255,7 +276,7 @@ static int is_output_event(struct input_event *ev)
 /* Send all metadata from our event device to the server,
  * and create a corresponding device on the server side.
  */
-static int evdev_send_metadata(int evdev, struct server *svr)
+static int evdev_send_metadata(struct evdev *self, struct server *svr)
 {
   unsigned char buffer[512];
   unsigned char buffer2[512];
@@ -266,25 +287,28 @@ static int evdev_send_metadata(int evdev, struct server *svr)
 
   /* Send the device name */
   buffer[0] = '\0';
-  ioctl(evdev, EVIOCGNAME(sizeof(buffer)), buffer);
-  buffer[sizeof(buffer)-1] = '\0';
-  packet_socket_write(svr->socket, IPIPE_DEVICE_NAME, strlen(buffer), buffer);
+  if (ioctl(self->fd, EVIOCGNAME(sizeof(buffer)), buffer) > 0) {
+    buffer[sizeof(buffer)-1] = '\0';
+    packet_socket_write(svr->socket, IPIPE_DEVICE_NAME, strlen(buffer), buffer);
+  }
 
   /* Send the physical path */
   buffer[0] = '\0';
-  ioctl(evdev, EVIOCGPHYS(sizeof(buffer)), buffer);
-  buffer[sizeof(buffer)-1] = '\0';
-  packet_socket_write(svr->socket, IPIPE_DEVICE_PHYS, strlen(buffer), buffer);
+  if (ioctl(self->fd, EVIOCGPHYS(sizeof(buffer)), buffer) > 0) {
+    buffer[sizeof(buffer)-1] = '\0';
+    packet_socket_write(svr->socket, IPIPE_DEVICE_PHYS, strlen(buffer), buffer);
+  }
 
   /* Send device ID */
-  ioctl(evdev, EVIOCGID, id);
-  hton_input_id(&ip_id, id);
-  packet_socket_write(svr->socket, IPIPE_DEVICE_ID, sizeof(ip_id), &ip_id);
+  if (ioctl(self->fd, EVIOCGID, id) >= 0) {
+    hton_input_id(&ip_id, id);
+    packet_socket_write(svr->socket, IPIPE_DEVICE_ID, sizeof(ip_id), &ip_id);
+  }
 
   /* Send bits */
   for (i=0; i<EV_MAX; i++) {
     /* Read these bits, leaving room for the EV_* code at the beginning */
-    int len = ioctl(evdev, EVIOCGBIT(i, sizeof(buffer) - sizeof(uint16_t)), buffer);
+    int len = ioctl(self->fd, EVIOCGBIT(i, sizeof(buffer) - sizeof(uint16_t)), buffer);
     if (len <= 0)
       continue;
 
@@ -307,7 +331,7 @@ static int evdev_send_metadata(int evdev, struct server *svr)
 	  /* We found an axis, get and repackage its input_absinfo struct */
 	  struct input_absinfo absinfo;
 	  struct ipipe_absinfo ip_abs;
-	  ioctl(evdev, EVIOCGABS(axis), &absinfo);
+	  ioctl(self->fd, EVIOCGABS(axis), &absinfo);
 	  hton_input_absinfo(&ip_abs, &absinfo, axis);
 	  packet_socket_write(svr->socket, IPIPE_DEVICE_ABSINFO, sizeof(ip_abs), &ip_abs);
 	}
@@ -316,9 +340,10 @@ static int evdev_send_metadata(int evdev, struct server *svr)
   }
 
   /* Send the number of maximum concurrent force-feedback effects */
-  ioctl(evdev, EVIOCGEFFECTS, &i);
-  i32 = htonl(i);
-  packet_socket_write(svr->socket, IPIPE_DEVICE_FF_EFFECTS_MAX, sizeof(i32), &i32);
+  if (ioctl(self->fd, EVIOCGEFFECTS, &i) >= 0) {
+    i32 = htonl(i);
+    packet_socket_write(svr->socket, IPIPE_DEVICE_FF_EFFECTS_MAX, sizeof(i32), &i32);
+  }
 
   /* Create the device and flush all this to the server */
   packet_socket_write(svr->socket, IPIPE_CREATE, 0, NULL);
@@ -327,13 +352,13 @@ static int evdev_send_metadata(int evdev, struct server *svr)
 }
 
 /* Read the next event from the event device and send to the server. */
-static int evdev_send_event(int evdev, struct server *svr)
+static int evdev_send_event(struct evdev *self, struct server *svr)
 {
   struct input_event ev;
   struct ipipe_event ip_ev;
   int retval;
 
-  retval = read(evdev, &ev, sizeof(ev));
+  retval = read(self->fd, &ev, sizeof(ev));
   if (retval < 0) {
     if (errno == EAGAIN) {
       return 0;
@@ -358,25 +383,16 @@ static int evdev_send_event(int evdev, struct server *svr)
     return 0;
   packet_socket_write(svr->socket, IPIPE_EVENT, sizeof(ip_ev), &ip_ev);
 
-#ifdef EV_SYN
-  /* If this was a synchronization event, flush our buffers.
-   * This will group together the individual events for each axis and button
-   * into one frame in the underlying network transport hopefully.
+  /* Does this device support synchronization events?
+   * If so, we flush only after we get one of those.
    */
-  if (ev.type == EV_SYN)
+  if (test_bit(EV_SYN, self->evbits)) {
+    if (ev.type == EV_SYN)
+      packet_socket_flush(svr->socket);
+  }
+  else {
     packet_socket_flush(svr->socket);
-
-#else
-  /* Oh no, we're running on linux 2.4, where there were no sync
-   * events! This is going to suck, but we'll have to generate
-   * a sync then flush for every event.
-   */
-  ip_ev.value = 0;
-  ip_ev.type = 0;
-  ip_ev.code = 0;
-  packet_socket_write(svr->socket, IPIPE_EVENT, sizeof(ip_ev), &ip_ev);
-  packet_socket_flush(svr->socket);
-#endif
+  }
 
   return 0;
 }
@@ -396,19 +412,13 @@ static struct connection* connection_new(const char *evdev_path,
   assert(self != NULL);
   memset(self, 0, sizeof(struct connection));
 
-  self->evdev_path = strdup(evdev_path);
-  assert(self->evdev_path != NULL);
-
-  connection_message(self, "Connecting to '%s'...", host_and_port);
-
-  self->evdev_fd = evdev_new(evdev_path);
-  if (self->evdev_fd <= 0) {
+  if (evdev_init(&self->evdev, evdev_path) < 0) {
     connection_delete(self);
     return NULL;
   }
-
   connection_set_status_led(self, 0);
 
+  connection_message(self, "Connecting to '%s'...", host_and_port);
   self->server = server_new(host_and_port);
   if (!self->server) {
     connection_delete(self);
@@ -416,7 +426,7 @@ static struct connection* connection_new(const char *evdev_path,
   }
 
   /* Tell the server about our device */
-  if (evdev_send_metadata(self->evdev_fd, self->server)) {
+  if (evdev_send_metadata(&self->evdev, self->server)) {
     connection_delete(self);
     return NULL;
   }
@@ -433,10 +443,9 @@ static void connection_delete(struct connection *self)
   connection_message(self, "Disconnected");
   connection_list_remove(self);
 
-  if (self->evdev_fd > 0) {
-    connection_set_status_led(self, 0);
-    evdev_delete(self->evdev_fd);
-  }
+  connection_set_status_led(self, 0);
+  evdev_close(&self->evdev);
+
   if (self->server)
     server_delete(self->server);
   free(self);
@@ -449,12 +458,12 @@ static void connection_add_fds(struct connection *self,
   if (fd_max) {
     if (*fd_max <= self->server->socket->read_fd)
       *fd_max = self->server->socket->read_fd + 1;
-    if (*fd_max <= self->evdev_fd)
-      *fd_max = self->evdev_fd + 1;
+    if (*fd_max <= self->evdev.fd)
+      *fd_max = self->evdev.fd + 1;
   }
   if (fd_read) {
     FD_SET(self->server->socket->read_fd, fd_read);
-    FD_SET(self->evdev_fd, fd_read);
+    FD_SET(self->evdev.fd, fd_read);
   }
 }
 
@@ -484,7 +493,7 @@ static int connection_poll(struct connection *self, fd_set *fd_read)
    * Poll it whether or not we see any read
    * activity, to detect device disconnects.
    */
-  retval = evdev_send_event(self->evdev_fd, self->server);
+  retval = evdev_send_event(&self->evdev, self->server);
   if (retval) {
     connection_message(self, "Error reading from event device");
     return retval;
@@ -513,7 +522,7 @@ static void connection_received_packet (struct connection *self,
        * infinite loops, we only allow writing event types we know about.
        */
       if (is_output_event(&ev))
-        write(self->evdev_fd, &ev, sizeof(ev));
+        write(self->evdev.fd, &ev, sizeof(ev));
     }
     break;
 
@@ -530,7 +539,7 @@ static void connection_received_packet (struct connection *self,
       response.request_id = ipipe_up->request_id;
       ntoh_ff_effect(&effect, &ipipe_up->effect);
 
-      retval = ioctl(self->evdev_fd, EVIOCSFF, &effect);
+      retval = ioctl(self->evdev.fd, EVIOCSFF, &effect);
       if (retval < 0)
 	response.retval = htonl(-errno);
       else
@@ -552,7 +561,7 @@ static void connection_received_packet (struct connection *self,
 	break;
       }
       response.request_id = ipipe_erase->request_id;
-      response.retval = htonl(ioctl(self->evdev_fd, EVIOCRMFF, ntohs(ipipe_erase->effect_id)));
+      response.retval = htonl(ioctl(self->evdev.fd, EVIOCRMFF, ntohs(ipipe_erase->effect_id)));
       packet_socket_write(self->server->socket, IPIPE_ERASE_EFFECT_RESPONSE,
 			  sizeof(response), &response);
       packet_socket_flush(self->server->socket);
@@ -566,7 +575,7 @@ static void connection_received_packet (struct connection *self,
 
 static void connection_set_status_led (struct connection *self, int connected)
 {
-  if (config_connect_led_number >= 0) {
+  if (config_connect_led_number >= 0 && self->evdev.fd > 0) {
     struct input_event ev;
 
     memset(&ev, 0, sizeof(ev));
@@ -578,7 +587,7 @@ static void connection_set_status_led (struct connection *self, int connected)
     else
       ev.value = !config_connect_led_polarity;
 
-    write(self->evdev_fd, &ev, sizeof(ev));
+    write(self->evdev.fd, &ev, sizeof(ev));
   }
 }
 
@@ -649,7 +658,7 @@ static struct connection* connection_list_find_path (const char *path)
   struct connection *i;
 
   for (i=connection_list_head; i; i=i->next) {
-    if (!strcmp(i->evdev_path, path))
+    if (!strcmp(i->evdev.path, path))
       return i;
   }
   return NULL;
