@@ -391,7 +391,10 @@ bool CTestGame::processPlayerInput ( void )
 	// apply gravity if above 0;
 
 	if (localPlayer->pos[2] > 0)
-		localPlayer->vec[2] = grav;
+	{
+		if ( localPlayer->vec[2] <= 0)
+			localPlayer->vec[2] = grav;
+	}
 	else
 		localPlayer->vec[2] = 0;
 
