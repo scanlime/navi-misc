@@ -220,8 +220,7 @@ palette_init ()
 
 	snprintf (prefname, sizeof (prefname), "%s/colors.conf", get_xdir_fs ());
 	f = open (prefname, O_RDONLY | OFLAGS);
-	if (f == -1)
-	{
+	if (f == -1) {
 		for (i = 0; i < 32; i++)
 			custom_palette[i] = palette_schemes[0][i];
 		for (i = 0; i < 5; i++)
@@ -288,10 +287,8 @@ palette_save ()
 
 	snprintf (prefname, sizeof (prefname), "%s/colors.conf", get_xdir_fs ());
 	f = open (prefname, O_TRUNC | O_WRONLY | O_CREAT | OFLAGS, 0600);
-	if (f != -1)
-	{
-		for (i = 0; i < 32; i++)
-		{
+	if (f != -1) {
+		for (i = 0; i < 32; i++) {
 			snprintf (prefname, sizeof (prefname), "color_%d", i);
 			cfg_put_color (f, custom_palette[i].red, custom_palette[i].green, custom_palette[i].blue, prefname);
 		}

@@ -109,70 +109,70 @@ static void entry_context (GtkEntry *entry, GtkMenu *menu, gpointer user_data);
 static GtkActionEntry action_entries [] = {
 
 	/* Toplevel */
-	{ "IRC", NULL, N_("_IRC") },
-	{ "Edit", NULL, N_("_Edit") },
-	{ "Insert", NULL, N_("_Insert") },
-	{ "Network", NULL, N_("_Network") },
-	{ "Discussion", NULL, N_("_Discussion") },
-	{ "Go", NULL, N_("_Go") },
-	{ "Help", NULL, N_("_Help") },
-	{ "PopupAction", NULL, "" },
+	{ "IRC", NULL, _("_IRC") },
+	{ "Edit", NULL, _("_Edit") },
+	{ "Insert", NULL, _("_Insert") },
+	{ "Network", NULL, _("_Network") },
+	{ "Discussion", NULL, _("_Discussion") },
+	{ "Go", NULL, _("_Go") },
+	{ "Help", NULL, _("_Help") },
+	{ "PopupAction", NULL, _("") },
 
 	/* IRC menu */
 #if (GTK_CHECK_VERSION(2,5,0))
-	{ "IRCConnect", GTK_STOCK_CONNECT, N_("_Connect"), "<control>N", NULL, G_CALLBACK (on_irc_connect_activate) },
+	{ "IRCConnect", GTK_STOCK_CONNECT, _("_Connect"), "<control>N", NULL, G_CALLBACK (on_irc_connect_activate) },
 #else
-	{ "IRCConnect", NULL, N_("_Connect"), "<control>N", NULL, G_CALLBACK (on_irc_connect_activate) },
+	{ "IRCConnect", NULL, _("_Connect"), "<control>N", NULL, G_CALLBACK (on_irc_connect_activate) },
 #endif
-	{ "IRCDownloads", NULL, N_("_File Transfers"), "<alt>F", NULL, G_CALLBACK (on_irc_downloads_activate) },
-	{ "IRCQuit", GTK_STOCK_QUIT, N_("_Quit"), "<control>Q", NULL, G_CALLBACK (on_irc_quit_activate) },
+	{ "IRCDownloads", NULL, _("_File Transfers"), "<alt>F", NULL, G_CALLBACK (on_irc_downloads_activate) },
+	{ "IRCQuit", GTK_STOCK_QUIT, _("_Quit"), "<control>Q", NULL, G_CALLBACK (on_irc_quit_activate) },
 
 	/* Edit menu */
-	{ "EditUndo", GTK_STOCK_UNDO, N_("_Undo"), "<control>Z", NULL, G_CALLBACK (on_edit_undo_activate) },
-	{ "EditCut", GTK_STOCK_CUT, N_("Cu_t"), "<control>X", NULL, G_CALLBACK (on_edit_cut_activate) },
-	{ "EditCopy", GTK_STOCK_COPY, N_("_Copy"), "<control>C", NULL, G_CALLBACK (on_edit_copy_activate) },
-	{ "EditPaste", GTK_STOCK_PASTE, N_("_Paste"), "<control>V", NULL, G_CALLBACK (on_edit_paste_activate) },
-	{ "EditClear", GTK_STOCK_CLEAR, N_("C_lear"), "", NULL, G_CALLBACK (on_edit_clear_activate) },
-	{ "EditPreferences", GTK_STOCK_PREFERENCES, N_("Prefere_nces"), "", NULL, G_CALLBACK (on_edit_preferences_activate) },
+	{ "EditUndo", GTK_STOCK_UNDO, _("_Undo"), "<control>Z", NULL, G_CALLBACK (on_edit_undo_activate) },
+	{ "EditCut", GTK_STOCK_CUT, _("Cu_t"), "<control>X", NULL, G_CALLBACK (on_edit_cut_activate) },
+	{ "EditCopy", GTK_STOCK_COPY, _("_Copy"), "<control>C", NULL, G_CALLBACK (on_edit_copy_activate) },
+	{ "EditPaste", GTK_STOCK_PASTE, _("_Paste"), "<control>V", NULL, G_CALLBACK (on_edit_paste_activate) },
+	{ "EditClear", GTK_STOCK_CLEAR, _("C_lear"), "", NULL, G_CALLBACK (on_edit_clear_activate) },
+	{ "EditPreferences", GTK_STOCK_PREFERENCES, _("Prefere_nces"), "", NULL, G_CALLBACK (on_edit_preferences_activate) },
 
 	/* Insert menu */
-	{ "InsertColorCode", GTK_STOCK_SELECT_COLOR, N_("Color Code..."), "", NULL, G_CALLBACK (on_insert_color_code_activate) },
+	{ "InsertColorCode", GTK_STOCK_SELECT_COLOR, _("Color Code..."), "", NULL, G_CALLBACK (on_insert_color_code_activate) },
 
 	/* Network menu */
-	{ "NetworkInformation", GTK_STOCK_DIALOG_INFO, N_("_Information"), "", NULL, G_CALLBACK (on_network_information_activate) },
-	{ "NetworkReconnect", GTK_STOCK_REFRESH, N_("_Reconnect"), "<control>R", NULL, G_CALLBACK (on_network_reconnect_activate) },
-	{ "NetworkDisconnect", GTK_STOCK_STOP, N_("_Disconnect"), "", NULL, G_CALLBACK (on_network_disconnect_activate) },
-	{ "NetworkChannels", GTK_STOCK_INDEX, N_("_Channels"), "<alt>C", NULL, G_CALLBACK (on_network_channels_activate) },
-	{ "NetworkUsers", NULL, N_("_Users"), "<alt>U", NULL, G_CALLBACK (on_network_users_activate) },
-	{ "NetworkCollapseExpand", NULL, N_("Collapse/Expand"), "<control>space", NULL, G_CALLBACK (on_network_collapse_expand_activate) },
+	{ "NetworkInformation", GTK_STOCK_DIALOG_INFO, _("_Information"), "", NULL, G_CALLBACK (on_network_information_activate) },
+	{ "NetworkReconnect", GTK_STOCK_REFRESH, _("_Reconnect"), "<control>R", NULL, G_CALLBACK (on_network_reconnect_activate) },
+	{ "NetworkDisconnect", GTK_STOCK_STOP, _("_Disconnect"), "", NULL, G_CALLBACK (on_network_disconnect_activate) },
+	{ "NetworkChannels", GTK_STOCK_INDEX, _("_Channels"), "<alt>C", NULL, G_CALLBACK (on_network_channels_activate) },
+	{ "NetworkUsers", NULL, _("_Users"), "<alt>U", NULL, G_CALLBACK (on_network_users_activate) },
+	{ "NetworkCollapseExpand", NULL, _("Collapse/Expand"), "<control>space", NULL, G_CALLBACK (on_network_collapse_expand_activate) },
 
 	/* Discussion menu */
-	{ "DiscussionSave", GTK_STOCK_SAVE, N_("_Save"), "<control>S", NULL, G_CALLBACK (on_discussion_save_activate) },
-	{ "DiscussionSaveAs", GTK_STOCK_SAVE_AS, N_("Save _As..."), "<control><shift>S", NULL, G_CALLBACK (on_discussion_save_as_activate) },
-	{ "DiscussionLeave", GTK_STOCK_QUIT, N_("_Leave"), "", NULL, G_CALLBACK (on_discussion_leave_activate) },
-	{ "DiscussionClose", GTK_STOCK_CLOSE, N_("Cl_ose"), "<shift><control>W", NULL, G_CALLBACK (on_discussion_close_activate) },
-	{ "DiscussionFind", GTK_STOCK_FIND, N_("_Find"), "<control>F", NULL, G_CALLBACK (on_discussion_find_activate) },
-	{ "DiscussionFindNext", NULL, N_("Find Ne_xt"), "<control>G", NULL, G_CALLBACK (on_discussion_find_next_activate) },
-	{ "DiscussionClearWindow", GTK_STOCK_CLEAR, N_("_Clear Window"), "<control>L", NULL, G_CALLBACK (on_discussion_clear_window_activate) },
-	{ "DiscussionBans", GTK_STOCK_DIALOG_WARNING, N_("_Bans"), "<alt>B", NULL, G_CALLBACK (on_discussion_bans_activate) },
+	{ "DiscussionSave", GTK_STOCK_SAVE, _("_Save"), "<control>S", NULL, G_CALLBACK (on_discussion_save_activate) },
+	{ "DiscussionSaveAs", GTK_STOCK_SAVE_AS, _("Save _As..."), "<control><shift>S", NULL, G_CALLBACK (on_discussion_save_as_activate) },
+	{ "DiscussionLeave", GTK_STOCK_QUIT, _("_Leave"), "", NULL, G_CALLBACK (on_discussion_leave_activate) },
+	{ "DiscussionClose", GTK_STOCK_CLOSE, _("Cl_ose"), "<shift><control>W", NULL, G_CALLBACK (on_discussion_close_activate) },
+	{ "DiscussionFind", GTK_STOCK_FIND, _("_Find"), "<control>F", NULL, G_CALLBACK (on_discussion_find_activate) },
+	{ "DiscussionFindNext", NULL, _("Find Ne_xt"), "<control>G", NULL, G_CALLBACK (on_discussion_find_next_activate) },
+	{ "DiscussionClearWindow", GTK_STOCK_CLEAR, _("_Clear Window"), "<control>L", NULL, G_CALLBACK (on_discussion_clear_window_activate) },
+	{ "DiscussionBans", GTK_STOCK_DIALOG_WARNING, _("_Bans"), "<alt>B", NULL, G_CALLBACK (on_discussion_bans_activate) },
 
 	/* Go menu */
-	{ "GoPreviousNetwork", GTK_STOCK_GOTO_FIRST, N_("Pre_vious Network"), "<control>Up", NULL, G_CALLBACK (on_go_previous_network_activate) },
-	{ "GoNextNetwork", GTK_STOCK_GOTO_LAST, N_("Nex_t Network"), "<control>Down", NULL, G_CALLBACK (on_go_next_network_activate) },
-	{ "GoPreviousDiscussion", GTK_STOCK_GO_BACK, N_("_Previous Discussion"), "<alt>Up", NULL, G_CALLBACK (on_go_previous_discussion_activate) },
-	{ "GoNextDiscussion", GTK_STOCK_GO_FORWARD, N_("_Next Discussion"), "<alt>Down", NULL, G_CALLBACK (on_go_next_discussion_activate) },
+	{ "GoPreviousNetwork", GTK_STOCK_GOTO_FIRST, _("Pre_vious Network"), "<control>Up", NULL, G_CALLBACK (on_go_previous_network_activate) },
+	{ "GoNextNetwork", GTK_STOCK_GOTO_LAST, _("Nex_t Network"), "<control>Down", NULL, G_CALLBACK (on_go_next_network_activate) },
+	{ "GoPreviousDiscussion", GTK_STOCK_GO_BACK, _("_Previous Discussion"), "<alt>Up", NULL, G_CALLBACK (on_go_previous_discussion_activate) },
+	{ "GoNextDiscussion", GTK_STOCK_GO_FORWARD, _("_Next Discussion"), "<alt>Down", NULL, G_CALLBACK (on_go_next_discussion_activate) },
 
 	/* Help menu */
 #if (GTK_CHECK_VERSION(2,5,0))
-	{ "HelpAbout", GTK_STOCK_ABOUT, N_("_About"), "", NULL, G_CALLBACK (on_help_about_activate) },
+	{ "HelpAbout", GTK_STOCK_ABOUT, _("_About"), "", NULL, G_CALLBACK (on_help_about_activate) },
 #else
-	{ "HelpAbout", NULL, N_("_About"), "", NULL, G_CALLBACK (on_help_about_activate) },
+	{ "HelpAbout", NULL, _("_About"), "", NULL, G_CALLBACK (on_help_about_activate) },
 #endif
 };
 
 static GtkToggleActionEntry toggle_action_entries [] = {
 	/* IRC Menu */
-	{ "IRCMonkeyBubbleMode", NULL, N_("Monkey Bubble Mode"), "<control>M", NULL, G_CALLBACK (on_irc_monkey_bubble_mode_activate) },
+	{ "IRCMonkeyBubbleMode", NULL, _("Monkey Bubble Mode"), "<control>M", NULL, G_CALLBACK (on_irc_monkey_bubble_mode_activate) },
 };
 
 /*
@@ -198,10 +198,8 @@ find_previous_action (gchar *name)
 
 	actions = gtk_action_group_list_actions (gui.action_group);
 
-	while (actions != NULL)
-	{
-		if (strcmp(gtk_action_group_get_name(actions -> data), name) == 0)
-		{
+	while (actions != NULL) {
+		if (strcmp(gtk_action_group_get_name(actions -> data), name) == 0) {
 			result = actions -> data;
 			g_list_free (actions);
 			return result;
@@ -374,14 +372,13 @@ initialize_main_window ()
 
 	/* load the menus */
 	gtk_ui_manager_add_ui_from_file (gui.manager, "xchat-gnome-ui.xml", &error);
-	if (error != NULL)
-	{
+	if (error != NULL) {
 		g_clear_error (&error);
 		gtk_ui_manager_add_ui_from_file (gui.manager, XCHATSHAREDIR "/xchat-gnome-ui.xml", &error);
 		if (error != NULL)
 		{
 			g_clear_error (&error);
-			g_warning ("Couldn't load the UI!\n");
+			g_warning ("Couldn't load the menus!\n");
 		}
 	}
 
@@ -448,8 +445,7 @@ initialize_main_window ()
 		 * so we loop from 0 <= i < 1. We use i for the user data and the ascii
 		 * value of i+1 to get the keyval.
 		 */
-		for (i = 0; i < 9; i++)
-		{
+		for (i = 0; i < 9; i++) {
 			/* num is a string containing the ascii value of i+1. */
 			num[0] = i + '1';
 
@@ -534,8 +530,7 @@ rename_main_window (gchar *server, gchar *channel)
 {
 	gchar *new_title;
 
-	if (server == NULL)
-	{
+	if (server == NULL) {
 		gtk_window_set_title (GTK_WINDOW (gui.main_window), channel);
 		return;
 	}
@@ -672,12 +667,10 @@ on_network_collapse_expand_activate (GtkAction *action, gpointer data)
 	view = GTK_TREE_VIEW (glade_xml_get_widget (gui.xml, "server channel list"));
 	selection = gtk_tree_view_get_selection (view);
 
-	if (gtk_tree_selection_get_selected (selection, &model, &current) && gui.current_session)
-	{
+	if (gtk_tree_selection_get_selected (selection, &model, &current) && gui.current_session) {
 		GtkTreePath *path;
 
-		if (!gtk_tree_model_iter_has_child (model, &current))
-		{
+		if (!gtk_tree_model_iter_has_child (model, &current)) {
 			GtkTreeIter parent;
 			gtk_tree_model_iter_parent (model, &parent, &current);
 			current = parent;
@@ -707,8 +700,7 @@ static void
 on_discussion_leave_activate (GtkAction *action, gpointer data)
 {
 	session *s = gui.current_session;
-	if (s->type == SESS_CHANNEL)
-	{
+	if (s->type == SESS_CHANNEL) {
 		gchar *text;
 		GConfClient *client;
 
@@ -725,8 +717,7 @@ on_discussion_close_activate (GtkAction *action, gpointer data)
 {
 	session *s = gui.current_session;
 /*	navigation_tree_select_next_channel (gui.server_tree, TRUE);*/
-	if (s->type == SESS_CHANNEL)
-	{
+	if (s->type == SESS_CHANNEL) {
 		gchar *text;
 		GConfClient *client;
 
@@ -868,8 +859,7 @@ history_key_down (GtkEntry *entry)
 {
 	char *new_line;
 	new_line = history_down (&gui.current_session->history);
-	if (new_line)
-	{
+	if (new_line) {
 		gtk_entry_set_text (entry, new_line);
 		gtk_editable_set_position (GTK_EDITABLE (entry), -1);
 	}
@@ -880,8 +870,7 @@ history_key_up (GtkEntry *entry)
 {
 	char *new_line;
 	new_line = history_up (&gui.current_session->history, (char *)entry->text);
-	if (new_line)
-	{
+	if (new_line) {
 		gtk_entry_set_text (entry, new_line);
 		gtk_editable_set_position (GTK_EDITABLE (entry), -1);
 	}
@@ -910,47 +899,36 @@ tab_complete_nickname (GtkEntry *entry, int start)
 	strncpy (prefix, &text[start], cursor - start);
 	options = g_completion_complete (completion, prefix, &new_prefix);
 
-	if (g_list_length (options) == 0)
-	{
+	if (g_list_length (options) == 0) {
 		/* no matches */
 		g_free (text);
 		g_free (prefix);
 		return TRUE;
 	}
 
-	if (g_list_length (options) == 1)
-	{
+	if (g_list_length (options) == 1) {
 		int pos;
 
 		/* one match */
-		if (length - cursor == 0)
-		{
+		if (length - cursor == 0) {
 			/* at the end of the entry, just insert */
 
-			if (start != 0)
-			{
+			if (start != 0) {
 				text[start] = '\0';
 				npt = g_strdup_printf ("%s%s", text, (char *) options->data);
 				pos = strlen ((char *) options->data) + start;
-			}
-			else
-			{
+			} else {
 				npt = g_strdup_printf ("%s: ", (char *) options->data);
 				pos = strlen ((char *) options->data) + 2;
 			}
-		}
-		else
-		{
+		} else {
 			/* somewhere in the middle of the entry */
 
-			if (start != 0)
-			{
+			if (start != 0) {
 				text[start] = '\0';
 				npt = g_strdup_printf ("%s%s%s", text, (char *) options->data, &text[cursor]);
 				pos = strlen ((char *) options->data) + start;
-			}
-			else
-			{
+			} else {
 				npt = g_strdup_printf ("%s: %s", (char *) options->data, &text[cursor]);
 				pos = strlen ((char *) options->data) + 2;
 			}
@@ -961,16 +939,13 @@ tab_complete_nickname (GtkEntry *entry, int start)
 		g_free (text);
 		g_free (prefix);
 		return TRUE;
-	}
-	else
-	{
+	} else {
 		/* more than one match - print a list of options
 		 * to the window and update the prefix
 		 */
 		list = options;
 		printtext = g_strdup ((char *) list->data);
-		for (list = list->next; list; list = list->next)
-		{
+		for (list = list->next; list; list = list->next) {
 			npt = g_strdup_printf ("%s %s", printtext, (char *) list->data);
 			g_free (printtext);
 			printtext = npt;
@@ -978,8 +953,7 @@ tab_complete_nickname (GtkEntry *entry, int start)
 		tgui = (session_gui *) gui.current_session->gui;
 		text_gui_print (tgui->buffer, printtext, TRUE);
 		g_free (printtext);
-		if (strcasecmp (prefix, new_prefix) != 0)
-		{
+		if (strcasecmp (prefix, new_prefix) != 0) {
 			/* insert the new prefix into the entry */
 			text[start] = '\0';
 			npt = g_strdup_printf ("%s%s%s", text, new_prefix, &text[cursor]);
@@ -1018,14 +992,12 @@ tab_complete (GtkEntry *entry)
 #endif
 
 		/* check if we can match a command */
-		if (start == 0 && text[0] == '/')
-		{
+		if (start == 0 && text[0] == '/') {
 		    /* TODO: Something? */
 		}
 
 		/* check if we can match a nickname */
-		if (start == 0 || text[start] == ' ')
-		{
+		if (start == 0 || text[start] == ' ') {
 			return tab_complete_nickname (entry, start == 0 ? start : start + 1);
 		}
 	}
@@ -1035,18 +1007,15 @@ tab_complete (GtkEntry *entry)
 static gboolean
 on_text_entry_key (GtkWidget *widget, GdkEventKey *key, gpointer data)
 {
-	if (key->keyval == GDK_Down)
-	{
+	if (key->keyval == GDK_Down) {
 		history_key_down (GTK_ENTRY (widget));
 		return TRUE;
 	}
-	if (key->keyval == GDK_Up)
-	{
+	if (key->keyval == GDK_Up) {
 		history_key_up (GTK_ENTRY (widget));
 		return TRUE;
 	}
-	if (key->keyval == GDK_Tab)
-	{
+	if (key->keyval == GDK_Tab) {
 		return tab_complete (GTK_ENTRY (widget));
 	}
 	return FALSE;
@@ -1111,8 +1080,7 @@ on_topic_change (GtkButton *widget, gpointer data)
 
 	response = gtk_dialog_run (GTK_DIALOG (dialog));
 
-	if (response == GTK_RESPONSE_OK)
-	{
+	if (response == GTK_RESPONSE_OK) {
 		GtkTextIter start;
 		GtkTextIter end;
 		gchar *newtopic;
@@ -1267,15 +1235,12 @@ entry_context (GtkEntry *entry, GtkMenu *menu, gpointer user_data)
 static void
 on_expand_topic (GtkExpander *expander, gpointer data)
 {
-  if (gtk_expander_get_expanded (gui.topic_expander))
-  {
-    gtk_label_set_ellipsize(gui.topic_label, PANGO_ELLIPSIZE_END);
-    gtk_label_set_line_wrap (gui.topic_label, FALSE);
-  }
-  else
-  {
-    gtk_label_set_ellipsize(gui.topic_label, PANGO_ELLIPSIZE_NONE);
-    gtk_label_set_line_wrap (gui.topic_label, TRUE);
-  }
+	if (gtk_expander_get_expanded (gui.topic_expander)) {
+		gtk_label_set_ellipsize(gui.topic_label, PANGO_ELLIPSIZE_END);
+		gtk_label_set_line_wrap (gui.topic_label, FALSE);
+	} else {
+		gtk_label_set_ellipsize(gui.topic_label, PANGO_ELLIPSIZE_NONE);
+		gtk_label_set_line_wrap (gui.topic_label, TRUE);
+	}
 }
 #endif

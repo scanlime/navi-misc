@@ -5,7 +5,7 @@ This is just a preliminary roadmap, subject to whatever people want to work on.
 -	Network/server configuration				- David
 -	URLScraper plugin					- Evan (complete enough)
 -	Verify that all hardcoded strings are
-	enclosed in intltool _() macros
+	enclosed in intltool _() macros				- David (complete)
 -	Implement searching (firefox style would be nice!)
 
 0.4:

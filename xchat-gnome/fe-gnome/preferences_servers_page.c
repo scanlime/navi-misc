@@ -165,12 +165,9 @@ edit_ok_clicked (GtkWidget *button, gpointer data)
 	widget = glade_xml_get_widget (gui.xml, "server config password");
 	net->pass = g_strdup (gtk_entry_get_text (GTK_ENTRY (widget)));
 	widget = glade_xml_get_widget (gui.xml, "server config usedefaults");
-	if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget)))
-	{
+	if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget))) {
 		newflags |= FLAG_USE_GLOBAL;
-	}
-	else
-	{
+	} else {
 		widget = glade_xml_get_widget (gui.xml, "server config nickname");
 		text = (char *) gtk_entry_get_text (GTK_ENTRY (widget));
 		net->nick = g_strdup (text);
@@ -223,16 +220,14 @@ edit_clicked (GtkWidget *button, gpointer data)
 	g_signal_connect (G_OBJECT (real), "changed", G_CALLBACK (check_input), dialog);
 	gtk_size_group_add_widget (group, real);
 	encoding = glade_xml_get_widget (gui.xml, "encoding combo");
-	if (!initialized)
-	{
+	if (!initialized) {
 		char **enc = (char **) encodings;
 		guint index = 0;
 
 		enctoindex = g_hash_table_new (g_str_hash, g_str_equal);
 
-		do
-		{
-			gtk_combo_box_append_text (GTK_COMBO_BOX (encoding), *enc);
+		do {
+			gtk_combo_box_append_text (GTK_COMBO_BOX (_(encoding)), *enc);
 			g_hash_table_insert (enctoindex, *enc, GUINT_TO_POINTER (index));
 
 			index++;
@@ -254,8 +249,7 @@ edit_clicked (GtkWidget *button, gpointer data)
 
 	widget = glade_xml_get_widget (gui.xml, "server config usedefaults");
 	g_signal_connect (G_OBJECT (widget), "toggled", G_CALLBACK (globals_toggled), dialog);
-	if (net->flags & FLAG_USE_GLOBAL)
-	{
+	if (net->flags & FLAG_USE_GLOBAL) {
 		gchar *text;
 		text = gconf_client_get_string (client, "/apps/xchat/irc/nickname", NULL);
 		gtk_entry_set_text (GTK_ENTRY (nick), text);
@@ -266,9 +260,7 @@ edit_clicked (GtkWidget *button, gpointer data)
 		gtk_widget_set_sensitive (nick, FALSE);
 		gtk_widget_set_sensitive (real, FALSE);
 		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), TRUE);
-	}
-	else
-	{
+	} else {
 		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), FALSE);
 		gtk_widget_set_sensitive (nick, TRUE);
 		gtk_widget_set_sensitive (real, TRUE);
@@ -298,16 +290,12 @@ edit_clicked (GtkWidget *button, gpointer data)
 	widget = glade_xml_get_widget (gui.xml, "server config cancel");
 	g_signal_connect (G_OBJECT (widget), "clicked", G_CALLBACK (edit_cancel_clicked), NULL);
 
-	widget = glade_xml_get_widget (gui.xml, "encoding combo");
-	{
+	widget = glade_xml_get_widget (gui.xml, "encoding combo"); {
 		guint index;
-		if (net->encoding == NULL)
-		{
+		if (net->encoding == NULL) {
 			index = 0;
 			net->encoding = g_strdup (encodings[0]);
-		}
-		else
-		{
+		} else {
 			index = GPOINTER_TO_UINT (g_hash_table_lookup (enctoindex, net->encoding));
 		}
 		gtk_combo_box_set_active (GTK_COMBO_BOX (widget), index);
@@ -434,8 +422,7 @@ preferences_servers_page_populate (GtkWidget *treeview, GSList *netlist)
 	store = GTK_LIST_STORE (gtk_tree_model_sort_get_model (GTK_TREE_MODEL_SORT (model)));
 	gtk_list_store_clear (store);
 
-	while (netlist)
-	{
+	while (netlist) {
 		net = netlist->data;
 		gtk_list_store_append (store, &iter);
 		gtk_list_store_set (store, &iter, 0, net->name, 1, (net->flags & FLAG_AUTO_CONNECT), 2, net, -1);
@@ -450,13 +437,10 @@ preferences_servers_selected(GtkTreeSelection *selection, gpointer data)
 
 	edit_button = glade_xml_get_widget (gui.xml, "servers edit");
 	remove_button = glade_xml_get_widget (gui.xml, "servers remove");
-	if (gtk_tree_selection_get_selected (selection, NULL, NULL))
-	{
+	if (gtk_tree_selection_get_selected (selection, NULL, NULL)) {
 		gtk_widget_set_sensitive (edit_button, TRUE);
 		gtk_widget_set_sensitive (remove_button, TRUE);
-	}
-	else
-	{
+	} else {
 		gtk_widget_set_sensitive (edit_button, FALSE);
 		gtk_widget_set_sensitive (remove_button, FALSE);
 	}

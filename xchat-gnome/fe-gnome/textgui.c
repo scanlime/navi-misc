@@ -41,12 +41,12 @@ static gchar *selected_word;
 
 static GtkActionEntry action_entries[] = {
 	/* URL Popup */
-	{ "TextURLOpen", GTK_STOCK_OPEN, N_("_Open Link in Browser"), NULL, NULL, G_CALLBACK (open_url) },
-	{ "TextURLCopy", GTK_STOCK_COPY, N_("_Copy Link Location"), NULL, NULL, G_CALLBACK (copy_text) },
+	{ "TextURLOpen", GTK_STOCK_OPEN, _("_Open Link in Browser"), NULL, NULL, G_CALLBACK (open_url) },
+	{ "TextURLCopy", GTK_STOCK_COPY, _("_Copy Link Location"), NULL, NULL, G_CALLBACK (copy_text) },
 
 	/* Email Popup */
-	{ "TextEmailSend", GNOME_STOCK_MAIL, N_("Se_nd Message To..."), NULL, NULL, G_CALLBACK (send_email) },
-	{ "TextEmailCopy", GTK_STOCK_COPY, N_("_Copy Address"), NULL, NULL, G_CALLBACK (copy_text) },
+	{ "TextEmailSend", GNOME_STOCK_MAIL, _("Se_nd Message To..."), NULL, NULL, G_CALLBACK (send_email) },
+	{ "TextEmailCopy", GTK_STOCK_COPY, _("_Copy Address"), NULL, NULL, G_CALLBACK (copy_text) },
 };
 
 void
@@ -165,8 +165,7 @@ text_gui_print_line (xtext_buffer *buf, unsigned char *text, int len, gboolean i
 	if (len == 0)
 		len = 1;
 
-	if (!indent)
-	{
+	if (!indent) {
 		int stamp_size;
 		char *stamp;
 		unsigned char *new_text;
@@ -182,13 +181,10 @@ text_gui_print_line (xtext_buffer *buf, unsigned char *text, int len, gboolean i
 	}
 
 	tab = strchr (text, '\t');
-	if (tab && tab < (text + len))
-	{
+	if (tab && tab < (text + len)) {
 		leftlen = tab - text;
 		gtk_xtext_append_indent (buf, text, leftlen, tab + 1, len - (leftlen + 1));
-	}
-	else
-	{
+	} else {
 		gtk_xtext_append_indent (buf, 0, 0, text, len);
 	}
 }
@@ -200,27 +196,25 @@ text_gui_print (xtext_buffer *buf, unsigned char *text, gboolean indent)
 	int len = 0;
 
 	/* split the text into separate lines */
-	while (1)
-	{
-		switch (*text)
-		{
-			case '\0':
-				text_gui_print_line (buf, last_text, len, indent);
+	while (1) {
+		switch (*text) {
+		case '\0':
+			text_gui_print_line (buf, last_text, len, indent);
+			return;
+		case '\n':
+			text_gui_print_line (buf, last_text, len, indent);
+			text++;
+			if (*text == '\0')
 				return;
-			case '\n':
-				text_gui_print_line (buf, last_text, len, indent);
-				text++;
-				if (*text == '\0')
-					return;
-				last_text = text;
-				len = 0;
-				break;
-			case ATTR_BEEP:
-				*text = ' ';
-				gdk_beep ();
-			default:
-				text++;
-				len++;
+			last_text = text;
+			len = 0;
+			break;
+		case ATTR_BEEP:
+			*text = ' ';
+			gdk_beep ();
+		default:
+			text++;
+			len++;
 		}
 	}
 }
@@ -228,8 +222,7 @@ text_gui_print (xtext_buffer *buf, unsigned char *text, gboolean indent)
 void
 set_nickname (struct server *serv, char *newnick)
 {
-	if (serv == gui.current_session->server)
-	{
+	if (serv == gui.current_session->server) {
 		GtkWidget *nick = glade_xml_get_widget (gui.xml, "nickname");
 		if (newnick == NULL)
 			gtk_label_set_text (GTK_LABEL (nick), serv->nick);
@@ -275,20 +268,18 @@ clicked_word (GtkWidget *xtext, char *word, GdkEventButton *event, gpointer data
 	if (word == NULL)
 		return;
 
-	if (event->button == 1)
-	{
+	if (event->button == 1) {
 		/* left click */
 		int type = check_word (xtext, word);
 
-		switch (type)
-		{
-			case 0:
-				return;
-			case WORD_URL:
-			case WORD_HOST:
-				selected_word = word;
-				open_url (NULL, NULL);
-				break;
+		switch (type) {
+		case 0:
+			return;
+		case WORD_URL:
+		case WORD_HOST:
+			selected_word = word;
+			open_url (NULL, NULL);
+			break;
 		}
 		return;
 	}
@@ -298,37 +289,37 @@ clicked_word (GtkWidget *xtext, char *word, GdkEventButton *event, gpointer data
 	}
 	if (event->button == 3) {
 		switch (check_word (xtext, word)) {
-			case 0:
-				/* FIXME: show default context menu */
+		case 0:
+			/* FIXME: show default context menu */
+			return;
+		case WORD_URL:
+		case WORD_HOST:
+			{
+				GtkWidget *menu;
+				menu = gtk_ui_manager_get_widget (gui.manager, "/TextURLPopup");
+				g_return_if_fail (menu != NULL);
+				selected_word = word;
+				gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 3, gtk_get_current_event_time ());
 				return;
-			case WORD_URL:
-			case WORD_HOST:
-				{
-					GtkWidget *menu;
-					menu = gtk_ui_manager_get_widget (gui.manager, "/TextURLPopup");
-					g_return_if_fail (menu != NULL);
-					selected_word = word;
-					gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 3, gtk_get_current_event_time ());
-					return;
-				}
-			case WORD_NICK:
-				/* FIXME: show nickname context menu */
+			}
+		case WORD_NICK:
+			/* FIXME: show nickname context menu */
+			return;
+		case WORD_CHANNEL:
+			/* FIXME: show channel context menu */
+			return;
+		case WORD_EMAIL:
+			{
+				GtkWidget *menu;
+				menu = gtk_ui_manager_get_widget (gui.manager, "/TextEmailPopup");
+				g_return_if_fail (menu != NULL);
+				selected_word = word;
+				gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 3, gtk_get_current_event_time ());
 				return;
-			case WORD_CHANNEL:
-				/* FIXME: show channel context menu */
-				return;
-			case WORD_EMAIL:
-				{
-					GtkWidget *menu;
-					menu = gtk_ui_manager_get_widget (gui.manager, "/TextEmailPopup");
-					g_return_if_fail (menu != NULL);
-					selected_word = word;
-					gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 3, gtk_get_current_event_time ());
-					return;
-				}
-			case WORD_DIALOG:
-				/* FIXME: show dialog(?) context menu */
-				return;
+			}
+		case WORD_DIALOG:
+			/* FIXME: show dialog(?) context menu */
+			return;
 		}
 	}
 }

@@ -39,10 +39,8 @@ GType
 userlist_get_type (void)
 {
 	static GType userlist_type = 0;
-	if (!userlist_type)
-	{
-		static const GTypeInfo userlist_info =
-		{
+	if (!userlist_type) {
+		static const GTypeInfo userlist_info = {
 			sizeof (UserlistClass),
 			NULL,               /* base init */
 			NULL,               /* base finalize */
@@ -126,28 +124,23 @@ get_user_icon (struct server *serv, struct User *user)
 	if (!user)
 		return NULL;
 
-	switch (user->prefix[0])
-	{
-		case '\0': return NULL;
-		case '@':  return pix_op;
-		case '%':  return pix_hop;
-		case '+':  return pix_voice;
+	switch (user->prefix[0]) {
+	case '\0': return NULL;
+	case '@':  return pix_op;
+	case '%':  return pix_hop;
+	case '+':  return pix_voice;
 	}
 
 	/* find out how many levels above Operator this user is */
 	pre = strchr (serv->nick_prefixes, '@');
-	if (pre && pre != serv->nick_prefixes)
-	{
+	if (pre && pre != serv->nick_prefixes) {
 		pre--;
 		level = 0;
-		while (1)
-		{
-			if (pre[0] == user->prefix[0])
-			{
-				switch (level)
-				{
-					case 0: return pix_red;
-					case 1: return pix_purple;
+		while (1) {
+			if (pre[0] == user->prefix[0]) {
+				switch (level) {
+				case 0: return pix_red;
+				case 1: return pix_purple;
 				}
 				break; /* 3+, no icons */
 			}
@@ -188,10 +181,8 @@ find_user (Store *store, struct User *user)
 	struct User *row_user;
 	GtkTreeModel *model = GTK_TREE_MODEL (store->liststore);
 
-	if (gtk_tree_model_get_iter_first (model, &iter))
-	{
-		do
-		{
+	if (gtk_tree_model_get_iter_first (model, &iter)) {
+		do {
 			gtk_tree_model_get (model, &iter, 2, &row_user, -1);
 			if (row_user == user)
 				return &iter;

@@ -64,14 +64,11 @@ update_details (GtkTreeIter *iter, struct DCC *dcc)
 	label = glade_xml_get_widget (transfer_gui.xml, "from label");
 	gtk_label_set_text (GTK_LABEL (label), dcc->nick);
 	label = glade_xml_get_widget (transfer_gui.xml, "status label");
-	if (dcc->dccstat == STAT_ACTIVE)
-	{
+	if (dcc->dccstat == STAT_ACTIVE) {
 		s = get_pretty_size_string (dcc);
 		gtk_label_set_text (GTK_LABEL (label), s);
 		g_free (s);
-	}
-	else
-	{
+	} else {
 		s = get_transfer_status (dcc);
 		gtk_label_set_text (GTK_LABEL (label), s);
 		g_free (s);
@@ -87,9 +84,9 @@ update_details (GtkTreeIter *iter, struct DCC *dcc)
 
 	label = glade_xml_get_widget (transfer_gui.xml, "fromto");
 	if(dcc->type == TYPE_SEND)
-		gtk_label_set_text (GTK_LABEL (label), "<span weight=\"bold\">To:</span>");
+		gtk_label_set_text (GTK_LABEL (label), _("<span weight=\"bold\">To:</span>"));
 	if(dcc->type == TYPE_RECV)
-		gtk_label_set_text (GTK_LABEL (label), "<span weight=\"bold\">From:</span>");
+		gtk_label_set_text (GTK_LABEL (label), _("<span weight=\"bold\">From:</span>"));
 	gtk_label_set_use_markup (GTK_LABEL (label), TRUE);
 
 	progress = glade_xml_get_widget (transfer_gui.xml, "transfer progress");
@@ -103,14 +100,11 @@ selection_changed (GtkTreeSelection *selection, gpointer data)
 	GtkTreeModel *model;
 	GtkTreeIter iter;
 
-	if (gtk_tree_selection_get_selected (selection, &model, &iter))
-	{
+	if (gtk_tree_selection_get_selected (selection, &model, &iter)) {
 		gtk_tree_model_get (model, &iter, 6, &dcc, -1);
 		transfer_gui.selected = dcc;
 		update_details (&iter, dcc);
-	}
-	else
-	{
+	} else {
 		transfer_gui.selected = NULL;
 	}
 }
@@ -139,7 +133,7 @@ initialize_transfers_window ()
 		return;
 	transfer_gui.selected = NULL;
 
-	expander = gtk_expander_new ("Details");
+	expander = gtk_expander_new (_("Details"));
 	gtk_expander_set_expanded (GTK_EXPANDER (expander), FALSE);
 	g_signal_connect (G_OBJECT (expander), "notify::expanded", G_CALLBACK (expanded), NULL);
 	box = glade_xml_get_widget (transfer_gui.xml, "expander box");
@@ -182,7 +176,7 @@ initialize_transfers_window ()
 	filename_r = gtk_cell_renderer_text_new ();
 	icon_r = gtk_cell_renderer_pixbuf_new ();
 	filename_c = gtk_tree_view_column_new ();
-	gtk_tree_view_column_set_title (filename_c, "Filename");
+	gtk_tree_view_column_set_title (filename_c, _("Filename"));
 	gtk_tree_view_column_pack_start (filename_c, icon_r, FALSE);
 	gtk_tree_view_column_set_attributes (filename_c, icon_r, "pixbuf", 7, NULL);
 	gtk_tree_view_column_pack_start (filename_c, filename_r, FALSE);
@@ -193,22 +187,22 @@ initialize_transfers_window ()
 	icon_r = gtk_cell_renderer_pixbuf_new ();
 	/*
 	status_r = gtk_cell_renderer_text_new();
-	status_c = gtk_tree_view_column_new_with_attributes("Status", status_r, "text", 4, NULL);
+	status_c = gtk_tree_view_column_new_with_attributes(_("Status"), status_r, "text", 4, NULL);
 	gtk_tree_view_column_set_resizable(status_c, TRUE);
 	gtk_tree_view_column_set_sort_column_id(status_c, 4);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), status_c);
 	percent_r = gtk_cell_renderer_text_new();
-	percent_c = gtk_tree_view_column_new_with_attributes("%", percent_r, "text", 0, NULL);
+	percent_c = gtk_tree_view_column_new_with_attributes(_("%"), percent_r, "text", 0, NULL);
 	gtk_tree_view_column_set_resizable(percent_c, TRUE);
 	gtk_tree_view_column_set_sort_column_id(percent_c, 5);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), percent_c);
 	size_r = gtk_cell_renderer_text_new();
-	size_c = gtk_tree_view_column_new_with_attributes("Size", size_r, "text", 2, NULL);
+	size_c = gtk_tree_view_column_new_with_attributes(_("Size"), size_r, "text", 2, NULL);
 	gtk_tree_view_column_set_resizable(size_c, TRUE);
 	gtk_tree_view_column_set_sort_column_id(size_c, 2);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), size_c);
 	eta_r = gtk_cell_renderer_text_new();
-	eta_c = gtk_tree_view_column_new_with_attributes("Remaining", eta_r, "text", 3, NULL);
+	eta_c = gtk_tree_view_column_new_with_attributes(_("Remaining"), eta_r, "text", 3, NULL);
 	gtk_tree_view_column_set_resizable(eta_c, TRUE);
 	gtk_tree_view_column_set_sort_column_id(eta_c, 3);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), eta_c);
@@ -298,15 +292,14 @@ get_file_size (struct DCC *dcc)
 static gchar *
 get_transfer_status (struct DCC *dcc)
 {
-	switch (dcc->dccstat)
-	{
-		case STAT_QUEUED:	return g_strdup ("Waiting");
-		case STAT_ACTIVE:	return g_strdup ("Active");
-		case STAT_FAILED:	return g_strdup ("Failed");
-		case STAT_DONE:		return g_strdup ("Done");
-		case STAT_CONNECTING:	return g_strdup ("Connecting");
-		case STAT_ABORTED:	return g_strdup ("Aborted");
-		default:		return g_strdup ("");
+	switch (dcc->dccstat) {
+	case STAT_QUEUED:	return g_strdup (_("Waiting"));
+	case STAT_ACTIVE:	return g_strdup (_("Active"));
+	case STAT_FAILED:	return g_strdup (_("Failed"));
+	case STAT_DONE:		return g_strdup (_("Done"));
+	case STAT_CONNECTING:	return g_strdup (_("Connecting"));
+	case STAT_ABORTED:	return g_strdup (_("Aborted"));
+	default:		return g_strdup (_(""));
 	}
 }
 
@@ -316,8 +309,7 @@ get_eta_string (struct DCC *dcc)
 	int to_go;
 	int hours, minutes, seconds;
 
-	if (dcc->cps != 0)
-	{
+	if (dcc->cps != 0) {
 		to_go = (dcc->size - dcc->pos) / dcc->cps;
 		hours = to_go / 3600;
 		minutes = (to_go / 60) % 60;
@@ -327,9 +319,7 @@ get_eta_string (struct DCC *dcc)
 		if(minutes != 0)
 			return g_strdup_printf ("%.2d:%.2d", minutes, seconds);
 		return g_strdup_printf ("0:%.2d", seconds);
-	}
-	else
-	{
+	} else {
 		return g_strdup ("");
 	}
 }
@@ -366,8 +356,7 @@ get_file_icon (char *filename)
 
 	icon = gnome_icon_lookup (theme, NULL, NULL, NULL, NULL, mime, GNOME_ICON_LOOKUP_FLAGS_NONE, NULL);
 
-	if (!g_path_is_absolute (icon))
-	{
+	if (!g_path_is_absolute (icon)) {
 		char *path;
 
 		path = gnome_icon_theme_lookup_icon (theme, icon, 48, NULL, NULL);
@@ -387,18 +376,15 @@ static gchar *
 get_markedup_name (struct DCC *dcc)
 {
 	gchar *s, *t, *u;
-	if (dcc->dccstat == STAT_ACTIVE)
-	{
+	if (dcc->dccstat == STAT_ACTIVE) {
 		t = get_pretty_size_string (dcc);
 		u = get_eta_string (dcc);
-		s = g_strdup_printf ("<span weight=\"bold\">%s</span>\n    <span size=\"small\" weight=\"bold\">Progress: </span><span size=\"small\">%s</span>\n    <span size=\"small\" weight=\"bold\">Time Remaining: </span><span size=\"small\">%s</span>", dcc->file, t, u);
+		s = g_strdup_printf (_("<span weight=\"bold\">%s</span>\n    <span size=\"small\" weight=\"bold\">Progress: </span><span size=\"small\">%s</span>\n    <span size=\"small\" weight=\"bold\">Time Remaining: </span><span size=\"small\">%s</span>"), dcc->file, t, u);
 		g_free (t);
 		g_free (u);
-	}
-	else
-	{
+	} else {
 		t = get_transfer_status (dcc);
-		s = g_strdup_printf ("<span weight=\"bold\">%s</span>\n    <span size=\"small\">%s</span>\n", dcc->file, t);
+		s = g_strdup_printf (_("<span weight=\"bold\">%s</span>\n    <span size=\"small\">%s</span>\n"), dcc->file, t);
 		g_free (t);
 	}
 	return s;
@@ -411,7 +397,7 @@ get_pretty_size_string (struct DCC *dcc)
 	float t = (float)dcc->pos / d;
 	gchar *u = get_proper_units (dcc->size);
 	gchar *v = get_proper_units (dcc->cps);
-	gchar *s = g_strdup_printf ("%1.1f of %1.1f%s at %1.1f%s/s", t, get_divided_size (dcc->size), u, get_divided_size (dcc->cps), v);
+	gchar *s = g_strdup_printf (_("%1.1f of %1.1f%s at %1.1f%s/s"), t, get_divided_size (dcc->size), u, get_divided_size (dcc->cps), v);
 	g_free (u);
 	g_free (v);
 	return s;

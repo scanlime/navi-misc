@@ -529,7 +529,7 @@ fe_set_lag (server *serv, int lag)
 	per = (double)((double)lag / 40.0);
 	if (per > 1.0)
 		per = 1.0;
-	snprintf (tip, sizeof (tip) - 1, "%s%d.%ds lag", serv->lag_sent ? "+" : "", lag / 10, lag % 10);
+	snprintf (tip, sizeof (tip) - 1, _("%s%d.%ds lag"), serv->lag_sent ? "+" : "", lag / 10, lag % 10);
 	while (list)
 	{
 		sess = list->data;
@@ -565,7 +565,7 @@ fe_set_throttle (server *serv)
 	if (per > 1.0)
 		per = 1.0;
 
-	snprintf (tip, sizeof (tip) - 1, "%d bytes buffered", serv->sendq_len);
+	snprintf (tip, sizeof (tip) - 1, _("%d bytes buffered"), serv->sendq_len);
 	while (list)
 	{
 		sess = list->data;
