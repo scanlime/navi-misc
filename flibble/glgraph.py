@@ -36,10 +36,9 @@ class Node:
 
         # Stay away from the viewport edges
         edgeStrength = 200
-        self.position[0] += abs(edgeStrength / self.position[0])
-        self.position[1] += abs(edgeStrength / self.position[1])
-        self.position[0] -= abs(edgeStrength / (graph.viewport.size[0] - self.position[0]))
-        self.position[1] -= abs(edgeStrength / (graph.viewport.size[1] - self.position[1]))
+        for axis in (0,1):
+            self.position[axis] += edgeStrength / max(self.position[axis], 1)
+            self.position[axis] -= edgeStrength / max(graph.viewport.size[axis] - self.position[axis], 1)
 
         # Random wandering
         self.position += (random.normalvariate(0, graph.temperature),
@@ -144,7 +143,7 @@ class Graph:
     def render(self):
         # For a simulated simulated-annealing effect, gradually
         # decrease the 'temperature', the amount of random node movement.
-        self.temperature *= 0.995
+        self.temperature *= 0.98
 
         # Let the edges and nodes animate themselves
         for node in self.nodes:
@@ -159,6 +158,54 @@ class Graph:
             node.render()
 
 
+class GraphController:
+    def __init__(self, viewport, graph):
+        self.viewport = viewport
+        self.graph = graph
+        viewport.onMouseMotion.observe(self.handleMotion)
+        viewport.onDrawFrame.observe(self.animate)
+        viewport.onMouseButtonDown.observe(self.handlePress)
+        viewport.onMouseButtonUp.observe(self.handleRelease)
+        self.selectedNode = None
+        self.dragActive = False
+        self.mousePosition = None
+
+    def handlePress(self, event):
+        if event.button == 1:
+            self.dragActive = True
+            self.mousePosition = event.pos
+
+    def handleRelease(self, event):
+        if event.button == 1:
+            self.dragActive = False
+
+    def handleMotion(self, event, minDistance=70):
+        self.mousePosition = event.pos
+
+        # Find the closest node
+        closestNode = None
+        closestDist = minDistance ** 2
+        for node in self.graph.nodes:
+            v = node.position - event.pos
+            d2 = Numeric.dot(v,v)
+            if d2 < closestDist:
+                closestDist = d2
+                closestNode = node
+        self.selectNode(closestNode)
+
+    def animate(self):
+        if self.dragActive and self.selectedNode:
+            # Attract the selected node to the mouse
+            self.selectedNode.position[:] = self.mousePosition
+
+    def selectNode(self, node):
+        if self.selectedNode:
+            self.selectedNode.circleColor = self.selectedNode.__class__.circleColor
+        self.selectedNode = node
+        if node:
+            node.circleColor = (0.5, 1, 0.5)
+
+
 def main():
     # Basic PyBZEngine setup
     loop = Event.EventLoop()
@@ -170,6 +217,7 @@ def main():
     background = HUD.Background(viewport, Texture.load("bg.jpeg"))
 
     graph = Graph(viewport)
+    gc = GraphController(viewport, graph)
 
     graph.addNode("Fruit")
     graph.addNode("Vegetable")
