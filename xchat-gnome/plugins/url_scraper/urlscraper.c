@@ -12,8 +12,8 @@
 #define EMAILREGEX "[\\w\\.\\-\\+]+@([0-9a-z\\-]+\\.)+[a-z]+"
 
 static xchat_plugin *ph;	// Plugin handle.
-//static regex_t *email;		// Regex that matches e-mail addresses.
-static regex_t *url;			// Regex that matches urls.
+//static regex_t *email;	// Regex that matches e-mail addresses.
+static regex_t *url;		// Regex that matches urls.
 static int urls;			// Current total in the scraper.
 
 static GtkWidget *window;
