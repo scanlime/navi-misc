@@ -426,7 +426,7 @@ int limit_update_rate(float max_rate) {
   diff = ((now.tv_usec - last_update.tv_usec) / 1000 +
 	  (now.tv_sec  - last_update.tv_sec ) * 1000);
 
-  if (diff < (1000 / max_rate) && !render.dirty_flag) {
+  if (diff < (1000 / max_rate)) {
     return 1;
   }
   else {
@@ -446,7 +446,7 @@ int auto_limit_update_rate(void) {
    * the image changes much less and a very slow frame rate will leave more
    * CPU for calculations.
    */
-  return limit_update_rate(200 / (1 + (log(render.iterations) - 9.21) * 4));
+  return limit_update_rate(200 / (1 + (log(render.iterations) - 9.21) * 5));
 }
 
 float get_pixel_scale() {
@@ -533,6 +533,8 @@ void update_pixels() {
   for (y=render.height; y; y--)
     for (x=render.width; x; x--)
       *(pixel_p++) = render.color_table[*(count_p++)];
+
+  render.dirty_flag = FALSE;
 }
 
 void update_gui() {
@@ -542,13 +544,19 @@ void update_gui() {
    */
   gchar *iters;
 
-  if (auto_limit_update_rate())
-    return;
+  /* Skip frame rate limiting and updating the iteration counter if we're in
+   * a hurry to show the user the result of a modified rendering parameter.
+   */
+  if (!render.dirty_flag) {
 
-  /* Update the iteration counter */
-  iters = g_strdup_printf("Iterations:\n%.3e\n\nmax density:\n%d", render.iterations, render.current_density);
-  gtk_label_set_text(GTK_LABEL(gui.iterl), iters);
-  g_free(iters);
+    if (auto_limit_update_rate())
+      return;
+
+    /* Update the iteration counter */
+    iters = g_strdup_printf("Iterations:\n%.3e\n\nmax density:\n%d", render.iterations, render.current_density);
+    gtk_label_set_text(GTK_LABEL(gui.iterl), iters);
+    g_free(iters);
+  }
 
   update_pixels();
   update_drawing_area();
