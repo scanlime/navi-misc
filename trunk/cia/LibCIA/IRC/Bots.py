@@ -75,7 +75,7 @@ class Request:
         if self.server in self.botNet.servers:
             # Look for our channel in the map from channel names to bot lists
             for bot in self.botNet.servers[self.server]:
-                if self.channel in bot.channels:
+                if (not self.channel) or (self.channel in bot.channels):
                     matches.append(bot)
 
         # Ignore any bots we don't need

@@ -29,51 +29,83 @@ class IrcURIHandler(Ruleset.RegexURIHandler):
     """Handles irc:// URIs in rulesets. This creates a message queue
        for each URI, and delivers formatted messages to the proper
        message queue instance.
+
+       This follows a subset of the internet draft at:
+
+          http://www.w3.org/Addressing/draft-mirashi-url-irc-01.txt
+
+       In short, the following sorts of URIs are valid:
+
+          irc://irc.foo.net/boing
+            Refers to the channel #boing at irc.foo.net on the default port
+
+          irc://irc.foo.net:1234/boing
+            Refers to the channel #boing at irc.foo.net, on port 1234
+
+          irc://irc.foo.net/muffin,isnick
+            Refers to a users with the nick 'muffin' on irc.foo.net's default port
        """
     scheme = 'irc'
     regex = r"""
        ^irc://(?P<host>[a-zA-Z]([a-zA-Z0-9.-]*[a-zA-Z0-9])?)
-       (:(?P<port>[0-9]+))?/(?P<channel>[^\s#]\S*)$
+       (:(?P<port>[0-9]+))?/(?P<target>[^\s#,]+)(?P<isnick>,isnick)?$
        """
 
     def __init__(self, botNet):
-        # A map from (server, channel) tuple to ChannelMessageQueue
-        self.channelQueueMap = {}
-
-        # Map from (server, channel) tuples to URIs, so we can avoid duplicates
-        self.uriMap = {}
-
+        # A map from URI to message queue
+        self.queueMap = {}
         self.botNet = botNet
         Ruleset.RegexURIHandler.__init__(self)
 
-    def uriToTuple(self, uri):
-        """Convert a URI to a (server, channel) tuple"""
+    def createQueueFromURI(self, uri):
+        """Convert a URI to a new message queue instance"""
         d = self.parseURI(uri)
-        return (Bots.Server(d['host'], d['port']), '#' + d['channel'])
+        server = Bots.Server(d['host'], d['port'])
+
+        if d['isnick']:
+            # This refers to a nickname- deliver private messages to that user
+            return PrivateMessageQueue(self.botNet, server, d['target'])
+        else:
+            # It's a channel, without the '#'
+            return ChannelMessageQueue(self.botNet, server, '#' + d['target'])
 
     def assigned(self, uri, newRuleset):
-        t = self.uriToTuple(uri)
-
-        # Check for duplicates
-        if self.uriMap.has_key(t) and self.uriMap[t] != uri:
-            raise Ruleset.InvalidURIException("Another URI referring to the same server and channel already exists")
-        self.uriMap[t] = uri
-
-        # Create a new channel queue if we need one
-        if not self.channelQueueMap.has_key(t):
-            self.channelQueueMap[t] = ChannelMessageQueue(self.botNet, t[0], t[1])
+        # If this URI is new, create a new message queue for it
+        if not uri in self.queueMap:
+            q = self.createQueueFromURI(uri)
+            self.queueMap[uri] = q
 
     def unassigned(self, uri):
-        t = self.uriToTuple(uri)
-        self.channelQueueMap[t].cancel()
-        del self.channelQueueMap[t]
-        del self.uriMap[t]
+        self.queueMap[uri].cancel()
+        del self.queueMap[uri]
 
     def message(self, uri, message, content):
-        self.channelQueueMap[self.uriToTuple(uri)].send(content)
+        self.queueMap[uri].send(content)
 
 
-class ChannelMessageQueue:
+class MessageQueue:
+    """Abstract base class for a queue we can deliver IRC messages to"""
+    def cancel(self):
+        """Cancel the request associated with this message queue"""
+        self.request.cancel()
+
+    def send(self, message):
+        """Subclasses implement this to send a possibly-multiline message"""
+        pass
+
+
+class PrivateMessageQueue(MessageQueue):
+    """Send private messages to a particular user, using one bot"""
+    def __init__(self, botNet, server, nick):
+        self.nick = nick
+        self.request = Bots.Request(botNet, server, None)
+
+    def send(self, message):
+        for line in message.split("\n"):
+            self.request.bots[0].msg(self.nick, line)
+
+
+class ChannelMessageQueue(MessageQueue):
     """A way to deliver buffered messages to a particular IRC server and
        channel, handling flood protection and load balancing when necessary.
 
@@ -88,10 +120,6 @@ class ChannelMessageQueue:
         """Split up a message into lines and queue it for transmission"""
         self.queuedLines.extend(message.split('\n'))
         self.checkQueue()
-
-    def cancel(self):
-        """Cancel the request associated with this message queue"""
-        self.request.cancel()
 
     def checkQueue(self):
         # FIXME: for now, send the whole queue contents to the first bot.
