@@ -4,12 +4,16 @@ CLASSES =\
 	key.class\
 	build.class\
 	moderate.class\
-	authenticate.class
+	authenticate.class\
+	accept.class
 
 app: $(CLASSES)
 
 moderate.class: moderate.java
 	javac moderate.java
+
+accept.class: accept.java
+	javac accept.java
 
 build.class: build.java
 	javac build.java
