@@ -234,10 +234,11 @@ static lirc_t mi6k_ir_tx_convert(lirc_t v)
 static void mi6k_ir_tx_send(struct usb_mi6k *dev, lirc_t pulse, lirc_t space)
 {
 	/* Send a pulse and space to the device synchronously. */
+	dbg("ir_tx_send unconverted: %d %d", pulse, space);
 	pulse = mi6k_ir_tx_convert(pulse);
 	space = mi6k_ir_tx_convert(space);
-	dbg("ir_tx_send %d %d", pulse, space);
-	mi6k_request(dev, MI6K_CTRL_IR_SEND, pulse, space);
+	dbg("ir_tx_send converted: %d %d", pulse, space);
+	mi6k_request(dev, MI6K_CTRL_IR_SEND, space, pulse);
 }
 
 static void mi6k_ir_rx_irq(struct urb *urb)
@@ -546,6 +547,8 @@ static ssize_t mi6k_lirc_write(struct file *file, const char *buffer, size_t cou
 		retval = -ENODEV;
 		goto exit;
 	}
+
+	dbg("write count %d", count);
 
 	while (count >= sizeof(lirc_t)) {
 		/* Grab a value from userspace */
