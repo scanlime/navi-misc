@@ -59,7 +59,7 @@ class Menu(Sequencer.Page):
         self.overlay = self.viewport.region(Layout.Rect(self.viewport))
 
         # Draw a background image
-        self.background = HUD.Background(self.overlay, "brushed_metal.png")
+        self.background = HUD.Background(self.overlay, "calm.png")
 
 
 class RingMenu(Menu):
