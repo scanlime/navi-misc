@@ -48,6 +48,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <signal.h>
+#include <math.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/extensions/Xvlib.h>
@@ -259,10 +260,10 @@ void set_frame_length(long size, int numCameras)
 
 void plop(unsigned char *image, int x, int y)
 {
-    /* Plot a pixel on a YUY2-format framebuffer by inverting the Y channel */
+    /* Plot a pixel on a YUY2-format framebuffer */
     if (x<0 || y<0 || x>=device_width || y>=device_height)
 	return;
-    image[x*2 + y*device_width*2] ^= 0xFF;
+    image[x*2 + y*device_width*2] = 0xFF;
 }
 
 void plop_cross(unsigned char *image, int x, int y, int width)
@@ -272,6 +273,50 @@ void plop_cross(unsigned char *image, int x, int y, int width)
 	plop(image, x + i - width/2, y);
     for (i=0; i<width; i++)
 	plop(image, x, y + i - width/2);
+}
+
+void calculate_position(unsigned char *image)
+{
+    int camera;
+    float x=0, y=0, z=0;
+    float x_len=0, y_len=0, z_len=0;
+
+    for (camera=0; camera<1; camera++) {
+	struct {
+	    int x, y;
+	} c, xb, yb, zb;
+
+	plop_cross(image, origin_point.camera[camera].x, origin_point.camera[camera].y, 5);
+	plop_cross(image, x_point.camera[camera].x, x_point.camera[camera].y, 5);
+	plop_cross(image, y_point.camera[camera].x, y_point.camera[camera].y, 5);
+	plop_cross(image, z_point.camera[camera].x, z_point.camera[camera].y, 5);
+
+	/* Make vectors from the origin to the current point and all bases */
+	c.x = current_point.camera[camera].x - origin_point.camera[camera].x;
+	c.y = current_point.camera[camera].y - origin_point.camera[camera].y;
+	xb.x = x_point.camera[camera].x - origin_point.camera[camera].x;
+	xb.y = x_point.camera[camera].y - origin_point.camera[camera].y;
+	yb.x = y_point.camera[camera].x - origin_point.camera[camera].x;
+	yb.y = y_point.camera[camera].y - origin_point.camera[camera].y;
+	zb.x = z_point.camera[camera].x - origin_point.camera[camera].x;
+	zb.y = z_point.camera[camera].y - origin_point.camera[camera].y;
+
+	/* Project the current point vector onto each basis vector by taking dot products */
+	x += c.x * xb.x + c.y * xb.y;
+	y += c.x * yb.x + c.y * yb.y;
+	z += c.x * zb.x + c.y * zb.y;
+
+	x_len += xb.x * xb.x + xb.y * xb.y;
+	y_len += yb.x * yb.x + yb.y * yb.y;
+	z_len += zb.x * zb.x + zb.y * zb.y;
+    }
+
+    x /= x_len;
+    y /= y_len;
+    z /= z_len;
+
+    //    printf("%f %f %f\n", x, y, z);
+    plop_cross(image, x*device_width, y*device_height, 9);
 }
 
 void display_frames()
@@ -288,7 +333,7 @@ void display_frames()
 		int y0, y1, y2, y3, u, v;
 		int x, y;
 		int weight=0;
-		unsigned long x_sum=0, y_sum=0, total=0;
+		float x_sum=0, y_sum=0, total=0;
 		for (y=0; y<device_height; y++)
 		    for (x=0; x<device_width; x+=4) {
 			u  = cam[i++];
@@ -313,6 +358,7 @@ void display_frames()
 			    total += weight;
 			}
 			else {
+#if 0
 			    /* Not a pixel we're interested in, dim it */
 			    y0 >>= 1;
 			    y1 >>= 1;
@@ -320,6 +366,7 @@ void display_frames()
 			    y3 >>= 1;
 			    u = ((u - 128)>>1) + 128;
 			    v = ((v - 128)>>1) + 128;
+#endif
 
 			    weight = 0;
 			}
@@ -334,14 +381,19 @@ void display_frames()
 			dest[j++] = v;
 		    }
 
-		if (total > 0) {
+		/* Another threshold on the total to decide if there's
+		 * anything at all interesting in the picture
+		 */
+		if (total > 1000) {
 		    x_sum /= total;
 		    y_sum /= total;
 		    current_point.camera[camera].x = x_sum;
 		    current_point.camera[camera].y = y_sum;
-		    plop_cross(dest, x_sum, y_sum, 17);
+		    plop_cross(dest, x_sum, y_sum, 50);
 		}
 	    }
+
+	calculate_position(frame_buffer);
 
 	xv_image=XvCreateImage(display,info[adaptor].base_id,format,frame_buffer,
 			       device_width,device_height * numCameras);
@@ -351,12 +403,6 @@ void display_frames()
 
 	xv_image=NULL;
     }
-}
-
-void calculate_position()
-{
-    
-
 }
 
 void QueryXv()
@@ -584,7 +630,6 @@ int main(int argc,char *argv[])
 	dc1394_dma_multi_capture(cameras, numCameras);
 
 	display_frames();
-	calculate_position();
 	XFlush(display);
 
 	while(XPending(display)>0){
