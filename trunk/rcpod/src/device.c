@@ -170,7 +170,7 @@ void rcpod_Reset(rcpod_dev *rcpod) {
   rcpod_Poke(rcpod, RCPOD_REG_TRISB, 0xFF);
   rcpod_Poke(rcpod, RCPOD_REG_TRISC, 0xFF);
   rcpod_Poke(rcpod, RCPOD_REG_TRISD, 0xFF);
-  rcpod_Poke(rcpod, RCPOD_REG_TRISE, 0x03);
+  rcpod_Poke(rcpod, RCPOD_REG_TRISE, 0x07);
 
   rcpod_Poke(rcpod, RCPOD_REG_T1CON, 0);
   rcpod_Poke(rcpod, RCPOD_REG_T2CON, 0);

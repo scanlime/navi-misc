@@ -262,7 +262,7 @@ class Pin:
 
     def test(self):
         """Return a boolean indicating whether this pin is currently asserted or not"""
-        return bool(rcpod_GpioTest(self.rcpod.dev, self.value))
+        return rcpod_GpioTest(self.rcpod.dev, self.value)
 
     def negate(self):
         """Return a new pin descriptor equivalent to this one except with
