@@ -206,13 +206,14 @@ create_weather (ECalBackendWeather *cbw, WeatherForecast *report)
 	ECalComponentDateTime dt;
 	const char *name, *uid;
 	GSList *text_list = NULL;
-	ECalComponentText *description;
+	ECalComponentText description;
 	int i;
+	char *pop, *snow;
 
 	g_return_val_if_fail (E_IS_CAL_BACKEND_WEATHER (cbw), NULL);
 
 	/* create the component and event object */
-	ical_comp = icalcomponent_new (ICAL_XWEATHER_COMPONENT);
+	ical_comp = icalcomponent_new (ICAL_VEVENT_COMPONENT);
 	cal_comp = e_cal_component_new ();
 	e_cal_component_set_icalcomponent (cal_comp, ical_comp);
 
@@ -234,42 +235,45 @@ create_weather (ECalBackendWeather *cbw, WeatherForecast *report)
 	/* We have to add 1 day to DTEND, as it is not inclusive. */
 	e_cal_component_set_dtend (cal_comp, &dt);
 
-	/* Create summary - this gives us the current conditions so we can
-	 * map to an icon in the rendering. yes, it's a bit hackish.  */
-	comp_summary.value = g_strdup_printf ("%d", report->conditions);
+	/* The summary is the high or high/low temperatures */
+	/* FIXME: handle locale */
+	if (report->high == report->low)
+	{
+		comp_summary.value = g_strdup_printf ("%.1fC", report->high);
+	}
+	else
+	{
+		comp_summary.value = g_strdup_printf ("%.1f/%.1fC", report->high, report->low);
+	}
 	comp_summary.altrep = NULL;
 	e_cal_component_set_summary (cal_comp, &comp_summary);
 
-	/* Create list of data. This takes the following format:
-	 * high temperature
-	 * low temperature (same as high if there's only one temperature forecast)
-	 * conditions
-	 * pop
-	 * high snow level (0 if nonexistant)
-	 * low snow level (0 if nonexistant)
-	 *
-	 * remember to change the drawing code parsing this if you change
-	 * the format!!!!!
-	 */
-	description = g_new0 (ECalComponentText, 6);
-	description[0].value = g_strdup_printf ("%f", report->high);
-	description[1].value = g_strdup_printf ("%f", report->low);
-	description[2].value = g_strdup (getConditions (report));
-	description[3].value = g_strdup_printf ("%d", report->pop);
-	description[4].value = g_strdup_printf ("%f", report->snowhigh);
-	description[5].value = g_strdup_printf ("%f", report->snowlow);
-	for (i = 0; i < 6; i++)
-		text_list = g_slist_append (text_list, &description[i]);
+	if (report->pop != 0)
+		pop = g_strdup_printf ("%d%% chance of precipitation\n", report->pop);
+	else
+		pop = g_strdup_printf ("");
+	if (report->snowhigh == 0)
+		snow = g_strdup_printf ("");
+	else if (report->snowhigh == report->snowlow)
+		snow = g_strdup_printf ("%d\" snowfall\n", (int) report->snowhigh);
+	else
+		snow = g_strdup_printf ("%d-%d\" snowfall\n", (int) report->snowlow, (int) report->snowhigh);
+	description.value = g_strdup_printf ("%s\n%s%s", getConditions (report), pop, snow);
+	text_list = g_slist_append (text_list, &description);
 	e_cal_component_set_description_list (cal_comp, text_list);
 
 	/* Set category and visibility */
-	/* e_cal_component_set_categories (cal_comp, _("Conditions")); */
+	/* FIXME */
+//	e_cal_component_set_categories (cal_comp, g_strdup_printf ());
 	e_cal_component_set_classification (cal_comp, E_CAL_COMPONENT_CLASS_PRIVATE);
 
 	/* Weather is shown as free time */
 	e_cal_component_set_transparency (cal_comp, E_CAL_COMPONENT_TRANSP_TRANSPARENT);
 
 	e_cal_component_commit_sequence (cal_comp);
+
+	g_free (pop);
+	g_free (snow);
 
 	return cal_comp;
 }
