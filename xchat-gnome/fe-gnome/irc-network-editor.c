@@ -477,11 +477,26 @@ static gboolean
 check_input (IrcNetworkEditor *editor)
 {
 	if (!strlen (gtk_entry_get_text (GTK_ENTRY (editor->network_name)))) {
-		error_dialog (_("Invalid input"), _("You must enter a network name"));
 		gtk_notebook_set_current_page (GTK_NOTEBOOK (editor->toplevel), 0);
 		gtk_widget_grab_focus (editor->network_name);
+		error_dialog (_("Invalid input"), _("You must enter a network name"));
 		return FALSE;
 	}
+	if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (editor->use_custom))) {
+		if (!strlen (gtk_entry_get_text (GTK_ENTRY (editor->nickname)))) {
+			gtk_notebook_set_current_page (GTK_NOTEBOOK (editor->toplevel), 1);
+			gtk_widget_grab_focus (editor->nickname);
+			error_dialog (_("Invalid input"), _("You must enter a nick name"));
+			return FALSE;
+		}
+		if (!strlen (gtk_entry_get_text (GTK_ENTRY (editor->realname)))) {
+			gtk_notebook_set_current_page (GTK_NOTEBOOK (editor->toplevel), 1);
+			gtk_widget_grab_focus (editor->realname);
+			error_dialog (_("Invalid input"), _("You must enter a real name"));
+			return FALSE;
+		}
+	}
+	return TRUE;
 }
 
 void
