@@ -63,6 +63,9 @@ struct _UrlEditorDialog2 {
 	GtkWidget *username_entry;
 	GtkWidget *password_entry;
 	GtkWidget *remember_pw;
+
+	GtkWidget *ok;
+	GtkWidget *cancel;
 };
 
 struct _UrlEditorDialogClass2 {
