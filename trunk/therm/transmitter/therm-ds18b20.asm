@@ -30,10 +30,10 @@
 
 ;----------------------------------------------------- Device configuration
 
-STATION_ID	equ	1	; A unique ID between 0 and 63
+STATION_ID	equ	4	; A unique ID between 0 and 63
 
-SAMPLE_DELAY	equ	.0	; Delay between temperature readings, in 2.3-second units
-N_THERM_SAMPLES	equ	.1	; Number of temperature readings per RF burst.
+SAMPLE_DELAY	equ	.5	; Delay between temperature readings, in 2.3-second units
+N_THERM_SAMPLES	equ	.10	; Number of temperature readings per RF burst.
 
 N_PACKETS	equ	.5	; Number of duplicate packets sent in a burst
 
