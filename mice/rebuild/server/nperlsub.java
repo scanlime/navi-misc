@@ -30,20 +30,27 @@ public class nperlsub extends nbase
 	 */
 	public void run()
 	{
-		String name, postn, question;
+		String name, postn, question = "", temp;
 		name = read();
 		if(name.compareTo("") == 0) name = "Someone...";
 		postn = read();
 		if(postn.compareTo("") == 0) postn = "left blank";
-		question = read();
-		if(question.compareTo("") == 0) 
+		temp = read();
+		while(temp.compareTo(".") != 0)
 		{
+			question = question + temp + " ";
+			temp = read();
+		}
+		if(question.compareTo(" ") == 0) 
+		{
+			System.out.println("Empty Question");
 			closeConnection();
 			return;
 		}
 		name = name + " (" + postn + ")";
 		name = hexwash(name);
 		question = hexwash(question);
+		System.out.println(question);
 		asubmit.submit(name,question);
 		closeConnection();
 	}
@@ -58,21 +65,29 @@ public class nperlsub extends nbase
 	 */
 	private String hexwash(String toclean)
 	{
-		String toreturn = "", temp;
+		String toreturn = "", temp, tempchar;
 		int value = 32;
 		StringTokenizer tokens = new StringTokenizer(toclean,"%",false);
 		if(tokens.hasMoreTokens()) toreturn = tokens.nextToken();
 		if(toclean.startsWith("%"))
 		{
 			value = asciiizer(toreturn.charAt(0)) * 16 + asciiizer(toreturn.charAt(1));
-			toreturn = "" + (char) value + toreturn.substring(2);
+			if(!(value == '\n' || value == '\r'))
+				toreturn = "" + (char) value + toreturn.substring(2);
+			else
+				toreturn = toreturn.substring(2);
 		}
 		while(tokens.hasMoreTokens())
 		{
 			//squeeze the juice out of it!
 			temp = tokens.nextToken();
 			value = asciiizer(temp.charAt(0)) * 16 + asciiizer(temp.charAt(1));
-			toreturn = toreturn + (char) value + temp.substring(2);
+			if(!(value == '\n' || value == '\r'))
+				toreturn = toreturn + (char) value + temp.substring(2);
+			else if(value == '\n')
+				toreturn = toreturn + " " + temp.substring(2);
+			else
+				toreturn = toreturn + temp.substring(2);
 		}
 		return toreturn;
 	}
