@@ -47,7 +47,7 @@ class Main:
 
         # If we're running on actual wasabi hardware, go fullscreen
         if self.hardware.uvswitch:
-            viewport.display.toggle_fullscreen()
+            self.viewport.display.toggle_fullscreen()
             pygame.mouse.set_visible(0)
         else:
             # Otherwise, set up a ThreeDControl to make debugging easier
