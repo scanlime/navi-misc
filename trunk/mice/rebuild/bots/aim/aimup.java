@@ -31,12 +31,13 @@ public class aimup
 	public static void main(String[] args)
 	{
 		int i,j;
+		personindex index = new personindex();
 		bot = new botmain[6];
-		bot[0] = new botmain("MICEBot","password");
+		bot[0] = new botmain("MICEBot","password",index);
 		for(i=1;i<6;i++)
 		{
 			sleep(3);
-			bot[i] = new botmain("MICEBot"+i,"password");
+			bot[i] = new botmain("MICEBot"+i,"password",index);
 		}
 		
 		sleep(6);
@@ -45,7 +46,7 @@ public class aimup
 			{
 				//bot[i].sendMessage("Joshonthinkpad","Hi Josh, this is from bot number:"+i);
 				//bot[i].sendMessage("haighthd7000","ding " + i);
-				bot[i].sendMessage("gonkulator3","ding " + i);
+				//bot[i].sendMessage("gonkulator3","ding " + i);
 				//bot[i].sendMessage("kittikins5","Hi Katie!");
 				sleep(4);
 			}

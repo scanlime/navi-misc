@@ -29,10 +29,12 @@ public class botmain implements JaimEventListener
 	/** The connection for the bot, hence b. */
 	public JaimConnection b;
 	
-	/** */
+	/** A connection to the person index, so it can reply correctly. */
+	public personindex index;
 	
-	public botmain(String username, String password)
+	public botmain(String username, String password, personindex foo)
 	{
+		index = foo;
 		try
 		{
 			b = new JaimConnection("toc.oscar.aol.com",9898);
@@ -98,11 +100,10 @@ public class botmain implements JaimEventListener
   
 	private void receiveIM(IMTocResponse im)
 	{
-		System.out.println(im.getFrom()+"->"+Utils.stripHTML(im.getMsg()));
+		//System.out.println(im.getFrom()+"->"+Utils.stripHTML(im.getMsg()));
 		String from = im.getFrom();
 		String message = Utils.stripHTML(im.getMsg());
-		sendMessage(im.getFrom(),"Hello "+im.getFrom());
-		sendMessage("gonkulator2",from+" said "+message);
+		index.handleMessage(from,message);
 	}
 
 	private void receiveBuddyUpdate(BuddyUpdateTocResponse bu)

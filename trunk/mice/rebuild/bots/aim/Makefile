@@ -1,12 +1,25 @@
+CLASSES=\
+	person.class\
+	personindex.class\
+	botmain.class\
+	aimup.class
 
+bot: $(CLASSES)
 
-test: JaimTest.class
+person.class: person.java
+	javac person.java
 
-JaimTest.class: JaimTest.java
-	javac JaimTest.java
+personindex.class: personindex.java
+	javac personindex.java
+
+botmain.class: botmain.java
+	javac botmain.java
+
+aimup.class: aimup.java
+	javac aimup.java
 
 clean:
 	rm -Rf *.class *~
 
-run: JaimTest.class
-	java JaimTest MICEBot 
+run: bot
+	java aimup
