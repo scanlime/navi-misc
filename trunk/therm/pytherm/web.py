@@ -57,7 +57,7 @@ class template:
 
 
 def renderTemperature(latest, _class='temperatures'):
-    degC = latest['average']
+    degC = latest.get('average')
     if degC is None:
         return "No data"
     degF = units.degCtoF(degC)
@@ -90,6 +90,8 @@ def renderBatteryBargraph(latest):
         ]
 
 def renderTimestamp(latest):
+    if 'time' not in latest:
+        return "No packets received"
     delta = time.time() - latest['time'].ticks()
     return [
         units.time.format(delta), " ago",
@@ -193,7 +195,7 @@ class IndexPage(ModPython.Page):
         ]
 
     def renderSource(self, source, context):
-        latest = source.getLatestPacket()
+        latest = source.getLatestPacket() or {}
         return [
             tag('tr')[
                 tag('td')[ tag('a', href="source/%s/" % source.name, _class='name')[ source ]],
