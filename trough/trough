@@ -19,7 +19,7 @@ parser.add_option('-a','--add',dest='add',action="store_true",
 parser.add_option('-b','--break',dest='breakup',action="store_true",
 		help="break up grouped files already in tree")
 parser.add_option('-p','--playlist',dest="playlist",type="string",
-		help="path to playlist file",default="~/.trough-playlist")
+		help="path to playlist file")
 parser.add_option('-r','--remove',dest='remove',action="store_true",
 		help="recursively remove path(s) to the playlist")
 #parser.add_option('-i','--info',dest='info',action="store_true",
@@ -55,6 +55,8 @@ if options.breakup:
 # At some point, this may be replaced by code that actually plays something
 #
 p = playlist.getPieces()
+
+print playlist.getPieces().getCount()
                                                                                 
 for x in Select.Select(p):
 	print x.getPath()
