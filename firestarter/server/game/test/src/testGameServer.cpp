@@ -145,12 +145,12 @@ bool CTestGameServer::add ( int playerID, CNetworkPeer &peer )
 
 	CNetworkMessage	message;
 
-	message.SetType("SI");	// ServerInfo
+	message.SetType(_MESSAGE_SERVER_INFO);	// ServerInfo
 	message.AddI(playerID);
 	message.Send(peer,true);
 
 	// send an add to everyone else
-	message.SetType("UA");	// UserAdd
+	message.SetType(_MESSAGE_USER_ADD);	// UserAdd
 	message.AddI(playerID);
 	sendToAllBut(message,playerID);
 	return false;
@@ -164,7 +164,7 @@ bool CTestGameServer::remove ( int playerID, CNetworkPeer &peer )
 
 	// send the remove to everyone else
 	CNetworkMessage	message;
-	message.SetType("UP");	// UserPart
+	message.SetType(_MESSAGE_USER_PART);	// UserPart
 	message.AddI(playerID);
 	sendToAllBut(message,playerID);
 
@@ -180,11 +180,11 @@ bool CTestGameServer::kick ( int playerID, CNetworkPeer &peer )
 
 	CNetworkMessage	message;
 
-	message.SetType("KK");	// KicK
+	message.SetType(_MESSAGE_KICK);	// KicK
 	message.Send(peer,true);
 
 	// send the remove to everyone else
-	message.SetType("UP");	// UserPart
+	message.SetType(_MESSAGE_USER_PART);	// UserPart
 	message.AddI(playerID);
 	sendToAllBut(message,playerID);
 
@@ -195,7 +195,7 @@ bool CTestGameServer::kick ( int playerID, CNetworkPeer &peer )
 void CTestGameServer::kill ( void )
 {
 	CNetworkMessage	message;
-	message.SetType("KK"); 	// KicK
+	message.SetType(_MESSAGE_KICK); 	// KicK
 	sendToAllBut(message,-1);
 	users.clear();
 }
