@@ -5,3 +5,5 @@
 * Store user preferences in the chat client
 * Character sheet builder
 * Change colors in the chat buffer
+* Remove extraneous functions in the factory and have the UI access the client via
+  the factory instead of adding unnecessary function calls.
