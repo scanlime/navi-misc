@@ -51,8 +51,8 @@ class BuilderFormatter(Message.Formatter):
     def format_results(self, package):
         """Given a package, returns a formatted representation of all results for that package"""
         results = []
-        for element in package.elements():
-            f = getattr(self, 'result_' + element.name, None)
+        for element in XML.getChildElements(package):
+            f = getattr(self, 'result_' + element.nodeName, None)
             if f:
                 results.append(f(element))
 

@@ -63,12 +63,12 @@ class Version(Template.Section):
            if we're not in an svn working copy or it can't be parsed.
            """
         try:
-            entries = XML.parseString(open(".svn/entries").read())
+            entries = XML.parseString(open(".svn/entries").read()).documentElement
             highestRev = 0
-            for tag in entries.elements():
-                if tag.name == 'entry':
-                    rev = tag.getAttribute('committed-rev', 0)
-                    if rev > highestRev:
+            for tag in XML.getChildElements(entries):
+                if tag.nodeName == 'entry':
+                    rev = tag.getAttributeNS(None, 'committed-rev')
+                    if rev and rev > highestRev:
                         highestRev = rev
             return highestRev
         except:
