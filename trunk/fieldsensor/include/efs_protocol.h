@@ -45,16 +45,31 @@
 ;// we use for sampling. Several of these parameter blocks can be
 ;// stored in RAM for automatic sampling.
 
-#define EFS_PARAM_ACCUMULATOR_NUM	0		;// Number of the accumulator to store the result in
-#define EFS_PARAM_LC_PORT_XOR		1		;// Value to XOR LC outputs with in every excitation half-period
-#define EFS_PARAM_ADCON_INIT		2		;// Value to initialize the A/D converter control register to
-#define EFS_PARAM_PERIOD			3		;// Jump table value defining the excitation period length
-#define EFS_PARAM_PHASE				4		;// Jump table value defining the sampling phase
-#define	EFS_PARAM_NUM_HALF_PERIODS	5		;// Number of excitation half-periods
-#define EFS_PARAM_LC_TRIS_INIT		6		;// Value to initialize LC tristate register to
-#define EFS_PARAM_LC_PORT_INIT		7		;// Value to initialize LC outputs to
+;// Number of the accumulator to store the result in
+#define EFS_PARAM_ACCUMULATOR_NUM	0
 
-#define EFS_PARAMCOUNT				8
+;// Value to XOR LC outputs with in every excitation half-period
+#define EFS_PARAM_LC_PORT_XOR		1
+
+;// Value to initialize the A/D converter control register to
+#define EFS_PARAM_ADCON_INIT		2
+
+;// Jump table value defining the excitation period length
+#define EFS_PARAM_PERIOD		3
+
+;// Jump table value defining the sampling phase
+#define EFS_PARAM_PHASE			4
+
+;// Number of excitation half-periods
+#define	EFS_PARAM_NUM_HALF_PERIODS	5
+
+;// Value to initialize LC tristate register to
+#define EFS_PARAM_LC_TRIS_INIT		6
+
+;// Value to initialize LC outputs to
+#define EFS_PARAM_LC_PORT_INIT		7
+
+#define EFS_PARAMCOUNT			8
 
 
 ;//************************************************** Control requests
