@@ -223,13 +223,8 @@ navigation_tree_select_nth_channel (NavTree *navtree, gint chan_num)
 					GtkTreeIter new_iter,tmp;
 
 					gtk_tree_model_iter_nth_child(model, &new_iter, &server, chan_num);
-
-	        /*if (gtk_tree_selection_get_selected(selection, NULL, &tmp))
-		        navigation_model_sorted_iter_unref(navtree->model, &tmp);
-	        else if (navtree->current_path)
-		        navigation_model_path_deref(navtree->model, navtree->current_path);*/
-
 					gtk_tree_selection_select_iter(selection, &new_iter);
+
 					return;
 				}
 				/* If our number wants a channel out of the range of this server
@@ -240,7 +235,7 @@ navigation_tree_select_nth_channel (NavTree *navtree, gint chan_num)
 				chan_num -= kids;
 			}
 		/* Move to the next channel, if possible. */
-		}while (gtk_tree_model_iter_next(model, &server));
+		} while (gtk_tree_model_iter_next(model, &server));
 	}
 }
 
@@ -431,7 +426,9 @@ navigation_tree_select_next_network (NavTree *navtree)
 	}
 	/* If we have something selected we'll need to set path to the iter. */
 	else
+	{
 		path = gtk_tree_model_get_path(model, &iter);
+	}
 
 	/* Unref the current path. */
 	navigation_model_path_deref(navtree->model, path);
@@ -579,7 +576,6 @@ disconnect_server(gpointer data, guint action, GtkWidget *widget)
 static void
 show_channel_list(gpointer data, guint action, GtkWidget *widget)
 {
-	g_print("channel list!\n");
 	GtkTreeView *treeview;
 	GtkTreeSelection *select;
 	GtkTreeModel *model;
@@ -760,6 +756,9 @@ navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_dat
 	session_gui *tgui;
 
 	treeview = GTK_TREE_VIEW (glade_xml_get_widget (gui.xml, "userlist"));
+
+	if (gui.server_tree->current_path)
+		navigation_model_path_deref (gui.server_tree->model, gui.server_tree->current_path);
 
 	/* XXX: This sets model to be the GtkTreeModelSort used by the NavTree, it is
 	 *      not a GtkTreeModel. The iter is for that ModelSort.
