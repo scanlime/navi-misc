@@ -12,7 +12,7 @@
 import xmlrpclib, sys
 
 message = sys.stdin.read()
-s = xmlrpclib.ServerProxy("http://cia.navi.cx")
+s = xmlrpclib.ServerProxy("http://localhost:3910")
 s.mail.deliver(message)
 
 ### The End ###
