@@ -261,7 +261,7 @@ int fe_dcc_open_chat_win(int passive) {
 }
 
 void fe_clear_channel(struct session *sess) {
-	/* FIXME: implement */
+	navigation_tree_set_disconn(sess);
 }
 
 void fe_session_callback(struct session *sess) {

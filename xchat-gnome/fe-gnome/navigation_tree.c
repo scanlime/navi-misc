@@ -210,6 +210,26 @@ void navigation_tree_set_hilight(struct session *sess) {
 	gtk_tree_model_foreach(store, navigation_tree_set_hilight_iterate, (gpointer) sess);
 }
 
+static gboolean navigation_tree_set_disconn_iterate(GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, gpointer data) {
+	gpointer s;
+	gtk_tree_model_get(model, iter, 2, &s, -1);
+	if(s == data) {
+		gtk_tree_store_set(GTK_TREE_STORE(model), iter, 4, &colors[23], -1);
+		return TRUE;
+	}
+	return FALSE;
+}
+
+void navigation_tree_set_disconn(struct session *sess) {
+	GtkTreeModel *store;
+	GtkWidget *treeview;
+
+	treeview = glade_xml_get_widget(gui.xml, "server channel list");
+	store = gtk_tree_view_get_model(GTK_TREE_VIEW(treeview));
+
+	gtk_tree_model_foreach(store, navigation_tree_set_disconn_iterate, (gpointer) sess);
+}
+
 static session *navigation_get_selected() {
 	GtkWidget *treeview;
 	GtkTreeSelection *select;
