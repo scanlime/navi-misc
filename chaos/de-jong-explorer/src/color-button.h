@@ -1,8 +1,8 @@
 /*
- * Interactive color selection button. This is a composite widget
- * that shows a color sample inside a button. When the button is clicked,
- * a color picker with auto-apply modifies the color sample and sends the
- * 'changed' signal.
+ * color-button.h - Interactive color selection button. This is a composite
+ *                  widget that shows a color sample inside a button. When
+ *                  the button is clicked, a color picker with auto-apply
+ *                  modifies the color sample and sends the 'changed' signal.
  *
  * de Jong Explorer - interactive exploration of the Peter de Jong attractor
  * Copyright (C) 2004 David Trowbridge and Micah Dowty
@@ -72,6 +72,6 @@ guint16    color_button_get_alpha(ColorButton *cb);
 
 G_END_DECLS
 
-#endif /* __COLOR_BUTTON_H */
+#endif /* __COLOR_BUTTON_H__ */
 
 /* The End */
