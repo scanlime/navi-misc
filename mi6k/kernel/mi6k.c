@@ -49,19 +49,20 @@ static struct usb_device_id mi6k_table [] = {
 	{ USB_DEVICE(MI6K_VENDOR_ID, MI6K_PRODUCT_ID) },
 	{ } /* End table */
 };
-MODULE_DEVICE_TABLE (usb, mi6k_table);
+MODULE_DEVICE_TABLE(usb, mi6k_table);
 
 /* Structure to hold all of our device specific stuff */
 struct usb_mi6k {
 	struct usb_device *	udev;			/* save off the usb device pointer */
 	struct usb_interface *	interface;		/* the interface for this device */
-	devfs_handle_t		devfs;			/* devfs device node */
+	devfs_handle_t		devfs;			/* main devfs device node */
+	devfs_handle_t		lirc_devfs;		/* devfs device node for our LIRC-compatible device */
 	unsigned char		minor;			/* the starting minor number for this device */
 	int			open_count;		/* number of times this port has been opened */
 	struct semaphore	sem;			/* locks this structure */
 };
 
-/* the global usb devfs handle */
+/* the global devfs handle for the USB subsystem */
 extern devfs_handle_t usb_devfs_handle;
 
 /* we can have up to this number of device plugged in at once */
@@ -71,26 +72,29 @@ extern devfs_handle_t usb_devfs_handle;
 static struct usb_mi6k *minor_table[MAX_DEVICES];
 
 /* lock to protect the minor_table structure */
-static DECLARE_MUTEX (minor_table_mutex);
+static DECLARE_MUTEX(minor_table_mutex);
 
 /* 1/2 second timeout for control requests */
-#define REQUEST_TIMEOUT  (HZ / 2)
+#define REQUEST_TIMEOUT (HZ / 2)
 
 /* Wait 1/8 second after powering the VFD on or off */
-#define VFD_POWER_DELAY  (HZ / 8)
+#define VFD_POWER_DELAY (HZ / 8)
+
+/* The default major for /dev/lirc */
+#define LIRC_MAJOR              61
 
 
 /******************************************************************************/
 /************************************************** Function Prototypes *******/
 /******************************************************************************/
 
-static void mi6k_request (struct usb_mi6k *dev, unsigned short request,
+static void mi6k_request(struct usb_mi6k *dev, unsigned short request,
 			  unsigned short wValue, unsigned short wIndex);
-static int mi6k_open (struct inode *inode, struct file *file);
-static int mi6k_release (struct inode *inode, struct file *file);
-static ssize_t mi6k_write (struct file *file, const char *buffer, size_t count, loff_t *ppos);
-static int mi6k_ioctl (struct inode *inode, struct file *file, unsigned int cmd, unsigned long arg);
-static inline void mi6k_delete (struct usb_mi6k *dev);
+static int mi6k_open(struct inode *inode, struct file *file);
+static int mi6k_release(struct inode *inode, struct file *file);
+static ssize_t mi6k_write(struct file *file, const char *buffer, size_t count, loff_t *ppos);
+static int mi6k_ioctl(struct inode *inode, struct file *file, unsigned int cmd, unsigned long arg);
+static inline void mi6k_delete(struct usb_mi6k *dev);
 static void * mi6k_probe(struct usb_device *udev, unsigned int ifnum, const struct usb_device_id *id);
 static void mi6k_disconnect(struct usb_device *udev, void *ptr);
 static int __init usb_mi6k_init(void);
@@ -101,7 +105,7 @@ static void __exit usb_mi6k_exit(void);
 /************************************************** Device Communications *****/
 /******************************************************************************/
 
-static void mi6k_request (struct usb_mi6k *dev, unsigned short request,
+static void mi6k_request(struct usb_mi6k *dev, unsigned short request,
 			  unsigned short wValue, unsigned short wIndex)
 {
 	/* Send a control request to the device synchronously */
@@ -114,31 +118,31 @@ static void mi6k_request (struct usb_mi6k *dev, unsigned short request,
 /************************************************** Shared device functions ***/
 /******************************************************************************/
 
-static int mi6k_open (struct inode *inode, struct file *file)
+static int mi6k_open(struct inode *inode, struct file *file)
 {
 	struct usb_mi6k *dev = NULL;
 	int subminor;
 	int retval = 0;
 
-	subminor = MINOR (inode->i_rdev) - MI6K_MINOR_BASE;
+	subminor = MINOR(inode->i_rdev) - MI6K_MINOR_BASE;
 	if ((subminor < 0) ||
-	    (subminor >= MAX_DEVICES)) {
+	   (subminor >= MAX_DEVICES)) {
 		return -ENODEV;
 	}
 
 	/* lock our minor table and get our local data for this minor */
-	down (&minor_table_mutex);
+	down(&minor_table_mutex);
 	dev = minor_table[subminor];
 	if (dev == NULL) {
-		up (&minor_table_mutex);
+		up(&minor_table_mutex);
 		return -ENODEV;
 	}
 
 	/* lock this device */
-	down (&dev->sem);
+	down(&dev->sem);
 
 	/* unlock the minor table */
-	up (&minor_table_mutex);
+	up(&minor_table_mutex);
 
 	/* increment our usage count for the driver */
 	++dev->open_count;
@@ -147,39 +151,39 @@ static int mi6k_open (struct inode *inode, struct file *file)
 	file->private_data = dev;
 
 	/* unlock this device */
-	up (&dev->sem);
+	up(&dev->sem);
 
 	return retval;
 }
 
-static int mi6k_release (struct inode *inode, struct file *file)
+static int mi6k_release(struct inode *inode, struct file *file)
 {
 	struct usb_mi6k *dev;
 	int retval = 0;
 
-	dev = (struct usb_mi6k *)file->private_data;
+	dev =(struct usb_mi6k *)file->private_data;
 	if (dev == NULL) {
-		dbg ("object is NULL");
+		dbg("object is NULL");
 		return -ENODEV;
 	}
 
 	/* lock our minor table */
-	down (&minor_table_mutex);
+	down(&minor_table_mutex);
 
 	/* lock our device */
-	down (&dev->sem);
+	down(&dev->sem);
 
 	if (dev->open_count <= 0) {
-		dbg ("device not opened");
+		dbg("device not opened");
 		retval = -ENODEV;
 		goto exit_not_opened;
 	}
 
 	if (dev->udev == NULL) {
 		/* the device was unplugged before the file was released */
-		up (&dev->sem);
-		mi6k_delete (dev);
-		up (&minor_table_mutex);
+		up(&dev->sem);
+		mi6k_delete(dev);
+		up(&minor_table_mutex);
 		return 0;
 	}
 
@@ -191,8 +195,8 @@ static int mi6k_release (struct inode *inode, struct file *file)
 	}
 
 exit_not_opened:
-	up (&dev->sem);
-	up (&minor_table_mutex);
+	up(&dev->sem);
+	up(&minor_table_mutex);
 
 	return retval;
 }
@@ -202,7 +206,7 @@ exit_not_opened:
 /************************************************** Main character device *****/
 /******************************************************************************/
 
-static ssize_t mi6k_dev_write (struct file *file, const char *buffer, size_t count, loff_t *ppos)
+static ssize_t mi6k_dev_write(struct file *file, const char *buffer, size_t count, loff_t *ppos)
 {
 	/* Pad unused bytes with zero, which the display will ignore */
 	unsigned char tbuffer[] = {0, 0, 0, 0};
@@ -210,10 +214,10 @@ static ssize_t mi6k_dev_write (struct file *file, const char *buffer, size_t cou
 	ssize_t bytes_written = 0;
 	int retval = 0;
 
-	dev = (struct usb_mi6k *)file->private_data;
+	dev =(struct usb_mi6k *)file->private_data;
 
 	/* lock this object */
-	down (&dev->sem);
+	down(&dev->sem);
 
 	/* verify that the device wasn't unplugged */
 	if (dev->udev == NULL) {
@@ -235,36 +239,36 @@ static ssize_t mi6k_dev_write (struct file *file, const char *buffer, size_t cou
 
 	/* Pack 4 bytes of the character stream into the packet's value and index parameters */
 	mi6k_request(dev, MI6K_CTRL_VFD_WRITE,
-		     tbuffer[0] | (((int)tbuffer[1]) << 8),
-		     tbuffer[2] | (((int)tbuffer[3]) << 8));
+		     tbuffer[0] |(((int)tbuffer[1]) << 8),
+		     tbuffer[2] |(((int)tbuffer[3]) << 8));
 
 	retval = bytes_written;
 
 exit:
 	/* unlock the device */
-	up (&dev->sem);
+	up(&dev->sem);
 
 	return retval;
 }
 
-static int mi6k_dev_ioctl (struct inode *inode, struct file *file, unsigned int cmd, unsigned long arg)
+static int mi6k_dev_ioctl(struct inode *inode, struct file *file, unsigned int cmd, unsigned long arg)
 {
 	struct usb_mi6k *dev;
 	int retval=0;
 	struct mi6k_leds leds;
 
-	dev = (struct usb_mi6k *)file->private_data;
+	dev =(struct usb_mi6k *)file->private_data;
 
 	/* lock this object */
-	down (&dev->sem);
+	down(&dev->sem);
 
 	/* verify that the device wasn't unplugged */
 	if (dev->udev == NULL) {
-		up (&dev->sem);
+		up(&dev->sem);
 		return -ENODEV;
 	}
 
-	switch (cmd) {
+	switch(cmd) {
 
 	case MI6KIO_VFD_POWER:
 		/* Issue a blocking power command, then wait a bit for the device to power on/off.
@@ -282,7 +286,7 @@ static int mi6k_dev_ioctl (struct inode *inode, struct file *file, unsigned int 
 		 * a u16 to hide the details of the PWM resolution. We chop off 6 bits to quantize
 		 * into the PWM's 10-bit resolution.
 		 */
-		if (copy_from_user(&leds, (struct mi6k_leds*) arg, sizeof(leds))) {
+		if (copy_from_user(&leds,(struct mi6k_leds*) arg, sizeof(leds))) {
 			retval = -EFAULT;
 			break;
 		}
@@ -296,7 +300,7 @@ static int mi6k_dev_ioctl (struct inode *inode, struct file *file, unsigned int 
 	}
 
 	/* unlock the device */
-	up (&dev->sem);
+	up(&dev->sem);
 
 	return retval;
 }
@@ -315,16 +319,16 @@ static struct file_operations mi6k_dev_fops = {
 /************************************************** LIRC character device *****/
 /******************************************************************************/
 
-static ssize_t mi6k_lirc_write (struct file *file, const char *buffer, size_t count, loff_t *ppos)
+static ssize_t mi6k_lirc_write(struct file *file, const char *buffer, size_t count, loff_t *ppos)
 {
 	struct usb_mi6k *dev;
 	ssize_t bytes_written = 0;
 	int retval = 0;
 
-	dev = (struct usb_mi6k *)file->private_data;
+	dev =(struct usb_mi6k *)file->private_data;
 
 	/* lock this object */
-	down (&dev->sem);
+	down(&dev->sem);
 
 	/* verify that the device wasn't unplugged */
 	if (dev->udev == NULL) {
@@ -343,29 +347,29 @@ static ssize_t mi6k_lirc_write (struct file *file, const char *buffer, size_t co
 
 exit:
 	/* unlock the device */
-	up (&dev->sem);
+	up(&dev->sem);
 
 	return retval;
 }
 
-static int mi6k_lirc_ioctl (struct inode *inode, struct file *file, unsigned int cmd, unsigned long arg)
+static int mi6k_lirc_ioctl(struct inode *inode, struct file *file, unsigned int cmd, unsigned long arg)
 {
 	struct usb_mi6k *dev;
 	int retval=0;
 	struct mi6k_leds leds;
 
-	dev = (struct usb_mi6k *)file->private_data;
+	dev =(struct usb_mi6k *)file->private_data;
 
 	/* lock this object */
-	down (&dev->sem);
+	down(&dev->sem);
 
 	/* verify that the device wasn't unplugged */
 	if (dev->udev == NULL) {
-		up (&dev->sem);
+		up(&dev->sem);
 		return -ENODEV;
 	}
 
-	switch (cmd) {
+	switch(cmd) {
 
 	default:
 		/* Indicate that we didn't understand this ioctl */
@@ -374,7 +378,7 @@ static int mi6k_lirc_ioctl (struct inode *inode, struct file *file, unsigned int
 	}
 
 	/* unlock the device */
-	up (&dev->sem);
+	up(&dev->sem);
 
 	return retval;
 }
@@ -393,10 +397,10 @@ static struct file_operations mi6k_lirc_fops = {
 /************************************************** USB Housekeeping **********/
 /******************************************************************************/
 
-static inline void mi6k_delete (struct usb_mi6k *dev)
+static inline void mi6k_delete(struct usb_mi6k *dev)
 {
 	minor_table[dev->minor] = NULL;
-	kfree (dev);
+	kfree(dev);
 }
 
 static struct usb_driver mi6k_driver = {
@@ -421,56 +425,69 @@ static void * mi6k_probe(struct usb_device *udev, unsigned int ifnum, const stru
 
 	/* See if the device offered us matches what we can accept */
 	if ((udev->descriptor.idVendor != MI6K_VENDOR_ID) ||
-	    (udev->descriptor.idProduct != MI6K_PRODUCT_ID)) {
+	   (udev->descriptor.idProduct != MI6K_PRODUCT_ID)) {
 		return NULL;
 	}
 
-	/* select a "subminor" number (part of a minor number) */
-	down (&minor_table_mutex);
-	for (minor = 0; minor < MAX_DEVICES; ++minor) {
+	/* select a "subminor" number(part of a minor number) */
+	down(&minor_table_mutex);
+	for(minor = 0; minor < MAX_DEVICES; ++minor) {
 		if (minor_table[minor] == NULL)
 			break;
 	}
 	if (minor >= MAX_DEVICES) {
-		info ("Too many devices plugged in, can not handle this device.");
+		info("Too many devices plugged in, can not handle this device.");
 		goto exit;
 	}
 
 	/* allocate memory for our device state and intialize it */
-	dev = kmalloc (sizeof(struct usb_mi6k), GFP_KERNEL);
+	dev = kmalloc(sizeof(struct usb_mi6k), GFP_KERNEL);
 	if (dev == NULL) {
-		err ("Out of memory");
+		err("Out of memory");
 		goto exit;
 	}
-	memset (dev, 0x00, sizeof (*dev));
+	memset(dev, 0x00, sizeof(*dev));
 	minor_table[minor] = dev;
 
 	interface = &udev->actconfig->interface[ifnum];
 
-	init_MUTEX (&dev->sem);
+	init_MUTEX(&dev->sem);
 	dev->udev = udev;
 	dev->interface = interface;
 	dev->minor = minor;
 
-	/* initialize the devfs node for this device and register it */
+	/* Initialize the devfs node for this device and register it */
 	sprintf(name, MI6K_DEV_NAMEFORMAT, dev->minor);
-	dev->devfs = devfs_register (usb_devfs_handle, name,
+	dev->devfs = devfs_register(usb_devfs_handle, name,
 				     DEVFS_FL_DEFAULT, USB_MAJOR,
 				     MI6K_MINOR_BASE + dev->minor,
 				     S_IFCHR | S_IRUSR | S_IWUSR |
 				     S_IRGRP | S_IWGRP | S_IROTH,
 				     &mi6k_dev_fops, NULL);
+	info("MI6K device now attached to %s", name);
 
-	/* let the user know what node this device is now attached to */
-	info ("MI6K device now attached to %s", name);
+	/* Initialize our LIRC-compatible character device */
+	if (dev->minor == 0) {
+		strcpy(name, "lirc");
+	}
+	else {
+		sprintf(name, "lirc%d", dev->minor);
+	}
+	dev->devfs = devfs_register(NULL, name,
+				    DEVFS_FL_DEFAULT, LIRC_MAJOR,
+				    dev->minor,
+				    S_IFCHR | S_IRUSR | S_IWUSR |
+				    S_IRGRP | S_IWGRP | S_IROTH,
+				    &mi6k_lirc_fops, NULL);
+
 	goto exit;
 
 error:
-	mi6k_delete (dev);
+	mi6k_delete(dev);
 	dev = NULL;
 
 exit:
-	up (&minor_table_mutex);
+	up(&minor_table_mutex);
 	return dev;
 }
 
@@ -479,27 +496,28 @@ static void mi6k_disconnect(struct usb_device *udev, void *ptr)
 	struct usb_mi6k *dev;
 	int minor;
 
-	dev = (struct usb_mi6k *)ptr;
+	dev =(struct usb_mi6k *)ptr;
 
-	down (&minor_table_mutex);
-	down (&dev->sem);
+	down(&minor_table_mutex);
+	down(&dev->sem);
 
 	minor = dev->minor;
 
 	/* remove our devfs node */
 	devfs_unregister(dev->devfs);
+	devfs_unregister(dev->lirc_devfs);
 
 	/* if the device is not opened, then we clean up right now */
 	if (!dev->open_count) {
-		up (&dev->sem);
-		mi6k_delete (dev);
+		up(&dev->sem);
+		mi6k_delete(dev);
 	} else {
 		dev->udev = NULL;
-		up (&dev->sem);
+		up(&dev->sem);
 	}
 
 	info("MI6K #%d now disconnected", minor);
-	up (&minor_table_mutex);
+	up(&minor_table_mutex);
 }
 
 static int __init usb_mi6k_init(void)
@@ -514,6 +532,10 @@ static int __init usb_mi6k_init(void)
 		return -1;
 	}
 
+	/* Register the major number for LIRC devices */
+	if (devfs_register_chrdev(LIRC_MAJOR, "mi6k", &mi6k_lirc_fops))
+		err("unable to get major %d for LIRC devices", LIRC_MAJOR);
+
 	info(DRIVER_DESC " " DRIVER_VERSION);
 	return 0;
 }
@@ -522,9 +544,12 @@ static void __exit usb_mi6k_exit(void)
 {
 	/* deregister this driver with the USB subsystem */
 	usb_deregister(&mi6k_driver);
+
+	/* deregister our character device major */
+	devfs_unregister_chrdev(LIRC_MAJOR, "mi6k");
 }
 
-module_init (usb_mi6k_init);
-module_exit (usb_mi6k_exit);
+module_init(usb_mi6k_init);
+module_exit(usb_mi6k_exit);
 
 /* The End */
