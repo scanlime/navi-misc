@@ -14,6 +14,16 @@
   any requests will get removed, bots will try to take their preferred nick if
   they don't have it already.
 
+- It's starting to take a lot of CPU to generate the author list page and the
+  gnome projects list page. Besides optimization, it would help to have it limit
+  the number of results displayed, and allow users to page through them (say,
+  50 at a time) and search the list (both target names and metadata)
+  This would best be implemented by creating a Nouvelle.ResortableTable subclass
+  that integrates better with SQL- sorting would be done with an 'ORDER BY' clause,
+  paging would be done with LIMIT. The same searchable/pageable/SQL table widget
+  could be used to present a searchable database of recent messages for each target,
+  rather than limiting it to the last 20.
+
 ######## Noncritical
 
 - The XML parser (somewhat hacked up domish) breaks when messages specify
