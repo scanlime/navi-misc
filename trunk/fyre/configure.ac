@@ -6,7 +6,7 @@ dnl ################################################################
 AC_INIT(fyre, 0.7-pre, trowbrds@cs.colorado.edu)
 AC_PREREQ(2.50)
 AC_CONFIG_SRCDIR(config.h.in)
-AC_COPYRIGHT([Copyright 2004 David Trowbridge and Micah Dowty])
+AC_COPYRIGHT([Copyright 2004-2005 David Trowbridge and Micah Dowty])
 
 dnl ################################################################
 dnl # Initialize automake

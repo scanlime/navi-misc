@@ -1951,7 +1951,7 @@ to balance interactive response with image quality.</property>
       <child>
 	<widget class="GtkLabel" id="label52">
 	  <property name="visible">True</property>
-	  <property name="label" translatable="yes">&lt;span size=&quot;x-small&quot;&gt;Copyright 2004
+	  <property name="label" translatable="yes">&lt;span size=&quot;x-small&quot;&gt;Copyright 2004-2005
 David Trowbridge
 Micah Dowty&lt;/span&gt;</property>
 	  <property name="use_underline">False</property>
