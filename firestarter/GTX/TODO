@@ -1,6 +1,81 @@
 to do list for BZFlag
 ---------------------
 
+THESE SHOULD BE IN GTX
+* removals
+	* flags
+		Agility
+		Laser
+		Burrow
+		Genocide
+		Masquerade
+		Jumping
+		Lag
+		Thief
+		Useless
+		Phantom Zone
+		Color Blindess
+		Obesity
+		Trigger Happy
+		Tiny
+
+	* concepts
+		Team Kill
+		Time of Day
+
+	* graphicals
+		lighing prefs
+		texture prefs
+		z buffer prefs
+		blending prefs
+		bsp world view
+		stencel buffer usage
+		stipple shadows
+		segment lighting
+
+
+* additions
+	* flags to powerups
+	* powerups = staus changes
+		* new powerups 
+			SuperJump
+			Misfire
+			Slow
+			Full Bore
+	* login in client
+	* player setup in client
+	* server "rating"
+	* area sounds
+	* playable sounds
+	* player chat avatars
+	* message system
+	* /command macro system
+	* macro bar
+	* status zones
+	* model replacements
+	* freeform map objects
+
+* changes
+	* concepts
+		Shot reload
+		Number of shots
+
+	* informational
+		server list
+	
+	* graphicals
+		hud cleanup
+		Texture cleanups
+		Fixed level octree
+		sky & mountans cleanup
+		map specified textures
+		map specified world paramaters
+	
+	* sound
+		compressed sound support
+		streams
+
+
 THESE SHOULD HAPPEN BEFORE THE NEXT RELEASE:
 
 * server should gravitate lag towards infinity if players do not 
