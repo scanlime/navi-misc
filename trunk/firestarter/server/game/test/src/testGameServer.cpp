@@ -446,7 +446,7 @@ bool CRobotPlayer::think ( void )
 	float botUpdateTime = 1.0f/0.5f;
 	if (CTimer::instance().GetTime() - lastUpdateTime > botUpdateTime )
 	{
-		lastUpdateTime = CTimer::instance().GetTime();
+		lastUpdateTime = (float)CTimer::instance().GetTime();
 		return true;
 	}
 	else
