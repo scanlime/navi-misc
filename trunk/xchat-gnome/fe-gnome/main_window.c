@@ -113,8 +113,7 @@ void on_irc_connect_menu_activate(GtkWidget *widget, gpointer data) {
 }
 
 void on_irc_quit_menu_activate(GtkWidget *widget, gpointer data) {
-	gtk_widget_destroy (widget);
-	gtk_main_quit();
+	gui.quit = TRUE;
 	xchat_exit();
 }
 
