@@ -38,7 +38,9 @@ def wrapLine(line, width):
         else:
             newLine = word
         if len(newLine) > width:
-            lines.append(oldLine.rstrip())
+            oldLine = oldLine.rstrip()
+            if oldLine:
+                lines.append(oldLine)
             newLine = word
     if newLine:
         lines.append(newLine.rstrip())
@@ -49,9 +51,15 @@ def extractSummary(element, widthLimit=80):
     """Extract all text from the given XML element, remove extra
        whitespace, and truncate it to no longer than the given width.
        """
-    lines = wrapLine(re.sub("\s+", " ", XML.allText(element)).strip(), widthLimit)
-    if len(lines) > 1:
-        lines[0] += "..."
-    return lines[0]
+    # Extract all text, eating extra whitespace
+    text = re.sub("\s+", " ", XML.allText(element)).strip()
+
+    # Use wrapLine to cleanly break it if possible, but
+    # truncate it if necessary- wrapLine will not break words in
+    # half if they are longer than the wrap width.
+    summary = wrapLine(text, widthLimit)[0][:widthLimit]
+    if len(summary) < len(text):
+        summary += "..."
+    return summary
 
 ### The End ###

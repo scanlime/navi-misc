@@ -338,6 +338,7 @@ table.messageHeaders td.name {
   padding: 0.1em 0.25em;
   font-weight: bold;
   text-align: right;
+  white-space: nowrap;
 }
 
 table.messageHeaders td.value {
@@ -347,7 +348,7 @@ table.messageHeaders td.value {
 }
 
 p.messageBody {
-  margin: 1em 0em;
+  margin: 1.5em 0em;
   padding: 0.25em 0em;
 }
 
