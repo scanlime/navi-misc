@@ -208,7 +208,7 @@ static void mi6k_ir_rx_store(struct usb_mi6k *dev, unsigned char *buffer, size_t
 static void mi6k_ir_tx_send(struct usb_mi6k *dev, lirc_t pulse, lirc_t space)
 {
 	/* Send a pulse and space to the device synchronously.
-	 * This converts from LIRC's microsecond units to the hardware's ~26.3 microsecond units 
+	 * This converts from LIRC's microsecond units to the hardware's ~26.3 microsecond units
 	 */
 	pulse = (pulse & PULSE_MASK) * 100 / 263;
 	if (pulse > 0xFFFF) pulse = 0xFFFF;
