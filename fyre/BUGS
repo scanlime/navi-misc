@@ -1,7 +1,2 @@
-* The AVI files exported by Fyre don't play in windows media player.
-  Is the exporter broken, or can WMP just not handle uncompressed RGB?
-  This is probably actually the lack of an index
 * There are some remaining problems with the win32 build:
-  - Libpng isn't linking correctly. I know this at least breaks
-    the about box, and it probably also breaks loading/saving
   - Still untested with OpenEXR
