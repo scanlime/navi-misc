@@ -48,6 +48,7 @@ class PageItem(Item):
         Item.__init__(self, icon)
 
     def onSelected(self, menu):
+        self.menu = menu
         menu.book.pushBack(self.page)
 
 
