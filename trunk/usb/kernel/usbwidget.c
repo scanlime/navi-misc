@@ -27,7 +27,7 @@
 #define USB_WIDGET_DEV_NAME     "widget"
 #define USB_WIDGET_MINOR_BASE	230
 
-#define BUFFER_SIZE 16
+#define BUFFER_SIZE 8
 
 #define DRIVER_VERSION "v0.1"
 #define DRIVER_AUTHOR "Micah Dowty <micah@picogui.org>"
@@ -46,12 +46,11 @@ struct usb_widget {
 	devfs_handle_t devfs;
 	struct urb read_urb;
 	struct urb write_urb;
-	unsigned char read_data[BUFFER_SIZE];
-	unsigned char write_data[BUFFER_SIZE];
+	unsigned char read_data[BUFFER_SIZE+1];   /* The '+1' is so the buffers will stay null-terminated */
+	unsigned char write_data[BUFFER_SIZE+1];  /* and we can dbg() them easily */
 	int open;
 	struct usb_endpoint_descriptor *endpoint;
 	wait_queue_head_t write_wqh;
-	int write_complete_counter;
 };
 
 static void usb_widget_read_complete(struct urb *urb)
@@ -70,13 +69,15 @@ static void usb_widget_write_complete(struct urb *urb)
 
 	if (urb->status) return;
 
-	dbg("Write complete, status %d, wrote %d bytes, interval %d", urb->status, urb->actual_length, urb->interval);
+	dbg("Write complete, status %d, wrote %d bytes, interval %d, buffer: '%s'",
+	    urb->status, urb->actual_length, urb->interval, urb->transfer_buffer);
 
-	if (++widget->write_complete_counter == 2) {
-		if (waitqueue_active(&widget->write_wqh)) {
-			dbg("waking up processes");
-			wake_up_interruptible(&widget->write_wqh);
-		}
+	if (waitqueue_active(&widget->write_wqh)) {
+		/* Cancel the transfer before it gets automatically resent */
+		usb_unlink_urb(&widget->write_urb);
+
+		dbg("waking up processes");
+		wake_up_interruptible(&widget->write_wqh);
 	}
 }
 
@@ -101,9 +102,6 @@ static ssize_t usb_widget_dev_write (struct file *file, const char *buffer, size
 		int status, write_pipe;
 		int transfer_size;
 
-		/* Cancel any old transfer */
-		usb_unlink_urb(&widget->write_urb);
-
 		transfer_size = min(count, BUFFER_SIZE);
 		if (copy_from_user(widget->write_data, buffer, transfer_size))
 			return -EFAULT;
@@ -114,7 +112,6 @@ static ssize_t usb_widget_dev_write (struct file *file, const char *buffer, size
 		usb_fill_int_urb(&widget->write_urb, widget->usbdev, write_pipe, widget->write_data, transfer_size,
 				 usb_widget_write_complete, widget, 0);
 
-		widget->write_complete_counter = 0;
 		status = usb_submit_urb(&widget->write_urb);
 		dbg("usb_submit_usb status %d", status);
 
@@ -122,9 +119,6 @@ static ssize_t usb_widget_dev_write (struct file *file, const char *buffer, size
 		dbg("sleeping, status is %d", widget->write_urb.status);
 		interruptible_sleep_on(&widget->write_wqh);
 		dbg("waking up, status is %d", widget->write_urb.status);
-
-		/* Unlink the URB right now to prevent the automatic resubmission that interrupt URBs get */
-		usb_unlink_urb(&widget->write_urb);
 
 		return transfer_size;
 	}
@@ -158,7 +152,7 @@ static void *usb_widget_probe(struct usb_device *dev, unsigned int ifnum,
 	iface = &dev->actconfig->interface[ifnum];
 	interface = &iface->altsetting[iface->act_altsetting];
 
-	dbg("bNumEndpoints = %d\n", interface->bNumEndpoints);
+	dbg("bNumEndpoints = %d", interface->bNumEndpoints);
 
 	if (interface->bNumEndpoints < 1) return NULL;
 
@@ -235,6 +229,7 @@ static int __init usb_widget_init(void)
 static void __exit usb_widget_exit(void)
 {
 	usb_deregister(&usb_widget_driver);
+	dbg("Exiting\n");
 }
 
 module_init(usb_widget_init);
