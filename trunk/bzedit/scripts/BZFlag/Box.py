@@ -25,6 +25,23 @@ from Object import Object
 class Box(Object):
     type = 'box'
 
+    verts = [( 1,  1, 1),
+             ( 1,  1, 0),
+             ( 1, -1, 1),
+             ( 1, -1, 0),
+             (-1,  1, 1),
+             (-1,  1, 0),
+             (-1, -1, 1),
+             (-1, -1, 0),
+            ]
+    faces = [(0, 1, 3, 2), # X+
+             (6, 7, 5, 4), # X-
+             (4, 5, 1, 0), # Y+
+             (2, 3, 7, 6), # Y-
+             (0, 2, 6, 4), # Z+
+             (1, 5, 7, 3), # Z-
+            ]
+
     def __init__(self):
         # Load defaults
         self.drivethrough = 0
