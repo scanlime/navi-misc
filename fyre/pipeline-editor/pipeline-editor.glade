@@ -585,7 +585,16 @@ v&lt;sub&gt;0&lt;/sub&gt;: vector</property>
 	      <property name="window_placement">GTK_CORNER_TOP_LEFT</property>
 
 	      <child>
-		<placeholder/>
+		<widget class="GtkViewport" id="viewport1">
+		  <property name="visible">True</property>
+		  <property name="shadow_type">GTK_SHADOW_IN</property>
+
+		  <child>
+		    <widget class="GtkDrawingArea" id="drawing_area">
+		      <property name="visible">True</property>
+		    </widget>
+		  </child>
+		</widget>
 	      </child>
 	    </widget>
 	    <packing>
