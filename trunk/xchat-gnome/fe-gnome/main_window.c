@@ -42,6 +42,7 @@
 
 void on_main_window_close(GtkWidget *widget, GdkEvent *event, gpointer data);
 void on_irc_quit_menu_activate(GtkWidget *widget, gpointer data);
+void on_irc_file_transfers_menu_activate(GtkWidget *widget, gpointer data);
 void on_irc_connect_menu_activate(GtkWidget *widget, gpointer data);
 void on_edit_cut_menu_activate(GtkWidget *widget, gpointer data);
 void on_edit_copy_menu_activate(GtkWidget *widget, gpointer data);
@@ -52,7 +53,6 @@ void on_insert_color_code_menu_activate(GtkWidget *widget, gpointer data);
 void on_network_information_menu_activate(GtkWidget *widget, gpointer data);
 void on_network_reconnect_menu_activate(GtkWidget *widget, gpointer data);
 void on_network_disconnect_menu_activate(GtkWidget *widget, gpointer data);
-void on_network_file_transfers_menu_activate(GtkWidget *widget, gpointer data);
 void on_network_channels_menu_activate(GtkWidget *widget, gpointer data);
 void on_network_users_menu_activate(GtkWidget *widget, gpointer data);
 void on_discussion_save_activate(GtkWidget *widget, gpointer data);
@@ -72,8 +72,8 @@ void on_text_entry_activate(GtkWidget *widget, gpointer data);
 gboolean on_text_entry_key(GtkWidget *widget, GdkEventKey *key, gpointer data);
 
 gboolean on_resize(GtkWidget *widget, GdkEventConfigure *event, gpointer data);
-gboolean on_vpane_move(GtkWidget *widget, gpointer data);
-gboolean on_hpane_move(GtkWidget *widget, gpointer data);
+gboolean on_vpane_move(GtkPaned *widget, GParamSpec *param_spec, gpointer data);
+gboolean on_hpane_move(GtkPaned *widget, GParamSpec *param_spec, gpointer data);
 
 static void entry_context(GtkEntry *entry, GtkMenu *menu, gpointer user_data);
 
@@ -84,6 +84,7 @@ void initialize_main_window() {
 	g_signal_connect(G_OBJECT(gui.main_window), "delete-event", G_CALLBACK(on_main_window_close), NULL);
 	/* hook up the menus */
 	g_signal_connect(G_OBJECT(glade_xml_get_widget(gui.xml, "connect1")), "activate", G_CALLBACK(on_irc_connect_menu_activate), NULL);
+	g_signal_connect(G_OBJECT(glade_xml_get_widget(gui.xml, "downloads1")), "activate", G_CALLBACK(on_irc_file_transfers_menu_activate), NULL);
 	g_signal_connect(G_OBJECT(glade_xml_get_widget(gui.xml, "quit1")), "activate", G_CALLBACK(on_irc_quit_menu_activate), NULL);
 	g_signal_connect(G_OBJECT(glade_xml_get_widget(gui.xml, "cut1")), "activate", G_CALLBACK(on_edit_cut_menu_activate), NULL);
 	g_signal_connect(G_OBJECT(glade_xml_get_widget(gui.xml, "copy1")), "activate", G_CALLBACK(on_edit_copy_menu_activate), NULL);
@@ -94,7 +95,6 @@ void initialize_main_window() {
 	g_signal_connect(G_OBJECT(glade_xml_get_widget(gui.xml, "information1")), "activate", G_CALLBACK(on_network_information_menu_activate), NULL);
 	g_signal_connect(G_OBJECT(glade_xml_get_widget(gui.xml, "reconnect1")), "activate", G_CALLBACK(on_network_reconnect_menu_activate), NULL);
 	g_signal_connect(G_OBJECT(glade_xml_get_widget(gui.xml, "disconnect1")), "activate", G_CALLBACK(on_network_disconnect_menu_activate), NULL);
-	g_signal_connect(G_OBJECT(glade_xml_get_widget(gui.xml, "downloads1")), "activate", G_CALLBACK(on_network_file_transfers_menu_activate), NULL);
 	g_signal_connect(G_OBJECT(glade_xml_get_widget(gui.xml, "channel_list1")), "activate", G_CALLBACK(on_network_channels_menu_activate), NULL);
 	g_signal_connect(G_OBJECT(glade_xml_get_widget(gui.xml, "users1")), "activate", G_CALLBACK(on_network_users_menu_activate), NULL);
 	g_signal_connect(G_OBJECT(glade_xml_get_widget(gui.xml, "save_transcript1")), "activate", G_CALLBACK(on_discussion_save_activate), NULL);
@@ -116,9 +116,9 @@ void initialize_main_window() {
 	g_signal_connect(G_OBJECT(entry), "populate-popup", G_CALLBACK(entry_context), NULL);
 
 	pane = glade_xml_get_widget(gui.xml, "VPane");
-	g_signal_connect(G_OBJECT(pane), "accept-position", G_CALLBACK(on_vpane_move), NULL);
+	g_signal_connect(G_OBJECT(pane), "notify::position", G_CALLBACK(on_vpane_move), NULL);
 	pane = glade_xml_get_widget(gui.xml, "HPane");
-	g_signal_connect(G_OBJECT(pane), "accept-position", G_CALLBACK(on_hpane_move), NULL);
+	g_signal_connect(G_OBJECT(pane), "notify::position", G_CALLBACK(on_hpane_move), NULL);
 
 #ifdef HAVE_GTKSPELL
 #if 0
@@ -209,8 +209,8 @@ void on_network_disconnect_menu_activate(GtkWidget *widget, gpointer data) {
 	s->server->disconnect(s, TRUE, -1);
 }
 
-void on_network_file_transfers_menu_activate(GtkWidget *widget, gpointer data) {
-	/* FIXME: implement */
+void on_irc_file_transfers_menu_activate(GtkWidget *widget, gpointer data) {
+	show_transfers_window();
 }
 
 void on_network_channels_menu_activate(GtkWidget *widget, gpointer data) {
@@ -423,16 +423,14 @@ gboolean on_resize(GtkWidget *widget, GdkEventConfigure *event, gpointer data) {
 	return FALSE;
 }
 
-gboolean on_vpane_move(GtkWidget *widget, gpointer data) {
-	int pos = gtk_paned_get_position(GTK_PANED(widget));
-	g_print("on_vpane_move()\n");
+gboolean on_vpane_move(GtkPaned *widget, GParamSpec *param_spec, gpointer data) {
+	int pos = gtk_paned_get_position(widget);
 	preferences_set_main_window_v_position(pos);
 	return FALSE;
 }
 
-gboolean on_hpane_move(GtkWidget *widget, gpointer data) {
-	int pos = gtk_paned_get_position(GTK_PANED(widget));
-	g_print("on_hpane_move()\n");
+gboolean on_hpane_move(GtkPaned *widget, GParamSpec *param_spec, gpointer data) {
+	int pos = gtk_paned_get_position(widget);
 	preferences_set_main_window_h_position(pos);
 	return FALSE;
 }

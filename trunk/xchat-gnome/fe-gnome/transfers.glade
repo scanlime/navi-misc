@@ -5,7 +5,6 @@
 
 <widget class="GtkWindow" id="window1">
   <property name="border_width">12</property>
-  <property name="visible">True</property>
   <property name="title" translatable="yes">File Transfers</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_NONE</property>
@@ -32,7 +31,7 @@
 	    <widget class="GtkTreeView" id="treeview1">
 	      <property name="visible">True</property>
 	      <property name="can_focus">True</property>
-	      <property name="headers_visible">True</property>
+	      <property name="headers_visible">False</property>
 	      <property name="rules_hint">True</property>
 	      <property name="reorderable">False</property>
 	      <property name="enable_search">True</property>

@@ -204,11 +204,11 @@ void initialize_transfers_window() {
 	g_signal_connect(G_OBJECT(widget), "delete-event", transfers_delete, NULL);
 	details = glade_xml_get_widget(transfer_gui.xml, "details");
 	preferences_get_transfers_window_size(&width, &height);
-	gtk_widget_show_all(widget);
 	gtk_widget_hide_all(details);
 	if(!(width == 0 || height == 0))
 		gtk_window_resize(GTK_WINDOW(widget), width, height);
 	g_signal_connect(G_OBJECT(widget), "configure-event", G_CALLBACK(transfers_resize), NULL);
+	gtk_widget_hide_all(widget);
 }
 
 void show_transfers_window() {
