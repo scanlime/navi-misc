@@ -445,11 +445,11 @@ static void rwand_reset_settings(struct rwand_dev *dev)
 }
 
 /* Calculate all the fun little timing parameters needed by the hardware */
-static void    rwand_calc_timings(struct rwand_settings *settings,
-				  struct rwand_status *status,
-				  struct rwand_timings *timings)
+static void rwand_calc_timings(struct rwand_settings *settings,
+			       struct rwand_status *status,
+			       struct rwand_timings *timings)
 {
-	int col_and_gap_width, total_width;
+	int col_and_gap_width, total_width, fudge_factor;
 
 	/* The coil driver just needs to have its relative timings
 	 * multiplied by our predictor's current period. This is fixed
@@ -466,7 +466,14 @@ static void    rwand_calc_timings(struct rwand_settings *settings,
 		col_and_gap_width = (status->period / settings->num_columns * settings->display_width) >> 17;
 		timings->column_width = (col_and_gap_width * settings->duty_cycle) >> 16;
 		timings->gap_width = col_and_gap_width - timings->column_width;
-		total_width = settings->num_columns * col_and_gap_width;
+		total_width =
+		  (settings->num_columns+1) * timings->column_width +
+		  settings->num_columns * timings->gap_width;
+
+		/* I'm not sure why this is necessary yet, but this formula was experimentally determined
+		 * according to the necessary fine_adjust settings before it was added.
+		 */
+		fudge_factor = col_and_gap_width - 185;
 
 		/* Now that we know the true width of the display, we can calculate the
 		 * two phase timings. These indicate when it starts the forward scan and the
@@ -475,7 +482,7 @@ static void    rwand_calc_timings(struct rwand_settings *settings,
 		 * can be tweaked using settings->fine_adjust.
 		 */
 		timings->fwd_phase = ((status->period * settings->display_center) >> 17) - total_width/2;
-		timings->rev_phase = status->period - timings->fwd_phase - total_width + settings->fine_adjust;
+		timings->rev_phase = status->period - timings->fwd_phase - total_width + fudge_factor + settings->fine_adjust;
 	}
 	else {
 		/* We can't calculate timings for a zero-width display without dividing by

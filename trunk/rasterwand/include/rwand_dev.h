@@ -59,8 +59,22 @@ struct rwand_settings {
 			       */
 };
 
+/* Status packets following this format are returned from the
+ * device when it's asked, or from the EP1 interrupt endpoint.
+ */
+struct rwand_status {
+  unsigned short  period;     /* Period estimation, in 2.66us units */
+  unsigned short  phase;      /* Phase estimation, in 2.66us units */
+  unsigned char   edge_count; /* 8-bit counter of sync edges */
+  unsigned char   mode;       /* RWAND_MODE_* bits */
+  unsigned char   flip_count; /* 8-bit page flip counter */
+  unsigned char   buttons;    /* RWAND_BUTTON_* bits */
+};
+
+
 #define RWANDIO_GET_SETTINGS    0x3B01
 #define RWANDIO_PUT_SETTINGS    0x3B02
+#define RWANDIO_GET_STATUS      0x3B03
 
 
 #endif /* __RWAND_DEV_H */

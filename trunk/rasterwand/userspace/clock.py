@@ -128,4 +128,4 @@ f = os.open("/dev/usb/rwand0", os.O_RDWR)
 font = Font()
 while 1:
     os.write(f, font.encode(time.strftime("%H:%M:%S")))
-    time.sleep(0.1)
+    time.sleep(0.5)
