@@ -76,10 +76,6 @@ typedef struct _BoxSidesDrawableClass BoxSidesDrawableClass;
 struct _BoxSidesDrawable
 {
   DisplayList parent;
-
-  gfloat position[3];
-  gfloat size[3];
-  gfloat rotation;
 };
 
 struct _BoxSidesDrawableClass
@@ -88,7 +84,7 @@ struct _BoxSidesDrawableClass
 };
 
 GType     box_sides_drawable_get_type (void) G_GNUC_CONST;
-Drawable* box_sides_drawable_new      (void);
+Drawable* box_sides_drawable_new      (SceneObject *parent);
 
 #define BOX_TOP_DRAWABLE_TYPE            (box_top_drawable_get_type ())
 #define BOX_TOP_DRAWABLE(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), BOX_TOP_DRAWABLE_TYPE, BoxTopDrawable))
@@ -102,10 +98,6 @@ typedef struct _BoxTopDrawableClass BoxTopDrawableClass;
 struct _BoxTopDrawable
 {
   DisplayList parent;
-
-  gfloat position[3];
-  gfloat size[3];
-  gfloat rotation;
 };
 
 struct _BoxTopDrawableClass
@@ -114,7 +106,7 @@ struct _BoxTopDrawableClass
 };
 
 GType     box_top_drawable_get_type (void) G_GNUC_CONST;
-Drawable* box_top_drawable_new      (void);
+Drawable* box_top_drawable_new      (SceneObject *parent);
 
 G_END_DECLS
 
