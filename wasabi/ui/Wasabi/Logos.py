@@ -53,7 +53,8 @@ class OrbitingParticles:
         self.particle.emitter.position = (cos(self.angle.value)*v1 + sin(self.angle.value)*v2) * self.radius
 
 
-class WasabiLogo(Sequencer.Page):
+class OrbitingLogo(Sequencer.Page):
+    """Base class for logos based on a background of orbiting green particle systems"""
     def __init__(self, view):
         Sequencer.Page.__init__(self, view)
 
@@ -64,13 +65,6 @@ class WasabiLogo(Sequencer.Page):
         self.view.camera.azimuth = 3
         self.view.camera.elevation = 2.4
         self.view.camera.jump()
-
-        self.title = HUD.Text(self.viewport.region(self.viewport.rect),
-                              "wasabi",
-                              color     = (0, 0, 0, 1),
-                              fontSize  = self.viewport.size[1] / 5,
-                              alignment = (0.5, 0.5),
-                              fontName  = "geodesic.ttf")
 
         orbitParticles = ("green_flame.particle", "green_nebula.particle")
         self.orbits = [OrbitingParticles(cPickle.load(open(Util.dataFile(name)))) for name in orbitParticles]
@@ -88,6 +82,17 @@ class WasabiLogo(Sequencer.Page):
             self.view.scene.remove(orbit)
 
 
+class EnglishLogo(OrbitingLogo):
+    def __init__(self, view):
+        OrbitingLogo.__init__(self, view)
+        self.title = HUD.Text(self.viewport.region(self.viewport.rect),
+                              "wasabi",
+                              color     = (0, 0, 0, 1),
+                              fontSize  = self.viewport.size[1] / 5,
+                              alignment = (0.5, 0.5),
+                              fontName  = "geodesic.ttf")
+
+
 def getLogoList():
     """Returns a list of factory functions for all the logos"""
 
@@ -97,7 +102,7 @@ def getLogoList():
     fade      = lambda page: fromBlack(toBlack(page))
 
     return [
-        fade(Sequencer.PageTimer(5,WasabiLogo)),
+        fade(Sequencer.PageTimer(5,EnglishLogo)),
         ]
 
 
