@@ -24,7 +24,7 @@
 GList*
 e_weather_source_parse (EWeatherSource *source, const char *buffer)
 {
-	EWeatherSourceClass *class = E_WEATHER_SOURCE_CLASS (G_OBJECT_GET_CLASS (source));
+	EWeatherSourceClass *class = (EWeatherSourceClass*) G_OBJECT_GET_CLASS (source);
 	return class->parse (source, buffer);
 }
 
