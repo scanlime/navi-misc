@@ -87,6 +87,10 @@ html,body {
 	padding:		0.1em;
 }
 
+.heading:first-child {
+	width:			526px;
+}
+
 .newsIcon {
 	float:			right;
 	padding:		0.5em 0em 0.5em 0.5em;
