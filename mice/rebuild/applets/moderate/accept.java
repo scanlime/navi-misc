@@ -15,7 +15,7 @@ public class accept implements ActionListener
 {
 	private int ID;
 	
-	private TextArea question.
+	private TextArea question;
 	
 	/**
 	 * This method sets the ID as its the constructor.
@@ -41,6 +41,6 @@ public class accept implements ActionListener
 	{
 		net.write("accept");
 		net.write("" + ID);
-		quest.setText("");
+		question.setText("");
 	}
 }

@@ -1,5 +1,7 @@
 /**
  * This class sends the reject message to the server
+ * @author Brandon Smith
+ * @version 2.0
  */
 
 import java.applet.Applet;
@@ -24,7 +26,7 @@ public class reject implements ActionListener
 	 * @author Brandon Smith
 	 * @version 2.0
 	 */
-	public void actionListener(ActionEvent e)
+	public void actionPerformed(ActionEvent e)
 	{
 		net.write("reject");
 	}
