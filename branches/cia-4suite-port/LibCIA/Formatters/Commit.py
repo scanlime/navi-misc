@@ -71,8 +71,8 @@ class CommitFormatter(Message.Formatter):
            """
         files = []
         if xmlFiles:
-            for fileTag in xmlFiles.elements():
-                if fileTag.name == 'file':
+            for fileTag in XML.getChildElements(xmlFiles):
+                if fileTag.nodeName == 'file':
                     files.append(XML.shallowText(fileTag))
 
         # If we only have one file, return it as the prefix.
@@ -372,6 +372,7 @@ class CommitToXHTMLLong(CommitToXHTML):
         revision  = XML.dig(commit, "revision")
         diffLines = XML.dig(commit, "diffLines")
         url       = XML.dig(commit, "url")
+        log       = XML.dig(commit, "log")
         project   = XML.dig(source, "project")
         module    = XML.dig(source, "module")
         headers   = OrderedDict()
@@ -388,13 +389,13 @@ class CommitToXHTMLLong(CommitToXHTML):
             headers['Revision'] = XML.shallowText(revision)
         if diffLines:
             headers['Changed Lines'] = XML.shallowText(diffLines)
-        if commit.url:
+        if url:
             headers['URL'] = tag('a', href=XML.shallowText(url))[ Util.extractSummary(url) ]
 
         content = [
             tag('h1')[ "Commit Message" ],
             Template.MessageHeaders(headers),
-            tag('p', _class="messageBody")[ self.format_log(commit.log) ],
+            tag('p', _class="messageBody")[ self.format_log(log) ],
             ]
 
         files = XML.dig(message.xml, "message", "body", "commit", "files")
