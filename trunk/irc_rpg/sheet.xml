@@ -1,4 +1,4 @@
-<character_sheet>
+<character_sheet data="sheetData.xml">
 	<tab_view>
 		<tab label="Info">
 			<text_field label="Name:" path="/character/name">
@@ -23,6 +23,12 @@
 		</tab>
 
 		<tab label="Combat">
+			<dice label="Melee" sides="10">
+				<times>
+					/character/strength
+				</times>
+				<times> </times>
+			</dice>
 		</tab>
 	</tab_view>
 </character_sheet>
