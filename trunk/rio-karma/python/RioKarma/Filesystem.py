@@ -309,7 +309,7 @@ class FileManager:
            """
         # We need the latest stamp and our device info to make
         # sure the cache is open and see if it's up to date.
-        d = defer.Deferred()
+        d = Progress.Deferred()
         defer.gatherResults([
             self.getStamp(),
             self.protocol.sendRequest(Request.GetDeviceSettings()),
@@ -332,20 +332,24 @@ class FileManager:
         # Empty and rebuild all database files
         self.cache.empty()
         self.protocol.sendRequest(Request.GetAllFileDetails(
-            self._synchronizeFile)).addCallback(
+            self._synchronizeFile, d, [0])).addCallback(
             self._finishSynchronize, d, deviceStamp).addErrback(d.errback)
 
-    def _synchronizeFile(self, details):
+    def _synchronizeFile(self, details, d, storageTotal):
         # Add one file to the cache
         self.cache.insertFile(File(details=details))
 
-        # FIXME: Progress reporter should get poked here
-        sys.stderr.write('.')
+        # Poke our Progress.Deferred with the latest status.
+        # We're measuring our progress based on how much of the
+        # device's utilized storage we can account for, since
+        # there doesn't seem to be a way to get a total file count.
+        storageTotal[0] += details.get('length', 0)
+        d.statusback(storageTotal[0],
+                     self.storageDetails['totalSpace'] -
+                     self.storageDetails['freeSpace'],
+                     name='Synchronizing')
 
     def _finishSynchronize(self, retval, d, deviceStamp):
-        # FIXME: Progress reporter should get poked here
-        print "Done"
-
         # Before signalling completion, update the cache stamp and sync it
         self.cache.updateStamp(deviceStamp)
         self.cache.sync()

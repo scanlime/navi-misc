@@ -131,7 +131,6 @@ class ConsoleReporter(Reporter):
        normal output to stdout/stderr and places it above the progress
        bar.
        """
-    buffer = ''
     currentMessage = None
 
     def __init__(self,
@@ -163,24 +162,7 @@ class ConsoleReporter(Reporter):
 
     def write(self, text):
         """This method receives normal text written to stdout/stderr while
-           this console reporter is installed. It is line buffered, then
-           written out in a progress-bar-safe way.
-           """
-        lines = (self.buffer + text).split("\n")
-        if len(lines) >= 2:
-            # We have at least one complete line to write
-            self.writeLines(lines[:-1])
-            self.buffer = lines[-1]
-        elif len(lines) == 1:
-            # No complete lines, keep this in the buffer
-            self.buffer = lines[0]
-        else:
-            self.buffer = ''
-
-    def writeLines(self, lines):
-        """Write one or more complete lines, without disturbing the progress
-           bar. This must clear the progress bar if there is one, write
-           the lines, then redraw the progress bar.
+           this console reporter is installed.
            """
         buffer = StringIO()
 
@@ -189,8 +171,7 @@ class ConsoleReporter(Reporter):
             buffer.write(' ' * len(self.currentMessage))
             buffer.write('\b' * len(self.currentMessage))
 
-        for line in lines:
-            buffer.write(line + '\n')
+        buffer.write(text)
 
         if self.currentMessage is not None:
             buffer.write(self.currentMessage)
