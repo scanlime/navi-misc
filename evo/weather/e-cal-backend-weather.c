@@ -298,11 +298,16 @@ e_cal_backend_weather_get_object (ECalBackendSync *backend, EDataCal *cal, const
 {
 	ECalBackendWeather *cbw = E_CAL_BACKEND_WEATHER (backend);
 	ECalBackendWeatherPrivate *priv = cbw->priv;
+	ECalComponent *comp;
 
-	if (!uid)
-		return GNOME_Evolution_Calendar_ObjectNotFound;
+	g_return_val_if_fail (uid != NULL, GNOME_Evolution_Calendar_ObjectNotFound);
+	g_return_val_if_fail (priv->cache != NULL, GNOME_Evolution_Calendar_ObjectNotFound);
 
-	/* FIXME */
+	comp = e_cal_backend_cache_get_component (priv->cache, uid, rid);
+	g_return_val_if_fail (comp != NULL, GNOME_Evolution_Calendar_ObjectNotFound);
+
+	*object = e_cal_component_get_as_string (comp);
+	g_free (comp);
 
 	return GNOME_Evolution_Calendar_ObjectNotFound;
 }
@@ -313,11 +318,23 @@ e_cal_backend_weather_get_object_list (ECalBackendSync *backend, EDataCal *cal, 
 	ECalBackendWeather *cbw = E_CAL_BACKEND_WEATHER (backend);
 	ECalBackendWeatherPrivate *priv = cbw->priv;
 	ECalBackendSExp *sexp = e_cal_backend_sexp_new (sexp_string);
+	GList *components, *l;
 
 	if (!sexp)
 		return GNOME_Evolution_Calendar_InvalidQuery;
 
-	/* FIXME */
+	*objects = NULL;
+	components = e_cal_backend_cache_get_components (priv->cache);
+	for (l = components; l != NULL; l = g_list_next (l)) {
+		if (e_cal_backend_sexp_match_comp (sexp, E_CAL_COMPONENT (l->data), E_CAL_BACKEND (backend))) {
+			*objects = g_list_append (*objects, e_cal_component_get_as_string (l->data));
+		}
+	}
+
+	g_list_foreach (components, (GFunc) g_object_unref, NULL);
+	g_list_free (components);
+	g_object_unref (sexp);
+
 	return GNOME_Evolution_Calendar_Success;
 }
 
