@@ -9,8 +9,8 @@
 #define VERSION "0.2"
 #define MAXURLS 10
 
-#define URLREGEX "(ht|f)tps?://[~a-z0-9./]+"
-#define EMAILREGEX "[a-z0-9.+-]+@([0-9a-z-]+.)+[a-z]+"
+#define URLREGEX "(ht|f)tps?://[~a-z0-9./]+[a-z0-9]+"
+#define EMAILREGEX "[a-z0-9.+-]+@([0-9a-z-]+\\.)+[a-z]+"
 
 static xchat_plugin *ph;	// Plugin handle.
 static regex_t *email;	// Regex that matches e-mail addresses.
