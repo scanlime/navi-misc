@@ -189,6 +189,7 @@ class Counters(object):
        """
     def __init__(self, rack):
         self.rack = rack
+        self.checkRollovers()
 
     def getCounter(self, name):
         """Return the Rack associated with a counter. The Rack
