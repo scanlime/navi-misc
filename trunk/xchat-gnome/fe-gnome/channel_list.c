@@ -28,12 +28,21 @@ static gboolean chanlist_delete(GtkWidget *widget, GdkEvent *event, channel_list
 }
 
 static void chanlist_refresh(GtkWidget *button, channel_list_window *win) {
+//	win->server->p_list_channels(win->server, "");
+	handle_command(win->server->server_session, "list", FALSE);
 }
 
 static void chanlist_save(GtkWidget *button, channel_list_window *win) {
 }
 
 static void chanlist_join(GtkWidget *button, channel_list_window *win) {
+}
+
+static void chanlist_selected(GtkTreeSelection *selection, channel_list_window *win) {
+	GtkWidget *button;
+	button = glade_xml_get_widget(win->xml, "join button");
+
+	gtk_widget_set_sensitive(button, gtk_tree_selection_get_selected(selection, NULL, NULL));
 }
 
 void create_channel_list(session *sess) {
@@ -74,6 +83,7 @@ void create_channel_list(session *sess) {
 	widget = glade_xml_get_widget(win->xml, "save button");
 	g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(chanlist_save), win);
 	widget = glade_xml_get_widget(win->xml, "join button");
+	gtk_widget_set_sensitive(widget, FALSE);
 	g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(chanlist_join), win);
 
 	win->store = gtk_list_store_new(4, G_TYPE_STRING, G_TYPE_INT, G_TYPE_STRING, G_TYPE_STRING);
@@ -100,6 +110,7 @@ void create_channel_list(session *sess) {
 
 	select = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
 	gtk_tree_selection_set_mode(select, GTK_SELECTION_SINGLE);
+	g_signal_connect(G_OBJECT(select), "changed", G_CALLBACK(chanlist_selected), win);
 
 	g_slist_append(chanlists, win);
 }
