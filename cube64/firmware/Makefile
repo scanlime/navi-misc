@@ -2,10 +2,10 @@
 all: cube64_16f84.hex cube64_12f629.hex serial_bridge.hex
 
 cube64_16f84.hex: cube64.asm *.inc
-	gpasm -p PIC16F84A $<
+	gpasm -p PIC16F84A -o $@ $<
 
 cube64_12f629.hex: cube64.asm *.inc
-	gpasm -p PIC12F629 $<
+	gpasm -p PIC12F629 -o $@ $<
 
 %.hex: %.asm *.inc
 	gpasm $<

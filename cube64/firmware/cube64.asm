@@ -46,6 +46,7 @@ io_init		macro
 		clrf	TRISA
 		movlw	0x03
 		movwf	TRISB
+		bcf	STATUS, RP0
 		endm
 
 	;; Definitions for the PIC12F629 version
@@ -53,7 +54,7 @@ io_init		macro
 	ifdef  __12F629
 	  	#include p12f629.inc
 
-		__CONFIG   _CP_OFF & _PWRTE_OFF & _WDT_ON & _HS_OSC
+		__CONFIG  0x31FF &  _CPD_OFF & _CP_OFF & _BODEN_OFF & _MCLRE_OFF & _PWRTE_OFF & _WDT_ON & _HS_OSC
 
 		#define N64_PIN		GPIO, 0
 		#define N64_TRIS	TRISIO, 0
@@ -62,12 +63,19 @@ io_init		macro
 
 		#define RAM_START	0x20
 
+		;; For compatibility with the PIC12F675, disable analog pins
+		#define	ANSEL		0x9F
+
 io_init		macro
 		bcf	STATUS, RP0
 		clrf	GPIO
 		bsf	STATUS, RP0
 		movlw	0x03
 		movwf	TRISIO
+		errorlevel	-219
+		clrf	ANSEL
+		errorlevel	+219
+		bcf	STATUS, RP0
 		endm
 
 	else
@@ -149,8 +157,8 @@ io_init		macro
 
 startup
 	io_init
-	n64gc_init
 
+	n64gc_init
 	clrf	flags
 	clrf	calibration_count
 	clrf	rumble_feedback_count
