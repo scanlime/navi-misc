@@ -22,9 +22,28 @@
 #ifndef __UINPUT_MOUSE__H_
 #define __UINPUT_MOUSE__H_
 
+/* Initialize a userspace mouse device with the given name */
 void uinput_mouse_init(const char *dev_name);
+
+/* Send a relative motion event from this mouse device */
 void uinput_mouse_move(int rel_x, int rel_y);
+
+/* Like uinput_mouse_move, but allows subpixel movement. The residual motion
+ * after rounding is stored and applied to the next movement.
+ */
 void uinput_mouse_move_subpixel(float rel_x, float rel_y);
+
+/* Moves the mouse according to the difference between the last (abs_x, abs_y) and
+ * the given (abs_x, abs_y). This makes it easy to generate relative motion events
+ * from a source of absolute motion events.
+ */
+void uinput_mouse_absolute_movement(float abs_x, float abs_y);
+
+/* Note a discontinuity in the absolute motion given to uinput_mouse_move_abs.
+ * Discontinuities will cause the internal state to be reset, so they are ignored.
+ */
+void uinput_mouse_absolute_discontinuity();
+
 
 #endif /* __UINPUT_MOUSE__H_ */
 
