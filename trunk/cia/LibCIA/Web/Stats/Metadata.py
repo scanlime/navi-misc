@@ -111,7 +111,7 @@ class MetadataValueColumn(Nouvelle.Column):
         return tag('img', src=Link.MetadataLink(context['target'], name).getURL(context))
 
     def renderData_other(self, context, name, value, mime):
-        return tag('i')[ "Unable to format data" ]
+        return Template.unableToFormat
 
 
 class MetadataTypeColumn(Nouvelle.Column):

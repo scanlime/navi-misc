@@ -30,6 +30,7 @@ from Nouvelle import tag, place, xml, subcontext
 catalogList = tag('ul', _class="catalog")
 headingTab = tag('a', _class="headingtab")
 value = tag('strong')
+unableToFormat = tag('span', _class="error")[ "Unable to format data" ]
 
 
 def Photo(url, **attrs):
