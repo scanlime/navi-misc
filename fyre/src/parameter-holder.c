@@ -229,8 +229,8 @@ void parameter_holder_interpolate_linear(ParameterHolder *self, double alpha, Pa
 
       else if (properties[i]->value_type == G_TYPE_UINT) {
 	g_value_set_uint(&self_val,
-			 g_value_get_uint(&a_val) * (1-alpha) +
-			 g_value_get_uint(&a_val) * (alpha));
+			 (guint) (g_value_get_uint(&a_val) * (1-alpha) +
+				  g_value_get_uint(&b_val) * (alpha) + 0.5));
       }
 
       else {
