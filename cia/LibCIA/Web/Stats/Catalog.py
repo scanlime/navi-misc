@@ -232,7 +232,7 @@ class CatalogSection(Template.Section):
         IndexedBargraphColumn('events today', 3),
         IndexedBargraphColumn('events yesterday', 4),
         IndexedBargraphColumn('total events', 5),
-        IndexedPercentColumn('% total', 6),
+        IndexedPercentColumn('% total', 5),
         TargetLastEventColumn('last event', 6),
         IndexedUnitColumn('contents', 7),
         ]
