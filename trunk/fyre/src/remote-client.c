@@ -294,9 +294,13 @@ static void       remote_client_recv_line     (RemoteClient*         self,
     }
     else {
 	/* This was unsolicited- should only occur for the server ready message */
-	g_assert(response->code == FYRE_RESPONSE_READY);
-	self->is_ready = TRUE;
-	remote_client_update_status(self, "Ready");
+	if (response->code == FYRE_RESPONSE_READY) {
+	    self->is_ready = TRUE;
+	    remote_client_update_status(self, "Ready");
+	}
+	else {
+	    remote_client_update_status(self, "Protocol error");
+	}
     }
 
     g_free(response->message);
