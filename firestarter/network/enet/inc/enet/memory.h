@@ -11,10 +11,10 @@
     @{
     @ingroup private
 */
-	void * enet_malloc (size_t);
-	void * enet_realloc (void *, size_t);
-	void * enet_calloc (size_t, size_t);
-	void   enet_free (void *);
+extern void * enet_malloc (size_t);
+extern void * enet_realloc (void *, size_t);
+extern void * enet_calloc (size_t, size_t);
+extern void   enet_free (void *);
 
 /** @} */
 

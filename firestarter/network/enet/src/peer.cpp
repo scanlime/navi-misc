@@ -111,7 +111,7 @@ enet_peer_send (ENetPeer * peer, enet_uint8 channelID, ENetPacket * packet)
 
    if (packet -> dataLength > fragmentLength)
    {
-      enet_uint32 fragmentCount = ENET_HOST_TO_NET_32 (((enet_uint32)packet -> dataLength + fragmentLength - 1) / fragmentLength),
+      enet_uint32 fragmentCount = ENET_HOST_TO_NET_32 ((packet -> dataLength + fragmentLength - 1) / fragmentLength),
              startSequenceNumber = ENET_HOST_TO_NET_32 (channel -> outgoingReliableSequenceNumber + 1),
              fragmentNumber,
              fragmentOffset;
@@ -122,7 +122,7 @@ enet_peer_send (ENetPeer * peer, enet_uint8 channelID, ENetPacket * packet)
              fragmentOffset = 0;
            fragmentOffset < packet -> dataLength;
            ++ fragmentNumber,
-             fragmentOffset += (enet_uint32)fragmentLength)
+             fragmentOffset += fragmentLength)
       {
          command.header.command = ENET_PROTOCOL_COMMAND_SEND_FRAGMENT;
          command.header.channelID = channelID;
@@ -131,13 +131,13 @@ enet_peer_send (ENetPeer * peer, enet_uint8 channelID, ENetPacket * packet)
          command.sendFragment.startSequenceNumber = startSequenceNumber;
          command.sendFragment.fragmentCount = fragmentCount;
          command.sendFragment.fragmentNumber = ENET_HOST_TO_NET_32 (fragmentNumber);
-         command.sendFragment.totalLength = ENET_HOST_TO_NET_32 ((enet_uint32)packet -> dataLength);
+         command.sendFragment.totalLength = ENET_HOST_TO_NET_32 (packet -> dataLength);
          command.sendFragment.fragmentOffset = ENET_NET_TO_HOST_32 (fragmentOffset);
 
          if (packet -> dataLength - fragmentOffset < fragmentLength)
            fragmentLength = packet -> dataLength - fragmentOffset;
 
-         enet_peer_queue_outgoing_command (peer, & command, packet, fragmentOffset, (enet_uint16)fragmentLength);
+         enet_peer_queue_outgoing_command (peer, & command, packet, fragmentOffset, fragmentLength);
       }
 
       return 0;
@@ -159,7 +159,7 @@ enet_peer_send (ENetPeer * peer, enet_uint8 channelID, ENetPacket * packet)
       command.sendUnreliable.unreliableSequenceNumber = ENET_HOST_TO_NET_32 (channel -> outgoingUnreliableSequenceNumber + 1);
    }
 
-   enet_peer_queue_outgoing_command (peer, & command, packet, 0, (enet_uint16)packet -> dataLength);
+   enet_peer_queue_outgoing_command (peer, & command, packet, 0, packet -> dataLength);
 
    return 0;
 }

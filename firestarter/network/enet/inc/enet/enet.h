@@ -5,6 +5,7 @@
 #ifndef __ENET_ENET_H__
 #define __ENET_ENET_H__
 
+
 #include <stdlib.h>
 
 #include "enet/types.h"
@@ -16,6 +17,7 @@
 #else
 #include "enet/unix.h"
 #endif
+
 
 typedef enum
 {
@@ -330,13 +332,13 @@ typedef struct _ENetEvent
     @{
     @ingroup private
 */
-	ENetSocket enet_socket_create (ENetSocketType, const ENetAddress *);
-	ENetSocket enet_socket_accept (ENetSocket, ENetAddress *);
-	int        enet_socket_connect (ENetSocket, const ENetAddress *);
-	int        enet_socket_send (ENetSocket, const ENetAddress *, const ENetBuffer *, size_t);
-	int        enet_socket_receive (ENetSocket, ENetAddress *, ENetBuffer *, size_t);
-	int        enet_socket_wait (ENetSocket, enet_uint32 *, enet_uint32);
-	void       enet_socket_destroy (ENetSocket);
+ ENetSocket enet_socket_create (ENetSocketType, const ENetAddress *);
+ ENetSocket enet_socket_accept (ENetSocket, ENetAddress *);
+ int        enet_socket_connect (ENetSocket, const ENetAddress *);
+ int        enet_socket_send (ENetSocket, const ENetAddress *, const ENetBuffer *, size_t);
+ int        enet_socket_receive (ENetSocket, ENetAddress *, ENetBuffer *, size_t);
+ int        enet_socket_wait (ENetSocket, enet_uint32 *, enet_uint32);
+ void       enet_socket_destroy (ENetSocket);
 
 /** @} */
 
@@ -351,7 +353,7 @@ typedef struct _ENetEvent
     @retval < 0 on failure
     @returns the address of the given hostName in address on success
 */
-	int enet_address_set_host (ENetAddress *address, const char *hostName );
+ int enet_address_set_host (ENetAddress *address, const char *hostName );
 
 /** Attempts to do a reserve lookup of the host field in the address parameter.
     @param address    address used for reverse lookup
@@ -361,35 +363,35 @@ typedef struct _ENetEvent
     @retval 0 on success
     @retval < 0 on failure
 */
-	int enet_address_get_host (const ENetAddress *address, char *hostName, size_t nameLength );
+ int enet_address_get_host (const ENetAddress *address, char *hostName, size_t nameLength );
 
 /** @} */
 
-	ENetPacket * enet_packet_create (const void *dataContents, size_t dataLength, enet_uint32 flags);
-	void         enet_packet_destroy (ENetPacket *packet );
-	int          enet_packet_resize  (ENetPacket *packet, size_t dataLength );
+ ENetPacket * enet_packet_create (const void *dataContents, size_t dataLength, enet_uint32 flags);
+ void         enet_packet_destroy (ENetPacket *packet );
+ int          enet_packet_resize  (ENetPacket *packet, size_t dataLength );
 
-	ENetHost * enet_host_create (const ENetAddress *address, size_t peerCount, enet_uint32 incomingBandwidth, enet_uint32 outgoingBandwidth );
-	void       enet_host_destroy (ENetHost *host );
-	ENetPeer * enet_host_connect (ENetHost *host, const ENetAddress *address, size_t channelCount );
-	int        enet_host_service (ENetHost *, ENetEvent *, enet_uint32);
-	void       enet_host_flush (ENetHost *);
-	void       enet_host_broadcast (ENetHost *, enet_uint8, ENetPacket *);
-	void       enet_host_bandwidth_limit (ENetHost *, enet_uint32, enet_uint32);
-	void       enet_host_bandwidth_throttle (ENetHost *);
+ ENetHost * enet_host_create (const ENetAddress *address, size_t peerCount, enet_uint32 incomingBandwidth, enet_uint32 outgoingBandwidth );
+ void       enet_host_destroy (ENetHost *host );
+ ENetPeer * enet_host_connect (ENetHost *host, const ENetAddress *address, size_t channelCount );
+ int        enet_host_service (ENetHost *, ENetEvent *, enet_uint32);
+ void       enet_host_flush (ENetHost *);
+ void       enet_host_broadcast (ENetHost *, enet_uint8, ENetPacket *);
+ void       enet_host_bandwidth_limit (ENetHost *, enet_uint32, enet_uint32);
+   void       enet_host_bandwidth_throttle (ENetHost *);
 
-	int                 enet_peer_send (ENetPeer *, enet_uint8, ENetPacket *);
-	ENetPacket *        enet_peer_receive (ENetPeer *, enet_uint8);
-	void                enet_peer_ping (ENetPeer *);
-	void                enet_peer_reset (ENetPeer *);
-	void                enet_peer_disconnect (ENetPeer *);
-	void                enet_peer_disconnect_now (ENetPeer *);
-	void                enet_peer_throttle_configure (ENetPeer *, enet_uint32, enet_uint32, enet_uint32);
-	int                   enet_peer_throttle (ENetPeer *, enet_uint32);
-	void                  enet_peer_reset_queues (ENetPeer *);
-	ENetOutgoingCommand * enet_peer_queue_outgoing_command (ENetPeer *, const ENetProtocol *, ENetPacket *, enet_uint32, enet_uint16);
-	ENetIncomingCommand * enet_peer_queue_incoming_command (ENetPeer *, const ENetProtocol *, ENetPacket *, enet_uint32);
-	ENetAcknowledgement * enet_peer_queue_acknowledgement (ENetPeer *, const ENetProtocol *, enet_uint32);
+ int                 enet_peer_send (ENetPeer *, enet_uint8, ENetPacket *);
+ ENetPacket *        enet_peer_receive (ENetPeer *, enet_uint8);
+ void                enet_peer_ping (ENetPeer *);
+ void                enet_peer_reset (ENetPeer *);
+ void                enet_peer_disconnect (ENetPeer *);
+ void                enet_peer_disconnect_now (ENetPeer *);
+ void                enet_peer_throttle_configure (ENetPeer *, enet_uint32, enet_uint32, enet_uint32);
+ int                   enet_peer_throttle (ENetPeer *, enet_uint32);
+ void                  enet_peer_reset_queues (ENetPeer *);
+ ENetOutgoingCommand * enet_peer_queue_outgoing_command (ENetPeer *, const ENetProtocol *, ENetPacket *, enet_uint32, enet_uint16);
+ ENetIncomingCommand * enet_peer_queue_incoming_command (ENetPeer *, const ENetProtocol *, ENetPacket *, enet_uint32);
+ ENetAcknowledgement * enet_peer_queue_acknowledgement (ENetPeer *, const ENetProtocol *, enet_uint32);
 
 
 #endif /* __ENET_ENET_H__ */
