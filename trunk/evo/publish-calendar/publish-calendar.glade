@@ -423,7 +423,7 @@
 			  <property name="items" translatable="yes">Whenever changes are made
 Daily
 Weekly
-Manual (via Tools menu)</property>
+Manual (via Actions menu)</property>
 			</widget>
 			<packing>
 			  <property name="left_attach">1</property>
