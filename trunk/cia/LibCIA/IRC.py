@@ -42,8 +42,11 @@ class URIHandler(Ruleset.BaseURIHandler):
 
         # This regex matches any legal IRC URI, according to the characters
         # allowed in a hostname and in an IRC channel name.
+        # Note that we explicitly disallow channel names to be specified with a leading #.
+        # There's no standard for irc:// URIs, but from what I've seen leaving out the #
+        # is most common. This reduces the amount of ambiguity in irc:// URIs.
         self.uriRegex = re.compile(
-            "irc://(?P<host>[a-zA-Z]([a-zA-Z0-9.-]*[a-zA-Z0-9])?)(:(?P<port>[0-9]+))?/(?P<channel>\S+)")
+            "irc://(?P<host>[a-zA-Z]([a-zA-Z0-9.-]*[a-zA-Z0-9])?)(:(?P<port>[0-9]+))?/(?P<channel>[^\s#]\S*)")
 
     def parseURI(self, uri):
         """Given an irc:// URI, return a ((host, port), channel) tuple.
@@ -53,16 +56,10 @@ class URIHandler(Ruleset.BaseURIHandler):
         if not match:
             raise Ruleset.InvalidURIException("Invalid URI: %r" % uri)
         host, port, channel = match.group('host', 'port', 'channel')
-
         if not port:
             # Default port
             port = 6667
-
-        if channel[0] != '#':
-            # Make sure our channel has a '#'
-            channel = '#' + channel
-
-        return ((host, port), channel)
+        return ((host, port), '#' + channel)
 
     def assigned(self, uri, newRuleset):
         self.botNet.addChannel(*self.parseURI(uri))
