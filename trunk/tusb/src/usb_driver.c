@@ -269,8 +269,6 @@ void usb_init() {
    * the ROM bootloader.
    */
   if (USBCTL & CONT) {
-    int i;
-
     USBCTL &= ~CONT;  /* Disconnect from USB */
     USBSTA = 0xFF;    /* Clear USB status bits */
     delay(10000);     /* Wait a bit before reconnecting. Some host
