@@ -119,6 +119,20 @@ class StatsInterface(xmlrpc.XMLRPC):
         else:
             return {}
 
+    def xmlrpc_updateMetadata(self, path, d, key):
+        """Merge the given dictionary into a path's metadata.
+           This requires one of the usual capability keys for everything, this
+           module, or this function, but it can also be accessed using a capability
+           key that unlocks only a particular path.
+           """
+        self.caps.faultIfMissing(key, 'universe', 'stats', 'stats.updateMetadata',
+                                 ('stats.path', path))
+        target = self.storage.getPathTarget(path)
+        target.open(resource='metadata')
+        target.metadata.dict.update(d)
+        target.metadata.save()
+        return True
+
 
 class StatsStorage(object):
     """A thin abstraction around the directory that acts as a root for all stats:// URIs"""
@@ -172,9 +186,11 @@ class StatsTarget(object):
         """Returns True if this stats target is valid"""
         return os.path.isdir(self.path)
 
-    def open(self, createIfNecessary=True):
-        """Open all resources in this stats target. If createIfNecessary is True,
-           the resources will be created if they don't already exist.
+    def open(self, createIfNecessary=True, resource=None):
+        """Open the specified resource in this stats target. If
+           createIfNecessary is True, the resources will be created
+           if they don't already exist. If 'resource' is not None,
+           only the resource with that name is opened.
            """
         # If we're in the business of creating things that don't exist,
         # make sure our stats path exists.
@@ -189,6 +205,8 @@ class StatsTarget(object):
             ('recentMessages', LogDB, os.path.join(self.path, 'recent_messages.db')),
             ('metadata', Metadata, os.path.join(self.path, 'metadata.xml')),
             ]:
+            if resource and resource != attrName:
+                continue
             if hasattr(self, attrName) and getattr(self, attrName):
                 # Already open, skip it
                 continue
@@ -354,7 +372,7 @@ class Metadata(XML.XMLDict):
        display on the web interface's stats browser.
        """
     def __init__(self, fileName):
-        XML.XMLStorage.__init__(self, fileName, 'metadata')
+        XML.XMLDict.__init__(self, fileName, 'metadata')
 
 
 class LogDB(object):
