@@ -27,8 +27,14 @@ irc_network_editor_dispose (GObject *object)
 {
 	IrcNetworkEditor *e = (IrcNetworkEditor *) object;
 
-	g_object_unref (e->gconf);
-	g_object_unref (e->network);
+	if (e->gconf) {
+		g_object_unref (e->gconf);
+		e->gconf = NULL;
+	}
+	if (e->network) {
+		g_object_unref (e->network);
+		e->network = NULL;
+	}
 }
 
 static void
@@ -41,6 +47,9 @@ irc_network_editor_class_init (IrcNetworkEditorClass *klass)
 static void
 irc_network_editor_init (IrcNetworkEditor *dialog)
 {
+	dialog->gconf = NULL;
+	dialog->network = NULL;
+
 	dialog->xml = NULL;
 	if (g_file_test ("irc-network-editor.glade", G_FILE_TEST_EXISTS))
 		dialog->xml = glade_xml_new ("irc-network-editor.glade", "toplevel", NULL);
@@ -128,10 +137,10 @@ irc_network_editor_populate (IrcNetworkEditor *e)
 
 	if (e->network->use_global) {
 		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (e->use_globals), TRUE);
-		use_globals_set (e->use_globals, e);
+		use_globals_set (GTK_RADIO_BUTTON (e->use_globals), e);
 	} else {
 		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (e->use_custom), TRUE);
-		use_custom_set (e->use_custom, e);
+		use_custom_set (GTK_RADIO_BUTTON (e->use_custom), e);
 	}
 
 	gtk_entry_set_text           (GTK_ENTRY         (e->password),         e->network->password);
@@ -153,8 +162,11 @@ irc_network_editor_populate (IrcNetworkEditor *e)
 IrcNetworkEditor *
 irc_network_editor_new (IrcNetwork *network)
 {
-	//IrcNetworkEditor *e = IRC_NETWORK_EDITOR (g_object_new (irc_network_editor_get_type (), 0));
 	IrcNetworkEditor *e = g_object_new (irc_network_editor_get_type (), 0);
+	if (e->xml == NULL) {
+		g_object_unref (e);
+		return NULL;
+	}
 
 	e->network = g_object_ref (network);
 	irc_network_editor_populate (e);
@@ -167,6 +179,6 @@ irc_network_editor_run (IrcNetworkEditor *editor)
 {
 	gint response;
 
-	response = gtk_dialog_run (editor);
-	gtk_widget_hide (editor);
+	response = gtk_dialog_run (GTK_DIALOG (editor));
+	gtk_widget_hide (GTK_WIDGET (editor));
 }
