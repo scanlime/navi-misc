@@ -18,10 +18,9 @@ with web, IRC, XML-RPC, and email interfaces.
     above module into an actual application.
     The CIA server is usually started by running "twistd -oy cia_server.tac"
 
-  - incoming_mail.py
+  - mail
 
-    A tiny script that can be placed in a procmailrc or .forward file to send
-    email to the CIA server via its XML-RPC interface
+    Tools to filter incoming email with procmail and dispatch it to the CIA server
 
   - ruleset_editor.py
 
