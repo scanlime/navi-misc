@@ -110,7 +110,7 @@ class HScrollGraph(Graph):
         # Calculate the new gridPhase and the number of freshly exposed pixels,
         # correctly accounting for subpixel gridPhase changes.
         oldGridPhase = self.gridPhase
-        self.gridPhase += dt * self._scrollRate
+        self.gridPhase += dt * self.scrollRate
         newPixels = int(self.gridPhase) - int(oldGridPhase)
         self.gridPhase %= self.gridSize
 
