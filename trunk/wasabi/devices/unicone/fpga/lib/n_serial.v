@@ -72,17 +72,24 @@ endmodule
 
 /*
  * Generates the serial timebase used for the transmit and receive modules.
- * The resulting 'tick' signal is high for one clock cycle every 1/4 bit (1.25us).
+ * The resulting 'tick' signal is high for one clock cycle every 1/4 bit.
  * This should be adjusted depending on the oscillator in use.
  *
- * Our hardware currently uses a 25MHz clock. 25MHz / 800KHz = 31.25. We use
- * a 1/31 divider for now, which should be close enough.
+ * It's a little unclear whether the protocol was designed to use fixed bit
+ * widths, or to measure the relative times between high and low periods.
+ * We assume fixed 5us-wide bits. Note that the GC controllers and the N64
+ * seem to use 4us bits, while the GC console uses 5us bits.
  *
  * Two synchronous resets are provided- sync_begin resets to the beginning of
  * one tick cycle, sync_middle resets close to the center of a cycle. The 
  * cycle immediately after sync_reset is asserted, a tick will be generated.
  */
 module n_serial_timebase (clk, reset, tick, sync_begin, sync_middle);
+	parameter BIT_WIDTH_US = 4;
+	
+	parameter CLOCK_MHZ = 25;
+	parameter CLOCKS_PER_TICK = CLOCK_MHZ * BIT_WIDTH_US / 4;
+
 	input clk, reset, sync_begin, sync_middle;
 	output tick;
 	reg tick;
@@ -99,9 +106,9 @@ module n_serial_timebase (clk, reset, tick, sync_begin, sync_middle);
 		end
 		else if (sync_middle) begin
 			tick <= 0;
-			counter <= 15;
+			counter <= CLOCKS_PER_TICK/2-1;
 		end
-		else if (counter == 30) begin
+		else if (counter == CLOCKS_PER_TICK-1) begin
 			tick <= 1;
 			counter <= 0;
 		end
@@ -129,6 +136,8 @@ endmodule
 module n_serial_rx (clk, reset, serial_in,
                     rx_start, rx_stop, rx_error,
                     rx_data, strobe);
+	parameter BIT_WIDTH_US = 5;
+
 	input clk, reset;
 	input serial_in;
 	output rx_start, rx_stop, rx_error;
@@ -156,7 +165,8 @@ module n_serial_rx (clk, reset, serial_in,
 	wire tick;
 	wire tick_sync_reset = 1'b0;
 	wire tick_sync_center = state == S_IDLE;
-	n_serial_timebase rx_timebase(clk, reset, tick, tick_sync_reset, tick_sync_center);
+	n_serial_timebase #(BIT_WIDTH_US) rx_timebase(
+		clk, reset, tick, tick_sync_reset, tick_sync_center);
 
 	always @(posedge clk or posedge reset)
 		if (reset) begin
@@ -346,6 +356,8 @@ endmodule
 module n_serial_tx (clk, reset,
                     busy, tx_stopbit, tx_data, strobe,
                     serial_out);
+	parameter BIT_WIDTH_US = 4;
+
 	input clk, reset;
 	output busy;
 	input tx_stopbit;
@@ -358,7 +370,8 @@ module n_serial_tx (clk, reset,
 	wire tick;
 	wire tick_sync_reset = 1'b0;
 	wire tick_sync_center = 1'b0;
-	n_serial_timebase tx_timebase(clk, reset, tick, tick_sync_reset, tick_sync_center);
+	n_serial_timebase #(BIT_WIDTH_US) tx_timebase(
+		clk, reset, tick, tick_sync_reset, tick_sync_center);
 	
 	/* Buffer the incoming data stream, consisting
 	 * of both the tx_data and the stop bit flag.

@@ -78,7 +78,7 @@ module i2c_slave_reg (clk, reset,
                       reg_out);
 
 	parameter I2C_ADDRESS = 0;
-	parameter BYTES_WIDE = 2;
+	parameter BYTES_WIDE = 1;
 
 	parameter BITS_WIDE = BYTES_WIDE * 8;
 	parameter COUNT_WIDTH = 3;
