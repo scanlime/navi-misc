@@ -2,6 +2,7 @@
 #include "connect_dialog.h"
 #include "about.h"
 #include "userlist.h"
+#include "../common/xchatc.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -10,6 +11,7 @@
 void on_preferences_menu_activate(GtkWidget *widget, gpointer data);
 void on_connect_menu_activate(GtkWidget *widget, gpointer data);
 void on_about_menu_activate(GtkWidget *widget, gpointer data);
+void on_quit_menu_activate(GtkWidget *widget, gpointer data);
 void on_text_entry_activate(GtkWidget *widget, gpointer data);
 
 void initialize_main_window() {
@@ -19,6 +21,7 @@ void initialize_main_window() {
 	g_signal_connect(G_OBJECT(glade_xml_get_widget(gui.xml, "settings1")), "activate", G_CALLBACK(on_preferences_menu_activate), NULL);
 	g_signal_connect(G_OBJECT(glade_xml_get_widget(gui.xml, "connect1")), "activate", G_CALLBACK(on_connect_menu_activate), NULL);
 	g_signal_connect(G_OBJECT(glade_xml_get_widget(gui.xml, "about1")), "activate", G_CALLBACK(on_about_menu_activate), NULL);
+	g_signal_connect(G_OBJECT(glade_xml_get_widget(gui.xml, "quit1")), "activate", G_CALLBACK(on_quit_menu_activate), NULL);
 
 	gtk_widget_show_all(GTK_WIDGET(gui.main_window));
 
@@ -36,6 +39,10 @@ void on_connect_menu_activate(GtkWidget *widget, gpointer data) {
 
 void on_about_menu_activate(GtkWidget *widget, gpointer data) {
 	show_about_dialog();
+}
+
+void on_quit_menu_activate(GtkWidget *widget, gpointer data) {
+	xchat_exit();
 }
 
 void on_text_entry_activate(GtkWidget *widget, gpointer data) {
