@@ -90,6 +90,8 @@ static void fpga_config_write_byte(unsigned char c)
 void fpga_config_begin()
 {
   config_in_progress = 1;
+  reading_version_stamp = 1;
+  version_stamp_index = 0;
   fpga_init();
 }
 
@@ -102,12 +104,32 @@ void fpga_config_write(unsigned char *cfgdata, int length)
     return;
   }
 
-  for (i=length; i; i--)
-    fpga_config_write_byte(*(cfgdata++));
+  if (reading_version_stamp) {
+    /* Part or all of this write might still be the version stamp */
+
+    for (i=length; i; i--) {
+      if (reading_version_stamp) {
+	fpga_version_stamp[version_stamp_index++] = *(cfgdata++);
+	if (version_stamp_index == 20)
+	  reading_version_stamp = 0;
+      }
+      else {
+	fpga_config_write_byte(*(cfgdata++));
+      }
+    }
+  }
+  else {
+    /* This entire write goes to the FPGA, take the fast track */
+
+    for (i=length; i; i--)
+      fpga_config_write_byte(*(cfgdata++));
+  }
 }
 
 unsigned char fpga_config_end()
 {
+  int i;
+
   config_in_progress = 0;
 
   if (fpga_done()) {
@@ -121,7 +143,11 @@ unsigned char fpga_config_end()
     delay(100);
     fpga_din_off();
 
-    printf("FPGA configured\n");
+    printf("FPGA configured [");
+    for (i=0; i<sizeof(fpga_version_stamp); i++)
+      printf("%02x", fpga_version_stamp[i]);
+    printf("]\n");
+
     return UNICONE_STATUS_OK;
   }
   else {

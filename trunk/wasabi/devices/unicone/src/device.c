@@ -38,6 +38,18 @@
 #define FIRMWARE_HEADER_SIZE  3
 
 static void               unicone_device_delete_content   (struct unicone_device *self);
+static int                sha_raw_file                    (const char            *filename,
+							   unsigned char         *buffer);
+static int                sha_bitstream_file              (const char            *filename,
+							   unsigned char         *buffer);
+static char*              sha_to_string                   (unsigned char         *buffer);
+int                       sha_compare                     (unsigned char         *buffer1,
+							   unsigned char         *buffer2);
+
+
+/******************************************************************************/
+/************************************************************ Initialization **/
+/******************************************************************************/
 
 void                      unicone_usb_init                ()
 {
@@ -168,6 +180,120 @@ int                       unicone_device_reconnect        (struct unicone_device
   return 0;
 }
 
+
+/******************************************************************************/
+/************************************************ Firmware / FPGA Versioning **/
+/******************************************************************************/
+
+static int                sha_raw_file                    (const char            *filename,
+							   unsigned char         *buffer)
+{
+  /* Take the SHA-1 digest of an entire binary file */
+  FILE* f;
+  f = fopen(filename, "rb");
+  if (!f)
+    return -1;
+  sha_stream(f, buffer);
+  fclose(f);
+  return 0;
+}
+
+static int                sha_bitstream_file              (const char            *filename,
+							   unsigned char         *buffer)
+{
+  /* Take the SHA-1 digest of only the bitstream data itself, from a Xilinx bitstream file */
+  struct bitfile *f;
+  f = bitfile_new_from_path(filename);
+  if (!f)
+    return -1;
+  if (bitfile_read_content(f) < 0) {
+    bitfile_delete(f);
+    return -1;
+  }
+  sha_buffer(f->data, f->length, buffer);
+  bitfile_delete(f);
+  return 0;
+}
+
+static char*              sha_to_string                   (unsigned char         *buffer)
+{
+  /* Convert an SHA-1 digest to a string, using a static buffer */
+  static char result[41];
+  int i;
+  for (i=0; i<20; i++)
+    sprintf(result+2*i, "%02x", buffer[i]);
+  result[40] = 0;
+  return result;
+}
+
+int                       sha_compare                     (unsigned char         *buffer1,
+							   unsigned char         *buffer2)
+{
+  /* Compare two SHA-1 digests, returning a code compatible with unicone_device_compare_*.
+   * 1 if they're different, 0 if they're the same.
+   */
+  if (memcmp(buffer1, buffer2, 20))
+    return 1;
+  else
+    return 0;
+}
+
+int                       unicone_device_compare_firmware (struct unicone_device*    self,
+							   const char*               filename)
+{
+  unsigned char file_sha1[32];
+  unsigned char device_sha1[32];
+
+  assert(self);
+
+  /* Does the device have no firmware at all? */
+  if (!self->firmware_installed)
+    return 1;
+
+  /* Take the SHA-1 digest of the whole firmware file */
+  if (sha_raw_file(filename, file_sha1) < 0)
+    return -1;
+
+  /* Ask the device for it's current SHA-1 digest */
+  if (usb_control_msg(self->usbdev, USB_TYPE_VENDOR | 0x80,
+		      UNICONE_REQ_GET_FIRMWARE_STAMP,
+		      0, 0, device_sha1, 20, TIMEOUT) < 0)
+    return -1;
+
+  return sha_compare(file_sha1, device_sha1);
+}
+
+int                       unicone_device_compare_bitstream(struct unicone_device*    self,
+							   const char*               filename)
+{
+  unsigned char file_sha1[32];
+  unsigned char device_sha1[32];
+
+  assert(self);
+  assert(self->firmware_installed);
+
+  /* Does the device have no bitstream installed? */
+  if (!self->fpga_configured)
+    return 1;
+
+  /* Take the SHA-1 digest of the whole bitstream file */
+  if (sha_bitstream_file(filename, file_sha1) < 0)
+    return -1;
+
+  /* Ask the device for it's current SHA-1 digest */
+  if (usb_control_msg(self->usbdev, USB_TYPE_VENDOR | 0x80,
+		      UNICONE_REQ_GET_FPGA_STAMP,
+		      0, 0, device_sha1, 20, TIMEOUT) < 0)
+    return -1;
+
+  return sha_compare(file_sha1, device_sha1);
+}
+
+
+/******************************************************************************/
+/**************************************************** Firmware / FPGA Upload **/
+/******************************************************************************/
+
 int                       unicone_device_upload_firmware  (struct unicone_device *self,
 							   const char *filename,
 							   struct progress_reporter *progress)
@@ -279,38 +405,29 @@ int                       unicone_device_remove_firmware  (struct unicone_device
 
 int                       unicone_device_upload_bitstream (struct unicone_device*    self,
 							   const char*               filename,
-							   struct progress_reporter* progress,
-							   int                       verbose)
+							   struct progress_reporter* progress)
 {
   void *progress_op;
   const char *error = NULL;
   int bytes_uploaded = 0;
   struct bitfile* bf = NULL;
   int remaining;
+  int retval;
   unsigned char *current;
   unsigned char retbyte;
+  unsigned char sha1_digest[32];
 
   assert(self);
   assert(self->firmware_installed);
 
-  bf = bitfile_new_from_path(filename);
-  if (!bf)
-    error = "Error opening bitstream";
-
-  if (verbose && bf) {
-    fprintf(stderr, "Bitstream %s:\n", filename);
-    fprintf(stderr, "  NCD file    : %s\n", bf->ncd_filename);
-    fprintf(stderr, "  Part number : %s\n", bf->part_number);
-    fprintf(stderr, "  Date        : %s\n", bf->date);
-    fprintf(stderr, "  Time        : %s\n", bf->time);
-    fprintf(stderr, "  Length      : %d bytes\n", bf->length);
-  }
-
   if (progress)
     progress_op = progress->start(progress, "Configuring FPGA");
 
-  if (!bf)
+  bf = bitfile_new_from_path(filename);
+  if (!bf) {
+    error = "Error opening bitstream";
     goto done;
+  }
 
   if (strcmp(bf->part_number, "4010xlpc84")) {
     error = "This design is for an incompatible part";
@@ -330,12 +447,19 @@ int                       unicone_device_upload_bitstream (struct unicone_device
     goto done;
   }
 
+  /* Take an SHA-1 message digest of the bitstream and send it */
+  sha_buffer(bf->data, bf->length, sha1_digest);
+  retval = usb_bulk_write(self->usbdev, UNICONE_EP_FPGA_CONFIG, sha1_digest, 20, TIMEOUT);
+  if (retval <= 0) {
+    error = "USB write error";
+    goto done;
+  }
+
   /* Send the bitstream in 128-byte chunks */
   remaining = bf->length;
   current = bf->data;
   while (remaining > 0) {
     int packet_size = remaining;
-    int retval;
 
     if (packet_size > 128)
       packet_size = 128;
@@ -377,6 +501,11 @@ int                       unicone_device_upload_bitstream (struct unicone_device
     return -1;
   return bytes_uploaded;
 }
+
+
+/******************************************************************************/
+/************************************************** Low-level Communications **/
+/******************************************************************************/
 
 int                       unicone_device_i2c_write        (struct unicone_device*    self,
 							   int                       i2c_addr,

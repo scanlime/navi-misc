@@ -34,6 +34,11 @@ struct unicone_device {
   int fpga_configured;
 };
 
+
+/******************************************************************************/
+/************************************************************ Initialization **/
+/******************************************************************************/
+
 /* Convenience function to initialize libusb */
 void                      unicone_usb_init                ();
 
@@ -48,6 +53,28 @@ void                      unicone_device_delete           (struct unicone_device
 /* Disconnect from a device, then reconnect after a delay */
 int                       unicone_device_reconnect        (struct unicone_device *self,
 							   struct progress_reporter* progress);
+
+
+/******************************************************************************/
+/************************************************ Firmware / FPGA Management **/
+/******************************************************************************/
+
+/* Returns 0 if the given firmware file has the same contents as the device, 1
+ * if the contents are different, or -1 on error.
+ */
+int                       unicone_device_compare_firmware (struct unicone_device*    self,
+							   const char*               filename);
+
+/* Returns 0 if the given bitstream file has the same contents as the device, 1
+ * if the contents are different, or -1 on error.
+ */
+int                       unicone_device_compare_bitstream(struct unicone_device*    self,
+							   const char*               filename);
+
+
+/******************************************************************************/
+/**************************************************** Firmware / FPGA Upload **/
+/******************************************************************************/
 
 /* Install firmware from the given raw binary file. Optionally
  * report progress using the given interface. Returns the number of
@@ -67,13 +94,16 @@ int                       unicone_device_remove_firmware  (struct unicone_device
 
 /* Install an FPGA configuration from the given bitstream file. Optionally
  * report progress using the given interface. Returns the number of
- * bytes transferred on success, or -1 on error. If 'verbose' is nonzero, this
- * will also show information about the bistream being uploaded.
+ * bytes transferred on success, or -1 on error.
  */
 int                       unicone_device_upload_bitstream (struct unicone_device*    self,
 							   const char*               filename,
-							   struct progress_reporter* progress,
-							   int                       verbose);
+							   struct progress_reporter* progress);
+
+
+/******************************************************************************/
+/************************************************** Low-level Communications **/
+/******************************************************************************/
 
 /* Make a generic I2C write to the FPGA. Returns 0 on success, -1 on USB error. I2C errors
  * are not yet reported via this function, they will appear on the serial port.
