@@ -32,7 +32,7 @@ static void navigation_tree_finalize   (GObject *object);
 /* Callback. */
 static gboolean click             (GtkWidget *widget, GdkEventButton *event, gpointer user_data);
 static gboolean declick           (GtkWidget *widget, GdkEventButton *event, gpointer user_data);
-void navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_data);
+static void navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_data);
 
 GType
 navigation_tree_get_type (void)
@@ -164,15 +164,15 @@ static gboolean declick(GtkWidget *treeview, GdkEventButton *e, gpointer data) {
 	return FALSE;
 }
 
-void
+static void
 navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_data)
 {
 	GtkTreeIter iter, newiter;
 	GtkTreeModel *model, *store;
-	GtkTreeView *treeview;
+	GtkTreeView *treeview, *navigation;
 	gpointer *s;
 	session *sess;
-	struct session_gui *tgui;
+	session_gui *tgui;
 
 	treeview = GTK_TREE_VIEW (glade_xml_get_widget (gui.xml, "userlist"));
 
@@ -180,7 +180,7 @@ navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_dat
 		GtkWidget *topic, *entry;
 
 		/* back up existing entry */
-		tgui = (struct session_gui *) gui.current_session->gui;
+		tgui = (session_gui *) gui.current_session->gui;
 		if(tgui == NULL)
 			return;
 		g_free(tgui->entry);
@@ -208,8 +208,13 @@ navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_dat
 		store = gtk_tree_model_sort_get_model(GTK_TREE_MODEL_SORT(model));
 		gtk_tree_model_sort_convert_iter_to_child_iter(GTK_TREE_MODEL_SORT(model), &newiter, &iter);
 		gtk_tree_store_set(GTK_TREE_STORE(store), &newiter, 0, NULL, 3, 0, -1);
+
+		navigation = GTK_TREE_VIEW(glade_xml_get_widget(gui.xml, "server channel list"));
+		gtk_tree_path_free(NAVTREE(navigation)->current_path);
+		NAVTREE(navigation)->current_path = gtk_tree_model_get_path(GTK_TREE_MODEL(model), &iter);
 	}
 }
+
 /* New NavTree. */
 NavTree*
 navigation_tree_new (NavModel *model)
