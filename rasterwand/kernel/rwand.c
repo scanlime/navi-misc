@@ -287,6 +287,7 @@ static void rwand_process_status(struct rwand_dev *dev, const unsigned char *pac
 			rwand_nb_request(dev, RWAND_CTRL_SET_COIL_PHASE, timings.coil_begin, timings.coil_end);
 			rwand_nb_request(dev, RWAND_CTRL_SET_COLUMN_WIDTH, timings.column_width, timings.gap_width);
 			rwand_nb_request(dev, RWAND_CTRL_SET_DISPLAY_PHASE, timings.fwd_phase, timings.rev_phase);
+			rwand_nb_request(dev, RWAND_CTRL_SET_NUM_COLUMNS, dev->settings.num_columns, 0);
 			dev->settings_dirty = 0;
 		}
 
@@ -401,8 +402,8 @@ static void rwand_update_fb(struct rwand_dev *dev, int bytes, unsigned char *fb)
 
 	/* Change the display width if necessary */
 	if (bytes != dev->settings.num_columns) {
-		rwand_request(dev, RWAND_CTRL_SET_NUM_COLUMNS, bytes, 0);
 		dev->settings.num_columns = bytes;
+		dev->settings_dirty = 1;
 	}
 
 	/* Currently this does the whole update using SEQ_WRITE4.
