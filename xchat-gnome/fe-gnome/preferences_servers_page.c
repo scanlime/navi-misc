@@ -22,6 +22,7 @@
 #include <gconf/gconf-client.h>
 #include "preferences_servers_page.h"
 #include "preferences.h"
+#include "error_dialog.h"
 #include "../common/xchat.h"
 #include "../common/servlist.h"
 
@@ -45,6 +46,33 @@ static GHashTable *enctoindex;
 static gboolean initialized = FALSE;
 
 void preferences_servers_selected (GtkTreeSelection *selection, gpointer data);
+
+static void
+check_input (GtkWidget *entry, GtkWidget *dialog)
+{
+	GtkWidget *name;
+	GtkWidget *globalnames, *real, *nick;
+
+	name = glade_xml_get_widget (gui.xml, "server config network name");
+	globalnames = glade_xml_get_widget (gui.xml, "server config usedefaults");
+	real = glade_xml_get_widget (gui.xml, "server config realname");
+	nick = glade_xml_get_widget (gui.xml, "server config nickname");
+
+	if (strlen (gtk_entry_get_text (GTK_ENTRY (name))) == 0)
+		goto fail;
+	if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (globalnames)))
+		goto success;
+	if (strlen (gtk_entry_get_text (GTK_ENTRY (real))) == 0)
+		goto fail;
+	if (strlen (gtk_entry_get_text (GTK_ENTRY (nick))) == 0)
+		goto fail;
+
+success:
+	gtk_dialog_set_response_sensitive (GTK_DIALOG (dialog), GTK_RESPONSE_OK, TRUE);
+	return;
+fail:
+	gtk_dialog_set_response_sensitive (GTK_DIALOG (dialog), GTK_RESPONSE_OK, FALSE);
+}
 
 static void
 add_clicked (GtkWidget *button, gpointer data)
@@ -100,12 +128,12 @@ edit_ok_clicked (GtkWidget *button, gpointer data)
 
 	widget = glade_xml_get_widget (gui.xml, "server config network name");
 	text = (char *) gtk_entry_get_text (GTK_ENTRY (widget));
-	if (!((servlist_net_find (text, &position) == NULL) || (strcasecmp (realname, text) == 0)))
-		/* FIXME: pop up error about duplicate */
+	if (!((servlist_net_find (text, &position) == NULL) || (strcasecmp (realname, text) == 0))) {
+		error_dialog (_("Duplicate entry"), _("You already have a network of that name"));
+		widget = glade_xml_get_widget (gui.xml, "server config network name");
+		gtk_widget_grab_focus (widget);
 		return;
-	else if (strlen (text) == 0)
-		/* FIXME: pop up error about empty */
-		return;
+	}
 	net->name = g_strdup (text);
 
 	/* FIXME: check validity of everything before filling the ircnet struct */
@@ -132,15 +160,9 @@ edit_ok_clicked (GtkWidget *button, gpointer data)
 	{
 		widget = glade_xml_get_widget (gui.xml, "server config nickname");
 		text = (char *) gtk_entry_get_text (GTK_ENTRY (widget));
-		if (strlen (text) == 0)
-			/* FIXME: pop up error about empty */
-			return;
 		net->nick = g_strdup (text);
 		widget = glade_xml_get_widget (gui.xml, "server config realname");
 		text = (char *) gtk_entry_get_text (GTK_ENTRY (widget));
-		if (strlen (text) == 0)
-			/* FIXME: pop up error about empty */
-			return;
 		net->real = g_strdup (text);
 	}
 
@@ -182,8 +204,10 @@ edit_clicked (GtkWidget *button, gpointer data)
 	password = glade_xml_get_widget (gui.xml, "server config password");
 	gtk_size_group_add_widget (group, password);
 	nick = glade_xml_get_widget (gui.xml, "server config nickname");
+	g_signal_connect (G_OBJECT (nick), "changed", G_CALLBACK (check_input), dialog);
 	gtk_size_group_add_widget (group, nick);
 	real = glade_xml_get_widget (gui.xml, "server config realname");
+	g_signal_connect (G_OBJECT (real), "changed", G_CALLBACK (check_input), dialog);
 	gtk_size_group_add_widget (group, real);
 	encoding = glade_xml_get_widget (gui.xml, "encoding combo");
 	if (!initialized)
@@ -251,6 +275,7 @@ edit_clicked (GtkWidget *button, gpointer data)
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), (net->flags & FLAG_CYCLE));
 
 	widget = glade_xml_get_widget (gui.xml, "server config network name");
+	g_signal_connect (G_OBJECT (widget), "changed", G_CALLBACK (check_input), dialog);
 	gtk_entry_set_text (GTK_ENTRY (widget), net->name);
 
 	widget = glade_xml_get_widget (gui.xml, "server config ok");
