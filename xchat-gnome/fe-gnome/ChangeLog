@@ -1,9 +1,9 @@
-0.3
+0.3 "You be the Horse, and I'll be the buggy" (28 February 2005)
 	* Plugin autoloading - Evan Sheehan
 	* Network configuration - David Trowbridge
 	* Added Firefox-style search bar - David Trowbridge
 	* Conversion to GtkUIManager - Christian Persch / David Trowbridge
-	* Implemented hilight list editing - David Trowbridge
+	* Hilight list editing - David Trowbridge
 	* Color configuration (schemes, custom) - David Trowbridge
 	* Infrastructure for Keybinding configuration - Dan Kuester
 
