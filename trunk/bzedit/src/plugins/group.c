@@ -27,6 +27,8 @@ static void       group_init          (Group *group);
 static void       group_finalize      (GObject *object);
 static GdkPixbuf* group_get_icon      (void);
 static GList*     group_get_drawables (SceneObject *self);
+static gboolean   group_parent        (SceneObject *self, SceneObject *child);
+static gboolean   group_deparent      (SceneObject *self, SceneObject *child);
 
 static gpointer parent_class = NULL;
 
@@ -69,6 +71,8 @@ group_class_init (GroupClass *klass)
   so_class->creatable = TRUE;
   so_class->canparent = TRUE;
   so_class->get_drawables = group_get_drawables;
+  so_class->parent = group_parent;
+  so_class->deparent = group_deparent;
 
   object_class->finalize = group_finalize;
 }
@@ -76,6 +80,10 @@ group_class_init (GroupClass *klass)
 static void
 group_init (Group *group)
 {
+  group->children = NULL;
+  group->children_handlers = g_hash_table_new (g_direct_hash, g_direct_equal);
+  group->max[0] = group->max[1] = group->max[2] = 0.0;
+  group->min[0] = group->min[1] = group->min[2] = 0.0;
 }
 
 Group*
@@ -106,4 +114,53 @@ static GList*
 group_get_drawables (SceneObject *self)
 {
   return NULL;
+}
+
+/*
+static void
+recompute_bb
+{
+}
+*/
+
+static void
+child_dirty (SceneObject *child, SceneObject *self)
+{
+  g_print ("child_dirty (%s)\n", g_type_name (G_TYPE_FROM_INSTANCE (child)));
+}
+
+static gboolean
+group_parent (SceneObject *self, SceneObject *child)
+{
+  Group *g = GROUP (self);
+  guint handler;
+
+  child->parent = self;
+
+  g_print ("group_parent (%s)\n", g_type_name (G_TYPE_FROM_INSTANCE (child)));
+
+  g->children = g_list_append (g->children, child);
+  handler = g_signal_connect (G_OBJECT (child), "dirty", G_CALLBACK (child_dirty), (gpointer) self);
+  g_hash_table_insert (g->children_handlers, (gpointer) child, GUINT_TO_POINTER (handler));
+
+  return TRUE;
+}
+
+static gboolean
+group_deparent (SceneObject *self, SceneObject *child)
+{
+  Group *g = GROUP (self);
+  guint handler;
+
+  g_list_remove (g->children, child);
+
+  child->parent = NULL;
+
+  g_print ("group_deparent (%s)\n", g_type_name (G_TYPE_FROM_INSTANCE (child)));
+
+  handler = GPOINTER_TO_UINT (g_hash_table_lookup (g->children_handlers, (gpointer) child));
+  g_signal_handler_disconnect (G_OBJECT (child), handler);
+  g_hash_table_remove (g->children_handlers, (gpointer) child);
+
+  return TRUE;
 }

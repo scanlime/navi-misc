@@ -70,24 +70,30 @@ struct _SceneObjectClass
   gboolean parentable;
 
   /* signal handlers */
-  void       (*dirty)          (SceneObject *self);
-  void       (*selected)       (SceneObject *self);
+  void       (*dirty)             (SceneObject *self);
+  void       (*selected)          (SceneObject *self);
 
   /* subclassable functions */
-  void       (*render)         (SceneObject *self, guint name);
-  void       (*serialize)      (SceneObject *self, GIOChannel *out);
-  GdkPixbuf* (*get_icon)       (void);
-  GList*     (*get_drawables)  (SceneObject *self);
-  void       (*select)         (SceneObject *self);
-  void       (*deselect)       (SceneObject *self);
+  void       (*render)            (SceneObject *self, guint name);
+  void       (*serialize)         (SceneObject *self, GIOChannel *out);
+  GdkPixbuf* (*get_icon)          (void);
+  GList*     (*get_drawables)     (SceneObject *self);
+  GList*     (*get_all_drawables) (SceneObject *self);
+  void       (*select)            (SceneObject *self);
+  void       (*deselect)          (SceneObject *self);
+  gboolean   (*parent)            (SceneObject *self, SceneObject *child);
+  gboolean   (*deparent)          (SceneObject *self, SceneObject *child);
 };
 
-GType      scene_object_get_type      (void) G_GNUC_CONST;
-void       scene_object_render        (SceneObject *self, guint name);
-void       scene_object_serialize     (SceneObject *self, GIOChannel *out);
-GList*     scene_object_get_drawables (SceneObject *self);
-void       scene_object_select        (SceneObject *self);
-void       scene_object_deselect      (SceneObject *self);
+GType      scene_object_get_type          (void) G_GNUC_CONST;
+void       scene_object_render            (SceneObject *self, guint name);
+void       scene_object_serialize         (SceneObject *self, GIOChannel *out);
+GList*     scene_object_get_drawables     (SceneObject *self);
+GList*     scene_object_get_all_drawables (SceneObject *self);
+void       scene_object_select            (SceneObject *self);
+void       scene_object_deselect          (SceneObject *self);
+gboolean   scene_object_parent            (SceneObject *parent, SceneObject *child);
+gboolean   scene_object_deparent          (SceneObject *parent, SceneObject *child);
 
 #define SELECTION_DRAWABLE_TYPE            (selection_drawable_get_type ())
 #define SELECTION_DRAWABLE(obj)            (G_TYPE_CHECK_INSTANCE_TYPE ((obj), SELECTION_DRAWABLE_TYPE, SelectionDrawable))
