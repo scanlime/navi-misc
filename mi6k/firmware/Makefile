@@ -14,4 +14,3 @@ install: $(BIN)
 
 clean:
 	rm -f *.o *.lst *.cod *.hex
-
