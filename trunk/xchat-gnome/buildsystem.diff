@@ -4,7 +4,7 @@ RCS file: /cvsroot/xchat/xchat2/configure.in,v
 retrieving revision 1.54
 diff -u -r1.54 configure.in
 --- configure.in	14 Jan 2004 16:08:11 -0000	1.54
-+++ configure.in	22 Jan 2004 00:12:25 -0000
++++ configure.in	29 Jan 2004 01:36:45 -0000
 @@ -84,9 +84,9 @@
  [  --enable-textfe         build the text frontend (default: no)],
          textfe=$enableval, textfe=no)
@@ -27,7 +27,7 @@ diff -u -r1.54 configure.in
  	zvt=no
  	COMMON_LIBS="$GLIB_LIBS"
  	COMMON_CFLAGS="$GLIB_CFLAGS"
-@@ -171,22 +171,22 @@
+@@ -171,22 +171,44 @@
  GUI_LIBS="$GUI_LIBS $GTK_LIBS"
  GUI_CFLAGS="$GUI_CFLAGS $GTK_CFLAGS"
  
@@ -63,10 +63,32 @@ diff -u -r1.54 configure.in
 +		AC_MSG_RESULT(ok)
 +	fi
 +fi
++
++dnl *********************************************************************
++dnl ** GtkSpell *********************************************************
++dnl *********************************************************************
++AC_PATH_PROG
++if test "$gnomefe" = yes; then
++	AC_PATH_PROG(pkgconfigpath, pkg-config)
++	AC_MSG_CHECKING(for gtkspell)
++	if $pkgconfigpath "gtkspell-2.0" --exists; then
++		GTKSPELL_CFLAGS="`$pkgconfigpath gtkspell-2.0 --cflags 2>/dev/null`"
++		if test "_$GTKSPELL_CFLAGS" = _ ; then
++			AC_MSG_RESULT([not found])
++		else
++			GUI_LIBS="$GUI_LIBS `$pkgconfigpath gtkspell-2.0 --libs`"
++			GUI_CFLAGS="$GUI_CFLAGS $GTKSPELL_CFLAGS -DHAVE_GTKSPELL"
++			AC_MSG_RESULT(ok)
++		fi
++	else
++		AC_MSG_RESULT([not found])
++	fi
++fi
++
  
  dnl *********************************************************************
  dnl ** XFT **************************************************************
-@@ -465,6 +465,7 @@
+@@ -465,6 +487,7 @@
  AM_CONDITIONAL(USE_OPENSSL, test "x$openssl" = "xyes")
  AM_CONDITIONAL(DO_TEXT, test "x$textfe" = "xyes")
  AM_CONDITIONAL(DO_GTK, test "x$gtkfe" = "xyes")
@@ -74,7 +96,7 @@ diff -u -r1.54 configure.in
  AM_CONDITIONAL(DO_PERL, test "x$perl" = "xyes")
  AM_CONDITIONAL(DO_PYTHON, test "x$python" = "xyes")
  AM_CONDITIONAL(DO_TCL, test "x$tcl" = "xyes")
-@@ -648,6 +649,7 @@
+@@ -648,6 +671,7 @@
  src/Makefile
  src/common/Makefile
  src/fe-text/Makefile
@@ -82,7 +104,7 @@ diff -u -r1.54 configure.in
  src/fe-gtk/Makefile
  src/pixmaps/Makefile
  plugins/Makefile
-@@ -661,8 +663,9 @@
+@@ -661,8 +685,9 @@
  echo
  echo xchat $VERSION
  echo
@@ -100,7 +122,7 @@ RCS file: /cvsroot/xchat/xchat2/src/Makefile.am,v
 retrieving revision 1.1.1.1
 diff -u -r1.1.1.1 Makefile.am
 --- src/Makefile.am	28 Nov 2002 10:39:00 -0000	1.1.1.1
-+++ src/Makefile.am	22 Jan 2004 00:12:44 -0000
++++ src/Makefile.am	29 Jan 2004 01:36:45 -0000
 @@ -11,4 +11,8 @@
  gtk_fe = fe-gtk
  endif
