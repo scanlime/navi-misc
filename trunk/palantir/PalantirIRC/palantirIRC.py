@@ -34,19 +34,25 @@ class PalantirClient(irc.IRCClient):
 
   def joined(self, channel):
     ''' When we join a channel get a list of who is in the channel. '''
-    self.sendLine('WHO ' + channel)
-    self.factory.ui.messageReceive(None, channel, 'Joined ' + channel + '\n')
-    self.factory.ui.messageReceive(None, channel, 'Topic for ' + channel + ' is: ')
+    if hasattr(self.factory.ui, 'joined'):
+      self.factory.ui.joined(channel)
+
     self.ctcpMakeQuery(channel, [('DMQUERY',None)])
 
   def left(self, channel):
     ''' Called when we've left a channel, print a message that we've gone. '''
-    self.factory.ui.messageReceive(None, channel, 'Left ' + channel)
+    if hasattr(self.factory.ui, 'left'):
+      self.factory.ui.left(channel)
 
   def irc_RPL_WHOREPLY(self, prefix, params):
     ''' When we get a reply from a WHO query send the nick and channel to the ui. '''
     if hasattr(self.factory.ui, 'whoReply'):
       self.factory.ui.whoReply(params)
+
+  def irc_RPL_TOPIC(self, prefix, params):
+    ''' When we join a channel and the server is informing us of the topic. '''
+    if hasattr(self.factory.ui, 'setTopicOnJoin'):
+      self.factory.ui.setTopicOnJoin(params)
 
   def noticed(self, user, channel, message):
     self.factory.ui.messageReceive(user, channel, message)

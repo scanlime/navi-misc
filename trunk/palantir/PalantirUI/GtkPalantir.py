@@ -310,9 +310,34 @@ class PalantirWindow:
 
   ### If implemented, these are called by palantirIRC when their events
   ### are received.
+  def joined(self, channel):
+    ''' Just display a short message saying we joined the channel and send
+        a WHO request to get the users in the channel.
+	'''
+    time = palantir.getTime()
+    self.factory.client.sendLine('WHO' + channel)
+    self.chatWindow.DisplayText(time, '', 'Joined ' + channel)
+
+  def left(self, channel):
+    ''' Clear the userlist when we leave a channel and display a small
+        message saying we've left.
+	'''
+    time = palantir.getTime()
+    self.tree.get_widget('UserList').get_model().clear()
+    self.chatWindow.DisplayText(time, '', 'Left ' + channel)
+    self.tree.get_widget('Topic').set_text('')
+
   def topicReceive(self, user, channel, topic):
     ''' Recieved a topic change, so set the topic bar to the new topic. '''
+    time = palantir.getTime()
     self.tree.get_widget('Topic').set_text(topic)
+    self.chatWindow.DisplayText(time, '', user + ' has changed the topic to: ' + topic)
+
+  def setTopicOnJoin(self, params):
+    ''' Handle the topic notification for joining a channel specially. '''
+    time = palantir.getTime()
+    self.chatWindow.DisplayText(time, '', 'Topic for ' + params[1] + ' is: ' + params[2])
+    self.tree.get_widget('Topic').set_text(params[2])
 
   def userJoined(self, user, channel):
     ''' When a new user has joined the channel, add him/her to the user
