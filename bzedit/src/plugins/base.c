@@ -49,6 +49,17 @@ enum
 };
 
 static gpointer parent_class = NULL;
+static GType team_enum_type;
+
+static const
+GEnumValue team_enum[] =
+{
+  { 0, "red",    "Red" },
+  { 1, "green",  "Green" },
+  { 2, "blue",   "Blue" },
+  { 3, "purple", "Purple" },
+  { 0, 0,        0 },
+};
 
 GType
 base_get_type (void)
@@ -70,6 +81,7 @@ base_get_type (void)
     };
 
     base_type = g_type_register_static (SCENE_OBJECT_TYPE, "Base", &base_info, 0);
+    team_enum_type = g_enum_register_static ("BaseTeam", team_enum);
   }
 
   return base_type;
@@ -115,6 +127,16 @@ update_double_if_necessary (gdouble new_value, gboolean *dirty, gdouble *param, 
 }
 
 static void
+update_enum_if_necessary (gint new_value, gboolean *dirty, gint *param)
+{
+  if (new_value != *param)
+  {
+    *param = new_value;
+    *dirty = TRUE;
+  }
+}
+
+static void
 update_boolean_if_necessary (gboolean new_value, gboolean *dirty, gboolean *param)
 {
   if (new_value != *param)
@@ -127,11 +149,107 @@ update_boolean_if_necessary (gboolean new_value, gboolean *dirty, gboolean *para
 static void
 base_set_property (GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec)
 {
+  Base *self = BASE (object);
+
+  switch (prop_id)
+  {
+    case PROP_POSITION_X:
+      update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.position[0], 0.09);
+      break;
+
+    case PROP_POSITION_Y:
+      update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.position[1], 0.09);
+      break;
+
+    case PROP_POSITION_Z:
+      update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.position[2], 0.09);
+      break;
+
+    case PROP_ROTATION:
+      update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.rotation, 0.09);
+      break;
+
+    case PROP_SIZE_X:
+      update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.size[0], 0.09);
+      break;
+
+    case PROP_SIZE_Y:
+      update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.size[1], 0.09);
+      break;
+
+    case PROP_SIZE_Z:
+      update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.size[2], 0.09);
+      break;
+
+    case PROP_TEAM:
+      update_enum_if_necessary (g_value_get_enum (value), &self->state_dirty, &self->param.team);
+      break;
+
+    case PROP_DRIVE_THROUGH:
+      update_boolean_if_necessary (g_value_get_boolean (value), &self->state_dirty, &self->param.drive_through);
+      break;
+
+    case PROP_SHOOT_THROUGH:
+      update_boolean_if_necessary (g_value_get_boolean (value), &self->state_dirty, &self->param.shoot_through);
+      break;
+
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+  }
+  if (self->state_dirty)
+  {
+    g_signal_emit_by_name (object, "dirty");
+  }
 }
 
 static void
 base_get_property (GObject *object, guint prop_id, GValue *value, GParamSpec *pspec)
 {
+  Base *self = BASE (object);
+
+  switch (prop_id)
+  {
+    case PROP_POSITION_X:
+      g_value_set_double (value, self->param.position[0]);
+      break;
+
+    case PROP_POSITION_Y:
+      g_value_set_double (value, self->param.position[1]);
+      break;
+
+    case PROP_POSITION_Z:
+      g_value_set_double (value, self->param.position[2]);
+      break;
+
+    case PROP_ROTATION:
+      g_value_set_double (value, self->param.rotation);
+      break;
+
+    case PROP_SIZE_X:
+      g_value_set_double (value, self->param.size[0]);
+      break;
+
+    case PROP_SIZE_Y:
+      g_value_set_double (value, self->param.size[1]);
+      break;
+
+    case PROP_SIZE_Z:
+      g_value_set_double (value, self->param.size[2]);
+      break;
+
+    case PROP_TEAM:
+      g_value_set_enum (value, self->param.team);
+      break;
+
+    case PROP_DRIVE_THROUGH:
+      g_value_set_boolean (value, self->param.drive_through);
+      break;
+
+    case PROP_SHOOT_THROUGH:
+      g_value_set_boolean (value, self->param.shoot_through);
+      break;
+  }
 }
 
 static void
@@ -142,16 +260,120 @@ base_finalize (GObject *object)
 static void
 base_init_position_params (GObjectClass *object_class)
 {
+  GParamSpec *spec;
+  const gchar *current_group = "Position";
+
+  spec = g_param_spec_double       ("x",
+                                   "X",
+			           "Position of the base along the X axis",
+			           -1000, 1000, 0,
+			           G_PARAM_READWRITE | G_PARAM_CONSTRUCT |
+				   G_PARAM_LAX_VALIDATION | PARAM_IN_GUI);
+  param_spec_set_group            (spec, current_group);
+  param_spec_set_increments       (spec, 0.1, 1, 2);
+  g_object_class_install_property (object_class, PROP_POSITION_X, spec);
+
+  spec = g_param_spec_double      ("y",
+                                   "Y",
+				   "Position of the base along the Y axis",
+				   -1000, 1000, 0,
+				   G_PARAM_READWRITE | G_PARAM_CONSTRUCT |
+				   G_PARAM_LAX_VALIDATION | PARAM_IN_GUI);
+  param_spec_set_group            (spec, current_group);
+  param_spec_set_increments       (spec, 0.1, 1, 2);
+  g_object_class_install_property (object_class, PROP_POSITION_Y, spec);
+
+  spec = g_param_spec_double      ("z",
+                                   "Z",
+				   "Position of the base along the Z axis",
+				   0, 1000, 0,
+				   G_PARAM_READWRITE | G_PARAM_CONSTRUCT |
+				   G_PARAM_LAX_VALIDATION | PARAM_IN_GUI);
+  param_spec_set_group            (spec, current_group);
+  param_spec_set_increments       (spec, 0.1, 1, 2);
+  g_object_class_install_property (object_class, PROP_POSITION_Z, spec);
+
+  spec = g_param_spec_double      ("rotation",
+                                   "Rotation",
+				   "Rotation of the base around it's origin",
+				   0, 360, 0,
+				   G_PARAM_READWRITE | G_PARAM_CONSTRUCT |
+				   G_PARAM_LAX_VALIDATION | PARAM_IN_GUI);
+  param_spec_set_group            (spec, current_group);
+  param_spec_set_increments       (spec, 0.1, 1, 2);
+  g_object_class_install_property (object_class, PROP_ROTATION, spec);
 }
 
 static void
 base_init_size_params (GObjectClass *object_class)
 {
+  GParamSpec *spec;
+  const gchar *current_group = "Size";
+
+  spec = g_param_spec_double      ("width",
+                                   "Width",
+				   "Width of the box",
+				   0, 1000, 30,
+				   G_PARAM_READWRITE | G_PARAM_CONSTRUCT |
+				   G_PARAM_LAX_VALIDATION | PARAM_IN_GUI);
+  param_spec_set_group            (spec, current_group);
+  param_spec_set_increments       (spec, 0.1, 1, 2);
+  g_object_class_install_property (object_class, PROP_SIZE_X, spec);
+
+  spec = g_param_spec_double      ("depth",
+                                   "Depth",
+				   "Depth of the box",
+				   0, 1000, 30,
+				   G_PARAM_READWRITE | G_PARAM_CONSTRUCT |
+				   G_PARAM_LAX_VALIDATION | PARAM_IN_GUI);
+  param_spec_set_group            (spec, current_group);
+  param_spec_set_increments       (spec, 0.1, 1, 2);
+  g_object_class_install_property (object_class, PROP_SIZE_Y, spec);
+
+  spec = g_param_spec_double      ("height",
+                                   "Height",
+				   "Height of the box",
+				   0, 1000, 9.42,
+				   G_PARAM_READWRITE | G_PARAM_CONSTRUCT |
+				   G_PARAM_LAX_VALIDATION | PARAM_IN_GUI);
+  param_spec_set_group            (spec, current_group);
+  param_spec_set_increments       (spec, 0.1, 1, 2);
+  g_object_class_install_property (object_class, PROP_SIZE_Z, spec);
 }
 
 static void
 base_init_other_params (GObjectClass *object_class)
 {
+  GParamSpec *spec;
+  const gchar *current_group = "Options";
+
+  spec = g_param_spec_enum        ("team",
+                                   "Team",
+				   "Which team the base is associated with",
+				   team_enum_type,
+				   0,
+				   G_PARAM_READWRITE | G_PARAM_CONSTRUCT |
+				   PARAM_IN_GUI);
+  param_spec_set_group            (spec, current_group);
+  g_object_class_install_property (object_class, PROP_TEAM, spec);
+
+  spec = g_param_spec_boolean     ("drive-through",
+                                   "Drive through",
+				   "Whether or not tanks can drive through the box",
+				   FALSE,
+				   G_PARAM_READWRITE | G_PARAM_CONSTRUCT |
+				   PARAM_IN_GUI);
+  param_spec_set_group            (spec, current_group);
+  g_object_class_install_property (object_class, PROP_DRIVE_THROUGH, spec);
+
+  spec = g_param_spec_boolean     ("shoot-through",
+                                   "Shoot through",
+				   "Whether or not bullets pass through the box",
+				   FALSE,
+				   G_PARAM_READWRITE | G_PARAM_CONSTRUCT |
+				   PARAM_IN_GUI);
+  param_spec_set_group            (spec, current_group);
+  g_object_class_install_property (object_class, PROP_SHOOT_THROUGH, spec);
 }
 
 static GdkPixbuf*

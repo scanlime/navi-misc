@@ -37,14 +37,6 @@ G_BEGIN_DECLS
 typedef struct _Base      Base;
 typedef struct _BaseClass BaseClass;
 
-enum
-{
-  TEAM_RED,
-  TEAM_BLUE,
-  TEAM_GREEN,
-  TEAM_PURPLE,
-};
-
 typedef struct
 {
   gdouble position[3];
