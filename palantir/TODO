@@ -1,4 +1,5 @@
-* Finish the unimplemented functions in GtkPalantir.py
+* Finish off /who command
+* Finish implementing handlers for IRC protocol (e.g. kicks, bans, motd, etc.)
 * Tweak dice rolling systems to handle critical failures
 * Store user preferences for the chat client
 * Character sheet builder
