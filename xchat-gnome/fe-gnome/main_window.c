@@ -71,9 +71,11 @@ void on_text_entry_activate(GtkWidget *widget, gpointer data);
 gboolean on_text_entry_key(GtkWidget *widget, GdkEventKey *key, gpointer data);
 
 gboolean on_resize(GtkWidget *widget, GdkEventConfigure *event, gpointer data);
+gboolean on_vpane_move(GtkWidget *widget, gpointer data);
+gboolean on_hpane_move(GtkWidget *widget, gpointer data);
 
 void initialize_main_window() {
-	GtkWidget *entry;
+	GtkWidget *entry, *pane;
 
 	gui.main_window = GNOME_APP(glade_xml_get_widget(gui.xml, "xchat-gnome"));
 	g_signal_connect(G_OBJECT(gui.main_window), "delete-event", G_CALLBACK(on_main_window_close), NULL);
@@ -109,6 +111,11 @@ void initialize_main_window() {
 	g_signal_connect(G_OBJECT(entry), "activate", G_CALLBACK(on_text_entry_activate), NULL);
 	g_signal_connect_after(G_OBJECT(entry), "key_press_event", G_CALLBACK(on_text_entry_key), NULL);
 
+	pane = glade_xml_get_widget(gui.xml, "VPane");
+	g_signal_connect(G_OBJECT(pane), "accept-position", G_CALLBACK(on_vpane_move), NULL);
+	pane = glade_xml_get_widget(gui.xml, "HPane");
+	g_signal_connect(G_OBJECT(pane), "accept-position", G_CALLBACK(on_hpane_move), NULL);
+
 #ifdef HAVE_GTKSPELL
 #if 0
 	gtkspell_new_attach(GTK_TEXT_VIEW(entry), NULL, NULL);
@@ -118,17 +125,27 @@ void initialize_main_window() {
 
 void run_main_window() {
 	int width, height;
+	int v, h;
 
 	preferences_get_main_window_size(&width, &height);
 	gtk_widget_show_all(GTK_WIDGET(gui.main_window));
 	if(!(width == 0 || height == 0))
 		gtk_window_set_default_size(GTK_WINDOW(gui.main_window), width, height);
+	preferences_get_main_window_positions(&v, &h);
+	if(h != 0) {
+		GtkWidget *hpane = glade_xml_get_widget(gui.xml, "HPane");
+		gtk_paned_set_position(GTK_PANED(hpane), h);
+	}
+	if(v != 0) {
+		GtkWidget *vpane = glade_xml_get_widget(gui.xml, "VPane");
+		gtk_paned_set_position(GTK_PANED(vpane), v);
+	}
 	g_signal_connect(G_OBJECT(gui.main_window), "configure-event", G_CALLBACK(on_resize), NULL);
 }
 
 void rename_main_window(gchar *server, gchar *channel) {
 	gchar *new_title;
-	
+
 	new_title = g_strconcat (server, ": ", channel, NULL);
 	gtk_window_set_title(GTK_WINDOW(gui.main_window), new_title);
 
@@ -396,5 +413,19 @@ gboolean on_text_entry_key(GtkWidget *widget, GdkEventKey *key, gpointer data) {
 
 gboolean on_resize(GtkWidget *widget, GdkEventConfigure *event, gpointer data) {
 	preferences_set_main_window_size(event->width, event->height);
+	return FALSE;
+}
+
+gboolean on_vpane_move(GtkWidget *widget, gpointer data) {
+	int pos = gtk_paned_get_position(GTK_PANED(widget));
+	g_print("on_vpane_move()\n");
+	preferences_set_main_window_v_position(pos);
+	return FALSE;
+}
+
+gboolean on_hpane_move(GtkWidget *widget, gpointer data) {
+	int pos = gtk_paned_get_position(GTK_PANED(widget));
+	g_print("on_hpane_move()\n");
+	preferences_set_main_window_h_position(pos);
 	return FALSE;
 }

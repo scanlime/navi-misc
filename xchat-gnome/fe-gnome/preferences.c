@@ -163,3 +163,22 @@ void preferences_get_channel_list_window_size(int *width, int *height) {
 	*height = gconf_client_get_int(client, "/apps/xchat/channel_list_window/height", NULL);
 	*width = gconf_client_get_int(client, "/apps/xchat/channel_list_window/width", NULL);
 }
+
+void preferences_set_main_window_v_position(int v) {
+	GConfClient *client;
+	client = gconf_client_get_default();
+	gconf_client_set_int(client, "/apps/xchat/main_window/vpane", v, NULL);
+}
+
+void preferences_set_main_window_h_position(int h) {
+	GConfClient *client;
+	client = gconf_client_get_default();
+	gconf_client_set_int(client, "/apps/xchat/main_window/hpane", h, NULL);
+}
+
+void preferences_get_main_window_positions(int *v, int *h) {
+	GConfClient *client;
+	client = gconf_client_get_default();
+	*v = gconf_client_get_int(client, "/apps/xchat/main_window/vpane", NULL);
+	*h = gconf_client_get_int(client, "/apps/xchat/main_window/hpane", NULL);
+}

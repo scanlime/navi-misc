@@ -29,12 +29,13 @@ int check_word(GtkWidget *xtext, char *word);
 void clicked_word(GtkWidget *xtext, char *word, GdkEventButton *even, gpointer data);
 
 void initialize_text_gui() {
-	GtkWidget *swin;
+	GtkWidget *frame, *scrollbar;
 
 	gui.xtext = GTK_XTEXT(gtk_xtext_new(colors, TRUE));
-	swin = glade_xml_get_widget(gui.xml, "main text scrolled window");
-	gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(swin), GTK_WIDGET(gui.xtext));
-	gtk_scrolled_window_set_vadjustment(GTK_SCROLLED_WINDOW(swin), gui.xtext->adj);
+	frame = glade_xml_get_widget(gui.xml, "text area frame");
+	gtk_container_add(GTK_CONTAINER(frame), gui.xtext);
+	scrollbar = glade_xml_get_widget(gui.xml, "text area scrollbar");
+	gtk_range_set_adjustment(GTK_RANGE(scrollbar), gui.xtext->adj);
 
 	palette_alloc(GTK_WIDGET(gui.xtext));
 	gtk_xtext_set_palette(gui.xtext, colors);
