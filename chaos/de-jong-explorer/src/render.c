@@ -290,14 +290,23 @@ void run_iterations(int count) {
       blur_ratio_index = (blur_ratio_index+1) & (blur_ratio_period-1);
     }
 
-    /* Scale and translate our (x,y) coordinates into pixel coordinates.
-     * Note that the floor() here is important! Casting -0.5 to integer
-     * will give you 0, but floor(-0.5) is -1. This causes the 0th row
-     * and column to overlap with the -1st, making it about twice as
-     * exposed as it should be.
+    /* Scale and translate our (x,y) coordinates into pixel coordinates */
+    x = (x + params.xoffset) * scale + xcenter;
+    y = (y + params.yoffset) * scale + ycenter;
+
+    /* Convert (x,y) to integers.
+     * Note that just casting to int here is incorrect! We want the behaviour
+     * of floor(), always rounding toward -inf rather than zero. This should
+     * behave identically to floor(), but a little faster.
      */
-    ix = (int)floor((x + params.xoffset) * scale + xcenter);
-    iy = (int)floor((y + params.yoffset) * scale + ycenter);
+    if (x<0)
+      ix = x-1;
+    else
+      ix = x;
+    if (y<0)
+      iy = y-1;
+    else
+      iy = y;
 
     if (params.tileable) {
       /* In tileable rendering, we wrap at the edges */
