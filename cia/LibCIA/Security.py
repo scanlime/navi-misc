@@ -46,13 +46,19 @@ class SecurityInterface(RpcServer.Interface):
     """An XML-RPC interface to the global capabilities database"""
     def protected_createUser(self, fullName, email, loginName=None):
         """Create a new user with the given identity, returning
-           a dictionary with information about the new user.
-           This is the same info returned by User.getInfo(). Of
-           particular interest will be the 'uid' and 'secret_key'
-           values.
+           a (uid, key) tuple for the new user.
            """
-        return User(full_name=fullName, email=email,
-                    login_name=loginName, create=True).getInfo()
+        u = User(full_name=fullName, email=email,
+                 login_name=loginName, create=True)
+        result = defer.Deferred()
+        u.getInfo().addCallback(self._createUser, result).addErrback(result.errback)
+        return result
+
+    def _createUser(self, info, result):
+        """This gets the user info dict from User.getInfo()
+           and reformats it into a (uid, key) tuple for createUser()
+           """
+        result.callback((info['uid'], info['secret_key']))
 
     def protected_grant(self, capability, uid):
         """Grant the given capability to the given user. Note that this means
