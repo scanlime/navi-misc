@@ -222,9 +222,27 @@ int main(int argc, char ** argv) {
 	}
     }
 
-    if (optind < argc) {
+    if (optind + 1 < argc) {
 	usage(argv);
 	return 1;
+    }
+
+    if (optind != argc) {
+	char *ext = strrchr (argv[optind], '.');
+	if (ext) {
+	    if (strcasecmp(ext, ".png") == 0) {
+		histogram_imager_load_image_file(HISTOGRAM_IMAGER(map), argv[optind], &error);
+	    } else if (strcasecmp(ext, ".fa") == 0) {
+		animation_load_file(animation, argv[optind]);
+		animate = TRUE;
+	    } else {
+	        usage(argv);
+	        return 1;
+	    }
+	} else {
+	    usage(argv);
+	    return 1;
+	}
     }
 
     switch (mode) {
@@ -316,7 +334,7 @@ int main(int argc, char ** argv) {
 static void usage(char **argv) {
     acquire_console();
     fprintf(stderr,
-	    "Usage: %s [options]\n"
+	    "Usage: %s [options] [file]\n"
 	    "Interactive exploration and high quality rendering of chaotic maps\n"
 	    "\n"
 	    "Actions:\n"
