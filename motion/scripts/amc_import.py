@@ -32,8 +32,9 @@ from Blender.Armature.Bone import ROT, LOC, SIZE
 import AMCReader
 
 dofTable = {}
+axisTable = {}
 
-def getQuat(object, bone, rot):
+def getRot(object, bone, rot):
     try:
         dof = dofTable[bone]
     except KeyError:
@@ -41,6 +42,11 @@ def getQuat(object, bone, rot):
         if dof is None:
             dof = []
         dofTable[bone] = dof
+    try:
+        axis = axisTable[bone]
+    except KeyError:
+        axis = object.getProperty('%s-axis' % bone).getData().split(',')
+        axisTable[bone] = axis
     r = [0.0, 0.0, 0.0]
     i = 0
     for d in dof:
@@ -75,7 +81,7 @@ def importData (reader, object, filename):
         loc = frame.bones['root'][0:3]
 
         # swizzle, scale & invert
-        (loc[0], loc[2], loc[1]) = (loc[0] * -0.1, loc[1] * 0.1, loc[2] * -0.1)
+        (loc[0], loc[2], loc[1]) = (loc[0] * 0.1, loc[1] * 0.1, loc[2] * -0.1)
         rot = frame.bones['root'][3:6]
         euler = Blender.Mathutils.Euler(rot)
         quat = euler.toQuat()
@@ -89,17 +95,11 @@ def importData (reader, object, filename):
             if bname == 'root':
                 continue
             rot = frame.bones[bname]
-            rot = getQuat(object, bname, rot)
+            rot = getRot(object, bname, rot)
             euler = Blender.Mathutils.Euler(rot)
             quat = euler.toQuat()
-            parent = b[bname].getParent()
-            pquat = parent.getQuat()
-            #while parent.hasParent():
-                #parent = parent.getParent()
-                #quat += parent.getQuat()
-            b[bname].setQuat(quat + pquat)
-            #b[bname].setQuat(quat)
-            b[bname].setPose([ROT, LOC, SIZE])
+            b[bname].setQuat(quat)
+            b[bname].setPose([ROT])
 
     Blender.Window.RedrawAll()
 
