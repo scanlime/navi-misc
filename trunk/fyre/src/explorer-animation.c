@@ -51,7 +51,6 @@ static void on_anim_render_closed(GtkWidget *widget, gpointer user_data);
 static void on_keyframe_duration_change(GtkWidget *widget, gpointer user_data);
 
 static char *current_filename = NULL;
-static int n_keyframes = 0;
 
 /************************************************************************************/
 /**************************************************** Initialization / Finalization */
