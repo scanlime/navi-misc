@@ -23,22 +23,6 @@ enum
 
 static gint buffer_signals[LAST_SIGNAL];
 
-struct _textentry
-{
-  textentry *next;
-  textentry *prev;
-  unsigned char *str;
-  time_t stamp;
-  gint16 str_width;
-  gint16 str_len;
-  gint16 mark_start;
-  gint16 mark_end;
-  gint16 indent;
-  gint16 left_len;
-  gint16 lines_taken;
-  gboolean multibyte: TRUE;
-};
-
 GType
 xtext_buffer_get_type (void)
 {

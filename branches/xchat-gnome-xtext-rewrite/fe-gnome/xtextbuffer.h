@@ -2,6 +2,7 @@
 #define __XTEXT_BUFFER_H__
 
 #include <gtk/gtk.h>
+#include <time.h>
 
 G_BEGIN_DECLS
 
@@ -35,6 +36,24 @@ struct _XTextBufferClass
   void (*append) (XTextBuffer *buffer, textentry *ent);
   void (*clear)  (XTextBuffer *buffer);
   void (*remove) (XTextBuffer *buffer);
+};
+
+struct _textentry
+{
+  textentry *next;
+  textentry *prev;
+  unsigned char *str;
+  time_t stamp;
+  gint16 str_width;
+  gint16 str_len;
+  gint16 mark_start;
+  gint16 mark_end;
+  gint16 indent;
+  gint16 left_len;
+  gint16 lines_taken;
+#define RECORD_WRAPS 4
+  guint16 wrap_offset[RECORD_WRAPS];
+  gboolean multibyte: TRUE;
 };
 
 GType        xtext_buffer_get_type (void) G_GNUC_CONST;

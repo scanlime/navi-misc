@@ -16,6 +16,7 @@ static void       xtext2_size_allocate   (GtkWidget *widget, GtkAllocation *allo
 static gboolean   xtext2_expose          (GtkWidget *widget, GdkEventExpose *event);
 
 static void       backend_init           (XText2 *xtext);
+static void       backend_deinit         (XText2 *xtext);
 
 static void       paint                  (GtkWidget *widget, GdkRectangle *area);
 static void       draw_bg                (XText2 *xtext, int x, int y, int width, int height);
@@ -25,7 +26,12 @@ static int        find_x                 (XText2 *xtext, int x, textentry *ent, 
 static void       set_fg                 (XText2 *xtext, GdkGC *gc, int index);
 static void       set_bg                 (XText2 *xtext, GdkGC *gc, int index);
 
+static int        count_lines_taken      (XText2 *xtext, textentry *ent);
+static int        find_next_wrap         (XText2 *xtext, textentry *ent, unsigned char *str, int win_width, int indent);
+
 static gpointer parent_class;
+
+#define MARGIN 2 /* left margin (in pixels) */
 
 /* properties */
 enum
@@ -73,6 +79,7 @@ struct _XText2Private
 
   /* state data */
   int          pixel_offset;         /* number of pixels the top line is chopped by */
+  int          window_width;         /* width of the window when last rendered */
 
   /* state associated with rendering specific buffers */
   GHashTable  *buffer_info;          /* stores an XTextFormat for each buffer we observe */
@@ -103,6 +110,9 @@ struct _XTextFormat
 {
   int   window_width;  /* window size when */
   int   window_height; /* last rendered */
+
+  textentry *wrapped_start;
+  textentry *wrapped_end;
 
   /* handlers */
   guint append_handler;
@@ -428,6 +438,17 @@ backend_init (XText2 *xtext)
     XftDrawSetSubwindowMode (xtext->priv->xft_draw, IncludeInferiors);
   }
 }
+
+static void
+backend_deinit (XText2 *xtext)
+{
+  if (xtext->priv->xft_draw)
+  {
+    XftDrawDestroy (xtext->priv->xft_draw);
+    xtext->priv->xft_draw = NULL;
+  }
+}
+
 #else
 /* ======================================= */
 /* ============ PANGO BACKEND ============ */
@@ -442,6 +463,17 @@ backend_init (XText2 *xtext)
       pango_layout_set_font_description (xtext->priv->layout, xtext->priv->font->font);
   }
 }
+
+static void
+backend_deinit (XText2 *xtext)
+{
+  if (xtext->priv->layout)
+  {
+    g_object_unref (xtext->priv->layout);
+    xtext->priv->layout = NULL;
+  }
+}
+
 #endif
 
 static void
@@ -608,4 +640,38 @@ xtext2_show_buffer (XText2 *xtext, XTextBuffer *buffer)
     /* this isn't a buffer we've seen before */
     f = allocate_buffer (xtext, buffer);
   }
+}
+
+/* count how many lines 'ent' will take (with wraps) */
+static int
+count_lines_taken (XText2 *xtext, textentry *ent)
+{
+  unsigned char *str;
+  int indent, taken, len;
+  int win_width;
+
+  win_width = xtext->priv->window_width - MARGIN;
+
+  if (ent->str_width + ent->indent < win_width)
+    return 1;
+
+  indent = ent->indent;
+  str = ent->str;
+  taken = 0;
+
+  do
+  {
+    len = find_next_wrap (xtext, ent, str, win_width, indent);
+    if (taken < RECORD_WRAPS)
+      ent->wrap_offset[taken] = (str + len) - ent->str;
+    indent = xtext->priv->indent;
+    taken++;
+    str += len;
+  } while (str < ent->str + ent->str_len);
+  return taken;
+}
+
+static int
+find_next_wrap (XText2 *xtext, textentry *ent, unsigned char *str, int win_width, int indent)
+{
 }
