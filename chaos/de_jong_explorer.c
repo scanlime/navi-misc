@@ -515,12 +515,32 @@ void randomclick(GtkWidget *widget, gpointer user_data) {
   startclick(widget, user_data);
 }
 
+gchar* save_parameters() {
+  /* Save the current parameters to a freshly allocated human and machine readable string */
+  return g_strdup_printf("a = %f\n"
+			 "b = %f\n"
+			 "c = %f\n"
+			 "d = %f\n"
+			 "zoom = %f\n"
+			 "xoffset = %f\n"
+			 "yoffset = %f\n"
+			 "exposure = %f\n",
+			 a, b, c, d, zoom, xoffset, yoffset, exposure);
+}
+
 void save_to_file(const char *name) {
   /* Save the current contents of pixels[] to a .PNG file */
   GdkPixbuf *pixbuf;
+  gchar *params;
   pixbuf = gdk_pixbuf_new_from_data(pixels, GDK_COLORSPACE_RGB, TRUE,
 				    8, width, height, width*4, NULL, NULL);
-  gdk_pixbuf_save(pixbuf, name, "png", NULL, NULL);
+
+  /* Save our current parameters in a tEXt chunk, using a format that
+   * is both human-readable and easy to load parameters from automatically.
+   */
+  params = save_parameters();
+  gdk_pixbuf_save(pixbuf, name, "png", NULL, "tEXt::de_jong_params", params, NULL);
+  g_free(params);
   gdk_pixbuf_unref(pixbuf);
 }
 
