@@ -2,7 +2,7 @@
 # Freevo configuration for Wasabi
 #
 
-CONFIG_VERSION = 5.13
+CONFIG_VERSION = 5.14
 
 # Decide whether we're actually running on wasabi by looking for the uvswitch
 import os.path
@@ -88,6 +88,7 @@ GAMES_ITEMS = [
     ('Nintendo Entertainment System', '/navi/media/games/nes',
      ('GENERIC', '/bin/sh', '/home/freevo/wasabi/fceu.sh', '', None)),
     ]
+plugin.activate('games')
 
 # Remove standard plugins we have no use for
 plugin.remove('tv')
