@@ -1,7 +1,3 @@
-* when a tree in the navigation view is closed, it should not act as a selection
-  (view should stay on the channel they were in) - this seems to already be the case,
-  except its inconsistent (perhaps the first time the tree is closed? haven't tested
-  sufficiently)
 * networks/channels are not selected properly when starting up (autoconnect)
 * the completion list is not modified when the user changes nicks
 * the completion list occasionally gets really messed up on autojoin (maybe joining
