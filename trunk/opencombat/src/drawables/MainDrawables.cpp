@@ -14,9 +14,16 @@
 #include "DrawablesManager.h"
 #include "VisualElementManager.h"
 
+// element headers
+#include "TeleporterDrawable.h"
+
+// factories
+TeleporterDrawableFactory	teleporterDrawableFactory;
 
 void registerVisualElements ( void )
 {
+	VisualElementManager	&veManager = VisualElementManager::instance();
 
+	veManager.registerElementFactory(&teleporterDrawableFactory,std::string("Teleporter"));
 
 }

@@ -85,7 +85,7 @@ void VisualElementManager::registerElementFactory ( BaseVisualElementFactory *fa
 	factorys[string_util::toupper(name)] = factory;
 }
 
-BaseVisualElement* VisualElementManager::newObject ( std::string &className, void *parent )
+BaseVisualElement* VisualElementManager::newObject ( std::string &className, BaseVisableObject *parent )
 {
 	std::map<std::string,BaseVisualElementFactory*>::iterator itr = factorys.find(string_util::toupper(className));
 	if (itr == factorys.end())

@@ -32,3 +32,11 @@ protected:
 	int baseListID;
 	int fieldListID;
 };
+
+class TeleporterDrawableFactory : public BaseVisualElementFactory
+{
+public:
+		virtual BaseVisualElement* newElement ( void ){return new TeleporterDrawable;}
+		virtual void deleteElement ( BaseVisualElement* element ){delete(element);}
+
+};

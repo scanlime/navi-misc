@@ -19,13 +19,21 @@
 
 #include "common.h"
 #include "Obstacle.h"
+#include "VisualElementManager.h"
 
-class Teleporter : public Obstacle {
+class Teleporter : public Obstacle, BaseVisableObject  {
   public:
 			Teleporter(const float* pos, float rotation,
 				float width, float breadth, float height,
 				float borderSize = 1.0f, bool drive = false, bool shoot = false);
 			~Teleporter();
+
+	public:	// visual element methods
+		virtual bool getPos ( C3DVertex & pos );
+		virtual bool getSize( C3DVertex & size );
+		virtual bool getRot ( C3DVertex & rot );
+		virtual bool getInfoI ( std::string tag, int &value);
+		virtual bool getInfoF ( std::string tag, float &value);
 
     std::string		getType() const;
     static std::string	getClassName(); // const

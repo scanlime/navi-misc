@@ -11,62 +11,18 @@
  */
 // implementation for view cull classes
 
-
-#include "OpenGL.h"
+#include "common.h"
+#include "bzfgl.h"
 #include "ViewCull.h"
-
-// plane class implementation;
-ViewPlane::CViewPlane()
-{
-	m_rNorm.x = m_rNorm.y = m_rNorm.z = m_fODist = 0;
-	m_bSet = false;
-}
-
-ViewPlane::~CViewPlane()
-{
-	m_rNorm.x = m_rNorm.y = m_rNorm.z = m_fODist = 0;
-}
-
-void ViewPlane::Set ( float fA, float fB, float fC , float fD )
-{
-	m_bSet = true;
-	m_rNorm.x = fA;
-	m_rNorm.y = fB;
-	m_rNorm.z = fC;
-	m_fODist = fD;
-	Normalise();
-}
-
-void ViewPlane::Normalise ( void )
-{
-	m_fODist /= get_mag(m_rNorm);
-	set_mag(m_rNorm,1.0f);
-}
-
-float ViewPlane::PointDist ( float fX, float fY, float fZ )
-{
-	if (!m_bSet)
-		return 0.0f;
-
-	return GetA() * fX + GetB() * fY + GetC() * fZ + GetD();
-}
-
-bool ViewPlane::PointBehind ( float fX, float fY, float fZ )
-{
-	if (!m_bSet)
-		return false;
-
-	return PointDist(fX,fY,fZ) <= 0.0f;
-}
 
 // view frustum class
 
-ViewFrustum::CViewFrustum()
+ViewFrustum::ViewFrustum()
 {
 	m_bSet = false;
 }
 
-ViewFrustum::~CViewFrustum(){}
+ViewFrustum::~ViewFrustum(){}
 
 void ViewFrustum::Get()
 {    
@@ -109,7 +65,6 @@ void ViewFrustum::Get()
 	m_aPlanes[eFrustTop].Set(clip[3]-clip[1],clip[7]-clip[5],clip[11]-clip[9],clip[15]-clip[13]);
 	m_aPlanes[eFrustBack].Set(clip[3]-clip[2],clip[7]-clip[6],clip[11]-clip[10],clip[15]-clip[14]);
 	m_aPlanes[eFrustTop].Set(clip[3]+clip[2],clip[7]+clip[6],clip[11]+clip[10],clip[15]+clip[14]);
-}
 }
 
 

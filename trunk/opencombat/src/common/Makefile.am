@@ -29,7 +29,7 @@ libCommon_a_SOURCES  =			\
 	bzsignal.c			\
 	global.cpp			\
 	md5.cpp			\
-	MathUtils.cpp
+	GeoUtils.cpp
 
 if BUILD_REGEX
 libCommon_a_LIBADD = \

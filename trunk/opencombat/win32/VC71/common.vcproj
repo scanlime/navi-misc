@@ -306,6 +306,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\..\src\common\GeoUtils.cpp">
+			</File>
+			<File
 				RelativePath="..\..\src\common\global.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -347,9 +350,6 @@
 			</File>
 			<File
 				RelativePath="..\..\src\common\Language.cpp">
-			</File>
-			<File
-				RelativePath="..\..\src\common\MathUtils.cpp">
 			</File>
 			<File
 				RelativePath="..\..\src\common\md5.cpp">
@@ -590,6 +590,9 @@
 				RelativePath="..\..\include\Flag.h">
 			</File>
 			<File
+				RelativePath="..\..\include\GeoUtils.h">
+			</File>
+			<File
 				RelativePath="..\..\include\global.h">
 			</File>
 			<File
@@ -597,9 +600,6 @@
 			</File>
 			<File
 				RelativePath="..\..\include\Language.h">
-			</File>
-			<File
-				RelativePath="..\..\include\MathUtils.h">
 			</File>
 			<File
 				RelativePath="..\..\include\md5.h">
