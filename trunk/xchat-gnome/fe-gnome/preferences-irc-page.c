@@ -23,6 +23,19 @@
 #include "preferences-irc-page.h"
 #include "preferences-dialog.h"
 
+static void
+entry_changed (GtkEntry *entry, const gchar *key)
+{
+	GConfClient *client;
+	const gchar *text;
+
+	client = gconf_client_get_default ();
+	text = gtk_entry_get_text (entry);
+	if (text)
+		gconf_client_set_string (client, key, text, NULL);
+	g_object_unref (client);
+}
+
 PreferencesIrcPage *
 preferences_page_irc_new (gpointer prefs_dialog, GladeXML *xml)
 {
@@ -70,6 +83,12 @@ preferences_page_irc_new (gpointer prefs_dialog, GladeXML *xml)
 	gtk_size_group_add_widget (group, page->away_message);
 	gtk_size_group_add_widget (group, page->font_selection);
 	g_object_unref (group);
+
+	g_signal_connect (G_OBJECT (page->nick_name),    "changed", G_CALLBACK (entry_changed), "/apps/xchat/irc/nickname");
+	g_signal_connect (G_OBJECT (page->real_name),    "changed", G_CALLBACK (entry_changed), "/apps/xchat/irc/realname");
+	g_signal_connect (G_OBJECT (page->quit_message), "changed", G_CALLBACK (entry_changed), "/apps/xchat/irc/quitmsg");
+	g_signal_connect (G_OBJECT (page->part_message), "changed", G_CALLBACK (entry_changed), "/apps/xchat/irc/partmsg");
+	g_signal_connect (G_OBJECT (page->away_message), "changed", G_CALLBACK (entry_changed), "/apps/xchat/irc/awaymsg");
 
 	text = gconf_client_get_string (p->gconf, "/apps/xchat/irc/nickname", NULL);
 	gtk_entry_set_text (GTK_ENTRY (page->nick_name), text);
@@ -263,19 +282,6 @@ gconf_font_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, GtkFo
 	gtk_font_button_set_font_name (button, text);
 	g_free (text);
 	g_signal_handlers_unblock_by_func (button, "font-set", font_changed);
-}
-
-static void
-entry_changed (GtkEntry *entry, const gchar *key)
-{
-	GConfClient *client;
-	const gchar *text;
-
-	client = gconf_client_get_default ();
-	text = gtk_entry_get_text (entry);
-	if (text)
-		gconf_client_set_string (client, key, text, NULL);
-	g_object_unref (client);
 }
 
 static void
