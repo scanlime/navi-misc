@@ -49,12 +49,13 @@ class Box(Object):
         self.set_position()
         self.set_size()
         self.set_rotation()
+        print list
         self.set_scale()
         self.set_shear()
         self.set_spin()
         if list is not None:
             for property in list[1:]:
-                getattr(self, "set_%s" % property[0])(list[1:])
+                getattr(self, "set_%s" % property[0])(property[1:])
 
     def set_drivethrough(self):
         self.drivethrough = 1
@@ -68,7 +69,7 @@ class Box(Object):
     def set_size(self, size=[10, 10, 9.42]):
         self.size = [float(n) for n in size]
 
-    def set_rotation(self, *r):
+    def set_rotation(self, r=[0]):
         self.rotation = float(r[0])
 
     def set_scale(self, scale=[1, 1, 1]):
