@@ -52,7 +52,15 @@ public class interview extends java.applet.Applet implements ActionListener
 		net.write(realname.getText());
 		net.write(key.encrypt(mykey,username.getText()));
 		net.write(key.encrypt(mykey,password.getText()));
-		
+		mykey = net.read();
+		if(mykey.chatAt(0) == '-')
+		{
+			realname.setText("Try again, authentication failed");
+			return;
+		}
+		mykey = net.read();
+		mykey = mykey + " Asks: " + net.read();
+		question.setText(mykey);
 		buttonconfig();
 	}
 	

@@ -40,7 +40,7 @@ public class njavaint extends nbase
 	public void runloop()
 	{
 		String in;
-		question mine;
+		String mine;
 		mine = view.getQuestion();
 		if(mine != null)
 			write(mine);

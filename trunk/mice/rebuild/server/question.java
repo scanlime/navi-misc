@@ -69,7 +69,7 @@ public class question
 		if(answer == null)
 			return name + "\r\n" + text;
 		else
-			return name + "\r\n" + text + "\r\n" + answer;
+			return name + "\r\n" + text + "\r\n" + answeredby + "\r\n" + answer;
 	}
 	
 	/**
