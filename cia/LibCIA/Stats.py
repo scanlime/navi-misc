@@ -27,10 +27,9 @@ the actual stats target using part of the message.
 #
 
 from twisted.web import xmlrpc
-import Ruleset, XML, Message
+import Ruleset, Message, Rack
 import string, os
 import time, datetime, calendar
-import anydbm
 
 
 class StatsURIHandler(Ruleset.RegexURIHandler):
@@ -59,10 +58,6 @@ class StatsInterface(xmlrpc.XMLRPC):
         xmlrpc.XMLRPC.__init__(self)
         self.caps = caps
         self.storage = storage
-
-    def xmlrpc_isPathValid(self, path):
-        """Returns 'true' if the given stats path exists at all"""
-        return self.storage.getPathTarget(path).exists()
 
     def xmlrpc_catalog(self, path=''):
         """Return a list of subdirectories within this stats path.
@@ -94,24 +89,6 @@ class StatsInterface(xmlrpc.XMLRPC):
                 return counter.getValues()
         return {}
 
-    def xmlrpc_getCounters(self, path):
-        """Return counters for the given path as XML.
-           It's very important to understand that the counter is returned
-           just as it is stored on disk, so the individual counters may
-           need to be rolled over before their values are accurate. This
-           (and catalogCounters below) are nice if you know what you're doing
-           or you're using the Counter class from here, but in other cases
-           it's best to use getCounterInfo.
-           """
-        return self.storage.getPathTarget(path).countersToXml()
-
-    def xmlrpc_catalogCounters(self, path):
-        """Runs 'catalog' on the given path to determine it's subdirectories,
-           then creates a mapping from subdirectory name to getCounters results
-           and returns that.
-           """
-        return self.storage.getPathTarget(path).catalogCounters()
-
     def xmlrpc_getMetadata(self, path):
         """Return a dictionary holding all metadata for a particular stats path"""
         target = self.storage.getPathTarget(path)
@@ -136,86 +113,37 @@ class StatsInterface(xmlrpc.XMLRPC):
 
 
 class StatsStorage(object):
-    """A thin abstraction around the directory that acts as a root for all stats:// URIs"""
-    def __init__(self, path):
-        self.path = path
+    """A filesystem-like system for storing stats, based on Rack.
+       Every path corresponds with a StatsTarget and a Rack namespace.
+       """
+    def __init__(self, fileName):
+        self.rack = Rack.open(fileName)
 
     def getTarget(self, pathSegments):
-        """Return a StatsTarget representing the stats stored at the given
-           path, represented as one or more nested directories. Disallowed
-           characters in each path segment are URI-encoded.
+        """Return a StatsTarget representing the stats stored at the given path,
+           represented as one or more nested directories.
            """
-        return StatsTarget(os.path.join(self.path, *map(self.uriencode, pathSegments)))
+        return StatsTarget(self, pathSegments)
 
     def getPathTarget(self, path, *extraSegments):
-        """Like getTarget, but split up 'path' into segments and optionall append extraSegments first"""
+        """Like getTarget, but split up 'path' into segments and optionally append extraSegments first"""
         return self.getTarget(list(path.split("/")) + list(extraSegments))
-
-    def uriencode(self, s, allowedChars = string.ascii_letters + string.digits + "-_"):
-        """Return a URI-encoded version of 's', all characters not in the
-           given list will be replaced with their hexadecimal value prefixed
-           with '%'.
-           This is like urllib.quote(), but we can't use that since we don't assume
-           the '.' character is safe- it can be used to create hidden files and special
-           directory names, so it's easier to just quote it rather than detecting
-           those special cases.
-        """
-        chars = []
-        for char in s:
-            if char in allowedChars:
-                chars.append(char)
-            else:
-                chars.append("%%%02X" % ord(char))
-        return "".join(chars)
 
 
 class StatsTarget(object):
     """Encapsulates all the stats-logging features used for one particular
        target. This can be one project, one class of messages, etc.
-       It is constructed with the path of a directory in the filesystem
-       which represents this target.
-
-       On message delivery, the path and all files within will be created
-       automatically. Until then though, the path may not exist and the
-       'counters' and 'recentMessages' attributes may be None.
+       It is constructed around a Rack namespace that stores the various
+       resources this stats target owns.
        """
-    def __init__(self, path):
-        self.path = path
-        self.open(False)
+    def __init__(self, storage, pathSegments):
+        self.storage = storage
+        self.pathSegments = pathSegments
+        self.rack = storage.rack.namespace(pathSegments)
 
-    def exists(self):
-        """Returns True if this stats target is valid"""
-        return os.path.isdir(self.path)
-
-    def open(self, createIfNecessary=True, resource=None):
-        """Open the specified resource in this stats target. If
-           createIfNecessary is True, the resources will be created
-           if they don't already exist. If 'resource' is not None,
-           only the resource with that name is opened.
-           """
-        # If we're in the business of creating things that don't exist,
-        # make sure our stats path exists.
-        if createIfNecessary:
-            try:
-                os.makedirs(self.path)
-            except OSError:
-                pass
-
-        for attrName, cls, filename in [
-            ('counters', IntervalCounters, os.path.join(self.path, 'counters.xml')),
-            ('recentMessages', LogDB, os.path.join(self.path, 'recent_messages.db')),
-            ('metadata', Metadata, os.path.join(self.path, 'metadata.xml')),
-            ]:
-            if resource and resource != attrName:
-                continue
-            if hasattr(self, attrName) and getattr(self, attrName):
-                # Already open, skip it
-                continue
-            if createIfNecessary or os.path.isfile(filename):
-                obj = cls(filename)
-            else:
-                obj = None
-            setattr(self, attrName, obj)
+        self.counters = Counters(self.rack.namespace('counters'))
+        self.recentMessages = RingBuffer(self.rack.namespace('recentMessages'))
+        self.metadata = self.rack.namespace('metadata')
 
     def deliver(self, message):
         """A message has been received which should be logged by this stats target"""
@@ -225,29 +153,11 @@ class StatsTarget(object):
 
     def catalog(self):
         """Return a list of subdirectories of this stats target"""
-        try:
-            return [dir for dir in os.listdir(self.path) if os.path.isdir(os.path.join(self.path, dir))]
-        except OSError:
-            # Nonexistant stats targets have no subdirectories
-            return []
-
-    def countersToXml(self):
-        """Return all counters as raw XML"""
-        if self.counters:
-            return self.counters.toXml()
-        else:
-            return ''
+        return 'not', 'here', 'yet', 'FIXME'
 
     def child(self, name):
-        """Return the StatsTarget for the given subdirectory name under this one"""
-        return StatsTarget(os.path.join(self.path, name))
-
-    def catalogCounters(self):
-        """Return a mapping from subdirectory name to XML counters"""
-        results = {}
-        for child in self.catalog():
-            results[child] = self.child(child).countersToXml()
-        return results
+        """Return the StatsTarget for the given sub-target name under this one"""
+        return StatsTarget(self.storage, tuple(self.pathSegments) + (name,))
 
 
 class TimeInterval(object):
@@ -331,57 +241,10 @@ class TimeInterval(object):
         return (beginning, end)
 
 
-class CounterList(XML.XMLStorage):
-    """Several named Counters stored in one file"""
-    def __init__(self, fileName):
-        # Use lazy loading to speed things up if we need to refer to
-        # a counter list without necessarily being able to read its contents.
-        XML.XMLStorage.__init__(self, fileName, 'counters', lazyLoad=True)
-
-    def emptyStorage(self):
-        # Maps counter name to Counter instance
-        self.counters = {}
-
-    def store(self, xml):
-        c = Counter(xml)
-        self.counters[c.name] = c
-
-    def flatten(self):
-        return self.counters.values()
-
-    def getNames(self):
-        """Return all currently valid counter names"""
-        self.loadIfNecessary()
-        return self.counters.keys()
-
-    def getCounter(self, name, create=True):
-        """Get a counter with the given name. If 'create' is True, it
-           will be created if necessary. If 'create' is False and the
-           counter doesn't exist, None will be returned.
-           """
-        self.loadIfNecessary()
-        if not self.counters.has_key(name):
-            if create:
-                self.counters[name] = Counter(name=name)
-            else:
-                return None
-        return self.counters[name]
-
-
-class Metadata(XML.XMLDict):
-    """A way to store metadata along with a stats:// path, primarily for
-       display on the web interface's stats browser.
-       """
-    def __init__(self, fileName):
-        XML.XMLDict.__init__(self, fileName, 'metadata')
-
-
-class LogDB(object):
-    """A database (accessed via anydbm) used as a FIFO for the
-       last n objects delivered to it. The objects in this
-       case are always strings. The database is organized as a
-       ring buffer. Keys include the numbers 0 through n-1,
-       plus the following special keys:
+class RingBuffer(object):
+    """A FIFO buffer for the last n objects delivered to it, based on Rack.
+       The rack includes keys for the numbers 0 through n-1, plus the following
+       strings:
 
           head  : The key to place the next node at
           count : Total number of nodes in the buffer
@@ -389,14 +252,14 @@ class LogDB(object):
                   The size specified to the constructor is only
                   used when a new database has been created.
 
-       >>> d = LogDB('/tmp/example.db', 'n')
+       >>> d = RingBuffer(Rack.open('/tmp/ringbuffer_test.db', 'n'))
        >>> d.getLatest()
        []
        >>> d.push('foo')
        >>> d.push('bar')
-       >>> d.push('boing')
+       >>> d.push((42, None))
        >>> d.getLatest()
-       ['foo', 'bar', 'boing']
+       ['foo', 'bar', (42, None)]
        >>> for i in xrange(5000):
        ...    d.push(str(i))
        >>> len(d.getLatest())
@@ -408,94 +271,115 @@ class LogDB(object):
        >>> d.getLatest(10)
        ['4990', '4991', '4992', '4993', '4994', '4995', '4996', '4997', '4998', '4999']
        """
-    def __init__(self, fileName, flags='c', size=1024):
-        self.fileName = fileName
-        self.flags = flags
-        self.newSize = size
+    def __init__(self, rack, size=1024):
+        self.rack = rack
 
-    def open(self):
-        self.db = anydbm.open(self.fileName, self.flags)
-        if not self.db.has_key('size'):
+        if not self.rack.has_key('size'):
             # It's a new database, initialize the special keys
-            self.db['head'] = '0'
-            self.db['count'] = '0'
-            self.db['size'] = str(self.newSize)
-        self.size = int(self.db['size'])
-        self.head = int(self.db['head'])
-        self.count = int(self.db['count'])
+            self.rack['head'] = 0
+            self.rack['count'] = 0
+            self.rack['size'] = size
 
-    def close(self):
-        self.db.close()
+        # Cache the special keys
+        self.head = self.rack['head']
+        self.count = self.rack['count']
+        self.size = self.rack['size']
 
     def push(self, node):
         """Add the given node to the FIFO, overwriting
            the oldest entries if the buffer is full.
-           'node' must be a string.
            """
-        self.open()
-        try:
-            # Stow the new node at our head and increment it
-            self.db[str(self.head)] = node
-            self.head = self.head + 1
-            if self.head >= self.size:
-                self.head -= self.size
-            self.db['head'] = str(self.head)
+        # Stow the new node at our head and increment it
+        self.rack[self.head] = node
+        self.head = self.head + 1
+        if self.head >= self.size:
+            self.head -= self.size
+        self.rack['head'] = self.head
 
-            # If we haven't just also pushed out an old item,
-            # increment the count of items in our db.
-            if self.count < self.size:
-                self.count += 1
-                self.db['count'] = str(self.count)
-        finally:
-            self.close()
+        # If we haven't just also pushed out an old item,
+        # increment the count of items in our rack.
+        if self.count < self.size:
+            self.count += 1
+            self.rack['count'] = self.count
 
     def getLatest(self, n=None):
         """Returns up to the latest 'n' items. If n is None,
            returns the entire contents of the FIFO.
            Returns a list, oldest items first.
            """
-        self.open()
-        try:
-            # Figure out how many items we can actually extract
-            if n is None or n > self.count:
-                n = self.count
+        # Figure out how many items we can actually extract
+        if n is None or n > self.count:
+            n = self.count
 
-            # Find the key holding the oldest item we want to return,
-            # and start pulling items out from there
-            key = self.head - n
-            if key < 0:
-                key += self.size
-            results = []
-            while n > 0:
-                results.append(self.db[str(key)])
-                key += 1
-                if key >= self.size:
-                    key -= self.size
-                n -= 1
-            return results
-        finally:
-            self.close()
+        # Find the key holding the oldest item we want to return,
+        # and start pulling items out from there
+        key = self.head - n
+        if key < 0:
+            key += self.size
+        results = []
+        while n > 0:
+            results.append(self.rack[key])
+            key += 1
+            if key >= self.size:
+                key -= self.size
+            n -= 1
+        return results
 
 
-class IntervalCounters(CounterList):
+class Counters(object):
     """A set of counters which are used together to track events
-       occurring over several TimeIntervals.
+       occurring over several TimeIntervals. Stored in a Rack.
        """
+    def __init__(self, rack):
+        self.rack = rack
+
+    def getCounter(self, name):
+        """Return the Rack associated with a counter. The Rack
+           is a subclass of the dictionary type, and can
+           include the following keys:
+
+           firstEventTime : The time, in UTC seconds since the epoch, when the first event occurred
+           lastEventTime  : The time when the most recent event occurred
+           eventCount     : The number of events that have occurred
+           """
+        return self.rack.namespace(name)
+
+    def incrementCounter(self, name, evTime):
+        """Increment the counter with the given name.
+           If evTime is provided, that is used as the
+           time at which this event was received. Otherwise,
+           the current time is used.
+           """
+        c = self.getCounter(name)
+        if evTime is None:
+            evTime = int(time.time())
+
+            c.setdefault('firstEventTime', evTime)
+        c['lastEventTime'] = evTime
+        c['eventCount'] = c.setdefault('eventCount', 0) + 1
+
     def checkOneRollover(self, previous, current):
         """Check for rollovers in one pair of consecutive time intervals,
            like yesterday/today or lastMonth/thisMonth.
            """
-        # Is our current counter still current?
-        if not self.getCounter(current).getCreationDatetime() in TimeInterval(current):
-            # Nope, it's not. Is it within the previous interval?
-            if self.getCounter(current).getCreationDatetime() in TimeInterval(previous):
-                # Yes, roll over the current counter into previous
-                self.getCounter(previous).copyFrom(self.getCounter(current))
-            else:
-                # No, it's really old... reset the previous counter
-                self.getCounter(previous).reset()
-            # Either way we need to reset the current counter
-            self.getCounter(current).reset()
+        p = self.getCounter(previous)
+        c = self.getCounter(current)
+        pTime = p.get('firstEventTime', None)
+        cTime = c.get('firstEventTime', None)
+
+        if cTime is not None:
+            if not cTime in TimeInterval(current):
+                # Our current timer is old, copy it to the previous timer and delete it
+                p.clear()
+                p.update(c)
+                c.clear()
+
+        if pTime is not None:
+            if not pTime in TimeInterval(previous):
+                # The previous timer is old. Either the current timer rolled over first
+                # and it was really old, or no events occurred in the first timer
+                # (cTime is None) but some had in the previous timer and it's old.
+                p.clear()
 
     def checkRollovers(self):
         """If any of the counters were created outside the interval
@@ -506,160 +390,15 @@ class IntervalCounters(CounterList):
         self.checkOneRollover('lastWeek', 'thisWeek')
         self.checkOneRollover('lastMonth', 'thisMonth')
 
-    def load(self):
-        """Check for rollovers on load"""
-        CounterList.load(self)
-        self.checkRollovers()
-
     def increment(self):
         """Increments all applicable counters in this list
            and saves them, after checking for rollovers.
            """
         self.checkRollovers()
-        self.getCounter('today').increment()
-        self.getCounter('thisWeek').increment()
-        self.getCounter('thisMonth').increment()
-        self.getCounter('forever').increment()
-        self.save()
-
-
-class Counter(XML.XMLObject):
-    """Represents a tally of events and event frequency in a particular
-       time period. Each counter has a permenently-assigned name which is
-       used by the CounterSchedule to roll over counters when appropriate.
-       Each counter stores timestamps for its creation, the first event
-       counted, and the last event counted, as well as storing the total
-       number of events counted.
-       """
-    def __init__(self, xml=None, name=None):
-        if xml is None:
-            xml = "<counter>\n</counter>"
-        XML.XMLObject.__init__(self, xml)
-        if name is not None:
-            self.xml['name'] = name
-            self.name = name
-
-    def reset(self):
-        """Delete all values in this counter, restoring their defaults"""
-        self.xml.children = ["\n"]
-        self.preprocess()
-
-    def preprocess(self):
-        # Make sure that we have a creation time, adding it if we don't
-        if self.getCreationTime() is None:
-            self.setCreationTime(int(time.time()))
-        # Store the name
-        self.name = self.xml.getAttribute('name')
-
-    def getValue(self, type, name, default=None, castTo=None):
-        """Return the value in this counter stored as the
-           given data type using 'name'. If it can't be
-           found, the provided default will be returned.
-           The value is always returned as a string.
-           """
-        for child in self.xml.children:
-            if not isinstance(child, XML.domish.Element):
-                continue
-            if child.name != type:
-                continue
-            if child.getAttribute('name') != name:
-                continue
-            value = str(child).strip()
-            if castTo is not None:
-                value = castTo(value)
-            return value
-        return default
-
-    def setValue(self, type, name, value):
-        """Set the value in this counter with the given type
-           and name, overwriting an old value if there was one.
-           """
-        # First try to find an old value
-        for child in self.xml.children:
-            if not isinstance(child, XML.domish.Element):
-                continue
-            if child.name != type:
-                continue
-            if child.getAttribute('name') != name:
-                continue
-
-            # Erase any existing content for this tag and set our new content
-            child.children = [str(value)]
-            return
-
-        # No old value, make a new tag
-        self.xml.addElement(type, content=str(value))['name'] = name
-        self.xml.children.append("\n")
-
-    def getCreationTime(self):
-        return self.getValue('time', 'creation', castTo=int)
-
-    def getCreationDatetime(self):
-        """Like getCreationTime, but cast the result to a UTC datetime object"""
-        return datetime.datetime.utcfromtimestamp(self.getCreationTime())
-
-    def setCreationTime(self, value):
-        self.setValue('time', 'creation', value)
-
-    def getFirstEventTime(self):
-        return self.getValue('time', 'firstEvent', castTo=int)
-
-    def setFirstEventTime(self, value):
-        self.setValue('time', 'firstEvent', value)
-
-    def getLastEventTime(self):
-        return self.getValue('time', 'lastEvent', castTo=int)
-
-    def setLastEventTime(self, value):
-        self.setValue('time', 'lastEvent', value)
-
-    def getEventCount(self):
-        return self.getValue('count', 'events', 0, castTo=int)
-
-    def incrementEventCount(self):
-        self.setValue('count', 'events', self.getEventCount() + 1)
-
-    def increment(self, evTime=None):
-        """Count an incoming event. This increments our total event count,
-           and sets what timers need setting. A timestamp for the event
-           can optionally be provided, if it isn't the current time will
-           be used.
-           """
-        if evTime is None:
-            evTime = int(time.time())
-        if self.getFirstEventTime() is None:
-            self.setFirstEventTime(evTime)
-        self.setLastEventTime(evTime)
-        self.incrementEventCount()
-
-    def copyFrom(self, other):
-        """Copy all content from the other counter into this counter
-           excepting the name. This includes all timestamps.
-           """
-        # Kinda kludgey, but copy.deepcopy() chokes on something in domish
-        savedName = self.name
-        self.loadFromString(other.xml.toXml())
-        self.xml['name'] = savedName
-        self.name = savedName
-
-    def getValues(self):
-        """Returns a dictionary with important values for this counter.
-           The keys match the names of our get* member functions without
-           the leading 'get', the values correspond to what would be returned
-           from them.
-           """
-        d = {}
-        for key in [
-            'CreationTime',
-            'FirstEventTime',
-            'LastEventTime',
-            'EventCount',
-            ]:
-            value = getattr(self, 'get' + key)()
-            if value is not None:
-                d[key] = value
-        print d
-        return d
+        self.incrementCounter('today')
+        self.incrementCounter('thisWeek')
+        self.incrementCounter('thisMonth')
+        self.incrementCounter('forever')
 
 
 def _test():

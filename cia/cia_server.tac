@@ -13,7 +13,7 @@ hub = Message.Hub()
 
 # A place to store stats, written to by the StatsURIHandler and queried
 # by the StatsInterface over XML-RPC
-statsStorage = Stats.StatsStorage('data/stats')
+statsStorage = Stats.StatsStorage('data/stats.db')
 
 # A list of URI handlers that can be used as targets for rulesets
 uriRegistry = Ruleset.URIRegistry(

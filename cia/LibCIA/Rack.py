@@ -265,16 +265,30 @@ class Rack(dict):
             del self.db[self._headPointer]
             del self.db[self._tailPointer]
 
-    def iterkeys(self):
+    def __iter__(self):
         """A generator that iterates over this namespace's linked list of keys"""
         # Give up the moment we run into a node that doesn't exist
         try:
             n = self._loadValue(self.db[self._dumpKey(None, self.SYSNS_HEAD)])
             while n:
+                # Store the next node before yielding it, so it's safe
+                # to delete nodes while traversing this iterator.
+                next = self._loadValue(self.db[self._dumpKey(n, self.SYSNS_NEXT)])
                 yield n
-                n = self._loadValue(self.db[self._dumpKey(n, self.SYSNS_NEXT)])
+                n = next
         except KeyError:
             return
+
+    def update(self, d):
+        for k in d.iterkeys():
+            self[k] = d[k]
+
+    def clear(self):
+        for key in self:
+            del self[key]
+
+    def iterkeys(self):
+        return self.__iter__()
 
     def itervalues(self):
         for key in self.iterkeys():
