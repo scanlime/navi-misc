@@ -25,12 +25,16 @@
 #include "../common/text.h"
 #include "../common/xchatc.h"
 #include <libgnome/gnome-url.h> /* gnome_url_show */
+#include <gconf/gconf-client.h>
 
 int check_word(GtkWidget *xtext, char *word);
 void clicked_word(GtkWidget *xtext, char *word, GdkEventButton *even, gpointer data);
 
 void initialize_text_gui() {
 	GtkWidget *frame, *scrollbar;
+  /* For setting the font from gconf. */
+  GConfClient *client;
+  gchar *font;
 
 	gui.xtext = GTK_XTEXT(gtk_xtext_new(colors, TRUE));
 	frame = glade_xml_get_widget(gui.xml, "text area frame");
@@ -48,9 +52,18 @@ void initialize_text_gui() {
 	gtk_xtext_set_wordwrap(gui.xtext, TRUE);
 	gtk_xtext_set_urlcheck_function(gui.xtext, check_word);
 	g_signal_connect(G_OBJECT(gui.xtext), "word_click", G_CALLBACK(clicked_word), NULL);
-
-	if(!gtk_xtext_set_font(gui.xtext, "Bitstream Vera Sans Mono 9"))
-		g_print("Failed to open BV Sans Mono font!\n");
+ 
+  /* Set the font. */
+  client = gconf_client_get_default ();
+  font = gconf_client_get_string (client, "/desktop/gnome/interface/font_name", NULL);
+  if (!font) {
+    font = gconf_client_get_string (client, "/desktop/gnome/interface/font_name", NULL);
+    if (!font)
+      font = g_strdup ("fixed 11");
+  }
+  gtk_xtext_set_font (GTK_XTEXT (gui.xtext), font);
+  g_object_unref (client);
+  g_free (font);
 
 	gtk_widget_show_all(GTK_WIDGET(gui.xtext));
 }
