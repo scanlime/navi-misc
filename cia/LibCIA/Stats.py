@@ -89,14 +89,6 @@ class StatsInterface(xmlrpc.XMLRPC):
         except:
             Debug.catchFault()
 
-    def xmlrpc_sync(self):
-        """Force any pending changes to the StatsStorage to be written to disk"""
-        try:
-            self.storage.sync()
-            return True
-        except:
-            Debug.catchFault()
-
     def xmlrpc_clearTarget(self, path, key):
         """Deletes any data stored at the stats target with the given path.
            This is not recursive.
@@ -104,6 +96,7 @@ class StatsInterface(xmlrpc.XMLRPC):
         self.caps.faultIfMissing(key, 'universe', 'stats', 'stats.clearTarget', ('stats.path', path))
         try:
             self.storage.getPathTarget(path).clear()
+            self.storage.sync()
             log.msg("Clearing stats path %r" % path)
             return True
         except:
@@ -191,6 +184,7 @@ class MetadataInterface(xmlrpc.XMLRPC):
                                  ('stats.path', path))
         try:
             self.storage.getPathTarget(path).metadata.update(keyMap)
+            self.storage.sync()
             log.msg("Updating metadata values for stats path %r\n%r" % (path, keyMap))
             return True
         except:
@@ -207,6 +201,7 @@ class MetadataInterface(xmlrpc.XMLRPC):
             metadata = self.storage.getPathTarget(path).metadata
             for mdKey, mdType in keyMap.iteritems():
                 metadata.setType(mdKey, mdType)
+            self.storage.sync()
             log.msg("Updating metadata types for stats path %r\n%r" % (path, keyMap))
             return True
         except:
@@ -224,6 +219,7 @@ class MetadataInterface(xmlrpc.XMLRPC):
             for mdKey in metadataKeys:
                 del metadata[mdKey]
                 log.msg("Deleted metadata key %r for stats path %r" % (mdKey, path))
+            self.storage.sync()
             return True
         except:
             Debug.catchFault()
@@ -321,6 +317,7 @@ class StatsTarget(object):
         """A message has been received which should be logged by this stats target"""
         self.counters.increment()
         self.recentMessages.push(str(message))
+        self.storage.sync()
 
     def catalog(self):
         """Return a list of subdirectories of this stats target"""
