@@ -212,12 +212,107 @@ load_palette (int selection)
 void
 palette_init ()
 {
-	int i;
+	int i, f, l;
+	int red, green, blue;
+	struct stat st;
+	char prefname[256];
+	char *cfg;
 
-	for (i = 0; i < 32; i++)
-		custom_palette[i] = palette_schemes[0][i];
-	for (i = 0; i < 5; i++)
-		custom_colors[i] = color_schemes[0][i];
+	snprintf (prefname, sizeof (prefname), "%s/colors.conf", get_xdir_fs ());
+	f = open (prefname, O_RDONLY | OFLAGS);
+	if (f == -1)
+	{
+		for (i = 0; i < 32; i++)
+			custom_palette[i] = palette_schemes[0][i];
+		for (i = 0; i < 5; i++)
+			custom_colors[i] = color_schemes[0][i];
+		return;
+	}
+
+	fstat (f, &st);
+	cfg = g_malloc (st.st_size + 1);
+	if (cfg) {
+		cfg[0] = '\0';
+		l = read (f, cfg, st.st_size);
+		if (l >= 0)
+			cfg[l] = '\0';
+
+		for (i = 0; i < 32; i++) {
+			snprintf (prefname, sizeof (prefname), "color_%d", i);
+			cfg_get_color (cfg, prefname, &red, &green, &blue);
+			custom_palette[i].red = red;
+			custom_palette[i].green = green;
+			custom_palette[i].blue = blue;
+		}
+
+		strcpy (prefname, "color_259");
+		cfg_get_color (cfg, prefname, &red, &green, &blue);
+		custom_colors[0].red = red;
+		custom_colors[0].green = green;
+		custom_colors[0].blue = blue;
+
+		strcpy (prefname, "color_258");
+		cfg_get_color (cfg, prefname, &red, &green, &blue);
+		custom_colors[1].red = red;
+		custom_colors[1].green = green;
+		custom_colors[1].blue = blue;
+
+		strcpy (prefname, "color_256");
+		cfg_get_color (cfg, prefname, &red, &green, &blue);
+		custom_colors[2].red = red;
+		custom_colors[2].green = green;
+		custom_colors[2].blue = blue;
+
+		strcpy (prefname, "color_257");
+		cfg_get_color (cfg, prefname, &red, &green, &blue);
+		custom_colors[3].red = red;
+		custom_colors[3].green = green;
+		custom_colors[3].blue = blue;
+
+		strcpy (prefname, "color_264");
+		cfg_get_color (cfg, prefname, &red, &green, &blue);
+		custom_colors[4].red = red;
+		custom_colors[4].green = green;
+		custom_colors[4].blue = blue;
+
+		free (cfg);
+	}
+	close (f);
+}
+
+void
+palette_save ()
+{
+	int i, f;
+	char prefname[256];
+
+	snprintf (prefname, sizeof (prefname), "%s/colors.conf", get_xdir_fs ());
+	f = open (prefname, O_TRUNC | O_WRONLY | O_CREAT | OFLAGS, 0600);
+	if (f != -1)
+	{
+		for (i = 0; i < 32; i++)
+		{
+			snprintf (prefname, sizeof (prefname), "color_%d", i);
+			cfg_put_color (f, custom_palette[i].red, custom_palette[i].green, custom_palette[i].blue, prefname);
+		}
+
+		strcpy (prefname, "color_259");
+		cfg_put_color (f, custom_colors[0].red, custom_colors[0].green, custom_colors[0].blue, prefname);
+
+		strcpy (prefname, "color_258");
+		cfg_put_color (f, custom_colors[1].red, custom_colors[1].green, custom_colors[1].blue, prefname);
+
+		strcpy (prefname, "color_256");
+		cfg_put_color (f, custom_colors[2].red, custom_colors[2].green, custom_colors[2].blue, prefname);
+
+		strcpy (prefname, "color_257");
+		cfg_put_color (f, custom_colors[3].red, custom_colors[3].green, custom_colors[3].blue, prefname);
+
+		strcpy (prefname, "color_264");
+		cfg_put_color (f, custom_colors[4].red, custom_colors[4].green, custom_colors[4].blue, prefname);
+
+		close (f);
+	}
 }
 
 void
