@@ -56,6 +56,7 @@ preferences_page_irc_new (gpointer prefs_dialog, GladeXML *xml)
 	GtkTreeIter iter;
 	GtkCellRenderer *renderer;
 	gchar *text;
+	gboolean toggle;
 	GtkSizeGroup *group;
 	GtkTreeSelection *select;
 
@@ -121,6 +122,14 @@ preferences_page_irc_new (gpointer prefs_dialog, GladeXML *xml)
 
 	text = gconf_client_get_string (p->gconf, "/apps/xchat/irc/awaymsg", NULL);
 	gtk_entry_set_text (GTK_ENTRY (page->away_message), text);
+	g_free (text);
+
+	toggle = gconf_client_get_bool (p->gconf, "/apps/xchat/main_window/use_sys_fonts", NULL);
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (page->usesysfonts), toggle);
+	gtk_widget_set_sensitive (page->font_selection, !toggle);
+
+	text = gconf_client_get_string (p->gconf, "/apps/xchat/main_window/font", NULL);
+	gtk_font_button_set_font_name (GTK_FONT_BUTTON (page->font_selection), text);
 	g_free (text);
 
 	gtk_widget_set_sensitive (page->highlight_edit, FALSE);
