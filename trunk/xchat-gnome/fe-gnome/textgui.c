@@ -337,8 +337,6 @@ font_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, gpointer us
 	gtk_xtext_set_font (GTK_XTEXT (gui.xtext), font);
 	gtk_xtext_refresh (GTK_XTEXT (gui.xtext), 0);
 
-	gtk_adjustment_set_value (gui.xtext->adj, gui.xtext->adj->page_size);
-
 	g_free (font);
 }
 
