@@ -199,8 +199,8 @@ static void mi6k_ir_rx_store(struct usb_mi6k *dev, unsigned char *buffer, size_t
 		}
 
 		mi6k_ir_rx_push(dev, value);
-		buffer += sizeof(lirc_t);
-		count -= sizeof(lirc_t);
+		buffer += 2;
+		count -= 2;
 	}
 	wake_up_interruptible(&dev->ir_rx_wait);
 }
@@ -227,19 +227,12 @@ static void mi6k_ir_rx_irq(struct urb *urb)
 	/* Callback for processing incoming interrupt transfers from the IR receiver */
 	struct usb_mi6k *dev = (struct usb_mi6k*)urb->context;
 
-	dbg("ir_rx_irq, status %d, length %d, buffer: %02X%02X %02X%02X %02X%02X %02X%02X",
-	    urb->status, urb->actual_length,
-	    dev->ir_rx_tbuffer[0],
-	    dev->ir_rx_tbuffer[1],
-	    dev->ir_rx_tbuffer[2],
-	    dev->ir_rx_tbuffer[3],
-	    dev->ir_rx_tbuffer[4],
-	    dev->ir_rx_tbuffer[5],
-	    dev->ir_rx_tbuffer[6],
-	    dev->ir_rx_tbuffer[7]);
+	if (dev && urb->status == 0 && urb->actual_length > 0) {
+		dbg("ir_rx_irq, length %d, buffer: %02X%02X %02X%02X %02X%02X %02X%02X",
+		    urb->actual_length, dev->ir_rx_tbuffer[0], dev->ir_rx_tbuffer[1], dev->ir_rx_tbuffer[2],
+		    dev->ir_rx_tbuffer[3], dev->ir_rx_tbuffer[4], dev->ir_rx_tbuffer[5], dev->ir_rx_tbuffer[6],
+		    dev->ir_rx_tbuffer[7]);
 
-	return;
-	if (urb->status == 0 && urb->actual_length > 0) {
 		down(&dev->sem);
 		mi6k_ir_rx_store(dev, dev->ir_rx_tbuffer, urb->actual_length);
 		up(&dev->sem);
