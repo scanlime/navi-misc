@@ -440,7 +440,7 @@ def scanForDevices():
     # Convert librcpod's linked list into a python list, wrapping
     # each device in an AvailableDevice instance
     llist = rcpod_GetDevices()
-    devices = []
+    del devices[:]
     while llist:
         devices.append(AvailableDevice(llist))
         llist = pyrcpod_nextDevice(llist)
