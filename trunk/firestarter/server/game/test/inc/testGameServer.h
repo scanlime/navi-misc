@@ -45,6 +45,7 @@ class CTestGameServer : public CBaseServerGame
 		virtual void kill ( void );
 
 	protected:
+		void sendToAllBut ( CNetworkMessage &message, int player );
 		std::map<int,trPlayerInfo>	users;
 };
 
