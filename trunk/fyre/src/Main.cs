@@ -42,7 +42,7 @@ public class PipelineEditor
 	/* Editor workspace (right) */
 	[Widget] Gtk.ScrolledWindow	pipeline_window;
 	[Widget] Gtk.DrawingArea	pipeline_drawing;
-	
+
 	/* Current tooltip */
 	private ElementTooltip		current_tooltip;
 	private uint			tooltip_timeout;
@@ -88,7 +88,7 @@ public class PipelineEditor
 		tooltip_timeout = 0;
 
 		/* Set up plugins directory */
-		plugin_manager = new PluginManager ("/usr/share/fyre/2.0");
+		plugin_manager = new PluginManager (Defines.PLUGINSDIR);
 		foreach (Type t in plugin_manager.plugin_types)
 			AddElementType (t);
 
