@@ -216,14 +216,13 @@
 	<widget class="GtkHPaned" id="hpaned1">
 	  <property name="visible">True</property>
 	  <property name="can_focus">True</property>
-	  <property name="position">0</property>
+	  <property name="position">144</property>
 
 	  <child>
 	    <widget class="GtkVPaned" id="vpaned1">
-	      <property name="border_width">5</property>
 	      <property name="visible">True</property>
 	      <property name="can_focus">True</property>
-	      <property name="position">405</property>
+	      <property name="position">498</property>
 
 	      <child>
 		<widget class="GtkVBox" id="vbox3">
