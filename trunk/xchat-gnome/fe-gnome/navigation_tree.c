@@ -51,7 +51,6 @@ static void on_server_reconnect          (GtkAction *action, gpointer data);
 static void on_server_disconnect         (GtkAction *action, gpointer data);
 static void on_server_channel_list       (GtkAction *action, gpointer data);
 static void on_save                      (GtkAction *action, gpointer data);
-static void on_save_as                   (GtkAction *action, gpointer data);
 static void on_close                     (GtkAction *action, gpointer data);
 static void on_find                      (GtkAction *action, gpointer data);
 static void on_find_again                (GtkAction *action, gpointer data);
@@ -67,8 +66,7 @@ static GtkActionEntry action_entries [] = {
 	{ "ServerChannels", GTK_STOCK_INDEX, _("_Channels..."), "", NULL, G_CALLBACK (on_server_channel_list)},
 
 	/* Channel context menu */
-	{ "ChannelSave", GTK_STOCK_SAVE, _("_Save"), "", NULL, G_CALLBACK (on_save)},
-	{ "ChannelSaveAs", GTK_STOCK_SAVE_AS, _("Save _As..."), "", NULL, G_CALLBACK (on_save_as)},
+	{ "ChannelSave", GTK_STOCK_SAVE, _("_Save Transcript"), "", NULL, G_CALLBACK (on_save)},
 	{ "ChannelLeave", GTK_STOCK_QUIT, _("_Leave"), "", NULL, G_CALLBACK (on_channel_leave)},
 	{ "ChannelClose", GTK_STOCK_CLOSE, _("_Close"), "", NULL, G_CALLBACK (on_close)},
 	{ "ChannelFind", GTK_STOCK_FIND, _("_Find..."), "", NULL, G_CALLBACK (on_find)},
@@ -77,8 +75,7 @@ static GtkActionEntry action_entries [] = {
 	{ "ChannelBans", GTK_STOCK_DIALOG_WARNING, _("_Bans..."), "", NULL, G_CALLBACK (on_channel_bans)},
 
 	/* Dialog context menu */
-	{ "DialogSave", GTK_STOCK_SAVE, _("_Save"), "", NULL, G_CALLBACK (on_save)},
-	{ "DialogSaveAs", GTK_STOCK_SAVE_AS, _("Save _As..."), "", NULL, G_CALLBACK (on_save_as)},
+	{ "DialogSave", GTK_STOCK_SAVE, _("_Save Transcript"), "", NULL, G_CALLBACK (on_save)},
 	{ "DialogClose", GTK_STOCK_CLOSE, _("_Close"), "", NULL, G_CALLBACK (on_close)},
 	{ "DialogFind", GTK_STOCK_FIND, _("_Find..."), "", NULL, G_CALLBACK (on_find)},
 	{ "DialogFindAgain", GTK_STOCK_FIND, _("Find Ne_xt"), "", NULL, G_CALLBACK (on_find_again)},
@@ -1217,11 +1214,6 @@ on_server_channel_list (GtkAction *action, gpointer data)
 
 static void
 on_save (GtkAction *action, gpointer data)
-{
-}
-
-static void
-on_save_as (GtkAction *action, gpointer data)
 {
 }
 

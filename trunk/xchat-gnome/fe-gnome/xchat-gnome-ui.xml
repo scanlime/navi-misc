@@ -33,7 +33,6 @@
 
 		<menu name="DiscussionMenu" action="Discussion">
 			<menuitem name="DiscussionSaveItem" action="DiscussionSave"/>
-			<menuitem name="DiscussionSaveAsItem" action="DiscussionSaveAs"/>
 			<separator name="DiscussionSep0"/>
 			<menuitem name="DiscussionLeaveItem" action="DiscussionLeave"/>
 			<menuitem name="DiscussionCloseItem" action="DiscussionClose"/>
@@ -78,7 +77,6 @@
 
         <popup name="ChannelPopup" action="PopupAction">
                 <menuitem name="ChannelSave" action="ChannelSave"/>
-                <menuitem name="ChannelSaveAs" action="ChannelSaveAs"/>
                 <separator name="ChannelSep0"/>
                 <menuitem name="ChannelLeave" action="ChannelLeave"/>
                 <menuitem name="ChannelClose" action="ChannelClose"/>
@@ -92,7 +90,6 @@
 
         <popup name="DialogPopup" action="PopupAction">
                 <menuitem name="DialogSave" action="DialogSave"/>
-                <menuitem name="DialogSaveAs" action="DialogSaveAs"/>
                 <separator name="DialogSep0"/>
                 <menuitem name="DialogClose" action="DialogClose"/>
                 <separator name="DialogSep1"/>

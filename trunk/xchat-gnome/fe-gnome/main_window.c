@@ -74,7 +74,6 @@ static void on_network_disconnect_activate (GtkAction *action, gpointer data);
 static void on_network_channels_activate (GtkAction *action, gpointer data);
 static void on_network_users_activate (GtkAction *action, gpointer data);
 static void on_discussion_save_activate (GtkAction *action, gpointer data);
-static void on_discussion_save_as_activate (GtkAction *action, gpointer data);
 static void on_discussion_leave_activate (GtkAction *action, gpointer data);
 static void on_discussion_close_activate (GtkAction *action, gpointer data);
 static void on_discussion_find_activate (GtkAction *action, gpointer data);
@@ -142,8 +141,7 @@ static GtkActionEntry action_entries [] = {
 	{ "NetworkUsers", NULL, _("_Users"), "<alt>U", NULL, G_CALLBACK (on_network_users_activate) },
 
 	/* Discussion menu */
-	{ "DiscussionSave", GTK_STOCK_SAVE, _("_Save"), "<control>S", NULL, G_CALLBACK (on_discussion_save_activate) },
-	{ "DiscussionSaveAs", GTK_STOCK_SAVE_AS, _("Save _As..."), "<control><shift>S", NULL, G_CALLBACK (on_discussion_save_as_activate) },
+	{ "DiscussionSave", GTK_STOCK_SAVE, _("_Save Transcript"), "<control>S", NULL, G_CALLBACK (on_discussion_save_activate) },
 	{ "DiscussionLeave", GTK_STOCK_QUIT, _("_Leave"), "", NULL, G_CALLBACK (on_discussion_leave_activate) },
 	{ "DiscussionClose", GTK_STOCK_CLOSE, _("Cl_ose"), "<shift><control>W", NULL, G_CALLBACK (on_discussion_close_activate) },
 	{ "DiscussionFind", GTK_STOCK_FIND, _("_Find"), "<control>F", NULL, G_CALLBACK (on_discussion_find_activate) },
@@ -650,12 +648,6 @@ on_network_users_activate (GtkAction *action, gpointer data)
 
 static void
 on_discussion_save_activate (GtkAction *action, gpointer data)
-{
-	/* FIXME: implement */
-}
-
-static void
-on_discussion_save_as_activate (GtkAction *action, gpointer data)
 {
 	/* FIXME: implement */
 }
