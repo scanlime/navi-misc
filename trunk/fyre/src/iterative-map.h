@@ -44,6 +44,9 @@ struct _IterativeMap {
 
   /* Current calculation state */
   gdouble iterations;
+
+  /* Estimated iterations per second, for calculate_timed and friends */
+  gdouble iter_speed_estimate;
 };
 
 struct _IterativeMapClass {
@@ -63,14 +66,34 @@ struct _IterativeMapClass {
 /******************************************************************* Public Methods */
 /************************************************************************************/
 
-GType         iterative_map_get_type         ();
-void          iterative_map_calculate        (IterativeMap          *self,
-                                              guint                  iterations);
-void          iterative_map_calculate_motion (IterativeMap          *self,
-                                              guint                  iterations,
-                                              gboolean               continuation,
-                                              ParameterInterpolator *interp,
-                                              gpointer               interp_data);
+GType         iterative_map_get_type               ();
+
+/* Simple calculation functions, implemented by subclasses.
+ * They calculate a fixed number of iterations.
+ */
+void          iterative_map_calculate              (IterativeMap          *self,
+						    guint                  iterations);
+void          iterative_map_calculate_motion       (IterativeMap          *self,
+						    guint                  iterations,
+						    gboolean               continuation,
+						    ParameterInterpolator *interp,
+						    gpointer               interp_data);
+
+/* Calculation functions implemented by this base class,
+ * that stop after an estimated amount of time rather
+ * than a number of iterations. Each time this runs,
+ * it uses the actual time elapsed to update an estimate
+ * of the calculation speed used to come up with a
+ * number of iterations to pass the actual rendering
+ * functions.
+ */
+void          iterative_map_calculate_timed        (IterativeMap          *self,
+						    double                 seconds);
+void          iterative_map_calculate_motion_timed (IterativeMap          *self,
+						    double                 seconds,
+						    gboolean               continuation,
+						    ParameterInterpolator *interp,
+						    gpointer               interp_data);
 
 G_END_DECLS
 
