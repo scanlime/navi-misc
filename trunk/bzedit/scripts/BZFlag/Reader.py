@@ -21,11 +21,19 @@ Parser for BZFlag world files.
 #
 
 from pyparsing import *
+from Types import typeMap
 
 class Reader:
     grammar = None
 
-    def getGrammar (self):
+    def gotElement(self, s, loc, toks):
+        object = toks[0]
+        type = typeMap[object[0]]
+        if type is not None:
+            print 'creating object of type',object[0]
+            o = type(object)
+
+    def getGrammar(self):
         if self.grammar is None:
             comment = Literal('#') + Optional (restOfLine)
             float = Combine(Word('+-'+nums, nums) +
@@ -400,6 +408,8 @@ class Reader:
               | world
               | zone
               )
+
+            worldObject.setParseAction(self.gotElement)
 
             self.grammar = OneOrMore(worldObject)
             self.grammar.ignore(comment)

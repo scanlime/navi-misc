@@ -20,8 +20,4 @@ This is a Python package providing bzflag objects and a parser.
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 from Reader import *
-from Box import *
-
-typeMap = {
-    'box' : Box,
-}
+from Types import *
