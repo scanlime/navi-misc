@@ -4,7 +4,7 @@
 	  on Windows XP
 	* Implemented a "Go" menu that provides undo/redo
 	  functionality using a web-browser-like history system
-	* Many binreloc fixes
+	* Many binreloc and deployment fixes
 	* Added the --chuid and --pidfile options for Fyre servers
 	* Replaced the "target density" stopping conditions with a
 	  new quality metric based on the ratio of histogram samples to
