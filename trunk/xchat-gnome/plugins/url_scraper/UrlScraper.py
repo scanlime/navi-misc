@@ -19,6 +19,9 @@ and displaying them in a separate window.
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+import sys
+print sys.path
+
 import xchat, string, pygtk, gtk, gobject, re
 
 __module_name__ = 'URL Scraper'
