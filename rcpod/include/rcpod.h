@@ -50,6 +50,16 @@ typedef void (rcpod_errorHandler)(const char *function, int err, const char *mes
  */
 typedef unsigned char rcpod_pin;
 
+/* A description of an I2C device attached to the RCPOD, composed of its clock and data
+ * pins, its 7-bit bus address, and its maximum bus speed as an RCPOD_I2C_SPEED_* constant.
+ */
+typedef struct tag_rcpod_i2c_dev {
+  int           speed;
+  rcpod_pin     clock;
+  rcpod_pin     data;
+  unsigned char address;
+} rcpod_i2c_dev;
+
 
 /*************************************************************************************/
 /************************************************** High-level initialization ********/
@@ -265,6 +275,50 @@ int rcpod_SerialRxRead(rcpod_dev* rcpod, unsigned char* buffer, int count);
  * RX and TX pins to one common wire.
  */
 int rcpod_SerialSetTxEnable(rcpod_dev* rcpod, rcpod_pin pin);
+
+
+/*************************************************************************************/
+/************************************************** I2C Bus Master *******************/
+/*************************************************************************************/
+
+/* I2C operations are always supported, though on older RCPOD firmware
+ * without native support for I2C, they are emulated via GPIO operations.
+ * This is very slow, and the 'speed' parameter in rcpod_i2c_dev is ignored.
+ */
+
+/* Perform a write immediately followed by a read on an I2C device.
+ * This is faster than separate Write and Read calls in the common case that you
+ * need to read immediately after a write. It's even faster if the write is exactly
+ * 1 byte and the read is 8 bytes or less.
+ *
+ * Returns the number of bytes written successfully, counting the address bytes.
+ * For example, if it returns zero, the device probably isn't alive at all. If it
+ * returned anything between 1 and write_count bytes, it stopped while sending
+ * write_buffer. If it returned write_count+1 bytes, the write was successful but
+ * it failed when addressing the device for reading. If it returns write_count+2
+ * bytes, all is well.
+ */
+int rcpod_I2CWriteRead(rcpod_dev* rcpod, rcpod_i2c_dev* idev,
+			const unsigned char* write_buffer, int write_count,
+			unsigned char* read_buffer, int read_count);
+
+/* Perform only an I2C write.
+ *
+ * Returns the number of bytes written successfully, counting address bytes.
+ * This will be zero if the device can't be addressed, between 1 and write_count
+ * if it failed during the write, and write_count+1 if all is well.
+ */
+int rcpod_I2CWrite(rcpod_dev* rcpod, rcpod_i2c_dev* idev,
+		    const unsigned char* write_buffer, int write_count);
+
+/* Perform only an I2C read.
+ *
+ * Returns the number of bytes written successfully, in this case only
+ * the address byte. It will always be zero if the address byte didn't ack,
+ * or 1 if it did ack and we presumably read our data successfully.
+ */
+int rcpod_I2CRead(rcpod_dev* rcpod, rcpod_i2c_dev* idev,
+		  unsigned char* read_buffer, int read_count);
 
 
 /*************************************************************************************/
