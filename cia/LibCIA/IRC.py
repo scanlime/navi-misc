@@ -1,12 +1,8 @@
-""" LibCIA.BotDaemon
+""" LibCIA.IRC
 
-A simple interface for controlling multiple IRC bots via twisted's
-IRC client. This module should be as simple as practical, since
-restarting it causes all the IRC bots to go offline then back on.
-Normally a process running the code in this module is forked off
-into the background, and BotFrontend will search for that existing
-process before trying to start a new one. This way most of CIA's
-code can be upgraded without users on IRC even noticing :)
+A simple interface for controlling multiple IRC bots on multiple
+IRC networks, starting and stopping them as necessary to supply
+information to a set of channels and servers.
 """
 #
 # CIA open source notification system
@@ -27,14 +23,8 @@ code can be upgraded without users on IRC even noticing :)
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from twisted.spread import pb
 from twisted.protocols import irc
 from twisted.internet import protocol
-from twisted.application import service, internet, app
-from twisted.script import twistd
-import sys, os
-
-socketName = "/tmp/cia.BotDaemon"
 
 
 class Bot(irc.IRCClient):
@@ -211,42 +201,40 @@ class BotAllocator:
         self.channels[channel].msg(channel, text)
 
 
-class BotController(pb.Root):
+class BotNetwork:
+    """A system of any number of bots on any number of IRC messages
+       capable of announcing messages.
+       """
     def __init__(self):
         # A map from (host, port) to BotAllocator instances
         self.servers = {}
 
-    def remote_getServers(self):
+    def getServers(self):
         """Return a list of (host, port) tuples specifying all servers we know about"""
         return self.servers.keys()
 
-    def remote_getChannels(self, server):
+    def getChannels(self, server):
         """Return the list of channels we're in on the given server"""
         return self.servers[tuple(server)].channels.keys()
 
-    def remote_getBots(self, server):
+    def getBots(self, server):
         """Return a list of all bot nicknames on the given server"""
         return self.servers[tuple(server)].bots.keys()
 
-    def remote_getBotChannels(self, server, bot):
+    def getBotChannels(self, server, bot):
         """Return a list of all the channels a particular bot is in, given its server and nickname"""
         return self.servers[tuple(server)].bots[bot].channels
 
-    def remote_addChannel(self, server, channel):
+    def addChannel(self, server, channel):
         """Add a new server/channel to the list supported by our bots.
-           New bots are automatically started as needed. Returns True
-           if this channel has already been added, or False if it's
-           still in the process of being added.
+           New bots are automatically started as needed.
            """
         server = tuple(server)
         if not self.servers.has_key(server):
             self.servers[server] = BotAllocator(server)
-        if self.servers[server].addChannel(channel):
-            return True
-        else:
-            return False
+        self.servers[server].addChannel(channel)
 
-    def remote_delChannel(self, server, channel):
+    def delChannel(self, server, channel):
         """Remove a server/channel to the list supported by our bots.
            New bots are automatically deleted as they are no longer needed.
            """
@@ -254,31 +242,12 @@ class BotController(pb.Root):
         self.servers[server].delChannel(channel)
         if not self.servers[server].channels:
             del self.servers[server]
-        return False
 
-    def remote_msg(self, server, channel, text):
+    def msg(self, server, channel, text):
         """Send text to the given channel on the given server.
            This will generate an exception if the server and/or
            channel isn't currently occupied by one of our bots.
            """
         self.servers[tuple(server)].msg(channel, text)
-        return False
-
-
-def createApplication():
-    # Listen on a UNIX socket with fairly restrictive permissions,
-    # since this server by itself is quite insecure and only needs
-    # to be accessed by the BotFrontend.
-    application = service.Application("BotDaemon")
-    myFactory = pb.PBServerFactory(BotController())
-    internet.UNIXServer(socketName, myFactory, mode=0600).setServiceParent(application)
-    return application
-
-
-if __name__ == '__main__':
-    config = twistd.ServerOptions()
-    config.parseOptions([])
-    twistd.runApp(config)
-
 
 ### The End ###
