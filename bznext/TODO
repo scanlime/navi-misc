@@ -1,0 +1,30 @@
+To do list for BZFlag:Next
+---------------------
+
+THESE MUST HAPPEN BEFORE THE ANY RELEASE: (in no particular order)
+
+* Implement CInputManager in a device unspecific manner, using classes and listeners for axis and button functions that can map to any device.
+
+* Port/re-implement CSoundManger to work properly. It must play MP3,OOG and wav files, if possible streaming from standard shoutcast/icecast sources is a bonus. It should use 3d sound hardware on any OS that supports it (FMOD, OPENAL, SDLMixer, or any other suggestions). The ability to read sounds from a zip file would be very nice as well.
+
+* Verify the operation and stability of the enet based network library. Add HTTP protocol and additional DNS functions if needed.
+
+* Implement a list server application. The server should allow for multiple list servers that share data, using ether existing server tech (mysql?), or a custom enet based solution. List server should track who uses it both clients and servers, tracking number of clients from each OS, and what versions of the software connect to it. If possible list server should know current versions of client and server and tell applications to update, and provide an update URL. If possible clients should communicate the protocol version to the server with each request. List server should also use a token system for each connection to help prevent connection faking.
+
+* Implement sample list server connection classes for client, server, and query applications.
+
+* Implement a game server application that can connect to the list server, listen for client connections, and supports multiple named game types. The server must have support for a real-time game state just like the client.
+
+* Implement a client side connection class to the server and message handling.
+
+* Implement a client->server time sync that can do it's best to comp for lag (ping/2 at worst).
+
+* Implement client and server message throttling. Create system to queue up positional messages until update throttle time is up, ditching older messages in place of new ones.
+
+* Implement a proper menu system, including system settings, user registration info, and list server display system.
+
+* Create build systems for Linux and OSX and any other systems that need it.
+
+* Implement the client stuff in a game module. Moving common items into a game module base class for ease of use in other game types.
+
+* Many other things
