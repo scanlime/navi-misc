@@ -73,18 +73,20 @@ class CommitFormatter(Message.Formatter):
            one of our format_* member functions.
            """
         commit = message.xml.body.commit
-        segments = []
+        metadata = []
         if commit.author:
-            segments.append(self.format_author(str(commit.author)))
+            metadata.append(self.format_author(str(commit.author)))
         if commit.revision:
-            segments.append(self.format_revision(str(commit.revision).strip()))
+            metadata.append(self.format_revision(str(commit.revision).strip()))
         if commit.files:
-            segments.append(self.format_files(commit.files))
+            metadata.append(self.format_files(commit.files))
+        return self.joinMessage(self, metadata, self.format_log(str(log)))
 
-        return "%s: %s" % (
-            " ".join(segments),
-            self.format_log(str(commit.log))
-            )
+    def joinMessage(self, metadata, log):
+        """Join a list of formatted metadata and a formatted log message
+           to form a final formatted commit.
+           """
+        return "%s: %s" % (" ".join(metadata), log)
 
     def format_default(self, str):
         """A hook for formatting that should be applied to all text"""
@@ -123,7 +125,15 @@ class CommitToIRC(CommitFormatter):
 
     def format_revision(self, rev):
         import IRC
-        return IRC.format(CommitFormatter.format_revision(self, rev), 'bold')
+        return 'r' + IRC.format(str(rev), 'bold')
+
+    def format_files(self, files):
+        import IRC
+        return IRC.format(CommitFormatter.format_files(self, files), 'bold')
+
+    def join_message(self, metadata, log):
+        import IRC
+        return "%s%s %s" % (" ".join(metadata), IRC.format(':', 'bold'), log)
 
 
 class CommitToXHTML(CommitFormatter):
