@@ -99,6 +99,8 @@ Histogram-based imaging techniques have been used previously in the rendering of
 internals of the \emph{Electric Sheep} screen-saver software\cite{sd}.
 
 \section{Uniqueness of the Approach}
+
+\subsection{Interactivity}
 Because total histogram density is maintained during the computation run, the actual
 tone-mapping step can be performed at any time.  This allows a low quality image to
 be produced almost immediately, while further iterations merely add more detail.  Like
@@ -130,19 +132,24 @@ parameter space at a time, but they have much better control over these dimensio
 user can just grab hold of the parameters and move them in a solid way, making this hill-climbing
 optimization process very intuitive.
 
+\subsection{Parallel Processing}
 This approach makes the algorithm particularly suitable to parallel processing.  If the
 system being visualized converges toward a single attractor, many iteraton or integration
-runs can be performed simultaneously. This algorithm is not only very easy to parallelize, it is
+runs can be performed simultaneously.
+Parallel rendering can dramatically improve the quality of images, and makes
+this technique feasable even for slow computations and high-dimensional systems where a
+plane of section is used to produce the image.
+
+This algorithm is not only very easy to parallelize, it is
 also very scalable. Each rendering node can individually choose a random
-set of initial conditions then start running iterations.. The only communication necessary between
+set of initial conditions then start running iterations. The only communication necessary between
 nodes is to merge each node's results into one master histogram. The rate at which these merges
 happen can be adjusted, making it easy to scale the total bandwidth required by a cluster.
 At minimum, a merge only needs to happen once just before the final tone-mapping
 step. Realistically, it is helpful to merge histograms more often for interactivity reasons
-or in order to continuously assess the image's current quality level.
-Cluster rendering can dramatically improve the quality of images, and makes
-this technique feasable even for slow computations and high-dimensional systems where a
-plane of section is used to produce the image.
+or in order to continuously assess the image's current quality level. Histogram merges could even
+be performed hierarchially in order to spread the load of the merge itself across a cluster, although
+at the price of increased latency in interactive applications.
 
 \section{Results}
 By using histograms and high dynamic range imaging techniques, iterative systems can be
