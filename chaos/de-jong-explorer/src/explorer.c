@@ -934,6 +934,8 @@ static gboolean on_anim_window_delete(GtkWidget *widget, GdkEvent *event, gpoint
 }
 
 static void on_anim_new(GtkWidget *widget, gpointer user_data) {
+  Explorer *self = EXPLORER(user_data);
+  animation_clear(self->animation);
 }
 
 static void on_anim_open(GtkWidget *widget, gpointer user_data) {
