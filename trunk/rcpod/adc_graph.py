@@ -26,7 +26,10 @@ class AnalogUpdaterThread(threading.Thread):
             readings = self.rcpod.analogReadAll()
             for i in xrange(len(readings)):
                 self.channels[i].value = readings[i]
-            time.sleep(0.01)
+
+            # Very tiny delay, just so the scheduler doesn't
+            # let this thread hog all the CPU.
+            time.sleep(0.0001)
 
 
 def main():
