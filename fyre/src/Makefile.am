@@ -12,7 +12,7 @@ CSFLAGS =		\
 CSFILES =			\
 	Element.cs		\
 	ElementTooltip.cs	\
-	Main.cs			\
+	PipelineEditor.cs	\
 	PluginManager.cs
 
 ASSEMBLIES =			\

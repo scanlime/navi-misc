@@ -1,5 +1,6 @@
 /*
- * Main.cs - the main program
+ * PipelineEditor.cs - pipeline editor. At this moment, this also
+ *	stands in as the main program
  *
  * Fyre - rendering and interactive exploration of chaotic functions
  * Copyright (C) 2004-2005 David Trowbridge and Micah Dowty
@@ -35,7 +36,7 @@ public class PipelineEditor
 
 	/* Element list (left) */
 	private Gtk.TreeStore		element_store;
-	private Gtk.TreeModel		sorted_store;
+	private Gtk.TreeModelSort	sorted_store;
 	private Gtk.TreeViewColumn	column;
 	[Widget] Gtk.TreeView		element_list;
 
@@ -64,6 +65,8 @@ public class PipelineEditor
 		element_store = new Gtk.TreeStore (typeof (Gdk.Pixbuf), typeof (string), typeof (Type), typeof (ElementTooltip));
 		sorted_store = new Gtk.TreeModelSort (element_store);
 		element_list.Model = sorted_store;
+
+		sorted_store.SetSortColumnId (1, Gtk.SortType.Ascending);
 
 		Gtk.CellRenderer pixbuf_renderer = new Gtk.CellRendererPixbuf ();
 		Gtk.CellRenderer text_renderer   = new Gtk.CellRendererText ();
