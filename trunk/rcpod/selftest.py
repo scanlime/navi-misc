@@ -14,12 +14,27 @@
 
  Useful test sets provided by this module:
 
-   safe
-   ----
+   internal
+   --------
 
     * All tests that can be run without setting any of the rcpod's
       I/O ports to output mode. This won't affect any hardware plugged
       into the rcpod, but can't test much.
+
+    * Note that even though this test should not effect any of the rcpod's
+      I/O, due to an error it is still possible for hardware attached to
+      the rcpod to be affected or even damaged!
+
+   c745
+   ----
+
+    * Tests all I/O ports implemented on the PIC16C745 (28-pin) version
+      of the rcpod
+
+    * Note that this will modify the I/O port states, and it
+      MUST NOT be run with any external hardware hooked up to the rcpod.
+
+    * Also runs all tests covered by 'internal'
 
    single
    ------
@@ -30,8 +45,9 @@
 
     * Note that this will modify the I/O port states, and it
       MUST NOT be run with any external hardware hooked up to the rcpod.
+      This test set will fail on the PIC16C745 (28-pin) version of the rcpod.
 
-    * Also runs all tests covered by 'safe'
+    * Also runs all tests covered by 'c745'
 
    dual
    ----
@@ -54,14 +70,18 @@ import pyrcpod, unittest, sys, random
 # 'checkerboard' bit patterns, and tests for MSB/LSB alignment.
 testBytes = (0x00, 0xFF, 0xAA, 0x55, 0x01, 0x02, 0x80, 0x40)
 
-# A list of pin names to run I/O tests on
-testPins = (
+# A list of pin names, sorted into those available on all rcpods
+# and those only on the '765 (40-pin) version
+commonPins = (
     'ra0', 'ra1', 'ra2', 'ra3', 'ra4', 'ra5',
     'rb0', 'rb1', 'rb2', 'rb3', 'rb4', 'rb5', 'rb6', 'rb7',
     'rc0', 'rc1', 'rc2',                      'rc6', 'rc7',
+    )
+c765Pins = (
     'rd0', 'rd1', 'rd2', 'rd3', 'rd4', 'rd5', 'rd6', 'rd7',
     're0', 're1', 're2',
     )
+allPins = commonPins + c765Pins
 
 
 class SimpleRcpodTestCase(unittest.TestCase):
@@ -75,7 +95,7 @@ class SimpleRcpodTestCase(unittest.TestCase):
         self.rcpod.close()
 
 
-class safe(SimpleRcpodTestCase):
+class internal(SimpleRcpodTestCase):
     """Tests that verify the firmware and API consistency
        without actually using any of the I/O hardware.
        """
@@ -135,20 +155,19 @@ class safe(SimpleRcpodTestCase):
 
     def testPinDescInstances(self):
         """verify that all pins have valid Pin instances"""
-        for pinName in testPins:
+        for pinName in allPins:
             pin = getattr(self.rcpod, pinName)
             self.assert_(isinstance(pin, pyrcpod.device.Pin))
 
     def testPinResetDirections(self):
         """verify, using pin descriptors, that all pins are initialized as inputs"""
-        for pinName in testPins:
+        for pinName in commonPins:
             pin = getattr(self.rcpod, pinName)
             self.assertEqual(pin.input().test(), True, "%s is not True" % pin.input())
             self.assertEqual(pin.output().test(), False, "%s is an False" % pin.output())
 
     def testAnalogAllSanity(self):
         """show that analogReadAll returns the right number of values and that they are all within range"""
-        return
         values = self.rcpod.analogReadAll()
         self.assertEqual(type(values), type([]))
         self.assertEqual(len(values), 8)

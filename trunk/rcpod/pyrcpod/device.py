@@ -79,6 +79,9 @@ class OpenedDevice:
                 # Wrap it in a Pin class
                 self.__dict__[pinName] = Pin(self, value)
 
+        # Initially the PIC model number is unknown. It can be determined in reset()
+        self.model = None
+
     def close(self):
         """Terminate our connection to the rcpod. No attributes
            on this class may be called afterwards.
@@ -94,6 +97,19 @@ class OpenedDevice:
            the 'reset' flag is set to False.
            """
         rcpod_Reset(self.dev)
+
+        # Based on the reset state of TRISD, we can determine the PIC's model
+        # number. It gets initialized to 0xFF, but on the PIC16C745, the register
+        # isn't implemented and will read as 0x00.
+        trisd = self.peek('trisd')
+        if trisd == 0x00:
+            self.model = 'PIC16C745'
+        elif trisd == 0xFF:
+            self.model = 'PIC16C765'
+        else:
+            self.model = None
+            raise ValueError('Incorrect value of TRISD after reset (0x%02X)' % trisd)
+        print self.model
 
     def poke(self, address, data):
         """Put the given 8-bit value into an address in the PIC's RAM.
