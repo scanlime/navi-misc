@@ -151,6 +151,25 @@ IplImage** cv_dc1394_capture_gray(int num_images) {
   return camera_images;
 }
 
+IplImage** cv_dc1394_capture_rgb_raw(int num_images) {
+  cv_dc1394_camera **cam_p;
+  IplImage **img_p;
+
+  /* Wait for all cameras to have a frame available */
+  dc1394_dma_multi_capture(camera_captures, num_images);
+
+  /* Copy, convert, and free buffers from each camera. */
+  for (cam_p=cameras, img_p=camera_images; num_images>0; cam_p++, img_p++, num_images--) {
+    if (!img_p[0])
+      img_p[0] = cvCreateImage(cvSize(640, 480), IPL_DEPTH_8U, 3);
+    memcpy(img_p[0]->imageData, cam_p[0]->capture->capture_buffer, 640*480*3);
+    dc1394_dma_done_with_buffer(cam_p[0]->capture);
+    cvCvtColor(img_p[0], img_p[0], CV_BGR2RGB);
+  }
+
+  return camera_images;
+}
+
 
 /************************************************************************************/
 /**************************************************************** Private Functions */
