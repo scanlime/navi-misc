@@ -1,14 +1,5 @@
 This is just a preliminary roadmap, subject to whatever people want to work on.
 
-0.3:	Features
--	Color palette/schemes					- David (complete)
--	Network/server configuration				- David (complete)
--	URLScraper plugin					- Evan (complete enough)
--	Verify that all hardcoded strings are
-	enclosed in intltool _() macros				- David (complete)
--	Implement searching (firefox style would be nice!)	- David (complete)
--	Fix close bug with Connect and Prefs dialogs		- Evan (complete)
-
 0.4:	Bugfixes
 -	Autogenerate inline pngs during build
 -	Fix connect dialog to check for existing open
