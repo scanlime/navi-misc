@@ -21,6 +21,7 @@ This is just a preliminary roadmap, subject to whatever people want to work on.
 -	Fix plugins preferences to properly handle scripts	- Evan
 -	Finish implementing keybindings UI?			- Dan
 -	Implement options in channel list dialog
+-	Allow plugins to add a prefs page to the prefs dialog	- Evan
 
 
 0.5:
