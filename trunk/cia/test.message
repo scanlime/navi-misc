@@ -1,0 +1,29 @@
+<message>
+    <generator>
+       <name>CIA client for Subversion</name>
+       <version>0.52</version>
+       <url>http://navi/foo</url>
+   </generator>
+   <source>
+       <project>navi-misc</project>
+       <module>cia</module>
+       <branch>trunk</branch>
+   </source>
+   <timestamp>
+       1071372095
+   </timestamp>
+   <body>
+       <commit>
+	   <revision>1132</revision>
+	   <files>
+	       <file>trunk/cia/LibCIA/Message.py</file>
+	       <file>trunk/cia/LibCIA/Message.py</file>
+	   </files>
+	   <log>
+	       Another commit.. the whole log message would
+	       go here, and it's up to message formatters to
+	       choose how much to display
+	   </log>
+       </commit>
+   </body>
+</message>
