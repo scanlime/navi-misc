@@ -1,5 +1,5 @@
 /**
- * This class handles the java submission client.
+ * This class handles the chat based interview clients.
  * @author Brandon Smith
  * @version 2.0
  */
