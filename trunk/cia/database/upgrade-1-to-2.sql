@@ -16,9 +16,10 @@ INSERT IGNORE INTO meta VALUES( 'version', 2 );
 
 CREATE TABLE IF NOT EXISTS cache
 (
-    id     VARCHAR(32) PRIMARY KEY,
-    value  LONGBLOB NOT NULL,
-    atime  BIGINT,
+    id          VARCHAR(32) PRIMARY KEY,
+    value       LONGBLOB NOT NULL,
+    atime       BIGINT,
+    expiration  BIGINT,
 );
 
 ------ Add 'NOT NULL' qualifiers

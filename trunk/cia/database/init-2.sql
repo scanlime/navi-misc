@@ -58,9 +58,10 @@ CREATE TABLE IF NOT EXISTS rulesets
 -- that haven't been accessed in a while.
 CREATE TABLE IF NOT EXISTS cache
 (
-    id     VARCHAR(32) PRIMARY KEY,
-    value  LONGBLOB NOT NULL,
-    atime  BIGINT,
+    id          VARCHAR(32) PRIMARY KEY,
+    value       LONGBLOB NOT NULL,
+    atime       BIGINT,
+    expiration  BIGINT,
 );
 
 ------------------------------------------------------------------------
