@@ -67,7 +67,7 @@ void CPlayerDrawObject::Init ( void )
 		sub->setMaterialName(temp);
 	}
 
-	vis = false;
+	vis = parent->Visible();
 	if (node)
 	{
 		if (vis)
@@ -78,6 +78,7 @@ void CPlayerDrawObject::Init ( void )
 	}
 
 	node = static_cast<SceneNode*>(CFirestarterLoop::instance().GetSceneManager()->getRootSceneNode()->createChild());
+
 	if (!node)
 		return;
 
@@ -92,7 +93,7 @@ void CPlayerDrawObject::Init ( void )
 	pos[2] += 1.5f;
 
 	node->rotate(Vector3(0,0,1),rot[2]-lastRot);
-	node->translate(pos[0],pos[1],pos[2]); 
+	node->translate(pos[0],pos[1],pos[2]-100000); 
 	lastRot = rot[2];
 
 	vis = true;
@@ -105,7 +106,7 @@ void CPlayerDrawObject::Think ( void )
 	{
 		if (!vis)
 		{
-		//	CFirestarterLoop::instance().GetSceneManager()->getRootSceneNode()->addChild(node);
+			CFirestarterLoop::instance().GetSceneManager()->getRootSceneNode()->addChild(node);
 			vis = true;
 		}
 	}
@@ -113,7 +114,7 @@ void CPlayerDrawObject::Think ( void )
 	{
 		if (vis)
 		{
-		//	CFirestarterLoop::instance().GetSceneManager()->getRootSceneNode()->removeChild(node->getName());
+			CFirestarterLoop::instance().GetSceneManager()->getRootSceneNode()->removeChild(node->getName());
 			vis = false;
 		}
 	}
@@ -170,6 +171,7 @@ void CCameraDrawObject::Think ( void )
 
 	parent->GetPos(pos);
 	parent->GetRot(rot);
+	float camBump = 0.25f;
 
 	Camera *cam = CFirestarterLoop::instance().GetCamera();
 
@@ -177,7 +179,7 @@ void CCameraDrawObject::Think ( void )
 
 	float deg2rad = 0.017453292519943295769236907684886f;
 
-	cam->setPosition(pos[0],pos[1],pos[2]);
+	cam->setPosition(pos[0],pos[1],pos[2]+camBump);
 
 	cam->rotate(Vector3(0,0,1),rot[2]-lastRot);
 

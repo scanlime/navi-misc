@@ -415,12 +415,13 @@ void CTestGameServer::spawnPlayer ( int playerID )
 		return;
 	
 	// this is crap but will work for now
-	float xyRange = 300;
+	float xRange = world.getScaleX()*0.5f;
+	float yRange = world.getScaleY()*0.5f;
 	float zRange = 25;
 	float grav = -10;
 
-	itr->second.pos[0] = (((float)rand()/(float)RAND_MAX)*xyRange*2)-xyRange;
-	itr->second.pos[1] = (((float)rand()/(float)RAND_MAX)*xyRange*2)-xyRange;
+	itr->second.pos[0] = (((float)rand()/(float)RAND_MAX)*xRange*2)-xRange;
+	itr->second.pos[1] = (((float)rand()/(float)RAND_MAX)*yRange*2)-yRange;
 	itr->second.pos[2] = (((float)rand()/(float)RAND_MAX)*zRange);
 
 	itr->second.rot[2] = ((float)rand()/(float)RAND_MAX)*360;

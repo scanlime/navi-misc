@@ -26,6 +26,7 @@ CPlayerObject::CPlayerObject()
 	vec[0] = vec[1] = vec[2] = 0;
 	updateTime = 0;
 	material = "default";
+	forceHidden = false;
 }
 
 CPlayerObject::~CPlayerObject()

@@ -130,11 +130,11 @@ bool CFirestarterLoop::GameLoop ( void )
 	float togleTime = 0.5f;
 	if (CInputManager::instance().KeyDown(KEY_SYSRQ) && (lastScreenShotTime < CTimer::instance().GetTime()+togleTime))
 	{
-		char tmp[20];
+		char tmp[128];
 		sprintf(tmp, "screenshot_%d.png", ++numScreenShots);
 		GetRenderWindow()->writeContentsToFile(tmp);
 		lastScreenShotTime = CTimer::instance().GetTime();
-		GetRenderWindow()->setDebugText(String("Wrote ") + tmp);
+		//GetRenderWindow()->setDebugText(String("Wrote ") + tmp);
 	}
 
 	if (inUI)

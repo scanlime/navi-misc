@@ -70,7 +70,8 @@ class CTestWorld : public CBaseObject
 		float GetValueF ( const char *item );
 		int GetValueI ( const char *item );
 
-
+		float GetXSize ( void ) {return worldInfo.groundSize[0];}
+		float GetYSize ( void ) {return worldInfo.groundSize[1];}
 		// other stuff here for all the other world things that we need to do.
 
 	protected:
