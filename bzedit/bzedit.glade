@@ -4,7 +4,6 @@
 <glade-interface>
 
 <widget class="GtkWindow" id="window1">
-  <property name="visible">True</property>
   <property name="title" translatable="yes">BZEdit</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_NONE</property>
@@ -237,7 +236,20 @@
 	  </child>
 
 	  <child>
-	    <placeholder/>
+	    <widget class="GtkEventBox" id="event box">
+	      <property name="visible">True</property>
+
+	      <child>
+		<widget class="GtkDrawingArea" id="drawing area">
+		  <property name="visible">True</property>
+		</widget>
+	      </child>
+	    </widget>
+	    <packing>
+	      <property name="padding">0</property>
+	      <property name="expand">True</property>
+	      <property name="fill">True</property>
+	    </packing>
 	  </child>
 	</widget>
 	<packing>
