@@ -421,9 +421,9 @@ TxRxRequest
 	movwf	FSR
 
 	pagesel	txLoop
-	banksel	PIR1		; Poll for transmitter availability
 txLoop
 	clrwdt
+	banksel	PIR1		; Poll for transmitter availability
 	btfss	PIR1, TXIF
 	goto	txLoop
 
