@@ -66,6 +66,28 @@ class Request(server.Request):
         server.Request.process(self)
         self.site.requestCount += 1
 
+    def isWebSpider(self):
+        """Guess whether this request is coming from a web spider (search engine bot).
+           We can adjust the content we deliever according to this, particularly by
+           removing links that the spider shouldn't bother following.
+           """
+        fullAgent = self.getHeader("user-agent")
+        abridgedAgent = fullAgent.split("/")[0].split()[0].strip().lower()
+
+        # Ugly special case because yahoo can't stick with the fucking standards
+        if abridgedAgent == "mozilla":
+            return fullAgent.find("Yahoo!") >= 0
+
+        # Nowhere near a full list, just a sampling of the bots bothering CIA most in a day
+        return abridgedAgent in [
+            "googlebot",
+            "mediapartners-google",
+            "msnbot",
+            "pompos",
+            "openbot",
+            "npbot",
+            ]
+
 
 class File(static.File):
     """A local subclass of static.File that overrides the default MIME type map

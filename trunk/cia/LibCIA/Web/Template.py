@@ -151,6 +151,15 @@ class Table(Nouvelle.ResortableTable):
     sortIndicator = tag('img', _class='sortIndicator', width=11, height=7,
                         src="/images/sort_down.png", alt="Sort column")
 
+    def render_heading(self, context, column):
+        # Disable resorting headings if we're serving a page to a web spider,
+        # it will just mindlessly click on all the links, wasting time and polluting
+        # its database with junk.
+        if context['request'].isWebSpider():
+            return column.render_heading(context)
+        else:
+            return Nouvelle.ResortableTable.render_heading(self, context, column)
+
 
 class StaticSection(Section):
     """A section containing static content, usable with tag-like syntax:
