@@ -15,6 +15,8 @@ typedef struct _XTextBuffer      XTextBuffer;
 typedef struct _XTextBufferClass XTextBufferClass;
 typedef struct _textentry        textentry;
 
+typedef void (*XTextBufferForeachFunc) (XTextBuffer *buffer, unsigned char *text, gpointer user_data);
+
 struct _XTextBuffer
 {
   GObject parent;
@@ -35,6 +37,9 @@ void         xtext_buffer_append        (XTextBuffer *buffer, unsigned char *tex
 void         xtext_buffer_append_indent (XTextBuffer *buffer, unsigned char *left, int llen,
                                                               unsigned char *right, int rlen);
 void         xtext_buffer_clear         (XTextBuffer *buffer);
+gboolean     xtext_buffer_is_empty      (XTextBuffer *buffer);
+void         xtext_buffer_foreach       (XTextBuffer *buffer, XTextBufferForeachFunc func, gpointer user_data);
+
 
 G_END_DECLS
 
