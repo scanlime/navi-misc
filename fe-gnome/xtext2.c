@@ -335,14 +335,13 @@ xtext2_init (XText2 *xtext)
 
   xtext->priv->buffer_info = g_hash_table_new (g_direct_hash, g_direct_equal);
 
-  /* each XText owns an empty buffer */
-  xtext->priv->original_buffer = xtext_buffer_new ();
-  xtext->priv->current_buffer = xtext->priv->original_buffer;
-  xtext2_show_buffer (xtext, xtext->priv->original_buffer);
-
   xtext->adj = GTK_ADJUSTMENT (gtk_adjustment_new (0, 0, 1, 1, 1, 1));
   g_object_ref (G_OBJECT (xtext->adj));
   gtk_object_sink (GTK_OBJECT (xtext->adj));
+
+  /* each XText owns an empty buffer */
+  xtext->priv->original_buffer = xtext_buffer_new ();
+  xtext2_show_buffer (xtext, xtext->priv->original_buffer);
 
   gtk_widget_set_double_buffered (GTK_WIDGET (xtext), FALSE);
 
@@ -1983,10 +1982,6 @@ find_char (XText2 *xtext, int x, int y, int *offset, gboolean *out_of_bounds)
   int line;
   int subline;
 
-  /* uninitialized font */
-  if (xtext->priv->fontsize == 0)
-    return NULL;
-
   line = (y + xtext->priv->pixel_offset) / xtext->priv->fontsize;
   ent = nth (xtext, line + (int) xtext->adj->value, &subline);
   if (!ent)
@@ -2052,6 +2047,7 @@ find_x (XText2 *xtext, int x, textentry *ent, int subline, int line, gboolean *o
 	nc++;
 	if (*text == ',')
 	  nc = 0;
+	text++;
       }
       else
       {
@@ -2337,28 +2333,63 @@ allocate_buffer (XText2 *xtext, XTextBuffer *buffer)
   XTextFormat *f = g_new0 (XTextFormat, 1);
   g_hash_table_insert (xtext->priv->buffer_info, buffer, f);
   /* FIXME: should copy existing lines & set wraps here */
+  f->old_adj = 0;
   f->wrapped_first = NULL;
   f->wrapped_last  = NULL;
   f->append_handler = g_signal_connect (G_OBJECT (buffer), "append", G_CALLBACK (buffer_append), (gpointer) xtext);
   f->clear_handler  = g_signal_connect (G_OBJECT (buffer), "clear",  G_CALLBACK (buffer_clear),  (gpointer) xtext);
   f->remove_handler = g_signal_connect (G_OBJECT (buffer), "remove", G_CALLBACK (buffer_remove), (gpointer) xtext);
   g_object_weak_ref (G_OBJECT (buffer), (GWeakNotify) buffer_destruction_notify, xtext);
+  return f;
 }
 
 void
 xtext2_show_buffer (XText2 *xtext, XTextBuffer *buffer)
 {
   XTextFormat *f;
+  int w, h;
 
   f = g_hash_table_lookup (xtext->priv->buffer_info, buffer);
+
+  if (xtext->priv->current_buffer == buffer)
+    return;
+
+  if (xtext->priv->add_io_tag)
+  {
+    xtext->priv->add_io_tag = 0;
+  }
+  if (xtext->priv->io_tag)
+  {
+    g_source_remove (xtext->priv->io_tag);
+    xtext->priv->io_tag = 0;
+  }
+
+  if (!GTK_WIDGET_REALIZED (GTK_WIDGET (xtext)))
+    gtk_widget_realize (GTK_WIDGET (xtext));
+
+  gdk_drawable_get_size (GTK_WIDGET (xtext)->window, &w, &h);
+
   if (f == NULL)
   {
     /* this isn't a buffer we've seen before */
     f = allocate_buffer (xtext, buffer);
   }
 
-  xtext->priv->current_buffer = buffer;
   /* FIXME: recalc stuff! */
+
+  xtext->priv->current_buffer = buffer;
+  xtext->adj->value = f->old_adj;
+  xtext->adj->upper = f->num_lines;
+  if (xtext->adj->upper == 0)
+    xtext->adj->upper = 1;
+  else if (xtext->adj->value > xtext->adj->upper - xtext->adj->page_size)
+  {
+    xtext->adj->value = xtext->adj->upper - xtext->adj->page_size;
+    if (xtext->adj->value < 0)
+      xtext->adj->value = 0;
+  }
+  render_page (xtext);
+  gtk_adjustment_changed (xtext->adj);
 }
 
 void
@@ -2753,16 +2784,15 @@ adjustment_changed (GtkAdjustment *adj, XText2 *xtext)
   XTextFormat *f;
   f = g_hash_table_lookup (xtext->priv->buffer_info, xtext->priv->current_buffer);
 
+  g_print ("adjustment_changed ()\n");
+
 #ifdef SMOOTH_SCROLL
   if (f->old_adj != adj->value)
 #else
   if ((int) f->old_adj != (int) adj->value)
 #endif /* SMOOTH_SCROLL */
   {
-    if (adj->value >= adj->upper - adj->page_size)
-      f->scrollbar_down = TRUE;
-    else
-      f->scrollbar_down = FALSE;
+    f->scrollbar_down = (adj->value >= adj->upper - adj->page_size);
 
     if (adj->value + 1 == f->old_adj || adj->value - 1 == f->old_adj)
     {
@@ -2786,6 +2816,7 @@ adjustment_changed (GtkAdjustment *adj, XText2 *xtext)
 static gint
 adjustment_timeout (XText2 *xtext)
 {
+  g_print ("adjustment_timeout ()\n");
   render_page (xtext);
   xtext->priv->io_tag = 0;
   return 0;

@@ -256,7 +256,7 @@ void navigation_selection_changed(GtkTreeSelection *selection, gpointer data) {
 		tgui = (session_gui *) sess->gui;
 		if(tgui == NULL)
 			return;
-//		gtk_xtext_buffer_show(gui.xtext, tgui->buffer, TRUE);
+		xtext2_show_buffer(gui.xtext, tgui->buffer);
 		topic = glade_xml_get_widget(gui.xml, "topic entry");
 		gtk_entry_set_text(GTK_ENTRY(topic), tgui->topic);
 		entry = glade_xml_get_widget(gui.xml, "text entry");
