@@ -3674,7 +3674,7 @@
       <property name="show_help">False</property>
 
       <child>
-	<widget class="GnomeDruidPageEdge" id="druidpagestart2">
+	<widget class="GnomeDruidPageEdge" id="setup druid start">
 	  <property name="visible">True</property>
 	  <property name="position">GNOME_EDGE_START</property>
 	  <property name="title" translatable="yes">xchat-gnome setup</property>
@@ -3685,7 +3685,7 @@ Your Xchat-gnome preferences have not yet been set.  You can continue to the Xch
       </child>
 
       <child>
-	<widget class="GnomeDruidPageStandard" id="druidpagestandard4">
+	<widget class="GnomeDruidPageStandard" id="setup druid nicknames">
 	  <property name="visible">True</property>
 	  <property name="title" translatable="yes">User Configuration</property>
 
@@ -3860,7 +3860,7 @@ Your Xchat-gnome preferences have not yet been set.  You can continue to the Xch
       </child>
 
       <child>
-	<widget class="GnomeDruidPageStandard" id="druidpagestandard5">
+	<widget class="GnomeDruidPageStandard" id="setup druid autoconnect">
 	  <property name="visible">True</property>
 	  <property name="title" translatable="yes">Server Auto-Connect Configuration</property>
 
@@ -3897,7 +3897,7 @@ Your Xchat-gnome preferences have not yet been set.  You can continue to the Xch
       </child>
 
       <child>
-	<widget class="GnomeDruidPageEdge" id="druidpagefinish1">
+	<widget class="GnomeDruidPageEdge" id="setup druid finish">
 	  <property name="visible">True</property>
 	  <property name="position">GNOME_EDGE_FINISH</property>
 	</widget>
