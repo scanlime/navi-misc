@@ -260,6 +260,10 @@ class Pin:
            """
         rcpod_GpioAssert(self.rcpod.dev, self.value)
 
+    def deassert(self):
+        """Place this pin descriptor in its inactive state (same as pin.negate().assert_())"""
+        rcpod_GpioDeassert(self.rcpod.dev, self.value)
+
     def test(self):
         """Return a boolean indicating whether this pin is currently asserted or not"""
         return rcpod_GpioTest(self.rcpod.dev, self.value)

@@ -119,9 +119,13 @@ class SelfTest(RcpodTestCase):
         """verify, using pin descriptors, that all pins' values can be toggled as outputs"""
         for name, pin in self.rcpod.pins.iteritems():
             pin.output().assert_()
-            pin.assert_()
-            self.assertEqual(pin.test(), True, "Can't pull %s high" % pin)
-            pin.deassert_()
+
+            # We can't pull pin ra4 high, it's open-drain
+            if name != 'ra4':
+                pin.assert_()
+                self.assertEqual(pin.test(), True, "Can't pull %s high" % pin)
+
+            pin.deassert()
             self.assertEqual(pin.test(), False, "Can't pull %s low" % pin)
 
     def testPinDescOutput(self):
