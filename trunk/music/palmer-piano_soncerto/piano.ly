@@ -7,16 +7,16 @@
 	}
 
 	\score {
-        \context PianoStaff <<
-          \set Score.skipBars = ##t
-          \set PianoStaff.connectArpeggios = ##t
-          \set Staff.midiInstrument = "piano"
-          \context Staff = "pianoRight" {
-            \mvmtOnePianoRight
-          }
-          \context Staff = "pianoLeft" {
-            \mvmtOnePianoLeft
-          }
-        >>
+		\context PianoStaff <<
+			\set Score.skipBars = ##t
+			\set PianoStaff.connectArpeggios = ##t
+			\set Staff.midiInstrument = "piano"
+			\context Staff = "pianoRight" {
+				\mvmtOnePianoRight
+			}
+			\context Staff = "pianoLeft" {
+				\mvmtOnePianoLeft
+			}
+		>>
 	}
 }
