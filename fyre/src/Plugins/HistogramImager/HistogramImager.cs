@@ -43,7 +43,7 @@ class HistogramImager : Element
 	public override Gdk.Pixbuf Icon ()
 	{
 		if (icon == null)
-			icon = new Gdk.Pixbuf ("/usr/share/fyre/2.0/HistogramImager.png");
+			icon = new Gdk.Pixbuf ("HistogramImager.png");
 		return icon;
 	}
 
