@@ -22,7 +22,8 @@ Pages for getting real-time message feeds in RSS and unformatted XML
 #
 
 from twisted.internet import defer
-from twisted.web import resource
+from twisted.protocols import http
+from twisted.web import resource, server
 from LibCIA import Message, Formatters, TimeUtil
 import Nouvelle
 import Nouvelle.Twisted
@@ -49,6 +50,25 @@ class BaseFeed(Nouvelle.Twisted.Page):
     def preRender(self, context):
         context['component'] = self.statsPage.component
         context['request'].setHeader('content-type', self.mimeType)
+
+    def render(self, request):
+        """Intercept the normal rendering operations to check our
+           stats target's modification time. If the browser already
+           has a recent copy of this feed, we can get away without
+           rendering at all.
+           """
+        self.target.getMTime().addCallback(
+            self._render, request
+            ).addErrback(request.processingFailed)
+        return server.NOT_DONE_YET
+
+    def _render(self, mtime, request):
+        if (mtime is None) or (request.setLastModified(mtime) is not http.CACHED):
+            # We don't know the mtime or the browser's copy is no good, render as usual
+            Nouvelle.Twisted.Page.render(self, request)
+        else:
+            # Finish without rendering anything
+            request.finish()
 
     def render_items(self, context):
         """Renders the most recent commits as items in the feed"""

@@ -35,6 +35,7 @@ from Nouvelle import tag, place
 import Template, Server
 import os, posixpath
 from twisted.web import error
+from twisted.protocols import http
 from twisted.web.woven import dirlist
 
 
@@ -282,6 +283,12 @@ class Page(Template.Page):
             return dirlist.DirectoryLister(self.fsPath).render(request)
         elif not os.path.isfile(self.fsPath):
             return error.NoResource("File not found.").render(request)
+
+        # Support the Last-MOdified and If-Modified-Since headers,
+        # don't bother rendering the page if the browser already has an up to date copy.
+        if request.setLastModified(self.mainDoc.mtime) is http.CACHED:
+            return ''
+
         return Template.Page.render(self, request)
 
     def findSidebarPath(self, path, format=".%s.sidebar"):
