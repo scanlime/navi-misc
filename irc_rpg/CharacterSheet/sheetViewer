@@ -22,12 +22,12 @@ def InitWindow(sheet=None):
   if sheet:
     box.pack_end(sheet.root)
     sheet.root.show()
-  
+
   box.pack_start(menubar, gtk.FALSE)
   box.show()
   window.show()
 
-  return window
+  return box
 
 def Menu():
   ''' Return a menu with accelerators. '''
@@ -45,7 +45,7 @@ def Menu():
   itemFactory.create_items(items)
   menubar = itemFactory.get_widget('<main>')
   menubar.show()
-  
+
   return (menubar, accelerator)
 
 def NewSheet(data, widget):
@@ -59,7 +59,7 @@ def OpenSheet(data, widget):
   fileWindow.set_filename('data/')
 
   # OK button.
-  #fileWindow.ok_button.connect('clicked', readNewData, fileWindow)
+  fileWindow.ok_button.connect('clicked', lambda w: readNewData(fileWindow.get_filename()))
   fileWindow.ok_button.connect('clicked', lambda w: fileWindow.destroy())
 
   # Cancel button.
@@ -67,6 +67,18 @@ def OpenSheet(data, widget):
 
   fileWindow.show()
 
+def readNewData(characterFile):
+  ''' Get new data from the file and redraw the window. '''
+  sheet = globals()['sheet']
+  box = globals()['box']
+  sheet.root.hide()
+
+  character = Character()
+  character.readCharacter(characterFile)
+
+  sheet = GTKsheet(character)
+  box.pack_end(sheet.root)
+  sheet.root.show()
 
 sheet = None
 
@@ -76,5 +88,5 @@ if len(sys.argv) > 1:
   character.readCharacter(sys.argv[1])
   sheet = GTKsheet(character)
 
-window = InitWindow(sheet)
+box = InitWindow(sheet)
 gtk.main()
