@@ -27,6 +27,8 @@
 #define XCHAT_GNOME_PREFERENCES_H
 
 gboolean preferences_exist();
+void load_preferences();
 char *preferences_nickname(struct ircnet *net);
+gboolean preferences_show_timestamp();
 
 #endif
