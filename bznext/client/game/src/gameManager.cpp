@@ -66,7 +66,6 @@ void CGameManger::Attach ( void )
 	if (theGame)
 		theGame->Release();
 	theGame = NULL;
-//	gameLoop->ClearScene();
 
 	std::string name = gameLoop->GetGameName();
 	gameModuleMap::iterator itr =	gameModules.find(name);
