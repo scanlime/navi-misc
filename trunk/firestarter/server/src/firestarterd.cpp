@@ -163,6 +163,11 @@ int main (int argc, char **argv)
 
 	getServerInfo();
 
+	logOut("setings loaded","main");
+
+	std::string temp1= "loaded game: " + serverInfo.game;
+	logOut(temp1.c_str(),"main");
+
 	if (!serverListener.init(serverInfo.game.c_str(),serverInfo.port,serverInfo.maxPlayers))
 		return errorOut("server listener init error","serverListener.init(serverInfo.game.c_str(),serverInfo.port)");
 

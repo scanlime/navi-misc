@@ -21,6 +21,7 @@
 */
 
 #include "serverListener.h"
+#include "firestarterd.h"
 
 CServerListener::CServerListener()
 {
@@ -82,6 +83,8 @@ void CServerListener::OnConnect ( CNetworkPeer &peer )
 		return;
 
 	game->add(lastID-1,peer);
+
+	logOut("client connect","CServerListener::OnConnect");
 }
 
 void CServerListener::OnDisconnect ( CNetworkPeer &peer )
@@ -94,6 +97,8 @@ void CServerListener::OnDisconnect ( CNetworkPeer &peer )
 		return;
 
 	game->remove(itr->second,peer);
+
+	logOut("client disconnect","CServerListener::OnDisconnect");
 }
 
 void CServerListener::OnMessage ( CNetworkPeer &peer, CNetworkMessage &message )
@@ -106,4 +111,7 @@ void CServerListener::OnMessage ( CNetworkPeer &peer, CNetworkMessage &message )
 		return;
 
 	game->message(itr->second,peer,message);
+
+	logOut("client message","CServerListener::OnMessage");
+
 }
