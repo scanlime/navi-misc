@@ -22,8 +22,9 @@
 #include "preferences_colors_page.h"
 
 void initialize_preferences_colors_page() {
-	GtkWidget *table, *button;
+	GtkWidget *table, *button, *label;
 	GtkWidget *hbox;
+	GtkSizeGroup *group;
 	int i, j;
 
 	table = glade_xml_get_widget(gui.xml, "palette table");
@@ -46,4 +47,21 @@ void initialize_preferences_colors_page() {
 	hbox = glade_xml_get_widget(gui.xml, "background mark hbox");
 	button = gtk_color_button_new();
 	gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, TRUE, 0);
+
+	group = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
+	label = glade_xml_get_widget(gui.xml, "color label 1");
+	gtk_size_group_add_widget(group, label);
+	label = glade_xml_get_widget(gui.xml, "color label 2");
+	gtk_size_group_add_widget(group, label);
+	label = glade_xml_get_widget(gui.xml, "color label 3");
+	gtk_size_group_add_widget(group, label);
+	label = glade_xml_get_widget(gui.xml, "color label 4");
+	gtk_size_group_add_widget(group, label);
+	label = glade_xml_get_widget(gui.xml, "color label 5");
+	gtk_size_group_add_widget(group, label);
+	label = glade_xml_get_widget(gui.xml, "color label 6");
+	gtk_size_group_add_widget(group, label);
+	label = glade_xml_get_widget(gui.xml, "color label 7");
+	gtk_size_group_add_widget(group, label);
+	g_object_unref(group);
 }
