@@ -79,7 +79,7 @@ PCLATH_save	res	1	;  during ISR
 FSR_save	res	1
 PIRmasked	res	1
 USBMaskedInterrupts  res  1
-BUFFER		res	16	; Location for data to be sent to host
+BUFFER		res	8	; Location for data to be sent to host
 COUNTER		res	1   
 ByteCount	res	1
 SerialByte	res 1
@@ -286,14 +286,11 @@ MainLoop
 	btfss	STATUS,Z	; Z = 1 when configured
 	goto	MainLoop    ; Wait until we're configured
 
-	pagesel GetEP1		; Read endpoint 1, calling VFD_SendBuffer with any received bytes
-	bankisel BUFFER
-	movlw	BUFFER
+	pagesel GetEP1		; Read endpoint 1, putting the received byte on PORTB
+	bankisel PORTB
+	movlw	PORTB
 	movwf	FSR
 	call	GetEP1
-	pagesel	VFD_SendBuffer
-	btfsc	STATUS, C
-	call	VFD_SendBuffer
 
 	pagesel	PutEP1	    ; Send a 4-byte packet consisting of a counter followed by 01 02 03
 	banksel COUNTER
@@ -354,12 +351,13 @@ VFD_SerialDelay:
 	movlw	0x67
 	movwf	DelayTemp
 delayLoop:
-	decfsz	DelayTemp
+	decfsz	DelayTemp, f
 	goto	delayLoop
 	return
 
 	; Send a byte to the VFD from 'w'
 VFD_SendByte:
+	global	VFD_SendByte
 	bsf		PORTB,1			; Activity LED on
 	movwf	SerialByte		; Save input byte
 	movlw	8
@@ -367,12 +365,12 @@ VFD_SendByte:
 	VFD_SerialMark			; Start bit
 	call	VFD_SerialDelay
 bitLoop:
-	rrf		SerialByte		; Shift out the LSB
+	rrf		SerialByte, f	; Shift out the LSB
 	VFD_SerialSpace			; Assume space
 	btfss	STATUS, C
 	VFD_SerialMark			; Set a mark if necessary
 	call	VFD_SerialDelay
-	decfsz	BitCount
+	decfsz	BitCount, f
 	goto	bitLoop
 	VFD_SerialSpace			; Stop bit
 	call	VFD_SerialDelay
