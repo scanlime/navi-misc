@@ -29,7 +29,8 @@ import re
 
 # These are the symbols that will be pulled from this module
 # into the 'pyrcpod' package.
-__all__ = ['scanForDevices', 'devices', 'mapAddress', 'OpenedRcpod', 'I2CDevice']
+__all__ = ['scanForDevices', 'devices', 'mapAddress',
+           'OpenedRcpod', 'I2CDevice', 'I2CError']
 
 
 def mapAddress(name):

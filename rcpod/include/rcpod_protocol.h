@@ -18,7 +18,7 @@
 ;// The protocol version, stored in binary coded decimal.
 ;// This is available from the device in the bcdDevice field
 ;// of its DEVICE descriptor.
-#define RCPOD_PROTOCOL_VERSION  0x0120
+#define RCPOD_PROTOCOL_VERSION  0x0121
 
 ;// Device vendor and product IDs.
 ;// The RCPOD's device class and protocol are both set to 'vendor-specific'.
