@@ -5,3 +5,4 @@
 * tab completion doesn't work - it instead switches focus between widgets
 * when first selecting a channel from the tree, it switches buffers a couple times,
   resulting in a quick flicker
+* dialog windows don't set their title correctly
