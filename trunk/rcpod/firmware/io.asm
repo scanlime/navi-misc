@@ -36,7 +36,8 @@ io_Deassert
 io_Assert
 	pagesel	io_SetFSR
 	call	io_SetFSR
-
+	
+	banksel	io_pin
 	movlw	0x87		; Mask off the low/high and bit number bits
 	andwf	io_pin, w
 	movwf	io_tmp
