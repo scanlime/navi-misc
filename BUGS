@@ -1,5 +1,3 @@
-- The --help text is too wide for an 80-column terminal
-
 - Cluster autodetection doesn't find multiple fyre
   servers running on different ports but the same host
 
