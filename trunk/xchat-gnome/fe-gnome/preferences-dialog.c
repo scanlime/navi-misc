@@ -20,7 +20,6 @@
  */
 
 #include "preferences-dialog.h"
-#include "preferences-servers-page.h"
 #include "preferences-keybindings-page.h"
 #include "preferences-plugins-page.h"
 #include "pixmaps.h"
@@ -110,8 +109,9 @@ preferences_dialog_init (PreferencesDialog *p)
 	gtk_tree_selection_set_mode (select, GTK_SELECTION_SINGLE);
 	g_signal_connect (G_OBJECT (select), "changed", G_CALLBACK (page_selection_changed), p);
 
-	p->irc_page    = preferences_page_irc_new    (p, xml);
-	p->colors_page = preferences_page_colors_new (p, xml);
+	p->irc_page      = preferences_page_irc_new      (p, xml);
+	p->colors_page   = preferences_page_colors_new   (p, xml);
+	p->networks_page = preferences_page_networks_new (p, xml);
 
 	g_object_unref (xml);
 }
@@ -171,7 +171,6 @@ initialize_preferences_dialog ()
 	gtk_widget_hide_all (GTK_WIDGET (gui.preferences_dialog));
 	gtk_notebook_set_show_tabs (GTK_NOTEBOOK (glade_xml_get_widget (gui.xml, "settings notebook")), FALSE);
 	initialize_pages_list ();
-	initialize_preferences_servers_page ();
 	initialize_preferences_plugins_page ();
 /*	initialize_preferences_keybindings_page ();*/
 

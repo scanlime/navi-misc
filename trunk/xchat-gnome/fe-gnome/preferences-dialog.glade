@@ -2246,7 +2246,7 @@
 		      <property name="spacing">6</property>
 
 		      <child>
-			<widget class="GtkButton" id="servers add">
+			<widget class="GtkButton" id="network_add">
 			  <property name="visible">True</property>
 			  <property name="can_default">True</property>
 			  <property name="can_focus">True</property>
@@ -2258,7 +2258,7 @@
 		      </child>
 
 		      <child>
-			<widget class="GtkButton" id="servers edit">
+			<widget class="GtkButton" id="network_edit">
 			  <property name="visible">True</property>
 			  <property name="can_default">True</property>
 			  <property name="can_focus">True</property>
@@ -2328,7 +2328,7 @@
 		      </child>
 
 		      <child>
-			<widget class="GtkButton" id="servers remove">
+			<widget class="GtkButton" id="network_remove">
 			  <property name="visible">True</property>
 			  <property name="can_default">True</property>
 			  <property name="can_focus">True</property>
@@ -2357,10 +2357,10 @@
 		      <property name="window_placement">GTK_CORNER_TOP_LEFT</property>
 
 		      <child>
-			<widget class="GtkTreeView" id="configure server list">
+			<widget class="GtkTreeView" id="network_list">
 			  <property name="visible">True</property>
 			  <property name="can_focus">True</property>
-			  <property name="headers_visible">True</property>
+			  <property name="headers_visible">False</property>
 			  <property name="rules_hint">True</property>
 			  <property name="reorderable">False</property>
 			  <property name="enable_search">True</property>

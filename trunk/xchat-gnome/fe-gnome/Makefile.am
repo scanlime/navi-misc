@@ -74,10 +74,10 @@ EXTRA_DIST =					\
 	preferences-page-irc.c			\
 	preferences-keybindings-page.c		\
 	preferences-keybindings-page.h		\
+	preferences-page-networks.c		\
+	preferences-page-networks.h		\
 	preferences-plugins-page.h		\
 	preferences-plugins-page.c		\
-	preferences-servers-page.h		\
-	preferences-servers-page.c		\
 	setup-dialog.h				\
 	setup-dialog.c				\
 	textgui.h				\
@@ -132,10 +132,10 @@ xchat_gnome_SOURCES =				\
 	preferences-page-irc.c			\
 	preferences-keybindings-page.c		\
 	preferences-keybindings-page.h		\
+	preferences-page-networks.c		\
+	preferences-page-networks.h		\
 	preferences-plugins-page.h		\
 	preferences-plugins-page.c		\
-	preferences-servers-page.h		\
-	preferences-servers-page.c		\
 	setup-dialog.h				\
 	setup-dialog.c				\
 	textgui.h				\

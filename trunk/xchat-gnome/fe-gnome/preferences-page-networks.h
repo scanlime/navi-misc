@@ -22,8 +22,8 @@
 #include "gui.h"
 #include <glade/glade-xml.h>
 
-#ifndef XCHAT_GNOME_PREFERENCES_SERVERS_PAGE_H
-#define XCHAT_GNOME_PREFERENCES_SERVERS_PAGE_H
+#ifndef XCHAT_GNOME_PREFERENCES_PAGE_NETWORKS_H
+#define XCHAT_GNOME_PREFERENCES_PAGE_NETWORKS_H
 
 typedef struct
 {
@@ -40,8 +40,5 @@ typedef struct
 
 PreferencesNetworksPage *preferences_page_networks_new (gpointer prefs_dialog, GladeXML *xml);
 void preferences_page_networks_free (PreferencesNetworksPage *page);
-
-void initialize_preferences_servers_page ();
-void preferences_servers_page_populate ();
 
 #endif
