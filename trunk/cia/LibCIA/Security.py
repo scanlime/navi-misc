@@ -216,7 +216,7 @@ class User:
         return Database.pool.runInteraction(self._test, *capabilities)
 
     def _test(self, cursor, *capabilities):
-        return bool(cursor.execute(self._createTestQuery(_getUid(cursor, key), capabilities)))
+        return bool(cursor.execute(self._createTestQuery(self._getUid(cursor), capabilities)))
 
     def grant(self, *capabilities):
         """Grant all capabilities in the given list, ignoring any the user already has"""
@@ -323,7 +323,7 @@ class User:
 
     def getCapabilities(self):
         """Return a list of capability names (strings) that this user has, via a Deferred"""
-        return Database.pool.runInteraction(self._getCapabilities, uid)
+        return Database.pool.runInteraction(self._getCapabilities)
 
     def _getCapabilities(self, cursor):
         uid = self._getUid(cursor)
