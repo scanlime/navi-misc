@@ -512,8 +512,9 @@ class Box(BZObject):
             [0,            0,            self.size[2], 0],
             [0,            0,            0,            1])
 
-        cos = math.cos(self.rotation * math.pi / 180.0)
-        sin = math.sin(self.rotation * math.pi / 180.0)
+        theta = self.rotation * math.pi / 180.0
+        cos = math.cos(theta)
+        sin = math.sin(theta)
         mat *= Blender.Mathutils.Matrix(
             [ cos, sin, 0, 0],
             [-sin, cos, 0, 0],
@@ -529,8 +530,25 @@ class Box(BZObject):
         """Retrieves the object's position, size, and rotation
            from a Blender object- the inverse of transformBlenderObject().
            """
+        # Convert to BZFlag coordinates, relative to the World object
         mat = obj.mat * self.world.getBlendToBzMatrix()
-        print mat
+
+        # Extract translation, leave a 3x3 matrix with rotation and scale
+        self.position = list(mat.translationPart())
+        mat = mat.rotationPart()
+
+        # Extract the rotation using blender's handy quaternion-fu
+        euler = mat.toEuler()
+        self.rotation = euler[2]
+
+        # We could determine scale by multiplying our three basis vectors
+        # each by the matrix and measuring their length. This is the same
+        # as treating each column of the 3x3 matrix as a vector and taking
+        # their length.
+        self.size = [
+            math.sqrt(mat[0][0]**2 + mat[0][1]**2 + mat[0][2]**2),
+            math.sqrt(mat[1][0]**2 + mat[1][1]**2 + mat[1][2]**2),
+            math.sqrt(mat[2][0]**2 + mat[2][1]**2 + mat[2][2]**2)]
 
 
 class Pyramid(Box):
