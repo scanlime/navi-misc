@@ -119,7 +119,7 @@ class Font:
             byte = 0
             for y in xrange(8):
                 if pattern[y][x] != " ":
-                    byte = byte | (1<<(7-y))
+                    byte = byte | (1<<y)
             bytes.append(chr(byte))
         return "".join(bytes)
 
