@@ -22,6 +22,76 @@
 
 #include "input.h"
 
+// action stuff
+
+CAction::CAction()
+{
+}
+
+CAction::~CAction()
+{
+}
+
+float CAction::getRelative(void)
+{
+	return 0;
+}
+
+float CAction::getAbs(void)
+{
+	return 0;
+}
+
+float CAction::getRaw(void)
+{
+	return 0;
+}
+
+float CAction::getMinRange ( void )
+{
+	return 0;
+}
+
+float CAction::getMaxRange ( void )
+{
+	return 0;
+}
+
+float CAction::getMaxRaw ( void )
+{
+	return 0;
+}
+
+float CAction::getMinRaw ( void )
+{
+	return 0;
+}
+
+// listener functions
+void CAction::addListener ( CActionListener* listener )
+{
+	if (listener)
+		listeners.push_back(listener);
+}
+
+void CAction::removeListener ( CActionListener *listener )
+{
+	if (!listener)
+		return;
+
+	tvActionListenerList::iterator itr = listeners.begin();
+
+	while (itr != listeners.end())
+	{
+		if (listener == *itr)
+			itr = listeners.erase(itr);
+		else
+			itr++;
+	}
+}
+
+// base input manager
+
 CInputManager::CInputManager()
 {
 	mInputDevice = NULL;
