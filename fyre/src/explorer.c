@@ -49,6 +49,7 @@ static void on_widget_toggle(GtkWidget *widget, gpointer user_data);
 static void on_render_time_changed(GtkWidget *widget, gpointer user_data);
 static void on_calculation_finished(IterativeMap *map, gpointer user_data);
 static gboolean on_interactive_prefs_delete(GtkWidget *widget, GdkEvent *event, gpointer user_data);
+static gboolean on_cluster_window_delete(GtkWidget *widget, GdkEvent *event, gpointer user_data);
 
 
 /************************************************************************************/
@@ -59,7 +60,7 @@ GType explorer_get_type(void) {
     static GType exp_type = 0;
 
     if (!exp_type) {
-	static const GTypeInfo dj_info = {
+	static const GTypeInfo exp_info = {
 	    sizeof(ExplorerClass),
 	    NULL, /* base_init */
 	    NULL, /* base_finalize */
@@ -71,7 +72,7 @@ GType explorer_get_type(void) {
 	    (GInstanceInitFunc) explorer_init,
 	};
 
-	exp_type = g_type_register_static(G_TYPE_OBJECT, "Explorer", &dj_info, 0);
+	exp_type = g_type_register_static(G_TYPE_OBJECT, "Explorer", &exp_info, 0);
     }
 
     return exp_type;
@@ -104,6 +105,7 @@ static void explorer_init(Explorer *self) {
     glade_xml_signal_connect_data(self->xml, "on_widget_toggle",                G_CALLBACK(on_widget_toggle),                self);
     glade_xml_signal_connect_data(self->xml, "on_render_time_changed",          G_CALLBACK(on_render_time_changed),          self);
     glade_xml_signal_connect_data(self->xml, "on_interactive_prefs_delete",     G_CALLBACK(on_interactive_prefs_delete),     self);
+    glade_xml_signal_connect_data(self->xml, "on_cluster_window_delete",        G_CALLBACK(on_cluster_window_delete),         self);
 
 #ifndef HAVE_EXR
     /* If we don't have OpenEXR support, gray out the menu item
@@ -126,6 +128,9 @@ static void explorer_dispose(GObject *gobject) {
     }
 
     explorer_dispose_animation(self);
+#ifdef HAVE_GNET
+    explorer_dispose_cluster(self);
+#endif
 }
 
 Explorer* explorer_new(IterativeMap *map, Animation *animation) {
@@ -152,6 +157,12 @@ Explorer* explorer_new(IterativeMap *map, Animation *animation) {
 
     explorer_init_animation(self);
     explorer_init_tools(self);
+#ifdef HAVE_GNET
+    explorer_init_cluster(self);
+#else
+    /* If we have no cluster support, disable that menu item */
+    gtk_widget_set_sensitive(glade_xml_get_widget(self->xml, "toggle_cluster_window"), FALSE);
+#endif
 
     /* Start the iterative map rendering in the background, and get a callback every time a block
      * of calculations finish so we can update the GUI.
@@ -281,10 +292,16 @@ static void on_render_time_changed(GtkWidget *widget, gpointer user_data) {
 }
 
 static gboolean on_interactive_prefs_delete(GtkWidget *widget, GdkEvent *event, gpointer user_data) {
-    /* Just hide the window when the user tries to close it
-     */
+    /* Just hide the window when the user tries to close it */
     Explorer *self = EXPLORER(user_data);
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(glade_xml_get_widget(self->xml, "toggle_interactive_prefs")), FALSE);
+    return TRUE;
+}
+
+static gboolean on_cluster_window_delete(GtkWidget *widget, GdkEvent *event, gpointer user_data) {
+    /* Just hide the window when the user tries to close it */
+    Explorer *self = EXPLORER(user_data);
+    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(glade_xml_get_widget(self->xml, "toggle_cluster_window")), FALSE);
     return TRUE;
 }
 

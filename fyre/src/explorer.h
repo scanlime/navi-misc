@@ -102,9 +102,11 @@ void explorer_init_animation(Explorer *self);
 void explorer_dispose_animation(Explorer *self);
 void explorer_update_animation(Explorer *self);
 
+void explorer_init_cluster(Explorer *self);
+void explorer_dispose_cluster(Explorer *self);
+
 void explorer_run_iterations(Explorer *self);
 void explorer_update_gui(Explorer *self);
-
 
 G_END_DECLS
 

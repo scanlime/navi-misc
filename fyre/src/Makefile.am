@@ -23,7 +23,8 @@ endif
 if HAVE_GNET
 GNET_SRC = \
 	remote-server.c			\
-	remote-client.c
+	remote-client.c			\
+	explorer-cluster.c
 else
 GNET_SRC =
 endif
