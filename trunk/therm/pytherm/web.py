@@ -256,7 +256,9 @@ class IndexPage(ModPython.Page):
             tag('body')[
                 place('sources'),
                 tag('div', _class='graphs') [
-                    tag('img', _class='graph', src='overview-graph', alt="Temperature overview"),
+                    tag('img', _class='graph', src='overview-graph',
+                        width=791, height=255,
+                        alt="Temperature overview"),
                 ],
                 template.footer,
             ],
