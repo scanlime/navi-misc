@@ -21,9 +21,27 @@ Database.init()
 # Only bind on one interface
 tcp.Port.interface = "10.2.0.2"
 
+# A donation box, in the form of a section we add to the page template
+class DonationSection(Web.Template.Section):
+    title = "Donate to CIA"
+    rows = [
+        "Want to help improve CIA's reliability?",
+        tag('form', action='https://www.paypal.com/cgi-bin/webscr', method='post')[
+            tag('input', type='hidden', _name='cmd', value='_xclick'),
+            tag('input', type='hidden', _name='business', value='micahjd@users.sourceforge.net'),
+            tag('input', type='hidden', _name='item_name', value='CIA Open Source Notification System'),
+            tag('input', type='hidden', _name='no_note', value='1'),
+            tag('input', type='hidden', _name='currency_code', value='USD'),
+            tag('input', type='hidden', _name='tax', value='0'),
+            tag('input', type='image', _name='submit',
+                src='http://www.paypal.com/en_US/i/btn/x-click-but21.gif',
+                alt='Make a donation via PayPal'),
+        ],
+    ]
+
 # Add some extras to the web template- add a notice from our hosting
 # provider. Remove the non-main CIA server notice, since this is in fact the
-# main server. Add a donation box.
+# main server.
 #
 Web.Template.Page.site_hostingNotice = [
         tag('a', href="http://pld-linux.org")[
@@ -32,6 +50,10 @@ Web.Template.Page.site_hostingNotice = [
         ],
     ]
 Web.Template.Page.site_mainServerNotice = []
+Web.Template.Page.site_belowLeftColumn = [
+        DonationSection(),
+        Web.Template.SiteSearch(),
+    ]
 
 
 application = service.Application("cia_server")
