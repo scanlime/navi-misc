@@ -142,6 +142,8 @@ void initialize_preferences_irc_page()
 		gtk_widget_set_sensitive (widget, TRUE);
 	gconf_client_notify_add (client, "/apps/xchat/main-window/font", (GConfClientNotifyFunc) gconf_font_changed, NULL, NULL, NULL);
 	g_signal_connect (G_OBJECT (widget), "font-set", G_CALLBACK (font_changed), "/apps/xchat/main_window/font");
+
+	g_object_unref (client);
 }
 
 static void
@@ -189,6 +191,7 @@ entry_changed (GtkEntry *entry, const gchar *key)
 	text = gtk_entry_get_text (entry);
 	if (text)
 		gconf_client_set_string (client, key, text, NULL);
+	g_object_unref (client);
 }
 
 static void
@@ -200,6 +203,7 @@ bool_changed (GtkToggleButton *button, const gchar *key)
 	client = gconf_client_get_default ();
 	value = gtk_toggle_button_get_active (button);
 	gconf_client_set_bool (client, key, value, NULL);
+	g_object_unref (client);
 }
 
 static void
@@ -211,6 +215,7 @@ font_changed (GtkFontButton *button, const gchar *key)
 	client = gconf_client_get_default ();
 	text = gtk_font_button_get_font_name (button);
 	gconf_client_set_string (client, key, text, NULL);
+	g_object_unref (client);
 }
 
 static void

@@ -82,6 +82,8 @@ colors_changed (GtkComboBox *combo_box, gpointer data)
 	gconf_client_set_int (client, "/apps/xchat/irc/color_scheme", selection, NULL);
 	set_color_buttons (selection, color_buttons);
 	set_palette_buttons (selection, palette_buttons);
+
+	g_object_unref (client);
 }
 
 static void
@@ -199,6 +201,8 @@ initialize_preferences_colors_page ()
 
 	hbox = glade_xml_get_widget (gui.xml, "foreground background hbox");
 	gtk_box_pack_start (GTK_BOX (hbox), color_schemes, FALSE, TRUE, 0);
+
+	g_object_unref (client);
 }
 
 static void
