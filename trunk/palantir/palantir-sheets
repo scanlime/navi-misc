@@ -11,9 +11,9 @@ files using those layouts.
 
 import sys, gtk, gtk.glade
 from random import randint
-from CharacterSheet import GtkSheetElements
-from CharacterSheet.Sheet import Sheet
-from CharacterSheet.Character import Character
+from gtkPalantir import SheetElements
+from Palantir.sheet import Sheet
+from Palantir.character import Character
 
 def init(filename=None):
   ''' Initialize the window and stuff using glade. '''
@@ -28,7 +28,7 @@ def init(filename=None):
   if filename:
     data = Character()
     data.readCharacter(filename)
-    tree.sheet = Sheet(data, DieRoller(), GtkSheetElements)
+    tree.sheet = Sheet(data, DieRoller(), SheetElements)
     tree.sheet.filename = filename
     tree.ViewPort.add(tree.sheet.root)
     tree.sheet.root.edit.set_active(gtk.TRUE)
@@ -84,7 +84,7 @@ def NewSheet(widget, data=None):
                     {'layout':tree.dialog.get_widget('SheetSelection').get_filename()})
   if hasattr(tree, 'sheet'):
     tree.ViewPort.remove(tree.sheet.root)
-  tree.sheet = Sheet(data, DieRoller(), GtkSheetElements)
+  tree.sheet = Sheet(data, DieRoller(), SheetElements)
   tree.ViewPort.add(tree.sheet.root)
   tree.sheet.root.edit.set_active(gtk.TRUE)
   tree.sheet.root.show()
@@ -96,7 +96,7 @@ def OpenSheet(widget, data=None):
   if hasattr(tree, 'sheet'):
     tree.ViewPort.remove(tree.sheet.root)
   action = DieRoller()
-  tree.sheet = Sheet(data, action, GtkSheetElements)
+  tree.sheet = Sheet(data, action, SheetElements)
   tree.sheet.filename = tree.dialog.get_widget('SheetSelection').get_filename()
   tree.ViewPort.add(tree.sheet.root)
   tree.sheet.root.edit.set_active(gtk.TRUE)

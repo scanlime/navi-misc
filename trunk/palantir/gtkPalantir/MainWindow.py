@@ -10,15 +10,13 @@ for the IRC stuff.
 from twisted.internet import gtk2reactor
 gtk2reactor.portableInstall()
 
-import string, gtk, gtk.glade, gobject, CharacterSheet.GtkSheetElements
+import string, gtk, gtk.glade, gobject
 
 from ChatBuffer import ChatBuffer
 from CharacterSheet import CharacterSheet
-from PalantirIRC import palantir
-from PalantirIRC.factory import Factory
-from PalantirIRC.dieRoller import DieRoller
-from CharacterSheet.Character import Character
-from CharacterSheet.Sheet import Sheet
+from Palantir import palantir
+from Palantir.factory import Factory
+from Palantir.dieRoller import DieRoller
 
 from twisted.internet import reactor
 

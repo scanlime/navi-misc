@@ -7,7 +7,7 @@ Copyright (C) 2003 W. Evan Sheehan <evan@navi.picogui.org>
 '''
 
 import gtk, re, traceback, string
-from Character import Character
+from Palantir.character import Character
 from random import randint
 
 class sheetElement:
