@@ -1,6 +1,8 @@
+TUSB_DIR = ..
 OBJS = hello.rel hello_descript.rel
-CFLAGS = -I ../include
-LDFLAGS = --xram-loc 0xF800 --xram-size 0x500 -L ../src -ltusb
+
+CFLAGS = -I $(TUSB_DIR)/include
+LDFLAGS = --xram-loc 0xF800 --xram-size 0x500 -L $(TUSB_DIR)/src -ltusb
 
 all: hello hello_test
 
