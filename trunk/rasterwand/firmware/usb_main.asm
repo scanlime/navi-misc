@@ -62,8 +62,6 @@ epBufferPtrTemp res 1
 epByteTemp	res 1
 
 	extern	InitUSB
-	extern	PutEP1
-	extern	GetEP1
 	extern	USBReset
 	extern	USBActivity
 	extern	USBStall
