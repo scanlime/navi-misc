@@ -118,7 +118,11 @@ static GtkActionEntry action_entries [] = {
 	{ "PopupAction", NULL, "" },
 
 	/* IRC menu */
+#if (GTK_CHECK_VERSION(2,5,0))
 	{ "IRCConnect", GTK_STOCK_CONNECT, N_("_Connect"), "<control>N", NULL, G_CALLBACK (on_irc_connect_activate) },
+#else
+	{ "IRCConnect", NULL, N_("_Connect"), "<control>N", NULL, G_CALLBACK (on_irc_connect_activate) },
+#endif
 	{ "IRCDownloads", NULL, N_("_File Transfers"), "<alt>F", NULL, G_CALLBACK (on_irc_downloads_activate) },
 	{ "IRCQuit", GTK_STOCK_QUIT, N_("_Quit"), "<control>Q", NULL, G_CALLBACK (on_irc_quit_activate) },
 
@@ -158,7 +162,11 @@ static GtkActionEntry action_entries [] = {
 	{ "GoNextDiscussion", GTK_STOCK_GO_FORWARD, N_("_Next Discussion"), "<alt>Down", NULL, G_CALLBACK (on_go_next_discussion_activate) },
 
 	/* Help menu */
+#if (GTK_CHECK_VERSION(2,5,0))
 	{ "HelpAbout", GTK_STOCK_ABOUT, N_("_About"), "", NULL, G_CALLBACK (on_help_about_activate) },
+#else
+	{ "HelpAbout", NULL, N_("_About"), "", NULL, G_CALLBACK (on_help_about_activate) },
+#endif
 };
 
 static GtkToggleActionEntry toggle_action_entries [] = {
