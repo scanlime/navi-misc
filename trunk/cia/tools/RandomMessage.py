@@ -149,13 +149,13 @@ def generate(rev=None):
             <commit>
                 <author>%s</author>
                 <log>%s</log>
-		<revision>%s</revision>
+                <revision>%s</revision>
             </commit>
         </body>
     </message>
     """ % (randomProject,
            randomAuthor,
            randomLog,
-	   rev)
+           rev)
 
 ### The End ###
