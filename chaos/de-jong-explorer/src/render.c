@@ -95,6 +95,7 @@ static void update_color_table() {
   int r, g, b;
   float pixel_scale = get_pixel_scale();
   float luma;
+  double one_over_gamma = 1/render.gamma;
 
   /* Current table too small? */
   if (render.color_table_size < required_size) {
@@ -111,7 +112,7 @@ static void update_color_table() {
 
     /* Scale and gamma-correct */
     luma = count * pixel_scale;
-    luma = pow(luma, 1/render.gamma);
+    luma = pow(luma, one_over_gamma);
 
     /* Optionally clamp before interpolating */
     if (render.clamped && luma > 1)
@@ -161,7 +162,7 @@ float normal_variate() {
 }
 
 void run_iterations(int count) {
-  double x, y;
+  double x, y, sine_rotation, cosine_rotation;
   unsigned int i, ix, iy;
   guint *p;
 
@@ -169,6 +170,14 @@ void run_iterations(int count) {
   const double xcenter = render.width / 2.0;
   const double ycenter = render.height / 2.0;
   const double scale = xcenter / 2.5 * params.zoom;
+  const gboolean rotation_enabled = params.rotation > 0.0001 || params.rotation < -0.0001;
+  const gboolean blur_enabled = params.blur_ratio > 0.0001 || params.blur_radius > 0.00001;
+
+  /* Precalculate the sine and cosine of the rotation angle, if we'll need it */
+  if (rotation_enabled) {
+    sine_rotation = sin(params.rotation);
+    cosine_rotation = cos(params.rotation);
+  }
 
   for(i=count; i; --i) {
     /* These are the actual Peter de Jong map equations. The new point value
@@ -182,9 +191,9 @@ void run_iterations(int count) {
     /* If rotation is enabled, rotate each point around
      * the origin by params.rotation radians.
      */
-    if (params.rotation) {
-      x =  cos(params.rotation)*point.x + sin(params.rotation)*point.y;
-      y = -sin(params.rotation)*point.x + cos(params.rotation)*point.y;
+    if (rotation_enabled) {
+      x =  cosine_rotation * point.x + sine_rotation   * point.y;
+      y = -sine_rotation   * point.x + cosine_rotation * point.y;
     }
 
     /* If blurring is enabled, use blur_ratio to decide how often to perturb
@@ -192,7 +201,7 @@ void run_iterations(int count) {
      * By perturbing the point using a normal variate, we create a true gaussian
      * blur as the number of iterations approaches infinity.
      */
-    if (params.blur_ratio && params.blur_radius) {
+    if (blur_enabled) {
       if (uniform_variate() < params.blur_ratio) {
 	x += normal_variate() * params.blur_radius;
 	y += normal_variate() * params.blur_radius;
