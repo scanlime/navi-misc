@@ -87,7 +87,7 @@ fb_url_changed (GtkEntry *url_entry, UrlEditorDialog *dialog)
 
 	entry_contents = gtk_entry_get_text (url_entry);
 	if (!is_valid_url (entry_contents)) {
-		gtk_widget_set_sensitive (dialog->ok, FALSE);
+		gtk_dialog_set_response_sensitive ((GtkDialog *) dialog, GTK_RESPONSE_OK, FALSE);
 		return;
 	}
 	/* check for duplicates */
@@ -96,14 +96,13 @@ fb_url_changed (GtkEntry *url_entry, UrlEditorDialog *dialog)
 		gchar *url_name;
 		gtk_tree_model_get (model, &iter, URL_LIST_LOCATION_COLUMN, &url_name, -1);
 		if (!strcasecmp (url_name, entry_contents)) {
-			gtk_widget_set_sensitive (dialog->ok, FALSE);
+			gtk_dialog_set_response_sensitive ((GtkDialog *) dialog, GTK_RESPONSE_OK, FALSE);
 			return;
 		}
 		valid = gtk_tree_model_iter_next (model, &iter);
 	}
 	/* valid and unique */
-	gtk_widget_set_sensitive (dialog->ok, TRUE);
-	gtk_widget_grab_default (dialog->ok);
+	gtk_dialog_set_response_sensitive ((GtkDialog *) dialog, GTK_RESPONSE_OK, TRUE);
 	gtk_entry_set_activates_default (GTK_ENTRY (dialog->url_entry), TRUE);
 }
 
@@ -116,7 +115,7 @@ fb_url_activated (GtkEntry *url_entry, UrlEditorDialog *dialog)
 static void
 fb_ok_enable (GtkWidget *widget, UrlEditorDialog *dialog)
 {
-	gtk_widget_set_sensitive (dialog->ok, TRUE);
+	gtk_dialog_set_response_sensitive ((GtkDialog *) dialog, GTK_RESPONSE_OK, TRUE);
 }
 
 static void
@@ -126,7 +125,7 @@ fb_daily_toggled (GtkWidget *button, UrlEditorDialog *dialog)
 
 	frequency = e_dialog_radio_get (dialog->daily, pub_frequency_type_map);
 	dialog->uri->publish_freq = frequency;
-	gtk_widget_set_sensitive (dialog->ok, TRUE);
+	gtk_dialog_set_response_sensitive ((GtkDialog *) dialog, GTK_RESPONSE_OK, TRUE);
 }
 
 static void
@@ -145,7 +144,7 @@ selection_changed (ESourceSelector *selector, UrlEditorDialog *dialog)
 		dialog->uri->calendars = l;
 	}
 	e_source_selector_free_selection (selection);
-	gtk_widget_set_sensitive (dialog->ok, TRUE);
+	gtk_dialog_set_response_sensitive ((GtkDialog *) dialog, GTK_RESPONSE_OK, TRUE);
 }
 
 static void
@@ -170,8 +169,9 @@ init_widgets (UrlEditorDialog *dialog)
 	GW(remember_pw);
 #undef GW
 
-	dialog->cancel = gtk_dialog_add_button (GTK_DIALOG (dialog), GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL);
-	dialog->ok = gtk_dialog_add_button (GTK_DIALOG (dialog), GTK_STOCK_OK, GTK_RESPONSE_OK);
+	gtk_dialog_add_button (GTK_DIALOG (dialog), GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL);
+	gtk_dialog_add_button (GTK_DIALOG (dialog), GTK_STOCK_OK, GTK_RESPONSE_OK);
+	gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_OK);
 
 	gtk_widget_ensure_style (dialog->url_editor);
 	gtk_container_set_border_width (GTK_CONTAINER (GTK_DIALOG (dialog->url_editor)->vbox), 0);
@@ -264,7 +264,7 @@ url_editor_dialog_construct (UrlEditorDialog *dialog)
 			e_dialog_radio_set (dialog->daily, URI_PUBLISH_USER, pub_frequency_type_map);
 	}
 
-	gtk_widget_set_sensitive (dialog->ok, FALSE);
+	gtk_dialog_set_response_sensitive ((GtkDialog *) dialog, GTK_RESPONSE_OK, FALSE);
 
 	toplevel = glade_xml_get_widget (gui, "toplevel_dialog");
 	gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), toplevel);
@@ -310,4 +310,27 @@ url_editor_dialog_get_type (void)
 	}
 
 	return type;
+}
+
+void
+url_editor_dialog_run (UrlEditorDialog *dialog)
+{
+	gint r;
+
+	g_return_if_fail (dialog != NULL);
+
+	r = gtk_dialog_run (GTK_DIALOG (dialog));
+	if (r == GTK_RESPONSE_OK) {
+		fb_url_activated (dialog->url_entry, dialog);
+		dialog->uri->username = g_strdup (gtk_entry_get_text (GTK_ENTRY (dialog->username_entry)));
+		dialog->uri->password = g_strdup (gtk_entry_get_text (GTK_ENTRY (dialog->password_entry)));
+		if (e_dialog_toggle_get (dialog->remember_pw)) {
+			e_passwords_add_password (dialog->uri->location, dialog->uri->password);
+			e_passwords_remember_password ("Calendar", dialog->uri->location);
+		} else {
+			e_passwords_forget_password ("Calendar", dialog->uri->location);
+		}
+	}
+
+	gtk_widget_hide (dialog);
 }
