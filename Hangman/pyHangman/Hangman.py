@@ -40,20 +40,20 @@ class Hangman:
 		""" Checks the guess against the correct answer.  If it's correct guess
 				gets added to self.correct in all of the appropriate spots in the word.
 				If it's incorrect it gets appended to self.guesses.  correct and guesses
-				are returned in a tuple, correct first. 
+				are returned in a tuple, correct first.
 				"""
 		# If the answer is correct insert it into the correct places in the
 		# 'correct' list.
 		if self.answer.find(guess) != -1:
 			self.correct = [self.TestEntry(i, guess) for i in range(len(self.correct))]
-		
+
 		# If not correct and the letter hasn't been guessed yet, append to guesses.
 		# Increment Hangman.numMissed.
 		else:
 			self.numMissed += 1
 			if self.guesses.count(guess) == 0:
 				self.guesses.append(guess)
-	
+
 		return (self.correct, self.guesses)
 
 	def NewGame(self):
@@ -63,7 +63,7 @@ class Hangman:
 		self.correct = []
 		# Set a new word.
 		self.answer = choice(self.words)
-		
+
 		# Fill the correct list with '_'.
 		for i in range(len(self.answer)):
 			self.correct.append('_')
@@ -90,20 +90,20 @@ class Hangman:
 		""" Provides a way to set the values in Hangman.correct with a list
 				comprehension when the user guesses correct.  TestEntry() returns
 				the appropriate character for that index of Hangman.correct.  If the
-				letter there has been guessed correctly before, it is returned.  If 
+				letter there has been guessed correctly before, it is returned.  If
 				guess does not go there a '_' is returned.  If the guess belongs in
 				the list at index return the guess.
 				For Example:
-						
-					self.correct = [self.TestEntry(i, guess) 
+
+					self.correct = [self.TestEntry(i, guess)
 													for i in range(len(self.correct))]
 				"""
 		# If the item at correct[index] has been guessed, return the already correct
 		# letter.
-		if self.correct[index] != '_':	
+		if self.correct[index] != '_':
 			return self.correct[index]
 		# If the guess is wrong, return a '_'
-		elif self.answer[index] != entry:	
+		elif self.answer[index] != entry:
 			return '_'
 		# If the guess is right, return it.
 		else:
@@ -111,7 +111,7 @@ class Hangman:
 
 class HangmanGUI:
 	""" Acts as a view and controller for the Hangman class.  __init__ creates
-			all the necessary widgets for the main window.  By creating an 
+			all the necessary widgets for the main window.  By creating an
 			instance of HangmanGUI and starting gtk.main the game is all set up.
 			"""
 	def __init__(self):
@@ -163,22 +163,22 @@ class HangmanGUI:
 		gallowsFrame.show()
 
 		# Boxes for window layout.
-		
+
 		# buttonBox: contains the New Game button to the left of the Quit button.
-		buttonBox = self.Pack(gtk.HBox, 
-				[None, self.newGame, self.openButton, self.quit], 
+		buttonBox = self.Pack(gtk.HBox,
+				[None, self.newGame, self.openButton, self.quit],
 				[gtk.TRUE, 5])
 		buttonBox.show()
-		
+
 		# box1: text entry field for entering guesses to the left of the buttonBox.
-		box1 = self.Pack(gtk.HBox, 
-				[self.guessField, None, buttonBox], 
+		box1 = self.Pack(gtk.HBox,
+				[self.guessField, None, buttonBox],
 				packArgs=[gtk.TRUE, gtk.TRUE, 5])
 		box1.show()
 
 		# textBox: correctText to the left of guessedText.
-		textBox = self.Pack(gtk.HBox, 
-				[self.correctText, None, guessFrame], 
+		textBox = self.Pack(gtk.HBox,
+				[self.correctText, None, guessFrame],
 				packArgs=[gtk.TRUE, gtk.TRUE, 20])
 		textBox.show()
 
@@ -254,7 +254,7 @@ class HangmanGUI:
 												"Are you sure you want to quit?")
 		dialog.set_title("Quit")
 		dialog.set_resizable(gtk.FALSE)
-		
+
 		dialog.show()
 		response = dialog.run()
 		if response == gtk.RESPONSE_YES:
@@ -269,15 +269,15 @@ class HangmanGUI:
 
 	def Pack(self, boxClass, widgets, boxArgs=[], packArgs=[]):
 		""" Packs all the widgets in the last argument into a box of boxClass
-				and returns the box.  packArgs are used as the arguments to the pack 
+				and returns the box.  packArgs are used as the arguments to the pack
 				function. widgets is a list of widgets to be packed: everything before
-				a 'None' item is packed with pack_start(), everything after is packed 
+				a 'None' item is packed with pack_start(), everything after is packed
 				with pack_end() in reverse order, so that the order the widgets are
 				passed is the order they will appear in the box.
 				"""
 		# Create a new box.
 		box = boxClass(*boxArgs)
-		
+
 		# Get the index of the None argument.
 		if widgets.count(None) == 0:
 			split = len(widgets)
@@ -288,7 +288,7 @@ class HangmanGUI:
 		for child in widgets[:split]:
 			box.pack_start(child, *packArgs)
 			child.show()
-		
+
 		# Reverse widgets for pack_end.
 		endWidgets = widgets[split+1:]
 		endWidgets.reverse()
@@ -300,7 +300,7 @@ class HangmanGUI:
 
 		return box
 
-	def Update(self, updateString): 
+	def Update(self, updateString):
 		""" Update the window with the new information. """
 		self.correctText.set_text(updateString[0])
 		self.guessedText.set_text(updateString[1])
@@ -391,7 +391,7 @@ class Gallows(gtk.DrawingArea):
 	def drawingArea(self, data):
 		""" Calculate a square area within the gtk.DrawingArea in which to draw
 				the gallows, data must be a list or tuple of x, y, height and width.
-				Return a tuple contianing the x, y coordinates of the top left corner 
+				Return a tuple contianing the x, y coordinates of the top left corner
 				and the width and height.  Allows for rescalable images.
 				"""
 		x, y, width, height = data.area
