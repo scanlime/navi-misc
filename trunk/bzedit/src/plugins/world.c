@@ -276,7 +276,6 @@ ground_drawable_init (GroundDrawable *gd)
   Drawable *d = DRAWABLE (gd);
 
   d->texture = g_strdup ("data/textures/ground.png");
-  d->render.statico = FALSE;
   gd->base_texture_repeat = 90;
   gd->overlay_texture_repeat = 1;
 }
