@@ -2,7 +2,7 @@
 #
 # CIA bot client script for Subversion repositories, written in python.
 # This generates commit messages using CIA's XML commit format, and can
-# deliver themusing either XML-RPC or email.
+# deliver them using either XML-RPC or email.
 #
 # -- Micah Dowty <micah@navi.cx>
 #
