@@ -27,7 +27,32 @@ namespace Fyre
 	{
 		Gdk.Pixmap	pixmap;
 		Gdk.GC		white, black;
-		int		width, height;
+		int[]		size, visible, mouse;
+
+		public NavigationWindow (int w, int h, int vw, int vh) : base (Gtk.WindowType.Popup)
+		{
+			size = new int[2];
+			visible = new int[2];
+			mouse = new int[2];
+
+			// set window size
+			size[0] = w;
+			size[1] = h;
+
+			// set visible size
+			visible[0] = vw;
+			visible[1] = vh;
+
+			// Before we can access any gdk internals, we need
+			// to realize the window.
+			Realize ();
+
+			Resize (w, h);
+
+			pixmap = new Gdk.Pixmap (GdkWindow, w, h, -1);
+
+			DrawBackground ();
+		}
 
 		void AllocGCs ()
 		{
@@ -46,24 +71,8 @@ namespace Fyre
 			if (white == null)
 				AllocGCs ();
 
-			pixmap.DrawRectangle (white, true, 0, 0, width - 1, height - 1);
-			pixmap.DrawRectangle (black, false, 0, 0, width - 1, height - 1);
-		}
-
-		public NavigationWindow (int w, int h) : base (Gtk.WindowType.Popup)
-		{
-			width = w;
-			height = h;
-
-			// Before we can access any gdk internals, we need
-			// to realize the window.
-			Realize ();
-
-			Resize (w, h);
-
-			pixmap = new Gdk.Pixmap (GdkWindow, w, h, -1);
-
-			DrawBackground ();
+			pixmap.DrawRectangle (white, true, 0, 0, size[0] - 1, size[1] - 1);
+			pixmap.DrawRectangle (black, false, 0, 0, size[0] - 1, size[1] - 1);
 		}
 
 		protected override bool OnExposeEvent (Gdk.EventExpose ev)
@@ -72,6 +81,19 @@ namespace Fyre
 			GdkWindow.DrawDrawable (white, pixmap, r.X, r.Y, r.X, r.Y, r.Width, r.Height);
 			return true;
 		}
+
+		public void SetMouse (int mx, int my)
+		{
+			// FIXME: trigger draw
+		}
+
+		public void DrawVisible (int mx, int my)
+		{
+			int vx =  visible[0] / 2;
+			int vy =  visible[1] / 2;
+			GdkWindow.DrawDrawable (white, pixmap, 0, 0, 0, 0, size[0], size[1]);
+			GdkWindow.DrawRectangle (black, false, mx - vx, my - vy, visible[0], visible[1]);
+		}
 	}
 
 	class NavigationImage : Gtk.EventBox
@@ -79,10 +101,12 @@ namespace Fyre
 		Gtk.Image		image;
 		NavigationWindow	window;
 		Gdk.Rectangle		position;
+		int[]			visible;
 
 		public NavigationImage()
 		{
 			position = new Gdk.Rectangle ();
+			visible = new int[2];
 
 			Gdk.Pixbuf pixbuf = new Gdk.Pixbuf (null, "navigation.png");
 			image = new Gtk.Image (pixbuf);
@@ -111,7 +135,11 @@ namespace Fyre
 			position.Width  = 200;
 			position.Height = 150;
 
-			window = new NavigationWindow (position.Width, position.Height);
+			// FIXME: determine window extents
+			visible[0] = 40;
+			visible[1] = 30;
+
+			window = new NavigationWindow (position.Width, position.Height, visible[0], visible[1]);
 
 			position.X = GetWindowPosition (mouse_x, position.Width,  screen.Width);
 			position.Y = GetWindowPosition (mouse_y, position.Height, screen.Height);
@@ -130,12 +158,13 @@ namespace Fyre
 			return true;
 		}
 
-		void ClampMouse (ref int mouse, int size)
+		void ClampMouse (ref int mouse, int size, int visible)
 		{
-			if (mouse < 0)
-				mouse = 0;
-			else if (mouse >= size)
-				mouse = size - 1;
+			int v = visible / 2;
+			if (mouse < v)
+				mouse = v;
+			else if (mouse >= size - v)
+				mouse = size - v - 1;
 		}
 
 		protected override bool OnMotionNotifyEvent (Gdk.EventMotion ev)
@@ -143,10 +172,10 @@ namespace Fyre
 			int mx = ((int) ev.XRoot) - position.X;
 			int my = ((int) ev.YRoot) - position.Y;
 
-			ClampMouse (ref mx, position.Width);
-			ClampMouse (ref my, position.Height);
+			ClampMouse (ref mx, position.Width, visible[0]);
+			ClampMouse (ref my, position.Height, visible[1]);
 
-			// FIXME: Add drawing the boxey thing
+			window.DrawVisible (mx, my);
 			return true;
 		}
 	}
