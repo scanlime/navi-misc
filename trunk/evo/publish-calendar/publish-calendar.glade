@@ -293,6 +293,7 @@
 
       <child>
 	<widget class="GtkNotebook" id="publishing toplevel">
+	  <property name="border_width">6</property>
 	  <property name="visible">True</property>
 	  <property name="can_focus">True</property>
 	  <property name="show_tabs">True</property>
