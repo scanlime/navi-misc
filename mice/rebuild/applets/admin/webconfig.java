@@ -32,10 +32,10 @@ public class webconfig implements ActionListener
 		net.write(host.getText());
 		net.write(port.getText());
 		
-		temp = net.read()
+		temp = net.read();
 		if(temp.charAt(0) == '-')
 		{
-			adin.help.setText("check your host and port, the connection failed");
+			admin.help.setText("check your host and port, the connection failed");
 			return;
 		}
 		myadmin.rm(submit);
