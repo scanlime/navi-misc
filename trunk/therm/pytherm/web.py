@@ -57,7 +57,6 @@ h1 {
     font: 190% sans-serif;
     font-weight: bold;
     color: #333;
-    border-bottom: 1px solid #777;
     margin: 0em 0em 1px 0em;
     padding: 0.1em 0em 0.2em 0.1em;
 }
@@ -78,9 +77,10 @@ h2 {
 }
 
 div.navigation {
+    border-top: 1px solid #777;
     border-bottom: 1px solid #777;
-    margin: 0em 0em 0.6em 0em;
-    padding: 0px 0px 1px 0px;
+    margin: 1em 0em;
+    padding: 1px;
     text-align: center;
 }
 a.navigation {
@@ -93,16 +93,17 @@ a.navigation:hover {
     background: #DDF;
 }
 
-.source {
-    display: block;
+a.source {
+    text-decoration: none;
+    color: black;
+}
+a.source:hover {
+}
+div.source {
     background: #DDD;
     border: 1px solid #777;
     margin: 2em 2em;
     padding: 0.5em;
-    text-decoration: none;
-    color: black;
-}
-.source:hover {
 }
 
 .name {
@@ -261,6 +262,7 @@ class IndexPage(ModPython.Page):
             tag('div', _class='thumbnails')[[
                 tag('img', _class='thumbnail',
                     width=168, height=50,
+                    alt="Temperature thumbnail (last %s)" % interval,
                     src="source/%s/graph/temperature:%s/scale/x50" %
                     (source.name, interval))
                 for interval in ('day', 'week', 'month', 'year')
@@ -277,7 +279,8 @@ class IndexPage(ModPython.Page):
                 renderTimestamp(latest),
                 ])
 
-        return tag('a', _class='source', href="source/%s/" % source.name)[ info ]
+        return tag('a', _class='source', href="source/%s/" % source.name)[
+            tag('div', _class='source')[ info ]]
 
 
 class SourceLookupPage(ModPython.Page):
@@ -309,6 +312,7 @@ class SourcePage(ModPython.Page):
             ],
             tag('body')[
                 tag('h1')[ place('source') ],
+                place('description'),
                 place('navigation'),
                 place('intervals'),
                 template.footer,
@@ -336,9 +340,11 @@ class SourcePage(ModPython.Page):
         self.latest = source.getLatestPacket()
 
     def render_navigation(self, context):
-        return tag('div', _class='navigation')[[
-            tag('a', _class='navigation', href="#%s" % anchor or 'top')[ name ]
-            for name, length, anchor in self.intervals]]
+        return tag('div', _class='navigation')[
+            tag('a', _class='navigation', href='../../')[ "All Sensors..." ],
+            [tag('a', _class='navigation', href="#%s" % anchor or 'top')[ name ]
+             for name, length, anchor in self.intervals],
+            ]
 
     def render_intervals(self, context):
         return [[
@@ -347,34 +353,34 @@ class SourcePage(ModPython.Page):
             self.renderInterval(length),
         ] for name, length, anchor in self.intervals]
 
+    def render_description(self, context):
+        return tag('div', _class='description')[ self.source.description ]
+
     def renderInterval(self, length):
         if not length:
             return self.renderLatest()
+
         graphs = []
-
         if self.latest.get('average'):
-            graphs.append(tag('img', _class='graph',
-                              src="graph/temperature:%s" % length))
-
+            graphs.append('temperature')
         if self.latest.get('voltage'):
-            graphs.append(tag('img', _class='graph',
-                              src="graph/voltage:%s" % length))
-
+            graphs.append('voltage')
         if self.latest.get('signal_strength'):
-            graphs.append(tag('img', _class='graph',
-                              src="graph/signal:%s" % length))
+            graphs.append('signal')
 
-        return tag('div', _class='graphs')[ graphs ]
+        return tag('div', _class='graphs')[[
+                tag('img', _class='graph',
+                    width=691, height=205,
+                    alt="%s graph" % name,
+                    src="graph/%s:%s" % (name, length))
+                for name in graphs
+                ]]
 
     def renderLatest(self):
         info = []
 
         if self.latest.get('average'):
             info.append(renderTemperature(self.latest))
-
-        info.extend([
-            tag('div', _class='description')[ self.source.description ],
-        ])
 
         if self.latest.get('voltage'):
             info.append(tag('div', _class='extraInfo')[
