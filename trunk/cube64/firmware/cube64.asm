@@ -52,6 +52,7 @@
 		temp
 		bus_byte_count
 		flags
+		virtual_button
 
 		;; These four items must be contiguous.
 		;; Note that n64_command and n64_bus_address point to the same memory.
@@ -119,29 +120,69 @@ main_loop
 	;; ******************************************************  Button/Axis mapping ***
 	;; *******************************************************************************
 
-	;; Map one button to another button
-map_button macro src_byte, src_bit, dest_byte, dest_bit
+	;; Button IDs. These are a superset of the gamecube and N64, without any correspondance
+	;; with the wire protocol used by either. They're used as intermediate values when
+	;; translating from gamecube to N64. These IDs are used as indices into the remapping
+	;; table stored in our on-chip EEPROM.
+
+	#define	BTN_A		0x00
+	#define	BTN_B		0x01
+	#define	BTN_X		0x02
+	#define	BTN_Y		0x03
+	#define	BTN_Z		0x04
+	#define	BTN_R		0x05
+	#define	BTN_L		0x06
+	#define	BTN_START	0x07
+	#define	BTN_D_LEFT	0x08
+	#define	BTN_D_RIGHT	0x09
+	#define	BTN_D_DOWN	0x0A
+	#define	BTN_D_UP	0x0B
+	#define	BTN_C_LEFT	0x0C
+	#define	BTN_C_RIGHT	0x0D
+	#define	BTN_C_DOWN	0x0E
+	#define	BTN_C_UP	0x0F
+
+	;; Map a gamecube button to a virtual button, and eventually to an N64 button
+map_button_from macro src_byte, src_bit, virtual
+	movlw	virtual
 	btfsc	gamecube_buffer+src_byte, src_bit
-	bsf	n64_status_buffer+dest_byte, dest_bit
+	call	set_virtual_button
 	endm
 
-	;; Map an 8-bit 0x80-centered axis to an 8-bit signed axis
+	;; Map a virtual button to an N64 button. If the indicated button is the one
+	;; currently in virtual_button, sets the corresponding N64 bit and returns.
+map_button_to	macro virtual, dest_byte, dest_bit
+	local	next
+	movf	virtual_button, w
+	xorlw	virtual
+	btfss	STATUS, Z
+	goto	next
+	bsf	n64_status_buffer+dest_byte, dest_bit
+	return
+next
+	endm
+
+	;; Map an 8-bit 0x80-centered axis to an 8-bit signed axis.
+	;; Doesn't allow any remapping.
 map_axis macro src_byte, dest_byte
 	movlw	0x80
 	subwf	gamecube_buffer+src_byte, w
 	movwf	n64_status_buffer+dest_byte
 	endm
 
-	;; Map an 8-bit 0x80-centered axis to two buttons, given lower and upper thresholds
-map_button_axis macro axis_byte, lower_byte, lower_bit, upper_byte, upper_bit, lower_thresh, upper_thresh
+	;; Map an 8-bit 0x80-centered axis to two virtual buttons,
+	;; given lower and upper thresholds.
+map_button_axis macro axis_byte, lower_virtual, upper_virtual, lower_thresh, upper_thresh
 	movlw	lower_thresh
-	subwf	gamecube_buffer+axis_byte, w			; Axis - lower_thresh
+	subwf	gamecube_buffer+axis_byte, w		; Axis - lower_thresh
+	movlw	lower_virtual
 	btfss	STATUS, C
-	bsf	n64_status_buffer+lower_byte, lower_bit		; C=0, B=1, lower_thresh > axis
+	call	set_virtual_button			; C=0, B=1, lower_thresh > axis
 	movlw	upper_thresh+1
-	subwf	gamecube_buffer+axis_byte, w			; Axis - (upper_thresh+1)
+	subwf	gamecube_buffer+axis_byte, w		; Axis - (upper_thresh+1)
+	movlw	upper_virtual
 	btfsc	STATUS, C
-	bsf	n64_status_buffer+upper_byte, upper_bit		; C=1, B=0, (upper_thresh+1) <= axis
+	call	set_virtual_button			; C=1, B=0, (upper_thresh+1) <= axis
 	endm
 
 
@@ -152,30 +193,54 @@ map_start macro
 	clrf	n64_status_buffer+3
 	endm
 
-	;; Copy status from the gamecube buffer to the N64 buffer, The mapping is defined
-	;; as a normal subroutine using the above macros.
+	;; Copy status from the gamecube buffer to the N64 buffer. This first
+	;; stage maps all axes, and maps gamecube buttons to virtual buttons.
 n64_translate_status
 	map_start
-	map_button	GC_A,		N64_A		; Shared buttons
-	map_button	GC_B,		N64_B
-	map_button	GC_Z,		N64_Z
-	map_button	GC_R,		N64_R
-	map_button	GC_L,		N64_L
-	map_button	GC_START,	N64_START
+	map_button_from	GC_A,		BTN_A
+	map_button_from	GC_B,		BTN_B
+	map_button_from	GC_Z,		BTN_Z
+	map_button_from	GC_R,		BTN_R
+	map_button_from	GC_L,		BTN_L
+	map_button_from	GC_START,	BTN_START
 
-	map_button	GC_X,		N64_C_DOWN	; Intuitive-ish mappings for the new buttons
-	map_button	GC_Y,		N64_B
+	map_button_from	GC_X,		BTN_X
+	map_button_from	GC_Y,		BTN_Y
 
-	map_button	GC_D_LEFT,	N64_D_LEFT	; D-Pad
-	map_button	GC_D_RIGHT,	N64_D_RIGHT
-	map_button	GC_D_UP,	N64_D_UP
-	map_button	GC_D_DOWN,	N64_D_DOWN
+	map_button_from	GC_D_LEFT,	BTN_D_LEFT
+	map_button_from	GC_D_RIGHT,	BTN_D_RIGHT
+	map_button_from	GC_D_UP,	BTN_D_UP
+	map_button_from	GC_D_DOWN,	BTN_D_DOWN
 
-	map_axis	GC_JOYSTICK_X,	N64_JOYSTICK_X	; Joystick
+	map_axis	GC_JOYSTICK_X,	N64_JOYSTICK_X
 	map_axis	GC_JOYSTICK_Y,	N64_JOYSTICK_Y
 
-	map_button_axis	GC_CSTICK_X,    N64_C_LEFT,	N64_C_RIGHT,	0x50, 0xB0 ; C-Button emulation
-	map_button_axis	GC_CSTICK_Y,    N64_C_DOWN,	N64_C_UP,	0x50, 0xB0
+	map_button_axis	GC_CSTICK_X,    BTN_C_LEFT,	BTN_C_RIGHT,	0x50, 0xB0
+	map_button_axis	GC_CSTICK_Y,    BTN_C_DOWN,	BTN_C_UP,	0x50, 0xB0
+	return
+
+
+	;; This is called for each virtual button set. It translates the virtual
+	;; button through our remapping table in EEPROM, then maps that into an N64 button.
+set_virtual_button
+	movwf	virtual_button
+
+	map_button_to	BTN_D_RIGHT,	N64_D_RIGHT
+	map_button_to	BTN_D_LEFT,	N64_D_LEFT
+	map_button_to	BTN_D_DOWN,	N64_D_DOWN
+	map_button_to	BTN_D_UP,	N64_D_UP
+
+	map_button_to	BTN_START,	N64_START
+	map_button_to	BTN_Z,		N64_Z
+	map_button_to	BTN_B,		N64_B
+	map_button_to	BTN_A,		N64_A
+	map_button_to	BTN_R,		N64_R
+	map_button_to	BTN_L,		N64_L
+
+	map_button_to	BTN_C_RIGHT,	N64_C_RIGHT
+	map_button_to	BTN_C_LEFT,	N64_C_LEFT
+	map_button_to	BTN_C_DOWN,	N64_C_DOWN
+	map_button_to	BTN_C_UP,	N64_C_UP
 	return
 
 
