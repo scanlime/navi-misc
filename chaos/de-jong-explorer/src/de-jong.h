@@ -120,13 +120,24 @@ gchar*     de_jong_save_string(DeJong *self);
 void       de_jong_load_image_file(DeJong *self, const gchar *filename);
 void       de_jong_save_image_file(DeJong *self, const gchar *filename);
 
-void       de_jong_interpolate_linear(DeJong *self, double alpha, DeJongPair *p);
+void       de_jong_interpolate_linear(DeJong *self, gdouble alpha, DeJongPair *p);
 
 void       de_jong_calculate_motion(DeJong             *self,
 				    guint               iterations,
 				    gboolean            continuation,
 				    DeJongInterpolator *interp,
 				    gpointer            interp_data);
+
+GdkPixbuf* de_jong_make_bifurcation_diagram(DeJongInterpolator *interp,
+					    gpointer            interp_data,
+					    gdouble             x_projection,
+					    gdouble             y_projection,
+					    gdouble             y_min,
+					    gdouble             y_max,
+					    guint               width,
+					    guint               height,
+					    gulong              transient_iterations,
+					    gulong              rendered_iterations);
 
 G_END_DECLS
 

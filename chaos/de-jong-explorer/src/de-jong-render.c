@@ -522,6 +522,85 @@ static gulong de_jong_get_max_usable_density(DeJong *self) {
 
 
 /************************************************************************************/
+/************************************************************* Bifurcation Diagrams */
+/************************************************************************************/
+
+GdkPixbuf* de_jong_make_bifurcation_diagram(DeJongInterpolator *interp,
+					    gpointer            interp_data,
+					    gdouble             x_projection,
+					    gdouble             y_projection,
+					    gdouble             y_min,
+					    gdouble             y_max,
+					    guint               width,
+					    guint               height,
+					    gulong              transient_iterations,
+					    gulong              rendered_iterations) {
+  /* A bifurcation diagram shows when a system becomes chaotic across
+   * some range of parameters. Parameters are interpolated across the X axis
+   * using the given interpolation function. The Y axis is a 1-dimensional
+   * projection of the point position, using [x_projection y_projection] as
+   * a 2x1 projection matrix and plotting the range [y_min, y_max)
+   *
+   * A given number of transient_iterations are calculated but not rendered,
+   * to eliminate the appearance of transient conditions when the (possibly)
+   * chaotic system is first starting. Afterwards, rendered_iterations are
+   * run and plotted. This process repeats for each column of pixels in the graph.
+   */
+
+  guint column;
+  gulong i;
+  GdkPixbuf *pixbuf;
+  DeJong *self;
+  gdouble a, b, c, d;
+  gdouble x, y;
+  gdouble point_x, point_y;
+  guint32 *pixel_p;
+
+  self = de_jong_new();
+  pixbuf = gdk_pixbuf_new(GDK_COLORSPACE_RGB, TRUE, 8, width, height);
+  pixel_p = (guint32*) gdk_pixbuf_get_pixels(pixbuf);
+  memset(pixel_p, 0, 4 * width * height);
+
+  for (column=0; column<width; column++) {
+    /* Interpolate and retrieve the de jong parameters for this column. */
+    interp(self, ((double)column) / (width-1), interp_data);
+    a = self->a;
+    b = self->b;
+    c = self->c;
+    d = self->d;
+
+    point_x = uniform_variate();
+    point_y = uniform_variate();
+
+    /* Run one block of iterations to skip the transient */
+    for (i=0; i<transient_iterations; i++) {
+      x = sin(a * point_y) - cos(b * point_x);
+      y = sin(c * point_x) - cos(d * point_y);
+      point_x = x;
+      point_y = y;
+    }
+
+    /* Now run the rendering iterations */
+    for (i=0; i<rendered_iterations; i++) {
+      x = sin(a * point_y) - cos(b * point_x);
+      y = sin(c * point_x) - cos(d * point_y);
+      point_x = x;
+      point_y = y;
+
+      y = x * x_projection + y * y_projection;
+      if (y >= y_min && y < y_max) {
+	pixel_p[column + width * ((int)( (y - y_min) / (y_max - y_min) * height ))] = 0xFF000000;
+      }
+    }
+
+  }
+
+  g_object_unref(self);
+  return pixbuf;
+}
+
+
+/************************************************************************************/
 /************************************************************************ Utilities */
 /************************************************************************************/
 
