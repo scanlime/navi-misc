@@ -23,6 +23,12 @@ Important
 Not that important
 ------------------
 
+- The web server needs to be smarter about HTTP caching, mostly for static
+  documents and for metadata value pages. (photos, for example) File-based
+  documents could be stat'ed to determine the last modification. The
+  stats_metadata table should probably acquire a modification time column,
+  since that would also be useful for a thumbnail cache.
+
 - The MIME types the web server gives out are a bit weird in the client
   scripts directory. Everything except HTML and images should probably be
   given out as text/plain.
