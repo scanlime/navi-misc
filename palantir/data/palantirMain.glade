@@ -758,7 +758,6 @@
 <widget class="GtkDialog" id="Preferences">
   <property name="width_request">596</property>
   <property name="height_request">402</property>
-  <property name="sensitive">False</property>
   <property name="title" translatable="yes">dialog1</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_NONE</property>
@@ -779,7 +778,7 @@
 	  <property name="layout_style">GTK_BUTTONBOX_END</property>
 
 	  <child>
-	    <widget class="GtkButton" id="cancelbutton1">
+	    <widget class="GtkButton" id="pref cancel">
 	      <property name="visible">True</property>
 	      <property name="can_default">True</property>
 	      <property name="can_focus">True</property>
@@ -791,7 +790,7 @@
 	  </child>
 
 	  <child>
-	    <widget class="GtkButton" id="applybutton1">
+	    <widget class="GtkButton" id="pref apply">
 	      <property name="visible">True</property>
 	      <property name="can_default">True</property>
 	      <property name="can_focus">True</property>
@@ -803,7 +802,7 @@
 	  </child>
 
 	  <child>
-	    <widget class="GtkButton" id="okbutton1">
+	    <widget class="GtkButton" id="pref ok">
 	      <property name="visible">True</property>
 	      <property name="can_default">True</property>
 	      <property name="can_focus">True</property>

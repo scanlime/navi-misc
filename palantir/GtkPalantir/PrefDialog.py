@@ -19,26 +19,89 @@ Creates and controls the preference dialog.
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 import gtk, gtk.glade, gobject
+from Common.Prefs import Prefs
 
 class PrefDialog:
   def __init__(self, tree):
     self.dialog = tree.get_widget('Preferences')
-    self.general = GenPrefs(tree)
+    self.navigation = tree.get_widget('prefs navigation')
+    self.SetUpNav()
+
+    self.prefs = Prefs()
     
+    self.general = GenPrefs(tree)
+    self.general.Set(self.prefs)
+
+    # Hook up the buttons.
+    tree.get_widget('pref cancel').connect('clicked',lambda w: self.dialog.hide())
+    tree.get_widget('pref apply').connect('clicked', self.SavePrefs)
+    tree.get_widget('pref ok').connect('clicked', self.SavePrefs)
+    tree.get_widget('pref ok').connect('clicked', lambda w: self.dialog.hide())
+
+  def SetUpNav(self):
+    store = gtk.ListStore(gobject.TYPE_STRING)
+    self.navigation.set_model(model=store)
+    self.navigation.append_column(
+        gtk.TreeViewColumn(cell_renderer=gtk.CellRendererText(), text=1))
+    store.append_row(['General'])
+
+  def SavePrefs(self, widget, data=None):
+    self.general.Save(self.prefs)
+    self.prefs.Save()
+
+  def GetNick(self):
+    return self.prefs.nickname
+
+  def GetQuitMsg(self):
+    return self.prefs.quitmsg
+
+  def GetPartMsg(self):
+    return self.prefs.partmsg
+
+  def GetAwayMsg(self):
+    return self.prefs.awaymsg
+
 class GenPrefs:
   def __init__(self, tree):
     self.page = tree.get_widget('general')
 
+    self.nickname = tree.get_widget('nickname')
+    self.realname = tree.get_widget('realname')
+    self.quitmsg = tree.get_widget('quitmsg')
+    self.partmsg = tree.get_widget('partmsg')
+    self.awaymsg = tree.get_widget('awaymsg')
+
     # Make all the text entries the same height.
     sizegroup = gtk.SizeGroup(gtk.SIZE_GROUP_HORIZONTAL)
-    sizegroup.add_widget(tree.get_widget('nickname'))
-    sizegroup.add_widget(tree.get_widget('realname'))
-    sizegroup.add_widget(tree.get_widget('quitmsg'))
-    sizegroup.add_widget(tree.get_widget('partmsg'))
-    sizegroup.add_widget(tree.get_widget('awaymsg'))
+    sizegroup.add_widget(self.nickname)
+    sizegroup.add_widget(self.realname)
+    sizegroup.add_widget(self.quitmsg)
+    sizegroup.add_widget(self.partmsg)
+    sizegroup.add_widget(self.awaymsg)
+
     sizegroup.add_widget(tree.get_widget('highlight'))
 
     # Little formatting for the highlighting area.
     sizegroup = gtk.SizeGroup(gtk.SIZE_GROUP_VERTICAL)
     sizegroup.add_widget(tree.get_widget('add_remove'))
     sizegroup.add_widget(tree.get_widget('highlight'))
+
+  def Save(self, prefs):
+    ''' Save the values on the general preferences page into 'prefs'. prefs must
+        be a Prefs object from Common.Prefs
+        '''
+    prefs.nick = self.nickname.get_text()
+    prefs.realname = self.realname.get_text()
+    prefs.quitmsg = self.quitmsg.get_text()
+    prefs.partmsg = self.partmsg.get_text()
+    prefs.awaymsg = self.awaymsg.get_text()
+
+  def Set(self, prefs):
+    ''' Set the fields in the dialog to reflect the user's prefs. 'prefs' must be
+        an instance of Prefs from Common.Prefs
+        '''
+    self.nickname.set_text(getattr(prefs, 'nickname', ''))
+    self.realname.set_text(getattr(prefs, 'realname', 'Unknown'))
+    self.quitmsg.set_text(getattr(prefs, 'quitmsg', 'good-bye'))
+    self.partmsg.set_text(getattr(prefs, 'partmsg', 'Leaving...'))
+    self.awaymsg.set_text(getattr(prefs, 'awaymsg', 'Away...'))

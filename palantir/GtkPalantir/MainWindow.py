@@ -92,13 +92,15 @@ class MainWindow:
     self.characterSheetWindow.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
     self.tree.get_widget('InputBox').pack_start(self.characterSheetWindow)
 
+    # Preferences
+    self.prefs = PrefDialog(self.tree)
+    self.tree.get_widget('Nick').set_text(self.prefs.GetNick())
+
     # Client factory.
-    self.factory = Factory('nuku-nuku', ui=self)
+    self.factory = Factory(self.prefs.GetNick(), ui=self)
 
     # Create an object to handle die rolls.
     self.dieRoller = DieRoller(self)
-
-    self.prefs = PrefDialog(self.tree)
 
     # Character sheet object.
     self.sheet = CharacterSheet(self.tree.get_widget('character sheet view'))
@@ -352,7 +354,9 @@ class MainWindow:
     self.tree.get_widget('SendField').set_text('')
     self.factory.client.ping(self.factory.nickname, self.factory.client.host)
 
-  def quit(self, args="Leaving..."):
+  def quit(self, args=None):
+    if args == None: args = self.prefs.GetQuitMsg()
+
     # Clear the text field.
     self.tree.get_widget('SendField').set_text('')
     # Leave the channel.
