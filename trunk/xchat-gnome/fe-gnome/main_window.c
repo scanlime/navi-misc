@@ -191,7 +191,7 @@ void on_network_file_transfers_menu_activate(GtkWidget *widget, gpointer data) {
 }
 
 void on_network_channels_menu_activate(GtkWidget *widget, gpointer data) {
-	/* FIXME: implement */
+	create_channel_list(gui.current_session);
 }
 
 void on_network_users_menu_activate(GtkWidget *widget, gpointer data) {
