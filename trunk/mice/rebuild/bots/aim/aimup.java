@@ -52,9 +52,9 @@ public class aimup
 	 */
 	public static void main(String[] args)
 	{
-		botmain interviewbot = initbots(1,"not-it");
+		botmain interviewbot = initbots(2,"robots");
 		startServer(8082);
-		sleep(2);
+		sleep(1);
 		configureServer(interviewbot);
 		updateLoop();
 		link.closeConnection();
@@ -79,7 +79,7 @@ public class aimup
 				qt = link.read();
 				an = link.read();
 				at = link.read();
-				index.broadcast(qn + " Askes: " + qt + " To which " + an + " replies: " + at);
+				index.broadcast(qn + " Asks: " + qt + " To which " + an + " replies: " + at);
 				break;
 			case 'n':
 				index.broadcast(link.read());
@@ -136,7 +136,7 @@ public class aimup
 	
 	/**
 	 * This method initializes the bots themselves.
-	 * @param count The number of bots to start (1-6)
+	 * @param count The number of bots to start (1-20)
 	 * @param password The password for the bots.
 	 * @author Brandon Smith
 	 * @version 2.0

@@ -115,8 +115,9 @@ public class interview
 			tname = com.read();
 			if(tname.charAt(0) == '-')
 			{
-				send("No questions right now, I'll message you when I have one for you.");
-				state = 4;
+				send("No questions right now, message me in a bit to see if I have one for you.");
+				state = 3;
+				return;
 			}
 			tname = com.read();
 			tques = com.read();
