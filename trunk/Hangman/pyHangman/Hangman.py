@@ -13,6 +13,7 @@ from Menu import menu
 from random import seed, choice
 
 class Hangman:
+	""" Functions and data for running a game of Hangman. """
 	def __init__(self):
 		seed()
 		self.answer = None
@@ -58,6 +59,18 @@ class Hangman:
 		# Temporary	
 		print self.answer
 
+	def gameStat(self):
+		""" Check the status of the current game. """
+		correctStr = " ".join(self.correct)
+		guessedStr = " ".join(self.guesses)
+
+		if self.correct.count('_') == 0:
+			correctStr += "\nYou Win!!"
+		elif self.numMissed == 7:
+			correctStr += "\nYou Lose!"
+
+		return (correctStr, guessedStr)
+
 	def TestEntry(self, index, entry):
 		""" Provides a way to set the values in Hangman.correct with a list
 				comprehension when the user guesses correct.  TestEntry() returns
@@ -77,6 +90,7 @@ class Hangman:
 		else:
 			return entry
 
+# Subclass this under Hangman?
 class HangmanGUI:
 	""" A class for creating and controlling a GUI for Hangman. __init__ creates
 			all the necessary widgets and connects them to the appropriate Hangman 
@@ -102,12 +116,13 @@ class HangmanGUI:
 
 		# Label to display the correctly guessed letters.
 		self.correctText = gtk.Label(" ".join(self.controller.correct))
+		self.correctText.set_justify(gtk.JUSTIFY_CENTER)
 
 		# Label to display the incorrect guesses.
 		guessFrame = gtk.Frame("Missed Guesses")
 		self.guessedText = gtk.Label(None)
+		self.guessedText.set_justify(gtk.JUSTIFY_CENTER)
 		self.guessedText.set_line_wrap(gtk.TRUE)
-		self.guessedText.set_justify(gtk.JUSTIFY_FILL)
 		guessFrame.add(self.guessedText)
 		self.guessedText.show()
 
@@ -117,6 +132,7 @@ class HangmanGUI:
 
 		# Quit button.
 		self.quit = gtk.Button("Quit")
+		self.quit.connect("clicked", self.warning)
 		self.quit.connect("clicked", self.Quit)
 
 		# Gallows.
@@ -166,7 +182,10 @@ class HangmanGUI:
 		# Check the guess.
 		self.controller.correct,self.controller.guesses = self.controller.Guess(entry)
 		# Update the window.
-		self.Update()
+		self.Update(self.controller.gameStat())
+		# If the game is over, prevent entry of new guesses.
+		if self.controller.correct.count('_') == 0 or self.controller.numMissed == 7:
+			guessField.set_editable(gtk.FALSE)
 
 	def Quit(self, widget, data=None):
 		""" Quit. """
@@ -206,15 +225,19 @@ class HangmanGUI:
 
 		return box
 
-	def Update(self): 
+	def Update(self, updateString): 
 		""" Update the window with the new information. """
-		self.correctText.set_text(" ".join(self.controller.correct))
-		self.guessedText.set_text(" ".join(self.controller.guesses))
+		self.correctText.set_text(updateString[0])
+		self.guessedText.set_text(updateString[1])
 
 	def NewGame(self, widget, data=None):
 		""" Begin a new game. """
 		self.controller.NewGame()
-		self.Update()
+		# Update window.
+		self.Update(self.controller.gameStat())
+		# Clear text entry field, make editable again, and give it focus.
+		self.guessField.set_text("")
+		self.guessField.set_editable(gtk.TRUE)
 		self.guessField.grab_focus()
 
 class Gallows(gtk.DrawingArea):
