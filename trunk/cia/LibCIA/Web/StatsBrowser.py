@@ -24,6 +24,7 @@ A web interface for CIA's stats:// namespace
 from __future__ import division
 import time, math
 import Template, Nouvelle
+import Nouvelle.Twisted
 from LibCIA import TimeUtil, Message
 from twisted.web import resource, error
 from Nouvelle import tag, place
@@ -158,6 +159,23 @@ class MetadataLink:
                 text = "View/Edit Metadata"
             else:
                 text = self.key
+        return self.tagFactory(href=self.getURL(context))[text]
+
+
+class RSSLink:
+    """An anchor tag linking to the RSS feed for a given stats target"""
+    def __init__(self, target, tagFactory=tag('a'), text=None):
+        self.target = target
+        self.tagFactory = tagFactory
+        self.text = text
+
+    def getURL(self, context):
+        return context['statsRootPath'] + '/'.join(self.target.pathSegments) + '/.rss'
+
+    def render(self, context):
+        text = self.text
+        if text is None:
+            text = "RSS Feed"
         return self.tagFactory(href=self.getURL(context))[text]
 
 
@@ -481,6 +499,20 @@ class MetadataValuePage(resource.Resource):
         return str(value)
 
 
+class RSSFeed(Nouvelle.Twisted.Page):
+    """A web resource representing an RSS feed for a particular stats target.
+       We use Nouvelle here to generate RSS rather than XHTML :)
+       """
+    def __init__(self, target):
+        self.target = target
+        Nouvelle.Twisted.Page.__init__(self)
+
+    def preRender(self, context):
+        context['request'].setHeader('content-type', 'text/xml')
+
+    document = tag('boing')
+
+
 class StatsLinksSection(Template.Section):
     """A section displaying useful links for a particular stats target"""
     title = 'links'
@@ -491,6 +523,7 @@ class StatsLinksSection(Template.Section):
     def render_rows(self, context):
         return [
             MetadataLink(self.target),
+            RSSLink(self.target),
             ]
 
 
@@ -561,6 +594,9 @@ class StatsPage(Template.Page):
         elif name == '.metadata':
             # Return a special page that accesses this stats target's metadata
             return MetadataPage(self)
+        elif name == '.rss':
+            # Return an RSS feed with this stats target's most recent commits in XML
+            return RSSFeed(self)
         else:
             # Return the stats page for a child
             return StatsPage(self.caps, self.storage,
