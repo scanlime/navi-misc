@@ -97,7 +97,9 @@
   </xsl:template>
 
   <xsl:template match="logo">
-    <img class="centered" src="/images/web/navi_small.png" alt="Navi Logo"/>
+    <div class="centered">
+      <img src="/images/web/navi_small.png" alt="Navi Logo"/>
+    </div>
   </xsl:template>
 
 </xsl:stylesheet>
