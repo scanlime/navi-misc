@@ -209,7 +209,7 @@ prepare_pwm_row macro address, column_number, high_nybble
 
 	andlw	0x0F		; Index into pwm_table
 	addlw	pwm_table
-	bankisel	pwm_table
+	bankisel pwm_table
 	movwf	FSR
 	movf	INDF, w		; Store the result in this LED's pwm_row byte
 	banksel	pwm_row
@@ -217,18 +217,20 @@ prepare_pwm_row macro address, column_number, high_nybble
 	endm
 
 
-	;; Compare one column against the PWM iterator and right-shift a bit
-	;; for its column driver into 'temp'.
+	;; Compare one column against the PWM iterator and right-shift an
+	;; inverted bit for its column driver into 'temp'.
 	;; Everything in here stays in bank0.
 shift_pwm_column macro column_number
 	movf	pwm_row + column_number, w
-	subwf	pwm_iter, w
-	rrf	temp, f
+	subwf	pwm_iter, w	; This borrows if our PWM value > pwm_iter.
+	rrf	temp, f		; We want the LED to be high if it borrows, so when C=0.
+				; We get the invert for free below, when we use comf.
 	endm
 
 
 	;; Output all PWM values for the current row
 generate_row_pwm
+	banksel	pwm_row
 	shift_pwm_column 0x00
 	shift_pwm_column 0x01
 	shift_pwm_column 0x02
@@ -237,7 +239,7 @@ generate_row_pwm
 	shift_pwm_column 0x05
 	shift_pwm_column 0x06
 	shift_pwm_column 0x07
-	movf	temp, w
+	comf	temp, w
 	movwf	COLUMNS_LOW
 
 	shift_pwm_column 0x08
@@ -248,7 +250,7 @@ generate_row_pwm
 	shift_pwm_column 0x0D
 	shift_pwm_column 0x0E
 	shift_pwm_column 0x0F
-	movf	temp, w
+	comf	temp, w
 	movwf	COLUMNS_HIGH
 	return
 
@@ -287,11 +289,6 @@ scan_row macro prev_port, prev_bit, current_port, current_bit, address
 	clrf	COLUMNS_HIGH
 	banksel	current_port
 	bcf	current_port, current_bit
-
-	movlw	0xFF
-	banksel	COLUMNS_LOW
-	movwf	COLUMNS_LOW
-	movwf	COLUMNS_HIGH
 
 	;; Loop over each PWM cycle...
 	banksel	pwm_iter
