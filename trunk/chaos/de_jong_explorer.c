@@ -50,6 +50,7 @@ void resize(int w, int h);
 void set_defaults();
 void load_parameters_from_file(const char *name);
 void interactive_main(int argc, char **argv);
+void render_main(const char *filename, guint targetDensity);
 void save_to_file(const char *name);
 void run_iterations(int count);
 int interactive_idle_handler(gpointer user_data);
@@ -68,13 +69,14 @@ int main(int argc, char ** argv) {
   enum {INTERACTIVE, RENDER} mode = INTERACTIVE;
   const char *outputFile;
   int opt;
+  guint targetDensity = 5000;
 
   srand(time(NULL));
   g_type_init();
   set_defaults();
 
   while (1) {
-    opt = getopt(argc, argv, "a:b:c:d:x:y:z:w:h:e:o:i:");
+    opt = getopt(argc, argv, "a:b:c:d:x:y:z:w:h:e:o:i:t:");
     if (opt == -1)
       break;
 
@@ -94,6 +96,10 @@ int main(int argc, char ** argv) {
       load_parameters_from_file(optarg);
       break;
 
+    case 't':
+      targetDensity = atol(optarg);
+      break;
+
     case 'o':
       mode = RENDER;
       outputFile = optarg;
@@ -110,13 +116,7 @@ int main(int argc, char ** argv) {
     break;
 
   case RENDER:
-    while (countsMax < 5000) {
-      run_iterations(1000000);
-      printf("Iterations: %.3e\tmax density: %d\n", iterations, countsMax);
-    }
-    printf("Creating image...\n");
-    update_pixels();
-    save_to_file(outputFile);
+    render_main(outputFile, targetDensity);
     break;
   }
 
@@ -149,6 +149,38 @@ void interactive_main(int argc, char ** argv) {
 
   idler = g_idle_add(interactive_idle_handler, NULL);
   gtk_main();
+}
+
+void render_main(const char *filename, guint targetDensity) {
+  /* Main function for noninteractive rendering. This renders an image with the
+   * current settings until countsMax reaches the provided targetDensity.
+   * We show helpful progress doodads on stdout while the poor user has to wait.
+   */
+  time_t start_time, now, elapsed, remaining;
+  start_time = time(NULL);
+
+  while (countsMax < targetDensity) {
+    run_iterations(1000000);
+
+    /* This should be a fairly accurate time estimate, since countsMax increases linearly */
+    now = time(NULL);
+    elapsed = now - start_time;
+    remaining = ((float)elapsed) * targetDensity / countsMax - elapsed;
+
+    /* After each batch of iterations, show the percent completion, number
+     * of iterations (in scientific notation), density / target density,
+     * and elapsed time / remaining time.
+     */
+    printf("%6.02f%%    %.3e  %6d / %d    %02d:%02d:%02d / %02d:%02d:%02d\n",
+	   100.0 * countsMax / targetDensity,
+	   iterations, countsMax, targetDensity,
+	   elapsed / (60*60), (elapsed / 60) % 60, elapsed % 60,
+	   remaining / (60*60), (remaining / 60) % 60, remaining % 60);
+  }
+
+  printf("Creating image...\n");
+  update_pixels();
+  save_to_file(filename);
 }
 
 void set_defaults() {
