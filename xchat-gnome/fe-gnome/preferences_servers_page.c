@@ -102,13 +102,10 @@ edit_global_changed (GtkToggleButton *togglebutton, gpointer data)
 
 	nick = glade_xml_get_widget (gui.xml, "server config nickname");
 	real = glade_xml_get_widget (gui.xml, "server config realname");
-	if (gtk_toggle_button_get_active (togglebutton))
-	{
+	if (gtk_toggle_button_get_active (togglebutton)) {
 		gtk_widget_set_sensitive (nick, FALSE);
 		gtk_widget_set_sensitive (real, FALSE);
-	}
-	else
-	{
+	} else {
 		gtk_widget_set_sensitive (nick, TRUE);
 		gtk_widget_set_sensitive (real, TRUE);
 	}
@@ -224,15 +221,19 @@ remove_server_clicked (GtkButton *button, gpointer data)
 {
 	GtkWidget *treeview;
 	GtkTreeSelection *selection;
-	GtkListStore *model;
+	GtkTreeModel *model;
 	GtkTreeIter iter;
 
 	treeview = glade_xml_get_widget (gui.xml, "server config servers");
 	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
 
 	if (gtk_tree_selection_get_selected (GTK_TREE_SELECTION (selection), &model, &iter)) {
-		gtk_list_store_remove (model, &iter);
-		/* FIXME - save */
+		ircserver *serv;
+
+		gtk_tree_model_get (model, &iter, 1, &serv, -1);
+		gtk_list_store_remove (GTK_LIST_STORE (model), &iter);
+		//servlist_server_remove (net, serv);
+		servlist_save ();
 	}
 }
 
@@ -246,7 +247,7 @@ populate_servers_list (GtkListStore *store, ircnet *net)
 	while (list) {
 		serv = list->data;
 		gtk_list_store_append (store, &iter);
-		gtk_list_store_set (store, &iter, 0, serv->hostname, -1);
+		gtk_list_store_set (store, &iter, 0, serv->hostname, 1, serv, -1);
 		list = g_slist_next (list);
 	}
 }
@@ -258,11 +259,7 @@ autojoin_selection_changed (GtkTreeSelection *selection, gpointer data)
 
 	button = glade_xml_get_widget (gui.xml, "remove autojoin channel");
 
-	if (gtk_tree_selection_get_selected (selection, NULL, NULL)) {
-		gtk_widget_set_sensitive (button, TRUE);
-	} else {
-		gtk_widget_set_sensitive (button, FALSE);
-	}
+	gtk_widget_set_sensitive (button, gtk_tree_selection_get_selected (selection, NULL, NULL));
 }
 
 static void
@@ -282,14 +279,14 @@ remove_autojoin_clicked (GtkButton *button, gpointer data)
 {
 	GtkWidget *treeview;
 	GtkTreeSelection *selection;
-	GtkListStore *model;
+	GtkTreeModel *model;
 	GtkTreeIter iter;
 
 	treeview = glade_xml_get_widget (gui.xml, "server config channels");
 	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
 
 	if (gtk_tree_selection_get_selected (GTK_TREE_SELECTION (selection), &model, &iter)) {
-		gtk_list_store_remove (model, &iter);
+		gtk_list_store_remove (GTK_LIST_STORE (model), &iter);
 		/* FIXME - save */
 	}
 }
@@ -426,7 +423,7 @@ edit_clicked (GtkWidget *button, gpointer data)
 	widget = glade_xml_get_widget (gui.xml, "server config servers");
 	store = GTK_LIST_STORE (gtk_tree_view_get_model (GTK_TREE_VIEW (widget)));
 	if (store == NULL) {
-		store = gtk_list_store_new (1, G_TYPE_STRING);
+		store = gtk_list_store_new (2, G_TYPE_STRING, G_TYPE_POINTER);
 		gtk_tree_view_set_model (GTK_TREE_VIEW (widget), GTK_TREE_MODEL (store));
 		renderer = gtk_cell_renderer_text_new ();
 		column = gtk_tree_view_column_new ();
