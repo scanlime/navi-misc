@@ -37,6 +37,18 @@ entry_changed (GtkEntry *entry, const gchar *key)
 }
 
 static void
+gconf_entry_changed (GConfClient *client, guint cnxn_id,  GConfEntry *entry, GtkEntry *gtkentry)
+{
+	gchar *text;
+
+	g_signal_handlers_block_by_func (gtkentry, "changed", entry_changed);
+	text = gconf_client_get_string (client, entry->key, NULL);
+	gtk_entry_set_text (gtkentry, text);
+	g_free (text);
+	g_signal_handlers_unblock_by_func (gtkentry, "changed", entry_changed);
+}
+
+static void
 highlight_selection_changed (GtkTreeSelection *select, PreferencesIrcPage *page)
 {
 	if (gtk_tree_selection_get_selected (select, NULL, NULL)) {
@@ -103,6 +115,12 @@ preferences_page_irc_new (gpointer prefs_dialog, GladeXML *xml)
 	g_signal_connect (G_OBJECT (page->quit_message), "changed", G_CALLBACK (entry_changed), "/apps/xchat/irc/quitmsg");
 	g_signal_connect (G_OBJECT (page->part_message), "changed", G_CALLBACK (entry_changed), "/apps/xchat/irc/partmsg");
 	g_signal_connect (G_OBJECT (page->away_message), "changed", G_CALLBACK (entry_changed), "/apps/xchat/irc/awaymsg");
+
+	gconf_client_notify_add (p->gconf, "/apps/xchat/irc/nickname", (GConfClientNotifyFunc) gconf_entry_changed, page->nick_name,    NULL, NULL);
+	gconf_client_notify_add (p->gconf, "/apps/xchat/irc/realname", (GConfClientNotifyFunc) gconf_entry_changed, page->real_name,    NULL, NULL);
+	gconf_client_notify_add (p->gconf, "/apps/xchat/irc/quitmsg",  (GConfClientNotifyFunc) gconf_entry_changed, page->quit_message, NULL, NULL);
+	gconf_client_notify_add (p->gconf, "/apps/xchat/irc/partmsg",  (GConfClientNotifyFunc) gconf_entry_changed, page->part_message, NULL, NULL);
+	gconf_client_notify_add (p->gconf, "/apps/xchat/irc/awaymsg",  (GConfClientNotifyFunc) gconf_entry_changed, page->away_message, NULL, NULL);
 
 	text = gconf_client_get_string (p->gconf, "/apps/xchat/irc/nickname", NULL);
 	gtk_entry_set_text (GTK_ENTRY (page->nick_name), text);
@@ -274,18 +292,6 @@ void initialize_preferences_irc_page()
 	g_signal_connect (G_OBJECT (widget), "font-set", G_CALLBACK (font_changed), "/apps/xchat/main_window/font");
 
 	g_object_unref (client);
-}
-
-static void
-gconf_entry_changed (GConfClient *client, guint cnxn_id,  GConfEntry *entry, GtkEntry *gtkentry)
-{
-	gchar *text;
-
-	g_signal_handlers_block_by_func (gtkentry, "changed", entry_changed);
-	text = gconf_client_get_string (client, entry->key, NULL);
-	gtk_entry_set_text (gtkentry, text);
-	g_free (text);
-	g_signal_handlers_unblock_by_func (gtkentry, "changed", entry_changed);
 }
 
 static void
