@@ -100,6 +100,12 @@ class PalantirClientFactory(protocol.ClientFactory):
     ''' Interface between client and UI, sends a message to a channel. '''
     self.client.say(channel, msg)
 
+  def SetServer(self, servername):
+    self.server = servername
+
+  def AddChannel(self, channelname):
+    self.channels.append(channelname)
+
   ### IRC Commands ###
   def me(self, channel, action):
     ''' Emote something. '''
@@ -113,6 +119,10 @@ class PalantirClientFactory(protocol.ClientFactory):
   def close(self, channel, reason):
     self.channels.remove(channel)
     self.client.leave(channel, reason)
+
+  def quit(self, message='Leaving...'):
+    ''' Quit IRC. '''
+    self.client.quit(message)
 
   def nick(self, channel, nick):
     ''' Change your nick. '''

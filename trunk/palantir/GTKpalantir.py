@@ -29,8 +29,7 @@ class PalantirWindow:
         self.tree.signal_connect(func, getattr(self, func))
 
     # Client factory.
-    self.factory = palantirIRC.PalantirClientFactory('nuku-nuku',
-	channels='#palantir', ui=self)
+    self.factory = palantirIRC.PalantirClientFactory('nuku-nuku', ui=self)
     self.tree.get_widget('Nick').set_text(self.factory.nickname)
 
   ### Must be implemented for palantirIRC to work.  These methods are called by the
@@ -82,8 +81,9 @@ class PalantirWindow:
   # Menu Items.
   def on_new_connection_activate(self, widget, data=None):
     ''' Create a new connection. '''
-    reactor.connectTCP('irc.freenode.net', 6667, self.factory)
-    reactor.run()
+    self.ConnectionDialog()
+    #reactor.connectTCP('irc.freenode.net', 6667, self.factory)
+    #reactor.run()
 
   def on_character_sheet_activate(self, widget, data=None):
     '''Show the part of the window that displays character sheets. '''
@@ -160,6 +160,55 @@ class PalantirWindow:
     reactor.stop()
 
   ### Misc. Necessary Functions ###
+  def ConnectionDialog(self):
+    dialog = gtk.Dialog('Connection', self.tree.get_widget('Main'),
+	                gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT)
+
+    serverLabel = gtk.Label('Server:')
+    serverLabel.show()
+    serverArea = gtk.Entry()
+    serverArea.show()
+    serverBox = gtk.HBox(spacing=7)
+    serverBox.pack_start(serverLabel)
+    serverBox.pack_start(serverArea, fill=gtk.FALSE, padding=5)
+    serverBox.show()
+
+    channelLabel = gtk.Label('Channel:')
+    channelLabel.show()
+    channelArea = gtk.Entry()
+    channelArea.show()
+    channelBox = gtk.HBox()
+    channelBox.pack_start(channelLabel)
+    channelBox.pack_start(channelArea, fill=gtk.FALSE, padding=5)
+    channelBox.show()
+
+    ok = gtk.Button(stock=gtk.STOCK_OK)
+    ok.connect('clicked', lambda w: self.Connect(serverArea.get_text(),
+                                                 channelArea.get_text(),
+						 dialog))
+    ok.show()
+    
+    cancel = gtk.Button(stock=gtk.STOCK_CANCEL)
+    cancel.connect('clicked', lambda w: dialog.destroy())
+    cancel.show()
+
+    dialog.action_area.pack_start(cancel)
+    dialog.action_area.pack_start(ok)
+
+    dialog.vbox.pack_start(serverBox, padding=5)
+    dialog.vbox.pack_start(channelBox, padding=5)
+
+    dialog.show()
+
+  def Connect(self, server, channel=None, dialog=None):
+    if channel:
+      self.factory.AddChannel(channel)
+    self.factory.SetServer(server)
+    if dialog:
+      dialog.destroy()
+    reactor.connectTCP(server, 6667, self.factory)
+    reactor.run()
+
   def OpenSheet(self, widget, data=None):
     # Store the character data.
     self.data = Character(self.tree.dialog.get_widget('SheetSelection').get_filename())
