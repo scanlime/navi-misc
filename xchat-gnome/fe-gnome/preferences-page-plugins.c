@@ -37,8 +37,8 @@ typedef int (xchat_init_func) (xchat_plugin *, char **, char **, char **, char *
 typedef int (xchat_deinit_func) (xchat_plugin *);
 typedef void (xchat_plugin_get_info) (char **, char **, char **, char **);
 
-extern GSList *plugin_list; // xchat's list of loaded plugins.
-extern GSList *enabled_plugins;
+extern GSList *plugin_list; 	// xchat's list of loaded plugins.
+extern GSList *enabled_plugins;	// Our list of loaded plugins.
 extern XChatGUI gui;
 
 static PreferencesPluginsPage *pageref;
@@ -189,12 +189,18 @@ row_activated (GtkTreeView *treeview, GtkTreePath *path, GtkTreeViewColumn *colu
 	GtkTreeSelection *select;
 	GtkTreeModel *model;
 	GtkTreeIter iter;
+	gchar *filename;
 	gboolean loaded;
 
 	select = gtk_tree_view_get_selection (GTK_TREE_VIEW (page->plugins_list));
 	if (gtk_tree_selection_get_selected (select, &model, &iter)) {
-		gtk_tree_model_get (model, &iter, 4, &loaded, -1);
+		gtk_tree_model_get (model, &iter, 3, &filename, 4, &loaded, -1);
 		gtk_list_store_set (GTK_LIST_STORE (model), &iter, 4, !loaded, -1);
+		/* Apparently setting the loaded field in the list store no longer causes
+		 * the toggle signal to be emitted. So we explicitly call load_unload
+		 * here.
+		 */
+		load_unload (filename, loaded, page, iter);
 	}
 }
 
