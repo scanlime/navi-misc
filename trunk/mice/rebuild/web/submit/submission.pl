@@ -7,7 +7,6 @@ $pregunta = "How exactly does all of this junk work%3F%2F%2F%5C%5C%3A%29%26%26%2
 
 print "Content-type: text/html\n\n";
 print "<HTML> \n";
-print "Hello World<br>\n";
 read(STDIN, $buffer, $ENV{'CONTENT_LENGTH'});
 
 @pairs = split(/&/, $buffer);
