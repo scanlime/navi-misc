@@ -93,7 +93,7 @@ struct usb_mi6k {
 
 /* Private data for each file descriptor */
 struct mi6k_fd_private {
-	struct usb_uvswitch	*dev;
+	struct usb_mi6k	*dev;
 };
 
 /* 1/2 second timeout for control requests */
@@ -428,17 +428,16 @@ exit_no_device:
 
 static int mi6k_release(struct inode *inode, struct file *file)
 {
+	struct mi6k_fd_private *prv;
 	struct usb_mi6k *dev;
 	int retval = 0;
 
-	dev =(struct usb_mi6k *)file->private_data;
-	if (dev == NULL) {
+	prv = (struct mi6k_fd_private *) file->private_data;
+	if (prv == NULL) {
 		dbg("object is NULL");
 		return -ENODEV;
 	}
-
-	/* lock our minor table */
-	down(&minor_table_mutex);
+	dev = prv->dev;
 
 	/* lock our device */
 	down(&dev->sem);
@@ -453,7 +452,6 @@ static int mi6k_release(struct inode *inode, struct file *file)
 		/* the device was unplugged before the file was released */
 		up(&dev->sem);
 		mi6k_delete(dev);
-		up(&minor_table_mutex);
 		return 0;
 	}
 
@@ -463,10 +461,12 @@ static int mi6k_release(struct inode *inode, struct file *file)
 		dev->open_count = 0;
 	}
 
+	/* Free this device's private data */
+	kfree(prv);
+	file->private_data = NULL;
+
 exit_not_opened:
 	up(&dev->sem);
-	up(&minor_table_mutex);
-
 	return retval;
 }
 
@@ -479,11 +479,17 @@ static ssize_t mi6k_dev_write(struct file *file, const char *buffer, size_t coun
 {
 	/* Pad unused bytes with zero, which the display will ignore */
 	unsigned char tbuffer[] = {0, 0, 0, 0};
+	struct mi6k_fd_private *prv;
 	struct usb_mi6k *dev;
 	ssize_t bytes_written = 0;
 	int retval = 0;
 
-	dev =(struct usb_mi6k *)file->private_data;
+	prv = (struct mi6k_fd_private *) file->private_data;
+	if (prv == NULL) {
+		dbg("object is NULL");
+		return -ENODEV;
+	}
+	dev = prv->dev;
 
 	/* lock this object */
 	down(&dev->sem);
@@ -522,11 +528,17 @@ exit:
 
 static int mi6k_dev_ioctl(struct inode *inode, struct file *file, unsigned int cmd, unsigned long arg)
 {
+	struct mi6k_fd_private *prv;
 	struct usb_mi6k *dev;
 	int retval=0;
 	struct mi6k_leds leds;
 
-	dev =(struct usb_mi6k *)file->private_data;
+	prv = (struct mi6k_fd_private *) file->private_data;
+	if (prv == NULL) {
+		dbg("object is NULL");
+		return -ENODEV;
+	}
+	dev = prv->dev;
 
 	/* lock this object */
 	down(&dev->sem);
@@ -587,10 +599,18 @@ static int mi6k_dev_ioctl(struct inode *inode, struct file *file, unsigned int c
 static ssize_t mi6k_lirc_read(struct file *file, char *buffer, size_t count, loff_t *ppos)
 {
 	DECLARE_WAITQUEUE(wait, current);
-	struct usb_mi6k *dev = (struct usb_mi6k *)file->private_data;
+	struct mi6k_fd_private *prv;
+	struct usb_mi6k *dev;
 	int retval = 0;
 	lirc_t value;
 	int available;
+
+	prv = (struct mi6k_fd_private *) file->private_data;
+	if (prv == NULL) {
+		dbg("object is NULL");
+		return -ENODEV;
+	}
+	dev = prv->dev;
 
 	/* lock this object */
 	down (&dev->sem);
@@ -652,10 +672,18 @@ exit:
 
 static ssize_t mi6k_lirc_write(struct file *file, const char *buffer, size_t count, loff_t *ppos)
 {
-	struct usb_mi6k *dev = (struct usb_mi6k *)file->private_data;
+	struct mi6k_fd_private *prv;
+	struct usb_mi6k *dev;
 	int retval = 0;
 	lirc_t value = 0, pulse = 0;
 	int pulse_flag = 1;
+
+	prv = (struct mi6k_fd_private *) file->private_data;
+	if (prv == NULL) {
+		dbg("object is NULL");
+		return -ENODEV;
+	}
+	dev = prv->dev;
 
 	/* lock this object */
 	down(&dev->sem);
@@ -712,11 +740,17 @@ exit:
 
 static int mi6k_lirc_ioctl(struct inode *inode, struct file *file, unsigned int cmd, unsigned long arg)
 {
+	struct mi6k_fd_private *prv;
 	struct usb_mi6k *dev;
 	int retval=0;
 	unsigned long value;
 
-	dev =(struct usb_mi6k *)file->private_data;
+	prv = (struct mi6k_fd_private *) file->private_data;
+	if (prv == NULL) {
+		dbg("object is NULL");
+		return -ENODEV;
+	}
+	dev = prv->dev;
 
 	/* lock this object */
 	down(&dev->sem);
@@ -779,8 +813,15 @@ static int mi6k_lirc_ioctl(struct inode *inode, struct file *file, unsigned int 
 
 static unsigned int mi6k_lirc_poll(struct file *file, poll_table *wait)
 {
-	/* Apparently it's alright for this function to not hold the dev->sem lock */
-	struct usb_mi6k *dev = (struct usb_mi6k *)file->private_data;
+	struct mi6k_fd_private *prv;
+	struct usb_mi6k *dev;
+
+	prv = (struct mi6k_fd_private *) file->private_data;
+	if (prv == NULL) {
+		dbg("object is NULL");
+		return -ENODEV;
+	}
+	dev = prv->dev;
 
 	poll_wait(file, &dev->ir_rx_wait, wait);
 
@@ -911,11 +952,13 @@ static void mi6k_disconnect(struct usb_interface *interface)
 	down(&dev->sem);
 
 	minor = dev->minor;
-	usb_deregister_dev(interface, &mi6k_class)
+	usb_deregister_dev(interface, &mi6k_class);
 
+#if 0 /* FIXME */
 	/* remove our devfs node */
 	devfs_unregister(dev->devfs);
 	devfs_unregister(dev->lirc_devfs);
+#endif
 
 	/* if the device is not opened, then we clean up right now */
 	if (!dev->open_count) {
