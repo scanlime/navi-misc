@@ -4,7 +4,7 @@
 
 inherit eutils fdo-mime
 
-DESCRIPTION="Gyre provides a rendering of the Peter de Jong map."
+DESCRIPTION="Fyre provides a rendering of the Peter de Jong map."
 SRC_URI="http://flapjack.navi.cx/releases/${PN}/${PN}-${PV}.tar.bz2"
 HOMEPAGE="http://fyre.navi.cx/"
 
