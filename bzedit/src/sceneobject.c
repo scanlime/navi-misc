@@ -166,6 +166,9 @@ scene_object_parent (SceneObject *parent, SceneObject *child)
 {
   SceneObjectClass *klass = SCENE_OBJECT_CLASS (G_OBJECT_GET_CLASS (parent));
 
+  if (child->parent)
+    scene_object_deparent (child->parent, child);
+
   if (!klass->canparent)
     return FALSE;
   return klass->parent (parent, child);
@@ -245,6 +248,13 @@ selection_drawable_draw (Drawable *d, RenderState *rstate)
 
   glDisable (GL_LIGHTING);
   glDisable (GL_TEXTURE_2D);
+
+/*
+  g_print ("selection_drawable_draw ()\n");
+  g_print ("    bb->position = (%f, %f, %f)\n", so->bb.position[0], so->bb.position[1], so->bb.position[2]);
+  g_print ("    bb->size     = (%f, %f, %f)\n", so->bb.size[0], so->bb.size[1], so->bb.size[2]);
+  g_print ("    bb->rotation = %f\n", so->bb.rotation);
+  */
 
   glPushMatrix ();
   glTranslated (so->bb.position[0], so->bb.position[1], so->bb.position[2]);
