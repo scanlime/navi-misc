@@ -32,6 +32,7 @@
 #include "input.h"
 #include "timer.h"
 #include "prefs.h"
+#include "commandargs.h"
 
 // C RunTime Header Files
 #include <stdlib.h>
@@ -77,13 +78,13 @@ CBaseGameLoop::~CBaseGameLoop()
 
 bool CBaseGameLoop::Main ( const char* arg)
 {
-  args.Set(arg);
+	CCommandLineArgs::instance().Set(arg);
   return Run();
 }
 
 bool CBaseGameLoop::Main ( int argc, char *argv[] )
 {
-  args.Set(argc,argv);
+  CCommandLineArgs::instance().Set(argc,argv);
   return Run();
 }
 
@@ -124,7 +125,7 @@ bool CBaseGameLoop::Run ( void )
 	drawManager->Init(this);
 
 	// load the debug overlay
-	showDebug = args.GetDataB("showDebug");
+	showDebug = CCommandLineArgs::instance().GetDataB("showDebug");
 	showDebugOverlay(showDebug);
 
   if(OnInit())
@@ -166,7 +167,7 @@ bool CBaseGameLoop::SetupConfigure ( void )
 
     bool bNew = !CPrefsManager::instance().ItemExists("VERSION");
     bool configed = false;
-    bool force = args.Exists("ForceConfig");
+    bool force = CCommandLineArgs::instance().Exists("ForceConfig");
 
 		if ( !bNew && !force)
 			configed =  mRoot->restoreConfig();

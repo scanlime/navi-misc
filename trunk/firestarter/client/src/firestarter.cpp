@@ -24,10 +24,10 @@
 #include "input.h"
 #include "timer.h"
 #include "prefs.h"
+#include "commandargs.h"
 
 template <>
 CFirestarterLoop* Singleton<CFirestarterLoop>::_instance = (CFirestarterLoop*)0;
-
 
 CFirestarterLoop::CFirestarterLoop()
 {
@@ -47,7 +47,7 @@ bool CFirestarterLoop::OnInit ( void )
 	SetGameName("susan");
 	SetGameStartString("test");
 
-	inUI = !args.GetDataB("forceGame");
+	inUI = !CCommandLineArgs::instance().GetDataB("forceGame");
 
 	// init the shit
 	ui.Init();

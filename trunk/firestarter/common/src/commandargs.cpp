@@ -22,6 +22,9 @@
 
 #include "commandargs.h"
 
+template <>
+CCommandLineArgs* Singleton<CCommandLineArgs>::_instance = (CCommandLineArgs*)0;
+
 inline  bool operator < (const std::string &s1,const std::string &s2) { return (s1.compare(s2)<0);}
 
 void GetCommandName ( char *szData )
