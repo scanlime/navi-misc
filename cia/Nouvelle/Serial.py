@@ -86,7 +86,7 @@ class Serializer:
         if hasattr(obj, 'render'):
             return self.render_renderable(obj, context)
         try:
-            f = getattr(self, 'render_' + type(obj).__name__)
+            f = getattr(self, 'render_' + obj.__class__.__name__)
         except AttributeError:
             f = self.render_other
         return f(obj, context)
