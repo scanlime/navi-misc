@@ -71,7 +71,7 @@ class HubListener(object):
            An couple example <ircFilters> messages..
 
               <message><body>
-                 <ircFilters channel="#commits" server="irc.freenode.net" port="6667">
+                 <ircFilters channel="#commits" host="irc.freenode.net" port="6667">
                     <ircFilter>
                        <find path="/message/body/commit"/>
                        <formatter name="commit"/>
@@ -84,7 +84,14 @@ class HubListener(object):
                  </ircFilters>
               </body></message>
            """
-        print message
+        ircFilters = message.xml.body.ircFilters
+        server = ircFilters['host'], int(ircFilters['port'])
+        channel = ircFilters['channel']
+
+        if ircFilters.ircFilter:
+            self.botNet.addChannel(server, channel)
+        else:
+            self.botNet.delChannel(server, channel)
 
     def handleGetIrcFilters(self, message):
         """Return the current <ircFilters> tag with attributes matching
