@@ -109,7 +109,11 @@ class MetadataValueColumn(Nouvelle.Column):
 
     def renderData_image(self, context, name, value, mime):
         """Return an <img> tag linking to the key's value"""
-        return tag('img', src=Link.MetadataLink(context['target'], name).getURL(context))
+        # The alt attribute here is rather useless, but required by XHTML
+        return tag('img',
+                   src = Link.MetadataLink(context['target'], name).getURL(context),
+                   alt = '%r metadata' % name,
+                   )
 
     def renderData_other(self, context, name, value, mime):
         return Template.unableToFormat

@@ -36,7 +36,7 @@ breadcrumbSeparator = xml(" &raquo; ")
 
 def Photo(url, **attrs):
     """A factory for images presented as a photo"""
-    return tag('div', _class='photo')[ tag('img', _class='photo', src=url, **attrs) ]
+    return tag('div', _class='photo')[ tag('img', _class='photo', src=url, alt="Photo", **attrs) ]
 
 def Bargraph(value, width=4, padding=0.2):
     """A factory for tags that use their size to express a value between 0 and 1"""
@@ -142,6 +142,7 @@ class Page(Nouvelle.Twisted.Page):
     document = [
         xml('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" '
             '"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">\n'),
+        xml('<?xml version="1.0" encoding="utf-8" ?>\n'),
 
         tag('html', xmlns="http://www.w3.org/1999/xhtml")[
             tag('head')[
@@ -184,7 +185,7 @@ class Page(Nouvelle.Twisted.Page):
 
                     # Legal goop
                     tag('p', _class='smallprint')[
-                        "The CIA server and this web site are Copyright (C) 2003-2004 ",
+                        xml("The CIA server is Copyright &copy; 2003-2004 "),
                         tag('a', _href='mailto:micah@picogui.org')["Micah Dowty"],
                         ", and released under the ",
                         tag('a', _href='/doc/COPYING')["GNU GPL"], ".", tag('br'),
