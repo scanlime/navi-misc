@@ -15,10 +15,12 @@ import CommandLine
 parser = CommandLine.OptionParser (version=version)
 parser.add_option('-a','--add',dest='add',action="store_true",
 		help="recursively add path(s) to the playlist")
+parser.add_option('-b','--break',dest='breakup',action="store_true",
+		help="break up grouped files already in tree")
 parser.add_option('-p','--playlist',dest="path",
 		help="path to playlist file")
 parser.add_option('-r','--remove',dest='remove',action="store_true",
-		help="treat all arguments as regexes, removing any matches")
+		help="recursively remove path(s) to the playlist")
 parser.add_option('-i','--info',dest='info',action="store_true",
 		help="retrieve information on current playlist")
 parser.add_option('-v','--verbose',dest="verbose",action="store_true",
@@ -38,8 +40,13 @@ if options.add:
 	playlist.dump()
 	sys.exit(0)
 if options.remove:
-	print 'removing',arguments
+	print 'removing ',arguments
 	playlist.getPieces().removePaths(arguments)
+	playlist.dump()
+	sys.exit(0)
+if options.breakup:
+	print 'breaking ',arguments
+	playlist.getPieces().breakPieces(arguments)
 	playlist.dump()
 	sys.exit(0)
 
