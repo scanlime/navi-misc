@@ -37,36 +37,24 @@
 		    <widget class="GtkMenu" id="file1_menu">
 
 		      <child>
-			<widget class="GtkImageMenuItem" id="new1">
+			<widget class="GtkImageMenuItem" id="connect1">
 			  <property name="visible">True</property>
-			  <property name="stock_item">GNOMEUIINFO_MENU_NEW_ITEM</property>
-			  <property name="label" translatable="yes">_New</property>
+			  <property name="tooltip" translatable="yes">Connect to Network</property>
+			  <property name="label" translatable="yes">Connect...</property>
 			  <property name="use_underline">True</property>
-			  <signal name="activate" handler="on_new1_activate" last_modification_time="Mon, 19 Jan 2004 23:52:01 GMT"/>
-			</widget>
-		      </child>
+			  <signal name="activate" handler="on_connect1_activate" last_modification_time="Fri, 23 Jan 2004 03:23:06 GMT"/>
 
-		      <child>
-			<widget class="GtkImageMenuItem" id="open1">
-			  <property name="visible">True</property>
-			  <property name="stock_item">GNOMEUIINFO_MENU_OPEN_ITEM</property>
-			  <signal name="activate" handler="on_open1_activate" last_modification_time="Mon, 19 Jan 2004 23:52:01 GMT"/>
-			</widget>
-		      </child>
-
-		      <child>
-			<widget class="GtkImageMenuItem" id="save1">
-			  <property name="visible">True</property>
-			  <property name="stock_item">GNOMEUIINFO_MENU_SAVE_ITEM</property>
-			  <signal name="activate" handler="on_save1_activate" last_modification_time="Mon, 19 Jan 2004 23:52:01 GMT"/>
-			</widget>
-		      </child>
-
-		      <child>
-			<widget class="GtkImageMenuItem" id="save_as1">
-			  <property name="visible">True</property>
-			  <property name="stock_item">GNOMEUIINFO_MENU_SAVE_AS_ITEM</property>
-			  <signal name="activate" handler="on_save_as1_activate" last_modification_time="Mon, 19 Jan 2004 23:52:01 GMT"/>
+			  <child internal-child="image">
+			    <widget class="GtkImage" id="image14">
+			      <property name="visible">True</property>
+			      <property name="stock">gtk-jump-to</property>
+			      <property name="icon_size">1</property>
+			      <property name="xalign">0.5</property>
+			      <property name="yalign">0.5</property>
+			      <property name="xpad">0</property>
+			      <property name="ypad">0</property>
+			    </widget>
+			  </child>
 			</widget>
 		      </child>
 
@@ -164,6 +152,33 @@
 		<widget class="GtkMenuItem" id="view1">
 		  <property name="visible">True</property>
 		  <property name="stock_item">GNOMEUIINFO_MENU_VIEW_TREE</property>
+
+		  <child>
+		    <widget class="GtkMenu" id="view1_menu">
+
+		      <child>
+			<widget class="GtkCheckMenuItem" id="navigation_bar1">
+			  <property name="visible">True</property>
+			  <property name="tooltip" translatable="yes">Show navigation pane</property>
+			  <property name="label" translatable="yes">Navigation Bar</property>
+			  <property name="use_underline">True</property>
+			  <property name="active">True</property>
+			  <signal name="activate" handler="on_navigation_bar1_activate" last_modification_time="Fri, 23 Jan 2004 03:29:47 GMT"/>
+			</widget>
+		      </child>
+
+		      <child>
+			<widget class="GtkCheckMenuItem" id="downloads1">
+			  <property name="visible">True</property>
+			  <property name="tooltip" translatable="yes">Show or hide downloads window</property>
+			  <property name="label" translatable="yes">Downloads</property>
+			  <property name="use_underline">True</property>
+			  <property name="active">False</property>
+			  <signal name="activate" handler="on_downloads1_activate" last_modification_time="Fri, 23 Jan 2004 03:27:51 GMT"/>
+			</widget>
+		      </child>
+		    </widget>
+		  </child>
 		</widget>
 	      </child>
 
