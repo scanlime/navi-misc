@@ -10,8 +10,11 @@
 #
 
 import xmlrpclib
+from LibCIA.Security import CapabilityDB
 
+cap = CapabilityDB("data/security.db").get('rebuild')
 s = xmlrpclib.ServerProxy("http://localhost:3910")
-s.sys.rebuild()
+
+s.sys.rebuild(cap)
 
 ### The End ###

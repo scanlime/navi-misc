@@ -47,9 +47,17 @@ def catchFaults(callable, *args, **kwargs):
 
 
 class SysInterface(xmlrpc.XMLRPC):
-    """An interface over XML-RPC to functionality that doesn't belong in any one other module"""
-    def xmlrpc_rebuild(self):
+    """An interface over XML-RPC to functionality that doesn't belong in any one other module
+
+       capDb : The CapabilityDB used to authorize access to these functions
+       """
+    def __init__(self, capDb):
+        self.capDb = capDb
+
+    def xmlrpc_rebuild(self, key=None):
         """Use twisted.python.rebuild to reload all applicable modules"""
+        self.capDb.faultIfMissing(key, 'rebuild')
+
         # Rebuild our package to make sure we have the latest module list
         import LibCIA
         rebuild(LibCIA)
