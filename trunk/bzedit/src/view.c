@@ -116,17 +116,34 @@ view_click (GLDrawingArea *widget, GdkEventButton *event, View *view)
 }
 
 static gboolean
-view_motion (GLDrawingArea *widget, GdkEventMotion *event, View *view)
+view_motion (GLDrawingArea *widget, GdkEvent *event, View *view)
 {
-  double deltax, deltay;
+  double delta_x, delta_y;
+  double current_x, current_y;
 
-  deltax = event->x_root - view->mouse[0];
-  deltay = event->y_root - view->mouse[1];
-  view->mouse[0] = event->x_root;
-  view->mouse[1] = event->y_root;
+  /* This could be an actual motion event or it could just be a motion hint
+   * from GDK_POINTER_MOTION_HINT_MASK. If it's a hint, we have to ask for
+   * the current mouse position. This ensures we're always drawing with the
+   * current mouse position, rather than queueing mouse positions.
+   */
+  if (event->motion.is_hint) {
+    gint ix, iy;
+    gdk_window_get_pointer(event->motion.window, &ix, &iy, NULL);
+    current_x = ix;
+    current_y = iy;
+  }
+  else {
+    current_x = event->motion.x;
+    current_y = event->motion.y;
+  }
 
-  view->camera->azimuth -= deltax / 5;
-  view->camera->elevation += deltay / 5;
+  delta_x = current_x - view->mouse[0];
+  delta_y = current_y - view->mouse[1];
+  view->mouse[0] = current_x;
+  view->mouse[1] = current_y;
+
+  view->camera->azimuth -= delta_x / 5;
+  view->camera->elevation += delta_y / 5;
   if (view->camera->elevation < 0)
     view->camera->elevation = 0;
   if (view->camera->elevation > 90)
