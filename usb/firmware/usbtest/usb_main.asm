@@ -79,7 +79,7 @@ PCLATH_save	res	1	;  during ISR
 FSR_save	res	1
 PIRmasked	res	1
 USBMaskedInterrupts  res  1
-BUFFER		res	8	; Location for data to be sent to host
+BUFFER		res	16	; Location for data to be sent to host
 COUNTER		res	1   
 ByteCount	res	1
 SerialByte	res 1
@@ -266,6 +266,8 @@ Main
 
 ;******************************************************************* Main Loop
 
+	bsf		PORTB,0		; Power LED on
+
 	banksel COUNTER
 	clrf	COUNTER
 
@@ -358,6 +360,7 @@ delayLoop:
 
 	; Send a byte to the VFD from 'w'
 VFD_SendByte:
+	bsf		PORTB,1			; Activity LED on
 	movwf	SerialByte		; Save input byte
 	movlw	8
 	movwf	BitCount
@@ -373,6 +376,7 @@ bitLoop:
 	goto	bitLoop
 	VFD_SerialSpace			; Stop bit
 	call	VFD_SerialDelay
+	bcf		PORTB,1			; Activity LED off
 	return
 
 	end

@@ -141,17 +141,17 @@ Endpoint1In
 	retlw	ENDPOINT
 	retlw	0x81		; EP1, In
 	retlw	0x03		; Interrupt
-	retlw	0x04		; max packet size (4 bytes) low order byte
-	retlw	0x00		; max packet size (4 bytes) high order byte
+	retlw	0x10		; max packet size (16 bytes) low order byte
+	retlw	0x00		; max packet size (16 bytes) high order byte
 	retlw	0x0A		; polling interval (10ms)
 Endpoint1Out
 	retlw	0x07		; length of descriptor
 	retlw	ENDPOINT
 	retlw	0x01		; EP1, Out
 	retlw	0x03		; Interrupt
-	retlw	0x01		; max packet size (1 byte) low order byte
-	retlw	0x00		; max packet size (1 byte) high order byte
-	retlw	0x0A		; polling interval (10ms)
+	retlw	0x10		; max packet size (16 bytes) low order byte
+	retlw	0x00		; max packet size (16 bytes) high order byte
+	retlw	0x00		; polling interval (none)
 EndConfig1	
 
 
