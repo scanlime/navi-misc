@@ -603,10 +603,6 @@ static void controller_set_led(struct gchub_controller* ctl,
 		clear_bit(LED_MISC, ctl->dev.led);
 	else if (led_color == LED_RED)
 		set_bit(LED_MISC, ctl->dev.led);
-	else {
-		dbg("Setting LED color while the LED is off");
-		goto done;
-	}
 
 	dbg("Changing LED color from %d to %d", ctl->outputs.led_color, led_color);
 
@@ -615,7 +611,6 @@ static void controller_set_led(struct gchub_controller* ctl,
 		ctl->outputs.dirty = 1;
 	}
 
-done:
 	spin_unlock_irqrestore(&ctl->outputs.lock, flags);
 }
 
@@ -662,6 +657,11 @@ static int controller_led_event(struct gchub_controller* ctl,
 {
 	dbg("entering controller_led_event()");
 
+	if (!ctl->attached) {
+	  dbg("in controller_led_event, controller no longer attached");
+	  return 0;
+	}
+
 	/* The input core has already set ctl->dev.led accordingly,
 	 * we just have to update the current state of everything.
 	 */
@@ -669,6 +669,7 @@ static int controller_led_event(struct gchub_controller* ctl,
 		controller_set_led(ctl, LED_RED);
 	else
 		controller_set_led(ctl, LED_GREEN);
+
 	gchub_sync_output_status(ctl->hub);
 
 	dbg("leaving controller_led_event()");
@@ -946,6 +947,7 @@ static void gchub_sync_output_status(struct gchub_dev* dev)
 
 /* Collect output data from all ports into our
  * out_status_request, clearing dirty flags as we go.
+ * Must work in interrupt context!
  */
 static void   gchub_fill_output_request(struct gchub_dev* dev)
 {
@@ -954,11 +956,6 @@ static void   gchub_fill_output_request(struct gchub_dev* dev)
 	unsigned long flags;
 	unsigned short led_bits, rumble_bits;
 
-	/* Reset the URB each time. This isn't necessary under 2.6, but it doesn't hurt. */
-	usb_unlink_urb(dev->out_status);
-#ifndef NEW_USB_SUBSYSTEM
-	memset(dev->out_status, 0, sizeof(*dev->out_status));
-#endif
 	gchub_fill_control_urb(dev->out_status, dev->udev, usb_sndctrlpipe(dev->udev, 0),
 			       (unsigned char*) &dev->out_status_request, NULL,
 			       0, gchub_out_request_irq, dev);
@@ -1007,30 +1004,40 @@ static void gchub_out_request_irq(struct urb* urb)
 	struct gchub_dev *dev = (struct gchub_dev*)urb->context;
 	unsigned long flags;
 
-	dbg("out_request_irq");
+	dbg("out_request_irq, status=%d", urb->status);
 
-	spin_lock_irqsave(&dev->out_status_lock, flags);
-	if (dev->out_status_pending_sync) {
-		/* Yep, we need another. Leave out_status_in_progress
-		 * set, and resumbit this URB with new data.
+	if (urb->status != 0) {
+		/* Some sort of error, or an intentional
+		 * cancellation.  we're not pending any more,
+		 * but don't try to start anything else.
 		 */
 		dev->out_status_pending_sync = 0;
-		spin_unlock_irqrestore(&dev->out_status_lock, flags);
-
-		gchub_fill_output_request(dev);
-		gchub_submit_urb(dev->out_status, SLAB_ATOMIC);
-
-		dbg("sending another output request");
+		dev->out_status_in_progress = 0;
 	}
 	else {
-		/* Done for now. */
-		dev->out_status_pending_sync = 0;
-		dev->out_status_in_progress = 0;
-		spin_unlock_irqrestore(&dev->out_status_lock, flags);
 
-		dbg("no more pending output requests");
+		spin_lock_irqsave(&dev->out_status_lock, flags);
+		if (dev->out_status_pending_sync) {
+			/* Yep, we need another. Leave out_status_in_progress
+			 * set, and resumbit this URB with new data.
+			 */
+			dev->out_status_pending_sync = 0;
+			spin_unlock_irqrestore(&dev->out_status_lock, flags);
+
+			gchub_fill_output_request(dev);
+			gchub_submit_urb(dev->out_status, SLAB_ATOMIC);
+
+			dbg("sending another output request");
+		}
+		else {
+			/* Done for now. */
+			dev->out_status_pending_sync = 0;
+			dev->out_status_in_progress = 0;
+			spin_unlock_irqrestore(&dev->out_status_lock, flags);
+
+			dbg("no more pending output requests");
+		}
 	}
-
 }
 
 
