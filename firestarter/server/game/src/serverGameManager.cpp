@@ -68,5 +68,5 @@ CBaseServerGame* CServerGameManger::get ( const char* name )
 
 void CServerGameManger::RegisterGameModules ( void )
 {
-	gameModules[std::string("test")] = new CTestGameServer;
+	gameModules[std::string("susan")] = new CTestGameServer;
 }

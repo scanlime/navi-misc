@@ -79,7 +79,7 @@ bool getServerInfo ( void )
 	else if (prefs.ItemExists("game"))
 		serverInfo.game = prefs.GetItemS("game");
 	else
-		serverInfo.game = "test";
+		serverInfo.game = "susan";
 
 	// get the OS
 #ifdef _WIN32
