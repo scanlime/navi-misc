@@ -166,9 +166,9 @@ class BaseRequest:
         try:
             exc = statusExceptionMap[status]
         except KeyError:
-            raise ProtocolError("Unexpected status 0x%08X for request %r" %
-                                (status, self))
-        raise exc[0](*exc[1:])
+            exc = (ProtocolError, "Unexpected status 0x%08X" % status)
+
+        raise exc[0]("%s (for request %r)" % (exc[1], self))
 
 
 class StatefulRequest(BaseRequest):

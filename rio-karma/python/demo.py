@@ -21,7 +21,8 @@ class RioApp:
         self.fileManager.getStorageDetails().addCallback(self._gotStorageDetails).addErrback(log.err)
 
     def _gotStorageDetails(self, details):
-        print "Storage: %r" % (details,)
+        print "Storage: %0.02f / %0.02f GB free" % (details['freeSpace'] / (1024.0*1024*1024),
+                                                    details['totalSpace'] / (1024.0*1024*1024))
         self.main()
 
     def finished(self, retval=None):
@@ -76,7 +77,7 @@ class Uploader(RioApp):
 
         if self.fileManager.cache.findFiles(rid=f.details['rid']):
             print "Already exists on device"
-            self.nextFile()
+            return self.nextFile()
 
         self.fileManager.loadFromDisk( f, filename ).addCallback(
             self.nextFile).addCallback(
