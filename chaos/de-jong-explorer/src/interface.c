@@ -51,8 +51,6 @@ static float generate_random_param();
 static void read_gui_params();
 static void write_gui_params();
 static void gui_resize(int width, int height);
-static void start_rendering();
-static void stop_rendering();
 static void restart_rendering();
 
 gboolean on_expose(GtkWidget *widget, GdkEventExpose *event, gpointer user_data);
@@ -63,6 +61,9 @@ void on_randomize(GtkWidget *widget, gpointer user_data);
 void on_load_defaults(GtkWidget *widget, gpointer user_data);
 void on_save(GtkWidget *widget, gpointer user_data);
 void on_quit(GtkWidget *widget, gpointer user_data);
+void on_pause_rendering_toggle(GtkWidget *widget, gpointer user_data);
+void on_load_from_image(GtkWidget *widget, gpointer user_data);
+void on_resize(GtkWidget *widget, gpointer user_data);
 gboolean on_viewport_expose(GtkWidget *widget, gpointer user_data);
 GtkWidget *custom_color_button_new(gchar *widget_name, gchar *string1, gchar *string2, gint int1, gint int2);
 
@@ -263,21 +264,11 @@ static void write_gui_params() {
   gui.writing_params = FALSE;
 }
 
-static void start_rendering() {
-  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(glade_xml_get_widget(gui.xml, "pause_menu")), FALSE);
+static void restart_rendering() {
+  gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(glade_xml_get_widget(gui.xml, "pause_menu")), TRUE);
   clear();
   read_gui_params();
-  gui.idler = g_idle_add(interactive_idle_handler, NULL);
-}
-
-static void stop_rendering() {
-  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(glade_xml_get_widget(gui.xml, "pause_menu")), TRUE);
-  g_source_remove(gui.idler);
-}
-
-static void restart_rendering() {
-  stop_rendering();
-  start_rendering();
+  gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(glade_xml_get_widget(gui.xml, "pause_menu")), FALSE);
 }
 
 void on_param_spinner_changed(GtkWidget *widget, gpointer user_data) {
@@ -343,6 +334,18 @@ void on_load_defaults(GtkWidget *widget, gpointer user_data) {
   write_gui_params();
   restart_rendering();
 }
+
+void on_pause_rendering_toggle(GtkWidget *widget, gpointer user_data) {
+  if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget)))
+    g_source_remove(gui.idler);
+  else
+    gui.idler = g_idle_add(interactive_idle_handler, NULL);
+}
+
+
+void on_load_from_image(GtkWidget *widget, gpointer user_data);
+void on_resize(GtkWidget *widget, gpointer user_data);
+
 
 GtkWidget *custom_color_button_new(gchar *widget_name, gchar *string1,
 				   gchar *string2, gint int1, gint int2) {
