@@ -1,5 +1,6 @@
 PY_DIR = PyUnicone
 FW_DIR = firmware/universal
+TUSB_DIR = $(FW_DIR)/tusb
 
 BINS = \
 	loader_tool \
@@ -20,8 +21,6 @@ PYUNICONE_OBJS = $(COMMON_OBJS) \
 	src/progress_python.o \
 	src/genesis_device.o \
 	$(PY_DIR)/libunicone_wrap.o
-
-TUSB_DIR = ../../../tusb
 
 FIRMWARE_OBJS = \
 	$(FW_DIR)/main.rel \
