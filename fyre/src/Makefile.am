@@ -23,8 +23,12 @@ RESOURCES =							\
 	-resource:$(top_srcdir)/data/pipeline-editor.glade	\
 	-resource:$(top_srcdir)/data/element-tooltip.glade
 
-$(TARGET): $(CSFILES) $(srcdir)/Defines.cs
-	$(CSC) -o $@ $(CSFLAGS) $^ $(ASSEMBLIES) $(RESOURCES)
+RESOURCEFILES =						\
+	$(top_srcdir)/data/pipeline-editor.glade	\
+	$(top_srcdir)/data/element-tooltip.glade
+
+$(TARGET): $(CSFILES) $(srcdir)/Defines.cs $(RESOURCEFILES)
+	$(CSC) -o $@ $(CSFLAGS) $(CSFILES) $(srcdir)/Defines.cs $(ASSEMBLIES) $(RESOURCES)
 
 tomboylibdir = $(pkglibdir)
 tomboylib_DATA = $(TARGET)
