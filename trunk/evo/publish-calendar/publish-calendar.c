@@ -24,8 +24,10 @@
 #include <gconf/gconf-client.h>
 #include <libgnome/gnome-i18n.h>
 #include <libgnomevfs/gnome-vfs.h>
+#include <libedataserverui/e-passwords.h>
 #include <calendar/gui/e-cal-popup.h>
 #include <calendar/gui/e-cal-config.h>
+#include <calendar/gui/e-cal-menu.h>
 #include <shell/es-event.h>
 #include "url-editor-dialog.h"
 #include "publish-format-fb.h"
@@ -38,6 +40,7 @@ static GSList *queued_publishes = NULL;
 static gint online = 0;
 
 int        e_plugin_lib_enable (EPlugin *ep, int enable);
+void       action_publish (EPlugin *ep, ECalMenuTargetSelect *t);
 void       online_state_changed (EPlugin *ep, ESEventTargetState *target);
 void       publish_calendar_context_activate (EPlugin *ep, ECalPopupTargetSource *target);
 GtkWidget *publish_calendar_locations (EPlugin *epl, EConfigHookItemFactoryData *data);
@@ -426,7 +429,14 @@ publish_calendar_locations (EPlugin *epl, EConfigHookItemFactoryData *data)
 	return toplevel;
 }
 
-int e_plugin_lib_enable (EPlugin *ep, int enable)
+void
+action_publish (EPlugin *ep, ECalMenuTargetSelect *t)
+{
+	g_print ("action: publish!\n");
+}
+
+int
+e_plugin_lib_enable (EPlugin *ep, int enable)
 {
 	GSList *uris, *l;
 	GConfClient *client;
