@@ -74,7 +74,7 @@ void DrawablesManager::add (BaseDrawable* item, int texture, int pass,
   oIt->second.push_back(drawItem);
 }
 
-void DrawablesManager::drawAll ( void )
+void DrawablesManager::draw ( void )
 {
   TextureManager  &tm = TextureManager::instance();
 

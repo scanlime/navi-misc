@@ -24,8 +24,10 @@
 class BaseDrawable
 {
 public:
-  // virtual bool draw ( int texture, int pass, int priority, void* param ){return false;}
-  virtual bool draw (int, int, int, void*){return false;}
+  virtual bool draw ( int texture, int pass, int priority, void* param ) = 0;
+
+protected:
+	friend class DrawablesManager;
 };
 
 // items for sorted list
@@ -45,8 +47,10 @@ typedef std::map<int,drawablesTextureList> drawablesPassList;
 class DrawablesManager : public Singleton<DrawablesManager>
 {
 public:
-  void add ( BaseDrawable* item, int texture = -1, int pass = 0, int priority = 0, void* param = NULL );
-  void drawAll ( void );
+	void init ( void );
+
+  void add( BaseDrawable* item, int texture = -1, int pass = 0, int priority = 0, void* param = NULL );
+  void draw ( void );
   void reset ( void );
 
   unsigned int getPasses ( void ){ return (unsigned int)list.size();}
