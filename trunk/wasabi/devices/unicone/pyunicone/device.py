@@ -95,7 +95,8 @@ class UniconeDevice(object):
     progress = property(_getProgress, _setProgress)
     """By default, progress is reported on stdout. A Python implementation
        of a progress reporting object may be assigned to this property to
-       report using it instead.
+       report using it instead. Progress reporting can be suppressed entirely
+       by setting this to None.
        """
 
 ### The End ###
