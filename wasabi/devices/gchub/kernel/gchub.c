@@ -422,6 +422,7 @@ static int controller_init(struct gchub_controller* ctl,
 
 static void controller_delete(struct gchub_controller* ctl)
 {
+	dbg("controller_delete '%s'", ctl->dev.name);
 	flush_scheduled_work();
 
 	if (ctl->dev_registered) {
@@ -563,6 +564,19 @@ static void controller_attach(void *data)
 static void controller_detach(void *data)
 {
 	struct gchub_controller *ctl = (struct gchub_controller*) data;
+
+	/* Linux 2.4 at least seems to like calling our callbacks after
+	 * our kernel module has been removed. Set them to NULL so that
+	 * even if it does keep a copy of our input device around, it
+	 * won't be able to call into removed code.
+	 */
+	ctl->dev.private = NULL;
+	ctl->dev.event = NULL;
+	ctl->dev.upload_effect = NULL;
+	ctl->dev.erase_effect = NULL;
+#ifdef NEW_INPUT_SUBSYSTEM
+	ctl->dev.flush = NULL;
+#endif
 
 	/* In process context, via a work queue */
 	info("Removed '%s'", ctl->dev.name);
@@ -1049,6 +1063,8 @@ static void gchub_delete(struct gchub_dev *dev)
 {
 	int i;
 
+	dbg("gchub_delete");
+
 	if (dev->irq) {
 		usb_unlink_urb(dev->irq);
 		usb_free_urb(dev->irq);
@@ -1175,6 +1191,8 @@ static void gchub_disconnect(struct usb_device *udev, void *ptr)
 {
 	struct gchub_dev *dev = ptr;
 #endif
+
+	dbg("entering gchub_disconnect");
 
 	gchub_set_intfdata (interface, NULL);
 	gchub_delete(dev);
