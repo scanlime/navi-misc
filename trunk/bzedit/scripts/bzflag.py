@@ -493,6 +493,8 @@ class Box(BZObject):
 
     def __init__(self):
         # Load defaults
+        self.drive_through = 0
+        self.shoot_through = 0
         self.set_position()
         self.set_rotation()
         self.set_size()
@@ -506,11 +508,44 @@ class Box(BZObject):
     def set_size(self, x=10, y=10, z=9.42):
         self.size = [x,y,z]
 
+    def set_drivethrough(self):
+        self.drive_through = 1
+
+    def set_shootthrough(self):
+        self.shoot_through = 1
+
+    def set_passable(self):
+        self.drive_through = 1
+        self.shoot_through = 1
+
     def serialize(self, writer):
         BZObject.serialize(self, writer)
         writer(("position",) + tuple(self.position))
         writer(("size",) + tuple(self.size))
         writer(("rotation", self.rotation))
+        if (self.drive_through == 1):
+            writer("drivethrough")
+        if (self.shoot_through == 1):
+            writer("shootthrough")
+
+    def setBlenderProperties(self, object):
+        BZObject.setBlenderProperties(self, object)
+        object.addProperty('driveThrough', self.drive_through, 'INT')
+        object.addProperty('shootThrough', self.shoot_through, 'INT')
+
+    def loadBlenderProperties(self, object);
+        BZObject.loadBlenderProperties(self, object)
+        try:
+            self.drive_through = object.getProperty('driveThrough').getData()
+        except AttributeError:
+            # No property, set default
+            self.drive_through = 0
+
+        try:
+            self.shoot_through = object.getProperty('shootThrough').getData()
+        except AttributeError:
+            # No property, set default
+            self.shoot_through = 0
 
     def transformBlenderObject(self, obj):
         """Set the transformation on the given Blender object
