@@ -89,7 +89,7 @@ public class njavaint extends nbase
 		mykey = key.keygen();
 		write(mykey);
 		rname = read();
-		uname = key.decrypt(mykey,read());
+		uname = key.decrypt(mykey,read()).toUpperCase();
 		pword = key.decrypt(mykey,read());
 		view = new ainterview(rname);
 		return view.intinit(imain.database,uname,pword);
