@@ -20,6 +20,7 @@
  */
 
 #include <string.h>
+#include <time.h>
 #include <gconf/gconf-client.h>
 #include <libgnomevfs/gnome-vfs.h>
 #include <libedataserver/e-source.h>
@@ -27,7 +28,7 @@
 #include <libecal/e-cal.h>
 #include <libecal/e-cal-util.h>
 #include <calendar/common/authentication.h>
-#include "publish-format-ical.h"
+#include "publish-format-fb.h"
 
 static gboolean
 write_calendar (gchar *uid, ESourceList *source_list, GnomeVFSHandle *handle)
@@ -36,7 +37,13 @@ write_calendar (gchar *uid, ESourceList *source_list, GnomeVFSHandle *handle)
 	ECal *client = NULL;
 	GError *error = NULL;
 	GList *objects;
+	icaltimezone *utc;
+	time_t start = time(NULL), end;
 	icalcomponent *top_level;
+
+	utc = icaltimezone_get_utc_timezone ();
+	start = time_day_begin_with_zone (start, utc);
+	end = time_add_week_with_zone (start, 6, utc);
 
 	source = e_source_list_peek_source_by_uid (source_list, uid);
 	if (source)
@@ -56,15 +63,16 @@ write_calendar (gchar *uid, ESourceList *source_list, GnomeVFSHandle *handle)
 	top_level = e_cal_util_new_top_level ();
 	error = NULL;
 
-	if (e_cal_get_object_list (client, "#t", &objects, &error)) {
+	if (e_cal_get_free_busy (client, NULL, start, end, &objects, &error)) {
 		char *ical_string;
 		GnomeVFSFileSize bytes_written;
 		GnomeVFSResult result;
 
 		while (objects) {
-			icalcomponent *icalcomp = objects->data;
+			ECalComponent *comp = objects->data;
+			icalcomponent *icalcomp = e_cal_component_get_icalcomponent (comp);
 			icalcomponent_add_component (top_level, icalcomp);
-			objects = g_list_remove (objects, icalcomp);
+			objects = g_list_remove (objects, comp);
 		}
 
 		ical_string = icalcomponent_as_ical_string (top_level);
@@ -85,7 +93,7 @@ write_calendar (gchar *uid, ESourceList *source_list, GnomeVFSHandle *handle)
 }
 
 void
-publish_calendar_as_ical (GnomeVFSHandle *handle, EPublishUri *uri)
+publish_calendar_as_fb (GnomeVFSHandle *handle, EPublishUri *uri)
 {
 	GSList *l;
 	ESourceList *source_list;

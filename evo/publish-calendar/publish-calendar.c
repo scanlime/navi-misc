@@ -28,6 +28,7 @@
 #include <calendar/gui/e-cal-config.h>
 #include <shell/es-event.h>
 #include "url-editor-dialog.h"
+#include "publish-format-fb.h"
 #include "publish-format-ical.h"
 
 static GtkListStore *store = NULL;
@@ -85,7 +86,7 @@ publish (EPublishUri *uri)
 /*			publish_calendar_as_html (handle, uri); */
 			break;
 		case URI_PUBLISH_AS_FB:
-/*			publish_calendar_as_fb (handle, uri); */
+			publish_calendar_as_fb (handle, uri);
 			break;
 		}
 

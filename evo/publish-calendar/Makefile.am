@@ -12,6 +12,8 @@ plugin_LTLIBRARIES = liborg-gnome-publish-calendar.la
 
 liborg_gnome_publish_calendar_la_SOURCES =	\
 	publish-calendar.c			\
+	publish-format-fb.c			\
+	publish-format-fb.h			\
 	publish-format-ical.c			\
 	publish-format-ical.h			\
 	publish-location.c			\

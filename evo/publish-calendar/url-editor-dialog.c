@@ -206,6 +206,12 @@ publish_service_changed (GtkComboBox *combo, UrlEditorDialog *dialog)
 static void
 type_selector_changed (GtkComboBox *combo, UrlEditorDialog *dialog)
 {
+	gint selected = gtk_combo_box_get_active (combo);
+	EPublishUri *uri;
+
+	uri = dialog->uri;
+	uri->publish_format = selected;
+
 	check_input (dialog);
 }
 
