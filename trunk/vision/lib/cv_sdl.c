@@ -22,10 +22,10 @@
 
 #include "cv_sdl.h"
 
-static int sdl_is_initialized = 0;
-static int win_width = -1, win_height = -1;
-static SDL_Surface *sdl_screen = NULL;
-static SDL_Overlay *sdl_overlay = NULL;
+static int sdl_is_initialized;
+static int image_width, image_height, horizontal_tiles, vertical_tiles;
+static SDL_Surface *sdl_screen;
+static SDL_Overlay *sdl_overlay;
 static SDL_Rect sdl_dest_rect;
 
 static void cv_sdl_init_window(int width, int height);
@@ -66,6 +66,12 @@ void cv_sdl_show_yuv_tiles(IplImage **images, int num_images, int width) {
 
   SDL_UnlockYUVOverlay(sdl_overlay);
   SDL_DisplayYUVOverlay(sdl_overlay, &sdl_dest_rect);
+
+  /* Save the window layout so we can map mouse events back later */
+  horizontal_tiles = width;
+  vertical_tiles = height;
+  image_width = ref_image->width;
+  image_height = ref_image->height;
 }
 
 int cv_sdl_process_events() {
@@ -99,6 +105,38 @@ int cv_sdl_event_handler(SDL_Event *event) {
   return 1;
 }
 
+void cv_sdl_get_mouse_state(int *_image_number, int *_x, int *_y, int *_buttons) {
+  int buttons, x, y, image_number, tile_x, tile_y;
+  buttons = SDL_GetMouseState(&x, &y);
+
+  if (sdl_overlay) {
+    /* Convert the mouse coordinates to be relative to the YUV surface,
+     * undoing any resizing the user may have performed on our window.
+     */
+    x = x * sdl_overlay->w / sdl_screen->w;
+    y = y * sdl_overlay->h / sdl_screen->h;
+
+    tile_x = x / image_width;
+    tile_y = y / image_height;
+    x %= image_width;
+    y %= image_height;
+
+    image_number = tile_y * horizontal_tiles + tile_x;
+  }
+  else {
+    x = y = image_number = 0;
+  }
+
+  if (_image_number)
+    *_image_number = image_number;
+  if (_x)
+    *_x = x;
+  if (_y)
+    *_y = y;
+  if (_buttons)
+    *_buttons = buttons;
+}
+
 
 /************************************************************************************/
 /**************************************************************** Private Functions */
@@ -110,10 +148,7 @@ static void cv_sdl_init_window(int width, int height) {
     sdl_is_initialized = 1;
   }
 
-  if (width != win_width || height != win_height) {
-    win_width = width;
-    win_height = height;
-
+  if ((!sdl_overlay) || width != sdl_overlay->w || height != sdl_overlay->h) {
     sdl_screen = SDL_SetVideoMode(width, height, 0, SDL_RESIZABLE);
 
     if (sdl_overlay)

@@ -41,6 +41,8 @@ int cv_sdl_process_events();
  */
 int cv_sdl_event_handler(SDL_Event *event);
 
+/* Get the current mouse state, mapped back to an image number and a position on that image */
+void cv_sdl_get_mouse_state(int *image_number, int *x, int *y, int *buttons);
 
 #endif /* __CV_SDL__H_ */
 

@@ -26,7 +26,7 @@ anaglyph: src/anaglyph.o lib/cv_dc1394.o lib/cv_sdl.o
 duck_tracker: src/duck_tracker.o lib/cv_dc1394.o lib/cv_sdl.o
 	$(LD) -o $@ $+ $(LDFLAGS)
 
-camshift: src/camshift.o lib/cv_dc1394.o lib/cv_sdl.o lib/uinput_mouse.o
+camshift: src/camshift.o lib/cv_dc1394.o lib/cv_sdl.o lib/uinput_mouse.o lib/camshift_frontend.o
 	$(LD) -o $@ $+ $(LDFLAGS)
 
 calibration_test: src/calibration_test.o lib/cv_dc1394.o lib/cv_sdl.o
