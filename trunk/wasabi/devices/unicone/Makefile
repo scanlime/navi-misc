@@ -26,9 +26,9 @@ FIRMWARE_OBJS = \
 	$(FW_DIR)/main.rel \
 	$(FW_DIR)/descript.rel \
 	$(FW_DIR)/fpga.rel \
-	$(FW_DIR)/i2c.rel \
 	$(TUSB_DIR)/src/uart_driver.rel \
 	$(TUSB_DIR)/src/usb_driver.rel \
+        $(TUSB_DIR)/src/i2c_driver.rel \
 	$(TUSB_DIR)/src/util.rel
 
 CFLAGS    += -I include -I src -I /usr/include/python2.3

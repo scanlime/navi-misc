@@ -25,13 +25,12 @@
 
 #include <usb_driver.h>
 #include <uart_driver.h>
+#include <i2c_driver.h>
 #include <util.h>
 
 #include <unicone.h>
 #include "hardware.h"
 #include "fpga.h"
-#include "i2c.h"
-
 
 /* We reserve space starting at 0xFD00 for endpoint buffers.
  */
