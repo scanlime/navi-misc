@@ -8,7 +8,7 @@
 #define WIDTH   800
 #define HEIGHT  800
 #define MAX_FRAME_RATE   50
-#define PROGRESSIVE_MASK 7
+#define PROGRESSIVE_MASK 3
 
 struct {
   double x,y;
