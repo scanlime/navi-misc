@@ -87,9 +87,6 @@ endmodule
  * cycle immediately after sync_reset is asserted, a tick will be generated.
  */
 module n_serial_timebase (clk, reset, tick, sync_begin, sync_middle);
-	/* Important: Ensure the counter below is wide enough for
-	 * any new values you try here.
-	 */
 	parameter BIT_WIDTH_US = 4;
 
 	parameter CLOCK_MHZ = 25;
@@ -98,7 +95,7 @@ module n_serial_timebase (clk, reset, tick, sync_begin, sync_middle);
 	input clk, reset, sync_begin, sync_middle;
 	output tick;
 	reg tick;
-	reg [4:0] counter;
+	reg [7:0] counter;
 
 	always @(posedge clk or posedge reset)
 		if (reset) begin
@@ -121,6 +118,23 @@ module n_serial_timebase (clk, reset, tick, sync_begin, sync_middle);
 			tick <= 0;
 			counter <= counter + 1;
 		end
+endmodule
+
+
+/* A shared phase generator for the transmitters. Given a 'tick' signal
+ * from the n_serial_timebase, this generates a 'phase' output that
+ * corresponds to the four quarter-bits.
+ */
+module n_serial_tx_phase (clk, reset, tick, phase);
+	input clk, reset, tick;
+	output [1:0] phase;
+	reg [1:0] phase;
+	
+	always @(posedge clk or posedge reset)
+		if (reset)
+			phase <= 0;
+		else if (tick)
+			phase <= phase+1;
 endmodule
 
 
@@ -360,19 +374,20 @@ endmodule
  * Note that busy=0 does not mean we aren't transmitting, just that we
  * are ready for more data to be received.
  *
- * An external n_serial_timebase must supply the 'tick' signal.
- * One timebase can be shared among all transmitters.
+ * An external n_serial_timebase must supply the 'tick' signal, and
+ * an n_serial_tx_phase module must supply 'phase'. One timebase can
+ * be shared among all transmitters.
  */
-module n_serial_tx (clk, reset, tick,
+module n_serial_tx (clk, reset, tick, phase,
                     busy, tx_stopbit, tx_data, strobe,
                     serial_out);
 	input clk, reset, tick;
 	output busy;
 	input tx_stopbit;
 	input [7:0] tx_data;
+	input [1:0] phase;
 	input strobe;
 	output serial_out;
-	reg serial_out;
 
 	/* Buffer the incoming data stream, consisting
 	 * of both the tx_data and the stop bit flag.
@@ -403,107 +418,87 @@ module n_serial_tx (clk, reset, tick,
 	serializer ser(clk, reset, buffered_data, normal_byte_ready,
 		       normal_byte_ack, ser_data, ser_ready, ser_strobe, ser_is_empty);
 
-	/* Our actual serial transmission is divided
-	 * Into four quarters, plus wait states. The four
-	 * quarters correspond to each 1us section of the
-	 * protocol's 4us-long bits.
-	 */
-	reg [2:0] state;
+	reg [1:0] state;
 	parameter
 		S_WAIT_FOR_BIT = 0,
 		S_WAIT = 1,
-		S_WAIT_FOR_TICK = 2,
-		S_Q1 = 3,
-		S_Q2 = 4,
-		S_Q3 = 5;
+		S_SYNC_STOP_BIT = 2,
+		S_SYNC_NORMAL_BIT = 3;
 
-	reg current_bit;
+	/* Our state machine generates 'synced_bit', synchronized to the beginning of phase 0.
+	 * From there we use combinational logic to generate the actual transmitted waveform:
+	 * 0111 for ones, and 0001 for zeroes.
+         */
+	reg synced_bit;
+	wire bus_idle = (state == S_WAIT_FOR_BIT || state == S_WAIT) && ser_is_empty && !buffer_full;
+        assign serial_out = bus_idle ? 1 : 
+                            phase == 0 ? 0 :
+                            phase == 3 ? 1 :
+                            synced_bit;
 
 	always @(posedge clk or posedge reset)
 		if (reset) begin
 
 			state <= S_WAIT_FOR_BIT;
 			ser_ready <= 0;
-			serial_out <= 1;
-			current_bit <= 0;
+			synced_bit <= 1;
 			stop_bit_ack <= 0;
 
 		end
 		else case (state)
 
 			S_WAIT_FOR_BIT: begin
-				// This is a wait state we enter any time current_bit is invalid
-				// We fetch a new bit either from the serializer or from any
-				// of our special cases where we need to stuff bits in.
+				// This is a wait state we enter any time a new bit isn't
+				// available and waiting to be synchronized. We look for a new
+				// bit either from the serializer or in the form of a stop
+				// bit straight from our buffer.
 
 				if (stop_bit_ready && ser_is_empty) begin
 					// Insert a stop bit
-					current_bit <= 1;
-					ser_ready <= 0;
-					state <= S_WAIT_FOR_TICK;
+					state <= S_SYNC_STOP_BIT;					
 					stop_bit_ack <= 1;
 					ser_ready <= 0;
 				end
 				else if (ser_strobe) begin
 					// Insert a normal bit
-					current_bit <= ser_data;
-					state <= S_WAIT_FOR_TICK;
+					state <= S_SYNC_NORMAL_BIT;
+					stop_bit_ack <= 0;
 					ser_ready <= 0;
 				end
 				else begin
 					// Ask for another bit. Stall for one clock cycle
 					// while the serializer gets it for us.
-					ser_ready <= 1;
-					current_bit <= 0;
 					state <= S_WAIT;
+					stop_bit_ack <= 0;
+					ser_ready <= 1;					
 				end
 			end
 
 			S_WAIT: begin
 				// Do nothing for one cycle, immediately go back to S_WAIT_FOR_BIT
 				state <= S_WAIT_FOR_BIT;
-				ser_ready <= 0;
-			end
-
-			S_WAIT_FOR_TICK: begin
-				// Between S_WAIT_FOR_BIT and S_Q1, sync to a clock tick
-				if (tick) begin
-					state <= S_Q1;
-					serial_out <= 0;
-				end
 				stop_bit_ack <= 0;
+				ser_ready <= 0;					
 			end
 
-			S_Q1: begin
-				// First quarter of the output bit, always 1.
-				// The next state is always S_Q2, reflecting the current bit
-				if (tick) begin
-					state <= S_Q2;
-					serial_out <= current_bit;
-				end
-				stop_bit_ack <= 0;
-			end
-
-			S_Q2: begin
-				// Second quarter of the output bit, reflects the current bit.
-				// Next state is S_Q3, but serial_out doesn't change.
-				if (tick) begin
-					state <= S_Q3;
-					serial_out <= current_bit;
-				end
-				stop_bit_ack <= 0;
-			end
-
-			S_Q3: begin
-				// Third quarter of the output bit, reflects the current bit.
-				// The fourth quarter is always 1. We set that up here, but
-				// there is no explicit state for it- it extends from after this
-				// state until before S_Q1 recurs.
-				if (tick) begin
+			S_SYNC_STOP_BIT: begin
+				// Output a stop bit next time we're about to flip to phase 0
+				if (tick && phase==3) begin
 					state <= S_WAIT_FOR_BIT;
-					serial_out <= 1;
+					synced_bit <= 1;
 				end
 				stop_bit_ack <= 0;
+				ser_ready <= 0;					
+			end
+
+			S_SYNC_NORMAL_BIT: begin
+				// Output a bit from our serializer next time we're about to flip to phase 0
+				if (tick && phase==3) begin
+					state <= S_WAIT_FOR_BIT;
+					synced_bit <= ser_data;
+				end
+				stop_bit_ack <= 0;
+				ser_ready <= 0;					
 			end
 
 		endcase

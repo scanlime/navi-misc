@@ -161,8 +161,13 @@ endmodule
  *  3. On the same cycle that dev#_ack is asserted, your address
  *     will be made available to the SRAM.
  *
- * Device 1 is the highest priority and 4 the lowest, in the
- * event of a conflict.
+ * Note that this interface will support smart arbiters if
+ * needed in the future, but the current implementation just
+ * continuously cycles betweeen giving the four devices
+ * access to RAM. This approach is fair to all devices, but
+ * even if only one device is actively using the RAM its
+ * latency could be four cycles. Note that this implementation
+ * ignores the 'request' signals.
  */
 module sram_arbiter4 (clk, reset, addr_out,
                       dev1_addr, dev1_request, dev1_ack,
@@ -187,66 +192,53 @@ module sram_arbiter4 (clk, reset, addr_out,
 	input dev4_request;
 	output dev4_ack;
 
-	reg addr_out;
+	reg [1:0] current;
+	reg [ADDR_WIDTH-1:0] addr_out;
 	reg dev1_ack;
 	reg dev2_ack;
 	reg dev3_ack;
-	reg dev4_ack;
+	reg dev4_ack;	
 
-	/* Generate the 'pending' signals for each device. They go high
-	 * when a request edge is detected, and low on ack.
+	/* Really simple approach- 'current' is a 2-bit counter,
+	 * all other signals are generated combinationally from that.
 	 */
-	wire dev1_pending;
-	wire dev2_pending;
-	wire dev3_pending;
-	wire dev4_pending;
-	rising_edge_latch dev1_pending_latch(clk, reset, dev1_request, dev1_ack, dev1_pending);
-	rising_edge_latch dev2_pending_latch(clk, reset, dev2_request, dev2_ack, dev2_pending);
-	rising_edge_latch dev3_pending_latch(clk, reset, dev3_request, dev3_ack, dev3_pending);
-	rising_edge_latch dev4_pending_latch(clk, reset, dev4_request, dev4_ack, dev4_pending);
-
 	always @(posedge clk or posedge reset)
-		if (reset) begin
-			addr_out <= 0;
-			dev1_ack <= 0;
-			dev2_ack <= 0;
-			dev3_ack <= 0;
-			dev4_ack <= 0;
-		end
-		else if (dev1_pending) begin
-			addr_out <= dev1_addr;
-			dev1_ack <= 1;
-			dev2_ack <= 0;
-			dev3_ack <= 0;
-			dev4_ack <= 0;
-		end
-		else if (dev2_pending) begin
-			addr_out <= dev2_addr;
-			dev1_ack <= 0;
-			dev2_ack <= 1;
-			dev3_ack <= 0;
-			dev4_ack <= 0;
-		end
-		else if (dev3_pending) begin
-			addr_out <= dev3_addr;
-			dev1_ack <= 0;
-			dev2_ack <= 0;
-			dev3_ack <= 1;
-			dev4_ack <= 0;
-		end
-		else if (dev4_pending) begin
-			addr_out <= dev4_addr;
-			dev1_ack <= 0;
-			dev2_ack <= 0;
-			dev3_ack <= 0;
-			dev4_ack <= 1;
-		end
-		else begin
-			dev1_ack <= 0;
-			dev2_ack <= 0;
-			dev3_ack <= 0;
-			dev4_ack <= 0;
-		end
+		if (reset)
+			current <= 0;
+		else
+			current <= current + 1;
+
+	always @(current or dev1_addr or dev2_addr or dev3_addr or dev4_addr)
+		case (current)		
+			0: begin
+				dev1_ack = 1;
+				dev2_ack = 0;
+				dev3_ack = 0;
+				dev4_ack = 0;
+				addr_out = dev1_addr;
+			end
+			1: begin
+				dev1_ack = 0;
+				dev2_ack = 1;
+				dev3_ack = 0;
+				dev4_ack = 0;
+				addr_out = dev2_addr;
+			end
+			2: begin
+				dev1_ack = 0;
+				dev2_ack = 0;
+				dev3_ack = 1;
+				dev4_ack = 0;
+				addr_out = dev3_addr;
+			end
+			3: begin
+				dev1_ack = 0;
+				dev2_ack = 0;
+				dev3_ack = 0;
+				dev4_ack = 1;
+				addr_out = dev4_addr;
+			end
+		endcase
 endmodule
 
 
