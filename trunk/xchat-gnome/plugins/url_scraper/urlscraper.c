@@ -10,7 +10,7 @@
 #define VERSION "0.2"
 #define MAXURLS 10
 
-#define URLREGEX "(ht|f)tps?://[~a-z0-9./_-]+[a-z0-9]+"
+#define URLREGEX "(ht|f)tps?://[~a-z0-9./_#%&?-]+[a-z0-9]+"
 #define EMAILREGEX "[a-z0-9.+_-]+@([0-9a-z-]+\\.)+[a-z]+"
 
 static xchat_plugin *ph;	// Plugin handle.
@@ -68,6 +68,7 @@ static void make_window ()
 	gtk_container_add (GTK_CONTAINER(window), scrolled);
 
 	g_signal_connect (G_OBJECT(treeview), "row-activated", G_CALLBACK(url_open), NULL);
+	g_object_set (G_OBJECT(treeview), "enable-search", FALSE, NULL);
 
 	gtk_widget_show_all (window);
 }
