@@ -392,6 +392,7 @@ xtext2_realize (GtkWidget *widget)
   gdk_window_set_back_pixmap (widget->window, NULL, FALSE);
 
   backend_init (xtext);
+  xtext2_refresh (xtext);
 }
 
 static void
@@ -661,6 +662,8 @@ xtext2_set_palette (XText2 *xtext, GdkColor palette[])
     set_bg (xtext, xtext->priv->fgc, 19);
     set_fg (xtext, xtext->priv->bgc, 19);
   }
+
+  xtext2_refresh (xtext);
 }
 
 static void
