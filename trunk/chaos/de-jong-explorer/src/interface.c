@@ -357,15 +357,12 @@ void on_resize_cancel(GtkWidget *widget, gpointer user_data) {
 void on_resize_ok(GtkWidget *widget, gpointer user_data) {
   int new_width, new_height;
 
-  gtk_widget_hide(glade_xml_get_widget(gui.xml, "resize_window"));
   new_width = gtk_spin_button_get_value(GTK_SPIN_BUTTON(glade_xml_get_widget(gui.xml, "resize_width")));
   new_height = gtk_spin_button_get_value(GTK_SPIN_BUTTON(glade_xml_get_widget(gui.xml, "resize_height")));
+  gtk_widget_hide(glade_xml_get_widget(gui.xml, "resize_window"));
 
   resize(new_width, new_height);
   gui_resize(new_width, new_height);
-}
-
-void on_load_from_image(GtkWidget *widget, gpointer user_data) {
 }
 
 GtkWidget *custom_color_button_new(gchar *widget_name, gchar *string1,
@@ -374,6 +371,22 @@ GtkWidget *custom_color_button_new(gchar *widget_name, gchar *string1,
   w = color_button_new(string1, int1 ? &render.fgcolor : &render.bgcolor);
   gtk_widget_show_all(w);
   return w;
+}
+
+void on_load_from_image(GtkWidget *widget, gpointer user_data) {
+  GtkWidget *dialog;
+
+  dialog = gtk_file_selection_new("Load Parameters");
+
+  if(gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_OK) {
+    const gchar *filename;
+    filename = gtk_file_selection_get_filename(GTK_FILE_SELECTION(dialog));
+    load_parameters_from_file(filename);
+  }
+  gtk_widget_destroy(dialog);
+
+  write_gui_params();
+  restart_rendering();
 }
 
 void on_save(GtkWidget *widget, gpointer user_data) {
