@@ -62,18 +62,15 @@ class HScrollGraph(Graph):
 
     def initGrid(self, drawable, width, height):
         """Draw our grid on the given drawable"""
-        background = self.get_style().light_gc[gtk.STATE_NORMAL]
-        gridColor = self.get_style().mid_gc[gtk.STATE_NORMAL]
-
-        drawable.draw_rectangle(background, gtk.TRUE, 0, 0, width, height)
+        drawable.draw_rectangle(self.bgGc, gtk.TRUE, 0, 0, width, height)
 
         # Horizontal grid lines
         for y in range(0, height, self.gridSize):
-            drawable.draw_rectangle(gridColor, gtk.TRUE, 0, y, width, 1)
+            drawable.draw_rectangle(self.gridGc, gtk.TRUE, 0, y, width, 1)
 
         # Vertical grid lines
         for x in range(0, width, self.gridSize):
-            drawable.draw_rectangle(gridColor, gtk.TRUE, x, 0, 1, height)
+            drawable.draw_rectangle(self.gridGc, gtk.TRUE, x, 0, 1, height)
 
     def drawGrid(self, x, width):
         """Draw grid lines on our backing store, using the current gridPhase,
