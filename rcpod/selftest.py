@@ -16,17 +16,19 @@
 
    safe    : All tests that can be run without setting any of the rcpod's
              I/O ports to output mode. This won't affect any hardware plugged
-             into the rcpod, but can't test much.
+             into the rcpod, but can't test much. Tests all rcpod devices
+             found on the USB bus.
 
    single  : Tests all API and hardware features possible with a single rcpod.
              This can verify API sanity in most cases, but only partially
-             verifies hardware sanity.
-             Note that this will modify the I/O port states, and it should NOT
-             be run with any external hardware hooked up to the rcpod.
+             verifies hardware sanity. Note that this will modify the I/O
+             port states, and it should NOT be run with any external hardware
+             hooked up to the rcpod. Tests all rcpod devices found on the USB
+             bus.
 
    dual    : Requires two rcpod units, with all I/O pins (excluding power,
-             USB, and oscillator) connected to each other. Also runs a 'single'
-             test on each rcpod first. This uses each rcpod to test the I/O
+             USB, and oscillator) connected to each other. Also runs the equivalent
+             of a 'single' test on both rcpods. This uses each rcpod to test the I/O
              features on the other.
 
  -- Micah Dowty <micah@picogui.org>
