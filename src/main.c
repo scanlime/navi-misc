@@ -420,22 +420,24 @@ static void animation_render_main (IterativeMap *map,
 #ifdef HAVE_FORK
 static void daemonize_to_pidfile(const char* filename)
 {
-    FILE* f;
+    FILE* f = NULL;
 
-    /* Open the file before our current directory and console disappear */
-    f = fopen(filename, "w");
-    if (!f) {
-	printf("Can't open pidfile '%s'\n", filename);
-	exit(1);
+    if (filename) {
+	/* Open the file before our current directory and console disappear */
+	f = fopen(filename, "w");
+	if (!f)
+	    printf("Can't open pidfile '%s'\n", filename);
     }
 
     if (daemon(0, 0) < 0) {
 	perror("daemon");
 	exit(1);
     }
-
-    fprintf(f, "%d", getpid());
-    fclose(f);
+    
+    if (f) {
+	fprintf(f, "%d", getpid());
+	fclose(f);
+    }
 }
 #else
 static void daemonize_to_pidfile(const char* filename) {}
