@@ -249,7 +249,7 @@ ground_drawable_get_type (void)
 	(GInstanceInitFunc) ground_drawable_init,
       };
 
-      gd_type = g_type_register_static (GROUND_DRAWABLE_TYPE, "GroundDrawable", &gd_info, 0);
+      gd_type = g_type_register_static (DISPLAY_LIST_TYPE, "GroundDrawable", &gd_info, 0);
     }
 
   return gd_type;
