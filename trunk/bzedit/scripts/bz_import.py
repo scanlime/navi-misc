@@ -69,6 +69,13 @@ def fileSelectedCallback(filename):
         bzflag.log.err(s)
     else:
         importObjects(reader.readObjects())
+
+        # Remove that pesky default cube if it's still around
+        try:
+            Blender.Scene.GetCurrent().unlink(Blender.Object.Get("Cube"))
+        except AttributeError:
+            pass
+
     if bzflag.log.numErrors:
         bzflag.log.report("Errors in loading world file")
 
