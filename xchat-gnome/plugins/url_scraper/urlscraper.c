@@ -17,15 +17,18 @@ static GtkListStore *list_store;
 
 static void make_window ()
 {
-	GtkScrolledWindow *scrolled;
-	GtkWidget *treeview;
+	GtkWidget *treeview, *scrolled;
 	GtkTreeViewColumn *nick_col, *chan_col, *url_col;
-	GtkCellRendererText *nick_rend, *chan_rend, *url_rend;
+	GtkCellRenderer *nick_rend, *chan_rend, *url_rend;
 
 	window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+	gtk_window_set_default_size (GTK_WINDOW(window), 400, 400);
+
 	list_store = gtk_list_store_new (3, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
 
 	scrolled = gtk_scrolled_window_new (NULL, NULL);
+	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW(scrolled),
+			GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
 	treeview = gtk_tree_view_new ();
 
 	nick_rend = gtk_cell_renderer_text_new ();
@@ -37,12 +40,20 @@ static void make_window ()
 	url_rend = gtk_cell_renderer_text_new ();
 	url_col = gtk_tree_view_column_new_with_attributes ("URL", url_rend, 0);
 
+	gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), nick_col);
+	gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), chan_col);
+	gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), url_col);
+
+	gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW(scrolled), treeview);
+
+	gtk_container_add (GTK_CONTAINER(window), scrolled);
+
 	gtk_widget_show_all (window);
 }
 
 static int grabURL (char **word, void *userdata)
 {
-	GtkTreeIter iter;
+	/*GtkTreeIter iter;
 
 	char *chan;
 	size_t len;
@@ -65,7 +76,7 @@ static int grabURL (char **word, void *userdata)
 
 		gtk_list_store_append (list_store, &iter);
 		gtk_list_store_set (list_store, &iter, 0, word[3], 1, chan, 2, match, -1);
-	}
+	}*/
 
 	return XCHAT_EAT_NONE;
 }
@@ -82,8 +93,8 @@ int xchat_plugin_init (xchat_plugin *plugin_handle,
 	*plugin_desc = "Grabs URLs and puts them in a separate window for easy viewing.";
 	*plugin_version = VERSION;
 
-	regcomp (&email, "[\w\.\-\+]+@([0-9a-z\-]+\.)+[a-z]+", REG_ICASE);
-	regcomp (&url, "(ht|f)tps?://[^\s\>\]\)]+", REG_ICASE);
+	//regcomp (&email, "[\w\.\-\+]+@([0-9a-z\-]+\.)+[a-z]+", REG_ICASE);
+	//regcomp (&url, "(ht|f)tps?://[^\s\>\]\)]+", REG_ICASE);
 
 	urls = 0;
 
@@ -93,6 +104,12 @@ int xchat_plugin_init (xchat_plugin *plugin_handle,
 
 	xchat_print (ph, "URL Scrapler loaded.\n");
 
+	return 1;
+}
+
+int xchat_plugin_deinit ()
+{
+	gtk_widget_destroy (window);
 	return 1;
 }
 
