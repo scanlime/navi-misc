@@ -98,6 +98,8 @@ static void animation_render_ui_init(AnimationRenderUi *self) {
 	self->xml = glade_xml_new(BR_DATADIR("/fyre/animation-render.glade"), NULL, NULL);
 #endif
 
+    fyre_set_icon_later(glade_xml_get_widget(self->xml, "window"));
+
     glade_xml_signal_connect_data(self->xml, "on_ok_clicked",                 G_CALLBACK(on_ok_clicked),                 self);
     glade_xml_signal_connect_data(self->xml, "on_cancel_clicked",             G_CALLBACK(on_cancel_clicked),             self);
     glade_xml_signal_connect_data(self->xml, "on_select_output_file_clicked", G_CALLBACK(on_select_output_file_clicked), self);

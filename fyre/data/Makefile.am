@@ -5,7 +5,9 @@ fyredata_DATA = 		\
 	animation-render.glade	\
 	metadata-emblem.png	\
 	about-box.fa		\
-	fyre-48x48.png
+	fyre-48x48.png          \
+        fyre-32x32.png          \
+        fyre-16x16.png
 
 EXTRA_DIST =			\
 	$(fyredata_DATA)	\
