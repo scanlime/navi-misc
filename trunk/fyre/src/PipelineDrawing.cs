@@ -38,18 +38,22 @@ class PipelineDrawing : Gtk.DrawingArea
 		return base.OnConfigureEvent (ev);
 	}
 
-	protected override void OnSizeAllocated (Gdk.Rectangle allocation)
-	{
-		System.Console.WriteLine("allocated: {0}x{1}\n", allocation.Width, allocation.Height);
-		base.OnSizeAllocated (allocation);
-	}
-
-	protected override void OnSizeRequested (ref Gtk.Requisition requisition)
-	{
-		base.OnSizeRequested (ref requisition);
-	}
-
 	protected override void OnSetScrollAdjustments (Adjustment hadj, Adjustment vadj)
 	{
+		System.Console.WriteLine("scroll adjustments set\n");
+
+		hadj.Value         = 0.0f;
+		hadj.Upper         = 0.0f;
+		hadj.Lower         = 0.0f;
+		hadj.StepIncrement = 0.0f;
+		hadj.PageIncrement = 0.0f;
+		hadj.PageSize      = 0.0f;
+
+		vadj.Value         = 0.0f;
+		vadj.Upper         = 0.0f;
+		vadj.Lower         = 0.0f;
+		vadj.StepIncrement = 0.0f;
+		vadj.PageIncrement = 0.0f;
+		vadj.PageSize      = 0.0f;
 	}
 };
