@@ -14,6 +14,7 @@
 
 #include <unicone.h>
 #include "device.h"
+#include "progress.h"
 
 struct gc_status {
   int btn_start;
@@ -132,6 +133,7 @@ void event_loop(struct unicone_device *dev, int evdev)
 int main(int argc, char **argv)
 {
   struct unicone_device* dev;
+  struct progress_reporter* progress = progress_reporter_console_new();
   int evdev;
 
   if (!argv[1]) {
@@ -150,8 +152,9 @@ int main(int argc, char **argv)
     printf("Can't open unicone device\n");
     return 1;
   }
-  if (!(dev->fpga_configured && dev->firmware_installed)) {
-    printf("The Unicone device must have firmware and FPGA configuration installed");
+
+  if (unicone_device_configure(dev, "firmware.bin", "fpga/gamecube/gamecube.bit", progress) < 0) {
+    printf("Error configuring unicone device\n");
     return 1;
   }
 
