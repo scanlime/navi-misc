@@ -32,15 +32,15 @@ class BuilderFormatter(Message.Formatter):
     """Abstract base class for formatters that operate on builder results."""
     detector = Message.Filter('<find path="/message/body/builder"/>')
 
-    def format(self, message, input=None):
+    def format(self, args):
         # Format each package inside each result set
         packages = []
-        for results in message.xml.body.builder.elements():
+        for results in args.message.xml.body.builder.elements():
             if results.name == 'results':
                 for package in results.elements():
                     if package.name == 'package':
                         packages.append(self.format_package(package))
-        return self.joinMessage(message, packages)
+        return self.joinMessage(args.message, packages)
 
     def format_package(self, package):
         """Format the results associated with one package,

@@ -97,7 +97,7 @@ class FormattedFeed(BaseFeed):
                 return f(m)
             else:
                 # No special formatter, find a normal one
-                return Formatters.factory.findMedium(medium, m).format(m)
+                return Formatters.factory.findMedium(medium, m).formatMessage(m)
         except Message.NoFormatterError:
             return self.formatError()
 
@@ -161,7 +161,7 @@ class RSS2Feed(RSSFeed):
 
         # Generate a title if we can, but if we can't don't worry too much
         try:
-            tags.append(tag('title')[ Formatters.factory.findMedium('title', m).format(m) ])
+            tags.append(tag('title')[ Formatters.factory.findMedium('title', m).formatMessage(m) ])
         except Message.NoFormatterError:
             pass
 
@@ -250,7 +250,7 @@ class RSS1Feed(RSSFeed):
 
         # Generate a title if we can, but if we can't don't worry too much
         try:
-            tags.append(tag('title')[ Formatters.factory.findMedium('title', m).format(m) ])
+            tags.append(tag('title')[ Formatters.factory.findMedium('title', m).formatMessage(m) ])
         except Message.NoFormatterError:
             pass
 

@@ -29,15 +29,15 @@ from LibCIA import Message
 class IRCProjectName(Message.Formatter):
     """Prepends the project name to each line of the input message, boldinated for IRC"""
     medium = 'irc'
-    def format(self, message, input):
-        if not input:
+    def format(self, args):
+        if not args.input:
             return
-        if message.xml.source and message.xml.source.project:
+        if args.message.xml.source and args.message.xml.source.project:
             from LibCIA.IRC.Formatting import format
-            prefix = format("%s:" % message.xml.source.project, 'bold') + " "
-            return "\n".join([prefix + line for line in input.split("\n")])
+            prefix = format("%s:" % args.message.xml.source.project, 'bold') + " "
+            return "\n".join([prefix + line for line in args.input.split("\n")])
         else:
-            return input
+            return args.input
 
 
 class IRCFormat(Message.Formatter):
@@ -47,10 +47,10 @@ class IRCFormat(Message.Formatter):
     medium = 'irc'
     formattingCode = 'normal'
 
-    def format(self, message, input):
+    def format(self, args):
         if input:
             from LibCIA.IRC.Formatting import format
-            return format(input, self.formattingCode)
+            return format(args.input, self.formattingCode)
 
     def loadParametersFrom(self, xml):
         self.formattingCode = str(xml)

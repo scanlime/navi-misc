@@ -382,6 +382,22 @@ class Filter(XML.XMLFunction):
         return newFilter
 
 
+class FormatterArgs:
+    """Contains all arguments passed between formatters. This includes
+       the input string, preferences dictionary, and the message being processed.
+       """
+    def __init__(self, message, input=None, preferences={}):
+        self.message = message
+        self.input = input
+        self.preferences = preferences
+
+    def copy(self, **kwargs):
+        """Make a copy of the arguments, optionally overriding attributes at the same time"""
+        new = FormatterArgs(self.message, self.input, self.preferences)
+        new.__dict__.update(kwargs)
+        return new
+
+
 class Formatter:
     """An abstract object capable of creating and/or modifying alternate
        representations of a Message. This could include converting it to HTML,
@@ -396,10 +412,14 @@ class Formatter:
     # 'irc', etc.
     medium = None
 
-    def format(self, message, input=None):
-        """Given a message and optionally the result of a previous Formatter,
-           return a formatted representation of the message.
+    def formatMessage(self, message):
+        """A convenience function to format a message without any prior input
+           or other arguments.
            """
+        return self.format(FormatterArgs(message))
+
+    def format(self, args):
+        """Given a FormatterArgs instance, return a formatted representation of the message."""
         pass
 
     def loadParametersFrom(self, xml):
@@ -448,8 +468,8 @@ class CompositeFormatter(Formatter):
 
 
 class CompositeFormatterParser(XML.XMLObjectParser):
-    """Parses CompositeFormatter's arguments into a format(message, input) function"""
-    def join(self, l, message, input):
+    """Parses CompositeFormatter's arguments into a format() function"""
+    def join(self, l, args):
         """Given a list of literals and functions, reduces them to a
            single string or list as appropriate.
            """
@@ -461,7 +481,7 @@ class CompositeFormatterParser(XML.XMLObjectParser):
                 continue
             elif callable(f):
                 # Call child functions, recording their result
-                result = f(message, input)
+                result = f(args)
                 if not result:
                     continue
             elif f:
@@ -492,10 +512,10 @@ class CompositeFormatterParser(XML.XMLObjectParser):
             # Evaluate once at parse time to check validity
             Formatters.factory.fromXml(element)
 
-            def formatUsingFactory(message, input):
+            def formatUsingFactory(args):
                 # This must bind to a particular formatter at runtime rather than parse time
                 # to handle autoformatting properly.
-                return Formatters.factory.fromXml(element, message).format(message, input)
+                return Formatters.factory.fromXml(element, args.message).format(args)
             return formatUsingFactory
 
         else:
@@ -503,16 +523,16 @@ class CompositeFormatterParser(XML.XMLObjectParser):
             # here since that's what this class is for. We always have at least
             # one of these, at the root of the parsed XML document.
             children = [self.parse(child) for child in element.children]
-            def joinChildren(message, input):
-                return self.join(children, message, input)
+            def joinChildren(args):
+                return self.join(children, args)
             return joinChildren
 
     def element_value(self, element):
         """Include a value obtained from an XPath or from this element's contents"""
         if element.hasAttribute('path'):
             xp = XPathQuery(element['path'])
-            def formatXPathValue(message, input):
-                nodes = xp.queryForNodes(message.xml)
+            def formatXPathValue(args):
+                nodes = xp.queryForNodes(args.message.xml)
                 if nodes:
                     return XML.allText(nodes[0]).strip()
             return formatXPathValue
@@ -523,8 +543,8 @@ class CompositeFormatterParser(XML.XMLObjectParser):
 
     def element_input(self, element):
         """Returns the formatter's input"""
-        def formatInput(message, input):
-            return input
+        def formatInput(args):
+            return args.input
         return formatInput
 
     def element_pipe(self, element):
@@ -535,8 +555,8 @@ class CompositeFormatterParser(XML.XMLObjectParser):
         pipeInput = self.parse(children[0])
         pipeOutput = self.parse(children[1])
 
-        def formatPipe(message, input):
-            return pipeOutput(message, pipeInput(message, input))
+        def formatPipe(args):
+            return pipeOutput(args.copy(input = pipeInput(args)))
         return formatPipe
 
     def element_attribute(self, element):
@@ -570,14 +590,14 @@ class CompositeFormatterParser(XML.XMLObjectParser):
             else:
                 children.append(child)
 
-        def formatTag(message, input):
+        def formatTag(args):
             # Generate a final attribute list from both static and dynamic attributes
             attrs = dict(staticAttrs)
             for name, value in attrs.iteritems():
-                attrs[name] = self.join(value, message, input)
+                attrs[name] = self.join(value, args)
 
             # Join our non-attribute children to form the tag's content
-            content = self.join(children, message, input)
+            content = self.join(children, args)
 
             return tag(tagName, **attrs)[ content ]
         return formatTag
