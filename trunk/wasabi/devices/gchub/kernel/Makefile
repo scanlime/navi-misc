@@ -2,7 +2,8 @@
 ifneq ($(KERNELRELEASE),)
 # We're in the kernel build system
 
-EXTRA_CFLAGS += -I$(GCHUB_INCLUDEDIR) -DDEBUG
+EXTRA_CFLAGS += -I$(GCHUB_INCLUDEDIR)
+#EXTRA_CFLAGS += -DDEBUG
 obj-m	:= gchub.o
 
 # Compatibility with pre-2.5 build systems, graciously pilfered from hostap
