@@ -78,6 +78,10 @@ void on_pgup (GtkAccelGroup *accelgroup, GObject *arg1, guint arg2, GdkModifierT
 void on_pgdn (GtkAccelGroup *accelgroup, GObject *arg1, guint arg2, GdkModifierType arg3, gpointer data);
 void on_help_about_menu_activate (GtkWidget *widget, gpointer data);
 
+#if (GTK_CHECK_VERSION(2,5,0))
+void on_expand_topic (GtkExpander *expander, gpointer data);
+#endif
+
 void on_text_entry_activate (GtkWidget *widget, gpointer data);
 gboolean on_text_entry_key (GtkWidget *widget, GdkEventKey *key, gpointer data);
 
@@ -142,6 +146,7 @@ initialize_main_window ()
 	gtk_box_pack_start (GTK_BOX (topicbox), GTK_WIDGET (gui.topic_expander), FALSE, TRUE, 0);
 	gtk_box_reorder_child (GTK_BOX (topicbox), GTK_WIDGET (gui.topic_expander), 0);
 	gtk_expander_set_expanded (GTK_EXPANDER (gui.topic_expander), FALSE);
+	g_signal_connect (G_OBJECT (gui.topic_expander), "toggle", G_CALLBACK(on_expand_topic), NULL);
 	gtk_label_set_ellipsize (gui.topic_label, PANGO_ELLIPSIZE_END);
 #else
 	gtk_label_set_line_wrap (gui.topic_label, TRUE);
@@ -926,3 +931,20 @@ entry_context (GtkEntry *entry, GtkMenu *menu, gpointer user_data)
 
 	gtk_widget_show_all (submenu);
 }
+
+#if (GTK_CHECK_VERSION(2,5,0))
+void
+on_expand_topic (GtkExpander *expander, gpointer data)
+{
+  if (gtk_expander_get_expanded (gui.topic_expander))
+  {
+    gtk_label_set_ellipsize(gui.topic_label, PANGO_ELLIPSIZE_END);
+    gtk_label_set_line_wrap (gui.topic_label, FALSE);
+  }
+  else
+  {
+    gtk_label_set_ellipsize(gui.topic_label, PANGO_ELLIPSIZE_NONE);
+    gtk_label_set_line_wrap (gui.topic_label, TRUE);
+  }
+}
+#endif
