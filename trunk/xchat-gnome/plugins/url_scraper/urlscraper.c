@@ -8,7 +8,7 @@
 #define VERSION "0.2"
 #define MAXURLS 10
 
-#define URLREGEX "(ht|f)tps?://[a-zA-z0-9\.]+"
+#define URLREGEX "(ht|f)tps?://[a-zA-z0-9\\.]+"
 #define EMAILREGEX "[\\w\\.\\-\\+]+@([0-9a-z\\-]+\\.)+[a-z]+"
 
 static xchat_plugin *ph;	// Plugin handle.
@@ -67,12 +67,11 @@ static void make_window ()
 static int grabURL (char **word, void *userdata)
 {
 	GtkTreeIter iter;
-
+	int i;
 	const char *chan;
-	size_t len = 1;
-	regmatch_t *match = malloc (len * sizeof (regmatch_t));
+	regmatch_t match;
 
-	if (regexec (url, word[4], len, match, 0) == 0)
+	if (regexec (url, word[2], 1, &match, 0) == 0)
 	{
 		chan = xchat_get_info (ph, "channel");
 		xchat_print (ph, "URL found.\n");
@@ -94,6 +93,15 @@ static int grabURL (char **word, void *userdata)
 	return XCHAT_EAT_NONE;
 }
 
+void xchat_plugin_get_info (char **plugin_name,
+		char **plugin_desc,
+		char **plugin_version)
+{
+	*plugin_name = "URL Scraper";
+	*plugin_desc = "Grabs URLs and puts them in a separate window for easy viewing.";
+	*plugin_version = VERSION;
+}
+
 int xchat_plugin_init (xchat_plugin *plugin_handle,
 		char **plugin_name,
 		char **plugin_desc,
@@ -102,9 +110,7 @@ int xchat_plugin_init (xchat_plugin *plugin_handle,
 {
 	ph = plugin_handle;
 
-	*plugin_name = "URL Scraper";
-	*plugin_desc = "Grabs URLs and puts them in a separate window for easy viewing.";
-	*plugin_version = VERSION;
+	xchat_plugin_get_info (plugin_name, plugin_desc, plugin_version);
 
 	//regcomp (&email, EMAILREGEX, REG_ICASE);
 
@@ -120,6 +126,7 @@ int xchat_plugin_init (xchat_plugin *plugin_handle,
 	make_window ();
 
 	xchat_hook_print (ph, "Channel Message", XCHAT_PRI_NORM, grabURL, 0);
+	xchat_hook_print (ph, "Private Message to Dialog", XCHAT_PRI_NORM, grabURL, 0);
 
 	xchat_print (ph, "URL Scraper loaded.\n");
 
@@ -133,13 +140,4 @@ int xchat_plugin_deinit ()
 	xchat_print (ph, "URL Scraper unloaded.\n");
 
 	return 1;
-}
-
-void xchat_plugin_get_info (char **plugin_name,
-		char **plugin_desc,
-		char **plugin_version)
-{
-	*plugin_name = "URL Scraper";
-	*plugin_desc = "Grabs URLs and puts them in a separate window for easy viewing.";
-	*plugin_version = VERSION;
 }
