@@ -7,6 +7,23 @@ If you have written a new CIA client script, send it to Micah_ to get it added t
 
 .. _Micah: mailto:micah@navi.cx
 
+Arch
+----
+
+Mike Hearn wrote a client for GNU Arch. You can find it `on the arch wiki`_ or `stored locally`_.
+
+.. _on the arch wiki: http://wiki.gnuarch.org/moin.cgi/CIA
+.. _stored locally: /clients/arch/cia_arch.py
+
+BitKeeper
+---------
+
+Chris Larson has contributed a client for BitKeeper. You'll need both
+ciabot_bk.sh_ and post-outgoing.ciabot_.
+
+.. _ciabot_bk.sh: /clients/bk/ciabot_bk.sh
+.. _post-outgoing.ciabot: /clients/bk/post-outgoing.ciabot
+
 CVS
 ---
 
@@ -26,21 +43,4 @@ supports regular expressions for extracting module and branch information from p
 
 .. _ciabot_svn.py: /clients/svn/ciabot_svn.py
 .. _ciabot_svn.sh: /clients/svn/ciabot_svn.sh
-
-BitKeeper
----------
-
-Chris Larson has contributed a client for BitKeeper. You'll need both
-ciabot_bk.sh_ and post-outgoing.ciabot_.
-
-.. _ciabot_bk.sh: /clients/bk/ciabot_bk.sh
-.. _post-outgoing.ciabot: /clients/bk/post-outgoing.ciabot
-
-Arch
-----
-
-Mike Hearn wrote a client for GNU Arch. You can find it `on the arch wiki`_ or `stored locally`_.
-
-.. _on the arch wiki: http://wiki.gnuarch.org/moin.cgi/CIA
-.. _stored locally: /clients/arch/cia_arch.py
 
