@@ -1,6 +1,10 @@
 Universal controller emulator
 -----------------------------
 
+*******************
+* Internal wiring *
+*******************
+
 TUSB3410 (Keyspan HS-19US, firmware removed):
 
  5v power   (1) - USB port
@@ -86,3 +90,19 @@ DB-25 male I/O port
 
  Pin 1          - Ground
  (All others connected to FPGA)
+
+*******************
+* Interface cable *
+*******************
+
+Gamecube controllers:
+
+  +5V   (1) Ylw - N/C
+  DATA  (2) Wht - Port 1: pin 2
+                  Port 2: pin 3
+                  Port 3: pin 4
+                  Port 4: pin 5
+  GND   (3) Red - pin 1
+  GND   (4) Blu - pin 1
+  +3.3v (6) Grn - N/C
+
