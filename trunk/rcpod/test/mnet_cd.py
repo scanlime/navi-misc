@@ -16,8 +16,7 @@
 #    - CDH3 pin  1 -> RA0
 #    - CDH3 pin  2 -> RA1
 #    - CDH3 pin  3 -> RA2
-#    - CDH3 pin 10 -> RA3
-#    - CDH3 pin 20 -> RA4
+#    - CDH3 pin 20 -> RA3
 #
 # -- Micah Dowty <micah@picogui.org>
 #
@@ -69,7 +68,7 @@ class CriticalDecoderTest(RcpodTestCase):
         self.verifyOutput(0,  'ra0') # FC relay, pin 1
         self.verifyOutput(1,  'ra1') # MNET relay, pin 2
         self.verifyOutput(2,  'ra2') # TX relay, pin 3
-        self.verifyOutput(19, 'ra4') # MW relay, pin 20
+        self.verifyOutput(19, 'ra3') # MW relay, pin 20
 
 
 if __name__ == '__main__':
