@@ -1,4 +1,4 @@
-TUSB_DIR = ..
+TUSB_DIR = ../..
 OBJS = hello.rel hello_descript.rel
 
 CFLAGS = -I $(TUSB_DIR)/include
@@ -18,7 +18,7 @@ install: hello
 hello.ihx: $(OBJS)
 	sdcc -o hello.ihx $(OBJS) $(LDFLAGS)
 
-%.rel: %.c ../include/*.h
+%.rel: %.c $(TUSB_DIR)/include/*.h
 	sdcc -o $@ -c $< $(CFLAGS)
 
 clean:
