@@ -196,7 +196,7 @@ class Interface(xmlrpc.XMLRPC):
             allowed,
             Database.quoteBlob(cPickle.dumps(result, -1))))
         return result
-            
+
     def _cbRender(self, result, request):
         """Wrap the default _cbRender, converting None (which can't be serialized) into True"""
         if result is None:
@@ -221,7 +221,11 @@ class Interface(xmlrpc.XMLRPC):
             caps.append(".".join(base))
         return caps
 
-# rebuild()-friendly mojo
+
+# rebuild()-friendly mojo.
+# Normally this will just create _rootInterface, but if we're rebuild()'ing this
+# module, overwriting it would be a Bad Thing(tm), causing a new root interface
+# with no children to replace it.
 if '_rootInterface' not in globals():
     global _rootInterface
     _rootInterface = None
