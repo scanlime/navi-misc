@@ -27,8 +27,8 @@
 static void set_color_buttons(int selection, GtkWidget **color_buttons) {
 	load_colors(selection);
 	palette_alloc(GTK_WIDGET(gui.xtext));
+	xtext2_set_palette(gui.xtext, colors);
 	/*
-	gtk_xtext_set_palette(gui.xtext, colors);
 	gtk_xtext_set_background(gui.xtext, NULL, FALSE, FALSE);
 	gtk_xtext_refresh(gui.xtext, FALSE);
 	*/
@@ -46,8 +46,8 @@ static void set_palette_buttons(int selection, GtkWidget **palette_buttons) {
 		gtk_color_button_set_color(GTK_COLOR_BUTTON(palette_buttons[i]), &colors[i]);
 	}
 	palette_alloc(GTK_WIDGET(gui.xtext));
+	xtext2_set_palette(gui.xtext, colors);
 	/*
-	gtk_xtext_set_palette(gui.xtext, colors);
 	gtk_xtext_refresh(gui.xtext, FALSE);
 	*/
 }

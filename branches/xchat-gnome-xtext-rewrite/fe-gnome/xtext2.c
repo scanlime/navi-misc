@@ -20,6 +20,8 @@ static void       draw_bg                (XText2 *xtext, int x, int y, int width
 static textentry* nth                    (XText2 *xtext, int line, int *subline);
 static textentry* find_char              (XText2 *xtext, int x, int y, int *offset, gboolean *out_of_bounds);
 static int        find_x                 (XText2 *xtext, int x, textentry *ent, int subline, int line, gboolean *out_of_bounds);
+static void       set_fg                 (XText2 *xtext, GdkGC *gc, int index);
+static void       set_bg                 (XText2 *xtext, GdkGC *gc, int index);
 
 static gpointer parent_class;
 
@@ -51,6 +53,7 @@ struct _XText2Private
   GdkColor     tint;                 /* tint color */
   gboolean     word_wrap;            /* wrap words? */
   int          fontsize;             /* width in pixels of the space ' ' character */
+  gulong       palette[20];          /* color palette */
 
   /* drawing data */
   gint         depth;                /* gdk window depth */
@@ -412,4 +415,55 @@ find_char (XText2 *xtext, int x, int y, int *offset, gboolean *out_of_bounds)
 static int
 find_x (XText2 *xtext, int x, textentry *ent, int subline, int line, gboolean *out_of_bounds)
 {
+}
+
+void
+xtext2_set_palette (XText2 *xtext, GdkColor palette[])
+{
+  int i;
+
+  for (i = 0; i < 19; i++)
+  {
+#ifdef USE_XFT
+    xtext->priv->color[i].color.red   = palette[i].red;
+    xtext->priv->color[i].color.green = palette[i].green;
+    xtext->priv->color[i].color.blue  = palette[i].blue;
+    xtext->priv->color[i].color.alpha = 0xffff;
+    xtext->priv->color[i].color.pixel = palette[i].pixel;
+#endif
+    xtext->priv->palette[i] = palette[i].pixel;
+  }
+
+  if (GTK_WIDGET_REALIZED (xtext))
+  {
+    set_fg (xtext, xtext->priv->fgc, 18);
+    set_bg (xtext, xtext->priv->fgc, 19);
+    set_fg (xtext, xtext->priv->fgc, 19);
+  }
+}
+
+static void
+set_fg (XText2 *xtext, GdkGC *gc, int index)
+{
+  GdkColor col;
+  col.pixel = xtext->priv->palette[index];
+  gdk_gc_set_foreground (gc, &col);
+
+#ifdef USE_XFT
+  if (gc == xtext->priv->fgc)
+    xtext->xft_fg = &xtext->color[index];
+  else
+    xtext->xft_bg = &xtext->color[index];
+#endif
+}
+
+static void
+set_bg (XText2 *xtext, GdkGC *gc, int index)
+{
+  GdkColor col;
+  col.pixel = xtext->priv->palette[index];
+  gdk_gc_set_background (gc, &col);
+#ifdef USE_XFT
+  xtext->xft_bg = &xtext->color[index];
+#endif
 }
