@@ -148,6 +148,30 @@ bool CTestGameServer::add ( int playerID, CNetworkPeer &peer )
 	message.SetType(_MESSAGE_SERVER_INFO);	// ServerInfo
 	message.AddI(playerID);
 	message.Send(peer,true);
+	message.ClearData();
+
+	// send it a user add and client info for everyone else
+	std::map<int,trPlayerInfo>::iterator itr = users.begin();
+	while (itr != users.end())
+	{
+		if (itr->first !=playerID)
+		{
+			message.SetType(_MESSAGE_USER_ADD);
+			message.AddI(itr->first);
+			message.Send(peer,true);
+			message.ClearData();
+
+			message.SetType(_MESSAGE_CLIENT_INFO);	
+			message.AddI(itr->first);
+			message.AddStr(itr->second->name.c_str());
+			message.AddStr(itr->second->material.c_str());
+			message.Send(peer,true);
+			message.ClearData();
+
+		}
+		itr++;
+	}
+
 
 	// send an add to everyone else
 	message.SetType(_MESSAGE_USER_ADD);	// UserAdd
