@@ -58,6 +58,12 @@ class CommitFormatter(Message.Formatter):
                 if fileTag.name == 'file':
                     files.append(str(fileTag))
 
+	# If we only have one file, return it as the prefix.
+	# This prevents the below regex from deleting the filename
+	# itself, assuming it was a partial filename.
+	if len(files) == 1:
+	    return files[0], []
+
         # Start with the prefix found by os.path.commonprefix,
         # then actually make it end with a directory rather than
         # possibly ending with part of a filename.
