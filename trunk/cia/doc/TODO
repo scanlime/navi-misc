@@ -75,8 +75,3 @@ Code
   ruleset. If there are multiple messages with matching path= attributes, it would have
   some way to determine which one is best.
 
-- Implement the RSS <cloud> tag, and the RssInterface for XML-RPC necessary to support it.
-  Leases could be stored in a separate XML-RPC table that's cleaned of old leases during
-  stats maintenance. This would finally make it possible to use standard protocols (RSS,
-  XML-RPC, HTTP...) to receive real-time notification about any project in CIA. This could
-  be done for XML feeds as well.
