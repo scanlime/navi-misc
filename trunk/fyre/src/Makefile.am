@@ -1,6 +1,32 @@
 bin_PROGRAMS = fyre
 
-INCLUDES = $(BINRELOC_CFLAGS) $(PACKAGE_CFLAGS) $(EXR_CFLAGS) '-DGLADEDIR="data"'
+INCLUDES = \
+	$(BINRELOC_CFLAGS)		\
+	$(PACKAGE_CFLAGS)		\
+	$(EXR_CFLAGS)			\
+	$(GNET_CFLAGS)			\
+	'-DGLADEDIR="data"'
+
+fyre_LDADD = \
+	$(BINRELOC_LIBS)		\
+	$(PACKAGE_LIBS)			\
+	$(EXR_LIBS)			\
+	$(GNET_LIBS)
+
+if HAVE_EXR
+EXR_SRC = \
+	exr.c
+else
+EXR_SRC =
+endif
+
+if HAVE_GNET
+GNET_SRC = \
+	remote-server.c			\
+	remote-client.c
+else
+GNET_SRC =
+endif
 
 fyre_SOURCES = 				\
 	main.c				\
@@ -26,8 +52,8 @@ fyre_SOURCES = 				\
 	animation-render-ui.c		\
 	screensaver.c			\
 	prefix.c			\
-	exr.cpp				\
-	remote.c
+	$(EXR_SRC)			\
+	$(GNET_SRC)
 
 noinst_HEADERS =			\
 	animation.h			\
@@ -51,10 +77,5 @@ noinst_HEADERS =			\
 	screensaver.h			\
 	spline.h			\
 	var-int.h			\
-	remote.h
-
-fyre_LDADD = \
-	$(BINRELOC_LIBS)		\
-	$(PACKAGE_LIBS)			\
-	$(EXR_LIBS)
-
+	remote-server.h			\
+	remote-client.h

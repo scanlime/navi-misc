@@ -1,8 +1,9 @@
 /* -*- mode: c; c-basic-offset: 4; -*-
  *
- * remote.h - Remote control mode, an interface for automating
- *            Fyre rendering. Among other things, this is used
- *            to implement slave nodes in a cluster.
+ * remote-client.h - A client for communicating with remote Fyre
+ *                   servers. The remote Fyre servers may actually
+ *                   be on the local machine, or they may be connected
+ *                   via ssh or sockets.
  *
  * Fyre - rendering and interactive exploration of chaotic functions
  * Copyright (C) 2004 David Trowbridge and Micah Dowty
@@ -23,39 +24,33 @@
  *
  */
 
-#ifndef __REMOTE_H__
-#define __REMOTE_H__
+#ifndef __REMOTE_CLIENT_H__
+#define __REMOTE_CLIENT_H__
 
 #include <gtk/gtk.h>
 #include "animation.h"
 #include "iterative-map.h"
+#include "remote-server.h"
 
 G_BEGIN_DECLS
 
-#define REMOTE_TYPE            (remote_get_type ())
-#define REMOTE(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), REMOTE_TYPE, Remote))
-#define REMOTE_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), REMOTE_TYPE, RemoteClass))
-#define IS_REMOTE(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), REMOTE_TYPE))
-#define IS_REMOTE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), REMOTE_TYPE))
+#define REMOTE_CLIENT_TYPE            (remote_client_get_type ())
+#define REMOTE_CLIENT(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), REMOTE_CLIENT_TYPE, RemoteClient))
+#define REMOTE_CLIENT_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), REMOTE_CLIENT_TYPE, RemoteClientClass))
+#define IS_REMOTE_CLIENT(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), REMOTE_CLIENT_TYPE))
+#define IS_REMOTE_CLIENT_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), REMOTE_CLIENT_TYPE))
 
-typedef struct _Remote      Remote;
-typedef struct _RemoteClass RemoteClass;
+typedef struct _RemoteClient      RemoteClient;
+typedef struct _RemoteClientClass RemoteClientClass;
 
-struct _Remote {
+struct _RemoteClient {
     GObject object;
-
-    IterativeMap *map;
-    Animation *animation;
-    gboolean have_gtk;
 
     FILE* output_f;
     FILE* input_f;
-    GHashTable *command_hash;
-
-    gboolean main_loop_running;
 };
 
-struct _RemoteClass {
+struct _RemoteClientClass {
     GObjectClass parent_class;
 };
 
@@ -64,18 +59,14 @@ struct _RemoteClass {
 /******************************************************************* Public Methods */
 /************************************************************************************/
 
-typedef void (*RemoteCallback)  (Remote*          remote,
-				 const char*      command,
-				 const char*      parameters);
+GType          remote_client_get_type         ();
+RemoteClient*  remote_client_new_from_streams (FILE*    output_f,
+					       FILE*    input_f);
+RemoteClient*  remote_client_new_from_command (char*    shell_command);
 
-GType      remote_get_type      ();
-Remote*    remote_new           (IterativeMap*    map,
-				 Animation*       animation,
-				 gboolean         have_gtk);
-void       remote_main_loop     (Remote*          self);
 
 G_END_DECLS
 
-#endif /* __REMOTE_H__ */
+#endif /* __REMOTE_CLIENT_H__ */
 
 /* The End */
