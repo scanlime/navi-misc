@@ -51,7 +51,9 @@ e_plugin_lib_enable (EPluginLib *ep, int enable)
 	ESourceList *source_list;
 	ESourceGroup *group;
 	GSList *groups;
-	ESourceGroup *weather;
+	ESourceGroup *weather = NULL;
+
+	g_print ("migration!\n");
 
 	component = calendar_component_peek ();
 	source_list = calendar_component_peek_source_list (component);
