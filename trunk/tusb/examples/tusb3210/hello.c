@@ -11,7 +11,7 @@
  * the rest is available for buffers. Start at 0xFD00. Note that
  * DMA buffers must be aligned on an 8-byte boundary.
  */
-volatile xdata at 0xFD00 unsigned char ep1_out_x[64];
+volatile xdata at 0xFD80 unsigned char ep1_out_x[64];
 
 void idler() {
   /* Debug code. Look at P3.0 on an oscilloscope to
