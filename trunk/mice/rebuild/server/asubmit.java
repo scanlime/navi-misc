@@ -35,7 +35,6 @@ public class asubmit
 		//create a new question
 		question in = new question(Name,Question);
 		//add it to the input queue
-		System.out.println(putin);
 		putin.add(in);
 	}
 }

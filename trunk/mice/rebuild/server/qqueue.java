@@ -112,7 +112,7 @@ public class qqueue
 	 * @version 2.0
 	 * @return A string version of the queue.
 	 */
-	public String toString()
+	/*public String toString()
 	{
 		int i;
 		String toreturn = "";
@@ -137,5 +137,5 @@ public class qqueue
 		catch(Exception e) {}
 		locked = false;
 		return toreturn;
-	}
+	}*/
 }

@@ -111,6 +111,7 @@ public class njavaadmin extends nbase
 		imain.database.modpass = aadmin.mpas;
 		imain.database.interviewuser = aadmin.iuns;
 		imain.database.interviewpass = aadmin.ipas;
+		asubmit.init(imain.database);
 	}
 	
 	/**
