@@ -62,5 +62,16 @@ void initialize_preferences_irc_page() {
 	widget = glade_xml_get_widget(gui.xml, "highlight list container");
 	gtk_size_group_add_widget(group, widget);
 
+	g_object_unref (group);
+
+	group = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
+
+	widget = glade_xml_get_widget (gui.xml, "hilight add");
+	gtk_size_group_add_widget (group, widget);
+	widget = glade_xml_get_widget (gui.xml, "hilight remove");
+	gtk_size_group_add_widget (group, widget);
+	widget = glade_xml_get_widget (gui.xml, "font selection");
+	gtk_size_group_add_widget (group, widget);
+
 	g_object_unref(group);
 }
