@@ -11,7 +11,8 @@ HEADERS = \
 	src/animation.h		\
 	src/chunked-file.h	\
 	src/curve-editor.h	\
-	src/spline.h
+	src/spline.h		\
+	src/cell-renderer-transition.h
 
 OBJS    = \
 	src/main.o		\
@@ -24,7 +25,8 @@ OBJS    = \
 	src/curve-editor.o	\
 	src/spline.o		\
 	src/explorer-tools.o	\
-	src/explorer-animation.o
+	src/explorer-animation.o \
+	src/cell-renderer-transition.o
 
 
 $(BIN): $(OBJS)

@@ -22,6 +22,7 @@
 
 #include "explorer.h"
 #include "curve-editor.h"
+#include "cell-renderer-transition.h"
 #include <stdlib.h>
 #include <math.h>
 
@@ -110,6 +111,21 @@ static void explorer_init_keyframe_view(Explorer *self) {
 				      NULL);
 
   gtk_tree_view_append_column(tv, col);
+
+  /* The second column uses a custom cell renderer to show the curve and duration
+   */
+  col = gtk_tree_view_column_new();
+  gtk_tree_view_column_set_title(col, "Transition");
+
+  renderer = cell_renderer_transition_new();
+  gtk_tree_view_column_pack_start(col, renderer, FALSE);
+  gtk_tree_view_column_set_attributes(col, renderer,
+				      "spline", ANIMATION_MODEL_SPLINE,
+				      "duration", ANIMATION_MODEL_DURATION,
+				      NULL);
+
+  gtk_tree_view_append_column(tv, col);
+
 }
 
 static void explorer_get_current_keyframe(Explorer *self, GtkTreeIter *iter) {
