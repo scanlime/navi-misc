@@ -50,6 +50,9 @@ main (int argc, char *argv[])
 	int range[8][2];
 	float average[8];
 
+	guchar phase[]  = {24, 33, 21, 28, 26, 34, 17, 14};
+	guchar period[] = {27, 26, 29, 26, 27, 30, 29, 29};
+
 	g_type_init ();
 
 	sensor = field_sensor_new ();
@@ -59,8 +62,8 @@ main (int argc, char *argv[])
 
 		field_sensor_set_result_index (sensor, i, i);
 		field_sensor_set_lc_port_xor  (sensor, i, 0xff);
-		field_sensor_set_period       (sensor, i, 29);
-		field_sensor_set_phase        (sensor, i, 71);
+		field_sensor_set_period       (sensor, i, period[i]);
+		field_sensor_set_phase        (sensor, i, phase[i]);
 		field_sensor_set_half_periods (sensor, i, 10);
 		field_sensor_set_lc_port      (sensor, i, 0x55);
 		if (i % 2) field_sensor_set_adcon_select (sensor, i, FS_RX_1);
