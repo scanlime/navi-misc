@@ -22,7 +22,7 @@ Viewers and editors for the metadata associated with each stats target
 #
 
 from twisted.internet import defer
-from twisted.web import resource
+from twisted.web import resource, server
 from LibCIA.Web import Template
 from Nouvelle import tag, subcontext
 import Nouvelle
@@ -53,7 +53,7 @@ class Info(Template.Section):
         if url:
             rows.append(tag('a', href=url)[url])
         if hasPhoto:
-            rows.append(Template.Photo(MetadataLink(self.target, 'photo').getURL(context)))
+            rows.append(Template.Photo(Link.MetadataLink(self.target, 'photo').getURL(context)))
         if description:
             rows.append(description)
         result.callback(rows)
