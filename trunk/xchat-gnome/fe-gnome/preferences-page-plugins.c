@@ -20,9 +20,11 @@
  */
 
 #include <gconf/gconf-client.h>
+#include <string.h>
 
 #include "preferences-page-plugins.h"
 #include "preferences-dialog.h"
+#include "plugins.h"
 #include "../common/xchat.h"
 #define PLUGIN_C
 typedef struct session xchat_context;
@@ -36,10 +38,8 @@ typedef int (xchat_deinit_func) (xchat_plugin *);
 typedef void (xchat_plugin_get_info) (char **, char **, char **, char **);
 
 extern GSList *plugin_list; // xchat's list of loaded plugins.
+extern GSList *enabled_plugins;
 extern XChatGUI gui;
-
-static GSList *enabled_plugins;
-static GConfClient *gconf_client;
 
 
 static void
@@ -63,11 +63,11 @@ xchat_gnome_plugin_add (char *filename, PreferencesPluginsPage *page)
 	if (handle != NULL && g_module_symbol (handle, "xchat_plugin_get_info", &info_func)) {
 		/* Create a new plugin instance and add it to our list of known plugins. */
 		/* FIXME: zed added a 'reserved' field, but i'm not sure what it is */
-		((xchat_plugin_get_info*)info_func) (&name, &desc, &version, NULL);
+		((xchat_plugin_get_info*) info_func) (&name, &desc, &version, NULL);
 	} else {
 		/* In the event that this foolish plugin has no get_info function we'll just use
 		 * the file name. */
-		name = rindex (filename, '/') + 1;
+		name = strrchr (filename, '/') + 1;
 		version = _("unknown");
 		desc = _("unkown");
 	}
@@ -84,16 +84,12 @@ filename_test (gconstpointer a, gconstpointer b)
 static void
 load_unload (char *filename, gboolean loaded, PreferencesPluginsPage *page, GtkTreeIter iter)
 {
-	char *buf;
-	GError *err = NULL;
+	gchar *buf = NULL;
+	GConfClient *client;
 
 	if (loaded) {
 		GSList *removed_plugin;
-		buf = malloc (strlen (filename) + 10);
-		if (strchr (filename, ' '))
-			sprintf (buf, "UNLOAD \"%s\"", filename);
-		else
-			sprintf (buf, "UNLOAD %s", filename);
+		buf = g_strdup_printf ("UNLOAD \"%s\"", filename);
 
 		/* FIXME: Bad to assume that the plugin was successfully unloaded. */
 		//gtk_list_store_set (GTK_LIST_STORE (model), &iter, 4, FALSE, -1);
@@ -103,20 +99,19 @@ load_unload (char *filename, gboolean loaded, PreferencesPluginsPage *page, GtkT
 		}
 
 	} else {
-		buf = malloc (strlen (filename) + 9);
-		if (strchr (filename, ' '))
-			sprintf (buf, "LOAD \"%s\"", filename);
-		else
-			sprintf (buf, "LOAD %s", filename);
+		buf = g_strdup_printf ("LOAD \"%s\"", filename);
 
 		enabled_plugins = g_slist_append (enabled_plugins, filename);
 	}
 
 	handle_command (gui.current_session, buf, FALSE);
+
 	/* Update the enabled gconf key. */
-	gconf_client_set_list (gconf_client, "/apps/xchat/plugins/enabled",
-			GCONF_VALUE_STRING, enabled_plugins, &err);
-	free (buf);
+	client = gconf_client_get_default ();
+	gconf_client_set_list (client, "/apps/xchat/plugins/enabled", GCONF_VALUE_STRING, enabled_plugins, NULL);
+	g_object_unref (client);
+
+	g_free (buf);
 }
 
 static void
@@ -202,6 +197,21 @@ row_activated (GtkTreeView *treeview, GtkTreePath *path, GtkTreeViewColumn *colu
 	}
 }
 
+static gboolean
+set_loaded_if_match (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, gpointer data)
+{
+	char *filename;
+
+	gtk_tree_model_get (model, iter, 3, &filename, -1);
+
+	if (strcmp ((char*)data, filename) == 0) {
+		gtk_list_store_set (GTK_LIST_STORE (model), iter, 4, TRUE, -1);
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
 PreferencesPluginsPage *
 preferences_page_plugins_new (gpointer prefs_dialog, GladeXML *xml)
 {
@@ -209,6 +219,8 @@ preferences_page_plugins_new (gpointer prefs_dialog, GladeXML *xml)
 	PreferencesDialog *p = (PreferencesDialog *) prefs_dialog;
 	GtkTreeIter iter;
 	GtkTreeSelection *select;
+	GSList *list;
+	xchat_plugin *plugin;
 
 #define GW(name) ((page->name) = glade_xml_get_widget (xml, #name))
 	GW(plugins_list);
@@ -243,6 +255,20 @@ preferences_page_plugins_new (gpointer prefs_dialog, GladeXML *xml)
 	g_signal_connect (G_OBJECT (select),               "changed",       G_CALLBACK (selection_changed),     page);
 	g_signal_connect (G_OBJECT (page->plugins_list),   "row-activated", G_CALLBACK (row_activated),         page);
 
+	/* Put our fun, happy plugins of joy into the great list store of pluginny goodness.
+	 * Starting with the list of plugins we keep and then the list of plugins loaded by
+	 * the xchat core in its infinite wisdom. While we do the loaded plugins we'll add
+	 * them to our list of known plugins.
+	 */
+	list = plugin_list;
+	while (list) {
+		plugin = list->data;
+		if (plugin->version[0] != 0) {
+			gtk_tree_model_foreach (GTK_TREE_MODEL (page->plugin_store), set_loaded_if_match, plugin->filename);
+		}
+		list = list->next;
+	}
+
 	return page;
 }
 
@@ -258,47 +284,6 @@ preferences_page_plugins_free (PreferencesPluginsPage *page)
  *******************************************************************************/
 
 
-/* Helpers */
-static gboolean set_loaded_if_match (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter,
-		gpointer data);
-static void autoload_plugin_cb (gpointer data, gpointer user_data);
-
-static GtkWidget *file_selector; // because everyone needs a file selec-tor!
-
-void
-initialize_preferences_plugins_page ()
-{
-	const gchar *homedir;
-	gchar *xchatdir;
-	GError *err = NULL;
-
-	/* Fun little string things that ultimately become the path to ~/.xchat2/plugins.
-	 * FIXME: It might behoove us to store the expanded path string to ~/.xchat2 somewhere
-	 * more permanent...
-	 */
-	homedir = g_get_home_dir();
-	xchatdir = g_strdup_printf ("%s/.xchat2/plugins", homedir);
-
-	/* Create a list of all the plugins in our known directories. */
-	/*
-	for_files (XCHATLIBDIR"/plugins", "*.so", xchat_gnome_plugin_add);
-	for_files (XCHATLIBDIR"/plugins", "*.sl", xchat_gnome_plugin_add);
-	for_files (XCHATLIBDIR"/plugins", "*.py", xchat_gnome_plugin_add);
-	for_files (XCHATLIBDIR"/plugins", "*.pl", xchat_gnome_plugin_add);
-	for_files (xchatdir, "*.so", xchat_gnome_plugin_add);
-	for_files (xchatdir, "*.sl", xchat_gnome_plugin_add);
-	for_files (xchatdir, "*.py", xchat_gnome_plugin_add);
-	for_files (xchatdir, "*.pl", xchat_gnome_plugin_add);
-	*/
-
-	g_free (xchatdir);
-
-	/* Get our GConf stuff. */
-	gconf_client = gconf_client_get_default ();
-	enabled_plugins = gconf_client_get_list (gconf_client, "/apps/xchat/plugins/enabled",
-			GCONF_VALUE_STRING, &err);
-}
-
 /* FIXME: As far as I can tell this function is getting called atleast 3 times at the
  * start of the application, which seems kinda dumb. That means that just at the start
  * of the application we fill and clear the list 3 times... I'm 99% sure this is coming
@@ -307,61 +292,4 @@ initialize_preferences_plugins_page ()
 void
 preferences_plugins_page_update()
 {
-#if 0
-	GtkWidget *treeview;
-	GtkTreeModel *model;
-	GSList *list;
-	xchat_plugin *plugin;
-
-	treeview = glade_xml_get_widget (gui.xml, "plugins list");
-	model = gtk_tree_view_get_model (GTK_TREE_VIEW (treeview));
-
-	/* Put our fun, happy plugins of joy into the great list store of pluginny goodness.
-	 * Starting with the list of plugins we keep and then the list of plugins loaded by
-	 * the xchat core in its infinite wisdom. While we do the loaded plugins we'll add
-	 * them to our list of known plugins.
-	 */
-	list = plugin_list;
-	while (list) {
-		plugin = list->data;
-		if (plugin->version[0] != 0) {
-			gtk_tree_model_foreach (model, set_loaded_if_match, plugin->filename);
-		}
-		list = list->next;
-	}
-#endif
-}
-
-void
-autoload_plugins ()
-{
-	/* g_slist_foreach (enabled_plugins, &autoload_plugin_cb, NULL); */
-}
-
-static gboolean
-set_loaded_if_match (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, gpointer data)
-{
-	char *filename;
-
-	gtk_tree_model_get (model, iter, 3, &filename, -1);
-
-	if (strcmp ((char*)data, filename) == 0) {
-		gtk_list_store_set (GTK_LIST_STORE (model), iter, 4, TRUE, -1);
-		return TRUE;
-	}
-
-	return FALSE;
-}
-
-static void
-autoload_plugin_cb (gpointer data, gpointer user_data)
-{
-	char *filename;
-	filename = (char*) data;
-
-	/* We can't use handle_command to run LOAD <filename> here; not sure
-	 * why. But loading the plugin with plugin_load seems to work just
-	 * fine.
-	 */
-	plugin_load (gui.current_session, filename, NULL);
 }
