@@ -205,17 +205,15 @@ class AnalogUpdaterThread(threading.Thread):
     def __init__(self, graph):
         threading.Thread.__init__(self)
         self.graph = graph
-        self.dev = pyrcpod.lib.rcpod_InitSimple()
+        self.rcpod = pyrcpod.devices[0].open()
         self.running = True
         self.start()
 
     def run(self):
-        print self.dev
         while self.running:
             # Perform an analog reading, using the array helpers
-            results = pyrcpod.lib.uchar_array(8)
-            pyrcpod.lib.rcpod_AnalogReadAll(self.dev, results)
-            self.graph.channels = [pyrcpod.lib.uchar_array_get(results, i) / 255.0 for i in range(8)]
+            readings = self.rcpod.analogReadAll()
+            self.graph.channels = [value / 255.0 for value in readings]
             time.sleep(0.01)
 
 

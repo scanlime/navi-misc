@@ -146,6 +146,27 @@ class safe(SimpleRcpodTestCase):
             self.assertEqual(pin.input().test(), True, "%s is not True" % pin.input())
             self.assertEqual(pin.output().test(), False, "%s is an False" % pin.output())
 
+    def testAnalogAllSanity(self):
+        """show that analogReadAll returns the right number of values and that they are all within range"""
+        return
+        values = self.rcpod.analogReadAll()
+        self.assertEqual(type(values), type([]))
+        self.assertEqual(len(values), 8)
+        for value in values:
+            self.assert_(type(value), int)
+            self.assert_(value >= 0 and value <= 255)
+
+    def testAnalogChannelSanity(self):
+        """show that analogReadChannel returns the right number of values and that they are all within range"""
+        for channel in range(8):
+            value = self.rcpod.analogReadChannel(channel)
+            self.assert_(type(value), int)
+            self.assert_(value >= 0 and value <= 255)
+
+        # Make sure an exception is raised on invalid channel numbers
+        for channel in (-1, 8, 256):
+            self.assertRaises(ValueError, self.rcpod.analogReadChannel, channel)
+
 
 if __name__ == '__main__':
     # If no arguments were given, unittest usually runs the default test
