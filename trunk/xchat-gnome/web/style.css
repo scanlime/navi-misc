@@ -31,4 +31,9 @@ div.navigation {
 }
 
 div.content {
+  padding-top: 3em;
+}
+
+p {
+  margin: 0em 1em;
 }
