@@ -23,6 +23,7 @@ Viewers and editors for the metadata associated with each stats target
 
 from twisted.internet import defer
 from twisted.web import resource, server, error
+from twisted.protocols import http
 from LibCIA.Web import Template
 from LibCIA import Units, Stats
 from Nouvelle import tag, subcontext
@@ -181,16 +182,32 @@ class MetadataValuePage(resource.Resource):
         self.putChild('.thumbnail', ThumbnailRootPage(target, key))
 
     def render(self, request):
-        # Retrieve the metadata value, rendering the page once it arrives
-        self.target.metadata.get(self.key).addCallback(
-            self._render, request).addErrback(request.processingFailed)
+        # Retrieve the metadata value and modification time first
+        defer.gatherResults([
+            self.target.metadata.get(self.key),
+            self.target.metadata.getMTime(self.key),
+            ]).addCallback(
+            self._render, request
+            ).addErrback(request.processingFailed)
         return server.NOT_DONE_YET
 
-    def _render(self, t, request):
+    def _render(self, resultList, request):
+        t, mtime = resultList
         if t:
             value, mimeType = t
             request.setHeader('content-type', mimeType)
-            request.write(value)
+
+            # If this was a conditional If-Modified-Since request,
+            # this will send a NOT_MODIFIED response and no data when
+            # necessary. If we're sending back data, this automatically
+            # sticks on the right Last-Modified header. This will let
+            # browsers cache metadata intelligently, yay.
+            # Note the short circuit logic necessary to avoid the
+            # setLastModified call if we don't know what the modification
+            # time is.
+            if (mtime is None) or (request.setLastModified(mtime) is not http.CACHED):
+                request.write(value)
+
             request.finish()
         else:
             request.write(error.NoResource("No such metadata key %r" % self.key).render(request))
@@ -233,9 +250,14 @@ class ThumbnailPage(MetadataValuePage):
         resource.Resource.__init__(self)
 
     def render(self, request):
-        # Retrieve the thumbnail, rendering the page once it arrives
-        self.target.metadata.getThumbnail(self.key, self.size).addCallback(
-            self._render, request).addErrback(request.processingFailed)
+        # Retrieve the thumbnail and the metadata key's modification time.
+        # This uses the same _render callback as MetadataValuePage.
+        defer.gatherResults([
+            self.target.metadata.getThumbnail(self.key, self.size),
+            self.target.metadata.getMTime(self.key),
+            ]).addCallback(
+            self._render, request
+            ).addErrback(request.processingFailed)
         return server.NOT_DONE_YET
 
 
