@@ -123,6 +123,9 @@ class Server:
         else:
             return "%s:%d" % (self.host, self.port)
 
+    def __repr__(self):
+        return "<Server at %s>" % self
+
 
 class ChannelRequest(Request):
     """A Request implementation that requires a specified number of bots to be

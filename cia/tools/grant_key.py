@@ -24,7 +24,7 @@ import os
 
 class Options(Client.Options):
     optParameters = [
-        ['output', 'o', 'granted.key', 'A file to write the granted key to'],
+        ['owner', 'o', None, 'Set the owner of the new key'],
         ]
 
     def getSynopsis(self):
@@ -42,14 +42,7 @@ class KeyGranter(Client.App):
     optionsClass = Options
 
     def main(self):
-        # Ask the server to grant us this capability
-        key = self.server.security.grant(self.key, self.config['capability'])
-
-        # Write the key to disk, setting the file permissions on it such to make it more private
-        fileName = self.config['output']
-        f = open(fileName, 'w')
-        os.chmod(fileName, 0600)
-        f.write(key)
+        print self.server.security.grant(self.key, self.config['capability'], self.config['owner'])
 
 if __name__ == '__main__':
     KeyGranter().main()
