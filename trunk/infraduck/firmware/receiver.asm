@@ -1,6 +1,6 @@
 ;
 ; Lightgun IR receiver board
-; Copyright 2003, Micah Dowty <micah@navi.picogui.org>
+; Copyright 2003-2004, Micah Dowty <micah@navi.picogui.org>
 ;
 ; This is firmware for an IR receiver board using a PIC16F84
 ; and a Sharp GP1U or equivalent IR receiver module.

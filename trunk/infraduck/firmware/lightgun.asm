@@ -1,6 +1,6 @@
 ;
 ; NES lightgun IR transmitter
-; Copyright 2003, Micah Dowty <micah@navi.picogui.org>
+; Copyright 2003-2004, Micah Dowty <micah@navi.picogui.org>
 ;
 ; This is firmware for a PIC12C509A used to interface a Nintendo
 ; Zapper(tm) light gun with a computer wirelessly, using infrared.
