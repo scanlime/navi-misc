@@ -6,7 +6,7 @@
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
+ *of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -25,6 +25,72 @@
 #include <libedataserver/e-source.h>
 #include <libedataserver/e-url.h>
 #include <libgnome/gnome-i18n.h>
+#include <libxml/parser.h>
+#include <libxml/tree.h>
+
+static GtkTreeStore *store = NULL;
+
+static void
+parse_subtree (GtkTreeIter *parent, xmlNode *node)
+{
+	GtkTreeIter iter;
+	xmlNode *child;
+
+	if (node->type == XML_ELEMENT_NODE) {
+		gtk_tree_store_append (store, &iter, parent);
+		if (strcmp (node->name, "location") == 0) {
+			xmlAttr *attr;
+
+			child = node->children;
+			g_assert (child->type == XML_TEXT_NODE);
+			gtk_tree_store_set (store, &iter, 0, child->content, -1);
+
+			for (attr = node->properties; attr; attr = attr->next) {
+			}
+		}
+		else {
+			xmlAttr *attr;
+
+			for (child = node->children; child; child = child->next)
+				parse_subtree (&iter, child);
+
+			for (attr = node->properties; attr; attr = attr->next) {
+				if (strcmp (attr->name, "name") == 0) {
+					gtk_tree_store_set (store, &iter, 0, attr->children->content, -1);
+				}
+			}
+		}
+	}
+
+}
+
+static void
+load_locations ()
+{
+	xmlDoc *doc;
+	xmlNode *root, *child;
+
+	LIBXML_TEST_VERSION
+
+	doc = xmlParseFile("/home/jupiter/navi-misc/evo/Locations.xml.in");
+	if (doc == NULL) {
+		g_warning ("failed to read locations file");
+		return;
+	}
+
+	store = gtk_tree_store_new (4,
+	    G_TYPE_STRING,		/* name */
+	    G_TYPE_STRING,		/* code */
+	    G_TYPE_STRING,		/* URL */
+	    G_TYPE_STRING);		/* type */
+
+	root = xmlDocGetRootElement (doc);
+
+	for (child = root->children; child; child = child->next)
+		parse_subtree (NULL, child);
+
+	xmlFreeDoc (doc);
+}
 
 GtkWidget *
 e_calendar_weather_location (EPlugin *epl, EConfigHookItemFactoryData *data)
@@ -35,6 +101,8 @@ e_calendar_weather_location (EPlugin *epl, EConfigHookItemFactoryData *data)
 	ESource *source = t->source;
 	ESourceGroup *group = e_source_peek_group (source);
 	static GtkWidget *hidden = NULL;
+	GtkCellRenderer *renderer;
+	GtkTreeViewColumn *column;
 
 	if (!hidden)
 		hidden = gtk_label_new ("");
@@ -44,6 +112,9 @@ e_calendar_weather_location (EPlugin *epl, EConfigHookItemFactoryData *data)
 
 	if (data->old)
 		return data->old;
+
+	if (!store)
+		load_locations ();
 
 	parent = data->parent;
 
@@ -62,11 +133,15 @@ e_calendar_weather_location (EPlugin *epl, EConfigHookItemFactoryData *data)
 	gtk_widget_show (swin);
 	gtk_box_pack_end (GTK_BOX (vbox), swin, TRUE, TRUE, 0);
 
-	treeview = gtk_tree_view_new ();
+	treeview = gtk_tree_view_new_with_model (GTK_TREE_MODEL (store));
 	gtk_widget_show (treeview);
 	gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW (swin), treeview);
 
-	gtk_table_attach (GTK_TABLE (parent), vbox, 0, 2, row, row+1, GTK_EXPAND | GTK_FILL, 0, 0, 0);
+	renderer = gtk_cell_renderer_text_new ();
+	column = gtk_tree_view_column_new_with_attributes ("Location", renderer, "text", 0, NULL);
+	gtk_tree_view_append_column (GTK_TREE_VIEW (treeview), column);
+
+	gtk_table_attach (GTK_TABLE (parent), vbox, 0, 2, row, row+1, GTK_EXPAND | GTK_FILL, GTK_EXPAND | GTK_FILL, 0, 0);
 
 	return treeview;
 }
