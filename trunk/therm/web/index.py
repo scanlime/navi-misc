@@ -53,7 +53,7 @@ class ThermRRD(rrd.RrdFile):
         rrd.RrdFile.buildRule(self)
         self.updatePackets(self.getStamp())
 
-    def updatePackets(self, id, stepSize=50):
+    def updatePackets(self, id, stepSize=20):
         iter = self.source.iterPacketsAfter(id)
         while 1:
             queue = []
