@@ -712,185 +712,377 @@ static bool		needsFullscreen()
   return false;
 }
 
+
+//
+//	init windows specific networking  ( TODO: move this into the network lib )s
+//
+void startupWinsoc ( void )
+{
+#ifdef _WIN32
+	// startup winsock
+	static const int major = 2, minor = 2;
+	WSADATA wsaData;
+	if (WSAStartup(MAKEWORD(major, minor), &wsaData))
+	{
+		printFatalError("Failed to initialize winsock.  Terminating.\n");
+		return 1;
+	}
+	if (LOBYTE(wsaData.wVersion) != major || HIBYTE(wsaData.wVersion) != minor)
+	{
+			printFatalError("Version mismatch in winsock;"
+				"  got %d.%d.  Terminating.\n",
+				(int)LOBYTE(wsaData.wVersion),
+				(int)HIBYTE(wsaData.wVersion));
+			WSACleanup();
+			return 1;
+		}
+#endif
+}
+
+//
+//	init the BZDB stuff
+//
+void setupBZDB ( void )
+{
+	// set default DB entries
+	for (unsigned int gi = 0; gi < numGlobalDBItems; ++gi)
+	{
+		assert(globalDBItems[gi].name != NULL);
+		if (globalDBItems[gi].value != NULL) {
+			BZDB.set(globalDBItems[gi].name, globalDBItems[gi].value);
+			BZDB.setDefault(globalDBItems[gi].name, globalDBItems[gi].value);
+		}
+		BZDB.setPersistent(globalDBItems[gi].name, globalDBItems[gi].persistent);
+		BZDB.setPermission(globalDBItems[gi].name, globalDBItems[gi].permission);
+	}
+
+	BZDBCache::init();
+
+	if (getenv("BZFLAGID"))
+	{
+		BZDB.set("callsign", getenv("BZFLAGID"));
+		strncpy(startupInfo.callsign, getenv("BZFLAGID"),sizeof(startupInfo.callsign) - 1);
+		startupInfo.callsign[sizeof(startupInfo.callsign) - 1] = '\0';
+	}
+	else if (getenv("BZID"))
+	{
+		BZDB.set("callsign", getenv("BZID"));
+		strncpy(startupInfo.callsign, getenv("BZID"),sizeof(startupInfo.callsign) - 1);
+		startupInfo.callsign[sizeof(startupInfo.callsign) - 1] = '\0';
+	}
+
+	CommandsStandard::add();
+	unsigned int i;
+
+	// prepare DB entries
+	for (i = 0; i < countof(defaultDBItems); ++i)
+	{
+		assert(defaultDBItems[i].name != NULL);
+		if (defaultDBItems[i].value != NULL) {
+			BZDB.set(defaultDBItems[i].name, defaultDBItems[i].value);
+			BZDB.setDefault(defaultDBItems[i].name, defaultDBItems[i].value);
+		}
+		BZDB.setPersistent(defaultDBItems[i].name, defaultDBItems[i].persistent);
+		BZDB.setPermission(defaultDBItems[i].name, defaultDBItems[i].permission);
+		BZDB.addCallback(defaultDBItems[i].name, defaultDBItems[i].callback, NULL);
+	}
+
+	// parse for the config filename
+	// the rest of the options are parsed after the config file
+	// has been loaded to allow for command line overrides
+	parseConfigName(argc, argv);
+}
+
+//
+//	initialize timers and randomness stuff
+//
+void initTimers ( void )
+{
+	// initialize global objects and classes
+	bzfsrand(time(0));
+	time_t timeNow;
+	time(&timeNow);
+	userTime = *localtime(&timeNow);
+}
+
+//
+//	read configs and resources
+//
+void readConfigs ( void )
+{
+	if (alternateConfig != "")// read resources
+	{
+		if (CFGMGR.read(alternateConfig))
+			startupInfo.hasConfiguration = true;
+	}
+	if (!startupInfo.hasConfiguration)
+	{
+		if (CFGMGR.read(getConfigFileName()))
+			startupInfo.hasConfiguration = true;
+	}
+
+#if !defined(_WIN32) & !defined(macintosh)
+	if (!startupInfo.hasConfiguration)
+	{
+		if (CFGMGR.read(getConfigFileName2()))
+			startupInfo.hasConfiguration = true;
+	}
+#endif
+
+	if (startupInfo.hasConfiguration)
+		ActionBinding::instance().getFromBindings();
+	else 
+		ActionBinding::instance().resetBindings();// bind default keys
+}
+
+//
+//	restore some configuration (command line overrides these)
+//
+void setCommandLineOverides ( void )
+{
+	if (startupInfo.hasConfiguration)
+	{
+		if (BZDB.isSet("callsign"))
+		{
+			strncpy(startupInfo.callsign, BZDB.get("callsign").c_str(),sizeof(startupInfo.callsign) - 1);
+			startupInfo.callsign[sizeof(startupInfo.callsign) - 1] = '\0';
+		}
+		if (BZDB.isSet("team"))
+		{
+			std::string value = BZDB.get("team");
+			for (int i = 0; i < NumTeams; i++)
+			{
+				if (value == Team::getName((TeamColor)i))
+				{
+					startupInfo.team = (TeamColor)i;
+					break;
+				}
+			}
+			if (value == Team::getName(AutomaticTeam))
+				startupInfo.team = AutomaticTeam;
+		}
+		if (BZDB.isSet("server"))
+		{
+			strncpy(startupInfo.serverName, BZDB.get("server").c_str(),sizeof(startupInfo.serverName) - 1);
+			startupInfo.serverName[sizeof(startupInfo.serverName) - 1] = '\0';
+		}
+		if (BZDB.isSet("port"))
+			startupInfo.serverPort = atoi(BZDB.get("port").c_str());
+
+		// check for reassigned team colors
+		if (BZDB.isSet("roguecolor"))
+			setTeamColor(RogueTeam, BZDB.get("roguecolor"));
+
+		if (BZDB.isSet("redcolor"))
+			setTeamColor(RedTeam, BZDB.get("redcolor"));
+
+		if (BZDB.isSet("greencolor"))
+			setTeamColor(GreenTeam, BZDB.get("greencolor"));
+
+		if (BZDB.isSet("bluecolor"))
+			setTeamColor(BlueTeam, BZDB.get("bluecolor"));
+
+		if (BZDB.isSet("purplecolor"))
+			setTeamColor(PurpleTeam, BZDB.get("purplecolor"));
+
+		// check for reassigned radar colors
+		if (BZDB.isSet("rogueradar"))
+			setRadarColor(RogueTeam, BZDB.get("rogueradar"));
+
+		if (BZDB.isSet("redradar"))
+			setRadarColor(RedTeam, BZDB.get("redradar"));
+
+		if (BZDB.isSet("greenradar"))
+			setRadarColor(GreenTeam, BZDB.get("greenradar"));
+
+		if (BZDB.isSet("blueradar"))
+			setRadarColor(BlueTeam, BZDB.get("blueradar"));
+
+		if (BZDB.isSet("purpleradar"))
+			setRadarColor(PurpleTeam, BZDB.get("purpleradar"));
+
+		// ignore window name in config file (it's used internally)
+		BZDB.unset("_window");
+		BZDB.unset("_multisample");
+	}
+}
+
+//
+// lad badwords, see if there is a _default_ badwords file
+//
+void loadBadwords ( void )
+{
+	if (!BZDB.isSet("filterFilename"))
+	{
+		std::string name = "";
+#if !defined(_WIN32) & !defined(macintosh)
+		name = getConfigDirName();
+		name += "badwords.txt";
+#elif defined(_WIN32) /* !defined(_WIN32) */
+		name = getConfigDirName();
+		name += "badwords.txt";
+#else
+		name = "badwords.txt"; // FIXME - use getConfigDirName() ?
+#endif /* !defined(_WIN32) & !defined(macintosh) */
+
+		// get a handle on a filter object to attempt a load
+		if (BZDB.isSet("filter"))
+		{
+			filter = (WordFilter *)BZDB.getPointer("filter");
+			if (filter == NULL)
+				filter = new WordFilter();
+		}
+		else
+			filter = new WordFilter();      // filter is not set
+
+		// XXX should stat the file first and load with interactive feedback
+		unsigned int count = filter->loadFromFile(name, false);
+		if (count > 0)
+			std::cout << "Loaded " << count << " words from \"" << name << "\"" << std::endl;
+	}
+
+	// load the bad word filter, regardless of a default, if it was set
+	if (BZDB.isSet("filterFilename"))
+	{
+		std::string filterFilename = BZDB.get("filterFilename");
+		std::cout << "Filter file name specified is \"" << filterFilename << "\"" << std::endl;
+		if (filterFilename.length() != 0)
+		{
+			if (filter == NULL)
+				filter = new WordFilter();
+
+			std::cout << "Loading " << filterFilename << std::endl;
+			unsigned int count = filter->loadFromFile(filterFilename, true);
+			std::cout << "Loaded " << count << " words" << std::endl;
+
+			// stash the filter into the database for retrieval later
+			BZDB.setPointer("filter", (void *)filter, StateDatabase::ReadOnly );
+			BZDB.setPersistent("filter", false);
+		}
+		else
+			std::cerr << "WARNING: A proper file name was not given for the -badwords argument" << std::endl;
+	}
+}
+
+//
+// set time from BZDB
+//
+void setTime ( void )
+{
+	if (BZDB.isSet("fixedTime"))
+	{
+		int hours, minutes, seconds;
+		char dbTime[256];
+
+		strncpy(dbTime, BZDB.get("fixedTime").c_str(), sizeof(dbTime) - 1);
+
+		if (sscanf(dbTime, "%d:%d:%d", &hours, &minutes, &seconds) != 3 || hours < 0 || hours > 23 || minutes < 0 || minutes > 59 || seconds < 0 || seconds > 59)
+			printFatalError("Invalid argument for fixedTime = %s", dbTime);
+
+		userTime.tm_sec = seconds;
+		userTime.tm_min = minutes;
+		userTime.tm_hour = hours;
+	}
+}
+
+//
+// 	// get email address if not anonymous
+//
+void setEmailAddy ( void )
+{
+	std::string email = "default";
+	if (!anonymous)
+	{
+		if (BZDB.isSet("email"))
+		{
+			email = BZDB.get("email");
+		} 
+
+		if (email == "default")
+		{
+			email = anonymousName;
+			std::string hostname = Address::getHostName();
+#if defined(_WIN32)
+			char username[256];
+			DWORD usernameLen = sizeof(username);
+			GetUserName(username, &usernameLen);
+#elif defined(macintosh)
+			const char *username = "mac_user";
+#else
+			struct passwd* pwent = getpwuid(getuid());
+			const char* username = pwent ? pwent->pw_name : NULL;
+#endif
+			if (hostname == "")
+				hostname = "unknown";
+			if (username)
+			{
+				email = username;
+				email += "@";
+				email += hostname;
+			}
+		}
+	}
+	email = email.substr(0, sizeof(startupInfo.email) - 1);
+	strcpy(startupInfo.email, email.c_str());
+}
+
+//
+// open display
+//
+int openDisplay ( void )
+{
+	PlatformFactory* platformFactory = PlatformFactory::getInstance();
+
+	display = platformFactory->createDisplay(NULL, NULL);
+	if (!display)
+	{
+		printFatalError("Can't open display.  Exiting.");
+		return 1;
+	}
+
+	// choose visual
+	BzfVisual* visual = platformFactory->createVisual(display);
+	setVisual(visual);
+
+	// make the window
+	BzfWindow* window = platformFactory->createWindow(display, visual);
+	if (!window->isValid())
+	{
+		printFatalError("Can't create window.  Exiting.");
+		return 1;
+	}
+	window->setTitle("OpenCombat");
+	return 0;
+}
+
 //
 // main()
 //	initialize application and enter event loop
 //
-
 #if defined(_WIN32) && !defined(HAVE_SDL)
 int			myMain(int argc, char** argv)
 #else /* defined(_WIN32) */
 int			main(int argc, char** argv)
 #endif /* defined(_WIN32) */
 {
-#ifdef _WIN32
-  // startup winsock
-  static const int major = 2, minor = 2;
-  WSADATA wsaData;
-  if (WSAStartup(MAKEWORD(major, minor), &wsaData)) {
-    printFatalError("Failed to initialize winsock.  Terminating.\n");
-    return 1;
-  }
-  if (LOBYTE(wsaData.wVersion) != major ||
-      HIBYTE(wsaData.wVersion) != minor) {
-    printFatalError("Version mismatch in winsock;"
-		    "  got %d.%d.  Terminating.\n",
-		    (int)LOBYTE(wsaData.wVersion),
-		    (int)HIBYTE(wsaData.wVersion));
-    WSACleanup();
-    return 1;
-  }
-#endif
+	startupWinsoc();
 
   WordFilter *filter = (WordFilter *)NULL;
-
   argv0 = argv[0];
-
   // init libs
 
   //init_packetcompression();
 
-  // check time bomb
-  if (timeBombBoom()) {
-    printFatalError("This release expired on %s. \n"
-		"Please upgrade to the latest release. \n"
-		"Exiting.", timeBombString());
-    exit(0);
-  }
+	initTimers();
+	setupBZDB();
 
-  // initialize global objects and classes
-  bzfsrand(time(0));
-
-    // set default DB entries
-  for (unsigned int gi = 0; gi < numGlobalDBItems; ++gi) {
-    assert(globalDBItems[gi].name != NULL);
-    if (globalDBItems[gi].value != NULL) {
-      BZDB.set(globalDBItems[gi].name, globalDBItems[gi].value);
-      BZDB.setDefault(globalDBItems[gi].name, globalDBItems[gi].value);
-    }
-    BZDB.setPersistent(globalDBItems[gi].name, globalDBItems[gi].persistent);
-    BZDB.setPermission(globalDBItems[gi].name, globalDBItems[gi].permission);
-  }
-
-  BZDBCache::init();
   Flags::init();
 
-  if (getenv("BZFLAGID")) {
-    BZDB.set("callsign", getenv("BZFLAGID"));
-    strncpy(startupInfo.callsign, getenv("BZFLAGID"),
-					sizeof(startupInfo.callsign) - 1);
-    startupInfo.callsign[sizeof(startupInfo.callsign) - 1] = '\0';
-  } else if (getenv("BZID")) {
-    BZDB.set("callsign", getenv("BZID"));
-    strncpy(startupInfo.callsign, getenv("BZID"),
-					sizeof(startupInfo.callsign) - 1);
-    startupInfo.callsign[sizeof(startupInfo.callsign) - 1] = '\0';
-  }
-  time_t timeNow;
-  time(&timeNow);
-  userTime = *localtime(&timeNow);
-
-  CommandsStandard::add();
-  unsigned int i;
-
-  // prepare DB entries
-  for (i = 0; i < countof(defaultDBItems); ++i) {
-    assert(defaultDBItems[i].name != NULL);
-    if (defaultDBItems[i].value != NULL) {
-      BZDB.set(defaultDBItems[i].name, defaultDBItems[i].value);
-      BZDB.setDefault(defaultDBItems[i].name, defaultDBItems[i].value);
-    }
-    BZDB.setPersistent(defaultDBItems[i].name, defaultDBItems[i].persistent);
-    BZDB.setPermission(defaultDBItems[i].name, defaultDBItems[i].permission);
-    BZDB.addCallback(defaultDBItems[i].name, defaultDBItems[i].callback, NULL);
-  }
-
-  // parse for the config filename
-  // the rest of the options are parsed after the config file
-  // has been loaded to allow for command line overrides
-  parseConfigName(argc, argv);
-  
-  // read resources
-  if (alternateConfig != "") {
-    if (CFGMGR.read(alternateConfig)) {
-      startupInfo.hasConfiguration = true;
-    }
-  }
-  if (!startupInfo.hasConfiguration) {
-    if (CFGMGR.read(getConfigFileName()))
-      startupInfo.hasConfiguration = true;
-  }
-#if !defined(_WIN32) & !defined(macintosh)
-  if (!startupInfo.hasConfiguration)
-    if (CFGMGR.read(getConfigFileName2()))
-      startupInfo.hasConfiguration = true;
-#endif
-
-  if (startupInfo.hasConfiguration)
-    ActionBinding::instance().getFromBindings();
-  else 
-    // bind default keys
-    ActionBinding::instance().resetBindings();
+	readConfigs();
 
   ServerListCache::get()->loadCache();
 
-  // restore some configuration (command line overrides these)
-  if (startupInfo.hasConfiguration) {
-    if (BZDB.isSet("callsign")) {
-      strncpy(startupInfo.callsign, BZDB.get("callsign").c_str(),
-					sizeof(startupInfo.callsign) - 1);
-      startupInfo.callsign[sizeof(startupInfo.callsign) - 1] = '\0';
-    }
-    if (BZDB.isSet("team")) {
-      std::string value = BZDB.get("team");
-      for (int i = 0; i < NumTeams; i++) {
-	if (value == Team::getName((TeamColor)i)) {
-	  startupInfo.team = (TeamColor)i;
-	  break;
-	}
-      }
-      if (value == Team::getName(AutomaticTeam)) {
-	startupInfo.team = AutomaticTeam;
-      }
-    }
-    if (BZDB.isSet("server")) {
-      strncpy(startupInfo.serverName, BZDB.get("server").c_str(),
-					sizeof(startupInfo.serverName) - 1);
-      startupInfo.serverName[sizeof(startupInfo.serverName) - 1] = '\0';
-    }
-    if (BZDB.isSet("port")) {
-      startupInfo.serverPort = atoi(BZDB.get("port").c_str());
-    }
-
-    // check for reassigned team colors
-    if (BZDB.isSet("roguecolor"))
-      setTeamColor(RogueTeam, BZDB.get("roguecolor"));
-    if (BZDB.isSet("redcolor"))
-      setTeamColor(RedTeam, BZDB.get("redcolor"));
-    if (BZDB.isSet("greencolor"))
-      setTeamColor(GreenTeam, BZDB.get("greencolor"));
-    if (BZDB.isSet("bluecolor"))
-      setTeamColor(BlueTeam, BZDB.get("bluecolor"));
-    if (BZDB.isSet("purplecolor"))
-      setTeamColor(PurpleTeam, BZDB.get("purplecolor"));
-
-    // check for reassigned radar colors
-    if (BZDB.isSet("rogueradar"))
-      setRadarColor(RogueTeam, BZDB.get("rogueradar"));
-    if (BZDB.isSet("redradar"))
-      setRadarColor(RedTeam, BZDB.get("redradar"));
-    if (BZDB.isSet("greenradar"))
-      setRadarColor(GreenTeam, BZDB.get("greenradar"));
-    if (BZDB.isSet("blueradar"))
-      setRadarColor(BlueTeam, BZDB.get("blueradar"));
-    if (BZDB.isSet("purpleradar"))
-      setRadarColor(PurpleTeam, BZDB.get("purpleradar"));
-
-
-    // ignore window name in config file (it's used internally)
-    BZDB.unset("_window");
-    BZDB.unset("_multisample");
-  }
+  setCommandLineOverides();
 
   // use UDP? yes
   startupInfo.useUDPconnection=true;
@@ -901,126 +1093,12 @@ int			main(int argc, char** argv)
   if (debugLevel >= 4)
     BZDB.setDebug(true);
 
-  // set time from BZDB
-  if (BZDB.isSet("fixedTime")) {
-    int hours, minutes, seconds;
-    char dbTime[256];
-    strncpy(dbTime, BZDB.get("fixedTime").c_str(), sizeof(dbTime) - 1);
-    if (sscanf(dbTime, "%d:%d:%d", &hours, &minutes, &seconds) != 3 ||
-	hours < 0 || hours > 23 ||
-	minutes < 0 || minutes > 59 ||
-	seconds < 0 || seconds > 59) {
-      printFatalError("Invalid argument for fixedTime = %s", dbTime);
-    }
-    userTime.tm_sec = seconds;
-    userTime.tm_min = minutes;
-    userTime.tm_hour = hours;
-  }
+  setTime();
+	loadBadwords();
+	setEmailAddy();
 
-  // see if there is a _default_ badwords file
-  if (!BZDB.isSet("filterFilename")) {
-    std::string name = "";
-#if !defined(_WIN32) & !defined(macintosh)
-    name = getConfigDirName();
-    name += "badwords.txt";
-#elif defined(_WIN32) /* !defined(_WIN32) */
-    name = getConfigDirName();
-    name += "badwords.txt";
-#else
-    name = "badwords.txt"; // FIXME - use getConfigDirName() ?
-#endif /* !defined(_WIN32) & !defined(macintosh) */
-
-    // get a handle on a filter object to attempt a load
-    if (BZDB.isSet("filter")) {
-      filter = (WordFilter *)BZDB.getPointer("filter");
-      if (filter == NULL) {
-	filter = new WordFilter();
-      }
-    } else {
-      // filter is not set
-      filter = new WordFilter();
-    }
-    // XXX should stat the file first and load with interactive feedback
-    unsigned int count = filter->loadFromFile(name, false);
-    if (count > 0) {
-      std::cout << "Loaded " << count << " words from \"" << name << "\"" << std::endl;
-    }
-  }
-
-  // load the bad word filter, regardless of a default, if it was set
-  if (BZDB.isSet("filterFilename")) {
-    std::string filterFilename = BZDB.get("filterFilename");
-    std::cout << "Filter file name specified is \"" << filterFilename << "\"" << std::endl;
-    if (filterFilename.length() != 0) {
-      if (filter == NULL) {
-	filter = new WordFilter();
-      }
-      std::cout << "Loading " << filterFilename << std::endl;
-      unsigned int count = filter->loadFromFile(filterFilename, true);
-      std::cout << "Loaded " << count << " words" << std::endl;
-
-      // stash the filter into the database for retrieval later
-      BZDB.setPointer("filter", (void *)filter, StateDatabase::ReadOnly );
-      BZDB.setPersistent("filter", false);
-    } else {
-      std::cerr << "WARNING: A proper file name was not given for the -badwords argument" << std::endl;
-    }
-  }
-
-  // get email address if not anonymous
-  std::string email = "default";
-  if (!anonymous) {
-    if (BZDB.isSet("email")) {
-      email = BZDB.get("email");
-    } 
-
-    if (email == "default") {
-      email = anonymousName;
-      std::string hostname = Address::getHostName();
-#if defined(_WIN32)
-      char username[256];
-      DWORD usernameLen = sizeof(username);
-      GetUserName(username, &usernameLen);
-#elif defined(macintosh)
-      const char *username = "mac_user";
-#else
-      struct passwd* pwent = getpwuid(getuid());
-      const char* username = pwent ? pwent->pw_name : NULL;
-#endif
-      if (hostname == "") {
-	hostname = "unknown";
-      }
-      if (username) {
-	email = username;
-	email += "@";
-	email += hostname;
-      }
-    }
-  }
-  email = email.substr(0, sizeof(startupInfo.email) - 1);
-  strcpy(startupInfo.email, email.c_str());
-
-  // make platform factory
-  PlatformFactory* platformFactory = PlatformFactory::getInstance();
-
-  // open display
-  display = platformFactory->createDisplay(NULL, NULL);
-  if (!display) {
-    printFatalError("Can't open display.  Exiting.");
-    return 1;
-  }
-
-  // choose visual
-  BzfVisual* visual = platformFactory->createVisual(display);
-  setVisual(visual);
-
-  // make the window
-  BzfWindow* window = platformFactory->createWindow(display, visual);
-  if (!window->isValid()) {
-    printFatalError("Can't create window.  Exiting.");
-    return 1;
-  }
-  window->setTitle("OpenCombat");
+  if (openDisplay() != 0)
+		return 1;
 
   // create & initialize the joystick
   BzfJoystick* joystick = platformFactory->createJoystick();
@@ -1034,7 +1112,8 @@ int			main(int argc, char** argv)
     PlatformFactory::getMedia()->setDevice(BZDB.get("audioDevice"));
 
   // set data directory if user specified
-  if (BZDB.isSet("directory")) {
+  if (BZDB.isSet("directory"))
+	{
     PlatformFactory::getMedia()->setMediaDirectory(BZDB.get("directory"));
   } else {
 #if defined(__APPLE__)
