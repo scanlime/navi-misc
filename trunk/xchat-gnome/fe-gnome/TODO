@@ -30,3 +30,6 @@ context menus:
 * flesh out the userlist context menu
 * make the context menu for navtree stuff actually dependent on context - see above note
   about leave/close stuff
+
+refactoring:
+* subclass GtkListStore for use in the userlist
