@@ -179,7 +179,7 @@ class Metadata:
 
     def _keys(self, cursor):
         """Database interaction implementing keys()"""
-        cursor.execute("SELECT DISTINCT name FROM stats_metadata WHERE target_path = %s" %
+        cursor.execute("SELECT name FROM stats_metadata WHERE target_path = %s" %
                        (Database.quote(self.target.path, 'varchar')))
         results = []
         while True:
