@@ -30,6 +30,9 @@
 int check_word (GtkWidget *xtext, char *word);
 void clicked_word (GtkWidget *xtext, char *word, GdkEventButton *even, gpointer data);
 void font_changed (GConfClient *client, guint cnxn_id, const gchar* key, GConfValue* value, gboolean is_default, gpointer user_data);
+static void gconf_timestamps_changed (GConfClient *client, guint cnxn_id, const gchar *key, GConfValue *value, gboolean is_default, gpointer data);
+
+GHashTable *notify_table;
 
 void
 initialize_text_gui ()
@@ -44,6 +47,8 @@ initialize_text_gui ()
 	gtk_container_add (GTK_CONTAINER (frame), GTK_WIDGET (gui.xtext));
 	scrollbar = glade_xml_get_widget (gui.xml, "text area scrollbar");
 	gtk_range_set_adjustment (GTK_RANGE (scrollbar), gui.xtext->adj);
+
+	notify_table = g_hash_table_new (g_direct_hash, g_direct_equal);
 
 	palette_alloc (GTK_WIDGET (gui.xtext));
 	gtk_xtext_set_palette (gui.xtext, colors);
@@ -79,14 +84,19 @@ void
 text_gui_add_text_buffer (struct session *sess)
 {
 	session_gui *tgui;
+	GConfClient *client;
+	gint notify;
 
 	tgui = g_new0 (session_gui, 1);
 	tgui->buffer = gtk_xtext_buffer_new (gui.xtext);
 	sess->gui = (struct session_gui *) tgui;
 
 	gtk_xtext_buffer_show (gui.xtext, tgui->buffer, TRUE);
-	if (preferences_show_timestamp ())
-		gtk_xtext_set_time_stamp (tgui->buffer, TRUE);
+
+	client = gconf_client_get_default ();
+	gtk_xtext_set_time_stamp (tgui->buffer, gconf_client_get_bool (client, "/apps/xchat/irc/showtimestamps", NULL));
+	notify = gconf_client_notify_add (client, "/apps/xchat/irc/showtimestamps", (GConfClientNotifyFunc) gconf_timestamps_changed, tgui->buffer, NULL, NULL);
+	g_hash_table_insert (notify_table, tgui->buffer, GINT_TO_POINTER (notify));
 	gui.current_session = sess;
 
 	if (sess->topic == NULL)
@@ -102,8 +112,16 @@ void
 text_gui_remove_text_buffer (struct session *sess)
 {
 	session_gui *tgui;
+	gint notify;
+	GConfClient *client;
 
 	tgui = (session_gui *) sess->gui;
+
+	client = gconf_client_get_default ();
+	notify = GPOINTER_TO_INT (g_hash_table_lookup (notify_table, tgui->buffer));
+	g_hash_table_remove (notify_table, tgui->buffer);
+	gconf_client_notify_remove (client, notify);
+
 	gtk_xtext_buffer_free (tgui->buffer);
 	g_free (tgui->topic);
 	g_free (tgui->entry);
@@ -313,4 +331,9 @@ font_changed (GConfClient *client, guint cnxn_id, const gchar* key, GConfValue* 
 	gtk_adjustment_set_value (gui.xtext->adj, gui.xtext->adj->page_size);
 
 	g_free (font);
+}
+
+static void gconf_timestamps_changed (GConfClient *client, guint cnxn_id, const gchar *key, GConfValue *value, gboolean is_default, gpointer data)
+{
+	gtk_xtext_set_time_stamp (data, gconf_client_get_bool (client, key, NULL));
 }

@@ -234,8 +234,6 @@ initialize_main_window ()
 #else
 	gtk_label_set_line_wrap (gui.topic_label, TRUE);
 #endif
-	// FIXME
-//	g_signal_connect(G_OBJECT(entry), "activate", G_CALLBACK(on_topic_entry_activate), NULL);
 
 	/* Hook up accelerators for pgup/pgdn */
 	{
