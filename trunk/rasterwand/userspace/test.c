@@ -79,7 +79,7 @@ void update_coil_driver(usb_dev_handle *d, struct rwand_status *status,
 void update_display_timing(usb_dev_handle *d, struct rwand_status *status,
 			   float center, float width) {
   int col_width = (status->period * (width/2)) / 80;
-  static int fudge_factor = 0;
+  static int fudge_factor = -104;
 
   control_write(d, RWAND_CTRL_SET_COLUMN_WIDTH, col_width, 0);
   control_write(d, RWAND_CTRL_SET_DISPLAY_PHASE,
@@ -179,24 +179,22 @@ int main(int argc, char **argv) {
   if (!(d = open_rwand()))
     return 1;
 
-  read_image(frame, "test-image.pgm");
-  refresh_display(d, frame);
-
   /* start out stalled, so we can verify our current status */
   last_edge_timestamp = 0;
   read_rwand_status(d, &status);
 
-  while (1) {
+  while (status.buttons & RWAND_BUTTON_POWER) {
     /* Read the current period prediction, calculate the frequency.
      * (the period is in units of 16 CPU cycles on a 6 MIPS processor)
      */
     last_status = status;
     read_rwand_status(d, &status);
 
-    if (status.buttons & RWAND_BUTTON_POWER)
+    /*
       printf("%.02f Hz    Buttons: 0x%02X\n",
-	     1/(status.period * 16 / 6000000.0),
-	     status.buttons);
+      1/(status.period * 16 / 6000000.0),
+      status.buttons);
+    */
 
     /* Have we had any synchronization edges this time? */
     if (status.edge_count != last_status.edge_count)
@@ -221,26 +219,34 @@ int main(int argc, char **argv) {
     /* Update display phase and column width */
     update_display_timing(d, &status, 0.5, 0.75);
 
-    /* If our last page flip has finished, write another frame */
-    if (!status.flip_pending) {
-      static float t = 0;
-      int i, y;
-      for (i=0; i<80; i++) {
-	y = sin(t + i * 0.2) * 3.99 + 4;
-	frame[i] = 1<<y;
-      }
-
-      if (status.buttons & RWAND_BUTTON_LEFT)
-	t-=0.4;
-      else if (status.buttons & RWAND_BUTTON_RIGHT)
-	t+=0.4;
-
+    /* Was the square just now pushed? */
+    if ((status.buttons & RWAND_BUTTON_SQUARE) && !(last_status.buttons & RWAND_BUTTON_SQUARE)) {
+      read_image(frame, "test-image.pgm");
       refresh_display(d, frame);
       control_write(d, RWAND_CTRL_FLIP, 0, 0);
     }
+    else if (!(status.buttons & RWAND_BUTTON_SQUARE)) {
+      /* If our last page flip has finished, write another frame */
+      if (!status.flip_pending) {
+	static float t = 0;
+	int i, y;
+	for (i=0; i<80; i++) {
+	  y = sin(t + i * 0.2) * 3.99 + 4;
+	  frame[i] = 1<<y;
+	}
 
-    usleep(1000);
+	if (status.buttons & RWAND_BUTTON_LEFT)
+	  t-=0.4;
+	else if (status.buttons & RWAND_BUTTON_RIGHT)
+	  t+=0.4;
+
+	refresh_display(d, frame);
+	control_write(d, RWAND_CTRL_FLIP, 0, 0);
+      }
+    }
   }
 
+  /* Turn it off */
+  control_write(d, RWAND_CTRL_SET_MODES, 0, 0);
   return 0;
 }
