@@ -169,7 +169,7 @@ preferences_servers_page_populate (GtkWidget *treeview, GSList *netlist)
 		net = netlist->data;
 		gtk_list_store_append (store, &iter);
 		gtk_list_store_set (store, &iter, 0, net->name, 1, (net->flags & FLAG_AUTO_CONNECT), 2, net, -1);
-		netlist = netlist->next;
+		netlist = g_slist_next (netlist);
 	}
 }
 
