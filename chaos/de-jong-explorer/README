@@ -29,24 +29,37 @@ Additionally, Gaussian blurs can be applied to the image using a
 stochastic process that produces much more natural-looking images than
 most programs, again without losing any of the image's original precision.
 
+
 Loading and Saving
 ------------------
 
-Any image saved using the GTK+ frontend or the -o command line option
+All images saved using the GTK+ frontend or the -o command line option
 are standard PNG files containing an extra 'tEXt' chunk with all the
 parameters used to create the image. This means the image can be loaded
 back in using the -i command line option or the "Parameters -> Load from image"
-menu option.
+menu item.
 
 One convenient use of this is to save small low-quality images using the
 GUI, then use the -i, -t, -s, and -o options to render very high quality
 and/or large images noninteractively.
+
+When using the -o (--output) option, no GUI is presented. Instead, the
+de Jong Explorer just outputs status lines every so often with the current
+rendering process. These lines include:
+
+  - percent completion
+  - current number of iterations
+  - speed in iterations per second
+  - current and target peak density values
+  - elapsed and estimated remaining time
+
 
 Dependencies
 ------------
 
 - GTK+ 2.0
 - libglade
+
 
 Compiling
 ---------
@@ -55,6 +68,7 @@ Nothing fancy, just type 'make'. Currently the i686 architecture is
 hardcoded, as on modern intel-compatible machines this gives a major
 speed boost. You'll need to change this if you're not on an intel-compatible
 machine. This has been tested on an Athlon XP, Pentium 4, and PowerPC G3.
+
 
 Authors
 --------
