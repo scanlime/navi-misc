@@ -5,8 +5,7 @@ populate the stats database. This is intended for evaluating the
 scalability of CIA's database.
 """
 
-import sys, os; sys.path[0] = os.path.join(sys.path[0], '..')
-from LibCIA import Client
+import Client
 import random, time
 
 

@@ -27,8 +27,7 @@ provided.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import sys, os; sys.path[0] = os.path.join(sys.path[0], '..')
-from LibCIA import Client
+import Client
 import gtk, gobject, gtk.glade
 import xmlrpclib
 import sys, os

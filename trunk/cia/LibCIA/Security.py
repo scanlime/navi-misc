@@ -38,10 +38,10 @@ making keys map to pickled callable objects would be too fragile.
 
 from twisted.internet import defer
 import string, os
-import Database, RPC
+import Database, RpcServer
 
 
-class SecurityInterface(RPC.Interface):
+class SecurityInterface(RpcServer.Interface):
     """An XML-RPC interface to the global capabilities database"""
     def protected_grant(self, capability, owner=None):
         """Return a new key for the given capability. Note that this means

@@ -1,4 +1,4 @@
-""" LibCIA.RPC
+""" LibCIA.RpcServer
 
 Base classes implementing CIA's XML-RPC interface. This extend's twisted's
 usual XML-RPC support with our own security and exception handling code.

@@ -5,7 +5,8 @@
 
 from twisted.application import service, internet
 from twisted.web import static, vhost
-from LibCIA import Message, Ruleset, IRC, Stats, IncomingMail, Debug, Security, RPC, Web
+from LibCIA import Message, Ruleset, IRC, Stats, IncomingMail
+from LibCIA import Debug, Security, RpcServer, RpcClient, Web
 
 application = service.Application("cia_server")
 hub = Message.Hub()
@@ -36,7 +37,7 @@ webRoot.putChild('irc', Web.BotStatus.IRCBotPage(botNet))
 webRoot.putChild('vhost', vhost.VHostMonsterResource())
 
 # Create a root XML-RPC object, with interfaces attached for each subsystem
-rpc = RPC.Interface()
+rpc = RpcServer.Interface()
 rpc.putSubHandler('hub', Message.HubInterface(hub))
 rpc.putSubHandler('mail', IncomingMail.MailInterface(hub))
 rpc.putSubHandler('ruleset', Ruleset.RulesetInterface(rulesetStorage))

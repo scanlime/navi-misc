@@ -39,18 +39,18 @@ used to store and query rulesets in a RulesetStorage.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import XML, Message, Debug, Database, Security, RPC
+import XML, Message, Debug, Database, Security, RpcServer
 from twisted.python import log
 from twisted.xish.xpath import XPathQuery
 from twisted.internet import defer
 import sys, traceback, re
 
 
-class RulesetInterface(RPC.Interface):
+class RulesetInterface(RpcServer.Interface):
     """An XML-RPC interface used to set and query the rulesets in a RulesetStorage"""
     def __init__(self, storage):
         self.storage = storage
-        RPC.Interface.__init__(self)
+        RpcServer.Interface.__init__(self)
 
     def protected_store(self, xml):
         """Stores a ruleset provided as XML text. Deleting a ruleset is equivalent

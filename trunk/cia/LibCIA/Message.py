@@ -26,14 +26,14 @@ from twisted.xish import domish
 from twisted.xish.xpath import XPathQuery
 from twisted.python import log
 import time
-import XML, RPC
+import XML, RpcServer
 
 
-class HubInterface(RPC.Interface):
+class HubInterface(RpcServer.Interface):
     """A simple interface for delivering XML messages to the hub over XML-RPC
        """
     def __init__(self, hub):
-        RPC.Interface.__init__(self)
+        RpcServer.Interface.__init__(self)
         self.hub = hub
 
     def xmlrpc_deliver(self, xml):
