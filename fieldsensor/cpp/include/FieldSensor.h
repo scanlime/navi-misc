@@ -26,14 +26,12 @@
 #ifndef __H_FIELDSENSOR
 #define __H_FIELDSENSOR
 
-#include <vector>
-
 class FieldSensor {
  public:
   FieldSensor(const char *serialPort="/dev/ttyS0");
   ~FieldSensor(void);
 
-  std::vector<float> readPacket(void);
+  void readPacket(double *packet);
 
  private:
   int fd;
