@@ -1,3 +1,10 @@
+/*
+ * USB descriptors for the 'hello' example.
+ * Each piece of firmware using usb_driver.c must define
+ * a usb_descriptors table listing all descriptors the
+ * device should respond to.
+ */
+
 #include "usb_driver.h"
 
 const static struct usb_device_descriptor dev_descript = {
