@@ -21,9 +21,7 @@
  *
  */
 
-using Gdk;
-
-class MatrixMultiply : Element
+class MatrixMultiply : Fyre.Element
 {
 	static Gdk.Pixbuf icon;
 	static string[,] inputs;

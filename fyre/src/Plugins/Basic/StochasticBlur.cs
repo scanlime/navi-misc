@@ -22,10 +22,7 @@
  *
  */
 
-using Gdk;
-
-
-class StochasticBlur : Element
+class StochasticBlur : Fyre.Element
 {
 	static Gdk.Pixbuf icon;
 	static string[,] inputs;

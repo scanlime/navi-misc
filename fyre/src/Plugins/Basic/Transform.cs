@@ -22,10 +22,7 @@
  *
  */
 
-using Gdk;
-
-
-class TwoDTransform : Element
+class TwoDTransform : Fyre.Element
 {
 	static Gdk.Pixbuf icon;
 	static string[,] inputs;
