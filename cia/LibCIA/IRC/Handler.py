@@ -98,6 +98,9 @@ class ChannelMessageQueue:
         #        This is where rate limiting and load balancing goes.
         while self.queuedLines:
             if not self.request.bots:
+                # For now, since we have no protection for the buffer getting huge,
+                # flush it when this happens.
+                del self.queuedLines[:]
                 return
             self.request.bots[0].msg(self.request.channel, self.queuedLines[0])
             del self.queuedLines[0]
