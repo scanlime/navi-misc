@@ -185,6 +185,7 @@
     <xsd:enumeration value="upward elbow"/>
     <xsd:enumeration value="back elbow"/>
     <xsd:enumeration value="underhand reverse hammer"/>
+    <xsd:enumeration value="inward diagonal hammer fist"/>
     <xsd:enumeration value="ridge hand"/>
     <xsd:enumeration value="underhand palm heel"/>
     <xsd:enumeration value="inward horizontal palm heel"/>
@@ -194,10 +195,12 @@
     <xsd:enumeration value="outward vertical forearm"/>
     <xsd:enumeration value="outward overhead elbow"/>
     <xsd:enumeration value="flapping elbow"/>
+    <xsd:enumeration value="downward elbow"/>
     <xsd:enumeration value="downward palm heel"/>
     <xsd:enumeration value="downward hand sword"/>
     <xsd:enumeration value="obscure hand sword"/>
     <xsd:enumeration value="overhead palm heel claw"/>
+    <xsd:enumeration value="upward palm heel claw"/>
   </xsd:restriction>
 </xsd:simpleType>
 <xsd:complexType name="strike">
@@ -218,6 +221,7 @@
     <xsd:enumeration value="roundhouse punch"/>
     <xsd:enumeration value="snapping vertical back knuckle"/>
     <xsd:enumeration value="thrusting vertical back knuckle"/>
+    <xsd:enumeration value="outward back knuckle"/>
     <xsd:enumeration value="overhead punch"/>
     <xsd:enumeration value="shapping inverted vertical punch"/>
     <xsd:enumeration value="thrusting inverted vertical punch"/>

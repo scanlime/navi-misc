@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="../style.xsl"?>
+
+<technique name="crossing talon" level="orange" category="grabs-and-tackles"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:noNamespaceSchemaLocation="schema.xsd">
+  <attack>right wrist grab (to right hand)</attack>
+  <stances>
+    <attacker><stance side="right">neutral bow</stance></attacker>
+    <defender><stance>natural</stance></defender>
+  </stances>
+  <steps>
+    <step>
+      Re-grab your opponent's right wrist with your right hand.
+    </step>
+    <step>
+      <footManeuver side="left">step</footManeuver> toward 12:00 into a
+      <stance side="left">neutral bow</stance> as you pull your opponent's right hand
+      to your right hip with your right hand. Simultaneously execute a
+      <block side="left">hammering inward</block> to your opponent's left elbow.
+    </step>
+    <step>
+      Execute a <strike side="left">outward elbow</strike> behind your opponent's
+      right ear.
+    </step>
+    <step>
+      Execute a <strike side="left">outward horizontal palm heel</strike> to your
+      opponent's right jaw.
+    </step>
+    <step>
+      Execute a <strike side="left">upward palm heel claw</strike> to your opponent's
+      face.
+    </step>
+    <step>
+      Execute a <strike side="left">downward elbow</strike> to the middle of your
+      opponent's spine.
+    </step>
+    <step>
+      Execute a <strike side="left">downward palm heel</strike> to the back of your
+      opponent's head.
+    </step>
+    <step>
+      <footManeuver>pivot</footManeuver> into a <stance side="left">forward bow</stance>
+      immediately followed by a <knee side="right">vertical</knee> to your opponent's
+      right ribs.
+    </step>
+  </steps>
+</technique>
