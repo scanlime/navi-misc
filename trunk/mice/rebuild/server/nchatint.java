@@ -63,10 +63,10 @@ public class nchatint extends nbase
 				break;
 			case 'g'://
 				cmd = view.getQuestion();
-				if(cmd == null)
+				if(cmd.compareTo("No Questions\r\nAt This Time") == 0)
 				{
 					write("-ERR");
-					while(cmd == null)
+					while(cmd.compareTo("No Questions\r\nAt This Time") == 0)
 					{
 						try{
 							Thread.sleep(20000);
