@@ -51,6 +51,62 @@ def cleanup ():
     asfReader   = None
     scene       = None
 
+def getRotation (bone):
+    pass
+
+def loadAMC (filename):
+    print 'loading',filename
+    amcReader = AMCReader.AMCReader ()
+    try:
+        amcReader.parse (filename)
+    except IOError, s:
+        AMCReader.log.err (s)
+
+    if AMCReader.log.numErrors:
+        AMCReader.log.report ('Errors in loading AMC')
+        cleanup ()
+
+    # Create a new action, named after the file
+    action = Blender.Armature.NLA.NewAction (filename.split (Blender.sys.dirsep)[-1])
+    action.setActive (armatureObj)
+
+    context = scene.getRenderingContext ()
+    # FIXME _ Pretty much all of the data we've gotten is at 120Hz. It would
+    # be nice to pull this out of the data file, but for now, just hardcode it
+    context.framesPerSec (120)
+
+    totalFrames = len (amcReader.frames)
+
+    Blender.Window.WaitCursor (Frue)
+    for frame in amcReader.frames:
+        context.currentFrame (frame.number)
+
+        Blender.Window.DrawProgressBar (float (frame.number) / totalFrames, 'Frame %d of %d' % (frame.number, totalFrames))
+
+        # Set root position/orientation. We need to and scale this just like we
+        # did for the positions of the individual bones
+        location = [(n * 0.1) for n in frame.bones['root'][0:3]]
+        rotation = Blender.Mathutils.Euler (frame.bones['root'][3:6]).toQuat ()
+
+        bones['root'].setLoc (location)
+        bones['root'].setQuat (quat)
+        bones['root'].setPose ([ROT, LOC])
+
+        # Set orientations for each bone for this frame
+        for name, bone in frame.bones.iteritems ():
+            if name == 'root':
+                continue
+            bone = bones[bname]
+            quat = getRotation (bone)
+            #bones[name].setQuat (quat)
+            #bones[name].setPose ([ROT])
+
+    # No more wait
+    Blender.Window.WaitCursor (True)
+    Blender.Window.DrawProgressBar (1.0, '')
+    Blender.Window.RedrawAll ()
+    cleanup ()
+
 def addVectors (a, b):
     x = []
     for i in range (len(a)):
@@ -128,58 +184,5 @@ def loadASF (filename):
 
     # Finally, pop up a file selector for importing the AMC
     Blender.Window.FileSelector (loadAMC, 'Load AMC Motion Capture')
-
-def getRotation (bone):
-    pass
-
-def loadAMC (filename):
-    print 'loading',filename
-    amcReader = AMCReader.AMCReader ()
-    try:
-        amcReader.parse (filename)
-    except IOError, s:
-        AMCReader.log.err (s)
-
-    if AMCReader.log.numErrors:
-        AMCReader.log.report ('Errors in loading AMC')
-        cleanup ()
-
-    # Create a new action, named after the file
-    action = Blender.Armature.NLA.NewAction (filename.split (Blender.sys.dirsep)[-1])
-    action.setActive (armatureObj)
-
-    context = scene.getRenderingContext ()
-    # FIXME _ Pretty much all of the data we've gotten is at 120Hz. It would
-    # be nice to pull this out of the data file, but for now, just hardcode it
-    context.framesPerSec (120)
-
-    totalFrames = len (amcReader.frames)
-
-    for frame in amcReader.frames:
-        context.currentFrame (frame.number)
-
-        Blender.Window.DrawProgressBar (float (frame.number) / totalFrames, 'Frame %d of %d' % (frame.number, totalFrames))
-
-        # Set root position/orientation. We need to and scale this just like we
-        # did for the positions of the individual bones
-        location = [(n * 0.1) for n in frame.bones['root'][0:3]]
-        rotation = Blender.Mathutils.Euler (frame.bones['root'][3:6]).toQuat ()
-
-        bones['root'].setLoc (location)
-        bones['root'].setQuat (quat)
-        bones['root'].setPose ([ROT, LOC])
-
-        # Set orientations for each bone for this frame
-        for name, bone in frame.bones.iteritems ():
-            if name == 'root':
-                continue
-            bone = bones[bname]
-            quat = getRotation (bone)
-            #bones[name].setQuat (quat)
-            #bones[name].setPose ([ROT])
-
-    Blender.Window.DrawProgressBar (1.0, '')
-    Blender.Window.RedrawAll ()
-    cleanup ()
 
 Blender.Window.FileSelector (loadASF, 'Load ASF Skeleton File')
