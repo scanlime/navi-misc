@@ -2,15 +2,16 @@
 <!DOCTYPE glade-interface SYSTEM "http://glade.gnome.org/glade-2.0.dtd">
 
 <glade-interface>
+<requires lib="gnome"/>
 
-<widget class="GtkWindow" id="RulesetEditorWindow">
+<widget class="GtkWindow" id="RulesetWindow">
   <property name="visible">True</property>
-  <property name="title" translatable="yes">CIA - IRC Ruleset Editor</property>
+  <property name="title" translatable="yes">CIA Ruleset Editor</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_NONE</property>
   <property name="modal">False</property>
-  <property name="default_width">640</property>
-  <property name="default_height">480</property>
+  <property name="default_width">800</property>
+  <property name="default_height">600</property>
   <property name="resizable">True</property>
   <property name="destroy_with_parent">False</property>
 
@@ -92,7 +93,7 @@
 	<widget class="GtkHPaned" id="hpaned1">
 	  <property name="visible">True</property>
 	  <property name="can_focus">True</property>
-	  <property name="position">250</property>
+	  <property name="position">300</property>
 
 	  <child>
 	    <widget class="GtkScrolledWindow" id="scrolledwindow2">
@@ -104,14 +105,14 @@
 	      <property name="window_placement">GTK_CORNER_TOP_LEFT</property>
 
 	      <child>
-		<widget class="GtkTreeView" id="ChannelList">
+		<widget class="GtkTreeView" id="URIList">
 		  <property name="visible">True</property>
 		  <property name="can_focus">True</property>
 		  <property name="headers_visible">True</property>
 		  <property name="rules_hint">False</property>
 		  <property name="reorderable">False</property>
 		  <property name="enable_search">True</property>
-		  <signal name="cursor_changed" handler="on_ChannelList_cursor_changed" last_modification_time="Tue, 16 Dec 2003 03:14:03 GMT"/>
+		  <signal name="cursor_changed" handler="on_URIList_cursor_changed" last_modification_time="Thu, 18 Dec 2003 01:23:20 GMT"/>
 		</widget>
 	      </child>
 	    </widget>

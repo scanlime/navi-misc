@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 """ ruleset_editor.py
 
-A PyGTK and Glade UI for editing CIA's IRC rulesets interactively
+A PyGTK and Glade UI for editing CIA's rulesets interactively.
+A ruleset defines the filters and formatters used to select and
+represent messages for a particular URI.
 """
 #
 # CIA open source notification system
@@ -22,220 +24,212 @@ A PyGTK and Glade UI for editing CIA's IRC rulesets interactively
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import gtk, gtk.glade, gobject
-import xmlrpclib, os, sys
-from xml.dom import minidom
+import gtk, gobject, sys, os, gtk.glade, xmlrpclib
 
 
-class RulesetEditor:
-    """A glade-based UI for editing CIA's IRC rulesets.
-       connects to the CIA server over XML-RPC.
-
-       The resulting top-level window is available via the 'window'
-       attribute.
+class GladeUI(object):
+    """A user interface of some sort based on components
+       defined in a Glade XML file. Created with either a
+       gtk.glade.XML instance or the name of a file to load it from.
+       On startup, it automatically connects any signal handlers
+       starting with 'on_'
        """
-    def __init__(self, gladeFile, ciaServer):
-        # The message envelope is a format string we stick our actual message
-        # body inside. It includes information about this program in its <generator> tag.
-        self.envelope = "<message><generator>PyGTK/Glade IRC ruleset editor for CIA</generator><body>%s</body></message>"
-
-        self.xml = gtk.glade.XML(gladeFile)
-        self.server = xmlrpclib.ServerProxy(ciaServer)
+    def __init__(self, xml):
+        if isinstance(xml, gtk.glade.XML):
+            self.xml = xml
+        else:
+            self.xml = gtk.glade.XML(xml)
 
         # Automatically wire up all member functions starting with "on_" as signal handlers
         for name in self.__class__.__dict__.iterkeys():
             if name.startswith("on_"):
                 self.xml.signal_connect(name, getattr(self, name))
 
-        # Get an initial list of rulesets
+
+class CIAClient(object):
+    """A simple client interface to the CIA server, providing
+       a slightly higher level interface to it than XML-RPC.
+       Includes functions for querying and installing rulesets,
+       with a simple cache.
+       """
+    def __init__(self, serverURL):
+        self.server = xmlrpclib.ServerProxy(serverURL)
+        self.clearCache()
         self.queryRulesets()
-        self.unsetCurrentChannel()
 
-        # Connect signals on the RulesetEditor buffer
-        self.xml.get_widget('RulesetEditor').get_buffer().connect(
-            "modified_changed", self.on_RulesetBuffer_modified_changed)
-
-        self.window = self.xml.get_widget('RulesetEditorWindow')
-        self.window.set_title("CIA - IRC ruleset editor - %s" % ciaServer)
-        self.initChannelList(self.xml.get_widget('ChannelList'))
-
-    def queryRulesets(self):
-        """Retrieve all rulesets from the server, updating our local
-           mapping from server and channel to ruleset.
+    def message(self, bodyContent):
+        """Given the text to put inside the <body> tag, send a
+           message to the CIA server and return the result.
+           This includes a <generator> tag with information about us.
            """
-        self.rulesets = {}
-        results = self.server.deliverMessage(self.envelope % "<queryIrcRulesets/>")
-        for ircRuleset in results:
-            # Just think, all of LibCIA could be this gross if we used
-            # minidom or a real dom instead of twisted's domish :)
-            xml = minidom.parseString(ircRuleset)
-            root = xml.getElementsByTagName('ircRuleset')[0]
-            channel = root.getAttribute('channel')
-            server = root.getAttribute('server')
-            ruleset = root.getElementsByTagName('ruleset')[0]
-            self.rulesets[(channel, server)] = ruleset
+        generatorName = "PyGTK/Glade ruleset editor"
+        generator = "<generator><name>%s</name></generator>" % generatorName
+        message = "<message>%s<body>%s</body></message>" % (generator, bodyContent)
+        return self.server.deliverMessage(message)
 
-    def initChannelList(self, view):
-        """Create a channel list in the given GtkTreeView widget"""
-        self.loadChannelListModel()
-        self.currentChannel = None
+    def queryUriList(self):
+        """Return a list of all URIs with rulesets assigned"""
+        return self.message("<queryUriList/>")
 
-        column = gtk.TreeViewColumn("Channel", gtk.CellRendererText(), text=0)
-        column.set_sort_column_id(0)
-        view.append_column(column)
-
-        column = gtk.TreeViewColumn("Server", gtk.CellRendererText(), text=1)
-        column.set_sort_column_id(1)
-        view.append_column(column)
-
-    def loadChannelListModel(self):
-        """Generate a new model corresponding to the current ruleset dict
-           and assign it to our channel list view.
-           """
-        model = gtk.ListStore(gobject.TYPE_STRING,   # (0) channel
-                              gobject.TYPE_STRING,   # (1) server
-                              )
-        # Sort the list of rulesets by channel name
-        rulesetItems = self.rulesets.items()
-        rulesetItems.sort(lambda a, b: cmp(a[0][0], b[0][0]))
-        for (channel, server), ruleset in rulesetItems:
-            i = model.append()
-            model.set(i,
-                0, channel,
-                1, server,
-		)
-        self.xml.get_widget('ChannelList').set_model(model)
-
-    def on_ChannelList_cursor_changed(self, tree):
-        """A new row may have been selected in the channel list"""
-        model, i = tree.get_selection().get_selected()
-        channel = model.get_value(i, 0)
-        server = model.get_value(i, 1)
-        if (channel, server) != self.currentChannel:
-            self.setCurrentChannel(channel, server)
-
-    def on_RulesetBuffer_modified_changed(self, buffer):
-        if buffer.get_modified():
-            self.xml.get_widget('RevertButton').set_sensitive(gtk.TRUE)
-            self.xml.get_widget('ApplyButton').set_sensitive(gtk.TRUE)
+    def queryRulesets(self, uri=None):
+        """Return a list of rulesets, optionally constrained to the given URI"""
+        if self.rulesetCache.has_key(uri):
+            return self.rulesetCache[uri]
         else:
-            self.xml.get_widget('RevertButton').set_sensitive(gtk.FALSE)
-            self.xml.get_widget('ApplyButton').set_sensitive(gtk.FALSE)
+            if uri:
+                result = self.message("<queryRulesets uri='%s'/>" % uri)
+            else:
+                result = self.message("<queryRulesets/>")
+            self.rulesetCache[uri] = result
+            return result
 
-    def setCurrentChannel(self, channel, server):
-        """Set the channel whose ruleset we're now editing"""
-        self.xml.get_widget('DeleteButton').set_sensitive(gtk.TRUE)
-        self.xml.get_widget('RulesetEditor').set_sensitive(gtk.TRUE)
+    def setRuleset(self, uri, ruleset):
+        """Set a new ruleset for the given URI, also updating our cache"""
+        self.message(ruleset)
+        self.rulesetCache[uri] = ruleset
 
-        self.currentChannel = channel, server
+    def clearCache(self):
+        """Clear our ruleset cache"""
+        self.rulesetCache = {}
 
-        # Show the new channel/server name
-        self.xml.get_widget('RulesetName').set_markup("<big><b>%s</b> on %s</big>" % (channel, server))
 
-        self.loadRuleset()
+class NewRulesetDialog(GladeUI):
+    """Implements the dialog box used to create new rulesets.
+       It is created with a callback function that is called with
+       the text of a new ruleset when one is created.
+       """
+    def __init__(self, xml, callback):
+        GladeUI.__init__(self, xml)
+        self.callback = callback
+        self.window = self.xml.get_widget("NewRulesetDialog")
 
-    def unsetCurrentChannel(self):
-        """Called during initialization or when the current channel is deleted.
-           Sets all the toolbar buttons insensitive, removes the contents
-           of the ruleset editor, and clears the current ruleset name.
-           """
-        self.xml.get_widget('DeleteButton').set_sensitive(gtk.FALSE)
-        self.xml.get_widget('RevertButton').set_sensitive(gtk.FALSE)
-        self.xml.get_widget('ApplyButton').set_sensitive(gtk.FALSE)
-        self.xml.get_widget('RulesetEditor').set_sensitive(gtk.FALSE)
-        self.xml.get_widget('RulesetEditor').get_buffer().set_text('')
-        self.xml.get_widget('RulesetName').set_markup('')
-        self.currentChannel = None
+    def show(self):
+        self.window.show()
 
-    def loadRuleset(self):
-        """Load the ruleset from the current channel into our editor widget"""
-        ruleset = self.rulesets[self.currentChannel]
-        buffer = self.xml.get_widget('RulesetEditor').get_buffer()
-        buffer.set_text(ruleset.toxml())
-        buffer.set_modified(gtk.FALSE)
-
-    def on_RefreshButton_clicked(self, button):
-        """Reload all IRC rulesets from the server and regenerate the channel list model"""
-        self.queryRulesets()
-        self.loadChannelListModel()
-
-    def on_ApplyButton_clicked(self, button):
-        """Send our ruleset to the server, and assuming it's valid set
-           the modified flag to False
-           """
-        self.applyCurrentRuleset()
-        buffer = self.xml.get_widget('RulesetEditor').get_buffer()
-        buffer.set_modified(gtk.FALSE)
-
-    def on_RevertButton_clicked(self, button):
-        """Reload the original ruleset, discarding changes"""
-        self.loadRuleset()
-
-    def applyCurrentRuleset(self):
-        """Send the ruleset currently being edited back to the CIA server"""
-        channel, server = self.currentChannel
-        buffer = self.xml.get_widget('RulesetEditor').get_buffer()
-        ruleset = buffer.get_text(*buffer.get_bounds())
-        self.rulesets[channel, server] = minidom.parseString(ruleset).getElementsByTagName('ruleset')[0]
-        self.server.deliverMessage(self.envelope %
-                                   ("<ircRuleset channel=%r server=%r>%s</ircRuleset>" %
-                                    (channel, server, ruleset)))
-
-    def on_NewButton_clicked(self, button):
-        """Show our dialog box for creating new rulesets for a given channel"""
-        self.xml.get_widget("NewRulesetDialog").show()
+    def hide(self):
+        self.window.hide()
 
     def on_SingleProject_toggled(self, button):
         self.xml.get_widget("ProjectNameTable").set_sensitive(button.get_active())
 
     def on_RulesetDialogCancel_clicked(self, button):
-        self.xml.get_widget("NewRulesetDialog").hide()
-
-    def on_DeleteButton_clicked(self, button):
-        # Delete the ruleset in our local channel list and on the server
-        del self.rulesets[self.currentChannel]
-        self.loadChannelListModel()
-        self.server.deliverMessage(self.envelope %
-                                   ("<ircRuleset channel=%r server=%r/>" %
-                                    self.currentChannel))
-        self.unsetCurrentChannel()
+        self.hide()
 
     def on_RulesetDialogOk_clicked(self, button):
-        # Create the new ruleset according to our dialog's settings
-        if self.xml.get_widget("AllProjects").get_active():
-            # All projects
-            ruleset = '<ruleset>\n\t<formatter medium="irc"/>\n\t<formatter name="IRCProjectName"/>\n</ruleset>'
-        elif self.xml.get_widget("SingleProject").get_active():
-            # One project
-            projectName = self.xml.get_widget("SingleProjectName").get_text()
-            ruleset = ('<ruleset>\n\t<match path="/message/source/project">' +
-                       projectName + '</match>\n\t<formatter medium="irc"/>\n</ruleset>')
+        self.hide()
+
+
+class URIList(GladeUI):
+    """Implements a UI for listing, adding, deleting, and refreshing URIs.
+       The provided callback is called when the current URI is changed.
+       """
+    def __init__(self, xml, client, callback):
+        GladeUI.__init__(self, xml)
+        self.client = client
+        self.callback = callback
+        self.view = self.xml.get_widget('URIList')
+        self.initView()
+
+    def initView(self):
+        self.refresh()
+        column = gtk.TreeViewColumn("URI", gtk.CellRendererText(), text=0)
+        column.set_sort_column_id(0)
+        self.view.append_column(column)
+
+    def refresh(self):
+        """Download a new list of URIs from the server and build a ListModel holding them"""
+        self.client.clearCache()
+        self.list = self.client.queryUriList()
+        self.list.sort()
+        model = gtk.ListStore(gobject.TYPE_STRING)
+        for uri in self.list:
+            i = model.append()
+            model.set(i, 0, uri)
+        self.view.set_model(model)
+        self.setCurrentURI(None)
+
+    def setCurrentURI(self, uri):
+        """Called when our currently selected URI changes. This is used to update
+           our button sensitivity and to trigger our owner's callback.
+           """
+        self.xml.get_widget('DeleteButton').set_sensitive(uri is not None)
+        self.currentURI = uri
+        self.callback(uri)
+
+    def on_URIList_cursor_changed(self, tree):
+        """A new row may have been selected in the URI list"""
+        model, i = tree.get_selection().get_selected()
+        uri = model.get_value(i, 0)
+        if uri != self.currentURI:
+            self.setCurrentURI(uri)
+
+    def on_RefreshButton_clicked(self, button):
+        self.refresh()
+
+
+class RulesetEditor(GladeUI):
+    """Implements the actual ruleset editor widget, the current ruleset
+       title, and synchronizes the displayed ruleset with the server's
+       ruleset.
+       """
+    def __init__(self, xml, client):
+        GladeUI.__init__(self, xml)
+        self.client = client
+        self.editor = self.xml.get_widget('RulesetEditor')
+        self.buffer = self.editor.get_buffer()
+
+        # We have to connect signals on the buffer manually
+        self.buffer.connect("modified_changed", self.on_RulesetBuffer_modified_changed)
+
+    def setCurrentURI(self, uri):
+        """Change the current URI displayed by our editor"""
+        self.currentURI = uri
+
+        # Set widget sensitivities
+        self.xml.get_widget('RevertButton').set_sensitive(gtk.FALSE)
+        self.xml.get_widget('ApplyButton').set_sensitive(gtk.FALSE)
+        self.xml.get_widget('RulesetEditor').set_sensitive(uri is not None)
+
+        # Show the current URI name
+        if uri:
+            self.xml.get_widget('RulesetName').set_markup('<big>%s</big>' % uri)
         else:
-            # Empty
-            ruleset = "<ruleset/>"
+            self.xml.get_widget('RulesetName').set_text('')
 
-        # What channel and server is this for?
-        channel = self.xml.get_widget("ChannelEntry").get_text()
-        server = self.xml.get_widget("ServerEntry").get_text()
+        # Fetch the server's ruleset
+        if uri:
+            self.buffer.set_text(self.client.queryRulesets(uri)[0])
+        else:
+            self.buffer.set_text('')
+        self.buffer.set_modified(gtk.FALSE)
 
-        # Canonicalize the channel and server name a bit so we don't get
-        # duplicates on our local list.
-        if channel[0] != '#':
-            channel = '#' + channel
-        if server.find(":") < 0:
-            server = server + ":6667"
+    def on_RulesetBuffer_modified_changed(self, buffer):
+        modified = buffer.get_modified()
+        self.xml.get_widget('RevertButton').set_sensitive(modified)
+        self.xml.get_widget('ApplyButton').set_sensitive(modified)
 
-        # Apply the ruleset in our local channel list and on the server
-        self.rulesets[channel, server] = minidom.parseString(ruleset).getElementsByTagName('ruleset')[0]
-        self.loadChannelListModel()
-        self.setCurrentChannel(channel, server)
-        self.applyCurrentRuleset()
-
-        # Kerpoof, hide the dialog
-        self.xml.get_widget("NewRulesetDialog").hide()
+    def on_RevertButton_clicked(self, button):
+        # Reload our current ruleset, discarding changes
+        self.setCurrentURI(self.currentURI)
 
 
-if __name__ == "__main__":
+class RulesetWindow(GladeUI):
+    """A class which holds and initializes all the UI elements necessary
+       for a complete CIA ruleset editor.
+       """
+    def __init__(self, xml, server):
+        GladeUI.__init__(self, xml)
+
+        self.client = CIAClient(server)
+        self.editor = RulesetEditor(self.xml, self.client)
+        self.uriList = URIList(self.xml, self.client, self.editor.setCurrentURI)
+
+        # Add our server name to the window title
+        self.window = self.xml.get_widget('RulesetWindow')
+        self.window.set_title(self.window.get_title() + " - " + server)
+
+
+def main():
     # Locate our glade file by looking in the same directory as our source
     gladeFile = os.path.join(os.path.dirname(sys.argv[0]), "ruleset_editor.glade")
 
@@ -244,8 +238,11 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         server = sys.argv[1]
 
-    ui = RulesetEditor(gladeFile, server)
+    ui = RulesetWindow(gladeFile, server)
     ui.window.connect("destroy", gtk.mainquit)
     gtk.main()
+
+if __name__ == "__main__":
+    main()
 
 ### The End ###
