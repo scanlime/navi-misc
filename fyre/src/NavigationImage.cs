@@ -27,6 +27,10 @@ namespace Fyre
 	{
 		Gtk.Image	image;
 		Gtk.Window	window;
+		Gdk.GC		white;
+		Gdk.GC		black;
+
+		Gdk.Pixmap	pixmap;
 
 		public NavigationImage()
 		{
@@ -35,6 +39,18 @@ namespace Fyre
 			Add (image);
 
 			ShowAll ();
+		}
+
+		void AllocGCs ()
+		{
+			Gdk.Color wc = new Gdk.Color (0xff, 0xff, 0xff);
+			Gdk.Color bc = new Gdk.Color (0x00, 0x00, 0x00);
+			Gdk.Colormap.System.AllocColor (ref wc, true, true);
+			Gdk.Colormap.System.AllocColor (ref bc, true, true);
+			white = new Gdk.GC (this.GdkWindow);
+			black = new Gdk.GC (this.GdkWindow);
+			white.Foreground = wc;
+			black.Foreground = bc;
 		}
 
 		int GetWindowPosition (int mouse, int winsize, int screensize)
@@ -46,11 +62,20 @@ namespace Fyre
 			return mouse - (winsize / 2);
 		}
 
+		void CreatePixmap (Gdk.Drawable screen)
+		{
+			pixmap = new Gdk.Pixmap (screen, 200, 150, -1);
+
+			if (white == null)
+				AllocGCs ();
+
+			pixmap.DrawRectangle (white, true, 0, 0, 199, 149);
+			pixmap.DrawRectangle (black, false, 0, 0, 199, 149);
+		}
+
 		protected override bool OnButtonPressEvent (Gdk.EventButton ev)
 		{
 			window = new Gtk.Window (Gtk.WindowType.Popup);
-			Gtk.DrawingArea da = new Gtk.DrawingArea ();
-			window.Add (da);
 
 			Gdk.Screen screen = GdkWindow.Screen;
 
@@ -61,20 +86,42 @@ namespace Fyre
 			int width = 200;
 			int height = 150;
 
+			window.Realize ();
+			CreatePixmap (window.GdkWindow);
+
 			int win_x = GetWindowPosition (mouse_x, width, screen.Width);
 			int win_y = GetWindowPosition (mouse_y, height, screen.Height);
 
+			window.ExposeEvent += new Gtk.ExposeEventHandler (WindowExpose);
+			window.MotionNotifyEvent += new Gtk.MotionNotifyEventHandler (WindowMotionNotify);
+
 			window.Move (win_x, win_y);
 			window.Resize (width, height);
-			window.ShowAll ();
+			window.Show ();
 
 			return true;
+		}
+
+		void WindowExpose (object o, Gtk.ExposeEventArgs args)
+		{
+			Gtk.Window w = (Gtk.Window) o;
+			Gdk.Drawable d = w.GdkWindow;
+
+			Gdk.Rectangle r = args.Event.Area;
+
+			d.DrawDrawable (white, pixmap, r.X, r.Y, r.X, r.Y, r.Width, r.Height);
+		}
+
+		void WindowMotionNotify (object o, Gtk.MotionNotifyEventArgs args)
+		{
 		}
 
 		protected override bool OnButtonReleaseEvent (Gdk.EventButton ev)
 		{
 			window.Hide ();
 			window = null;
+
+			pixmap = null;
 
 			return true;
 		}
