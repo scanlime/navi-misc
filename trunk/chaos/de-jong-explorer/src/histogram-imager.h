@@ -105,8 +105,8 @@ void             histogram_imager_save_image_file (HistogramImager *self,
 						   const gchar     *filename);
 
 void             histogram_imager_get_hist_size   (HistogramImager *self,
-						   guint           *hist_width,
-						   guint           *hist_height);
+						   int             *hist_width,
+						   int             *hist_height);
 
 void             histogram_imager_clear           (HistogramImager *self);
 

@@ -496,6 +496,8 @@ void explorer_update_gui(Explorer *self) {
 			HISTOGRAM_IMAGER(self->dejong)->width, HISTOGRAM_IMAGER(self->dejong)->height,
 			GDK_RGB_DITHER_NORMAL, gdk_pixbuf_get_pixels(HISTOGRAM_IMAGER(self->dejong)->image),
 			HISTOGRAM_IMAGER(self->dejong)->width * 4);
+
+  HISTOGRAM_IMAGER(self->dejong)->render_dirty_flag = FALSE;
 }
 
 static gboolean on_viewport_expose(GtkWidget *widget, GdkEventExpose *event, gpointer user_data) {
