@@ -456,9 +456,9 @@ class Bot(irc.IRCClient):
     # Unhandled commands to ignore, rather than log
     ignoredCommands = [
         "ERR_NOCHANMODES",     # Freenode spamming us to register
-	506,                   # PLD spamming us to register
-	333,                   # Freenode sends these with channel registration info
-	]
+        506,                   # PLD spamming us to register
+        333,                   # Freenode sends these with channel registration info
+        ]
 
     def __init__(self):
         self.emptyChannels()

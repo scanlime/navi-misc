@@ -57,7 +57,7 @@ class TotalsSection(Template.Section):
         self.numUnfulfilled = 0
         for request in botNet.requests:
             self.numRequests += 1
-	    self.totalUsers += request.getUserCount() or 0
+            self.totalUsers += request.getUserCount() or 0
             if not request.isFulfilled():
                 self.numUnfulfilled += 1
 
@@ -70,8 +70,8 @@ class TotalsSection(Template.Section):
                    ' networks, inhabiting ',
                    Template.value[ place('totalChannels') ],
                    ' channels with a total of ',
-		   Template.value[ place('totalUsers') ],
-		   ' users.',
+                   Template.value[ place('totalUsers') ],
+                   ' users.',
                ],
                [
                    Template.value[ place('numRequests') ],
@@ -144,10 +144,10 @@ class BotServerColumn(Nouvelle.Column):
 
     def render_data(self, context, bot):
         host, port = bot.transport.addr
-	if port == 6667:
-	    return host
+        if port == 6667:
+            return host
         else:
-	    return "%s:%d" % (host, port)
+            return "%s:%d" % (host, port)
 
 
 class BotsSection(Template.Section):
