@@ -27,6 +27,12 @@ from BZEngine.UI import Viewport, ThreeDRender, ThreeDControl, Sequencer, Input
 from BZEngine import Event
 from Wasabi import Hardware, Logos, Menu, IR, Icon, VideoSwitch
 
+# Modify the default font size so we can actually see it on a TV.
+# Only render it at one size, since on a TV we also don't care about hinting
+from BZEngine.UI import GLText
+GLText.defaultSize = 30
+GLText.defaultSizes = [GLText.maxRenderSize]
+
 
 class Main:
     """Initializes other components and store references to them, runs the main loop"""
