@@ -8,7 +8,14 @@ CODEPAGE   NAME=vectors  START=0x0      END=0xFF      PROTECTED
 CODEPAGE   NAME=page0    START=0x100     END=0x7FF
 CODEPAGE   NAME=page1    START=0x800    END=0xFFF
 CODEPAGE   NAME=page2    START=0x1000   END=0x17FF
-CODEPAGE   NAME=page3    START=0x1800   END=0x1FFF
+
+// Pull out a few 256-byte pages to use for precisely positioned jump tables
+CODEPAGE   NAME=pcl_18   START=0x1800   END=0x18FF    PROTECTED
+CODEPAGE   NAME=pcl_19   START=0x1900   END=0x19FF    PROTECTED
+CODEPAGE   NAME=pcl_1A   START=0x1A00   END=0x1AFF    PROTECTED
+CODEPAGE   NAME=pcl_1B   START=0x1B00   END=0x1BFF    PROTECTED
+
+CODEPAGE   NAME=page3    START=0x1C00   END=0x1FFF
 CODEPAGE   NAME=.idlocs  START=0x2000   END=0x2003
 CODEPAGE   NAME=.config  START=0x2007   END=0x2007
 
@@ -17,7 +24,7 @@ SHAREBANK  NAME=gprnobnk START=0xF0     END=0xFF
 SHAREBANK  NAME=gprnobnk START=0x170    END=0x17F
 SHAREBANK  NAME=gprnobnk START=0x1F0    END=0x1FF
 
-// We leave out bank0, since it's reserved for use as a scratchpad by the host
+DATABANK   NAME=gpr0     START=0x20     END=0x6F
 DATABANK   NAME=gpr1     START=0xA0     END=0xEF
 DATABANK   NAME=gpr2     START=0x120    END=0x16F
 DATABANK   NAME=gpr3     START=0x190    END=0x1EF
@@ -32,8 +39,13 @@ SECTION    NAME=PROG1    ROM=page0      // ROM code space - page0
 SECTION    NAME=PROG2    ROM=page1      // ROM code space - page1
 SECTION    NAME=PROG3    ROM=page2      // ROM code space - page2
 SECTION    NAME=PROG4    ROM=page3      // ROM code space - page3
+SECTION    NAME=page_18  ROM=pcl_18
+SECTION    NAME=page_19  ROM=pcl_19
+SECTION    NAME=page_1A  ROM=pcl_1A
+SECTION    NAME=page_1B  ROM=pcl_1B
 SECTION	   NAME=IDLOCS	 ROM=.idlocs	// ID locations
 SECTION    NAME=CONFIG   ROM=.config	// Configuration bits location
+SECTION    NAME=bank0    RAM=gpr0
 SECTION    NAME=bank1    RAM=gpr1
 SECTION    NAME=bank2    RAM=gpr2
 SECTION    NAME=unbanked RAM=gprnobnk   // unbanked RAM - last 16bytes of each bank
