@@ -70,6 +70,8 @@ epByteTemp	res 1
 	extern	USB_dev_req
 	extern	finish_set_address
 
+	extern	io_Init
+
 STARTUP	code
 	pagesel	Main
 	goto	Main
@@ -191,6 +193,9 @@ Main
 	movwf	W_save		; SIE before initializing registers
 	decfsz	W_save,f	; W_save is merely a convienient register
 	goto	$-1			; to use for the delay counter.
+
+	pagesel	io_Init
+	call	io_Init
 
 	pagesel	InitUSB
 	call	InitUSB

@@ -22,6 +22,12 @@
 	extern	temp
 	extern	Send_0Len_pkt
 
+	extern	channel_red
+	extern	channel_white
+	extern	channel_yellow
+	extern	channel_bypass
+	extern	switch_Update
+
 ;; bank0	udata
 
 	code
@@ -35,28 +41,45 @@
 ; return.
 ; *********************************************************************
 CheckVendor
-	;; movf	BufferData+bRequest,w
-	;; xorlw	UVSWITCH_CTRL_POKE
-	;; pagesel	PokeRequest
-	;; btfsc	STATUS,Z
-	;; goto	PokeRequest
+	movf	BufferData+bRequest,w
+	xorlw	UVSWITCH_CTRL_SWITCH
+	pagesel	SwitchRequest
+	btfsc	STATUS,Z
+	goto	SwitchRequest
 
 	pagesel	wrongstate		; Not a recognized request
 	goto	wrongstate
 
-	;********************* Request to write a byte to RAM
-	; A 9-bit address in wIndex, 8-bit data in wValue
-PokeRequest
+	;********************* Request to set the switch status
+
+	; wIndex :	red channel
+	; wIndex+1:	white channel
+	; wValue:	video channel
+	; wValue+1:	bypass
+SwitchRequest
 	banksel BufferData
-	bcf	STATUS, IRP	; Transfer bit 8 of wIndex into IRP
-	btfsc	BufferData+(wIndex+1), 0
-	bsf	STATUS, IRP
+	movf	BufferData+wIndex, w
+	banksel	channel_red
+	movwf	channel_red
 
-	movf	BufferData+wIndex, w ; And bits 0-7 into FSR
-	movwf	FSR
+	banksel BufferData
+	movf	BufferData+(wIndex+1), w
+	banksel	channel_white
+	movwf	channel_white
 
-	movf	BufferData+wValue, w ; Now write bits 0-7 of wValue to [IRP:FSR]
-	movwf	INDF
+	banksel BufferData
+	movf	BufferData+wValue, w
+	banksel	channel_yellow
+	movwf	channel_yellow
+
+	banksel BufferData
+	movf	BufferData+(wValue+1), w
+	banksel	channel_bypass
+	movwf	channel_bypass
+
+	;;  Actually update the switches
+	pagesel	switch_Update
+	call	switch_Update
 
 	; Acknowledge the request
 	pagesel	Send_0Len_pkt
