@@ -326,15 +326,19 @@ class Boolean(AttributeControl):
         widget.set_active(newValue)
 
 
-def run(runnable):
+def run(runnable=None):
     """A utility function to create a Tweak.Thread, call runnable.run(), then
        safely tell the Tweak.Thread to stop. This is designed to be used with
        an event loop, but should suppport any runnable object.
        """
-    try:
-        tweakThread = Thread()
-        runnable.run()
-    finally:
-        tweakThread.stop()
+    if runnable:
+        try:
+            tweakThread = Thread()
+            runnable.run()
+        finally:
+            tweakThread.stop()
+    else:
+        # If we have no runnable, no need to make a thread
+	gtk.main()
 
 ### The End ###
