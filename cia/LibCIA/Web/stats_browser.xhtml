@@ -32,10 +32,19 @@
 		<div class="section">
 		    <div class="sectionTop"/>
 		    <div class="row">
+		        The last message was received
+			<b model="counters/today/lastEventTime" view="relativeDate"/>
+			ago, at
+			<b model="counters/today/lastEventTime" view="fullDate"/>
+		    </div>
+		    <div class="row">
 		    	<b model="counters/today/eventCount" view="Text"/> messages today
 		    </div>
 		    <div class="row">
 		    	<b model="counters/thisWeek/eventCount" view="Text"/> messages this week
+		    </div>
+		    <div class="row">
+		    	<b model="counters/thisMonth/eventCount" view="Text"/> messages this month
 		    </div>
 		    <div class="row">
 		    	<b model="counters/forever/eventCount" view="Text"/>
