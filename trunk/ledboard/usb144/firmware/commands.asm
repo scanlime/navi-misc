@@ -42,8 +42,6 @@
 	extern	display_request_flip
 	extern	display_seek
 	extern	display_seq_write_byte
-	extern	back_fsr
-	extern	back_status
 
 	extern	pwm_cycles
 	extern	pwm_table
@@ -73,7 +71,6 @@ CheckVendor
 	defineRequest	LEDBOARD_CTRL_SEQ_WRITE12,	request_seqWrite12
 	defineRequest	LEDBOARD_CTRL_SEQ_WRITE4,	request_seqWrite4
 	defineRequest	LEDBOARD_CTRL_RANDOM_WRITE8,	request_randomWrite8
-	defineRequest	LEDBOARD_CTRL_BLIT,		request_blit
 	defineRequest	LEDBOARD_CTRL_SET_SCAN_RATE,	request_setScanRate
 	defineRequest	LEDBOARD_CTRL_SET_PWM_CYCLES,	request_setPwmCycles
 	defineRequest	LEDBOARD_CTRL_SET_PWM_ENTRY,	request_setPwmEntry
@@ -162,11 +159,13 @@ returnByte    macro
 
 ;********************************************** Request handlers
 
-	; Request a page flip at the display's next opportunity
+	; Request a page flip at the display's next opportunity.
+	; This doesn't acknowledge right away, we wait until the flip
+	; has actually completed.
 request_flip
 	pagesel	display_request_flip
 	call	display_request_flip
-	returnEmpty
+	return
 
 
 	; Perform a random 3-byte write to the display, using
@@ -191,34 +190,6 @@ request_randomWrite3
 	movf	BufferData+(wIndex+1), w
 	pagesel	display_seq_write_byte
 	call	display_seq_write_byte
-	returnEmpty
-
-
-	; Position the write pointer at the high byte of wValue,
-	; and write out wIndex bytes copied from the column address
-	; at the low byte of wValue.
-request_blit
-	banksel	BufferData			; Put the pointer at wValue+1
-	movf	BufferData+(wValue+1), w
-	pagesel	display_seek
-	call	display_seek
-
-blit_loop
-	movf	back_status, w
-	movwf	STATUS
-	banksel	BufferData			; Get the backbuffer data at the low byte of wValue
-	movf	BufferData+wValue, w
-	incf	BufferData+wValue, f		; (and increment it)
-	addwf	back_fsr, w
-	movwf	FSR
-	movf	INDF, w				; Copy to w and write it
-	pagesel	display_seq_write_byte
-	call	display_seq_write_byte
-
-	banksel	BufferData			; Loop, counting bytes with wIndex
-	pagesel	blit_loop
-	decfsz	BufferData+wIndex, f
-	goto	blit_loop
 	returnEmpty
 
 
@@ -289,6 +260,7 @@ request_seqWrite12
 	movwf	USB_dev_req
 	return
 
+
 	; Handles the data packets that should follow request_seqWrite12
 ep0_write_backbuffer
 	banksel BD0OAL
@@ -296,15 +268,17 @@ ep0_write_backbuffer
 	banksel src_ptr
 	movwf   src_ptr                 ; Start a buffer pointer we'll increment...
 
+	banksel	BD0OBC
 	movf    BD0OBC, w
+	banksel	byte_iterator
 	movwf   byte_iterator
 ep0loop
+	banksel	src_ptr
 	movf    src_ptr,w		; get address of buffer
 	movwf   FSR
 	bsf     STATUS,IRP		; indirectly to banks 2-3
 	movf	INDF, w
-	pagesel	display_seq_write_byte
-	call	display_seq_write_byte
+	pscall	display_seq_write_byte
 
 	banksel	src_ptr
 	incf    src_ptr, f              ; Next...
