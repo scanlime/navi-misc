@@ -2,7 +2,6 @@
 <!DOCTYPE glade-interface SYSTEM "http://glade.gnome.org/glade-2.0.dtd">
 
 <glade-interface>
-<requires lib="gnome"/>
 
 <widget class="GtkWindow" id="RulesetEditorWindow">
   <property name="visible">True</property>
@@ -47,7 +46,6 @@
 	      <child>
 		<widget class="button" id="DeleteButton">
 		  <property name="visible">True</property>
-		  <property name="sensitive">False</property>
 		  <property name="label">gtk-delete</property>
 		  <property name="use_stock">True</property>
 		  <signal name="clicked" handler="on_DeleteButton_clicked" last_modification_time="Tue, 16 Dec 2003 03:12:43 GMT"/>
@@ -66,7 +64,6 @@
 	      <child>
 		<widget class="button" id="RevertButton">
 		  <property name="visible">True</property>
-		  <property name="sensitive">False</property>
 		  <property name="label">gtk-revert-to-saved</property>
 		  <property name="use_stock">True</property>
 		  <signal name="clicked" handler="on_RevertButton_clicked" last_modification_time="Tue, 16 Dec 2003 03:12:51 GMT"/>
@@ -76,7 +73,6 @@
 	      <child>
 		<widget class="button" id="ApplyButton">
 		  <property name="visible">True</property>
-		  <property name="sensitive">False</property>
 		  <property name="label">gtk-apply</property>
 		  <property name="use_stock">True</property>
 		  <signal name="clicked" handler="on_ApplyButton_clicked" last_modification_time="Tue, 16 Dec 2003 03:12:55 GMT"/>
