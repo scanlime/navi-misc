@@ -199,14 +199,14 @@ void			Player::changeScore(short deltaWins, short deltaLosses, short deltaTeamKi
 {
   wins += deltaWins;
   losses += deltaLosses;
-  tks += deltaTeamKills;
+ // tks += deltaTeamKills;
 }
 
 void			Player::changeLocalScore(short dWins, short dLosses, short dTeamKills)
 {
   localWins += dWins;
   localLosses += dLosses;
-  localTks += dTeamKills;
+//  localTks += dTeamKills;
 }
 
 void			Player::setFlag(FlagType* _flag)
@@ -428,6 +428,9 @@ bool			Player::validTeamTarget(const Player *possibleTarget) const
 
   if (myTeam != RogueTeam)
     return false;
+
+	if (!World::getWorld()->allowRabbit() && (myTeam == targetTeam))
+		return false;
 
   return !World::getWorld()->allowRabbit();
 }

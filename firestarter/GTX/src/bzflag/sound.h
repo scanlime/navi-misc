@@ -36,18 +36,18 @@
 #define SFX_DIE		14		/* my tank exploded */
 #define SFX_GRAB_BAD	15		/* grabbed a bad flag */
 #define SFX_SHOT_BOOM	16		/* shot exploded */
-#define SFX_KILL_TEAM	17		/* shot a teammate */
-#define SFX_PHANTOM	18		/* Went into Phantom zone */
-#define SFX_MISSILE	19		/* guided missile fired */
-#define SFX_LOCK	20		/* missile locked on me */
-#define SFX_TEAMGRAB	21		/* grabbed an opponents team flag */
-#define	SFX_HUNT	22		/* hunting sound */
-#define SFX_HUNT_SELECT	23		/* hunt target selected */
-#define SFX_RUNOVER     24              /* steamroller sound */
-#define SFX_THIEF       25		/* thief sound */
-#define SFX_BURROW	26		/* burrow sound */
-#define SFX_MESSAGE_PRIVATE	27	/* private message received */
-#define SFX_MESSAGE_TEAM	28	/* team message received */
+//#define SFX_KILL_TEAM	17		/* shot a teammate */
+#define SFX_PHANTOM	17		/* Went into Phantom zone */
+#define SFX_MISSILE	18		/* guided missile fired */
+#define SFX_LOCK	19		/* missile locked on me */
+#define SFX_TEAMGRAB	20		/* grabbed an opponents team flag */
+#define	SFX_HUNT	21		/* hunting sound */
+#define SFX_HUNT_SELECT	22		/* hunt target selected */
+#define SFX_RUNOVER     23              /* steamroller sound */
+#define SFX_THIEF       24		/* thief sound */
+#define SFX_BURROW	25		/* burrow sound */
+#define SFX_MESSAGE_PRIVATE	26	/* private message received */
+#define SFX_MESSAGE_TEAM	27	/* team message received */
 
 /* prepare sound effects generator and shut it down */
 void			openSound(const char* pname);
