@@ -21,6 +21,7 @@ class File:
 		'''
 		self.parent = parent
 		self.name	= name
+		self.callback = []
 
 	def getName (self):
 		''' FSTree.File.getName
@@ -44,6 +45,15 @@ class File:
 			Returns the File's parent node.
 		'''
 		return self.parent
+
+	def clear(self):
+		''' FSTree.File.removed
+		'''
+		if self.callback:
+			self.callback.removed(self)
+
+	def _register_del_callback(self,target):
+		self.callback = target
 
 class Directory (File):
 	''' FSTree.Directory
@@ -94,6 +104,29 @@ class Directory (File):
 
 	def getFiles(self):
 		return self.files
+
+	def inPath(self, path):
+		'''	FSTree.Directory.inPath
+		
+			Returns True if path is somewhere inside the directory
+			heirarchy.
+		'''
+		return (self.getPath().find(os.path.abspath(path)) is 0)
+
+	def destroy(self):
+		'''	FSTree.destroy
+		
+			Annihilates the tree politely, making sure any files
+			with callbacks associated with them are given fair
+			warning.
+		'''
+		for i in xrange(0,len(self.subdirs)):
+			self.subdirs[i].destroy()
+		while len(self.files):
+			l=len(self.files)
+			self.files[0].clear()
+			if l == len(self.files):
+				self.files.remove(self.files[0])
 
 if __name__ == "__main__":
 	import sys

@@ -10,20 +10,21 @@ class Pieces:
 		Does not inherit pickles.
 	'''
 	def __init__ (self):
+		self.roots = []
 		self.pieces = []
 
 	def addFilesSeparate (self, name, files):
 		if type(files) is not list:
-			self.pieces.append(Piece(files,[files]))
+			self.pieces.append(Piece(files,[files],self))
 		else:
 			for file in files:
-				self.pieces.append(Piece(name,file))
+				self.pieces.append(Piece(name,file,self))
 	
 	def addFilesGrouped (self, name, files):
 		if type(files) is not list:
-			self.pieces.append(Piece(name,[files]))
+			self.pieces.append(Piece(name,[files],self))
 		else:
-			self.pieces.append(Piece(name,files))
+			self.pieces.append(Piece(name,files,self))
 
 	def addDirectory (self, dir):
 		''' Pieces.addDirectory
@@ -57,17 +58,23 @@ class Pieces:
 
 	def addPaths (self, paths):
 		for path in paths:
-			self.addDirectory(FSTree.Directory(path))
+			for i in xrange(0,len(self.roots)):
+				if self.roots[i].inPath(path) == 1:
+					self.roots[i].destroy()
+					self.roots.remove(self.roots[i])
+			tree = FSTree.Directory(path)
+			self.addDirectory(tree)
+			self.roots.append(tree)
 #		print 'found ',len(self.pieces)
-
-	def delPieces (self, pattern):
-		pass
 
 	def getCount (self):
 		return len(self.pieces)
 
 	def getPiece (self, num):
 		return self.pieces[num]
+
+	def delPiece (self, piece):
+		self.pieces.remove(piece)
 		
 if __name__ == "__main__":
 	import sys
