@@ -38,12 +38,36 @@ G_BEGIN_DECLS
 typedef struct _ParameterHolder      ParameterHolder;
 typedef struct _ParameterHolderClass ParameterHolderClass;
 
+typedef struct _ToolInput {
+  double delta_x, delta_y;
+  double absolute_x, absolute_y;
+  double click_relative_x, click_relative_y;
+  double delta_time;
+  GdkModifierType state;
+} ToolInput;
+
 struct _ParameterHolder {
   GObject object;
 };
 
+typedef void (ToolHandlerPH)(ParameterHolder *self, ToolInput *i);
+
+typedef enum {
+  TOOL_USE_MOTION_EVENTS = 1 << 0,
+  TOOL_USE_IDLE          = 1 << 1,
+} ToolFlags;
+
+typedef struct _ToolInfoPH {
+  gchar *menu_name;
+  ToolHandlerPH *handler;
+  ToolFlags flags;
+} ToolInfoPH;
+
 struct _ParameterHolderClass {
   GObjectClass parent_class;
+
+  /* Overrideable methods */
+  GList* (*get_tools) ();
 };
 
 typedef void (ParameterInterpolator)(ParameterHolder  *self,
@@ -92,6 +116,8 @@ gchar*            parameter_holder_save_string        (ParameterHolder *self);
 void              parameter_holder_interpolate_linear (ParameterHolder     *self,
 						       gdouble              alpha,
 						       ParameterHolderPair *p);
+
+GList*            parameter_holder_get_tools          (ParameterHolder *self);
 
 /*
  * These functions make it easy to assign extra metadata to GParamSpecs
