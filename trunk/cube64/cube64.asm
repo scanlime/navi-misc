@@ -28,7 +28,7 @@
 	#include p16f84a.inc
 	errorlevel -302
 
-	__CONFIG   _CP_OFF & _PWRTE_ON & _WDT_ON & _HS_OSC
+	__CONFIG   _CP_OFF & _PWRTE_OFF & _WDT_ON & _HS_OSC
 
 	;; Hardware declarations
 	#define N64_PIN		PORTB, 0
@@ -210,8 +210,8 @@ n64_translate_status
 	map_axis	GC_JOYSTICK_X,	N64_JOYSTICK_X	; Joystick
 	map_axis	GC_JOYSTICK_Y,	N64_JOYSTICK_Y
 
-	map_button_axis	GC_CSTICK_X,    N64_C_RIGHT,	N64_C_LEFT,	0x60, 0xA0 ; C-Button emulation
-	map_button_axis	GC_CSTICK_Y,    N64_C_UP,	N64_C_DOWN,	0x60, 0xA0
+	map_button_axis	GC_CSTICK_X,    N64_C_LEFT,	N64_C_RIGHT,	0x60, 0xA0 ; C-Button emulation
+	map_button_axis	GC_CSTICK_Y,    N64_C_DOWN,	N64_C_UP,	0x60, 0xA0
 	return
 
 
