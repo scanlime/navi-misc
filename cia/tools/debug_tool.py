@@ -27,6 +27,7 @@ class RemoteConsole(code.InteractiveConsole):
        """
     def __init__(self, app):
         self.app = app
+        app.server.debug.resetInterpreter(app.key)
         code.InteractiveConsole.__init__(self)
 
     def runsource(self, source, filename=None):
@@ -39,9 +40,7 @@ class RemoteConsole(code.InteractiveConsole):
 
     def interact(self, banner=None):
         if banner is None:
-            banner = ("Remote python console connected to %s\n"
-                      "Remember that commands can not be interrupted. Infinite loops are bad!" %
-                      self.app.config['server'])
+            banner = self.app.server.debug.getBanner(self.app.key)
         code.InteractiveConsole.interact(self, banner)
 
 
