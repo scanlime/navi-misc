@@ -39,9 +39,33 @@ void navigation_tree_create_new_network_entry(struct session *sess) {
 	gtk_tree_store_set(store, &iter, 1, "<none>", 2, sess, -1);
 }
 
+static gboolean navigation_tree_create_new_channel_entry_iterate(GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, struct session *data) {
+	struct session *s;
+	gtk_tree_model_get(model, iter, 2, &s, -1);
+	if(s->type == SESS_SERVER && s->server == data->server) {
+		GtkTreeIter child;
+		gtk_tree_store_append(GTK_TREE_STORE(model), &child, iter);
+		gtk_tree_store_set(GTK_TREE_STORE(model), &child, 1, "<none>", 2, data, -1);
+		g_print("adding new channel entry, session is 0x%x\n", data);
+		return TRUE;
+	}
+	return FALSE;
+}
+
+void navigation_tree_create_new_channel_entry(struct session *sess) {
+	GtkTreeStore *store;
+	GtkWidget *treeview;
+
+	treeview = glade_xml_get_widget(gui.xml, "server channel list");
+	store = GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(treeview)));
+
+	gtk_tree_model_foreach(store, navigation_tree_create_new_channel_entry_iterate, sess);
+}
+
 static gboolean navigation_tree_set_channel_name_iterate(GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, gpointer data) {
 	gpointer s;
 	gtk_tree_model_get(model, iter, 2, &s, -1);
+	g_print("iterating through channels, session is 0x%x\n", s);
 	if(s == data) {
 		struct session *sess = s;
 		gtk_tree_store_set(GTK_TREE_STORE(model), iter, 1, (sess->channel), -1);
