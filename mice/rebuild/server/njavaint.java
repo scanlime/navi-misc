@@ -16,6 +16,7 @@ public class njavaint extends nbase
 	public njavaint(Socket gonnection, BufferedReader IN, OutputStreamWriter OUT)
 	{
 		super(gonnection,IN,OUT);
+		netdebug = true;
 	}
 	
 	public void run()
@@ -39,12 +40,18 @@ public class njavaint extends nbase
 	public void runloop()
 	{
 		String in;
+		question mine;
+		mine = view.getQuestion();
+		if(mine != null)
+			write(mine);
+		else
+			write("No question\r\nIn queue");
 		while(true)
 		{
 			in = read();
 			switch(in.charAt(0))
 			{
-			case 'q': //quit 
+			case 'q': //quit
 				return;
 			case 'r': //reject
 				view.reject();

@@ -20,7 +20,7 @@ public class njavaadmin extends nbase
 	public njavaadmin(Socket ink, BufferedReader IN, OutputStreamWriter OUT)
 	{
 		super(ink,IN,OUT);
-		netdebug = true;
+		//netdebug = true;
 	}
 	
 	/**
