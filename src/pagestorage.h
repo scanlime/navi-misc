@@ -1,4 +1,5 @@
-/*
+/* -*- mode: c; c-basic-offset: 4; -*-
+ *
  * pagestorage.h - Defines a simple way to allocate, free, and
  *                 address fixed-size blocks of data. This data may
  *                 exist in RAM only, or it may be a memory-mapped

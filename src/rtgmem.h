@@ -1,4 +1,5 @@
-/*
+/* -*- mode: c; c-basic-offset: 4; -*-
+ *
  * rtgmem.h - Memory address utilities
  *
  * rtgraph real-time graphing package

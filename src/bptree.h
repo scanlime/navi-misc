@@ -1,4 +1,5 @@
-/*
+/* -*- mode: c; c-basic-offset: 4; -*-
+ *
  * bptree.h - A somewhat generic B+-Tree implementation used by rtgraph
  *            channels internally. Keys and values are stored in the nodes
  *            themselves, and are arbitrary but fixed sizes. User-defined
