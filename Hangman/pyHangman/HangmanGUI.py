@@ -198,7 +198,6 @@ class HangmanGUI:
         style isn't the same as the current style.
 	"""
     if widget is not self.currentStyle:
-      print "Changing style"
       self.currentStyle = widget
       self.gallows.setStyle(data)
       self.gallowsFrame.set(0.5, ratio=self.gallows.imageAspect, obey_child=gtk.FALSE)
