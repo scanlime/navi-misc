@@ -95,6 +95,14 @@ class Factory(object):
         self.storedInstances[inst.id] = inst
         return inst
 
+    def get(self, id):
+        """Retrieve the CAPTCHA with the given ID. If it's expired already,
+           this will return None. A typical web application will need to
+           new() a CAPTCHA when generating an html page, then get() it later
+           when its images or sounds must be rendered.
+           """
+        return self.storedInstances.get(id)
+
     def clean(self):
         """Removed expired tests"""
         expiredIds = []
