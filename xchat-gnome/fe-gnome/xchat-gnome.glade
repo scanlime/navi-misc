@@ -29,7 +29,7 @@
 	      <property name="visible">True</property>
 
 	      <child>
-		<widget class="GtkImageMenuItem" id="file1">
+		<widget class="GtkMenuItem" id="file1">
 		  <property name="visible">True</property>
 		  <property name="stock_item">GNOMEUIINFO_MENU_FILE_TREE</property>
 
@@ -71,7 +71,7 @@
 		      </child>
 
 		      <child>
-			<widget class="GtkSeparatorMenuItem" id="separator1">
+			<widget class="GtkMenuItem" id="separator1">
 			  <property name="visible">True</property>
 			</widget>
 		      </child>
@@ -89,7 +89,7 @@
 	      </child>
 
 	      <child>
-		<widget class="GtkImageMenuItem" id="edit1">
+		<widget class="GtkMenuItem" id="edit1">
 		  <property name="visible">True</property>
 		  <property name="stock_item">GNOMEUIINFO_MENU_EDIT_TREE</property>
 
@@ -129,7 +129,7 @@
 		      </child>
 
 		      <child>
-			<widget class="GtkSeparatorMenuItem" id="separator2">
+			<widget class="GtkMenuItem" id="separator2">
 			  <property name="visible">True</property>
 			</widget>
 		      </child>
@@ -143,16 +143,16 @@
 		      </child>
 
 		      <child>
-			<widget class="GtkSeparatorMenuItem" id="separator3">
+			<widget class="GtkMenuItem" id="separator3">
 			  <property name="visible">True</property>
 			</widget>
 		      </child>
 
 		      <child>
-			<widget class="GtkImageMenuItem" id="preferences1">
+			<widget class="GtkImageMenuItem" id="preferences_menu">
 			  <property name="visible">True</property>
 			  <property name="stock_item">GNOMEUIINFO_MENU_PREFERENCES_ITEM</property>
-			  <signal name="activate" handler="on_preferences1_activate" last_modification_time="Mon, 19 Jan 2004 23:52:01 GMT"/>
+			  <signal name="activate" handler="on_preferences_menu_activate" last_modification_time="Thu, 22 Jan 2004 02:18:28 GMT"/>
 			</widget>
 		      </child>
 		    </widget>
@@ -161,19 +161,14 @@
 	      </child>
 
 	      <child>
-		<widget class="GtkImageMenuItem" id="view1">
+		<widget class="GtkMenuItem" id="view1">
 		  <property name="visible">True</property>
 		  <property name="stock_item">GNOMEUIINFO_MENU_VIEW_TREE</property>
-
-		  <child>
-		    <widget class="GtkMenu" id="view1_menu">
-		    </widget>
-		  </child>
 		</widget>
 	      </child>
 
 	      <child>
-		<widget class="GtkImageMenuItem" id="help1">
+		<widget class="GtkMenuItem" id="help1">
 		  <property name="visible">True</property>
 		  <property name="stock_item">GNOMEUIINFO_MENU_HELP_TREE</property>
 
