@@ -42,7 +42,7 @@ xtext_buffer_get_type (void)
       (GInstanceInitFunc) xtext_buffer_init,
     };
 
-    xtext_buffer_type = g_type_register_static (GTK_TYPE_WIDGET, "XTextBuffer", &xtext_buffer_info, 0);
+    xtext_buffer_type = g_type_register_static (G_TYPE_OBJECT, "XTextBuffer", &xtext_buffer_info, 0);
   }
 
   return xtext_buffer_type;

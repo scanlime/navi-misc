@@ -40,3 +40,8 @@ context menus:
 
 refactoring:
 * subclass GtkListStore for use in the userlist
+
+xtext stuff:
+  * smaller font for timestamps
+  * selection of timestamps
+  * image smilies

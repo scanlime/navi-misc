@@ -18,6 +18,9 @@ static gboolean   xtext2_expose          (GtkWidget *widget, GdkEventExpose *eve
 static void       backend_init           (XText2 *xtext);
 static void       backend_deinit         (XText2 *xtext);
 inline static int backend_get_char_width (XText2 *xtext, unsigned char *str, int *mbl_ret);
+static void       backend_font_open      (XText2 *xtext, char *name);
+static void       backend_font_close     (XText2 *xtext);
+static int        backend_get_text_width (XText2 *xtext, char *str, int len, gboolean multibyte);
 
 static void       paint                  (GtkWidget *widget, GdkRectangle *area);
 static void       render_page            (XText2 *xtext);
@@ -28,9 +31,12 @@ static textentry* find_char              (XText2 *xtext, int x, int y, int *offs
 static int        find_x                 (XText2 *xtext, int x, textentry *ent, int subline, int line, gboolean *out_of_bounds);
 static void       set_fg                 (XText2 *xtext, GdkGC *gc, int index);
 static void       set_bg                 (XText2 *xtext, GdkGC *gc, int index);
+static int        text_width_8bit        (XText2 *xtext, unsigned char *str, int len);
 
 static int        count_lines_taken      (XText2 *xtext, textentry *ent);
 static int        find_next_wrap         (XText2 *xtext, textentry *ent, unsigned char *str, int win_width, int indent);
+static void       recalc_widths          (XText2 *xtext, gboolean do_str_width);
+static void       fix_indent             (XText2 *xtext);
 
 static gpointer parent_class;
 
@@ -101,6 +107,7 @@ struct _XText2Private
 
   /* backend state */
   guint16 fontwidth[128];            /* pixel width for the ASCII chars */
+  int     spacewidth;                /* pixel width of the space ' ' character */
 #ifdef USE_XFT
   XftColor     color[20];
   XftColor    *xft_fg;               /* both of these point into */
@@ -230,6 +237,7 @@ xtext2_init (XText2 *xtext)
   xtext->priv = g_new0 (XText2Private, 1);
 
   xtext->priv->buffer_info = g_hash_table_new (g_direct_hash, g_direct_equal);
+  g_print ("xtext2_init() - buffer_info is 0x%x\n", xtext->priv->buffer_info);
 
   gtk_widget_set_double_buffered (GTK_WIDGET (xtext), FALSE);
 }
@@ -482,6 +490,49 @@ backend_get_char_width (XText2 *xtext, unsigned char *str, int *mbl_ret)
   return ext.xOff;
 }
 
+static void
+backend_font_open (XText2 *xtext, char *name)
+{
+  XftFont *font = NULL;
+  PangoFontDescription *fontd;
+  Display *xdisplay = GDK_WINDOW_XDISPLAY (xtext->priv->draw_buffer);
+  int weight, slant, screen = DefaultScreen (xdisplay);
+
+  if (name[0] == '-')
+  {
+    xtext->priv->font = XftFontOpenXlfd (xdisplay, screen, name);
+    if (xtext->priv->font)
+      return;
+  }
+
+  fontd = pango_font_description_from_string (name);
+  if (pango_font_description_get_size (fontd) != 0)
+  {
+    /* FIXME */
+  }
+  pango_font_description_free (fontd);
+
+  if (font == NULL)
+  {
+    font = XftFontOpenName (xdisplay, screen, name);
+    if (font == NULL)
+      font = XftFontOpenName (xdisplay, screen, "sans-12");
+  }
+  xtext->priv->font->font = font;
+}
+
+static void
+backend_font_close (XText2 *xtext)
+{
+  XftFontClose (GDK_WINDOW_XDISPLAY (xtext->priv->draw_buffer), xtext->priv->font);
+  xtext->priv->font = NULL;
+}
+
+static int
+backend_get_text_width (XText2 *xtext, char *str, int len, gboolean multibyte)
+{
+}
+
 #else
 /* ======================================= */
 /* ============ PANGO BACKEND ============ */
@@ -523,6 +574,36 @@ backend_get_char_width (XText2 *xtext, unsigned char *str, int *mbl_ret)
 
   return width;
 }
+
+static void
+backend_font_open (XText2 *xtext, char *name)
+{
+}
+
+static void
+backend_font_close (XText2 *xtext)
+{
+  pango_font_description_free (xtext->priv->font->font);
+  xtext->priv->font->font = NULL;
+}
+
+static int
+backend_get_text_width (XText2 *xtext, char *str, int len, gboolean multibyte)
+{
+  int width;
+
+  if (!multibyte)
+    return text_width_8bit (xtext, str, len);
+
+  if (str[0] == '\0')
+    return 0;
+
+  pango_layout_set_text (xtext->priv->layout, str, len);
+  pango_layout_get_pixel_size (xtext->priv->layout, &width, NULL);
+
+  return width;
+}
+
 #endif
 
 static void
@@ -693,6 +774,44 @@ set_bg (XText2 *xtext, GdkGC *gc, int index)
 #endif
 }
 
+gboolean
+xtext2_set_font (XText2 *xtext, char *name)
+{
+  int i;
+  unsigned char c;
+  if (xtext->priv->font)
+    backend_font_close (xtext);
+
+  /* realize so that the font has an open display */
+  gtk_widget_realize (GTK_WIDGET (xtext));
+
+  backend_font_open (xtext, name);
+  if (xtext->priv->font == NULL)
+    return FALSE;
+
+  /* measure the width of ASCII chars for fast access */
+  for (i = 0; i < sizeof (xtext->priv->fontwidth) / sizeof (xtext->priv->fontwidth[0]); i++)
+  {
+    c = i;
+    xtext->priv->fontwidth[i] = backend_get_text_width (xtext, &c, 1, TRUE);
+  }
+  xtext->priv->spacewidth = xtext->priv->fontwidth[' '];
+  xtext->priv->fontsize = xtext->priv->font->ascent + xtext->priv->font->descent;
+
+#ifdef XCHAT
+  {
+    char *time_str;
+    int stamp_size = get_stamp_str (time (NULL), &time_str);
+    xtext->priv->stamp_width = text_width (xtext, time_str, stamp_size, NULL);
+    g_free (time_str);
+  }
+#endif
+  fix_indent (xtext);
+  recalc_widths (xtext, TRUE);
+
+  return TRUE;
+}
+
 static void
 buffer_destruction_notify (XText2 *xtext, XTextBuffer *buffer)
 {
@@ -717,6 +836,7 @@ static void
 buffer_append (XTextBuffer *buffer, textentry *ent, XText2 *xtext)
 {
   XTextFormat *f;
+  g_print ("appending to buffer\n");
   f = g_hash_table_lookup (xtext->priv->buffer_info, buffer);
   f->wrapped_first = buffer->text_first;
   f->wrapped_last  = buffer->text_last;
@@ -759,6 +879,7 @@ xtext2_show_buffer (XText2 *xtext, XTextBuffer *buffer)
   XTextFormat *f;
 
   f = g_hash_table_lookup (xtext->priv->buffer_info, buffer);
+  g_print ("xtext2_show_buffer() - buffer_info is 0x%x\n", xtext->priv->buffer_info);
   if (f == NULL)
   {
     /* this isn't a buffer we've seen before */
@@ -780,10 +901,25 @@ xtext2_refresh (XText2 *xtext)
   }
 }
 
-/* count how many lines 'ent' will take (with wraps) */
+static int
+text_width_8bit (XText2 *xtext, unsigned char *str, int len)
+{
+  /* gives width of an 8 bit string - with no mIRC codes in it */
+  int width = 0;
+
+  while (len)
+  {
+    width += xtext->priv->fontwidth[*str];
+    str++;
+    len--;
+  }
+  return width;
+}
+
 static int
 count_lines_taken (XText2 *xtext, textentry *ent)
 {
+  /* count how many lines 'ent' will take (with wraps) */
   unsigned char *str;
   int indent, taken, len;
   int win_width;
@@ -909,4 +1045,15 @@ done:
     ret = 1;
 
   return ret;
+}
+
+static void
+recalc_widths (XText2 *xtext, gboolean do_str_width)
+{
+  textentry *ent;
+}
+
+static void
+fix_indent (XText2 *xtext)
+{
 }

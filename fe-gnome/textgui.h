@@ -29,13 +29,13 @@
 void initialize_text_gui();
 void text_gui_add_text_buffer(struct session *sess);
 void text_gui_remove_text_buffer(struct session *sess);
-// void text_gui_print(xtext_buffer *buf, unsigned char *text, gboolean indent);
+ void text_gui_print(XTextBuffer *buf, unsigned char *text, gboolean indent);
 void set_nickname(struct server *serv, char *newnick);
 void set_gui_topic(struct session *sess, char *topic);
 void clear_buffer(struct session *sess);
 
 typedef struct {
-//	xtext_buffer *buffer;
+	XTextBuffer *buffer;
 	GtkTreeModel *userlist_model;
 	char *topic;
 	char *entry;
