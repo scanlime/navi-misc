@@ -61,12 +61,13 @@ class Page:
 
         # Split the query into key-value pairs
         args = {}
-        for pair in req.args.split("&"):
-            if pair.find("=") >= 0:
-                key, value = pair.split("=", 1)
-                args.setdefault(key, []).append(value)
-            else:
-                args[pair] = []
+        if req.args:
+            for pair in req.args.split("&"):
+                if pair.find("=") >= 0:
+                    key, value = pair.split("=", 1)
+                    args.setdefault(key, []).append(value)
+                else:
+                    args[pair] = []
 
         context = dict(owner=current, request=req, args=args)
         current.preRender(context)
