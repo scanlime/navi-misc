@@ -54,7 +54,7 @@ struct _Explorer {
   guint render_status_context;
 
   guint idler;
-  gboolean writing_params;
+  gboolean setting_params;
   gboolean just_resized;
   GTimeVal last_update;
 
