@@ -284,6 +284,10 @@ url_editor_dialog_dispose (GObject *obj)
 		g_object_unref (dialog->url_list_model);
 		dialog->url_list_model = NULL;
 	}
+	if (dialog->gui) {
+		g_object_unref (dialog->gui);
+		dialog->gui = NULL;
+	}
 
 	((GObjectClass *)(parent_class))->dispose (obj);
 }
