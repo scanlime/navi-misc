@@ -6,6 +6,7 @@ before release:
 
 -----
 
+* split other dialogs out of xchat-gnome.glade (difficult at this point)
 * make things static where possible
 * hook up pgup/pgdn
 * topic bar should have a tooltip with the entire topic
