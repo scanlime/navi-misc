@@ -39,7 +39,10 @@ class Component(Server.Component):
         self.resource = Page(self)
 
     def __contains__(self, page):
-        return isinstance(page, Page)
+        for cls in (Page, Metadata.MetadataPage):
+            if isinstance(page, cls):
+                return True
+        return False
 
 
 class Page(Template.Page):
