@@ -75,7 +75,7 @@ initialize_preferences_plugins_page ()
 	open = glade_xml_get_widget (gui.xml, "plugin open");
 	remove = glade_xml_get_widget (gui.xml, "plugin remove");
 
-  /* Plugin name, version, description, file, loaded (true or false) */
+  /* Plugin name, version, description, file, loaded (true or false), file handle */
 	store = gtk_list_store_new (6, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_BOOLEAN, G_TYPE_POINTER);
 	gtk_tree_view_set_model (GTK_TREE_VIEW (treeview), GTK_TREE_MODEL (store));
 
@@ -340,7 +340,7 @@ static void load_unload (char *filename, gboolean loaded, GtkTreeModel *model,
 		/* FIXME: Bad to assume that the plugin was successfully unloaded. */
 		gtk_list_store_set (GTK_LIST_STORE (model), &iter, 4, FALSE, -1);
 
-		enabled_plugins = g_slist_remove (enabled_plugins, filename);
+		enabled_plugins = g_slist_remove (enabled_plugins, (gconstpointer)filename);
 	} else {
 		buf = malloc (strlen (filename) + 9);
 		if (strchr (filename, ' '))
@@ -362,18 +362,8 @@ static void load_unload (char *filename, gboolean loaded, GtkTreeModel *model,
 
 static void autoload_plugin_cb (gpointer data, gpointer user_data)
 {
-	gchar *filename, *buf;
+	char *filename;
+	filename = (char*) data;
 
-	filename = (gchar*) data;
-	buf = malloc (strlen (filename) + 9);
-
-	printf ("Auto-loading %s\n", filename);
-
-	if (strchr (filename, ' '))
-		sprintf (buf, "LOAD \"%s\"", filename);
-	else
-		sprintf (buf, "LOAD %s", filename);
-
-	handle_command (gui.current_session, buf, FALSE);
-	free (buf);
+	plugin_load (gui.current_session, filename, NULL);
 }
