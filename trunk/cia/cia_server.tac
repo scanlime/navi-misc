@@ -18,6 +18,7 @@ botNet = IRC.BotNetwork("CIA-%d")
 uriRegistry = Ruleset.URIRegistry(
     IRC.IrcURIHandler(botNet),
     Stats.StatsURIHandler(),
+    RpcClient.XmlrpcURIHandler(),
     )
 
 # Use a persistent set of rulesets to filter and format messages
