@@ -29,6 +29,12 @@ behavior of the system in a particular state, rather than only a short piece of 
 cases, an imaging technique capable of displaying millions of points is required.
 
 \section{Background}
+The particular systems we have been visualizing are known as \emph{chaotic maps}.  These are
+n-dimensional systems of nonlinear equations which transform a point.  When these systems are
+run iteratively, the point moves chaotically.  The union of all the points produced with a given
+set of parameters is the attractor for the map.  In some cases, these attractors are simple
+cycles.  However, in the bulk of cases, these attractors create complex images.
+
 When plotting points of zero size, each pixel is effectively a bucket which collects samples.
 Traditionally, a single sample completely saturates a pixel, which means that the bucket
 can be represented by a single bit.  The problem with this approach is that when a pixel is
@@ -36,9 +42,10 @@ hit more than once, information is lost.  Instead, if we treat the image region 
 depth, two-dimensional histogram we can capture all the information contained in a long
 computation run.
 
-Instead of using just a single bit to represent a pixel, we can use full 32-bit (or larger,
-if necessary) integers.  The result of treating an image in this way is what is known as
-high dynamic range imaging (HDRI).  Most images on a computer are represented by a single
+Instead of using just a single bit to represent a pixel, we can use much higher precision
+data types.  When doing this, we are effectively plotting a histogram of the system rather
+than a representative picture. The result of treating an image in this way is what is known
+as high dynamic range imaging (HDRI).  Most images on a computer are represented by a single
 byte per channel.  In a greyscale image, this means that 256 different intensity values
 can be represented.  In the natural world, we can observe luminosity ranges on the order of
 $10^8:1$.  Clearly 8 bits is not sufficient to represent this, so recently a lot of work
