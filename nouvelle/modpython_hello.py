@@ -41,5 +41,5 @@ class Hello(ModPython.Page):
             Nouvelle.IndexedColumn('eats', 4),
             ], id='food')
 
-index = Hello()
+index = Hello().publish
 
