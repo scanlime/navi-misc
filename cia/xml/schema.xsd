@@ -9,9 +9,15 @@
   This is known to be in use with CVS, Subversion, BitKeeper, and Arch.
   -->
 
+<xsd:complexType name="file-element" mixed="true">
+  <xsd:choice maxOccurs="unbounded">
+    <xsd:attribute name="uri" type="xsd:string"/>
+  </xsd:choice>
+</xsd:complexType>
+
 <xsd:complexType name="fileList">
   <xsd:choice maxOccurs="unbounded">
-    <xsd:element name="file" type="xsd:string"/>
+    <xsd:element name="file" type="file-element"/>
   </xsd:choice>
 </xsd:complexType>
 
