@@ -156,14 +156,6 @@ static DECLARE_MUTEX (disconnect_sem);
 				 * gives us. If it's smaller, the HCD will probably crash horribly.
 				 */
 
-/* Mapping between rwand buttons and linux input system buttons */
-#define MAPPED_BTN_SQUARE    BTN_1
-#define MAPPED_BTN_RIGHT     BTN_2
-#define MAPPED_BTN_LEFT      BTN_3
-#define MAPPED_BTN_UP        BTN_4
-#define MAPPED_BTN_DOWN      BTN_5
-
-
 #ifdef VERTICAL_FLIP
 #define CONVERT_FB_BYTE(b)   (reverse_bits(b))
 #else
@@ -220,6 +212,8 @@ static unsigned char reverse_bits      (unsigned char b);
 
 static int     filter_push       (struct filter *filter, int new_value);
 static void    filter_reset      (struct filter *filter);
+
+static int     buttons_to_axis(int buttons, int neg_mask, int pos_mask);
 
 
 /******************************************************************************/
@@ -530,6 +524,15 @@ static void rwand_decode_status(const unsigned char *in, struct rwand_status *ou
 	out->buttons = in[7];
 }
 
+static int buttons_to_axis(int buttons, int neg_mask, int pos_mask)
+{
+	int x = 0;
+	if (buttons & neg_mask)
+		x -= 1;
+	if (buttons & pos_mask)
+		x += 1;
+	return x;
+}
 
 /* Given an encoded status packet, process it and update the
  * device's state in any way necessary. This should be called
@@ -542,11 +545,13 @@ static void rwand_process_status(struct rwand_dev *dev, const unsigned char *pac
 	rwand_decode_status(packet, &new_status);
 
 	/* Report button status to the input subsystem */
-	input_report_key(&dev->input, MAPPED_BTN_SQUARE, new_status.buttons & RWAND_BUTTON_SQUARE);
-	input_report_key(&dev->input, MAPPED_BTN_RIGHT,  new_status.buttons & RWAND_BUTTON_RIGHT);
-	input_report_key(&dev->input, MAPPED_BTN_LEFT,   new_status.buttons & RWAND_BUTTON_LEFT);
-	input_report_key(&dev->input, MAPPED_BTN_UP,     new_status.buttons & RWAND_BUTTON_UP);
-	input_report_key(&dev->input, MAPPED_BTN_DOWN,   new_status.buttons & RWAND_BUTTON_DOWN);
+	input_report_key(&dev->input, BTN_1, new_status.buttons & RWAND_BUTTON_SQUARE);
+	input_report_abs(&dev->input, ABS_X, buttons_to_axis(new_status.buttons,
+							     RWAND_BUTTON_LEFT,
+							     RWAND_BUTTON_RIGHT));
+	input_report_abs(&dev->input, ABS_Y, buttons_to_axis(new_status.buttons,
+							     RWAND_BUTTON_UP,
+							     RWAND_BUTTON_DOWN));
 	input_sync(&dev->input);
 
 	/* If the page flip counter has incremented, clear our flip pending flag
@@ -1110,15 +1115,17 @@ static int rwand_probe(struct usb_interface *interface, const struct usb_device_
 	dev->input.id.vendor = udev->descriptor.idVendor;
 	dev->input.id.product = udev->descriptor.idProduct;
 	dev->input.id.version = udev->descriptor.bcdDevice;
+
         set_bit(EV_KEY, dev->input.evbit);
         set_bit(EV_ABS, dev->input.evbit);
-	set_bit(ABS_X, dev->input.absbit);                /* We don't need axes, but this tricks us into looking */
-	set_bit(ABS_Y, dev->input.absbit);                /* like a joystick to the rest of the input subsystem. */
-        set_bit(MAPPED_BTN_SQUARE, dev->input.keybit);
-        set_bit(MAPPED_BTN_RIGHT, dev->input.keybit);
-        set_bit(MAPPED_BTN_LEFT, dev->input.keybit);
-        set_bit(MAPPED_BTN_UP, dev->input.keybit);
-        set_bit(MAPPED_BTN_DOWN, dev->input.keybit);
+        set_bit(BTN_1, dev->input.keybit);
+	set_bit(ABS_X, dev->input.absbit);
+	dev->input.absmin[ABS_X] = -1;
+	dev->input.absmax[ABS_X] = 1;
+	set_bit(ABS_Y, dev->input.absbit);
+	dev->input.absmin[ABS_Y] = -1;
+	dev->input.absmax[ABS_Y] = 1;
+
 	input_register_device(&dev->input);
 
 	/* Allocate some DMA-friendly memory and a URB used for periodic
