@@ -12,11 +12,17 @@ view = ThreeDRender.View(viewport)
 class IconTest(Sequencer.Page):
     def __init__(self, view):
         Sequencer.Page.__init__(self, view)
+
+        overlay = self.viewport.region(self.viewport.rect)
+        self.background = HUD.Image(overlay,
+                                    "brushed_metal.png",
+                                    overlay.size)
+
         height = self.viewport.size[1] / 2
-        self.title = HUD.Image(self.viewport.region(self.viewport.rect),
-                               "navi512.png",
-                               (1.623 * height, height),
-                               alignment = (0.5, 0.5))
+        self.icon = HUD.Image(overlay,
+                              "navi512.png",
+                              (1.623 * height, height),
+                              alignment = (0.5, 0.5))
 
 
 mainBook = Sequencer.CyclicBook(view, [
