@@ -19,6 +19,9 @@ class MapData
 		MapObject *getMapObject(const MapLocation &location);
 		MapObject *getMapObject(int x, int y);
 
+		MapObject *getNeighbor(const MapLocation &location, Direction dir);
+		MapObject *getNeighbor(int x, int y, Direction dir);
+
 		virtual bool areNeighbors(const MapLocation &loc1,
 								  const MapLocation &loc2) const = 0;
 
