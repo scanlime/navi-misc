@@ -47,6 +47,19 @@ def Bargraph(value, width=4, padding=0.2):
                style="padding: 0em %.4fem" % (value * width + padding))
 
 
+def SubscriptionLink(url, content, icon="/images/xml.png", iconSize=(36,14)):
+    """An anchor tag that can be used to link to RSS feeds with quickSub support.
+       On mouseover, this link will display a menu of RSS aggregation services.
+       """
+    return tag('a', href = url,
+               onmouseout  = "return timeqs();",
+               onmouseover = "return quicksub(this, %r);" % str(url))[
+                  tag('img', src=icon, _class="xml-icon",
+                      width=iconSize[0], height=iconSize[1]),
+                  content,
+              ]
+
+
 def MessageHeaders(d):
     """A factory for displaying message headers from a dictionary-like object.
        If order is important (it probably is) use twisted.python.util.OrderedDict.
@@ -174,6 +187,15 @@ class Page(Nouvelle.Twisted.Page):
                 place('extraHeaders'),
                 ],
             tag('body')[
+
+                # For quickSub, a JavaScript doodad that makes it easy to subscribe to RSS feeds
+                # using several aggregation services. This loads its javascript source and provides
+                # a div for it to pop up when necessary.
+                tag('div', id="quickSub", style="position:absolute; visibility:hidden; z-index:1000;",
+                    onmouseout="return timeqs();", onmousemove="return delayqs();")[ " " ],
+                tag('script', type="text/javascript", src="/quicksub.js")[ " " ],
+
+                # Page heading, including title, subtitle, site name, and tabs
                 tag('div', _class="heading")[
                     tag('table', _class="heading")[ tag('tr', _class="heading")[
                         tag('td', _class="title")[
@@ -187,10 +209,13 @@ class Page(Nouvelle.Twisted.Page):
                     tag('div', _class="tabs")[ place("tabs") ],
                     tag('div', _class="tabBar")[ place("breadcrumbs") ],
                 ],
+
+                # The page body. We really shouldn't still be using a table for this...
                 tag('table', _class="columns")[ tag('tr')[
                     tag('td', _class="left")[ place("leftColumn") ],
                     tag('td', _class="main")[ place("mainColumn") ],
                 ]],
+
                 tag('div', _class="footer")[
 
                     # Yep, this should be valid XHTML

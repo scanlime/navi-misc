@@ -319,9 +319,9 @@ class LinksSection(Template.Section):
 
     def render_rows(self, context):
         return [
-            Link.MetadataLink(self.target),
             Link.RSSLink(self.target),
             Link.RSSCustomizer(self.target),
+            Link.MetadataLink(self.target),
             Link.XMLLink(self.target),
             ]
 
