@@ -36,6 +36,8 @@ static void
 on_load_plugin_clicked (GtkButton *button, gpointer user_data);
 static void
 on_unload_plugin_clicked (GtkButton *button, gpointer user_data);
+static void
+xchat_gnome_plugin_add (char *filename);
 
 void
 initialize_preferences_plugins_page ()
@@ -67,7 +69,8 @@ initialize_preferences_plugins_page ()
   g_signal_connect (G_OBJECT(load), "clicked", G_CALLBACK (on_load_plugin_clicked), NULL);
   g_signal_connect (G_OBJECT(unload), "clicked", G_CALLBACK (on_unload_plugin_clicked), NULL);
 
-	preferences_plugins_page_populate ();
+	// FIXME: remove this for now
+	//preferences_plugins_page_populate ();
 }
 
 void
@@ -84,7 +87,8 @@ preferences_plugins_page_populate()
 
 	gtk_list_store_clear (store);
 
-  //for_files (XCHATLIBDIR"/plugins", "*.so", plugin_add);
+  for_files (XCHATLIBDIR"/plugins", "*.so", xchat_gnome_plugin_add);
+  for_files (XCHATLIBDIR"/plugins", "*.sl", xchat_gnome_plugin_add);
 
 	list = known_plugins;
 	while (list)
@@ -125,7 +129,6 @@ on_load_plugin_clicked (GtkButton *button, gpointer user_data)
       snprintf (buf, strlen (filename) + 9, "LOAD %s", filename);
 
     handle_command (gui.current_session, buf, FALSE);
-    printf("%s\n", buf);
     free (buf);
   }
 }
@@ -155,9 +158,13 @@ on_unload_plugin_clicked (GtkButton *button, gpointer user_data)
       snprintf (buf, strlen (filename) + 10, "UNLOAD %s", filename);
 
     handle_command (gui.current_session, buf, FALSE);
-    printf("%s\n", buf);
     free (buf);
 
   }
 }
 
+static void
+xchat_gnome_plugin_add (char *filename)
+{
+	printf ("xchat_gnome_plugin_add: %s\n", filename);
+}
