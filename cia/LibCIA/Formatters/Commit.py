@@ -288,9 +288,9 @@ class CommitToXHTML(CommitFormatter):
             <autoHide>r<n:b><revision/></n:b></autoHide>
             <n:b><module/></n:b>/<files/>:
         </n:div>
-        <n:p style='padding: 0em; margin: 0.5em 0em;'>
+        <n:div style='padding: 0em; margin: 0.5em 0em;'>
             <log/>
-        </n:p>
+        </n:div>
     </format>
     """
 
@@ -397,7 +397,10 @@ class CommitToXHTML(CommitFormatter):
                     if content:
                         content.append(tag('br'))
                     content.append(line)
-                content.append(tag('ul')[[ tag('li')[item] for item in listItems ]])
+                content = [
+                    tag('p')[ content ],
+                    tag('ul')[[ tag('li')[item] for item in listItems ]],
+                    ]
 
             elif isPreFormatted:
                 # This is probably a preformatted message, stick it in a <pre>
@@ -424,7 +427,7 @@ class CommitToXHTMLLong(CommitToXHTML):
     <format xmlns:n='http://www.w3.org/1999/xhtml'>
         <n:h1>Commit Message</n:h1>
         <headers/>
-        <n:p class='messageBody'><log/></n:p>
+        <n:div class='messageBody'><log/></n:div>
         <n:h1>Modified Files</n:h1><files/>
     </format>
     """
