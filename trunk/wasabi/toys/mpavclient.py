@@ -58,9 +58,13 @@ class MPAVClient:
 
         if currentTime > self.lastUpdateTime + threshold:
             while 1:
+                self.onIdle()
                 time.sleep(pollInterval)
                 if self.getCount() != currentCount:
                     break
+
+    def onIdle(self):
+        pass
 
 
 class Delay:
@@ -100,6 +104,9 @@ class RasterBargraph:
         i = floor(clip(a, 0, 1) * (len(self.bars)-1) + 0.5)
         self.writeFrame(take(self.bars, i.astype(Int)))
 
+    def clear(self):
+        self.writeBars(array([0]))
+
 
 class SDLBargraph:
     """A RasterBargraph-workalike that draws high-resolution bars
@@ -129,7 +136,6 @@ def fft_loop(input, *outputs):
     # Frequency tap indices for each bar
     s = 20
     taps = (exp(arange(0, 1, 0.07)) * s - s).astype(Int)
-    #print taps
 
     bars = None
     inputVolume = 8e4
@@ -152,7 +158,6 @@ def fft_loop(input, *outputs):
         sums = add.accumulate(fft)
         hscaled = take(sums, taps)
         hscaled = maximum(hscaled[1:] - hscaled[:-1], 0)
-
         vscaled = hscaled * 4e-7
 
         # Add gradual decay to bar heights
@@ -169,10 +174,11 @@ def fft_loop(input, *outputs):
 if __name__ == "__main__":
     mpav = MPAVClient()
     rw = RasterBargraph()
+    mpav.onIdle = rw.clear
     #sb = SDLBargraph()
     delayed = Delay(30, mpav.waitForBuffer)
     try:
         fft_loop(delayed, rw.writeBars)
     finally:
         # Clear the rasterwand on exit
-        rw.writeBars(array([0]))
+        rw.clear()
