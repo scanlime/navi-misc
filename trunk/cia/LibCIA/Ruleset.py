@@ -438,11 +438,11 @@ class RulesetController(object):
            to our callbacks correctly.
            """
         self.hub.addClient(lambda msg: self.storeRuleset(msg),
-                           Message.Filter('<find path="/message/body/ruleset">'))
+                           Message.Filter('<find path="/message/body/ruleset"/>'))
         self.hub.addClient(lambda msg: self.queryRulesets(msg),
-                           Message.Filter('<find path="/message/body/queryRulesets">'))
+                           Message.Filter('<find path="/message/body/queryRulesets"/>'))
         self.hub.addClient(lambda msg: self.queryUriList(msg),
-                           Message.Filter('<find path="/message/body/queryUriList">'))
+                           Message.Filter('<find path="/message/body/queryUriList"/>'))
 
     def storeRuleset(self, message):
         """Handle messages instructing us to add, modify, or remove
