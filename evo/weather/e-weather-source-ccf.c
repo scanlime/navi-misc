@@ -30,7 +30,7 @@
 EWeatherSource*
 e_weather_source_ccf_new (const char *uri)
 {
-	/* Our URI is formatted as weather:ccf/AAA[/BBB] - AAA is the 3-letter station
+	/* Our URI is formatted as weather://ccf/AAA[/BBB] - AAA is the 3-letter station
 	 * code for identifying the providing station (subdirectory within the crh data
 	 * repository). BBB is an optional additional station ID for the station within
 	 * the CCF file. If not present, BBB is assumed to be the same station as AAA.
