@@ -45,8 +45,14 @@ public class interview extends java.applet.Applet implements ActionListener
 	 */
 	public void actionPerformed(ActionEvent e)
 	{
+		String mykey;
 		net.openConnection("localhost",8080);
 		net.write("jint");
+		mykey = net.read();
+		net.write(realname.getText());
+		net.write(key.encrypt(mykey,username.getText()));
+		net.write(key.encrypt(mykey,password.getText()));
+		
 		buttonconfig();
 	}
 	

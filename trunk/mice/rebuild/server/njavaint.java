@@ -45,7 +45,6 @@ public class njavaint extends nbase
 			switch(in.charAt(0))
 			{
 			case 'q': //quit 
-				closeConnection();
 				return;
 			case 'r': //reject
 				view.reject();
