@@ -285,9 +285,8 @@ remove_autojoin_clicked (GtkButton *button, gpointer data)
 	treeview = glade_xml_get_widget (gui.xml, "server config channels");
 	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
 
-	if (gtk_tree_selection_get_selected (GTK_TREE_SELECTION (selection), &model, &iter)) {
+	if (gtk_tree_selection_get_selected (selection, &model, &iter)) {
 		gtk_list_store_remove (GTK_LIST_STORE (model), &iter);
-		/* FIXME - save */
 	}
 }
 
@@ -297,8 +296,18 @@ populate_channels_list (GtkListStore *store, ircnet *net)
 }
 
 static void
-server_entry_edited (GtkCellRendererText *renderer, gchar *arg1, gchar *arg2, gpointer data)
+server_entry_edited (GtkCellRendererText *renderer, gchar *arg1, gchar *arg2, GtkTreeView *view)
 {
+	GtkTreeSelection *selection;
+	GtkTreeModel *model;
+	GtkTreeIter iter;
+	ircserver *serv;
+
+	selection = gtk_tree_view_get_selection (view);
+	if (gtk_tree_selection_get_selected (selection, &model, &iter)) {
+		gtk_tree_model_get (model, &iter, 1, &serv, -1);
+		gtk_list_store_set (GTK_LIST_STORE (model), &iter, 0, arg2, -1);
+	}
 }
 
 static void
@@ -431,7 +440,7 @@ edit_clicked (GtkWidget *button, gpointer data)
 		gtk_tree_view_column_set_attributes (column, renderer, "text", 0, NULL);
 		gtk_tree_view_append_column (GTK_TREE_VIEW (widget), column);
 		g_object_set (G_OBJECT (renderer), "editable", TRUE, NULL);
-		g_signal_connect (G_OBJECT (renderer), "edited", G_CALLBACK(server_entry_edited), NULL);
+		g_signal_connect (G_OBJECT (renderer), "edited", G_CALLBACK(server_entry_edited), widget);
 
 		select = gtk_tree_view_get_selection (GTK_TREE_VIEW (widget));
 		g_signal_connect (G_OBJECT (select), "changed", G_CALLBACK(server_selection_changed), NULL);
