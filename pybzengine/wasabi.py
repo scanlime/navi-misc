@@ -1,11 +1,12 @@
 #!/usr/bin/env python
-from BZEngine.UI import Viewport, ThreeDRender, HUD, Layout
+from BZEngine.UI import Viewport, ThreeDRender, ThreeDControl, HUD, Layout
 from BZEngine import Event
 import cPickle
 
 loop = Event.EventLoop()
 viewport = Viewport.OpenGLViewport(loop)
 view = ThreeDRender.View(viewport)
+control = ThreeDControl.Viewing(view, viewport)
 viewport.setCaption("Wasabi")
 
 viewport.mode = Viewport.GL.ClearedMode(clearColor=(0, 0, 0, 1))
