@@ -65,7 +65,7 @@ view_init (View *view)
   view->camera = camera_new ();
 }
 
-static void
+static gboolean
 view_configure (GLDrawingArea *widget, GdkEventConfigure *event, View *view)
 {
   gl_drawing_area_make_current (widget);
@@ -79,12 +79,69 @@ view_configure (GLDrawingArea *widget, GdkEventConfigure *event, View *view)
   glDepthRange (0.1, 2000.0);
 
   view_render (view);
+
+  return TRUE;
 }
 
-static void
+static gboolean
+view_scroll (GLDrawingArea *widget, GdkEventScroll *event, View *view)
+{
+  if (event->direction == GDK_SCROLL_UP)
+  {
+    if (view->camera->distance > 10)
+      view->camera->distance -= 40;
+    view_render (view);
+  }
+  else if (event->direction == GDK_SCROLL_DOWN)
+  {
+    if (view->camera->distance < 1500)
+      view->camera->distance += 40;
+    view_render (view);
+  }
+
+  return TRUE;
+}
+
+static gboolean
+view_click (GLDrawingArea *widget, GdkEventButton *event, View *view)
+{
+  if (event->button == 3)
+  {
+    /* right button, start roaming */
+    view->mouse[0] = event->x_root;
+    view->mouse[1] = event->y_root;
+  }
+
+  return TRUE;
+}
+
+static gboolean
+view_motion (GLDrawingArea *widget, GdkEventMotion *event, View *view)
+{
+  double deltax, deltay;
+
+  deltax = event->x_root - view->mouse[0];
+  deltay = event->y_root - view->mouse[1];
+  view->mouse[0] = event->x_root;
+  view->mouse[1] = event->y_root;
+
+  view->camera->azimuth -= deltax / 5;
+  view->camera->elevation += deltay / 5;
+  if (view->camera->elevation < 0)
+    view->camera->elevation = 0;
+  if (view->camera->elevation > 90)
+    view->camera->elevation = 90;
+  view_render (view);
+
+  return TRUE;
+}
+
+static gboolean
 view_expose (GLDrawingArea *widget, GdkEventExpose *event, View *view)
 {
   view_render (view);
+
+  return TRUE;
 }
 
 View*
@@ -104,6 +161,9 @@ view_new (Scene *scene, GLDrawingArea *context)
 
   g_signal_connect (G_OBJECT (context), "configure-event", G_CALLBACK (view_configure), (gpointer) view);
   g_signal_connect (G_OBJECT (context), "expose-event", G_CALLBACK (view_expose), (gpointer) view);
+  g_signal_connect (G_OBJECT (context), "scroll-event", G_CALLBACK (view_scroll), (gpointer) view);
+  g_signal_connect (G_OBJECT (context), "button-press-event", G_CALLBACK (view_click), (gpointer) view);
+  g_signal_connect (G_OBJECT (context), "motion-notify-event", G_CALLBACK (view_motion), (gpointer) view);
 
   init_lighting (view);
   return view;
