@@ -23,44 +23,54 @@ A simple Python interface to rrdtool
 #
 
 from Nouvelle import tag
-import os, time, popen2, sys, re, colorsys, random, shutil
+import os, time, popen2, sys, re
+import threading, colorsys, random, shutil
 import Image
 from pytherm import units
 
 
-def shellEscape(s):
-    return re.sub(r"([^0-9A-Za-z_\./:-])", r"\\\1", s)
-
 class RRDException(Exception):
     pass
 
-_rrdtool = None
+def escapeForRrd(s):
+    return s.replace(" ", r"\ ")
+
+_rrdtool = {}
 
 def rrd(*args):
     """Simple wrapper around rrdtool. It takes parameters to pass to rrdtool, and returns
        a list of lines returned from it. This keeps a persistent rrdtool process running,
        and streams commands to it over a pipe.
        """
+    # We have one rrdtool instance per thread
     global _rrdtool
-    if not _rrdtool:
-        _rrdtool = popen2.Popen3("rrdtool -")
+    thisThread = threading.currentThread()
+    if not thisThread in _rrdtool:
+        _rrdtool[thisThread] = popen2.Popen3("rrdtool -")
+    rrdtool = _rrdtool[thisThread]
 
-    _rrdtool.tochild.write(" ".join([shellEscape(str(arg)) for arg in args]) + "\n")
-    _rrdtool.tochild.flush()
+    command = " ".join([escapeForRrd(str(arg)) for arg in args])
+    rrdtool.tochild.write(command + "\n")
+    rrdtool.tochild.flush()
 
     # Collect results until the "OK" line
     results = []
     while 1:
-        line = _rrdtool.fromchild.readline()
+        line = rrdtool.fromchild.readline()
         if not line:
-            _rrdtool = None
+            _rrdtool[thisThread] = None
             raise RRDException("Unexpected EOF from rrdtool")
         line = line.strip()
         results.append(line)
-        if line.startswith("ERROR:"):
-            raise RRDException(line)
         if line.startswith("OK "):
             break
+
+    # Look for errors only after receiving everything, so our rrdtool
+    # instance stays in sync.
+    for line in results:
+        if line.startswith("ERROR:"):
+            raise RRDException("Error %r in command %r" % (line, command))
+
     return results
 
 
@@ -97,7 +107,8 @@ class CachedResource:
 
     def getFile(self, stamp):
         """Get the final file name for a particular stamp"""
-        return os.path.join(self.path, escapeForPath(str(stamp)))
+        name = escapeForPath(str(stamp))
+        return os.path.join(self.path, name)
 
     def stampExists(self, stamp):
         return os.path.isfile(self.getFile(stamp))
@@ -157,13 +168,9 @@ class CachedResource:
         now = time.time()
         for filename in os.listdir(tempDir):
             filepath = os.path.join(tempDir, filename)
-            try:
-                expiration, randomness = name.split("_")
-                if float(expiration) > now:
-                    # Expired, delete it
-                    os.unlink(filepath)
-            except:
-                # Badly formed file, delete it
+            expiration, randomness = filename.split("_")
+            if float(expiration) < now:
+                # Expired, delete it
                 os.unlink(filepath)
 
         # Generate a new name
@@ -216,7 +223,7 @@ class DependentResource(CachedResource):
            """
         # Determine the newest stamp in each dependency
         latest = {}
-        for item in spec:
+        for item in self.spec:
             if isinstance(item, CachedResource):
                 latest[item] = item.getLatestStamp()
         if not latest:
@@ -331,7 +338,7 @@ class ScaledImageResource(DependentResource):
         bg.save(output, 'PNG')
 
 
-class RrdGraphResource(DependentResource):
+class RrdGraph(DependentResource):
     """A graph created by rrdtool from one or more RRDs. or other dependencies.
        Parameters should be plain strings for rrdtool, or resources that can be
        converted to strings using their rrdparam(stamp) method, such as RrdDef objects.
@@ -346,16 +353,16 @@ class RrdGraphResource(DependentResource):
             prepend.extend(["--vertical-label", yLabel])
 
         # Our entire spec consists of command line options
-        BuildTarget.__init__(self, *(prepend + list(params)))
+        DependentResource.__init__(self, *(prepend + list(params)))
 
     def build(self, depVersions, output):
         params = []
-        for dep in self.deps:
+        for dep in self.spec:
             if isinstance(dep, CachedResource):
                 params.append(dep.rrdparam(depVersions[dep]))
             else:
                 params.append(dep)
-        self.size = rrd('graph', self.filename, *params)
+        self.size = rrd('graph', output, "-a", "PNG", *params)
 
 
 class RrdDef(CachedResourceProxy):
@@ -378,7 +385,7 @@ class RrdFile(CachedResource):
     def update(self, source):
         """Look for updates and commit a new stamp if necessary. 'source'
            is a function that returns a (stamp, time, value) tuple for every
-           stamp after the one provided.
+           stamp after the one provided. Returns the latest stamp value.
            """
         temp = self.newVersion()
         try:
@@ -391,12 +398,19 @@ class RrdFile(CachedResource):
             else:
                 # Start a blank RRD
                 self.rrdInit(temp)
+            assert os.path.isfile(temp)
 
             # Look for new samples to insert after our current latest.
             for stamp, time, value in source(latestStamp):
                 if stamp <= latestStamp:
                     continue
-                rrd("update", temp, "%d:%s" % (int(time), value))
+                try:
+                    rrd("update", temp, "%d:%s" % (int(time), value))
+                except RRDException:
+                    # Ignore errors caused by two updates within a second
+                    if str(sys.exc_info()[1]).find("illegal attempt to update") < 0:
+                        raise
+
                 latestStamp = stamp
 
         except:
@@ -408,6 +422,7 @@ class RrdFile(CachedResource):
 
         # Clean old versions if that was successful
         self.cleanStamps(lambda s: s < latestStamp)
+        return latestStamp
 
     def rrdInit(self, filename, stepSize=60):
         """Create a blank RRD for this therm"""
