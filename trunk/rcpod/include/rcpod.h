@@ -245,10 +245,10 @@ unsigned char rcpod_AnalogReadChannel(rcpod_dev* rcpod, int channel);
 
 /* A pin descriptor should be a logical or of one constant from each of the following sections... */
 #define RCPOD_PIN_PORTA    (1 << 3)
-#define RCPOD_PIN_PORTB    (1 << 3)
-#define RCPOD_PIN_PORTC    (1 << 3)
-#define RCPOD_PIN_PORTD    (1 << 3)
-#define RCPOD_PIN_PORTE    (1 << 3)
+#define RCPOD_PIN_PORTB    (2 << 3)
+#define RCPOD_PIN_PORTC    (3 << 3)
+#define RCPOD_PIN_PORTD    (4 << 3)
+#define RCPOD_PIN_PORTE    (5 << 3)
 
 #define RCPOD_PIN_TRIS     (1 << 6)
 #define RCPOD_PIN_PORT     0
