@@ -8,10 +8,14 @@ class ChannelList(gtk.TreeView):
        If valueUpdateInterval is specified, the channel values are displayed
        in the list and updated every valueUpdateInterval milliseconds.
        """
-    def __init__(self, graph, channels, autoColor=True, valueUpdateInterval=None):
+    def __init__(self, graph, channels,
+                 autoColor = True,
+                 valueUpdateInterval = None,
+                 visibilityDefault = False):
         self.graph = graph
         self.channels = channels
         self.valueUpdateInterval = valueUpdateInterval
+        self.visibilityDefault = visibilityDefault
 
         if autoColor:
             i = None
@@ -53,11 +57,13 @@ class ChannelList(gtk.TreeView):
             self.model.set(i,
                 0, channel,
                 1, str(channel),
-                2, gtk.FALSE,
+                2, self.visibilityDefault,
                 3, gtk.TRUE,
                 4, self.makeColorSamplePixbuf(channel),
                 5, "",
         	)
+            if self.visibilityDefault:
+                self.graph.channels.append(channel)
         self.modelFilled = True
 
         if self.valueUpdateInterval:
@@ -146,9 +152,11 @@ class GraphUI(gtk.VPaned):
                  graph               = None,
                  autoColor           = True,
                  valueUpdateInterval = None,
+                 visibilityDefault   = False,
                  ):
         self.autoColor = autoColor
         self.valueUpdateInterval = valueUpdateInterval
+        self.visibilityDefault = visibilityDefault
         if not graph:
             graph = HScrollLineGraph()
         self.graph = graph
@@ -194,7 +202,8 @@ class GraphUI(gtk.VPaned):
         """Create the channel list widget and a scrolling container for it"""
         self.channelList = ChannelList(self.graph, self.channels,
                                        autoColor = self.autoColor,
-                                       valueUpdateInterval = self.valueUpdateInterval)
+                                       valueUpdateInterval = self.valueUpdateInterval,
+                                       visibilityDefault = self.visibilityDefault)
         self.channelList.show()
 
         scroll = gtk.ScrolledWindow()
@@ -214,12 +223,14 @@ def GraphUIWindow(channels,
                   defaultSize         = (400,400),
                   autoColor           = True,
                   valueUpdateInterval = None,
+                  visibilityDefault   = False,
                   ):
     """Creates a window containing a GraphUI widget"""
     win = gtk.Window(gtk.WINDOW_TOPLEVEL)
     ui = GraphUI(channels, graph,
                  autoColor=autoColor,
-                 valueUpdateInterval=valueUpdateInterval)
+                 valueUpdateInterval=valueUpdateInterval,
+                 visibilityDefault=visibilityDefault)
     if title:
         win.set_title(title)
     win.set_border_width(8)
