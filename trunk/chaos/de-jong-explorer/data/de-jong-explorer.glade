@@ -2107,7 +2107,7 @@ Settings&lt;/b&gt;</property>
 			      <property name="update_policy">GTK_UPDATE_ALWAYS</property>
 			      <property name="snap_to_ticks">False</property>
 			      <property name="wrap">False</property>
-			      <property name="adjustment">1 0.01 1000 0.01 1 0</property>
+			      <property name="adjustment">0 0 1000 0.01 1 0</property>
 			      <signal name="value_changed" handler="on_keyframe_duration_change" last_modification_time="Sun, 22 Feb 2004 21:23:29 GMT"/>
 			    </widget>
 			    <packing>
