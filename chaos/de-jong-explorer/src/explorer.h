@@ -50,6 +50,7 @@ struct _Explorer {
 
   GtkWidget *drawing_area;
   GdkGC *gc;
+  GdkPixbuf *image;
 
   GtkStatusbar *statusbar;
   guint render_status_message_id;
