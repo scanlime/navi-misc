@@ -977,6 +977,7 @@ static int rwand_probe(struct usb_interface *interface, const struct usb_device_
 	init_waitqueue_head(&dev->page_flip_waitq);
 	dev->udev = udev;
 	dev->interface = interface;
+	rwand_enter_state_starting(dev);
 
 	usb_set_intfdata(interface, dev);
 	retval = usb_register_dev(interface, &rwand_class);
