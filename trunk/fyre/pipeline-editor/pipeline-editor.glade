@@ -419,7 +419,7 @@ Woob woob woob</property>
 	      <child>
 		<widget class="GtkLabel" id="label1">
 		  <property name="visible">True</property>
-		  <property name="label" translatable="yes">&lt;b&gt;Inputs&lt;/b&gt;</property>
+		  <property name="label" translatable="yes">&lt;b&gt;Inputs:&lt;/b&gt;</property>
 		  <property name="use_underline">False</property>
 		  <property name="use_markup">True</property>
 		  <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -496,7 +496,7 @@ v&lt;sub&gt;0&lt;/sub&gt;: vector</property>
 	      <child>
 		<widget class="GtkLabel" id="label2">
 		  <property name="visible">True</property>
-		  <property name="label" translatable="yes">&lt;b&gt;Outputs&lt;/b&gt;</property>
+		  <property name="label" translatable="yes">&lt;b&gt;Outputs:&lt;/b&gt;</property>
 		  <property name="use_underline">False</property>
 		  <property name="use_markup">True</property>
 		  <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -579,8 +579,8 @@ v&lt;sub&gt;0&lt;/sub&gt;: vector</property>
 	    <widget class="GtkScrolledWindow" id="pipeline_window">
 	      <property name="visible">True</property>
 	      <property name="can_focus">True</property>
-	      <property name="hscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
-	      <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
+	      <property name="hscrollbar_policy">GTK_POLICY_ALWAYS</property>
+	      <property name="vscrollbar_policy">GTK_POLICY_ALWAYS</property>
 	      <property name="shadow_type">GTK_SHADOW_NONE</property>
 	      <property name="window_placement">GTK_CORNER_TOP_LEFT</property>
 
