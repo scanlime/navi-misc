@@ -551,7 +551,8 @@ mvmtOnePianoSectSevenRight = \relative a' {
     \hideTuplets
     \times 2/3 { b16 d, g b, e, g) }
     \times 2/3 { fis( ais, cis e, fis ais cis ais, cis) }
-  | \showTuplets r2.
+  | r2.
+  \showTuplets
 }
 
 mvmtOnePianoSectSevenLeft = \relative fis, {
@@ -565,8 +566,94 @@ mvmtOnePianoSectSevenLeft = \relative fis, {
   \hideTuplets
   | r4. \times 2/3 { fis,,16( cis' fis cis fis cis' fis, cis' fis) }
   | <b, b,>4. r4.
+  \showTuplets
 }
 
+%%%%%%%%%%%%%%%%%%%%%
+% Section 8: Climax %
+%%%%%%%%%%%%%%%%%%%%%
+
+mvmtOnePianoSectEightRight = \relative b' {
+  % 177
+  | <b b,>8 <d d,> <fis fis,> <b b,> <ais ais,> <gis gis,> <fis fis,>4
+  | <g g,>8 <fis fis,> <e e,> <fis fis,> <d d,> <cis cis,> <fis, fis,>4
+  | <g g,>8 <c c,> <e e,> <g g,> <fis fis,> <e e,> <fis fis,>4
+  | <g, g,>8 <e e,> <d' d,> <b b,> <g' e b g> r <ais e cis ais> r
+  
+  | <b fis d b>4 
+    \times 2/3 { <gis gis,>16 <g g,> <fis fis,> } <d d,> <cis cis,>
+    \times 2/3 { <gis gis,>   <g g,> <fis fis,> } <d d,> <cis cis,>
+    b,32( d fis b d fis b d)
+  | <b' fis ees c>4
+    \times 2/3 { <a a,>16 <gis gis,> <g g,> } <e e,> <dis dis,>
+    \times 2/3 { <a a,>16 <gis gis,> <g g,> } <e e,> <dis dis,>
+    c,32( e g c e g c e)
+  | <b' fis e cis b>4
+    \times 2/3 { <ais ais,>16 <a a,> <gis gis,> } <f f,> <e e,>
+    \times 2/3 { <ais, ais,>16 <a a,> <gis gis,> } <f f,> <e e,>
+    d,32( g b d g b d g)
+  | <b g e c b>4 
+    \times 2/3 { gis16( g fis } \times 2/3 { eis e dis }
+    d32[ cis c b ais a gis g]
+    \times 2/3 { fis eis e } \times 2/3 { dis d cis } \times 2/3 { bis b ais } \times 2/3 { a gis g) }
+
+  % 185
+  | fis4 ais16 cis fis ais e d' bis gis cis,4
+  | \appoggiatura { cis8[ d e] } <fis fis,>8-. <g' e b g>-.
+    <ais, ais,>16 <cis cis,> <fis fis,> <ais ais,>
+    <e e,> <d' d,> <bis bis,> <gis gis,> <cis, cis,>4
+  | \appoggiatura { cis8[ d e] } <fis fis,>-. <g' e cis b g>-.
+    <fis, cis ais fis>4
+    \appoggiatura { cis8[ d e] } <fis fis,>-. <g' e cis b g>-.
+    <fis, cis ais fis>4
+  | \appoggiatura { cis8[  d e] } <fis fis,>4
+    \appoggiatura { cis'8[ d e] } <fis fis,>4
+    \appoggiatura { cis8[  d e] } <fis fis,>4
+    \appoggiatura { cis8[  d e] } <fis fis,>4~
+  | <fis fis,>2\fermata r2\fermata
+}
+
+mvmtOnePianoSectEightLeft = \relative b, {
+  % 177
+  | b8 d fis b ais gis fis4
+  | g8 fis e fis d cis fis,4
+  | g8 c e g fis e fis4
+  | g,8 e d' b <cis cis,> r <fis fis,> r
+  
+  | <b fis d b>4 
+    \times 2/3 { <gis gis,>16 <g g,> <fis fis,> } <d d,> <cis cis,>
+    \times 2/3 { <gis gis,>   <g g,> <fis fis,> } <d d,> <cis cis,>
+    b,32( d fis b d fis b d)
+  | <b' fis ees c>4
+    \times 2/3 { <a a,>16 <gis gis,> <g g,> } <e e,> <dis dis,>
+    \times 2/3 { <a a,>16 <gis gis,> <g g,> } <e e,> <dis dis,>
+    c,32( e g c e g c e)
+  | <b' fis e cis b>4
+    \times 2/3 { <ais ais,>16 <a a,> <gis gis,> } <f f,> <e e,>
+    \times 2/3 { <ais, ais,>16 <a a,> <gis gis,> } <f f,> <e e,>
+    d,32( g b d g b d g)
+  | <b g e c b>4 
+    \times 2/3 { gis16( g fis } \times 2/3 { eis e dis }
+    d32[ cis c b ais a gis g]
+    \times 2/3 { fis eis e } \times 2/3 { dis d cis } \times 2/3 { bis b ais } \times 2/3 { a gis g) }
+  | <fis' fis,>4 
+    <ais ais,>16 <cis cis,> <fis fis,> <ais ais,>
+    <e e,> <d' d,> <bis bis,> <gis gis,> 
+    <cis, cis,>4
+  | \appoggiatura { cis,8[ d e] } <fis fis,>8-. <g' e b g>-.
+    <ais, ais,>16 cis fis ais
+    <e e,> d' bis gis
+    cis,4
+  | \appoggiatura { cis8[ d e] } <fis fis,>8-. <g' e cis b g>-.
+    <fis, cis ais fis>4
+    \appoggiatura { cis8[ d e] } <fis fis,>8-. <g' e cis b g>-.
+    <fis, cis ais fis>4
+  | \appoggiatura { cis8[  d e] } <fis fis,>4
+    \appoggiatura { cis'8[ d e] } <fis fis,>4
+    \appoggiatura { cis8[  d e] } <fis fis,>4
+    \appoggiatura { cis8[  d e] } <fis fis,>4~
+  | <fis fis,>2\fermata r2\fermata
+}
 
 mvmtOnePianoRight = {
   \clef treble
@@ -587,6 +674,9 @@ mvmtOnePianoRight = {
   \time 6/8
   R2.*14
   \mvmtOnePianoSectSevenRight
+  R2.*17
+  \time 4/4
+  \mvmtOnePianoSectEightRight
 }
 
 mvmtOnePianoLeft = {
@@ -608,4 +698,7 @@ mvmtOnePianoLeft = {
   \time 6/8
   R2.*14
   \mvmtOnePianoSectSevenLeft
+  R2.*17
+  \time 4/4
+  \mvmtOnePianoSectEightLeft
 }
