@@ -102,7 +102,7 @@ class PalantirWindow:
       time = ''
 
     # If we're being addressed in this message.
-    if msg.find(self.factory.nickname) is not -1:
+    if msg.find(self.factory.nickname) is not -1 and nick != self.factory.nickname:
       addressed = True
     else:
       addressed = False
