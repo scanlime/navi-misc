@@ -53,8 +53,10 @@
 
 		flags
 
-		;; These four items must be contiguous
-		n64_command:1
+		;; These four items must be contiguous.
+		;; Note that n64_command and n64_bus_address point to the same memory.
+		;; This is explained in the bus write receive code near n64_wait_for_command.
+		n64_command:0
 		n64_bus_address:2
 		n64_bus_packet:.32
 		n64_crc
@@ -189,16 +191,43 @@ n64_wait_for_command
 
 	;; We need to handle controller pak writes very fast because there's no pause
 	;; between the initial command byte and the 34 bytes following. Every
-	;; extra instuction here decreases the sampling quality in the receive,
-	;; so we include our own copy of the receive macro. This also lets us disable
-	;; watchdog clearing, so we won't get stalled in here if the N64 gives up.
+	;; extra instuction here increases the probability of missing the first bit.
+	;;
+	;; FSR is already pointing at the right buffer- n64_rx will leave FSR pointing
+	;; at the last byte it read, which is n64_command. We've overlaid n64_command
+	;; onto the same memory as our address buffer, and the data buffer is immediately
+	;; after our address buffer.
+	;;
+	;; Since n64_rx must be called as soon as possible, this skips n64_rx if we're not
+	;; doing a write_bus command, and after the fact detects that and looks for other commands.
+	;;
 	movlw	N64_COMMAND_WRITE_BUS
 	xorwf	n64_command, w
-	btfss	STATUS, Z
-	goto	not_bus_write
 	movlw	.34
-	call	n64_rx			; FSR is already pointing at our buffer, it's after n64_command
-	;; Fall through...
+	btfsc	STATUS, Z
+	call	n64_rx			; Do another receive if this was a write_bus command.
+
+	movlw	n64_command		; n64_command itself might be invalid now. If FSR changed,
+	xorwf	FSR, w			;   n64_command is invalid and we're doing a bus write.
+	btfss	STATUS, Z
+	goto	n64_bus_write
+
+	movf	n64_command, w		; Detect other applicable commands...
+	xorlw	N64_COMMAND_READ_BUS
+	btfsc	STATUS, Z
+	goto	n64_bus_read
+
+	movf	n64_command, w
+	xorlw	N64_COMMAND_IDENTIFY
+	btfsc	STATUS, Z
+	goto	n64_send_id
+
+	movf	n64_command, w
+	xorlw	N64_COMMAND_STATUS
+	btfsc	STATUS, Z
+	goto	n64_send_status
+
+	goto	n64_wait_for_command	; Ignore unimplemented commands
 
 
 	;; The N64 requested a 32-byte write to our controller pak bus.
@@ -240,13 +269,10 @@ n64_bus_write
 	;; tries to identify what type of controller pak we have. Always
 	;; indicate we have a rumble pak by sending all 0x80s.
 	;;
-	;; It's not as important as in n64_bus_write, since we currently don't
-	;; need the data at all, but we do have to read the address word from
-	;; the N64 very quickly. FSR is already pointing at the buffer.
+	;; Since we're assuming the address is 0x8000, don't even bother scrambling
+	;; to start receiving it in time. From the end of the command byte to when
+	;; we start transmitting should be about 67us, or 335 cycles.
 n64_bus_read
-	movlw	.2
-	call	n64_rx
-
 	movlw	.32			; Fill the buffer with 0x80
 	movwf	byte_count
 	movlw	n64_bus_packet
@@ -255,10 +281,12 @@ pak_identify_fill_loop
 	movlw	0x80
 	movwf	INDF
 	incf	FSR, f
+	goto	$+1			; Padding to make this loop take most of the
+	goto	$+1			;    335 cycles we need to waste.
 	decfsz	byte_count, f
 	goto	pak_identify_fill_loop
 
-	movlw	0x47			; 0x47 is the CRC of a packet with all 0x80s
+	movlw	0xB8			; 0xB8 is the inverted CRC of a packet with all 0x80s
 	movwf	n64_crc
 
 	movlw	n64_bus_packet		; Send back the data and CRC
@@ -291,25 +319,6 @@ n64_send_id
 	goto	n64_tx
 
 
-not_bus_write
-	movf	n64_command, w
-	xorlw	N64_COMMAND_READ_BUS
-	btfsc	STATUS, Z
-	goto	n64_bus_read
-
-	movf	n64_command, w
-	xorlw	N64_COMMAND_IDENTIFY
-	btfsc	STATUS, Z
-	goto	n64_send_id
-
-	movf	n64_command, w
-	xorlw	N64_COMMAND_STATUS
-	btfsc	STATUS, Z
-	goto	n64_send_status
-
-	goto	n64_wait_for_command	; Ignore other commands
-
-
 	;; Don't return until the N64 data line has been idle long enough to ensure
 	;; we aren't in the middle of a packet already.
 n64_wait_for_idle
@@ -325,13 +334,22 @@ keep_waiting_for_idle
 	;; Before transmitting, we explicitly force the output latch low- it may have
 	;; been left high by a read-modify-write operation elsewhere.
 n64_tx
+	bsf	STATUS, RP0
+	bsf	N64_TRIS
+	bcf	STATUS, RP0
 	bcf	N64_PIN
 	n64gc_tx_buffer N64_TRIS, 0
+
 n64_tx_widestop
+	bsf	STATUS, RP0
+	bsf	N64_TRIS
+	bcf	STATUS, RP0
 	bcf	N64_PIN
 	n64gc_tx_buffer N64_TRIS, 1
+
 n64_rx
 	n64gc_rx_buffer N64_PIN, 0
+
 n64_rx_command
 	n64gc_rx_buffer N64_PIN, 1		; Clear the watchdog while waiting for commands
 
