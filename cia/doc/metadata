@@ -96,9 +96,12 @@ to least important:
 
     The original image can be in any format supported by the Python Imaging Library, which includes
     GIF, JPEG, and PNG. Note that PIL doesn't seem to support interlaced PNGs yet, so please use
-    uninterlaced images. The metadata key's value must be the image itself, not a path or URI.
+    uninterlaced images.
+
+    The metadata key's value must be the image itself, not a path or URI.
     This means that, with stats_metadata.py, you must use the -f and -t options, with a valid mime
-    type supplied to the -t option.
+    type supplied to the -t option. With the web interface, set the MIME type properly and use
+    the "Upload value from file" field instead of "Set value to".
 
     Alpha channels are supported, and their use is encouraged when appropriate.
 
