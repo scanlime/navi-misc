@@ -91,6 +91,14 @@ edit_clicked (GtkWidget *button, PreferencesNetworksPage *page)
 }
 
 static void
+edit_activated (GtkTreeView *treeview, GtkTreePath *path, GtkTreeViewColumn *column, PreferencesNetworksPage *page)
+{
+	GtkTreeIter iter;
+	if (gtk_tree_model_get_iter (page->sort_model, &iter, path))
+		edit_clicked (NULL, page);
+}
+
+static void
 remove_clicked (GtkWidget *button, PreferencesNetworksPage *page)
 {
 	GtkTreeSelection *select;
@@ -166,9 +174,10 @@ preferences_page_networks_new (gpointer prefs_dialog, GladeXML *xml)
 	column = gtk_tree_view_column_new_with_attributes ("Name", renderer, "text", 0, NULL);
 	gtk_tree_view_append_column (GTK_TREE_VIEW (page->network_list), column);
 
-	g_signal_connect (G_OBJECT (page->network_add),    "clicked", G_CALLBACK (add_clicked),    page);
-	g_signal_connect (G_OBJECT (page->network_edit),   "clicked", G_CALLBACK (edit_clicked),   page);
-	g_signal_connect (G_OBJECT (page->network_remove), "clicked", G_CALLBACK (remove_clicked), page);
+	g_signal_connect (G_OBJECT (page->network_list),   "row-activated", G_CALLBACK (edit_activated), page);
+	g_signal_connect (G_OBJECT (page->network_add),    "clicked", G_CALLBACK (add_clicked),          page);
+	g_signal_connect (G_OBJECT (page->network_edit),   "clicked", G_CALLBACK (edit_clicked),         page);
+	g_signal_connect (G_OBJECT (page->network_remove), "clicked", G_CALLBACK (remove_clicked),       page);
 
 	select = gtk_tree_view_get_selection (GTK_TREE_VIEW (page->network_list));
 	gtk_tree_selection_set_mode (select, GTK_SELECTION_SINGLE);
