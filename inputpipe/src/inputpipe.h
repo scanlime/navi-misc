@@ -67,18 +67,18 @@ struct inputpipe_packet {
 
 
 struct ipipe_event {
-  uint32_t tv_secs;
-  uint32_t tv_usecs;
+  uint32_t tv_sec;
+  uint32_t tv_usec;
   int32_t  value;
   uint16_t type;
   uint16_t code;
 };
 
 struct ipipe_input_id {
-  uint32_t bus_type;
-  uint32_t vendor;
-  uint32_t product;
-  uint32_t version;
+  uint16_t bustype;
+  uint16_t vendor;
+  uint16_t product;
+  uint16_t version;
 };
 
 struct ipipe_absinfo {

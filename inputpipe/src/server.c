@@ -101,17 +101,21 @@ static const char*      client_format_addr     (struct client* self);
 static void             client_received_packet (struct client* self,
 						int type,
 						int length,
-						void *content);
+						void* content);
+static void             client_set_bit         (struct client* self,
+						int length,
+						void* content,
+						int ioc);
 
-static void             client_list_remove (struct client* client);
-static void             client_list_insert (struct client* client);
+static void             client_list_remove     (struct client* client);
+static void             client_list_insert     (struct client* client);
 
-static struct listener* listener_new       (int sock_type,
-					    int port);
-static void             listener_delete    (struct listener* self);
-static void             listener_poll      (struct listener* self);
+static struct listener* listener_new           (int sock_type,
+						int port);
+static void             listener_delete        (struct listener* self);
+static void             listener_poll          (struct listener* self);
 
-static int              main_loop(void);
+static int              main_loop              (void);
 
 
 /***********************************************************************/
@@ -245,12 +249,118 @@ static void client_received_packet(struct client* self,
 {
   switch (type) {
 
+  case IPIPE_EVENT:
+    {
+      struct ipipe_event* ip_ev = (struct ipipe_event*) content;
+      struct input_event ev;
+      if (length != sizeof(struct ipipe_event)) {
+	if (config_verbose) {
+	  printf("Client %s: Received IPIPE_EVENT with incorrect length\n",
+		 client_format_addr(self));
+	}
+	break;
+      }
+      if (!self->device_created) {
+	if (config_verbose) {
+	  printf("Client %s: Received IPIPE_EVENT before IPIPE_CREATE\n",
+		 client_format_addr(self));
+	}
+	break;
+      }
+      ev.time.tv_sec = ntohl(ip_ev->tv_sec);
+      ev.time.tv_usec = ntohl(ip_ev->tv_usec);
+      ev.type = ntohs(ip_ev->type);
+      ev.code = ntohs(ip_ev->code);
+      ev.value = ntohl(ip_ev->value);
+      write(self->uinput_fd, &ev, sizeof(ev));
+    }
+    break;
+
   case IPIPE_DEVICE_NAME:
     /* Truncate to uinput's limit and copy to our dev_info */
     if (length >= UINPUT_MAX_NAME_SIZE)
       length = UINPUT_MAX_NAME_SIZE-1;
     memcpy(self->dev_info.name, content, length);
     self->dev_info.name[length] = 0;
+    break;
+
+  case IPIPE_DEVICE_ID:
+    {
+      struct ipipe_input_id* ip_id = (struct ipipe_input_id*) content;
+      if (length != sizeof(struct ipipe_input_id)) {
+	if (config_verbose) {
+	  printf("Client %s: Received IPIPE_DEVICE_ID with incorrect length\n",
+		 client_format_addr(self));
+	}
+	break;
+      }
+      self->dev_info.id.bustype = ntohs(ip_id->bustype);
+      self->dev_info.id.vendor = ntohs(ip_id->vendor);
+      self->dev_info.id.product = ntohs(ip_id->product);
+      self->dev_info.id.version = ntohs(ip_id->version);
+    }
+    break;
+
+  case IPIPE_DEVICE_FF_EFFECTS_MAX:
+    if (length != sizeof(uint32_t)) {
+      if (config_verbose) {
+	printf("Client %s: Received a IPIPE_DEVICE_FF_EFFECTS_MAX with incorrect length\n",
+	       client_format_addr(self));
+      }
+      return;
+    }
+    self->dev_info.ff_effects_max = ntohl(*(uint32_t*)content);
+    break;
+
+  case IPIPE_DEVICE_ABSINFO:
+    {
+      struct ipipe_absinfo* ip_abs = (struct ipipe_absinfo*) content;
+      int axis;
+      if (length != sizeof(struct ipipe_absinfo)) {
+	if (config_verbose) {
+	  printf("Client %s: Received IPIPE_DEVICE_ABSINFO with incorrect length\n",
+		 client_format_addr(self));
+	}
+	break;
+      }
+      axis = ntohl(ip_abs->axis);
+      if (axis > ABS_MAX) {
+	if (config_verbose) {
+	  printf("Client %s: Received IPIPE_DEVICE_ABSINFO with out-of-range axis (%d)\n",
+		 client_format_addr(self), axis);
+	}
+	break;
+      }
+      self->dev_info.absmax[axis] = ntohl(ip_abs->max);
+      self->dev_info.absmin[axis] = ntohl(ip_abs->min);
+      self->dev_info.absfuzz[axis] = ntohl(ip_abs->fuzz);
+      self->dev_info.absflat[axis] = ntohl(ip_abs->flat);
+    }
+    break;
+
+  case IPIPE_DEVICE_SET_EVBIT:
+    client_set_bit(self, length, content, UI_SET_EVBIT);
+    break;
+  case IPIPE_DEVICE_SET_KEYBIT:
+    client_set_bit(self, length, content, UI_SET_KEYBIT);
+    break;
+  case IPIPE_DEVICE_SET_RELBIT:
+    client_set_bit(self, length, content, UI_SET_RELBIT);
+    break;
+  case IPIPE_DEVICE_SET_ABSBIT:
+    client_set_bit(self, length, content, UI_SET_ABSBIT);
+    break;
+  case IPIPE_DEVICE_SET_MSCBIT:
+    client_set_bit(self, length, content, UI_SET_MSCBIT);
+    break;
+  case IPIPE_DEVICE_SET_LEDBIT:
+    client_set_bit(self, length, content, UI_SET_LEDBIT);
+    break;
+  case IPIPE_DEVICE_SET_SNDBIT:
+    client_set_bit(self, length, content, UI_SET_SNDBIT);
+    break;
+  case IPIPE_DEVICE_SET_FFBIT:
+    client_set_bit(self, length, content, UI_SET_FFBIT);
     break;
 
   case IPIPE_CREATE:
@@ -277,6 +387,19 @@ static void client_received_packet(struct client* self,
 	     client_format_addr(self), type);
     }
   }
+}
+
+static void client_set_bit(struct client* self, int length,
+			     void* content, int ioc)
+{
+  if (length != sizeof(uint32_t)) {
+    if (config_verbose) {
+      printf("Client %s: Received a bit setting packet with incorrect length\n",
+	     client_format_addr(self));
+    }
+    return;
+  }
+  ioctl(self->uinput_fd, ioc, ntohl(*(uint32_t*)content));
 }
 
 
@@ -447,6 +570,7 @@ static int main_loop(void) {
 
 
 int main() {
+  /* FIXME: command line goes here */
   return main_loop();
 }
 
