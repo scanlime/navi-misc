@@ -1,18 +1,23 @@
 PKGS		+= gobject-2.0 glib-2.0 gtk+-2.0
 CFLAGS		+= $(shell pkg-config --cflags $(PKGS))
-CFLAGS		+= -fPIC
-CFLAGS		+= -I..
+CFLAGS		+= -fPIC -I..
 LIBS		+= $(shell pkg-config --libs $(PKGS))
+
+PLUGINS		=		\
+		base.so
 
 BASE_SO_OBJS	=		\
 		base.o		\
 		box.o		\
 		world.o
 
-all:		base.so
+all:		$(PLUGINS)
 
 base.so:	$(BASE_SO_OBJS)
 		gcc -shared -o $@ $(BASE_SO_OBJS) $(LIBS)
 
 %.o:		%.c *.h
 		gcc -c -o $@ $< $(CFLAGS)
+
+clean:
+		rm -f $(PLUGINS) *.o
