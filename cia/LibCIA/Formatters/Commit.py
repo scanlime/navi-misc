@@ -1,7 +1,8 @@
-""" LibCIA.Formatters
+""" LibCIA.Formatters.Commit
 
-A collection of Formatter subclasses that can be searched and
-instantiated via the 'factory' object here.
+Formatters used for converting commit messages to other formats.
+Note that this only handles real XML commit messages. The legacy
+'colorText' messages are handled by a separate module.
 """
 #
 # CIA open source notification system
@@ -22,12 +23,11 @@ instantiated via the 'factory' object here.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import Message, XML, TimeUtil
+from LibCIA import Message
 import Nouvelle
-import re, os, posixpath
+import re, posixpath
 
-
-################################################### Commit messages
+__all__ = ['CommitToIRC', 'CommitToPlaintext', 'CommitToXHTML', 'CommitTitle']
 
 
 class CommitFormatter(Message.Formatter):
@@ -78,10 +78,10 @@ class CommitFormatter(Message.Formatter):
 	if len(files) == 1:
 	    return files[0], []
 
-        # Start with the prefix found by os.path.commonprefix,
+        # Start with the prefix found by commonprefix,
         # then actually make it end with a directory rather than
         # possibly ending with part of a filename.
-        prefix = re.sub("[^/]*$", "", os.path.commonprefix(files))
+        prefix = re.sub("[^/]*$", "", posixpath.commonprefix(files))
 
         endings = []
         for file in files:
@@ -244,7 +244,7 @@ class CommitToIRC(CommitFormatter):
 
     def __init__(self):
         """By default, use the IRC color formatter"""
-        from IRC.Formatting import format
+        from LibCIA.IRC.Formatting import format
         self.colorFormatter = format
 
     def noColorFormatter(self, text, *tags):
@@ -361,169 +361,5 @@ class CommitTitle(CommitFormatter):
         if len(log) > self.widthLimit:
             log = log[:self.widthLimit] + " ..."
         return log
-
-
-################################################## colorText Messages
-
-
-class ColortextFormatter(Message.Formatter):
-    """Abstract base class for formatters that operate on colorText messages"""
-    detector = Message.Filter('<find path="/message/body/colorText"/>')
-
-
-class ColortextToIRC(Message.Formatter):
-    """Converts messages with colorText content to plain text
-       with IRC color tags.
-       """
-    detector = Message.Filter('<find path="/message/body/colorText"/>')
-    medium = 'irc'
-    color = True
-
-    def param_noColor(self, tag):
-        self.color = False
-
-    def __init__(self):
-        from IRC.Formatting import ColortextFormatter
-        self.formatter = ColortextFormatter()
-
-    def format(self, message, input=None):
-        if self.color:
-            return self.formatter.format(message.xml.body.colorText)
-        else:
-            return XML.allText(message.xml.body.colorText)
-
-
-class ColortextTitle(ColortextFormatter):
-    """Extracts a title from colorText messages"""
-    medium = 'title'
-    widthLimit = 80
-
-    def format(self, message, input=None):
-        # Extract plaintext from the entire message, collapse whitespace, and truncate
-        log = re.sub("\s+", " ", XML.allText(message.xml.body.colorText).strip())
-        if len(log) > self.widthLimit:
-            log = log[:self.widthLimit] + " ..."
-        return log
-
-
-class ColortextToPlaintext(ColortextFormatter):
-
-    def format(self, message, input=None):
-        return XML.allText(message.xml.body.colorText).strip()
-
-
-class ColortextToPlaintext(ColortextFormatter):
-    """Extracts uncolorized plaintext from colorText messages"""
-    medium = 'plaintext'
-
-    def format(self, message, input=None):
-        return self.Parser(message.xml.body.colorText).result
-
-    class Parser(XML.XMLObjectParser):
-        requiredRootElement = 'colorText'
-
-        def parseString(self, s):
-            return s
-
-        def element_br(self, element):
-            return "\n"
-
-        def unknownElement(self, element):
-            return ''.join([self.parse(e) for e in element.children])
-
-
-class ColortextToXHTML(ColortextFormatter):
-    """Converts messages with colorText content to XHTML (using Nouvelle)
-       with inline CSS representing the colorText formatting.
-       Returns an object that can be serialized into XHTML by a Nouvelle.Serializer.
-       """
-    medium = 'xhtml'
-
-    def format(self, message, input=None):
-        return self.Parser(message.xml.body.colorText).result
-
-    class Parser(XML.XMLObjectParser):
-        requiredRootElement = 'colorText'
-
-        colorTable = {
-            'black':        "#000000",
-            'dark-blue':    "#0000cc",
-            'dark-green':   "#00cc00",
-            'green':        "#00cc00",
-            'red':          "#cc0000",
-            'brown':        "#aa0000",
-            'purple':       "#bb00bb",
-            'orange':       "#ffaa00",
-            'yellow':       "#eedd22",
-            'light-green':  "#33d355",
-            'aqua':         "#00cccc",
-            'light-blue':   "#33eeff",
-            'blue':         "#0000ff",
-            'violet':       "#ee22ee",
-            'grey':         "#777777",
-            'gray':         "#777777",
-            'light-grey':   "#999999",
-            'light-gray':   "#999999",
-            'white':        "#FFFFFF",
-            }
-
-        def element_colorText(self, element):
-            return [self.parse(e) for e in element.children]
-
-        def parseString(self, s):
-            return s
-
-        def element_b(self, element):
-            return Nouvelle.tag('b')[ self.element_colorText(element) ]
-
-        def element_u(self, element):
-            # We can't use <u> here, it's been deprecated and XHTML
-            # strict can't contain it. Just use some inline CSS instead.
-            return Nouvelle.tag('span', style="text-decoration: underline;")[ self.element_colorText(element) ]
-
-        def element_br(self, element):
-            return Nouvelle.tag('br')
-
-        def colorQuote(self, color):
-            """Make a color name safe for inclusion into a class attribute.
-               This just replaces any non-alphabetical characters with hyphens.
-               """
-            return re.sub("[^a-zA-Z]", "-", color)
-
-        def element_color(self, element):
-            """Convert the fg and bg attributes, if we have them, to <span> tags"""
-            style = ''
-            for attr, css in (
-                ('fg', 'color'),
-                ('bg', 'background'),
-                ):
-                if element.hasAttribute(attr):
-                    try:
-                        style = "%s%s: %s;" % (style, css, self.colorTable[element[attr]])
-                    except KeyError:
-                        pass
-            return Nouvelle.tag('span', style=style)[self.element_colorText(element)]
-
-
-################################################## Other formatters
-
-
-class IRCProjectName(Message.Formatter):
-    """Prepends the project name to each line of the input message, boldinated for IRC"""
-    medium = 'irc'
-    def format(self, message, input):
-        if not input:
-            return
-        if message.xml.source and message.xml.source.project:
-            from IRC.Formatting import format
-            prefix = format("%s:" % message.xml.source.project, 'bold') + " "
-            return "\n".join([prefix + line for line in input.split("\n")])
-        else:
-            return input
-
-
-# This indexes the formatters in this module and provide a
-# higher level interface for picking one and instantiating it.
-factory = Message.FormatterFactory(globals())
 
 ### The End ###
