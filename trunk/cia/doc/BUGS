@@ -1,6 +1,12 @@
 Known Bugs
 ==========
 
+- Many of the module imports are messy. Relative imports should be removed according
+  to section 2.4 of the python programming FAQ, and the order could use some cleanup.
+
+- The grant_key.py tool no longer works. The Security XML-RPC APIs need to be brought
+  up to date with the new security model, and new tools need to be written.
+
 - Pretty much anything related to formatters can't be rebuild()'ed without CIA
   freaking out. This usually takes the form of a member inherited from a base class,
   like 'detector', spontaneously disappearing. My guess is that all the import *
