@@ -149,7 +149,7 @@ def formatDuration(dt, threshold=0.8, format="%.02f %s"):
 
 def formatDate(t):
     """Format a date, in UTC seconds since the epoch"""
-    return time.strftime("%c", time.gmtime(t))
+    return time.strftime("%H:%M on %b %d, %Y", time.gmtime(t))
 
 
 def _test():

@@ -141,8 +141,8 @@ class tag:
         for key, value in attributes.iteritems():
             if key[0] == '_':
                 key = key[1:]
-            if value:
-                s += ' %s="%s"' % (key, escapeToXml(value, True))
+            if value is not None:
+                s += ' %s="%s"' % (key, escapeToXml(str(value), True))
         return s
 
     def _setAttributes(self, attributes):
