@@ -45,8 +45,10 @@
 	;;   0x03 :   Seems to read from the expansion slot. Some games (Ocarina of Time
 	;;            and Majora's Mask at least) require this to be supported even if
 	;;            the controller's response to the identification command doesn't
-	;;            indicate that it has a memory/rumble pak.
-	;; 
+	;;            indicate that it has a memory/rumble pak. As far as I can tell,
+	;;            an official controller with no rumble/memory pak returns 0x80, 0x01,
+	;;            then 32 bytes all 0xFE.
+	;;
 
 	list	p=16f84a
 	#include p16f84a.inc
@@ -60,6 +62,10 @@
 	#define	GAMECUBE_PIN	PORTB, 1
 	#define	GAMECUBE_TRIS	TRISB, 1
 
+	#define DEBUG1_PIN	PORTA, 1
+	#define DEBUG2_PIN	PORTA, 2
+	#define DEBUG3_PIN	PORTA, 3
+
 	;; Reset and interrupt vectors
 	org 0
 	goto	startup
@@ -70,10 +76,12 @@
 	cblock	0x0C
 		byte_count
 		bit_count
+		temp
 		gamecube_buffer:8
 		n64_command
 		n64_status_buffer:4
 		n64_id_buffer:3
+		n64_expansion_buffer:34
 	endc
 
 	;; *******************************************************************************
@@ -246,6 +254,8 @@ n64_translate_status
 
 	;; Service commands coming in from the N64
 n64_wait_for_command
+	call	n64_wait_for_idle	; Ensure the line is idle first, so we don't jump in to the middle of a command
+
 	movlw	n64_command		; Receive 1 command byte
 	movwf	FSR
 	movlw	1
@@ -271,6 +281,19 @@ n64_send_id
 	movwf	FSR
 	movlw	3
 	goto	n64_tx_buffer
+
+
+	;; Don't return until the N64 data line has been idle long enough to ensure
+	;; we aren't in the middle of a packet already.
+n64_wait_for_idle
+	movlw	0x10
+	movwf	temp
+keep_waiting_for_idle
+	btfss	N64_PIN
+	goto	n64_wait_for_idle
+	decfsz	temp, f
+	goto	keep_waiting_for_idle
+	return
 
 
 	;; *******************************************************************************
