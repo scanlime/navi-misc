@@ -77,14 +77,13 @@ void FieldSensor::boot(void) {
   sendSlowly("0000hg");
 }
 
-std::vector<float> FieldSensor::readPacket(void) {
+void FieldSensor::readPacket(double *packet) {
   unsigned char c, theirChecksum, ourChecksum;
   union {
     unsigned short shorts[8];
     unsigned char bytes[16];
   } rawPacket;
   int i;
-  std::vector<float> results;
 
   while (1) {
     /* Synchronize to 0x80 synchronization byte */
@@ -104,8 +103,8 @@ std::vector<float> FieldSensor::readPacket(void) {
 
     /* Convert the received big-endian integers to floating point */
     for (i=0;i<8;i++)
-      results.push_back(ntohs(rawPacket.shorts[i]) / 65535.0);
-    return results;
+      packet[i] = ntohs(rawPacket.shorts[i]) / 65535.0;
+    return;
   }
 }
 

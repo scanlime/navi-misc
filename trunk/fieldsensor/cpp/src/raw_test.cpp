@@ -1,13 +1,14 @@
 #include <FieldSensor.h>
+#include <stdio.h>
 
 int main(void) {
   FieldSensor s;
-  std::vector<float> readings;
+  double readings[8];
 
   while (1) {
-    readings = s.readPacket();
-    for (std::vector<float>::iterator i=readings.begin(); i!=readings.end(); i++)
-      printf("%0.9f ", *i);
+    s.readPacket(readings);
+    for (int i=0;i<8;i++)
+      printf("%0.9f ", readings[i]);
     printf("\n");
   }
 
