@@ -146,11 +146,15 @@ static int grabURL (char **word, void *userdata)
 
 void xchat_plugin_get_info (char **plugin_name,
 		char **plugin_desc,
-		char **plugin_version)
+		char **plugin_version,
+		void **reserved)
 {
 	*plugin_name = "URL Scraper";
 	*plugin_desc = "Grabs URLs and puts them in a separate window for easy viewing.";
 	*plugin_version = VERSION;
+
+	if (reserved)
+		*reserved = NULL;
 }
 
 void url_open (GtkTreeView *treeview, GtkTreePath *path,
@@ -182,7 +186,7 @@ int xchat_plugin_init (xchat_plugin *plugin_handle,
 
 	ph = plugin_handle;
 
-	xchat_plugin_get_info (plugin_name, plugin_desc, plugin_version);
+	xchat_plugin_get_info (plugin_name, plugin_desc, plugin_version, NULL);
 
 	url = malloc (sizeof (regex_t));
 	if (regcomp (url, URLREGEX, REG_ICASE | REG_EXTENDED)) {
