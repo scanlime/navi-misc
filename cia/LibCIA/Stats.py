@@ -250,18 +250,34 @@ class SubscriptionDelivery:
     def notify(self, scope):
         """Notify all subscribers to this stats target of a change in 'scope'"""
         # Get a list of applicable triggers from the database
-        Database.pool.runQuery("SELECT trigger FROM stats_subscriptions "
+        Database.pool.runQuery("SELECT id, trigger FROM stats_subscriptions "
                                "WHERE target_path = %s "
                                "AND (scope is NULL or scope = %s)" %
-                               (Database.quote(self.path, 'varchar'),
+                               (Database.quote(self.target.path, 'varchar'),
                                 Database.quote(scope, 'varchar'))).addCallback(self.runTriggers)
 
-    def runTriggers(self, triggers):
-        """After retrieving a list of applicable triggers, this calls them"""
-        for trigger in triggers:
-            f, args, kwargs = cPickle.loads(trigger[0])
+    def runTriggers(self, rows):
+        """After retrieving a list of applicable triggers, this calls them.
+           'rows' should be a sequence of (id, trigger) tuples.
+           """
+        for id, trigger in rows:
+            f, args, kwargs = cPickle.loads(trigger)
             defer.maybeDeferred(f, *args, **kwargs).addCallback(
-                self.triggerSuccess).addErrback(self.triggerFailure)
+                self.triggerSuccess, id).addErrback(
+                self.triggerFailure, id)
+
+    def triggerSuccess(self, result, id):
+        """Record a successful trigger run for the given subscription id"""
+        # Zero the consecutive failure count
+        Database.pool.runOperation("UPDATE stats_subscriptions SET failures = 0 WHERE id = %s" %
+                                   Database.quote(id, 'bigint'))
+
+    def triggerFailure(self, failure, id):
+        """Record an unsuccessful trigger run for the given subscription id"""
+        # Increment the consecutive failure count
+        log.msg("Failed to notify subscriber %d for %r: %r" % (id, self.target, failure))
+        Database.pool.runOperation("UPDATE stats_subscriptions SET failures = failures + 1 WHERE id = %s" %
+                                   Database.quote(id, 'bigint'))
 
 
 class StatsTarget:
@@ -769,9 +785,11 @@ class Maintenance:
             cursor.execute("DELETE FROM stats_messages WHERE target_path = %s AND id < %d" %
                            (Database.quote(path, 'varchar'), id))
 
-    def pruneSubscriptions(self, cursor):
-        """Delete subscriptions that have expired"""
-        now = int(time.time())
-        cursor.execute("DELETE FROM stats_subscriptions WHERE expiration < %d" % now)
+    def pruneSubscriptions(self, cursor, maxFailures=3):
+        """Delete subscriptions that have expired or have too many consecutive failures"""
+        cursor.execute("DELETE FROM stats_subscriptions "
+                       "WHERE expiration < %s OR failures > %s" %
+                       (Database.quote(int(time.time()), 'bigint'),
+                        Database.quote(maxFailures, 'int')))
 
 ### The End ###
