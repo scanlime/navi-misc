@@ -151,8 +151,6 @@ microsecond_pad	macro
 
 
 n64gc_init macro
-	;; Put us back in bank 0 with a bit_count of 8, preconditions for rx_buffer
-	bcf	STATUS, RP0
 	movlw	8
 	movwf	bit_count
 	endm
@@ -172,8 +170,7 @@ n64gc_tx_buffer macro port, bit, wide_stop_bit
 	local	not_last_bit
 	local	done
 
-	bsf	STATUS, RP0	; Stow our count and start looping over bytes
-	movwf	byte_count
+	movwf	byte_count	; Stow our count and start looping over bytes
 
 	movlw	8		; Set the bit count for the first time. Subsequently
 	movwf	bit_count	;   it gets set in the spare cycles below.
@@ -209,7 +206,7 @@ bit_loop
 	goto	$+1		; 3.6us
 	microsecond_pad
 	bcf	port, bit	; 0.0us  Begin a stop bit
-	bcf	STATUS, RP0	; 0.2us  Always leave in bank 0
+	nop			; 0.2us
 	nop			; 0.4us
 	microsecond_pad
 	movlw	8		; 0.6us  Setup for the next receive
@@ -342,7 +339,6 @@ n64gc_rx_buffer macro port, bit, timeout
 	local	found_bit
 	local	done
 
-	bsf	STATUS, RP0	; Stow our count and start looping over bytes
 	movwf	byte_count
 
 	;; We poll for the low state signalling the beginning of a bit, time out 2us
