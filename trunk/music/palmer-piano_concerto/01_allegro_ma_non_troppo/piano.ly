@@ -697,6 +697,35 @@ mvmtOnePianoSectNineRight = \relative dis'' {
   | <cis cis'>2 \times 2/3 { <cis cis'>2 <e e'>4 }
   | <dis dis'>2 \times 2/3 { <dis dis'>2 <cis cis'>4 }
   | <b b'>2 e,
+
+  % 214
+  % XXX quarters on the top notes (lilypond is such a bitch)
+  | dis'32( b gis e dis e gis b dis b gis e dis e gis b)
+         cis( b gis e dis e gis b cis ais g e dis e g ais)
+  | b32( gis e dis cis dis e gis b gis e dis cis dis e gis)
+         ais( g e dis cis dis e g ais fis e dis cis dis e fis)
+  | gis32( e dis cis ais cis dis e gis e dis cis ais cis dis e)
+         g( e dis cis ais cis dis e fis e d cis ais cis d e)
+  
+  % 217
+  | b' d cis d e d cis d b d ees d cis d e d 
+    f d cis d b d fis b, g'( d b g fis d cis d)
+  | b d cis d e d cis d b d ees d cis d e d 
+    f d cis d b d fis d g( d g b e d e g)
+  | b d cis d e d cis d b d ees d cis d e d
+    f d cis d b d fis d g d cis d gis d cis d
+  | g( d b g d g b d fis d b fis d b fis d)
+    eis'( d b gis d gis b d fis cis fis, cis' cis, fis fis, cis')
+
+  % 221
+  | g'8 b e g fis e d cis
+  | ais cis fis ais fis cis ais fis
+  | \appoggiatura { gis8[ ais] } b8 d fis b ais gis f4
+  | g8 fis e fis d cis fis,4
+  | g8 b d g fis e fis4
+  \clef bass
+  | <b,, fis'>8-. r <g d'>-. r <gis d' e>-. r <ais cis fis>-. r
+  | <b fis d>-. r8 r4 r2
 }
 
 mvmtOnePianoSectNineLeft = \relative b {
@@ -758,6 +787,24 @@ mvmtOnePianoSectNineLeft = \relative b {
        } \\ { 
        | <dis, dis,>2 g,
        | c, dis4 gis } >>
+  
+  % 214
+  | e8( gis,32 e' gis b cis4) gis cis,
+  | e8( gis,32 e' gis b cis4) gis cis,
+  | e8( gis,32 e' gis b cis4) cis, fis
+  | R1*4
+
+  % 221
+  \clef treble
+  | g8 b e g fis e d cis
+  | ais cis fis ais fis cis ais fis
+  | \appoggiatura { gis8[ ais] } b8 d fis b ais gis fis4
+  | g8 fis e fis d cis fis,4
+  | g8 b d g fis e fis4
+  \clef bass
+  | <g,, d'>8-. r <e b'>-. r <b' fis'>-. r <cis fis>-. r
+  | b,-. r8 r4 r2
+  | \bar "|."
 }
 
 mvmtOnePianoRight = {
