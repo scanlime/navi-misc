@@ -2,6 +2,7 @@
 
 u = {
   \change Staff = prologuePianoTreble
+  \stemDown
 }
 
 d = {
@@ -97,6 +98,17 @@ prologuePianoTreble = \new Voice \notes\relative c' {
   } \\ {
     bes4\p\< (cis)\! bes\p\< (cis)\!
   } >>
+  r1
+  r1
+  r1
+  r1
+  \clef bass
+  \slurUp
+%  \set Voice.beatLength = #(ly:make-moment 1 8)
+  \set Voice.subdivideBeams = ##t
+  \d des,,32 ([ \u g e' g, \d bes, \u e cis' e, \d des \u g e' g, \d e \u a fis' a,]
+  \d des, [\u g e' g, \d e \u a fis' a, \d g \u cis a' cis, \d e, \u a fis' a,]) ~
+  \set Voice.subdivideBeams = ##f
 }
 
 prologuePianoBass = \new Voice \notes\relative c {
@@ -126,6 +138,15 @@ prologuePianoBass = \new Voice \notes\relative c {
   } >>
   <a e'>4 (<g d'> <d a' d>) ~ <d, d' a' d>8 r8
   <a''' e'>2 <a e'>
+  r1
+  r1
+  r1
+  r1
+  \stemDown
+  \slurDown
+  \once \override Slur #'attachment-offset = #'((0 . 1) . (0 . 1))
+  des,8_\staccato (bes_\staccato des_\staccato e_\staccato
+  des_\staccato e_\staccato g_\staccato e_\staccato)
 }
 
 prologueMiddleDynamics = \notes {
