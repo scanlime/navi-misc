@@ -73,6 +73,7 @@ static void tool_c_d(double dx, double dy);
 static void tool_ab_cd(double dx, double dy);
 static void tool_ac_bd(double dx, double dy);
 
+GtkWidget *custom_color_button_new(gchar *widget_name, gchar *string1, gchar *string2, gint int1, gint int2);
 gboolean on_expose(GtkWidget *widget, GdkEventExpose *event, gpointer user_data);
 void on_param_spinner_changed(GtkWidget *widget, gpointer user_data);
 void on_render_spinner_changed(GtkWidget *widget, gpointer user_data);
@@ -90,7 +91,7 @@ void on_tool_activate(GtkWidget *widget, gpointer user_data);
 gboolean on_viewport_expose(GtkWidget *widget, gpointer user_data);
 gboolean on_motion_notify(GtkWidget *widget, GdkEvent *event);
 gboolean on_button_press(GtkWidget *widget, GdkEvent *event);
-GtkWidget *custom_color_button_new(gchar *widget_name, gchar *string1, gchar *string2, gint int1, gint int2);
+void on_widget_toggle(GtkWidget *widget, gpointer user_data);
 
 
 void interactive_main(int argc, char **argv) {
@@ -617,6 +618,23 @@ static void tool_ac_bd(double dx, double dy) {
   params.b += dy * 0.001;
   params.d += dy * 0.001;
   gui.update_calc_params_when_convenient = TRUE;
+}
+
+void on_widget_toggle(GtkWidget *widget, gpointer user_data) {
+  /* Toggle visibility of another widget. This widget should be named
+   * toggle_foo to control the visibility of a widget named foo.
+   */
+  const gchar *name;
+  GtkWidget *toggled;
+
+  name = gtk_widget_get_name(widget);
+  g_assert(!strncmp(name, "toggle_", 7));
+  toggled = glade_xml_get_widget(gui.xml, name+7);
+
+  if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget)))
+    gtk_widget_show(toggled);
+  else
+    gtk_widget_hide(toggled);
 }
 
 /* The End */
