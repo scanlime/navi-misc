@@ -36,19 +36,31 @@ public class smain
 	{
 		argparse(args);
 		System.out.println("proxy for " + host + " on port " + port);
+		startserver();
+		listen();
 	}
 	
 	public static void listen()
 	{
-		Socket out;
-		Socket in;
+		Socket sout;
+		Socket sin;
+		OutputStream out;
+		InputStream in;
 		try
 		{
 			while(true)
 			{
-				out = server.accept();
-				in = new Socket(host,port);
-				new connection(out,in).start();
+				// get the sockets
+				sout = server.accept();
+				sin = new Socket(host,port);
+				//slot a into tab a
+				out = sout.getOutputStream();
+				in = sin.getInputStream();
+				new pipe(in,out).start();
+				//slot b into tab b
+				out = sin.getOutputStream();
+				in = sout.getInputStream();
+				new pipe(in,out).start();
 			}
 		}
 		catch(Exception e)
