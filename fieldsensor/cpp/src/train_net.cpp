@@ -10,7 +10,7 @@ int main(void) {
     VECTOR::iterator i,j;
     float error;
     int numEpochs = 0;
-    const int epochsPerRound = 100;
+    const int epochsPerRound = 50;
     
     FILE *errfile = fopen("errorterms.log", "a");
 
