@@ -48,6 +48,7 @@ CREATE TABLE stats_messages
 (
     target_path  VARCHAR(128) REFERENCES stats_catalog ON DELETE CASCADE,
     id           BIGINT DEFAULT nextval('stats_message_id'),
+    timestamp    BIGINT,
     xml          TEXT NOT NULL,
     PRIMARY KEY(target_path, id)
 );
@@ -69,12 +70,9 @@ CREATE TABLE stats_counters
     target_path  VARCHAR(128) REFERENCES stats_catalog ON DELETE CASCADE,
     name         VARCHAR(32),
     event_count  INT NOT NULL DEFAULT 0,
-    first_time   timestamp DEFAULT NOW(),
-    last_time    timestamp,
+    first_time   BIGINT,
+    last_time    BIGINT,,
     PRIMARY KEY(target_path, name)
 );
-
-CREATE VIEW stats_message_counts AS
-    SELECT target_path, COUNT(target_path) FROM stats_messages GROUP BY target_path;
 
 --- The End ---

@@ -2,10 +2,10 @@
 
 Defines the stats:// URI for rulesets to target. The URI is of
 the form stats://[optional/path/prefix]
-The message passed to the URI from a ruleset is then URI encoded
-and used as the rest of the stats:// path. This makes it easy to
-create multiple namespaces for which stats are collected, and generate
-the actual stats target using part of the message.
+The message passed to the URI from a ruleset is then used as the
+est of the stats:// path. This makes it easy to create multiple
+namespaces for which stats are collected, and generate the actual
+stats target using part of the message.
 """
 #
 # CIA open source notification system
@@ -35,9 +35,8 @@ import string, os, time, types, posixpath, sys
 
 
 class StatsURIHandler(Ruleset.RegexURIHandler):
-    """Handles stats:// URIs. The message passed to a stats:// URI is
-       URI-encoded and added to the end of the stats:// URI to form
-       a path identifying a class of messages that stats are collected for.
+    """Handles stats:// URIs. A stats target is chosen,
+       and the message is delivered to it.
        """
     scheme = 'stats'
     regex = r"^stats://(?P<path>([a-zA-Z0-9_-]+(/[a-zA-Z0-9_-]+)*)?)$"
@@ -84,11 +83,9 @@ class StatsInterface(RPC.Interface):
         return StatsTarget(path).getCounterValues(name)
 
     def protected_clearTarget(self, path):
-        """Deletes any data stored at the stats target with the given path.
-           This is not recursive.
-           """
+        """Deletes any data stored at a given stats target or in any of its subtargets"""
         log.msg("Clearing stats path %r" % path)
-        StatsTarget(path).clear()
+        return StatsTarget(path).clear()
 
     def caps_clearTarget(self, rpcPath, statsPath):
         """In addition to the usual capabilities, allow ('stats.path', path)"""
@@ -286,7 +283,9 @@ class StatsTarget:
         return 'Stats'
 
     def clear(self):
-        """Delete everything associated with this stats target"""
+        """Delete everything associated with this stats target. Returns a Deferred
+           indicating the completion of this operation.
+           """
         # Delete the item in stats_target- the other tables will be
         # deleted due to cascading foreign keys
         return Database.pool.runOperation("DELETE FROM stats_catalog WHERE target_path = %s" %
