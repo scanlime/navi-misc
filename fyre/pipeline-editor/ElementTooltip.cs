@@ -48,5 +48,43 @@ public class ElementTooltip
 			"<span size=\"small\">" +
 			e.Description () +
 			"</span>";
+			
+		string[,] inputs = e.InputDesc ();
+		Gtk.Table input = new Gtk.Table ((uint) inputs.Length / 2, 2, false);
+		for (uint i = 0; i < inputs.Length / 2; i++) {
+			Gtk.Label variable = new Gtk.Label ();
+			Gtk.Label desc = new Gtk.Label ();
+			
+			variable.Markup =
+				"<span size=\"small\">" +
+				inputs[i,0] +
+				"</span>";
+			desc.Markup =
+				"<span size=\"small\">" +
+				inputs[i,1] +
+				"</span>";
+			input.Attach (variable, 0, 1, i, i+1);
+			input.Attach (desc, 1, 2, i, i+1);
+		}
+		this.inputs.PackStart (input, false, true, 0);
+
+		string[,] outputs = e.OutputDesc ();
+		Gtk.Table output = new Gtk.Table ((uint) outputs.Length / 2, 2, false);
+		for (uint i = 0; i < outputs.Length / 2; i++) {
+			Gtk.Label variable = new Gtk.Label ();
+			Gtk.Label desc = new Gtk.Label ();
+			
+			variable.Markup =
+				"<span size=\"small\">" +
+				outputs[i,0] +
+				"</span>";
+			desc.Markup =
+				"<span size=\"small\">" +
+				inputs[i,1] +
+				"</span>";
+			output.Attach (variable, 0, 1, i, i+1);
+			output.Attach (desc, 1, 2, i, i+1);
+		}
+		this.outputs.PackStart (output, false, true, 0);
 	}
 }
