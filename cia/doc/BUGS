@@ -1,6 +1,10 @@
 Known Bugs
 ==========
 
+- It looks like somehow most DOM Document objects are getting linked to each other,
+  resulting in hundreds of ungarbagecollected messages after a week or so of uptime.
+  This makes for a pretty icky memory leak.
+
 - Many of the module imports are messy. Relative imports should be removed according
   to section 2.4 of the python programming FAQ, and the order could use some cleanup.
 
