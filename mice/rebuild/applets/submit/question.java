@@ -56,6 +56,12 @@ public class question extends java.applet.Applet implements ActionListener
 		add(submit);
 	}
 
+	/**
+	 * This method handles the click of the submit, and renders the applet useless
+	 * @param e The action event that is effectively ignored
+	 * @author Brandon Smith
+	 * @version 2.0
+	 */
 	public void actionPerformed(ActionEvent e)
 	{
 		nstring = name.getText() + " (" + position.getText() + ")";
@@ -90,8 +96,13 @@ public class question extends java.applet.Applet implements ActionListener
     
 	/* These four methods handle network communication */
 
-	/*
+	/**
 	 * This method opens a connection and takes care of all the pre/post conditions for read and write.
+	 * @param host The host to connect to.
+	 * @param port The port on the host to connect to.
+	 * @author Brandon Smith
+	 * @version 2.0
+	 * @return True on a successful connection, False
 	 */
 	public boolean openConnection(String host, int port)
 	{
@@ -105,14 +116,16 @@ public class question extends java.applet.Applet implements ActionListener
 		catch(IOException exception) {
 			return false;
 		}
-		write("SUBM");
 		return true;
 	}
     
-	//Close the connection
+	/**
+	 * This method closes the connection
+	 * @author Brandon Smith
+	 * @version 2.0
+	 */
 	public void closeConnection()
 	{
-		write("QUIT");
 		try 
 		{
 	    link.close();
@@ -120,7 +133,12 @@ public class question extends java.applet.Applet implements ActionListener
 		catch(IOException exception){}
 	}
     
-	//Read a single line from the socket
+	/**
+	 * This method reads a string from the socket and returns it
+	 * @author Brandon Smith
+	 * @version 2.0
+	 * @return A String with the network newline
+	 */
 	public String read()
 	{
 		String toreturn = null;
@@ -137,7 +155,12 @@ public class question extends java.applet.Applet implements ActionListener
 		return toreturn;
 	}
     
-	//Write a single line to the socket
+	/**
+	 * This method writes a string to the predescribed socket.
+	 * @param tosend The string to send
+	 * @author Brandon Smith
+	 * @version 2.0
+	 */
 	public void write(String tosend)
 	{
 		try
