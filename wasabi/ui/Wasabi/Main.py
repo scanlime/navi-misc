@@ -97,6 +97,7 @@ def userPageInterrupter(page):
 class VideoChannelPage(Sequencer.Page):
     """A sequencer page that displays video from an external input, via uvswitch"""
     def __init__(self, view, hardware, channel):
+        Sequencer.Page.__init__(self, view)
         self.hardware = hardware
         hardware.selectDirectVideo(channel)
 
