@@ -38,7 +38,8 @@ class TargetRelativeLink:
         # links placed in the RSS and XML feeds, and won't
         # hurt elsewhere.
         req = context['request']
-        protocol, hostname, port = req.host
+        port = req.host[2]
+        hostname = req.getRequestHostname()
         if req.isSecure():
             default = 443
         else:
