@@ -103,11 +103,27 @@ void interactive_camshift(int n_cameras = 1,
   int num_histogram_samples = 0;
   bool uinput_mouse_enabled = false;
   int i;
-  CvPoint2D32f prev_box_center;
-  bool prev_box_center_valid = false;
+  CvKalman* fast_kalman = cvCreateKalman(2, 2, 0);
+  CvKalman* slow_kalman = cvCreateKalman(2, 2, 0);
+  CvMat* measurement = cvCreateMat( 2, 1, CV_32FC1 );
 
   /* Take a reference frame from each camera */
   images = cv_dc1394_capture_yuv(n_cameras);
+
+  /* Initialize the Kalman filters. We have two filters:
+   * a fast filter for keeping track of the current object position,
+   * and a slower filter to use as a center position for measuring
+   * the displacement of the object.
+   */
+  cvSetIdentity(fast_kalman->measurement_matrix, cvRealScalar(1));
+  cvSetIdentity(fast_kalman->process_noise_cov, cvRealScalar(0.4));
+  cvSetIdentity(fast_kalman->measurement_noise_cov, cvRealScalar(3));
+  cvSetIdentity(fast_kalman->error_cov_post, cvRealScalar(1));
+
+  cvSetIdentity(slow_kalman->measurement_matrix, cvRealScalar(1));
+  cvSetIdentity(slow_kalman->process_noise_cov, cvRealScalar(0.001));
+  cvSetIdentity(slow_kalman->measurement_noise_cov, cvRealScalar(3));
+  cvSetIdentity(slow_kalman->error_cov_post, cvRealScalar(1));
 
   /* Allocate images, now that we know the camera resolution */
   for (i=0; i<3; i++)
@@ -174,7 +190,6 @@ void interactive_camshift(int n_cameras = 1,
 
 	if (box.size.width > 0 && box.size.height > 0) {
 	  /* If we found something, draw it */
-	  plot_crosshairs(images[i], cvPoint((int)box.center.x, (int)box.center.y));
 
 	  /* Check the roll quality. For aspect ratios near 1, the box rotation
 	   * can't be measured accurately. In these situations, we draw the box
@@ -189,19 +204,32 @@ void interactive_camshift(int n_cameras = 1,
 	    draw_box(images[i], box);
 	  }
 
+	  /* Feed the current center point into our kalman filters.
+	   * Draw crosshairs at the point predicted by the fast filter,
+	   * and draw a line from that point to the one predicted by the slow filter.
+	   */
+	  const CvMat* fast_prediction = cvKalmanPredict(fast_kalman);
+	  const CvMat* slow_prediction = cvKalmanPredict(slow_kalman);
+	  cvLineAA(images[i],
+		   cvPoint((int)cvmGet(fast_prediction, 0, 0),
+			   (int)cvmGet(fast_prediction, 1, 0)),
+		   cvPoint((int)cvmGet(slow_prediction, 0, 0),
+			   (int)cvmGet(slow_prediction, 1, 0)),
+		   CV_RGB(0,128,128));
+	  plot_crosshairs(images[i],
+			  cvPoint((int)cvmGet(fast_prediction, 0, 0),
+				  (int)cvmGet(fast_prediction, 1, 0)));
+	  cvmSet(measurement, 0, 0, box.center.x);
+	  cvmSet(measurement, 1, 0, box.center.y);
+	  cvKalmanCorrect(fast_kalman, measurement);
+	  cvKalmanCorrect(slow_kalman, measurement);
+
 	  if (uinput_mouse_enabled) {
 	    /* Emulate a mouse using uinput */
-	    if (prev_box_center_valid) {
-	      float dx = box.center.x - prev_box_center.x;
-	      float dy = box.center.y - prev_box_center.y;
-
-	      uinput_mouse_move((int)(dx * 2.5),
-				(int)(dy * 2.5));
-	    }
+	    float dx = cvmGet(fast_prediction, 0, 0) - cvmGet(slow_prediction, 0, 0);
+	    float dy = cvmGet(fast_prediction, 1, 0) - cvmGet(slow_prediction, 1, 0);
+	    uinput_mouse_move_subpixel(dx, dy);
 	  }
-
-	  prev_box_center = box.center;
-	  prev_box_center_valid = true;
 	}
 	else {
 	  /* If not, reset our search window */
@@ -209,8 +237,6 @@ void interactive_camshift(int n_cameras = 1,
 	  windowIn[i].y = 0;
 	  windowIn[i].width = images[i]->width;
 	  windowIn[i].height = images[i]->height;
-
-	  prev_box_center_valid = false;
 	}
       }
     }
@@ -275,8 +301,8 @@ void interactive_camshift(int n_cameras = 1,
       sample_rect.width = sample_square_size;
       sample_rect.height = sample_square_size;
       if (sample_rect.x < 0) sample_rect.x = 0;
-      if (sample_rect.y < 0) sample_rect.y = 0
-;      if (sample_rect.x > images[0]->width - sample_rect.width - 1)
+      if (sample_rect.y < 0) sample_rect.y = 0;
+      if (sample_rect.x > images[0]->width - sample_rect.width - 1)
 	sample_rect.x = images[0]->width - sample_rect.width - 1;
       if (sample_rect.y > images[0]->height - sample_rect.height - 1)
 	sample_rect.y = images[0]->height - sample_rect.height - 1;
