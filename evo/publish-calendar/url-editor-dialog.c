@@ -45,13 +45,13 @@ create_uri (UrlEditorDialog *dialog)
 		}
 		*/
 	} else {
-		char *method, *server, *file, *port, *username, *password;
+		char *method = "", *server, *file, *port, *username, *password;
 
-		server   = gnome_vfs_escape_string (gtk_entry_get_text (GTK_ENTRY (dialog->server_entry)));
-		file     = gnome_vfs_escape_string (gtk_entry_get_text (GTK_ENTRY (dialog->file_entry)));
-		port     = gnome_vfs_escape_string (gtk_entry_get_text (GTK_ENTRY (dialog->port_entry)));
+		server   = g_strdup (gtk_entry_get_text (GTK_ENTRY (dialog->server_entry)));
+		file     = g_strdup (gtk_entry_get_text (GTK_ENTRY (dialog->file_entry)));
+		port     = g_strdup (gtk_entry_get_text (GTK_ENTRY (dialog->port_entry)));
 		username = gnome_vfs_escape_string (gtk_entry_get_text (GTK_ENTRY (dialog->username_entry)));
-		password = gnome_vfs_escape_string (gtk_entry_get_text (GTK_ENTRY (dialog->password_entry)));
+		password = g_strdup (gtk_entry_get_text (GTK_ENTRY (dialog->password_entry)));
 
 		switch (uri->service_type) {
 		case TYPE_SMB:
@@ -78,6 +78,8 @@ create_uri (UrlEditorDialog *dialog)
 			break;
 		}
 
+		if (uri->location)
+			g_free (uri->location);
 		uri->location = g_strdup_printf ("%s://%s%s%s%s%s%s",
 						 method,
 						 username, (username[0] != 0) ? "@" : "",
@@ -128,6 +130,9 @@ check_input (UrlEditorDialog *dialog)
 		if (!strlen (gtk_entry_get_text (GTK_ENTRY (dialog->server_entry)))) goto fail;
 		break;
 	}
+
+	create_uri (dialog);
+	g_print ("%s\n", uri->location);
 
 	gtk_dialog_set_response_sensitive (GTK_DIALOG (dialog), GTK_RESPONSE_OK, TRUE);
 	return;
