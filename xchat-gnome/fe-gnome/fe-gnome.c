@@ -373,10 +373,13 @@ void fe_set_lag(server *serv, int lag) {
 		sess = list->data;
 		if(sess->server == serv) {
 			tgui = (session_gui*) sess->gui;
-			tgui->lag_value = per;
-			if(tgui->lag_text)
-				free(tgui->lag_text);
-			tgui->lag_text = strdup(tip);
+			if (tgui)
+			{
+				tgui->lag_value = per;
+				if(tgui->lag_text)
+					free(tgui->lag_text);
+				tgui->lag_text = strdup(tip);
+			}
 		}
 		list = list->next;
 	}
