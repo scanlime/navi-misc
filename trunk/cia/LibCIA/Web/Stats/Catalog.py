@@ -201,7 +201,7 @@ class CatalogSection(Template.Section):
     SELECT
         T.target_path,
         M_TITLE.value,
-        M_PHOTO.name,
+        IF(M_ICON.name IS NOT NULL, M_ICON.name, M_PHOTO.name),
         C_TODAY.event_count,
         C_YESTERDAY.event_count,
         C_FOREVER.event_count,
@@ -211,6 +211,7 @@ class CatalogSection(Template.Section):
         LEFT OUTER JOIN stats_catalog  CHILD       ON (CHILD.parent_path = T.target_path)
         LEFT OUTER JOIN stats_metadata M_TITLE     ON (T.target_path = M_TITLE.target_path     AND M_TITLE.name     = 'title')
         LEFT OUTER JOIN stats_metadata M_PHOTO     ON (T.target_path = M_PHOTO.target_path     AND M_PHOTO.name     = 'photo')
+        LEFT OUTER JOIN stats_metadata M_ICON      ON (T.target_path = M_ICON.target_path      AND M_ICON.name      = 'icon')
         LEFT OUTER JOIN stats_counters C_TODAY     ON (T.target_path = C_TODAY.target_path     AND C_TODAY.name     = 'today')
         LEFT OUTER JOIN stats_counters C_YESTERDAY ON (T.target_path = C_YESTERDAY.target_path AND C_YESTERDAY.name = 'yesterday')
         LEFT OUTER JOIN stats_counters C_FOREVER   ON (T.target_path = C_FOREVER.target_path   AND C_FOREVER.name   = 'forever')
@@ -218,7 +219,7 @@ class CatalogSection(Template.Section):
     GROUP BY
         T.target_path,
         M_TITLE.value,
-        M_PHOTO.name,
+        IF(M_ICON.name IS NOT NULL, M_ICON.name, M_PHOTO.name),
         C_TODAY.event_count,
         C_YESTERDAY.event_count,
         C_FOREVER.event_count,
