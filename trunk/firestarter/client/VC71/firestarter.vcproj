@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../inc;../../common/inc;../../../ogrenew/ogremain/include;../ui/inc;../game/inc;../game/test/inc;../drawing/inc;../game/test/gfx/inc"
+				AdditionalIncludeDirectories="../inc;../../common/inc;../../../ogrenew/ogremain/include;../ui/inc;../game/inc;../game/test/inc;../drawing/inc;../game/test/gfx/inc;../../common/curl/include/"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_STLP_USE_DYNAMIC_LIB;OGRE_LIBRARY_IMPORTS"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -142,6 +142,9 @@
 					RelativePath="..\..\common\src\input.cpp">
 				</File>
 				<File
+					RelativePath="..\..\common\src\listserver.cpp">
+				</File>
+				<File
 					RelativePath="..\..\common\src\osfile.cpp">
 				</File>
 				<File
@@ -225,6 +228,9 @@
 				</File>
 				<File
 					RelativePath="..\..\common\inc\input.h">
+				</File>
+				<File
+					RelativePath="..\..\common\inc\listserver.h">
 				</File>
 				<File
 					RelativePath="..\..\common\inc\osfile.h">

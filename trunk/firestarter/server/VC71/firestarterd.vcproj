@@ -121,7 +121,7 @@
 				RelativePath="..\src\firestarterd.cpp">
 			</File>
 			<File
-				RelativePath="..\src\listserver.cpp">
+				RelativePath="..\..\common\src\listserver.cpp">
 			</File>
 			<File
 				RelativePath="..\src\serverListener.cpp">
@@ -200,7 +200,7 @@
 				RelativePath="..\inc\firestarterd.h">
 			</File>
 			<File
-				RelativePath="..\inc\listserver.h">
+				RelativePath="..\..\common\inc\listserver.h">
 			</File>
 			<File
 				RelativePath="..\inc\serverListener.h">
