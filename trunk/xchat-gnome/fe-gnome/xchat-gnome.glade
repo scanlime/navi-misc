@@ -3880,7 +3880,7 @@ Your Xchat-gnome preferences have not yet been set.  You can continue to the Xch
 		  <child>
 		    <widget class="GtkLabel" id="label74">
 		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">Select any servers you want to connect to automatically upon startup.  You can always change these settings from within the preferences window.</property>
+		      <property name="label" translatable="yes">Select any servers to which you want to connect you want automatically upon startup.  You can always change these settings from within the preferences window.</property>
 		      <property name="use_underline">False</property>
 		      <property name="use_markup">False</property>
 		      <property name="justify">GTK_JUSTIFY_CENTER</property>
