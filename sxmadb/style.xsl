@@ -50,8 +50,18 @@
                     <xsl:apply-templates select="document('techniques.xml')//techniques/technique[@category='push']"/>
                     <span class="emph">kick</span>
                     <xsl:apply-templates select="document('techniques.xml')//techniques/technique[@category='kick']"/>
-                    <span class="emph">grab</span>
-                    <xsl:apply-templates select="document('techniques.xml')//techniques/technique[@category='grab']"/>
+                    <span class="emph">grabs and tackles</span>
+                    <xsl:apply-templates select="document('techniques.xml')//techniques/technique[@category='grabs-and-tackles']"/>
+                    <span class="emph">hugs and holds</span>
+                    <xsl:apply-templates select="document('techniques.xml')//techniques/technique[@category='hugs-and-holds']"/>
+                    <span class="emph">chokes and locks</span>
+                    <xsl:apply-templates select="document('techniques.xml')//techniques/technique[@category='chokes-and-locks']"/>
+                    <span class="emph">weapons</span>
+                    <xsl:apply-templates select="document('techniques.xml')//techniques/technique[@category='weapons']"/>
+                    <span class="emph">multiple attacks</span>
+                    <xsl:apply-templates select="document('techniques.xml')//techniques/technique[@category='multiple-attacks']"/>
+                    <span class="emph">combinations</span>
+                    <xsl:apply-templates select="document('techniques.xml')//techniques/technique[@category='combinations']"/>
                   </xsl:if>
                   <xsl:if test="/form"><xsl:apply-templates select="document('forms.xml')//forms/form"/></xsl:if>
                   <xsl:if test="/set">
