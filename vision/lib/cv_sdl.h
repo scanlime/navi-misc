@@ -35,7 +35,6 @@ void cv_sdl_show_yuv_tiles(IplImage **images, int num_images, int width);
 /* Process pending events, returns zero if it's time to quit */
 int cv_sdl_process_events();
 
-
 #endif /* __CV_SDL__H_ */
 
 /* The End */
