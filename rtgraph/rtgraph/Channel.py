@@ -32,11 +32,11 @@ class Channel(object):
        The 'value' property gets and sets this channel's value, updating its timestamp
        when set.
        """
-    def __init__(self, value=None):
+    def __init__(self, value=None, color=(0,0,1)):
         self._value = value
         self._timestamp = None
         self.timeMap = {}
-        self.setColor((0,0,0))
+        self.setColor(color)
 
     def getValue(self):
         """Retrieves the current value, automatically called when accessing the 'value' property"""
@@ -75,8 +75,8 @@ class Channel(object):
            to draw this channel in.
            """
         color = self.getColor()
-        gtkColor = widget.get_colormap().alloc_color(*[int(c * 65535) for c in color])
-        return {'foreground': gtkColor}
+        gdkColor = widget.get_colormap().alloc_color(*[int(c * 65535) for c in color])
+        return {'foreground': gdkColor}
 
     def getGC(self, widget):
         """For the given widget, return a GC for drawing this channel. Caches the GCs
@@ -85,7 +85,7 @@ class Channel(object):
         try:
             return self.gcMap[widget]
         except KeyError:
-            gc = widget.window.new_gc(*self.getStyle(widget))
+            gc = widget.window.new_gc(**self.getStyle(widget))
             self.gcMap[widget] = gc
             return gc
 
