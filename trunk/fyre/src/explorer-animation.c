@@ -435,7 +435,6 @@ static void on_anim_scale_changed(GtkWidget *widget, gpointer user_data) {
 	     * Force at least a little rendering to happen right now.
 	     */
 	    explorer_run_iterations(self);
-	    explorer_update_gui(self);
 	}
     }
 

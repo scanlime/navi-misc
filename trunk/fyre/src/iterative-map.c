@@ -146,6 +146,7 @@ static int    iterative_map_idle_handler(gpointer user_data)
 {
     IterativeMap* self = ITERATIVE_MAP(user_data);
     iterative_map_calculate_timed(self, self->render_time);
+    return 1;
 }
 
 void          iterative_map_start_calculation      (IterativeMap          *self)
