@@ -12,3 +12,4 @@
 * if 'refresh' is clicked twice in the channel list, it will send two LIST requests
   and add all the results to the tree. Should probably set the refresh button inactive
   until at least some results come in.
+* status icon (still!!!)
