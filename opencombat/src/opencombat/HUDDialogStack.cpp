@@ -77,7 +77,8 @@ void HUDDialogStack::push(HUDDialog* dialog)
 
 void HUDDialogStack::pop()
 {
-  if (isActive()) {
+  if (isActive())
+	{
     const int index = stack.size() - 1;
     stack[index]->setFocus(HUDui::getFocus());
     stack[index]->dismiss();
@@ -102,8 +103,16 @@ void HUDDialogStack::pop()
 
 void HUDDialogStack::render()
 {
+
+	glTranslatef(0,0,-0.5f);
+	glDisable(GL_LIGHTING);
+	glEnable(GL_TEXTURE_2D);
+
   if (isActive())
-    stack[stack.size() - 1]->render();
+		(*(stack.end()-1))->render();
+  //  stack[stack.size() - 1]->render();
+
+	glEnable(GL_LIGHTING);
 }
 
 void HUDDialogStack::resize(void* _self)

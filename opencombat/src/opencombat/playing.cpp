@@ -3980,7 +3980,8 @@ static bool		joinGame()
 
 static void		renderDialog()
 {
-  if (HUDDialogStack::get()->isActive()) {
+  if (HUDDialogStack::get()->isActive())
+	{
     const int width = mainWindow->getWidth();
     const int height = mainWindow->getHeight();
     const int ox = mainWindow->getOriginX();
@@ -4025,11 +4026,17 @@ void renderManagedDialog ( void )
 		glMatrixMode(GL_MODELVIEW);
 		glPushMatrix();
 		glLoadIdentity(); */
+	/*	glBegin(GL_LINES);
+			glColor4f(1,1,1,1);
+			glVertex3f(0,0,-1);
+			glVertex3f(width,height,-1);
+		glEnd();*/
+//		OpenGLGState::resetState();
+	HUDDialogStack::get()->render();
 
-		OpenGLGState::resetState();
-		HUDDialogStack::get()->render();
+//		OpenGLGState::resetState();
 
-		OpenGLGState::resetState();
+		glEnable(GL_LIGHTING);
 		glPopMatrix();
 	}
 }
@@ -4039,7 +4046,6 @@ void renderManagedDialog ( void )
 //
 void drawManagedScene ( float fov )
 {
-
 	View3D	&view = View3D::instance();
 
 	view.transform();
@@ -4056,7 +4062,7 @@ void drawManagedScene ( float fov )
 	// do the radar and stuff
 
 //	hud->render(*sceneRenderer);
-	renderDialog();
+	renderManagedDialog();
 //	controlPanel->render(*sceneRenderer);
 //	if (radar)
 //		radar->render(*sceneRenderer, myTank && myTank->isPaused());
@@ -5051,7 +5057,7 @@ static float		timeConfiguration(bool useZBuffer)
   if (useZBuffer)
 	{
     glEnable(GL_DEPTH_TEST);
-    glClear(GL_DEPTH_BUFFER_BIT);
+   // glClear(GL_DEPTH_BUFFER_BIT);
   }
 
   // use glFinish() to get accurate timings
@@ -5133,10 +5139,10 @@ static void		defaultErrorCallback(const char* msg)
 static void		startupErrorCallback(const char* msg)
 {
   controlPanel->addMessage(msg);
-  glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-  glClear(GL_COLOR_BUFFER_BIT);
-  controlPanel->render(*sceneRenderer);
-  mainWindow->getWindow()->swapBuffers();
+  //glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+  //glClear(GL_COLOR_BUFFER_BIT);
+  //controlPanel->render(*sceneRenderer);
+  //mainWindow->getWindow()->swapBuffers();
 }
 
 
@@ -5168,7 +5174,7 @@ void			startPlaying(BzfDisplay* _display,
   // spec.  we really should redraw the control panel every frame
   // but this works on every system so far.
   {
-    int n = 1;	// assume triple buffering
+    int n = 2;	// assume triple buffering
     controlPanel->setNumberOfFrameBuffers(n);
   }
 
@@ -5193,7 +5199,7 @@ void			startPlaying(BzfDisplay* _display,
 
   // show window and clear it immediately
   mainWindow->showWindow(true);
-  glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+ // glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
  // glDisable(GL_SCISSOR_TEST);
   glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
   mainWindow->getWindow()->swapBuffers();
@@ -5285,9 +5291,9 @@ void			startPlaying(BzfDisplay* _display,
     mainWindow->grabMouse();
 
   // draw again
-  glClear(GL_COLOR_BUFFER_BIT);
-  sceneRenderer->render();
-  controlPanel->render(*sceneRenderer);
+  //glClear(GL_COLOR_BUFFER_BIT);
+ // sceneRenderer->render();
+ // controlPanel->render(*sceneRenderer);
   mainWindow->getWindow()->swapBuffers();
   mainWindow->getWindow()->yieldCurrent();
 

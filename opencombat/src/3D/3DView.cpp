@@ -30,7 +30,8 @@ View3D::View3D()
 	pushed = false;
 	inOrtho = false;
 
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glClearColor(0.25f, 0.5f, 0.25f, 1.0f);
+	glClearDepth(1.0f);									// Depth Buffer Setup
 }
 
 View3D::~View3D()
@@ -144,11 +145,12 @@ void View3D::setOrtho ( void )
 		unsetOrtho();
 
 	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
 	glLoadIdentity();
 
-	glOrtho(0,0,lastH,lastV,0,100);
+	glOrtho(0,lastH,0,lastV,0.1,100);
 	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
 
 	inOrtho = true;
 }
@@ -157,7 +159,19 @@ void View3D::unsetOrtho ( void )
 {
 	if (!inOrtho || !pushed)
 		return;
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+
+	float aspect = 1;
+	if ( lastV >0)
+		aspect = (float)lastH/(float)lastV;
+
+	float realFOV = lastFOV/aspect;
+	gluPerspective(realFOV,aspect,lastHither, lastYon);
+
 	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
 
 	inOrtho = false;
 }

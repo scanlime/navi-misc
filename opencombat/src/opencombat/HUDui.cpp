@@ -273,23 +273,30 @@ void			HUDuiControl::renderFocus()
   TextureManager &tm = TextureManager::instance();
   const ImageInfo &info = tm.getInfo(arrow);
   
-  if (gstate->isTextured()) { // asumes there are w/h fames of animation h x h in each image
+  if (gstate->isTextured())// asumes there are w/h fames of animation h x h in each image
+	{ 
     float imageSize = (float)info.y;
     int uFrames = 1;
+
     if (imageSize != 0)
       uFrames = int(info.x/imageSize); // 4;
+
     int vFrames = 1; // 4;
     float du = 1.0f / (float)uFrames;
     float dv = 1.0f / (float)vFrames;
 
     float u = (float)(arrowFrame % uFrames) / (float)uFrames;
     float v = (float)(arrowFrame / uFrames) / (float)vFrames;
+
     fh2 = floorf(1.5f * fontHeight); // this really should not scale the image based on the font,
-    gstate->setState();	       	     // best would be to load an image for each size
+		if (!BZDB.isTrue("useNewRendering"))
+			gstate->setState();	       	     // best would be to load an image for each size
+
     glColor3f(1.0f, 1.0f, 1.0f);
     float imageXShift = 0.0f;
     float imageYShift = -fh2 * 0.2f;
     float outputSize = fh2;
+
     glBegin(GL_QUADS);
       glTexCoord2f(u, v);
       glVertex2f(x + imageXShift - outputSize, y + imageYShift);
@@ -302,14 +309,19 @@ void			HUDuiControl::renderFocus()
     glEnd();
 
     TimeKeeper nowTime = TimeKeeper::getCurrent();
-    if (nowTime - lastTime > 0.07f) {
+    if (nowTime - lastTime > 0.07f)
+		{
       lastTime = nowTime;
       if (++arrowFrame == uFrames * vFrames) arrowFrame = 0;
     }
   }
-  else {
+  else
+	{
     fh2 = floorf(0.5f * fontHeight);
-    gstate->setState();
+
+		if (!BZDB.isTrue("useNewRendering"))
+			gstate->setState();
+
     glColor3f(1.0f, 1.0f, 1.0f);
     glBegin(GL_TRIANGLES);
       glVertex2f(x - fh2 - fontHeight, y + fontHeight - 1.0f);
@@ -329,19 +341,23 @@ void			HUDuiControl::renderFocus()
 void			HUDuiControl::renderLabel()
 {
   std::string theLabel = getLabel();
-  if (theLabel.length() > 0 && fontFace >= 0) {
+
+  if (theLabel.length() > 0 && fontFace >= 0)
+	{
     FontManager &fm = FontManager::instance();
-    trueLabelWidth = fm.getStrLength(fontFace, fontSize, theLabel) + 
-		     fm.getStrLength(fontFace, fontSize, "99");
-    const float dx = (desiredLabelWidth > trueLabelWidth)
-      ? desiredLabelWidth : trueLabelWidth;
+
+    trueLabelWidth = fm.getStrLength(fontFace, fontSize, theLabel) + fm.getStrLength(fontFace, fontSize, "99");
+
+    const float dx = (desiredLabelWidth > trueLabelWidth) ? desiredLabelWidth : trueLabelWidth;
+
     fm.drawString(x - dx, y, 0, fontFace, fontSize, theLabel);
   }
 }
 
 void			HUDuiControl::render()
 {
-  if (hasFocus() && showingFocus) renderFocus();
+  if (hasFocus() && showingFocus)
+		renderFocus();
   glColor3fv(hasFocus() ? textColor : dimTextColor);
   renderLabel();
   doRender();
@@ -729,10 +745,12 @@ void			HUDuiLabel::setDarker(bool d)
 
 void			HUDuiLabel::doRender()
 {
-  if (getFontFace() < 0) return;
+  if (getFontFace() < 0)
+		return;
   // render string
   glColor3fv(hasFocus() ? textColor : dimTextColor);
-  if (!hasFocus() && darker) glColor3fv(moreDimTextColor);
+  if (!hasFocus() && darker)
+		glColor3fv(moreDimTextColor);
   FontManager &fm = FontManager::instance();
   fm.drawString(getX(), getY(), 0, getFontFace(), getFontSize(), getString());
 }
@@ -753,19 +771,23 @@ void			HUDuiTextureLabel::setTexture(const int t)
 {
   OpenGLGStateBuilder builder(gstate);
   builder.setTexture(t);
-  gstate = builder.getState();
+ // gstate = builder.getState();
   texture = t;
 }
 
 void			HUDuiTextureLabel::doRender()
 {
-  if (getFontFace() < 0) return;
+  if (getFontFace() < 0)
+		return;
 
   // render string if texture filter is Off, otherwise draw the texture
   // about the same size and position as the string would be.
-  if (OpenGLTexture::getFilter() == OpenGLTexture::Off || !gstate.isTextured() || texture < 0) {
+  if (texture < 0)
+	{
     HUDuiLabel::doRender();
-  } else { // why use a font? it's an image, use the image size, let every pixel be seen!!! :)
+  }
+	else
+	{ // why use a font? it's an image, use the image size, let every pixel be seen!!! :)
     const float height = getFontSize();//texture.getHeight();//
     TextureManager  &tm = TextureManager::instance();
 
@@ -774,8 +796,10 @@ void			HUDuiTextureLabel::doRender()
     const float descent = 0;
     const float x = getX();
     const float y = getY();
-    gstate.setState();
-    glColor3fv(textColor);
+
+  //  gstate.setState();
+    glColor4f(textColor[0],textColor[1],textColor[2],1);
+		tm.bind(texture);
     glBegin(GL_QUADS);
       glTexCoord2f(0.0f, 0.0f);
       glVertex2f(x, y - descent);
