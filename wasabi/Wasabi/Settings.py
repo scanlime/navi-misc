@@ -52,11 +52,11 @@ class BackgroundLoader(Menu.LoaderPage):
                 backgroundList.append(bgc.load(file))
 
 
-class BackgroundsMenu(Menu.ArcMenu):
+class BackgroundsMenu(Menu.ImageMenu):
     def __init__(self, book):
         global backgroundList
         items = [Menu.Item(Icon.Icon(texture, imageAspect=4/3)) for texture in backgroundList]
-        Menu.ArcMenu.__init__(self, book, items, "Backgrounds")
+        Menu.ImageMenu.__init__(self, book, items)
 
 
 def getBackgroundList():
