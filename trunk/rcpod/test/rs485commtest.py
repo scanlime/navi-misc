@@ -70,12 +70,12 @@ class CommSuite(unittest.TestSuite):
         testPackets = [[byte] for byte in testBytes]
 
         # Add a few random maximum-length packets
-#        for i in xrange(4):
-#            testPackets.append([random.randint(0,255)
-#                                for j in xrange(pyrcpod.device.RCPOD_SCRATCHPAD_SIZE)])
+        for i in xrange(4):
+            testPackets.append([random.randint(0,255)
+                                for j in xrange(pyrcpod.device.RCPOD_SCRATCHPAD_SIZE)])
 
         for packet in testPackets:
-            for baud in (300, 9600, 115200):
+            for baud in (300, 9600, 57600, 115200):
                 for source, destination in [(0,1), (1,0)]:
                     self.addTest(CommTest(packet, source, destination, baud))
 

@@ -42,7 +42,10 @@ struct tag_rcpod_dev {
 /************************************************** Error handling *******************/
 /*************************************************************************************/
 
-#define RCPOD_TIMEOUT 500     /* Default USB timeout in milliseconds (1/2 second) */
+#define RCPOD_TIMEOUT 5000     /* Default USB timeout in milliseconds (5 seconds)
+				* This needs to be big enough to transmit the entire
+				* scratchpad buffer at ridiculously slow baud rates.
+				*/
 
 void rcpod_DefaultErrorHandler(const char *function, int err, const char *message);
 
