@@ -457,9 +457,7 @@ class SourcePage(ModPython.Page):
                 graphs.append('voltage')
             if self.latest.get('signal_strength'):
                 graphs.append('signal')
-            if self.latest.get('sequence'):
                 graphs.append('packetLoss')
-            if self.latest.get('num_copies'):
                 graphs.append('packetCopies')
 
         return tag('div', _class='graphs')[" ", [
