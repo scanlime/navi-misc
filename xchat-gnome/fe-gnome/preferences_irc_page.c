@@ -40,7 +40,7 @@ static void hilight_selection (GtkTreeSelection *selection, gpointer data);
 
 void initialize_preferences_irc_page()
 {
-	GtkWidget *widget, *widget2;
+	GtkWidget *widget, *radiobtn;
 	GtkSizeGroup *group;
 	char *text;
 	gboolean toggle;
@@ -128,11 +128,11 @@ void initialize_preferences_irc_page()
 
 	/* Create a radio button group for the font radio buttons. */
 	widget = glade_xml_get_widget (gui.xml, "usesysfonts");
-	widget2 = glade_xml_get_widget (gui.xml, "usethisfont");
-	gtk_radio_button_set_group (GTK_RADIO_BUTTON(widget2), gtk_radio_button_get_group (GTK_RADIO_BUTTON(widget)));
+	radiobtn = glade_xml_get_widget (gui.xml, "usethisfont");
+	gtk_radio_button_set_group (GTK_RADIO_BUTTON(radiobtn), gtk_radio_button_get_group (GTK_RADIO_BUTTON(widget)));
 	toggle = gconf_client_get_bool (client, "/apps/xchat/main_window/use_sys_fonts", NULL);
 	/* Toggle the second button if necessary. */
-	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget2), !toggle);
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (radiobtn), !toggle);
 	gconf_client_notify_add (client, "/apps/xchat/main_window/use_sys_fonts", (GConfClientNotifyFunc) gconf_bool_changed, widget, NULL, NULL);
 	g_signal_connect (G_OBJECT (widget), "toggled", G_CALLBACK (bool_changed), "/apps/xchat/main_window/use_sys_fonts");
 	g_signal_connect (G_OBJECT (widget), "toggled", G_CALLBACK (sysfonts_changed), glade_xml_get_widget (gui.xml, "font selection"));
@@ -140,10 +140,7 @@ void initialize_preferences_irc_page()
 	widget = glade_xml_get_widget (gui.xml, "font selection");
 	text = gconf_client_get_string (client, "/apps/xchat/main_window/font", NULL);
 	gtk_font_button_set_font_name (GTK_FONT_BUTTON (widget), text);
-	if (toggle)
-		gtk_widget_set_sensitive (widget, FALSE);
-	else
-		gtk_widget_set_sensitive (widget, TRUE);
+	gtk_widget_set_sensitive (widget, !toggle);
 	gconf_client_notify_add (client, "/apps/xchat/main-window/font", (GConfClientNotifyFunc) gconf_font_changed, NULL, NULL, NULL);
 	g_signal_connect (G_OBJECT (widget), "font-set", G_CALLBACK (font_changed), "/apps/xchat/main_window/font");
 
