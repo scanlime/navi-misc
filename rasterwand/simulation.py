@@ -56,16 +56,16 @@ class WindowComparator(rtgraph.Channel):
 class PulseTracker(rtgraph.Channel):
     """Algorithm for recovering a sinusoidal signal given a pulse
        that's high when the signal is within some small off-center window.
-
-       'c' is the sine value at the leading edge of the window when the
-       sine's derivative is positive. This is the same as the smaller of the
-       two window boundaries.
        """
-    def __init__(self, name, pulse, oscillator, c):
+    def __init__(self, name, pulse, oscillator):
         rtgraph.Channel.__init__(self, name=name)
         self.pulse = pulse
         self.oscillator = oscillator
-        self.c = c
+
+        # 'c' is the sine value at the leading edge of the window when the
+        # sine's derivative is positive. This is the same as the smaller of the
+        # two window boundaries.
+        self.c = -0.1
 
         # Pulse edge-detector and period measurement
         self.pulseTimer = TimeStepper()
@@ -124,7 +124,6 @@ class PulseTracker(rtgraph.Channel):
         if self.direction > 0:
             # Sync the period only on +1 slope
             period = self.periodTimer.step()
-            print period
             if period:
                 self.oscillator.frequency = 1 / period
 
@@ -132,11 +131,15 @@ class PulseTracker(rtgraph.Channel):
         else:
             self.oscillator.theta = math.pi - math.asin(self.c)
 
+        # Synchronize the window position
+        self.c += (self.oscVal - self.c) * 0.1
+        print self.c
+
 
 def simulate():
     trueAngle = SineWave("True Angle", 0.5)
     iSensor = WindowComparator("Interruption Sensor", trueAngle, (-0.5, -0.4))
-    recoveredAngle = PulseTracker("Recovered Angle", iSensor, SineWave(), -0.5)
+    recoveredAngle = PulseTracker("Recovered Angle", iSensor, SineWave())
 
     channels = [trueAngle,
                 iSensor,
