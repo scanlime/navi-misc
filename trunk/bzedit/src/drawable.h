@@ -27,6 +27,7 @@
 
 #include <gtk/gtk.h>
 #include <GL/gl.h>
+#include "renderstate.h"
 
 G_BEGIN_DECLS
 
@@ -62,11 +63,11 @@ struct _DrawableClass
 {
   GObjectClass parent_class;
 
-  void (*draw) (Drawable *drawable);
+  void (*draw) (Drawable *drawable, RenderState *rstate);
 };
 
 GType drawable_get_type (void) G_GNUC_CONST;
-void  drawable_draw     (Drawable *drawable);
+void  drawable_draw     (Drawable *drawable, RenderState *rstate);
 
 G_END_DECLS
 

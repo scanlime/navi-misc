@@ -27,13 +27,13 @@
 
 static void     texture_group_class_init     (TextureGroupClass *klass);
 static void     texture_group_init           (TextureGroup *self);
-static void     texture_group_draw           (Drawable *d);
-static void     texture_group_picking_draw   (Drawable *d);
+static void     texture_group_draw           (Drawable *d, RenderState *rstate);
+static void     texture_group_picking_draw   (Drawable *d, RenderState *rstate);
 static void     texture_group_draw_to_list   (DisplayList *dl);
 static void     texture_group_add            (TextureGroup *tg, Drawable *drawable);
 static void     basic_render_pass_class_init (BasicRenderPassClass *klass);
 static void     basic_render_pass_init       (BasicRenderPass *self);
-static void     basic_render_pass_render     (RenderPass *pass);
+static void     basic_render_pass_render     (RenderPass *pass, RenderState *rstate);
 static gboolean basic_render_pass_filter     (RenderPass *pass, Drawable *drawable);
 static void     basic_render_pass_preprocess (RenderPass *pass);
 static void     basic_render_pass_add        (RenderPass *pass, Drawable *drawable);
@@ -87,7 +87,7 @@ texture_group_init (TextureGroup *self)
 }
 
 static void
-texture_group_draw (Drawable *d)
+texture_group_draw (Drawable *d, RenderState *rstate)
 {
   DisplayList *dl = DISPLAY_LIST (d);
   TextureGroup *tg = TEXTURE_GROUP (d);
@@ -99,12 +99,12 @@ texture_group_draw (Drawable *d)
 
   for (dr = tg->dynamic_drawables; dr; dr = dr->next)
   {
-    drawable_draw (DRAWABLE (dr->data));
+    drawable_draw (DRAWABLE (dr->data), rstate);
   }
 }
 
 static void
-texture_group_picking_draw (Drawable *d)
+texture_group_picking_draw (Drawable *d, RenderState *rstate)
 {
   TextureGroup *tg = TEXTURE_GROUP (d);
   GList *dr;
@@ -112,12 +112,12 @@ texture_group_picking_draw (Drawable *d)
   for (dr = tg->static_drawables; dr; dr = dr->next)
   {
     /* store name */
-    drawable_draw (DRAWABLE (dr->data));
+    drawable_draw (DRAWABLE (dr->data), rstate);
   }
   for (dr = tg->dynamic_drawables; dr; dr = dr->next)
   {
     /* store name */
-    drawable_draw (DRAWABLE (dr->data));
+    drawable_draw (DRAWABLE (dr->data), rstate);
   }
 }
 
@@ -198,19 +198,21 @@ basic_render_pass_init (BasicRenderPass *self)
 }
 
 static void
-brp_render_iterate (gchar *texture, TextureGroup *group, TextureManager *tman)
+brp_render_iterate (gchar *texture, TextureGroup *group, RenderState *rstate)
 {
+  TextureManager *tman = texture_manager_new ();
+
   texture_manager_bind (tman, texture);
-  texture_group_draw (DRAWABLE (group));
+  texture_group_draw (DRAWABLE (group), rstate);
 }
 
 static void
-basic_render_pass_render (RenderPass *pass)
+basic_render_pass_render (RenderPass *pass, RenderState *rstate)
 {
   /* if picking ... */
   BasicRenderPass *brp = BASIC_RENDER_PASS (pass);
   TextureManager *tman = texture_manager_new ();
-  g_hash_table_foreach (brp->texture_groups, (GHFunc) brp_render_iterate, (gpointer) tman);
+  g_hash_table_foreach (brp->texture_groups, (GHFunc) brp_render_iterate, (gpointer) rstate);
 }
 
 static gboolean

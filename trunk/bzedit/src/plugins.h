@@ -27,7 +27,7 @@
 #include <glib.h>
 #include <glib-object.h>
 
-void   load_plugins (void);
+void   load_plugins     (void);
 GList* find_type_leaves (GType base);
 
 #endif

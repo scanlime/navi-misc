@@ -24,7 +24,7 @@
 
 static void display_list_class_init (DisplayListClass *klass);
 static void display_list_init       (DisplayList *dl);
-static void display_list_draw       (Drawable *drawable);
+static void display_list_draw       (Drawable *drawable, RenderState *rstate);
 
 GType
 display_list_get_type (void)
@@ -81,7 +81,7 @@ display_list_build_list (DisplayList *dl)
 }
 
 static void
-display_list_draw (Drawable *drawable)
+display_list_draw (Drawable *drawable, RenderState *rstate)
 {
   DisplayList *dl = DISPLAY_LIST (drawable);
   DisplayListClass *dlc = DISPLAY_LIST_CLASS (G_OBJECT_GET_CLASS (drawable));
