@@ -408,11 +408,10 @@ void on_load_from_image(GtkWidget *widget, gpointer user_data) {
     const gchar *filename;
     filename = gtk_file_selection_get_filename(GTK_FILE_SELECTION(dialog));
     load_parameters_from_file(filename);
+    write_gui_params();
+    restart_rendering();
   }
   gtk_widget_destroy(dialog);
-
-  write_gui_params();
-  restart_rendering();
 }
 
 void on_save(GtkWidget *widget, gpointer user_data) {
