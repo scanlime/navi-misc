@@ -1,7 +1,9 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="../style.xsl"?>
 
-<concept name="circle in circle">
+<concept name="circle in circle"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:noNamespaceSchemaLocation="schema.xsd">
   <origin>judo?</origin>
   <overview>
     When your opponent makes a circle (such as with a haymaker), it is
