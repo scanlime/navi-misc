@@ -48,7 +48,7 @@ class MatrixMultiply : Element
 
 	public override string Description ()
 	{
-		return "Multiplies a vector\nand a matrix\n";
+		return "Multiplies a vector\nand a matrix";
 	}
 
 	public override string[,] InputDesc ()

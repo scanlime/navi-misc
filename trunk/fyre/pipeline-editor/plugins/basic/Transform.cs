@@ -50,7 +50,7 @@ class TwoDTransform : Element
 
 	public override string Description ()
 	{
-		return "Creates an 3x3 matrix out\nof a set of 2D\ntransformations\n";
+		return "Creates an 3x3 matrix out\nof a set of 2D\ntransformations";
 	}
 
 	public override string[,] InputDesc ()

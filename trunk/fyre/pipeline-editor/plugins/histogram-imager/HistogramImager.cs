@@ -49,7 +49,7 @@ class HistogramImager : Element
 
 	public override string Description ()
 	{
-		return "Maintains a histogram\nof the points given to\nit, suitable for\ntone-mapping.\n";
+		return "Maintains a histogram of the\npoints given to it, suitable\nfor tone-mapping.";
 	}
 
 	public override string[,] InputDesc ()
