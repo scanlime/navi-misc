@@ -20,15 +20,14 @@
  */
 
 #include "preferences_dialog.h"
+#include "preferences_irc_page.h"
 #include "preferences_servers_page.h"
 #include "preferences_colors_page.h"
 #include "pixmaps.h"
 
 void initialize_pages_list();
 void hide_preferences_dialog(GtkWidget *widget, gpointer data);
-void initialize_irc_preferences_page();
 void initialize_file_transfers_page();
-void initialize_servers_page();
 void settings_page_changed(GtkTreeSelection *selection, gpointer data);
 
 void initialize_preferences_dialog() {
@@ -39,7 +38,7 @@ void initialize_preferences_dialog() {
 	gtk_widget_hide_all(GTK_WIDGET(gui.preferences_dialog));
 	gtk_notebook_set_show_tabs(GTK_NOTEBOOK(glade_xml_get_widget(gui.xml, "settings notebook")), FALSE);
 	initialize_pages_list();
-	initialize_irc_preferences_page();
+	initialize_preferences_irc_page();
 	initialize_file_transfers_page();
 	initialize_preferences_servers_page();
 	initialize_preferences_colors_page();
@@ -90,26 +89,6 @@ void initialize_pages_list() {
 	gtk_list_store_set(store, &iter, 0, pix_prefs_plugins, 1, "Scripts and Plugins", 2, 4, -1);
 }
 
-void initialize_irc_preferences_page() {
-	GtkWidget *widget;
-	GtkSizeGroup *group;
-
-	group = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
-	widget = glade_xml_get_widget(gui.xml, "nick name");
-	gtk_size_group_add_widget(group, widget);
-	widget = glade_xml_get_widget(gui.xml, "real name");
-	gtk_size_group_add_widget(group, widget);
-	widget = glade_xml_get_widget(gui.xml, "quit message");
-	gtk_size_group_add_widget(group, widget);
-	widget = glade_xml_get_widget(gui.xml, "part message");
-	gtk_size_group_add_widget(group, widget);
-	widget = glade_xml_get_widget(gui.xml, "away message");
-	gtk_size_group_add_widget(group, widget);
-	widget = glade_xml_get_widget(gui.xml, "highlight list container");
-	gtk_size_group_add_widget(group, widget);
-	g_object_unref(group);
-}
-
 void initialize_file_transfers_page() {
 	GtkWidget *widget;
 	GtkSizeGroup *group;
@@ -140,9 +119,6 @@ void initialize_file_transfers_page() {
 	widget = glade_xml_get_widget(gui.xml, "global receive throttle");
 	gtk_size_group_add_widget(group, widget);
 	g_object_unref(group);
-}
-
-void initialize_servers_page() {
 }
 
 void settings_page_changed(GtkTreeSelection *selection, gpointer data) {
