@@ -3,6 +3,8 @@ libdir = $(xchatlibdir)/plugins
 schemadir = $(GCONF_SCHEMA_FILE_DIR)
 schema_DATA = urlscraper.schemas.in.in
 
+EXTRA_DIST = urlscraper.schemas.in.in
+
 install-data-local:
 	if test -z "$(DESTDIR)" ; then \
 		for p in $(schema_DATA) ; do \
