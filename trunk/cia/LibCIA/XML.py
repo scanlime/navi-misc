@@ -143,4 +143,13 @@ def parseString(string):
     parser.parse(string)
     return parser.root
 
+
+def prettyPrint(xml):
+    """Given a domish.XML object, return a nice-looking string
+       representation.
+       """
+    # This is gross, but it works...
+    from xml.dom import minidom
+    return minidom.parseString(xml.toXml()).toprettyxml()
+
 ### The End ###
