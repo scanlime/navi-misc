@@ -57,11 +57,11 @@ void de_jong_calculate(DeJong *self, guint iterations) {
     const double d = self->d;
 
     /* Constants used in mapping rendering coordinates to image coordinates */
-    const int count_width = self->width * self->oversample;
-    const int count_height = self->height * self->oversample;
-    const double scale = count_width / 5.0 * self->zoom;
-    const double xcenter = count_width / 2.0 + self->xoffset * scale;
-    const double ycenter = count_height / 2.0 + self->yoffset * scale;
+    const int hist_width = self->width * self->oversample;
+    const int hist_height = self->height * self->oversample;
+    const double scale = hist_width / 5.0 * self->zoom;
+    const double xcenter = hist_width / 2.0 + self->xoffset * scale;
+    const double ycenter = hist_height / 2.0 + self->yoffset * scale;
 
     /* Toggles to disable features that aren't needed */
     const gboolean rotation_enabled = self->rotation > 0.0001 || self->rotation < -0.0001;
@@ -166,23 +166,23 @@ void de_jong_calculate(DeJong *self, guint iterations) {
 
       if (tileable) {
 	/* In tileable rendering, we wrap at the edges */
-	ix %= count_width;
-	iy %= count_height;
-	if (ix < 0) ix += count_width;
-	if (iy < 0) iy += count_height;
+	ix %= hist_width;
+	iy %= hist_height;
+	if (ix < 0) ix += hist_width;
+	if (iy < 0) iy += hist_height;
       }
       else {
 	/* Otherwise, clip off the edges.
 	 * Cast ix and iy to unsigned so our comparison against
 	 * the width/height also implicitly compares against zero.
 	 */
-	if (((unsigned int)ix) >= count_width  ||
-	    ((unsigned int)iy) >= count_height)
+	if (((unsigned int)ix) >= hist_width  ||
+	    ((unsigned int)iy) >= hist_height)
 	  continue;
       }
 
       /* Plot our point in the counts array, updating the peak density */
-      p = histogram + ix + count_width * iy;
+      p = histogram + ix + hist_width * iy;
       bucket = *p = *p + 1;
       if (bucket > density)
 	density = bucket;
@@ -236,13 +236,13 @@ void de_jong_update_image(DeJong *self) {
   {
     guint32 *pixel_p;
     guint32* const color_table = self->color_table;
-    guint *count_p, *sample_p;
-    guint count, count_clamp;
+    guint *hist_p, *sample_p;
+    guint count, hist_clamp;
     const guint oversample = self->oversample;
     int x, y;
 
     pixel_p = (guint32*) gdk_pixbuf_get_pixels(self->image);
-    count_p = self->histogram;
+    hist_p = self->histogram;
 
     /* Clamp count values to the size of our color table.
      * Assuming the color table generator did it's job
@@ -250,7 +250,7 @@ void de_jong_update_image(DeJong *self) {
      * one in the table would generate the same color as
      * the highest one.
      */
-    count_clamp = self->color_table_filled_size - 1;
+    hist_clamp = self->color_table_filled_size - 1;
 
     if (oversample > 1) {
       /* Nice ugly loop that downsamples multiple (oversample^2)
@@ -282,14 +282,14 @@ void de_jong_update_image(DeJong *self) {
 	   */
 
 	  ch0 = ch1 = ch2 = ch3 = 0;
-	  sample_p = count_p;
+	  sample_p = hist_p;
 
 	  for (sample_y=oversample; sample_y; sample_y--) {
 	    for (sample_x=oversample; sample_x; sample_x--) {
 
 	      count = *(sample_p++);
-	      if (count > count_clamp)
-		sample_pixel.word = color_table[count_clamp];
+	      if (count > hist_clamp)
+		sample_pixel.word = color_table[hist_clamp];
 	      else
 		sample_pixel.word = color_table[count];
 
@@ -300,7 +300,7 @@ void de_jong_update_image(DeJong *self) {
 	    }
 	    sample_p += sample_stride;
 	  }
-	  count_p += oversample;
+	  hist_p += oversample;
 
 	  sample_pixel.channels.ch0 = ch0 / oversample_squared;
 	  sample_pixel.channels.ch1 = ch1 / oversample_squared;
@@ -308,7 +308,7 @@ void de_jong_update_image(DeJong *self) {
 	  sample_pixel.channels.ch3 = ch3 / oversample_squared;
 	  *(pixel_p++) = sample_pixel.word;
 	}
-	count_p += sample_y_stride;
+	hist_p += sample_y_stride;
       }
     }
     else {
@@ -316,9 +316,9 @@ void de_jong_update_image(DeJong *self) {
 
       for (y=self->height; y; y--) {
 	for (x=self->width; x; x--) {
-	  count = *(count_p++);
-	  if (count > count_clamp)
-	    *(pixel_p++) = color_table[count_clamp];
+	  count = *(hist_p++);
+	  if (count > hist_clamp)
+	    *(pixel_p++) = color_table[hist_clamp];
 	  else
 	    *(pixel_p++) = color_table[count];
 	}
@@ -534,8 +534,8 @@ void de_jong_calculate_bifurcation(DeJong             *self,
 
   {
     guint* const histogram = self->histogram;
-    const int count_width = self->width * self->oversample;
-    const int count_height = self->height * self->oversample;
+    const int hist_width = self->width * self->oversample;
+    const int hist_height = self->height * self->oversample;
     const gdouble y_min = -5;
     const gdouble y_max = 5;
 
@@ -550,7 +550,7 @@ void de_jong_calculate_bifurcation(DeJong             *self,
 
     density = self->current_density;
     interpolant = de_jong_new();
-    points = g_malloc0(count_width * sizeof(points[0]));
+    points = g_malloc0(hist_width * sizeof(points[0]));
 
     for (i=iterations; i;) {
 
@@ -559,7 +559,7 @@ void de_jong_calculate_bifurcation(DeJong             *self,
        */
       alpha = uniform_variate();
       interp(interpolant, alpha, interp_data);
-      ix = alpha * (count_width - 1);
+      ix = alpha * (hist_width - 1);
 
       a = interpolant->a;
       b = interpolant->b;
@@ -584,10 +584,10 @@ void de_jong_calculate_bifurcation(DeJong             *self,
 	point_y = y;
 
 	if (y >= y_min && y < y_max) {
-	  iy = (int)( (y - y_min) / (y_max - y_min) * count_height );
+	  iy = (int)( (y - y_min) / (y_max - y_min) * hist_height );
 
 	  /* Plot our point in the counts array, updating the peak density */
-	  p = histogram + ix + count_width * iy;
+	  p = histogram + ix + hist_width * iy;
 	  bucket = *p = *p + 1;
 	  if (bucket > density)
 	    density = bucket;
