@@ -52,6 +52,4 @@ typedef struct
 PreferencesIrcPage *preferences_page_irc_new (gpointer prefs_dialog, GladeXML *xml);
 void preferences_page_irc_free (PreferencesIrcPage *page);
 
-void initialize_preferences_irc_page ();
-
 #endif
