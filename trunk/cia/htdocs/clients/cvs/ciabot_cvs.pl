@@ -22,9 +22,9 @@
 #
 # Its record in the loginfo file should look like:
 #
-#     ALL $CVSROOT/CVSROOT/ciabot_cvs.pl %{,,,%s} $USER project from_email dest_email ignore_regexp
+#     ALL $CVSROOT/CVSROOT/ciabot_cvs.pl %{,,,s} $USER project from_email dest_email ignore_regexp
 #
-# IMPORTANT: The %{,,,%s} in loginfo is new, and is required for proper operation.
+# IMPORTANT: The %{,,,s} in loginfo is new, and is required for proper operation.
 #
 #            Make sure that you add the script to 'checkoutlist' and give it
 #            0755 permissions -before- committing it or adding it.
@@ -120,7 +120,7 @@ $" = "\7";
 # These arguments are from %s; first the relative path in the repository
 # and then the list of files modified.
 
-@files = split (' ,,,,', ($ARGV[0] or ''));
+@files = split (' ,,,', ($ARGV[0] or ''));
 $dir[0] = shift @files or die "$0: no directory specified\n";
 $dirfiles[0] = "@files" or die "$0: no files specified\n";
 
