@@ -34,7 +34,7 @@
 
 /* Default error handler */
 static void defaultErrorHandler(const char *function, int retValue) {
-  fprintf(stderr, "*** rcpod error in %s: %s", function, strerror(retValue));
+  fprintf(stderr, "*** rcpod error in %s: %s\n", function, strerror(-retValue));
   exit(1);
 }
 
