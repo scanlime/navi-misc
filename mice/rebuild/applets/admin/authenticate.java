@@ -34,6 +34,7 @@ public class authenticate implements ActionListener
 		myadmin.ad(info.username);
 		myadmin.ad(info.password);
 		myadmin.ad(info.submit);
+		info.help.setText("Please enter your username and password, then click submit to authenticate yourself to the server.");
 	}
 	
 	/**
