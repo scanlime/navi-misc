@@ -242,6 +242,8 @@ void spinnerchanged(GtkWidget *widget, gpointer user_data) {
 }
 
 void saveclick(GtkWidget *widget, gpointer user_data) {
+  /* Sorry, saving only works with gtk 2.3's file selector for now */
+#if (GTK_MAJOR_VERSION > 2) || (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 3)
   GtkWidget *dialog;
 
   dialog = gtk_file_chooser_dialog_new("Save", GTK_WINDOW(window), GTK_FILE_CHOOSER_ACTION_SAVE,
@@ -261,4 +263,5 @@ void saveclick(GtkWidget *widget, gpointer user_data) {
   }
   g_object_unref(filter);
   gtk_widget_destroy(dialog);
+#endif
 }
