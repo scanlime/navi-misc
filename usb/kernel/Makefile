@@ -15,7 +15,6 @@ clean:
 test: usbwidget.o
 	rmmod usbwidget || true
 	insmod usbwidget.o
-	echo -ne "\n\nHello World" > /dev/usb/widget
+	echo -ne "\r\n\r\nHello World" > /dev/usb/widget
 	sleep 1
 	rmmod usbwidget || true
-	dmesg
