@@ -11,4 +11,9 @@ Known Bugs
 
 - The 'save' menu items actually are 'save as' for now
 
+- There's no about box
+
+- File dialogs don't remember their previous directory
+
+- The AVI files exported by Fyre don't open in windows media player
 
