@@ -31,6 +31,8 @@ while 1:
 	old = [ uN, nN, sN, iN ]
 		
 	t = u + n + s + i
+	if t == 0:
+		continue
 	m = float(100) / t
 	
 	load = (u + n + s) * m
