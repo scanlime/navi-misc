@@ -22,6 +22,9 @@
 #include <gconf/gconf-client.h>
 #include "preferences_irc_page.h"
 
+static GtkListStore *hilight_store;
+extern struct xchatprefs prefs;
+
 static void gconf_entry_changed (GConfClient *client, guint cnxn_id, const gchar *key, GConfValue *value, gboolean is_default, GtkEntry *entry);
 static void gconf_bool_changed (GConfClient *client, guint cnxn_id, const gchar *key, GConfValue *value, gboolean is_default, GtkToggleButton *button);
 static void gconf_font_changed (GConfClient *client, guint cnxn_id, const gchar *key, GConfValue *value, gboolean is_default, GtkFontButton *button);
@@ -29,6 +32,7 @@ static void entry_changed (GtkEntry *entry, const gchar *key);
 static void bool_changed (GtkToggleButton *button, const gchar *key);
 static void font_changed (GtkFontButton *button, const gchar *key);
 static void sysfonts_changed (GtkToggleButton *toggle, GtkWidget *font);
+static void populate_hilight ();
 
 void initialize_preferences_irc_page()
 {
@@ -37,6 +41,8 @@ void initialize_preferences_irc_page()
 	char *text;
 	gboolean toggle;
 	GConfClient *client;
+	GtkTreeViewColumn *column;
+	GtkCellRenderer *renderer;
 
 	client = gconf_client_get_default ();
 
@@ -84,6 +90,15 @@ void initialize_preferences_irc_page()
 
 	widget = glade_xml_get_widget (gui.xml, "highlight list container");
 	gtk_size_group_add_widget (group, widget);
+	widget = glade_xml_get_widget (gui.xml, "highlight list");
+	hilight_store = gtk_list_store_new (1, G_TYPE_STRING);
+	gtk_tree_view_set_model (GTK_TREE_VIEW (widget), GTK_TREE_MODEL (hilight_store));
+	renderer = gtk_cell_renderer_text_new ();
+	column = gtk_tree_view_column_new ();
+	gtk_tree_view_column_pack_start (column, renderer, TRUE);
+	gtk_tree_view_column_set_attributes (column, renderer, "text", 0, NULL);
+	gtk_tree_view_append_column (GTK_TREE_VIEW (widget), column);
+	populate_hilight ();
 
 	g_object_unref (group);
 
@@ -178,4 +193,20 @@ static void
 sysfonts_changed (GtkToggleButton *toggle, GtkWidget *font)
 {
 	gtk_widget_set_sensitive (font, !gtk_toggle_button_get_active (toggle));
+}
+
+static void
+populate_hilight ()
+{
+	gchar **tokens = g_strsplit (prefs.bluestring, ",", 0);
+	int i;
+	GtkTreeIter iter;
+
+	for (i = 0; tokens[i]; i++) {
+		g_print ("adding hilight '%s'\n", tokens[i]);
+		gtk_list_store_append (hilight_store, &iter);
+		gtk_list_store_set (hilight_store, &iter, 0, tokens[i], -1);
+	}
+
+	g_strfreev (tokens);
 }
