@@ -14,9 +14,9 @@
         <!--#include file="navigation.inc"-->
       </div>
       <div class="content">
-        <p>Building from subversion isn't the simplest process at this point. Here are some basic
-        instructions, but as is often the case with young projects such as this your mileage may vary.
-        Note that we require GTK+ 2.4, but you'll get better functionality if you're using GTK+ 2.5.</p>
+        <p>Because xchat-gnome is maintained as a patch-set to xchat and things live in separate
+	repositories, building it from subversion/cvs is an involved process. Note that we require
+	GTK+ 2.4, but you'll get better functionality if you're using GTK+ 2.5.</p>
 
         <p><b>DO NOT</b> expect support from the normal X-Chat developers, and do not submit bug
         reports/feature requests/etc to them.</p>
@@ -34,7 +34,7 @@
 	  <span class="comment">(make sure that gnome support was found)</span><br />
 	  xchat2$ make<br />
 	  xchat2$ cd src/fe-gnome<br />
-	  xchat2$ gconftool-2 --install-schema-file=apps_xchat.schemas.in.in<br />
+	  xchat2$ gconftool-2 --install-schema-file=apps_xchat.schemas<br />
 	  fe-gnome$ ./xchat-gnome<br />
         </div>
       </div>
