@@ -20,7 +20,7 @@ echo "BZFlagFirestarter list server $serverVers : $dbhost : $hostpublicaddr<br>"
 mysql_select_db($dbname ) or die("Could not select database : $dbname ");
 
 echo "!beginlist<br><table border=\"1\" cellspacing=\"2\" cellpading=\"5\">";
-echo "<tr><td>#id</td><td>#servername</td><td>#address</td><td>#port</td><td>#game</td><td>#version</td><td>#os</td><td>#maxplayers</td><td>#currentplayers</td><td>#lastupdate</td><tr>";
+echo "<tr><td>#servername</td><td>#address</td><td>#port</td><td>#game</td><td>#version</td><td>#os</td><td>#maxplayers</td><td>#currentplayers</td><tr>";
 
 // get a list of each field from servers and just dump every field
 $query = "SELECT * FROM servers";
@@ -29,7 +29,7 @@ $result = mysql_query($query) or die("Query failed : " . mysql_error());
 while ($row = mysql_fetch_array($result, MYSQL_ASSOC))
 {
 	echo "<tr>";
-	echo '<td>'.$row[id].'</td>'; // id
+//	echo '<td>'.$row[id].'</td>'; // id
 	echo '<td>'.$row[address].'</td>'; // address
 	echo '<td>'.$row[servername].'</td>'; // servername
 	echo '<td>'.$row[port].'</td>'; // port
@@ -38,7 +38,7 @@ while ($row = mysql_fetch_array($result, MYSQL_ASSOC))
 	echo '<td>'.$row[os].'</td>'; // os
 	echo '<td>'.$row[maxplayers].'</td>'; // maxplayers
 	echo '<td>'.$row[currentplayers].'</td>'; // currentplayers
-	echo '<td>'.$row[lastupdate].'</td>'; // lastupdate
+	//echo '<td>'.$row[lastupdate].'</td>'; // lastupdate
 	echo "</tr>"; 
 }
 echo "</table>";
