@@ -225,13 +225,15 @@ navigation_tree_select_nth_channel (NavTree *navtree, gint chan_num)
 
 void
 navigation_tree_select_session (NavTree *navtree, struct session *sess)
-{ /* FIXME: Impelement. */
-  GtkTreeIter *iter;
-  GtkTreeSelection *selection;
+{
+  GtkTreeIter *iter = navigation_model_get_iter(navtree->model, sess);
 
-  navigation_model_get_iter(navtree->model, iter, sess);
-  selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(navtree));
-  gtk_tree_selection_select_iter(selection, iter);
+  if (iter) {
+	  GtkTreeIter sorted_iter;
+    GtkTreeSelection *selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(navtree));
+		gtk_tree_model_sort_convert_child_iter_to_iter(GTK_TREE_MODEL_SORT(navtree->model->sorted),&sorted_iter, iter);
+    gtk_tree_selection_select_iter(selection, &sorted_iter);
+	}
 }
 
 void
@@ -874,11 +876,15 @@ row_expanded (GtkTreeView *treeview, GtkTreeIter *iter, GtkTreePath *path, gpoin
     g_signal_handler_unblock((gpointer)selection, NAVTREE(treeview)->selection_changed_id);
 	}
 }
+
+
+
 /********** NavModel **********/
 
 static void navigation_model_init       (NavModel *navmodel);
 static void navigation_model_class_init (NavModelClass *klass);
 static void navigation_model_dispose    (GObject *object);
+static void navigation_model_finalize   (GObject *object);
 
 GType
 navigation_model_get_type (void)
@@ -914,7 +920,7 @@ navigation_model_init (NavModel *navmodel)
   gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(navmodel->sorted), 1, GTK_SORT_ASCENDING);
 
 	/* Set up our hash table for direct hashing. */
-	navmodel->session_iters = g_hash_table_new(NULL, NULL);
+	navmodel->session_iters = g_hash_table_new(g_direct_hash, g_direct_equal);
 }
 
 static void
@@ -922,6 +928,13 @@ navigation_model_class_init (NavModelClass *klass)
 {
 	GObjectClass *object_class = (GObjectClass*) klass;
 	object_class->dispose = navigation_model_dispose;
+	object_class->finalize = navigation_model_finalize;
+}
+
+static void
+destroy_iter (session *sess, GtkTreeIter *iter, gpointer data)
+{
+	gtk_tree_iter_free(iter);
 }
 
 static void
@@ -930,6 +943,14 @@ navigation_model_dispose (GObject *object)
   NavModel *navmodel = NAVMODEL(object);
   g_object_unref((gpointer)navmodel->store);
 	g_object_unref((gpointer)navmodel->sorted);
+	g_hash_table_foreach_remove(navmodel->session_iters, (GHRFunc) destroy_iter, NULL);
+}
+
+static void
+navigation_model_finalize (GObject *object)
+{
+	NavModel *model = (NavModel*) object;
+	g_hash_table_destroy (model->session_iters);
 }
 
 /* New NavModel. */
@@ -944,10 +965,12 @@ navigation_model_add_new_network (NavModel *model, struct session *sess)
 {
 	GtkTreeIter *iter;
 
-	gtk_tree_store_append(GTK_TREE_STORE(model->store), iter, NULL);
+	iter = g_new(GtkTreeIter, 1);
+
+	gtk_tree_store_append(model->store, iter, NULL);
 	gtk_tree_store_set(model->store, iter, 1, "<none>", 2, sess, 3, 0, 4, NULL, -1);
 
-	g_hash_table_insert(model->session_iters, (gpointer)sess, (gpointer)iter);
+	g_hash_table_insert(model->session_iters, (gpointer) sess, (gpointer) iter);
 }
 
 static gboolean
@@ -958,15 +981,13 @@ navigation_model_create_new_channel_entry_iterate (GtkTreeModel *model, GtkTreeP
 	if(s->type == SESS_SERVER && s->server == data->server) {
 		GtkTreeIter *child, sorted;
 		GtkWidget *entry;
-		GtkTreeView *treeview;
 		GtkTreeModelSort *sort;
 
-		treeview = GTK_TREE_VIEW(gui.server_tree);
-		sort = GTK_TREE_MODEL_SORT(gtk_tree_view_get_model(treeview));
+		sort = gui.tree_model->sorted;
+		child = g_new(GtkTreeIter, 1);
 
 		gtk_tree_store_append(GTK_TREE_STORE(model), child, iter);
-		g_hash_table_insert(gui.tree_model->session_iters, (gpointer)data, (gpointer)child);
-
+		g_hash_table_insert(gui.tree_model->session_iters, (gpointer) data, (gpointer) child);
 		gtk_tree_store_set(GTK_TREE_STORE(model), child, 1, data->channel, 2, data, 3, 0, 4, NULL, -1);
 
 		gtk_tree_model_sort_convert_child_iter_to_iter(sort, &sorted, iter);
@@ -991,11 +1012,7 @@ navigation_model_remove_iterate (GtkTreeModel *model, GtkTreePath *path, GtkTree
 	struct session *s;
 	gtk_tree_model_get(model, iter, 2, &s, -1);
 	if(s == data) {
-		GtkTreeIter *tmp;
 		gtk_tree_store_remove(GTK_TREE_STORE(model), iter);
-		tmp = (GtkTreeIter*)g_hash_table_lookup(gui.tree_model->session_iters, (gpointer)data);
-		gtk_tree_iter_free(tmp);
-		g_hash_table_remove(gui.tree_model->session_iters, (gconstpointer)data);
 		return TRUE;
 	}
 	return FALSE;
@@ -1007,8 +1024,8 @@ navigation_model_remove (NavModel *model, struct session *sess)
 	gtk_tree_model_foreach(GTK_TREE_MODEL(model->store), (GtkTreeModelForeachFunc) navigation_model_remove_iterate, (gpointer) sess);
 }
 
-void
-navigation_model_get_iter (NavModel *model, GtkTreeIter *iter, struct session *sess)
+GtkTreeIter*
+navigation_model_get_iter (NavModel *model, struct session *sess)
 {
-	iter = (GtkTreeIter*)g_hash_table_lookup(model->session_iters, (gpointer)sess);
+	return (GtkTreeIter*)g_hash_table_lookup(model->session_iters, (gpointer)sess);
 }
