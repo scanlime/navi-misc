@@ -110,11 +110,12 @@ int main (int argc, char **argv)
     hhrun (point);
 
     point[0] = -point[0];
+    fprintf (stderr, "    ");
     hhrun (point);
     histogram_imager_finish_plots (hi, &plot);
     histogram_imager_save_image_file (hi, "test.png");
     if (i % 5 == 0)
-      fprintf (stderr, "  %d trajectories plotted so far\n");
+      fprintf (stderr, "  %d trajectories plotted so far\n", i);
   }
   fprintf (stderr, "  50 trajectories finished\n");
 
