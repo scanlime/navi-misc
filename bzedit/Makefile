@@ -11,7 +11,9 @@ OBJS	= 			\
 	src/gldrawingarea.o	\
 	src/main.o		\
 	src/parameter-editor.o	\
-	src/parameter-holder.o
+	src/parameter-holder.o	\
+	src/sceneobject.o	\
+	src/world.o
 
 $(BIN):	$(OBJS)
 	gcc -o $@ $(OBJS) $(LIBS)
