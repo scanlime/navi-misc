@@ -86,6 +86,8 @@ class GenericNetwork(BaseNetwork):
        networks.
        """
     def __init__(self, host, port=None):
+        if port is not None:
+            port = int(port)
         self.servers = ( (host, port), )
 
     def getIdentity(self):
@@ -96,7 +98,7 @@ class GenericNetwork(BaseNetwork):
         if port is None:
             return host
         else:
-            return "%s:%r" % (host, port)
+            return "%s:%d" % (host, port)
 
     def __repr__(self):
             return "<IRC.Network.%s %s>" % (self.__class__.__name__, self)
