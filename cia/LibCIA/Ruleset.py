@@ -43,7 +43,6 @@ import XML, Message, Debug, Database, Security, RPC
 from twisted.python import log
 from twisted.xish.xpath import XPathQuery
 from twisted.internet import defer
-from twisted.enterprise.util import quote as quoteSQL
 import sys, traceback, re
 
 
@@ -484,7 +483,7 @@ class RulesetStorage:
 
         # Delete the old ruleset, if there was one
         result = defer.Deferred()
-        d = Database.pool.runOperation("DELETE FROM rulesets WHERE uri = %s" % quoteSQL(ruleset.uri, 'text'))
+        d = Database.pool.runOperation("DELETE FROM rulesets WHERE uri = %s" % Database.quote(ruleset.uri, 'text'))
 
         # If we need to insert a new ruleset, do that after the delete finishes
         if ruleset.isEmpty():
@@ -497,7 +496,7 @@ class RulesetStorage:
     def _insertRuleset(self, none, result, ruleset):
         """Callback used by store() to insert a new or modified ruleset into the SQL database"""
         d = Database.pool.runOperation("INSERT INTO rulesets (uri, xml) values(%s, %s)" % (
-            quoteSQL(ruleset.uri, 'text'), quoteSQL(ruleset.xml.toXml(), 'text')))
+            Database.quote(ruleset.uri, 'text'), Database.quote(ruleset.xml.toXml(), 'text')))
         d.addCallback(result.callback)
         d.addErrback(result.errback)
 

@@ -28,7 +28,6 @@ stats target using part of the message.
 
 from twisted.python import log
 from twisted.web import xmlrpc
-from twisted.enterprise.util import quote as quoteSQL
 from twisted.internet import defer
 import Ruleset, Message, TimeUtil, RPC, Database
 import string, os, time, posixpath, sys
@@ -106,7 +105,15 @@ class MetadataInterface(RPC.Interface):
 
     def protected_set(self, path, name, value, mimeType='text/plain'):
         """Set a metadata key's value and MIME type"""
-        return StatsTarget(path).metadata.set(name, value, mimeType)
+        return StatsTarget(path).metadata.set(name, str(value), mimeType)
+
+    def protected_clear(self, path):
+        """Remove all metadata for one target"""
+        return StatsTarget(path).metadata.clear()
+
+    def protected_remove(self, path, name):
+        """Remove one metadata key for this target, if it exists"""
+        return StatsTarget(path).metadata.remove(name)
 
 
 class StatsTarget:
@@ -186,7 +193,7 @@ class StatsTarget:
         # Delete the item in stats_target- the other tables will be
         # deleted due to cascading foreign keys
         return Database.pool.runOperation("DELETE FROM stats_catalog WHERE target_path = %s" %
-                                          quoteSQL(self.path, 'varchar'))
+                                          Database.quote(self.path, 'varchar'))
 
     def __repr__(self):
         return "<StatsTarget at %r>" % self.path
@@ -207,13 +214,13 @@ class StatsTarget:
             # if it doesn't exist and generating the proper parent path.
             parent._autoCreateTargetFor(cursor, cursor.execute,
                                         "INSERT IGNORE INTO stats_catalog (parent_path, target_path) VALUES(%s, %s)" %
-                                        (quoteSQL(parent.path, 'varchar'),
-                                         quoteSQL(self.path, 'varchar')))
+                                        (Database.quote(parent.path, 'varchar'),
+                                         Database.quote(self.path, 'varchar')))
         else:
             # This is the root node. We still need to insert a parent to keep the
             # table consistent, but our parent in this case is NULL.
             cursor.execute("INSERT IGNORE INTO stats_catalog (target_path) VALUES(%s)" %
-                           quoteSQL(self.path, 'varchar'))
+                           Database.quote(self.path, 'varchar'))
 
     def _autoCreateTargetFor(self, cursor, func, *args, **kwargs):
         """Run the given function. If an exception occurs that looks like a violated
@@ -240,7 +247,7 @@ class StatsTarget:
     def _catalog(self, cursor):
         """Database interaction representing the internals of catalog()"""
         cursor.execute("SELECT target_path FROM stats_catalog WHERE parent_path = %s" %
-                            quoteSQL(self.path, 'varchar'))
+                            Database.quote(self.path, 'varchar'))
         results = []
         while True:
             row = cursor.fetchone()
@@ -264,15 +271,15 @@ class Messages(object):
     def _push(self, cursor, message):
         # Does this message have a timestamp?
         if message.xml.timestamp:
-            timestamp = quoteSQL(str(message.xml.timestamp), 'bigint')
+            timestamp = Database.quote(str(message.xml.timestamp), 'bigint')
         else:
             timestamp = NULL
 
         self.target._autoCreateTargetFor(cursor, cursor.execute,
                                          "INSERT INTO stats_messages (target_path, xml, timestamp)"
                                          " VALUES(%s, %s, %s)" %
-                                         (quoteSQL(self.target.path, 'varchar'),
-                                          quoteSQL(message, 'text'),
+                                         (Database.quote(self.target.path, 'varchar'),
+                                          Database.quote(message, 'text'),
                                           timestamp))
 
     def getLatest(self, limit=None):
@@ -287,7 +294,7 @@ class Messages(object):
         else:
             limitClause = " LIMIT %d" % limit
         cursor.execute("SELECT xml FROM stats_messages WHERE target_path = %s ORDER BY id DESC%s" %
-                            (quoteSQL(self.target.path, 'varchar'),
+                            (Database.quote(self.target.path, 'varchar'),
                              limitClause))
         results = []
         while True:
@@ -329,25 +336,25 @@ class Metadata:
     def clear(self):
         """Delete all metadata for this target. Returns a Deferred"""
         return Database.pool.runOperation("DELETE FROM stats_metadata WHERE target_path = %s" %
-                                          quoteSQL(self.target.path, 'varchar'))
+                                          Database.quote(self.target.path, 'varchar'))
 
     def remove(self, name):
         """Remove one metadata key, with the given name"""
         return Database.pool.runOperation("DELETE FROM stats_metadata WHERE target_path = %s AND name = %s" %
-                                          (quoteSQL(self.target.path, 'varchar'),
-                                           quoteSQL(name, 'varchar')))
+                                          (Database.quote(self.target.path, 'varchar'),
+                                           Database.quote(name, 'varchar')))
 
     def _get(self, cursor, name, default):
         """Database interaction to return the value and type for a particular key"""
         cursor.execute("SELECT value, mime_type FROM stats_metadata WHERE target_path = %s AND name = %s" %
-                       (quoteSQL(self.target.path, 'varchar'),
-                        quoteSQL(name, 'varchar')))
+                       (Database.quote(self.target.path, 'varchar'),
+                        Database.quote(name, 'varchar')))
         return cursor.fetchone() or default
 
     def _dict(self, cursor):
         """Database interaction to return to implement dict()"""
         cursor.execute("SELECT name, value, mime_type FROM stats_metadata WHERE target_path = %s" %
-                       quoteSQL(self.target.path, 'varchar'))
+                       Database.quote(self.target.path, 'varchar'))
         results = {}
         while True:
             row = cursor.fetchone()
@@ -363,25 +370,20 @@ class Metadata:
            """
         # Just to make sure our row exists...
         cursor.execute("INSERT IGNORE INTO stats_metadata (target_path, name) VALUES(%s, %s)" %
-                       (quoteSQL(self.target.path, 'varchar'),
-                        quoteSQL(name, 'varchar')))
-
-        # Quote the value using the '_mysql' module directly, since twisted's quote() doesn't
-        # understand the way MySQL requires BLOBs to be quoted.
-        import _mysql
-        qValue = _mysql.escape_string(str(value))
+                       (Database.quote(self.target.path, 'varchar'),
+                        Database.quote(name, 'varchar')))
 
         # Now actually set the value
         cursor.execute("UPDATE stats_metadata SET mime_type = %s, value = '%s' WHERE target_path = %s AND name = %s" %
-                       (quoteSQL(mimeType, 'varchar'),
-                        qValue,
-                        quoteSQL(self.target.path, 'varchar'),
-                        quoteSQL(name, 'varchar')))
+                       (Database.quote(mimeType, 'varchar'),
+                        Database.quoteBlob(value),
+                        Database.quote(self.target.path, 'varchar'),
+                        Database.quote(name, 'varchar')))
 
     def _keys(self, cursor):
         """Database interaction implementing keys()"""
         cursor.execute("SELECT DISTINCT name FROM stats_metadata WHERE target_path = %s" %
-                       (quoteSQL(self.target.path, 'varchar')))
+                       (Database.quote(self.target.path, 'varchar')))
         results = []
         while True:
             row = cursor.fetchone()
@@ -413,8 +415,8 @@ class Counters:
         """Internal function to create one blank counter if it doesn't exist."""
         try:
             cursor.execute("INSERT INTO stats_counters (target_path, name) VALUES(%s, %s)" %
-                           (quoteSQL(self.target.path, 'varchar'),
-                            quoteSQL(name, 'varchar')))
+                           (Database.quote(self.target.path, 'varchar'),
+                            Database.quote(name, 'varchar')))
         except:
             # Ignore duplicate key errors
             if str(sys.exc_info()[1]).find("duplicate key") < 0:
@@ -435,18 +437,18 @@ class Counters:
 
         # Insert a default value, which will be ignored if the counter already exists
         cursor.execute("INSERT IGNORE INTO stats_counters (target_path, name, first_time) VALUES(%s, %s, %s)" %
-                       (quoteSQL(self.target.path, 'varchar'),
-                        quoteSQL(name, 'varchar'),
-                        quoteSQL(now, 'bigint')))
+                       (Database.quote(self.target.path, 'varchar'),
+                        Database.quote(name, 'varchar'),
+                        Database.quote(now, 'bigint')))
 
         # Increment the counter and update its timestamp
         cursor.execute("UPDATE stats_counters SET "
                        "event_count = event_count + 1,"
                        "last_time = %s "
                        "WHERE target_path = %s AND name = %s" %
-                       (quoteSQL(now, 'bigint'),
-                        quoteSQL(self.target.path, 'varchar'),
-                        quoteSQL(name, 'varchar')))
+                       (Database.quote(now, 'bigint'),
+                        Database.quote(self.target.path, 'varchar'),
+                        Database.quote(name, 'varchar')))
 
     def getCounter(self, name):
         """Return a Deferred that eventually results in a dictionary,
@@ -462,8 +464,8 @@ class Counters:
         """Database interaction implementing _getCounter"""
         cursor.execute("SELECT first_time, last_time, event_count FROM stats_counters WHERE"
                        " target_path = %s AND name = %s" %
-                       (quoteSQL(self.target.path, 'varchar'),
-                        quoteSQL(name, 'varchar')))
+                       (Database.quote(self.target.path, 'varchar'),
+                        Database.quote(name, 'varchar')))
         row = cursor.fetchone()
         return {
             'firstEventTime': row[0],
@@ -474,7 +476,7 @@ class Counters:
     def clear(self):
         """Delete all counters for this target. Returns a Deferred"""
         return Database.pool.runOperation("DELETE FROM stats_counters WHERE target_path = %s" %
-                                          quoteSQL(self.target.path, 'varchar'))
+                                          Database.quote(self.target.path, 'varchar'))
 
 ###### Rollovers are still broke
 

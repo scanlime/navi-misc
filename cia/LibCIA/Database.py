@@ -22,7 +22,15 @@ Utilities for accessing CIA's persistent data stored in an SQL database
 #
 
 from twisted.enterprise.adbapi import ConnectionPool
+import _mysql
 import os
+
+# Import quoting functions for use elsewhere.
+# We use twisted's quote utility most places,
+# but as it doesn't understand MySQL-style binary
+# objects, we use _mysql to define quoteBlob.
+from twisted.enterprise.util import quote
+from _mysql import escape_string as quoteBlob
 
 def createPool():
     #
