@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="bzfs"
+	Name="opencombatd"
 	SccProjectName=""
 	SccLocalPath="">
 	<Platforms>
@@ -12,8 +12,8 @@
 	<Configurations>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory=".\..\..\src\bzfs\"
-			IntermediateDirectory=".\..\..\src\bzfs\"
+			OutputDirectory=".\..\..\src\opencombatd\"
+			IntermediateDirectory=".\..\..\src\opencombatd\"
 			ConfigurationType="1"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
@@ -39,7 +39,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="ws2_32.lib winmm.lib odbc32.lib odbccp32.lib"
-				OutputFile=".\..\..\src\bzfs\bzflagGTXserver.exe"
+				OutputFile=".\..\..\src\opencombatd\bzflagGTXserver.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				ProgramDatabaseFile="../src/bzfs/bzfs.pdb"
@@ -51,7 +51,7 @@
 				HeaderFileName=""/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\src\bzfs\*.exe ..\..\*.exe"/>
+				CommandLine="copy ..\..\src\opencombatd\*.exe ..\..\*.exe"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
@@ -73,8 +73,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory=".\..\..\src\bzfs\debug"
-			IntermediateDirectory=".\..\..\src\bzfs\debug"
+			OutputDirectory=".\..\..\src\opencombatd\debug"
+			IntermediateDirectory=".\..\..\src\opencombatd\debug"
 			ConfigurationType="1"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
@@ -86,10 +86,10 @@
 				PreprocessorDefinitions="_CONSOLE;WIN32;_DEBUG"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				PrecompiledHeaderFile=".\..\..\src\bzfs\debug/bzfs.pch"
-				AssemblerListingLocation=".\..\..\src\bzfs\debug/"
-				ObjectFile=".\..\..\src\bzfs\debug/"
-				ProgramDataBaseFileName=".\..\..\src\bzfs\debug/"
+				PrecompiledHeaderFile=".\..\..\src\opencombatd\debug/bzfs.pch"
+				AssemblerListingLocation=".\..\..\src\opencombatd\debug/"
+				ObjectFile=".\..\..\src\opencombatd\debug/"
+				ProgramDataBaseFileName=".\..\..\src\opencombatd\debug/"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				DebugInformationFormat="4"
@@ -99,21 +99,21 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="ws2_32.lib winmm.lib odbc32.lib odbccp32.lib"
-				OutputFile=".\..\..\src\bzfs\debug\bzflagGTXserver.exe"
+				OutputFile=".\..\..\src\opencombatd\debug\bzflagGTXserver.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile=".\..\..\src\bzfs\debug/bzfs.pdb"
+				ProgramDatabaseFile=".\..\..\src\opencombatd\debug/bzfs.pdb"
 				SubSystem="1"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\..\..\src\bzfs\debug/bzfs.tlb"
+				TypeLibraryName=".\..\..\src\opencombatd\debug/bzfs.tlb"
 				HeaderFileName=""/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\src\bzfs\debug\*.pdb ..\..\*.pdb
-copy ..\..\src\bzfs\debug\*.exe ..\..\*.exe
+				CommandLine="copy ..\..\src\opencombatd\debug\*.pdb ..\..\*.pdb
+copy ..\..\src\opencombatd\debug\*.exe ..\..\*.exe
 "/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
@@ -142,7 +142,7 @@ copy ..\..\src\bzfs\debug\*.exe ..\..\*.exe
 			Name="Source Files"
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
 			<File
-				RelativePath="..\..\src\bzfs\AccessControlList.cpp">
+				RelativePath="..\..\src\opencombatd\AccessControlList.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
 					<Tool
@@ -162,7 +162,7 @@ copy ..\..\src\bzfs\debug\*.exe ..\..\*.exe
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\bzfs\bzfs.cpp">
+				RelativePath="..\..\src\opencombatd\bzfs.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
 					<Tool
@@ -182,10 +182,10 @@ copy ..\..\src\bzfs\debug\*.exe ..\..\*.exe
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\bzfs\BZWError.cpp">
+				RelativePath="..\..\src\opencombatd\BZWError.cpp">
 			</File>
 			<File
-				RelativePath="..\..\src\bzfs\BZWReader.cpp">
+				RelativePath="..\..\src\opencombatd\BZWReader.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
 					<Tool
@@ -205,7 +205,7 @@ copy ..\..\src\bzfs\debug\*.exe ..\..\*.exe
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\bzfs\CmdLineOptions.cpp">
+				RelativePath="..\..\src\opencombatd\CmdLineOptions.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
 					<Tool
@@ -225,7 +225,7 @@ copy ..\..\src\bzfs\debug\*.exe ..\..\*.exe
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\bzfs\commands.cpp">
+				RelativePath="..\..\src\opencombatd\commands.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
 					<Tool
@@ -245,7 +245,7 @@ copy ..\..\src\bzfs\debug\*.exe ..\..\*.exe
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\bzfs\CustomBase.cpp">
+				RelativePath="..\..\src\opencombatd\CustomBase.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
 					<Tool
@@ -265,7 +265,7 @@ copy ..\..\src\bzfs\debug\*.exe ..\..\*.exe
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\bzfs\CustomBox.cpp">
+				RelativePath="..\..\src\opencombatd\CustomBox.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
 					<Tool
@@ -285,7 +285,7 @@ copy ..\..\src\bzfs\debug\*.exe ..\..\*.exe
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\bzfs\CustomGate.cpp">
+				RelativePath="..\..\src\opencombatd\CustomGate.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
 					<Tool
@@ -305,7 +305,7 @@ copy ..\..\src\bzfs\debug\*.exe ..\..\*.exe
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\bzfs\CustomLink.cpp">
+				RelativePath="..\..\src\opencombatd\CustomLink.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
 					<Tool
@@ -325,7 +325,7 @@ copy ..\..\src\bzfs\debug\*.exe ..\..\*.exe
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\bzfs\CustomPyramid.cpp">
+				RelativePath="..\..\src\opencombatd\CustomPyramid.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
 					<Tool
@@ -345,7 +345,7 @@ copy ..\..\src\bzfs\debug\*.exe ..\..\*.exe
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\bzfs\CustomWeapon.cpp">
+				RelativePath="..\..\src\opencombatd\CustomWeapon.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
 					<Tool
@@ -365,7 +365,7 @@ copy ..\..\src\bzfs\debug\*.exe ..\..\*.exe
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\bzfs\CustomWorld.cpp">
+				RelativePath="..\..\src\opencombatd\CustomWorld.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
 					<Tool
@@ -385,7 +385,7 @@ copy ..\..\src\bzfs\debug\*.exe ..\..\*.exe
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\bzfs\CustomZone.cpp">
+				RelativePath="..\..\src\opencombatd\CustomZone.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
 					<Tool
@@ -408,7 +408,7 @@ copy ..\..\src\bzfs\debug\*.exe ..\..\*.exe
 				RelativePath="..\..\src\game\DelayQueue.cpp">
 			</File>
 			<File
-				RelativePath="..\..\src\bzfs\EntryZones.cpp">
+				RelativePath="..\..\src\opencombatd\EntryZones.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
 					<Tool
@@ -428,10 +428,10 @@ copy ..\..\src\bzfs\debug\*.exe ..\..\*.exe
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\bzfs\FlagHistory.cpp">
+				RelativePath="..\..\src\opencombatd\FlagHistory.cpp">
 			</File>
 			<File
-				RelativePath="..\..\src\bzfs\FlagInfo.cpp">
+				RelativePath="..\..\src\opencombatd\FlagInfo.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
 					<Tool
@@ -451,16 +451,16 @@ copy ..\..\src\bzfs\debug\*.exe ..\..\*.exe
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\bzfs\GameKeeper.cpp">
+				RelativePath="..\..\src\opencombatd\GameKeeper.cpp">
 			</File>
 			<File
-				RelativePath="..\..\src\bzfs\LagInfo.cpp">
+				RelativePath="..\..\src\opencombatd\LagInfo.cpp">
 			</File>
 			<File
-				RelativePath="..\..\src\bzfs\ListServerConnection.cpp">
+				RelativePath="..\..\src\opencombatd\ListServerConnection.cpp">
 			</File>
 			<File
-				RelativePath="..\..\src\bzfs\Permissions.cpp">
+				RelativePath="..\..\src\opencombatd\Permissions.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
 					<Tool
@@ -483,22 +483,22 @@ copy ..\..\src\bzfs\debug\*.exe ..\..\*.exe
 				RelativePath="..\..\src\game\PlayerInfo.cpp">
 			</File>
 			<File
-				RelativePath="..\..\src\bzfs\RecordReplay.cpp">
+				RelativePath="..\..\src\opencombatd\RecordReplay.cpp">
 			</File>
 			<File
-				RelativePath="..\..\src\bzfs\RejoinList.cpp">
+				RelativePath="..\..\src\opencombatd\RejoinList.cpp">
 			</File>
 			<File
-				RelativePath="..\..\src\bzfs\Score.cpp">
+				RelativePath="..\..\src\opencombatd\Score.cpp">
 			</File>
 			<File
-				RelativePath="..\..\src\bzfs\SpawnPosition.cpp">
+				RelativePath="..\..\src\opencombatd\SpawnPosition.cpp">
 			</File>
 			<File
-				RelativePath="..\..\src\bzfs\TeamBases.cpp">
+				RelativePath="..\..\src\opencombatd\TeamBases.cpp">
 			</File>
 			<File
-				RelativePath="..\..\src\bzfs\TextChunkManager.cpp">
+				RelativePath="..\..\src\opencombatd\TextChunkManager.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
 					<Tool
@@ -521,10 +521,10 @@ copy ..\..\src\bzfs\debug\*.exe ..\..\*.exe
 				Name="world"
 				Filter="">
 				<File
-					RelativePath="..\..\src\bzfs\WorldFileLocation.cpp">
+					RelativePath="..\..\src\opencombatd\WorldFileLocation.cpp">
 				</File>
 				<File
-					RelativePath="..\..\src\bzfs\WorldFileObject.cpp">
+					RelativePath="..\..\src\opencombatd\WorldFileObject.cpp">
 					<FileConfiguration
 						Name="Release|Win32">
 						<Tool
@@ -544,7 +544,7 @@ copy ..\..\src\bzfs\debug\*.exe ..\..\*.exe
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\src\bzfs\WorldFileObstacle.cpp">
+					RelativePath="..\..\src\opencombatd\WorldFileObstacle.cpp">
 					<FileConfiguration
 						Name="Release|Win32">
 						<Tool
@@ -564,7 +564,7 @@ copy ..\..\src\bzfs\debug\*.exe ..\..\*.exe
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\src\bzfs\WorldInfo.cpp">
+					RelativePath="..\..\src\opencombatd\WorldInfo.cpp">
 					<FileConfiguration
 						Name="Release|Win32">
 						<Tool
@@ -584,7 +584,7 @@ copy ..\..\src\bzfs\debug\*.exe ..\..\*.exe
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\src\bzfs\WorldWeapons.cpp">
+					RelativePath="..\..\src\opencombatd\WorldWeapons.cpp">
 					<FileConfiguration
 						Name="Release|Win32">
 						<Tool
@@ -609,7 +609,7 @@ copy ..\..\src\bzfs\debug\*.exe ..\..\*.exe
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl">
 			<File
-				RelativePath="..\..\src\bzfs\AccessControlList.h">
+				RelativePath="..\..\src\opencombatd\AccessControlList.h">
 			</File>
 			<File
 				RelativePath="..\include\Address.h">
@@ -618,79 +618,79 @@ copy ..\..\src\bzfs\debug\*.exe ..\..\*.exe
 				RelativePath="..\include\bzfio.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzfs\bzfs.h">
+				RelativePath="..\..\src\opencombatd\bzfs.h">
 			</File>
 			<File
 				RelativePath="..\include\BzfString.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzfs\BZWError.h">
+				RelativePath="..\..\src\opencombatd\BZWError.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzfs\BZWReader.h">
+				RelativePath="..\..\src\opencombatd\BZWReader.h">
 			</File>
 			<File
 				RelativePath="..\include\CallbackList.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzfs\CmdLineOptions.h">
+				RelativePath="..\..\src\opencombatd\CmdLineOptions.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzfs\commands.h">
+				RelativePath="..\..\src\opencombatd\commands.h">
 			</File>
 			<File
 				RelativePath="..\include\common.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzfs\CustomBase.h">
+				RelativePath="..\..\src\opencombatd\CustomBase.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzfs\CustomBox.h">
+				RelativePath="..\..\src\opencombatd\CustomBox.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzfs\CustomGate.h">
+				RelativePath="..\..\src\opencombatd\CustomGate.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzfs\CustomLink.h">
+				RelativePath="..\..\src\opencombatd\CustomLink.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzfs\CustomPyramid.h">
+				RelativePath="..\..\src\opencombatd\CustomPyramid.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzfs\CustomWeapon.h">
+				RelativePath="..\..\src\opencombatd\CustomWeapon.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzfs\CustomWorld.h">
+				RelativePath="..\..\src\opencombatd\CustomWorld.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzfs\CustomZone.h">
+				RelativePath="..\..\src\opencombatd\CustomZone.h">
 			</File>
 			<File
 				RelativePath="..\..\include\DelayQueue.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzfs\EntryZones.h">
+				RelativePath="..\..\src\opencombatd\EntryZones.h">
 			</File>
 			<File
 				RelativePath="..\include\Flag.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzfs\FlagHistory.h">
+				RelativePath="..\..\src\opencombatd\FlagHistory.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzfs\FlagInfo.h">
+				RelativePath="..\..\src\opencombatd\FlagInfo.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzfs\GameKeeper.h">
+				RelativePath="..\..\src\opencombatd\GameKeeper.h">
 			</File>
 			<File
 				RelativePath="..\include\global.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzfs\LagInfo.h">
+				RelativePath="..\..\src\opencombatd\LagInfo.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzfs\ListServerConnection.h">
+				RelativePath="..\..\src\opencombatd\ListServerConnection.h">
 			</File>
 			<File
 				RelativePath="..\include\md5.h">
@@ -702,10 +702,10 @@ copy ..\..\src\bzfs\debug\*.exe ..\..\*.exe
 				RelativePath="..\include\Pack.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzfs\PackVars.h">
+				RelativePath="..\..\src\opencombatd\PackVars.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzfs\Permissions.h">
+				RelativePath="..\..\src\opencombatd\Permissions.h">
 			</File>
 			<File
 				RelativePath="..\include\Ping.h">
@@ -720,19 +720,19 @@ copy ..\..\src\bzfs\debug\*.exe ..\..\*.exe
 				RelativePath="..\include\Protocol.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzfs\RecordReplay.h">
+				RelativePath="..\..\src\opencombatd\RecordReplay.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzfs\RejoinList.h">
+				RelativePath="..\..\src\opencombatd\RejoinList.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzfs\Score.h">
+				RelativePath="..\..\src\opencombatd\Score.h">
 			</File>
 			<File
 				RelativePath="..\include\ShotUpdate.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzfs\SpawnPosition.h">
+				RelativePath="..\..\src\opencombatd\SpawnPosition.h">
 			</File>
 			<File
 				RelativePath="..\include\StateDatabase.h">
@@ -741,10 +741,10 @@ copy ..\..\src\bzfs\debug\*.exe ..\..\*.exe
 				RelativePath="..\include\Team.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzfs\TeamBases.h">
+				RelativePath="..\..\src\opencombatd\TeamBases.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzfs\TextChunkManager.h">
+				RelativePath="..\..\src\opencombatd\TextChunkManager.h">
 			</File>
 			<File
 				RelativePath="..\include\TimeBomb.h">
@@ -759,19 +759,19 @@ copy ..\..\src\bzfs\debug\*.exe ..\..\*.exe
 				RelativePath="..\include\WordFilter.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzfs\WorldFileLocation.h">
+				RelativePath="..\..\src\opencombatd\WorldFileLocation.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzfs\WorldFileObject.h">
+				RelativePath="..\..\src\opencombatd\WorldFileObject.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzfs\WorldFileObstacle.h">
+				RelativePath="..\..\src\opencombatd\WorldFileObstacle.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzfs\WorldInfo.h">
+				RelativePath="..\..\src\opencombatd\WorldInfo.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzfs\WorldWeapons.h">
+				RelativePath="..\..\src\opencombatd\WorldWeapons.h">
 			</File>
 		</Filter>
 		<Filter
