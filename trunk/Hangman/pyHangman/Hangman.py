@@ -12,8 +12,7 @@ keeping track of the number of misses.
 # W. Evan Sheehan <evan@navi.picogui.org>
 #
 
-import sys, string
-from wordoftheday import wordoftheday
+import sys, string, wordoftheday
 from urllib2 import urlopen
 from random import seed, choice
 
@@ -139,6 +138,5 @@ class Hangman:
   def NetGame(self):
     """ Start a new game using the word of the day from dictionary.com.
         """
-    parser = wordoftheday()
-    self.words = parser.get_word()
+    self.words = wordoftheday.get_word()
     self.NewGame()
