@@ -6,8 +6,8 @@
  xsi:noNamespaceSchemaLocation="schema.xsd">
   <attack>left hand lapel grab</attack>
   <stances>
-    <attacker side="left">neutral bow</attacker>
-    <defender>natural</defender>
+    <attacker><stance side="left">neutral bow</stance></attacker>
+    <defender><stance>natural</stance></defender>
   </stances>
   <steps>
     <step>
