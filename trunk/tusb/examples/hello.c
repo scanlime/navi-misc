@@ -47,7 +47,7 @@ void main() {
     /* Poll for completed DMA transfers from the EP1 OUT endpoint */
     c = usb_dma_status(EDB_OEP1);
     if (c) {
-      printf("Received %d bytes on EP1 OUT: %02X %02X %02X %02x...\n", c,
+      printf("Received %d bytes on EP1 OUT: %02X %02X %02X %02X...\n", c,
 	     ep1_out_x[0], ep1_out_x[1], ep1_out_x[2], ep1_out_x[3]);
       usb_dma_setup(EDB_OEP1, ep1_out_x, sizeof(ep1_out_x));
     }
