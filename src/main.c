@@ -383,20 +383,29 @@ static void animation_render_main (IterativeMap *map,
 
 	continuation = FALSE;
 	do {
-	    iterative_map_calculate_motion(map, 100000, continuation,
-					   PARAMETER_INTERPOLATOR(parameter_holder_interpolate_linear),
-					   &frame);
+	    /* Calculate 0.5 seconds between quality updates. This is lower than the
+	     * batch image rendering default of 2.0 seconds, to better handle
+	     * lower-quality animations where the individual frames go quicker.
+	     */
+	    iterative_map_calculate_motion_timed(map, 0.5, continuation,
+						 PARAMETER_INTERPOLATOR(parameter_holder_interpolate_linear),
+						 &frame);
 	    current_quality = histogram_imager_compute_quality(HISTOGRAM_IMAGER(map));
 
-	    printf("Frame %d, %e iterations, %.04f quality\n", frame_count,
+	    printf("\rFrame %d, %e iterations, %.04f quality", frame_count,
 		   map->iterations, current_quality);
+	    fflush(stdout);
 
 	    continuation = TRUE;
 	} while (current_quality < quality);
 
-
 	histogram_imager_update_image(HISTOGRAM_IMAGER(map));
 	avi_writer_append_frame(avi, HISTOGRAM_IMAGER(map)->image);
+
+	/* Move to the next line for each frame.
+	 * Updates within a frame overwrite that line.
+	 */
+	printf("\n");
 
 	frame_count++;
     }

@@ -1,12 +1,3 @@
-
-- The new quality metric is quite slow, relative to the old
-  one at least. It might be further improved, but the first
-  thing to do is run it much less often. In GUI mode it should
-  be run no more often than the image update, and in batch
-  rendering it should be run once per status update. Status
-  updates maybe should slow down a bit, especially on the
-  command line animation renderer.
-
 - Cluster autodetection doesn't find multiple fyre
   servers running on different ports but the same host
 
