@@ -35,7 +35,7 @@ class IncomingMailParser:
        """
     def parseString(self, string):
         """Convert the given string to an email.Message, then parse it"""
-        self.parse(email.message_from_string(string))
+        return self.parse(email.message_from_string(string))
 
     def parse(self, message):
         """Given an email.Message instance, determines the command it represents
@@ -75,6 +75,6 @@ class IncomingMailParser:
         colorText = ColorTextParser().parse(self.message.get_payload())
         xml.addElement("body").addChild(colorText)
 
-        print xml.toXml()
+        return Message(xml)
 
 ### The End ###
