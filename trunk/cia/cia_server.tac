@@ -4,9 +4,9 @@
 #
 
 from twisted.application import service, internet
-from twisted.web import server, static, vhost
+from twisted.web import static, vhost
 from LibCIA import Message, Ruleset, IRC, Stats, IncomingMail, Debug, Security, RPC
-from LibCIA.Web import StatsBrowser, RulesetBrowser, BotStatus
+from LibCIA.Web import StatsBrowser, RulesetBrowser, BotStatus, Server
 
 application = service.Application("cia_server")
 hub = Message.Hub()
@@ -47,4 +47,4 @@ rpc.putSubHandler('debug', Debug.DebugInterface())
 webRoot.putChild('RPC2', rpc)
 
 # Now create an HTTP server holding both our XML-RPC and web interfaces
-internet.TCPServer(3910, server.Site(webRoot)).setServiceParent(application)
+internet.TCPServer(3910, Server.Site(webRoot)).setServiceParent(application)

@@ -184,7 +184,7 @@ class Serializer:
     def __init__(self):
         self.cache = {}
 
-    def render(self, obj, context):
+    def render(self, obj, context={}):
         # We cache rendering functions based on obj.__class__.
         # This assumes that classes won't spontaneously
         # grow a render() method, which is safe enough for our purposes.
