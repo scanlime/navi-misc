@@ -69,7 +69,7 @@ class MetadataKeyColumn(Nouvelle.Column):
         return item[0]
 
     def render_data(self, context, item):
-        return MetadataLink(context['target'], item[0])
+        return Link.MetadataLink(context['target'], item[0])
 
 
 class MetadataValueColumn(Nouvelle.Column):
@@ -108,7 +108,7 @@ class MetadataValueColumn(Nouvelle.Column):
 
     def renderData_image(self, context, name, value, mime):
         """Return an <img> tag linking to the key's value"""
-        return tag('img', src=MetadataLink(context['target'], name).getURL(context))
+        return tag('img', src=Link.MetadataLink(context['target'], name).getURL(context))
 
     def renderData_other(self, context, name, value, mime):
         return tag('i')[ "Unable to format data" ]
