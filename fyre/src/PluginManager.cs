@@ -88,6 +88,8 @@ namespace Fyre {
 						if (!all_plugin_types.Contains (type))
 							all_plugin_types.Add (type);
 				} catch (Exception e) {
+					// FIXME - aggregate all exceptions that get caught here into a single
+					// message and show the user an ErrorDialog.
 					Console.WriteLine ("Error loading plugin: {0}", e);
 				}
 			}
@@ -109,7 +111,8 @@ namespace Fyre {
 			ArrayList plugin_types = new ArrayList ();
 
 			// Grab Element types. Eventually, we might want to convert this
-			// to just load everything and keep a hash for different plugin hooks
+			// to just load everything and keep a hash of base class->type for
+			// different plugin hooks.
 			foreach (Type type in types)
 				if (type.BaseType == typeof (Element))
 					plugin_types.Add (type);
