@@ -199,12 +199,13 @@ class drop_down(hbox):
     ''' If the child is a dice object copy it with a new callback and save
         a reference here.  Otherwise it's a menu item, so add it to the list
 	of menu items. '''
+    print "drop_down.packChild", child
     if isinstance(child, dice) and self.button is None:
       self.button = child.copyWithCallback(self.roll)
       self.pack_end(self.button)
     elif isinstance(child, drop_down_item):
-      print len(self.items), child.data
-      self.items.append(child.data)
+      for item in child.data:
+        self.items.append(item)
       self.menu.set_popdown_strings(self.items)
 
   def show(self):
@@ -241,5 +242,7 @@ class drop_down_item(sheetElement):
 
     if node.childNodes[0].data.count('/') > 0:
       self.data = character.getData(node.childNodes[0].data).split('\n')
+      for item in self.data:
+	item.strip()
     else:
-      self.data = node.childNodes[0].data
+      self.data = [node.childNodes[0].data]
