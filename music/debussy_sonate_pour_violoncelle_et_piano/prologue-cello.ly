@@ -21,15 +21,22 @@ prologueCello = \notes \relative c {
   e \(f e16 d\)
   \revert Slur #'attachment-offset
   \revert PhrasingSlur #'attachment-offset
-  \set subdivideBeams = ##t
-  e32 ([g f e d8] ~ d32 [e d c a c a g])
+  e32 ([g f e d8] ~ d32 [e d
+  \set Voice.stemRightBeamCount = #1
+  c
+  \set Voice.stemLeftBeamCount = #1
+  a c a g])
   \clef bass
   \set decrescendoText = \markup { \bold \italic "dim. " }
   \set decrescendoSpanner = #'dashed-line
   e ([g f e d8] ~
   \>
   d32
-  [g, d' f a d, g b])
+  [g, d'
+  \set Voice.stemRightBeamCount = #1
+  f
+  \set Voice.stemLeftBeamCount = #1
+  a d, g b])
   \clef tenor
   \once \override TextScript #'extra-offset = #'(0 . 3.0)
   e32
