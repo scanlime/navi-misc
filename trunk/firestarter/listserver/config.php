@@ -5,8 +5,8 @@
 $dbhost = 'localhost';
 $hostpublicaddr = 'http://localhost';
 $dbname = 'fslistdb';
-$dbuser = 'root';
-$dbpasswd = 'b00ya';
+$dbuser = 'xxxxx';
+$dbpasswd = 'xxxx';
 
 // do not edit anything below this line
 $serverVers = 0.1;
