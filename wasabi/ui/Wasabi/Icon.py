@@ -26,6 +26,7 @@ icon track and rotate icons along this track.
 #
 
 from BZEngine.UI import Texture, GLText, GLOrtho
+from BZEngine import Animated
 from OpenGL import GL
 
 
@@ -112,5 +113,115 @@ class Icon:
         GLOrtho.setColor(*style.textColor)
         GLText.draw(self.text, textHeight, style.fontName, textAlignment)
         GLOrtho.pop()
+
+
+class DockIcon:
+    """An icon container used by the dock. Includes animation information for each icon,
+       and methods for rendering the icon on a dock's parametric track.
+       """
+    def __init__(self, dock, icon):
+        self.dock = dock
+        self.icon = icon
+        self.position = Animated.Value(Animated.LogApproach(0, dock.iconApproachSpeed))
+
+    def integrate(self, dt):
+        self.position.integrate(dt)
+
+    def setPosition(self, x):
+        """Sets the animation target for this icon's position"""
+        self.position.f.target = x
+
+    def jump(self):
+        """Instantly jump to the target track position"""
+        self.position.value = self.position.f.target
+
+    def draw(self):
+        """Draw the icon at its current position, size, and style"""
+        (position, height) = self.dock.trackFunction(self.position.value)
+        GLOrtho.push()
+        GLOrtho.translate(*position)
+        self.icon.draw(self.dock.iconStyle, height)
+        GLOrtho.pop()
+
+
+class Dock:
+    """A container for icons. The Dock defines a parametric 'track' icons move along,
+       mapping a scalar position in [0,1] to a position and size in screen coordinates.
+       Icons are spaced along this track and rotated along it as the user makes a
+       selection.
+
+       The supplied trackFunction must map a scalar to a (position, height) tuple. The
+       position must itself be a 2-tuple.
+
+       If iconSpacing is None, icons are spaced evenly along the entire track. Otherwise,
+       it is an absolute spacing value in track coordinates.
+
+       selectionIndex is the index of the currently selected icon. It may be
+       floating point.
+       """
+    def __init__(self, viewport, trackFunction,
+                 icons             = [],
+                 iconSpacing       = None,
+                 iconStyle         = LargeIconStyle,
+                 iconApproachSpeed = 3,
+                 selectionIndex    = 0.0,
+                 ):
+        self.viewport = viewport
+        self.trackFunction = trackFunction
+        self.iconSpacing = iconSpacing
+        self.iconStyle = iconStyle
+        self.iconApproachSpeed = iconApproachSpeed
+        self.selectionIndex = selectionIndex
+
+        self.empty()
+        self.add(*icons)
+        self.jump()
+
+        self.time = Animated.Timekeeper()
+        self.viewport.fov = None
+        self.viewport.onDrawFrame.observe(self.drawFrame)
+        self.viewport.onSetupFrame.observe(self.setupFrame)
+
+    def empty(self):
+        """Remove all icons from the dock"""
+        self.icons = []
+
+    def add(self, *icons):
+        """Add a list of icons to the dock, animating their entry."""
+        self.icons.extend([DockIcon(self, icon) for icon in icons])
+        self.respaceIcons()
+
+    def jump(self):
+        """Instantly jump all current animation to its next resting point"""
+        for icon in self.icons:
+            icon.jump()
+
+    def setupFrame(self):
+        self.integrate(self.time.step())
+
+    def integrate(self, dt):
+        """Move animation forward by the given time step"""
+        for icon in self.icons:
+            icon.integrate(dt)
+
+    def drawFrame(self):
+        GLOrtho.setup()
+        for icon in self.icons:
+            icon.draw()
+
+    def respaceIcons(self):
+        """Using the current iconSpacing and selectionIndex, change the position
+           targets on all icons.
+           """
+        if self.iconSpacing is None:
+            spacing = 1.0 / len(self.icons)
+        else:
+            spacing = self.iconSpacing
+
+        position = -self.selectionIndex * spacing
+
+        for icon in self.icons:
+            icon.setPosition(position)
+            position += spacing
 
 ### The End ###
