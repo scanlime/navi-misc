@@ -126,7 +126,7 @@ class UniconeHooks:
         mapping.matchNames()
         try:
             # Ugly workaround for the Sega Genesis
-            mapping.map("BTN_START", "BTN_C")
+            mapping.map("BTN_X", "BTN_C")
         except KeyError:
             pass
 
