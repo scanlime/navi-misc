@@ -34,6 +34,7 @@ public:
 
 protected:
 	SceneNode*	node;
+	bool				vis;
 };
 
 #endif //_PLAYER_DRAWABLES_H_
