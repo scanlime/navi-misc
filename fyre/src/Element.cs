@@ -24,6 +24,11 @@ using System.Xml;
 
 namespace Fyre
 {
+	public struct PadConnection
+	{
+		System.Guid	element;
+		int		pad;
+	}
 
 	public abstract class Element
 	{
