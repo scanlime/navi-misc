@@ -72,7 +72,7 @@ find_station_url (gchar *station, EWeatherSourceCCF *source)
 
 	sstation = g_strsplit (station, "/", 2);
 
-	doc = xmlParseFile ("/home/jupiter/navi-misc/evo/Locations.xml.in");
+	doc = xmlParseFile (WEATHER_DATADIR "/Locations.xml");
 	g_assert (doc != NULL);
 
 	root = xmlDocGetRootElement (doc);

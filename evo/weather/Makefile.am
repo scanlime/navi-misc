@@ -10,6 +10,7 @@ INCLUDES =						\
 	-I$(top_builddir)/calendar/libical/src/libical	\
 	-I$(top_srcdir)/addressbook			\
 	-I$(top_builddir)/addressbook			\
+	-DWEATHER_DATADIR=\""$(weatherdatadir)"\"	\
 	$(EVOLUTION_CALENDAR_CFLAGS)			\
 	$(SOUP_CFLAGS)
 
@@ -29,3 +30,10 @@ libecalbackendweather_la_LIBADD =	\
 	$(top_builddir)/calendar/libedata-cal/libedata-cal-1.2.la	\
 	$(SOUP_LIBS)
 
+weatherdata_in_files = Locations.xml.in
+weatherdata_DATA = $(weatherdata_in_files:.xml.in=.xml)
+# FIXME - should probably do some sort of intltool merge here
+%.xml:	%.xml.in
+	cp $< $@
+
+EXTRA_DIST = Locations.xml.in
