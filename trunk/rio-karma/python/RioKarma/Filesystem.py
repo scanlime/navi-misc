@@ -252,6 +252,10 @@ class FileManager:
             self.cache.close()
             self.cache = None
 
+        # Sync the default LocalCache, but only if it already exists
+        if Metadata.getLocalCache(False):
+            Metadata.getLocalCache().sync()
+
         # We only needed this once.. don't want this object to leak
         if self._shutdownTrigger:
             reactor.removeSystemEventTrigger(self._shutdownTrigger)
@@ -301,13 +305,20 @@ class FileManager:
            signalling completion. This has the side-effect of acquiring
            a read lock.
            """
-        # First, see if our cache is valid
+        # We need the latest stamp and our device info to make
+        # sure the cache is open and see if it's up to date.
         d = defer.Deferred()
-        self.getStamp().addCallback(self._startSynchronize, d).addErrback(d.errback)
+        defer.gatherResults([
+            self.getStamp(),
+            self.protocol.sendRequest(Request.GetDeviceSettings()),
+            ]).addCallback(
+            self._startSynchronize, d).addErrback(
+            d.errback)
         return d
 
-    def _startSynchronize(self, deviceStamp, d):
+    def _startSynchronize(self, (deviceStamp, deviceSettings), d):
         # If the cache is valid, skip all this mess
+        self._openCache(deviceSettings['serial'])
         if self.cache.checkStamp(deviceStamp):
             d.callback(None)
             return
@@ -344,23 +355,19 @@ class FileManager:
            our cache's integrity. This returns via a Deferred, since it needs
            to communicate with the device.
 
-           This is implemented with the 'device_generation' field in the
-           response from GetDeviceSettings- it seems to be exactly what we need.
-           If this turns out to in fact not be quite right, the amount of free
-           space on the device would also make a decent stamp.
+           GetDeviceSettings returns a 'device_generation' field that seems
+           to do exactly this- however it changes when a file's playcount
+           is modified, so it's fairly annoying to use in practice. We currently
+           use the amount of free space on the device.
            """
         result = defer.Deferred()
-        self.protocol.sendRequest(Request.GetDeviceSettings()).addCallback(
+        self.protocol.sendRequest(Request.GetStorageDetails()).addCallback(
             self._getStamp, result).addErrback(result.errback)
         return result
 
-    def _getStamp(self, deviceSettings, result):
-        # Since we have deviceSettings and this always happens
-        # before a synchronize, it's a good opportunity to open
-        # the right cache according to our device serial number.
-        self._openCache(deviceSettings['serial'])
-
-        result.callback(int(deviceSettings['device_generation']))
+    def _getStamp(self, storageDetails, result):
+        self.storageDetails = storageDetails
+        result.callback(storageDetails['freeSpace'])
 
     def _openCache(self, serial):
         """Ensure that our cache is open. If it isn't open yet, this opens
@@ -460,7 +467,15 @@ class FileManager:
            it within another playlist. This will essentially create a floating playlist.
            """
         playlist.details['type'] = 'playlist'
-        playlist.details['playlist'] = [f.details for f in children]
+
+        # We store the children's metadata, but filtered to include
+        # only fid and fid_generation. Non-searchable keys will cause
+        # problems later, and those two are the only ones the device
+        # will actually store.
+        playlist.details['playlist'] = [
+            dict(fid=f.details.get('fid', 0),
+                 fid_generation=f.details.get('fid_generation', 0))
+            for f in children]
         return self.updateFileDetails(playlist)
 
     def getRootPlaylist(self):
@@ -512,7 +527,7 @@ class File:
            that the file has valid metadata, this won't cause a performance penalty.
            """
         if self._metadataLoadedFrom != filename:
-            Metadata.Converter().detailsFromDisk(filename, self.details)
+            self.details.update(Metadata.getLocalCache().lookup(filename))
             self._metadataLoadedFrom = filename
 
     def suggestFilename(self, **options):
