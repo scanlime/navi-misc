@@ -29,8 +29,8 @@
 
 int check_word (GtkWidget *xtext, char *word);
 void clicked_word (GtkWidget *xtext, char *word, GdkEventButton *even, gpointer data);
-void font_changed (GConfClient *client, guint cnxn_id, const gchar* key, GConfValue* value, gboolean is_default, gpointer user_data);
-static void gconf_timestamps_changed (GConfClient *client, guint cnxn_id, const gchar *key, GConfValue *value, gboolean is_default, gpointer data);
+void font_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, gpointer user_data);
+static void gconf_timestamps_changed (GConfClient *client, GConfEntry *entry, gpointer data);
 
 static void open_url (GtkAction *action, gpointer data);
 static void copy_text (GtkAction *action, gpointer data);
@@ -325,7 +325,7 @@ clicked_word (GtkWidget *xtext, char *word, GdkEventButton *event, gpointer data
 }
 
 void
-font_changed (GConfClient *client, guint cnxn_id, const gchar* key, GConfValue* value, gboolean is_default, gpointer user_data)
+font_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, gpointer user_data)
 {
 	gchar *font;
 
@@ -343,9 +343,9 @@ font_changed (GConfClient *client, guint cnxn_id, const gchar* key, GConfValue* 
 }
 
 static void
-gconf_timestamps_changed (GConfClient *client, guint cnxn_id, const gchar *key, GConfValue *value, gboolean is_default, gpointer data)
+gconf_timestamps_changed (GConfClient *client, GConfEntry *entry, gpointer data)
 {
-	gtk_xtext_set_time_stamp (data, gconf_client_get_bool (client, key, NULL));
+	gtk_xtext_set_time_stamp (data, gconf_client_get_bool (client, entry->key, NULL));
 }
 
 static void
