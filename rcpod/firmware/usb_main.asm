@@ -48,7 +48,7 @@ W_save		res	1	; register for saving W during ISR
 tmr1h_save	res 1
 tmr1l_save	res 1
 
-bank0	udata
+bank1	udata
 Status_save	res	1	; registers for saving context
 PCLATH_save	res	1	;  during ISR
 FSR_save	res	1
