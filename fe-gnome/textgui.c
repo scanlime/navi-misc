@@ -101,7 +101,6 @@ void text_gui_print_line(XTextBuffer *buf, unsigned char *text, int len, gboolea
 	if(len == 0)
 		len = 1;
 
-	/* FIXME: do timestamp */
 	if(!indent) {
 		xtext_buffer_append (buf, text, len);
 		return;

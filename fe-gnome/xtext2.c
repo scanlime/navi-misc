@@ -18,6 +18,9 @@ static void           xtext2_size_request    (GtkWidget *widget, GtkRequisition 
 static void           xtext2_size_allocate   (GtkWidget *widget, GtkAllocation *allocation);
 static gboolean       xtext2_expose          (GtkWidget *widget, GdkEventExpose *event);
 static gboolean       xtext2_scroll          (GtkWidget *widget, GdkEventScroll *event);
+static gboolean       xtext2_button_press    (GtkWidget *widget, GdkEventButton *event);
+static gboolean       xtext2_button_release  (GtkWidget *widget, GdkEventButton *event);
+static gboolean       xtext2_motion_notify   (GtkWidget *widget, GdkEventCrossing *event);
 
 static void           backend_init           (XText2 *xtext);
 static void           backend_deinit         (XText2 *xtext);
@@ -158,11 +161,12 @@ struct _XText2Private
   gboolean     un_hilight;
   gboolean     skip_border_fills;
   gboolean     underline;
-  gboolean     backcolor;
-  gboolean     parsing_color;
-  gboolean     parsing_backcolor;
+  gboolean     backcolor;            /* non-default backcolor? */
+  gboolean     button_down;          /* is a button currently down? */
+  gboolean     parsing_color;        /* currently parsing a foreground color */
+  gboolean     parsing_backcolor;    /* currently parsing a background color */
   gboolean     render_hilights_only;
-  gboolean     indent_changed;
+  gboolean     indent_changed;       /* whether the indent is dirty */
   gboolean     moving_separator;     /* moving the separator bar? */
   gboolean     auto_indent;          /* automatically change indent */
   gboolean     skip_stamp;           /* skip timestamp */
@@ -176,6 +180,12 @@ struct _XText2Private
   int          hilight_start;
   int          hilight_end;
   textentry   *hilight_ent;
+
+  int          select_start_adj;
+  int          select_start_x;
+  int          select_start_y;
+  int          select_end_x;
+  int          select_end_y;
 
   char         scratch_buffer[4096];
 
@@ -272,6 +282,9 @@ xtext2_class_init (XText2Class *klass)
   widget_class->size_allocate         = xtext2_size_allocate;
   widget_class->expose_event          = xtext2_expose;
   widget_class->scroll_event          = xtext2_scroll;
+  widget_class->button_press_event    = xtext2_button_press;
+  widget_class->button_release_event  = xtext2_button_release;
+  widget_class->motion_notify_event   = xtext2_motion_notify;
 
   pspec = g_param_spec_string ("font",
                                "Font",
@@ -604,6 +617,153 @@ xtext2_scroll (GtkWidget *widget, GdkEventScroll *event)
       new_value = xtext->adj->upper - xtext->adj->page_size;
     gtk_adjustment_set_value (xtext->adj, new_value);
   }
+  return FALSE;
+}
+
+static gboolean
+xtext2_button_release (GtkWidget *widget, GdkEventButton *event)
+{
+  XText2 *xtext = XTEXT2 (widget);
+  unsigned char *word;
+  int old;
+  XTextFormat *f;
+
+  f = g_hash_table_lookup (xtext->priv->buffer_info, xtext->priv->current_buffer);
+
+  if (xtext->priv->moving_separator)
+  {
+    xtext->priv->moving_separator = FALSE;
+    old = f->indent;
+    if (event->x < (4 * widget->allocation.width) / 5 && event->x > 15)
+      f->indent = event->x;
+    fix_indent (xtext);
+    if (f->indent != old)
+    {
+      recalc_widths (xtext, FALSE);
+      adjustment_set (xtext, TRUE);
+      render_page (xtext);
+    }
+    else
+    {
+      draw_sep (xtext, -1);
+    }
+    return FALSE;
+  }
+
+  /* FIXME */
+
+  return FALSE;
+}
+
+static gboolean
+xtext2_button_press (GtkWidget *widget, GdkEventButton *event)
+{
+  XText2 *xtext = XTEXT2 (widget);
+  textentry *ent;
+  unsigned char *word;
+  int line_x, x, y, offset, len;
+  XTextFormat *f;
+
+  f = g_hash_table_lookup (xtext->priv->buffer_info, xtext->priv->current_buffer);
+
+  gdk_window_get_pointer (widget->window, &x, &y, 0);
+
+  /* FIXME */
+
+  if (event->button == 3)
+  {
+    /* right click */
+    return FALSE;
+  }
+
+  if (event->button == 2)
+  {
+    /* middle click */
+    return FALSE;
+  }
+
+  /* we only want the left button now */
+  if (event->button != 1)
+    return FALSE;
+
+  if (event->type == GDK_2BUTTON_PRESS)
+  {
+    /* double-click, select word */
+  }
+
+  if (event->type == GDK_3BUTTON_PRESS)
+  {
+    /* triple-click, select line */
+  }
+
+  /* check if it was a separator bar click */
+  if (xtext->priv->show_separator && f->indent)
+  {
+    line_x = f->indent - ((xtext->priv->spacewidth + 1) / 2);
+    if (line_x == x || line_x == x + 1 || line_x == x - 1)
+    {
+      xtext->priv->moving_separator = TRUE;
+      /* draw the separator line */
+      draw_sep (xtext, -1);
+      return FALSE;
+    }
+  }
+
+  xtext->priv->button_down = TRUE;
+  xtext->priv->select_start_x = x;
+  xtext->priv->select_start_y = y;
+  xtext->priv->select_start_adj = xtext->adj->value;
+
+  return FALSE;
+}
+
+static gboolean
+xtext2_motion_notify (GtkWidget *widget, GdkEventCrossing *event)
+{
+  XText2 *xtext = XTEXT2 (widget);
+  int tmp, x, y, offset, len;
+  unsigned char *word;
+  textentry *word_ent;
+  XTextFormat *f;
+
+  f = g_hash_table_lookup (xtext->priv->buffer_info, xtext->priv->current_buffer);
+
+  gdk_window_get_pointer (widget->window, &x, &y, 0);
+
+  if (xtext->priv->moving_separator)
+  {
+    if (x < (3 * widget->allocation.width) / 5 && x > 15)
+    {
+      tmp = f->indent;
+      f->indent = x;
+      fix_indent (xtext);
+      if (tmp != f->indent)
+      {
+	recalc_widths (xtext, FALSE);
+	if (f->scrollbar_down)
+	  gtk_adjustment_set_value (xtext->adj, xtext->adj->upper - xtext->adj->page_size);
+	if (!xtext->priv->io_tag)
+	  xtext->priv->io_tag = g_timeout_add (REFRESH_TIMEOUT, (GSourceFunc) adjustment_timeout, xtext);
+      }
+    }
+    return FALSE;
+  }
+
+  if (xtext->priv->button_down)
+  {
+    gtk_grab_add (widget);
+    xtext->priv->select_end_x = x;
+    xtext->priv->select_end_y = y;
+    /*
+    selection_update (xtext, event, y);
+    */
+    return FALSE;
+  }
+
+#ifdef MOTION_MONITOR
+#endif /* MOTION_MONITOR */
+
+  /* FIXME */
   return FALSE;
 }
 
@@ -969,9 +1129,6 @@ render_page (XText2 *xtext)
   xtext->priv->pixel_offset = 0;
 #endif
 
-  if (f == NULL)
-    return;
-
   subline = line = 0;
   ent = f->wrapped_first;
 
@@ -1075,6 +1232,7 @@ render_page_timeout (XText2 *xtext)
   XTextFormat *f;
 
   xtext->priv->add_io_tag = FALSE;
+  xtext->priv->io_tag = 0;
 
   f = g_hash_table_lookup (xtext->priv->buffer_info, xtext->priv->current_buffer);
 
