@@ -11,7 +11,7 @@ application = service.Application("cia_server")
 hub = Message.Hub()
 
 uriRegistry = Ruleset.URIRegistry([
-    IRC.IrcURIHandler(IRC.BotNetwork("CIA-%d")),
+    IRC.IrcURIHandler(hub, IRC.BotNetwork("CIA-%d")),
     Stats.StatsURIHandler(hub, 'data/stats'),
     ])
 
