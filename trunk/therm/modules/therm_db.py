@@ -27,6 +27,12 @@ import MySQLdb
 import MySQLdb.cursors
 
 
+def prettifyName(str):
+    """Replace underscores with spaces, and give it title capitalization"""
+    words = str.replace("_", " ").split()
+    return " ".join([ word.capitalize() for word in words ])
+
+
 class ThermSource:
     """One data source in the therm database"""
     def __init__(self, db, id, medium=None, protocol=None, station_id=None,
@@ -67,5 +73,12 @@ class ThermDatabase:
         """Iterate over all source objects in the database"""
         for row in self.iterDictQuery("SELECT * FROM sources"):
             yield ThermSource(self, **row)
+
+
+# This is a very low-privilege account that can only read
+# from the database, probably no reason not to have
+# all the login info here.
+defaultDatabase = ThermDatabase(
+    db="therm", user="therm_reader", passwd="e5ce14d3")
 
 ### The End ###
