@@ -23,6 +23,14 @@
 #ifndef _H_FPGA
 #define _H_FPGA
 
+/* An arbitrary 32-character version code stored along with the FPGA
+ * bitstream. This is sent preceeding the actual content of the bitstream.
+ */
+extern unsigned char fpga_version_stamp[32];
+
+/* Reset the FPGA */
+void             fpga_init();
+
 /* Get the FPGA ready for programming */
 void             fpga_config_begin();
 

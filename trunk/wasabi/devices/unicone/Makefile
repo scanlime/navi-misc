@@ -8,6 +8,7 @@ COMMON_OBJS = \
 	src/bit_file.o \
 	src/progress_console.o \
 	src/device.o \
+	src/sha1.o
 
 LOADER_TOOL_OBJS = $(COMMON_OBJS) \
 	src/loader_tool.o
@@ -53,7 +54,7 @@ firmware.bin: firmware/firmware.ihx
 	sdcc -o $@ -c $< $(FW_CFLAGS)
 
 clean:
-	rm -f $(BINS) firmware/*.rel src/*.o
+	rm -f $(BINS) src/*.o
 	rm -f firmware/*.ihx firmware/*.lnk firmware/*.lst firmware/*.map
 	rm -f firmware/*.mem firmware/*.rel firmware/*.rst firmware/*.sym
-	rm -f firmware/*.asm
+	rm -f firmware/*.asm firmware/*.bin firmware/*.rel

@@ -90,6 +90,12 @@
  */
 #define UNICONE_REQ_FPGA_STATUS          0x13
 
+/* These two command return the 20-byte SHA-1 digests of the current firmware
+ * and the current FPGA configuration, respectively.
+ */
+#define UNICONE_REQ_GET_FIRMWARE_STAMP   0x20
+#define UNICONE_REQ_GET_FPGA_STAMP       0x21
+
 /* Force us to reboot back into the TUSB bootloader */
 #define UNICONE_REQ_REBOOT               0x34
 

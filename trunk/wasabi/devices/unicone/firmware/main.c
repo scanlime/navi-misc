@@ -38,6 +38,12 @@
 volatile xdata at 0xFD00 unsigned char ep1_out_x[64];
 volatile xdata at 0xFD40 unsigned char ep2_out_x[64];
 
+/* Our firmware gets a version stamp, so we can identify it later
+ * and only upgrade if necessary. This points to the very end of
+ * code space- an SHA-1 digest is placed there by the upload utility.
+ */
+volatile code at 0x1FEC unsigned char firmware_version_stamp[20] = "";
+
 
 void i2c_write_packets(unsigned char *packets, int length)
 {
@@ -64,21 +70,29 @@ void i2c_write_packets(unsigned char *packets, int length)
     }
     i2c_write_byte(*(packets++), 1);
     if (i2c_status() < 0)
-      printf("I2C error when setting LED brightness\n");
+      printf("I2C error\n");
   }
+}
+
+void show_firmware_version()
+{
+  int i;
+  printf("\n---- Unicone firmware v%x.%02x [",
+	 UNICONE_VERSION >> 8, UNICONE_VERSION & 0xFF);
+  for (i=0; i<sizeof(firmware_version_stamp); i++)
+    printf("%02x", firmware_version_stamp[i]);
+  printf("] ----\n");
 }
 
 void main()
 {
-  int c;
-
   uart_init();
-  printf("\n---- Unicone firmware v%x.%02x ----\n",
-	 UNICONE_VERSION >> 8, UNICONE_VERSION & 0xFF);
+  show_firmware_version();
 
-  /* This connects to the USB bus and initializes EP0 */
   usb_init();
   puts("USB initialized");
+  fpga_init();
+  puts("FPGA initialized");
 
   /* Initialize bulk endpoints */
   usb_dma_unstall(EDB_OEP1);
@@ -87,6 +101,8 @@ void main()
   usb_dma_setup(EDB_OEP2, ep2_out_x, sizeof(ep2_out_x));
 
   while (1) {
+    int c;
+
     watchdog_reset();
     usb_poll();
 
@@ -127,9 +143,17 @@ void usb_handle_vendor_request()
     usb_write_ep0_buffer(&retval, 1);
     break;
 
+  case UNICONE_REQ_GET_FIRMWARE_STAMP:
+    usb_write_ep0_buffer(firmware_version_stamp, sizeof(firmware_version_stamp));
+    break;
+
+  case UNICONE_REQ_GET_FPGA_STAMP:
+    usb_write_ep0_buffer(fpga_version_stamp, sizeof(fpga_version_stamp));
+    break;
+
   case UNICONE_REQ_REBOOT:
     usb_write_ack();
-    fpga_config_begin();   /* Reset the FPGA too */
+    fpga_init();
     while (1);             /* Wait for the WDT to reset us */
     break;
 
