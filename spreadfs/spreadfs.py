@@ -517,17 +517,15 @@ class SpreadNfsServer(pinefs.srv.NfsSrv):
         return stat
 
 
-class FileMonitor(threading.Thread):
-    """This is a thread that monitors files using FAM, running
-       in a separate thread and running callbacks from that
-       thread.
+class FileMonitor:
+    """This is an event loop that monitors files using FAM,
+       intended to be run in its own thread.
        """
     def __init__(self):
         self.requests = {}
         self.functionQueue = Queue.Queue()
         self.connection = None
         self.wakeupPipe = os.pipe()
-        threading.Thread.__init__(self)
 
     def stop(self):
         self.running = False
@@ -542,7 +540,7 @@ class FileMonitor(threading.Thread):
         self.functionQueue.put(f)
         self.wake()
 
-    def run(self):
+    def loop(self):
         self.running = True
         self.connection = fam.open()
         self.monitorTypes = {
@@ -612,6 +610,24 @@ class FileMonitor(threading.Thread):
         self.requests[key] = None
 
 
+def runServers(servers):
+    """Given a list of servers with 'loop' and 'stop' methods, run
+       them all concurrently in separate threads. The first one listed
+       is run in the current thread, the others are run in new threads.
+       """
+    bgServers = servers[1:]
+    mainServer = servers[0]
+
+    for server in bgServers:
+        threading.Thread(name=server.__class__.__name__,
+                         target=server.loop).start()
+    try:
+        mainServer.loop()
+    finally:
+        mainServer.stop()
+        for server in bgServers:
+            server.stop()
+
 if __name__ == "__main__":
 
     # Get a list of mounts from the command line
@@ -622,7 +638,6 @@ if __name__ == "__main__":
 
     # Create a FAM client, in a separate thread
     fileMonitor = FileMonitor()
-    fileMonitor.start()
 
     fs = SpreadFilesystem(DiskSet(mounts), fileMonitor)
     lock = threading.Lock()
@@ -645,13 +660,6 @@ if __name__ == "__main__":
     # standard number in order to accept calls to that program after connection.
     nfsRpc.progs[100003] = nfsRpc.progs[nfsServer.prog]
 
-    try:
-        nfsRpc.loop()
-    finally:
-        mountRpc.stop()
-        nfsRpc.stop()
-        fileMonitor.stop()
-        mountRpc.unregister()
-        nfsRpc.unregister()
+    runServers([nfsRpc, mountRpc, fileMonitor])
 
 ### The End ###
