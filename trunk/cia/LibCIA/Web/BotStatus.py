@@ -22,8 +22,10 @@ A web interface showing the current status of the BotNetwork
 #
 
 import Template
+from LibCIA import TimeUtil
 from Nouvelle import tag, place
 import Nouvelle
+import time
 
 
 class TotalsSection(Template.Section):
@@ -81,28 +83,39 @@ class BotStatusColumn(Nouvelle.Column):
     """Show the fullness status of the bot"""
     heading = 'status'
 
+    def __init__(self, botNet):
+        self.botNet = botNet
+
     def getValue(self, bot):
+        indicators = []
+
         if bot.isFull():
-            return 'full'
-        elif (not bot.channels) and (not bot.requestedChannels):
-            return 'empty'
-        return ''
+            indicators.append('full')
+
+        if (not bot.channels) and (not bot.requestedChannels):
+            indicators.append('empty')
+
+        if bot in self.botNet.inactiveBots:
+            timer = self.botNet.inactiveBots[bot]
+            indicators.append('GC in %s' % TimeUtil.formatDuration(timer.getTime() - time.time()))
+
+        return ', '.join(indicators)
 
 
 class BotsSection(Template.Section):
     """A section holding a table listing all bots"""
     title = 'bots'
 
-    columns = [
-        Nouvelle.AttributeColumn('server', 'server'),
-        Nouvelle.AttributeColumn('nickname', 'nickname'),
-        ListAttributeColumn('channels', 'channels'),
-        ListAttributeColumn('requested', 'requestedChannels'),
-        BotStatusColumn(),
-        ]
-
     def __init__(self, botNet):
         self.botNet = botNet
+
+        self.columns = [
+            Nouvelle.AttributeColumn('server', 'server'),
+            Nouvelle.AttributeColumn('nickname', 'nickname'),
+            ListAttributeColumn('channels', 'channels'),
+            ListAttributeColumn('requested', 'requestedChannels'),
+            BotStatusColumn(botNet),
+            ]
 
     def render_rows(self, context):
         bots = []
