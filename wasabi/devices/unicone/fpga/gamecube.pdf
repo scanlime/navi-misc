@@ -10,20 +10,29 @@ top_level=VHDL
 HDL netlist format=Auto
 generics=MAX
 sim_mode=FUNC
-lib_order=133
+lib_order=133 133 155
 [libraries]
 133=c:\fndtn\active\syslib\simprims
+155=c:\fndtn\active\syslib\xc4000x
 [APP_95]
 oid=0
 lid=0
 format=19
 source=c:\unicone\fpga\gamecube\gamecube.v
-server_hwnd=655922
+server_hwnd=1180178
+
+
+
+
+
+
+
 [Top Doc]
 gamecube.v=21
 [hdl_sheets]
 gamecube.v=
 [OpenDoc]
+hde/gamecube=0,0,231,140,1191,980,gamecube.v
 [OPEN32]
 nMaxFile=10000
 lpstrFile=
@@ -58,9 +67,6 @@ family=2
 xfam=XC4000XL
 part=4010XLPC84-09
 xilinx=4010XLPC84-09
-functional=ver1
-optimized=ver1-Optimized
-design=gamecube,c:\unicone\fpga\gamecube\gamecube.v
 [xilinx]
 family=2
 xfam=XC4000XL
@@ -70,6 +76,3 @@ part=4010XLPC84-09
 xilinx=4010XLPC84-09
 [timings]
 [designs]
-[implement_XIE]
-version=ver1
-revision=rev1

@@ -1,6 +1,3 @@
-`include "c:/unicone/fpga/lib/i2c.v"
-`include "c:/unicone/fpga/lib/pwm.v"
-
 module test (clk, reset,
              led,
              scl, sda);

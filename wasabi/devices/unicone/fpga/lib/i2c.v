@@ -51,7 +51,7 @@ module i2c_io_buffer (clk, reset,
 	assign int_scl = scl_in_sync[2];
 	assign int_sda_in = sda_in_sync[2];
 	
-	always @(posedge clk)
+	always @(posedge clk or posedge reset)
 		if (reset) begin
 			sda_in_sync <= 2'b11;
 			sda_out_sync <= 1'b1;
@@ -122,7 +122,7 @@ module i2c_slave_reg16 (clk, reset,
 		S_HAVE_HBYTE = 3,
 		S_HAVE_LBYTE = 4;
 
-	always @(posedge clk)
+	always @(posedge clk or posedge reset)
 		if (reset) begin
 		
 			reg_out <= 0;
@@ -235,13 +235,13 @@ module i2c_slave_serializer (clk, reset,
 
 	// SDA edge detection
 	reg prev_sda;
-	always @(posedge clk)
+	always @(posedge clk or posedge reset)
 		if (reset)
 			prev_sda <= 1'b1;
 		else
 			prev_sda <= sda_in;
 
-	always @(posedge clk)
+	always @(posedge clk or posedge reset)
 		if (reset) begin
 		
 			sda_out <= 1;
