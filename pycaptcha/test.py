@@ -1,16 +1,10 @@
 #!/usr/bin/env python
-from Captcha.Visual import Text, Backgrounds, Distortions, ImageCaptcha
-from Captcha import Words, Factory
+#
+#
+#
 
-class PseudoGimpy(ImageCaptcha):
-    def getLayers(self):
-        word = Words.defaultWordList.pick()
-        self.addSolution(word)
-        return [
-            Backgrounds.TiledImage(),
-            Text.TextLayer(word, borderSize=1),
-            Distortions.WigglyBlocks(),
-            ]
+from Captcha.Visual.Tests import PseudoGimpy
+from Captcha import Factory
 
 g = Factory(PseudoGimpy).new()
 i = g.render()
