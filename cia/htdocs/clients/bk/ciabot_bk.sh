@@ -3,7 +3,7 @@
 # CIA bot client script for BitKeeper repositories, delivering via email
 #   -- Chris Larson <kergoth@handhelds.org>
 #
-# Based on ciabot_svn.sh by Micah Dowty <micah@picogui.org>
+# Based on ciabot_svn.sh by Micah Dowty <micah@navi.cx>
 #
 # See http://cia.navi.cx
 # for more information on what the CIA bot is and how it works.

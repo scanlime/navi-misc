@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # CIA bot client script for Subversion repositories, delivering via email
-# -- Micah Dowty <micah@picogui.org>
+# -- Micah Dowty <micah@navi.cx>
 #
 # See http://cia.navi.cx
 # for more information on what the CIA bot is and how it works.
