@@ -51,7 +51,7 @@ CREATE TABLE IF NOT EXISTS sources
 CREATE TABLE IF NOT EXISTS packets
 (
     id            BIGINT PRIMARY KEY AUTO_INCREMENT,
-    time          DOUBLE NOT NULL,
+    time          TIMESTAMP NOT NULL,
     source        INTEGER NOT NULL,
 
     num_copies      INTEGER NOT NULL DEFAULT 1,
