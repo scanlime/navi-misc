@@ -146,6 +146,7 @@ module gc_controller (clk, reset, tx, rx, controller_state, rumble);
 			tx_data <= 0;
 			rumble <= 0;
 			rx_poll_flags <= 0;
+			tx_byte_count <= 0;
 			latched_controller_state <= 0;
 			state <= S_IDLE;
 
