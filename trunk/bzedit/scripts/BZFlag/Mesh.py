@@ -45,10 +45,9 @@ class Face:
 class Mesh(Object):
     type = 'mesh'
 
-    verts = []
-    faces = []
-
     def __init__(self, list=None):
+        self.verts = []
+        self.faces = []
         if list is not None:
             for property in list[1:]:
                 try:
@@ -60,6 +59,12 @@ class Mesh(Object):
         f = Face(face)
         self.faces.append(f.vertices)
 
+    def set_inside(self, inside):
+        pass
+
+    def set_outside(self, outside):
+        pass
+
     def set_vertex(self, vertex):
         self.verts.append([float(n) for n in vertex])
 
@@ -70,6 +75,9 @@ class Mesh(Object):
         pass
 
     def set_smoothbounce(self, s):
+        pass
+
+    def set_passable(self, p):
         pass
 
     def set_matref(self, matref):
