@@ -2,6 +2,7 @@
 
 #include <cv_dc1394.h>
 #include <cv_sdl.h>
+#include <uinput_mouse.h>
 #include <cv.hpp>
 #include <cvaux.h>
 #include <SDL.h>
@@ -96,11 +97,14 @@ void interactive_camshift(int n_cameras = 1,
   IplImage *view_grid[n_cameras*2];
   IplImage *backprojection;
   CvHistogram* object_hist[n_cameras];
-  int i;
   int num_views = 0;
   CvRect windowIn[n_cameras];
   int sample_square_size = 20;
   int num_histogram_samples = 0;
+  bool uinput_mouse_enabled = false;
+  int i;
+  CvPoint2D32f prev_box_center;
+  bool prev_box_center_valid = false;
 
   /* Take a reference frame from each camera */
   images = cv_dc1394_capture_yuv(n_cameras);
@@ -140,6 +144,8 @@ void interactive_camshift(int n_cameras = 1,
   if (show_backprojections)
     for (i=0; i<n_cameras; i++)
       view_grid[num_views++] = yuv_backprojections[i];
+
+  uinput_mouse_init("CamShift");
 
   while (cv_sdl_process_events()) {
     images = cv_dc1394_capture_yuv(n_cameras);
@@ -182,6 +188,18 @@ void interactive_camshift(int n_cameras = 1,
 	  else {
 	    draw_box(images[i], box);
 	  }
+
+	  if (uinput_mouse_enabled) {
+	    /* Emulate a mouse using uinput */
+	    float dx = box.center.x - prev_box_center.x;
+	    float dy = box.center.y - prev_box_center.y;
+
+	    uinput_mouse_move((int)(dx * 2.5),
+			      (int)(dy * 2.5));
+
+	    prev_box_center = box.center;
+	    prev_box_center_valid = true;
+	  }
 	}
 	else {
 	  /* If not, reset our search window */
@@ -189,6 +207,8 @@ void interactive_camshift(int n_cameras = 1,
 	  windowIn[i].y = 0;
 	  windowIn[i].width = images[i]->width;
 	  windowIn[i].height = images[i]->height;
+
+	  prev_box_center_valid = false;
 	}
       }
     }
@@ -219,6 +239,10 @@ void interactive_camshift(int n_cameras = 1,
       /* The spacebar just shows the rectangle */
       if (keystate[' '])
 	show_rectangle = true;
+
+      /* The 'M' key enables mouse emulation */
+      if (keystate['m'])
+	uinput_mouse_enabled = true;
 
       /* Get the current sampling rect, centered on the mouse cursor */
       mouse_buttons = SDL_GetMouseState(&mouse_x, &mouse_y);

@@ -1,4 +1,4 @@
-CFLAGS = `opencv-config --cflags` -g -O3 -Ilib `sdl-config --cflags`
+CFLAGS = `opencv-config --cflags` -g -O3 -Ilib `sdl-config --cflags` -I/usr/src/linux/include
 LDFLAGS = `opencv-config --libs` -lraw1394 -ldc1394_control `sdl-config --libs`
 LD = g++
 CC = g++
@@ -20,7 +20,7 @@ anaglyph: src/anaglyph.o lib/cv_dc1394.o lib/cv_sdl.o
 duck_tracker: src/duck_tracker.o lib/cv_dc1394.o lib/cv_sdl.o
 	$(LD) -o $@ $+ $(LDFLAGS)
 
-camshift: src/camshift.o lib/cv_dc1394.o lib/cv_sdl.o
+camshift: src/camshift.o lib/cv_dc1394.o lib/cv_sdl.o lib/uinput_mouse.o
 	$(LD) -o $@ $+ $(LDFLAGS)
 
 calibration_test: src/calibration_test.o lib/cv_dc1394.o
