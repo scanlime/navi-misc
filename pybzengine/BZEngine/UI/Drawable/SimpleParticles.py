@@ -28,6 +28,8 @@ from OpenGL.GL import *
 
 class SimpleParticles(SpriteArray):
     def __init__(self, position=(0,0,0), numParticles=250):
+        print "init"
+        self.numParticles = numParticles
         self.model = ParticleSystem.SpriteFountain(numParticles)
         SpriteArray.__init__(self, numParticles, allowPointSprite=False)
         self.model.attachDrawable(self)
@@ -52,6 +54,7 @@ class SimpleParticles(SpriteArray):
         self.constAccel = self.model.add(ParticleSystem.ConstantAccelAffector, (0,0,0))
 
     def getTweakControls(self):
+        """Return a tuple of Tweak controls applicable to this drawable"""
         from BZEngine.UI import Tweak
         return (
             Tweak.Text(self.texProxy, 'targetName'),
@@ -79,5 +82,38 @@ class SimpleParticles(SpriteArray):
         SpriteArray.draw(self, rstate)
         glEnable(GL_LIGHTING)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+
+    def __getstate__(self):
+        """Called during pickling, returns the information to be pickled.
+           To avoid storing all the arrays representing this particle system's
+           exact state, we return only the exact values we're interested in saving.
+
+           This returns a list of object, attribute, value tuples.
+           """
+        state = []
+        for object, attribute in [
+            ('self.texProxy', 'targetName'),
+            ('self', 'glowing'),
+            ('self.renderer', 'zSort'),
+            ('self.emitter', 'spawnRate'),
+            ('self.emitter', 'speedRange'),
+            ('self.emitter', 'direction'),
+            ('self.emitter', 'directionRandomness'),
+            ('self.emitter', 'position'),
+            ('self.lifespan', 'lifespan'),
+            ('self.fader', 'sizeRange'),
+            ('self.fader', 'colorRange'),
+            ('self.constAccel', 'vector'),
+            ]:
+            state.append(( object, attribute, getattr(eval(object), attribute) ))
+        return state
+
+    def __setstate__(self, state):
+        """Called during unpickling, with the object, attribute, value tuples
+           saved above.
+           """
+        self.__init__()
+        for (object, attribute, value) in state:
+            setattr(eval(object), attribute, value)
 
 ### The End ###
