@@ -68,6 +68,15 @@ with web, IRC, XML-RPC, and email interfaces.
     Handles the stats:// URI used to collect information on messages. These stats
     can then be queried over the web or over XML-RPC.
 
+  - Nouvelle
+
+    A web objects system similar to nevow but with a few key differences outlined
+    in its doc string.
+
+  - LibCIA.Web
+
+    A web interface to CIA built with Nouvelle
+
 
 -------- Requirements
 

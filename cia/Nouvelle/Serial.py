@@ -1,9 +1,14 @@
-""" LibCIA.Web.Base
+""" Nouvelle.Serial
 
-A very simple web objects framework, in the spirit of nevow
+Core functionality for Nouvelle's object serialization system, including
+the tag, place, and Serializer objects.
+
+The lowercase 'place', 'xml', and 'tag' classes break my naming
+convention, but since they aren't really used like conventional classes
+I think lowercase makes more sense.
 """
 #
-# CIA open source notification system
+# Nouvelle web framework
 # Copyright (C) 2003 Micah Dowty <micahjd@users.sourceforge.net>
 #
 #  This library is free software; you can redistribute it and/or
@@ -21,8 +26,7 @@ A very simple web objects framework, in the spirit of nevow
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from twisted.xish import domish
-from twisted.web import resource
+__all__ = ['place', 'xml', 'Serializer', 'tag', 'DocumentOwner']
 
 
 class place:
@@ -49,6 +53,16 @@ class xml(str):
        needs no further processing.
        """
     __slots__ = []
+
+
+def escapeToXml(text, isAttrib=0):
+    text = text.replace("&", "&amp;")
+    text = text.replace("<", "&lt;")
+    text = text.replace(">", "&gt;")
+    if isAttrib == 1:
+        text = text.replace("'", "&apos;")
+        text = text.replace("\"", "&quot;")
+    return text
 
 
 class Serializer:
@@ -85,7 +99,7 @@ class Serializer:
         return self.render(obj.render(context), context)
 
     def render_other(self, obj, context):
-        return xml(domish.escapeToXml(str(obj)))
+        return xml(escapeToXml(str(obj)))
 
 
 class tag:
@@ -105,7 +119,7 @@ class tag:
     def __init__(self, name, **attributes):
         self.name = name
         self.content = []
-        self.setAttributes(attributes)
+        self._setAttributes(attributes)
 
     def __call__(self, name=None, **attributes):
         """A tag instance can be called just like the tag
@@ -118,17 +132,25 @@ class tag:
         attrs.update(attributes)
         return tag(name, **attrs)[ self.content ]
 
-    def setAttributes(self, attributes):
-        """Change this tag's attributes, rerendering the opening and closing text"""
-        self.attributes = attributes
-        opening = '<' + self.name
+    def _stringizeAttributes(self, attributes):
+        """Return a string representation of the given attribute dictionary,
+           with a leading space if there are any attributes. Returns the empty
+           string if no attributes were given.
+           """
+        s = ''
         for key, value in attributes.iteritems():
             if key[0] == '_':
                 key = key[1:]
             if value:
-                opening += ' %s="%s"' % (key, domish.escapeToXml(value, True))
-        opening += '>'
-        self.renderedOpening = xml(opening)
+                s += ' %s="%s"' % (key, escapeToXml(value, True))
+        return s
+
+    def _setAttributes(self, attributes):
+        """Change this tag's attributes, rerendering the opening and closing text"""
+        self.attributes = attributes
+        attrString = self._stringizeAttributes(attributes)
+        self.renderedOpening = xml('<%s%s>' % (self.name, attrString))
+        self.renderedEmpty = xml('<%s%s />' % (self.name, attrString))
         self.renderedClosing = xml('</%s>' % self.name)
 
     def __getitem__(self, content):
@@ -140,11 +162,16 @@ class tag:
         return newTag
 
     def render(self, context=None):
-        return [self.renderedOpening, self.content, self.renderedClosing]
+        if self.content:
+            return [self.renderedOpening, self.content, self.renderedClosing]
+        else:
+            return self.renderedEmpty
 
 
 class DocumentOwner(object):
     """A base class defining a 'render' function for objects that own a document"""
+    serializerFactory = Serializer
+
     def isVisible(self, context):
         """Subclasses can override this to decide whether the entire document should be rendered"""
         return True
@@ -154,23 +181,6 @@ class DocumentOwner(object):
             return xml('')
         myContext = dict(context)
         myContext['owner'] = self
-        return Serializer().render(self.document, myContext)
-
-
-class Page(resource.Resource):
-    """A web resource that renders a tree of tag instances from its 'document' attribute"""
-    def render(self, request):
-        context  = {
-            'owner': self,
-            'request': request,
-            }
-        self.preRender(context)
-        return str(Serializer().render(self.document, context))
-
-    def preRender(self, context):
-        """Called prior to rendering each request, subclasses can use this to annotate
-           'context' with extra information or perform other important setup tasks.
-           """
-        pass
+        return self.serializerFactory().render(self.document, myContext)
 
 ### The End ###
