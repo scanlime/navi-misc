@@ -257,14 +257,19 @@ class PalantirWindow:
     reactor.stop()
 
   def on_dice_button_clicked(self, widget, data=10):
-    time = int(self.tree.get_widget('times').get_text())
-    mods = int(self.tree.get_widget('mods').get_text())
+    time = self.tree.get_widget('times').get_text()
+    mods = self.tree.get_widget('mods').get_text()
     if self.tree.get_widget('white_wolf_dice').get_active():
-      diff = int(self.tree.get_widget('diff').get_text())
+      diff = self.tree.get_widget('diff').get_text()
+      if not diff:
+	diff = 6
     else:
       diff = 0
-
-    self.dieRoller.roll([time], data, mods, diff)
+    if not time:
+      time = 1
+    if not mods:
+      mods = 0
+    self.dieRoller.roll([int(time)], data, [int(mods)], int(diff))
 
   ### Misc. Necessary Functions ###
   def ConnectionDialog(self):

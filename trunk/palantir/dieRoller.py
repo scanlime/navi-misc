@@ -32,7 +32,7 @@ class DieRoller:
       totalTimes += time
 
     # Use the dice system from D&D.
-    if self.system is 'D&D':
+    if self.system == 'D&D':
       for roll in range(totalTimes):
         rolls.append(randint(1, sides))
         total += rolls[len(rolls) - 1]
@@ -44,8 +44,11 @@ class DieRoller:
     # Use the dice system from the White Wolf games.
     else:
       for roll in range(totalTimes):
-	rolls.append(randint(1, sides) + mods)
-	if rolls[len(rolls) - 1] >= diff:
+	score = randint(1, sides)
+	for mod in mods:
+	  score += mod
+	rolls.append(score)
+	if score >= diff:
 	  total += 1
 
     # Send the results to the channel.
