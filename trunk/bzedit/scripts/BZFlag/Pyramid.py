@@ -1,3 +1,7 @@
+""" BZFlag.Pyramid
+
+BZFlag.Object implementing a pyramid.
+"""
 #
 # Copyright (C) 2005 David Trowbridge
 #
@@ -15,15 +19,28 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
-from Box import *
-from Pyramid import *
-from World import *
+from Box import Box
 
-typeMap = {
-    'box' : Box,
-    'link' : None,
-    'options' : None,
-    'pyramid' : Pyramid,
-    'teleporter' : None,
-    'world' : None,
-}
+# FIXME - flipz
+class Pyramid(Box):
+    type = 'pyramid'
+
+    verts = [( 1,  1, 0),
+             (-1,  1, 0),
+             (-1, -1, 0),
+             ( 1, -1, 0),
+             ( 0,  0, 1),
+            ]
+
+    faces = [(0, 4, 3),    # X+
+             (2, 4, 1),    # X-
+             (1, 4, 0),    # Y+
+             (3, 4, 2),    # Y-
+             (0, 1, 2, 3), # Z-
+            ]
+
+    materials = []
+    materialIndex = []
+
+    def set_size(self, size=[8.2, 8.2, 10.25]):
+        self.size = [float(n) for n in size]

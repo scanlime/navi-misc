@@ -30,7 +30,6 @@ class Reader:
     def gotElement(self, s, loc, toks):
         object = toks[0]
         type = typeMap[object[0]]
-        print 'found type',object[0],type
         if type is not None:
             self.objects.append(type(object))
 
