@@ -10,7 +10,7 @@ top_level=VHDL
 HDL netlist format=Auto
 generics=MAX
 sim_mode=FUNC
-lib_order=155 155 133 155
+lib_order=155 155 155 155 155 155 155 155 155 155 155 133 155
 [libraries]
 133=c:\fndtn\active\syslib\simprims
 155=c:\fndtn\active\syslib\xc4000x
@@ -18,8 +18,8 @@ lib_order=155 155 133 155
 oid=0
 lid=0
 format=19
-source=C:\unicone\fpga\lib\util.v
-server_hwnd=5439728
+source=C:\unicone\fpga\lib\n_serial.v
+server_hwnd=4063680
 
 
 
@@ -80,7 +80,7 @@ part=4010XLPC84-09
 xilinx=4010XLPC84-09
 functional=ver1
 optimized=ver1-Optimized
-design=deserializer,c:\unicone\fpga\gamecube\util.v
+design=n_serial_rx,c:\unicone\fpga\gamecube\n_serial.v
 [xilinx]
 family=2
 xfam=XC4000XL

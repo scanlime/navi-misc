@@ -77,9 +77,13 @@ endmodule
  *
  * Our hardware currently uses a 20MHz clock, therefore this implementation
  * is effectively a 1/20 clock divider.
+ *
+ * Two synchronous resets are provided- sync_begin resets to the beginning of
+ * one tick cycle, sync_middle resets close to the center of a cycle. The 
+ * cycle immediately after sync_reset is asserted, a tick will be generated.
  */
-module n_serial_timebase (clk, reset, tick, sync_reset);
-	input clk, reset, sync_reset;
+module n_serial_timebase (clk, reset, tick, sync_begin, sync_middle);
+	input clk, reset, sync_begin, sync_middle;
 	output tick;
 	reg tick;
 	reg [5:0] counter;
@@ -89,9 +93,13 @@ module n_serial_timebase (clk, reset, tick, sync_reset);
 			tick <= 0;
 			counter <= 0;
 		end
-		else if (sync_reset) begin
-			tick <= 0;
+		else if (sync_begin) begin
+			tick <= 1;
 			counter <= 0;
+		end
+		else if (sync_middle) begin
+			tick <= 0;
+			counter <= 10;
 		end
 		else if (counter == 19) begin
 			tick <= 1;
@@ -101,6 +109,204 @@ module n_serial_timebase (clk, reset, tick, sync_reset);
 			tick <= 0;
 			counter <= counter + 1;
 		end
+endmodule
+
+
+/*
+ * A receiver for N64/Gamecube formatted serial data. 
+ *
+ * A typical transmission:
+ *   1. Activity is detected on the input
+ *   2. rx_start is asserted for one clock cycle
+ *   3. Data bytes are received. Each one is returned
+ *      via rx_data, with a 1-cycle pulse on strobe.
+ *   4. If inappropriate codes are received or the
+ *      packet ends without a stop bit, rx_error is
+ *      asserted for one clock cycle.
+ *   5. If the packet is ended successfully, rx_stop
+ *      is asserted.
+ */
+module n_serial_rx (clk, reset, serial_in,
+                    rx_start, rx_stop, rx_error,
+                    rx_data, strobe);
+	input clk, reset;
+	input serial_in;
+	output rx_start, rx_stop, rx_error;
+	output [7:0] rx_data;
+	output strobe;
+
+	reg rx_start, rx_stop, rx_error, strobe;
+	reg [7:0] rx_data;
+	reg [2:0] bit_count;
+	reg [7:0] shifter;
+	reg [3:0] qbits;
+	reg [2:0] state;
+	parameter
+		S_IDLE = 0,
+		S_WAIT_FOR_Q1 = 1,
+		S_WAIT_FOR_Q2 = 2,
+		S_WAIT_FOR_Q3 = 3,
+		S_WAIT_FOR_Q4 = 4,
+		S_DECODE_QBITS = 5;
+
+	/* 1us serial timebase. Keep it in reset halfway through a tick
+	 * as long as we're idle.
+	 */
+	wire tick;
+	wire tick_reset = state == S_IDLE;
+	n_serial_timebase rx_ticker(clk, reset, tick, 1'b0, tick_reset);
+
+	always @(posedge clk or posedge reset)
+		if (reset) begin
+
+			state <= S_IDLE;
+			qbits <= 4'b1111;
+			bit_count <= 0;
+			shifter <= 0;
+
+			rx_start <= 0;
+			rx_stop <= 0;
+			rx_error <= 0;
+			strobe <= 0;
+			rx_data <= 0;
+
+		end
+		else case (state)
+
+			S_IDLE: begin
+				// We're waiting for incoming data, our timebase is in reset.
+				// Leave when we see our serial input go low.
+				if (!serial_in) begin
+					state <= S_WAIT_FOR_Q1;
+					rx_start <= 1;
+				end
+				else begin
+					rx_start <= 0;
+				end
+				rx_stop <= 0;
+				rx_error <= 0;
+				strobe <= 0;
+				rx_data <= 0;
+				bit_count <= 0;
+				shifter <= 0;
+				qbits <= 4'b1111;
+			end
+			
+			S_WAIT_FOR_Q1: begin
+				// At the next clock tick, we sample the Q1 quarter-bit
+				if (tick) begin
+					state <= S_WAIT_FOR_Q2;
+					qbits[3] <= serial_in;
+				end
+				rx_start <= 0;
+				rx_stop <= 0;
+				rx_error <= 0;
+				strobe <= 0;
+			end
+
+			S_WAIT_FOR_Q2: begin
+				// At the next clock tick, we sample the Q2 quarter-bit
+				if (tick) begin
+					state <= S_WAIT_FOR_Q3;
+					qbits[2] <= serial_in;
+				end
+				rx_start <= 0;
+				rx_stop <= 0;
+				rx_error <= 0;
+				strobe <= 0;
+			end
+
+			S_WAIT_FOR_Q3: begin
+				// At the next clock tick, we sample the Q3 quarter-bit
+				if (tick) begin
+					state <= S_WAIT_FOR_Q4;
+					qbits[1] <= serial_in;
+				end
+				rx_start <= 0;
+				rx_stop <= 0;
+				rx_error <= 0;
+				strobe <= 0;
+			end
+
+			S_WAIT_FOR_Q4: begin
+				// At the next clock tick, we sample the Q4 quarter-bit
+				if (tick) begin
+					state <= S_DECODE_QBITS;
+					qbits[0] <= serial_in;
+				end
+				rx_start <= 0;
+				rx_stop <= 0;
+				rx_error <= 0;
+				strobe <= 0;
+			end
+			
+			S_DECODE_QBITS: begin
+				// We've received a full bit, decode the quarter-bits to
+				// determine what it was.
+				if (qbits == 4'b0111) begin
+					// Successfully received a '1' bit
+
+					if (bit_count == 7) begin
+						// Last bit in this byte
+						bit_count <= 0;
+						rx_data <= {shifter[6:0], 1'b1};
+						strobe <= 1;
+					end
+					else begin
+						bit_count <= bit_count + 1;
+						shifter <= {shifter[6:0], 1'b1};
+						strobe <= 0;
+					end
+					state <= S_WAIT_FOR_Q1;
+
+				end
+				else if (qbits == 4'b0001) begin
+					// Successfully received a '0' bit
+
+					if (bit_count == 7) begin
+						// Last bit in this byte
+						bit_count <= 0;
+						rx_data <= {shifter[6:0], 1'b0};
+						strobe <= 1;
+					end
+					else begin
+						bit_count <= bit_count + 1;
+						shifter <= {shifter[6:0], 1'b0};
+						strobe <= 0;
+					end
+					state <= S_WAIT_FOR_Q1;
+
+				end
+				else if (qbits == 4'b1111) begin
+					// The line is idle again. If we just got a stop bit,
+					// this is the end of a transmission
+					
+					if (bit_count == 1 && shifter[0] == 1'b1) begin
+						// Yep, we have a stop bit. Signal a successful stop
+						rx_stop <= 1;
+						rx_error <= 0;
+					end
+					else begin
+						// No stop bit, this is an error
+						rx_error <= 1;
+						rx_stop <= 0;
+					end
+					state <= S_IDLE;
+					strobe <= 0;
+
+				end
+
+				else begin
+					// Anything else is an error
+
+					rx_error <= 1;
+					rx_stop <= 0;
+					state <= S_IDLE;
+					strobe <= 0;
+
+				end
+			end
+		endcase
 endmodule
 
 
@@ -133,9 +339,9 @@ module n_serial_tx (clk, reset,
 	output serial_out;
 	reg serial_out;
 	
-	/* 1us serial timebase */
+	/* 1us serial timebase, without the sync resets hooked up */
 	wire tick;
-	n_serial_timebase ticker(clk, reset, tick, 0);
+	n_serial_timebase ticker(clk, reset, tick, 0, 0);
 	
 	/* Buffer the incoming data stream, consisting
 	 * of both the tx_data and the stop bit flag.
