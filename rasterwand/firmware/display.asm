@@ -27,6 +27,7 @@
 	errorlevel -302		; supress "register not in bank0, check page bits" message
 
 	global	display_poll
+	global	display_init
 	global	edge_buffer
 
 	global	wand_period	; NOTE: It's important that the order of wand_period and wand_phase
@@ -63,6 +64,28 @@ back_buffer		res	.80
 
 	code
 
+
+;********************************************* Initialization
+
+display_init
+	pagesel	edge_buffer
+	clrf	edge_buffer
+	clrf	edge_buffer+1
+	clrf	edge_buffer+2
+	clrf	edge_buffer+3
+	clrf	edge_buffer+4
+	clrf	edge_buffer+5
+	clrf	edge_buffer+6
+	clrf	edge_buffer+7
+	clrf	wand_period
+	clrf	wand_period+1
+	clrf	wand_phase
+	clrf	wand_phase+1
+	clrf	coil_window_min
+	clrf	coil_window_min+1
+	clrf	coil_window_max
+	clrf	coil_window_max+1
+	return
 
 ;********************************************* Polling handler
 
@@ -130,13 +153,13 @@ no_phase_rollover
 	subwf	wand_phase+1, w
 	pagesel	coil_off
 	btfss	STATUS, C
-	goto	coil_off				; C=0, B=1, coil_window_min < wand_phase
+	goto	coil_off				; C=0, B=1, coil_window_min > wand_phase
 
 	movf	wand_phase+1, w			; Test high byte of coil_window_max - wand_phase
 	subwf	coil_window_max+1, w
 	pagesel	coil_off
 	btfss	STATUS, C
-	goto	coil_off				; C=0, B=1, wand_phase < coil_window_max
+	goto	coil_off				; C=0, B=1, wand_phase > coil_window_max
 
 	movf	coil_window_min+1, w	; Test high byte of wand_phase == coil_window_min
 	subwf	wand_phase+1, w
@@ -147,23 +170,25 @@ no_phase_rollover
 	subwf	wand_phase, w
 	pagesel	coil_off
 	btfss	STATUS, C
-	goto	coil_off				; C=0, B=1, coil_window_min < wand_phase
+	goto	coil_off				; C=0, B=1, coil_window_min > wand_phase
 coil_min_neq
 
 	movf	wand_phase+1, w			; Test high byte of wand_phase == coil_window_max
 	subwf	coil_window_max+1, w
-	pagesel	coil_min_neq
+	pagesel	coil_max_neq
 	btfss	STATUS, Z
 	goto	coil_max_neq			; Not equal, don't need to look at low byte
 	movf	wand_phase, w			; Test low byte of coil_window_max - wand_phase
 	subwf	coil_window_max, w
 	pagesel	coil_off
 	btfss	STATUS, C
-	goto	coil_off				; C=0, B=1, wand_phase < coil_window_max
+	goto	coil_off				; C=0, B=1, wand_phase > coil_window_max
 coil_max_neq
 
 	banksel	PORTC					; Turn the coil on
 	bsf		COIL_DRIVER
+	pagesel	end_coil_test
+	goto	end_coil_test
 coil_off
 	banksel	PORTC					; Turn the coil off
 	bcf		COIL_DRIVER

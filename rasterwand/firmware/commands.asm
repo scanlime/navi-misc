@@ -138,12 +138,19 @@ request_readPrediction
 request_setPrediction
 	banksel	BufferData
 	movf	BufferData+wValue, w
+	banksel	wand_phase
 	movwf	wand_phase
+	banksel	BufferData
 	movf	BufferData+(wValue+1), w
+	banksel	wand_phase
 	movwf	wand_phase+1
+	banksel	BufferData
 	movf	BufferData+wIndex, w
+	banksel	wand_phase
 	movwf	wand_period
+	banksel	BufferData
 	movf	BufferData+(wIndex+1), w
+	banksel	wand_phase
 	movwf	wand_period+1
 	returnEmpty
 
@@ -151,12 +158,19 @@ request_setPrediction
 request_setCoilPhase
 	banksel	BufferData
 	movf	BufferData+wValue, w
+	banksel	coil_window_min
 	movwf	coil_window_min
+	banksel	BufferData
 	movf	BufferData+(wValue+1), w
+	banksel	coil_window_min
 	movwf	coil_window_min+1
+	banksel	BufferData
 	movf	BufferData+wIndex, w
+	banksel	coil_window_min
 	movwf	coil_window_max
+	banksel	BufferData
 	movf	BufferData+(wIndex+1), w
+	banksel	coil_window_min
 	movwf	coil_window_max+1
 	returnEmpty
 
