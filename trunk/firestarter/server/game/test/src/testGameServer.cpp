@@ -11,6 +11,14 @@
 */
 #include "testGameServer.h"
 
+// messages
+#define	_MESSAGE_SERVER_INFO 0x5349	// SI 
+#define	_MESSAGE_CLIENT_INFO 0x4349	// CI 
+#define	_MESSAGE_USER_PART 0x5550		// UP
+#define	_MESSAGE_USER_ADD 0x5541		// UA
+#define	_MESSAGE_KICK 0x4b4b				// KK
+#define _MESSAGE_UPDATE 0x5544			//UD
+
 void CTestGameServer::init ( void )
 {
 }
@@ -20,6 +28,18 @@ bool CTestGameServer::think ( void )
 	return false;
 }
 
+void CTestGameServer::sendToAllBut ( CNetworkMessage &message, int player )
+{
+	std::map<int,trPlayerInfo>::iterator players = users.begin();
+
+	while (players != users.end())
+	{
+		if (player != players->first)
+			message.Send(*players->second.peer,true);
+		players++;
+	}
+}
+
 bool CTestGameServer::message ( int playerID, CNetworkPeer &peer, CNetworkMessage &message )
 {
 	std::map<int,trPlayerInfo>::iterator itr = users.find(playerID);
@@ -27,23 +47,59 @@ bool CTestGameServer::message ( int playerID, CNetworkPeer &peer, CNetworkMessag
 		return true;					// we don't know who they are
 
 	// for now just do a simple message relay and add on the user ID
-	CNetworkMessage	newMessage;
-	newMessage.SetType(message.GetType());	// what ever the message type is
-	newMessage.AddI(playerID);
 
-	void* mem = malloc(message.GetSize());
-	message.GetDataMem(mem);
-	newMessage.AddN(message.GetSize(),mem);
+	bool bRellay = false;
 
-	// send an add to everyone else
-	std::map<int,trPlayerInfo>::iterator players = users.begin();
-
-	while (players != users.end())
+	switch (message.GetType())
 	{
-		if (playerID != players->first)
-			message.Send(*players->second.peer,true);
-		players++;
+		case _MESSAGE_SERVER_INFO:	// SI 
+			break;
+
+		case _MESSAGE_CLIENT_INFO:	// CI 
+			bRellay = true;
+			itr->second.player = true;
+			itr->second.name = message.ReadStr();
+			break;
+
+		case _MESSAGE_USER_PART:		// UP
+			remove(playerID,peer);
+			break;
+
+		// this we should never get
+		case _MESSAGE_USER_ADD:	// UA
+		case _MESSAGE_KICK:			// KK
+			break;
+
+		case _MESSAGE_UPDATE: //UD
+			if (itr->second.player)
+			{
+				bRellay = true;
+				message.ReadV(itr->second.pos);
+				message.ReadV(itr->second.rot);
+				message.ReadV(itr->second.vec);
+			}
+			break;
+
+		default:
+			bRellay = true;
+
+			break;
 	}
+
+	if (bRellay)
+	{	
+		CNetworkMessage	newMessage;
+		newMessage.SetType(message.GetType());	// what ever the message type is
+		newMessage.AddI(playerID);
+
+		void* mem = malloc(message.GetSize());
+		message.GetDataMem(mem);
+		newMessage.AddN(message.GetSize(),mem);
+
+		// send an add to everyone else
+		sendToAllBut(newMessage,playerID);
+	}
+
 	return false;
 }
 
@@ -68,18 +124,9 @@ bool CTestGameServer::add ( int playerID, CNetworkPeer &peer )
 	message.Send(peer,true);
 
 	// send an add to everyone else
-	std::map<int,trPlayerInfo>::iterator players = users.begin();
-
 	message.SetType("UA");	// UserAdd
 	message.AddI(playerID);
-
-	while (players != users.end())
-	{
-		if (playerID != players->first)
-			message.Send(*players->second.peer,true);
-		players++;
-	}
-
+	sendToAllBut(message,playerID);
 	return false;
 }
 
@@ -90,18 +137,11 @@ bool CTestGameServer::remove ( int playerID, CNetworkPeer &peer )
 		return true;
 
 	// send the remove to everyone else
-	std::map<int,trPlayerInfo>::iterator players = users.begin();
-
 	CNetworkMessage	message;
 	message.SetType("UP");	// UserPart
 	message.AddI(playerID);
+	sendToAllBut(message,playerID);
 
-	while (players != users.end())
-	{
-		if (playerID != players->first)
-			message.Send(*players->second.peer,true);
-		players++;
-	}
 	users.erase(itr);
 	return false;
 }
@@ -116,19 +156,11 @@ bool CTestGameServer::kick ( int playerID, CNetworkPeer &peer )
 
 	message.SetType("KK");	// KicK
 	message.Send(peer,true);
+
 	// send the remove to everyone else
-
-	std::map<int,trPlayerInfo>::iterator players = users.begin();
-
 	message.SetType("UP");	// UserPart
 	message.AddI(playerID);
-
-	while (players != users.end())
-	{
-		if (playerID != players->first)
-			message.Send(*players->second.peer,true);
-		players++;
-	}
+	sendToAllBut(message,playerID);
 
 	users.erase(itr);
 		return false;
@@ -136,16 +168,9 @@ bool CTestGameServer::kick ( int playerID, CNetworkPeer &peer )
 
 void CTestGameServer::kill ( void )
 {
-	std::map<int,trPlayerInfo>::iterator itr = users.begin();
-
 	CNetworkMessage	message;
 	message.SetType("KK"); 	// KicK
-
-	while (itr != users.end())
-	{
-		message.Send(*itr->second.peer,true);
-		itr++;
-	}
+	sendToAllBut(message,-1);
 	users.clear();
 }
 
