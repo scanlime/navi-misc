@@ -31,6 +31,8 @@
 
 	global	wand_period	; NOTE: It's important that the order of wand_period and wand_phase
 	global	wand_phase	;       be preserved, they're sent in one piece over USB.
+	global	coil_window_min
+	global	coil_window_max
 
 bank0	udata
 
@@ -39,6 +41,9 @@ edge_buffer		res	8	; Stores 16-bit duration values at the last 4 angle sensor ed
 
 wand_period		res	2	; The wand oscillation period, 16-bit little endian in 16-cycle units
 wand_phase		res	2	; The current phase angle of the want, ranging from 0 to wand_period-1
+
+coil_window_min	res	2	; Minimum and maximum wand_phase to enable the coil for
+coil_window_max	res	2
 
 unbanked	udata_shr
 
@@ -106,19 +111,60 @@ display_poll
 
 	; Subtract wand_period from wand_phase
 phase_rollover
-	bcf		PORTB, 0
-
 	movf	wand_period, w
 	subwf	wand_phase, f
 	btfss	STATUS, C
 	decf	wand_phase+1, f
 	movf	wand_period+1, w
 	subwf	wand_phase+1, f
-
-	bsf		PORTB, 0
-
 no_phase_rollover
+
+	; Are we within the window in which the coil driver should be on?
+	movf	coil_window_min+1, w	; Test high byte of wand_phase - coil_window_min
+	subwf	wand_phase+1, w
+	pagesel	coil_off
+	btfss	STATUS, C
+	goto	coil_off				; C=0, B=1, coil_window_min < wand_phase
+
+	movf	wand_phase+1, w			; Test high byte of coil_window_max - wand_phase
+	subwf	coil_window_max+1, w
+	pagesel	coil_off
+	btfss	STATUS, C
+	goto	coil_off				; C=0, B=1, wand_phase < coil_window_max
+
+	movf	coil_window_min+1, w	; Test high byte of wand_phase == coil_window_min
+	subwf	wand_phase+1, w
+	pagesel	coil_min_neq
+	btfss	STATUS, Z
+	goto	coil_min_neq			; Not equal, don't need to look at low byte
+	movf	coil_window_min, w		; Test low byte of wand_phase - coil_window_min
+	subwf	wand_phase, w
+	pagesel	coil_off
+	btfss	STATUS, C
+	goto	coil_off				; C=0, B=1, coil_window_min < wand_phase
+coil_min_neq
+
+	movf	wand_phase+1, w			; Test high byte of wand_phase == coil_window_max
+	subwf	coil_window_max+1, w
+	pagesel	coil_min_neq
+	btfss	STATUS, Z
+	goto	coil_max_neq			; Not equal, don't need to look at low byte
+	movf	wand_phase, w			; Test low byte of coil_window_max - wand_phase
+	subwf	coil_window_max, w
+	pagesel	coil_off
+	btfss	STATUS, C
+	goto	coil_off				; C=0, B=1, wand_phase < coil_window_max
+coil_max_neq
+
+	banksel	PORTC					; Turn the coil on
+	bsf		COIL_DRIVER
+coil_off
+	banksel	PORTC					; Turn the coil off
+	bcf		COIL_DRIVER
+end_coil_test
+
 	; Add our current delta-t to the latest slot on the edge buffer
+	banksel	edge_buffer
 	movf	delta_t+1, w
 	addwf	edge_buffer+7, f
 	movf	delta_t, w
