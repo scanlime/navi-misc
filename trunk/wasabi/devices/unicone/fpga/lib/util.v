@@ -43,6 +43,125 @@ endmodule
 
 
 /*
+ * An MSB-first parallel to serial shift register with flow
+ * control. This can be used with shallow_buffer or other
+ * modules with similar interfaces.
+ *
+ * On the serial side:
+ *  1. Wait states are inserted until ser_ready goes high
+ *  2. If a bit is available, ser_strobe is high
+ *     and at the same clock cycle ser_data contains the
+ *     new bit. At all other times ser_available is low.
+ *  3. The process repeats
+ *
+ * If ser_ready is held high continuously, one bit is output
+ * per clock cycle as long as they are available. Single
+ * bits can be extracted with 1-cycle pulses of ser_ready.
+ * Note that ser_strobe is level triggered, not edge triggered.
+ *
+ * On the parallel side:
+ *  1. Wait states are inserted until par_ready goes high
+ *  2. A byte is read from par_data
+ *  3. par_strobe goes high for one cycle
+ */
+module serializer (clk, reset,
+                   par_data, par_ready, par_strobe,
+                   ser_data, ser_ready, ser_strobe);
+	parameter WIDTH = 8;
+	parameter COUNT_WIDTH = 3;
+	
+	input clk, reset;
+	input [WIDTH-1:0] par_data;
+	input par_ready;
+	output par_strobe;
+	output ser_data;
+	input ser_ready;
+	output ser_strobe;
+	
+	reg par_strobe;
+	reg ser_data;
+	reg ser_strobe;
+	reg [COUNT_WIDTH-1:0] bit_count;
+	reg [WIDTH-1:0] shifter;
+	
+	reg state;
+	parameter
+		S_WAIT_FOR_PAR = 0,
+		S_SHIFT_BIT = 1;
+
+	always @(posedge clk or posedge reset)
+		if (reset) begin
+
+			state <= S_WAIT_FOR_PAR;
+			shifter <= 0;
+			bit_count <= 0;
+			par_strobe <= 0;
+			ser_strobe <= 0;
+			ser_data <= 0;
+		
+		end
+		else case (state)
+
+			S_WAIT_FOR_PAR: begin
+				// Wait for parallel data. This state is only used
+				// when we're idle- if parallel data is available,
+				// this state is not inserted between bytes.
+				if (par_ready) begin
+					// Bring in the new word of parallel data
+					shifter <= par_data;
+					bit_count <= 0;
+					par_strobe <= 1;
+					ser_strobe <= 0;
+					state <= S_SHIFT_BIT;
+				end
+				else begin
+					par_strobe <= 0;
+					ser_strobe <= 0;
+				end				
+			end
+						
+			S_SHIFT_BIT: begin
+				// Normal operation, when we're not in a parallel wait state
+				
+				if (ser_ready) begin
+					// Clock out the next serial bit
+				
+					ser_data <= shifter[WIDTH-1];
+					ser_strobe <= 1;
+				
+					if (bit_count == WIDTH-1) begin
+						// Last bit- if we have parallel data ready, pull
+						// it in without missing a beat. If not, insert a
+						// wait state.
+						if (par_ready) begin
+							shifter <= par_data;
+							bit_count <= 0;
+							par_strobe <= 1;
+						end
+						else begin
+							state <= S_WAIT_FOR_PAR;
+							par_strobe <= 0;
+						end
+					end
+					else begin
+						// Just another bit
+						bit_count <= bit_count + 1;
+						shifter <= {shifter[WIDTH-2:0], 1'b0};
+						par_strobe <= 0;
+					end
+
+				end
+				else begin
+					par_strobe <= 0;
+					ser_strobe <= 0;
+				end	
+			end
+
+		endcase	
+endmodule
+
+
+/*
  * A one-level FIFO buffer
  *
  * From the input side:
