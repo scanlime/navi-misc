@@ -24,6 +24,7 @@
 #include <gconf/gconf-client.h>
 
 #include "xchat-plugin.h"
+#include "navigation_tree.h"
 #include "eggtrayicon.h"
 
 #define VERSION "0.1"
