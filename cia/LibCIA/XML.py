@@ -107,14 +107,21 @@ class XMLStorage(object):
        as child nodes of a given root element. This is an abstract implementation
        that doesn't specify how the items are stored in memory.
        """
-    def __init__(self, fileName, rootName='storage', heading=''):
+    def __init__(self, fileName, rootName='storage', heading='', lazyLoad=False):
         self.fileName = fileName
         self.rootName = rootName
         self.heading = heading
 
-        # Empty our storage and load existing data if it exists
+        self.loaded = False
         self.emptyStorage()
-        if os.path.isfile(fileName):
+        if not lazyLoad:
+            self.loadIfNecessary()
+
+    def loadIfNecessary(self):
+        """If lazyLoad is enabled, the file won't be loaded on initialization, it will
+           be loaded the first time this function is called.
+           """
+        if self.loaded == False and os.path.isfile(self.fileName):
             self.load()
 
     def load(self):
@@ -132,24 +139,42 @@ class XMLStorage(object):
         for tag in xml.children:
             if isinstance(tag, domish.Element):
                 self.store(tag)
+        self.loaded = True
 
     def save(self):
-        """Flatten our storage to a list and output each node to disk
+        """Save our in-memory representation back to disk"""
+        f = open(self.fileName, "w")
+        f.write(self.toXml())
+        f.close()
+
+    def toXml(self):
+        """Return the contents of this XMLStorage as raw XML. If it hasn't
+           been loaded yet, this returns the contents of the file on disk
+           unmodified. If it has, this uses _serialize()
+           """
+        if os.path.isfile(self.fileName) and not self.loaded:
+            # An optimization for the common case when the file exists
+            # but hasn't been loaded yet- return the file verbatim.
+            f = open(self.fileName)
+            xml = f.read()
+            f.close()
+            return xml
+
+        else:
+            # Nope, we have to serialize our contents
+            return self._serialize()
+
+    def _serialize(self):
+        """Flatten our storage to a list and output each node as raw XML
            inside our root node. Sorts each object by its attributes,
            so the output might be in a consistent order.
            """
-        f = open(self.fileName, "w")
-        f.write('<?xml version="1.0"?>\n')
-        f.write(self.heading)
-        f.write('<%s>\n' % self.rootName)
-
         objects = self.flatten()
         objects.sort(lambda a, b: cmp(a.xml.attributes, b.xml.attributes))
-        for obj in objects:
-            f.write("\n%s\n" % obj.xml.toXml())
-
-        f.write('\n</%s>\n' % self.rootName)
-        f.close()
+        return '<?xml version="1.0"?>\n%s<%s>\n\n%s\n\n</%s>\n' % (
+            self.heading, self.rootName,
+            '\n\n'.join([obj.xml.toXml() for obj in objects]),
+            self.rootName)
 
     def emptyStorage(self):
         """Subclasses must implement this to clear whatever storage is being
