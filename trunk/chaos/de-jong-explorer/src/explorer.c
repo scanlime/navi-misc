@@ -52,18 +52,21 @@ static void explorer_class_init(ExplorerClass *klass);
 static void explorer_init(Explorer *self);
 static void explorer_dispose(GObject *gobject);
 
-static void explorer_init_animation(Explorer *self);
 static int explorer_idle_handler(gpointer user_data);
 static void explorer_set_params(Explorer *self);
 static void explorer_get_params(Explorer *self);
 static void explorer_resize(Explorer *self);
-static void explorer_update(Explorer *self);
+static void explorer_update_gui(Explorer *self);
+static void explorer_run_iterations(Explorer *self);
 static int explorer_auto_limit_update_rate(Explorer *self);
 static int explorer_limit_update_rate(Explorer *self, float max_rate);
 static const ToolInfo* explorer_get_current_tool(Explorer *self);
 static void explorer_update_idle_tool(Explorer *self);
 static void explorer_fill_toolinput_relative_positions(Explorer *self, ToolInput *ti);
 static void explorer_get_current_keyframe(Explorer *self, GtkTreeIter *iter);
+static void explorer_init_animation(Explorer *self);
+static void explorer_update_animation(Explorer *self);
+static void explorer_update_animation_length(Explorer *self);
 
 static gdouble generate_random_param();
 
@@ -342,7 +345,7 @@ static void on_color_changed(GtkWidget *widget, gpointer user_data) {
 
   explorer_get_params(self);
   gtk_main_iteration();
-  explorer_update(self);
+  explorer_update_gui(self);
 }
 
 static gdouble generate_random_param() {
@@ -480,13 +483,20 @@ static void on_pause_rendering_toggle(GtkWidget *widget, gpointer user_data) {
 
 static int explorer_idle_handler(gpointer user_data) {
   Explorer *self = EXPLORER(user_data);
+
+  explorer_update_idle_tool(self);
+  explorer_run_iterations(self);
+  explorer_update_gui(self);
+  explorer_update_animation(self);
+  return 1;
+}
+
+static void explorer_run_iterations(Explorer *self) {
+  /* Run as many blocks of iterations as we can in 13 milliseconds
+   */
   GTimer *timer;
   gulong elapsed;
 
-  /* If we're using a tool that needs to be updated whenever idle, do that */
-  explorer_update_idle_tool(self);
-
-  /* Run as many blocks of iterations as we can in 13 milliseconds */
   timer = g_timer_new();
   g_timer_start(timer);
   do {
@@ -494,10 +504,6 @@ static int explorer_idle_handler(gpointer user_data) {
     g_timer_elapsed(timer, &elapsed);
   } while (elapsed < 13000);
   g_timer_destroy(timer);
-
-  /* Finally update the GUI */
-  explorer_update(self);
-  return 1;
 }
 
 static void explorer_resize(Explorer *self) {
@@ -548,7 +554,7 @@ static int explorer_auto_limit_update_rate(Explorer *self) {
   return explorer_limit_update_rate(self, 200 / (1 + (log(self->dejong->iterations) - 9.21) * 5));
 }
 
-static void explorer_update(Explorer *self) {
+static void explorer_update_gui(Explorer *self) {
   /* If the GUI needs updating, update it. This includes limiting the maximum
    * update rate, updating the iteration count display, and actually rendering
    * frames to the drawing area.
@@ -881,6 +887,38 @@ static void explorer_init_animation(Explorer *self) {
 
   gtk_tree_view_append_column(tv, col);
 
+  explorer_update_animation_length(self);
+}
+
+static void explorer_update_animation(Explorer *self) {
+  /* Move on to the next frame if we're playing an animation
+   */
+  GTimeVal now;
+  double diff, new_value;
+  GtkRange *range;
+  GtkAdjustment *adj;
+
+  if (!self->playing_animation)
+    return;
+
+  g_get_current_time(&now);
+  diff = ((now.tv_usec - self->last_anim_frame_time.tv_usec) / 1000000.0 +
+	  (now.tv_sec  - self->last_anim_frame_time.tv_sec ));
+  self->last_anim_frame_time = now;
+
+  range = GTK_RANGE(glade_xml_get_widget(self->xml, "anim_scale"));
+  adj = gtk_range_get_adjustment(range);
+
+  new_value = adj->value + diff;
+
+  if (new_value < adj->upper) {
+    gtk_range_set_value(range, new_value);
+  }
+  else {
+    /* Last frame, stop playback */
+    gtk_range_set_value(range, adj->upper);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(glade_xml_get_widget(self->xml, "anim_play_button")), FALSE);
+  }
 }
 
 static void explorer_get_current_keyframe(Explorer *self, GtkTreeIter *iter) {
@@ -893,11 +931,26 @@ static void explorer_get_current_keyframe(Explorer *self, GtkTreeIter *iter) {
 
 static void on_anim_play_toggled(GtkWidget *widget, gpointer user_data) {
   Explorer *self = EXPLORER(user_data);
+  GtkRange *range = GTK_RANGE(glade_xml_get_widget(self->xml, "anim_scale"));
+
+  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget))) {
+
+    /* If our animation is already at its end, start it over */
+    if (gtk_range_get_value(range) >= gtk_range_get_adjustment(range)->upper - 0.1)
+      gtk_range_set_value(range, 0);
+
+    g_get_current_time(&self->last_anim_frame_time);
+    self->playing_animation = TRUE;
+  }
+  else {
+    self->playing_animation = FALSE;
+  }
 }
 
 static void on_keyframe_add(GtkWidget *widget, gpointer user_data) {
   Explorer *self = EXPLORER(user_data);
   animation_keyframe_append(self->animation, self->dejong);
+  explorer_update_animation_length(self);
 }
 
 static void on_keyframe_replace(GtkWidget *widget, gpointer user_data) {
@@ -920,6 +973,7 @@ static void on_keyframe_delete(GtkWidget *widget, gpointer user_data) {
   gtk_widget_set_sensitive(glade_xml_get_widget(self->xml, "anim_transition_box"), FALSE);
 
   gtk_list_store_remove(self->animation->model, &iter);
+  explorer_update_animation_length(self);
 }
 
 static void on_keyframe_view_cursor_changed(GtkWidget *widget, gpointer user_data) {
@@ -928,6 +982,7 @@ static void on_keyframe_view_cursor_changed(GtkWidget *widget, gpointer user_dat
    */
   Explorer *self = EXPLORER(user_data);
   GtkTreeIter iter;
+
   explorer_get_current_keyframe(self, &iter);
 
   gtk_widget_set_sensitive(glade_xml_get_widget(self->xml, "keyframe_delete_button"), TRUE);
@@ -937,6 +992,8 @@ static void on_keyframe_view_cursor_changed(GtkWidget *widget, gpointer user_dat
   if (!self->seeking_animation) {
     animation_keyframe_load_dejong(self->animation, &iter, self->dejong);
     explorer_set_params(self);
+
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(glade_xml_get_widget(self->xml, "anim_play_button")), FALSE);
   }
 }
 
@@ -951,6 +1008,7 @@ static gboolean on_anim_window_delete(GtkWidget *widget, GdkEvent *event, gpoint
 static void on_anim_new(GtkWidget *widget, gpointer user_data) {
   Explorer *self = EXPLORER(user_data);
   animation_clear(self->animation);
+  explorer_update_animation_length(self);
 }
 
 static void on_anim_open(GtkWidget *widget, gpointer user_data) {
@@ -963,6 +1021,7 @@ static void on_anim_open(GtkWidget *widget, gpointer user_data) {
     const gchar *filename;
     filename = gtk_file_selection_get_filename(GTK_FILE_SELECTION(dialog));
     animation_load_file(self->animation, filename);
+    explorer_update_animation_length(self);
   }
   gtk_widget_destroy(dialog);
 }
@@ -986,6 +1045,18 @@ static void on_anim_save_as(GtkWidget *widget, gpointer user_data) {
   gtk_widget_destroy(dialog);
 }
 
+static void explorer_update_animation_length(Explorer *self) {
+  /* Recalculate the length of the animation and update the anim_scale accordingly
+   */
+  GtkWidget *scale = glade_xml_get_widget(self->xml, "anim_scale");
+  gdouble length = animation_get_length(self->animation);
+  gboolean enable = length > 0.0001;
+
+  gtk_range_set_range(GTK_RANGE(scale), 0, length);
+  gtk_widget_set_sensitive(scale, enable);
+  gtk_widget_set_sensitive(glade_xml_get_widget(self->xml, "anim_play_button"), enable);
+}
+
 static void on_anim_scale_changed(GtkWidget *widget, gpointer user_data) {
   double v = gtk_range_get_adjustment(GTK_RANGE(widget))->value;
   Explorer *self = EXPLORER(user_data);
@@ -993,15 +1064,25 @@ static void on_anim_scale_changed(GtkWidget *widget, gpointer user_data) {
   GtkTreePath *path;
   GtkTreeView *tv = GTK_TREE_VIEW(glade_xml_get_widget(self->xml, "keyframe_view"));
 
-
-  animation_iter_seek(self->animation, &iter, v*5);
+  /* Seek to the right place in the animation and load an interpolated frame */
+  animation_iter_seek(self->animation, &iter, v);
   animation_iter_load_dejong(self->animation, &iter, self->dejong);
 
+  /* Put the tree view's cursor on the current keyframe */
   path = gtk_tree_model_get_path(GTK_TREE_MODEL(self->animation->model), &iter.keyframe);
   self->seeking_animation = TRUE;
   gtk_tree_view_set_cursor(tv, path, NULL, FALSE);
   self->seeking_animation = FALSE;
   gtk_tree_path_free(path);
+
+  if (!self->playing_animation) {
+    /* Just like the color picker, the hscale will probably try to suck up
+     * all of the idle time we might have been spending rendering things.
+     * Force at least a little rendering to happen right now.
+     */
+    explorer_run_iterations(self);
+    explorer_update_gui(self);
+  }
 }
 
 /* The End */

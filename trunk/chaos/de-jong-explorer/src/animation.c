@@ -136,7 +136,7 @@ void animation_clear(Animation *self) {
 
 static void animation_set_default_transition(Animation *self, GtkTreeIter *iter) {
   gtk_list_store_set(self->model, iter,
-		     ANIMATION_MODEL_DURATION, (gdouble) 1.0,
+		     ANIMATION_MODEL_DURATION, (gdouble) 5.0,
 		     -1);
 }
 

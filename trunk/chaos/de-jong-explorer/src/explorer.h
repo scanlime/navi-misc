@@ -57,7 +57,6 @@ struct _Explorer {
 
   guint idler;
   gboolean setting_params;
-  gboolean seeking_animation;
   gboolean just_resized;
   GTimeVal last_update;
 
@@ -68,6 +67,10 @@ struct _Explorer {
   GTimeVal last_tool_idle_update;
 
   GtkWidget *fgcolor_button, *bgcolor_button;
+
+  gboolean seeking_animation;
+  gboolean playing_animation;
+  GTimeVal last_anim_frame_time;
 };
 
 struct _ExplorerClass {
