@@ -400,7 +400,8 @@ void			BackgroundRenderer::renderSkyAndGround(
   if (renderer.useQuality() > 0) {
     drawSky(renderer);
     drawGround();
-  } else {
+  } 
+	/*else {
     // low detail -- draw as damn fast as ya can, ie cheat.  use glClear()
     // to draw solid color sky and ground.
     MainWindow& window = renderer.getWindow();
@@ -435,7 +436,7 @@ void			BackgroundRenderer::renderSkyAndGround(
 
     // back to normal
     glPopAttrib();
-  }
+  } */
 }
 
 void			BackgroundRenderer::render(SceneRenderer& renderer)
@@ -443,9 +444,6 @@ void			BackgroundRenderer::render(SceneRenderer& renderer)
   // zbuffer should be disabled.  either everything is coplanar with
   // the ground or is drawn back to front and is occluded by everything
   // drawn after it.  also use projection with very far clipping plane.
-
-  if (renderer.useQuality() < 3)
-    drawGroundGrid(renderer);
 
   if (!blank) {
     if (doTeamBases) drawTeamBases();
@@ -456,8 +454,10 @@ void			BackgroundRenderer::render(SceneRenderer& renderer)
     // the ground gets illuminated).  this is necessary because lighting is
     // performed only at a vertex, and the ground's vertices are a few
     // kilometers away.
-    if (BZDB.isTrue("lighting"))
-      drawGroundReceivers(renderer);
+
+		// TODO: fix these and make them proper project textures
+   // if (BZDB.isTrue("lighting"))
+  //    drawGroundReceivers(renderer);
 
     if (renderer.useQuality() > 1) {
       // light the mountains (so that they get dark when the sun goes down).
@@ -610,7 +610,9 @@ void			BackgroundRenderer::drawGround()
     groundGState[styleIndex].setState();
   }
 
+	glDepthMask(1);
   simpleGroundList[styleIndex].execute();
+	glDepthMask(0);
 }
 
 void			BackgroundRenderer::drawGroundGrid(
