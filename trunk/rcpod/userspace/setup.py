@@ -6,6 +6,6 @@ setup (name = "rcpod",
        maintainer = "Micah Dowty",
        maintainer_email = "micah@picogui.org",
        license = "LGPL",
-       py_modules = ['rcpod'],
+       packages = ['rcpod'],
        )
 
