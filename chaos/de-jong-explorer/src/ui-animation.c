@@ -112,23 +112,21 @@ void on_keyframe_view_cursor_changed(GtkWidget *widget, gpointer user_data) {
    */
   GtkTreePath *path;
   GtkTreeIter iter;
-  GValue value;
-  const char *params;
+  char *params;
 
   get_current_keyframe(&iter);
 
   gtk_widget_set_sensitive(glade_xml_get_widget(gui.xml, "keyframe_delete_button"), TRUE);
   gtk_widget_set_sensitive(glade_xml_get_widget(gui.xml, "keyframe_replace_button"), TRUE);
 
-  memset(&value, 0, sizeof(value));
-  gtk_tree_model_get_value(GTK_TREE_MODEL(gui.anim.keyframe_list), &iter, MODEL_PARAMS, &value);
-  params = g_value_get_string(&value);
+  gtk_tree_model_get(GTK_TREE_MODEL(gui.anim.keyframe_list), &iter,
+		     MODEL_PARAMS, &params,
+		     -1);
 
   load_parameters(params);
   write_gui_params();
   restart_rendering();
-
-  g_value_unset(&value);
+  g_free(params);
 }
 
 /* The End */
