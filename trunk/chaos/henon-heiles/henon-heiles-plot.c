@@ -110,8 +110,8 @@ int main (int argc, char **argv)
 		point[0] = atof (argv[1]);
 		point[1] = atof (argv[2]);
 	} else {
-		point[0] = (rand () * 0.6) / RAND_MAX - 0.3;
-		point[1] = (rand () * 0.5) / RAND_MAX - 0.25;
+		point[0] = (((float) rand ()) / RAND_MAX) * 0.6 - 0.3;
+		point[1] = (((float) rand ()) / RAND_MAX) * 0.5 - 0.25;
 	}
 	point[2] = 0;
 	point[3] = 0;
