@@ -225,9 +225,9 @@ set_nickname (struct server *serv, char *newnick)
 	if (serv == gui.current_session->server) {
 		GtkWidget *nick = glade_xml_get_widget (gui.xml, "nickname");
 		if (newnick == NULL)
-			gtk_label_set_text (GTK_LABEL (nick), serv->nick);
+			gtk_label_set_markup (GTK_LABEL (nick), serv->nick);
 		else
-			gtk_label_set_text (GTK_LABEL (nick), newnick);
+			gtk_label_set_markup (GTK_LABEL (nick), newnick);
 	}
 }
 
@@ -245,7 +245,7 @@ set_gui_topic (session *sess, char *topic)
 	else
 		tgui->topic = g_strdup (topic);
 	if (sess == gui.current_session)
-		gtk_label_set_text (GTK_LABEL (gui.topic_label), tgui->topic);
+		gtk_label_set_markup (GTK_LABEL (gui.topic_label), tgui->topic);
 }
 
 void
