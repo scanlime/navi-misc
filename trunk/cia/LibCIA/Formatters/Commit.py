@@ -96,7 +96,7 @@ class CommitFormatter(Message.ModularFormatter):
            """
         files = XML.dig(args.message.xml, "message", "body", "commit", "files")
         if not (files and XML.hasChildElements(files)):
-            return []
+            return [Message.MarkAsHidden()]
 
         prefix, endings = self.consolidateFiles(files)
         endingStr = " ".join(endings)
@@ -114,7 +114,7 @@ class CommitFormatter(Message.ModularFormatter):
     def component_log(self, element, args):
         log = XML.dig(args.message.xml, "message", "body", "commit", "log")
         if not log:
-            return []
+            return [Message.MarkAsHidden()]
 
         # Break the log string into wrapped lines
         lines = []
@@ -318,6 +318,8 @@ class CommitToXHTML(CommitFormatter):
            """
         for node in nodes:
             if not node:
+                return 0
+            if isinstance(node[0], Message.MarkAsHidden):
                 return 0
             if isinstance(node[0], tag):
                 if not self._checkVisibility(node[0].content):

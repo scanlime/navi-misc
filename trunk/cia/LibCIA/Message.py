@@ -446,6 +446,17 @@ class Formatter:
                 f(tag)
 
 
+class MarkAsHidden(str):
+    """This object acts like an empty string, but has the side effect
+       of hiding a containing <autoHide> element. This should be returned
+       by components when their result is nonexistent or not applicable,
+       so that the colors, prefixes, or suffixes around that component
+       are also hidden.
+       """
+    def __new__(self):
+        return str.__new__(self, "")
+
+
 class ModularFormatter(Formatter):
     """A Formatter consisting of multiple components that can be rearranged
        by changing the 'format' parameter. The current component arrangement
@@ -515,12 +526,11 @@ class ModularFormatter(Formatter):
            any return an empty list. This makes it easy to add prefixes, suffixes, or
            other formatting to a component that disappears when it does.
            """
-        results = []
-        for node in element.childNodes:
-            result = self.evalComponent(node, args)
-            if result is not None and not result:
+        results = self.walkComponents(element.childNodes, args)
+        for result in results:
+            if isinstance(result, MarkAsHidden):
+                # Hidden markers don't propagage, return a normal empty list
                 return []
-            results.extend(result)
         return results
 
     def component_br(self, element, args):
@@ -535,7 +545,7 @@ class ModularFormatter(Formatter):
         if element:
             return [XML.shallowText(element)]
         else:
-            return []
+            return [MarkAsHidden()]
 
     def joinComponents(self, results):
         """Given a list of component results, return the formatter's final result.
