@@ -32,10 +32,17 @@ AC_EXEEXT
 
 AM_BINRELOC
 
-pkg_modules="glib-2.0 >= 2.0.0, gtk+-2.0 >= 2.0.0, libglade-2.0 >= 2.0, OpenEXR"
+pkg_modules="glib-2.0 >= 2.0.0, gtk+-2.0 >= 2.0.0, libglade-2.0 >= 2.0"
 PKG_CHECK_MODULES(PACKAGE, [$pkg_modules])
 AC_SUBST(PACKAGE_CFLAGS)
 AC_SUBST(PACKAGE_LIBS)
+
+PKG_CHECK_MODULES(EXR, OpenEXR, have_exr=yes)
+AC_SUBST(EXR_CFLAGS)
+AC_SUBST(EXR_LIBS)
+if test "x$have_exr" = "xyes"; then
+	AC_DEFINE(HAVE_EXR, 1,[compile in OpenEXR support])
+fi
 
 dnl # Use wall if we have GCC
 dnl # Also disable glibc versions of functions that have faster versions
