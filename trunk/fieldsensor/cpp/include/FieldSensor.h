@@ -34,10 +34,11 @@ class FieldSensor {
   ~FieldSensor(void);
 
   void reset(void);
-  std::vector<float> read(void);
+  std::vector<float> readPacket(void);
 
  private:
   int fd;
+  void sendSlowly(const char *str);
 };
 
 #endif /* __H_FIELDSENSOR */
