@@ -196,28 +196,28 @@ Configuration9_Item1=AddToAllPlots_Mechanical 1=True|AddToAllPlots_Mechanical 10
 Name=Report Outputs
 Description=
 PrinterOptions=Record=PrinterOptions|Copies=1|Duplex=1|TrueTypeOptions=3|Collate=1|PrintWhat=1
-OutputType1=ReportHierarchy
-OutputName1=Report Project Hierarchy
+OutputType1=BOM_PartType
+OutputName1=Bill of Materials
 OutputDocumentPath1=
 OutputEnabled1=1
 OutputDefault1=0
-OutputType2=SimpleBOM
-OutputName2=Simple BOM
+OutputType2=ComponentCrossReference
+OutputName2=Component Cross Reference Report
 OutputDocumentPath2=
 OutputEnabled2=1
 OutputDefault2=0
-Configuration2_Name1=OutputConfigurationParameter1
-Configuration2_Item1=Record=SimpleBOMView|SimpleBOMMode=0
-OutputType3=BOM_PartType
-OutputName3=Bill of Materials
+OutputType3=ReportHierarchy
+OutputName3=Report Project Hierarchy
 OutputDocumentPath3=
 OutputEnabled3=1
 OutputDefault3=0
-OutputType4=ComponentCrossReference
-OutputName4=Component Cross Reference Report
+OutputType4=SimpleBOM
+OutputName4=Simple BOM
 OutputDocumentPath4=
 OutputEnabled4=1
 OutputDefault4=0
+Configuration4_Name1=OutputConfigurationParameter1
+Configuration4_Item1=Record=SimpleBOMView|SimpleBOMMode=0
 [OutputGroup7]
 Name=Other Outputs
 Description=
