@@ -569,10 +569,10 @@ static int rwand_read_byte(struct rwand_dev *dev, unsigned short request,
 {
 	int retval;
 	unsigned char byte;
-	retval = usb_control_msg(dev->udev, usb_sndctrlpipe(dev->udev, 0),
+	retval = usb_control_msg(dev->udev, usb_rcvctrlpipe(dev->udev, 0),
 				 request, USB_TYPE_VENDOR | USB_DIR_IN,
 				 wValue, wIndex, &byte, 1, REQUEST_TIMEOUT);
-	if (retval) {
+	if (retval != 1) {
 		err("Error in rwand_request, retval=%d", retval);
 	}
 	return byte;
@@ -697,7 +697,6 @@ static void rwand_set_model(struct rwand_dev *dev)
 	int model;
 	struct model_intrinsics *intrinsics;
 
-#if 0
 	model = rwand_read_byte(dev, RWAND_CTRL_GET_HW_MODEL, 0, 0);
 
 	for (intrinsics=model_table; intrinsics->model; intrinsics++) {
@@ -708,7 +707,6 @@ static void rwand_set_model(struct rwand_dev *dev)
 			return;
 		}
 	}
-#endif
 
 	/* Oops, can't find it. Generate an error, and use the first
 	 * model in the table whether it's right or not.
