@@ -56,7 +56,7 @@ static void usage                  (char          **argv);
 static void animation_render_main  (IterativeMap   *map,
 				    Animation      *animation,
 				    const gchar    *filename,
-				    gulong          target_density);
+				    double          quality);
 static void acquire_console        (void);
 
 
@@ -70,7 +70,7 @@ int main(int argc, char ** argv) {
     enum {INTERACTIVE, RENDER, SCREENSAVER, REMOTE} mode = INTERACTIVE;
     const gchar *outputFile = NULL;
     int c, option_index=0;
-    gulong target_density = 10000;
+    double quality = 1.0;
     int port_number = FYRE_DEFAULT_PORT;
     GError *error = NULL;
 
@@ -97,7 +97,7 @@ int main(int argc, char ** argv) {
 	    {"param",        1, NULL, 'p'},
 	    {"size",         1, NULL, 's'},
 	    {"oversample",   1, NULL, 'S'},
-	    {"density",      1, NULL, 't'},
+	    {"quality",      1, NULL, 'q'},
 	    {"remote",       0, NULL, 'r'},
 	    {"verbose",      0, NULL, 'v'},
 	    {"port",         1, NULL, 'P'},
@@ -108,7 +108,7 @@ int main(int argc, char ** argv) {
 	    {"chdir",        1, NULL, 1002},   /* Undocumented, used by win32 file associations */
 	    {NULL},
 	};
-	c = getopt_long(argc, argv, "hi:n:o:p:s:S:t:rvP:c:C",
+	c = getopt_long(argc, argv, "hi:n:o:p:s:S:q:rvP:c:C",
 			long_options, &option_index);
 	if (c == -1)
 	    break;
@@ -143,8 +143,8 @@ int main(int argc, char ** argv) {
 	    parameter_holder_set(PARAMETER_HOLDER(map), "oversample", optarg);
 	    break;
 
-	case 't':
-	    target_density = atol(optarg);
+	case 'q':
+	    quality = atof(optarg);
 	    break;
 
 	case 'r':
@@ -241,9 +241,9 @@ int main(int argc, char ** argv) {
 	    g_error_free (error);
 	}
 	if (animate)
-	    animation_render_main (map, animation, outputFile, target_density);
+	    animation_render_main (map, animation, outputFile, quality);
 	else
-	    batch_image_render (map, outputFile, target_density);
+	    batch_image_render (map, outputFile, quality);
 	break;
     }
 
@@ -340,22 +340,25 @@ static void usage(char **argv) {
 	    "                            edges on most images, but will increase memory usage\n"
 	    "                            quadratically. Recommended values are between 1\n"
 	    "                            (no oversampling) and 4 (heavy oversampling)\n"
-	    "  -t, --density DENSITY   In noninteractive rendering, set the peak density\n"
-	    "                            to stop rendering at. Larger numbers give smoother\n"
-	    "                            and more detailed results, but increase running time\n"
-	    "                            linearly\n",
+	    "  -q, --quality QUALITY   In noninteractive rendering, set the quality level at\n"
+	    "                            which we stop rendering. Larger numbers give smoother\n"
+	    "                            and more detailed results, but increase running time.\n"
+	    "                            The default of 1.0 gives roughly one histogram sample\n"
+	    "                            for every final image sample.\n",
 	    argv[0]);
 }
 
 static void animation_render_main (IterativeMap *map,
 				   Animation    *animation,
 				   const gchar  *filename,
-				   gulong       target_density) {
+				   double        quality) {
     const double frame_rate = 24;
     AnimationIter iter;
     ParameterHolderPair frame;
     guint frame_count = 0;
     gboolean continuation;
+    double current_quality;
+
     AviWriter *avi = avi_writer_new(fopen(filename, "wb"),
 				    HISTOGRAM_IMAGER(map)->width,
 				    HISTOGRAM_IMAGER(map)->height,
@@ -372,10 +375,13 @@ static void animation_render_main (IterativeMap *map,
 	    iterative_map_calculate_motion(map, 100000, continuation,
 					   PARAMETER_INTERPOLATOR(parameter_holder_interpolate_linear),
 					   &frame);
-	    printf("Frame %d, %e iterations, %ld density\n", frame_count,
-		   map->iterations, HISTOGRAM_IMAGER(map)->peak_density);
+	    current_quality = histogram_imager_compute_quality(HISTOGRAM_IMAGER(map));
+
+	    printf("Frame %d, %e iterations, %.04f quality\n", frame_count,
+		   map->iterations, current_quality);
+
 	    continuation = TRUE;
-	} while (HISTOGRAM_IMAGER(map)->peak_density < target_density);
+	} while (current_quality < quality);
 
 
 	histogram_imager_update_image(HISTOGRAM_IMAGER(map));

@@ -28,7 +28,7 @@
 
 void batch_image_render(IterativeMap*  map,
 			const char*    output_filename,
-			gulong         target_density);
+			double         quality);
 
 #endif /* __BATCH_IMAGE_RENDER_H__ */
 
