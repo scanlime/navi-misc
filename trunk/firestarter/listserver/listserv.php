@@ -26,22 +26,41 @@ echo "<tr><td>#servername</td><td>#address</td><td>#port</td><td>#game</td><td>#
 $query = "SELECT * FROM servers";
 $result = mysql_query($query) or die("Query failed : " . mysql_error());
 
-while ($row = mysql_fetch_array($result, MYSQL_ASSOC))
+if ($simpleoutput)
 {
-	echo "<tr>";
-//	echo '<td>'.$row[id].'</td>'; // id
-	echo '<td>'.$row[address].'</td>'; // address
-	echo '<td>'.$row[servername].'</td>'; // servername
-	echo '<td>'.$row[port].'</td>'; // port
-	echo '<td>'.$row[game].'</td>'; // game
-	echo '<td>'.$row[version].'</td>'; // version
-	echo '<td>'.$row[os].'</td>'; // os
-	echo '<td>'.$row[maxplayers].'</td>'; // maxplayers
-	echo '<td>'.$row[currentplayers].'</td>'; // currentplayers
-	//echo '<td>'.$row[lastupdate].'</td>'; // lastupdate
-	echo "</tr>"; 
+	echo "list:".mysql_num_rows( $result )." ";
+	while ($row = mysql_fetch_array($result, MYSQL_ASSOC))
+	{
+		echo '&'.$row[address]; // address
+		echo '&'.$row[servername]; // servername
+		echo '&'.$row[port]; // port
+		echo '&'.$row[game]; // game
+		echo '&'.$row[version]; // version
+		echo '&'.$row[os]; // os
+		echo '&'.$row[maxplayers]; // maxplayers
+		echo '&'.$row[currentplayers]; // currentplayers
+		echo "&& "; 
+	}
 }
-echo "</table>";
+else
+{
+	while ($row = mysql_fetch_array($result, MYSQL_ASSOC))
+	{
+		echo "<tr>";
+	//	echo '<td>'.$row[id].'</td>'; // id
+		echo '<td>'.$row[address].'</td>'; // address
+		echo '<td>'.$row[servername].'</td>'; // servername
+		echo '<td>'.$row[port].'</td>'; // port
+		echo '<td>'.$row[game].'</td>'; // game
+		echo '<td>'.$row[version].'</td>'; // version
+		echo '<td>'.$row[os].'</td>'; // os
+		echo '<td>'.$row[maxplayers].'</td>'; // maxplayers
+		echo '<td>'.$row[currentplayers].'</td>'; // currentplayers
+		//echo '<td>'.$row[lastupdate].'</td>'; // lastupdate
+		echo "</tr>"; 
+	}
+	echo "</table>";
+}
 
 $timestamp = date("U");
 echo "the stamp $timestamp<br>";
