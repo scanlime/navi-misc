@@ -79,15 +79,15 @@ def format(text, *codeNames):
         return text
 
 
-class ColortextFormatter(object):
-    r"""Given a domish.Element tree with <colorText>-formatted text
+class ColortextFormatter(XML.XMLObjectParser):
+    r"""Given a DOM tree with <colorText>-formatted text
         generate an equivalent message formatted for IRC.
 
         >>> f = ColortextFormatter()
-        >>> f.format(XML.parseString('<colorText><u><b>Hello</b> World</u></colorText>'))
+        >>> f.parse(XML.parseString('<colorText><u><b>Hello</b> World</u></colorText>'))
         '\x1f\x02Hello\x0f\x1f World\x0f'
 
-        >>> f.format(XML.parseString(
+        >>> f.parse(XML.parseString(
         ...    "<colorText>" +
         ...        "<color bg='dark blue'><color fg='yellow'>" +
         ...            "<b>hello</b>" +
@@ -97,50 +97,15 @@ class ColortextFormatter(object):
         '\x0302\x16\x0308\x02hello\x0f\x1f world\x0f'
 
         """
-    def format(self, xml):
-        """Format the entire given XML tree, returns a string with the finished
-           text ready to send to IRC.
-           """
-        return self.flatten(self.formatElement(xml))
 
-    def formatElement(self, xml, codeStack=[]):
-        """Recursively format the given XML tree, passing elements on to their
-           respective handlers and letting text fall straight through.
-           codeStack is used to keep track of the formatting codes we're 'inside'
-           so they can be restored if we have to issue a 'normal' code.
-           Returns a list of strings and/or FormattingCode instances.
-           """
-        if isinstance(xml, XML.domish.Element):
-            # It's an element, act on it based on its name
-            try:
-                f = getattr(self, "element_" + xml.name)
-            except AttributeError:
-                raise XML.XMLValidityError("Unexpected element %r" % xml.name)
-            return f(xml, codeStack)
-        elif type(xml) in types.StringTypes:
-            # It's a string, pass it through
-            return xml
-        else:
-            raise TypeError("XML elements or strings required")
-
-    def flatten(self, codes):
-        """Return a flat string representing the FormattingCode instances and/or strings
-           in the given codes list.
-           """
+    def element_colorText(self, node):
+        # The root element converts our list of formatting codes to a flat string
+        codes = []
+        for childCodes in self.childParser(node, ()):
+            codes.extend(childCodes)
         return "".join([str(code) for code in codes])
 
-    def formatChildren(self, xml, codeStack):
-        """Format each child of the given node, appending the results"""
-        codes = []
-        for child in xml.children:
-            codes.extend(self.formatElement(child, codeStack))
-        return codes
-
-    def element_colorText(self, xml, codeStack):
-        """Ignore the root node of the <colorText> document"""
-        return self.formatChildren(xml, codeStack)
-
-    def codeWrap(self, xml, codeStack, *codeNames):
+    def codeWrap(self, node, codeStack, *codeNames):
         """Wrap the children of the given xml element with the given formatting codes.
            This prepends the code list and appends a 'normal' tag, using codeStack
            to restore any codes we don't want to disable with the 'normal' tag.
@@ -149,7 +114,8 @@ class ColortextFormatter(object):
         codes = [FormattingCode(name) for name in codeNames]
 
         # Insert the children here
-        codes.extend(self.formatChildren(xml, codeStack + codes))
+        for childCodes in self.childParser(node, codeStack + tuple(codes)):
+            codes.extend(childCodes)
 
         # An important optimization- since we're about to insert new codes
         # for everything in codeStack, remove codes from our 'codes' list until
@@ -175,26 +141,25 @@ class ColortextFormatter(object):
 
     def element_br(self, xml, codeStack):
         """Insert a literal newline"""
-        return "\n"
+        return ["\n"]
 
     def element_color(self, xml, codeStack):
         """Generates formatting codes appropriate to represent a foreground and/or background color"""
         codes = []
-        try:
-            if xml['bg'] in ColorText.allowedColors:
-                codes.append(xml['bg'])
+        bg = xml.getAttributeNS(None, 'bg')
+
+        if bg:
+            if bg in ColorText.allowedColors:
+                codes.append(bg)
                 codes.append('reverse')
             else:
-                raise XML.XMLValidityError("%r is not a color" % xml['bg'])
-        except KeyError:
-            pass
-        try:
-            if xml['fg'] in ColorText.allowedColors:
-                codes.append(xml['fg'])
+                raise XML.XMLValidityError("%r is not a color" % bg)
+        if fg:
+            if fg in ColorText.allowedColors:
+                codes.append(fg)
             else:
-                raise XML.XMLValidityError("%r is not a color" % xml['fg'])
-        except KeyError:
-            pass
+                raise XML.XMLValidityError("%r is not a color" % fg)
+
         return self.codeWrap(xml, codeStack, *codes)
 
 ### The End ###
