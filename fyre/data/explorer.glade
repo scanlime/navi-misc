@@ -1168,7 +1168,7 @@
 			    <widget class="GtkSpinButton" id="keyframe_duration">
 			      <property name="visible">True</property>
 			      <property name="can_focus">True</property>
-			      <property name="climb_rate">0.01</property>
+			      <property name="climb_rate">0.00999999977648</property>
 			      <property name="digits">2</property>
 			      <property name="numeric">True</property>
 			      <property name="update_policy">GTK_UPDATE_ALWAYS</property>
@@ -1672,7 +1672,7 @@ to balance interactive response with image quality.</property>
 		      <property name="max_length">0</property>
 		      <property name="text" translatable="yes"></property>
 		      <property name="has_frame">True</property>
-		      <property name="invisible_char" translatable="yes">*</property>
+		      <property name="invisible_char">*</property>
 		      <property name="activates_default">True</property>
 		      <signal name="changed" handler="on_cluster_host_or_port_changed" last_modification_time="Sat, 27 Nov 2004 02:42:01 GMT"/>
 		    </widget>
@@ -1713,7 +1713,7 @@ to balance interactive response with image quality.</property>
 		      <property name="max_length">0</property>
 		      <property name="text" translatable="yes"></property>
 		      <property name="has_frame">True</property>
-		      <property name="invisible_char" translatable="yes">*</property>
+		      <property name="invisible_char">*</property>
 		      <property name="activates_default">True</property>
 		      <property name="width_chars">6</property>
 		      <signal name="changed" handler="on_cluster_host_or_port_changed" last_modification_time="Sat, 27 Nov 2004 02:42:08 GMT"/>
@@ -2073,6 +2073,7 @@ Micah Dowty&lt;/span&gt;</property>
 	  <child>
 	    <widget class="GtkLabel" id="error label">
 	      <property name="visible">True</property>
+	      <property name="can_focus">True</property>
 	      <property name="label" translatable="yes">&lt;span weight=&quot;bold&quot; size=&quot;larger&quot;&gt;Histogram on Fire!&lt;/span&gt;
 
 Histogram has entered an nth complexity binary loop.  Flux cascade scenario imminent. I hope you have a recent backup.</property>
@@ -2080,7 +2081,7 @@ Histogram has entered an nth complexity binary loop.  Flux cascade scenario immi
 	      <property name="use_markup">True</property>
 	      <property name="justify">GTK_JUSTIFY_LEFT</property>
 	      <property name="wrap">True</property>
-	      <property name="selectable">False</property>
+	      <property name="selectable">True</property>
 	      <property name="xalign">0.5</property>
 	      <property name="yalign">0</property>
 	      <property name="xpad">0</property>
