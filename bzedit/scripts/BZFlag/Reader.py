@@ -67,6 +67,21 @@ class Reader:
               | CaselessLiteral('passable')     \
               | locationProperty
 
+            channel =                    \
+                CaselessLiteral('red')   \
+              | CaselessLiteral('green') \
+              | CaselessLiteral('blue')  \
+              | CaselessLiteral('alpha')
+            dynamicColorState = Literal('0') | Literal('1') | Literal('2')
+            dynamicColorProperty = \
+                Group(channel + CaselessLiteral('limits') + float + float) \
+              | Group(channel + CaselessLiteral('sinusoid') + float + float + float) \
+              | Group(channel + CaselessLiteral('clampup') + float + float + float) \
+              | Group(channel + CaselessLiteral('clampdown') + float + float + float) \
+              | Group(channel + CaselessLiteral('sequence') + float + float + OneOrMore(dynamicColorState)) \
+              | objectProperty
+            dynamicColor = Group(CaselessLiteral('dynamicColor') + OneOrMore(dynamicColorProperty) + end)
+
             box = Group(CaselessLiteral('box') + OneOrMore(obstacleProperty) + end)
 
             pyramidProperty =            \
@@ -175,20 +190,21 @@ class Reader:
               | objectProperty
             physics = Group(CaselessLiteral('physics') + OneOrMore(physicsProperty) + end)
 
-            worldObject =  \
-                arc        \
-              | box        \
-              | base       \
-              | cone       \
-              | link       \
-              | physics    \
-              | pyramid    \
-              | sphere     \
-              | teleporter \
-              | tetra      \
-              | waterLevel \
-              | weapon     \
-              | world      \
+            worldObject =    \
+                arc          \
+              | box          \
+              | base         \
+              | cone         \
+              | dynamicColor \
+              | link         \
+              | physics      \
+              | pyramid      \
+              | sphere       \
+              | teleporter   \
+              | tetra        \
+              | waterLevel   \
+              | weapon       \
+              | world        \
               | zone
 
             self.grammar = OneOrMore(worldObject)
