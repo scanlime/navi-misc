@@ -9,8 +9,7 @@ def Select(groups):
 		sys.stderr.write("warning: no files to choose from\n")
 		return []
 	s = random.randint(0,groups.getCount()-1)
-	return groups.getGroup(s).getWhere()
-	 
+	return groups.getGroup(s).getWhere() 
 
 if __name__ == "__main__":
 	import sys
@@ -25,4 +24,3 @@ if __name__ == "__main__":
 		s = [s]
 	for x in s:
 		print x
-
