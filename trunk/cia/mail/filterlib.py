@@ -104,6 +104,9 @@ class CommitFilter(Filter):
     def addAuthor(self, author):
         self.xml.body.commit.addElement('author', content=author)
 
+    def addURL(self, url):
+        self.xml.body.commit.addElement('url', content=url)
+
     def addFile(self, file):
         if not self.xml.body.commit.files:
             self.xml.body.commit.addElement('files')
