@@ -261,6 +261,8 @@ class Reader:
               | obstacleProperty
             mesh = Group(CaselessLiteral('mesh') + OneOrMore(meshProperty) + end)
 
+            options = Group(CaselessLiteral('options') + SkipTo(end, include=True))
+
             worldObject =     \
                 arc           \
               | box           \
@@ -271,6 +273,7 @@ class Reader:
               | mesh          \
               | meshbox       \
               | meshpyr       \
+              | options       \
               | physics       \
               | pyramid       \
               | sphere        \
