@@ -629,7 +629,7 @@ class Bot(irc.IRCClient):
            """
         try:
             self.lastPingTimestamp = float(params[1])
-        except ValueError:
+        except (ValueError, IndexError):
             # This must be some broken IRC server that's not preserving our ping timestamp.
             # The best we can do is assume this is the pong for the most recent ping we sent.
             self.lastPingTimestamp = self.lastPingTransmitTimestamp
