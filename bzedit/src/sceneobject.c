@@ -129,6 +129,19 @@ scene_object_get_drawables (SceneObject *self)
   return g_list_append (drawables, self->selection);
 }
 
+GList*
+scene_object_get_all_drawables (SceneObject *self)
+{
+  SceneObjectClass *klass = SCENE_OBJECT_CLASS (G_OBJECT_GET_CLASS (self));
+  GList *drawables;
+
+  if (klass->canparent)
+    drawables = klass->get_all_drawables (self);
+  else
+    drawables = klass->get_drawables (self);
+  return g_list_append (drawables, self->selection);
+}
+
 void
 scene_object_select (SceneObject *self)
 {
@@ -146,6 +159,26 @@ scene_object_deselect (SceneObject *self)
   self->selected = FALSE;
   if (klass->deselect)
     klass->deselect (self);
+}
+
+gboolean
+scene_object_parent (SceneObject *parent, SceneObject *child)
+{
+  SceneObjectClass *klass = SCENE_OBJECT_CLASS (G_OBJECT_GET_CLASS (parent));
+
+  if (!klass->canparent)
+    return FALSE;
+  return klass->parent (parent, child);
+}
+
+gboolean
+scene_object_deparent (SceneObject *parent, SceneObject *child)
+{
+  SceneObjectClass *klass = SCENE_OBJECT_CLASS (G_OBJECT_GET_CLASS (parent));
+
+  if (!klass->canparent)
+    return FALSE;
+  return klass->deparent (parent, child);
 }
 
 GType

@@ -39,6 +39,10 @@ typedef struct _GroupClass GroupClass;
 struct _Group
 {
   SceneObject parent;
+
+  GList *children;
+  GHashTable *children_handlers;
+  gdouble max[3], min[3];
 };
 
 struct _GroupClass
