@@ -38,10 +38,14 @@ class MainWindow:
         main_vbox.show()
 
         menubar = self.get_main_menu(window)
-
         main_vbox.pack_start(menubar, gtk.FALSE, gtk.TRUE, 0)
-        menubar.show()
-        window.show()
+
+        hpane = gtk.HPaned()
+        main_vbox.pack_start(hpane, gtk.TRUE, gtk.TRUE, 0)
+        hpane.pack1(gtk.Label('Left'), gtk.TRUE, gtk.FALSE)
+        hpane.pack2(gtk.Label('Right'), gtk.TRUE, gtk.FALSE)
+
+        window.show_all()
 
 MainWindow()
 gtk.main()
