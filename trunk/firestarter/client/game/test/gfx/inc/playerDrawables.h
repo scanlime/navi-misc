@@ -41,15 +41,16 @@ protected:
 class CCameraObjectFactory : public CBaseDrawableFactory
 {
 public:
-	virtual CBaseDrawable* New ( CBaseObject* parent ) {return new CCameraObject;}
-	virtual void Delete ( CBaseDrawable* object ) {delete(object);}
+	virtual CBaseDrawable* New ( CBaseObject* parent );
+	virtual void Delete ( CBaseDrawable* object );
 };
 
-class CCameraObject : public CBaseDrawable
+class CCameraDrawObject : public CBaseDrawable
 {
 public:
-	CCameraObject();
-	virtual ~CCameraObject();
+	CCameraDrawObject();
+	virtual ~CCameraDrawObject();
+	virtual void Init ( void );
 	virtual void Think ( void );
 };
 

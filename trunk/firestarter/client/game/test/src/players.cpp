@@ -13,6 +13,7 @@
 
 #include "players.h"
 #include <vector>
+#include "timer.h"
 
 CPlayerObject::CPlayerObject()
 {
@@ -22,6 +23,7 @@ CPlayerObject::CPlayerObject()
 	pos[0] = pos[1] = pos[2] = 0;
 	rot[0] = rot[1] = rot[2] = 0;
 	vec[0] = vec[1] = vec[2] = 0;
+	updateTime = 0;
 }
 
 CPlayerObject::~CPlayerObject()
@@ -42,6 +44,15 @@ void CPlayerObject::Init ( bool draw )
 
 bool CPlayerObject::Think ( void )
 {
+	// do some dead reco if we didn't just get this update
+
+	if (updateTime != CTimer::instance().GetTime())
+	{
+		float updateTime = CTimer::instance().GetFrameTime();
+		pos[0] += vec[0]*updateTime;
+		pos[1] += vec[1]*updateTime;
+		pos[2] += vec[2]*updateTime;
+	}
 	return true;
 }
 
