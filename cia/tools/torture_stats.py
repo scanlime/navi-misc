@@ -7,7 +7,7 @@ scalability of CIA's database.
 
 import sys, os; sys.path[0] = os.path.join(sys.path[0], '..')
 from LibCIA import Client
-import random
+import random, time
 
 
 randomAuthor = (
@@ -86,8 +86,10 @@ class TortureStats(Client.App):
 
         # Deliver random messages
         totalMessages = 10000
+        startTime = time.time()
         for i in xrange(totalMessages):
-            print "Message %d/%d..." % (i, totalMessages)
+            speed = i / (time.time() - startTime)
+            print "Message %d/%d...\taverage %.02f messages/second" % (i, totalMessages, speed)
             self.server.hub.deliver(randomCommit())
 
 if __name__ == '__main__':
