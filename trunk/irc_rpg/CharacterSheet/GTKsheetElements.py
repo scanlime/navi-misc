@@ -69,16 +69,23 @@ class text_field(gtk.HBox, sheetElement):
   """ The text_field widget is a combination of a gtk.Label and a
       gtk.Entry packed into a gtk.HBox.
       """
-  def __init__(self, node, data):
+  def __init__(self, node, characterData):
     sheetElement.__init__(self, node)
     gtk.HBox.__init__(self, spacing=5)
+
     self.label = gtk.Label(self.attributes.get('label', ''))
     self.text = gtk.Entry()
-    self.text.set_text(data.getData(self.attributes.get('path', '')))
+    self.text.set_text(characterData.getData(self.attributes.get('path', '')))
     self.pack_start(self.label)
     self.pack_start(self.text)
-    self.node = node
 
+    self.characterData = characterData
+    self.text.connect("activate", self.writeOut)
+
+  def writeOut(self, widget):
+    self.characterData.setData(self.attributes['path'], self.text.get_text())
+    self.characterData.writeOut()
+    
   def show(self):
     """ Provide a way to show this object identical to showing normal
         gtk widgets.
@@ -135,3 +142,4 @@ class mods:
       self.data = int(character.getData(node.childNodes[0].data))
     else:
       self.data = int(node.childNodes[0].data)
+
