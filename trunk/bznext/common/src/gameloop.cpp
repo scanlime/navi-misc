@@ -141,12 +141,14 @@ bool CBaseGameLoop::Run ( void )
   }
   mRoot->addFrameListener(this);
 
+	mRoot->startRendering();
+	/*
   while ( !mWindow->isClosed() && mRoot->renderOneFrame())
     OSSleep(0.001f);
 
   if (!mWindow->isClosed())
     mRoot->shutdown();
-
+*/
   OnKill();
   return true;
 }
