@@ -64,7 +64,7 @@ static void on_about_close(GtkWidget *widget, Explorer *self)
 
     gtk_widget_hide(dialog);
 
-    /* Make sure to delete our incredibly memory and CPU hungry about iamge */
+    /* Make sure to delete our incredibly memory and CPU hungry about image */
     if (self->about_image) {
 	gtk_container_remove(GTK_CONTAINER(image_container), self->about_image->view);
 	g_object_unref(self->about_image);
