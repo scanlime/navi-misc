@@ -1,5 +1,7 @@
 <?xml version="1.0"?>
-<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<xsd:schema
+ xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+ xmlns:xi="http://www.w3.org/2003/XInclude">
 
 <xsd:simpleType name="sides">
   <xsd:restriction base="xsd:string">
@@ -8,6 +10,8 @@
   </xsd:restriction>
 </xsd:simpleType>
 
+
+<!-- =============== types for technique -->
 <xsd:simpleType name="technique-category">
   <xsd:restriction base="xsd:string">
     <xsd:enumeration value="punch"/>
@@ -45,6 +49,7 @@
   </xsd:sequence>
 </xsd:complexType>
 
+<!-- =============== top-level technique -->
 <xsd:element name="technique">
   <xsd:complexType>
     <xsd:all>
@@ -54,6 +59,31 @@
     </xsd:all>
     <xsd:attribute name="name" type="xsd:string"/>
     <xsd:attribute name="category" type="technique-category"/>
+  </xsd:complexType>
+</xsd:element>
+
+<!-- =============== types for concept -->
+<xsd:complexType name="concept-technique" mixed="true">
+  <xsd:sequence>
+    <xsd:element name="note" type="xsd:string" minOccurs="0"/>
+  </xsd:sequence>
+</xsd:complexType>
+
+<xsd:complexType name="concept-techniques">
+  <xsd:sequence>
+    <xsd:element name="technique" type="concept-technique" maxOccurs="20"/>
+  </xsd:sequence>
+</xsd:complexType>
+
+<!-- =============== top-level concept -->
+<xsd:element name="concept">
+  <xsd:complexType>
+    <xsd:all>
+      <xsd:element name="origin" type="xsd:string" minOccurs="0"/>
+      <xsd:element name="overview" type="xsd:string"/>
+      <xsd:element name="techniques" type="concept-techniques"/>
+    </xsd:all>
+    <xsd:attribute name="name" type="xsd:string"/>
   </xsd:complexType>
 </xsd:element>
 
