@@ -23,11 +23,11 @@ Frequently Asked Questions
 
 * Does CIA work with Sourceforge_?
 
-    Yes. Many projects on CIA are `hosted by sourceforge`_.
+    Yes. Many projects on CIA are `hosted by sourceforge`_. We even have a `HOWTO document`_ specifically focused on Sourceforge.
 
 .. _Sourceforge: http://sourceforge.net
 .. _hosted by sourceforge: /stats/host/sourceforge
-
+.. _HOWTO document: /doc/sourceforge-howto
 
 * Does CIA work with Savannah_?
 
