@@ -129,10 +129,13 @@ namespace Fyre
 		public void
 		OnDeleteEvent (object o, Gtk.DeleteEventArgs args)
 		{
-			Gtk.Application.Quit ();
-			args.RetVal = true;
+			ErrorDialog e = new ErrorDialog ("Whoops!", "Someone left a stinker on the lawn");
+			e.Run ();
 
 			// FIXME - check to make sure the pipeline is saved
+
+			Gtk.Application.Quit ();
+			args.RetVal = true;
 		}
 
 		// Shared events - menus/toolbars
@@ -182,8 +185,8 @@ namespace Fyre
 		public void
 		OnMenuFileQuit (object o, System.EventArgs args)
 		{
-			Gtk.Application.Quit ();
 			// FIXME - check to make sure the pipeline is saved
+			Gtk.Application.Quit ();
 		}
 
 		// 'Edit' Menu events

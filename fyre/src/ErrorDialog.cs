@@ -41,6 +41,8 @@ namespace Fyre
 
 			label.Markup = "<span weight=\"bold\" size=\"larger\">" + summary + "</span>\n\n" + description;
 
+			VBox.PackStart (toplevel, true, true, 0);
+
 			AddButton (Gtk.Stock.Ok, Gtk.ResponseType.Ok);
 		}
 	}
