@@ -20,6 +20,7 @@ public class nperlsub extends nbase
 	public nperlsub(Socket ink, BufferedReader IN, OutputStreamWriter OUT)
 	{
 		super(ink,IN,OUT);
+		netdebug = true;
 	}
 	
 	/**
@@ -31,8 +32,15 @@ public class nperlsub extends nbase
 	{
 		String name, postn, question;
 		name = read();
+		if(name.compareTo("") == 0) name = "Someone...";
 		postn = read();
+		if(postn.compareTo("") == 0) postn = "left blank";
 		question = read();
+		if(question.compareTo("") == 0) 
+		{
+			closeConnection();
+			return;
+		}
 		name = name + " (" + postn + ")";
 		name = hexwash(name);
 		question = hexwash(question);
@@ -53,8 +61,12 @@ public class nperlsub extends nbase
 		String toreturn = "", temp;
 		int value = 32;
 		StringTokenizer tokens = new StringTokenizer(toclean,"%",false);
-		if(tokens.hasMoreTokens())
-			toreturn = tokens.nextToken();
+		if(tokens.hasMoreTokens()) toreturn = tokens.nextToken();
+		if(toclean.startsWith("%"))
+		{
+			value = asciiizer(toreturn.charAt(0)) * 16 + asciiizer(toreturn.charAt(1));
+			toreturn = "" + (char) value + toreturn.substring(2);
+		}
 		while(tokens.hasMoreTokens())
 		{
 			//squeeze the juice out of it!

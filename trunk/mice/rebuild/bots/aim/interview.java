@@ -94,7 +94,7 @@ public class interview
 			com.write(nick);
 			com.write(key.encrypt(mykey,pass));
 			com.write(name);
-			send("Thanks " + name + ".  Message me when you're ready to start answering questions.");
+			send("Thanks " + name + ".  Message me when you're ready to start answering questions.  Also, if I give you a question you don't want to answer for any reason, just type 'skip' and nobody will be the wiser.");
 			state = 3;
 			break;
 

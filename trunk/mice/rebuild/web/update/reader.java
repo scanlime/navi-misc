@@ -25,37 +25,45 @@ public class reader
 	 */
 	public reader(String filename)
 	{
+		BufferedReader infile;
+		String line;
 		try
 		{
-			BufferedReader infile = new BufferedReader(new FileReader(filename));
-			String line = infile.readLine();
+			infile = new BufferedReader(new FileReader(filename));
+			line = infile.readLine();
 			while(line.compareTo("<!-- End Header Block -->") != 0)
 			{
 				header = header + line + "\n";
+				System.out.println("H: " + line);
 				line = infile.readLine();
 			}
 			line = infile.readLine();
 			while(line.compareTo("<!-- End Question Block -->") != 0)
 			{
 				question = question + line + "\n";
+				System.out.println("Q: " + line);
 				line = infile.readLine();
 			}
 			line = infile.readLine();
-			while(line.compareTo("!-- End Notice Block -->") != 0)
+			while(line.compareTo("<!-- End Notice Block -->") != 0)
 			{
 				notice = notice + line + "\n";
+				System.out.println("N: " + line);
 				line = infile.readLine();
 			}
 			line = infile.readLine();
 			while(line != null)
 			{
 				footer = footer + line + "\n";
+				System.out.println("F: " + line);
 				line = infile.readLine();
 			}
+			System.out.println("preclose");
 			infile.close();
 		}
 		catch(Exception foo)
-		{
+		{ 
+			System.out.println(foo);
 		}
 	}
 }

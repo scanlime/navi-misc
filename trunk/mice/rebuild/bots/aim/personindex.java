@@ -87,6 +87,7 @@ public class personindex
 			return;
 		}
 		System.out.println(" who is new to me!");
+		bots[0].sendMessage(from,"Hi "+from+" I am just the gate keeper, go ahead and talk to my buddy MICEBot"+currentbot);
 		masshead = new person(masshead,bots[currentbot],from);
 		currentbot++;
 		if(currentbot == botcount) currentbot = 1;
