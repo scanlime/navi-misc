@@ -43,10 +43,10 @@ public class smain
 	
 	public static void listen()
 	{
-		Socket sout;
-		Socket sin;
-		OutputStream out;
-		InputStream in;
+		Socket sout = null;
+		Socket sin = null;
+		OutputStream out = null;
+		InputStream in = null;
 		try
 		{
 			while(true)
@@ -54,6 +54,7 @@ public class smain
 				// get the sockets
 				sout = server.accept();
 				sin = new Socket(host,iport);
+
 				//slot a into tab a
 				out = sout.getOutputStream();
 				in = sin.getInputStream();
@@ -62,6 +63,7 @@ public class smain
 				out = sin.getOutputStream();
 				in = sout.getInputStream();
 				new pipe(in,out).start();
+				System.out.println("Connection from "+sout.getInetAddress().getHostAddress());
 			}
 		}
 		catch(Exception e)
