@@ -102,7 +102,7 @@ box_class_init (BoxClass *klass)
 static void
 box_init (Box *box)
 {
-  box->drawables = g_list_alloc();
+  box->drawables = g_list_alloc ();
 }
 
 static void
