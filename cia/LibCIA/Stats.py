@@ -27,7 +27,7 @@ the actual stats target using part of the message.
 #
 
 import Ruleset, XML, Message
-import re, string, os, time
+import string, os, time, datetime, calendar
 
 
 class StatsURIHandler(Ruleset.RegexURIHandler):
@@ -88,7 +88,7 @@ class StatsTarget(object):
     def __init__(self, path):
         self.path = path
         self.createIfNecessary(path)
-        self.counters = CounterList(os.path.join(self.path, 'counters.xml'))
+        self.counters = IntervalCounters(os.path.join(self.path, 'counters.xml'))
 
     def createIfNecessary(self, path):
         try:
@@ -98,8 +98,88 @@ class StatsTarget(object):
 
     def increment(self):
         """An event has occurred which should be logged in this stats target"""
-        self.counters.getCounter("foo").increment()
-        self.counters.save()
+        self.counters.increment()
+
+
+class TimeInterval(object):
+    """Represents some interval of time, like 'yesterday' or 'this week'.
+       Provides functions for returning the bounds of the
+       interval and testing whether a particular time is within it.
+       Represents time using datetime objects. By default, the interval
+       is created relative to the current date and time in UTC. To override
+       this, a datetime object can be passed to the constructor.
+
+       TimeInterval is constructed with the name of the interval
+       it should represent.
+
+       >>> now = datetime.datetime(2003, 12, 19, 2, 19, 39, 50279)
+
+       >>> TimeInterval('today', now)
+       <TimeInterval from 2003-12-19 00:00:00 to 2003-12-20 00:00:00>
+
+       >>> TimeInterval('yesterday', now)
+       <TimeInterval from 2003-12-18 00:00:00 to 2003-12-19 00:00:00>
+
+       >>> TimeInterval('thisWeek', now)
+       <TimeInterval from 2003-12-15 00:00:00 to 2003-12-22 00:00:00>
+
+       >>> TimeInterval('lastWeek', now)
+       <TimeInterval from 2003-12-08 00:00:00 to 2003-12-15 00:00:00>
+
+       >>> TimeInterval('thisMonth', now)
+       <TimeInterval from 2003-12-01 00:00:00 to 2004-01-01 00:00:00>
+
+       >>> TimeInterval('lastMonth', now)
+       <TimeInterval from 2003-11-01 00:00:00 to 2003-12-01 00:00:00>
+       """
+    def __init__(self, name, now=None):
+        if not now:
+            now = datetime.datetime.utcnow()
+        self.range = getattr(self, name)(now)
+
+    def __repr__(self):
+        return "<TimeInterval from %s to %s>" % self.range
+
+    def __contains__(self, dt):
+        return dt >= self.range[0] and dt < self.range[1]
+
+    def today(self, now):
+        midnightToday = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        midnightTomorrow = midnightToday + datetime.timedelta(days=1)
+        return (midnightToday, midnightTomorrow)
+
+    def yesterday(self, now):
+        midnightToday = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        midnightYesterday = midnightToday - datetime.timedelta(days=1)
+        return (midnightYesterday, midnightToday)
+
+    def thisWeek(self, now):
+        midnightToday = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        beginning = midnightToday - datetime.timedelta(days=calendar.weekday(now.year, now.month, now.day))
+        end = beginning + datetime.timedelta(weeks=1)
+        return (beginning, end)
+
+    def lastWeek(self, now):
+        thisWeek = self.thisWeek(now)
+        return (thisWeek[0] - datetime.timedelta(weeks=1), thisWeek[0])
+
+    def thisMonth(self, now):
+        beginning = now.replace(hour=0, minute=0, second=0, microsecond=0, day=1)
+        try:
+            end = beginning.replace(month=now.month+1)
+        except ValueError:
+            # Next year
+            end = beginning.replace(month=1, year=now.year+1)
+        return (beginning, end)
+
+    def lastMonth(self, now):
+        end = now.replace(hour=0, minute=0, second=0, microsecond=0, day=1)
+        try:
+            beginning = end.replace(month=now.month-1)
+        except ValueError:
+            # Last year
+            beginning = end.replace(month=12, year=now.year-1)
+        return (beginning, end)
 
 
 class CounterList(XML.XMLStorage):
@@ -125,6 +205,52 @@ class CounterList(XML.XMLStorage):
         return self.counters[name]
 
 
+class IntervalCounters(CounterList):
+    """A set of counters which are used together to track events
+       occurring over several TimeIntervals.
+       """
+    def checkOneRollover(self, previous, current):
+        """Check for rollovers in one pair of consecutive time intervals,
+           like yesterday/today or lastMonth/thisMonth.
+           """
+        # Is our current counter still current?
+        if not self.getCounter(current).getCreationDatetime() in TimeInterval(current):
+            # Nope, it's not. Is it within the previous interval?
+            if self.getCounter(current).getCreationDatetime() in TimeInterval(previous):
+                # Yes, roll over the current counter into previous
+                self.getCounter(previous).copyFrom(self.getCounter(current))
+            else:
+                # No, it's really old... reset the previous counter
+                self.getCounter(previous).reset()
+            # Either way we need to reset the current counter
+            self.getCounter(current).reset()
+
+    def checkRollovers(self):
+        """If any of the counters were created outside the interval
+           they apply to, transfer its value to another counter
+           if we need to and reset it.
+           """
+        self.checkOneRollover('yesterday', 'today')
+        self.checkOneRollover('lastWeek', 'thisWeek')
+        self.checkOneRollover('lastMonth', 'thisMonth')
+
+    def load(self):
+        """Check for rollovers on load"""
+        CounterList.load(self)
+        self.checkRollovers()
+
+    def increment(self):
+        """Increments all applicable counters in this list
+           and saves them, after checking for rollovers.
+           """
+        self.checkRollovers()
+        self.getCounter('today').increment()
+        self.getCounter('thisWeek').increment()
+        self.getCounter('thisMonth').increment()
+        self.getCounter('forever').increment()
+        self.save()
+
+
 class Counter(XML.XMLObject):
     """Represents a tally of events and event frequency in a particular
        time period. Each counter has a permenently-assigned name which is
@@ -140,6 +266,11 @@ class Counter(XML.XMLObject):
         if name is not None:
             self.xml['name'] = name
             self.name = name
+
+    def reset(self):
+        """Delete all values in this counter, restoring their defaults"""
+        self.xml.children = ["\n"]
+        self.preprocess()
 
     def preprocess(self):
         # Make sure that we have a creation time, adding it if we don't
@@ -191,6 +322,10 @@ class Counter(XML.XMLObject):
     def getCreationTime(self):
         return self._getValue('time', 'creation', castTo=int)
 
+    def getCreationDatetime(self):
+        """Like getCreationTime, but cast the result to a UTC datetime object"""
+        return datetime.datetime.utcfromtimestamp(self.getCreationTime())
+
     def setCreationTime(self, value):
         self._setValue('time', 'creation', value)
 
@@ -224,5 +359,23 @@ class Counter(XML.XMLObject):
             self.setFirstEventTime(evTime)
         self.setLastEventTime(evTime)
         self.incrementEventCount()
+
+    def copyFrom(self, other):
+        """Copy all content from the other counter into this counter
+           excepting the name. This includes all timestamps.
+           """
+        # Kinda kludgey, but copy.deepcopy() chokes on something in domish
+        savedName = self.name
+        self.loadFromString(other.xml.toXml())
+        self.xml['name'] = savedName
+        self.name = savedName
+
+
+def _test():
+    import doctest, Stats
+    return doctest.testmod(Stats)
+
+if __name__ == "__main__":
+    _test()
 
 ### The End ###
