@@ -22,9 +22,9 @@
 
 
 /*
- * On-chip I2C peripherals use a three-wire unidirectional bus.
+ * Internally, we represent I2C as a three-wire unidirectional bus.
  * This converts it into a two-wire bus, for use externally. It
- * synchronizes inputs for two clock cycles and outputs for one.
+ * synchronizes inputs for two clock cycles.
  *
  * Note that "int_sda_out" and "int_sda_in" are named relative
  * to this chip, so "int_sda_in" is actually an output in this module.
@@ -42,10 +42,9 @@ module i2c_io_buffer (clk, reset,
 
 	reg [1:2] sda_in_sync;
 	reg [1:2] scl_in_sync;
-	reg sda_out_sync;
 
-	/* An open-collector driver for ext_sda using our sync'ed sda_out */
-	assign ext_sda = sda_out_sync ? 1'bz : 1'b0;
+	/* An open-collector driver for ext_sda */
+	assign ext_sda = int_sda_out ? 1'bz : 1'b0;
 
 	/* Our internal I2C bus is driven by the sync'ed inputs */
 	assign int_scl = scl_in_sync[2];
@@ -54,21 +53,195 @@ module i2c_io_buffer (clk, reset,
 	always @(posedge clk or posedge reset)
 		if (reset) begin
 			sda_in_sync <= 2'b11;
-			sda_out_sync <= 1'b1;
 			scl_in_sync <= 2'b11;
 		end
 		else begin
-			/* Sync inputs for two cycles */
 			sda_in_sync[1] <= ext_sda;
 			sda_in_sync[2] <= sda_in_sync[1];
 			scl_in_sync[1] <= ext_scl;
 			scl_in_sync[2] <= scl_in_sync[1];
-
-			/* Sync output once */
-			sda_out_sync <= int_sda_out;
 		end
 endmodule
 
+
+/*
+ * A code detector/generator for I2C slaves. This converts the incoming
+ * I2C signal into 1-cycle pulses indicating start condition, stop condition,
+ * or received bit. Output data is latched on the falling edge of SCL.
+ */
+module i2c_slave_code_detect (clk, reset, scl, sda,
+                              rx_start, rx_stop, rx_data, tx_data, strobe);
+	input clk, reset;
+	input scl;
+	inout sda;
+	output rx_start, rx_stop, rx_data, strobe;
+	input tx_data;
+
+	wire int_scl, int_sda_in;
+	reg int_sda_out;
+	i2c_io_buffer buffer(clk, reset, scl, sda, int_scl, int_sda_in, int_sda_out);
+
+
+	/* Store the previous value of SDA and SCL, for edge detection */
+	reg prev_sda, prev_scl;
+	always @(posedge clk or posedge reset)
+		if (reset) begin
+			prev_sda <= 1;
+			prev_scl <= 1;
+		end
+		else begin
+			prev_sda <= int_sda_in;
+			prev_scl <= int_scl;
+		end
+	
+	/* Latch the SDA output on falling SCL edge */
+	always @(posedge clk or posedge reset)
+		if (reset)
+			int_sda_out <= 1;
+		else if (prev_scl && ! int_scl)
+			int_sda_out <= tx_data;
+
+	/* Detect bus conditions */
+	reg rx_start, rx_stop, strobe, rx_data;
+	always @(posedge clk or posedge reset)
+		if (reset) begin
+			rx_stop <= 0;
+			rx_start <= 0;
+			rx_data <= 0;
+			strobe <= 0;
+		end
+		else begin
+			// Start conditions: SCL is stable, SDA falls
+			rx_start <= (int_scl && prev_scl && prev_sda && !int_sda_in);
+
+			// Stop concitions: SCL is stable, SDA rises
+			rx_stop <= (int_scl && prev_scl && int_sda_in && !prev_sda);
+			
+			// A data bit is valid: SCL rises
+			if (int_scl && !prev_scl) begin
+				rx_data <= int_sda_in;
+				strobe <= 1;
+			end
+			else begin
+				strobe <= 0;
+			end
+		end
+endmodule
+
+
+/*
+ * A high level packet detector for I2C slaves. This receives device
+ * addresses and exposes a higher level interface for processing I2C packets:
+ *
+ *   1. A start condition and address byte are received.
+ *   2. The pkt_address and pkt_read_wr outputs become valid,
+ *      pkt_addressed goes high, bit_count resets to zero.
+ *   3. Our peer pulls 'ack' high. Once the proper time comes, we send an ACK bit
+ *   4. If we receive further data, individual bits are clocked out on 'rx_content'
+ *      using 1-cycle pulses on 'content_strobe'. pkt_address and pkt_read_wr remain valid.
+ *      bit_count is incremented after each strobe. This does not count ACK bits,
+ *      which are handled internally using the active-high 'ack' signal.
+ *      Data is transmitted analogously by placing valid data on tx_content when
+ *      content_strobe pulses.
+ *   5. Once a stop condition is received, pkt_addressed goes low.
+ *
+ * All I2C signals are packed into a bus:
+ *   i2c_interface_tx = {tx_content, ack}
+ *   i2c_interface_rx = {rx_stop, rx_content, content_strobe, bit_count[7:0]
+ *                       pkt_address[6:0], pkt_read_wr, pkt_addressed}
+ *
+ */
+module i2c_frontend (clk, reset, scl, sda, i2c_interface_tx, i2c_interface_rx);
+	input clk, reset, scl;
+	inout sda;
+	input [1:0] i2c_interface_tx;
+	output [19:0] i2c_interface_rx;
+	
+	// Unpack the received bus
+	wire tx_content = i2c_interface_tx[1];
+	wire ack = i2c_interface_tx[0];
+	
+	// Pack the transmitted bus
+	wire rx_stop, rx_content, content_strobe;
+	reg [7:0] bit_count;
+	wire [6:0] pkt_address;
+	wire pkt_read_wr;
+	reg pkt_addressed;
+	assign i2c_interface_rx = {rx_stop, rx_content, content_strobe,
+	                           bit_count, pkt_address, pkt_read_wr, pkt_addressed};
+
+	// I2C bit detector
+	wire rx_start, rx_data, tx_data, strobe;
+	i2c_slave_code_detect code_det(clk, reset, scl, sda,
+	                               rx_start, rx_stop, rx_data, tx_data, strobe);
+
+	// Keep an 8-bit shift register for the I2C address byte
+	reg [7:0] addr_shift;
+	assign pkt_address = addr_shift[7:1];
+	assign pkt_read_wr = addr_shift[0];
+
+	// Our bit counter is reset by the bit_count_reset net, and advanced by strobe.
+	// Every 9th bit, the ACK, pulls 'ack_flag' high for one bit-time rather than
+	// incrementing bit_count.
+	wire bit_count_reset;
+	reg ack_flag;
+	always @(posedge clk or posedge reset)
+		if (reset) begin
+			bit_count <= 0;
+			ack_flag <= 0;
+		end
+		else if (bit_count_reset) begin
+			bit_count <= 0;
+			ack_flag <= 0;
+		end
+		else if (strobe) begin
+			if (ack_flag) begin
+				ack_flag <= 0;
+				bit_count <= bit_count + 1;
+			end
+			else if (bit_count[2:0] == 3'b111) begin
+				ack_flag <= 1;
+			end
+			else begin
+				ack_flag <= 0;
+				bit_count <= bit_count + 1;
+			end
+		end
+		
+	// Reset the bit count either on rx_start, or when we've just
+	// finished receiving the I2C address.
+	assign bit_count_reset = rx_start || (bit_count == 8 && pkt_addressed);
+	
+	// Send out ACK bits as appropriate
+	assign tx_data = ack_flag ? (!ack) : tx_content;
+
+	// Pass on content once we've decoded the address and we aren't ACK'ing
+	assign content_strobe = strobe && pkt_addressed && !ack_flag;
+	assign rx_content = rx_data;
+
+	// Enter and leave addressed mode as appropriate
+	always @(posedge clk or posedge reset)
+		if (reset) begin
+			addr_shift <= 0;
+			pkt_addressed <= 0;
+		end
+		else begin
+			if (!pkt_addressed) begin
+				// We're waiting on receiving the address byte
+				if (strobe) begin
+					// Got a bit. Is this the last one?
+					if (bit_count == 7)
+						pkt_addressed <= 1;
+					addr_shift <= {addr_shift[6:0], rx_data};
+				end
+			end
+			else begin
+				// We've been addressed, just receive until we stop
+				if (rx_start || rx_stop)
+					pkt_addressed <= 0;
+			end	
+		end	
+endmodule
 
 /*
  * An I2C-accessable dual port 32-byte SRAM. The I2C host can write to the SRAM,
