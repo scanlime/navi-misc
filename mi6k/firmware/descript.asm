@@ -131,7 +131,7 @@ Interface1
 	retlw	INTERFACE
 	retlw	0x00		; number of interface, 0 based array
 	retlw	0x00		; alternate setting
-	retlw	0x02		; number of endpoints used in this interface
+	retlw	0x01		; number of endpoints used in this interface
 	retlw	0xFF		; interface class - vendor specific
 	retlw	0xFF		; vendor specific subclass (not a boot device)
 	retlw	0xFF		; vendor specific protocol
@@ -141,17 +141,9 @@ Endpoint1In
 	retlw	ENDPOINT
 	retlw	0x81		; EP1, In
 	retlw	0x03		; Interrupt
-	retlw	0x10		; max packet size (16 bytes) low order byte
-	retlw	0x00		; max packet size (16 bytes) high order byte
-	retlw	0x0A		; polling interval (10ms)
-Endpoint1Out
-	retlw	0x07		; length of descriptor
-	retlw	ENDPOINT
-	retlw	0x01		; EP1, Out
-	retlw	0x03		; Interrupt
-	retlw	0x01		; max packet size (1 byte) low order byte
-	retlw	0x00		; max packet size (1 byte) high order byte
-	retlw	0x0A		; polling interval (10ms)
+	retlw	0x08		; max packet size (8 bytes) low order byte
+	retlw	0x00		; max packet size (8 bytes) high order byte
+	retlw	0x02		; polling interval (2ms)
 EndConfig1	
 
 
