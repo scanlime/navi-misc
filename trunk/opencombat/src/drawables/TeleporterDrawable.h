@@ -21,7 +21,7 @@ class TeleporterDrawable : public BaseVisualElement, BaseDrawable
 
 	// for the visual element
 	virtual bool init ( void );
-	virtual bool visible ( ViewFrustum *frustum );
+	virtual bool visible ( BaseFrustum *frustum );
 	virtual void draw ( void );
 
 	// or the drawables

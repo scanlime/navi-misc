@@ -32,7 +32,7 @@ bool TeleporterDrawable::init ( void )
 	return true;
 }
 
-bool TeleporterDrawable::visible ( ViewFrustum *frustum )
+bool TeleporterDrawable::visible ( BaseFrustum *frustum )
 {
 	return false;
 }

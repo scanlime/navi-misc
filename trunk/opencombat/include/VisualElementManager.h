@@ -23,7 +23,6 @@
 #include "GeoUtils.h"
 
 class BaseVisualElementFactory;
-class ViewFrustum;
 
 class BaseVisableObject
 {
@@ -44,7 +43,7 @@ public:
 	virtual ~BaseVisualElement();
 
 	virtual bool init ( void );
-	virtual bool visible ( ViewFrustum *frustum  );
+	virtual bool visible ( BaseFrustum *frustum  );
 	virtual void draw ( void );
 
 	virtual void kill ( void );

@@ -31,7 +31,7 @@ bool BaseVisualElement::init ( void )
 	return true;
 }
 
-bool BaseVisualElement::visible ( ViewFrustum *frustum )
+bool BaseVisualElement::visible ( BaseFrustum *frustum )
 {
 	return false;
 }
@@ -121,7 +121,7 @@ void VisualElementManager::deleteObject ( BaseVisualElement* element )
 
 void VisualElementManager::calcVisObjects ( void )
 {
-	ViewFrustum		frustum;
+	ViewFrustumGL		frustum;
 
 	frustum.Get();
 
