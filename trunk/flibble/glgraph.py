@@ -42,8 +42,8 @@ class Node:
         self.position[1] -= abs(edgeStrength / (graph.viewport.size[1] - self.position[1]))
 
         # Random wandering
-        self.position += (random.normalvariate(0, 0.2),
-                          random.normalvariate(0, 0.2))
+        self.position += (random.normalvariate(0, graph.temperature),
+                          random.normalvariate(0, graph.temperature))
 
     def render(self):
         # Lazy texture loading
@@ -126,6 +126,7 @@ class Graph:
         self.edges = list(edges)
         self.viewport = viewport
         viewport.onDrawFrame.observe(self.render)
+        self.temperature = 30
 
     def addNode(self, *args, **kwargs):
         node = Node(*args, **kwargs)
@@ -141,6 +142,10 @@ class Graph:
         self.edges.append(edge)
 
     def render(self):
+        # For a simulated simulated-annealing effect, gradually
+        # decrease the 'temperature', the amount of random node movement.
+        self.temperature *= 0.995
+
         # Let the edges and nodes animate themselves
         for node in self.nodes:
             node.animate(self)
