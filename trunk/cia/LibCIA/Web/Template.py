@@ -47,14 +47,14 @@ def Bargraph(value, width=4, padding=0.2):
                style="padding: 0em %.4fem" % (value * width + padding))
 
 
-def SubscriptionLink(url, content, icon="/images/xml.png", iconSize=(36,14)):
+def SubscriptionLink(url, content, icon="/images/rss.png", iconSize=(36,14)):
     """An anchor tag that can be used to link to RSS feeds with quickSub support.
        On mouseover, this link will display a menu of RSS aggregation services.
        """
     return tag('a', href = url,
                onmouseout  = "return timeqs();",
                onmouseover = "return quicksub(this, %r);" % str(url))[
-                  tag('img', src=icon, _class="xml-icon", alt="XML",
+                  tag('img', src=icon, _class="xml-icon", alt="RSS",
                       width=iconSize[0], height=iconSize[1]),
                   content,
               ]
