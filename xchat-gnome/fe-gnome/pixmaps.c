@@ -20,10 +20,6 @@
  */
 
 #include <gdk-pixbuf/gdk-pixbuf.h>
-#include <gdk-pixbuf/gdk-pixdata.h>
-
-#include "../pixmaps/inline_pngs.h"
-#include "pixmaps/inline_pngs.h"
 
 GdkPixbuf *pix_purple;
 GdkPixbuf *pix_red;
@@ -45,80 +41,20 @@ GdkPixbuf *pix_prefs_keybindings;
 void
 pixmaps_init (void)
 {
-	GdkPixbuf *p;
+	pix_purple            = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/purple.png",                  NULL);
+	pix_red               = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/red.png",                     NULL);
+	pix_op                = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/op.png",                      NULL);
+	pix_hop               = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/hop.png",                     NULL);
+	pix_voice             = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/voice.png",                   NULL);
 
-	pix_purple = gdk_pixbuf_new_from_file (XCHATSHAREDIR"/purple.png", 0);
-	if (!pix_purple)
-		pix_purple = gdk_pixbuf_new_from_inline (-1, purplepng, FALSE, 0);
+	pix_newdata           = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/newdata.png",                 NULL);
+	pix_nicksaid          = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/nicksaid.png",                NULL);
+	pix_msgsaid           = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/global-message.png",          NULL);
 
-	pix_red = gdk_pixbuf_new_from_file (XCHATSHAREDIR"/red.png", 0);
-	if (!pix_red)
-		pix_red = gdk_pixbuf_new_from_inline (-1, redpng, FALSE, 0);
-
-	pix_op = gdk_pixbuf_new_from_file (XCHATSHAREDIR"/op.png", 0);
-	if (!pix_op)
-		pix_op = gdk_pixbuf_new_from_inline (-1, oppng, FALSE, 0);
-
-	pix_hop = gdk_pixbuf_new_from_file (XCHATSHAREDIR"/hop.png", 0);
-	if (!pix_hop)
-		pix_hop = gdk_pixbuf_new_from_inline (-1, hoppng, FALSE, 0);
-
-	pix_voice = gdk_pixbuf_new_from_file (XCHATSHAREDIR"/voice.png", 0);
-	if (!pix_voice)
-		pix_voice = gdk_pixbuf_new_from_inline (-1, voicepng, FALSE, 0);
-
-	p = gdk_pixbuf_new_from_file (XCHATSHAREDIR"/newdata.png", 0);
-	if (!p)
-		p = gdk_pixbuf_new_from_inline (-1, newdatapng, FALSE, 0);
-
-	pix_newdata = gdk_pixbuf_scale_simple (p, 16, 16, GDK_INTERP_BILINEAR);
-	gdk_pixbuf_unref (p);
-
-	p = gdk_pixbuf_new_from_file (XCHATSHAREDIR"/nicksaid.png", 0);
-	if (!p)
-		p = gdk_pixbuf_new_from_inline (-1, nicksaidpng, FALSE, 0);
-	pix_nicksaid = gdk_pixbuf_scale_simple (p, 16, 16, GDK_INTERP_BILINEAR);
-	gdk_pixbuf_unref (p);
-
-	p = gdk_pixbuf_new_from_file (XCHATSHAREDIR"/global-message.png", 0);
-	if (!p)
-		p = gdk_pixbuf_new_from_inline (-1, globalmessagepng, FALSE, 0);
-	pix_msgsaid = gdk_pixbuf_scale_simple (p, 16, 16, GDK_INTERP_BILINEAR);
-	gdk_pixbuf_unref (p);
-
-	p = gdk_pixbuf_new_from_file (XCHATSHAREDIR"/irc.png", NULL);
-	if (!p)
-		p = gdk_pixbuf_new_from_inline (-1, ircpng, FALSE, 0);
-	pix_prefs_irc = gdk_pixbuf_scale_simple (p, 16, 16, GDK_INTERP_BILINEAR);
-	gdk_pixbuf_unref (p);
-
-	p = gdk_pixbuf_new_from_file (XCHATSHAREDIR"/color.png", NULL);
-	if (!p)
-		p = gdk_pixbuf_new_from_inline (-1, colorpng, FALSE, 0);
-	pix_prefs_colors = gdk_pixbuf_scale_simple (p, 16, 16, GDK_INTERP_BILINEAR);
-	gdk_pixbuf_unref (p);
-
-	p = gdk_pixbuf_new_from_file (XCHATSHAREDIR"/dcc.png", NULL);
-	if (!p)
-		p = gdk_pixbuf_new_from_inline (-1, dccpng, FALSE, 0);
-	pix_prefs_dcc = gdk_pixbuf_scale_simple (p, 16, 16, GDK_INTERP_BILINEAR);
-	gdk_pixbuf_unref (p);
-
-	p = gdk_pixbuf_new_from_file (XCHATSHAREDIR"/servers.png", NULL);
-	if (!p)
-		p = gdk_pixbuf_new_from_inline (-1, serverspng, FALSE, 0);
-	pix_prefs_networks = gdk_pixbuf_scale_simple (p, 16, 16, GDK_INTERP_BILINEAR);
-	gdk_pixbuf_unref (p);
-
-	p = gdk_pixbuf_new_from_file (XCHATSHAREDIR"/plugin-manager.png", NULL);
-	if (!p)
-		p = gdk_pixbuf_new_from_inline (-1, pluginmanagerpng, FALSE, 0);
-	pix_prefs_plugins = gdk_pixbuf_scale_simple (p, 16, 16, GDK_INTERP_BILINEAR);
-	gdk_pixbuf_unref (p);
-
-	p = gdk_pixbuf_new_from_file (XCHATSHAREDIR"/preferences-keybindings.png", NULL);
-	if (!p)
-		p = gdk_pixbuf_new_from_inline (-1, keybindingspng, FALSE, 0);
-	pix_prefs_keybindings = gdk_pixbuf_scale_simple (p, 16, 16, GDK_INTERP_BILINEAR);
-	gdk_pixbuf_unref (p);
+	pix_prefs_irc         = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/irc.png",                     NULL);
+	pix_prefs_colors      = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/color.png",                   NULL);
+	pix_prefs_dcc         = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/dcc.png",                     NULL);
+	pix_prefs_networks    = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/servers.png",                 NULL);
+	pix_prefs_plugins     = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/plugin-manager.png",          NULL);
+	pix_prefs_keybindings = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/preferences-keybindings.png", NULL);
 }

@@ -168,4 +168,4 @@ mmx_cmod.h:	@top_srcdir@/src/fe-gtk/mmx_cmod.h
 mmx_cmod.S:	@top_srcdir@/src/fe-gtk/mmx_cmod.S mmx_cmod.h
 	cp -pR @top_srcdir@/src/fe-gtk/mmx_cmod.S .
 
-SUBDIRS = data pixmaps
+SUBDIRS = data
