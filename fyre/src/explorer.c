@@ -105,6 +105,8 @@ static void explorer_init(Explorer *self) {
 	self->xml = glade_xml_new(BR_DATADIR("/fyre/explorer.glade"), NULL, NULL);
 #endif
 
+    self->paused = FALSE;
+
     self->window = glade_xml_get_widget(self->xml, "explorer_window");
     fyre_set_icon_later(self->window);
     fyre_set_icon_later(glade_xml_get_widget(self->xml, "animation_window"));
@@ -540,7 +542,8 @@ static gboolean on_interactive_prefs_delete(GtkWidget *widget, GdkEvent *event, 
 /************************************************************************************/
 
 static void on_pause_rendering_toggle(GtkWidget *widget, Explorer* self) {
-    if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget)))
+    self->paused = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget));
+    if (self->paused)
 	iterative_map_stop_calculation(self->map);
     else
 	iterative_map_start_calculation(self->map);

@@ -86,6 +86,9 @@ struct _Explorer {
     gboolean             seeking_animation;
     gboolean             seeking_animation_transition;
     gboolean             playing_animation;
+
+    gboolean             paused;
+
     GTimeVal             last_anim_frame_time;
 
 #ifdef HAVE_GNET
