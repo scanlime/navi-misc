@@ -14,12 +14,16 @@
 #define EMAILREGEX "[a-z0-9.+_-]+@([0-9a-z-]+\\.)+[a-z]+"
 
 static xchat_plugin *ph;	// Plugin handle.
-static regex_t *email;	// Regex that matches e-mail addresses.
+static regex_t *email;		// Regex that matches e-mail addresses.
 static regex_t *url;		// Regex that matches urls.
 static int urls;			// Current total in the scraper.
 
 static GtkWidget *window;
 static GtkListStore *list_store;
+
+static void url_open (GtkTreeView *treeview, GtkTreePath *path,
+		GtkTreeViewColumn *column, gpointer user_data);
+
 
 static gboolean delete_cb (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 {
@@ -53,6 +57,7 @@ static void make_window ()
 
 	url_rend = gtk_cell_renderer_text_new ();
 	url_col = gtk_tree_view_column_new_with_attributes ("URL", url_rend, "text", 2, NULL);
+	//g_object_set (G_OBJECT(url_rend), "editable", TRUE, NULL);
 
 	gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), nick_col);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), chan_col);
@@ -63,6 +68,8 @@ static void make_window ()
 
 	gtk_container_add (GTK_CONTAINER(window), scrolled);
 
+	g_signal_connect (G_OBJECT(treeview), "row-activated", G_CALLBACK(url_open), NULL);
+
 	gtk_widget_show_all (window);
 }
 
@@ -72,7 +79,6 @@ static void add_match (char **word, regmatch_t match)
 	const char *chan;
 	char *url_match, *channel;
 	GtkTreeIter iter;
-	GError *err = NULL;
 
 	len = match.rm_eo - match.rm_so;
 
@@ -84,7 +90,7 @@ static void add_match (char **word, regmatch_t match)
 	channel = malloc (strlen (chan));
 	strncpy (channel, chan+1, strlen (chan));
 
-	if (gtk_tree_model_get_iter_first (GTK_TREE_MODEL(list_store), &iter)) {
+	/*if (gtk_tree_model_get_iter_first (GTK_TREE_MODEL(list_store), &iter)) {
 		char *entry;
 		do {
 			gtk_tree_model_get (GTK_TREE_MODEL(list_store), &iter, 2, entry, -1);
@@ -93,7 +99,7 @@ static void add_match (char **word, regmatch_t match)
 				return;
 			}
 		} while (gtk_tree_model_iter_next (GTK_TREE_MODEL(list_store), &iter));
-	}
+	}*/
 
 	if (urls >= MAXURLS) {
 		gtk_tree_model_get_iter_first (GTK_TREE_MODEL(list_store), &iter);
@@ -102,7 +108,6 @@ static void add_match (char **word, regmatch_t match)
 	else
 		urls++;
 
-	gnome_url_show (url_match, &err);
 	gtk_list_store_append (list_store, &iter);
 	gtk_list_store_set (list_store, &iter, 0, word[1], 1, channel, 2, url_match, -1);
 }
@@ -126,6 +131,22 @@ void xchat_plugin_get_info (char **plugin_name,
 	*plugin_name = "URL Scraper";
 	*plugin_desc = "Grabs URLs and puts them in a separate window for easy viewing.";
 	*plugin_version = VERSION;
+}
+
+static void url_open (GtkTreeView *treeview, GtkTreePath *path,
+		GtkTreeViewColumn *column, gpointer user_data)
+{
+	char *cur_url = NULL;
+	GtkTreeSelection *selection;
+	GtkTreeModel *model;
+	GError *err = NULL;
+	GtkTreeIter iter;
+
+	model = GTK_TREE_MODEL(treeview);
+	selection = gtk_tree_view_get_selection (treeview);
+	gtk_tree_selection_get_selected (selection, &model, &iter);
+	gtk_tree_model_get (model, &iter, 2, cur_url, -1);
+	gnome_url_show (cur_url, &err);
 }
 
 int xchat_plugin_init (xchat_plugin *plugin_handle,
