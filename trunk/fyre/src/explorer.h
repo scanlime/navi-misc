@@ -58,6 +58,7 @@ struct _Explorer {
 
   guint idler;
   GTimeVal last_gui_update;
+  gulong render_time;       /* In microseconds */
 
   gchar* current_tool;
   gboolean tool_active;
