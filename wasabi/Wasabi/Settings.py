@@ -21,6 +21,7 @@ Implements Wasabi's settings menu and its submenus.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
+from __future__ import division
 from Wasabi import Menu, Icon
 from BZEngine.UI import Texture
 from BZEngine import Util
@@ -30,6 +31,7 @@ import os, md5, cPickle, Image, glob
 class SettingsMenu(Menu.ArcMenu):
     def __init__(self, book):
         items = [
+            # 'background' icon, loads the backgrounds then runs the backgrounds menu
             Menu.PageItem(Icon.load('background'), [
             BackgroundLoader,
             Menu.defaultFades(BackgroundsMenu),
@@ -38,19 +40,22 @@ class SettingsMenu(Menu.ArcMenu):
         Menu.ArcMenu.__init__(self, book, items, "Settings")
 
 
+backgroundList = []
+
 class BackgroundLoader(Menu.LoaderPage):
     """Loads backgrounds into memory before the backgrounds menu itself runs"""
     def run(self):
-        bgc = BackgroundCache()
-        for file in getBackgroundList():
-            print file
-            print bgc.load(file)
+        global backgroundList
+        if not backgroundList:
+            bgc = BackgroundCache()
+            for file in getBackgroundList():
+                backgroundList.append(bgc.load(file))
 
 
 class BackgroundsMenu(Menu.ArcMenu):
     def __init__(self, book):
-        items = []
-
+        global backgroundList
+        items = [Menu.Item(Icon.Icon(texture, imageAspect=4/3)) for texture in backgroundList]
         Menu.ArcMenu.__init__(self, book, items, "Backgrounds")
 
 
@@ -59,15 +64,14 @@ def getBackgroundList():
        the backgrounds.py data file. Functions and modules helpful for
        locating backgrounds are placed in its an
        """
-    l = []
     ns = {
         'glob': glob.glob,
         'dataFile': Util.dataFile,
         'os': os,
-        'list': l
+        'list': []
         }
     exec open(Util.dataFile('backgrounds.py')) in ns
-    return l
+    return ns['list']
 
 
 class BackgroundCache:

@@ -73,10 +73,17 @@ class Icon:
        The rendering style is given at render time with an IconStyle instance.
 
        imageAspect is the width/height ratio for the image.
+
+       The provided 'image' is assumed to be a data file name if it is a string.
+       It may also be a Texture instance.
        """
-    def __init__(self, imageName, text, imageAspect=1):
-        self.imageName = imageName
-        self.texture = None
+    def __init__(self, image, text=None, imageAspect=1):
+        if isinstance(image, Texture.Texture):
+            self.imageName = None
+            self.texture = image
+        else:
+            self.imageName = image
+            self.texture = None
         self.text = text
         self.imageAspect = imageAspect
 
@@ -98,25 +105,26 @@ class Icon:
         GLOrtho.setTexture(self.texture)
         GLOrtho.filledRect((width, height), (0.5, 0.5))
 
-        # Move to the edge of the image indicated by our textSide and calculate the
-        # text's corresponding alignment value and font size
-        GLOrtho.push()
-        GLOrtho.translate(width  * (style.textSide[0] - 0.5),
-                          height * (style.textSide[1] - 0.5))
-        textAlignment = (1 - style.textSide[0],
-                         1 - style.textSide[1])
-        textHeight = height * style.textHeight
-
-        # Render the shadow and the text itself
-        if style.shadowEnabled:
-            GLOrtho.setColor(*style.shadowColor)
+        if self.text:
+            # Move to the edge of the image indicated by our textSide and calculate the
+            # text's corresponding alignment value and font size
             GLOrtho.push()
-            GLOrtho.translate(*style.shadowOffset)
+            GLOrtho.translate(width  * (style.textSide[0] - 0.5),
+                              height * (style.textSide[1] - 0.5))
+            textAlignment = (1 - style.textSide[0],
+                             1 - style.textSide[1])
+            textHeight = height * style.textHeight
+
+            # Render the shadow and the text itself
+            if style.shadowEnabled:
+                GLOrtho.setColor(*style.shadowColor)
+                GLOrtho.push()
+                GLOrtho.translate(*style.shadowOffset)
+                GLText.draw(self.text, textHeight, style.fontName, textAlignment)
+                GLOrtho.pop()
+            GLOrtho.setColor(*style.textColor)
             GLText.draw(self.text, textHeight, style.fontName, textAlignment)
             GLOrtho.pop()
-        GLOrtho.setColor(*style.textColor)
-        GLText.draw(self.text, textHeight, style.fontName, textAlignment)
-        GLOrtho.pop()
 
 
 class DockIcon(object):
@@ -148,10 +156,13 @@ class DockIcon(object):
     def draw(self):
         """Draw the icon at its current position, size, and style"""
         (position, height) = self.dock.trackFunction(self.animPosition.value)
-        GLOrtho.push()
-        GLOrtho.translate(*position)
-        self.icon.draw(self.dock.iconStyle, height)
-        GLOrtho.pop()
+        vpSize = self.dock.viewport.size
+        if (position[0] > -vpSize[0]/2 and position[0] < vpSize[0]*1.5 and
+            position[1] > -vpSize[1]/2 and position[1] < vpSize[1]*1.5):
+            GLOrtho.push()
+            GLOrtho.translate(*position)
+            self.icon.draw(self.dock.iconStyle, height)
+            GLOrtho.pop()
 
 
 class Dock(object):
