@@ -55,7 +55,6 @@ class MainWindow:
             ( '/Compile/Compile',              None,                None,             0, None ),
             ( '/Compile/Configuration',        None,                None,             0, None ),
             ( '/Compile/Compile All',          '<control><shift>D', None,             0, None ),
-            ( '/Compile/Go to Next Error',     None,                None,             0, None ),
             ( '/Render',                       None,                None,             0, '<Branch>' ),
             ( '/Render/Refresh',               None,                None,             0, None ),
             ( '/Render/Refresh After Compile', None,                None,             0, '<ToggleItem>' ),
