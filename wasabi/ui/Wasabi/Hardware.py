@@ -33,8 +33,30 @@ class Devices:
         try:
             import IR
             IR.initDefaultClient(eventLoop)
+        except IOError:
+            import sys
+            self.warn("Can't connect to lircd, %s" % sys.exc_info()[1])
+
+        # Try to initialize the mi6k
+        try:
+            import mi6k
+            self.mi6k = mi6k.Device()
         except:
             import sys
-            print "*** Can't connect to lircd: %s" % sys.exc_info()[1]
+            self.warn("Can't connect to the mi6k, %s" % sys.exc_info()[1])
+            self.mi6k = None
+
+        # Try to initialize the uvswitch
+        try:
+            import VideoSwitch
+            self.uvswitch = VideoSwitch.Device()
+        except IOError:
+            import sys
+            self.warn("Can't connect to the uvswitch, %s" % sys.exc_info()[1])
+            self.uvswitch= None
+
+    def warn(self, msg):
+        """Issue a warning related to hardware initialization"""
+        print "*** Warning: %s" % msg
 
 ### The End ###
