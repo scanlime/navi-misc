@@ -2,7 +2,7 @@
 import time, mi6k
 from math import *
 
-m = mi6k.MI6K()
+m = mi6k.Device()
 
 startTime = time.time()
 try:

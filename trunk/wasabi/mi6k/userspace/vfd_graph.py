@@ -40,7 +40,7 @@ class Bargraph:
 
 
 if __name__ == '__main__':
-    bargraph = Bargraph(mi6k.MI6K().vfd)
+    bargraph = Bargraph(mi6k.Device().vfd)
 
     startTime = time.time()
     while True:

@@ -1,6 +1,12 @@
 """ mi6k
 
-Python module for interacting with the Media Infrawidget 6000
+Python module for medium-level interacting with the Media Infrawidget 6000.
+This module allows setting the LED brightnesses, writing data to the VFD,
+and controlling power management.
+
+This module does not handle IR, this is done via LIRC just like any other
+IR device. This module also does not handle layout of information on the VFD,
+or animation of LED brightness.
 """
 
 from fcntl import ioctl
@@ -139,8 +145,10 @@ class Lights(object):
     white = property(getWhite, setWhite)
 
 
-class MI6K:
+class Device:
     def __init__(self, device="/dev/usb/mi6k0"):
         self.dev = open(device, "w")
         self.vfd = CenturyVFD(self.dev)
         self.lights = Lights(self.dev)
+
+### The End ###
