@@ -98,7 +98,10 @@ class GenericNetwork(BaseNetwork):
 
 class Freenode(BaseNetwork):
     alias = 'freenode'
-    newBotTimeout = 60 * 4
+    # Really short timeout- there are a lot of freenode servers and they can
+    # take it. Reconnecting all hosts to Freenode just takes way too long with
+    # the default value.
+    newBotTimeout = 60
     servers = (
         ('irc.freenode.net', None),
         ('saberhagen.freenode.net', None),
