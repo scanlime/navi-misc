@@ -45,11 +45,14 @@ class MailInterface(XMLRPC):
     """An XML-RPC interface for delivering messages via an IncomingMailParser
        to the Message.Hub.
        """
-    def __init__(self, hub):
+    def __init__(self, caps, hub):
+        self.caps = caps
         self.hub = hub
 
-    def xmlrpc_deliver(self, message):
-        """Given the raw text of an email message, log it and process it if applicable"""
+    def xmlrpc_deliver(self, message, key=None):
+        """Given the raw text of an email message, log it and process it if applicable.
+           This does not yet require a capability key, but it may eventually.
+           """
         xmlMessage = IncomingMailParser().parseString(message)
         if xmlMessage:
             self.hub.deliver(xmlMessage)

@@ -32,16 +32,19 @@ webRoot = static.File("htdocs")
 # behind our main Apache web server without getting horribly confused.
 webRoot.putChild('vhost', vhost.VHostMonsterResource())
 
-# Create the capabilities database used to add some security to the XML-RPC interfaces
-capDb = Security.CapabilityDB("data/security.db")
+# Create the security module's capabilities database and save the 'universe'
+# capability so it can be used to retrieve additional capabilities later.
+caps = Security.CapabilityDB("data/security.db")
+caps.saveKey('universe', 'data/universe.key')
 
 # Create a root XML-RPC object, with interfaces attached for each subsystem
 rpc = xmlrpc.XMLRPC()
-rpc.putSubHandler('sys', Interface.SysInterface(capDb))
-rpc.putSubHandler('hub', Message.HubInterface(hub))
-rpc.putSubHandler('ruleset', Ruleset.RulesetInterface(rulesetStorage))
-rpc.putSubHandler('mail', IncomingMail.MailInterface(hub))
-rpc.putSubHandler('stats', Stats.StatsInterface(statsStorage))
+rpc.putSubHandler('sys', Interface.SysInterface(caps))
+rpc.putSubHandler('hub', Message.HubInterface(caps, hub))
+rpc.putSubHandler('ruleset', Ruleset.RulesetInterface(caps, rulesetStorage))
+rpc.putSubHandler('mail', IncomingMail.MailInterface(caps, hub))
+rpc.putSubHandler('stats', Stats.StatsInterface(caps, statsStorage))
+rpc.putSubHandler('security', Security.SecurityInterface(caps))
 webRoot.putChild('RPC2', rpc)
 
 # Now create an HTTP server holding both our XML-RPC and web interfaces

@@ -34,16 +34,22 @@ import XML, Interface
 class HubInterface(xmlrpc.XMLRPC):
     """A simple interface for delivering XML messages to the hub over XML-RPC
        """
-    def __init__(self, hub):
+    def __init__(self, caps, hub):
+        self.caps = caps
         self.hub = hub
 
     def deliverXml(self, xml):
         """Internal function to deliver a message in raw XML"""
-        return self.hub.deliver(Message(xml))
+        return
 
-    def xmlrpc_deliver(self, xml):
-        """Deliver an XML message, returning its result on success or a Fault on failure"""
-        return Interface.catchFaults(self.deliverXml, xml)
+    def xmlrpc_deliver(self, xml, key=None):
+        """Deliver an XML message, returning its result on success or a Fault on failure.
+           This does not yet require a capability key, but it might eventually.
+           """
+        try:
+            return self.hub.deliver(Message(xml))
+        except:
+            Interface.catchFault("Exception occurred while delivering the message:\n%s\n--------" % xml)
 
 
 class Message(XML.XMLObject):
