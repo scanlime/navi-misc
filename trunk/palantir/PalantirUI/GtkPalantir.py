@@ -332,6 +332,9 @@ class PalantirWindow:
     else:
       self.tabs['None'].DisplayText(time, ' >%s< '%(self.factory.nickname), msg)
 
+  def who(self, args=''):
+    self.factory.client.sendLine('WHO %s'%(args))
+
   def ping(self, args=''):
     ''' Ping the server. '''
     self.tree.get_widget('SendField').set_text('')
@@ -467,7 +470,7 @@ class PalantirWindow:
     self.tabs[channel].DisplayText(time, '', '%s has left %s' % (user, channel))
 
   def whoReply(self, params):
-    print 'Does bubkus.'
+    print params
 
   def nameReply(self, params):
     ''' Adds the users to the userlist. '''
