@@ -22,80 +22,74 @@
 
 #include "input.h"
 
-// action stuff
-
-CAction::CAction()
-{
-}
-
-CAction::~CAction()
-{
-}
-
-float CAction::getRelative(void)
-{
-	return 0;
-}
-
-float CAction::getAbs(void)
-{
-	return 0;
-}
-
-float CAction::getRaw(void)
-{
-	return 0;
-}
-
-float CAction::getMinRange ( void )
-{
-	return 0;
-}
-
-float CAction::getMaxRange ( void )
-{
-	return 0;
-}
-
-float CAction::getMaxRaw ( void )
-{
-	return 0;
-}
-
-float CAction::getMinRaw ( void )
-{
-	return 0;
-}
-
-// listener functions
-void CAction::addListener ( CActionListener* listener )
-{
-	if (listener)
-		listeners.push_back(listener);
-}
-
-void CAction::removeListener ( CActionListener *listener )
-{
-	if (!listener)
-		return;
-
-	tvActionListenerList::iterator itr = listeners.begin();
-
-	while (itr != listeners.end())
-	{
-		if (listener == *itr)
-			itr = listeners.erase(itr);
-		else
-			itr++;
-	}
-}
-
-void CAction::clearAllListeners ( void )
-{
-	listeners.clear();
-}
-
 // base input manager
+
+class CBaseDevice
+{
+public:
+	virtual ~CBaseDevice() = 0;
+
+	virtual void init ( RenderWindow *theWindow ) = 0;
+	virtual void kill ( void ) = 0;
+
+	virtual void process ( void ) = 0;
+};
+
+class COgreKeyboard : public CBaseDevice , public KeyListener
+{
+public:
+	COgreKeyboard();
+	virtual ~COgreKeyboard();
+
+	virtual void init ( RenderWindow *theWindow );
+	virtual void kill ( void );
+
+	virtual void process ( void );
+
+protected:
+	EventProcessor*		eventProcessor;
+};
+
+
+// ogre keyboard
+COgreKeyboard::COgreKeyboard()
+{
+	eventProcessor = NULL;
+}
+
+COgreKeyboard::~COgreKeyboard()
+{
+	if (eventProcessor)
+		kill();
+}
+
+void COgreKeyboard::init ( RenderWindow *theWindow )
+{
+	if (eventProcessor)
+		kill();
+
+	eventProcessor = new EventProcessor();
+	eventProcessor->initialise(theWindow);
+	eventProcessor->addKeyListener(this);
+
+	eventProcessor->startProcessingEvents()
+}
+
+void COgreKeyboard::kill ( void )
+{
+}
+
+void COgreKeyboard::process ( void )
+{
+
+}
+
+
+struct CInputManager::trInfo
+{
+	//some devices
+};
+
 
 CInputManager::CInputManager()
 {
@@ -104,14 +98,14 @@ CInputManager::CInputManager()
 
 CInputManager::~CInputManager()
 {
+	if (mInputDevice)
+		return;
 	PlatformManager::getSingleton().destroyInputReader(mInputDevice);
 	mInputDevice = NULL;
 }
 
 void CInputManager::Init ( RenderWindow *theWindow )
 {
-	mInputDevice = PlatformManager::getSingleton().createInputReader();
-	mInputDevice->initialise(theWindow,true, false);
 }
 
 void CInputManager::Process ( void )
@@ -119,7 +113,18 @@ void CInputManager::Process ( void )
 	mInputDevice->capture();
 }
 
-bool CInputManager::KeyDown ( InputKeyCode key )
+void CInputManager::init ( RenderWindow *theWindow )
 {
-	return mInputDevice->isKeyDown((Ogre::KeyCode)key);
+	eventProcessor = new EventProcessor;
+
+	eventProcessor->initialise(theWindow);
+
 }
+void CInputManager::update ( void )
+{
+}
+
+
+// new API
+
+
