@@ -333,7 +333,7 @@ request_setPwmCycles
 	banksel	BufferData
 	movf	BufferData+wValue, w
 	banksel	pwm_cycles
-	movwf	pwm_cycles+1
+	movwf	pwm_cycles
 	returnEmpty
 
 

@@ -99,4 +99,22 @@ pscall	macro	lbl
 	call	lbl
 	endm
 
+
+	;; Zero an area of memory starting at the given literal
+	;; address and with a constant length. Requires the 'temp'
+	;; register to be available and in the current bank.
+bzero	macro	ptr, length
+	local	loop
+	movlw	ptr
+	movwf	FSR
+	movlw	length
+	movwf	temp
+	pagesel	loop
+loop
+	clrf	INDF
+	incf	FSR, f
+	decfsz	temp, f
+	goto	loop
+	endm
+
 ;### The End ###
