@@ -58,16 +58,23 @@ publish (EPublishUri *uri)
 		GnomeVFSURI *vfs_uri;
 		GnomeVFSResult result;
 		GnomeVFSHandle *handle;
+		gchar *password;
 
 		if (g_slist_find (queued_publishes, uri))
 			queued_publishes = g_slist_remove (queued_publishes, uri);
 
 		if (!uri->enabled)
 			return;
+
 		vfs_uri = gnome_vfs_uri_new (uri->location);
+
+		password = e_passwords_get_password ("Calendar", uri->location);
+		gnome_vfs_uri_set_password (vfs_uri, password);
+
 		if (vfs_uri == NULL) {
 			fprintf (stderr, "Couldn't create uri %s\n", uri->location);
 			/* FIXME: EError */
+			g_free (password);
 			return;
 		}
 
@@ -75,6 +82,7 @@ publish (EPublishUri *uri)
 		if (result != GNOME_VFS_OK) {
 			/* FIXME: EError */
 			fprintf (stderr, "Couldn't open %s: %s\n", uri->location, gnome_vfs_result_to_string (result));
+			g_free (password);
 			return;
 		}
 
@@ -94,10 +102,12 @@ publish (EPublishUri *uri)
 		if (result != GNOME_VFS_OK) {
 			fprintf (stderr, "Couldn't close %s: %s\n", uri->location, gnome_vfs_result_to_string (result));
 			/* FIXME: EError */
+			g_free (password);
 			return;
 		}
 
 		gnome_vfs_uri_unref (vfs_uri);
+		g_free (password);
 	} else {
 		if (g_slist_find (queued_publishes, uri) == NULL)
 			queued_publishes = g_slist_prepend (queued_publishes, uri);
