@@ -22,7 +22,8 @@ elsewhere, for example in IRC filters.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import Message, XML
+import Message, XML, TimeUtil
+import Nouvelle
 import re, os, posixpath
 
 
@@ -270,15 +271,32 @@ class CommitToRSS(CommitFormatter):
 
     def format(self, message, input=None):
         commit = message.xml.body.commit
-        log = self.format_log(str(commit.log).strip())
-        return "<item><description>%s</description></item>" % log
+        return "<item><description>%s</description><pubDate>%s</pubDate></item>" % (
+            self.format_log(str(commit.log).strip()),
+            TimeUtil.formatDateRFC822(int(str(message.xml.timestamp))),
+            )
+
+
+class ColortextToRSS(Message.Formatter):
+    """Converts messages with colorText content to RSS <item> tags.
+       The message itself is stripped of color and placed in a
+       <description>.
+       """
+    detector = Message.Filter('<find path="/message/body/colorText"/>')
+    medium = 'rss'
+
+    def format(self, message, input=None):
+        return "<item><description>%s</description><pubDate>%s</pubDate></item>" % (
+            XML.allText(message.xml.body.colorText),
+            TimeUtil.formatDateRFC822(int(str(message.xml.timestamp))),
+            )
 
 
 class ColortextToXHTML(Message.Formatter):
-    """Converts messages with colorText content to XHTML
-       with colors represented by CSS 'class' attributes
-       on <span> tags, and with bold and underline converted
-       to <b> and <u> tags.
+    """Converts messages with colorText content to XHTML (using Nouvelle)
+       with colors represented by CSS 'class' attributes on <span> tags,
+       and with bold and underline converted to <b> and <u> tags.
+       Returns an object that can be serialized into XHTML by a Nouvelle.Serializer.
        """
     detector = Message.Filter('<find path="/message/body/colorText"/>')
     medium = 'xhtml'
@@ -290,21 +308,19 @@ class ColortextToXHTML(Message.Formatter):
         requiredRootElement = 'colorText'
 
         def element_colorText(self, element):
-            """Parse all child elements and glue together the resulting strings"""
-            return ''.join([self.parse(e) for e in element.children])
+            return [self.parse(e) for e in element.children]
 
         def parseString(self, s):
-            """Quote strings and pass them straight through"""
-            return XML.domish.escapeToXml(s)
+            return s
 
         def element_b(self, element):
-            return "<b>" + self.element_colorText(element) + "</b>"
+            return Nouvelle.tag('b')[ self.element_colorText(element) ]
 
         def element_u(self, element):
-            return "<u>" + self.element_colorText(element) + "</u>"
+            return Nouvelle.tag('u')[ self.element_colorText(element) ]
 
         def element_br(self, element):
-            return "<br/>"
+            return Nouvelle.tag('br')
 
         def colorQuote(self, color):
             """Make a color name safe for inclusion into a class attribute.
@@ -316,9 +332,9 @@ class ColortextToXHTML(Message.Formatter):
             """Convert the fg and bg attributes, if we have them, to <span> tags"""
             s = self.element_colorText(element)
             if element.hasAttribute('fg'):
-                s = '<span class="fgColor-%s">%s</span>' % (self.colorQuote(element['fg']), s)
+                s = Nouvelle.tag('span', _class='fgColor-'+self.colorQuote(element['fg']))[s]
             if element.hasAttribute('bg'):
-                s = '<span class="bgColor-%s">%s</span>' % (self.colorQuote(element['bg']), s)
+                s = Nouvelle.tag('span', _class='bgColor-'+self.colorQuote(element['bg']))[s]
             return s
 
 

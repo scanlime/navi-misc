@@ -152,6 +152,11 @@ def formatDate(t):
     return time.strftime("%H:%M on %b %d, %Y", time.gmtime(t))
 
 
+def formatDateRFC822(t):
+    """Format a data, in UTC seconds since the epoch, using RFC822 formatting"""
+    return time.strftime("%a, %d %b %Y %H:%M:%S +0000", time.gmtime(t))
+
+
 def _test():
     import doctest, TimeUtil
     return doctest.testmod(TimeUtil)
