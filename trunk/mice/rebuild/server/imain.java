@@ -84,6 +84,9 @@ public class imain
 				case 2:
 					nperlsub.go(link,in,out);
 					break;
+				case 5:
+					new njavaint(link,in,out).start();
+					break;
 				}
 			}
 		}
@@ -104,6 +107,7 @@ public class imain
 		if(it == null) return -1;
 		if(it.compareTo("jsub") == 0) return 1;
 		if(it.compareTo("psub") == 0) return 2;
+		if(it.compareTo("jint") == 0) return 5;
 		if(it.compareTo("admin") == 0) return -10;
 		return -1;
 	}
