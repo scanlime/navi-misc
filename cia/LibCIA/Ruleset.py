@@ -39,10 +39,41 @@ used to store and query rulesets in a RulesetStorage.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import XML, Message
+import XML, Message, Interface
 from twisted.python import log
 from twisted.xish.xpath import XPathQuery
+from twisted.web import XMLRPC
 import sys, traceback, re
+
+
+class RulesetInterface(xmlrpc.XMLRPC):
+    """An XML-RPC interface used to set and query the rulesets in a RulesetStorage"""
+    def __init__(self, storage):
+        self.storage = storage
+
+    def xmlrpc_store(self, xml):
+        """Stores a ruleset provided as XML text. Deleting a ruleset is equivalent
+           to storing an empty one with the same URI.
+           """
+        return Interface.catchFaults(xml.storeAndSave, xml)
+
+    def xmlrpc_getUriList(self):
+        """Return a list of all URIs with non-empty rulesets"""
+        return self.storage.rulesetMap.keys()
+
+    def xmlrpc_getRuleset(self, uri):
+        """Return the ruleset associated with the given URI, or False if there is no ruleset"""
+        try:
+            return str(self.storage.rulesetMap[uri].ruleset)
+        except KeyError:
+            return False
+
+    def xmlrpc_getRulesetMap(self):
+        """Returns all rulesets in the form of a mapping from URI to ruleset text"""
+        results = {}
+        for delivery in self.storage.rulesetMap.itervalues():
+            results[delivery.ruleset.uri] = str(delivery.ruleset)
+        return results
 
 
 class RulesetReturnException(Exception):
@@ -420,61 +451,14 @@ class RulesetStorage(XML.XMLStorage):
             log.msg("Removed ruleset for %r" % ruleset.uri)
             handler.unassigned(ruleset.uri)
 
+    def storeAndSave(self, xml):
+        """Convenience function to call store(xml) then save to disk"""
+        self.store(xml)
+        self.save()
+
     def flatten(self):
         """Return a flat list of all Ruleset objects so we can store 'em"""
         return [delivery.ruleset for delivery in self.rulesetMap.itervalues()]
-
-
-class RulesetController(object):
-    """Listens for messages used to store and query rulesets"""
-    def __init__(self, hub, storage):
-        self.storage = storage
-        self.hub = hub
-        self.addClients()
-
-    def addClients(self):
-        """Add our clients to the Message.Hub. This uses an extra
-           level of indirection so that rebuild() can replace references
-           to our callbacks correctly.
-           """
-        self.hub.addClient(lambda msg: self.storeRuleset(msg),
-                           Message.Filter('<find path="/message/body/ruleset"/>'))
-        self.hub.addClient(lambda msg: self.queryRulesets(msg),
-                           Message.Filter('<find path="/message/body/queryRulesets"/>'))
-        self.hub.addClient(lambda msg: self.queryUriList(msg),
-                           Message.Filter('<find path="/message/body/queryUriList"/>'))
-
-    def storeRuleset(self, message):
-        """Handle messages instructing us to add, modify, or remove
-           rulesets. The message body contains one or more <ruleset>
-           elements with 'uri' attributes. An empty ruleset for a particular
-           URI is equivalent to removing that URI's ruleset.
-           """
-        for child in message.xml.body.elements():
-            if child.name == 'ruleset':
-                self.storage.store(child)
-        self.storage.save()
-
-    def queryRulesets(self, message):
-        """Handles messages containing a <queryRulesets> tag in its body.
-           If queryRulesets includes a 'uri' attribute, the ruleset for that
-           URI is returned in a 1-item list, or an empty list if that URI has no
-           ruleset. Without the 'uri' attribute, returns a list of strings representing
-           all rulesets.
-           """
-        tag = message.xml.body.queryRulesets
-        uri = tag.getAttribute('uri')
-        results = []
-        for delivery in self.storage.rulesetMap.itervalues():
-            if uri is None or delivery.ruleset.uri == uri:
-                results.append(str(delivery.ruleset))
-        return results
-
-    def queryUriList(self, message):
-        """Handles messages containing a <queryUriList> tag in its body.
-           Returns a list of URIs with rulesets attached.
-           """
-        return self.storage.rulesetMap.keys()
 
 
 class InvalidURIException(Exception):

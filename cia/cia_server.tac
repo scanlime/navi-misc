@@ -21,11 +21,11 @@ uriRegistry = Ruleset.URIRegistry([
 
 # Use a persistent set of rulesets to filter and format messages
 storage = Ruleset.RulesetStorage("data/rulesets.xml", hub, uriRegistry)
-Ruleset.RulesetController(hub, storage)
 
 # Add XML-RPC interfaces for the components that need them
 root = xmlrpc.XMLRPC()
-root.putSubHandler('hub', Message.HubInterface(hub))
-root.putSubHandler('mail', IncomingMail.MailInterface(hub))
 root.putSubHandler('sys', Interface.SysInterface())
+root.putSubHandler('hub', Message.HubInterface(hub))
+root.putSubHandler('ruleset', Ruleset.RulesetInterface(storage))
+root.putSubHandler('mail', IncomingMail.MailInterface(hub))
 internet.TCPServer(3910, server.Site(root)).setServiceParent(application)
