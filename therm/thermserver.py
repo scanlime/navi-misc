@@ -81,9 +81,9 @@ class SamplerThread(Thread):
             while time.time() < (self.periodStart + self.averagePeriod):
                 self.sampler.update(self.therms)
 
-                # Blink our LED as an indication of happiness and life
+                # Toggle our LED as an indication of happiness and life
                 self.led.assert_()
-                self.led.negate().assert_()
+		self.led = self.led.negate()
 
                 if not self.running:
                     return
