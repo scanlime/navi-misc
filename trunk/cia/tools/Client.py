@@ -32,7 +32,7 @@ import xmlrpclib, os
 
 class Options(usage.Options):
     optParameters = [
-        ['server', 's', 'http://cia.navi.cx', 'The URI of the CIA server to connect to'],
+        ['server', 's', 'http://localhost:3910', 'The URI of the CIA server to connect to'],
         ['key', 'k', "~/.cia_key", 'Load a capability key from this file'],
         ]
 
