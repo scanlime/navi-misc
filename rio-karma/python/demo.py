@@ -3,7 +3,7 @@
 from twisted.internet import reactor
 from twisted.python import log
 import RioKarma
-import sys
+import sys, time
 
 
 class RioApp:
@@ -51,18 +51,28 @@ class Uploader(RioApp):
         self.fs.writeLock()
         self.nextFile()
 
+    def finished(self, retval=None):
+        print "Done"
+        reactor.stop()
+
     def nextFile(self, retval=None):
         try:
             filename = self.fileIter.next()
         except StopIteration:
-            self.fs.unlock()
-            print "Done"
-            reactor.stop()
+            print "Releasing lock..."
+            self.fs.unlock().addCallback(self.finished).addErrback(log.err)
             return
 
         f = RioKarma.File(self.fs)
         print "\n\nUploading: %s" % filename
-        f.loadFromDisk(filename).addCallback(self.nextFile).addErrback(log.err)
+        f.loadFromDisk(filename).addCallback(
+            self.nextFile).addCallback(
+            self.showSpeed, f, time.time()).addErrback(
+            log.err)
+
+    def showSpeed(self, foo, f, startTime):
+        now = time.time()
+        print "\n%.02f KB/s" % (f.details['length'] / (now - startTime) / 1000.0)
 
 
 if __name__ == "__main__":
