@@ -18,15 +18,22 @@ from twisted.internet import reactor
 class PalantirWindow:
   ''' Creates the main window. '''
   def __init__(self):
-    ''' Show the main window. '''
+    ''' Create the layout tree from the .glade file and connect everything. '''
     self.tree = gtk.glade.XML('palantirMain.glade')
+
+    # Connect the functions to their appropriate widgets.  By convention all callbacks
+    # for the window start with 'on_' and match the name of the callback defined in 
+    # the .glade file.
     for func in self.__class__.__dict__.iterkeys():
       if func.startswith('on_'):
         self.tree.signal_connect(func, getattr(self, func))
+    
     # Client factory.
     self.factory = palantirIRC.PalantirClientFactory('nuku-nuku',
-	channels=('#palantir'), ui=self)
+	channels='#palantir,#tacobeam', ui=self)
     self.tree.get_widget('Nick').set_text(self.factory.nickname)
+
+    # Tabs.
     self.currentTab = ChatWindowUI()
     self.tabs = {'none':[self.currentTab]}
     self.currentTab.show()
@@ -36,22 +43,29 @@ class PalantirWindow:
 
   ### Must be implemented for palantirIRC to work. ###
   def messageReceive(self, user, channel, msg):
-    ''' When the client receives a privmsg it calls this function. '''
+    ''' When the client receives a privmsg it calls this function to display the message
+        in the UI, however the UI sees fit.
+	'''
+    # Format the nick if there is one, otherwise just display the text.
     if user:
       nick = re.search('([^!]*)!?[^@]*@?.*', user).group(1)
       text = '<' + nick + '>' + msg + '\n'
     else:
       text = msg + '\n'
+
     buffer = self.currentTab.chatBox.get_buffer()
     buffer.insert(buffer.get_end_iter(), text)
+    # Supposed to scroll the window down to see the message, but it doesn't work, ATM.
     self.currentTab.chatBox.scroll_to_iter(buffer.get_end_iter(), 0.0)
 
   def meReceive(self, user, channel, msg):
-    ''' When someone does a '/me'. '''
+    ''' When someone does a '/me' display the action. '''
+    # Format the nick.
     nick = re.search('([^!]*).*', user).group(1)
     text = '* ' + nick + ' ' + msg + '\n'
     buffer = self.tree.get_widget('ChatWindow').get_buffer()
     buffer.insert(buffer.get_end_iter(), text)
+    # Supposed to scroll, as in messageReceive.
     self.currentTab.chatBox.scroll_to_iter(buffer.get_end_iter(), 0.0)
 
   def nickReceive(self, oldNick, channel, newNick):
@@ -59,16 +73,17 @@ class PalantirWindow:
     text = oldNick + ' is now known as ' + newNick + '\n'
     buffer = self.tree.get_widget('ChatWindow').get_buffer()
     buffer.insert(buffer.get_end_iter(), text)
+    # Same as meReceive and messageReceive.
     self.currentTab.chatBox.scroll_to_iter(buffer.get_end_iter(), 0.0)
 
   ### Glade Callbacks ###
   # Menu Items.
   def on_new_connection_activate(self, widget, data=None):
     reactor.connectTCP('irc.freenode.net', 6667, self.factory)
-    self.tabs = {self.factory.channels:self.tabs['none']}
+    #self.tabs = {self.factory.channels:self.tabs['none']}
     self.currentTab.channel = self.factory.channels
     self.tree.get_widget('ChannelTabs').set_tab_label_text(self.currentTab.window,
-	self.currentTab.channel)
+	self.currentTab.channel[0])
     reactor.run()
 
   def on_new_tab_activate(self, widget, data=None):
