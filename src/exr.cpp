@@ -6,7 +6,7 @@ extern "C" {
 #include "histogram-imager.h"
 }
 
-extern "C" void write_histogram(HistogramImager *hi, const char* filename)
+extern "C" void exr_write_histogram(HistogramImager *hi, const char* filename)
 {
   int width = hi->width * hi->oversample;
   int height = hi->height * hi->oversample;
