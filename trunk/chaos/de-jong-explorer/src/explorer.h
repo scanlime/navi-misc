@@ -97,6 +97,10 @@ Explorer*  explorer_new(DeJong *dejong, Animation *animation);
 void explorer_init_tools(Explorer *self);
 void explorer_dispose_tools(Explorer *self);
 
+void explorer_init_animation(Explorer *self);
+void explorer_dispose_animation(Explorer *self);
+void explorer_update_animation(Explorer *self);
+
 void explorer_run_iterations(Explorer *self);
 void explorer_update_gui(Explorer *self);
 void explorer_set_params(Explorer *self);
