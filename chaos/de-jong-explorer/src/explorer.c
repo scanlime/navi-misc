@@ -69,6 +69,7 @@ static void on_tool_activate(GtkWidget *widget, gpointer user_data);
 static gboolean on_viewport_expose(GtkWidget *widget, GdkEventExpose *event, gpointer user_data);
 static gboolean on_motion_notify(GtkWidget *widget, GdkEvent *event, gpointer user_data);
 static gboolean on_button_press(GtkWidget *widget, GdkEvent *event, gpointer user_data);
+static gboolean on_button_release(GtkWidget *widget, GdkEvent *event, gpointer user_data);
 static void on_widget_toggle(GtkWidget *widget, gpointer user_data);
 
 
@@ -122,8 +123,9 @@ static void explorer_init(Explorer *self) {
   glade_xml_signal_connect_data(self->xml, "on_resize_ok",              G_CALLBACK(on_resize_ok),              self);
   glade_xml_signal_connect_data(self->xml, "on_tool_activate",          G_CALLBACK(on_tool_activate),          self);
   glade_xml_signal_connect_data(self->xml, "on_viewport_expose",        G_CALLBACK(on_viewport_expose),        self);
-  glade_xml_signal_connect_data(self->xml, "on_motion_nofify",          G_CALLBACK(on_motion_notify),          self);
+  glade_xml_signal_connect_data(self->xml, "on_motion_notify",          G_CALLBACK(on_motion_notify),          self);
   glade_xml_signal_connect_data(self->xml, "on_button_press",           G_CALLBACK(on_button_press),           self);
+  glade_xml_signal_connect_data(self->xml, "on_button_release",         G_CALLBACK(on_button_release),         self);
   glade_xml_signal_connect_data(self->xml, "on_widget_toggle",          G_CALLBACK(on_widget_toggle),          self);
 
   self->window = glade_xml_get_widget(self->xml, "explorer_window");
@@ -134,7 +136,6 @@ static void explorer_init(Explorer *self) {
 			GDK_BUTTON_RELEASE_MASK |
 			GDK_BUTTON_MOTION_MASK);
   self->gc = gdk_gc_new(self->drawing_area->window);
-  explorer_resize(self);
 
   self->statusbar = GTK_STATUSBAR(glade_xml_get_widget(self->xml, "statusbar"));
   self->render_status_context = gtk_statusbar_get_context_id(self->statusbar, "Rendering status");
@@ -159,6 +160,7 @@ Explorer* explorer_new(DeJong *dejong) {
 
   self->dejong = DE_JONG(g_object_ref(dejong));
   explorer_set_params(self);
+  explorer_resize(self);
   self->idler = g_idle_add(explorer_idle_handler, self);
 }
 
@@ -168,7 +170,7 @@ Explorer* explorer_new(DeJong *dejong) {
 /************************************************************************************/
 
 static void explorer_set_params(Explorer *self) {
-  self->writing_params = TRUE;
+  self->setting_params = TRUE;
   gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "param_a")), self->dejong->a);
   gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "param_b")), self->dejong->b);
   gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "param_c")), self->dejong->c);
@@ -187,11 +189,11 @@ static void explorer_set_params(Explorer *self) {
   color_button_set_alpha(COLOR_BUTTON(glade_xml_get_widget(self->xml, "param_bgcolor")), self->dejong->bgalpha);
   color_button_set_color(COLOR_BUTTON(glade_xml_get_widget(self->xml, "param_fgcolor")), &self->dejong->fgcolor);
   color_button_set_color(COLOR_BUTTON(glade_xml_get_widget(self->xml, "param_bgcolor")), &self->dejong->bgcolor);
-  self->writing_params = FALSE;
+  self->setting_params = FALSE;
 }
 
 static void explorer_get_params(Explorer *self) {
-  if (self->writing_params)
+  if (self->setting_params)
     return;
 
   g_object_set(self->dejong,
@@ -219,7 +221,7 @@ static void explorer_get_params(Explorer *self) {
   */
 }
 
-void on_param_changed(GtkWidget *widget, gpointer user_data) {
+static void on_param_changed(GtkWidget *widget, gpointer user_data) {
   Explorer *self = EXPLORER(user_data);
   explorer_get_params(self);
 }
@@ -228,7 +230,7 @@ static gdouble generate_random_param() {
   return ((double)random())/RAND_MAX * 12 - 6;
 }
 
-void on_randomize(GtkWidget *widget, gpointer user_data) {
+static void on_randomize(GtkWidget *widget, gpointer user_data) {
   Explorer *self = EXPLORER(user_data);
 
   g_object_set(self->dejong,
@@ -237,14 +239,16 @@ void on_randomize(GtkWidget *widget, gpointer user_data) {
 	       "c", generate_random_param(),
 	       "d", generate_random_param(),
 	       NULL);
+  explorer_set_params(self);
 }
 
-void on_load_defaults(GtkWidget *widget, gpointer user_data) {
+static void on_load_defaults(GtkWidget *widget, gpointer user_data) {
   Explorer *self = EXPLORER(user_data);
   de_jong_reset_to_defaults(self->dejong);
+  explorer_set_params(self);
 }
 
-void on_resize(GtkWidget *widget, gpointer user_data) {
+static void on_resize(GtkWidget *widget, gpointer user_data) {
   Explorer *self = EXPLORER(user_data);
   gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "resize_width")), self->dejong->width);
   gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "resize_height")), self->dejong->height);
@@ -254,12 +258,12 @@ void on_resize(GtkWidget *widget, gpointer user_data) {
   gtk_widget_show(glade_xml_get_widget(self->xml, "resize_window"));
 }
 
-void on_resize_cancel(GtkWidget *widget, gpointer user_data) {
+static void on_resize_cancel(GtkWidget *widget, gpointer user_data) {
   Explorer *self = EXPLORER(user_data);
   gtk_widget_hide(glade_xml_get_widget(self->xml, "resize_window"));
 }
 
-void on_resize_ok(GtkWidget *widget, gpointer user_data) {
+static void on_resize_ok(GtkWidget *widget, gpointer user_data) {
   Explorer *self = EXPLORER(user_data);
   guint new_width, new_height, new_oversample;
   GtkSpinButton *width_widget, *height_widget, *oversample_widget;
@@ -291,13 +295,13 @@ void on_resize_ok(GtkWidget *widget, gpointer user_data) {
 /******************************************************************** Misc GUI goop */
 /************************************************************************************/
 
-void on_quit(GtkWidget *widget, gpointer user_data) {
+static void on_quit(GtkWidget *widget, gpointer user_data) {
   Explorer *self = EXPLORER(user_data);
   g_source_remove(self->idler);
   gtk_main_quit();
 }
 
-void on_widget_toggle(GtkWidget *widget, gpointer user_data) {
+static void on_widget_toggle(GtkWidget *widget, gpointer user_data) {
   /* Toggle visibility of another widget. This widget should be named
    * toggle_foo to control the visibility of a widget named foo.
    */
@@ -329,7 +333,7 @@ GtkWidget *custom_color_button_new(gchar *widget_name, gchar *string1,
 /********************************************************************** Load / Save */
 /************************************************************************************/
 
-void on_load_from_image(GtkWidget *widget, gpointer user_data) {
+static void on_load_from_image(GtkWidget *widget, gpointer user_data) {
   Explorer *self = EXPLORER(user_data);
   GtkWidget *dialog;
 
@@ -344,7 +348,7 @@ void on_load_from_image(GtkWidget *widget, gpointer user_data) {
   gtk_widget_destroy(dialog);
 }
 
-void on_save(GtkWidget *widget, gpointer user_data) {
+static void on_save(GtkWidget *widget, gpointer user_data) {
   Explorer *self = EXPLORER(user_data);
   GtkWidget *dialog;
 
@@ -364,7 +368,7 @@ void on_save(GtkWidget *widget, gpointer user_data) {
 /************************************************************************ Rendering */
 /************************************************************************************/
 
-void on_pause_rendering_toggle(GtkWidget *widget, gpointer user_data) {
+static void on_pause_rendering_toggle(GtkWidget *widget, gpointer user_data) {
   Explorer *self = EXPLORER(user_data);
   if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget)))
     g_source_remove(self->idler);
@@ -391,6 +395,15 @@ static int explorer_idle_handler(gpointer user_data) {
 }
 
 static void explorer_resize(Explorer *self) {
+  guint width = self->dejong->width;
+  guint height = self->dejong->height;
+
+  gtk_widget_set_size_request(self->drawing_area, width, height);
+
+  /* A bit of a hack to make the default window size more sane */
+  gtk_widget_set_size_request(glade_xml_get_widget(self->xml, "drawing_area_viewport"),
+			      MIN(1000, width+5), MIN(1000, height+5));
+  self->just_resized = TRUE;
 }
 
 static int explorer_limit_update_rate(Explorer *self, float max_rate) {
@@ -473,7 +486,7 @@ static void explorer_update(Explorer *self) {
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(glade_xml_get_widget(self->xml, "pause_menu")), TRUE);
 }
 
-gboolean on_viewport_expose(GtkWidget *widget, GdkEventExpose *event, gpointer user_data) {
+static gboolean on_viewport_expose(GtkWidget *widget, GdkEventExpose *event, gpointer user_data) {
   /* After the drawing area is shown, go back to the natural size request */
   Explorer *self = EXPLORER(user_data);
   if (self->just_resized) {
@@ -483,7 +496,7 @@ gboolean on_viewport_expose(GtkWidget *widget, GdkEventExpose *event, gpointer u
   return FALSE;
 }
 
-gboolean on_expose(GtkWidget *widget, GdkEventExpose *event, gpointer user_data) {
+static gboolean on_expose(GtkWidget *widget, GdkEventExpose *event, gpointer user_data) {
   Explorer *self = EXPLORER(user_data);
   GdkRectangle *rects;
   int n_rects, i;
@@ -518,23 +531,21 @@ gboolean on_expose(GtkWidget *widget, GdkEventExpose *event, gpointer user_data)
 }
 
 
-
 /************************************************************************************/
 /**************************************************************************** Tools */
 /************************************************************************************/
 
-gboolean on_motion_notify(GtkWidget *widget, GdkEvent *event, gpointer user_data) {
+static gboolean on_motion_notify(GtkWidget *widget, GdkEvent *event, gpointer user_data) {
+  typedef void (ToolHandler)(Explorer *self, double dx, double dy);
   Explorer *self = EXPLORER(user_data);
+  ToolHandler *tool = NULL;
   int i;
-
-  /* Compute delta position */
-  double dx = event->motion.x - self->last_mouse_x;
-  double dy = event->motion.y - self->last_mouse_y;
+  double dx, dy;
 
   /* A table of tool handlers and menu item names */
   static const struct {
     gchar *menu_name;
-    void (*handler)(Explorer *self, double dx, double dy);
+    ToolHandler *handler;
   } tools[] = {
 
     {"tool_grab",           tool_grab},
@@ -554,27 +565,34 @@ gboolean on_motion_notify(GtkWidget *widget, GdkEvent *event, gpointer user_data
     {NULL, NULL},
   };
 
-  printf("%e %e\n", dx, dy);
+  /* Compute delta position */
+  dx = event->motion.x - self->last_mouse_x;
+  dy = event->motion.y - self->last_mouse_y;
+  self->last_mouse_x = event->motion.x;
+  self->last_mouse_y = event->motion.y;
 
+  /* Find the current tool's handler */
   for (i=0;tools[i].menu_name;i++) {
     GtkWidget *w = glade_xml_get_widget(self->xml, tools[i].menu_name);
     if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(w)))
-      tools[i].handler(self, dx, dy);
+      tool = tools[i].handler;
   }
 
-  self->last_mouse_x = event->motion.x;
-  self->last_mouse_y = event->motion.y;
+  if (tool) {
+    tool(self, dx, dy);
+  }
+
   return FALSE;
 }
 
-void on_tool_activate(GtkWidget *widget, gpointer user_data) {
+static void on_tool_activate(GtkWidget *widget, gpointer user_data) {
   Explorer *self = EXPLORER(user_data);
 
   if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget)))
     gtk_label_get(GTK_LABEL(gtk_bin_get_child(GTK_BIN(widget))), &self->current_tool);
 }
 
-gboolean on_button_press(GtkWidget *widget, GdkEvent *event, gpointer user_data) {
+static gboolean on_button_press(GtkWidget *widget, GdkEvent *event, gpointer user_data) {
   Explorer *self = EXPLORER(user_data);
 
   self->last_mouse_x = event->button.x;
@@ -582,11 +600,18 @@ gboolean on_button_press(GtkWidget *widget, GdkEvent *event, gpointer user_data)
   return FALSE;
 }
 
+static gboolean on_button_release(GtkWidget *widget, GdkEvent *event, gpointer user_data) {
+  Explorer *self = EXPLORER(user_data);
+
+  /* The user just finished using a tool, update the spinners and such */
+  explorer_set_params(self);
+}
+
 static void tool_grab(Explorer *self, double dx, double dy) {
   double scale = 5.0 / self->dejong->zoom / self->dejong->width;
   g_object_set(self->dejong,
 	       "xoffset", self->dejong->xoffset + dx * scale,
-	       "yoffset", self->dejong->xoffset + dy * scale,
+	       "yoffset", self->dejong->yoffset + dy * scale,
 	       NULL);
 }
 
