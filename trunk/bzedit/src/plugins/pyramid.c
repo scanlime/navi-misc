@@ -490,32 +490,57 @@ pyramid_drawable_new (void)
 }
 
 static void
+vector3_cross (const gfloat a[3], const gfloat b[3], gfloat *c)
+{
+  c[0] = a[2]*b[1] - a[1]*b[2];
+  c[1] = a[2]*b[0] - a[0]*b[2];
+  c[2] = a[0]*b[1] - a[1]*b[0];
+}
+
+static void
 pyramid_drawable_draw_to_list (DisplayList *dl)
 {
   PyramidDrawable *pd = PYRAMID_DRAWABLE (dl);
   float width, depth, height;
   float wrep, drep, hrep;
+  float a[3], b[3], normal[3];
 
   width = pd->size[0];
   depth = pd->size[1];
   height = pd->size[2];
 
-  wrep = width / 4;
-  drep = depth / 4;
-  hrep = height / 4;
+  wrep = width / 8;
+  drep = depth / 8;
+  hrep = height / 8;
 
   glPushMatrix ();
   glTranslatef (pd->position[0], pd->position[1], pd->position[2]);
   glRotatef (pd->rotation, 0.0, 0.0, 1.0);
 
-  glBegin (GL_QUADS);
+  if (pd->inverted)
   {
-    /* Z side */
-    if (pd->inverted)
+    glBegin (GL_QUADS);
     {
       glNormal3f (0.0, 0.0, 1.0);
+      glTexCoord2f ( wrep,   0);
+      glVertex3f   ( width, -depth, height);
+      glTexCoord2f ( wrep,   drep);
+      glVertex3f   ( width,  depth, height);
+      glTexCoord2f ( 0,      drep);
+      glVertex3f   (-width,  depth, height);
+      glTexCoord2f ( 0,      0);
+      glVertex3f   (-width, -depth, height);
     }
-    else
+    glEnd ();
+
+    glBegin (GL_TRIANGLES);
+    {
+    };
+    glEnd ();
+  }
+  else
+  {
+    glBegin (GL_QUADS);
     {
       glNormal3f (0.0, 0.0, -1.0);
       glTexCoord2f ( 0,      0);
@@ -527,13 +552,61 @@ pyramid_drawable_draw_to_list (DisplayList *dl)
       glTexCoord2f ( wrep,   0);
       glVertex3f   ( width, -depth, 0);
     }
-  }
-  glEnd ();
+    glEnd ();
 
-  glBegin (GL_TRIANGLES);
-  {
-  };
-  glEnd ();
+    glBegin (GL_TRIANGLES);
+    {
+      /* X+ side */
+      a[0] = width;     a[1] = -depth; a[2] = height;
+      b[0] = width * 2; b[1] = 0;      b[2] = 0;
+      vector3_cross (a, b, normal);
+      glNormal3fv (normal);
+      glTexCoord2f ( 0,        0);
+      glVertex3f   (-width,    depth, 0);
+      glTexCoord2f ( wrep,     hrep);
+      glVertex3f   ( 0,        0,     height);
+      glTexCoord2f ( wrep * 2, 0);
+      glVertex3f   ( width,    depth, 0);
+
+      /* Y+ side */
+      a[0] = width; a[1] = -depth;     a[2] = height;
+      b[0] = 0;     b[1] =  depth * 2; b[2] = 0;
+      vector3_cross (a, b, normal);
+      glNormal3fv (normal);
+      glTexCoord2f (drep * 2,  0);
+      glVertex3f   (width,     depth, 0);
+      glTexCoord2f (drep,      hrep);
+      glVertex3f   (0,         0,     height);
+      glTexCoord2f (0,         0);
+      glVertex3f   (width,    -depth, 0);
+
+      /* X- side */
+      a[0] = -width;     a[1] = depth; a[2] = height;
+      b[0] = -width * 2; b[1] = 0;     b[2] = 0;
+      vector3_cross (a, b, normal);
+      glNormal3fv (normal);
+      glTexCoord2f ( 0,         0);
+      glVertex3f   ( width,    -depth, 0);
+      glTexCoord2f ( wrep,      hrep);
+      glVertex3f   ( 0,         0,     height);
+      glTexCoord2f ( wrep * 2,  0);
+      glVertex3f   (-width,    -depth, 0);
+
+      /* Y- side */
+      a[0] = -width; a[1] = depth;     a[2] = height;
+      b[0] = 0;      b[1] = depth * 2; b[2] = 0;
+      vector3_cross (a, b, normal);
+      glNormal3fv (normal);
+      glTexCoord2f (drep * 2,  0);
+      glVertex3f   (-width,   -depth, 0);
+      glTexCoord2f (drep,      hrep);
+      glVertex3f   (0,         0,     height);
+      glTexCoord2f (0,         0);
+      glVertex3f   (-width,    depth, 0);
+    };
+    glEnd ();
+  }
+
 
   glPopMatrix ();
 }
