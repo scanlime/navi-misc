@@ -36,7 +36,7 @@ blockquote {
 
 ul {
   list-style-image: url(/images/bullet.png);
-  padding: 0em;
+  padding: 0em 0em 0em 2em;
   margin: 0em;
 }
 

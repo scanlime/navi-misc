@@ -1,11 +1,23 @@
-Stats
-=====
+Quick Links
+===========
 
- - `Projects </stats/project>`_
- - `Authors </stats/author>`_
+- `Projects </stats/project>`_
+- `Authors </stats/author>`_
+- `All Commits </stats/total/commits>`_
 
+Sections
+========
+
+- `Stats </stats>`_
+- `Rulesets </rulesets>`_
+- `IRC Bots </irc>`_
+- `Server Info </info>`_
 
 Documentation
 =============
 
-NONE!
+- `Welcome </doc/welcome>`_
+- `Adding projects </doc/adding-projects>`_
+- `Known Bugs </doc/BUGS>`_
+- `To-do List </doc/TODO>`_
+

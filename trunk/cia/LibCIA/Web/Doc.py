@@ -34,6 +34,7 @@ from docutils import core, writers, nodes
 from Nouvelle import tag, place
 import Template
 import os
+from twisted.web import error
 from twisted.web.woven import dirlist
 
 
@@ -151,6 +152,8 @@ class NouvelleTranslator(nodes.NodeVisitor):
         'definition':      tag('dd'),
         'definition_list': tag('dl'),
         'caption':         tag('p', _class='caption'),
+        'system_message':  Template.error,
+        'problematic':     Template.error,
         }
 
 
@@ -193,26 +196,34 @@ class Page(Template.Page):
            this formats our document and passes control on to the usual
            rendering processes.
            """
-        # Is this actually a directory
-        if os.path.isdir(self.path):
-            return dirlist.DirectoryLister(self.path).render(request)
+        path = self.path
+
+        # Is this actually a directory?
+        if os.path.isdir(path):
+            # If we have an 'index' file, show that.. otherwise, a directory listing
+            if os.path.isfile(os.path.join(path, 'index')):
+                path = os.path.join(path, 'index')
+            else:
+                return dirlist.DirectoryLister(path).render(request)
+        elif not os.path.isfile(path):
+            return error.NoResource("File not found.").render(request)
 
         # Find a sidebar document and format it
-        self.leftColumn = self.formatDocument(self.findSidebarPath()).output
+        self.leftColumn = self.formatDocument(self.findSidebarPath(path)).output
 
         # Format the main document, storing its body and our titles
-        mainDoc = self.formatDocument(self.path)
+        mainDoc = self.formatDocument(path)
         self.mainColumn = mainDoc.output
         self.mainTitle = mainDoc.docTitle
         if mainDoc.docSubtitle:
             self.subTitle = mainDoc.docSubtitle
         return Template.Page.render(self, request)
 
-    def findSidebarPath(self):
-        if os.path.isfile(self.path + '.sidebar'):
-            return self.path + '.sidebar'
+    def findSidebarPath(self, path):
+        if os.path.isfile(path + '.sidebar'):
+            return path + '.sidebar'
         else:
-            return os.path.join(os.path.split(self.path)[0], 'default.sidebar')
+            return os.path.join(os.path.split(path)[0], 'default.sidebar')
 
     def formatDocument(self, path):
         """Format a document, returning the NouvelleWriter instance
