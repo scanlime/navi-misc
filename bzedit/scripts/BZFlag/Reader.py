@@ -35,7 +35,7 @@ class Reader:
             TwoDPoint = float + float
             ThreeDPoint = float + float + float
             globalReference = Word(alphanums + '/:*_?')
-            localReference = Word(alphanums + '/')
+            localReference = Word(alphanums + '/_')
             flagShortName = Word(alphas, min=1, max=2)
 
             rgbColor = Group(float + float + float) | Word(alphanums)
@@ -60,7 +60,7 @@ class Reader:
             spin = CaselessLiteral('spin')
             xform = CaselessLiteral('xform')
 
-            objectProperty = Group(name + Word(alphanums))
+            objectProperty = Group(name + restOfLine)
             locationProperty = (
                 Group(pos + ThreeDPoint)
               | Group(size + ThreeDPoint)
@@ -121,7 +121,10 @@ class Reader:
                 Group(CaselessLiteral('border') + float)
               | obstacleProperty
               )
-            teleporter = Group(CaselessLiteral('teleporter') + Optional(localReference) + OneOrMore(teleporterProperty) + end)
+            teleporter = (
+                Group(CaselessLiteral('teleporter') + OneOrMore(teleporterProperty) + end)
+              | Group(CaselessLiteral('teleporter') + localReference + OneOrMore(teleporterProperty) + end)
+              )
 
             teleporterSide = (
                 CaselessLiteral('f')
