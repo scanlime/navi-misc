@@ -27,7 +27,7 @@ This implementation uses PyXML's 4DOM.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import types, weakref
+import types
 import Nouvelle
 from xml.dom.ext.reader import Sax2
 import xml.dom.ext
@@ -347,12 +347,16 @@ class HTMLPrettyPrinter(XMLObjectParser):
 htmlPrettyPrint = HTMLPrettyPrinter().parse
 
 
-xPathCache = weakref.WeakValueDictionary()
+# This used to be a WeakValueDictionary, but weakref'ing PyXML's compiled
+# XPath objects seems to result in a memory leak. This just caches every XPath
+# we create, which should perform nicely with a typical CIA load. Maintenance
+# of the cache currently must be done manually with the debug console if necessary.
+xPathCache = {}
 
 class XPath:
-    """A precompiled XPath class that caches parsed XPaths in a global weakref'ed
-       dictionary. This should help CIA a bit with load time and memory usage, since
-       we use many of the same XPaths in rulesets and filters.
+    """A precompiled XPath class that caches parsed XPaths in a global
+       dictionary. This should help CIA a bit with load time and memory
+       usage, since we use many of the same XPaths in rulesets and filters.
        """
     def __init__(self, path, context=None):
         global xPathCache
