@@ -110,6 +110,9 @@ module gc_i2c (clk, reset,
 	wire tx_tick_sync_center = 0;
 	n_serial_timebase #(4) tx_timebase(
 		clk, reset, tx_tick, tick_sync_reset, tick_sync_center);
+	wire [1:0] tx_phase;
+	n_serial_tx_phase tx_phase_gen(
+		clk, reset, tx_tick, tx_phase);
 
 	/* The controller simulator core, one for each port. It makes
 	 * requests for each byte of controller state it needs, as it's
@@ -117,13 +120,17 @@ module gc_i2c (clk, reset,
 	 * Each core also gives us a rumble bit.
 	 */
 	wire [3:0] rumble;
-	gc_controller port1(clk, reset, tx_tick, tx[0], rx[0], rumble[0],
+	gc_controller port1(clk, reset, tx_tick, tx_phase,
+	                    tx[0], rx[0], rumble[0],
 	                    port1_addr, port1_request, ram_data, port1_ack);
-	gc_controller port2(clk, reset, tx_tick, tx[1], rx[1], rumble[1],
+	gc_controller port2(clk, reset, tx_tick, tx_phase,
+	                    tx[1], rx[1], rumble[1],
 	                    port2_addr, port2_request, ram_data, port2_ack);
-	gc_controller port3(clk, reset, tx_tick, tx[2], rx[2], rumble[2],
+	gc_controller port3(clk, reset, tx_tick, tx_phase,
+	                    tx[2], rx[2], rumble[2],
 	                    port3_addr, port3_request, ram_data, port3_ack);
-	gc_controller port4(clk, reset, tx_tick, tx[3], rx[3], rumble[3],
+	gc_controller port4(clk, reset, tx_tick, tx_phase,
+	                    tx[3], rx[3], rumble[3],
 	                    port4_addr, port4_request, ram_data, port4_ack);
 endmodule
 
@@ -175,7 +182,7 @@ endmodule
  * includes double-buffering.
  *
  */
-module gc_controller (clk, reset, tx_tick, tx, rx, rumble,
+module gc_controller (clk, reset, tx_tick, tx_phase, tx, rx, rumble,
                       state_addr, state_request, state_data, state_ack);
 	/*
 	 * Controller IDs are expained in the gamecube-linux
@@ -188,6 +195,7 @@ module gc_controller (clk, reset, tx_tick, tx, rx, rumble,
 	parameter CONTROLLER_ID = 24'h090000;
 
 	input clk, reset, tx_tick;
+	input [1:0] tx_phase;
 	input rx;
 	output tx;
 	output rumble;
@@ -213,7 +221,7 @@ module gc_controller (clk, reset, tx_tick, tx, rx, rumble,
 	wire tx_busy;
 	reg tx_stopbit, tx_strobe;
 	reg [7:0] tx_data;
-	n_serial_tx tx_core(clk, reset, tx_tick, tx_busy, tx_stopbit,
+	n_serial_tx tx_core(clk, reset, tx_tick, tx_phase, tx_busy, tx_stopbit,
 	                    tx_data, tx_strobe, tx);
 
 	// state_ack is edge triggered
