@@ -177,6 +177,14 @@ class Page(Nouvelle.Twisted.Page):
 
                     xml(" "),
 
+                    # We're hosted by the PLD linux project, yay
+                    tag('a', href="http://pld-linux.org")[
+                        tag('img', src="http://pld-linux.org/Powered",
+                            alt="Powered by PLD Linux", height=81, width=67, _class="footer"),
+                    ],
+
+                    xml(" "),
+
                     # And valid CSS
                     tag('a', href="http://jigsaw.w3.org/css-validator/check/referer")[
                         tag('img', src="http://jigsaw.w3.org/css-validator/images/vcss",
