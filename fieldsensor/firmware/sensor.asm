@@ -224,7 +224,7 @@ page_4 code
 	; Start the ADC and wait for it to finish conversion
 	banksel ADCON0
 	bsf		ADCON0, GO
-	bcf		INTCON, GIE		; Now that the A/D converter is on, interrupts are fine again
+	bsf		INTCON, GIE		; Now that the A/D converter is on, interrupts are fine again
 	pagesel	adFinishLoop
 adFinishLoop
 	btfsc	ADCON0, NOT_DONE
