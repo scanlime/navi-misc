@@ -32,10 +32,18 @@ class Graph(gtk.DrawingArea):
     """An abstract animated graph widget. Provides double-buffering,
        basic event handlers, and a common method for dealing with channels.
        """
-    def __init__(self, size=None, channels=[], pollInterval=10):
+    def __init__(self,
+                 size         = None,
+                 channels     = [],
+                 pollInterval = 10,
+                 bgColor      = None,
+                 gridColor    = None,
+                 ):
         gtk.DrawingArea.__init__(self)
         if size:
             self.set_size_request(*size)
+        self.bgColor = bgColor
+        self.gridColor = gridColor
         self.channels = channels
 
         # Handle configure (resize) and expose events
@@ -65,12 +73,30 @@ class Graph(gtk.DrawingArea):
         else:
             self.gtkTimeout = gtk.timeout_add(interval, self.timerHandler)
 
+    def makeColorGC(self, color):
+        """Make a new GC with the given (red, green, blue) color
+           as the foreground color.
+           """
+        gdkColor = self.get_colormap().alloc_color(*[int(c * 65535) for c in color])
+        return self.window.new_gc(foreground=gdkColor)
+
     def initStyle(self):
         """Setup colors important for this widget, but not specific
            to any one input channel.
            """
-        self.bgGc = self.get_style().light_gc[gtk.STATE_NORMAL]
-        self.gridGc = self.get_style().mid_gc[gtk.STATE_NORMAL]
+        if self.bgColor:
+            # Use a specific color
+            self.bgGc = self.makeColorGC(self.bgColor)
+        else:
+            # Default gtk 'light' color
+            self.bgGc = self.get_style().light_gc[gtk.STATE_NORMAL]
+
+        if self.gridColor:
+            # Use a specific color
+            self.gridGc = self.makeColorGC(self.gridColor)
+        else:
+            # Default gtk 'mid' color
+            self.gridGc = self.get_style().mid_gc[gtk.STATE_NORMAL]
 
     def gtkConfigureEvent(self, widget=None, event=None):
         """Called when the widget is created or resized, we use it

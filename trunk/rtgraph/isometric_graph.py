@@ -17,5 +17,6 @@ varDict = {'t': rtgraph.TimeVariable()}
 channels = [rtgraph.FunctionChannel(f, vars=varDict) for f in functions]
 win = rtgraph.GraphUIWindow(channels, rtgraph.IsometricVectorGraph())
 win.connect("destroy", gtk.mainquit)
-win.set_size_request(500,300)
+win.set_default_size(400,500)
+win.show()
 gtk.main()
