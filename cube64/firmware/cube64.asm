@@ -50,6 +50,7 @@
 	#define	EEPROM_MAGIC_WORD	0xEF71
 	#define EEPROM_MAGIC_ADDR	0x20
 
+
 	;; Reset and interrupt vectors
 	org 0
 	goto	startup
@@ -58,13 +59,16 @@
 
 	;; Variables
 	cblock	0x0C
+		temp
+		temp2
 		byte_count
 		bit_count
-		temp
 		bus_byte_count
 		flags
 		virtual_button
 		calibration_count
+		rumble_feedback_count
+		remap_source_button
 
 		;; Stored calibration for each gamecube axis
 		joystick_x_calibration
@@ -87,7 +91,18 @@
 		n64_id_buffer:3
 	endc
 
-	#define	FLAG_RUMBLE_MOTOR_ON	flags, 0
+	;; The rumble motor should be on
+	#define	FLAG_RUMBLE_MOTOR_ON		flags, 0
+
+	;; We're waiting for a button to be released, cleared when no buttons are pressed
+	#define FLAG_WAITING_FOR_RELEASE	flags, 1
+
+	;; Flag for detecting when all buttons are released
+	#define	FLAG_NO_VIRTUAL_BTNS		flags, 2
+
+	;; Set when we're waiting for the source and destination keys, respectively, in a remap combo
+	#define	FLAG_REMAP_SOURCE_WAIT		flags, 3
+	#define	FLAG_REMAP_DEST_WAIT		flags, 4
 
 
 	;; *******************************************************************************
@@ -109,6 +124,7 @@ startup
 
 	clrf	flags
 	clrf	calibration_count
+	clrf	rumble_feedback_count
 
 	movlw	.34			; Reset bus_byte_count to 34. Keeping this set beforehand
 	movwf	bus_byte_count		;   saves a few precious cycles in receiving bus writes.
@@ -142,6 +158,7 @@ startup
 	call	n64_wait_for_command
 
 main_loop
+	call	update_rumble_feedback	; Give feedback for remapping operations using the rumble motor
 	call	gamecube_poll_status	; The gamecube poll takes place during the dead period
 	call	n64_translate_status	;   between incoming N64 commands, hopefully
 	call	n64_wait_for_command
@@ -264,7 +281,7 @@ no_calibration_combo
 map_button_from macro src_byte, src_bit, virtual
 	movlw	virtual
 	btfsc	gamecube_buffer+src_byte, src_bit
-	call	set_virtual_button
+	call	remap_virtual_button
 	endm
 
 	;; Map a virtual button to an N64 button. If the indicated button is the one
@@ -295,26 +312,23 @@ map_button_axis macro axis_byte, lower_virtual, upper_virtual, lower_thresh, upp
 	subwf	gamecube_buffer+axis_byte, w		; Axis - lower_thresh
 	movlw	lower_virtual
 	btfss	STATUS, C
-	call	set_virtual_button			; C=0, B=1, lower_thresh > axis
+	call	remap_virtual_button			; C=0, B=1, lower_thresh > axis
 	movlw	upper_thresh+1
 	subwf	gamecube_buffer+axis_byte, w		; Axis - (upper_thresh+1)
 	movlw	upper_virtual
 	btfsc	STATUS, C
-	call	set_virtual_button			; C=1, B=0, (upper_thresh+1) <= axis
-	endm
-
-map_start macro
-	clrf	n64_status_buffer+0	; Start out with everything zeroed...
-	clrf	n64_status_buffer+1
-	clrf	n64_status_buffer+2
-	clrf	n64_status_buffer+3
+	call	remap_virtual_button			; C=1, B=0, (upper_thresh+1) <= axis
 	endm
 
 
 	;; Copy status from the gamecube buffer to the N64 buffer. This first
 	;; stage maps all axes, and maps gamecube buttons to virtual buttons.
 n64_translate_status
-	map_start
+	clrf	n64_status_buffer+0	; Start out with everything zeroed...
+	clrf	n64_status_buffer+1
+	clrf	n64_status_buffer+2
+	clrf	n64_status_buffer+3
+	bsf	FLAG_NO_VIRTUAL_BTNS
 
 	call	check_calibration_combo
 
@@ -347,14 +361,15 @@ n64_translate_status
 
 	map_button_axis	GC_CSTICK_X,    BTN_C_LEFT,	BTN_C_RIGHT,	0x50, 0xB0
 	map_button_axis	GC_CSTICK_Y,    BTN_C_DOWN,	BTN_C_UP,	0x50, 0xB0
+
+	btfsc	FLAG_NO_VIRTUAL_BTNS
+	bcf	FLAG_WAITING_FOR_RELEASE
 	return
 
 
-	;; This is called for each virtual button set. It translates the virtual
-	;; button through our remapping table in EEPROM, then maps that into an N64 button.
+	;; This is called by remap_virtual_button to convert a virtual button code,
+	;; in virtual_button, to a set bit in the N64 status packet.
 set_virtual_button
-	call	remap_virtual_button
-
 	map_button_to	BTN_D_RIGHT,	N64_D_RIGHT
 	map_button_to	BTN_D_LEFT,	N64_D_LEFT
 	map_button_to	BTN_D_DOWN,	N64_D_DOWN
@@ -381,47 +396,100 @@ set_virtual_button
 	;; *************************************************  Dynamic Button Remapping  **
 	;; *******************************************************************************
 
-	;; read from address 'w' of the eeprom, return in 'w'.
-eeread
-	movwf	EEADR
-	bsf	STATUS, RP0
-	bsf	EECON1, RD
-	bcf	STATUS, RP0
-	movf	EEDATA, w
-	return
-
-	;; Write to the EEPROM using the current EEADR and EEDATA values,
-	;; block until the write is complete.
-eewrite
-	bsf	STATUS, RP0
-	bsf	EECON1, WREN	; Enable write
-	movlw	0x55		; Write the magic sequence to EECON2
-	movwf	EECON2
-	movlw	0xAA
-	movwf	EECON2
-	bsf	EECON1, WR	; Begin write
-	btfsc	EECON1, WR	; Wait for it to finish...
-	goto	$-1
-	bcf	EECON1, WREN	; Write protect
-	bcf	STATUS, RP0
-	return
-
-
 	;; This is called each time we poll status, for each virtual button that's pressed.
-	;; Here we get a virtual button code in 'w', remap it, and save it to virtual_button.
+	;; Here we get a virtual button code in 'w'. Normally we remap this via the EEPROM
+	;; and pass the code on to set_virtual_button.
+	;;
+	;; If we're awaiting a keypress for remapping purposes, this doesn't give any virtual
+	;; button presses to the N64.
 	;;
 	;; Our EEPROM starts with one byte per virtual button, containing the virtual button
 	;; code its mapped to. By default, each byte just contains its address, mapping all
 	;; virtual buttons to themselves.
 remap_virtual_button
+	;; Remember that a button is pressed, so we can detect when all have been released
+	bcf	FLAG_NO_VIRTUAL_BTNS
+
+	;; Leave now if we're waiting for buttons to be released
+	btfsc	FLAG_WAITING_FOR_RELEASE
+	return
+
+	;; Accept buttons presses if we're waiting for one
+	btfsc	FLAG_REMAP_SOURCE_WAIT
+	goto	accept_remap_source
+	btfsc	FLAG_REMAP_DEST_WAIT
+	goto	accept_remap_dest
+
+	;; Pass anything else on to the N64, mapped through the EEPROM first
 	call	eeread
 	movwf	virtual_button
-	return
+	goto	set_virtual_button
 
 
 	;; Looks for the key combinations we use to change button mapping
 check_remap_combo
+	;; Leave now if we're waiting for buttons to be released
+	btfsc	FLAG_WAITING_FOR_RELEASE
 	return
+
+	;; Both our key combinations require that the L and R buttons be mostly pressed.
+	;; but that the end stop buttons aren't pressed.
+	;; Ensure the high bit of each axis is set and that the buttons are cleared.
+	btfss	gamecube_buffer + GC_L_ANALOG, 7
+	return
+	btfss	gamecube_buffer + GC_R_ANALOG, 7
+	return
+	btfsc	gamecube_buffer + GC_L
+	return
+	btfsc	gamecube_buffer + GC_R
+	return
+
+	;; Now detect the third key in each combo
+	btfsc	gamecube_buffer + GC_START
+	goto	pressed_remap_combo
+	btfsc	gamecube_buffer + GC_Z
+	goto	pressed_reset_combo
+	return
+
+
+	;; The remap button combo was pressed. Give feedback via the rumble motor,
+	;; and await button presses from the user indicating what they want to remap.
+	;; We actually read the source and destination keys in remap_virtual_button,
+	;; since we need virtual button codes.
+pressed_remap_combo
+	bsf	FLAG_WAITING_FOR_RELEASE
+	bsf	FLAG_REMAP_SOURCE_WAIT
+	goto	start_rumble_feedback
+
+
+	;; The reset combo was pressed. Reset the EEPROM contents, and use the
+	;; rumble motor for feedback if possible.
+pressed_reset_combo
+	bsf	FLAG_WAITING_FOR_RELEASE
+	call	reset_eeprom
+	goto	start_rumble_feedback
+
+
+	;; Accept the virtual button code for the remap source in 'w', and prepare
+	;; to accept the remap destination.
+accept_remap_source
+	movwf	remap_source_button
+	bsf	FLAG_WAITING_FOR_RELEASE
+	bcf	FLAG_REMAP_SOURCE_WAIT
+	bsf	FLAG_REMAP_DEST_WAIT
+	return
+
+
+	;; Accept the virtual button code for the remap destination in 'w', and write
+	;; the button mapping to EEPROM.
+accept_remap_dest
+	movwf	EEDATA				; Destination button is data, source is address
+	movf	remap_source_button, w
+	movwf	EEADR
+	call	eewrite
+	bsf	FLAG_WAITING_FOR_RELEASE
+	bcf	FLAG_REMAP_DEST_WAIT
+	goto	start_rumble_feedback
 
 
 	;; Check our EEPROM for the magic word identifying it as button mapping data for
@@ -462,8 +530,55 @@ eeprom_reset_loop
 	movwf	EEADR
 	movlw	EEPROM_MAGIC_WORD & 0xFF
 	movwf	EEDATA
-	call	eewrite
+	goto	eewrite
 
+
+	;; read from address 'w' of the eeprom, return in 'w'.
+eeread
+	movwf	EEADR
+	bsf	STATUS, RP0
+	bsf	EECON1, RD
+	bcf	STATUS, RP0
+	movf	EEDATA, w
+	return
+
+	;; Write to the EEPROM using the current EEADR and EEDATA values,
+	;; block until the write is complete.
+eewrite
+	bsf	STATUS, RP0
+	bsf	EECON1, WREN	; Enable write
+	movlw	0x55		; Write the magic sequence to EECON2
+	movwf	EECON2
+	movlw	0xAA
+	movwf	EECON2
+	bsf	EECON1, WR	; Begin write
+	btfsc	EECON1, WR	; Wait for it to finish...
+	goto	$-1
+	bcf	EECON1, WREN	; Write protect
+	bcf	STATUS, RP0
+	return
+
+
+	;; Briefly enable the rumble motor on our own, as feedback during remap combos.
+	;; Since we don't have a long-period timebase of our own and it isn't practical
+	;; to use TMR0, this uses the N64's polling rate as a timebase. The length
+	;; of the rumble will depend on the game's frame rate, but this should be good enough.
+start_rumble_feedback
+	movlw	.16
+	movwf	rumble_feedback_count
+	return
+
+
+	;; At each status poll, turn on the rumble motor if we're in the middle of
+	;; giving feedback, and decrement our counter.
+update_rumble_feedback
+	movf	rumble_feedback_count, w
+	btfsc	STATUS, Z
+	return				; No feedback to give
+	bsf	FLAG_RUMBLE_MOTOR_ON
+	decfsz	rumble_feedback_count, f
+	return
+	bcf	FLAG_RUMBLE_MOTOR_ON	; We need to turn off the motor when we're done
 	return
 
 
