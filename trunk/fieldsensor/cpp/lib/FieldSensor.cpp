@@ -110,6 +110,8 @@ void *FieldSensor::readerThread(void *pthis) {
   } rawPacket;
   int i;
   VECTOR resultBuffer(8);
+  unsigned char *packetPointer;
+  int packetRemaining;
 
   while (1) {
     /* Synchronize to 0x80 synchronization byte */
@@ -118,8 +120,14 @@ void *FieldSensor::readerThread(void *pthis) {
       read(sensor->fd, &c, 1);
     } while (c != 0x80);
     
-    sensor->waitForData();
-    read(sensor->fd, &rawPacket, 16);
+    packetPointer = (unsigned char *) &rawPacket;
+    packetRemaining = 16;
+    while (packetRemaining) {
+      sensor->waitForData();
+      read(sensor->fd, packetPointer, 1);
+      packetRemaining--;
+      packetPointer++;
+    }
     sensor->waitForData();
     read(sensor->fd, &theirChecksum, 1);
 
