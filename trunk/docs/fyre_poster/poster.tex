@@ -65,10 +65,30 @@
 }
 
 \linethickness{0.0625in}
+
+%%%%% GENERAL OVERVIEW
+\put(0.75,40){
+  \parbox{32.75in}{
+    \fontsize{60}{70}\selectfont
+    Traditional imaging techniques for visualizing systems such as chaotic
+    maps are usually extremely simple, darkening pixels directly as the
+    point moves around the image region with each iteration. This allows
+    only a few thousand points to be drawn, resulting in a crude image.
+    Instead, by treating the entire region as a two dimensional histogram,
+    the function can be iterated millions or even billions of times,
+    dramatically increasing the information visible to the eye. This results
+    in a high dynamic range image which can then be processed and interpolated
+    to enhance or explore the final result. This interpolation step is
+    computationally trivial compared to the map iteration, so it can be
+    performed repeatedly, allowing the user to explore parameter spaces
+    interactively and then watch the image develop more and more detail.
+  }
+}
+
 %%%%% IMAGE COMPARISON - HDR INTERPOLATION
 %%% text
 \put(0.75,14.5){
-    \parbox{32.75in}{
+  \parbox{32.75in}{
     \centering
     \fontsize{60}{70}\selectfont
     Because the image is computed with a high dynamic range, it can be
@@ -80,7 +100,7 @@
 }
 %%% base image
 \put(0.75,5){
-  \includegraphics[width=8in]{images/base-large.png}
+  \includegraphics[width=8in]{images/base.png}
 }
 \put(0.75,4){
   \makebox(8,1){
@@ -91,7 +111,7 @@
 
 %%% increased exposure
 \put(8.75,5){
-  \includegraphics[width=8in]{images/increased-exposure-large.png}
+  \includegraphics[width=8in]{images/increased-exposure.png}
 }
 \put(8.75,4){
   \makebox(8,1){
@@ -102,7 +122,7 @@
 
 %%% increased gamma
 \put(17.25,5){
-  \includegraphics[width=8in]{images/increased-gamma-large.png}
+  \includegraphics[width=8in]{images/increased-gamma.png}
 }
 \put(17.25,4){
   \makebox(8,1){
@@ -113,7 +133,7 @@
 
 %%% decreased exposure, increased gamma
 \put(25.75,5){
-  \includegraphics[width=8in]{images/decreased-exposure-increased-gamma-large.png}
+  \includegraphics[width=8in]{images/decreased-exposure-increased-gamma.png}
 }
 \put(25.75,4.347){
   \makebox(8,1){
