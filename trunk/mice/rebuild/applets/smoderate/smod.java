@@ -89,6 +89,9 @@ public class smod extends java.applet.Applet implements ActionListener
 			acptfor[i].setLabel(net.read());
 		}
 		for(;i<10;i++)
+		{
 			remove(acptfor[i]);
+			acptfor[i] = null;
+		}
 	}
 }
