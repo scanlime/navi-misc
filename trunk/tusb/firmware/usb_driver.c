@@ -27,9 +27,6 @@ static struct usb_device_descriptor dev_descript = {
 };
 
 static void usb_handle_standard_request() {
-  static int offset=0;
-  int len;
-
   switch (usb_setup_buffer.bRequest) {
 
   case USB_REQ_SET_ADDRESS:
@@ -41,24 +38,48 @@ static void usb_handle_standard_request() {
     break;
 
   case USB_REQ_GET_DESCRIPTOR:
-    printf("Sending descriptor: value=0x%04X, length=%d\n", usb_setup_buffer.wValue, usb_setup_buffer.wLength);
-
-    /* Acknowledge the status stage */
-    OEPCNFG_0 |= STALL;
-
-    len = sizeof(dev_descript) - offset;
-    if (len > usb_setup_buffer.wLength)
-      len = usb_setup_buffer.wLength;
-    printf("   sending back %d bytes starting at %d\n", len, offset);
-    memcpy(usb_ep0in_buffer, ((unsigned char *)&dev_descript)+offset, len);
-    offset += usb_setup_buffer.wLength;
-
-    IEPBCNT_0 = len;
+    printf("Sending device descriptor\n");
+    usb_write_ep0_buffer(&dev_descript, sizeof(dev_descript));
     break;
 
   default:
     usb_unhandled_request();
   }
+}
+
+void usb_write_ep0_buffer(unsigned char *buffer, int length) {
+  int packet_length;
+
+  /* Never send more than the host wants */
+  if (length > usb_setup_buffer.wLength)
+    length = usb_setup_buffer.wLength;
+
+  /* Always send at least one packet, even if our length is zero */
+  do {
+    /* Send up to 8 bytes at a time */
+    if (length > 8)
+      packet_length = 8;
+    else
+      packet_length = length;
+
+    /* Put some data in the EP0 IN buffer */
+    memcpy(usb_ep0in_buffer, buffer, packet_length);
+    IEPBCNT_0 = packet_length;
+
+    /* Leave setup if we're in it */
+    USBCTL &= ~SIR;
+    USBSTA = SETUP;
+
+    /* Wait for the host to read our buffer */
+    while ((IEPBCNT_0 & 0x80) == 0)
+      watchdog_reset();
+
+    buffer += packet_length;
+    length -= packet_length;
+  } while (length > 0);
+
+  /* ACK the status stage */
+  OEPBCNT_0 = 0;
 }
 
 static void usb_handle_setup() {
