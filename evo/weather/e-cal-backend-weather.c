@@ -1,7 +1,6 @@
 /* Evolution calendar - weather backend
  *
- * Copyright (C) 2000 Ximian, Inc.
- * Copyright (C) 2004 David Trowbridge
+ * Copyright (C) 2005 Novell, Inc (www.novell.com)
  *
  * Authors: David Trowbridge <trowbrds@cs.colorado.edu>
  *
