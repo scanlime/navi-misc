@@ -95,7 +95,7 @@ static ssize_t usb_widget_dev_write (struct file *file, const char *buffer, size
 		write_pipe = usb_sndintpipe(widget->usbdev, widget->endpoint->bEndpointAddress);
 		usb_unlink_urb(&widget->write_urb);
 		usb_fill_int_urb(&widget->write_urb, widget->usbdev, write_pipe, widget->write_data, 1,
-				 usb_widget_write_complete, widget, 255);
+				 usb_widget_write_complete, widget, 0);
 
 		dbg("Sending byte: %02X %c", byte, byte);
 		widget->write_data[0] = byte;
@@ -107,7 +107,7 @@ static ssize_t usb_widget_dev_write (struct file *file, const char *buffer, size
 		dbg("usb_submit_usb status %d", status);
 
 		set_current_state(TASK_INTERRUPTIBLE);
-		schedule_timeout(10);
+		schedule_timeout(2);
 		usb_unlink_urb(&widget->write_urb);
 
 		return 1;
