@@ -42,7 +42,7 @@ namespace Fyre
 
 		// private element-specific data
 		private System.Guid		id;
-		//public CanvasElement		canvas_element;
+		public CanvasElement		canvas_element;
 
 		protected void NewID ()
 		{
