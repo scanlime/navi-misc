@@ -50,7 +50,7 @@ struct _NavTreeClass
 };
 
 GType navigation_tree_get_type (void) G_GNUC_CONST;
-NavTree* navigation_tree_new   (void);
+NavTree* navigation_tree_new   (NavModel *model);
 
 /* Add/remove server/channel functions. */
 void navigation_tree_create_new_network_entry (NavTree *navtree, struct session *sess);
