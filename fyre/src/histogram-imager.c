@@ -1006,6 +1006,8 @@ void histogram_imager_merge_stream(HistogramImager *self,
       hist_p += token;
     }
   }
+
+  histogram_imager_finish_plots(self, &plot);
 }
 
 
