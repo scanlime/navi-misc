@@ -17,4 +17,25 @@
  *
  */
 
+/**
+ * This class represents an encrypted ssh packet
+ */
 
+public class sshPacket
+{
+	/** This is the data portion of the packet. */
+	int[] edata;
+	
+	public sshPacket(int[] bytes)
+	{
+		int length = bytes.length + 5; //original data and type and checksum
+		int padding = 8 - (length % 8); //calculate the size of the padding
+		edata = new int[length + padding + 4]; //allocate the array w/ length
+		
+		edata[0] = (length >> 24) & 0xff;
+		edata[1] = (length >> 16) & 0xff;
+		edata[2] = (length >>  8) & 0xff;
+		edata[3] =  length        & 0xff;
+		
+	}
+}

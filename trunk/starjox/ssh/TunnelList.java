@@ -36,7 +36,7 @@ public class TunnelList extends JPanel implements ListSelectionListener
 	private JButton ssTunnel;
 	private JButton newTunnel;
 	private JButton editTunnel;
-	
+	private JButton rmTunnel;
 	public TunnelList(JFrame frame)
 	{
 		super(new BorderLayout());
@@ -54,18 +54,21 @@ public class TunnelList extends JPanel implements ListSelectionListener
 		JScrollPane listScrollPane = new JScrollPane(tList);
 		add(listScrollPane, BorderLayout.CENTER);
 
-		newTunnel = new JButton("New Tunnel");
+		newTunnel = new JButton("New");
 		newTunnel.addActionListener(new newTunnelListener());
+
+		rmTunnel = new JButton("Del");
+
+		editTunnel = new JButton("Edit");
+		editTunnel.addActionListener(new editTunnelListener());
 
 		ssTunnel = new JButton("Start/Stop");
 		ssTunnel.addActionListener(new ssTunnelListener());
-	
-		editTunnel = new JButton("Edit Tunnel");
-		editTunnel.addActionListener(new editTunnelListener());
-
+		
 		JPanel buttonPane = new JPanel();
 		buttonPane.setLayout(new BoxLayout(buttonPane,BoxLayout.LINE_AXIS));
 		buttonPane.add(newTunnel);
+		buttonPane.add(rmTunnel);
 		buttonPane.add(editTunnel);
 		editTunnel.setEnabled(false);
 		buttonPane.add(ssTunnel);
@@ -80,11 +83,13 @@ public class TunnelList extends JPanel implements ListSelectionListener
 		{
 			if(tList.getSelectedIndex() == -1)
 			{
+				ssTunnel.setText("Start/Stop");
 				ssTunnel.setEnabled(false);
 				editTunnel.setEnabled(false);
 			}
 			else
 			{
+				ssTunnel.setText("Start");
 				ssTunnel.setEnabled(true);
 				editTunnel.setEnabled(true);
 			}
@@ -95,7 +100,49 @@ public class TunnelList extends JPanel implements ListSelectionListener
 	{
 		public void actionPerformed(ActionEvent e)
 		{
-			//kick up a popup
+			//Create the dialog.
+		
+			final JDialog dialog = new JDialog(myFrame,
+																				"A Non-Modal Dialog");
+
+                    //Add contents to it. It must have a close button,
+                    //since some L&Fs (notably Java/Metal) don't provide one
+                    //in the window decorations for dialogs.
+                    JLabel label = new JLabel("<html><p align=center>"
+                        + "This is a non-modal dialog.<br>"
+                        + "You can have one or more of these up<br>"
+                        + "and still use the main window.");
+                    label.setHorizontalAlignment(JLabel.CENTER);
+                    Font font = label.getFont();
+                    label.setFont(label.getFont().deriveFont(font.PLAIN,
+                                                             14.0f));
+
+                    JButton closeButton = new JButton("Close");
+                    closeButton.addActionListener(new ActionListener() {
+                        public void actionPerformed(ActionEvent e) {
+                            dialog.setVisible(false);
+                            dialog.dispose();
+                        }
+                    });
+                    JPanel closePanel = new JPanel();
+                    closePanel.setLayout(new BoxLayout(closePanel,
+                                                       BoxLayout.LINE_AXIS));
+                    closePanel.add(Box.createHorizontalGlue());
+                    closePanel.add(closeButton);
+                    closePanel.setBorder(BorderFactory.
+                        createEmptyBorder(0,0,5,5));
+
+                    JPanel contentPane = new JPanel(new BorderLayout());
+                    contentPane.add(label, BorderLayout.CENTER);
+                    contentPane.add(closePanel, BorderLayout.PAGE_END);
+                    contentPane.setOpaque(true);
+                    dialog.setContentPane(contentPane);
+
+                    //Show it.
+                    dialog.setSize(new Dimension(300, 150));
+                    dialog.setLocationRelativeTo(myFrame);
+                    dialog.setVisible(true);
+
 			System.out.println("Edit Tunnel clicked");
 		}
 	}
