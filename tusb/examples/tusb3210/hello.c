@@ -13,18 +13,22 @@
  */
 volatile xdata at 0xFD00 unsigned char ep1_out_x[64];
 
+void idler() {
+  /* Debug code. Look at P3.0 on an oscilloscope to
+   * measure main loop period, to get an idea of max
+   * latency for things serviced from here.
+   */
+  P3_0 = !P3_0;
+
+  watchdog_reset();
+}
 
 void main() {
   usb_init();
+  usb_set_idle_handler(idler);
 
   while (1) {
-    /* Debug code. Look at P3.0 on an oscilloscope to
-     * measure main loop period, to get an idea of max
-     * latency for things serviced from here.
-     */
-    P3_0 = !P3_0;
-
-    watchdog_reset();
+    idler();
     usb_poll();
   }
 }

@@ -36,6 +36,13 @@ static void usb_write_ep0_string_descriptor(unsigned char *string);
 static void usb_wait_for_ep0_in();
 static void usb_ack_ep0_in();
 
+/* Application-defined idle handler. Defaults to
+ * watchdog_reset(). This is called whenever we have nothing
+ * better to do, giving the application a chance to poll for
+ * important events or perform background calculations.
+ */
+static void (*usb_idle_handler)(void);
+
 
 static void usb_handle_descriptor_request() {
   /* Search for the requested descriptor and send it
@@ -110,7 +117,7 @@ static void usb_wait_for_ep0_in() {
 
   /* Wait for the host to read our buffer */
   while ((IEPBCNT_0 & 0x80) == 0)
-    watchdog_reset();
+    usb_idle_handler();
 }
 
 static void usb_ack_ep0_in() {
@@ -256,6 +263,8 @@ void usb_poll() {
 }
 
 void usb_init() {
+  usb_idle_handler = watchdog_reset;
+
   FUNADR = 0;       /* We haven't been assigned an address yet */
   USBMSK = 0;       /* No USB interrupts */
 
@@ -287,6 +296,10 @@ int usb_dma_status(unsigned char ep) {
     return c & 0x7F;
   else
     return 0;
+}
+
+void usb_set_idle_handler(void (*callback)(void)) {
+  usb_idle_handler = callback;
 }
 
 /* The End */

@@ -211,13 +211,13 @@ volatile xdata at 0xFF00 struct usb_ctrlrequest usb_setup_buffer;
 #define USB_REQ_SET_IDLE		0x0A
 #define USB_REQ_SET_PROTOCOL		0x0B
 
-
 /* Main entry points */
 void usb_init();
 void usb_poll();
 
 /* Application-defined */
 void usb_handle_vendor_request();
+void usb_set_idle_handler(void (*callback)());
 extern const struct usb_descriptor_entry usb_descriptors[];
 
 /* Request reply functions (blocking) */
