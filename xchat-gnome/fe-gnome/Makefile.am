@@ -12,7 +12,7 @@ mmx_cmod_S = 					\
 endif
 
 schemadir	= $(GCONF_SCHEMA_FILE_DIR)
-schema_DATA	= apps_xchat.schemas.in.in
+schema_DATA	= apps_xchat.schemas
 
 # @INTLTOOL_SCHEMAS_RULE@
 
@@ -94,7 +94,7 @@ EXTRA_DIST =					\
 	util.c					\
 	$(xchat_gnome_DATA)			\
 	$(desktop_DATA)				\
-	apps_xchat.schemas.in.in
+	apps_xchat.schemas
 
 xchat_gnome_LDADD = ../common/libxchatcommon.a $(GUI_LIBS)
 xchat_gnome_SOURCES =				\
