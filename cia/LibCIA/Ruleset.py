@@ -41,6 +41,7 @@ used to store and query rulesets in a RulesetStorage.
 
 import XML, Message
 from twisted.python import log
+from twisted.xish.xpath import XPathQuery
 import sys, traceback
 
 
@@ -59,25 +60,27 @@ class Ruleset(XML.XMLFunction):
         The output from the last formatter is returned upon calling this ruleset, and
         each formatter is given the previous formatter's output as input, so they may be stacked.
 
-        <formatter name="foo">   : Applies the formatter named 'foo'
+        <formatter name="foo">      : Applies the formatter named 'foo'
 
-        <formatter medium="irc"> : Automatically picks a formatter for the particular
-                                   input message and the given medium type
+        <formatter medium="irc">    : Automatically picks a formatter for the particular
+                                      input message and the given medium type
 
-        any Filter tag           : Evaluates the filter, terminating the current rule
-                                   if it returns false.
+        any Filter tag              : Evaluates the filter, terminating the current rule
+                                      if it returns false.
 
-        <rule>                   : Marks a section of the ruleset that can be exited
-                                   when a filter returns false. A <rule> with a filter
-                                   as the first child can be used to create conditionals.
+        <rule>                      : Marks a section of the ruleset that can be exited
+                                      when a filter returns false. A <rule> with a filter
+                                      as the first child can be used to create conditionals.
 
-        <return>                 : Normally the result of the last formatter is returned,
-                                   this causes the text inside the <return>
-                                   tag to be returned immediately. An empty <return>
-                                   tag causes None to be returned from this ruleset..
+        <return [path='/foo/bar']>  : Normally the result of the last formatter is returned.
+                                      This returns from the ruleset immediately. If a path
+                                      is supplied, the string value of that XPath match is
+                                      returned. If not, the content of the <return> tag is
+                                      returned. An empty tag or no XPath match will cause
+                                      the ruleset to return None.
 
-        <break>                  : Return immediately from the ruleset, but don't change
-                                   the current return value
+        <break>                     : Return immediately from the ruleset, but don't change
+                                      the current return value
 
         <ruleset [uri="foo://bar"]> : Like <rule>, but this is always the root tag.
                                       It may include a 'uri' attribute specifying the
@@ -131,6 +134,10 @@ class Ruleset(XML.XMLFunction):
         >>> r(msg) is None
         True
 
+        >>> r = Ruleset('<ruleset><return path="/message/source/project"/></ruleset>')
+        >>> r(msg)
+        'robo-hamster'
+
         >>> Ruleset('<ruleset/>').uri is None
         True
         >>> Ruleset('<ruleset uri="sponge://"/>').uri
@@ -174,12 +181,26 @@ class Ruleset(XML.XMLFunction):
 
     def element_return(self, element):
         """Set the current result and exit the ruleset immediately"""
-        def rulesetReturn(msg):
-            self.result = str(element)
-            if not self.result:
-                self.result = None
-            raise RulesetReturnException()
-        return rulesetReturn
+        if element.hasAttribute('path'):
+            xp = XPathQuery(element['path'])
+            # Define a rulesetReturn function that returns the value of the XPath
+            def rulesetReturn(msg):
+                nodes = xp.queryForNodes(msg.xml)
+                if nodes:
+                    self.result = XML.allText(nodes[0]).strip()
+                else:
+                    self.result = None
+                raise RulesetReturnException()
+            return rulesetReturn
+
+        else:
+            # No path, define a rulesetReturn function that returns this element's string value
+            def rulesetReturn(msg):
+                self.result = str(element)
+                if not self.result:
+                    self.result = None
+                raise RulesetReturnException()
+            return rulesetReturn
 
     def element_break(self, element):
         """Just exit the ruleset immediately"""

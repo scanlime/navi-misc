@@ -32,8 +32,8 @@ class ColortextToIRC(Message.Formatter):
     detector = '<find path="/message/body/colorText"/>'
     medium = 'irc'
     def __init__(self):
-        import IRCColor
-        self.formatter = IRCColor.ColortextFormatter()
+        import IRC
+        self.formatter = IRC.ColortextFormatter()
 
     def format(self, message, input=None):
         return self.formatter.format(message.xml.body.colorText)
@@ -46,8 +46,8 @@ class IRCProjectName(Message.Formatter):
         if not input:
             return
         if message.xml.source and message.xml.source.project:
-            import IRCColor
-            prefix = IRCColor.format("%s:" % message.xml.source.project, 'bold') + " "
+            import IRC
+            prefix = IRC.format("%s:" % message.xml.source.project, 'bold') + " "
             return "\n".join([prefix + line for line in input.split("\n")])
         else:
             return input
