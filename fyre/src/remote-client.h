@@ -85,6 +85,7 @@ struct _RemoteClient {
 
     gboolean              is_ready;
     int                   pending_param_changes;
+    int                   pending_stream_requests;
 
     double                prev_iterations;
     GTimer*               status_timer;

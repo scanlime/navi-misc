@@ -420,6 +420,7 @@ static void    status_merge_callback          (RemoteClient*     self,
     long density;
     double elapsed;
 
+    self->pending_stream_requests--;
     sscanf(response->message, "iterations=%lf density=%ld", &iters, &density);
 
     /* FIXME: Since we don't know which parameters affect calculation, we don't
@@ -457,8 +458,14 @@ static void    status_merge_callback          (RemoteClient*     self,
 void           remote_client_merge_results    (RemoteClient*     self,
 					       IterativeMap*     dest)
 {
+    /* Don't let our stream requests get too backed up */
+    if (self->pending_stream_requests > 5)
+	return;
+
     remote_client_command(self, status_merge_callback, dest,
 			  "calc_status");
+
+    self->pending_stream_requests++;
     remote_client_command(self, histogram_merge_callback, dest,
 			  "get_histogram_stream");
 }
