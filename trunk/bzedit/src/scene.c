@@ -95,7 +95,22 @@ tree_store_row_changed (GtkTreeModel *treemodel, GtkTreePath *path, GtkTreeIter 
   {
     if (gtk_tree_path_compare (path, so->path) != 0)
     {
-      g_print ("reparenting!\n");
+      GtkTreePath *parent = gtk_tree_path_copy (path);
+      char *cpath;
+
+      parent = gtk_tree_path_copy (path);
+      gtk_tree_path_up (parent);
+      cpath = gtk_tree_path_to_string (parent);
+      if (cpath)
+      {
+        g_print ("reparenting into group!\n");
+      }
+      else
+      {
+	g_print ("reparenting into root!\n");
+      }
+      gtk_tree_path_free (parent);
+      g_free (cpath);
     }
   }
 }
