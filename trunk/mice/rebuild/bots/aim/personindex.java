@@ -63,7 +63,7 @@ public class personindex
 		if(currentbot == botcount) currentbot = 0;
 	}
 	
-	public void addInterview(botmain bot, String name, String pass)
+	public void addinterview(botmain bot, String name, String pass)
 	{
 		inthead = new interview(inthead, bot, name, pass);
 	}
