@@ -5390,7 +5390,7 @@ void printStartupMessages ( void )
 
 	// print authors
 	tmpString = ColorStrings[GreenColor];
-	tmpString += "Project Lead: Jeff Myers <jeff@opencombat.net>";
+	tmpString += "Project Lead: Jeff Myers <jeff@OpenCombat.net>";
 	controlPanel->addMessage(tmpString);
 
 	// print website
