@@ -2,7 +2,7 @@
  * parameter-editor.h - Automatically constructs a GUI for editing the
  *                      parameters of a ParameterHolder instance.
  *
- * Fyre - rendering and interactive exploration of chaotic functions
+ * BZEdit
  * Copyright (C) 2004 David Trowbridge and Micah Dowty
  *
  * This program is free software; you can redistribute it and/or

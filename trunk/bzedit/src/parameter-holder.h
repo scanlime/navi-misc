@@ -3,7 +3,7 @@
  *                      algorithm parameters that can be serialized to key/value
  *                      pairs and interpolated between.
  *
- * Fyre - rendering and interactive exploration of chaotic functions
+ * BZEdit
  * Copyright (C) 2004 David Trowbridge and Micah Dowty
  *
  * This program is free software; you can redistribute it and/or
