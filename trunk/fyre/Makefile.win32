@@ -1,0 +1,77 @@
+#
+# This is a separate makefile for compiling under Windows.
+# This requires gcc, binutils, and such to be in your path.
+#
+# Dev-C++ is recommended. It's an easy way to get gcc and
+# friends onto a windows machine, and some of the paths here
+# assume it's what you're using.
+#
+# You'll also need GTK runtime and development files, such
+# as what you can download from here:
+#   http://www.dropline.net/gtk/download.php
+#
+# FIXME: The two makefiles should be merged, or we should just get a better build system
+#
+
+CC  = gcc
+BIN = fyre.exe
+
+PKGS    += gtk+-2.0
+CFLAGS  += '-DGLADEDIR="data"'
+CFLAGS  += $(shell pkg-config --cflags $(PKGS))
+LIBS    += $(shell pkg-config --libs $(PKGS))
+
+# The pkg-config support for libglade is flaky
+DEVCPP = C:\Dev-Cpp
+PATH := $(PATH);$(DEVCPP)\bin
+CFLAGS += -I$(DEVCPP)\include\libglade-2.0
+LIBS += -lglade-2.0
+
+# Just assume this is a recentish x86 machine. What else does windows run on?
+CFLAGS  += -march=i686
+CFLAGS  += -O3 -ffast-math
+
+# Disable glibc versions of functions that have faster versions
+# as gcc inlines. This should speed up trig on some systems.
+CFLAGS  += -D__NO_INLINE__
+
+OBJS    = \
+	src/main.o		\
+	src/de-jong.o		\
+	src/explorer.o		\
+	src/color-button.o	\
+	src/animation.o		\
+	src/chunked-file.o	\
+	src/curve-editor.o	\
+	src/spline.o		\
+	src/explorer-tools.o	\
+	src/explorer-animation.o \
+	src/cell-renderer-transition.o \
+	src/cell-renderer-bifurcation.o \
+	src/histogram-imager.o	\
+	src/iterative-map.o \
+	src/parameter-holder.o	\
+	src/bifurcation-diagram.o \
+	src/math-util.o		\
+	src/avi-writer.o	\
+	src/parameter-editor.o	\
+	src/histogram-view.o	\
+	src/animation-render-ui.o \
+	src/screensaver.o
+
+# Extra files for things only needed on windows
+CFLAGS += -Isrc/platform
+CFLAGS += -mms-bitfields
+OBJS += \
+	src/platform/getopt.o \
+	src/platform/getopt1.o
+
+
+$(BIN): $(OBJS)
+	$(CC) -o $@ $(OBJS) $(LIBS)
+
+%.o: %.c src/*.h
+	$(CC) -c -o $@ $< $(CFLAGS)
+
+clean:
+	rm -f $(BIN) $(OBJS)
