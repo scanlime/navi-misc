@@ -4,6 +4,8 @@ OBJS = \
 
 BINS = test
 
+LDFLAGS += -lusb
+
 all: $(BINS)
 
 test: $(OBJS) src/*.h

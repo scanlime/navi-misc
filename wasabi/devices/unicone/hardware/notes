@@ -15,7 +15,7 @@ TUSB3410 (Keyspan HS-19US, firmware removed):
 
  RS-232 DCD (1) -
  RS-232 RxD (2) -
- RS-232 TxD (3) -
+ RS-232 TxD (3) - Debugging serial port, TxD (3)
  RS-232 DTR (4) - White status LED, via 330 ohm resistor
  RS-232 DSR (6) -
  RS-232 RTS (7) - FPGA 'PROGRAM' (pin 55), via 1k resistor
