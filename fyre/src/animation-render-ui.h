@@ -65,6 +65,8 @@ struct _AnimationRenderUi {
     gdouble elapsed_anim_time;
     gdouble anim_length;
     gboolean render_in_progress;
+
+    gboolean confirm_on;
 };
 
 struct _AnimationRenderUiClass {
