@@ -56,7 +56,7 @@ struct _IrcNetwork
 	gboolean use_global;
 	gchar *nick;
 	gchar *real;
-	GSList *autojoin;
+	gchar *autojoin;
 
 	ircnet *net;
 };
