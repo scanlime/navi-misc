@@ -214,7 +214,6 @@
 				      <property name="has_frame">True</property>
 				      <property name="invisible_char">*</property>
 				      <property name="activates_default">False</property>
-				      <property name="width_chars">50</property>
 				    </widget>
 				    <packing>
 				      <property name="padding">0</property>

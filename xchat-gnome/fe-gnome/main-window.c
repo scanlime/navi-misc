@@ -35,6 +35,7 @@
 #include "palette.h"
 #include "transfers.h"
 #include "util.h"
+#include "preferences-dialog.h"
 
 #ifdef HAVE_GTKSPELL
 #include <gtkspell/gtkspell.h>
@@ -598,7 +599,11 @@ on_edit_clear_activate (GtkAction *action, gpointer data)
 static void
 on_edit_preferences_activate (GtkAction *action, gpointer data)
 {
+	PreferencesDialog *dialog;
+
 	gtk_widget_show_all (GTK_WIDGET (gui.preferences_dialog));
+	dialog = preferences_dialog_new ();
+	gtk_widget_show_all (GTK_WIDGET (dialog));
 }
 
 static void
