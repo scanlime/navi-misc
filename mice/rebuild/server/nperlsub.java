@@ -58,8 +58,6 @@ public class nperlsub extends nbase
 		{
 			//squeeze the juice out of it!
 			temp = tokens.nextToken();
-			System.out.print(temp);
-			System.out.println("  :" + temp.substring(2));
 			value = asciiizer(temp.charAt(0)) * 16 + asciiizer(temp.charAt(1));
 			toreturn = toreturn + (char) value + temp.substring(2);
 		}
@@ -76,12 +74,10 @@ public class nperlsub extends nbase
 	private char asciiizer(char switcher)
 	{
 		char toreturn = 32;
-		System.out.print("passed: " + switcher);
 		if(switcher >= '0' && switcher <= '9')
 			toreturn  = (char) (switcher - '0');
 		if(switcher >= 'A' && switcher <= 'F')
 			toreturn  = (char) ((switcher - 'A') + 10);
-		System.out.println(" returning " + (int) toreturn);
 		return toreturn;
 	}
 }

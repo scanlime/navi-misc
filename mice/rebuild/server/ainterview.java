@@ -73,10 +73,7 @@ public class ainterview
 		if(current == null) return;
 		current.addAnswer(identifier,answer);
 		answ.add(current);
-		//
 		//hit the abstract interface for outgoing stuff
-		//
-		System.out.println(current);
 		update.sendAnswer(current);
 		current = null;
 	}

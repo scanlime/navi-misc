@@ -71,16 +71,16 @@ public class personindex
 	 */
 	public void handleMessage(String from, String message)
 	{
-		person found = findPerson(from);
-		if(found != null)
-		{
-			found.handle(message);
-			return;
-		}
 		interview othertemp = findInterview(from);
 		if(othertemp != null)
 		{
 			othertemp.handle(message);
+			return;
+		}
+		person found = findPerson(from);
+		if(found != null)
+		{
+			found.handle(message);
 			return;
 		}
 		masshead = new person(masshead,bots[currentbot],from);
