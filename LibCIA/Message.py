@@ -60,7 +60,7 @@ class Message(XML.XMLObject):
        the current time:
 
          >>> msg = Message('<message/>')
-         >>> t = int(str(msg.xml.timestamp))
+         >>> t = XML.digValue(msg.xml, int, "message", "timestamp")
          >>> time.time() - t < 2
          True
 
@@ -255,7 +255,7 @@ class Filter(XML.XMLFunction):
          True
 
        """
-    def pathMatchTag(self, element, function):
+    def pathMatchTag(self, element, function, textExtractor=XML.shallowText):
         """Implements the logic common to all tags that test the text matched by
            an XPath against the text inside our element. The given function is used
            to determine if the text matches. This implements the properties common to
@@ -295,7 +295,7 @@ class Filter(XML.XMLFunction):
             # for the existence of an XPath match.
             nodes = xp.queryForNodes(msg.xml)
             if nodes:
-                matchStrings = map(XML.allText, nodes)
+                matchStrings = map(textExtractor, nodes)
 
                 # Any of the XPath matches can make our match true
                 for matchString in matchStrings:
@@ -317,7 +317,8 @@ class Filter(XML.XMLFunction):
         """Evaluates to True if the text in this tag is contained within any of the
            XPath match strings.
            """
-        return self.pathMatchTag(element, lambda matchString, text: matchString.find(text) >= 0)
+        return self.pathMatchTag(element, lambda matchString, text: matchString.find(text) >= 0,
+                                 textExtractor = XML.allText)
 
     def element_and(self, element):
         """Evaluates to True if and only if all child functions evaluate to True"""
