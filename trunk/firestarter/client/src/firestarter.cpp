@@ -20,21 +20,21 @@
 * email: jeffm2501@sbcglobal.net
 */
 
-#include "bznext.h"
+#include "firestarter.h"
 
-CBZNextLoop::CBZNextLoop()
+CFirestarterLoop::CFirestarterLoop()
 {
 	SetQuit(false);
 	inUI = true;
 	numScreenShots = 0;
 }
 
-CBZNextLoop::~CBZNextLoop()
+CFirestarterLoop::~CFirestarterLoop()
 {
 
 }
 
-bool CBZNextLoop::OnInit ( void )
+bool CFirestarterLoop::OnInit ( void )
 {
 	// some default values
 	SetGameName("susan");
@@ -56,49 +56,49 @@ bool CBZNextLoop::OnInit ( void )
 	return false;
 }
 
-bool CBZNextLoop::OnKill( void )
+bool CFirestarterLoop::OnKill( void )
 {
   return false;
 }
 
-bool CBZNextLoop::OnActivate ( void )
+bool CFirestarterLoop::OnActivate ( void )
 {
   return false;
 }
 
-bool CBZNextLoop::OnDeactivate ( void )
+bool CFirestarterLoop::OnDeactivate ( void )
 {
   return false;
 }
 
-SceneType CBZNextLoop::GetSceneType ( void )
+SceneType CFirestarterLoop::GetSceneType ( void )
 {
   return ST_GENERIC;
 }
 
-const char* CBZNextLoop::GetCameraName ( void )
+const char* CFirestarterLoop::GetCameraName ( void )
 {
-  return "BZPlayerCam";
+  return "FirestarterCam";
 }
 
-const char*  CBZNextLoop::GetRootResDir ( void )
+const char*  CFirestarterLoop::GetRootResDir ( void )
 {
 	if (prefs.ItemExists("dataDir"))
 		return prefs.GetItemS("dataDir");
   return "../data";
 }
 
-const char* CBZNextLoop::GetPrefsName ( void )
+const char* CFirestarterLoop::GetPrefsName ( void )
 {
-	 return "bznext/client.prefs";
+	 return "firestarter/client.prefs";
 }
 
-const char* CBZNextLoop:: GetWindowName ( void )
+const char* CFirestarterLoop:: GetWindowName ( void )
 {
-	return "BZFlag::Next();";
+	return "Firestarter::Smack the tank up";
 }
 
-bool CBZNextLoop::GameLoop ( void )
+bool CFirestarterLoop::GameLoop ( void )
 {
 	// check for sreenshot
 	float togleTime = 0.5f;
@@ -133,7 +133,7 @@ bool CBZNextLoop::GameLoop ( void )
 	}
   return quit;
 }
-void CBZNextLoop::OnFrameEnd ( void )
+void CFirestarterLoop::OnFrameEnd ( void )
 {
 }
 

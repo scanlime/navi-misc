@@ -20,8 +20,8 @@
 * email: jeffm2501@sbcglobal.net
 */
 
-#ifndef _BZNEXT_LOOP_H_
-#define _BZNEXT_LOOP_H_
+#ifndef _FIRESTARTER_LOOP_H_
+#define _FIRESTARTER_LOOP_H_
 
 // main stuff
 // the app needs to provide a derived CBaseGameLoop
@@ -31,11 +31,11 @@
 #include "ui.h"
 #include "gameManager.h"
 
-class  CBZNextLoop : public CBaseGameLoop
+class  CFirestarterLoop : public CBaseGameLoop
 {
 public:
-  CBZNextLoop();
-  virtual ~CBZNextLoop();
+  CFirestarterLoop();
+  virtual ~CFirestarterLoop();
 
   virtual bool OnInit ( void );
   virtual bool OnKill( void );
@@ -65,5 +65,5 @@ protected:
 	CUserInterface	ui;
 };
 
-#endif //_BZNEXT_LOOP_H_
+#endif //_FIRESTARTER_LOOP_H_
 
