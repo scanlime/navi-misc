@@ -97,8 +97,8 @@ h1 {
 }
 
 pre {
-	border:			1px dotted #00497c;
-	background:		#f0f0f0;
+	background:		#f3f3f3;
+	border:			1px solid #bbb;
 	padding:		0.9em;
 	margin:			1em 2em;
 }
