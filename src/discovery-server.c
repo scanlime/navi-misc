@@ -108,13 +108,19 @@ DiscoveryServer*  discovery_server_new(const gchar* service_name, int service_po
     self->service_name = g_strdup(service_name);
     self->service_port = service_port;
 
-    /* Create a buffer big enough to hold our incoming and outgoing packets */
-    self->buffer_size = sizeof(service_name) + 16;
-    self->buffer = g_malloc(self->buffer_size);
+    if (self->socket) {
+	/* Create a buffer big enough to hold our incoming and outgoing packets */
+	self->buffer_size = sizeof(service_name) + 16;
+	self->buffer = g_malloc(self->buffer_size);
 
-    /* Sign up to get notified when new packets arrive */
-    g_io_add_watch(gnet_udp_socket_get_io_channel(self->socket),
-		   G_IO_IN,  discovery_server_read, self);
+	/* Sign up to get notified when new packets arrive */
+	g_io_add_watch(gnet_udp_socket_get_io_channel(self->socket),
+		       G_IO_IN,  discovery_server_read, self);
+    }
+    else {
+	printf("Warning, can't listen for UDP discovery packets on port %d\n",
+	       FYRE_DISCOVERY_PORT);
+    }
 
     return self;
 }
