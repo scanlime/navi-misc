@@ -95,6 +95,8 @@ public class run
 		
 			if(prot.toLowerCase().compareTo("tcp") == 0) 
 				new tcpfw(dest,srcprt,destprt).start();
+			if(prot.toLowerCase().compareTo("udp") == 0)
+				new udpfw(dest,srcprt,destprt).start();
 		}
 		catch(Exception e)
 		{

@@ -2,6 +2,7 @@ CLASSES =\
 	tcppipe.class\
 	udppipe.class\
 	tcpfw.class\
+	udpfw.class\
 	run.class
 
 prog: $(CLASSES)
@@ -11,6 +12,9 @@ udppipe.class: udppipe.java
 
 tcppipe.class: tcppipe.java
 	javac tcppipe.java
+
+udpfw.class: udbfw.java
+	javac udpfw.java
 
 tcpfw.class: tcpfw.java
 	javac tcpfw.java
