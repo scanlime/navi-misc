@@ -32,6 +32,7 @@ import time
 from pyrcpod.librcpod import *
 from pyrcpod.device import to_ucharArray, from_ucharArray
 
+
 class I2CError(IOError):
     pass
 
@@ -55,11 +56,14 @@ class Bus(object):
 class Device(object):
     """Represents one I2C device on a bus attached to the rcpod"""
     busAddressBase = 0
+    speed = 100000
 
-    def __init__(self, bus, address, speed=0):
+    def __init__(self, bus, address, speed=None):
+        if speed is not None:
+            self.speed = speed
         self.bus = bus
         self.address = self.busAddressBase | address
-        self._idev = new_i2cDev(speed, bus.clock.value,
+        self._idev = new_i2cDev(self.speed, bus.clock.value,
                                 bus.data.value, self.address)
 
     def __repr__(self):

@@ -51,7 +51,7 @@ typedef void (rcpod_errorHandler)(const char *function, int err, const char *mes
 typedef unsigned char rcpod_pin;
 
 /* A description of an I2C device attached to the RCPOD, composed of its clock and data
- * pins, its 7-bit bus address, and its maximum bus speed as an RCPOD_I2C_SPEED_* constant.
+ * pins, its 7-bit bus address, and its maximum bus speed in hertz.
  */
 typedef struct tag_rcpod_i2c_dev {
   int           speed;
