@@ -97,6 +97,8 @@ GtkWidget* histogram_view_new(HistogramImager *imager) {
 
   /* Do the first resize, and connect to notify signals for future resizes */
   gtk_widget_set_size_request(GTK_WIDGET(self), self->imager->width, self->imager->height);
+  self->old_width = self->imager->width;
+  self->old_height = self->imager->height;
   g_signal_connect(self->imager, "notify::width", G_CALLBACK(on_resize_notify), self);
   g_signal_connect(self->imager, "notify::height", G_CALLBACK(on_resize_notify), self);
 
@@ -109,7 +111,31 @@ GtkWidget* histogram_view_new(HistogramImager *imager) {
 /************************************************************************************/
 
 static void on_resize_notify(HistogramImager *imager, GParamSpec *spec, HistogramView *self) {
+  GdkRegion *old, *new;
+  GdkRectangle rect;
+
   gtk_widget_set_size_request(GTK_WIDGET(self), imager->width, imager->height);
+
+  /* Since we're not letting gtk clear our widget for us for speed and unflickeriness,
+   * we need to clear any areas that the previous size covered but the new size doesn't.
+   */
+  rect.x = rect.y = 0;
+  rect.width = self->old_width;
+  rect.height = self->old_height;
+  old = gdk_region_rectangle(&rect);
+  rect.width = self->imager->width;
+  rect.height = self->imager->height;
+  new = gdk_region_rectangle(&rect);
+
+  gdk_region_subtract(old, new);
+  if (!gdk_region_empty(old))
+    histogram_view_draw_background_region(self, old);
+
+  gdk_region_destroy(old);
+  gdk_region_destroy(new);
+
+  self->old_width = self->imager->width;
+  self->old_height = self->imager->height;
 }
 
 void histogram_view_update(HistogramView *self) {
