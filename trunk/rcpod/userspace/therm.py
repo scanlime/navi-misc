@@ -18,9 +18,10 @@ class i2c:
 	self.pic.TRISB = self.b
 	self.b |= self.clockmask				# clock high
 	self.pic.TRISB = self.b
+        bit = self.pic.PORTB & self.busmask			# read when clock is high (data valid)
 	self.b &= ~self.clockmask				# clock low
 	self.pic.TRISB = self.b
-	return self.pic.PORTB & self.busmask
+	return bit
 
     def start(self):
         self.b = self.busmask | self.clockmask			# bus high, clock high
@@ -62,9 +63,9 @@ class i2c:
         self.writebit(0)
 
     def writebyte(self, byte):
-        for i in range(7, -1, -1):
-            bit = (byte >> i) & 0x01
-            self.writebit(bit)
+        for i in range(8):
+            self.writebit(byte & 0x80 != 0)
+            byte <<= 1
 	self.ack()
 
     def readbyte(self):
