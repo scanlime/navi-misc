@@ -250,7 +250,9 @@ class SpreadDirectory(SpreadFileBase):
             self.ctime = pinefs.fsbase.mk_time(max(
                 self.ctime.seconds, st.st_ctime), 0)
 
-        print "mtime %r -> %r" % (self.path, self.mtime.seconds)
+        # The client may rely in nlink to detect changes in the number of children
+        if self.dirCache is not None:
+            self.nlink = len(self.dirCache) + 1
 
     def getChild(self, name):
         """Get either a SpreadFile or SpreadDirectory for a child of this object"""
@@ -266,10 +268,6 @@ class SpreadDirectory(SpreadFileBase):
     def onMonitorEvent(self, event):
         code = event.code2str()
 
-        # Might this have caused a stat() change?
-        if code in ('deleted', 'changed', 'created'):
-            self.updateStat()
-
         # Do we have a cached object this affects?
         obj = self.fs.mapper.objectCache.get(os.path.join(self.path, event.filename))
         if obj:
@@ -283,14 +281,21 @@ class SpreadDirectory(SpreadFileBase):
             if code == 'changed' and isinstance(obj, SpreadFile):
                 self.fs.mapper.invalidateObject(obj)
 
-        if self.dirCache and event.filename in self.dirCache:
+        if self.dirCache:
             # Do we need to update the directory cache?
             # We don't seem to ever actually get 'moved' events,
             # so for now this only handles 'deleted' and 'created'.
             if code == 'deleted':
-                del self.dirCache[event.filename]
+                try:
+                    del self.dirCache[event.filename]
+                except KeyError:
+                    pass
             elif code == 'created':
                 self.dirCache[event.filename] = self.getChild(event.filename).fileHandle
+
+        # Might this have caused a stat() change?
+        if code in ('deleted', 'changed', 'created'):
+            self.updateStat()
 
     def get_dir(self):
         """Return a directory listing, as a mapping from child names to their file handles"""
@@ -550,7 +555,7 @@ class FileMonitor(threading.Thread):
                     event.userData(event)
                 except:
                     print "*** Exception in FAM event handler:"
-                    traceback.print_last()
+                    traceback.print_exc()
 
         c = self.connection
         self.connection = None
