@@ -173,7 +173,7 @@ class RSS2Feed(RSSFeed):
            notification of changes to this resource.
            """
         return tag('cloud',
-                   domain            = context['request'].host[1],
+                   domain            = context['request'].getRequestHostname(),
                    port              = context['request'].host[2],
                    path              = '/RPC2',
                    protocol          = 'xml-rpc',
