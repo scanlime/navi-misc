@@ -26,6 +26,7 @@
  */
 
 #include <FieldNetwork.h>
+#include <math.h>
 
 FieldNetwork::FieldNetwork(void) : MultiLayerNetwork(8) {
   initLayers();
@@ -45,10 +46,20 @@ void FieldNetwork::initLayers(void) {
   connectLayer(2);
 }
 
+real FieldNetwork::transfer(real x) {
+  return x + 0.5;
+}
+
+real FieldNetwork::dtransfer(real x) {
+  return 1.0;
+}
+
 void FieldNetwork::initTransferFunctions(void) {
-  setActivationFunction(1, &identity, &didentity);
-  setActivationFunction(2, &identity, &didentity);
-  setActivationFunction(3, &identity, &didentity);
+  /*
+  setActivationFunction(1, &transfer, &dtransfer);
+  setActivationFunction(2, &transfer, &dtransfer);
+  setActivationFunction(3, &transfer, &dtransfer);
+  */
 }
 
 /* The End */
