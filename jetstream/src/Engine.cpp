@@ -1,7 +1,7 @@
 /*
  * Engine.cpp - A modular system for initialization, main loop, and shutdown
  *
- * Copyright (C) 2002-2003 Micah Dowty and David Trowbridge
+ * Copyright (C) 2002-2004 Micah Dowty and David Trowbridge
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License

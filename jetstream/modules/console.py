@@ -3,7 +3,7 @@
 #              like a video recorder. This is the backend for the GUI
 #              defined in console.xwt
 #
-# Copyright (C) 2002-2003 Micah Dowty and David Trowbridge
+# Copyright (C) 2002-2004 Micah Dowty and David Trowbridge
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License

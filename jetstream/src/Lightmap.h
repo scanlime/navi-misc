@@ -6,7 +6,7 @@
  *        http://www.cs.bris.ac.uk/Tools/Reports/Ps/1994-reinhard.pdf
  *        http://www.cs.utah.edu/~schmelze/radiosity/proj/proj.html
  *
- * Copyright (C) 2002-2003 Micah Dowty and David Trowbridge
+ * Copyright (C) 2002-2004 Micah Dowty and David Trowbridge
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
