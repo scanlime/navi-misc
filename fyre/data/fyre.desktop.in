@@ -1,0 +1,18 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Fyre
+Exec=fyre
+Terminal=false
+Type=Application
+Categories=Application;Graphics;2DGraphics;
+Icon=@DATADIR@fyre-48x48.png
+Actions=png;fa;
+MimeType=application/x-fyre-animation;image/png;
+
+[Desktop Action png]
+MimeType=image/png;
+Exec=fyre -i %f
+
+[Desktop Action fa]
+MimeType=application/x-fyre-animation;
+Exec=fyre -n %f
