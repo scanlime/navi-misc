@@ -1,4 +1,4 @@
-OBJS = uart_driver.rel usb_driver.rel util.rel
+OBJS = uart_driver.rel usb_driver.rel i2c_driver.rel util.rel
 CC = sdcc
 CFLAGS = -I ../include
 

@@ -1,7 +1,8 @@
 /*
- * uart_driver.h - A driver for the TUSB's UART, compatible with
- *                 SDCC's stdio implementation.
+ * i2c_driver.h - A relatively high level C interface to the TUSB3210/3410
+ *                I2C master interface.
  *
+ * Universal Controller Emulator project
  * Copyright (C) 2004 Micah Dowty
  *
  * This program is free software; you can redistribute it and/or
@@ -20,12 +21,14 @@
  *
  */
 
-#ifndef _H_UART_DRIVER
-#define _H_UART_DRIVER
+#ifndef _H_I2C_DRIVER
+#define _H_I2C_DRIVER
 
-void uart_init();
-void putchar(char c);
+void           i2c_write_byte (unsigned char b, bit is_last);
+unsigned char  i2c_read_byte  (bit is_last);
+void           i2c_start      (unsigned char addr);
+int            i2c_status     (void);
 
-#endif /* _H_UART_DRIVER */
+#endif /* _H_I2C_DRIVER */
 
 /* The End */
