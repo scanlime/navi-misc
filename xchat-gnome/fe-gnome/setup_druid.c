@@ -19,6 +19,7 @@
  *
  */
 
+#include <gconf/gconf-client.h>
 #include "setup_druid.h"
 #include "gui.h"
 #include "../common/servlist.h"
@@ -121,10 +122,24 @@ void setup_druid_finish_prepare(GnomeDruidPage *p, GtkWidget *w, gpointer d) {
 
 void setup_druid_finish(GnomeDruidPage *p, GtkWidget *w, gpointer d) {
 	GtkWidget *druid_window;
+	GtkWidget *nick, *real;
+	char *nicktext, *realtext;
+	GConfClient *client;
 
 	druid_window = glade_xml_get_widget(gui.xml, "setup druid window");
 	gtk_widget_hide_all(druid_window);
 	druid_finished = TRUE;
+
+	nick = glade_xml_get_widget(gui.xml, "setup druid nickname");
+	real = glade_xml_get_widget(gui.xml, "setup druid realname");
+	nicktext = gtk_entry_get_text(GTK_ENTRY(nick));
+	realtext = gtk_entry_get_text(GTK_ENTRY(real));
+
+	client = gconf_client_get_default();
+	gconf_client_set_string(client, "/apps/xchat/irc/nickname", nicktext, NULL);
+	gconf_client_set_string(client, "/apps/xchat/irc/realname", realtext, NULL);
+
+	gconf_client_set_string(client, "/apps/xchat/version", "0.1", NULL);
 }
 
 void setup_druid_nickname_changed(GtkEditable *entry, gpointer d) {

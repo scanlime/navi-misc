@@ -27,5 +27,10 @@ gboolean preferences_exist() {
 
 	client = gconf_client_get_default();
 
-	return gconf_client_dir_exists(client, "/apps/xchat", NULL);
+	if(gconf_client_get_string(client, "/apps/xchat/version", NULL) == NULL)
+		return FALSE;
+	
+	/* probably eventually do some checking on the version to migrate from
+	   previous versions when new features are added */
+	return TRUE;
 }
