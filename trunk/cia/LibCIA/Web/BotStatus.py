@@ -308,7 +308,7 @@ class NewBotsSection(Template.Section):
 class IRCBotPage(Template.Page):
     """A web page showing the status of the BotNetwork"""
     mainTitle = "IRC Bot Status"
-    subTitle = "what's that blue thing doing there?"
+    subTitle = "When you give a mouse a cookie, everything looks like a nail"
 
     def __init__(self, botNet):
         self.botNet = botNet
