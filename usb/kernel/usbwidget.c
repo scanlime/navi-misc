@@ -107,6 +107,9 @@ static ssize_t usb_widget_dev_write (struct file *file, const char *buffer, size
 			return -EFAULT;
 		dbg("Sending %d bytes", transfer_size);
 
+		/* Clear out old cruft from the URB */
+		usb_unlink_urb(&widget->write_urb);
+
 		/* Initialize a write URB with our data to send */
 		write_pipe = usb_sndintpipe(widget->usbdev, widget->endpoint->bEndpointAddress);
 		usb_fill_int_urb(&widget->write_urb, widget->usbdev, write_pipe, widget->write_data, transfer_size,
