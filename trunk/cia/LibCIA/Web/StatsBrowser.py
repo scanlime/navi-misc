@@ -151,6 +151,28 @@ class TargetCounterColumn(Nouvelle.Column):
         return context['table'].reduceColumn(self, max) > 0
 
 
+class TargetLastEventColumn(Nouvelle.Column):
+    """A Column displaying the amount of time since the last message was delivered to each target"""
+    heading = "last event"
+
+    def getValue(self, target):
+        """Returns the number of seconds since the last event"""
+        lastTime = target.counters.getCounter('forever').get('lastEventTime')
+        if lastTime:
+            return time.time() - lastTime
+
+    def isVisible(self, context):
+        # Hide this column if none of the targets have had any messages
+        return context['table'].reduceColumn(TargetCounterColumn(None, 'forever'), max) > 0
+
+    def render_data(self, context, target):
+        value = self.getValue(target)
+        if value is None:
+            return ''
+        else:
+            return "%s ago" % TimeUtil.formatDuration(self.getValue(target))
+
+
 class TargetBargraphColumn(TargetCounterColumn):
     """A Column that renders a counter value as a logarithmic bar chart"""
     def render_data(self, context, target):
@@ -197,6 +219,7 @@ class Catalog(Template.Section):
             TargetBargraphColumn('events yesterday', 'yesterday'),
             TargetBargraphColumn('total events', 'forever'),
             TargetPercentColumn('% total', 'forever'),
+            TargetLastEventColumn(),
             ])]
 
 
