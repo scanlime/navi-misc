@@ -4,6 +4,8 @@
 * make the connect dialog check existing open networks before creating a new connection
 * list accelerators in the context menus
 * flesh out the userlist context menu
+* replace the topic entry with a text view similar to the text entry
+* use per-session buffers for topic & text entry
 
 autotools:
 * slurp the gtkspell check from gaim's configure.in
