@@ -17,6 +17,28 @@ on input 2, your local_conf.py might read:
   plugin.activate('uvswitch.input', args=(1, 'VCR', 'vcr'))
   plugin.activate('uvswitch.input', args=(2, 'Super Nintendo', 'snes'))
 
+For advanced uses, arbitrary code can be hooked up to the input
+channels. A python object with any of several optional methods
+can be given in the config file. For example:
+
+  class InputHooks:
+
+      def start(self):
+          # This is called when the input's menu item is selected.
+          # Nothing else happens until this function returns.
+
+      def stop(self):
+          # This is called when the user opts to return to the main
+          # menu and stop using the input source.
+
+      def eventhandler(self, event, menuw=None):
+          # Handle any events received while the input is active.
+          # If this returns True, the event is absorbed before it
+          # reaches our default handler, if any.
+
+  plugin.activate('uvswitch.input', args=( 5, 'Nintendo Gamecube', 'gamecube', InputHooks() ))
+
+
 Copyright (C) 2004 Micah Dowty <micah@navi.cx>
 """
 
@@ -129,13 +151,14 @@ class detector(plugin.DaemonPlugin):
 
 
 class input(plugin.MainMenuPlugin):
-    def __init__(self, channel, name, skin_type=None):
+    def __init__(self, channel, name, skin_type=None, hooks=None):
         plugin.MainMenuPlugin.__init__(self)
         self.active = False
 
         self.channel = channel
         self.name = name
         self.skin_type = skin_type
+        self.hooks = hooks
 
     def eventhandler(self, event=None, menuw=None, arg=None):
         if plugin.isevent(event) == 'UVSWITCH':
@@ -188,15 +211,24 @@ class VideoInputItem(item.Item):
         self.switch = getVideoSwitch()
         self.channel = inputPlugin.channel
         self.name = inputPlugin.name
+        self.hooks = inputPlugin.hooks
         self.menuw = None
 
     def actions(self):
         return [ (self.select, "Select video input") ]
 
+    def callHook(self, name, *args, **kwargs):
+        """Call an optional hook function supplied by the user
+           when setting up this input channel.
+           """
+        if self.hooks and hasattr(self.hooks, name):
+            return getattr(self.hooks, name)(*args, **kwargs)
+
     def select(self, arg=None, menuw=None):
         """Make this channel active on the uvswitch, and make us
            the current event handler.
            """
+        self.callHook('start')
         self.switch.setChannel(self.channel, False)
         self.switch.setAudioBalance(0.5)
         menuw.hide()
@@ -204,6 +236,9 @@ class VideoInputItem(item.Item):
         rc.app(self)
 
     def eventhandler(self, event, menuw=None):
+        if self.callHook('eventhandler', event, menuw):
+            return
+
         if event == "MENU_BACK_ONE_MENU":
             self.unselect()
         elif event == "MENU_UP":
@@ -212,6 +247,7 @@ class VideoInputItem(item.Item):
             self.switch.stepAudioBalance(-0.02)
 
     def unselect(self):
+        self.callHook('stop')
         rc.app(None)
         self.menuw.show()
         self.switch.setAudioBalance(0)
