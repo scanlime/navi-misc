@@ -69,6 +69,7 @@ gboolean on_resize(GtkWidget *widget, GdkEventConfigure *event, gpointer data);
 
 void initialize_main_window() {
 	GtkWidget *entry;
+	GtkEntryCompletion *completion;
 
 	gui.main_window = GNOME_APP(glade_xml_get_widget(gui.xml, "xchat-gnome"));
 	g_signal_connect(G_OBJECT(gui.main_window), "delete-event", G_CALLBACK(on_main_window_close), NULL);
@@ -102,6 +103,9 @@ void initialize_main_window() {
 
 	entry = glade_xml_get_widget(gui.xml, "text entry");
 	g_signal_connect(G_OBJECT(entry), "activate", G_CALLBACK(on_text_entry_activate), NULL);
+	completion = gtk_entry_completion_new();
+	gtk_entry_completion_set_text_column(completion, 1);
+	gtk_entry_set_completion(GTK_ENTRY(entry), completion);
 
 #ifdef HAVE_GTKSPELL
 #if 0
