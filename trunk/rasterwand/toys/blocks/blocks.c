@@ -16,7 +16,7 @@
 int main(int argc, char **argv)
 {
   int wand;
-  char blocks[10][80];
+  char blocks[9][80];
   int i, j;
 
   int bs;
@@ -103,9 +103,9 @@ int main(int argc, char **argv)
     }
   }
   
-  for(i=0;;i++)
+  for(i=0;i<81;i++)
   {
-    write(wand,blocks[i%9],i%80);
+    write(wand,blocks[i%9],i);
     sleep(1);
   }
   close(wand);
