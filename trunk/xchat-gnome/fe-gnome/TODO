@@ -11,9 +11,7 @@
 * find a writer to rewrite all the horribly-worded explainations of things!
 
 context menus:
-* list accelerators in the context menus
 * flesh out the userlist context menu
-* switch context menus to use the gnome-popup-menu stuff
 * make the context menu for navtree stuff actually dependent on context - see above note
   about leave/close stuff
 
