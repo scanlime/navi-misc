@@ -100,13 +100,18 @@ static void set_sample_color(ColorButton *cb, GdkColor *c) {
   gtk_rc_style_unref(rc_style);
 }
 
-GtkWidget* color_button_new(const char *title, GdkColor *default_color, guint16 default_alpha) {
+GtkWidget* color_button_new_with_defaults(const char *title, GdkColor *default_color, guint16 default_alpha) {
   ColorButton *cb = g_object_new(color_button_get_type(), NULL);
   cb->title = g_strdup(title);
   cb->color = *default_color;
   cb->alpha = default_alpha;
   set_sample_color(cb, default_color);
   return GTK_WIDGET(cb);
+}
+
+GtkWidget* color_button_new(const char *title) {
+  GdkColor black = {0,0,0,0};
+  return color_button_new_with_defaults(title, &black, 0xFFFF);
 }
 
 static void color_button_activate(GtkWidget *widget, ColorButton *cb) {
