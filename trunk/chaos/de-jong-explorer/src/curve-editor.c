@@ -153,7 +153,7 @@ curve_editor_interpolate (CurveEditor *c, gint width, gint height)
 
   vector = g_malloc (width * sizeof (vector[0]));
 
-  spline_solve_and_eval_range(active, width, vector, 0, 1);
+  spline_solve_and_eval_all(active, width, vector);
   g_free(active);
 
   c->height = height;

@@ -52,8 +52,13 @@ static void cell_renderer_transition_render        (GtkCellRenderer          *ce
 						    GdkRectangle             *expose_area,
 						    GtkCellRendererState      flags);
 
-static PangoLayout* get_text_layout (CellRendererTransition *self,
-				     GtkWidget              *widget);
+static PangoLayout* cell_renderer_transition_get_text_layout (CellRendererTransition *self,
+							      GtkWidget              *widget);
+
+static void cell_renderer_transition_render_spline (CellRendererTransition   *self,
+						    GdkWindow                *window,
+						    GtkWidget                *widget,
+						    GdkRectangle             *area);
 
 enum {
   PROP_0,
@@ -128,7 +133,8 @@ static void cell_renderer_transition_class_init(CellRendererTransitionClass *kla
 }
 
 static void cell_renderer_transition_init(CellRendererTransition *self) {
-  /* Nothing we need to do here yet */
+  /* Set a default spline */
+  self->spline = spline_copy(&spline_template_linear);
 }
 
 GtkCellRenderer* cell_renderer_transition_new() {
@@ -143,6 +149,12 @@ static void cell_renderer_transition_finalize(GObject *object) {
     self->spline = NULL;
   }
 }
+
+
+
+/************************************************************************************/
+/*********************************************************************** Properties */
+/************************************************************************************/
 
 static void cell_renderer_transition_get_property(GObject    *object,
 						  guint       prop_id,
@@ -199,6 +211,11 @@ static void cell_renderer_transition_set_property(GObject       *object,
   }
 }
 
+
+/************************************************************************************/
+/********************************************************** GtkCellRenderer Methods */
+/************************************************************************************/
+
 static void cell_renderer_transition_get_size(GtkCellRenderer  *cell,
 					      GtkWidget        *widget,
 					      GdkRectangle     *cell_area,
@@ -207,7 +224,7 @@ static void cell_renderer_transition_get_size(GtkCellRenderer  *cell,
 					      gint             *width,
 					      gint             *height) {
   CellRendererTransition *self = CELL_RENDERER_TRANSITION(cell);
-  PangoLayout *layout = get_text_layout(self, widget);
+  PangoLayout *layout = cell_renderer_transition_get_text_layout(self, widget);
   PangoRectangle text_rect;
 
   pango_layout_get_pixel_extents(layout, NULL, &text_rect);
@@ -228,9 +245,10 @@ static void cell_renderer_transition_render(GtkCellRenderer      *cell,
 					    GdkRectangle         *expose_area,
 					    GtkCellRendererState  flags) {
   CellRendererTransition *self = CELL_RENDERER_TRANSITION(cell);
-  PangoLayout *layout = get_text_layout(self, widget);
+  PangoLayout *layout = cell_renderer_transition_get_text_layout(self, widget);
   GtkStateType state;
   PangoRectangle text_rect;
+  GdkRectangle spline_rect;
 
   /* Determine the correct state to render our text in, based on
    * the cell's selectedness and the widget's current state.
@@ -251,21 +269,21 @@ static void cell_renderer_transition_render(GtkCellRenderer      *cell,
 
   pango_layout_get_pixel_extents(layout, NULL, &text_rect);
 
-  gtk_paint_layout(widget->style,
-		   window,
-		   state,
-		   TRUE,
-		   cell_area,
-		   widget,
-		   "cellrenderertransition",
-		   cell_area->x + cell->xpad,
-		   cell_area->y + cell->ypad,
-		   layout);
+  gtk_paint_layout(widget->style, window, state, TRUE, cell_area, widget,
+		   "cellrenderertransition", cell_area->x + cell->xpad,
+		   cell_area->y + cell->ypad, layout);
+
+  cell_renderer_transition_render_spline(self, window, widget, &spline_rect);
 
   g_object_unref(layout);
 }
 
-static PangoLayout* get_text_layout (CellRendererTransition *self,
+
+/************************************************************************************/
+/***************************************************************** Internal Methods */
+/************************************************************************************/
+
+static PangoLayout* cell_renderer_transition_get_text_layout (CellRendererTransition *self,
 				     GtkWidget              *widget) {
   /* Create and return a PangoLayout with the cell's text
    */
@@ -280,6 +298,14 @@ static PangoLayout* get_text_layout (CellRendererTransition *self,
   pango_layout_set_width (layout, -1);
 
   return layout;
+}
+
+static void cell_renderer_transition_render_spline (CellRendererTransition  *self,
+						    GdkWindow               *window,
+						    GtkWidget               *widget,
+						    GdkRectangle            *area) {
+
+  
 }
 
 

@@ -57,7 +57,7 @@ GType spline_get_type(void) {
   return spline_type;
 }
 
-Spline* spline_copy(Spline *spline) {
+Spline* spline_copy(const Spline *spline) {
   Spline *n = g_malloc(sizeof(Spline));
   n->num_points = spline->num_points;
   n->points = g_malloc(spline->num_points * sizeof(SplineControlPoint));
@@ -198,8 +198,8 @@ Spline* spline_find_active_points(Spline *spline) {
       active->points[0][0] = 0;
       active->points[0][1] = ry;
 
-      active->points[0][0] = 1;
-      active->points[0][1] = ry;
+      active->points[1][0] = 1;
+      active->points[1][1] = ry;
     }
 
   else
@@ -245,6 +245,13 @@ void spline_solve_and_eval_range(Spline *spline,
     }
 
   g_free (y2v);
+}
+
+void    spline_solve_and_eval_all(Spline *spline,
+				  int     veclen,
+				  gfloat  vector[])
+{
+  spline_solve_and_eval_range(spline, veclen, vector, 0, 1);
 }
 
 /* The End */

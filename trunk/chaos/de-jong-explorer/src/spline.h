@@ -50,7 +50,7 @@ extern const Spline spline_template_smooth;
 
 
 GType    spline_get_type(void);
-Spline*  spline_copy(Spline *spline);
+Spline*  spline_copy(const Spline *spline);
 void     spline_free(Spline *spline);
 
 guchar* spline_serialize(Spline *spline, gsize *size);
@@ -69,6 +69,10 @@ void    spline_solve_and_eval_range(Spline *spline,
 				    gfloat  vector[],
 				    float   lower,
 				    float   upper);
+
+void    spline_solve_and_eval_all(Spline *spline,
+				  int     veclen,
+				  gfloat  vector[]);
 
 void    spline_solve(Spline *spline, gfloat y2[]);
 gfloat  spline_eval(Spline *spline, gfloat y2[], gfloat val);
