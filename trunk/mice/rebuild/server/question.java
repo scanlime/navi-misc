@@ -53,7 +53,7 @@ public class question
 	 */
 	public question duplicate()
 	{
-		question dupe = newquestion(name,text);
+		question dupe = new question(name,text);
 		dupe.answer = answer;
 		dupe.answeredby = answeredby;
 		return dupe;
