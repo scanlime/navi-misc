@@ -1,10 +1,383 @@
-Index: src/common/userlist.h
+? .xchat.h.swp
+? Makefile.in
+Index: cfgfiles.h
+===================================================================
+RCS file: /cvsroot/xchat/xchat2/src/common/cfgfiles.h,v
+retrieving revision 1.5
+diff -u -r1.5 cfgfiles.h
+--- cfgfiles.h	3 Dec 2003 15:46:31 -0000	1.5
++++ cfgfiles.h	30 Jan 2004 07:39:05 -0000
+@@ -1,5 +1,8 @@
+ /* cfgfiles.h */
+ 
++#ifndef XCHAT_CFGFILES_H
++#define XCHAT_CFGFILES_H
++
+ extern char *xdir_fs;
+ extern char *xdir_utf;
+ 
+@@ -41,3 +44,5 @@
+ #define TYPE_STR 0
+ #define TYPE_INT 1
+ #define TYPE_BOOL 2
++
++#endif
+Index: ctcp.h
+===================================================================
+RCS file: /cvsroot/xchat/xchat2/src/common/ctcp.h,v
+retrieving revision 1.2
+diff -u -r1.2 ctcp.h
+--- ctcp.h	10 Jul 2003 10:17:26 -0000	1.2
++++ ctcp.h	30 Jan 2004 07:39:05 -0000
+@@ -1 +1,6 @@
++#ifndef XCHAT_CTCP_H
++#define XCHAT_CTCP_H
++
+ void ctcp_handle (session *sess, char *to, char *nick, char *msg, char *word[], char *word_eol[]);
++
++#endif
+Index: dcc.h
+===================================================================
+RCS file: /cvsroot/xchat/xchat2/src/common/dcc.h,v
+retrieving revision 1.10
+diff -u -r1.10 dcc.h
+--- dcc.h	18 Nov 2003 08:58:10 -0000	1.10
++++ dcc.h	30 Jan 2004 07:39:05 -0000
+@@ -2,6 +2,9 @@
+ 
+ #include <time.h>						/* for time_t */
+ 
++#ifndef XCHAT_DCC_H
++#define XCHAT_DCC_H
++
+ #define STAT_QUEUED 0
+ #define STAT_ACTIVE 1
+ #define STAT_FAILED 2
+@@ -85,3 +88,5 @@
+ void open_dcc_recv_window (void);
+ void open_dcc_send_window (void);
+ void open_dcc_chat_window (void);
++
++#endif
+Index: fe.h
+===================================================================
+RCS file: /cvsroot/xchat/xchat2/src/common/fe.h,v
+retrieving revision 1.17
+diff -u -r1.17 fe.h
+--- fe.h	6 Jan 2004 07:02:10 -0000	1.17
++++ fe.h	30 Jan 2004 07:39:05 -0000
+@@ -1,6 +1,9 @@
+ #include "userlist.h"
+ #include "dcc.h"
+ 
++#ifndef XCHAT_FE_H
++#define XCHAT_FE_H
++
+ int fe_args (int argc, char *argv[]);
+ void fe_init (void);
+ void fe_main (void);
+@@ -72,3 +75,5 @@
+ void fe_get_str (char *prompt, char *def, void *callback, void *ud);
+ void fe_get_int (char *prompt, int def, void *callback, void *ud);
+ void fe_ctrl_gui (session *sess, int action, int arg);
++
++#endif
+Index: history.h
+===================================================================
+RCS file: /cvsroot/xchat/xchat2/src/common/history.h,v
+retrieving revision 1.2
+diff -u -r1.2 history.h
+--- history.h	4 Oct 2003 10:14:36 -0000	1.2
++++ history.h	30 Jan 2004 07:39:05 -0000
+@@ -1,3 +1,6 @@
++#ifndef XCHAT_HISTORY_H
++#define XCHAT_HISTORY_H
++
+ #define HISTORY_SIZE 100
+ 
+ struct history
+@@ -11,3 +14,5 @@
+ void history_free (struct history *his);
+ char *history_up (struct history *his, char *current_text);
+ char *history_down (struct history *his);
++
++#endif
+Index: ignore.h
+===================================================================
+RCS file: /cvsroot/xchat/xchat2/src/common/ignore.h,v
+retrieving revision 1.4
+diff -u -r1.4 ignore.h
+--- ignore.h	5 Sep 2003 11:39:47 -0000	1.4
++++ ignore.h	30 Jan 2004 07:39:05 -0000
+@@ -1,3 +1,6 @@
++#ifndef XCHAT_IGNORE_H
++#define XCHAT_IGNORE_H
++
+ extern GSList *ignore_list;
+ 
+ extern int ignored_ctcp;
+@@ -31,3 +34,5 @@
+ void ignore_gui_open (void);
+ void ignore_gui_update (int level);
+ int flood_check (char *nick, char *ip, server *serv, session *sess, int what);
++
++#endif
+Index: inbound.h
+===================================================================
+RCS file: /cvsroot/xchat/xchat2/src/common/inbound.h,v
+retrieving revision 1.3
+diff -u -r1.3 inbound.h
+--- inbound.h	10 Jul 2003 10:17:26 -0000	1.3
++++ inbound.h	30 Jan 2004 07:39:05 -0000
+@@ -1,3 +1,6 @@
++#ifndef XCHAT_INBOUND_H
++#define XCHAT_INBOUND_H
++
+ void inbound_next_nick (session *sess, char *nick);
+ void inbound_uback (server *serv);
+ void inbound_uaway (server *serv);
+@@ -30,3 +33,5 @@
+ void inbound_newnick (server *serv, char *nick, char *newnick, int quiet);
+ void set_server_name (server *serv, char *name);
+ void do_dns (session *sess, char *nick, char *host);
++
++#endif
+Index: modes.h
+===================================================================
+RCS file: /cvsroot/xchat/xchat2/src/common/modes.h,v
+retrieving revision 1.2
+diff -u -r1.2 modes.h
+--- modes.h	15 Mar 2003 09:52:37 -0000	1.2
++++ modes.h	30 Jan 2004 07:39:05 -0000
+@@ -1,3 +1,6 @@
++#ifndef XCHAT_MODES_H
++#define XCHAT_MODES_H
++
+ int is_channel (server *serv, char *chan);
+ char get_nick_prefix (server *serv, unsigned int access);
+ unsigned int nick_access (server *serv, char *nick, int *modechars);
+@@ -5,3 +8,5 @@
+ void inbound_005 (server *serv, char *word[]);
+ void handle_mode (server *serv, char *word[], char *word_eol[], char *nick, int numeric_324);
+ void send_channel_modes (session *sess, char *tbuf, char *word[], int start, int end, char sign, char mode);
++
++#endif
+Index: network.h
+===================================================================
+RCS file: /cvsroot/xchat/xchat2/src/common/network.h,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 network.h
+--- network.h	28 Nov 2002 10:40:22 -0000	1.1.1.1
++++ network.h	30 Jan 2004 07:39:05 -0000
+@@ -1,3 +1,6 @@
++#ifndef XCHAT_NETWORK_H
++#define XCHAT_NETWORK_H
++
+ typedef struct netstore_
+ {
+ #ifdef NETWORK_PRIVATE
+@@ -21,3 +24,5 @@
+ void net_bind (netstore *tobindto, int sok4, int sok6);
+ char *net_ip (unsigned long addr);
+ void net_sockets (int *sok4, int *sok6);
++
++#endif
+Index: notify.h
+===================================================================
+RCS file: /cvsroot/xchat/xchat2/src/common/notify.h,v
+retrieving revision 1.3
+diff -u -r1.3 notify.h
+--- notify.h	14 Jan 2004 12:03:57 -0000	1.3
++++ notify.h	30 Jan 2004 07:39:05 -0000
+@@ -1,3 +1,6 @@
++#ifndef XCHAT_NOTIFY_H
++#define XCHAT_NOTIFY_H
++
+ struct notify
+ {
+ 	char *name;
+@@ -34,3 +37,5 @@
+ /* the old ISON stuff - remove me? */
+ void notify_markonline (server *serv, char *word[]);
+ int notify_checklist (void);
++
++#endif
+Index: outbound.h
+===================================================================
+RCS file: /cvsroot/xchat/xchat2/src/common/outbound.h,v
+retrieving revision 1.4
+diff -u -r1.4 outbound.h
+--- outbound.h	25 Mar 2003 11:38:06 -0000	1.4
++++ outbound.h	30 Jan 2004 07:39:05 -0000
+@@ -1,3 +1,6 @@
++#ifndef XCHAT_OUTBOUND_H
++#define XCHAT_OUTBOUND_H
++
+ extern const struct commands xc_cmds[];
+ 
+ int load_trans_table (char *full_path);
+@@ -11,3 +14,5 @@
+ void notc_msg (session *sess);
+ void server_sendpart (server * serv, char *channel, char *reason);
+ void server_sendquit (session * sess);
++
++#endif
+Index: plugin-timer.h
+===================================================================
+RCS file: /cvsroot/xchat/xchat2/src/common/plugin-timer.h,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 plugin-timer.h
+--- plugin-timer.h	28 Nov 2002 10:40:22 -0000	1.1.1.1
++++ plugin-timer.h	30 Jan 2004 07:39:05 -0000
+@@ -1,2 +1,7 @@
++#ifndef XCHAT_PLUGIN_TIMER_H
++#define XCHAT_PLUGIN_TIMER_H
++
+ int timer_plugin_init (xchat_plugin *plugin_handle, char **plugin_name,
+ 				char **plugin_desc, char **plugin_version, char *arg);
++
++#endif
+Index: plugin.h
+===================================================================
+RCS file: /cvsroot/xchat/xchat2/src/common/plugin.h,v
+retrieving revision 1.10
+diff -u -r1.10 plugin.h
+--- plugin.h	14 Jan 2004 12:03:57 -0000	1.10
++++ plugin.h	30 Jan 2004 07:39:05 -0000
+@@ -1,3 +1,6 @@
++#ifndef XCHAT_COMMONPLUGIN_H
++#define XCHAT_COMMONPLUGIN_H
++
+ #ifdef PLUGIN_C
+ struct _xchat_plugin
+ {
+@@ -109,3 +112,5 @@
+ int plugin_emit_print (session *sess, char *word[]);
+ int plugin_emit_dummy_print (session *sess, char *name);
+ int plugin_show_help (session *sess, char *cmd);
++
++#endif
+Index: proto-irc.h
+===================================================================
+RCS file: /cvsroot/xchat/xchat2/src/common/proto-irc.h,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 proto-irc.h
+--- proto-irc.h	28 Nov 2002 10:40:22 -0000	1.1.1.1
++++ proto-irc.h	30 Jan 2004 07:39:05 -0000
+@@ -1 +1,6 @@
++#ifndef XCHAT_PROTO_H
++#define XCHAT_PROTO_H
++
+ void proto_fill_her_up (server *serv);
++
++#endif
+Index: server.h
+===================================================================
+RCS file: /cvsroot/xchat/xchat2/src/common/server.h,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 server.h
+--- server.h	28 Nov 2002 10:40:22 -0000	1.1.1.1
++++ server.h	30 Jan 2004 07:39:05 -0000
+@@ -1,3 +1,5 @@
++#ifndef XCHAT_SERVER_H
++#define XCHAT_SERVER_H
+ 
+ /* eventually need to keep the tcp_* functions isolated to server.c */
+ int tcp_send_len (server *serv, char *buf, int len);
+@@ -5,3 +7,5 @@
+ void tcp_sendf (server *serv, char *fmt, ...);
+ 
+ void server_fill_her_up (server *serv);
++
++#endif
+Index: servlist.h
+===================================================================
+RCS file: /cvsroot/xchat/xchat2/src/common/servlist.h,v
+retrieving revision 1.7
+diff -u -r1.7 servlist.h
+--- servlist.h	29 Jan 2003 13:20:48 -0000	1.7
++++ servlist.h	30 Jan 2004 07:39:05 -0000
+@@ -1,3 +1,6 @@
++#ifndef XCHAT_SERVLIST_H
++#define XCHAT_SERVLIST_H
++
+ typedef struct ircserver
+ {
+ 	char *hostname;
+@@ -45,3 +48,5 @@
+ void servlist_server_remove (ircnet *net, ircserver *serv);
+ ircserver *servlist_server_add (ircnet *net, char *name);
+ ircserver *servlist_server_find (ircnet *net, char *name, int *pos);
++
++#endif
+Index: text.h
+===================================================================
+RCS file: /cvsroot/xchat/xchat2/src/common/text.h,v
+retrieving revision 1.6
+diff -u -r1.6 text.h
+--- text.h	20 Feb 2003 07:01:44 -0000	1.6
++++ text.h	30 Jan 2004 07:39:05 -0000
+@@ -1,5 +1,8 @@
+ #include "textenums.h"
+ 
++#ifndef XCHAT_TEXT_H
++#define XCHAT_TEXT_H
++
+ #define EMIT_SIGNAL(i, sess, a, b, c, d, e) text_emit(i, sess, a, b, c, d)
+ #define WORD_URL     1
+ #define WORD_NICK    2
+@@ -31,3 +34,5 @@
+ int text_emit_by_name (char *name, session *sess, char *a, char *b, char *c, char *d);
+ char *text_validate (char **text, int *len);
+ int get_stamp_str (char *fmt, time_t tim, char **ret);
++
++#endif
+Index: tree.h
+===================================================================
+RCS file: /cvsroot/xchat/xchat2/src/common/tree.h,v
+retrieving revision 1.1
+diff -u -r1.1 tree.h
+--- tree.h	18 Apr 2003 15:46:43 -0000	1.1
++++ tree.h	30 Jan 2004 07:39:05 -0000
+@@ -1,3 +1,6 @@
++#ifndef XCHAT_TREE_H
++#define XCHAT_TREE_H
++
+ typedef struct _tree tree;
+ 
+ typedef int (tree_cmp_func) (const void *keya, const void *keyb, void *data);
+@@ -9,3 +12,5 @@
+ int tree_remove (tree *t, void *key, int *pos);
+ void tree_foreach (tree *t, tree_traverse_func *func, void *data);
+ int tree_insert (tree *t, void *key);
++
++#endif
+Index: url.h
+===================================================================
+RCS file: /cvsroot/xchat/xchat2/src/common/url.h,v
+retrieving revision 1.2
+diff -u -r1.2 url.h
+--- url.h	18 Apr 2003 15:46:43 -0000	1.2
++++ url.h	30 Jan 2004 07:39:05 -0000
+@@ -1,6 +1,11 @@
++#ifndef XCHAT_URL_H
++#define XCHAT_URL_H
++
+ extern void *url_tree;
+ 
+ void url_clear (void);
+ void url_save (const char *fname, const char *mode);
+ void url_autosave (void);
+ void url_check (char *buf);
++
++#endif
+Index: userlist.h
 ===================================================================
 RCS file: /cvsroot/xchat/xchat2/src/common/userlist.h,v
 retrieving revision 1.8
 diff -u -r1.8 userlist.h
---- src/common/userlist.h	7 Jul 2003 10:51:18 -0000	1.8
-+++ src/common/userlist.h	29 Jan 2004 08:49:20 -0000
+--- userlist.h	7 Jul 2003 10:51:18 -0000	1.8
++++ userlist.h	30 Jan 2004 07:39:06 -0000
 @@ -1,5 +1,8 @@
  #include <time.h>
  
@@ -20,13 +393,36 @@ diff -u -r1.8 userlist.h
  void userlist_rehash (session *sess);
 +
 +#endif
-Index: src/common/xchat.h
+Index: util.h
+===================================================================
+RCS file: /cvsroot/xchat/xchat2/src/common/util.h,v
+retrieving revision 1.9
+diff -u -r1.9 util.h
+--- util.h	14 Jan 2004 12:03:57 -0000	1.9
++++ util.h	30 Jan 2004 07:39:06 -0000
+@@ -11,6 +11,9 @@
+  *        --+ Dagmar d'Surreal
+  */
+ 
++#ifndef XCHAT_UTIL_H
++#define XCHAT_UTIL_H
++
+ #define rfc_tolower(c) (rfc_tolowertab[(unsigned char)(c)])
+ 
+ extern const unsigned char rfc_tolowertab[];
+@@ -33,3 +36,5 @@
+ int waitline (int sok, char *buf, int bufsize);
+ unsigned long make_ping_time (void);
+ void download_move_to_completed_dir (char *dcc_dir, char *dcc_completed_dir, char *output_name, int dccpermissions);
++
++#endif
+Index: xchat.h
 ===================================================================
 RCS file: /cvsroot/xchat/xchat2/src/common/xchat.h,v
 retrieving revision 1.26
 diff -u -r1.26 xchat.h
---- src/common/xchat.h	14 Jan 2004 12:03:57 -0000	1.26
-+++ src/common/xchat.h	29 Jan 2004 08:49:22 -0000
+--- xchat.h	14 Jan 2004 12:03:57 -0000	1.26
++++ xchat.h	30 Jan 2004 07:39:06 -0000
 @@ -6,6 +6,9 @@
  #include <glib/gstrfuncs.h>
  #include <time.h>			/* need time_t */
@@ -41,5 +437,25 @@ diff -u -r1.26 xchat.h
  	char *cmd;
  	char *name;
  };
++
++#endif
+Index: xchatc.h
+===================================================================
+RCS file: /cvsroot/xchat/xchat2/src/common/xchatc.h,v
+retrieving revision 1.3
+diff -u -r1.3 xchatc.h
+--- xchatc.h	18 Jan 2004 11:05:59 -0000	1.3
++++ xchatc.h	30 Jan 2004 07:39:06 -0000
+@@ -1,3 +1,6 @@
++#ifndef XCHAT_C_H
++#define XCHAT_C_H
++
+ extern struct xchatprefs prefs;
+ 
+ extern int auto_connect;
+@@ -34,3 +37,5 @@
+ void kill_session_callback (session * killsess);
+ void xchat_exit (void);
+ void xchat_exec (char *cmd);
 +
 +#endif
