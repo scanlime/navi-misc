@@ -12,5 +12,5 @@ clean:
 
 test: mi6k.o
 	sync
-	rmmod mi6k || true
-	insmod mi6k.o
+	/sbin/rmmod mi6k || true
+	/sbin/insmod mi6k.o
