@@ -53,8 +53,6 @@ struct _IrcNetworkEditor
 	GtkWidget *autoconnect;
 	GtkWidget *use_ssl;
 	GtkWidget *cycle;
-	GtkWidget *autoreconnect;
-	GtkWidget *giveup_reconnect;
 
 	GtkWidget *password;
 	GtkWidget *encoding_hbox;
