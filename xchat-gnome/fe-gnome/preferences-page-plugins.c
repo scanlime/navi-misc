@@ -41,9 +41,10 @@ extern GSList *plugin_list; // xchat's list of loaded plugins.
 extern GSList *enabled_plugins;
 extern XChatGUI gui;
 
+static PreferencesPluginsPage *pageref;
 
 static void
-xchat_gnome_plugin_add (char *filename, PreferencesPluginsPage *page)
+fe_plugin_add (char *filename)
 {
 	GtkTreeIter iter;
 
@@ -54,7 +55,7 @@ xchat_gnome_plugin_add (char *filename, PreferencesPluginsPage *page)
 
 	handle = g_module_open (filename, 0);
 
-	gtk_list_store_append (page->plugin_store, &iter);
+	gtk_list_store_append (pageref->plugin_store, &iter);
 
 	/* FIXME: The problem with all of this is that it doesn't do any checking to make
 	 * sure the file is even a valid type. Should add some stuff to maybe check the
@@ -72,7 +73,7 @@ xchat_gnome_plugin_add (char *filename, PreferencesPluginsPage *page)
 		desc = _("unkown");
 	}
 
-	gtk_list_store_set (page->plugin_store, &iter, 0, name, 1, version, 2, desc, 3, filename, 5, handle, -1);
+	gtk_list_store_set (pageref->plugin_store, &iter, 0, name, 1, version, 2, desc, 3, filename, 5, handle, -1);
 }
 
 static gint
@@ -153,7 +154,8 @@ open_plugin_clicked (GtkButton *button, PreferencesPluginsPage *page)
 
 	if (response == GTK_RESPONSE_ACCEPT) {
 		filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (file_selector));
-		xchat_gnome_plugin_add (filename, page);
+		pageref = page;
+		fe_plugin_add (filename);
 	}
 	gtk_widget_destroy (file_selector);
 }
@@ -222,6 +224,9 @@ preferences_page_plugins_new (gpointer prefs_dialog, GladeXML *xml)
 	GSList *list;
 	xchat_plugin *plugin;
 
+	const gchar *homedir;
+	gchar *xchatdir;
+
 #define GW(name) ((page->name) = glade_xml_get_widget (xml, #name))
 	GW(plugins_list);
 	GW(plugins_open);
@@ -255,6 +260,19 @@ preferences_page_plugins_new (gpointer prefs_dialog, GladeXML *xml)
 	g_signal_connect (G_OBJECT (select),               "changed",       G_CALLBACK (selection_changed),     page);
 	g_signal_connect (G_OBJECT (page->plugins_list),   "row-activated", G_CALLBACK (row_activated),         page);
 
+	homedir = g_get_home_dir ();
+	xchatdir = g_strdup_printf ("%s/.xchat2/plugins", homedir);
+	pageref = page;
+	for_files (XCHATLIBDIR "/plugins", "*.so", fe_plugin_add);
+	for_files (XCHATLIBDIR "/plugins", "*.sl", fe_plugin_add);
+	for_files (XCHATLIBDIR "/plugins", "*.py", fe_plugin_add);
+	for_files (XCHATLIBDIR "/plugins", "*.pl", fe_plugin_add);
+	for_files (xchatdir, "*.so", fe_plugin_add);
+	for_files (xchatdir, "*.sl", fe_plugin_add);
+	for_files (xchatdir, "*.py", fe_plugin_add);
+	for_files (xchatdir, "*.pl", fe_plugin_add);
+	g_free (xchatdir);
+
 	/* Put our fun, happy plugins of joy into the great list store of pluginny goodness.
 	 * Starting with the list of plugins we keep and then the list of plugins loaded by
 	 * the xchat core in its infinite wisdom. While we do the loaded plugins we'll add
@@ -277,19 +295,4 @@ preferences_page_plugins_free (PreferencesPluginsPage *page)
 {
 	gdk_pixbuf_unref (page->icon);
 	g_free (page);
-}
-
-/*******************************************************************************
- * CRUFT BARRIER ***************************************************************
- *******************************************************************************/
-
-
-/* FIXME: As far as I can tell this function is getting called atleast 3 times at the
- * start of the application, which seems kinda dumb. That means that just at the start
- * of the application we fill and clear the list 3 times... I'm 99% sure this is coming
- * from fe-gnome.c
- */
-void
-preferences_plugins_page_update()
-{
 }
