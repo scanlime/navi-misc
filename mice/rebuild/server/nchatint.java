@@ -11,6 +11,8 @@ import java.io.*;
 
 public class nchatint extends nbase
 {
+	public ainterview view;
+
 	/**
 	 * This is an empty constructor for the initial initialization
 	 * @param gonnection The socket descriptor for the connection type stuff
@@ -21,9 +23,7 @@ public class nchatint extends nbase
 	 */
 	public nchatint(Socket gonnection, BufferedReader IN, OutputStreamWriter OUT)
 	{
-		link = gonnection;
-		in = IN;
-		out = OUT;
+		super(gonnection,IN,OUT);
 	}
 	
 	/**
@@ -33,5 +33,58 @@ public class nchatint extends nbase
 	 */
 	public void run()
 	{
+		if(!authenticate())
+		{
+			closeConnection();
+			return;
+		}
+		runloop();
+		closeConnection();
+	}
+	
+	private void runloop()
+	{
+		String cmd;
+		while(true)
+		{
+			cmd = read();
+			switch(cmd.charAt(0))
+			{
+			case 'a':
+				view.answer(read());
+				break;
+			case 'r':
+				view.reject();
+				break;
+			case 'g':
+				cmd = view.getQuestion();
+				if(cmd == null)
+				{
+					write("-ERR");
+					while(cmd == null)
+					{
+						try{
+							Thread.sleep(20000);
+						}
+						catch(InteruptedException e){}
+						cmd = view.getQuestion();
+					}
+				}
+				write(cmd);
+				break;
+			}
+		}
+	}
+	
+	private boolean authenticate()
+	{
+		String uname, pword, rname;
+		String mykey = key.keygen();
+		write(mykey);
+		uname = "AIM0" + read();
+		pword = key.decrypt(mykey,read());
+		rname = read();
+		view = new ainterview(rname);
+		return view.intinit(imain.database,uname,pword);
 	}
 }
