@@ -24,6 +24,7 @@ CPlayerObject::CPlayerObject()
 	rot[0] = rot[1] = rot[2] = 0;
 	vec[0] = vec[1] = vec[2] = 0;
 	updateTime = 0;
+	material = "RedkMK3";
 }
 
 CPlayerObject::~CPlayerObject()

@@ -70,6 +70,42 @@ void CTestGameServer::sendToAllBut ( CNetworkMessage &message, int player, bool 
 	}
 }
 
+void CTestGameServer::sendClientInfo ( int playerID )
+{
+	CNetworkMessage message;
+
+	std::map<int,trPlayerInfo>::iterator itr = users.find(playerID);
+	if (itr == users.end())
+		return;
+
+	message.SetType(_MESSAGE_CLIENT_INFO);
+	message.AddI(playerID);
+	message.AddStr(itr->second.name.c_str());
+	message.AddStr(itr->second.material.c_str());
+	message.AddV(itr->second.pos);
+	message.AddV(itr->second.rot);
+	message.AddV(itr->second.vec);
+
+	sendToAllBut(message,playerID,true);
+}
+
+void CTestGameServer::sendUpdate ( int playerID )
+{
+	CNetworkMessage message;
+
+	std::map<int,trPlayerInfo>::iterator itr = users.find(playerID);
+	if (itr == users.end())
+		return;
+
+	message.SetType(_MESSAGE_UPDATE);
+	message.AddI(playerID);
+	message.AddV(itr->second.pos);
+	message.AddV(itr->second.rot);
+	message.AddV(itr->second.vec);
+
+	sendToAllBut(message,playerID,false);
+}
+
 bool CTestGameServer::message ( int playerID, CNetworkPeer &peer, CNetworkMessage &message )
 {
 	std::map<int,trPlayerInfo>::iterator itr = users.find(playerID);
@@ -78,9 +114,7 @@ bool CTestGameServer::message ( int playerID, CNetworkPeer &peer, CNetworkMessag
 
 	// for now just do a simple message relay and add on the user ID
 
-	bool rellay = false;
 	bool spawn = false;
-	bool relyable = true;
 
 	switch (message.GetType())
 	{
@@ -90,11 +124,11 @@ bool CTestGameServer::message ( int playerID, CNetworkPeer &peer, CNetworkMessag
 
 		case _MESSAGE_CLIENT_INFO:	// CI 
 			logOut("receve _MESSAGE_CLIENT_INFO","CTestGameServer::message");
-			rellay = true;
 			spawn = true;
 			itr->second.player = true;
 			itr->second.name = message.ReadStr();
 			itr->second.material = message.ReadStr();
+			sendClientInfo(playerID);
 			break;
 
 		case _MESSAGE_USER_PART:		// UP
@@ -106,8 +140,6 @@ bool CTestGameServer::message ( int playerID, CNetworkPeer &peer, CNetworkMessag
 		case _MESSAGE_USER_ADD:	// UA
 		case _MESSAGE_KICK:			// KK
 			logOut("receve _MESSAGE_USER_ADD OR KICK","CTestGameServer::message");
-
-			rellay = false;
 			break;
 
 		// don't care about this one
@@ -119,8 +151,6 @@ bool CTestGameServer::message ( int playerID, CNetworkPeer &peer, CNetworkMessag
 			logOut("receve _MESSAGE_UPDATE","CTestGameServer::message");
 			if (itr->second.player)
 			{
-				rellay = true;
-				relyable = false;
 				message.ReadV(itr->second.pos);
 				message.ReadV(itr->second.rot);
 				message.ReadV(itr->second.vec);
@@ -128,31 +158,14 @@ bool CTestGameServer::message ( int playerID, CNetworkPeer &peer, CNetworkMessag
 				char temp[512];
 				sprintf(temp,"update from ID %d for %f %f %f",playerID,itr->second.pos[0],itr->second.pos[1],itr->second.pos[2]);
 				logOut(temp,"CTestGameServer::message");
-
+				
+				sendUpdate(playerID);
 			}
 			break;
 
 		default:
 			logOut("receve unknown message","CTestGameServer::message");
-
-			rellay = true;
 			break;
-	}
-
-	if (rellay)
-	{	
-		CNetworkMessage	newMessage;
-		newMessage.SetType(message.GetType());	// what ever the message type is
-		newMessage.AddI(playerID);
-
-		void* mem = malloc(message.GetSize());
-		message.GetDataMem(mem);
-		newMessage.AddN(message.GetSize(),mem);
-
-		logOut("relay message","CTestGameServer::message");
-
-		// send an add to everyone else
-		sendToAllBut(newMessage,playerID,relyable);
 	}
 
 	if (spawn)

@@ -90,7 +90,7 @@ void CTestGame::Attach ( void )
 	info.groundTextureRepeat = 60;
 
 	info.groundTexture = "ground_mat";
-	info.skybox = "malrav1sky";
+	info.skybox = "grassland_skybox";
 
 	world.Load(info,true);
 
@@ -101,6 +101,8 @@ void CTestGame::Attach ( void )
 	localPlayer->name = prefs.GetItemS("PlayerName");
 	if (prefs.ItemExists("PlayerSkin"))
 		localPlayer->material = prefs.GetItemS("PlayerSkin");
+	else
+		localPlayer->material = "RedkMK3";
 
 	camera = CDrawManager::instance().New("camera",this);
 }
@@ -153,9 +155,11 @@ bool CTestGame::Think ( void )
 		if (localPlayer && localPlayer->active)
 		{
 		// if we haven't done an update in a while then send
-			float updateTime = 1.0f/0.5f;
+			float updateTime = 1.0f/10.0f;
 
-			if (CTimer::instance().GetTime() - lastNetUpdateTime > updateTime)
+			bool still = false; //localPlayer->vec[0] == 0 && localPlayer->vec[1] == 0 && localPlayer->vec[2] ==0;
+
+			if (!still && CTimer::instance().GetTime() - lastNetUpdateTime > updateTime)
 			{
 				CNetworkMessage message;
 				message.SetType(_MESSAGE_UPDATE);
