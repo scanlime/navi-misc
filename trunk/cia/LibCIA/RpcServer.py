@@ -22,50 +22,68 @@ usual XML-RPC support with our own security and exception handling code.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from twisted.web import xmlrpc
+from twisted.web import xmlrpc, server
 from twisted.internet import defer
 from twisted.python import log
+import xmlrpclib
 
 
 class Interface(xmlrpc.XMLRPC):
     """A web resource representing a set of XML-RPC functions, optionally
        with other Interfaces attached as subhandlers.
+
+       This is based on Twisted's XMLRPC server class, but overrides most
+       of its functions :)
+
+       Improvements in this, as compared to twisted's default XMLRPC class:
+
+         - This makes the request object available to functions if they
+           want it, making it possible for them to read HTTP headers.
+
+         - This implements multiple function prefixes, each defining a
+           different interface that function operates under.
+
+         - A 'protected' function prefix requires a valid capability key
+           to use the function, helping to enforce our security policies.
+
+         - Less buggy (compared to Twisted 1.1.1) handling of
+           nested subhandlers
        """
-    _request = None
-
     def render(self, request):
-        """This is an ugly hack to make the request object available
-           to functions while they're executing without them really being
-           aware of it. This will break horribly if two functions are being
-           processed concurrently.
+        """This is a modified version of render() from XMLRPC that will
+           pass keyword arguments with extra state information if it can.
+           Currently this just consists of the current request.
            """
-        self._request = request
-        return xmlrpc.XMLRPC.render(self, request)
+        request.content.seek(0, 0)
+        args, functionPath = xmlrpclib.loads(request.content.read())
+        try:
+            function = self._getFunction(functionPath)
+        except xmlrpc.NoSuchFunction:
+            self._cbRender(
+                xmlrpc.Fault(self.NOT_FOUND, "no such function %s" % functionPath),
+                request
+            )
+        else:
+            request.setHeader("content-type", "text/xml")
 
-    def getRequest(self):
-        """Return the current Request instance being serviced, None if
-           we're not currently servicing a request.
-           """
-        return self._request
+            # Pass as many keyword args to the function as we can.
+            # Note that this currently doesn't work on protected functions.
+            kwargs = {}
+            try:
+                if 'request' in function.func_code.co_varnames:
+                    kwargs['request'] = request
+            except AttributeError:
+                pass
 
-    def getClientIP(self):
-        """Get the real IP address of our client. This is aware of proxies
-           that support the X-Forwarded-For HTTP header.
-           """
-        # First see if there's an X-Forwarded-For header
-        xff = self._request.getHeader('X-Forwarded-For')
-        if xff:
-            return xff.split(',', 1)[0].strip()
-
-        # Nope, use the IP address as our request is seeing it
-        return self._request.getClientIP()
+            defer.maybeDeferred(function, *args, **kwargs).addErrback(
+                self._ebRender
+            ).addCallback(
+                self._cbRender, request
+            )
+        return server.NOT_DONE_YET
 
     def _getFunction(self, fqname):
-        """Override the default _getFunction with our own that:
-           - fixes a bug in nested subhandlers which was present in Twisted until after version 1.1.1
-           - enforces our security policy
-
-           Functions named xmlrpc_* are found and returned as-is, without any capability testing.
+        """Functions named xmlrpc_* are found and returned as-is, without any capability testing.
 
            Functions named protected_* are called only if the first argument is verified to be
            a valid capability key. By default, the list of capabilities accepted for a function is

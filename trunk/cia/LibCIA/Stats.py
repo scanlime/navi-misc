@@ -148,14 +148,14 @@ class SubscriptionInterface(RpcServer.Interface):
        occur to a stats target. This provides multiple ways of subscribing,
        for compatibility with multiple existing standards.
        """
-    def xmlrpc_rss2(self, procedureName, clientPort, responderPath, protocol, urls):
+    def xmlrpc_rss2(self, procedureName, clientPort, responderPath, protocol, urls, request=None):
         """This is the flavor of subscription required for the RSS 2.0 <cloud>
            tag. The client IP should be determined from this request. 'urls'
            is a list of URLs the client is interested in monitoring- we have
            to convert those into stats targets.
            """
         log.msg("RSS 2.0 subscription request: %r from client at %r" %
-                ((procedureName, clientPort, responderPath, protocol, urls), self.getClientIP()))
+                ((procedureName, clientPort, responderPath, protocol, urls), request.getClientIP()))
 
 
 class StatsTarget:
