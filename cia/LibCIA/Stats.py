@@ -258,7 +258,7 @@ class CounterList(XML.XMLStorage):
     def flatten(self):
         return self.counters.values()
 
-    def getCounter(self, name):
+    def getCounter(self, name, create=True):
         """Get a counter with the given name. If 'create' is True, it
            will be created if necessary. If 'create' is False and the
            counter doesn't exist, None will be returned.
