@@ -22,9 +22,10 @@ Just a cute little page with informational doodads on it.
 #
 
 import Template, Server
-from LibCIA import TimeUtil, XML
+from LibCIA import TimeUtil, XML, Database, Units
 from Nouvelle import place, tag
-import LibCIA
+import LibCIA, Nouvelle
+from twisted.internet import defer
 import time, sys
 
 
@@ -94,6 +95,38 @@ class WebServer(Template.Section):
            ]
 
 
+class IndexedStorageColumn(Nouvelle.IndexedColumn):
+    """An IndexedColumn that renders its content as a
+       size, in bytes- rescaled into an appropriate unit
+       """
+    def render_data(self, context, row):
+        return Units.StorageUnits().format(self.getValue(row))
+
+
+class DbTables(Template.Section):
+    title = 'database tables'
+
+    columns = [
+        Nouvelle.IndexedColumn('name', 0),
+        IndexedStorageColumn('data size', 5),
+        IndexedStorageColumn('index size', 7),
+        Nouvelle.IndexedColumn('type', 1),
+        Nouvelle.IndexedColumn('approx. rows', 3),
+        ]
+
+    def render_rows(self, context):
+        # Fetch the results of a 'show table status' before we can do anything
+        result = defer.Deferred()
+        Database.pool.runQuery('SHOW TABLE STATUS').addCallback(
+            self._render_rows, result).addErrback(result.errback)
+        return result
+
+    def _render_rows(self, tableInfo, result):
+        result.callback([
+            Template.Table(list(tableInfo), self.columns, id='db'),
+            ])
+
+
 class System(Template.Section):
     title = 'system'
 
@@ -124,6 +157,7 @@ class System(Template.Section):
 class Page(Template.Page):
     """A web page showing information about the server"""
     mainTitle = 'Server Info'
+    subTitle = 'so that everyone needs to hang on tigher just to keep from being thrown to the wolves'
 
     leftColumn = [
         Version(),
@@ -133,6 +167,7 @@ class Page(Template.Page):
     mainColumn = [
         WebServer(),
         System(),
+        DbTables(),
         ]
 
 ### The End ###
