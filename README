@@ -1,0 +1,39 @@
+======
+cube64
+======
+
+This is a project to build an adaptor for using Gamecube controllers
+with N64 consoles. The motivation behind this is that the N64 has some
+really great games, but the controller hardware is rather bad- the
+joysticks wear out quickly, and the layout is odd. The Gamecube
+controllers, however, have a superset of the features and a much
+better joystick.
+
+A secondary goal of this project is to more thoroughly reverse engineer
+the protocols involved and create reusable libraries for interfacing PIC
+microcontrollers to N64 and Gamecube devices. The very basics of reverse
+engineering the two protocols was done before I started this project,
+but I quickly discovered that there's much more to the protocol. I believe
+this project may be the first one to completely reverse engineer the
+protocol used by standard N64 controllers, including peripherals like the
+memory and rumble paks.
+
+All code here is released under the GPL. This means that if you have basic
+electronics skills and a way to program the microcontroller, you can build
+your own cube64 adaptorr easily. The hardware is extremely simple, and all
+the complexity of reverse engineering and writing code is done for you ;)
+
+Contents of this directory:
+
+  firmware:  Source code for the firmware, in PIC assembly. I develop this
+             mostly using the open source "gputils" package, but I occasionally
+             test it with MPLAB. The firmware for the adaptor itself is
+             "cube64.asm", but there are a few additional test programs
+             and libraries.
+
+  hardware:  This includes schematics for the adaptor, in PDF and gschem format.
+
+  notes:     Utilities and documentation produced while reverse engineering
+
+--
+Micah Dowty <micah@navi.cx>
