@@ -7,7 +7,7 @@ This is just a preliminary roadmap, subject to whatever people want to work on.
 -	Verify that all hardcoded strings are
 	enclosed in intltool _() macros				- David (complete)
 -	Implement searching (firefox style would be nice!)
--	Fix close bug with Connect and Prefs dialogs	-Evan (complete)
+-	Fix close bug with Connect and Prefs dialogs		- Evan (complete)
 
 0.4:
 -	Redo DCC UI						- David
