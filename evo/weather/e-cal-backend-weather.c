@@ -52,6 +52,7 @@ struct _ECalBackendWeatherPrivate {
 
 	/* Reload */
 	guint reload_timeout_id;
+	guint source_changed_id;
 	guint is_loading : 1;
 
 	/* Flags */
@@ -103,6 +104,12 @@ maybe_start_reload_timeout (ECalBackendWeather *cbw)
 		return;
 	}
 
+	if (priv->source_changed_id == 0)
+		priv->source_changed_id = g_signal_connect (G_OBJECT (source),
+		                                            "changed",
+							    G_CALLBACK (source_changed),
+							    cbw);
+
 	refresh_str = e_source_get_property (source, "refresh");
 
 	/* By default, reload every 4 hours. At least for CCF, the forecasts only come out
@@ -111,8 +118,6 @@ maybe_start_reload_timeout (ECalBackendWeather *cbw)
 	 */
 	priv->reload_timeout_id = g_timeout_add ((refresh_str ? atoi (refresh_str) : 240) * 60000,
 	    					 (GSourceFunc) reload_cb, cbw);
-
-	g_object_connect (G_OBJECT (source), "changed", G_CALLBACK (source_changed), cbw);
 
 }
 
@@ -780,6 +785,7 @@ e_cal_backend_weather_init (ECalBackendWeather *cbw, ECalBackendWeatherClass *cl
 	cbw->priv = priv;
 
 	priv->reload_timeout_id = 0;
+	priv->source_changed_id = 0;
 	priv->opened = FALSE;
 	priv->source = NULL;
 	priv->cache = NULL;
