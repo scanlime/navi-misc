@@ -379,4 +379,43 @@
   </xsd:complexType>
 </xsd:element>
 
+<!-- =============== types for form -->
+<xsd:complexType name="form-lessons">
+  <xsd:choice maxOccurs="unbounded">
+    <xsd:element name="lesson" type="xsd:string"/>
+  </xsd:choice>
+</xsd:complexType>
+
+<xsd:complexType name="form-stances">
+  <xsd:choice maxOccurs="unbounded">
+    <xsd:element name="stance" type="stance"/>
+  </xsd:choice>
+</xsd:complexType>
+
+<xsd:complexType name="form-blocks">
+  <xsd:choice maxOccurs="unbounded">
+    <xsd:element name="block" type="block"/>
+  </xsd:choice>
+</xsd:complexType>
+
+<xsd:complexType name="form-contents">
+  <xsd:choice maxOccurs="unbounded">
+    <xsd:element name="overview" type="xsd:string"/>
+    <xsd:element name="stances" type="form-stances"/>
+    <xsd:element name="blocks" type="form-blocks"/>
+  </xsd:choice>
+</xsd:complexType>
+
+<!-- =============== top-level form -->
+<xsd:element name="form">
+  <xsd:complexType>
+    <xsd:all>
+      <xsd:element name="contents" type="form-contents" minOccurs="0"/>
+      <xsd:element name="lessons" type="form-lessons" minOccurs="0"/>
+      <xsd:element name="steps" type="technique-steps"/>
+    </xsd:all>
+    <xsd:attribute name="name" type="xsd:string"/>
+  </xsd:complexType>
+</xsd:element>
+
 </xsd:schema>

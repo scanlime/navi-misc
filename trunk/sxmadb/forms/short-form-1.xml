@@ -1,7 +1,9 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="../style.xsl"?>
 
-<form name="short form 1">
+<form name="short form 1"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:noNamespaceSchemaLocation="schema.xsd">
   <contents>
     <overview>predominantly defensive movements</overview>
     <stances>
@@ -10,7 +12,7 @@
       <stance>neutral bow</stance>
     </stances>
     <blocks>
-      <block>inward hammering</block>
+      <block>hammering inward</block>
       <block>extended outward</block>
       <block>upward</block>
       <block>downward</block>
