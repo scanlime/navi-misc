@@ -7,4 +7,4 @@ smain.class: smain.java
 	javac smain.java
 
 run: prog
-	java smain
+	java smain localhost 6112
