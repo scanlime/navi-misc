@@ -271,9 +271,10 @@ void on_help_about_menu_activate(GtkWidget *widget, gpointer data) {
 }
 
 void on_text_entry_activate(GtkWidget *widget, gpointer data) {
-	const char *entry_text = gtk_entry_get_text(GTK_ENTRY(widget));
-	handle_multiline(gui.current_session, entry_text, TRUE, FALSE);
+	const char *entry_text = g_strdup(gtk_entry_get_text(GTK_ENTRY(widget)));
 	gtk_entry_set_text(GTK_ENTRY(widget), "");
+	handle_multiline(gui.current_session, entry_text, TRUE, FALSE);
+	g_free(entry_text);
 }
 
 static void history_key_down(GtkEntry *entry) {

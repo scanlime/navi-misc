@@ -39,6 +39,7 @@ static gboolean declick(GtkWidget *treeview, GdkEventButton *e, gpointer data) {
 
 	entry = glade_xml_get_widget(gui.xml, "text entry");
 	gtk_widget_grab_focus(entry);
+	gtk_editable_set_position(GTK_EDITABLE(entry), -1);
 	return FALSE;
 }
 
