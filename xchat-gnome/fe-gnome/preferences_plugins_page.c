@@ -94,7 +94,7 @@ preferences_plugins_page_populate()
 	GtkTreeIter iter;
 	GtkListStore *store;
 	GSList *list;
-	xchat_plugin *plugin;
+	xchat_plugin *plugin, *pl;
 	gchar *homedir, *xchatdir;
 
 	treeview = glade_xml_get_widget (gui.xml, "plugins list");
@@ -135,17 +135,10 @@ preferences_plugins_page_populate()
 	list = plugin_list;
 	while (list)
 	{
+		pl = malloc (sizeof (xchat_plugin));
 		plugin = list->data;
-		/* FIXME: I wonder if this could cause problems when you unload a plugin, will it
-		 * disappear from the known_plugins list?
-		 */
+		memcpy (pl, plugin, sizeof (xchat_plugin));
 		known_plugins = g_slist_prepend (known_plugins, plugin);
-    printf ("%s %s\n", plugin->filename, plugin->name);
-		if (plugin->version[0] != 0)
-		{
-			gtk_list_store_append (store, &iter);
-			gtk_list_store_set (store, &iter, 0, plugin->name, 1, plugin->version, 2, plugin->desc, 3, plugin->filename, -1);
-		}
 		list = list->next;
 	}
 }
