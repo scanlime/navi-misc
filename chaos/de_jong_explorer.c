@@ -47,14 +47,15 @@ struct {
 
   double iterations;
   guint current_density;
-
-  double exposure;
   guint target_density;
+
+  double exposure, gamma;
 } render;
 
 struct {
   GtkWidget *window, *drawing_area, *iterl;
-  GtkWidget *as, *bs, *cs, *ds, *ls, *zs, *xos, *yos;
+  GtkWidget *as, *bs, *cs, *ds, *zs, *xos, *yos;
+  GtkWidget *gamma, *exposure;
   GtkWidget *start, *stop, *save, *randbutton;
   GdkGC *gc;
   guint idler;
@@ -82,7 +83,7 @@ gboolean deletee(GtkWidget *widget, GdkEvent *event, gpointer user_data);
 void startclick(GtkWidget *widget, gpointer user_data);
 void stopclick(GtkWidget *widget, gpointer user_data);
 void param_spinner_changed(GtkWidget *widget, gpointer user_data);
-void exposure_changed(GtkWidget *widget, gpointer user_data);
+void rendering_spinner_changed(GtkWidget *widget, gpointer user_data);
 float generate_random_param();
 void randomclick(GtkWidget *widget, gpointer user_data);
 gchar* save_parameters();
@@ -103,7 +104,7 @@ int main(int argc, char ** argv) {
   set_defaults();
 
   while (1) {
-    opt = getopt(argc, argv, "a:b:c:d:x:y:z:s:e:o:i:t:h");
+    opt = getopt(argc, argv, "a:b:c:d:x:y:z:s:e:o:i:t:g:h");
     if (opt == -1)
       break;
 
@@ -118,6 +119,7 @@ int main(int argc, char ** argv) {
     case 'z':  params.zoom    = atof(optarg);  break;
 
     case 'e':  render.exposure       = atof(optarg);  break;
+    case 'g':  render.gamma          = atof(optarg);  break;
     case 't':  render.target_density = atol(optarg);  break;
 
     case 's':
@@ -182,6 +184,7 @@ void usage(char **argv) {
 	 "\n"
 	 "Rendering:\n"
 	 "  -e EXPOSURE        Set the image exposure [%f]\n"
+	 "  -g GAMMA           Set the image gamma correction [%f]\n"
 	 "\n"
 	 "Quality:\n"
 	 "  -s WIDTH[xHEIGHT]  Set the image size in pixels. If only one value is\n"
@@ -199,7 +202,7 @@ void usage(char **argv) {
 	 "                       in PNG format to FILE.\n",
 	 argv[0],
 	 params.a, params.b, params.c, params.d, params.xoffset, params.yoffset, params.zoom,
-	 render.exposure, render.width, render.target_density);
+	 render.exposure, render.gamma, render.width, render.target_density);
 }
 
 void interactive_main(int argc, char ** argv) {
@@ -273,6 +276,7 @@ void set_defaults() {
   params.xoffset = 0;
   params.yoffset = 0;
   render.exposure = 0.05;
+  render.gamma = 1;
   render.width = 800;
   render.height = 800;
 }
@@ -280,7 +284,7 @@ void set_defaults() {
 GtkWidget *build_sidebar() {
   GtkWidget *table;
 
-  table = gtk_table_new(11, 2, FALSE);
+  table = gtk_table_new(12, 2, FALSE);
   gtk_table_set_row_spacings(GTK_TABLE(table), 6);
   gtk_table_set_col_spacings(GTK_TABLE(table), 6);
 
@@ -311,6 +315,9 @@ GtkWidget *build_sidebar() {
 
     label = gtk_label_new("exposure:");
     gtk_table_attach(GTK_TABLE(table), label, 0, 1, 7, 8, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
+
+    label = gtk_label_new("gamma:");
+    gtk_table_attach(GTK_TABLE(table), label, 0, 1, 8, 9, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
   }
 
   /* Spin buttons */
@@ -350,34 +357,39 @@ GtkWidget *build_sidebar() {
     gtk_table_attach(GTK_TABLE(table), gui.yos, 1, 2, 6, 7, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
     g_signal_connect(G_OBJECT(gui.yos), "changed", G_CALLBACK(param_spinner_changed), NULL);
 
-    gui.ls = gtk_spin_button_new_with_range(0.001, 9.999, 0.001);
-    gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui.ls), render.exposure);
-    gtk_table_attach(GTK_TABLE(table), gui.ls, 1, 2, 7, 8, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
-    g_signal_connect(G_OBJECT(gui.ls), "changed", G_CALLBACK(exposure_changed), NULL);
+    gui.exposure = gtk_spin_button_new_with_range(0.001, 9.999, 0.001);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui.exposure), render.exposure);
+    gtk_table_attach(GTK_TABLE(table), gui.exposure, 1, 2, 7, 8, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
+    g_signal_connect(G_OBJECT(gui.exposure), "changed", G_CALLBACK(rendering_spinner_changed), NULL);
+
+    gui.gamma = gtk_spin_button_new_with_range(0.01, 9.99, 0.01);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui.gamma), render.gamma);
+    gtk_table_attach(GTK_TABLE(table), gui.gamma, 1, 2, 8, 9, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
+    g_signal_connect(G_OBJECT(gui.gamma), "changed", G_CALLBACK(rendering_spinner_changed), NULL);
   }
 
   /* Iteration counter */
   gui.iterl = gtk_label_new("");
-  gtk_table_attach(GTK_TABLE(table), gui.iterl, 0, 2, 8, 9, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
+  gtk_table_attach(GTK_TABLE(table), gui.iterl, 0, 2, 9, 10, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
 
   /* Buttons */
   {
     gui.start = gtk_button_new_from_stock(GTK_STOCK_APPLY);
     gtk_widget_set_sensitive(gui.start, FALSE);
     g_signal_connect(G_OBJECT(gui.start), "clicked", G_CALLBACK(startclick), NULL);
-    gtk_table_attach(GTK_TABLE(table), gui.start, 0, 2, 9, 10, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
+    gtk_table_attach(GTK_TABLE(table), gui.start, 0, 2, 10, 11, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
 
     gui.stop = gtk_button_new_from_stock(GTK_STOCK_STOP);
     g_signal_connect(G_OBJECT(gui.stop), "clicked", G_CALLBACK(stopclick), NULL);
-    gtk_table_attach(GTK_TABLE(table), gui.stop, 0, 2, 10, 11, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
+    gtk_table_attach(GTK_TABLE(table), gui.stop, 0, 2, 11, 12, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
 
     gui.save = gtk_button_new_from_stock(GTK_STOCK_SAVE);
     g_signal_connect(G_OBJECT(gui.save), "clicked", G_CALLBACK(saveclick), NULL);
-    gtk_table_attach(GTK_TABLE(table), gui.save, 0, 2, 11, 12, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
+    gtk_table_attach(GTK_TABLE(table), gui.save, 0, 2, 12, 13, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
 
     gui.randbutton = gtk_button_new_with_label("Random");
     g_signal_connect(G_OBJECT(gui.randbutton), "clicked", G_CALLBACK(randomclick), NULL);
-    gtk_table_attach(GTK_TABLE(table), gui.randbutton, 0, 2, 12, 13, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
+    gtk_table_attach(GTK_TABLE(table), gui.randbutton, 0, 2, 13, 14, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
   }
 
   return table;
@@ -471,7 +483,8 @@ void update_color_table() {
    * The color tabls is what maps counts[] values to pixels[] values quickly.
    */
   guint required_size = render.current_density + 1;
-  guint count, r, g, b, a;
+  guint count;
+  int r, g, b;
   float pixel_scale = get_pixel_scale();
   float luma;
 
@@ -488,17 +501,19 @@ void update_color_table() {
   /* Generate one color for every currently-possible count value... */
   for (count=0; count<=render.current_density; count++) {
     luma = count * pixel_scale;
+    luma = pow(luma, 1/render.gamma);
 
-    if (luma > 1)
-      luma = 1;
-
-    a = 255;
     r = 255 - luma*255;
     g = 255 - luma*255;
     b = 255 - luma*255;
 
+    /* Always clamp color components */
+    if (r<0) r = 0;  if (r>255) r = 255;
+    if (g<0) g = 0;  if (g>255) g = 255;
+    if (b<0) b = 0;  if (b>255) b = 255;
+
     /* Colors are always ARGB order in little endian */
-    render.color_table[count] = GUINT32_TO_LE( (a<<24) | (r<<16) | (g<<8) | b );
+    render.color_table[count] = GUINT32_TO_LE( 0xFF000000UL | (r<<16) | (g<<8) | b );
   }
 }
 
@@ -627,10 +642,9 @@ void param_spinner_changed(GtkWidget *widget, gpointer user_data) {
   startclick(widget, user_data);
 }
 
-void exposure_changed(GtkWidget *widget, gpointer user_data) {
-  render.exposure = gtk_spin_button_get_value(GTK_SPIN_BUTTON(gui.ls));
-  update_pixels();
-  update_drawing_area();
+void rendering_spinner_changed(GtkWidget *widget, gpointer user_data) {
+  render.exposure = gtk_spin_button_get_value(GTK_SPIN_BUTTON(gui.exposure));
+  render.gamma = gtk_spin_button_get_value(GTK_SPIN_BUTTON(gui.gamma));
 }
 
 float generate_random_param() {
@@ -656,10 +670,11 @@ gchar* save_parameters() {
 			 "zoom = %f\n"
 			 "xoffset = %f\n"
 			 "yoffset = %f\n"
-			 "exposure = %f\n",
+			 "exposure = %f\n"
+			 "gamma = %f\n",
 			 params.a, params.b, params.c, params.d,
 			 params.zoom, params.xoffset, params.yoffset,
-			 render.exposure);
+			 render.exposure, render.gamma);
 }
 
 void load_parameters(const gchar *paramstring) {
@@ -704,6 +719,8 @@ void load_parameters(const gchar *paramstring) {
 	params.yoffset = value;
       else if (!strcmp(key, "exposure"))
 	render.exposure = value;
+      else if (!strcmp(key, "gamma"))
+	render.gamma = value;
       else
 	printf(" (unrecognized)");
 
