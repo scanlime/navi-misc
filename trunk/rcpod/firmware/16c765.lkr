@@ -17,9 +17,9 @@ SHAREBANK  NAME=gprnobnk START=0xF0     END=0xFF
 SHAREBANK  NAME=gprnobnk START=0x170    END=0x17F
 SHAREBANK  NAME=gprnobnk START=0x1F0    END=0x1FF
 
-DATABANK   NAME=gpr0     START=0x20     END=0x6F
+// We leave out bank0, since it's reserved for use as a scratchpad by the host
 DATABANK   NAME=gpr1     START=0xA0     END=0xEF
-// We leave out bank2, since it's reserved for use as a scratchpad by the host
+DATABANK   NAME=gpr2     START=0x120    END=0x16F
 DATABANK   NAME=gpr3     START=0x190    END=0x1EF
 
 DATABANK   NAME=sfr0     START=0x0      END=0x1F     PROTECTED
@@ -34,7 +34,7 @@ SECTION    NAME=PROG3    ROM=page2      // ROM code space - page2
 SECTION    NAME=PROG4    ROM=page3      // ROM code space - page3
 SECTION	   NAME=IDLOCS	 ROM=.idlocs	// ID locations
 SECTION    NAME=CONFIG   ROM=.config	// Configuration bits location
-SECTION    NAME=bank0    RAM=gpr0
 SECTION    NAME=bank1    RAM=gpr1
+SECTION    NAME=bank2    RAM=gpr2
 SECTION    NAME=unbanked RAM=gprnobnk   // unbanked RAM - last 16bytes of each bank
 

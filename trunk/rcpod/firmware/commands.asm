@@ -34,7 +34,7 @@
 
 	global	txe_pin
 
-bank0	udata
+bank1	udata
 txe_pin	res	1		 ; Pin number for transmit enable
 last_poke_addr res 2 ; Address of the last byte of the most recently completed 'poke'
 byte_iterator res 1

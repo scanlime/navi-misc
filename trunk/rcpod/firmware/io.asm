@@ -19,7 +19,7 @@
 	global	io_Deassert	; Invert the polarity of io_pin then assert it
 	global	io_Read		; Test the value of the pin descriptor io_pin, return it in 'w'
 
-bank0	udata
+bank1	udata
 io_pin	res	1
 io_tmp  res 1
 io_iterator res 1
