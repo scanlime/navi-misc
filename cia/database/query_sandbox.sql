@@ -1,22 +1,22 @@
-/*
- * Just a place to stick database queries that may be of interest.
- * Feel free to ignore this file if you're not interested in the internals
- * of CIA's PostgreSQL database.
- */
+--
+-- Just a place to stick database queries that may be of interest.
+-- Feel free to ignore this file if you're not interested in the internals
+-- of CIA's SQL database.
+--
 
-/**********************************************************************/
+----------------------------------------------------------------------------
 
-/*
- * A rather spiffy use of outer joins that gives the same information as
- * CIA's current web-basted stats catalog, of course much faster.
- * This puts stats_catalog on the left side of the joins, with a
- * second stats_catalog used to count children, and all the stats_metadata
- * and stats_counters instances necessary to extract the keys we're interested in.
- * Not amazingly efficient, but mind-bogglingly faster than doing this all
- * in Python on a Rack + libdb.
- *
- * Yay SQL.
- */
+--
+-- A rather spiffy use of outer joins that gives the same information as
+-- CIA's current web-basted stats catalog, of course much faster.
+-- This puts stats_catalog on the left side of the joins, with a
+-- second stats_catalog used to count children, and all the stats_metadata
+-- and stats_counters instances necessary to extract the keys we're interested in.
+-- Not amazingly efficient, but mind-bogglingly faster than doing this all
+-- in Python on a Rack + libdb.
+--
+-- Yay SQL.
+--
 SELECT
     T.target_path            AS path,
     M_TITLE.value            AS title,
