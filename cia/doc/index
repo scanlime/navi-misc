@@ -100,7 +100,7 @@ CIA is written and maintained by `Micah Dowty`_.
 CIA is hosted by the `PLD Linux`_ project.
 
 CIA makes extensive use of many fine open source projects, including
-Python_, Twisted_, Procmail_, MySQL_, and Apache_.
+Python_, Twisted_, Procmail_, and MySQL_.
 
 CIA uses open standards, including XHTML, CSS2, and XML-RPC.
 
@@ -116,10 +116,8 @@ CIA uses open standards, including XHTML, CSS2, and XML-RPC.
 .. _Twisted: http://twistedmatrix.com
 .. _Procmail: http://www.procmail.org
 .. _MySQL: http://www.mysql.com
-.. _Apache: http://apache.org
 .. _Freenode: http://freenode.org
 .. _PicoGUI: http://picogui.org
-.. _CIA itself: /stats/project/navi-misc/cia
 .. _repository: http://navi.cx/svn/misc/trunk/cia/
 .. _Subversion: http://subversion.tigris.org/
 .. _PLD Linux: http://pld-linux.orgi
