@@ -335,6 +335,19 @@ static void       cmd_calc_stop        (RemoteServerConn*  self,
     remote_server_send_response(self, FYRE_RESPONSE_OK, "ok");
 }
 
+static void       cmd_calc_step        (RemoteServerConn*  self,
+					const char*        command,
+					const char*        parameters)
+{
+    /* Instead of (or in addition to) running calculations in
+     * the background when idle, the client can force us to
+     * calculate right now.
+     */
+    iterative_map_calculate_timed(self->map, self->map->render_time);
+    remote_server_send_response(self, FYRE_RESPONSE_OK, "ok");
+}
+
+
 static void       cmd_calc_status      (RemoteServerConn*  self,
 					const char*        command,
 					const char*        parameters)
@@ -450,6 +463,7 @@ static void       remote_server_init_commands (RemoteServer*  self)
     remote_server_add_command(self, "is_gui_available",     cmd_is_gui_available);
     remote_server_add_command(self, "calc_start",           cmd_calc_start);
     remote_server_add_command(self, "calc_stop",            cmd_calc_stop);
+    remote_server_add_command(self, "calc_step",            cmd_calc_step);
     remote_server_add_command(self, "calc_status",          cmd_calc_status);
     remote_server_add_command(self, "get_histogram_stream", cmd_get_histogram_stream);
 
