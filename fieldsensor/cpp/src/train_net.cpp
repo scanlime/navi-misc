@@ -6,11 +6,34 @@ int main(void) {
   try {
     FieldNetwork net("data/current.net");
     TrainingSet pattern("data/4x4cube.pattern");
+    VECTOR input,desired,output;
+    VECTOR::iterator i,j;
+    float error;
+    int numEpochs = 0;
+    const int epochsPerRound = 100;
     
+    FILE *errfile = fopen("errorterms.log", "a");
+
     while (1) {
-      net.train(pattern, 100, 0.8, 0.0, true);
+      /* Train the net a bit... */
+      net.train(pattern, epochsPerRound, 0.8, 0.0, false);
+      numEpochs += epochsPerRound;
+
+      /* Save our progress */
       net.save("data/current.net");
-      cout << "Saved." << endl;
+
+      /* Compute an error value */
+      pattern.initialize();
+      error = 0;
+      while (!pattern.epochOver()) {
+	pattern.getNextPair(input,desired);
+	output = net.getOutput(input);
+	for (i=output.begin(), j=desired.begin(); i!=output.end(); i++, j++)
+	  error += (*i - *j) * (*i - *j);
+      }
+      printf(" Training... %10d epochs : error = %f\n", numEpochs, error);
+      fprintf(errfile,"%f\n", error);
+      fflush(errfile);
     }
   }
   catch (annie::Exception &e) {
