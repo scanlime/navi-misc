@@ -40,8 +40,8 @@ typedef guint32 ChunkType;
 void      chunked_file_write_signature(FILE* self, const gchar* signature);
 gboolean  chunked_file_read_signature(FILE* self, const gchar* signature);
 
-void      chunked_file_write_chunk(FILE* self, ChunkType type, gulong length, const guchar* data);
-gboolean  chunked_file_read_chunk(FILE* self, ChunkType *type, gulong *length, guchar** data);
+void      chunked_file_write_chunk(FILE* self, ChunkType type, gsize length, const guchar* data);
+gboolean  chunked_file_read_chunk(FILE* self, ChunkType *type, gsize *length, guchar** data);
 void      chunked_file_warn_unknown_type(ChunkType type);
 
 gchar*    chunk_type_to_string(ChunkType type);

@@ -31,11 +31,11 @@ static void animation_dispose(GObject *gobject);
 /* Animations are serialized using chunked-file.
  * These are the chunk types and file signature
  */
-#define FILE_SIGNATURE   "de Jong Explorer Animation\n\r\xFF\n"
-#define CHUNK_KEYFRAME_START  CHUNK_TYPE("KfrS")   /* Begin a new keyframe definition */
-#define CHUNK_KEYFRAME_END    CHUNK_TYPE("KfrE")   /* End a keyframe definition */
-#define CHUNK_DE_JONG_PARAMS  CHUNK_TYPE("djPR")   /* Set de-jong parameters, represented as a string */
-#define CHUNK_THUMBNAIL       CHUNK_TYPE("djTH")   /* Set a thumbnail, represented as a PNG image */
+#define FILE_SIGNATURE        "de Jong Explorer Animation\n\r\xFF\n"
+#define CHUNK_KEYFRAME_START  CHUNK_TYPE('K','f','r','S')   /* Begin a new keyframe definition */
+#define CHUNK_KEYFRAME_END    CHUNK_TYPE('K','f','r','E')   /* End a keyframe definition */
+#define CHUNK_DE_JONG_PARAMS  CHUNK_TYPE('d','j','P','R')   /* Set de-jong parameters, represented as a string */
+#define CHUNK_THUMBNAIL       CHUNK_TYPE('d','j','T','H')   /* Set a thumbnail, represented as a PNG image */
 
 
 /************************************************************************************/
@@ -144,7 +144,7 @@ void animation_keyframe_append(Animation *self, DeJong *dejong) {
 void animation_load_file(Animation *self, const gchar *filename) {
   FILE *f;
   ChunkType type;
-  gulong length;
+  gsize length;
   guchar* data;
 
   g_return_if_fail(f = fopen(filename, "rb"));
@@ -153,9 +153,11 @@ void animation_load_file(Animation *self, const gchar *filename) {
   while (chunked_file_read_chunk(f, &type, &length, &data)) {
     switch (type) {
 
+
     default:
       chunked_file_warn_unknown_type(type);
     }
+    g_free(data);
   }
 
   fclose(f);
@@ -164,8 +166,12 @@ void animation_load_file(Animation *self, const gchar *filename) {
 void animation_save_file(Animation *self, const gchar *filename) {
   FILE *f;
   GtkTreeModel *model = GTK_TREE_MODEL(self->model);
-  GtkTreeIter *iter;
+  GtkTreeIter iter;
   gboolean valid;
+  gchar *params;
+  GdkPixbuf *thumb_pixbuf;
+  gchar *thumb_buffer;
+  gsize thumb_buffer_len;
 
   /* Start a new chunked file */
   g_return_if_fail(f = fopen(filename, "wb"));
@@ -175,9 +181,27 @@ void animation_save_file(Animation *self, const gchar *filename) {
   valid = gtk_tree_model_get_iter_first(model, &iter);
   while (valid) {
 
+    gtk_tree_model_get(model, &iter,
+		       ANIMATION_MODEL_PARAMS,    &params,
+		       ANIMATION_MODEL_THUMBNAIL, &thumb_pixbuf,
+		       -1);
+
     chunked_file_write_chunk(f, CHUNK_KEYFRAME_START, 0, NULL);
 
-    chunked_file_read_chunk
+    if (params) {
+      chunked_file_write_chunk(f, CHUNK_DE_JONG_PARAMS, strlen(params), params);
+      g_free(params);
+    }
+
+    if (thumb_pixbuf) {
+      if (gdk_pixbuf_save_to_buffer(thumb_pixbuf, &thumb_buffer, &thumb_buffer_len, "png", NULL, NULL)) {
+	chunked_file_write_chunk(f, CHUNK_THUMBNAIL, thumb_buffer_len, thumb_buffer);
+	g_free(thumb_buffer);
+	gdk_pixbuf_unref(thumb_pixbuf);
+      }
+    }
+
+    chunked_file_write_chunk(f, CHUNK_KEYFRAME_END, 0, NULL);
 
     valid = gtk_tree_model_iter_next(model, &iter);
   }
