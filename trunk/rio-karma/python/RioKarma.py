@@ -995,6 +995,9 @@ class RidCalculator:
             f.seek(0)
             return self.fromSection(f, offset, length-128)
 
+        # Otherwise, use the whole file
+        else:
+            return self.fromSection(f, 0, length)
 
 
 class File:
@@ -1004,6 +1007,17 @@ class File:
        file ID is provided, existing metadata is looked up. If an ID isn't
        provided, we generate a new ID and metadata will be uploaded.
        """
+
+    # This table maps mmpython classes to codec names for all
+    # formats the player hardware supports.
+    codecNames = {
+        mmpython.audio.eyed3info.eyeD3Info: 'mp3',
+        mmpython.audio.flacinfo.FlacInfo:   'flac',
+        mmpython.audio.pcminfo.PCMInfo:     'wave',
+        mmpython.video.asfinfo.AsfInfo:     'wma',
+        mmpython.audio.ogginfo.OggInfo:     'vorbis',
+        }
+
     def __init__(self, filesystem, fileID=None):
         self.filesystem = filesystem
 
@@ -1030,16 +1044,25 @@ class File:
         info = mmpython.parse(filename)
         st = os.stat(filename)
 
-        # Generic details for any file
+        # Generic details for any file. Note that we start out assuming
+        # all files are unreadable, and label everything for Rio Taxi.
+        # Later we'll mark supported formats as music.
         self.details['length'] = st.st_size
+        self.details['type'] = 'taxi'
 
         if info:
+
+            # Mime types aren't implemented consistently in mmpython, but
+            # we can look at the type of the returned object to decide
+            # whether this is a format that the Rio probably supports.
+            # This dictionary maps mmpython clases to Rio codec names.
+            for cls, codec in self.codecNames.iteritems():
+                if isinstance(info, cls):
+                    self.details['type'] = 'tune'
+                    self.details['codec'] = codec
+                    break
+
             # Map mmpython keys to Rio keys
-
-            # Generic details for songs
-            self.details['type'] = 'tune'
-
-            # Map the easy ones
             for fromKey, toKey in (
                 ('trackno', 'tracknr'),
                 ('artist', 'artist'),
@@ -1052,7 +1075,13 @@ class File:
                 if v is not None:
                     self.details[toKey] = v
 
-            
+        # If mmpython understood this file and it's something the rio can
+        # play, label it as a 'tune', otherwise the type should be 'taxi'
+        # so it's considered as a data file for use with rio taxi
+
+        # All taxi files plus any audio files without titles get their filename
+        if self.details['type'] == 'taxi' or not self.details.get('title'):
+            self.details['title'] = os.path.basename(filename)
 
     def loadFrom(self, filename):
         """Load this file's metadata and content from a file on disk"""
