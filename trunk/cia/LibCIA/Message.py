@@ -60,6 +60,10 @@ class Message(object):
             self.xml.addElement("timestamp", content="%d" % time.time())
 
 
+class Filter(object):
+    pass
+
+
 class DomishStringParser(domish.SuxElementStream):
     """Because domish doesn't include a parseString()..."""
     def __init__(self):
@@ -109,7 +113,7 @@ if __name__ == "__main__":
        </message>
        """)
     print msg.xml.toXml()
-    xp = XPathQuery("/message/source/project")
+    xp = XPathQuery("/message/source/project < 10")
     print xp.queryForString(msg.xml)
 
 
