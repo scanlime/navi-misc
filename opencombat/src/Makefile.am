@@ -6,6 +6,7 @@ SUBDIRS = \
 	net \
 	game \
 	opencombatd \
+	drawables \
 	geometry \
 	obstacle \
 	ogl \
