@@ -322,6 +322,13 @@ class PalantirWindow:
     msg = string.join(args.split()[1:])
     self.factory.client.msg(nick, msg)
 
+    if self.tree.get_widget('time_stamps').get_active():
+      time = palantir.getTime()
+    else:
+      time = None
+
+    self.tabs['None'].DisplayText(time, '>%s< '%(self.factory.nickname), msg)
+
   def ping(self, args=''):
     ''' Ping the server. '''
     self.tree.get_widget('SendField').set_text('')
