@@ -35,6 +35,8 @@ static int loader()
 {
   struct unicone_device* dev;
   struct progress_reporter* progress = progress_reporter_console_new();
+  int need_firmware_install, need_bitstream_install;
+  int retval;
 
   unicone_usb_init();
   dev = unicone_device_new();
@@ -43,30 +45,55 @@ static int loader()
     return 1;
   }
 
-  if (dev->firmware_installed && config_force_firmware) {
-    printf("Firmware already loaded, rebooting to clear it.\n");
-    unicone_device_remove_firmware(dev);
-    if (unicone_device_reconnect(dev, progress) < 0)
+  /* Decide whether we need to install firmware */
+  if (config_force_firmware)
+    need_firmware_install = 1;
+  else {
+    retval = unicone_device_compare_firmware(dev, config_firmware_path);
+    if (retval < 0) {
+      printf("Error checking firmware version\n");
       return 1;
+    }
+    need_firmware_install = (retval != 0);
   }
 
-  if (dev->firmware_installed) {
-    printf("Firmware already installed.\n");
-  }
-  else {
-    printf("Firmware not installed.\n");
+  if (need_firmware_install) {
+    /* Firmware needs upgrading or needs initial installation */
+
+    if (dev->firmware_installed) {
+      printf("Firmware already loaded, rebooting to clear it.\n");
+      unicone_device_remove_firmware(dev);
+      if (unicone_device_reconnect(dev, progress) < 0)
+	return 1;
+    }
+
     if (unicone_device_upload_firmware(dev, config_firmware_path, progress) < 0)
       return 1;
     if (unicone_device_reconnect(dev, progress) < 0)
       return 1;
   }
+  else {
+    printf("Firmware is up to date.\n");
+  }
 
-  if (dev->fpga_configured && !config_force_bitstream) {
-    printf("FPGA already configured.\n");
+  /* Decide whether we need to install a bitstream */
+  if (config_force_bitstream)
+    need_bitstream_install = 1;
+  else {
+    retval = unicone_device_compare_bitstream(dev, config_bitstream_path);
+    if (retval < 0) {
+      printf("Error checking bitstream version\n");
+      return 1;
+    }
+    need_bitstream_install = (retval != 0);
+  }
+
+  if (need_bitstream_install) {
+    if (unicone_device_upload_bitstream(dev, config_bitstream_path, progress) < 0)
+      return 1;
   }
   else {
-    if (unicone_device_upload_bitstream(dev, config_bitstream_path, progress, 1) < 0)
-      return 1;
+    printf("FPGA configuration is up to date.\n");
   }
 
   unicone_device_delete(dev);
