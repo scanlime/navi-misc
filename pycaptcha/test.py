@@ -7,11 +7,14 @@ class PseudoGimpy(ImageCaptcha):
         word = Words.defaultWordList.pick()
         self.addSolution(word)
         return [
-            Backgrounds.Grid(),
+            #Backgrounds.Grid(),
+            Backgrounds.TiledImage(),
             Text.TextLayer(word),
             Distortions.WigglyBlocks(),
             ]
 
 g = Factory(PseudoGimpy).new()
-g.render().show()
+i = g.render()
+i.save("output.png")
+i.show()
 print g.solutions
