@@ -26,6 +26,7 @@
 
 #include <gtk/gtk.h>
 #include <glade/glade.h>
+#include "parameter-editor.h"
 #include "scene.h"
 #include "view.h"
 
@@ -56,6 +57,9 @@ struct _Editor
 
   Scene *scene;
   View *view;
+
+  SceneObject *selected;
+  GtkWidget *pe;
 };
 
 struct _EditorClass

@@ -27,11 +27,11 @@
 
 G_BEGIN_DECLS
 
-#define SCENE_OBJECT_TYPE		(scene_object_get_type ())
-#define SCENE_OBJECT(obj)		(G_TYPE_CHECK_INSTANCE_CAST ((obj), SCENE_OBJECT_TYPE, SceneObject))
-#define SCENE_OBJECT_CLASS(klass)	(G_TYPE_CHECK_CLASS_CAST ((klass), SCENE_OBJECT_TYPE, SceneObjectClass))
-#define IS_SCENE_OBJECT(obj)		(G_TYPE_CHECK_INSTANCE_TYPE ((obj), SCENE_OBJECT_TYPE))
-#define IS_SCENE_OBJECT_CLASS(klass)	(G_TYPE_CHECK_CLASS_TYPE ((klass), SCENE_OBJECT_TYPE))
+#define SCENE_OBJECT_TYPE               (scene_object_get_type ())
+#define SCENE_OBJECT(obj)               (G_TYPE_CHECK_INSTANCE_CAST ((obj), SCENE_OBJECT_TYPE, SceneObject))
+#define SCENE_OBJECT_CLASS(klass)       (G_TYPE_CHECK_CLASS_CAST ((klass), SCENE_OBJECT_TYPE, SceneObjectClass))
+#define IS_SCENE_OBJECT(obj)            (G_TYPE_CHECK_INSTANCE_TYPE ((obj), SCENE_OBJECT_TYPE))
+#define IS_SCENE_OBJECT_CLASS(klass)    (G_TYPE_CHECK_CLASS_TYPE ((klass), SCENE_OBJECT_TYPE))
 
 typedef struct _SceneObject      SceneObject;
 typedef struct _SceneObjectClass SceneObjectClass;
@@ -39,6 +39,8 @@ typedef struct _SceneObjectClass SceneObjectClass;
 struct _SceneObject
 {
   ParameterHolder parent;
+
+  gboolean selected;
 };
 
 struct _SceneObjectClass
@@ -50,17 +52,23 @@ struct _SceneObjectClass
 
   /* signal handlers */
   void       (*dirty)          (SceneObject *self);
+  void       (*selected)       (SceneObject *self);
 
+  /* subclassable functions */
   void       (*render)         (SceneObject *self, guint name);
   void       (*serialize)      (SceneObject *self, GIOChannel *out);
   GdkPixbuf* (*get_icon)       (void);
   GList*     (*get_drawables)  (SceneObject *self);
+  void       (*select)         (SceneObject *self);
+  void       (*deselect)       (SceneObject *self);
 };
 
 GType      scene_object_get_type      (void) G_GNUC_CONST;
 void       scene_object_render        (SceneObject *self, guint name);
 void       scene_object_serialize     (SceneObject *self, GIOChannel *out);
 GList*     scene_object_get_drawables (SceneObject *self);
+void       scene_object_select        (SceneObject *self);
+void       scene_object_deselect      (SceneObject *self);
 
 G_END_DECLS
 
