@@ -115,11 +115,11 @@ about the current web request, for example.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-__version__ = "pre-0.92"
+__version__ = "pre-1.1"
 
 # The third number will be zero for releases, and an increasing
 # number for development versions.
-version_info = (0, 92, 1)
+version_info = (1, 0, 1)
 
 # Check the python version here before we proceed further
 requiredPythonVersion = (2,2,1)
