@@ -4,7 +4,6 @@
      type="shlib"
      location="@PLUGINDIR@/liborg-gnome-publish-calendar.so"
      id="org.gnome.evolution.calendar.publish"
-     load-on-startup="true"
      name="Calendar Publishing">
         <description>Allows calendars to be published to the web</description>
 	<author name="David Trowbridge" email="trowbrds@cs.colorado.edu"/>
