@@ -6,8 +6,8 @@ TUSB3410 (Keyspan HS-19US, firmware removed):
  5v power   (1) - USB port
  3.3v power (2) - Configuration EEPROM power
  USB data   (3) - USB port
- I2C Clock  (4) - Configuration EEPROM SCL
- I2C Data   (5) - Configuration EEPROM SDA
+ I2C Clock  (4) - Configuration EEPROM and FPGA, SCL
+ I2C Data   (5) - Configuration EEPROM and FPGA, SDA
  GPIO P3.0  (6) - FPGA 'CCLK' (pin 73)
  GPIO P3.1  (7) - RS-232 driver power
  GPIO P3.3  (8) - (used by the Keyspan HS-19US for an unknown purpose?)
@@ -26,6 +26,11 @@ XC4010XL (Xess XS40, everything except FPGA, oscillator, and SRAM removed):
 
  5v power       - USB port
  3.3v power     - LM317 regulator, powered by USB port
+
+ P13            - Clock, set to 20 MHz
+ P19            - White status LED, via NPN transistor and appropriate resistors
+ P18            - I2C Clock (TUSB3410 header pin 4)
+ P23            - I2C Data (TUSB3410 header pin 5)
 
 24xx-series I2C configuration memory:
 
