@@ -43,12 +43,17 @@ class SimpleCIAInterface(xmlrpc.XMLRPC):
         self.hub = hub
 
     def xmlrpc_deliverMessage(self, xml):
-        """Deliver the given message, provided as XML text"""
+        """Deliver the given message, provided as XML text.
+           If the message generates a reply, returns that.
+           Otherwise, returns True.
+           """
         try:
-            self.hub.deliver(Message(xml))
+            result = self.hub.deliver(Message(xml))
         except:
             e = sys.exc_info()[1]
             return xmlrpc.Fault(e.__class__.__name__, str(e))
+        if result is not None:
+            return result
         return True
 
     def xmlrpc_processEmail(self, message):

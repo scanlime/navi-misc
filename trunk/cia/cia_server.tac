@@ -13,15 +13,10 @@ application = service.Application("cia_server")
 # messages between components of CIA
 hub = Message.Hub()
 
+# Control a network of IRC bots using messages sent through the Hub
+IRC.HubListener(hub)
+
 # The XMLRPC.SimpleCIAInterface is a simple XML-RPC interface
 # to CIA, used for initially delivering messages
 f = server.Site(XMLRPC.SimpleCIAInterface(hub))
 internet.TCPServer(3910, f).setServiceParent(application)
-
-botNet = IRC.BotNetwork()
-srv = ('irc.freenode.net', 6667)
-botNet.addChannel(srv, '#botpark')
-def f(msg):
-    botNet.msg(srv, '#botpark', str(msg.xml.source.project))
-hub.addClient(f)
-

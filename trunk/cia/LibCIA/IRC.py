@@ -25,6 +25,72 @@ information to a set of channels and servers.
 
 from twisted.protocols import irc
 from twisted.internet import protocol, reactor
+from twisted.python import log
+import Message
+
+
+class HubListener(object):
+    """Receives messages from the Message.Hub, directing
+       them at a BotNetwork as necessary. This listens for
+       commands instructing it to add and remove filters that
+       collect messages from the Hub, format them, and send
+       them to a particular IRC channel via the BotNetwork.
+       """
+    def __init__(self, hub, botNet=None):
+        if not botNet:
+            botNet = BotNetwork()
+        self.hub = hub
+        self.botNet = botNet
+        self.addClients()
+
+    def addClients(self):
+        """Add all our initial clients to the hub"""
+        self.hub.addClient(self.handleIrcFilters, Message.Filter(
+            '<find path="/message/body/ircFilters">'))
+        self.hub.addClient(self.handleGetIrcFilters, Message.Filter(
+            '<find path="/message/body/getIrcFilters">'))
+
+    def handleIrcFilters(self, message):
+        """Process messages containing and <ircFilters> tag in
+           their body. These messages set the list of filters
+           and formatters being used by a particular IRC channel.
+           An empty <ircFilters/> tag removes all filters.
+           The BotNetwork is automatically updated so that if a
+           channel has any filters assigned, a bot will inhabit it.
+
+           An <ircFilters> tag has attributes specifying the server,
+           port, and channel it applies to. It contains zero or more
+           <ircFilter> tags, followed by tags describing transforms
+           applied to all messages delivered to the channel.
+
+           An <ircFilter> tag's first child must be a valid Message.Filter.
+           All other children are treated as transforms applied to the
+           message, in order, resulting in the text finally delivered
+           to the channel.
+
+           An couple example <ircFilters> messages..
+
+              <message><body>
+                 <ircFilters channel="#commits" server="irc.freenode.net" port="6667">
+                    <ircFilter>
+                       <find path="/message/body/commit"/>
+                       <formatter name="commit"/>
+                    </ircFilter>
+                    <ircFilter>
+                       <find path="/message/body/colorText"/>
+                       <formatter name="colorText"/>
+                    </ircFilter>
+                    <formatter name="projectPrefix"/>
+                 </ircFilters>
+              </body></message>
+           """
+        print message
+
+    def handleGetIrcFilters(self, message):
+        """Return the current <ircFilters> tag with attributes matching
+           those of the <getIrcFilters> tag.
+           """
+        return 42
 
 
 class Bot(irc.IRCClient):
@@ -93,6 +159,7 @@ class BotAllocator:
 
     def botConnected(self, bot):
         """Called by one of our bots when it's connected successfully and ready to join channels"""
+        log.msg("Bot %r on server %r connected" % (bot.nickname, self.host))
         self.bots[bot.nickname] = bot
 
         # Join as many channels as this bot is allowed to,
@@ -109,11 +176,13 @@ class BotAllocator:
 
     def botJoined(self, bot, channel):
         """Called by one of our bots when it's successfully joined to a channel"""
+        log.msg("Bot %r on server %r joined %r" % (bot.nickname, self.host, channel))
         self.existingBotRequests.remove(channel)
         self.channels[channel] = bot
 
     def botLeft(self, bot, channel):
         """Called by one of our bots when it has finished leaving a channel"""
+        log.msg("Bot %r on server %r left %r" % (bot.nickname, self.host, channel))
         del self.channels[channel]
 
         # If there's no reason to keep this bot around any more, disconnect it
@@ -122,6 +191,7 @@ class BotAllocator:
 
     def botDisconnected(self, bot):
         """Called when one of our bots has been disconnected"""
+        log.msg("Bot %r on server %r disconnected" % (bot.nickname, self.host))
         del self.bots[bot.nickname]
         for channel in self.channels.keys():
             if self.channels[channel] == bot:
