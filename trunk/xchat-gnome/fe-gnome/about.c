@@ -44,7 +44,7 @@ initialize_about_dialog ()
 		logo = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/xchat-gnome-small.png", NULL);
 	gui.about = GNOME_ABOUT (gnome_about_new(
 		"X-Chat GNOME",
-		"0.2pre",
+		"0.2",
 		"Copyright © 2004",
 		"It has been well observed that a trombone\nis not a suitable instrument for a gentleman",
 		authors,
