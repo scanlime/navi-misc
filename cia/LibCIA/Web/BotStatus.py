@@ -84,7 +84,7 @@ class ListAttributeColumn(Nouvelle.AttributeColumn):
         if not l:
             return "None"
         else:
-            return ", ".join(l)
+            return ", ".join(l.iterkeys())
 
     def getValue(self, obj):
         return len(getattr(obj, self.attribute))

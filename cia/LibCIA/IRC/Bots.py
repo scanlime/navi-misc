@@ -23,7 +23,7 @@ A small library for managing multiple IRC bots on multiple IRC networks
 
 from twisted.protocols import irc
 from twisted.internet import protocol, reactor, defer
-from twisted.python import log
+from twisted.python import log, util
 import time
 
 
@@ -264,14 +264,14 @@ class BotNetwork:
                     usedChannels = usedBots[bot]
 
                     # We need this bot.. but are all the channels necessary?
-                    for channel in bot.channels:
+                    for channel in bot.channels.iterkeys():
                         if channel not in usedChannels:
                             bot.part(channel)
 
                 else:
                     # We don't need this bot. Tell it to part all of its channels,
                     # and if it isn't already, schedule it for deletion.
-                    for channel in bot.channels:
+                    for channel in bot.channels.iterkeys():
                         bot.part(channel)
                     if bot not in self.inactiveBots:
                         self.inactiveBots[bot] = reactor.callLater(
@@ -398,13 +398,25 @@ class Bot(irc.IRCClient):
     joinTimeout = 60
 
     def __init__(self):
+        self.emptyChannels()
+
+    def emptyChannels(self):
+        """Called when we know we're not in any channels and we shouldn't
+           be trying to join any yet.
+           """
         # Map from channel name to ChannelInfo instance. This only holds
         # channels we're actually in, not those we've been asked to join
         # but aren't in yet.
-        self.channels = {}
+        self.channels = util.InsensitiveDict()
+
+        # clear stale timers
+        if hasattr(self, 'requestedChannels'):
+            for timer in self.requestedChannels.itervalues():
+                if timer.active():
+                    timer.cancel()
 
         # A map from channel name to a DelayedCall instance representing its timeout
-        self.requestedChannels = {}
+        self.requestedChannels = util.InsensitiveDict()
 
     def __repr__(self):
         return "<Bot %r on server %s>" % (self.nickname, self.server)
@@ -524,17 +536,6 @@ class Bot(irc.IRCClient):
            """
         self.currentWhoisDeferred.callback(False)
         del self.currentWhoisDeferred
-
-    def emptyChannels(self):
-        """Called when we know we're not in any channels and we shouldn't
-           be trying to join any yet.
-           """
-        self.channels = {}
-
-        for timer in self.requestedChannels.itervalues():
-            if timer.active():
-                timer.cancel()
-        self.requestedChannels = {}
 
     def signedOn(self):
         """IRCClient is notifying us that we've finished connecting to
