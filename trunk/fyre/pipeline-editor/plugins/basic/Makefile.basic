@@ -4,7 +4,8 @@
 SOURCES = \
 ./AssemblyInfo.cs \
 ./Transform.cs \
-./MatrixMultiply.cs
+./MatrixMultiply.cs \
+./StochasticBlur.cs
 
 PKG_REFERENCES = \
 gtk-sharp
