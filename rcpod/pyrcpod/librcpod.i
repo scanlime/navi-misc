@@ -83,4 +83,22 @@
   }
   %}
 
+/* Helpers for creating and destroying rcpod_i2c_dev structures */
+%inline %{
+  rcpod_i2c_dev *new_i2cDev(int speed, rcpod_pin clock, rcpod_pin data, unsigned char address) {
+    rcpod_i2c_dev *idev = malloc(sizeof(rcpod_i2c_dev));
+    if (idev) {
+      idev->speed = speed;
+      idev->clock = clock;
+      idev->data = data;
+      idev->address = address;
+    }
+    return idev;
+  }
+
+  void delete_i2cDev(rcpod_i2c_dev *idev) {
+    free(idev);
+  }
+%}
+
 /* The End */

@@ -29,7 +29,7 @@ import re
 
 # These are the symbols that will be pulled from this module
 # into the 'pyrcpod' package.
-__all__ = ['scanForDevices', 'devices', 'mapAddress', 'OpenedRcpod']
+__all__ = ['scanForDevices', 'devices', 'mapAddress', 'OpenedRcpod', 'I2CDevice']
 
 
 def mapAddress(name):
@@ -42,9 +42,13 @@ def mapAddress(name):
 
 
 def to_ucharArray(list):
-    """Converts a python list to a malloc'ed C unsigned char array.
-       The resulting array must be freed with delete_ucharArray.
+    """Converts a python list or string to a malloc'ed C unsigned
+       char array. The resulting array must be freed with delete_ucharArray.
        """
+    # Convert strings to lists
+    if type(list) == type(''):
+        list = [ord(c) for c in txData]
+
     n = len(list)
     a = new_ucharArray(n)
     for i in xrange(n):
@@ -213,10 +217,12 @@ class OpenedRcpod:
 
     def analogReadAll(self):
         """Read all analog channels, returns a list of 8 values between 0 and 255"""
-        arr = new_ucharArray(8)
-        rcpod_AnalogReadAll(self.dev, arr)
-        l = from_ucharArray(arr, 8)
-        delete_ucharArray(arr)
+        try:
+            arr = new_ucharArray(8)
+            rcpod_AnalogReadAll(self.dev, arr)
+            l = from_ucharArray(arr, 8)
+        finally:
+            delete_ucharArray(arr)
         return l
 
     def analogReadChannel(self, c):
@@ -239,15 +245,19 @@ class OpenedRcpod:
 
     def assertPins(self, pins):
         """Assert every pin in the given list, in order"""
-        arr = to_ucharArray([pin.value for pin in pins])
-        rcpod_GpioAssertBuffer(self.dev, arr, len(pins))
-        delete_ucharArray(arr)
+        try:
+            arr = to_ucharArray([pin.value for pin in pins])
+            rcpod_GpioAssertBuffer(self.dev, arr, len(pins))
+        finally:
+            delete_ucharArray(arr)
 
     def deassertPins(self, pins):
         """Deassert every pin in the given list, in order"""
-        arr = to_ucharArray([pin.value for pin in pins])
-        rcpod_GpioDeassertBuffer(self.dev, arr, len(pins))
-        delete_ucharArray(arr)
+        try:
+            arr = to_ucharArray([pin.value for pin in pins])
+            rcpod_GpioDeassertBuffer(self.dev, arr, len(pins))
+        finally:
+            delete_ucharArray(arr)
 
     def serialInit(self, baudRate, setPinDirections=True):
         """Initialize the serial port and set it to the given baud rate"""
@@ -266,25 +276,21 @@ class OpenedRcpod:
            following functions:
               serialTxRxStart, serialTx, serialRxStart, or serialRxFinish
            """
-        # Convert strings to lists
-        if type(txData) == type(''):
-            txData = [ord(c) for c in txData]
-
-        arr = to_ucharArray(txData)
-        rcpod_SerialTxRxStart(self.dev, arr, len(txData))
-        delete_ucharArray(arr)
+        try:
+            arr = to_ucharArray(txData)
+            rcpod_SerialTxRxStart(self.dev, arr, len(txData))
+        finally:
+            delete_ucharArray(arr)
 
     def serialTx(self, txData):
         """Transmit the given buffer. The same transmit buffer size
            limitation exists as in SerialTxRxStart
            """
-        # Convert strings to lists
-        if type(txData) == type(''):
-            txData = [ord(c) for c in txData]
-
-        arr = to_ucharArray(txData)
-        rcpod_SerialTx(self.dev, arr, len(txData))
-        delete_ucharArray(arr)
+        try:
+            arr = to_ucharArray(txData)
+            rcpod_SerialTx(self.dev, arr, len(txData))
+        finally:
+            delete_ucharArray(arr)
 
     def serialRxStart(self):
         """Start receiving data into the rcpod's (tiny) internal buffer.
@@ -316,10 +322,12 @@ class OpenedRcpod:
            A buffer overflow will be detected here, and it will cause an
            IOError to be raised.
            """
-        buffer = new_ucharArray(RCPOD_SCRATCHPAD_SIZE)
-        count = rcpod_SerialRxRead(self.dev, buffer, RCPOD_SCRATCHPAD_SIZE)
-        data = from_ucharArray(buffer, count, retType)
-        delete_ucharArray(buffer)
+        try:
+            buffer = new_ucharArray(RCPOD_SCRATCHPAD_SIZE)
+            count = rcpod_SerialRxRead(self.dev, buffer, RCPOD_SCRATCHPAD_SIZE)
+            data = from_ucharArray(buffer, count, retType)
+        finally:
+            delete_ucharArray(buffer)
         return data
 
     def serialSetTxEnable(self, pin, setPinDirections=True):
@@ -402,6 +410,79 @@ class Pin:
     def input(self):
         """Return a pin descriptor that is asserted when this pin is an input"""
         return Pin(self.rcpod, self.value | RCPOD_PIN_TRIS | RCPOD_PIN_HIGH)
+
+
+class I2CError(IOError):
+    pass
+
+
+class I2CDevice:
+    """Represents one I2C device on an I2C bus attached to the rcpod"""
+    def __init__(self, clockPin, dataPin, address, speed=0):
+        self.rcpod = clockPin.rcpod
+        self.address = address
+        self.clock = clockPin
+        self.data = dataPin
+        assert clockPin.rcpod is dataPin.rcpod
+
+        self._idev = new_i2cDev(speed, clockPin.value, dataPin.value, address)
+
+    def __repr__(self):
+        return "<I2CDevice at address 0x%02X on clock %r and data %r>" % (
+            self.address, self.clock, self.data)
+
+    def __del__(self):
+        try:
+            delete_i2cDev(self._idev)
+        except AttributeError:
+            pass
+
+    def write(self, txData):
+        try:
+            arr = to_ucharArray(txData)
+            ackCount = rcpod_I2CWrite(self.rcpod.dev, self._idev, arr, len(txData))
+        finally:
+            delete_ucharArray(arr)
+
+        if ackCount == 0:
+            raise I2CError("No device acknowledged address for write")
+        elif ackCount < len(txData)+1:
+            raise I2CError("Device stopped acknowledging %d bytes into write" % (ackCount-1))
+
+    def read(self, count, retType=list):
+        try:
+            buffer = new_ucharArray(count)
+            ackCount = rcpod_I2CRead(self.rcpod.dev, buffer, count)
+            data = from_ucharArray(buffer, count, retType)
+        finally:
+            delete_ucharArray(buffer)
+
+        if ackCount == 0:
+            raise I2CError("No device acknowledged address for read")
+        return data
+
+    def writeRead(self, txData, rxCount, retType=list):
+        """Do a write immediately followed by a read, may be faster than
+           separate writes and reads in some common cases.
+           """
+        try:
+            txBuffer = to_ucharArray(txData)
+            rxBuffer = new_ucharArray(rxCount)
+            ackCount = rcpod_I2CWriteRead(self.rcpod.dev, self._idev,
+                                          txBuffer, len(txData),
+                                          rxBuffer, rxCount)
+            rxData = from_ucharArray(rxBuffer, rxCount, retType)
+        finally:
+            delete_ucharArray(txBuffer)
+            delete_ucharArray(rxBuffer)
+
+        if ackCount == 0:
+            raise I2CError("No device acknowledged address for write")
+        elif ackCount < len(txData)+1:
+            raise I2CError("Device stopped acknowledging %d bytes into write" % (ackCount-1))
+        elif ackCount == len(txData)+1:
+            raise I2CError("No device acknowledged address for read")
+        return rxData
 
 
 class AvailableDevice:
