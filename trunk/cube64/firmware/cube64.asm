@@ -42,12 +42,13 @@
 	;;   0x01 :   Returns a 32-bit status word including all button and axis state.
 	;;            The format of this status word is documented in the sources above.
 	;;
-	;;   0x03 :   Seems to read from the expansion slot. Some games (Ocarina of Time
+	;;   0x03 :   Seems to initialize the expansion slot. Some games (Ocarina of Time
 	;;            and Majora's Mask at least) require this to be supported even if
 	;;            the controller's response to the identification command doesn't
-	;;            indicate that it has a memory/rumble pak. As far as I can tell,
-	;;            an official controller with no rumble/memory pak returns 0x80, 0x01,
-	;;            then 32 bytes all 0xFE.
+	;;            indicate that it has a memory/rumble pak.
+	;;
+	;;            Immediately after the 0x03, Majora's Mask sends 0x80, 0x01, then 32
+	;;            bytes all 0xFE. The controller then responds with 0x1E.
 	;;
 
 	list	p=16f84a
