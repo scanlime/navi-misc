@@ -15,8 +15,7 @@ ln -sf $WASABI/lircrc $FREEVO/
 ln -sf $WASABI/local_conf.py $FREEVO/
 ln -sf $WASABI/plugins/*.py $FREEVO/src/plugins/
 
-ln -sf $WASABI/skins/wasabi.fxd $FREEVO/share/skins/main/
-ln -sf $WASABI/skins/wasabi.jpg $FREEVO/share/skins/main/
+ln -sf $WASABI/skins/* $FREEVO/share/skins/main/
 mkdir $FREEVO/share/images/wasabi
 ln -sf $WASABI/images/* $FREEVO/share/images/wasabi
 
