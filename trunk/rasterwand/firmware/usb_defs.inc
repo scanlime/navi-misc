@@ -107,8 +107,10 @@
 #define	SET_CONFIGURATION	0x09
 #define	SET_FEATURE		0x03
 #define	SET_INTERFACE		0x0B
-#define	HID_SET_REPORT		0x21
 #define	VEND_SET_MEMORY		0x80
+#define EP0_WRITE_BACKBUFFER	0x81	; When USB_dev_req is set to this,
+										; incoming EP0 data will be sent to
+										; ep0_write_backbuffer.
 
 #define	SVCUSBINT		0x01 << 2
 #define	SVCTOKENDONE		0x02 << 2

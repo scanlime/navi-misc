@@ -29,7 +29,9 @@
 	errorlevel -302		; supress "register not in bank0, check page bits" message
 
 	global	CheckVendor
+	global	ep0_write_backbuffer
 
+	extern	USB_dev_req
 	extern	BufferData
 	extern	wrongstate
 	extern	temp
@@ -50,6 +52,7 @@
 
 	extern	display_request_flip
 	extern	display_save_status
+	extern	display_seq_write_byte
 
 bank0	udata
 
@@ -81,6 +84,7 @@ CheckVendor
 	defineRequest	RWAND_CTRL_FLIP,			request_flip
 	defineRequest	RWAND_CTRL_SET_PERIOD,		request_setPeriod
 	defineRequest	RWAND_CTRL_SET_NUM_COLUMNS,	request_setNumColumns
+	defineRequest	RWAND_CTRL_SEQ_WRITE12,		request_seqWrite12
 
 	pagesel	wrongstate		; Not a recognized request
 	goto	wrongstate
@@ -326,6 +330,60 @@ request_randomWrite3
 	movf	BufferData+(wIndex+1), w	; Write 3...
 	movwf	INDF
 	returnEmpty
+
+
+	; Perform a sequential 12-byte write. Start with the 4 bytes in this
+	; packet, and prepare to receive an 8-byte data packet.
+request_seqWrite12
+	banksel	BufferData
+	movf	BufferData+wValue, w
+	pagesel	display_seq_write_byte
+	call	display_seq_write_byte
+
+	banksel	BufferData
+	movf	BufferData+(wValue+1), w
+	pagesel	display_seq_write_byte
+	call	display_seq_write_byte
+
+	banksel	BufferData
+	movf	BufferData+wIndex, w
+	pagesel	display_seq_write_byte
+	call	display_seq_write_byte
+
+	banksel	BufferData
+	movf	BufferData+(wIndex+1), w
+	pagesel	display_seq_write_byte
+	call	display_seq_write_byte
+
+	movlw	EP0_WRITE_BACKBUFFER	; Transfer control to ep0_write_backbuffer to handle the data packet
+	banksel	USB_dev_req
+	movwf	USB_dev_req
+	returnEmpty
+
+
+	; Handles the data packets that should follow request_seqWrite12
+ep0_write_backbuffer
+    banksel BD0OAL
+    movf    low BD0OAL,w    		; Get the address of the EP0 OUT buffer
+    banksel src_ptr
+    movwf   src_ptr                 ; Start a buffer pointer we'll increment...
+
+    movf    BD0OBC, w
+    movwf   byte_iterator
+ep0loop
+    movf    src_ptr,w               ; get address of buffer
+    movwf   FSR
+    bsf     STATUS,IRP              ; indirectly to banks 2-3
+	movf	INDF
+	pagesel	display_seq_write_byte
+	call	display_seq_write_byte
+
+	banksel	src_ptr
+    incf    src_ptr, f              ; Next...
+	pagesel	ep0loop
+    decfsz  byte_iterator, f
+    goto    ep0loop
+	return
 
 	end
 

@@ -67,7 +67,6 @@ GPtemp			res	1	; temporary storage location used in Get and PutEPn
 bank0	udata
 BufferDescriptor	res	3
 BufferData		res	8
-USB_Curr_Config		res	1
 USB_status_device	res	1	; status of device
 USB_dev_req		res	1
 USB_address_pending	res	1
@@ -92,7 +91,6 @@ IS_IDLE			res	1
 USB_USTAT		res	1
 
 	global	USB_USTAT
-	global	USB_Curr_Config
 	global	USB_status_device
 	global	USB_dev_req
 	global	USB_Interface
@@ -115,6 +113,7 @@ USB_BTS_ERR		res	2
 	extern	DeviceDescriptor
 	extern	StringDescriptions
 	extern  GetStringIndex
+	extern	ep0_write_backbuffer
 
 ; **********************************************************************
 ; This section contains the functions to interface with the main
@@ -280,8 +279,6 @@ InitUSB
 	banksel	UCTRL
 	movwf	UCTRL
 
-	banksel	USB_Curr_Config
-	clrf	USB_Curr_Config
 	movlw	1
 	movwf	USB_status_device
 	clrf	USB_Interface
@@ -353,8 +350,7 @@ core	code
 ; ******************************************************************
 USBReset
 	global	USBReset
-	banksel	USB_Curr_Config
-	clrf	USB_Curr_Config
+	banksel	IS_IDLE
 	clrf	IS_IDLE
 	banksel	UIR
 	bcf 	UIR,TOK_DNE	; hit this 4 times to clear out the
@@ -522,55 +518,12 @@ TokenOutPID  ; STARTS IN BANK2
 	pagesel	tryEP1
 	btfss	STATUS,Z	; was it EP0?
 	goto	tryEP1 		; no, try EP1
+
 	movf	USB_dev_req,w
-	xorlw	HID_SET_REPORT
-	pagesel	ResetEP0OutBuffer
-	btfss	STATUS,Z
-	goto	ResetEP0OutBuffer
-
-HIDSetReport
-
-; ******************************************************************
-; You must write your own SET_REPORT routine.  The following
-; commented out code is provided if you desire to make a SET_REPORT
-; look like a EP1 OUT Interrupt transfer.  Uncomment it and use it
-; if you desire this functionality.
-; ******************************************************************
-;	movlw	0xFF
-;	movwf	USB_dev_req	; clear the request type
-;	banksel	BD1IST
-;	movf	BD0OST,w
-;	movwf	BD1OST		; Copy status register to EP1 Out
-;	movf	BD0OAL,w	; get EP0 Out buffer address
-;	bcf 	STATUS,RP0	; bank 2
-;	movwf	hid_source_ptr
-;	bsf 	STATUS,RP0	; bank 3
-;	movf	BD1OAL,w	; get EP1 Out Buffer Address
-;	bcf 	STATUS,RP0	; bank 2
-;	movwf	hid_dest_ptr
-;	bsf 	STATUS,RP0	; bank 3
-;	movf	BD0OBC,w	; Get byte count
-;	movwf	BD1OBC		; copy to EP1 Byte count
-;	bcf 	STATUS,RP0	; bank 2
-;	movwf	counter
-;	bankisel BD1IST		; indirectly to bank 3
-;HIDSRCopyLoop
-;	movf	hid_source_ptr,w
-;	movwf	FSR
-;	movf	INDF,w
-;	movwf	temp
-;	movf	hid_dest_ptr,w
-;	movwf	FSR
-;	movf	temp,w
-;	movwf	INDF
-;	incf	hid_source_ptr,f
-;	incf	hid_dest_ptr,f
-;	decfsz	counter,f
-;	goto	HIDSRCopyLoop
-;
-;	bsf 	STATUS,RP0	; bank 3
-;	movlw	0x08
-;	movwf	BD0OST		; REset EP0 Status back to SIE
+	xorlw	EP0_WRITE_BACKBUFFER
+	pagesel	ep0_write_backbuffer
+	btfsc	STATUS,Z
+	call	ep0_write_backbuffer	; If we're expecting data to write to our backbuffer, process it
 
 ResetEP0OutBuffer
 	banksel	BD0OBC
@@ -1275,7 +1228,6 @@ Set_Address  ; starts in bank 2
 finish_set_address 	; starts in bank 2
 	global	finish_set_address
 	clrf	USB_dev_req	; no request pending
-	clrf	USB_Curr_Config	; make sure current configuration is 0
 	movf	USB_address_pending,w
 	banksel	UADDR
 	movwf	UADDR		; set the device address
@@ -1452,9 +1404,8 @@ Get_Configuration  ; starts in bank 2
 	banksel	BD0IAL
 	movf	low BD0IAL,w	; get address of buffer
 	movwf	FSR
-	banksel	USB_Curr_Config
 	bsf 	STATUS,IRP	; indirectly to banks 2-3
-	movf	USB_Curr_Config,w
+	movlw	0x00		; Current config is always zero
 	movwf	INDF		; write byte to buffer
 	banksel	BD0IBC
 	movlw	0x01
@@ -1477,8 +1428,7 @@ Set_Configuration  ; starts in bank 2
 	btfss	STATUS,C	; if config <= num configs, request appears valid
 	goto	wrongstate
 
-	movf	BufferData+wValue,w
-	movwf	USB_Curr_Config	; store new state in configuration
+	; This is a no-op, we have only one configuration
 
 	pagesel	AckSetConfigCmd
 	btfsc	STATUS,Z	; was the configuration zero?
@@ -1536,11 +1486,6 @@ AckSetConfigCmd
 	movwf	UEP1		; enable EP's 1 and 2 for In and Outs...
 	movlw	ENDPT_NON_CONTROL
 	movwf	UEP2
-
-;pagesel SetConfiguration; call SetConfiguration etc. after configuration changed
-;movfUSB_Curr_Config,w; if you have multiple configurations
-;callSetConfiguration
-;pagesel Set_Configuration
 	return
 
 
