@@ -39,6 +39,8 @@
 
 #include <p16c745.inc>
 #include "usb_defs.inc"
+#include "macros.inc"
+#include "hardware.inc"
 
 	errorlevel -302		; supress "register not in bank0, check page bits" message
 
@@ -47,7 +49,7 @@
 unbanked	udata_shr
 W_save		res	1	; register for saving W during ISR
 
-bank1	udata
+bank0	udata
 Status_save	res	1	; registers for saving context
 PCLATH_save	res	1	;  during ISR
 FSR_save	res	1
@@ -70,6 +72,7 @@ epByteTemp	res 1
 	extern	TokenDone
 	extern	USB_dev_req
 	extern	finish_set_address
+	extern	display_poll
 
 STARTUP	code
 	pagesel	Main
@@ -198,28 +201,25 @@ Main
 	pagesel	InitUSB
 	call	InitUSB
 
+	; Initialize hardware
+	movlf	PORTA_VALUE, PORTA
+	movlf	PORTB_VALUE, PORTB
+	movlf	PORTC_VALUE, PORTC
+	movlf	TRISA_VALUE, TRISA
+	movlf	TRISB_VALUE, TRISB
+	movlf	TRISC_VALUE, TRISC
+	movlf	ADCON1_VALUE, ADCON1
+	movlf	T1CON_VALUE, T1CON
+
+
 ;******************************************************************* Main Loop
 
 MainLoop
 	pagesel ServiceUSB
 	call	ServiceUSB	; see if there are any USB tokens to process
 
-	ConfiguredUSB           ; macro to check configuration status
-	pagesel MainLoop
-	btfss   STATUS,Z        ; Z = 1 when configured
-	goto    MainLoop    ; Wait until we're configured
-
-    ; The rest of this loop makes analog video detection measurements when the
-    ; EP1 endpoint is available, and makes the measurements available to transmit
-    ; back to the host.
-	banksel BD1IST          ; If we don't own the EP1 buffer, keep waiting
-	btfsc   BD1IST, UOWN
-	goto    MainLoop
-
-	movwf   FSR
-	movlw   8                               ; 8 bytes long
-	pagesel PutEP1
-	call    PutEP1
+	pagesel	display_poll
+	call	display_poll
 
 	pagesel	MainLoop
 	goto	MainLoop

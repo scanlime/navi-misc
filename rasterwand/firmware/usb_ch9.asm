@@ -64,7 +64,7 @@ GPtemp			res	1	; temporary storage location used in Get and PutEPn
 	global	wrongstate
 	global	Send_0Len_pkt
 
-bank2	udata
+bank0	udata
 BufferDescriptor	res	3
 BufferData		res	8
 USB_Curr_Config		res	1

@@ -20,8 +20,12 @@ file_000=usb_main.asm
 file_001=descript.asm
 file_002=usb_ch9.asm
 file_003=commands.asm
-file_004=C:\navi-misc\rasterwand\include\rwand_protocol.h
-file_005=16c765.lkr
+file_004=display.asm
+file_005=C:\navi-misc\rasterwand\include\rwand_protocol.h
+file_006=usb_defs.inc
+file_007=hardware.inc
+file_008=macros.inc
+file_009=16c765.lkr
 [SUITE_INFO]
 suite_guid={6B3DAA78-59C1-46DD-B6AA-DBDAE4E06484}
 suite_state=
