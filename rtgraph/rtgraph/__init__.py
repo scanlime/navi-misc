@@ -41,5 +41,6 @@ from HScrollGraph import *
 from Channel import *
 from Graph import *
 from PolarVectorGraph import *
+from ChannelList import *
 
 ### The End ###
