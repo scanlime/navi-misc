@@ -1,6 +1,5 @@
 /**
- * Handles the port and stuff.  It listens and spawns the correct threads as per
- * who connects.
+ * This handles the updating of the web page.
  */
 
 import java.lang.*;
@@ -15,7 +14,11 @@ public class updater
 	public static ServerSocket server;
 	public static Socket connection;
 	public static String mykey, password;
-        
+	
+	/**
+	 * The Main function from which all function calls come forth.
+	 * @param args The 
+	 */
 	public static void main(String[] args)
 	{
 		startServer(8081);
@@ -35,6 +38,7 @@ public class updater
 			System.out.println(exception);
 			System.exit(0);
 		}
+	}
 		mykey = key.keygen();
 		write(mykey);
 		password = key.decrypt(mykey,read());
