@@ -29,22 +29,24 @@ class GtkChatBuffer(gtk.ScrolledWindow):
   def DisplayText(self, time, text, highlight=False):
     ''' Called to display msg in the buffer.  'nickends' go around the nick. '''
     buffer = self.text_view.get_buffer()
-    buffer.insert(buffer.get_end_iter(),
-	time + nickends[0] + nick + nickends[1] + msg + '\n')
+
+    if time:
+      time = '[' + string.join([str(field) for field in time],':') + '] '
+    buffer.insert(buffer.get_end_iter(),time + text + '\n')
 
     self.text_view.scroll_to_iter(buffer.get_end_iter(),0.0)
 
     # Apply highlighting tags.
-    if highlight:
-      bounds = buffer.get_end_iter().backward_search(
-	  nick.strip(string.join(nickends,(' '))), 1)
+    #if highlight:
+    #  bounds = buffer.get_end_iter().backward_search(
+    #	  nick.strip(string.join(nickends,(' '))), 1)
 
-      buffer.apply_tag_by_name('highlight', bounds[0], bounds[1])
+    #  buffer.apply_tag_by_name('highlight', bounds[0], bounds[1])
 
-    iter = buffer.get_end_iter()
-    iter.backward_line()
+    #iter = buffer.get_end_iter()
+    #iter.backward_line()
 
-    for end in nickends:
-      bounds = iter.forward_search(end.strip(), 1)
-      if bounds:
-	buffer.apply_tag_by_name('nickends', bounds[0], bounds[1])
+    #for end in nickends:
+    #  bounds = iter.forward_search(end.strip(), 1)
+    #  if bounds:
+    #	buffer.apply_tag_by_name('nickends', bounds[0], bounds[1])
