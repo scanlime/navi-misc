@@ -128,6 +128,7 @@ class PalantirClientFactory(protocol.ClientFactory):
   def quit(self, message='Leaving...'):
     ''' Quit IRC. '''
     self.client.quit(message)
+    self.channels = ['']
     self.client = None
 
   def nick(self, channel, nick):

@@ -398,17 +398,28 @@ class PalantirWindow:
     dialog.show()
 
   def Connect(self, server, channel=None, dialog=None):
+    ''' Connect to the server and channel, if one is specified. '''
+    # Make sure we aren't still connected to anything.
     if hasattr(self.factory, 'client') and self.factory.client:
       self.factory.quit()
+
+    # Set the channel name to join.
     if channel:
       self.factory.channels[0] = channel
+
+    # Set the server name.
     self.factory.SetServer(server)
+
+    # Destroy the dialog if there was one.
     if dialog:
       dialog.destroy()
+
+    # Start the reactor.
     reactor.connectTCP(server, 6667, self.factory)
     reactor.run()
 
   def OpenSheet(self, widget, data=None):
+    ''' Open up a character sheet in the client. '''
     # Store the character data.
     self.data = Character(self.tree.dialog.get_widget('SheetSelection').get_filename())
 
