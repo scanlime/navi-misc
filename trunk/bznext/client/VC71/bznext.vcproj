@@ -186,6 +186,10 @@
 					</Filter>
 				</Filter>
 			</Filter>
+			<Filter
+				Name="drawing"
+				Filter="">
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -237,6 +241,9 @@
 				Name="game"
 				Filter="">
 				<File
+					RelativePath="..\game\inc\baseObject.h">
+				</File>
+				<File
 					RelativePath="..\game\inc\gameManager.h">
 				</File>
 				<Filter
@@ -253,6 +260,13 @@
 						</File>
 					</Filter>
 				</Filter>
+			</Filter>
+			<Filter
+				Name="drawing"
+				Filter="">
+				<File
+					RelativePath="..\drawing\inc\drawManager.h">
+				</File>
 			</Filter>
 		</Filter>
 		<Filter
