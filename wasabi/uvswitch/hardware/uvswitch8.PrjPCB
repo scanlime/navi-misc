@@ -69,57 +69,19 @@ AnnotateSuffix=
 DoLibraryUpdate=1
 DoDatabaseUpdate=1
 [GeneratedDocument1]
-DocumentPath=Project Outputs for uvswitch8\PCB1.DRL
-[GeneratedDocument2]
 DocumentPath=outputs\PCB1.DRL
-[GeneratedDocument3]
-DocumentPath=Project Outputs for uvswitch8\PCB1.DRR
-[GeneratedDocument4]
-DocumentPath=outputs\PCB1.DRR
-[GeneratedDocument5]
-DocumentPath=Project Outputs for uvswitch8\PCB1.GBL
-[GeneratedDocument6]
+[GeneratedDocument2]
 DocumentPath=outputs\PCB1.GBL
-[GeneratedDocument7]
-DocumentPath=Project Outputs for uvswitch8\PCB1.GBO
-[GeneratedDocument8]
+[GeneratedDocument3]
 DocumentPath=outputs\PCB1.GBO
-[GeneratedDocument9]
-DocumentPath=Project Outputs for uvswitch8\PCB1.GBS
-[GeneratedDocument10]
+[GeneratedDocument4]
 DocumentPath=outputs\PCB1.GBS
-[GeneratedDocument11]
-DocumentPath=Project Outputs for uvswitch8\PCB1.GD1
-[GeneratedDocument12]
-DocumentPath=outputs\PCB1.GD1
-[GeneratedDocument13]
-DocumentPath=Project Outputs for uvswitch8\PCB1.GTL
-[GeneratedDocument14]
+[GeneratedDocument5]
 DocumentPath=outputs\PCB1.GTL
-[GeneratedDocument15]
-DocumentPath=Project Outputs for uvswitch8\PCB1.GTO
-[GeneratedDocument16]
+[GeneratedDocument6]
 DocumentPath=outputs\PCB1.GTO
-[GeneratedDocument17]
-DocumentPath=Project Outputs for uvswitch8\PCB1.GTS
-[GeneratedDocument18]
+[GeneratedDocument7]
 DocumentPath=outputs\PCB1.GTS
-[GeneratedDocument19]
-DocumentPath=Project Outputs for uvswitch8\PCB1.LDP
-[GeneratedDocument20]
-DocumentPath=outputs\PCB1.LDP
-[GeneratedDocument21]
-DocumentPath=Project Outputs for uvswitch8\PCB1.REP
-[GeneratedDocument22]
-DocumentPath=outputs\PCB1.REP
-[GeneratedDocument23]
-DocumentPath=Project Outputs for uvswitch8\PCB1.RUL
-[GeneratedDocument24]
-DocumentPath=outputs\PCB1.RUL
-[GeneratedDocument25]
-DocumentPath=Project Outputs for uvswitch8\PCB1.TXT
-[GeneratedDocument26]
-DocumentPath=outputs\PCB1.TXT
 [OutputGroup1]
 Name=Netlist Outputs
 Description=
