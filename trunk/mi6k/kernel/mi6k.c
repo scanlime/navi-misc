@@ -7,7 +7,7 @@
  * creates an LIRC-compatible device for accessing the MI6K's infrared
  * transmitter and receiver.
  *
- * Copyright(c) 2003 Micah Dowty <micah@picogui.org>
+ * Copyright (C) 2003-2004 Micah Dowty <micah@picogui.org>
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -39,7 +39,7 @@
 #include <mi6k_dev.h>
 #include <lirc.h>
 
-#define DRIVER_VERSION "v0.1"
+#define DRIVER_VERSION "v0.2"
 #define DRIVER_AUTHOR "Micah Dowty <micah@picogui.org>"
 #define DRIVER_DESC "Media Infrawidget 6000 driver"
 
