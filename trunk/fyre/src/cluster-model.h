@@ -103,6 +103,10 @@ void           cluster_model_disable_discovery(ClusterModel*         self);
 gboolean       cluster_model_find_client      (ClusterModel*         self,
 					       RemoteClient*         client,
 					       GtkTreeIter*          iter);
+gboolean       cluster_model_find_address     (ClusterModel*         self,
+					       const gchar*          hostname,
+					       gint                  port,
+					       GtkTreeIter*          iter);
 
 void           cluster_model_remove_node      (ClusterModel*         self,
 					       GtkTreeIter*          iter);
