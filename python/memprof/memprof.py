@@ -34,9 +34,8 @@ class Sampler:
 
 
 class Analyzer:
-    def __init__(self, log="pymemprof.log"):
-        self.typeMap = {}
-
+    def analyze(self, log="pymemprof.log"):
+        self.openFiles = {}
         for line in open(log):
             try:
                 tokens = line.strip().split()
@@ -51,17 +50,20 @@ class Analyzer:
                 except:
                     continue
 
-                self.typeMap.setdefault(type, []).append((timestep, count))
+                self.record(type, timestep, count)
 
-    def dump(self):
-        for type, points in self.typeMap.iteritems():
+    def record(self, type, timestep, count):
+        if type in self.openFiles:
+            f = self.openFiles[type]
+        else:
             f = open("types/%s" % type, "w")
-            for point in points:
-                f.write("%s %s\n" % point)
+            self.openFiles[type] = f
+        
+        f.write("%s %s\n" % (timestep, count))
 
 
 if __name__ == "__main__":
     #import psyco
     #psyco.full()
 
-    Analyzer().dump()
+    Analyzer().analyze()
