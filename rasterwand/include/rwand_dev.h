@@ -33,6 +33,11 @@
 #define RWAND_FB_COLUMNS       80
 #define RWAND_FB_BYTES         RWAND_FB_COLUMNS
 
+/* Power modes */
+#define RWAND_POWER_AUTO       0   /* Controlled by switch */
+#define RWAND_POWER_OFF        1
+#define RWAND_POWER_ON         2
+
 
 #endif /* __RWAND_DEV_H */
 
