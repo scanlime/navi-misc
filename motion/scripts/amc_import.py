@@ -33,6 +33,7 @@ import AMCReader
 
 dofTable = {}
 axisTable = {}
+baxisTable = {}
 
 def getRot(object, bone, rot):
     try:
@@ -44,9 +45,15 @@ def getRot(object, bone, rot):
         dofTable[bone] = dof
     try:
         axis = axisTable[bone]
+        baxis = baxisTable[bone]
     except KeyError:
-        axis = object.getProperty('%s-axis' % bone).getData().split(',')
+        axis = [float(n) for n in object.getProperty('%s-axis' % bone).getData().split(',')]
+        axis = Blender.Mathutils.Quaternion(axis)
         axisTable[bone] = axis
+
+        baxis = [float(n) for n in object.getProperty('%s-baxis' % bone).getData().split(',')]
+        baxis = Blender.Mathutils.Quaternion(baxis)
+        baxisTable[bone] = baxis
     r = [0.0, 0.0, 0.0]
     i = 0
     for d in dof:
@@ -57,7 +64,11 @@ def getRot(object, bone, rot):
         else:
             r[2] = rot[i]
         i += 1
-    return r
+    euler = Blender.Mathutils.Euler(r)
+    quat = euler.toQuat()
+    baxis.inverse()
+    axisCorrection = baxis + axis
+    return (quat + axisCorrection)
 
 def importData (reader, object, filename):
     action = Blender.Armature.NLA.NewAction(filename.split('/')[-1])
@@ -94,10 +105,8 @@ def importData (reader, object, filename):
         for bname, bone in frame.bones.iteritems():
             if bname == 'root':
                 continue
-            rot = frame.bones[bname]
-            rot = getRot(object, bname, rot)
-            euler = Blender.Mathutils.Euler(rot)
-            quat = euler.toQuat()
+            bone = frame.bones[bname]
+            quat = getRot(object, bname, bone)
             b[bname].setQuat(quat)
             b[bname].setPose([ROT])
 

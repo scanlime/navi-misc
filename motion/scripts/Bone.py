@@ -31,6 +31,7 @@ class Bone:
         self.id = int(dict['id'])
         self.length = float(dict['length'])
         self.direction = dict['direction']
+        self.axis = dict['axis'][:3]
         try:
             self.dof = dict['dof']
             self.limits = dict['limits']
