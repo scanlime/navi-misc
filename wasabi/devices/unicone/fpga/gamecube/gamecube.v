@@ -30,23 +30,27 @@ module gamecube (clk, reset,
 	inout sda;
 	inout [3:0] gc_ports;
 
-	/* Buffer between external 2-wire I2C and on-chip 3-wire I2C */
-	wire int_scl, int_sda_in;
-	wire [1:0] int_sda_out;
-	i2c_io_buffer i2cbuf(
-		clk, reset, scl, sda,
-		int_scl, int_sda_in, int_sda_out == 2'b11);
+	// Shared I2C frontend
+	wire [1:0] i2c_interface_tx_1;
+	wire [1:0] i2c_interface_tx_2;
+	wire [20:0] i2c_interface_rx;
+	i2c_frontend i2c_fe(
+		clk, reset, 
+		scl, sda,
+		{ i2c_interface_tx_1[1] && i2c_interface_tx_2[1], 
+		  i2c_interface_tx_1[0] || i2c_interface_tx_2[0] },
+		i2c_interface_rx);
 
 	/* Add an I2C-addressable LED brightness control */
 	pwm_i2c #(7'h21) led_core(
 		clk, reset,
-		int_scl, int_sda_in, int_sda_out[0],
+		i2c_interface_tx_1, i2c_interface_rx,
 		led);
 
 	/* Four I2C-addressable Gamecube controller emulators */
 	gc_i2c #(7'h40) gc_core(
 		clk, reset,
-		int_scl, int_sda_in, int_sda_out[1],
+		i2c_interface_tx_2, i2c_interface_rx,
 		gc_ports);
 endmodule
 
@@ -57,70 +61,59 @@ endmodule
  * of each controller.
  */
 module gc_i2c (clk, reset,
-               scl, sda_in, sda_out,
+               i2c_interface_tx, i2c_interface_rx,
                gc_ports);
         parameter I2C_ADDRESS = 0;
 
 	input clk, reset;
-	input scl, sda_in;
-	output sda_out;
+	output [1:0] i2c_interface_tx;
+	input [20:0] i2c_interface_rx;
 	inout [3:0] gc_ports;
 
 	/* Our I2C core, a dual-port SRAM */
-	wire [4:0] ram_addr;
-	wire [7:0] ram_data;
-	i2c_slave_32byte_sram i2c_ram(clk, reset, scl, sda_in, sda_out,
-	                              ram_addr, ram_data);
+	wire [7:0] ram_addr;
+	wire ram_data;
+	i2c_slave_256bit_sram #(I2C_ADDRESS) i2c_ram(
+		clk, reset, i2c_interface_tx, i2c_interface_rx,
+		ram_addr, ram_data);
 
-	/* Share this RAM among our four controller emulators.
-	 * This also maps each port into a different quarter of our
-	 * RAM's address space.
+	/* Timeslice access to this RAM among our four controller emulators.
+	 * This also maps each port into a different quarter of our address space.
 	 */
-	wire [2:0] port1_addr;
-	wire [2:0] port2_addr;
-	wire [2:0] port3_addr;
-	wire [2:0] port4_addr;
-	wire port1_ack, port1_request;
-	wire port2_ack, port2_request;
-	wire port3_ack, port3_request;
-	wire port4_ack, port4_request;
-	sram_arbiter4 ram_share(clk, reset, ram_addr,
-		{ 2'b00, port1_addr }, port1_request, port1_ack,
-		{ 2'b01, port2_addr }, port2_request, port2_ack,
-		{ 2'b10, port3_addr }, port3_request, port3_ack,
-		{ 2'b11, port4_addr }, port4_request, port4_ack);
-
-	/* The I/O buffer gives us clean synchronized unidirectional
-	 * tx and rx signals for controlling and monitoring the GC port
-	 */
-	wire [3:0] tx;
-	wire [3:0] rx;
-	n_serial_io_buffer iobuffer2(clk, reset, gc_ports[1], tx[1], rx[1]);
-	n_serial_io_buffer iobuffer3(clk, reset, gc_ports[2], tx[2], rx[2]);
-	n_serial_io_buffer iobuffer4(clk, reset, gc_ports[3], tx[3], rx[3]);
+	reg [1:0] ram_state;
+	always @(posedge clk or posedge reset)
+		if (reset)
+			ram_state <= 0;
+		else
+			ram_state <= ram_state + 1;
+	wire [5:0] port1_addr;
+	wire [5:0] port2_addr;
+	wire [5:0] port3_addr;
+	wire [5:0] port4_addr;
+	assign ram_addr = (ram_state == 0) ? {2'b00, port1_addr} :
+	                  (ram_state == 1) ? {2'b01, port2_addr} :
+	                  (ram_state == 2) ? {2'b10, port3_addr} :
+	                                     {2'b11, port4_addr};
 
 	/* A shared tranmsitter timebase for all controller ports */
 	wire [2:0] tx_timing;
 	n_serial_tx_timebase tx_timebase(clk, reset, tx_timing);
 
-	/* The controller simulator core, one for each port. It makes
-	 * requests for each byte of controller state it needs, as it's
-	 * inefficient to pass the whole 64-bit monstrosity around.
-	 * Each core also gives us a rumble bit.
+	/* The controller simulator cores, one for each port. They
+	 * access the above RAM as it's available to them, servicing
+	 * requests coming in from the GC. Each controller gets status
+	 * bits from the GC during each polling cycle, including the
+	 * state of the rumble motor.
 	 */
 	wire [3:0] rumble;
-	gc_controller port1(clk, reset, tx_timing,
-	                    tx[0], rx[0], rumble[0],
-	                    port1_addr, port1_request, ram_data, port1_ack);
-	gc_controller port2(clk, reset, tx_timing,
-	                    tx[1], rx[1], rumble[1],
-	                    port2_addr, port2_request, ram_data, port2_ack);
-	gc_controller port3(clk, reset, tx_timing,
-	                    tx[2], rx[2], rumble[2],
-	                    port3_addr, port3_request, ram_data, port3_ack);
-	gc_controller port4(clk, reset, tx_timing,
-	                    tx[3], rx[3], rumble[3],
-	                    port4_addr, port4_request, ram_data, port4_ack);
+	gc_controller port1(clk, reset, tx_timing, gc_ports[0], rumble[0],
+	                    port1_addr, ram_data, ram_state==0);
+	gc_controller port2(clk, reset, tx_timing, gc_ports[1], rumble[1],
+	                    port2_addr, ram_data, ram_state==1);
+	gc_controller port3(clk, reset, tx_timing, gc_ports[2], rumble[2],
+	                    port3_addr, ram_data, ram_state==2);
+	gc_controller port4(clk, reset, tx_timing, gc_ports[3], rumble[3],
+	                    port4_addr, ram_data, ram_state==3);
 endmodule
 
 
@@ -325,7 +318,7 @@ module gc_controller (clk, reset, tx_timing, gc_port, rumble,
 	                         (tx_request == REQ_ORIGINS) ? resp_origins_ack : 0;
 	wire resp_current_done = (tx_request == REQ_ID)      ? resp_id_done :
 	                         (tx_request == REQ_STATUS)  ? resp_status_done :
-	                         (tx_request == REQ_ORIGINS) ? resp_origins_done : 0;
+	                         (tx_request == REQ_ORIGINS) ? resp_origins_done : 1;
 
 	// Keep track of the current bit count.
 	// If tx_request == REQ_NONE, we're receiving- the bit count is controlled by

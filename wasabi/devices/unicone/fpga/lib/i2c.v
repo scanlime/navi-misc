@@ -300,4 +300,55 @@ module i2c_slave_reg (clk, reset, i2c_interface_tx, i2c_interface_rx, reg_out);
 		end
 endmodule	
 
+
+/*
+ * An I2C slave that lets the host write to a 256-bit-long 1-bit-wide SRAM buffer.
+ * Currently there is no addressing, the host always starts writing from the beginning.
+ * A second port on the SRAM is made available for reading the stored data regardless
+ * of how our I2C master is currently using it.
+ */
+module i2c_slave_256bit_sram (clk, reset, i2c_interface_tx, i2c_interface_rx,
+                              ram_addr, ram_data);
+
+	parameter I2C_ADDRESS = 0;
+
+	input clk, reset;
+	output [1:0] i2c_interface_tx;
+	input [20:0] i2c_interface_rx;
+	input [7:0] ram_addr;
+	output ram_data;
+
+	// Expand on-chip busses
+	wire tx_content, ack;
+	assign i2c_interface_tx = {tx_content, ack};
+	wire rx_stop = i2c_interface_rx[20];
+	wire rx_content = i2c_interface_rx[19];
+	wire content_strobe = i2c_interface_rx[18];
+	wire [8:0] bit_count = i2c_interface_rx[17:9];
+	wire [6:0] pkt_address = i2c_interface_rx[8:2];
+	wire pkt_read_wr = i2c_interface_rx[1];
+	wire pkt_addressed = i2c_interface_rx[0];
+	
+	// Use vendor-specific on-chip SRAM primitives to build a 256x1 memory.
+	// Dedicate the secondary port to our user's read operations.
+	wire int_ram_write;
+	wire [7:0] int_ram_addr;
+	wire int_ram_data;
+	sram_256bit_dualport i2c_ram(
+		clk, int_ram_write,
+		rx_content, int_ram_addr, int_ram_data,
+		ram_addr, ram_data);
+	
+	// Match our device address
+	wire dev_addressed = (pkt_address == I2C_ADDRESS) && pkt_addressed;
+	
+	// We have no content to transmit. Acknowledge when we're addressed for
+	// writing, since we have no read interface yet.
+	assign tx_content = 1;
+	assign ack = dev_addressed && (!pkt_read_wr);
+	
+	// Write to SRAM if we've been addressed successfully and the address is within range
+	assign int_ram_addr = bit_count - 8;
+	assign int_ram_write = dev_addressed && (!pkt_read_wr) && bit_count >= (0+8) && bit_count <= (255+8);
+endmodule
 /* The End */
