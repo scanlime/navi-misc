@@ -242,16 +242,36 @@ void rcpod_GpioDeassert(rcpod_dev* rcpod, rcpod_pin pin) {
 
 
 void rcpod_GpioDeassertBuffer(rcpod_dev* rcpod, rcpod_pin *pins, int count) {
+  rcpod_pin pins4[] = {0,0,0,0};
+  int blockSize, i;
+
+  /* Negate up to four pin descriptors at a time and send them with GpioAssertBuffer */
+  while (count > 0) {
+    blockSize = count > 4 ? 4 : count;
+    for (i=0; i<blockSize; i++)
+      pins4[i] = RCPOD_NEGATE(pins[i]);
+    rcpod_GpioAssertBuffer(rcpod, pins4, blockSize);
+    pins += blockSize;
+    count -= blockSize;
+  }
 }
 
 
-/* Read one of the 8 8-bit A/D converter channels. The result is undefined
- * if the channel is not in the range [0,7]. Always slower than using
- * rcpod_AnalogReadAll, but this function may be necessary if you require
- * extra aquisition time for reading high-impedance signals or you have other
- * special requirements.
- */
 unsigned char rcpod_AnalogReadChannel(rcpod_dev* rcpod, int channel) {
+  /* Turn on the A/D converter and set it to the proper channel */
+  rcpod_Poke(rcpod, RCPOD_REG_ADCON0, 0x81 | (channel << 3));
+
+  /* Normally we'd perform an aquisition delay now to let the holding capacitor
+   * charge, but because the USB interface is so slow we can ignore this.
+   */
+
+  /* Start the A/D conversion */
+  rcpod_Poke(rcpod, RCPOD_REG_ADCON0, 0x85 | (channel << 3));
+
+  /* Normally we'd also have to wait for the conversion to finish, but
+   * the USB interface is slow enough the result should already be ready
+   */
+  return rcpod_Peek(rcpod, RCPOD_REG_ADRES);
 }
 
 /* The End */
