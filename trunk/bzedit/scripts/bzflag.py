@@ -34,25 +34,40 @@ def createTexture(name, filename):
     texture.image = image
     texture.setType('Image')
     material.setTexture(0, texture, Texture.TexCo['OBJECT'])
+    material.spec = 0.1
     return material
 
 try:
     boxTopMaterial = Material.Get('BoxTop')
 except NameError:
     boxTopMaterial = createTexture('BoxTop', '/usr/share/bzedit/tetrawall.png')
-    boxTopMaterial.spec = 0.1
 
 try:
     boxWallMaterial = Material.Get('BoxWall')
 except NameError:
     boxWallMaterial = createTexture('BoxWall', '/usr/share/bzedit/boxwall.png')
-    boxWallMaterial.spec = 0.1
 
 try:
     groundMaterial = Material.Get('Ground')
 except NameError:
     groundMaterial = createTexture('Ground', '/usr/share/bzedit/std_ground.png')
-    groundMaterial.spec = 0.1
+
+try:
+    pyramidMaterial = Material.Get('Pyramid')
+except NameError:
+    pyramidMaterial = createTexture('Ground', '/usr/share/bzedit/pyrwall.png')
+
+try:
+    teleporterFieldMaterial = Material.Get('TeleporterField')
+except NameError:
+    teleporterFieldMaterial = Material.New('TeleporterField')
+    teleporterFieldMaterial.rgbCol = [0.0, 0.0, 0.0]
+    teleporterFieldMaterial.alpha = 0.6
+
+try:
+    teleporterBorderMaterial = Material.Get('TeleporterBorder')
+except NameError:
+    teleporterBorderMaterial = createTexture('TeleporterBorder', '/usr/share/bzedit/caution.png')
 
 def meshify(vertex, face, material):
     mesh = NMesh.GetRaw()
@@ -609,8 +624,52 @@ class Pyramid(Box):
              (0, 1, 2, 3), # Z-
              ]
 
+    materials = [pyramidMaterial]
+    materialIndex = [0, 0, 0, 0, 0]
+
     def set_size(self, x=8.2, y=8.2, z=10.25):
         # Pyramids have different size defaults than the box
         self.size = [x,y,z]
+
+class Teleporter(Box):
+    """A teleporter, with translation, 2 degrees of field size, a border size and rotation"""
+    type = 'teleporter'
+
+    verts = [(0,  1, 1),
+             (0, -1, 1),
+             (0, -1, 0),
+             (0,  1, 0),
+            ]
+
+    faces = [(0, 1, 2, 3),
+            ]
+    materials = [teleporterFieldMaterial, teleporterBorderMaterial]
+    materialIndex = []
+
+    def __init__(self):
+        # Load defaults
+        self.set_position()
+        self.set_rotation()
+        self.set_size()
+        self.set_border()
+
+    def set_position(self, x=0, y=0, z=0):
+        self.position = [x,y,z]
+
+    def set_rotation(self, degrees=0):
+        self.rotation = degrees
+
+    def set_size(self, x=0, y=4.48, z=20.16):
+        self.size = [x,y,z]
+
+    def set_border(self, border=1.0):
+        self.border = border
+
+    def serialize(self, writer):
+        BZObject.serialize(self, writer)
+        writer(("position",) + tuple(self.position))
+        writer(("size") + tuple(self.size))
+        writer(("rotation", self.rotation))
+        writer(("border", self.border))
 
 ### The End ###
