@@ -44,7 +44,8 @@ class PipelineDrawing : Gtk.DrawingArea
 			hadj.PageIncrement = ev.Width;
 			vadj.PageIncrement = ev.Height;
 
-			// temporarily set lower here
+			// Temporarily set the range here. This will need to query
+			// the main canvas for extents once that exists
 			hadj.Upper = ev.Width * 8;
 			vadj.Upper = ev.Height * 8;
 		}
