@@ -78,4 +78,4 @@ internet.TCPServer(3910, site).setServiceParent(application)
 # XML-RPC clients should also use the secure server when they're sending keys.
 sslContext = ssl.DefaultOpenSSLContextFactory("data/server.key", "data/server.crt")
 internet.SSLServer(3914, site, sslContext).setServiceParent(application)
-
+Web.Keyring.setSecureServer(port=3914)

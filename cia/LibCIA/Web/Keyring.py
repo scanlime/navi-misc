@@ -102,12 +102,30 @@ def getKeyring(context):
         return request.keyring
 
 
+# rebuild()-friendly way of maintaining the current secure server...
+if '_secureServer' not in globals():
+    global _secureServer
+    _secureServer = (None, None)
+
+def setSecureServer(host=None, port=None):
+    """Set the hostname and/or port used for secure connections"""
+    global _secureServer
+    _secureServer = (host or _secureServer[0], port or _secureServer[1])
+
+
 def getSecureURL(context):
     """Return an HTTPS URL referring to the current page"""
+    global _secureServer
+    host, port = _secureServer
     request = context['request']
-    inet, addr, port = request.getHost()
-    return quote('https://%s/%s' % (
-        request.getRequestHostname(),
+    if port:
+        port = ":%d" % port
+    else:
+        port = ''
+    if not host:
+        host = request.getRequestHostname()
+    return quote('https://%s%s/%s' % (
+        host, port,
         "/".join(request.prepath)), ":/")
 
 
