@@ -28,6 +28,7 @@ from Ground import *
 from Array import *
 from Vector import *
 from Sprite import *
+from SimpleParticles import *
 import VRML
 import Sky
 
