@@ -80,4 +80,8 @@ LIRCRC = 'lircrc'
 # Always start up with the wasabi skin
 SKIN_XML_FILE = 'wasabi-calm'
 
+# Always write to a visualization buffer at /tmp/mpav,
+# so we can get visualization on all media mplayer handles.
+MPLAYER_ARGS_DEF = "%s -af export=/tmp/mpav " % MPLAYER_ARGS_DEF
+
 ### The End ###
