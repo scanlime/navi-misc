@@ -5,16 +5,37 @@ This modules controls the IRC aspect of the Palantir RPG client.
   Copyright (C) 2004 W. Evan Sheehan <evan@navi.cx>
 '''
 
+# Note: palantirIRC must be imported before gtk because of
+#       problems with the reactor.
+
+from __future__ import nested_scopes
+
+# Get a reactor that allows for gtk, so gtk.main doesn't get held up
+# by running the reactor
+from twisted.internet import gtk2reactor
+gtk2reactor.install()
+
 from twisted.protocols import irc
 from twisted.internet import protocol, reactor
+
+def Connect(factory, server='irc.freenode.net'):
+  global reactor
+  reactor.connectTCP(server, 6667, factory)
+  reactor.run()
+
+def Disconnect():
+  if hasattr(globals(), 'reactor'):
+    reactor.stop()
 
 class PalantirClient(irc.IRCClient):
   ''' This is the class that handles all the nitty gritty of the IRC
       stuff.  Yay for twisted making things pretty easy on me.
       '''
+  def __init__(self):
+    self.realname = 'Palantir'
+
   def Send(self, msg):
-    ''' Send a message to the channel. '''
-    self.say(self.factory.channel, msg)
+    self.say('#palantir', msg)
 
   ### IRC Callbacks ###
   def connectionMade(self):
@@ -27,9 +48,6 @@ class PalantirClient(irc.IRCClient):
 
   def signedOn(self):
     self.join(self.factory.channel)
-
-  def joined(self, channel):
-    self.say(channel,'I is here!')
 
   def privmsg(self, user, channel, msg):
     print user, ':', msg
@@ -55,7 +73,6 @@ class PalantirClientFactory(protocol.ClientFactory):
   def clientConnectionFailed(self, connector, reason):
     print 'Connection failed:', reason
     reactor.stop()
-
 
 # Just for a little testing.
 if __name__ == '__main__':
