@@ -74,3 +74,12 @@ class Reader:
                 CaselessLiteral("border") + float
               | obstacleProperty
             teleporter = CaselessLiteral("teleporter") + OneOrMore(teleporterProperty) + end
+
+            teleporterSpec =
+                Word(digits)
+              | Combine(Word(alphanums + '*/') + Literal(':') + (CaselessLiteral('f') | CaselessLiteral('b')))
+            linkProperty =
+                CaselessLiteral('to') + teleporterSpec
+              | CaselessLiteral('from') + teleporterSpec
+              | objectProperty
+            link = CaselessLiteral('link') + OneOrMore(linkProperty) + end
