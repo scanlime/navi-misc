@@ -51,6 +51,15 @@ li {
   padding: 0.25em;
 }
 
+table.columns td.left p {
+  /* This is a bit of a kludge to remove grossly huge amounts of extra space
+   * from lists in sidebars formed by reStructuredText documents. The document
+   * converter includes all text in a <p> for consistency, so the margin from
+   * the <p> and form the <li> take effect, making it gigantically spaced.
+   */
+  padding: 0em;
+}
+
 div.heading {
   padding: 0em;
   margin: 0em;
