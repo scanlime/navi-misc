@@ -52,7 +52,8 @@ public class PipelineEditor
 	/* D-n-D private data */
 	private int			click_x, click_y;
 	private bool			dragging;
-	TargetList			target_list;
+	private TargetEntry[]		targets;
+	private TargetList		target_list;
 
 	public static void Main (string[] args)
 	{
@@ -66,7 +67,13 @@ public class PipelineEditor
 		Glade.XML gxml = new Glade.XML (null, "pipeline-editor.glade", "toplevel", null);
 		gxml.Autoconnect (this);
 
+		/* Create drag-and-drop target */
+		targets = new TargetEntry[1];
+		targets[0] = new TargetEntry ("fyre element drag", Gtk.TargetFlags.App, 0);
+		target_list = new TargetList (targets);
+
 		SetupElementList ();
+		SetupDrawingCanvas ();
 
 		/* These start out nulled */
 		current_tooltip = null;
@@ -115,11 +122,13 @@ public class PipelineEditor
 		element_list.AppendColumn (column);
 
 		/* Set up drag-and-drop for our tree view */
-		TargetEntry[] targets = new TargetEntry[1];
-		targets[0] = new TargetEntry ("fyre element drag", Gtk.TargetFlags.App, 0);
-		target_list = new TargetList (targets);
-
 		Gtk.Drag.SourceSet (element_list, Gdk.ModifierType.Button1Mask, targets, Gdk.DragAction.Copy);
+	}
+
+	void SetupDrawingCanvas ()
+	{
+		/* Set up drag-and-drop for the canvas */
+		Gtk.Drag.DestSet (pipeline_drawing, Gtk.DestDefaults.All, targets, Gdk.DragAction.Copy);
 	}
 
 	void ElementListDragBegin (object o, DragBeginArgs args)
