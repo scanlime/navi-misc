@@ -1,9 +1,31 @@
 #!/usr/bin/env python
 import gtk, gtk.gl, gtk.gdk, vte, os
 
+class FileDialog(gtk.FileSelection):
+    def __init__(self, title, parent):
+        gtk.FileSelection.__init__(self, title)
+        self.controller = parent
+        self.ok_button.connect('clicked', lambda w: self.ok())
+        self.cancel_button.connect('clicked', lambda w: self.destroy())
+        self.show()
+
+    def ok(self):
+        self.controller.open2(self.get_filename())
+        self.destroy()
+
+    def run(self):
+        self.show()
+
 class MainWindow:
     def print_hello(self, w, data):
         print 'Hello, World!'
+
+    def open2(self, filename):
+        print 'trying to open',filename
+        source = SourcePage(sources, filename)
+
+    def open(self, w, data):
+        file = FileDialog('Open', self)
 
     def get_main_menu(self, window):
         accel_group = gtk.AccelGroup()
@@ -17,7 +39,7 @@ class MainWindow:
         self.menu_items = (
             ( '/_File',                        None,                None,             0, '<Branch>' ),
             ( '/File/_New',                    None,                self.print_hello, 0, None ),
-            ( '/File/_Open',                   None,                self.print_hello, 0, None ),
+            ( '/File/_Open',                   None,                self.open,        0, None ),
             ( '/File/sep1',                    None,                None,             0, '<Separator>' ),
             ( '/File/Open Setup',              None,                None,             0, None),
             ( '/File/Save Setup',              None,                None,             0, None),
@@ -108,22 +130,28 @@ class GLView(gtk.gl.Area):
         gtk.DrawingArea.__init__(self)
 
 class Editor(vte.Terminal):
-    def __init__(self):
+    def __init__(self, filename=None):
         vte.Terminal.__init__(self)
         self.set_color_foreground(gtk.gdk.color_parse('Black'))
         self.set_color_background(gtk.gdk.color_parse('White'))
         editor = os.environ.get('EDITOR', 'vim')
-        del os.environ['DISPLAY']
+        if filename is not None:
+            editor += ' ' + filename
+        try:
+            del os.environ['DISPLAY']
+        except:
+            pass
         self.fork_command('sh', ('sh', '-c', editor),
                           None, os.getcwd(),
                           gtk.FALSE, gtk.FALSE, gtk.FALSE)
 
 class SourcePage:
-    def __init__(self, notebook):
-        self.editor = Editor()
+    def __init__(self, notebook, filename=None):
+        self.editor = Editor(filename)
         self.notebook = notebook;
         self.label = gtk.Label('Look Ma! A tab!')
         self.editor.tab = self
+        self.editor.show_all()
         notebook.append_page(self.editor, self.label)
 
         def remove(self):
