@@ -40,6 +40,7 @@ static void on_anim_open(GtkWidget *widget, gpointer user_data);
 static void on_anim_save(GtkWidget *widget, gpointer user_data);
 static void on_anim_save_as(GtkWidget *widget, gpointer user_data);
 static void on_anim_scale_changed(GtkWidget *widget, gpointer user_data);
+static void on_anim_transition_scale_changed(GtkWidget *widget, gpointer user_data);
 static void on_anim_set_linear(GtkWidget *widget, gpointer user_data);
 static void on_anim_set_smooth(GtkWidget *widget, gpointer user_data);
 static void on_anim_curve_changed(GtkWidget *widget, gpointer user_data);
@@ -54,25 +55,27 @@ void explorer_init_animation(Explorer *self) {
 
   /* Connect signal handlers
    */
-  glade_xml_signal_connect_data(self->xml, "on_anim_play_toggled",            G_CALLBACK(on_anim_play_toggled),            self);
-  glade_xml_signal_connect_data(self->xml, "on_keyframe_add",                 G_CALLBACK(on_keyframe_add),                 self);
-  glade_xml_signal_connect_data(self->xml, "on_keyframe_replace",             G_CALLBACK(on_keyframe_replace),             self);
-  glade_xml_signal_connect_data(self->xml, "on_keyframe_delete",              G_CALLBACK(on_keyframe_delete),              self);
-  glade_xml_signal_connect_data(self->xml, "on_keyframe_view_cursor_changed", G_CALLBACK(on_keyframe_view_cursor_changed), self);
-  glade_xml_signal_connect_data(self->xml, "on_anim_window_delete",           G_CALLBACK(on_anim_window_delete),           self);
-  glade_xml_signal_connect_data(self->xml, "on_anim_new",                     G_CALLBACK(on_anim_new),                     self);
-  glade_xml_signal_connect_data(self->xml, "on_anim_open",                    G_CALLBACK(on_anim_open),                    self);
-  glade_xml_signal_connect_data(self->xml, "on_anim_save",                    G_CALLBACK(on_anim_save),                    self);
-  glade_xml_signal_connect_data(self->xml, "on_anim_save_as",                 G_CALLBACK(on_anim_save_as),                 self);
-  glade_xml_signal_connect_data(self->xml, "on_anim_scale_changed",           G_CALLBACK(on_anim_scale_changed),           self);
-  glade_xml_signal_connect_data(self->xml, "on_anim_set_linear",              G_CALLBACK(on_anim_set_linear),              self);
-  glade_xml_signal_connect_data(self->xml, "on_anim_set_smooth",              G_CALLBACK(on_anim_set_smooth),              self);
-  glade_xml_signal_connect_data(self->xml, "on_keyframe_duration_change",     G_CALLBACK(on_keyframe_duration_change),     self);
+  glade_xml_signal_connect_data(self->xml, "on_anim_play_toggled",             G_CALLBACK(on_anim_play_toggled),             self);
+  glade_xml_signal_connect_data(self->xml, "on_keyframe_add",                  G_CALLBACK(on_keyframe_add),                  self);
+  glade_xml_signal_connect_data(self->xml, "on_keyframe_replace",              G_CALLBACK(on_keyframe_replace),              self);
+  glade_xml_signal_connect_data(self->xml, "on_keyframe_delete",               G_CALLBACK(on_keyframe_delete),               self);
+  glade_xml_signal_connect_data(self->xml, "on_keyframe_view_cursor_changed",  G_CALLBACK(on_keyframe_view_cursor_changed),  self);
+  glade_xml_signal_connect_data(self->xml, "on_anim_window_delete",            G_CALLBACK(on_anim_window_delete),            self);
+  glade_xml_signal_connect_data(self->xml, "on_anim_new",                      G_CALLBACK(on_anim_new),                      self);
+  glade_xml_signal_connect_data(self->xml, "on_anim_open",                     G_CALLBACK(on_anim_open),                     self);
+  glade_xml_signal_connect_data(self->xml, "on_anim_save",                     G_CALLBACK(on_anim_save),                     self);
+  glade_xml_signal_connect_data(self->xml, "on_anim_save_as",                  G_CALLBACK(on_anim_save_as),                  self);
+  glade_xml_signal_connect_data(self->xml, "on_anim_scale_changed",            G_CALLBACK(on_anim_scale_changed),            self);
+  glade_xml_signal_connect_data(self->xml, "on_anim_transition_scale_changed", G_CALLBACK(on_anim_transition_scale_changed), self);
+  glade_xml_signal_connect_data(self->xml, "on_anim_set_linear",               G_CALLBACK(on_anim_set_linear),               self);
+  glade_xml_signal_connect_data(self->xml, "on_anim_set_smooth",               G_CALLBACK(on_anim_set_smooth),               self);
+  glade_xml_signal_connect_data(self->xml, "on_keyframe_duration_change",      G_CALLBACK(on_keyframe_duration_change),      self);
 
   /* Add our CurveEditor, a modified GtkCurve widget
    */
   self->anim_curve = curve_editor_new();
   gtk_container_add(GTK_CONTAINER(glade_xml_get_widget(self->xml, "anim_curve_box")), self->anim_curve);
+  gtk_widget_set_size_request(GTK_WIDGET(self->anim_curve), 175, 175);
   g_signal_connect(self->anim_curve, "changed", G_CALLBACK(on_anim_curve_changed), self);
   gtk_widget_show_all(self->anim_curve);
 
@@ -156,7 +159,6 @@ static void on_keyframe_delete(GtkWidget *widget, gpointer user_data) {
   Explorer *self = EXPLORER(user_data);
   GtkTreeIter iter;
   explorer_get_current_keyframe(self, &iter);
-
   gtk_widget_set_sensitive(glade_xml_get_widget(self->xml, "keyframe_delete_button"), FALSE);
   gtk_widget_set_sensitive(glade_xml_get_widget(self->xml, "keyframe_replace_button"), FALSE);
   gtk_widget_set_sensitive(glade_xml_get_widget(self->xml, "anim_transition_box"), FALSE);
@@ -190,6 +192,18 @@ static void on_keyframe_view_cursor_changed(GtkWidget *widget, gpointer user_dat
 
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(glade_xml_get_widget(self->xml, "anim_play_button")), FALSE);
     self->selecting_keyframe = FALSE;
+
+    /* Now load this keyframe's parameters. Usually seeking won't do this,
+     * but we need to make sure because zero-duration keyframes can't be seeked to.
+     */
+    animation_keyframe_load_dejong(self->animation, &iter, self->dejong);
+    explorer_set_params(self);
+
+    /* Set the transition scale to zero. Normally setting anim_scale would be
+     * enough, but if the keyframe changes but the scale value doesn't (such
+     * as when a keyframe is first selected) it might not.
+     */
+    gtk_range_set_value(GTK_RANGE(glade_xml_get_widget(self->xml, "anim_transition_scale")), 0);
   }
 
   /* Load this keyframe's transition parameters into our GUI */
@@ -203,8 +217,6 @@ static void on_keyframe_view_cursor_changed(GtkWidget *widget, gpointer user_dat
   spline_free(spline);
   self->allow_transition_changes = TRUE;
 }
-
-
 
 static void on_anim_set_linear(GtkWidget *widget, gpointer user_data) {
   Explorer *self = EXPLORER(user_data);
@@ -336,40 +348,84 @@ static void explorer_update_animation_length(Explorer *self) {
 }
 
 static void on_anim_scale_changed(GtkWidget *widget, gpointer user_data) {
+  /* The scale widget indicating our current position in the entire animation has changed
+   */
   double v = gtk_range_get_adjustment(GTK_RANGE(widget))->value;
   Explorer *self = EXPLORER(user_data);
   AnimationIter iter;
   GtkTreePath *path;
   GtkTreeView *tv = GTK_TREE_VIEW(glade_xml_get_widget(self->xml, "keyframe_view"));
+  gdouble keyframe_duration;
+
+  self->seeking_animation = TRUE;
 
   /* Seek to the right place in the animation and load an interpolated frame */
   animation_iter_seek(self->animation, &iter, v);
-  if (!iter.valid) {
-    /* Don't do anything if we're past the end of the animation.
-     * This will happen because the animation's range is only [0, length)
-     * while the scale widget we represent it has a range of [0, length]
-     */
-    return;
-  }
-  animation_iter_load_dejong(self->animation, &iter, self->dejong);
+  if (iter.valid) {
 
-  if (!self->selecting_keyframe) {
-    /* Put the tree view's cursor on the current keyframe */
-    path = gtk_tree_model_get_path(GTK_TREE_MODEL(self->animation->model), &iter.keyframe);
-    self->seeking_animation = TRUE;
-    gtk_tree_view_set_cursor(tv, path, NULL, FALSE);
-    self->seeking_animation = FALSE;
-    gtk_tree_path_free(path);
+    animation_iter_load_dejong(self->animation, &iter, self->dejong);
+
+    /* Seek the transition_scale to our current position within the current keyframe */
+    if (!self->seeking_animation_transition) {
+      gtk_tree_model_get(GTK_TREE_MODEL(self->animation->model), &iter.keyframe,
+			 ANIMATION_MODEL_DURATION, &keyframe_duration,
+			 -1);
+      if (keyframe_duration > 0.00001) {
+	gtk_range_set_value(GTK_RANGE(glade_xml_get_widget(self->xml, "anim_transition_scale")),
+			    iter.time_after_keyframe / keyframe_duration);
+      }
+    }
+
+    if (!self->selecting_keyframe) {
+      /* Put the tree view's cursor on the current keyframe */
+      path = gtk_tree_model_get_path(GTK_TREE_MODEL(self->animation->model), &iter.keyframe);
+      gtk_tree_view_set_cursor(tv, path, NULL, FALSE);
+      gtk_tree_path_free(path);
+    }
+
+    if (!self->playing_animation) {
+      /* Just like the color picker, the hscale will probably try to suck up
+       * all of the idle time we might have been spending rendering things.
+       * Force at least a little rendering to happen right now.
+       */
+      explorer_run_iterations(self);
+      explorer_update_gui(self);
+    }
   }
 
-  if (!self->playing_animation) {
-    /* Just like the color picker, the hscale will probably try to suck up
-     * all of the idle time we might have been spending rendering things.
-     * Force at least a little rendering to happen right now.
+  self->seeking_animation = FALSE;
+}
+
+static void on_anim_transition_scale_changed(GtkWidget *widget, gpointer user_data) {
+  /* The scale widget indicating our current position in this keyframe has changed.
+   * Update our position in the whole animation.
+   */
+  double v;
+  Explorer *self = EXPLORER(user_data);
+  GtkTreeIter iter;
+  gdouble keyframe_duration;
+
+  self->seeking_animation_transition = TRUE;
+
+  if (!self->seeking_animation) {
+    v = gtk_range_get_adjustment(GTK_RANGE(widget))->value;
+    explorer_get_current_keyframe(self, &iter);
+
+    gtk_tree_model_get(GTK_TREE_MODEL(self->animation->model), &iter,
+		       ANIMATION_MODEL_DURATION, &keyframe_duration,
+		       -1);
+
+    /* Calculate a new position for the main anim_scale to get the
+     * requested value within this transition. Note the multiplication by 0.9999,
+     * and adding 0.00001. This prevents this from actually ever touching either
+     * keyframe, so we don't inadvertently go forward or backward by one keyframe.
      */
-    explorer_run_iterations(self);
-    explorer_update_gui(self);
+    gtk_range_set_value(GTK_RANGE(glade_xml_get_widget(self->xml, "anim_scale")),
+			animation_keyframe_get_time(self->animation, &iter) +
+			v * keyframe_duration * 0.9999 + 0.00001);
   }
+
+  self->seeking_animation_transition = FALSE;
 }
 
 
