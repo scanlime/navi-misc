@@ -1,4 +1,13 @@
-/* This file includes many USB constants and structures adapted
+/*
+ * usb_driver.h - A relatively easy to use C interface to the USB
+ *                hardware on the TUSB3210/TUSB3410 chips. This module
+ *                implements many standard commands defined in the USB
+ *                spec, and allows vendor-specific commands to be
+ *                defined externally.
+ *
+ * Copyright (C) 2004  Micah Dowty
+ *
+ * This file includes many USB constants and structures adapted
  * from Linux's usb.h, and other definitions specific to usb_driver.c.
  */
 

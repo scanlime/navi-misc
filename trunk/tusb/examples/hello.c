@@ -1,3 +1,12 @@
+/*
+ * hello.c - A simple example of device firmware built with
+ *           usb_driver.c and the other modules included in the tusb
+ *           library. Connect a serial terminal at 115200 baud 8-N-1
+ *           to the serial port and run hello_test to see the results.
+ *
+ * --Micah Dowty <micah@navi.cx>
+ */
+
 #include <stdio.h>
 #include <string.h>
 #include "usb_driver.h"

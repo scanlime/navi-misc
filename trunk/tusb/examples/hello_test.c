@@ -1,3 +1,12 @@
+/*
+ * hello_test.c - A simple host application, written with
+ *                libusb, to test the 'hello' firmware.
+ *                It sends a couple vendor-specific requests
+ *                then tests the EP1 OUT endpoint.
+ *
+ * --Micah Dowty <micah@navi.cx>
+ */
+
 #include <usb.h>
 #include <stdio.h>
 
@@ -68,3 +77,5 @@ int main(int argc, char **argv) {
 
   return 0;
 }
+
+/* The End */
