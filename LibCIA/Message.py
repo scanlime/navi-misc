@@ -462,7 +462,7 @@ class ModularFormatter(Formatter):
            space separated formatter names.
            """
         appliesTo = tree.getAttributeNS(None, 'appliesTo')
-        if appliesTo is not None:
+        if appliesTo:
             if self.__class__.__name__ not in appliesTo.split():
                 return
 
@@ -483,11 +483,18 @@ class ModularFormatter(Formatter):
            list. An empty list always indicates that the component ran but
            had nothing to format- we return None if the node is ignored.
 
-           Text nodes return a list with only their data. Elements invoke
-           the corresponding component_* handler, which must return a sequence.
+           Text nodes return a list with only their data. Newline characters
+           in a text node are converted to spaces, so newlines and tabs can be used
+           to prettify the XML without it affecting the final output- this combined with
+           the redundant whitespace elimination in joinComponents() gives HTML-like
+           semantics. Literal linebreaks can be obtained with the <br/> component.
+
+           Elements invoke the corresponding component_* handler, which must
+           return a sequence.
            """
         if node.nodeType == node.TEXT_NODE:
-            return [node.data]
+            return [node.data.replace("\n", " ")]
+
         elif node.nodeType == node.ELEMENT_NODE:
             f = getattr(self, "component_" + node.nodeName, None)
             if f:
@@ -513,14 +520,18 @@ class ModularFormatter(Formatter):
             result = self.evalComponent(node, args)
             if result is not None and not result:
                 return []
-            results.extend(results)
+            results.extend(result)
         return results
+
+    def component_br(self, element, args):
+        """A built-in component that just returns a newline"""
+        return ["\n"]
 
     def textComponent(self, element, args, *path):
         """A convenience function for defining components that just look for a node
            in the message and return its shallowText.
            """
-        element = XML.dig(args.message, *path)
+        element = XML.dig(args.message.xml, *path)
         if element:
             return [XML.shallowText(element)]
         else:
