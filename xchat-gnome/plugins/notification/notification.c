@@ -68,6 +68,7 @@ xchat_plugin_init (xchat_plugin *plugin_handle, char **plugin_name,
 static gboolean
 notification_clicked_cb (GtkWidget *widget, GdkEventButton *event, gpointer data)
 {
+	return TRUE;
 }
 
 
