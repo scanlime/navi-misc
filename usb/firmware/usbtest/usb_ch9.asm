@@ -1723,10 +1723,41 @@ SetConfiguration
 ; return.  
 ; *********************************************************************
 CheckVendor
-	global	CheckVendor
-	movf	BufferData+wValue, w
+	movf	BufferData+bRequest,w ; It's a VFD write request
+	xorlw	VFD_WRITE
+	pagesel	VFDWriteRequest
+	btfsc	STATUS,Z
+	goto	VFDWriteRequest
+
+	pagesel	wrongstate			; Not a recognized request
+	goto	wrongstate
+
+	;********************* Request to write to the VFD
+	; Requests with data don't seem to work right, so we read
+	; 4 bytes of data packed into the setup packet in the wValue
+	; and wIndex locations.
+VFDWriteRequest
+	banksel BufferData
 	pagesel	VFD_SendByte
+	movf	BufferData+wValue, w
 	call	VFD_SendByte
+	
+	banksel BufferData
+	pagesel	VFD_SendByte
+	movf	BufferData+(wValue+1), w
+	call	VFD_SendByte
+
+	banksel BufferData
+	pagesel	VFD_SendByte
+	movf	BufferData+wIndex, w
+	call	VFD_SendByte
+
+	banksel BufferData
+	pagesel	VFD_SendByte
+	movf	BufferData+(wIndex+1), w
+	call	VFD_SendByte
+
+	; Acknowledge the request
 	pagesel	Send_0Len_pkt
 	call	Send_0Len_pkt
 	return
