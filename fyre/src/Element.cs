@@ -37,9 +37,6 @@ namespace Fyre
 		abstract public string[,]	InputDesc ();
 		abstract public string[,]	OutputDesc ();
 
-		abstract public void		Serialize (XmlWriter writer);
-		abstract public void		DeSerialize (XmlReader reader);
-
 		// private element-specific data
 		private System.Guid		id;
 		public CanvasElement		canvas_element;
@@ -47,6 +44,16 @@ namespace Fyre
 		protected void NewID ()
 		{
 			id = System.Guid.NewGuid ();
+		}
+
+		public virtual void Serialize (XmlWriter writer)
+		{
+			// guid
+		}
+
+		public virtual void DeSerialize (XmlReader reader)
+		{
+			// guid
 		}
 	}
 
