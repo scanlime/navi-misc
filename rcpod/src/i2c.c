@@ -224,8 +224,8 @@ static int i2c_set_dev(rcpod_dev *rcpod, rcpod_i2c_dev *idev) {
 
   retval = usb_control_msg(rcpod->usbdevh, USB_TYPE_VENDOR | USB_ENDPOINT_OUT,
 			   RCPOD_CTRL_I2C_SET,
-			   (idev->speed << 8) | idev->address,
 			   (idev->clock << 8) | idev->data,
+			   (idev->speed << 8) | idev->address,
 			   NULL, 0, RCPOD_TIMEOUT);
   if (retval < 0) {
     rcpod_HandleError("i2c_set_dev", errno, strerror(errno));
