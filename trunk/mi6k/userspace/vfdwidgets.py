@@ -94,6 +94,7 @@ class Text(Widget):
                  visible    = True,
                  ):
         Widget.__init__(self)
+        self._text = None
         self.text = text
         self.align = align
         self.gravity = gravity
