@@ -175,7 +175,7 @@ class RSSLink:
     def render(self, context):
         text = self.text
         if text is None:
-            text = "RSS Feed"
+            text = "RSS 2.0 Feed"
         return self.tagFactory(href=self.getURL(context))[text]
 
 
@@ -503,14 +503,35 @@ class RSSFeed(Nouvelle.Twisted.Page):
     """A web resource representing an RSS feed for a particular stats target.
        We use Nouvelle here to generate RSS rather than XHTML :)
        """
-    def __init__(self, target):
-        self.target = target
+    def __init__(self, statsPage):
+        self.statsPage = statsPage
+        self.target = statsPage.target
         Nouvelle.Twisted.Page.__init__(self)
 
     def preRender(self, context):
         context['request'].setHeader('content-type', 'text/xml')
+        context['statsRootPath'] = self.statsPage.findRootPath(context['request'], 1, absolute=True)
 
-    document = tag('boing')
+    def render_title(self, context):
+        return self.target.getTitle()
+
+    def render_link(self, context):
+        if 'url' in self.target.metadata:
+            return self.target.metadata['url']
+        else:
+            return StatsLink(self.target).getURL(context)
+
+    def render_description(self, context):
+        if 'description' in self.target.metadata:
+            return self.target.metadata['description']
+        else:
+            return "CIA stats for %s" % self.render_title(context)
+
+    document = tag('rss', version='2.0')[ tag('channel')[
+        tag('title')[ place('title') ],
+        tag('link')[ place('link') ],
+        tag('description')[ place('description') ],
+        ]]
 
 
 class StatsLinksSection(Template.Section):
@@ -602,18 +623,29 @@ class StatsPage(Template.Page):
             return StatsPage(self.caps, self.storage,
                              self.target.child(name))
 
-    def findRootPath(self, request, additionalDepth=0):
+    def findRootPath(self, request, additionalDepth=0, absolute=False):
         """Find the URL path referring to the root of the current stats tree
            The returned path begins and ends with a slash.
 
            additionalDepth can be set to a nonzero number if the caller
            knows the request is actually for a page below this one in the URL tree.
+
+           If 'absolute' is True, a full absolute URL is returned.
            """
         pathSegments = [s for s in request.path.split('/') if s]
         treeDepth = len(self.target.pathSegments) + additionalDepth
         if treeDepth:
             pathSegments = pathSegments[:-treeDepth]
-        return '/' + '/'.join(pathSegments) + '/'
+        path = '/' + '/'.join(pathSegments) + '/'
+
+        # Cheesily stick together an absolute URL
+        if absolute:
+            ns, host, port = request.host
+            if port != 80:
+                host += ':' + str(port)
+            path = 'http://' + host + path
+
+        return path
 
     def preRender(self, context):
         context['statsRootPath'] = self.findRootPath(context['request'])
