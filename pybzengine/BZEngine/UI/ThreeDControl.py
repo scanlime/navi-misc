@@ -23,139 +23,7 @@ Controller classes for manipulating 3D views
 
 import math, sys, pygame
 from BZEngine import Animated, Event
-from BZEngine.UI import ThreeDRender, Viewport, Instrument
-
-
-class Modifiers:
-    """Represents a set of modifier keys. The modifer can be zero or more
-       pygame.KMOD_* constants or'ed together, None, or 'any'.
-       """
-    def __init__(self, modifiers):
-        if modifiers is None:
-            modifiers = 0
-        if modifiers == 'any':
-            self.requireMods = 0
-            self.disallowMods = 0
-        else:
-            self.requireMods = modifiers
-            self.disallowMods = (~modifiers) & (pygame.KMOD_SHIFT | pygame.KMOD_CTRL |
-                                                pygame.KMOD_ALT | pygame.KMOD_META)
-
-    def test(self):
-        """Return true if the currently pressed modifiers fit this class' criteria"""
-        mods = pygame.key.get_mods()
-        if mods & self.disallowMods:
-            return False
-        if mods & self.requireMods or not self.requireMods:
-            return True
-        return False
-
-
-class MouseDrag(Event.Event):
-    """Binds a mouse drag action to a function, with optional modifier keys.
-       The function is called with X and Y relative motion as its two parameters.
-       Buttons are numbered starting at 1.
-       """
-    def __init__(self, viewport, button, modifiers=None, scale=1):
-        Event.Event.__init__(self)
-        self.button = button
-        self.scale = scale
-        self.modifiers = Modifiers(modifiers)
-        viewport.onMouseMotion.observe(self.handleMotion)
-
-    def handleMotion(self, event):
-        if event.buttons[self.button-1] and self.modifiers.test():
-                self(event.rel[0] * self.scale, event.rel[1] * self.scale)
-
-
-class MouseGrab:
-    """When the mouse is dragged with the specified button, hide it and
-       snap it back to its initial position. This makes it much more
-       intuitive to perform drags that don't correspond directly to
-       viewport coordinates. Since this doesn't perform an actual mouse grab,
-       if the software hangs for any reason, the mouse will not be trapped.
-       Buttons are numbered starting at 1.
-       """
-    def __init__(self, viewport, button):
-        self.button = button
-        viewport.onMouseMotion.observe(self.handleMotion)
-        viewport.onMouseButtonDown.observe(self.handlePress)
-        viewport.onMouseButtonUp.observe(self.handleRelease)
-        self.homePos = None
-
-    def handlePress(self, event):
-        if event.button == self.button:
-            pygame.mouse.set_visible(False)
-            self.homePos = event.pos
-
-    def handleRelease(self, event):
-        if event.button == self.button:
-            pygame.mouse.set_visible(True)
-            self.homePos = None
-
-    def handleMotion(self, event):
-        if self.homePos:
-            # Snap the mouse back to the position it was clicked at.
-            # This generates an event, so we have to rummage through the event
-            # queue and discard it, putting all the other events back.
-            pygame.mouse.set_pos(*self.homePos)
-            for newEvent in pygame.event.get([pygame.MOUSEMOTION]):
-                if newEvent.pos != self.homePos:
-                    pygame.event.post(newEvent)
-
-
-class KeyPress(Event.Event):
-    """An event that fires when a specified key is pressed. Either a
-       string or a key constant can be given.
-       """
-    def __init__(self, viewport, key, modifiers=None):
-        Event.Event.__init__(self)
-        self.key = key
-        self.modifiers = Modifiers(modifiers)
-        viewport.onKeyDown.observe(self.handlePress)
-
-    def handlePress(self, event):
-        if type(self.key) == str or type(self.key) == unicode:
-            if event.unicode == self.key and self.modifiers.test():
-                self()
-        else:
-            if event.key == self.key and self.modifiers.test():
-                self()
-
-
-class KeyAxis(Event.Event):
-    """A combination of two keys that simulate a scalar axis"""
-    def __init__(self, viewport, keyPlus, keyMinus, scale=1, modifiers=None):
-        Event.Event.__init__(self)
-        self.scale = scale
-        self.keyPlus = KeyPress(viewport, keyPlus, modifiers)
-        self.keyMinus = KeyPress(viewport, keyMinus, modifiers)
-        self.keyPlus.observe(self.increment)
-        self.keyMinus.observe(self.decrement)
-
-    def increment(self):
-        self(self.scale)
-
-    def decrement(self):
-        self(-self.scale)
-
-
-class MouseWheel(Event.Event):
-    """An event that fires when the mous wheel is pressed.
-       The event handler gets a positive or negative copy of
-       'scale' depending on the direction.
-       """
-    def __init__(self, viewport, scale=1, modifiers=None):
-        Event.Event.__init__(self)
-        self.scale = scale
-        self.modifiers = Modifiers(modifiers)
-        viewport.onMouseButtonDown.observe(self.handleWheel)
-
-    def handleWheel(self, event):
-        if event.button == 4 and self.modifiers.test():
-            self(self.scale)
-        elif event.button == 5 and self.modifiers.test():
-            self(-self.scale)
+from BZEngine.UI import ThreeDRender, Viewport, Instrument, Input
 
 
 class Viewing:
@@ -164,7 +32,6 @@ class Viewing:
        foundation for a world editor.
        """
     def __init__(self, view, viewport):
-        self.bindings = []
         self.view = view
         self.viewport = viewport
         self.movieRecorder = None
@@ -179,32 +46,7 @@ class Viewing:
         view.camera.elevation = 15
         view.camera.jump()
 
-        self.bind(KeyPress, 'f').observe(self.toggleFullscreen)
-        self.bind(KeyPress, 'c').observe(self.toggleCameraInfo)
-        self.bind(KeyPress, 'w').observe(self.toggleWireframe)
-        self.bind(KeyPress, 'x').observe(self.toggleXRay)
-        self.bind(KeyPress, 'r').observe(self.toggleRecorder)
-        self.bind(KeyPress, 'h').observe(self.toggleFrameRate)
-        self.bind(KeyPress, 'q').observe(self.quit)
-        self.bind(KeyPress, pygame.K_ESCAPE).observe(self.quit)
-        self.bind(MouseWheel, 0.1, 'any').observe(self.zoom)
-        self.bind(KeyAxis, '=', '-', 0.1).observe(self.zoom)
-        self.bind(KeyAxis, '[', ']', 0.1).observe(self.fovZoom)
-
-        dragButton = 3
-        self.bind(MouseGrab, dragButton)
-        self.bind(MouseDrag, dragButton, None, 0.2).observe(self.rotate)
-        self.bind(MouseDrag, dragButton, pygame.KMOD_SHIFT).observe(self.pan)
-        self.bind(MouseDrag, dragButton, pygame.KMOD_CTRL).observe(self.lift)
-
-    def bind(self, cls, *args, **kw):
-        """Set up a key or mouse binding using the given class. Returns the class
-           instance ready for binding to an observer, and stores the event for later
-           editing.
-           """
-        binding = cls(self.viewport, *args, **kw)
-        self.bindings.append(binding)
-        return binding
+        self.bindings = Input.load(viewport, self, 'viewing_keys.py')
 
     def pan(self, horizontal, vertical):
         (x, y, z) = self.view.camera.position
