@@ -63,6 +63,7 @@ int main(int argc, char ** argv) {
     Animation* animation;
     gboolean animate = FALSE;
     gboolean have_gtk;
+    gboolean dofork = TRUE;
     enum {INTERACTIVE, RENDER, SCREENSAVER, REMOTE} mode = INTERACTIVE;
     const gchar *outputFile = NULL;
     int c, option_index=0;
@@ -87,12 +88,13 @@ int main(int argc, char ** argv) {
 	    {"oversample",  1, NULL, 'S'},
 	    {"density",     1, NULL, 't'},
 	    {"remote",      0, NULL, 'r'},
+	    {"nofork",      0, NULL, 'D'},
 	    {"port",        1, NULL, 'P'},
 	    {"cluster",     1, NULL, 'c'},
 	    {"screensaver", 0, NULL, 1000},   /* Undocumented, still experimental */
 	    {NULL},
 	};
-	c = getopt_long(argc, argv, "hi:n:o:p:s:S:t:rP:c:",
+	c = getopt_long(argc, argv, "hi:n:o:p:s:S:t:rDP:c:",
 			long_options, &option_index);
 	if (c == -1)
 	    break;
@@ -131,6 +133,10 @@ int main(int argc, char ** argv) {
 
 	case 'r':
 	    mode = REMOTE;
+	    break;
+
+	case 'D':
+	    dofork = FALSE;
 	    break;
 
 	case 'P':
@@ -189,9 +195,11 @@ int main(int argc, char ** argv) {
 #ifdef HAVE_GNET
 #  ifdef HAVE_FORK
 	/* FIXME: Don't assume HAVE_FORK means that daemon() will work */
-	if (daemon(0, 0) < 0) {
-	    perror("daemon");
-	    return 1;
+	if (dofork) {
+	    if (daemon(0, 0) < 0) {
+	        perror("daemon");
+	        return 1;
+	    }
 	}
 #  endif
 	remote_server_main_loop(port_number, have_gtk);
