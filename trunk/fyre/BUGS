@@ -1,8 +1,3 @@
-- Under windows, closing the about box may result
-  in a crash inside iterative_map_start_calculation().
-  This probably isn't windows-specific, just based
-  on a race condition.
-
 - Changing the foreground/background color while
   using a rendering cluster, in windows, causes a
   crash in _libwsock32_a_iname(). It's possible that
