@@ -28,10 +28,16 @@
 #include <gtk/gtkmenuitem.h>
 #include <gtk/gtkhbox.h>
 #include <e-util/e-config.h>
-#include <calendar/ec-config.h>
+#include <calendar/gui/ec-config.h>
 #include <libedataserver/e-source.h>
 #include <libedataserver/e-url.h>
 #include <libgnome/gnome-i18n.h>
+#include <string.h>
+
+GtkWidget *e_calendar_http_url (EPlugin *epl, EConfigHookItemFactoryData *data);
+GtkWidget *e_calendar_http_refresh (EPlugin *epl, EConfigHookItemFactoryData *data);
+void       e_calendar_http_commit (EPlugin *epl, ECConfigTargetSource *t);
+gboolean   e_calendar_http_check (EPlugin *epl, EConfigHookPageCheckData *data);
 
 GtkWidget *
 e_calendar_http_url (EPlugin *epl, EConfigHookItemFactoryData *data)
