@@ -58,22 +58,31 @@ public class njavamod extends nbase
 	public void modloop()
 	{
 		String cmd;
+		int parsed;
 		while(true)
 		{
 			cmd = read();
 			switch(cmd.charAt(0))
 			{
 			case 'a': //Accept the question
-				moder.accept(Integer.parseInt(read()));
+				parsed = Integer.parseInt(read());
+				if(moder.current != null)
+					moder.accept(parsed);
 				break;
 			case 'r': //Reject the question
-				moder.reject();
+				if(moder.current != null)
+					moder.reject();
 				break;
 			case 'q': //quit the thing
-				closeConnection();
 				return;
 			case 'g': //get a question
-				write(moder.getQuestion());
+				if(moder.current == null)
+					write(moder.getQuestion());
+				else
+				{
+					write("No questions at this time");
+					write("by nobody who you would know.");
+				}
 				break;
 			}
 		}
