@@ -1,4 +1,5 @@
-\documentclass[letterpaper, 12pt]{article}
+%\documentclass[letterpaper, 12pt]{article}
+\documentclass[letterpaper, twocolumn, 12pt]{article}
 \setlength{\parskip}{5pt}
 
 \title{Real-Time Histogram Imaging}
@@ -33,11 +34,24 @@ When plotting points of zero size, each pixel is effectively a bucket which coll
 Traditionally, a single sample completely saturates a pixel, which means that the bucket
 can be represented by a single bit.  The problem with this approach is that when a pixel is
 hit more than once, information is lost.  Instead, if we treat the image region as a variable
-depth histogram we can capture all the information contained in a long computation run.
+depth, two-dimensional histogram we can capture all the information contained in a long
+computation run.
 
-With a histogram, the total image density is tracked as points are added.  The result of this
-is that the number of points which can be plotted is unbounded.  To create a visible image
-from this histogram structure, we treat it as a high dynamic range image.  
+Instead of using just a single bit to represent a pixel, we can use full 32-bit (or larger,
+if necessary) integers.  The result of treating an image in this way is what is known as
+high dynamic range imaging (HDRI).  Most images on a computer are represented by a single
+byte per channel.  In a greyscale image, this means that 256 different intensity values
+can be represented.  In the natural world, we can observe luminosity ranges on the order of
+$10^8:1$.  Clearly 8 bits is not sufficient to represent this, so recently a lot of work
+and research has been put into storing images using floating- and fixed-point logarithmic
+representation.
+
+Unfortunately, there is currently very little capability to display and print these
+representations.  To present such an image to a person, a procedure known as
+\emph{tone-mapping} is performed.  This process consists of choosing a displayable color for
+a particular value in the image.  There are several different operators for this, which
+allows the user some control over the final image via parameters such as exposure, gamma
+correction and color interpolation.
 
 \section{Related Work}
 Tone mapping of high dynamic range images has been studied extensively, primarily in the
@@ -49,7 +63,19 @@ Histogram-based imaging techniques have been used previously in the rendering of
 ``fractal flames.''  These are discussed in Scott Draves' informal paper describing the
 internals of the \emph{Electric Sheep} screen-saver software\cite{sd}.
 
-\section{Imaging in Real Time}
+\section{Uniqueness of the Approach}
+\subsection{Histogram Imaging in Real Time}
+Because total histogram density is maintained during the computation run, the actual
+tone-mapping step can be performed at any time.  This allows a low quality image to
+be produced almost immediately, while further iterations merely add more detail.  Like
+other techniques which progressively refine an image, this method performs particularly
+well in interactive applications.  The parameter space of some nonlinear systems can be
+explored interactively in a visual way; instead of waiting for an entire computation run
+to complete, frames can be rendered at preset time intervals, allowing a user to explore
+through input parameters until the desired image is seen.  As soon as the parameters
+stop changing, the image quality will start to improve.
+
+
 
 \section{Results and Contributions}
 
