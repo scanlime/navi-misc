@@ -19,31 +19,35 @@
  *
  */
 
-#include <mail/em-event.h>
 #include "notification-area-icon.h"
+#include "eggtrayicon.h"
+#include <gtk/gtkimage.h>
+#include <libgnomeui/gnome-stock-icons.h>
 
-int  e_plugin_lib_enable (EPluginLib *ep, int enable);
-void new_mail (EPlugin *ep, EMEventTargetFolder *target);
-void reading_message (EPlugin *ep, EMEventTargetMessage *message);
+static EggTrayIcon *icon = NULL;
+static GtkWidget *image;
 
-int
-e_plugin_lib_enable (EPluginLib *ep, int enable)
+gboolean
+ni_init ()
 {
-	gboolean init = ni_init ();
-	ni_set_status (NI_STATUS_NORMAL);
-	return (!init);
+	icon = egg_tray_icon_new ("evolution mail status");
+	image = gtk_image_new ();
+
+	gtk_container_add (GTK_CONTAINER (icon), image);
+	gtk_widget_show_all (GTK_WIDGET (icon));
+
+	return (icon != NULL);
 }
 
 void
-new_mail (EPlugin *ep, EMEventTargetFolder *target)
+ni_set_status (NIStatus status)
 {
-	g_print ("new mail\n");
-	ni_set_status (NI_STATUS_NEW_MAIL);
-}
-
-void
-reading_message (EPlugin *ep, EMEventTargetMessage *message)
-{
-	g_print ("reading message...\n");
-	ni_set_status (NI_STATUS_NORMAL);
+	switch (status) {
+	case NI_STATUS_NORMAL:
+		gtk_image_set_from_stock (image, GNOME_STOCK_MAIL, GTK_ICON_SIZE_SMALL_TOOLBAR);
+		break;
+	case NI_STATUS_NEW_MAIL:
+		gtk_image_set_from_stock (image, GNOME_STOCK_MAIL_NEW, GTK_ICON_SIZE_SMALL_TOOLBAR);
+		break;
+	}
 }

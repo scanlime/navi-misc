@@ -8,13 +8,11 @@ plugin_DATA = org-gnome-mail-notification.eplug
 plugin_LTLIBRARIES = liborg-gnome-mail-notification.la
 
 liborg_gnome_mail_notification_la_SOURCES =	\
-	eggmarshalers.c				\
-	eggmarshalers.h				\
-	eggstatusicon.c				\
-	eggstatusicon.h				\
 	eggtrayicon.c				\
 	eggtrayicon.h				\
-	mail-notification.c
+	mail-notification.c			\
+	notification-area-icon.c		\
+	notification-area-icon.h
 
 liborg_gnome_mail_notification_la_LDFLAGS = -module -avoid-version
 

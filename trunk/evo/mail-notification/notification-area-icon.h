@@ -19,31 +19,17 @@
  *
  */
 
-#include <mail/em-event.h>
-#include "notification-area-icon.h"
+#ifndef __EVO_NOTIFICATION_AREA_ICON_H__
+#define __EVO_NOTIFICATION_AREA_ICON_H__
 
-int  e_plugin_lib_enable (EPluginLib *ep, int enable);
-void new_mail (EPlugin *ep, EMEventTargetFolder *target);
-void reading_message (EPlugin *ep, EMEventTargetMessage *message);
+#include <glib.h>
 
-int
-e_plugin_lib_enable (EPluginLib *ep, int enable)
-{
-	gboolean init = ni_init ();
-	ni_set_status (NI_STATUS_NORMAL);
-	return (!init);
-}
+typedef enum {
+	NI_STATUS_NORMAL,
+	NI_STATUS_NEW_MAIL,
+} NIStatus;
 
-void
-new_mail (EPlugin *ep, EMEventTargetFolder *target)
-{
-	g_print ("new mail\n");
-	ni_set_status (NI_STATUS_NEW_MAIL);
-}
+gboolean ni_init ();
+void     ni_set_status (NIStatus status);
 
-void
-reading_message (EPlugin *ep, EMEventTargetMessage *message)
-{
-	g_print ("reading message...\n");
-	ni_set_status (NI_STATUS_NORMAL);
-}
+#endif
