@@ -443,11 +443,12 @@ static gboolean tab_complete_nickname(GtkEntry *entry, int start) {
 
 	if (g_list_length (options) == 1)
 	{
+		int pos;
+
 		/* one match */
 		if (length - cursor == 0)
 		{
 			/* at the end of the entry, just insert */
-			int pos;
 
 			if (start != 0)
 			{
@@ -459,17 +460,10 @@ static gboolean tab_complete_nickname(GtkEntry *entry, int start) {
 				npt = g_strdup_printf ("%s: ", (char *) options->data);
 				pos = strlen ((char *) options->data) + 2;
 			}
-			gtk_entry_set_text (entry, npt);
-			gtk_editable_set_position (GTK_EDITABLE (entry), pos);
-			g_free (npt);
-			g_free (text);
-			g_free (prefix);
-			return TRUE;
 		}
 		else
 		{
 			/* somewhere in the middle of the entry */
-			int pos;
 
 			if (start != 0)
 			{
@@ -482,44 +476,42 @@ static gboolean tab_complete_nickname(GtkEntry *entry, int start) {
 				npt = g_strdup_printf ("%s: %s", (char *) options->data, &text[cursor]);
 				pos = strlen ((char *) options->data) + 2;
 			}
-			gtk_entry_set_text (entry, npt);
-			gtk_editable_set_position (GTK_EDITABLE (entry), pos);
-			g_free (npt);
-			g_free (text);
-			g_free (prefix);
-			return TRUE;
 		}
+		gtk_entry_set_text (entry, npt);
+		gtk_editable_set_position (GTK_EDITABLE (entry), pos);
+		g_free (npt);
+		g_free (text);
+		g_free (prefix);
+		return TRUE;
 	}
 	else
 	{
 		/* more than one match - print a list of options
 		 * to the window and update the prefix
 		 */
-		if (length - cursor == 0)
+		list = options;
+		printtext = g_strdup ((char *) list->data);
+		for (list = list->next; list; list = list->next)
 		{
-			/* at the end of the entry, just "append" */
-			list = options;
-			printtext = g_strdup ((char *) list->data);
-			for(list = list->next; list; list = list->next) {
-				npt = g_strdup_printf ("%s %s", printtext, (char *) list->data);
-				g_free (printtext);
-				printtext = npt;
-			}
-			tgui = (session_gui *) gui.current_session->gui;
-			text_gui_print (tgui->buffer, printtext, TRUE);
+			npt = g_strdup_printf ("%s %s", printtext, (char *) list->data);
 			g_free (printtext);
-			if(strcasecmp (prefix, new_prefix) != 0) {
-				/* insert the new prefix into the entry */
-				text[start] = '\0';
-				npt = g_strdup_printf ("%s%s%s", text, new_prefix, &text[cursor]);
-				gtk_entry_set_text (entry, npt);
-				g_free (npt);
-				gtk_editable_set_position (GTK_EDITABLE(entry), start + strlen(new_prefix));
-			}
-			g_free(text);
-			g_free (prefix);
-			return TRUE;
+			printtext = npt;
 		}
+		tgui = (session_gui *) gui.current_session->gui;
+		text_gui_print (tgui->buffer, printtext, TRUE);
+		g_free (printtext);
+		if (strcasecmp (prefix, new_prefix) != 0)
+		{
+			/* insert the new prefix into the entry */
+			text[start] = '\0';
+			npt = g_strdup_printf ("%s%s%s", text, new_prefix, &text[cursor]);
+			gtk_entry_set_text (entry, npt);
+			g_free (npt);
+			gtk_editable_set_position (GTK_EDITABLE(entry), start + strlen(new_prefix));
+		}
+		g_free(text);
+		g_free (prefix);
+		return TRUE;
 	}
 }
 
