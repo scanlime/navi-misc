@@ -51,7 +51,7 @@ static GtkWidget *file_selector; // because everyone needs a file selec-tor!
 void
 initialize_preferences_plugins_page ()
 {
-	GtkWidget *treeview, *load, *unload, *open, *remove;
+	GtkWidget *treeview, *open, *remove;
 	GtkListStore *store;
 	GtkCellRenderer *text_renderer, *load_renderer;
 	GtkTreeViewColumn *text_column, *load_column;
