@@ -45,6 +45,28 @@ typedef struct {
 } PublishUIData;
 
 static void
+publish (EPublishUri *uri)
+{
+}
+
+static void
+add_timeout (EPublishUri *uri)
+{
+	guint id;
+
+	switch (uri->publish_frequency) {
+	case URI_PUBLISH_DAILY:
+		id = g_timeout_add (24 * 60 * 60 * 1000, (GSourceFunc) publish, uri);
+		g_hash_table_insert (uri_timeouts, uri, GUINT_TO_POINTER (id));
+		break;
+	case URI_PUBLISH_WEEKLY:
+		id = g_timeout_add (7 * 24 * 60 * 60 * 1000, (GSourceFunc) publish, uri);
+		g_hash_table_insert (uri_timeouts, uri, GUINT_TO_POINTER (id));
+		break;
+	}
+}
+
+static void
 url_list_changed (PublishUIData *ui)
 {
 	GtkTreeModel *model = NULL;
@@ -154,6 +176,7 @@ url_edit_clicked (GtkButton *button, PublishUIData *ui)
 	if (gtk_tree_selection_get_selected (selection, &model, &iter)) {
 		EPublishUri *uri;
 		GtkWidget *url_editor;
+		guint id;
 
 		gtk_tree_model_get (GTK_TREE_MODEL (model), &iter, 2, &uri, -1);
 		url_editor = url_editor_dialog_new (model, uri);
@@ -163,6 +186,11 @@ url_edit_clicked (GtkButton *button, PublishUIData *ui)
 				    URL_LIST_ENABLED_COLUMN, uri->enabled,
 				    URL_LIST_LOCATION_COLUMN, uri->location,
 				    URL_LIST_URL_COLUMN, uri, -1);
+
+		id = GPOINTER_TO_UINT (g_hash_table_lookup (uri_timeouts, uri));
+		if (id)
+			g_source_remove (id);
+		add_timeout (uri);
 		url_list_changed (ui);
 	}
 }
@@ -204,6 +232,7 @@ url_remove_clicked (GtkButton *button, PublishUIData *ui)
 
 	if (response == GTK_RESPONSE_YES) {
 		int len;
+		guint id;
 		gtk_list_store_remove (GTK_LIST_STORE (model), &iter);
 
 		len = gtk_tree_model_iter_n_children (model, NULL);
@@ -216,6 +245,9 @@ url_remove_clicked (GtkButton *button, PublishUIData *ui)
 		}
 
 		publish_uris = g_slist_remove (publish_uris, url);
+		id = GPOINTER_TO_UINT (g_hash_table_lookup (uri_timeouts, url));
+		if (id)
+			g_source_remove (id);
 
 		g_free (url);
 		url_list_changed (ui);
@@ -316,11 +348,6 @@ publish_calendar_locations (EPlugin *epl, EConfigHookItemFactoryData *data)
 	return toplevel;
 }
 
-static void
-publish (EPublishUri *uri)
-{
-}
-
 int e_plugin_lib_enable (EPlugin *ep, int enable)
 {
 	GSList *uris, *l;
@@ -335,7 +362,6 @@ int e_plugin_lib_enable (EPlugin *ep, int enable)
 		l = uris;
 		while (l) {
 			gchar *xml = l->data;
-			guint id = 0;
 
 			EPublishUri *uri = e_publish_uri_from_xml (xml);
 
@@ -348,16 +374,7 @@ int e_plugin_lib_enable (EPlugin *ep, int enable)
 
 			/* Add a timeout - we always set it for now+frequency, since we
 			 * publish later on in this function */
-			switch (uri->publish_frequency) {
-			case URI_PUBLISH_DAILY:
-				id = g_timeout_add (24 * 60 * 60 * 1000, (GSourceFunc) publish, uri);
-				g_hash_table_insert (uri_timeouts, uri, GUINT_TO_POINTER (id));
-				break;
-			case URI_PUBLISH_WEEKLY:
-				id = g_timeout_add (7 * 24 * 60 * 60 * 1000, (GSourceFunc) publish, uri);
-				g_hash_table_insert (uri_timeouts, uri, GUINT_TO_POINTER (id));
-				break;
-			}
+			add_timeout (uri);
 
 			publish (uri);
 
