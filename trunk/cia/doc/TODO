@@ -80,6 +80,21 @@ Web Interface
   ruleset. If there are multiple messages with matching path= attributes, it would have
   some way to determine which one is best.
 
+IRC
+---
+
+- Bots will rejoin when kicked from a channel, they need to remove or disable their
+  irc:// ruleset.
+
+  This will become important once the web interface for IRC ruleset editing
+  is written- if someone invites a CIA bot into a channel where it isn't
+  wanted, the channel's ops need to be able to ask it to leave. As it is
+  now, the botnet tries a little too hard and the bot will
+  just immediately rejoin.
+
+- Track bandwidth averages per-request and per-bot. This could be used to load balance
+  the bots by rearranging requests among them, and it would make a nice indicator
+  for the IRC status page
 
 Internals
 ---------
