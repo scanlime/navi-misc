@@ -119,9 +119,32 @@ class MainMenu(Menu.RingMenu):
             ]
 
         # Add items for video devices that are already active
+        self.channelItems = {}
         for channel in self.hardware.uvswitch.activeChannels:
-            menuItems.append(VideoInput(channel))
+            item = VideoInput(channel)
+            self.channelItems[channel] = item
+            menuItems.append(item)
+
+        # Observe the video detection events, so icons can be dynamically added and removed
+        self.hardware.uvswitch.onChannelActive.observe(self.addChannel)
+        self.hardware.uvswitch.onChannelInactive.observe(self.removeChannel)
 
         Menu.RingMenu.__init__(self, book, menuItems)
+
+    def addChannel(self, channel):
+        """Observing the uvswitch onChannelActive event, this is called when a new
+           channel becomes active, to add an icon to the menu.
+           """
+        item = VideoInput(channel)
+        self.channelItems[channel] = item
+        self.dock.add(item)
+
+    def removeChannel(self, channel):
+        """Observing the uvswitch onChannelInactive event, this is called when a new
+           channel becomes inactive, to remove its icon from the menu.
+           """
+        item = self.channelItems[channel]
+        del self.channelItems[channel]
+        self.dock.remove(item)
 
 ### The End ###

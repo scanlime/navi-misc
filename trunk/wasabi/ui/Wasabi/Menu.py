@@ -63,9 +63,8 @@ class Menu(Sequencer.Page):
 
 
 class RingMenu(Menu):
-    def __init__(self, book, items):
+    def __init__(self, book, items=[]):
         Menu.__init__(self, book)
-        self.items = items
         self.dock = Icon.Dock(self.overlay, self.trackFunction, [item.icon for item in items])
         self.bindings = Input.load(self.viewport, self, 'ringmenu_keys.py')
 
