@@ -1,5 +1,12 @@
 #!/usr/bin/env python
-import pyrcpod, time, threading
+#
+# This is a pulse counter with GUI, that uses the RCPOD's hardware
+# timer/counter and times the integration period on the host.
+# This implementation uses some cpu-hungry polling- it used to use
+# threads, which proved to work fine under Linux, but were unacceptably
+# slow with libusb-win32.
+#
+import pyrcpod, time
 import gtk.glade, os
 
 class PulseCounter(object):
@@ -24,16 +31,20 @@ class PulseCounter(object):
         self.rcpod.poke('pir1', 0)
 
         # Start timing, bracketing the start time
-        t1 = time.time()
+        t1 = time.clock()
         self.rcpod.poke('t1con', timer_on)
-        t2 = time.time()
+        t2 = time.clock()
 
-        time.sleep(duration)
+        while 1:
+            t3 = time.clock()
+            if t3 > t1 + duration:
+                break
+            while gtk.events_pending():
+                gtk.main_iteration()
 
         # Start timing, bracketing the end time
-        t3 = time.time()
         self.rcpod.poke('t1con', timer_off)
-        t4 = time.time()
+        t4 = time.clock()
 
         self.counts = self.rcpod.peek('tmr1l') | (self.rcpod.peek('tmr1h') << 8)
         self.overflow = bool(self.rcpod.peek('pir1') & 0x01)
@@ -55,66 +66,39 @@ class PulseCounter(object):
         self.frequencyError = (maxFrequency - minFrequency) / 2.0
 
 
-class SamplerThread(threading.Thread):
-    def __init__(self, availableDevice, synchronize):
-        self.availableDevice = availableDevice
-        self.duration = 0.1
-        self.synchronize = synchronize
-        threading.Thread.__init__(self)
-
-    def run(self):
-        self.running = True
-        self.dev = self.availableDevice.open(reset=False)
-        self.counter = PulseCounter(self.dev)
-        while self.running:
-            self.counter.sampleFrequency(self.duration)
-        self.dev.close()
-
-
 class SamplerWindow:
     def __init__(self, dev, gladeFile="data/pulse_counter.glade"):
+        self.dev = dev
         self.xml = gtk.glade.XML(gladeFile)
         self.window = self.xml.get_widget("window")
-        self.thread = SamplerThread(dev, self.synchronize)
+        self.window.show_all()
 
-    def start(self):        
-        w.window.show_all()
-        self.thread.start()
-        gtk.timeout_add(100, self.synchronize)
+    def run(self):
+        self.counter = PulseCounter(self.dev)
+        while 1:
+            self.counter.sampleFrequency(self.getSamplingDelay())
+            self.showResults()
 
-    def synchronize(self):
-        self.thread.duration = self.xml.get_widget("sampling_delay").get_adjustment().get_value()
-        if hasattr(self.thread, 'counter') and self.thread.counter.numSamples > 0:
+    def getSamplingDelay(self):
+        return self.xml.get_widget("sampling_delay").get_adjustment().get_value()
 
-            count = str(self.thread.counter.counts)
-            if self.thread.counter.overflow:
-                count = "%s (overflow)" % count
+    def showResults(self):
+        count = str(self.counter.counts)
+        if self.counter.overflow:
+            count = "%s (overflow)" % count
 
-            for widget, value in (
-
-                ("pulse_count", count),
-                ("integration_time", "%.04f" % self.thread.counter.iTimeCenter),
-                ("integration_time_error", "%.04f" % self.thread.counter.iTimeError),
-                ("frequency", "%.01f" % self.thread.counter.frequency),
-                ("frequency_error", "%.01f" % self.thread.counter.frequencyError),
-
-                ):
-                self.xml.get_widget(widget).set_text(value)
-        return True
-
+        for widget, value in (
+            ("pulse_count", count),
+            ("integration_time", "%.04f" % self.counter.iTimeCenter),
+            ("integration_time_error", "%.04f" % self.counter.iTimeError),
+            ("frequency", "%.01f" % self.counter.frequency),
+            ("frequency_error", "%.01f" % self.counter.frequencyError),
+            ):
+            self.xml.get_widget(widget).set_text(value) 
 
 if __name__ == "__main__":
-    w = SamplerWindow(pyrcpod.devices[0])
+    w = SamplerWindow(pyrcpod.devices[0].open(reset=False))
     w.window.connect("destroy", gtk.main_quit)
-
-    try:
-        # Windows just hangs in gtk.threads_init()
-        if os.name != 'nt':
-            gtk.threads_init()
-
-        w.start()
-        gtk.main()
-    finally:
-        w.thread.running = False
+    w.run()
 
 ### The End ###
