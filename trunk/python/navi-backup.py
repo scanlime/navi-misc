@@ -35,9 +35,6 @@ import time, os, sys, re, shutil
 def shellEscape(s):
     return re.sub(r"([^0-9A-Za-z_\./-])", r"\\\1", s)
 
-def shellJoin(args):
-    return " ".join(map(shellEscape, args))
-
 
 class MD5Cache:
     """In-memory and on-disk caches for md5sums. Sums we don't have
@@ -119,7 +116,7 @@ class DVDBurner:
     def isBlank(self):
         """Determines whether the current disc is blank"""
         for key, value in self.iterMediaInfo():
-            # Store the free block count of the last track we see
+            # Store http://www.google.com/search?&q=python%20popen3&sourceid=firefoxthe free block count of the last track we see
             if key == "Disc status":
                 if value == "appendable":
                     return False
@@ -137,23 +134,22 @@ class DVDBurner:
         """Burn a new session to the current disc, with the given dict
            mapping paths on the disc to paths in our filesystem.
            """
-        cmd = ['growisofs']
         if self.isBlank():
             # Record an initial session
-            cmd.append('-Z')
+            sessionOption = '-Z'
         else:
             # Append to the disc
-            cmd.append('-M')
-        cmd.append(self.device)
-        cmd.append('-R')
-        cmd.append('-J')
-        cmd.append('-graft-points')
+            sessionOption = '-M'
 
+        cmd = 'growisofs %s %s -R -J -graft-points -path-list -' % (
+            sessionOption, self.device)
+
+        pipe = os.popen(cmd, "w")
         for disc, fs in pathMap.iteritems():
-            cmd.append(self._graftEscape(disc) + "=" + self._graftEscape(fs))
-
-        if os.system(shellJoin(cmd)) != 0:
-            raise BurnFailure("Oh no!")
+            pipe.write(self._graftEscape(disc) + "=" + self._graftEscape(fs) + "\n")
+        retval = pipe.close()
+        if retval != None:
+            raise BurnFailure("%r failed with error code %r" % (cmd, retval))
 
 
 class CatalogWriter:
@@ -204,6 +200,19 @@ class CatalogWriter:
         f.write(sum + "\n")
 
 
+def flattenPaths(paths):
+    """From a list of paths, generates a list of full filenames in sorted order"""
+    for path in paths:
+        if os.path.isfile(path):
+            yield path
+        else:
+            for root, dirs, files in os.walk(path):
+                dirs.sort()
+                files.sort()
+                for name in files:
+                    yield os.path.join(root, name)
+
+
 class CatalogIndex:
     """This is a slow junk-heap for searching the backup catalog.
        It could be made lots more efficient, but given the speed of
@@ -247,9 +256,16 @@ class CatalogIndex:
     def isFileModified(self, filename):
         """Check whether a file has been modified since it was archived"""
         filename = os.path.abspath(filename)
-        currentSum = md5sum(filename).split()[0]
         storedSum = self.md5Map[filename]
+        currentSum = md5sum(filename).split()[0]
         return currentSum != storedSum
+
+    def needsBackup(self, filename):
+        """Return True if the given file needs a new backup"""
+        try:
+            return self.isFileModified(filename)
+        except KeyError:
+            return True
 
     def fileStatus(self, filename):
         """Show a status line for one file. This starts with a one-character
@@ -268,17 +284,6 @@ class CatalogIndex:
             else:
                 status = ' '
         print "%1s %10s  %s" % (status, backupDate, filename)
-
-    def pathStatus(self, path):
-        """Show a status line recursively if necessary for a file or path"""
-        if os.path.isfile(path):
-            self.fileStatus(path)
-        else:
-            for root, dirs, files in os.walk(path):
-                dirs.sort()
-                files.sort()
-                for name in files:
-                    self.fileStatus(os.path.join(root, name))
 
 
 def backup(paths, burner):
@@ -308,8 +313,41 @@ def cmd_store(paths):
 
 def cmd_status(paths):
     index = CatalogIndex()
-    for path in paths:
-        index.pathStatus(path)
+    for path in flattenPaths(paths):
+        index.fileStatus(path)
+
+
+def cmd_auto(paths, assumedOverhead = 0.01, safetyTimer = 3):
+    index = CatalogIndex()
+    burner = DVDBurner()
+    burnPaths = []
+
+    remaining = burner.getFreeSpace()
+    print "Remaining space on disc: %.1fMB" % (remaining / (1024.0 * 1024.0))
+    print "Assuming %r%% overhead" % (assumedOverhead*100.0)
+    remaining -= assumedOverhead * remaining
+    total = 0
+
+    for path in flattenPaths(paths):
+        # Show status of all files, to give visual indication of what we're scanning.
+        # Only those marked with a '?' or 'M' will be backed up.
+        index.fileStatus(path)
+
+        if index.needsBackup(path):
+            filesize = os.stat(path).st_size
+            if filesize > remaining:
+                print "Stopping, disc full"
+                break
+
+            total += filesize
+            remaining -= filesize
+            burnPaths.append(path)
+
+    print "Found %d files to back up, a total of %.1fMB. About %.1fMB will be left on the disc." % (
+        len(burnPaths), total / (1024.0 * 1024.0), remaining / (1024.0 * 1024.0))
+    print "Starting burn in %d seconds..." % safetyTimer
+    time.sleep(safetyTimer)
+    backup(burnPaths, burner)
 
 
 def usage():
