@@ -4,7 +4,8 @@
 * make the connect dialog check existing open networks before creating a new connection
 
 * separate the concepts of leaving & closing. disconnected servers, parted channels, and old
-  dialogs should still have their buffers available.
+  dialogs should still have their buffers available. This should probably manifest itself as
+  greying disconnected things out in the navtree
 
 context menus:
 * list accelerators in the context menus
