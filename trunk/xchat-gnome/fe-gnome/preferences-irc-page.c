@@ -29,6 +29,9 @@ preferences_page_irc_new (gpointer prefs_dialog, GladeXML *xml)
 	PreferencesIrcPage *page = g_new0 (PreferencesIrcPage, 1);
 	PreferencesDialog *p = (PreferencesDialog *) prefs_dialog;
 	GtkTreeIter iter;
+	GtkCellRenderer *renderer;
+	gchar *text;
+	GtkSizeGroup *group;
 
 #define GW(name) ((page->name) = glade_xml_get_widget (xml, #name))
 	GW(nick_name);
@@ -51,9 +54,42 @@ preferences_page_irc_new (gpointer prefs_dialog, GladeXML *xml)
 #undef GW
 
 	page->icon = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/irc.png", NULL);
-
 	gtk_list_store_append (p->page_store, &iter);
 	gtk_list_store_set (p->page_store, &iter, 0, page->icon, 1, "IRC Preferences", 2, 0, -1);
+
+	page->highlight_store = gtk_list_store_new (1, G_TYPE_STRING);
+	gtk_tree_view_set_model (GTK_TREE_VIEW (page->highlight_list), GTK_TREE_MODEL (page->highlight_store));
+	renderer = gtk_cell_renderer_text_new ();
+	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (page->highlight_list), 0, "highlight", renderer, "text", 0, NULL);
+
+	group = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
+	gtk_size_group_add_widget (group, page->nick_name);
+	gtk_size_group_add_widget (group, page->real_name);
+	gtk_size_group_add_widget (group, page->quit_message);
+	gtk_size_group_add_widget (group, page->part_message);
+	gtk_size_group_add_widget (group, page->away_message);
+	gtk_size_group_add_widget (group, page->font_selection);
+	g_object_unref (group);
+
+	text = gconf_client_get_string (p->gconf, "/apps/xchat/irc/nickname", NULL);
+	gtk_entry_set_text (GTK_ENTRY (page->nick_name), text);
+	g_free (text);
+
+	text = gconf_client_get_string (p->gconf, "/apps/xchat/irc/realname", NULL);
+	gtk_entry_set_text (GTK_ENTRY (page->real_name), text);
+	g_free (text);
+
+	text = gconf_client_get_string (p->gconf, "/apps/xchat/irc/quitmsg", NULL);
+	gtk_entry_set_text (GTK_ENTRY (page->quit_message), text);
+	g_free (text);
+
+	text = gconf_client_get_string (p->gconf, "/apps/xchat/irc/partmsg", NULL);
+	gtk_entry_set_text (GTK_ENTRY (page->part_message), text);
+	g_free (text);
+
+	text = gconf_client_get_string (p->gconf, "/apps/xchat/irc/awaymsg", NULL);
+	gtk_entry_set_text (GTK_ENTRY (page->away_message), text);
+	g_free (text);
 
 	return page;
 }
