@@ -54,4 +54,24 @@ GdkColor colors[] = {
 	{0, 0xf5f5, 0x0000, 0x0000}, /* 22 tab New Message (red) */
 	{0, 0x9999, 0x9999, 0x9999}, /* 23 away user (grey) */
 };
+
+const GdkColor colors_white_on_black[] = {
+	{0, 0xffff, 0xffff, 0xffff}, /* background (white) */
+	{0, 0x0000, 0x0000, 0x0000}, /* foreground (black) */
+	{0, 0xa4a4, 0xdfdf, 0xffff}, /* marktext back (blue) */
+	{0, 0x0000, 0x0000, 0x0000}, /* marktext fore (black) */
+};
+
+const GdkColor colors_black_on_white[] = {
+	{0, 0x0000, 0x0000, 0x0000}, /* background (black) */
+	{0, 0xdf3c, 0xdf3c, 0xdf3c}, /* foreground (white) */
+	{0, 0xa4a4, 0xdfdf, 0xffff}, /* marktext back (blue) */
+	{0, 0xdf3c, 0xdf3c, 0xdf3c}, /* marktext fore (white) */
+};
+
+const GdkColor *color_schemes[] = {
+	colors_white_on_black,
+	colors_black_on_white,
+	NULL,
+};
 #define MAX_COL 23
