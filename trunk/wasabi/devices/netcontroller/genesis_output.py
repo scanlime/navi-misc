@@ -7,14 +7,15 @@ class GenesisJoystick:
             rcpod = pyrcpod.devices[0].open()
         self.rcpod = rcpod
 
-        print rcpod
         # Skip pin descriptors, so we can set all button
         # states with a 1-byte poke rather than at least
-        # two 4-pin assertion packets.
-        self.rcpod.poke('PORTB', 0xFF)
-        self.rcpod.poke('TRISB', 0x70)
+        # two 4-pin assertion packets. All outputs are
+	# open-drain.
+	self.rcpod.poke('PORTB', 0x00)
+        self.rcpod.poke('TRISB', 0xFF)
 
-    def set(self, up=0, down=0, left=0, right=0, button=0):
+    def set(self, up=0, down=0, left=0, right=0,
+     	    start=0, a=0, b=0, c=0):
         state = 0xFF
         if up:
             state &= ~0x01
@@ -24,15 +25,24 @@ class GenesisJoystick:
             state &= ~0x04
         if right:
             state &= ~0x08
-        if button:
-            state &= ~0x80
-        self.rcpod.poke('PORTB', state)
+        if start:
+            state &= ~0x10
+	if a:
+	    state &= ~0x20
+	if b:
+	    state &= ~0x40
+	if c:
+	    state &= ~0x80
+        self.rcpod.poke('TRISB', state)
 
 
 def main():
     joy = GenesisJoystick()
-    for line in sys.stdin:
-        joy.set(*map(int, line.strip().split()))
+    while True:
+        try:
+	    joy.set(*map(int, raw_input().strip().split()))
+	except EOFError:
+	    break
 
 if __name__ == "__main__":
     main()
