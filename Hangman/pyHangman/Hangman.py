@@ -68,6 +68,9 @@ class Hangman:
 		# Fill the correct list with '_'.
 		for i in range(len(self.answer)):
 			self.correct.append('_')
+
+		# Reset the number of misses
+		self.numMissed = 0
 		# For debugging ease.  Should be removed.
 		print self.answer
 
@@ -82,7 +85,7 @@ class Hangman:
 
 		if self.correct.count('_') == 0:
 			correctStr += "\nYou Win!!"
-		elif self.numMissed == 7:
+		elif self.numMissed == 6:
 			correctStr += "\nYou Lose!"
 
 		return (correctStr, guessedStr)
@@ -103,7 +106,6 @@ class Hangman:
 		# letter.
 		if self.correct[index] != '_':
 			return self.correct[index]
-		# If the guess is wrong, return a '_'
 		elif self.answer[index] != entry:
 			return '_'
 		# If the guess is right, return it.
@@ -144,6 +146,10 @@ class HangmanGUI:
 		# Game controller.
 		self.controller = Hangman()
 
+		# This keeps a reference to the last style menu widget selected so that it can be
+		# set inactive when a new one is selected.
+		self.currentStyle = None
+
 		# Set up the window.
 		self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
 		self.window.set_title("Hangman")
@@ -156,6 +162,7 @@ class HangmanGUI:
 		# Text entry field for entering guesses.
 		self.guessField = gtk.Entry(1)
 		self.guessField.connect("activate", self.GuessCheck, self.guessField)
+		self.guessField.set_editable(gtk.FALSE)
 
 		# Label to display the correctly guessed letters.
 		self.correctText = gtk.Label(" ".join(self.controller.correct))
@@ -190,11 +197,11 @@ class HangmanGUI:
 
 		# Gallows.
 		self.gallows = Gallows()
-		gallowsFrame = gtk.AspectFrame(ratio=self.gallows.imageAspect,obey_child=gtk.FALSE)
-		gallowsFrame.set_shadow_type(gtk.SHADOW_IN)
-		gallowsFrame.add(self.gallows)
+		self.gallowsFrame = gtk.AspectFrame(ratio=self.gallows.imageAspect,obey_child=gtk.FALSE)
+		self.gallowsFrame.set_shadow_type(gtk.SHADOW_IN)
+		self.gallowsFrame.add(self.gallows)
 		self.gallows.show()
-		gallowsFrame.show()
+		self.gallowsFrame.show()
 
 		# Boxes for window layout.
 
@@ -229,7 +236,7 @@ class HangmanGUI:
 		box2 = gtk.VBox()
 		box2.set_border_width(15)
 		box2.pack_start(textBox, gtk.FALSE, gtk.FALSE, 5)
-		box2.pack_start(gallowsFrame, gtk.TRUE, gtk.TRUE, 5)
+		box2.pack_start(self.gallowsFrame, gtk.TRUE, gtk.TRUE, 5)
 		box2.pack_start(box1, gtk.FALSE, gtk.FALSE)
 		box2.show()
 
@@ -253,6 +260,7 @@ class HangmanGUI:
 	def makeMenu(self):
 		""" Creates a menu bar and saves it to self.menuBar. """
 		accelGroup = gtk.AccelGroup()
+		styles = self.getStyles()
 
 		menuItems = (
 				("/_File", None, None, 0, "<Branch>"),
@@ -262,14 +270,39 @@ class HangmanGUI:
 				("/File/_Quit", "<control>Q", self.Quit, 0, None),
 				("/_Options", None, None, 0, "<Branch>"),
 				("/Options/Enable clues", None, self.toggleClues, 0, "<CheckItem>"),
-				("/Options/Game Style", None, None, 0, None),
+				("/Options/Game Style", None, None, 0, "<Branch>"),
 				("/_Help", None, None, 0, "<Branch>"),
 				("/Help/_About Hangman", None, None, 0, None))
 
 		itemFactory = gtk.ItemFactory(gtk.MenuBar, "<main>", accelGroup)
+		# Create menu items from menuItems.
 		itemFactory.create_items(menuItems)
+		# Create style menu items.
+		itemFactory.create_items(styles)
+
 		self.window.add_accel_group(accelGroup)
 		self.menuBar = itemFactory.get_widget("<main>")
+
+	def getStyles(self):
+		""" Get a list of all the available style directories and create a tuple for the
+				menu items from the list, using directory names as the style name.
+				"""
+		self.gallows.setStyleList(os.listdir("graphics/styles/"))
+		styleMenu = [("/Options/Game Style/"+style, None, self.setStyle,
+									self.gallows.styleList.index(style), "<CheckItem>")
+									for style in self.gallows.styleList]
+		return styleMenu
+
+	def setStyle(self, data, widget):
+		""" Set the style from the menu check item selected. """
+		# If a style has been previously selected from the menu deactivate that check item.
+		if self.currentStyle:
+			self.currentStyle.set_active(gtk.FALSE)
+		# Save a reference to the selected widget so it can be deactivated later if necessary.
+		self.currentStyle = widget
+		# Set the gallows to the new style directory.
+		self.gallows.setStyle(data)
+		self.gallowsFrame.set(0.5, ratio=self.gallows.imageAspect, obey_child=gtk.FALSE)
 
 	def GuessCheck(self, widget, guessField):
 		""" Grab the guess entered by the user and then call update the window
@@ -283,7 +316,7 @@ class HangmanGUI:
 		# Update the window.
 		self.Update(self.controller.gameStat())
 		# If the game is over, prevent entry of new guesses.
-		if self.controller.correct.count('_') == 0 or self.controller.numMissed == 7:
+		if self.controller.correct.count('_') == 0 or self.controller.numMissed == 6:
 			guessField.set_editable(gtk.FALSE)
 
 	def Quit(self, widget, data=None):
@@ -354,6 +387,7 @@ class HangmanGUI:
 		""" Update the window with the new information. """
 		self.correctText.set_text(updateString[0])
 		self.guessedText.set_text(updateString[1])
+		self.gallows.update(self.controller.numMissed)
 
 	def NewGame(self, widget=None, data=None):
 		""" Begin a new game. """
@@ -366,6 +400,7 @@ class HangmanGUI:
 		# Update window.
 		self.clue.set_text(self.controller.words[self.controller.answer])
 		self.Update(self.controller.gameStat())
+		self.gallows.update(0)
 		# Clear text entry field, make editable again, and give it focus.
 		self.guessField.set_text("")
 		self.guessField.set_editable(gtk.TRUE)
@@ -415,8 +450,9 @@ class Gallows(gtk.DrawingArea):
 		# Event handlers.
 		self.connect_after("configure_event", self.gallowsConfigure)
 		self.connect("expose_event", self.redraw)
-		self.image = gtk.gdk.pixbuf_new_from_file("graphics/gallows.png")
+		self.image = gtk.gdk.pixbuf_new_from_file("graphics/styles/Burton/gallows.png")
 		self.imageAspect = float(self.image.get_width()) / self.image.get_height()
+		self.styleFile = "graphics/styles/Burton"
 
 	def gallowsConfigure(self, widget, event):
 		""" When the drawing area is realized set up a graphics context for it. """
@@ -429,13 +465,31 @@ class Gallows(gtk.DrawingArea):
 		# Get the width and height of the drawing area.
 		None, None, self.width, self.height, None = self.window.get_geometry()
 
-	def redraw(self, widget, event):
+	def setStyleList(self, list):
+		self.styleList = list
+
+	def setStyle(self, data, widget=None):
+		self.styleFile = "graphics/styles/" + self.styleList[data]
+		self.image = gtk.gdk.pixbuf_new_from_file(self.styleFile + "/gallows.png")
+		self.imageAspect = float(self.image.get_width()) / self.image.get_height()
+		self.redraw()
+
+	def redraw(self, widget=None, data=None):
 		""" Redraw the screen because of an expose_event. """
+		self.window.draw_rectangle(self.fg_gc, gtk.FALSE, 0, 0, self.width, self.height)
 		x, y, width, height = self.drawingArea()
 		image = self.image.scale_simple(width, height, gtk.gdk.INTERP_BILINEAR)
 		image.render_to_drawable(self.window, self.fg_gc, 0, 0,
 																	x, y, width, height, gtk.gdk.RGB_DITHER_NORMAL,
 																	0, 0)
+	def update(self, numMissed):
+		""" Update the image to be drawn to the screen according to the number of incorrect
+				guesses.
+				"""
+		imageList = ["/gallows.png", "/gallows1.png", "/gallows2.png", "/gallows3.png",
+								 "/gallows4.png", "/gallows5.png", "/gallows6.png"]
+		self.image = gtk.gdk.pixbuf_new_from_file(self.styleFile + imageList[numMissed])
+		self.redraw()
 
 	def drawingArea(self):
 		""" Calculate a square area within the gtk.DrawingArea in which to draw
@@ -443,7 +497,6 @@ class Gallows(gtk.DrawingArea):
 				Return a tuple contianing the x, y coordinates of the top left corner
 				and the width and height.  Allows for rescalable images.
 				"""
-
 		# Width is limiting factor.
 		if self.width < self.height or self.width == self.height:
 			height = self.width / self.imageAspect
