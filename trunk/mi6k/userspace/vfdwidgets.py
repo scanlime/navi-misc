@@ -34,6 +34,8 @@ to, and a priority that controls which widgets are hidden if space becomes scarc
 from __future__ import division
 import time
 
+__all__ = ["Widget", "Surface", "Text", "LoopingScroller"]
+
 
 class Widget(object):
     """Abstract base class for all widgets. Subclasses must override
@@ -89,6 +91,7 @@ class Text(Widget):
                  priority   = 1,
                  background = ' ',
                  ellipses   = '',
+                 visible    = True,
                  ):
         Widget.__init__(self)
         self.text = text
@@ -97,6 +100,7 @@ class Text(Widget):
         self.priority = priority
         self.background = background
         self.ellipses = ellipses
+        self.visible = visible
         self.offset = (0, 0)
 
     def setText(self, text):
@@ -175,8 +179,10 @@ class LoopingScroller(Text):
                  padding       = ' '*5,
                  pauseDuration = 1,
                  scrollRate    = 10,
+                 visible       = True,
                  ):
-        Text.__init__(self, text, gravity, align, priority, background)
+        Text.__init__(self, text, gravity, align, priority,
+                      background, visible=visible)
         self.padding = padding
         self.pauseDuration = pauseDuration
         self.scrollRate = scrollRate
@@ -343,6 +349,22 @@ class Surface(object):
         self.widgetRects = {}
         self.lastTime = None
 
+        self.lifetimes = []
+        self.layoutRequired = True
+
+    def add(self, widget, lifetime=None):
+        """Add a new widget to the surface, optionally with a limited
+           lifetime given in seconds.
+           """
+        self.widgets.append(widget)
+        if lifetime is not None:
+            self.lifetimes.append([lifetime, widget])
+        self.layoutRequired = True
+
+    def remove(self, widget):
+        self.widgets.remove(widget)
+        self.layoutRequired = True
+
     def update(self, dt=None):
         """Update all widgets with the given time step. This calculates
            its own time step if one isn't provided.
@@ -355,15 +377,33 @@ class Surface(object):
             else:
                 dt = now - self.lastTime
                 self.lastTime = now
+
+        # Update the lifetimes of widgets that can expire
+        i = 0
+        while i < len(self.lifetimes):
+            self.lifetimes[i][0] -= dt
+            if self.lifetimes[i][0] > 0:
+                i += 1
+            else:
+                try:
+                    self.widgets.remove(self.lifetimes[i][1])
+                    self.layoutRequired = True
+                except ValueError:
+                    pass
+                del self.lifetimes[i]
+
+        # Perform individual widget updates
         for widget in self.widgets:
             widget.update(dt)
 
     def draw(self):
         """Ask each widget to draw itself and copy them into their
-           rectangles on our surface buffer. layout() must have already
-           been run since the last change to the widget lists or to
-           widget sizes or priorities.
+           rectangles on our surface buffer. If self.layoutRequired is set,
+           this also performs a layout before drawing.
            """
+        if self.layoutRequired:
+            self.layout()
+
         buffer = [self.background * self.width] * self.height
         for widget, rect in self.widgetRects.iteritems():
             w = widget.draw(rect.width, rect.height)
@@ -385,6 +425,8 @@ class Surface(object):
         """Examine our list of widgets and find a place for as many as
            we can on the surface. Afterwards, self.widgetRects will
            contain a mapping from each visible widget to its Rect.
+           Normally this doesn't need to be called directly, since
+           draw() will layout first if the layoutRequired flag is set.
            """
         # We always remove widgets in priority order, but we can place
         # them in any order since they get sorted again later.
@@ -409,6 +451,8 @@ class Surface(object):
                         toPlace.remove(w)
                         toRemove.remove(w)
                         break
+
+        self.layoutRequired = False
 
     def layoutIteration(self, widgets):
         """Attempt to lay out all given widgets. Returns True on success.
@@ -469,7 +513,6 @@ if __name__ == "__main__":
     w[3].gravity = (1,2)
     w[4].gravity = (-1,2)
     s = Surface(20, 5, w)
-    s.layout()
     s.show()
 
 ### The End ###
