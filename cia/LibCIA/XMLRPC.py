@@ -30,7 +30,7 @@ XML-RPC interface is meant to be universal.
 
 from twisted.web import xmlrpc
 from Message import Message
-import Email
+from IncomingMail import IncomingMailParser
 import sys
 
 
@@ -52,7 +52,9 @@ class SimpleCIAInterface(xmlrpc.XMLRPC):
 
     def xmlrpc_processEmail(self, message):
         """Given the raw text of an email message, log it and process it if applicable"""
-        Email.IncomingMailParser(self.hub).parseString(message)
+        xmlMessage = IncomingMailParser().parseString(message)
+        if xmlMessage:
+            self.hub.deliver(xmlMessage)
         return True
 
 
