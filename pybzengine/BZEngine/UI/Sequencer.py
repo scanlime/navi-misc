@@ -257,4 +257,17 @@ def PageInterrupter(events, page):
         return p
     return factory
 
+
+def UserPageInterrupter(page):
+    """Wraps a page such that it can be interrupted by user interaction
+       (a key or mouse button press)
+       """
+    def factory(book):
+        events = [
+            book.viewport.onKeyDown,
+            book.viewport.onMouseButtonDown,
+            ]
+        return PageInterrupter(events, page)(book)
+    return factory
+
 ### The End ###
