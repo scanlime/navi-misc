@@ -60,6 +60,7 @@ class Bus(object):
            """
         # Put the bus in a proper idle state
         self.clock.output().on()
+        self.clock.on()
         self.data.output().off()
         self.data.off()
         
