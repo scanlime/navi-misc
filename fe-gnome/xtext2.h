@@ -36,6 +36,7 @@ GType      xtext2_get_type    (void) G_GNUC_CONST;
 GtkWidget* xtext2_new         (void);
 void       xtext2_set_palette (XText2 *xtext, GdkColor palette[]);
 void       xtext2_show_buffer (XText2 *xtext, XTextBuffer *buffer);
+void       xtext2_refresh     (XText2 *xtext);
 
 #define ATTR_BOLD      '\002'
 #define ATTR_COLOR     '\003'
