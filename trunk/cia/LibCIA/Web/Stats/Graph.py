@@ -121,10 +121,10 @@ class RelatedSection(Template.Section):
            """
         # Truncate the rows if we need to
         if len(rows) > self.sectionLimit:
-            rows = rows[:self.sectionLimit]
             footer = tag('div', _class='relatedFooter')[
                 '(%d others)' % (len(rows) - self.sectionLimit)
                 ]
+            rows = rows[:self.sectionLimit]
         else:
             footer = ()
 

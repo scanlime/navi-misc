@@ -60,6 +60,11 @@ div.relatedHeading {
   font-weight: bold;
 }
 
+div.relatedFooter {
+  font-style: italic;
+  text-align: right;
+}
+
 td > p {
   /* Another spacing hack for paragraphs inside any table cell */
   padding: 0em;
