@@ -6,7 +6,7 @@ channel_list_window *create_channel_list(session *sess) {
 	GtkWidget *treeview;
 	GtkCellRenderer *channel_r, *users_r, *topic_r;
 	GtkTreeViewColumn *channel_c, *users_c, *topic_c;
-	GtkTreeSelection *select;
+/*	GtkTreeSelection *select; */
 
 	win = malloc(sizeof(channel_list_window));
 

@@ -97,7 +97,7 @@ void create_userlist(session *sess) {
 	treeview = glade_xml_get_widget(gui.xml, "userlist");
 
 	store = gtk_list_store_new(4, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_POINTER, GDK_TYPE_COLOR);
-	s = sess->gui;
+	s = (session_gui *) sess->gui;
 	s->userlist_model = GTK_TREE_MODEL(store);
 	gtk_tree_view_set_model(GTK_TREE_VIEW(treeview), GTK_TREE_MODEL(store));
 }
@@ -110,7 +110,7 @@ void userlist_insert(session *sess, struct User *newuser, int row, int sel) {
 	session_gui *s;
 
 	userlist_view = glade_xml_get_widget(gui.xml, "userlist");
-	s = sess->gui;
+	s = (session_gui *) sess->gui;
 	store = GTK_LIST_STORE(s->userlist_model);
 
 	pix = get_user_icon(sess->server, newuser);
@@ -148,7 +148,7 @@ gboolean userlist_remove(session *sess, struct User *user) {
 	session_gui *s;
 
 	userlist_view = glade_xml_get_widget(gui.xml, "userlist");
-	s = sess->gui;
+	s = (session_gui *) sess->gui;
 	model = s->userlist_model;
 
 	iter = find_row(GTK_TREE_VIEW(userlist_view), model, user, &sel);
@@ -167,7 +167,7 @@ void userlist_change(session *sess, struct User *user) {
 	session_gui *s;
 
 	userlist_view = glade_xml_get_widget(gui.xml, "userlist");
-	s = sess->gui;
+	s = (session_gui *) sess->gui;
 	model = s->userlist_model;
 
 	iter = find_row(GTK_TREE_VIEW(userlist_view), model, user, &sel);

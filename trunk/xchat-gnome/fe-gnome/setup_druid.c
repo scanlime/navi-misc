@@ -123,7 +123,7 @@ void setup_druid_finish_prepare(GnomeDruidPage *p, GtkWidget *w, gpointer d) {
 void setup_druid_finish(GnomeDruidPage *p, GtkWidget *w, gpointer d) {
 	GtkWidget *druid_window;
 	GtkWidget *nick, *real;
-	char *nicktext, *realtext;
+	const char *nicktext, *realtext;
 	GConfClient *client;
 
 	druid_window = glade_xml_get_widget(gui.xml, "setup druid window");
