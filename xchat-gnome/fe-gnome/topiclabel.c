@@ -38,6 +38,9 @@ enum {
 
 enum {
   PROP_0,
+  PROP_LABEL,
+  PROP_CURSOR_POSITION,
+  PROP_SELECTION_BOUND,
   PROP_JUSTIFY,
   PROP_DISPLAY,
 };
@@ -173,6 +176,10 @@ topic_label_class_init (TopicLabelClass *klass)
   widget_class->button_press_event = topic_label_button_press;
   widget_class->button_release_event = topic_label_button_release;
   widget_class->motion_notify_event = topic_label_motion;
+
+  g_object_class_install_property (gobject_class, PROP_LABEL, g_param_spec_string ("label", "Label", "The text of the label", NULL, G_PARAM_READWRITE));
+  g_object_class_install_property (gobject_class, PROP_CURSOR_POSITION, g_param_spec_int ("cursor_position", "Cursor Position", "The current position of the insertion cursor in chars", 0, G_MAXINT, 0, G_PARAM_READWRITE));
+  g_object_class_install_property (gobject_class, PROP_SELECTION_BOUND, g_param_spec_int ("selection_bound", "Selection Bound", "The position of the opposite end of the selection from the cursor in chars", 0, G_MAXINT, 0, G_PARAM_READWRITE));
 }
 
 static void
@@ -317,6 +324,9 @@ topic_label_expose (GtkWidget *widget, GdkEventExpose  *event)
 
       if (range[0] > range[1])
       {
+	gint tmp = range[0];
+	range[0] = range[1];
+	range[1] = tmp;
       }
 
       clip = gdk_pango_layout_get_clip_region (label->layout, x, y, range, 1);
