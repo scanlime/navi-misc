@@ -125,9 +125,13 @@ DiscoveryClient*  discovery_client_new(const gchar*       service_name,
     g_io_add_watch(gnet_udp_socket_get_io_channel(self->socket),
 		   G_IO_IN,  discovery_client_read, self);
 
-    /* Send the first broadcast. It will schedule the next one. */
+    /* Send the first broadcast */
     discovery_client_broadcast(self);
 
+    /* Schedule regular retries */
+    self->broadcast_timer = g_timeout_add(self->interval * 1000,
+					  discovery_client_broadcast,
+					  self);
     return self;
 }
 
@@ -178,11 +182,6 @@ static gboolean discovery_client_broadcast(gpointer user_data)
     /* Send a broadcast packet with our service name */
     gnet_udp_socket_send(self->socket, self->service_name,
 			 strlen(self->service_name)+1, self->broadcast);
-
-    /* Schedule the next one */
-    self->broadcast_timer = g_timeout_add(self->interval * 1000,
-					  discovery_client_broadcast,
-					  user_data);
 
     return TRUE;
 }

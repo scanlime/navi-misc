@@ -255,6 +255,34 @@ gboolean       cluster_model_find_client      (ClusterModel*         self,
     return FALSE;
 }
 
+gboolean       cluster_model_find_address     (ClusterModel*         self,
+					       const gchar*          hostname,
+					       gint                  port,
+					       GtkTreeIter*          iter)
+{
+    const gchar* iter_host;
+    gint iter_port;
+
+    if (gtk_tree_model_get_iter_first(GTK_TREE_MODEL(self), iter)) {
+	do {
+	    gtk_tree_model_get(GTK_TREE_MODEL(self), iter,
+			       CLUSTER_MODEL_HOSTNAME, &iter_host,
+			       CLUSTER_MODEL_PORT, &iter_port,
+			       -1);
+
+	    /* FIXME: strcmp isn't good enough, we should really be checking
+	     *        whether the hostnames refer to the same internet
+	     *        address.
+	     */
+	    if (port == iter_port && !strcmp(iter_host, hostname))
+		return TRUE;
+
+	} while (gtk_tree_model_iter_next(GTK_TREE_MODEL(self), iter));
+    }
+
+    return FALSE;
+}
+
 void           cluster_model_remove_node      (ClusterModel*         self,
 					       GtkTreeIter*          iter)
 {
@@ -365,7 +393,7 @@ void           cluster_model_enable_discovery (ClusterModel* self)
 {
     /* Currently, our scanning interval is hardcoded at 5 minutes */
     if (!self->discovery)
-	self->discovery = discovery_client_new(FYRE_DEFAULT_SERVICE, 60*5,
+	self->discovery = discovery_client_new(FYRE_DEFAULT_SERVICE, 5*60,
 					       cluster_model_discovery_callback,
 					       self);
 }
@@ -464,10 +492,17 @@ static void       cluster_model_discovery_callback (DiscoveryClient* client,
      * node. We may or may not already have this node- if we don't,
      * it gets added.
      */
+    GtkTreeIter iter;
     ClusterModel* self = CLUSTER_MODEL(user_data);
     g_return_if_fail(client == self->discovery);
 
-    printf("Discovery on %s:%d\n", host, port);
+    if (cluster_model_find_address(self, host, port, &iter)) {
+	/* Already found this host */
+	return;
+    }
+
+    /* Yay, a new node */
+    cluster_model_add_node(self, host, port);
 }
 
 
