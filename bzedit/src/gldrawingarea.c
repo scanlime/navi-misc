@@ -1,3 +1,25 @@
+/*
+ * gldrawingarea.c - A Widget for drawing OpenGL stuff, based on gtkglext
+ *
+ * BZEdit
+ * Copyright (C) 2004 David Trowbridge
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ *
+ */
+
 #include "gldrawingarea.h"
 
 static void gl_drawing_area_class_init     (GLDrawingAreaClass *klass);
@@ -11,7 +33,7 @@ gl_drawing_area_get_type (void)
 {
   static GType gl_drawing_area_type = 0;
 
-  if(!gl_drawing_area_type)
+  if (!gl_drawing_area_type)
     {
       static const GTypeInfo gl_drawing_area_info =
       {
@@ -84,45 +106,53 @@ gl_drawing_area_realize (GtkWidget *widget)
 
   darea = GL_DRAWING_AREA (widget);
 
-  darea->context = gtk_widget_get_gl_context(widget);
-  darea->gldrawable = gtk_widget_get_gl_drawable(widget);
+  darea->context = gtk_widget_get_gl_context (widget);
+  darea->gldrawable = gtk_widget_get_gl_drawable (widget);
 
   gl_drawing_area_send_configure (darea);
 
-  darea->context = gtk_widget_get_gl_context(widget);
-  darea->gldrawable = gtk_widget_get_gl_drawable(widget);
+  darea->context = gtk_widget_get_gl_context (widget);
+  darea->gldrawable = gtk_widget_get_gl_drawable (widget);
 }
 
 GtkWidget*
 gl_drawing_area_new (GdkGLConfig *config)
 {
-  GtkWidget *r = GTK_WIDGET(g_object_new(GL_DRAWING_AREA_TYPE, NULL));
-  GLDrawingArea *darea = GL_DRAWING_AREA(r);
-  gtk_widget_set_gl_capability(r, config, NULL, TRUE, GDK_GL_RGBA_TYPE);
-  g_return_val_if_fail(gtk_widget_is_gl_capable(r), NULL);
-  darea->config = g_object_ref(config);
+  GtkWidget *r = GTK_WIDGET (g_object_new (GL_DRAWING_AREA_TYPE, NULL));
+  GLDrawingArea *darea = GL_DRAWING_AREA (r);
+  gtk_widget_set_gl_capability (r, config, NULL, TRUE, GDK_GL_RGBA_TYPE);
+  if (!gtk_widget_is_gl_capable(r))
+  {
+    g_object_unref (r);
+    return NULL;
+  }
+  darea->config = g_object_ref (config);
   return r;
 }
 
 GtkWidget*
 gl_drawing_area_new_shared (GLDrawingArea *base)
 {
-  GtkWidget *r = GTK_WIDGET(g_object_new(GL_DRAWING_AREA_TYPE, NULL));
-  GLDrawingArea *darea = GL_DRAWING_AREA(r);
-  gtk_widget_set_gl_capability(r, base->config, base->context, TRUE, GDK_GL_RGBA_TYPE);
-  g_return_val_if_fail(gtk_widget_is_gl_capable(r), NULL);
-  darea->config = g_object_ref(base->config);
+  GtkWidget *r = GTK_WIDGET (g_object_new (GL_DRAWING_AREA_TYPE, NULL));
+  GLDrawingArea *darea = GL_DRAWING_AREA (r);
+  gtk_widget_set_gl_capability (r, base->config, base->context, TRUE, GDK_GL_RGBA_TYPE);
+  if (!gtk_widget_is_gl_capable(r))
+  {
+    g_object_unref (r);
+    return NULL;
+  }
+  darea->config = g_object_ref (base->config);
   return r;
 }
 
 void gl_drawing_area_make_current (GLDrawingArea *glarea)
 {
-  gdk_gl_drawable_make_current(glarea->gldrawable, glarea->context);
+  gdk_gl_drawable_make_current (glarea->gldrawable, glarea->context);
 }
 
 void gl_drawing_area_swap_buffers (GLDrawingArea *glarea)
 {
-  gdk_gl_drawable_swap_buffers(glarea->gldrawable);
+  gdk_gl_drawable_swap_buffers (glarea->gldrawable);
 }
 
 static void

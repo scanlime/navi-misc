@@ -1,11 +1,12 @@
 #include <gtk/gtk.h>
 #include <glade/glade.h>
 #include "gldrawingarea.h"
+#include "parameter-editor.h"
 #include <GL/gl.h>
 
 int main(int argc, char **argv) {
   GladeXML *xml;
-  GtkWidget *widget, *darea;
+  GtkWidget *widget, *darea, *peditor;
   GdkGLConfig *config;
 
   gtk_init(&argc, &argv);
@@ -21,7 +22,11 @@ int main(int argc, char **argv) {
   darea = gl_drawing_area_new (config);
   gtk_container_add(GTK_CONTAINER(widget), darea);
 
-  widget = glade_xml_get_widget (xml, "window1");
+  widget = glade_xml_get_widget (xml, "side vbox");
+  peditor = gtk_drawing_area_new();
+  gtk_box_pack_start(GTK_BOX(widget), peditor, FALSE, TRUE, 0);
+
+  widget = glade_xml_get_widget (xml, "editor window");
   gtk_widget_show_all (widget);
 
   while(g_main_context_pending(NULL))
