@@ -250,7 +250,7 @@ class SiteSearch(Section):
     """A renderable that provides a Google search of this site"""
     title = "site search"
 
-    def __init__(self, width=31):
+    def __init__(self, width=20):
         self.width = width
 
     def render_rows(self, context):
@@ -277,6 +277,23 @@ class Page(Nouvelle.Twisted.Page):
     leftColumn  = []
     mainColumn  = []
     extraHeaders = []
+
+    # Placeholders for site-specific customization
+    site_aboveLeftColumn = []
+    site_belowLeftColumn = [
+            SiteSearch(),
+        ]
+    site_hostingNotice = []
+    site_topOfFooter = []
+    site_mainServerNotice = tag('p', _class='smallprint')[
+            "This is not the primary CIA server. It may be found at ",
+            tag('a', href="http://cia.navi.cx")[ "cia.navi.cx" ], ".",
+            tag('br'),
+            ". Please report problems with this server to its administrator, "
+            "rather than to the CIA project."
+        ]
+    site_middleOfFooter = []
+    site_bottomOfFooter = []
 
     document = [
         xml('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" '
@@ -311,8 +328,9 @@ class Page(Nouvelle.Twisted.Page):
                 # The page body. We really shouldn't still be using a table for this...
                 tag('table', _class="columns")[ tag('tr')[
                     tag('td', _class="left")[
+                        place("site_aboveLeftColumn"),
                         place("leftColumn"),
-                        SiteSearch(width=20),
+                        place("site_belowLeftColumn"),
                     ],
                     tag('td', _class="main")[
                         place("mainColumn")
@@ -320,6 +338,8 @@ class Page(Nouvelle.Twisted.Page):
                 ]],
 
                 tag('div', _class="footer")[
+
+                    place("site_topOfFooter"),
 
                     # Yep, this should be valid XHTML
                     tag('a', href="http://validator.w3.org/check/referer")[
@@ -329,11 +349,8 @@ class Page(Nouvelle.Twisted.Page):
 
                     xml(" "),
 
-                    # We're hosted by the PLD linux project, yay
-                    tag('a', href="http://pld-linux.org")[
-                        tag('img', src="http://pld-linux.org/Powered",
-                            alt="Powered by PLD Linux", height=81, width=67, _class="footer"),
-                    ],
+                    # This is a good place for a message about our hosting
+                    place("site_hostingNotice"),
 
                     xml(" "),
 
@@ -343,6 +360,11 @@ class Page(Nouvelle.Twisted.Page):
                             alt="Valid CSS!", height=31, width=88, _class="footer"),
                     ],
 
+                    # By default include a notice that this isn't the "main" CIA server
+                    place("site_mainServerNotice"),
+
+                    place("site_middleOfFooter"),
+
                     # Legal goop
                     tag('p', _class='smallprint')[
                         xml("The CIA server is Copyright &copy; 2003-2004 "),
@@ -351,6 +373,9 @@ class Page(Nouvelle.Twisted.Page):
                         tag('a', _href='/doc/COPYING')["GNU GPL"], ".", tag('br'),
                         "All hosted messages and metadata are owned by their respective authors.",
                     ],
+
+                    # More optional text
+                    place("site_bottomOfFooter"),
 
                 ],
             ],
