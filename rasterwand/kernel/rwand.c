@@ -164,6 +164,13 @@ static DECLARE_MUTEX (disconnect_sem);
 #define MAPPED_BTN_DOWN      BTN_5
 
 
+#ifdef VERTICAL_FLIP
+#define CONVERT_FB_BYTE(b)   (reverse_bits(b))
+#else
+#define CONVERT_FB_BYTE(b)   (b)
+#endif
+
+
 /******************************************************************************/
 /************************************************** Function Prototypes *******/
 /******************************************************************************/
@@ -209,8 +216,10 @@ static void    rwand_enter_state_running      (struct rwand_dev *dev);
 
 static void    rwand_ensure_mode       (struct rwand_dev *dev, struct rwand_status *new_status, int mode);
 
-static int     filter_push(struct filter *filter, int new_value);
-static void    filter_reset(struct filter *filter);
+static unsigned char reverse_bits      (unsigned char b);
+
+static int     filter_push       (struct filter *filter, int new_value);
+static void    filter_reset      (struct filter *filter);
 
 
 /******************************************************************************/
@@ -304,6 +313,14 @@ static void filter_reset(struct filter *filter)
 	filter->total = 0;
 	filter->n_values = 0;
 	filter->pointer = 0;
+}
+
+static unsigned char reverse_bits(unsigned char b)
+{
+	/* Developed by Sean Anderson in July 13, 2001.
+	 * Taken from http://graphics.stanford.edu/~seander/bithacks.html#BitReverseObvious
+	 */
+	return ((b * 0x0802LU & 0x22110LU) | (b * 0x8020LU & 0x88440LU)) * 0x10101LU >> 16;
 }
 
 
@@ -690,8 +707,8 @@ static void rwand_update_fb(struct rwand_dev *dev, int bytes, unsigned char *fb)
 	for (i=0; i<dev->settings.num_columns; i+=4) {
 		retval = usb_control_msg(dev->udev, usb_sndctrlpipe(dev->udev, 0),
 					 RWAND_CTRL_SEQ_WRITE4, USB_TYPE_VENDOR,
-					 fb[i] | (fb[i+1] << 8),
-					 fb[i+2] | (fb[i+3] << 8),
+					 CONVERT_FB_BYTE(fb[i]) | (CONVERT_FB_BYTE(fb[i+1]) << 8),
+					 CONVERT_FB_BYTE(fb[i+2]) | (CONVERT_FB_BYTE(fb[i+3]) << 8),
 					 NULL, 0, REQUEST_TIMEOUT);
 		if (retval != 0) {
 			err("Unexpected usb_control_msg retval in rwand_update_fb: %d", retval);
