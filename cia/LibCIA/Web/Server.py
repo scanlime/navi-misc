@@ -25,9 +25,79 @@ Site and Request classes.
 from twisted.web import server, error
 from twisted.protocols import http
 from twisted.python import log
-from Nouvelle import tag, place, Serializer
+from Nouvelle import tag, place, Serializer, Twisted
+import Nouvelle
 from LibCIA import TimeUtil
 import time
+
+
+class InternalErrorPage(Twisted.Page):
+    def __init__(self, failure):
+        self.failure = failure
+
+    def preRender(self, context):
+        request = context['request']
+        request.setHeader('content-type', "text/html")
+        request.setResponseCode(http.INTERNAL_SERVER_ERROR)
+
+    def render_time(self, context):
+        return TimeUtil.formatDateRFC822(time.time())
+
+    def render_excType(self, context):
+        return str(self.failure.value.__class__)
+
+    def render_excValue(self, context):
+        return str(self.failure.value)
+
+    def render_traceback(self, context):
+        return self.failure.getTraceback()
+
+    def render_uri(self, context):
+        return context['request'].uri
+
+    document = tag('html')[
+                   tag('head')[
+                       tag('title')[ "Internal Server Error" ],
+                   ],
+                   tag('body')[
+                       tag('h2')[ "Internal Server Error" ],
+
+                       # Friendly message
+                       tag('p')[
+                           "Sorry, it looks like you just found a bug. If you would like to "
+                           "help us identify the problem, please email a copy of this page to the "
+                           "webmaster of this site along with a description of what happened. Thanks!"
+                       ],
+
+                       # Table of useful values
+                       tag('table', cellpadding=5) [
+                           tag('tr')[
+                               tag('td')[ tag('b')[ 'Current time:' ]],
+                               tag('td')[ place('time') ],
+                           ],
+                           tag('tr')[
+                               tag('td')[ tag('b')[ 'Requested path:' ]],
+                               tag('td')[ place('uri') ],
+                           ],
+                           tag('tr')[
+                               tag('td')[ tag('b')[ 'Exception type:' ]],
+                               tag('td')[ place('excType') ],
+                           ],
+                           tag('tr')[
+                               tag('td')[ tag('b')[ 'Exception value:' ]],
+                               tag('td')[ place('excValue') ],
+                           ],
+                       ],
+
+                       # Traceback
+                       tag('p')[
+                           tag('b')[ 'Traceback:' ],
+                       ],
+                       tag('p')[
+                           tag('pre')[ place('traceback') ],
+                       ],
+                   ],
+               ]
 
 
 class Request(server.Request):
@@ -49,61 +119,26 @@ class Request(server.Request):
               ones reported to twistd.log :)
         """
         log.err(reason)
-        self.setHeader('content-type', "text/html")
-        self.setResponseCode(http.INTERNAL_SERVER_ERROR)
-
-        # Now we can use Nouvelle to generate the error page :)
-        self.write(Serializer().render(
-            tag('html')[
-                tag('head')[
-                    tag('title')[ "Internal Server Error" ],
-                ],
-                tag('body')[
-                    tag('h2')[ "Internal Server Error" ],
-
-                    # Friendly message
-                    tag('p')[
-                        "Sorry, it looks like you just found a bug. If you would like to "
-                        "help us identify the problem, please email a copy of this page to the "
-                        "webmaster of this site along with a description of what happened. Thanks!"
-                    ],
-
-                    # Table of useful values
-                    tag('table', cellpadding=5) [
-                        tag('tr')[
-                            tag('td')[ tag('b')[ 'Current time:' ]],
-                            tag('td')[ TimeUtil.formatDateRFC822(time.time()) ],
-                        ],
-                        tag('tr')[
-                            tag('td')[ tag('b')[ 'Requested path:' ]],
-                            tag('td')[ self.uri ],
-                        ],
-                        tag('tr')[
-                            tag('td')[ tag('b')[ 'Exception type:' ]],
-                            tag('td')[ str(reason.value.__class__) ],
-                        ],
-                        tag('tr')[
-                            tag('td')[ tag('b')[ 'Exception value:' ]],
-                            tag('td')[ str(reason.value) ],
-                        ],
-                    ],
-
-                    # Traceback
-                    tag('p')[
-                        tag('b')[ 'Traceback:' ],
-                    ],
-                    tag('p')[
-                        tag('pre')[ reason.getTraceback() ],
-                    ],
-                ],
-            ]))
+        page = InternalErrorPage(reason)
+        context = {'request': self}
+        self.write(Serializer().render(page, context))
         self.finish()
         return reason
+
+    def process(self):
+        # Count this request, yay
+        server.Request.process(self)
+        self.site.requestCount += 1
 
 
 class Site(server.Site):
     """A twisted.web.server.Site subclass, to use our modified Request class"""
     requestFactory = Request
 
+    def __init__(self, resource):
+        # Some extra widgets for tracking server uptime and hit count
+        self.requestCount = 0
+        self.serverStartTime = time.time()
+        server.Site.__init__(self, resource)
 
 ### The End ###
