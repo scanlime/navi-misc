@@ -21,7 +21,7 @@ begin remote
 
   ptrail          0
   repeat     0     0
-  gap    2011877
+  gap    100000
 
       begin raw_codes
 
