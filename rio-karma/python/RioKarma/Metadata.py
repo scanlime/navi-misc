@@ -22,8 +22,10 @@ and provides utilities for converting metadata between formats.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import md5, os
+import md5, os, cPickle
 import mmpython
+import sqlite
+from RioKarma import Paths
 
 
 class RidCalculator:
@@ -38,7 +40,7 @@ class RidCalculator:
         # It's a short file, compute only one digest
         if end-start <= blockSize:
             fileObj.seek(start)
-            return md5.md5(fileObj.read(length)).hexdigest()
+            return md5.md5(fileObj.read(end-start)).hexdigest()
 
         # Three digests for longer files
         fileObj.seek(start)
@@ -72,12 +74,287 @@ class RidCalculator:
         # header starts, but only in a somewhat ugly way.
         if isinstance(mminfo, mmpython.audio.eyed3info.eyeD3Info):
             offset = mminfo._find_header(f)[0]
+            if offset < 0:
+                # Hmm, it couldn't find the header? Set this to zero
+                # so we still get a usable RID, but it probably
+                # won't strictly be a correct RID.
+                offset = 0
+
             f.seek(0)
             return self.fromSection(f, offset, length-128)
 
         # Otherwise, use the whole file
         else:
             return self.fromSection(f, 0, length)
+
+
+class BaseCache:
+    """This is an abstract base class for objects that cache metadata
+       dictionaries on disk. The cache is implemented as a sqlite database,
+       with a 'dict' table holding administrative key-value data, and a
+       'files' table holding both a pickled representation of the metadata
+       and separate columns for all searchable keys.
+       """
+    # This must be defined by subclasses as a small integer that changes
+    # when any part of the database schema or our storage format changes.
+    schemaVersion = None
+
+    # This is the template for our SQL schema. All searchable keys are
+    # filled in automatically, but other items may be added by subclasses.
+    schemaTemplate = """
+    CREATE TABLE dict
+    (
+        name   VARCHAR(64) PRIMARY KEY,
+        value  TEXT
+    );
+
+    CREATE TABLE files
+    (
+        %(keys)s,
+        _pickled TEXT NOT NULL
+    );
+    """
+
+    # A list of searchable keys, used to build the schema and validate queries
+    searchableKeys = None
+    keyType = "VARCHAR(255)"
+
+    # The primary key is what ensures a file's uniqueness. Inserting a file
+    # with a primary key identical to an existing one will update that
+    # file rather than creating a new one.
+    primaryKey = None
+
+    def __init__(self, name):
+        self.name = name
+        self.connection = None
+
+    def open(self):
+        """Open the cache, creating it if necessary"""
+        if self.connection is not None:
+            return
+
+        self.connection = sqlite.connect(Paths.getCache(self.name))
+        self.cursor = self.connection.cursor()
+
+        # See what version of the database we got. If it's empty
+        # or it's old, we need to reset it.
+        try:
+            version = self._dictGet('schemaVersion')
+        except sqlite.DatabaseError:
+            version = None
+
+        if version != str(self.schemaVersion):
+            self.empty()
+
+    def close(self):
+        if self.connection is not None:
+            self.sync()
+            self.connection.close()
+            self.connection = None
+
+    def _getSchema(self):
+        """Create a complete schema from our schema template and searchableKeys"""
+        keys = []
+        for key in self.searchableKeys:
+            type = self.keyType
+            if key == self.primaryKey:
+                type += " PRIMARY KEY"
+            keys.append("%s %s" % (key, type))
+
+        return self.schemaTemplate % dict(keys=', '.join(keys))
+
+    def _encode(self, obj):
+        """Encode an object that may not be a plain string"""
+        if type(obj) is unicode:
+            obj = obj.encode('utf-8')
+        elif type(obj) is not str:
+            obj = str(obj)
+        return "'%s'" % sqlite.encode(obj)
+
+    def _dictGet(self, key):
+        """Return a value stored in the persistent dictionary. Returns None if
+           the key has no matching value.
+           """
+        self.cursor.execute("SELECT value FROM dict WHERE name = '%s'" % key)
+        row = self.cursor.fetchone()
+        if row:
+            return sqlite.decode(row[0])
+
+    def _dictSet(self, key, value):
+        """Create or update a value stored in the persistent dictionary"""
+        encodedValue = self._encode(value)
+
+        # First try inserting a new item
+        try:
+            self.cursor.execute("INSERT INTO dict (name, value) VALUES ('%s', %s)" %
+                                (key, encodedValue))
+        except sqlite.IntegrityError:
+            # Violated the primary key constraint, update an existing item
+            self.cursor.execute("UPDATE dict SET value = %s WHERE name = '%s'" % (
+                encodedValue, key))
+
+    def sync(self):
+        """Synchronize in-memory parts of the cache with disk"""
+        self.connection.commit()
+
+    def empty(self):
+        """Reset the database to a default empty state"""
+
+        # Find and destroy every table in the database
+        self.cursor.execute("SELECT tbl_name FROM sqlite_master WHERE type='table'")
+        tables = [row.tbl_name for row in self.cursor.fetchall()]
+        for table in tables:
+            self.cursor.execute("DROP TABLE %s" % table)
+
+        # Apply the schema
+        self.cursor.execute(self._getSchema())
+        self._dictSet('schemaVersion', self.schemaVersion)
+
+    def _insertFile(self, d):
+        """Insert a new file into the cache, given a dictionary of its metadata"""
+
+        # Make name/value lists for everything we want to update
+        dbItems = {'_pickled': self._encode(cPickle.dumps(d, -1))}
+        for column in self.searchableKeys:
+            if column in d:
+                dbItems[column] = self._encode(d[column])
+
+        # First try inserting a new row
+        try:
+            names = dbItems.keys()
+            self.cursor.execute("INSERT INTO files (%s) VALUES (%s)" %
+                                (",".join(names), ",".join([dbItems[k] for k in names])))
+        except sqlite.IntegrityError:
+            # Violated the primary key constraint, update an existing item
+            self.cursor.execute("UPDATE files SET %s WHERE %s = %s" % (
+                ", ".join(["%s = %s" % i for i in dbItems.iteritems()]),
+                self.primaryKey, self._encode(d[self.primaryKey])))
+
+    def _deleteFile(self, key):
+        """Delete a File from the cache, given its primary key"""
+        self.cursor.execute("DELETE FROM files WHERE %s = %s" % (
+            self.primaryKey, self._encode(key)))
+
+    def _getFile(self, key):
+        """Return a metadata dictionary given its primary key"""
+        self.cursor.execute("SELECT _pickled FROM files WHERE %s = %s" % (
+            self.primaryKey, self._encode(key)))
+        row = self.cursor.fetchone()
+        if row:
+            return cPickle.loads(sqlite.decode(row[0]))
+
+    def _findFiles(self, **kw):
+        """Search for files. The provided keywords must be searchable.
+           Yields a list of details dictionaries, one for each match.
+           Any keyword can be None (matches anything) or it can be a
+           string to match. Keywords that aren't provided are assumed
+           to be None.
+           """
+        constraints = []
+        for key, value in kw.iteritems():
+            if key not in self.searchableKeys:
+                raise ValueError("Key name %r is not searchable" % key)
+            constraints.append("%s = %s" % (key, self._encode(value)))
+
+        self.cursor.execute("SELECT _pickled FROM files WHERE %s" %
+                            " AND ".join(constraints))
+        row = None
+        while 1:
+            row = self.cursor.fetchone()
+            if not row:
+                break
+            yield cPickle.loads(sqlite.decode(row[0]))
+
+    def countFiles(self):
+        """Return the number of files cached"""
+        self.cursor.execute("SELECT COUNT(_pickled) FROM files")
+        return int(self.cursor.fetchone()[0])
+
+    def updateStamp(self, stamp):
+        """The stamp for this cache is any arbitrary value that is expected to
+           change when the actual data on the device changes. It is used to
+           check the cache's validity. This function update's the stamp from
+           a value that is known to match the cache's current contents.
+           """
+        self._dictSet('stamp', stamp)
+
+    def checkStamp(self, stamp):
+        """Check whether a provided stamp matches the cache's stored stamp.
+           This should be used when you have a stamp that matches the actual
+           data on the device, and you want to see if the cache is still valid.
+           """
+        return self._dictGet('stamp') == str(stamp)
+
+
+class LocalCache(BaseCache):
+    """This is a searchable metadata cache for files on the local disk.
+       It can be used to speed up repeated metadata lookups for local files,
+       but more interestingly it can be used to provide full metadata searching
+       on local music files.
+       """
+    schemaVersion = 1
+    searchableKeys = ('type', 'rid', 'title', 'artist', 'source', 'filename')
+    primaryKey = 'filename'
+
+    def lookup(self, filename):
+        """Return a details dictionary for the given filename, using the cache if possible"""
+        filename = os.path.realpath(filename)
+
+        # Use the mtime as a stamp to see if our cache is still valid
+        mtime = os.stat(filename).st_mtime
+        cached = self._getFile(filename)
+        if cached and cached.get('mtime') == str(mtime):
+            # Yay, still valid
+            return cached['details']
+
+        # Nope, generate a new dict and cache it
+        details = {}
+        Converter().detailsFromDisk(filename, details)
+        generated = dict(
+            type     = details.get('type'),
+            rid      = details.get('rid'),
+            title    = details.get('title'),
+            artist   = details.get('artist'),
+            source   = details.get('source'),
+            mtime    = mtime,
+            filename = filename,
+            details  = details,
+            )
+        self._insertFile(generated)
+        return details
+
+    def findFiles(self, **kw):
+        """Search for files that match all given search keys. This returns an iterator
+           over filenames, skipping any files that aren't currently valid in the cache.
+           """
+        for cached in self._findFiles(**kw):
+            try:
+                mtime = os.stat(cached['filename']).st_mtime
+            except OSError:
+                pass
+            else:
+                if cached.get('mtime') == str(mtime):
+                    yield cached['filename']
+
+    def scan(self, path):
+        """Recursively scan all files within the specified path, creating
+           or updating their cache entries.
+           """
+        for root, dirs, files in os.walk(path):
+            for name in files:
+                filename = os.path.join(root, name)
+                print filename
+                self.lookup(filename)
+
+_defaultLocalCache = None
+
+def getLocalCache():
+    """Get the default instance of LocalCache"""
+    global _defaultLocalCache
+    if not _defaultLocalCache:
+        _defaultLocalCache = LocalCache("local")
+        _defaultLocalCache.open()
+    return _defaultLocalCache
 
 
 class Converter:
@@ -192,7 +469,7 @@ class Converter:
         # kilobits/second. And of course, there are multiple ways of
         # reporting stereo...
         kbps = info['bitrate']
-        if kbps and kbps > 0:
+        if type(kbps) in (int, float) and kbps > 0:
             stereo = bool( (info['channels'] and info['channels'] >= 2) or
                            (info['mode'] and info['mode'].find('stereo') >= 0) )
             if kbps > 8000:

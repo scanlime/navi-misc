@@ -28,7 +28,6 @@ or IDs to use for new files.
 #
 
 import os, time, sys, cPickle
-import sqlite
 from twisted.internet import defer, reactor
 from RioKarma import Request, Metadata
 
@@ -155,207 +154,68 @@ class FileIdAllocator:
         return self.tree.findFirst() << 4
 
 
-class Cache:
-    """This is a container for the various bits that make up our on-disk cache
-       of the Rio's file database. It is stored in a sqlite database- most of the
-       information is stored directly in sqlite tables, but this class also hides
-       the fact that we have other data structures (the ID allocation tree) that
-       must be serialized and deserialized.
+class DeviceCache(Metadata.BaseCache):
+    """This is a searchable local cache of one device's database. It is used
+       to find remote files using metadata searhces, plus it keeps track
+       of which file IDs are in use via a FileIdAllocator.
        """
-
-    schemaVersion = 1
-    schema = """
-
-    -- Holds individual strings that only need to be accessed by key
-    CREATE TABLE dict
-    (
-        name   VARCHAR(32) NOT NULL,
-        value  TEXT
-    );
-
-    -- This is the meat of our cache- each file on the Rio gets a row.
-    -- We store a full pickled copy of the details for that file, plus
-    -- we separately store all entries that are interesting to search.
-    CREATE TABLE files
-    (
-        -- All of these fields match keys in 'details'
-        fid            INT PRIMARY KEY,
-        type           VARCHAR(16),
-        rid            VARCHAR(32),
-        title          VARCHAR(255),
-        artist         VARCHAR(255),
-        source         VARCHAR(255),
-        codec          VARCHAR(32),
-        fid_generation INT,
-        ctime          INT,
-
-        details        TEXT NOT NULL
-    );
-    """
-
-    # This is a list of the items from 'details' that get their own database column
-    detailsColumns = ('fid', 'type', 'rid', 'title', 'artist',
+    schemaVersion = 2
+    searchableKeys = ('fid', 'type', 'rid', 'title', 'artist',
                       'source', 'codec', 'fid_generation', 'ctime')
-
-    def __init__(self, filename):
-        self.filename = os.path.expanduser(filename)
+    primaryKey = 'fid'
+    fileIdAllocator = None
 
     def open(self):
-        """Open the cache, creating it if necessary"""
+        Metadata.BaseCache.open(self)
 
-        # create our directory if necessary
-        parentDir = self.filename.rsplit(os.sep, 1)[0]
-        if not os.path.isdir(parentDir):
-            os.makedirs(parentDir)
-
-        self.connection = sqlite.connect(self.filename)
-        self.cursor = self.connection.cursor()
-
-        # See what version of the database we got. If it's empty
-        # or it's old, we need to reset it.
-        try:
-            self.cursor.execute("SELECT value FROM dict WHERE name = 'schemaVersion'")
-            version = int(self.cursor.fetchone().value)
-        except sqlite.DatabaseError:
-            version = None
-
-        if version != self.schemaVersion:
-            self.empty()
-
-        # Load the File ID allocator
-        self.cursor.execute("SELECT value FROM dict WHERE name = 'fileIdAllocator'")
-        self.fileIdAllocator = cPickle.loads(sqlite.decode(self.cursor.fetchone().value))
-
-    def close(self):
-        self.sync()
-        self.connection.close()
+        # After opening, load the file ID allocator
+        pickled = self._dictGet('fileIdAllocator')
+        if pickled:
+            self.fileIdAllocator = cPickle.loads(pickled)
+        else:
+            self.fileIdAllocator = FileIdAllocator()
 
     def sync(self):
-        """Synchronize in-memory parts of the cache with disk"""
-
         # Update the file ID allocator
-        self.cursor.execute("UPDATE dict SET value = '%s' WHERE name = 'fileIdAllocator'" %
-                            sqlite.encode(cPickle.dumps(self.fileIdAllocator, -1)))
-
-        # Commit the database itself to disk
-        self.connection.commit()
+        self._dictSet('fileIdAllocator', cPickle.dumps(self.fileIdAllocator, -1))
+        Metadata.BaseCache.sync(self)
 
     def empty(self):
-        """Reset the database to a default empty state"""
-
-        # Find and destroy every table in the database
-        self.cursor.execute("SELECT tbl_name FROM sqlite_master WHERE type='table'")
-        tables = [row.tbl_name for row in self.cursor.fetchall()]
-        for table in tables:
-            self.cursor.execute("DROP TABLE %s" % table)
-
-        # Apply the schema
-        self.cursor.execute(self.schema)
-        self.cursor.execute("INSERT INTO dict (name, value) VALUES ('schemaVersion', '%s')" %
-                            self.schemaVersion)
-
-        # Add an initial invalid stamp
-        self.cursor.execute("INSERT INTO dict (name) VALUES ('stamp')")
-
-        # Create a fresh new file ID allocator. Put a blank entry in the database for now,
-        # then let sync() update it before committing all this to disk.
+        # Create a new blank file ID allocator
         self.fileIdAllocator = FileIdAllocator()
-        self.cursor.execute("INSERT INTO dict (name, value) VALUES ('fileIdAllocator', '')")
-        self.sync()
-
-    def _encode(self, obj):
-        """Encode an object for inclusion in the files table"""
-        if type(obj) is unicode:
-            obj = obj.encode('utf-8')
-        elif type(obj) is not str:
-            obj = str(obj)
-        return "'%s'" % sqlite.encode(obj)
+        Metadata.BaseCache.empty(self)
 
     def insertFile(self, f):
         """Insert a new File object into the cache. If an existing file with this ID
            exists, it is updated rather than overwritten.
            """
-
-        # Add it to the ID allocator
         self.fileIdAllocator.allocate(f.id)
-
-        # Make name/value lists for everything we want to update
-        dbItems = {'details': self._encode(cPickle.dumps(f.details, -1))}
-        for column in self.detailsColumns:
-            if column in f.details:
-                dbItems[column] = self._encode(f.details[column])
-
-        # First try updating an existing row
-        self.cursor.execute("UPDATE files SET %s WHERE fid = %s" % (
-            ", ".join(["%s = %s" % i for i in dbItems.iteritems()]),
-            self._encode(f.id)))
-
-        if self.cursor.rowcount < 1:
-            # Nope. Insert a new item
-            names = dbItems.keys()
-            self.cursor.execute("INSERT INTO files (%s) VALUES (%s)" %
-                                (",".join(names), ",".join([dbItems[k] for k in names])))
+        self._insertFile(f.details)
 
     def deleteFile(self, f):
         """Delete a File object from the cache"""
         # FIXME: This can't remove the ID from the allocation tree yet
-        self.cursor.execute("DELETE FROM files WHERE fid = %s" % self._encode(f.id))
+        self._deleteFile(f.details)
 
     def getFile(self, fid):
         """Return a File object, given a file ID"""
-        self.cursor.execute("SELECT details FROM files WHERE fid = %s" % self._encode(fid))
-        return File(details=cPickle.loads(sqlite.decode(self.cursor.fetchone().details)))
+        details = self._getFile(fid)
+        if details:
+            return File(details=details)
 
     def findFiles(self, **kw):
-        """Search for files. The provided keywords must be included in
-           self.detailsColumns. Any keyword can be None (matches anything)
-           or it can be a string to match. Keywords that aren't provided
-           are assumed to be None. Returns a list of File objects.
+        """Search for files that match all the given search keys.
+           Returns an iterator that yields File objects.
            """
-        constraints = []
-        for key, value in kw.iteritems():
-            if key not in self.detailsColumns:
-                raise ValueError("Key name %r is not searchable" % key)
-            constraints.append("%s = %s" % (key, self._encode(value)))
-
-        self.cursor.execute("SELECT details FROM files WHERE %s" %
-                            " AND ".join(constraints))
-        return [File(details=cPickle.loads(sqlite.decode(row.details)))
-                for row in self.cursor.fetchall()]
-
-    def countFiles(self):
-        """Return the number of files cached"""
-        self.cursor.execute("SELECT COUNT(fid) FROM files")
-        return int(self.cursor.fetchone()[0])
-
-    def updateStamp(self, stamp):
-        """The stamp for this cache is any arbitrary value that is expected to
-           change when the actual data on the device changes. It is used to
-           check the cache's validity. This function update's the stamp from
-           a value that is known to match the cache's current contents.
-           """
-        self.cursor.execute("UPDATE dict SET value = '%s' WHERE name = 'stamp'" %
-                            sqlite.encode(repr(stamp)))
-
-    def checkStamp(self, stamp):
-        """Check whether a provided stamp matches the cache's stored stamp.
-           This should be used when you have a stamp that matches the actual
-           data on the device, and you want to see if the cache is still valid.
-           """
-        self.cursor.execute("SELECT name FROM dict WHERE name = 'stamp' AND value = '%s'" %
-                            sqlite.encode(repr(stamp)))
-        return bool(self.cursor.fetchone())
+        for details in self._findFiles(**kw):
+            yield File(details=details)
 
 
 class FileManager:
     """The FileManager coordinates the activity of Cache and File objects
        with a real Rio device.
        """
-    def __init__(self, protocol, cachePath=None):
-        if cachePath is None:
-            cachePath = "~/.riokarma-py"
-        self.cachePath = os.path.expanduser(cachePath)
-
+    def __init__(self, protocol):
         self.protocol = protocol
         self.locksHeld = ()
         self.cache = None
@@ -507,7 +367,7 @@ class FileManager:
            one for our device given its unique serial number.
            """
         if not self.cache:
-            self.cache = Cache(os.path.join(self.cachePath, "device-%s.cache" % serial))
+            self.cache = DeviceCache("device-%s" % serial)
             self.cache.open()
 
     def updateFileDetails(self, f):

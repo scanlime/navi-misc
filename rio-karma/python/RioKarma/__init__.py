@@ -50,7 +50,7 @@ def getProtocol(host, port=None, password=''):
     return factory.authResult
 
 
-def getFileManager(host, port=None, password='', cachePath=None):
+def getFileManager(host, port=None, password=''):
     """Connect to a Rio Karma device. Returns a Deferred that
        results in a Filesystem.FileManager instance on success.
        """
@@ -64,7 +64,7 @@ def getFileManager(host, port=None, password='', cachePath=None):
     return result
 
 
-def connect(host, port=None, password='', cachePath=None):
+def connect(host, port=None, password=''):
     """Do everything necessary to establish a useful connection
        to the Rio Karma. Currently this includes creating a FileManager
        object and synchronizing its database.
@@ -80,7 +80,7 @@ def connect(host, port=None, password='', cachePath=None):
     def synchronized(retval, fm):
         result.callback(fm)
 
-    getFileManager(host, port, password, cachePath).addCallback(
+    getFileManager(host, port, password).addCallback(
         gotFileManager).addErrback(result.errback)
 
     return result
