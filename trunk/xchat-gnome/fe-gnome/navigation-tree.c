@@ -635,13 +635,9 @@ navigation_tree_server_connected (NavTree *navtree, gchar *name)
 
 	path = gtk_tree_path_new_first ();
 
-	printf ("navigation_tree_server_connected()\n");
 	while (gtk_tree_model_get_iter (store, &iter, path)) {
 		gtk_tree_model_get (store, &iter, 1, &network, 6, &connected, -1);
 		if (strcmp (network, name) == 0) {
-			printf ("found %s\n", name);
-			if (connected)
-				printf ("%s is connected\n", name);
 			return connected;
 		}
 		gtk_tree_path_next (path);
