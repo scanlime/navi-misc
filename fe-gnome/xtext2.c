@@ -1,18 +1,25 @@
 #include "xtext2.h"
 #include <string.h>
 
-static void     xtext2_class_init      (XText2Class *klass);
-static void     xtext2_init            (XText2 *xtext);
+static void       xtext2_class_init      (XText2Class *klass);
+static void       xtext2_init            (XText2 *xtext);
 
-static void     xtext2_dispose         (GObject *object);
-static void     xtext2_finalize        (GObject *object);
-static void     xtext2_set_property    (GObject *object, guint param_id, const GValue *value, GParamSpec *pspec);
-static void     xtext2_get_property    (GObject *object, guint param_id, GValue *value, GParamSpec *pspec);
+static void       xtext2_dispose         (GObject *object);
+static void       xtext2_finalize        (GObject *object);
+static void       xtext2_set_property    (GObject *object, guint param_id, const GValue *value, GParamSpec *pspec);
+static void       xtext2_get_property    (GObject *object, guint param_id, GValue *value, GParamSpec *pspec);
 
-static void     xtext2_realize         (GtkWidget *widget);
-static void     xtext2_unrealize       (GtkWidget *widget);
-static void     xtext2_size_request    (GtkWidget *widget, GtkRequisition *requisition);
-static void     xtext2_size_allocate   (GtkWidget *widget, GtkAllocation *allocation);
+static void       xtext2_realize         (GtkWidget *widget);
+static void       xtext2_unrealize       (GtkWidget *widget);
+static void       xtext2_size_request    (GtkWidget *widget, GtkRequisition *requisition);
+static void       xtext2_size_allocate   (GtkWidget *widget, GtkAllocation *allocation);
+static gboolean   xtext2_expose          (GtkWidget *widget, GdkEventExpose *event);
+
+static void       paint                  (GtkWidget *widget, GdkRectangle *area);
+static void       draw_bg                (XText2 *xtext, int x, int y, int width, int height);
+static textentry* nth                    (XText2 *xtext, int line, int *subline);
+static textentry* find_char              (XText2 *xtext, int x, int y, int *offset, gboolean *out_of_bounds);
+static int        find_x                 (XText2 *xtext, int x, textentry *ent, int subline, int line, gboolean *out_of_bounds);
 
 static gpointer parent_class;
 
@@ -43,6 +50,7 @@ struct _XText2Private
   gboolean     show_separator;       /* show the separator bar? */
   GdkColor     tint;                 /* tint color */
   gboolean     word_wrap;            /* wrap words? */
+  int          fontsize;             /* width in pixels of the space ' ' character */
 
   /* drawing data */
   gint         depth;                /* gdk window depth */
@@ -54,6 +62,9 @@ struct _XText2Private
   GdkDrawable *draw_buffer;          /* buffer to draw into */
   GdkPixmap   *background_pm;        /* background image */
   GdkCursor   *hand_cursor;          /* hand cursor (for urls, etc) */
+
+  /* state data */
+  int          pixel_offset;         /* number of pixels the top line is chopped by */
 };
 
 GType
@@ -102,6 +113,7 @@ xtext2_class_init (XText2Class *klass)
   widget_class->unrealize             = xtext2_unrealize;
   widget_class->size_request          = xtext2_size_request;
   widget_class->size_allocate         = xtext2_size_allocate;
+  widget_class->expose_event          = xtext2_expose;
 
   pspec = g_param_spec_string ("font",
                                "Font",
@@ -257,6 +269,8 @@ xtext2_realize (GtkWidget *widget)
 
   cmap = gtk_widget_get_colormap (widget);
 
+  xtext->priv = g_new0 (XText2Private, 1);
+
   attributes.x           = widget->allocation.x;
   attributes.y           = widget->allocation.y;
   attributes.width       = widget->allocation.width;
@@ -335,4 +349,67 @@ xtext2_size_allocate (GtkWidget *widget, GtkAllocation *allocation)
     /* FIXME: stuff! */
     gdk_window_move_resize (widget->window, allocation->x, allocation->y, allocation->width, allocation->height);
   }
+}
+
+static gboolean
+xtext2_expose (GtkWidget *widget, GdkEventExpose *event)
+{
+  paint (widget, &event->area);
+  return FALSE;
+}
+
+static void
+paint (GtkWidget *widget, GdkRectangle *area)
+{
+  XText2 *xtext = XTEXT2 (widget);
+  textentry *ent_start, *ent_end;
+  int x, y;
+
+  ent_start = find_char (xtext, area->x, area->y, NULL, NULL);
+  if (!ent_start)
+  {
+    draw_bg (xtext, area->x, area->y, area->width, area->height);
+    goto xit;
+  }
+  ent_end = find_char (xtext, area->x + area->width, area->y + area->height, NULL, NULL);
+
+xit:
+}
+
+static void
+draw_bg (XText2 *xtext, int x, int y, int width, int height)
+{
+  gdk_draw_rectangle (xtext->priv->draw_buffer, xtext->priv->bgc, 1, x, y, width, height);
+}
+
+static textentry*
+nth (XText2 *xtext, int line, int *subline)
+{
+  /* FIXME */
+  return NULL;
+}
+
+static textentry*
+find_char (XText2 *xtext, int x, int y, int *offset, gboolean *out_of_bounds)
+{
+  textentry *ent;
+  int line;
+  int subline;
+
+  /* uninitialized font */
+  if (xtext->priv->fontsize == 0)
+    return NULL;
+
+  line = (y + xtext->priv->pixel_offset) / xtext->priv->fontsize;
+  ent = nth (xtext, line + (int) xtext->adj->value, &subline);
+  if (!ent)
+    return NULL;
+  if (offset)
+    *offset = find_x (xtext, x, ent, subline, line, out_of_bounds);
+  return ent;
+}
+
+static int
+find_x (XText2 *xtext, int x, textentry *ent, int subline, int line, gboolean *out_of_bounds)
+{
 }

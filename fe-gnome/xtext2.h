@@ -2,6 +2,7 @@
 #define __XTEXT2_H__
 
 #include <gtk/gtk.h>
+#include "xtextbuffer.h"
 
 G_BEGIN_DECLS
 
