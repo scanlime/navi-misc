@@ -17,6 +17,27 @@
 #include "gameloop.h"
 #include "baseObject.h"
 
+
+typedef struct 
+{
+	std::string skybox;
+	std::string groundTexture;
+	float groundSize;
+	float groundTextureRepeat;
+	float sunPos[3];
+	float	sunColor[3];
+	float ambientColor[3];
+}trWorldInfo;
+
+typedef	 struct 
+{
+	float pos[3];
+	float rot[3];
+	float scale[3];
+	std::string type;
+	std::vector<std::string> textures;
+}trObjectInfo;
+
 class CTestWorld : public CBaseObject
 {
 	public:
@@ -26,7 +47,9 @@ class CTestWorld : public CBaseObject
 		
 		void Set ( CBaseGameLoop * pGameLoop );
 
-		void Load ( bool draw );		
+		void Load ( trWorldInfo &info, bool draw );	
+		void AddWorldObject ( trObjectInfo &info );
+
 		bool Think ( void );
 
 		// functions for the world drawable to call

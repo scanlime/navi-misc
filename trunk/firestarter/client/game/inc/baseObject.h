@@ -40,7 +40,7 @@ public:
 		virtual bool GetMaterial (  const char * item, char *material ){return false;}
 		virtual float GetValueF ( const char *item ){return 0;}
 		virtual int GetValueI ( const char *item ){return 0;}
-		virtual const char* GetValueS ( const char *item ){return NULL;}
+		virtual const char* GetValueS ( const char *item ){return 0;}
 protected:
 };
 
