@@ -25,9 +25,10 @@ against the current OpenGL context.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 from OpenGL.GL import *
+from BZEngine.UI import GLExtension
 
 
-def rectVertices(size, alignment=None):
+def rectVertices(size, alignment=(0,0)):
     """Specifies vertices of a rectangle of the given size.
        The rectangle is placed such that the location given by
        'alignment' is at the origin. This is consistent with
@@ -52,7 +53,7 @@ def rectVertices(size, alignment=None):
                size[1] - alignment[1] * size[1])
 
 
-def filledRect(size, alignment=None):
+def filledRect(size, alignment=(0,0)):
     """Draws a filled rectangle, size and alignment are as described
        in rectVertices above.
        """
@@ -61,12 +62,31 @@ def filledRect(size, alignment=None):
     glEnd()
 
 
-def rectOutline(size, alignment=None):
+def rectOutline(size, alignment=(0,0)):
     """Draws a rectangle outline, size and alignment are as described
        in rectVertices above.
        """
     glBegin(GL_LINE_LOOP)
     rectVertices(size, alignment)
     glEnd()
+
+
+def setColor(*color):
+    """Set a 4-tuple color. Equivalent to glColor4f, but here to keep the
+       level of abstraction consistent.
+       """
+    glColor4f(*color)
+
+
+def setup():
+    """Set up the current OpenGL context for default 2D rendering"""
+    glEnable(GL_BLEND)
+    glDisable(GL_LIGHTING)
+    glDisable(GL_CULL_FACE)
+    glDisable(GL_COLOR_MATERIAL)
+    glDisable(GL_DEPTH_TEST)
+    GLExtension.disableMultitex()
+    glDisable(GL_TEXTURE_2D)
+    glLoadIdentity()
 
 ### The End ###

@@ -26,7 +26,9 @@ define transitions or other modifiers.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
+from __future__ import division
 from BZEngine import Event, Animated
+from BZEngine.UI import GLOrtho
 
 
 class Page:
@@ -63,31 +65,6 @@ class PageWrapper(Page):
     def finalize(self):
         """Give our subpage a chance to clean up"""
         self.subpage.finalize()
-
-
-class PageTimerWrapper(PageWrapper):
-    """A page wrapper that calls onFinish after the page has been active for a
-       fixed amount of time.
-       """
-    def __init__(self, view, subpage, duration):
-        PageWrapper.__init__(self, view, subpage)
-        self.duration = duration
-        self.viewport.onSetupFrame.observe(self.setupFrame)
-
-    def setupFrame(self):
-        # There are other methods we could use to decide when to quit, but this
-        # one is most robust when nonstandard Timekeepers are involved, as is
-        # the case when recording movies.
-        self.duration -= self.time.step()
-        if self.duration <= 0:
-            self.onFinish()
-
-
-def PageTimer(duration, page):
-    """Given a page class or a callable, return a callable for creating that page
-       with a PageTimerWrapper around it.
-       """
-    return lambda view: PageTimerWrapper(view, page(view), duration)
 
 
 class Book(Page):
@@ -161,5 +138,61 @@ class Book(Page):
             self.activeClass = None
             self.activeInstance = None
             self.onFinish()
+
+
+class PageTimerWrapper(PageWrapper):
+    """A page wrapper that calls onFinish after the page has been active for a
+       fixed amount of time.
+       """
+    def __init__(self, view, subpage, duration):
+        PageWrapper.__init__(self, view, subpage)
+        self.duration = duration
+        self.viewport.onSetupFrame.observe(self.setupFrame)
+
+    def setupFrame(self):
+        # There are other methods we could use to decide when to quit, but this
+        # one is most robust when nonstandard Timekeepers are involved, as is
+        # the case when recording movies.
+        self.duration -= self.time.step()
+        if self.duration <= 0:
+            self.onFinish()
+
+
+def PageTimer(duration, page):
+    """Given a page class or a callable, return a callable for creating that page
+       with a PageTimerWrapper around it.
+       """
+    return lambda view: PageTimerWrapper(view, page(view), duration)
+
+
+class FadeInWrapper(PageWrapper):
+    """A page wrapper that fades in any page from a given solid color over the given duration."""
+    def __init__(self, view, subpage, duration, color):
+        PageWrapper.__init__(self, view, subpage)
+        self.rate = 1/duration
+        self.color = list(color[:3]) + [1]
+        self.overlay = self.viewport.region(self.viewport.rect)
+        self.overlay.fov = None
+        self.overlay.onDrawFrame.observe(self.drawFrame)
+
+    def drawFrame(self):
+        # Draw a rectangle of the color 'self.color' over the entire screen
+        GLOrtho.setup()
+        GLOrtho.setColor(*self.color)
+        GLOrtho.filledRect(self.overlay.size)
+
+        # Fade out the overlay's alpha. When it hits zero, delete our overlay viewport,
+        # causing this function to not be called any longer.
+        self.color[3] -= self.rate * self.time.step()
+        if self.color[3] <= 0:
+            self.overlay = None
+
+
+def FadeIn(duration, color, page):
+    """Given a page class or a callable, return a callable for creating that page
+       with a PageTimerWrapper around it.
+       """
+    return lambda view: FadeInWrapper(view, page(view), duration, color)
+
 
 ### The End ###
