@@ -39,7 +39,9 @@ struct field_sensor {
 	struct usb_interface *	interface;		/* the interface for this device */
 	unsigned char		minor;			/* the starting minor number for this device */
 
-	struct urb		urb;		        /* URB for interrupt transfers*/
+	struct urb *		irq;		        /* URB for interrupt transfers*/
+	unsigned char *         irq_data;
+	dma_addr_t              irq_dma;
 
 	int                     open_count;
 	struct semaphore	sem;			/* locks this structure */
@@ -55,6 +57,9 @@ static DECLARE_MUTEX (disconnect_sem);
 
 /* 1 second timeout for control requests */
 #define REQUEST_TIMEOUT HZ
+
+#define IRQ_SIZE     8   /* Size of interrupt transfers, in bytes */
+#define IRQ_INTERVAL 1   /* Polling interval, in milliseconds */
 
 
 /******************************************************************************/
@@ -118,7 +123,7 @@ static void efs_irq (struct urb *urb, struct pt_regs *regs)
 	/* Callback for processing incoming interrupt transfers from the IR receiver */
 	struct field_sensor *dev = (struct field_sensor*)urb->context;
 
-	if (dev && urb->status == 0 && urb->actual_length == 8) {
+	if (dev && urb->status == 0 && urb->actual_length == IRQ_SIZE) {
 		dbg("Wibbly %d\n",  urb->data[0]);
 	}
 	else {
@@ -177,6 +182,13 @@ static int efs_open(struct inode *inode, struct file *file)
 	prv->dev = dev;
 	file->private_data = prv;
 
+	/* If the device wasn't being used before this open, we need to submit
+	 * a URB to start the interrupt requests flowing.
+	 */
+	if (dev->open_count == 1) {
+		usb_submit_urb(dev->irq, GFP_KERNEL);
+	}
+
 exit:
 	/* unlock this device */
 	up (&dev->sem);
@@ -217,8 +229,9 @@ static int efs_release(struct inode *inode, struct file *file)
 
 	/* decrement our usage count for the device */
 	--dev->open_count;
-	if (dev->open_count <= 0) {
-		dev->open_count = 0;
+	if (dev->open_count == 0) {
+		/* We're the last ones, stop the flow of IRQ requests */
+		usb_unlink_urb(dev->irq);
 	}
 
 	/* Free this device's private data */
@@ -305,6 +318,13 @@ exit:
 
 static void efs_delete(struct field_sensor *dev)
 {
+	if (dev->irq) {
+		usb_unlink_urb(dev->irq);
+		usb_free_urb(dev->irq);
+	}
+	if (dev->irq_data) {
+		usb_buffer_free(dev->udev, IRQ_SIZE, dev->irq_data, dev->irq_dma);
+	}
 	kfree(dev);
 }
 
@@ -312,6 +332,7 @@ static int efs_probe(struct usb_interface *interface, const struct usb_device_id
 {
 	struct usb_device *udev = interface_to_usbdev(interface);
 	struct field_sensor *dev = NULL;
+	struct usb_host_interface *host_interface = &interface->altsetting[interface->act_altsetting];
 	int retval;
 
 	/* See if the device offered us matches what we can accept */
@@ -337,15 +358,33 @@ static int efs_probe(struct usb_interface *interface, const struct usb_device_id
 	if (retval) {
 		/* something prevented us from registering this driver */
 		err ("Not able to get a minor for this device.");
-		usb_set_intfdata (interface, NULL);
 		goto error;
 	}
+
+	/* Allocate some DMA-friendly memory and a URB used for our interrupt
+	 * transfers carrying actual sensor readings back to us.
+	 */
+	dev->irq_data = usb_buffer_alloc(udev, IRQ_SIZE, SLAB_ATOMIC, &dev->irq_dma);
+	if (!dev->irq_data) {
+		retval = -ENOMEM;
+		goto error;
+	}
+	dev->irq = usb_alloc_urb(0, GFP_KERNEL);
+	if (!dev->irq) {
+		retval = -ENODEV;
+		goto error;
+	}
+	usb_fill_int_urb(dev->irq, udev,
+			 usb_rcvintpipe(udev, host_interface->endpoint[0].desc.bEndpointAddress),
+			 dev->irq_data, IRQ_SIZE,
+			 efs_irq, dev, IRQ_INTERVAL);
 
 	dev->minor = interface->minor;
 	info("Electric Field Sensor device now attached to /dev/" EFS_DEV_NAMEFORMAT, dev->minor);
 	return 0;
 
 error:
+	usb_set_intfdata (interface, NULL);
 	efs_delete(dev);
 	return retval;
 }
