@@ -105,12 +105,12 @@ void initialize_preferences_irc_page()
 	gtk_tree_view_append_column (GTK_TREE_VIEW (widget), column);
 	populate_hilight ();
 	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (widget));
-	g_signal_connect (G_OBJECT (widget), "changed", G_CALLBACK (hilight_selection), NULL);
+	g_signal_connect (G_OBJECT (selection), "changed", G_CALLBACK (hilight_selection), NULL);
 
 	widget = glade_xml_get_widget (gui.xml, "hilight add");
 	g_signal_connect (G_OBJECT (widget), "clicked", G_CALLBACK (hilight_add_clicked), NULL);
 	widget = glade_xml_get_widget (gui.xml, "hilight remove");
-	g_signal_connect (G_OBJECT (widget), "clicked", G_CALLBACK (hilight_remove_clicked), glade_xml_get_widget (gui.xml, "highlist list"));
+	g_signal_connect (G_OBJECT (widget), "clicked", G_CALLBACK (hilight_remove_clicked), glade_xml_get_widget (gui.xml, "highlight list"));
 
 	g_object_unref (group);
 
@@ -256,7 +256,7 @@ hilight_remove_clicked (GtkButton *button, GtkTreeView *view)
 	GtkTreeIter iter;
 
 	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (view));
-	if (gtk_tree_selection_get_selected (selection, GTK_TREE_MODEL (hilight_store), &iter)) {
+	if (gtk_tree_selection_get_selected (selection, (GtkTreeModel**) &hilight_store, &iter)) {
 		gtk_list_store_remove (hilight_store, &iter);
 		save_hilight ();
 	}
@@ -266,8 +266,5 @@ static void
 hilight_selection (GtkTreeSelection *selection, gpointer data)
 {
 	GtkWidget *remove = glade_xml_get_widget (gui.xml, "hilight remove");
-	if (gtk_tree_selection_get_selected (selection, GTK_TREE_MODEL (hilight_store), NULL))
-		gtk_widget_set_sensitive (remove, TRUE);
-	else
-		gtk_widget_set_sensitive (remove, FALSE);
+	gtk_widget_set_sensitive (remove, gtk_tree_selection_get_selected (selection, (GtkTreeModel**) &hilight_store, NULL));
 }
