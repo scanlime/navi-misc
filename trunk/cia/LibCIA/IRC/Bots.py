@@ -1,6 +1,9 @@
 """ LibCIA.IRC.Bots
 
-A small library for managing multiple IRC bots on multiple IRC networks
+A small library for managing multiple IRC bots on multiple IRC networks.
+The code in this module runs in a separate daemon, so other CIA components
+can be restarted without effecting the bots.
+
 """
 #
 # CIA open source notification system
@@ -24,11 +27,12 @@ A small library for managing multiple IRC bots on multiple IRC networks
 from twisted.protocols import irc
 from twisted.internet import protocol, reactor, defer
 from twisted.python import log, util
+from twisted.spread import pb
 import time, random
 import Network
 
 
-class Request:
+class Request(pb.Referenceable):
     """The Request object specifies a network, optionally a channel, and
        a number of bots that need to inhabit that network/channel.
 
@@ -96,6 +100,18 @@ class Request:
             nicks = self.bots[0].channels[self.channel].nicks
             if nicks:
                 return len(nicks) - len(self.bots)
+
+    def remote_active(self):
+        return self.active()
+
+    def remote_cancel(self):
+        self.cancel()
+
+    def remote_getBots(self):
+        return self.bots
+
+    def remote_getUserCount(self):
+        return self.getUserCount()
 
 
 class NickAllocator:
@@ -183,7 +199,7 @@ class UnknownMessageLog:
                                                             unknownMessage.params))
 
 
-class BotNetwork:
+class BotNetwork(pb.Root):
     """A collection of IRC bots that work to satisfy a collection of Request objects.
        Users should interact with the BotNetwork via Request instances.
        """
@@ -413,6 +429,13 @@ class BotNetwork:
         # FIXME: remove the ruleset
         pass
 
+    def remote_createRequest(self, host, port, channel):
+        network = Network.find(host, port)
+        return Request(self, network, channel)
+
+    def remote_getRequests(self):
+        return self.requests
+
 
 class ChannelInfo:
     """A container for information about an IRC channel. Currently
@@ -430,7 +453,7 @@ class ChannelInfo:
         self.nickCollector = []
 
 
-class Bot(irc.IRCClient):
+class Bot(irc.IRCClient, pb.Referenceable):
     """An IRC bot connected to one network any any number of channels,
        sending messages on behalf of the BotController.
 
@@ -460,6 +483,7 @@ class Bot(irc.IRCClient):
     def __init__(self):
         self.emptyChannels()
         self.pendingWhoisTests = {}
+        self.connectTimestamp = None
 
     def emptyChannels(self):
         """Called when we know we're not in any channels and we shouldn't
@@ -488,6 +512,7 @@ class Bot(irc.IRCClient):
     def connectionMade(self):
         """Called by IRCClient when we have a socket connection to the server."""
         self.emptyChannels()
+        self.connectTimestamp = time.time()
         self.network = self.factory.network
         self.botNet = self.factory.botNet
 
@@ -842,6 +867,21 @@ class Bot(irc.IRCClient):
     def action(self, user, channel, message):
         if message.lower().strip() == 'hugs %s' % self.nickname.lower():
             self.me(channel, 'hugs %s' % user.split('!')[0])
+
+    def remote_msg(self, target, text):
+        self.msg(target, text)
+
+    def remote_getNick(self):
+        return self.nickname
+
+    def remote_getNetworkName(self):
+        return str(self.network)
+
+    def remote_repr(self):
+        return repr(self)
+
+    def remote_getConnectTimestamp(self):
+        return self.connectTimestamp
 
 
 class BotFactory(protocol.ClientFactory):
