@@ -107,6 +107,11 @@ irc_network_new (ircnet *net)
 	GSList *s1, *s2 = NULL;
 	IrcNetwork *n = IRC_NETWORK (g_object_new (irc_network_get_type (), 0));
 
+	if (net == NULL) {
+		n->net = NULL;
+		return n;
+	}
+
 	n->name        = g_strdup (net->name);
 	n->autoconnect = net->flags & FLAG_AUTO_CONNECT;
 	n->use_ssl     = net->flags & FLAG_USE_SSL;
@@ -137,6 +142,10 @@ irc_network_save (IrcNetwork *network)
 	ircnet *net = network->net;
 	guint32 flags = 0;
 	GSList *s;
+
+	if (net == NULL) {
+		net = servlist_net_add (network->name, "", TRUE);
+	}
 
 	if (net->name)     g_free (net->name);
 	if (net->pass)     g_free (net->pass);
