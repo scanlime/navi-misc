@@ -13,8 +13,8 @@ fyre.desktop:	fyre.desktop.in
 	sed 's|\@DATADIR\@|$(datadir)/fyre/|' $< > $@
 desktop_DATA = fyre.desktop
 
-mimedir = $(datadir)/mime/application
-mime_DATA = x-fyre-animation.xml
+mimedir = $(datadir)/mime/packages
+mime_DATA = fyre.xml
 
 mimeinfodir = $(datadir)/mime-info
 mimeinfo_DATA = fyre.keys
