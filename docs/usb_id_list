@@ -14,3 +14,5 @@ vendor ID:
 0008  LEDboard USB/144
 0009  Sega Genesis interface for Wasabi Net-controller
 000A  Gamecube Controller Hub
+000B  Unicone (bootloader mode)
+000C  Unicone
