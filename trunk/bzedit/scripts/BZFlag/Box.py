@@ -54,8 +54,7 @@ class Box(Object):
         self.set_spin()
         if list is not None:
             for property in list[1:]:
-                f = getattr(self, "set_%s" % property[0])
-
+                getattr(self, "set_%s" % property[0])(list[1:])
 
     def set_drivethrough(self):
         self.drivethrough = 1
