@@ -8052,188 +8052,249 @@
 			<location type="accid" code="CAXX0616">Inukjuak</location>
 		</country>
 		<country name="Mexico">
-			<location type="accid" code="MXAS0002">Aguascalientes</location>
-			<location type="accid" code="MXBC0003">Ensenada</location>
-			<location type="accid" code="MXBC0004">Mexicali</location>
-			<location type="accid" code="MXBC0004">Mexicali</location>
-			<location type="accid" code="MXBC0005">Tijuana</location>
-			<location type="accid" code="MXBC0145">San Felipe</location>
-			<location type="accid" code="MXBC0161">San Vicente</location>
-			<location type="accid" code="MXBS0006">La Paz</location>
-			<location type="accid" code="MXBS0007">Los Cabos</location>
-			<location type="accid" code="MXBS0126">Todos Santos</location>
-			<location type="accid" code="MXBS0129">Loreto</location>
-			<location type="accid" code="MXBS0135">Cabo San Lucas</location>
-			<location type="accid" code="MXBS0149">Guerrero Negro</location>
-			<location type="accid" code="MXBS0157">San Jose Del Cabo</location>
-			<location type="accid" code="MXBS0167">Santa Rosalia</location>
-			<location type="accid" code="MXBS0185">San Sebastian Vizcaino Bay</location>
-			<location type="accid" code="MXCA0021">Ciudad Camargo</location>
-			<location type="accid" code="MXCA0022">Chihuahua</location>
-			<location type="accid" code="MXCA0023">Delicias</location>
-			<location type="accid" code="MXCA0024">Hidalgo Del Parral</location>
-			<location type="accid" code="MXCA0025">Jiminez</location>
-			<location type="accid" code="MXCA0026">Ciudad Juarez</location>
-			<location type="accid" code="MXCA0027">Nuevo Casas Grandes</location>
-			<location type="accid" code="MXCA0028">Temosachic</location>
-			<location type="accid" code="MXCE0008">Campeche</location>
-			<location type="accid" code="MXCE0009">Ciudad Del Carmen</location>
-			<location type="accid" code="MXCE0010">Seybaplaya</location>
-			<location type="accid" code="MXCE0011">Pich</location>
-			<location type="accid" code="MXCL0010">Ciudad Acuna</location>
-			<location type="accid" code="MXCL0011">Monclova</location>
-			<location type="accid" code="MXCL0012">Piedras Negras</location>
-			<location type="accid" code="MXCL0013">Saltillo</location>
-			<location type="accid" code="MXCL0014">Torreon</location>
-			<location type="accid" code="MXCL0146">Nueva Rosita</location>
-			<location type="accid" code="MXCM0015">Colima</location>
-			<location type="accid" code="MXCM0016">Manzanillo</location>
-			<location type="accid" code="MXCM0017">Tecoman</location>
-			<location type="accid" code="MXCS0018">Comitan</location>
-			<location type="accid" code="MXCS0019">Tapachula</location>
-			<location type="accid" code="MXCS0020">Tuxtla Gutierrez</location>
-			<location type="accid" code="MXDF0029">Xochimilco</location>
-			<location type="accid" code="MXDF0132">Mexico City</location>
-			<location type="accid" code="MXDF0132">Mexico City</location>
-			<location type="accid" code="MXDO0030">Durango</location>
-			<location type="accid" code="MXDO0031">Tepehuanes</location>
-			<location type="accid" code="MXDO0142">Victoria De Durango</location>
-			<location type="accid" code="MXGO0032">Celaya</location>
-			<location type="accid" code="MXGO0033">Guanajuato</location>
-			<location type="accid" code="MXGO0034">Irapuato</location>
-			<location type="accid" code="MXGO0035">Leon</location>
-			<location type="accid" code="MXGO0036">Salamanca</location>
-			<location type="accid" code="MXGO0037">San Francisco Del Rincon</location>
-			<location type="accid" code="MXGO0501">San Miguel de Allende</location>
-			<location type="accid" code="MXGR0038">Atoyac De Alvarez</location>
-			<location type="accid" code="MXGR0039">Chilpancingo</location>
-			<location type="accid" code="MXGR0136">Zihuatanejo</location>
-			<location type="accid" code="MXGR0137">Ixtapa</location>
-			<location type="accid" code="MXGR0144">Cruz Grande</location>
-			<location type="accid" code="MXGR0150">Acapulco</location>
-			<location type="accid" code="MXGR0563">Teirra Colorada</location>
-			<location type="accid" code="MXHO0134">Pachuca</location>
-			<location type="accid" code="MXHO0639">Tulancingo De Bravo</location>
-			<location type="accid" code="MXJO0040">Arandas</location>
-			<location type="accid" code="MXJO0041">Ciudad Guzman</location>
-			<location type="accid" code="MXJO0042">Colotlan</location>
-			<location type="accid" code="MXJO0043">Guadalajara</location>
-			<location type="accid" code="MXJO0044">Jalostotitlan</location>
-			<location type="accid" code="MXJO0045">Lagos De Moreno</location>
-			<location type="accid" code="MXJO0046">Ocotlan</location>
-			<location type="accid" code="MXJO0047">Puerto Vallarta</location>
-			<location type="accid" code="MXJO0048">San Julian</location>
-			<location type="accid" code="MXJO0049">Tala</location>
-			<location type="accid" code="MXJO0050">Tlaquepaque</location>
-			<location type="accid" code="MXJO0051">Tomatlan</location>
-			<location type="accid" code="MXJO0052">Zapopan</location>
-			<location type="accid" code="MXJO0158">Altos De Jalisco</location>
-			<location type="accid" code="MXJO0715">San Miguel El Alto</location>
-			<location type="accid" code="MXJO0729">Tepatitlan De Morelos</location>
-			<location type="accid" code="MXJO0760">Barra de Navidad</location>
-			<location type="accid" code="MXMN0056">Apatzingan</location>
-			<location type="accid" code="MXMN0057">Ciudad Hidalgo</location>
-			<location type="accid" code="MXMN0058">Lazaro Cardenas</location>
-			<location type="accid" code="MXMN0059">Morelia</location>
-			<location type="accid" code="MXMN0060">La Piedad Cavadas</location>
-			<location type="accid" code="MXMN0061">Uruapan</location>
-			<location type="accid" code="MXMN0062">Zacapu</location>
-			<location type="accid" code="MXMN0063">Zamora</location>
-			<location type="accid" code="MXMN0160">Nueva Italia De Ruiz</location>
-			<location type="accid" code="MXMN0947">Sahuayo</location>
-			<location type="accid" code="MXMO0053">Cuautitlan</location>
-			<location type="accid" code="MXMO0054">Tlalnepantla</location>
-			<location type="accid" code="MXMO0055">Toluca</location>
-			<location type="accid" code="MXMO0154">San Marcos</location>
-			<location type="accid" code="MXMO0876">Valle de Bravo Lake</location>
-			<location type="accid" code="MXMS0064">Cuernavaca</location>
-			<location type="accid" code="MXMS0140">Morelos</location>
-			<location type="accid" code="MXNL0066">Anahuac</location>
-			<location type="accid" code="MXNL0067">Galeana</location>
-			<location type="accid" code="MXNL0068">Monterrey</location>
-			<location type="accid" code="MXNL1082">Garza Garcia</location>
-			<location type="accid" code="MXNT0065">Tepic</location>
-			<location type="accid" code="MXNT0156">Novillero</location>
-			<location type="accid" code="MXOA0069">Oaxaca</location>
-			<location type="accid" code="MXOA0141">Puerto Escondido</location>
-			<location type="accid" code="MXOA1123">Juchitan De Zaragoza</location>
-			<location type="accid" code="MXOA1650">Putla de Guerrero</location>
-			<location type="accid" code="MXPA0070">Puebla</location>
-			<location type="accid" code="MXPA0071">Tehuacan</location>
-			<location type="accid" code="MXQA0072">Queretaro</location>
-			<location type="accid" code="MXQA0073">San Juan Del Rio</location>
-			<location type="accid" code="MXQR0074">Cozumel</location>
-			<location type="accid" code="MXQR0075">Isla Mujeres</location>
-			<location type="accid" code="MXQR0076">Playa Del Carmen</location>
-			<location type="accid" code="MXQR0133">Chetumal</location>
-			<location type="accid" code="MXQR0138">Cancun</location>
-			<location type="accid" code="MXQR0164">Puerto Juarez</location>
-			<location type="accid" code="MXQR0165">Puerto Morelos</location>
-			<location type="accid" code="MXQR1886">Tulum</location>
-			<location type="accid" code="MXQR1887">Xcaret</location>
-			<location type="accid" code="MXSA0080">Culiacan</location>
-			<location type="accid" code="MXSA0081">Choix</location>
-			<location type="accid" code="MXSA0082">Escuinapa</location>
-			<location type="accid" code="MXSA0083">Guasave</location>
-			<location type="accid" code="MXSA0084">Mazatlan</location>
-			<location type="accid" code="MXSA0130">Los Mochis</location>
-			<location type="accid" code="MXSA0147">Villa Union</location>
-			<location type="accid" code="MXSA0148">Guamuchil</location>
-			<location type="accid" code="MXSA0155">Cuauhtemoc</location>
-			<location type="accid" code="MXSA0166">Juan Carrasco</location>
-			<location type="accid" code="MXSP0077">Ciudad Valles</location>
-			<location type="accid" code="MXSP0078">Ebano</location>
-			<location type="accid" code="MXSP0079">San Luis Potosi</location>
-			<location type="accid" code="MXSR0085">Agua Prieta</location>
-			<location type="accid" code="MXSR0087">Caborca</location>
-			<location type="accid" code="MXSR0088">Cananea</location>
-			<location type="accid" code="MXSR0089">Empalme</location>
-			<location type="accid" code="MXSR0090">Guaymas</location>
-			<location type="accid" code="MXSR0091">Hermosillo</location>
-			<location type="accid" code="MXSR0092">Huatabampo</location>
-			<location type="accid" code="MXSR0093">Magdalena</location>
-			<location type="accid" code="MXSR0094">Navojoa</location>
-			<location type="accid" code="MXSR0095">Nogales</location>
-			<location type="accid" code="MXSR0096">Puerto Penasco</location>
-			<location type="accid" code="MXSR0097">San Luis Rio Colorado</location>
-			<location type="accid" code="MXSR0151">Altar</location>
-			<location type="accid" code="MXSR0159">Ciudad Obregon</location>
-			<location type="accid" code="MXTA0108">Tlaxcala</location>
-			<location type="accid" code="MXTO0098">Macuspana</location>
-			<location type="accid" code="MXTO0099">Paraiso</location>
-			<location type="accid" code="MXTO0152">Villahermosa</location>
-			<location type="accid" code="MXTS0100">Ciudad Madero</location>
-			<location type="accid" code="MXTS0101">Matamoros</location>
-			<location type="accid" code="MXTS0102">Nuevo Laredo</location>
-			<location type="accid" code="MXTS0103">Reynosa</location>
-			<location type="accid" code="MXTS0104">San Carlos</location>
-			<location type="accid" code="MXTS0105">Tampico</location>
-			<location type="accid" code="MXTS0106">Valle Hermoso</location>
-			<location type="accid" code="MXTS0107">Ciudad Victoria</location>
-			<location type="accid" code="MXTS0125">Bagdad</location>
-			<location type="accid" code="MXTS2043">El Mante</location>
-			<location type="accid" code="MXVZ0109">Coatzacoalcos</location>
-			<location type="accid" code="MXVZ0110">Cordoba</location>
-			<location type="accid" code="MXVZ0111">Xalapa</location>
-			<location type="accid" code="MXVZ0112">Minatitlan</location>
-			<location type="accid" code="MXVZ0113">Orizaba</location>
-			<location type="accid" code="MXVZ0114">Poza Rica</location>
-			<location type="accid" code="MXVZ0115">San Andres Tuxtla</location>
-			<location type="accid" code="MXVZ0116">Veracruz</location>
-			<location type="accid" code="MXVZ0127">Jalapa Enriquez</location>
-			<location type="accid" code="MXVZ0128">Tuxpan</location>
-			<location type="accid" code="MXVZ0163">Poza Rica De Hidalgo</location>
-			<location type="accid" code="MXVZ2301">Fortmn de las Flores</location>
-			<location type="accid" code="MXVZ2302">Antsn Lizardo</location>
-			<location type="accid" code="MXYN0117">Merida</location>
-			<location type="accid" code="MXYN0117">Merida</location>
-			<location type="accid" code="MXYN0118">Motul</location>
-			<location type="accid" code="MXYN0119">Progreso</location>
-			<location type="accid" code="MXYN0120">Valladolid</location>
-			<location type="accid" code="MXYN0162">Chinquila</location>
-			<location type="accid" code="MXZS0121">Fresnillo</location>
-			<location type="accid" code="MXZS0122">Sombrerete</location>
-			<location type="accid" code="MXZS0123">Zacatecas</location>
+			<state name="Aguascalientes">
+				<location type="accid" code="MXAS0002">Aguascalientes</location>
+			</state>
+			<state name="Baja California">
+				<location type="accid" code="MXBC0003">Ensenada</location>
+				<location type="accid" code="MXBC0004">Mexicali</location>
+				<location type="accid" code="MXBC0145">San Felipe</location>
+				<location type="accid" code="MXBC0161">San Vicente</location>
+				<location type="accid" code="MXBC0005">Tijuana</location>
+			</state>
+			<state name="Baja California Sur">
+				<location type="accid" code="MXBS0135">Cabo San Lucas</location>
+				<location type="accid" code="MXBS0149">Guerrero Negro</location>
+				<location type="accid" code="MXBS0006">La Paz</location>
+				<location type="accid" code="MXBS0129">Loreto</location>
+				<location type="accid" code="MXBS0007">Los Cabos</location>
+				<location type="accid" code="MXBS0157">San Jose Del Cabo</location>
+				<location type="accid" code="MXBS0185">San Sebastian Vizcaino Bay</location>
+				<location type="accid" code="MXBS0167">Santa Rosalia</location>
+				<location type="accid" code="MXBS0126">Todos Santos</location>
+			</state>
+			<state name="Campeche">
+				<location type="accid" code="MXCE0008">Campeche</location>
+				<location type="accid" code="MXCE0009">Ciudad Del Carmen</location>
+				<location type="accid" code="MXCE0011">Pich</location>
+				<location type="accid" code="MXCE0010">Seybaplaya</location>
+			</state>
+			<state name="Chiapas">
+				<location type="accid" code="MXCS0018">Comitan</location>
+				<location type="accid" code="MXCS0019">Tapachula</location>
+				<location type="accid" code="MXCS0020">Tuxtla Gutierrez</location>
+			</state>
+			<state name="Chihuahua">
+				<location type="accid" code="MXCA0022">Chihuahua</location>
+				<location type="accid" code="MXCA0021">Ciudad Camargo</location>
+				<location type="accid" code="MXCA0026">Ciudad Juarez</location>
+				<location type="accid" code="MXCA0023">Delicias</location>
+				<location type="accid" code="MXCA0024">Hidalgo Del Parral</location>
+				<location type="accid" code="MXCA0025">Jiminez</location>
+				<location type="accid" code="MXCA0027">Nuevo Casas Grandes</location>
+				<location type="accid" code="MXCA0028">Temosachic</location>
+			</state>
+			<state name="Coahuila de Zaragoza">
+				<location type="accid" code="MXCL0010">Ciudad Acuna</location>
+				<location type="accid" code="MXCL0011">Monclova</location>
+				<location type="accid" code="MXCL0012">Piedras Negras</location>
+				<location type="accid" code="MXCL0013">Saltillo</location>
+				<location type="accid" code="MXCL0014">Torreon</location>
+				<location type="accid" code="MXCL0146">Nueva Rosita</location>
+			</state>
+			<state name="Colima">
+				<location type="accid" code="MXCM0015">Colima</location>
+				<location type="accid" code="MXCM0016">Manzanillo</location>
+				<location type="accid" code="MXCM0017">Tecoman</location>
+			</state>
+			<state name="Distrito Federal">
+				<location type="accid" code="MXDF0029">Xochimilco</location>
+				<location type="accid" code="MXDF0132">Mexico City</location>
+			</state>
+			<state name="Durango">
+				<location type="accid" code="MXDO0030">Durango</location>
+				<location type="accid" code="MXDO0031">Tepehuanes</location>
+				<location type="accid" code="MXDO0142">Victoria De Durango</location>
+			</state>
+			<state name="Guanajuato">
+				<location type="accid" code="MXGO0032">Celaya</location>
+				<location type="accid" code="MXGO0033">Guanajuato</location>
+				<location type="accid" code="MXGO0034">Irapuato</location>
+				<location type="accid" code="MXGO0035">Leon</location>
+				<location type="accid" code="MXGO0036">Salamanca</location>
+				<location type="accid" code="MXGO0037">San Francisco Del Rincon</location>
+				<location type="accid" code="MXGO0501">San Miguel de Allende</location>
+			</state>
+			<state name="Guerrero">
+				<location type="accid" code="MXGR0150">Acapulco</location>
+				<location type="accid" code="MXGR0038">Atoyac De Alvarez</location>
+				<location type="accid" code="MXGR0039">Chilpancingo</location>
+				<location type="accid" code="MXGR0144">Cruz Grande</location>
+				<location type="accid" code="MXGR0137">Ixtapa</location>
+				<location type="accid" code="MXGR0563">Teirra Colorada</location>
+				<location type="accid" code="MXGR0136">Zihuatanejo</location>
+			</state>
+			<state name="Hidalgo">
+				<location type="accid" code="MXHO0134">Pachuca</location>
+				<location type="accid" code="MXHO0639">Tulancingo De Bravo</location>
+			</state>
+			<state name="Jalisco">
+				<location type="accid" code="MXJO0158">Altos De Jalisco</location>
+				<location type="accid" code="MXJO0040">Arandas</location>
+				<location type="accid" code="MXJO0760">Barra de Navidad</location>
+				<location type="accid" code="MXJO0041">Ciudad Guzman</location>
+				<location type="accid" code="MXJO0042">Colotlan</location>
+				<location type="accid" code="MXJO0043">Guadalajara</location>
+				<location type="accid" code="MXJO0044">Jalostotitlan</location>
+				<location type="accid" code="MXJO0045">Lagos De Moreno</location>
+				<location type="accid" code="MXJO0046">Ocotlan</location>
+				<location type="accid" code="MXJO0047">Puerto Vallarta</location>
+				<location type="accid" code="MXJO0048">San Julian</location>
+				<location type="accid" code="MXJO0715">San Miguel El Alto</location>
+				<location type="accid" code="MXJO0049">Tala</location>
+				<location type="accid" code="MXJO0729">Tepatitlan De Morelos</location>
+				<location type="accid" code="MXJO0050">Tlaquepaque</location>
+				<location type="accid" code="MXJO0051">Tomatlan</location>
+				<location type="accid" code="MXJO0052">Zapopan</location>
+			</state>
+			<state name="Mexico">
+				<location type="accid" code="MXMO0053">Cuautitlan</location>
+				<location type="accid" code="MXMO0054">Tlalnepantla</location>
+				<location type="accid" code="MXMO0055">Toluca</location>
+				<location type="accid" code="MXMO0154">San Marcos</location>
+				<location type="accid" code="MXMO0876">Valle de Bravo Lake</location>
+			</state>
+			<state name="Michoacan de Ocampo">
+				<location type="accid" code="MXMN0056">Apatzingan</location>
+				<location type="accid" code="MXMN0057">Ciudad Hidalgo</location>
+				<location type="accid" code="MXMN0060">La Piedad Cavadas</location>
+				<location type="accid" code="MXMN0058">Lazaro Cardenas</location>
+				<location type="accid" code="MXMN0059">Morelia</location>
+				<location type="accid" code="MXMN0160">Nueva Italia De Ruiz</location>
+				<location type="accid" code="MXMN0947">Sahuayo</location>
+				<location type="accid" code="MXMN0061">Uruapan</location>
+				<location type="accid" code="MXMN0062">Zacapu</location>
+				<location type="accid" code="MXMN0063">Zamora</location>
+			</state>
+			<state name="Morelos">
+				<location type="accid" code="MXMS0064">Cuernavaca</location>
+				<location type="accid" code="MXMS0140">Morelos</location>
+			</state>
+			<state name="Nayarit">
+				<location type="accid" code="MXNT0156">Novillero</location>
+				<location type="accid" code="MXNT0065">Tepic</location>
+			</state>
+			<state name+"Nuevo Leon">
+				<location type="accid" code="MXNL0066">Anahuac</location>
+				<location type="accid" code="MXNL0067">Galeana</location>
+				<location type="accid" code="MXNL1082">Garza Garcia</location>
+				<location type="accid" code="MXNL0068">Monterrey</location>
+			</state>
+			<state name="Oaxaca">
+				<location type="accid" code="MXOA1123">Juchitan De Zaragoza</location>
+				<location type="accid" code="MXOA0069">Oaxaca</location>
+				<location type="accid" code="MXOA0141">Puerto Escondido</location>
+				<location type="accid" code="MXOA1650">Putla de Guerrero</location>
+			</state>
+			<state name="Puebla">
+				<location type="accid" code="MXPA0070">Puebla</location>
+				<location type="accid" code="MXPA0071">Tehuacan</location>
+			</state>
+			<state name="Queretaro de Arteaga">
+				<location type="accid" code="MXQA0072">Queretaro</location>
+				<location type="accid" code="MXQA0073">San Juan Del Rio</location>
+			</state>
+			<state name="Quintana Roo">
+				<location type="accid" code="MXQR0138">Cancun</location>
+				<location type="accid" code="MXQR0133">Chetumal</location>
+				<location type="accid" code="MXQR0074">Cozumel</location>
+				<location type="accid" code="MXQR0075">Isla Mujeres</location>
+				<location type="accid" code="MXQR0076">Playa Del Carmen</location>
+				<location type="accid" code="MXQR0164">Puerto Juarez</location>
+				<location type="accid" code="MXQR0165">Puerto Morelos</location>
+				<location type="accid" code="MXQR1886">Tulum</location>
+				<location type="accid" code="MXQR1887">Xcaret</location>
+			</state>
+			<state name="San Luis Potosi">
+				<location type="accid" code="MXSP0077">Ciudad Valles</location>
+				<location type="accid" code="MXSP0078">Ebano</location>
+				<location type="accid" code="MXSP0079">San Luis Potosi</location>
+			</state>
+			<state name="Sinaloa">
+				<location type="accid" code="MXSA0081">Choix</location>
+				<location type="accid" code="MXSA0155">Cuauhtemoc</location>
+				<location type="accid" code="MXSA0080">Culiacan</location>
+				<location type="accid" code="MXSA0082">Escuinapa</location>
+				<location type="accid" code="MXSA0148">Guamuchil</location>
+				<location type="accid" code="MXSA0083">Guasave</location>
+				<location type="accid" code="MXSA0166">Juan Carrasco</location>
+				<location type="accid" code="MXSA0084">Mazatlan</location>
+				<location type="accid" code="MXSA0130">Los Mochis</location>
+				<location type="accid" code="MXSA0147">Villa Union</location>
+			</state>
+			<state name="Sonora">
+				<location type="accid" code="MXSR0085">Agua Prieta</location>
+				<location type="accid" code="MXSR0151">Altar</location>
+				<location type="accid" code="MXSR0087">Caborca</location>
+				<location type="accid" code="MXSR0088">Cananea</location>
+				<location type="accid" code="MXSR0159">Ciudad Obregon</location>
+				<location type="accid" code="MXSR0089">Empalme</location>
+				<location type="accid" code="MXSR0090">Guaymas</location>
+				<location type="accid" code="MXSR0091">Hermosillo</location>
+				<location type="accid" code="MXSR0092">Huatabampo</location>
+				<location type="accid" code="MXSR0093">Magdalena</location>
+				<location type="accid" code="MXSR0094">Navojoa</location>
+				<location type="accid" code="MXSR0095">Nogales</location>
+				<location type="accid" code="MXSR0096">Puerto Penasco</location>
+				<location type="accid" code="MXSR0097">San Luis Rio Colorado</location>
+			</state>
+			<state name="Tabasco">
+				<location type="accid" code="MXTO0098">Macuspana</location>
+				<location type="accid" code="MXTO0099">Paraiso</location>
+				<location type="accid" code="MXTO0152">Villahermosa</location>
+			</state>
+			<state name="Tamaulipas">
+				<location type="accid" code="MXTS0125">Bagdad</location>
+				<location type="accid" code="MXTS0100">Ciudad Madero</location>
+				<location type="accid" code="MXTS0107">Ciudad Victoria</location>
+				<location type="accid" code="MXTS2043">El Mante</location>
+				<location type="accid" code="MXTS0101">Matamoros</location>
+				<location type="accid" code="MXTS0102">Nuevo Laredo</location>
+				<location type="accid" code="MXTS0103">Reynosa</location>
+				<location type="accid" code="MXTS0104">San Carlos</location>
+				<location type="accid" code="MXTS0105">Tampico</location>
+				<location type="accid" code="MXTS0106">Valle Hermoso</location>
+			</state>
+			<state name="Tlaxcala">
+				<location type="accid" code="MXTA0108">Tlaxcala</location>
+			</state>
+			<state name="Veracruz-Llave">
+				<location type="accid" code="MXVZ2302">Antsn Lizardo</location>
+				<location type="accid" code="MXVZ0109">Coatzacoalcos</location>
+				<location type="accid" code="MXVZ0110">Cordoba</location>
+				<location type="accid" code="MXVZ2301">Fortmn de las Flores</location>
+				<location type="accid" code="MXVZ0127">Jalapa Enriquez</location>
+				<location type="accid" code="MXVZ0112">Minatitlan</location>
+				<location type="accid" code="MXVZ0113">Orizaba</location>
+				<location type="accid" code="MXVZ0114">Poza Rica</location>
+				<location type="accid" code="MXVZ0163">Poza Rica De Hidalgo</location>
+				<location type="accid" code="MXVZ0115">San Andres Tuxtla</location>
+				<location type="accid" code="MXVZ0128">Tuxpan</location>
+				<location type="accid" code="MXVZ0116">Veracruz</location>
+				<location type="accid" code="MXVZ0111">Xalapa</location>
+			</state>
+			<state name="Yucatan">
+				<location type="accid" code="MXYN0162">Chinquila</location>
+				<location type="accid" code="MXYN0117">Merida</location>
+				<location type="accid" code="MXYN0118">Motul</location>
+				<location type="accid" code="MXYN0119">Progreso</location>
+				<location type="accid" code="MXYN0120">Valladolid</location>
+			</state>
+			<state name="Zacatecas">
+				<location type="accid" code="MXZS0121">Fresnillo</location>
+				<location type="accid" code="MXZS0122">Sombrerete</location>
+				<location type="accid" code="MXZS0123">Zacatecas</location>
+			</state>
 		</country>
 		<country name="United States">
 			<state name="Alabama">
