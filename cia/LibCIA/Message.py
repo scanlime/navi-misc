@@ -149,29 +149,28 @@ class Filter(XML.XMLFunction):
          >>> Filter('<match path="/path/that/doesnt/exist"/>')(msg)
          False
 
-       The match by default is case sensitive. The caseSensitive attribute can
-       be set to zero to disable this:
+       The match by default is case insensitive. The caseSensitive attribute can
+       be set to one to change this:
 
          >>> f = Filter('<match path="/message/source/project">' +
          ...            '    NAVI-MISC' +
          ...            '</match>')
          >>> f(msg)
-         False
-         >>> f = Filter('<match path="/message/source/project" caseSensitive="0">' +
+         True
+         >>> f = Filter('<match path="/message/source/project" caseSensitive="1">' +
          ...            '    NAVI-MISC' +
          ...            '</match>')
          >>> f(msg)
-         True
+         False
 
        The <find> tag is just like <match> but the given text only has to occur
        in an XPath match rather than exactly matching it:
 
          >>> Filter('<find path="/message/source/project">navi</find>')(msg)
          True
-         >>> f = Filter('<find path="/message/source/project" caseSensitive="0">' +
-         ...            '    NAVI-MISC' +
-         ...            '</find>')
-         >>> f(msg)
+         >>> Filter('<find path="/message/source/project">' +
+         ...        '    NAVI-MISC' +
+         ...        '</find>')(msg)
          True
          >>> Filter('<find path="/message/source/project">navi-miscski</find>')(msg)
          False
@@ -272,7 +271,7 @@ class Filter(XML.XMLFunction):
         try:
             caseSensitive = int(element['caseSensitive'])
         except KeyError:
-            caseSensitive = 1
+            caseSensitive = 0
 
         text = str(element).strip()
         if not caseSensitive:
