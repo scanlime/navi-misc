@@ -33,7 +33,7 @@ def createTexture(name, filename):
     image = Image.Load(filename)
     texture.image = image
     texture.setType('Image')
-    material.setTexture(0, texture, Texture.TexCo['GLOB'])
+    material.setTexture(0, texture, Texture.TexCo['OBJECT'])
     return material
 
 try:
@@ -47,6 +47,12 @@ try:
 except NameError:
     boxWallMaterial = createTexture('BoxWall', '/usr/share/bzedit/boxwall.png')
     boxWallMaterial.spec = 0.1
+
+try:
+    groundMaterial = Material.Get('Ground')
+except NameError:
+    groundMaterial = createTexture('Ground', '/usr/share/bzedit/std_ground.png')
+    groundMaterial.spec = 0.1
 
 def meshify(vertex, face, material):
     mesh = NMesh.GetRaw()
@@ -391,6 +397,9 @@ class World(BZObject):
              ]
 
     faces = [(0, 1, 2, 3)]
+
+    materials = [groundMaterial]
+    materialIndex = [0]
 
     def __init__(self):
         self.set_size()
