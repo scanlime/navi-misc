@@ -31,6 +31,7 @@
 static GtkListStore *store = NULL;
 static GHashTable *uri_timeouts = NULL;
 static GSList *publish_uris = NULL;
+static GSList *queued_publishes = NULL;
 static gint online = 0;
 
 int        e_plugin_lib_enable (EPlugin *ep, int enable);
@@ -51,6 +52,11 @@ static void
 publish (EPublishUri *uri)
 {
 	if (online) {
+		if (g_slist_find (queued_publishes, uri))
+			queued_publishes = g_slist_remove (queued_publishes, uri);
+	} else {
+		if (g_slist_find (queued_publishes, uri) == NULL)
+			queued_publishes = g_slist_prepend (queued_publishes, uri);
 	}
 }
 
@@ -291,6 +297,9 @@ void
 online_state_changed (EPlugin *ep, ESEventTargetState *target)
 {
 	online = target->state;
+	if (online)
+		while (queued_publishes)
+			publish (queued_publishes->data);
 }
 
 GtkWidget *
