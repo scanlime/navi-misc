@@ -1,12 +1,11 @@
 SUBDIRS = \
 	3D \
 	date \
-	bzfrelay \
 	regex \
 	common \
 	net \
 	game \
-	bzfs \
+	opencombatd \
 	geometry \
 	obstacle \
 	ogl \
@@ -14,8 +13,8 @@ SUBDIRS = \
 	platform \
 	zlib \
 	mediafile \
-	bzflag \
-	bzadmin
+	opencombat \
+	ocadmin
 
 MAINTAINERCLEANFILES = \
 	Makefile.in
