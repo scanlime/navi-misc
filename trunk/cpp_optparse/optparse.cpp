@@ -44,17 +44,20 @@ OptionParser::~OptionParser ()
 }
 
 void
-OptionParser::add_option (string shrt_flag, string lng_flag, string destination)
+OptionParser::add_option (string shrt_flag, string lng_flag, string destination, string dfault)
 {
 	opts.insert(opts.begin(),Option(shrt_flag, lng_flag, destination));
+	options[destination] = dfault;
 }
 
 void
 OptionParser::parse_args (int argc, char **argv)
 {
 	for (int i = 1; i < argc; i++) {
-		if (argv[i][0] == '-')
+		if (argv[i][0] == '-') {
 			find_opt(argv, i);
+			i++;
+		}
 		else
 			arguments.insert(arguments.begin(), argv[i]);
 		//free(argv[i]);

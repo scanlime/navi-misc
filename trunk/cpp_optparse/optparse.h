@@ -31,7 +31,7 @@ class OptionParser
 		OptionParser (std::string usage="");
 		~OptionParser ();
 
-		void add_option (std::string shrt_flag, std::string lng_flag, std::string destination);
+		void add_option (std::string shrt_flag, std::string lng_flag, std::string destination, std::string dfault="");
 		void parse_args (int argc, char **argv);
 		void error (std::string msg);
 		void help ();
