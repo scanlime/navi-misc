@@ -29,7 +29,7 @@ import re
 # messages from being logged every time we make an XML-RPC connection.
 # This is less ugly than the alternative of having our own xmlrpc.Proxy
 # implementation. If only xmlrpc.Proxy made it easy to set the factory class...
-xmlrpc.ClientContextFactory.noisy = False
+xmlrpc.QueryFactory.noisy = False
 
 
 class XmlrpcURIHandler(Ruleset.RegexURIHandler):
