@@ -39,7 +39,7 @@ used to store and query rulesets in a RulesetStorage.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import XML, Message, Debug, Database, Security, RpcServer, Formatters
+import XML, Message, Debug, Security, RpcServer, Formatters
 from twisted.python import log
 from twisted.internet import defer
 import sys, traceback, re, os
@@ -546,6 +546,7 @@ class DatabaseRulesetStorage(RulesetStorage):
         """Begin the process of loading our rulesets in from the SQL database.
            Returns the list of rulesets via a deferred.
            """
+        import Database
         result = defer.Deferred()
         d = Database.pool.runQuery("SELECT * FROM rulesets")
         d.addCallback(self._storeDbRulesets, result)
@@ -563,6 +564,8 @@ class DatabaseRulesetStorage(RulesetStorage):
 
     def dbStore(self, ruleset):
         """Store a ruleset persistently in our SQL database"""
+        import Database
+
         # Delete the old ruleset, if there was one
         result = defer.Deferred()
         d = Database.pool.runOperation("DELETE FROM rulesets WHERE uri = %s" % Database.quote(ruleset.uri, 'text'))
@@ -577,6 +580,7 @@ class DatabaseRulesetStorage(RulesetStorage):
 
     def _insertRuleset(self, none, result, ruleset):
         """Callback used by store() to insert a new or modified ruleset into the SQL database"""
+        import Database
         d = Database.pool.runOperation("INSERT INTO rulesets (uri, xml) values(%s, %s)" % (
             Database.quote(ruleset.uri, 'text'), Database.quote(XML.toString(ruleset.xml), 'text')))
         d.addCallback(result.callback)
