@@ -254,8 +254,8 @@ static void mi6k_ir_tx_send_converted(struct usb_mi6k *dev, lirc_t pulse, lirc_t
 	/* If we already have one value buffered, send two pulse/space pairs */
 	if (dev->ir_tx_pulse || dev->ir_tx_space) {
 		mi6k_request(dev, MI6K_CTRL_IR_SEND,
-			     dev->ir_tx_pulse | (dev->ir_tx_space << 8),
-			     pulse | ((space & 0xFF) << 8));
+			     pulse | ((space & 0xFF) << 8),
+			     dev->ir_tx_pulse | (dev->ir_tx_space << 8));
 		dev->ir_tx_pulse = dev->ir_tx_space = 0;
 	}
 	else {
@@ -277,9 +277,8 @@ static void mi6k_ir_tx_send_converted(struct usb_mi6k *dev, lirc_t pulse, lirc_t
 static void mi6k_ir_tx_flush(struct usb_mi6k *dev)
 {
 	if (dev->ir_tx_pulse || dev->ir_tx_space) {
-		mi6k_request(dev, MI6K_CTRL_IR_SEND,
-			     dev->ir_tx_pulse | (dev->ir_tx_space << 8),
-			     0);
+		mi6k_request(dev, MI6K_CTRL_IR_SEND, 0,
+			     dev->ir_tx_pulse | (dev->ir_tx_space << 8));
 		dev->ir_tx_pulse = dev->ir_tx_space = 0;
 	}
 	mi6k_request(dev, MI6K_CTRL_IR_FLUSH, 0, 0);
