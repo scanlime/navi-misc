@@ -28,7 +28,10 @@
 #include "url-editor-dialog.h"
 
 static GtkListStore *store = NULL;
+static GHashTable *uri_timeouts = NULL;
+static GSList *publish_uris = NULL;
 
+int        e_plugin_lib_enable (EPlugin *ep, int enable);
 void       publish_calendar_context_activate (EPlugin *ep, ECalPopupTargetSource *target);
 GtkWidget *publish_calendar_locations (EPlugin *epl, EConfigHookItemFactoryData *data);
 
@@ -248,7 +251,7 @@ publish_calendar_locations (EPlugin *epl, EConfigHookItemFactoryData *data)
 	GtkTreeSelection *selection;
 	GtkWidget *toplevel;
 	PublishUIData *ui = g_new0 (PublishUIData, 1);
-	GSList *url_config_list = NULL, *l;
+	GSList *l;
 	GtkTreeIter iter;
 	GConfClient *client;
 
@@ -286,26 +289,20 @@ publish_calendar_locations (EPlugin *epl, EConfigHookItemFactoryData *data)
 	gtk_widget_set_sensitive (GTK_WIDGET (ui->url_enable), FALSE);
 
 	client = gconf_client_get_default ();
-	url_config_list = gconf_client_get_list (client, "/apps/evolution/calendar/publish/uris", GCONF_VALUE_STRING, NULL);
-	l = url_config_list;
+	l = publish_uris;
 	while (l) {
-		gchar *xml = l->data;
-		EPublishUri *url = e_publish_uri_from_xml (xml);
+		EPublishUri *url = (EPublishUri *) l->data;
 
-		if (url->location) {
-			gtk_list_store_append (store, &iter);
-			gtk_list_store_set (store, &iter,
-					    URL_LIST_ENABLED_COLUMN, url->enabled,
-					    URL_LIST_LOCATION_COLUMN, url->location,
-					    URL_LIST_URL_COLUMN, url, -1);
-		}
+		gtk_list_store_append (store, &iter);
+		gtk_list_store_set (store, &iter,
+				    URL_LIST_ENABLED_COLUMN, url->enabled,
+				    URL_LIST_LOCATION_COLUMN, url->location,
+				    URL_LIST_URL_COLUMN, url, -1);
 
 		l = g_slist_next (l);
 	}
 	if (gtk_tree_model_get_iter_first (GTK_TREE_MODEL (store), &iter))
 		gtk_tree_selection_select_iter (selection, &iter);
-	g_slist_foreach (url_config_list, (GFunc) g_free, NULL);
-	g_slist_free (url_config_list);
 
 	toplevel = glade_xml_get_widget (xml, "toplevel");
 	gtk_widget_show_all (toplevel);
@@ -316,9 +313,57 @@ publish_calendar_locations (EPlugin *epl, EConfigHookItemFactoryData *data)
 	return toplevel;
 }
 
+static void
+publish (EPublishUri *uri)
+{
+}
+
 int e_plugin_lib_enable (EPlugin *ep, int enable)
 {
+	GSList *uris, *l;
+	GConfClient *client;
+
 	if (enable) {
+		client = gconf_client_get_default ();
+		uris = gconf_client_get_list (client, "/apps/evolution/calendar/publish/uris", GCONF_VALUE_STRING, NULL);
+
+		uri_timeouts = g_hash_table_new (g_direct_hash, g_direct_equal);
+
+		l = uris;
+		while (l) {
+			gchar *xml = l->data;
+			guint id = 0;
+
+			EPublishUri *uri = e_publish_uri_from_xml (xml);
+
+			if (!uri->location) {
+				g_free (uri);
+				continue;
+			}
+
+			publish_uris = g_slist_prepend (publish_uris, uri);
+
+			/* Add a timeout - we always set it for now+frequency, since we
+			 * publish later on in this function */
+			switch (uri->publish_frequency) {
+			case URI_PUBLISH_DAILY:
+				id = g_timeout_add (24 * 60 * 60 * 1000, (GSourceFunc) publish, uri);
+				g_hash_table_insert (uri_timeouts, uri, GUINT_TO_POINTER (id));
+				break;
+			case URI_PUBLISH_WEEKLY:
+				id = g_timeout_add (7 * 24 * 60 * 60 * 1000, (GSourceFunc) publish, uri);
+				g_hash_table_insert (uri_timeouts, uri, GUINT_TO_POINTER (id));
+				break;
+			}
+
+			publish (uri);
+
+			l = g_slist_next (l);
+		}
+		g_slist_foreach (uris, (GFunc) g_free, NULL);
+		g_slist_free (uris);
+
+		g_object_unref (client);
 	}
 
 	return 0;
