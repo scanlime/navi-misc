@@ -85,14 +85,14 @@ display_connection_dialog ()
 	gtk_widget_show_all (dialog);
 }
 
-void
+static void
 connection_dialog_close (GtkWidget *widget, gpointer data)
 {
 	GtkWidget *dialog = glade_xml_get_widget (gui.xml, "connect to network");
 	gtk_widget_hide_all (dialog);
 }
 
-void
+static void
 connection_dialog_connect (GtkWidget *widget, gpointer data)
 {
 	GtkWidget *treeview;
