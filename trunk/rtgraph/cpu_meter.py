@@ -9,9 +9,8 @@
 
 from __future__ import division
 import gtk, rtgraph, re
-import graph
 
-class CPUActivityChannel(graph.Channel):
+class CPUActivityChannel(rtgraph.Channel):
     lastStatValues = None
     activity = None
 
@@ -20,7 +19,7 @@ class CPUActivityChannel(graph.Channel):
         f = open("/proc/stat")
         for line in f.xreadlines():
             if line.startswith("cpu "):
-                cpu, user, nice, sys, idle = re.split("\s+", line.strip())
+                cpu, user, nice, sys, idle = re.split("\s+", line.strip())[:5]
                 break
         f.close()
         return (long(user) + long(nice + sys), long(idle))
@@ -38,7 +37,7 @@ class CPUActivityChannel(graph.Channel):
         return self.activity
 
 
-graph = graph.HScrollAreaGraph(
+graph = rtgraph.HScrollAreaGraph(
     scrollRate = 4,
     pollInterval = 200,
     size       = (128,48),
