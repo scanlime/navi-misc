@@ -3,10 +3,14 @@
 
 int main() {
   IplImage** images;
+  int n_cameras;
+
   cv_dc1394_init();
+  n_cameras = cv_dc1394_get_camera_count();
+
+  /* Capture from all camera, tile the images horizontally */
   while (cv_sdl_process_events()) {
-    /* Capture images from two cameras, display them in a 2x1 grid */
-    images = cv_dc1394_capture_yuv(2);
-    cv_sdl_show_yuv_tiles(images, 2, 2);
+    images = cv_dc1394_capture_yuv(n_cameras);
+    cv_sdl_show_yuv_tiles(images, n_cameras, n_cameras);
   }
 }

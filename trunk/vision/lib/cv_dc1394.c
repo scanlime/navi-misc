@@ -101,6 +101,10 @@ void cv_dc1394_set_mode(int mode) {
   default_mode = mode;
 }
 
+int cv_dc1394_get_camera_count() {
+  return num_opened_cameras;
+}
+
 IplImage** cv_dc1394_capture_yuv(int num_images) {
   cv_dc1394_camera **cam_p;
   IplImage **img_p;
