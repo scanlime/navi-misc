@@ -1,11 +1,19 @@
 #!/usr/bin/env python
-#
-# Pure python MPAV spectrum analyzer
-# --Micah Dowty <micah@navi.cx>
-#
+""" Rasterwand spectrum analyzer plugin for Freevo
 
-import os, mmap, struct, time
-import pygame
+This is a spectrum analyzer for the Rasterwand, reading
+audio data from the mplayer advanced visualization
+shared memory segment.
+
+This is really messy and needs lots of optimization-
+it's a fun toy, but avert your eyes from the code.
+
+Copyright (C) 2004 Micah Dowty <micah@navi.cx>
+"""
+
+import plugin
+
+import os, mmap, struct, time, threading
 from Numeric import *
 import FFT
 
@@ -114,11 +122,13 @@ class SDLBargraph:
        constants.
        """
     def __init__(self):
+        import pygame
         pygame.init()
         self.screen = pygame.display.set_mode((640,200))
         self.margin = 30
 
     def writeBars(self, a):
+        import pygame
         a = clip(a, 0, 1)
         self.screen.fill(0xffffff)
         x = self.margin
@@ -132,53 +142,67 @@ class SDLBargraph:
         pygame.display.flip()
 
 
-def fft_loop(input, *outputs):
-    # Frequency tap indices for each bar
-    s = 20
-    taps = (exp(arange(0, 1, 0.07)) * s - s).astype(Int)
+class Visualizer:
+    def __init__(self):
+        self.inputVolume = 8e4
+        self.bars = None
 
-    bars = None
-    inputVolume = 8e4
-    while 1:
+        # Frequency tap indices for each bar
+        s = 20
+        self.taps = (exp(arange(0, 1, 0.07)) * s - s).astype(Int)
 
+    def transform(self, inputSignal):
         # Automatic gain control
-        gain = 0.4e5 / inputVolume
+        gain = 0.4e5 / self.inputVolume
 
         # Read the audio, take an FFT of the left channel
-        audio = input()[0]
+        audio = inputSignal[0]
         fft = abs(FFT.real_fft(audio * gain))
 
         # Track the input volume, for automatic gain control
         total = abs(add.reduce(audio))
         alpha = 0.001
-        inputVolume = (1-alpha)*inputVolume + alpha*total
+        self.inputVolume = (1-alpha)*self.inputVolume + alpha*total
 
         # Scale down the frequency axis nicely by integrating,
         # sampling, then differentiating.
         sums = add.accumulate(fft)
-        hscaled = take(sums, taps)
+        hscaled = take(sums, self.taps)
         hscaled = maximum(hscaled[1:] - hscaled[:-1], 0)
         vscaled = hscaled * 4e-7
 
         # Add gradual decay to bar heights
-        if not bars:
-            bars = vscaled
-            continue
-        bars -= 0.05
-        bars = maximum(bars, vscaled)
-
-        for output in outputs:
-            output(bars)
+        if self.bars:
+            self.bars -= 0.05
+            self.bars = maximum(self.bars, vscaled)
+        else:
+            self.bars = vscaled
+        return self.bars
 
 
-if __name__ == "__main__":
-    mpav = MPAVClient()
-    rw = RasterBargraph()
-    mpav.onIdle = rw.clear
-    #sb = SDLBargraph()
-    delayed = Delay(30, mpav.waitForBuffer)
-    try:
-        fft_loop(delayed, rw.writeBars)
-    finally:
-        # Clear the rasterwand on exit
+class PluginThread(threading.Thread):
+    stop = False
+
+    def run(self):
+        mpav = MPAVClient()
+        rw = RasterBargraph()
+        mpav.onIdle = rw.clear
+        delayed = Delay(30, mpav.waitForBuffer)
+        viz = Visualizer()
+        while not self.stop:
+            rw.writeBars(viz.transform(delayed()))
         rw.clear()
+
+
+class PluginInterface(plugin.DaemonPlugin):
+    def __init__(self):
+        self.thread = PluginThread()
+        self.thread.setDaemon(1)
+        self.thread.start()
+
+    def shutdown(self):
+        while self.updater.isAlive():
+            self.updater.stop = True
+            time.sleep(0.1)
+
+### The End ###
