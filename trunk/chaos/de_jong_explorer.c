@@ -172,10 +172,10 @@ void flip() {
   /* This is the maximum allowed value for data[], corresponding to full black */
   dataclamp = (int)(1 / fscale) - 1;
 
-  /* Convert fscale to a 16:16 fixed point number that will map data[]
+  /* Convert fscale to an 8:24 fixed point number that will map data[]
    * values to gray levels between 0 and 255.
    */
-  iscale = (guint32)(fscale * 255 * 65536);
+  iscale = (guint32)(fscale * 0xFF000000L);
 
   row = pixels;
   for (y=0; y<HEIGHT; y++) {
@@ -186,7 +186,7 @@ void flip() {
       if (dval > dataclamp)
 	dval = dataclamp;
 
-      gray = 255 - ((dval * iscale) >> 16);
+      gray = 255 - ((dval * iscale) >> 24);
 
       *((guint32*)p) = GUINT32_TO_LE( gray | (gray<<8) | (gray<<16) );
 
