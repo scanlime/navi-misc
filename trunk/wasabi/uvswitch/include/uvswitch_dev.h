@@ -18,6 +18,9 @@
 #include <asm/types.h>
 #include "uvswitch_protocol.h"
 
+/* We have 8 video/audio channels. This doesn't count the bypass switch input */
+#define UVSWITCH_CHANNELS  8
+
 /************************************************** Device node ***************/
 
 /* Information about the uvswitch's device node in /dev/usb/ */
@@ -28,13 +31,24 @@
 /************************************************** ioctl()s ******************/
 
 struct uvswitch_calibration {
-	__u8 precharge_reads;
-	__u8 integration_reads;
-	__u8 threshold;
+	/* Number of reads to ignore for precharging the ADC hold capacitor. Between 1 and 255 */
+	int precharge_reads;
+
+	/* Number of reads to accumulate for each packet sent from uvswitch to host. Between 1 and 255 */
+	int integration_reads;
+
+	/* Number of packets to accumulate before applying the threshold */
+	int integration_packets;
+
+	/* Threshold to test the final accumulated value against to check for active video inputs */
+	int threshold;
 };
 
 /* Send a uvswitch_calibration structure */
 #define UVSWITCHIO_CALIBRATE      0x3901
+
+/* Read the values being used for each channel before threshold testing into an array of UVSWITCH_CHANNELS integers */
+#define UVSWITCHIO_ADC_READ_RAW   0x3902
 
 /************************************************** read/write ******************/
 
