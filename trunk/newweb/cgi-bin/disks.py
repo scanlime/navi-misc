@@ -65,7 +65,7 @@ class DiskChart:
     def getTotalPercentUsed(self):
         total = 0
         for percent in self.getPercentsUsed():
-        total += percent
+            total += percent
         return total
 
 if __name__ == '__main__':
