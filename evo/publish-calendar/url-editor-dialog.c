@@ -84,6 +84,7 @@ url_editor_dialog_construct2 (UrlEditorDialog2 *dialog)
 	dialog->cancel = gtk_dialog_add_button (GTK_DIALOG (dialog), GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL);
 	dialog->ok = gtk_dialog_add_button (GTK_DIALOG (dialog), GTK_STOCK_OK, GTK_RESPONSE_OK);
 	gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_OK);
+	gtk_window_set_modal (GTK_WINDOW (dialog), TRUE);
 
 	dialog->events_source_list = e_source_list_new_for_gconf (gconf, "/apps/evolution/calendar/sources");
 	dialog->events_selector = e_source_selector_new (dialog->events_source_list);
