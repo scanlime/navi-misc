@@ -18,7 +18,14 @@ def formatMessage(user, msg, isAction=False, ourName=None):
     addressed = True
   else:
     addressed = False
-  return (getTime(), getNick(user, isAction)+msg, addressed)
+
+  if isAction:
+    nick = ' * ' + getNick(user, isAction) + ' '
+  elif user:
+    nick = ' <' + getNick(user, isAction) + '> '
+  else:
+    nick = ''
+  return (getTime(), nick + msg, addressed)
 
 def formatRoll(user, times, sides, rolls, total):
   ''' Returns a tuple with the time and a formatted string of the die
