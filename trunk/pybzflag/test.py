@@ -1,26 +1,19 @@
 #!/usr/bin/env python
 
 from BZFlag.Client import PlayerClient
-from BZFlag import ListServer, Player
+from BZFlag import Player
 
-class TestClient(PlayerClient):
-    def onConnect(self):
-        print "Connected."
-        PlayerClient.onConnect(self)
+client = PlayerClient("brlcad.org:4242", Player.Identity("Bob the Avenger"))
 
-    def downloadWorld(self):
-        print "Downloading world..."
-        PlayerClient.downloadWorld(self)
+# Show diagnostic information for the connection
+client.onConnect.trace("Connected.")
+client.onStartWorldDownload.trace("Downloading world...")
+client.onLoadWorld.trace("World loaded.")
+client.onEnterGame.trace("Entered the game.")
 
-    def onLoadWorld(self):
-        print "World loaded - %d blocks" % (len(self.game.world.blocks))
-        PlayerClient.onLoadWorld(self)
+# Show messages
+def message(msg):
+    print "<%s> %s" % (msg.fromId, msg.message)
+client.onMsgMessage.observe(message)
 
-    def onMsgMessage(self, msg):
-        print "Message from %s to %s: %s" % (msg.fromId, msg.toId, msg.message)
-
-    def onEnterGame(self):
-        print "Entered the game."
-
-
-TestClient("brlcad.org:4242", Player.Identity("Bob the Avenger")).run()
+client.run()

@@ -24,7 +24,7 @@ over the network, frontends display and modify it.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA 
 # 
 
-from BZFlag import World
+from BZFlag import World, Util
 
 class Game:
     """Container for all game state information"""
@@ -32,7 +32,20 @@ class Game:
         self.players = {}
         self.flags = {}
         self.world = World.World()
-        
+        Util.initEvents(self, 'onChangePlayerList', 'onAddPlayer', 'onRemovePlayer')
+
+    def addPlayer(self, player):
+        self.players[player.id] = player
+        self.onAddPlayer(self, player)
+        self.onChangePlayerList(self, self.players)
+
+    def RemovePlayer(self, playerId):
+        del self.players[playerId]
+        self.onAddPlayer(self, player)
+        self.onChangePlayerList(self, self.players)
+
+    
+
 ### The End ###
         
     
