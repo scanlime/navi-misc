@@ -36,8 +36,21 @@ e_weather_source_ccf_new (const char *uri)
 	 * the CCF file. If not present, BBB is assumed to be the same station as AAA.
 	 */
 	EWeatherSourceCCF *source = E_WEATHER_SOURCE_CCF (g_object_new (e_weather_source_ccf_get_type (), NULL));
+	char *station;
 
-	source->station = g_strdup (strchr(uri, '/') + 1);
+	station = g_strdup (strchr (uri, '/') + 1);
+	if (strchr (station, '/'))
+	{
+		/* we've got the extended format station code */
+		source->substation = g_strdup (strchr (station, '/') + 1);
+		source->station = g_strndup (station, 3);
+		g_free (station);
+	}
+	else
+	{
+		source->station = station;
+		source->substation = g_strdup (station);
+	}
 	return E_WEATHER_SOURCE (source);
 }
 
@@ -172,14 +185,14 @@ e_weather_source_ccf_do_parse (EWeatherSourceCCF *source, const char *buffer)
 	g_print ("date is %s\n", asctime (&tms));
 
 	/* fast-forward to the particular station we're interested in */
-	/*
 	current = g_slist_nth (tokens, 5);
-	while (strcmp(current->data, source->station))
+	while (strcmp(current->data, source->substation))
 		current = g_slist_next (current);
+
+	g_print ("%s\n", current->data);
 
 	for (i = 0; i < 7; i++)
 		fc = g_list_append (fc, &forecasts[i]);
-	*/
 }
 
 static void
@@ -254,6 +267,9 @@ e_weather_source_ccf_class_init (EWeatherSourceCCFClass *class)
 static void
 e_weather_source_ccf_init (EWeatherSourceCCF *source)
 {
+	source->station = NULL;
+	source->substation = NULL;
+	source->soup_session = NULL;
 }
 
 GType
