@@ -54,7 +54,7 @@ class SimpleParticles(SpriteArray):
 
     def getTweakControls(self):
         """Return a tuple of Tweak controls applicable to this drawable"""
-        from BZEngine.UI import Tweak
+        import Tweak
         return (
             Tweak.Text(self.texProxy, 'targetName'),
             Tweak.Boolean(self, 'glowing'),
