@@ -28,6 +28,18 @@ from ColorText import ColorTextParser
 import email
 
 
+# List of email headers worth logging.
+# This should cover all those that are really interesting
+# from a security or identity point of view. Most other headers
+# are redundant with other information included in the message.
+interestingHeaders = (
+    'From',
+    'Received',
+    'Message-Id',
+    'Date'
+    )
+
+
 class IncomingMailParser:
     """Parses commands from incoming email messages, generating an XML Message
        object representing its contents. This returned object can be dispatched
@@ -93,13 +105,15 @@ class IncomingMailParser:
         return xml
 
     def getXMLMailHeaders(self):
-        """Return a <mailHeaders> tag representing the headers for this message.
-           This is placed in the <generator> tag of any message passing through
-           this module, to document and log the message's true source.
+        """Return a <mailHeaders> tag representing a subset of the headers
+           for this message. This is placed in the <generator> tag of any
+           message passing through this module, to document and log the
+           message's true source.
            """
         xml = domish.Element((None, "mailHeaders"))
         for name, value in self.message.items():
-            xml.addElement("header", content=str(value))['name'] = name
+            if name in interestingHeaders:
+                xml.addElement("header", content=str(value))['name'] = name
         return xml
 
     def command_Announce(self, project):
