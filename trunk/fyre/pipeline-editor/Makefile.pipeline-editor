@@ -4,7 +4,8 @@
 SOURCES = \
 ./Main.cs \
 ./AssemblyInfo.cs \
-./Element.cs
+./Element.cs \
+./PluginManager.cs
 
 RESOURCES = \
 ./pipeline-editor.glade
