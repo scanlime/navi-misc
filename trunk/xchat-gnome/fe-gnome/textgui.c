@@ -41,6 +41,15 @@ void text_gui_add_text_buffer(struct session *sess) {
 	gui.current_session = sess;
 }
 
+void text_gui_remove_text_buffer(struct session *sess) {
+	session_gui *tgui;
+	
+	tgui = sess->gui;
+	gtk_xtext_buffer_free(tgui->buffer);
+	free(tgui);
+	sess->gui = NULL;
+}
+
 void text_gui_print_line(xtext_buffer *buf, unsigned char *text, int len, gboolean indent) {
 	int leftlen;
 	unsigned char *tab;
