@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 #
 # Simple I2C demo. Expects a MAX7300 to be connected with
 # clock on RB0, and data+pullup on RB1.
