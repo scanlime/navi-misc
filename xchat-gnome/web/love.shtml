@@ -38,11 +38,12 @@
 	<div class="section-title">Easy Hackery Love</div>
 	<div class="section">
 	  <b>Basic A11y</b><br />
-	  <p>At the moment, the only a11y is what gtk+ gives us for free. It would be
-	  nice if the most important widgets in the xchat-gnome interface were given
-	  a11y metadata in the glade file.</p>
+	  <p>At the moment, the only accessibility is what gtk+ gives us for free. It
+	  would be nice if the most important widgets in the xchat-gnome interface
+	  were given a11y metadata in the glade file. This can be pretty easily done
+	  in chunks - updating just a few widgets would be better than what we have now.</p>
 	</div>
-	<div class="section-title">Medium-Difficulty Hackery Love</div>
+	<div class="section-title">Mid-Level Hackery Love</div>
 	<div class="section">
 	  <b>Fix navigation-pane behavior</b><br />
 	  <p>The navigation pane behaves strangely in some cases, such as parting/rejoining
