@@ -11,3 +11,6 @@ This is just a preliminary roadmap, subject to whatever people want to work on.
 
 0.5:
 	Split things such that multiple conversation windows are possible
+
+undetermined:
+	Integration with autopackage as much as possible (relaytool, etc)
