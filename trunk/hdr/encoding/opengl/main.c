@@ -8,9 +8,10 @@
 #include "hdr_test.h"
 
 SDL_Surface *screen;
-GLhandleARB program;
 
 void scene_init() {
+  GLhandleARB program;
+
   float diffuse[] = {0.5, 0.5, 0.52, 0};
   float specular[] = {1.0, 1.0, 0.8, 0};
   float position[] = {1, 1, -1, 1};
@@ -25,6 +26,8 @@ void scene_init() {
 							  DATADIR "/test.frag",
 							  NULL),
 				0);
+
+  glUseProgramObjectARB(program);
 
   glViewport(0, 0, screen->w, screen->h);
   glMatrixMode(GL_PROJECTION);
