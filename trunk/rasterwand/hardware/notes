@@ -47,7 +47,7 @@ Modifications
   * Grounding the inputs of U3 in sequence light LEDs in sequence (60ma with 1 LED on)
   * applying 5v to the unconnected side of R12 powers the coil (89ma at DC)
 
-- Added a 1k pull-up to the IS0 output to give
+- Added a 26k pull-up to the IS0 output to give
   the best TTL signal. This was soldered between the top-left pin (from the back)
   to the neighbouring vertical +5v trace.
 
