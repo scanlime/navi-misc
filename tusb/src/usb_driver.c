@@ -263,9 +263,23 @@ void usb_init() {
   IEPCNFG_0 = STALL | UBME;
   OEPCNFG_0 = STALL | UBME;
 
-  USBCTL &= ~CONT;  /* Disconnect from USB */
-  USBSTA = 0xFF;    /* Clear USB status bits */
-  delay(1000);      /* Wait a bit and reconnect */
+  /* If we're already connected to the bus, we need
+   * to disconnect then reconnect. This will be the
+   * case if our firmware is sent over USB through
+   * the ROM bootloader.
+   */
+  if (USBCTL & CONT) {
+    int i;
+
+    USBCTL &= ~CONT;  /* Disconnect from USB */
+    USBSTA = 0xFF;    /* Clear USB status bits */
+    delay(10000);     /* Wait a bit before reconnecting. Some host
+		       * controllers get really annoyed if you
+		       *do this too fast.
+		       */
+  }
+
+  USBSTA = 0xFF;
   USBCTL |= CONT;
 }
 
