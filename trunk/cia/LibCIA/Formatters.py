@@ -23,7 +23,7 @@ elsewhere, for example in IRC filters.
 #
 
 import Message, XML
-import re, os
+import re, os, posixpath
 
 
 class ColortextToIRC(Message.Formatter):
@@ -134,13 +134,29 @@ class CommitFormatter(Message.Formatter):
         prefix, endings = self.consolidateFiles(files)
         endingStr = " ".join(endings)
         if len(endingStr) > 20:
-            endingStr = "%d files" % len(endings)
+            # If the full file list is too long, give a file summary instead
+            self.summarizeFiles(endings)
         if prefix.startswith('/'):
             prefix = prefix[1:]
         if endingStr:
             return self.format_default("%s (%s)" % (prefix, endingStr))
         else:
             return self.format_default(prefix)
+
+    def summarizeFiles(self, files):
+        """Given a list of strings representing file paths, return
+           a summary of those files and/or directories. This is used
+           in place of a full file list when that would be too long.
+           """
+        # Count the number of distinct directories we have
+        dirs = {}
+        for file in files:
+            dirs[posixpath.split(file)[0]] = True
+
+        if len(dirs) <= 1:
+            return "%d files" % len(files)
+        else:
+            return "%d files in %d dirs" % (len(files), len(dirs))
 
     def wrapLine(self, line, width):
         """Given a long line, wrap it if possible to the given width,
