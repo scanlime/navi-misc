@@ -11,19 +11,16 @@ public class interview extends java.applet.Applet implements ActionListener
 {
 	TextArea question, answer;
 	Button button1, button2;
-	TextLabel foo;
-	//initialize this bad boy
+
 	public void init()
 	{
 		//set up the various fields from the information class
-		foo = new TextLabel("Cheese Dogs");
 		question = new TextArea("",6,50,TextArea.SCROLLBARS_VERTICAL_ONLY);
 		answer = new TextArea("",10,50,TextArea.SCROLLBARS_VERTICAL_ONLY);
 		button1 = new Button("one");
 		button2 = new Button("two");
         
 		//add the various objects to the applet
-		add(foo);
 		add(question);
 		add(answer);
 		add(button1);
