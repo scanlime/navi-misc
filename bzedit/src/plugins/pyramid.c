@@ -141,35 +141,44 @@ static void
 pyramid_set_property (GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec)
 {
   Pyramid *self = PYRAMID (object);
+  SceneObject *so = SCENE_OBJECT (object);
 
   switch (prop_id)
   {
     case PROP_POSITION_X:
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.position[0], 0.09);
+      so->bb.position[0] = self->param.position[0];
       break;
 
     case PROP_POSITION_Y:
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.position[1], 0.09);
+      so->bb.position[1] = self->param.position[1];
       break;
 
     case PROP_POSITION_Z:
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.position[2], 0.09);
+      so->bb.position[2] = self->param.position[2] + self->param.size[2] / 2.0;
       break;
 
     case PROP_ROTATION:
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.rotation, 0.09);
+      so->bb.rotation = self->param.rotation;
       break;
 
     case PROP_SIZE_X:
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.size[0], 0.09);
+      so->bb.size[0] = self->param.size[0];
       break;
 
     case PROP_SIZE_Y:
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.size[1], 0.09);
+      so->bb.size[1] = self->param.size[1];
       break;
 
     case PROP_SIZE_Z:
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.size[2], 0.09);
+      so->bb.position[2] = self->param.position[2] + self->param.size[2] / 2.0;
+      so->bb.size[2] = self->param.size[2] / 2.0;
       break;
 
     case PROP_INVERTED:
@@ -489,9 +498,6 @@ pyramid_drawable_draw_to_list (DisplayList *dl)
 
   glPushMatrix ();
 
-  if (p->selected)
-    glColor4f (1.0f, 0.5f, 0.5f, 1.0f);
-
   glTranslated (p->param.position[0], p->param.position[1], p->param.position[2]);
   glRotated (p->param.rotation, 0.0, 0.0, 1.0);
 
@@ -584,8 +590,6 @@ pyramid_drawable_draw_to_list (DisplayList *dl)
     };
     glEnd ();
   }
-
-  glColor4f (1.0f, 1.0f, 1.0f, 1.0f);
 
   glPopMatrix ();
 }

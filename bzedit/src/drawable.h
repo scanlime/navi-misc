@@ -28,7 +28,6 @@
 #include <gtk/gtk.h>
 #include <GL/gl.h>
 #include "renderstate.h"
-#include "sceneobject.h"
 
 G_BEGIN_DECLS
 
@@ -57,8 +56,8 @@ struct _Drawable
   GObject object;
 
   gchar *texture;
+  gpointer parent;
   RenderSettings render;
-  SceneObject *parent;
 };
 
 struct _DrawableClass

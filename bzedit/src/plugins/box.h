@@ -52,7 +52,6 @@ struct _Box
 
   BoxParams param;
   gboolean state_dirty;
-  gboolean selected;
   GList *drawables;
   Drawable *sides, *top;
 };

@@ -52,8 +52,9 @@ struct _DisplayListClass
   void (*draw_to_list) (DisplayList *display_list);
 };
 
-GType display_list_get_type (void) G_GNUC_CONST;
+GType display_list_get_type   (void) G_GNUC_CONST;
 void  display_list_build_list (DisplayList *display_list);
+void  display_list_draw       (Drawable *drawable, RenderState *rstate);
 
 G_END_DECLS
 

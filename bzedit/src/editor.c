@@ -97,6 +97,8 @@ editor_selected (SceneObject *object, Editor *editor)
   gtk_widget_show_all (viewport);
 
   editor->selected = object;
+
+  view_render (editor->view);
 }
 
 static void

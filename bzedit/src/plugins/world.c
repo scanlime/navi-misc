@@ -101,13 +101,14 @@ static void
 world_init (World *world)
 {
   world->drawables = NULL;
-  world->ground = ground_drawable_new ();
-  world->wallsides = wall_sides_drawable_new ();
-  world->ground->parent = (SceneObject*) world;
-  world->wallsides->parent = (SceneObject*) world;
+  world->ground = ground_drawable_new ((SceneObject*) world);
+  world->wallsides = wall_sides_drawable_new ((SceneObject*) world);
 
   world->drawables = g_list_append (world->drawables, (gpointer) world->ground);
   world->drawables = g_list_append (world->drawables, (gpointer) world->wallsides);
+
+  SCENE_OBJECT (world)->bb.position[2] = 4.0;
+  SCENE_OBJECT (world)->bb.size[2] = 4.0;
 }
 
 static void
@@ -121,48 +122,21 @@ update_double_if_necessary (gdouble new_value, gboolean *dirty, gdouble *param, 
 }
 
 static void
-update_float_if_necessary (gdouble new_value, gboolean *dirty, gfloat *param, gfloat epsilon)
-{
-  if (fabs ((gfloat)new_value - *param) > epsilon)
-  {
-    *param = (gfloat) new_value;
-    *dirty = TRUE;
-  }
-}
-
-static void
 world_set_property (GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec)
 {
   World *self = WORLD (object);
+  SceneObject *so = SCENE_OBJECT (object);
 
   switch (prop_id)
   {
     case PROP_X:
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.size[0], 0.9);
-      update_float_if_necessary  (g_value_get_double (value), &DISPLAY_LIST (self->ground)->dirty,
-                                  &GROUND_DRAWABLE (self->ground)->size[0], 0.9);
-      update_float_if_necessary  (g_value_get_double (value), &DISPLAY_LIST (self->wallsides)->dirty,
-                                  &WALL_SIDES_DRAWABLE (self->wallsides)->size[0], 0.9);
-      if (self->state_dirty)
-        g_signal_emit_by_name (object, "dirty");
-      if (DISPLAY_LIST (self->ground)->dirty)
-        g_signal_emit_by_name (G_OBJECT (self->ground), "dirty");
-      if (DISPLAY_LIST (self->wallsides)->dirty)
-        g_signal_emit_by_name (G_OBJECT (self->wallsides), "dirty");
+      so->bb.size[0] = self->param.size[0];
       break;
 
     case PROP_Y:
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.size[1], 0.9);
-      update_float_if_necessary  (g_value_get_double (value), &DISPLAY_LIST (self->ground)->dirty,
-                                  &GROUND_DRAWABLE (self->ground)->size[1], 0.9);
-      update_float_if_necessary  (g_value_get_double (value), &DISPLAY_LIST (self->wallsides)->dirty,
-                                  &WALL_SIDES_DRAWABLE (self->wallsides)->size[1], 0.9);
-      if (self->state_dirty)
-        g_signal_emit_by_name (object, "dirty");
-      if (DISPLAY_LIST (self->ground)->dirty)
-        g_signal_emit_by_name (G_OBJECT (self->ground), "dirty");
-      if (DISPLAY_LIST (self->wallsides)->dirty)
-        g_signal_emit_by_name (G_OBJECT (self->wallsides), "dirty");
+      so->bb.size[1] = self->param.size[1];
       break;
 
     case PROP_GRAVITY:
@@ -172,6 +146,14 @@ world_set_property (GObject *object, guint prop_id, const GValue *value, GParamS
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
+  }
+  if (self->state_dirty)
+  {
+    DISPLAY_LIST (self->ground)->dirty = TRUE;
+    DISPLAY_LIST (self->wallsides)->dirty = TRUE;
+    g_signal_emit_by_name (object, "dirty");
+    g_signal_emit_by_name (G_OBJECT (self->ground), "dirty");
+    g_signal_emit_by_name (G_OBJECT (self->wallsides), "dirty");
   }
 }
 
@@ -313,11 +295,12 @@ static void
 ground_drawable_draw_to_list (DisplayList *dl)
 {
   GroundDrawable *gd = GROUND_DRAWABLE (dl);
-  float width, height;
-  float wrep, hrep;
+  World *w = WORLD (DRAWABLE (dl)->parent);
+  gdouble width, height;
+  gdouble wrep, hrep;
 
-  width = gd->size[0];
-  height = gd->size[1];
+  width = w->param.size[0];
+  height = w->param.size[1];
   wrep = width * 2 / gd->base_texture_repeat;
   hrep = height * 2 / gd->base_texture_repeat;
 
@@ -331,17 +314,17 @@ ground_drawable_draw_to_list (DisplayList *dl)
   glBegin(GL_QUADS);
   glNormal3f (0, 0, 1);
 
-  glTexCoord2f ( wrep,   hrep);
-  glVertex3f   ( width,  height, 0);
+  glTexCoord2d ( wrep,   hrep);
+  glVertex3d   ( width,  height, 0);
 
-  glTexCoord2f ( 0,      hrep);
-  glVertex3f   (-width,  height, 0);
+  glTexCoord2d ( 0,      hrep);
+  glVertex3d   (-width,  height, 0);
 
-  glTexCoord2f ( 0,      0);
-  glVertex3f   (-width, -height, 0);
+  glTexCoord2d ( 0,      0);
+  glVertex3d   (-width, -height, 0);
 
-  glTexCoord2f ( wrep,   0);
-  glVertex3f   ( width, -height, 0);
+  glTexCoord2d ( wrep,   0);
+  glVertex3d   ( width, -height, 0);
 
   glEnd();
   glEnable (GL_CULL_FACE);
@@ -350,9 +333,11 @@ ground_drawable_draw_to_list (DisplayList *dl)
 }
 
 Drawable*
-ground_drawable_new (void)
+ground_drawable_new (SceneObject *parent)
 {
-  return DRAWABLE (g_object_new (ground_drawable_get_type (), NULL));
+  Drawable *d = DRAWABLE (g_object_new (ground_drawable_get_type (), NULL));
+  d->parent = parent;
+  return d;
 }
 
 GType
@@ -395,27 +380,29 @@ wall_sides_drawable_init (WallSidesDrawable *wsd)
   Drawable *d = DRAWABLE (wsd);
 
   d->texture = g_strdup ("data/textures/outer_wall.jpeg");
-  wsd->size[2] = 8.0;
 }
 
 Drawable*
-wall_sides_drawable_new (void)
+wall_sides_drawable_new (SceneObject *parent)
 {
-  return DRAWABLE (g_object_new (wall_sides_drawable_get_type (), NULL));
+  Drawable *d = DRAWABLE (g_object_new (wall_sides_drawable_get_type (), NULL));
+  d->parent = parent;
+  return d;
 }
 
 static void
 wall_sides_drawable_draw_to_list (DisplayList *dl)
 {
   WallSidesDrawable *wsd = WALL_SIDES_DRAWABLE (dl);
-  float width, depth, height;
-  float wrep, hrep;
+  World *w = WORLD (DRAWABLE (dl)->parent);
+  gdouble width, depth, height;
+  gdouble wrep, hrep;
 
-  width = wsd->size[0];
-  depth = wsd->size[1];
-  height = wsd->size[2];
-  wrep = (width * 2) / wsd->size[2];
-  hrep = (depth * 2) / wsd->size[2];
+  width = w->param.size[0];
+  depth = w->param.size[1];
+  height = 8.0;
+  wrep = (width * 2) / height;
+  hrep = (depth * 2) / height;
 
   glPushMatrix ();
 
@@ -427,44 +414,44 @@ wall_sides_drawable_draw_to_list (DisplayList *dl)
   glBegin (GL_QUADS);
   {
     glNormal3f (0, -1, 0);
-    glTexCoord2f ( wrep,  0);
-    glVertex3f   ( width, depth, height);
-    glTexCoord2f ( wrep,  1);
-    glVertex3f   ( width, depth, 0);
-    glTexCoord2f ( 0,     1);
-    glVertex3f   (-width, depth, 0);
-    glTexCoord2f ( 0,     0);
-    glVertex3f   (-width, depth, height);
+    glTexCoord2d ( wrep,  0);
+    glVertex3d   ( width, depth, height);
+    glTexCoord2d ( wrep,  1);
+    glVertex3d   ( width, depth, 0);
+    glTexCoord2d ( 0,     1);
+    glVertex3d   (-width, depth, 0);
+    glTexCoord2d ( 0,     0);
+    glVertex3d   (-width, depth, height);
 
     glNormal3f (1, 0, 0);
-    glTexCoord2f ( hrep,   0);
-    glVertex3f   (-width,  depth, height);
-    glTexCoord2f ( hrep,   1);
-    glVertex3f   (-width,  depth, 0);
-    glTexCoord2f ( 0,      1);
-    glVertex3f   (-width, -depth, 0);
-    glTexCoord2f ( 0,      0);
-    glVertex3f   (-width, -depth, height);
+    glTexCoord2d ( hrep,   0);
+    glVertex3d   (-width,  depth, height);
+    glTexCoord2d ( hrep,   1);
+    glVertex3d   (-width,  depth, 0);
+    glTexCoord2d ( 0,      1);
+    glVertex3d   (-width, -depth, 0);
+    glTexCoord2d ( 0,      0);
+    glVertex3d   (-width, -depth, height);
 
     glNormal3f (0, 1, 0);
-    glTexCoord2f ( 0,      0);
-    glVertex3f   (-width, -depth, height);
-    glTexCoord2f ( 0,      1);
-    glVertex3f   (-width, -depth, 0);
-    glTexCoord2f ( wrep,   1);
-    glVertex3f   ( width, -depth, 0);
-    glTexCoord2f ( wrep,   0);
-    glVertex3f   ( width, -depth, height);
+    glTexCoord2d ( 0,      0);
+    glVertex3d   (-width, -depth, height);
+    glTexCoord2d ( 0,      1);
+    glVertex3d   (-width, -depth, 0);
+    glTexCoord2d ( wrep,   1);
+    glVertex3d   ( width, -depth, 0);
+    glTexCoord2d ( wrep,   0);
+    glVertex3d   ( width, -depth, height);
 
     glNormal3f (-1, 0, 0);
-    glTexCoord2f ( 0,     0);
-    glVertex3f   (width, -depth, height);
-    glTexCoord2f ( 0,     1);
-    glVertex3f   (width, -depth, 0);
-    glTexCoord2f ( hrep,  1);
-    glVertex3f   (width,  depth, 0);
-    glTexCoord2f ( hrep,  0);
-    glVertex3f   (width,  depth, height);
+    glTexCoord2d ( 0,     0);
+    glVertex3d   (width, -depth, height);
+    glTexCoord2d ( 0,     1);
+    glVertex3d   (width, -depth, 0);
+    glTexCoord2d ( hrep,  1);
+    glVertex3d   (width,  depth, 0);
+    glTexCoord2d ( hrep,  0);
+    glVertex3d   (width,  depth, height);
   }
   glEnd ();
 
