@@ -54,7 +54,7 @@ representation.
 \begin{figure}[htb]
 \centering
 \includegraphics[width=3in]{logistic-combined.png}
-\caption{Comparison of histogram-based rendering with traditional 1-bit point plotting}
+\caption{Comparison of histogram-based rendering with traditional 1-bit point plotting\label{logistic}}
 \end{figure}
 
 Unfortunately, there is currently very little capability to display and print these
@@ -64,7 +64,16 @@ a particular value in the image.  There are several different operators for this
 allows the user some control over the final image via parameters such as exposure, gamma
 correction and color interpolation.
 
-
+As can be seen in figure \ref{logistic}, using a histogram exposes an enormous amount of
+detail.  The image here is one of the canonical examples in nonlinear dynamics: a bifurcation
+diagram of the \emph{logistic map}, an iterative equation for modelling animal populations.
+Both images have a width of 600 pixels, but the 1-bit plot can only show approximately 200
+points per column before things become too saturated to be useful.  In the histogram example
+each column contains 8 million points.  While this is far beyond what can be displayed or
+printed statically, the tone-mapping operator can be adjusted to expose different details
+in the image.  The standard plotting technique here does not suffice to show the true structure
+of this image;  one can see several horizontal rows of points with much higher density in
+the histogram rendering, but these are completely hidden in the traditional plot.
 
 \section{Related Work}
 Tone mapping of high dynamic range images has been studied extensively, primarily in the
