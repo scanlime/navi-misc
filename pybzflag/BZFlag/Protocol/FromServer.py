@@ -137,6 +137,14 @@ class MsgDropFlag(Common.Message):
         StructEntry(SubStruct(Common.FlagStatus), 'status'),
         ]
 
+class MsgGrabFlag(Common.Message):
+    messageId = 0x6766
+    entries = [
+        StructEntry(Common.PlayerId,              'playerId'),
+        StructEntry(UInt16,                       'flagNum'),
+        StructEntry(SubStruct(Common.FlagStatus), 'status'),
+        ]
+
 class MsgGetWorld(Common.DataMessage):
     messageId = 0x6777
     entries = [
