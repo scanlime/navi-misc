@@ -25,6 +25,8 @@ sheepsweeper_SOURCES = \
 	MapTile.h \
 	MapView.cpp \
 	MapView.h \
+	Sheep.cpp \
+	Sheep.h \
 	main.cpp
 
 sheepsweeper_LDADD = \

@@ -1,3 +1,11 @@
+Thu Mar 18 00:04:44 PST 2004  Christian Hammond <chipx86@gnupdate.org>
+
+	* src/IsoMapObjectFactory.cpp:
+	* src/Makefile.am:
+	* src/Sheep.cpp:
+	* src/Sheep.h:
+	  - Added a Sheep class.
+
 Wed Mar 17 22:27:58 PST 2004  Christian Hammond <chipx86@gnupdate.org>
 
 	* src/IsoMapData.cpp:
