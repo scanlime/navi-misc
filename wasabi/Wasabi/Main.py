@@ -132,9 +132,9 @@ class MainMenu(Menu.RingMenu):
                 self.channelItems[channel] = item
                 menuItems.append(item)
 
-                # Observe the video detection events, so icons can be dynamically added and removed
-                self.hardware.uvswitch.onChannelActive.observe(self.addChannel)
-                self.hardware.uvswitch.onChannelInactive.observe(self.removeChannel)
+            # Observe the video detection events, so icons can be dynamically added and removed
+            self.hardware.uvswitch.onChannelActive.observe(self.addChannel)
+            self.hardware.uvswitch.onChannelInactive.observe(self.removeChannel)
 
         Menu.RingMenu.__init__(self, book, menuItems)
 
