@@ -23,9 +23,6 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <gnome.h>
-/*
-#include "fe-gtk.h"
-*/
 #include "../common/xchat.h"
 #include "../common/util.h"
 #include "../common/cfgfiles.h"
@@ -58,92 +55,3 @@ GdkColor colors[] = {
 	{0, 0x9999, 0x9999, 0x9999}, /* 23 away user (grey) */
 };
 #define MAX_COL 23
-
-#if 0
-void
-palette_alloc (GtkWidget * widget)
-{
-	int i;
-	static int done_alloc = FALSE;
-	GdkColormap *cmap;
-
-	if (!done_alloc)		  /* don't do it again */
-	{
-		done_alloc = TRUE;
-		cmap = gtk_widget_get_colormap (widget);
-		for (i = MAX_COL; i >= 0; i--)
-			gdk_colormap_alloc_color (cmap, &colors[i], FALSE, TRUE);
-	}
-}
-
-void
-palette_load (void)
-{
-	int i, l, fh, res;
-	char prefname[256];
-	struct stat st;
-	char *cfg;
-	unsigned long red, green, blue;
-
-   snprintf (prefname, sizeof (prefname), "%s/palette.conf", get_xdir_fs ());
-   fh = open (prefname, O_RDONLY | OFLAGS);
-	if (fh != -1)
-	{
-		fstat (fh, &st);
-		cfg = malloc (st.st_size + 1);
-		if (cfg)
-		{
-			cfg[0] = '\0';
-			l = read (fh, cfg, st.st_size);
-			if (l >= 0)
-				cfg[l] = '\0';
-
-			for (i = 0; i < MAX_COL+1; i++)
-			{
-				snprintf (prefname, sizeof prefname, "color_%d_red", i);
-				red = cfg_get_int (cfg, prefname);
-
-				snprintf (prefname, sizeof prefname, "color_%d_grn", i);
-				green = cfg_get_int (cfg, prefname);
-
-				snprintf (prefname, sizeof prefname, "color_%d_blu", i);
-				blue = cfg_get_int_with_result (cfg, prefname, &res);
-
-				if (res)
-				{
-					colors[i].red = red;
-					colors[i].green = green;
-					colors[i].blue = blue;
-				}
-			}
-			free (cfg);
-		}
-		close (fh);
-	}
-}
-
-void
-palette_save (void)
-{
-	int i, fh;
-	char prefname[256];
-
-   snprintf (prefname, sizeof (prefname), "%s/palette.conf", get_xdir_fs ());
-   fh = open (prefname, O_TRUNC | O_WRONLY | O_CREAT | OFLAGS, 0600);
-	if (fh != -1)
-	{
-		for (i = 0; i < MAX_COL+1; i++)
-		{
-			snprintf (prefname, sizeof prefname, "color_%d_red", i);
-			cfg_put_int (fh, colors[i].red, prefname);
-
-			snprintf (prefname, sizeof prefname, "color_%d_grn", i);
-			cfg_put_int (fh, colors[i].green, prefname);
-
-			snprintf (prefname, sizeof prefname, "color_%d_blu", i);
-			cfg_put_int (fh, colors[i].blue, prefname);
-		}
-		close (fh);
-	}
-}
-#endif
