@@ -11,16 +11,22 @@ class GnomeFilter(CommitFilter):
             line = self.pullLine()
             if not line:
                 break
+            cline = line.lower().strip()
 
-            if line.endswith(' files:\n'):
+            if cline == 'modified files:':
+                self.readFiles('modify')
+            elif cline == 'added files:':
+                self.readFiles('add')
+            elif cline.endswith(' files:'):
                 self.readFiles()
-            elif line.lower().strip() == 'log message:':
+
+            elif cline == 'log message:':
                 self.readLog()
-            elif line.startswith('URL : '):
+            elif cline.startswith('url : '):
                 self.readURL(line)
-            elif line.startswith('Module name:'):
+            elif cline.startswith('module name:'):
                 self.readModule(line)
-            elif line.startswith('Changes by:'):
+            elif cline.startswith('changes by:'):
                 self.readAuthor(line)
 
     def readModule(self, line):
@@ -51,7 +57,7 @@ class GnomeFilter(CommitFilter):
                 lines.append(line)
         self.addLog("\n".join(lines))
 
-    def readFiles(self):
+    def readFiles(self, action=None):
         directory = ''
         while True:
             line = self.pullLine()
@@ -72,7 +78,7 @@ class GnomeFilter(CommitFilter):
 
             # Add the rest of the tokens as files
             for file in tokens:
-                self.addFile(posixpath.join(directory, file))
+                self.addFile(posixpath.join(directory, file), action)
 
 if __name__ == '__main__':
     GnomeFilter().main()
