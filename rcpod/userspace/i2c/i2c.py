@@ -79,3 +79,15 @@ class i2c_bus:
 		a[j] |= (bits >> j) & 0x01
 	self.nack()
 	return a
+
+    def readbyte_ack(self):
+        # returns a sequence of stuff on portb, and sends an ack
+	# instead of a nack
+	a = [0, 0, 0, 0, 0, 0, 0, 0]
+	for i in range(8):
+	    bits = self.readbit()
+	    for j = range(8):
+	        a[j] <<= 1
+		a[j] |= (bits >> j) & 0x01
+	self.ack()
+	return a
