@@ -21,4 +21,41 @@ Interfaces to specialized I2C devices produced by Maxim
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
+from pyrcpod import i2c
+
+
+class MAX7300(i2c.Device):
+    """The MAX7300 is an I2C-attached I/O expander, featuring 20
+       bidirectional digital I/O pins.
+       """
+    busAddressBase = 0x40
+
+    def shutdown(self):
+        """Put the device into shutdown, tristating all ports"""
+        self.busWrite([0x04, 0x00])
+
+    def resume(self):
+        """Resume normal operation after a shutdown"""
+        self.busWrite([0x04, 0x01])
+
+    def pinHigh(self, p):
+        """Bring one pin high, given its port number"""
+        print p
+        self.busWrite([0x20 + p, 0x01])
+
+    def pinLow(self, p):
+        """Bring one pin low, given its port number"""
+        self.busWrite([0x20 + p, 0x00])
+
+    def pinRead(self, p):
+        """Read the status of one pin, given its port number"""
+        return self.busWriteRead([0x20 + p], 1)[0]
+
+    def pinInput(self, p):
+        """Make one pin a tristated input, given its port number"""
+
+    def pinOutput(self, p):
+        """Make one pin a driven output, given its port number"""
+
+
 ### The End ###
