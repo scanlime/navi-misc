@@ -145,10 +145,13 @@ class Background:
     """A view that draws an image, stored in a single texture, stretched
        across the entire screen.
        """
-    def __init__(self, viewport, textureName):
+    def __init__(self, viewport, texture):
         viewport.fov = None
         self.viewport = viewport
-        self.texture = Texture.load(textureName)
+        if isinstance(texture, Texture.Texture):
+            self.texture = texture
+        else:
+            self.texture = Texture.load(texture)
         viewport.onDrawFrame.observe(self.render)
 
     def render(self):
