@@ -51,8 +51,15 @@ static void       adjustment_set         (XText2 *xtext, gboolean fire_signal);
 
 static gpointer parent_class;
 
+#define XCHAT
+#define MOTION_MONITOR       /* URL hilights */
+#define SMOOTH_SCROLL        /* line-by-line or pixel scroll? */
+#define SCROLL_HACK          /* use XCopyArea scroll or full redraw? */
+#define GDK_MULTITHREAD_SAFE /* */
+#define USE_DB               /* double-buffer */
+
 #ifdef SCROLL_HACK
-#define dontscroll(xtext) ((xtext)->last_pixel_pos = 2147483647)
+#define dontscroll(xtext) ((xtext)->priv->last_pixel_pos = 2147483647)
 #else
 #define dontscroll(xtext)
 #endif
@@ -140,12 +147,18 @@ struct _XText2Private
   gboolean     parsing_backcolor;
   gboolean     render_hilights_only;
   gboolean     indent_changed;
+  gboolean     auto_indent;          /* automatically change indent */
+  gboolean     skip_stamp;           /* skip timestamp */
   gboolean     add_io_tag;           /* "" when adding new text */
   gint         io_tag;               /* for delayed refresh */
+  char         num[8];               /* for parsing mIRC color codes */
   int          nc;                   /* offset into xtext->priv->num */
   int          col_fore;             /* current foreground color */
   int          col_back;             /* current background color */
   gulong       vc_signal_tag;        /* signal handler for adj->"value changed" */
+  int          hilight_start;
+  int          hilight_end;
+  textentry   *hilight_ent;
 
   /* state associated with rendering specific buffers */
   GHashTable  *buffer_info;          /* stores an XTextFormat for each buffer we observe */
@@ -305,6 +318,8 @@ xtext2_init (XText2 *xtext)
   xtext2_show_buffer (xtext, xtext->priv->original_buffer);
 
   xtext->priv->indent = TRUE;
+  xtext->priv->auto_indent = TRUE;
+  xtext->priv->time_stamp = TRUE;
   xtext->priv->show_separator = TRUE;
   xtext->priv->word_wrap = TRUE;
   xtext->priv->pixel_offset = 0;
@@ -807,7 +822,6 @@ paint (GtkWidget *widget, GdkRectangle *area)
   ent_start = find_char (xtext, area->x, area->y, NULL, NULL);
   if (!ent_start)
   {
-    g_print ("no ent_start!\n");
     draw_bg (xtext, area->x, area->y, area->width, area->height);
     goto xit;
   }
@@ -910,8 +924,8 @@ render_page (XText2 *xtext)
     pos = startline * xtext->priv->fontsize;
 #endif /* SMOOTH_SCROLL */
 
-    overlap = f->last_pixel_pos - pos;
-    f->last_pixel_pos = pos;
+    overlap = xtext->priv->last_pixel_pos - pos;
+    xtext->priv->last_pixel_pos = pos;
 
 #ifdef USE_DB
 #endif /* USE_DB */
@@ -1025,7 +1039,7 @@ render_line (XText2 *xtext, XTextFormat *f, textentry *ent, int line, int lines_
   if (xtext->priv->auto_indent && xtext->priv->time_stamp && !xtext->priv->skip_stamp)
   {
     char *time_str;
-    int stamp_size = get_stamp_str (ent->stamp, &time_str);
+    int stamp_size = get_stamp_str ("[%H:%M:%S] ", ent->stamp, &time_str);
     int tmp = ent->multibyte;
     y = (xtext->priv->fontsize * line) + xtext->priv->font->ascent - xtext->priv->pixel_offset;
     ent->multibyte = TRUE;
@@ -1083,6 +1097,8 @@ render_str (XText2 *xtext, XTextFormat *f, int y, textentry *ent, unsigned char 
   int offset;
   gboolean mark = FALSE;
   int ret = 1;
+
+  g_print ("render_str ('%s')\n", str);
 
   xtext->priv->in_hilight = FALSE;
 
@@ -1153,16 +1169,94 @@ render_str (XText2 *xtext, XTextFormat *f, int y, textentry *ent, unsigned char 
 	xtext->priv->underline = TRUE;
 #endif /* COLOR_HILIGHT */
       }
-      xtext->priv->in_hilight
+      xtext->priv->in_hilight = TRUE;
     }
 #endif /* MOTION_MONITOR */
 
     if ((xtext->priv->parsing_color && isdigit (str[i]) && xtext->priv->nc < 2) ||
         (xtext->priv->parsing_color && str[i] == ',' && isdigit (str[i+1]) && xtext->priv->nc < 3))
     {
+      pstr++;
+      if (str[i] == ',')
+      {
+	xtext->priv->parsing_backcolor = TRUE;
+	if (xtext->priv->nc)
+	{
+	  xtext->priv->num[xtext->priv->nc] = 0;
+	  xtext->priv->nc = 0;
+	  col_num = atoi (xtext->priv->num);
+	  if (col_num == 99) /* mIRC lameness */
+	    col_num = 18;
+	  else
+	    col_num = col_num % 16;
+	  xtext->priv->col_fore = col_num;
+	  if (!mark)
+	    set_fg (xtext, gc, col_num);
+	}
+      }
+      else
+      {
+	xtext->priv->num[xtext->priv->nc] = str[i];
+	if (xtext->priv->nc < 7)
+	  xtext->priv->nc++;
+      }
     }
     else
     {
+      if (xtext->priv->parsing_color)
+      {
+	xtext->priv->parsing_color = FALSE;
+	if (xtext->priv->nc)
+	{
+	  xtext->priv->num[xtext->priv->nc] = 0;
+	  xtext->priv->nc = 0;
+	  col_num = atoi (xtext->priv->num);
+	  if (xtext->priv->parsing_backcolor)
+	  {
+	    if (col_num == 99) /* mIRC lameness */
+	      col_num = 19;
+	    else
+	      col_num = col_num % 16;
+	    if (col_num == 19)
+	      xtext->priv->backcolor = FALSE;
+	    else
+	      xtext->priv->backcolor = TRUE;
+	    if (!mark)
+	      set_bg (xtext, gc, col_num);
+            xtext->priv->col_back = col_num;
+	  }
+	  else
+	  {
+	    if (col_num == 99) /* mIRC lameness */
+	      col_num = 18;
+	    else
+	      col_num = col_num % 16;
+	    if (!mark)
+	      set_fg (xtext, gc, col_num);
+	    xtext->priv->col_fore = col_num;
+	  }
+	  xtext->priv->parsing_backcolor = FALSE;
+	}
+	else
+	{
+	  /* got a \003<non-digit>... - reset colors */
+	  x += render_flush (xtext, x, y, pstr, j, gc, ent->multibyte);
+	  pstr += j;
+	  j = 0;
+	  reset (xtext, mark, FALSE);
+	}
+      }
+
+      switch (str[i])
+      {
+	/* FIXME */
+	default:
+	  tmp = charlen (str + i);
+	  /* invalid utf8 safeguard */
+	  if (tmp + i > len)
+	    tmp = len - i;
+	  j += tmp; /* move to the next utf8 character */
+      }
     }
     i += charlen (str + i); /* move to the next utf8 char */
     /* invalid utf8 safeguard */
@@ -1571,8 +1665,8 @@ xtext2_set_font (XText2 *xtext, char *name)
 #ifdef XCHAT
   {
     char *time_str;
-    int stamp_size = get_stamp_str (time (NULL), &time_str);
-    xtext->priv->stamp_width = text_width (xtext, time_str, stamp_size, NULL);
+    int stamp_size = get_stamp_str ("[%H:%M:%S] ", time (NULL), &time_str);
+    xtext->priv->stamp_width = backend_get_text_width (xtext, time_str, stamp_size, NULL);
     g_free (time_str);
   }
 #endif

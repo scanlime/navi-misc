@@ -6,13 +6,14 @@
 #define MARGIN 2
 #define charlen(str) g_utf8_skip[*(guchar *)(str)]
 
-static void xtext_buffer_class_init (XTextBufferClass *klass);
-static void xtext_buffer_init       (XTextBuffer *buffer);
-static void xtext_buffer_finalize   (GObject *object);
+static void     xtext_buffer_class_init (XTextBufferClass *klass);
+static void     xtext_buffer_init       (XTextBuffer *buffer);
+static void     xtext_buffer_finalize   (GObject *object);
 
-static void append_entry            (XTextBuffer *buffer, textentry *ent);
-static int  lines_taken             (XTextBuffer *buffer, textentry *ent);
-static void remove_top              (XTextBuffer *buffer);
+static void     append_entry            (XTextBuffer *buffer, textentry *ent);
+static int      count_lines_taken       (XTextBuffer *buffer, textentry *ent);
+static void     remove_top              (XTextBuffer *buffer);
+static gboolean mb                      (const char *str, const int len);
 
 enum
 {
@@ -208,6 +209,8 @@ append_entry (XTextBuffer *buffer, textentry *ent)
       i += charlen (ent->str + i);
   }
 
+  multibyte = mb (ent->str, ent->str_len);
+
   ent->stamp = 0;
   ent->multibyte = multibyte;
   ent->mark_start = -1;
@@ -224,7 +227,7 @@ append_entry (XTextBuffer *buffer, textentry *ent)
     buffer->text_first = ent;
   ent->prev = buffer->text_last;
 
-  ent->lines_taken = lines_taken (buffer, ent);
+  ent->lines_taken = count_lines_taken (buffer, ent);
   buffer->num_lines += ent->lines_taken;
 
   if (buffer->max_lines > 2 && buffer->max_lines < buffer->num_lines)
@@ -235,12 +238,36 @@ append_entry (XTextBuffer *buffer, textentry *ent)
 }
 
 static int
-lines_taken (XTextBuffer *buffer, textentry *ent)
+count_lines_taken (XTextBuffer *buffer, textentry *ent)
 {
-  /* HELP! */
+  int ret = 1, i;
+  for (i = 0; i < ent->str_len; i += charlen(&ent->str[i]))
+  {
+    if (ent->str[i] == '\n')
+      ret++;
+  }
+  return ret;
 }
 
 static void
 remove_top (XTextBuffer *buffer)
 {
+  textentry *ent;
+
+  ent = buffer->text_first;
+  buffer->text_first = ent->next;
+  g_free (ent);
+
+  /* notify viewers */
+  g_signal_emit_by_name (G_OBJECT (buffer), "remove", ent);
+}
+
+static gboolean
+mb (const char *str, const int len)
+{
+  int i;
+  for (i = 0; i < len; i++)
+    if (charlen (&str[i]) != 1)
+      return TRUE;
+  return FALSE;
 }
