@@ -1,0 +1,9 @@
+This is the interviewee client.
+It has to perform the following actions
+
+Authentication of the interviewee.
+
+Get Question
+Answer Question
+Reject Question
+Quit

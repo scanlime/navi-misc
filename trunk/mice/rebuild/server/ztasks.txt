@@ -1,0 +1,9 @@
+These are the responsabilities of each aspect of the program.
+
+Submission is responsible for creating and submitting questions.
+
+Moderators moderate the questions, and direct them to the correct interviewee
+
+Administrators have total control over all the queues, and can move them from anywhere to anywhere.
+
+Interviewees answer questions, thats it

@@ -1,0 +1,61 @@
+CLASSFILES=\
+	question.class\
+	qqueue.class\
+	qbase.class\
+	ainterview.class\
+	amoderate.class\
+	asubmit.class\
+	aupdatei.class\
+	aupdate.class\
+	nbase.class\
+	njavaint.class\
+	imain.class
+
+program: $(CLASSFILES)
+
+pbase.class: pbase.java
+	javac pbase.java
+
+nbase.class: nbase.java
+	javac nbase.java
+
+njavaint.class: njavaint.java
+	javac njavaint.java
+
+imain.class: imain.java
+	javac imain.java
+
+ainterview.class: ainterview.java
+	javac ainterview.java
+
+amoderate.class: amoderate.java
+	javac amoderate.java
+
+asubmit.class: asubmit.java
+	javac asubmit.java
+
+aupdate.class: aupdate.java
+	javac aupdate.java
+
+aupdatei.class: aupdatei.java
+	javac aupdatei.java
+
+question.class: question.java
+	javac question.java
+
+qqueue.class: qqueue.java
+	javac qqueue.java
+
+qbase.class: qbase.java
+	javac qbase.java
+
+clean:
+	rm -Rf *.class *~ *.jar
+
+server.jar: 
+	jar cmf .manifest server.jar *.class
+
+jar: $(CLASSFILES) server.jar
+
+run: $(CLASSFILES) server.jar
+	java -jar server.jar
