@@ -21,29 +21,25 @@ A web interface for CIA's ruleset database
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import Template
+import Template, Server
 import Nouvelle
 from Nouvelle import tag, place
 from LibCIA import Units
 from twisted.protocols import http
 from twisted.web import error
-import urllib
+import urllib, posixpath
 
 
-class RulesetLink:
-    """An anchor tag linking to the given ruleset URI"""
-    def __init__(self, uri, tagFactory=tag('a')):
-        self.uri = uri
-        self.tagFactory = tagFactory
+class Component(Server.Component):
+    """A Server component for our ruleset browser"""
+    name = 'Rulesets'
 
-    def render(self, context):
-        if self.uri.find("://") >= 0:
-            scheme, hostAndPath = self.uri.split("://", 1)
-        else:
-            scheme = self.uri
-            hostAndPath = ''
-        linkUrl = context['rulesetsRootPath'] + urllib.quote(scheme) + '/' + urllib.quote(hostAndPath)
-        return self.tagFactory(href=linkUrl)[self.uri]
+    def __init__(self, storage):
+        self.storage = storage
+        self.resource = RulesetList(self)
+
+    def __contains__(self, page):
+        return isinstance(page, RulesetList) or isinstance(page, RulesetEditorPage)
 
 
 class RulesetURIColumn(Nouvelle.Column):
@@ -54,7 +50,7 @@ class RulesetURIColumn(Nouvelle.Column):
         return ruleset.uri
 
     def render_data(self, context, ruleset):
-        return RulesetLink(ruleset.uri)
+        return RulesetEditorPage(context['component'], ruleset.uri).render_link(context)
 
 
 class RulesetSchemeColumn(Nouvelle.Column):
@@ -91,33 +87,31 @@ class RulesetListSection(Template.Section):
         RulesetSizeColumn(),
         ]
 
-    def __init__(self, storage):
+    def __init__(self, component):
         # Extract the rulesets from the RulesetStorage's map of URIs to RulesetDelivery objects
-        self.rulesets = [delivery.ruleset for delivery in storage.rulesetMap.itervalues()]
+        self.rulesets = [delivery.ruleset for delivery in component.storage.rulesetMap.itervalues()]
 
     def render_rows(self, context):
         return [Template.Table(self.rulesets, self.columns, id='ruleset')]
 
 
-def singleRulesetPageFactory(storage, uri):
-    """Create and return a SingleRulesetPage instance appropriate
-       for the given parameters.
-       """
-    if uri in storage.rulesetMap:
-        return SingleRulesetEditor(storage, uri)
-    else:
-        return Ruleset404(storage, uri)
-
-
-class SingleRulesetPage(Template.Page):
+class RulesetEditorPage(Template.Page):
     """A viewer/editor for one ruleset. This is a base class for all
        pages that refer to a single ruleset.
        """
     subTitle = "The CIA ruleset editor, better than a fusion powered duck"
 
-    def __init__(self, storage, uri):
-        self.storage = storage
+    def __init__(self, component, uri):
+        self.component = component
         self.uri = uri
+
+    def parent(self):
+        return RulesetList(self.component)
+
+    def render(self, request):
+        if self.uri not in self.component.storage.rulesetMap:
+            return error.NoResource("No ruleset for %r" % self.uri).render(request)
+        return Template.Page.render(self, request)
 
     def getChildWithDefault(self, name, request):
         """The first child of RulesetPage adds the URI scheme, the rest
@@ -127,20 +121,33 @@ class SingleRulesetPage(Template.Page):
             newUri = self.uri + '://' + name
         else:
             newUri = self.uri + '/' + name
-        return singleRulesetPageFactory(self.storage, newUri)
+        return self.__class__(self.component, newUri)
 
     def render_mainTitle(self, context):
         return self.uri
 
+    def getURL(self, context):
+        if self.uri.find("://") >= 0:
+            scheme, hostAndPath = self.uri.split("://", 1)
+        else:
+            scheme = self.uri
+            hostAndPath = ''
+        return posixpath.join(self.component.url, urllib.quote(scheme), urllib.quote(hostAndPath))
+
+    def render_mainColumn(self, context):
+        return [
+            RulesetEditorSection(self.component, self.uri)
+            ]
+
 
 class RulesetEditorSection(Template.Section):
     """A Section that can view and edit one ruleset"""
-    def __init__(self, storage, uri):
-        self.storage = storage
+    def __init__(self, component, uri):
+        self.component = component
         self.uri = uri
 
     def render_ruleset(self, context):
-        return tag('pre')[self.storage.rulesetMap[self.uri].ruleset]
+        return tag('pre')[self.component.storage.rulesetMap[self.uri].ruleset]
 
     rows = [ place('ruleset') ]
     title = "ruleset"
@@ -148,11 +155,11 @@ class RulesetEditorSection(Template.Section):
 
 class RulesetTotalsSection(Template.Section):
     """A Section that displays fun-filled facts about our ruleset database"""
-    def __init__(self, storage):
+    def __init__(self, component):
         self.total = 0
         self.schemeTotals = {}
         self.ircServers = {}
-        for uri in storage.rulesetMap.keys():
+        for uri in component.storage.rulesetMap.keys():
             self.total += 1
             if uri.find("://") >= 0:
                 scheme, hostAndPath = uri.split("://", 1)
@@ -180,57 +187,35 @@ class RulesetTotalsSection(Template.Section):
         ]]
 
 
-class SingleRulesetEditor(SingleRulesetPage):
-    """A page that can view and edit one ruleset"""
-    def render_mainColumn(self, context):
-        return [
-            RulesetEditorSection(self.storage, self.uri)
-            ]
-
-
-class Ruleset404(SingleRulesetPage):
-    """A page for rulesets that don't exist"""
-    def render(self, request):
-        return error.NoResource("No ruleset for %r" % self.uri).render(request)
-
-
 class RulesetList(Template.Page):
     """A web page listing all available rulesets. Children
        of this page are URISchemePage instances, which
-       have SingleRulesetPage instances as children. This
+       have RulesetEditorPage instances as children. This
        lets URLs like /rulesets/irc/irc.freenode.net/commits work.
        """
-    def __init__(self, storage):
-        self.storage = storage
+    mainTitle = "Ruleset List"
+    subTitle = "the little tidbits of XML that make CIA work"
 
-    def findRootPath(self, request):
-        """Find the URL path referring to the root of our ruleset browser.
-           The returned path always ends in a slash.
-           Since this function is only present in the root page,
-           this is easy :)
-           """
-        path = request.path
-        if path and path[-1] != '/':
-            path = path + '/'
-        return path
+    def __init__(self, component):
+        self.component = component
 
     def preRender(self, context):
-        context['rulesetsRootPath'] = self.findRootPath(context['request'])
+        context['component'] = self.component
 
     def getChildWithDefault(self, name, request):
-        return singleRulesetPageFactory(self.storage, name)
+        return RulesetEditorPage(self.component, name)
 
     def render_mainColumn(self, context):
         return [
-            RulesetListSection(self.storage),
+            RulesetListSection(self.component),
             ]
 
     def render_leftColumn(self, context):
         return [
-            RulesetTotalsSection(self.storage),
+            RulesetTotalsSection(self.component),
             ]
 
-    mainTitle = "Ruleset List"
-    subTitle = "the little tidbits of XML that make CIA work"
+    def getURL(self, context):
+        return self.component.url
 
 ### The End ###

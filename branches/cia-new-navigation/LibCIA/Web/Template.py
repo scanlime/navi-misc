@@ -220,28 +220,21 @@ class Page(Nouvelle.Twisted.Page):
         pass
 
     def render_tabs(self, context):
-        """The page's tabs show all Page instances hooked up as
-           children of the root resource in our web site.
-           """
-        request = context['request']
+        """The page's tabs show all named components"""
+        components = context['request'].site.components
+        components.sort(lambda a,b: cmp(a.name, b.name))
         tabs = []
-        for name, page in request.site.resource.children.iteritems():
-            if isinstance(page, Page):
-                # Decide if this section should be marked active or not
-                if request.prepath[0] == name:
+        for component in components:
+            if component.name:
+                if self in component:
                     id = 'active'
                 else:
                     id = None
-                tabs.append(tag('a', _class='tab', id=id, href=page.getURL(context))[
-                    page.render_mainTitle(context)
-                    ])
+                tabs.append(tag('a', _class='tab', id=id, href=component.url)[ component.name ])
         return tabs
 
-    def getURL(self, context, absolute=False):
-        """Retrieve a URL suitable for linking to this page.
-           By default it will be relative to this site. If
-           'absolute' is true, this will be a fully qualified URL.
-           """
+    def getURL(self, context):
+        """Retrieve a URL suitable for linking to this page."""
         pass
 
 ### The End ###
