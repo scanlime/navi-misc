@@ -321,8 +321,9 @@ class PalantirWindow:
     self.on_quit_activate(widget)
 
   def on_quit_activate(self, widget, data=None):
-    gtk.main_quit()
+    self.factory.quit()
     reactor.stop()
+    gtk.main_quit()
 
   def on_dice_button_clicked(self, widget, data=10):
     ''' Whenever one of the dice buttons is clicked roll it. '''

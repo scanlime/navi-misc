@@ -26,9 +26,6 @@ class PalantirClient(irc.IRCClient):
     self.nickname = self.factory.nickname
     irc.IRCClient.connectionMade(self)
 
-  def connectionLost(self, reason):
-    print 'Connection Lost:', reason
-
   def signedOn(self):
     ''' Join the channels in factory.channels upon connecting. '''
     for channel in self.factory.channels:
