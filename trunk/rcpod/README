@@ -30,7 +30,9 @@ source code comments.
  example  : Small example programs to demonstrate librcpod
 
  python   : A python package for accessing the rcpod, example programs using it,
-            and a simple test suite for the rcpod
+            and a simple test suite for the rcpod. The rcpod test suite is built
+            using python's "unittest" module, and serves as an example for using
+            the rcpod and unittest to perform tests on external hardware.
 
 
 -------- Prerequisites
