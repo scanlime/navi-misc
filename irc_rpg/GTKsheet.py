@@ -75,11 +75,20 @@ class tab_view(gtk.Notebook, sheetElement):
 class tab(gtk.VBox, sheetElement):
   def __init__(self, node):
     sheetElement.__init__(self, node)
-    gtk.VBox.__init__(self)
+    gtk.VBox.__init__(self, homogeneous=gtk.TRUE)
     self.label = gtk.Label(self.attributes.get('label', ''))
 
   def packChild(self, child):
-    gtk.VBox.pack_start(self, child)
+    gtk.VBox.pack_start(self, child, padding=5)
+    child.show()
+
+class hbox(gtk.HBox, sheetElement):
+  def __init__(self, node):
+    sheetElement.__init__(self, node)
+    gtk.HBox.__init__(self, homogeneous=gtk.TRUE)
+
+  def packChild(self, child):
+    gtk.HBox.pack_start(self, child, padding=5)
     child.show()
 
 class text_field(gtk.HBox, sheetElement):
