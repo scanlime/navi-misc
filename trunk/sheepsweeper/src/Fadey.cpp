@@ -2,6 +2,8 @@
 
 #include <SDL/SDL_image.h>
 
+#include <stdlib.h>
+
 Fadey::Fadey(SDL_Surface *screen, float time)
 {
 	this->time = time / 3.0f;
@@ -22,6 +24,12 @@ Fadey::Fadey(SDL_Surface *screen, float time)
 								 32, rmask, gmask, bmask, amask);
 
 	SDL_Surface *tempImage = IMG_Load("images/poweredby.png");
+
+	if (tempImage == NULL)
+	{
+		fprintf(stderr, "Unable to locate images directory.\n");
+		exit(1);
+	}
 
 	image = SDL_DisplayFormat(tempImage);
 
