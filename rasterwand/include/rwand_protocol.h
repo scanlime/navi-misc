@@ -24,6 +24,21 @@
 #define RWAND_VENDOR_ID   0xE461
 #define RWAND_PRODUCT_ID  0x0005
 
+
+;//************************************************** Control Requests
+
+;// Return an 8-byte packet with the current edge buffer (4 16-bit LE words)
+#define RWAND_CTRL_READ_EDGES		0x01
+
+;// Return a 4-byte packet with the current predicted period and phase (2 16-bit LE words)
+#define RWAND_CTRL_READ_PREDICTION	0x02
+
+;// Set the phase to wValue and the period to wIndex
+#define RWAND_CTRL_SET_PREDICTION	0x03
+
+;// Set the coil driver to switch on when the predicted phase is between wValue and wIndex
+#define RWAND_CTRL_SET_COIL_PHASE	0x04
+
 #endif
 
 ;//### The End ###
