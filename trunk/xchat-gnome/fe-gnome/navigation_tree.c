@@ -91,13 +91,13 @@ static gboolean navigation_tree_create_new_channel_entry_iterate(GtkTreeModel *m
 }
 
 void navigation_tree_create_new_channel_entry(struct session *sess) {
-	GtkTreeStore *store;
+	GtkTreeModel *store;
 	GtkWidget *treeview;
 
 	treeview = glade_xml_get_widget(gui.xml, "server channel list");
-	store = GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(treeview)));
+	store = gtk_tree_view_get_model(GTK_TREE_VIEW(treeview));
 
-	gtk_tree_model_foreach(store, navigation_tree_create_new_channel_entry_iterate, (gpointer) sess);
+	gtk_tree_model_foreach(store, (GtkTreeModelForeachFunc) navigation_tree_create_new_channel_entry_iterate, (gpointer) sess);
 }
 
 static gboolean navigation_tree_remove_iterate(GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, struct session *data) {
@@ -122,13 +122,13 @@ static gboolean navigation_tree_remove_iterate(GtkTreeModel *model, GtkTreePath 
 }
 
 void navigation_tree_remove(struct session *sess) {
-	GtkTreeStore *store;
+	GtkTreeModel *store;
 	GtkWidget *treeview;
 
 	treeview = glade_xml_get_widget(gui.xml, "server channel list");
-	store = GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(treeview)));
+	store = gtk_tree_view_get_model(GTK_TREE_VIEW(treeview));
 
-	gtk_tree_model_foreach(store, navigation_tree_remove_iterate, (gpointer) sess);
+	gtk_tree_model_foreach(store, (GtkTreeModelForeachFunc) navigation_tree_remove_iterate, (gpointer) sess);
 }
 
 static gboolean navigation_tree_set_channel_name_iterate(GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, gpointer data) {
@@ -163,8 +163,8 @@ void navigation_selection_changed(GtkTreeSelection *selection, gpointer data) {
 		GtkWidget *topic, *entry;
 
 		gtk_tree_model_get(model, &iter, 2, &s, -1);
-		sess = s;
-		tgui = sess->gui;
+		sess = (session *) s;
+		tgui = (session_gui *) sess->gui;
 		gtk_xtext_buffer_show(gui.xtext, tgui->buffer, TRUE);
 		topic = glade_xml_get_widget(gui.xml, "topic entry");
 		gtk_text_view_set_buffer(GTK_TEXT_VIEW(topic), tgui->topic_buffer);

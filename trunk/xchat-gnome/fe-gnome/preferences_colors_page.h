@@ -1,5 +1,5 @@
 /*
- * gui.c - main gui initialization and helper functions
+ * preferences_colors_page.h - helpers for the colors preferences page
  *
  * Copyright (C) 2004 David Trowbridge and Dan Kuester
  *
@@ -20,35 +20,10 @@
  */
 
 #include "gui.h"
-#include "main_window.h"
-#include "preferences_dialog.h"
-#include "connect_dialog.h"
-#include "navigation_tree.h"
-#include "about.h"
-#include "textgui.h"
-#include "userlist.h"
-#include "setup_druid.h"
-#include "pixmaps.h"
-#include "../common/text.h"
 
-XChatGUI gui;
+#ifndef XCHAT_GNOME_PREFERENCES_COLORS_PAGE_H
+#define XCHAT_GNOME_PREFERENCES_COLORS_PAGE_H
 
-gboolean initialize_gui() {
-	gui.xml = glade_xml_new("xchat-gnome.glade", NULL, NULL);
-	if(!gui.xml)
-		return FALSE;
-	gui.current_session = NULL;
-	pixmaps_init();
-	initialize_main_window();
-	initialize_text_gui();
-	initialize_preferences_dialog();
-	initialize_connection_dialog();
-	initialize_navigation_tree();
-	initialize_setup_druid();
-	initialize_userlist();
-	return TRUE;
-}
+void initialize_preferences_colors_page();
 
-int xtext_get_stamp_str (time_t tim, char **ret) {
-	return get_stamp_str("[%H:%M:%S] ", tim, ret);
-}
+#endif

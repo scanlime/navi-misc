@@ -21,6 +21,7 @@
 
 #include "preferences_dialog.h"
 #include "preferences_servers_page.h"
+#include "preferences_colors_page.h"
 #include "pixmaps.h"
 
 void initialize_pages_list();
@@ -41,6 +42,7 @@ void initialize_preferences_dialog() {
 	initialize_irc_preferences_page();
 	initialize_file_transfers_page();
 	initialize_preferences_servers_page();
+	initialize_preferences_colors_page();
 
 	close_button = glade_xml_get_widget(gui.xml, "close preferences");
 	g_signal_connect(G_OBJECT(close_button), "clicked", G_CALLBACK(hide_preferences_dialog), NULL);
