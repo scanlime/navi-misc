@@ -278,8 +278,10 @@ class PalantirWindow:
   def query(self, args):
     print 'Not Done'
 
-  def ping(self, args):
-    print 'Not Done'
+  def ping(self, args=''):
+    ''' Ping the server. '''
+    self.tree.get_widget('SendField').set_text('')
+    self.factory.client.ping(self.factory.nickname, self.factory.client.host)
 
   def quit(self, args="Leaving..."):
     # Clear the text field.
@@ -390,6 +392,15 @@ class PalantirWindow:
     users = params[3].split()
     for user in users:
       self.AddUserToList(user)
+
+  def pong(self, user, secs):
+    ''' Handle reply from a ping. '''
+    if self.tree.get_widget('time_stamps').get_active():
+      time = palantir.getTime()
+    else:
+      time = ''
+    self.chatWindow.DisplayText(time, '',
+	'Ping reply from %s : %.2f secs' % (self.factory.client.host, secs))
 
   # CTCP messages.
   def DM(self, user, channel, data):
