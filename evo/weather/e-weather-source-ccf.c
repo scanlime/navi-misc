@@ -53,6 +53,9 @@ e_weather_source_ccf_parse (EWeatherSource *source, const char *buffer)
 	 * and CCFSSS indicates that the file is a CCF product put out by station
 	 * SSS. DDHHMM is a date indicator showing when the product was released,
 	 * with day-of-month, hour and minute in UTC.
+	 *
+	 * Note that the station in this header may be completely different from
+	 * any/all stations represented in the file.
 	 */
 }
 
