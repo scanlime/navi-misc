@@ -105,7 +105,6 @@ class RelationGrapher:
         graphAttrs = {
             'packmode': 'graph',
             'center': True,
-            'dim': 3,
             'Damping': 0.999,
             }
 
@@ -247,5 +246,5 @@ if __name__ == '__main__':
     RelationGrapher(
         PrefixSelector('project/', color='#FF0000', shape='box'),
         PrefixSelector('author/', color='#0000FF'),
-        ).render(open("output.wrl", 'w'), "vrml").addCallback(done).addErrback(oops)
+        ).render(open("output.svg", 'w'), "svg").addCallback(done).addErrback(oops)
     reactor.run()
