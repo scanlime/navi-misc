@@ -32,7 +32,7 @@ caps.saveKey('universe', 'data/universe.key')
 # Create the web interface. We start with all the static
 # files in 'htdocs' and add dynamic content from there.
 webRoot = static.File("htdocs")
-webRoot.putChild('rulesets', RulesetBrowser.RulesetPage(caps, rulesetStorage))
+webRoot.putChild('rulesets', RulesetBrowser.RulesetList(caps, rulesetStorage))
 webRoot.putChild('stats', StatsBrowser.StatsPage(caps, statsStorage))
 
 # Add a VHostMonster we can use to safely proxy requests from Apache running on a different port

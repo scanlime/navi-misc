@@ -168,7 +168,7 @@ class Ruleset404(SingleRulesetPage):
         ]]
 
 
-class RulesetPage(Template.Page):
+class RulesetList(Template.Page):
     """A web page listing all available rulesets. Children
        of this page are URISchemePage instances, which
        have SingleRulesetPage instances as children. This
