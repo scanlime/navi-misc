@@ -168,7 +168,7 @@ SpinningBox    = lambda page: SpinningModel(page, 'metal_box.wrl',
                                             elevationSpeed  = -10)
 
 # A looping SubBook, cycling between TextureTest, Warp, and MetalBox
-zoomSparkCycle = Sequencer.SubBook(Sequencer.CyclicBook, [
+boxWarpCycle = Sequencer.SubBook(Sequencer.CyclicBook, [
     whiteFast(TextureTest),
     whiteFast(Sequencer.PageTimer(2, Warp)),
     whiteFast(Sequencer.PageTimer(2, SpinningBox)),
@@ -182,8 +182,8 @@ mainBook = Sequencer.Book(view, [
     # Show some perty particle systems for 4 seconds, using the PageTimer
     fromBlackSlow(toWhiteFast(Sequencer.PageTimer(4, Sparks))),
 
-    # Execute the zoomSparkCycle book until user input, then fade to black slowly
-    toBlackSlow(Sequencer.UserPageInterrupter(zoomSparkCycle)),
+    # Execute the boxWarpCycle book until user input, then fade to black slowly
+    toBlackSlow(Sequencer.UserPageInterrupter(boxWarpCycle)),
 
     # Spin the 'monkey' model until any key or mouse button is pressed.
     blackSlow(Sequencer.UserPageInterrupter(SpinningMonkey)),
