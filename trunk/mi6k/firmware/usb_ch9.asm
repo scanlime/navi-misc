@@ -1736,6 +1736,12 @@ CheckVendor
 	btfsc	STATUS,Z
 	goto	VFDPowerRequest
 
+	movf	BufferData+bRequest,w ; Is it an LED set request?
+	xorlw	MI6K_CTRL_LED_SET
+	pagesel	LEDSetRequest
+	btfsc	STATUS,Z
+	goto	LEDSetRequest
+
 	pagesel	wrongstate			; Not a recognized request
 	goto	wrongstate
 
@@ -1780,6 +1786,53 @@ vfdOff
 	bcf		VFD_POWER
 vfdPowerDone
 	
+	; Acknowledge the request
+	pagesel	Send_0Len_pkt
+	call	Send_0Len_pkt
+	return
+
+	;********************* Request to set the LED brightnesses
+LEDSetRequest
+	; White LED set via 10-bit CCP1 duty cycle
+	banksel BufferData
+	rrf		BufferData+(wValue+1), f	; Shift LSB of wValue into C
+	rrf		BufferData+wValue, f
+	banksel	CCP1CON
+	bcf		CCP1CON, 4					; Transfer bit from C to CCP1CON:4
+	btfsc	STATUS, C
+	bsf		CCP1CON, 4
+	banksel BufferData
+	rrf		BufferData+(wValue+1), f	; Shift LSB of wValue into C
+	rrf		BufferData+wValue, f
+	banksel	CCP1CON
+	bcf		CCP1CON, 5					; Transfer bit from C to CCP1CON:5
+	btfsc	STATUS, C
+	bsf		CCP1CON, 5
+	banksel BufferData
+	movf	BufferData+wValue, w		; Remaining bits are for CCPR1L
+	banksel	CCPR1L
+	movwf	CCPR1L
+
+	; Blue LED set via 10-bit CCP2 duty cycle
+	banksel BufferData
+	rrf		BufferData+(wIndex+1), f	; Shift LSB of wIndex into C
+	rrf		BufferData+wIndex, f
+	banksel	CCP2CON
+	bcf		CCP2CON, 4					; Transfer bit from C to CCP2CON:4
+	btfsc	STATUS, C
+	bsf		CCP1CON, 4
+	banksel BufferData
+	rrf		BufferData+(wIndex+1), f	; Shift LSB of wIndex into C
+	rrf		BufferData+wIndex, f
+	banksel	CCP2CON
+	bcf		CCP2CON, 5					; Transfer bit from C to CCP2CON:5
+	btfsc	STATUS, C
+	bsf		CCP1CON, 5
+	banksel BufferData
+	movf	BufferData+wValue, w		; Remaining bits are for CCPR2L
+	banksel	CCPR2L
+	movwf	CCPR2L
+
 	; Acknowledge the request
 	pagesel	Send_0Len_pkt
 	call	Send_0Len_pkt

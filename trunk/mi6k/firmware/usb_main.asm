@@ -240,10 +240,24 @@ Main
 	banksel	RCSTA
 	bsf		RCSTA, SPEN	; Enable serial port
 	banksel	TXSTA
-	bsf		TXSTA, BRGH
+	bsf		TXSTA, BRGH ; High speed mode
 	bcf		TXSTA, SYNC	; Asynchronous mode
 	bsf		TXSTA, TXEN	; Enable transmitter
-		
+
+	movlw	0xFF		; Maximum PWM period for both CCP modules
+	banksel	PR2
+	movlw	PR2
+	movlw	0x0C		; PWM mode
+	banksel	CCP1CON
+	movwf	CCP1CON
+	movwf	CCP2CON
+	banksel	CCPR1L
+	clrf	CCPR1L		; LEDs off by default
+	clrf	CCPR2L
+	movlw	0x06		; Timer2 on, prescaler of 16
+	banksel	T2CON
+	movwf	T2CON
+
 ;******************************************************************* Main Loop
 
 MainLoop
