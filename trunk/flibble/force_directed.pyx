@@ -60,21 +60,22 @@ cdef float repel(ArrayVertex* v1, ArrayVertex* v2, float strength):
        the amount of energy left in the system.
        """
     cdef ArrayVertex ab, unitv, force
-    cdef float length, forceMag
+    cdef float distance, forceMag, distanceSquared
 
     # Subtract v2 from v1, to get a vector pointing from v1 to v2
     ab.x = v1.x - v2.x
     ab.y = v1.y - v2.y
 
-    # Calculate the magnitude of ab, the current length of the spring
-    length = sqrtf(ab.x * ab.x + ab.y * ab.y)
+    # Calculate the magnitude of ab, the current distance of the spring
+    distanceSquared = ab.x * ab.x + ab.y * ab.y
+    distance = sqrtf(distanceSquared)
 
-    # Calculate the magnitude of the spring force
-    forceMag = -strength / length
+    # Calculate the magnitude of the spring force (inverse squared law)
+    forceMag = -strength / distanceSquared
 
     # Calculate the actual force using ab's direction and forceMag
-    force.x = ab.x / length * forceMag
-    force.y = ab.y / length * forceMag
+    force.x = ab.x / distance * forceMag
+    force.y = ab.y / distance * forceMag
 
     # Apply that force to the two vertices
     v1.x = v1.x - force.x
@@ -153,12 +154,12 @@ cdef class Graph:
         for i from 0 <= i < self.numEdges:
             edge = &self.edges[i]
             energy = energy + applySpring(&self.vertices[edge.a], &self.vertices[edge.b],
-                                          5, 0.1)
+                                          50, 0.1)
 
         # Apply much longer springs to all other pairs of vertices
         for i from 0 <= i < self.numVertices:
             for j from i < j < self.numVertices:
-                energy = energy + repel(&self.vertices[i], &self.vertices[j], 0.01)
+                energy = energy + repel(&self.vertices[i], &self.vertices[j], 200)
 
         return energy
 

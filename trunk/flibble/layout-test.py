@@ -45,7 +45,7 @@ def runLayout(hlGraph):
     fdGraph = force_directed.Graph(hlGraph.edgeTuples, len(hlGraph.vertexList))
     print fdGraph
 
-    fdGraph.randomize(0, 0, 100, 100)
+    fdGraph.randomize(0, 0, 1000, 1000)
     try:
         while 1:
             print "energy: %f" % fdGraph.iteration()
@@ -60,18 +60,18 @@ def runLayout(hlGraph):
               '  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">\n'
               '<svg\n'
               '  xmlns="http://www.w3.org/2000/svg" version="1"\n'
-              '  x="0" y="0" width="100" height="100">\n')
+              '  x="0" y="0" width="1000" height="1000">\n')
 
     # Write all edges
     for a, b in hlGraph.edgeTuples:
         va = vectors[a]
         vb = vectors[b]
-        svg.write('<line x1="%f" y1="%f" x2="%f" y2="%f" stroke="black" stroke-width="0.1"/>\n' %
+        svg.write('<line x1="%f" y1="%f" x2="%f" y2="%f" stroke="black" stroke-width="1"/>\n' %
                   (va[0], va[1], vb[0], vb[1]))
 
     # Write all nodes
     for x, y in vectors:
-        svg.write('<circle cx="%f" cy="%f" r="0.2" stroke="black" fill="yellow" stroke-width="0.05"/>\n' %
+        svg.write('<circle cx="%f" cy="%f" r="2" stroke="black" fill="yellow" stroke-width="0.5"/>\n' %
                   (x, y))
 
     svg.write('</svg>\n')
@@ -107,10 +107,22 @@ if __name__ == '__main__':
         Edge(4, 10),
         Edge(5, 11),
         Edge(6, 12),
-        Edge(1, 0),
+        Edge(1, 'a'),
+        Edge(1, 'b'),
         ]
     for i in xrange(40):
-        testEdges.append(Edge(0, 100+i))
+        testEdges.append(Edge('a', 100+i))
+    for i in xrange(40):
+        testEdges.append(Edge('b', 200+i))
     test = Graph(testEdges)
+
+    house = Graph([
+        Edge(1,2),
+        Edge(1,3),
+        Edge(2,3),
+        Edge(4,5),
+        Edge(2,4),
+        Edge(3,5),
+        ])
 
     runLayout(test)
