@@ -138,67 +138,48 @@ void CGroundObject::Init ( void )
 			baseName++;
 		}
 	}
-	/*int numTuft = 500;
-	float xyRange = 400;
-
-	for (int i = 0; i < numTuft; i++)
-	{
-		char name[512];
-		sprintf(name,"tuft:tuft1-%d",i);
-
-		float pos[3];
-		pos[0] = (((float)rand()/(float)RAND_MAX)*xyRange*2)-xyRange;
-		pos[1] = (((float)rand()/(float)RAND_MAX)*xyRange*2)-xyRange;
-		pos[2] = 0.0f;
-
-		Entity* tuftEnt = CFirestarterLoop::instance().GetSceneManager()->createEntity(name, "tuft1.mesh");
-		tuftEnt->getMesh()->getSubMeshIterator().getNext()->setMaterialName("tuft:tuft1");
-	//	tuftEnt->setRenderQueueGroup(RENDER_QUEUE_9);
-		SceneNode* tuftNode = static_cast<SceneNode*>(CFirestarterLoop::instance().GetSceneManager()->getRootSceneNode()->createChild());
-		tuftNode->attachObject(tuftEnt);
-		tuftNode->rotate(Vector3(0,0,1),(((float)rand()/(float)RAND_MAX)*360));
-		tuftNode->translate(pos[0],pos[1],pos[2]); 
-	}
-
-	for (int i = 0; i < numTuft; i++)
-	{
-		char name[512];
-		sprintf(name,"tuft:tuft2-%d",i);
-
-		float pos[3];
-		pos[0] = (((float)rand()/(float)RAND_MAX)*xyRange*2)-xyRange;
-		pos[1] = (((float)rand()/(float)RAND_MAX)*xyRange*2)-xyRange;
-		pos[2] = 0.0f;
-
-		Entity* tuftEnt = CFirestarterLoop::instance().GetSceneManager()->createEntity(name, "tuft1.mesh");
-		tuftEnt->getMesh()->getSubMeshIterator().getNext()->setMaterialName("tuft:tuft2");
-	//	tuftEnt->setRenderQueueGroup(RENDER_QUEUE_9);
-		SceneNode* tuftNode = static_cast<SceneNode*>(CFirestarterLoop::instance().GetSceneManager()->getRootSceneNode()->createChild());
-		tuftNode->attachObject(tuftEnt);
-		tuftNode->rotate(Vector3(0,0,1),(((float)rand()/(float)RAND_MAX)*360));
-		tuftNode->translate(pos[0],pos[1],pos[2]); 
-	}
-
-	for (int i = 0; i < numTuft; i++)
-	{
-		char name[512];
-		sprintf(name,"tuft:tuft3-%d",i);
-
-		float pos[3];
-		pos[0] = (((float)rand()/(float)RAND_MAX)*xyRange*2)-xyRange;
-		pos[1] = (((float)rand()/(float)RAND_MAX)*xyRange*2)-xyRange;
-		pos[2] = 0.0f;
-
-		Entity* tuftEnt = CFirestarterLoop::instance().GetSceneManager()->createEntity(name, "tuft1.mesh");
-		tuftEnt->getMesh()->getSubMeshIterator().getNext()->setMaterialName("tuft:tuft3");
-	//	tuftEnt->setRenderQueueGroup(RENDER_QUEUE_9);
-		SceneNode* tuftNode = static_cast<SceneNode*>(CFirestarterLoop::instance().GetSceneManager()->getRootSceneNode()->createChild());
-		tuftNode->attachObject(tuftEnt);
-		tuftNode->rotate(Vector3(0,0,1),(((float)rand()/(float)RAND_MAX)*360));
-		tuftNode->translate(pos[0],pos[1],pos[2]); 
-	} */
 }
 
 void CGroundObject::Think ( void )
+{
+}
+
+// wall factory
+CBaseDrawable* CWallObjectFactory::New ( CBaseObject* parent )
+{
+	CBaseDrawable* obj = new CWallObject;
+	obj->Set(parent);
+	return obj;
+}
+
+void CWallObjectFactory::Delete ( CBaseDrawable* object )
+{
+	delete(object);
+}
+
+// wall object
+CWallObject::CWallObject()
+{
+	mGroundNode = NULL;
+}
+
+CWallObject::~CWallObject()
+{
+}
+
+void CWallObject::Init ( void )
+{
+	Mesh* mesh = MeshManager::getSingleton().createPlane("wall0", Plane (Vector3(0,1,0),Vector3(0,0,0),Vector3(1,0,0)),parent->GetValueF("groundSizeX"), parent->GetValueF("groundSizeY"),1,1,true,1,parent->GetValueF("groundTextureRepeat"),parent->GetValueF("groundTextureRepeat"));
+	if (mesh && mesh->getSubMeshIterator().hasMoreElements())
+	{
+		mesh->getSubMeshIterator().getNext()->setMaterialName(parent->GetValueS("wallTexture"));
+	}
+	Entity *mWallEntity[0] = CFirestarterLoop::instance().GetSceneManager()->createEntity("Ground","GroundPlane");
+	mGroundEntity->setRenderQueueGroup(RENDER_QUEUE_2);
+	mGroundNode = static_cast<SceneNode*>(CFirestarterLoop::instance().GetSceneManager()->getRootSceneNode()->createChild());
+	mGroundNode->attachObject(mGroundEntity);
+}
+
+void CWallObject::Think ( void )
 {
 }

@@ -54,4 +54,23 @@ protected:
 	SceneNode* mGroundNode;
 };
 
+class CWallObjectFactory : public CBaseDrawableFactory
+{
+public:
+	virtual CBaseDrawable* New ( CBaseObject* parent );
+	virtual void Delete ( CBaseDrawable* object );
+};
+
+class CWallObject : public CBaseDrawable
+{
+public:
+	CWallObject();
+	virtual ~CWallObject();
+	virtual void Init ( void );
+	virtual void Think ( void );
+
+protected:
+	SceneNode* mWallNode[4];
+};
+
 #endif //_WORLD_DRAWABLES_H_
