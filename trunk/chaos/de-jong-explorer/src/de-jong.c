@@ -496,11 +496,11 @@ static void de_jong_set_property (GObject *object, guint prop_id, const GValue *
     break;
 
   case PROP_XOFFSET:
-    update_double_if_necessary(g_value_get_double(value), &self->calc_dirty_flag, &self->xoffset, 0.0009);
+    update_double_if_necessary(g_value_get_double(value), &self->calc_dirty_flag, &self->xoffset, 0.000001);
     break;
 
   case PROP_YOFFSET:
-    update_double_if_necessary(g_value_get_double(value), &self->calc_dirty_flag, &self->yoffset, 0.0009);
+    update_double_if_necessary(g_value_get_double(value), &self->calc_dirty_flag, &self->yoffset, 0.000001);
     break;
 
   case PROP_ROTATION:
