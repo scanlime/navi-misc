@@ -32,14 +32,10 @@ static GScannerConfig parser_config =
   (
   G_CSET_a_2_z
   G_CSET_A_2_Z
-  "-"
-  G_CSET_DIGITS
   ),			/* cset_identifier_first */
   (
   G_CSET_a_2_z
-  "-"
   G_CSET_A_2_Z
-  G_CSET_DIGITS
   ),			/* cset_identifier_nth */
   ("#\n"),		/* cpair_comment_single */
   FALSE,		/* case_sensitive */
@@ -57,7 +53,7 @@ static GScannerConfig parser_config =
   FALSE,		/* scan_hex_dollar */
   FALSE,		/* scan_string_sq */
   FALSE,		/* scan_string_dq */
-  TRUE,			/* numbers_2_int */
+  FALSE,		/* numbers_2_int */
   TRUE,			/* int_2_float */
   FALSE,		/* identifier_2_string */
   FALSE,		/* char_2_token */
