@@ -397,6 +397,15 @@ class FormatterArgs:
         new.__dict__.update(kwargs)
         return new
 
+    def getPreference(self, name, default):
+        """If a preference with the given name has been set, converts it to the same type
+           as the supplied default and returns it. Otherwise, returns the default.
+           """
+        if name in self.preferences:
+            return type(default)(self.preferences[name])
+        else:
+            return default
+
 
 class Formatter:
     """An abstract object capable of creating and/or modifying alternate
@@ -462,6 +471,12 @@ class CompositeFormatter(Formatter):
                                 and placed inside the Nouvelle tag.
 
         <attribute name=...>  : Define an attribute on the enclosing <tag>
+
+        <preference name=...> : Set a preference to the enclosed string if it hasn't already been set.
+                                This only affects formatters below it, not formatters above it.
+                                Only the first preference of a particular name is used- this makes
+                                the outermost user of a formatter ultimately responsible for setting preferences,
+                                while inner formatters can still easily set defaults.
        """
     def loadParametersFrom(self, xml):
         self.format = CompositeFormatterParser(xml).result
@@ -476,7 +491,7 @@ class CompositeFormatterParser(XML.XMLObjectParser):
         results = []
         allStrings = True
         for f in l:
-            if not f:
+            if f is None:
                 # Ignore Nones
                 continue
             elif callable(f):
@@ -540,6 +555,13 @@ class CompositeFormatterParser(XML.XMLObjectParser):
         else:
             # No path, return this node's contents
             return str(element)
+
+    def element_preference(self, element):
+        """Generates no output on its own, but sets a preference in the current FormatterArgs"""
+        name = element['name']
+        value = str(element)
+        def setPreference(args):
+            args.preferences[name] = value
 
     def element_input(self, element):
         """Returns the formatter's input"""
