@@ -23,7 +23,49 @@
 
 #include "publish-location.h"
 #include <libxml/tree.h>
+#include <gconf/gconf-client.h>
 #include <string.h>
+
+static EPublishUri *
+migrateURI (const gchar *xml, xmlDocPtr doc)
+{
+	GConfClient *client;
+	GSList *uris, *l;
+	xmlChar *location, *enabled, *frequency, *username;
+	xmlNodePtr root;
+	EPublishUri *uri;
+	gchar *password;
+
+	client = gconf_client_get_default ();
+	uris = gconf_client_get_list (client, "/apps/evolution/calendar/publish/uris", GCONF_VALUE_STRING, NULL);
+	l = uris;
+	while (l) {
+		gchar *str = l->data;
+		if (strcmp (xml, str) == 0) {
+			uris = g_slist_remove (uris, str);
+			g_free (str);
+		}
+	}
+
+	uri = g_new0 (EPublishUri, 1);
+
+	root = doc->children;
+	location = xmlGetProp (root, "location");
+	enabled = xmlGetProp (root, "enabled");
+	frequency = xmlGetProp (root, "frequency");
+	username = xmlGetProp (root, "username");
+
+	password = e_passwords_get_password ("Calendar", location);
+	e_passwords_forget_password ("Calendar", location);
+
+	uris = g_list_prepend (uris, e_publish_uri_to_xml (uri));
+	gconf_client_set_list (client, "/apps/evolution/calendar/publish/uris", GCONF_VALUE_STRING, uris, NULL);
+	g_slist_foreach (uris, (GFunc) g_free, NULL);
+	g_slist_free (uris);
+	g_object_unref (client);
+
+	return uri;
+}
 
 EPublishUri *
 e_publish_uri_from_xml (const gchar *xml)
@@ -42,6 +84,9 @@ e_publish_uri_from_xml (const gchar *xml)
 	root = doc->children;
 	if (strcmp (root->name, "uri") != 0)
 		return NULL;
+
+	if (xmlGetProp (root, "username"))
+		return migrateURI (xml, doc);
 
 	uri = g_new0 (EPublishUri, 1);
 
