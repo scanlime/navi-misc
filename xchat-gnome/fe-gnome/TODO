@@ -25,3 +25,12 @@ context menus:
 * flesh out the userlist context menu
 * make the context menu for navtree stuff actually dependent on context - see above note
   about leave/close stuff
+
+
+when releasing:
+	check to make sure changelog is complete
+	make sure all version numbers are up-to-date
+	tag the release
+	notify http://www.gnomefiles.org (Dan)
+	notify freshmeat (David)
+	notify footnotes
