@@ -6,6 +6,10 @@
 ; all results over a Laipac 315MHz ASK transmitter. Currently it only supports
 ; a single temperature sensor, but the protocol is extensible.
 ;
+; This firmware is compatible with several different PIC microcontrollers:
+;    - PIC12F675
+;    - PIC12F683
+;
 ; Hardware description:
 ;      GP0: Battery voltage sensor (470Kohms to battery+, 470K to ground)
 ;      GP1: Transmitter data
@@ -48,22 +52,30 @@
 ;      - 6-bit Flag sequence
 ;
 
-	list	p=12f675
-	#include p12f675.inc
-
 	errorlevel -302
-	__CONFIG _CPD_OFF & _CP_OFF & _BODEN_ON & _MCLRE_OFF & _PWRTE_ON & _WDT_ON & _INTRC_OSC_NOCLKOUT
-
 
 ;----------------------------------------------------- Device configuration
 
-STATION_ID	equ	2	; A unique ID between 0 and 63
-TC74_ADDR	equ	5	; The address marked on this station's TC74
+STATION_ID	equ	1	; A unique ID between 0 and 63
+TC74_ADDR	equ	7	; The address marked on this station's TC74
 
 SAMPLE_DELAY	equ	.4	; Delay between temperature readings, in 2.3-second units
 N_THERM_SAMPLES	equ	.15	; Number of temperature readings per RF burst.
 
 N_PACKETS	equ	.5	; Number of duplicate packets sent in a burst
+
+; Uncomment only one of the processor sections below:
+
+;list            p=12f675
+;#include        p12f675.inc
+;#define         CLOCK_MHZ    4
+;#define         NEED_OSCCAL
+;                __CONFIG _CPD_OFF & _CP_OFF & _BODEN_ON & _MCLRE_OFF & _PWRTE_ON & _WDT_ON & _INTRC_OSC_NOCLKOUT
+
+list            p=12f683
+#include        p12f683.inc
+#define         CLOCK_MHZ    4
+                __CONFIG _FCMEN_OFF & _IESO_OFF & _BOD_ON & _CPD_OFF & _CP_OFF & _MCLRE_OFF & _PWRTE_ON & _WDT_ON & _INTRC_OSC_NOCLKOUT
 
 
 ;----------------------------------------------------- Constants
@@ -146,12 +158,14 @@ therm_sample_loop
 
 	call	init_low_power		; Go into low power long-duration sleep between samples
 	call	init_timer_sleep
-	movlw	SAMPLE_DELAY
-	movwf	temp
+	if SAMPLE_DELAY > 0
+	 movlw	SAMPLE_DELAY
+	 movwf	temp
 long_sleep_loop
-	sleep
-	decfsz	temp, f
-	goto	long_sleep_loop
+	 sleep
+	 decfsz	temp, f
+	 goto	long_sleep_loop
+	endif
 
 	decfsz	main_iter, f		; Next therm sample...
 	goto	therm_sample_loop
@@ -188,16 +202,23 @@ init_high_power
 	;; Prepare the timers for normal use
 init_timer_normal
 	;; Calibrate the oscillator
+#ifdef NEED_OSCCAL
 	bsf	STATUS, RP0
 	call	0x3FF
 	movwf	OSCCAL
 	bcf	STATUS, RP0
+#endif
 
 	;; Initialize TMR0 and the watchdog timer. Initially, we assign
-	;; a 1:4 prescaler to TMR0 so we can time delays long enough for our
+	;; a prescaler to TMR0 so we can time delays long enough for our
 	;; slow bits. Before sleeping we swap that over to the WDT.
 	clrwdt
-	movlw	0xD1
+	if CLOCK_MHZ == 4
+	  movlw	0xD1		; 1:4
+	endif
+	if CLOCK_MHZ == 8
+	  movlw 0xD2		; 1:8
+	endif
 	bsf	STATUS, RP0
 	movwf	OPTION_REG
 	bcf	STATUS, RP0
