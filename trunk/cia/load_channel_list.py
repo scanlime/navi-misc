@@ -30,6 +30,6 @@ for line in open('channels.list'):
 
     server.deliverMessage(
         "<message><body><ircRuleset channel=%r>%s</ircRuleset></body></message>" %
-        (channel + '-testing', ruleset))
+        (channel, ruleset))
 
 ### The End ###
