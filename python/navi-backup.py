@@ -25,6 +25,12 @@ not to back up.
     them, and fit as many as possible onto the remaining space
     on the current DVD.
 
+  * navi-backup verify
+    Read in all catalogs on the current disc, and verify the MD5
+    digests on all files contained within. This saves date-stamped
+    verification records to navi's catalog showing which files,
+    if any, failed verification.
+
   * navi-backup pending <paths>
     Show status of only those files that need to be backed up.
     They are listed in the same order 'auto' would back them up in.
@@ -41,7 +47,7 @@ If the path list is omitted, the current directory is assumed.
 -- Micah Dowty <micah@navi.cx>
 """
 
-import time, os, sys, re
+import time, os, sys, re, gc
 import shutil, popen2, shelve
 
 
@@ -63,6 +69,27 @@ class CacheDir:
 
     def getDict(self, name):
         return shelve.open(self.getFilename(name), protocol=-1)
+
+
+def iterMD5lines(stream):
+    """Given a file-like object, iterate over md5sum-style
+       lines, yielding (sum, filename) pairs.
+       """
+    while 1:
+        line = stream.readline()
+        if not line:
+            break
+        sum, filename = line.replace("\t", " ").strip().split(" ", 1)
+        yield sum.strip(), filename.lstrip()
+
+
+def localMD5(path):
+    """Run one md5sum on the local machine"""
+    cmd = "md5sum " + shellEscape(path)
+    for sum, filename in iterMD5lines(os.popen(cmd, "r")):
+        if filename == path:
+            return sum
+    raise IOError("Error running md5sum on %r" % path)
 
 
 class MD5Cache:
@@ -87,15 +114,7 @@ class MD5Cache:
         # local shell and the shell on the remote machine.
         cmd = "ssh navi md5sum " + " ".join([
             shellEscape(shellEscape(os.path.abspath(f))) for f in filenames])
-        results = os.popen(cmd, "r")
-
-        while 1:
-            line = results.readline()
-            if not line:
-                break
-            sum, filename = line.strip().split(" ", 1)
-            filename = filename.lstrip()
-
+        for sum, filename in iterMD5lines(os.popen(cmd, "r")):
             st = os.stat(filename)
             self.cache[filename] = (sum, st.st_size, st.st_mtime)
 
@@ -136,6 +155,48 @@ class BurnFailure(Exception):
 
 class MediaInfoFailure(Exception):
     pass
+
+
+class DVDReader:
+    """Abstraction for reading files from a DVD, mounting it if necessary"""
+    def __init__(self, device="/dev/dvd"):
+        self.device = device
+        self.mountpoint = self.fstabSearch(self.device)
+
+    def fstabSearch(self, device):
+        device = os.path.realpath(device)
+        for line in open("/etc/fstab"):
+            line = line.strip()
+            if not line:
+                continue
+            if line[0] == '#':
+                continue
+            fs, mountpoint = fields = line.split()[:2]
+
+            if os.path.realpath(fs) == device:
+                return mountpoint
+        raise ValueError("DVD not found in /etc/fstab")
+
+    def getPath(self, path):
+        return os.path.join(self.mountpoint, path)
+
+    def isMounted(self):
+        device = os.path.realpath(self.device)
+        for line in os.popen("mount", "r"):
+            dev, on, mountpoint = line.split()[:3]
+            if os.path.realpath(dev) == device:
+                return True
+        return False
+
+    def mount(self):
+        if os.system("mount %s" % shellEscape(self.mountpoint)):
+            raise IOError("Error mounting %s" % self.mountpoint)
+
+    def unmount(self):
+        # In case any files are still open that shouldn't be...
+        gc.collect()
+        if os.system("umount %s" % shellEscape(self.mountpoint)):
+            raise IOError("Error unmounting %s" % self.mountpoint)
 
 
 class DVDBurner:
@@ -495,6 +556,103 @@ def backup(paths, burner):
     cat.archive()
 
 
+class CatalogVerifier:
+    """Performs verifications of one catalog file on a mounted DVD,
+       by checking that all files exist and match their saved MD5sums.
+       """
+    def __init__(self, dvd):
+        self.dvd = dvd
+        self.totalFiles = 0
+        self.totalFailures = 0
+
+    def verify(self, path, catalogName):
+        print 'Verifying catalog "%s"' % catalogName
+        self.logBuffer = []
+
+        # First, make sure the catalog itself matches navi
+        if localMD5(path) != localMD5(os.path.join(CatalogWriter.catalogDir, catalogName)):
+            print "*** Catalog file doesn't match the copy stored on navi"
+            sys.exit(1)
+
+        for catalogSum, filename in iterMD5lines(open(path)):
+            try:
+                dvdPath = self.getPath(catalogName, filename)
+
+                if os.path.isfile(dvdPath):
+                    if localMD5(dvdPath) == catalogSum:
+                        self.log(filename)
+                    else:
+                        self.log(filename, "MODIFIED")
+                else:
+                    self.log(filename, "MISSING")
+
+            except KeyboardInterrupt:
+                raise
+            except:
+                self.log(filename, "ERROR")
+
+        # If we got this far, store a verification record
+        self.saveResults(catalogName)
+
+    def saveResults(self, catalogName):
+        """Save the results of verifying 'catalogName'."""
+        verifiedDir = os.path.join(CatalogWriter.catalogDir, "verified", catalogName)
+        if not os.path.isdir(verifiedDir):
+            os.makedirs(verifiedDir)
+        datecode = time.strftime("%Y%m%d_%H%M%S")
+        logFile = os.path.join(verifiedDir, datecode)
+        self.saveLog(logFile)
+
+    def getPath(self, catalogName, filename):
+        """Get the on-DVD path for the given filename. This
+           figures out which date-coded directory the path
+           would be inside, then uses our DVDReader to construct
+           a full path.
+           """
+        if filename[0] == os.path.sep:
+            filename = filename[1:]
+        dateDir = catalogName[:8]
+        return self.dvd.getPath(os.path.join(dateDir, filename))
+
+    def writeLogEntry(self, stream, entry):
+        """Write a log entry out to a file-like object"""
+        stream.write("%-15s %s\n" % entry)
+
+    def log(self, filename, problem=''):
+        """Add a new log entry. It is always displayed on
+           stdout, and if a problem is given it's buffered.
+           """
+        entry = (problem, filename)
+        if problem:
+            self.totalFailures += 1
+            self.logBuffer.append(entry)
+        self.totalFiles += 1
+        self.writeLogEntry(sys.stdout, entry)
+
+    def saveLog(self, filename):
+        """Save our log out to disk"""
+        f = open(filename, "w")
+        for entry in self.logBuffer:
+            self.writeLogEntry(f, entry)
+        f.close()
+
+
+def verify_disc(dvd):
+    """Given a DvdReader object, verify all catalogs on the disc
+       it represents and save verification records to disk.
+       """
+    catalogDir = dvd.getPath("catalog")
+    verifier = CatalogVerifier(dvd)
+    for catalog in os.listdir(catalogDir):
+        path = os.path.join(catalogDir, catalog)
+        if not os.path.isfile(path):
+            continue
+        verifier.verify(path, catalog)
+    print
+    print "%d files verified, %d failures." % (
+        verifier.totalFiles, verifier.totalFailures)
+
+
 def cmd_store(paths):
     backup(paths, DVDBurner())
 
@@ -578,6 +736,18 @@ def cmd_md5(paths, filesPerCommand=8):
         md5cache.calc(*files)
         for file in files:
             print md5cache.getLine(file)
+
+
+def cmd_verify(paths=[]):
+    reader = DVDReader()
+    wasMounted = reader.isMounted()
+    if not wasMounted:
+        reader.mount()
+    try:
+        verify_disc(reader)
+    finally:
+        if not wasMounted:
+            reader.unmount()
 
 
 def usage():
