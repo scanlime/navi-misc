@@ -112,7 +112,7 @@ static inline void INIT_WORK(struct tq_struct *tq,
 #define gchub_fill_int_urb             usb_fill_int_urb
 #define gchub_fill_control_urb         usb_fill_control_urb
 #else
-#define gchub_submit_urb(urb, mem) usb_submit_urb(urb)
+#define gchub_submit_urb(urb, mem)     usb_submit_urb(urb)
 #define gchub_set_intfdata(inf, dev)
 #define gchub_alloc_urb(iso, mem)      usb_alloc_urb(iso)
 #define gchub_usb_buffer_alloc(dev, size, mem, dma) kmalloc(size, mem)
@@ -354,10 +354,6 @@ static int controller_init(struct gchub_controller* ctl,
 	ctl->dev.flush = controller_flush;
 #endif
 
-	/* Set up work structures for queueing attach/detach operations */
-	INIT_WORK(&ctl->reg_work, controller_attach, ctl);
-	INIT_WORK(&ctl->unreg_work, controller_detach, ctl);
-
 	/* We support one LED, to change the color of the port from green to red */
 	set_bit(EV_LED, ctl->dev.evbit);
 	set_bit(LED_MISC, ctl->dev.ledbit);
@@ -465,11 +461,19 @@ static void controller_sync(struct gchub_controller *ctl)
 		if (ctl->attached && !ctl->dev_registered) {
 			ctl->reg_in_progress = 1;
 			spin_unlock_irqrestore(&ctl->reg_lock, flags);
+
+			/* Note that in 2.6 it isn't required that we
+			 * reinitialize the work struct each time, but in
+			 * 2.4 with task queues this is necessary.
+			 */
+			INIT_WORK(&ctl->reg_work, controller_attach, ctl);
 			schedule_work(&ctl->reg_work);
 		}
 		else if (ctl->dev_registered && !ctl->attached) {
 			ctl->reg_in_progress = 1;
 			spin_unlock_irqrestore(&ctl->reg_lock, flags);
+
+	                INIT_WORK(&ctl->unreg_work, controller_detach, ctl);
 			schedule_work(&ctl->unreg_work);
 		}
 		else {
@@ -886,6 +890,8 @@ static void gchub_sync_output_status(struct gchub_dev* dev)
 	int dirty = 0;
 	int i;
 
+	dbg("sync output status");
+
 	/* Are any outputs still dirty? */
 	for (i=0; i<NUM_PORTS; i++)
 		if (dev->ports[i].outputs.dirty)
@@ -894,12 +900,15 @@ static void gchub_sync_output_status(struct gchub_dev* dev)
 	if (!dirty)
 		return;
 
+	dbg("some outputs dirty");
+
 	/* Send out a status packet if one isn't already on its way */
 	spin_lock_irqsave(&dev->out_status_lock, flags);
 	if (dev->out_status_in_progress) {
 		/* A packet is already on its way, but we'll need
 		 * another one to be sent right afterward.
 		 */
+		dbg("Status already on its way");
 		dev->out_status_pending_sync = 1;
 		spin_unlock_irqrestore(&dev->out_status_lock, flags);
 	}
@@ -909,6 +918,7 @@ static void gchub_sync_output_status(struct gchub_dev* dev)
 
 		gchub_fill_output_request(dev);
 		gchub_submit_urb(dev->out_status, SLAB_ATOMIC);
+		dbg("sending request");
 	}
 }
 
@@ -921,6 +931,13 @@ static void   gchub_fill_output_request(struct gchub_dev* dev)
 	int port;
 	unsigned long flags;
 	unsigned short led_bits, rumble_bits;
+
+	/* Reset the URB each time. This isn't necessary under 2.6, but it doesn't hurt. */
+	usb_unlink_urb(dev->out_status);
+	memset(dev->out_status, 0, sizeof(*dev->out_status));
+	gchub_fill_control_urb(dev->out_status, dev->udev, usb_sndctrlpipe(dev->udev, 0),
+			       (unsigned char*) &dev->out_status_request, NULL,
+			       0, gchub_out_request_irq, dev);
 
 	/* Take a snapshot of each port's outputs and clear dirty flags,
 	 * while holding the outputs' spinlock.
@@ -965,6 +982,8 @@ static void gchub_out_request_irq(struct urb* urb)
 {
 	struct gchub_dev *dev = (struct gchub_dev*)urb->context;
 	unsigned long flags;
+
+	dbg("out request irq");
 
 	spin_lock_irqsave(&dev->out_status_lock, flags);
 	if (dev->out_status_pending_sync) {
@@ -1075,9 +1094,6 @@ static void *gchub_probe(struct usb_device *udev, unsigned int ifnum,
 		retval = -ENOMEM;
 		goto error;
 	}
-	gchub_fill_control_urb(dev->out_status, udev, usb_sndctrlpipe(udev, 0),
-			       (unsigned char*) &dev->out_status_request, NULL,
-			       0, gchub_out_request_irq, dev);
 
 	/* Start the interrupt data flowing */
 	gchub_fill_int_urb(dev->irq, udev, usb_rcvintpipe(udev, 1),
