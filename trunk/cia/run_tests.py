@@ -27,4 +27,3 @@ import LibCIA.Message
 doctest.testmod(LibCIA.Message)
 
 ### The End ###
-
