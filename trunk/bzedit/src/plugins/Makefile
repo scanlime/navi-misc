@@ -1,6 +1,6 @@
 PKGS			+= gobject-2.0 glib-2.0 gtk+-2.0
 CFLAGS			+= $(shell pkg-config --cflags $(PKGS))
-CFLAGS			+= -fPIC -I..
+CFLAGS			+= -fPIC -I.. -g
 LIBS			+= $(shell pkg-config --libs $(PKGS))
 
 PLUGINS			=			\

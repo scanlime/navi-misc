@@ -67,7 +67,7 @@ scene_init (Scene *self)
 
   self->objects = g_hash_table_new (g_direct_hash, g_direct_equal);
   self->dirty = FALSE;
-  
+
   self->render_passes = NULL;
   render_pass_types = find_type_leaves (RENDER_PASS_TYPE);
   for (type = render_pass_types; type; type = type->next)
@@ -137,7 +137,7 @@ scene_preprocess_iterate (SceneObject *object, GList *drawables, GList *passes)
   for (drawable = drawables; drawable; drawable = drawable->next)
     for (pass = passes; pass; pass = pass->next)
       if (render_pass_filter (RENDER_PASS (pass->data), DRAWABLE (drawable->data)))
-	render_pass_add (RENDER_PASS (pass->data), DRAWABLE (drawable->data));
+        render_pass_add (RENDER_PASS (pass->data), DRAWABLE (drawable->data));
 }
 
 void
@@ -170,9 +170,7 @@ scene_preprocess (Scene *self)
 
   self->dirty = FALSE;
 
-  g_list_free (self->render_passes);
   self->render_passes = render_sort;
-  g_list_free (filter_sort);
 }
 
 void
@@ -196,6 +194,8 @@ scene_render (Scene *self, RenderState *rstate)
     RenderPass *rpass = RENDER_PASS (pass->data);
     if (!render_pass_is_empty (rpass))
       render_pass_render (rpass, rstate);
+    else
+      g_print ("%s seems empty!\n", g_type_name (G_TYPE_FROM_INSTANCE (rpass)));
   }
 }
 

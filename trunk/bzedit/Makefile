@@ -1,5 +1,5 @@
 PKGS	+= libglade-2.0 gtk+-2.0 gtkglext-1.0
-CFLAGS	+= '-DGLADEDIR="data"'
+CFLAGS	+= '-DGLADEDIR="data"' -g
 CFLAGS	+= $(shell pkg-config --cflags $(PKGS))
 LIBS	+= $(shell pkg-config --libs $(PKGS))
 

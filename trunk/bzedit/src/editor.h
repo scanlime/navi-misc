@@ -26,14 +26,16 @@
 
 #include <gtk/gtk.h>
 #include <glade/glade.h>
+#include "scene.h"
+#include "view.h"
 
 G_BEGIN_DECLS
 
-#define EDITOR_TYPE		(editor_get_type ())
-#define EDITOR(obj)		(G_TYPE_CHECK_INSTANCE_CAST ((obj), EDITOR_TYPE, Editor))
-#define EDITOR_CLASS(klass)	(G_TYPE_CHECK_CLASS_CAST ((klass), EDITOR_TYPE, EditorClass))
-#define IS_EDITOR(obj)		(G_TYPE_CHECK_INSTANCE_TYPE ((obj), EDITOR_TYPE))
-#define IS_EDITOR_CLASS(klass)	(G_TYPE_CHECK_CLASS_TYPE ((klass), EDITOR_TYPE))
+#define EDITOR_TYPE            (editor_get_type ())
+#define EDITOR(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), EDITOR_TYPE, Editor))
+#define EDITOR_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), EDITOR_TYPE, EditorClass))
+#define IS_EDITOR(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), EDITOR_TYPE))
+#define IS_EDITOR_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), EDITOR_TYPE))
 
 typedef struct _Editor      Editor;
 typedef struct _EditorClass EditorClass;
@@ -52,6 +54,9 @@ struct _Editor
 
   GtkTreeView *element_list;
   GtkTreeStore *element_store;
+
+  Scene *scene;
+  View *view;
 };
 
 struct _EditorClass
