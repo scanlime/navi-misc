@@ -1,10 +1,15 @@
-BINS = loader_tool firmware.bin
+BINS = loader_tool test firmware.bin
 
-LOADER_TOOL_OBJS = \
+COMMON_OBJS = \
 	src/bit_file.o \
 	src/progress_console.o \
 	src/device.o \
+
+LOADER_TOOL_OBJS = $(COMMON_OBJS) \
 	src/loader_tool.o
+
+TEST_OBJS = $(COMMON_OBJS) \
+	src/test.o \
 
 FIRMWARE_OBJS = \
 	firmware/main.rel \
@@ -25,6 +30,9 @@ all: $(BINS)
 loader_tool: $(LOADER_TOOL_OBJS) src/*.h include/*.h
 	$(CC) -o $@ $(LOADER_TOOL_OBJS) $(LDFLAGS)
 
+test: $(TEST_OBJS) src/*.h include/*.h
+	$(CC) -o $@ $(TEST_OBJS) $(LDFLAGS)
+
 firmware/firmware.ihx: $(FIRMWARE_OBJS)
 	sdcc -o $@ $(FIRMWARE_OBJS) $(FW_LDFLAGS)
 
@@ -35,7 +43,7 @@ firmware.bin: firmware/firmware.ihx
 	sdcc -o $@ -c $< $(FW_CFLAGS)
 
 clean:
-	rm -f $(BINS) $(LOADER_TOOL_OBJS) $(FIRMWARE_OBJS)
+	rm -f $(BINS) $(TEST_OBJS) $(LOADER_TOOL_OBJS) $(FIRMWARE_OBJS)
 	rm -f firmware/*.ihx firmware/*.lnk firmware/*.lst firmware/*.map
 	rm -f firmware/*.mem firmware/*.rel firmware/*.rst firmware/*.sym
 	rm -f firmware/*.asm
