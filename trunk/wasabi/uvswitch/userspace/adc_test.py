@@ -19,7 +19,8 @@ class Device:
 
 d = Device()
 
-d.setCalibration(*map(int, sys.argv[1:]))
+if len(sys.argv) > 1:
+	d.setCalibration(*map(int, sys.argv[1:]))
 
 while True:
     print d.adcReadRaw()

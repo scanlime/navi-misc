@@ -175,6 +175,22 @@ static void uvswitch_adc_irq(struct urb *urb)
 			memcpy(dev->adc_accumulated, dev->adc_accumulator, sizeof(dev->adc_accumulated));
 			memset(dev->adc_accumulator, 0, sizeof(dev->adc_accumulator));
 			dev->adc_samples = 0;
+
+			/* Compare the final accumulated values against our threshold
+			 * to detect active inputs.
+			 */
+			for (i=0; i<UVSWITCH_CHANNELS; i++)
+				active_inputs[i] = dev->adc_accumulated[i] > dev->calibration.threshold;
+
+			/* If our set of active inputs has changed, save it and wake up any sleeping processes */
+			if (memcmp(active_inputs, dev->active_inputs, sizeof(active_inputs)) != 0) {
+				memcpy(dev->active_inputs, active_inputs, sizeof(active_inputs));
+
+				dbg("input status changed: %d %d %d %d %d %d %d %d",
+				    dev->active_inputs[0], dev->active_inputs[1], dev->active_inputs[2], dev->active_inputs[3],
+				    dev->active_inputs[4], dev->active_inputs[5], dev->active_inputs[6], dev->active_inputs[7]);
+
+			}
 		}
 	}
 	else {
