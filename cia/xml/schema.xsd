@@ -103,8 +103,13 @@
     <xsd:choice maxOccurs="unbounded" minOccurs="0">
       <xsd:element name="generator" type="message-generator"/>
       <xsd:element name="source" type="message-source"/>
-      <xsd:element name="timestamp" type="xsd:integer"/>
       <xsd:element name="body" type="message-body"/>
+
+      <!-- The timestamp is added by the CIA server if it isn't present.
+           The time should be expressed in seconds sine the UNIX-style epoch,
+           January 1, 1970.
+        -->
+      <xsd:element name="timestamp" type="xsd:integer"/>
     </xsd:choice>
   </xsd:complexType>
 </xsd:element>
