@@ -241,7 +241,7 @@ void run_iterations(int count) {
      * gets stored into 'point', then we go on and mess with x and y before plotting.
      */
     x = sin(params.a * point.y) - cos(params.b * point.x);
-    y = sin(params.c * point.x) - cos(params.c * point.y);
+    y = sin(params.c * point.x) - cos(params.d * point.y);
     point.x = x;
     point.y = y;
 
