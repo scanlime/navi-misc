@@ -218,11 +218,43 @@ MainLoop
 	btfss	STATUS,Z	; Z = 1 when configured
 	goto	MainLoop    ; Wait until we're configured
 
-	;; Normally something more interesting would go here, but this firmware
-	;; is entirely driven by commands over EP0...
+	pagesel	SerialRxPoll
+	call	SerialRxPoll
 
 	pagesel	MainLoop
 	goto	MainLoop
+
+;******************************************************************* Serial receive polling
+
+SerialRxPoll
+	banksel	rx_remaining	; Are there any bytes left to receive?
+	movf	rx_remaining, w
+	btfsc	STATUS, Z
+	return
+
+	banksel	PIR1		; Is there a byte available?
+	btfss	PIR1, RCIF
+	return
+
+	banksel	rx_fsr		; Yay, load up IRP:FSR to point to the next buffer location
+	movf	rx_fsr, w
+	movwf	FSR
+	banksel	rx_status
+	movf	rx_status, w
+	movwf	STATUS
+
+	banksel	RCREG		; Stow our freshly received byte
+	movf	RCREG, w
+	movwf	INDF
+
+	banksel	rx_fsr		; Update our receive progress
+	incf	rx_fsr, f
+	banksel	rx_count
+	incf	rx_count, f
+	banksel	rx_remaining
+	decf	rx_remaining, f
+
+	return
 
 	end
 
