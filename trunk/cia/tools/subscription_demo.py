@@ -16,6 +16,7 @@
 #
 
 import urllib2, xmlrpclib
+import sys
 from xml.dom import minidom
 from SimpleXMLRPCServer import SimpleXMLRPCServer
 
@@ -136,4 +137,8 @@ def main(c):
 
 
 if __name__ == '__main__':
+    if len(sys.argv) > 1:
+        config.url = sys.argv[1]
+    if len(sys.argv) > 2:
+        config.port = int(sys.argv[2])
     main(config)
