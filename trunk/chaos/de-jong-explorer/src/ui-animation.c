@@ -22,6 +22,9 @@
 
 #include "de-jong.h"
 
+static void store_keyframe(GtkTreeIter *iter);
+static void get_current_keyframe(GtkTreeIter *iter);
+
 void on_anim_play_toggled(GtkWidget *widget, gpointer user_data);
 void on_keyframe_add(GtkWidget *widget, gpointer user_data);
 void on_keyframe_delete(GtkWidget *widget, gpointer user_data);
@@ -48,42 +51,58 @@ void animation_ui_init() {
 					      "Keyframe", gtk_cell_renderer_pixbuf_new(),
 					      "pixbuf", MODEL_THUMBNAIL, NULL);
   gtk_tree_view_insert_column_with_attributes(gui.anim.keyframe_view, -1,
-					      "Duration", gtk_cell_renderer_text_new(),
+					      "Transition", gtk_cell_renderer_text_new(),
 					      "text", MODEL_DURATION, NULL);
+}
+
+static void store_keyframe(GtkTreeIter *iter) {
+  /* Store the current parameters into a keyframe at the given iterator */
+  GdkPixbuf *thumbnail = gdk_pixbuf_scale_simple(render.pixbuf, 128, 128, GDK_INTERP_BILINEAR);
+  gchar *params = save_parameters();
+
+  gtk_list_store_set(gui.anim.keyframe_list, iter,
+		     MODEL_THUMBNAIL, thumbnail,
+		     MODEL_PARAMS,    params,
+		     MODEL_DURATION,  1.0,
+		     -1);
+
+  g_free(params);
+  gdk_pixbuf_unref(thumbnail);
+}
+
+static void get_current_keyframe(GtkTreeIter *iter) {
+  /* Fill an iterator with one pointing to the currently selected keyframe */
+  GtkTreePath *path;
+  gtk_tree_view_get_cursor(gui.anim.keyframe_view, &path, NULL);
+  gtk_tree_model_get_iter(GTK_TREE_MODEL(gui.anim.keyframe_list), iter, path);
+  gtk_tree_path_free(path);
 }
 
 void on_anim_play_toggled(GtkWidget *widget, gpointer user_data) {
 }
 
 void on_keyframe_add(GtkWidget *widget, gpointer user_data) {
-  /* Add a new keyframe. This just needs to add a row to the keyframe_list including
-   * a thumbnail of the current image, the parameters used to generate it, and defaults
-   * for all the transition parameters.
-   */
-  GdkPixbuf *thumbnail = gdk_pixbuf_scale_simple(render.pixbuf, 128, 128, GDK_INTERP_BILINEAR);
   GtkTreeIter iter;
-
   gtk_list_store_append(gui.anim.keyframe_list, &iter);
-  gtk_list_store_set(gui.anim.keyframe_list, &iter,
-		     MODEL_THUMBNAIL, thumbnail,
-		     MODEL_PARAMS,    save_parameters(),
-		     MODEL_DURATION,  1.0,
-		     -1);
+  store_keyframe(&iter);
+}
 
-  gdk_pixbuf_unref(thumbnail);
+void on_keyframe_replace(GtkWidget *widget, gpointer user_data) {
+  GtkTreeIter iter;
+  get_current_keyframe(&iter);
+  store_keyframe(&iter);
 }
 
 void on_keyframe_delete(GtkWidget *widget, gpointer user_data) {
   /* Determine which row the cursor is on, delete it, and make the delete
    * button insensitive again until another row is selected.
    */
-  GtkTreePath *path;
   GtkTreeIter iter;
-  gtk_tree_view_get_cursor(gui.anim.keyframe_view, &path, NULL);
-  gtk_tree_model_get_iter(GTK_TREE_MODEL(gui.anim.keyframe_list), &iter, path);
-  gtk_tree_path_free(path);
+  get_current_keyframe(&iter);
 
   gtk_widget_set_sensitive(glade_xml_get_widget(gui.xml, "keyframe_delete_button"), FALSE);
+  gtk_widget_set_sensitive(glade_xml_get_widget(gui.xml, "keyframe_replace_button"), FALSE);
+
   gtk_list_store_remove(gui.anim.keyframe_list, &iter);
 }
 
@@ -96,11 +115,10 @@ void on_keyframe_view_cursor_changed(GtkWidget *widget, gpointer user_data) {
   GValue value;
   const char *params;
 
-  gtk_widget_set_sensitive(glade_xml_get_widget(gui.xml, "keyframe_delete_button"), TRUE);
+  get_current_keyframe(&iter);
 
-  gtk_tree_view_get_cursor(gui.anim.keyframe_view, &path, NULL);
-  gtk_tree_model_get_iter(GTK_TREE_MODEL(gui.anim.keyframe_list), &iter, path);
-  gtk_tree_path_free(path);
+  gtk_widget_set_sensitive(glade_xml_get_widget(gui.xml, "keyframe_delete_button"), TRUE);
+  gtk_widget_set_sensitive(glade_xml_get_widget(gui.xml, "keyframe_replace_button"), TRUE);
 
   memset(&value, 0, sizeof(value));
   gtk_tree_model_get_value(GTK_TREE_MODEL(gui.anim.keyframe_list), &iter, MODEL_PARAMS, &value);

@@ -36,13 +36,13 @@
 		  <child>
 		    <widget class="GtkImageMenuItem" id="load_from_image1">
 		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">_Open image parameters...</property>
+		      <property name="label" translatable="yes">_Open image...</property>
 		      <property name="use_underline">True</property>
 		      <signal name="activate" handler="on_load_from_image" last_modification_time="Sun, 15 Feb 2004 09:08:09 GMT"/>
 		      <accelerator key="o" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image174">
+			<widget class="GtkImage" id="image179">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-open</property>
 			  <property name="icon_size">1</property>
@@ -64,7 +64,7 @@
 		      <accelerator key="d" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image175">
+			<widget class="GtkImage" id="image180">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-clear</property>
 			  <property name="icon_size">1</property>
@@ -86,7 +86,7 @@
 		      <accelerator key="r" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image176">
+			<widget class="GtkImage" id="image181">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-refresh</property>
 			  <property name="icon_size">1</property>
@@ -114,7 +114,7 @@
 		      <accelerator key="s" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image177">
+			<widget class="GtkImage" id="image182">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-save-as</property>
 			  <property name="icon_size">1</property>
@@ -136,7 +136,7 @@
 		      <accelerator key="i" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image178">
+			<widget class="GtkImage" id="image183">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-zoom-in</property>
 			  <property name="icon_size">1</property>
@@ -175,7 +175,7 @@
 		      <accelerator key="q" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image179">
+			<widget class="GtkImage" id="image184">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-quit</property>
 			  <property name="icon_size">1</property>
@@ -1338,7 +1338,7 @@ Settings&lt;/b&gt;</property>
 		      </child>
 
 		      <child>
-			<widget class="GtkHButtonBox" id="vbuttonbox1">
+			<widget class="GtkHButtonBox" id="hbuttonbox2">
 			  <property name="visible">True</property>
 			  <property name="layout_style">GTK_BUTTONBOX_DEFAULT_STYLE</property>
 			  <property name="spacing">8</property>
@@ -1418,6 +1418,73 @@ Settings&lt;/b&gt;</property>
 			      <property name="use_stock">True</property>
 			      <property name="relief">GTK_RELIEF_NORMAL</property>
 			      <signal name="clicked" handler="on_keyframe_add" last_modification_time="Thu, 19 Feb 2004 02:24:03 GMT"/>
+			    </widget>
+			  </child>
+
+			  <child>
+			    <widget class="GtkButton" id="keyframe_replace_button">
+			      <property name="visible">True</property>
+			      <property name="sensitive">False</property>
+			      <property name="can_default">True</property>
+			      <property name="can_focus">True</property>
+			      <property name="relief">GTK_RELIEF_NORMAL</property>
+			      <signal name="clicked" handler="on_keyframe_replace" last_modification_time="Thu, 19 Feb 2004 03:06:10 GMT"/>
+
+			      <child>
+				<widget class="GtkAlignment" id="alignment7">
+				  <property name="visible">True</property>
+				  <property name="xalign">0.5</property>
+				  <property name="yalign">0.5</property>
+				  <property name="xscale">0</property>
+				  <property name="yscale">0</property>
+
+				  <child>
+				    <widget class="GtkHBox" id="hbox11">
+				      <property name="visible">True</property>
+				      <property name="homogeneous">False</property>
+				      <property name="spacing">2</property>
+
+				      <child>
+					<widget class="GtkImage" id="image185">
+					  <property name="visible">True</property>
+					  <property name="stock">gtk-redo</property>
+					  <property name="icon_size">4</property>
+					  <property name="xalign">0.5</property>
+					  <property name="yalign">0.5</property>
+					  <property name="xpad">0</property>
+					  <property name="ypad">0</property>
+					</widget>
+					<packing>
+					  <property name="padding">0</property>
+					  <property name="expand">False</property>
+					  <property name="fill">False</property>
+					</packing>
+				      </child>
+
+				      <child>
+					<widget class="GtkLabel" id="label31">
+					  <property name="visible">True</property>
+					  <property name="label" translatable="yes">_Replace</property>
+					  <property name="use_underline">True</property>
+					  <property name="use_markup">False</property>
+					  <property name="justify">GTK_JUSTIFY_LEFT</property>
+					  <property name="wrap">False</property>
+					  <property name="selectable">False</property>
+					  <property name="xalign">0.5</property>
+					  <property name="yalign">0.5</property>
+					  <property name="xpad">0</property>
+					  <property name="ypad">0</property>
+					</widget>
+					<packing>
+					  <property name="padding">0</property>
+					  <property name="expand">False</property>
+					  <property name="fill">False</property>
+					</packing>
+				      </child>
+				    </widget>
+				  </child>
+				</widget>
+			      </child>
 			    </widget>
 			  </child>
 
@@ -1795,6 +1862,24 @@ Settings&lt;/b&gt;</property>
 	  <property name="fill">False</property>
 	</packing>
       </child>
+    </widget>
+  </child>
+</widget>
+
+<widget class="GtkWindow" id="window1">
+  <property name="visible">True</property>
+  <property name="title" translatable="yes">window1</property>
+  <property name="type">GTK_WINDOW_TOPLEVEL</property>
+  <property name="window_position">GTK_WIN_POS_NONE</property>
+  <property name="modal">False</property>
+  <property name="resizable">True</property>
+  <property name="destroy_with_parent">False</property>
+
+  <child>
+    <widget class="GtkHButtonBox" id="vbuttonbox1">
+      <property name="visible">True</property>
+      <property name="layout_style">GTK_BUTTONBOX_DEFAULT_STYLE</property>
+      <property name="spacing">8</property>
     </widget>
   </child>
 </widget>
