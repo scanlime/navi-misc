@@ -165,11 +165,6 @@ class ThermGrapher:
         """Collect samples over the current averaging period, and save
            the resulting averages from each therm.
            """
-        periodStart = time.time()
-        while time.time() < (periodStart + self.averagePeriod):
-            self.sampler.update(self.therms)
-        for therm in self.therms:
-            self.averages[therm] = i2c.toFahrenheit(therm.getAverage())
 
     def rrdUpdate(self):
         """Update the RRDs with current averages"""

@@ -77,9 +77,9 @@ class ThermSampler:
        """
     def __init__(self):
         import pyrcpod, i2c
-        rcpod = pyrcpod.devices[0].open()
-        mbus = i2c.MultiBus(rcpod)
-        self.mtherm = MultiTherm(mbus)
+        self.rcpod = pyrcpod.devices[0].open()
+        self.mbus = i2c.MultiBus(self.rcpod)
+        self.mtherm = MultiTherm(self.mbus)
 
     def update(self, therms):
         """Scan for available readings on the given list of thermometers, and update
