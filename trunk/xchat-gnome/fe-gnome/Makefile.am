@@ -56,8 +56,6 @@ EXTRA_DIST =				\
 	preferences_plugins_page.c	\
 	preferences_servers_page.h	\
 	preferences_servers_page.c	\
-	setup_druid.h			\
-	setup_druid.c			\
 	setup_dialog.h			\
 	setup_dialog.c			\
 	textgui.h			\
@@ -108,8 +106,6 @@ xchat_gnome_SOURCES =			\
 	preferences_plugins_page.c	\
 	preferences_servers_page.h	\
 	preferences_servers_page.c	\
-	setup_druid.h			\
-	setup_druid.c			\
 	setup_dialog.h			\
 	setup_dialog.c			\
 	textgui.h			\
@@ -126,7 +122,6 @@ xchat_gnome_SOURCES =			\
 xchat_gnome_DATA =			\
 	channel-list.glade		\
 	transfers.glade			\
-	setup-druid.glade		\
 	setup-dialog.glade		\
 	xchat-gnome.glade
 xchat_gnomedir = $(datadir)/xchat
@@ -156,9 +151,6 @@ gui.o:		$(srcdir)/gui.c
 
 channel_list.o:	$(srcdir)/channel_list.c
 	$(COMPILE) -DXCHATSHAREDIR=\"$(xchat_gnomedir)\" -c $(srcdir)/channel_list.c
-
-setup_druid.o:	$(srcdir)/setup_druid.c
-	$(COMPILE) -DXCHATSHAREDIR=\"$(xchat_gnomedir)\" -c $(srcdir)/setup_druid.c
 
 transfers.o:	$(srcdir)/transfers.c
 	$(COMPILE) -DXCHATSHAREDIR=\"$(xchat_gnomedir)\" -c $(srcdir)/transfers.c

@@ -27,7 +27,6 @@
 #include "about.h"
 #include "textgui.h"
 #include "userlist_gui.h"
-#include "setup_druid.h"
 #include "pixmaps.h"
 #include "transfers.h"
 #include "../common/text.h"
