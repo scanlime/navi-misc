@@ -338,6 +338,7 @@ preferences_page_irc_free (PreferencesIrcPage *page)
 		gconf_client_notify_remove (client, page->nh[i]);
 	g_object_unref (client);
 
+	g_object_unref (page->highlight_store);
 	gdk_pixbuf_unref (page->icon);
 	g_free (page);
 }
