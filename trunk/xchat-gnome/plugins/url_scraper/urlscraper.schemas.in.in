@@ -6,8 +6,20 @@
 			<applyto>/apps/xchat/urlscraper/history</applyto>
 			<owner>xchat</owner>
 			<type>int</type>
+			<default>10</default>
 			<locale name="C">
 				<short>URL Scraper history length</short>
+			</locale>
+		</schema>
+
+		<schema>
+			<key>/schemas/apps/xchat/urlscraper/timestamps</key>
+			<applyto>/apps/xchat/urlscraper/timestamps</applyto>
+			<owner>xchat</owner>
+			<type>bool</type>
+			<default>true</default>
+			<locale name="C">
+				<short>URL Scraper show timestamps</short>
 			</locale>
 		</schema>
 
