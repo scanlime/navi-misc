@@ -1,0 +1,32 @@
+====================
+CIA financial report
+====================
+
+The main CIA server is a hungry beast, and needs plenty of
+bandwidth, disk space, and CPU power to keep going. This page
+is an up-to-date record of our finances, in US dollars.
+
+Note that the amount shown below is a little less than the
+actual donation amount due to Paypal transaction fees. On
+large donations though, they seem to have refunded the
+transaction fee. In these cases, the full donation amount
+is shown.
+
+Much thanks go out to everyone who has donated!
+
+
+Donations and Expenses
+----------------------
+
+========== ====================================== ======== ========
+Date       Description                            Amount   Balance
+========== ====================================== ======== ========
+2004-10-28 Donation from Nat Friedman              $150.00  $150.00
+2005-01-07 Donation from Matthew Lefkowitz           $4.55  $154.55
+2005-01-15 Linode setup fee, remainder of January  -$31.91  $122.64
+2005-01-17 Donation from Michael Lotz                $9.31  $131.95
+2005-01-17 Donation from Ralph Giles                 $4.55  $136.50
+2005-01-20 Donation from Michael Lotz               $18.92  $155.42
+2005-02-01 Linode hosting for February             -$39.95  $115.47
+2005-02-02 Donation from Mike Hearn                 $38.14  $153.61
+========== ====================================== ======== ========
