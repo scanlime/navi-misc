@@ -48,8 +48,4 @@ private:
 	double		m_fLastTime;
 	double		m_fTimeDelta;
 };
-
-void SetTimer ( CTimer *pTime );
-CTimer* GetTimer ( void );
-
 #endif

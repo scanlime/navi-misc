@@ -56,16 +56,3 @@ void CTimer::Update()
 	m_fTimeDelta = m_fThisTime - m_fLastTime;
 }
 
-
-CTimer	*gTime = NULL;
-
-void SetTimer ( CTimer *pTime )
-{
-	gTime = pTime;
-}
-
-CTimer* GetTimer ( void )
-{
-	return gTime;
-}
-
