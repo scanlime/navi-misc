@@ -17,6 +17,7 @@ class Hangman:
 		seed()
 		self.answer = None
 		self.guesses = []
+		self.numMissed = 0
 		self.correct = []
 		self.words = open("games/test.txt", 'r').readlines()
 		self.words = [word.strip() for word in self.words]
@@ -33,10 +34,16 @@ class Hangman:
 			self.correct = [self.TestEntry(i, guess) for i in range(len(self.correct))]
 		# If not correct append to guesses.
 		else:
-			if len(self.guesses) % 8 == 0 and len(self.guesses) != 0:
-				self.guesses.append('\n')
-			self.guesses.append(guess)
-
+			self.numMissed += 1
+			if self.guesses.count(guess) == 0:
+				self.guesses.append(guess)
+	
+		# Game over. You win.
+		if self.correct.count('_') == 0:
+			print "You win!"
+		# Game over. You lose.
+		elif self.numMissed == 7:
+			print "You lose!"
 		# Return the updated lists.
 		return (self.correct, self.guesses)
 
@@ -102,21 +109,35 @@ class HangmanGUI:
 		self.quit = gtk.Button("Quit")
 		self.quit.connect("clicked", self.Quit)
 
+		# Gallows.
+		gallowsAlign = gtk.Alignment()
+		self.gallows = Gallows()
+		gallowsAlign.add(self.gallows)
+		self.gallows.show()
+		gallowsAlign.show()
+
 		# Boxes for window layout.
 		
-		# buttonBox: contains the New Game button above the Quit button.
-		buttonBox = self.Pack(gtk.VBox, [None, self.quit, self.newGame], [gtk.TRUE, gtk.FALSE, 5])
+		# buttonBox: contains the New Game button to the left of the Quit button.
+		buttonBox = self.Pack(gtk.HBox, [None, self.newGame, self.quit], [gtk.TRUE, 5])
 		buttonBox.show()
 		
 		# box1: text entry field for entering guesses to the left of the buttonBox.
-		box1 = self.Pack(gtk.HBox, [self.guessField, None, buttonBox], [gtk.FALSE, gtk.FALSE, 5])
+		box1 = self.Pack(gtk.HBox, [self.guessField, None, buttonBox], 
+				packArgs=[gtk.TRUE, gtk.TRUE, 5])
 		box1.show()
 
 		# textBox: correctText to the left of guessedText.
-		textBox = self.Pack(gtk.HBox, [self.correctText, None, guessFrame], [gtk.TRUE, gtk.TRUE, 20])
+		textBox = self.Pack(gtk.HBox, [self.correctText, None, guessFrame], 
+				packArgs=[gtk.TRUE, gtk.TRUE, 20])
 		textBox.show()
-		# box2: label displaying correct guesses packed above box1.
-		box2 = self.Pack(gtk.VBox, [textBox, box1], [gtk.TRUE, gtk.FALSE, 5])
+
+		# box2: Pack the gallows above textBox, which is above the buttons and
+		# text field for entering guesses.
+		box2 = gtk.VBox(spacing=20)
+		box2.pack_start(textBox, gtk.FALSE, gtk.FALSE, 5)
+		box2.pack_start(gallowsAlign, gtk.TRUE, gtk.TRUE, 5)
+		box2.pack_start(box1, gtk.FALSE, gtk.FALSE)
 		self.window.add(box2)
 		box2.show()
 
@@ -134,7 +155,7 @@ class HangmanGUI:
 		gtk.main_quit()
 		return gtk.FALSE
 
-	def Pack(self, boxClass, widgets, packArgs=[]):
+	def Pack(self, boxClass, widgets, boxArgs=[], packArgs=[]):
 		""" Packs all the widgets in the last argument into a box of boxClass
 		and returns the box.  packArgs are used as the arguments to the pack 
 		function. widgets is a list of widgets to be packed: everything before
@@ -142,7 +163,7 @@ class HangmanGUI:
 		pack_end() in reverse order."""
 		
 		# Create a new box.
-		box = boxClass()
+		box = boxClass(*boxArgs)
 		# Get the index of the None argument.
 		if widgets.count(None) == 0:
 			split = len(widgets)
@@ -163,10 +184,28 @@ class HangmanGUI:
 
 		return box
 
-	def Update(self):
-		self.correctText.set_text(" ".join(self.controller.correct))
-		self.guessedText.set_text(" ".join(self.controller.guesses))
+	def Update(self, correct=" ", guessed=" "):
+		self.correctText.set_text(correct.join(self.controller.correct))
+		self.guessedText.set_text(guessed.join(self.controller.guesses))
 
 	def NewGame(self, widget, data=None):
 		self.controller.NewGame()
 		self.Update()
+		self.guessField.grab_focus()
+
+class Gallows(gtk.DrawingArea):
+	def __init__(self):
+		gtk.DrawingArea.__init__(self)
+		self.colorMap = self.get_colormap()
+		self.bgColor = self.colorMap.alloc_color('white')
+		self.connect("realize", self.gallowsRealized)
+		self.connect("expose_event", self.redraw)
+
+	def gallowsRealized(self, widget):
+		self.gc = self.style.fg_gc[gtk.STATE_NORMAL]
+		self.gc.set_background(self.bgColor)
+
+
+	def redraw(self, widget, event):
+		x , y, width, height = event.area
+		widget.window.draw_rectangle(self.gc, gtk.false, x, y, width/2, height/2)
