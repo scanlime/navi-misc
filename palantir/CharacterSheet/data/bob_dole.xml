@@ -3,13 +3,13 @@
 	<level>12</level>
 	<exp>10</exp>
 	<name>Bob Dole!</name>
-	<race>Unknown</race>
+	<race>Human</race>
 
 	<strength>2</strength>
 	<dexterity>1</dexterity>
 <class>Loser</class>
 <weapons></weapons>
-<history></history>
-<appearance></appearance>
-<coteri></coteri>
+<history>Eat my shorts</history>
+<appearance/>
+<coteri/>
 </character>
