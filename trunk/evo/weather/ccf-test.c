@@ -6,6 +6,13 @@ gboolean done;
 void finished (GList *list, gpointer d)
 {
 	GList *data;
+
+	if (list == NULL)
+	{
+		g_print ("Error!\n");
+		done = TRUE;
+		return;
+	}
 	data = list;
 	do
 	{
