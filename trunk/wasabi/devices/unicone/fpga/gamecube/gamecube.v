@@ -38,14 +38,10 @@ module gamecube (clk, reset,
 		int_scl, int_sda_in, int_sda_out == 2'b11);
 
 	/* Add an I2C-addressable LED brightness control */
-/*
 	pwm_i2c #(7'h21) led_core(
 		clk, reset,
 		int_scl, int_sda_in, int_sda_out[0],
 		led);
-*/
-	assign led = 1;
-	assign int_sda_out[0] = 1;
 
 	/* Four I2C-addressable Gamecube controller emulators */
 	gc_i2c #(7'h40) gc_core(
@@ -99,20 +95,13 @@ module gc_i2c (clk, reset,
 	 */
 	wire [3:0] tx;
 	wire [3:0] rx;
-	n_serial_io_buffer iobuffer1(clk, reset, gc_ports[0], tx[0], rx[0]);
 	n_serial_io_buffer iobuffer2(clk, reset, gc_ports[1], tx[1], rx[1]);
 	n_serial_io_buffer iobuffer3(clk, reset, gc_ports[2], tx[2], rx[2]);
 	n_serial_io_buffer iobuffer4(clk, reset, gc_ports[3], tx[3], rx[3]);
 
 	/* A shared tranmsitter timebase for all controller ports */
-	wire tx_tick;
-	wire tx_tick_sync_reset = 0;
-	wire tx_tick_sync_center = 0;
-	n_serial_timebase #(4) tx_timebase(
-		clk, reset, tx_tick, tick_sync_reset, tick_sync_center);
-	wire [1:0] tx_phase;
-	n_serial_tx_phase tx_phase_gen(
-		clk, reset, tx_tick, tx_phase);
+	wire [2:0] tx_timing;
+	n_serial_tx_timebase tx_timebase(clk, reset, tx_timing);
 
 	/* The controller simulator core, one for each port. It makes
 	 * requests for each byte of controller state it needs, as it's
@@ -120,16 +109,16 @@ module gc_i2c (clk, reset,
 	 * Each core also gives us a rumble bit.
 	 */
 	wire [3:0] rumble;
-	gc_controller port1(clk, reset, tx_tick, tx_phase,
+	gc_controller port1(clk, reset, tx_timing,
 	                    tx[0], rx[0], rumble[0],
 	                    port1_addr, port1_request, ram_data, port1_ack);
-	gc_controller port2(clk, reset, tx_tick, tx_phase,
+	gc_controller port2(clk, reset, tx_timing,
 	                    tx[1], rx[1], rumble[1],
 	                    port2_addr, port2_request, ram_data, port2_ack);
-	gc_controller port3(clk, reset, tx_tick, tx_phase,
+	gc_controller port3(clk, reset, tx_timing,
 	                    tx[2], rx[2], rumble[2],
 	                    port3_addr, port3_request, ram_data, port3_ack);
-	gc_controller port4(clk, reset, tx_tick, tx_phase,
+	gc_controller port4(clk, reset, tx_timing,
 	                    tx[3], rx[3], rumble[3],
 	                    port4_addr, port4_request, ram_data, port4_ack);
 endmodule
@@ -166,354 +155,168 @@ endmodule
  *                a hardcoded joystick tolerance or dead zone.
  *
  *                Since we're assuming our host has already calibrated each axis,
- *                we return ideal calibrations: the joystick and c-stick axes
- *                have origins at 0x80, and both triggers have origins at 0x00.
+ *                we return ideal calibrations, given in CONTROLLER_CALIBRATION.
  *
  * There are no other 1-byte commands that official controllers respond do.
  * I haven't checked for other three-byte commands yet.
  *
  * This retrieves the controller state as it is needed using a memory-friendly
- * interface. The required address is placed on 'state_addr' and a rising edge
- * is applied to state_request. Once the data corresponding with that address
- * is valid at state_data, state_ack must be brought high. This is compatible
- * with sram_arbiter in util.v, so several similar devices can share one memory.
- *
- * Latency between address and data is not critical, since our transmitter core
- * includes double-buffering.
+ * one-bit-wide interface. The required address, in bits, is placed on state_addr
+ * and state_request is brought high. Once state_ack goes high, the corresponding
+ * bit should be available at state_data. The data source has a little less than
+ * one bit time to make this happen- on the order of several hundred clock cycles.
  *
  */
-module gc_controller (clk, reset, tx_tick, tx_phase, tx, rx, rumble,
-                      state_addr, state_request, state_data, state_ack);
-	/*
-	 * Controller IDs are expained in the gamecube-linux
-	 * project's YAGCD:
-	 *
-	 * http://www.gc-linux.org/docs/yagcd/chap9.html
-	 *
-	 * This is the value that standard controllers are observed to return:
-	 */
+module gc_controller (clk, reset, tx_timing, gc_port, rumble,
+                      state_addr, state_request, state_data, state_ack,
+                      debug);
 	parameter CONTROLLER_ID = 24'h090000;
+	parameter CONTROLLER_CALIBRATION = 80'h00808080808000000202;
 
-	input clk, reset, tx_tick;
-	input [1:0] tx_phase;
-	input rx;
-	output tx;
+	input clk, reset;
+	input [2:0] tx_timing;
+	inout gc_port;
+	
 	output rumble;
-	output [2:0] state_addr;
+	output [5:0] state_addr;
 	output state_request;
-	input [7:0] state_data;
+	input state_data;
 	input state_ack;
+	
+	output [2:0] debug;
 
+	// Split our GC port into separate transmit and receive wires
+	wire tx, rx;
+	n_serial_io_buffer iobuffer(clk, reset, gc_port, tx, rx);
+
+	// Hook a bit generator up to the transmit output,
+	// and a bit detector to our receive input. These give us
+	// a simple serial interface to the raw codes used on the wire.
+	wire tx_busy, tx_data, tx_strobe;
+	wire rx_start, rx_stop, rx_error, rx_data, rx_strobe;
+	n_serial_bit_generator bit_gen(clk, reset, tx_timing, tx_busy,
+	                               tx_data, tx_strobe, tx);
+	n_serial_bit_detector bit_det(clk, reset, rx, rx_start, rx_stop,
+	                              rx_error, rx_data, rx_strobe);
+
+	// Keep track of the number of bits received so far in this transfer,
+	// without allowing rollovers.
+	reg [6:0] bit_count;
+	always @(posedge clk or posedge reset)
+		if (reset)
+			bit_count <= 0;
+		else if (rx_start)
+			bit_count <= 0;
+		else if (bit_count == 127)
+			bit_count <= 127;
+		else if (rx_strobe)
+			bit_count <= bit_count + 1;
+	
+	// For each type of request we can receive, keep track
+	// of whether it's still possible that we'll be receiving
+	// it. If we hit a bit that doesn't match, clear the associated bit.
+	
+	// ID request: 0x00
+	reg req_id;
+	wire req_id_complete = req_id && rx_stop && (bit_count == 8);
+	always @(posedge clk or posedge reset)
+		if (reset)
+			req_id <= 1;
+		else if (rx_start)
+			req_id <= 1;
+		else if (!req_id)
+			req_id <= 0;
+		else if (rx_strobe)
+			req_id <= !rx_data;	// All bits zero
+
+	// Get origins: 0x41
+	reg req_origins;
+	wire req_origins_complete = req_origins && rx_stop && (bit_count == 8);
+	always @(posedge clk or posedge reset)
+		if (reset)
+			req_origins <= 1;
+		else if (rx_start)
+			req_origins <= 1;
+		else if (!req_origins)
+			req_origins <= 0;
+		else if (rx_strobe)
+			case (bit_count)
+				0:  req_origins <= !rx_data;  // Expect 0
+				1:  req_origins <=  rx_data;  // Expect 1
+				2:  req_origins <= !rx_data;  // Expect 0
+				3:  req_origins <= !rx_data;  // Expect 0		
+				4:  req_origins <= !rx_data;  // Expect 0		
+				5:  req_origins <= !rx_data;  // Expect 0		
+				6:  req_origins <= !rx_data;  // Expect 0		
+				7:  req_origins <=  rx_data;  // Expect 1
+				default: req_origins <= 1;    // Don't care		
+			endcase
+
+	// Get status: 0x4003XX
+	// The last byte has flags sent from GC to controller:
+	//   Bit 0:  Rumble flag
+	reg req_status;
 	reg rumble;
-	reg state_request;
-	reg [7:0] rx_poll_flags;
-
-	// Share one byte count register for all types of responses
-	reg [4:0] byte_count;
-	wire [3:0] state_addr = byte_count[3:0];
-
-	wire rx_start, rx_stop, rx_error, rx_strobe;
-	wire [7:0] rx_data;
-	n_serial_rx rx_core(clk, reset, rx,
-                            rx_start, rx_stop, rx_error,
-                            rx_data, rx_strobe);
-
-	wire tx_busy;
-	reg tx_stopbit, tx_strobe;
-	reg [7:0] tx_data;
-	n_serial_tx tx_core(clk, reset, tx_tick, tx_phase, tx_busy, tx_stopbit,
-	                    tx_data, tx_strobe, tx);
-
-	// state_ack is edge triggered
-	wire state_ack_edge;
-	rising_edge_detector state_ack_edgedet(clk, reset, state_ack, state_ack_edge);
-
-	reg [3:0] state;
-	parameter
-		/* Receiving commands */
-		S_IDLE = 0,
-		S_RX_CMD_0 = 1,
-		S_RX_POLL_CMD_1 = 2,
-		S_RX_POLL_CMD_2 = 3,
-
-		/* Acting on commands, setting up responses */
-		S_FINISH_ID_COMMAND = 4,
-		S_FINISH_POLL_COMMAND = 5,
-		S_FINISH_ORIGINS_COMMAND = 6,
-
-		/* Transmitting controller state */
-		S_TX_STATE_WAIT_FOR_RAM = 7,
-		S_TX_STATE_WAIT_FOR_TRANSMITTER = 8,
-		S_TX_STATE_WAIT = 9,
-
-		/* Transmitting controller ID */
-		S_TX_ID_BYTE = 10,
-		S_TX_ID_WAIT = 11,
-
-		/* Transmitting 'get origins' response */
-		S_TX_ORIGINS_BYTE = 12,
-		S_TX_ORIGINS_WAIT = 13,
-
-		/* Common to all transmissions */
-		S_TX_STOPBIT = 14;
-
+	wire req_status_complete = req_status && rx_stop && (bit_count == 24);
 	always @(posedge clk or posedge reset)
 		if (reset) begin
-
-			tx_stopbit <= 0;
-			tx_strobe <= 0;
-			tx_data <= 0;
-
+			req_status <= 1;
 			rumble <= 0;
-			rx_poll_flags <= 0;
-
-			byte_count <= 0;
-			state_request <= 0;
-
-			state <= S_IDLE;
-
 		end
-		else case (state)
+		else if (rx_start)
+			req_status <= 1;
+		else if (!req_status)
+			req_status <= 0;
+		else if (rx_strobe)
+			case (bit_count)
+				0:  req_status <= !rx_data;  // Expect 0
+				1:  req_status <=  rx_data;  // Expect 1
+				2:  req_status <= !rx_data;  // Expect 0
+				3:  req_status <= !rx_data;  // Expect 0
+				4:  req_status <= !rx_data;  // Expect 0
+				5:  req_status <= !rx_data;  // Expect 0
+				6:  req_status <= !rx_data;  // Expect 0
+				7:  req_status <= !rx_data;  // Expect 0
+				8:  req_status <= !rx_data;  // Expect 0
+				9:  req_status <= !rx_data;  // Expect 0
+				10: req_status <= !rx_data;  // Expect 0
+				11: req_status <= !rx_data;  // Expect 0
+				12: req_status <= !rx_data;  // Expect 0
+				13: req_status <= !rx_data;  // Expect 0
+				14: req_status <=  rx_data;  // Expect 1
+				15: req_status <=  rx_data;  // Expect 1
+				23: begin
+				    req_status <= 1;         // Don't care
+				    rumble <= rx_data;       // Save rumble bit
+				    end
+				default: req_status <= 1;    // Don't care		
+			endcase
 
-			/************************* Receiving commands ****/
+	assign debug = {req_id_complete, req_status_complete, req_origins_complete};
 
-			S_IDLE: begin
-				// We got nothing. Wait for the beginning of a received request
-				if (rx_start)
-					state <= S_RX_CMD_0;
-				tx_stopbit <= 0;
-				tx_strobe <= 0;
-				tx_data <= 0;
-				byte_count <= 0;
-				state_request <= 0;
-			end
-
-			S_RX_CMD_0: begin
-				// A request has begun, but we haven't received any of its bytes yet
-				if (rx_stop || rx_start || rx_error)
-					state <= S_IDLE;
-				else if (rx_strobe) begin
-
-					if (rx_data == 8'h00) begin
-						/* An identification request command */
-
-						state <= S_FINISH_ID_COMMAND;
-
-					end
-					else if (rx_data == 8'h40) begin
-						/* The beginning of a polling command */
-
-						state <= S_RX_POLL_CMD_1;
-
-					end
-					else if (rx_data == 8'h41) begin
-						/* A 'get origins' command */
-
-						state <= S_FINISH_ORIGINS_COMMAND;
-
-					end
-					else begin
-						/* An unknown command, ignore it */
-
-						state <= S_IDLE;
-
-					end
-				end
-			end
-
-			S_RX_POLL_CMD_1: begin
-				// We have the first byte of a polling command, look for the second
-				if (rx_stop || rx_start || rx_error)
-					state <= S_IDLE;
-				else if (rx_strobe) begin
-					if (rx_data == 8'h03)
-						state <= S_RX_POLL_CMD_2;
-					else
-						state <= S_IDLE;
-				end
-			end
-
-			S_RX_POLL_CMD_2: begin
-				// We have the first two bytes of a polling command, accept the last one.
-				// We don't validate this byte, since it seems to be a status bitfield
-				// rather than a command ID- bit 1 has some unknown use, and bit 0 controls
-				// the rumble motor. Store the important parts of this command bit and go
-				// on to the next state.
-				if (rx_stop || rx_start || rx_error)
-					state <= S_IDLE;
-				else if (rx_strobe) begin
-
-					rx_poll_flags <= rx_data;
-					state <= S_FINISH_POLL_COMMAND;
-
-				end
-			end
+endmodule
 
 
-			/************************* Acting on commands, setting up responses ****/
+/*
+ * A variation on gc_controller that includes a builtin
+ * timebase. This is mostly intended for convenience when simulating.
+ */
+module gc_controller_with_timebase (clk, reset, gc_port, rumble,
+                                    state_addr, state_request, state_data, state_ack,
+                                    debug);
+	input clk, reset;
+	inout gc_port;
+	output rumble;
+	output [5:0] state_addr;
+	output state_request;
+	input state_data, state_ack;
+	output [2:0] debug;
+	
+	wire [2:0] tx_timing;
+	n_serial_tx_timebase timebase(clk, reset, tx_timing);
 
-			S_FINISH_ID_COMMAND: begin
-				// We've recieved an ID command's start pulse and content- wait for a stop,
-				// to conclude the ID command, then start sending the response.
-				if (rx_start || rx_error || rx_strobe)
-					state <= S_IDLE;
-				else if (rx_stop) begin
-					byte_count <= 0;
-					state <= S_TX_ID_BYTE;
-				end
-			end
-
-			S_FINISH_POLL_COMMAND: begin
-				// We've recieved a polling command's start pulse and content- wait for a stop,
-				// to conclude the command, then start sending the response and latch our flags.
-				if (rx_start || rx_error || rx_strobe)
-					state <= S_IDLE;
-				else if (rx_stop) begin
-					// Save the rumble flag, now that we know the command
-					// reception was successful.
-					rumble <= rx_poll_flags[0];
-
-					// Prepare to send a response
-					byte_count <= 0;
-					state <= S_TX_STATE_WAIT_FOR_RAM;
-				end
-			end
-
-			S_FINISH_ORIGINS_COMMAND: begin
-				// We've recieved a 'get origins' command. Wait for the stop, then assemble
-				// and start sending a big response.
-				if (rx_start || rx_error || rx_strobe)
-					state <= S_IDLE;
-				else if (rx_stop) begin
-					byte_count <= 0;
-					state <= S_TX_ORIGINS_BYTE;
-				end
-			end
-
-
-			/************************* Transmitting controller state ****/
-
-			S_TX_STATE_WAIT_FOR_RAM: begin
-				// We're ready to send the controller state, but we need
-				// to wait for a data byte from our RAM interface
-				if (state_ack_edge) begin
-					// Yay, we got a byte. Pass it on.
-					tx_data <= state_data;
-					state_request <= 0;
-					tx_stopbit <= 0;
-					tx_strobe <= 1;
-					state <= S_TX_STATE_WAIT;
-				end
-				else begin
-					// Keep asking for one
-					state_request <= 1;
-				end
-			end
-
-			S_TX_STATE_WAIT: begin
-				// Do nothing for one cycle while we let the transmitter update its flags
-				state <= S_TX_STATE_WAIT_FOR_TRANSMITTER;
-				tx_strobe <= 0;
-			end
-
-			S_TX_STATE_WAIT_FOR_TRANSMITTER: begin
-				// We recently sent a controller state byte. Wait for
-				// the transmitter to become available again, then
-				// head to either the next state address or finish.
-				if (!tx_busy) begin
-					if (state_addr == 7) begin
-						state <= S_TX_STOPBIT;
-					end
-					else begin
-						state <= S_TX_STATE_WAIT_FOR_RAM;
-						byte_count <= byte_count + 1;
-					end
-				end
-			end
-
-
-			/************************* Transmitting controller ID ****/
-
-			S_TX_ID_BYTE: begin
-				// Send another byte of the controller ID if we can
-				if (!tx_busy) begin
-					case (byte_count)
-						0:   tx_data <= CONTROLLER_ID[23:16];
-						1:   tx_data <= CONTROLLER_ID[15:8];
-						2:   tx_data <= CONTROLLER_ID[7:0];
-					endcase
-					tx_strobe <= 1;
-					tx_stopbit <= 0;
-					state <= S_TX_ID_WAIT;
-					byte_count <= byte_count + 1;
-				end
-			end
-
-			S_TX_ID_WAIT: begin
-				// Give the transmitter one cycle to update status
-				tx_strobe <= 0;
-				if (byte_count == 3)
-					state <= S_TX_STOPBIT;
-				else
-					state <= S_TX_ID_BYTE;
-			end
-
-
-			/************************* Transmitting 'get origins' response ****/
-
-			S_TX_ORIGINS_BYTE: begin
-				// Send another byte of the controller origins response if we can
-				if (!tx_busy) begin
-					case (byte_count)
-
-						// First two bytes are supposed to be the current button status.
-						// To avoid fetching it from RAM when this really isn't that
-						// important, we just pretend everything's inactive (0x0080)
-						0:   tx_data <= 8'h00;
-						1:   tx_data <= 8'h80;
-
-						// Report ideal origins for all axes
-						2:   tx_data <= 8'h80;
-						3:   tx_data <= 8'h80;
-						4:   tx_data <= 8'h80;
-						5:   tx_data <= 8'h80;
-						6:   tx_data <= 8'h00;
-						7:   tx_data <= 8'h00;
-
-						// The last two bytes are, for now, magic numbers
-						8:   tx_data <= 8'h02;
-						9:   tx_data <= 8'h02;
-
-					endcase
-					tx_strobe <= 1;
-					tx_stopbit <= 0;
-					state <= S_TX_ORIGINS_WAIT;
-					byte_count <= byte_count + 1;
-				end
-			end
-
-			S_TX_ORIGINS_WAIT: begin
-				// Give the transmitter one cycle to update status
-				tx_strobe <= 0;
-				if (byte_count == 10)
-					state <= S_TX_STOPBIT;
-				else
-					state <= S_TX_ORIGINS_BYTE;
-			end
-
-
-			/************************* Common to all transmissions ****/
-
-			S_TX_STOPBIT: begin
-				// Transmit a stop bit next chance we get, then head back to idle
-				if (!tx_busy) begin
-					tx_stopbit <= 1;
-					tx_strobe <= 1;
-					state <= S_IDLE;
-				end
-			end
-
-		endcase
+        gc_controller gcc(clk, reset, tx_timing, gc_port, rumble, state_addr,
+                          state_request, state_data, state_ack, debug);
 endmodule
 
 /* The End */
