@@ -34,9 +34,29 @@ InAddr = VectorType("!BBBB")
 # A vector in 3D space
 Vector3 = VectorType("!fff")
 
-# A player identifier is now a single unsigned byte (changed from 1.7)
-PlayerId = UInt8
+# A player identifier is now a single unsigned byte, with several special meanings.
+PlayerId = Enum(UInt8, {
+    255: None,
+    254: 'all',
+    253: 'server',
+    244: 'lastRealPlayer',
+    })
 
+TeamColor = Enum(UInt16, {
+    -1: None,
+    0: 'rogue',
+    1: 'red',
+    2: 'green',
+    3: 'blue',
+    4: 'purple',
+    5: 'rabbit',
+    })
+
+PlayerType = Enum(UInt16, {
+    0: 'tank',
+    1: 'JAFO',
+    2: 'computer',
+    })
 
 class ServerId(Struct):
     """class ServerId from Address.h"""

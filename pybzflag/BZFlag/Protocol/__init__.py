@@ -50,7 +50,7 @@ import struct
 __all__ = [
     'EntryType', 'ScalarType', 'VectorType', 'SubStruct', 'StructEntry',
     'StructPadding', 'Struct', 'Int8', 'UInt8', 'Int16', 'UInt16', 'Int32',
-    'UInt32', 'Float', 'Double'
+    'UInt32', 'Float', 'Double', 'StringField', 'Enum',
     ]
 
 
@@ -164,6 +164,67 @@ class StructPadding:
 
     def marshall(self, struct, packed):
         return packed + (chr(self.padByte) * self.size)
+
+
+class Enum(EntryType):
+    """A class that can be used to wrap another EntryType instance,
+       translating between enumerated types and strings. Any objects
+       not found in the provided dictionary will be left alone.
+       """
+    def __init__(self, baseType, enumMap):
+        """The enumMap here should translate from marshalled to unmarshalled.
+           A corresponding dictionary for the reverse will be generated.
+           """
+        self.baseType = baseType
+        self.unmarshallDict = enumMap
+        self.marshallDict = {}
+        for key in enumMap:
+            self.marshallDict[enumMap[key]] = key
+ 
+    def unmarshall(self, packed):
+        object = self.baseType.unmarshall(packed)
+        try:
+            return self.unmarshallDict[object]
+        except KeyError:
+            return object
+
+    def marshall(self, object):
+        try:
+            object = self.marshallDict[object]
+        except KeyError:
+            pass
+        return self.baseType.marshall(object)
+
+    def getSize(self, packed=None):
+        return self.baseType.getSize(packed)
+
+
+class StringField(EntryType):
+    """A type that decodes and encodes zero-terminated strings,
+       padded to a fixed field width. ScalarType("10s") for example
+       would encode strings fine, but the zero termination would
+       not be stripped from decoded strings.
+       """
+    def __init__(self, length):
+        self.length = length
+ 
+    def unmarshall(self, packed):
+        # Remove everything after and including the zero termination
+        zeroPos = packed.find(chr(0))
+        if zeroPos >= 0:
+            return packed[:zeroPos]
+        else:
+            # The string takes up the entire field
+            return packed
+
+    def marshall(self, object):
+        # Truncate to the field width and pad out with zeroes
+        object = object[:self.length-1]
+        object += chr(0) * (self.length - len(object))
+        return object
+
+    def getSize(self, packed=None):
+        return self.length
 
 
 class Struct:
