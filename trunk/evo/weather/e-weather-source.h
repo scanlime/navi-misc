@@ -71,7 +71,7 @@ typedef struct {
 	float snowhigh, snowlow;
 } WeatherForecast;
 
-typedef void (*SourceFinished)(GList *results);
+typedef void (*EWeatherSourceFinished)(GList *results, gpointer data);
 
 #define E_TYPE_WEATHER_SOURCE            (e_weather_source_get_type ())
 #define E_WEATHER_SOURCE(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), E_TYPE_WEATHER_SOURCE, EWeatherSource))
@@ -94,12 +94,12 @@ struct _EWeatherSourceClass {
 
 	/* Returns a list of WeatherForecast objects containing the
 	 * data for the forecast. */
-	void (*parse)	(EWeatherSource *source, SourceFinished done);
+	void (*parse)	(EWeatherSource *source, EWeatherSourceFinished done, gpointer data);
 };
 
 EWeatherSource*	e_weather_source_new (const char *uri);
 GType	e_weather_source_get_type (void);
-void	e_weather_source_parse (EWeatherSource *source, SourceFinished done);
+void	e_weather_source_parse (EWeatherSource *source, EWeatherSourceFinished done, gpointer data);
 
 
 

@@ -44,8 +44,9 @@ struct _EWeatherSourceCCF {
 	EWeatherSource parent;
 
 	char *station, *substation;
-	SourceFinished done;
+	EWeatherSourceFinished done;
 	SoupSession *soup_session;
+	gpointer finished_data;
 };
 
 struct _EWeatherSourceCCFClass {

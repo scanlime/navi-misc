@@ -31,6 +31,11 @@
 
 
 
+static gboolean reload_cb (ECalBackendWeather *cbw);
+static gboolean begin_retrieval_cb (ECalBackendWeather *cbw);
+
+
+
 /* Private part of the ECalBackendWeather structure */
 struct _ECalBackendWeatherPrivate {
 	/* URI to get remote weather data from */
@@ -45,6 +50,16 @@ struct _ECalBackendWeatherPrivate {
 	/* The calendar's default timezone, used for resolving DATE and
 	   floating DATE-TIME values. */
 	icaltimezone *default_zone;
+
+	/* Reload */
+	guint reload_timeout_id;
+	guint is_loading : 1;
+
+	/* Flags */
+	gboolean opened;
+
+	/* Weather source */
+	EWeatherSource *source;
 };
 
 
@@ -52,6 +67,79 @@ struct _ECalBackendWeatherPrivate {
 static ECalBackendSyncClass *parent_class;
 
 
+
+static gboolean
+reload_cb (ECalBackendWeather *cbw)
+{
+	ECalBackendWeatherPrivate *priv;
+
+	priv = cbw->priv;
+
+	if (priv->is_loading)
+		return TRUE;
+
+	g_print ("Reload!\n");
+
+	priv->reload_timeout_id = 0;
+	priv->opened = TRUE;
+	begin_retrieval_cb (cbw);
+	return FALSE;
+}
+
+static void
+maybe_start_reload_timeout (ECalBackendWeather *cbw)
+{
+	ECalBackendWeatherPrivate *priv;
+	ESource *source;
+	const gchar *refresh_str;
+
+	priv = cbw->priv;
+
+	g_print ("Setting reload timeout.\n");
+
+	if (priv->reload_timeout_id)
+		return;
+
+	source = e_cal_backend_get_source (E_CAL_BACKEND (cbw));
+	if (!source) {
+		g_warning ("Could not get source for ECalBackendWeather reload.");
+		return;
+	}
+
+	refresh_str = e_source_get_property (source, "refresh");
+
+	priv->reload_timeout_id = g_timeout_add ((refresh_str ? atoi (refresh_str) : 30) * 60000,
+	    					 (GSourceFunc) reload_cb, cbw);
+}
+
+static void
+finished_retrieval_cb (GList *forecasts, ECalBackendWeather *cbw)
+{
+	g_print ("Retrieval finished.\n");
+}
+
+static gboolean
+begin_retrieval_cb (ECalBackendWeather *cbw)
+{
+	ECalBackendWeatherPrivate *priv = cbw->priv;
+
+	if (priv->mode != CAL_MODE_REMOTE)
+		return TRUE;
+
+	maybe_start_reload_timeout (cbw);
+
+	g_print ("Starting retrieval...\n");
+
+	if (priv->is_loading)
+		return FALSE;
+
+	priv->is_loading = TRUE;
+
+	e_weather_source_parse (priv->source, (EWeatherSourceFinished) finished_retrieval_cb, cbw);
+
+	g_print ("Retrieval started.\n");
+	return FALSE;
+}
 
 static ECalComponent*
 create_weather (ECalBackendWeather *cbw, WeatherForecast *report)
@@ -75,7 +163,8 @@ create_weather (ECalBackendWeather *cbw, WeatherForecast *report)
 	//cal_comp = create_component (cbw, uid, /* FIXME */ date, summary);
 	g_free (summary);
 
-	return cal_comp;
+	//return cal_comp;
+	return NULL;
 }
 
 static ECalBackendSyncStatus
@@ -134,7 +223,7 @@ e_cal_backend_weather_open (ECalBackendSync *backend, EDataCal *cal, gboolean on
 
 		/* FIXME: no need to set it online here when we implement the online/offline stuff correctly */
 		priv->mode = CAL_MODE_REMOTE;
-		/* FIXME g_idle_add ((GSourceFunc) begin_retrieval_cb, cbw); */
+		g_idle_add ((GSourceFunc) begin_retrieval_cb, cbw);
 	}
 
 	return GNOME_Evolution_Calendar_Success;
@@ -398,6 +487,9 @@ e_cal_backend_weather_init (ECalBackendWeather *cbw, ECalBackendWeatherClass *cl
 	priv = g_new0 (ECalBackendWeatherPrivate, 1);
 
 	cbw->priv = priv;
+
+	priv->reload_timeout_id = 0;
+	priv->opened = FALSE;
 }
 
 /* Class initialization function for the weather backend */
@@ -426,8 +518,8 @@ e_cal_backend_weather_class_init (ECalBackendWeatherClass *class)
 	sync_class->discard_alarm_sync = e_cal_backend_weather_discard_alarm;
 	sync_class->receive_objects_sync = e_cal_backend_weather_receive_objects;
 	sync_class->get_default_object_sync = e_cal_backend_weather_get_default_object;
-//	sync_class->get_object_sync = e_cal_backend_weather_get_object;
-//	sync_class->get_object_list_sync = e_cal_backend_weather_get_object_list;
+	sync_class->get_object_sync = e_cal_backend_weather_get_object;
+	sync_class->get_object_list_sync = e_cal_backend_weather_get_object_list;
 	sync_class->get_timezone_sync = e_cal_backend_weather_get_timezone;
 //	sync_class->add_timezone_sync = e_cal_backend_weather_add_timezone;
 	sync_class->set_default_timezone_sync = e_cal_backend_weather_set_default_timezone;

@@ -3,7 +3,7 @@
 
 gboolean done;
 
-void finished (GList *list)
+void finished (GList *list, gpointer d)
 {
 	GList *data;
 	data = list;
@@ -22,7 +22,7 @@ main ()
 	gnome_vfs_init ();
 	EWeatherSource *source = e_weather_source_ccf_new ("weather:ccf/BOU/DEN");
 	done = FALSE;
-	e_weather_source_parse (source, finished);
+	e_weather_source_parse (source, finished, NULL);
 	while (!done)
 		g_main_context_iteration (NULL, TRUE);
 	gnome_vfs_shutdown ();
