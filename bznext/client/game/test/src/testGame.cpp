@@ -33,7 +33,6 @@ void CTestGame::Attach ( void )
 	Entity *mGroundEntity = gameLoop->GetSceneManager()->createEntity("Ground","GroundPlane");
 	SceneNode* mGroundNode = static_cast<SceneNode*>(gameLoop->GetSceneManager()->getRootSceneNode()->createChild());
 	mGroundNode->attachObject(mGroundEntity);
-
 }
 
 void CTestGame::Release ( void )
