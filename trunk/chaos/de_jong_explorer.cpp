@@ -72,6 +72,7 @@ int main(int argc, char ** argv) {
   bzero(data, WIDTH * HEIGHT * sizeof(int));
 
   draw();
+  flip();
 
   point(0) = std::rand() / RAND_MAX;
   point(1) = std::rand() / RAND_MAX;
@@ -132,7 +133,6 @@ GtkWidget *build_sidebar() {
   g_signal_connect(G_OBJECT(stop), "clicked", G_CALLBACK(stopclick), NULL);
   gtk_table_attach(GTK_TABLE(table), stop, 0, 2, 7, 8, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
   save = gtk_button_new_from_stock(GTK_STOCK_SAVE);
-  gtk_widget_set_sensitive(save, FALSE);
   g_signal_connect(G_OBJECT(save), "clicked", G_CALLBACK(saveclick), NULL);
   gtk_table_attach(GTK_TABLE(table), save, 0, 2, 8, 9, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
 
@@ -141,7 +141,6 @@ GtkWidget *build_sidebar() {
 
 void draw() {
   gdk_draw_rectangle(backb, colormap[0], TRUE, 0, 0, WIDTH, HEIGHT);
-  flip();
 }
 
 void flip() {
@@ -214,7 +213,6 @@ gboolean deletee(GtkWidget *widget, GdkEvent *event, gpointer user_data) {
 void startclick(GtkWidget *widget, gpointer user_data) {
   gtk_widget_set_sensitive(stop, TRUE);
   gtk_widget_set_sensitive(start, FALSE);
-  gtk_widget_set_sensitive(save, FALSE);
   bzero(data, WIDTH * HEIGHT * sizeof(int));
   draw();
   a = gtk_spin_button_get_value(GTK_SPIN_BUTTON(as));
@@ -228,7 +226,6 @@ void startclick(GtkWidget *widget, gpointer user_data) {
 void stopclick(GtkWidget *widget, gpointer user_data) {
   gtk_widget_set_sensitive(stop, FALSE);
   gtk_widget_set_sensitive(start, TRUE);
-  gtk_widget_set_sensitive(save, TRUE);
   g_source_remove(idler);
 }
 
