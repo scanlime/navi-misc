@@ -2,7 +2,7 @@
 import sys, mi6k
 vfd = mi6k.Device().vfd
 
-if sys.argv[1]:
+if int(sys.argv[1]):
     vfd.powerOn()
 else:
     vfd.powerOff()
