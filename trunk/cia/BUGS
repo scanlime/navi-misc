@@ -3,9 +3,6 @@
   possibly the commands for changing rulesets. This MUST be done before port 3910
   on navi is opened to the public.
 
-- The gtk ruleset_editor needs refactoring, it's getting messy
-  It also now needs fixing to support the new generalized rulesets.
-
 - Formatters need to be able to take parameters, so they can be generalized more.
   For example, IRCProjectName should be refactored into a generic prefixing
   formatter that could instead prepend a module name, for channels that only
