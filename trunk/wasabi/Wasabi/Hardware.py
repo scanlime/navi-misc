@@ -6,7 +6,7 @@ the mi6k (both through the mi6k module and through lircd) and the uvswitch
 """
 #
 # Wasabi Project
-# Copyright (C) 2003 Micah Dowty <micahjd@users.sourceforge.net>
+# Copyright (C) 2003-2004 Micah Dowty <micahjd@users.sourceforge.net>
 #
 #  This library is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU Lesser General Public
