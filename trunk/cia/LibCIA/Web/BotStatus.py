@@ -60,20 +60,80 @@ class BotChannelsColumn(Nouvelle.Column):
         return len(bot.channels)
 
 
-class ServerSection(Template.Section):
-    """A section representing one IRC server"""
-    def __init__(self, botNet, server):
-        self.botNet = botNet
-        self.server = server
+class BotsSection(Template.Section):
+    """A section holding a table listing all bots"""
+    title = 'bots'
 
-    def render_title(self, context):
-        return str(self.server)
+    columns = [
+        Nouvelle.AttributeColumn('server', 'server'),
+        Nouvelle.AttributeColumn('nickname', 'nickname'),
+        BotChannelsColumn(),
+        ]
+
+    def __init__(self, botNet):
+        self.botNet = botNet
 
     def render_rows(self, context):
-        return [Template.Table(self.botNet.servers[self.server], [
-            Nouvelle.AttributeColumn('nickname', 'nickname'),
-            BotChannelsColumn(),
-            ], id=str(self.server))]
+        bots = []
+        for serverBots in self.botNet.servers.itervalues():
+            bots.extend(serverBots)
+        return [Template.Table(bots, self.columns, id='bots')]
+
+
+class OptionalAttributeStringColumn(Nouvelle.AttributeColumn):
+    """A column displaying an object's attribute that converts the
+       result into a string and allows it to be blank if the attribute
+       doesn't exist in a particular object.
+       """
+    def getValue(self, obj):
+        value = getattr(obj, self.attribute, '')
+        value = getattr(value, '__name__', value)
+        return str(value)
+
+
+class RequestBotsColumn(Nouvelle.Column):
+    """A column showing the bots assigned to a particular request"""
+    heading = 'current bots'
+
+    def getValue(self, req):
+        return req.bots
+
+    def render_data(self, context, req):
+        return [ bot.nickname for bot in req.bots ]
+
+
+class RequestStatusColumn(Nouvelle.Column):
+    """A column that gives a quick indication of a request's fulfillment status"""
+    heading = 'status'
+
+    def getValue(self, req):
+        return req.isFulfilled()
+
+    def render_data(self, context, req):
+        if req.isFulfilled():
+            return 'ok'
+        else:
+            return Template.error["not fulfilled"]
+
+
+class RequestsSection(Template.Section):
+    """A section listing all requests being asked of the BotNetwork"""
+    title = 'requests'
+
+    columns = [
+        OptionalAttributeStringColumn('type', '__class__'),
+        OptionalAttributeStringColumn('server', 'server'),
+        OptionalAttributeStringColumn('channel', 'channel'),
+        OptionalAttributeStringColumn('# of bots', 'numBots'),
+        RequestStatusColumn(),
+        RequestBotsColumn(),
+       ]
+
+    def __init__(self, botNet):
+        self.botNet = botNet
+
+    def render_rows(self, context):
+        return [Template.Table(self.botNet.requests, self.columns, id='requests')]
 
 
 class IRCBotPage(Template.Page):
@@ -82,10 +142,10 @@ class IRCBotPage(Template.Page):
         self.botNet = botNet
 
     def render_mainColumn(self, context):
-        # One server section for each server we have bots on
-        servers = self.botNet.servers.keys()
-        servers.sort(lambda a,b: cmp(str(a), str(b)))
-        return [ServerSection(self.botNet, s) for s in servers]
+        return [
+            BotsSection(self.botNet),
+            RequestsSection(self.botNet),
+            ]
 
     def render_leftColumn(self, context):
         return [
