@@ -2,7 +2,10 @@
 <xsd:schema
  xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 
-<!-- ====== data types for a CIA message -->
+<!--
+  ********************************************************* Commit messages
+  -->
+
 <xsd:complexType name="fileList">
   <xsd:choice maxOccurs="unbounded">
     <xsd:element name="file" type="xsd:string"/>
@@ -11,12 +14,17 @@
 
 <xsd:complexType name="commit">
   <xsd:choice maxOccurs="unbounded">
-    <xsd:element name="user" type="xsd:string"/>
+    <xsd:element name="author" type="xsd:string"/>
+    <xsd:element name="version" type="xsd:string"/>
     <xsd:element name="revision" type="xsd:string"/>
     <xsd:element name="log" type="xsd:string"/>
     <xsd:element name="files" type="fileList"/>
   </xsd:choice>
 </xsd:complexType>
+
+<!--
+  ********************************************************* Message Envelope
+  -->
 
 <xsd:complexType name="message-body">
   <xsd:choice>
@@ -40,7 +48,6 @@
   </xsd:choice>
 </xsd:complexType>
 
-<!-- ====== top-level CIA message -->
 <xsd:element name="message">
   <xsd:complexType>
     <xsd:choice maxOccurs="unbounded" minOccurs="0">
@@ -52,7 +59,10 @@
   </xsd:complexType>
 </xsd:element>
 
-<!-- ====== data types for a CIA filter -->
+<!--
+  ********************************************************* Filters
+  -->
+
 <xsd:complexType name="filter-element" mixed="true">
   <xsd:attribute name="path" type="xsd:string"/>
 </xsd:complexType>
