@@ -1,3 +1,6 @@
+- The Stats code can store message counts now, but still needs a way to query
+  data, store the last n messages, and maybe even keep RRDs up to date.
+
 - The XML-RPC interface needs a way to protect some commands, probably by requiring
   a random 'magic cookie' as an argument. This should include at least 'rebuild', and
   possibly the commands for changing rulesets. This MUST be done before port 3910
@@ -12,10 +15,6 @@
   through the legacy commit format first. Need to add a command to the incoming
   mail parser to send XML messages, write clients that use the new format,
   and write formatters that convert the new messages to IRC text
-
-- Stats are still going through the old code. Need to add another client to the
-  Message.Hub that will store stats in some kind of database that's accessable
-  to a web frontend.
 
 - Message filters (for scraping mailing lists) are in dire need of refactoring,
   and should be made to use the XML-RPC interface instead of sending email
