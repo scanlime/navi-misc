@@ -262,6 +262,25 @@ class BinaryFile(SerializableValue):
         return open(self.value, "rb").read()
 
 
+class PaddedTo(Container):
+    """In some circumstances it may be useful to pad the
+       firmware image or the entire bootloader image to
+       some preset size. This pads its contents to exactly
+       'bytes' long, using copies of the 'fill' character.
+       """
+    def __init__(self, bytes, fill='\0'):
+        assert len(fill) == 1
+        self.bytes = bytes
+        self.fill = fill
+
+    def attachHeader(self, joined):
+        l = len(joined)
+        if l > self.bytes:
+            raise ValueError("Contents already %d bytes, can't pad to %d" %
+                             (l, self.bytes))
+        return joined + self.fill * (self.bytes - l)
+
+
 class ChildCount(Serializable):
     """A placeholder class used in the descriptorContent lists, that inserts
        a count of all children of a particular type.
