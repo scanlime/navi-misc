@@ -4,10 +4,10 @@
 #
 
 from twisted.application import service, internet
-from twisted.web import server, xmlrpc
+from twisted.web import server, xmlrpc, static
 from LibCIA import Message, Ruleset, IRC, Stats
 from LibCIA import IncomingMail, Interface, Security
-from LibCIA.Web import StatsBrowser, RulesetBrowser, Static
+from LibCIA.Web import StatsBrowser, RulesetBrowser
 
 application = service.Application("cia_server")
 hub = Message.Hub()
@@ -32,7 +32,7 @@ caps.saveKey('universe', 'data/universe.key')
 
 # Create the web interface. We start with all the static
 # files in 'htdocs' and add dynamic content from there.
-webRoot = Static.File("htdocs")
+webRoot = static.File("htdocs")
 webRoot.putChild('rulesets', RulesetBrowser.RulesetPage(caps=caps, storage=rulesetStorage))
 webRoot.putChild('stats', StatsBrowser.StatsPage(caps=caps, storage=statsStorage))
 
