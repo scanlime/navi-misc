@@ -27,46 +27,35 @@ using Gdk;
 class TwoDTransform : Element
 {
 	private static Gdk.Pixbuf icon;
-	
-	new public string Name
+
+	public override string Name ()
 	{
-		get { return "TwoDTransform"; }
+		return "TwoDTransform";
 	}
-	
-	new public string Category {
-		get { return "Arithmetic"; }
-	}
-	
-	new public Gdk.Pixbuf Icon
+
+	public override string Category()
 	{
-		get
-		{
-			/* FIXME: initialize */
-			return icon;
-		}
+		return "Arithmetic";
 	}
-	
-	new public string Description 
+
+	public override Gdk.Pixbuf Icon ()
 	{
-		get
-		{
-			return "Creates an 3x3 matrix out of a set of 2D transformations";
-		}
+		/* FIXME: initialize */
+		return null;
 	}
-	
-	new public string InputDesc
+
+	public override string Description ()
 	{
-		get
-		{
-			return "<i>rotation</i>\n" + "<i>aspect</i>\n" + "<i>zoom</i>\n" + "<i>offset</i>";
-		}
+		return "Creates an 3x3 matrix out of a set of 2D transformations";
 	}
-	
-	new public string OutputDesc
+
+	public override string InputDesc ()
 	{
-		get
-		{
-			return "<b>M</b>:\tmatrix";
-		}
+		return "<i>rotation</i>\n" + "<i>aspect</i>\n" + "<i>zoom</i>\n" + "<i>offset</i>";
+	}
+
+	public override string OutputDesc ()
+	{
+		return "<b>M</b>:\tmatrix";
 	}
 }
