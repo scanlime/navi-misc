@@ -9,6 +9,8 @@
 #define USB_WIDGET_VENDOR_ID	0xe461
 #define USB_WIDGET_PRODUCT_ID	0x0001
 
+#define RECV_BUFFER_SIZE 128
+
 #define DRIVER_VERSION "v0.1"
 #define DRIVER_AUTHOR "The Unknown Tribble"
 #define DRIVER_DESC "USB Widget Driver"
@@ -18,7 +20,7 @@ MODULE_DESCRIPTION( DRIVER_DESC );
 MODULE_LICENSE("GPL");
 
 struct usb_widget {
-	signed char data[8];
+	signed char data[RECV_BUFFER_SIZE];
 	char name[128];
 	struct usb_device *usbdev;
 	struct urb irq;
@@ -32,7 +34,7 @@ static void usb_widget_irq(struct urb *urb)
 
 	if (urb->status) return;
 
-	dbg("Received %02X %02X %02X %02X", data[0], data[1], data[2], data[3]);
+	dbg("Received %d bytes - %02X %02X %02X %02X", urb->actual_length, data[0], data[1], data[2], data[3]);
 }
 
 static void *usb_widget_probe(struct usb_device *dev, unsigned int ifnum,
@@ -68,7 +70,7 @@ static void *usb_widget_probe(struct usb_device *dev, unsigned int ifnum,
 
 	widget->usbdev = dev;
 
-	FILL_INT_URB(&widget->irq, dev, pipe, widget->data, maxp > 8 ? 8 : maxp,
+	FILL_INT_URB(&widget->irq, dev, pipe, widget->data, min(maxp, RECV_BUFFER_SIZE),
 		usb_widget_irq, widget, endpoint->bInterval);
 
 	widget->irq.dev = widget->usbdev;
