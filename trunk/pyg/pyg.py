@@ -174,11 +174,6 @@ source1 = SourcePage(sources)
 main.set(0, sources)
 
 compiler_output = CompileOutput()
-infile = open('pyg.py', 'r')
-if infile:
-    string = infile.read()
-    infile.close()
-    compiler_output.set_text(string)
 main.set(1, ScrollArea(compiler_output))
 
 view = GLView()
