@@ -38,10 +38,35 @@ GtkWidget *e_calendar_weather_temperature (EPlugin *epl, EConfigHookItemFactoryD
 GtkWidget *e_calendar_weather_snowfall (EPlugin *epl, EConfigHookItemFactoryData *data);
 gboolean   e_calendar_weather_check (EPlugin *epl, EConfigHookPageCheckData *data);
 void       e_calendar_weather_migrate (EPlugin *epl, ECalEventTargetComponent *data);
+int        e_plugin_lib_enable (EPluginLib *epl, int enable);
 
 static GtkTreeStore *store = NULL;
 
 #define WEATHER_BASE_URI "weather://"
+
+int
+e_plugin_lib_enable (EPluginLib *epl, int enable)
+{
+	GList *l;
+	gboolean found = FALSE;
+
+	/* Add the categories icons if we don't have them. */
+	for (l = e_categories_get_list (); l; l = g_list_next (l)) {
+		if (!strcmp (l->data, N_())) {
+			found = TRUE;
+			break;
+		}
+	}
+	if (!found) {
+		e_categories_add (N_("Weather: Cloudy"), NULL, WEATHER_DATADIR "/category_weather_cloudy_16.png");
+		e_categories_add (N_("Weather: Fog"), NULL, WEATHER_DATADIR "/category_weather_fog_16.png");
+		e_categories_add (N_("Weather: Partly Cloudy"), NULL, WEATHER_DATADIR "/category_weather_partly_cloudy_16.png");
+		e_categories_add (N_("Weather: Rain"), NULL, WEATHER_DATADIR "/category_weather_rain_16.png");
+		e_categories_add (N_("Weather: Snow"), NULL, WEATHER_DATADIR "/category_weather_snow_16.png");
+		e_categories_add (N_("Weather: Sunny"), NULL, WEATHER_DATADIR "/category_weather_sun_16.png");
+		e_categories_add (N_("Weather: Thunderstorms"), NULL, WEATHER_DATADIR "/category_weather_tstorm_16.png");
+	}
+}
 
 void
 e_calendar_weather_migrate (EPlugin *epl, ECalEventTargetComponent *data)
@@ -75,16 +100,6 @@ e_calendar_weather_migrate (EPlugin *epl, ECalEventTargetComponent *data)
 		e_source_list_add_group (source_list, group, -1);
 
 		weather = group;
-
-		/* If we haven't got a weather source group, we haven't got weather categories.
-		 * Add in the categories so we'll have the right icons */
-		e_categories_add (N_("Weather: Cloudy"), NULL, WEATHER_DATADIR "/category_weather_cloudy_16.png");
-		e_categories_add (N_("Weather: Fog"), NULL, WEATHER_DATADIR "/category_weather_fog_16.png");
-		e_categories_add (N_("Weather: Partly Cloudy"), NULL, WEATHER_DATADIR "/category_weather_partly_cloudy_16.png");
-		e_categories_add (N_("Weather: Rain"), NULL, WEATHER_DATADIR "/category_weather_rain_16.png");
-		e_categories_add (N_("Weather: Snow"), NULL, WEATHER_DATADIR "/category_weather_snow_16.png");
-		e_categories_add (N_("Weather: Sunny"), NULL, WEATHER_DATADIR "/category_weather_sun_16.png");
-		e_categories_add (N_("Weather: Thunderstorms"), NULL, WEATHER_DATADIR "/category_weather_tstorm_16.png");
 	}
 
 	if (weather)
