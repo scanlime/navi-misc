@@ -109,10 +109,9 @@ class Ruleset(XML.XMLFunction):
         The output from the last formatter is returned upon calling this ruleset, and
         each formatter is given the previous formatter's output as input, so they may be stacked.
 
-        <formatter name="foo">      : Applies the formatter named 'foo'
-
-        <formatter medium="irc">    : Automatically picks a formatter for the particular
-                                      input message and the given medium type
+        <formatter *>               : Chooses and applies a formatter. All attributes and
+                                      contents are passed on to the FormatterFactory, refer
+                                      to its documentation for more information.
 
         any Filter tag              : Evaluates the filter, terminating the current rule
                                       if it returns false.

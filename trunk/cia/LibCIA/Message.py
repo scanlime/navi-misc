@@ -416,6 +416,93 @@ class Formatter:
                 f(tag)
 
 
+class CompositeFormatter(Formatter):
+    """A composite formatter builds a new formatter from other formatters
+       and simple built-in primitives. A composite formatter is defined
+       only by its XML parameters, which may consist of any of the elements
+       described below. The results from these elements are concatenated.
+
+        <formatter *>         : Chooses and applies another formatter, according
+                                to the rules in FormatterFactory.fromXml.
+
+        <value path=...>      : Evaluate an XPath from the message being formatted
+
+        <value>text</value>   : Literal text. (<value> is very similar to a ruleset's <return>)
+
+        <input>               : The input to this formatter
+
+        <pipe>                : This element must have two child elements.
+                                The first element is evaluated normally, then its
+                                output is used as input when evaluating the second element.
+       """
+    def loadParametersFrom(self, xml):
+        self.format = CompositeFormatterParser(xml).result
+
+
+class CompositeFormatterParser(XML.XMLObjectParser):
+    """Parses CompositeFormatter's arguments into a format(message, input) function"""
+    def element_formatter(self, element):
+        """Another formatter, or possibly our root element. If it has any
+           attributes, we need to get a formatter using the FormatterFactory.
+           If not, parse and concatenate the child elements.
+           """
+        if element.attributes:
+            # We need to let the formatter factory resolve this
+            import Formatters
+
+            # Evaluate once at parse time to check validity
+            Formatters.factory.fromXml(element)
+
+            def formatUsingFactory(message, input):
+                # This must bind to a particular formatter at runtime rather than parse time
+                # to handle autoformatting properly.
+                return Formatters.factory.fromXml(element, message).format(message, input)
+            return formatUsingFactory
+
+        else:
+            # This is a nested CompositeFormatterParser, we must handle these
+            # here since that's what this class is for. We always have at least
+            # one of these, at the root of the parsed XML document.
+            childFunctions = [self.parse(child) for child in element.elements()]
+            def concatenateFormatters(message, input):
+                return "".join([f(message, input) for f in childFunctions])
+            return concatenateFormatters
+
+    def element_value(self, element):
+        """Include a value obtained from an XPath or from this element's contents"""
+        if element.hasAttribute('path'):
+            xp = XPathQuery(element['path'])
+            def formatXPathValue(message, input):
+                nodes = xp.queryForNodes(message.xml)
+                if nodes:
+                    return XML.allText(nodes[0]).strip()
+            return formatXPathValue
+
+        else:
+            # No path, return this node's contents
+            def formatLiteral(message, input):
+                return str(element)
+            return formatLiteral
+
+    def element_input(self, element):
+        """Returns the formatter's input"""
+        def formatInput(message, input):
+            return input
+        return formatInput
+
+    def element_pipe(self, element):
+        """Evaluate the first child element, using its result as the input to the second child"""
+        children = list(element.elements())
+        if len(children) != 2:
+            raise XML.XMLValidityError("<pipe> must have exactly two child elements")
+        pipeInput = self.parse(children[0])
+        pipeOutput = self.parse(children[1])
+
+        def formatPipe(message, input):
+            return pipeOutput(message, pipeInput(message, input))
+        return formatPipe
+
+
 class NoFormatterError(Exception):
     pass
 
@@ -464,17 +551,31 @@ class FormatterFactory:
 
     def fromXml(self, xml, message=None):
         """Create a formatter to match the given <formatter> element.
+           The formatter element may have a 'name' attribute to specify a particular
+           formatter class or a 'medium' attribute to automatically find a matching
+           formatter to output to a given medium. If neither of these are given,
+           a CompositeFormatter is created.
+
            If 'message' is None and a medium is requested rather than a particular
            formatter, this will return None after validating the medium.
            """
-        name = xml.getAttribute('name')
-        medium = xml.getAttribute('medium')
-        if (name and medium) or not (name or medium):
-            raise XML.XMLValidityError("<formatter> must have exactly one 'name' or 'medium' attribute")
-        if name:
-            f = self.findName(name)
+        attrNames = xml.attributes.keys()
+
+        if not attrNames:
+            f = CompositeFormatter()
+
+        elif attrNames == ['name']:
+            f = self.findName(xml.attributes['name'])
+
+        elif attrNames == ['medium']:
+            f = self.findMedium(xml.attributes['medium'], message)
+
         else:
-            f = self.findMedium(medium, message)
+            # It's important to disallow unknown attributes here, so that we know for
+            # sure which formatters must be delegated to this method and which can be
+            # handled by CompositeFormatter safely.
+            raise XML.XMLValidityError("<formatter> must have either a 'name' attribute, a 'medium' attribute, or no attributes")
+
         if f:
             f.loadParametersFrom(xml)
         return f
