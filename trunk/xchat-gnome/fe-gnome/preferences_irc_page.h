@@ -1,5 +1,5 @@
 /*
- * preferences.h - interface to storing preferences
+ * preferences_irc_page.h - helpers for the irc preferences page
  *
  * Copyright (C) 2004 David Trowbridge and Dan Kuester
  *
@@ -19,23 +19,11 @@
  *
  */
 
-#include <gnome.h>
-#include "../common/xchat.h"
-#include "../common/servlist.h"
+#include "gui.h"
 
-#ifndef XCHAT_GNOME_PREFERENCES_H
-#define XCHAT_GNOME_PREFERENCES_H
+#ifndef XCHAT_GNOME_PREFERENCES_IRC_PAGE_H
+#define XCHAT_GNOME_PREFERENCES_IRC_PAGE_H
 
-gboolean preferences_exist();
-void load_preferences();
-char *preferences_nickname();
-char *preferences_realname();
-char *preferences_quitmsg();
-char *preferences_partmsg();
-char *preferences_awaymsg();
-int preferences_get_color_scheme();
-int preferences_get_palette_scheme();
-void preferences_set_color_scheme(int selection);
-void preferences_set_palette_scheme(int selection);
+void initialize_preferences_irc_page();
 
 #endif

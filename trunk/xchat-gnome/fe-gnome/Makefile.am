@@ -28,10 +28,12 @@ EXTRA_DIST =				\
 	pixmaps.c			\
 	preferences.h			\
 	preferences.c			\
-	preferences_dialog.h		\
-	preferences_dialog.c		\
 	preferences_colors_page.h	\
 	preferences_colors_page.c	\
+	preferences_dialog.h		\
+	preferences_dialog.c		\
+	preferences_irc_page.h		\
+	preferences_irc_page.c		\
 	preferences_servers_page.h	\
 	preferences_servers_page.c	\
 	setup_druid.h			\
@@ -63,10 +65,12 @@ xchat_gnome_SOURCES =			\
 	pixmaps.c			\
 	preferences.h			\
 	preferences.c			\
-	preferences_dialog.h		\
-	preferences_dialog.c		\
 	preferences_colors_page.h	\
 	preferences_colors_page.c	\
+	preferences_dialog.h		\
+	preferences_dialog.c		\
+	preferences_irc_page.h		\
+	preferences_irc_page.c		\
 	preferences_servers_page.h	\
 	preferences_servers_page.c	\
 	setup_druid.h			\
