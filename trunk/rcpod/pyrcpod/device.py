@@ -165,6 +165,20 @@ class OpenedDevice:
             return data[0]
         return data
 
+    def analogReadAll(self):
+        """Read all analog channels, returns a list of 8 values between 0 and 255"""
+        arr = new_ucharArray(8)
+        rcpod_AnalogReadAll(self.dev, arr)
+        l = from_ucharArray(arr, 8)
+        delete_ucharArray(arr)
+        return l
+
+    def analogReadChannel(self, c):
+        """Read one analog channel, returns a values between 0 and 255"""
+        if c < 0 or c > 7:
+            raise ValueError("Channel number out of range")
+        return rcpod_AnalogReadChannel(self.dev, c)
+
 
 class Pin:
     """Encapsulates an rcpod pin descriptor, a value which describes
@@ -242,7 +256,7 @@ class AvailableDevice:
            By default the device is reset, though this can be overridden.
            """
         if self.opened:
-            raise IOError("rcpod device is already opened")
+            raise IOError("rcpod device is already open")
         self.opened = True
         opened = OpenedDevice(rcpod_Open(self.usbdev), self)
         if reset:
