@@ -1,13 +1,46 @@
 #!/usr/bin/env python
+'''	trough
+	Simple command-line interface to trough
+	'''
 
-import CommandLine
-import Select
-import sys
 from types import *
+import sys
 
-cmdl = CommandLine.CommandLine()
+# This really needs to go somewhere better.  But for the meantime... it won't.
+version = '0.0.0'
 
-p = cmdl.getPieces()
+# Set up and run command line parser
+#
+import CommandLine
+parser = CommandLine.OptionParser (version=version)
+parser.add_option('-a','--add',dest='add',action="store_true",
+		help="recursively add path(s) to the playlist")
+parser.add_option('-p','--playlist',dest="path",
+		help="path to playlist file")
+parser.add_option('-r','--remove',dest='remove',action="store_true",
+		help="treat all arguments as regexes, removing any matches")
+parser.add_option('-i','--info',dest='info',action="store_true",
+		help="retrieve information on current playlist")
+parser.add_option('-v','--verbose',dest="verbose",
+		help="give verbose output")
+(options,arguments) = parser.parse_args()
+
+# Deal with command line options & arguments
+#
+import Select
+from PlayList import PlayList
+playlist = PlayList()
+if options.add:
+	print 'adding ',arguments
+	playlist.getPieces().addPaths(arguments)
+	playlist.dump()
+	sys.exit(0)
+if options.remove:
+	playlist.getPieces().remove(arguments)
+	playlist.dump()
+	sys.exit(0)
+
+p = playlist.getPieces()
 p.addPaths (sys.argv[1:])
                                                                                 
 for x in Select.Select(p):

@@ -58,7 +58,7 @@ class Pieces:
 	def addPaths (self, paths):
 		for path in paths:
 			self.addDirectory(FSTree.Directory(path))
-		print 'found ',len(self.pieces)
+#		print 'found ',len(self.pieces)
 
 	def delPieces (self, pattern):
 		pass
