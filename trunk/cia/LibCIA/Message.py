@@ -423,19 +423,24 @@ class AutoFormatter(Formatter):
        All formatters with that target medium are loaded. When a message must be
        formatted, the first one with a matching detector filter is chosen and
        invoked.
+
+       >>> f = AutoFormatter('irc')
+       >>> msg = Message('<message><body><colorText><b>Hello</b>World</colorText></body></message>')
+       >>> f.format(msg)
+       '\x02Hello\x0fWorld'
        """
     def __init__(self, medium):
         # Load all formatters with the given medium and a non-None detector
         import Formatters
         self.formatters = []
         for cls in Formatters.__dict__.itervalues():
-            if issubclass(cls, Formatter):
-                if cls.medium == medium and obj.detector is not None:
+            if type(cls) is type and issubclass(cls, Formatter):
+                if cls.medium == medium and cls.detector is not None:
                     # Load the formatter's detector function
                     # and make a list of (Formatter, Filter) instance
                     # tuples
                     filter = Filter(cls.detector)
-                    self.formatters.append(cls(), filter)
+                    self.formatters.append((cls(), filter))
 
     def format(self, message, input=None):
         """Find and invoke a formatter applicable to this message"""

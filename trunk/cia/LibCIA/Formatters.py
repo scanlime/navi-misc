@@ -24,17 +24,17 @@ elsewhere, for example in IRC filters.
 
 import Message
 
-
 class ColortextToIRC(Message.Formatter):
     """Converts messages with colorText content to plain text
        with IRC color tags.
        """
     detector = '<find path="/message/body/colorText"/>'
     medium = 'irc'
+    def __init__(self):
+        import IRCColor
+        self.formatter = IRCColor.ColortextFormatter()
 
     def format(self, message, input=None):
-        
-
-
+        return self.formatter.format(message.xml.body.colorText)
 
 ### The End ###
