@@ -6,9 +6,7 @@
     </head>
     <body>
         <div class="main">
-	    <div class="header">
-	        Fyre: About
-	    </div>
+	    <h1>Fyre: About</h1>
 	    <!--#include file="navigation.inc" -->
 	    <div class="content">
 	        <!--#include file="about.content" -->
