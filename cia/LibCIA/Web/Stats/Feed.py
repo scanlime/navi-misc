@@ -146,8 +146,11 @@ class XMLFeed(BaseFeed):
             tags.append(tag('counter', _name = name, **valueDict)[ eventCount ])
         result.callback(tags)
 
+    def render_statsLink(self, context):
+        return Link.StatsLink(self.target).getURL(context)
+
     document = tag('statsTarget')[
-        tag('link')[ place('link') ],
+        tag('link')[ place('statsLink') ],
         tag('counters')[ place('counters') ],
         tag('metadata')[ place('metadata') ],
         tag('recentMessages') [ place('items') ],
