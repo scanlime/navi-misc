@@ -2,7 +2,7 @@
 import re
 from PyUnicone import Device, Controller, Systems
 
-emu = Systems.GamecubeEmulator(Device.UniconeDevice())
+emu = Systems.GenesisEmulator(Device.GenesisDevice())
 
 def plug(c):
     print "Plugged in: %r" % c
@@ -12,7 +12,12 @@ def plug(c):
     except:
         return
     print "\tAttaching to port %d" % portNum
-    Controller.Mapping(c, emu.attach(portNum)).matchNames()
+
+    # Manually set up a mapping appropriate for Sonic games
+    Controller.Mapping(c, emu.attach(portNum),
+                       BTN_START = 'BTN_C',
+                       BTN_A     = 'BTN_A',
+                       JS_ABS    = 'JS_ABS')
 
 def unplug(c):
     print "Unplugged: %r" % c

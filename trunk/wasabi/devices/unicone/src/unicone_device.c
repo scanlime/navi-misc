@@ -1,6 +1,7 @@
 /*
- * device.c - Abstractions for the unicone device, including identifying connected
- *            devices, loading firmware, and loading FPGA configuration.
+ * unicone_device.c - Abstractions for the unicone device,
+ *                    configuring the firmware and FPGA, and
+ *                    communicating with the device's I2C bus.
  *
  * Universal Controller Emulator project
  * Copyright (C) 2004 Micah Dowty

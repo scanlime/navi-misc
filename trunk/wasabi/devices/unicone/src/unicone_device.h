@@ -1,6 +1,7 @@
 /*
- * device.h - Abstractions for the unicone device, including identifying connected
- *            devices, loading firmware, and loading FPGA configuration.
+ * unicone_device.h - Abstractions for the unicone device,
+ *                    configuring the firmware and FPGA, and
+ *                    communicating with the device's I2C bus.
  *
  * Universal Controller Emulator project
  * Copyright (C) 2004 Micah Dowty
@@ -131,6 +132,6 @@ int                       unicone_device_i2c_write        (struct unicone_device
 							   const unsigned char*      data,
 							   int                       length);
 
-#endif /* _H_LOADER */
+#endif /* _H_UNICONE_DEVICE */
 
 /* The End */

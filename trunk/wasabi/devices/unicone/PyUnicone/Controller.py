@@ -33,9 +33,9 @@ class Actuator(object):
        buttons, axes, and force feedback motors. The actuator has a value,
        usually a floating point number where 0 is neutral and None is unknown.
        """
-    def __init__(self, name):
+    def __init__(self, name, defaultValue=None):
         self.name = name
-        self._value = None
+        self._value = defaultValue
         Event.attach(self, "onChange")
 
     def __repr__(self):
@@ -51,16 +51,36 @@ class Actuator(object):
 
     value = property(_getValue, _setValue)
 
-    def mapTo(self, other):
-        """Forward all changes from this actuator to the other one given,
-           by adding an onChange observer that copies our value.
-           Returns a reference to the observer function- this reference
-           must remain held for the mapping to be preserved.
-           """
-        def mapper(value):
-            other.value = value
-        self.onChange.observe(mapper)
-        return mapper
+
+class Mapping(object):
+    """Map the state of controller onto another, by creating associations
+       between their actuators.
+       """
+    def __init__(self, fromController, toController, **presets):
+        self.fromController = fromController
+        self.toController = toController
+        self.observers = []
+        for f, t in presets.iteritems():
+            self.map(f,t)
+
+    def map(self, fromName, toName):
+        fromActuator = self.fromController[fromName]
+        toActuator = self.toController[toName]
+        def handler(value):
+            toActuator.value = value
+        self.observers.append(handler)
+        fromActuator.onChange.strongObserve(handler)
+
+    def clear(self):
+        """Remove all mappings between controllers"""
+        for o in self.observers:
+            self.fromActuator.onChange.unobserve(o)
+
+    def matchNames(self):
+        """Connect all actuators on each side with the same names"""
+        for name, actuator in self.fromController.actuators.iteritems():
+            if name in self.toController.actuators:
+                self.map(name, name)
 
 
 class Button(Actuator):
@@ -111,7 +131,7 @@ class Controller(object):
        on individual actuators, the entire controller is updated
        when it is sync'ed. Callbacks can be attached to this sync event.
        """
-    def __init__(self, name):
+    def __init__(self, name=None):
         self.name = name
         self.actuators = {}
         Event.attach(self, "onSync")
@@ -125,6 +145,16 @@ class Controller(object):
            """
         return self.actuators.get(name)
 
+    def getValue(self, name, default=0):
+        """Return the value of the named actuator. Use the
+           supplied default if the actuator doesn't exist
+           or its value is unknown.
+           """
+        if name in self.actuators:
+            return self.actuators[name].value or default
+        else:
+            return default
+
     def addActuator(self, a):
         self.actuators[a.name] = a
 
@@ -135,6 +165,41 @@ class Controller(object):
         for actuator in self.actuators.itervalues():
             if isinstance(actuator, cls):
                 yield actuator
+
+    def packAxisBytes(self, *format):
+        """Given a list of (actuator name, scale, bias) tuples,
+           encode a set of axes into a string of bytes.
+           """
+        bytes = []
+        for name, scale, bias in format:
+            v = self.getValue(name)
+            byte = min(0xFF, max(0x00, int(v * scale + bias + 0.5)))
+            bytes.append(chr(byte))
+        return ''.join(bytes)
+
+    def packButtonBits(self, *format):
+        """Given  a list of (actuator name, threshold, invert) tuples,
+           encode a set of buttons into a string of bytes. Without 'invert', a '1' bit
+           is inserted anywhere the actuator value is greater than the given threshold.
+           'invert' reverses this. It may be used in conjunction with an actuator name
+           of None to insert constant bits. Bits are specified starting with the MSB
+           of the first byte.
+           """
+        bytes = []
+        byte = 0
+        mask = 0x80
+        for name, threshold, invert in format:
+            v = (self.getValue(name) > threshold) ^ invert
+            if v:
+                byte |= mask
+            mask >>= 1
+            if not mask:
+                bytes.append(chr(byte))
+                byte = 0
+                mask = 0x80
+        if mask != 0x80:
+            bytes.append(chr(byte))
+        return ''.join(bytes)
 
 
 class EvdevController(Controller):

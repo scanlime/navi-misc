@@ -25,6 +25,7 @@
 
 %{
 #include <unicone_device.h>
+#include <genesis_device.h>
 #include <progress_python.h>
 #include <progress_console.h>
 %}
@@ -37,6 +38,7 @@
 }
 
 %include unicone_device.h
+%include genesis_device.h
 %include progress.h
 %include progress_python.h
 %include progress_console.h

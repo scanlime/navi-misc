@@ -18,6 +18,7 @@ LOADER_TOOL_OBJS = $(COMMON_OBJS) \
 
 PYUNICONE_OBJS = $(COMMON_OBJS) \
 	src/progress_python.o \
+	src/genesis_device.o \
 	$(PY_DIR)/libunicone_wrap.o
 
 TUSB_DIR = ../../../tusb
