@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# ASFReader.py: parses acclaim ASF (skeleton) files
+# ASFReader.py: parses Acclaim ASF (skeleton) files
 #
 # Copyright (C) 2005 David Trowbridge
 #
@@ -19,6 +19,16 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 from pyparsing import *
+from Bone import *
+
+def listToDict(list):
+    s = {}
+    for item in list:
+        if (len(item) == 2):
+            s[item[0]] = item[1]
+        else:
+            s[item[0]] = item[1:]
+    return s
 
 class ASFReader:
     bones = {}
@@ -27,13 +37,29 @@ class ASFReader:
     position = []
     orientation = []
     grammar = None
+    units = {}
 
     def gotRoot(self, s, loc, toks):
-        print 'root:\t',toks[0]
+        s = listToDict(toks[0])
+        self.orientation = s['orientation']
+        self.position    = s['position']
+        self.order       = s['order']
+        self.axis        = s['axis']
+        print 'root:'
+        print '\torientation:\t',self.orientation
+        print '\tposition:\t',self.position
+        print '\torder:\t\t',self.order
+        print '\taxis:\t\t',self.axis
     def gotUnit(self, s, loc, toks):
-        print 'units:\t',toks[0]
+        self.units = listToDict(toks[0])
+        #for (key, value) in self.units.items():
+            #self.units[key] = value[0]
+        print 'units:\t',self.units
     def gotBone(self, s, loc, toks):
-        print 'bone:\t',toks[0]
+        dict = listToDict(toks[0])
+        bone = Bone(dict)
+        self.bones[bone.name] = bone
+        print 'bone:\t',dict.keys()
 
     def getGrammar(self):
         if self.grammar is None:
@@ -89,9 +115,6 @@ class ASFReader:
 reader = ASFReader()
 asfFile = reader.getGrammar()
 x = asfFile.parseFile('02.asf')
-
-s = {}
-for section in x:
-    s[section[0]] = section[1:]
-
+s = listToDict(x)
 print s.keys()
+print reader.bones.keys()
