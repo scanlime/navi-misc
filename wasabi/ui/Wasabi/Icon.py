@@ -26,7 +26,7 @@ icon track and rotate icons along this track.
 #
 
 from BZEngine.UI import Texture, GLText, GLOrtho
-from BZEngine import Animated
+from BZEngine import Animated, Util
 from OpenGL import GL
 
 
@@ -241,5 +241,32 @@ class Dock(object):
         return self._selectionIndex
 
     selectionIndex = property(getSelectionIndex, setSelectionIndex)
+
+
+iconDict = None
+
+def getIconDict():
+    """Returns a dictionary mapping icon names to icon instances.
+       This executes the 'icons.py' datafile, saves the icons created
+       in its namespace, then caches the result.
+       """
+    global iconDict
+    if not iconDict:
+        iconDict = {}
+
+        # Run icons.py. It needs the 'Icon' class in its namespace.
+        ns = {'Icon': Icon}
+        exec open(Util.dataFile('icons.py')) in ns
+
+        # Pick out all the icon instances from the namespace
+        for key, value in ns.items():
+            if isinstance(value, Icon):
+                iconDict[key] = value
+    return iconDict
+
+
+def load(name):
+    """Load an icon by name"""
+    return getIconDict()[name]
 
 ### The End ###
