@@ -111,6 +111,25 @@ static inline void INIT_WORK(struct tq_struct *tq,
 #define NEW_INPUT_SUBSYSTEM
 #endif
 
+/* Compatibility macros for the USB subsystem */
+#ifdef NEW_USB_SUBSYSTEM
+#define gchub_submit_urb(urb, mem)     usb_submit_urb(urb, mem)
+#define gchub_set_intfdata(inf, dev)   usb_set_intfdata(inf, dev)
+#define gchub_alloc_urb(iso, mem)      usb_alloc_urb(iso, mem)
+#define gchub_usb_buffer_alloc(dev, size, mem, dma) usb_buffer_alloc(dev, size, mem, dma)
+#define gchub_usb_buffer_free(dev, size, data, dma) usb_buffer_free(dev, size, data, dma)
+#define gchub_fill_int_urb             usb_fill_int_urb
+#define gchub_fill_control_urb         usb_fill_control_urb
+#else
+#define gchub_submit_urb(urb, mem) usb_submit_urb(urb)
+#define gchub_set_intfdata(inf, dev)
+#define gchub_alloc_urb(iso, mem)      usb_alloc_urb(iso)
+#define gchub_usb_buffer_alloc(dev, size, mem, dma) kmalloc(size, mem)
+#define gchub_usb_buffer_free(dev, size, data, dma) kfree(data)
+#define gchub_fill_int_urb             FILL_INT_URB
+#define gchub_fill_control_urb         FILL_CONTROL_URB
+#endif
+
 struct gchub_controller_status {
 	int buttons;
 	int joystick[2];
@@ -195,20 +214,30 @@ struct gchub_dev {
 				      */
 
 
+#ifdef NEW_USB_SUBSYSTEM
 static int    gchub_probe              (struct usb_interface*           interface,
 					const struct usb_device_id*     id);
 static void   gchub_disconnect         (struct usb_interface*           interface);
-static void   gchub_delete             (struct gchub_dev*               dev);
-
-static void   gchub_irq                (struct urb*                     urb,
-					struct pt_regs*                 regs);
-static void   gchub_process_status     (struct gchub_dev*               dev,
-					const unsigned char*            packet);
-
-static void   gchub_sync_output_status (struct gchub_dev*               dev);
-static void   gchub_fill_output_request(struct gchub_dev*               dev);
 static void   gchub_out_request_irq    (struct urb*                     urb,
 					struct pt_regs*                 regs);
+static void   gchub_irq                (struct urb*                     urb,
+					struct pt_regs*                 regs);
+#else
+static void  *gchub_probe              (struct usb_device*              udev,
+					unsigned int                    ifnum,
+			                const struct usb_device_id*     id);
+static void   gchub_disconnect         (struct usb_device*              udev,
+					void*                           ptr);
+static void   gchub_out_request_irq    (struct urb*                     urb);
+static void   gchub_irq                (struct urb*                     urb);
+#endif
+
+static void   gchub_delete             (struct gchub_dev*               dev);
+
+static void   gchub_process_status     (struct gchub_dev*               dev,
+					const unsigned char*            packet);
+static void   gchub_sync_output_status (struct gchub_dev*               dev);
+static void   gchub_fill_output_request(struct gchub_dev*               dev);
 
 static int    buttons_to_axis          (int                             buttons,
 					int                             neg_mask,
@@ -241,14 +270,16 @@ static int    controller_upload_effect (struct input_dev*               dev,
 					struct ff_effect*               effect);
 static int    controller_erase_effect  (struct input_dev*               dev,
 					int                             effect_id);
-static int    controller_flush         (struct input_dev*               dev,
-					struct file*                    file);
 static int    controller_ff_event      (struct gchub_controller*        ctl,
 					unsigned int                    code,
 					int                             value);
 static int    controller_led_event     (struct gchub_controller*        ctl,
 					unsigned int                    code,
 					int                             value);
+#ifdef NEW_INPUT_SUBSYSTEM
+static int    controller_flush         (struct input_dev*               dev,
+					struct file*                    file);
+#endif
 
 
 /* Table of devices that work with this driver */
@@ -278,7 +309,6 @@ static int controller_init(struct gchub_controller* ctl,
 {
 	char name_buf[80];
 	int axis;
-	struct usb_device* usb = interface_to_usbdev(interface);
 
 	memset(ctl, 0, sizeof(*ctl));
 	spin_lock_init(&ctl->reg_lock);
@@ -299,23 +329,29 @@ static int controller_init(struct gchub_controller* ctl,
 	strcpy(ctl->dev.name, name_buf);
 
 #ifdef NEW_INPUT_SUBSYSTEM
-	/* Like the name, create a physical path naming the controller port */
-	usb_make_path(usb, name_buf, sizeof(name_buf));
-	snprintf(name_buf, sizeof(name_buf)-1, "%s/port%d", name_buf, port_number);
-	name_buf[sizeof(name_buf)-1] = '\0';
-	ctl->dev.phys = kmalloc(strlen(name_buf)+1, GFP_KERNEL);
-	if (!ctl->dev.phys)
-		return -ENOMEM;
-	strcpy(ctl->dev.phys, name_buf);
-#endif
+	/* In Linux 2.6, we can give the input device info about the physical
+	 * device supplying it with data. We attach information about our USB
+	 * device, and about which controller port this is referring to.
+	 */
+	{
+		struct usb_device* usb = interface_to_usbdev(interface);
 
-#ifdef NEW_INPUT_SUBSYSTEM
-	/* Copy USB bus info to our input device */
-	ctl->dev.id.bustype = BUS_USB;
-	ctl->dev.id.vendor  = usb->descriptor.idVendor;
-	ctl->dev.id.product = usb->descriptor.idProduct;
-	ctl->dev.id.version = usb->descriptor.bcdDevice;
-	ctl->dev.dev = &interface->dev;
+		/* Like the name, create a physical path naming the controller port */
+		usb_make_path(usb, name_buf, sizeof(name_buf));
+		snprintf(name_buf, sizeof(name_buf)-1, "%s/port%d", name_buf, port_number);
+		name_buf[sizeof(name_buf)-1] = '\0';
+		ctl->dev.phys = kmalloc(strlen(name_buf)+1, GFP_KERNEL);
+		if (!ctl->dev.phys)
+			return -ENOMEM;
+		strcpy(ctl->dev.phys, name_buf);
+
+		/* Copy USB bus info to our input device */
+		ctl->dev.id.bustype = BUS_USB;
+		ctl->dev.id.vendor  = usb->descriptor.idVendor;
+		ctl->dev.id.product = usb->descriptor.idProduct;
+		ctl->dev.id.version = usb->descriptor.bcdDevice;
+		ctl->dev.dev = &interface->dev;
+	}
 #endif
 
 	/* Set up callbacks */
@@ -729,7 +765,11 @@ static int controller_flush(struct input_dev* dev, struct file* file)
 /************************************************** Device Communications *****/
 /******************************************************************************/
 
+#ifdef NEW_USB_SUBSYSTEM
 static void gchub_irq(struct urb *urb, struct pt_regs *regs)
+#else
+static void gchub_irq(struct urb *urb)
+#endif
 {
 	struct gchub_dev *dev = (struct gchub_dev*)urb->context;
 
@@ -750,8 +790,13 @@ static void gchub_irq(struct urb *urb, struct pt_regs *regs)
 
 	gchub_process_status(dev, dev->irq_data);
 
-	/* Resubmit the URB to get another interrupt transfer going */
-	usb_submit_urb(urb, SLAB_ATOMIC);
+#ifdef NEW_USB_SUBSYSTEM
+	/* Resubmit the URB to get another interrupt transfer going.
+	 * In Linux 2.4, the URBs get automagically resubmitted (good for us,
+	 * but bad for a lot of other things)
+	 */
+	gchub_submit_urb(urb, SLAB_ATOMIC);
+#endif
 }
 
 static void gchub_process_status(struct gchub_dev *dev, const unsigned char *packet)
@@ -868,7 +913,7 @@ static void gchub_sync_output_status(struct gchub_dev* dev)
 		spin_unlock_irqrestore(&dev->out_status_lock, flags);
 
 		gchub_fill_output_request(dev);
-		usb_submit_urb(dev->out_status, SLAB_ATOMIC);
+		gchub_submit_urb(dev->out_status, SLAB_ATOMIC);
 	}
 }
 
@@ -917,7 +962,11 @@ static void   gchub_fill_output_request(struct gchub_dev* dev)
 }
 
 /* An output request just completed, but we might need another right away. */
+#ifdef NEW_USB_SUBSYSTEM
 static void gchub_out_request_irq(struct urb* urb, struct pt_regs* regs)
+#else
+static void gchub_out_request_irq(struct urb* urb)
+#endif
 {
 	struct gchub_dev *dev = (struct gchub_dev*)urb->context;
 	unsigned long flags;
@@ -931,7 +980,7 @@ static void gchub_out_request_irq(struct urb* urb, struct pt_regs* regs)
 		spin_unlock_irqrestore(&dev->out_status_lock, flags);
 
 		gchub_fill_output_request(dev);
-		usb_submit_urb(dev->out_status, SLAB_ATOMIC);
+		gchub_submit_urb(dev->out_status, SLAB_ATOMIC);
 	}
 	else {
 		/* Done for now. */
@@ -954,17 +1003,16 @@ static void gchub_delete(struct gchub_dev *dev)
 	if (dev->irq) {
 		usb_unlink_urb(dev->irq);
 		usb_free_urb(dev->irq);
+		dev->irq = NULL;
 	}
 	if (dev->irq_data) {
-#ifdef NEW_USB_SUBSYSTEM
-		usb_buffer_free(dev->udev, STATUS_PACKET_SIZE, dev->irq_data, dev->irq_dma);
-#else
-		kfree(dev->irq_data);
-#endif
+		gchub_usb_buffer_free(dev->udev, STATUS_PACKET_SIZE, dev->irq_data, dev->irq_dma);
+		dev->irq_data = NULL;
 	}
 	if (dev->out_status) {
 		usb_unlink_urb(dev->out_status);
 		usb_free_urb(dev->out_status);
+		dev->out_status = NULL;
 	}
 
 	for (i=0; i<NUM_PORTS; i++)
@@ -973,30 +1021,39 @@ static void gchub_delete(struct gchub_dev *dev)
 	kfree(dev);
 }
 
+#ifdef NEW_USB_SUBSYSTEM
 static int gchub_probe(struct usb_interface *interface, const struct usb_device_id *id)
 {
 	struct usb_device *udev = interface_to_usbdev(interface);
+#else
+static void *gchub_probe(struct usb_device *udev, unsigned int ifnum,
+			 const struct usb_device_id *id)
+{
+	struct usb_interface *interface = &udev->actconfig->interface[ifnum];
+#endif
 	struct gchub_dev *dev = NULL;
 	int retval, i;
 
 	/* See if the device offered us matches what we can accept */
 	if ((udev->descriptor.idVendor != GCHUB_VENDOR_ID) ||
 	   (udev->descriptor.idProduct != GCHUB_PRODUCT_ID)) {
-		return -ENODEV;
+		retval = -ENODEV;
+		goto early_error;
 	}
 
 	/* allocate memory for our device state and intialize it */
 	dev = kmalloc(sizeof(struct gchub_dev), GFP_KERNEL);
 	if (dev == NULL) {
 		err("Out of memory");
-		return -ENOMEM;
+		retval = -ENOMEM;
+		goto early_error;
 	}
 	memset(dev, 0, sizeof(*dev));
 
 	spin_lock_init(&dev->out_status_lock);
 	dev->udev = udev;
 	dev->interface = interface;
-	usb_set_intfdata(interface, dev);
+	gchub_set_intfdata(interface, dev);
 
 	for (i=0; i<NUM_PORTS; i++) {
 		retval = controller_init(&dev->ports[i], dev, interface,
@@ -1006,54 +1063,66 @@ static int gchub_probe(struct usb_interface *interface, const struct usb_device_
 	}
 
 	/* Prepere the irq URB */
-#ifdef NEW_USB_SUBSYSTEM
-	dev->irq_data = usb_buffer_alloc(udev, 8, SLAB_ATOMIC, &dev->irq_dma);
-#else
-	dev->irq_data = kmalloc(8, GFP_KERNEL);
-#endif
+	dev->irq_data = gchub_usb_buffer_alloc(udev, 8, GFP_KERNEL, &dev->irq_dma);
 	if (!dev->irq_data) {
 		retval = -ENOMEM;
 		goto error;
 	}
-	dev->irq = usb_alloc_urb(0, GFP_KERNEL);
+	dev->irq = gchub_alloc_urb(0, GFP_KERNEL);
 	if (!dev->irq) {
 		retval = -ENOMEM;
 		goto error;
 	}
 
 	/* Prepare the output status URB */
-	dev->out_status = usb_alloc_urb(0, GFP_KERNEL);
+	dev->out_status = gchub_alloc_urb(0, GFP_KERNEL);
 	if (!dev->out_status) {
 		retval = -ENOMEM;
 		goto error;
 	}
-	usb_fill_control_urb(dev->out_status, udev, usb_sndctrlpipe(udev, 0),
-			     (unsigned char*) &dev->out_status_request, NULL,
-			     0, gchub_out_request_irq, dev);
+	gchub_fill_control_urb(dev->out_status, udev, usb_sndctrlpipe(udev, 0),
+			       (unsigned char*) &dev->out_status_request, NULL,
+			       0, gchub_out_request_irq, dev);
 
 	/* Start the interrupt data flowing */
-	usb_fill_int_urb(dev->irq, udev, usb_rcvintpipe(udev, 1),
-			 dev->irq_data, STATUS_PACKET_SIZE, gchub_irq,
-			 dev, STATUS_PACKET_INTERVAL);
-	usb_submit_urb(dev->irq, SLAB_ATOMIC);
-
+	gchub_fill_int_urb(dev->irq, udev, usb_rcvintpipe(udev, 1),
+			   dev->irq_data, STATUS_PACKET_SIZE, gchub_irq,
+			   dev, STATUS_PACKET_INTERVAL);
+	gchub_submit_urb(dev->irq, SLAB_ATOMIC);
 
 	info(DEVICE_DESC " now attached");
-	return 0;
 
+#ifdef NEW_USB_SUBSYSTEM
+	return 0;
 error:
-	usb_set_intfdata (interface, NULL);
+	gchub_set_intfdata (interface, NULL);
 	gchub_delete(dev);
+early_error:
 	return retval;
+#else
+	return dev;
+error:
+	gchub_set_intfdata (interface, NULL);
+	gchub_delete(dev);
+early_error:
+	return NULL;
+#endif
 }
 
+
+#ifdef NEW_USB_SUBSYSTEM
 static void gchub_disconnect(struct usb_interface *interface)
 {
 	struct gchub_dev *dev;
-
 	dev = usb_get_intfdata (interface);
-	usb_set_intfdata (interface, NULL);
 
+#else
+static void gchub_disconnect(struct usb_device *udev, void *ptr)
+{
+	struct gchub_dev *dev = ptr;
+#endif
+
+	gchub_set_intfdata (interface, NULL);
 	gchub_delete(dev);
 
 	info(DEVICE_DESC " now disconnected");
