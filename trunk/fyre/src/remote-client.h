@@ -54,6 +54,10 @@ typedef void   (*RemoteCallback)              (RemoteClient*     self,
 					       RemoteResponse*   response,
 					       gpointer          user_data);
 
+typedef void   (*RemoteStatusCallback)        (RemoteClient*     self,
+					       const gchar*      status,
+					       gpointer          user_data);
+
 struct _RemoteClosure {
     RemoteCallback callback;
     gpointer       user_data;
@@ -61,7 +65,13 @@ struct _RemoteClosure {
 
 struct _RemoteClient {
     GObject object;
+    const gchar* host;
+    gint port;
     GConn*  gconn;
+
+    RemoteStatusCallback status_callback;
+    gpointer status_callback_user_data;
+    gboolean is_ready;
 
     GQueue* response_queue;
     RemoteResponse* current_binary_response;
@@ -84,9 +94,13 @@ struct _RemoteResponse {
 /************************************************************************************/
 
 GType          remote_client_get_type         ();
-RemoteClient*  remote_client_new              (const gchar*      hostname,
-					       gint              port);
-gboolean       remote_client_is_connected     (RemoteClient*     self);
+RemoteClient*  remote_client_new              (const gchar*          hostname,
+					       gint                  port);
+void           remote_client_set_status_cb    (RemoteClient*         self,
+					       RemoteStatusCallback  status_cb,
+					       gpointer              user_data);
+void           remote_client_connect          (RemoteClient*         self);
+gboolean       remote_client_is_ready         (RemoteClient*         self);
 
 /* Low-level interface */
 

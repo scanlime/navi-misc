@@ -76,6 +76,8 @@ struct _Explorer {
     GTimeVal last_anim_frame_time;
 
     AnimationRenderUi *render_window;
+
+    GtkListStore *cluster_model;
 };
 
 struct _ExplorerClass {

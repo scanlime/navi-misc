@@ -40,6 +40,9 @@ static void       remote_client_recv_binary   (RemoteClient*         self,
 					       GConnEvent*           event);
 static void       remote_client_recv_line     (RemoteClient*         self,
 					       GConnEvent*           event);
+static void       remote_client_update_status (RemoteClient*         self,
+					       const gchar*          fmt,
+					       ...);
 
 
 /************************************************************************************/
@@ -103,27 +106,63 @@ static void remote_client_init(RemoteClient *self)
     self->response_queue = g_queue_new();
 }
 
-RemoteClient*  remote_client_new              (const gchar*      hostname,
-					       gint              port)
+RemoteClient*  remote_client_new              (const gchar*          hostname,
+					       gint                  port)
 {
     RemoteClient *self = REMOTE_CLIENT(g_object_new(remote_client_get_type(), NULL));
 
-    self->gconn = gnet_conn_new(hostname, port, remote_client_callback, self);
-    gnet_conn_set_watch_error(self->gconn, TRUE);
-    gnet_conn_readline(self->gconn);
+    self->host = hostname;
+    self->port = port;
 
     return self;
 }
 
-gboolean       remote_client_is_connected     (RemoteClient*     self)
+void           remote_client_set_status_cb    (RemoteClient*         self,
+					       RemoteStatusCallback  status_cb,
+					       gpointer              user_data)
 {
-    return gnet_conn_is_connected(self->gconn);
+    self->status_callback = status_cb;
+    self->status_callback_user_data = user_data;
+}
+
+void           remote_client_connect          (RemoteClient*         self)
+{
+    self->gconn = gnet_conn_new(self->host, self->port, remote_client_callback, self);
+    gnet_conn_set_watch_error(self->gconn, TRUE);
+    gnet_conn_connect(self->gconn);
+    gnet_conn_readline(self->gconn);
+
+    remote_client_update_status(self, "Connecting...");
+}
+
+gboolean       remote_client_is_ready         (RemoteClient*     self)
+{
+    return self->is_ready;
 }
 
 
 /************************************************************************************/
 /************************************************************** Low-level Interface */
 /************************************************************************************/
+
+static void       remote_client_update_status (RemoteClient*         self,
+					       const gchar*          fmt,
+					       ...)
+{
+    gchar *msg;
+    va_list ap;
+
+    if (!self->status_callback)
+	return;
+
+    va_start(ap, fmt);
+    msg = g_strdup_vprintf(fmt, ap);
+    va_end(ap);
+
+    self->status_callback(self, msg, self->status_callback_user_data);
+
+    g_free(msg);
+}
 
 void           remote_client_command          (RemoteClient*     self,
 					       RemoteCallback    callback,
@@ -165,6 +204,25 @@ static void       remote_client_callback      (GConn*                gconn,
 	    remote_client_recv_binary(self, event);
 	else
 	    remote_client_recv_line(self, event);
+	break;
+
+    case GNET_CONN_CONNECT:
+	remote_client_update_status(self, "Connected");
+	break;
+
+    case GNET_CONN_CLOSE:
+	self->is_ready = FALSE;
+	remote_client_update_status(self, "Connection closed");
+	break;
+
+    case GNET_CONN_TIMEOUT:
+	self->is_ready = FALSE;
+	remote_client_update_status(self, "Timed out");
+	break;
+
+    case GNET_CONN_ERROR:
+	self->is_ready = FALSE;
+	remote_client_update_status(self, "Connection error");
 	break;
 
     default:
@@ -217,9 +275,19 @@ static void       remote_client_recv_line     (RemoteClient*         self,
 	 * for another normal response line.
 	 */
 	RemoteClosure* closure = g_queue_pop_tail(self->response_queue);
-	g_assert(closure != NULL);
-	closure->callback(self, response, closure->user_data);
-	g_free(closure);
+
+	if (closure) {
+	    /* This was an answer to some request. Invoke the callback */
+	    closure->callback(self, response, closure->user_data);
+	    g_free(closure);
+	}
+	else {
+	    /* This was unsolicited- should only occur for the server ready message */
+	    g_assert(response->code == FYRE_RESPONSE_READY);
+	    self->is_ready = TRUE;
+	    remote_client_update_status(self, "Ready");
+	}
+
 	g_free(response->message);
 	g_free(response);
 

@@ -1496,6 +1496,7 @@ to balance interactive response with image quality.</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_NONE</property>
   <property name="modal">False</property>
+  <property name="default_height">250</property>
   <property name="resizable">True</property>
   <property name="destroy_with_parent">False</property>
   <property name="decorated">True</property>
@@ -1550,27 +1551,6 @@ to balance interactive response with image quality.</property>
 	  <property name="column_spacing">8</property>
 
 	  <child>
-	    <widget class="GtkButton" id="cluster_add_host">
-	      <property name="visible">True</property>
-	      <property name="sensitive">False</property>
-	      <property name="can_focus">True</property>
-	      <property name="label">gtk-add</property>
-	      <property name="use_stock">True</property>
-	      <property name="relief">GTK_RELIEF_NORMAL</property>
-	      <property name="focus_on_click">True</property>
-	      <signal name="clicked" handler="on_cluster_add_host" last_modification_time="Sat, 27 Nov 2004 01:57:51 GMT"/>
-	    </widget>
-	    <packing>
-	      <property name="left_attach">0</property>
-	      <property name="right_attach">1</property>
-	      <property name="top_attach">0</property>
-	      <property name="bottom_attach">1</property>
-	      <property name="x_options">fill</property>
-	      <property name="y_options"></property>
-	    </packing>
-	  </child>
-
-	  <child>
 	    <widget class="GtkButton" id="cluster_remove_host">
 	      <property name="visible">True</property>
 	      <property name="sensitive">False</property>
@@ -1582,8 +1562,8 @@ to balance interactive response with image quality.</property>
 	      <signal name="clicked" handler="on_cluster_remove_host" last_modification_time="Sat, 27 Nov 2004 01:58:05 GMT"/>
 	    </widget>
 	    <packing>
-	      <property name="left_attach">0</property>
-	      <property name="right_attach">1</property>
+	      <property name="left_attach">1</property>
+	      <property name="right_attach">2</property>
 	      <property name="top_attach">1</property>
 	      <property name="bottom_attach">2</property>
 	      <property name="x_options">fill</property>
@@ -1622,14 +1602,15 @@ to balance interactive response with image quality.</property>
 		<widget class="GtkEntry" id="cluster_hostname">
 		  <property name="visible">True</property>
 		  <property name="can_focus">True</property>
+		  <property name="has_focus">True</property>
 		  <property name="editable">True</property>
 		  <property name="visibility">True</property>
 		  <property name="max_length">0</property>
 		  <property name="text" translatable="yes"></property>
 		  <property name="has_frame">True</property>
 		  <property name="invisible_char" translatable="yes">*</property>
-		  <property name="activates_default">False</property>
-		  <signal name="changed" handler="on_cluster_hostname_changed" last_modification_time="Sat, 27 Nov 2004 02:16:09 GMT"/>
+		  <property name="activates_default">True</property>
+		  <signal name="changed" handler="on_cluster_host_or_port_changed" last_modification_time="Sat, 27 Nov 2004 02:42:01 GMT"/>
 		</widget>
 		<packing>
 		  <property name="padding">0</property>
@@ -1669,9 +1650,9 @@ to balance interactive response with image quality.</property>
 		  <property name="text" translatable="yes"></property>
 		  <property name="has_frame">True</property>
 		  <property name="invisible_char" translatable="yes">*</property>
-		  <property name="activates_default">False</property>
+		  <property name="activates_default">True</property>
 		  <property name="width_chars">6</property>
-		  <signal name="changed" handler="on_cluster_port_changed" last_modification_time="Sat, 27 Nov 2004 02:16:15 GMT"/>
+		  <signal name="changed" handler="on_cluster_host_or_port_changed" last_modification_time="Sat, 27 Nov 2004 02:42:08 GMT"/>
 		</widget>
 		<packing>
 		  <property name="padding">0</property>
@@ -1681,11 +1662,34 @@ to balance interactive response with image quality.</property>
 	      </child>
 	    </widget>
 	    <packing>
+	      <property name="left_attach">0</property>
+	      <property name="right_attach">1</property>
+	      <property name="top_attach">0</property>
+	      <property name="bottom_attach">1</property>
+	      <property name="x_options">fill</property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <widget class="GtkButton" id="cluster_add_host">
+	      <property name="visible">True</property>
+	      <property name="sensitive">False</property>
+	      <property name="can_default">True</property>
+	      <property name="has_default">True</property>
+	      <property name="can_focus">True</property>
+	      <property name="label">gtk-add</property>
+	      <property name="use_stock">True</property>
+	      <property name="relief">GTK_RELIEF_NORMAL</property>
+	      <property name="focus_on_click">True</property>
+	      <signal name="clicked" handler="on_cluster_add_host" last_modification_time="Sat, 27 Nov 2004 01:57:51 GMT"/>
+	    </widget>
+	    <packing>
 	      <property name="left_attach">1</property>
 	      <property name="right_attach">2</property>
 	      <property name="top_attach">0</property>
 	      <property name="bottom_attach">1</property>
-	      <property name="y_options">fill</property>
+	      <property name="x_options">fill</property>
+	      <property name="y_options"></property>
 	    </packing>
 	  </child>
 	</widget>
