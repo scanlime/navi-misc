@@ -4,8 +4,8 @@
 <greeter>
   <!-- Background image -->
   <item type="pixmap">
-    <normal file="spheres.png" tint="#dddddd"/>
-    <pos x="0" y="0" width="100%" height="90%"/>
+    <normal file="spheres.png"/>
+    <pos anchor="sw" x="0" y="-75" width="100%" height="100%"/>
   </item>
 
   <!-- user/passwd entry -->
@@ -50,49 +50,52 @@
   <!-- Menubar -->
   <item type="rect">
     <normal color="#ffffff"/>
-    <pos anchor="sw" x="0" y="100%" width="100%" height="10%"/>
+    <pos anchor="sw" x="0" y="100%" width="100%" height="75"/>
     <fixed>
 
       <item type="rect">
         <pos anchor="se" x="100%" y="100%" width="box" height="100%"/>
         <box orientation="horizontal" xpadding="10" spacing="10">
           <item type="rect" id="system_button" button="true">
-            <pos anchor="sw" y="50%" width="box" height="box"/>
+            <pos anchor="sw" y="100%" width="box" height="box"/>
             <box orientation="horizontal">
               <item type="pixmap">
+                <pos anchor="w" y="50%"/>
                 <normal file="head1.png"/>
               </item>
               <item type="label">
-                <pos y="50%"/>
-                <normal color="#000000" font="Bitstream Vera Sans 14"/>
+                <pos anchor="w" y="50%"/>
+                <normal color="#000000" font="Bitstream Vera Sans 24"/>
                 <stock type="system"/>
               </item>
             </box>
           </item>
 
           <item type="rect" id="session_button" button="true">
-            <pos anchor="sw" y="50%" width="box" height="box"/>
+            <pos anchor="sw" y="100%" width="box" height="box"/>
             <box orientation="horizontal">
               <item type="pixmap">
+                <pos anchor="w" y="50%"/>
                 <normal file="moongoat.png"/>
               </item>
               <item type="label">
-                <pos y="50%"/>
-                <normal color="#000000" font="Bitstream Vera Sans 14"/>
+                <pos anchor="w" y="50%"/>
+                <normal color="#000000" font="Bitstream Vera Sans 24"/>
                 <stock type="session"/>
               </item>
             </box>
           </item>
 
           <item type="rect" id="language_button" button="true">
-            <pos anchor="sw" y="50%" width="box" height="box"/>
+            <pos anchor="sw" y="100%" width="box" height="box"/>
             <box orientation="horizontal">
               <item type="pixmap">
+                <pos anchor="w" y="50%"/>
                 <normal file="head2.png"/>
               </item>
               <item type="label">
-                <pos y="50%"/>
-                <normal color="#000000" font="Bitstream Vera Sans 14"/>
+                <pos anchor="w" y="50%"/>
+                <normal color="#000000" font="Bitstream Vera Sans 24"/>
                 <stock type="language"/>
               </item>
             </box>
