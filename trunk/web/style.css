@@ -116,7 +116,7 @@ div.row {
 
 ul {
   line-height: 1.5em;
-  list-style-name: square;
+  list-style-type: square;
   margin-left: 2.0em;
   padding: 0em;
   margin: 0em 0em 0em 1.5em;
