@@ -23,6 +23,7 @@
 
 #include "config.h"
 #include <string.h>
+#include <math.h>
 #include "explorer.h"
 #include "parameter-editor.h"
 #include "math-util.h"
@@ -513,17 +514,36 @@ static gboolean explorer_auto_limit_update_rate(Explorer *self) {
     /* Automatically determine a good maximum frame rate based on the current
      * elapsed time, and use limit_update_rate() to limit us to that.
      * Returns 1 if a frame should not be rendered.
+     *
+     * 'gamma' determines the nonlinearity. At gamma=1 we ramp down the period
+     * linearly. (not the rate) The other parameters determine the speed and the
+     * maximum/minimum rates. Voodoo below!
      */
 
-    const float initial_rate = 60;
-    const float final_rate = 1;
-    const float ramp_down_seconds = 3;
-    float rate, elapsed;
+    const double initial_rate = 60;
+    const double final_rate = 0.1;
+    const double ramp_down_seconds = 120;
+    const double gamma = 0.9;
 
+    /* Convert the user-friendly constants above into constants in nonlinear period space */
+    double rate, elapsed;
+    static gboolean init = FALSE;
+    static double pow_initial_period, pow_period_scale, one_over_gamma;
+    if (!init) {
+	pow_initial_period = pow(1.0 / initial_rate, gamma);
+	pow_period_scale = (pow(1.0 / final_rate, gamma) - pow_initial_period) / ramp_down_seconds;
+	one_over_gamma = 1.0 / gamma;
+	init = TRUE;
+    }
+
+    /* Now it's just a simple linear function followed by a nonlinear
+     * transformation back to rate space.
+     */
     elapsed = histogram_imager_get_elapsed_time(HISTOGRAM_IMAGER(self->map));
-    rate = initial_rate + (final_rate - initial_rate) * (elapsed / ramp_down_seconds);
-    if (rate < final_rate)
+    if (elapsed > ramp_down_seconds)
 	rate = final_rate;
+    else
+	rate = 1.0 / pow(pow_initial_period + pow_period_scale * elapsed, one_over_gamma);
 
     return limit_update_rate(self->update_rate_timer, rate);
 }
