@@ -442,10 +442,10 @@ initialize_preferences_servers_page ()
 	gtk_tree_view_set_model (GTK_TREE_VIEW (treeview), GTK_TREE_MODEL (sort));
 
 	text_renderer = gtk_cell_renderer_text_new ();
-	text_column = gtk_tree_view_column_new_with_attributes ("name", text_renderer, "text", 0, NULL);
+	text_column = gtk_tree_view_column_new_with_attributes ("Name", text_renderer, "text", 0, NULL);
 	gtk_tree_view_append_column (GTK_TREE_VIEW (treeview), text_column);
 	autoconnect_renderer = gtk_cell_renderer_toggle_new ();
-	autoconnect_column = gtk_tree_view_column_new_with_attributes ("auto-connect", autoconnect_renderer, "active", 1, NULL);
+	autoconnect_column = gtk_tree_view_column_new_with_attributes ("Auto-Connect", autoconnect_renderer, "active", 1, NULL);
 	gtk_tree_view_append_column (GTK_TREE_VIEW (treeview), autoconnect_column);
 
 	edit_button = glade_xml_get_widget (gui.xml, "servers edit");
