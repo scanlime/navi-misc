@@ -7,6 +7,7 @@ CLASSES=\
 	moderator.class\
 	aimconfig.class\
 	webconfig.class\
+	notice.class\
 	admin.class
 
 app: $(CLASSES)
@@ -19,6 +20,9 @@ authenticate.class: authenticate.java
 
 interview.class: interview.java
 	javac interview.java
+
+notice.class: notice.java
+	javac notice.java
 
 webconfig.class: webconfig.java
 	javac webconfig.java
