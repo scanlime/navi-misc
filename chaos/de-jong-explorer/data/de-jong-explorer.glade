@@ -2,8 +2,9 @@
 <!DOCTYPE glade-interface SYSTEM "http://glade.gnome.org/glade-2.0.dtd">
 
 <glade-interface>
+<requires lib="gnome"/>
 
-<widget class="GtkWindow" id="main_window">
+<widget class="GtkWindow" id="explorer_window">
   <property name="visible">True</property>
   <property name="title" translatable="yes">de Jong Explorer</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
@@ -11,6 +12,7 @@
   <property name="modal">False</property>
   <property name="resizable">True</property>
   <property name="destroy_with_parent">False</property>
+  <signal name="delete_event" handler="on_window_delete" last_modification_time="Sun, 15 Feb 2004 05:06:08 GMT"/>
 
   <child>
     <widget class="GtkVBox" id="vbox1">
@@ -19,162 +21,7 @@
       <property name="spacing">0</property>
 
       <child>
-	<widget class="GtkMenuBar" id="menubar1">
-	  <property name="visible">True</property>
-
-	  <child>
-	    <widget class="GtkMenuItem" id="menuitem1">
-	      <property name="visible">True</property>
-	      <property name="label" translatable="yes">_File</property>
-	      <property name="use_underline">True</property>
-
-	      <child>
-		<widget class="GtkMenu" id="menu1">
-
-		  <child>
-		    <widget class="GtkImageMenuItem" id="new1">
-		      <property name="visible">True</property>
-		      <property name="label">gtk-new</property>
-		      <property name="use_stock">True</property>
-		      <signal name="activate" handler="on_new1_activate" last_modification_time="Sat, 14 Feb 2004 19:15:21 GMT"/>
-		    </widget>
-		  </child>
-
-		  <child>
-		    <widget class="GtkImageMenuItem" id="open1">
-		      <property name="visible">True</property>
-		      <property name="label">gtk-open</property>
-		      <property name="use_stock">True</property>
-		      <signal name="activate" handler="on_open1_activate" last_modification_time="Sat, 14 Feb 2004 19:15:21 GMT"/>
-		    </widget>
-		  </child>
-
-		  <child>
-		    <widget class="GtkImageMenuItem" id="save1">
-		      <property name="visible">True</property>
-		      <property name="label">gtk-save</property>
-		      <property name="use_stock">True</property>
-		      <signal name="activate" handler="on_save1_activate" last_modification_time="Sat, 14 Feb 2004 19:15:21 GMT"/>
-		    </widget>
-		  </child>
-
-		  <child>
-		    <widget class="GtkImageMenuItem" id="save_as1">
-		      <property name="visible">True</property>
-		      <property name="label">gtk-save-as</property>
-		      <property name="use_stock">True</property>
-		      <signal name="activate" handler="on_save_as1_activate" last_modification_time="Sat, 14 Feb 2004 19:15:21 GMT"/>
-		    </widget>
-		  </child>
-
-		  <child>
-		    <widget class="GtkSeparatorMenuItem" id="separatormenuitem1">
-		      <property name="visible">True</property>
-		    </widget>
-		  </child>
-
-		  <child>
-		    <widget class="GtkImageMenuItem" id="quit1">
-		      <property name="visible">True</property>
-		      <property name="label">gtk-quit</property>
-		      <property name="use_stock">True</property>
-		      <signal name="activate" handler="on_quit1_activate" last_modification_time="Sat, 14 Feb 2004 19:15:21 GMT"/>
-		    </widget>
-		  </child>
-		</widget>
-	      </child>
-	    </widget>
-	  </child>
-
-	  <child>
-	    <widget class="GtkMenuItem" id="menuitem2">
-	      <property name="visible">True</property>
-	      <property name="label" translatable="yes">_Edit</property>
-	      <property name="use_underline">True</property>
-
-	      <child>
-		<widget class="GtkMenu" id="menu2">
-
-		  <child>
-		    <widget class="GtkImageMenuItem" id="cut1">
-		      <property name="visible">True</property>
-		      <property name="label">gtk-cut</property>
-		      <property name="use_stock">True</property>
-		      <signal name="activate" handler="on_cut1_activate" last_modification_time="Sat, 14 Feb 2004 19:15:21 GMT"/>
-		    </widget>
-		  </child>
-
-		  <child>
-		    <widget class="GtkImageMenuItem" id="copy1">
-		      <property name="visible">True</property>
-		      <property name="label">gtk-copy</property>
-		      <property name="use_stock">True</property>
-		      <signal name="activate" handler="on_copy1_activate" last_modification_time="Sat, 14 Feb 2004 19:15:21 GMT"/>
-		    </widget>
-		  </child>
-
-		  <child>
-		    <widget class="GtkImageMenuItem" id="paste1">
-		      <property name="visible">True</property>
-		      <property name="label">gtk-paste</property>
-		      <property name="use_stock">True</property>
-		      <signal name="activate" handler="on_paste1_activate" last_modification_time="Sat, 14 Feb 2004 19:15:21 GMT"/>
-		    </widget>
-		  </child>
-
-		  <child>
-		    <widget class="GtkImageMenuItem" id="delete1">
-		      <property name="visible">True</property>
-		      <property name="label">gtk-delete</property>
-		      <property name="use_stock">True</property>
-		      <signal name="activate" handler="on_delete1_activate" last_modification_time="Sat, 14 Feb 2004 19:15:21 GMT"/>
-		    </widget>
-		  </child>
-		</widget>
-	      </child>
-	    </widget>
-	  </child>
-
-	  <child>
-	    <widget class="GtkMenuItem" id="menuitem3">
-	      <property name="visible">True</property>
-	      <property name="label" translatable="yes">_View</property>
-	      <property name="use_underline">True</property>
-
-	      <child>
-		<widget class="GtkMenu" id="menu3">
-		</widget>
-	      </child>
-	    </widget>
-	  </child>
-
-	  <child>
-	    <widget class="GtkMenuItem" id="menuitem4">
-	      <property name="visible">True</property>
-	      <property name="label" translatable="yes">_Help</property>
-	      <property name="use_underline">True</property>
-
-	      <child>
-		<widget class="GtkMenu" id="menu4">
-
-		  <child>
-		    <widget class="GtkMenuItem" id="about1">
-		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">_About</property>
-		      <property name="use_underline">True</property>
-		      <signal name="activate" handler="on_about1_activate" last_modification_time="Sat, 14 Feb 2004 19:15:21 GMT"/>
-		    </widget>
-		  </child>
-		</widget>
-	      </child>
-	    </widget>
-	  </child>
-	</widget>
-	<packing>
-	  <property name="padding">0</property>
-	  <property name="expand">False</property>
-	  <property name="fill">False</property>
-	</packing>
+	<placeholder/>
       </child>
 
       <child>
@@ -621,16 +468,17 @@ Settings&lt;/b&gt;</property>
 		  </child>
 
 		  <child>
-		    <widget class="GtkSpinButton" id="spinbutton2">
+		    <widget class="GtkSpinButton" id="param_b">
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
 		      <property name="climb_rate">1</property>
-		      <property name="digits">0</property>
+		      <property name="digits">5</property>
 		      <property name="numeric">True</property>
 		      <property name="update_policy">GTK_UPDATE_ALWAYS</property>
 		      <property name="snap_to_ticks">False</property>
 		      <property name="wrap">False</property>
-		      <property name="adjustment">0 -9.999 9.999 0.001 1 1</property>
+		      <property name="adjustment">0 -9.999 9.999 0.001 0.01 0.01</property>
+		      <signal name="value_changed" handler="on_param_spinner_changed" last_modification_time="Sun, 15 Feb 2004 05:07:31 GMT"/>
 		    </widget>
 		    <packing>
 		      <property name="left_attach">1</property>
@@ -642,16 +490,17 @@ Settings&lt;/b&gt;</property>
 		  </child>
 
 		  <child>
-		    <widget class="GtkSpinButton" id="spinbutton3">
+		    <widget class="GtkSpinButton" id="param_c">
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
 		      <property name="climb_rate">1</property>
-		      <property name="digits">0</property>
+		      <property name="digits">5</property>
 		      <property name="numeric">True</property>
 		      <property name="update_policy">GTK_UPDATE_ALWAYS</property>
 		      <property name="snap_to_ticks">False</property>
 		      <property name="wrap">False</property>
-		      <property name="adjustment">0 -9.999 9.999 0.001 1 1</property>
+		      <property name="adjustment">0 -9.999 9.999 0.001 0.01 0.01</property>
+		      <signal name="value_changed" handler="on_param_spinner_changed" last_modification_time="Sun, 15 Feb 2004 05:07:40 GMT"/>
 		    </widget>
 		    <packing>
 		      <property name="left_attach">1</property>
@@ -663,16 +512,17 @@ Settings&lt;/b&gt;</property>
 		  </child>
 
 		  <child>
-		    <widget class="GtkSpinButton" id="spinbutton4">
+		    <widget class="GtkSpinButton" id="param_d">
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
 		      <property name="climb_rate">1</property>
-		      <property name="digits">0</property>
+		      <property name="digits">5</property>
 		      <property name="numeric">True</property>
 		      <property name="update_policy">GTK_UPDATE_ALWAYS</property>
 		      <property name="snap_to_ticks">False</property>
 		      <property name="wrap">False</property>
-		      <property name="adjustment">0 -9.999 9.999 0.001 1 1</property>
+		      <property name="adjustment">0 -9.999 9.999 0.001 0.01 0.01</property>
+		      <signal name="value_changed" handler="on_param_spinner_changed" last_modification_time="Sun, 15 Feb 2004 05:07:48 GMT"/>
 		    </widget>
 		    <packing>
 		      <property name="left_attach">1</property>
@@ -684,16 +534,17 @@ Settings&lt;/b&gt;</property>
 		  </child>
 
 		  <child>
-		    <widget class="GtkSpinButton" id="spinbutton5">
+		    <widget class="GtkSpinButton" id="param_zoom">
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
 		      <property name="climb_rate">1</property>
-		      <property name="digits">0</property>
+		      <property name="digits">3</property>
 		      <property name="numeric">True</property>
 		      <property name="update_policy">GTK_UPDATE_ALWAYS</property>
 		      <property name="snap_to_ticks">False</property>
 		      <property name="wrap">False</property>
 		      <property name="adjustment">1 0.2 99.99 0.01 0.1 0.1</property>
+		      <signal name="value_changed" handler="on_param_spinner_changed" last_modification_time="Sun, 15 Feb 2004 05:07:56 GMT"/>
 		    </widget>
 		    <packing>
 		      <property name="left_attach">1</property>
@@ -705,16 +556,17 @@ Settings&lt;/b&gt;</property>
 		  </child>
 
 		  <child>
-		    <widget class="GtkSpinButton" id="spinbutton6">
+		    <widget class="GtkSpinButton" id="param_xoffset">
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
 		      <property name="climb_rate">1</property>
-		      <property name="digits">0</property>
+		      <property name="digits">3</property>
 		      <property name="numeric">True</property>
 		      <property name="update_policy">GTK_UPDATE_ALWAYS</property>
 		      <property name="snap_to_ticks">False</property>
 		      <property name="wrap">False</property>
-		      <property name="adjustment">0 -9.999 9.999 0.001 1 1</property>
+		      <property name="adjustment">0 -9.999 9.999 0.001 0.01 0.01</property>
+		      <signal name="value_changed" handler="on_param_spinner_changed" last_modification_time="Sun, 15 Feb 2004 05:08:05 GMT"/>
 		    </widget>
 		    <packing>
 		      <property name="left_attach">1</property>
@@ -726,16 +578,17 @@ Settings&lt;/b&gt;</property>
 		  </child>
 
 		  <child>
-		    <widget class="GtkSpinButton" id="spinbutton7">
+		    <widget class="GtkSpinButton" id="param_yoffset">
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
 		      <property name="climb_rate">1</property>
-		      <property name="digits">0</property>
+		      <property name="digits">3</property>
 		      <property name="numeric">True</property>
 		      <property name="update_policy">GTK_UPDATE_ALWAYS</property>
 		      <property name="snap_to_ticks">False</property>
 		      <property name="wrap">False</property>
-		      <property name="adjustment">0 -9.999 9.999 0.001 1 1</property>
+		      <property name="adjustment">0 -9.999 9.999 0.001 0.01 0.01</property>
+		      <signal name="value_changed" handler="on_param_spinner_changed" last_modification_time="Sun, 15 Feb 2004 05:08:14 GMT"/>
 		    </widget>
 		    <packing>
 		      <property name="left_attach">1</property>
@@ -747,16 +600,17 @@ Settings&lt;/b&gt;</property>
 		  </child>
 
 		  <child>
-		    <widget class="GtkSpinButton" id="spinbutton8">
+		    <widget class="GtkSpinButton" id="param_rotation">
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
 		      <property name="climb_rate">1</property>
-		      <property name="digits">0</property>
+		      <property name="digits">3</property>
 		      <property name="numeric">True</property>
 		      <property name="update_policy">GTK_UPDATE_ALWAYS</property>
 		      <property name="snap_to_ticks">False</property>
 		      <property name="wrap">False</property>
 		      <property name="adjustment">0 -9.999 9.999 0.002 0.01 0.01</property>
+		      <signal name="value_changed" handler="on_param_spinner_changed" last_modification_time="Sun, 15 Feb 2004 05:08:21 GMT"/>
 		    </widget>
 		    <packing>
 		      <property name="left_attach">1</property>
@@ -768,16 +622,17 @@ Settings&lt;/b&gt;</property>
 		  </child>
 
 		  <child>
-		    <widget class="GtkSpinButton" id="spinbutton9">
+		    <widget class="GtkSpinButton" id="param_blur_radius">
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
 		      <property name="climb_rate">1</property>
-		      <property name="digits">0</property>
+		      <property name="digits">4</property>
 		      <property name="numeric">True</property>
 		      <property name="update_policy">GTK_UPDATE_ALWAYS</property>
 		      <property name="snap_to_ticks">False</property>
 		      <property name="wrap">False</property>
-		      <property name="adjustment">0 0 1 0.0001 0.01 0.01</property>
+		      <property name="adjustment">0 0 1 0.0001 0.001 0.001</property>
+		      <signal name="value_changed" handler="on_param_spinner_changed" last_modification_time="Sun, 15 Feb 2004 05:08:35 GMT"/>
 		    </widget>
 		    <packing>
 		      <property name="left_attach">1</property>
@@ -789,16 +644,17 @@ Settings&lt;/b&gt;</property>
 		  </child>
 
 		  <child>
-		    <widget class="GtkSpinButton" id="spinbutton10">
+		    <widget class="GtkSpinButton" id="param_blur_ratio">
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
 		      <property name="climb_rate">1</property>
-		      <property name="digits">0</property>
+		      <property name="digits">4</property>
 		      <property name="numeric">True</property>
 		      <property name="update_policy">GTK_UPDATE_ALWAYS</property>
 		      <property name="snap_to_ticks">False</property>
 		      <property name="wrap">False</property>
-		      <property name="adjustment">1 0 1 0.001 1 1</property>
+		      <property name="adjustment">1 0 1 0.001 0.01 0.01</property>
+		      <signal name="value_changed" handler="on_param_spinner_changed" last_modification_time="Sun, 15 Feb 2004 05:08:47 GMT"/>
 		    </widget>
 		    <packing>
 		      <property name="left_attach">1</property>
@@ -810,16 +666,17 @@ Settings&lt;/b&gt;</property>
 		  </child>
 
 		  <child>
-		    <widget class="GtkSpinButton" id="spinbutton11">
+		    <widget class="GtkSpinButton" id="param_a">
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
 		      <property name="climb_rate">1</property>
-		      <property name="digits">0</property>
+		      <property name="digits">5</property>
 		      <property name="numeric">True</property>
 		      <property name="update_policy">GTK_UPDATE_ALWAYS</property>
 		      <property name="snap_to_ticks">False</property>
 		      <property name="wrap">False</property>
-		      <property name="adjustment">0 -9.999 9.999 0.001 1 1</property>
+		      <property name="adjustment">0 -9.999 9.999 0.001 0.01 0.01</property>
+		      <signal name="value_changed" handler="on_param_spinner_changed" last_modification_time="Sun, 15 Feb 2004 05:07:13 GMT"/>
 		    </widget>
 		    <packing>
 		      <property name="left_attach">1</property>
@@ -831,16 +688,17 @@ Settings&lt;/b&gt;</property>
 		  </child>
 
 		  <child>
-		    <widget class="GtkSpinButton" id="spinbutton12">
+		    <widget class="GtkSpinButton" id="param_exposure">
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
 		      <property name="climb_rate">1</property>
-		      <property name="digits">0</property>
+		      <property name="digits">3</property>
 		      <property name="numeric">True</property>
 		      <property name="update_policy">GTK_UPDATE_ALWAYS</property>
 		      <property name="snap_to_ticks">False</property>
 		      <property name="wrap">False</property>
-		      <property name="adjustment">0 0 9.999 0.001 1 1</property>
+		      <property name="adjustment">0 0 9.999 0.001 0.01 0.01</property>
+		      <signal name="value_changed" handler="on_render_spinner_changed" last_modification_time="Sun, 15 Feb 2004 05:09:03 GMT"/>
 		    </widget>
 		    <packing>
 		      <property name="left_attach">1</property>
@@ -852,16 +710,17 @@ Settings&lt;/b&gt;</property>
 		  </child>
 
 		  <child>
-		    <widget class="GtkSpinButton" id="spinbutton13">
+		    <widget class="GtkSpinButton" id="param_gamma">
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
 		      <property name="climb_rate">1</property>
-		      <property name="digits">0</property>
+		      <property name="digits">3</property>
 		      <property name="numeric">True</property>
 		      <property name="update_policy">GTK_UPDATE_ALWAYS</property>
 		      <property name="snap_to_ticks">False</property>
 		      <property name="wrap">False</property>
-		      <property name="adjustment">1 0 9.99 0.01 1 1</property>
+		      <property name="adjustment">1 0 9.999 0.01 0.1 0.1</property>
+		      <signal name="value_changed" handler="on_render_spinner_changed" last_modification_time="Sun, 15 Feb 2004 05:09:10 GMT"/>
 		    </widget>
 		    <packing>
 		      <property name="left_attach">1</property>
@@ -873,11 +732,12 @@ Settings&lt;/b&gt;</property>
 		  </child>
 
 		  <child>
-		    <widget class="Custom" id="color1">
+		    <widget class="Custom" id="param_fgcolor">
 		      <property name="visible">True</property>
+		      <property name="creation_function">custom_color_button_new</property>
 		      <property name="int1">0</property>
 		      <property name="int2">0</property>
-		      <property name="last_modification_time">Sat, 14 Feb 2004 19:46:56 GMT</property>
+		      <property name="last_modification_time">Sun, 15 Feb 2004 04:24:16 GMT</property>
 		    </widget>
 		    <packing>
 		      <property name="left_attach">1</property>
@@ -890,11 +750,12 @@ Settings&lt;/b&gt;</property>
 		  </child>
 
 		  <child>
-		    <widget class="Custom" id="color2">
+		    <widget class="Custom" id="param_bgcolor">
 		      <property name="visible">True</property>
+		      <property name="creation_function">custom_color_button_new</property>
 		      <property name="int1">0</property>
 		      <property name="int2">0</property>
-		      <property name="last_modification_time">Sat, 14 Feb 2004 19:46:58 GMT</property>
+		      <property name="last_modification_time">Sun, 15 Feb 2004 05:09:21 GMT</property>
 		    </widget>
 		    <packing>
 		      <property name="left_attach">1</property>
@@ -925,8 +786,8 @@ Settings&lt;/b&gt;</property>
 	      <property name="border_width">4</property>
 	      <property name="visible">True</property>
 	      <property name="can_focus">True</property>
-	      <property name="hscrollbar_policy">GTK_POLICY_ALWAYS</property>
-	      <property name="vscrollbar_policy">GTK_POLICY_ALWAYS</property>
+	      <property name="hscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
+	      <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
 	      <property name="shadow_type">GTK_SHADOW_ETCHED_IN</property>
 	      <property name="window_placement">GTK_CORNER_TOP_LEFT</property>
 
@@ -937,8 +798,9 @@ Settings&lt;/b&gt;</property>
 		  <property name="shadow_type">GTK_SHADOW_NONE</property>
 
 		  <child>
-		    <widget class="GtkDrawingArea" id="drawingarea1">
+		    <widget class="GtkDrawingArea" id="main_drawingarea">
 		      <property name="visible">True</property>
+		      <signal name="expose_event" handler="on_expose" last_modification_time="Sun, 15 Feb 2004 05:43:44 GMT"/>
 		    </widget>
 		  </child>
 		</widget>
@@ -959,7 +821,7 @@ Settings&lt;/b&gt;</property>
       </child>
 
       <child>
-	<widget class="GtkStatusbar" id="statusbar1">
+	<widget class="GtkStatusbar" id="statusbar">
 	  <property name="visible">True</property>
 	  <property name="has_resize_grip">True</property>
 	</widget>
