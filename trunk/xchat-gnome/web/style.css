@@ -48,12 +48,14 @@ div.navigation {
 
 div.content {
   padding-top: 1.5em;
+  padding-bottom: 2em;
   width: 75%;
 }
 
 div.footer {
-  position: absolute;
+  float: bottom;
   bottom: 0;
+  margin: 0;
 }
 
 div.code {
