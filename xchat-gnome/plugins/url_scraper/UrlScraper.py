@@ -19,7 +19,7 @@ and displaying them in a separate window.
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-import xchat, string, pygtk, gtk, re
+import xchat, string, pygtk, gtk, gobject, re
 
 __module_name__ = 'URL Scraper'
 __module_version__ = '0.1-pre'
@@ -29,11 +29,17 @@ def close( window, event, user_data ):
     window.hide()
 
 window = gtk.Window( gtk.WINDOW_TOPLEVEL )
+store = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING )
+view = gtk.TreeView( store )
+view.append_column( gtk.TreeViewColumn( 'Nick', gtk.CellRendererText(), text=0 ) )
+view.append_column( gtk.TreeViewColumn( 'URL', gtk.CellRendererText(), text=1 ) )
+window.add( view )
 window.connect( 'destroy', close)
-window.show()
+window.show_all()
 
 def grabbedURL( nick, match ):
-    print '%s said a URL: %s' % (nick, match.group())
+    print '%s said url: %s' % ( nick, match.group() )
+    store.set( store.append(), 0, nick, 1, match.group() )
 
 def grabbedEmail( nick, match ):
     print '%s said an email address: %s' % (nick, match.group())
