@@ -266,7 +266,7 @@ static void tool_zoom(Explorer *self, ToolInput *i) {
 
 static void tool_rotate(Explorer *self, ToolInput *i) {
   g_object_set(self->dejong,
-	       "rotation", (gdouble) fmod(self->dejong->rotation - i->delta_x * 0.008, M_PI*2),
+	       "rotation", (gdouble) self->dejong->rotation - i->delta_x * 0.008,
 	       NULL);
 }
 

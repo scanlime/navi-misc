@@ -164,7 +164,7 @@ static void de_jong_class_init(DeJongClass *klass) {
 				  g_param_spec_double("a",
 						      "A",
 						      "de Jong parameter A",
-						      -100, 100, 1.41914,
+						      -G_MAXDOUBLE, G_MAXDOUBLE, 1.41914,
 						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED |
 						      G_PARAM_LAX_VALIDATION | G_PARAM_INTERPOLATE));
 
@@ -173,7 +173,7 @@ static void de_jong_class_init(DeJongClass *klass) {
 				  g_param_spec_double("b",
 						      "B",
 						      "de Jong parameter B",
-						      -100, 100, -2.28413,
+						      -G_MAXDOUBLE, G_MAXDOUBLE, -2.28413,
 						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED |
 						      G_PARAM_LAX_VALIDATION | G_PARAM_INTERPOLATE));
 
@@ -182,7 +182,7 @@ static void de_jong_class_init(DeJongClass *klass) {
 				  g_param_spec_double("c",
 						      "C",
 						      "de Jong parameter C",
-						      -100, 100, 2.42754,
+						      -G_MAXDOUBLE, G_MAXDOUBLE, 2.42754,
 						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED |
 						      G_PARAM_LAX_VALIDATION | G_PARAM_INTERPOLATE));
 
@@ -191,7 +191,7 @@ static void de_jong_class_init(DeJongClass *klass) {
 				  g_param_spec_double("d",
 						      "D",
 						      "de Jong parameter D",
-						      -100, 100, -2.17719,
+						      -G_MAXDOUBLE, G_MAXDOUBLE, -2.17719,
 						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED |
 						      G_PARAM_LAX_VALIDATION | G_PARAM_INTERPOLATE));
 
@@ -209,7 +209,7 @@ static void de_jong_class_init(DeJongClass *klass) {
 				  g_param_spec_double("xoffset",
 						      "X Offset",
 						      "Horizontal image offset",
-						      -10, 10, 0,
+						      -G_MAXDOUBLE, G_MAXDOUBLE, 0,
 						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED |
 						      G_PARAM_LAX_VALIDATION | G_PARAM_INTERPOLATE));
 
@@ -218,7 +218,7 @@ static void de_jong_class_init(DeJongClass *klass) {
 				  g_param_spec_double("yoffset",
 						      "Y Offset",
 						      "Vertical image offset",
-						      -10, 10, 0,
+						      -G_MAXDOUBLE, G_MAXDOUBLE, 0,
 						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED |
 						      G_PARAM_LAX_VALIDATION | G_PARAM_INTERPOLATE));
 
@@ -227,7 +227,7 @@ static void de_jong_class_init(DeJongClass *klass) {
 				  g_param_spec_double("rotation",
 						      "Rotation",
 						      "Rotation angle, in radians",
-						      -10, 10, 0,
+						      -G_MAXDOUBLE, G_MAXDOUBLE, 0,
 						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED |
 						      G_PARAM_LAX_VALIDATION | G_PARAM_INTERPOLATE));
 
@@ -236,7 +236,7 @@ static void de_jong_class_init(DeJongClass *klass) {
 				  g_param_spec_double("blur_radius",
 						      "Blur Radius",
 						      "Gaussian blur radius",
-						      0, 10, 0,
+						      0, 100, 0,
 						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED |
 						      G_PARAM_LAX_VALIDATION | G_PARAM_INTERPOLATE));
 
@@ -263,7 +263,7 @@ static void de_jong_class_init(DeJongClass *klass) {
 				  g_param_spec_double("exposure",
 						      "Exposure",
 						      "The relative strength, darkness, or brightness of the image",
-						      0, 10, 0.05,
+						      0, 100, 0.05,
 						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED |
 						      G_PARAM_LAX_VALIDATION | G_PARAM_INTERPOLATE));
 

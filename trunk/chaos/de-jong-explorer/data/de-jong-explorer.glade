@@ -869,7 +869,7 @@ Settings&lt;/b&gt;</property>
 			  <property name="update_policy">GTK_UPDATE_ALWAYS</property>
 			  <property name="snap_to_ticks">False</property>
 			  <property name="wrap">False</property>
-			  <property name="adjustment">0 -9.999 9.999 0.001 0.01 0.01</property>
+			  <property name="adjustment">0 -99.999 99.999 0.001 0.01 0.01</property>
 			  <signal name="value_changed" handler="on_param_changed" last_modification_time="Sat, 21 Feb 2004 10:44:21 GMT"/>
 			</widget>
 			<packing>
@@ -891,7 +891,7 @@ Settings&lt;/b&gt;</property>
 			  <property name="update_policy">GTK_UPDATE_ALWAYS</property>
 			  <property name="snap_to_ticks">False</property>
 			  <property name="wrap">False</property>
-			  <property name="adjustment">0 0 1 0.0001 0.001 0.001</property>
+			  <property name="adjustment">0 0 10 1e-04 0.001 0.001</property>
 			  <signal name="value_changed" handler="on_param_changed" last_modification_time="Sat, 21 Feb 2004 10:44:27 GMT"/>
 			</widget>
 			<packing>
