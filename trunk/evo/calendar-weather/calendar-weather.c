@@ -31,6 +31,7 @@
 
 GtkWidget *e_calendar_weather_location (EPlugin *epl, EConfigHookItemFactoryData *data);
 GtkWidget *e_calendar_weather_refresh (EPlugin *epl, EConfigHookItemFactoryData *data);
+GtkWidget *e_calendar_weather_format (EPlugin *epl, EConfigHookItemFactoryData *data);
 gboolean   e_calendar_weather_check (EPlugin *epl, EConfigHookPageCheckData *data);
 
 static GtkTreeStore *store = NULL;
@@ -462,6 +463,83 @@ e_calendar_weather_refresh (EPlugin *epl, EConfigHookItemFactoryData *data)
 	gtk_table_attach (GTK_TABLE (parent), hbox, 1, 2, row, row+1, GTK_EXPAND | GTK_FILL, 0, 0, 0);
 
 	return hbox;
+}
+
+static void
+set_format (ESource *source, GtkWidget *option)
+{
+	const char *format = e_source_get_property (source, "units");
+	if (format == NULL)
+		gtk_option_menu_set_history (GTK_OPTION_MENU (option), 0);
+	else if (strcmp (format, "fahrenheit") == 0)
+		gtk_option_menu_set_history (GTK_OPTION_MENU (option), 1);
+	else
+		gtk_option_menu_set_history (GTK_OPTION_MENU (option), 0);
+}
+
+static void
+format_changed (GtkOptionMenu *option, ECalConfigTargetSource *t)
+{
+	int choice = gtk_option_menu_get_history (GTK_OPTION_MENU (option));
+	if (choice == 0)
+		e_source_set_property (t->source, "units", "celcius");
+	else
+		e_source_set_property (t->source, "units", "fahrenheit");
+}
+
+GtkWidget *
+e_calendar_weather_format (EPlugin *epl, EConfigHookItemFactoryData *data)
+{
+	static GtkWidget *label;
+	GtkWidget *option, *menu, *parent;
+	GtkWidget *formats[2];
+	int row, i;
+	ECalConfigTargetSource *t = (ECalConfigTargetSource *) data->target;
+	ESource *source = t->source;
+	EUri *uri;
+	char *uri_text;
+	static GtkWidget *hidden = NULL;
+
+	if (!hidden)
+		hidden = gtk_label_new ("");
+
+	if (data->old)
+		gtk_widget_destroy (label);
+
+	uri_text = e_source_get_uri (t->source);
+	uri = e_uri_new (uri_text);
+	g_free (uri_text);
+	if (strcmp (uri->protocol, "weather")) {
+		e_uri_free (uri);
+		return hidden;
+	}
+	e_uri_free (uri);
+
+	parent = data->parent;
+
+	row = ((GtkTable*)parent)->nrows;
+
+	label = gtk_label_new_with_mnemonic (_("Temperature _Units:"));
+	gtk_widget_show (label);
+	gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
+	gtk_table_attach (GTK_TABLE (parent), label, 0, 1, row, row+1, GTK_FILL, 0, 0, 0);
+
+	option = gtk_option_menu_new ();
+	gtk_widget_show (option);
+	formats[0] = gtk_menu_item_new_with_label (_("Celcius"));
+	formats[1] = gtk_menu_item_new_with_label (_("Fahrenheit"));
+	menu = gtk_menu_new ();
+	gtk_widget_show (menu);
+	for (i = 0; i < 2; i++) {
+		gtk_widget_show (formats[i]);
+		gtk_menu_shell_append (GTK_MENU_SHELL (menu), formats[i]);
+	}
+	gtk_option_menu_set_menu (GTK_OPTION_MENU (option), menu);
+	set_format (source, option);
+	g_signal_connect (G_OBJECT (option), "changed", G_CALLBACK (format_changed), t);
+	gtk_table_attach (GTK_TABLE (parent), option, 1, 2, row, row+1, GTK_EXPAND | GTK_FILL, 0, 0, 0);
+
+	return option;
 }
 
 gboolean
