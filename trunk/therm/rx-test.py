@@ -121,6 +121,7 @@ def log(*values):
 
 if __name__ == "__main__":
     log("time", "signalStrength", "protocol", "station", "sequence", "voltage", "temperature")
+    startTime = time.time()
 
     for content, signalStrength in receiveContent("/dev/usb/tts/0"):
         if len(content) != 31:
@@ -130,12 +131,15 @@ if __name__ == "__main__":
             protocol = unpack(content[:2])
             station = unpack(content[2:8])
             sequence = unpack(content[8:13])
-            voltage = unpack(content[13:23])
-
+            voltage = unpack(content[13:23]) / 1024.0 * 10
             temperature = int(content[23:31], 2)
             if temperature & 0x80:
                 temperature -= 0x100
 
-            log(time.time(), signalStrength, protocol, station, sequence, voltage, temperature)
+            log("%.04f" % (time.time() - startTime),
+                "%.04f" % signalStrength,
+                protocol, station, sequence,
+                "%.04f" % voltage,
+                temperature)
         except:
             print sys.exc_info()[1]
