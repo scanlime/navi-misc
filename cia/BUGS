@@ -77,3 +77,12 @@
 - We have an RSS 2.0 interface now, but it doesn't yet display much. The formatters for
   the 'rss' medium should be enhanced.
 
+- Implement the RSS <cloud> tag, and the RssInterface for XML-RPC necessary to support it.
+  Leases could be stored in a separate XML-RPC table that's cleaned of old leases during
+  stats maintenance. This would finally make it possible to use standard protocols (RSS,
+  XML-RPC, HTTP...) to receive real-time notification about any project in CIA.
+
+- In addition to the .rss URLs, it would be easy to have a .xml URL that presents all information
+  available about the stats target (metadata content for text/*, metadata links, counters,
+  XML messages) without any pre-formatting. It would have an RSS-like <cloud> element too,
+  allowing real-time notification of messages without having to squish them into RSS's requirements.
