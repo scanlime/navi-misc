@@ -96,9 +96,11 @@ class PalantirClientFactory(protocol.ClientFactory):
 
   def join(self, channel):
     ''' Join a channel '''
-    self.client.leave(self.channels, 'Leaving...')
     self.channels.append(channel)
     self.client.join(channel)
+
+  def close(self, channel, reason):
+    self.client.leave(channel, reason)
 
   def nick(self, nick):
     ''' Change your nick. '''
