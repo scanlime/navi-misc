@@ -87,14 +87,12 @@ void CBaseGameLoop::ClearScene ( void )
 {
 	mWindow->removeAllViewports();
 	GetSceneManager()->removeAllCameras();
+	GetSceneManager()->removeAllEntities();
 	GetSceneManager()->clearScene();
-	ChooseSceneManager();
+	MeshManager::getSingleton().unloadAndDestroyAll();
 	CreateCamera();
 	CreateViewports();
-
-	TextureManager::getSingleton().setDefaultNumMipMaps(5);
 	input.Init(GetRenderWindow());
-
 	showDebugOverlay(showDebug);
 }
 
