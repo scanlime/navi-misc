@@ -18,9 +18,9 @@ int main(int argc, char **argv) {
       
       trig.content.type = PG_TRIGGER_MOTIONTRACKER;
       trig.content.u.motion.bodyPart = PG_BODYPART_EITHER_HAND;
-      trig.content.u.motion.position[0] = (u32) (v[0]*0xFFFFFFFF);
-      trig.content.u.motion.position[1] = (u32) (v[1]*0xFFFFFFFF);
-      trig.content.u.motion.position[2] = (u32) (v[2]*0xFFFFFFFF);
+      trig.content.u.motion.position[0] = (s32) (v[0]*0x7FFFFFFF);
+      trig.content.u.motion.position[1] = (s32) (v[1]*0x7FFFFFFF);
+      trig.content.u.motion.position[2] = (s32) (v[2]*0x7FFFFFFF);
 
       pgInFilterSend(&trig);
       pgFlushRequests();
