@@ -5,7 +5,8 @@ LDFLAGS := -lusb -lmysqlclient
 
 DAEMON_OBJS = \
 	daemon/main.o \
-	daemon/receiver.o
+	daemon/receiver.o \
+	daemon/database.o
 
 TUSB_DIR = receiver/tusb
 
