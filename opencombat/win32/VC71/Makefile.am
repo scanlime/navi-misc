@@ -1,9 +1,9 @@
 EXTRA_DIST =	\
-	bzflag.sln	\
+	opencombat.sln	\
 	3D.vcproj	\
-	bzflag.vcproj	\
-	bzadmin.vcproj	\
-	bzfs.vcproj	\
+	opencombat.vcproj	\
+	ocadmin.vcproj	\
+	opencombatd.vcproj	\
 	common.vcproj	\
 	config.h	\
 	date.vcproj	\
