@@ -5,6 +5,8 @@
 #include "uart_driver.h"
 #include "util.h"
 
+volatile xdata at 0xFD00 unsigned char ep1_out_buffer[64];
+int c;
 
 void main() {
   EA = 0;     /* Global interrupt disable */
@@ -15,9 +17,22 @@ void main() {
   usb_init();
   puts("USB initialized");
 
+  /* Set up extra endpoints */
+  OEPCNF_1 = UBME;
+  OEPBBAX_1 = ((int)ep1_out_buffer) >> 3;
+  OEPBCTX_1 = 0;
+
   while (1) {
     watchdog_reset();
     usb_poll();
+
+    c = OEPBCTX_1;
+    if (c & 0x80) {
+      c &= ~0x80;
+      printf("ep1: %d bytes, %02X %02X %02X %02x...\n", c,
+	     ep1_out_buffer[0], ep1_out_buffer[1], ep1_out_buffer[2], ep1_out_buffer[3]);
+    }
+    OEPBCTX_1 = 0;
   }
 }
 
@@ -30,6 +45,7 @@ void usb_handle_vendor_request() {
 
   switch (usb_setup_buffer.bRequest) {
 
+    /* Experimental EP0 OUT */
   case 42:
     /* ACK the setup packet */
     OEPBCNT_0 = 0;
@@ -45,9 +61,19 @@ void usb_handle_vendor_request() {
     printf("Received data: '%s'\n", usb_ep0out_buffer);
     break;
 
+    /* EP0 IN test */
   case 123:
     printf("Sending %d\n", v);
     usb_write_ep0_buffer(&v, 1);
+    break;
+
+    /* LED test, uses wValue but no data stage */
+  case 13:
+    if (usb_setup_buffer.wValue)
+      LED = 0;
+    else
+      LED = 1;
+    usb_write_ack();
     break;
 
   }
