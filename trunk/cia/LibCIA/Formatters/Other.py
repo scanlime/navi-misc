@@ -23,7 +23,7 @@ rather than being automatically applied.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from LibCIA import Message
+from LibCIA import Message, XML
 
 
 class IRCProjectName(Message.Formatter):
@@ -32,9 +32,10 @@ class IRCProjectName(Message.Formatter):
     def format(self, args):
         if not args.input:
             return
-        if args.message.xml.source and args.message.xml.source.project:
+        project = XML.dig(args.message.xml, "message", "source", "project")
+        if project:
             from LibCIA.IRC.Formatting import format
-            prefix = format("%s:" % args.message.xml.source.project, 'bold') + " "
+            prefix = format("%s:" % XML.shallowText(project), 'bold') + " "
             return "\n".join([prefix + line for line in args.input.split("\n")])
         else:
             return args.input
@@ -53,7 +54,7 @@ class IRCFormat(Message.Formatter):
             return format(args.input, self.formattingCode)
 
     def loadParametersFrom(self, xml):
-        self.formattingCode = str(xml).strip()
+        self.formattingCode = XML.shallowText(xml).strip()
 
 
 ### The End ###

@@ -98,6 +98,7 @@ Dependencies
 - Python 2.2.1 or later
 - Twisted 1.1.1 or later
 - PyGTK 2.0 or later for the GUI tools
+- 4Suite
 - MySQL with support for the InnoDB table type
 - Nouvelle_ 0.91 or later
 - Docutils_

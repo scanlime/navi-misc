@@ -22,8 +22,6 @@ by XML documents.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from twisted.xish import domish
-from twisted.xish.xpath import XPathQuery
 from twisted.python import log
 import time, types
 import XML, RpcServer
@@ -62,18 +60,19 @@ class Message(XML.XMLObject):
        the current time:
 
          >>> msg = Message('<message/>')
-         >>> t = int(str(msg.xml.timestamp))
+         >>> t = XML.digValue(msg.xml, int, "message", "timestamp")
          >>> time.time() - t < 2
          True
 
        """
     def preprocess(self):
-        if self.xml.name != "message":
+        message = XML.dig(self.xml, "message")
+        if not message:
             raise XML.XMLValidityError("A Message's root node must be named 'message'")
 
         # Stamp it with the current time if it has no timestamp yet
-        if not self.xml.timestamp:
-            self.xml.addElement("timestamp", content="%d" % time.time())
+        if not XML.dig(message, "timestamp"):
+            XML.addElement(message, "timestamp", "%d" % time.time())
 
 
 class Hub(object):
@@ -132,7 +131,7 @@ class Filter(XML.XMLFunction):
 
        Some examples, matching against the sample commit message...
 
-         >>> msg = Message(open('../xml/sample_message.xml'))
+         >>> msg = Message(open('xml/sample_message.xml'))
 
        The <match> tag returns true if the entire text content of any tag
        matched by the given XPath matches the text in the <match> tag:
@@ -256,7 +255,7 @@ class Filter(XML.XMLFunction):
          True
 
        """
-    def pathMatchTag(self, element, function):
+    def pathMatchTag(self, element, function, textExtractor=XML.shallowText):
         """Implements the logic common to all tags that test the text matched by
            an XPath against the text inside our element. The given function is used
            to determine if the text matches. This implements the properties common to
@@ -275,15 +274,16 @@ class Filter(XML.XMLFunction):
         # When we return a reference to f, it includes a dict with this function's
         # scope. This conveniently gives us a way to attach the parsed xpath and the
         # text to match.
-        xp = XPathQuery(element['path'])
+        xp = XML.XPath(element.getAttributeNS(None, 'path'))
 
-        # Are we doing a case sensitive match? Default is yes.
-        try:
-            caseSensitive = int(element['caseSensitive'])
-        except KeyError:
+        # Are we doing a case sensitive match? Default is no.
+        caseSensitive = element.getAttributeNS(None, 'caseSensitive')
+        if caseSensitive:
+            caseSensitive = int(caseSensitive)
+        else:
             caseSensitive = 0
 
-        text = str(element).strip()
+        text = XML.shallowText(element).strip()
         if not caseSensitive:
             text = text.lower()
 
@@ -295,7 +295,7 @@ class Filter(XML.XMLFunction):
             # for the existence of an XPath match.
             nodes = xp.queryForNodes(msg.xml)
             if nodes:
-                matchStrings = map(XML.allText, nodes)
+                matchStrings = map(textExtractor, nodes)
 
                 # Any of the XPath matches can make our match true
                 for matchString in matchStrings:
@@ -317,11 +317,12 @@ class Filter(XML.XMLFunction):
         """Evaluates to True if the text in this tag is contained within any of the
            XPath match strings.
            """
-        return self.pathMatchTag(element, lambda matchString, text: matchString.find(text) >= 0)
+        return self.pathMatchTag(element, lambda matchString, text: matchString.find(text) >= 0,
+                                 textExtractor = XML.allText)
 
     def element_and(self, element):
         """Evaluates to True if and only if all child functions evaluate to True"""
-        childFunctions = [self.parse(child) for child in element.elements()]
+        childFunctions = list(self.childParser(element))
         def filterAnd(msg):
             for child in childFunctions:
                 if not child(msg):
@@ -331,7 +332,7 @@ class Filter(XML.XMLFunction):
 
     def element_or(self, element):
         """Evaluates to True if and only if any child function evaluates to True"""
-        childFunctions = [self.parse(child) for child in element.elements()]
+        childFunctions = list(self.childParser(element))
         def filterOr(msg):
             for child in childFunctions:
                 if child(msg):
@@ -343,7 +344,7 @@ class Filter(XML.XMLFunction):
         """The NOR function, returns false if and only if any child function evaluates to True.
            For the reasoning behind calling this 'not', see the doc string for this class.
            """
-        childFunctions = [self.parse(child) for child in element.elements()]
+        childFunctions = list(self.childParser(element))
         def filterNot(msg):
             for child in childFunctions:
                 if child(msg):
@@ -439,7 +440,7 @@ class Formatter:
            By default, this tries to find a param_* handler for each
            element it comes across.
            """
-        for tag in xml.elements():
+        for tag in XML.getChildElements(xml):
             f = getattr(self, 'param_'+tag.name, None)
             if f:
                 f(tag)
@@ -547,13 +548,13 @@ class CompositeFormatterParser(XML.XMLObjectParser):
             # This is a nested CompositeFormatterParser, we must handle these
             # here since that's what this class is for. We always have at least
             # one of these, at the root of the parsed XML document.
-            children = [self.parse(child) for child in element.children]
+            children = list(self.childParser(element))
             def joinChildren(args):
                 return self.join(children, args)
             return joinChildren
 
     def element_join(self, element):
-        children = [self.parse(child) for child in element.children]
+        children = list(self.childParser(element))
         sep = element.attributes.get("sep", "")
         def explicitJoin(args):
             return self.join(children, args, sep)
@@ -561,17 +562,17 @@ class CompositeFormatterParser(XML.XMLObjectParser):
 
     def element_value(self, element):
         """Include a value obtained from an XPath, a preference, or from this element's contents"""
-        if element.hasAttribute('path'):
-            xp = XPathQuery(element['path'])
+        if element.hasAttributeNS(None, 'path'):
+            xp = XML.XPath(element.getAttributeNS(None, 'path'))
             def formatXPathValue(args):
                 nodes = xp.queryForNodes(args.message.xml)
                 if nodes:
                     return XML.allText(nodes[0]).strip()
             return formatXPathValue
 
-        elif element.hasAttribute('preference'):
-            name = element['preference']
-            default = str(element)
+        elif element.hasAttributeNS(None, 'preference'):
+            name = element.getAttributeNS(None, 'preference')
+            default = XML.shallowText(element)
             def evaluatePref(args):
                 return args.getPreference(name, default)
             return evaluatePref
@@ -582,8 +583,8 @@ class CompositeFormatterParser(XML.XMLObjectParser):
 
     def element_preference(self, element):
         """Generates no output on its own, but sets a preference in the current FormatterArgs"""
-        name = element['name']
-        value = str(element)
+        name = element.getAttributeNS(None, 'name')
+        value = XML.shallowText(element)
         def setPreference(args):
             args.preferences.setdefault(name, value)
         return setPreference
@@ -596,7 +597,7 @@ class CompositeFormatterParser(XML.XMLObjectParser):
 
     def element_pipe(self, element):
         """Evaluate the first child element, using its result as the input to the second child"""
-        children = list(element.elements())
+        children = list(XML.getChildElements(element))
         if len(children) != 2:
             raise XML.XMLValidityError("<pipe> must have exactly two child elements")
         pipeInput = self.parse(children[0])
@@ -631,9 +632,10 @@ class CompositeFormatterParser(XML.XMLObjectParser):
         # get parsed, and sorted into staticAttrs and dynamicAttrs. Other children
         # get parsed and added to
         children = []
-        for child in element.children:
-            if isinstance(child, XML.domish.Element) and child.name == "attribute":
-                dynamicAttrs[child['name']] = [self.parse(c) for c in child.children]
+        for child in element.childNodes:
+            if child.nodeType == child.ELEMENT_NODE and child.nodeName == "attribute":
+                attrName = child.getAttributeNS(None, 'name')
+                dynamicAttrs[attrName] = self.childParser(child)
             else:
                 children.append(child)
 
@@ -719,16 +721,16 @@ class FormatterFactory:
            If 'message' is None and a medium is requested rather than a particular
            formatter, this will return None after validating the medium.
            """
-        attrNames = xml.attributes.keys()
+        attrNames = [attr.name for attr in xml.attributes.itervalues()]
 
         if not attrNames:
             f = CompositeFormatter()
 
         elif attrNames == ['name']:
-            f = self.findName(xml.attributes['name'])
+            f = self.findName(xml.getAttributeNS(None, 'name'))
 
         elif attrNames == ['medium']:
-            f = self.findMedium(xml.attributes['medium'], message)
+            f = self.findMedium(xml.getAttributeNS(None, 'medium'), message)
 
         else:
             # It's important to disallow unknown attributes here, so that we know for
@@ -739,13 +741,5 @@ class FormatterFactory:
         if f:
             f.loadParametersFrom(xml)
         return f
-
-
-def _test():
-    import doctest, Message
-    return doctest.testmod(Message)
-
-if __name__ == "__main__":
-    _test()
 
 ### The End ###

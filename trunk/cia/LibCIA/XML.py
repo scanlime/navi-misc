@@ -1,6 +1,6 @@
 """ LibCIA.XML
 
-Utilities for dealing with objects built on top of XML trees
+Classes and utility functions to make the DOM suck less
 """
 #
 # CIA open source notification system
@@ -21,38 +21,44 @@ Utilities for dealing with objects built on top of XML trees
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from twisted.xish import domish
-import types, os, shutil
+import types, weakref
 import Nouvelle
+from Ft.Xml import Domlette
+from cStringIO import StringIO
+
+# 4Suite requires a URI for everything, but it doesn't make sense for most of our XML snippets
+defaultURI = "cia://anonymous-xml"
 
 
 class XMLObject(object):
     """An object based on an XML document tree. This class provides
-       methods to load it from a string or a DOM element tree, and convert
+       methods to load it from a string or a DOM tree, and convert
        it back to an XML string.
 
-       'xml' is either a twisted.xish.domish.Element, a string containing
-       the message in XML, or any object with a read() method.
+       'xml' is either a DOM node, a string containing
+       the message in XML, or a stream-like object.
        """
-    def __init__(self, xml=None):
-        if isinstance(xml, domish.Element):
-            self.loadFromElement(xml)
+    def __init__(self, xml=None, uri=None):
+        if type(xml) in types.StringTypes:
+            self.loadFromString(xml, uri)
         elif hasattr(xml, 'read'):
-            self.loadFromString(xml.read())
-        elif xml is not None:
-            self.loadFromString(xml)
+            self.loadFromStream(xml, uri)
+        elif hasattr(xml, 'nodeType'):
+            self.loadFromDom(xml)
 
     def __str__(self):
-        return self.xml.toXml()
+        return toString(self.xml)
 
-    def loadFromString(self, string):
+    def loadFromString(self, string, uri=None):
         """Parse the given string as XML and set the contents of the message"""
-        self.loadFromElement(parseString(string))
+        self.loadFromDom(Domlette.NonvalidatingReader.parseString(string, uri or defaultURI))
 
-    def loadFromElement(self, root):
-        """Set the contents of the Message from a parsed document tree given
-           as a twisted.xish.domish.Element instance.
-           """
+    def loadFromStream(self, stream, uri=None):
+        """Parse the given stream as XML and set the contents of the message"""
+        self.loadFromDom(Domlette.NonvalidatingReader.parseStream(stream, uri or defaultURI))
+
+    def loadFromDom(self, root):
+        """Set the contents of the Message from a parsed DOM tree"""
         self.xml = root
         self.preprocess()
 
@@ -73,31 +79,47 @@ class XMLObjectParser(XMLObject):
     resultAttribute = 'result'
 
     def preprocess(self):
-        """Upon creating this object, parse the XML tree recursively
-           into a function that will be invoked by __call__.
+        """Upon creating this object, parse the XML tree recursively.
+           The result returned from parsing the tree's root element
+           is set to our resultAttribute.
            """
         # Validate the root element type if the subclass wants us to.
         # This is hard to do elsewhere, since the element handlers don't
         # know where they are in the XML document.
-        if self.requiredRootElement is not None and self.xml.name != self.requiredRootElement:
-            raise XMLValidityError("Found a %r element where a root element of %r is required" %
-                                   (self.xml.name, self.requiredRootElement))
+        if self.requiredRootElement is not None:
+            rootElement = None
+            if self.xml.nodeType == self.xml.DOCUMENT_NODE:
+                rootElement = self.xml.documentElement
+            elif self.xml.nodeType == self.xml.ELEMENT_NODE:
+                rootElement = self.xml
+
+            if (not rootElement) or rootElement.nodeName != self.requiredRootElement:
+                raise XMLValidityError("Missing a required %r root element" %
+                                       self.requiredRootElement)
 
         setattr(self, self.resultAttribute, self.parse(self.xml))
 
-    def parse(self, element):
-        """Given an XML element, recursively builds a python function
-           implementing the functionality it describes.
-           """
-        # Pass control on to the appropriate element_* function
-        try:
-            if type(element) in types.StringTypes:
-                f = self.parseString
+    def parse(self, node, *args, **kwargs):
+        """Given a DOM node, finds an appropriate parse function and invokes it"""
+        if node.nodeType == node.TEXT_NODE:
+            return self.parseString(node.data, *args, **kwargs)
+
+        elif node.nodeType == node.ELEMENT_NODE:
+            f = getattr(self, "element_" + node.nodeName, None)
+            if f:
+                return f(node, *args, **kwargs)
             else:
-                f = getattr(self, "element_" + element.name)
-        except AttributeError:
-            return self.unknownElement(element)
-        return f(element)
+                return self.unknownElement(node, *args, **kwargs)
+
+        elif node.nodeType == node.DOCUMENT_NODE:
+            return self.parse(node.documentElement, *args, **kwargs)
+
+    def childParser(self, node, *args, **kwargs):
+        """A generator that parses all relevant child nodes, yielding their return values"""
+        parseableTypes = (node.TEXT_NODE, node.ELEMENT_NODE)
+        for child in node.childNodes:
+            if child.nodeType in parseableTypes:
+                yield self.parse(child, *args, **kwargs)
 
     def parseString(self, s):
         """The analogue to element_* for character data"""
@@ -105,7 +127,7 @@ class XMLObjectParser(XMLObject):
 
     def unknownElement(self, element):
         """An unknown element was found, by default just generates an exception"""
-        raise XMLValidityError("Unknown element name in %s: %r" % (self.__class__.__name__, element.name))
+        raise XMLValidityError("Unknown element name in %s: %r" % (self.__class__.__name__, element.nodeName))
 
 
 class XMLFunction(XMLObjectParser):
@@ -129,69 +151,143 @@ class XMLValidityError(Exception):
     pass
 
 
-class DomishStringParser(domish.SuxElementStream):
-    """Because domish doesn't include a parseString()..."""
-    def __init__(self):
-        domish.SuxElementStream.__init__(self)
-        self.DocumentStartEvent = self.docStart
-        self.ElementEvent = self.elem
-        self.DocumentEndEvent = self.docEnd
-        self.done = 0
-        self.root = None
+def allTextGenerator(node):
+    """A generator that, given a DOM tree, yields all text fragments in that tree"""
+    if node.nodeType == node.TEXT_NODE:
+        yield node.data
+    for child in node.childNodes:
+        for text in allTextGenerator(child):
+            yield text
 
-    def docStart(self, elem):
-        self.root = elem
 
-    def gotText(self, data):
-        # This is (another) hack that seems to be necessary
-        # to properly parse text included directly into the root node.
-        if self.currElem:
-            domish.SuxElementStream.gotText(self, data)
-        elif self.root:
-            self.root.addContent(data)
+def allText(node):
+    """Concatenate all text under the given element recursively, and return it"""
+    return "".join(allTextGenerator(node))
 
-    def elem(self, elem):
-        if self.root:
-            self.root.addChild(elem)
+
+def shallowTextGenerator(node):
+    """A generator that, given a DOM tree, yields all text fragments contained immediately within"""
+    for child in node.childNodes:
+        if child.nodeType == child.TEXT_NODE:
+            yield child.data
+
+
+def shallowText(node):
+    """Concatenate all text immediately within the given node"""
+    return "".join(shallowTextGenerator(node))
+
+
+def dig(node, *subElements):
+    """Search for the given named subelements inside a node. Returns
+       None if any subelement isn't found.
+       """
+    if not node:
+        return None
+    for name in subElements:
+        nextNode = None
+        for child in node.childNodes:
+            if child.nodeType == child.ELEMENT_NODE and child.nodeName == name:
+                nextNode = child
+                break
+        if nextNode:
+            node = nextNode
         else:
-            self.root = elem
-
-    def docEnd(self):
-        self.done = 1
+            return None
+    return node
 
 
-def parseString(string):
-    """Parse the given string as XML, return a domish.Element"""
-    parser = DomishStringParser()
-    parser.parse(string)
-    return parser.root
-
-
-def prettyPrint(xml):
-    """Given a domish.XML object, return a nice-looking string
-       representation.
+def digValue(node, _type, *subElements):
+    """Search for a subelement using 'dig', then retrieve all contained
+       text and convert it to the given type. Strips extra whitespace.
        """
-    # This is gross, but it works...
-    from xml.dom import minidom
-    s = minidom.parseString(xml.toXml()).toprettyxml()
-
-    # Filter out blank lines
-    return "\n".join([line for line in s.split("\n") if line.strip()])
+    foundNode = dig(node, *subElements)
+    if foundNode:
+        return _type(shallowText(foundNode).strip())
 
 
-def allText(xml):
-    """Concatenate all text under the given domish.Element and return it.
-       For a document like:
-
-          <a>boing<b> </b>ha</a>
-
-       The str() operator will return only 'boing' but this function
-       will return 'boing ha'.
+def bury(node, *subElements):
+    """Search for the given named subelements inside a node,
+       creating any that can't be found.
        """
-    if type(xml) in types.StringTypes:
-        return xml
+    for name in subElements:
+        nextNode = None
+        for child in node.childNodes:
+            if child.nodeType == child.ELEMENT_NODE and child.nodeName == name:
+                nextNode = child
+                break
+        if nextNode:
+            node = nextNode
+        else:
+            node = addElement(node, name)
+    return node
+
+
+def buryValue(node, value, *subElements):
+    """Search for a subelement using 'bury' then store the given value,
+       overwriting the previous content of that node.
+       """
+    node = bury(node, *subElements)
+
+    for child in list(node.childNodes):
+        if child.nodeType == child.TEXT_NODE:
+            node.removeChild(child)
+
+    node.appendChild(node.ownerDocument.createTextNode(str(value)))
+
+
+def addElement(node, name, content=None, attributes={}):
+    """Add a new child element to the given node, optionally containing
+       the given text and attributes. The attributes are specified as a
+       simple mapping from name string to value string. This function
+       does not support namespaces.
+       """
+    if node.nodeType == node.DOCUMENT_NODE:
+        doc = node
     else:
-        return "".join([allText(child) for child in xml.children])
+        doc = node.ownerDocument
+
+    newElement = doc.createElementNS(None, name)
+    if content:
+        newElement.appendChild(doc.createTextNode(content))
+    for attrName, attrValue in attributes.iteritems():
+        newElement.setAttributeNS(None, attrName, attrValue)
+    node.appendChild(newElement)
+    return newElement
+
+
+def parseString(s, uri=defaultURI):
+    """A parseString wrapper that doesn't require a URI"""
+    return Domlette.NonvalidatingReader.parseString(s, uri)
+
+
+def createRootNode(uri=defaultURI):
+    return Domlette.implementation.createRootNode(uri)
+
+
+def toString(xml):
+    """Convert a DOM tree back to a string"""
+    io = StringIO()
+    Domlette.Print(xml, io)
+    return io.getvalue()
+
+
+def getChildElements(xml):
+    """A generator that returns all child elements of a node"""
+    for child in xml.childNodes:
+        if child.nodeType == child.ELEMENT_NODE:
+            yield child
+
+
+def firstChildElement(xml):
+    try:
+        return getChildElements(xml).next()
+    except StopIteration:
+        return None
+
+
+def hasChildElements(xml):
+    # Force a boolean result
+    return firstChildElement(xml) is not None
 
 
 class HTMLPrettyPrinter(XMLObjectParser):
@@ -207,23 +303,23 @@ class HTMLPrettyPrinter(XMLObjectParser):
 
     def unknownElement(self, element):
         # Format the element name and attributes
-        elementName = Nouvelle.tag('span', _class="xml-element-name")[ element.name ]
+        elementName = Nouvelle.tag('span', _class="xml-element-name")[ element.nodeName ]
         elementContent = [ elementName ]
-        for key, value in element.attributes.iteritems():
+        for attr in element.attributes.itervalues():
             elementContent.extend([
                 ' ',
-                Nouvelle.tag('span', _class='xml-attribute-name')[ key ],
+                Nouvelle.tag('span', _class='xml-attribute-name')[ attr.name ],
                 '="',
-                Nouvelle.tag('span', _class='xml-attribute-value')[ value ],
+                Nouvelle.tag('span', _class='xml-attribute-value')[ attr.value ],
                 '"',
                 ])
 
         # Now the contents...
-        if element.children:
+        if element.hasChildNodes():
             completeElement = [
                 "<", elementContent, ">",
                 Nouvelle.tag('blockquote', _class='xml-element-content')[
-                    [self.parse(e) for e in element.children],
+                    [self.parse(e) for e in element.childNodes],
                 ],
                 "</", elementName, ">",
                 ]
@@ -233,5 +329,31 @@ class HTMLPrettyPrinter(XMLObjectParser):
         return Nouvelle.tag('div', _class='xml-element')[ completeElement ]
 
 htmlPrettyPrint = HTMLPrettyPrinter().parse
+
+
+xPathCache = weakref.WeakValueDictionary()
+
+class XPath:
+    """A precompiled XPath class that caches parsed XPaths in a global weakref'ed
+       dictionary. This should help CIA a bit with load time and memory usage, since
+       we use many of the same XPaths in rulesets and filters.
+       """
+    def __init__(self, path, context=None):
+        global xPathCache
+        from Ft.Xml import XPath
+
+        try:
+            self.compiled = xPathCache[path]
+        except KeyError:
+            self.compiled = XPath.Compile(path)
+            xPathCache[path] = self.compiled
+
+        if context is None:
+            context = XPath.Context.Context(None, processorNss={})
+        self.context = context
+
+    def queryForNodes(self, doc):
+        from Ft.Xml import XPath
+        return XPath.Evaluate(self.compiled, doc, self.context)
 
 ### The End ###

@@ -34,11 +34,10 @@ class ColortextFormatter(Message.Formatter):
     detector = Message.Filter('<find path="/message/body/colorText"/>')
 
 
-class ColortextToIRC(Message.Formatter):
+class ColortextToIRC(ColortextFormatter):
     """Converts messages with colorText content to plain text
        with IRC color tags.
        """
-    detector = Message.Filter('<find path="/message/body/colorText"/>')
     medium = 'irc'
     color = True
 
@@ -50,9 +49,9 @@ class ColortextToIRC(Message.Formatter):
         self.formatter = ColortextFormatter()
 
     def format(self, args):
-        colorText = args.message.xml.body.colorText
+        colorText = XML.dig(args.message.xml, "message", "body", "colorText")
         if self.color:
-            return self.formatter.format(colorText)
+            return self.formatter.parse(colorText)
         else:
             return XML.allText(colorText)
 
@@ -62,7 +61,7 @@ class ColortextTitle(ColortextFormatter):
     medium = 'title'
 
     def format(self, args):
-        return Util.extractSummary(args.message.xml.body.colorText)
+        return Util.extractSummary(XML.dig(args.message.xml, "message", "body", "colorText"))
 
 
 class ColortextToPlaintext(ColortextFormatter):
@@ -70,7 +69,7 @@ class ColortextToPlaintext(ColortextFormatter):
     medium = 'plaintext'
 
     def format(self, args):
-        return self.Parser(args.message.xml.body.colorText).result
+        return self.Parser(XML.dig(args.message.xml, "message", "body", "colorText")).result
 
     class Parser(XML.XMLObjectParser):
         requiredRootElement = 'colorText'
@@ -93,7 +92,8 @@ class ColortextToXHTML(ColortextFormatter):
     medium = 'xhtml'
 
     def format(self, args):
-        return self.Parser(args.message.xml.body.colorText).result
+        colorText = XML.dig(args.message.xml, "message", "body", "colorText")
+        return self.Parser(colorText).result
 
     class Parser(XML.XMLObjectParser):
         requiredRootElement = 'colorText'
@@ -121,7 +121,7 @@ class ColortextToXHTML(ColortextFormatter):
             }
 
         def element_colorText(self, element):
-            return [self.parse(e) for e in element.children]
+            return list(self.childParser(element))
 
         def parseString(self, s):
             return s
@@ -150,9 +150,10 @@ class ColortextToXHTML(ColortextFormatter):
                 ('fg', 'color'),
                 ('bg', 'background'),
                 ):
-                if element.hasAttribute(attr):
+                attrValue = element.getAttributeNS(None, attr)
+                if attrValue:
                     try:
-                        style = "%s%s: %s;" % (style, css, self.colorTable[element[attr]])
+                        style = "%s%s: %s;" % (style, css, self.colorTable[attrValue])
                     except KeyError:
                         pass
             return Nouvelle.tag('span', style=style)[self.element_colorText(element)]
