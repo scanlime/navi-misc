@@ -223,6 +223,10 @@ url_editor_dialog_get_type2 (void)
 void
 url_editor_dialog_run2 (UrlEditorDialog2 *dialog)
 {
-	gtk_dialog_run (GTK_DIALOG (dialog));
-	/* FIXME */
+	gint response;
+
+	response = gtk_dialog_run (GTK_DIALOG (dialog));
+	if (response == GTK_RESPONSE_OK) {
+	}
+	gtk_widget_hide_all (GTK_WIDGET (dialog));
 }
