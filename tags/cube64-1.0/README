@@ -1,6 +1,10 @@
 ======
 cube64
 ======
+Version 1.0
+
+Introduction
+------------
 
 This is a project to build an adaptor for using Gamecube controllers
 with N64 consoles. The motivation behind this is that the N64 has some
@@ -23,7 +27,30 @@ electronics skills and a way to program the microcontroller, you can build
 your own cube64 adaptorr easily. The hardware is extremely simple, and all
 the complexity of reverse engineering and writing code is done for you ;)
 
-Contents of this directory:
+Status
+------
+
+The protocol used between the N64 and controller, and between the controller
+and controller pak is well-understood now. An RS-232 to N64 bridge and several
+Python programs demonstrate just about all of the protocol.
+
+The necessary subset of the protocol has been implemented in the cube64
+firmware to emulate an official N64 controller with rumble pak. If 5V power
+for the motor can be supplied to the gamecube controller, its rumble motor
+will be used to emulate the N64 rumble pak.
+
+All buttons on the gamecube controller are mapped to the correspondingly named
+buttons on the N64 controller. In addition, Y acts as a second B button, and
+X acts as another C-down button. The camera stick emulates all C buttons.
+
+It should be possible to emulate the N64 memory pak using the results of my
+reverse engineering, but the PIC16F84 probably isn't fast enough to run the
+CRC algorithm in time to return a status byte to the N64. If a faster
+implementation of the CRC is discovered or a processor about twice as fast is
+used, the memory pak could be emulated easily.
+
+Contents
+--------
 
   firmware:  Source code for the firmware, in PIC assembly. I develop this
              mostly using the open source "gputils" package, but I occasionally
