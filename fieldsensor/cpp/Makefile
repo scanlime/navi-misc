@@ -14,33 +14,26 @@ LIBSRC = \
 	annie/src/Neuron.o \
 	annie/src/SimpleNeuron.o \
 	annie/src/TrainingSet.o \
-	annie/src/TwoLayerNetwork.o \
+	annie/src/TwoLayerNetwork.o
 
 
-CPPFLAGS += -Iinclude -Iannie/include -g
+CPPFLAGS += -Iinclude -Iannie/include -g `sdl-config --cflags`
 CPPFLAGS += -O3 -fschedule-insns -falign-functions=4 -ffast-math -fforce-addr
 CPPFLAGS += -march=athlon-xp -fprefetch-loop-arrays -mfpmath=sse
 INCLUDES = include/*.h annie/include/*.h
 LDFLAGS += -g
-LIBS = lib/libfield.a
+LIBS = lib/libfield.so
 
-all: $(BINS)
+all: $(LIBS) $(BINS)
 
-raw_test: src/raw_test.cpp $(INCLUDES) $(LIBS)
-	g++ -o $@ $< $(CPPFLAGS) $(LDFLAGS) $(LIBS)
+$(BINS): %: src/%.cpp $(INCLUDES)
+	g++ -o $@ $< $(CPPFLAGS) $(LDFLAGS) $(LIBS) `sdl-config --libs` -lGL -lGLU
 
-new_net: src/new_net.cpp $(INCLUDES) $(LIBS)
-	g++ -o $@ $< $(CPPFLAGS) $(LDFLAGS) $(LIBS)
+lib/libfield.so: $(LIBSRC)
+	g++ -shared -fPIC -o $@ $(LIBSRC)
 
-train_net: src/train_net.cpp $(INCLUDES) $(LIBS)
-	g++ -o $@ $< $(CPPFLAGS) $(LDFLAGS) $(LIBS)
-
-net_test: src/net_test.cpp $(INCLUDES) $(LIBS)
-	g++ -o $@ $< $(CPPFLAGS) $(LDFLAGS) $(LIBS) `sdl-config --cflags --libs` -lGL -lGLU
-
-lib/libfield.a: $(LIBSRC)
-	ar r $@ $(LIBSRC)
-	ranlib $@
+$(LIBSRC): %.o: %.cpp
+	g++ -c -o $@ $< -fPIC $(CPPFLAGS)
 
 clean:
 	rm -f $(BINS) $(LIBS) $(LIBSRC)

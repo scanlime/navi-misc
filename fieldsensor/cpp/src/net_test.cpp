@@ -1,4 +1,3 @@
-#include <annie.h>
 #include <FieldSensor.h>
 #include <SDL/SDL.h>
 #include <GL/gl.h>
@@ -6,7 +5,7 @@
 
 int main(void) {
   FieldSensor s;
-  annie::VECTOR position;
+  Vector3 position;
 
   SDL_Init(SDL_INIT_VIDEO);
   SDL_Surface *surface = SDL_SetVideoMode(1024,768,0,SDL_OPENGL);
