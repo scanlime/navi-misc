@@ -26,6 +26,7 @@ Note that this only handles real XML commit messages. The legacy
 from LibCIA import Message
 import Nouvelle
 import re, posixpath
+import Util
 
 __all__ = ['CommitToIRC', 'CommitToPlaintext', 'CommitToXHTML', 'CommitTitle']
 
@@ -163,25 +164,6 @@ class CommitFormatter(Message.Formatter):
         else:
             return "%d files in %d dirs" % (len(files), len(dirs))
 
-    def wrapLine(self, line, width):
-        """Given a long line, wrap it if possible to the given width,
-           returning a list of lines.
-           """
-        lines = []
-        newLine = ''
-        for word in line.split(" "):
-            oldLine = newLine
-            if newLine:
-                newLine = newLine + ' ' + word
-            else:
-                newLine = word
-            if len(newLine) > width:
-                lines.append(oldLine.rstrip())
-                newLine = word
-        if newLine:
-            lines.append(newLine.rstrip())
-        return lines
-
     def format_log(self, log):
         # Break the log string into wrapped lines
         lines = []
@@ -195,7 +177,7 @@ class CommitFormatter(Message.Formatter):
 
             # Wrap long lines
             if self.widthLimit and len(line) > self.widthLimit:
-                lines.extend(self.wrapLine(line, self.wrapWidth))
+                lines.extend(Util.wrapLine(line, self.wrapWidth))
             else:
                 lines.append(line)
 
@@ -353,13 +335,10 @@ class CommitToXHTML(CommitFormatter):
 class CommitTitle(CommitFormatter):
     """Extracts a title from commit messages"""
     medium = 'title'
-    widthLimit = 80
 
     def format(self, message, input=None):
-        # Get the log message, collapse whitespace, and truncate
-        log = re.sub("\s+", " ", str(message.xml.body.commit.log))
-        if len(log) > self.widthLimit:
-            log = log[:self.widthLimit] + " ..."
-        return log
+        log = message.xml.body.commit.log
+        if log:
+            return Util.extractSummary(log)
 
 ### The End ###
