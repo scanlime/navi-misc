@@ -23,24 +23,24 @@ using System;
 using Gtk;
 using Glade;
 
-public class GladeApp
+public class PipelineEditor
 {
         public static void Main (string[] args)
         {
-                new GladeApp (args);
+                new PipelineEditor (args);
         }
 
-        public GladeApp (string[] args) 
+        public PipelineEditor (string[] args) 
         {
                 Application.Init();
 
                 Glade.XML gxml = new Glade.XML (null, "pipeline-editor.glade", "window1", null);
-                //gxml.Autoconnect (this);
+                gxml.Autoconnect (this);
                 Application.Run();
         }
 
         /* Connect the Signals defined in Glade */
-        public void OnWindowDeleteEvent (object o, DeleteEventArgs args) 
+        public void OnDeleteEvent (object o, DeleteEventArgs args) 
         {
                 Application.Quit ();
                 args.RetVal = true;
