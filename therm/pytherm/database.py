@@ -28,12 +28,6 @@ import MySQLdb.cursors
 import os, time
 
 
-def prettifyName(str):
-    """Replace underscores with spaces, and give it title capitalization"""
-    words = str.replace("_", " ").split()
-    return " ".join([ word.capitalize() for word in words ])
-
-
 class ThermSource:
     """One data source in the therm database"""
     def __init__(self, db, id, medium=None, protocol=None, station_id=None,
@@ -50,6 +44,11 @@ class ThermSource:
         return "<ThermSource %s at %s:%d:%d>" % (
             self.name, self.medium, self.protocol, self.station_id)
 
+    def __str__(self):
+        """Replace underscores with spaces, and give it title capitalization"""
+        words = self.name.replace("_", " ").split()
+        return " ".join([ word.capitalize() for word in words ])
+
     def getLatestPacket(self):
        for row in self.db.iterDictQuery(
            "SELECT * FROM packets P "
@@ -64,7 +63,7 @@ class ThermSource:
             "SELECT * FROM packets P "
             "LEFT OUTER JOIN temperatures T ON (T.packet = P.id) "
             "LEFT OUTER JOIN battery_voltage V ON (V.packet = P.id) "
-            "WHERE source = %d AND P.id > %d" % (self.id, id))
+            "WHERE source = %d AND P.id > %d ORDER BY P.time" % (self.id, id))
 
     def pollNewPackets(self, afterId=None, pollInterval=0.5):
         """Iterate over new packets as they arrive. If an ID is given,
