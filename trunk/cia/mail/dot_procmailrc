@@ -1,4 +1,5 @@
 CIADIR=$HOME/cia
+MAILDIR=$HOME/Mail/Maildir/
 LOGFILE=/dev/null
 UMASK=033
 
@@ -48,4 +49,9 @@ $CIADIR/mail.log
 :0
 * ^Subject: +(Announce|Deliver)
 | $CIADIR/mail/incoming.py
+
+###### Preserve all other mail in our inbox
+
+:0
+$MAILDIR
 
