@@ -65,7 +65,8 @@ CFLAGS += -mms-bitfields -mwindows
 LDFLAGS += -mwindows -Wl,--subsystem,windows
 OBJS += \
 	src/platform/getopt.o \
-	src/platform/getopt1.o
+	src/platform/getopt1.o \
+	src/platform/fyre-win32-res.o
 
 
 $(BIN): $(OBJS)
@@ -73,6 +74,9 @@ $(BIN): $(OBJS)
 
 %.o: %.c src/*.h
 	$(CC) -c -o $@ $< $(CFLAGS)
+
+src/platform/fyre-win32-res.o: src/platform/fyre-win32.rc src/platform/fyre.ico
+	windres	$< $@
 
 clean:
 	rm -f $(BIN) $(OBJS)

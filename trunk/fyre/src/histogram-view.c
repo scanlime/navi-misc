@@ -197,6 +197,10 @@ static void histogram_view_draw_image_region(HistogramView *self, GdkRegion *reg
 			  self->imager->width * 4);
   }
   g_free(rects);
+  
+#ifdef WIN32
+  gtk_main_iteration();
+#endif
 }
 
 static void histogram_view_draw_background_region(HistogramView *self, GdkRegion *region) {
