@@ -173,7 +173,9 @@ class BotNetwork:
     botInactivityTimeout = 60 * 5
 
     # Maximum acceptable lag, in seconds. After this much the bot is disconnected
-    maximumLag = 90
+    # This should be a fairly large number, since the bots may experience a minute
+    # or more of lag routinely when trying to join channels on connection.
+    maximumLag = 60 * 3
 
     botCheckTimer = None
 
@@ -276,6 +278,7 @@ class BotNetwork:
                     # give up this checkBots() and start over when botDisconnected() calls
                     # us again.
                     if bot.getLag() > self.maximumLag:
+                        bot.quit()
                         self.botDisconnected(bot)
                         return
 
@@ -368,6 +371,9 @@ class BotNetwork:
             # closed, ping timeout, etc)
             pass
 
+        # The maximum lag autodisconnect code in checkBots relies on this being
+        # called whether or not we actually removed the bot- the above 'pass'
+        # can not be safely replaced with 'return'.
         self.checkBots()
 
     def botJoined(self, bot, channel):
