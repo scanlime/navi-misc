@@ -317,7 +317,7 @@ class Messages(object):
                                           timestamp))
 
     def getLatest(self, limit=None):
-        """Return the most recent messages as XML strings, optionally up to a provided
+        """Return the most recent messages as (id, xml) tuples, optionally up to a provided
            maximum value. The messages are returned in reverse chronological order.
            """
         return Database.pool.runInteraction(self._getLatest, limit)
@@ -327,16 +327,10 @@ class Messages(object):
             limitClause = ''
         else:
             limitClause = " LIMIT %d" % limit
-        cursor.execute("SELECT xml FROM stats_messages WHERE target_path = %s ORDER BY id DESC%s" %
+        cursor.execute("SELECT id, xml FROM stats_messages WHERE target_path = %s ORDER BY id DESC%s" %
                             (Database.quote(self.target.path, 'varchar'),
                              limitClause))
-        results = []
-        while True:
-            row = cursor.fetchone()
-            if row is None:
-                break
-            results.append(row[0])
-        return results
+        return cursor.fetchall()
 
 
 class Metadata:
