@@ -33,6 +33,13 @@ AnnotateStartValue=1
 AnnotateSuffix=
 DoLibraryUpdate=1
 DoDatabaseUpdate=1
+[Document4]
+DocumentPath=parts.PcbLib
+AnnotationEnabled=1
+AnnotateStartValue=1
+AnnotateSuffix=
+DoLibraryUpdate=1
+DoDatabaseUpdate=1
 [OutputGroup1]
 Name=Netlist Outputs
 Description=
@@ -356,6 +363,7 @@ L16=WWWWNWWNWWWNWWWNW
 L17=WNNNNNNNWNNNWWWWN
 [Annotate]
 SortOrder=3
+MatchParameter1=Comment
 [HighlightMethod]
 Zoom=1
 Select=0
