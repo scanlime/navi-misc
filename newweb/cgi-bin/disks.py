@@ -93,8 +93,10 @@ class MountPointChart(DiskChart):
         return formatSize(self.mount.available)
 
 if __name__ == '__main__':
-    print """Content-type: text/xml
+    mounts = getMountPoints()
 
+    print 'Content-type: text/xml'
+    print """
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="/new/htdocs/style.xsl"?>
 
@@ -102,7 +104,7 @@ if __name__ == '__main__':
   <section title="charts">
     Yay, charts.
   </section>
-  <section title="mounts">
-    Yup. mounts.
+  <section title="mounts">"""
+    print """
   </section>
 </page>"""
