@@ -218,8 +218,8 @@ Int16   = ScalarType("!h")
 UInt16  = ScalarType("!H")
 Int32   = ScalarType("!i")
 UInt32  = ScalarType("!I")
-Float   = ScalarType("f")
-Double  = ScalarType("d")
+Float   = ScalarType("!f")
+Double  = ScalarType("!d")
 
 ### The End ###
         
