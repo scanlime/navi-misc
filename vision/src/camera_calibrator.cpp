@@ -7,6 +7,7 @@ CvCalibFilter* calibrate() {
   CvCalibFilter *calib = new CvCalibFilter();
   IplImage** images;
   double etalonParams[3];
+  int frameskip = 0;
 
   calib->LoadCameraParams("camera.calibration");
   if (calib->IsCalibrated()) {
@@ -27,14 +28,22 @@ CvCalibFilter* calibrate() {
       images = cv_dc1394_capture_rgb(2);
 
       if (calib->FindEtalon(images)) {
-	/* We found our checkerboard points in this image, use it to calibrate */
-	CvPoint2D32f *points[2];
-	int pointCount;
-	bool found;
-	calib->GetLatestPoints(0, &points[0], &pointCount, &found);
-	calib->GetLatestPoints(1, &points[1], &pointCount, &found);
-	printf("Accepted frame %d\n", calib->GetFrameCount()+1);
-	calib->Push((const CvPoint2D32f**) points);
+	/* Only use every 30th frame, to give the operator a chance to move around the checkerboard */
+	if (frameskip) {
+	  frameskip--;
+	}
+	else {
+	  /* We found our checkerboard points in this image, use it to calibrate */
+	  CvPoint2D32f *points[2];
+	  int pointCount;
+	  bool found;
+	  calib->GetLatestPoints(0, &points[0], &pointCount, &found);
+	  calib->GetLatestPoints(1, &points[1], &pointCount, &found);
+	  printf("Accepted frame %d\n", calib->GetFrameCount()+1);
+	  calib->Push((const CvPoint2D32f**) points);
+
+	  frameskip = 30;
+	}
       }
 
       /* Draw points even if we haven't found the complete checkerboard yet */
@@ -60,7 +69,7 @@ int main() {
   cv_dc1394_init();
   calib = calibrate();
 
-  printf("Displaying undistorted images");
+  printf("Displaying undistorted images\n");
   while (cv_sdl_process_events()) {
     images = cv_dc1394_capture_yuv(2);
     calib->Undistort(images, images);
