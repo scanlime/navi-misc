@@ -70,8 +70,6 @@ void setup_druid_nicknames_prepare(GnomeDruidPage *p, GtkWidget *w, gpointer d) 
 
 	realname_entry = glade_xml_get_widget(gui.xml, "setup druid realname");
 	gtk_entry_set_text(GTK_ENTRY(realname_entry), g_get_real_name());
-
-	gnome_druid_set_buttons_sensitive(GNOME_DRUID(gui.setup_druid), FALSE, FALSE, FALSE, FALSE);
 }
 
 void setup_druid_finish_prepare(GnomeDruidPage *p, GtkWidget *w, gpointer d) {
