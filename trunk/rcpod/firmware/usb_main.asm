@@ -73,6 +73,8 @@ rx_count		res 1	; Total number of received bytes, modulo 256
 	global	rx_size
 	global	rx_count
 
+	extern	io_Init
+
 	global	rx_Reset
 
 	extern	txe_pin
@@ -252,11 +254,9 @@ Main
 	banksel	txe_pin
 	clrf	txe_pin
 
-	pagesel	rx_Reset
-	call	rx_Reset
-
-	pagesel	InitUSB
-	call	InitUSB
+	pscall	rx_Reset
+	pscall	io_Init
+	pscall	InitUSB
 
 	banksel PIE1		; Enable the serial receive interrupt
 	bsf     PIE1, RCIE
