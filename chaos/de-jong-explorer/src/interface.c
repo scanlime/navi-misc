@@ -47,6 +47,7 @@ static void update_drawing_area();
 static int interactive_idle_handler(gpointer user_data);
 static float generate_random_param();
 static void read_gui_params();
+static void write_gui_params();
 
 gboolean on_expose(GtkWidget *widget, GdkEventExpose *event, gpointer user_data);
 gboolean on_window_delete(GtkWidget *widget, GdkEvent *event, gpointer user_data);
@@ -69,6 +70,7 @@ void interactive_main(int argc, char **argv) {
   glade_init();
 
   gui.xml = glade_xml_new("data/de-jong-explorer.glade", NULL, NULL);
+  write_gui_params();
   glade_xml_signal_autoconnect(gui.xml);
 
   gui.window = glade_xml_get_widget(gui.xml, "explorer_window");
@@ -213,6 +215,23 @@ static void read_gui_params() {
   render.gamma = gtk_spin_button_get_value(GTK_SPIN_BUTTON(glade_xml_get_widget(gui.xml, "param_gamma")));
   color_button_get_color(COLOR_BUTTON(glade_xml_get_widget(gui.xml, "param_fgcolor")), &render.fgcolor);
   color_button_get_color(COLOR_BUTTON(glade_xml_get_widget(gui.xml, "param_bgcolor")), &render.bgcolor);
+}
+
+static void write_gui_params() {
+  gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(gui.xml, "param_a")), params.a);
+  gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(gui.xml, "param_b")), params.b);
+  gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(gui.xml, "param_c")), params.c);
+  gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(gui.xml, "param_d")), params.d);
+  gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(gui.xml, "param_zoom")), params.zoom);
+  gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(gui.xml, "param_xoffset")), params.xoffset);
+  gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(gui.xml, "param_yoffset")), params.yoffset);
+  gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(gui.xml, "param_rotation")), params.rotation);
+  gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(gui.xml, "param_blur_radius")), params.blur_radius);
+  gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(gui.xml, "param_blur_ratio")), params.blur_ratio);
+  gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(gui.xml, "param_exposure")), render.exposure);
+  gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(gui.xml, "param_gamma")), render.gamma);
+  color_button_set_color(COLOR_BUTTON(glade_xml_get_widget(gui.xml, "param_fgcolor")), &render.fgcolor);
+  color_button_set_color(COLOR_BUTTON(glade_xml_get_widget(gui.xml, "param_bgcolor")), &render.bgcolor);
 }
 
 void on_start_clicked(GtkWidget *widget, gpointer user_data) {

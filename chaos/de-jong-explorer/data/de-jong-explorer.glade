@@ -471,13 +471,13 @@ Settings&lt;/b&gt;</property>
 		    <widget class="GtkSpinButton" id="param_b">
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
-		      <property name="climb_rate">1</property>
+		      <property name="climb_rate">0.001</property>
 		      <property name="digits">5</property>
 		      <property name="numeric">True</property>
 		      <property name="update_policy">GTK_UPDATE_ALWAYS</property>
 		      <property name="snap_to_ticks">False</property>
 		      <property name="wrap">False</property>
-		      <property name="adjustment">0 -9.999 9.999 0.001 0.001 0.001</property>
+		      <property name="adjustment">0 -9.999 9.999 0.001 0.01 0.01</property>
 		      <signal name="value_changed" handler="on_param_spinner_changed" last_modification_time="Sun, 15 Feb 2004 05:07:31 GMT"/>
 		    </widget>
 		    <packing>
@@ -493,13 +493,13 @@ Settings&lt;/b&gt;</property>
 		    <widget class="GtkSpinButton" id="param_c">
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
-		      <property name="climb_rate">1</property>
+		      <property name="climb_rate">0.001</property>
 		      <property name="digits">5</property>
 		      <property name="numeric">True</property>
 		      <property name="update_policy">GTK_UPDATE_ALWAYS</property>
 		      <property name="snap_to_ticks">False</property>
 		      <property name="wrap">False</property>
-		      <property name="adjustment">0 -9.999 9.999 0.001 0.001 0.001</property>
+		      <property name="adjustment">0 -9.999 9.999 0.001 0.01 0.01</property>
 		      <signal name="value_changed" handler="on_param_spinner_changed" last_modification_time="Sun, 15 Feb 2004 05:07:40 GMT"/>
 		    </widget>
 		    <packing>
@@ -515,13 +515,13 @@ Settings&lt;/b&gt;</property>
 		    <widget class="GtkSpinButton" id="param_d">
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
-		      <property name="climb_rate">1</property>
+		      <property name="climb_rate">0.001</property>
 		      <property name="digits">5</property>
 		      <property name="numeric">True</property>
 		      <property name="update_policy">GTK_UPDATE_ALWAYS</property>
 		      <property name="snap_to_ticks">False</property>
 		      <property name="wrap">False</property>
-		      <property name="adjustment">0 -9.999 9.999 0.001 0.001 0.001</property>
+		      <property name="adjustment">0 -9.999 9.999 0.001 0.01 0.01</property>
 		      <signal name="value_changed" handler="on_param_spinner_changed" last_modification_time="Sun, 15 Feb 2004 05:07:48 GMT"/>
 		    </widget>
 		    <packing>
@@ -537,13 +537,13 @@ Settings&lt;/b&gt;</property>
 		    <widget class="GtkSpinButton" id="param_zoom">
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
-		      <property name="climb_rate">1</property>
+		      <property name="climb_rate">0.01</property>
 		      <property name="digits">3</property>
 		      <property name="numeric">True</property>
 		      <property name="update_policy">GTK_UPDATE_ALWAYS</property>
 		      <property name="snap_to_ticks">False</property>
 		      <property name="wrap">False</property>
-		      <property name="adjustment">1 0.2 99.99 0.01 0.01 0.01</property>
+		      <property name="adjustment">1 0.2 99.99 0.01 0.1 0.1</property>
 		      <signal name="value_changed" handler="on_param_spinner_changed" last_modification_time="Sun, 15 Feb 2004 05:07:56 GMT"/>
 		    </widget>
 		    <packing>
@@ -559,13 +559,13 @@ Settings&lt;/b&gt;</property>
 		    <widget class="GtkSpinButton" id="param_xoffset">
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
-		      <property name="climb_rate">1</property>
+		      <property name="climb_rate">0.001</property>
 		      <property name="digits">3</property>
 		      <property name="numeric">True</property>
 		      <property name="update_policy">GTK_UPDATE_ALWAYS</property>
 		      <property name="snap_to_ticks">False</property>
 		      <property name="wrap">False</property>
-		      <property name="adjustment">0 -9.999 9.999 0.001 0.001 0.001</property>
+		      <property name="adjustment">0 -9.999 9.999 0.001 0.01 0.01</property>
 		      <signal name="value_changed" handler="on_param_spinner_changed" last_modification_time="Sun, 15 Feb 2004 05:08:05 GMT"/>
 		    </widget>
 		    <packing>
@@ -581,13 +581,13 @@ Settings&lt;/b&gt;</property>
 		    <widget class="GtkSpinButton" id="param_yoffset">
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
-		      <property name="climb_rate">1</property>
+		      <property name="climb_rate">0.001</property>
 		      <property name="digits">3</property>
 		      <property name="numeric">True</property>
 		      <property name="update_policy">GTK_UPDATE_ALWAYS</property>
 		      <property name="snap_to_ticks">False</property>
 		      <property name="wrap">False</property>
-		      <property name="adjustment">0 -9.999 9.999 0.001 0.001 0.001</property>
+		      <property name="adjustment">0 -9.999 9.999 0.001 0.01 0.01</property>
 		      <signal name="value_changed" handler="on_param_spinner_changed" last_modification_time="Sun, 15 Feb 2004 05:08:14 GMT"/>
 		    </widget>
 		    <packing>
@@ -603,13 +603,13 @@ Settings&lt;/b&gt;</property>
 		    <widget class="GtkSpinButton" id="param_rotation">
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
-		      <property name="climb_rate">1</property>
+		      <property name="climb_rate">0.001</property>
 		      <property name="digits">3</property>
 		      <property name="numeric">True</property>
 		      <property name="update_policy">GTK_UPDATE_ALWAYS</property>
 		      <property name="snap_to_ticks">False</property>
 		      <property name="wrap">False</property>
-		      <property name="adjustment">0 -9.999 9.999 0.001 0.002 0.002</property>
+		      <property name="adjustment">0 -9.999 9.999 0.001 0.01 0.01</property>
 		      <signal name="value_changed" handler="on_param_spinner_changed" last_modification_time="Sun, 15 Feb 2004 05:08:21 GMT"/>
 		    </widget>
 		    <packing>
@@ -625,13 +625,13 @@ Settings&lt;/b&gt;</property>
 		    <widget class="GtkSpinButton" id="param_blur_radius">
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
-		      <property name="climb_rate">1</property>
+		      <property name="climb_rate">1e-04</property>
 		      <property name="digits">4</property>
 		      <property name="numeric">True</property>
 		      <property name="update_policy">GTK_UPDATE_ALWAYS</property>
 		      <property name="snap_to_ticks">False</property>
 		      <property name="wrap">False</property>
-		      <property name="adjustment">0 0 1 1e-04 1e-04 1e-04</property>
+		      <property name="adjustment">0 0 1 1e-04 0.001 0.001</property>
 		      <signal name="value_changed" handler="on_param_spinner_changed" last_modification_time="Sun, 15 Feb 2004 05:08:35 GMT"/>
 		    </widget>
 		    <packing>
@@ -647,13 +647,13 @@ Settings&lt;/b&gt;</property>
 		    <widget class="GtkSpinButton" id="param_blur_ratio">
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
-		      <property name="climb_rate">1</property>
+		      <property name="climb_rate">0.01</property>
 		      <property name="digits">4</property>
 		      <property name="numeric">True</property>
 		      <property name="update_policy">GTK_UPDATE_ALWAYS</property>
 		      <property name="snap_to_ticks">False</property>
 		      <property name="wrap">False</property>
-		      <property name="adjustment">1 0 1 0.001 0.001 0.001</property>
+		      <property name="adjustment">0 0 1 0.01 0.1 0.1</property>
 		      <signal name="value_changed" handler="on_param_spinner_changed" last_modification_time="Sun, 15 Feb 2004 05:08:47 GMT"/>
 		    </widget>
 		    <packing>
@@ -669,13 +669,13 @@ Settings&lt;/b&gt;</property>
 		    <widget class="GtkSpinButton" id="param_a">
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
-		      <property name="climb_rate">1</property>
+		      <property name="climb_rate">0.001</property>
 		      <property name="digits">5</property>
 		      <property name="numeric">True</property>
 		      <property name="update_policy">GTK_UPDATE_ALWAYS</property>
 		      <property name="snap_to_ticks">False</property>
 		      <property name="wrap">False</property>
-		      <property name="adjustment">0 -9.999 9.999 0.001 0.001 0.001</property>
+		      <property name="adjustment">0 -9.999 9.999 0.001 0.01 0.01</property>
 		      <signal name="value_changed" handler="on_param_spinner_changed" last_modification_time="Sun, 15 Feb 2004 05:07:13 GMT"/>
 		    </widget>
 		    <packing>
@@ -691,13 +691,13 @@ Settings&lt;/b&gt;</property>
 		    <widget class="GtkSpinButton" id="param_exposure">
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
-		      <property name="climb_rate">1</property>
+		      <property name="climb_rate">0.001</property>
 		      <property name="digits">3</property>
 		      <property name="numeric">True</property>
 		      <property name="update_policy">GTK_UPDATE_ALWAYS</property>
 		      <property name="snap_to_ticks">False</property>
 		      <property name="wrap">False</property>
-		      <property name="adjustment">0 0 9.999 0.001 0.001 0.001</property>
+		      <property name="adjustment">0 0 9.999 0.001 0.01 0.01</property>
 		      <signal name="value_changed" handler="on_render_spinner_changed" last_modification_time="Sun, 15 Feb 2004 05:09:03 GMT"/>
 		    </widget>
 		    <packing>
@@ -713,13 +713,13 @@ Settings&lt;/b&gt;</property>
 		    <widget class="GtkSpinButton" id="param_gamma">
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
-		      <property name="climb_rate">1</property>
+		      <property name="climb_rate">0.01</property>
 		      <property name="digits">3</property>
 		      <property name="numeric">True</property>
 		      <property name="update_policy">GTK_UPDATE_ALWAYS</property>
 		      <property name="snap_to_ticks">False</property>
 		      <property name="wrap">False</property>
-		      <property name="adjustment">1 0 9.999 0.01 0.01 0.01</property>
+		      <property name="adjustment">1 0 9.999 0.01 0.1 0.1</property>
 		      <signal name="value_changed" handler="on_render_spinner_changed" last_modification_time="Sun, 15 Feb 2004 05:09:10 GMT"/>
 		    </widget>
 		    <packing>
