@@ -108,8 +108,7 @@ initialize_preferences_plugins_page ()
 	 * more permanent...
 	 */
 	homedir = g_get_home_dir();
-	xchatdir = malloc (strlen (homedir) + strlen ("/.xchat2/plugins") + 1);
-	sprintf (xchatdir, "%s/.xchat2/plugins", homedir);
+	xchatdir = g_strdup_printf ("%s/.xchat2/plugins", homedir);
 
 	/* Create a list of all the plugins in our known directories. */
 	for_files (XCHATLIBDIR"/plugins", "*.so", xchat_gnome_plugin_add);
@@ -120,6 +119,8 @@ initialize_preferences_plugins_page ()
 	for_files (xchatdir, "*.sl", xchat_gnome_plugin_add);
 	for_files (xchatdir, "*.py", xchat_gnome_plugin_add);
 	for_files (xchatdir, "*.pl", xchat_gnome_plugin_add);
+
+	g_free (xchatdir);
 
 	/* Get our GConf stuff. */
 	gconf_client = gconf_client_get_default ();
