@@ -25,7 +25,7 @@ systems have been visualized using very simple imaging techniques which allow on
 thousand points to be shown.
 
 In many cases, a few black points on a white background is sufficient as a visualization
-of such systems.  However, because dynamical systems can exhibit such strange structure,
+of such systems.  However, because dynamical systems can exhibit complex structure,
 it can be deceiving since only a small part of a trajectory can be shown in a single image.
 When a statement about a dynamical system is made, that statement refers to the long-term
 behavior of the system in a particular state, rather than only a short piece of it.  In such
@@ -94,9 +94,9 @@ in the image.  The standard plotting technique here does not suffice to show the
 of this image;  one can see several horizontal rows of points with much higher density in
 the histogram rendering, but these are completely hidden in the traditional plot.  This extra
 detail is provided, in part, by sub-pixel rendering.  The bifurcation diagram shown here is
-actually rendered with 8 columns of histogram buckets for every single column of pixels.
-While this extra data is not explicitly preserved in the image, it visually exposes details
-too small to see otherwise, such as high-density cycles.
+actually rendered with 8 columns of histogram buckets for each column of pixels. While this
+extra data is not explicitly preserved in the image, it visually exposes details too small
+to see otherwise, such as high-density cycles.
 
 \section{Related Work}
 Tone mapping of high dynamic range images has been studied extensively, primarily in the
@@ -147,7 +147,7 @@ This approach makes the algorithm particularly suitable to parallel processing. 
 system being visualized converges toward a single attractor, many iteraton or integration
 runs can be performed simultaneously.
 Parallel rendering can dramatically improve the quality of images, and makes
-this technique feasable even for slow computations and high-dimensional systems where a
+this technique feasible even for slow computations and high-dimensional systems where a
 plane of section is used to produce the image.
 
 This algorithm is not only very easy to parallelize, it is
@@ -158,14 +158,14 @@ happen can be adjusted, making it easy to scale the total bandwidth required by 
 At minimum, a merge only needs to happen once just before the final tone-mapping
 step. Realistically, it is helpful to merge histograms more often for interactivity reasons
 or in order to continuously assess the image's current quality level. Histogram merges could even
-be performed hierarchially in order to spread the load of the merge itself across a cluster, although
+be performed hierarchically in order to spread the load of the merge itself across a cluster, although
 at the price of increased latency in interactive applications.
 
 \section{Results}
 By using histograms and high dynamic range imaging techniques, iterative systems can be
 visualized in much higher detail than conventional plotting techniques.  Because
 nonlinear iterative systems can exhibit such complexity in state space, a visualization
-tool capable of showing long-term behavior is required. This technique has shown to
+tool capable of showing long-term behavior is required. This technique has been shown to
 work particularly well in the visualization of strange attractors and other chaotic
 systems.
 
@@ -174,7 +174,7 @@ using the same algorithm is a very powerful tool.  In addition, because the tone
 operator can be changed at any point, rendering controls such as exposure and color
 interpolation can be adjusted in real time, even while computation continues. Depending
 on the input system, the algorithm extends gracefully to parallel processing, making
-it a feasable visualization technique even for extremely computationally intensive
+it a feasible visualization technique even for extremely computationally intensive
 systems.
 
 \begin{thebibliography}{77}
