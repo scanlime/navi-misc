@@ -34,7 +34,7 @@ class ReceiverFactory(protocol.ClientFactory):
 
 class TwoInTwo(irc.IRCClient):
     def __init__(self):
-        self.nickname = 'testingbot'
+        self.nickname = 'jimmycarter'
         self.recievers = []
         self.lastmsg = 0
         self.queue = []
@@ -58,7 +58,8 @@ class TwoInTwo(irc.IRCClient):
         if time.time() > (self.lastmsg + 70) and len(self.queue) > 1:
             message = self.queue[0]
             self.queue = self.queue[1:]
-            self.msg('#testing123', message)
+            self.msg('#mp3_classical', message)
+	    print 'sending message \'%s\'' % message
             self.lastmsg = time.time()
 
     def dccDoSend(self, user, address, port, fileName, size, data):
@@ -69,7 +70,6 @@ class TwoInTwoFactory(protocol.ClientFactory):
     protocol = TwoInTwo
     telnet = None
     def __init__(self, channel):
-        print self
         self.channel = channel
 
     def clientConnectionLost(self, connector, reason):
@@ -98,7 +98,6 @@ class TelnetClient(telnet.Telnet):
             self.transport.loseConnection()
             return 'Command'
         self.factory.ircbot.queue.append(cmd)
-        print self.factory.ircbot.queue
         self.transport.write('>> ')
         return 'Command'
 
@@ -109,8 +108,8 @@ class TelnetFactory(protocol.Factory):
 
 if __name__ == '__main__':
     import sys
-    f = TwoInTwoFactory('#testing123')
-    reactor.connectTCP('irc.freenode.net', 6667, f)
+    f = TwoInTwoFactory('#mp3_classical')
+    reactor.connectTCP('us.undernet.org', 6667, f)
 
     g = TelnetFactory()
     f.telnet = g
