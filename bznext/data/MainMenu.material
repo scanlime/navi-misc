@@ -1,0 +1,35 @@
+
+material menu/logoMaterial
+{
+	technique
+	{
+		pass
+		{
+			lighting off
+			scene_blend alpha_blend
+
+			texture_unit
+			{
+				texture logo.png
+			}
+		}
+	}
+}
+
+
+material menu/menuArrowMaterial
+{
+	technique
+	{
+		pass
+		{
+			lighting off
+			scene_blend alpha_blend
+
+			texture_unit
+			{
+				texture menu_arrow.png
+			}
+		}
+	}
+}
