@@ -29,14 +29,14 @@
 #include <stdio.h>
 
 struct packet_socket {
-  int fd;
-  FILE *file;
+  int read_fd, write_fd;
+  FILE *read_file;
 
   struct {
     unsigned char data[4096];
     int remaining;
     unsigned char *current;
-  } buffer;
+  } write_buffer;
 
   /* Header and flag used for tracking receive state. stdio
    * buffering will ensure we don't get a partial header or
@@ -48,7 +48,8 @@ struct packet_socket {
 };
 
 /* Create a packet_socket wrapping a file descriptor */
-struct packet_socket*  packet_socket_new    (int                   fd);
+struct packet_socket*  packet_socket_new    (int                   read_fd,
+					     int                   write_fd);
 void                   packet_socket_delete (struct packet_socket* self);
 
 /* Assemble and buffer a new packet */

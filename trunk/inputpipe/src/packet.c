@@ -36,9 +36,17 @@
 
 #include "packet.h"
 
-struct packet_socket*    packet_socket_new    (int                   fd)
+//#define DEBUG
+
+#ifdef DEBUG
+#define dbg(fmt, ...) fprintf(stderr, fmt "\n", ## __VA_ARGS__)
+#else
+#define dbg(fmt, ...)
+#endif
+
+
+static void              setup_fd             (int                   fd)
 {
-  struct packet_socket *self;
   int opt;
 
   /* Try disabling the "Nagle algorithm" or "tinygram prevention".
@@ -51,28 +59,41 @@ struct packet_socket*    packet_socket_new    (int                   fd)
   if (fcntl(fd, F_SETFL, fcntl(fd, F_GETFL, 0) | O_NONBLOCK) < 0) {
     perror("Setting O_NONBLOCK");
   }
+}
+
+struct packet_socket*    packet_socket_new    (int                   read_fd,
+					       int                   write_fd)
+{
+  struct packet_socket *self;
+
+  setup_fd(read_fd);
+  if (write_fd != read_fd)
+    setup_fd(write_fd);
 
   self = malloc(sizeof(struct packet_socket));
   assert(self);
   memset(self, 0, sizeof(struct packet_socket));
 
-  self->fd = fd;
-  self->file = fdopen(fd, "rb");
-  assert(self->file);
+  self->read_fd = read_fd;
+  self->write_fd = write_fd;
+  self->read_file = fdopen(read_fd, "rb");
+  assert(self->read_file);
 
   /* Reset the write buffer */
-  self->buffer.remaining = sizeof(self->buffer.data);
-  self->buffer.current = self->buffer.data;
+  self->write_buffer.remaining = sizeof(self->write_buffer.data);
+  self->write_buffer.current = self->write_buffer.data;
 
   return self;
 }
 
 void                     packet_socket_delete (struct packet_socket* self)
 {
-  if (self->file)
-    fclose(self->file);
-  else if (self->fd > 0)
-    close(self->fd);
+  if (self->read_file)
+    fclose(self->read_file);
+  else if (self->read_fd > 0)
+    close(self->read_fd);
+  if (self->write_fd > 0 && self->write_fd != self->read_fd)
+    close(self->write_fd);
   free(self);
 }
 
@@ -83,29 +104,34 @@ void                     packet_socket_write  (struct packet_socket* self,
 {
   struct inputpipe_packet pkt;
   assert(length < 0x10000);
-  assert(length + sizeof(pkt) < sizeof(self->buffer.data));
+  assert(length + sizeof(pkt) < sizeof(self->write_buffer.data));
+
+  dbg("Sending packet 0x%04X, len=%d", packet_type, length);
 
   pkt.type = htons(packet_type);
   pkt.length = htons(length);
 
-  if (length + sizeof(pkt) > self->buffer.remaining)
+  if (length + sizeof(pkt) > self->write_buffer.remaining)
     packet_socket_flush(self);
 
-  self->buffer.remaining -= length + sizeof(pkt);
-  memcpy(self->buffer.current, &pkt, sizeof(pkt));
-  self->buffer.current += sizeof(pkt);
-  memcpy(self->buffer.current, content, length);
-  self->buffer.current += length;
+  self->write_buffer.remaining -= length + sizeof(pkt);
+  memcpy(self->write_buffer.current, &pkt, sizeof(pkt));
+  self->write_buffer.current += sizeof(pkt);
+  memcpy(self->write_buffer.current, content, length);
+  self->write_buffer.current += length;
 }
 
 void                     packet_socket_flush  (struct packet_socket* self)
 {
-  int size = self->buffer.current - self->buffer.data;
+  int size = self->write_buffer.current - self->write_buffer.data;
   if (size == 0)
     return;
-  write(self->fd, self->buffer.data, size);
-  self->buffer.remaining = sizeof(self->buffer.data);
-  self->buffer.current = self->buffer.data;
+  write(self->write_fd, self->write_buffer.data, size);
+  self->write_buffer.remaining = sizeof(self->write_buffer.data);
+  self->write_buffer.current = self->write_buffer.data;
+  fsync(self->write_fd);
+
+  dbg("Flushed write buffer");
 }
 
 int                      packet_socket_read   (struct packet_socket* self,
@@ -123,9 +149,11 @@ int                      packet_socket_read   (struct packet_socket* self,
 	*content = malloc(*length);
 	assert(*content != NULL);
 
-	if (fread(*content, *length, 1, self->file)) {
+	if (fread(*content, *length, 1, self->read_file)) {
 	  /* Yay, got a whole packet to process */
 	  self->received_header = 0;
+
+	  dbg("Received packet 0x%04X, len=%d", type, *length);
 	  return type;
 	}
 
@@ -142,9 +170,10 @@ int                      packet_socket_read   (struct packet_socket* self,
     }
 
     /* See if we can get another header */
-    if (fread(&self->packet, sizeof(self->packet), 1, self->file)) {
+    if (fread(&self->packet, sizeof(self->packet), 1, self->read_file)) {
       /* Yep. Next we'll try to get the content. */
       self->received_header = 1;
+      dbg("Received header: '%s'", &self->packet);
     }
     else
       return 0;

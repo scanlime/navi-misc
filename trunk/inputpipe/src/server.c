@@ -90,7 +90,8 @@ static fd_set fd_request_read, fd_request_write, fd_request_except;
 static fd_set fd_read, fd_write, fd_except;
 int fd_count = 0;
 
-static struct client*   client_new             (int tcp_fd);
+static struct client*   client_new             (int read_fd,
+						int write_fd);
 static void             client_delete          (struct client* self);
 static void             client_poll            (struct client* self);
 static const char*      client_format_addr     (struct client* self);
@@ -127,7 +128,7 @@ static int              main_loop              (void);
 /* Accept a connection from the given socket fd, returning
  * a new client for that connection.
  */
-static struct client* client_new(int tcp_fd)
+static struct client* client_new(int read_fd, int write_fd)
 {
   struct client *self;
   socklen_t addrlen = sizeof(struct sockaddr_in);
@@ -141,9 +142,9 @@ static struct client* client_new(int tcp_fd)
    * identify this client in our debug output and in our
    * input device's physical address.
    */
-  getpeername(tcp_fd, (struct sockaddr*) &self->addr, &addrlen);
+  getpeername(read_fd, (struct sockaddr*) &self->addr, &addrlen);
 
-  self->socket = packet_socket_new(tcp_fd);
+  self->socket = packet_socket_new(read_fd, write_fd);
   assert(self->socket);
 
   /* Open the uinput device for this input client. Our clients
@@ -160,9 +161,9 @@ static struct client* client_new(int tcp_fd)
    * the client has registered a new device. select() on a uinput
    * device in this state will cause an oops on some kernels.
    */
-  FD_SET(self->socket->fd, &fd_request_read);
-  if (self->socket->fd >= fd_count)
-    fd_count = self->socket->fd + 1;
+  FD_SET(self->socket->read_fd, &fd_request_read);
+  if (self->socket->read_fd >= fd_count)
+    fd_count = self->socket->read_fd + 1;
 
   return self;
 }
@@ -170,7 +171,7 @@ static struct client* client_new(int tcp_fd)
 static void client_delete(struct client* self)
 {
   if (self->socket) {
-    FD_CLR(self->socket->fd, &fd_request_read);
+    FD_CLR(self->socket->read_fd, &fd_request_read);
     packet_socket_delete(self->socket);
   }
   if (self->uinput_fd > 0) {
@@ -200,7 +201,7 @@ static void client_poll(struct client* self)
   }
 
   /* Is our TCP socket ready? */
-  if (FD_ISSET(self->socket->fd, &fd_read)) {
+  if (FD_ISSET(self->socket->read_fd, &fd_read)) {
     int length, type;
     void* content;
 
@@ -212,7 +213,7 @@ static void client_poll(struct client* self)
       free(content);
     }
 
-    if (feof(self->socket->file)) {
+    if (feof(self->socket->read_file)) {
       /* Connection closed, self-destruct this client */
       client_list_remove(self);
       client_delete(self);
@@ -607,7 +608,7 @@ static void listener_poll(struct listener* self)
       perror("Accepting client");
     }
     else {
-      c = client_new(fd);
+      c = client_new(fd, fd);
       if (c)
 	client_list_insert(c);
     }
@@ -634,7 +635,7 @@ static int main_loop(void) {
      */
     struct client *c;
     tcp_listener = NULL;
-    c = client_new(fileno(stdin));
+    c = client_new(fileno(stdin), fileno(stdout));
     if (c == NULL)
       return 1;
     client_list_insert(c);
@@ -727,7 +728,11 @@ int main(int argc, char **argv) {
       break;
 
     case 'i':
+      /* inetd will map stderr to the socket too, any messages
+       * will screw up our protocol. This therefore implies -q.
+       */
       config_inetd_mode = 1;
+      config_verbose = 0;
       break;
 
     case 'h':
