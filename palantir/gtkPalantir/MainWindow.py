@@ -11,15 +11,17 @@ from twisted.internet import gtk2reactor
 gtk2reactor.portableInstall()
 
 import string, gtk, gtk.glade, gobject, CharacterSheet.GtkSheetElements
-from GtkChatBuffer import GtkChatBuffer
+
+from ChatBuffer import ChatBuffer
 from PalantirIRC import palantir
-from PalantirIRC.palantirIRCFactory import PalantirClientFactory
+from PalantirIRC.factory import Factory
 from PalantirIRC.dieRoller import DieRoller
 from CharacterSheet.Character import Character
 from CharacterSheet.Sheet import Sheet
+
 from twisted.internet import reactor
 
-class PalantirWindow:
+class MainWindow:
   ''' Creates the main window. '''
   def __init__(self):
     ''' Create the layout tree from the .glade file and connect everything. '''
@@ -68,7 +70,7 @@ class PalantirWindow:
 
     # Create a chat buffer from our custom widget and insert into the
     # gtk.NoteBook.
-    self.chatWindow = GtkChatBuffer()
+    self.chatWindow = ChatBuffer()
     self.tree.get_widget('Tabs').add(self.chatWindow)
     self.chatWindow.show()
 
@@ -77,7 +79,7 @@ class PalantirWindow:
     self.tree.get_widget('InputBox').pack_start(self.characterSheetWindow)
 
     # Client factory.
-    self.factory = PalantirClientFactory('nuku-nuku', ui=self)
+    self.factory = Factory('nuku-nuku', ui=self)
 
     # Create an object to handle die rolls.
     self.dieRoller = DieRoller(self)
