@@ -1,8 +1,9 @@
 [Desktop Entry]
+Version=1.0
 Encoding=UTF-8
 Name=Fyre
 Exec=fyre -i %f
 Type=Application
 Terminal=false
 NoDisplay=true
-MimeType=image/png
+MimeType=image/png;
