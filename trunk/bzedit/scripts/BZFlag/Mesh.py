@@ -51,3 +51,17 @@ class Mesh(Object):
 
     def set_matref(self, matref):
         pass
+
+    def transformBlenderObject(self, obj):
+        """Set the transformation on the given Blender object
+           to match our position, size, and rotation. This will
+           be used both by the Box object and by other objects
+           with similar interfaces that subclass Box.
+           """
+        if not self.world:
+            return
+
+        transform = self.world.getBzToBlendMatrix()
+        transform.resize4x4()
+        transform *= Blender.Mathutils.TranslationMatrix(self.world.blendObject.mat.translationPart())
+        obj.setMatrix(transform)
