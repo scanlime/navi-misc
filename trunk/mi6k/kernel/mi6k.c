@@ -651,17 +651,20 @@ static int mi6k_lirc_ioctl(struct inode *inode, struct file *file, unsigned int 
 
 static unsigned int mi6k_lirc_poll(struct file *file, poll_table *wait)
 {
+	/* Apparently it's alright for this function to not hold the dev->sem lock */
 	struct usb_mi6k *dev = (struct usb_mi6k *)file->private_data;
-	int retval=0;
 
 	poll_wait(file, &dev->ir_rx_wait, wait);
 
-	down(&dev->sem);
-	if (mi6k_ir_rx_available(dev))
-		retval = POLLIN | POLLRDNORM;
-	up(&dev->sem);
+	/* Was the device unplugged? */
+	if (dev->udev == NULL)
+		return POLLERR | POLLHUP;
 
-	return retval;
+	/* Data available in the rx ringbuffer? */
+	if (mi6k_ir_rx_available(dev))
+		return POLLIN | POLLRDNORM;
+
+	return 0;
 }
 
 static struct file_operations mi6k_lirc_fops = {
