@@ -132,6 +132,7 @@ class MainMenu(Menu.RingMenu):
         # Add items that always appear on the menu
         menuItems = [
             Menu.Item(Icon.load('navi')),
+            Menu.Item(Icon.load('settings')),
             ]
 
         # If we have a video switch device, integrate it with the main menu
