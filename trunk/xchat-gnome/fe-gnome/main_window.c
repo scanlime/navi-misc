@@ -135,7 +135,7 @@ void initialize_main_window() {
 		 * We want the data passed with the callback to be one less then the
 		 * button pressed (e.g. alt-1 requests the channel who's path is 0:0)
 		 * so we loop from 0 <= i < 1. We use i for the user data and the ascii
-		 * value of i+1 for the keyval.
+		 * value of i+1 to get the keyval.
 		 */ 
 		for(i = 0; i < 9; i++) {
 			/* num is a string containing the ascii value of i+1. */
@@ -504,9 +504,10 @@ void on_discussion_jump_activate(GtkAccelGroup *accelgroup, GObject *arg1,
 		guint arg2,GdkModifierType arg3, gpointer data) {
 	GtkTreeView *view;
 	GtkTreeSelection *selection;
-	GtkTreeIter iter, first;
+	GtkTreeIter server;
 	GtkTreeModel *model;
 	gint kids, chan_num;
+	GtkTreePath *path;
 
 	/* Get the channel number to jump to. */
 	chan_num = GPOINTER_TO_INT(data);
@@ -514,38 +515,41 @@ void on_discussion_jump_activate(GtkAccelGroup *accelgroup, GObject *arg1,
 	/* Get our selection and tree view. */
 	view = GTK_TREE_VIEW(glade_xml_get_widget(gui.xml, "server channel list"));
 	selection = gtk_tree_view_get_selection(view);
+	model = gtk_tree_view_get_model(view);
 
-	/* Make sure we get the information we need about our selection and get
-	 * an iter for the first server.
-	 */
-	if(gtk_tree_selection_get_selected(selection, &model, &iter) &&
-			gtk_tree_model_get_iter_first(model, &first) &&
-			gui.current_session) {
+	/* Make sure we get the an iter in the tree. */
+	if(model != NULL && gtk_tree_model_get_iter_first(model, &server)) {
 		/* Loop until we run out of channels or until we find the one
 		 * we're looking for.
 		 */
 		do {
-			/* Get the number of channels on the current server starting
-			 * with the first.
-			 */
-			kids = gtk_tree_model_iter_n_children(model, &first);
-			/* If the server has enough channels to contain the one we're looking
-			 * for select it and return.
-			 */
-			if(chan_num < kids) {
-				GtkTreeIter new_iter;
-				gtk_tree_model_iter_nth_child(model, &new_iter, &first, chan_num);
-				gtk_tree_selection_select_iter(selection, &new_iter);
-				return;
+			/* Get path to current server. */
+			path = gtk_tree_model_get_path(model, &server);
+
+			/* Only count the channels in the server if the list is expanded. */
+			if(gtk_tree_view_row_expanded(view, path)) {
+				/* Get the number of channels on the current server starting
+			 	 * with the first.
+			 	 */
+				kids = gtk_tree_model_iter_n_children(model, &server);
+				/* If the server has enough channels to contain the one we're looking
+			 	 * for select it and return.
+			 	 */
+				if(chan_num < kids) {
+					GtkTreeIter new_iter;
+					gtk_tree_model_iter_nth_child(model, &new_iter, &server, chan_num);
+					gtk_tree_selection_select_iter(selection, &new_iter);
+					return;
+				}
+				/* If our number wants a channel out of the range of this server
+			 	 * subtract the number of channels in the current server so that
+			 	 * when we find the server that contains the channel we want chan_num
+			 	 * will be the channel's position in the list.
+			 	 */
+				chan_num -= kids;
 			}
-			/* If our number wants a channel out of the range of this server
-			 * subtract the number of channels in the current server so that
-			 * when we find the server that contains the channel we want chan_num
-			 * will be the channel's position in the list.
-			 */
-			chan_num -= kids;
 		/* Move to the next channel, if possible. */
-		}while (gtk_tree_model_iter_next(model, &first));
+		}while (gtk_tree_model_iter_next(model, &server));
 	}
 }
 
