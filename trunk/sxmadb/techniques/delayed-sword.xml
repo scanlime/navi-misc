@@ -1,15 +1,15 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="../style.xsl"?>
 
-<technique name="delayed sword" level="yellow" category="grab">
+<technique name="delayed sword" level="yellow" category="grabs-and-tackles">
   <attack>right hand lapel grab</attack>
   <stances>
-    <attacker>right neutral bow</attacker>
-    <defender>natural</defender>
+    <attacker><stance side="right">neutral bow</stance></attacker>
+    <defender><stance>natural</stance></defender>
   </stances>
   <steps>
     <step>
-      Step back toward 6:00 with your left foot into a
+      <footManeuver side="left">step back</footManeuver> toward 6:00 into a
       <stance side="right">neutral bow</stance> while executing a
       <block side="right">hammering inward</block> to your opponent's
       right inner forearm.

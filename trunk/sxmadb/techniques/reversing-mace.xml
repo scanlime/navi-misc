@@ -9,14 +9,15 @@
   </stances>
   <steps>
     <step>
-      Step with your right foot toward 12:00 into a
+      <footManeuver side="right">step</footManeuver> toward 12:00 into a
       <stance side="right">rear bow</stance> as you execute a
       <parry side="right">inward</parry> to the outside of your opponent's
       left arm.
     </step>
     <step>
-      Pivot into a <stance side="right">neutral bow</stance> as you execute
-      a <parry side="left">outward</parry> to the outside of your opponent's
+      <footManeuver>pivot</footManeuver> into a
+      <stance side="right">neutral bow</stance> as you execute a
+      <parry side="left">outward</parry> to the outside of your opponent's
       left arm. Simultaneously execute a <strike side="right">outward back
       knuckle</strike> to your opponent's left ribs.
     </step>

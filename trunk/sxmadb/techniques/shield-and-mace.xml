@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="../style.xsl"?>
 
-<technique name="shield and mace" level="blue" category="punch">
+<technique name="shield and mace" level="first-brown" category="punch">
   <attack>step through right straight punch</attack>
   <stances>
     <attacker>left neutral bow</attacker>
@@ -9,32 +9,38 @@
   </stances>
   <steps>
     <step>
-      Step forward into a <stance side="left">neutral bow</stance> as you perform a
+      <footManeuver side="left">step</footManeuver> into a
+      <stance side="left">neutral bow</stance> as you perform a
       <block side="right">vertical outward</block> and a
       <strike side="left">straight punch</strike> to the ribs.
     </step>
     <step>
-      Pivot into a <stance side="left">forward bow</stance> and execute a
+      <footManeuver>pivot</footManeuver> into a
+      <stance side="left">forward bow</stance> and execute a
       <strike side="right">reverse punch</strike>, also to the ribs.
     </step>
     <step>
       <!-- FIXME - characterize check -->
-      Pivot back into a <stance side="left">neutral bow</stance> as you perform a
-      <strike side="left">inward horizontal palm heel</strike> to the back of the head.
-      Continue the motion of your left arm and check your opponent's right arm into their body.
+      <footManeuver>pivot</footManeuver> back into a
+      <stance side="left">neutral bow</stance> as you perform a
+      <strike side="left">inward horizontal palm heel</strike> to the back
+      of the head. Continue the motion of your left arm and check your
+      opponent's right arm into their body.
     </step>
     <step>
-      Pivot back into a <stance side="left">forward bow</stance> as you strike your opponent's
+      <footManeuver>pivot</footManeuver> back into a
+      <stance side="left">forward bow</stance> as you strike your opponent's
       face with a <strike side="right">inward circular palm heel claw</strike>.
     </step>
     <step>
-      Continue the motion of your right hand circularly as you drop into a
+      Continue the motion of your right hand circularly as you
+      <footManeuver>drop</footManeuver> into a
       <stance side="left">close kneel</stance>. Strike the top of your
       opponent's calf with a <strike side="right">downward hand sword</strike>.
     </step>
     <step>
       <!-- FIXME - how to characterize foot maneuver? -->
-      Keeping your body low, perform a step-through
+      Keeping your body low, perform a <footManeuver>step through</footManeuver>
       <kick side="right">knife-edge side</kick>
       to the back of your opponent's left leg.
     </step>

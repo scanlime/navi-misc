@@ -9,8 +9,8 @@
   </stances>
   <steps>
     <step>
-      Step back toward 6:00 with your left foot into a
-      <stance side="right">neutral bow</stance> while executing a
+      <footManeuver side="left">step back</footManeuver> toward 6:00
+      into a <stance side="right">neutral bow</stance> while executing a
       <block side="right">extended outward</block> to your opponent's
       left inner forearm.
     </step>
@@ -23,9 +23,10 @@
       groin.
     </step>
     <step>
-      Step down into a <stance side="right">neutral bow</stance> while
-      executing a <strike side="right">inward hand sword</strike> to your
-      opponent's left neck.
+      <footManeuver side="right">step down</footManeuver> into a
+      <stance side="right">neutral bow</stance> while executing a
+      <strike side="right">inward hand sword</strike> to your opponent's
+      left neck.
     </step>
   </steps>
 </technique>

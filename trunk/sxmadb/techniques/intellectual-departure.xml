@@ -9,7 +9,7 @@
   </stances>
   <steps>
     <step>
-      Step back with your left foot toward 4:30 into a
+      <footManeuver side="left">step back</footManeuver> toward 4:30 into a
       <stance side="right">close kneel</stance> as you execute a right
       <block side="right">inward downward palm down</block> to your
       opponent's right foreleg.

@@ -9,7 +9,7 @@
   </stances>
   <steps>
     <step>
-      Step with your right foot toward 6:00 into a
+      <footManeuver side="right">step</footManeuver> toward 6:00 into a
       <stance side="left">neutral bow</stance> while pinning your
       opponent's right hand to your chest with your left hand.
       Simultaneously execute a <block side="left">hammering inward</block>
@@ -20,13 +20,14 @@
       right arm, pinning their arm to their body.
     </step>
     <step>
-      Pivot into a <stance side="left">forward bow</stance> while executing
-      a <strike side="right">thrusting palm heel</strike> behind your
+      <footManeuver>pivot</footManeuver> into a
+      <stance side="left">forward bow</stance> while executing a
+      <strike side="right">thrusting palm heel</strike> behind your
       opponent's right year
     </step>
     <step>
-      Execute a step-through <knee side="right">vertical</knee> to your
-      opponent's groin.
+      Execute a <footManeuver side="right">step through</footManeuver>
+      <knee side="right">vertical</knee> to your opponent's groin.
     </step>
     <step>
       Step down into a <stance side="right">neutral bow</stance> as you
