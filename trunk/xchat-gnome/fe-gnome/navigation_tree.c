@@ -177,3 +177,6 @@ gboolean navigation_click(GtkWidget *treeview, GdkEventButton *event, gpointer d
 	}
 	return FALSE;
 }
+
+void navigation_context(GtkWidget *treeview, session *selected) {
+}
