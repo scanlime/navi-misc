@@ -42,7 +42,7 @@ used to store and query rulesets in a RulesetStorage.
 import XML, Message, Interface
 from twisted.python import log
 from twisted.xish.xpath import XPathQuery
-from twisted.web import XMLRPC
+from twisted.web import xmlrpc
 import sys, traceback, re
 
 
@@ -55,7 +55,7 @@ class RulesetInterface(xmlrpc.XMLRPC):
         """Stores a ruleset provided as XML text. Deleting a ruleset is equivalent
            to storing an empty one with the same URI.
            """
-        return Interface.catchFaults(xml.storeAndSave, xml)
+        return Interface.catchFaults(self.storage.storeAndSave, xml)
 
     def xmlrpc_getUriList(self):
         """Return a list of all URIs with non-empty rulesets"""
