@@ -144,7 +144,7 @@ class SvnClient:
         self.author = self.svnlook('author').strip()
         self.log = self.svnlook('log')
         self.diffLines = len(self.svnlook('diff').split('\n'))
-        self.files = self.collectFiles()
+        self.files = "<files>%s</files>" % self.collectFiles()
 
     def collectFiles(self):
         # Extract all the files from the output of 'svnlook changed'
