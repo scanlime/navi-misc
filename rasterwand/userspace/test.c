@@ -77,12 +77,13 @@ void update_coil_driver(usb_dev_handle *d, struct rwand_status *status,
 }
 
 void update_display_timing(usb_dev_handle *d, struct rwand_status *status,
-			   float center, float width, float duty_cycle) {
+			   float center, float width) {
   const int num_columns = 80;
+  static float duty_cycle = 0.5;
   int col_and_gap_width = (status->period * (width/2)) / num_columns;
   int col_width = col_and_gap_width * duty_cycle;
   int gap_width = col_and_gap_width - col_width;
-  int total_width = num_columns * col_width + (num_columns-1) * gap_width;
+  int total_width = (num_columns+1) * col_width + num_columns * gap_width;
   int fwd_phase = status->period/2 * (center - width/2);
   int rev_phase = status->period - fwd_phase - total_width;
   static int fudge_factor = 0;
@@ -91,13 +92,28 @@ void update_display_timing(usb_dev_handle *d, struct rwand_status *status,
   control_write(d, RWAND_CTRL_SET_COLUMN_WIDTH, col_width, gap_width);
   control_write(d, RWAND_CTRL_SET_DISPLAY_PHASE, fwd_phase, rev_phase + fudge_factor);
 
-  if (status->buttons & RWAND_BUTTON_UP)
-    fudge_factor += 1;
-  else if (status->buttons & RWAND_BUTTON_DOWN)
-    fudge_factor -= 1;
-  else
-    return;
-  printf("Fudge factor = %d\n", fudge_factor);
+  if (status->buttons & RWAND_BUTTON_SQUARE) {
+    if (status->buttons & RWAND_BUTTON_UP)
+      duty_cycle += 0.02;
+    else if (status->buttons & RWAND_BUTTON_DOWN)
+      duty_cycle -= 0.02;
+    else
+      return;
+    if (duty_cycle > 1)
+      duty_cycle = 1;
+    if (duty_cycle < 0)
+      duty_cycle = 0;
+  }
+  else {
+    if (status->buttons & RWAND_BUTTON_UP)
+      fudge_factor += 1;
+    else if (status->buttons & RWAND_BUTTON_DOWN)
+      fudge_factor -= 1;
+    else
+      return;
+  }
+
+  printf("col_width=%d  gap_width=%d  fudge_factor=%d\n", col_width, gap_width, fudge_factor);
 }
 
 void unstall(usb_dev_handle *d) {
@@ -224,7 +240,7 @@ int main(int argc, char **argv) {
     update_coil_driver(d, &status, 0.25, 0.2);
 
     /* Update display phase and column width */
-    update_display_timing(d, &status, 0.5, 0.75, 1);
+    update_display_timing(d, &status, 0.5, 0.75);
 
     if (status.flip_count != last_status.flip_count)
       flip_pending = 0;
