@@ -98,7 +98,7 @@ class HubListener(object):
         tag = message.xml.body.ircRuleset
         server, channel = self.parseIrcRulesetAttribs(tag)
         if not channel:
-            raise XML.XMLValidityError("The 'channel' attribute on <setIrcRuleset> and <getIrcRuleset> is required")
+            raise XML.XMLValidityError("The 'channel' attribute on <ircRuleset> is required")
         if not server:
             # Default server
             server = (self.defaultHost, self.defaultPort)
