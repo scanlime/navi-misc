@@ -38,12 +38,13 @@ struct uvswitch_calibration {
 
 /************************************************** read/write ******************/
 
-/* Write a number in ASCII to the device to switch channels. Channels start at 1,
- * a value of 0 indicates to disconnect the output. If one value is written, audio
- * and video will both switch to that channel. If two values (space separated) are
- * written, video switches to the first indicated channel and audio to the second.
- * If three values are written, they specify video, white audio, and red audio
- * respectively.
+/* Write an ASCII string of one of the following forms to set the switch:
+ *
+ *    <video/audio channel>
+ *    <video/audio channel> <bypass enable>
+ *    <video channel> <bypass enable> <audio channel>
+ *    <video channel> <bypass enable> <white audio channel> <red audio channel>
+ *
  */
 
 /* Reading from the device yields a space-separated list of active channel numbers.

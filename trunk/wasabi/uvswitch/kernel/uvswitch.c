@@ -49,6 +49,8 @@ static struct usb_device_id uvswitch_table [] = {
 };
 MODULE_DEVICE_TABLE(usb, uvswitch_table);
 
+/* We need to be able to receive ADC samples, one for each video channel */
+#define ADC_BUFFER_SIZE  8
 
 /* Structure to hold all of our device specific stuff */
 struct usb_uvswitch {
@@ -57,6 +59,8 @@ struct usb_uvswitch {
 	devfs_handle_t		devfs;			/* main devfs device node */
 	unsigned char		minor;			/* the starting minor number for this device */
 	int			open_count;		/* number of times this port has been opened */
+	struct urb		adc_urb;		/* URB for the video detector A/D converters */
+       	unsigned char		adc_buffer[ADC_BUFFER_SIZE]; /* Buffer used by adc_urb */
 	struct semaphore	sem;			/* locks this structure */
 };
 
@@ -115,6 +119,17 @@ static int uvswitch_switch(struct usb_uvswitch *dev,
 			       NULL, 0, REQUEST_TIMEOUT);
 }
 
+static void uvswitch_adc_irq(struct urb *urb)
+{
+	/* Callback for processing incoming interrupt transfers from the IR receiver */
+	struct usb_uvswitch *dev = (struct usb_uvswitch*)urb->context;
+
+	if (dev && urb->status == 0 && urb->actual_length > 0) {
+		dbg("%d bytes: %d %d %d %d %d %d %d %d", urb->actual_length,
+		    dev->adc_buffer[0], dev->adc_buffer[1], dev->adc_buffer[2], dev->adc_buffer[3],
+		    dev->adc_buffer[4], dev->adc_buffer[5], dev->adc_buffer[6], dev->adc_buffer[7]);
+	}
+}
 
 /******************************************************************************/
 /************************************************** Main character device *****/
@@ -249,7 +264,7 @@ static ssize_t uvswitch_read(struct file *file, char *buffer, size_t count, loff
 	}
 
 	/* Not implemented yet :) */
-	retval = -EFAULT;
+	retval = -ENOTNAM;
 
 exit:
 	/* unlock the device */
@@ -288,7 +303,7 @@ static ssize_t uvswitch_write(struct file *file, const char *buffer, size_t coun
 	r_audio = video;
 	bypass = 0;
 
-	uvswitch_switch(dev, video, w_audio, r_audio, bypass);
+	uvswitch_switch(dev, video, video, video, 0);
 
 exit:
 	/* unlock the device */
@@ -384,6 +399,17 @@ static void * uvswitch_probe(struct usb_device *udev, unsigned int ifnum, const 
 				     &uvswitch_dev_fops, NULL);
 	info("uvswitch device now attached to %s", name);
 
+	/* Begin our interrupt transfer polling the video detector ADC */
+	FILL_INT_URB(&dev->adc_urb, dev->udev,
+		     usb_rcvintpipe(dev->udev, endpoint->bEndpointAddress),
+		     dev->adc_buffer, ADC_BUFFER_SIZE,
+		     uvswitch_adc_irq, dev, endpoint->bInterval);
+	dbg("Submitting adc_urb, interval %d", endpoint->bInterval);
+	i = usb_submit_urb(&dev->adc_urb);
+	if (i) {
+		dbg("Error submitting URB: %d", i);
+	}
+
 	goto exit;
 
 error:
@@ -418,6 +444,9 @@ static void uvswitch_disconnect(struct usb_device *udev, void *ptr)
 		dev->udev = NULL;
 		up(&dev->sem);
 	}
+
+	dbg("disconnect- unlinking URBs");
+	usb_unlink_urb(&dev->adc_urb);
 
 	info("uvswitch #%d now disconnected", minor);
 	up(&minor_table_mutex);
