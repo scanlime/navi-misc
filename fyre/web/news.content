@@ -1,3 +1,12 @@
+<div class="heading">24 February 2005 - Packaging</div>
+<p>
+    Thanks to Christoph Haas, we've got a debian package now. It'll be a little bit until it's fetchable
+    through apt, but until then, you can grab it here. Thanks Christoph!
+</p>
+<ul>
+    <li><a href="http://flapjack.navi.cx/releases/fyre/fyre-1.0.0-1_i386.deb">fyre-1.0.0-1.i386.deb</a></li>
+</ul>
+
 <div class="heading">19 February 2005 - 1.0.0 released</div>
 <p>
     It's finally here! Sporting a flashy new "go" menu for browsing image history,
