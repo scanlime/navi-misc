@@ -14,11 +14,14 @@ int main()
 
   brightness = 0;
   while (1) {
-    brightness += 128;
+    brightness = (brightness + 100) & 0xFFFF;
 
     printf("Brightness = 0x%04X\n", brightness);
-    usb_control_msg(dev->usbdev, USB_TYPE_VENDOR, UNICONE_REQ_LED_BRIGHTNESS,
-		    brightness, 0, NULL, 0, 1000);
+    if (usb_control_msg(dev->usbdev, USB_TYPE_VENDOR, UNICONE_REQ_LED_BRIGHTNESS,
+			brightness, 0, NULL, 0, 1000) < 0) {
+      perror("usb_control_msg");
+      return 1;
+    }
   }
 
   return 0;
