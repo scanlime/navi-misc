@@ -31,6 +31,7 @@ main (int argc, char **argv)
 
 	HM_Window_Init(&window);
 	LayoutTree(&window);
+	DrawWindow(&window);
 
   // contains debugging statements to indicate where in the program execution is
 

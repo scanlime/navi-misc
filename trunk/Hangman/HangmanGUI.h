@@ -50,6 +50,6 @@ int LayoutTree(HM_Window *window);
 void UpdateTree(HM_Window* window, Hangman data);
 
 /* Draw the tree to the screen */
-void DrawWindow(HM_Window window);
+void DrawWindow(HM_Window* window);
 
 #endif
