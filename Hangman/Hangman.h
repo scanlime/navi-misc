@@ -8,7 +8,7 @@
  *  Header file for a Hangman game controller.
  * 
  */
-#ifndef
+#ifndef HANGMAN
 #define HANGMAN
 
 #include <stdlib.h>
