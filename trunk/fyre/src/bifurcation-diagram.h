@@ -43,52 +43,52 @@ typedef struct _BifurcationDiagram          BifurcationDiagram;
 typedef struct _BifurcationDiagramClass     BifurcationDiagramClass;
 
 typedef struct {
-  /* Stores state information about one column of the bifurcation diagram rendering.
-   * This includes the current point position, the column index, and several sets
-   * of preinterpolated parameters.
-   */
-  guint ix;
+    /* Stores state information about one column of the bifurcation diagram rendering.
+     * This includes the current point position, the column index, and several sets
+     * of preinterpolated parameters.
+     */
+    guint ix;
 
-  struct {
-    gboolean valid;
-    gdouble x, y;
-  } point;
+    struct {
+	gboolean valid;
+	gdouble x, y;
+    } point;
 
-  struct {
-    gboolean valid;
-    DeJongParams param;
-    double a,b,c,d;
-  } interpolated[8];
+    struct {
+	gboolean valid;
+	DeJongParams param;
+	double a,b,c,d;
+    } interpolated[8];
 
 } BifurcationColumn;
 
 
 struct _BifurcationDiagram {
-  HistogramImager parent;
+    HistogramImager parent;
 
-  /* The interpolation function and data used to produce the bifurcation
-   * diagram's X axis. The calculation dirty flag must be set when the
-   * interpolation function changes in a meaningful way.
-   */
-  ParameterInterpolator *interp;
-  gpointer               interp_data;
-  GFreeFunc              interp_data_free;
-  gboolean               calc_dirty_flag;
+    /* The interpolation function and data used to produce the bifurcation
+     * diagram's X axis. The calculation dirty flag must be set when the
+     * interpolation function changes in a meaningful way.
+     */
+    ParameterInterpolator *interp;
+    gpointer               interp_data;
+    GFreeFunc              interp_data_free;
+    gboolean               calc_dirty_flag;
 
-  /* Column cache. This starts out empty, (all initialized flags are FALSE)
-   * but is gradually filled in with interpolated coordinates and current points.
-   * Caching the interpolated params speeds up rendering greatly, and caching
-   * the current point is necessary for transients to eventually fade.
-   */
-  BifurcationColumn *columns;
-  int current_column, num_columns;
+    /* Column cache. This starts out empty, (all initialized flags are FALSE)
+     * but is gradually filled in with interpolated coordinates and current points.
+     * Caching the interpolated params speeds up rendering greatly, and caching
+     * the current point is necessary for transients to eventually fade.
+     */
+    BifurcationColumn *columns;
+    int current_column, num_columns;
 
-  /* Temporary DeJong object used during interpolation, created as needed */
-  DeJong *interpolant;
+    /* Temporary DeJong object used during interpolation, created as needed */
+    DeJong *interpolant;
 };
 
 struct _BifurcationDiagramClass {
-  HistogramImagerClass parent_class;
+    HistogramImagerClass parent_class;
 };
 
 

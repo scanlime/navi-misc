@@ -40,24 +40,24 @@ typedef struct _AviWriter      AviWriter;
 typedef struct _AviWriterClass AviWriterClass;
 
 struct _AviWriter {
-  GObject object;
+    GObject object;
 
-  FILE *file;
+    FILE *file;
 
-  guint width, height;
-  float frame_rate;
-  guint32 frame_count;
+    guint width, height;
+    float frame_rate;
+    guint32 frame_count;
 
-  /* A stack of RIFF chunks that need their sizes fixed */
-  GSList *chunk_stack;
+    /* A stack of RIFF chunks that need their sizes fixed */
+    GSList *chunk_stack;
 
-  /* Offsets of particular things we need to fix later */
-  long frame_count_offset;
-  long length_offset;
+    /* Offsets of particular things we need to fix later */
+    long frame_count_offset;
+    long length_offset;
 };
 
 struct _AviWriterClass {
-  GObjectClass parent_class;
+    GObjectClass parent_class;
 };
 
 

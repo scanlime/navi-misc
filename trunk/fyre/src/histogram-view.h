@@ -41,18 +41,18 @@ typedef struct _HistogramView      HistogramView;
 typedef struct _HistogramViewClass HistogramViewClass;
 
 struct _HistogramView {
-  GtkDrawingArea parent;
+    GtkDrawingArea parent;
 
-  HistogramImager *imager;
-  GdkPixbuf *viewable_image;
+    HistogramImager *imager;
+    GdkPixbuf *viewable_image;
 
-  int old_width, old_height;
+    int old_width, old_height;
 };
 
 struct _HistogramViewClass {
-  GtkDrawingAreaClass parent_class;
+    GtkDrawingAreaClass parent_class;
 
-  void (* histogram_view) (HistogramView *cb);
+    void (* histogram_view) (HistogramView *cb);
 };
 
 

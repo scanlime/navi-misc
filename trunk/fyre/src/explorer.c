@@ -56,122 +56,122 @@ static gboolean on_interactive_prefs_delete(GtkWidget *widget, GdkEvent *event, 
 /************************************************************************************/
 
 GType explorer_get_type(void) {
-  static GType exp_type = 0;
+    static GType exp_type = 0;
 
-  if (!exp_type) {
-    static const GTypeInfo dj_info = {
-      sizeof(ExplorerClass),
-      NULL, /* base_init */
-      NULL, /* base_finalize */
-      (GClassInitFunc) explorer_class_init,
-      NULL, /* class_finalize */
-      NULL, /* class_data */
-      sizeof(Explorer),
-      0,
-      (GInstanceInitFunc) explorer_init,
-    };
+    if (!exp_type) {
+	static const GTypeInfo dj_info = {
+	    sizeof(ExplorerClass),
+	    NULL, /* base_init */
+	    NULL, /* base_finalize */
+	    (GClassInitFunc) explorer_class_init,
+	    NULL, /* class_finalize */
+	    NULL, /* class_data */
+	    sizeof(Explorer),
+	    0,
+	    (GInstanceInitFunc) explorer_init,
+	};
 
-    exp_type = g_type_register_static(G_TYPE_OBJECT, "Explorer", &dj_info, 0);
-  }
+	exp_type = g_type_register_static(G_TYPE_OBJECT, "Explorer", &dj_info, 0);
+    }
 
-  return exp_type;
+    return exp_type;
 }
 
 static void explorer_class_init(ExplorerClass *klass) {
-  GObjectClass *object_class = (GObjectClass*) klass;
+    GObjectClass *object_class = (GObjectClass*) klass;
 
-  object_class->dispose = explorer_dispose;
+    object_class->dispose = explorer_dispose;
 
-  glade_init();
+    glade_init();
 }
 
 static void explorer_init(Explorer *self) {
-  self->xml = glade_xml_new (GLADEDIR "/explorer.glade", NULL, NULL);
+    self->xml = glade_xml_new (GLADEDIR "/explorer.glade", NULL, NULL);
 #ifdef ENABLE_BINRELOC
-  if (!self->xml)
-    self->xml = glade_xml_new(BR_DATADIR("/fyre/explorer.glade"), NULL, NULL);
+    if (!self->xml)
+	self->xml = glade_xml_new(BR_DATADIR("/fyre/explorer.glade"), NULL, NULL);
 #endif
-  self->window = glade_xml_get_widget(self->xml, "explorer_window");
+    self->window = glade_xml_get_widget(self->xml, "explorer_window");
 
-  /* Connect signal handlers */
-  glade_xml_signal_connect_data(self->xml, "on_randomize",                    G_CALLBACK(on_randomize),                    self);
-  glade_xml_signal_connect_data(self->xml, "on_load_defaults",                G_CALLBACK(on_load_defaults),                self);
-  glade_xml_signal_connect_data(self->xml, "on_save",                         G_CALLBACK(on_save),                         self);
-  glade_xml_signal_connect_data(self->xml, "on_save_exr",                     G_CALLBACK(on_save_exr),                     self);
-  glade_xml_signal_connect_data(self->xml, "on_quit",                         G_CALLBACK(on_quit),                         self);
-  glade_xml_signal_connect_data(self->xml, "on_pause_rendering_toggle",       G_CALLBACK(on_pause_rendering_toggle),       self);
-  glade_xml_signal_connect_data(self->xml, "on_load_from_image",              G_CALLBACK(on_load_from_image),              self);
-  glade_xml_signal_connect_data(self->xml, "on_widget_toggle",                G_CALLBACK(on_widget_toggle),                self);
-  glade_xml_signal_connect_data(self->xml, "on_render_time_changed",          G_CALLBACK(on_render_time_changed),          self);
-  glade_xml_signal_connect_data(self->xml, "on_interactive_prefs_delete",     G_CALLBACK(on_interactive_prefs_delete),     self);
+    /* Connect signal handlers */
+    glade_xml_signal_connect_data(self->xml, "on_randomize",                    G_CALLBACK(on_randomize),                    self);
+    glade_xml_signal_connect_data(self->xml, "on_load_defaults",                G_CALLBACK(on_load_defaults),                self);
+    glade_xml_signal_connect_data(self->xml, "on_save",                         G_CALLBACK(on_save),                         self);
+    glade_xml_signal_connect_data(self->xml, "on_save_exr",                     G_CALLBACK(on_save_exr),                     self);
+    glade_xml_signal_connect_data(self->xml, "on_quit",                         G_CALLBACK(on_quit),                         self);
+    glade_xml_signal_connect_data(self->xml, "on_pause_rendering_toggle",       G_CALLBACK(on_pause_rendering_toggle),       self);
+    glade_xml_signal_connect_data(self->xml, "on_load_from_image",              G_CALLBACK(on_load_from_image),              self);
+    glade_xml_signal_connect_data(self->xml, "on_widget_toggle",                G_CALLBACK(on_widget_toggle),                self);
+    glade_xml_signal_connect_data(self->xml, "on_render_time_changed",          G_CALLBACK(on_render_time_changed),          self);
+    glade_xml_signal_connect_data(self->xml, "on_interactive_prefs_delete",     G_CALLBACK(on_interactive_prefs_delete),     self);
 
 #ifndef HAVE_EXR
-  /* If we don't have OpenEXR support, gray out the menu item
-   * so it sits there taunting the user and not breaking HIG
-   */
-  gtk_widget_set_sensitive(glade_xml_get_widget(self->xml, "save_image_as_exr"), FALSE);
+    /* If we don't have OpenEXR support, gray out the menu item
+     * so it sits there taunting the user and not breaking HIG
+     */
+    gtk_widget_set_sensitive(glade_xml_get_widget(self->xml, "save_image_as_exr"), FALSE);
 #endif
 
-  /* Set up the statusbar */
-  self->statusbar = GTK_STATUSBAR(glade_xml_get_widget(self->xml, "statusbar"));
-  self->render_status_context = gtk_statusbar_get_context_id(self->statusbar, "Rendering status");
+    /* Set up the statusbar */
+    self->statusbar = GTK_STATUSBAR(glade_xml_get_widget(self->xml, "statusbar"));
+    self->render_status_context = gtk_statusbar_get_context_id(self->statusbar, "Rendering status");
 }
 
 static void explorer_dispose(GObject *gobject) {
-  Explorer *self = EXPLORER(gobject);
+    Explorer *self = EXPLORER(gobject);
 
-  if (self->map) {
-    g_object_unref(self->map);
-    self->map = NULL;
-  }
-  if (self->idler) {
-    g_source_remove(self->idler);
-    self->idler = 0;
-  }
+    if (self->map) {
+	g_object_unref(self->map);
+	self->map = NULL;
+    }
+    if (self->idler) {
+	g_source_remove(self->idler);
+	self->idler = 0;
+    }
 
-  explorer_dispose_animation(self);
+    explorer_dispose_animation(self);
 }
 
 Explorer* explorer_new(IterativeMap *map, Animation *animation) {
-  Explorer *self = EXPLORER(g_object_new(explorer_get_type(), NULL));
-  GtkWidget *editor, *window, *scroll;
-  GtkRequisition win_req;
+    Explorer *self = EXPLORER(g_object_new(explorer_get_type(), NULL));
+    GtkWidget *editor, *window, *scroll;
+    GtkRequisition win_req;
 
-  self->animation = ANIMATION(g_object_ref(animation));
-  self->map = ITERATIVE_MAP(g_object_ref(map));
+    self->animation = ANIMATION(g_object_ref(animation));
+    self->map = ITERATIVE_MAP(g_object_ref(map));
 
-  /* Create the parameter editor */
-  editor = parameter_editor_new(PARAMETER_HOLDER(map));
-  gtk_box_pack_start(GTK_BOX(glade_xml_get_widget(self->xml, "parameter_editor_box")),
-		     editor, FALSE, FALSE, 0);
-  gtk_widget_show_all(editor);
+    /* Create the parameter editor */
+    editor = parameter_editor_new(PARAMETER_HOLDER(map));
+    gtk_box_pack_start(GTK_BOX(glade_xml_get_widget(self->xml, "parameter_editor_box")),
+		       editor, FALSE, FALSE, 0);
+    gtk_widget_show_all(editor);
 
-  /* Create the view */
-  self->view = histogram_view_new(HISTOGRAM_IMAGER(map));
-  gtk_container_add(GTK_CONTAINER(glade_xml_get_widget(self->xml, "drawing_area_viewport")), self->view);
-  gtk_widget_show_all(self->view);
+    /* Create the view */
+    self->view = histogram_view_new(HISTOGRAM_IMAGER(map));
+    gtk_container_add(GTK_CONTAINER(glade_xml_get_widget(self->xml, "drawing_area_viewport")), self->view);
+    gtk_widget_show_all(self->view);
 
-  /* Set the initial render time */
-  on_render_time_changed(glade_xml_get_widget(self->xml, "render_time"), self);
+    /* Set the initial render time */
+    on_render_time_changed(glade_xml_get_widget(self->xml, "render_time"), self);
 
-  explorer_init_animation(self);
-  explorer_init_tools(self);
-  self->idler = g_idle_add(explorer_idle_handler, self);
+    explorer_init_animation(self);
+    explorer_init_tools(self);
+    self->idler = g_idle_add(explorer_idle_handler, self);
 
-  /* Set the window's default size to include our default image size.
-   * The cleanest way I know of to do this is to set the scrolled window's scrollbar policies
-   * to 'never' and get the window's size requests, set them back to automatic, then set the
-   * default size to that size request.
-   */
-  window = glade_xml_get_widget(self->xml, "explorer_window");
-  scroll = glade_xml_get_widget(self->xml, "main_scrolledwindow");
-  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scroll), GTK_POLICY_NEVER, GTK_POLICY_NEVER);
-  gtk_widget_size_request(window, &win_req);
-  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scroll), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-  gtk_window_set_default_size(GTK_WINDOW(window), win_req.width, win_req.height);
-  gtk_widget_show(window);
+    /* Set the window's default size to include our default image size.
+     * The cleanest way I know of to do this is to set the scrolled window's scrollbar policies
+     * to 'never' and get the window's size requests, set them back to automatic, then set the
+     * default size to that size request.
+     */
+    window = glade_xml_get_widget(self->xml, "explorer_window");
+    scroll = glade_xml_get_widget(self->xml, "main_scrolledwindow");
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scroll), GTK_POLICY_NEVER, GTK_POLICY_NEVER);
+    gtk_widget_size_request(window, &win_req);
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scroll), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+    gtk_window_set_default_size(GTK_WINDOW(window), win_req.width, win_req.height);
+    gtk_widget_show(window);
 
-  return self;
+    return self;
 }
 
 
@@ -180,23 +180,23 @@ Explorer* explorer_new(IterativeMap *map, Animation *animation) {
 /************************************************************************************/
 
 static gdouble generate_random_param() {
-  return uniform_variate() * 12 - 6;
+    return uniform_variate() * 12 - 6;
 }
 
 static void on_randomize(GtkWidget *widget, gpointer user_data) {
-  Explorer *self = EXPLORER(user_data);
+    Explorer *self = EXPLORER(user_data);
 
-  g_object_set(self->map,
-	       "a", generate_random_param(),
-	       "b", generate_random_param(),
-	       "c", generate_random_param(),
-	       "d", generate_random_param(),
-	       NULL);
+    g_object_set(self->map,
+		 "a", generate_random_param(),
+		 "b", generate_random_param(),
+		 "c", generate_random_param(),
+		 "d", generate_random_param(),
+		 NULL);
 }
 
 static void on_load_defaults(GtkWidget *widget, gpointer user_data) {
-  Explorer *self = EXPLORER(user_data);
-  parameter_holder_reset_to_defaults(PARAMETER_HOLDER(self->map));
+    Explorer *self = EXPLORER(user_data);
+    parameter_holder_reset_to_defaults(PARAMETER_HOLDER(self->map));
 }
 
 
@@ -205,85 +205,85 @@ static void on_load_defaults(GtkWidget *widget, gpointer user_data) {
 /************************************************************************************/
 
 static void on_quit(GtkWidget *widget, gpointer user_data) {
-  gtk_main_quit();
+    gtk_main_quit();
 }
 
 static void on_widget_toggle(GtkWidget *widget, gpointer user_data) {
-  /* Toggle visibility of another widget. This widget should be named
-   * toggle_foo to control the visibility of a widget named foo.
-   */
-  Explorer *self = EXPLORER(user_data);
-  const gchar *name;
-  GtkWidget *toggled;
+    /* Toggle visibility of another widget. This widget should be named
+     * toggle_foo to control the visibility of a widget named foo.
+     */
+    Explorer *self = EXPLORER(user_data);
+    const gchar *name;
+    GtkWidget *toggled;
 
-  name = gtk_widget_get_name(widget);
-  g_assert(!strncmp((void *) name, "toggle_", 7));
-  toggled = glade_xml_get_widget(self->xml, name+7);
+    name = gtk_widget_get_name(widget);
+    g_assert(!strncmp((void *) name, "toggle_", 7));
+    toggled = glade_xml_get_widget(self->xml, name+7);
 
-  if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget)))
-    gtk_widget_show(toggled);
-  else
-    gtk_widget_hide(toggled);
+    if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget)))
+	gtk_widget_show(toggled);
+    else
+	gtk_widget_hide(toggled);
 }
 
 static void on_load_from_image(GtkWidget *widget, gpointer user_data) {
-  Explorer *self = EXPLORER(user_data);
-  GtkWidget *dialog;
+    Explorer *self = EXPLORER(user_data);
+    GtkWidget *dialog;
 
-  dialog = gtk_file_selection_new("Open Image Parameters");
+    dialog = gtk_file_selection_new("Open Image Parameters");
 
-  if(gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_OK) {
-    const gchar *filename;
-    filename = gtk_file_selection_get_filename(GTK_FILE_SELECTION(dialog));
-    histogram_imager_load_image_file(HISTOGRAM_IMAGER(self->map), filename);
-  }
-  gtk_widget_destroy(dialog);
+    if(gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_OK) {
+	const gchar *filename;
+	filename = gtk_file_selection_get_filename(GTK_FILE_SELECTION(dialog));
+	histogram_imager_load_image_file(HISTOGRAM_IMAGER(self->map), filename);
+    }
+    gtk_widget_destroy(dialog);
 }
 
 static void on_save(GtkWidget *widget, gpointer user_data) {
-  Explorer *self = EXPLORER(user_data);
-  GtkWidget *dialog;
+    Explorer *self = EXPLORER(user_data);
+    GtkWidget *dialog;
 
-  dialog = gtk_file_selection_new("Save Image");
-  gtk_file_selection_set_filename(GTK_FILE_SELECTION(dialog), "rendering.png");
+    dialog = gtk_file_selection_new("Save Image");
+    gtk_file_selection_set_filename(GTK_FILE_SELECTION(dialog), "rendering.png");
 
-  if(gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_OK) {
-    const gchar *filename;
-    filename = gtk_file_selection_get_filename(GTK_FILE_SELECTION(dialog));
-    histogram_imager_save_image_file(HISTOGRAM_IMAGER(self->map), filename);
-  }
-  gtk_widget_destroy(dialog);
+    if(gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_OK) {
+	const gchar *filename;
+	filename = gtk_file_selection_get_filename(GTK_FILE_SELECTION(dialog));
+	histogram_imager_save_image_file(HISTOGRAM_IMAGER(self->map), filename);
+    }
+    gtk_widget_destroy(dialog);
 }
 
 static void on_save_exr(GtkWidget *widget, gpointer user_data) {
 #ifdef HAVE_EXR
-  Explorer *self = EXPLORER(user_data);
-  GtkWidget *dialog;
+    Explorer *self = EXPLORER(user_data);
+    GtkWidget *dialog;
 
-  dialog = gtk_file_selection_new("Save OpenEXR Image");
-  gtk_file_selection_set_filename(GTK_FILE_SELECTION(dialog), "rendering.exr");
+    dialog = gtk_file_selection_new("Save OpenEXR Image");
+    gtk_file_selection_set_filename(GTK_FILE_SELECTION(dialog), "rendering.exr");
 
-  if(gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_OK) {
-    const gchar *filename;
-    filename = gtk_file_selection_get_filename(GTK_FILE_SELECTION(dialog));
-    exr_save_image_file(HISTOGRAM_IMAGER(self->map), filename);
-  }
-  gtk_widget_destroy(dialog);
+    if(gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_OK) {
+	const gchar *filename;
+	filename = gtk_file_selection_get_filename(GTK_FILE_SELECTION(dialog));
+	exr_save_image_file(HISTOGRAM_IMAGER(self->map), filename);
+    }
+    gtk_widget_destroy(dialog);
 #endif
 }
 
 static void on_render_time_changed(GtkWidget *widget, gpointer user_data) {
-  double v = gtk_range_get_adjustment(GTK_RANGE(widget))->value;
-  Explorer *self = EXPLORER(user_data);
-  self->render_time = v / 1000.0;  /* Milliseconds to seconds */
+    double v = gtk_range_get_adjustment(GTK_RANGE(widget))->value;
+    Explorer *self = EXPLORER(user_data);
+    self->render_time = v / 1000.0;  /* Milliseconds to seconds */
 }
 
 static gboolean on_interactive_prefs_delete(GtkWidget *widget, GdkEvent *event, gpointer user_data) {
-  /* Just hide the window when the user tries to close it
-   */
-  Explorer *self = EXPLORER(user_data);
-  gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(glade_xml_get_widget(self->xml, "toggle_interactive_prefs")), FALSE);
-  return TRUE;
+    /* Just hide the window when the user tries to close it
+     */
+    Explorer *self = EXPLORER(user_data);
+    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(glade_xml_get_widget(self->xml, "toggle_interactive_prefs")), FALSE);
+    return TRUE;
 }
 
 
@@ -292,93 +292,93 @@ static gboolean on_interactive_prefs_delete(GtkWidget *widget, GdkEvent *event, 
 /************************************************************************************/
 
 static void on_pause_rendering_toggle(GtkWidget *widget, gpointer user_data) {
-  Explorer *self = EXPLORER(user_data);
-  if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget)))
-    g_source_remove(self->idler);
-  else
-    self->idler = g_idle_add(explorer_idle_handler, self);
+    Explorer *self = EXPLORER(user_data);
+    if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget)))
+	g_source_remove(self->idler);
+    else
+	self->idler = g_idle_add(explorer_idle_handler, self);
 }
 
 static int explorer_idle_handler(gpointer user_data) {
-  Explorer *self = EXPLORER(user_data);
+    Explorer *self = EXPLORER(user_data);
 
-  explorer_run_iterations(self);
-  explorer_update_gui(self);
-  explorer_update_animation(self);
-  explorer_update_tools(self);
-  return 1;
+    explorer_run_iterations(self);
+    explorer_update_gui(self);
+    explorer_update_animation(self);
+    explorer_update_tools(self);
+    return 1;
 }
 
 void explorer_run_iterations(Explorer *self) {
-  iterative_map_calculate_timed(ITERATIVE_MAP(self->map),
-				self->render_time);
+    iterative_map_calculate_timed(ITERATIVE_MAP(self->map),
+				  self->render_time);
 }
 
 static gboolean limit_update_rate(GTimeVal *last_update, float max_rate) {
-  /* Limit the frame rate to the given value. This should be called once per
-   * frame, and will return FALSE if it's alright to render another frame,
-   * or TRUE otherwise.
-   */
-  GTimeVal now;
-  gulong diff;
+    /* Limit the frame rate to the given value. This should be called once per
+     * frame, and will return FALSE if it's alright to render another frame,
+     * or TRUE otherwise.
+     */
+    GTimeVal now;
+    gulong diff;
 
-  /* Figure out how much time has passed, in milliseconds */
-  g_get_current_time(&now);
-  diff = ((now.tv_usec - last_update->tv_usec) / 1000 +
-	  (now.tv_sec  - last_update->tv_sec ) * 1000);
+    /* Figure out how much time has passed, in milliseconds */
+    g_get_current_time(&now);
+    diff = ((now.tv_usec - last_update->tv_usec) / 1000 +
+	    (now.tv_sec  - last_update->tv_sec ) * 1000);
 
-  if (diff < (1000 / max_rate)) {
-    return TRUE;
-  }
-  else {
-    *last_update = now;
-    return FALSE;
-  }
+    if (diff < (1000 / max_rate)) {
+	return TRUE;
+    }
+    else {
+	*last_update = now;
+	return FALSE;
+    }
 }
 
 static gboolean explorer_auto_limit_update_rate(Explorer *self) {
-  /* Automatically determine a good maximum frame rate based on the current
-   * elapsed time, and use limit_update_rate() to limit us to that.
-   * Returns 1 if a frame should not be rendered.
-   */
+    /* Automatically determine a good maximum frame rate based on the current
+     * elapsed time, and use limit_update_rate() to limit us to that.
+     * Returns 1 if a frame should not be rendered.
+     */
 
-  const float initial_rate = 60;
-  const float final_rate = 1;
-  const float ramp_down_seconds = 3;
-  float rate, elapsed;
+    const float initial_rate = 60;
+    const float final_rate = 1;
+    const float ramp_down_seconds = 3;
+    float rate, elapsed;
 
-  elapsed = histogram_imager_get_elapsed_time(HISTOGRAM_IMAGER(self->map));
-  rate = initial_rate + (final_rate - initial_rate) * (elapsed / ramp_down_seconds);
-  if (rate < final_rate)
-    rate = final_rate;
+    elapsed = histogram_imager_get_elapsed_time(HISTOGRAM_IMAGER(self->map));
+    rate = initial_rate + (final_rate - initial_rate) * (elapsed / ramp_down_seconds);
+    if (rate < final_rate)
+	rate = final_rate;
 
-  return limit_update_rate(&self->last_gui_update, rate);
+    return limit_update_rate(&self->last_gui_update, rate);
 }
 
 void explorer_update_gui(Explorer *self) {
-  /* If the GUI needs updating, update it. This includes limiting the maximum
-   * update rate, updating the iteration count display, and actually rendering
-   * frames to the drawing area.
-   */
+    /* If the GUI needs updating, update it. This includes limiting the maximum
+     * update rate, updating the iteration count display, and actually rendering
+     * frames to the drawing area.
+     */
 
-  /* Skip frame rate limiting if we have parameter or status changes to show quickly */
-  if (!(HISTOGRAM_IMAGER(self->map)->render_dirty_flag || self->status_dirty_flag)) {
-    if (explorer_auto_limit_update_rate(self))
-      return;
-  }
+    /* Skip frame rate limiting if we have parameter or status changes to show quickly */
+    if (!(HISTOGRAM_IMAGER(self->map)->render_dirty_flag || self->status_dirty_flag)) {
+	if (explorer_auto_limit_update_rate(self))
+	    return;
+    }
 
-  /* We don't want to update the status bar if we're trying to show rendering changes quickly */
-  if (!HISTOGRAM_IMAGER(self->map)->render_dirty_flag) {
-    gchar *iters = g_strdup_printf("Iterations:    %.3e    \tPeak density:    %ld    \tCurrent tool: %s",
-				   self->map->iterations, HISTOGRAM_IMAGER(self->map)->peak_density, self->current_tool);
-    if (self->render_status_message_id)
-      gtk_statusbar_remove(self->statusbar, self->render_status_context, self->render_status_message_id);
-    self->render_status_message_id = gtk_statusbar_push(self->statusbar, self->render_status_context, iters);
-    g_free(iters);
-    self->status_dirty_flag = FALSE;
-  }
+    /* We don't want to update the status bar if we're trying to show rendering changes quickly */
+    if (!HISTOGRAM_IMAGER(self->map)->render_dirty_flag) {
+	gchar *iters = g_strdup_printf("Iterations:    %.3e    \tPeak density:    %ld    \tCurrent tool: %s",
+				       self->map->iterations, HISTOGRAM_IMAGER(self->map)->peak_density, self->current_tool);
+	if (self->render_status_message_id)
+	    gtk_statusbar_remove(self->statusbar, self->render_status_context, self->render_status_message_id);
+	self->render_status_message_id = gtk_statusbar_push(self->statusbar, self->render_status_context, iters);
+	g_free(iters);
+	self->status_dirty_flag = FALSE;
+    }
 
-  histogram_view_update(HISTOGRAM_VIEW(self->view));
+    histogram_view_update(HISTOGRAM_VIEW(self->view));
 }
 
 /* The End */

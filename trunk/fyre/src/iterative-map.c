@@ -34,32 +34,32 @@ static void iterative_map_init(IterativeMap *self);
 /************************************************************************************/
 
 GType iterative_map_get_type(void) {
-  static GType im_type = 0;
-  if (!im_type) {
-    static const GTypeInfo im_info = {
-      sizeof(IterativeMapClass),
-      NULL, /* base init */
-      NULL, /* base finalize */
-      (GClassInitFunc) iterative_map_class_init,
-      NULL, /* class finalize */
-      NULL, /* class data */
-      sizeof(IterativeMap),
-      0,
-      (GInstanceInitFunc) iterative_map_init,
-    };
+    static GType im_type = 0;
+    if (!im_type) {
+	static const GTypeInfo im_info = {
+	    sizeof(IterativeMapClass),
+	    NULL, /* base init */
+	    NULL, /* base finalize */
+	    (GClassInitFunc) iterative_map_class_init,
+	    NULL, /* class finalize */
+	    NULL, /* class data */
+	    sizeof(IterativeMap),
+	    0,
+	    (GInstanceInitFunc) iterative_map_init,
+	};
 
-    im_type = g_type_register_static(HISTOGRAM_IMAGER_TYPE, "IterativeMap", &im_info, 0);
-  }
+	im_type = g_type_register_static(HISTOGRAM_IMAGER_TYPE, "IterativeMap", &im_info, 0);
+    }
 
-  return im_type;
+    return im_type;
 }
 
 static void iterative_map_class_init(IterativeMapClass *klass) {
-  /* Nothing to do here */
+    /* Nothing to do here */
 }
 
 static void iterative_map_init(IterativeMap *self) {
-  /* Nothing to do here */
+    /* Nothing to do here */
 }
 
 
@@ -68,8 +68,8 @@ static void iterative_map_init(IterativeMap *self) {
 /************************************************************************************/
 
 void iterative_map_calculate(IterativeMap *self, guint iterations) {
-  IterativeMapClass *class = ITERATIVE_MAP_CLASS(G_OBJECT_GET_CLASS(self));
-  class->calculate(self, iterations);
+    IterativeMapClass *class = ITERATIVE_MAP_CLASS(G_OBJECT_GET_CLASS(self));
+    class->calculate(self, iterations);
 }
 
 void iterative_map_calculate_motion(IterativeMap          *self,
@@ -77,27 +77,27 @@ void iterative_map_calculate_motion(IterativeMap          *self,
                                     gboolean               continuation,
                                     ParameterInterpolator *interp,
                                     gpointer               interp_data) {
-  IterativeMapClass *class = ITERATIVE_MAP_CLASS(G_OBJECT_GET_CLASS(self));
-  class->calculate_motion(self, iterations, continuation, interp, interp_data);
+    IterativeMapClass *class = ITERATIVE_MAP_CLASS(G_OBJECT_GET_CLASS(self));
+    class->calculate_motion(self, iterations, continuation, interp, interp_data);
 }
 
 void iterative_map_calculate_timed(IterativeMap          *self,
 				   double                 seconds) {
-  GTimer *timer;
-  gulong elapsed;
-  guint iterations;
+    GTimer *timer;
+    gulong elapsed;
+    guint iterations;
 
-  iterations = (guint)(self->iter_speed_estimate * seconds + 0.5);
-  if (iterations < 1000)
-    iterations = 1000;
-  timer = g_timer_new();
-  g_timer_start(timer);
+    iterations = (guint)(self->iter_speed_estimate * seconds + 0.5);
+    if (iterations < 1000)
+	iterations = 1000;
+    timer = g_timer_new();
+    g_timer_start(timer);
 
-  iterative_map_calculate(self, iterations);
+    iterative_map_calculate(self, iterations);
 
-  g_timer_elapsed(timer, &elapsed);
-  g_timer_destroy(timer);
-  self->iter_speed_estimate = iterations / (elapsed / 1000000.0);
+    g_timer_elapsed(timer, &elapsed);
+    g_timer_destroy(timer);
+    self->iter_speed_estimate = iterations / (elapsed / 1000000.0);
 }
 
 void iterative_map_calculate_motion_timed(IterativeMap          *self,
@@ -106,21 +106,21 @@ void iterative_map_calculate_motion_timed(IterativeMap          *self,
 					  ParameterInterpolator *interp,
 					  gpointer               interp_data) {
 
-  GTimer *timer;
-  gulong elapsed;
-  guint iterations;
+    GTimer *timer;
+    gulong elapsed;
+    guint iterations;
 
-  iterations = (guint)(self->iter_speed_estimate * seconds + 0.5);
-  if (iterations < 1000)
-    iterations = 1000;
-  timer = g_timer_new();
-  g_timer_start(timer);
+    iterations = (guint)(self->iter_speed_estimate * seconds + 0.5);
+    if (iterations < 1000)
+	iterations = 1000;
+    timer = g_timer_new();
+    g_timer_start(timer);
 
-  iterative_map_calculate_motion(self, iterations, continuation, interp, interp_data);
+    iterative_map_calculate_motion(self, iterations, continuation, interp, interp_data);
 
-  g_timer_elapsed(timer, &elapsed);
-  g_timer_destroy(timer);
-  self->iter_speed_estimate = iterations / (elapsed / 1000000.0);
+    g_timer_elapsed(timer, &elapsed);
+    g_timer_destroy(timer);
+    self->iter_speed_estimate = iterations / (elapsed / 1000000.0);
 }
 
 /* The End */

@@ -42,46 +42,46 @@ typedef struct _Explorer      Explorer;
 typedef struct _ExplorerClass ExplorerClass;
 
 struct _Explorer {
-  GObject object;
+    GObject object;
 
-  IterativeMap *map;
-  Animation *animation;
+    IterativeMap *map;
+    Animation *animation;
 
-  GladeXML *xml;
-  GtkWidget *window;
+    GladeXML *xml;
+    GtkWidget *window;
 
-  GtkWidget *view;
+    GtkWidget *view;
 
-  GtkStatusbar *statusbar;
-  guint render_status_message_id;
-  guint render_status_context;
-  gboolean status_dirty_flag;
+    GtkStatusbar *statusbar;
+    guint render_status_message_id;
+    guint render_status_context;
+    gboolean status_dirty_flag;
 
-  guint idler;
-  GTimeVal last_gui_update;
-  gdouble render_time;       /* In seconds */
+    guint idler;
+    GTimeVal last_gui_update;
+    gdouble render_time;       /* In seconds */
 
-  gchar* current_tool;
-  gboolean tool_active;
-  double last_mouse_x, last_mouse_y;
-  double last_click_x, last_click_y;
-  GTimeVal last_tool_idle_update;
+    gchar* current_tool;
+    gboolean tool_active;
+    double last_mouse_x, last_mouse_y;
+    double last_click_x, last_click_y;
+    GTimeVal last_tool_idle_update;
 
-  GtkWidget *fgcolor_button, *bgcolor_button;
-  GtkWidget *anim_curve;
-  gboolean allow_transition_changes;
-  gboolean selecting_keyframe;
+    GtkWidget *fgcolor_button, *bgcolor_button;
+    GtkWidget *anim_curve;
+    gboolean allow_transition_changes;
+    gboolean selecting_keyframe;
 
-  gboolean seeking_animation;
-  gboolean seeking_animation_transition;
-  gboolean playing_animation;
-  GTimeVal last_anim_frame_time;
+    gboolean seeking_animation;
+    gboolean seeking_animation_transition;
+    gboolean playing_animation;
+    GTimeVal last_anim_frame_time;
 
-  AnimationRenderUi *render_window;
+    AnimationRenderUi *render_window;
 };
 
 struct _ExplorerClass {
-  GObjectClass parent_class;
+    GObjectClass parent_class;
 };
 
 
