@@ -71,6 +71,11 @@ class CTestGameServer : public CBaseServerGame
 
 		// game code
 		void spawnPlayer ( int playerID );
+
+		// message senders
+		void sendClientInfo ( int playerID );
+		void sendUpdate( int playerID );
+
 };
 
 #endif //_TEST_GAME_H_
