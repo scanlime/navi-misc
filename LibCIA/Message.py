@@ -562,17 +562,17 @@ class CompositeFormatterParser(XML.XMLObjectParser):
 
     def element_value(self, element):
         """Include a value obtained from an XPath, a preference, or from this element's contents"""
-        if element.hasAttribute('path'):
-            xp = XPathQuery(element['path'])
+        if element.hasAttributeNS(None, 'path'):
+            xp = XML.XPath(element.getAttributeNS(None, 'path'))
             def formatXPathValue(args):
                 nodes = xp.queryForNodes(args.message.xml)
                 if nodes:
                     return XML.allText(nodes[0]).strip()
             return formatXPathValue
 
-        elif element.hasAttribute('preference'):
-            name = element['preference']
-            default = str(element)
+        elif element.hasAttributeNS(None, 'preference'):
+            name = element.getAttributeNS(None, 'preference')
+            default = XML.shallowText(element)
             def evaluatePref(args):
                 return args.getPreference(name, default)
             return evaluatePref
@@ -583,8 +583,8 @@ class CompositeFormatterParser(XML.XMLObjectParser):
 
     def element_preference(self, element):
         """Generates no output on its own, but sets a preference in the current FormatterArgs"""
-        name = element['name']
-        value = str(element)
+        name = element.getAttributeNS(None, 'name')
+        value = XML.shallowText(element)
         def setPreference(args):
             args.preferences.setdefault(name, value)
         return setPreference
@@ -721,16 +721,16 @@ class FormatterFactory:
            If 'message' is None and a medium is requested rather than a particular
            formatter, this will return None after validating the medium.
            """
-        attrNames = xml.attributes.keys()
+        attrNames = [attr.name for attr in xml.attributes.itervalues()]
 
         if not attrNames:
             f = CompositeFormatter()
 
         elif attrNames == ['name']:
-            f = self.findName(xml.attributes['name'])
+            f = self.findName(xml.getAttributeNS(None, 'name'))
 
         elif attrNames == ['medium']:
-            f = self.findMedium(xml.attributes['medium'], message)
+            f = self.findMedium(xml.getAttributeNS(None, 'medium'), message)
 
         else:
             # It's important to disallow unknown attributes here, so that we know for
