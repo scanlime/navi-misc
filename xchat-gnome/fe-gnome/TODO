@@ -3,11 +3,12 @@ before release:
 
   autotools:
     * remove gtkspell checks for now
-    * check for an adequate version of gtk, gnome, gnome-icon-theme, etc
+    * check for an adequate version of gnome-icon-theme, etc
     * make the autotools stuff install the gnome frontend
 
 -----
 
+* topic bar should have a tooltip with the entire topic
 * double clicking on an item in the server config list should open its edit box
 * need to be able to add new servers
 
