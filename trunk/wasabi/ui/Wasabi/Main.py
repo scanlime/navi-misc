@@ -64,7 +64,7 @@ class Main:
         """Return a list of pages to include in the main sequencer book"""
         return [
             # Display the logo sequence until user interruption
-            Sequencer.FadeOut(0.2, (1,1,1), logoInterrupter),
+            Sequencer.FadeOut(0.2, (1,1,1), userPageInterrupter(Logos.getLogoSubBook())),
 
             # Run the main menu, with fade in and out
             Sequencer.FadeIn(0.5, (1,1,1), Sequencer.FadeOut(0.25, (0,0,0), lambda book:
@@ -79,30 +79,45 @@ class Main:
         self.loop.run()
 
 
-def logoInterrupter(book):
+def userPageInterrupter(page):
     """A wrapper around the book of logos that runs them until any IR code
        is received, the mouse is clicked, or the space/enter keys are pressed.
        """
-    events = [
-        Input.KeyPress(book.viewport, pygame.K_SPACE),
-        Input.KeyPress(book.viewport, pygame.K_RETURN),
-        Input.MousePress(book.viewport, 1),
-	IR.ButtonPress(),
-	]
-    return Sequencer.PageInterrupter(events, Logos.getLogoSubBook())(book)
+    def f(book):
+        events = [
+            Input.KeyPress(book.viewport, pygame.K_SPACE),
+            Input.KeyPress(book.viewport, pygame.K_RETURN),
+            Input.MousePress(book.viewport, 1),
+            IR.ButtonPress(),
+            ]
+        return Sequencer.PageInterrupter(events, page)(book)
+    return f
+
+
+class VideoChannelPage(Sequencer.Page):
+    """A sequencer page that displays video from an external input, via uvswitch"""
+    def __init__(self, view, hardware, channel):
+        self.hardware = hardware
+        hardware.selectDirectVideo(channel)
+
+    def finalize(self):
+        self.hardware.selectWasabiVideo()
 
 
 class VideoInput(Menu.Item):
     """A menu item representing a video input. This is added to the MainMenu whenever
        it becomes active as specified by the video switch.
        """
-    def __init__(self, mainMenu, channel):
-        self.mainMenu = mainMenu
+    def __init__(self, channel):
         self.channel = channel
         Menu.Item.__init__(self, VideoSwitch.getInputDict()[channel])
 
-    def onSelected(self, item):
-        print self.channel
+    def onSelected(self, menu):
+        """When we're selected, add a page to the current book that will show
+           video from our channel until a key is pressed.
+           """
+        menu.book.pushBack(userPageInterrupter(
+            lambda book: VideoChannelPage(book, menu.hardware, self.channel)))
 
 
 class MainMenu(Menu.RingMenu):
@@ -121,7 +136,7 @@ class MainMenu(Menu.RingMenu):
         # Add items for video devices that are already active
         self.channelItems = {}
         for channel in self.hardware.uvswitch.activeChannels:
-            item = VideoInput(self, channel)
+            item = VideoInput(channel)
             self.channelItems[channel] = item
             menuItems.append(item)
 
@@ -135,7 +150,7 @@ class MainMenu(Menu.RingMenu):
         """Observing the uvswitch onChannelActive event, this is called when a new
            channel becomes active, to add an icon to the menu.
            """
-        item = VideoInput(self, channel)
+        item = VideoInput(channel)
         self.channelItems[channel] = item
         self.add(item)
 
