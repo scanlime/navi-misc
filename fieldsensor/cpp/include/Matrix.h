@@ -91,6 +91,7 @@ class Matrix3x3 {
     inline Matrix3x3	&negate();
     inline Matrix3x3	&operator - ();
     inline Matrix3x3	&zero();
+    inline Matrix3x3	&ident();
     inline float	&operator[] (unsigned int index);
     inline float	operator[] (unsigned int index) const;
 
@@ -98,9 +99,6 @@ class Matrix3x3 {
     inline bool	operator != (const Matrix3x3 &m) const;
 
     inline Vector3	operator * (const Vector3 &v) const;
-
-    inline void         LUdecomp(Matrix3x3 &l, Matrix3x3 &u) const;
-    inline Matrix3x3    invert(void) const;
 
     GLfloat	vec[9];
 };
@@ -364,6 +362,13 @@ inline Matrix3x3 &Matrix3x3::zero() {
   memset(vec, 0, sizeof(vec));
 }
 
+inline Matrix3x3 &Matrix3x3::ident() {
+  zero();
+  vec[0] = 1;
+  vec[4] = 1;
+  vec[8] = 1;
+}
+
 inline float &Matrix3x3::operator[] (unsigned int index) {
   return vec[index];
 }
@@ -391,27 +396,6 @@ inline Vector3	Matrix3x3::operator * (const Vector3 &v) const {
   for(int i = 0; i < 3; i++)
     result[i] = vec[i * 3] * v[0] + vec[i * 3 + 1] * v[1] + vec[i * 3 + 2] * v[2];
   return result;
-}
-
-inline void Matrix3x3::LUdecomp(Matrix3x3 &l, Matrix3x3 &u) const {
-  l[0] = v[0]; l[3] = 0;    l[6] = 0;    
-  l[1] = v[1]; l[4] = v[4]; l[7] = 0;    
-  l[2] = v[2]; l[5] = v[5]; l[8] = v[8];
-
-  u[0] = v[0]; u[3] = v[3]; u[6] = v[6]; 
-  u[1] = v[1]; u[4] = v[4]; u[7] = 0;
-  u[2] = v[2]; u[5] = 0;    u[8] = 0;
-}
-
-inline Matrix3x3 Matrix3x3::invert(void) const {
-  /* Matrix inversion via LU decomposition */
-
-  Matrix3x3 l, u, inv;
-  LUdecomp(l,u);
-
-
-
-  return inv;
 }
 
 #endif
