@@ -35,20 +35,17 @@
 	global	io_Read		; Test the value of the pin descriptor io_pin, return it in 'w'
 	global	io_Init
 
+	;; It's important that these variables are in bank1, this isn't relocatable.
 bank1	udata
 
-io_pin		res	1	; Current pin number, supplied by other modules
+io_pin	res	1	; Current pin number, supplied by other modules
+io_tmp	res	1
 
-io_tmp		res	1
-io_byte		res	1
-io_mask		res	1	; Mask with the current I/O bit, decoded from io_pin
-io_base_fsr	res	1	; Current I/O base- points to LATA for writes, PORTA for reads.
-
-LATA		res	1	; Latch registers, holding the current output values of all ports.
-LATB		res	1	;    These are used to avoid read-modify-write errors on the GPIOs.
-LATC		res	1
-LATD		res	1
-LATE		res	1
+LATA	res	1	; Latch registers, holding the current output values of all ports.
+LATB	res	1	;    These are used to avoid read-modify-write errors on the GPIOs.
+LATC	res	1
+LATD	res	1
+LATE	res	1
 
 	code
 
@@ -68,118 +65,283 @@ io_Deassert
 	xorwf	io_pin, f	; and fall through to io_Assert...
 
 io_Assert
-	banksel	io_base_fsr	; For non-TRIS output, write via the latch registers
-	movlw	LATA
-	movwf	io_base_fsr
-
-	pscall	io_SetFSR	; Point at the current port...
-	xorlw	0		; w=1 if the port is invalid, give up
-	btfss	STATUS, Z
-	return
-	pscall	io_SetMask	; Mask off the current bit
-
-	movf	INDF, w		; Put the old value of this port in io_byte
-	movwf	io_byte
-
-	comf	io_mask, w	; AND it with the complement of our current mask
-	andwf	io_byte, f
-
-	movf	io_mask, w	; If it's active-high, OR our mask back in
+	banksel	io_pin		; Select a half of the table, load PCLATH
+	movlw	io_assert_table_1
 	btfsc	io_pin, 7
-	iorwf	io_byte, f
+	movlw	io_assert_table_2
+	movwf	PCLATH
 
-	movf	io_byte, w	; Put io_byte back in INDF
-	movwf	INDF
-
-	btfsc	io_pin, 6	; If that was a TRIS pin descriptor, we're done
-	return
-
-	banksel	io_base_fsr	; If not, we need to update the PORT with the new latch value
-	movlw	PORTA
-	movwf	io_base_fsr
-	pscall	io_SetFSR
-
-	movf	io_byte, w
-	movwf	INDF
-	return
+	rlf	io_pin, w	; Jump to the entry corresponding with io_pin*2
+	andlw	0xFE
+	movwf	PCL
 
 
 	; Test the current pin descriptor, return its value in w
 io_Read
-	banksel	io_base_fsr	; Point at the correct PORT or TRIS register
-	movlw	PORTA
-	movwf	io_base_fsr
-	pscall	io_SetFSR
-	xorlw	0		; w=1 if the port is invalid, always return 0
-	btfss	STATUS, Z
-	retlw	0
-	pscall	io_SetMask	; Mask off the current bit
-
-	movf	INDF, w		; Copy the current port value into io_byte
-	movwf	io_byte
-
-	btfss	io_pin, 7	; If the 'active high' bit is not set, complement our port reading
-	comf	io_byte, f
-
-	movf	io_mask, w	; Test against our mask
-	andwf	io_byte, w
-	btfss	STATUS, Z
-	retlw	1
-	retlw	0
-
-
-	;; Set FSR to point to the I/O port indicated by the current pin descriptor.
-	;; If the pin descriptor is invalid, returns with w=1, on success returns w=0.
-	;; For non-TRIS ports, uses the base address in io_base_fsr.
-io_SetFSR
-	bankisel PORTA		; All PORT, TRIS, and LAT registers are at an address < 0x100
-
-	banksel	io_pin
-	movlw	TRISA		; Set the base address to TRISA if the TRIS bit is set
+	banksel	io_pin		; Select a half of the table, load PCLATH
+	movlw	io_read_table_1
 	btfsc	io_pin, 6
-	movwf	io_base_fsr
+	movlw	io_read_table_2
+	movwf	PCLATH
 
-	rrf	io_pin, w	; Shift and mask the port number, put it in io_tmp
+	rlf	io_pin, w	; Jump to the entry corresponding with io_pin*4
 	movwf	io_tmp
-	rrf	io_tmp, f
-	rrf	io_tmp, w
-	andlw	0x07
-	movwf	io_tmp
+	rlf	io_tmp, w
+	andlw	0xFC
 
-	movf	io_tmp, w	; 5 is PORTE, the highest allowed port:	6 and 7 are not allowed
-	andlw	0x06
-	xorlw	0x06
-	btfsc	STATUS, Z	; If B=0, C=1 and the port is bad
-	retlw	1
-	movf	io_tmp, w	; Port 0 is a no-op
-	btfsc	STATUS, Z
-	retlw	1
+	btfss	io_pin, 6	; Without disturbing 'w', switch to bank0 for read_table_1
+	bcf	STATUS, RP0
 
-	decf	io_tmp, w	; FSR = io_base_fsr + io_tmp - 1
-	addwf	io_base_fsr, w
-	movwf	FSR
-	retlw	0
+	movwf	PCL
 
 
-	;; Set io_mask with the bit referred to in io_pin
-io_SetMask
-	banksel	io_pin
-	movf	io_pin, w
-	andlw	0x07		; Mask off the bit number
-	movwf	io_tmp		; ...and put it in io_tmp
+	;; Since pin descriptors are at the heart of many higher-level I/O
+	;; operations, we take a rather extreme memory/speed tradeoff here
+	;; to keep pin descriptors speedy. We have separate code for each
+	;; and every possible pin descriptor, and we just perform a calculated
+	;; jump to the proper fragment.
+	;;
+	;; Pin descriptor assertions are each two instructions- a bsf/bcf
+	;; followed by a return. Pin descriptor reads are each 4 instructions-
+	;; a btfss, two returns, and a nop. However, only descriptors 0 through
+	;; 127 are implemented in the table for reads, since the result is
+	;; easily inverted.
+	;;
+	;; This gives us a total of 4 256-byte pages full of pin descriptor tables.
+	;; We reserve all of page 3 for these tables, since our EPROM is really
+	;; a lot bigger than it needs to be for the RCPOD ;)
 
-	movlw	1		; Start with the mask 0x01
-	movwf	io_mask
+iotables code
 
-set_mask_loop
-	movf	io_tmp, w	; Terminate when the bit count is zero
-	btfsc	STATUS, Z
+assert_bits_8	macro	inst, reg
+	inst	reg, 0
 	return
+	inst	reg, 1
+	return
+	inst	reg, 2
+	return
+	inst	reg, 3
+	return
+	inst	reg, 4
+	return
+	inst	reg, 5
+	return
+	inst	reg, 6
+	return
+	inst	reg, 7
+	return
+	endm
 
-	rlf	io_mask, f	; Otherwise rotate the IO mask and decrement the bit count
-	decf	io_tmp, f
-	psgoto	set_mask_loop
+	;; In our assertion tables that write through a latch, jump
+	;; to a common routine afterwards that copies our latches back
+	;; onto our port registers
+assertj_bits_8	macro	inst, reg, lbl
+	inst	reg, 0
+	goto	lbl
+	inst	reg, 1
+	goto	lbl
+	inst	reg, 2
+	goto	lbl
+	inst	reg, 3
+	goto	lbl
+	inst	reg, 4
+	goto	lbl
+	inst	reg, 5
+	goto	lbl
+	inst	reg, 6
+	goto	lbl
+	inst	reg, 7
+	goto	lbl
+	endm
 
+assert_nop_8	macro
+	return	; 0
+	return
+	return	; 1
+	return
+	return	; 2
+	return
+	return	; 3
+	return
+	return	; 4
+	return
+	return	; 5
+	return
+	return	; 6
+	return
+	return	; 7
+	return
+	endm
+
+	;; First half of the assertion table (0x00 to 0x7F)
+io_assert_table_1
+
+	assert_nop_8				; port 0
+	assertj_bits_8	bcf, LATA, copy_LATA	; port 1
+	assertj_bits_8	bcf, LATB, copy_LATB	; port 2
+	assertj_bits_8	bcf, LATC, copy_LATC	; port 3
+	assertj_bits_8	bcf, LATD, copy_LATD	; port 4
+	assertj_bits_8	bcf, LATE, copy_LATE	; port 5
+	assert_nop_8				; port 6
+	assert_nop_8				; port 7
+
+	assert_nop_8				; port 0
+	assert_bits_8	bcf, TRISA		; port 1
+	assert_bits_8	bcf, TRISB		; port 2
+	assert_bits_8	bcf, TRISC		; port 3
+	assert_bits_8	bcf, TRISD		; port 4
+	assert_bits_8	bcf, TRISE		; port 5
+	assert_nop_8				; port 6
+	assert_nop_8				; port 7
+
+	;; Second half of the assertion table (0x80 to 0xFF)
+io_assert_table_2
+
+	assert_nop_8				; port 0
+	assertj_bits_8	bsf, LATA, copy_LATA	; port 1
+	assertj_bits_8	bsf, LATB, copy_LATB	; port 2
+	assertj_bits_8	bsf, LATC, copy_LATC	; port 3
+	assertj_bits_8	bsf, LATD, copy_LATD	; port 4
+	assertj_bits_8	bsf, LATE, copy_LATE	; port 5
+	assert_nop_8				; port 6
+	assert_nop_8				; port 7
+
+	assert_nop_8				; port 0
+	assert_bits_8	bsf, TRISA		; port 1
+	assert_bits_8	bsf, TRISB		; port 2
+	assert_bits_8	bsf, TRISC		; port 3
+	assert_bits_8	bsf, TRISD		; port 4
+	assert_bits_8	bsf, TRISE		; port 5
+	assert_nop_8				; port 6
+	assert_nop_8				; port 7
+
+read_bits_8	macro	reg
+	movlw	0
+	btfsc	reg, 0
+	movlw	1
+	goto	finish_read
+	movlw	0
+	btfsc	reg, 1
+	movlw	1
+	goto	finish_read
+	movlw	0
+	btfsc	reg, 2
+	movlw	1
+	goto	finish_read
+	movlw	0
+	btfsc	reg, 3
+	movlw	1
+	goto	finish_read
+	movlw	0
+	btfsc	reg, 4
+	movlw	1
+	goto	finish_read
+	movlw	0
+	btfsc	reg, 5
+	movlw	1
+	goto	finish_read
+	movlw	0
+	btfsc	reg, 6
+	movlw	1
+	goto	finish_read
+	movlw	0
+	btfsc	reg, 7
+	movlw	1
+	goto	finish_read
+	endm
+
+read_nop_8	macro
+	retlw 0	; 0
+	retlw 0
+	retlw 0
+	retlw 0
+	retlw 0	; 1
+	retlw 0
+	retlw 0
+	retlw 0
+	retlw 0	; 2
+	retlw 0
+	retlw 0
+	retlw 0
+	retlw 0	; 3
+	retlw 0
+	retlw 0
+	retlw 0
+	retlw 0	; 4
+	retlw 0
+	retlw 0
+	retlw 0
+	retlw 0	; 5
+	retlw 0
+	retlw 0
+	retlw 0
+	retlw 0	; 6
+	retlw 0
+	retlw 0
+	retlw 0
+	retlw 0	; 7
+	retlw 0
+	retlw 0
+	retlw 0
+	endm
+
+	;; First half of the read table (0x00 to 0x3F)
+io_read_table_1
+
+	read_nop_8		; port 0
+	read_bits_8	PORTA	; port 1
+	read_bits_8	PORTB	; port 2
+	read_bits_8	PORTC	; port 3
+	read_bits_8	PORTD	; port 4
+	read_bits_8	PORTE	; port 5
+	read_nop_8		; port 6
+	read_nop_8		; port 7
+
+	;; Second half of the read table (0x40 to 0xFF)
+io_read_table_2
+
+	read_nop_8		; port 0
+	read_bits_8	TRISA	; port 1
+	read_bits_8	TRISB	; port 2
+	read_bits_8	TRISC	; port 3
+	read_bits_8	TRISD	; port 4
+	read_bits_8	TRISE	; port 5
+	read_nop_8		; port 6
+	read_nop_8		; port 7
+
+	;; After the read tables but in the same page, we
+	;; have small routines that copy each latch register back
+	;; onto its corresponding PORT register.
+
+copy_latch macro latch_reg, port_reg
+	movf	latch_reg, w
+	bcf	STATUS, RP0
+	movwf	port_reg
+	return
+	endm
+
+copy_LATA
+	copy_latch LATA, PORTA
+
+copy_LATB
+	copy_latch LATB, PORTB
+
+copy_LATC
+	copy_latch LATC, PORTC
+
+copy_LATD
+	copy_latch LATD, PORTD
+
+copy_LATE
+	copy_latch LATE, PORTE
+
+	;; A similar bit of common code for valid reads. We must invert
+	;; the result if our pin descriptor is active-low
+finish_read
+	bsf	STATUS, RP0	; If we were in read_table_1, we were in bank 0
+	btfss	io_pin, 7
+	xorlw	1
+	return
 
 	end
 

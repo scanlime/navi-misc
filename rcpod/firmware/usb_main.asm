@@ -44,25 +44,27 @@
 	__CONFIG  _H4_OSC & _WDT_ON & _PWRTE_OFF & _CP_OFF
 
 unbanked	udata_shr
-W_save		res	1	; register for saving W during ISR
+
+W_save			res	1	; register for saving W during ISR
 
 bank1	udata
-Status_save	res	1	; registers for saving context
-PCLATH_save	res	1	;  during ISR
-FSR_save	res	1
-PIRmasked	res	1
-USBMaskedInterrupts  res  1
-epBuffer	res 8
-epBufferSize res 1
-epBufferSizeTemp res 1
-epBufferPtrTemp res 1
-epByteTemp	res 1
+
+Status_save		res	1	; registers for saving context
+PCLATH_save		res	1	;  during ISR
+FSR_save		res	1
+PIRmasked		res	1
+USBMaskedInterrupts	res	1
+epBuffer		res	8
+epBufferSize		res	1
+epBufferSizeTemp	res	1
+epBufferPtrTemp		res	1
+epByteTemp		res	1
 
 	;; USART receiver, running in the background
-rx_fsr_initial	res 1	; Initial buffer pointer, rx_fsr is reset to this when rx_remaining runs out
+rx_fsr_initial		res 1	; Initial buffer pointer, rx_fsr is reset to this when rx_remaining runs out
 rx_fsr			res 1	; Pointer into the buffer where the next received byte will be stored
 rx_status		res 1	; STATUS byte containing an IRP bit pointing to our buffer
-rx_remaining	res 1	; Number of bytes until the buffer must roll over
+rx_remaining		res 1	; Number of bytes until the buffer must roll over
 rx_size			res 1	; Initial rx_remaining, and the value it is reset to when it hits zero
 rx_count		res 1	; Total number of received bytes, modulo 256
 
