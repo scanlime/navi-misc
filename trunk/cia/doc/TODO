@@ -1,6 +1,17 @@
 To-do List
 ==========
 
+Messages
+--------
+
+- Clean up the versioning in messages so the semantics are clear. Arch
+  revisions like rhythmbox-devel@gnome.org--2004/rhythmbox--main--0.7--patch-17
+  and subversion revisions like r3962 could be represented using <version style="arch">
+  and <version style="svn"> tags, respectively. CVS could include a tag like
+  <version style="cvs">1.1.23</version> inside each <file>. BitKeeper would probably
+  use something similar to svn's revisions.
+
+
 Documentation
 -------------
 
