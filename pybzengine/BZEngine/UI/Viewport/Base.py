@@ -23,6 +23,7 @@ An abstract base class defining the Viewport interface
 
 from BZEngine import Event
 import copy
+from weakref import ReferenceError
 
 __all__ = ('Viewport', 'RegionMixin')
 
@@ -79,7 +80,11 @@ class Viewport(object):
     def render(self):
         if self.visible and self.size[0] > 0 and self.size[1] > 0:
             for f in self.renderSequence:
-                f()
+                try:
+                    f()
+                except ReferenceError:
+                    # Ignore parts of our renderSequence that were referenced weakly and garbage collected
+                    pass
 
     def setRect(self, rect):
         """Set this viewport's size and position rectangle.

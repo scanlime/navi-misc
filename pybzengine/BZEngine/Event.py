@@ -194,7 +194,11 @@ class EventMethodObserver:
         self.im_func = callback.im_func
 
     def __call__(self, *args, **kw):
-        self.im_func(self.im_self_ref(), *args, **kw)
+        im_self = self.im_self_ref()
+        if im_self:
+            self.im_func(im_self, *args, **kw)
+        else:
+            raise weakref.ReferenceError
 
     def unref(self, ref):
         try:
