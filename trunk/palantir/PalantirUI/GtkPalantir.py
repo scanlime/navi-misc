@@ -450,8 +450,9 @@ class PalantirWindow:
     self.tree.dialog.get_widget('SheetSelection').destroy()
     self.characterSheetWindow.show()
 
-  def AddUserToList(self, nick, channel):
+  def AddUserToList(self, user, channel):
     ''' Add nick the userlist. '''
+    nick = palantir.getNick(user)
     list = self.tree.get_widget('UserList')
     store = list.get_model()
     store.set(store.append(), 1, nick)

@@ -65,6 +65,9 @@ class PalantirClient(irc.IRCClient):
   def ctcpUnknownQuery(self, user, channel, tag, data):
     getattr(self.factory.ui, tag, 'unknownTCP')(user, channel, data)
 
+  def userJoined(self, user, channel):
+    self.factory.ui.AddUserToList(user, channel)
+
 class PalantirClientFactory(protocol.ClientFactory):
   ''' Factory to create the IRC client.  The factory will be used as an interface
       between the client and the ui, so the factory saves a reference to the ui and
