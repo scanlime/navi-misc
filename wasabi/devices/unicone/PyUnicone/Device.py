@@ -1,7 +1,9 @@
 """ PyUnicone.Device
 
-Low-level interface for initializing the Unicone device
-and communicating with controller emulators installed in its FPGA.
+Low-level interface for talking to our hardware and building
+controller emulator objects. This focuses on our Unicone hardware
+and loading emulator cores into its FPGA, but it also supports
+other hardware like our Sega Genesis microcontroller.
 
 """
 #
@@ -25,7 +27,7 @@ and communicating with controller emulators installed in its FPGA.
 
 from libunicone import *
 
-__all__ = ["UniconeDevice"]
+unicone_usb_init()
 
 
 class UniconeDevice(object):
@@ -37,7 +39,6 @@ class UniconeDevice(object):
     _progress_c = None
 
     def __init__(self):
-        unicone_usb_init()
         self._dev = unicone_device_new()
         self._progress_c = progress_reporter_console_new()
         if not self._dev:
@@ -100,37 +101,76 @@ class UniconeDevice(object):
        """
 
 
+class GenesisDevice(object):
+    """Low-level interface for initializing the Sega Genesis controller
+       emulation microcontroller and sending it status updates.
+       """
+    _dev = None
+
+    def __init__(self):
+        self._dev = genesis_device_new()
+        if not self._dev:
+            raise IOError("Unable to open Genesis device")
+
+    def __del__(self):
+        if self._dev:
+            genesis_device_delete(self._dev)
+
+    def update(self, wValue, wIndex):
+        """Send a raw update. The caller is responsible for packing controller status."""
+        genesis_device_update(self._dev, wValue, wIndex)
+
+
 class Emulator(object):
     """Abstract base class for controller emulators. Every emulator
        has a set of ports that hold Controller instances. These could
        be any type of Controller, but the emulator specifies the type
-       of controller it's designed to work with. The emulator also
-       specifies the name of the FPGA configuration that knows how
-       to emulate this type of controller.
+       of controller it's designed to work with.
 
        The emulator has an onSync event that should be triggered
        to update the hardware with the current state of our virtual
-       controllers. We encode all controllers, then send the encoded
-       data to an I2C device in the FPGA.
+       controllers.
        """
     numPorts = None
     controllerClass = None
+
+    def __init__(self):
+        self.ports = [None] * self.numPorts
+
+    def attach(self, portNumber):
+        """Attach a controller on the given port number. This creates
+           a new virtual controller, if necessary, and returns it.
+           """
+        if not self.ports[portNumber]:
+            self.ports[portNumber] = self.controllerClass()
+        return self.ports[portNumber]
+
+    def remove(self, portNumber):
+        self.ports[portNumber] = None
+
+    def sync(self):
+        """Send our our current controller status to the hardware.
+           This should be implemented by subclasses.
+           """
+        pass
+
+
+class FPGAEmulator(Emulator):
+    """Abstract base class for controller emulators built around
+       the Unicone device's FPGA. Every subclass specifies how
+       each controller is encoded in the packet sent over I2C,
+       and it specifies which FPGA configuration to use.
+       """
     fpgaConfigName = None
 
     def __init__(self, uniconeDevice):
         self.dev = uniconeDevice
-        self.ports = [None] * self.numPorts
+        Emulator.__init__(self)
         self.configure()
 
     def configure(self):
         self.dev.configure("fpga/%(fpgaConfigName)s/%(fpgaConfigName)s.bit" %
                            self.__class__.__dict__)
-
-    def attach(self, controller, portNumber):
-        self.ports[portNumber] = controller
-
-    def remove(self, controller):
-        self.ports[self.ports.index(controller)] = None
 
     def sync(self):
         """Send our our current controller status to the hardware.
@@ -144,58 +184,5 @@ class Emulator(object):
 
         # Make the status LED glow a bit to indicate activity
         self.dev.setLed(0.05, 0.001)
-
-
-def packAxisBytes(controller, format):
-    """Given a Controller and a list of (actuator name, scale, bias) tuples,
-       encode a set of axes into a string of bytes. The controller may be
-       None, in which case all axes read zero.
-       """
-    bytes = []
-    for name, scale, bias in format:
-        if controller:
-            ac = controller[name]
-            if ac:
-                v = ac.value or 0
-            else:
-                v = 0
-        else:
-            v = 0
-        byte = min(0xFF, max(0x00, int(v * scale + bias + 0.5)))
-        bytes.append(chr(byte))
-    return ''.join(bytes)
-
-def packButtonBits(controller, format):
-    """Given a controller and a list of (actuator name, threshold, invert) tuples,
-       encode a set of buttons into a string of bytes. The controller may be
-       None, in which case all buttons are released. Without 'invert', a '1' bit
-       is inserted anywhere the actuator value is greater than the given threshold.
-       'invert' reverses this. It may be used in conjunction with an actuator name
-       of None to insert constant bits. Bits are specified starting with the MSB
-       of the first byte.
-       """
-    bytes = []
-    byte = 0
-    mask = 0x80
-    for name, threshold, invert in format:
-        if controller:
-            ac = controller[name]
-            if ac:
-                v = (ac.value or 0) > threshold
-            else:
-                v = False
-        else:
-            v = False
-        v ^= invert
-        if v:
-            byte |= mask
-        mask >>= 1
-        if not mask:
-            bytes.append(chr(byte))
-            byte = 0
-            mask = 0x80
-    if mask != 0x80:
-        bytes.append(chr(byte))
-    return ''.join(bytes)
 
 ### The End ###

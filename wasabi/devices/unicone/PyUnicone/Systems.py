@@ -24,20 +24,45 @@ video game systems.
 #
 
 import struct
-import Device
+import Device, Controller
 
-class GamecubeEmulator(Device.Emulator):
+
+class GamecubeController(Controller.Controller):
+    """A virtual Nintendo Gamecube controller"""
+    def __init__(self):
+            Controller.Controller.__init__(self, "Gamecube Controller")
+            self.addActuator(Controller.Button("BTN_START"))
+            self.addActuator(Controller.Button("BTN_A"))
+            self.addActuator(Controller.Button("BTN_B"))
+            self.addActuator(Controller.Button("BTN_X"))
+            self.addActuator(Controller.Button("BTN_Y"))
+            self.addActuator(Controller.Button("BTN_Z"))
+            self.addActuator(Controller.Button("BTN_TL"))
+            self.addActuator(Controller.Button("BTN_TR"))
+            self.addActuator(Controller.Axis("ABS_X"))
+            self.addActuator(Controller.Axis("ABS_Y"))
+            self.addActuator(Controller.Joystick("JS_ABS", self['ABS_X'], self['ABS_Y']))
+            self.addActuator(Controller.Axis("ABS_RX"))
+            self.addActuator(Controller.Axis("ABS_RY"))
+            self.addActuator(Controller.Joystick("JS_ABS_RIGHT", self['ABS_RX'], self['ABS_RY']))
+            self.addActuator(Controller.Axis("ABS_Z"))
+            self.addActuator(Controller.Axis("ABS_RZ"))
+
+
+class GamecubeEmulator(Device.FPGAEmulator):
     """Emulator for Gamecube controllers"""
     numPorts = 4
-    controllerClass = None
     fpgaConfigName = 'gamecube'
+    controllerClass = GamecubeController
 
     def encodePort(self, port):
         """Convert the state of a GamecubeController to the 8-byte
            packet used internally on GC hardware and by the emulator.
            """
+        if not port:
+            return "\x00\x00\x80\x80\x80\x80\x00\x00"
         return (
-            Device.packButtonBits(port, (
+            port.packButtonBits(
                 (None,         0.5, 0),   # Unused bits
                 (None,         0.5, 0),
                 (None,         0.5, 0),
@@ -54,14 +79,66 @@ class GamecubeEmulator(Device.Emulator):
                 ('ABS_HAT0Y', -0.5, 1),
                 ('ABS_HAT0X',  0.5, 0),
                 ('ABS_HAT0X', -0.5, 1),
-                )) +
-            Device.packAxisBytes(port, (
+                ) +
+            port.packAxisBytes(
                 ('ABS_X',      0x7F, 0x80),
                 ('ABS_Y',     -0x7F, 0x80),
                 ('ABS_RX',     0x7F, 0x80),
                 ('ABS_RY',    -0x7F, 0x80),
                 ('ABS_Z',      0xFF, 0x00),
                 ('ABS_RZ',     0xFF, 0x00),
-                )))
+                ))
+
+
+class GenesisController(Controller.Controller):
+    """A virtual controller representing a Sega Genesis gamepad"""
+    def __init__(self):
+            Controller.Controller.__init__(self, "Sega Genesis Controller")
+            self.addActuator(Controller.Button("BTN_A"))
+            self.addActuator(Controller.Button("BTN_B"))
+            self.addActuator(Controller.Button("BTN_C"))
+            self.addActuator(Controller.Button("BTN_START"))
+            self.addActuator(Controller.Axis("ABS_X"))
+            self.addActuator(Controller.Axis("ABS_Y"))
+            self.addActuator(Controller.Joystick("JS_ABS", self['ABS_X'], self['ABS_Y']))
+
+
+class GenesisEmulator(Device.Emulator):
+    """Emulator for two Sega Genesis controllers, using the special genesis
+       emulation hardware, not the unicone device. This also includes two
+       actuators for controlling the power and reset buttons.
+       """
+    numPorts = 2
+    controllerClass = GenesisController
+
+    def __init__(self, genesisDevice):
+        self.dev = genesisDevice
+        Device.Emulator.__init__(self)
+        self.power = Controller.Button("BTN_POWER", 0)
+        self.reset = Controller.Button("BTN_RESET", 0)
+
+    def sync(self):
+        assert len(self.ports) == self.numPorts
+        portBytes = [self.encodePort(port) for port in self.ports]
+        wIndex = 0
+        if self.power.value:
+            wIndex |= 0x02
+        if self.reset.value:
+            wIndex |= 0x01
+        self.dev.update(portBytes[0] | (portBytes[1]<<8), wIndex)
+
+    def encodePort(self, port):
+        if not port:
+            return 0
+        return ord(port.packButtonBits(
+            ('BTN_START',  0.5, 0),
+            ('BTN_C',      0.5, 0),
+            ('BTN_B',      0.5, 0),
+            ('BTN_A',      0.5, 0),
+            ('ABS_X',      0.3, 0),
+            ('ABS_X',     -0.3, 1),
+            ('ABS_Y',      0.3, 0),
+            ('ABS_Y',     -0.3, 1),
+            )[0])
 
 ### The End ###
