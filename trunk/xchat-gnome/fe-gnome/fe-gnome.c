@@ -55,6 +55,7 @@ void fe_new_window(struct session *sess) {
 	else if(sess->type == SESS_CHANNEL)
 		navigation_tree_create_new_channel_entry(sess);
 	text_gui_add_text_buffer(sess);
+	create_userlist(sess);
 }
 
 void fe_new_server(struct server *serv) {

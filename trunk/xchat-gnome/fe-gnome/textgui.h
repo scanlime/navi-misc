@@ -11,6 +11,7 @@ void text_gui_print(xtext_buffer *buf, unsigned char *text, gboolean indent);
 
 typedef struct {
 	xtext_buffer *buffer;
+	GtkTreeModel *userlist_model;
 } session_gui;
 
 #endif

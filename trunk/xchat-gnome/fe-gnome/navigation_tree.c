@@ -1,5 +1,6 @@
 #include "navigation_tree.h"
 #include "textgui.h"
+#include "userlist.h"
 
 void navigation_selection_changed(GtkTreeSelection *selection, gpointer data);
 
@@ -102,5 +103,6 @@ void navigation_selection_changed(GtkTreeSelection *selection, gpointer data) {
 		tgui = sess->gui;
 		gtk_xtext_buffer_show(gui.xtext, tgui->buffer, TRUE);
 		gui.current_session = sess;
+		userlist_display(tgui);
 	}
 }

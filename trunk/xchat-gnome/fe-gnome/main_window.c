@@ -1,6 +1,7 @@
 #include "main_window.h"
 #include "connect_dialog.h"
 #include "about.h"
+#include "userlist.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>
