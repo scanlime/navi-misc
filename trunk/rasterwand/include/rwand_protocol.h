@@ -62,6 +62,14 @@
 ;// confirmed to be completed.
 #define RWAND_CTRL_FLIP				0x09
 
+;// Check the status of a flip requested with RWAND_CTRL_FLIP.
+;// Returns 1 byte, nonzero if the flip is still in progress.
+#define RWAND_CTRL_CHECK_FLIP		0x0A
+
+;// Check the status of all buttons. This returns PORTA directly,
+;// so it can be used with up to 6 buttons.
+#define RWAND_CTRL_CHECK_BUTTONS	0x0B
+
 
 ;//************************************************** Mode bits
 

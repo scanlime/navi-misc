@@ -47,6 +47,7 @@
 	extern	display_column_width
 
 	extern	display_request_flip
+	extern	display_check_flip
 
 bank0	udata
 
@@ -76,6 +77,8 @@ CheckVendor
 	defineRequest	RWAND_CTRL_SET_COLUMN_WIDTH, request_setColumnWidth
 	defineRequest	RWAND_CTRL_RANDOM_WRITE3,	request_randomWrite3
 	defineRequest	RWAND_CTRL_FLIP,			request_flip
+	defineRequest	RWAND_CTRL_CHECK_FLIP,		request_checkFlip
+	defineRequest	RWAND_CTRL_CHECK_BUTTONS,	request_checkButtons
 
 	pagesel	wrongstate		; Not a recognized request
 	goto	wrongstate
@@ -129,6 +132,28 @@ loop
     banksel BD0IBC
     bsf     STATUS, RP0
     movlw   length
+    movwf   BD0IBC                  ; set byte count
+    movlw   0xc8                    ; DATA1 packet, DTS enabled
+    movwf   BD0IST                  ; give buffer back to SIE
+    return
+    endm
+
+
+    ; Return 1 byte from 'w'
+returnByte    macro
+	movwf	temp					; Save the byte
+
+    banksel BD0IAL
+    movf    low BD0IAL,w			; Get the address of the EP0 IN buffer
+    movwf   FSR
+    bsf     STATUS,IRP				; indirectly to banks 2-3
+
+    movf    temp, w                 ;  Write the saved byte to our buffer
+    movwf   INDF
+
+    banksel BD0IBC
+    bsf     STATUS, RP0
+    movlw   1
     movwf   BD0IBC                  ; set byte count
     movlw   0xc8                    ; DATA1 packet, DTS enabled
     movwf   BD0IST                  ; give buffer back to SIE
@@ -254,6 +279,21 @@ request_randomWrite3
 	movf	BufferData+(wIndex+1), w	; Write 3...
 	movwf	INDF
 	returnEmpty
+
+
+	; Return a byte that's nonzero if a flip is in progress
+request_checkFlip
+	pagesel	display_check_flip
+	call	display_check_flip
+	returnByte
+
+
+	; Return button status
+request_checkButtons
+	banksel	BUTTON_PORT
+	movf	BUTTON_PORT, w
+	returnByte
+
 
 	end
 
