@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="../style.xsl"?>
+
+<technique name="alternating maces" level="yellow" category="push">
+  <attack>two-hand low push</attack>
+  <stances>
+    <attacker>right forward bow</attacker>
+    <defender>natural</defender>
+  </stances>
+  <steps>
+    <step>
+      Step back toward 6:00 with your left foot into a
+      <stance side="right">neutral bow</stance> while executing a
+      <block side="right">hammering inward</block> to your opponent's left
+      outer forearm (at or above the elbow).
+    </step>
+    <step>
+      Pivot to a <stance side="right">forward bow</stance> while executing
+      a <strike side="left">vertical reverse punch</strike> to your opponent's
+      solar plexus.
+    </step>
+    <step>
+      Pivot to a <stance side="right">neutral bow</stance> while executing a
+      <strike side="right">outward back knuckle</strike> to your opponent's
+      right temple.
+    </step>
+  </steps>
+</technique>
