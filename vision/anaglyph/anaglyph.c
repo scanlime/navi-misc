@@ -52,8 +52,6 @@
 #include <X11/Xutil.h>
 #include <X11/extensions/Xvlib.h>
 #include <X11/keysym.h>
-#define _GNU_SOURCE
-#include <getopt.h>
 
 #include <libraw1394/raw1394.h>
 #include <libdc1394/dc1394_control.h>
@@ -98,7 +96,6 @@ long device_width,device_height;
 int connection=-1;
 XvImage *xv_image=NULL;
 XvAdaptorInfo *info;
-long format=0;
 GC gc;
 
 
@@ -110,9 +107,7 @@ int adaptor=-1;
 
 int freeze=0;
 int average=0;
-int fps;
-int res;
-unsigned char *frame_buffer=NULL;
+unsigned char frame_buffer[640*480*4];
 
 
 int cam0_r = 255;
@@ -121,92 +116,6 @@ int cam0_b = 0;
 int cam1_r = 0;
 int cam1_g = 0;
 int cam1_b = 255;
-
-static struct option long_options[]={
-	{"device",1,NULL,0},
-	{"fps",1,NULL,0},
-	{"res",1,NULL,0},
-	{"help",0,NULL,0},
-	{NULL,0,0,0}
-	};
-
-void get_options(int argc,char *argv[])
-{
-	int option_index=0;
-	fps=30;
-	res=1;
-	
-	while(getopt_long(argc,argv,"",long_options,&option_index)>=0){
-		if(optarg){
-			switch(option_index){ 
-				/* case values must match long_options */
-				case 0:
-					device_name=strdup(optarg);
-					break;
-				case 1:
-					fps=atoi(optarg);
-					break;
-				case 2: 
-					res=atoi(optarg);
-					break;
-				}
-			}
-		if(option_index==3){
-			printf( "\n"
-			        "        %s - multi-cam monitor for libdc1394 and XVideo\n\n"
-				"Usage:\n"
-				"        %s [--fps=[1,3,7,15,30]] [--res=[0,1,2]] [--device=/dev/video1394/x]\n"
-				"             --fps    - frames per second. default=7,\n"
-				"                        30 not compatible with --res=2\n"
-				"             --res    - resolution. 0 = 320x240 (default),\n"
-				"                        1 = 640x480 YUV4:1:1, 2 = 640x480 RGB8\n"
-				"             --device - specifies video1394 device to use (optional)\n"
-				"                        default = /dev/video1394/<port#>\n"
-				"             --help   - prints this message\n\n"
-				"Keyboard Commands:\n"
-				"        q = quit\n"
-				"        < -or- , = scale -50%%\n"
-				"        > -or- . = scale +50%%\n"
-				"        0 = pause\n"
-				"        1 = set framerate to 1.875 fps\n"
-				"        2 = set framerate tp 3.75 fps\n"
-				"        3 = set framerate to 7.5 fps\n"
-				"        4 = set framerate to 15 fps\n"
-			    "        5 = set framerate to 30 fps\n"
-				,argv[0],argv[0]);
-			exit(0);
-			}
-		}
-	
-}
-
-/* image format conversion functions */
-
-static inline
-void iyu12yuy2 (unsigned char *src, unsigned char *dest, int NumPixels) {
-  int i=0,j=0;
-  register int y0, y1, y2, y3, u, v;
-  while (i < NumPixels*3/2)
-    {
-      u = src[i++];
-      y0 = src[i++];
-      y1 = src[i++];
-      v = src[i++];
-      y2 = src[i++];
-      y3 = src[i++];
-
-      dest[j++] = y0;
-      dest[j++] = u;
-      dest[j++] = y1;
-      dest[j++] = v;
-
-      dest[j++] = y2;
-      dest[j++] = u;
-      dest[j++] = y3;
-      dest[j++] = v;
-    }
-}
-
 
 /* macro by Bart Nabbe */
 #define RGB2YUV(r, g, b, y, u, v)\
@@ -220,73 +129,14 @@ void iyu12yuy2 (unsigned char *src, unsigned char *dest, int NumPixels) {
   u = u > 255 ? 255 : u;\
   v = v > 255 ? 255 : v
 
-static inline
-void rgb2yuy2 (unsigned char *RGB, unsigned char *YUV, int NumPixels) {
-  int i, j;
-  register int y0, y1, u0, u1, v0, v1 ;
-  register int r, g, b;
-
-  for (i = 0, j = 0; i < 3 * NumPixels; i += 6, j += 4)
-    {
-      r = RGB[i + 0];
-      g = RGB[i + 1];
-      b = RGB[i + 2];
-      RGB2YUV (r, g, b, y0, u0 , v0);
-      r = RGB[i + 3];
-      g = RGB[i + 4];
-      b = RGB[i + 5];
-      RGB2YUV (r, g, b, y1, u1 , v1);
-      YUV[j + 0] = y0;
-      YUV[j + 1] = (u0+u1)/2;
-      YUV[j + 2] = y1;
-      YUV[j + 3] = (v0+v1)/2;
-    }
-}
-
-/* helper functions */
-
-void set_frame_length(long size, int numCameras)
-{
-	frame_length=size;
-	fprintf(stderr,"Setting frame size to %ld kb\n",size/1024);
-	frame_free=0;
-  	frame_buffer = malloc(size * 2);
-}
-
 void display_frames()
 {
 	int i;
 
 	if(!freeze && adaptor>=0){
-
-#if 0
-		for (i = 0; i < numCameras; i++)
 		{
-			switch (res) {
-			case MODE_640x480_YUV411:
-				iyu12yuy2( (unsigned char *) cameras[i].capture_buffer,
-					frame_buffer + (i * frame_length),
-					(device_width*device_height) );
-				break;
-
-			case MODE_320x240_YUV422:
-			case MODE_640x480_YUV422:
-				memcpy( frame_buffer + (i * frame_length),
-					cameras[i].capture_buffer, device_width*device_height*2);
-				break;
-
-			case MODE_640x480_RGB:
-				rgb2yuy2( (unsigned char *) cameras[i].capture_buffer,
-					frame_buffer + (i * frame_length),
-					(device_width*device_height) );
-				break;
-			}
-		}
-#endif
-
-		{
-		  unsigned char *cam0 = cameras[0].capture_buffer;
-		  unsigned char *cam1 = cameras[1].capture_buffer;
+		  unsigned char *cam0 = (unsigned char*) cameras[0].capture_buffer;
+		  unsigned char *cam1 = (unsigned char*) cameras[1].capture_buffer;
 		  unsigned char *dest = frame_buffer;
 		  int i=0,j=0;
 		  const int NumPixels = device_width*device_height;
@@ -347,8 +197,8 @@ void display_frames()
 		    }
 		}
 
-		xv_image=XvCreateImage(display,info[adaptor].base_id,format,frame_buffer,
-			device_width*2,device_height);
+		xv_image=XvCreateImage(display,info[adaptor].base_id, XV_YUY2, frame_buffer,
+			device_width*2, device_height);
 		XvPutImage(display,info[adaptor].base_id,window,gc,xv_image,
 			0,0,device_width*2,device_height,
 			0,0,width,height);
@@ -356,6 +206,19 @@ void display_frames()
 		xv_image=NULL;
 	}
 }
+
+
+/* macro by Bart Nabbe */
+#define RGB2YUV(r, g, b, y, u, v)\
+  y = (9798*r + 19235*g + 3736*b)  / 32768;\
+  u = (-4784*r - 9437*g + 14221*b)  / 32768 + 128;\
+  v = (20218*r - 16941*g - 3277*b) / 32768 + 128;\
+  y = y < 0 ? 0 : y;\
+  u = u < 0 ? 0 : u;\
+  v = v < 0 ? 0 : v;\
+  y = y > 255 ? 255 : y;\
+  u = u > 255 ? 255 : u;\
+  v = v > 255 ? 255 : v
 
 void QueryXv()
 {
@@ -373,7 +236,7 @@ void QueryXv()
 			xv_name[4]=0;
 			memcpy(xv_name,&formats[j].id,4);
 			fprintf(stderr,"Xv supported 0x%x %s %s\n",formats[j].id,xv_name,(formats[j].format==XvPacked)?"packed":"planar");
-			if(formats[j].id==format) {
+			if(formats[j].id==XV_YUY2) {
 				fprintf(stderr,"using Xv format 0x%x %s %s\n",formats[j].id,xv_name,(formats[j].format==XvPacked)?"packed":"planar");
 				if(adaptor<0)adaptor=i;
 			}
@@ -420,46 +283,14 @@ int main(int argc,char *argv[])
 	raw1394handle_t raw_handle;
 	struct raw1394_portinfo ports[MAX_PORTS];
 
-	get_options(argc,argv);
-	/* process options */
-	switch(fps) {
-		case 1: fps =	FRAMERATE_1_875; break;
-		case 3: fps =	FRAMERATE_3_75; break;
-		case 15: fps = FRAMERATE_15; break;
-		case 30: fps = FRAMERATE_30; break;
-		case 60: fps = FRAMERATE_60; break;
-		default: fps = FRAMERATE_7_5; break;
-	}
-
-	switch(res) {
-		case 1: 
-			res = MODE_640x480_YUV411; 
-			device_width=640;
-			device_height=480;
-			format=XV_YUY2;
-			break;
-		case 2: 
-			res = MODE_640x480_RGB; 
-			device_width=640;
-			device_height=480;
-			format=XV_YUY2;
-			break;
-		default: 
-			res = MODE_320x240_YUV422;
-			device_width=320;
-			device_height=240;
-			format=XV_UYVY;
-			break;
-	}
-
 	/* get the number of ports (cards) */
 	raw_handle = raw1394_new_handle();
-    if (raw_handle==NULL) {
-        perror("Unable to aquire a raw1394 handle\n");
-        perror("did you load the drivers?\n");
-        exit(-1);
-    }
-	
+	if (raw_handle==NULL) {
+	  perror("Unable to aquire a raw1394 handle\n");
+	  perror("did you load the drivers?\n");
+	  exit(-1);
+	}
+
 	numPorts = raw1394_get_port_info(raw_handle, ports, numPorts);
 	raw1394_destroy_handle(raw_handle);
 	printf("number of ports = %d\n", numPorts);
@@ -468,7 +299,7 @@ int main(int argc,char *argv[])
 	for (p = 0; p < numPorts; p++)
 	{
 		int camCount;
-		
+
 		/* get the camera nodes and describe them as we find them */
 		raw_handle = raw1394_new_handle();
 		raw1394_set_port( raw_handle, p );
@@ -477,7 +308,7 @@ int main(int argc,char *argv[])
 
 		/* setup cameras for capture */
 		for (i = 0; i < camCount; i++)
-		{	
+		{
 			handles[numCameras] = dc1394_create_handle(p);
 			if (handles[numCameras]==NULL) {
 				perror("Unable to aquire a raw1394 handle\n");
@@ -487,26 +318,26 @@ int main(int argc,char *argv[])
 			}
 
 			cameras[numCameras].node = camera_nodes[i];
-		
-			if(dc1394_get_camera_feature_set(handles[numCameras], cameras[numCameras].node, &features) !=DC1394_SUCCESS) 
+
+			if(dc1394_get_camera_feature_set(handles[numCameras], cameras[numCameras].node, &features) !=DC1394_SUCCESS)
 			{
 				printf("unable to get feature set\n");
 			} else {
 				dc1394_print_feature_set(&features);
 			}
-		
+
 			if (dc1394_get_iso_channel_and_speed(handles[numCameras], cameras[numCameras].node,
-										 &channel, &speed) != DC1394_SUCCESS) 
+										 &channel, &speed) != DC1394_SUCCESS)
 			{
 				printf("unable to get the iso channel number\n");
 				cleanup();
 				exit(-1);
 			}
-			 
+
 			if (dc1394_dma_setup_capture(handles[numCameras], cameras[numCameras].node, i+1 /*channel*/,
-									FORMAT_VGA_NONCOMPRESSED, res,
-									SPEED_400, fps, NUM_BUFFERS, DROP_FRAMES,
-									device_name, &cameras[numCameras]) != DC1394_SUCCESS) 
+									FORMAT_VGA_NONCOMPRESSED, MODE_640x480_YUV411,
+									SPEED_400, FRAMERATE_30, NUM_BUFFERS, DROP_FRAMES,
+									device_name, &cameras[numCameras]) != DC1394_SUCCESS)
 			{
 				fprintf(stderr, "unable to setup camera- check line %d of %s to make sure\n",
 					   __LINE__,__FILE__);
@@ -515,10 +346,9 @@ int main(int argc,char *argv[])
 				cleanup();
 				exit(-1);
 			}
-		
-		
+
 			/*have the camera start sending us data*/
-			if (dc1394_start_iso_transmission(handles[numCameras], cameras[numCameras].node) !=DC1394_SUCCESS) 
+			if (dc1394_start_iso_transmission(handles[numCameras], cameras[numCameras].node) !=DC1394_SUCCESS)
 			{
 				perror("unable to start camera iso transmission\n");
 				cleanup();
@@ -536,20 +366,6 @@ int main(int argc,char *argv[])
 		exit(-1);
 	}
 
-
-	switch(format){
-		case XV_YV12:
-			set_frame_length(device_width*device_height*3/2, numCameras);
-			break;
-		case XV_YUY2:
-		case XV_UYVY:
-			set_frame_length(device_width*device_height*2, numCameras);
-			break;
-		default:
-			fprintf(stderr,"Unknown format set (internal error)\n");
-			exit(255);
-	}
-
 	/* make the window */
 	display=XOpenDisplay(getenv("DISPLAY"));
 	if(display==NULL)
@@ -558,34 +374,29 @@ int main(int argc,char *argv[])
 		cleanup();
 		exit(-1);
 	}
-	
-	QueryXv();
-	
-	if ( adaptor < 0 )
-	{
-		cleanup();
-		exit(-1);
-	}
-	
+
+	device_width = 640;
+	device_height = 480;
 	width=device_width;
 	height=device_height;
+
+	QueryXv();
 
 	window=XCreateSimpleWindow(display,DefaultRootWindow(display),0,0,width,height,0,
 		WhitePixel(display,DefaultScreen(display)),
 		background);
-		
+
 	XSelectInput(display,window,StructureNotifyMask|KeyPressMask);
 	XMapWindow(display,window);
 	connection=ConnectionNumber(display);
-	
+
 	gc=XCreateGC(display,window,0,&xgcv);
-	
-	
-	/* main event loop */	
+
+	/* main event loop */
 	while(1){
 
 		dc1394_dma_multi_capture(cameras, numCameras);
-		
+
 		display_frames();
 		XFlush(display);
 
@@ -621,31 +432,6 @@ int main(int argc,char *argv[])
 						case XK_0:
 							freeze = !freeze;
 							break;
-						case XK_1:
-							fps =	FRAMERATE_1_875; 
-							for (i = 0; i < numCameras; i++)
-								dc1394_set_video_framerate(handles[i], cameras[i].node, fps);
-							break;
-						case XK_2:
-							fps =	FRAMERATE_3_75; 
-							for (i = 0; i < numCameras; i++)
-								dc1394_set_video_framerate(handles[i], cameras[i].node, fps);
-							break;
-						case XK_4:
-							fps = FRAMERATE_15; 
-							for (i = 0; i < numCameras; i++)
-								dc1394_set_video_framerate(handles[i], cameras[i].node, fps);
-							break;
-						case XK_5: 
-							fps = FRAMERATE_30;
-							for (i = 0; i < numCameras; i++)
-								dc1394_set_video_framerate(handles[i], cameras[i].node, fps);
-							break;
-						case XK_3:
-							fps = FRAMERATE_7_5; 
-							for (i = 0; i < numCameras; i++)
-								dc1394_set_video_framerate(handles[i], cameras[i].node, fps);
-							break;
 						}
 					break;
 				}
@@ -655,7 +441,7 @@ int main(int argc,char *argv[])
 			{
 				dc1394_dma_done_with_buffer(&cameras[i]);
 			}
-		
+
 		} /* while not interrupted */
 
 	exit(0);
