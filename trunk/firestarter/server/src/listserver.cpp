@@ -80,8 +80,8 @@ bool CListServerServerConnection::add ( trServerInfo &info )
 
 	url = "http://" + serverbaseURL;// add in the base URL
 	url += "add.php?"; 
-	url += "servername="+info.name;
-	url += "&address="+info.address;
+	url += "servername="+url_encode(info.name);
+	url += "&address="+url_encode(info.address);
 
 	sprintf(temp,"&port=%d",info.port);
 	url += temp;
@@ -89,8 +89,8 @@ bool CListServerServerConnection::add ( trServerInfo &info )
 	sprintf(temp,"&version=%f",info.version);
 	url += temp;
 
-	url += "&game="+info.game;
-	url += "&os="+info.os;
+	url += "&game="+url_encode(info.game);
+	url += "&os="+url_encode(info.os);
 
 	sprintf(temp,"&maxplayers=%d",info.maxPlayers);
 	url += temp;
@@ -98,7 +98,6 @@ bool CListServerServerConnection::add ( trServerInfo &info )
 	sprintf(temp,"&currentplayers=%d",info.currentPlayers);
 	url += temp;
 
-	url = url_encode(url);
 	clearPageData();
 
 	curl = curl_easy_init();
@@ -258,6 +257,8 @@ bool CListServerServerConnection::remove ( trServerInfo &info )
 	char * tag = strstr(memory,"remove processed");
 	if (!tag)
 		return false;
+
+	return true;
 }
 
 size_t CListServerServerConnection::writeMemoryCallback(void *ptr, size_t inSize, size_t nmemb, void *data)
