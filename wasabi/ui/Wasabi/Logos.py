@@ -58,8 +58,6 @@ class OrbitingLogo(Sequencer.Page):
     def __init__(self, view):
         Sequencer.Page.__init__(self, view)
 
-        self.viewport.mode = Viewport.GL.ClearedMode(clearColor=(0, 0, 0, 1))
-
         self.view.camera.position = (0, 0, 0)
         self.view.camera.distance = 7.5
         self.view.camera.azimuth = 0
@@ -105,6 +103,30 @@ class JapaneseLogo(OrbitingLogo):
         self.view.scene.remove(self.meshes)
 
 
+class FlameLogo(Sequencer.Page):
+    def __init__(self, view):
+        Sequencer.Page.__init__(self, view)
+
+        self.view.camera.position = (0, 0, 0)
+        self.view.camera.distance = 7.5
+        self.view.camera.azimuth = 0
+        self.view.camera.elevation = 0
+        self.view.camera.jump()
+
+        self.particle = cPickle.load(open(Util.dataFile('green_flame.particle')))
+        self.view.scene.add(self.particle)
+
+        self.title = HUD.Text(self.viewport.region(self.viewport.rect),
+                              "wasabi",
+                              color     = (0, 0, 0, 1),
+                              fontSize  = self.viewport.size[1] / 5,
+                              alignment = (0.5, 0.5),
+                              fontName  = "geodesic.ttf")
+
+    def finalize(self):
+        self.view.scene.remove(self.particle)
+
+
 def getLogoList():
     """Returns a list of factory functions for all the logos"""
 
@@ -114,6 +136,7 @@ def getLogoList():
     fade      = lambda page: fromBlack(toBlack(page))
 
     return [
+        FlameLogo,
         fade(Sequencer.PageTimer(60, JapaneseLogo)),
         fade(Sequencer.PageTimer(60, EnglishLogo)),
         ]
