@@ -14,11 +14,25 @@ from twisted.internet import ssl
 from LibCIA import Database, Message, Ruleset, IRC, Stats, IncomingMail, Cron
 from LibCIA import Debug, Security, RpcServer, RpcClient, Web, Cache
 from twisted.internet import tcp
+from Nouvelle import tag
 
 Database.init()
 
 # Only bind on one interface
 tcp.Port.interface = "10.2.0.2"
+
+# Add some extras to the web template- add a notice from our hosting
+# provider. Remove the non-main CIA server notice, since this is in fact the
+# main server. Add a donation box.
+#
+Web.Template.Page.site_hostingNotice = [
+        tag('a', href="http://pld-linux.org")[
+            tag('img', src="http://pld-linux.org/Powered",
+                alt="Powered by PLD Linux", height=81, width=67, _class="footer"),
+        ],
+    ]
+Web.Template.Page.site_mainServerNotice = []
+
 
 application = service.Application("cia_server")
 hub = Message.Hub()
