@@ -716,7 +716,7 @@ static bool		needsFullscreen()
 //
 //	init windows specific networking  ( TODO: move this into the network lib )s
 //
-void startupWinsoc ( void )
+int startupWinsoc ( void )
 {
 #ifdef _WIN32
 	// startup winsock
@@ -737,12 +737,13 @@ void startupWinsoc ( void )
 			return 1;
 		}
 #endif
+	return 0;
 }
 
 //
 //	init the BZDB stuff
 //
-void setupBZDB ( void )
+void setupBZDB ( int argc, char** argv )
 {
 	// set default DB entries
 	for (unsigned int gi = 0; gi < numGlobalDBItems; ++gi)
@@ -910,7 +911,7 @@ void setCommandLineOverides ( void )
 //
 // lad badwords, see if there is a _default_ badwords file
 //
-void loadBadwords ( void )
+void loadBadwords ( WordFilter* &filter )
 {
 	if (!BZDB.isSet("filterFilename"))
 	{
@@ -1029,9 +1030,9 @@ void setEmailAddy ( void )
 //
 // open display
 //
-int openDisplay ( void )
+int openDisplay ( PlatformFactory* &platformFactory, BzfWindow* &window, BzfVisual* &visual )
 {
-	PlatformFactory* platformFactory = PlatformFactory::getInstance();
+	platformFactory = PlatformFactory::getInstance();
 
 	display = platformFactory->createDisplay(NULL, NULL);
 	if (!display)
@@ -1041,11 +1042,11 @@ int openDisplay ( void )
 	}
 
 	// choose visual
-	BzfVisual* visual = platformFactory->createVisual(display);
+	visual = platformFactory->createVisual(display);
 	setVisual(visual);
 
 	// make the window
-	BzfWindow* window = platformFactory->createWindow(display, visual);
+	window = platformFactory->createWindow(display, visual);
 	if (!window->isValid())
 	{
 		printFatalError("Can't create window.  Exiting.");
@@ -1053,6 +1054,394 @@ int openDisplay ( void )
 	}
 	window->setTitle("OpenCombat");
 	return 0;
+}
+
+//
+// create & initialize the joystick
+//
+BzfJoystick*  initGameDevice ( PlatformFactory* platformFactory )
+{
+	BzfJoystick* joystick = platformFactory->createJoystick();
+	joystick->initJoystick(BZDB.get("joystickname").c_str());
+	return joystick;
+}
+
+//
+// Change audio if requested
+//
+void setAudioDriver ( void )
+{
+	if (BZDB.isSet("audioDriver"))
+		PlatformFactory::getMedia()->setDriver(BZDB.get("audioDriver"));
+
+	if (BZDB.isSet("audioDevice"))
+		PlatformFactory::getMedia()->setDevice(BZDB.get("audioDevice"));
+}
+
+//
+// set data directory if user specified
+//
+void setDataDir ( void )
+{
+	if (BZDB.isSet("directory"))
+		PlatformFactory::getMedia()->setMediaDirectory(BZDB.get("directory"));
+	else
+	{
+#if defined(__APPLE__)
+		extern char *GetMacOSXDataPath(void);
+		PlatformFactory::getMedia()->setMediaDirectory(GetMacOSXDataPath());
+		BZDB.set("directory", GetMacOSXDataPath());
+		BZDB.setPersistent("directory", false);
+#elif (defined(_WIN32) || defined(WIN32))
+		char	exePath[MAX_PATH];
+		GetModuleFileName(NULL,exePath,MAX_PATH);
+		char* last = strrchr(exePath,'\\');
+		if (last)
+			*last = NULL;
+		strcat (exePath,"\\data");
+		PlatformFactory::getMedia()->setMediaDirectory(exePath);
+#else
+		// It's only checking existence of l10n directory
+		DIR *localedir = opendir("data/l10n/");
+		if (localedir == NULL) 
+			PlatformFactory::getMedia()->setMediaDirectory(INSTALL_DATA_DIR);
+		else
+			closedir(localedir);
+#endif
+	}
+}
+
+//
+// initialize font system
+//
+int initFontSystem ( void )
+{
+	FontManager &fm = FontManager::instance();
+	// load fonts from data directory
+	fm.loadAll(PlatformFactory::getMedia()->getMediaDirectory());
+	// try to get a font - only returns -1 if there are no fonts at all
+	if (fm.getFaceID(BZDB.get("consoleFont")) < 0)
+	{
+		printFatalError("No fonts found.  Exiting");
+		return 1;
+	}
+	return 0;
+}
+
+//
+// initialize locale system
+//
+BundleMgr* initLocale ( void )
+{
+	// initialize locale system
+	BundleMgr *bm = new BundleMgr(PlatformFactory::getMedia()->getMediaDirectory(), "bzflag");
+	World::setBundleMgr(bm);
+
+	std::string locale = BZDB.isSet("locale") ? BZDB.get("locale") : "default";
+	World::setLocale(locale);
+	bm->getBundle(World::getLocale());
+	return bm;
+}
+
+//
+//set window size (we do it here because the OpenGL context isn't yet bound)
+//
+void 	setWindowSize( BzfWindow* window, bool& useFullscreen, bool &setPosition, bool &setSize, int &x, int &y, int &w, int &h)
+{
+	if (BZDB.isSet("geometry"))
+	{
+		char xs, ys;
+		const std::string geometry = BZDB.get("geometry");
+		const int count = sscanf(geometry.c_str(), "%dx%d%c%d%c%d", &w, &h, &xs, &x, &ys, &y);
+
+		if (geometry == "default" || (count != 6 && count != 2) || w < 0 || h < 0)
+			BZDB.unset("geometry");
+		else if (count == 6 && ((xs != '-' && xs != '+') || (ys != '-' && ys != '+'))) 
+			BZDB.unset("geometry");
+		else 
+		{
+			setSize = true;
+			if (w < 256)
+				w = 256;
+			if (h < 192)
+				h = 192;
+			if (count == 6)
+			{
+				if (xs == '-')
+					x = display->getWidth() - x - w;
+				if (ys == '-')
+					y = display->getHeight() - y - h;
+				setPosition = true;
+			}
+			// must call this before setFullscreen() is called
+			display->setPassthroughSize(w, h);
+		}
+	}
+
+	// set window size (we do it here because the OpenGL context isn't yet
+	// bound and 3Dfx passthrough cards use the window size to determine
+	// the resolution to use)
+	useFullscreen = needsFullscreen();
+	if (useFullscreen)
+	{
+		// tell window to be fullscreen
+		window->setFullscreen();
+
+		// set the size if one was requested.  this overrides the default
+		// size (which is the display or passthrough size).
+		if (setSize)
+			window->setSize(w, h);
+	}
+	else if (setSize)
+		window->setSize(w, h);
+	else
+		window->setSize(640, 480);
+	if (setPosition)
+		window->setPosition(x, y);
+}
+
+//
+// create and setup the main window
+//
+MainWindow& createMainWindow ( MainWindow *pmainWindow, BzfWindow* window, bool useFullscreen )
+{
+	MainWindow& mainWindow = *pmainWindow;
+	std::string videoFormat;
+	int format = -1;
+
+	if (BZDB.isSet("resolution"))
+	{
+		videoFormat = BZDB.get("resolution");
+		if (videoFormat.length() != 0)
+		{
+			format = display->findResolution(videoFormat.c_str());
+			if (format >= 0)
+				display->setFullScreenFormat(format);
+		}
+	}
+
+	// set fullscreen again so MainWindow object knows it's full screen
+	if (useFullscreen)
+		mainWindow.setFullscreen();    // this will also call window create
+	else
+		window->create();
+
+	return mainWindow;
+}
+
+//
+// initialize audio system
+//
+void initAudio ( void )
+{
+	// get sound files.  must do this after creating the window because
+	// DirectSound is a bonehead API.
+	if (!noAudio)
+	{
+		openSound("bzflag");
+		if (startupInfo.hasConfiguration && BZDB.isSet("volume"))
+			setSoundVolume(static_cast<int>(BZDB.eval("volume")));
+	}
+}
+
+//
+// init the openGL stuff
+//
+void setGraphicOptions ( MainWindow &mainWindow )
+{
+	// set main window's minimum size (arbitrary but should be big enough
+	// to see stuff in control panel)
+	mainWindow.setMinSize(256, 192);
+
+	// initialize graphics state
+	mainWindow.getWindow()->makeCurrent();
+	//glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	//glClearDepth(1.0);
+	// glClearStencil(0);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	//  glEnable(GL_SCISSOR_TEST);
+	//  glEnable(GL_CULL_FACE);
+	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+	OpenGLGState::init();
+
+	// add the zbuffer callback here, after the OpenGL context is initialized
+	BZDB.addCallback("zbuffer", setDepthBuffer, NULL);
+
+	// if we're running on 3Dfx fullscreen add a fake cursor.
+	// let the defaults file override this, though.
+	if (!BZDB.isSet("fakecursor"))
+	{
+		// check that the renderer is Mesa Glide
+		const char* renderer = (const char*)glGetString(GL_RENDERER);
+		if ((renderer != NULL) && (strncmp(renderer, "Mesa Glide", 10) == 0 || strncmp(renderer, "3Dfx", 4) == 0))
+			BZDB.set("fakecursor", "1");
+	}
+
+	// set gamma if set in resources and we have gamma control
+	if (BZDB.isSet("gamma"))
+	{
+		if (mainWindow.getWindow()->hasGammaControl())
+			mainWindow.getWindow()->setGamma((float)atof(BZDB.get("gamma").c_str()));
+	}
+}
+
+//
+// restore rendering configuration
+//
+void setRenderingConfig ( SceneRenderer &renderer )
+{
+	if (startupInfo.hasConfiguration)
+	{
+		if (BZDB.isSet("zbuffersplit"))
+			renderer.setZBufferSplit(BZDB.isTrue("zbuffersplit"));
+		if (BZDBCache::texture)
+		{
+#ifdef _MSC_VER
+			// Suppose Pat want to remind himself
+			{ int somebody_get_tm_to_set_texture; }
+#endif
+			//      OpenGLTexture::setFilter(BZDB.get("texture"));
+		}
+
+		if (BZDB.isSet("quality"))
+		{
+			std::string value = BZDB.get("quality");
+			for (int i = 0; i < (int)(sizeof(configQualityValues) / sizeof(configQualityValues[0])); i++)
+			{
+				if (value == configQualityValues[i])
+				{
+					renderer.setQuality(i);
+					break;
+				}
+			}
+		}
+
+		BZDB.set("_texturereplace", (!BZDB.isTrue("lighting") &&renderer.useQuality() < 2) ? "1" : "0");
+		BZDB.setPersistent("_texturereplace", false);
+
+		if (BZDB.isSet("startcode"))
+			ServerStartMenu::setSettings(BZDB.get("startcode").c_str());
+
+		if (BZDB.isSet("panelopacity"))
+			renderer.setPanelOpacity(BZDB.eval("panelopacity"));
+
+		if (BZDB.isSet("radarsize"))
+			renderer.setRadarSize(atoi(BZDB.get("radarsize").c_str()));
+
+		if (BZDB.isSet("mouseboxsize"))
+			renderer.setMaxMotionFactor(atoi(BZDB.get("mouseboxsize").c_str()));
+	}
+}
+
+//
+// grab the mouse only if allowed
+//
+void getMouse ( MainWindow &mainWindow )
+{
+	if (BZDB.isSet("mousegrab") && !BZDB.isTrue("mousegrab"))
+	{
+		mainWindow.setNoMouseGrab();
+		mainWindow.enableGrabMouse(false);
+	}
+	else
+		mainWindow.enableGrabMouse(true);
+}
+
+//
+// set server list
+//
+void setupServerList ( void )
+{
+	
+	if (BZDB.isSet("list"))
+		startupInfo.listServerURL = BZDB.get("list");
+
+	if (BZDB.isSet("serverCacheAge"))
+		(ServerListCache::get())->setMaxCacheAge(atoi(BZDB.get("serverCacheAge").c_str()));
+}
+
+//
+// setup silence list
+//
+void setupSilenceLists ( void )
+{
+	std::vector<std::string>& list = getSilenceList();
+
+	// search for entries silencedPerson0 silencedPerson1 etc..
+	// to the database. Stores silenceList
+	// By only allowing up to a certain # of people can prevent
+	// the vague chance of buffer overrun.
+	const int bufferLength = 30;
+	int maxListSize = 1000000; // do even that many play bzflag?
+	char buffer [bufferLength];
+	bool keepGoing = true;
+
+	for (int s = 0; keepGoing && (s < maxListSize); s++)
+	{
+		sprintf(buffer,"silencedPerson%d",s); // could do %-10d
+
+		if (BZDB.isSet(buffer))
+		{
+			list.push_back(BZDB.get(buffer));
+			// remove the value from the database so when we save
+			// it saves the list's new values in order
+			BZDB.unset(buffer);
+		}
+		else
+			keepGoing = false;
+	}
+}
+
+//
+// save resources
+//
+void saveResources ( SceneRenderer &renderer )
+{
+		dumpResources(display, renderer);
+
+	if (alternateConfig == "")
+		CFGMGR.write(getConfigFileName());
+	else
+		CFGMGR.write(alternateConfig);
+}
+
+//
+// shut down
+//
+void shutdown ( MainWindow *pmainWindow, WordFilter *filter, PlatformFactory* platformFactory, BzfWindow* window,BzfJoystick* joystick, BzfVisual* visual, BundleMgr *bm )
+{
+	if (filter != NULL)
+		delete filter;
+
+	filter = NULL;
+	display->setDefaultResolution();
+	delete pmainWindow;
+
+	if (joystick != NULL)
+		delete joystick;
+
+	if (window != NULL)
+		delete window;
+
+	if (visual != NULL)
+		delete visual;
+
+	closeSound();
+	delete display;
+
+	if (platformFactory != NULL)
+		delete platformFactory;
+
+	if (bm != NULL)
+		delete bm;
+
+#ifdef _WIN32
+	// clean up
+	WSACleanup();
+#endif
 }
 
 //
@@ -1065,7 +1454,8 @@ int			myMain(int argc, char** argv)
 int			main(int argc, char** argv)
 #endif /* defined(_WIN32) */
 {
-	startupWinsoc();
+	if (startupWinsoc() != 0)
+		return 1;
 
   WordFilter *filter = (WordFilter *)NULL;
   argv0 = argv[0];
@@ -1073,8 +1463,12 @@ int			main(int argc, char** argv)
 
   //init_packetcompression();
 
+	PlatformFactory*	platformFactory = NULL;
+	BzfWindow*				window = NULL;
+	bool							useFullscreen = false;
+	BzfVisual*				visual = NULL;
 	initTimers();
-	setupBZDB();
+	setupBZDB(argc,argv);
 
   Flags::init();
 
@@ -1094,298 +1488,53 @@ int			main(int argc, char** argv)
     BZDB.setDebug(true);
 
   setTime();
-	loadBadwords();
+	loadBadwords(filter);
 	setEmailAddy();
 
-  if (openDisplay() != 0)
+  if (openDisplay(platformFactory,window,visual) != 0)
 		return 1;
 
-  // create & initialize the joystick
-  BzfJoystick* joystick = platformFactory->createJoystick();
-  joystick->initJoystick(BZDB.get("joystickname").c_str());
+	BzfJoystick* joystick = initGameDevice(platformFactory);
+	setAudioDriver();
+	setDataDir();
 
-  // Change audio driver if requested
-  if (BZDB.isSet("audioDriver"))
-    PlatformFactory::getMedia()->setDriver(BZDB.get("audioDriver"));
-  // Change audio device if requested
-  if (BZDB.isSet("audioDevice"))
-    PlatformFactory::getMedia()->setDevice(BZDB.get("audioDevice"));
-
-  // set data directory if user specified
-  if (BZDB.isSet("directory"))
-	{
-    PlatformFactory::getMedia()->setMediaDirectory(BZDB.get("directory"));
-  } else {
-#if defined(__APPLE__)
-    extern char *GetMacOSXDataPath(void);
-    PlatformFactory::getMedia()->setMediaDirectory(GetMacOSXDataPath());
-    BZDB.set("directory", GetMacOSXDataPath());
-    BZDB.setPersistent("directory", false);
-#elif (defined(_WIN32) || defined(WIN32))
-		char	exePath[MAX_PATH];
-		GetModuleFileName(NULL,exePath,MAX_PATH);
-		char* last = strrchr(exePath,'\\');
-		if (last)
-			*last = NULL;
-		strcat (exePath,"\\data");
-		PlatformFactory::getMedia()->setMediaDirectory(exePath);
-#else
-    // It's only checking existence of l10n directory
-    DIR *localedir = opendir("data/l10n/");
-    if (localedir == NULL) {
-      PlatformFactory::getMedia()->setMediaDirectory(INSTALL_DATA_DIR);
-    } else {
-      closedir(localedir);
-    }
-#endif
-  }
-
-  // initialize font system
-  FontManager &fm = FontManager::instance();
-  // load fonts from data directory
-  fm.loadAll(PlatformFactory::getMedia()->getMediaDirectory());
-  // try to get a font - only returns -1 if there are no fonts at all
-  if (fm.getFaceID(BZDB.get("consoleFont")) < 0) {
-    printFatalError("No fonts found.  Exiting");
-    return 1;
-  }
+	if (initFontSystem() != 0)
+		return 1;
 
 	// register the 
 	registerVisualElements();
-  // initialize locale system
 
-  BundleMgr *bm = new BundleMgr(PlatformFactory::getMedia()->getMediaDirectory(), "bzflag");
-  World::setBundleMgr(bm);
-
-  std::string locale = BZDB.isSet("locale") ? BZDB.get("locale") : "default";
-  World::setLocale(locale);
-  bm->getBundle(World::getLocale());
+	BundleMgr *bm = initLocale();
 
   bool setPosition = false, setSize = false;
   int x = 0, y = 0, w = 0, h = 0;
 
-  // set window size (we do it here because the OpenGL context isn't yet bound)
-
-  if (BZDB.isSet("geometry")) {
-    char xs, ys;
-    const std::string geometry = BZDB.get("geometry");
-    const int count = sscanf(geometry.c_str(), "%dx%d%c%d%c%d", &w, &h, &xs, &x, &ys, &y);
-
-    if (geometry == "default" || (count != 6 && count != 2) || w < 0 || h < 0) {
-      BZDB.unset("geometry");
-    } else if (count == 6 && ((xs != '-' && xs != '+') || (ys != '-' && ys != '+'))) {
-      BZDB.unset("geometry");
-    } else {
-      setSize = true;
-      if (w < 256)
-	w = 256;
-      if (h < 192)
-	h = 192;
-      if (count == 6) {
-	if (xs == '-')
-	  x = display->getWidth() - x - w;
-	if (ys == '-')
-	  y = display->getHeight() - y - h;
-	setPosition = true;
-      }
-      // must call this before setFullscreen() is called
-      display->setPassthroughSize(w, h);
-    }
-  }
-
-  // set window size (we do it here because the OpenGL context isn't yet
-  // bound and 3Dfx passthrough cards use the window size to determine
-  // the resolution to use)
-  const bool useFullscreen = needsFullscreen();
-  if (useFullscreen) {
-    // tell window to be fullscreen
-    window->setFullscreen();
-
-    // set the size if one was requested.  this overrides the default
-    // size (which is the display or passthrough size).
-    if (setSize)
-      window->setSize(w, h);
-  } else if (setSize) {
-    window->setSize(w, h);
-  } else {
-    window->setSize(640, 480);
-  }
-  if (setPosition)
-    window->setPosition(x, y);
-
+	setWindowSize(window,useFullscreen,setPosition,setSize,x,y,w,h);
+ 
   // now make the main window wrapper.  this'll cause the OpenGL context
   // to be bound for the first time.
-  MainWindow* pmainWindow = new MainWindow(window, joystick);
-  MainWindow& mainWindow = *pmainWindow;
-  std::string videoFormat;
-  int format = -1;
-  if (BZDB.isSet("resolution")) {
-    videoFormat = BZDB.get("resolution");
-    if (videoFormat.length() != 0) {
-      format = display->findResolution(videoFormat.c_str());
-      if (format >= 0) {
-	display->setFullScreenFormat(format);
-      }
-    }
-  };
-  // set fullscreen again so MainWindow object knows it's full screen
-  if (useFullscreen)
-    // this will also call window create
-    mainWindow.setFullscreen();
-  else
-    window->create();
 
-  // get sound files.  must do this after creating the window because
-  // DirectSound is a bonehead API.
-  if (!noAudio) {
-    openSound("bzflag");
-    if (startupInfo.hasConfiguration && BZDB.isSet("volume"))
-      setSoundVolume(static_cast<int>(BZDB.eval("volume")));
-  }
+	MainWindow& mainWindow = createMainWindow(new MainWindow(window, joystick),window,useFullscreen);
+  MainWindow* pmainWindow = &mainWindow;
 
-  // set main window's minimum size (arbitrary but should be big enough
-  // to see stuff in control panel)
-  mainWindow.setMinSize(256, 192);
+	initAudio();
 
-  // initialize graphics state
-  mainWindow.getWindow()->makeCurrent();
-  //glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-  //glClearDepth(1.0);
- // glClearStencil(0);
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
-//  glEnable(GL_SCISSOR_TEST);
-//  glEnable(GL_CULL_FACE);
-  glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-  OpenGLGState::init();
-
-  // add the zbuffer callback here, after the OpenGL context is initialized
-  BZDB.addCallback("zbuffer", setDepthBuffer, NULL);
-
-  // if we're running on 3Dfx fullscreen add a fake cursor.
-  // let the defaults file override this, though.
-  if (!BZDB.isSet("fakecursor")) {
-    // check that the renderer is Mesa Glide
-    const char* renderer = (const char*)glGetString(GL_RENDERER);
-    if ((renderer != NULL) && (strncmp(renderer, "Mesa Glide", 10) == 0 ||
-	strncmp(renderer, "3Dfx", 4) == 0))
-      BZDB.set("fakecursor", "1");
-  }
-
-  // set gamma if set in resources and we have gamma control
-  if (BZDB.isSet("gamma")) {
-    if (mainWindow.getWindow()->hasGammaControl())
-      mainWindow.getWindow()->setGamma((float)atof(BZDB.get("gamma").c_str()));
-  }
+  setGraphicOptions(mainWindow);
 
   // make scene renderer
   SceneRenderer renderer(mainWindow);
 
-  // restore rendering configuration
-  if (startupInfo.hasConfiguration) {
-    if (BZDB.isSet("zbuffersplit"))
-      renderer.setZBufferSplit(BZDB.isTrue("zbuffersplit"));
-    if (BZDBCache::texture) {
-#ifdef _MSC_VER
-            // Suppose Pat want to remind himself
-	    { int somebody_get_tm_to_set_texture; }
-#endif
+	setRenderingConfig(renderer);
+	getMouse(mainWindow);
 
-//      OpenGLTexture::setFilter(BZDB.get("texture"));
-    }
-    if (BZDB.isSet("quality")) {
-      std::string value = BZDB.get("quality");
-      for (int i = 0; i < (int)(sizeof(configQualityValues) /
-				sizeof(configQualityValues[0])); i++)
-	if (value == configQualityValues[i]) {
-	  renderer.setQuality(i);
-	  break;
-	}
-    }
-    BZDB.set("_texturereplace", (!BZDB.isTrue("lighting") &&
-	      renderer.useQuality() < 2) ? "1" : "0");
-    BZDB.setPersistent("_texturereplace", false);
-    if (BZDB.isSet("startcode"))
-      ServerStartMenu::setSettings(BZDB.get("startcode").c_str());
+	setupServerList();
+  setupSilenceLists();
 
-    if (BZDB.isSet("panelopacity"))
-      renderer.setPanelOpacity(BZDB.eval("panelopacity"));
-    if (BZDB.isSet("radarsize"))
-      renderer.setRadarSize(atoi(BZDB.get("radarsize").c_str()));
-    if (BZDB.isSet("mouseboxsize"))
-      renderer.setMaxMotionFactor(atoi(BZDB.get("mouseboxsize").c_str()));
-  }
-
-  // grab the mouse only if allowed
-  if (BZDB.isSet("mousegrab") && !BZDB.isTrue("mousegrab")) {
-    mainWindow.setNoMouseGrab();
-    mainWindow.enableGrabMouse(false);
-  } else {
-    mainWindow.enableGrabMouse(true);
-  }
-
-  // set server list URL
-  if (BZDB.isSet("list"))
-    startupInfo.listServerURL = BZDB.get("list");
-
-  // setup silence list
-  std::vector<std::string>& list = getSilenceList();
-
-  // search for entries silencedPerson0 silencedPerson1 etc..
-  // to the database. Stores silenceList
-  // By only allowing up to a certain # of people can prevent
-  // the vague chance of buffer overrun.
-  const int bufferLength = 30;
-  int maxListSize = 1000000; // do even that many play bzflag?
-  char buffer [bufferLength];
-  bool keepGoing = true;
-
-  for (int s = 0; keepGoing && (s < maxListSize); s++) {
-    sprintf(buffer,"silencedPerson%d",s); // could do %-10d
-
-    if (BZDB.isSet(buffer)) {
-      list.push_back(BZDB.get(buffer));
-      // remove the value from the database so when we save
-      // it saves the list's new values in order
-      BZDB.unset(buffer);
-    } else
-      keepGoing = false;
-  }
-
-  if (BZDB.isSet("serverCacheAge")) {
-    (ServerListCache::get())->setMaxCacheAge(atoi(BZDB.get("serverCacheAge").c_str()));
-  }
-
-  // start playing
   startPlaying(display, renderer, &startupInfo);
 
-  // save resources
-  dumpResources(display, renderer);
-  if (alternateConfig == "")
-    CFGMGR.write(getConfigFileName());
-  else
-    CFGMGR.write(alternateConfig);
+	saveResources(renderer);
 
-  // shut down
-  if (filter != NULL)
-    delete filter;
-  filter = NULL;
-  display->setDefaultResolution();
-  delete pmainWindow;
-  delete joystick;
-  delete window;
-  delete visual;
-  closeSound();
-  delete display;
-  delete platformFactory;
-  delete bm;
-
-#ifdef _WIN32
-  // clean up
-  WSACleanup();
-#endif
+	shutdown(pmainWindow,filter,platformFactory,window,joystick,visual,bm);
 
   // clean up singletons
   //  delete FILEMGR;
@@ -1402,7 +1551,7 @@ int			main(int argc, char** argv)
 //	windows entry point.  forward to main()
 //
 
-int WINAPI		WinMain(HINSTANCE, HINSTANCE, LPSTR _cmdLine, int)
+int WINAPI		WinMain(HINSTANCE instance, HINSTANCE, LPSTR _cmdLine, int)
 {
   // convert command line to argc and argv.  note that it's too late
   // to do this right because spaces that were embedded in a single
@@ -1414,57 +1563,94 @@ int WINAPI		WinMain(HINSTANCE, HINSTANCE, LPSTR _cmdLine, int)
   // count number of arguments
   int argc = 1;
   char* scan = cmdLine;
-  while (isspace(*scan) && *scan != 0) scan++;
-  while (*scan) {
+
+  while (isspace(*scan) && *scan != 0)
+		scan++;
+
+  while (*scan)
+	{
     argc++;
     while (!isspace(*scan) && *scan != 0) scan++;
     while (isspace(*scan) && *scan != 0) scan++;
   }
 
-  // get path to application.  this is ridiculously complex.
-  char* appName;
+  // get path to application.  this is ridiculously simple.
+  char appName[MAX_PATH];
+
+	GetModuleFileName(instance,appName,MAX_PATH);
+	
+	if (strrchr(appName,'\\'))
+		*strrchr(appName,'\\') = NULL;
+
   LPCTSTR cmdLine2 = GetCommandLine();
-  if (cmdLine2[0] == '\"') {
+
+
+  if (cmdLine2[0] == '\"') 
+	{
     // quoted
     cmdLine2++;
     LPCTSTR argv0End = cmdLine2;
-    while (*argv0End && *argv0End != '\"') argv0End++;
+
+    while (*argv0End && *argv0End != '\"')
+			argv0End++;
+
     const int len = argv0End - cmdLine2;
+
     appName = new char[len + 1];
+
     for (int i = 0; i < len; i++)
       appName[i] = (char)cmdLine2[i];
+
     appName[len] = '\0';
   }
-  else {
+  else 
+	{
     // not quoted
     LPCTSTR argv0End = cmdLine2;
-    while (*argv0End && !isspace(*argv0End)) argv0End++;
+
+    while (*argv0End && !isspace(*argv0End))
+			argv0End++;
+
     const int len = argv0End - cmdLine2;
+
     appName = new char[len + 1];
+
     for (int i = 0; i < len; i++)
       appName[i] = (char)cmdLine2[i];
+
     appName[len] = '\0';
   }
 
   // make argument list and assign arguments
   char** argv = new char*[argc];
+
   argc = 0;
   argv[argc++] = appName;
   scan = cmdLine;
-  while (isspace(*scan) && *scan != 0) scan++;
-  while (*scan) {
+
+  while (isspace(*scan) && *scan != 0)
+		scan++;
+
+  while (*scan)
+	{
     argv[argc++] = scan;
-    while (!isspace(*scan) && *scan != 0) scan++;
-    if (*scan) *scan++ = 0;
-    while (isspace(*scan) && *scan != 0) scan++;
+    while (!isspace(*scan) && *scan != 0)
+			scan++;
+
+    if (*scan)
+			*scan++ = 0;
+
+    while (isspace(*scan) && *scan != 0)
+			scan++;
   }
 
   const int exitCode = myMain(argc, argv);
 
   // clean up and return exit code
   delete[] argv;
-  delete[] appName;
+
   free(cmdLine);
+
   return exitCode;
 }
 
