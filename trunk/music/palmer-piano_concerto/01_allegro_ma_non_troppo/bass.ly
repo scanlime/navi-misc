@@ -5,7 +5,7 @@ mvmtOneBass = \relative c {
 	\clef bass
 	\key b \minor
 
-	R1*6^\allegroMaNonTroppo
+	R1*6
 	b4\f r r r
 	b r cis r
 	c r r2
@@ -81,7 +81,7 @@ mvmtOneBass = \relative c {
 	gis8-> r4 cis16-> \> cis \! cis-. cis-. cis-. cis-.
 	\time 4/4
 	\once \override TextScript #'extra-offset = #'(0 . 1.0)
-	\times 4/6 {cis8->^\tempoI cis8 cis-. cis-. cis-. cis-.}
+	\times 4/6 {cis8-> cis8 cis-. cis-. cis-. cis-.}
 	\times 4/6 {d8-> d8 d-. d-. d-. d-.}
 
 	% 90

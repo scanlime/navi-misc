@@ -10,25 +10,25 @@ TEMPO = 01_allegro_ma_non_troppo/tempo.ly
 TEXT = 01_allegro_ma_non_troppo/text.ly
 TIMPANI = 01_allegro_ma_non_troppo/timpani.ly
 
-bass.pdf: bass.ly $(BASS) $(TEXT)
+bass.pdf: bass.ly $(BASS) $(TEXT) $(TEMPO) $(CONTEXT)
 	lilypond bass.ly
 
-bassoon.pdf: bassoon.ly $(BASSOON) $(TEXT)
+bassoon.pdf: bassoon.ly $(BASSOON) $(TEXT) $(TEMPO) $(CONTEXT)
 	lilypond bassoon.ly
 
-cello.pdf: cello.ly $(CELLO) $(TEXT)
+cello.pdf: cello.ly $(CELLO) $(TEXT) $(TEMPO) $(CONTEXT)
 	lilypond cello.ly
 
-flute.pdf: flute.ly $(FLUTE) $(TEXT)
+flute.pdf: flute.ly $(FLUTE) $(TEXT) $(TEMPO) $(CONTEXT)
 	lilypond flute.ly
 
 piano.pdf: piano.ly $(PIANO) $(TEXT) $(TEMPO) $(CONTEXT)
 	lilypond piano.ly
 
-score.pdf: score.ly $(BASS) $(BASSOON) $(CELLO) $(FLUTE) $(PIANO) $(TEXT) $(TIMPANI)
+score.pdf: score.ly $(BASS) $(BASSOON) $(CELLO) $(FLUTE) $(PIANO) $(TEXT) $(TIMPANI) $(TEMPO) $(CONTEXT)
 	lilypond score.ly
 
-timpani.pdf: timpani.ly $(TIMPANI) $(TEXT)
+timpani.pdf: timpani.ly $(TIMPANI) $(TEXT) $(TEMPO) $(CONTEXT)
 	lilypond timpani.ly
 
 clean:

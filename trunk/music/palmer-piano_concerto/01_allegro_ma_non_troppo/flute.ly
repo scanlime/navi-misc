@@ -4,7 +4,7 @@ mvmtOneFlute = \relative c'' {
   \time 4/4
   \key b \minor
 
-  | R1*30^\allegroMaNonTroppo
+  | R1*30
   
   % 31
   | << { r8 b'-.\mp r fis-. r d-. r ais-. } \\
@@ -29,7 +29,7 @@ mvmtOneFlute = \relative c'' {
   | R1*9
   % 69
   \time 6/8
-  | R2.*11^\andante
+  | R2.*11
   
   % 80
   | b4.\mp( g
@@ -41,7 +41,7 @@ mvmtOneFlute = \relative c'' {
   % 88
   | r4. gis~\mf
   \time 4/4
-  | << { gis1^\tempoI } { s4\> s4 s4 s4\! } >>
+  | << { gis1 } { s4\> s4 s4 s4\! } >>
   | R1*11
 
   % 101
@@ -56,7 +56,7 @@ mvmtOneFlute = \relative c'' {
   | R1*29
   % 137
   | \time 6/8
-  | R2.*8^\andante
+  | R2.*8
 
   % 145
   | cis4.\mp cis4 dis8
@@ -90,14 +90,14 @@ mvmtOneFlute = \relative c'' {
   
   % 177
   \time 4/4
-  | b8\f^\moderatoMaestoso r r4 r2
+  | b8\f r r4 r2
   | r1
   | << { g'8 r c r ais r cis r } \\
        { c,8 r e r fis r fis r } >>
   | << { b r g r g r fis r } \\
        { e r b r b r ais r } >>
   | R1*8
-  | R1*25^\moderato
+  | R1*25
 
   % 214
   | gis'1\mf
@@ -105,6 +105,6 @@ mvmtOneFlute = \relative c'' {
   | cis2) cis4 b(
   | d2) r
   | R1*2
-  | R1*8^\tempoI
+  | R1*8
   | \bar "|."
 }
