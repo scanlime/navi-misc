@@ -22,7 +22,7 @@ Viewers and editors for the metadata associated with each stats target
 #
 
 from twisted.internet import defer
-from twisted.web import resource, server
+from twisted.web import resource, server, error
 from LibCIA.Web import Template
 from Nouvelle import tag, subcontext
 import Nouvelle
