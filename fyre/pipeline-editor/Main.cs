@@ -90,6 +90,7 @@ public class PipelineEditor
 			if (!found) {
 				iter = element_store.AppendValues (null, category);
 				element_store.AppendValues (iter, pixbuf, name, t);
+				element_list.ExpandAll ();
 			}
 		}
 
