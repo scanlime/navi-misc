@@ -1,6 +1,2 @@
-Win32 build
-Cluster autodetection (UDP broadcast)
-	- command line option to disable broadcast responses
-	- command line and GUI to autodetect remote servers
 Remote control of GUI
 File associations (both linux & windows)
