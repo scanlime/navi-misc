@@ -240,6 +240,30 @@ class SubscriptionInterface(RpcServer.Interface):
         return StatsTarget(path[7:].split("/.",1)[0])
 
 
+class SubscriptionDelivery:
+    """The object responsible for actually notifiying entities that
+       have subscribed to a stats target.
+       """
+    def __init__(self, target):
+        self.target = target
+
+    def notify(self, scope):
+        """Notify all subscribers to this stats target of a change in 'scope'"""
+        # Get a list of applicable triggers from the database
+        Database.pool.runQuery("SELECT trigger FROM stats_subscriptions "
+                               "WHERE target_path = %s "
+                               "AND (scope is NULL or scope = %s)" %
+                               (Database.quote(self.path, 'varchar'),
+                                Database.quote(scope, 'varchar'))).addCallback(self.runTriggers)
+
+    def runTriggers(self, triggers):
+        """After retrieving a list of applicable triggers, this calls them"""
+        for trigger in triggers:
+            f, args, kwargs = cPickle.loads(trigger[0])
+            defer.maybeDeferred(f, *args, **kwargs).addCallback(
+                self.triggerSuccess).addErrback(self.triggerFailure)
+
+
 class StatsTarget:
     """Encapsulates all the stats-logging features used for one particular
        target. This can be one project, one class of messages, etc.
@@ -282,22 +306,7 @@ class StatsTarget:
         if message:
             self.messages.push(message)
         self.counters.increment()
-        self.notifySubscriptions('messages')
-
-    def notifySubscriptions(self, scope):
-        """Notify all subscribers to this stats target of a change in 'scope'"""
-        # Get a list of applicable triggers from the database
-        Database.pool.runQuery("SELECT trigger FROM stats_subscriptions "
-                               "WHERE target_path = %s "
-                               "AND (scope is NULL or scope = %s)" %
-                               (Database.quote(self.path, 'varchar'),
-                                Database.quote(scope, 'varchar'))).addCallback(self._notifySubscriptions)
-
-    def _notifySubscriptions(self, triggers):
-        """After retrieving a list of applicable triggers, this calls them"""
-        for trigger in triggers:
-            f, args, kwargs = cPickle.loads(trigger[0])
-            f(*args, **kwargs)
+        SubscriptionDelivery(self).notify('messages')
 
     def child(self, name):
         """Return the StatsTarget for the given sub-target name under this one"""
