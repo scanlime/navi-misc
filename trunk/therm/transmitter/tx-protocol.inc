@@ -1,6 +1,6 @@
 ;
 ; Transmit-side implementation of the wireless therm protocol.
-; Copyright 2004, Micah Dowty <micah@navi.cx>
+; Copyright (C) 2004-2005 Micah Dowty <micah@navi.cx>
 ;
 ; The protocol is designed to be relatively radio-friendly, but still
 ; possible to receive using a UART designed for RS-232. Ideally, ones

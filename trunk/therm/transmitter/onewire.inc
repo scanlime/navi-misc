@@ -1,6 +1,6 @@
 ;
 ; A Dallas 1-wire master implementation
-; Copyright 2004, Micah Dowty <micah@navi.cx>
+; Copyright (C) 2004-2005 Micah Dowty <micah@navi.cx>
 ;
 ; NOTE: Currently this only works at 4 MHz (1us instruction period)
 ;

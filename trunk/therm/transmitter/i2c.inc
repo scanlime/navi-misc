@@ -1,6 +1,6 @@
 ;
 ; An I2C master implementation
-; Copyright 2004, Micah Dowty <micah@navi.cx>
+; Copyright (C) 2004-2005 Micah Dowty <micah@navi.cx>
 ;
 
 i2c_sda_high macro

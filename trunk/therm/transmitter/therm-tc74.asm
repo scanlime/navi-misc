@@ -1,6 +1,6 @@
 ;
 ; Wireless temperature sensor, single TC74 version
-; Copyright 2004, Micah Dowty <micah@navi.cx>
+; Copyright (C) 2004-2005 Micah Dowty <micah@navi.cx>
 ;
 ; This samples an I2C temperature sensor (Microchip TC74) and sends back
 ; results over a Laipac 315MHz ASK transmitter. The protocol is described

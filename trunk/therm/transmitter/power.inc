@@ -1,6 +1,6 @@
 ;
 ; Power management macro library
-; Copyright 2004, Micah Dowty <micah@navi.cx>
+; Copyright (C) 2004-2005 Micah Dowty <micah@navi.cx>
 ;
 
 	;; Initialize I/O with the transmitter off
