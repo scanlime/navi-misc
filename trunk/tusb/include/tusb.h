@@ -207,15 +207,15 @@ struct endpoint_descriptor {
  * parts of the app cleaner, even if it means not using the exact
  * same register names as the data sheet.
  */
-volatile xdata at 0xFF08 struct endpoint_descriptor EDB[6];
+volatile xdata at 0xFF08 struct endpoint_descriptor EDB[16];
 
 /* Indexes into EDB */
 #define EDB_OEP1  0
 #define EDB_OEP2  1
 #define EDB_OEP3  2
-#define EDB_IEP1  3
-#define EDB_IEP2  4
-#define EDB_IEP3  5
+#define EDB_IEP1  8
+#define EDB_IEP2  9
+#define EDB_IEP3  10
 
 /* Endpoint Configuration Bits */
 #define USBIE    (1<<2)                 /* USB interrupt enable */
