@@ -183,7 +183,8 @@ void event_loop(struct unicone_device *dev, int evdevs[4])
     if (need_update) {
       gc_send_update(dev, controllers);
 
-      unicone_device_set_led(dev, 0.3, 0.005);
+      /* Have the LED light up a bit then fade out every time we update */
+      unicone_device_set_led(dev, 0.05, 0.001);
     }
   }
 }
