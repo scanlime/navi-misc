@@ -62,9 +62,7 @@ class Grid(Layer):
 
 class TiledImage(Layer):
     """Pick a random image and a random offset, and tile the rendered image with it"""
-    def __init__(self, imageFactory=None):
-        if not imageFactory:
-            imageFactory = Pictures.defaultImageFactory
+    def __init__(self, imageFactory=Pictures.abstract):
         self.tile = imageFactory.pick()
         self.offset = (random.uniform(0, self.tile.size[0]),
                        random.uniform(0, self.tile.size[1]))
@@ -75,6 +73,19 @@ class TiledImage(Layer):
                 dest = (int(self.offset[0] + i*self.tile.size[0]),
                         int(self.offset[1] + j*self.tile.size[1]))
                 image.paste(self.tile, dest)
+
+
+class CroppedImage(Layer):
+    """Pick a random image, cropped randomly. Source images should be larger than the CAPTCHA."""
+    def __init__(self, imageFactory=Pictures.nature):
+        self.tile = imageFactory.pick()
+        self.align = (random.uniform(0,1),
+                      random.uniform(0,1))
+
+    def render(self, image):
+        image.paste(self.tile,
+                    (int(self.align[0] * (image.size[0] - self.tile.size[0])),
+                     int(self.align[1] * (image.size[1] - self.tile.size[1]))))
 
 
 class RandomDots(Layer):

@@ -21,7 +21,7 @@ Visual CAPTCHA tests
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from Captcha.Visual import Text, Backgrounds, Distortions, ImageCaptcha
+from Captcha.Visual import Text, Backgrounds, Distortions, ImageCaptcha, Pictures
 from Captcha import Words
 
 
@@ -30,7 +30,7 @@ class PseudoGimpy(ImageCaptcha):
         word = Words.defaultWordList.pick()
         self.addSolution(word)
         return [
-            Backgrounds.TiledImage(),
+            Backgrounds.CroppedImage(),
             Text.TextLayer(word, borderSize=1),
             #Distortions.WigglyBlocks(),
             Distortions.SineWarp(),
