@@ -1,0 +1,34 @@
+body {
+  font-family: sans-serif;
+  background: white;
+  background-image: url("xchat-gnome-trans.png");
+  background-repeat: no-repeat;
+  background-position: bottom right;
+}
+
+h1 {
+  font: 250% sans-serif;
+  border-bottom: 1px dashed #888;
+  border-left: 1px dashed #888;
+  color: #888;
+  margin: 0em;
+  padding: 0em 0em 0.2em 0.2em;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+a {
+  padding-top: 1em;
+  font: 120% sans-serif;
+  text-decoration: none;
+  color: #9f4747;
+}
+
+div.navigation {
+  float: right;
+}
+
+div.content {
+}
