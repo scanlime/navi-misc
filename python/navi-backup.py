@@ -477,15 +477,6 @@ def cmd_auto(paths, assumedOverhead = 0.01, safetyTimer = 3):
     remaining -= assumedOverhead * remaining
     total = 0
 
-    # Always back up our catalogs, so we have copies on every disc
-    # of all previous disc's catalogs.
-    for path in flattenPaths([CatalogWriter.catalogDir]):
-        filesize = os.stat(path).st_size
-        total += filesize
-        remaining -= filesize
-        burnPaths.append(path)
-    print "Adding %d bytes of previous catalogs" % total
-
     for path in flattenPaths(paths):
         # Show status of all files, to give visual indication of what we're scanning.
         # Only those marked with a '?' or 'M' will be backed up.
