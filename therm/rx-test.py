@@ -137,8 +137,6 @@ if __name__ == "__main__":
             therm_total = unpack(content[23:39])
             therm_count = unpack(content[39:47])
 
-            print therm_total, therm_count
-
             if therm_total & 0x8000:
                 therm_total -= 0x10000
             if therm_count:
