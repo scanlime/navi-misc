@@ -26,8 +26,17 @@
 #include "iterative-map.h"
 #include <stdlib.h>
 
+enum {
+    CALCULATION_FINISHED_SIGNAL,
+    LAST_SIGNAL,
+};
+
 static void iterative_map_class_init(IterativeMapClass *klass);
 static void iterative_map_init(IterativeMap *self);
+static int  iterative_map_idle_handler(gpointer user_data);
+
+static guint iterative_map_signals[LAST_SIGNAL] = { 0 };
+
 
 /************************************************************************************/
 /**************************************************** Initialization / Finalization */
@@ -55,11 +64,19 @@ GType iterative_map_get_type(void) {
 }
 
 static void iterative_map_class_init(IterativeMapClass *klass) {
-    /* Nothing to do here */
+    iterative_map_signals[CALCULATION_FINISHED_SIGNAL] =
+	g_signal_new("calculation-finished",
+		     G_TYPE_FROM_CLASS(klass),
+		     G_SIGNAL_RUN_FIRST | G_SIGNAL_ACTION,
+		     G_STRUCT_OFFSET(IterativeMapClass, iterative_map),
+		     NULL,
+		     NULL,
+		     g_cclosure_marshal_VOID__VOID,
+		     G_TYPE_NONE, 0);
 }
 
 static void iterative_map_init(IterativeMap *self) {
-    /* Nothing to do here */
+    self->render_time = 0.015;
 }
 
 
@@ -70,6 +87,7 @@ static void iterative_map_init(IterativeMap *self) {
 void iterative_map_calculate(IterativeMap *self, guint iterations) {
     IterativeMapClass *class = ITERATIVE_MAP_CLASS(G_OBJECT_GET_CLASS(self));
     class->calculate(self, iterations);
+    g_signal_emit(G_OBJECT(self), iterative_map_signals[CALCULATION_FINISHED_SIGNAL], 0);
 }
 
 void iterative_map_calculate_motion(IterativeMap          *self,
@@ -79,6 +97,7 @@ void iterative_map_calculate_motion(IterativeMap          *self,
                                     gpointer               interp_data) {
     IterativeMapClass *class = ITERATIVE_MAP_CLASS(G_OBJECT_GET_CLASS(self));
     class->calculate_motion(self, iterations, continuation, interp, interp_data);
+    g_signal_emit(G_OBJECT(self), iterative_map_signals[CALCULATION_FINISHED_SIGNAL], 0);
 }
 
 void iterative_map_calculate_timed(IterativeMap          *self,
@@ -121,6 +140,27 @@ void iterative_map_calculate_motion_timed(IterativeMap          *self,
     g_timer_elapsed(timer, &elapsed);
     g_timer_destroy(timer);
     self->iter_speed_estimate = iterations / (elapsed / 1000000.0);
+}
+
+static int    iterative_map_idle_handler(gpointer user_data)
+{
+    IterativeMap* self = ITERATIVE_MAP(user_data);
+    iterative_map_calculate_timed(self, self->render_time);
+}
+
+void          iterative_map_start_calculation      (IterativeMap          *self)
+{
+    if (self->idle_handler)
+	return;
+    self->idle_handler = g_idle_add(iterative_map_idle_handler, self);
+}
+
+void          iterative_map_stop_calculation       (IterativeMap          *self)
+{
+    if (!self->idle_handler)
+	return;
+    g_source_remove(self->idle_handler);
+    self->idle_handler = 0;
 }
 
 /* The End */

@@ -48,10 +48,16 @@ struct _IterativeMap {
 
     /* Estimated iterations per second, for calculate_timed and friends */
     gdouble iter_speed_estimate;
+
+    /* For background rendering in the idle handler */
+    guint idle_handler;
+    double render_time;
 };
 
 struct _IterativeMapClass {
     HistogramImagerClass parent_class;
+
+    void (*iterative_map) (IterativeMap *self);
 
     /* Overrideable methods */
     void (*calculate)        (IterativeMap          *self,
@@ -95,6 +101,15 @@ void          iterative_map_calculate_motion_timed (IterativeMap          *self,
 						    gboolean               continuation,
 						    ParameterInterpolator *interp,
 						    gpointer               interp_data);
+
+/* Start or stop running calculation from a main loop
+ * idle handler. The current 'render_time' is the number
+ * of seconds that we nominally calculate for during
+ * each main loop iteration. The default of 15ms is
+ * fine for most interactive use.
+ */
+void          iterative_map_start_calculation      (IterativeMap          *self);
+void          iterative_map_stop_calculation       (IterativeMap          *self);
 
 G_END_DECLS
 
