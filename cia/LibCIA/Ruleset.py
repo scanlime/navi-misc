@@ -451,7 +451,7 @@ class RulesetStorage:
 
     def _queryDbRulesets(self, none, result):
         """The second step in the refresh() process- query the database for all rulesets"""
-        d = Database.pool.runQuery("SELECT xml FROM rulesets")
+        d = Database.pool.runQuery("SELECT * FROM rulesets")
         d.addCallback(self._storeDbRulesets, result)
         d.addErrback(result.errback)
 
@@ -459,8 +459,14 @@ class RulesetStorage:
         """The last step in the refresh() process, loading the retrieved list of rulesets"""
         log.msg("%d ruleset%s received from the database" % (len(rulesets), "s"[len(rulesets) == 1:]))
         self.emptyStorage()
-        for ruleset in rulesets:
-            self._store(Ruleset(ruleset[0]))
+        for uri, xml in rulesets:
+            try:
+                self._store(Ruleset(xml))
+            except:
+                log.msg("Failed to load ruleset for %r:\n%s" % (
+                    uri,
+                    "".join(traceback.format_exception(*sys.exc_info())),
+                    ))
         log.msg("Rulesets refreshed.")
         return rulesets
 
@@ -537,8 +543,7 @@ class RulesetStorage:
             delivery = RulesetDelivery(ruleset, handler)
             self.rulesetMap[ruleset.uri] = delivery
             self.hub.addClient(delivery)
-            log.msg("Set ruleset for %r:\n%s" % (ruleset.uri,
-                                                 XML.prettyPrint(ruleset.xml)))
+            log.msg("Set ruleset for %r" % ruleset.uri)
         else:
             # Remove the ruleset completely if there was one
             if self.rulesetMap.has_key(ruleset.uri):

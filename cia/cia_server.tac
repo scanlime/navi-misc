@@ -14,12 +14,8 @@ hub = Message.Hub()
 # A network of IRC bots used to handle irc:// URIs
 #botNet = IRC.BotNetwork("CIA-%d")
 
-class foohandler(Ruleset.BaseURIHandler):
-    scheme = 'foo'
-
 # A list of URI handlers that can be used as targets for rulesets
 uriRegistry = Ruleset.URIRegistry(
-    foohandler(),
 #    IRC.IrcURIHandler(botNet),
 #    Stats.StatsURIHandler(),
     )
@@ -27,8 +23,8 @@ uriRegistry = Ruleset.URIRegistry(
 # Use a persistent set of rulesets to filter and format messages
 rulesetStorage = Ruleset.RulesetStorage(hub, uriRegistry)
 
-# # Save the 'universe' capability key so it can be used later to retrieve additional keys
-# Security.db.saveKey('universe', 'data/universe.key')
+# Save the 'universe' capability key so it can be used later to retrieve additional keys
+Security.caps.saveKey('universe', 'data/universe.key')
 
 # Create the web interface. We start with all the static
 # files in 'htdocs' and add dynamic content from there.

@@ -2,32 +2,20 @@
 
 Implements CIA's simple security model. CIA uses a simple
 capabilities-like system, where a particular capability is represented
-on the wire as an unguessable random key, and internally by any python
-object that can be serialized into a capability.
+on the wire as an unguessable random key, and internally by nearly any
+python object.
 
 Generally the 'universe' key will be saved somewhere only the server's
 owner can access it on startup. The 'universe' key can be used to grant
 other keys, which can then be distributed to other people or machines.
 
-Keys are chunks of random base64-encoded binary dat
-
 Note that this system has many of the same qualities as traditional
 capabilities, but is not implemented in the same way. In traditional
 capabilities, the unguessable keys map directly to objects that provide
 whatever interface that key grants permissions to. This is simple and
-effective, and any number of proxy objects can be created to grant
-different keys to one set of functionality. However, this is also a
-problem- every time a capability was granted, a new object would be
-created. With CIA's simple request-based interfaces, there would be
-no way to determine when a capability was no longer needed.
-
-The current system simplifies this in some ways by making keys associate
-with simple identifiers that are checked for manually in any externally
-accessable functions that need protection. Currently there is no way
-to assign multiple keys to one capability- this might be implemented by
-using shelve instead of anydbm and representing capability keys as lists.
-This however presents some of the same challenges as just implementing
-a real capabilities system.
+effective for some systems, however in CIA the meaning of a key must be
+preserved over a long period of time regardless of code changes- simply
+making keys map to pickled callable objects would be too fragile.
 """
 #
 # CIA open source notification system
@@ -49,31 +37,28 @@ a real capabilities system.
 #
 
 from twisted.web import xmlrpc
-import binascii, os
+from twisted.internet import defer
+from twisted.enterprise.util import quote as quoteSQL
+import string, os
 import Database
 
 
 class SecurityInterface(xmlrpc.XMLRPC):
     """An XML-RPC interface to the global capabilities database"""
-    def xmlrpc_revoke(self, capability, key):
-        """Revoke the given capability, invalidating its current key"""
+    def xmlrpc_revoke(self, key):
+        """Revoke the given key"""
         caps.faultIfMissing(key, 'universe', 'security.revoke')
-        caps.revoke(capability)
+        caps.revoke(key)
         return True
 
     def xmlrpc_grant(self, capability, key):
-        """Return the key for the given capability. Note that this means
+        """Return a new key for the given capability. Note that this means
            that the capability to use this function is effectively equivalent
            to the 'universe' key- this is why there are no 'security' or
            'security.grant' capabilities.
            """
         caps.faultIfMissing(key, 'universe')
         return self.caps.grant(capability)
-
-    def xmlrpc_list(self, key):
-        """Return a list of all capabilities that have been assigned keys"""
-        caps.faultIfMissing(key, 'universe', 'security.list')
-        return self.caps.list()
 
     def xmlrpc_test(self, capability, key):
         """Test the given key against a capability, returning True if it
@@ -82,70 +67,92 @@ class SecurityInterface(xmlrpc.XMLRPC):
         return caps.test(key, capability)
 
 
-def createRandomKey(bytes=128):
-    """Create a somewhat-secure random string of the given number of bytes.
+def createRandomKey(bytes = 24,
+                    allowedChars = string.ascii_letters + string.digits):
+    """Create a somewhat-secure random string of the given length.
        This implementation probably only works on Linux and similar systems.
        Also note that since we're using /dev/urandom instead of /dev/random,
        the system might be out of entropy. Using /dev/random however could
        block, and would make everything else here more complex.
+       The result will be base64-encoded.
        """
+    s = ''
     f = open("/dev/urandom")
-    n = f.read(bytes)
+    for i in xrange(bytes):
+        s += allowedChars[ ord(f.read(1)) % len(allowedChars) ]
     f.close()
-    return n
+    return s
 
 
-def decodeKey(key):
-    """Convert the external representation of a key to the binary representation"""
-    if key:
-        return binascii.a2b_base64(key)
+class CapabilityDB:
+    """A simple capability database, stored in an SQL table.
+       Keys are unguessable random strings, identifiers are repr()'ed
+       python objects representing what the key allows. The mapping
+       between keys and identifiers doesn't have to be 1 to 1.
 
-def encodeKey(key):
-    """Conver the binary representation of a key to the external representation"""
-    return binascii.b2a_base64(key)
+       This interface provides the ability to test a key for some particular
+       capability, grant a new key for a particular capability, and revoke keys.
 
-
-class CapabilityDB(object):
-    """A simple capability database- capabilities are mapped from a
-       short identifier to an actual capability key taking the form of
-       an 'unguessable' random number. Capability identifiers are any
-       python object- the object's repr() is used as the database key.
-
-       This database provides the ability to test a key for some particular
-       capability, retrieve the key for a particular capability, and revoke
-       capabilities. Revoking a capability invalidates the key assigned to it.
-
-       We use a rack to map from serialized Capabilities to raw capability keys.
-
-          >>> caps = CapabilityDB('/tmp/capability_test.db')
-          >>> bunny_key = caps.grant('fuzzyBunny')
-          >>> banana_key = caps.grant(('banana', None))
-          >>> caps.test(bunny_key, 'fuzzyBunny')
-          True
-          >>> caps.test(banana_key, ('banana', None))
-          True
-          >>> caps.test(bunny_key, ('banana', None))
-          False
-          >>> caps.test(banana_key, ('banana', 4))
-          False
+       All functions return a Deferred.
        """
-    def __init__(self, fileName, flags='c', mode=0600):
-        self.rack = Rack.open(fileName, flags, mode)
+    tableSchema = """
+    CREATE TABLE IF NOT EXISTS capabilities (
+        key_data  TEXT,
+        id        TEXT,
+        owner     TEXT,
+    )
+    """
+    def __init__(self):
+        # Make sure our table exists in the database.
+        # Note that this can be a race condition, if something else in
+        # our initialization assumes the table exists already. Currently
+        # this isn't the case, so we won't worry about it :)
+        Database.pool.runOperation(self.tableSchema)
 
     def saveKey(self, capability, file):
         """Save the key for a capability to the given filename.
            Useful for saving important keys on initialization so that
            they can later be used to retrieve other keys.
            This ensures that the freshly created key isn't readable
-           by other users.
+           by other users. Returns a Deferred that indicates the
+           success or failure of the operation.
            """
+        result = defer.Deferred()
+        d = self.getKey(capability)
+        d.addErrback(result.errback)
+        d.addCallback(self._saveKeyCallback, file, result)
+        return result
+
+    def _saveKeyCallback(self, key, file, result):
         f = open(file, "w")
         os.chmod(file, 0600)
-        f.write(self.grant(capability))
+        f.write(key)
         f.close()
+        result.callback(None)
 
     def close(self):
         self.rack.close()
+
+    def getKey(self, capability):
+        """Find a key for the given capability with a NULL owner,
+           creating one if it doesn't exist.
+           """
+        result = defer.Deferred()
+        d = Database.pool.runQuery("SELECT key_data FROM capabilities WHERE id = %s AND owner IS NULL LIMIT 1" %
+                                   quoteSQL(repr(capability), 'text'))
+        d.addErrback(result.errback)
+        d.addCallback(self._returnOrCreateKey, capability, result)
+        return result
+
+    def _returnOrCreateKey(self, keys, capability, result):
+        """After looking for an existing key in getKey(), this either returns
+           what was found or creates a new key.
+           """
+        if keys:
+            result.callback(keys[0][0])
+        else:
+            result.callback(self.grant(capability))
+        return keys
 
     def test(self, key, capability):
         """Test the given key for some capability"""
@@ -163,24 +170,25 @@ class CapabilityDB(object):
         import xmlrpclib
         raise xmlrpclib.Fault("SecurityException",
                               "One of the following capabilities are required: " +
-                              repr(capabilities)[1:-1])
+                               repr(capabilities)[1:-1])
+        pass
 
-    def grant(self, capability, create=True):
-        """Return the key for some capability, optionally creating it
-           if it doesn't exist. If it doesn't exist and create is False,
-           returns None.
+    def grant(self, capability, owner=None):
+        """Create a new key for some capability. The key is generated and returned
+           immediately, and the process of adding it to the database is started.
            """
-        try:
-            return encodeKey(self.rack[capability])
-        except KeyError:
-            if create:
-                return self.create(capability)
+        newKey = createRandomKey()
+        if owner:
+            owner = quoteSQL(owner, 'text')
+        else:
+            owner = "NULL"
 
-    def create(self, capability):
-        """Create a new key for the given capability, returning it"""
-        key = createRandomKey()
-        self.rack[capability] = key
-        return encodeKey(key)
+        Database.pool.runOperation("INSERT INTO capabilities (key_data, id, owner) values(%s, %s, %s)" % (
+            quoteSQL(newKey, 'text'),
+            quoteSQL(repr(capability), 'text'),
+            owner,
+            ))
+        return newKey
 
     def revoke(self, capability):
         """Delete the current key for the given capability if one exists"""
@@ -189,23 +197,7 @@ class CapabilityDB(object):
         except KeyError:
             pass
 
-    def list(self):
-        """Return all capabilities we have in the database"""
-        return self.rack.keys()
 
-
-class x:
-    # FIXME- security system needs fixing
-    def faultIfMissing(*args):
-        pass
-caps = x()
-
-
-def _test():
-    import doctest, Security
-    return doctest.testmod(Security)
-
-if __name__ == "__main__":
-    _test()
+caps = CapabilityDB()
 
 ### The End ###
