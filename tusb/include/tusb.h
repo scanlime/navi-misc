@@ -313,5 +313,29 @@ xdata at 0xFFA4 unsigned char MCR;              /* Modem control register  */
         #define MCR_RTS      (1<<5)             /* Manual RTS output */
         #define MCR_LRI      (1<<6)             /* Ring output, for loopback mode */
         #define MCR_LCD      (1<<7)             /* Carrier Detect output, for loopback mode */
+xdata at 0xFFA5 unsigned char LSR;              /* Line status register */
+        #define LSR_OVR      (1<<0)             /* A receiver overrun has occurred */
+        #define LSR_PTE      (1<<1)             /* A parity error was detected */
+        #define LSR_FRE      (1<<2)             /* A framing error was detected */
+        #define LSR_BRK      (1<<4)             /* A break condition was received */
+        #define LSR_RxF      (1<<4)             /* The receive FIFO contains data */
+        #define LSR_TxE      (1<<5)             /* The transmit data register is empty */
+        #define LSR_TEMT     (1<<6)             /* Set if and only if the TDR and TSR are empty */
+xdata at 0xFFA6 unsigned char MSR;              /* Modem status register */
+        #define MSR_DCTS     (1<<0)             /* CTS has changed state. Cleared by writing a one */
+        #define MSR_DDSR     (1<<1)             /* DSR has changed state. Cleared by writing a one */
+        #define MSR_TRI      (1<<2)             /* High->low edge on the ring indicator, cleared by writing a one */
+        #define MSR_DCD      (1<<3)             /* CD has changed state. Cleared by writing a one */
+        #define MSR_LCTS     (1<<4)             /* CTS input, during loopback */
+        #define MSR_LDSR     (1<<5)             /* DSR input, during loopback */
+        #define MSR_LRI      (1<<6)             /* Ring input, during loopback */
+        #define MSR_LCD      (1<<7)             /* Carrier Detect input, during loopback */
+xdata at 0xFFA7 unsigned short DL;              /* Baud rate divisor register */
+xdata at 0xFFA9 unsigned char XON;              /* Xon character register */
+xdata at 0xFFAA unsigned char XOFF;             /* Xoff character register */
+xdata at 0xFFAB unsigned char UART_MASK;        /* UART interrupt mask register */
+        #define UART_MASK_MIE  (1<<0)           /* Modem interrupt */
+        #define UART_MASK_SIE  (1<<1)           /* Status interrupt */
+        #define UART_MASK_TRI  (1<<2)           /* TxE/RxF interrupts */
 
 #endif
