@@ -96,6 +96,8 @@ void CTestGame::Attach ( void )
 	localPlayer->active = false;
 	localPlayer->idNumber = -1;
 	localPlayer->forceHidden = true;
+	localPlayer->dontUpdate = true; // we will handle updates for us
+
 	localPlayer->name = prefs.GetItemS("PlayerName");
 	if (prefs.ItemExists("PlayerSkin"))
 		localPlayer->material = prefs.GetItemS("PlayerSkin");
@@ -329,7 +331,7 @@ void CTestGame::OnMessage ( CNetworkPeer &peer, CNetworkMessage &message )
 				if (playerID != localPlayer->idNumber)
 					newPlayer = players[playerID];
 
-				newPlayer->updateTime = CSyncedClock::instance().GetTime();
+			//	newPlayer->updateTime = CSyncedClock::instance().GetTime();
 
 				if (newPlayer->active)
 				{

@@ -16,6 +16,7 @@
 
 #include "drawManager.h"
 #include <vector>
+#include <vector>
 #include "baseObject.h"
 
 class CPlayerObject : public CBaseObject
@@ -54,11 +55,46 @@ public:
 	std::string mesh;
 
 	bool				forceHidden;
-	float				updateTime;
+	bool				dontUpdate;
 protected:
 	int					drawable;
 };
 
 typedef std::map<int, CPlayerObject*> tmPlayerMap;
+
+// shots
+class CShotObject : public CBaseObject
+{
+public:
+	CShotObject();
+	virtual ~CShotObject();
+
+	void Init ( bool draw );
+	bool Think ( void );
+	void Kill ( void );
+
+	void Shoot ( int player, float *pos, float* rot, float speed, int shotClass, float startTime );
+
+	// functions for the world drawable to call
+	const char* GetValueS ( const char *item );
+	float GetValueF ( const char *item );
+	int GetValueI ( const char *item );
+
+	bool GetPos ( float *pPos );
+	bool GetRot ( float *pRot );
+
+	float				pos[3];
+	float				rot[3];
+	float				vec[3];	
+
+	std::string mesh;
+
+protected:
+	int					drawable;
+	float				updateTime;
+};
+
+typedef std::vector<CShotObject*> tvShotList;
+
 
 #endif //_PLAYERS_H_

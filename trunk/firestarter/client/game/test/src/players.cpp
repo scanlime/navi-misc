@@ -24,9 +24,9 @@ CPlayerObject::CPlayerObject()
 	pos[0] = pos[1] = pos[2] = 0;
 	rot[0] = rot[1] = rot[2] = 0;
 	vec[0] = vec[1] = vec[2] = 0;
-	updateTime = 0;
 	material = "default";
 	forceHidden = false;
+	dontUpdate = false;
 }
 
 CPlayerObject::~CPlayerObject()
@@ -53,14 +53,14 @@ void CPlayerObject::Init ( bool draw )
 
 bool CPlayerObject::Think ( void )
 {
-	// do some dead reco if we didn't just get this update
+	// do some dead reco if we are not being driven
 
-	if (updateTime != CSyncedClock::instance().GetTime())
+	if (!dontUpdate)
 	{
-		float updateTime = CSyncedClock::instance().GetFrameTime();
-		pos[0] += vec[0]*updateTime;
-		pos[1] += vec[1]*updateTime;
-		pos[2] += vec[2]*updateTime;
+		float frameTime = CSyncedClock::instance().GetFrameTime();
+		pos[0] += vec[0]*frameTime;
+		pos[1] += vec[1]*frameTime;
+		pos[2] += vec[2]*frameTime;
 
 		if (pos[2] < 0)
 			pos[2] = 0;
@@ -149,6 +149,88 @@ bool CPlayerObject::GetMaterial (  const char * item, char *szMaterial )
 	strcpy(szMaterial,material.c_str());
 	return true;
 }
+
+
+// shots
+CShotObject::CShotObject()
+{
+	pos[0] = 0;
+	pos[1] = 0;
+	pos[2] = -10000.0f;
+
+	rot[0] = 0;
+	rot[1] = 0;
+	rot[2] = 0;
+
+	vec[0] = 0;
+	vec[1] = 0;
+	vec[2] = 0;
+
+	mesh = "shot.mesh";
+	drawable = -1;
+	updateTime = -1;
+}
+
+CShotObject::~CShotObject()
+{
+	Kill();
+}
+
+void CShotObject::Init ( bool draw )
+{	
+	Kill();
+	if (draw)
+		drawable = CDrawManager::instance().New("shot",this);
+}
+
+bool CShotObject::Think ( void )
+{
+	// do some dead rec
+	float frameTime = CSyncedClock::instance().GetFrameTime();
+	pos[0] += vec[0]*frameTime;
+	pos[1] += vec[1]*frameTime;
+	pos[2] += vec[2]*frameTime;
+
+	return true;
+}
+
+void CShotObject::Kill ( void )
+{	
+	if (drawable != -1)
+		CDrawManager::instance().Delete(drawable);
+	drawable = -1;
+}
+
+void CShotObject::Shoot ( int player, float *pos, float* rot, float speed, int shotClass, float startTime )
+{
+}
+
+const char* CShotObject::GetValueS ( const char *item )
+{
+	return NULL;
+}
+
+float CShotObject::GetValueF ( const char *item )
+{
+	return 0;
+}
+
+int CShotObject::GetValueI ( const char *item )
+{
+	return 0;
+
+}
+
+bool CShotObject::GetPos ( float *pPos )
+{
+	return false;
+}
+
+bool CShotObject::GetRot ( float *pRot )
+{
+	return false;
+}
+
 
 
 
