@@ -182,8 +182,8 @@ class GetAllFileDetails(Pearl.StructRequest):
     id = 13
     responseFormat = '<I'
 
-    def __init__(self, callback):
-        self.callback = callback
+    def __init__(self, callback, *args, **kwargs):
+        self.callback = lambda details: callback(details, *args, **kwargs)
         Pearl.StructRequest.__init__(self)
 
     def receivedResponse(self, status):

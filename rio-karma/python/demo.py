@@ -13,7 +13,11 @@ from RioKarma import Progress
 
 class RioApp:
     def run(self):
-        RioKarma.autoConnect().addCallback(self.connected).addErrback(self.failed)
+        self.reporter = Progress.ConsoleReporter()
+        RioKarma.autoConnect().addStatusback(
+            self.reporter.statusback).addCallback(
+            self.connected).addErrback(
+            self.failed)
         reactor.run()
 
     def connected(self, fileManager):
@@ -38,8 +42,6 @@ class RioApp:
 
 class Downloader(RioApp):
     def main(self):
-        reporter = Progress.ConsoleReporter()
-
         print "Obtaining read lock..."
         yield self.fileManager.readLock()
 
@@ -48,7 +50,7 @@ class Downloader(RioApp):
 
             print "%s -> %s" % (f, filename)
 
-            yield self.fileManager.saveToDisk(f, filename).addStatusback(reporter.statusback)
+            yield self.fileManager.saveToDisk(f, filename).addStatusback(self.reporter.statusback)
 
     def progress(self, completed, total, units=None, name=None):
         print "%s: %s/%s [%s]" % (name, completed, total, units)

@@ -69,13 +69,15 @@ def connect(host, port=None, password=''):
        to the Rio Karma. Currently this includes creating a FileManager
        object and synchronizing its database.
        """
-    from twisted.internet import defer
+    from RioKarma import Progress
 
-    result = defer.Deferred()
+    result = Progress.Deferred()
 
     def gotFileManager(fm):
-        fm.synchronize().addCallback(
-            synchronized, fm).addErrback(result.errback)
+        fm.synchronize().addStatusback(
+            result.statusback).addCallback(
+            synchronized, fm).addErrback(
+            result.errback)
 
     def synchronized(retval, fm):
         result.callback(fm)
@@ -92,14 +94,13 @@ def autoConnect(keychain=None, service="urn:empeg-com:protocol2"):
        If no keychain is provided, this automatically uses
        a ConsoleKeychain.
        """
-    from RioKarma import SSDP, Authenticated, Pearl
-    from twisted.internet import defer
+    from RioKarma import SSDP, Authenticated, Pearl, Progress
 
     if keychain is None:
         keychain = Authenticated.ConsoleKeychain()
         keychain.open()
 
-    result = defer.Deferred()
+    result = Progress.Deferred()
 
     def foundService((usn, (host, port))):
         keychain.lookup(usn).addCallback(
@@ -117,7 +118,8 @@ def autoConnect(keychain=None, service="urn:empeg-com:protocol2"):
             result.errback(err)
 
     def gotPassword(password, host, port, usn):
-        connect(host, port, password).addCallback(
+        connect(host, port, password).addStatusback(
+            result.statusback).addCallback(
             result.callback).addErrback(
             connectionError, host, port, usn)
 
