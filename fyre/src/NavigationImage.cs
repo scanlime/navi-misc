@@ -111,16 +111,6 @@ namespace Fyre
 		DrawMouseBox (Gdk.Rectangle mouse)
 		{
 			backing.DrawRectangle (black, false, mouse);
-
-			// Draw the box with a weight of 2px, since it looks a little
-			// bit more solid than 1px. Might want to exchange it so the
-			// view box is 1px and the border is 2px.
-			mouse.X      += 1;
-			mouse.Y      += 1;
-			mouse.Width  -= 2;
-			mouse.Height -= 2;
-
-			backing.DrawRectangle (black, false, mouse);
 		}
 
 		protected override bool
@@ -174,9 +164,16 @@ namespace Fyre
 	{
 		Gtk.Image		image;
 		NavigationWindow	window;
-		Gdk.Rectangle		position;
-		int[]			visible;
 		public PipelineDrawing	drawing;
+
+		// Position and size of the NavigationWindow
+		Gdk.Rectangle		position;
+
+		// Size of the visible region within the NavigationWindow
+		int[]			visible;
+
+		// The ratio between navigation-window pixels and document pixels.
+		float			scale;
 
 		public
 		NavigationImage()
@@ -223,8 +220,14 @@ namespace Fyre
 			Gdk.Rectangle vwin = drawing.DrawingExtents;
 			float ratio = ((float) vwin.Width) / ((float) canvas.Width);
 			aspect = ((float) vwin.Height) / ((float) vwin.Width);
-			visible[0] = (int) (200 * ratio);
+			visible[0] = (int) (198 * ratio);
 			visible[1] = (int) (visible[0] * aspect);
+
+			// Clamp visible box size to be completely within our window
+			if (visible[0] > position.Width - 3)
+				visible[0] = position.Width - 3;
+			if (visible[1] > position.Height - 3)
+				visible[1] = position.Height - 3;
 
 			// Create our window
 			window = new NavigationWindow (position.Width, position.Height, visible[0], visible[1]);
@@ -260,7 +263,7 @@ namespace Fyre
 			int v = visible / 2;
 			if (mouse < v)
 				mouse = v + 1;
-			else if (mouse >= size - v)
+			else if (mouse + v >= size - 1)
 				mouse = size - v - 2;
 		}
 
