@@ -31,9 +31,25 @@ class PipelineDrawing : Gnome.Canvas
 {
 	private Gtk.Adjustment		hadj;
 	private Gtk.Adjustment		vadj;
-	private Gnome.Canvas		child;
+	private Gdk.Color		white;
 
 	public PipelineDrawing ()
 	{
+		white = new Gdk.Color (0xff, 0xff, 0xff);
+	}
+
+	protected override void OnDrawBackground (Gdk.Drawable drawable, int x, int y, int w, int h)
+	{
+		Gdk.Colormap.System.AllocColor (ref white, true, true);
+
+		Gdk.GC gc = new Gdk.GC (drawable);
+		gc.Foreground = white;
+
+		drawable.DrawRectangle (gc, true, x, y, w, h);
+	}
+
+	protected override void OnRenderBackground (ref CanvasBuf buffer)
+	{
+		// oh, how i wish upon a star, why the fuck can't i use this? :(
 	}
 };
