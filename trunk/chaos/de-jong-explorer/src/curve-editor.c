@@ -25,17 +25,7 @@
  */
 
 /* This was originally the GtkCurve widget from the GTK+ 2.3.2 release.
- * It has been modified in two major ways:
- *
- *   - It has been simplified by removing support for linear and free-form curves,
- *     and support for user-definable X and Y range. The range is always [0,1] now.
- *
- *   - Functions allowing access to the spline itself have been added, replacing
- *     the functions that only allowed access to interpolated points.
- *
- *   - The spline functions were made public, and spline_solve_and_eval was added
- *
- * -- Micah Dowty
+ * It has been modified in many ways, see curve-editor.h for more information.
  */
 
 #include <stdlib.h>
@@ -136,8 +126,8 @@ curve_editor_init (CurveEditor *curve)
   curve->num_points = 0;
   curve->point = 0;
 
-  curve->num_ctlpoints = 0;
-  curve->ctlpoint = NULL;
+  curve->spline.num_points = 0;
+  curve->spline.points = NULL;
 
   old_mask = gtk_widget_get_events (GTK_WIDGET (curve));
   gtk_widget_set_events (GTK_WIDGET (curve), old_mask | GRAPH_MASK);
@@ -156,106 +146,6 @@ unproject (gint value, gfloat min, gfloat max, int norm)
 {
   return value / (gfloat) (norm - 1) * (max - min) + min;
 }
-
-/* Solve the tridiagonal equation system that determines the second
-   derivatives for the interpolation points.  (Based on Numerical
-   Recipies 2nd Edition.) */
-void
-spline_solve (int n, gfloat x[], gfloat y[], gfloat y2[])
-{
-  gfloat p, sig, *u;
-  gint i, k;
-
-  u = g_malloc ((n - 1) * sizeof (u[0]));
-
-  y2[0] = u[0] = 0.0;	/* set lower boundary condition to "natural" */
-
-  for (i = 1; i < n - 1; ++i)
-    {
-      sig = (x[i] - x[i - 1]) / (x[i + 1] - x[i - 1]);
-      p = sig * y2[i - 1] + 2.0;
-      y2[i] = (sig - 1.0) / p;
-      u[i] = ((y[i + 1] - y[i])
-	      / (x[i + 1] - x[i]) - (y[i] - y[i - 1]) / (x[i] - x[i - 1]));
-      u[i] = (6.0 * u[i] / (x[i + 1] - x[i - 1]) - sig * u[i - 1]) / p;
-    }
-
-  y2[n - 1] = 0.0;
-  for (k = n - 2; k >= 0; --k)
-    y2[k] = y2[k] * y2[k + 1] + u[k];
-
-  g_free (u);
-}
-
-gfloat
-spline_eval (int n, gfloat x[], gfloat y[], gfloat y2[], gfloat val)
-{
-  gint k_lo, k_hi, k;
-  gfloat h, b, a;
-
-  /* do a binary search for the right interval: */
-  k_lo = 0; k_hi = n - 1;
-  while (k_hi - k_lo > 1)
-    {
-      k = (k_hi + k_lo) / 2;
-      if (x[k] > val)
-	k_hi = k;
-      else
-	k_lo = k;
-    }
-
-  h = x[k_hi] - x[k_lo];
-  g_assert (h > 0.0);
-
-  a = (x[k_hi] - val) / h;
-  b = (val - x[k_lo]) / h;
-  return a*y[k_lo] + b*y[k_hi] +
-    ((a*a*a - a)*y2[k_lo] + (b*b*b - b)*y2[k_hi]) * (h*h)/6.0;
-}
-
-gfloat
-spline_solve_and_eval (CurveControlPoint *ctlpoints,
-		       gint               num_points,
-		       gfloat             val)
-{
-  /* Solve a spline and evaluate one point from it. This is
-   * the most convenient way to interpolate given a set of control
-   * points saved from a CurveEditor widget. Note that this
-   * assumes all control points are active.
-   */
-  gfloat *mem, *xv, *yv, *y2v, result;
-  gint i;
-
-  /* handle degenerate case */
-  if (num_points < 2)
-    {
-      if (num_points > 0)
-	return ctlpoints[0][1];
-      else
-	return 0;
-    }
-
-  mem = g_malloc (3 * num_points * sizeof (gfloat));
-  xv  = mem;
-  yv  = mem + num_points;
-  y2v = mem + 2*num_points;
-
-  for (i=0; i<num_points; i++)
-    {
-      xv[i] = ctlpoints[i][0];
-      yv[i] = ctlpoints[i][1];
-    }
-
-  spline_solve (num_points, xv, yv, y2v);
-  result = spline_eval (num_points, xv, yv, y2v, val);
-
-  if (result < 0) result = 0;
-  if (result > 1) result = 1;
-
-  g_free (mem);
-  return result;
-}
-
 
 static void
 curve_editor_interpolate (CurveEditor *c, gint width, gint height)
@@ -322,17 +212,17 @@ curve_editor_draw (CurveEditor *c, gint width, gint height)
 
   gdk_draw_lines (c->pixmap, style->fg_gc[state], c->point, c->num_points);
 
-  for (i = 0; i < c->num_ctlpoints; ++i)
+  for (i = 0; i < c->spline.num_points; ++i)
     {
       gint x, y;
 
-      if (c->ctlpoint[i][0] < 0)
+      if (c->spline.points[i][0] < 0)
 	continue;
 
-      x = project (c->ctlpoint[i][0], 0, 1,
+      x = project (c->spline.points[i][0], 0, 1,
 		     width);
       y = height -
-	project (c->ctlpoint[i][1], 0, 1,
+	project (c->spline.points[i][1], 0, 1,
 		 height);
 
       /* draw a bullet: */
@@ -374,9 +264,9 @@ curve_editor_graph_events (GtkWidget *widget, GdkEvent *event, CurveEditor *c)
   min_x = 0;
 
   distance = ~0U;
-  for (i = 0; i < c->num_ctlpoints; ++i)
+  for (i = 0; i < c->spline.num_points; ++i)
     {
-      cx = project (c->ctlpoint[i][0], min_x, 1, width);
+      cx = project (c->spline.points[i][0], min_x, 1, width);
       if ((guint) abs (x - cx) < distance)
 	{
 	  distance = abs (x - cx);
@@ -408,25 +298,25 @@ curve_editor_graph_events (GtkWidget *widget, GdkEvent *event, CurveEditor *c)
       if (distance > MIN_DISTANCE)
 	{
 	  /* insert a new control point */
-	  if (c->num_ctlpoints > 0)
+	  if (c->spline.num_points > 0)
 	    {
-	      cx = project (c->ctlpoint[closest_point][0], min_x,
+	      cx = project (c->spline.points[closest_point][0], min_x,
 			    1, width);
 	      if (x > cx)
 		++closest_point;
 	    }
-	  ++c->num_ctlpoints;
-	  c->ctlpoint =
-	    g_realloc (c->ctlpoint,
-		       c->num_ctlpoints * sizeof (*c->ctlpoint));
-	  for (i = c->num_ctlpoints - 1; i > closest_point; --i)
-	    memcpy (c->ctlpoint + i, c->ctlpoint + i - 1,
-		    sizeof (*c->ctlpoint));
+	  ++c->spline.num_points;
+	  c->spline.points =
+	    g_realloc (c->spline.points,
+		       c->spline.num_points * sizeof (*c->spline.points));
+	  for (i = c->spline.num_points - 1; i > closest_point; --i)
+	    memcpy (c->spline.points + i, c->spline.points + i - 1,
+		    sizeof (*c->spline.points));
 	}
       c->grab_point = closest_point;
-      c->ctlpoint[c->grab_point][0] =
+      c->spline.points[c->grab_point][0] =
 	unproject (x, min_x, 1, width);
-      c->ctlpoint[c->grab_point][1] =
+      c->spline.points[c->grab_point][1] =
 	unproject (height - y, 0, 1, height);
 
       curve_editor_interpolate (c, width, height);
@@ -439,29 +329,29 @@ curve_editor_graph_events (GtkWidget *widget, GdkEvent *event, CurveEditor *c)
       gtk_grab_remove (widget);
 
       /* delete inactive points: */
-      for (src = dst = 0; src < c->num_ctlpoints; ++src)
+      for (src = dst = 0; src < c->spline.num_points; ++src)
 	{
-	  if (c->ctlpoint[src][0] >= min_x)
+	  if (c->spline.points[src][0] >= min_x)
 	    {
-	      memcpy (c->ctlpoint + dst, c->ctlpoint + src,
-		      sizeof (*c->ctlpoint));
+	      memcpy (c->spline.points + dst, c->spline.points + src,
+		      sizeof (*c->spline.points));
 	      ++dst;
 	    }
 	}
       if (dst < src)
 	{
-	  c->num_ctlpoints -= (src - dst);
-	  if (c->num_ctlpoints <= 0)
+	  c->spline.num_points -= (src - dst);
+	  if (c->spline.num_points <= 0)
 	    {
-	      c->num_ctlpoints = 1;
-	      c->ctlpoint[0][0] = min_x;
-	      c->ctlpoint[0][1] = 0;
+	      c->spline.num_points = 1;
+	      c->spline.points[0][0] = min_x;
+	      c->spline.points[0][1] = 0;
 	      curve_editor_interpolate (c, width, height);
 	      curve_editor_draw (c, width, height);
 	    }
-	  c->ctlpoint =
-	    g_realloc (c->ctlpoint,
-		       c->num_ctlpoints * sizeof (*c->ctlpoint));
+	  c->spline.points =
+	    g_realloc (c->spline.points,
+		       c->spline.num_points * sizeof (*c->spline.points));
 	}
       new_type = GDK_FLEUR;
       c->grab_point = -1;
@@ -487,24 +377,24 @@ curve_editor_graph_events (GtkWidget *widget, GdkEvent *event, CurveEditor *c)
 
 	  leftbound = -MIN_DISTANCE;
 	  if (c->grab_point > 0)
-	    leftbound = project (c->ctlpoint[c->grab_point - 1][0],
+	    leftbound = project (c->spline.points[c->grab_point - 1][0],
 				 min_x, 1, width);
 
 	  rightbound = width + RADIUS * 2 + MIN_DISTANCE;
-	  if (c->grab_point + 1 < c->num_ctlpoints)
-	    rightbound = project (c->ctlpoint[c->grab_point + 1][0],
+	  if (c->grab_point + 1 < c->spline.num_points)
+	    rightbound = project (c->spline.points[c->grab_point + 1][0],
 				  min_x, 1, width);
 
 	  if (tx <= leftbound || tx >= rightbound
 	      || ty > height + RADIUS * 2 + MIN_DISTANCE
 	      || ty < -MIN_DISTANCE)
-	    c->ctlpoint[c->grab_point][0] = min_x - 1.0;
+	    c->spline.points[c->grab_point][0] = min_x - 1.0;
 	  else
 	    {
 	      rx = unproject (x, min_x, 1, width);
 	      ry = unproject (height - y, 0, 1, height);
-	      c->ctlpoint[c->grab_point][0] = rx;
-	      c->ctlpoint[c->grab_point][1] = ry;
+	      c->spline.points[c->grab_point][0] = rx;
+	      c->spline.points[c->grab_point][1] = ry;
 	    }
 	  curve_editor_interpolate (c, width, height);
 	  curve_editor_draw (c, width, height);
@@ -532,16 +422,16 @@ curve_editor_graph_events (GtkWidget *widget, GdkEvent *event, CurveEditor *c)
 }
 
 void
-curve_editor_set_control_points(CurveEditor* self, CurveControlPoint *ctlpoints, gint num_points)
+curve_editor_set_spline(CurveEditor* self, const Spline *spline)
 {
   gint i;
 
-  if (self->ctlpoint)
-    g_free (self->ctlpoint);
+  if (self->spline.points)
+    g_free (self->spline.points);
 
-  self->num_ctlpoints = num_points;
-  self->ctlpoint = g_malloc (num_points * sizeof (CurveControlPoint));
-  memcpy(self->ctlpoint, ctlpoints, num_points * sizeof (CurveControlPoint));
+  self->spline.num_points = spline->num_points;
+  self->spline.points = g_malloc (spline->num_points * sizeof (SplineControlPoint));
+  memcpy(self->spline.points, spline->points, spline->num_points * sizeof (SplineControlPoint));
 
   if (self->pixmap)
     {
@@ -556,37 +446,34 @@ curve_editor_set_control_points(CurveEditor* self, CurveControlPoint *ctlpoints,
   g_signal_emit(G_OBJECT(self), curve_editor_signals[CHANGED_SIGNAL], 0);
 }
 
-CurveControlPoint*
-curve_editor_get_control_points(CurveEditor* self, gint *num_points)
-{
-  *num_points = self->num_ctlpoints;
-  return self->ctlpoint;
+Spline*
+curve_editor_get_spline(CurveEditor* self) {
+  return &self->spline;
 }
 
 static void
 curve_editor_get_vector (CurveEditor *c, int veclen, gfloat vector[])
 {
-  gfloat rx, ry, dx, dy, min_x, delta_x, *mem, *xv, *yv, *y2v, prev;
-  gint dst, i, x, next, num_active_ctlpoints = 0, first_active = -1;
-
-  min_x = 0;
+  gfloat rx, ry, dx, dy, delta_x, *y2v, prev;
+  gint dst, i, x, next, first_active = -1;
+  Spline active;
 
   /* count active points: */
-  prev = min_x - 1.0;
-  for (i = num_active_ctlpoints = 0; i < c->num_ctlpoints; ++i)
-    if (c->ctlpoint[i][0] > prev)
+  prev = -1;
+  for (i = active.num_points = 0; i < c->spline.num_points; ++i)
+    if (c->spline.points[i][0] > prev)
       {
 	if (first_active < 0)
 	  first_active = i;
-	prev = c->ctlpoint[i][0];
-	++num_active_ctlpoints;
+	prev = c->spline.points[i][0];
+	++active.num_points;
       }
 
   /* handle degenerate case: */
-  if (num_active_ctlpoints < 2)
+  if (active.num_points < 2)
     {
-      if (num_active_ctlpoints > 0)
-	ry = c->ctlpoint[first_active][1];
+      if (active.num_points > 0)
+	ry = c->spline.points[first_active][1];
       else
 	ry = 0;
       if (ry < 0) ry = 0;
@@ -596,34 +483,33 @@ curve_editor_get_vector (CurveEditor *c, int veclen, gfloat vector[])
       return;
     }
 
-  mem = g_malloc (3 * num_active_ctlpoints * sizeof (gfloat));
-  xv  = mem;
-  yv  = mem + num_active_ctlpoints;
-  y2v = mem + 2*num_active_ctlpoints;
+  active.points = g_malloc(active.num_points * sizeof(SplineControlPoint));
+  y2v = g_malloc (3 * active.num_points * sizeof(gfloat));
 
-  prev = min_x - 1.0;
-  for (i = dst = 0; i < c->num_ctlpoints; ++i)
-    if (c->ctlpoint[i][0] > prev)
+  prev = -1;
+  for (i = dst = 0; i < c->spline.num_points; ++i)
+    if (c->spline.points[i][0] > prev)
       {
-	prev    = c->ctlpoint[i][0];
-	xv[dst] = c->ctlpoint[i][0];
-	yv[dst] = c->ctlpoint[i][1];
+	prev    = c->spline.points[i][0];
+	active.points[dst][0] = c->spline.points[i][0];
+	active.points[dst][1] = c->spline.points[i][1];
 	++dst;
       }
 
-  spline_solve (num_active_ctlpoints, xv, yv, y2v);
+  spline_solve (&active, y2v);
 
-  rx = min_x;
-  dx = (1 - min_x) / (veclen - 1);
+  rx = 0;
+  dx = 1.0 / (veclen - 1);
   for (x = 0; x < veclen; ++x, rx += dx)
     {
-      ry = spline_eval (num_active_ctlpoints, xv, yv, y2v, rx);
+      ry = spline_eval (&active, y2v, rx);
       if (ry < 0) ry = 0;
       if (ry > 1) ry = 1;
       vector[x] = ry;
     }
 
-  g_free (mem);
+  g_free(y2v);
+  g_free(active.points);
 }
 
 GtkWidget*
@@ -644,8 +530,8 @@ curve_editor_finalize (GObject *object)
     g_object_unref (curve->pixmap);
   if (curve->point)
     g_free (curve->point);
-  if (curve->ctlpoint)
-    g_free (curve->ctlpoint);
+  if (curve->spline.points)
+    g_free (curve->spline.points);
 
   G_OBJECT_CLASS (parent_class)->finalize (object);
 }

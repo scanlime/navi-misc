@@ -10,7 +10,8 @@ HEADERS = \
 	src/explorer.h		\
 	src/animation.h		\
 	src/chunked-file.h	\
-	src/curve-editor.h
+	src/curve-editor.h	\
+	src/spline.h
 
 OBJS    = \
 	src/main.o		\
@@ -20,7 +21,8 @@ OBJS    = \
 	src/color-button.o	\
 	src/animation.o		\
 	src/chunked-file.o	\
-	src/curve-editor.o
+	src/curve-editor.o	\
+	src/spline.o
 
 
 $(BIN): $(OBJS)

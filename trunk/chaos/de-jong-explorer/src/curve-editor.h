@@ -33,7 +33,8 @@
  *   - Functions allowing access to the spline itself have been added, replacing
  *     the functions that only allowed access to interpolated points.
  *
- *   - The spline functions were made public, and spline_solve_and_eval was added
+ *   - The spline functions were split into a separate boxed type and source file.
+ *     An easy evaluation function and serialization functions were added.
  *
  * -- Micah Dowty
  */
@@ -44,6 +45,7 @@
 
 #include <gdk/gdk.h>
 #include <gtk/gtkdrawingarea.h>
+#include "spline.h"
 
 G_BEGIN_DECLS
 
@@ -57,8 +59,6 @@ G_BEGIN_DECLS
 
 typedef struct _CurveEditor   	  CurveEditor;
 typedef struct _CurveEditorClass  CurveEditorClass;
-
-typedef gfloat CurveControlPoint[2];
 
 struct _CurveEditor
 {
@@ -74,9 +74,7 @@ struct _CurveEditor
   gint num_points;
   GdkPoint *point;
 
-  /* control points: */
-  gint num_ctlpoints;             /* number of control points */
-  CurveControlPoint *ctlpoint;   /* array of control points */
+  Spline spline;
 };
 
 struct _CurveEditorClass
@@ -90,21 +88,8 @@ struct _CurveEditorClass
 GType		curve_editor_get_type	(void);
 GtkWidget*	curve_editor_new	(void);
 
-void               curve_editor_set_control_points(CurveEditor*       self,
-						   CurveControlPoint *ctlpoints,
-						   gint               num_points);
-CurveControlPoint *curve_editor_get_control_points(CurveEditor*       self,
-						   gint               *num_points);
-
-
-/* Spline interpolation functions from the GdkCurve source
- * that are useful with or without a CurveEditor widget
- */
-void   spline_solve (int n, gfloat x[], gfloat y[], gfloat y2[]);
-gfloat spline_eval  (int n, gfloat x[], gfloat y[], gfloat y2[], gfloat val);
-gfloat spline_solve_and_eval (CurveControlPoint *ctlpoints,
-			      gint               num_points,
-			      gfloat             val);
+void     curve_editor_set_spline(CurveEditor* self, const Spline *spline);
+Spline*  curve_editor_get_spline(CurveEditor* self);
 
 G_END_DECLS
 
