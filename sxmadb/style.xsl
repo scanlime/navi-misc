@@ -48,6 +48,8 @@
                     <xsl:apply-templates select="document('techniques.xml')//techniques/technique[@category='punch']"/>
                     <span class="emph">push</span>
                     <xsl:apply-templates select="document('techniques.xml')//techniques/technique[@category='push']"/>
+                    <span class="emph">kick</span>
+                    <xsl:apply-templates select="document('techniques.xml')//techniques/technique[@category='kick']"/>
                     <span class="emph">grab</span>
                     <xsl:apply-templates select="document('techniques.xml')//techniques/technique[@category='grab']"/>
                   </xsl:if>
