@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-import charSheet
+import sheetLayout
 
-sheet = charSheet.sheetLayout()
+sheet = sheetLayout.sheetLayout()
 sheet.readSheet('sheet.xml')
+print sheet.root.attributes['data']
