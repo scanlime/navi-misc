@@ -60,6 +60,8 @@ struct _Explorer {
 
   gchar* current_tool;
   double last_mouse_x, last_mouse_y;
+
+  GtkWidget *fgcolor_button, *bgcolor_button;
 };
 
 struct _ExplorerClass {

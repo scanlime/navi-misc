@@ -1090,47 +1090,6 @@ Settings&lt;/b&gt;</property>
 		      </child>
 
 		      <child>
-			<widget class="Custom" id="param_bgcolor">
-			  <property name="visible">True</property>
-			  <property name="creation_function">custom_color_button_new</property>
-			  <property name="string1">Background Color</property>
-			  <property name="int1">0</property>
-			  <property name="int2">0</property>
-			  <property name="last_modification_time">Sun, 15 Feb 2004 05:09:21 GMT</property>
-			  <signal name="changed" handler="on_param_changed" last_modification_time="Sat, 21 Feb 2004 10:45:11 GMT"/>
-			</widget>
-			<packing>
-			  <property name="left_attach">1</property>
-			  <property name="right_attach">2</property>
-			  <property name="top_attach">17</property>
-			  <property name="bottom_attach">18</property>
-			  <property name="x_options">fill</property>
-			  <property name="y_options">fill</property>
-			</packing>
-		      </child>
-
-		      <child>
-			<widget class="Custom" id="param_fgcolor">
-			  <property name="visible">True</property>
-			  <property name="creation_function">custom_color_button_new</property>
-			  <property name="string1">Foreground Color</property>
-			  <property name="string2"></property>
-			  <property name="int1">1</property>
-			  <property name="int2">0</property>
-			  <property name="last_modification_time">Sun, 15 Feb 2004 04:24:16 GMT</property>
-			  <signal name="changed" handler="on_param_changed" last_modification_time="Sat, 21 Feb 2004 10:45:06 GMT"/>
-			</widget>
-			<packing>
-			  <property name="left_attach">1</property>
-			  <property name="right_attach">2</property>
-			  <property name="top_attach">16</property>
-			  <property name="bottom_attach">17</property>
-			  <property name="x_options">fill</property>
-			  <property name="y_options">fill</property>
-			</packing>
-		      </child>
-
-		      <child>
 			<widget class="GtkSpinButton" id="param_gamma">
 			  <property name="visible">True</property>
 			  <property name="can_focus">True</property>
@@ -1256,6 +1215,46 @@ Settings&lt;/b&gt;</property>
 			  <property name="bottom_attach">12</property>
 			  <property name="x_options">fill</property>
 			  <property name="y_options"></property>
+			</packing>
+		      </child>
+
+		      <child>
+			<widget class="GtkVBox" id="fgcolor_box">
+			  <property name="visible">True</property>
+			  <property name="homogeneous">False</property>
+			  <property name="spacing">0</property>
+
+			  <child>
+			    <placeholder/>
+			  </child>
+			</widget>
+			<packing>
+			  <property name="left_attach">1</property>
+			  <property name="right_attach">2</property>
+			  <property name="top_attach">16</property>
+			  <property name="bottom_attach">17</property>
+			  <property name="x_options">fill</property>
+			  <property name="y_options">fill</property>
+			</packing>
+		      </child>
+
+		      <child>
+			<widget class="GtkVBox" id="bgcolor_box">
+			  <property name="visible">True</property>
+			  <property name="homogeneous">False</property>
+			  <property name="spacing">0</property>
+
+			  <child>
+			    <placeholder/>
+			  </child>
+			</widget>
+			<packing>
+			  <property name="left_attach">1</property>
+			  <property name="right_attach">2</property>
+			  <property name="top_attach">17</property>
+			  <property name="bottom_attach">18</property>
+			  <property name="x_options">fill</property>
+			  <property name="y_options">fill</property>
 			</packing>
 		      </child>
 		    </widget>
