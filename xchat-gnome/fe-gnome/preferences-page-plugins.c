@@ -85,34 +85,30 @@ filename_test (gconstpointer a, gconstpointer b)
 static void
 load_unload (char *filename, gboolean loaded, PreferencesPluginsPage *page, GtkTreeIter iter)
 {
-	gchar *buf = NULL;
 	GConfClient *client;
 
 	if (loaded) {
 		GSList *removed_plugin;
-		buf = g_strdup_printf ("UNLOAD \"%s\"", filename);
 
-		/* FIXME: Bad to assume that the plugin was successfully unloaded. */
-		//gtk_list_store_set (GTK_LIST_STORE (model), &iter, 4, FALSE, -1);
+		if (plugin_kill (filename, 1) == 0) {
+			gtk_list_store_set (page->plugin_store, &iter, 4, FALSE, -1);
 
-		if ((removed_plugin = g_slist_find_custom (enabled_plugins, filename, &filename_test)) != NULL) {
-			enabled_plugins = g_slist_delete_link (enabled_plugins, removed_plugin);
+			if ((removed_plugin = g_slist_find_custom (enabled_plugins, filename, &filename_test)) != NULL) {
+				enabled_plugins = g_slist_delete_link (enabled_plugins, removed_plugin);
+			}
 		}
 
 	} else {
-		buf = g_strdup_printf ("LOAD \"%s\"", filename);
-
-		enabled_plugins = g_slist_append (enabled_plugins, filename);
+		if (plugin_load (gui.current_session, filename, NULL) == NULL) {
+			gtk_list_store_set (page->plugin_store, &iter, 4, TRUE, -1);
+			enabled_plugins = g_slist_append (enabled_plugins, filename);
+		}
 	}
-
-	handle_command (gui.current_session, buf, FALSE);
 
 	/* Update the enabled gconf key. */
 	client = gconf_client_get_default ();
 	gconf_client_set_list (client, "/apps/xchat/plugins/enabled", GCONF_VALUE_STRING, enabled_plugins, NULL);
 	g_object_unref (client);
-
-	g_free (buf);
 }
 
 static void
