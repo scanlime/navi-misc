@@ -26,7 +26,7 @@
 public class key
 {
     /** The keystring for this instance of the object. */
-    private String keystring;
+    private int[] keystring;
 	
     /**
      * This is an empty constructor, as this class is static
@@ -38,22 +38,22 @@ public class key
 	keystring = key.keygen();
     }
 
-    public key(String kei)
+    public key(int[] kei)
     {
 	keystring = kei;
     }
 
-    public String encrypt(String text)
+    public int[] encrypt(int[] text)
     {
 	return key.encrypt(keystring,text);
     }
     
-    public String decrypt(String text)
+    public int[] decrypt(int[] text)
     {
 	return key.decrypt(keystring,text);
     }
 
-    public String getKey()
+    public int[] getKey()
     {
 	return keystring;
     }
@@ -64,25 +64,26 @@ public class key
      * @version 2.0
      * @return A random cypher key
      */
-    public static String keygen()
+    public static int[] keygen()
     {
-	String newkey = "";
+	int[] newkey = new int[256];
 	keyinfo start, end;
-	char i;
+	int i;
 	int j;
-	end = new keyinfo('0',null);
+	end = new keyinfo(0,null);
 	start = end;
 	for(i=1;i<256;i++)
 	    start = new keyinfo(i,start);
 	end.next = start;
+	i = 0;
 	while(start != start.next)
 	{
 	    j = (int) (Math.random() * 256);
 	    for(i=0;i<j;i++) start = start.next;
-	    newkey = newkey + start.next.code;
+	    newkey[i++] = start.next.code;
 	    start.next = start.next.next;
 	}
-	newkey = newkey + start.code;
+	newkey[255] = start.code;
 	return newkey;
     }
     
@@ -94,16 +95,16 @@ public class key
      * @version 2.0
      * @return The encrypted string
      */
-    public static String encrypt(String mykey, String cleartext)
+    public static int[] encrypt(int[] mykey, int[] cleartext)
     {
-	String toreturn = "";
+	int[] toreturn = new int[cleartext.length];
 	int i;
 	int index;
-	if(mykey.length() != 256) return null;
-	for(i=0;i<cleartext.length();i++)
+	if(mykey.length != 256) return null;
+	for(i=0;i<cleartext.length;i++)
 	{
-	    index = cleartext.charAt(i);
-	    toreturn = toreturn + mykey.charAt(index);
+	    index = cleartext[i];
+	    toreturn[i] = mykey[index];
 	}
 	return toreturn;
     }
@@ -116,20 +117,17 @@ public class key
      * @version 2.0
      * @return The string that was originally put in to be encrypted
      */
-    public static String decrypt(String mykey, String encrypted)
+    public static int[] decrypt(int[] mykey, int[] encrypted)
     {
-	String toreturn = "";
-	int i;
-	char j;
-	char character;
-	char alpha = 0;
-	if(mykey.length() != 256) return null;
-	for(i=0;i<encrypted.length();i++)
+	int[] toreturn = new int[encrypted.length];
+	int i,j,character,alpha=0;
+	if(mykey.length != 256) return null;
+	for(i=0;i<encrypted.length;i++)
 	{
-	    character = encrypted.charAt(i);
+	    character = encrypted[i];
 	    j = 0;
-	    while(character != mykey.charAt(j)) j++;
-	    toreturn = toreturn + (char) j;
+	    while(character != mykey[j]) j++;
+	    toreturn[i] = j;
 	}
 	return toreturn;
     }

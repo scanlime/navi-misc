@@ -23,4 +23,4 @@ keyinfo.class: keyinfo.java
 	javac keyinfo.java
 
 clean:
-	rm -Rf *.jar *.class *~
+	rm -Rf *.jar *.class *~ #*

@@ -27,23 +27,36 @@ import java.net.*;
 import java.io.*;
 import java.util.*;
 
-public class server extends Thread
+public class client extends Thread
 {
     /** The external port (open to the rest of the world). */
-    public int eport;
+    public int myport;
+
+    /** The hostname of the tunneling server */
+    public String rtarget;
+
+    /** The ultimate destination of the information. */
+    public String rhost;
+    public int rport;
 
     /** The proxy server's listening socket. */
-    public ServerSocket srver;
+    public ServerSocket server;
 
     /**
      * This sets up the tcp forwarder to run with the info given.
-     * @param externalport The port to listen on from the outside world.
+     * @param port The port to listen on.
+     * @param rHost The host that is listening for tunneling attempts.
+     * @param rTarget The hostname of the remote server's target.
+     * @param rPort The port that the remote host connects to
      * @author Brandon Smith
      * @version 1.0
      */
-    public server(int externalport)
+    public client(int lport, String rTarget, String rHost, int rPort)
     {
-	eport = externalport;
+	myport = lport;
+	rtarget = rTarget;
+	rhost = rHost;
+	rport = rPort;
     }
     
     /**
@@ -64,8 +77,8 @@ public class server extends Thread
      */
     public void listen()
     {
-	Socket sout = null;
-	Socket sin = null;
+	Socket clear = null;
+	Socket crypted = null;
 	OutputStream out = null;
 	InputStream in = null;
 	key nukey;
@@ -74,18 +87,20 @@ public class server extends Thread
 	    try
 	    {
 		// get the sockets
-		sout = srver.accept();
-		nukey = sendKey(sout);
-		sin = initConnection(sout);
+		clear = server.accept();
+		crypted = new Socket(rtarget,8080);
+
+		nukey = getKey(crypted);
+		initConnection(crypted);
 		
 		//slot a into tab a
-		out = sout.getOutputStream();
-		in = sin.getInputStream();
+		in = clear.getInputStream();
+		out = crypted.getOutputStream();
 		new epipe(in,out,nukey).start();
-		
+
 		//slot b into tab b
-		out = sin.getOutputStream();
-		in = sout.getInputStream();
+		in = crypted.getInputStream();
+		out = clear.getOutputStream();
 		new dpipe(in,out,nukey).start();
 	    }
 	
@@ -96,45 +111,24 @@ public class server extends Thread
 	}
     }
 
-    public key sendKey(Socket client) throws Exception
+    public key getKey(Socket client) throws Exception
     {
 	int i;
-	key foo = new key();
-	String kei = foo.getKey();
-	OutputStream out = client.getOutputStream();
+	key foo;
+	String kei = "";
+	InputStream in = client.getInputStream();
 	for(i=0;i<256;i++)
-	    out.write(kei.charAt(i));
-	out.flush();
+	    kei = kei + (char) in.read();
+	foo = new key(kei);
 	return foo;
     }
 
-    public Socket initConnection(Socket client) throws Exception
+    public void initConnection(Socket client) throws Exception
     {
-	String host = "";
-	String tport = "";
-	int iport;
-	int temp;
-
-	InputStream in = client.getInputStream();
-
-	/* get the hostname (probably localhost) */
-	temp = in.read();
-	while(temp != '\n');
-	{
-	    host = host + (char) temp;
-	    temp = in.read();
-	}
-	
-	/* get the desired port, 110 for POP3, etc..*/
-	temp = in.read();
-	while(temp != '\n')
-	{
-	    tport = tport + (char) temp;
-	    temp = in.read();
-	}
-	iport = Integer.parseInt(tport);
-	
-	return new Socket(host,iport);
+	OutputStreamWriter out = new OutputStreamWriter( client.getOutputStream() );
+	out.write(rhost+"\n");
+	out.write(rport+"\n");
+	out.flush();
     }
 
     /**
@@ -146,7 +140,8 @@ public class server extends Thread
     {
 	try
         {
-	    srver = new ServerSocket(eport);
+	    server = new ServerSocket(myport);
+	    server.accept();
 	}
 	catch(Exception e)
 	{
@@ -157,6 +152,25 @@ public class server extends Thread
 
     public static void main(String[] args)
     {
-	new server(8080).start();
+	int lport = 0;
+	String server="";
+	String thost="";
+	int tport=0;
+	try
+	{
+	    lport = Integer.parseInt(args[0]);
+	    server = args[1];
+	    thost = args[2];
+	    tport = Integer.parseInt(args[3]);
+	}
+	catch(Exception e)
+	{
+	    System.out.println("Usage: java client <local port> <tunnel host> "+
+			       "<target host> <target  port>");
+	    System.exit(1);
+	}
+	System.out.println("Starting tunnel from localhost:"+lport+" through "+
+			   server+":5050 to " + thost+":"+tport);
+	new client(lport,server,thost,tport).start();
     }
 }
