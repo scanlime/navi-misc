@@ -105,20 +105,28 @@ class VideoChannelPage(Sequencer.Page):
         self.hardware.selectWasabiVideo()
 
 
-class VideoInput(Menu.Item):
+class VideoInput(Menu.PageItem):
     """A menu item representing a video input. This is added to the MainMenu whenever
        it becomes active as specified by the video switch.
        """
     def __init__(self, channel):
-        self.channel = channel
-        Menu.Item.__init__(self, VideoSwitch.getInputDict()[channel])
+        Menu.PageItem.__init__(self,
+                               VideoSwitch.getInputDict()[channel],
+                               userPageInterrupter(lambda book: VideoChannelPage(book, menu.hardware, self.channel))
+                               )
 
-    def onSelected(self, menu):
-        """When we're selected, add a page to the current book that will show
-           video from our channel until a key is pressed.
-           """
-        menu.book.pushBack(userPageInterrupter(
-            lambda book: VideoChannelPage(book, menu.hardware, self.channel)))
+
+class SettingsMenu(Menu.ArcMenu):
+    def __init__(self, book):
+        items = [
+            Menu.Item(Icon.load('background')),
+            Menu.Item(Icon.load('background')),
+            Menu.Item(Icon.load('background')),
+            Menu.Item(Icon.load('background')),
+            Menu.Item(Icon.load('background')),
+            Menu.Item(Icon.load('background')),
+            ]
+        Menu.ArcMenu.__init__(self, book, items, "Settings")
 
 
 class MainMenu(Menu.RingMenu):
@@ -132,6 +140,7 @@ class MainMenu(Menu.RingMenu):
         # Add items that always appear on the menu
         menuItems = [
             Menu.Item(Icon.load('navi')),
+            Menu.PageItem(Icon.load('settings'), Sequencer.FadeIn(0.25, (0,0,0), Sequencer.FadeOut(0.25, (0,0,0), SettingsMenu))),
             ]
 
         # If we have a video switch device, integrate it with the main menu
