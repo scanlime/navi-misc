@@ -71,10 +71,10 @@ startup
 
 main_loop
 
-	call	gamecube_poll_id
+	call	gamecube_poll_status
 
-	bcf	PORTA, 0
-	btfsc	gamecube_buffer+1, 0
+	bcf     PORTA, 0
+	btfsc   gamecube_buffer+1, 0
 	bsf	PORTA, 0
 
 	movlw	0xFF
@@ -241,8 +241,7 @@ rx_buffer macro port, bit
 	;; be less than 2us (10 cycles)
 bit_loop
 	btfsc	port, bit	; 0.0us  Poll for the beginning of the bit, max 0.6us jitter
-	nop
-	;; goto	bit_loop	; 0.2us
+	goto	bit_loop	; 0.2us
 	rlf	INDF, f		; 0.4us  Make room for the new bit
 	bcf	INDF, 0		; 0.6us  Assume it's 0 to begin with
 	goto	$+1		; 0.8us
@@ -261,12 +260,16 @@ bit_loop
 	endm
 
 
-	;; Implementations of the above macros for particular devices
+	;; Implementations of the above macros for particular devices.
+	;; Before transmitting, we explicitly force the output latch low- it may have
+	;; been left high by a read-modify-write operation elsewhere.
 gamecube_tx_buffer
+	bcf	GAMECUBE_PIN
 	tx_buffer GAMECUBE_TRIS
 gamecube_rx_buffer
 	rx_buffer GAMECUBE_PIN
 n64_tx_buffer
+	bcf	GAMECUBE_PIN
 	tx_buffer N64_TRIS
 n64_rx_buffer
 	rx_buffer N64_PIN
