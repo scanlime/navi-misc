@@ -28,7 +28,7 @@ DoLibraryUpdate=1
 DoDatabaseUpdate=1
 [Document3]
 DocumentPath=Sheet1.SchDoc
-AnnotationEnabled=1
+AnnotationEnabled=0
 AnnotateStartValue=1
 AnnotateSuffix=
 DoLibraryUpdate=1
@@ -49,7 +49,7 @@ DoLibraryUpdate=1
 DoDatabaseUpdate=1
 [Document6]
 DocumentPath=Matrix.SchDoc
-AnnotationEnabled=1
+AnnotationEnabled=0
 AnnotateStartValue=1
 AnnotateSuffix=
 DoLibraryUpdate=1
@@ -376,7 +376,7 @@ L15=NNENNNNEEENWNENWW
 L16=WWWWNWWNWWWNWWWNW
 L17=WNNNNNNNWNNNWWWWN
 [Annotate]
-SortOrder=3
+SortOrder=1
 MatchParameter1=Footprint
 [HighlightMethod]
 Zoom=1
