@@ -265,41 +265,49 @@ navigation_tree_create_new_channel_entry (NavTree *navtree, struct session *sess
 void
 navigation_tree_remove (NavTree *navtree, struct session *sess)
 {
-	GtkTreePath *path = gtk_tree_path_copy (navtree->current_path);
+	GtkTreePath *path = gtk_tree_path_copy (navtree->current_path),
+				*root_path = gtk_tree_path_new_first ();
 	GtkTreeSelection *select = gtk_tree_view_get_selection (GTK_TREE_VIEW (navtree));
 
-	if (!gtk_tree_path_prev (path)) {
-		if (!gtk_tree_path_up (path)) {
-			/* At this point we know we're at the root. */
-			GtkTreeIter iter;
-			GtkTreeModel *sorted = gtk_tree_view_get_model (GTK_TREE_VIEW (navtree));
+	if (gtk_tree_path_compare (root_path, path) == 0) {
+		/* Removing the first server. */
+		GtkTreeIter iter;
+		GtkTreeModel *sorted = gtk_tree_view_get_model (GTK_TREE_VIEW (navtree));
 
-			gtk_tree_model_get_iter_first (sorted, &iter);
+		gtk_tree_model_get_iter_first (sorted, &iter);
 
-			if (gtk_tree_model_iter_next (sorted, &iter)) {
-				gtk_tree_path_free (path);
-				path = gtk_tree_model_get_path (sorted, &iter);
-			} else {
-				GtkTreeModel *store = gtk_tree_model_sort_get_model (GTK_TREE_MODEL_SORT (sorted));
+		if (gtk_tree_model_iter_next (sorted, &iter)) {
+			printf ("not next iter\n");
+			gtk_tree_path_free (path);
+			printf ("freed path\n");
+			path = gtk_tree_model_get_path (sorted, &iter);
+			printf ("got new path\n");
+			gtk_tree_selection_select_path (select, path);
+			printf ("selected new path\n");
+			navigation_model_remove (navtree->model, sess);
+			printf ("removed from nav model\n");
+		} else {
+			GtkTreeModel *store = gtk_tree_model_sort_get_model (GTK_TREE_MODEL_SORT (sorted));
 
-				gtk_tree_model_get_iter_first (store, &iter);
-				navigation_tree_server_rm_chans (navtree, &iter);
-				gtk_tree_model_get_iter_first (store, &iter);
-				gtk_tree_store_set (GTK_TREE_STORE (store), &iter, 1, _("<none>"), -1);
-				gtk_tree_selection_select_path (select, path);
-				gtk_tree_path_free (path);
-				return;
-			}
+			gtk_tree_model_get_iter_first (store, &iter);
+			navigation_tree_server_rm_chans (navtree, &iter);
+			gtk_tree_model_get_iter_first (store, &iter);
+			gtk_tree_store_set (GTK_TREE_STORE (store), &iter, 1, _("<none>"), -1);
 		}
+	} else {
+		/* Not the first server. */
+		if (!gtk_tree_path_prev (path))
+			gtk_tree_path_up (path);
+		navigation_model_remove (navtree->model, sess);
 	}
 
 	/* Change the selection before we remove the session so that things can be
 	 * ref'ed and unref'ed properly without too much silliness.
 	 */
-	gtk_tree_selection_select_path (select, path);
-	navigation_model_remove (navtree->model, sess);
+	//gtk_tree_selection_select_path (select, path);
 
 	gtk_tree_path_free (path);
+	gtk_tree_path_free (root_path);
 }
 
 void
@@ -1250,11 +1258,16 @@ on_server_close (GtkAction *action, gpointer data)
 	select = gtk_tree_view_get_selection (treeview);
 
 	if (gtk_tree_selection_get_selected (select, &model, &iter)) {
+		printf ("got selection\n");
 		gtk_tree_model_get (model, &iter, 2, &sess, -1);
-		/* Disconnect the server. */
-		sess->server->disconnect (sess, TRUE, -1);
+		printf ("got session\n");
 		/* Close the server. */
 		navigation_tree_remove (gui.server_tree, sess);
+		printf ("removed\n");
+		/* Disconnect the server. */
+		sess->server->disconnect (sess, TRUE, -1);
+		printf ("disconnected\n");
+		printf ("done\n");
 	}
 }
 
