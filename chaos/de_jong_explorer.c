@@ -50,6 +50,8 @@ struct {
   guint target_density;
 
   double exposure, gamma;
+
+  gboolean dirty_flag;
 } render;
 
 struct {
@@ -424,7 +426,7 @@ int limit_update_rate(float max_rate) {
   diff = ((now.tv_usec - last_update.tv_usec) / 1000 +
 	  (now.tv_sec  - last_update.tv_sec ) * 1000);
 
-  if (diff < (1000 / max_rate)) {
+  if (diff < (1000 / max_rate) && !render.dirty_flag) {
     return 1;
   }
   else {
@@ -645,6 +647,7 @@ void param_spinner_changed(GtkWidget *widget, gpointer user_data) {
 void rendering_spinner_changed(GtkWidget *widget, gpointer user_data) {
   render.exposure = gtk_spin_button_get_value(GTK_SPIN_BUTTON(gui.exposure));
   render.gamma = gtk_spin_button_get_value(GTK_SPIN_BUTTON(gui.gamma));
+  render.dirty_flag = TRUE;
 }
 
 float generate_random_param() {
