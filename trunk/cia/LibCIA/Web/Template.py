@@ -217,6 +217,24 @@ class Table(Nouvelle.ResortableTable):
             return Nouvelle.ResortableTable.render_heading(self, context, column)
 
 
+class HideFromSpiders:
+    """Hides its contents when isWebSpider is true. This can be used to show
+       content that shouldn't be indexed by search engines if possible.
+       """
+    def __init__(self):
+        self.content = []
+
+    def __getitem__(self, content):
+        self.content = content
+        return self
+
+    def render(self, context):
+        if context['request'].isWebSpider():
+            return []
+        else:
+            return self.content
+
+
 class StaticSection(Section):
     """A section containing static content, usable with tag-like syntax:
        StaticSection(title)[body]

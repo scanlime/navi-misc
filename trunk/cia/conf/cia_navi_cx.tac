@@ -43,7 +43,7 @@ class DonationSection(Web.Template.Section):
 # reliable hosting provider, remove the non-main CIA server notice,
 # since this is in fact the main server.
 #
-Web.Template.Page.site_hostingNotice = [
+Web.Template.Page.site_hostingNotice = Web.Template.HideFromSpiders()[
         "Hosting provided by:",
         tag('a', href="http://hyperreal.info/")[
             tag('img', src="http://hyperreal.info/sys/ads/adview.php.gif",
