@@ -15,11 +15,12 @@ using namespace std;
 /********************** Option **********************/
 
 Option::Option (string shrt, string lng, string dest,
-		action_t act, string hlp):
+		string hlp, action_t act):
 	shrt_flag (shrt),
 	lng_flag (lng),
 	destination (dest),
-	action (act)
+	action (act),
+  help (hlp)
 {
 }
 
@@ -40,7 +41,7 @@ OptionParser::OptionParser (string usage, bool show_opts):
 	help_msg_show_opts (show_opts)
 {
 	/* help option is default, it has no destination. */
-	opts.insert(opts.begin(), Option("-h","--help",""));
+	opts.insert(opts.begin(), Option("-h","--help","", "display this message"));
 }
 
 OptionParser::~OptionParser ()
@@ -49,10 +50,10 @@ OptionParser::~OptionParser ()
 
 void
 OptionParser::add_option (string shrt_flag, string lng_flag, string destination,
-		action_t act, string dfault, string help)
+    string help, action_t act, string dfault)
 {
 	/* Add the option to our list of options. */
-	opts.insert(opts.begin(),Option(shrt_flag, lng_flag, destination, act, help));
+	opts.insert(opts.begin(),Option(shrt_flag, lng_flag, destination, help, act));
 
 	/* Set the default value for this option, this not only allows you to
 	 * set default values but insures that every option's destination will

@@ -16,9 +16,9 @@ main (int argc, char **argv)
 {
 	OptionParser parser("usage: test [options] dummy");
 
-	parser.add_option("-i", "--infile", "infile", STORE, "", "read in this file");
-	parser.add_option("-s", "", "savefile", STORE_FALSE, "1", "save file");
-	parser.add_option("","-boo", "boo", STORE, "3");
+	parser.add_option("-i", "--infile", "infile", "read in this file");
+	parser.add_option("-s", "", "savefile", "save file", STORE_FALSE, "1");
+	parser.add_option("","-boo", "boo", "", STORE, "3");
 
 	parser.parse_args(argc, argv);
 	if (parser.arguments.size() < 1)

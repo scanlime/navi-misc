@@ -28,7 +28,7 @@ class Option
 {
 	public:
 		Option (std::string shrt, std::string lng, std::string dest,
-				action_t act=STORE, std::string hlp="");
+				std::string hlp="", action_t act=STORE);
 		~Option ();
 
 		/* Override the == operator so that when you compare an Option
@@ -53,7 +53,9 @@ class OptionParser
 
 		/* Add an option to the parser. */
 		void add_option (std::string shrt_flag, std::string lng_flag,
-				std::string destination, action_t act=STORE, std::string dfault="", std::string help="");
+				std::string destination, std::string help="", action_t act=STORE,
+        std::string dfault="");
+
 		/* Parse the commandline args. */
 		void parse_args (int argc, char **argv);
 		/* Print an error message: this->use_msg followed by msg. Exit. */
