@@ -22,7 +22,7 @@
 #
 #      REPOS="$1"
 #      REV="$2"
-#      $REPOS/hooks/ciabot_svn.pl "$REPOS" "$REV"&
+#      $REPOS/hooks/ciabot_svn.py "$REPOS" "$REV"&
 #
 ############# There are some parameters for this script that you can customize:
 
