@@ -125,16 +125,7 @@ tree_model_row_draggable (GtkTreeDragSource *drag_source, GtkTreePath *source)
 static gboolean
 tree_model_drag_data_get (GtkTreeDragSource *drag_source, GtkTreePath *path, GtkSelectionData *selection_data)
 {
-  if (gtk_tree_set_row_drag_data (selection_data, GTK_TREE_MODEL (drag_source), path))
-  {
-    g_print ("filled data!\n");
-    return TRUE;
-  }
-  else
-  {
-    g_print ("failed to fill data\n");
-    return FALSE;
-  }
+  return gtk_tree_set_row_drag_data (selection_data, GTK_TREE_MODEL (drag_source), path);
 }
 
 static gboolean
@@ -154,8 +145,37 @@ tree_model_drag_data_received (GtkTreeDragDest *drag_dest, GtkTreePath *dest, Gt
 static gboolean
 tree_model_row_drop_possible (GtkTreeDragDest *drag_dest, GtkTreePath *dest, GtkSelectionData *selection_data)
 {
-  g_print ("row_drop_possible ()\n");
-  return TRUE;
+  GtkTreePath *path;
+  GtkTreeIter iter;
+  if (gtk_tree_path_get_depth (dest) == 1)
+    return TRUE;
+
+  path = gtk_tree_path_copy (dest);
+  gtk_tree_path_up (path);
+  if (gtk_tree_model_get_iter (GTK_TREE_MODEL (drag_dest), &iter, path))
+  {
+    SceneObject *object;
+    SceneObjectClass *klass;
+
+    gtk_tree_model_get (GTK_TREE_MODEL (drag_dest), &iter, 3, &object, -1);
+    klass = SCENE_OBJECT_CLASS (G_OBJECT_GET_CLASS (object));
+    g_print ("testing against class '%s'...", g_type_name (G_TYPE_FROM_INSTANCE (object)));
+    if (klass->canparent)
+    {
+      g_print ("yes!\n");
+      return TRUE;
+    }
+    else
+    {
+      g_print ("no!\n");
+      return FALSE;
+    }
+  }
+  else
+  {
+    /* path got deaded? */
+    return FALSE;
+  }
 }
 
 static void
@@ -175,7 +195,7 @@ editor_init (Editor *editor)
   GtkTreeDragSourceIface *srci;
   GtkTargetEntry targets =
   {
-    "reordering",
+    "GTK_TREE_MODEL_ROW",
     GTK_TARGET_SAME_WIDGET,
     0
   };
