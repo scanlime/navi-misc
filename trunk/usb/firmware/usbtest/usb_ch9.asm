@@ -111,6 +111,7 @@ USB_BTS_ERR		res	2
 	extern	DeviceDescriptor
 	extern	StringDescriptions
 	extern  GetStringIndex
+	extern	VFD_SendByte
 
 ; **********************************************************************
 ; This section contains the functions to interface with the main 
@@ -1723,6 +1724,9 @@ SetConfiguration
 ; *********************************************************************
 CheckVendor
 	global	CheckVendor
+	movf	BufferData+wValue, w
+	pagesel	VFD_SendByte
+	call	VFD_SendByte
 	return
 
 	end
