@@ -77,7 +77,6 @@ de Jong map tend to create the most visually interesting attractors.
 \includegraphics[width=2.5in]{1.png}
 \caption{A complex attractor rendered as a two-dimensional histogram.
 Fine details are made easily visible by color and shading}
-%% FIXME: add more explaination to the caption
 \end{figure}
 
 Like other rendering techniques that progressively refine an image, this
@@ -94,7 +93,8 @@ Because a particular histogram bucket may contain tens of thousands of hits,
 high-dynamic-range image processing techniques can be applied. This includes
 gamma correction, exposure control, and color interpolation at the histogram's
 full precision. By clamping each color component as late as possible in the
-rendering process, ``glow'' effects can be obtained without any extra processing.
+rendering process, the color can provide a visual hint at the higher
+dynamic range of the image.
 
 A histogram of infinitely small points can not be antialiased, but aliasing
 artifacts can be reduced by oversampling- using multiple histogram buckets
