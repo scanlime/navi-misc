@@ -31,6 +31,7 @@ static void       teleporter_init_position_params (GObjectClass *object_class);
 static void       teleporter_init_size_params     (GObjectClass *object_class);
 static void       teleporter_init_other_params    (GObjectClass *object_class);
 static GdkPixbuf* teleporter_get_icon             (void);
+static gboolean   teleporter_creatable            (void);
 
 enum
 {
@@ -85,6 +86,7 @@ teleporter_class_init (TeleporterClass *klass)
   so_class = (SceneObjectClass*) klass;
 
   so_class->get_icon = teleporter_get_icon;
+  so_class->creatable = teleporter_creatable;
 
   object_class->set_property = teleporter_set_property;
   object_class->get_property = teleporter_get_property;
@@ -346,4 +348,10 @@ teleporter_get_icon (void)
   }
 
   return gdk_pixbuf_ref (icon);
+}
+
+static gboolean
+teleporter_creatable (void)
+{
+  return TRUE;
 }

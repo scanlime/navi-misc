@@ -29,6 +29,7 @@ static void       world_get_property (GObject *object, guint prop_id, GValue *va
 static void       world_finalize     (GObject *object);
 static void       world_init_params  (GObjectClass *object_class);
 static GdkPixbuf* world_get_icon     (void);
+static gboolean   world_creatable    (void);
 
 enum
 {
@@ -80,6 +81,7 @@ world_class_init (WorldClass *klass)
   object_class->finalize = world_finalize;
 
   so_class->get_icon = world_get_icon;
+  so_class->creatable = world_creatable;
 
   world_init_params (object_class);
 }
@@ -206,4 +208,10 @@ world_get_icon (void)
   }
 
   return icon;
+}
+
+static gboolean
+world_creatable (void)
+{
+  return FALSE;
 }
