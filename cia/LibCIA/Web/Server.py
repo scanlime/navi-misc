@@ -25,7 +25,7 @@ Site and Request classes.
 from twisted.web import server, static
 from twisted.python import log
 import ServerPages
-import time
+import time, gc
 
 
 class Request(server.Request):
@@ -65,6 +65,11 @@ class Request(server.Request):
         # Count this request, yay
         server.Request.process(self)
         self.site.requestCount += 1
+
+        # Give python's garbage collector a nudge after each request.
+        # Our odd memory usage patterns seem to confuse its generational
+        # collector.
+        gc.collect()
 
     def isWebSpider(self):
         """Guess whether this request is coming from a web spider (search engine bot).
