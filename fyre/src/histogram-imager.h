@@ -131,9 +131,29 @@ void             histogram_imager_get_hist_size   (HistogramImager *self,
 void             histogram_imager_clear           (HistogramImager *self);
 gdouble          histogram_imager_get_elapsed_time (HistogramImager *self);
 
+/* The imager's histogram buffer can be exported to a compact
+ * stream format that can later be merged into an existing histogram
+ * buffer. This is useful for merging rendering results computed
+ * across several different machines. The buffer's format should be
+ * architecture-independent.
+ *
+ * histogram_imager_export_stream() returns the number of bytes saved
+ * in the provided buffer. If it runs out of buffer space, it will leave
+ * the remaining samples in HistogramImager's internal buffer. All
+ * buckets successfully exported will be emptied.
+ */
+gsize            histogram_imager_export_stream   (HistogramImager *self,
+						   guchar          *buffer,
+						   gsize            buffer_size);
+void             histogram_imager_merge_stream    (HistogramImager *self,
+						   const guchar    *buffer,
+						   gsize            buffer_size);
+
+/* These must be called before and after making plots,
+ * to initialize and save the HistogramPlot structure.
+ */
 void             histogram_imager_prepare_plots   (HistogramImager *self,
 						   HistogramPlot   *plot);
-
 void             histogram_imager_finish_plots    (HistogramImager *self,
 						   HistogramPlot   *plot);
 

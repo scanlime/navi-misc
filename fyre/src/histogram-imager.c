@@ -23,6 +23,7 @@
  */
 
 #include "histogram-imager.h"
+#include "var-int.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -881,6 +882,130 @@ static gulong histogram_imager_get_max_usable_density(HistogramImager *self) {
   if (max_usable > G_MAXINT/2)
     max_usable = G_MAXINT/2;
   return (gulong) max_usable;
+}
+
+
+/************************************************************************************/
+/***************************************************************** Stream Buffering */
+/************************************************************************************/
+
+gsize histogram_imager_export_stream(HistogramImager *self,
+				     guchar          *buffer,
+				     gsize            buffer_size) {
+  /* This encodes the contents of our histogram buffer
+   * in a platform-independent and compact format suitable
+   * for loading later with histogram_imager_merge_stream().
+   *
+   * This format is a form of run-length encoding, using var-int
+   * to store our integers compactly. All numbers are left-shifted
+   * one bit, and the least significant bit indicates meaning.
+   * Values with an LSB of 0 indicate a number of buckets to skip,
+   * and an LSB of 1 indicates a number of times to increment
+   * the current bucket before skipping it.
+   */
+
+  guchar *output_p;
+  int output_remaining;
+  gint *hist_p;
+  int hist_remaining;
+  guint skipped = 0;
+  int bucket;
+  int i;
+
+  histogram_imager_check_dirty_flags(self);
+  histogram_imager_require_histogram(self);
+
+  hist_p = self->histogram;
+  hist_remaining = self->width * self->height *
+    self->oversample * self->oversample;
+
+  output_p = buffer;
+  output_remaining = buffer_size - VAR_INT_MAX_SIZE;
+
+  while (hist_remaining > 0 && output_remaining > 0) {
+    bucket = *hist_p;
+    if (bucket) {
+      /* We found a non-zero bucket */
+
+      if (skipped) {
+	/* Output a skip value, if we skipped any
+	 * buckets prior to the current one.
+	 */
+	i = var_int_write(output_p, skipped << 1);
+	output_p += i;
+	output_remaining -= i;
+	if (output_remaining < 0)
+	  break;
+	skipped = 0;
+      }
+
+      /* Output this bucket's value, then clear it */
+      i = var_int_write(output_p, (bucket << 1) | 1);
+      output_p += i;
+      output_remaining -= i;
+      *hist_p = 0;
+    }
+    else {
+      skipped++;
+    }
+
+    hist_p++;
+    hist_remaining--;
+  }
+
+  return output_p - buffer;
+}
+
+void histogram_imager_merge_stream(HistogramImager *self,
+				   const guchar    *buffer,
+				   gsize            buffer_size) {
+
+  /* The inverse of histogram_imager_export_stream(). This follows
+   * the skip/plot instructions in the given buffer, merging the
+   * results with whatever happens to be in the histogram buffer.
+   */
+
+  const guchar *input_p;
+  gsize input_remaining;
+  gint *hist_p;
+  gsize hist_remaining;
+  guint token, bucket;
+  HistogramPlot plot;
+  int i;
+
+  histogram_imager_prepare_plots(self, &plot);
+
+  hist_p = self->histogram;
+  hist_remaining = self->width * self->height *
+    self->oversample * self->oversample;
+
+  input_p = buffer;
+  input_remaining = buffer_size;
+
+  while (hist_remaining > 0 && input_remaining > 0) {
+    i = var_int_read(input_p, &token);
+    input_p += i;
+    input_remaining -= i;
+
+    if (token & 1) {
+      /* Plot into the current bucket */
+
+      token >>= 1;
+      plot.plot_count += token;
+      bucket = *hist_p;
+      bucket += token;
+      *hist_p = bucket;
+      if (bucket > plot.density)
+	plot.density = bucket;
+      hist_p++;
+    }
+    else {
+      /* Skip buckets */
+
+      token >>= 1;
+      hist_p += token;
+    }
+  }
 }
 
 
