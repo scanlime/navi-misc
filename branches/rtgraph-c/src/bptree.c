@@ -28,6 +28,9 @@
 #include "bptree.h"
 #include "rtgmem.h"
 
+#define INVALID_STAMP ((gulong)-1)
+
+
 /************************************************************************************/
 /******************************************************************* Node Accessors */
 /************************************************************************************/
@@ -50,6 +53,7 @@ void              index_init                     (RtgBPTree*        self)
 
     /* First get fixed-size parts out of the way */
     self->index.parent_offset = ALLOC_TYPE(RtgPageAddress);
+    self->index.count_offset  = ALLOC_TYPE(int);
 
     /* Use the highest keys_count that will keep our total size under
      * or equal to the storage's page size. child_count is always keys_count+1,
@@ -89,6 +93,87 @@ void              index_init                     (RtgBPTree*        self)
     g_assert(offset <= self->storage->page_size);
 }
 
+static inline
+void              leaf_init                      (RtgBPTree*        self)
+{
+    int offset = 0;
+
+    /* First get fixed-size parts out of the way */
+    self->leaf.prev_offset   = ALLOC_TYPE(RtgPageAddress);
+    self->leaf.next_offset   = ALLOC_TYPE(RtgPageAddress);
+    self->leaf.parent_offset = ALLOC_TYPE(RtgPageAddress);
+    self->leaf.origin_offset = ALLOC_TYPE(int);
+    self->leaf.count_offset  = ALLOC_TYPE(int);
+
+    /* As above, Use the highest keys_count that will keep our total size under
+     * or equal to the storage's page size. keys_count and values_count are the same.
+     *
+     * The total size can then be calculated as:
+     *
+     *    offset + RTG_ALIGN_CEIL(sizeof_key * key_value_count) +
+     *       RTG_ALIGN_CEIL(sizeof_value * key_value_count) <= page_size
+     *
+     * The alignment issue makes this inequality a pain to solve
+     * directly. Instead, we assume worst-case alignment padding:
+     *
+     *    offset + 2*(G_MEM_ALIGN-1) + (sizeof_key + sizeof_value) *
+     *       key_value_count <= page_size
+     *
+     * This can be solved easily:
+     */
+    self->leaf.key_value_count = (self->storage->page_size - offset - 2*(G_MEM_ALIGN-1)) /
+	(self->sizeof_key + self->sizeof_value);
+
+    /* However, since we were conservative in the alignment assumption, we may actually
+     * be able to fit more keys in each page. Try to increase key_count without
+     * going over page_size.
+     */
+    while ((offset + RTG_ALIGN_CEIL(self->sizeof_key * (self->leaf.key_value_count+1)) +
+	    RTG_ALIGN_CEIL(self->sizeof_value * (self->leaf.key_value_count+1))) <=
+	   self->storage->page_size)
+	self->leaf.key_value_count++;
+
+    self->leaf.keys_offset    = ALLOC_SIZE( self->sizeof_key * self->leaf.key_value_count );
+    self->leaf.values_offset  = ALLOC_SIZE( self->sizeof_value * self->leaf.key_value_count );
+
+    g_assert(offset <= self->storage->page_size);
+}
+
+/* A macro for accessing a dynamically positioned
+ * structure element within a storage page
+ */
+#define DYNAMIC_STRUCT_ITEM(tree, page, offset_name, type) \
+    ((type)(rtg_page_storage_lookup(tree, page) + tree->offset_name##_offset))
+
+/* Macros that refer to individual items in our dynamically
+ * proportioned structures. By implementing these as macros,
+ * they can be used as lvalues.
+ */
+#define index_parent(tree, page)   (*DYNAMIC_STRUCT_ITEM(tree, page, index.parent, RtgPageAddress*))
+#define index_count(tree, page)    (*DYNAMIC_STRUCT_ITEM(tree, page, index.count, int*))
+#define index_key(tree, page, i)   (DYNAMIC_STRUCT_ITEM(tree, page, index.keys, gpointer) + (tree)->sizeof_key*(i))
+#define index_child(tree, page, i) (DYNAMIC_STRUCT_ITEM(tree, page, index.child, RtgPageAddress*)[i])
+#define leaf_prev(tree, page)      (*DYNAMIC_STRUCT_ITEM(tree, page, leaf.prev, RtgPageAddress*))
+#define leaf_next(tree, page)      (*DYNAMIC_STRUCT_ITEM(tree, page, leaf.next, RtgPageAddress*))
+#define leaf_parent(tree, page)    (*DYNAMIC_STRUCT_ITEM(tree, page, leaf.parent, RtgPageAddress*))
+#define leaf_origin(tree, page)    (*DYNAMIC_STRUCT_ITEM(tree, page, leaf.origin, int*))
+#define leaf_count(tree, page)     (*DYNAMIC_STRUCT_ITEM(tree, page, leaf.count, int*))
+#define leaf_key(tree, page, i)    (DYNAMIC_STRUCT_ITEM(tree, page, leaf.keys, gpointer) + (tree)->sizeof_key*(i))
+#define leaf_value(tree, page, i)  (DYNAMIC_STRUCT_ITEM(tree, page, leaf.values, gpointer) + (tree)->sizeof_value*(i))
+
+
+/************************************************************************************/
+/****************************************************************** Private Methods */
+/************************************************************************************/
+
+static void       rtg_bptree_invalidate_iters    (RtgBPTree*        self)
+{
+    self->stamp++;
+
+    /* Skip over the value we've reserved for iters that are always invalid */
+    if (self->stamp == INVALID_STAMP)
+	self->stamp++;
+}
 
 
 /************************************************************************************/
@@ -110,7 +195,11 @@ RtgBPTree*        rtg_bptree_new                 (RtgPageStorage*   storage,
     self->compare = compare;
     self->compare_user_data = compare_user_data;
 
+    /* Init dynamically proportioned structures */
     index_init(self);
+    leaf_init(self);
+
+
 
     return self;
 }
@@ -156,12 +245,12 @@ void              rtg_bptree_last                (RtgBPTree*        self,
 {
 }
 
-gpointer          rtg_bptree_prev                (RtgBPTree*        self,
+void              rtg_bptree_prev                (RtgBPTree*        self,
 						  RtgBPIter*        iter)
 {
 }
 
-gpointer          rtg_bptree_next                (RtgBPTree*        self,
+void              rtg_bptree_next                (RtgBPTree*        self,
 						  RtgBPIter*        iter)
 {
 }
@@ -169,11 +258,13 @@ gpointer          rtg_bptree_next                (RtgBPTree*        self,
 gpointer          rtg_bptree_read_key            (RtgBPTree*        self,
 						  RtgBPIter*        iter)
 {
+    return NULL;
 }
 
 gpointer          rtg_bptree_read_value          (RtgBPTree*        self,
 						  RtgBPIter*        iter)
 {
+    return NULL;
 }
 
 void              rtg_bptree_write_value         (RtgBPTree*        self,

@@ -48,7 +48,8 @@ struct _RtgBPTree {
 
     /* Offsets and lengths within our index nodes */
     struct {
-	int parent_offset;
+	int parent_offset;  /* parent index node address */
+	int count_offset;   /* current number of keys */
 	int keys_offset;
 	int keys_count;
 	int child_offset;
@@ -57,13 +58,14 @@ struct _RtgBPTree {
 
     /* Offsets and lengths within our leaf nodes */
     struct{
-	int prev_offset;
-	int next_offset;
-	int parent_offset;
+	int prev_offset;    /* previous leaf address */
+	int next_offset;    /* next leaf address */
+	int parent_offset;  /* parent index node address */
+	int origin_offset;  /* position of first item in the wraparound key/value arrays */
+	int count_offset;   /* count of key/value pairs currently stored */
 	int keys_offset;
-	int keys_count;
 	int values_offset;
-	int values_count;
+	int key_value_count;
     } leaf;
 
     /* Our storage, and the address of our root page */
@@ -169,10 +171,10 @@ void              rtg_bptree_last                (RtgBPTree*        self,
 
 /* Advance an itertator to the next/previous record
  */
-gpointer          rtg_bptree_prev                (RtgBPTree*        self,
+void              rtg_bptree_prev                (RtgBPTree*        self,
 						  RtgBPIter*        iter);
-gpointer          rtg_bptree_next                (RtgBPTree*        self,
-						  RtgBPIter*        iter);
+void              rtg_bptree_next                (RtgBPTree*        self,
+ 						  RtgBPIter*        iter);
 
 /* Read the current key/value at an iterator. Returns NULL if
  * the iterator is invalid. The resulting pointer becomes invalid
