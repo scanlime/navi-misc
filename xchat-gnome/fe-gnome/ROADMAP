@@ -5,7 +5,6 @@ This is just a preliminary roadmap, subject to whatever people want to work on.
 	networks before creating a new connection
 -	Fix navigation tree to use non-case-sensitive
 	sorting rather than lexicographical order		- David (done)
--	Fix plugins preferences to properly handle scripts	- Evan
 -	Fix the plugin toggle bug				- Evan (done)
 -	Plugin prefs page needs to check whether a
 	plugin was successfully loaded				- Evan (done)
