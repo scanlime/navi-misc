@@ -42,6 +42,8 @@ namespace Fyre
 		Gdk.Rectangle		drawing_extents;
 		Gdk.Rectangle		layout_extents;
 
+		static int		layout_buffer = 50;
+
 		Gtk.EventBox		event_box;
 
 		// FIXME - Monodoc says that Gdk.Pixmap.CreateBitmapFromData is unimplemented,
@@ -178,7 +180,7 @@ namespace Fyre
 		void
 		SetScrollbars ()
 		{
-			Gdk.Rectangle exp_layout = ExpandRect (layout_extents, 50);
+			Gdk.Rectangle exp_layout = ExpandRect (layout_extents, layout_buffer);
 			Gdk.Rectangle size = exp_layout.Union (drawing_extents);
 
 			hadj.Lower = size.X;
@@ -196,9 +198,6 @@ namespace Fyre
 		protected override void
 		OnSetScrollAdjustments (Gtk.Adjustment hadj, Gtk.Adjustment vadj)
 		{
-			hadj.Value         = 0.0;
-			vadj.Value         = 0.0;
-
 			hadj.StepIncrement = 10.0;
 			vadj.StepIncrement = 10.0;
 
@@ -209,6 +208,9 @@ namespace Fyre
 			vadj.ValueChanged += new System.EventHandler (VValueChanged);
 
 			SetScrollbars ();
+
+			hadj.Value         = layout_extents.X - layout_buffer;
+			vadj.Value         = layout_extents.Y - layout_buffer;
 		}
 
 		void
