@@ -43,15 +43,19 @@ class PrefDialog:
     self.colors = ColorPrefs(self.tree)
     self.colors.set(self.prefs, self.tree)
 
-    # Hook up the buttons.
+    # Autoconnect the signals that can be autoconnected.
+    for func in self.__class__.__dict__.iterkeys():
+      if func.startswith('on_'):
+        self.tree.signal_connect(func, getattr(self, func))
+
+    # Hook up the buttons. The 'Apply' button is hooked up in the main window.
     tree.get_widget('pref cancel').connect('clicked',lambda w: dialog.hide())
-    tree.get_widget('pref apply').connect('clicked', self.SavePrefs)
     tree.get_widget('pref ok').connect('clicked', self.SavePrefs)
     tree.get_widget('pref ok').connect('clicked', lambda w: dialog.hide())
 
     # Hook up the navigation area.
     tree.get_widget('prefs navigation').get_selection().connect('changed', 
-                                                self.on_nav_selection_changed)
+                                                self.nav_selection_changed)
 
   def SetUpNav(self):
     ''' SetUpNav creates the list of pages in the navigation list from the pages
@@ -72,13 +76,27 @@ class PrefDialog:
       store.set(store.append(), 0, pageName, 1, num)
 
   def SavePrefs(self, widget, data=None):
-    self.general.Save(self.prefs)
+    self.general.Save(self.tree, self.prefs)
     self.prefs.Save()
 
-  def on_nav_selection_changed(self, treeselection, data=None):
+  def nav_selection_changed(self, treeselection, data=None):
     model, iter = treeselection.get_selected()
     notebook = self.tree.get_widget('pref notebook')
     notebook.set_current_page(model.get(iter, 1)[0])
+
+  def on_text_color_button_color_set(self, button, data=None):
+    color = button.get_color()
+    red = str(hex(color.red))[2:]
+    blue = str(hex(color.blue))[2:]
+    green = str(hex(color.green))[2:]
+    self.prefs.text_color = '#' + red + green + blue
+
+  def on_background_color_button_color_set(self, button, data=None):
+    color = button.get_color()
+    red = str(hex(color.red))[2:]
+    blue = str(hex(color.blue))[2:]
+    green = str(hex(color.green))[2:]
+    self.prefs.background_color = '#' + red + green + blue
 
 class GenPrefs:
   def __init__(self, tree):
@@ -99,15 +117,15 @@ class GenPrefs:
     sizegroup.add_widget(tree.get_widget('add_remove'))
     sizegroup.add_widget(tree.get_widget('highlight'))
 
-  def Save(self, prefs):
+  def Save(self, tree, prefs):
     ''' Save the values on the general preferences page into 'prefs'. prefs must
         be a Prefs object from Common.Prefs
         '''
-    prefs.nick = self.nickname.get_text()
-    prefs.realname = self.realname.get_text()
-    prefs.quitmsg = self.quitmsg.get_text()
-    prefs.partmsg = self.partmsg.get_text()
-    prefs.awaymsg = self.awaymsg.get_text()
+    prefs.nickname = tree.get_widget('nickname').get_text()
+    prefs.realname = tree.get_widget('realname').get_text()
+    prefs.quitmsg = tree.get_widget('quitmsg').get_text()
+    prefs.partmsg = tree.get_widget('partmsg').get_text()
+    prefs.awaymsg = tree.get_widget('awaymsg').get_text()
 
   def Set(self, prefs, tree):
     ''' Set the fields in the dialog to reflect the user's prefs. 'prefs' must be

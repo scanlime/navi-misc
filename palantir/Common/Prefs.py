@@ -68,7 +68,7 @@ class Prefs:
 
     # For now we'll just write all of the prefs to the file, in the future
     # we may only write the values that differ from defaults.
-    file.writelines([string.join(key, value, ' = ') \
+    file.writelines([string.join([key, value], ' = ') + '\n' \
         for key, value in self.__dict__.iteritems()])
 
     file.close()
