@@ -6,6 +6,14 @@ setup (name = "PyBZEngine",
        maintainer = "Micah Dowty",
        maintainer_email = "micah@picogui.org",
        license = "LGPL",
-       packages = ['BZEngine'],
+       packages = [
+    'BZEngine',
+    'BZEngine.UI',
+    'BZEngine.UI.Drawable',
+    'BZEngine.UI.Drawable.VRML',
+    'BZEngine.UI.ThreeDRender',
+    'BZEngine.UI.Viewport',
+    'BZEngine.optik',
+    ],
        )
 
