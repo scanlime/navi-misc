@@ -24,6 +24,7 @@
 #define __THERM_DAEMON_H
 
 #include <usb.h>
+#include <stdarg.h>
 
 struct rx_packet {
   int buffer_bytes;
@@ -57,6 +58,18 @@ struct rx_packet* receiver_read           (usb_dev_handle* self, int timeout);
 
 /* Get the local temperature at the receiver */
 int               receiver_get_local_temp (usb_dev_handle* self);
+
+char*  strdup_vprintf            (const char* format, va_list ap);
+char*  strdup_printf             (const char* format, ...);
+
+char*  db_strdup_escape          (MYSQL* mysql, const char* string);
+int    db_query_printf           (MYSQL* mysql, const char* format, ...);
+int    db_find_source            (MYSQL* mysql, const char *medium, int protocol, int station_id);
+int    db_packet_new             (MYSQL* mysql, int source_id);
+int    db_packet_new_full        (MYSQL* mysql, int source_id, int sequence, float strength);
+void   db_packet_mark_duplicate  (MYSQL* mysql, int packet_id);
+void   db_packet_add_batt_volts  (MYSQL* mysql, int packet_id, float volts);
+void   db_packet_add_temperature (MYSQL* mysql, int packet_id, float average, int num_samples);
 
 #endif /* __THERM_DAEMON_H */
 
