@@ -23,7 +23,7 @@ elsewhere, for example in IRC filters.
 #
 
 import Message, XML
-import re, os, textwrap
+import re, os
 
 
 class ColortextToIRC(Message.Formatter):
@@ -52,6 +52,7 @@ class CommitFormatter(Message.Formatter):
 
     # Lines in the log longer than this are wrapped to logWrapWidth
     logWidthLimit = None
+    logWrapWidth = None
 
     def consolidateFiles(self, xmlFiles):
         """Given a <files> element, find the directory common to all files
@@ -141,6 +142,25 @@ class CommitFormatter(Message.Formatter):
         else:
             return self.format_default(prefix)
 
+    def wrapLine(self, line, width):
+        """Given a long line, wrap it if possible to the given width,
+           returning a list of lines.
+           """
+        lines = []
+        newLine = ''
+        for word in line.split(" "):
+            oldLine = newLine
+            if newLine:
+                newLine = newLine + ' ' + word
+            else:
+                newLine = word
+            if len(newLine) > width:
+                lines.append(oldLine.rstrip())
+                newLine = word
+        if newLine:
+            lines.append(newLine.rstrip())
+        return lines
+
     def format_log(self, logString):
         # Break the log string into wrapped lines
         lines = []
@@ -149,9 +169,14 @@ class CommitFormatter(Message.Formatter):
             if not line.strip():
                 continue
 
-            # TODO: wrap long lines
+            # Expand tabs before we try wrapping
+            line = line.replace("\t", " "*8)
 
-            lines.append(line)
+            # Wrap long lines
+            if self.logWidthLimit and len(line) > self.logWidthLimit:
+                lines.extend(self.wrapLine(line, self.logWrapWidth))
+            else:
+                lines.append(line)
 
         # Multiline logs shouldn't start on the same line as the metadata
         if len(lines) > 1:
@@ -182,6 +207,8 @@ class CommitToIRC(CommitFormatter):
     """Converts commit messages to plain text with IRC color tags"""
     medium = 'irc'
     logLinesLimit = 6
+    logWidthLimit = 220
+    logWrapWidth = 80
 
     def format_author(self, author):
         import IRC
