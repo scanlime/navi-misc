@@ -459,6 +459,7 @@ class Bot(irc.IRCClient):
 
     def __init__(self):
         self.emptyChannels()
+        self.pendingWhoisTests = {}
 
     def emptyChannels(self):
         """Called when we know we're not in any channels and we shouldn't
@@ -490,24 +491,29 @@ class Bot(irc.IRCClient):
         self.network = self.factory.network
         self.botNet = self.factory.botNet
 
-        # Start picking an initial nickname. If this one is in use, we get
-        # an ERR_NICKNAMEINUSE which we handle by picking the next name
-        # from this generator and re-registering.
-        self.initialNickGenerator = self.botNet.nickAllocator.generate()
-        self.nickname = self.initialNickGenerator.next()
+        # Start picking an initial nickname. This is really only expected to work
+        # on servers where this is the only CIA bot. If this one is in use, we get
+        # an ERR_NICKNAMEINUSE which we handle by picking a temporary nick we can
+        # use to search for a better one.
+        self.nickname = self.findNickQuickly()
         irc.IRCClient.connectionMade(self)
 
     def irc_ERR_NICKNAMEINUSE(self, prefix, params):
-        """An alternate nickname-in-use error handler that picks the next
-           nick from our allocator instead of using those blasted underscores
+        """An alternate nickname-in-use error handler that generates a random
+           temporary nick. This will let us at least connect to the server and
+           issue WHOIS queries to efficiently find a better nick.
+
+           As soon as we get the nickChanged back from this operation, we will
+           realize this nick doesn't match those allowed by nickAllocator and
+           start looking for a better one.
            """
-        self.register(self.initialNickGenerator.next())
+        self.setNick("CIA-temp%03d" % random.randint(0, 999))
 
     def nickChanged(self, newname):
         irc.IRCClient.nickChanged(self, newname)
         if not self.botNet.nickAllocator.isValid(newname):
             # We got a bad nick, try to find a better one
-            log.msg("%r got an unsuitable nickname, trying to find a better one..." % self)
+            log.msg("%r starting nick negotiation" % self)
             self.findNick().addCallback(self.foundBetterNick)
 
     def register(self, nickname, hostname='foo', servername='bar'):
@@ -578,24 +584,46 @@ class Bot(irc.IRCClient):
                 return result
 
         # It's not that easy- try a WHOIS query
-        result.setTimeout(30, result.callback, False)
-        self.sendLine("WHOIS %s" % nick)
-        self.currentWhoisDeferred = result
+        if nick in self.pendingWhoisTests:
+            # We already have a request on the wire, tack another deferred onto it
+            self.pendingWhoisTests[nick].append(result)
+
+        else:
+            # Send a new request
+            self.pendingWhoisTests[nick] = [result]
+            self.sendLine("WHOIS %s" % nick)
+
         return result
 
     def irc_RPL_WHOISUSER(self, prefix, params):
         """Reply to the WHOIS command we use to evaluate if a nick is used or not.
            This one would indicate that the nick is indeed used.
            """
-        self.currentWhoisDeferred.callback(True)
-        del self.currentWhoisDeferred
+        nick = params[1]
+        if nick in self.pendingWhoisTests:
+            for result in self.pendingWhoisTests[nick]:
+                result.callback(True)
+            del self.pendingWhoisTests[nick]
 
     def irc_ERR_NOSUCHNICK(self, prefix, params):
         """Reply to the WHOIS command we use to evaluate if a nick is used or not.
            This indicates that the nick is available.
            """
-        self.currentWhoisDeferred.callback(False)
-        del self.currentWhoisDeferred
+        nick = params[1]
+        if nick in self.pendingWhoisTests:
+            for result in self.pendingWhoisTests[nick]:
+                result.callback(False)
+            del self.pendingWhoisTests[nick]
+
+    # These are several other WHOIS replies that we want to ignore
+    def irc_RPL_WHOISSERVER(self, prefix, params):
+        pass
+    def irc_RPL_WHOISIDLE(self, prefix, params):
+        pass
+    def irc_RPL_WHOISCHANNELS(self, prefix, params):
+        pass
+    def irc_RPL_ENDOFWHOIS(self, prefix, params):
+        pass
 
     def signedOn(self):
         """IRCClient is notifying us that we've finished connecting to
