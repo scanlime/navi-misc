@@ -151,6 +151,8 @@ initialize_preferences_colors_page ()
 	gtk_widget_set_sensitive (color_buttons[0], FALSE);
 	hbox = glade_xml_get_widget (gui.xml, "text color hbox");
 	gtk_box_pack_start (GTK_BOX (hbox), color_buttons[0], FALSE, TRUE, 0);
+	widget = glade_xml_get_widget (gui.xml, "color label 2");
+	gtk_label_set_mnemonic_widget (GTK_LABEL (widget), color_buttons[0]);
 	g_signal_connect (G_OBJECT (color_buttons[0]), "color-set", G_CALLBACK (color_button_changed), GINT_TO_POINTER (32 + 0));
 
 	/* Background color */
@@ -159,6 +161,8 @@ initialize_preferences_colors_page ()
 	gtk_widget_set_sensitive (color_buttons[1], FALSE);
 	hbox = glade_xml_get_widget (gui.xml, "background color hbox");
 	gtk_box_pack_start (GTK_BOX(hbox), color_buttons[1], FALSE, TRUE, 0);
+	widget = glade_xml_get_widget (gui.xml, "color label 3");
+	gtk_label_set_mnemonic_widget (GTK_LABEL (widget), color_buttons[0]);
 	g_signal_connect (G_OBJECT (color_buttons[0]), "color-set", G_CALLBACK (color_button_changed), GINT_TO_POINTER (32 + 1));
 
 	/* Foreground mark */
@@ -167,13 +171,18 @@ initialize_preferences_colors_page ()
 	gtk_widget_set_sensitive (color_buttons[2], FALSE);
 	hbox = glade_xml_get_widget (gui.xml, "foreground mark hbox");
 	gtk_box_pack_start (GTK_BOX (hbox), color_buttons[2], FALSE, TRUE, 0);
+	widget = glade_xml_get_widget (gui.xml, "color label 4");
+	gtk_label_set_mnemonic_widget (GTK_LABEL (widget), color_buttons[0]);
 	g_signal_connect (G_OBJECT (color_buttons[0]), "color-set", G_CALLBACK (color_button_changed), GINT_TO_POINTER (32 + 2));
 
+	/* Background mark */
 	color_buttons[3] = gtk_color_button_new ();
 	gtk_color_button_set_color (GTK_COLOR_BUTTON (color_buttons[3]), &colors[32]);
 	gtk_widget_set_sensitive (color_buttons[3], FALSE);
 	hbox = glade_xml_get_widget (gui.xml, "background mark hbox");
 	gtk_box_pack_start (GTK_BOX (hbox), color_buttons[3], FALSE, TRUE, 0);
+	widget = glade_xml_get_widget (gui.xml, "color label 5");
+	gtk_label_set_mnemonic_widget (GTK_LABEL (widget), color_buttons[0]);
 	g_signal_connect (G_OBJECT (color_buttons[0]), "color-set", G_CALLBACK (color_button_changed), GINT_TO_POINTER (32 + 3));
 
 	group = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
@@ -198,6 +207,8 @@ initialize_preferences_colors_page ()
 	scheme = gconf_client_get_int (client, "/apps/xchat/irc/color_scheme", NULL);
 	gconf_client_notify_add (client, "/apps/xchat/irc/color_scheme", (GConfClientNotifyFunc) gconf_color_changed, color_schemes, NULL, NULL);
 	gtk_combo_box_set_active (GTK_COMBO_BOX(color_schemes), scheme);
+	widget = glade_xml_get_widget (gui.xml, "color label 1");
+	gtk_label_set_mnemonic_widget (GTK_LABEL (widget), color_schemes);
 
 	hbox = glade_xml_get_widget (gui.xml, "foreground background hbox");
 	gtk_box_pack_start (GTK_BOX (hbox), color_schemes, FALSE, TRUE, 0);

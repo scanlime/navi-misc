@@ -289,7 +289,6 @@ setup_menu_item (GConfClient *client, GtkActionEntry *entry)
 
 	/* Let's still use most of the original hardcoded entry.. */
 	action = gtk_action_new (entry->name, entry->label, entry->tooltip, entry->stock_id);
-	g_message ("adding %s", entry->name);
 
 	/* but.. not the accelerators.. */
 	gtk_action_group_add_action_with_accel (gui.action_group, action,
