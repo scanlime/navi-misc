@@ -10,7 +10,7 @@
 #define VERSION "0.2"
 #define MAXURLS 10
 
-#define URLREGEX "(ht|f)tps?://[~a-z0-9./_=#%&?-]+[a-z0-9]+"
+#define URLREGEX "(ht|f)tps?://[~a-z0-9./_=#%&?,-]+[a-z0-9]+"
 #define EMAILREGEX "[a-z0-9.+_-]+@([0-9a-z-]+\\.)+[a-z]+"
 
 static xchat_plugin *ph;	// Plugin handle.
@@ -56,6 +56,7 @@ static void make_window ()
 	chan_col = gtk_tree_view_column_new_with_attributes ("Channel", chan_rend, "text", 1, NULL);
 
 	url_rend = gtk_cell_renderer_text_new ();
+	g_object_set (G_OBJECT(url_rend), "ellipsize", PANGO_ELLIPSIZE_END, NULL);
 	url_col = gtk_tree_view_column_new_with_attributes ("URL", url_rend, "text", 2, NULL);
 
 	gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), nick_col);
