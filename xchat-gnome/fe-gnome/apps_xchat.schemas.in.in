@@ -132,8 +132,8 @@
     </schema>
 
     <schema>
-      <key>/schemas/apps/xchat/keybindings/prev_network</key>
-      <applyto>/apps/xchat/keybindings/prev_network</applyto>
+      <key>/schemas/apps/xchat/keybindings/GoPreviousNetwork</key>
+      <applyto>/apps/xchat/keybindings/GoPreviousNetwork</applyto>
       <owner>xchat</owner>
       <type>string</type>
       <default>&lt;Alt&gt;Up</default>
@@ -143,8 +143,8 @@
     </schema>
 
     <schema>
-      <key>/schemas/apps/xchat/keybindings/next_network</key>
-      <applyto>/apps/xchat/keybindings/next_network</applyto>
+      <key>/schemas/apps/xchat/keybindings/GoNextNetwork</key>
+      <applyto>/apps/xchat/keybindings/GoNextNetwork</applyto>
       <owner>xchat</owner>
       <type>string</type>
       <default>&lt;Alt&gt;Down</default>
@@ -154,8 +154,8 @@
     </schema>
 
     <schema>
-      <key>/schemas/apps/xchat/keybindings/prev_discussion</key>
-      <applyto>/apps/xchat/keybindings/prev_discussion</applyto>
+      <key>/schemas/apps/xchat/keybindings/GoPreviousDiscussion</key>
+      <applyto>/apps/xchat/keybindings/GoPreviousDiscussion</applyto>
       <owner>xchat</owner>
       <type>string</type>
       <default>&lt;Control&gt;Up</default>
@@ -165,8 +165,8 @@
     </schema>
 
     <schema>
-      <key>/schemas/apps/xchat/keybindings/next_discussion</key>
-      <applyto>/apps/xchat/keybindings/next_discussion</applyto>
+      <key>/schemas/apps/xchat/keybindings/GoNextDiscussion</key>
+      <applyto>/apps/xchat/keybindings/GoNextDiscussion</applyto>
       <owner>xchat</owner>
       <type>string</type>
       <default>&lt;Control&gt;Down</default>
@@ -176,11 +176,11 @@
     </schema>
 
     <schema>
-      <key>/schemas/apps/xchat/keybindings/close_discussion</key>
-      <applyto>/apps/xchat/keybindings/close_discussion</applyto>
+      <key>/schemas/apps/xchat/keybindings/DiscussionClose</key>
+      <applyto>/apps/xchat/keybindings/DiscussionClose</applyto>
       <owner>xchat</owner>
       <type>string</type>
-      <default>&lt;Control&gt;%lt;Shift&gt;W</default>
+      <default>&lt;Control&gt;&lt;Shift&gt;W</default>
       <locale name="C">
         <short>Close current discussion</short>
       </locale>

@@ -172,6 +172,154 @@ static GtkToggleActionEntry toggle_action_entries [] = {
 	{ "IRCMonkeyBubbleMode", NULL, N_("Monkey Bubble Mode"), "<control>M", NULL, G_CALLBACK (on_irc_monkey_bubble_mode_activate) },
 };
 
+/*
+ * FIXME: for the love of god make this more efficient
+ */
+GtkActionEntry *
+find_action_entry (gchar *name)
+{
+	guint i;
+
+	for (i = 0; i < G_N_ELEMENTS (action_entries); i++)
+		if (strcmp (name, action_entries[i].name) == 0)
+			return &action_entries[i];
+
+	return NULL;
+}
+
+GtkAction *
+find_previous_action (gchar *name)
+{
+	GList *actions;
+	GtkAction *result;
+
+	actions = gtk_action_group_list_actions (gui.action_group);
+
+	while (actions != NULL)
+	{
+		if (strcmp(gtk_action_group_get_name(actions -> data), name) == 0)
+		{
+			result = actions -> data;
+			g_list_free (actions);
+			return result;
+		}
+		actions = actions -> next;
+	}
+
+	return NULL;
+}
+
+static void
+keybinding_key_changed (GConfClient *client, guint cnxn_id, GConfEntry *e, gpointer
+			user_data)
+{
+	GConfValue *value;
+	gchar *name;
+	GtkAction *action, *oldaction;
+	GtkActionEntry *entry;
+
+	value = gconf_entry_get_value (e);
+	name = g_strrstr (gconf_entry_get_key (e), "/");
+
+	if (name == NULL) /* this should never, ever be able to happen.. */
+	{
+		g_warning ("eek, gconf snafu");
+		return;
+	}
+	name = &name[1];
+
+	if (e == NULL) /* nothing's there any more, so let's leave it */
+	{
+		g_warning ("some impertinent character keryoinked the %s keybinding",
+			   name);
+		return;
+	}
+
+	entry = find_action_entry (name);
+	if (entry == NULL)
+	{
+		g_warning ("eek, menu snafu");
+		return;
+	}
+
+	g_message("name is %s",name);
+	oldaction = gtk_action_group_get_action (gui.action_group,
+						 gconf_entry_get_key (e));
+
+	action = gtk_action_new (entry -> name, entry -> label,
+				 entry -> tooltip, entry -> stock_id);
+
+	if (oldaction == NULL)
+	{
+		g_warning ("couldn't find the old action");
+		return;
+	}
+	gtk_action_group_remove_action (gui.action_group, oldaction);
+
+	gtk_action_group_add_action_with_accel (gui.action_group, action,
+						gconf_client_get_string (client, gconf_entry_get_key(e), NULL));
+
+	if (entry -> callback != NULL)
+		g_signal_connect (action, "activate", G_CALLBACK (entry->callback),
+				  gui.xml);
+
+	g_message ("somebody changed a keybinding!");
+}
+
+/* Crackful (but flexible) menu accelerator handling
+ *
+ * FIXME: This whole routine is probably a ginormous memory leak
+ */
+void
+setup_menu_item (GConfClient *client, GtkActionEntry *entry)
+{
+	GConfEntry *e;
+	GString *key_string;
+	GtkAction *action;
+
+	key_string = g_string_new ("/apps/xchat/keybindings/");
+	g_string_append (key_string, entry->name);
+
+	gconf_client_notify_add (client,
+		 		 key_string -> str,
+				 (GConfClientNotifyFunc) &keybinding_key_changed,
+				 entry, NULL, NULL);
+
+	e = gconf_client_get_entry (client, key_string -> str, NULL, TRUE, NULL);
+
+	if (e == NULL) /* no GConf data, so let's use the hardcoded values */
+	{
+		gtk_action_group_add_actions (gui.action_group, entry, 1, NULL);
+		return;
+	}
+
+	/* Let's still use most of the original hardcoded entry.. */
+	action = gtk_action_new (entry -> name, entry -> label, entry -> tooltip,
+				 entry -> stock_id);
+	g_message ("adding %s", entry -> name);
+
+	/* but.. not the accelerators.. */
+	gtk_action_group_add_action_with_accel (gui.action_group, action,
+						gconf_client_get_string (client, key_string->str, NULL));
+
+	if (entry -> callback != NULL)
+		g_signal_connect (action, "activate", G_CALLBACK (entry->callback),
+				  gui.xml);
+	g_string_free (key_string, TRUE);
+}
+
+void
+setup_menu ()
+{
+	GConfClient *client;
+	guint i;
+
+	client = gconf_client_get_default ();
+
+	for (i = 0; i < G_N_ELEMENTS (action_entries); i++)
+		setup_menu_item (client, &action_entries[i]);
+}
+
 void
 initialize_main_window ()
 {
@@ -179,12 +327,15 @@ initialize_main_window ()
 	GError *error = NULL;
 
 	gui.main_window = GNOME_APP (glade_xml_get_widget (gui.xml, "xchat-gnome"));
-	g_signal_connect (G_OBJECT (gui.main_window), "delete-event", G_CALLBACK (on_main_window_close), NULL);
+	g_signal_connect (G_OBJECT (gui.main_window), "delete-event",
+			  G_CALLBACK (on_main_window_close), NULL);
 	/* hook up the menus */
-
 	gui.action_group = gtk_action_group_new ("MenuAction");
-	gtk_action_group_add_actions (gui.action_group, action_entries, G_N_ELEMENTS (action_entries), NULL);
+//	gtk_action_group_add_actions (gui.action_group, action_entries,
+//				      G_N_ELEMENTS (action_entries), NULL);
+	setup_menu ();
 	gtk_action_group_add_toggle_actions (gui.action_group, toggle_action_entries, G_N_ELEMENTS (toggle_action_entries), NULL);
+//	initialize_gconf_accels();
 
 	gui.manager = gtk_ui_manager_new ();
 	gtk_ui_manager_insert_action_group (gui.manager, gui.action_group, 0);
