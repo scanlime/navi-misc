@@ -52,8 +52,6 @@ public:
   virtual const char* GetRootResDir ( void );
 	virtual const char* GetPrefsName ( void );
 
-	virtual const char* GetGameName ( void );
-
 protected:
 	// global flags
 	bool				inUI;
