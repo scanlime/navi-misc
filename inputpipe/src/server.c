@@ -25,6 +25,8 @@
 #include <assert.h>
 #include <malloc.h>
 #include <stdio.h>
+#include <string.h>
+#include <getopt.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/fcntl.h>
@@ -148,6 +150,10 @@ static struct client* client_new(int socket_fd)
     return NULL;
   }
 
+  /* Create a FILE* for our socket, to make buffered I/O easy */
+  self->tcp_file = fdopen(self->tcp_fd, "rw");
+  assert(self->tcp_file);
+
   /* Open the uinput device for this input client. Our clients
    * and our uinput devices both only support a single device.
    */
@@ -165,10 +171,6 @@ static struct client* client_new(int socket_fd)
   FD_SET(self->tcp_fd, &fd_request_read);
   if (self->tcp_fd >= fd_count)
     fd_count = self->tcp_fd + 1;
-
-  /* Create a FILE* for our socket, to make buffered I/O easy */
-  self->tcp_file = fdopen(self->tcp_fd, "rw");
-  assert(self->tcp_file);
 
   return self;
 }
@@ -588,9 +590,64 @@ static int main_loop(void) {
   return 0;
 }
 
+void usage(char *progname) {
+  printf("Usage: %s [options]\n"
+	 "\n"
+	 "Wait for inputpipe-client processes to connect. Each client process\n"
+	 "can create and control one input device on this system, via the Linux\n"
+	 "'uinput' device.\n"
+	 "\n"
+	 "  -h, --help                     This text\n"
+	 "  -d PATH, --uinput-device=PATH  Set the location of the uinput device node.\n"
+	 "                                 [%s]\n"
+	 "  -p PORT, --port=PORT           Set the port number to listen on [%d]\n"
+	 "  -q, --quiet                    Suppress normal log output\n",
+	 progname, config_uinput_path, config_tcp_port);
+}
 
-int main() {
-  /* FIXME: command line goes here */
+int main(int argc, char **argv) {
+  int c;
+
+  while (1) {
+    static struct option long_options[] = {
+      {"help",          0, 0, 'h'},
+      {"uinput-device", 1, 0, 'd'},
+      {"port",          1, 0, 'p'},
+      {"quiet",         0, 0, 'q'},
+      {0},
+    };
+
+    c = getopt_long(argc, argv, "d:p:q",
+		    long_options, NULL);
+    if (c == -1)
+      break;
+    switch (c) {
+
+    case 'd':
+      config_uinput_path = strdup(optarg);
+      break;
+
+    case 'p':
+      config_tcp_port = atoi(optarg);
+      break;
+
+    case 'q':
+      config_verbose = 0;
+      break;
+
+    case 'h':
+    default:
+      usage(argv[0]);
+      return 1;
+    }
+  }
+
+  if (optind < argc) {
+    /* Extra arguments */
+    usage(argv[0]);
+    return 1;
+  }
+
   return main_loop();
 }
 
