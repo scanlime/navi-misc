@@ -79,7 +79,7 @@ class Rcpod485(device.OpenedRcpod):
         # Set the baud rate and send our packet, receiving
         # up to the maximum number of bytes our scratchpad can hold
         self.serialInit(9600)
-        self.serialTxRxStart(packet, device.RCPOD_SCRATCHPAD_SIZE)
+        self.serialTxRxStart(packet, self.scratchpadSize)
         time.sleep(timeout)
         retPacket = self.serialRxFinish()
 
