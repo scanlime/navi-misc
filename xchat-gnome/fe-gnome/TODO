@@ -1,0 +1,20 @@
+* Fix schema install
+* Hook up apply button in network configuration
+* Change font preferences to be HIG-style:
+	- radio buttons:
+		o use system terminal font
+		o use this font: [bitstream...|9]
+* Change server username preferences to be HIG-style:
+	o use global user settings
+	o use these user settings:
+		nick ...
+		real ...
+* Channel close button should be tooltipped!
+* Several options in the 'Discussion' menu don't make sense for servers
+* Do we really need a collapse/expand menu item? If yes, we should use
+  the accelerator on the menu (is there an accelerator?)
+* Connect dialog should have a "connect in new ???" option. Maybe just do
+  that as the default and let users close other connections, since replacing
+  the current server is weird.
+* Desensitize non-implemented menu items.
+* Double-clicking a server in the networks page should open it's edit dialog
