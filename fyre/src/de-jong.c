@@ -38,6 +38,7 @@ static void update_boolean_if_necessary(gboolean new_value, gboolean *dirty_flag
 
 enum {
   PROP_0,
+  PROP_FUNCTION,
   PROP_A,
   PROP_B,
   PROP_C,
@@ -96,6 +97,13 @@ static void de_jong_class_init(DeJongClass *klass) {
 static void de_jong_init_calc_params(GObjectClass *object_class) {
   GParamSpec *spec;
   const gchar *current_group = "Computation";
+
+  spec = g_param_spec_string       ("function",
+                                    "Function",
+				    "Function Name",
+				    "Peter de Jong Map",
+				    G_PARAM_READABLE);
+  g_object_class_install_property  (object_class, PROP_FUNCTION, spec);
 
   spec = g_param_spec_double       ("a",
 				    "A",
