@@ -18,7 +18,7 @@
  */
  
 /**
- * This class is for setting up the proxy server and creating new connections.
+ * This class is for handling each connection made, and tunneling it.
  * @author Brandon Smith
  */
 
@@ -26,47 +26,13 @@ import java.net.*;
 import java.io.*;
 import java.util.*;
 
-public class smain
+public class connection extends Thread
 {
-	public static String host;
-	public static int port;
-	public static ServerSocket server;
+	public Socket external;
+	public Socket internal;
 	
-	public static void main(String[] args)
-	{
-		argparse(args);
-		System.out.println("proxy for " + host + " on port " + port);
-	}
-	
-	public static void listen()
+	public connection(Socket exter, Socket inter)
 	{
 		
-	}
-	
-	public static void startserver()
-	{
-		try
-		{
-			
-		}
-		catch(Exception e)
-		{
-			System.out.println("Java says\n" + e + "\nThat probably means something is wrong");
-			System.exit(1);
-		}
-	}
-	
-	public static void argparse(String[] args)
-	{
-		try
-		{
-			host = args[0];
-			port = Integer.parseInt(args[1]);
-		}
-		catch(Exception e)
-		{
-			System.out.println("Usage: java <host to proxy to> <port to proxy on>");
-			System.exit(1);
-		}
 	}
 }
