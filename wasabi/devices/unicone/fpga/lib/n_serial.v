@@ -78,14 +78,18 @@ endmodule
  * Our hardware currently uses a 20MHz clock, therefore this implementation
  * is effectively a 1/20 clock divider.
  */
-module n_serial_timebase (clk, reset, tick);
-	input clk, reset;
+module n_serial_timebase (clk, reset, tick, sync_reset);
+	input clk, reset, sync_reset;
 	output tick;
 	reg tick;
 	reg [5:0] counter;
 
 	always @(posedge clk or posedge reset)
 		if (reset) begin
+			tick <= 0;
+			counter <= 0;
+		end
+		else if (sync_reset) begin
 			tick <= 0;
 			counter <= 0;
 		end
@@ -131,7 +135,7 @@ module n_serial_tx (clk, reset,
 	
 	/* 1us serial timebase */
 	wire tick;
-	n_serial_timebase ticker(clk, reset, tick);
+	n_serial_timebase ticker(clk, reset, tick, 0);
 	
 	/* Buffer the incoming data stream, consisting
 	 * of both the tx_data and the stop bit flag.
