@@ -349,7 +349,10 @@ remove_clicked (GtkWidget *button, gpointer data)
 	gtk_dialog_add_button (GTK_DIALOG (dialog), GTK_STOCK_REMOVE, GTK_RESPONSE_OK);
 	r = gtk_dialog_run (GTK_DIALOG (dialog));
 	if (r == GTK_RESPONSE_OK) {
-		gtk_list_store_remove (GTK_LIST_STORE (model), &iter);
+		GtkTreeIter child;
+		GtkListStore *store = gtk_tree_model_sort_get_model (GTK_TREE_MODEL_SORT (model));
+		gtk_tree_model_sort_convert_iter_to_child_iter (GTK_TREE_MODEL_SORT (model), &child, &iter);
+		gtk_list_store_remove (GTK_LIST_STORE (store), &child);
 		servlist_net_remove (net);
 	}
 	gtk_widget_destroy (dialog);
