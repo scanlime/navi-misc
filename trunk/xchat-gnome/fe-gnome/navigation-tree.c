@@ -621,11 +621,11 @@ navigation_tree_set_channel_name (NavTree *navtree, struct session *sess)
 	gtk_tree_model_foreach (store, navigation_tree_set_channel_name_iterate, sess);
 }
 
-NavTree*
-get_navigation_tree ()
+void
+get_navigation_tree (NavTree **tree)
 {
 	error_dialog ("get nav tree", "returning server tree");
-	return gui.server_tree;
+	tree =  gui.server_tree;
 }
 
 /***** Context Menus *****/
@@ -980,24 +980,9 @@ navigation_model_add_new_channel (NavModel *model, struct session *sess)
 	gtk_tree_model_foreach (GTK_TREE_MODEL (model->store), (GtkTreeModelForeachFunc) navigation_model_create_new_channel_entry_iterate, (gpointer) sess);
 }
 
-/* FIXME ?
-navigation_model_remove_iterate (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, struct session *data)
-{
-	struct session *s;
-	gtk_tree_model_get (model, iter, 2, &s, -1);
-	if (s == data)
-	{
-		gtk_tree_store_remove (GTK_TREE_STORE (model), iter);
-		return TRUE;
-	}
-	return FALSE;
-}
-*/
-
 void
 navigation_model_remove (NavModel *model, struct session *sess)
 {
-	//gtk_tree_model_foreach(GTK_TREE_MODEL(model->store), (GtkTreeModelForeachFunc) navigation_model_remove_iterate, (gpointer) sess);
 	GtkTreeIter *iter = navigation_model_get_unsorted_iter (model, sess);
 	gtk_tree_store_remove (model->store, iter);
 
