@@ -32,6 +32,7 @@
 	global	display_init
 	global	display_request_flip
 	global	display_save_status
+	global	display_seq_write_byte
 
 	global	edge_buffer
 	global	wand_period
@@ -75,6 +76,8 @@ edge_counter	res	1	; A counter that increments every time our synchronization al
 flip_counter	res 1	; A counter that increments every time a page flip is completed
 
 num_active_columns	res	1	; Effective width of our display, always <= NUM_COLUMNS
+
+write_pointer	res	1	; The current position in writing to the backbuffer
 
 unbanked	udata_shr
 
@@ -141,6 +144,10 @@ display_init
 	movlw	NUM_COLUMNS
 	movwf	num_active_columns
 
+	banksel	write_pointer
+	movlw	back_buffer
+	movwf	write_pointer
+
 	return
 
 
@@ -164,6 +171,9 @@ display_poll
 	; Request a page flip at our next opportunity
 display_request_flip
 	bsf		FLAG_FLIP_REQUEST
+	banksel	write_pointer			; Reset the write_pointer
+	movlw	back_buffer
+	movwf	write_pointer
 	return
 
 
@@ -195,6 +205,19 @@ display_save_status
 	banksel	BUTTON_PORT			; 8
 	movf	BUTTON_PORT, w
 	movwf	INDF
+	return
+
+
+	; Sequentially write the byte given in 'w' to the backbuffer.
+display_seq_write_byte
+	movwf	temp
+	banksel	write_pointer
+	bankisel back_buffer
+	movf	write_pointer, w
+	movwf	FSR
+	movf	temp, w
+	movwf	INDF
+	incf	write_pointer, f
 	return
 
 

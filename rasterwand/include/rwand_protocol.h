@@ -63,7 +63,7 @@
 
 ;// Request a back->front page flip immediately preceeding the next display scan.
 ;// No more backbuffer writes should be performed until the flip has been
-;// confirmed to be completed.
+;// confirmed to be completed. This command also resets the write pointer to zero.
 #define RWAND_CTRL_FLIP				0x09
 
 ;// Set the period to wValue, leave phase alone
@@ -73,6 +73,12 @@
 ;// the maximum number of columns we have video memory for. The number
 ;// of columns should be in the low byte of wValue.
 #define RWAND_CTRL_SET_NUM_COLUMNS	0x0B
+
+;// Starting at the current write pointer (reset on page flip) write the given
+;// 12 bytes of data to the backbuffer, incrementing the write pointer as necessary.
+;// The first 4 bytes come sequentially fro, wValue and wIndex, the other 8 bytes
+;// are sent in a data packet.
+#define RWAND_CTRL_SEQ_WRITE12		0x0C
 
 
 ;//************************************************** Mode bits
