@@ -296,9 +296,10 @@ hilight_remove_clicked (GtkButton *button, GtkTreeView *view)
 {
 	GtkTreeSelection *selection;
 	GtkTreeIter iter;
+	GtkTreeModel *model = GTK_TREE_MODEL (hilight_store);
 
 	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (view));
-	if (gtk_tree_selection_get_selected (selection, (GtkTreeModel**) &hilight_store, &iter)) {
+	if (gtk_tree_selection_get_selected (selection, &model, &iter)) {
 		gtk_list_store_remove (hilight_store, &iter);
 		save_hilight ();
 	}
@@ -308,5 +309,7 @@ static void
 hilight_selection (GtkTreeSelection *selection, gpointer data)
 {
 	GtkWidget *remove = glade_xml_get_widget (gui.xml, "hilight remove");
-	gtk_widget_set_sensitive (remove, gtk_tree_selection_get_selected (selection, (GtkTreeModel**) &hilight_store, NULL));
+	GtkTreeModel *model = GTK_TREE_MODEL (hilight_store);
+
+	gtk_widget_set_sensitive (remove, gtk_tree_selection_get_selected (selection, &model, NULL));
 }

@@ -19,10 +19,10 @@
  *
  */
 
-#include "irc-network-editor.h"
 #include "util.h"
 #include <gtk/gtk.h>
 #include <string.h>
+#include "irc-network-editor.h"
 
 static GtkDialogClass *parent_class;
 
