@@ -40,7 +40,6 @@ public class aimup
 				Thread.sleep(300000);       //Wait for 5 minutes
 	    }
 	    catch (InterruptedException ie) {}
-			
 	    mybot.sendMessage("gonkulator2","Hello, I'm going poof now");
 		}
 	}

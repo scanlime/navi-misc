@@ -104,7 +104,7 @@ public class botmain implements JaimEventListener
 		{
 			sendMessage(message,"Hi " + message + " I'm a big bot now!");
 		}
-		else if(from.compareTo("lottabs2") == 0)
+		else if(from.compareTo("gonkulator3") == 0)
 		{
 			StringTokenizer foo = new StringTokenizer(message,";",false);
 			String too = foo.nextToken();
