@@ -50,11 +50,11 @@ F1
 ta(g13
 S'position'
 p20
-(I0
+(lp21
 I0
-I3
-tp21
-ta(S'self.lifespan'
+aI0
+aF0
+ata(S'self.lifespan'
 p22
 S'lifespan'
 p23
