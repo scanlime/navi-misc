@@ -112,6 +112,13 @@ class MD5Cache:
             self.calc(filename)
         return self.cache[filename][0]
 
+    def getLine(self, filename):
+        """Instead of just the bare md5sum, return a line
+           containing the sum and the absolute filename.
+           """
+        filename = os.path.abspath(filename)
+        return "%s\t%s" % (self.get(filename), filename)
+
 md5cache = MD5Cache()
 
 
@@ -290,8 +297,7 @@ class CatalogWriter:
     def _indexFile(self, f, path):
         """Get an md5 from the cache, and make an md5sum-style line with absolute paths"""
         path = os.path.abspath(path)
-        sum = md5cache.get(path)
-        line = "%s\t%s" % (sum, path)
+        line = md5cache.getLine(path)
         print line
         f.write(line + "\n")
 
@@ -473,28 +479,27 @@ def cmd_auto(paths, assumedOverhead = 0.01, safetyTimer = 3):
         backup(burnPaths, burner)
 
 
-def cmd_md5(paths, filesPerCommand=20):
+def cmd_md5(paths, filesPerCommand=8):
     pathGen = flattenPaths(paths)
     while 1:
         # At each iteration, look for files that need md5sums until we
         # run out of source files or we hit the filesPerCommand limit.
-        calcFiles = []
-        allFiles = []
+        files = []
         try:
-            while len(calcFiles) < filesPerCommand:
+            while len(files) < filesPerCommand:
                 file = pathGen.next()
-                allFiles.append(file)
-                if not md5cache.isCacheValid(file):
-                    calcFiles.append(file)
+                if md5cache.isCacheValid(file):
+                    print md5cache.getLine(file)
+                else:
+                    files.append(file)
         except StopIteration:
             pass
 
-        md5cache.calc(*calcFiles)
-        for file in allFiles:
-            print "%s\t%s" % (md5cache.get(file), file)
-
-        if not allFiles:
+        if not files:
             break
+        md5cache.calc(*files)
+        for file in files:
+            print md5cache.getLine(file)
 
 
 def usage():
