@@ -26,6 +26,7 @@ have some set of axes and buttons that can change state.
 
 import os
 import linux_input
+import event
 
 
 class Actuator(object):
@@ -189,6 +190,10 @@ class EvdevController(Controller):
 
     def handle_EV_SYN(self, ev):
         self.sync()
+
+
+class
+
 
 
 ### The End ###
