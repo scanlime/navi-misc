@@ -522,8 +522,6 @@ run_main_window ()
 	gtk_widget_set_sensitive (widget, FALSE);
 	widget = gtk_ui_manager_get_widget (gui.manager, "/ui/menubar/DiscussionMenu/DiscussionSaveItem");
 	gtk_widget_set_sensitive (widget, FALSE);
-	widget = gtk_ui_manager_get_widget (gui.manager, "/ui/menubar/DiscussionMenu/DiscussionSaveAsItem");
-	gtk_widget_set_sensitive (widget, FALSE);
 }
 
 void
@@ -662,6 +660,8 @@ on_discussion_leave_activate (GtkAction *action, gpointer data)
 
 		client = gconf_client_get_default ();
 		text = gconf_client_get_string (client, "/apps/xchat/irc/partmsg", NULL);
+		if (text = NULL)
+			text = g_strdup ("Ex-Chat");
 		s->server->p_part (s->server, s->channel, text);
 		g_object_unref (client);
 		g_free (text);
@@ -679,6 +679,8 @@ on_discussion_close_activate (GtkAction *action, gpointer data)
 
 		client = gconf_client_get_default ();
 		text = gconf_client_get_string (client, "/apps/xchat/irc/partmsg", NULL);
+		if (text = NULL)
+			text = g_strdup ("Ex-Chat");
 		s->server->p_part (s->server, s->channel, text);
 		g_object_unref (client);
 		g_free (text);
