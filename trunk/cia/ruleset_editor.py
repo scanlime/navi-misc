@@ -226,6 +226,7 @@ class RulesetEditor:
             server = server + ":6667"
 
         # Apply the ruleset in our local channel list and on the server
+        self.rulesets[channel, server] = minidom.parseString(ruleset).getElementsByTagName('ruleset')[0]
         self.loadChannelListModel()
         self.setCurrentChannel(channel, server)
         self.applyCurrentRuleset()
