@@ -1,0 +1,2526 @@
+gpasm-0.10.6 alpha              main.asm    2-26-2003  22:08:22          PAGE  1
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+               00001 ;--------------------------------------------------------
+               00002 ; File Created by SDCC : FreeWare ANSI-C Compiler
+               00003 ; Version 2.3.3 Wed Feb 26 22:08:22 2003
+               00004 
+               00005 ;--------------------------------------------------------
+               00006 ; PIC port for the 14-bit core
+               00007 ;--------------------------------------------------------
+               00008 ;       .module main
+               00009         list    p=16f877
+002007 3FFF    00010         __CONFIG 0x3fff
+               00011         radix dec
+               00012 include "p16f877.inc"
+               00001         LIST
+               00002 ; P16F877.INC  Standard Header File, Version 1.00    Microchip Technology, Inc.
+               00373         LIST
+               00013 ;--------------------------------------------------------
+               00014 ; publics variables in this module
+               00015 ;--------------------------------------------------------
+               00016 ;       .globl _halfSerialBitDelay
+               00017 ;       .globl _main
+               00018 ;       .globl _SerialTris
+               00019 ;       .globl _SerialPort
+               00020 ;       .globl _Light3
+               00021 ;       .globl _Light2
+               00022 ;       .globl _Light1
+               00023 ;       .globl _Light0
+               00024 ;       .globl _RD
+               00025 ;       .globl _WR
+               00026 ;       .globl _WREN
+               00027 ;       .globl _WRERR
+               00028 ;       .globl _EEPGD
+               00029 ;       .globl _PCFG0
+               00030 ;       .globl _PCFG1
+               00031 ;       .globl _PCFG2
+               00032 ;       .globl _PCFG3
+               00033 ;       .globl _ADFM
+               00034 ;       .globl _TXD8
+               00035 ;       .globl _TX9D
+               00036 ;       .globl _TRMT
+               00037 ;       .globl _BRGH
+               00038 ;       .globl _SYNC
+               00039 ;       .globl _TXEN
+               00040 ;       .globl _TX8_9
+               00041 ;       .globl _NOT_TX8
+               00042 ;       .globl _TX9
+               00043 ;       .globl _CSRC
+               00044 ;       .globl _BF
+               00045 ;       .globl _UA
+               00046 ;       .globl _READ_WRITE
+               00047 ;       .globl _R_W
+               00048 ;       .globl _NOT_WRITE
+               00049 ;       .globl _NOT_W
+               00050 ;       .globl _I2C_READ
+               00051 ;       .globl _R
+gpasm-0.10.6 alpha              main.asm    2-26-2003  22:08:22          PAGE  2
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+               00052 ;       .globl _I2C_START
+               00053 ;       .globl _S
+               00054 ;       .globl _I2C_STOP
+               00055 ;       .globl _P
+               00056 ;       .globl _DATA_ADDRESS
+               00057 ;       .globl _D_A
+               00058 ;       .globl _NOT_ADDRESS
+               00059 ;       .globl _NOT_A
+               00060 ;       .globl _I2C_DATA
+               00061 ;       .globl _D
+               00062 ;       .globl _CKE
+               00063 ;       .globl _SMP
+               00064 ;       .globl _SEN
+               00065 ;       .globl _RSEN
+               00066 ;       .globl _PEN
+               00067 ;       .globl _RCEN
+               00068 ;       .globl _ACKEN
+               00069 ;       .globl _ACKDT
+               00070 ;       .globl _ACKSTAT
+               00071 ;       .globl _GCEN
+               00072 ;       .globl _NOT_BOR
+               00073 ;       .globl _NOT_BO
+               00074 ;       .globl _NOT_POR
+               00075 ;       .globl _CCP2IE
+               00076 ;       .globl _BCLIE
+               00077 ;       .globl _EEIE
+               00078 ;       .globl _TMR1IE
+               00079 ;       .globl _TMR2IE
+               00080 ;       .globl _CCP1IE
+               00081 ;       .globl _SSPIE
+               00082 ;       .globl _TXIE
+               00083 ;       .globl _RCIE
+               00084 ;       .globl _ADIE
+               00085 ;       .globl _PSPIE
+               00086 ;       .globl _TRISE0
+               00087 ;       .globl _TRISE1
+               00088 ;       .globl _TRISE2
+               00089 ;       .globl _PSPMODE
+               00090 ;       .globl _IBOV
+               00091 ;       .globl _OBF
+               00092 ;       .globl _IBF
+               00093 ;       .globl _PS0
+               00094 ;       .globl _PS1
+               00095 ;       .globl _PS2
+               00096 ;       .globl _PSA
+               00097 ;       .globl _T0SE
+               00098 ;       .globl _T0CS
+               00099 ;       .globl _INTEDG
+               00100 ;       .globl _NOT_RBPU
+               00101 ;       .globl _ADON
+               00102 ;       .globl _GO_DONE
+               00103 ;       .globl _NOT_DONE
+               00104 ;       .globl _GO
+               00105 ;       .globl _CHS0
+gpasm-0.10.6 alpha              main.asm    2-26-2003  22:08:22          PAGE  3
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+               00106 ;       .globl _CHS1
+               00107 ;       .globl _CHS2
+               00108 ;       .globl _ADCS0
+               00109 ;       .globl _ADCS1
+               00110 ;       .globl _CCP2M0
+               00111 ;       .globl _CCP2M1
+               00112 ;       .globl _CCP2M2
+               00113 ;       .globl _CCP2M3
+               00114 ;       .globl _CCP2Y
+               00115 ;       .globl _CCP2X
+               00116 ;       .globl _RCD8
+               00117 ;       .globl _RX9D
+               00118 ;       .globl _OERR
+               00119 ;       .globl _FERR
+               00120 ;       .globl _ADDEN
+               00121 ;       .globl _CREN
+               00122 ;       .globl _SREN
+               00123 ;       .globl _RC8_9
+               00124 ;       .globl _NOT_RC8
+               00125 ;       .globl _RC9
+               00126 ;       .globl _RX9
+               00127 ;       .globl _SPEN
+               00128 ;       .globl _CCP1M0
+               00129 ;       .globl _CCP1M1
+               00130 ;       .globl _CCP1M2
+               00131 ;       .globl _CCP1M3
+               00132 ;       .globl _CCP1Y
+               00133 ;       .globl _CCP1X
+               00134 ;       .globl _SSPM0
+               00135 ;       .globl _SSPM1
+               00136 ;       .globl _SSPM2
+               00137 ;       .globl _SSPM3
+               00138 ;       .globl _CKP
+               00139 ;       .globl _SSPEN
+               00140 ;       .globl _SSPOV
+               00141 ;       .globl _WCOL
+               00142 ;       .globl _T2CKPS0
+               00143 ;       .globl _T2CKPS1
+               00144 ;       .globl _TMR2ON
+               00145 ;       .globl _TOUTPS0
+               00146 ;       .globl _TOUTPS1
+               00147 ;       .globl _TOUTPS2
+               00148 ;       .globl _TOUTPS3
+               00149 ;       .globl _TMR1ON
+               00150 ;       .globl _TMR1CS
+               00151 ;       .globl _T1SYNC
+               00152 ;       .globl _T1INSYNC
+               00153 ;       .globl _NOT_T1SYNC
+               00154 ;       .globl _T1OSCEN
+               00155 ;       .globl _T1CKPS0
+               00156 ;       .globl _T1CKPS1
+               00157 ;       .globl _CCP2IF
+               00158 ;       .globl _BCLIF
+               00159 ;       .globl _EEIF
+gpasm-0.10.6 alpha              main.asm    2-26-2003  22:08:22          PAGE  4
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+               00160 ;       .globl _TMR1IF
+               00161 ;       .globl _TMR2IF
+               00162 ;       .globl _CCP1IF
+               00163 ;       .globl _SSPIF
+               00164 ;       .globl _TXIF
+               00165 ;       .globl _RCIF
+               00166 ;       .globl _ADIF
+               00167 ;       .globl _PSPIF
+               00168 ;       .globl _RBIF
+               00169 ;       .globl _INTF
+               00170 ;       .globl _T0IF
+               00171 ;       .globl _RBIE
+               00172 ;       .globl _INTE
+               00173 ;       .globl _T0IE
+               00174 ;       .globl _PEIE
+               00175 ;       .globl _GIE
+               00176 ;       .globl _C
+               00177 ;       .globl _DC
+               00178 ;       .globl _Z
+               00179 ;       .globl _NOT_PD
+               00180 ;       .globl _NOT_TO
+               00181 ;       .globl _RP0
+               00182 ;       .globl _RP1
+               00183 ;       .globl _IRP
+               00184 ;       .globl _numIntegrationSamples
+               00185 ;       .globl _numResonationHalfcycles
+               00186 ;       .globl _reading7
+               00187 ;       .globl _reading6
+               00188 ;       .globl _reading5
+               00189 ;       .globl _reading4
+               00190 ;       .globl _reading3
+               00191 ;       .globl _reading2
+               00192 ;       .globl _reading1
+               00193 ;       .globl _reading0
+               00194 ;       .globl _PCL
+               00195 ;       .globl _INDF
+               00196 ;       .globl _initialize
+               00197 ;       .globl _sampleAll
+               00198 ;       .globl _integrateSample
+               00199 ;       .globl _sensorSample
+               00200 ;       .globl _serialBitDelay
+               00201 ;       .globl _putc
+               00202 ;       .globl _getc
+               00203 ;       .globl _sendPacket
+               00204 ;--------------------------------------------------------
+               00205 ; special function registers
+               00206 ;--------------------------------------------------------
+  00000001     00207 _TMR0   EQU     0x0001
+  00000003     00208 _STATUS EQU     0x0003
+  00000004     00209 _FSR    EQU     0x0004
+  00000005     00210 _PORTA  EQU     0x0005
+  00000006     00211 _PORTB  EQU     0x0006
+  00000007     00212 _PORTC  EQU     0x0007
+  00000008     00213 _PORTD  EQU     0x0008
+gpasm-0.10.6 alpha              main.asm    2-26-2003  22:08:22          PAGE  5
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+  00000009     00214 _PORTE  EQU     0x0009
+  0000000A     00215 _PCLATH EQU     0x000a
+  0000000B     00216 _INTCON EQU     0x000b
+  0000000C     00217 _PIR1   EQU     0x000c
+  0000000D     00218 _PIR2   EQU     0x000d
+  0000000E     00219 _TMR1L  EQU     0x000e
+  0000000F     00220 _TMR1H  EQU     0x000f
+  00000010     00221 _T1CON  EQU     0x0010
+  00000011     00222 _TMR2   EQU     0x0011
+  00000012     00223 _T2CON  EQU     0x0012
+  00000013     00224 _SSPBUF EQU     0x0013
+  00000014     00225 _SSPCON EQU     0x0014
+  00000015     00226 _CCPR1L EQU     0x0015
+  00000016     00227 _CCPR1H EQU     0x0016
+  00000017     00228 _CCP1CON        EQU     0x0017
+  00000018     00229 _RCSTA  EQU     0x0018
+  00000019     00230 _TXREG  EQU     0x0019
+  0000001A     00231 _RCREG  EQU     0x001a
+  0000001B     00232 _CCPR2L EQU     0x001b
+  0000001C     00233 _CCPR2H EQU     0x001c
+  0000001D     00234 _CCP2CON        EQU     0x001d
+  0000001E     00235 _ADRESH EQU     0x001e
+  0000001F     00236 _ADCON0 EQU     0x001f
+  00000081     00237 _OPTION_REG     EQU     0x0081
+  00000085     00238 _TRISA  EQU     0x0085
+  00000086     00239 _TRISB  EQU     0x0086
+  00000087     00240 _TRISC  EQU     0x0087
+  00000088     00241 _TRISD  EQU     0x0088
+  00000089     00242 _TRISE  EQU     0x0089
+  0000008C     00243 _PIE1   EQU     0x008c
+  0000008D     00244 _PIE2   EQU     0x008d
+  0000008E     00245 _PCON   EQU     0x008e
+  00000091     00246 _SSPCON2        EQU     0x0091
+  00000092     00247 _PR2    EQU     0x0092
+  00000093     00248 _SSPADD EQU     0x0093
+  00000094     00249 _SSPSTAT        EQU     0x0094
+  00000098     00250 _TXSTA  EQU     0x0098
+  00000099     00251 _SPBRG  EQU     0x0099
+  0000009E     00252 _ADRESL EQU     0x009e
+  0000009F     00253 _ADCON1 EQU     0x009f
+  0000010C     00254 _EEDATA EQU     0x010c
+  0000010D     00255 _EEADR  EQU     0x010d
+  0000010E     00256 _EEDATH EQU     0x010e
+  0000010F     00257 _EEADRH EQU     0x010f
+  0000018C     00258 _EECON1 EQU     0x018c
+  0000018D     00259 _EECON2 EQU     0x018d
+               00260   cblock  0X0005        ; Bank 0
+               00261         _PORTA
+               00262         fbitfield06
+               00263         _PORTC
+               00264         _PORTD
+               00265         fbitfield09
+               00266   endc
+               00267   cblock  0X000B        ; Bank 0
+gpasm-0.10.6 alpha              main.asm    2-26-2003  22:08:22          PAGE  6
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+               00268         fbitfield0b
+               00269   endc
+               00270   cblock  0X001E        ; Bank 0
+               00271         _ADRESH
+               00272         fbitfield1f
+               00273         r0x53
+               00274         r0x54
+               00275         r0x55
+               00276         r0x56
+               00277         r0x57
+               00278         r0x58
+               00279         r0x5B
+               00280         r0x5C
+               00281         r0x5E
+               00282         r0x60
+               00283         r0x62
+               00284         r0x64
+               00285         r0x65
+               00286         r0x67
+               00287         r0x69
+               00288         r0x6A
+               00289         r0x6C
+               00290         r0x6E
+               00291         r0x6F
+               00292         r0x70
+               00293         r0x71
+               00294         r0x72
+               00295         r0x73
+               00296         r0x74
+               00297         r0x75
+               00298         r0x76
+               00299         r0x77
+               00300         r0x78
+               00301         r0x79
+               00302         r0x7A
+               00303         r0x7B
+               00304         r0x7C
+               00305         r0x7D
+               00306         r0x7E
+               00307         r0x7F
+               00308         r0x80
+               00309         r0x81
+               00310         r0x82
+               00311         r0x83
+               00312         s0xFFF
+               00313         s0x1000
+               00314         _reading0
+               00315         _reading0_1
+               00316         _reading1
+               00317         _reading1_1
+               00318         _reading2
+               00319         _reading2_1
+               00320         _reading3
+               00321         _reading3_1
+gpasm-0.10.6 alpha              main.asm    2-26-2003  22:08:22          PAGE  7
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+               00322         _reading4
+               00323         _reading4_1
+               00324         _reading5
+               00325         _reading5_1
+               00326         _reading6
+               00327         _reading6_1
+               00328         _reading7
+               00329         _reading7_1
+               00330         _numIntegrationSamples
+               00331         _numResonationHalfcycles
+               00332         bitfield0
+               00333   endc
+               00334   cblock  0X0085        ; Bank 1
+               00335         _TRISA
+               00336         _TRISB
+               00337         _TRISC
+               00338         _TRISD
+               00339         fbitfield89
+               00340   endc
+               00341   cblock  0X009E        ; Bank 1
+               00342         _ADRESL
+               00343         _ADCON1
+               00344   endc
+  00000030     00345 _Light0 EQU     ( (fbitfield06<<3)+0)
+  0000005F     00346 _GIE    EQU     ( (fbitfield0b<<3)+7)
+  000002D8     00347 _sensorSample_phase0_1_1        EQU     ( (bitfield0<<3)+0)
+  000002D9     00348 _sensorSample_phase1_1_1        EQU     ( (bitfield0<<3)+1)
+  000002DA     00349 _sensorSample_phase2_1_1        EQU     ( (bitfield0<<3)+2)
+  000002DB     00350 _sensorSample_phase3_1_1        EQU     ( (bitfield0<<3)+3)
+  000000FA     00351 _GO_DONE        EQU     ( (fbitfield1f<<3)+2)
+  0000004A     00352 _SerialPort     EQU     ( (fbitfield09<<3)+2)
+  0000044A     00353 _SerialTris     EQU     ( (fbitfield89<<3)+2)
+  00000033     00354 _Light3 EQU     ( (fbitfield06<<3)+3)
+  00000032     00355 _Light2 EQU     ( (fbitfield06<<3)+2)
+  00000020     00356 r0x53   EQU     0x020
+  00000021     00357 r0x54   EQU     0x021
+  00000022     00358 r0x55   EQU     0x022
+  00000023     00359 r0x56   EQU     0x023
+  00000024     00360 r0x57   EQU     0x024
+  00000025     00361 r0x58   EQU     0x025
+  00000026     00362 r0x5B   EQU     0x026
+  00000027     00363 r0x5C   EQU     0x027
+  00000028     00364 r0x5E   EQU     0x028
+  00000029     00365 r0x60   EQU     0x029
+  0000002A     00366 r0x62   EQU     0x02a
+  0000002B     00367 r0x64   EQU     0x02b
+  0000002C     00368 r0x65   EQU     0x02c
+  0000002D     00369 r0x67   EQU     0x02d
+  0000002E     00370 r0x69   EQU     0x02e
+  0000002F     00371 r0x6A   EQU     0x02f
+  00000030     00372 r0x6C   EQU     0x030
+  00000031     00373 r0x6E   EQU     0x031
+  00000032     00374 r0x6F   EQU     0x032
+  00000033     00375 r0x70   EQU     0x033
+gpasm-0.10.6 alpha              main.asm    2-26-2003  22:08:22          PAGE  8
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+  00000034     00376 r0x71   EQU     0x034
+  00000035     00377 r0x72   EQU     0x035
+  00000036     00378 r0x73   EQU     0x036
+  00000037     00379 r0x74   EQU     0x037
+  00000038     00380 r0x75   EQU     0x038
+  00000039     00381 r0x76   EQU     0x039
+  0000003A     00382 r0x77   EQU     0x03a
+  0000003B     00383 r0x78   EQU     0x03b
+  0000003C     00384 r0x79   EQU     0x03c
+  0000003D     00385 r0x7A   EQU     0x03d
+  0000003E     00386 r0x7B   EQU     0x03e
+  0000003F     00387 r0x7C   EQU     0x03f
+  00000040     00388 r0x7D   EQU     0x040
+  00000041     00389 r0x7E   EQU     0x041
+  00000042     00390 r0x7F   EQU     0x042
+  00000043     00391 r0x80   EQU     0x043
+  00000044     00392 r0x81   EQU     0x044
+  00000045     00393 r0x82   EQU     0x045
+  00000046     00394 r0x83   EQU     0x046
+  00000085     00395 _TRISA  EQU     0x085
+  00000086     00396 _TRISB  EQU     0x086
+  00000087     00397 _TRISC  EQU     0x087
+  00000088     00398 _TRISD  EQU     0x088
+  00000089     00399 _TRISE  EQU     0x089
+  00000005     00400 _PORTA  EQU     0x005
+  00000006     00401 _PORTB  EQU     0x006
+  00000007     00402 _PORTC  EQU     0x007
+  00000008     00403 _PORTD  EQU     0x008
+  00000009     00404 _PORTE  EQU     0x009
+  0000009F     00405 _ADCON1 EQU     0x09f
+  0000001F     00406 _ADCON0 EQU     0x01f
+  00000049     00407 _reading0       EQU     0x049
+  0000004B     00408 _reading1       EQU     0x04b
+  0000004D     00409 _reading2       EQU     0x04d
+  0000004F     00410 _reading3       EQU     0x04f
+  00000051     00411 _reading4       EQU     0x051
+  00000053     00412 _reading5       EQU     0x053
+  00000055     00413 _reading6       EQU     0x055
+  00000057     00414 _reading7       EQU     0x057
+  00000059     00415 _numIntegrationSamples  EQU     0x059
+  00000006     00416 _PORTB  EQU     0x006
+  00000086     00417 _TRISB  EQU     0x086
+  0000001F     00418 _ADCON0 EQU     0x01f
+  00000086     00419 _TRISB  EQU     0x086
+  0000001F     00420 _ADCON0 EQU     0x01f
+  0000005A     00421 _numResonationHalfcycles        EQU     0x05a
+  00000006     00422 _PORTB  EQU     0x006
+  00000086     00423 _TRISB  EQU     0x086
+  0000001E     00424 _ADRESH EQU     0x01e
+  0000009E     00425 _ADRESL EQU     0x09e
+  00000006     00426 fbitfield06     EQU     0x006
+  0000000B     00427 fbitfield0b     EQU     0x00b
+  0000005B     00428 bitfield0       EQU     0x05b
+  0000001F     00429 fbitfield1f     EQU     0x01f
+gpasm-0.10.6 alpha              main.asm    2-26-2003  22:08:22          PAGE  9
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+  00000009     00430 fbitfield09     EQU     0x009
+  00000089     00431 fbitfield89     EQU     0x089
+  00000006     00432 fbitfield06     EQU     0x006
+  00000006     00433 fbitfield06     EQU     0x006
+  00000047     00434 s0xFFF  EQU     0x047
+  00000048     00435 s0x1000 EQU     0x048
+  00000003     00436 _STATUS EQU     0x003
+  00000002     00437 PCL     EQU     0x002
+  0000000A     00438 _PCLATH EQU     0x00a
+  00000004     00439 FSR     EQU     0x004
+  00000000     00440 INDF    EQU     0x000
+  0000000B     00441 INTCON  EQU     0x00b
+               00442 ;--------------------------------------------------------
+               00443 ; overlayable items in internal ram 
+               00444 ;--------------------------------------------------------
+               00445 ;       .area   OSEG    (OVR,DATA)
+               00446 ;--------------------------------------------------------
+               00447 ; Stack segment in internal ram 
+               00448 ;--------------------------------------------------------
+               00449 ;       .area   SSEG    (DATA)
+               00450 ;__start__stack:
+               00451 ;       .ds     1
+               00452 
+               00453 ;--------------------------------------------------------
+               00454 ; indirectly addressable internal ram data
+               00455 ;--------------------------------------------------------
+               00456 ;       .area   ISEG    (DATA)
+               00457 ;--------------------------------------------------------
+               00458 ; external ram data
+               00459 ;--------------------------------------------------------
+               00460 ;       .area   XSEG    (XDATA)
+               00461 ;--------------------------------------------------------
+               00462 ; bit data
+               00463 ;--------------------------------------------------------
+               00464 ;       .area   BSEG    (BIT)
+  0000001F     00465 _IRP    EQU     0x001f
+  0000001E     00466 _RP1    EQU     0x001e
+  0000001D     00467 _RP0    EQU     0x001d
+  0000001C     00468 _NOT_TO EQU     0x001c
+  0000001B     00469 _NOT_PD EQU     0x001b
+  0000001A     00470 _Z      EQU     0x001a
+  00000019     00471 _DC     EQU     0x0019
+  00000018     00472 _C      EQU     0x0018
+  0000005F     00473 _GIE    EQU     0x005f
+  0000005E     00474 _PEIE   EQU     0x005e
+  0000005D     00475 _T0IE   EQU     0x005d
+  0000005C     00476 _INTE   EQU     0x005c
+  0000005B     00477 _RBIE   EQU     0x005b
+  0000005A     00478 _T0IF   EQU     0x005a
+  00000059     00479 _INTF   EQU     0x0059
+  00000058     00480 _RBIF   EQU     0x0058
+  00000067     00481 _PSPIF  EQU     0x0067
+  00000066     00482 _ADIF   EQU     0x0066
+  00000065     00483 _RCIF   EQU     0x0065
+gpasm-0.10.6 alpha              main.asm    2-26-2003  22:08:22          PAGE 10
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+  00000064     00484 _TXIF   EQU     0x0064
+  00000063     00485 _SSPIF  EQU     0x0063
+  00000062     00486 _CCP1IF EQU     0x0062
+  00000061     00487 _TMR2IF EQU     0x0061
+  00000060     00488 _TMR1IF EQU     0x0060
+  0000006C     00489 _EEIF   EQU     0x006c
+  0000006B     00490 _BCLIF  EQU     0x006b
+  00000068     00491 _CCP2IF EQU     0x0068
+  00000085     00492 _T1CKPS1        EQU     0x0085
+  00000084     00493 _T1CKPS0        EQU     0x0084
+  00000083     00494 _T1OSCEN        EQU     0x0083
+  00000082     00495 _NOT_T1SYNC     EQU     0x0082
+  00000082     00496 _T1INSYNC       EQU     0x0082
+  00000082     00497 _T1SYNC EQU     0x0082
+  00000081     00498 _TMR1CS EQU     0x0081
+  00000080     00499 _TMR1ON EQU     0x0080
+  00000096     00500 _TOUTPS3        EQU     0x0096
+  00000095     00501 _TOUTPS2        EQU     0x0095
+  00000094     00502 _TOUTPS1        EQU     0x0094
+  00000093     00503 _TOUTPS0        EQU     0x0093
+  00000092     00504 _TMR2ON EQU     0x0092
+  00000091     00505 _T2CKPS1        EQU     0x0091
+  00000090     00506 _T2CKPS0        EQU     0x0090
+  000000A7     00507 _WCOL   EQU     0x00a7
+  000000A6     00508 _SSPOV  EQU     0x00a6
+  000000A5     00509 _SSPEN  EQU     0x00a5
+  000000A4     00510 _CKP    EQU     0x00a4
+  000000A3     00511 _SSPM3  EQU     0x00a3
+  000000A2     00512 _SSPM2  EQU     0x00a2
+  000000A1     00513 _SSPM1  EQU     0x00a1
+  000000A0     00514 _SSPM0  EQU     0x00a0
+  000000BD     00515 _CCP1X  EQU     0x00bd
+  000000BC     00516 _CCP1Y  EQU     0x00bc
+  000000BB     00517 _CCP1M3 EQU     0x00bb
+  000000BA     00518 _CCP1M2 EQU     0x00ba
+  000000B9     00519 _CCP1M1 EQU     0x00b9
+  000000B8     00520 _CCP1M0 EQU     0x00b8
+  000000C7     00521 _SPEN   EQU     0x00c7
+  000000C6     00522 _RX9    EQU     0x00c6
+  000000C6     00523 _RC9    EQU     0x00c6
+  000000C6     00524 _NOT_RC8        EQU     0x00c6
+  000000C6     00525 _RC8_9  EQU     0x00c6
+  000000C5     00526 _SREN   EQU     0x00c5
+  000000C4     00527 _CREN   EQU     0x00c4
+  000000C3     00528 _ADDEN  EQU     0x00c3
+  000000C2     00529 _FERR   EQU     0x00c2
+  000000C1     00530 _OERR   EQU     0x00c1
+  000000C0     00531 _RX9D   EQU     0x00c0
+  000000C0     00532 _RCD8   EQU     0x00c0
+  000000ED     00533 _CCP2X  EQU     0x00ed
+  000000EC     00534 _CCP2Y  EQU     0x00ec
+  000000EB     00535 _CCP2M3 EQU     0x00eb
+  000000EA     00536 _CCP2M2 EQU     0x00ea
+  000000E9     00537 _CCP2M1 EQU     0x00e9
+gpasm-0.10.6 alpha              main.asm    2-26-2003  22:08:22          PAGE 11
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+  000000E8     00538 _CCP2M0 EQU     0x00e8
+  000000FF     00539 _ADCS1  EQU     0x00ff
+  000000FE     00540 _ADCS0  EQU     0x00fe
+  000000FD     00541 _CHS2   EQU     0x00fd
+  000000FC     00542 _CHS1   EQU     0x00fc
+  000000FB     00543 _CHS0   EQU     0x00fb
+  000000FA     00544 _GO     EQU     0x00fa
+  000000FA     00545 _NOT_DONE       EQU     0x00fa
+  000000FA     00546 _GO_DONE        EQU     0x00fa
+  000000F8     00547 _ADON   EQU     0x00f8
+  0000040F     00548 _NOT_RBPU       EQU     0x040f
+  0000040E     00549 _INTEDG EQU     0x040e
+  0000040D     00550 _T0CS   EQU     0x040d
+  0000040C     00551 _T0SE   EQU     0x040c
+  0000040B     00552 _PSA    EQU     0x040b
+  0000040A     00553 _PS2    EQU     0x040a
+  00000409     00554 _PS1    EQU     0x0409
+  00000408     00555 _PS0    EQU     0x0408
+  0000044F     00556 _IBF    EQU     0x044f
+  0000044E     00557 _OBF    EQU     0x044e
+  0000044D     00558 _IBOV   EQU     0x044d
+  0000044C     00559 _PSPMODE        EQU     0x044c
+  0000044A     00560 _TRISE2 EQU     0x044a
+  00000449     00561 _TRISE1 EQU     0x0449
+  00000448     00562 _TRISE0 EQU     0x0448
+  00000467     00563 _PSPIE  EQU     0x0467
+  00000466     00564 _ADIE   EQU     0x0466
+  00000465     00565 _RCIE   EQU     0x0465
+  00000464     00566 _TXIE   EQU     0x0464
+  00000463     00567 _SSPIE  EQU     0x0463
+  00000462     00568 _CCP1IE EQU     0x0462
+  00000461     00569 _TMR2IE EQU     0x0461
+  00000460     00570 _TMR1IE EQU     0x0460
+  0000046C     00571 _EEIE   EQU     0x046c
+  0000046B     00572 _BCLIE  EQU     0x046b
+  00000468     00573 _CCP2IE EQU     0x0468
+  00000471     00574 _NOT_POR        EQU     0x0471
+  00000470     00575 _NOT_BO EQU     0x0470
+  00000470     00576 _NOT_BOR        EQU     0x0470
+  0000048F     00577 _GCEN   EQU     0x048f
+  0000048E     00578 _ACKSTAT        EQU     0x048e
+  0000048D     00579 _ACKDT  EQU     0x048d
+  0000048C     00580 _ACKEN  EQU     0x048c
+  0000048B     00581 _RCEN   EQU     0x048b
+  0000048A     00582 _PEN    EQU     0x048a
+  00000489     00583 _RSEN   EQU     0x0489
+  00000488     00584 _SEN    EQU     0x0488
+  000004A7     00585 _SMP    EQU     0x04a7
+  000004A6     00586 _CKE    EQU     0x04a6
+  000004A5     00587 _D      EQU     0x04a5
+  000004A5     00588 _I2C_DATA       EQU     0x04a5
+  000004A5     00589 _NOT_A  EQU     0x04a5
+  000004A5     00590 _NOT_ADDRESS    EQU     0x04a5
+  000004A5     00591 _D_A    EQU     0x04a5
+gpasm-0.10.6 alpha              main.asm    2-26-2003  22:08:22          PAGE 12
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+  000004A5     00592 _DATA_ADDRESS   EQU     0x04a5
+  000004A4     00593 _P      EQU     0x04a4
+  000004A4     00594 _I2C_STOP       EQU     0x04a4
+  000004A3     00595 _S      EQU     0x04a3
+  000004A3     00596 _I2C_START      EQU     0x04a3
+  000004A2     00597 _R      EQU     0x04a2
+  000004A2     00598 _I2C_READ       EQU     0x04a2
+  000004A2     00599 _NOT_W  EQU     0x04a2
+  000004A2     00600 _NOT_WRITE      EQU     0x04a2
+  000004A2     00601 _R_W    EQU     0x04a2
+  000004A2     00602 _READ_WRITE     EQU     0x04a2
+  000004A1     00603 _UA     EQU     0x04a1
+  000004A0     00604 _BF     EQU     0x04a0
+  000004C7     00605 _CSRC   EQU     0x04c7
+  000004C6     00606 _TX9    EQU     0x04c6
+  000004C6     00607 _NOT_TX8        EQU     0x04c6
+  000004C6     00608 _TX8_9  EQU     0x04c6
+  000004C5     00609 _TXEN   EQU     0x04c5
+  000004C4     00610 _SYNC   EQU     0x04c4
+  000004C2     00611 _BRGH   EQU     0x04c2
+  000004C1     00612 _TRMT   EQU     0x04c1
+  000004C0     00613 _TX9D   EQU     0x04c0
+  000004C0     00614 _TXD8   EQU     0x04c0
+  000004FF     00615 _ADFM   EQU     0x04ff
+  000004FB     00616 _PCFG3  EQU     0x04fb
+  000004FA     00617 _PCFG2  EQU     0x04fa
+  000004F9     00618 _PCFG1  EQU     0x04f9
+  000004F8     00619 _PCFG0  EQU     0x04f8
+  00000C67     00620 _EEPGD  EQU     0x0c67
+  00000C63     00621 _WRERR  EQU     0x0c63
+  00000C62     00622 _WREN   EQU     0x0c62
+  00000C61     00623 _WR     EQU     0x0c61
+  00000C60     00624 _RD     EQU     0x0c60
+  00000030     00625 _Light0 EQU     0x0030
+  00000031     00626 _Light1 EQU     0x0031
+  00000032     00627 _Light2 EQU     0x0032
+  00000033     00628 _Light3 EQU     0x0033
+  0000004A     00629 _SerialPort     EQU     0x004a
+  0000044A     00630 _SerialTris     EQU     0x044a
+0000           00631         ORG 0
+               00632 ;--------------------------------------------------------
+               00633 ; interrupt vector 
+               00634 ;--------------------------------------------------------
+               00635 ;       .area   CSEG    (CODE)
+               00636 ;__interrupt_vect:
+               00637 ;       ljmp    __sdcc_gsinit_startup
+               00638 ;       ljmp    _txInterrupt
+               00639 ;       .ds     5
+               00640 ;       reti
+               00641 ;       .ds     7
+               00642 ;       reti
+               00643 ;       .ds     7
+               00644 ;       reti
+               00645 ;       .ds     7
+gpasm-0.10.6 alpha              main.asm    2-26-2003  22:08:22          PAGE 13
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+               00646 ;       reti
+               00647 ;       .ds     7
+               00648 ;       reti
+               00649 ;       .ds     7
+               00650 ;--------------------------------------------------------
+               00651 ; global & static initialisations
+               00652 ;--------------------------------------------------------
+               00653 ;       .area GSINIT  (CODE)
+               00654 ;       .area GSFINAL (CODE)
+               00655 ;       .area GSINIT  (CODE)
+0000           00656 __sdcc_gsinit_startup:
+               00657 ;       .area GSFINAL (CODE)
+               00658 ;       ljmp    __sdcc_program_startup
+               00659 ;--------------------------------------------------------
+               00660 ; code
+               00661 ;--------------------------------------------------------
+               00662 ;       .area CSEG    (CODE)
+               00663 ;***
+               00664 ;  pBlock Stats: dbName = D
+               00665 ;***
+               00666 ;; Starting pCode block
+               00667 ;#CSRC  main.c 384
+               00668 ;  
+0000 3003      00669         MOVLW   0x03
+0001 00DA      00670         MOVWF   _numResonationHalfcycles
+               00671 ;; Starting pCode block
+               00672 ;#CSRC  main.c 384
+               00673 ;  /* The End */
+               00674 
+0002 3008      00675         MOVLW   0x08
+0003 00D9      00676         MOVWF   _numIntegrationSamples
+               00677 ;***
+               00678 ;  pBlock Stats: dbName = M
+               00679 ;***
+               00680 ;entry:  _main  ;Function start
+               00681 ; 2 exit points
+               00682 ;has an exit
+               00683 ;functions called:
+               00684 ;   _initialize
+               00685 ;   _sampleAll
+               00686 ;   _sendPacket
+               00687 ;   _initialize
+               00688 ;   _sampleAll
+               00689 ;   _sendPacket
+               00690 ;; Starting pCode block
+0004           00691 _main   ;Function start
+               00692 ; 2 exit points
+               00693 ;#CSRC  main.c 97
+               00694 ;  initialize();
+0004 21CA      00695         CALL    _initialize
+               00696 ;#CSRC  main.c 99
+               00697 ;  Light0 = 1;
+0005 1406      00698         BSF     (_Light0 >> 3), (_Light0 & 7)
+0006           00699 _00106_DS_
+gpasm-0.10.6 alpha              main.asm    2-26-2003  22:08:22          PAGE 14
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+               00700 ;#CSRC  main.c 119
+               00701 ;  sampleAll();
+0006 2191      00702         CALL    _sampleAll
+               00703 ;#CSRC  main.c 120
+               00704 ;  sendPacket();
+0007 200A      00705         CALL    _sendPacket
+0008 2806      00706         GOTO    _00106_DS_
+0009 0008      00707         RETURN  
+               00708 ; exit point of _main
+               00709 ;***
+               00710 ;  pBlock Stats: dbName = C
+               00711 ;***
+               00712 ;entry:  _sendPacket    ;Function start
+               00713 ; 2 exit points
+               00714 ;has an exit
+               00715 ;functions called:
+               00716 ;   _putc
+               00717 ;   _putc
+               00718 ;   _putc
+               00719 ;   _putc
+               00720 ;   _putc
+               00721 ;   _putc
+               00722 ;   _putc
+               00723 ;   _putc
+               00724 ;   _putc
+               00725 ;   _putc
+               00726 ;   _putc
+               00727 ;   _putc
+               00728 ;   _putc
+               00729 ;   _putc
+               00730 ;   _putc
+               00731 ;   _putc
+               00732 ;   _putc
+               00733 ;   _putc
+               00734 ;   _putc
+               00735 ;   _putc
+               00736 ;   _putc
+               00737 ;   _putc
+               00738 ;   _putc
+               00739 ;   _putc
+               00740 ;   _putc
+               00741 ;   _putc
+               00742 ;   _putc
+               00743 ;   _putc
+               00744 ;   _putc
+               00745 ;   _putc
+               00746 ;   _putc
+               00747 ;   _putc
+               00748 ;   _putc
+               00749 ;   _putc
+               00750 ;   _putc
+               00751 ;   _putc
+               00752 ;18 compiler assigned registers:
+               00753 ;   r0x72
+gpasm-0.10.6 alpha              main.asm    2-26-2003  22:08:22          PAGE 15
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+               00754 ;   r0x73
+               00755 ;   r0x74
+               00756 ;   r0x75
+               00757 ;   r0x76
+               00758 ;   r0x77
+               00759 ;   r0x78
+               00760 ;   r0x79
+               00761 ;   r0x7A
+               00762 ;   r0x7B
+               00763 ;   r0x7C
+               00764 ;   r0x7D
+               00765 ;   r0x7E
+               00766 ;   r0x7F
+               00767 ;   r0x80
+               00768 ;   r0x81
+               00769 ;   r0x82
+               00770 ;   r0x83
+               00771 ;; Starting pCode block
+000A           00772 _sendPacket     ;Function start
+               00773 ; 2 exit points
+               00774 ;#CSRC  main.c 331
+               00775 ;  putc(0x80);
+000A 3080      00776         MOVLW   0x80
+000B 2091      00777         CALL    _putc
+               00778 ;#CSRC  main.c 333
+               00779 ;  h = reading0 >> 8;
+000C 084A      00780         MOVF    (_reading0 + 1),W
+000D 00B5      00781         MOVWF   r0x72
+000E 01B6      00782         CLRF    r0x73
+000F 1BC9      00783         BTFSC   _reading0,7
+0010 03B6      00784         DECF    r0x73,F
+               00785 ;;     peep 11 - Removed redundant move
+0011 0835      00786         MOVF    r0x72,W
+               00787 ;#CSRC  main.c 334
+               00788 ;  l = reading0;
+0012 0849      00789         MOVF    _reading0,W
+0013 00B7      00790         MOVWF   r0x74
+               00791 ;#CSRC  main.c 335
+               00792 ;  putc(h);
+0014 0835      00793         MOVF    r0x72,W
+0015 2091      00794         CALL    _putc
+               00795 ;#CSRC  main.c 336
+               00796 ;  putc(l);
+0016 0837      00797         MOVF    r0x74,W
+0017 2091      00798         CALL    _putc
+               00799 ;#CSRC  main.c 337
+               00800 ;  checksum += h + l;
+0018 0837      00801         MOVF    r0x74,W
+0019 0735      00802         ADDWF   r0x72,W
+001A 00B8      00803         MOVWF   r0x75
+               00804 ;#CSRC  main.c 339
+               00805 ;  h = reading1 >> 8;
+001B 084C      00806         MOVF    (_reading1 + 1),W
+001C 00B9      00807         MOVWF   r0x76
+gpasm-0.10.6 alpha              main.asm    2-26-2003  22:08:22          PAGE 16
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+001D 01BA      00808         CLRF    r0x77
+001E 1BCB      00809         BTFSC   _reading1,7
+001F 03BA      00810         DECF    r0x77,F
+0020 0839      00811         MOVF    r0x76,W
+0021 00B5      00812         MOVWF   r0x72
+               00813 ;#CSRC  main.c 340
+               00814 ;  l = reading1;
+0022 084B      00815         MOVF    _reading1,W
+0023 00B7      00816         MOVWF   r0x74
+               00817 ;#CSRC  main.c 341
+               00818 ;  putc(h);
+0024 0835      00819         MOVF    r0x72,W
+0025 2091      00820         CALL    _putc
+               00821 ;#CSRC  main.c 342
+               00822 ;  putc(l);
+0026 0837      00823         MOVF    r0x74,W
+0027 2091      00824         CALL    _putc
+               00825 ;#CSRC  main.c 343
+               00826 ;  checksum += h + l;
+0028 0837      00827         MOVF    r0x74,W
+0029 0735      00828         ADDWF   r0x72,W
+002A 07B8      00829         ADDWF   r0x75,F
+               00830 ;#CSRC  main.c 345
+               00831 ;  h = reading2 >> 8;
+002B 084E      00832         MOVF    (_reading2 + 1),W
+002C 00BB      00833         MOVWF   r0x78
+002D 01BC      00834         CLRF    r0x79
+002E 1BCD      00835         BTFSC   _reading2,7
+002F 03BC      00836         DECF    r0x79,F
+0030 083B      00837         MOVF    r0x78,W
+0031 00B5      00838         MOVWF   r0x72
+               00839 ;#CSRC  main.c 346
+               00840 ;  l = reading2;
+0032 084D      00841         MOVF    _reading2,W
+0033 00B7      00842         MOVWF   r0x74
+               00843 ;#CSRC  main.c 347
+               00844 ;  putc(h);
+0034 0835      00845         MOVF    r0x72,W
+0035 2091      00846         CALL    _putc
+               00847 ;#CSRC  main.c 348
+               00848 ;  putc(l);
+0036 0837      00849         MOVF    r0x74,W
+0037 2091      00850         CALL    _putc
+               00851 ;#CSRC  main.c 349
+               00852 ;  checksum += h + l;
+0038 0837      00853         MOVF    r0x74,W
+0039 0735      00854         ADDWF   r0x72,W
+003A 07B8      00855         ADDWF   r0x75,F
+               00856 ;#CSRC  main.c 351
+               00857 ;  h = reading3 >> 8;
+003B 0850      00858         MOVF    (_reading3 + 1),W
+003C 00BD      00859         MOVWF   r0x7A
+003D 01BE      00860         CLRF    r0x7B
+003E 1BCF      00861         BTFSC   _reading3,7
+gpasm-0.10.6 alpha              main.asm    2-26-2003  22:08:22          PAGE 17
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+003F 03BE      00862         DECF    r0x7B,F
+0040 083D      00863         MOVF    r0x7A,W
+0041 00B5      00864         MOVWF   r0x72
+               00865 ;#CSRC  main.c 352
+               00866 ;  l = reading3;
+0042 084F      00867         MOVF    _reading3,W
+0043 00B7      00868         MOVWF   r0x74
+               00869 ;#CSRC  main.c 353
+               00870 ;  putc(h);
+0044 0835      00871         MOVF    r0x72,W
+0045 2091      00872         CALL    _putc
+               00873 ;#CSRC  main.c 354
+               00874 ;  putc(l);
+0046 0837      00875         MOVF    r0x74,W
+0047 2091      00876         CALL    _putc
+               00877 ;#CSRC  main.c 355
+               00878 ;  checksum += h + l;
+0048 0837      00879         MOVF    r0x74,W
+0049 0735      00880         ADDWF   r0x72,W
+004A 07B8      00881         ADDWF   r0x75,F
+               00882 ;#CSRC  main.c 357
+               00883 ;  h = reading4 >> 8;
+004B 0852      00884         MOVF    (_reading4 + 1),W
+004C 00BF      00885         MOVWF   r0x7C
+004D 01C0      00886         CLRF    r0x7D
+004E 1BD1      00887         BTFSC   _reading4,7
+004F 03C0      00888         DECF    r0x7D,F
+               00889 ;#CSRC  main.c 358
+               00890 ;  l = reading4;
+0050 0851      00891         MOVF    _reading4,W
+0051 00B7      00892         MOVWF   r0x74
+               00893 ;#CSRC  main.c 359
+               00894 ;  putc(h);
+0052 083F      00895         MOVF    r0x7C,W
+0053 00B5      00896         MOVWF   r0x72
+0054 2091      00897         CALL    _putc
+               00898 ;#CSRC  main.c 360
+               00899 ;  putc(l);
+0055 0837      00900         MOVF    r0x74,W
+0056 2091      00901         CALL    _putc
+               00902 ;#CSRC  main.c 361
+               00903 ;  checksum += h + l;
+0057 0837      00904         MOVF    r0x74,W
+0058 0735      00905         ADDWF   r0x72,W
+0059 07B8      00906         ADDWF   r0x75,F
+               00907 ;#CSRC  main.c 363
+               00908 ;  h = reading5 >> 8;
+005A 0854      00909         MOVF    (_reading5 + 1),W
+005B 00C1      00910         MOVWF   r0x7E
+005C 01C2      00911         CLRF    r0x7F
+005D 1BD3      00912         BTFSC   _reading5,7
+005E 03C2      00913         DECF    r0x7F,F
+               00914 ;#CSRC  main.c 364
+               00915 ;  l = reading5;
+gpasm-0.10.6 alpha              main.asm    2-26-2003  22:08:22          PAGE 18
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+005F 0853      00916         MOVF    _reading5,W
+0060 00B7      00917         MOVWF   r0x74
+               00918 ;#CSRC  main.c 365
+               00919 ;  putc(h);
+0061 0841      00920         MOVF    r0x7E,W
+0062 00B5      00921         MOVWF   r0x72
+0063 2091      00922         CALL    _putc
+               00923 ;#CSRC  main.c 366
+               00924 ;  putc(l);
+0064 0837      00925         MOVF    r0x74,W
+0065 2091      00926         CALL    _putc
+               00927 ;#CSRC  main.c 367
+               00928 ;  checksum += h + l;
+0066 0837      00929         MOVF    r0x74,W
+0067 0735      00930         ADDWF   r0x72,W
+0068 07B8      00931         ADDWF   r0x75,F
+               00932 ;#CSRC  main.c 369
+               00933 ;  h = reading6 >> 8;
+0069 0856      00934         MOVF    (_reading6 + 1),W
+006A 00C3      00935         MOVWF   r0x80
+006B 01C4      00936         CLRF    r0x81
+006C 1BD5      00937         BTFSC   _reading6,7
+006D 03C4      00938         DECF    r0x81,F
+               00939 ;#CSRC  main.c 370
+               00940 ;  l = reading6;
+006E 0855      00941         MOVF    _reading6,W
+006F 00B7      00942         MOVWF   r0x74
+               00943 ;#CSRC  main.c 371
+               00944 ;  putc(h);
+0070 0843      00945         MOVF    r0x80,W
+0071 00B5      00946         MOVWF   r0x72
+0072 2091      00947         CALL    _putc
+               00948 ;#CSRC  main.c 372
+               00949 ;  putc(l);
+0073 0837      00950         MOVF    r0x74,W
+0074 2091      00951         CALL    _putc
+               00952 ;#CSRC  main.c 373
+               00953 ;  checksum += h + l;
+0075 0837      00954         MOVF    r0x74,W
+0076 0735      00955         ADDWF   r0x72,W
+0077 07B8      00956         ADDWF   r0x75,F
+               00957 ;#CSRC  main.c 375
+               00958 ;  h = reading7 >> 8;
+0078 0858      00959         MOVF    (_reading7 + 1),W
+0079 00C5      00960         MOVWF   r0x82
+007A 01C6      00961         CLRF    r0x83
+007B 1BD7      00962         BTFSC   _reading7,7
+007C 03C6      00963         DECF    r0x83,F
+               00964 ;#CSRC  main.c 376
+               00965 ;  l = reading7;
+007D 0857      00966         MOVF    _reading7,W
+007E 00B7      00967         MOVWF   r0x74
+               00968 ;#CSRC  main.c 377
+               00969 ;  putc(h);
+gpasm-0.10.6 alpha              main.asm    2-26-2003  22:08:22          PAGE 19
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+007F 0845      00970         MOVF    r0x82,W
+0080 00B5      00971         MOVWF   r0x72
+0081 2091      00972         CALL    _putc
+               00973 ;#CSRC  main.c 378
+               00974 ;  putc(l);
+0082 0837      00975         MOVF    r0x74,W
+0083 2091      00976         CALL    _putc
+               00977 ;#CSRC  main.c 379
+               00978 ;  checksum += h + l;
+0084 0837      00979         MOVF    r0x74,W
+0085 0735      00980         ADDWF   r0x72,W
+0086 07B8      00981         ADDWF   r0x75,F
+               00982 ;#CSRC  main.c 382
+               00983 ;  putc(checksum);
+0087 0838      00984         MOVF    r0x75,W
+0088 2091      00985         CALL    _putc
+0089 0008      00986         RETURN  
+               00987 ; exit point of _sendPacket
+               00988 ;***
+               00989 ;  pBlock Stats: dbName = C
+               00990 ;***
+               00991 ;entry:  _getc  ;Function start
+               00992 ; 2 exit points
+               00993 ;has an exit
+               00994 ;; Starting pCode block
+008A           00995 _getc   ;Function start
+               00996 ; 2 exit points
+               00997 ;#CSRC  main.c 294
+               00998 ;  SerialPort = 1;
+008A 1509      00999         BSF     (_SerialPort >> 3), (_SerialPort & 7)
+008B 1683      01000         BSF     _STATUS,5
+               01001 ;#CSRC  main.c 295
+               01002 ;  SerialTris = 1;
+Message [302] : Register in operand not in bank 0. Ensure bank bits are correct.
+008C 1509      01003         BSF     (_SerialTris >> 3), (_SerialTris & 7)
+               01004 ;#CSRC  main.c 296
+               01005 ;  NOP;
+008D 0000      01006         NOP     
+008E           01007 _00176_DS_
+               01008 ;#CSRC  main.c 300
+               01009 ;  while (SerialPort);
+008E 288E      01010         GOTO    _00176_DS_
+008F 1283      01011         BCF     _STATUS,5
+               01012 ;#CSRC  main.c 322
+               01013 ;  return byte;
+0090 0008      01014         RETURN  
+               01015 ; exit point of _getc
+               01016 ;***
+               01017 ;  pBlock Stats: dbName = C
+               01018 ;***
+               01019 ;entry:  _putc  ;Function start
+               01020 ; 2 exit points
+               01021 ;has an exit
+               01022 ;functions called:
+gpasm-0.10.6 alpha              main.asm    2-26-2003  22:08:22          PAGE 20
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+               01023 ;   _serialBitDelay
+               01024 ;   _serialBitDelay
+               01025 ;   _serialBitDelay
+               01026 ;   _serialBitDelay
+               01027 ;   _serialBitDelay
+               01028 ;   _serialBitDelay
+               01029 ;2 compiler assigned registers:
+               01030 ;   r0x70
+               01031 ;   r0x71
+               01032 ;; Starting pCode block
+0091           01033 _putc   ;Function start
+               01034 ; 2 exit points
+               01035 ;#CSRC  main.c 265
+               01036 ;  void putc(unsigned char byte) {
+0091 00B3      01037         MOVWF   r0x70
+               01038 ;#CSRC  main.c 269
+               01039 ;  SerialPort = 0;
+0092 1109      01040         BCF     (_SerialPort >> 3), (_SerialPort & 7)
+0093 1683      01041         BSF     _STATUS,5
+               01042 ;#CSRC  main.c 270
+               01043 ;  SerialTris = 0;
+Message [302] : Register in operand not in bank 0. Ensure bank bits are correct.
+0094 1109      01044         BCF     (_SerialTris >> 3), (_SerialTris & 7)
+0095 1283      01045         BCF     _STATUS,5
+               01046 ;#CSRC  main.c 271
+               01047 ;  serialBitDelay();
+0096 20AF      01048         CALL    _serialBitDelay
+               01049 ;#CSRC  main.c 275
+               01050 ;  do {
+0097 3008      01051         MOVLW   0x08
+0098 00B4      01052         MOVWF   r0x71
+0099           01053 _00171_DS_
+               01054 ;#CSRC  main.c 276
+               01055 ;  if (byte & 1)
+0099 1C33      01056         BTFSS   r0x70,0
+009A 289D      01057         GOTO    _00169_DS_
+               01058 ;#CSRC  main.c 277
+               01059 ;  SerialPort = 1;
+009B 1509      01060         BSF     (_SerialPort >> 3), (_SerialPort & 7)
+009C 289E      01061         GOTO    _00170_DS_
+009D           01062 _00169_DS_
+               01063 ;#CSRC  main.c 279
+               01064 ;  SerialPort = 0;
+009D 1109      01065         BCF     (_SerialPort >> 3), (_SerialPort & 7)
+009E           01066 _00170_DS_
+               01067 ;#CSRC  main.c 280
+               01068 ;  byte >>= 1;
+009E 1003      01069         BCF     _STATUS,0
+009F 0CB3      01070         RRF     r0x70,F
+               01071 ;#CSRC  main.c 281
+               01072 ;  serialBitDelay();
+00A0 20AF      01073         CALL    _serialBitDelay
+               01074 ;#CSRC  main.c 282
+               01075 ;  } while (--bitnum);
+gpasm-0.10.6 alpha              main.asm    2-26-2003  22:08:22          PAGE 21
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+00A1 0BB4      01076         DECFSZ  r0x71,F
+00A2 2899      01077         GOTO    _00171_DS_
+               01078 ;#CSRC  main.c 285
+               01079 ;  SerialPort = 1;
+00A3 1509      01080         BSF     (_SerialPort >> 3), (_SerialPort & 7)
+               01081 ;#CSRC  main.c 286
+               01082 ;  serialBitDelay();
+00A4 20AF      01083         CALL    _serialBitDelay
+00A5 1683      01084         BSF     _STATUS,5
+               01085 ;#CSRC  main.c 287
+               01086 ;  SerialTris = 1;
+Message [302] : Register in operand not in bank 0. Ensure bank bits are correct.
+00A6 1509      01087         BSF     (_SerialTris >> 3), (_SerialTris & 7)
+00A7 1283      01088         BCF     _STATUS,5
+00A8 0008      01089         RETURN  
+               01090 ; exit point of _putc
+               01091 ;***
+               01092 ;  pBlock Stats: dbName = C
+               01093 ;***
+               01094 ;entry:  _halfSerialBitDelay    ;Function start
+               01095 ; 2 exit points
+               01096 ;has an exit
+               01097 ;1 compiler assigned register :
+               01098 ;   r0x6F
+               01099 ;; Starting pCode block
+00A9           01100 _halfSerialBitDelay     ;Function start
+               01101 ; 2 exit points
+               01102 ;#CSRC  main.c 260
+               01103 ;  do {
+00A9 3020      01104         MOVLW   0x20
+00AA 00B2      01105         MOVWF   r0x6F
+00AB           01106 _00163_DS_
+               01107 ;#CSRC  main.c 261
+               01108 ;  NOP;
+00AB 0000      01109         NOP     
+               01110 ;#CSRC  main.c 262
+               01111 ;  } while (--i);
+00AC 0BB2      01112         DECFSZ  r0x6F,F
+00AD 28AB      01113         GOTO    _00163_DS_
+00AE 0008      01114         RETURN  
+               01115 ; exit point of _halfSerialBitDelay
+               01116 ;***
+               01117 ;  pBlock Stats: dbName = C
+               01118 ;***
+               01119 ;entry:  _serialBitDelay        ;Function start
+               01120 ; 2 exit points
+               01121 ;has an exit
+               01122 ;1 compiler assigned register :
+               01123 ;   r0x6E
+               01124 ;; Starting pCode block
+00AF           01125 _serialBitDelay ;Function start
+               01126 ; 2 exit points
+               01127 ;#CSRC  main.c 253
+               01128 ;  do {
+gpasm-0.10.6 alpha              main.asm    2-26-2003  22:08:22          PAGE 22
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+00AF 3040      01129         MOVLW   0x40
+00B0 00B1      01130         MOVWF   r0x6E
+00B1           01131 _00158_DS_
+               01132 ;#CSRC  main.c 254
+               01133 ;  NOP;
+00B1 0000      01134         NOP     
+               01135 ;#CSRC  main.c 255
+               01136 ;  } while (--i);
+00B2 0BB1      01137         DECFSZ  r0x6E,F
+00B3 28B1      01138         GOTO    _00158_DS_
+00B4 0008      01139         RETURN  
+               01140 ; exit point of _serialBitDelay
+               01141 ;***
+               01142 ;  pBlock Stats: dbName = C
+               01143 ;***
+               01144 ;entry:  _sensorSample  ;Function start
+               01145 ; 2 exit points
+               01146 ;has an exit
+               01147 ;11 compiler assigned registers:
+               01148 ;   r0x65
+               01149 ;   s0xFFF
+               01150 ;   r0x66
+               01151 ;   s0x1000
+               01152 ;   r0x67
+               01153 ;   r0x68
+               01154 ;   r0x69
+               01155 ;   r0x6A
+               01156 ;   r0x6B
+               01157 ;   r0x6C
+               01158 ;   r0x6D
+               01159 ;; Starting pCode block
+00B5           01160 _sensorSample   ;Function start
+               01161 ; 2 exit points
+               01162 ;#CSRC  main.c 182
+               01163 ;  int sensorSample(unsigned char transmitter, unsigned char receiver, unsigned char phase) {
+00B5 00AC      01164         MOVWF   r0x65
+00B6 0847      01165         MOVF    s0xFFF,W
+00B7 009F      01166         MOVWF   _ADCON0
+               01167 ;#CSRC  main.c 188
+               01168 ;  PORTB &= 0x0F;            /* Disable all transmitters */  
+00B8 300F      01169         MOVLW   0x0f
+00B9 0586      01170         ANDWF   _PORTB,F
+00BA 1683      01171         BSF     _STATUS,5
+               01172 ;#CSRC  main.c 189
+               01173 ;  TRISB = 0x00;             /* I -think- we want the other plates to be ground planes now,
+Message [302] : Register in operand not in bank 0. Ensure bank bits are correct.
+00BB 0186      01174         CLRF    _TRISB
+00BC 1283      01175         BCF     _STATUS,5
+               01176 ;#CSRC  main.c 195
+               01177 ;  if (phase == 0) phase0 = 1; else phase0 = 0;
+00BD 0848      01178         MOVF    s0x1000,W
+00BE 00AD      01179         MOVWF   r0x67
+00BF 1D03      01180         BTFSS   _STATUS,2
+00C0 28C3      01181         GOTO    _00131_DS_
+gpasm-0.10.6 alpha              main.asm    2-26-2003  22:08:22          PAGE 23
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+00C1 145B      01182         BSF     (_sensorSample_phase0_1_1 >> 3), (_sensorSample_phase0_1_1 & 7)
+00C2 28C4      01183         GOTO    _00132_DS_
+00C3           01184 _00131_DS_
+00C3 105B      01185         BCF     (_sensorSample_phase0_1_1 >> 3), (_sensorSample_phase0_1_1 & 7)
+00C4           01186 _00132_DS_
+               01187 ;#CSRC  main.c 196
+               01188 ;  if (phase == 1) phase1 = 1; else phase1 = 0;
+00C4 0B2D      01189         DECFSZ  r0x67,W
+00C5 28C8      01190         GOTO    _00134_DS_
+00C6 14DB      01191         BSF     (_sensorSample_phase1_1_1 >> 3), (_sensorSample_phase1_1_1 & 7)
+00C7 28C9      01192         GOTO    _00135_DS_
+00C8           01193 _00134_DS_
+00C8 10DB      01194         BCF     (_sensorSample_phase1_1_1 >> 3), (_sensorSample_phase1_1_1 & 7)
+00C9           01195 _00135_DS_
+               01196 ;#CSRC  main.c 197
+               01197 ;  if (phase == 2) phase2 = 1; else phase2 = 0;
+00C9 082D      01198         MOVF    r0x67,W
+00CA 3A02      01199         XORLW   0x02
+00CB 1D03      01200         BTFSS   _STATUS,2
+00CC 28CF      01201         GOTO    _00137_DS_
+00CD 155B      01202         BSF     (_sensorSample_phase2_1_1 >> 3), (_sensorSample_phase2_1_1 & 7)
+00CE 28D0      01203         GOTO    _00138_DS_
+00CF           01204 _00137_DS_
+00CF 115B      01205         BCF     (_sensorSample_phase2_1_1 >> 3), (_sensorSample_phase2_1_1 & 7)
+00D0           01206 _00138_DS_
+               01207 ;#CSRC  main.c 198
+               01208 ;  if (phase == 3) phase3 = 1; else phase3 = 0;
+00D0 082D      01209         MOVF    r0x67,W
+00D1 3A03      01210         XORLW   0x03
+00D2 1D03      01211         BTFSS   _STATUS,2
+00D3 28D6      01212         GOTO    _00140_DS_
+00D4 15DB      01213         BSF     (_sensorSample_phase3_1_1 >> 3), (_sensorSample_phase3_1_1 & 7)
+00D5 28D7      01214         GOTO    _00141_DS_
+00D6           01215 _00140_DS_
+00D6 11DB      01216         BCF     (_sensorSample_phase3_1_1 >> 3), (_sensorSample_phase3_1_1 & 7)
+00D7           01217 _00141_DS_
+               01218 ;#CSRC  main.c 204
+               01219 ;  halfcycles = numResonationHalfcycles;
+00D7 085A      01220         MOVF    _numResonationHalfcycles,W
+               01221 ;;     peep 2 - Removed redundant move
+00D8 00AE      01222         MOVWF   r0x69
+00D9           01223 _00142_DS_
+               01224 ;#CSRC  main.c 206
+               01225 ;  PORTB ^= transmitter;
+00D9 082C      01226         MOVF    r0x65,W
+00DA 0686      01227         XORWF   _PORTB,F
+               01228 ;#CSRC  main.c 207
+               01229 ;  NOP NOP NOP;
+00DB 0000      01230         NOP     
+00DC 0000      01231         NOP     
+00DD 0000      01232         NOP     
+               01233 ;#CSRC  main.c 208
+               01234 ;  NOP NOP NOP NOP NOP;
+00DE 0000      01235         NOP     
+gpasm-0.10.6 alpha              main.asm    2-26-2003  22:08:22          PAGE 24
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+00DF 0000      01236         NOP     
+00E0 0000      01237         NOP     
+00E1 0000      01238         NOP     
+00E2 0000      01239         NOP     
+               01240 ;#CSRC  main.c 209
+               01241 ;  NOP NOP NOP NOP NOP;
+00E3 0000      01242         NOP     
+00E4 0000      01243         NOP     
+00E5 0000      01244         NOP     
+00E6 0000      01245         NOP     
+00E7 0000      01246         NOP     
+               01247 ;#CSRC  main.c 210
+               01248 ;  NOP NOP NOP NOP NOP;
+00E8 0000      01249         NOP     
+00E9 0000      01250         NOP     
+00EA 0000      01251         NOP     
+00EB 0000      01252         NOP     
+00EC 0000      01253         NOP     
+               01254 ;#CSRC  main.c 211
+               01255 ;  NOP NOP;
+00ED 0000      01256         NOP     
+00EE 0000      01257         NOP     
+               01258 ;#CSRC  main.c 212
+               01259 ;  } while (--halfcycles);
+00EF 0BAE      01260         DECFSZ  r0x69,F
+               01261 ;;     peep 1 - test/jump to test/skip
+00F0 28D9      01262         GOTO    _00142_DS_
+00F1 185B      01263         BTFSC   (_sensorSample_phase0_1_1 >> 3), (_sensorSample_phase0_1_1 & 7)
+00F2 151F      01264         BSF     (_GO_DONE >> 3), (_GO_DONE & 7)
+00F3 0000      01265         NOP     
+00F4 0000      01266         NOP     
+00F5 0000      01267         NOP     
+00F6 0000      01268         NOP     
+00F7 0000      01269         NOP     
+               01270 ;#CSRC  main.c 218
+               01271 ;  NOP NOP NOP NOP NOP;
+00F8 0000      01272         NOP     
+00F9 0000      01273         NOP     
+00FA 0000      01274         NOP     
+00FB 0000      01275         NOP     
+               01276 ;;     peep 1 - test/jump to test/skip
+00FC 0000      01277         NOP     
+00FD 18DB      01278         BTFSC   (_sensorSample_phase1_1_1 >> 3), (_sensorSample_phase1_1_1 & 7)
+00FE 151F      01279         BSF     (_GO_DONE >> 3), (_GO_DONE & 7)
+00FF 0000      01280         NOP     
+0100 0000      01281         NOP     
+0101 0000      01282         NOP     
+0102 0000      01283         NOP     
+0103 0000      01284         NOP     
+               01285 ;#CSRC  main.c 222
+               01286 ;  NOP NOP NOP NOP NOP NOP;
+0104 0000      01287         NOP     
+0105 0000      01288         NOP     
+0106 0000      01289         NOP     
+gpasm-0.10.6 alpha              main.asm    2-26-2003  22:08:22          PAGE 25
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+0107 0000      01290         NOP     
+0108 0000      01291         NOP     
+               01292 ;;     peep 1 - test/jump to test/skip
+0109 0000      01293         NOP     
+010A 195B      01294         BTFSC   (_sensorSample_phase2_1_1 >> 3), (_sensorSample_phase2_1_1 & 7)
+010B 151F      01295         BSF     (_GO_DONE >> 3), (_GO_DONE & 7)
+010C 0000      01296         NOP     
+010D 0000      01297         NOP     
+010E 0000      01298         NOP     
+010F 0000      01299         NOP     
+0110 0000      01300         NOP     
+               01301 ;#CSRC  main.c 226
+               01302 ;  NOP NOP NOP NOP NOP;
+0111 0000      01303         NOP     
+0112 0000      01304         NOP     
+0113 0000      01305         NOP     
+0114 0000      01306         NOP     
+               01307 ;;     peep 1 - test/jump to test/skip
+0115 0000      01308         NOP     
+0116 19DB      01309         BTFSC   (_sensorSample_phase3_1_1 >> 3), (_sensorSample_phase3_1_1 & 7)
+0117 151F      01310         BSF     (_GO_DONE >> 3), (_GO_DONE & 7)
+0118           01311 _00153_DS_
+0118 191F      01312         BTFSC   (_NOT_DONE >> 3), (_NOT_DONE & 7)
+0119 2918      01313         GOTO    _00153_DS_
+               01314 ;#CSRC  main.c 234
+               01315 ;  TRISB = 0xF0;
+011A 30F0      01316         MOVLW   0xf0
+011B 1683      01317         BSF     _STATUS,5
+Message [302] : Register in operand not in bank 0. Ensure bank bits are correct.
+011C 0086      01318         MOVWF   _TRISB
+               01319 ;;     peep 11 - Removed redundant move
+011D 1283      01320         BCF     _STATUS,5
+               01321 ;#CSRC  main.c 237
+               01322 ;  l = ADRESL;
+011E 01B0      01323         CLRF    r0x6C
+011F 081E      01324         MOVF    _ADRESH,W
+0120 00AF      01325         MOVWF   r0x6A
+0121 00B0      01326         MOVWF   r0x6C
+0122 01AF      01327         CLRF    r0x6A
+               01328 ;;     peep 11 - Removed redundant move
+               01329 ;;     peep 4 - Removed redundant move
+0123 1683      01330         BSF     _STATUS,5
+Message [302] : Register in operand not in bank 0. Ensure bank bits are correct.
+0124 081E      01331         MOVF    _ADRESL,W
+0125 1283      01332         BCF     _STATUS,5
+0126 04AF      01333         IORWF   r0x6A,F
+0127 3000      01334         MOVLW   0x00
+0128 04B0      01335         IORWF   r0x6C,F
+0129 082F      01336         MOVF    r0x6A,W
+012A 00C7      01337         MOVWF   s0xFFF
+012B 0830      01338         MOVF    r0x6C,W
+012C 0008      01339         RETURN  
+               01340 ; exit point of _sensorSample
+               01341 ;***
+gpasm-0.10.6 alpha              main.asm    2-26-2003  22:08:22          PAGE 26
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+               01342 ;  pBlock Stats: dbName = C
+               01343 ;***
+               01344 ;entry:  _integrateSample       ;Function start
+               01345 ; 2 exit points
+               01346 ;has an exit
+               01347 ;functions called:
+               01348 ;   _sensorSample
+               01349 ;   _sensorSample
+               01350 ;   _sensorSample
+               01351 ;   _sensorSample
+               01352 ;   _sensorSample
+               01353 ;   _sensorSample
+               01354 ;   _sensorSample
+               01355 ;   _sensorSample
+               01356 ;20 compiler assigned registers:
+               01357 ;   r0x53
+               01358 ;   s0xFFF
+               01359 ;   r0x54
+               01360 ;   r0x55
+               01361 ;   r0x56
+               01362 ;   r0x57
+               01363 ;   r0x58
+               01364 ;   r0x59
+               01365 ;   r0x5A
+               01366 ;   r0x5B
+               01367 ;   r0x5C
+               01368 ;   s0x1000
+               01369 ;   r0x5E
+               01370 ;   r0x5D
+               01371 ;   r0x60
+               01372 ;   r0x5F
+               01373 ;   r0x62
+               01374 ;   r0x61
+               01375 ;   r0x64
+               01376 ;   r0x63
+               01377 ;; Starting pCode block
+012D           01378 _integrateSample        ;Function start
+               01379 ; 2 exit points
+               01380 ;#CSRC  main.c 163
+               01381 ;  int integrateSample(unsigned char transmitter, unsigned char receiver) {
+012D 00A0      01382         MOVWF   r0x53
+012E 0847      01383         MOVF    s0xFFF,W
+012F 00A1      01384         MOVWF   r0x54
+               01385 ;#CSRC  main.c 164
+               01386 ;  signed int i=0, q=0;
+0130 01A2      01387         CLRF    r0x55
+0131 01A3      01388         CLRF    r0x56
+0132 01A4      01389         CLRF    r0x57
+0133 01A5      01390         CLRF    r0x58
+               01391 ;#CSRC  main.c 165
+               01392 ;  int numsamples = numIntegrationSamples;
+0134 0859      01393         MOVF    _numIntegrationSamples,W
+0135 00A6      01394         MOVWF   r0x5B
+               01395 ;#CSRC  main.c 167
+gpasm-0.10.6 alpha              main.asm    2-26-2003  22:08:22          PAGE 27
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+               01396 ;  do {
+0136 01A7      01397         CLRF    r0x5C
+0137           01398 _00119_DS_
+               01399 ;#CSRC  main.c 169
+               01400 ;  i += sensorSample(transmitter, receiver, 0);
+0137 3000      01401         MOVLW   0x00
+0138 00C8      01402         MOVWF   s0x1000
+0139 0821      01403         MOVF    r0x54,W
+013A 00C7      01404         MOVWF   s0xFFF
+013B 0820      01405         MOVF    r0x53,W
+013C 20B5      01406         CALL    _sensorSample
+013D 00A8      01407         MOVWF   r0x5E
+               01408 ;;     peep 9c - Removed redundant move
+013E 0847      01409         MOVF    s0xFFF,W
+013F 07A2      01410         ADDWF   r0x55,F
+0140 0828      01411         MOVF    r0x5E,W
+0141 1803      01412         BTFSC   _STATUS,0
+0142 0F28      01413         INCFSZ  r0x5E,W
+0143 07A3      01414         ADDWF   r0x56,F
+               01415 ;#CSRC  main.c 170
+               01416 ;  q += sensorSample(transmitter, receiver, 1);
+0144 3001      01417         MOVLW   0x01
+0145 00C8      01418         MOVWF   s0x1000
+0146 0821      01419         MOVF    r0x54,W
+0147 00C7      01420         MOVWF   s0xFFF
+0148 0820      01421         MOVF    r0x53,W
+0149 20B5      01422         CALL    _sensorSample
+014A 00A9      01423         MOVWF   r0x60
+               01424 ;;     peep 9c - Removed redundant move
+014B 0847      01425         MOVF    s0xFFF,W
+014C 07A4      01426         ADDWF   r0x57,F
+014D 0829      01427         MOVF    r0x60,W
+014E 1803      01428         BTFSC   _STATUS,0
+014F 0F29      01429         INCFSZ  r0x60,W
+0150 07A5      01430         ADDWF   r0x58,F
+               01431 ;#CSRC  main.c 171
+               01432 ;  i -= sensorSample(transmitter, receiver, 2);
+0151 3002      01433         MOVLW   0x02
+0152 00C8      01434         MOVWF   s0x1000
+0153 0821      01435         MOVF    r0x54,W
+0154 00C7      01436         MOVWF   s0xFFF
+0155 0820      01437         MOVF    r0x53,W
+0156 20B5      01438         CALL    _sensorSample
+0157 00AA      01439         MOVWF   r0x62
+               01440 ;;     peep 9c - Removed redundant move
+0158 0847      01441         MOVF    s0xFFF,W
+0159 02A2      01442         SUBWF   r0x55,F
+015A 082A      01443         MOVF    r0x62,W
+015B 1C03      01444         BTFSS   _STATUS,0
+015C 0F2A      01445         INCFSZ  r0x62,W
+015D 02A3      01446         SUBWF   r0x56,F
+               01447 ;#CSRC  main.c 172
+               01448 ;  q -= sensorSample(transmitter, receiver, 3);
+015E 3003      01449         MOVLW   0x03
+gpasm-0.10.6 alpha              main.asm    2-26-2003  22:08:22          PAGE 28
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+015F 00C8      01450         MOVWF   s0x1000
+0160 0821      01451         MOVF    r0x54,W
+0161 00C7      01452         MOVWF   s0xFFF
+0162 0820      01453         MOVF    r0x53,W
+0163 20B5      01454         CALL    _sensorSample
+0164 00AB      01455         MOVWF   r0x64
+               01456 ;;     peep 9c - Removed redundant move
+0165 0847      01457         MOVF    s0xFFF,W
+0166 02A4      01458         SUBWF   r0x57,F
+0167 082B      01459         MOVF    r0x64,W
+0168 1C03      01460         BTFSS   _STATUS,0
+0169 0F2B      01461         INCFSZ  r0x64,W
+016A 02A5      01462         SUBWF   r0x58,F
+               01463 ;#CSRC  main.c 173
+               01464 ;  } while (--numsamples);
+016B 30FF      01465         MOVLW   0xff
+016C 07A6      01466         ADDWF   r0x5B,F
+016D 1C03      01467         BTFSS   _STATUS,0
+016E 03A7      01468         DECF    r0x5C,F
+016F 0826      01469         MOVF    r0x5B,W
+0170 0427      01470         IORWF   r0x5C,W
+0171 1D03      01471         BTFSS   _STATUS,2
+0172 2937      01472         GOTO    _00119_DS_
+               01473 ;#CSRC  main.c 176
+               01474 ;  if (i<0) i = -i;
+0173 0823      01475         MOVF    r0x56,W
+0174 3E80      01476         ADDLW   0x80
+0175 3E80      01477         ADDLW   0x80
+0176 1803      01478         BTFSC   _STATUS,0
+0177 297D      01479         GOTO    _00123_DS_
+0178 09A2      01480         COMF    r0x55,F
+0179 09A3      01481         COMF    r0x56,F
+017A 0AA2      01482         INCF    r0x55,F
+017B 1903      01483         BTFSC   _STATUS,2
+017C 0AA3      01484         INCF    r0x56,F
+017D           01485 _00123_DS_
+               01486 ;#CSRC  main.c 177
+               01487 ;  if (q<0) q = -q;
+017D 0825      01488         MOVF    r0x58,W
+017E 3E80      01489         ADDLW   0x80
+017F 3E80      01490         ADDLW   0x80
+0180 1803      01491         BTFSC   _STATUS,0
+0181 2987      01492         GOTO    _00125_DS_
+0182 09A4      01493         COMF    r0x57,F
+0183 09A5      01494         COMF    r0x58,F
+0184 0AA4      01495         INCF    r0x57,F
+0185 1903      01496         BTFSC   _STATUS,2
+0186 0AA5      01497         INCF    r0x58,F
+0187           01498 _00125_DS_
+               01499 ;#CSRC  main.c 178
+               01500 ;  return i+q;
+0187 0824      01501         MOVF    r0x57,W
+0188 07A2      01502         ADDWF   r0x55,F
+0189 0825      01503         MOVF    r0x58,W
+gpasm-0.10.6 alpha              main.asm    2-26-2003  22:08:22          PAGE 29
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+018A 1803      01504         BTFSC   _STATUS,0
+018B 0F25      01505         INCFSZ  r0x58,W
+018C 07A3      01506         ADDWF   r0x56,F
+018D 0822      01507         MOVF    r0x55,W
+018E 00C7      01508         MOVWF   s0xFFF
+018F 0823      01509         MOVF    r0x56,W
+0190 0008      01510         RETURN  
+               01511 ; exit point of _integrateSample
+               01512 ;***
+               01513 ;  pBlock Stats: dbName = C
+               01514 ;***
+               01515 ;entry:  _sampleAll     ;Function start
+               01516 ; 2 exit points
+               01517 ;has an exit
+               01518 ;functions called:
+               01519 ;   _integrateSample
+               01520 ;   _integrateSample
+               01521 ;   _integrateSample
+               01522 ;   _integrateSample
+               01523 ;   _integrateSample
+               01524 ;   _integrateSample
+               01525 ;   _integrateSample
+               01526 ;   _integrateSample
+               01527 ;   _integrateSample
+               01528 ;   _integrateSample
+               01529 ;   _integrateSample
+               01530 ;   _integrateSample
+               01531 ;   _integrateSample
+               01532 ;   _integrateSample
+               01533 ;   _integrateSample
+               01534 ;   _integrateSample
+               01535 ;1 compiler assigned register :
+               01536 ;   s0xFFF
+               01537 ;; Starting pCode block
+0191           01538 _sampleAll      ;Function start
+               01539 ; 2 exit points
+               01540 ;#CSRC  main.c 152
+               01541 ;  reading0 = integrateSample(Transmit0, Receive0);
+0191 3081      01542         MOVLW   0x81
+0192 00C7      01543         MOVWF   s0xFFF
+0193 3010      01544         MOVLW   0x10
+0194 212D      01545         CALL    _integrateSample
+0195 00CA      01546         MOVWF   (_reading0 + 1)
+0196 0847      01547         MOVF    s0xFFF,W
+0197 00C9      01548         MOVWF   _reading0
+               01549 ;#CSRC  main.c 153
+               01550 ;  reading1 = integrateSample(Transmit1, Receive0);
+0198 3081      01551         MOVLW   0x81
+0199 00C7      01552         MOVWF   s0xFFF
+019A 3020      01553         MOVLW   0x20
+019B 212D      01554         CALL    _integrateSample
+019C 00CC      01555         MOVWF   (_reading1 + 1)
+019D 0847      01556         MOVF    s0xFFF,W
+019E 00CB      01557         MOVWF   _reading1
+gpasm-0.10.6 alpha              main.asm    2-26-2003  22:08:22          PAGE 30
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+               01558 ;#CSRC  main.c 154
+               01559 ;  reading2 = integrateSample(Transmit2, Receive0);
+019F 3081      01560         MOVLW   0x81
+01A0 00C7      01561         MOVWF   s0xFFF
+01A1 3040      01562         MOVLW   0x40
+01A2 212D      01563         CALL    _integrateSample
+01A3 00CE      01564         MOVWF   (_reading2 + 1)
+01A4 0847      01565         MOVF    s0xFFF,W
+01A5 00CD      01566         MOVWF   _reading2
+               01567 ;#CSRC  main.c 155
+               01568 ;  reading3 = integrateSample(Transmit3, Receive0);
+01A6 3081      01569         MOVLW   0x81
+01A7 00C7      01570         MOVWF   s0xFFF
+01A8 3080      01571         MOVLW   0x80
+01A9 212D      01572         CALL    _integrateSample
+01AA 00D0      01573         MOVWF   (_reading3 + 1)
+01AB 0847      01574         MOVF    s0xFFF,W
+01AC 00CF      01575         MOVWF   _reading3
+               01576 ;#CSRC  main.c 156
+               01577 ;  reading4 = integrateSample(Transmit0, Receive1);
+01AD 3089      01578         MOVLW   0x89
+01AE 00C7      01579         MOVWF   s0xFFF
+01AF 3010      01580         MOVLW   0x10
+01B0 212D      01581         CALL    _integrateSample
+01B1 00D2      01582         MOVWF   (_reading4 + 1)
+01B2 0847      01583         MOVF    s0xFFF,W
+01B3 00D1      01584         MOVWF   _reading4
+               01585 ;#CSRC  main.c 157
+               01586 ;  reading5 = integrateSample(Transmit1, Receive1);
+01B4 3089      01587         MOVLW   0x89
+01B5 00C7      01588         MOVWF   s0xFFF
+01B6 3020      01589         MOVLW   0x20
+01B7 212D      01590         CALL    _integrateSample
+01B8 00D4      01591         MOVWF   (_reading5 + 1)
+01B9 0847      01592         MOVF    s0xFFF,W
+01BA 00D3      01593         MOVWF   _reading5
+               01594 ;#CSRC  main.c 158
+               01595 ;  reading6 = integrateSample(Transmit2, Receive1);
+01BB 3089      01596         MOVLW   0x89
+01BC 00C7      01597         MOVWF   s0xFFF
+01BD 3040      01598         MOVLW   0x40
+01BE 212D      01599         CALL    _integrateSample
+01BF 00D6      01600         MOVWF   (_reading6 + 1)
+01C0 0847      01601         MOVF    s0xFFF,W
+01C1 00D5      01602         MOVWF   _reading6
+               01603 ;#CSRC  main.c 159
+               01604 ;  reading7 = integrateSample(Transmit3, Receive1);
+01C2 3089      01605         MOVLW   0x89
+01C3 00C7      01606         MOVWF   s0xFFF
+01C4 3080      01607         MOVLW   0x80
+01C5 212D      01608         CALL    _integrateSample
+01C6 00D8      01609         MOVWF   (_reading7 + 1)
+01C7 0847      01610         MOVF    s0xFFF,W
+01C8 00D7      01611         MOVWF   _reading7
+gpasm-0.10.6 alpha              main.asm    2-26-2003  22:08:22          PAGE 31
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+01C9 0008      01612         RETURN  
+               01613 ; exit point of _sampleAll
+               01614 ;***
+               01615 ;  pBlock Stats: dbName = C
+               01616 ;***
+               01617 ;entry:  _initialize    ;Function start
+               01618 ; 2 exit points
+               01619 ;has an exit
+               01620 ;; Starting pCode block
+01CA           01621 _initialize     ;Function start
+               01622 ; 2 exit points
+               01623 ;#CSRC  main.c 128
+               01624 ;  TRISA = 0xFF;
+01CA 30FF      01625         MOVLW   0xff
+01CB 1683      01626         BSF     _STATUS,5
+Message [302] : Register in operand not in bank 0. Ensure bank bits are correct.
+01CC 0085      01627         MOVWF   _TRISA
+               01628 ;#CSRC  main.c 129
+               01629 ;  TRISB = 0x00;
+Message [302] : Register in operand not in bank 0. Ensure bank bits are correct.
+01CD 0186      01630         CLRF    _TRISB
+               01631 ;#CSRC  main.c 130
+               01632 ;  TRISC = 0x00;
+Message [302] : Register in operand not in bank 0. Ensure bank bits are correct.
+01CE 0187      01633         CLRF    _TRISC
+               01634 ;#CSRC  main.c 131
+               01635 ;  TRISD = 0x00;
+Message [302] : Register in operand not in bank 0. Ensure bank bits are correct.
+01CF 0188      01636         CLRF    _TRISD
+               01637 ;#CSRC  main.c 132
+               01638 ;  TRISE = 0x04;
+01D0 3004      01639         MOVLW   0x04
+Message [302] : Register in operand not in bank 0. Ensure bank bits are correct.
+01D1 0089      01640         MOVWF   _TRISE
+01D2 1283      01641         BCF     _STATUS,5
+               01642 ;#CSRC  main.c 135
+               01643 ;  PORTA = 0x00;
+01D3 0185      01644         CLRF    _PORTA
+               01645 ;#CSRC  main.c 136
+               01646 ;  PORTB = 0x00;
+01D4 0186      01647         CLRF    _PORTB
+               01648 ;#CSRC  main.c 137
+               01649 ;  PORTC = 0x00;
+01D5 0187      01650         CLRF    _PORTC
+               01651 ;#CSRC  main.c 138
+               01652 ;  PORTD = 0x00;
+01D6 0188      01653         CLRF    _PORTD
+               01654 ;#CSRC  main.c 139
+               01655 ;  PORTE = 0x00;
+01D7 0189      01656         CLRF    _PORTE
+               01657 ;#CSRC  main.c 142
+               01658 ;  ADCON1 = 0x82;
+01D8 3082      01659         MOVLW   0x82
+01D9 1683      01660         BSF     _STATUS,5
+gpasm-0.10.6 alpha              main.asm    2-26-2003  22:08:22          PAGE 32
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+Message [302] : Register in operand not in bank 0. Ensure bank bits are correct.
+01DA 009F      01661         MOVWF   _ADCON1
+               01662 ;#CSRC  main.c 143
+               01663 ;  ADCON0 = 0x81;
+01DB 3081      01664         MOVLW   0x81
+01DC 1283      01665         BCF     _STATUS,5
+01DD 009F      01666         MOVWF   _ADCON0
+               01667 ;#CSRC  main.c 144
+               01668 ;  GIE = 1;
+01DE 178B      01669         BSF     (_GIE >> 3), (_GIE & 7)
+01DF 0008      01670         RETURN  
+               01671 ; exit point of _initialize
+gpasm-0.10.6 alpha              main.asm    2-26-2003  22:08:22          PAGE 33
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+ACKDT                             00000005
+ACKEN                             00000004
+ACKSTAT                           00000006
+ADCON0                            0000001F
+ADCON1                            0000009F
+ADCS0                             00000006
+ADCS1                             00000007
+ADDEN                             00000003
+ADFM                              00000007
+ADIE                              00000006
+ADIF                              00000006
+ADON                              00000000
+ADRESH                            0000001E
+ADRESL                            0000009E
+BCLIE                             00000003
+BCLIF                             00000003
+BF                                00000000
+BRGH                              00000002
+C                                 00000000
+CCP1CON                           00000017
+CCP1IE                            00000002
+CCP1IF                            00000002
+CCP1M0                            00000000
+CCP1M1                            00000001
+CCP1M2                            00000002
+CCP1M3                            00000003
+CCP1X                             00000005
+CCP1Y                             00000004
+CCP2CON                           0000001D
+CCP2IE                            00000000
+CCP2IF                            00000000
+CCP2M0                            00000000
+CCP2M1                            00000001
+CCP2M2                            00000002
+CCP2M3                            00000003
+CCP2X                             00000005
+CCP2Y                             00000004
+CCPR1H                            00000016
+CCPR1L                            00000015
+CCPR2H                            0000001C
+CCPR2L                            0000001B
+CHS0                              00000003
+CHS1                              00000004
+CHS2                              00000005
+CKE                               00000006
+CKP                               00000004
+CREN                              00000004
+CSRC                              00000007
+D                                 00000005
+DATA_ADDRESS                      00000005
+DC                                00000001
+D_A                               00000005
+EEADR                             0000010D
+gpasm-0.10.6 alpha              main.asm    2-26-2003  22:08:22          PAGE 34
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+EEADRH                            0000010F
+EECON1                            0000018C
+EECON2                            0000018D
+EEDATA                            0000010C
+EEDATH                            0000010E
+EEIE                              00000004
+EEIF                              00000004
+EEPGD                             00000007
+F                                 00000001
+FERR                              00000002
+FSR                               00000004
+GCEN                              00000007
+GIE                               00000007
+GO                                00000002
+GO_DONE                           00000002
+I2C_DATA                          00000005
+I2C_READ                          00000002
+I2C_START                         00000003
+I2C_STOP                          00000004
+IBF                               00000007
+IBOV                              00000005
+INDF                              00000000
+INTCON                            0000000B
+INTE                              00000004
+INTEDG                            00000006
+INTF                              00000001
+IRP                               00000007
+NOT_A                             00000005
+NOT_ADDRESS                       00000005
+NOT_BO                            00000000
+NOT_BOR                           00000000
+NOT_DONE                          00000002
+NOT_PD                            00000003
+NOT_POR                           00000001
+NOT_RBPU                          00000007
+NOT_RC8                           00000006
+NOT_T1SYNC                        00000002
+NOT_TO                            00000004
+NOT_TX8                           00000006
+NOT_W                             00000002
+NOT_WRITE                         00000002
+OBF                               00000006
+OERR                              00000001
+OPTION_REG                        00000081
+P                                 00000004
+PCFG0                             00000000
+PCFG1                             00000001
+PCFG2                             00000002
+PCFG3                             00000003
+PCL                               00000002
+PCLATH                            0000000A
+PCON                              0000008E
+PEIE                              00000006
+PEN                               00000002
+gpasm-0.10.6 alpha              main.asm    2-26-2003  22:08:22          PAGE 35
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+PIE1                              0000008C
+PIE2                              0000008D
+PIR1                              0000000C
+PIR2                              0000000D
+PORTA                             00000005
+PORTB                             00000006
+PORTC                             00000007
+PORTD                             00000008
+PORTE                             00000009
+PR2                               00000092
+PS0                               00000000
+PS1                               00000001
+PS2                               00000002
+PSA                               00000003
+PSPIE                             00000007
+PSPIF                             00000007
+PSPMODE                           00000004
+R                                 00000002
+RBIE                              00000003
+RBIF                              00000000
+RC8_9                             00000006
+RC9                               00000006
+RCD8                              00000000
+RCEN                              00000003
+RCIE                              00000005
+RCIF                              00000005
+RCREG                             0000001A
+RCSTA                             00000018
+RD                                00000000
+READ_WRITE                        00000002
+RP0                               00000005
+RP1                               00000006
+RSEN                              00000001
+RX9                               00000006
+RX9D                              00000000
+R_W                               00000002
+S                                 00000003
+SEN                               00000000
+SMP                               00000007
+SPBRG                             00000099
+SPEN                              00000007
+SREN                              00000005
+SSPADD                            00000093
+SSPBUF                            00000013
+SSPCON                            00000014
+SSPCON2                           00000091
+SSPEN                             00000005
+SSPIE                             00000003
+SSPIF                             00000003
+SSPM0                             00000000
+SSPM1                             00000001
+SSPM2                             00000002
+SSPM3                             00000003
+SSPOV                             00000006
+gpasm-0.10.6 alpha              main.asm    2-26-2003  22:08:22          PAGE 36
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+SSPSTAT                           00000094
+STATUS                            00000003
+SYNC                              00000004
+T0CS                              00000005
+T0IE                              00000005
+T0IF                              00000002
+T0SE                              00000004
+T1CKPS0                           00000004
+T1CKPS1                           00000005
+T1CON                             00000010
+T1INSYNC                          00000002
+T1OSCEN                           00000003
+T1SYNC                            00000002
+T2CKPS0                           00000000
+T2CKPS1                           00000001
+T2CON                             00000012
+TMR0                              00000001
+TMR1CS                            00000001
+TMR1H                             0000000F
+TMR1IE                            00000000
+TMR1IF                            00000000
+TMR1L                             0000000E
+TMR1ON                            00000000
+TMR2                              00000011
+TMR2IE                            00000001
+TMR2IF                            00000001
+TMR2ON                            00000002
+TOUTPS0                           00000003
+TOUTPS1                           00000004
+TOUTPS2                           00000005
+TOUTPS3                           00000006
+TRISA                             00000085
+TRISB                             00000086
+TRISC                             00000087
+TRISD                             00000088
+TRISE                             00000089
+TRISE0                            00000000
+TRISE1                            00000001
+TRISE2                            00000002
+TRMT                              00000001
+TX8_9                             00000006
+TX9                               00000006
+TX9D                              00000000
+TXD8                              00000000
+TXEN                              00000005
+TXIE                              00000004
+TXIF                              00000004
+TXREG                             00000019
+TXSTA                             00000098
+UA                                00000001
+W                                 00000000
+WCOL                              00000007
+WR                                00000001
+WREN                              00000002
+gpasm-0.10.6 alpha              main.asm    2-26-2003  22:08:22          PAGE 37
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+WRERR                             00000003
+Z                                 00000002
+_00106_DS_                        00000006
+_00119_DS_                        00000137
+_00123_DS_                        0000017D
+_00125_DS_                        00000187
+_00131_DS_                        000000C3
+_00132_DS_                        000000C4
+_00134_DS_                        000000C8
+_00135_DS_                        000000C9
+_00137_DS_                        000000CF
+_00138_DS_                        000000D0
+_00140_DS_                        000000D6
+_00141_DS_                        000000D7
+_00142_DS_                        000000D9
+_00153_DS_                        00000118
+_00158_DS_                        000000B1
+_00163_DS_                        000000AB
+_00169_DS_                        0000009D
+_00170_DS_                        0000009E
+_00171_DS_                        00000099
+_00176_DS_                        0000008E
+_ACKDT                            0000048D
+_ACKEN                            0000048C
+_ACKSTAT                          0000048E
+_ADCON0                           0000001F
+_ADCON1                           0000009F
+_ADCS0                            000000FE
+_ADCS1                            000000FF
+_ADDEN                            000000C3
+_ADFM                             000004FF
+_ADIE                             00000466
+_ADIF                             00000066
+_ADON                             000000F8
+_ADRESH                           0000001E
+_ADRESL                           0000009E
+_BCLIE                            0000046B
+_BCLIF                            0000006B
+_BF                               000004A0
+_BODEN_OFF                        00003FBF
+_BODEN_ON                         00003FFF
+_BRGH                             000004C2
+_C                                00000018
+_CCP1CON                          00000017
+_CCP1IE                           00000462
+_CCP1IF                           00000062
+_CCP1M0                           000000B8
+_CCP1M1                           000000B9
+_CCP1M2                           000000BA
+_CCP1M3                           000000BB
+_CCP1X                            000000BD
+_CCP1Y                            000000BC
+_CCP2CON                          0000001D
+_CCP2IE                           00000468
+gpasm-0.10.6 alpha              main.asm    2-26-2003  22:08:22          PAGE 38
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+_CCP2IF                           00000068
+_CCP2M0                           000000E8
+_CCP2M1                           000000E9
+_CCP2M2                           000000EA
+_CCP2M3                           000000EB
+_CCP2X                            000000ED
+_CCP2Y                            000000EC
+_CCPR1H                           00000016
+_CCPR1L                           00000015
+_CCPR2H                           0000001C
+_CCPR2L                           0000001B
+_CHS0                             000000FB
+_CHS1                             000000FC
+_CHS2                             000000FD
+_CKE                              000004A6
+_CKP                              000000A4
+_CPD_OFF                          00003FFF
+_CPD_ON                           00003EFF
+_CP_ALL                           00000FCF
+_CP_HALF                          00001FDF
+_CP_OFF                           00003FFF
+_CP_UPPER_256                     00002FEF
+_CREN                             000000C4
+_CSRC                             000004C7
+_D                                000004A5
+_DATA_ADDRESS                     000004A5
+_DC                               00000019
+_DEBUG_OFF                        00003FFF
+_DEBUG_ON                         000037FF
+_D_A                              000004A5
+_EEADR                            0000010D
+_EEADRH                           0000010F
+_EECON1                           0000018C
+_EECON2                           0000018D
+_EEDATA                           0000010C
+_EEDATH                           0000010E
+_EEIE                             0000046C
+_EEIF                             0000006C
+_EEPGD                            00000C67
+_FERR                             000000C2
+_FSR                              00000004
+_GCEN                             0000048F
+_GIE                              0000005F
+_GO                               000000FA
+_GO_DONE                          000000FA
+_HS_OSC                           00003FFE
+_I2C_DATA                         000004A5
+_I2C_READ                         000004A2
+_I2C_START                        000004A3
+_I2C_STOP                         000004A4
+_IBF                              0000044F
+_IBOV                             0000044D
+_INTCON                           0000000B
+_INTE                             0000005C
+gpasm-0.10.6 alpha              main.asm    2-26-2003  22:08:22          PAGE 39
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+_INTEDG                           0000040E
+_INTF                             00000059
+_IRP                              0000001F
+_LP_OSC                           00003FFC
+_LVP_OFF                          00003F7F
+_LVP_ON                           00003FFF
+_Light0                           00000030
+_Light1                           00000031
+_Light2                           00000032
+_Light3                           00000033
+_NOT_A                            000004A5
+_NOT_ADDRESS                      000004A5
+_NOT_BO                           00000470
+_NOT_BOR                          00000470
+_NOT_DONE                         000000FA
+_NOT_PD                           0000001B
+_NOT_POR                          00000471
+_NOT_RBPU                         0000040F
+_NOT_RC8                          000000C6
+_NOT_T1SYNC                       00000082
+_NOT_TO                           0000001C
+_NOT_TX8                          000004C6
+_NOT_W                            000004A2
+_NOT_WRITE                        000004A2
+_OBF                              0000044E
+_OERR                             000000C1
+_OPTION_REG                       00000081
+_P                                000004A4
+_PCFG0                            000004F8
+_PCFG1                            000004F9
+_PCFG2                            000004FA
+_PCFG3                            000004FB
+_PCLATH                           0000000A
+_PCON                             0000008E
+_PEIE                             0000005E
+_PEN                              0000048A
+_PIE1                             0000008C
+_PIE2                             0000008D
+_PIR1                             0000000C
+_PIR2                             0000000D
+_PORTA                            00000005
+_PORTB                            00000006
+_PORTC                            00000007
+_PORTD                            00000008
+_PORTE                            00000009
+_PR2                              00000092
+_PS0                              00000408
+_PS1                              00000409
+_PS2                              0000040A
+_PSA                              0000040B
+_PSPIE                            00000467
+_PSPIF                            00000067
+_PSPMODE                          0000044C
+_PWRTE_OFF                        00003FFF
+gpasm-0.10.6 alpha              main.asm    2-26-2003  22:08:22          PAGE 40
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+_PWRTE_ON                         00003FF7
+_R                                000004A2
+_RBIE                             0000005B
+_RBIF                             00000058
+_RC8_9                            000000C6
+_RC9                              000000C6
+_RCD8                             000000C0
+_RCEN                             0000048B
+_RCIE                             00000465
+_RCIF                             00000065
+_RCREG                            0000001A
+_RCSTA                            00000018
+_RC_OSC                           00003FFF
+_RD                               00000C60
+_READ_WRITE                       000004A2
+_RP0                              0000001D
+_RP1                              0000001E
+_RSEN                             00000489
+_RX9                              000000C6
+_RX9D                             000000C0
+_R_W                              000004A2
+_S                                000004A3
+_SEN                              00000488
+_SMP                              000004A7
+_SPBRG                            00000099
+_SPEN                             000000C7
+_SREN                             000000C5
+_SSPADD                           00000093
+_SSPBUF                           00000013
+_SSPCON                           00000014
+_SSPCON2                          00000091
+_SSPEN                            000000A5
+_SSPIE                            00000463
+_SSPIF                            00000063
+_SSPM0                            000000A0
+_SSPM1                            000000A1
+_SSPM2                            000000A2
+_SSPM3                            000000A3
+_SSPOV                            000000A6
+_SSPSTAT                          00000094
+_STATUS                           00000003
+_SYNC                             000004C4
+_SerialPort                       0000004A
+_SerialTris                       0000044A
+_T0CS                             0000040D
+_T0IE                             0000005D
+_T0IF                             0000005A
+_T0SE                             0000040C
+_T1CKPS0                          00000084
+_T1CKPS1                          00000085
+_T1CON                            00000010
+_T1INSYNC                         00000082
+_T1OSCEN                          00000083
+_T1SYNC                           00000082
+gpasm-0.10.6 alpha              main.asm    2-26-2003  22:08:22          PAGE 41
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+_T2CKPS0                          00000090
+_T2CKPS1                          00000091
+_T2CON                            00000012
+_TMR0                             00000001
+_TMR1CS                           00000081
+_TMR1H                            0000000F
+_TMR1IE                           00000460
+_TMR1IF                           00000060
+_TMR1L                            0000000E
+_TMR1ON                           00000080
+_TMR2                             00000011
+_TMR2IE                           00000461
+_TMR2IF                           00000061
+_TMR2ON                           00000092
+_TOUTPS0                          00000093
+_TOUTPS1                          00000094
+_TOUTPS2                          00000095
+_TOUTPS3                          00000096
+_TRISA                            00000085
+_TRISB                            00000086
+_TRISC                            00000087
+_TRISD                            00000088
+_TRISE                            00000089
+_TRISE0                           00000448
+_TRISE1                           00000449
+_TRISE2                           0000044A
+_TRMT                             000004C1
+_TX8_9                            000004C6
+_TX9                              000004C6
+_TX9D                             000004C0
+_TXD8                             000004C0
+_TXEN                             000004C5
+_TXIE                             00000464
+_TXIF                             00000064
+_TXREG                            00000019
+_TXSTA                            00000098
+_UA                               000004A1
+_WCOL                             000000A7
+_WDT_OFF                          00003FFB
+_WDT_ON                           00003FFF
+_WR                               00000C61
+_WREN                             00000C62
+_WRERR                            00000C63
+_WRT_ENABLE_OFF                   00003DFF
+_WRT_ENABLE_ON                    00003FFF
+_XT_OSC                           00003FFD
+_Z                                0000001A
+__16F877                          00000001
+__sdcc_gsinit_startup             00000000
+_getc                             0000008A
+_halfSerialBitDelay               000000A9
+_initialize                       000001CA
+_integrateSample                  0000012D
+_main                             00000004
+gpasm-0.10.6 alpha              main.asm    2-26-2003  22:08:22          PAGE 42
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+_numIntegrationSamples            00000059
+_numResonationHalfcycles          0000005A
+_putc                             00000091
+_reading0                         00000049
+_reading0_1                       0000004A
+_reading1                         0000004B
+_reading1_1                       0000004C
+_reading2                         0000004D
+_reading2_1                       0000004E
+_reading3                         0000004F
+_reading3_1                       00000050
+_reading4                         00000051
+_reading4_1                       00000052
+_reading5                         00000053
+_reading5_1                       00000054
+_reading6                         00000055
+_reading6_1                       00000056
+_reading7                         00000057
+_reading7_1                       00000058
+_sampleAll                        00000191
+_sendPacket                       0000000A
+_sensorSample                     000000B5
+_sensorSample_phase0_1_1          000002D8
+_sensorSample_phase1_1_1          000002D9
+_sensorSample_phase2_1_1          000002DA
+_sensorSample_phase3_1_1          000002DB
+_serialBitDelay                   000000AF
+bitfield0                         0000005B
+fbitfield06                       00000006
+fbitfield09                       00000009
+fbitfield0b                       0000000B
+fbitfield1f                       0000001F
+fbitfield89                       00000089
+r0x53                             00000020
+r0x54                             00000021
+r0x55                             00000022
+r0x56                             00000023
+r0x57                             00000024
+r0x58                             00000025
+r0x5B                             00000026
+r0x5C                             00000027
+r0x5E                             00000028
+r0x60                             00000029
+r0x62                             0000002A
+r0x64                             0000002B
+r0x65                             0000002C
+r0x67                             0000002D
+r0x69                             0000002E
+r0x6A                             0000002F
+r0x6C                             00000030
+r0x6E                             00000031
+r0x6F                             00000032
+r0x70                             00000033
+r0x71                             00000034
+gpasm-0.10.6 alpha              main.asm    2-26-2003  22:08:22          PAGE 43
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+r0x72                             00000035
+r0x73                             00000036
+r0x74                             00000037
+r0x75                             00000038
+r0x76                             00000039
+r0x77                             0000003A
+r0x78                             0000003B
+r0x79                             0000003C
+r0x7A                             0000003D
+r0x7B                             0000003E
+r0x7C                             0000003F
+r0x7D                             00000040
+r0x7E                             00000041
+r0x7F                             00000042
+r0x80                             00000043
+r0x81                             00000044
+r0x82                             00000045
+r0x83                             00000046
+s0x1000                           00000048
+s0xFFF                            00000047
+
+
+MEMORY USAGE MAP ('X' = Used,  '-' = Unused)
+
+0000 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
+0040 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
+0080 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
+00c0 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
+0100 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
+0140 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
+0180 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
+01c0 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX ---------------- ----------------
+2000 : -------X-------- ---------------- ---------------- ----------------
+
+All other memory blocks unused.
+
+Program Memory Words Used: 481
+
+
+Errors   :       0
+Warnings :       0 reported,       0 suppressed
+Messages :      12 reported,       0 suppressed
+

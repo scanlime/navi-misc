@@ -1,0 +1,19 @@
+#!/usr/bin/python
+import fieldbox, sys, pickle, bpnn
+
+sensor = fieldbox.filter(fieldbox.sensor())
+pattern = []
+
+for y in (0,0.25,0.5,0.75,1):
+    for x in (0,0.25,0.5,0.75,1):
+        coord = [x,y]
+        print "Prepare for reading %s and press enter" % coord
+        sys.stdin.read(1)
+        for i in range(0,300):
+            sensor.read()
+        for i in range(0,5):
+            pattern.append( [sensor.read(), coord] )
+        print "done"
+
+pickle.dump(pattern, open("nn_pattern.pickle", "w"))
+print "Patterns saved."
