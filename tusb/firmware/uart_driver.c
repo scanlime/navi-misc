@@ -5,6 +5,7 @@
 
 void uart_init() {
   RS232_POWER = 0;            /* Turn on the RS-232 hardware */
+  UART_MASK = 0;              /* No interrupts */
   MODECNFG = TXCNTL | SOFTSW; /* Transmitter on */
   MCR  = MCR_USRT;            /* UART reset */
   MCR  = 0;                   /* UART out of reset */

@@ -26,6 +26,7 @@ void i2c_write_byte(unsigned char b, bit is_last) {
       printf("I2C Error\n");
       return;
     }
+    watchdog_reset();
   }
 }
 
@@ -45,6 +46,7 @@ unsigned char i2c_read_byte(bit is_last) {
       printf("I2C Error\n");
       return 0;
     }
+    watchdog_reset();
   }
   return I2CDAI;
 }
@@ -60,10 +62,15 @@ signed char therm_read(unsigned char addr) {
 
 void dac_write(unsigned char addr, unsigned short value) {
   I2CADR = ((0x4C | (addr<<1)) << 1);  /* Write to the DAC */
-  I2CSTA = ERR | S1_4;                 /* Clear error flag, 400khz mode, no stop condition */
+  I2CSTA = ERR | S1_4 | TIE;           /* Clear error flag, 400khz mode, no stop condition */
+  LED = 0;
   i2c_write_byte(0x10, 0);             /* Control byte, load DAC with data */
   i2c_write_byte(value >> 8, 0);
   i2c_write_byte(value & 0xFF, 1);
+}
+
+void isr() interrupt 1 using 1 {
+  LED = 1;
 }
 
 void main() {
@@ -73,18 +80,19 @@ void main() {
   usb_init();
   puts("USB initialized");
 
+  EX0 = 1;
+  ET0 = 0;
+  EX1 = 0;
+  ET1 = 0;
+  ES  = 0;
+  EA  = 1;
+
   while (1) {
-    // printf("Temperatures  %d\n", therm_read(5));
-    // delay(10000);
-    static int i;
-    dac_write(0, i);
-    i+=400;
-    watchdog_reset();
+    dac_write(0, 0x0000); dac_write(1, 0x0000);
+    dac_write(0, 0xFFFF); dac_write(1, 0x0000);
+    dac_write(0, 0xFFFF); dac_write(1, 0xFFFF);
+    dac_write(0, 0x0000); dac_write(1, 0xFFFF);
   }
-
-
-  /* Power LED on */
-  LED = 0;
 
   /* Set up the first EP1 OUT transfer */
   usb_dma_unstall(EDB_OEP1);
