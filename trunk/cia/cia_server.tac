@@ -4,10 +4,10 @@
 #
 
 from twisted.application import service, internet
-from twisted.web import server, xmlrpc, static, vhost
+from twisted.web import server, xmlrpc
 from LibCIA import Message, Ruleset, IRC, Stats
 from LibCIA import IncomingMail, Interface, Security
-from LibCIA.Web import StatsBrowser, RulesetBrowser
+from LibCIA.Web import StatsBrowser, RulesetBrowser, Static
 
 application = service.Application("cia_server")
 hub = Message.Hub()
@@ -32,13 +32,9 @@ caps.saveKey('universe', 'data/universe.key')
 
 # Create the web interface. We start with all the static
 # files in 'htdocs' and add dynamic content from there.
-webRoot = static.File("htdocs")
+webRoot = Static.File("htdocs")
 webRoot.putChild('rulesets', RulesetBrowser.RulesetPage(caps, rulesetStorage))
 webRoot.putChild('stats', RulesetBrowser.RulesetPage(caps, statsStorage))
-
-# Add VHostMonster support, so we can have CIA serve web requests
-# behind our main Apache web server without getting horribly confused.
-webRoot.putChild('vhost', vhost.VHostMonsterResource())
 
 # Create a root XML-RPC object, with interfaces attached for each subsystem
 rpc = xmlrpc.XMLRPC()
