@@ -207,7 +207,6 @@ irc_network_editor_init (IrcNetworkEditor *dialog)
 	GtkSizeGroup *group;
 	gchar **enc;
 	GtkTreeSelection *server_selection, *autojoin_selection;
-	gint id;
 
 	dialog->gconf = NULL;
 	dialog->network = NULL;
@@ -439,7 +438,6 @@ apply_changes (IrcNetworkEditor *e)
 	net->password = g_strdup (gtk_entry_get_text (GTK_ENTRY (e->password)));
 	net->nick     = g_strdup (gtk_entry_get_text (GTK_ENTRY (e->nickname)));
 	net->real     = g_strdup (gtk_entry_get_text (GTK_ENTRY (e->realname)));
-	net->autojoin = g_strdup ("");
 
 	net->autoconnect        = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (e->autoconnect));
 	net->use_ssl            = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (e->use_ssl));
@@ -447,6 +445,7 @@ apply_changes (IrcNetworkEditor *e)
 	net->reconnect          = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (e->autoreconnect));
 	net->nogiveup_reconnect = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (e->giveup_reconnect));
 	net->use_global         = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (e->use_globals));
+	net->encoding           = gtk_combo_box_get_active (GTK_COMBO_BOX (e->encoding));
 
 	for (s = net->servers; s; s = g_slist_next (s)) {
 		ircserver *serv = s->data;

@@ -52,7 +52,7 @@ edit_clicked (GtkWidget *button, gpointer data)
 	e = irc_network_editor_new (n);
 
 	irc_network_editor_run (e);
-	gtk_widget_destroy (e);
+	gtk_widget_destroy (GTK_WIDGET (e));
 	g_object_unref (n);
 }
 

@@ -50,11 +50,10 @@ irc_network_finalize (GObject *object)
 	g_free (network->password);
 	g_free (network->nick);
 	g_free (network->real);
-	g_free (network->autojoin);
 
 	for (s = network->servers; s; s = g_slist_next (s))
 		g_free (((ircserver *) s->data)->hostname);
-	g_slist_foreach (network->servers, g_free, NULL);
+	g_slist_foreach (network->servers, (GFunc) g_free, NULL);
 	g_slist_free (network->servers);
 }
 
@@ -126,9 +125,7 @@ irc_network_new (ircnet *net)
 	n->servers = s2;
 
 	n->password    = g_strdup(net->pass);
-	/* FIXME */
-	n->encoding    = 0;
-
+	n->encoding    = GPOINTER_TO_UINT (g_hash_table_lookup (enctoindex, net->encoding));
 	n->use_global  = net->flags & FLAG_USE_GLOBAL;
 	n->nick        = g_strdup (net->nick);
 	n->real        = g_strdup (net->real);
@@ -151,12 +148,14 @@ irc_network_save (IrcNetwork *network)
 	if (net->nick)     g_free (net->nick);
 	if (net->real)     g_free (net->real);
 	if (net->autojoin) g_free (net->autojoin);
+	if (net->encoding) g_free (net->encoding);
 
 	net->name     = g_strdup (network->name);
 	net->pass     = g_strdup (network->password);
 	net->nick     = g_strdup (network->nick);
 	net->real     = g_strdup (network->real);
 	net->autojoin = g_strdup (network->autojoin);
+	net->encoding = g_strdup (encodings[network->encoding]);
 
 	if (network->autoconnect) flags |= FLAG_AUTO_CONNECT;
 	if (network->use_ssl)     flags |= FLAG_USE_SSL;
@@ -164,7 +163,6 @@ irc_network_save (IrcNetwork *network)
 	if (network->use_global)  flags |= FLAG_USE_GLOBAL;
 	net->flags = flags;
 
-	/* FIXME - encoding */
 	/* FIXME - reconnect */
 	/* FIXME - nogiveup */
 
