@@ -208,7 +208,8 @@ CACHE_IMAGES = 1
 
 plugin.remove('tv')
 plugin.remove('games')
-plugin.activate('lcd')
+
+plugin.activate('mi6k_display')
 
 plugin.activate('uvswitch.detector')
 plugin.activate('uvswitch.input', args=(1, 'Nintendo 64', 'n64'))
