@@ -20,7 +20,7 @@ class test:
             for v in a:
                 self.f.write(chr(int(v) & 0xFF) + chr(int(v) >> 8) + chr(0) + chr(0))
         self.f.flush()
-        #time.sleep(0.05)
+        time.sleep(0.1)
 
 t = test()
 Tweak.Window( Tweak.Quantity(t, 'pulse', (0,10000)),
