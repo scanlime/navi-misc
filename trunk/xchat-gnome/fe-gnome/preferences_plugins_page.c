@@ -37,16 +37,18 @@ typedef struct
 	char *name;
 	char *desc;
 	char *version;
+	void *handle;
 } xchat_plugin_info;
 
 typedef int (xchat_init_func) (xchat_plugin *, char **, char **, char **, char *);
 typedef int (xchat_deinit_func) (xchat_plugin *);
+typedef void (xchat_plugin_get_info) (char **, char **, char **);
 
 extern GSList *plugin_list; // xchat's list of loaded plugins.
 extern XChatGUI gui;
-static GSList *known_plugins; // Our own list of all the known plugins, loaded or not.
-															// Known being any .so or .sl file located in either
-															// XCHATDIR/plugins or ~/.xchat2/plugins.
+static GSList *known_plugins = NULL;	// Our own list of all the known plugins, loaded or not.
+																			// Known being any .so or .sl file located in either
+																			// XCHATDIR/plugins or ~/.xchat2/plugins.
 
 static void
 on_load_plugin_clicked (GtkButton *button, gpointer user_data);
@@ -54,6 +56,10 @@ static void
 on_unload_plugin_clicked (GtkButton *button, gpointer user_data);
 static void
 xchat_gnome_plugin_add (char *filename);
+static void
+plugin_info_free (xchat_plugin_info *pl);
+static int
+plugin_compare (xchat_plugin_info *pl1, xchat_plugin_info *pl2);
 
 void
 initialize_preferences_plugins_page ()
@@ -85,8 +91,7 @@ initialize_preferences_plugins_page ()
   g_signal_connect (G_OBJECT(load), "clicked", G_CALLBACK (on_load_plugin_clicked), NULL);
   g_signal_connect (G_OBJECT(unload), "clicked", G_CALLBACK (on_unload_plugin_clicked), NULL);
 
-	// FIXME: remove this for now
-	//preferences_plugins_page_populate ();
+	preferences_plugins_page_populate ();
 }
 
 /* FIXME: As far as I can tell this function is getting called atleast 3 times at the
@@ -101,7 +106,7 @@ preferences_plugins_page_populate()
 	GtkTreeIter iter;
 	GtkListStore *store;
 	GSList *list;
-	xchat_plugin *plugin;
+	xchat_plugin_info *plugin;
 	gchar *homedir, *xchatdir;
 
 	treeview = glade_xml_get_widget (gui.xml, "plugins list");
@@ -215,10 +220,8 @@ static void
 xchat_gnome_plugin_add (char *filename)
 {
 	void *handle;
-	xchat_init_func *init_func;
-	xchat_deinit_func *deinit_func;
-	xchat_plugin_info *pl;
-	xchat_plugin *pl_tmp;
+	xchat_plugin_get_info *info_func;
+	xchat_plugin_info *pl = NULL;
 
 	/* For now we are just assuming it's ok to use gmodule, if this is a mistake
 	 * we can change this to match the common plugins stuff so that we use
@@ -226,38 +229,40 @@ xchat_gnome_plugin_add (char *filename)
 	 */
 	handle = g_module_open (filename, 0);
 
-	if (handle == NULL)
-		return;
-
-	/* All plugins must have an init function. */
-	if (!g_module_symbol (handle, "xchat_plugin_init", (gpointer *)&init_func)) {
-		printf ("%s has no init\n", filename);
-		g_module_close (handle);
-		return;
-	}
-	if (!g_module_symbol (handle, "xchat_plugin_deinit", (gpointer *)&deinit_func))
-		deinit_func = NULL;
-
-	/* Create a new plugin instance and add it to our list of known plugins. */
-	pl = malloc (sizeof (xchat_plugin_info));
-	pl_tmp = malloc (sizeof (xchat_plugin));
-
-	pl->filename = malloc (strlen (filename) + 1);
-	memset (pl->filename, 0, strlen (filename) + 1);
-	pl->filename = memcpy (pl->filename, filename, strlen (filename));
-
-	/* Run xchat_plugin_init, if it returns 0, close the plugin. We need the init
-	 * function to give us the name, description and version of the plugin.
-	 */
-	if (((xchat_init_func *)init_func) (pl_tmp, &pl->name, &pl->desc, &pl->version, NULL) == 0)
-	{
-		// FIXME: we need one of thse too.
-		//plugin_free (pl, FALSE, FALSE);
+	if (handle == NULL) {
+		printf ("Null handle in plugin_add\n");
 		return;
 	}
 
-	if (deinit_func)
-		((xchat_deinit_func *)deinit_func) (pl_tmp);
+	if (g_module_symbol (handle, "xchat_plugin_get_info", (gpointer *)&info_func)) {
+		/* Create a new plugin instance and add it to our list of known plugins. */
+		pl = malloc (sizeof (xchat_plugin_info));
 
-	g_module_close (handle);
+		pl->filename = strdup (filename);
+		pl->handle = handle;
+		((xchat_plugin_get_info*)info_func) (&pl->name, &pl->desc, &pl->version);
+
+		if (g_slist_find_custom (known_plugins, pl, plugin_compare) == NULL) {
+			printf ("Plugin: %s %s, %s\n", pl->name, pl->version, pl->desc);
+			known_plugins = g_slist_prepend (known_plugins, pl);
+		}
+		else {
+			plugin_info_free (pl);
+		}
+	}
+	else
+		printf ("%s: No xchat_plugin_info symbol\n", filename);
+}
+
+static void
+plugin_info_free (xchat_plugin_info *pl)
+{
+	g_module_close (pl->handle);
+	free (pl);
+}
+
+static int
+plugin_compare (xchat_plugin_info *pl1, xchat_plugin_info *pl2)
+{
+	return strcmp (pl1->name, pl2->name);
 }
