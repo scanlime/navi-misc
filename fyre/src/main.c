@@ -102,8 +102,15 @@ int main(int argc, char ** argv) {
 	switch (c) {
 
 	case 'i':
-	    histogram_imager_load_image_file(HISTOGRAM_IMAGER(map), optarg, NULL);
+	{
+	    GError *error = NULL;
+	    histogram_imager_load_image_file(HISTOGRAM_IMAGER(map), optarg, &error);
+	    if (error) {
+		g_print ("Error: %s\n", error->message);
+		g_error_free (error);
+	    }
 	    break;
+        }
 
 	case 'n':
 	    animation_load_file(animation, optarg);

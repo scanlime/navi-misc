@@ -82,8 +82,13 @@ void batch_image_render(IterativeMap*  map,
     else
 #endif
 	{
+            GError *error = NULL;
 	    printf("Creating PNG image...\n");
-	    histogram_imager_save_image_file(HISTOGRAM_IMAGER(map), filename, NULL);
+	    histogram_imager_save_image_file(HISTOGRAM_IMAGER(map), filename, &error);
+	    if (error) {
+                g_print ("Error: %s\n", error->message);
+		g_error_free (error);
+	    }
 	}
 }
 
