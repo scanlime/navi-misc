@@ -3,7 +3,9 @@ CanvasElement.cs:
   * Add drawing.  This needs to be able to work both on gdk pixmaps and
 	System.Drawing.Graphics surfaces (for clean-looking AA diagrams)
 	so we can use the same code both for drawing on the canvas and
-	creating a drag icon.
+	creating a drag icon. We might be able to just use System.Drawing
+	for everything, but I don't know how well that works for GdkBitmap
+	opacity masks.
 
 Element.cs:
   * Implement XML serialization
@@ -11,6 +13,8 @@ Element.cs:
 
 Pipeline.cs:
   * This needs lots of design work before implementation can go forward.
+  * We'll need some way to keep track of annotations (maybe composite).
+  * This will need to be responsible for controlling serialization
 
 PipelineDrawing.cs:
   * Add the ability to track document extents from other classes - for
@@ -23,3 +27,6 @@ PipelineDrawing.cs:
   * Add drawing code
 
 Plugins all need element-specific implementation
+  * serialization
+  * custom drawing
+  * ...
