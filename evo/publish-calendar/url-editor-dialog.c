@@ -21,7 +21,7 @@
  */
 
 #include "url-editor-dialog.h"
-#include <e-util/e-passwords.h>
+#include <libedataserverui/e-passwords.h>
 #include <string.h>
 
 static GtkDialogClass *parent_class = NULL;
