@@ -24,8 +24,6 @@ EXTRA_DIST =				\
 	main_window.c			\
 	navigation_tree.h		\
 	navigation_tree.c		\
-	navtree.h			\
-	navtree.c			\
 	palette.h			\
 	palette.c			\
 	pixmaps.h			\
@@ -74,8 +72,6 @@ xchat_gnome_SOURCES =			\
 	$(mmx_cmod_S)			\
 	navigation_tree.h		\
 	navigation_tree.c		\
-	navtree.h			\
-	navtree.c			\
 	palette.h			\
 	palette.c			\
 	pixmaps.h			\
