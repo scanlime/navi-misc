@@ -29,6 +29,7 @@
 
 int check_word(GtkWidget *xtext, char *word);
 void clicked_word(GtkWidget *xtext, char *word, GdkEventButton *even, gpointer data);
+void font_changed(GConfClient *client, guint cnxn_id, const gchar* key, GConfValue* value, gboolean is_default, gpointer user_data);
 
 void initialize_text_gui() {
 	GtkWidget *frame, *scrollbar;
@@ -55,12 +56,16 @@ void initialize_text_gui() {
  
   /* Set the font. */
   client = gconf_client_get_default ();
-  font = gconf_client_get_string (client, "/desktop/gnome/interface/font_name", NULL);
-  if (!font) {
+  gconf_client_add_dir(client, "/apps/xchat/main_window", GCONF_CLIENT_PRELOAD_NONE, NULL);
+  gconf_client_notify_add(client, "/apps/xchat/main_window/use_sys_fonts", (GConfClientNotifyFunc)font_changed, NULL, NULL, NULL);
+  gconf_client_notify_add(client, "/apps/xchat/main_window/font", (GConfClientNotifyFunc)font_changed, NULL, NULL, NULL);
+
+
+  if (gconf_client_get_bool(client, "/apps/xchat/main_window/use_sys_fonts", NULL))
     font = gconf_client_get_string (client, "/desktop/gnome/interface/font_name", NULL);
-    if (!font)
-      font = g_strdup ("fixed 11");
-  }
+  else
+    font = gconf_client_get_string(client, "/apps/xchat/main_window/font", NULL);
+
   gtk_xtext_set_font (GTK_XTEXT (gui.xtext), font);
   g_object_unref (client);
   g_free (font);
@@ -255,4 +260,19 @@ void clicked_word(GtkWidget *xtext, char *word, GdkEventButton *event, gpointer 
 		g_print("its a nickname dialog!\n");
 		return;
 	}
+}
+void
+font_changed(GConfClient *client, guint cnxn_id, const gchar* key, GConfValue* value, gboolean is_default, gpointer user_data)
+{
+  gchar *font;
+
+  if (gconf_client_get_bool(client, "/apps/xchat/main_window/use_sys_fonts", NULL))
+    font = gconf_client_get_string(client, "/desktop/gnome/interface/font_name", NULL);
+  else
+    font = gconf_client_get_string(client, "/apps/xchat/main_window/font", NULL);
+
+  gtk_xtext_set_font(GTK_XTEXT(gui.xtext), font);
+  gtk_xtext_refresh(GTK_XTEXT(gui.xtext), 0);
+  
+  g_free(font);
 }

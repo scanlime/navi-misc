@@ -164,6 +164,29 @@
       </locale>
     </schema>
 
+    <!-- fonts -->
+    <schema>
+      <key>/schemas/apps/xchat/main_window/use_sys_fonts</key>
+      <applyto>/apps/xchat/main_window/use_sys_fonts</applyto>
+      <owner>xchat</owner>
+      <type>bool</type>
+      <default>true</default>
+      <locale name="C">
+        <short>Use system fonts</short>
+      </locale>
+    </schema>
+
+    <schema>
+      <key>/schemas/apps/xchat/main_window/font</key>
+      <applyto>/apps/xchat/main_window/font</applyto>
+      <owner>xchat</owner>
+      <type>string</type>
+      <default>Bitstream Vera Sans 10</default>
+      <locale name="C">
+        <short>Font for the main window</short>
+      </locale>
+    </schema>
+
     <!-- channel list window -->
     <schema>
       <key>/schemas/apps/xchat/channel_list_window/height</key>
