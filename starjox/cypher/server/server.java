@@ -27,7 +27,7 @@ import java.net.*;
 import java.io.*;
 import java.util.*;
 
-public class tcpfw extends Thread
+public class server extends Thread
 {
     /** The external port (open to the rest of the world). */
     public int eport;
@@ -37,18 +37,13 @@ public class tcpfw extends Thread
 
     /**
      * This sets up the tcp forwarder to run with the info given.
-     * @param remotehost The host to forward data to.
      * @param externalport The port to listen on from the outside world.
-     * @param internalport The port to connect to on the internal network.
      * @author Brandon Smith
      * @version 1.0
      */
-    public tcpfw(String remotehost, int externalport, int internalport)
+    public server(int externalport)
     {
-	host = remotehost;
 	eport = externalport;
-	iport = internalport;
-	System.out.println("Set to forward tcp: localhost:"+eport+" to "+host+":"+iport);
     }
     
     /**
