@@ -1,4 +1,4 @@
-/* 
+/* 3dScreamers
 * Copyright (c) 2002 - 2003 Jeffrey Myers
 *
 * This package is free software;  you can redistribute it and/or
@@ -9,31 +9,39 @@
 * IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED
 * WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 */
-#include "testGame.h"
+// worldDrawables.cpp
 
-// the drawables for this game
-//#include "worldDrawables"
+#include "worldDrawables.h"
 
-void CTestGame::Init ( void )
+// skybox factory
+CBaseDrawable* CSkyboxObjectFactory::New ( CBaseObject* parent )
 {
-	// do one time init stuff here
-	world.Set(gameLoop);
+	CBaseDrawable* obj = new CSkyObject;
+	obj->Set(parent);
+	return obj;
 }
 
-void CTestGame::Attach ( void )
+void CSkyboxObjectFactory::Delete ( CBaseDrawable* object )
 {
-	trWorldInfo	info;
-	world.Load(info,true);
+	delete(object);
 }
 
-void CTestGame::Release ( void )
+// skybox object
+CSkyObject::CSkyObject()
+{
+
+}
+
+CSkyObject::~CSkyObject()
 {
 }
 
-bool CTestGame::Think ( void )
+void CSkyObject::Init ( void )
 {
-	if (gameLoop->GetInput().KeyDown(KEY_ESCAPE))
-		return true;
-	// do some game like things
-	return false;
 }
+
+void CSkyObject::Think ( void )
+{
+
+}
+

@@ -15,14 +15,22 @@
 #define _WORLD_DRAWABLES_H_
 
 #include "baseObject.h"
+#include "drawManager.h"
+
+class CSkyboxObjectFactory : public CBaseDrawableFactory
+{
+public:
+	virtual CBaseDrawable* New ( CBaseObject* parent );
+	virtual void Delete ( CBaseDrawable* object );
+};
 
 class CSkyObject : public CBaseDrawable
 {
 public:
 	CSkyObject();
 	virtual ~CSkyObject();
-	virtual void Init ( void ) {return;}
-	virtual void Think ( void ){return;}
+	virtual void Init ( void );
+	virtual void Think ( void );
 
 protected:
 };

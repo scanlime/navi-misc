@@ -25,6 +25,7 @@
 
 #include "gameloop.h"
 #include "baseObject.h"
+#include "Singleton.h"
 #include <string>
 #include <map>
 #include <vector>
@@ -61,7 +62,7 @@ public:
 	virtual void Delete ( CBaseDrawable* object ) = 0;
 };
 
-class  CDrawManager
+class CDrawManager// : public Singleton<CDrawManager>
 {
 public:
   CDrawManager();
