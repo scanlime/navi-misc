@@ -38,7 +38,7 @@
 
 #include <p16C745.inc>
 #include "usb_defs.inc"
-#include "../include/protocol.h"
+#include "../include/mi6k_protocol.h"
 
 USBBANK	code
 	global	Config_desc_index
