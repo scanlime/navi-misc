@@ -41,12 +41,16 @@ class CenturyVFD:
     def home(self):
         self.writeVFD(chr(0x16))
 
+    def cursorOff(self):
+        self.writeVFD(chr(0x0E))
+
     def writeScreen(self, data):
         "Write a complete screen of data, without clearing the screen"
         lines = data.split('\n')
         while len(lines)<self.lines:
             lines.append("")
         self.home()
+        self.cursorOff()
         for l in lines:
             if len(l) < self.width:
                 l += " " * (self.width - len(l))
