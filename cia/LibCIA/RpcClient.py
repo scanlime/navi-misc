@@ -118,11 +118,9 @@ class XmlrpcURIHandler(Ruleset.RegexURIHandler):
         proxy = xmlrpc.Proxy(server)
 
         # Parse arguments, allowing use of our 'message' and 'content' variables.
-        # Note that if our content is None, we replace it with the empty
-        # string to keep XML-RPC serialization happy.
         args = self.parseArgs(groups['args'],
                               message = str(message),
-                              content = content or '')
+                              content = content)
 
         # Make the call, ignoring the resulting Deferred. If it succeeds,
         # we don't really care. If it fails, the error will get logged.
