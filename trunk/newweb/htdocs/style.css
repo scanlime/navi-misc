@@ -6,6 +6,10 @@ body {
   padding: 0;
 }
 
+body.white {
+  background: #ffffff;
+}
+
 img {
   border: none;
   vertical-align: middle;
@@ -46,13 +50,19 @@ div.heading {
   margin: 0em 0em 2.0em 0em;
 }
 
-div.majorTitle {
-  font: 300% sans-serif;
+.majorTitle {
   text-align: center;
+  font: 30pt sans-serif;
+  margin: 0em;
 }
 
 div.title {
   font: 250% bold;
+}
+
+div.subtitle {
+  font: 100% italic;
+  margin: 0em 3em;
 }
 
 div.footer {

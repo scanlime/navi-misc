@@ -11,30 +11,44 @@
       <head>
         <title><xsl:value-of select="@title"/></title>
         <style type="text/css" media="all"> @import url(style.css);</style>
+      <xsl:choose>
+        <xsl:when test="/page/@front='true'">
+          <style type="text/css">body { background: #ffffff; }</style>
+        </xsl:when>
+      </xsl:choose>
       </head>
       <body>
-        <div class="heading">
-          <div class="title"><xsl:value-of select="@title"/></div>
-          <div class="headingTabs">
-            <xsl:apply-templates select="document('tabs.xml')//headingTab"/>
-          </div>
-        </div>
-        <table class="columns">
-          <!--====== Navigation -->
-          <td class="left">
-          </td>
+        <xsl:choose>
+          <xsl:when test="/page/@front='true'">
+            <!--========== Front Page -->
+            <h1 class="majorTitle"><xsl:value-of select="/page/heading"/></h1>
+          </xsl:when>
+          <xsl:otherwise>
+            <!--========== Normal Page -->
+            <div class="heading">
+              <div class="title"><xsl:value-of select="@title"/></div>
+              <div class="subtitle"><xsl:value-of select="@subtitle"/></div>
+              <div class="headingTabs">
+                <xsl:apply-templates select="document('tabs.xml')//headingTab"/>
+              </div>
+            </div>
+            <table class="columns">
+              <!--====== Navigation -->
+              <td class="left">
+              </td>
 
-          <!--====== Navigation -->
-          <td class="main">
-            <xsl:apply-templates select="section"/>
-          </td>
-        </table>
-
-        <div class="footer">
-          <a href="/">
-            <img src="http://navi/images/web/navi64.png" width="64" height="39" alt="Navi"/>
-          </a>
-        </div>
+              <!--====== Navigation -->
+              <td class="main">
+                <xsl:apply-templates select="section"/>
+              </td>
+            </table>
+            <div class="footer">
+              <a href="/">
+                <img src="http://navi/images/web/navi64.png" width="64" height="39" alt="Navi"/>
+              </a>
+            </div>
+          </xsl:otherwise>
+        </xsl:choose>
       </body>
     </html>
   </xsl:template>
