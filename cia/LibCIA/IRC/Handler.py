@@ -60,7 +60,7 @@ class IrcURIHandler(Ruleset.RegexURIHandler):
     def createQueueFromURI(self, uri):
         """Convert a URI to a new message queue instance"""
         d = self.parseURI(uri)
-        server = Bots.Server(d['host'], d['port'])
+        server = Bots.Server(d['host'], int(d['port']))
 
         if d['isnick']:
             # This refers to a nickname- deliver private messages to that user
