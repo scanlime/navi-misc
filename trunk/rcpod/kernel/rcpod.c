@@ -80,8 +80,10 @@ static DECLARE_MUTEX(minor_table_mutex);
 /************************************************** Function Prototypes *******/
 /******************************************************************************/
 
-static void rcpod_poke(struct usb_rcpod *dev, unsigned short address, unsigned short data);
-static unsigned char rcpod_peek(struct usb_rcpod *dev, unsigned short address);
+static int rcpod_poke(struct usb_rcpod *dev, unsigned short address, unsigned short data);
+static int rcpod_peek(struct usb_rcpod *dev, unsigned short address);
+static int rcpod_analog_all(struct usb_rcpod *dev, unsigned char *buffer);
+
 static int rcpod_open(struct inode *inode, struct file *file);
 static int rcpod_release(struct inode *inode, struct file *file);
 static int rcpod_dev_ioctl(struct inode *inode, struct file *file, unsigned int cmd, unsigned long arg);
@@ -96,24 +98,30 @@ static void __exit usb_rcpod_exit(void);
 /************************************************** Device Communications *****/
 /******************************************************************************/
 
-static void rcpod_poke(struct usb_rcpod *dev, unsigned short address, unsigned short data)
+static int rcpod_poke(struct usb_rcpod *dev, unsigned short address, unsigned short data)
 {
-	int result;
-	result = usb_control_msg(dev->udev, usb_sndctrlpipe(dev->udev, 0),
-				 RCPOD_CTRL_POKE, 0x40, data, address,
-				 NULL, 0, REQUEST_TIMEOUT);
-	dbg("pic[%d] <- %d, result %d", address, data, result);
+	return usb_control_msg(dev->udev, usb_sndctrlpipe(dev->udev, 0),
+			       RCPOD_CTRL_POKE, 0x40, data, address,
+			       NULL, 0, REQUEST_TIMEOUT);
 }
 
-static unsigned char rcpod_peek(struct usb_rcpod *dev, unsigned short address)
+static int rcpod_peek(struct usb_rcpod *dev, unsigned short address)
 {
 	unsigned char c;
 	int result;
 	result = usb_control_msg(dev->udev, usb_rcvctrlpipe(dev->udev, 0),
 				 RCPOD_CTRL_PEEK, 0x40 | USB_DIR_IN, 0, address, &c, sizeof(c),
 				 REQUEST_TIMEOUT);
-	dbg("pic[%d] -> %d, result %d", address, c, result);
+	if (result < 0)
+	  return result;
 	return c;
+}
+
+static int rcpod_analog_all(struct usb_rcpod *dev, unsigned char *buffer)
+{
+	return usb_control_msg(dev->udev, usb_rcvctrlpipe(dev->udev, 0),
+			       RCPOD_CTRL_ANALOG_ALL, 0x40 | USB_DIR_IN, 0, 0, buffer, 8,
+			       REQUEST_TIMEOUT);
 }
 
 
@@ -209,6 +217,7 @@ static int rcpod_ioctl(struct inode *inode, struct file *file, unsigned int cmd,
 	struct usb_rcpod *dev;
 	int retval=0;
 	struct rcpod_pair p;
+	char analog_buffer[8];
 
 	dev =(struct usb_rcpod *)file->private_data;
 
@@ -228,11 +237,19 @@ static int rcpod_ioctl(struct inode *inode, struct file *file, unsigned int cmd,
 			retval = -EFAULT;
 			break;
 		}
-		rcpod_poke(dev, p.address, p.data);
+		retval = rcpod_poke(dev, p.address, p.data);
 		break;
 
 	case RCPODIO_PEEK:
 		retval = rcpod_peek(dev, arg);
+		break;
+
+	case RCPODIO_ANALOG_ALL:
+		retval = rcpod_analog_all(dev, analog_buffer);
+		if (copy_to_user((unsigned char*) arg, analog_buffer, sizeof(analog_buffer))) {
+			retval = -EFAULT;
+			break;
+		}
 		break;
 
 	default:

@@ -42,18 +42,9 @@ class AnalogSampler:
         # but rcpod is slow enough we don't need to worry about this.
         return self.pic.ADRES / 255.0
 
-    def readAll(self, repeats=1, channels=xrange(8)):
-        """Read all ADC channels, return a list of floats.
-           In order to provide more stable readings with high impedance inputs,
-           this can optionally repeat each channel's reading several times to let
-           the ADC's holding capacitor charge over a longer period of time.
-           """
-        results = []
-        for channel in xrange(8):
-            for i in xrange(repeats):
-                v = self.readChannel(channel)
-            results.append(v)
-        return results
+    def readAll(self):
+        """Read all ADC channels, return a list of floats."""
+        return [v / 255.0 for v in self.pic.analogAll()]
 
 
 class ChannelGraph:

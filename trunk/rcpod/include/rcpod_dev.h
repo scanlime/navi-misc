@@ -39,6 +39,9 @@ struct rcpod_pair {
 /* Given a valid address, retrieves the byte at that address in the PIC and returns it */
 #define RCPODIO_PEEK         0x3702
 
+/* Given a pointer to an 8-byte buffer, reads all A/D converters and fills the buffer */
+#define RCPODIO_ANALOG_ALL   0x3703
+
 #endif /* __RCPOD_DEV_H */
 
 /* The End */
