@@ -30,7 +30,6 @@
 #include "hardware.h"
 
 static bit config_in_progress;
-static long bytes_configured;
 
 static void      fpga_config_write_byte(unsigned char c);
 static void      fpga_init();
@@ -53,18 +52,23 @@ static void fpga_config_write_byte(unsigned char c)
 {
   int i;
 
-  /* Clock out bits left-to-right */
-  for (i=8; i; i--) {
-    if (c & 0x80)
-      fpga_din_on();
-    else
-      fpga_din_off();
-    c <<= 1;
-    watchdog_reset();
-    fpga_cclk_on();
-    watchdog_reset();
-    fpga_cclk_off();
-  }
+  /* Clock out bits left-to-right. This loop was unrolled for speed. */
+#define CLOCK_OUT_BIT(mask) \
+  if (c & mask) \
+    fpga_din_on(); \
+  else \
+    fpga_din_off(); \
+  fpga_cclk_on(); \
+  fpga_cclk_off();
+
+  CLOCK_OUT_BIT(0x80)
+  CLOCK_OUT_BIT(0x40)
+  CLOCK_OUT_BIT(0x20)
+  CLOCK_OUT_BIT(0x10)
+  CLOCK_OUT_BIT(0x08)
+  CLOCK_OUT_BIT(0x04)
+  CLOCK_OUT_BIT(0x02)
+  CLOCK_OUT_BIT(0x01)
 }
 
 
@@ -76,17 +80,13 @@ static void fpga_config_write_byte(unsigned char c)
 void fpga_config_begin()
 {
   config_in_progress = 1;
-  bytes_configured = 0;
-
   fpga_init();
-
-  printf("Configuring FPGA ");
+  printf("Configuring FPGA... ");
 }
 
 void fpga_config_write(unsigned char *cfgdata, int length)
 {
   int i;
-  const long dot_mask = ~0x3FF;
 
   if (!config_in_progress) {
     printf("fgpa_config_write without config_in_progress\n");
@@ -95,13 +95,6 @@ void fpga_config_write(unsigned char *cfgdata, int length)
 
   for (i=length; i; i--)
     fpga_config_write_byte(*(cfgdata++));
-
-  /* Give a dot every time we cross a 1024-byte boundary */
-  if ( ((bytes_configured + length) & dot_mask) !=
-       (bytes_configured & dot_mask) )
-    putchar('.');
-
-  bytes_configured += length;
 }
 
 unsigned char fpga_config_end()
