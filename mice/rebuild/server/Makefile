@@ -2,6 +2,8 @@ CLASSFILES=\
 	question.class\
 	qqueue.class\
 	qbase.class\
+	keyinfo.class\
+	key.class\
 	ainterview.class\
 	amoderate.class\
 	asubmit.class\
@@ -21,6 +23,12 @@ nbase.class: nbase.java
 
 njavaint.class: njavaint.java
 	javac njavaint.java
+
+keyinfo.class: keyinfo.java
+	javac keyinfo.java
+
+key.class: key.java
+	javac key.java
 
 imain.class: imain.java
 	javac imain.java
