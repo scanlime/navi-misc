@@ -978,13 +978,13 @@ histogram_imager_get_max_usable_density (HistogramImager *self)
 	else clamped_a = self->bgalpha;
 
 	if (delta_r == 0) max_luma_r = 0;
-	else max_luma_r = ((double)(clamped_r - self->bgcolor.red))   / delta_r;
+	else max_luma_r = (((double)clamped_r) - self->bgcolor.red)   / delta_r;
 	if (delta_g == 0) max_luma_g = 0;
-	else max_luma_g = ((double)(clamped_g - self->bgcolor.green)) / delta_g;
+	else max_luma_g = (((double)clamped_g) - self->bgcolor.green) / delta_g;
 	if (delta_b == 0) max_luma_b = 0;
-	else max_luma_b = ((double)(clamped_b - self->bgcolor.blue))  / delta_b;
+	else max_luma_b = (((double)clamped_b) - self->bgcolor.blue)  / delta_b;
 	if (delta_a == 0) max_luma_a = 0;
-	else max_luma_a = ((double)(clamped_a - self->bgalpha))       / delta_a;
+	else max_luma_a = (((double)clamped_a) - self->bgalpha)       / delta_a;
 
 	max_luma = 0;
 	if (max_luma_r > max_luma) max_luma = max_luma_r;
