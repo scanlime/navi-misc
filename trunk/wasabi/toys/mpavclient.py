@@ -1,3 +1,8 @@
+#!/usr/bin/env python
+#
+# Pure python MPAV spectrum analyzer
+# --Micah Dowty <micah@navi.cx>
+#
 
 import os, mmap, struct, time
 import pygame
@@ -95,13 +100,7 @@ class SDLBargraph:
         pygame.display.flip()
 
 
-if __name__ == "__main__":
-    mpav = MPAVClient()
-    rw = RasterBargraph()
-    sb = SDLBargraph()
-
-    delayed = Delay(30, mpav.getBuffer)
-
+def fft_loop(input, *outputs):
     # Frequency tap indices for each bar
     s = 20
     taps = (exp(arange(0, 1, 0.07)) * s - s).astype(Int)
@@ -129,5 +128,17 @@ if __name__ == "__main__":
         bars -= 0.05
         bars = maximum(bars, vscaled)
 
-        sb.writeBars(bars)
-        rw.writeBars(bars)
+        for output in outputs:
+            output(bars)
+
+
+if __name__ == "__main__":
+    mpav = MPAVClient()
+    rw = RasterBargraph()
+    sb = SDLBargraph()
+    delayed = Delay(30, mpav.getBuffer)
+    try:
+        fft_loop(delayed, rw.writeBars, sb.writeBars)
+    finally:
+        # Clear the rasterwand on exit
+        rw.writeBars(array([0]))
