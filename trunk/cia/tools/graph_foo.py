@@ -163,14 +163,15 @@ class RelationGrapher:
                 continue
 
             # Scale the strength and freshness logarithmically to be values between 0 and 1
-            strength = math.log(strength) / math.log(maxStrength)
-            freshness = 1 - (math.log(now - freshness) / math.log(now - minFreshness))
+            unitStrength = math.log(strength) / math.log(maxStrength)
+            unitFreshness = 1 - (math.log(now - freshness) / math.log(now - minFreshness))
 
             # By default, generate a length to correspond to the strength of this edge.
             # We use a high weight to tell neato that this edge length is important.
             attributes = {
-                'len': 8.0 - 6 * strength,
+                'len': 8.0 - 6 * unitStrength,
                 'weight': 0.1,
+                'label': strength,
                 }
 
             f.write('\t%s -- %s %s;\n' % (self.quote(a),
