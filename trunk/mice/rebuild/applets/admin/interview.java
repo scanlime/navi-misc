@@ -7,39 +7,41 @@ import java.util.*;
 import java.io.*;
 
 /**
- * This class handles the interview stuff (as far as setting up the number of
- * interviewees), getting their names and settings.
+ * This class handles all the interview information collection from the admin
  * @author Brandon Smith
  * @version 2.0
  */
- 
+
 public class interview implements ActionListener
 {
 	/** Keep this close to add and remove stuff */
 	private admin myadmin;
 	
-	/** The number of moderators. */
+	/** The number of interviews. */
 	private int count = 0;
 	
 	/** The submit button */
 	private Button submit;
 	
-	/** The joyful number of moderators text field */
+	/** The joyful number of interviews text field */
 	private TextField countin;
 	
-	/** The usernames for the moderators text fields */
+	/** The usernames for the interviews text fields */
 	private TextField[] usernames;
 	
-	/** The passwords for the moderators text fields */
+	/** The passwords for the interviews text fields */
 	private TextField[] passwords;
 	
 	/**
-	 * This constructs the moderator object, and gets everything all set up
+	 * This constructs the interview object, and gets everything all set up
+	 * @param my A reference to the applet for adding and removing purposes
+	 * @author Brandon Smith
+	 * @version 2.0
 	 */
-	public moderator(admin my)
+	public interview(admin my)
 	{
 		myadmin = my;
-		admin.help.setText("Please enter the number of moderators, from 1 to 9");
+		admin.help.setText("Please enter the number of interviews, from 1 to 9");
 		countin = new TextField("",4);
 		myadmin.ad(countin);
 		submit = new Button("Submit");
@@ -47,10 +49,16 @@ public class interview implements ActionListener
 		myadmin.ad(submit);
 	}
 	
+	/**
+	 * This handles the pressing of the button, such that when it is pressed, the
+	 * applet does stuff.
+	 * @param e The ActionEvent associated with this action, not used
+	 * @author Brandon Smith
+	 * @version 2.0
+	 */
 	public void actionPerformed(ActionEvent e)
 	{
 		int i;
-		
 		if(count == 0)
 		{
 			count = Integer.parseInt(countin.getText());
@@ -69,27 +77,39 @@ public class interview implements ActionListener
 					myadmin.rm(passwords[i]);
 				}
 				myadmin.rm(submit);
-				new interview(myadmin);
 			}
 		}
 	}
-	
+
+	/**
+	 * This method does the first step, which is to put the TextFields out there
+	 * to collect the usernames and passwords from the administrator
+	 * @author Brandon Smith
+	 * @version 2.0
+	 */
 	private void step1()
 	{
 		int i;
 		usernames = new TextField[count];
 		passwords = new TextField[count];
-		admin.help.setText("Please enter the usernames and passwords for each of the moderators.");
+		admin.help.setText("Please enter the usernames and passwords for each of the interviews.  If IRC or AIM is used for the password, then the username will be seen as an AIM or IRC nickname to be used.");
 		for(i=0;i<count;i++)
 		{
-			usernames[i] = new TextField(("username " + (i+1)),30);
-			passwords[i] = new TextField(("password " + (i+1)),30);
+			usernames[i] = new TextField(("username " + (i+1)),20);
+			passwords[i] = new TextField(("password " + (i+1)),20);
 			myadmin.ad(usernames[i]);
 			myadmin.ad(passwords[i]);
 		}
 		myadmin.ad(submit);
 	}
 	
+	/**
+	 * This method handles the data collection from the applet, so that it knows
+	 * what the usernames and passwords are for the interviews.
+	 * @author Brandon Smith
+	 * @version 2.0
+	 * @return True on successful sending of the data, False if the data is incomplete.
+	 */
 	private boolean step2()
 	{
 		int i;
