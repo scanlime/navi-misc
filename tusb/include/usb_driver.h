@@ -231,11 +231,13 @@ void usb_write_ack();
  * Buffer addresses must be in external RAM, aligned on an
  * 8-byte boundary.
  *
- * usb_dma_status returns 0 if nothing has happened, otherwise
- * the number of bytes transferred.
+ * usb_dma_status returns 0 if nothing has happened, nonzero
+ * if a transfer has completed. For OUT endpoints, this will
+ * always be the number of bytes received.
  *
- * usb_dma_setup needs to be called to start or continue a transfer,
- * whereas usb_dma_unstall should only be called once before the first setup.
+ * usb_dma_setup needs to be called to start or continue a transfer.
+ * usb_dma_unstall should only be called before the first usb_dma_setup
+ * normally.
  */
 void usb_dma_setup(unsigned char ep, xdata unsigned char *buffer, unsigned char buffer_size);
 void usb_dma_stall(unsigned char ep);
