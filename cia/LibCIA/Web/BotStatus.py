@@ -38,15 +38,30 @@ class TotalsSection(Template.Section):
                 self.totalBots += 1
                 self.totalChannels += len(bot.channels)
 
+        self.numRequests = 0
+        self.numUnfulfilled = 0
+        for request in botNet.requests:
+            self.numRequests += 1
+            if not request.isFulfilled():
+                self.numUnfulfilled += 1
+
     title = "totals"
-    rows = [[
-        Template.value[ place('totalBots') ],
-        ' total IRC bots across ',
-        Template.value[ place('totalServers') ],
-        ' servers, inhabiting ',
-        Template.value[ place('totalChannels') ],
-        ' channels.',
-        ]]
+    rows = [
+               [
+                   Template.value[ place('totalBots') ],
+                   ' total IRC bots across ',
+                   Template.value[ place('totalServers') ],
+                   ' servers, inhabiting ',
+                   Template.value[ place('totalChannels') ],
+                   ' channels.',
+               ],
+               [
+                   Template.value[ place('numRequests') ],
+                   ' requests are currently registered with the bot network. ',
+                   Template.value[ place('numUnfulfilled') ],
+                   ' of these are unfulfilled.',
+               ],
+           ]
 
 
 class BotChannelsColumn(Nouvelle.Column):
