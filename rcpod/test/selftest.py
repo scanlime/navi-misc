@@ -117,6 +117,9 @@ class SelfTest(RcpodTestCase):
 
     def testPinOutputs(self):
         """verify, using pin descriptors, that all pins' values can be toggled as outputs"""
+        # Make PORTA and PORTE pins digital rather than the default of analog
+        self.rcpod.poke('adcon1', 0xFF)
+
         for name, pin in self.rcpod.pins.iteritems():
             pin.output().assert_()
 

@@ -21,7 +21,7 @@ int main() {
     /* In every iteration, negate the LED's current value and assert the new pin descriptor */
     led = RCPOD_NEGATE(led);
     rcpod_GpioAssert(rcpod, led);
-    usleep(50000);
+    usleep(100000);
   }
 
   return 0;
