@@ -141,13 +141,10 @@ display_init
 	clrf	edge_counter
 	clrf	flip_counter
 	clrf	current_column
+	clrf	write_pointer
 
 	movlw	NUM_COLUMNS
 	movwf	num_active_columns
-
-	banksel	write_pointer
-	movlw	back_buffer
-	movwf	write_pointer
 
 	return
 
@@ -173,8 +170,7 @@ display_poll
 display_request_flip
 	bsf		FLAG_FLIP_REQUEST
 	banksel	write_pointer			; Reset the write_pointer
-	movlw	back_buffer
-	movwf	write_pointer
+	clrf	write_pointer
 	return
 
 
@@ -211,7 +207,6 @@ display_save_status
 
 	; Set our write pointer to the given column number, form 'w'.
 display_seek
-	addlw	back_buffer
 	banksel	write_pointer
 	movwf	write_pointer
 	return
@@ -223,12 +218,13 @@ display_seq_write_byte
 	banksel	write_pointer
 	bankisel back_buffer
 
-	movf	back_buffer+NUM_COLUMNS, w	; Test write_pointer - back_buffer[NUM_COLUMNS]
+	movlw	NUM_COLUMNS					; Test write_pointer - NUM_COLUMNS
 	subwf	write_pointer, w
 	btfsc	STATUS, C
-	return								; Out of range
+	return								; C=1, B=0, NUM_COLUMNS <= write_pointer
 
 	movf	write_pointer, w			; Write and increment
+	addlw	back_buffer
 	movwf	FSR
 	movf	temp, w
 	movwf	INDF

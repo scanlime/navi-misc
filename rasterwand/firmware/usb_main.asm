@@ -246,7 +246,7 @@ MainLoop
 	movwf	FSR
 	bsf		STATUS, IRP
 
-	banksel	display_save_status	; Save the status packet
+	pagesel	display_save_status	; Save the status packet
 	call	display_save_status
 
 	banksel	BD1IST
