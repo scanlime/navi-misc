@@ -58,7 +58,7 @@ class FieldSensor {
   bool newData;
 
   /* Neural net */
-  TwoLayerNetwork net;
+  FieldNetwork net;
 
   /* Kalman filter variables:
    *  x: State vector

@@ -46,14 +46,10 @@ void FieldNetwork::initLayers(void) {
 }
 
 void FieldNetwork::initTransferFunctions(void) {
-  for (int layer=0; layer<4; layer++) {
-    Layer *l = &_layers[layer];
-    for (int neuron=0; neuron<l->getSize(); neuron++)
-      l->getNeuron(neuron).setActivationFunction(identity, didentity);
-  }
+  setActivationFunction(1, &identity, &didentity);
+  setActivationFunction(2, &identity, &didentity);
+  setActivationFunction(3, &identity, &didentity);
 }
-
-#endif /* __H_FIELDNETWORK */
 
 /* The End */
 

@@ -1,11 +1,11 @@
+#include <FieldNetwork.h>
 #include <iostream>
-#include <annie.h>
 using namespace std;
 
 int main(void) {
   try {
-    annie::FieldNetwork net("data/current.net");
-    annie::TrainingSet pattern("data/4x4cube.pattern");
+    FieldNetwork net("data/current.net");
+    TrainingSet pattern("data/4x4cube.pattern");
     
     while (1) {
       net.train(pattern, 100, 0.8, 0.0, true);
