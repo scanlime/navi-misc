@@ -53,7 +53,7 @@ mvmtOneCello = \relative c, {
 	dis1
 
 	% 60
-	r1^\tutti
+	R1^\menoMosso
 	e2\mp (d
 	b cis4 e
 	gis2.) fis4 (
@@ -66,10 +66,11 @@ mvmtOneCello = \relative c, {
 	e2^\solo) r2 \fermata
 
 	\time 6/8
-	R1*6/8*10
+	R1*6/8^\andante
+	R1*6/8*9
 
 	<< {
-		s4. bes (
+		s4.^\divisi bes (
 		cis d)
 		s a (
 		c des)
@@ -91,7 +92,8 @@ mvmtOneCello = \relative c, {
 	\setHairpinDecresc
 	\time 4/4
 	\times 4/6 {<gis cis>8-> [<gis cis> <gis cis>-. <gis cis>-. <gis cis>-. <gis cis>-.]}
-        \times 4/6 {<g c>8-> [<g c> <g c>-. <g c>-. <g c>-. <g c>-.]}
+	\once \override TextScript #'extra-offset = #'(0 . 1.0)
+        \times 4/6 {<g c>8->^\tempoI [<g c> <g c>-. <g c>-. <g c>-. <g c>-.]}
 
 	% 90
 	<g c>4\pp aes8->\mf r8 r4 g8-> r8
@@ -120,7 +122,7 @@ mvmtOneCello = \relative c, {
 	fis1\p \trill
 	\> fis1 \! \trill
 
-	R1*10^\solo | R1*9
+	R1*10 | R1*9
 	r8 fis'\ff r gis r fis r a
 
 	% 130
@@ -147,7 +149,8 @@ mvmtOneCello = \relative c, {
 		}
 	}
 	\time 6/8
-	R1*6/8*4
+	\once \override TextScript #'extra-offset = #'(-2.0 . 0.5)
+	R1*6/8*4^\andante
 	gis4.\mf^\oneCello gis4 (fis8
 	b4.) a4.
 	\appoggiatura gis8 gis'4. fis4 eis8
@@ -166,7 +169,7 @@ mvmtOneCello = \relative c, {
 	\repeat "tremolo" 6 gis16 \repeat "tremolo" 6 fis16
 	\repeat "tremolo" 6 e16
 	<< {
-		\repeat "tremolo" 6 b'16
+		\repeat "tremolo" 6 b'16^\divisi
 		\repeat "tremolo" 6 g16 fis fis fis fis e e
 		\repeat "tremolo" 6 d'16 \repeat "tremolo" 6 d16
 		\repeat "tremolo" 6 e16 \repeat "tremolo" 6 e16
@@ -192,7 +195,7 @@ mvmtOneCello = \relative c, {
 	\time 4/4
 	% 177
 	<< {
-		b8^\solo r d r e r fis r
+		b8^\divisi^\moderatoMaestoso r d r e r fis r
 		g r gis r gis r ais r
 		g r g r fis r fis r
 		b, r b r cis r fis, r
@@ -221,7 +224,7 @@ mvmtOneCello = \relative c, {
 	b'4\p^\tuttiPizz ais a gis
 	\repeat "unfold" 2 {b4 ais a gis}
 	g fis f e
-	e r r2
+	e^\tempoI r r2
 	R1*6
 	\bar "|."
 }
