@@ -28,6 +28,7 @@
 #include <glib-object.h>
 
 void   load_plugins     (void);
-GList* find_type_leaves (GType base);
+GList* find_type_leaves   (GType base);
+GList* find_type_children (GType base);
 
 #endif

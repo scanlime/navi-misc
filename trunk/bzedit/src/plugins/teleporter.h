@@ -24,6 +24,7 @@
 #define __TELEPORTER_H__
 
 #include "sceneobject.h"
+#include "displaylist.h"
 
 G_BEGIN_DECLS
 
@@ -53,6 +54,7 @@ struct _Teleporter
   TeleporterParams param;
   gboolean state_dirty;
   GList *drawables;
+  Drawable *field;
 };
 
 struct _TeleporterClass
@@ -62,6 +64,32 @@ struct _TeleporterClass
 
 GType       teleporter_get_type (void) G_GNUC_CONST;
 Teleporter* teleporter_new      (void);
+
+#define TELEPORTER_FIELD_DRAWABLE_TYPE            (teleporter_field_drawable_get_type ())
+#define TELEPORTER_FIELD_DRAWABLE(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), TELEPORTER_FIELD_DRAWABLE_TYPE, TeleporterFieldDrawable))
+#define TELEPORTER_FIELD_DRAWABLE_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), TELEPORTER_FIELD_DRAWABLE_TYPE, TeleporterFieldDrawableClass))
+#define IS_TELEPORTER_FIELD_DRAWABLE(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TELEPORTER_FIELD_DRAWABLE_TYPE))
+#define IS_TELEPORTER_FIELD_DRAWABLE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), TELEPORTER_FIELD_DRAWABLE_TYPE))
+
+typedef struct _TeleporterFieldDrawable      TeleporterFieldDrawable;
+typedef struct _TeleporterFieldDrawableClass TeleporterFieldDrawableClass;
+
+struct _TeleporterFieldDrawable
+{
+  DisplayList parent;
+
+  gfloat position[3];
+  gfloat size[2];
+  gfloat rotation;
+};
+
+struct _TeleporterFieldDrawableClass
+{
+  DisplayListClass parent_class;
+};
+
+GType     teleporter_field_drawable_get_type (void) G_GNUC_CONST;
+Drawable* teleporter_field_drawable_new      (void);
 
 G_END_DECLS
 
