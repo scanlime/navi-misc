@@ -25,14 +25,15 @@
 #include <gst/control/control.h>
 */
 
-#include "gstplugin.h"
+#include "gstopenglsink.h"
 
 static GstElementDetails plugin_details = {
-  "PluginTemplate",
-  "Generic/PluginTemplate",
+  "OpenGLSink",
+  "Sink/Video/OpenGLSink",
   "LGPL",
-  "Generic Template Plugin",
+  "OpenGL Texture Sink",
   VERSION,
+  "David Trowbridge <trowbrds@cs.colorado.edu>\n"
   "Thomas Vander Stichele <thomas@apestaart.org>",
   "(C) 2002, 2003"
 };
