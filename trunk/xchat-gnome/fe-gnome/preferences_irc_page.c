@@ -25,9 +25,10 @@
 static GtkListStore *hilight_store;
 extern struct xchatprefs prefs;
 
-static void gconf_entry_changed (GConfClient *client, guint cnxn_id, const gchar *key, GConfValue *value, gboolean is_default, GtkEntry *entry);
-static void gconf_bool_changed (GConfClient *client, guint cnxn_id, const gchar *key, GConfValue *value, gboolean is_default, GtkToggleButton *button);
-static void gconf_font_changed (GConfClient *client, guint cnxn_id, const gchar *key, GConfValue *value, gboolean is_default, GtkFontButton *button);
+static void gconf_entry_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, GtkEntry *gtkentry);
+static void gconf_bool_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, GtkToggleButton *button);
+static void gconf_font_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, GtkFontButton *button);
+
 static void entry_changed (GtkEntry *entry, const gchar *key);
 static void bool_changed (GtkToggleButton *button, const gchar *key);
 static void font_changed (GtkFontButton *button, const gchar *key);
@@ -148,35 +149,35 @@ void initialize_preferences_irc_page()
 }
 
 static void
-gconf_entry_changed (GConfClient *client, guint cnxn_id, const gchar *key, GConfValue *value, gboolean is_default, GtkEntry *entry)
+gconf_entry_changed (GConfClient *client, guint cnxn_id,  GConfEntry *entry, GtkEntry *gtkentry)
 {
 	gchar *text;
 
-	g_signal_handlers_block_by_func (entry, "changed", entry_changed);
-	text = gconf_client_get_string (client, key, NULL);
-	gtk_entry_set_text (entry, text);
+	g_signal_handlers_block_by_func (gtkentry, "changed", entry_changed);
+	text = gconf_client_get_string (client, entry->key, NULL);
+	gtk_entry_set_text (gtkentry, text);
 	g_free (text);
-	g_signal_handlers_unblock_by_func (entry, "changed", entry_changed);
+	g_signal_handlers_unblock_by_func (gtkentry, "changed", entry_changed);
 }
 
 static void
-gconf_bool_changed (GConfClient *client, guint cnxn_id, const gchar *key, GConfValue *value, gboolean is_default, GtkToggleButton *button)
+gconf_bool_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, GtkToggleButton *button)
 {
 	gboolean toggle;
 
 	g_signal_handlers_block_by_func (button, "toggled", bool_changed);
-	toggle = gconf_client_get_bool (client, key, NULL);
+	toggle = gconf_client_get_bool (client, entry->key, NULL);
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button), toggle);
 	g_signal_handlers_unblock_by_func (button, "toggled", bool_changed);
 }
 
 static void
-gconf_font_changed (GConfClient *client, guint cnxn_id, const gchar *key, GConfValue *value, gboolean is_default, GtkFontButton *button)
+gconf_font_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, GtkFontButton *button)
 {
 	gchar *text;
 
 	g_signal_handlers_block_by_func (button, "font-set", font_changed);
-	text = gconf_client_get_string (client, key, NULL);
+	text = gconf_client_get_string (client, entry->key, NULL);
 	gtk_font_button_set_font_name (button, text);
 	g_free (text);
 	g_signal_handlers_unblock_by_func (button, "font-set", font_changed);
