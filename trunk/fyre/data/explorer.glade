@@ -1450,7 +1450,7 @@ to balance interactive response with image quality.</property>
 	      <property name="digits">1</property>
 	      <property name="update_policy">GTK_UPDATE_CONTINUOUS</property>
 	      <property name="inverted">False</property>
-	      <property name="adjustment">13 1 250 1 10 0</property>
+	      <property name="adjustment">25 1 250 1 10 0</property>
 	      <signal name="value_changed" handler="on_render_time_changed" last_modification_time="Wed, 27 Oct 2004 09:27:07 GMT"/>
 	    </widget>
 	    <packing>
