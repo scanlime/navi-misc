@@ -34,7 +34,8 @@
     </step>
     <step>
       <!-- FIXME - how to characterize foot maneuver? -->
-      Keeping your body low, perform a <kick side="right">step-through knife-edge side</kick>
+      Keeping your body low, perform a step-through
+      <kick side="right">knife-edge side</kick>
       to the back of your opponent's left leg.
     </step>
   </steps>
