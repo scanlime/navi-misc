@@ -107,7 +107,7 @@ tePanelReturn CMainMenu::Process ( std::string &next )
 	if (gameLoop->GetInput().KeyDown(KEY_RETURN))
 	{
 		// put somethign not lame here
-		gameLoop->SetGameName("bzflag");
+		gameLoop->SetGameName("test");
 		gameLoop->SetGameStartString("test");
 		return ePanelStart;
 	}

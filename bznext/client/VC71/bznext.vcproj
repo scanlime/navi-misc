@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../inc;../../common/inc;../../../ogrenew/ogremain/include;../ui/inc;../game/inc"
+				AdditionalIncludeDirectories="../inc;../../common/inc;../../../ogrenew/ogremain/include;../ui/inc;../game/inc;../game/test/inc"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_STLP_USE_DYNAMIC_LIB;OGRE_LIBRARY_IMPORTS"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -70,7 +70,7 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="../inc;../../common/inc;../../../ogrenew/ogremain/include;../ui/inc;../game/inc"
+				AdditionalIncludeDirectories="../inc;../../common/inc;../../../ogrenew/ogremain/include;../ui/inc;../game/inc;../game/test/inc"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_STLP_USE_DYNAMIC_LIB;OGRE_LIBRARY_IMPORTS"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
@@ -171,6 +171,13 @@
 				<File
 					RelativePath="..\game\src\gameManager.cpp">
 				</File>
+				<Filter
+					Name="test"
+					Filter="">
+					<File
+						RelativePath="..\game\test\src\testGame.cpp">
+					</File>
+				</Filter>
 			</Filter>
 		</Filter>
 		<Filter
@@ -225,6 +232,13 @@
 				<File
 					RelativePath="..\game\inc\gameManager.h">
 				</File>
+				<Filter
+					Name="test"
+					Filter="">
+					<File
+						RelativePath="..\game\test\inc\testGame.h">
+					</File>
+				</Filter>
 			</Filter>
 		</Filter>
 		<Filter

@@ -14,6 +14,7 @@
 CGameManger::CGameManger()
 {
 	gameLoop = NULL;
+	activeGame = false;
 }
 
 CGameManger::CGameManger ( CBaseGameLoop * pGameLoop )
@@ -33,10 +34,11 @@ void CGameManger::Set ( CBaseGameLoop * pGameLoop )
 void CGameManger::Init ( void )
 {
 
+	activeGame = true;
 }
 void CGameManger::Attach ( void )
 {
-
+	gameLoop->ClearScene();
 }
 
 void CGameManger::Release ( void )
@@ -51,6 +53,6 @@ bool CGameManger::Think ( void )
 
 bool CGameManger::GameActive ( void )
 {	
-	return false;
+	return activeGame;
 }
 
