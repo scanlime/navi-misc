@@ -2,12 +2,13 @@
 <freevo>
 <skin include="blurr" geometry="640x480">
 
-    <!-- ***************************************************
-    *********************** Main Menu **********************
-    **************************************************** -->
+    <font label="default" name="VeraBd.ttf" size="16" color="0x000000"/>
+    <color label="default0" value="0x000000"/>
+    <color label="default1" value="0x444444"/>
+    <color label="default2" value="0xcccccc"/>
 
     <image label="background" filename="wasabi/background.png"/>
-    <image label="logo" filename="gant/logo.png"/>
+    <image label="logo" filename="wasabi/logo.png"/>
 
     <main imagedir="wasabi">
         <item label="video" name="Play a Video" image="wasabi/playstation.png"/>
@@ -29,8 +30,15 @@
     <layout label="screen watermark">
         <background>
             <image image="background" x="0" y="0" label="background"/>
-            <image x="100" y="112" width="256" height="256" label="watermark"/>
+            <image x="80" y="112" width="256" height="256" label="watermark"/>
         </background>
+    </layout>
+
+    <layout label="title">
+        <background>
+            <image visible="not idlebar" image="logo" x="10" y="5" width="135" height="45"/>
+        </background>
+        <content x="150" y="0" type="menu" font="title area" align="center" valign="center"/>
     </layout>
 
 </skin>
