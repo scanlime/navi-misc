@@ -30,23 +30,33 @@ class Prefs:
     if string.find(sys.platform, 'linux') != -1 and \
        os.path.exists(os.path.join(os.environ['HOME'],'.palantirrc')):
       file = open(os.path.join(dataDir, 'palantirrc'))
-      lines = file.readlines()
 
       # Load default values to check against user defined prefs.
-      for line in lines:
-        pref = line.split('=')
-        defaults[pref[0].strip()] = pref[1].strip()
+      for line in file:
+        line = line.strip()
+        if line[0] == '<':
+          prefClass = line.strip('<>')
+          defaults[prefClass] = eval('_'+prefClass)(file)
+        else:
+          pref = line.split('=')
+          defaults[pref[0].strip()] = pref[1].strip()
+
       file = open(os.path.join(os.environ['HOME'],'.palantirrc'))
 
     # Otherwise use the config in the data directory.
     else:
       file = open(os.path.join(dataDir, 'palantirrc'))
 
-    lines = file.readlines()
     # Set the preferences' values as attributes of the object.
-    for line in lines:
-      pref = line.split('=')
-      setattr(self, pref[0].strip(), pref[1].strip())
+    for line in file:
+      line = line.strip()
+      if line[0] == '<':
+        prefClass = line.strip('<>')
+        setattr(self, prefClass, eval('_'+prefClass)(file))
+      else:
+        pref = line.split('=')
+        setattr(self, pref[0].strip(), pref[1].strip())
+
     file.close()
 
     # Compare the default values against the ones we loaded to make sure
@@ -72,3 +82,22 @@ class Prefs:
         for key, value in self.__dict__.iteritems()])
 
     file.close()
+
+class _colors:
+  def __init__(self, file):
+    for line in file:
+      line = line.strip()
+      if line.strip('<>')[0] == '/':
+        return
+
+      pref = line.split('=')
+      setattr(self, pref[0].strip(), pref[1].strip())
+
+class _highlight(list):
+  def __init__(self, file):
+    for line in file:
+      line = line.strip()
+      if line.strip('<>')[0] == '/':
+        return
+
+      self.append(line)

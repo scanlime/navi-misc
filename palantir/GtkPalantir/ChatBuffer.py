@@ -25,7 +25,7 @@ class ChatBuffer(gtk.ScrolledWindow):
   ''' Objects for creating text buffers for displaying text from the channels.
       This will hold a reference to the name of the channel the buffer is showing.
       '''
-  def __init__(self, foreground='white', background='black'):
+  def __init__(self,highlightList=[], foreground='white', background='black'):
     # Initialize the scrolled window.
     gtk.ScrolledWindow.__init__(self)
     self.set_policy(2,0)

@@ -3,5 +3,11 @@ realname = evan
 quitmsg = good-bye
 partmsg = leaving...
 awaymsg = gone
-text_color = white
-background_color = black
+<colors>
+  text_color = white
+  background_color = black
+</colors>
+<highlight>
+  evan
+  darth
+</highlight>

@@ -55,8 +55,8 @@ class Sheet:
       self.root.editables = []
 
       for child in node.childNodes:
-	if child.nodeType is xml.dom.Node.ELEMENT_NODE:
-	  self.root.packChild(self.makeObjects(child, self.root))
+	      if child.nodeType is xml.dom.Node.ELEMENT_NODE:
+	        self.root.packChild(self.makeObjects(child, self.root))
 
   def makeObjects(self, newNode, parent):
     ''' Make objects out of the node passed. '''

@@ -36,7 +36,7 @@ class PrefDialog:
       self.prefs = prefs
 
     # Create an object for the general prefs.
-    self.general = GenPrefs(self.tree)
+    self.general = GenPrefs(self.tree, self.prefs.highlight)
     self.general.Set(self.prefs, self.tree)
 
     # Create an object for the color prefs.
@@ -99,8 +99,15 @@ class PrefDialog:
     self.prefs.background_color = '#' + red + green + blue
 
 class GenPrefs:
-  def __init__(self, tree):
+  def __init__(self, tree, highlightList):
     self.page = tree.get_widget('general')
+    highlightBox = tree.get_widget('highlight')
+
+    store = gtk.ListStore(gobject.TYPE_STRING)
+    tree.get_widget('highlight tree').set_model(model=store)
+    tree.get_widget('highlight tree').append_column(gtk.TreeViewColumn('words', gtk.CellRendererText(), text=0))
+    for word in highlightList:
+      store.set(store.append(), 0, word)
 
     # Make all the text entries the same width.
     sizegroup = gtk.SizeGroup(gtk.SIZE_GROUP_HORIZONTAL)
@@ -110,12 +117,12 @@ class GenPrefs:
     sizegroup.add_widget(tree.get_widget('partmsg'))
     sizegroup.add_widget(tree.get_widget('awaymsg'))
 
-    sizegroup.add_widget(tree.get_widget('highlight'))
+    sizegroup.add_widget(highlightBox)
 
     # Little formatting for the highlighting area.
     sizegroup = gtk.SizeGroup(gtk.SIZE_GROUP_VERTICAL)
     sizegroup.add_widget(tree.get_widget('add_remove'))
-    sizegroup.add_widget(tree.get_widget('highlight'))
+    sizegroup.add_widget(highlightBox)
 
   def Save(self, tree, prefs):
     ''' Save the values on the general preferences page into 'prefs'. prefs must
