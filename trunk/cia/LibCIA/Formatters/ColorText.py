@@ -49,27 +49,28 @@ class ColortextToIRC(Message.Formatter):
         from LibCIA.IRC.Formatting import ColortextFormatter
         self.formatter = ColortextFormatter()
 
-    def format(self, message, input=None):
+    def format(self, args):
+        colorText = args.message.xml.body.colorText
         if self.color:
-            return self.formatter.format(message.xml.body.colorText)
+            return self.formatter.format(colorText)
         else:
-            return XML.allText(message.xml.body.colorText)
+            return XML.allText(colorText)
 
 
 class ColortextTitle(ColortextFormatter):
     """Extracts a title from colorText messages"""
     medium = 'title'
 
-    def format(self, message, input=None):
-        return Util.extractSummary(message.xml.body.colorText)
+    def format(self, args):
+        return Util.extractSummary(args.message.xml.body.colorText)
 
 
 class ColortextToPlaintext(ColortextFormatter):
     """Extracts uncolorized plaintext from colorText messages"""
     medium = 'plaintext'
 
-    def format(self, message, input=None):
-        return self.Parser(message.xml.body.colorText).result
+    def format(self, args):
+        return self.Parser(args.message.xml.body.colorText).result
 
     class Parser(XML.XMLObjectParser):
         requiredRootElement = 'colorText'
@@ -91,8 +92,8 @@ class ColortextToXHTML(ColortextFormatter):
        """
     medium = 'xhtml'
 
-    def format(self, message, input=None):
-        return self.Parser(message.xml.body.colorText).result
+    def format(self, args):
+        return self.Parser(args.message.xml.body.colorText).result
 
     class Parser(XML.XMLObjectParser):
         requiredRootElement = 'colorText'

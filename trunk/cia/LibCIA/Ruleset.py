@@ -266,7 +266,8 @@ class Ruleset(XML.XMLFunction):
         Formatters.factory.fromXml(element)
 
         def rulesetFormatter(msg):
-            self.result = Formatters.factory.fromXml(element, msg).format(msg, self.result)
+            args = Message.FormatterArgs(msg, self.result)
+            self.result = Formatters.factory.fromXml(element, msg).format(args)
             return True
         return rulesetFormatter
 

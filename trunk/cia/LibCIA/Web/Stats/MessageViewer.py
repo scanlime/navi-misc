@@ -181,7 +181,7 @@ class MessagePage(Template.Page):
 
         for medium in mediaList:
             try:
-                formatted = Formatters.factory.findMedium(medium, m).format(m)
+                formatted = Formatters.factory.findMedium(medium, m).formatMessage(m)
             except Message.NoFormatterError:
                 continue
             result.callback(formatted)

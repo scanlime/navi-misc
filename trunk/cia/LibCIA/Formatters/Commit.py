@@ -91,10 +91,11 @@ class CommitFormatter(Message.Formatter):
             endings.append(file[len(prefix):])
         return prefix, endings
 
-    def format(self, message, input=None):
+    def format(self, args):
         """Break the commit message up into pieces that are each formatted with
            one of our format_* member functions.
            """
+        message = args.message
         commit = message.xml.body.commit
         metadata = []
 
@@ -269,8 +270,8 @@ class CommitTitle(CommitFormatter):
     """Extracts a title from commit messages"""
     medium = 'title'
 
-    def format(self, message, input=None):
-        log = message.xml.body.commit.log
+    def format(self, args):
+        log = args.message.xml.body.commit.log
         if log:
             return Util.extractSummary(log)
 
@@ -350,9 +351,10 @@ class CommitToXHTMLLong(CommitToXHTML):
        """
     medium = 'xhtml-long'
 
-    def format(self, message, input=None):
+    def format(self, args):
         from LibCIA.Web import Template
 
+        message = args.message
         commit = message.xml.body.commit
         source = message.xml.source
         headers = OrderedDict()
