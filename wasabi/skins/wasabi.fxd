@@ -381,5 +381,50 @@
 
     <color label="player mask" value="0xA0000000"/>
 
+
+    <!-- *********************************************************** Popup Boxes -->
+
+    <!-- Adapted from the 'basic' skin -->
+
+    <popup type="default" layout="popup"/>
+
+    <layout label="popup">
+        <background>
+            <rectangle color="0x000000" size="2" bgcolor="widget background" radius="10"/>
+        </background>
+        <content type="text" spacing="10" color="widget text" font="widget">
+
+            <item type="widget" font="widget">
+                <rectangle color="0xffffff"
+                    bgcolor="widget item background" size="2"/>
+            </item>
+
+            <item type="selected" font="selected widget">
+                <rectangle color="0x000000"
+                    bgcolor="widget selected background" size="2"/>
+            </item>
+
+            <item type="button" font="inactive button">
+                <rectangle color="0x000000"
+                    bgcolor="widget item background" size="2"/>
+            </item>
+
+            <item type="button selected" font="selected widget">
+                <rectangle color="0x000000"
+                    bgcolor="widget selected background" size="2"/>
+            </item>
+
+        </content>
+    </layout>
+
+    <font label="widget" name="VeraBd.ttf" size="14" color="0xffffff"/>
+    <font label="inactive button" name="VeraBd.ttf" size="14" color="0x000000"/>
+    <font label="selected widget" name="VeraBd.ttf" size="14" color="0x164668"/>
+
+    <color label="widget text" value="0xffffff"/>
+    <color label="widget background" value="0x008c8f95"/>
+    <color label="widget item background" value="0x00808080"/>
+    <color label="widget selected background" value="0xffffff"/>
+
 </skin>
 </freevo>
