@@ -59,8 +59,16 @@ class Page:
             if not current:
                 return apache.HTTP_NOT_FOUND
 
-        # FIXME: support for arguments
-        context = dict(owner=current, request=req, args={})
+        # Split the query into key-value pairs
+        args = {}
+        for pair in req.args.split("&"):
+            if pair.find("=") >= 0:
+                key, value = pair.split("=", 1)
+                args.setdefault(key, []).append(value)
+            else:
+                args[pair] = []
+
+        context = dict(owner=current, request=req, args=args)
         current.preRender(context)
         return current.render(context)
 
