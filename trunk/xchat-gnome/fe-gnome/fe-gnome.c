@@ -276,10 +276,12 @@ void fe_clear_channel(struct session *sess) {
 }
 
 void fe_session_callback(struct session *sess) {
+	/* this frees things */
 	/* FIXME: implement */
 }
 
 void fe_server_callback(struct server *serv) {
+	/* this frees things */
 	/* FIXME: implement */
 }
 
