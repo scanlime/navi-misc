@@ -596,18 +596,26 @@ static void controller_set_led(struct gchub_controller* ctl,
 {
 	unsigned long flags;
 
+	spin_lock_irqsave(&ctl->outputs.lock, flags);
+
 	/* Keep the device's LED bits in sync */
 	if (led_color == LED_GREEN)
 		clear_bit(LED_MISC, ctl->dev.led);
 	else if (led_color == LED_RED)
 		set_bit(LED_MISC, ctl->dev.led);
+	else {
+		dbg("Setting LED color while the LED is off");
+		goto done;
+	}		
 
-	spin_lock_irqsave(&ctl->outputs.lock, flags);
 	dbg("Changing LED color from %d to %d", ctl->outputs.led_color, led_color);
+	
 	if (ctl->outputs.led_color != led_color) {
 		ctl->outputs.led_color = led_color;
 		ctl->outputs.dirty = 1;
 	}
+	
+done:
 	spin_unlock_irqrestore(&ctl->outputs.lock, flags);
 }
 
