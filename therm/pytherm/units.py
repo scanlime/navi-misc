@@ -1,4 +1,4 @@
-""" units
+""" pytherm.units
 
 Simple utilities for unit conversions
 

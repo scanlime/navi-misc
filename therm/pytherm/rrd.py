@@ -1,4 +1,4 @@
-""" rrd
+""" pytherm.rrd
 
 A simple Python interface to rrdtool
 
@@ -25,7 +25,7 @@ A simple Python interface to rrdtool
 from Nouvelle import tag
 import os, time, popen2, sys, re, colorsys, sha
 import Image
-import units
+from pytherm import units
 
 
 def shellEscape(s):

@@ -1,4 +1,4 @@
-""" therm_db
+""" pytherm.database
 
 This module acts as a simple abstraction for reading from the therm
 database.
@@ -25,7 +25,7 @@ database.
 
 import MySQLdb
 import MySQLdb.cursors
-import os
+import os, time
 
 
 def prettifyName(str):
@@ -55,7 +55,7 @@ class ThermSource:
            "SELECT * FROM packets P "
            "LEFT OUTER JOIN temperatures T ON (T.packet = P.id) "
            "LEFT OUTER JOIN battery_voltage V ON (V.packet = P.id) "
-           "WHERE source = %d ORDER BY P.time DESC LIMIT 1" % self.id):
+           "WHERE source = %d ORDER BY P.id DESC LIMIT 1" % self.id):
            return row
 
     def iterPacketsAfter(self, id):
@@ -65,6 +65,19 @@ class ThermSource:
             "LEFT OUTER JOIN temperatures T ON (T.packet = P.id) "
             "LEFT OUTER JOIN battery_voltage V ON (V.packet = P.id) "
             "WHERE source = %d AND P.id > %d" % (self.id, id))
+
+    def pollNewPackets(self, afterId=None, pollInterval=0.5):
+        """Iterate over new packets as they arrive. If an ID is given,
+           start looking for packets after that ID- if no ID is given,
+           we use the ID of the latest packet currently in the database.
+           """
+        if afterId is None:
+            afterId = self.getLatestPacket()['id']
+        while 1:
+            for packet in self.iterPacketsAfter(afterId):
+                afterId = packet['id']
+                yield packet
+            time.sleep(pollInterval)
 
 
 class ThermDatabase:
@@ -106,11 +119,12 @@ def getDatabaseHost():
     else:
         return "navi"
 
-# This is a very low-privilege account that can only read
-# from the database, probably no reason not to have
-# all the login info here.
-defaultDatabase = ThermDatabase(
-    db="therm", host=getDatabaseHost(),
-    user="therm_reader", passwd="e5ce14d3")
+def open():
+    """Open a default database connection, with a very low-privilege
+       account that can only read from the database.
+       """
+    return ThermDatabase(
+        db="therm", host=getDatabaseHost(),
+        user="therm_reader", passwd="e5ce14d3")
 
 ### The End ###

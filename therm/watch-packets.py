@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 #
-# This is a simple example for the therm_db module. It
+# This is a simple example for the pytherm package. It
 # polls the mysql server frequently for new packets, printing
 # all data received for the source given on the command line.
 #
 
-import therm_db
+import pytherm.database
 import time, sys
 
-db = therm_db.defaultDatabase
+db = pytherm.database.open()
 
 try:
     name = sys.argv[1]
@@ -19,10 +19,7 @@ except (KeyError, IndexError):
         print "\t%r" % source.name
     sys.exit(1)
 
-packet = source.getLatestPacket()
-while 1:
-    for packet in source.iterPacketsAfter(packet['id']):
-        print " ".join(["%s=%r" % i for i in packet.iteritems()])
-    time.sleep(0.2)
+for packet in source.pollNewPackets():
+    print " ".join(["%s=%r" % i for i in packet.iteritems()])
 
 ### The End ###
