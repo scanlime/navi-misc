@@ -48,6 +48,9 @@
  */
 #define UNICONE_REQ_FPGA_CONFIG_END      0x02
 
+/* Set the status LED brightness, from wValue */
+#define UNICONE_REQ_LED_BRIGHTNESS       0x03
+
 
 /**************************************************************************/
 /******************************************************* Status Codes *****/

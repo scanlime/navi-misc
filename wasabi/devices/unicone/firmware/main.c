@@ -30,6 +30,7 @@
 #include <unicone.h>
 #include "hardware.h"
 #include "fpga.h"
+#include "i2c.h"
 
 
 /* We reserve space starting at 0xFD00 for endpoint buffers.
@@ -67,6 +68,15 @@ void main()
   }
 }
 
+void led_set_brightness(int v)
+{
+  printf("LED brightness: 0x%04X\n", v);
+
+  /* Send the brightness to our FPGA over I2C */
+  i2c_start(0x21);
+  i2c_write_byte(v >> 8, 0);
+  i2c_write_byte(v & 0xFF, 1);
+}
 
 void usb_handle_vendor_request()
 {
@@ -82,6 +92,11 @@ void usb_handle_vendor_request()
   case UNICONE_REQ_FPGA_CONFIG_END:
     retval = fpga_config_end();
     usb_write_ep0_buffer(&retval, 1);
+    break;
+
+  case UNICONE_REQ_LED_BRIGHTNESS:
+    led_set_brightness(usb_setup_buffer.wValue);
+    usb_write_ack();
     break;
 
   default:
