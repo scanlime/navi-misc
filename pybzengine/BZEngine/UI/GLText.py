@@ -70,7 +70,10 @@ class Glyph:
                           rect[2] / self.page.size[0],
                           rect[3] / self.page.size[1])
 
-    def draw(self, magnification):
+    def draw(self, magnification, subpixelEscapement=None):
+        """Draw the glyph at the given magnification. Optionally accepts
+           a list in which to keep track of the subpixel escapement vector.
+           """
         self.page.updateTexture()
         self.page.texture.bind()
 
@@ -86,7 +89,26 @@ class Glyph:
         glTexCoordf(t[0],t[1]+t[3])
         glVertex2f(0, 0)
         glEnd()
-        glTranslatef(math.floor(v[0]), 0, 0)
+
+        if subpixelEscapement is None:
+            subpixelEscapement = [0,0]
+        escapement = (subpixelEscapement[0] + v[0],
+                      subpixelEscapement[1],
+                      0)
+
+        # If magnification=1, we can properly hint the font by rounding our
+        # escapement to integer values.
+        if magnification == 1:
+            roundedEscapement = (math.floor(escapement[0]),
+                                 math.floor(escapement[1]),
+                                 0)
+        else:
+            roundedEscapement = escapement
+
+        # Move by the rounded escapement value, but keep track of the error
+        glTranslatef(*roundedEscapement)
+        subpixelEscapement[0] = escapement[0] - roundedEscapement[0]
+        subpixelEscapement[1] = escapement[1] - roundedEscapement[1]
 
 
 class FontPage:
@@ -183,8 +205,13 @@ class RenderedFont:
             self.glyphs[char] = g
             return g
 
-    def draw(self, char, size):
-        self.getGlyph(char).draw(size / self.size)
+    def draw(self, char, size, subpixelEscapement=None):
+        """Draw one character from this rendered font. Optionally accepts
+           a list in which to keep track of subpixel escapement.
+           """
+        if subpixelEscapement is None:
+            subpixelEscapement = [0,0]
+        self.getGlyph(char).draw(size / self.size, subpixelEscapement)
 
 
 class Font:
@@ -218,7 +245,7 @@ class Font:
                 rendered = self.sizes[self.sortedSizes[-1]]
         return rendered
 
-    def draw(self, text, size=defaultSize, alignment=None):
+    def draw(self, text, size=defaultSize, alignment=None, subpixelEscapement=None):
         """Draw the given text using the current OpenGL transform and color.
            All glyph escapements will cause the OpenGL modelview matrix to
            be translated.
@@ -228,7 +255,12 @@ class Font:
            (1,1) places the bottom bottom-right at the origin,
            (0.5, 0.5) is centered, etc.
            The default is equivalent to (0,0)
+
+           Optionally accepts a list in which to keep track of subpixel escapement.
            """
+        if subpixelEscapement is None:
+            subpixelEscapement = [0,0]
+
         if alignment:
             textSize = self.size(text, size)
             glTranslatef(-textSize[0] * alignment[0],
@@ -255,12 +287,14 @@ class Font:
             elif char == "\n":
                 glPopMatrix()
                 glTranslatef(0, math.floor(rendered.spaceSize[1] * magnification), 0)
+                subpixelEscapement[0] = 0
+                subpixelEscapement[1] = 0
                 glPushMatrix()
             elif char == "\t":
                 glTranslatef(math.floor(rendered.spaceSize[0] * 8 * magnification), 0, 0)
 
             else:
-                rendered.draw(char, size)
+                rendered.draw(char, size, subpixelEscapement)
 
         glPopMatrix()
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
