@@ -33,11 +33,11 @@ void set_param_byte(usb_dev_handle *d, int address, int value) {
 }
 
 int take_reading(usb_dev_handle *d) {
-  unsigned char c;
-  if (usb_control_msg(d, USB_TYPE_VENDOR | USB_ENDPOINT_IN, EFS_CTRL_TAKE_READING,
-		      0, 0, &c, 1, 500) < 0)
+  unsigned char c[8];
+  if (usb_control_msg(d, USB_TYPE_VENDOR | USB_ENDPOINT_IN, EFS_CTRL_READ_SENSORS,
+		      0, 0, c, 8, 500) < 0)
     perror("usb_control_msg");
-  return c;
+  return c[0];
 }
 
 float take_average_reading(usb_dev_handle *d, int samples) {

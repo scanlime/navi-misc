@@ -154,10 +154,19 @@ static int efs_set_param (struct field_sensor *dev, int block_n, int param_n, un
 	/* Set an EFS_PARAM_* value for one of the sensor's 8 parameter blocks. Each
 	 * parameter block corresponds with one byte in the resulting interrupt packet.
 	 */
-	return usb_control_msg(dev->udev,
-			       usb_sndctrlpipe(dev->udev, 0),
-			       EFS_CTRL_SET_PARAM_BYTE, USB_TYPE_VENDOR,
-			       value, (block_n << 3) + param_n, NULL, 0, REQUEST_TIMEOUT);
+	int retval;
+
+	if (dev->open_count > 0) {
+		usb_unlink_urb(dev->irq);
+	}
+	retval = usb_control_msg(dev->udev, usb_sndctrlpipe(dev->udev, 0),
+				 EFS_CTRL_SET_PARAM_BYTE, USB_TYPE_VENDOR,
+				 value, (block_n << 3) + param_n,
+				 NULL, 0, REQUEST_TIMEOUT);
+	if (dev->open_count > 0) {
+		usb_submit_urb(dev->irq, GFP_KERNEL);
+	}
+	return retval;
 }
 
 
@@ -418,6 +427,7 @@ static int efs_probe(struct usb_interface *interface, const struct usb_device_id
 		retval = -ENODEV;
 		goto error;
 	}
+
 	usb_fill_int_urb(dev->irq, udev,
 			 usb_rcvintpipe(udev, host_interface->endpoint[0].desc.bEndpointAddress),
 			 dev->irq_data, IRQ_SIZE,
