@@ -105,7 +105,7 @@ class Server:
         if port is None:
             port = self.defaultPort
         self.host = host
-        self.port = port
+        self.port = int(port)
 
     def __str__(self):
         if self.port == self.defaultPort:
