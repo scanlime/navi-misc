@@ -477,7 +477,7 @@ Settings&lt;/b&gt;</property>
 		      <property name="update_policy">GTK_UPDATE_ALWAYS</property>
 		      <property name="snap_to_ticks">False</property>
 		      <property name="wrap">False</property>
-		      <property name="adjustment">0 -9.999 9.999 0.001 0.01 0.01</property>
+		      <property name="adjustment">0 -9.999 9.999 0.001 0.001 0.001</property>
 		      <signal name="value_changed" handler="on_param_spinner_changed" last_modification_time="Sun, 15 Feb 2004 05:07:31 GMT"/>
 		    </widget>
 		    <packing>
@@ -499,7 +499,7 @@ Settings&lt;/b&gt;</property>
 		      <property name="update_policy">GTK_UPDATE_ALWAYS</property>
 		      <property name="snap_to_ticks">False</property>
 		      <property name="wrap">False</property>
-		      <property name="adjustment">0 -9.999 9.999 0.001 0.01 0.01</property>
+		      <property name="adjustment">0 -9.999 9.999 0.001 0.001 0.001</property>
 		      <signal name="value_changed" handler="on_param_spinner_changed" last_modification_time="Sun, 15 Feb 2004 05:07:40 GMT"/>
 		    </widget>
 		    <packing>
@@ -521,7 +521,7 @@ Settings&lt;/b&gt;</property>
 		      <property name="update_policy">GTK_UPDATE_ALWAYS</property>
 		      <property name="snap_to_ticks">False</property>
 		      <property name="wrap">False</property>
-		      <property name="adjustment">0 -9.999 9.999 0.001 0.01 0.01</property>
+		      <property name="adjustment">0 -9.999 9.999 0.001 0.001 0.001</property>
 		      <signal name="value_changed" handler="on_param_spinner_changed" last_modification_time="Sun, 15 Feb 2004 05:07:48 GMT"/>
 		    </widget>
 		    <packing>
@@ -543,7 +543,7 @@ Settings&lt;/b&gt;</property>
 		      <property name="update_policy">GTK_UPDATE_ALWAYS</property>
 		      <property name="snap_to_ticks">False</property>
 		      <property name="wrap">False</property>
-		      <property name="adjustment">1 0.2 99.99 0.01 0.1 0.1</property>
+		      <property name="adjustment">1 0.2 99.99 0.01 0.01 0.01</property>
 		      <signal name="value_changed" handler="on_param_spinner_changed" last_modification_time="Sun, 15 Feb 2004 05:07:56 GMT"/>
 		    </widget>
 		    <packing>
@@ -565,7 +565,7 @@ Settings&lt;/b&gt;</property>
 		      <property name="update_policy">GTK_UPDATE_ALWAYS</property>
 		      <property name="snap_to_ticks">False</property>
 		      <property name="wrap">False</property>
-		      <property name="adjustment">0 -9.999 9.999 0.001 0.01 0.01</property>
+		      <property name="adjustment">0 -9.999 9.999 0.001 0.001 0.001</property>
 		      <signal name="value_changed" handler="on_param_spinner_changed" last_modification_time="Sun, 15 Feb 2004 05:08:05 GMT"/>
 		    </widget>
 		    <packing>
@@ -587,7 +587,7 @@ Settings&lt;/b&gt;</property>
 		      <property name="update_policy">GTK_UPDATE_ALWAYS</property>
 		      <property name="snap_to_ticks">False</property>
 		      <property name="wrap">False</property>
-		      <property name="adjustment">0 -9.999 9.999 0.001 0.01 0.01</property>
+		      <property name="adjustment">0 -9.999 9.999 0.001 0.001 0.001</property>
 		      <signal name="value_changed" handler="on_param_spinner_changed" last_modification_time="Sun, 15 Feb 2004 05:08:14 GMT"/>
 		    </widget>
 		    <packing>
@@ -609,7 +609,7 @@ Settings&lt;/b&gt;</property>
 		      <property name="update_policy">GTK_UPDATE_ALWAYS</property>
 		      <property name="snap_to_ticks">False</property>
 		      <property name="wrap">False</property>
-		      <property name="adjustment">0 -9.999 9.999 0.002 0.01 0.01</property>
+		      <property name="adjustment">0 -9.999 9.999 0.001 0.002 0.002</property>
 		      <signal name="value_changed" handler="on_param_spinner_changed" last_modification_time="Sun, 15 Feb 2004 05:08:21 GMT"/>
 		    </widget>
 		    <packing>
@@ -631,7 +631,7 @@ Settings&lt;/b&gt;</property>
 		      <property name="update_policy">GTK_UPDATE_ALWAYS</property>
 		      <property name="snap_to_ticks">False</property>
 		      <property name="wrap">False</property>
-		      <property name="adjustment">0 0 1 0.0001 0.001 0.001</property>
+		      <property name="adjustment">0 0 1 1e-04 1e-04 1e-04</property>
 		      <signal name="value_changed" handler="on_param_spinner_changed" last_modification_time="Sun, 15 Feb 2004 05:08:35 GMT"/>
 		    </widget>
 		    <packing>
@@ -653,7 +653,7 @@ Settings&lt;/b&gt;</property>
 		      <property name="update_policy">GTK_UPDATE_ALWAYS</property>
 		      <property name="snap_to_ticks">False</property>
 		      <property name="wrap">False</property>
-		      <property name="adjustment">1 0 1 0.001 0.01 0.01</property>
+		      <property name="adjustment">1 0 1 0.001 0.001 0.001</property>
 		      <signal name="value_changed" handler="on_param_spinner_changed" last_modification_time="Sun, 15 Feb 2004 05:08:47 GMT"/>
 		    </widget>
 		    <packing>
@@ -675,7 +675,7 @@ Settings&lt;/b&gt;</property>
 		      <property name="update_policy">GTK_UPDATE_ALWAYS</property>
 		      <property name="snap_to_ticks">False</property>
 		      <property name="wrap">False</property>
-		      <property name="adjustment">0 -9.999 9.999 0.001 0.01 0.01</property>
+		      <property name="adjustment">0 -9.999 9.999 0.001 0.001 0.001</property>
 		      <signal name="value_changed" handler="on_param_spinner_changed" last_modification_time="Sun, 15 Feb 2004 05:07:13 GMT"/>
 		    </widget>
 		    <packing>
@@ -697,7 +697,7 @@ Settings&lt;/b&gt;</property>
 		      <property name="update_policy">GTK_UPDATE_ALWAYS</property>
 		      <property name="snap_to_ticks">False</property>
 		      <property name="wrap">False</property>
-		      <property name="adjustment">0 0 9.999 0.001 0.01 0.01</property>
+		      <property name="adjustment">0 0 9.999 0.001 0.001 0.001</property>
 		      <signal name="value_changed" handler="on_render_spinner_changed" last_modification_time="Sun, 15 Feb 2004 05:09:03 GMT"/>
 		    </widget>
 		    <packing>
@@ -719,7 +719,7 @@ Settings&lt;/b&gt;</property>
 		      <property name="update_policy">GTK_UPDATE_ALWAYS</property>
 		      <property name="snap_to_ticks">False</property>
 		      <property name="wrap">False</property>
-		      <property name="adjustment">1 0 9.999 0.01 0.1 0.1</property>
+		      <property name="adjustment">1 0 9.999 0.01 0.01 0.01</property>
 		      <signal name="value_changed" handler="on_render_spinner_changed" last_modification_time="Sun, 15 Feb 2004 05:09:10 GMT"/>
 		    </widget>
 		    <packing>
@@ -735,9 +735,12 @@ Settings&lt;/b&gt;</property>
 		    <widget class="Custom" id="param_fgcolor">
 		      <property name="visible">True</property>
 		      <property name="creation_function">custom_color_button_new</property>
-		      <property name="int1">0</property>
+		      <property name="string1">Foreground Color</property>
+		      <property name="string2"></property>
+		      <property name="int1">1</property>
 		      <property name="int2">0</property>
 		      <property name="last_modification_time">Sun, 15 Feb 2004 04:24:16 GMT</property>
+		      <signal name="changed" handler="on_color_changed" last_modification_time="Sun, 15 Feb 2004 06:11:26 GMT"/>
 		    </widget>
 		    <packing>
 		      <property name="left_attach">1</property>
@@ -753,9 +756,11 @@ Settings&lt;/b&gt;</property>
 		    <widget class="Custom" id="param_bgcolor">
 		      <property name="visible">True</property>
 		      <property name="creation_function">custom_color_button_new</property>
+		      <property name="string1">Background Color</property>
 		      <property name="int1">0</property>
 		      <property name="int2">0</property>
 		      <property name="last_modification_time">Sun, 15 Feb 2004 05:09:21 GMT</property>
+		      <signal name="changed" handler="on_color_changed" last_modification_time="Sun, 15 Feb 2004 06:11:33 GMT"/>
 		    </widget>
 		    <packing>
 		      <property name="left_attach">1</property>
