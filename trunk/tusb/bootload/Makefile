@@ -30,5 +30,8 @@ i2c-rom: i2c-rom.o tusb.o
 
 i2c-header.o: i2c-header.c tusb.h
 
-clean: 
+%: %.o
+	$(CC) -o $@ $^ $(LDFLAGS)
+
+clean:
 	rm -f bootload i2c-rom i2c-header *.o
