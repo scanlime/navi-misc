@@ -36,10 +36,7 @@ static NavTree *nav_tree;				// A reference to the navigation tree.
 static EggTrayIcon *notification;		// Notification area icon.
 static GtkMenu *menu;					// The menu that pops up.
 static GtkWidget *image;				// The image displayed by the icon.
-static GdkPixbuf *logo,					// Pixbufs for the notification area.
-				 *new_data,
-				 *msg_said,
-				 *nick_said;
+static GdkPixbuf *logo;					// Pixbufs for the notification area.
 
 static gboolean notification_clicked_cb (GtkWidget *widget, GdkEventButton *event, gpointer data);
 
@@ -91,16 +88,6 @@ xchat_plugin_init (xchat_plugin *plugin_handle, char **plugin_name,
 	/* Load the pixbufs. */
 	p = gdk_pixbuf_new_from_file (XCHATSHAREDIR"/xchat-gnome-small.png", 0);
 	logo = gdk_pixbuf_scale_simple (p, 16, 16, GDK_INTERP_BILINEAR);
-
-	p = gdk_pixbuf_new_from_file (XCHATSHAREDIR"/newdata.png", 0);
-	new_data = gdk_pixbuf_scale_simple (p, 16, 16, GDK_INTERP_BILINEAR);
-
-	p = gdk_pixbuf_new_from_file (XCHATSHAREDIR"/global-message.png", 0);
-	msg_said = gdk_pixbuf_scale_simple (p, 16, 16, GDK_INTERP_BILINEAR);
-
-
-	p = gdk_pixbuf_new_from_file (XCHATSHAREDIR"/nicksaid.png", 0);
-	nick_said = gdk_pixbuf_scale_simple (p, 16, 16, GDK_INTERP_BILINEAR);
 
 	/* Create the notification icon. */
 	notification = egg_tray_icon_new ("xchat-gnome");
