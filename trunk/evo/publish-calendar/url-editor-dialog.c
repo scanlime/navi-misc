@@ -21,6 +21,8 @@
  */
 
 #include "url-editor-dialog.h"
+#include <e-util/e-passwords.h>
+#include <string.h>
 
 static GtkDialogClass *parent_class = NULL;
 
@@ -43,6 +45,7 @@ url_editor_dialog_construct2 (UrlEditorDialog2 *dialog)
 	GtkWidget *toplevel;
 	GConfClient *gconf;
 	GtkSizeGroup *group;
+	EPublishUri *uri;
 
 	gconf = gconf_client_get_default ();
 
@@ -65,6 +68,8 @@ url_editor_dialog_construct2 (UrlEditorDialog2 *dialog)
 #undef GW
 
 	g_return_val_if_fail (gui != NULL, FALSE);
+
+	uri = dialog->uri;
 
 	toplevel = glade_xml_get_widget (gui, "publishing toplevel");
 	gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), toplevel);
@@ -93,33 +98,34 @@ url_editor_dialog_construct2 (UrlEditorDialog2 *dialog)
 	gtk_size_group_add_widget (group, dialog->password_entry);
 	g_object_unref (group);
 
-	if (dialog->uri == NULL) {
+	if (uri == NULL) {
 		gtk_combo_box_set_active (GTK_COMBO_BOX (dialog->publish_frequency), 0);
 		gtk_combo_box_set_active (GTK_COMBO_BOX (dialog->type_selector), 0);
 		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (dialog->publish_events), TRUE);
 		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (dialog->publish_tasks), TRUE);
 
 		dialog->uri = g_new0 (EPublishUri, 1);
+		uri = dialog->uri;
 	} else {
 		ESource *source;
 		GSList *p;
 
-		if (g_slist_length (dialog->uri->events) == 0) {
+		if (g_slist_length (uri->events) == 0) {
 			gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (dialog->publish_events), FALSE);
 		} else {
 			gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (dialog->publish_events), TRUE);
-			for (p = dialog->uri->events; p; p = g_slist_next (p)) {
+			for (p = uri->events; p; p = g_slist_next (p)) {
 				gchar *source_uid = g_strdup (p->data);
 				source = e_source_list_peek_source_by_uid (dialog->events_source_list, source_uid);
 				e_source_selector_select_source ((ESourceSelector *) dialog->events_selector, source);
 				g_free (source_uid);
 			}
 		}
-		if (g_slist_length (dialog->uri->tasks) == 0) {
+		if (g_slist_length (uri->tasks) == 0) {
 			gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (dialog->publish_tasks), FALSE);
 		} else {
 			gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (dialog->publish_tasks), TRUE);
-			for (p = dialog->uri->events; p; p = g_slist_next (p)) {
+			for (p = uri->events; p; p = g_slist_next (p)) {
 				gchar *source_uid = g_strdup (p->data);
 				source = e_source_list_peek_source_by_uid (dialog->tasks_source_list, source_uid);
 				e_source_selector_select_source ((ESourceSelector *) dialog->tasks_selector, source);
@@ -127,12 +133,23 @@ url_editor_dialog_construct2 (UrlEditorDialog2 *dialog)
 			}
 		}
 
-		if (dialog->uri->location && strlen (dialog->uri->location)) {
-			gtk_entry_set_text (GTK_ENTRY (dialog->url_entry), dialog->uri->location);
-			if (dialog->uri->username && strlen (dialog->uri->username))
-				gtk_entry_set_text (GTK_ENTRY (dialog->username_entry), dialog->uri->username);
+		if (uri->location && strlen (uri->location)) {
+			gtk_entry_set_text (GTK_ENTRY (dialog->url_entry), uri->location);
+			if (uri->username && strlen (uri->username))
+				gtk_entry_set_text (GTK_ENTRY (dialog->username_entry), uri->username);
 		}
-		gtk_combo_box_set_active (GTK_COMBO_BOX (dialog->publish_frequency), dialog->uri->publish_frequency);
+		gtk_combo_box_set_active (GTK_COMBO_BOX (dialog->publish_frequency), uri->publish_frequency);
+		gtk_combo_box_set_active (GTK_COMBO_BOX (dialog->type_selector), uri->publish_format);
+
+		uri->password = e_passwords_get_password ("Calendar", uri->location);
+		if (uri->password) {
+			if (strlen (uri->password) != 0) {
+				gtk_entry_set_text (GTK_ENTRY (dialog->password_entry), uri->password);
+				gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (dialog->remember_pw), TRUE);
+			} else {
+				gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (dialog->remember_pw), FALSE);
+			}
+		}
 	}
 
 	g_signal_connect (G_OBJECT (dialog->publish_events), "toggled", G_CALLBACK (publish_events_toggled), dialog);
