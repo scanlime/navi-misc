@@ -20,9 +20,9 @@ def formatMessage(user, msg, isAction=False, ourName=None):
     addressed = False
 
   if isAction:
-    nick = ' * ' + getNick(user, isAction) + ' '
+    nick = ' * ' + getNick(user) + ' '
   elif user:
-    nick = ' <' + getNick(user, isAction) + '> '
+    nick = ' <' + getNick(user) + '> '
   else:
     nick = ''
   return (getTime(), nick, msg, addressed)
@@ -39,9 +39,14 @@ def formatCTCP(user, to, message):
   print message
   return (None, None)
 
-def getNick(user, isAction):
+def getNick(user):
   ''' Return the nickname from the user name passed as the argument. '''
-  return re.search('([^!]*).*', user).group(1)
+  regex = re.search('([^!]*).*', user)
+  if regex:
+    nick = regex.group(1)
+  else:
+    nick = user
+  return nick
 
 def getTime():
   ''' Return the local hour, minute and seconds. '''
