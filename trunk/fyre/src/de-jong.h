@@ -68,15 +68,6 @@ struct _DeJongClass {
 GType      de_jong_get_type         ();
 DeJong*    de_jong_new              ();
 
-void       de_jong_calculate        (IterativeMap          *self,
-				     guint                  iterations);
-
-void       de_jong_calculate_motion (IterativeMap          *self,
-				     guint                  iterations,
-				     gboolean               continuation,
-				     ParameterInterpolator *interp,
-				     gpointer               interp_data);
-
 G_END_DECLS
 
 #endif /* __DE_JONG_H__ */

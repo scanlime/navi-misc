@@ -32,6 +32,9 @@ static void de_jong_init_calc_params(GObjectClass *object_class);
 static void de_jong_set_property (GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec);
 static void de_jong_get_property (GObject *object, guint prop_id, GValue *value, GParamSpec *pspec);
 static void de_jong_reset_calc(DeJong *self);
+static void de_jong_calculate(IterativeMap *self, guint iterations);
+static void de_jong_calculate_motion(IterativeMap *self, guint iterations, gboolean continuation, ParameterInterpolator *interp, gpointer interp_data);
+static ToolInfoPH *de_jong_get_tools();
 
 static void update_double_if_necessary(gdouble new_value, gboolean *dirty_flag, gdouble *param, gdouble epsilon);
 static void update_boolean_if_necessary(gboolean new_value, gboolean *dirty_flag, gboolean *param);
@@ -52,6 +55,38 @@ enum {
   PROP_TILEABLE,
 };
 
+static void tool_grab(ParameterHolder *self, ToolInput *i);
+static void tool_blur(ParameterHolder *self, ToolInput *i);
+static void tool_zoom(ParameterHolder *self, ToolInput *i);
+static void tool_rotate(ParameterHolder *self, ToolInput *i);
+static void tool_exposure_gamma(ParameterHolder *self, ToolInput *i);
+static void tool_a_b(ParameterHolder *self, ToolInput *i);
+static void tool_a_c(ParameterHolder *self, ToolInput *i);
+static void tool_a_d(ParameterHolder *self, ToolInput *i);
+static void tool_b_c(ParameterHolder *self, ToolInput *i);
+static void tool_b_d(ParameterHolder *self, ToolInput *i);
+static void tool_c_d(ParameterHolder *self, ToolInput *i);
+static void tool_ab_cd(ParameterHolder *self, ToolInput *i);
+static void tool_ac_bd(ParameterHolder *self, ToolInput *i);
+
+static const ToolInfoPH tool_table[] = {
+  {"Grab",        tool_grab,           TOOL_USE_MOTION_EVENTS},
+  {"Blur",        tool_blur,           TOOL_USE_MOTION_EVENTS},
+  {"Zoom",        tool_zoom,           TOOL_USE_IDLE},
+  {"Rotate",      tool_rotate,         TOOL_USE_MOTION_EVENTS},
+  {"Gamma",       tool_exposure_gamma, TOOL_USE_MOTION_EVENTS},
+  {"<separator>",},
+  {"A / B",       tool_a_b,            TOOL_USE_MOTION_EVENTS},
+  {"A / C",       tool_a_c,            TOOL_USE_MOTION_EVENTS},
+  {"A / D",       tool_a_d,            TOOL_USE_MOTION_EVENTS},
+  {"B / C",       tool_b_c,            TOOL_USE_MOTION_EVENTS},
+  {"B / D",       tool_b_d,            TOOL_USE_MOTION_EVENTS},
+  {"C / D",       tool_c_d,            TOOL_USE_MOTION_EVENTS},
+  {"<separator>",},
+  {"AB / CD",     tool_ab_cd,          TOOL_USE_MOTION_EVENTS},
+  {"AC / BD",     tool_ac_bd,          TOOL_USE_MOTION_EVENTS},
+  {NULL,},
+};
 
 /************************************************************************************/
 /**************************************************** Initialization / Finalization */
@@ -82,14 +117,19 @@ GType de_jong_get_type(void) {
 static void de_jong_class_init(DeJongClass *klass) {
   GObjectClass *object_class;
   IterativeMapClass *im_class;
+  ParameterHolderClass *ph_class;
+
   object_class = (GObjectClass*) klass;
   im_class = (IterativeMapClass*) klass;
+  ph_class = (ParameterHolderClass*) klass;
 
   object_class->set_property = de_jong_set_property;
   object_class->get_property = de_jong_get_property;
 
   im_class->calculate = de_jong_calculate;
   im_class->calculate_motion = de_jong_calculate_motion;
+
+  ph_class->get_tools = de_jong_get_tools;
 
   de_jong_init_calc_params(object_class);
 }
@@ -542,5 +582,27 @@ static void de_jong_reset_calc(DeJong *self) {
   HISTOGRAM_IMAGER(self)->histogram_clear_flag = FALSE;
   self->calc_dirty_flag = FALSE;
 }
+
+/************************************************************************************/
+/**************************************************************************** Tools */
+/************************************************************************************/
+
+static ToolInfoPH *de_jong_get_tools() {
+  return (ToolInfoPH*) tool_table;
+}
+
+static void tool_grab(ParameterHolder *self, ToolInput *i) {}
+static void tool_blur(ParameterHolder *self, ToolInput *i) {}
+static void tool_zoom(ParameterHolder *self, ToolInput *i) {}
+static void tool_rotate(ParameterHolder *self, ToolInput *i) {}
+static void tool_exposure_gamma(ParameterHolder *self, ToolInput *i) {}
+static void tool_a_b(ParameterHolder *self, ToolInput *i) {}
+static void tool_a_c(ParameterHolder *self, ToolInput *i) {}
+static void tool_a_d(ParameterHolder *self, ToolInput *i) {}
+static void tool_b_c(ParameterHolder *self, ToolInput *i) {}
+static void tool_b_d(ParameterHolder *self, ToolInput *i) {}
+static void tool_c_d(ParameterHolder *self, ToolInput *i) {}
+static void tool_ab_cd(ParameterHolder *self, ToolInput *i) {}
+static void tool_ac_bd(ParameterHolder *self, ToolInput *i) {}
 
 /* The End */

@@ -58,7 +58,7 @@ typedef enum {
 } ToolFlags;
 
 typedef struct _ToolInfoPH {
-  gchar *menu_name;
+  gchar *menu_label;
   ToolHandlerPH *handler;
   ToolFlags flags;
 } ToolInfoPH;
@@ -67,7 +67,7 @@ struct _ParameterHolderClass {
   GObjectClass parent_class;
 
   /* Overrideable methods */
-  GList* (*get_tools) ();
+  ToolInfoPH* (*get_tools) ();
 };
 
 typedef void (ParameterInterpolator)(ParameterHolder  *self,
@@ -117,7 +117,7 @@ void              parameter_holder_interpolate_linear (ParameterHolder     *self
 						       gdouble              alpha,
 						       ParameterHolderPair *p);
 
-GList*            parameter_holder_get_tools          (ParameterHolder *self);
+ToolInfoPH*       parameter_holder_get_tools          (ParameterHolder *self);
 
 /*
  * These functions make it easy to assign extra metadata to GParamSpecs
