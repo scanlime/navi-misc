@@ -64,9 +64,11 @@ struct rwand_timings {
 #define STABILIZER_EDGES 8      /* Number of edges to successfully exit stabilization */
 #define STABILIZER_TIME  HZ     /* Number of jiffies to unsuccessfully exit stabilization */
 
-#define PERIOD_CLIMB_RATE 7/10  /* Rate, in 2.66-us period units per jiffy, that the period
-				 * should climb while in the startup phase.
-				 */
+#define PERIOD_CLIMB_RATE 700/HZ  /* Rate, in 2.66-us period units per jiffy, that the period
+				   * should climb while in the startup phase. This is given
+				   * as a fraction, with periods/sec on the top and
+				   * jiffies/sec (HZ) on the bottom.
+				   */
 
 /* A simple averaging low-pass filter, O(1) */
 struct filter {
