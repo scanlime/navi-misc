@@ -5,6 +5,18 @@
 
 <projects>
 
+  <project name="cia" href="cia.xml">
+    <description>
+      Super-happy IRC VCS commit announce bot.
+    </description>
+    <status>
+      In the process of being rewritten.
+    </status>
+    <people>
+      Micah
+    </people>
+  </project>
+
   <project name="fieldsensor" href="fieldsensor.xml">
     <description>
       Experiments in cheap electric-field-based input devices
@@ -53,6 +65,18 @@
     </people>
   </project>
 
+  <project name="multiplay" href="multiplay.xml">
+    <description>
+      gstreamer-based audio player that splits the stereo across two sound cards.
+    </description>
+    <status>
+      Stable and abandoned.
+    </status>
+    <people>
+      David
+    </people>
+  </project>
+
   <project name="pybzengine" href="pybzengine.xml">
     <description>
       A 3D game engine written in Python, originally written for PyBZFlag
@@ -74,6 +98,43 @@
     </status>
     <people>
       Micah
+    </people>
+
+    <project name="therm" href="therm.xml">
+      <description>
+        rrdtool+xmlrpc interface for monitoring temperature using rcpod.
+      </description>
+      <status>
+        Currently monitoring temperatures
+      </status>
+      <people>
+        Micah and David
+      </people>
+    </project>
+  </project>
+
+  <project name="rtgraph" href="rtgraph.xml">
+    <description>
+      Real-time graphing widgets for PyGTK
+    </description>
+    <status>
+      dunno, smack Micah about it
+    </status>
+    <people>
+      Micah
+    </people>
+  </project>
+
+  <project name="sxmadb" href="sxmadb.xml">
+    <description>
+      Mathematical categorization of martial arts movement.
+    </description>
+    <status>
+      Schema written, big scary XSL file written, a couple sample data files.
+      Pondering the math.
+    </status>
+    <people>
+      David
     </people>
   </project>
 
