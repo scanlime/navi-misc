@@ -24,6 +24,5 @@ Script to start the Palantir IRC Client.
 from GtkPalantir.MainWindow import MainWindow
 import gtk
 
-if __name__ == '__main__':
-  window = MainWindow()
-  gtk.main()
+window = MainWindow()
+gtk.main()

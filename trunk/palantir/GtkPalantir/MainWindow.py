@@ -24,7 +24,7 @@ for the IRC stuff.
 from twisted.internet import gtk2reactor
 gtk2reactor.portableInstall()
 
-import string, gtk, gtk.glade, gobject
+import string, gtk, gtk.glade, gobject, os
 
 from ChatBuffer import ChatBuffer
 from CharacterSheet import CharacterSheet
@@ -39,7 +39,8 @@ class MainWindow:
   ''' Creates the main window. '''
   def __init__(self):
     ''' Create the layout tree from the .glade file and connect everything. '''
-    self.tree = gtk.glade.XML('data/palantirMain.glade')
+    datadir = os.path.join(os.path.split(os.path.split(os.path.abspath(__file__))[0])[0], 'data')
+    self.tree = gtk.glade.XML(os.path.join(datadir, 'palantirMain.glade'))
 
     # Connect the functions to their appropriate widgets.  By convention all callbacks
     # for the window start with 'on_' and match the name of the callback defined in

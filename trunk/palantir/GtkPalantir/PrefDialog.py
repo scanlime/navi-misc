@@ -29,8 +29,9 @@ class PrefDialog:
 
     self.prefs = Prefs()
 
-    self.general = GenPrefs(self.tree)
-    self.general.Set(self.prefs)
+    # Create an object for the general prefs.
+    #self.general = GenPrefs(self.tree)
+    #self.general.Set(self.prefs)
 
     # Hook up the buttons.
     tree.get_widget('pref cancel').connect('clicked',lambda w: dialog.hide())
@@ -39,13 +40,20 @@ class PrefDialog:
     tree.get_widget('pref ok').connect('clicked', lambda w: dialog.hide())
 
   def SetUpNav(self):
+    ''' SetUpNav creates the list of pages in the navigation list from the pages
+        in the notebook.
+        '''
     navigation = self.tree.get_widget('prefs navigation')
+    notebook = self.tree.get_widget('pref notebook')
 
     store = gtk.ListStore(gobject.TYPE_STRING)
     navigation.set_model(model=store)
     navigation.append_column(gtk.TreeViewColumn('Pages', gtk.CellRendererText(), text=1))
-    store.set_value(store.append(), 0,
-        self.tree.get_widget('pref notebook').get_tab_label(self.general.page).get_text())
+
+    for num in len(notebook.get_n_pages()):
+      page = notebook.get_nth_page(num)
+      pageName = notebook.get_tab_label_text(page)
+      store.set(store.append(), 0, pageName)
 
   def SavePrefs(self, widget, data=None):
     self.general.Save(self.prefs)
@@ -67,13 +75,14 @@ class GenPrefs:
   def __init__(self, tree):
     self.page = tree.get_widget('general')
 
+    # FIXME: why are we storing all of this???
     self.nickname = tree.get_widget('nickname')
     self.realname = tree.get_widget('realname')
     self.quitmsg = tree.get_widget('quitmsg')
     self.partmsg = tree.get_widget('partmsg')
     self.awaymsg = tree.get_widget('awaymsg')
 
-    # Make all the text entries the same height.
+    # Make all the text entries the same width.
     sizegroup = gtk.SizeGroup(gtk.SIZE_GROUP_HORIZONTAL)
     sizegroup.add_widget(self.nickname)
     sizegroup.add_widget(self.realname)
