@@ -91,7 +91,7 @@ void fe_timeout_remove(int tag) {
 	g_source_remove(tag);
 }
 
-void fe_new_window(struct session *sess) {
+void fe_new_window(struct session *sess, int focus) {
 	if(sess->type == SESS_SERVER)
 		navigation_tree_create_new_network_entry(gui.server_tree, sess);
 	else if(sess->type == SESS_CHANNEL || sess->type == SESS_DIALOG)
