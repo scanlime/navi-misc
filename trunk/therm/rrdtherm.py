@@ -306,7 +306,8 @@ class ThermGrapher:
         self.serverTimes = self.server.getTimes()
         avg = self.server.getAverages()
         for id, value in avg.iteritems():
-            self.thermMap[id].update(self.serverTimes['periodStart'], value)
+            if value is not None:
+                self.thermMap[id].update(self.serverTimes['periodStart'], value)
 
     def createWebPages(self):
         """Generate web pages for each interval, with graphs and current temperatures"""
