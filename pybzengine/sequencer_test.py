@@ -14,7 +14,7 @@ class Monkey(Sequencer.Page):
     def __init__(self, book):
         Sequencer.Page.__init__(self, book)
 
-        self.meshes = tuple(Drawable.VRML.load("monkey.wrl").values())
+        self.meshes = Drawable.VRML.load("monkey.wrl").values()
         self.view.scene.add(self.meshes)
 
         self.view.camera.position = (0,0,0)
@@ -37,8 +37,8 @@ class Sparks(Sequencer.Page):
     def __init__(self, book):
         Sequencer.Page.__init__(self, book)
 
-        self.drawables = tuple([cPickle.load(open(Util.dataFile(name))) for name in
-                                ('smoke.particle', 'welding_sparks.particle')])
+        self.drawables = [cPickle.load(open(Util.dataFile(name))) for name in
+                          ('smoke.particle', 'welding_sparks.particle')]
         self.view.scene.add(self.drawables)
 
         self.view.camera.position = (0,0,5)
@@ -58,8 +58,7 @@ class TextureTest(Sequencer.Page):
     def __init__(self, book):
         Sequencer.Page.__init__(self, book)
 
-        # Load the 'texture_test' model into the scene
-        self.meshes = tuple(Drawable.VRML.load("texture_test.wrl").values())
+        self.meshes = Drawable.VRML.load("texture_test.wrl").values()
         self.view.scene.add(self.meshes)
 
         # Place the camera somewhat far away, centered on one of the crates
@@ -74,31 +73,66 @@ class TextureTest(Sequencer.Page):
     def setupFrame(self):
         # Move the camera in closer
         dt = self.time.step()
-        self.view.camera.distance -= dt * 8
+        self.view.camera.distance -= dt * 40
 
         # Once the camera is too close to the crate, declare this scene finished
-        if self.view.camera.distance < 8:
+        if self.view.camera.distance < 5:
             self.onFinish()
 
     def finalize(self):
         self.view.scene.remove(self.meshes)
 
 
+class Warp(Sequencer.Page):
+    """A warp-like particle system"""
+    def __init__(self, book):
+        Sequencer.Page.__init__(self, book)
+
+        # Load the particle system, and simulate it for a few time steps
+        # so we jump right into the middle of an active animation rather than
+        # having to wait for the particles to start flowing.
+        self.particle = cPickle.load(open(Util.dataFile('warp.particle')))
+        for step in xrange(50):
+            self.particle.model.integrate(0.05)
+        self.view.scene.add(self.particle)
+
+        self.view.camera.position = (0,0,0)
+        self.view.camera.distance = 20
+        self.view.camera.azimuth = 0
+        self.view.camera.elevation = 0
+        self.view.camera.jump()
+
+    def finalize(self):
+        self.view.scene.remove(self.particle)
+
+
+# Define some transitions
+fromWhiteFast = lambda page: Sequencer.FadeIn(0.1, (1,1,1), page)
+toWhiteFast   = lambda page: Sequencer.FadeOut(0.1, (1,1,1), page)
+whiteFast     = lambda page: fromWhiteFast(toWhiteFast(page))
+
+# A looping SubBook, cycling between TextureTest, Warp, and MetalBox
+zoomSparkCycle = Sequencer.SubBook(Sequencer.CyclicBook, [
+    whiteFast(TextureTest),
+    whiteFast(Sequencer.PageTimer(2, Warp)),
+    ])
+
 # Load a sequence of the above pages into a book. CyclicBook resets itself after its
 # onFinish event, efectively looping our animation.
-book = Sequencer.CyclicBook(view, [
+mainBook = Sequencer.Book(view, [
 
-    # Zoom in on the 'texture_test' model. This page finishes itself when the camera is close enough.
-    # We fade in from black slowly, and fade out to white quickly
-    Sequencer.FadeIn(3, (0,0,0), Sequencer.FadeOut(0.1, (1,1,1), TextureTest)),
+    # Execute the zoomSparkCycle book until user input
+    Sequencer.UserPageInterrupter(zoomSparkCycle),
 
     # Show some perty particle systems for 5 seconds, using the PageTimer
-    # Fade in from white quickly, fade out to white quickly.
-    Sequencer.FadeIn(0.1, (1,1,1), Sequencer.FadeOut(0.1, (1,1,1), Sequencer.PageTimer(5, Sparks))),
+    # Fade in and out from white quickly
+    Sequencer.FadeOut(0.1, (1,1,1), Sequencer.FadeIn(0.1, (1,1,1), Sequencer.PageTimer(5, Sparks))),
 
     # Spin the 'monkey' model until any key or mouse button is pressed.
     # Also fade in from white quickly, fade out to black slowly.
     Sequencer.FadeIn(0.1, (1,1,1), Sequencer.FadeOut(1, (0,0,0), Sequencer.UserPageInterrupter(Monkey))),
     ])
 
+# Exit our main loop once the mainBook finishes
+mainBook.onFinish.observe(loop.stop)
 loop.run()

@@ -84,7 +84,7 @@ class Book:
        the class properly.
        """
     def __init__(self, view, initialPages=[]):
-        Event.attach(self, "onFinish")
+        Event.attach(self, "onFinish", "onEmpty")
         self.view = view
         self.viewport = view.viewport
         self.initialPages = list(initialPages)
@@ -146,7 +146,7 @@ class Book:
         else:
             # No more pages, disable any currently active page and call our onFinish event
             self.deactivateInstance()
-            self.onFinish()
+            self.onEmpty()
 
     def reset(self):
         """Return the book to its initial set of pages"""
@@ -155,10 +155,18 @@ class Book:
         if self.pages:
             self.evaluatePages()
 
+    def finalize(self):
+        """For compatibility with the Page class' interface"""
+        self.deactivateInstance()
+
+    def onEmpty(self):
+        """An event, triggered when the list of pages is empty. Normally this leads to onFinish"""
+        self.onFinish()
+
 
 class CyclicBook(Book):
-    """A book that, upon onFinish, resets to its initial state"""
-    def onFinish(self):
+    """A book that, upon onEmpty, resets to its initial state. onFinish is not called."""
+    def onEmpty(self):
         self.reset()
 
 
@@ -292,5 +300,10 @@ def UserPageInterrupter(page):
             ]
         return PageInterrupter(events, page)(book)
     return factory
+
+
+def SubBook(bookClass=Book, initialPages=[]):
+    """Wraps a book class such that it can be used in place of a page class"""
+    return lambda parentBook: bookClass(parentBook.view, initialPages)
 
 ### The End ###

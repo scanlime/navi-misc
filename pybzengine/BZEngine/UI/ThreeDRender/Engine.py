@@ -203,6 +203,10 @@ class Scene:
         """Add the given object to the scene.
            The object may be in any form supported by objectToDrawables above.
            """
+        # Convert lists to tuples automatically, since lists aren't hashable
+        if type(object) is list:
+            object = tuple(object)
+
         drawables = self.objectToDrawables(object)
         for drawable in drawables:
             for texture in drawable.render.textures:
@@ -217,6 +221,10 @@ class Scene:
 
     def remove(self, object):
         """Reverses all actions taken by add()"""
+        # Convert lists to tuples automatically, since lists aren't hashable
+        if type(object) is list:
+            object = tuple(object)
+
         del self.objects[object]
         self.dirty = True
 
