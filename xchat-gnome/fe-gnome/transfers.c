@@ -97,11 +97,11 @@ static void selection_changed(GtkTreeSelection *selection, gpointer data) {
 	GtkTreeIter iter;
 
 	if(gtk_tree_selection_get_selected(selection, &model, &iter)) {
-		transfer_gui.selected = iter.stamp;
 		gtk_tree_model_get(model, &iter, 6, &dcc, -1);
+		transfer_gui.selected = dcc;
 		update_details(&iter, dcc);
 	} else {
-		transfer_gui.selected = 0;
+		transfer_gui.selected = NULL;
 	}
 }
 
@@ -118,7 +118,7 @@ void initialize_transfers_window() {
 		transfer_gui.xml = glade_xml_new(XCHATSHAREDIR"/transfers.glade", NULL, NULL);
 	if(!transfer_gui.xml)
 		return;
-	transfer_gui.selected = 0;
+	transfer_gui.selected = NULL;
 
 	expander = gtk_expander_new("Details");
 	gtk_expander_set_expanded(GTK_EXPANDER(expander), FALSE);
@@ -309,7 +309,7 @@ static void update_transfer_info(GtkTreeIter *iter, struct DCC *dcc) {
 	g_free(size);
 	g_free(stat);
 	g_free(eta);
-	if(transfer_gui.selected == iter->stamp)
+	if(transfer_gui.selected == dcc)
 		update_details(iter, dcc);
 }
 
@@ -324,7 +324,7 @@ void add_transfer(struct DCC *dcc) {
 	treeview = glade_xml_get_widget(transfer_gui.xml, "treeview1");
 	select = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
 	gtk_tree_selection_select_iter(select, &iter);
-	transfer_gui.selected = iter.stamp;
+	transfer_gui.selected = dcc;
 }
 
 void update_transfer(struct DCC *dcc) {
