@@ -1,7 +1,9 @@
 #include <usb.h>
 #include <stdio.h>
-#include <laser_protocol.h>
 #include <math.h>
+
+#define LASER_VENDOR_ID   0xE461
+#define LASER_PRODUCT_ID  0x0006
 
 
 usb_dev_handle *open_laser(void) {
@@ -37,26 +39,32 @@ void control_write(usb_dev_handle *d, int request, int value, int index) {
 
 void enqueue(usb_dev_handle *d, float x, float y, int duration, int coil_enable, int laser_enable) {
   int ix, iy;
+  unsigned char buffer[64];
 
-  ix = x * 0x200 + 0x200;
-  iy = y * 0x200 + 0x200;
+  ix = x * 0x8000 + 0x8000;
+  iy = y * 0x8000 + 0x8000;
   if (ix < 0) ix = 0;
-  if (ix > 0x3FF) ix = 0x3FF;
+  if (ix > 0xFFFF) ix = 0xFFFF;
   if (iy < 0) iy = 0;
-  if (iy > 0x3FF) iy = 0x3FF;
+  if (iy > 0xFFFF) iy = 0xFFFF;
 
   if (duration < 1)
     duration = 1;
   if (duration > 255)
     duration = 0;
 
-  control_write(d, LASER_CTRL_ENQUEUE,
-		(((iy >> 2) & 0xFF) << 8) | ((ix >> 2) & 0xFF),
-		(coil_enable ? 0x8000 : 0) |
-		(laser_enable ? 0x4000 : 0) |
-		((iy & 0x03) << 12) |
-		((ix & 0x03) << 8) |
-		duration);
+  buffer[0] = ix & 0xFF;
+  buffer[1] = ix >> 8;
+  buffer[2] = iy & 0xFF;
+  buffer[3] = iy >> 8;
+
+  for (ix=0; ix<64; ix++)
+    buffer[ix] = 0;
+
+  if (usb_bulk_write(d, 1, buffer, sizeof(buffer), 1000) < 0) {
+    perror("usb_bulk_write");
+    exit(1);
+  }
 }
 
 void line(usb_dev_handle *d, float x1, float y1, float x2, float y2,
@@ -77,12 +85,12 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-  control_write(d, LASER_CTRL_SET_TIMEBASE, 65000, 0);
+  //  control_write(d, LASER_CTRL_SET_TIMEBASE, 65000, 0);
 
   while (1) {
-    const float r = 0.01;
-    const int steps = 8;
-    const int stepsize = 15;
+    const float r = 0.3;
+    const int steps = 10;
+    const int stepsize = 2;
 
     line(d, -r, -r,  r, -r, steps, stepsize, 1);
     line(d,  r, -r,  r, -r, 1, 1, 0);
