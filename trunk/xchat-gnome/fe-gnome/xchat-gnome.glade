@@ -3756,7 +3756,7 @@
 	  <child>
 	    <widget class="GtkLabel" id="label101">
 	      <property name="visible">True</property>
-	      <property name="label" translatable="yes">Network Options</property>
+	      <property name="label" translatable="yes">Connection Settings</property>
 	      <property name="use_underline">False</property>
 	      <property name="use_markup">False</property>
 	      <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -4117,7 +4117,7 @@
 	  <child>
 	    <widget class="GtkLabel" id="label102">
 	      <property name="visible">True</property>
-	      <property name="label" translatable="yes">FIXME</property>
+	      <property name="label" translatable="yes">User and Channels</property>
 	      <property name="use_underline">False</property>
 	      <property name="use_markup">False</property>
 	      <property name="justify">GTK_JUSTIFY_LEFT</property>
