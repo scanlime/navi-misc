@@ -31,17 +31,14 @@ headingTab = tag('a', _class="headingtab")
 value = tag('strong')
 
 
-class Photo(tag):
-    """A tag holding an image to be displayed as a photo"""
-    def __init__(self, url, **attrs):
-        tag.__init__(self, 'div', _class='photo')
-        self[ tag('img', src=url, _class='photo', **attrs) ]
+def Photo(url, **attrs):
+    """A factory for images presented as a photo"""
+    return tag('div', _class='photo')[ tag('img', _class='photo', src=url, **attrs) ]
 
-class Bargraph(tag):
-    """A tag that uses its size to express a value between 0 and 1"""
-    def __init__(self, value, width=4, padding=0.2):
-        tag.__init__(self, 'span', _class='bargraph',
-                     style="padding: 0em %.4fem" % (value * width + padding))
+def Bargraph(value, width=4, padding=0.2):
+    """A factory for tags that use their size to express a value between 0 and 1"""
+    return tag('span', _class='bargraph',
+               style="padding: 0em %.4fem" % (value * width + padding))
 
 
 class Section(Nouvelle.DocumentOwner):
@@ -135,8 +132,11 @@ class Page(Nouvelle.Twisted.Page):
     mainColumn  = []
 
     document = [
-        xml('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" '
-            '"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">'),
+        ## Commented out for now, as it seems to break some of the CSS formatting. Why?
+        ##
+        #xml('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" '
+        #    '"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">\n'),
+
         tag('html', xmlns="http://www.w3.org/1999/xhtml")[
             tag('head')[
                 tag('title')[ place("pageTitle") ],
@@ -155,7 +155,7 @@ class Page(Nouvelle.Twisted.Page):
                 ]],
                 tag('div', _class="footer")[
                     tag('a', href="http://navi.cx")[
-                        tag('img', src="/images/navi64.png", width="64", height="39", alt="Navi"),
+                        tag('img', _class="footer", src="/images/navi64.png", width="64", height="39", alt="Navi"),
                     ],
                 ],
             ],
