@@ -124,8 +124,9 @@ class Undernet(BaseNetwork):
 class Worldforge(BaseNetwork):
     alias = 'worldforge'
     servers = (
-        ('irc.worldforge.org', None),
-        ('purple.worldforge.org', None),
+        ('lester.mithis.com', None),
+        #('irc.worldforge.org', None),
+        #('purple.worldforge.org', None),
         )
 
 _aliasCache = None
