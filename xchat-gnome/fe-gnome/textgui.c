@@ -349,22 +349,7 @@ gconf_timestamps_changed (GConfClient *client, GConfEntry *entry, gpointer data)
 static void
 open_url (GtkAction *action, gpointer data)
 {
-	GError *err = NULL;
-
-	if (strstr (selected_word, "://") == NULL) {
-		gchar *newword = g_strdup_printf ("http://%s", selected_word);
-		gnome_url_show (newword, &err);
-		g_free (newword);
-	} else {
-		gnome_url_show (selected_word, &err);
-	}
-	if (err != NULL) {
-		/* FIXME: should eventually output this error in a better way than stdout */
-		char *msg = g_strdup_printf (_("Unable to activate the URL '%s': %s\n"), selected_word, err->message);
-		g_print (msg);
-		g_free (msg);
-		g_error_free (err);
-	}
+	fe_open_url (selected_word);
 }
 
 static void
