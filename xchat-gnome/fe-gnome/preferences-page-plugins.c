@@ -67,7 +67,8 @@ fe_plugin_add (char *filename)
 		((xchat_plugin_get_info*) info_func) (&name, &desc, &version, NULL);
 	} else {
 		/* In the event that this foolish plugin has no get_info function we'll just use
-		 * the file name. */
+		 * the file name.
+		 */
 		name = strrchr (filename, '/') + 1;
 		version = _("unknown");
 		desc = _("unkown");
@@ -94,7 +95,7 @@ load_unload (char *filename, gboolean loaded, PreferencesPluginsPage *page, GtkT
 	if (loaded) {
 		/* Unload the plugin. */
 		GSList *removed_plugin;
-		gint err = plugin_kill (filename, 1);
+		int err = unload_plugin (filename);
 		if ( err == 1) {
 			gtk_list_store_set (page->plugin_store, &iter, 4, FALSE, -1);
 

@@ -55,3 +55,14 @@ plugins_initialize ()
 	client = gconf_client_get_default ();
 	enabled_plugins = gconf_client_get_list (client, "/apps/xchat/plugins/enabled", GCONF_VALUE_STRING, NULL);
 }
+
+int
+unload_plugin (char *filename)
+{
+	return plugin_kill (filename, 1);
+}
+
+char *
+load_plugin (session *sess, char *filename, char *arg)
+{
+}
