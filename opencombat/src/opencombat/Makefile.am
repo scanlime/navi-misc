@@ -1,5 +1,5 @@
 if CLIENT_INCLUDED
-bin_PROGRAMS = bzflagGTX
+bin_PROGRAMS = opencombat
 endif
 
 MAINTAINERCLEANFILES = \
@@ -130,7 +130,7 @@ bzflagGTX_SOURCES =			\
 
 
 if WIN32
-RESOURCE = bzflag.res
+RESOURCE = opencombat.res
 else
 RESOURCE =
 endif
@@ -173,8 +173,8 @@ LDADD =	\
 
 AM_CPPFLAGS = $(X_CFLAGS) $(SDL_CFLAGS)
 
-bzflagGTX_LDFLAGS = ../date/buildDate.o
+opencombat_LDFLAGS = ../date/buildDate.o
 
-bzflagGTX.res: $(top_srcdir)/win32/bzflag.rc $(top_srcdir)/win32/bzflag.ico
-	windres --include-dir=$(top_srcdir)/win32/ -i $(top_srcdir)/win32/bzflag.rc -o bzflag.res \
+opencombat.res: $(top_srcdir)/win32/bzflag.rc $(top_srcdir)/win32/opencombat.ico
+	windres --include-dir=$(top_srcdir)/win32/ -i $(top_srcdir)/win32/opencombat.rc -o opencombat.res \
 	-O coff
