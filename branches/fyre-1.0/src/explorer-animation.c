@@ -438,7 +438,10 @@ static void on_anim_scale_changed(GtkWidget *widget, gpointer user_data) {
     animation_iter_seek(self->animation, &iter, v);
     if (iter.valid) {
 
+	/* This shoudln't be entered into our history list */
+	self->history_freeze = TRUE;
 	animation_iter_load(self->animation, &iter, PARAMETER_HOLDER(self->map));
+	self->history_freeze = FALSE;
 
 	/* Seek the transition_scale to our current position within the current keyframe */
 	if (!self->seeking_animation_transition) {
