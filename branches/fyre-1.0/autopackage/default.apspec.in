@@ -7,7 +7,7 @@ ShortName: fyre
 Maintainer: Micah Dowty <micah@navi.cx>
 Packager: Mike Hearn <mike@navi.cx>
 Summary: Fyre renders and animates Peter de Jong maps
-SoftwareVersion: 0.9
+SoftwareVersion: @VERSION@
 AutopackageTarget: 1.0
 
 # Only uncomment InterfaceVersion if your package exposes interfaces to other software,
