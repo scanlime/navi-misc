@@ -1,0 +1,170 @@
+PicoGUI Coding Style
+Micah Dowty, Jan 26 2003
+---------------------------------------------------------------------------
+
+This document applies to all source files stored in the main PicoGUI tree,
+including server components, themes, libraries, and applications. It is broken
+into sections by language.
+
+(Note that I'm not going to vehemently argue these points, but it would be
+ nice to have a measure of standardization in the source tree. If you submit
+ a patch, try to have it in this format, but if it's not I'm much more likely
+ to reindent the code than reject the patch :)
+
+---------------------------------------------------------------------------
+-------------------------------------------------- C, C++, and Theme code
+---------------------------------------------------------------------------
+
+ - Spaces must be used for indentation, not tabs.
+
+ - There should be four spaces of indentation for each block
+
+ - Braces opening a function, loop, or conditional block must
+   always occur at the end of the line.
+
+ - Single-line blocks in a loop or an else may be written without braces
+
+ - There must be one space around 'if', 'for', and '='
+
+ - It is valid to assume NULL == 0, 0 == false, and nonzero == true
+   when writing conditionals.
+
+ - The 'else' block in an if-else construct should be written with both
+   closing and opening braces on the same line:
+
+      if (foo) {
+          printf("Blah\n");
+      } else {
+          printf("Wahoo\n");
+      }
+ 
+ - Symbols that are written in C, but using an object-oriented style,
+   should be named in the form Object_Member, with an optional namespace
+   identifier prepended. The namespace identifier must be used in source
+   files that could be used in a library. For example:
+
+      void pgsWidget_Frob(int iterations);
+      typedef struct {...} pgsWidget_TypeCode;
+      int pgsObject_Refcount = 0;
+
+ - Where applicable, constructor and destructor methods for objects 
+   should be named "Create" and "Destroy"
+
+ - In C code, C-style comments must be used
+
+ - Lines longer than 80 characters should be split
+
+ - Major sections within a file should be identified with a line
+   like the following:
+
+------8<------
+/*************************************************** Public Methods */
+------>8------
+
+ - All files must begin with the following header:
+
+   (Note that this uses the LGPL rather than the GPL!
+    The original PicoGUI code was GPLed, but that prevents it from
+    being used in systems where the GUI server must be linked into
+    the same binary as a proprietary application.)
+
+------8<------
+/*
+ * filename.c - This is a short description of the file
+ *
+ *      (A longer description, details about the algorithm used,
+ *       or other such documentation may be placed here)
+ *
+ * PicoGUI small and efficient client/server GUI
+ * Copyright (C) 2000-2003 Micah Dowty <micahjd@users.sourceforge.net>
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details. 
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * 
+ * Contributors:
+ * 
+ * 
+ * 
+ */
+------>8------
+
+ - All files must end with the following footer:
+
+------8<------
+/* -*- mode: c; c-basic-indent: 4; indent-tabs-mode: nil -*-
+ * vi: set expandtab shiftwidth=4:
+ */
+
+/* The End */
+------>8------
+
+---------------------------------------------------------------------------
+-------------------------------------------------- Python code
+---------------------------------------------------------------------------
+
+ - Spaces must be used for indentation, not tabs.
+
+ - There should be four spaces of indentation for each block
+
+ - Major sections within a file should be identified with a line
+   like the following:
+
+------8<------
+#################################################### Implementation of Foo
+------>8------
+
+ - All files must begin with the following header:
+
+------8<------
+#
+# filename.py - This is a short description of the file
+#
+#      (A longer description, details about the algorithm used,
+#       or other such documentation may be placed here)
+#
+# PicoGUI small and efficient client/server GUI
+# Copyright (C) 2000-2003 Micah Dowty <micahjd@users.sourceforge.net>
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details. 
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+# 
+# Contributors:
+# 
+# 
+# 
+#
+------>8------
+
+ - All files must end with the following footer:
+
+------8<------
+# -*- mode: python; py-indent-offset: 4; indent-tabs-mode: nil -*-
+# vi: set expandtab shiftwidth=4:
+
+### The End ###
+------>8------
+
+---------------------------------------------------------------------------
+The End
