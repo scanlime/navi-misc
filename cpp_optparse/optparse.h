@@ -67,9 +67,11 @@ class OptionParser
 		vector<std::string> arguments;			// List of the arguments with no flag
 
 	private:
-		bool help_msg_show_opts;
-		std::string use_msg;	// usage message.
-		vector<Option> opts;	// List of the options the parser knows about.
+    int lng_flag_max_len, shrt_flag_max_len; // max length of the largest flags
+		bool help_msg_show_opts;  // If true we'll display the help messages for each
+                              // option when help() is called.
+		std::string use_msg;	    // usage message.
+		vector<Option> opts;	    // List of the options the parser knows about.
 
 		/* Helper for finding which Option (if any) argv[index] matches. */
 		void find_opt (char **argv, int &index);

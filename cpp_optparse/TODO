@@ -1,1 +1,2 @@
-* Clean up output from the help message.
+* It would be nice if the help messages showed what the value should be
+  for the <flag><value> pairs, e.g.: -i --infile <file>

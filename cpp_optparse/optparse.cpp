@@ -40,6 +40,10 @@ OptionParser::OptionParser (string usage, bool show_opts):
 	use_msg (usage),
 	help_msg_show_opts (show_opts)
 {
+  // Set the length of the longest flag
+  lng_flag_max_len = strlen("--help");
+  shrt_flag_max_len = strlen("-h");
+
 	/* help option is default, it has no destination. */
 	opts.insert(opts.begin(), Option("-h","--help","", "display this message"));
 }
@@ -60,6 +64,14 @@ OptionParser::add_option (string shrt_flag, string lng_flag, string destination,
 	 * be in our dictionary, even if the value is only "".
 	 */
 	options[destination] = dfault;
+
+  /* If either flag for this option is the largest flag record its length for
+   * formatting the help message.
+   */
+  if (strlen(lng_flag.c_str()) > lng_flag_max_len)
+    lng_flag_max_len = strlen(lng_flag.c_str());
+  if (strlen(shrt_flag.c_str()) > shrt_flag_max_len)
+    shrt_flag_max_len = strlen(shrt_flag.c_str());
 }
 
 void
@@ -82,7 +94,6 @@ OptionParser::parse_args (int argc, char **argv)
 		 */
 		else
 			arguments.insert(arguments.end(), argv[i]);
-		//free(argv[i]);
 	}
 }
 
@@ -99,7 +110,8 @@ OptionParser::help ()
 	cout << use_msg << endl;
 	if (help_msg_show_opts) {
 		for (int i=0; i < opts.size(); i++)
-			printf("  %s %s  %s\n", opts[i].shrt_flag.c_str(), opts[i].lng_flag.c_str(),
+			printf("  %-*s %-*s  %s\n", shrt_flag_max_len+1, opts[i].shrt_flag.c_str(),
+          lng_flag_max_len+3, opts[i].lng_flag.c_str(),
 					opts[i].help.c_str());
 	}
 	exit(0);
