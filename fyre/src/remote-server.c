@@ -63,6 +63,7 @@ static void       remote_server_connect       (GServer*              gserver,
 static void       remote_server_callback      (GConn*                gconn,
 					       GConnEvent*           event,
 					       gpointer              user_data);
+static void       remote_server_disconnect    (RemoteServerConn*     self);
 static void       remote_server_dispatch_line (RemoteServerConn*     self,
 					       char*                 line);
 static void       remote_server_send_response (RemoteServerConn*     self,
@@ -135,13 +136,19 @@ static void       remote_server_callback      (GConn*                gconn,
     case GNET_CONN_CLOSE:
     case GNET_CONN_TIMEOUT:
     case GNET_CONN_ERROR:
-	gnet_conn_delete(gconn);
-	g_object_unref(self->map);
-	g_free(self);
+	remote_server_disconnect(self);
 	break;
 
     default:
     }
+}
+
+static void       remote_server_disconnect    (RemoteServerConn*     self)
+{
+    gnet_conn_delete(self->gconn);
+    iterative_map_stop_calculation(self->map);
+    g_object_unref(self->map);
+    g_free(self);
 }
 
 static void       remote_server_dispatch_line (RemoteServerConn*     self,
@@ -218,15 +225,28 @@ static void       cmd_set_param        (RemoteServerConn*  self,
     remote_server_send_response(self, FYRE_RESPONSE_OK, "ok");
 }
 
-static void       cmd_calculate_timed  (RemoteServerConn*  self,
+static void       cmd_calc_start       (RemoteServerConn*  self,
 					const char*        command,
 					const char*        parameters)
 {
-    printf("Starting iterations\n");
-    iterative_map_calculate_timed(self->map, atof(parameters));
+    iterative_map_start_calculation(self->map);
+    remote_server_send_response(self, FYRE_RESPONSE_OK, "ok");
+}
+
+static void       cmd_calc_stop        (RemoteServerConn*  self,
+					const char*        command,
+					const char*        parameters)
+{
+    iterative_map_stop_calculation(self->map);
+    remote_server_send_response(self, FYRE_RESPONSE_OK, "ok");
+}
+
+static void       cmd_calc_status      (RemoteServerConn*  self,
+					const char*        command,
+					const char*        parameters)
+{
     remote_server_send_response(self, FYRE_RESPONSE_PROGRESS, "iterations=%.3e density=%ld",
 				self->map->iterations, HISTOGRAM_IMAGER(self->map)->peak_density);
-    printf("Finished\n");
 }
 
 static void       cmd_get_histogram_stream (RemoteServerConn*  self,
@@ -244,8 +264,9 @@ static void       cmd_get_histogram_stream (RemoteServerConn*  self,
 static void       remote_server_init_commands (RemoteServer*  self)
 {
     remote_server_add_command(self, "set_param",            cmd_set_param);
-    remote_server_add_command(self, "calculate_timed",      cmd_calculate_timed);
-
+    remote_server_add_command(self, "calc_start",           cmd_calc_start);
+    remote_server_add_command(self, "calc_stop",            cmd_calc_stop);
+    remote_server_add_command(self, "calc_status",          cmd_calc_status);
     remote_server_add_command(self, "get_histogram_stream", cmd_get_histogram_stream);
 }
 
