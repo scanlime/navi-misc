@@ -103,40 +103,6 @@ class JapaneseLogo(OrbitingLogo):
         self.view.scene.remove(self.meshes)
 
 
-class FlameLogo(Sequencer.Page):
-    def __init__(self, view):
-        Sequencer.Page.__init__(self, view)
-
-        self.view.camera.position = (0,0,1)
-        self.view.camera.distance = 1.84
-        self.view.camera.azimuth = 0
-        self.view.camera.elevation = 4
-        self.view.camera.jump()
-
-        # Wasabi text
-        self.title = HUD.Text(self.viewport.region(self.viewport.rect),
-                              "wasabi",
-                              color     = (0, 0, 0, 1),
-                              fontSize  = self.viewport.size[1] / 5,
-                              alignment = (0.5, 0.5),
-                              fontName  = "geodesic.ttf")
-
-        # Load our green_flame particle system
-        self.particle = cPickle.load(open(Util.dataFile('green_flame.particle')))
-        self.view.scene.add(self.particle)
-
-        # Vary the emitter spawn rate using perlin noise
-        self.emitterRate = Animated.Value(Animated.PerlinNoise(frequency=0.6, amplitude=150, octaves=2))
-        self.viewport.onSetupFrame.observe(self.setupFrame)
-
-    def setupFrame(self):
-        self.emitterRate.integrate(self.time.step())
-        self.particle.emitter.spawnRate = abs(self.emitterRate.value)
-
-    def finalize(self):
-        self.view.scene.remove(self.particle)
-
-
 def getLogoList():
     """Returns a list of factory functions for all the logos"""
 
@@ -148,7 +114,6 @@ def getLogoList():
     return [
         fade(Sequencer.PageTimer(60, JapaneseLogo)),
         fade(Sequencer.PageTimer(60, EnglishLogo)),
-        fade(Sequencer.PageTimer(60, FlameLogo)),
         ]
 
 
