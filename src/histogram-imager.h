@@ -136,7 +136,7 @@ void             histogram_imager_finish_plots    (HistogramImager *self,
 						   HistogramPlot   *plot);
 
 
-/* A macro to quickly plot a point on the histogram.
+/* Macros to quickly plot points on the histogram.
  * Must be called between histogram_imager_prepare_plots
  * and histogram_imager_finish_plots. 'plot' is a
  * HistogramPlot, *not* a pointer to a HistogramPlot.
@@ -152,6 +152,14 @@ void             histogram_imager_finish_plots    (HistogramImager *self,
     } \
 } while (0)
 
+#define HISTOGRAM_IMAGER_PLOT_MULTIPLE(plot, x, y, n) do { \
+    guint bucket; \
+    (plot).plot_count += n; \
+    bucket = (plot).histogram[(x) + (plot).hist_width * (y)] += n; \
+    if (bucket > (plot).density) { \
+      (plot).density = bucket; \
+    } \
+} while (0)
 
 G_END_DECLS
 
