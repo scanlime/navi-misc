@@ -5,5 +5,7 @@ sudo /usr/bin/nvtv -t -r 640,480 -s normal -S NTSC
 export DISPLAY=:0
 xhost +
 
+irexec -d ~/freevo/lircrc
+
 cd ~/freevo
 while true; do ./freevo; sleep 1; done
