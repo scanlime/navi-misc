@@ -1,3 +1,9 @@
+/**
+ * This class sets up the web update configuration.
+ * @author Brandon Smith
+ * @version 2.0
+ */
+
 import java.applet.Applet;
 import java.awt.*;
 import java.awt.event.*;
@@ -13,6 +19,12 @@ public class webconfig implements ActionListener
 	private TextField port;
 	private Button submit;
 	
+	/**
+	 * This method constructs the webconfig object, which listends and acts
+	 * @param my My administrator applet, for adding and removing parts.
+	 * @author Brandon Smith
+	 * @version 2.0
+	 */
 	public webconfig(admin my)
 	{
 		admin.help.setText("Please enter the hostname and port that the web updater is running on");
@@ -26,6 +38,12 @@ public class webconfig implements ActionListener
 		submit.addActionListener(this);
 	}
 	
+	/**
+	 * This method handles the click of the button, submitting the webconf info
+	 * @param e An unused parameter for ActionEvent information
+	 * @author Brandon Smith
+	 * @version 2.0
+	 */
 	public void actionPerformed(ActionEvent e)
 	{
 		String temp;

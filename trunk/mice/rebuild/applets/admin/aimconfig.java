@@ -1,3 +1,9 @@
+/**
+ * This class handles capturing and sending AIM Bot configuration.
+ * @author Brandon Smith
+ * @version 2.0
+ */
+
 import java.applet.Applet;
 import java.awt.*;
 import java.awt.event.*;
@@ -13,6 +19,12 @@ public class aimconfig implements ActionListener
 	private TextField port;
 	private Button submit;
 	
+	/**
+	 * This method constructs the AIM configuration portion of the applet
+	 * @param my The Applet that has the capacity to add and remove stuff.
+	 * @author Brandon Smith
+	 * @version 2.0
+	 */
 	public aimconfig(admin my)
 	{
 		admin.help.setText("Please enter the hostname and port that the web updater is running on");
@@ -26,6 +38,12 @@ public class aimconfig implements ActionListener
 		submit.addActionListener(this);
 	}
 	
+	/**
+	 * This method handles the clicks and takes care of it
+	 * @param e The unused bits of information from the click
+	 * @author Brandon Smith
+	 * @version 2.0
+	 */
 	public void actionPerformed(ActionEvent e)
 	{
 		String temp;

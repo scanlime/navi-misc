@@ -53,7 +53,10 @@ public class admin extends java.applet.Applet implements ActionListener
 	}
 	
 	/**
-	 * 
+	 * This method handles the first click, and keeps things going
+	 * @param e The unused parameter
+	 * @author Brandon Smith
+	 * @version 2.0
 	 */
 	public void actionPerformed(ActionEvent e)
 	{
