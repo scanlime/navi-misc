@@ -1,6 +1,6 @@
 This is just a preliminary roadmap, subject to whatever people want to work on.
 
-0.3:
+0.3:	Features
 -	Color palette/schemes					- David (complete)
 -	Network/server configuration				- David
 -	URLScraper plugin					- Evan (complete enough)
@@ -9,8 +9,7 @@ This is just a preliminary roadmap, subject to whatever people want to work on.
 -	Implement searching (firefox style would be nice!)	- David (complete)
 -	Fix close bug with Connect and Prefs dialogs		- Evan (complete)
 
-0.4:
--	Redo DCC UI						- David
+0.4:	Bugfixes
 -	Autogenerate inline pngs during build
 -	Fix connect dialog to check for existing open
 	networks before creating a new connection
@@ -19,20 +18,23 @@ This is just a preliminary roadmap, subject to whatever people want to work on.
 -	Fix navigation tree to use non-case-sensitive
 	sorting rather than lexicographical order
 -	Fix plugins preferences to properly handle scripts	- Evan
--	Finish implementing keybindings UI?			- Dan
+
+0.5:	Features
+-	Redo DCC UI						- David
 -	Implement options in channel list dialog
 -	Allow plugins to add a prefs page to the prefs dialog	- Evan
+-	Finish implementing keybindings UI?			- Dan
 
 
-0.5:
+0.6:	Refactoring
 -	Convert individual dialogs/pages into GObjects where
 	possible, keeping pointers to widgets - remove most
 	of the calls to glade_xml_get_widget()
 -	Refactor for multiple conversation windows
 
-0.6:
+0.7:
 -	User documentation!
--	Infrastructure for translation (maybe we have this?)
+-	Any other infrastructure for translation
 
 undetermined:
 -	Autopackage/binreloc/relaytool
