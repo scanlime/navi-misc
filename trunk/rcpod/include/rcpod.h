@@ -227,7 +227,7 @@ int rcpod_SerialSetTxEnable(rcpod_dev* rcpod, rcpod_pin pin);
  * Note that this is used in librcpod for serial I/O.
  */
 #define RCPOD_REG_SCRATCHPAD    0x0020
-#define RCPOD_SCRATCHPAD_SIZE   0x0050
+#define RCPOD_SCRATCHPAD_SIZE   0x005D
 
 /* A subset of the PIC's hardware registers. Those that couldn't possibly
  * be useful to poke at via the rcpod have been omitted.
