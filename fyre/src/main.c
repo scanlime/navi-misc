@@ -75,6 +75,16 @@ int main(int argc, char ** argv) {
     g_type_init();
     have_gtk = gtk_init_check(&argc, &argv);
 
+#ifdef HAVE_GNET
+    gnet_init();
+
+    /* Explicitly tell gnet to only use IPV4- this is crufty, but on
+     * Windows 2000 and XP it will use IPV6 and only IPV6 if it's
+     * available at all. Windows uses separate stacks for V4 and V6.
+     */
+    gnet_ipv6_set_policy(GIPV6_POLICY_IPV4_ONLY);
+#endif
+
     map = ITERATIVE_MAP(de_jong_new());
     animation = animation_new();
 
