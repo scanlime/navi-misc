@@ -8,6 +8,7 @@
  *
  */
 
+#include <SDL/SDL.h>
 /* Division type of the rectangle. */
 enum div_t{UNSET, HORIZONTAL, VERTICAL, MARGIN};
 
@@ -21,20 +22,20 @@ typedef struct GUI_Node {
 	int percent; 
 	
 	/* Division of the rectangle: HORIZONTAL, VERTICAL, MARGIN or UNSET. */
-	div_t division;
+	enum div_t division;
 
 	/* Pointer to the split function for the node. */
 	void (*split)(void);
 
 	/* Pointer to the draw function for the node. */
-	void (*draw)(void);
+	struct GUI_Node* (*draw)(void);
 
 	/* Controls the behaviour of the node (e.g. text field, button, etc.) */
 	void (*action)(void);
 
 	/* Child nodes. */
-	GUI_Node *left;
-	GUI_Node *right;
+	struct GUI_Node *left;
+	struct GUI_Node *right;
 } GUI_Node;
 
 /* Initialize the node. */
@@ -89,3 +90,10 @@ void draw_drawfield(GUI_Node *node, SDL_Surface* image);
 /* Resize the entire layout tree and re-blit everything.
  */
 void resize(GUI_Node* node);
+
+/********************************* Controls **********************************/
+void button_control();
+
+void textfield_control();
+
+void drawfield_control();

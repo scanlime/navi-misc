@@ -10,6 +10,12 @@ main: test_main.o Hangman.o
 gui_main: GUI_test.o HangmanGUI.o
 	gcc `sdl-config --libs` -lSDL_gfx -lSDL_ttf -lSDL_image -o gui_main GUI_test.o HangmanGUI.o
 #
+gui_lib: GUI_Node.o
+	gcc `sdl-config --libs` -o gui_lib GUI_Node.o
+#
+GUI_Node.o: GUI_Node.c GUI.h
+	gcc -g -c -Wall `sdl-config --cflags` GUI_Node.c
+#
 GUI_test.o: GUI_test.c HangmanGUI.h
 	gcc -g -c -Wall GUI_test.c
 #
