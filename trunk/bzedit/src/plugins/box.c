@@ -32,6 +32,7 @@ static void       box_init_size_params     (GObjectClass *object_class);
 static void       box_init_other_params    (GObjectClass *object_class);
 static GdkPixbuf* box_get_icon             (void);
 static gboolean   box_creatable            (void);
+static GList*     box_get_drawables        (SceneObject *self);
 
 enum
 {
@@ -87,6 +88,7 @@ box_class_init (BoxClass *klass)
 
   so_class->get_icon = box_get_icon;
   so_class->creatable = box_creatable;
+  so_class->get_drawables = box_get_drawables;
 
   object_class->set_property = box_set_property;
   object_class->get_property = box_get_property;
@@ -100,7 +102,7 @@ box_class_init (BoxClass *klass)
 static void
 box_init (Box *box)
 {
-  /* nothing to do here yet, since everything is set up by the G_PARAM_CONSTRUCT properties */
+  box->drawables = g_list_alloc();
 }
 
 static void
@@ -354,4 +356,11 @@ static gboolean
 box_creatable (void)
 {
   return TRUE;
+}
+
+static GList*
+box_get_drawables (SceneObject *self)
+{
+  Box *b = BOX (self);
+  return b->drawables;
 }

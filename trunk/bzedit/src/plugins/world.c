@@ -22,14 +22,19 @@
 
 #include "world.h"
 
-static void       world_class_init   (WorldClass *klass);
-static void       world_init         (World *world);
-static void       world_set_property (GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec);
-static void       world_get_property (GObject *object, guint prop_id, GValue *value, GParamSpec *pspec);
-static void       world_finalize     (GObject *object);
-static void       world_init_params  (GObjectClass *object_class);
-static GdkPixbuf* world_get_icon     (void);
-static gboolean   world_creatable    (void);
+static void       world_class_init             (WorldClass *klass);
+static void       world_init                   (World *world);
+static void       world_set_property           (GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec);
+static void       world_get_property           (GObject *object, guint prop_id, GValue *value, GParamSpec *pspec);
+static void       world_finalize               (GObject *object);
+static void       world_init_params            (GObjectClass *object_class);
+static GdkPixbuf* world_get_icon               (void);
+static gboolean   world_creatable              (void);
+static GList*     world_get_drawables          (SceneObject *self);
+
+static void       ground_drawable_class_init   (GroundDrawableClass *klass);
+static void       ground_drawable_init         (GroundDrawable *gd);
+static void       ground_drawable_draw_to_list (DisplayList *dl);
 
 enum
 {
@@ -82,6 +87,7 @@ world_class_init (WorldClass *klass)
 
   so_class->get_icon = world_get_icon;
   so_class->creatable = world_creatable;
+  so_class->get_drawables = world_get_drawables;
 
   world_init_params (object_class);
 }
@@ -89,7 +95,10 @@ world_class_init (WorldClass *klass)
 static void
 world_init (World *world)
 {
-  /* nothing to do here yet, since everything is set up by the G_PARAM_CONSTRUCT properties */
+  world->drawables = g_list_alloc ();
+  Drawable *ground = ground_drawable_new ();
+
+  g_list_append (world->drawables, (gpointer) ground);
 }
 
 static void
@@ -214,4 +223,83 @@ static gboolean
 world_creatable (void)
 {
   return FALSE;
+}
+
+static GList*
+world_get_drawables (SceneObject *self)
+{
+}
+
+GType
+ground_drawable_get_type (void)
+{
+  static GType gd_type = 0;
+  if (!gd_type)
+    {
+      static const GTypeInfo gd_info =
+      {
+	sizeof (GroundDrawableClass),
+	NULL,               /* base init */
+	NULL,               /* base finalize */
+	(GClassInitFunc)    ground_drawable_class_init,
+	NULL,               /* class finalize */
+	NULL,               /* class data */
+	sizeof (GroundDrawable),
+	0,                  /* n preallocs */
+	(GInstanceInitFunc) ground_drawable_init,
+      };
+
+      gd_type = g_type_register_static (GROUND_DRAWABLE_TYPE, "GroundDrawable", &gd_info, 0);
+    }
+
+  return gd_type;
+}
+
+static void
+ground_drawable_class_init (GroundDrawableClass *klass)
+{
+  DisplayListClass *dlc;
+
+  dlc = (DisplayListClass*) klass;
+  dlc->draw_to_list = ground_drawable_draw_to_list;
+}
+
+static void
+ground_drawable_init (GroundDrawable *gd)
+{
+  gd->base_texture_repeat = 90;
+  gd->overlay_texture_repeat = 1;
+}
+
+static void
+ground_drawable_draw_to_list (DisplayList *dl)
+{
+  GroundDrawable *gd = GROUND_DRAWABLE (dl);
+
+  glPushMatrix ();
+
+  /* We want to draw both sides of the surface. This will have OpenGL
+     automatically flip the surface normals when drawing the back side */
+  glDisable (GL_CULL_FACE);
+  glLightModeli (GL_LIGHT_MODEL_TWO_SIDE, 1);
+
+  glBegin(GL_QUADS);
+  glNormal3f (0, 0, 1);
+
+  glTexCoord2f (gd->base_texture_repeat, gd->base_texture_repeat);
+  glVertex3f (gd->size, gd->size, 0);
+
+  glTexCoord2f (0, gd->base_texture_repeat);
+  glVertex3f (-gd->size, gd->size, 0);
+
+  glTexCoord2f (0, 0);
+  glVertex3f (-gd->size, -gd->size, 0);
+
+  glTexCoord2f (gd->base_texture_repeat, 0);
+  glVertex3f (gd->size, -gd->size, 0);
+
+  glEnd();
+  glEnable (GL_CULL_FACE);
+  glLightModeli (GL_LIGHT_MODEL_TWO_SIDE, 0);
+  glPopMatrix ();
 }
