@@ -544,17 +544,13 @@ void de_jong_calculate_bifurcation(DeJong             *self,
     gulong density, bucket;
     int block, ix, iy, i, j;
     guint *p;
+    DeJong *interpolant;
+    int tmp;
+    interpolant = de_jong_new();
 
     density = self->current_density;
 
     if (!self->columns) {
-      DeJong *interpolant;
-      int tmp;
-
-      interpolant = de_jong_new();
-
-      printf("Initializing column table\n");
-
       /* Create columns and number them */
       self->columns = g_new0(BifurcationColumn, hist_width);
       for (i=0; i<hist_width; i++)
@@ -567,30 +563,6 @@ void de_jong_calculate_bifurcation(DeJong             *self,
 	self->columns[i].ix = self->columns[j].ix;
 	self->columns[j].ix = tmp;
       }
-
-      /* Initialize each column */
-      for (i=hist_width-1; i>=0; i--) {
-	self->columns[i].ix;
-	self->columns[i].point_x = uniform_variate();
-	self->columns[i].point_y = uniform_variate();
-
-	/* Generate a small number of parameters, randomly chosen from those
-	 * within this column's section of the bifurcation diagram. This
-	 * still gives us the subpixel accuracy of having more than one set
-	 * of parameters per column, but saves us from the relatively costly interpolation
-	 */
-	for (j=0; j<(sizeof(self->columns[0].interpolated) / sizeof(self->columns[0].interpolated[0])); j++) {
-	  interp(interpolant, (self->columns[i].ix + uniform_variate()) / (hist_width - 1), interp_data);
-	  self->columns[i].interpolated[j].a = interpolant->a;
-	  self->columns[i].interpolated[j].b = interpolant->b;
-	  self->columns[i].interpolated[j].c = interpolant->c;
-	  self->columns[i].interpolated[j].d = interpolant->d;
-	}
-      }
-
-      printf("Done initializing column table\n");
-
-      g_object_unref(interpolant);
     }
 
     for (i=iterations; i;) {
@@ -601,10 +573,24 @@ void de_jong_calculate_bifurcation(DeJong             *self,
 	self->current_column = 0;
 
       ix = column->ix;
+
+      if (!column->initialized) {
+	column->point_x = uniform_variate();
+	column->point_y = uniform_variate();
+	column->initialized = TRUE;
+      }
       point_x = column->point_x;
       point_y = column->point_y;
 
       j = random() % (sizeof(self->columns[0].interpolated) / sizeof(self->columns[0].interpolated[0]));
+      if (!column->interpolated[j].initialized) {
+	interp(interpolant, (column->ix + uniform_variate()) / (hist_width - 1), interp_data);
+	column->interpolated[j].a = interpolant->a;
+	column->interpolated[j].b = interpolant->b;
+	column->interpolated[j].c = interpolant->c;
+	column->interpolated[j].d = interpolant->d;
+	column->interpolated[j].initialized = TRUE;
+      }
       a = column->interpolated[j].a;
       b = column->interpolated[j].b;
       c = column->interpolated[j].c;
@@ -638,6 +624,7 @@ void de_jong_calculate_bifurcation(DeJong             *self,
     }
 
     self->current_density = density;
+    g_object_unref(interpolant);
   }
 }
 

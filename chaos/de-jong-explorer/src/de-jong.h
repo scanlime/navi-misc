@@ -43,10 +43,12 @@ typedef struct _DeJongClass DeJongClass;
 /* DEBUGGATIVE CRUFT */
 typedef struct {
   guint ix;
+  gboolean initialized;
   gdouble point_x, point_y;
   struct {
+    gboolean initialized;
     double a,b,c,d;
-  } interpolated[8];
+  } interpolated[1];
 } BifurcationColumn;
 
 
