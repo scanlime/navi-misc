@@ -55,19 +55,18 @@ e_weather_source_ccf_new (const char *uri)
 }
 
 static GSList*
-tokenize (const char *buffer)
+tokenize (char *buffer)
 {
 	char *token;
-	char *buffer2 = g_strdup (buffer);
 	char *tokbuf = g_strdup (buffer);
+	char *buffer2 = tokbuf;
 	GSList *ret;
 
-	token = strtok_r (buffer2, " \n", &tokbuf);
+	token = strtok_r (buffer, " \n", &tokbuf);
 	ret = g_slist_append (NULL, g_strdup (token));
 	while ((token = strtok_r (NULL, " \n/", &tokbuf)))
 		ret = g_slist_append (ret, g_strdup (token));
 	g_free (buffer2);
-//	g_free (tokbuf);
 	return ret;
 }
 
@@ -167,7 +166,7 @@ ftoc (char *data)
 }
 
 static void
-e_weather_source_ccf_do_parse (EWeatherSourceCCF *source, const char *buffer)
+e_weather_source_ccf_do_parse (EWeatherSourceCCF *source, char *buffer)
 {
 	/* CCF gives us either 2 or 7 days of forecast data. IFPS WFO's
 	 * will produce 7 day forecasts, whereas pre-IFPS WFO's are only
@@ -340,7 +339,8 @@ e_weather_source_ccf_do_parse (EWeatherSourceCCF *source, const char *buffer)
 static void
 retrieval_done (SoupMessage *message, EWeatherSourceCCF *source)
 {
-	char *str, *newuri;
+	char *str;
+	const char *newuri;
 
 	g_print ("Retrieval done.\n");
 
@@ -357,7 +357,6 @@ retrieval_done (SoupMessage *message, EWeatherSourceCCF *source)
 			soup_message = soup_message_new (SOUP_METHOD_GET, newuri);
 			soup_message_set_flags (soup_message, SOUP_MESSAGE_NO_REDIRECT);
 			soup_session_queue_message (source->soup_session, soup_message, (SoupMessageCallbackFn) retrieval_done, source);
-			g_free (newuri);
 			return;
 		}
 		else
