@@ -51,6 +51,7 @@ public:
   virtual const char* GetCameraName ( void );
   virtual const char* GetRootResDir ( void );
 	virtual const char* GetPluginsDir ( void );
+	virtual const char* GetPrefsName ( void );
 
  // info methods.
 

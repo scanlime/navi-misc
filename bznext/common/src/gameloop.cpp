@@ -87,7 +87,6 @@ bool CBaseGameLoop::Run ( void )
   TextureManager::getSingleton().setDefaultNumMipMaps(5);
 
   timer.Init();
- // input.Init();
 
   if(OnInit())
   {
@@ -103,7 +102,6 @@ bool CBaseGameLoop::Run ( void )
     mRoot->shutdown();
 
   OnKill();
- // input.Release();
   return true;
 }
 
@@ -130,14 +128,14 @@ bool CBaseGameLoop::LoadPlugins ( void )
 
 bool CBaseGameLoop::SetupConfigure ( void )
 {
-    prefs.Init("bznext.prefs");
+    prefs.Init(GetPrefsName());
 
     bool bNew = !prefs.ItemExists("VERSION");
     bool configed = false;
     bool force = args.Exists("ForceConfig");
 
-  //  if ( !bNew && !force)
- //    configed =  mRoot->restoreConfig();
+		if ( !bNew && !force)
+			configed =  mRoot->restoreConfig();
   
     if (!configed)
          configed = mRoot->showConfigDialog();
@@ -229,19 +227,10 @@ bool CBaseGameLoop::Process ( void )
   }  
   
   typedData = input.GetEnteredText();
-//  input.Update();
   timer.Update();
 
   if (!bDone)
     bDone = GameLoop();
-
-  // Pump events on Win32, lame but we have to, ogre won't quit us when the window is closed.
-  MSG  msg;
-  while( PeekMessage( &msg, NULL, 0U, 0U, PM_REMOVE ) )
-  {
-    TranslateMessage( &msg );
-    DispatchMessage( &msg );
-  }
 
   return bDone;
 }
@@ -294,6 +283,12 @@ const char* CBaseGameLoop::GetPluginsDir ( void )
 {
 	return "./plugins";
 }
+
+const char* CBaseGameLoop::GetPrefsName ( void )
+{
+	return "std.prefs";
+}
+
 
 bool	CBaseGameLoop::OnInit ( void )
 {
