@@ -1,0 +1,104 @@
+/*
+ * Matrix.h - Matrix classes
+ *
+ * Copyright (C) 2002-2003 Micah Dowty and David Trowbridge
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * 
+ */
+
+#ifndef _H_MATRIX
+#define _H_MATRIX
+
+#include "Util.h"
+#include <GL/gl.h>
+#include "Vector.h"
+
+class Matrix4x4 {
+  public:    
+    Matrix4x4();
+    Matrix4x4(const GLfloat *m);
+
+    Matrix4x4	&operator = (const Matrix4x4 &m);
+    Matrix4x4	&operator += (const Matrix4x4 &m);
+    Matrix4x4	&operator -= (const Matrix4x4 &m);
+    Matrix4x4	&operator *= (const float &f);
+    Matrix4x4	&operator *= (const Matrix4x4 &m);
+    Matrix4x4	&operator /= (const float &f);
+
+    Vector3	operator * (const Vector3 &v) const;
+    Matrix4x4	operator * (const float &f) const;
+    Matrix4x4	operator / (const float &f) const;
+    Matrix4x4	operator * (const Matrix4x4 &m) const;
+    Matrix4x4	operator + (const Matrix4x4 &m) const;
+    Matrix4x4	operator - (const Matrix4x4 &m) const;
+
+    Matrix4x4	&negate();
+    Matrix4x4	&operator - ();
+    Matrix4x4	&zero();
+    float&	operator[] (unsigned int index);
+
+    float	operator[] (unsigned int index) const;
+
+    bool	operator == (const Matrix4x4 &v) const;
+    bool	operator != (const Matrix4x4 &v) const;
+
+    /* Multiply the 3-vector by this matrix then divide by the
+     * w to project the resulting vector into 2D space.
+     * Returns the answer in OpenGL normalized coordinates.
+     */
+    Vector2     project(const Vector3 &v) const;
+
+    /* A multiply by Vector3 that assumes the missing value is 0 rather than 1 */
+    Vector3     multiply3(const Vector3 &v) const;
+
+    GLfloat	vec[16];
+};
+
+class Matrix3x3 {
+  public:
+    Matrix3x3();
+    Matrix3x3(const GLfloat *m);
+
+    Matrix3x3	&operator = (const Matrix3x3 &m);
+    Matrix3x3	&operator += (const Matrix3x3 &m);
+    Matrix3x3	&operator -= (const Matrix3x3 &m);
+    Matrix3x3	&operator *= (const float &f);
+    Matrix3x3	&operator *= (const Matrix3x3 &m);
+    Matrix3x3	&operator /= (const float &f);
+
+    Matrix3x3	operator * (const float &f) const;
+    Matrix3x3	operator / (const float &f) const;
+    Matrix3x3	operator * (const Matrix3x3 &m) const;
+    Matrix3x3	operator + (const Matrix3x3 &m) const;
+    Matrix3x3	operator - (const Matrix3x3 &m) const;
+
+    Matrix3x3	&negate();
+    Matrix3x3	&operator - ();
+    Matrix3x3	&zero();
+    float	&operator[] (unsigned int index);
+    float	operator[] (unsigned int index) const;
+
+    bool	operator == (const Matrix3x3 &m) const;
+    bool	operator != (const Matrix3x3 &m) const;
+
+    Vector3	operator * (const Vector3 &v) const;
+
+    GLfloat	vec[9];
+};
+
+#endif
+
+/* The End */

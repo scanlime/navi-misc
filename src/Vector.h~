@@ -1,0 +1,187 @@
+/*
+ * Vector.h - Vector classes
+ *
+ * Copyright (C) 2002-2003 Micah Dowty and David Trowbridge
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * 
+ */
+
+#ifndef _H_VECTOR
+#define _H_VECTOR
+
+#include "Util.h"
+#include <GL/gl.h>
+
+class Vector4 {
+  public:
+    typedef const float* iterator;
+
+		Vector4();
+		Vector4(float x, float y, float z, float w);
+		Vector4(const float *v);
+		Vector4(const double *v);
+
+    Vector4	&operator = (const Vector4 &v);
+    Vector4	&operator += (const Vector4 &v);
+    Vector4	&operator -= (const Vector4 &v);
+    Vector4	&operator *= (const float &f);
+    Vector4	&operator /= (const float &f);
+
+    Vector4	operator * (const float &f) const;
+    Vector4	operator / (const float &f) const;
+    float	operator * (const Vector4 &f) const;
+    Vector4	operator + (const Vector4 &v) const;
+    Vector4	operator - (const Vector4 &v) const;
+
+    Vector4	&normalize();
+    Vector4	&negate();
+    Vector4	&operator - ();
+    Vector4	&zero();
+    void	set(float x, float y, float z, float w);
+    float&	operator[] (unsigned int index);
+
+    /* Helper functions for the python wrapper */
+    void        set1(unsigned int index, float value);
+    float       get1(unsigned int index) const;
+    void        setv(Vector4 v);
+
+    float	operator[] (unsigned int index) const;
+    iterator	begin();
+    const float	*get() const;
+    float	length() const;
+    float	length2() const;
+
+    bool	operator == (const Vector4 &v) const;
+    bool	operator != (const Vector4 &v) const;
+
+    void	fillGL(GLfloat v[4]) const;
+
+    void	fromBuffer(Uint8 *v);
+    void	toBuffer(Uint8 *v) const;    
+
+  private:
+    float	vec[4];
+};
+
+class Vector3 {
+  public:
+    typedef const float* iterator;
+
+		Vector3();
+		Vector3(float x, float y, float z);
+		Vector3(const float *v);
+		Vector3(const double *v);
+
+    Vector3	&operator = (const Vector3 &v);
+    Vector3	&operator += (const Vector3 &v);
+    Vector3	&operator -= (const Vector3 &v);
+    Vector3	&operator %= (const Vector3 &v);
+    Vector3	&operator *= (const float &f);
+    Vector3	&operator /= (const float &f);
+
+    Vector3	operator * (const float &f) const;
+    Vector3	operator / (const float &f) const;
+    float	operator * (const Vector3 &f) const;    /* Dot product */
+    Vector3	operator % (const Vector3 &f) const;    /* Cross product */
+    Vector3	operator + (const Vector3 &v) const;
+    Vector3	operator - (const Vector3 &v) const;
+
+    Vector3	&normalize();
+    Vector3	&negate();
+    Vector3	&operator - ();
+    Vector3	&zero();
+    Vector3     &rotate(float angle, float x, float y, float z);
+    void	set(float x, float y, float z);
+    float&	operator[] (unsigned int index);
+
+    /* Helper functions for the python wrapper */
+    void        set1(unsigned int index, float value);
+    float       get1(unsigned int index) const;
+    void        setv(Vector3 v);
+
+    Vector3	perpendicular() const;
+
+    float	operator[] (unsigned int index) const;
+    iterator	begin();
+    const float	*get() const;
+    float	length() const;
+    float	length2() const;
+
+    bool	operator == (const Vector3 &v) const;
+    bool	operator != (const Vector3 &v) const;
+
+    void	fillGL(GLfloat v[3]) const;
+
+    void	fromBuffer(Uint8 *v);
+    void	toBuffer(Uint8 *v) const;    
+
+  private:
+    float	vec[3];
+};
+
+class Vector2 {
+  public:
+    typedef const float* iterator;
+
+		Vector2();
+		Vector2(float x, float y);
+		Vector2(const float *v);
+		Vector2(const double *v);
+
+    Vector2	&operator = (const Vector2 &v);
+    Vector2	&operator += (const Vector2 &v);
+    Vector2	&operator -= (const Vector2 &v);
+    Vector2	&operator *= (const float &f);
+    Vector2	&operator /= (const float &f);
+
+    Vector2	operator * (const float &f) const;
+    Vector2	operator / (const float &f) const;
+    float	operator * (const Vector2 &f) const;    /* Dot product */
+    Vector2	operator + (const Vector2 &v) const;
+    Vector2	operator - (const Vector2 &v) const;
+
+    Vector2	&normalize();
+    Vector2	&negate();
+    Vector2	&operator - ();
+    Vector2	&zero();
+    void	set(float x, float y);
+    float&	operator[] (unsigned int index);
+
+    /* Helper functions for the python wrapper */
+    void        set1(unsigned int index, float value);
+    float       get1(unsigned int index) const;
+    void        setv(Vector2 v);
+
+    float	operator[] (unsigned int index) const;
+    iterator	begin();
+    const float	*get() const;
+    float	length() const;
+    float	length2() const;
+
+    bool	operator == (const Vector2 &v) const;
+    bool	operator != (const Vector2 &v) const;
+
+    void	fillGL(GLfloat v[2]) const;
+
+    void	fromBuffer(Uint8 *v);
+    void	toBuffer(Uint8 *v) const;    
+
+  private:
+    float	vec[2];
+};
+
+
+#endif

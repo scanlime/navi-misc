@@ -1,0 +1,96 @@
+/*
+ * JetCOWVector.h - A template that implements a persistent vector of classes
+ *                  derived from JetCOWDictionary.
+ *
+ * Copyright (C) 2002-2003 Micah Dowty and David Trowbridge
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * 
+ */
+
+#ifndef _H_JETCOWVECTOR
+#define _H_JETCOWVECTOR
+
+#include "JetCOW.h"
+#include "Mutex.h"
+#include <vector>
+#include <string>
+
+/* NOTE:
+ *  The contents are ref()'ed and unref()'ed automatically during
+ *  revert, commit, and in the destructor, but when the user inserts
+ *  and deletes nodes this doesn't manage reference counting.
+ *
+ * The type "T" must be a pointer to JetCOWObject or subclass.
+ */
+
+template <class T>
+class JetCOWVector : public std::vector<T>, public JetCOWObject, private Mutex {
+ public:
+  /* JetCOW hooks - Never use these directly! */
+  JetCOWVector(JetCOW *cow, Sint32 id, const char *type="JetCOWVector") : JetCOWObject(cow,id,type) {}
+  virtual ~JetCOWVector() {
+    clearAndUnref();
+  }
+  
+  /* Store a flat array of 32-bit JetCOWObject IDs in network byte order */
+  virtual void revert(void) {
+    lock();
+    std::string buffer;
+    Uint8 *data;
+    Uint32 dataSize;
+    get(buffer);
+    data = (Uint8*) buffer.c_str();
+    dataSize = buffer.size();
+
+    clearAndUnref();
+    while (dataSize >= sizeof(u32n)) {
+      push_back((T) cow->checkout("JetCOWObject", jet_ntohl(*(s32n)data)));
+      data += sizeof(u32n);
+      dataSize -= sizeof(u32n);
+    }
+
+    dirty = false;
+    unlock();
+  }
+
+  virtual void commit(void) {
+    if (!dirty) return;
+    lock();
+    std::string page;
+    iterator i(begin());
+
+    for (;i!=end(); i++) {
+      u32n n = jet_htonl((*i)->id);
+      char *bytes = (char*) &n;
+      for (int j=0;j<sizeof(u32n);j++)
+	page += bytes[j];
+    }
+
+    put(page);
+    dirty = false;
+    unlock();
+  }
+
+ private:
+  void clearAndUnref(void) {
+    iterator i(begin());
+    for (;i!=end(); i++)
+      (*i)->unref();
+    clear();
+  }
+};
+
+#endif /* _H_JETCOWVECTOR */
