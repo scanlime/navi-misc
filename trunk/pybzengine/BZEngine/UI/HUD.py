@@ -136,9 +136,25 @@ class Image:
         if self.alignment:
             GLOrtho.translate(self.viewport.size[0] * self.alignment[0],
                               self.viewport.size[1] * self.alignment[1])
-            GLOrtho.setColor(*self.color)
-            GLOrtho.setTexture(self.texture)
-            GLOrtho.filledRect(self.size, self.alignment)
+        GLOrtho.setColor(*self.color)
+        GLOrtho.setTexture(self.texture)
+        GLOrtho.filledRect(self.size, self.alignment)
+
+
+class Background:
+    """A view that draws an image, stored in a single texture, stretched
+       across the entire screen.
+       """
+    def __init__(self, viewport, textureName):
+        viewport.fov = None
+        self.viewport = viewport
+        self.texture = Texture.load(textureName)
+        viewport.onDrawFrame.observe(self.render)
+
+    def render(self):
+        GLOrtho.setup()
+        GLOrtho.setTexture(self.texture)
+        GLOrtho.filledRect(self.viewport.size)
 
 
 class ScrolledText(Text):
