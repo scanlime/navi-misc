@@ -25,21 +25,6 @@ NSIS=$HOME/bin/nsis
 rm -Rf $OUTPUTDIR $STAGINGDIR
 
 
-################ Shell Links
-
-# It's disgustingly complicated to actually create a windows
-# shell link (".lnk" file) from the command line.. we actually
-# cross-compile a simple public domain tool, then run it under
-# wine. It uses some OLE calls from shell32.dll that need to
-# be registered first. Blah.
-
-mkdir -p $STAGINGDIR
-$CC -o $STAGINGDIR/shlink.exe shlink.c -lole32 -luuid || exit 1
-$STRIP $STAGINGDIR/shlink.exe
-(cd /usr/lib/wine/bin; wine regsvr32 shell32.dll) || exit 1
-SHELLLINK="wine `pwd`/$STAGINGDIR/shlink.exe"
-
-
 ################ Fyre itself
 
 # Check the current version number
@@ -71,8 +56,8 @@ done
 # you run fyre.exe directly. Note that the links used in the
 # start menu are created later by NSIS.
 
-(cd $TARGETDIR; $SHELLLINK lib\\fyre.exe "Fyre $VERSION.lnk" "." "") || exit 1
-(cd $TARGETDIR; $SHELLLINK lib\\fyre.exe "Fyre Rendering Server.lnk" "." "-vr") || exit 1
+./winlink.py "$TARGETDIR/Fyre $VERSION.lnk" lib/fyre.exe || exit 1
+./winlink.py "$TARGETDIR/Fyre Rendering Server.lnk" lib/fyre.exe -vr || exit 1
 
 
 ################ Dependencies
