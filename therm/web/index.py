@@ -29,10 +29,58 @@ _thisPath = os.path.realpath(os.path.split(__file__)[0])
 _modulesPath = os.path.join(_thisPath, "..", "modules")
 sys.path.insert(0, _modulesPath)
 
-import therm_db, units
+import therm_db, units, rrd
 import time
 import Nouvelle
 from Nouvelle import tag, place, xml, ModPython
+
+
+class ThermRRD(rrd.RrdFile):
+    """An RRD updated with values from the therm database"""
+    def __init__(self, source, key, filename=None):
+        self.source = source
+        self.key = key
+        rrd.RrdFile.__init__(self, filename, source, key)
+
+    def needsBuilding(self):
+        return self.source.getLatestPacket()['id'] > self.getStamp()
+
+    def buildRule(self):
+        rrd.RrdFile.buildRule(self)
+        self.updatePackets(self.getStamp())
+
+    def updatePackets(self, id, stepSize=50):
+        iter = self.source.iterPacketsAfter(id)
+        while 1:
+            queue = []
+            try:
+                while len(queue) < stepSize:
+                    queue.append(iter.next())
+            except StopIteration:
+                pass
+            if not queue:
+                return
+
+            self.update([(packet['time'].ticks(), packet[self.key])
+                         for packet in queue if packet.get(self.key)])
+            self.setStamp(queue[-1]['id'])
+
+    def rrdInit(self):
+        rrd.RrdFile.rrdInit(self)
+        self.setStamp(0)
+
+    def getStampFilename(self):
+        """Get the filename to use for storing our latest packet ID"""
+        return self.filename + ".stamp"
+
+    def getStamp(self):
+        try:
+            return int(open(self.getStampFilename()).read().strip())
+        except IOError:
+            return 0
+
+    def setStamp(self, s):
+        open(self.getStampFilename(), "w").write("%d\n" % s)
 
 
 class IndexPage(ModPython.Page):
@@ -80,6 +128,15 @@ class IndexPage(ModPython.Page):
             font: 120% sans-serif;
             color: #666;
             vertical-align: middle;
+        }
+
+        .thumbnails {
+            margin: 0.8em 0em 0em 0.25em;
+            padding: 0em;
+        }
+        img.thumbnail {
+            border: 1px solid #777;
+            margin: 0em 0.6em 0em 0em;
         }
 
         .extraInfo {
@@ -151,6 +208,7 @@ class IndexPage(ModPython.Page):
         info.extend([
             tag('div', _class='name')[ therm_db.prettifyName(source.name) ],
             tag('div', _class='description')[ source.description ],
+            tag('div', _class='thumbnails')[ self.getThumbnails(context, source) ],
             ])
 
         if latest.get('voltage'):
@@ -181,6 +239,32 @@ class IndexPage(ModPython.Page):
             else:
                 bars.append(tag('span', _class="emptyBar")[ " " ])
         return tag('span', _class="bargraph")[ bars ]
+
+    def getThumbnails(self, context, source):
+        temperatures = ThermRRD(source, 'average')
+        voltages = ThermRRD(source, 'voltage')
+        images = []
+
+        images.append(rrd.RrdGraph("--width", 640, "--height", 200,
+                                   "--start", -60*60*24*7,
+                                   rrd.RrdDef('temps', temperatures, 'x', 'AVERAGE'),
+                                   "LINE1:temps#800000:Average Temperature"))
+
+        images.append(rrd.RrdGraph("--width", 640, "--height", 200,
+                                   "--start", -60*60*24*7,
+                                   rrd.RrdDef('volts', voltages, 'x', 'AVERAGE'),
+                                   "LINE1:volts#000080:Average Voltage"))
+
+        return [self.makeThumbnailLink(context, i) for i in images]
+
+    def makeThumbnailLink(self, context, image):
+        """Make a hyperlinked thumbnail to an image"""
+        thumb = rrd.ScaledImage(image, height=64)
+        thumb.cssClass = 'thumbnail'
+        thumb.alt = "Graph Thumbnail"
+        thumb.make()
+        return tag('a', href=image.getUrl(context))[ thumb ]
+
 
 index = IndexPage()
 
