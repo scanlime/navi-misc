@@ -1,8 +1,7 @@
 """ index.py
 
 This is a mod_python frontend for accessing collected therm data.
-It includes an HTML interface for viewing current data and graphs,
-and an XML/RPC interface for remote access via other programs.
+It generates the user-friendly HTML interface.
 
 """
 #
