@@ -19,6 +19,7 @@
  *
  */
 
+#include <glib.h>
 #include <gnome.h>
 #include <config.h>
 #include "../common/xchat.h"
@@ -26,6 +27,7 @@
 #include "../common/servlist.h"
 #include "../common/fe.h"
 #include "../common/util.h"
+#include "../common/cfgfiles.h"
 #include "gui.h"
 #include "navigation-tree.h"
 #include "textgui.h"
@@ -39,17 +41,42 @@
 #include "util.h"
 #include "plugins.h"
 
+static gboolean opt_version = FALSE;
+static gchar *opt_cfgdir = NULL;
+
+static GOptionEntry entries[] =
+{
+	{ "cfgdir",  'd', 0, G_OPTION_ARG_STRING, &opt_cfgdir,  "Use directory instead of the default config dir", "directory"},
+	{ "version", 'v', 0, G_OPTION_ARG_NONE,   &opt_version, "Show version information",                        NULL},
+};
+
 int
 fe_args (int argc, char *argv[])
 {
-	if (argc > 1)
-	{
-		if (!strcasecmp (argv[1], "--version") || !strcasecmp (argv[1], "-v"))
-		{
-			puts (VERSION);
-			return 0;
-		}
+	GError *error = NULL;
+	GOptionContext *context;
+
+	context = g_option_context_new ("");
+	g_option_context_add_main_entries (context, entries, NULL); /* FIXME - set translation domain */
+	g_option_context_add_group (context, gtk_get_option_group (TRUE));
+	g_option_context_parse (context, &argc, &argv, &error);
+
+	if (error) {
+		fprintf (stderr, "xchat-gnome: %s\nTry `xchat-gnome --help' for more information\n", error->message);
+		g_error_free (error);
+		return 0;
 	}
+
+	g_option_context_free (context);
+
+	if (opt_version) {
+		g_print ("xchat-gnome %s\n", VERSION);
+		return 0;
+	}
+
+	if (opt_cfgdir)
+		xdir_fs = opt_cfgdir;
+
 	gnome_program_init ("xchat-gnome", VERSION, LIBGNOMEUI_MODULE, argc, argv, NULL);
 
 	/* FIXME: this is kind of a silly place to put this, but it seems to want to
