@@ -361,6 +361,51 @@ navigation_tree_select_next_network (NavTree *navtree)
 	}
 }
 
+void
+navigation_tree_select_prev_network (NavTree *navtree)
+{
+	GtkTreeSelection *selection;
+
+	/* Get our tree view and selection. */
+	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(navtree));
+
+	/* If the path depth is greater than one we need to move up a level
+	 * (there are only two levels possible) to select a server, instead
+	 * of a channel.
+	 */
+	if(gtk_tree_path_get_depth(navtree->current_path) > 1)
+		gtk_tree_path_up(navtree->current_path);
+
+	/* Try to move the path to the previous node, if this fails we will
+	 * move iter forward one node until we reach the end.
+	 */
+  else if(!gtk_tree_path_prev(navtree->current_path)) {
+    GtkTreeIter iter, last_iter;
+	  GtkTreeModel *model;
+
+    model = gtk_tree_view_get_model(GTK_TREE_VIEW(navtree));
+    gtk_tree_model_get_iter(model, &iter, navtree->current_path);
+		/* Keep track of the last valid position of the iter before
+		 * trying to advance it.
+		 */
+		last_iter = iter;
+		/* Advance the iter til we reach the end of the list.
+		 * XXX:(Is there a more efficient way to find the end
+		 * of the list?)
+		 */
+		while(gtk_tree_model_iter_next(model, &iter))
+			last_iter = iter;
+
+		/* Adjust the path to point to the end of the list. */
+    if (navtree->current_path != NULL)
+      gtk_tree_path_free(navtree->current_path);
+		navtree->current_path = gtk_tree_model_get_path(model, &last_iter);
+	}
+
+	/* Move the selection to the new path. */
+	gtk_tree_selection_select_path(selection, navtree->current_path);
+}
+
 /* Misc. Functions. */
 static gboolean
 navigation_tree_set_channel_name_iterate(GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, gpointer data)
