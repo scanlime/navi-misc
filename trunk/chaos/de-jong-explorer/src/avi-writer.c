@@ -115,6 +115,7 @@ void avi_writer_append_frame (AviWriter *self, const GdkPixbuf *frame) {
   int height = gdk_pixbuf_get_height(frame);
   int rowstride = gdk_pixbuf_get_rowstride(frame);
   int n_channels = gdk_pixbuf_get_n_channels(frame);
+  int padding = 0;
 
   g_assert(width == self->width);
   g_assert(height == self->height);
@@ -122,10 +123,14 @@ void avi_writer_append_frame (AviWriter *self, const GdkPixbuf *frame) {
   /* Start an uncompressed video frame */
   avi_writer_push_chunk(self, "00db");
 
-  /* Write out our image data bottom-up in BGR order. Yuck */
+  /* Write out our image data bottom-up in BGR order. Yuck.
+   * Each row is padded to the next 4-byte boundary.
+   */
   row = pixels + rowstride * (height-1);
   for (y=self->height-1; y>=0; y--) {
     pixel = row;
+    padding = 0;
+
     for (x=0; x<self->width; x++) {
       bgr[2] = pixel[0];
       bgr[1] = pixel[1];
@@ -133,6 +138,12 @@ void avi_writer_append_frame (AviWriter *self, const GdkPixbuf *frame) {
 
       fwrite(bgr, 1, 3, self->file);
       pixel += n_channels;
+      padding = (padding - 3) & 3;
+    }
+
+    if (padding) {
+      bgr[0] = bgr[1] = bgr[2] = 0;
+      fwrite(bgr, 1, padding, self->file);
     }
     row -= rowstride;
   }
