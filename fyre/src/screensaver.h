@@ -51,7 +51,6 @@ struct _ScreenSaver {
     int num_frames, current_frame;
     int direction;
 
-    GtkWidget *window;
     GtkWidget *view;
 
     guint idler;

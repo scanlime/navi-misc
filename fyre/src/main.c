@@ -204,7 +204,7 @@ int main(int argc, char ** argv) {
 	break;
     }
 
-    case RENDER:
+    case RENDER: {
 	acquire_console();
 	if (error) {
 	    g_print ("Error: %s\n", error->message);
@@ -215,8 +215,9 @@ int main(int argc, char ** argv) {
 	else
 	    batch_image_render (map, outputFile, target_density);
 	break;
+    }
 
-    case REMOTE:
+    case REMOTE: {
 #ifdef HAVE_GNET
 #  ifdef HAVE_FORK
 	/* FIXME: Don't assume HAVE_FORK means that daemon() will work */
@@ -234,15 +235,26 @@ int main(int argc, char ** argv) {
 		"Remote control mode is not available.\n");
 #endif
 	break;
+    }
 
-    case SCREENSAVER:
+    case SCREENSAVER: {
+	ScreenSaver* screensaver;
+	GtkWidget* window;
+
 	if (!have_gtk) {
 	    fprintf(stderr, "GTK intiailization failed, can't start in screensaver mode\n");
 	    return 1;
 	}
-	screensaver_new(map, animation);
+
+	screensaver = screensaver_new(map, animation);
+	window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	gtk_window_set_title(GTK_WINDOW(window), "Fyre Screensaver");
+	gtk_container_add(GTK_CONTAINER(window), screensaver->view);
+	gtk_widget_show_all(window);
+
 	gtk_main();
 	break;
+    }
     }
 
     return 0;

@@ -1,6 +1,7 @@
 /* -*- mode: c; c-basic-offset: 4; -*-
  *
- * screensaver.c - A self-running Fyre screen saver
+ * screensaver.c - A self-running Fyre "screen saver" that progressively
+ *                 renders a looping animation.
  *
  * Fyre - rendering and interactive exploration of chaotic functions
  * Copyright (C) 2004-2005 David Trowbridge and Micah Dowty
@@ -92,13 +93,7 @@ ScreenSaver* screensaver_new(IterativeMap *map, Animation *animation) {
 
     self->animation = ANIMATION(g_object_ref(animation));
     self->map = ITERATIVE_MAP(g_object_ref(map));
-
-    /* Create the GUI */
-    self->window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_window_set_title(GTK_WINDOW(self->window), "Fyre Screensaver");
     self->view = histogram_view_new(HISTOGRAM_IMAGER(self->map));
-    gtk_container_add(GTK_CONTAINER(self->window), self->view);
-    gtk_widget_show_all(self->window);
 
     /* Allocate and interpolate all frames */
     self->framerate = 10;
@@ -147,11 +142,11 @@ static int screensaver_idle_handler(gpointer user_data) {
 
     self->current_frame += self->direction;
     if (self->current_frame >= self->num_frames) {
-	self->current_frame = self->num_frames-1;
+	self->current_frame = self->num_frames-2;
 	self->direction = -1;
     }
     if (self->current_frame < 0) {
-	self->current_frame = 0;
+	self->current_frame = 1;
 	self->direction = 1;
     }
 
