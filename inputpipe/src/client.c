@@ -182,6 +182,7 @@ static struct server* server_new(const char *host_and_port)
   host = gethostbyname(self->host);
   if (!host) {
     fprintf(stderr, "Unknown host '%s'\n", self->host);
+    close(fd);
     server_delete(self);
     return NULL;
   }
@@ -191,6 +192,7 @@ static struct server* server_new(const char *host_and_port)
   in_addr.sin_port = htons(self->port);
   if (connect(fd, (struct sockaddr*) &in_addr, sizeof(in_addr))) {
     perror("Connecting to inputpipe-server");
+    close(fd);
     server_delete(self);
     return NULL;
   }
