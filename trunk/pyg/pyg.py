@@ -80,7 +80,6 @@ class MainWindow:
         self.lr = gtk.Frame(label=None)
         self.right.pack2(self.lr, gtk.TRUE, gtk.FALSE)
 
-        self.ul.add(gtk.Label('  Left Top  '))
         self.ur.add(gtk.Label(' Right Top  '))
         self.lr.add(gtk.Label('Right Bottom'))
 
@@ -88,6 +87,11 @@ class MainWindow:
         self.compiler_output.set_editable(gtk.FALSE)
         self.compiler_output.set_cursor_visible(gtk.FALSE)
         self.ll.add(self.compiler_output)
+
+        self.sources = gtk.Notebook()
+        self.sources.set_scrollable(gtk.TRUE)
+        self.sources.append_page(gtk.Label('Left Top Squad!'), gtk.Label('Look Ma! A Tab!'))
+        self.ul.add(self.sources)
 
         self.main_vbox.pack_start(self.hpane, gtk.TRUE, gtk.TRUE, 0)
 
