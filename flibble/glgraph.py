@@ -35,10 +35,11 @@ class Node:
                 repulsionForce(self, other, 80)
 
         # Stay away from the viewport edges
-        self.position[0] += 100 / self.position[0]
-        self.position[1] += 100 / self.position[1]
-        self.position[0] -= 100 / (graph.viewport.size[0] - self.position[0])
-        self.position[1] -= 100 / (graph.viewport.size[1] - self.position[1])
+        edgeStrength = 200
+        self.position[0] += abs(edgeStrength / self.position[0])
+        self.position[1] += abs(edgeStrength / self.position[1])
+        self.position[0] -= abs(edgeStrength / (graph.viewport.size[0] - self.position[0]))
+        self.position[1] -= abs(edgeStrength / (graph.viewport.size[1] - self.position[1]))
 
         # Random wandering
         self.position += (random.normalvariate(0, 0.2),
@@ -92,7 +93,7 @@ def repulsionForce(node1, node2, strength):
     try:
         v = node2.position - node1.position
         l2 = Numeric.dot(v,v)
-        f = v / (l2 + 0.001) * strength
+        f = v / (l2 + 1) * strength
         node1.position -= f
         node2.position += f
     except OverflowError:
@@ -175,6 +176,9 @@ def main():
     graph.connectNodes(2,3)
     graph.connectNodes(3,4)
     graph.connectNodes(4,2)
+
+    graph.connectNodes(graph.addNode("Banana"), graph.addNode("Celery"))
+    graph.connectNodes(graph.addNode("Shovel"), graph.addNode("Optical"))
 
 
     loop.run()
