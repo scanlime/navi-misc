@@ -36,6 +36,7 @@ void dialog_context(GtkWidget *treeview, session *selected);
 void initialize_navigation_tree() {
 	GtkWidget *navigation_view;
 	GtkTreeStore *store;
+	GtkTreeModel *model;
 	GtkCellRenderer *icon_renderer, *text_renderer;
 	GtkTreeViewColumn *column;
 	GtkTreeSelection *select;
@@ -43,7 +44,9 @@ void initialize_navigation_tree() {
 	navigation_view = glade_xml_get_widget(gui.xml, "server channel list");
 
 	store = gtk_tree_store_new(5, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_POINTER, G_TYPE_INT, GDK_TYPE_COLOR);
-	gtk_tree_view_set_model(GTK_TREE_VIEW(navigation_view), GTK_TREE_MODEL(store));
+	model = gtk_tree_model_sort_new_with_model(GTK_TREE_MODEL(store));
+	gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(model), 1, GTK_SORT_ASCENDING);
+	gtk_tree_view_set_model(GTK_TREE_VIEW(navigation_view), GTK_TREE_MODEL(model));
 
 	column = gtk_tree_view_column_new();
 	icon_renderer = gtk_cell_renderer_pixbuf_new();
@@ -62,11 +65,13 @@ void initialize_navigation_tree() {
 
 void navigation_tree_create_new_network_entry(struct session *sess) {
 	GtkTreeStore *store;
+	GtkTreeModel *model;
 	GtkWidget *treeview;
 	GtkTreeIter iter;
 
 	treeview = glade_xml_get_widget(gui.xml, "server channel list");
-	store = GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(treeview)));
+	model = gtk_tree_view_get_model(GTK_TREE_VIEW(treeview));
+	store = GTK_TREE_STORE(gtk_tree_model_sort_get_model(GTK_TREE_MODEL_SORT(model)));
 
 	gtk_tree_store_append(store, &iter, NULL);
 	gtk_tree_store_set(store, &iter, 1, "<none>", 2, sess, 3, 0, 4, NULL, -1);
@@ -91,11 +96,12 @@ static gboolean navigation_tree_create_new_channel_entry_iterate(GtkTreeModel *m
 }
 
 void navigation_tree_create_new_channel_entry(struct session *sess) {
-	GtkTreeModel *store;
+	GtkTreeModel *store, *model;
 	GtkWidget *treeview;
 
 	treeview = glade_xml_get_widget(gui.xml, "server channel list");
-	store = gtk_tree_view_get_model(GTK_TREE_VIEW(treeview));
+	model = gtk_tree_view_get_model(GTK_TREE_VIEW(treeview));
+	store = gtk_tree_model_sort_get_model(GTK_TREE_MODEL_SORT(model));
 
 	gtk_tree_model_foreach(store, (GtkTreeModelForeachFunc) navigation_tree_create_new_channel_entry_iterate, (gpointer) sess);
 }
@@ -122,11 +128,12 @@ static gboolean navigation_tree_remove_iterate(GtkTreeModel *model, GtkTreePath 
 }
 
 void navigation_tree_remove(struct session *sess) {
-	GtkTreeModel *store;
+	GtkTreeModel *store, *model;
 	GtkWidget *treeview;
 
 	treeview = glade_xml_get_widget(gui.xml, "server channel list");
-	store = gtk_tree_view_get_model(GTK_TREE_VIEW(treeview));
+	model = gtk_tree_view_get_model(GTK_TREE_VIEW(treeview));
+	store = gtk_tree_model_sort_get_model(GTK_TREE_MODEL_SORT(model));
 
 	gtk_tree_model_foreach(store, (GtkTreeModelForeachFunc) navigation_tree_remove_iterate, (gpointer) sess);
 }
@@ -143,18 +150,19 @@ static gboolean navigation_tree_set_channel_name_iterate(GtkTreeModel *model, Gt
 }
 
 void navigation_tree_set_channel_name(struct session *sess) {
-	GtkTreeModel *store;
+	GtkTreeModel *store, *model;
 	GtkWidget *treeview;
 
 	treeview = glade_xml_get_widget(gui.xml, "server channel list");
-	store = gtk_tree_view_get_model(GTK_TREE_VIEW(treeview));
+	model = gtk_tree_view_get_model(GTK_TREE_VIEW(treeview));
+	store = gtk_tree_model_sort_get_model(GTK_TREE_MODEL_SORT(model));
 
 	gtk_tree_model_foreach(store, navigation_tree_set_channel_name_iterate, sess);
 }
 
 void navigation_selection_changed(GtkTreeSelection *selection, gpointer data) {
-	GtkTreeIter iter;
-	GtkTreeModel *model;
+	GtkTreeIter iter, newiter;
+	GtkTreeModel *model, *store;
 	gpointer *s;
 	session *sess;
 	session_gui *tgui;
@@ -174,7 +182,9 @@ void navigation_selection_changed(GtkTreeSelection *selection, gpointer data) {
 		userlist_display(tgui);
 		set_nickname(sess->server, NULL);
 		/* remove any icon that exists */
-		gtk_tree_store_set(GTK_TREE_STORE(model), &iter, 0, NULL, 3, 0, -1);
+		store = gtk_tree_model_sort_get_model(GTK_TREE_MODEL_SORT(model));
+		gtk_tree_model_sort_convert_iter_to_child_iter(GTK_TREE_MODEL_SORT(model), &newiter, &iter);
+		gtk_tree_store_set(GTK_TREE_STORE(store), &newiter, 0, NULL, 3, 0, -1);
 	}
 }
 
@@ -201,14 +211,15 @@ static gboolean navigation_tree_set_hilight_iterate(GtkTreeModel *model, GtkTree
 }
 
 void navigation_tree_set_hilight(struct session *sess) {
-	GtkTreeModel *store;
+	GtkTreeModel *store, *model;
 	GtkWidget *treeview;
 
 	if(sess == gui.current_session)
 		return;
 
 	treeview = glade_xml_get_widget(gui.xml, "server channel list");
-	store = gtk_tree_view_get_model(GTK_TREE_VIEW(treeview));
+	model = gtk_tree_view_get_model(GTK_TREE_VIEW(treeview));
+	store = gtk_tree_model_sort_get_model(GTK_TREE_MODEL_SORT(model));
 
 	gtk_tree_model_foreach(store, navigation_tree_set_hilight_iterate, (gpointer) sess);
 }
@@ -224,11 +235,12 @@ static gboolean navigation_tree_set_disconn_iterate(GtkTreeModel *model, GtkTree
 }
 
 void navigation_tree_set_disconn(struct session *sess) {
-	GtkTreeModel *store;
+	GtkTreeModel *store, *model;
 	GtkWidget *treeview;
 
 	treeview = glade_xml_get_widget(gui.xml, "server channel list");
-	store = gtk_tree_view_get_model(GTK_TREE_VIEW(treeview));
+	model = gtk_tree_view_get_model(GTK_TREE_VIEW(treeview));
+	store = gtk_tree_model_sort_get_model(GTK_TREE_MODEL_SORT(model));
 
 	gtk_tree_model_foreach(store, navigation_tree_set_disconn_iterate, (gpointer) sess);
 }
@@ -341,19 +353,21 @@ void server_context(GtkWidget *treeview, session *selected) {
 static void leave_dialog(gpointer data, guint action, GtkWidget *widget) {
 	GtkWidget *treeview;
 	GtkTreeSelection *select;
-	GtkTreeModel *model;
-	GtkTreeIter iter;
+	GtkTreeModel *model, *store;
+	GtkTreeIter iter, newiter;
 	session *s;
 
 	treeview = glade_xml_get_widget(gui.xml, "server channel list");
 	select= gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
 	if(gtk_tree_selection_get_selected(select, &model, &iter)) {
 		gtk_tree_model_get(model, &iter, 2, &s, -1);
+		store = gtk_tree_model_sort_get_model(GTK_TREE_MODEL_SORT(model));
 		if(s->type == SESS_CHANNEL) {
 			s->server->p_part(s->server, s->channel, "ex-chat");
 			/* FIXME: part reason */
 		}
-		gtk_tree_store_set(GTK_TREE_STORE(model), &iter, 4, &colors[23], -1);
+		gtk_tree_model_sort_convert_iter_to_child_iter(GTK_TREE_MODEL_SORT(model), &newiter, &iter);
+		gtk_tree_store_set(GTK_TREE_STORE(store), &newiter, 4, &colors[23], -1);
 	}
 }
 
