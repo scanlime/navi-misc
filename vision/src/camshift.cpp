@@ -1,3 +1,5 @@
+/* Demonstration of histogram backprojection and the CAMSHIFT algorithm */
+
 #include <cv_dc1394.h>
 #include <cv_sdl.h>
 #include <cv.hpp>
@@ -41,6 +43,31 @@ void gray_to_yuv(IplImage *src, IplImage *dest) {
   }
 }
 
+void draw_box(IplImage *image, CvBox2D box, double color=CV_RGB(0,255,128)) {
+  CvPoint2D32f boxPoints[4];
+
+  /* CamShift seems to get this backwards */
+  box.angle = -box.angle;
+
+  cvBoxPoints(box, boxPoints);
+  cvLineAA(image,
+	   cvPoint((int)boxPoints[0].x, (int)boxPoints[0].y),
+	   cvPoint((int)boxPoints[1].x, (int)boxPoints[1].y),
+	   color);
+  cvLineAA(image,
+	   cvPoint((int)boxPoints[1].x, (int)boxPoints[1].y),
+	   cvPoint((int)boxPoints[2].x, (int)boxPoints[2].y),
+	   color);
+  cvLineAA(image,
+	   cvPoint((int)boxPoints[2].x, (int)boxPoints[2].y),
+	   cvPoint((int)boxPoints[3].x, (int)boxPoints[3].y),
+	   color);
+  cvLineAA(image,
+	   cvPoint((int)boxPoints[3].x, (int)boxPoints[3].y),
+	   cvPoint((int)boxPoints[0].x, (int)boxPoints[0].y),
+	   color);
+}
+
 void map_mouse_position(int *x, int *y, int *camera, IplImage *image) {
   /* Given a mouse position in window coordinates, return
    * a mouse position in image coordiantes and a camera number.
@@ -64,16 +91,12 @@ void map_mouse_position(int *x, int *y, int *camera, IplImage *image) {
 
 int main() {
   IplImage **images;
-  IplImage *back_projections[N_CAMERAS];
+  IplImage *yuv_backprojections[N_CAMERAS];
   IplImage *planes[3];
   IplImage *view_grid[N_CAMERAS*2];
-  IplImage *channel_temp;
+  IplImage *backprojection;
   CvHistogram* object_hist[N_CAMERAS];
   int i, j;
-  int hist_size[] = {64, 64, 64};
-  float channel_range[] = {0, 255};
-  float* ranges[] = {channel_range, channel_range, channel_range};
-  int mouse_x, mouse_y, mouse_camera, mouse_buttons;
   int sample_square_size = 32;
 
   cv_dc1394_init();
@@ -85,12 +108,16 @@ int main() {
   for (i=0; i<3; i++)
     planes[i] = cvCreateImage(cvGetSize(images[0]), 8, 1);
   for (i=0; i<N_CAMERAS; i++)
-    back_projections[i] = cvCreateImage(cvGetSize(images[0]), 8, 3);
-  channel_temp = cvCreateImage(cvGetSize(images[0]), 8, 1);
+    yuv_backprojections[i] = cvCreateImage(cvGetSize(images[0]), 8, 3);
+  backprojection = cvCreateImage(cvGetSize(images[0]), 8, 1);
 
   /* Allocate histograms */
-  for (i=0; i<N_CAMERAS; i++)
+  for (i=0; i<N_CAMERAS; i++) {
+    int hist_size[] = {64, 64, 64};
+    float channel_range[] = {0, 255};
+    float* ranges[] = {channel_range, channel_range, channel_range};
     object_hist[i] = cvCreateHist(3, hist_size, CV_HIST_ARRAY, ranges, 1);
+  }
 
   /* Tile cameras horizontally, with original image on
    * top and backprojection on bottom.
@@ -101,18 +128,28 @@ int main() {
     j++;
   }
   for (i=0; i<N_CAMERAS; i++) {
-    view_grid[j] = back_projections[i];
+    view_grid[j] = yuv_backprojections[i];
     j++;
   }
 
   while (cv_sdl_process_events()) {
     images = cv_dc1394_capture_yuv(N_CAMERAS);
 
-    /* Calculate the backprojection */
     for (i=0; i<N_CAMERAS; i++) {
+      /* Calculate the backprojection, in YUV space */
       cvCvtPixToPlane(images[i], planes[0], planes[1], planes[2], 0);
-      cvCalcBackProject(planes, channel_temp, object_hist[i]);
-      gray_to_yuv(channel_temp, back_projections[i]);
+      cvCalcBackProject(planes, backprojection, object_hist[i]);
+
+      /* Make a YUV version of the output, for display */
+      gray_to_yuv(backprojection, yuv_backprojections[i]);
+
+      /* Run the output through the CAMSHIFT algorithm to locate objects */
+      CvBox2D box;
+      cvCamShift(backprojection,
+		  cvRect(0, 0, images[i]->width, images[i]->height),
+		  cvTermCriteria(CV_TERMCRIT_ITER, 10, 0),
+		  NULL, &box);
+      draw_box(images[i], box);
     }
 
     if (SDL_GetVideoSurface()) {
@@ -123,6 +160,7 @@ int main() {
 
       Uint8 *keystate = SDL_GetKeyState(NULL);
       CvRect sample_rect;
+      int mouse_x, mouse_y, mouse_camera, mouse_buttons;
 
       /* The < and > keys change the size of the sample square */
       if (keystate[',']) {
