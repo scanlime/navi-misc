@@ -13,6 +13,7 @@ class Circle:
         self.ybias = 172
         self.rate = 0.1
         self.delay = 0.01
+        self.phase = 0
 
     def run(self):
         import pyrcpod
@@ -20,14 +21,18 @@ class Circle:
         lp = Projector(dev)
         try:
             lp.laser = True
+            l = lp.laserPin.negate()
             t = 0
             while 1:
+                l.assert_()
+                l = l.negate()
                 lp.x = sin(t) * self.xmag + self.xbias
-                lp.y = cos(t) * self.ymag + self.ybias
+                lp.y = cos(t+self.phase) * self.ymag + self.ybias
                 t = (t + self.rate) % (pi*2)
                 time.sleep(self.delay)
         finally:
             lp.laser = False
+            lp.enablePin.deassert()
 
 
 c = Circle()
@@ -39,6 +44,7 @@ Tweak.Window(
     Tweak.Quantity(c, 'ybias', range=(0,255)),
     Tweak.Quantity(c, 'delay', range=(0,0.1)),
     Tweak.Quantity(c, 'rate', range=(0,2)),
+    Tweak.Quantity(c, 'phase', range=(-3,3)),
     )
 
 Tweak.run(c)
