@@ -1,3 +1,5 @@
+SUBDIRS = data .
+
 CSC = mcs -g
 
 CSFLAGS =	\
@@ -13,10 +15,10 @@ TARGET_CSFILES = 		\
 	MatrixMultiply.cs	\
 	StochasticBlur.cs	\
 	Transform.cs
-TARGET_RESOURCES =					\
-	-resource:$(top_srcdir)/data/MatrixMultiply.png	\
-	-resource:$(top_srcdir)/data/StochasticBlur.png	\
-	-resource:$(top_srcdir)/data/TwoDTransform.png
+TARGET_RESOURCES =				\
+	-resource:data/MatrixMultiply.png	\
+	-resource:data/StochasticBlur.png	\
+	-resource:data/TwoDTransform.png
 
 $(TARGET): $(TARGET_CSFILES) $(top_builddir)/src/Fyre.exe
 	$(CSC) -o $@ $(CSFLAGS) $(ASSEMBLIES) $(TARGET_CSFILES) $(TARGET_RESOURCES)
