@@ -6,9 +6,10 @@ depend() {
 
 start() {
 	ebegin "Starting fyre"
-	start-stop-daemon --start --quiet --chuid fyre --nicelevel 19 \
+	start-stop-daemon --start --quiet --nicelevel 19 \
 		--pidfile /var/run/fyre.pid \
-		--startas /usr/local/bin/fyre -- -r
+		--startas /usr/bin/fyre -- \
+		-r --pidfile /var/run/fyre.pid
 	eend $?
 }
 
