@@ -23,23 +23,13 @@
 namespace Fyre
 {
 
-	class NavigationImage : Gtk.EventBox
+	class NavigationWindow : Gtk.Window
 	{
-		Gtk.Image	image;
-		Gtk.Window	window;
+		Gdk.Pixmap	pixmap;
 		Gdk.GC		white;
 		Gdk.GC		black;
-
-		Gdk.Pixmap	pixmap;
-
-		public NavigationImage()
-		{
-			Gdk.Pixbuf pixbuf = new Gdk.Pixbuf (null, "navigation.png");
-			image = new Gtk.Image (pixbuf);
-			Add (image);
-
-			ShowAll ();
-		}
+		int		width;
+		int		height;
 
 		void AllocGCs ()
 		{
@@ -53,6 +43,53 @@ namespace Fyre
 			black.Foreground = bc;
 		}
 
+		void DrawBackground ()
+		{
+			if (white == null)
+				AllocGCs ();
+
+			pixmap.DrawRectangle (white, true, 0, 0, width - 1, height - 1);
+			pixmap.DrawRectangle (black, false, 0, 0, width - 1, height - 1);
+		}
+
+		public NavigationWindow (int w, int h) : base (Gtk.WindowType.Popup)
+		{
+			width = w;
+			height = h;
+
+			// Before we can access any gdk internals, we need
+			// to realize the window.
+			Realize ();
+
+			Resize (w, h);
+
+			pixmap = new Gdk.Pixmap (GdkWindow, w, h, -1);
+
+			DrawBackground ();
+		}
+
+		protected override bool OnExposeEvent (Gdk.EventExpose ev)
+		{
+			Gdk.Rectangle r = ev.Area;
+			GdkWindow.DrawDrawable (white, pixmap, r.X, r.Y, r.X, r.Y, r.Width, r.Height);
+			return true;
+		}
+	}
+
+	class NavigationImage : Gtk.EventBox
+	{
+		Gtk.Image		image;
+		NavigationWindow	window;
+
+		public NavigationImage()
+		{
+			Gdk.Pixbuf pixbuf = new Gdk.Pixbuf (null, "navigation.png");
+			image = new Gtk.Image (pixbuf);
+			Add (image);
+
+			ShowAll ();
+		}
+
 		int GetWindowPosition (int mouse, int winsize, int screensize)
 		{
 			if (mouse - (winsize / 2) < 0)
@@ -62,21 +99,8 @@ namespace Fyre
 			return mouse - (winsize / 2);
 		}
 
-		void CreatePixmap (Gdk.Drawable screen)
-		{
-			pixmap = new Gdk.Pixmap (screen, 200, 150, -1);
-
-			if (white == null)
-				AllocGCs ();
-
-			pixmap.DrawRectangle (white, true, 0, 0, 199, 149);
-			pixmap.DrawRectangle (black, false, 0, 0, 199, 149);
-		}
-
 		protected override bool OnButtonPressEvent (Gdk.EventButton ev)
 		{
-			window = new Gtk.Window (Gtk.WindowType.Popup);
-
 			Gdk.Screen screen = GdkWindow.Screen;
 
 			int mouse_x = (int) ev.XRoot;
@@ -86,42 +110,21 @@ namespace Fyre
 			int width = 200;
 			int height = 150;
 
-			window.Realize ();
-			CreatePixmap (window.GdkWindow);
+			window = new NavigationWindow (width, height);
 
 			int win_x = GetWindowPosition (mouse_x, width, screen.Width);
 			int win_y = GetWindowPosition (mouse_y, height, screen.Height);
 
-			window.ExposeEvent += new Gtk.ExposeEventHandler (WindowExpose);
-			window.MotionNotifyEvent += new Gtk.MotionNotifyEventHandler (WindowMotionNotify);
-
 			window.Move (win_x, win_y);
-			window.Resize (width, height);
 			window.Show ();
 
 			return true;
-		}
-
-		void WindowExpose (object o, Gtk.ExposeEventArgs args)
-		{
-			Gtk.Window w = (Gtk.Window) o;
-			Gdk.Drawable d = w.GdkWindow;
-
-			Gdk.Rectangle r = args.Event.Area;
-
-			d.DrawDrawable (white, pixmap, r.X, r.Y, r.X, r.Y, r.Width, r.Height);
-		}
-
-		void WindowMotionNotify (object o, Gtk.MotionNotifyEventArgs args)
-		{
 		}
 
 		protected override bool OnButtonReleaseEvent (Gdk.EventButton ev)
 		{
 			window.Hide ();
 			window = null;
-
-			pixmap = null;
 
 			return true;
 		}
