@@ -54,6 +54,6 @@ protected:
 	int					drawable;
 };
 
-typedef std::map<int, CPlayerObject> tmPlayerMap;
+typedef std::map<int, CPlayerObject*> tmPlayerMap;
 
 #endif //_PLAYERS_H_

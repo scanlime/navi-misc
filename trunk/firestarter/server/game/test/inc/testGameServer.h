@@ -47,6 +47,9 @@ class CTestGameServer : public CBaseServerGame
 	protected:
 		void sendToAllBut ( CNetworkMessage &message, int player );
 		std::map<int,trPlayerInfo>	users;
+
+		// game code
+		void spawnPlayer ( int playerID );
 };
 
 #endif //_TEST_GAME_H_

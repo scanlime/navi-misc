@@ -19,7 +19,7 @@
 #define	_MESSAGE_KICK 0x4b4b				// KK
 #define _MESSAGE_UPDATE 0x5544			//UD
 #define _MESSAGE_ACKNOWLEDGE 0x414b	//AK
-
+#define _MESSAGE_SPAWN 0x5350				//SP
 
 void CTestGameServer::init ( void )
 {
@@ -50,7 +50,8 @@ bool CTestGameServer::message ( int playerID, CNetworkPeer &peer, CNetworkMessag
 
 	// for now just do a simple message relay and add on the user ID
 
-	bool bRellay = false;
+	bool rellay = false;
+	bool spawn = false;
 
 	switch (message.GetType())
 	{
@@ -58,7 +59,8 @@ bool CTestGameServer::message ( int playerID, CNetworkPeer &peer, CNetworkMessag
 			break;
 
 		case _MESSAGE_CLIENT_INFO:	// CI 
-			bRellay = true;
+			rellay = true;
+			spawn = true;
 			itr->second.player = true;
 			itr->second.name = message.ReadStr();
 			break;
@@ -79,7 +81,7 @@ bool CTestGameServer::message ( int playerID, CNetworkPeer &peer, CNetworkMessag
 		case _MESSAGE_UPDATE: //UD
 			if (itr->second.player)
 			{
-				bRellay = true;
+				rellay = true;
 				message.ReadV(itr->second.pos);
 				message.ReadV(itr->second.rot);
 				message.ReadV(itr->second.vec);
@@ -87,12 +89,12 @@ bool CTestGameServer::message ( int playerID, CNetworkPeer &peer, CNetworkMessag
 			break;
 
 		default:
-			bRellay = true;
+			rellay = true;
 
 			break;
 	}
 
-	if (bRellay)
+	if (rellay)
 	{	
 		CNetworkMessage	newMessage;
 		newMessage.SetType(message.GetType());	// what ever the message type is
@@ -104,6 +106,22 @@ bool CTestGameServer::message ( int playerID, CNetworkPeer &peer, CNetworkMessag
 
 		// send an add to everyone else
 		sendToAllBut(newMessage,playerID);
+	}
+
+	if (spawn)
+	{
+		// compute a spawn
+		spawnPlayer(playerID);
+
+		CNetworkMessage	newMessage;
+		newMessage.SetType(_MESSAGE_SPAWN);
+		newMessage.AddI(playerID);
+		newMessage.AddV(itr->second.pos);
+		newMessage.AddV(itr->second.rot);
+		newMessage.AddV(itr->second.vec);
+
+		// send spawn to everyone 
+		sendToAllBut(newMessage,-1);
 	}
 
 	return false;
@@ -127,6 +145,7 @@ bool CTestGameServer::add ( int playerID, CNetworkPeer &peer )
 	CNetworkMessage	message;
 
 	message.SetType("SI");	// ServerInfo
+	message.AddI(playerID);
 	message.Send(peer,true);
 
 	// send an add to everyone else
@@ -179,4 +198,27 @@ void CTestGameServer::kill ( void )
 	sendToAllBut(message,-1);
 	users.clear();
 }
+
+// game code
+void CTestGameServer::spawnPlayer ( int playerID )
+{
+	std::map<int,trPlayerInfo>::iterator itr = users.find(playerID);
+	if (itr == users.end())
+		return;
+	
+	// this is crap but will work for now
+	float xyRange = 300;
+	float zRange = 25;
+	float grav = -10;
+
+	itr->second.pos[0] = (((float)rand()/(float)RAND_MAX)*xyRange*2)-xyRange;
+	itr->second.pos[1] = (((float)rand()/(float)RAND_MAX)*xyRange*2)-xyRange;
+	itr->second.pos[2] = (((float)rand()/(float)RAND_MAX)*zRange);
+
+	itr->second.rot[2] = ((float)rand()/(float)RAND_MAX)*360;
+
+	itr->second.vec[0] = itr->second.vec[1] = 0;
+	itr->second.vec[2] = grav;
+}
+
 
