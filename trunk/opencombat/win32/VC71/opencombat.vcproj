@@ -705,9 +705,6 @@ copy debug\*.pdb ..\..\*.pdb
 						RelativePath="..\..\src\opencombat\SegmentedShotStrategy.cpp">
 					</File>
 					<File
-						RelativePath="..\..\src\opencombat\ShockWaveStrategy.cpp">
-					</File>
-					<File
 						RelativePath="..\..\src\opencombat\ShotPath.cpp">
 						<FileConfiguration
 							Name="Debug|Win32">
@@ -808,6 +805,9 @@ copy debug\*.pdb ..\..\*.pdb
 				</File>
 				<File
 					RelativePath="..\..\src\opencombat\ServerStartMenu.cpp">
+				</File>
+				<File
+					RelativePath="..\..\src\opencombat\ShockWaveStrategy.cpp">
 				</File>
 			</Filter>
 		</Filter>

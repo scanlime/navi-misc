@@ -1170,14 +1170,14 @@ int			main(int argc, char** argv)
 
   // initialize graphics state
   mainWindow.getWindow()->makeCurrent();
-  glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-  glClearDepth(1.0);
-  glClearStencil(0);
+  //glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+  //glClearDepth(1.0);
+ // glClearStencil(0);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
-  glEnable(GL_SCISSOR_TEST);
+//  glEnable(GL_SCISSOR_TEST);
 //  glEnable(GL_CULL_FACE);
   glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
   OpenGLGState::init();

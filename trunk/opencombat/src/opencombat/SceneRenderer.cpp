@@ -605,31 +605,36 @@ void			SceneRenderer::render(
       window.getWidth(), window.getViewHeight());
 
   if (useDepthComplexityOn) {
-    glEnable(GL_STENCIL_TEST);
-    glClear(GL_STENCIL_BUFFER_BIT);
-    glStencilFunc(GL_ALWAYS, 0, 0xf);
-		glStencilOp(GL_KEEP, GL_INCR, GL_INCR);
+  //  glEnable(GL_STENCIL_TEST);
+   // glClear(GL_STENCIL_BUFFER_BIT);
+  //  glStencilFunc(GL_ALWAYS, 0, 0xf);
+	//	glStencilOp(GL_KEEP, GL_INCR, GL_INCR);
   }
   if (useHiddenLineOn) {
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+    //glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+   // glClear(GL_COLOR_BUFFER_BIT);
     glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
   }
   else if (useWireframeOn) {
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+    //glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+   // glClear(GL_COLOR_BUFFER_BIT);
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   }
 
   // prepare z buffer
-  if (BZDB.isTrue("zbuffer")) {
-    if (sameFrame && ++depthRange == numDepthRanges) depthRange = 0;
-    if (exposed || useHiddenLineOn || --depthRange < 0) {
+	/*
+  if (BZDB.isTrue("zbuffer"))
+	{
+    if (sameFrame && ++depthRange == numDepthRanges)
+			depthRange = 0;
+    if (exposed || useHiddenLineOn || --depthRange < 0)
+		{
       depthRange = numDepthRanges - 1;
       glClear(GL_DEPTH_BUFFER_BIT);
       exposed = false;
     }
-    if (!sameFrame && numDepthRanges != 1) {
+    if (!sameFrame && numDepthRanges != 1)
+		{
       if (useHiddenLineOn) {
 	glDepthRange(0.0, 1.0);
       }
@@ -639,10 +644,11 @@ void			SceneRenderer::render(
       }
     }
   }
-
+	*/
   // draw start of background (no depth testing)
   OpenGLGState::resetState();
-  if (background) {
+  if (background)
+	{
     background->setBlank(blank);
     background->setInvert(invert);
     background->renderSkyAndGround(*this, fullWindow);
