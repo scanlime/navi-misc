@@ -29,13 +29,13 @@ ASSEMBLIES =			\
 RESOURCES =							\
 	-resource:$(top_srcdir)/data/pipeline-editor.glade	\
 	-resource:$(top_srcdir)/data/element-tooltip.glade	\
-	-resource:$(top_srcdir)/data/error-dialog.glade		\
+	-resource:$(top_srcdir)/data/alert-dialog.glade		\
 	-resource:$(top_srcdir)/data/navigation.png
 
 RESOURCEFILES =						\
 	$(top_srcdir)/data/pipeline-editor.glade	\
 	$(top_srcdir)/data/element-tooltip.glade	\
-	$(top_srcdir)/data/error-dialog.glade		\
+	$(top_srcdir)/data/alert-dialog.glade		\
 	$(top_srcdir)/data/navigation.png
 
 $(TARGET): $(CSFILES) $(srcdir)/Defines.cs $(RESOURCEFILES)

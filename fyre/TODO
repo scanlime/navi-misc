@@ -11,12 +11,6 @@ Element.cs:
   * Implement XML serialization
   * Implement edge tracking - guid + pad#
 
-ErrorDialog.cs:
-  * It might be nice to have multiple classes in here to handle different
-	levels of errors - warnings, fatal errors, confirmations, etc.
-	This would require generalizing the glade file a little and
-	extracting some stuff (like label assembly) into a base class.
-
 Pipeline.cs:
   * This needs lots of design work before implementation can go forward.
   * We'll need some way to keep track of annotations (maybe composite).
