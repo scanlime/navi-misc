@@ -6,5 +6,4 @@ Exec=fyre -n %f
 Type=Application
 Terminal=false
 NoDisplay=true
-Icon=application-x-fyre-animation.png
 MimeType=application/x-fyre-animation;
