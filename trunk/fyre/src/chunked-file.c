@@ -107,6 +107,7 @@ gboolean chunked_file_read_signature(FILE* self, const gchar* signature) {
   int expected_size = strlen(signature);
   gchar read_sig[expected_size];
 
+  fseek(self, 0, SEEK_SET);
   if (fread(read_sig, 1, expected_size, self) != expected_size)
     return FALSE;
 
