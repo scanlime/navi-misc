@@ -160,6 +160,10 @@ static int uvswitch_updateCalibration(struct usb_uvswitch *dev)
 	    dev->calibration.integration_packets,
 	    dev->calibration.threshold);
 
+	/* Set the interval next time our interrupt request is submitted */
+	if (dev->adc_urb)
+		dev->adc_urb->interval = dev->calibration.interval;
+
 	/* Send a packet to change the device's ADC settings */
 	return usb_control_msg(dev->udev, usb_sndctrlpipe(dev->udev, 0),
 			       UVSWITCH_CTRL_ADC_CYCLES, 0x40,
@@ -232,6 +236,8 @@ static void uvswitch_adc_irq(struct urb *urb, struct pt_regs *regs)
 			wake_up_interruptible(&dev->adc_wait);
 		}
 	}
+
+	usb_submit_urb(urb, SLAB_ATOMIC);
 }
 
 /******************************************************************************/
@@ -628,7 +634,7 @@ static int uvswitch_probe(struct usb_interface *interface, const struct usb_devi
 	struct usb_device *udev = interface_to_usbdev(interface);
 	struct usb_uvswitch *dev = NULL;
 	struct usb_host_interface *host_interface = &interface->altsetting[interface->act_altsetting];
-	int retval;
+	int retval, i;
 
 	/* See if the device offered us matches what we can accept */
 	if ((udev->descriptor.idVendor != UVSWITCH_VENDOR_ID) ||
@@ -672,6 +678,9 @@ static int uvswitch_probe(struct usb_interface *interface, const struct usb_devi
 		goto error;
 	}
 
+	/* Set up default ADC calibration */
+	uvswitch_initCalibration(dev);
+
 	/* Begin our interrupt transfer polling the video detector ADC */
 	usb_fill_int_urb(dev->adc_urb, dev->udev,
 			 usb_rcvintpipe(dev->udev, host_interface->endpoint[0].desc.bEndpointAddress),
@@ -679,8 +688,10 @@ static int uvswitch_probe(struct usb_interface *interface, const struct usb_devi
 			 uvswitch_adc_irq, dev, dev->calibration.interval);
 
 	dbg("Submitting adc_urb, interval %d", dev->calibration.interval);
-	if (usb_submit_urb(dev->adc_urb, GFP_KERNEL))
-		dbg("Error submitting URB");
+	i = usb_submit_urb(dev->adc_urb, GFP_KERNEL);
+	if (i) {
+		dbg("Error submitting URB: %d", i);
+	}
 
 	/* Put all the switches into a known default state.
 	 * In this default, no input is selected but the bypass switch
@@ -691,9 +702,6 @@ static int uvswitch_probe(struct usb_interface *interface, const struct usb_devi
 	dev->status.red_audio_channel = 0;
 	dev->status.bypass_switch = 1;
 	uvswitch_updateStatus(dev);
-
-	/* Set up default ADC calibration */
-	uvswitch_initCalibration(dev);
 
 	info("uvswitch device now attached");
 	return 0;
