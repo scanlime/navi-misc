@@ -48,7 +48,7 @@ namespace Fyre
 		// of it.
 		Gtk.EventBox		event_box;
 
-		// Internal data wrt to dragging
+		// Internal data to keep track of dragging
 		bool			dragging;
 		int			drag_x, drag_y;
 
