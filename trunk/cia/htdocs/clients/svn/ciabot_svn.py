@@ -4,7 +4,7 @@
 # This generates commit messages using CIA's XML commit format, and can
 # deliver themusing either XML-RPC or email.
 #
-# -- Micah Dowty <micah@picogui.org>
+# -- Micah Dowty <micah@navi.cx>
 #
 # This script is cleaner, more featureful, and faster than the shell
 # script version, but won't work on systems without Python or that don't

@@ -12,7 +12,7 @@
 # firewall, but if you are you'll have to pick a port to
 # let through and set it below.
 #
-# --Micah Dowty <micah@picogui.org>
+# --Micah Dowty <micah@navi.cx>
 #
 
 import urllib2, xmlrpclib

@@ -5,7 +5,7 @@ usual XML-RPC support with our own security and exception handling code.
 """
 #
 # CIA open source notification system
-# Copyright (C) 2003-2004 Micah Dowty <micahjd@users.sourceforge.net>
+# Copyright (C) 2003-2004 Micah Dowty <micah@navi.cx>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
