@@ -35,10 +35,10 @@ class BuilderFormatter(Message.Formatter):
     def format(self, args):
         # Format each package inside each result set
         packages = []
-        for results in args.message.xml.body.builder.elements():
-            if results.name == 'results':
-                for package in results.elements():
-                    if package.name == 'package':
+        for results in XML.getChildElements(XML.dig(args.message.xml, "message", "body", "builder")):
+            if results.nodeName == 'results':
+                for package in XML.getChildElements(results):
+                    if package.nodeName == 'package':
                         packages.append(self.format_package(package))
         return self.joinMessage(args.message, packages)
 
@@ -59,8 +59,10 @@ class BuilderFormatter(Message.Formatter):
     def joinMessage(self, message, packages):
         """Join the results for each package into a final result"""
         content = "builder"
-        if message.xml.source.branch:
-            content += " " + self.format_branch(str(message.xml.source.branch).strip())
+
+        branch = XML.digValue(message.xml, str, "message", "source", "branch")
+        if branch:
+            content += " " + self.format_branch(branch.strip())
 
         # If we have only one package, put it on the same line as the heading
         if len(packages) <= 1:
@@ -78,7 +80,7 @@ class BuilderToPlaintext(BuilderFormatter):
     medium = 'plaintext'
 
     def format_package(self, package):
-        return "%s (%s)" % (package.getAttribute('name'), package.getAttribute('arch'))
+        return "%s (%s)" % (package.getAttributeNS(None, 'name'), package.getAttributeNS(None, 'arch'))
 
 
 class BuilderToIRC(BuilderFormatter):
@@ -94,7 +96,7 @@ class BuilderToIRC(BuilderFormatter):
         return self.colorFormatter(branch, 'orange')
 
     def format_package(self, package):
-        return "%s (%s)" % (package.getAttribute('name'),
-                            self.colorFormatter(package.getAttribute('arch'), 'green'))
+        return "%s (%s)" % (package.getAttributeNS(None, 'name'),
+                            self.colorFormatter(package.getAttributeNS(None, 'arch'), 'green'))
 
 ### The End ###

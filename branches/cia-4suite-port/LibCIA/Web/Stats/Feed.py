@@ -153,7 +153,7 @@ class RSS2Feed(RSSFeed):
         """Render an XML message as the content of an RSS <item>"""
         url = Link.MessageLink(self.target, id).getURL(context)
         tags = [
-            tag('pubDate')[ TimeUtil.formatDateRFC822(int(str(m.xml.timestamp))) ],
+            tag('pubDate')[ TimeUtil.formatDateRFC822(XML.digValue(m.xml, int, "message", "timestamp")) ],
             tag('guid')[url],
             tag('link')[url],
             tag('description')[ quote(self.formatMessage(m)) ],
@@ -244,7 +244,7 @@ class RSS1Feed(RSSFeed):
         m = Message.Message(content)
         tags = [
             tag('link')[ url ],
-            tag('dc:date')[ TimeUtil.formatDateISO8601(int(str(m.xml.timestamp))) ],
+            tag('dc:date')[ TimeUtil.formatDateISO8601(XML.digValue(m.xml, int, "message", "timestamp")) ],
             tag('description')[ quote(self.formatMessage(m)) ],
             ]
 
