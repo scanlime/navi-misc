@@ -62,8 +62,8 @@ class SamplerThread(Thread):
         self.sampler = i2c.ThermSampler()
         self.therms = i2c.getTherms()
 
-        # Default averaging period, 2 minutes
-        self.averagePeriod = 2*60
+        # Default averaging period, 1 minute
+        self.averagePeriod = 60
         self.periodStart = 0
 
         # Save a reference to our blinkable LED
