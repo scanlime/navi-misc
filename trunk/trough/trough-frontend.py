@@ -28,6 +28,8 @@ parser.add_option('-i','--info',dest='info',action="store_true",
         help="retrieve stored tree information")
 parser.add_option('-l','--list',dest='list',action="store_true",
         help="list roots stored tree root(s)")
+parser.add_option('-n','--number',dest='num',type="int", default=1,
+		  help="number of pieces to select")
 parser.add_option('-r','--refresh',dest='refresh',action="store_true",
         help="refresh stored trees in database")
 #parser.add_option('-p','--playlist',dest="playlist",type="string",
@@ -95,5 +97,6 @@ if grouplist.getCount() == 0:
     print '** warning: database empty, try `trough -a <path>` to create a tree from path'
     sys.exit(0)
 
-for x in grouplist.random():
-    print x.getPath()
+for x in xrange (0,options.num):
+    for x in grouplist.random():
+        print x.getPath()
