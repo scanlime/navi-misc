@@ -199,19 +199,7 @@ void
 navigation_tree_create_new_network_entry (NavTree *navtree, struct session *sess)
 {
 	GtkTreeIter *iter;
-	GtkWidget *menuitem, *button, *entry;
-	session_gui *tgui;
-
-	/* Save the old text in the text entry, not sure why this isn't getting done when the
-	 * selection changes, but it doesn't seem to be.
-	 */
-	if (gui.current_session)
-		tgui = (session_gui *) gui.current_session->gui;
-	if (tgui) {
-		g_free (tgui->entry);
-		entry = glade_xml_get_widget (gui.xml, "text entry");
-		tgui->entry = g_strdup (gtk_entry_get_text (GTK_ENTRY (entry)));
-	}
+	GtkWidget *menuitem, *button;
 
 	navigation_model_add_new_network (navtree->model, sess);
 
@@ -238,20 +226,8 @@ void
 navigation_tree_create_new_channel_entry (NavTree *navtree, struct session *sess)
 {
 	GtkTreeIter *iter;
-	GtkWidget *menuitem, *button, *entry;
+	GtkWidget *menuitem, *button;
 	ircnet *net;
-	session_gui *tgui;
-
-	/* Save the old text in the text entry. Again, I would think this occurs when the
-	 * selection changes but it doesn't seem to be.
-	 */
-	if (gui.current_session)
-		tgui = (session_gui *) gui.current_session->gui;
-	if (tgui) {
-		entry = glade_xml_get_widget (gui.xml, "text entry");
-		g_free (tgui->entry);
-		tgui->entry = g_strdup (gtk_entry_get_text (GTK_ENTRY (entry)));
-	}
 
 	navigation_model_add_new_channel (navtree->model, sess);
 
@@ -766,11 +742,11 @@ navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_dat
 
 		/* back up existing entry */
 		tgui = (session_gui *) gui.current_session->gui;
-		if (tgui == NULL)
-			return;
-		g_free (tgui->entry);
-		entry = glade_xml_get_widget (gui.xml, "text entry");
-		tgui->entry = g_strdup (gtk_entry_get_text (GTK_ENTRY (entry)));
+		if (tgui) {
+			g_free (tgui->entry);
+			entry = glade_xml_get_widget (gui.xml, "text entry");
+			tgui->entry = g_strdup (gtk_entry_get_text (GTK_ENTRY (entry)));
+		}
 
 		/* Update current_path. */
 		if (gui.server_tree->current_path) {
@@ -825,25 +801,26 @@ navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_dat
 
 		/* Set tgui to the gui of the new session. */
 		tgui = (session_gui *) sess->gui;
-		if (tgui == NULL) {
+		if (tgui) {
+			/* Show the xtext buffer for the session. */
+			gtk_xtext_buffer_show (gui.xtext, tgui->buffer, TRUE);
+
+			/* Set the topic. */
+			gtk_label_set_text (GTK_LABEL (gui.topic_label), tgui->topic);
+
+			/* Set the text entry field to whatever is in the text entry of this session. */
+			entry = glade_xml_get_widget (gui.xml, "text entry");
+			gtk_entry_set_text (GTK_ENTRY (entry), tgui->entry);
+			gtk_entry_set_position (GTK_ENTRY (entry), -1);
+
+		}
+		else {
 			/* If there's no gui for the new session make sure the entry is empty
 			 * and then return.
 			 */
 			entry = glade_xml_get_widget (gui.xml, "text entry");
 			gtk_entry_set_text (GTK_ENTRY (entry), "");
-			return;
 		}
-
-		/* Show the xtext buffer for the session. */
-		gtk_xtext_buffer_show (gui.xtext, tgui->buffer, TRUE);
-
-		/* Set the topic. */
-		gtk_label_set_text (GTK_LABEL (gui.topic_label), tgui->topic);
-
-		/* Set the text entry field to whatever is in the text entry of this session. */
-		entry = glade_xml_get_widget (gui.xml, "text entry");
-		gtk_entry_set_text (GTK_ENTRY (entry), tgui->entry);
-		gtk_entry_set_position (GTK_ENTRY (entry), -1);
 	}
 }
 
