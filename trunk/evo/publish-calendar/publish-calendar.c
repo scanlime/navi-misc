@@ -42,11 +42,58 @@ typedef struct {
 } PublishUIData;
 
 static void
+url_list_changed (PublishUIData *ui)
+{
+	GtkTreeModel *model = NULL;
+	GSList *url_list = NULL;
+	GtkTreeIter iter;
+	gboolean valid;
+	GConfClient *client;
+
+	url_list = NULL;
+
+	model = gtk_tree_view_get_model (GTK_TREE_VIEW (ui->treeview));
+	valid = gtk_tree_model_get_iter_first (model, &iter);
+	while (valid) {
+		EPublishUri *url;
+		char *xml;
+
+		gtk_tree_model_get (model, &iter, URL_LIST_URL_COLUMN, &url, -1);
+
+		if ((xml = e_publish_uri_to_xml (url)))
+			url_list = g_slist_append (url_list, xml);
+
+		valid = gtk_tree_model_iter_next (model, &iter);
+	}
+	client = gconf_client_get_default ();
+	gconf_client_set_list (client, "/apps/evolution/calendar/publish/uris", GCONF_VALUE_STRING, url_list, NULL);
+	g_slist_foreach (url_list, (GFunc) g_free, NULL);
+	g_slist_free (url_list);
+}
+
+static void
 url_list_enable_toggled (GtkCellRendererToggle *renderer,
                          const char            *path_string,
 			 PublishUIData         *ui)
 {
-	/* FIXME: implement */
+	GtkTreeSelection *selection;
+	EPublishUri *url = NULL;
+	GtkTreeModel *model;
+	GtkTreePath *path;
+	GtkTreeIter iter;
+
+	path = gtk_tree_path_new_from_string (path_string);
+	model = gtk_tree_view_get_model (GTK_TREE_VIEW (ui->treeview));
+	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (ui->treeview));
+
+	if (gtk_tree_model_get_iter (model, &iter, path)) {
+		gtk_tree_model_get (model, &iter, URL_LIST_URL_COLUMN, &url, -1);
+
+		url->enabled = !url->enabled;
+		gtk_list_store_set (GTK_LIST_STORE (model), &iter, URL_LIST_ENABLED_COLUMN, url->enabled, -1);
+	}
+
+	gtk_tree_path_free (path);
 }
 
 static void
@@ -67,19 +114,10 @@ selection_changed (GtkTreeSelection *selection, PublishUIData *ui)
 }
 
 static void
-url_list_double_click (GtkTreeView       *treeview,
-		       GtkTreePath       *path,
-		       GtkTreeViewColumn *column,
-		       PublishUIData     *ui)
-{
-}
-
-static void
 url_add_clicked (GtkButton *button, PublishUIData *ui)
 {
 	GtkTreeModel *model;
 	GtkTreeIter iter;
-	GtkTreeSelection *selection;
 	GtkWidget *url_editor;
 	EPublishUri *uri;
 
@@ -94,6 +132,7 @@ url_add_clicked (GtkButton *button, PublishUIData *ui)
 				    URL_LIST_ENABLED_COLUMN, uri->enabled,
 				    URL_LIST_LOCATION_COLUMN, uri->location,
 				    URL_LIST_URL_COLUMN, uri, -1);
+		url_list_changed (ui);
 	} else {
 		g_free (uri);
 	}
@@ -120,17 +159,79 @@ url_edit_clicked (GtkButton *button, PublishUIData *ui)
 				    URL_LIST_ENABLED_COLUMN, uri->enabled,
 				    URL_LIST_LOCATION_COLUMN, uri->location,
 				    URL_LIST_URL_COLUMN, uri, -1);
+		url_list_changed (ui);
 	}
+}
+
+static void
+url_list_double_click (GtkTreeView       *treeview,
+		       GtkTreePath       *path,
+		       GtkTreeViewColumn *column,
+		       PublishUIData     *ui)
+{
+	url_edit_clicked (NULL, ui);
 }
 
 static void
 url_remove_clicked (GtkButton *button, PublishUIData *ui)
 {
+	EPublishUri *url = NULL;
+	GtkTreeSelection *selection;
+	GtkTreeModel *model;
+	GtkTreeIter iter;
+	GtkWidget *confirm;
+	gint response;
+
+	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (ui->treeview));
+	if (!gtk_tree_selection_get_selected (selection, &model, &iter))
+		return;
+
+	gtk_tree_model_get (model, &iter, URL_LIST_URL_COLUMN, &url, -1);
+
+	confirm = gtk_message_dialog_new (NULL, GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+			                  GTK_MESSAGE_QUESTION, GTK_BUTTONS_NONE,
+					  _("Are you sure you want to remove this URL?"));
+	gtk_dialog_add_button (GTK_DIALOG (confirm), GTK_STOCK_CANCEL, GTK_RESPONSE_NO);
+	gtk_dialog_add_button (GTK_DIALOG (confirm), GTK_STOCK_REMOVE, GTK_RESPONSE_YES);
+	gtk_dialog_set_default_response (GTK_DIALOG (confirm), GTK_RESPONSE_CANCEL);
+
+	response = gtk_dialog_run (GTK_DIALOG (confirm));
+	gtk_widget_destroy (confirm);
+
+	if (response == GTK_RESPONSE_YES) {
+		int len;
+		gtk_list_store_remove (GTK_LIST_STORE (model), &iter);
+
+		len = gtk_tree_model_iter_n_children (model, NULL);
+		if (len > 0) {
+			gtk_tree_selection_select_iter (selection, &iter);
+		} else {
+			gtk_widget_set_sensitive (ui->url_edit, FALSE);
+			gtk_widget_set_sensitive (ui->url_remove, FALSE);
+			gtk_widget_set_sensitive (ui->url_enable, FALSE);
+		}
+
+		g_free (url);
+		url_list_changed (ui);
+	}
 }
 
 static void
 url_enable_clicked (GtkButton *button, PublishUIData *ui)
 {
+	EPublishUri *url = NULL;
+	GtkTreeSelection *selection;
+	GtkTreeModel *model;
+	GtkTreeIter iter;
+
+	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (ui->treeview));
+	if (gtk_tree_selection_get_selected (selection, &model, &iter)) {
+		gtk_tree_model_get (model, &iter, URL_LIST_URL_COLUMN, &url, -1);
+		url->enabled = !url->enabled;
+		gtk_list_store_set (GTK_LIST_STORE (model), &iter, URL_LIST_URL_COLUMN, url->enabled, -1);
+		gtk_tree_selection_select_iter (selection, &iter);
+		url_list_changed (ui);
+	}
 }
 
 void
@@ -147,6 +248,9 @@ publish_calendar_locations (EPlugin *epl, EConfigHookItemFactoryData *data)
 	GtkTreeSelection *selection;
 	GtkWidget *toplevel;
 	PublishUIData *ui = g_new0 (PublishUIData, 1);
+	GSList *url_config_list = NULL, *l;
+	GtkTreeIter iter;
+	GConfClient *client;
 
 	xml = glade_xml_new (PLUGINDIR "/publish-calendar.glade", "toplevel", NULL);
 
@@ -170,15 +274,39 @@ publish_calendar_locations (EPlugin *epl, EConfigHookItemFactoryData *data)
 	g_signal_connect (G_OBJECT (ui->treeview), "row-activated", G_CALLBACK (url_list_double_click), ui);
 
 	ui->url_add = glade_xml_get_widget (xml, "url add");
-	g_signal_connect (G_OBJECT (ui->url_add), "clicked", G_CALLBACK (url_add_clicked), ui);
 	ui->url_edit = glade_xml_get_widget (xml, "url edit");
-	g_signal_connect (G_OBJECT (ui->url_edit), "clicked", G_CALLBACK (url_edit_clicked), ui);
 	ui->url_remove = glade_xml_get_widget (xml, "url remove");
-	g_signal_connect (G_OBJECT (ui->url_remove), "clicked", G_CALLBACK (url_remove_clicked), ui);
 	ui->url_enable = glade_xml_get_widget (xml, "url enable");
+	g_signal_connect (G_OBJECT (ui->url_add), "clicked", G_CALLBACK (url_add_clicked), ui);
+	g_signal_connect (G_OBJECT (ui->url_edit), "clicked", G_CALLBACK (url_edit_clicked), ui);
+	g_signal_connect (G_OBJECT (ui->url_remove), "clicked", G_CALLBACK (url_remove_clicked), ui);
 	g_signal_connect (G_OBJECT (ui->url_enable), "clicked", G_CALLBACK (url_enable_clicked), ui);
+	gtk_widget_set_sensitive (GTK_WIDGET (ui->url_edit), FALSE);
+	gtk_widget_set_sensitive (GTK_WIDGET (ui->url_remove), FALSE);
+	gtk_widget_set_sensitive (GTK_WIDGET (ui->url_enable), FALSE);
 
-	selection_changed (selection, ui);
+	client = gconf_client_get_default ();
+	url_config_list = gconf_client_get_list (client, "/apps/evolution/calendar/publish/uris", GCONF_VALUE_STRING, NULL);
+	l = url_config_list;
+	while (l) {
+		gchar *xml = l->data;
+		EPublishUri *url = e_publish_uri_from_xml (xml);
+
+		if (url->location) {
+			gtk_list_store_append (store, &iter);
+			gtk_list_store_set (store, &iter,
+					    URL_LIST_ENABLED_COLUMN, url->enabled,
+					    URL_LIST_LOCATION_COLUMN, url->location,
+					    URL_LIST_URL_COLUMN, url, -1);
+		}
+
+		l = g_slist_next (l);
+		g_free (xml);
+	}
+	if (gtk_tree_model_get_iter_first (GTK_TREE_MODEL (store), &iter))
+		gtk_tree_selection_select_iter (selection, &iter);
+	g_slist_foreach (url_config_list, (GFunc) g_free, NULL);
+	g_slist_free (url_config_list);
 
 	toplevel = glade_xml_get_widget (xml, "toplevel");
 	gtk_widget_show_all (toplevel);
