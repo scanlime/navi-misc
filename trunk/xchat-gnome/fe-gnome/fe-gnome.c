@@ -280,18 +280,15 @@ void fe_dcc_remove(struct DCC *dcc) {
 }
 
 int fe_dcc_open_recv_win(int passive) {
-	/* FIXME: implement */
-	return 0;
+	return TRUE;
 }
 
 int fe_dcc_open_send_win(int passive) {
-	/* FIXME: implement */
-	return 0;
+	return TRUE;
 }
 
 int fe_dcc_open_chat_win(int passive) {
-	/* FIXME: implement */
-	return 0;
+	return TRUE;
 }
 
 void fe_clear_channel(struct session *sess) {

@@ -120,7 +120,7 @@ void initialize_transfers_window() {
 		return;
 	transfer_gui.selected = 0;
 
-	expander = gtk_expander_new("Download Details");
+	expander = gtk_expander_new("Details");
 	gtk_expander_set_expanded(GTK_EXPANDER(expander), FALSE);
 	g_signal_connect(G_OBJECT(expander), "notify::expanded", G_CALLBACK(expanded), NULL);
 	box = glade_xml_get_widget(transfer_gui.xml, "expander box");
@@ -324,6 +324,7 @@ void add_transfer(struct DCC *dcc) {
 	treeview = glade_xml_get_widget(transfer_gui.xml, "treeview1");
 	select = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
 	gtk_tree_selection_select_iter(select, &iter);
+	transfer_gui.selected = iter.stamp;
 }
 
 void update_transfer(struct DCC *dcc) {
@@ -339,7 +340,6 @@ void update_transfer(struct DCC *dcc) {
 			}
 		} while(gtk_tree_model_iter_next(GTK_TREE_MODEL(transfer_gui.store), &iter));
 	}
-	add_transfer(dcc);
 }
 
 void remove_transfer(struct DCC *dcc) {
