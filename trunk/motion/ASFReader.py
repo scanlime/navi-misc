@@ -20,7 +20,7 @@
 #
 from pyparsing import *
 
-float = Word('0123456789.e+-')
+float = Word(nums + '.e+-')
 comment = Literal('#') + Optional (restOfLine)
 
 axisOrder = oneOf("XYZ XZY YXZ YZX ZXY ZYX")
@@ -32,15 +32,12 @@ rootElement = \
   | "position" + float + float + float \
   | "orientation" + float + float + float
 
-unitElement = \
-    "mass" + float \
-  | "length" + float \
-  | "angle" + oneOf("deg rad")
+unitElement = Group("mass" + float | "length" + float | "angle" + oneOf("deg rad"))
 
 dof = oneOf("rx ry rz")
 triplet = Literal('(').suppress() + float + float + Literal(')').suppress()
 
-boneElement = \
+boneElement = Group(
     "id" + Word(nums) \
   | "name" + Word(alphanums) \
   | "direction" + float + float + float \
@@ -48,13 +45,14 @@ boneElement = \
   | "axis" + float + float + float + axisOrder \
   | "dof" + OneOrMore(dof) \
   | "limits" + OneOrMore(triplet)
+  )
 bone = Group("begin" + OneOrMore(boneElement) + "end")
 bonedata = ZeroOrMore(bone)
 
 hierElement = Word(alphanums) + OneOrMore(Word(alphanums))
 hierarchy = Group("begin" + OneOrMore(hierElement) + "end")
 
-docLine = OneOrMore(Word('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!"#$%&\\\'()*+,-./;<=>?@[\\]^_`{|}~'))
+docLine = OneOrMore(Word(alphanums + '!"#$%&\'()*+,-./;<=>?@[\\]^_`{|}~'))
 
 sectstart = LineStart() + Literal(':').suppress()
 section = \
