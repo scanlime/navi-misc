@@ -15,7 +15,7 @@
 CBZNextLoop::CBZNextLoop()
 {
 	SetQuit(false);
-	inUI = false;
+	inUI = true;
 	numScreenShots = 0;
 }
 
@@ -29,6 +29,8 @@ bool CBZNextLoop::OnInit ( void )
 	// some default values
 	SetGameName("susan");
 	SetGameStartString("test");
+
+	inUI = args.GetDataB("forceGame");
 
 	// init the shit
 	ui.Set(this);
