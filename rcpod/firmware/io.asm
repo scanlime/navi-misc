@@ -33,6 +33,7 @@
 	global	io_Assert	; Assert the pin descriptor passed in io_pin
 	global	io_Deassert	; Invert the polarity of io_pin then assert it
 	global	io_Read		; Test the value of the pin descriptor io_pin, return it in 'w'
+	global	io_Init
 
 bank1	udata
 
@@ -50,6 +51,16 @@ LATD		res	1
 LATE		res	1
 
 	code
+
+io_Init
+	banksel	LATA
+	clrf	LATA
+	clrf	LATB
+	clrf	LATC
+	clrf	LATD
+	clrf	LATE
+	return
+
 
 io_Deassert
 	banksel	io_pin
@@ -139,7 +150,8 @@ io_SetFSR
 	subwf	io_tmp, w
 	btfsc	STATUS, C	; If B=0, C=1 and the port is bad
 	retlw	1
-	decfsz	io_tmp, f	; Port 0 is a no-op
+	decf	io_tmp, f	; Port 0 is a no-op
+	btfsc	STATUS, Z
 	retlw	1
 
 	movf	io_base_fsr, w	; FSR = io_base_fsr + io_tmp
@@ -151,6 +163,7 @@ io_SetFSR
 	;; Set io_mask with the bit referred to in io_pin
 io_SetMask
 	banksel	io_pin
+	movf	io_pin, w
 	andlw	0x07		; Mask off the bit number
 	movwf	io_tmp		; ...and put it in io_tmp
 
