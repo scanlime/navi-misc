@@ -36,6 +36,8 @@ class Square:
                 dy = 0
                 y1 = y2
             time.sleep(self.delay)
+        lp.laser = False
+        lp.laser = True
 
     def run(self):
         import pyrcpod
