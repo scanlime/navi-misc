@@ -204,13 +204,19 @@ class StatsTarget:
              - our 'title' metadata key
              - self.name, the last segment of our path
              - 'Stats'
+           The result will always be a Deferred.
            """
-        title = self.metadata.get('title')
-        if title:
-            return title
+        result = defer.Deferred()
+        self.metadata.getValue('title').addCallback(self._getTitle, result).addErrback(result.errback)
+        return result
+
+    def _getTitle(self, metadataTitle, result):
+        if metadataTitle is not None:
+            result.callback(metadataTitle)
         if self.name:
-            return self.name
-        return 'Stats'
+            result.callback(self.name)
+        else:
+            result.callback('Stats')
 
     def clear(self):
         """Delete everything associated with this stats target. Returns a Deferred
@@ -347,6 +353,12 @@ class Metadata:
            """
         return Database.pool.runInteraction(self._get, name, default)
 
+    def getValue(self, name, default=None, typePrefix='text/'):
+        """Like get(), but only returns the value. Ensures the MIME type
+           begins with typePrefix. If it doesn't, a TypeError is raised.
+           """
+        return Database.pool.runInteraction(self._getValue, name, default, typePrefix)
+
     def set(self, name, value, mimeType='text/plain'):
         """Set a metadata key, creating it if it doesn't exist"""
         return Database.pool.runInteraction(self._set, name, value, mimeType)
@@ -370,12 +382,33 @@ class Metadata:
                                           (Database.quote(self.target.path, 'varchar'),
                                            Database.quote(name, 'varchar')))
 
+    def has_key(self, name):
+        """Returs True (via a Deferred) if the given key name exists for this target"""
+        return Database.pool.runInteraction(self._has_key, name)
+
+    def _has_key(self, cursor, name):
+        """Database interaction implemented has_key()"""
+        cursor.execute("SELECT COUNT(*) FROM stats_metadata WHERE target_path = %s AND name = %s" %
+                       (Database.quote(self.target.path, 'varchar'),
+                        Database.quote(name, 'varchar')))
+        return bool(cursor.fetchone())
+
     def _get(self, cursor, name, default):
         """Database interaction to return the value and type for a particular key"""
         cursor.execute("SELECT value, mime_type FROM stats_metadata WHERE target_path = %s AND name = %s" %
                        (Database.quote(self.target.path, 'varchar'),
                         Database.quote(name, 'varchar')))
         return cursor.fetchone() or default
+
+    def _getValue(self, cursor, name, default, typePrefix):
+        result = self._get(cursor, name, None)
+        if result is None:
+            return default
+        value, mimeType = result
+        if not mimeType.startswith(typePrefix):
+            raise TypeError("A metadata key of type %s was found where %s* was expected" %
+                            (mimeType, typePrefix))
+        return value
 
     def _dict(self, cursor):
         """Database interaction to return to implement dict()"""
