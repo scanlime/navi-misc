@@ -33,9 +33,8 @@ import XML, Debug
 class HubInterface(xmlrpc.XMLRPC):
     """A simple interface for delivering XML messages to the hub over XML-RPC
        """
-    def __init__(self, caps, hub):
+    def __init__(self, hub):
         xmlrpc.XMLRPC.__init__(self)
-        self.caps = caps
         self.hub = hub
 
     def xmlrpc_deliver(self, xml, key=None):
