@@ -18,6 +18,9 @@
 	        <!--#include file="navigation.inc" -->
 	    </td>
 	    <td class="body">
+	        <div class="heading">27 January 2005 - 0.8 released</div>
+		<p>This release fixes all of the known non-windows bugs. Get it now from <a href="http://flapjack.navi.cx/releases/fyre/">FlapJack</a>.</p>
+
 		<div class="heading">02 January 2005 - 0.7 released</div>
 		<p>Well, it's real soon now. All these new features are now available in <a href="http://flapjack.navi.cx/releases/fyre/fyre-0.7.tar.bz2">Fyre 0.7</a>. Windows builds at 11...</p>
 
