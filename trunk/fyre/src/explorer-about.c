@@ -71,10 +71,9 @@ static void on_about_close(GtkWidget *widget, Explorer *self)
 	self->about_image = NULL;
     }
 
-    /* Restart the main animation.
-     * FIXME: Make sure it was running in the first place
-     */
-    iterative_map_start_calculation(self->map);
+    /* Restart the main animation. */
+    if(!self->paused)
+        iterative_map_start_calculation(self->map);
 }
 
 static void on_about_activate(GtkWidget *widget, Explorer *self)
