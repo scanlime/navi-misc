@@ -31,8 +31,8 @@ if ($simpleoutput)
 	echo "list:".mysql_num_rows( $result )." ";
 	while ($row = mysql_fetch_array($result, MYSQL_ASSOC))
 	{
-		echo '&'.$row[address]; // address
 		echo '&'.$row[servername]; // servername
+		echo '&'.$row[address]; // address
 		echo '&'.$row[port]; // port
 		echo '&'.$row[game]; // game
 		echo '&'.$row[version]; // version
@@ -48,8 +48,8 @@ else
 	{
 		echo "<tr>";
 	//	echo '<td>'.$row[id].'</td>'; // id
-		echo '<td>'.$row[address].'</td>'; // address
 		echo '<td>'.$row[servername].'</td>'; // servername
+		echo '<td>'.$row[address].'</td>'; // address
 		echo '<td>'.$row[port].'</td>'; // port
 		echo '<td>'.$row[game].'</td>'; // game
 		echo '<td>'.$row[version].'</td>'; // version
