@@ -45,7 +45,8 @@ class PalantirClient(irc.IRCClient):
 
   def irc_RPL_WHOREPLY(self, prefix, params):
     ''' When we get a reply from a WHO query send the nick and channel to the ui. '''
-    self.factory.ui.AddUserToList(params[5], params[1])
+    if hasattr(self.factory.ui, 'whoReply'):
+      self.factory.ui.whoReply(params)
 
   def noticed(self, user, channel, message):
     self.factory.ui.messageReceive(user, channel, message)
@@ -59,14 +60,19 @@ class PalantirClient(irc.IRCClient):
     self.factory.ui.meReceive(user, channel, msg)
 
   def topicUpdated(self, user, channel, newTopic):
-    self.factory.ui.topicReceive(user, channel, newTopic)
-    self.factory.ui.messageReceive(user, channel, newTopic)
+    if hasattr(self.factory.ui, 'topicReceive'):
+      self.factory.ui.topicReceive(user, channel, newTopic)
 
   def ctcpUnknownQuery(self, user, channel, tag, data):
     getattr(self.factory.ui, tag, 'unknownTCP')(user, channel, data)
 
   def userJoined(self, user, channel):
-    self.factory.ui.AddUserToList(user, channel)
+    if hasattr(self.factory.ui, 'userJoined'):
+      self.factory.ui.userJoined(user, channel)
+
+  def userLeft(self, user, channel):
+    if hasattr(self.factory.ui, 'userLeft'):
+      self.factory.ui.userLeft(user, channel)
 
 class PalantirClientFactory(protocol.ClientFactory):
   ''' Factory to create the IRC client.  The factory will be used as an interface
@@ -76,7 +82,7 @@ class PalantirClientFactory(protocol.ClientFactory):
       '''
   protocol = PalantirClient
 
-  def __init__(self, nick, server='irc.freenode.net', channels=None, ui=None):
+  def __init__(self, nick, server=None, channels=None, ui=None):
     ''' 'channels' should be a string of channels, separated by commas that the client
         will join upon connecting.  'ui' should be a reference to the ui that the client
 	will use.  The rest should be apparent.
