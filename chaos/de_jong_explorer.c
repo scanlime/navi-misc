@@ -44,10 +44,13 @@ double a, b, c, d, exposure, zoom, xoffset, yoffset;
 guint idler;
 
 void update_gui();
+void update_pixels();
 void clear();
 void resize(int w, int h);
 void set_defaults();
 void interactive_main(int argc, char **argv);
+void save_to_file(const char *name);
+void run_iterations(int count);
 int interactive_idle_handler(gpointer user_data);
 gboolean expose(GtkWidget *widget, GdkEventExpose *event, gpointer user_data);
 void param_spinner_changed(GtkWidget *widget, gpointer user_data);
@@ -62,13 +65,15 @@ GtkWidget *build_sidebar();
 
 int main(int argc, char ** argv) {
   enum {INTERACTIVE, RENDER} mode = INTERACTIVE;
+  const char *outputFile;
   int c;
 
   srand(time(NULL));
+  g_type_init();
   set_defaults();
 
   while (1) {
-    c = getopt(argc, argv, "a:b:c:d:x:y:z:w:h:");
+    c = getopt(argc, argv, "a:b:c:d:x:y:z:w:h:e:o:");
     if (c == -1)
       break;
 
@@ -77,18 +82,35 @@ int main(int argc, char ** argv) {
     case 'b':  b = atof(optarg);  break;
     case 'c':  c = atof(optarg);  break;
     case 'd':  d = atof(optarg);  break;
-    case 'x':  xoffset = atof(optarg);  break;
-    case 'y':  yoffset = atof(optarg);  break;
-    case 'w':  width   = atoi(optarg);  break;
-    case 'h':  height  = atoi(optarg);  break;
+    case 'e':  exposure = atof(optarg);  break;
+    case 'x':  xoffset  = atof(optarg);  break;
+    case 'y':  yoffset  = atof(optarg);  break;
+    case 'w':  width    = atoi(optarg);  break;
+    case 'h':  height   = atoi(optarg);  break;
+
+    case 'o':
+      mode = RENDER;
+      outputFile = optarg;
+      break;
     }
   }
 
   resize(width, height);
 
   switch (mode) {
+
   case INTERACTIVE:
     interactive_main(argc, argv);
+    break;
+
+  case RENDER:
+    while (countsMax < 5000) {
+      run_iterations(100000);
+      printf("Iterations: %.3e\tmax density: %d\n", iterations, countsMax);
+    }
+    printf("Creating image...\n");
+    update_pixels();
+    save_to_file(outputFile);
     break;
   }
 
@@ -101,7 +123,6 @@ void interactive_main(int argc, char ** argv) {
    * the de jong attractor in mostly-real-time. Yay.
    */
   GtkWidget *hbox, *vsep;
-
   gtk_init(&argc, &argv);
 
   window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -493,6 +514,15 @@ void randomclick(GtkWidget *widget, gpointer user_data) {
   startclick(widget, user_data);
 }
 
+void save_to_file(const char *name) {
+  /* Save the current contents of pixels[] to a .PNG file */
+  GdkPixbuf *pixbuf;
+  pixbuf = gdk_pixbuf_new_from_data(pixels, GDK_COLORSPACE_RGB, TRUE,
+				    8, width, height, width*4, NULL, NULL);
+  gdk_pixbuf_save(pixbuf, name, "png", NULL, NULL);
+  gdk_pixbuf_unref(pixbuf);
+}
+
 void saveclick(GtkWidget *widget, gpointer user_data) {
   /* Sorry, saving only works with gtk 2.3's file selector for now */
 #if (GTK_MAJOR_VERSION > 2) || (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 3)
@@ -508,13 +538,8 @@ void saveclick(GtkWidget *widget, gpointer user_data) {
   gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog), filter);
   if(gtk_dialog_run(GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT) {
     char *filename;
-    GdkPixbuf *pixbuf;
-
     filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
-    pixbuf = gdk_pixbuf_new_from_data(pixels, GDK_COLORSPACE_RGB, TRUE,
-				      8, width, height, width*4, NULL, NULL);
-    gdk_pixbuf_save(pixbuf, filename, "png", NULL, NULL);
-    gdk_pixbuf_unref(pixbuf);
+    save_to_file(filename);
     g_free(filename);
   }
   g_object_unref(filter);
