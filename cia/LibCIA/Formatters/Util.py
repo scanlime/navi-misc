@@ -54,9 +54,9 @@ def getNormalizedLog(xml, tabWidth=8):
             if maxLeftStrip is None or leftStrip < maxLeftStrip:
                 maxLeftStrip = leftStrip
 
-            # Skip leading blank lines
-            if lines or strippedLine:
-                lines.append(line)
+        # Skip leading blank lines
+        if lines or strippedLine:
+            lines.append(line)
 
     # Remove trailing blank lines
     while lines and not lines[-1].strip():
