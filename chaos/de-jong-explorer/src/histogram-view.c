@@ -165,6 +165,8 @@ void histogram_view_update(HistogramView *self) {
 			0, 0, self->imager->width, self->imager->height,
 			GDK_RGB_DITHER_NORMAL, gdk_pixbuf_get_pixels(self->viewable_image),
 			self->imager->width * 4);
+
+  self->imager->render_dirty_flag = FALSE;
 }
 
 static void histogram_view_draw_image_region(HistogramView *self, GdkRegion *region) {

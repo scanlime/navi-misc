@@ -45,7 +45,6 @@ static void on_save(GtkWidget *widget, gpointer user_data);
 static void on_quit(GtkWidget *widget, gpointer user_data);
 static void on_pause_rendering_toggle(GtkWidget *widget, gpointer user_data);
 static void on_load_from_image(GtkWidget *widget, gpointer user_data);
-static gboolean on_viewport_expose(GtkWidget *widget, GdkEventExpose *event, gpointer user_data);
 static void on_widget_toggle(GtkWidget *widget, gpointer user_data);
 
 
@@ -94,7 +93,6 @@ static void explorer_init(Explorer *self) {
   glade_xml_signal_connect_data(self->xml, "on_quit",                         G_CALLBACK(on_quit),                         self);
   glade_xml_signal_connect_data(self->xml, "on_pause_rendering_toggle",       G_CALLBACK(on_pause_rendering_toggle),       self);
   glade_xml_signal_connect_data(self->xml, "on_load_from_image",              G_CALLBACK(on_load_from_image),              self);
-  glade_xml_signal_connect_data(self->xml, "on_viewport_expose",              G_CALLBACK(on_viewport_expose),              self);
   glade_xml_signal_connect_data(self->xml, "on_widget_toggle",                G_CALLBACK(on_widget_toggle),                self);
 
   /* Set up the statusbar */
@@ -119,7 +117,8 @@ static void explorer_dispose(GObject *gobject) {
 
 Explorer* explorer_new(DeJong *dejong, Animation *animation) {
   Explorer *self = EXPLORER(g_object_new(explorer_get_type(), NULL));
-  GtkWidget *editor;
+  GtkWidget *editor, *window, *scroll;
+  GtkRequisition win_req;
 
   self->animation = ANIMATION(g_object_ref(animation));
   self->dejong = DE_JONG(g_object_ref(dejong));
@@ -138,6 +137,19 @@ Explorer* explorer_new(DeJong *dejong, Animation *animation) {
   explorer_init_animation(self);
   explorer_init_tools(self);
   self->idler = g_idle_add(explorer_idle_handler, self);
+
+  /* Set the window's default size to include our default image size.
+   * The cleanest way I know of to do this is to set the scrolled window's scrollbar policies
+   * to 'never' and get the window's size requests, set them back to automatic, then set the
+   * default size to that size request.
+   */
+  window = glade_xml_get_widget(self->xml, "explorer_window");
+  scroll = glade_xml_get_widget(self->xml, "main_scrolledwindow");
+  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scroll), GTK_POLICY_NEVER, GTK_POLICY_NEVER);
+  gtk_widget_size_request(window, &win_req);
+  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scroll), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+  gtk_window_set_default_size(GTK_WINDOW(window), win_req.width, win_req.height);
+  gtk_widget_show(window);
 }
 
 
@@ -322,22 +334,10 @@ void explorer_update_gui(Explorer *self) {
       gtk_statusbar_remove(self->statusbar, self->render_status_context, self->render_status_message_id);
     self->render_status_message_id = gtk_statusbar_push(self->statusbar, self->render_status_context, iters);
     g_free(iters);
+    self->status_dirty_flag = FALSE;
   }
 
   histogram_view_update(HISTOGRAM_VIEW(self->view));
-
-  HISTOGRAM_IMAGER(self->dejong)->render_dirty_flag = FALSE;
-  self->status_dirty_flag = FALSE;
-}
-
-static gboolean on_viewport_expose(GtkWidget *widget, GdkEventExpose *event, gpointer user_data) {
-  /* After the drawing area is shown, go back to the natural size request */
-  Explorer *self = EXPLORER(user_data);
-  if (self->just_resized) {
-    gtk_widget_set_size_request(widget, -1, -1);
-    self->just_resized = FALSE;
-  }
-  return FALSE;
 }
 
 /* The End */
