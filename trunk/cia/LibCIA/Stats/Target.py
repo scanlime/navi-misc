@@ -313,6 +313,7 @@ class Counters:
        """
     def __init__(self, target):
         self.target = target
+        self.cache = None
 
     def increment(self):
         """Increment all applicable counters, signaling the arrival of a new event"""
@@ -348,6 +349,8 @@ class Counters:
     def _incrementCounter(self, cursor, name):
         """Increment one counter, creating it if necessary"""
         now = int(time.time())
+        # Invalidate the cache for this counter if we have one
+        self.cache = None
 
         # Insert a default value, which will be ignored if the counter already exists
         cursor.execute("INSERT IGNORE INTO stats_counters (target_path, name, first_time) VALUES(%s, %s, %s)" %
@@ -372,30 +375,29 @@ class Counters:
            lastEventTime  : The time when the most recent event occurred
            eventCount     : The number of events that have occurred
            """
-        return Database.pool.runInteraction(self._getCounter, name)
+        if self.cache is not None:
+            result = defer.Deferred()
+            result.callback(self.cache.get(name))
+            return result
+        else:
+            return Database.pool.runInteraction(self._getCounter, name)
 
     def dict(self):
         """Return a Deferred that eventually results in a dictionary mapping
            counter name to the dictionary that would be returned by getCounter.
            """
+        if self.cache is not None:
+            # This is the cache itself
+            result = defer.Deferred()
+            result.callback(self.cache)
+            return result
+        else:
+            return Database.pool.runInteraction(self._dict)
+
         return Database.pool.runInteraction(self._dict)
 
-    def _getCounter(self, cursor, name):
-        """Database interaction implementing getCounter"""
-        cursor.execute("SELECT first_time, last_time, event_count FROM stats_counters WHERE"
-                       " target_path = %s AND name = %s" %
-                       (Database.quote(self.target.path, 'varchar'),
-                        Database.quote(name, 'varchar')))
-        row = cursor.fetchone()
-        if row is not None:
-            return {
-                'firstEventTime': row[0],
-                'lastEventTime':  row[1],
-                'eventCount':     row[2],
-                }
-
-    def _dict(self, cursor):
-        """Database interaction implementing _getCounterDict"""
+    def _updateCache(self, cursor):
+        """Database interaction to update our counter cache"""
         cursor.execute("SELECT name, first_time, last_time, event_count FROM stats_counters WHERE"
                        " target_path = %s" %
                        Database.quote(self.target.path, 'varchar'))
@@ -409,10 +411,21 @@ class Counters:
                 'lastEventTime':  row[2],
                 'eventCount':     row[3],
                 }
-        return results
+        self.cache = results
+
+    def _getCounter(self, cursor, name):
+        """Database interaction implementing getCounter"""
+        self._updateCache(cursor)
+        return self.cache.get(name)
+
+    def _dict(self, cursor):
+        """Database interaction implementing _getCounterDict"""
+        self._updateCache(cursor)
+        return self.cache
 
     def clear(self):
         """Delete all counters for this target. Returns a Deferred"""
+        self.cache = {}
         return Database.pool.runOperation("DELETE FROM stats_counters WHERE target_path = %s" %
                                           Database.quote(self.target.path, 'varchar'))
 
