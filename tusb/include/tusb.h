@@ -1,6 +1,7 @@
 /*-------------------------------------------------------------------------
-   Register Declarations for the Texas Instruments TUSB3210 Processor
+   Register Declarations for the Texas Instruments TUSB3210/3410 Processors
 
+   TUSB3410 definitions added by Micah Dowty / micah@navi.cx (May 2004)
    Written By -  Michael Petruzelka / michael@root.at (December 2001)
    based on 8051.h from Bela Torok / bela.torok@kssg.ch (July 2000)
 
@@ -23,8 +24,8 @@
    what you give them.   Help stamp out software-hoarding!
 -------------------------------------------------------------------------*/
 
-#ifndef REGTUSB3210_H
-#define REGTUSB3210_H
+#ifndef REGTUSB_H
+#define REGTUSB_H
 
 /*  BYTE Register  */
 sfr at 0x80 P0   ;
@@ -174,111 +175,143 @@ sbit at 0xD7 CY   ;
 #define SI0_VECTOR      4       /* 0x23 serial port 0 */
 
 /* Memory mapped USB control registers */
-/*Output 1 Endpoint Descriptor Block*/
-xdata at 0xFF08 unsigned char OEPCNF_1;		/*Output endpoint 1 configuration*/
-xdata at 0xFF09 unsigned char OEPBBAX_1;	/*Output endpoint 1 X buffer base address*/
-xdata at 0xFF0A unsigned char OEPBCTX_1;	/*Output endpoint 1 X byte count*/
-xdata at 0xFF0D unsigned char OEPBBAY_1;	/*Output endpoint 1 Y buffer base address*/
-xdata at 0xFF0E unsigned char OEPBBTY_1;	/*Output endpoint 1 Y byte count*/
-xdata at 0xFF0F unsigned char OEPSIZXY_1;	/*Output endpoint 1 X/Y buffer size*/
+/* Output 1 Endpoint Descriptor Block */
+xdata at 0xFF08 unsigned char OEPCNF_1;         /* Output endpoint 1 configuration */
+xdata at 0xFF09 unsigned char OEPBBAX_1;        /* Output endpoint 1 X buffer base address */
+xdata at 0xFF0A unsigned char OEPBCTX_1;        /* Output endpoint 1 X byte count */
+xdata at 0xFF0D unsigned char OEPBBAY_1;        /* Output endpoint 1 Y buffer base address */
+xdata at 0xFF0E unsigned char OEPBBTY_1;        /* Output endpoint 1 Y byte count */
+xdata at 0xFF0F unsigned char OEPSIZXY_1;       /* Output endpoint 1 X/Y buffer size */
 
-/*Output 2 Endpoint Descriptor Block*/
-xdata at 0xFF10 unsigned char OEPCNF_2;		/*Output endpoint 2 configuration*/
-xdata at 0xFF11 unsigned char OEPBBAX_2;	/*Output endpoint 2 X buffer base address*/
-xdata at 0xFF12 unsigned char OEPBCTX_2;	/*Output endpoint 2 X byte count*/
-xdata at 0xFF15 unsigned char OEPBBAY_2;	/*Output endpoint 2 Y buffer base address*/
-xdata at 0xFF16 unsigned char OEPBBTY_2;	/*Output endpoint 2 Y byte count*/
-xdata at 0xFF17 unsigned char OEPSIZXY_2;	/*Output endpoint 2 X/Y buffer size*/
+/* Output 2 Endpoint Descriptor Block */
+xdata at 0xFF10 unsigned char OEPCNF_2;         /* Output endpoint 2 configuration */
+xdata at 0xFF11 unsigned char OEPBBAX_2;        /* Output endpoint 2 X buffer base address */
+xdata at 0xFF12 unsigned char OEPBCTX_2;        /* Output endpoint 2 X byte count */
+xdata at 0xFF15 unsigned char OEPBBAY_2;        /* Output endpoint 2 Y buffer base address */
+xdata at 0xFF16 unsigned char OEPBBTY_2;        /* Output endpoint 2 Y byte count */
+xdata at 0xFF17 unsigned char OEPSIZXY_2;       /* Output endpoint 2 X/Y buffer size */
 
-/*Output 3 Endpoint Descriptor Block*/
-xdata at 0xFF18 unsigned char OEPCNF_3;		/*Output endpoint 2 configuration*/
-xdata at 0xFF19 unsigned char OEPBBAX_3;	/*Output endpoint 2 X buffer base address*/
-xdata at 0xFF1A unsigned char OEPBCTX_3;	/*Output endpoint 2 X byte count*/
-xdata at 0xFF1D unsigned char OEPBBAY_3;	/*Output endpoint 2 Y buffer base address*/
-xdata at 0xFF1E unsigned char OEPBBTY_3;	/*Output endpoint 2 Y byte count*/
-xdata at 0xFF1F unsigned char OEPSIZXY_3;	/*Output endpoint 2 X/Y buffer size*/
+/* Output 3 Endpoint Descriptor Block */
+xdata at 0xFF18 unsigned char OEPCNF_3;         /* Output endpoint 2 configuration */
+xdata at 0xFF19 unsigned char OEPBBAX_3;        /* Output endpoint 2 X buffer base address */
+xdata at 0xFF1A unsigned char OEPBCTX_3;        /* Output endpoint 2 X byte count */
+xdata at 0xFF1D unsigned char OEPBBAY_3;        /* Output endpoint 2 Y buffer base address */
+xdata at 0xFF1E unsigned char OEPBBTY_3;        /* Output endpoint 2 Y byte count */
+xdata at 0xFF1F unsigned char OEPSIZXY_3;       /* Output endpoint 2 X/Y buffer size */
 
-/*Input 1 Endpoint Descriptor Block*/
-xdata at 0xFF48 unsigned char IEPCNF_1;		/*Output endpoint 1 configuration*/
-xdata at 0xFF49 unsigned char IEPBBAX_1;	/*Output endpoint 1 X buffer base address*/
-xdata at 0xFF4A unsigned char IEPBCTX_1;	/*Output endpoint 1 X byte count*/
-xdata at 0xFF4D unsigned char IEPBBAY_1;	/*Output endpoint 1 Y buffer base address*/
-xdata at 0xFF4E unsigned char IEPBBTY_1;	/*Output endpoint 1 Y byte count*/
-xdata at 0xFF4F unsigned char IEPSIZXY_1;	/*Output endpoint 1 X/Y buffer size*/
+/* Input 1 Endpoint Descriptor Block */
+xdata at 0xFF48 unsigned char IEPCNF_1;         /* Output endpoint 1 configuration */
+xdata at 0xFF49 unsigned char IEPBBAX_1;        /* Output endpoint 1 X buffer base address */
+xdata at 0xFF4A unsigned char IEPBCTX_1;        /* Output endpoint 1 X byte count */
+xdata at 0xFF4D unsigned char IEPBBAY_1;        /* Output endpoint 1 Y buffer base address */
+xdata at 0xFF4E unsigned char IEPBBTY_1;        /* Output endpoint 1 Y byte count */
+xdata at 0xFF4F unsigned char IEPSIZXY_1;       /* Output endpoint 1 X/Y buffer size */
 
-/*Input 2 Endpoint Descriptor Block*/
-xdata at 0xFF50 unsigned char IEPCNF_2;		/*Output endpoint 2 configuration*/
-xdata at 0xFF51 unsigned char IEPBBAX_2;	/*Output endpoint 2 X buffer base address*/
-xdata at 0xFF52 unsigned char IEPBCTX_2;	/*Output endpoint 2 X byte count*/
-xdata at 0xFF55 unsigned char IEPBBAY_2;	/*Output endpoint 2 Y buffer base address*/
-xdata at 0xFF56 unsigned char IEPBBTY_2;	/*Output endpoint 2 Y byte count*/
-xdata at 0xFF57 unsigned char IEPSIZXY_2;	/*Output endpoint 2 X/Y buffer size*/
+/* Input 2 Endpoint Descriptor Block */
+xdata at 0xFF50 unsigned char IEPCNF_2;         /* Output endpoint 2 configuration */
+xdata at 0xFF51 unsigned char IEPBBAX_2;        /* Output endpoint 2 X buffer base address */
+xdata at 0xFF52 unsigned char IEPBCTX_2;        /* Output endpoint 2 X byte count */
+xdata at 0xFF55 unsigned char IEPBBAY_2;        /* Output endpoint 2 Y buffer base address */
+xdata at 0xFF56 unsigned char IEPBBTY_2;        /* Output endpoint 2 Y byte count */
+xdata at 0xFF57 unsigned char IEPSIZXY_2;       /* Output endpoint 2 X/Y buffer size */
 
-/*Input 3 Endpoint Descriptor Block*/
-xdata at 0xFF58 unsigned char IEPCNF_3;		/*Output endpoint 3 configuration*/
-xdata at 0xFF59 unsigned char IEPBBAX_3;	/*Output endpoint 3 X buffer base address*/
-xdata at 0xFF5A unsigned char IEPBCTX_3;	/*Output endpoint 3 X byte count*/
-xdata at 0xFF5D unsigned char IEPBBAY_3;	/*Output endpoint 3 Y buffer base address*/
-xdata at 0xFF5E unsigned char IEPBBTY_3;	/*Output endpoint 3 Y byte count*/
-xdata at 0xFF5F unsigned char IEPSIZXY_3;	/*Output endpoint 3 X/Y buffer size*/
+/* Input 3 Endpoint Descriptor Block */
+xdata at 0xFF58 unsigned char IEPCNF_3;         /* Output endpoint 3 configuration */
+xdata at 0xFF59 unsigned char IEPBBAX_3;        /* Output endpoint 3 X buffer base address */
+xdata at 0xFF5A unsigned char IEPBCTX_3;        /* Output endpoint 3 X byte count */
+xdata at 0xFF5D unsigned char IEPBBAY_3;        /* Output endpoint 3 Y buffer base address */
+xdata at 0xFF5E unsigned char IEPBBTY_3;        /* Output endpoint 3 Y byte count */
+xdata at 0xFF5F unsigned char IEPSIZXY_3;       /* Output endpoint 3 X/Y buffer size */
 
-/*Endpoint Configuration Bits*/
-	#define USBIE	1<<2		/*USB interrupt enable*/
-	#define STALL	1<<3		/*Stall indicator bit*/
-	#define DBUF	1<<4		/*Double buffer enable*/
-	#define TOGLE	1<<5		/*Data0,Data1 toggle status*/
-	#define ISO	1<<6		/*=0 Only non Isochronous transfer supported*/
-	#define UBME	1<<7		/*UBM enable*/
+/* Endpoint Configuration Bits */
+        #define USBIE    (1<<2)                 /* USB interrupt enable */
+        #define STALL    (1<<3)                 /* Stall indicator bit */
+        #define DBUF     (1<<4)                 /* Double buffer enable */
+        #define TOGLE    (1<<5)                 /* Data0,Data1 toggle status */
+        #define ISO      (1<<6)                 /* =0 Only non Isochronous transfer supported */
+        #define UBME     (1<<7)                 /* UBM enable */
 
-/*Memory Mapped Registers*/
-xdata at 0xFF80 unsigned char IEPCNFG_0;	/*Input endpoint-0 configuration register*/
-xdata at 0xFF81 unsigned char IEPBCNT_0;	/*Input endpoint-0 byte count register*/
-xdata at 0xFF82 unsigned char OEPCNFG_0;	/*Output endpoint-0 configuration register*/
-xdata at 0xFF83 unsigned char OEPBCNT_0;	/*Output endpoint-0 byte count register*/
-xdata at 0xFF84 unsigned char INTCNF;		/*Interrupt delay configuration register*/
-xdata at 0xFF90 unsigned char MCNFG;		/*MCU configuration register*/
-	#define SDW	1<<0			/*Boot Rom/RAM selector*/
-	#define XINT	1<<6			/*Int 1 source*/
-	#define OSC1248 1<<7			/*Pll selector*/
-xdata at 0xFF92 unsigned char VECINT;		/*Vector interrupt register*/
-xdata at 0xFF93 unsigned char WDCSR;		/*Watchdog timer, control & status register*/
-	#define WDT	1<<0			/*Watchdog retrigger bit*/
-	#define WDR	1<<6			/*Watchdog reset indicator*/
-	#define WDE	1<<7			/*Watchdog enable bit*/
-xdata at 0xFF94 unsigned char PUR0;		/*Port 0 pullup resistor register*/
-xdata at 0xFF95 unsigned char PUR1;		/*Port 1 pullup resistor register*/
-xdata at 0xFF96 unsigned char PUR2;	/*Port 2 pullup resistor register*/
-xdata at 0xFF97 unsigned char PUR3;	/*Port 3 pullup resistor register*/
-xdata at 0xFFF0 unsigned char I2CSTA;	/*I2C status and control register*/
-	#define SWR	1<<0		/*Stop write condition*/
-	#define SRD	1<<1		/*Stop read condition*/
-	#define TIE	1<<2		/*Transmitter empty interrupt*/
-	#define TXE	1<<3		/*Transmitter not full indicator*/
-	#define S1_4	1<<4		/*Bus speed selection*/
-	#define ERR	1<<5		/*Bus error condition*/
-	#define RIE	1<<6		/*Receiver ready interrupt enable*/
-	#define RXF	1<<7		/*Receiver not empty indicator*/
-xdata at 0xFFF1 unsigned char I2CDAO;	/*I2C data-output register*/
-xdata at 0xFFF2 unsigned char I2CDAI;	/*I2C data-input register*/
-xdata at 0xFFF3 unsigned char I2CADR;	/*I2C adress register*/
-xdata at 0xFFF6 unsigned char VIDSTA;	/*VID/PID status register*/
-xdata at 0xFFFC unsigned char USBCTL;	/*USB control register*/
-	#define	DIR	1<<0		/*Data direction*/
-	#define SIR	1<<1		/*Setup interrupt status*/
-	#define BUS_SELF 1<<2		/*Bus / Self powered*/
-	#define RWE	1<<3		/*Remote wake up enable*/
-	#define FRSTE	1<<4		/*Function reset connection bit*/
-	#define RWUP	1<<5		/*Device remote wakeup request*/
-	#define CONT	1<<7		/*Upstream port connect bit*/
-xdata at 0xFFFD unsigned char USBMSK;	/*USB interrupt mask register*/
-xdata at 0xFFFE unsigned char USBSTA;	/*USB status register*/
-	#define STPOW	1<<0		/*Setup overwrite*/
-	#define SETUP	1<<2		/*Setup transaction received*/
-	#define PWON	1<<3		/*Power on request*/
-	#define PWOFF	1<<4		/*Power off request*/
-	#define RESR	1<<5		/*Function resume*/
-	#define	SUSR	1<<6		/*Function suspend request*/
-	#define RSTR	1<<7		/*Function reset request*/
-xdata at 0xFFFF unsigned char FUNADR;	/*Function adress register*/
+/* Memory Mapped Registers */
+xdata at 0xFF80 unsigned char IEPCNFG_0;        /* Input endpoint-0 configuration register */
+xdata at 0xFF81 unsigned char IEPBCNT_0;        /* Input endpoint-0 byte count register */
+xdata at 0xFF82 unsigned char OEPCNFG_0;        /* Output endpoint-0 configuration register */
+xdata at 0xFF83 unsigned char OEPBCNT_0;        /* Output endpoint-0 byte count register */
+xdata at 0xFF84 unsigned char INTCNF;           /* Interrupt delay configuration register */
+xdata at 0xFF90 unsigned char MCNFG;            /* MCU configuration register */
+        #define SDW      (1<<0)                 /* Boot Rom/RAM selector */
+        #define XINT     (1<<6)                 /* Int 1 source */
+        #define OSC1248  (1<<7)                 /* Pll selector */
+xdata at 0xFF92 unsigned char VECINT;           /* Vector interrupt register */
+xdata at 0xFF93 unsigned char WDCSR;            /* Watchdog timer, control & status register */
+        #define WDT      (1<<0)                 /* Watchdog retrigger bit */
+        #define WDR      (1<<6)                 /* Watchdog reset indicator */
+        #define WDE      (1<<7)                 /* Watchdog enable bit */
+xdata at 0xFF94 unsigned char PUR0;             /* Port 0 pullup resistor register */
+xdata at 0xFF95 unsigned char PUR1;             /* Port 1 pullup resistor register */
+xdata at 0xFF96 unsigned char PUR2;             /* Port 2 pullup resistor register */
+xdata at 0xFF97 unsigned char PUR3;             /* Port 3 pullup resistor register */
+xdata at 0xFFF0 unsigned char I2CSTA;           /* I2C status and control register */
+        #define SWR      (1<<0)                 /* Stop write condition */
+        #define SRD      (1<<1)                 /* Stop read condition */
+        #define TIE      (1<<2)                 /* Transmitter empty interrupt */
+        #define TXE      (1<<3)                 /* Transmitter not full indicator */
+        #define S1_4     (1<<4)                 /* Bus speed selection */
+        #define ERR      (1<<5)                 /* Bus error condition */
+        #define RIE      (1<<6)                 /* Receiver ready interrupt enable */
+        #define RXF      (1<<7)                 /* Receiver not empty indicator */
+xdata at 0xFFF1 unsigned char I2CDAO;           /* I2C data-output register */
+xdata at 0xFFF2 unsigned char I2CDAI;           /* I2C data-input register */
+xdata at 0xFFF3 unsigned char I2CADR;           /* I2C adress register */
+xdata at 0xFFF6 unsigned char VIDSTA;           /* VID/PID status register */
+xdata at 0xFFFC unsigned char USBCTL;           /* USB control register */
+        #define DIR      (1<<0)                 /* Data direction */
+        #define SIR      (1<<1)                 /* Setup interrupt status */
+        #define BUS_SELF (1<<2)                 /* Bus / Self powered */
+        #define RWE      (1<<3)                 /* Remote wake up enable */
+        #define FRSTE    (1<<4)                 /* Function reset connection bit */
+        #define RWUP     (1<<5)                 /* Device remote wakeup request */
+        #define CONT     (1<<7)                 /* Upstream port connect bit */
+xdata at 0xFFFD unsigned char USBMSK;           /* USB interrupt mask register */
+xdata at 0xFFFE unsigned char USBSTA;           /* USB status register */
+        #define STPOW    (1<<0)                 /* Setup overwrite */
+        #define SETUP    (1<<2)                 /* Setup transaction received */
+        #define PWON     (1<<3)                 /* Power on request */
+        #define PWOFF    (1<<4)                 /* Power off request */
+        #define RESR     (1<<5)                 /* Function resume */
+        #define SUSR     (1<<6)                 /* Function suspend request */
+        #define RSTR     (1<<7)                 /* Function reset request */
+xdata at 0xFFFF unsigned char FUNADR;           /* Function adress register */
+
+/*  UART registers, only present on the TUSB3410  */
+xdata at 0xFFA0 unsigned char RDR;              /* Receiver data register  */
+xdata at 0xFFA1 unsigned char TDR;              /* Transmitter data register  */
+xdata at 0xFFA2 unsigned char LCR;              /* Line control register  */
+        #define LCR_WL5      0                  /*  5 bit words  */
+        #define LCR_WL6      1                  /*  6 bit words  */
+        #define LCR_WL7      2                  /*  7 bit words  */
+        #define LCR_WL8      3                  /*  8 bit words  */
+        #define LCR_STP      (1<<2)             /* 1.5 or 2 stop bits  */
+        #define LCR_PRTY     (1<<3)             /* Generate parity  */
+        #define LCR_EPRTY    (1<<4)             /* Even parity  */
+        #define LCR_PRTY     (1<<5)             /* Forced parity  */
+        #define LCR_BRK      (1<<6)             /* Break condition  */
+        #define LCR_FEN      (1<<7)             /* FIFO enabled  */
+xdata at 0xFFA3 unsigned char FCRL;             /* Flow control register  */
+        #define FCR_TXOF     (1<<0)             /* Enable transmitter Xon/Xoff flow control */
+        #define FCR_TXOA     (1<<1)             /* Enable transmitter Xon-on-any/Xoff flow control*/
+        #define FCR_CTS      (1<<2)             /* Enable transmitter /CTS flow control */
+        #define FCR_DSR      (1<<3)             /* Enable transmitter /DSR flow control */
+        #define FCR_RXOF     (1<<4)             /* Enable receiver Xon/Xoff flow control */
+        #define FCR_RTS      (1<<5)             /* Enable receiver /RTS flow control */
+        #define FCR_DTR      (1<<6)             /* Enable receiver /DTR flow control */
+        #define FCR_485E     (1<<7)             /* RS-485 enable bit */
+xdata at 0xFFA4 unsigned char MCR;              /* Modem control register  */
+        #define MCR_USRT     (1<<0)             /* UART soft reset */
+        #define MCR_RCVE     (1<<1)             /* Receiver enable mode, used only for RS-485 */
+        #define MCR_LOOP     (1<<2)             /* Loopback mode enable */
+        #define MCR_DTR      (1<<4)             /* Manual DTR output */
+        #define MCR_RTS      (1<<5)             /* Manual RTS output */
+        #define MCR_LRI      (1<<6)             /* Ring output, for loopback mode */
+        #define MCR_LCD      (1<<7)             /* Carrier Detect output, for loopback mode */
 
 #endif
