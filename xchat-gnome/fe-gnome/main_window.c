@@ -146,7 +146,7 @@ initialize_main_window ()
 	gtk_box_pack_start (GTK_BOX (topicbox), GTK_WIDGET (gui.topic_expander), FALSE, TRUE, 0);
 	gtk_box_reorder_child (GTK_BOX (topicbox), GTK_WIDGET (gui.topic_expander), 0);
 	gtk_expander_set_expanded (GTK_EXPANDER (gui.topic_expander), FALSE);
-	g_signal_connect (G_OBJECT (gui.topic_expander), "toggle", G_CALLBACK(on_expand_topic), NULL);
+	g_signal_connect (G_OBJECT (gui.topic_expander), "activate", G_CALLBACK(on_expand_topic), NULL);
 	gtk_label_set_ellipsize (gui.topic_label, PANGO_ELLIPSIZE_END);
 #else
 	gtk_label_set_line_wrap (gui.topic_label, TRUE);
