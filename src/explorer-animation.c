@@ -29,6 +29,7 @@
 
 static void explorer_update_animation_length(Explorer *self);
 static void explorer_init_keyframe_view(Explorer *self);
+static void explorer_init_visible_animation(GtkWindow *main_window, Explorer *self);
 
 static void on_anim_play_toggled(GtkWidget *widget, gpointer user_data);
 static void on_close(GtkWidget *widget, gpointer user_data);
@@ -90,13 +91,31 @@ void explorer_init_animation(Explorer *self) {
     explorer_init_keyframe_view(self);
 
     /* If we started out with an animation (e.g. from the command line)
-     * go ahead and show the animation window.
+     * go ahead and show the animation window after the main window
+     * has been mapped.
      */
-    if (animation_get_length(self->animation) > 0)
-	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(glade_xml_get_widget(self->xml, "toggle_animation_window")), TRUE);
+    if (animation_get_length(self->animation) > 0) {
+	g_signal_connect(G_OBJECT(self->window), "map",
+			 G_CALLBACK(explorer_init_visible_animation), self);
+    }
 }
 
-void explorer_dispose_animation(Explorer *self) {
+static void explorer_init_visible_animation(GtkWindow *main_window, Explorer *self)
+{
+    /* If our animation window needs to be initially visible, show it once
+     * the main window is visible. This prevents it form showing up first and
+     * hiding behind the main window- it's less intrusive than explicitly raising
+     * the window later.
+     */
+    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(
+        glade_xml_get_widget(self->xml, "toggle_animation_window")), TRUE);
+
+    /* Remove the event handler, we only want to do this once */
+    g_signal_handlers_disconnect_by_func(main_window, explorer_init_visible_animation, self);
+}
+
+void explorer_dispose_animation(Explorer *self)
+{
     if (self->animation) {
 	g_object_unref(self->animation);
 	self->animation = NULL;
