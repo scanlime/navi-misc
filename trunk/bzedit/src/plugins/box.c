@@ -30,7 +30,7 @@ static void       box_finalize             (GObject *object);
 static void       box_init_position_params (GObjectClass *object_class);
 static void       box_init_size_params     (GObjectClass *object_class);
 static void       box_init_other_params    (GObjectClass *object_class);
-static GdkPixbuf* box_get_icon             (SceneObject *object);
+static GdkPixbuf* box_get_icon             (void);
 
 enum
 {
@@ -336,7 +336,7 @@ box_new (void)
 }
 
 static GdkPixbuf*
-box_get_icon (SceneObject *object)
+box_get_icon (void)
 {
   static GdkPixbuf *icon = NULL;
 

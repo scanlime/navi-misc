@@ -28,7 +28,7 @@ static void       world_set_property (GObject *object, guint prop_id, const GVal
 static void       world_get_property (GObject *object, guint prop_id, GValue *value, GParamSpec *pspec);
 static void       world_finalize     (GObject *object);
 static void       world_init_params  (GObjectClass *object_class);
-static GdkPixbuf* world_get_icon     (SceneObject *object);
+static GdkPixbuf* world_get_icon     (void);
 
 enum
 {
@@ -196,7 +196,7 @@ world_new (void)
 }
 
 static GdkPixbuf*
-world_get_icon (SceneObject *object)
+world_get_icon (void)
 {
   static GdkPixbuf *icon = NULL;
 

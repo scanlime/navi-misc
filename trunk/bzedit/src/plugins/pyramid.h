@@ -41,6 +41,7 @@ typedef struct
   gdouble position[3];
   gdouble size[3];
   gdouble rotation;
+  gboolean inverted;
   gboolean drive_through;
   gboolean shoot_through;
 } PyramidParams;

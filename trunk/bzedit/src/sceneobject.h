@@ -45,15 +45,14 @@ struct _SceneObjectClass
 {
   ParameterHolderClass parent_class;
 
-  void (*render)        (SceneObject *self, guint name);
-  void (*serialize)     (SceneObject *self, GIOChannel *out);
-  GdkPixbuf* (*get_icon) (SceneObject *self);
+  void (*render)         (SceneObject *self, guint name);
+  void (*serialize)      (SceneObject *self, GIOChannel *out);
+  GdkPixbuf* (*get_icon) (void);
 };
 
 GType      scene_object_get_type  (void) G_GNUC_CONST;
 void       scene_object_render    (SceneObject *self, guint name);
 void       scene_object_serialize (SceneObject *self, GIOChannel *out);
-GdkPixbuf* scene_object_get_icon  (SceneObject *self);
 
 G_END_DECLS
 
