@@ -105,6 +105,23 @@ class MsgNewRabbit(Common.Message):
         StructEntry(Common.PlayerId, 'id'),
         ]
 
+class MsgRemovePlayer(Common.Message):
+    messageId = 0x7270
+    entries = [
+        StructEntry(Common.PlayerId, 'id'),
+        ]
+
+class MsgAlive(Common.Message):
+    messageId = 0x616C
+    entries = [
+        StructEntry(Common.PlayerId, 'id'),
+        StructEntry(Common.Vector3, 'position'),
+        StructEntry(Common.Vector3, 'forward'),
+        ]
+
+class MsgNetworkRelay(Common.Message):
+    messageId = 0x6e72
+
 ### The End ###
         
     

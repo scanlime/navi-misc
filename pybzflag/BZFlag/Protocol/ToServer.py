@@ -51,6 +51,9 @@ class MsgLagPing(Common.Message):
         StructEntry(UInt16, 'sequence'),
         ]
 
+class MsgNetworkRelay(Common.Message):
+    messageId = 0x6e72
+
 ### The End ###
         
     
