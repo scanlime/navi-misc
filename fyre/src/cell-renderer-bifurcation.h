@@ -46,7 +46,7 @@ struct _CellRendererBifurcation {
     GtkCellRenderer parent;
 
     Animation *animation;
-    GtkTreeIter keyframe;
+    gulong row_id;
 };
 
 struct _CellRendererBifurcationClass {
