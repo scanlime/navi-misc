@@ -63,6 +63,9 @@ class PalantirClient(irc.IRCClient):
     self.factory.ui.topicReceive(user, channel, newTopic)
     self.factory.ui.messageReceive(user, channel, newTopic)
 
+  def ctcpQuery(self, user, channel, messages):
+    self.factory.ui.ctcpReceive(user, channel, messages)
+
 class PalantirClientFactory(protocol.ClientFactory):
   ''' Factory to create the IRC client.  The factory will be used as an interface
       between the client and the ui, so the factory saves a reference to the ui and
@@ -99,6 +102,10 @@ class PalantirClientFactory(protocol.ClientFactory):
   def Send(self, channel, msg):
     ''' Interface between client and UI, sends a message to a channel. '''
     self.client.say(channel, msg)
+
+  def SendCTCP(self, channel, messages):
+    ''' Send a CTCP query. '''
+    self.client.ctcpMakeQuery(channel, messages)
 
   def SetServer(self, servername):
     self.server = servername

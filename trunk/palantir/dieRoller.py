@@ -39,4 +39,4 @@ class DieRoller:
       total += mod
 
     # Send the results to the channel.
-    self.ui.SendRoll(totalTimes, sides, total)
+    self.ui.SendRoll(totalTimes, sides, rolls, total)
