@@ -3,9 +3,18 @@ import time, struct, fcntl
 class FieldSensor:
     def __init__(self, devName="/dev/usb/efs0"):
         self.dev = open(devName)
-        self.reset()
+        self.resetParams()
 
-    def reset(self):
+    def resetParams(self):
+        """Initialize all parameter blocks to zero, stopping all sampling"""
+        for block in xrange(8):
+            for param in xrange(8):
+                self.setParam(block, param, 0)
+        # Discard the current accumulator since we just changed the definition of our readings
+        #self.readPacket()
+
+    def initScan(self):
+        """Initialize parameters to scan all TX/RX pairs"""
         block = 0
         for adcon in (0x81, 0x89):
             for xor in (0x03, 0x0C, 0x30, 0xC0):
@@ -18,6 +27,7 @@ class FieldSensor:
                 self.setParam(block, 6, 0x00)     # EFS_PARAM_LC_TRIS_INIT
                 self.setParam(block, 7, 0x55)     # EFS_PARAM_LC_PORT_INIT
                 block += 1
+        #self.readPacket()
 
     def readPacket(self):
         return struct.unpack("i" * 9, self.dev.read(4*9))

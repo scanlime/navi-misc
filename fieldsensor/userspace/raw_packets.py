@@ -4,5 +4,14 @@ import time
 
 efs = FieldSensor()
 while 1:
-    print efs.readPacket()
-    time.sleep(0.2)
+    efs.resetParams()
+    print "Reset"
+    for i in xrange(5):
+        time.sleep(0.2)
+        print efs.readPacket()
+
+    efs.initScan()
+    print "scan"
+    for i in xrange(5):
+        time.sleep(0.2)
+        print efs.readPacket()
