@@ -93,10 +93,6 @@ class MsgPlayerUpdate(Common.Message):
         StructEntry(Float,           'angularVelocity'),
         ]
 
-
-messages = [MsgAccept, MsgSuperKill, MsgReject, MsgTeamUpdate, MsgFlagUpdate,
-            MsgAddPlayer, MsgPlayerUpdate, MsgMessage, MsgNull]
-    
 ### The End ###
         
     

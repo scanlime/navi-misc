@@ -38,9 +38,6 @@ class MsgEnter(Common.Message):
         StructEntry(ScalarType("128s"), 'emailAddress'),
         ]
 
-
-messages = [MsgExit, MsgEnter]
-    
 ### The End ###
         
     

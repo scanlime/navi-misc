@@ -40,14 +40,22 @@ PlayerId = UInt8
 messageDict = None
 
 def getMessageDict():
-    """Return a dictionary mapping message IDs to message classes"""
+    """Return a dictionary mapping message IDs to message classes.
+       This automatically indexes all Message subclasses in the
+       FromServer and ToServer modules.
+       """
     global messageDict
     from BZFlag.Protocol import FromServer, ToServer
     if not messageDict:
-        allMessages = FromServer.messages + ToServer.messages
         messageDict = {}
-        for message in allMessages:
-            messageDict[message.messageId] = message
+        for module in (FromServer, ToServer):
+            for key in module.__dict__:
+                try:
+                    value = module.__dict__[key]
+                    if issubclass(value, Message):
+                        messageDict[value.messageId] = value
+                except TypeError:
+                    pass
     return messageDict
 
 
