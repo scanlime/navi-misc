@@ -23,11 +23,13 @@
 #define XCHAT_GNOME_TRANSFERS_H
 
 #include "../common/xchat.h"
+#include "../common/dcc.h"
 #include <glade/glade.h>
 
 typedef struct {
 	GtkListStore *store;
 	GladeXML *xml;
+	guint selected;
 } TransferGui;
 
 extern TransferGui transfer_gui; 
@@ -35,5 +37,8 @@ extern TransferGui transfer_gui;
 void initialize_transfers_window();
 void show_transfers_window();
 void hide_transfers_window();
+void add_transfer(struct DCC *dcc);
+void update_transfer(struct DCC *dcc);
+void remove_transfer(struct DCC *dcc);
 
 #endif

@@ -35,6 +35,7 @@
 #include "palette.h"
 #include "preferences_plugins_page.h"
 #include "channel_list.h"
+#include "transfers.h"
 
 int fe_args(int argc, char *argv[]) {
 	if(argc > 1) {
@@ -245,15 +246,37 @@ void fe_userlist_clear(struct session *sess) {
 }
 
 void fe_dcc_add(struct DCC *dcc) {
-	/* FIXME: implement */
+	switch(dcc->type) {
+		case TYPE_RECV:
+		case TYPE_SEND:
+			add_transfer(dcc);
+			break;
+
+		default:
+	}
 }
 
 void fe_dcc_update(struct DCC *dcc) {
-	/* FIXME: implement */
+	switch(dcc->type) {
+		case TYPE_RECV:
+		case TYPE_SEND:
+			update_transfer(dcc);
+			break;
+
+		default:
+	}
 }
 
 void fe_dcc_remove(struct DCC *dcc) {
-	/* FIXME: implement */
+	g_print("fe_dcc_remove()\n");
+	switch(dcc->type) {
+		case TYPE_RECV:
+		case TYPE_SEND:
+			remove_transfer(dcc);
+			break;
+
+		default:
+	}
 }
 
 int fe_dcc_open_recv_win(int passive) {
