@@ -75,10 +75,14 @@ public:
     ballPosition += ballVelocity * dt;
 
     /* Ball bouncing off the playfield edges */
-    if (ballPosition[0] <= 0 && ballPosition[1] >= 0 && ballPosition[1] <= 1)
+    if (ballPosition[0] <= 0 && ballPosition[1] >= 0 && ballPosition[1] <= 1) {
       ballVelocity[0] = -ballVelocity[0];
-    if (ballPosition[0] >= 1 && ballPosition[1] >= 0 && ballPosition[1] <= 1)
+      ballPosition[0] = 0;
+    }
+    if (ballPosition[0] >= 1 && ballPosition[1] >= 0 && ballPosition[1] <= 1) {
       ballVelocity[0] = -ballVelocity[0];
+      ballPosition[0] = 1;
+    }
 
     /* Ball bouncing off the paddles */
     if (ballPosition[0] >= playerX-paddleWidth/2 && ballPosition[0] <= playerX+paddleWidth/2 &&
@@ -147,7 +151,7 @@ private:
 
 int main(void) {
   SDL_Init(SDL_INIT_VIDEO);
-  SDL_Surface *surface = SDL_SetVideoMode(1024,768,0,SDL_OPENGL);
+  SDL_Surface *surface = SDL_SetVideoMode(1024,768,0,SDL_OPENGL | SDL_FULLSCREEN);
 
   glEnable(GL_BLEND);
   glEnable(GL_LINE_SMOOTH);
@@ -173,7 +177,12 @@ int main(void) {
       switch (event.type) {
 
       case SDL_QUIT:
+        SDL_Quit();
 	return 0;
+
+      case SDL_KEYDOWN:
+        SDL_Quit();
+      	return 0;
 
       }
 
