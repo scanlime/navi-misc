@@ -52,6 +52,7 @@ from event import *
 class VideoSwitch:
     """Abstraction for the USB Video Switch driver"""
     def __init__(self, device=None, reset=True):
+        self.savedAudioBalance = 0.5
         if device is None:
             device = "/dev/usb/uvswitch0"
         self.device = device
@@ -99,6 +100,12 @@ class VideoSwitch:
         mixer = plugin.getbyname("MIXER")
         mixer.setPcmVolume(int(config.MAX_VOLUME * (1-b) + 0.5))
         mixer.setLineinVolume(int(config.MAX_VOLUME * b + 0.5))
+
+    def saveAudioBalance(self):
+        self.savedAudioBalance = self.getAudioBalance()
+
+    def restoreAudioBalance(self):
+        self.setAudioBalance(self.savedAudioBalance)
 
     def getAudioBalance(self):
         mixer = plugin.getbyname("MIXER")
@@ -230,7 +237,7 @@ class VideoInputItem(item.Item):
            """
         self.callHook('start')
         self.switch.setChannel(self.channel, False)
-        self.switch.setAudioBalance(0.5)
+        self.switch.restoreAudioBalance()
         menuw.hide()
         self.menuw = menuw
         rc.app(self)
@@ -250,6 +257,7 @@ class VideoInputItem(item.Item):
         self.callHook('stop')
         rc.app(None)
         self.menuw.show()
+        self.switch.saveAudioBalance()
         self.switch.setAudioBalance(0)
         self.switch.reset()
 
