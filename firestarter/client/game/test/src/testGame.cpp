@@ -101,10 +101,22 @@ void CTestGame::Attach ( void )
 	localPlayer->name = prefs.GetItemS("PlayerName");
 	if (prefs.ItemExists("PlayerSkin"))
 		localPlayer->material = prefs.GetItemS("PlayerSkin");
+
+	camera = CDrawManager::instance().New("camera",this);
 }
 
 void CTestGame::Release ( void )
 {
+	if (network.Connected())
+	{
+		CNetworkMessage message;
+		message.SetType(_MESSAGE_USER_PART);
+		message.Send(network.GetServerPeer(),true);
+		network.ProcessMessages();
+		network.Disconect();
+
+	}
+	CDrawManager::instance().Delete(camera);
 }
 
 bool CTestGame::Think ( void )
@@ -113,25 +125,69 @@ bool CTestGame::Think ( void )
 	if (network.Connected())
 		network.ProcessMessages();
 
+	bool exit = false;
+
 	if (CInputManager::instance().KeyDown(KEY_ESCAPE))
-		return true;
+		exit = true;
 
-	// do some game like things here, logic and stuff like that
+	// process input
+	if (localPlayer && localPlayer->active)
+	{
+		if (processPlayerInput())
+			exit = true;
+	}
 	
-	if (processPlayerInput())
-		return true;
+	if (!exit)
+	{
+		// process the player DR
+		tmPlayerMap::iterator itr = players.begin();
 
-	// let the drawables update themseves ( if they exist )
-	CDrawManager::instance().ThinkAll();
+		while (itr != players.end())
+		{
+			if (itr->second->active)
+				itr->second->Think();
 
-	return false;
+			itr++;
+		}
+
+		// do some game like things here, logic and stuff like that
+		if (localPlayer && localPlayer->active)
+		{
+		// if we haven't done an update in a while then send
+			float updateTime = 1.0f/0.5f;
+
+			if (CTimer::instance().GetTime() - lastNetUpdateTime > updateTime)
+			{
+				CNetworkMessage message;
+				message.SetType(_MESSAGE_UPDATE);
+				message.AddV(localPlayer->pos);
+				message.AddV(localPlayer->rot);
+				message.AddV(localPlayer->vec);
+				message.Send(network.GetServerPeer(),false);
+				lastNetUpdateTime = CTimer::instance().GetTime();
+			}
+		}
+
+		// let the drawables update themseves ( if they exist )
+		CDrawManager::instance().ThinkAll();
+	}
+	else
+	{
+		CNetworkMessage message;
+		message.SetType(_MESSAGE_USER_PART);
+		message.Send(network.GetServerPeer(),true);
+		network.Disconect();
+	}
+
+	return exit;
 }
 
 void CTestGame::OnConnect ( CNetworkPeer &peer )
 {
 	CNetworkMessage message;
 	message.SetType(_MESSAGE_ACKNOWLEDGE);
-	message.Send(peer,true);
+//	message.Send(peer,true);
+	lastNetUpdateTime = -1;
 }
 
 void CTestGame::OnDisconnect ( CNetworkPeer &peer )
@@ -152,7 +208,7 @@ void CTestGame::OnMessage ( CNetworkPeer &peer, CNetworkMessage &message )
 			localPlayer->active = false;
 
 			// send back a client info
-			outMessage.SetType("CI");
+			outMessage.SetType(_MESSAGE_CLIENT_INFO);
 			outMessage.AddStr(localPlayer->name.c_str());
 			outMessage.AddStr(localPlayer->material.c_str());
 			outMessage.Send(peer,true);
@@ -245,7 +301,14 @@ bool CTestGame::GetPos ( float *pos )
 	if (!localPlayer)
 		return false;
 
-	memcpy(pos,localPlayer->pos,sizeof(float)*3);
+	float camPos[3];
+	memcpy(camPos,localPlayer->pos,sizeof(float)*3);
+
+	float camHeight = 1.5f;
+
+	camPos[2] += camHeight;
+
+	memcpy(pos,camPos,sizeof(float)*3);
 	return true;
 }
 
@@ -255,7 +318,7 @@ bool CTestGame::GetRot ( float *rot )
 		return false;
 
 	memcpy(rot,localPlayer->rot,sizeof(float)*3);
-		return true;
+	return true;
 }
 
 bool CTestGame::processPlayerInput ( void )
@@ -264,45 +327,60 @@ bool CTestGame::processPlayerInput ( void )
 	CTimer	&timer = CTimer::instance();
 
 	if (!localPlayer)
-		return false;
+		return true;
 
 	float rotspeed = 60.0f;
 	float linspeed = 100.0f;
-	float reversemod = 0.5f;
+	float reversemod = -0.5f;
 	float	friction = 0.95f;
 	float stoptol = 1.0f;
 	float grav = -10.0f;
 
+	float frameTime = timer.GetFrameTime();
+
 	// compute a new rotation
 	if (input.KeyDown(KEY_LEFT))
 	{
-		localPlayer->rot[2] += rotspeed*timer.GetFrameTime();
+		localPlayer->rot[2] += rotspeed*frameTime;
 	}
 	else if (input.KeyDown(KEY_RIGHT))
 	{
-		localPlayer->rot[2] -= rotspeed*timer.GetFrameTime();
+		localPlayer->rot[2] -= rotspeed*frameTime;
 	}
 
 	float h,v;
 	float deg2rad = 0.017453292519943295769236907684886f;
 
-	h = sin(localPlayer->rot[2]*deg2rad);
-	v = cos(localPlayer->rot[2]*deg2rad);
+	h = cos((localPlayer->rot[2]+90)*deg2rad);
+	v = sin((localPlayer->rot[2]+90)*deg2rad);
 
 	// compute new thrust vector
 	if (input.KeyDown(KEY_UP))
 	{
-	//	float 
+		localPlayer->vec[0] = linspeed*h;
+		localPlayer->vec[1] = linspeed*v;
 	}
-	else if (input.KeyDown(KEY_UP))
+	else if (input.KeyDown(KEY_DOWN))
 	{
-
+		localPlayer->vec[0] = linspeed*h*reversemod;
+		localPlayer->vec[1] = linspeed*v*reversemod;
 	}
 	else
 	{
+		localPlayer->vec[0] *= friction;
+		localPlayer->vec[1] *= friction;
 
+		if (localPlayer->vec[0]*localPlayer->vec[0] + localPlayer->vec[1]*localPlayer->vec[1] < stoptol*stoptol)
+			localPlayer->vec[0] = localPlayer->vec[1] = 0;
 	}
 
 	// apply gravity if above 0;
+
+	if (localPlayer->pos[2] > 0)
+		localPlayer->vec[2] = grav;
+	else
+		localPlayer->vec[2] = 0;
+
+	return false;
 }
 

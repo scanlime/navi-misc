@@ -32,6 +32,8 @@ CPlayerDrawObject::CPlayerDrawObject()
 {
 	vis = false;
 	node = NULL;
+	lastRot = 0;
+
 }
 
 CPlayerDrawObject::~CPlayerDrawObject()
@@ -98,8 +100,18 @@ void CPlayerDrawObject::Think ( void )
 
 	if (vis)
 	{
-		node->rotate(Vector3(0,0,1),parent->GetValueF("rotz"));
-		node->translate(parent->GetValueF("posx"),parent->GetValueF("posy"),parent->GetValueF("posz")); 
+		float rot[3];
+		parent->GetRot(rot);
+		rot[2] += 90.0f;
+
+		float pos[3];
+		parent->GetPos(pos);
+		pos[2] += 1.5f;
+
+		node->rotate(Vector3(0,0,1),rot[2]-lastRot);
+		node->translate(pos[0],pos[1],pos[2]); 
+
+		lastRot = rot[2];
 	}
 }
 
@@ -119,6 +131,7 @@ void CCameraObjectFactory::Delete ( CBaseDrawable* object )
 
 CCameraDrawObject::CCameraDrawObject()
 {
+	lastRot = 0;
 }
 
 CCameraDrawObject::~CCameraDrawObject()
@@ -140,7 +153,13 @@ void CCameraDrawObject::Think ( void )
 
 	cam->setFixedYawAxis(true);
 
+	float deg2rad = 0.017453292519943295769236907684886f;
+
 	cam->setPosition(pos[0],pos[1],pos[2]);
-	cam->setDirection(rot[0],rot[1],rot[2]);
+
+	cam->rotate(Vector3(0,0,1),rot[2]-lastRot);
+
+	lastRot = rot[2];
+//	cam->setDirection(0,0,rot[2]*deg2rad);
 }
 
