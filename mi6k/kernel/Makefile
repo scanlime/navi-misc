@@ -1,23 +1,13 @@
-WARN	:=
-#DEBUG   := -DDEBUG
-INCLUDE := -isystem /lib/modules/`uname -r`/build/include -I../include
-INSTALLDIR := /lib/modules/`uname -r`/kernel/drivers/usb/
-CFLAGS  := -O2 -DMODULE -D__KERNEL__ ${WARN} ${INCLUDE} ${DEBUG}
-CC      := gcc
-OBJS    := ${patsubst %.c, %.o, ${wildcard *.c}}
-MODS    := ${patsubst %.c, %, ${wildcard *.c}}
+ifneq ($(KERNELRELEASE),)
 
-all: ${OBJS}
+EXTRA_CFLAGS += -I$(MI6K_INCLUDEDIR) -DDEBUG
+obj-m	:= mi6k.o
 
-clean:
-	rm -rf *.o
+else
+KDIR	:= /lib/modules/$(shell uname -r)/build
+PWD	:= $(shell pwd)
+MI6K_INCLUDEDIR := $(PWD)/../include
 
-install: ${OBJS}
-	mkdir -p ${INSTALLDIR} || true
-	cp -f ${OBJS} ${INSTALLDIR}
-	/sbin/depmod -a
-
-test: install
-	sync
-	/sbin/rmmod ${MODS} || true
-	/sbin/modprobe ${MODS}
+default:
+	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) MI6K_INCLUDEDIR=$(MI6K_INCLUDEDIR) modules
+endif
