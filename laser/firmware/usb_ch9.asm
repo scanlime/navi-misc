@@ -100,7 +100,6 @@ USB_USTAT		res	1
 	extern	DeviceDescriptor
 	extern	StringDescriptions
 	extern  GetStringIndex
-	extern	ep0_write_backbuffer
 
 ; **********************************************************************
 ; This section contains the functions to interface with the main
@@ -384,9 +383,6 @@ TokenDone
 	banksel	USB_USTAT
 	movwf	USB_USTAT	; Save USTAT in bank 2
 
-	banksel	PORTC
-	bsf		DEBUG_PIN
-
 ; check UOWN bit here if desired
 	banksel	BufferDescriptor
 	movf	BufferDescriptor,w  ; get the first byte of the BD
@@ -440,27 +436,7 @@ tryEP1  ; bank 2
 	btfss	STATUS,Z
 	goto	tryEP2
 
-	;******************* Service EP1 IN packets, with display status
-
-	movlw	8				; Set byte count
-	banksel	BD1IBC
-	movwf	BD1IBC
-
-	; We need this to breathe
-	movf	BD1IAL, w		; Point IRP:FSR at the EP1 buffer
-	movwf	FSR
-	bsf		STATUS, IRP
-
-	pagesel	display_save_status	; Save the status packet
-	call	display_save_status
-
-	banksel	BD1IST
-	movf	BD1IST,w
-	andlw	0x40		; save only the data 0/1 bit
-	xorlw	0x40		; toggle the data o/1 bit
-	iorlw	0x88		; set owns bit and DTS bit
-	movwf	BD1IST
-
+; **** Add Callout here to service EP1 in transactions.  ****
 	return
 
 tryEP2  ; bank 2
