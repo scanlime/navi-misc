@@ -69,6 +69,19 @@ editor_class_init (EditorClass *klass)
   glade_init();
 }
 
+static void object_selection_changed (GtkTreeSelection *selection, gpointer data)
+{
+  GtkTreeModel *model;
+  GtkTreeIter iter;
+
+  if (gtk_tree_selection_get_selected (selection, &model, &iter))
+  {
+    SceneObject *object;
+    gtk_tree_model_get (model, &iter, 3, &object, -1);
+    scene_object_select (object);
+  }
+}
+
 static void
 editor_selected (SceneObject *object, Editor *editor)
 {
@@ -78,13 +91,6 @@ editor_selected (SceneObject *object, Editor *editor)
   {
     scene_object_deselect (editor->selected);
     gtk_container_remove (GTK_CONTAINER (viewport), GTK_WIDGET (editor->pe));
-    g_object_unref (editor->pe);
-  }
-
-  if (gtk_bin_get_child (GTK_BIN (viewport)) != NULL)
-  {
-    GtkWidget *child = gtk_bin_get_child (GTK_BIN (viewport));
-    gtk_container_remove (GTK_CONTAINER (viewport), child);
   }
 
   editor->pe = parameter_editor_new (PARAMETER_HOLDER (object));
@@ -110,11 +116,10 @@ editor_init (Editor *editor)
   GdkGLConfig *config;
   GtkCellRenderer *icon_renderer, *text_renderer;
   GtkTreeViewColumn *column;
+  GtkTreeSelection *select;
   GtkMenuItem *addmenu;
   GtkMenu *am;
-  GtkScrolledWindow *swin;
   GtkToolbar *tbar;
-  GtkBox *box;
   ParameterHolder *p;
   GtkWidget *e, *v, *l;
   GList *types, *t;
@@ -138,6 +143,10 @@ editor_init (Editor *editor)
   editor->element_list = GTK_TREE_VIEW (glade_xml_get_widget (editor->xml, "element list"));
   gtk_tree_view_set_model (editor->element_list, GTK_TREE_MODEL (editor->scene->element_store));
 
+  select = gtk_tree_view_get_selection (editor->element_list);
+  gtk_tree_selection_set_mode (select, GTK_SELECTION_SINGLE);
+  g_signal_connect (G_OBJECT (select), "changed", G_CALLBACK (object_selection_changed), NULL);
+
   icon_renderer = gtk_cell_renderer_pixbuf_new();
   text_renderer = gtk_cell_renderer_text_new();
   g_object_set (G_OBJECT (text_renderer), "editable", TRUE, NULL);
@@ -157,10 +166,7 @@ editor_init (Editor *editor)
   types = find_type_leaves (PARAMETER_HOLDER_TYPE);
   addmenu = GTK_MENU_ITEM (glade_xml_get_widget (editor->xml, "addmenu"));
   am = GTK_MENU (gtk_menu_new ());
-  box = GTK_BOX (gtk_vbox_new (0, 6));
-  swin = GTK_SCROLLED_WINDOW (glade_xml_get_widget (editor->xml, "property editor swin"));
   tbar = GTK_TOOLBAR (glade_xml_get_widget (editor->xml, "object toolbar"));
-  gtk_scrolled_window_add_with_viewport (swin, GTK_WIDGET (box));
   for (t = types; t; t = t->next)
   {
     GType type = GPOINTER_TO_UINT (t->data);
