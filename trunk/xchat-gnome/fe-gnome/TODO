@@ -1,5 +1,5 @@
 * Several options in the 'Discussion' menu don't make sense for servers
-* Connect dialog should have a "connect in new ???" option. Maybe just do
-  that as the default and let users close other connections, since replacing
-  the current server is weird.
-* Double-clicking a server in the networks page should open it's edit dialog
+* Double-clicking an entry in the connect dialog should connect
+
+* Make a note somewhere on the web page about foresight linux:
+	conary update xchat-gnome
