@@ -21,3 +21,6 @@ This is a Python package providing bzflag objects and a parser.
 #
 from Reader import *
 from Types import *
+from Logger import *
+
+log = Logger()
