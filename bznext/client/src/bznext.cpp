@@ -90,43 +90,6 @@ const char* CBZNextLoop:: GetGameName ( void )
 	return "bzflag";
 }
 
-void CBZNextLoop::ProcessInput ( void )
-{
-  Real MoveFactor = 45.0 * GetTimer().GetFrameTime();
-  mInputDevice->capture();
-
-  // Move the ship node!
-  if(mInputDevice->isKeyDown(Ogre::KC_UP))
-    GetCamera()->moveRelative(Vector3(0,0,-MoveFactor));// MoveFactor,Node::TS_PARENT);
-
-  if(mInputDevice->isKeyDown(Ogre::KC_DOWN))
-    GetCamera()->moveRelative(Vector3(0,0,MoveFactor));// GetCamera()->pitch( -MoveFactor,Node::TS_PARENT );
-
-  if(mInputDevice->isKeyDown(Ogre::KC_PGUP))
-    GetCamera()->moveRelative(Vector3(0,MoveFactor*0.25f,0));// MoveFactor,Node::TS_PARENT);
-
-  if(mInputDevice->isKeyDown(Ogre::KC_PGDOWN))
-    GetCamera()->moveRelative(Vector3(0,-MoveFactor*0.25f,0));// GetCamera()->pitch( -MoveFactor,Node::TS_PARENT );
-
-  Vector3 YawAxis(0,0,1);
-  Vector3 PitchAxis(1,0,0);
-
-  if(mInputDevice->isKeyDown(Ogre::KC_LEFT))
-   GetCamera()->rotate(YawAxis,MoveFactor);
-
-  if(mInputDevice->isKeyDown(Ogre::KC_RIGHT))
-    GetCamera()->rotate(YawAxis,-MoveFactor);
-
-  if(mInputDevice->isKeyDown(Ogre::KC_INSERT))
-    GetCamera()->pitch (MoveFactor);
-
-  if(mInputDevice->isKeyDown(Ogre::KC_DELETE))
-    GetCamera()->pitch (-MoveFactor);
-
-   if(mInputDevice->isKeyDown(Ogre::KC_ESCAPE))
-      quit = true;
-}
-
 bool CBZNextLoop::GameLoop ( void )
 {
 	if (inUI)
