@@ -5,3 +5,4 @@ image/png
 application/x-fyre-animation
 	open=fyre -n %f
 	view=fyre -n %f
+	icon=@DATADIR@x-fyre-animation.pn
