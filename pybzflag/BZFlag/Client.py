@@ -24,7 +24,7 @@ in subclasses.
 # 
 
 import BZFlag
-from BZFlag import Network, Protocol, Errors
+from BZFlag import Network, Protocol, Errors, Player
 from BZFlag.Protocol import FromServer, ToServer, Common
 
 
@@ -132,14 +132,16 @@ class BaseClient:
         # so we'll read the whole thing next time this is called.
         msg = socket.readMessage(FromServer)
         if msg:
+            msg.socket = socket
+            msg.eventLoop = eventLoop
             msgName = msg.__class__.__name__
             handler = getattr(self, "on%s" % msgName, None)
-            if self.onAnyMessage(msg, socket, eventLoop):
+            if self.onAnyMessage(msg):
                 return
             if handler:
-                handler(msg, socket, eventLoop)
+                handler(msg)
             else:
-                self.onUnhandledMessage(msg, socket, eventLoop)
+                self.onUnhandledMessage(msg)
 
     def onConnect(self):
         """This is called after a connection has been established.
@@ -148,7 +150,7 @@ class BaseClient:
            """
         pass
 
-    def onAnyMessage(self, msg, socket, eventLoop):
+    def onAnyMessage(self, msg):
         """This is a hook that subclasses can use to easily
            monitor and intercept messages. It is called before
            dispatching each message, and if it returns true that
@@ -156,18 +158,18 @@ class BaseClient:
            """
         return None
 
-    def onUnhandledMessage(self, msg, socket, eventLoop):
+    def onUnhandledMessage(self, msg):
         raise Errors.ProtocolException("Unhandled message %s" % msg.__class__.__name__)
     
-    def onMsgSuperKill(self, msg, socket, eventLoop):
+    def onMsgSuperKill(self, msg):
         """The server wants us to die immediately"""
         self.disconnect()
 
-    def onMsgLagPing(self, msg, socket, eventLoop):
+    def onMsgLagPing(self, msg):
         """The server is measuring our lag, reply with the same message."""
-        socket.write(msg)
+        msg.socket.write(msg)
 
-    def onMsgNetworkRelay(self, msg, socket, eventLoop):
+    def onMsgNetworkRelay(self, msg):
         """The server needs us to use TCP instead of UDP for messages
            that we'd normally multicast.
            """
@@ -178,22 +180,28 @@ class StatefulClient(BaseClient):
     """Extends the BaseClient to keep track of the state of the game
        world, as reported by the server and the other clients.
        """
-    def onMsgFlagUpdate(self, msg, socket, eventLoop):
+    def onMsgFlagUpdate(self, msg):
         pass
 
-    def onMsgTeamUpdate(self, msg, socket, eventLoop):
+    def onMsgTeamUpdate(self, msg):
         pass
 
-    def onMsgAddPlayer(self, msg, socket, eventLoop):
+    def onMsgAddPlayer(self, msg):
         pass
 
-    def onMsgNewRabbit(self, msg, socket, eventLoop):
+    def onMsgRemovePlayer(self, msg):
         pass
 
-    def onMsgAlive(self, msg, socket, eventLoop):
+    def onMsgNewRabbit(self, msg):
         pass
 
-    def onMsgPlayerUpdate(self, msg, socket, eventLoop):
+    def onMsgAlive(self, msg):
+        pass
+
+    def onMsgPlayerUpdate(self, msg):
+        pass
+
+    def onMsgShotBegin(self, msg):
         pass
 
 
@@ -204,7 +212,7 @@ class PlayerClient(StatefulClient):
        provides actual player interaction, or a bot AI.
        """
     def __init__(self, server, playerIdentity):
-        self.playerIdentity = playerIdentity
+        self.player = Player.Player(playerIdentity)
         StatefulClient.__init__(self, server)
 
     def onConnect(self):
@@ -212,25 +220,25 @@ class PlayerClient(StatefulClient):
 
     def enterGame(self):
         msg = ToServer.MsgEnter()
-        msg.playerType = self.playerIdentity.type
-        msg.team = self.playerIdentity.team
-        msg.callSign = self.playerIdentity.callSign
-        msg.emailAddress = self.playerIdentity.emailAddress
+        msg.playerType = self.player.identity.type
+        msg.team = self.player.identity.team
+        msg.callSign = self.player.identity.callSign
+        msg.emailAddress = self.player.identity.emailAddress
         self.tcp.write(msg)
 
     def exitGame(self):
         self.tcp.write(ToServer.MsgExit())
 
-    def onMsgAccept(self, msg, socket, eventLoop):
+    def onMsgAccept(self, msg):
         """This is called after we try to enterGame, if it's successful."""
         self.onEnterGame()
 
     def onEnterGame(self):
         pass
 
-    def onMsgReject(self, msg, socket, eventLoop):
+    def onMsgReject(self, msg):
         """This is called after we try to enterGame, if we failed."""
-        raise Errors.GameException("Unable to enter the game")
+        raise Errors.GameException("Unable to enter the game: %s" % msg.reason)
 
 
 ### The End ###

@@ -31,8 +31,8 @@ class HelloPacket(Struct):
        the server version and providing the client with an Id number.
        """
     entries = [
-        StructEntry(StringField(8), 'version'),
-        StructEntry(UInt8,          'clientId'),
+        StructEntry(StringField(8),  'version'),
+        StructEntry(Common.PlayerId, 'clientId'),
         ]
 
 class MsgNull(Common.Message):
@@ -47,17 +47,17 @@ class MsgSuperKill(Common.Message):
 class MsgReject(Common.Message):
     messageId = 0x726A
     entries = [
-        StructEntry(UInt16, 'code'),
+        StructEntry(Common.RejectionCode, 'reason'),
         ]
 
 class MsgTeamUpdate(Common.Message):
     messageId = 0x7475
     entries = [
-        StructEntry(UInt16, 'team'),
-        StructEntry(UInt16, 'size'),
-        StructEntry(UInt16, 'active'),
-        StructEntry(UInt16, 'wins'),
-        StructEntry(UInt16, 'losses'),
+        StructEntry(Common.TeamColor, 'team'),
+        StructEntry(UInt16,           'size'),
+        StructEntry(UInt16,           'active'),
+        StructEntry(UInt16,           'wins'),
+        StructEntry(UInt16,           'losses'),
         ]
 
 class MsgFlagUpdate(Common.Message):
@@ -70,8 +70,14 @@ class MsgFlagUpdate(Common.Message):
 class MsgAddPlayer(Common.Message):
     messageId = 0x6170
     entries = [
-        StructEntry(UInt16,                       'flagNum'),
-        StructEntry(SubStruct(Common.FlagStatus), 'status'),
+        StructEntry(Common.PlayerId,   'id'),
+        StructEntry(Common.PlayerType, 'type'),
+        StructEntry(Common.TeamColor,  'team'),
+        StructEntry(UInt16,            'wins'),
+        StructEntry(UInt16,            'losses'),
+        StructEntry(UInt16,            'teamKills'),
+        StructEntry(StringField(32),   'callSign'),
+        StructEntry(StringField(128),  'emailAddress'),
         ]
 
 class MsgMessage(Common.Message):
@@ -80,17 +86,6 @@ class MsgMessage(Common.Message):
         StructEntry(Common.PlayerId,  'fromId'),
         StructEntry(Common.PlayerId,  'toId'),
         StructEntry(StringField(128), 'message'),
-        ]
-
-class MsgPlayerUpdate(Common.Message):
-    messageId = 0x7075
-    entries = [
-        StructEntry(Common.PlayerId, 'id'),
-        StructEntry(UInt16,          'status'),
-        StructEntry(Common.Vector3,  'position'),
-        StructEntry(Common.Vector3,  'velocity'),
-        StructEntry(Float,           'azimuth'),
-        StructEntry(Float,           'angularVelocity'),
         ]
 
 class MsgLagPing(Common.Message):
@@ -130,26 +125,19 @@ class MsgShotBegin(Common.Message):
         StructEntry(Common.Vector3,  'position'),
         StructEntry(Common.Vector3,  'velocity'),
         StructEntry(Float,           'time'),
-        StructEntry(UInt16,          'flagType'),
+        StructEntry(Common.FlagType, 'flagType'),
         StructEntry(Float,           'lifetime'),
         ]
 
 class MsgDropFlag(Common.Message):
     messageId = 0x6466
     entries = [
-        StructEntry(Common.PlayerId, 'playerId'),
-        StructEntry(UInt16,          'flagNum'),
-        StructEntry(UInt16,          'flagId'),
-        StructEntry(UInt16,          'status'),
-        StructEntry(UInt16,          'type'),
-        StructEntry(Common.PlayerId, 'ownerId'),
-        StructEntry(Common.Vector3,  'position'),
-        StructEntry(Common.Vector3,  'launch'),
-        StructEntry(Common.Vector3,  'landing'),
-        StructEntry(Float,           'flightTime'),
-        StructEntry(Float,           'flightEnd'),
-        StructEntry(Float,           'initialVelocity'),
+        StructEntry(Common.PlayerId,              'playerId'),
+        StructEntry(UInt16,                       'flagNum'),
+        StructEntry(SubStruct(Common.FlagStatus), 'status'),
         ]
+
+MsgPlayerUpdate = Common.MsgPlayerUpdate
 
 ### The End ###
         

@@ -1,7 +1,6 @@
-""" BZFlag.Player
+""" BZFlag.Errors
 
-Class representing a BZFlag player, divided up into subclasses for
-areas like identity and motion that may be managed individually.
+User-defined exception classes used by the BZFlag package
 """
 # 
 # Python BZFlag Protocol Package
@@ -22,23 +21,20 @@ areas like identity and motion that may be managed individually.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA 
 # 
 
+class NonfatalException(Exception):
+    pass
 
-class Player:
-    """Container for information about a player, contains
-       zero or more of the classes below.
-       """
-    def __init__(self, identity=None, motion=None):
-        self.identity = identity
-        self.motion = motion
+class ProtocolException(NonfatalException):
+    pass
 
+class NetworkException(Exception):
+    pass
 
-class Identity:
-    """A simple container for basic player information"""
-    def __init__(self, callSign, team='rogue', emailAddress="PyBZFlag", type='tank'):
-        self.type = type
-        self.callSign = callSign
-        self.team = team
-        self.emailAddress = emailAddress
+class ConnectionLost(NetworkException):
+    pass
+
+class GameException(Exception):
+    pass
 
 ### The End ###
         

@@ -52,11 +52,57 @@ TeamColor = Enum(UInt16, {
     5: 'rabbit',
     })
 
-PlayerType = Enum(UInt16, {
-    0: 'tank',
-    1: 'JAFO',
-    2: 'computer',
+PlayerType = Enum(UInt16, ['tank', 'JAFO', 'computer'])
+
+PlayerStatus = Bitfield(UInt16, {
+    'dead':         0x0000,
+    'alive':        0x0001,
+    'paused':       0x0002,
+    'exploding':    0x0004,
+    'teleporting':  0x0008,
+    'flagActive':   0x0010,
+    'crossingWall': 0x0020,
+    'falling':      0x0040,
     })
+
+RejectionCode = Enum(UInt16, [
+    'badRequest', 'badTeam', 'badType', 'noRogues', 'teamFull', 'serverFull',
+    ])
+
+GameStyle = Bitfield(UInt16, {
+    'teamFlag':    0x0001,
+    'superFlag':   0x0002,
+    'rogues':      0x0004,
+    'jumping':     0x0008,
+    'inertia':     0x0010,
+    'ricochet':    0x0020,
+    'shakable':    0x0040,
+    'antidote':    0x0080,
+    'timeSync':    0x0100,
+    'rabbitChase': 0x0200,
+    })
+
+FlagId = Enum(UInt16, [
+    # Team flags
+    None, 'rogue', 'red', 'green', 'blue', 'purple',
+    # Good flags
+    'velocity', 'quickTurn', 'oscOverthruster', 'rapidFire', 'machineGun',
+    'guidedMissle', 'laser', 'ricochet', 'superBullet', 'invisibleBullet',
+    'stealth', 'tiny', 'narrow', 'shield', 'steamroller', 'shockWave',
+    'phantomZone', 'genocide', 'jumping', 'identify', 'cloaking',
+    # Bad flags
+    'colorBlindness', 'obesity', 'leftTurnOnly', 'rightTurnOnly',
+    'momentum', 'blindness', 'jamming', 'wideAngle',
+    ])
+
+FlagStatus = Enum(UInt16, [
+    'noExist', 'onGround', 'onTank', 'inAir', 'coming', 'going',
+    ])
+
+FlagType = Enum(UInt16, [
+    'normal', 'unstable', 'sticky',
+    ])
+
 
 class ServerId(Struct):
     """class ServerId from Address.h"""
@@ -66,34 +112,37 @@ class ServerId(Struct):
         StructEntry(Int16,  'number'),          # Local player number
         ]
 
+
 class Address(Struct):
     """class Address from Address.h"""
     entries = [
         StructEntry(InAddr, 'addr'),
         ]
 
+
 class GameInfo(Struct):
     """The game information contained within a PingPacket"""
     entries = [
-        StructEntry(UInt16, 'gameStyle'),
-        StructEntry(UInt16, 'maxPlayers'),
-        StructEntry(UInt16, 'maxShots'),
-        StructEntry(UInt16, 'rogueCount'),
-        StructEntry(UInt16, 'redCount'),
-        StructEntry(UInt16, 'greenCount'),
-        StructEntry(UInt16, 'blueCount'),
-        StructEntry(UInt16, 'purpleCount'),
-        StructEntry(UInt16, 'rogueMax'),
-        StructEntry(UInt16, 'redMax'),
-        StructEntry(UInt16, 'greenMax'),
-        StructEntry(UInt16, 'blueMax'),
-        StructEntry(UInt16, 'purpleMax'),
-        StructEntry(UInt16, 'shakeWins'),
-        StructEntry(UInt16, 'shakeTimeout'),   # 1/10ths of a second
-        StructEntry(UInt16, 'maxPlayerScore'),
-        StructEntry(UInt16, 'maxTeamScore'),
-        StructEntry(UInt16, 'maxTime'),        # Seconds
+        StructEntry(GameStyle, 'gameStyle'),
+        StructEntry(UInt16,    'maxPlayers'),
+        StructEntry(UInt16,    'maxShots'),
+        StructEntry(UInt16,    'rogueCount'),
+        StructEntry(UInt16,    'redCount'),
+        StructEntry(UInt16,    'greenCount'),
+        StructEntry(UInt16,    'blueCount'),
+        StructEntry(UInt16,    'purpleCount'),
+        StructEntry(UInt16,    'rogueMax'),
+        StructEntry(UInt16,    'redMax'),
+        StructEntry(UInt16,    'greenMax'),
+        StructEntry(UInt16,    'blueMax'),
+        StructEntry(UInt16,    'purpleMax'),
+        StructEntry(UInt16,    'shakeWins'),
+        StructEntry(UInt16,    'shakeTimeout'),   # 1/10ths of a second
+        StructEntry(UInt16,    'maxPlayerScore'),
+        StructEntry(UInt16,    'maxTeamScore'),
+        StructEntry(UInt16,    'maxTime'),        # Seconds
         ]
+
 
 class PingPacket(Struct):
     """class PingPacket from Ping.h"""
@@ -103,25 +152,28 @@ class PingPacket(Struct):
         StructEntry(SubStruct(GameInfo), 'gameInfo'),
         ]
 
+
 class FlagStatus(Struct):
     entries = [
-        StructEntry(UInt16,   'flagId'),
-        StructEntry(UInt16,   'status'),
-        StructEntry(UInt16,   'type'),
-        StructEntry(PlayerId, 'owner'),
-        StructEntry(Vector3,  'position'),
-        StructEntry(Vector3,  'launch'),
-        StructEntry(Vector3,  'landing'),
-        StructEntry(Float,    'flightTime'),
-        StructEntry(Float,    'flightEndTime'),
-        StructEntry(Float,    'initialVelocity'),
+        StructEntry(FlagId,     'id'),
+        StructEntry(FlagStatus, 'status'),
+        StructEntry(FlagType,   'type'),
+        StructEntry(PlayerId,   'owner'),
+        StructEntry(Vector3,    'position'),
+        StructEntry(Vector3,    'launch'),
+        StructEntry(Vector3,    'landing'),
+        StructEntry(Float,      'flightTime'),
+        StructEntry(Float,      'flightEndTime'),
+        StructEntry(Float,      'initialVelocity'),
         ]
+
 
 class MessageHeader(Struct):
     entries = [
         StructEntry(UInt16,   'length'),
         StructEntry(UInt16,   'id'),
         ]
+
 
 class Message(Struct):
     """Subclass of Struct that includes a message Id and length in its marshalled form."""
@@ -142,6 +194,21 @@ class Message(Struct):
 
     def getSize(self, packed=None):
         return self.header.getSize() + Struct.getSize(self)
+
+
+class MsgPlayerUpdate(Message):
+    """This is referenced by ToServer and FromServer, since it
+       is exactly the same going either direction.
+       """
+    messageId = 0x7075
+    entries = [
+        StructEntry(PlayerId,     'id'),
+        StructEntry(PlayerStatus, 'status'),
+        StructEntry(Vector3,      'position'),
+        StructEntry(Vector3,      'velocity'),
+        StructEntry(Float,        'azimuth'),
+        StructEntry(Float,        'angularVelocity'),
+        ]
 
     
 def getMessageDict(module):

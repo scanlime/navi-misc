@@ -50,7 +50,7 @@ import struct
 __all__ = [
     'EntryType', 'ScalarType', 'VectorType', 'SubStruct', 'StructEntry',
     'StructPadding', 'Struct', 'Int8', 'UInt8', 'Int16', 'UInt16', 'Int32',
-    'UInt32', 'Float', 'Double', 'StringField', 'Enum',
+    'UInt32', 'Float', 'Double', 'StringField', 'Enum', 'Bitfield',
     ]
 
 
@@ -168,29 +168,76 @@ class StructPadding:
 
 class Enum(EntryType):
     """A class that can be used to wrap another EntryType instance,
-       translating between enumerated types and strings. Any objects
-       not found in the provided dictionary will be left alone.
+       translating between enumerated types and strings or other
+       objects. Any objects not found in the provided dictionary
+       will be left alone.
        """
-    def __init__(self, baseType, enumMap):
-        """The enumMap here should translate from marshalled to unmarshalled.
+    def __init__(self, baseType, enums, firstNumber=0):
+        """The enums dict here should translate from marshalled to unmarshalled.
            A corresponding dictionary for the reverse will be generated.
+           enums can also be a list, to imply that the enumeration is sequential,
+           starting at firstNumber.
            """
         self.baseType = baseType
-        self.unmarshallDict = enumMap
-        self.marshallDict = {}
-        for key in enumMap:
-            self.marshallDict[enumMap[key]] = key
+        if type(enums) != type({}):
+            self.list = enums
+            self.dict = {}
+            self.firstNumber = firstNumber
+            for i in xrange(len(self.list)):
+                self.dict[i + firstNumber] = self.list[i]
+        else:
+            self.dict = enums
+            self.list = self.dict.values()
+        self.reverseDict = {}
+        for key in self.dict:
+            self.reverseDict[self.dict[key]] = key
  
     def unmarshall(self, packed):
         object = self.baseType.unmarshall(packed)
         try:
-            return self.unmarshallDict[object]
+            return self.dict[object]
         except KeyError:
             return object
 
     def marshall(self, object):
         try:
-            object = self.marshallDict[object]
+            object = self.reverseDict[object]
+        except KeyError:
+            pass
+        return self.baseType.marshall(object)
+
+    def getSize(self, packed=None):
+        return self.baseType.getSize(packed)
+
+
+class Bitfield(EntryType):
+    """A class that can be used to wrap another EntryType instance,
+       translating between a bitfield and a list of strings or other
+       objects.
+       """
+    def __init__(self, baseType, bitMap):
+        """The bitMap should have integer bitmasks as values, with
+           strings or other objects as keys. Note that the bitmasks
+           can overlap- all matches for that bitmask will be included
+           in the resulting list, so the 'in' operator can be used
+           to easily test whether a particular bitmask is set.
+           In this case, a match means that any of the bitmask's bits
+           are set, not that all of them are set.
+           """
+        self.baseType = baseType
+        self.bitMap = bitMap
+ 
+    def unmarshall(self, packed):
+        bits = self.baseType.unmarshall(packed)
+        matches = []
+        for key in self.bitMap:
+            if bits & self.bitMap[key]:
+                matches.append(key)
+        return matches
+
+    def marshall(self, object):
+        try:
+            object = self.bitMap[object]
         except KeyError:
             pass
         return self.baseType.marshall(object)

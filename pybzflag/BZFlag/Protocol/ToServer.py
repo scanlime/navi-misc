@@ -54,6 +54,19 @@ class MsgLagPing(Common.Message):
 class MsgNetworkRelay(Common.Message):
     messageId = 0x6e72
 
+class MsgPlayerUpdate(Common.Message):
+    messageId = 0x7075
+    entries = [
+        StructEntry(Common.PlayerId,     'id'),
+        StructEntry(Common.PlayerStatus, 'status'),
+        StructEntry(Common.Vector3,      'position'),
+        StructEntry(Common.Vector3,      'velocity'),
+        StructEntry(Float,               'azimuth'),
+        StructEntry(Float,               'angularVelocity'),
+        ]
+
+MsgPlayerUpdate = Common.MsgPlayerUpdate
+
 ### The End ###
         
     
