@@ -33,6 +33,7 @@ void CTestGame::Init ( void )
 	// do one time init stuff here
 	registerFactory("sky",new CSkyboxObjectFactory);
 	registerFactory("ground",new CGroundObjectFactory);
+	registerFactory("walls",new CWallObjectFactory);
 	registerFactory("playerTank",new CPlayerObjectFactory);
 	registerFactory("camera",new CCameraObjectFactory);
 }

@@ -74,7 +74,7 @@ class CTestWorld : public CBaseObject
 		// other stuff here for all the other world things that we need to do.
 
 	protected:
-		int											worldDrawables[2];
+		int											worldDrawables[3];
 		trWorldInfo							worldInfo;
 		std::vector<trTuftDef>	tufts;
 };

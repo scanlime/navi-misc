@@ -30,6 +30,7 @@ void CTestWorld::Load ( trWorldInfo &info, bool draw )
 	{
 		worldDrawables[0] = CDrawManager::instance().New("sky",this);
 		worldDrawables[1] = CDrawManager::instance().New("ground",this);
+		worldDrawables[2] = CDrawManager::instance().New("walls",this);
 	}
 }
 
@@ -39,6 +40,7 @@ void CTestWorld::Load ( CNetworkMessage &message, bool draw )
 	worldInfo.name = message.ReadStr(); 
 	worldInfo.skybox = message.ReadStr(); 
 	worldInfo.groundTexture = message.ReadStr(); 
+	worldInfo.wallTexture = message.ReadStr(); 
 	worldInfo.wallSize = message.ReadF();
 	worldInfo.groundTextureRepeat = message.ReadF();
 	worldInfo.groundSize[0] = message.ReadF();
@@ -66,6 +68,7 @@ void CTestWorld::Load ( CNetworkMessage &message, bool draw )
 	{
 		worldDrawables[0] = CDrawManager::instance().New("sky",this);
 		worldDrawables[1] = CDrawManager::instance().New("ground",this);
+		worldDrawables[2] = CDrawManager::instance().New("walls",this);
 	}
 }
 
@@ -85,6 +88,8 @@ const char* CTestWorld::GetValueS ( const char *item )
 
 	if (label == "groundTexture")
 		return worldInfo.groundTexture.c_str();
+	if (label == "wallTexture")
+		return worldInfo.wallTexture.c_str();
 	if (label == "skybox")
 		return worldInfo.skybox.c_str();
 
@@ -101,6 +106,9 @@ float CTestWorld::GetValueF ( const char *item )
 		return worldInfo.groundSize[1];
 	if (label == "groundTextureRepeat")
 		return worldInfo.groundTextureRepeat;
+	if (label == "wallHeight")
+		return worldInfo.wallSize;
+
 
 	if (label == "sunPosX")
 		return worldInfo.sunPos[0];
