@@ -34,5 +34,6 @@ print $sock "psub\r\n";
 print $sock $name,"\r\n";
 print $sock $tag,"\r\n";
 print $sock $pregunta,"\r\n";
+print $sock ".\r\n";
 
 close($sock);
