@@ -128,7 +128,7 @@ static const EEventHookTargetMask eceh_source_masks[] = {
 };
 
 static const EEventHookTargetMask eceh_component_masks[] = {
-	{ "initialized", E_CAL_EVENT_COMPONENT_INITIALIZED },
+	{ "migration", E_CAL_EVENT_COMPONENT_MIGRATION },
 	{ 0 },
 };
 
@@ -159,7 +159,7 @@ eceh_class_init (EPluginHookClass *klass)
 }
 
 GType
-e_cal_event_hook_get_type ()
+e_cal_event_hook_get_type (void)
 {
 	static GType type = 0;
 

@@ -45,7 +45,7 @@ enum {
 };
 
 enum {
-	E_CAL_EVENT_COMPONENT_INITIALIZED = 1 << 0,
+	E_CAL_EVENT_COMPONENT_MIGRATION = 1 << 0,
 };
 
 typedef struct _ECalEventTargetSource    ECalEventTargetSource;
@@ -91,7 +91,7 @@ struct _ECalEventHookClass {
 	EEventHookClass hook_class;
 };
 
-GType e_cal_event_hook_get_type ();
+GType e_cal_event_hook_get_type (void);
 
 #ifdef __cplusplus
 }
