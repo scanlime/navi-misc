@@ -28,7 +28,8 @@ from twisted.web import resource
 class place:
     """A placeholder for data that can be rendered by a document's owner.
        For example, place('title') calls render_title() in the object owning
-       the current document, context['owner'].
+       the current document, context['owner']. If there is not render_title
+       function, this will look for a 'title' attribute to return verbatim.
        """
     def __init__(self, name, *args, **kwargs):
         self.name = name
@@ -36,7 +37,11 @@ class place:
         self.kwargs = kwargs
 
     def render(self, context):
-        return getattr(context['owner'], 'render_' + self.name)(context, *self.args, **self.kwargs)
+        try:
+            f = getattr(context['owner'], 'render_' + self.name)
+        except AttributeError:
+            return getattr(context['owner'], self.name)
+        return f(context, *self.args, **self.kwargs)
 
 
 class xml(str):

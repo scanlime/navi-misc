@@ -15,9 +15,12 @@ hub = Message.Hub()
 # by the StatsInterface over XML-RPC
 statsStorage = Stats.StatsStorage('data/stats.db')
 
+# A network of IRC bots used to handle irc:// URIs
+botNet = IRC.BotNetwork("CIA-%d")
+
 # A list of URI handlers that can be used as targets for rulesets
 uriRegistry = Ruleset.URIRegistry(
-    IRC.IrcURIHandler(IRC.BotNetwork("CIA-%d")),
+    IRC.IrcURIHandler(botNet),
     Stats.StatsURIHandler(statsStorage),
     )
 
@@ -34,6 +37,7 @@ caps.saveKey('universe', 'data/universe.key')
 webRoot = static.File("htdocs")
 webRoot.putChild('rulesets', RulesetBrowser.RulesetList(caps, rulesetStorage))
 webRoot.putChild('stats', StatsBrowser.StatsPage(caps, statsStorage))
+webRoot.putChild('irc', BotStatus.IRCBotPage(botNet))
 
 # Add a VHostMonster we can use to safely proxy requests from Apache running on a different port
 webRoot.putChild('vhost', vhost.VHostMonsterResource())
