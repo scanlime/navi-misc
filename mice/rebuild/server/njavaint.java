@@ -45,8 +45,8 @@ public class njavaint extends nbase
 			switch(in.charAt(0))
 			{
 			case 'q': //quit 
+				closeConnection();
 				return;
-				break;
 			case 'r': //reject
 				view.reject();
 				write(view.getQuestion());//this generates TWO read()s for the client
