@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<!--
+  The master list of sets
+-->
+<sets>
+  <set name="blocking set 1" href="blocking-set-1.xml"/>
+</sets>
