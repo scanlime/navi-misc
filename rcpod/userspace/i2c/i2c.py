@@ -6,7 +6,7 @@
 
 import rcpod
 
-class i2c:
+class i2c_bus:
     def __init__(self, pic):
         self.pic	= pic
         self.busmask	= 0x04	# 0000 0100 - i2c bus on RB2
@@ -78,25 +78,4 @@ class i2c:
 	        a[j] <<= 1
 		a[j] |= (bits >> j) & 0x01
 	self.nack()
-	return a
-
-class therm(i2c):
-    def write(self, address, register, byte):
-        self.start()
-	self.writebyte(adress << 1)				# address, r/w bit is 0 (write)
-	self.writebyte(register)
-	self.writebyte(byte)
-	self.stop()
-
-    def read(self, address, register):
-        self.start()
-	self.writebyte(address << 1)				# address, r/w bit is 0 (write)
-	self.writebyte(register)
-	return self.recieve(address)
-
-    def recieve(self, address):
-        self.start()
-	self.writebyte(address << 1 | 0x01)			# address, r/w bit is 1 (read)
-	a = self.readbyte()
-	self.stop()
 	return a
