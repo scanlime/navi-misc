@@ -162,7 +162,7 @@ class DVDBurner:
     def isBlank(self):
         """Determines whether the current disc is blank"""
         for key, value in self.iterMediaInfo():
-            # Store http://www.google.com/search?&q=python%20popen3&sourceid=firefoxthe free block count of the last track we see
+            # Store the free block count of the last track we see
             if key == "Disc status":
                 if value == "appendable":
                     return False
@@ -174,7 +174,7 @@ class DVDBurner:
 
     def _graftEscape(self, s):
         """Escape a path for use with mkisofs graft points"""
-        return s.replace("\\", "\\\\").replace("=", "\\")
+        return s.replace("\\", "\\\\").replace("=", "\\=")
 
     def burn(self, pathMap):
         """Burn a new session to the current disc, with the given dict
@@ -196,20 +196,27 @@ class DVDBurner:
         subproc = popen2.Popen4(cmd)
 
         # Write the path mapping list and close stdin
-        for disc, fs in pathMap.iteritems():
-            subproc.tochild.write(self._graftEscape(disc) + "=" + self._graftEscape(fs) + "\n")
-        subproc.tochild.close()
+        try:
+            for disc, fs in pathMap.iteritems():
+                subproc.tochild.write(self._graftEscape(disc) + "=" + self._graftEscape(fs) + "\n")
+            subproc.tochild.close()
+        except IOError:
+            # Look for stdout/stderr output that might explain this
+            self.readBurnOutput(subproc)
+            raise
 
-        # Read all the output until stdout/stderr is closed
+        self.readBurnOutput(subproc)
+        retval = subproc.wait()
+        if retval != 0:
+            raise BurnFailure("%r failed with error code %r" % (cmd, retval))
+
+    def readBurnOutput(self, subproc):
+        """Read all the output until stdout/stderr is closed"""
         while 1:
             line = subproc.fromchild.readline()
             if not line:
                 break
             self.parseBurnOutput(line.strip())
-
-        retval = subproc.wait()
-        if retval != 0:
-            raise BurnFailure("%r failed with error code %r" % (cmd, retval))
 
     def parseBurnOutput(self, line):
         """This receives lines of output from growisofs and tries to make sense of them"""
