@@ -66,6 +66,15 @@
 		  </child>
 
 		  <child>
+		    <widget class="GtkMenuItem" id="Save_As">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">_Save As</property>
+		      <property name="use_underline">True</property>
+		      <signal name="activate" handler="on_Save_As_activate" last_modification_time="Sat, 10 Jan 2004 07:40:36 GMT"/>
+		    </widget>
+		  </child>
+
+		  <child>
 		    <widget class="GtkMenuItem" id="separatormenuitem1">
 		      <property name="visible">True</property>
 		    </widget>
