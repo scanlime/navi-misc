@@ -98,17 +98,21 @@ static void __exit usb_rcpod_exit(void);
 
 static void rcpod_poke(struct usb_rcpod *dev, unsigned short address, unsigned short data)
 {
-	usb_control_msg(dev->udev, usb_sndctrlpipe(dev->udev, 0),
-			RCPOD_CTRL_POKE, 0x40, data, address,
-			NULL, 0, REQUEST_TIMEOUT);
+	int result;
+	result = usb_control_msg(dev->udev, usb_sndctrlpipe(dev->udev, 0),
+				 RCPOD_CTRL_POKE, 0x40, data, address,
+				 NULL, 0, REQUEST_TIMEOUT);
+	dbg("pic[%d] <- %d, result %d", address, data, result);
 }
 
 static unsigned char rcpod_peek(struct usb_rcpod *dev, unsigned short address)
 {
 	unsigned char c;
-	usb_control_msg(dev->udev, usb_rcvctrlpipe(dev->udev, 0),
-			RCPOD_CTRL_PEEK, 0x40 | USB_DIR_IN, 0, address, &c, sizeof(c),
-			REQUEST_TIMEOUT);
+	int result;
+	result = usb_control_msg(dev->udev, usb_rcvctrlpipe(dev->udev, 0),
+				 RCPOD_CTRL_PEEK, 0x40 | USB_DIR_IN, 0, address, &c, sizeof(c),
+				 REQUEST_TIMEOUT);
+	dbg("pic[%d] -> %d, result %d", address, c, result);
 	return c;
 }
 
