@@ -29,7 +29,7 @@
 typedef struct {
 	GtkListStore *store;
 	GladeXML *xml;
-	guint selected;
+	struct DCC *selected;
 } TransferGui;
 
 extern TransferGui transfer_gui; 
