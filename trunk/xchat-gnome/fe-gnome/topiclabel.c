@@ -268,7 +268,8 @@ topic_label_size_request (GtkWidget *widget, GtkRequisition *requisition)
   height = label->misc.ypad * 2;
   height += PANGO_PIXELS (logical_rect.height);
 
-  requisition->width = width;
+//  requisition->width = width;
+  requisition->width = label->misc.xpad * 2;
   requisition->height = height;
 }
 
