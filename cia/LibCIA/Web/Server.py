@@ -120,8 +120,7 @@ class Request(server.Request):
         """
         log.err(reason)
         page = InternalErrorPage(reason)
-        context = {'request': self}
-        self.write(Serializer().render(page, context))
+        self.write(page.render(self))
         self.finish()
         return reason
 
