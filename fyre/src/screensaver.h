@@ -25,7 +25,7 @@
 
 #include <gtk/gtk.h>
 #include "animation.h"
-#include "de-jong.h"
+#include "iterative-map.h"
 
 G_BEGIN_DECLS
 

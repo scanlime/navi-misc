@@ -157,7 +157,7 @@ int main(int argc, char ** argv) {
     break;
 
   case REMOTE:
-    remote_main(ITERATIVE_MAP(dejong), animation, have_gtk);
+    remote_main_loop(remote_new(ITERATIVE_MAP(dejong), animation, have_gtk));
     break;
 
   case SCREENSAVER:

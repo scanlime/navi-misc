@@ -168,6 +168,24 @@ void parameter_holder_set(ParameterHolder *self, const gchar* property, const gc
   g_value_unset(&converted);
 }
 
+void parameter_holder_set_from_line(ParameterHolder *self,
+				    const gchar     *line)
+{
+  /* Split each line into key and value */
+  gchar** tokens = g_strsplit(line, "=", 2);
+
+  if (!(tokens[0] && tokens[1])) {
+    /* Need at least two tokens, ignore this invalid line */
+    return;
+  }
+
+  g_strstrip(tokens[0]);
+  g_strstrip(tokens[1]);
+
+  parameter_holder_set(self, tokens[0], tokens[1]);
+
+  g_strfreev(tokens);
+}
 
 void parameter_holder_reset_to_defaults(ParameterHolder *self) {
   /* Reset all G_PARAM_CONSTRUCT properties to their default values
@@ -343,22 +361,9 @@ void parameter_holder_load_string(ParameterHolder *self, const gchar *params) {
   /* Always start with defaults */
   parameter_holder_reset_to_defaults(self);
 
-  for (line=lines; *line; line++) {
-    /* Split each line into key and value */
-    gchar** tokens = g_strsplit(*line, "=", 2);
+  for (line=lines; *line; line++)
+    parameter_holder_set_from_line(self, *line);
 
-    if (!(tokens[0] && tokens[1])) {
-      /* Need at least two tokens, ignore this invalid line */
-      continue;
-    }
-
-    g_strstrip(tokens[0]);
-    g_strstrip(tokens[1]);
-
-    parameter_holder_set(self, tokens[0], tokens[1]);
-
-    g_strfreev(tokens);
-  }
   g_strfreev(lines);
 }
 

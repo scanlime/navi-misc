@@ -107,6 +107,8 @@ void              parameter_holder_reset_to_defaults  (ParameterHolder *self);
 void              parameter_holder_set                (ParameterHolder *self,
 						       const gchar     *property,
 						       const gchar     *value);
+void              parameter_holder_set_from_line      (ParameterHolder *self,
+						       const gchar     *line);
 
 void              parameter_holder_load_string        (ParameterHolder *self,
 						       const gchar     *params);
