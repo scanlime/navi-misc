@@ -718,7 +718,7 @@ static void histogram_imager_resize_color_table(HistogramImager *self, gulong si
   }
 }
 
-static float histogram_imager_get_pixel_scale(HistogramImager *self) {
+float histogram_imager_get_pixel_scale(HistogramImager *self) {
   /* Calculate the scale factor for converting histogram counts to
    * luminance values between 0 and 1.
    */

@@ -154,6 +154,14 @@ void             histogram_imager_finish_plots    (HistogramImager *self,
 } while (0)
 
 
+/************************************************************************************/
+/****************************************************************** Private Methods */
+/************************************************************************************/
+
+float histogram_imager_get_pixel_scale(HistogramImager *self);
+void exr_write_histogram (HistogramImager *hi, const char* filename);
+
+
 G_END_DECLS
 
 #endif /* __HISTOGRAM_IMAGER_H__ */

@@ -2,9 +2,6 @@
 
 using namespace Imf;
 
-/* color interpolation component macro */
-#define CIC(i) ((half(i)) / (half(65535)))
-
 extern "C" {
 #include "histogram-imager.h"
 }
@@ -46,15 +43,26 @@ extern "C" void exr_write_histogram (HistogramImager *hi, const char* filename)
   Rgba pixels[width * height];
   Rgba *cur_pixel = pixels;
   const guint oversample = hi->oversample;
-  gulong usable_density = histogram_imager_get_max_usable_density (hi);
-  Rgba bg, fg, range;
+  float fscale = histogram_imager_get_pixel_scale(hi);
+  float one_over_gamma = 1.0 / hi->gamma;
+  struct {
+    float r,g,b,a;
+  } bg, fg, range;
 
-  if (usable_density > hi->peak_density)
-    usable_density = hi->peak_density;
+  bg.r = hi->bgcolor.red / 65535.0;
+  bg.g = hi->bgcolor.green / 65535.0;
+  bg.b = hi->bgcolor.blue / 65535.0;
+  bg.a = hi->bgalpha / 65535.0;
 
-  bg.r = CIC(hi->bgcolor.red); bg.g = CIC(hi->bgcolor.green); bg.b = CIC(hi->bgcolor.blue); bg.a = CIC(hi->bgalpha);
-  fg.r = CIC(hi->fgcolor.red); fg.g = CIC(hi->fgcolor.green); fg.b = CIC(hi->fgcolor.blue); fg.a = CIC(hi->fgalpha);
-  range.r = fg.r - bg.r;       range.g = fg.g - bg.g;         range.b = fg.b - bg.b;        range.a = fg.a - bg.a;
+  fg.r = hi->fgcolor.red / 65535.0;
+  fg.g = hi->fgcolor.green / 65535.0;
+  fg.b = hi->fgcolor.blue / 65535.0;
+  fg.a = hi->fgalpha / 65535.0;
+
+  range.r = fg.r - bg.r;
+  range.g = fg.g - bg.g;
+  range.b = fg.b - bg.b;
+  range.a = fg.a - bg.a;
 
   if (oversample > 1)
   {
@@ -68,11 +76,19 @@ extern "C" void exr_write_histogram (HistogramImager *hi, const char* filename)
     {
       for (int x = width; x; x--)
       {
-        cur_pixel->r = (half(*cur_bucket) / usable_density) * range.r + bg.r;
-        cur_pixel->g = (half(*cur_bucket) / usable_density) * range.g + bg.g;
-        cur_pixel->b = (half(*cur_bucket) / usable_density) * range.b + bg.b;
-//        cur_pixel->a = (half(*cur_bucket) / usable_density) * range.a + bg.a;
-        cur_pixel->a = 1;
+	/* Linear exposure plus gamma adjustment */
+	float luma = (*cur_bucket) * fscale;
+	luma = pow(luma, one_over_gamma);
+
+	/* Optionally clamp before interpolating */
+	if (hi->clamped && luma > 1)
+	  luma = 1;
+
+	/* Color interpolation, with no per-component clamping */
+        cur_pixel->r = luma * range.r + bg.r;
+        cur_pixel->g = luma * range.g + bg.g;
+        cur_pixel->b = luma * range.b + bg.b;
+        cur_pixel->a = luma * range.a + bg.a;
 
         cur_pixel++;
         cur_bucket++;
