@@ -2,7 +2,7 @@
 <e-plugin-list>
     <e-plugin
      type="shlib"
-     location="/home/jupiter/navi-misc/evo/e-webcal-plugin/e-calendar-http.so"
+     location="@PLUGINDIR@/libcomnovell-calendar-http.so"
      id="com.novell.evolution.calendar.http"
      name="webcal plugin">
         <hook class="com.novell.evolution.calendar.config:1.0">
