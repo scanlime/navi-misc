@@ -64,13 +64,14 @@ class DiskSet:
     def create(self, path):
         """Find a home for a new file given by 'path'. This creates parent directories
            as necessary and returns the new absolute path where the file should go.
-           This reduces the mounts to a set of unique devices, and uses self._mergeStatVfs
-           to combine the results.
            """
         raise NotImplementedError
 
     def statvfs(self):
-        """Implements os.statvfs() for this disk set"""
+        """Implements os.statvfs() for this disk set
+           This reduces the mounts to a set of unique devices, and uses
+           self._mergeStatVfs to combine the results.
+           """
         devices = {}
         total = None
         for mount in self.mounts:
