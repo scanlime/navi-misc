@@ -21,7 +21,7 @@
 ;
 ;###############################################################################
 
-	errorlevel -226		; suppress the crazy include file warnings on gpasm
+	errorlevel -226		; suppress the crazy include file warnings from GPASM
 
 #include <p16C765.inc>
 #include "usb_defs.inc"
