@@ -293,4 +293,27 @@ div.formChoice {
   border: 1px dotted #666;
 }
 
+span.xml-element-name {
+  font-weight: bold;
+  color: purple;
+}
+
+span.xml-attribute-name {
+  font-weight: bold;
+}
+
+span.xml-attribute-value {
+  color: blue;
+}
+
+p.xml-text {
+  padding: 0.1em;
+  margin: 0em;
+}
+
+div.xml-element {
+  padding: 0.1em;
+  margin: 0em;
+}
+
 /* The End */

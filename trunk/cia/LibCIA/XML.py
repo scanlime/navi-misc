@@ -199,7 +199,11 @@ class HTMLPrettyPrinter(XMLObjectParser):
        representations in the form of Nouvelle-serializable tag trees.
        """
     def parseString(self, s):
-        return Nouvelle.tag('p')[ s ]
+        s = s.strip()
+        if s:
+            return Nouvelle.tag('p', _class='xml-text')[ s ]
+        else:
+            return ()
 
     def unknownElement(self, element):
         # Format the element name and attributes
