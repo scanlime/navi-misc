@@ -125,11 +125,11 @@ class Hangman:
 	def getClues(self, wordList, i):
 		""" Allows the use of a list comprehension to create key value pairs
 				of the strings from a file.  If no clue is provided after a word then
-				the value returned with the word is None.
+				the value returned with the word is "".
 				"""
 		# If there is no clue along with the word.
 		if wordList[i].count(' ') == 0:
-			return (wordList[i],None)
+			return (wordList[i],"")
 		# Otherwise split the word from the clue.
 		else:
 			index = wordList[i].find(' ')
@@ -147,6 +147,7 @@ class HangmanGUI:
 		# Set up the window.
 		self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
 		self.window.set_title("Hangman")
+
 		# Default window size.
 		self.window.set_default_size(640, 480)
 
@@ -168,8 +169,15 @@ class HangmanGUI:
 		guessFrame.add(self.guessedText)
 		self.guessedText.show()
 
+		# Clue field.
+		self.clueFrame = gtk.Frame("Clue")
+		self.clue = gtk.Label(None)
+		self.clue.set_line_wrap(gtk.TRUE)
+		self.clueFrame.add(self.clue)
+		self.clue.show()
+
 		# New game button.
-		self.newGame = gtk.Button(stock=gtk.STOCK_NEW)
+		self.newGame = gtk.Button("New Game for Justice",gtk.STOCK_NEW)
 		self.newGame.connect("clicked", self.NewGame)
 
 		# Open new file button.
@@ -202,11 +210,19 @@ class HangmanGUI:
 				packArgs=[gtk.TRUE, gtk.TRUE, 5])
 		box1.show()
 
+		# clueBox: correctText packed above clues.
+		clueBox = self.Pack(gtk.VBox,
+												[self.correctText, self.clueFrame],
+												packArgs=[gtk.TRUE, gtk.TRUE])
+
 		# textBox: correctText to the left of guessedText.
 		textBox = self.Pack(gtk.HBox,
-				[self.correctText, None, guessFrame],
+				[clueBox, None, guessFrame],
 				packArgs=[gtk.TRUE, gtk.TRUE, 20])
 		textBox.show()
+
+		# Default has clues hidden.
+		self.clueFrame.hide()
 
 		# Pack the textBox, gallowsFrame and box1 into a box with a 15 pixel
 		# border around it.
@@ -245,7 +261,7 @@ class HangmanGUI:
 				("/File/sep", None, None, 0, "<Separator>"),
 				("/File/_Quit", "<control>Q", self.Quit, 0, None),
 				("/_Options", None, None, 0, "<Branch>"),
-				("/Options/Preferences", None, None, 0, None),
+				("/Options/Enable clues", None, self.toggleClues, 0, "<CheckItem>"),
 				("/_Help", None, None, 0, "<Branch>"),
 				("/Help/_About Hangman", None, None, 0, None))
 
@@ -287,6 +303,13 @@ class HangmanGUI:
 			self.destroy()
 		else:
 			dialog.destroy()
+
+	def toggleClues(self, widget, data=None):
+		""" Toggle clues on and off. """
+		if data.get_active():
+			self.clueFrame.show()
+		else:
+			self.clueFrame.hide()
 
 	def destroy(self, widget=None, event=None):
 		""" Quit gtk.main. """
@@ -340,6 +363,7 @@ class HangmanGUI:
 
 		self.controller.NewGame()
 		# Update window.
+		self.clue.set_text(self.controller.words[self.controller.answer])
 		self.Update(self.controller.gameStat())
 		# Clear text entry field, make editable again, and give it focus.
 		self.guessField.set_text("")
@@ -363,14 +387,10 @@ class HangmanGUI:
 
 	def read(self, widget, data=None):
 		""" Callback for file selection from openFile().  Get the file name
-				and test it to make sure it has the right extension.
+				and send it to be opened and read into the controller.
 				"""
 		filename = data.get_filename()
-		if filename.find(".txt") == -1:
-			self.error(data, "Please choose a .txt file.")
-			return gtk.TRUE
-		else:
-			self.controller.openFile(filename)
+		self.controller.openFile(filename)
 
 	def error(self, parent=None, data=None):
 		""" General error message generator.  data is the text to be printed in
@@ -391,13 +411,11 @@ class Gallows(gtk.DrawingArea):
 	""" gtk.DrawingArea subclass for drawing the gallows and hanged man. """
 	def __init__(self):
 		gtk.DrawingArea.__init__(self)
-		# Minimum size of drawing window.
-		self.set_size_request(100, 100)
 		# Event handlers.
-		self.connect_after("configure_event", self.gallowsRealize)
+		self.connect_after("configure_event", self.gallowsConfigure)
 		self.connect("expose_event", self.redraw)
 
-	def gallowsRealize(self, widget, event):
+	def gallowsConfigure(self, widget, event):
 		""" When the drawing area is realized set up a graphics context for it. """
 		# Get a color map and set the foreground to white in the graphics context.
 		colormap = self.get_colormap()
@@ -405,12 +423,15 @@ class Gallows(gtk.DrawingArea):
 		self.bg_gc = self.window.new_gc(foreground=fgColor)
 		self.fg_gc = self.window.new_gc()
 
+		# Get the width and height of the drawing area.
+		None, None, self.width, self.height, None = self.window.get_geometry()
+
 	def redraw(self, widget, event):
 		""" Redraw the screen because of an expose_event. """
-		x , y, width, height = event.area
-		widget.window.draw_rectangle(self.bg_gc, gtk.TRUE, x, y, width, height)
+		widget.window.draw_rectangle(self.bg_gc, gtk.TRUE,
+																 0, 0, self.width, self.height)
 
-		x, y, width, height = self.drawingArea(event)
+		x, y, width, height = self.drawingArea((0, 0, self.width, self.height))
 		widget.window.draw_rectangle(self.fg_gc, gtk.FALSE, x, y, width, height)
 
 	def drawingArea(self, data):
@@ -419,16 +440,16 @@ class Gallows(gtk.DrawingArea):
 				Return a tuple contianing the x, y coordinates of the top left corner
 				and the width and height.  Allows for rescalable images.
 				"""
-		x, y, width, height = data.area
+		x, y, width, height = data
 
 		# Width is limiting factor.
 		if width < height:
-			self.area = (x, height/2 - width/2, width, width)
+			area = (x, height/2 - width/2, width, width)
 		# Height is limiting factor.
 		elif height < width:
-			self.area = (width/2 - height/2, y, height, height)
+			area = (width/2 - height/2, y, height, height)
 		# Square drawing area.
 		else:
-			self.area = (x, y, width, height)
+			area = (x, y, width, height)
 
-		return self.area
+		return area
