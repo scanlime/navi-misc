@@ -1023,14 +1023,19 @@ static void gchub_delete(struct gchub_dev *dev)
 		gchub_usb_buffer_free(dev->udev, STATUS_PACKET_SIZE, dev->irq_data, dev->irq_dma);
 		dev->irq_data = NULL;
 	}
+
+	/* It's important that we delete controllers before the out_status URB,
+	 * since a controller might still be in the process of trying to update
+	 * rumble or LED status.
+	 */
+	for (i=0; i<NUM_PORTS; i++)
+		controller_delete(&dev->ports[i]);
+
 	if (dev->out_status) {
 		usb_unlink_urb(dev->out_status);
 		usb_free_urb(dev->out_status);
 		dev->out_status = NULL;
 	}
-
-	for (i=0; i<NUM_PORTS; i++)
-		controller_delete(&dev->ports[i]);
 
 	kfree(dev);
 }
@@ -1094,6 +1099,9 @@ static void *gchub_probe(struct usb_device *udev, unsigned int ifnum,
 		retval = -ENOMEM;
 		goto error;
 	}
+
+	/* Use it to make sure the device has our default state */
+	gchub_sync_output_status(dev);
 
 	/* Start the interrupt data flowing */
 	gchub_fill_int_urb(dev->irq, udev, usb_rcvintpipe(udev, 1),
