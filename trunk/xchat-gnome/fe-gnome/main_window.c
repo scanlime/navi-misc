@@ -982,6 +982,10 @@ tab_complete (GtkEntry *entry)
 	if (cursor_pos == 0)
 		return TRUE;
 
+	/* If we're directly after a space, we have nothing to tab complete */
+	if (text[cursor_pos - 1] == ' ')
+		return TRUE;
+
 	/* search backwards to find /, #, ' ' or start */
 	for (start = cursor_pos - 1; start >= 0; --start) {
 		/* check if we can match a channel */
