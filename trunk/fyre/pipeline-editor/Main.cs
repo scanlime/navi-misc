@@ -78,8 +78,8 @@ public class PipelineEditor
 			object[] i = {};
 			Element e = (Element) t.GetConstructor(Type.EmptyTypes).Invoke(i);
 
-			string name = e.Name;
-			string category = e.Category;
+			string name = e.Name ();
+			string category = e.Category ();
 			bool found = false;
 
 			Gtk.TreeIter iter;
@@ -88,16 +88,13 @@ public class PipelineEditor
 					string cat = (string) element_store.GetValue (iter, 1);
 					if (cat.Equals (category)) {
 						found = true;
-						object[] row = {null, name};
-						element_store.AppendValues (iter, row);
+						element_store.AppendValues (iter, null, name);
 					}
 				} while (element_store.IterNext (ref iter));
 			}
 			if (!found) {
-				object[] row = {null, category};
-				iter = element_store.AppendValues (row);
-				row[1] = name;
-				element_store.AppendValues (iter, row);
+				iter = element_store.AppendValues (null, category);
+				element_store.AppendValues (iter, null, name);
 			}
 		}
 
@@ -155,10 +152,10 @@ public class PipelineEditor
 	
 	public void SetInfo (Element e)
 	{
-		element_name.Markup = "<span weight=\"bold\" size=\"large\">" + e.Name + "</span>";
-		element_image.Pixbuf = e.Icon;
-		element_description.Text = e.Description;
-		element_inputs.Markup = e.InputDesc;
-		element_outputs.Markup = e.OutputDesc;
+		element_name.Markup = "<span weight=\"bold\" size=\"large\">" + e.Name () + "</span>";
+		element_image.Pixbuf = e.Icon ();
+		element_description.Text = e.Description ();
+		element_inputs.Markup = e.InputDesc ();
+		element_outputs.Markup = e.OutputDesc ();
 	}
 }

@@ -22,16 +22,16 @@
 
 using Gdk;
 
-public class Element
+public abstract class Element
 {
-	public string		Name;
-	public string		Category;
-	public string		Description;
-	public Gdk.Pixbuf	Icon;
+	abstract public string		Name ();
+	abstract public string		Category ();
+	abstract public string		Description ();
+	abstract public Gdk.Pixbuf	Icon ();
 
 	/* These are expected to be in pango markup, for any
 	 * necessary subscripts, UTF-8 trickery, etc
 	 */
-	public string		InputDesc;
-	public string		OutputDesc;
+	abstract public string		InputDesc ();
+	abstract public string		OutputDesc ();
 }
