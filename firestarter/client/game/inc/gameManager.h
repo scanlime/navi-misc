@@ -23,18 +23,17 @@
 #ifndef _GAME_MANAGER_H_
 #define _GAME_MANAGER_H_
 
-#include "gameloop.h"
 #include <vector>
 #include <map>
 #include <string>
 
+#include "Singleton.h"
+
 class CBaseGame
 {
 public:
-	CBaseGame(){gameLoop = NULL;}
-	CBaseGame ( CBaseGameLoop * pGameLoop ){Set(pGameLoop);}
+	CBaseGame(){return;}
 	virtual	~CBaseGame(){return;}
-	virtual void Set ( CBaseGameLoop * pGameLoop ){gameLoop = pGameLoop;}
 
 	virtual void Init ( void ) = 0;
 	virtual void Attach ( void ) = 0;
@@ -43,17 +42,13 @@ public:
 	virtual bool Think ( void ) = 0;
 
 protected:
-	CBaseGameLoop	*gameLoop;
 };
 
-class CGameManger
+class CGameManger : public Singleton<CGameManger>
 {
 public:
 		CGameManger();
-		CGameManger ( CBaseGameLoop * pGameLoop );
 		~CGameManger();
-
-		void Set ( CBaseGameLoop * pGameLoop );
 
 		void Init ( void );
 		void Attach ( void );
@@ -64,7 +59,6 @@ public:
 		bool GameActive ( void );
 
 protected:
-	CBaseGameLoop * gameLoop;
 	bool						activeGame;
 
 	void RegisterGameModules ( void );

@@ -20,8 +20,7 @@
 class CTestGame : public CBaseGame
 {
 	public:
-		CTestGame(){gameLoop = NULL;}
-		CTestGame ( CBaseGameLoop * pGameLoop ){Set(pGameLoop);}
+		CTestGame(){return;}
 		virtual	~CTestGame(){return;}
 
 		virtual void Init ( void );

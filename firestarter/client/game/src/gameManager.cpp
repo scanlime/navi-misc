@@ -22,16 +22,14 @@
 
 #include "gameManager.h"
 #include "testGame.h"
+#include "firestarter.h"
+
+template <>
+CGameManger* Singleton<CGameManger>::_instance = (CGameManger*)0;
 
 CGameManger::CGameManger()
 {
-	gameLoop = NULL;
 	theGame = NULL;
-}
-
-CGameManger::CGameManger ( CBaseGameLoop * pGameLoop )
-{
-	Set(pGameLoop);
 }
 
 CGameManger::~CGameManger()
@@ -47,11 +45,6 @@ CGameManger::~CGameManger()
 	}
 	gameModules.clear();
 	theGame = NULL;
-}
-
-void CGameManger::Set ( CBaseGameLoop * pGameLoop )
-{
-	gameLoop = pGameLoop;
 }
 
 void CGameManger::Init ( void )
@@ -70,13 +63,6 @@ void CGameManger::Init ( void )
 void CGameManger::RegisterGameModules ( void )
 {
 	gameModules["susan"] = new CTestGame;
-
-	gameModuleMap::iterator itr =	gameModules.begin();
-	while (itr != gameModules.end())
-	{
-		itr->second->Set(gameLoop);
-		itr++;
-	}
 }
 
 void CGameManger::Attach ( void )
@@ -85,7 +71,7 @@ void CGameManger::Attach ( void )
 		theGame->Release();
 	theGame = NULL;
 
-	std::string name = gameLoop->GetGameName();
+	std::string name = CFirestarterLoop::instance().GetGameName();
 	gameModuleMap::iterator itr =	gameModules.find(name);
 	if (itr != gameModules.end())
 	{
@@ -98,7 +84,7 @@ void CGameManger::Release ( void )
 {
 	if (theGame)
 		theGame->Release();
-	gameLoop->ClearScene();
+	CFirestarterLoop::instance().ClearScene();
 	theGame = NULL;
 }
 
