@@ -256,6 +256,9 @@ class BaseCache:
                 raise ValueError("Key name %r is not searchable" % key)
             constraints.append("%s = %s" % (key, self._encode(value)))
 
+        if not constraints:
+            constraints.append("1")
+
         self.cursor.execute("SELECT _pickled FROM files WHERE %s" %
                             " AND ".join(constraints))
         row = None
@@ -333,7 +336,7 @@ class LocalCache(BaseCache):
             except OSError:
                 pass
             else:
-                if cached.get('mtime') == str(mtime):
+                if cached.get('mtime') == mtime:
                     yield cached['filename']
 
     def scan(self, path):
@@ -346,12 +349,15 @@ class LocalCache(BaseCache):
                 print filename
                 self.lookup(filename)
 
+            # checkpoint this after every directory
+            self.sync()
+
 _defaultLocalCache = None
 
-def getLocalCache():
+def getLocalCache(create=True):
     """Get the default instance of LocalCache"""
     global _defaultLocalCache
-    if not _defaultLocalCache:
+    if (not _defaultLocalCache) and create:
         _defaultLocalCache = LocalCache("local")
         _defaultLocalCache.open()
     return _defaultLocalCache

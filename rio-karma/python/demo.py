@@ -8,7 +8,7 @@ import sys, time
 
 import RioKarma
 
-defer.Deferred.debug = True
+#defer.Deferred.debug = True
 
 class RioApp:
     def run(self):
@@ -19,7 +19,12 @@ class RioApp:
 
     def connected(self, fileManager):
         self.fileManager = fileManager
-        print "Connected. %d files in database." % self.fileManager.cache.countFiles()
+        print "Connected. %d files in database, %.02f/%.02f GB free" % (
+            self.fileManager.cache.countFiles(),
+            self.fileManager.storageDetails['freeSpace'] / (1024.0 * 1024 * 1024),
+            self.fileManager.storageDetails['totalSpace'] / (1024.0 * 1024 * 1024),
+            )
+
         flow.Deferred(self.main()).addCallback(self.finished).addErrback(self.failed)
         self.main()
 
@@ -58,8 +63,8 @@ class Uploader(RioApp):
             f = self.fileManager.createFile()
             f.loadMetadataFrom(filename)
 
-            if self.fileManager.cache.findFiles(rid=f.details['rid']):
-                print "Already exists on device"
+            if list(self.fileManager.cache.findFiles(rid=f.details['rid'])):
+                print "Already exists on device (rid %r)" % f.details['rid']
             else:
                 yield self.fileManager.loadFromDisk( f, filename )
 
@@ -68,12 +73,12 @@ class PlaylistDownloader(RioApp):
     def main(self):
         # This operates entirely out of the cache, no need for locking and such
 
-        #self.showPlaylist(self.fileManager.getRootPlaylist(), {})
+        self.showPlaylist(self.fileManager.getRootPlaylist(), {})
 
-        from RioKarma import Metadata
-        c = Metadata.getLocalCache()
-        c.scan("/navi/media/audio/groups")
-        c.close()
+        #from RioKarma import Metadata
+        #c = Metadata.getLocalCache()
+        #c.scan("/navi/media/audio/groups")
+        #c.close()
 
         yield defer.succeed(None)
 
@@ -108,7 +113,7 @@ class PlaylistUploader(RioApp):
         yield self.fileManager.setPlaylistFiles(foo, [wobble])
 
         boing = self.fileManager.createFile("[Boing]")
-        yield self.fileManager.setPlaylistFiles(boing, self.fileManager.cache.findFiles(artist="Pink Floyd"))
+        yield self.fileManager.setPlaylistFiles(boing, self.fileManager.cache.findFiles(artist="Kirsty MacColl"))
 
         zop = self.fileManager.createFile("/Zop/Pow")
         yield self.fileManager.setPlaylistFiles(zop, self.fileManager.cache.findFiles(artist="Air"))
