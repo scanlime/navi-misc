@@ -53,7 +53,7 @@
     <fixed>
 
       <item type="rect">
-        <pos anchor="se" x="100%" y="100%" width="box" height="100%"/>
+        <pos anchor="sw" x="0" y="100%" width="box" height="100%"/>
         <box orientation="horizontal" xpadding="10" spacing="10">
           <item type="rect" id="system_button" button="true">
             <pos anchor="sw" y="100%" width="box" height="box"/>
