@@ -575,7 +575,7 @@ void de_jong_calculate_bifurcation(DeJong             *self,
 	point_y = uniform_variate();
       }
 
-      for(block=1000; i && block; --i, --block) {
+      for(block=500; i && block; --i, --block) {
 	/* These are the actual Peter de Jong map equations. The new point value
 	 * gets stored into 'point', then we go on and mess with x and y before plotting.
 	 */
