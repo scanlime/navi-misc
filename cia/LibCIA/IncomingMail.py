@@ -42,7 +42,13 @@ class IncomingMailParser:
            (if any) and passes control to it.
            """
         self.message = message
-        subjectFields = message['Subject'].split(" ")
+        subject = message['Subject']
+        if not subject:
+            # No subject, ignore this mail
+            return None
+
+        # The subject line is formatted like a simple command line
+        subjectFields = subject.split(" ")
         command = subjectFields[0]
         args = subjectFields[1:]
 
