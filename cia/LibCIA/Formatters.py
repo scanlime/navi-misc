@@ -157,6 +157,7 @@ class CommitFormatter(Message.Formatter):
             # Truncate long log messages if we have a limit
             if self.logLinesLimit and len(lines) > self.logLinesLimit:
                 lines[0] = "(log message trimmed)"
+                del lines[self.logLinesLimit + 1:]
 
         # Reassemble the log message and send it to the default formatter
         return self.format_default("\n".join(lines))
