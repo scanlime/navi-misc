@@ -1,5 +1,5 @@
 PKGS    += libglade-2.0 gtk+-2.0
-CFLAGS  += `pkg-config --cflags $(PKGS)` -O3 -ffast-math -march=i686
+CFLAGS  += `pkg-config --cflags $(PKGS)` -O3 -ffast-math #-march=i686
 LIBS    += `pkg-config --libs $(PKGS)`
 
 BIN     = de-jong-explorer

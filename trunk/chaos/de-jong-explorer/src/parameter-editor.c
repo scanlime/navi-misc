@@ -268,7 +268,7 @@ static void parameter_editor_add_color(ParameterEditor *self, GParamSpec *spec) 
   GValue gv;
 
   /* See if this color property has a matching opacity property */
-  opacity_property =   g_param_spec_get_qdata(spec, g_quark_from_static_string("opacity-property"));
+  opacity_property = g_param_spec_get_qdata(spec, g_quark_from_static_string("opacity-property"));
   if (opacity_property) {
 
     /* Get the current opacity */
@@ -331,19 +331,39 @@ static void on_changed_numeric(GtkWidget *widget, ParameterEditor *self) {
   memset(&double_gv, 0, sizeof(double_gv));
   g_value_init(&gv, spec->value_type);
   g_value_init(&double_gv, G_TYPE_DOUBLE);
-  g_object_get_property(G_OBJECT(self->holder), spec->name, &gv);
-  g_value_transform(&gv, &double_gv);
-  value = g_value_get_double(&double_gv);
+  g_value_set_double(&double_gv, gtk_spin_button_get_value(GTK_SPIN_BUTTON(widget)));
+  g_value_transform(&double_gv, &gv);
+  g_object_set_property(G_OBJECT(self->holder), spec->name, &gv);
   g_value_unset(&gv);
   g_value_unset(&double_gv);
 }
 
 static void on_changed_color(GtkWidget *widget, ParameterEditor *self) {
   GParamSpec *spec = g_object_get_data(G_OBJECT(widget), "paramspec");
+  GdkColor c;
+  GtkWidget *color_button;
+  const gchar* opacity_property = g_param_spec_get_qdata(spec, g_quark_from_static_string("opacity-property"));
+  guint opacity = color_button_get_alpha(COLOR_BUTTON(widget));
+
+  color_button_get_color(COLOR_BUTTON(widget), &c);
+
+  /* Set both color and opacity if we have both. If we don't have
+   * an opacity property, opacity_property will be NULL and the opacity
+   * parameter will be ignored.
+   */
+  g_object_set(self->holder,
+	       spec->name, &c,
+	       opacity_property, opacity,
+	       NULL);
 }
 
 static void on_changed_boolean(GtkWidget *widget, ParameterEditor *self) {
   GParamSpec *spec = g_object_get_data(G_OBJECT(widget), "paramspec");
+  gboolean active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+
+  g_object_set(self->holder,
+	       spec->name, active,
+	       NULL);
 }
 
 /* The End */
