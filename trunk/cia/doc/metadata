@@ -58,7 +58,8 @@ Supported key-value pairs
 -------------------------
 
 There's nothing stopping you from using any key/value pairs you want for your project's metadata,
-but only a few key names are used by CIA for anything. This list is roughly in order of importance:
+but only a few key names are used by CIA for anything. This list is sorted roughly from most important
+to least important:
 
 * title
 
