@@ -40,8 +40,8 @@ class Reader:
             size = CaselessLiteral("size")
             spin = CaselessLiteral("spin")
 
-            object = name + Word(alphanums)
-            location =
+            objectProperty = name + Word(alphanums)
+            locationProperty =
                 pos + 3dPoint
               | size + 3dPoint
               | rot + float
@@ -49,4 +49,11 @@ class Reader:
               | scale + 3dPoint
               | shear + 3dPoint
               | spin + 3dPoint
-              | object
+              | objectProperty
+            obstacleProperty =
+                CaselessLiteral("drivethrough")
+              | CaselessLiteral("shootthrough")
+              | CaselessLiteral("passable")
+              | locationProperty
+
+            box = CaselessLiteral("box") + oneOrMore(obstacleProperty) + CaselessLiteral("end")
