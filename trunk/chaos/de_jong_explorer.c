@@ -7,7 +7,6 @@
 
 #define WIDTH   800
 #define HEIGHT  800
-#define MAX_FRAME_RATE   50
 #define PROGRESSIVE_MASK 3
 
 struct {
@@ -135,11 +134,21 @@ void flip() {
   guint32 gray, iscale;
   guint dataclamp, dval;
   int x, y;
-  float density, luma, fscale;
+  float density, luma, fscale, max_frame_rate;
   struct timeval now;
   suseconds_t diff;
   static struct timeval last_flip;
   static int progressiveRow = 0;
+
+  /* Figure out a good maximum frame rate. When we just start rendering an image,
+   * we want a quite high frame rate (but not high enough we bog down the GUI)
+   * so the user can interactively set initial conditions. After the rendering has
+   * been running for a while though, the image changes much less and a very slow
+   * frame rate will suffice.
+   * This gives us 100 frames per second after 10000 iterations, decreasing
+   * logarithmically to about 3.5 frames per second after 10 million iterations.
+   */
+  max_frame_rate = 100 / (1 + (log(iterations) - 9.21) * 4);
 
   /* Limit the maximum frame rate, so we're more responsive when dragging parameters */
   gettimeofday(&now, NULL);
@@ -147,7 +156,7 @@ void flip() {
     diff = now.tv_usec - last_flip.tv_usec;
     if (now.tv_sec != last_flip.tv_sec)
       diff += 1000000;
-    if (diff < 1000000 / MAX_FRAME_RATE)
+    if (diff < 1000000 / max_frame_rate)
       return;
   }
   last_flip = now;
