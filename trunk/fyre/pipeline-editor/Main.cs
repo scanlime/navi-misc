@@ -98,9 +98,27 @@ public class PipelineEditor
 				element_store.AppendValues (iter, pixbuf, name, t);
 			}
 		}
+		
+		element_list.Selection.Changed += OnSelectionChanged;
 
 		/* Finally, run the application */
 		Application.Run();
+        }
+
+        void OnSelectionChanged (object o, EventArgs args)
+        {
+        	TreeIter iter;
+        	TreeModel model;
+        	
+        	if (((TreeSelection)o).GetSelected (out model, out iter)) {
+        		Type t = (Type) model.GetValue (iter, 2);
+        		if (t != null) {
+				object[] i = {};
+				Element e = (Element) t.GetConstructor(Type.EmptyTypes).Invoke(i);
+			
+				this.SetInfo (e);
+			}
+        	}
         }
 
 	/* Event handlers - most of these come from the glade file */

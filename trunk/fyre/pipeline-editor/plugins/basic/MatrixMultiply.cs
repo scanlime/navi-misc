@@ -1,7 +1,6 @@
 /*
- * Transform.cs - An Element which takes translation, rotation,
- *	scale, and aspect ratio and produces a matrix representing
- *	those transformations.
+ * MatrixMultply.cs - An Element which takes a vector and a matrix
+ *	and multiplies the two.
  *
  * Fyre - rendering and interactive exploration of chaotic functions
  * Copyright (C) 2004-2005 David Trowbridge and Micah Dowty
@@ -24,14 +23,13 @@
 
 using Gdk;
 
-
-class TwoDTransform : Element
+class MatrixMultiply : Element
 {
 	private static Gdk.Pixbuf icon;
 
 	public override string Name ()
 	{
-		return "2D Transform";
+		return "Matrix Multiply";
 	}
 
 	public override string Category()
@@ -42,22 +40,22 @@ class TwoDTransform : Element
 	public override Gdk.Pixbuf Icon ()
 	{
 		if (icon == null)
-			icon = new Gdk.Pixbuf ("/usr/share/fyre/2.0/TwoDTransform.png");
+			icon = new Gdk.Pixbuf ("/usr/share/fyre/2.0/MatrixMultiply.png");
 		return icon;
 	}
 
 	public override string Description ()
 	{
-		return "Creates an 3x3 matrix out\nof a set of 2D\ntransformations\n";
+		return "Multiplies a vector\nand a matrix\n";
 	}
 
 	public override string InputDesc ()
 	{
-		return "<i>rotation</i>\n" + "<i>aspect</i>\n" + "<i>zoom</i>\n" + "<i>offset</i>";
+		return "<i>v<sub>0</sub></i>:  vector\n" + "<b>M</b>:  matrix";
 	}
 
 	public override string OutputDesc ()
 	{
-		return "<b>M</b>:  matrix";
+		return "<i>v<sub>1</sub></i>:\tnew vector";
 	}
 }
