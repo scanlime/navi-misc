@@ -47,6 +47,7 @@ enum {
   PROP_C,
   PROP_D,
   PROP_ZOOM,
+  PROP_ASPECT,
   PROP_XOFFSET,
   PROP_YOFFSET,
   PROP_ROTATION,
@@ -197,6 +198,16 @@ static void de_jong_init_calc_params(GObjectClass *object_class) {
   param_spec_set_increments        (spec, 0.01, 0.1, 3);
   g_object_class_install_property  (object_class, PROP_ZOOM, spec);
 
+  spec = g_param_spec_double       ("aspect",
+				    "Aspect",
+				    "Aspect ratio",
+				    0.01, 100, 1,
+				    G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
+				    G_PARAM_LAX_VALIDATION | PARAM_INTERPOLATE | PARAM_IN_GUI);
+  param_spec_set_group             (spec, current_group);
+  param_spec_set_increments        (spec, 0.001, 0.1, 3);
+  g_object_class_install_property  (object_class, PROP_ASPECT, spec);
+
   spec = g_param_spec_double       ("xoffset",
 				    "X offset",
 				    "Horizontal image offset",
@@ -337,6 +348,10 @@ static void de_jong_set_property (GObject *object, guint prop_id, const GValue *
     update_double_if_necessary(g_value_get_double(value), &self->calc_dirty_flag, &self->zoom, 0.0009);
     break;
 
+  case PROP_ASPECT:
+    update_double_if_necessary(g_value_get_double(value), &self->calc_dirty_flag, &self->aspect, 0.0009);
+    break;
+
   case PROP_XOFFSET:
     update_double_if_necessary(g_value_get_double(value), &self->calc_dirty_flag, &self->xoffset, 0.000001);
     break;
@@ -400,6 +415,10 @@ static void de_jong_get_property (GObject *object, guint prop_id, GValue *value,
     g_value_set_double(value, self->zoom);
     break;
 
+  case PROP_ASPECT:
+    g_value_set_double(value, self->aspect);
+    break;
+
   case PROP_XOFFSET:
     g_value_set_double(value, self->xoffset);
     break;
@@ -456,6 +475,8 @@ void de_jong_calculate(IterativeMap *map, guint iterations) {
   /* Toggles to disable features that aren't needed */
   const gboolean rotation_enabled = self->rotation > 0.0001 || self->rotation < -0.0001;
   const gboolean blur_enabled = self->blur_ratio > 0.0001 && self->blur_radius > 0.00001;
+  const gboolean aspect_enabled = self->aspect > 1.0001 || self->aspect < 0.9999;
+  const gboolean matrix_enabled = aspect_enabled || rotation_enabled;
   const gboolean emphasize_transient = self->emphasize_transient;
 
   /* Blurring variables */
@@ -464,8 +485,8 @@ void de_jong_calculate(IterativeMap *map, guint iterations) {
   int blur_index, blur_ratio_index, blur_ratio_threshold;
   float *blur_table;
 
-  /* Rotation variables */
-  double sine_rotation, cosine_rotation;
+  /* Rotation/aspect matrix variables */
+  double sine_rotation, cosine_rotation, mat_a, mat_b, mat_c, mat_d;
 
   /* Iteration and projection variables */
   double x, y, point_x, point_y;
@@ -486,10 +507,22 @@ void de_jong_calculate(IterativeMap *map, guint iterations) {
   xcenter = hist_width / 2.0 + self->xoffset * scale;
   ycenter = hist_height / 2.0 + self->yoffset * scale;
 
-  /* Precalculate the sine and cosine of the rotation angle, if we'll need it */
-  if (rotation_enabled) {
-    sine_rotation = sin(self->rotation);
-    cosine_rotation = cos(self->rotation);
+  /* Set up the matrix used for rotation and aspect ratio adjustment */
+  if (matrix_enabled) {
+    if (rotation_enabled) {
+      sine_rotation = sin(self->rotation);
+      cosine_rotation = cos(self->rotation);
+      mat_a = cosine_rotation * self->aspect;
+      mat_b = sine_rotation / self->aspect;
+      mat_c = -sine_rotation * self->aspect;
+      mat_d = cosine_rotation / self->aspect;
+    }
+    else {
+      mat_a = self->aspect;
+      mat_b = 0;
+      mat_c = 0;
+      mat_d = 1/self->aspect;
+    }
   }
 
   /* Initialize the blur table with a set of precalculated normally distributed
@@ -545,12 +578,9 @@ void de_jong_calculate(IterativeMap *map, guint iterations) {
     point_x = x;
     point_y = y;
 
-    /* If rotation is enabled, rotate each point around
-     * the origin by self->rotation radians.
-     */
-    if (rotation_enabled) {
-      x =  cosine_rotation * point_x + sine_rotation   * point_y;
-      y = -sine_rotation   * point_x + cosine_rotation * point_y;
+    if (matrix_enabled) {
+      x = point_x * mat_a + point_y * mat_b;
+      y = point_x * mat_c + point_y * mat_d;
     }
 
     /* If blurring is enabled, use blur_ratio to decide how often to perturb
