@@ -53,8 +53,7 @@ std::string		getConfigDirName()
     }
   }
 
-  // yes your suposed to have the "my" in front of it. I know it's silly, but it's the MS way.
-  name += "\\My BZFlag Files\\";
+  name += "\\bzflagGTX Prefs\\";
   
   return name;
 
@@ -67,7 +66,7 @@ std::string		getConfigDirName()
     char buff[1024];
     err = ::FSRefMakePath(&libraryFolder, (UInt8*)buff, sizeof(buff));
     if(err == ::noErr) {
-      std::strcat(buff, "/BZFlag/");
+      std::strcat(buff, "/BZFlagGTX/");
       name = buff;
     }
   }
@@ -79,7 +78,7 @@ std::string		getConfigDirName()
     name += std::string(pwent->pw_dir);
     name += "/";
   }
-  name += ".bzf/";
+  name += ".bzfGTX/";
 
   return name;
 #endif

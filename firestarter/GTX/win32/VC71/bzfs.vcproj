@@ -39,7 +39,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="ws2_32.lib winmm.lib odbc32.lib odbccp32.lib"
-				OutputFile=".\..\..\src\bzfs\bzfs.exe"
+				OutputFile=".\..\..\src\bzfs\bzflagGTXserver.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				ProgramDatabaseFile="../src/bzfs/bzfs.pdb"
@@ -99,7 +99,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="ws2_32.lib winmm.lib odbc32.lib odbccp32.lib"
-				OutputFile=".\..\..\src\bzfs\debug\bzfs.exe"
+				OutputFile=".\..\..\src\bzfs\debug\bzflagGTXserver.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
 				GenerateDebugInformation="TRUE"

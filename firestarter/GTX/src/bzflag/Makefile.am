@@ -1,11 +1,11 @@
 if CLIENT_INCLUDED
-bin_PROGRAMS = bzflag
+bin_PROGRAMS = bzflagGTX
 endif
 
 MAINTAINERCLEANFILES = \
 	Makefile.in
 
-bzflag_SOURCES =			\
+bzflagGTX_SOURCES =			\
 	ActionBinding.cpp		\
 	ActionBinding.h			\
 	AudioMenu.cpp			\
@@ -173,8 +173,8 @@ LDADD =	\
 
 AM_CPPFLAGS = $(X_CFLAGS) $(SDL_CFLAGS)
 
-bzflag_LDFLAGS = ../date/buildDate.o
+bzflagGTX_LDFLAGS = ../date/buildDate.o
 
-bzflag.res: $(top_srcdir)/win32/bzflag.rc $(top_srcdir)/win32/bzflag.ico
+bzflagGTX.res: $(top_srcdir)/win32/bzflag.rc $(top_srcdir)/win32/bzflag.ico
 	windres --include-dir=$(top_srcdir)/win32/ -i $(top_srcdir)/win32/bzflag.rc -o bzflag.res \
 	-O coff

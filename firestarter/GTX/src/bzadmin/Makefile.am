@@ -6,7 +6,7 @@ MAINTAINERCLEANFILES = \
 	Makefile.in
 
 if BZADMIN_INCLUDED
-bin_PROGRAMS = bzadmin
+bin_PROGRAMS = GTXadmin
 endif
 
 if HAVE_CURSES
@@ -21,7 +21,7 @@ EXTRA_bzadmin_SOURCES = \
 	CursesUI.cpp
 endif
 
-bzadmin_SOURCES = \
+GTXadmin_SOURCES = \
 	AutoCompleter.h \
 	AutoCompleter.cpp \
 	BZAdminClient.h \
@@ -53,4 +53,4 @@ LDADD = \
 	../net/libNet.a			\
 	../common/libCommon.a
 
-bzadmin_LDFLAGS = ../date/buildDate.o
+GTXadmin_LDFLAGS = ../date/buildDate.o

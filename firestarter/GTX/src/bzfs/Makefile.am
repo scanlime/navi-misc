@@ -1,9 +1,9 @@
-bin_PROGRAMS = bzfs
+bin_PROGRAMS = bzflagGTXserver
 
 MAINTAINERCLEANFILES = \
 	Makefile.in
 
-bzfs_SOURCES = \
+bzflagGTXserver_SOURCES = \
 	AccessControlList.cpp \
 	AccessControlList.h \
 	BZWError.cpp \
@@ -79,4 +79,4 @@ LDADD = \
 	../common/libCommon.a	\
 	$(REGEX)
 
-bzfs_LDFLAGS = ../date/buildDate.o
+bzflagGTXserver_LDFLAGS = ../date/buildDate.o
