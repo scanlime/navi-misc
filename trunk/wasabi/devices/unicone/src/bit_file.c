@@ -202,6 +202,8 @@ int bitfile_read_content(struct bitfile *self)
 
   fclose(self->file);
   self->file = NULL;
+
+  return self->length;
 }
 
 /* The End */
