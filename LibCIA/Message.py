@@ -22,8 +22,6 @@ by XML documents.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from twisted.xish import domish
-from twisted.xish.xpath import XPathQuery
 from twisted.python import log
 import time, types
 import XML, RpcServer
@@ -276,15 +274,16 @@ class Filter(XML.XMLFunction):
         # When we return a reference to f, it includes a dict with this function's
         # scope. This conveniently gives us a way to attach the parsed xpath and the
         # text to match.
-        xp = XPathQuery(element['path'])
+        xp = XML.XPath(element.getAttributeNS(None, 'path'))
 
-        # Are we doing a case sensitive match? Default is yes.
-        try:
-            caseSensitive = int(element['caseSensitive'])
-        except KeyError:
+        # Are we doing a case sensitive match? Default is no.
+        caseSensitive = element.getAttributeNS(None, 'caseSensitive')
+        if caseSensitive:
+            caseSensitive = int(caseSensitive)
+        else:
             caseSensitive = 0
 
-        text = str(element).strip()
+        text = XML.shallowText(element).strip()
         if not caseSensitive:
             text = text.lower()
 
@@ -322,7 +321,7 @@ class Filter(XML.XMLFunction):
 
     def element_and(self, element):
         """Evaluates to True if and only if all child functions evaluate to True"""
-        childFunctions = [self.parse(child) for child in element.elements()]
+        childFunctions = list(self.childParser(element))
         def filterAnd(msg):
             for child in childFunctions:
                 if not child(msg):
@@ -332,7 +331,7 @@ class Filter(XML.XMLFunction):
 
     def element_or(self, element):
         """Evaluates to True if and only if any child function evaluates to True"""
-        childFunctions = [self.parse(child) for child in element.elements()]
+        childFunctions = list(self.childParser(element))
         def filterOr(msg):
             for child in childFunctions:
                 if child(msg):
@@ -344,7 +343,7 @@ class Filter(XML.XMLFunction):
         """The NOR function, returns false if and only if any child function evaluates to True.
            For the reasoning behind calling this 'not', see the doc string for this class.
            """
-        childFunctions = [self.parse(child) for child in element.elements()]
+        childFunctions = list(self.childParser(element))
         def filterNot(msg):
             for child in childFunctions:
                 if child(msg):
@@ -440,7 +439,7 @@ class Formatter:
            By default, this tries to find a param_* handler for each
            element it comes across.
            """
-        for tag in xml.elements():
+        for tag in XML.getChildElements(xml):
             f = getattr(self, 'param_'+tag.name, None)
             if f:
                 f(tag)
@@ -548,13 +547,13 @@ class CompositeFormatterParser(XML.XMLObjectParser):
             # This is a nested CompositeFormatterParser, we must handle these
             # here since that's what this class is for. We always have at least
             # one of these, at the root of the parsed XML document.
-            children = [self.parse(child) for child in element.children]
+            children = list(self.childParser(element))
             def joinChildren(args):
                 return self.join(children, args)
             return joinChildren
 
     def element_join(self, element):
-        children = [self.parse(child) for child in element.children]
+        children = list(self.childParser(element))
         sep = element.attributes.get("sep", "")
         def explicitJoin(args):
             return self.join(children, args, sep)
@@ -597,7 +596,7 @@ class CompositeFormatterParser(XML.XMLObjectParser):
 
     def element_pipe(self, element):
         """Evaluate the first child element, using its result as the input to the second child"""
-        children = list(element.elements())
+        children = list(XML.getChildElements(element))
         if len(children) != 2:
             raise XML.XMLValidityError("<pipe> must have exactly two child elements")
         pipeInput = self.parse(children[0])
@@ -632,9 +631,10 @@ class CompositeFormatterParser(XML.XMLObjectParser):
         # get parsed, and sorted into staticAttrs and dynamicAttrs. Other children
         # get parsed and added to
         children = []
-        for child in element.children:
-            if isinstance(child, XML.domish.Element) and child.name == "attribute":
-                dynamicAttrs[child['name']] = [self.parse(c) for c in child.children]
+        for child in element.childNodes:
+            if child.nodeType == child.ELEMENT_NODE and child.nodeName == "attribute":
+                attrName = child.getAttributeNS(None, 'name')
+                dynamicAttrs[attrName] = self.childParser(child)
             else:
                 children.append(child)
 

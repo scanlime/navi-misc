@@ -21,25 +21,13 @@ Classes and utility functions to make the DOM suck less
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import types, os, shutil
+import types, weakref
 import Nouvelle
 from Ft.Xml import Domlette
 from cStringIO import StringIO
 
 # 4Suite requires a URI for everything, but it doesn't make sense for most of our XML snippets
 defaultURI = "cia://anonymous-xml"
-
-
-def parseString(s, uri=defaultURI):
-    """A parseString wrapper that doesn't require a URI"""
-    return Domlette.NonvalidatingReader.parseString(s, uri)
-
-
-def toString(xml):
-    """Convert a DOM tree back to a string"""
-    io = StringIO()
-    Domlette.Print(xml, io)
-    return io.getvalue()
 
 
 class XMLObject(object):
@@ -103,7 +91,7 @@ class XMLObjectParser(XMLObject):
                 raise XMLValidityError("Missing a required %r root element" %
                                        self.requiredRootElement)
 
-        setattr(self, self.resultAttribute, self.parse(docElement))
+        setattr(self, self.resultAttribute, self.parse(self.xml))
 
     def parse(self, node, *args, **kwargs):
         """Given a DOM node, finds an appropriate parse function and invokes it"""
@@ -116,6 +104,9 @@ class XMLObjectParser(XMLObject):
                 return f(node, *args, **kwargs)
             else:
                 return self.unknownElement(node, *args, **kwargs)
+
+        elif node.nodeType == node.DOCUMENT_NODE:
+            return self.parse(node.documentElement, *args, **kwargs)
 
     def childParser(self, node, *args, **kwargs):
         """A generator that parses all relevant child nodes, yielding their return values"""
@@ -176,7 +167,7 @@ def shallowTextGenerator(node):
 
 def shallowText(node):
     """Concatenate all text immediately within the given node"""
-    return "".join(shallowText(node))
+    return "".join(shallowTextGenerator(node))
 
 
 def dig(node, *subElements):
@@ -208,6 +199,25 @@ def addElement(node, name, content=None, attributes={}):
     for attrName, attrValue in attributes.iteritems():
         newElement.setAttributeNS(None, attrName, attrValue)
     node.appendChild(newElement)
+
+
+def parseString(s, uri=defaultURI):
+    """A parseString wrapper that doesn't require a URI"""
+    return Domlette.NonvalidatingReader.parseString(s, uri)
+
+
+def toString(xml):
+    """Convert a DOM tree back to a string"""
+    io = StringIO()
+    Domlette.Print(xml, io)
+    return io.getvalue()
+
+
+def getChildElements(xml):
+    """A generator that returns all child elements of a node"""
+    for child in xml.childNodes:
+        if child.nodeType == child.ELEMENT_NODE:
+            yield child
 
 
 class HTMLPrettyPrinter(XMLObjectParser):
@@ -249,5 +259,31 @@ class HTMLPrettyPrinter(XMLObjectParser):
         return Nouvelle.tag('div', _class='xml-element')[ completeElement ]
 
 htmlPrettyPrint = HTMLPrettyPrinter().parse
+
+
+xPathCache = weakref.WeakValueDictionary()
+
+class XPath:
+    """A precompiled XPath class that caches parsed XPaths in a global weakref'ed
+       dictionary. This should help CIA a bit with load time and memory usage, since
+       we use many of the same XPaths in rulesets and filters.
+       """
+    def __init__(self, path, context=None):
+        global xPathCache
+        from Ft.Xml import XPath
+
+        try:
+            self.compiled = xPathCache[path]
+        except KeyError:
+            self.compiled = XPath.Compile(path)
+            xPathCache[path] = self.compiled
+
+        if context is None:
+            context = XPath.Context.Context(None, processorNss={})
+        self.context = context
+
+    def queryForNodes(self, doc):
+        from Ft.Xml import XPath
+        return XPath.Evaluate(self.compiled, doc, self.context)
 
 ### The End ###
