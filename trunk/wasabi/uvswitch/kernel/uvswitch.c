@@ -133,7 +133,7 @@ static int uvswitch_updateStatus(struct usb_uvswitch *dev)
 static int uvswitch_updateCalibration(struct usb_uvswitch *dev)
 {
 	return usb_control_msg(dev->udev, usb_sndctrlpipe(dev->udev, 0),
-			       UVSWITCH_CTRL_SWITCH, 0x40,
+			       UVSWITCH_CTRL_ADC_CYCLES, 0x40,
 			       dev->calibration.integration_reads,
 			       dev->calibration.precharge_reads,
 			       NULL, 0, REQUEST_TIMEOUT);
