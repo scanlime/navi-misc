@@ -22,6 +22,9 @@ CIA is running.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
+from twisted.protocols import http
+from twisted.test.test_protocols import StringIOWithoutClosing
+from twisted.internet import protocol, address, defer
 from twisted.python import rebuild, log
 import RpcServer
 from cStringIO import StringIO
@@ -193,6 +196,41 @@ def getTypeName(obj):
         pass
     t = str(t)
     return t
+
+
+def requestPage(url, site=None):
+    """Simulate an HTTP request given a Site object and the URL to request.
+       Returns a string with the response, via a Deferred.
+       """
+    if site is None:
+        site = getSingleton("Site")
+
+    io = StringIOWithoutClosing()
+    wrapper = protocol.FileWrapper(io)
+    result = defer.Deferred()
+    def storeResult():
+        result.callback(io.getvalue())
+    wrapper.getHost = lambda: address.IPv4Address('TCP', 'localhost', 1234)
+    wrapper.loseConnection = storeResult
+
+    # Use HTTP 1.0 currently since persistence is disabled
+    channel = site.buildProtocol(None)
+    channel.makeConnection(wrapper)
+    channel.dataReceived("GET %s HTTP/1.0\r\n\r\n" % url)
+    return result
+
+
+def touchProjectPages():
+    """Request all project web pages. This is here for debugging a memory
+       leak related to message filtering or formatting.
+       """
+    from LibCIA.Stats.Target import StatsTarget
+    result = defer.Deferred()
+    StatsTarget("project").catalog().addCallback(_touchProjectPages, result)
+
+def _touchProjectPages(catalog, result):
+    projects = [target.path.split("/")[-1] for target in catalog]
+    result.callback([requestPage("/stats/project/%s" % project) for project in projects])
 
 
 _leakTracker = None
