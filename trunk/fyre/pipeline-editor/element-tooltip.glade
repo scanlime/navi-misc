@@ -118,7 +118,7 @@
       </child>
 
       <child>
-	<widget class="GtkHBox" id="inputs_box">
+	<widget class="GtkHBox" id="inputs">
 	  <property name="visible">True</property>
 	  <property name="homogeneous">False</property>
 	  <property name="spacing">12</property>
@@ -177,7 +177,7 @@
       </child>
 
       <child>
-	<widget class="GtkHBox" id="outputs_box">
+	<widget class="GtkHBox" id="outputs">
 	  <property name="visible">True</property>
 	  <property name="homogeneous">False</property>
 	  <property name="spacing">12</property>
