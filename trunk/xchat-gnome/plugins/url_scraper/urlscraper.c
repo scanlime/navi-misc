@@ -135,16 +135,18 @@ void xchat_plugin_get_info (char **plugin_name,
 void url_open (GtkTreeView *treeview, GtkTreePath *path,
 		GtkTreeViewColumn *column, gpointer user_data)
 {
-	char *cur_url = NULL;
+	gchar *cur_url = NULL;
 	GtkTreeModel *model;
+	GtkTreeSelection *selection;
 	GError *err = NULL;
 	GtkTreeIter iter;
 
-	xchat_print (ph, "Opening url.\n");
-	model = gtk_tree_view_get_model (GTK_TREE_VIEW(user_data));
-	gtk_tree_model_get_iter (model, &iter, path);
-	gtk_tree_model_get (model, &iter, 2, cur_url, -1);
-	gnome_url_show (cur_url, &err);
+	model = gtk_tree_view_get_model (treeview);
+	selection = gtk_tree_view_get_selection (treeview);
+	if (gtk_tree_selection_get_selected (selection, &model, &iter)) {
+		gtk_tree_model_get (model, &iter, 2, &cur_url, -1);
+		gnome_url_show (cur_url, &err);
+	}
 }
 
 int xchat_plugin_init (xchat_plugin *plugin_handle,
