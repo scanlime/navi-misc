@@ -1,6 +1,11 @@
+pre-release:
+  * install the schema into gconf when you make install (check evolution/shell
+    for an example of this)
+
+----
+
 autotools:
   * check for an adequate version of gnome-icon-theme, etc
-  * install the schema into gconf when you make install
   * autogenerate inline pngs during build
 
 
@@ -27,10 +32,6 @@ autotools:
 * make the connect dialog check existing open networks before creating a new connection
 
 * use gnome-config data to store window sizes,etc rather than GConf
-
-* separate the concepts of leaving & closing. disconnected servers, parted channels, and
-  old dialogs should still have their buffers available. This should probably manifest
-  itself as greying disconnected things out in the navtree
 
 * find a writer to rewrite all the horribly-worded explainations of things!
 
