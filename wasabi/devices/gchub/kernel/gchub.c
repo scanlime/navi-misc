@@ -595,7 +595,15 @@ static void controller_set_led(struct gchub_controller* ctl,
 				int led_color)
 {
 	unsigned long flags;
+
+	/* Keep the device's LED bits in sync */
+	if (led_color == LED_GREEN)
+		clear_bit(LED_MISC, ctl->dev.led);
+	else if (led_color == LED_RED)
+		set_bit(LED_MISC, ctl->dev.led);
+
 	spin_lock_irqsave(&ctl->outputs.lock, flags);
+	dbg("Changing LED color from %d to %d", ctl->outputs.led_color, led_color);
 	if (ctl->outputs.led_color != led_color) {
 		ctl->outputs.led_color = led_color;
 		ctl->outputs.dirty = 1;
@@ -644,6 +652,8 @@ static int controller_ff_event(struct gchub_controller* ctl,
 static int controller_led_event(struct gchub_controller* ctl,
 			       unsigned int code, int value)
 {
+	dbg("entering controller_led_event()");
+
 	/* The input core has already set ctl->dev.led accordingly,
 	 * we just have to update the current state of everything.
 	 */
@@ -652,6 +662,8 @@ static int controller_led_event(struct gchub_controller* ctl,
 	else
 		controller_set_led(ctl, LED_GREEN);
 	gchub_sync_output_status(ctl->hub);
+
+	dbg("leaving controller_led_event()");
 
 	return 0;
 }
@@ -891,10 +903,13 @@ static void gchub_sync_output_status(struct gchub_dev* dev)
 	int dirty = 0;
 	int i;
 
+	dbg("sync_output_status");
+
 	/* Are any outputs still dirty? */
 	for (i=0; i<NUM_PORTS; i++)
 		if (dev->ports[i].outputs.dirty)
 			dirty++;
+	dbg("dirty outputs: %d", dirty);
 
 	if (!dirty)
 		return;
@@ -907,6 +922,8 @@ static void gchub_sync_output_status(struct gchub_dev* dev)
 		 */
 		dev->out_status_pending_sync = 1;
 		spin_unlock_irqrestore(&dev->out_status_lock, flags);
+
+		dbg("Status packet already pending");
 	}
 	else {
 		dev->out_status_in_progress = 1;
@@ -914,6 +931,8 @@ static void gchub_sync_output_status(struct gchub_dev* dev)
 
 		gchub_fill_output_request(dev);
 		gchub_submit_urb(dev->out_status, SLAB_ATOMIC);
+
+		dbg("Submitted status packet");
 	}
 }
 
@@ -980,6 +999,8 @@ static void gchub_out_request_irq(struct urb* urb)
 	struct gchub_dev *dev = (struct gchub_dev*)urb->context;
 	unsigned long flags;
 
+	dbg("out_request_irq");
+
 	spin_lock_irqsave(&dev->out_status_lock, flags);
 	if (dev->out_status_pending_sync) {
 		/* Yep, we need another. Leave out_status_in_progress
@@ -990,12 +1011,16 @@ static void gchub_out_request_irq(struct urb* urb)
 
 		gchub_fill_output_request(dev);
 		gchub_submit_urb(dev->out_status, SLAB_ATOMIC);
+
+		dbg("sending another output request");
 	}
 	else {
 		/* Done for now. */
 		dev->out_status_pending_sync = 0;
 		dev->out_status_in_progress = 0;
 		spin_unlock_irqrestore(&dev->out_status_lock, flags);
+
+		dbg("no more pending output requests");
 	}
 
 }
