@@ -33,12 +33,12 @@ void initialize_main_window() {
 	gtk_xtext_set_time_stamp(text->buffer, TRUE);
 	gtk_xtext_set_wordwrap(text->buffer, TRUE);
 
-	if(!gtk_xtext_set_font(text, "Bitstream Vera Sans Mono 10"))
+	if(!gtk_xtext_set_font(text, "Bitstream Vera Sans Mono 9"))
 		g_print ("Failed to open BV Sans Mono font!\n");
 
 	gtk_xtext_refresh(text, FALSE);
 	gtk_xtext_buffer_show(text, text->buffer, TRUE);
-	gtk_xtext_append_indent(text->buffer, "<hello>", 7, "yyyyyyep", 8);
+	gtk_xtext_append_indent(text->buffer, "\x0312<\x0fhello>", 7, "yyyyyyep", 8);
 	gtk_xtext_append_indent(text->buffer, "<hello world>", 13, "yyyyyyep again", 14);
 
 	gtk_widget_show_all(GTK_WIDGET(text));
@@ -79,6 +79,8 @@ void initialize_navigation_tree() {
 	gtk_tree_store_set(store, &child, 0, b, 1, "#commits", -1);
 	gtk_tree_store_append(store, &child, &parent);
 	gtk_tree_store_set(store, &child, 1, "#tacobeam", -1);
+	gtk_tree_store_append(store, &child, &parent);
+	gtk_tree_store_set(store, &child, 1, "Diablo-D3", -1);
 	gtk_tree_store_append(store, &parent, NULL);
 	gtk_tree_store_set(store, &parent, 0, b, 1, "GIMPNet", -1);
 	gtk_tree_store_append(store, &child, &parent);

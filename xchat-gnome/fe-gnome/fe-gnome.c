@@ -15,6 +15,7 @@ int fe_args(int argc, char *argv[]) {
 }
 
 void fe_init(void) {
+	servlist_init();
 	initialize_gui();
 }
 
@@ -43,10 +44,12 @@ void fe_timeout_remove(int tag) {
 }
 
 void fe_new_window(struct session *sess) {
+	g_print("creating a new window of type %d\n", sess->type);
 	/* FIXME: implement */
 }
 
 void fe_new_server(struct server *serv) {
+	g_print("creating a new server - %s:%s\n", serv->hostname, serv->servername);
 	/* FIXME: implement */
 }
 
