@@ -144,7 +144,7 @@ initialize_main_window ()
 	gtk_expander_set_expanded (GTK_EXPANDER (gui.topic_expander), FALSE);
 	gtk_label_set_ellipsize (gui.topic_label, PANGO_ELLIPSIZE_END);
 #else
-	gtk_label_set_line_wrap (gui.topic_label, TRUE)
+	gtk_label_set_line_wrap (gui.topic_label, TRUE);
 #endif
 	// FIXME
 //	g_signal_connect(G_OBJECT(entry), "activate", G_CALLBACK(on_topic_entry_activate), NULL);
