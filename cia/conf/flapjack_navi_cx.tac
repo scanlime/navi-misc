@@ -22,8 +22,8 @@ class DonationSection(Web.Template.Section):
     title = "Donate to CIA"
     rows = [
         [
-            "We now run on a shiny ", tag('a', href="http://www.linode.com/")["Linode"],
-	    " server. Any help paying the bills would be greatly appreciated!",
+            "Any help ", tag('a', href='/doc/budget')[ "paying the bills" ],
+            " would be greatly appreciated!",
         ],
         tag('form', action='https://www.paypal.com/cgi-bin/webscr', method='post')[
             tag('div')[
