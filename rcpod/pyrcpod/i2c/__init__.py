@@ -52,6 +52,43 @@ class Bus(object):
         return "<i2c.Bus on clock %r and data %r>" % (
             self.clock, self.data)
 
+    def test(self):
+        """Perform a self-test on this bus to ensure that it isn't shorted
+           and that its pull-up resistor is connected properly. This raises
+           an exception if the bus is wired improperly, or returns None
+           on success.
+           """
+        # Put the bus in a proper idle state
+        self.clock.output().on()
+        self.data.output().off()
+        self.data.off()
+        
+        # Read back both lines to ensure they aren't shorted to ground
+        if not self.data.test():
+            raise I2CError("Data line on %r is shorted to ground" % self)
+        if not self.clock.test():
+            raise I2CError("Clock line on %r is shorted to ground" % self)
+        
+        # Pulse the data line low briefly to ensure the pull-up is active
+        # and it isn't just floating or reading stray capacitance.
+        self.data.off()
+        self.data.output().on()
+        if self.data.test():
+            raise I2CError("Data line on %r is shorted high" % self)
+        self.data.output().off()
+        if not self.data.test():
+            raise I2CError("Pull-up resistor on %r is not functional" % self)
+
+        # Test for shorts on the clock line
+        self.clock.off()
+        if self.clock.test():
+            raise I2CError("Clock line on %r is shorted high" % self)
+        self.clock.on()
+
+        # Ensure that we leave the bus in an idle state
+        if not (self.data.test() and self.clock.test()):
+            raise I2CError("Bus %r isn't idle after a self-test")
+
 
 class Device(object):
     """Represents one I2C device on a bus attached to the rcpod"""
@@ -131,10 +168,14 @@ class Device(object):
             raise I2CError("No device acknowledged address for read")
         return rxData
 
-    def ping(self):
+    def ping(self, testBus=True):
         """Just address this device and ensure that it ACKs.
            Returns None if the device is present, or an I2CError if it's nonresponsive.
+           By default, this also runs a sanity check on the I2C bus itself, to avoid
+           false positives due to shorted bus lines or missing pull-up resistors.
            """
+        if testBus:
+            self.bus.test()
         self.busWrite([])
 
     def pollUntilReady(self, timeout):
