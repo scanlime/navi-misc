@@ -79,6 +79,9 @@ class CatalogSection(Template.Section):
         self.target = target
 
     def render_rows(self, context):
+        if self.target.path in ('project', 'author'):
+            return ["Sorry, the project and author index pages are temporarily disabled due to server load"]
+			
         # First we run a big SQL query to gather all the data for this catalog.
         # Control is passed to _render_rows once we have the query results.
         result = defer.Deferred()
