@@ -48,6 +48,7 @@ good", and 2.0 produces a very high quality image. As usual, while this metric
 is pretty reliable, it's impossible to automatically judge aesthetics, so you
 may need to fiddle with it if you're dissatisfied with the results.
 
+
 Loading and Saving
 ------------------
 
@@ -58,7 +59,7 @@ loaded back in using the -i command line option or the "Parameters -> Load from
 image" menu item.
 
 One convenient use of this is to save small low-quality images using the GUI,
-then use the -i, -t, -s, and -o options to render very high quality and/or
+then use the -i, -q, -s, and -o options to render very high quality and/or
 large images noninteractively.
 
 When using the -o (--output) option, no GUI is presented. Instead, Fyre just
