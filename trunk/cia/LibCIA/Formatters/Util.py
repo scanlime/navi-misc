@@ -25,6 +25,50 @@ from LibCIA import XML
 import re
 
 
+def getNormalizedLog(xml, tabWidth=8):
+    """Given the DOM node for a <log> tag, return a list of
+       text lines with whitespace normalized appropriately.
+       This strips all whitespace from the white side, and homogeneously
+       strips whitespace from the left side as much as possible.
+       Leading and trailing blank lines are removed, but internal
+       blank lines are not.
+       """
+    if not xml:
+        return []
+
+    lines = []
+    maxLeftStrip = None
+
+    for line in XML.shallowText(xml).split("\n"):
+        # Expand tabs and strip righthand whitespace
+        line = line.replace("\t", " "*tabWidth).rstrip()
+        strippedLine = line.lstrip()
+
+        # Blank lines don't count in determining the left strip amount
+        if strippedLine:
+            # Determine how much we can strip from the left side
+            leftStrip = len(line) - len(strippedLine)
+
+            # Determine the maximum amount of space we can strip
+            # from the left side homogeneously across the whole text
+            if maxLeftStrip is None or leftStrip < maxLeftStrip:
+                maxLeftStrip = leftStrip
+
+            # Skip leading blank lines
+            if lines or strippedLine:
+                lines.append(line)
+
+    # Remove trailing blank lines
+    while lines and not lines[-1].strip():
+        del lines[-1]
+
+    # Homogeneous left strip
+    if maxLeftStrip is None:
+        return lines
+    else:
+        return [line[maxLeftStrip:] for line in lines]
+
+
 def wrapLine(line, width):
     """Given a long line, wrap it if possible to the given width,
        returning a list of lines.
