@@ -26,21 +26,39 @@ import java.util.*;
 
 public class aimup
 {
-	public static botmain mybot;
+	public static botmain[] bot;
 
 	public static void main(String[] args)
 	{
-		if(args.length < 2)
-	    System.out.println("name and password please");
-		else
+		int i,j;
+		bot = new botmain[6];
+		bot[0] = new botmain("MICEBot","password");
+		for(i=1;i<6;i++)
+			bot[i] = new botmain("MICEBot"+i,"password");
+		try
 		{
-	    mybot = new botmain(args[0],args[1]);
-	    try
-			{
-				Thread.sleep(300000);       //Wait for 5 minutes
-	    }
-	    catch (InterruptedException ie) {}
-	    mybot.sendMessage("gonkulator2","Hello, I'm going poof now");
+			Thread.sleep(8000);       //Wait for 5 minutes
 		}
+		catch (InterruptedException ie) {}
+		
+		for(j=0;j<10;j++)
+		for(i=0;i<6;i++)
+		{
+			bot[i].sendMessage("Joshonthinkpad","Hi Josh, this is from bot number:"+i);
+			//bot[i].sendMessage("SilmeTheBard","ding " + i);
+			//bot[i].sendMessage("gonkulator3","ding " + i);
+			//bot[i].sendMessage("kittikins5","Hi Katie!");
+			try
+			{
+				Thread.sleep(4000);       //Wait for 5 minutes
+			}
+			catch (InterruptedException ie) {}
+		}
+		
+		try
+		{
+			Thread.sleep(300000);       //Wait for 5 minutes
+		}
+		catch (InterruptedException ie) {}
 	}
 }
