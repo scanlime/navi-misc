@@ -22,6 +22,7 @@
 #include <gtk/gtk.h>
 #include <e-util/e-config.h>
 #include <calendar/gui/e-cal-config.h>
+#include <calendar/gui/e-cal-event.h>
 #include <calendar/gui/calendar-component.h>
 #include <libedataserver/e-source.h>
 #include <libedataserver/e-url.h>
@@ -36,13 +37,14 @@ GtkWidget *e_calendar_weather_temperature (EPlugin *epl, EConfigHookItemFactoryD
 GtkWidget *e_calendar_weather_snowfall (EPlugin *epl, EConfigHookItemFactoryData *data);
 gboolean   e_calendar_weather_check (EPlugin *epl, EConfigHookPageCheckData *data);
 int        e_plugin_lib_enable (EPluginLib *ep, int enable);
+void       e_calendar_weather_migrate (EPlugin *epl, ECalEventTargetComponent *data);
 
 static GtkTreeStore *store = NULL;
 
 #define WEATHER_BASE_URI "weather://"
 
-int
-e_plugin_lib_enable (EPluginLib *ep, int enable)
+void
+e_calendar_weather_migrate (EPlugin *epl, ECalEventTargetComponent *data)
 {
 	/* Perform a migration step here. This allows us to keep the weather calendar completely
 	 * separate from evolution. If the plugin isn't built, the weather source group won't
@@ -53,7 +55,9 @@ e_plugin_lib_enable (EPluginLib *ep, int enable)
 	GSList *groups;
 	ESourceGroup *weather = NULL;
 
-	component = calendar_component_peek ();
+	g_print ("migration!\n");
+
+	component = data->component;
 	source_list = calendar_component_peek_source_list (component);
 
 	groups = e_source_list_peek_groups (source_list);
