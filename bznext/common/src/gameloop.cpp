@@ -134,6 +134,9 @@ bool CBaseGameLoop::Run ( void )
 	showDebug = args.GetDataB("showDebug");
 	showDebugOverlay(showDebug);
 
+//	if(!SDL_WasInit(SDL_INIT_EVENTTHREAD))
+//		SDL_InitSubSystem(SDL_INIT_EVENTTHREAD);
+
   if(OnInit())
   {
     OnKill();
@@ -150,6 +153,7 @@ bool CBaseGameLoop::Run ( void )
     mRoot->shutdown();
 */
   OnKill();
+//	SDL_Quit();
   return true;
 }
 
@@ -259,7 +263,7 @@ bool CBaseGameLoop::Process ( void )
 
   // Get all the events and dispatch them,
   // then call game loop.
-
+	/*SDL_PumpEvents();
   while (SDL_PollEvent(&event)) 
   {
     switch(event.type)
@@ -276,7 +280,7 @@ bool CBaseGameLoop::Process ( void )
       break;
     }
     CallEventHandaler(event.type,&event);
-  }  
+  }  */
   
   input.Process();
   timer.Update();
