@@ -23,7 +23,7 @@ user interface software.
 #
 
 name    = "Wasabi"
-version = "cvs-dev"
+version = "svn-dev"
 
 # Check the python version here before we proceed further
 requiredPythonVersion = (2,2,1)
