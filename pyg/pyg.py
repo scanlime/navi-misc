@@ -116,10 +116,17 @@ class GLView(gtk.gl.Area):
     def __init__(self):
         gtk.DrawingArea.__init__(self)
 
+# FIXME: change this to a vte widget or whatnot
+class Editor(gtk.Frame):
+    def __init__(self):
+        gtk.Frame.__init__(self, label=None)
+        self.text = gtk.TextView()
+        self.add(self.text)
+
 main = MainWindow()
 
 sources = SourceNotebook()
-sources.append_page(gtk.Label('Left Top Squad!'), gtk.Label('Look Ma! A Tab!'))
+sources.append_page(Editor(), gtk.Label('Look Ma! A tab!'))
 main.set(0, sources)
 
 compiler_output = CompileOutput()
