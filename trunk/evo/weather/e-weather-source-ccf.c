@@ -252,6 +252,56 @@ e_weather_source_ccf_do_parse (EWeatherSourceCCF *source, const char *buffer)
 		source->done (fc);
 	}
 
+	/* Grab the conditions for the next 5 days */
+	forecasts[2].conditions = decodeConditions (((char*)(current->data))[0]);
+	forecasts[3].conditions = decodeConditions (((char*)(current->data))[1]);
+	forecasts[4].conditions = decodeConditions (((char*)(current->data))[2]);
+	forecasts[5].conditions = decodeConditions (((char*)(current->data))[3]);
+	forecasts[6].conditions = decodeConditions (((char*)(current->data))[4]);
+
+	/* Temperature forecasts */
+	current = g_slist_next (current);
+	if (tms.tm_hour < 12)
+	{
+		forecasts[2].low  = ftoc (current->data);
+		current = g_slist_next (current);
+		forecasts[3].high = ftoc (current->data);
+		current = g_slist_next (current);
+		forecasts[3].low  = ftoc (current->data);
+		current = g_slist_next (current);
+		forecasts[4].high = ftoc (current->data);
+		current = g_slist_next (current);
+		forecasts[4].low  = ftoc (current->data);
+		current = g_slist_next (current);
+		forecasts[5].high = ftoc (current->data);
+		current = g_slist_next (current);
+		forecasts[5].low  = ftoc (current->data);
+		current = g_slist_next (current);
+		forecasts[6].high = ftoc (current->data);
+		forecasts[6].low  = forecasts[6].high;
+	}
+	else
+	{
+		forecasts[2].high = ftoc (current->data);
+		current = g_slist_next (current);
+		forecasts[2].low  = ftoc (current->data);
+		current = g_slist_next (current);
+		forecasts[3].high = ftoc (current->data);
+		current = g_slist_next (current);
+		forecasts[3].low  = ftoc (current->data);
+		current = g_slist_next (current);
+		forecasts[4].high = ftoc (current->data);
+		current = g_slist_next (current);
+		forecasts[4].low  = ftoc (current->data);
+		current = g_slist_next (current);
+		forecasts[5].high = ftoc (current->data);
+		current = g_slist_next (current);
+		forecasts[5].low  = ftoc (current->data);
+		current = g_slist_next (current);
+		forecasts[6].high = ftoc (current->data);
+		forecasts[6].low  = forecasts[6].high;
+	}
+
 	for (i = 0; i < 7; i++)
 	{
 		fc = g_list_append (fc, &forecasts[i]);
