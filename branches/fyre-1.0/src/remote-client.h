@@ -73,6 +73,8 @@ struct _RemoteClient {
     GObject               object;
 
     double                min_stream_interval;
+    double                retry_timeout;
+    gboolean              is_retry_enabled;
 
     /* Private */
 
@@ -87,11 +89,11 @@ struct _RemoteClient {
     gpointer              speed_callback_user_data;
 
     gboolean              is_ready;
+    guint                 retry_timer;
     int                   pending_param_changes;
     int                   pending_stream_requests;
 
     GTimer*               stream_request_timer;
-
     double                prev_iterations;
     GTimer*               status_speed_timer;
     GTimer*               stream_speed_timer;
