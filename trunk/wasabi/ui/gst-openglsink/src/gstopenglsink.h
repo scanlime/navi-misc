@@ -2,8 +2,8 @@
  * gstopenglsink.h: video sink that draws to an opengl texture
  */
 
-#ifndef __GST_PLUGIN_OPENGLSINK_H__
-#define __GST_PLUGIN_OPENGLSINK_H__
+#ifndef __GST_OPENGLSINK_H__
+#define __GST_OPENGLSINK_H__
 
 #include <gst/gst.h>
 
@@ -12,7 +12,7 @@ extern "C" {
 #endif /* __cplusplus */
 
 /* #define's don't like whitespacey bits */
-#define GST_TYPE_PLUGIN_OPENGLSINK \
+#define GST_TYPE_OPENGLSINK \
   (gst_gst_openglsink_get_type())
 #define GST_OPENGLSINK(obj) \
   (G_TYPE_CHECK_INSTANCE_CAST((obj),GST_TYPE_OPENGLSINK,GstOpenGLSink))
@@ -46,4 +46,4 @@ GType gst_gst_openglsink_get_type (void);
 }
 #endif /* __cplusplus */
 
-#endif /* __GST_PLUGIN_OPENGLSINK_H__ */
+#endif /* __GST_OPENGLSINK_H__ */
