@@ -233,7 +233,7 @@ static void cell_renderer_transition_get_size(GtkCellRenderer  *cell,
   if (width)
     *width = GTK_CELL_RENDERER(self)->xpad * 2 + MAX(text_rect.width, self->spline_size);
   if (height)
-    *height = GTK_CELL_RENDERER(self)->ypad * 3 + text_rect.height + self->spline_size;
+    *height = GTK_CELL_RENDERER(self)->ypad * 2 + text_rect.height + self->spline_size;
 
   g_object_unref(layout);
 }
@@ -281,9 +281,9 @@ static void cell_renderer_transition_render(GtkCellRenderer      *cell,
   gtk_paint_layout(widget->style, window, state, TRUE, cell_area, widget,
 		   "cellrenderertransition", text_rect.x, text_rect.y, layout);
 
-  cell_renderer_transition_render_spline(self, window, widget, state, &spline_rect);
   gdk_draw_rectangle(window, GTK_WIDGET(widget)->style->dark_gc[state], FALSE,
 		     spline_rect.x, spline_rect.y, spline_rect.width, spline_rect.height);
+  cell_renderer_transition_render_spline(self, window, widget, state, &spline_rect);
 
   g_object_unref(layout);
 }

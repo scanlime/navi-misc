@@ -102,18 +102,21 @@ static void explorer_init_keyframe_view(Explorer *self) {
 
   gtk_tree_view_set_model(tv, GTK_TREE_MODEL(self->animation->model));
 
-  /* The first column only displays the keyframe, in the form of a thumbnail
+  /* The first column displays the keyframe, in the form of a thumbnail
    */
   col = gtk_tree_view_column_new();
   gtk_tree_view_column_set_title(col, "Keyframe");
 
   renderer = gtk_cell_renderer_pixbuf_new();
+  g_object_set(renderer,
+	       "xpad", 0,
+	       "ypad", 0,
+	       NULL);
+
   gtk_tree_view_column_pack_start(col, renderer, FALSE);
   gtk_tree_view_column_set_attributes(col, renderer,
 				      "pixbuf", ANIMATION_MODEL_THUMBNAIL,
 				      NULL);
-
-  gtk_tree_view_append_column(tv, col);
 
   /* The second column uses a custom cell renderer to show the curve and duration
    */
@@ -121,6 +124,12 @@ static void explorer_init_keyframe_view(Explorer *self) {
   gtk_tree_view_column_set_title(col, "Transition");
 
   renderer = cell_renderer_transition_new();
+  g_object_set(renderer,
+	       "xpad", 6,
+	       "ypad", 0,
+	       "spline-size", 96,
+	       NULL);
+
   gtk_tree_view_column_pack_start(col, renderer, FALSE);
   gtk_tree_view_column_set_attributes(col, renderer,
 				      "spline", ANIMATION_MODEL_SPLINE,
