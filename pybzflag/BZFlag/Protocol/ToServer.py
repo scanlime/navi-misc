@@ -1,7 +1,7 @@
-""" BZFlag
+""" BZFlag.Protocol.FromServer
 
-This is a Python package providing an interface to all network
-protocols used by BZFlag. 
+Low-level python abstractions for the BZFlag protocol messages
+sent from the game server to the clients.
 """
 # 
 # Python BZFlag Protocol Package
@@ -22,7 +22,11 @@ protocols used by BZFlag.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA 
 #
 
-# The version of the BZFlag protocol this should be compatible with
-protocolVersion = "BZFS109a"
+from BZFlag.Protocol import *
+from BZFlag.Protocol import Common
 
+Common.foo
+    
 ### The End ###
+        
+    

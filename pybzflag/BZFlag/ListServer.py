@@ -21,6 +21,8 @@ Abstraction for the BZFlag server list server.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA 
 # 
 
+import BZFlag
+
 listServerURL = None
 
 def getListServerURL():
@@ -99,26 +101,16 @@ class RemoteListServer(ListServer):
         # Normally we'd use urlparse for this, but it has wacky defaults
         # for URL schemes it doesn't recognize.
         self.host = url.split("/")[2]
-        if self.host.find(":") >= 0:
-            (self.host, self.port) = self.host.split(":")
-            self.port = int(self.port)
-        else:
-            self.port = 5156
 
     def command(self, line):
         """Send a generic bzfls command, returning the results"""
-        import socket
+        import BZFlag.Network
+        s = BZFlag.Network.Socket()
+        s.connect(self.host, 5156)
         if type(line) == type(()) or type(line) == type([]):
             line = " ".join(map(str, line))
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.connect((self.host, self.port))
-        s.send("%s\n\n" % line)
-        response = ''
-        while 1:
-            buffer = s.recv(32768)
-            if not buffer:
-                break
-            response += buffer
+        s.write("%s\n\n" % line)
+        response = s.read()
         s.close()
         return response
 
@@ -144,6 +136,14 @@ class RemoteListServer(ListServer):
                 servers.append(ServerInfo(line))
         return servers
 
+    def filteredList(self, version=BZFlag.protocolVersion):
+        """Return a list of only the servers compatible with a specified
+           version, defaulting to our current protocol version.
+           """
+        def versionFilter(server):
+            return server.version == version
+        return filter(versionFilter, self.list())
+    
 
 def getDefault():
     """Factory for a default list server object"""
