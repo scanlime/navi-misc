@@ -341,7 +341,7 @@ module n_serial_tx (clk, reset,
 	
 	/* 1us serial timebase, without the sync resets hooked up */
 	wire tick;
-	n_serial_timebase ticker(clk, reset, tick, 0, 0);
+	n_serial_timebase tx_ticker(clk, reset, tick, 0, 0);
 	
 	/* Buffer the incoming data stream, consisting
 	 * of both the tx_data and the stop bit flag.
