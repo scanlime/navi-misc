@@ -29,6 +29,7 @@ stats target using part of the message.
 from twisted.python import log
 from twisted.web import xmlrpc
 from twisted.internet import defer, reactor
+from urlparse import urlparse
 import Ruleset, Message, TimeUtil, RpcServer, Database
 import string, os, time, posixpath, sys, cPickle
 
@@ -161,11 +162,6 @@ class SubscriptionInterface(RpcServer.Interface):
            """
         return cPickle.dumps((triggerFunc, triggerArgs, triggerKwargs))
 
-    def runTrigger(self, trigger):
-        """Given a pickled trigger, unpickle and call it"""
-        f, args, kwargs = cPickle.loads(trigger)
-        f(*args, **kwargs)
-
     def _subscribe(self, cursor, target, client, trigger, scope=None, ttl=25*60*60):
         """A database interaction for adding subscriptions.
            'target' must be the StatsTarget object this subscription is for.
@@ -211,7 +207,7 @@ class SubscriptionInterface(RpcServer.Interface):
             # Figure out the associated stats target for this URL
             target = self.getTargetFromURL(url)
             if not target:
-                log.msg("Ignoring URL %r which doesn't appear to be a stats target")
+                log.msg("Ignoring URL %r which doesn't appear to be a stats target" % url)
                 continue
 
             # Make a trigger that notifies the client as requested.
@@ -230,7 +226,18 @@ class SubscriptionInterface(RpcServer.Interface):
            target from it. The URL should be to an RSS feed, but we won't be too
            picky. If we can't find a related stats target, return None.
            """
-        return StatsTarget("foo/bar")
+        # We ignore everything except the path, assuming the URL actually
+        # refers to this host. There's no reason for someone to ask us to
+        # notify them if another server's page changes, and it would take
+        # more effort than it's worth to accurately determine if the given
+        # host refers to this CIA server, with all the proxying and DNS
+        # multiplicity that could be going on.
+        path = urlparse(url)[2]
+
+        # FIXME: really cheesy hack!
+        if not path.startswith("/stats/"):
+            return None
+        return StatsTarget(path[7:].split("/.",1)[0])
 
 
 class StatsTarget:
@@ -275,6 +282,22 @@ class StatsTarget:
         if message:
             self.messages.push(message)
         self.counters.increment()
+        self.notifySubscriptions('messages')
+
+    def notifySubscriptions(self, scope):
+        """Notify all subscribers to this stats target of a change in 'scope'"""
+        # Get a list of applicable triggers from the database
+        Database.pool.runQuery("SELECT trigger FROM stats_subscriptions "
+                               "WHERE target_path = %s "
+                               "AND (scope is NULL or scope = %s)" %
+                               (Database.quote(self.path, 'varchar'),
+                                Database.quote(scope, 'varchar'))).addCallback(self._notifySubscriptions)
+
+    def _notifySubscriptions(self, triggers):
+        """After retrieving a list of applicable triggers, this calls them"""
+        for trigger in triggers:
+            f, args, kwargs = cPickle.loads(trigger[0])
+            f(*args, **kwargs)
 
     def child(self, name):
         """Return the StatsTarget for the given sub-target name under this one"""
