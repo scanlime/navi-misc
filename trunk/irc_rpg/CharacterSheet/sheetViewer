@@ -4,7 +4,7 @@ import sys, gtk
 from GTKsheet import GTKsheet
 from Character import Character
 
-def InitWindow():
+def InitWindow(sheet=None):
   ''' Initialize and show the window. '''
   # Set up the window.
   window = gtk.Window(gtk.WINDOW_TOPLEVEL)
@@ -17,18 +17,17 @@ def InitWindow():
 
   menubar, accelGroup = Menu()
   window.add_accel_group(accelGroup)
-  box.pack_start(menubar, gtk.FALSE)
 
-  if len(sys.argv) > 1:
-    character = Character()
-    character.readCharacter(sys.argv[1])
-    sheet = GTKsheet(character)
-
-    box.pack_start(sheet.root)
+  # If a sheet was passed add it to the window.
+  if sheet:
+    box.pack_end(sheet.root)
     sheet.root.show()
   
+  box.pack_start(menubar, gtk.FALSE)
   box.show()
   window.show()
+
+  return window
 
 def Menu():
   ''' Return a menu with accelerators. '''
@@ -49,7 +48,7 @@ def Menu():
   
   return (menubar, accelerator)
 
-def NewSheet():
+def NewSheet(data, widget):
   ''' Create a new character. '''
   print 'Not implemented.'
 
@@ -68,5 +67,14 @@ def OpenSheet(data, widget):
 
   fileWindow.show()
 
-InitWindow()
+
+sheet = None
+
+# If a file was passed on the command line create the sheet.
+if len(sys.argv) > 1:
+  character = Character()
+  character.readCharacter(sys.argv[1])
+  sheet = GTKsheet(character)
+
+window = InitWindow(sheet)
 gtk.main()

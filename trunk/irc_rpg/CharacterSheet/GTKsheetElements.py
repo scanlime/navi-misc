@@ -236,7 +236,7 @@ class drop_down(hbox):
     frame = gtk.Frame()
     frame.add(self.editBox)
     frame.show()
-    self.editScroller.add(frame)
+    self.editScroller.add_with_viewport(frame)
     self.editBox.show()
     self.pack_start(self.editScroller)
 
