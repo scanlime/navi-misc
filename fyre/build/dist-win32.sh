@@ -70,7 +70,7 @@ function copy_dir()
 
     prefix=`dirname $source`
     mkdir -p $TARGETDIR/$dest/$prefix
-    cp -av $PREFIX/$sourcedir/$source $TARGETDIR/$dest/$prefix
+    cp -av $PREFIX/$sourcedir/$source $TARGETDIR/$dest/$prefix || exit 1
 }
 
 copy_dir bin     gnet-2.0.dll                                   lib
@@ -93,15 +93,17 @@ copy_dir  bin    libpango-1.0-0.dll                 		lib
 copy_dir  bin    libpangoft2-1.0-0.dll              		lib
 copy_dir  bin    libpangowin32-1.0-0.dll            		lib
 copy_dir  lib    gtk-2.0/2.4.0/immodules/                       lib
-copy_dir  lib    gtk-2.0/2.4.0/loaders/libpixbufloader-ico.dll  lib
 copy_dir  lib    gtk-2.0/2.4.0/loaders/libpixbufloader-png.dll  lib
-copy_dir  lib    gtk-2.0/2.4.0/loaders/libpixbufloader-pnm.dll  lib
+copy_dir  lib    gtk-2.0/2.4.0/engines/libwimp.dll              lib
 copy_dir  lib    pango/1.4.0/modules      			lib
 for lang in $ALL_LINGUAS; do
     copy_dir lib locale/$lang lib
 done
 
-find $TARGETDIR -name "*.dll" -not -name "iconv.dll" -not -name "intl.dll" -print | xargs $STRIP
+find $TARGETDIR -name "*.dll" -not -name "iconv.dll" -not -name "intl.dll" -not -name "libwimp.dll" -print | xargs $STRIP
+
+# Customize the gtkrc
+cp gtkrc-win32 $TARGETDIR/etc/gtk-2.0/gtkrc || exit 1
 
 
 ################ Generate a .zip file
@@ -122,7 +124,7 @@ $NSIS - <<EOF
     ; The default installation directory
     InstallDir \$PROGRAMFILES\\Fyre
 
-    ; Registry key to check for directory (so if you install again, it will 
+    ; Registry key to check for directory (so if you install again, it will
     ; overwrite the old one automatically)
     InstallDirRegKey HKLM Software\\Fyre "Install_Dir"
 
