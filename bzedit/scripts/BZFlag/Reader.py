@@ -29,8 +29,9 @@ class Reader:
             float = Combine(Word('+-'+nums, nums) +
                             Optional(Literal('.') + Optional(Word(nums))) +
                             Optional(CaselessLiteral('E') + Word('+-'+nums, nums)))
+            2dPoint = float + float
             3dPoint = float + float + float
-            globalReference = Word(alphanums + '/:*')
+            globalReference = Word(alphanums + '/:*_?')
 
             end = CaselessLiteral('end')
             name = CaselessLiteral('name')
@@ -64,6 +65,11 @@ class Reader:
                 CaselessLiteral('flipz')
               | obstacleProperty
             pyramid = CaselessLiteral('pyramid') + OneOrMore(pyramidProperty) + end
+
+            baseProperty =
+                CaselessLiteral('color') + Word(nums)
+              | obstacleProperty
+            base = CaselessLiteral('base') + OneOrMore(baseProperty) + end
 
             worldProperty =
                 size + float
@@ -101,3 +107,11 @@ class Reader:
               | CaselessLiteral('flatshading')
               | obstacleProperty
             arc = CaselessLiteral('arc') + OneOrMore(arcProperty) + end
+
+            # FIXME - add material to this object
+            tetraProperty =
+                CaselessLiteral('vertex') + 3dPoint
+              | CaselessLiteral('normals') + 3dPoint
+              | CaselessLiteral('texcoords') + 2dPoint
+              | obstacleProperty
+            tetra = CaselessLiteral('tetra') + OneOrMore(tetraProperty)
