@@ -32,27 +32,28 @@ import threading
 import thread
 
 
+def findPlayingItem():
+    """If a video or audio item is currently playing, returns it"""
+    players = plugin.getbyname('VIDEO_PLAYER', True) + plugin.getbyname("AUDIO_PLAYER", False)
+    for player in players:
+        if not getattr(player, 'item', None):
+            continue
+        if not (player.app and player.app.isAlive()):
+            continue
+        return player.item
+
+
 class MediaWidgetMixin(object):
     """A widget mix-in that causes any widget to show
        information about the currently playing media file,
        if there is one.
        """
-    def findPlayingItem(self):
-        """If a video or audio item is currently playing, returns it"""
-        players = plugin.getbyname('VIDEO_PLAYER', True) + plugin.getbyname("AUDIO_PLAYER", False)
-        for player in players:
-            if not getattr(player, 'item', None):
-                continue
-            if not (player.app and player.app.isAlive()):
-                continue
-            return player.item
-
     def update(self, dt):
         """At each time step, try to format information from
            the currently active item. If we can't find any info
            or we aren't playing anything, hide ourselves.
            """
-        item = self.findPlayingItem()
+        item = findPlayingItem()
         if item:
             t = self.formatItem(item)
             if t:
@@ -119,9 +120,9 @@ class MediaLengthWidget(MediaWidgetMixin, vfdwidgets.Text):
 
 class UpdaterThread(threading.Thread):
     """This thread runs continuously in the background, updating our VFD"""
-    def __init__(self, vfd, surface):
+    def __init__(self, mi6k, surface):
         threading.Thread.__init__(self)
-        self.vfd = vfd
+        self.mi6k = mi6k
         self.surface = surface
         self.stop = False
         self.lock = thread.allocate_lock()
@@ -129,6 +130,7 @@ class UpdaterThread(threading.Thread):
     def run(self):
         oldFrame = None
         while not self.stop:
+            self.updateLEDs()
             self.surface.update()
             self.lock.acquire()
             try:
@@ -141,9 +143,29 @@ class UpdaterThread(threading.Thread):
                 time.sleep(0.01)
             else:
                 # Do a blocking write of the latest frame
-                self.vfd.writeLines(frame)
+                self.mi6k.vfd.writeLines(frame)
             oldFrame = frame
-        self.vfd.clear()
+        self.mi6k.vfd.clear()
+        self.mi6k.lights.blue = 0
+        self.mi6k.lights.white = 0
+
+    def updateLEDs(self):
+        # The blue LED flashes as we start playing something,
+        # then stays dimly lit as long as it's playing
+        playingLevel = 0.004
+        blueDimRate  = 0.9
+        if findPlayingItem():
+            if self.mi6k.lights.blue < playingLevel:
+                self.mi6k.lights.blue = 1
+            else:
+                self.mi6k.lights.blue = max(playingLevel, self.mi6k.lights.blue * blueDimRate)
+        else:
+            self.mi6k.lights.blue = 0
+
+        # We flash the white LED when a new OSD message comes in,
+        # this just controls how fast it fades away.
+        whiteDimRate = 0.8
+        self.mi6k.lights.white *= whiteDimRate
 
 
 class PluginInterface(plugin.DaemonPlugin):
@@ -156,22 +178,24 @@ class PluginInterface(plugin.DaemonPlugin):
         self.osdWidget = None
 
         self.mi6k = mi6k.Device(device)
-        self.vfd = self.mi6k.vfd
         self.initVfd()
 
-        self.surface = vfdwidgets.Surface(self.vfd.width, self.vfd.lines)
+        self.surface = vfdwidgets.Surface(self.mi6k.vfd.width,
+                                          self.mi6k.vfd.lines)
         self.initWidgets()
 
-        self.updater = UpdaterThread(self.vfd, self.surface)
+        self.updater = UpdaterThread(self.mi6k, self.surface)
         self.updater.setDaemon(1)
         self.updater.start()
 
     def initVfd(self):
         """Power on the VFD, set defaults, and allocate characters"""
-        self.vfd.powerOn()
-        self.vfd.setBrightness(0.1)
+        self.mi6k.vfd.powerOn()
+        self.mi6k.vfd.setBrightness(0.1)
+        self.mi6k.lights.blue = 0
+        self.mi6k.lights.white = 0
 
-        self.ellipses = self.vfd.allocCharacter([
+        self.ellipses = self.mi6k.vfd.allocCharacter([
             [ 0, 0, 0, 0, 0 ],
             [ 0, 0, 0, 0, 0 ],
             [ 0, 0, 0, 0, 0 ],
@@ -265,6 +289,10 @@ class PluginInterface(plugin.DaemonPlugin):
                                 ellipses = self.ellipses)
             self.surface.add(w, lifetime = 1)
             self.osdWidget = w
+
+            # Bright flash to draw attention to a new message
+            self.mi6k.lights.white = 0.3
+
         finally:
             pass
             self.updater.lock.release()
