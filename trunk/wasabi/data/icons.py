@@ -11,3 +11,5 @@ ps2       = Icon('icon_ps2.png',       'Playstation 2', imageAspect = 0.983 )
 dreamcast = Icon('icon_dreamcast.png', 'Dreamcast',     imageAspect = 1.66  )
 nintendo  = Icon('icon_nes.png',       'Nintendo',      imageAspect = 1.594 )
 genesis   = Icon('icon_sega.png',      'Genesis',       imageAspect = 1.679 )
+vidInput  = Icon('icon_rca_cables.png','Video Input',   imageAspect = 0.732 )
+
