@@ -18,17 +18,9 @@ public class njavasub extends nbase
 	 */
 	public static void go(Socket LINK, BufferedReader IN, OutputStreamWriter OUT)
 	{
-		if(head == null)
-		{
 			head = new njavasub();
 			head.reinit(LINK,IN,OUT);
 			head.start();
-		}
-		else
-		{
-			head.reinit(LINK,IN,OUT);
-			head.start();
-		}
 	}
 	
 	/** A reference to the next java submission thread. */
