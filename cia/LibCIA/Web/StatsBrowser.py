@@ -1,6 +1,6 @@
 """ LibCIA.Web.StatsBrowser
 
-A web interface, built using nevow, for CIA's stats:// namespace
+A web interface for CIA's stats:// namespace
 """
 #
 # CIA open source notification system
