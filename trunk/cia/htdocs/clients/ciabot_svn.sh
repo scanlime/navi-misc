@@ -1,9 +1,9 @@
 #!/bin/sh
 #
-# CIA bot notification script for Subversion repositories.
+# CIA bot client script for Subversion repositories, delivering via email
 # -- Micah Dowty <micah@picogui.org>
 #
-# See http://navi.picogui.org/svn/picogui/trunk/tools/irc/cia.html
+# See http://cia.navi.cx
 # for more information on what the CIA bot is and how it works.
 #
 # To use the CIA bot in your Subversion repository...
@@ -21,11 +21,7 @@
 #      REV="$2"
 #      $REPOS/hooks/ciabot_svn.sh "$REPOS" "$REV"&
 #
-# Note that this version of the script requires python. If you can't
-# get python on your subversion server, you'll need to remove
-# or modify the code below that finds the parent directory of all changes.
-#
-##### There are some parameters for this script that you can customize:
+############# There are some parameters for this script that you can customize:
 
 # Project information
 project_name="YOUR_PROJECT_HERE"
@@ -34,39 +30,50 @@ return_address="YOUR@EMAIL.ADDRESS.HERE"
 # System
 sendmail_command="/usr/sbin/sendmail -t"
 
-# Commit format
-log_message_lines="6"
-basedir_color="{light blue}"
-revision_color="{yellow}"
-author_color="{green}"
 
-##### Below this line you shouldn't have to change anything unless you
-##### want more extensive customization
+############# Below this line you shouldn't have to change anything
 
 # Script arguments
 REPOS="$1"
 REV="$2"
 
-# The address CIA lives at
-cia_address="commits@picogui.org"
+# The email address CIA lives at
+cia_address="cia@navi.cx"
 
-# Use svnlook and a python oneliner to find the base directory of all changes
-basedir=`svnlook dirs-changed -r "$REV" "$REPOS" | python -c \
-         'import os,sys;print os.path.normpath(os.path.commonprefix(sys.stdin.readlines())[:-1])'`
-
-# Get the commit author using svnlook
+# Look up the author, log message, and diff length
 author=`svnlook author -r "$REV" "$REPOS"`
+log=`svnlook log -r "$REV" "$REPOS"`
+diff_lines=`svnlook diff -r "$REV" "$REPOS" | wc -l`
 
-# Now compose a commit message using the data determined above
-# and the first few lines of the log message, emailing it to CIA.
-(
-   echo "From: $return_address"
-   echo "To: $cia_address"
-   echo "Content-Type: text/plain;"
-   echo "Subject: Announce $project_name"
-   echo
-   echo -n "$basedir_color$basedir{normal} r$revision_color$REV{normal} $author_color$author{normal}: "
-   svnlook log -r "$REV" "$REPOS" | head -n $log_message_lines
-) | $sendmail_command
+# format the list of changed files as a list of <file> tags
+for file in `svnlook changed -r "$REV" "$REPOS"`; do
+    files=$files<file>$file</file>
+done
+
+# Send an email with the final XML message
+cat | $sendmail_command <<EOF
+From: $return_address
+To: $cia_address
+Subject: DeliverXML
+
+<message>
+    <generator>
+        <name>Subversion CIA Bot client shell script</name>
+        <version>1.0</version>
+    </generator>
+    <source>
+        <project>$project_name</project>
+    </source>
+    <body>
+        <commit>
+            <revision>$REV</revision>
+            <author>$author</author>
+            <files>$files</files>
+            <log>$log</log>
+            <diffLines>$diff_lines</diffLines>
+        </commit>
+    </body>
+</message>
+EOF
 
 ### The End ###
