@@ -23,7 +23,6 @@
  */
 
 #include "url-editor-dialog.h"
-#include <glade/glade.h>
 
 static GtkDialogClass *parent_class = NULL;
 
@@ -33,6 +32,7 @@ url_editor_dialog_finalize (GObject *obj)
 	UrlEditorDialog *dialog = (UrlEditorDialog *) obj;
 
 	g_object_unref (dialog->url_list_model);
+	g_object_unref (dialog->gui);
 
 	((GObjectClass *)(parent_class))->finalize (obj);
 }
@@ -53,6 +53,19 @@ url_editor_dialog_init (UrlEditorDialog *dialog)
 {
 }
 
+static void
+url_editor_dialog_construct (UrlEditorDialog *dialog)
+{
+	GladeXML *gui;
+	GtkWidget *toplevel;
+
+	gui = glade_xml_new (EVOLUTION_GLADEDIR "/url-editor-dialog.glade", "toplevel_dialog", NULL);
+	dialog->gui = gui;
+
+	toplevel = glade_xml_get_widget (gui, "toplevel_dialog");
+
+	gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), toplevel);
+}
 
 GtkWidget *
 url_editor_dialog_new (GtkTreeModel *url_list_model, EPublishUri *pub_uri)
@@ -62,7 +75,7 @@ url_editor_dialog_new (GtkTreeModel *url_list_model, EPublishUri *pub_uri)
 	dialog = (UrlEditorDialog *) g_object_new (url_editor_dialog_get_type (), NULL);
 	url_editor_dialog_construct (dialog);
 
-	return (GtkWidget *) dialog;
+	return GTK_WIDGET (dialog);
 }
 
 GType
