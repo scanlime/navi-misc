@@ -39,6 +39,7 @@ int main()
   theta = 0;
   while (1) {
     theta += delta_time() * 3.0;
+    theta = fmod(theta, M_PI * 2);
 
     brightness = sin(theta) * 0.4 + 0.5;
     brightness = pow(brightness, 1.8);

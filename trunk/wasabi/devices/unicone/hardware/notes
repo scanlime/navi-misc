@@ -98,10 +98,10 @@ DB-25 male I/O port
 Gamecube controllers:
 
   +5V   (1) Ylw - N/C
-  DATA  (2) Wht - Port 1: pin 2
-                  Port 2: pin 3
-                  Port 3: pin 4
-                  Port 4: pin 5
+  DATA  (2) Wht - Port 1: DB25 pin 2, FPGA P7
+                  Port 2: DB25 pin 3, FPGA P9
+                  Port 3: DB25 pin 4, FPGA P20
+                  Port 4: DB25 pin 5, FPGA P25
   GND   (3) Red - pin 1
   GND   (4) Blu - pin 1
   +3.3v (6) Grn - N/C

@@ -1,6 +1,6 @@
 [project]
-name=test
-netlist=test
+name=gamecube
+netlist=gamecube
 contents=
 date=09/25/04
 time=00:00:44
@@ -18,19 +18,19 @@ lib_order=155 155 155 155 155 155 155 155 155 155 155 155 155 133 155
 oid=0
 lid=0
 format=19
-source=c:\unicone\fpga\test\test.v
+source=c:\unicone\fpga\gamecube\gamecube.v
 server_hwnd=655922
 [Top Doc]
-test.v=21
+gamecube.v=21
 [hdl_sheets]
-test.v=
+gamecube.v=
 [OpenDoc]
-hde/test=983338,1,154,154,1114,883,test.v
+hde/gamecube=983338,1,154,154,1114,883,gamecube.v
 [OPEN32]
 nMaxFile=10000
 lpstrFile=
 lpstrFilter=HDL (*.VHD;*.VER;*.VE;*.V)|*.vhd;*.ver;*.ve;*.v|Schematic (*.SCH)|*.sch|FSM (*.ASF)|*.asf|Xnf Sources (*.XNF)|*.xnf|Edif Sources (*.EDF;*.EDN;*.EDO)|*.edf;*.edn;*.edo|All Files (*.*)|*.*||
-lpstrInitialDir=C:\UNICONE\FPGA\TEST
+lpstrInitialDir=C:\UNICONE\FPGA\GAMECUBE
 lpstrTitle=Add Document
 nFilterIndex=0
 Flags=530964
@@ -62,7 +62,7 @@ part=4010XLPC84-09
 xilinx=4010XLPC84-09
 functional=ver1
 optimized=ver1-Optimized
-design=test,c:\unicone\fpga\test\test.v
+design=gamecube,c:\unicone\fpga\gamecube\gamecube.v
 [xilinx]
 family=2
 xfam=XC4000XL
