@@ -21,7 +21,7 @@ usb_dev_handle *open_efs(void) {
       }
     }
   }
-  printf("No device found");
+  printf("No device found\n");
   return NULL;
 }
 
@@ -47,13 +47,15 @@ int main(int argc, char **argv) {
 
   set_param_byte(d, EFS_PARAM_LC_PORT_XOR,      0xFF);
   set_param_byte(d, EFS_PARAM_ADCON_INIT,       0x81);
-  set_param_byte(d, EFS_PARAM_PERIOD,           256 - 50);
-  set_param_byte(d, EFS_PARAM_PHASE,            256 - 20);
-  set_param_byte(d, EFS_PARAM_NUM_HALF_PERIODS, 10);
-  set_param_byte(d, EFS_PARAM_LC_TRIS_INIT,     0xFC);
-  set_param_byte(d, EFS_PARAM_LC_PORT_INIT,     0x02);
+  set_param_byte(d, EFS_PARAM_PHASE,            240);
+  set_param_byte(d, EFS_PARAM_NUM_HALF_PERIODS, 50);     /* Tuned */
+  set_param_byte(d, EFS_PARAM_LC_TRIS_INIT,     0x00);
+  set_param_byte(d, EFS_PARAM_LC_PORT_INIT,     0x55);
+  set_param_byte(d, EFS_PARAM_PERIOD,           227);    /* Tuned */
 
-  printf("%d\n", take_reading(d));
+  while (1) {
+    take_reading(d);
+  }
 
   return 0;
 }
