@@ -18,9 +18,8 @@ Database.init()
 application = service.Application("cia_server")
 hub = Message.Hub()
 
-# A network of IRC bots used to handle irc:// URIs
-botNet = IRC.Bots.BotNetwork(IRC.Bots.SequentialNickAllocator("CIA-"))
-#botNet = IRC.Bots.BotNetwork(IRC.Bots.RandomAcronymNickAllocator())
+# Connect to IRC bots running in a separate process
+remoteBots = IRC.Handler.RemoteBots("bots.socket")
 
 # Set up periodic maintenance tasks
 Cron.Scheduler(
@@ -30,7 +29,7 @@ Cron.Scheduler(
 
 # A list of URI handlers that can be used as targets for rulesets
 uriRegistry = Ruleset.URIRegistry(
-    IRC.Handler.IrcURIHandler(botNet),
+    IRC.Handler.IrcURIHandler(remoteBots),
     Stats.Handler.StatsURIHandler(),
     RpcClient.XmlrpcURIHandler(),
     )
@@ -80,7 +79,7 @@ webRoot.putChild('RPC2', rpc)
 # The user-navigable areas of our site are all Component instances
 site.putComponent('stats', stats)
 site.putComponent('doc', doc)
-site.putComponent('irc', Web.BotStatus.Component(botNet))
+site.putComponent('irc', Web.BotStatus.Component(remoteBots))
 site.putComponent('rulesets', Web.RulesetBrowser.Component(rulesetStorage))
 site.putComponent('info', Web.Info.Component())
 

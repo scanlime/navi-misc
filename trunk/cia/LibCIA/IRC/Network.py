@@ -42,9 +42,15 @@ class BaseNetwork:
     # minutes, since most of the smaller networks we're on get annoyed
     # if we retry too quickly. We override this in the larger networks below.
     newBotTimeout = 60 * 16
-        
+
     def __str__(self):
         return self.alias
+
+    def getIdentity(self):
+        """Return a (host, port) tuple that can be used to return this network
+           from a search.
+           """
+        return (self.alias, None)
 
     def __repr__(self):
         return "<IRC.Network.%s>" % self.__class__.__name__
@@ -81,6 +87,9 @@ class GenericNetwork(BaseNetwork):
        """
     def __init__(self, host, port=None):
         self.servers = ( (host, port), )
+
+    def getIdentity(self):
+        return self.servers[0]
 
     def __str__(self):
         host, port = self.servers[0]

@@ -339,6 +339,12 @@ class BaseURIHandler(object):
            """
         pass
 
+    def rulesetsRefreshed(self):
+        """If the handler is interested, it can override this method to be
+           notified when rulesets are done refreshing.
+           """
+        pass
+
 
 class RegexURIHandler(BaseURIHandler):
     """A URIHandler that validates and parses URIs using a regular expression.
@@ -413,6 +419,11 @@ class URIRegistry(object):
                 return handler
         raise UnsupportedURI("No registered URI handler supports %r" % uri)
 
+    def rulesetsRefreshed(self):
+        """Notify all URI handlers that rulesets are done being refreshed"""
+        for handler in self.handlers:
+            handler.rulesetsRefreshed()
+
 
 class RulesetStorage:
     """Abstract base class for a persistent list of Rulesets, stored in
@@ -451,7 +462,9 @@ class RulesetStorage:
                     ruleset,
                     "".join(traceback.format_exception(*sys.exc_info())),
                     ))
+
         log.msg("%d rulesets loaded" % count)
+        self.uriRegistry.rulesetsRefreshed()
         result.callback(None)
         return seq
 
