@@ -44,7 +44,7 @@ class KeyGranter(Client.App):
 
     def main(self):
         # Ask the server to grant us this capability
-        key = self.server.security.grant(self.config['capability'], self.key)
+        key = self.server.security.grant(self.key, self.config['capability'])
 
         # Write the key to disk, setting the file permissions on it such to make it more private
         fileName = self.config['output']
