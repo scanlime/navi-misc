@@ -54,15 +54,15 @@ div.content {
 
 div.footer {
   padding: 1em;
-  margin: 2em 0em 0em 0em;
+  margin: 0em;
 }
 
 div.code {
   border: 1px dashed #AAA;
   font-family: monospace;
-  padding: 0.2em 0.2em 0.2em 0.2em;
+  padding: 0.2em;
+  margin: 2em;
   width: 90%;
-  float: right;
 }
 
 p {
