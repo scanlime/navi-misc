@@ -28,7 +28,7 @@ from Base import tag, place
 # Tags with 'class' attributes should be placed in this module
 catalogList = tag('ul', _class="catalog")
 headingTab = tag('a', _class="headingtab")
-counterValue = tag('strong')
+value = tag('strong')
 
 class Section(Base.DocumentOwner):
     """A portion of the web page with a title and a body, that may be placed

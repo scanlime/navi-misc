@@ -40,32 +40,32 @@ class Counters(Template.Section):
     rows = [
                [
                    'The last message was received ',
-                   Template.counterValue[ place('relativeDate', 'forever', 'lastEventTime') ],
+                   Template.value[ place('relativeDate', 'forever', 'lastEventTime') ],
                    ' ago at ',
-                   Template.counterValue[ place('date', 'forever', 'lastEventTime') ],
+                   Template.value[ place('date', 'forever', 'lastEventTime') ],
                ],
                [
-                   Template.counterValue[ place('value', 'today', 'eventCount') ],
+                   Template.value[ place('value', 'today', 'eventCount') ],
                    ' messages so far today, ',
-                   Template.counterValue[ place('value', 'yesterday', 'eventCount') ],
+                   Template.value[ place('value', 'yesterday', 'eventCount') ],
                    ' messages yesterday',
                ],
                [
-                   Template.counterValue[ place('value', 'thisWeek', 'eventCount') ],
+                   Template.value[ place('value', 'thisWeek', 'eventCount') ],
                    ' messages so far this week, ',
-                   Template.counterValue[ place('value', 'lastWeek', 'eventCount') ],
+                   Template.value[ place('value', 'lastWeek', 'eventCount') ],
                    ' messages last week',
                ],
                [
-                   Template.counterValue[ place('value', 'thisMonth', 'eventCount') ],
+                   Template.value[ place('value', 'thisMonth', 'eventCount') ],
                    ' messages so far this month, ',
-                   Template.counterValue[ place('value', 'lastMonth', 'eventCount') ],
+                   Template.value[ place('value', 'lastMonth', 'eventCount') ],
                    ' messages last month',
                ],
                [
-                   Template.counterValue[ place('value', 'forever', 'eventCount') ],
+                   Template.value[ place('value', 'forever', 'eventCount') ],
                    ' messages since the first one, ',
-                   Template.counterValue[ place('relativeDate', 'forever', 'firstEventTime') ],
+                   Template.value[ place('relativeDate', 'forever', 'firstEventTime') ],
                    ' ago',
                    place('averagePeriod', 'forever'),
                ],
@@ -105,7 +105,7 @@ class Counters(Template.Section):
             return ''
         return [
             ', for an average of ',
-            Template.counterValue[ TimeUtil.formatDuration( (last - first) / events ) ],
+            Template.value[ TimeUtil.formatDuration( (last - first) / events ) ],
             ' between messages',
             ]
 
