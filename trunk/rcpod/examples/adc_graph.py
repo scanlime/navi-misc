@@ -10,7 +10,7 @@
 #
 
 from __future__ import division
-import gtk, rtgraph, threading, pyrcpod, time
+import gtk, rtgraph, threading, pyrcpod, time, os
 
 class AdcChannel(rtgraph.Channel):
     def strValue(self):
@@ -41,7 +41,10 @@ def main():
 
     analogThread = AnalogUpdaterThread(channels)
     try:
-        gtk.threads_init()
+        # Windows just hangs in gtk.threads_init()
+        if os.name != 'nt':
+            gtk.threads_init()
+
         gtk.main()
     finally:
         analogThread.running = False

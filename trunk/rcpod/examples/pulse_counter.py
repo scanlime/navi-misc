@@ -103,8 +103,12 @@ class SamplerWindow:
 if __name__ == "__main__":
     w = SamplerWindow(pyrcpod.devices[0])
     w.window.connect("destroy", gtk.main_quit)
-    gtk.threads_init()
+
     try:
+        # Windows just hangs in gtk.threads_init()
+        if os.name != 'nt':
+            gtk.threads_init()
+
         w.start()
         gtk.main()
     finally:
