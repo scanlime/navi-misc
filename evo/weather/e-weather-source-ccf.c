@@ -129,9 +129,11 @@ ftoc (char *data)
 static GList*
 e_weather_source_ccf_parse (EWeatherSource *source, const char *buffer)
 {
-	/* CCF gives us 14 12-hour blocks into the future. Depending on the
-	 * time of the forecast (whether it's the morning or afternoon product),
-	 * we can project either 6 or 7 days into the future.
+	/* CCF gives us either 2 or 7 days of forecast data. IFPS WFO's
+	 * will produce 7 day forecasts, whereas pre-IFPS WFO's are only
+	 * mandated 2 (but may do 7). The morning forecast will give us either 2
+	 * or 7 days worth of data. The evening forecast will give us the evening's
+	 * low temperature plus 2 or 7 days forecast.
 	 *
 	 * The CCF format is described in NWS directive 10-503, but it's usually
 	 * easier to look at a summary put up by one of the stations:
