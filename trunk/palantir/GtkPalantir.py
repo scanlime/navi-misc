@@ -33,7 +33,8 @@ class PalantirWindow:
 
     # Connect up the dice buttons separately because I don't know how to tell
     # glade to send data along with the callback and I don't think we need
-    # separate callbacks for each of these buttons.
+    # separate callbacks for each of these buttons, just a bit of data indicating
+    # the number of sides on the die (10 is default, so it doesn't get sent).
     self.tree.get_widget('d4').connect('clicked',
 	lambda w,d: self.on_dice_button_clicked(w,d), 4)
     self.tree.get_widget('d6').connect('clicked',
@@ -168,7 +169,27 @@ class PalantirWindow:
     if 'ROLL' in messages[0]:
       data = re.search('(\[.*\]) ([0-9]*) ([0-9]*)', messages[0][1])
       text = nick + ' rolled a ' + str(len(data.group(1).split())) + 'd' + data.group(2) + ': ' + data.group(1) + ' => ' + data.group(3)
-    # If it isn't a dice roll just display the message.
+
+    # If we've received a DM notification, set the DM icon on that user.
+    elif 'DM' in messages[0]:
+      image = gtk.Image()
+      image.set_from_file('pixmaps/dm.png')
+      self.tree.get_widget('UserList').get_model().foreach(self.setUserIcon, (nick, image.get_pixbuf()))
+      text = '*** ' + nick + ' set Dungeon Master status.'
+
+   # If we received notification of someone un-dm'ing themselves unset the DM icon.
+    elif '-DM' in messages[0]:
+      image = gtk.Image()
+      self.tree.get_widget('UserList').get_model().foreach(self.setUserIcon, (nick, image.get_pixbuf()))
+      text = '*** ' + nick + ' removed Dungeon Master status.'
+
+    # DMQUERY is the message sent to find out who has Dungeon Master status in the channel.
+    elif 'DMQUERY' in messages[0]:
+      if self.tree.get_widget('dungeon_master').get_active():
+	self.factory.SendCTCP(nick, [('DM',None)])
+      return
+
+  # If it isn't a dice roll just display the message.
     else:
       if messages[0][1]:
         message = string.join(messages[0])
@@ -229,11 +250,15 @@ class PalantirWindow:
     image = gtk.Image()
     if widget.get_active():
       image.set_from_file('pixmaps/dm.png')
+      text = '*** You set Dungeon Master status.'
+      ctcp = ('DM',None)
+    else:
+      text = '*** You removed Dungeon Master status.'
+      ctcp = ('-DM',None)
 
+    self.factory.SendCTCP(self.factory.channels[0], [ctcp])
+    self.messageReceive(None, self.factory.channels[0], text)
     store.foreach(self.setUserIcon, (self.factory.nickname, image.get_pixbuf()))
-
-
-    #store.set_value(iter, 0, image.get_pixbuf())
 
   ### Color Selection Dialog ###
   def on_color_ok_button_clicked(self, widget, data=None):
