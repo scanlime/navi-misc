@@ -42,10 +42,8 @@ load_plugins(void)
 	{
 		gchar *full = g_strdup_printf("src/plugins/%s", file);
 		plugin = g_module_open (full, G_MODULE_BIND_LOCAL);
-		if (plugin == NULL)
-			g_print("failure on '%s'\n", file);
-		else
-			g_print("success on '%s'\n", file);
+		if (plugin != NULL)
+			g_print("loaded plugin '%s'\n", file);
 		g_free(full);
 	}
 
