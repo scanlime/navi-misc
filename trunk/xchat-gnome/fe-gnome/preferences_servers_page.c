@@ -195,6 +195,29 @@ edit_cancel_clicked (GtkWidget *button, gpointer data)
 }
 
 static void
+server_selection_changed (GtkTreeSelection *selection, gpointer data)
+{	GtkWidget *button;
+
+	button = glade_xml_get_widget (gui.xml, "server config remove server");
+
+	if (gtk_tree_selection_get_selected (selection, NULL, NULL)) {
+		gtk_widget_set_sensitive (button, TRUE);
+	} else {
+		gtk_widget_set_sensitive (button, FALSE);
+	}
+}
+
+static void
+add_server_clicked (GtkButton *button, gpointer data)
+{
+}
+
+static void
+remove_server_clicked (GtkButton *button, gpointer data)
+{
+}
+
+static void
 populate_servers_list (GtkListStore *store, ircnet *net)
 {
 	GtkTreeIter iter;
@@ -207,6 +230,30 @@ populate_servers_list (GtkListStore *store, ircnet *net)
 		gtk_list_store_set (store, &iter, 0, serv->hostname, -1);
 		list = g_slist_next (list);
 	}
+}
+
+static void
+autojoin_selection_changed (GtkTreeSelection *selection, gpointer data)
+{
+	GtkWidget *button;
+
+	button = glade_xml_get_widget (gui.xml, "remove autojoin channel");
+
+	if (gtk_tree_selection_get_selected (selection, NULL, NULL)) {
+		gtk_widget_set_sensitive (button, TRUE);
+	} else {
+		gtk_widget_set_sensitive (button, FALSE);
+	}
+}
+
+static void
+add_autojoin_clicked (GtkButton *button, gpointer data)
+{
+}
+
+static void
+remove_autojoin_clicked (GtkButton *button, gpointer data)
+{
 }
 
 static void
@@ -342,6 +389,16 @@ edit_clicked (GtkWidget *button, gpointer data)
 	gtk_tree_view_column_set_attributes (column, renderer, "text", 0, NULL);
 	gtk_tree_view_append_column (GTK_TREE_VIEW (widget), column);
 	g_object_set (G_OBJECT (renderer), "editable", TRUE, NULL);
+
+	select = gtk_tree_view_get_selection (GTK_TREE_VIEW (widget));
+	g_signal_connect (G_OBJECT (select), "changed", G_CALLBACK(server_selection_changed), NULL);
+
+	widget = glade_xml_get_widget (gui.xml, "server config add server");
+	g_signal_connect (G_OBJECT (widget), "clicked", G_CALLBACK(add_server_clicked), NULL);
+	widget = glade_xml_get_widget (gui.xml, "server config remove server");
+	gtk_widget_set_sensitive (widget, FALSE);
+	g_signal_connect (G_OBJECT (widget), "clicked", G_CALLBACK(remove_server_clicked), NULL);
+
 	populate_servers_list (store, net);
 
 	/* channels list */
@@ -354,6 +411,16 @@ edit_clicked (GtkWidget *button, gpointer data)
 	gtk_tree_view_column_set_attributes (column, renderer, "text", 0, NULL);
 	gtk_tree_view_append_column (GTK_TREE_VIEW (widget), column);
 	g_object_set (G_OBJECT (renderer), "editable", TRUE, NULL);
+
+	select = gtk_tree_view_get_selection (GTK_TREE_VIEW (widget));
+	g_signal_connect (G_OBJECT (select), "changed", G_CALLBACK (autojoin_selection_changed), NULL);
+
+	widget = glade_xml_get_widget (gui.xml, "add autojoin channel");
+	g_signal_connect (G_OBJECT (widget), "clicked", G_CALLBACK (add_autojoin_clicked), NULL);
+	widget = glade_xml_get_widget (gui.xml, "remove autojoin channel");
+	gtk_widget_set_sensitive (widget, FALSE);
+	g_signal_connect (G_OBJECT (widget), "clicked", G_CALLBACK (remove_autojoin_clicked), NULL);
+
 	populate_channels_list (store, net);
 
 	gtk_widget_show_all (dialog);
