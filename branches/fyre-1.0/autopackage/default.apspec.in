@@ -26,6 +26,10 @@ efficient rendering of high-resolution, high quality images.
 [BuildPrepare]
 export APBUILD_STATIC="gnet-2.0"
 export APBUILD_DISABLE_BOGUS_DETECTOR=1
+
+# exr pulls in c++ even when we're not building with it due to automake wackyness
+# so override it here
+export CXX=apgcc
 prepareBuild
 
 [BuildUnprepare]
