@@ -18,6 +18,21 @@
 	        <!--#include file="navigation.inc" -->
 	    </td>
 	    <td class="body">
+
+	        <div class="heading">31 January 2005 - Spiraling Shape</div>
+		<img src="http://flapjack.navi.cx/media/fyre/spiraling-shape-thumb.png" width="96" height="72" class="newsIcon" />
+		<p>If you haven't seen Fyre's animation capabilities in action yet, here's your chance. The first entry in an online
+		video gallery is online. <em>Spiraling Shape</em> is a simple but elegant transition between spirals. Grab the
+		<a href="http://flapjack.navi.cx/media/fyre/spiraling-shape-low.avi">Low Quality AVI</a> (891 KB, 0:34) or the
+		<a href="http://flapjack.navi.cx/media/fyre/spiraling-shape-high.avi">High Quality AVI</a>. (12 MB, 0:34) If you
+		want to open it in Fyre's animation editor, grab the <a href="http://flapjack.navi.cx/media/fyre/spiraling-shape.fa">.fa file</a>
+		(336 KB) and feel free to experiment.
+		</p>
+		<p>Remember that Fyre's animation renderer writes uncompressed AVI files. You'll need a tool like
+		<a href="http://www.mplayerhq.hu/DOCS/HTML/en/mencoder.html">mencoder</a> to compress them with your favorite codec, since
+		the original files are huge and not widely supported.
+		</p>
+
 	        <div class="heading">27 January 2005 - 0.8 released</div>
 		<p>This release fixes all of the known non-windows bugs. Get it now from <a href="http://flapjack.navi.cx/releases/fyre/">FlapJack</a>.</p>
 
@@ -35,6 +50,7 @@
 
 		<div class="heading">09 March 2004 - New name</div>
 		<p>Previously known as the "de Jong Explorer", Fyre is now named Fyre. Why the name 'Fyre'? Because it wasn't taken yet.</p>
+
 	    </td>
 	</tr>
     </tbody>
