@@ -47,7 +47,10 @@ class HubInterface(xmlrpc.XMLRPC):
            This does not yet require a capability key, but it might eventually.
            """
         try:
-            return self.hub.deliver(Message(xml))
+            result = self.hub.deliver(Message(xml))
+            if result is None:
+                return True
+            return result
         except:
             Interface.catchFault("Exception occurred while delivering the message:\n%s\n--------" % xml)
 

@@ -62,13 +62,14 @@ class XMLObject(object):
         pass
 
 
-class XMLFunction(XMLObject):
-    """An XMLObject that is parsed on creation into a function,
-       making this class callable. The parser relies on member functions
-       starting with 'element_' to recursively parse each element of the XML
-       tree, returning a function implementing it.
+class XMLObjectParser(XMLObject):
+    """An XMLObject that is parsed recursively on creation into any
+       python object, stored in 'resultAttribute'. parse() dispatches
+       control to an element_* method when it finds an element, and
+       to parseString when it comes to character data.
        """
     requiredRootElement = None
+    resultAttribute = 'obj'
 
     def preprocess(self):
         """Upon creating this object, parse the XML tree recursively
@@ -81,10 +82,7 @@ class XMLFunction(XMLObject):
             raise XMLValidityError("Found a %r element where a root element of %r is required" %
                                    (self.xml.name, self.requiredRootElement))
 
-        self.f = self.parse(self.xml)
-
-    def __call__(self, *args, **kwargs):
-        return self.f(*args, **kwargs)
+        setattr(self, self.resultAttribute, self.parse(self.xml))
 
     def parse(self, element):
         """Given an XML element, recursively builds a python function
@@ -92,14 +90,33 @@ class XMLFunction(XMLObject):
            """
         # Pass control on to the appropriate element_* function
         try:
-            f = getattr(self, "element_" + element.name)
+            if type(element) in types.StringTypes:
+                f = self.parseString
+            else:
+                f = getattr(self, "element_" + element.name)
         except AttributeError:
             return self.unknownElement(element)
         return f(element)
 
+    def parseString(self, s):
+        """The analogue to element_* for character data"""
+        pass
+
     def unknownElement(self, element):
         """An unknown element was found, by default just generates an exception"""
         raise XMLValidityError("Unknown element name in %s: %r" % (self.__class__.__name__, element.name))
+
+
+class XMLFunction(XMLObjectParser):
+    """An XMLObject that is parsed on creation into a function,
+       making this class callable. The parser relies on member functions
+       starting with 'element_' to recursively parse each element of the XML
+       tree, returning a function implementing it.
+       """
+    resultAttribute = 'f'
+
+    def __call__(self, *args, **kwargs):
+        return self.f(*args, **kwargs)
 
 
 class XMLStorage(object):

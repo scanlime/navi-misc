@@ -408,12 +408,17 @@ class LogDB(object):
        ['4990', '4991', '4992', '4993', '4994', '4995', '4996', '4997', '4998', '4999']
        """
     def __init__(self, fileName, flags='c', size=1024):
-        self.db = anydbm.open(fileName, flags)
+        self.fileName = fileName
+        self.flags = flags
+        self.newSize = size
+
+    def open(self):
+        self.db = anydbm.open(self.fileName, self.flags)
         if not self.db.has_key('size'):
             # It's a new database, initialize the special keys
             self.db['head'] = '0'
             self.db['count'] = '0'
-            self.db['size'] = str(size)
+            self.db['size'] = str(self.newSize)
         self.size = int(self.db['size'])
         self.head = int(self.db['head'])
         self.count = int(self.db['count'])
@@ -426,41 +431,49 @@ class LogDB(object):
            the oldest entries if the buffer is full.
            'node' must be a string.
            """
-        # Stow the new node at our head and increment it
-        self.db[str(self.head)] = node
-        self.head = self.head + 1
-        if self.head >= self.size:
-            self.head -= self.size
-        self.db['head'] = str(self.head)
+        self.open()
+        try:
+            # Stow the new node at our head and increment it
+            self.db[str(self.head)] = node
+            self.head = self.head + 1
+            if self.head >= self.size:
+                self.head -= self.size
+            self.db['head'] = str(self.head)
 
-        # If we haven't just also pushed out an old item,
-        # increment the count of items in our db.
-        if self.count < self.size:
-            self.count += 1
-            self.db['count'] = str(self.count)
+            # If we haven't just also pushed out an old item,
+            # increment the count of items in our db.
+            if self.count < self.size:
+                self.count += 1
+                self.db['count'] = str(self.count)
+        finally:
+            self.close()
 
     def getLatest(self, n=None):
         """Returns up to the latest 'n' items. If n is None,
            returns the entire contents of the FIFO.
            Returns a list, oldest items first.
            """
-        # Figure out how many items we can actually extract
-        if n is None or n > self.count:
-            n = self.count
+        self.open()
+        try:
+            # Figure out how many items we can actually extract
+            if n is None or n > self.count:
+                n = self.count
 
-        # Find the key holding the oldest item we want to return,
-        # and start pulling items out from there
-        key = self.head - n
-        if key < 0:
-            key += self.size
-        results = []
-        while n > 0:
-            results.append(self.db[str(key)])
-            key += 1
-            if key >= self.size:
-                key -= self.size
-            n -= 1
-        return results
+            # Find the key holding the oldest item we want to return,
+            # and start pulling items out from there
+            key = self.head - n
+            if key < 0:
+                key += self.size
+            results = []
+            while n > 0:
+                results.append(self.db[str(key)])
+                key += 1
+                if key >= self.size:
+                    key -= self.size
+                n -= 1
+            return results
+        finally:
+            self.close()
 
 
 class IntervalCounters(CounterList):
