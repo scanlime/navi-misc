@@ -68,7 +68,8 @@ class HubListener(object):
         if server:
             # Split the server into host and port, using our default if we can't
             if server.find(":") > 0:
-                serverTuple = server.split(":")
+                serverParts = server.split(":")
+                serverTuple = serverParts[0], int(serverParts[1])
             else:
                 serverTuple = server, self.defaultPort
         else:
@@ -111,7 +112,7 @@ class HubListener(object):
 
         # Remove this channel's old IRCRuleset if it has one
         try:
-            oldRuleset = self.rulesets[(server, channel)]
+            oldRuleset = self.rulesets[tuple(server), channel]
             del self.rulesets[(server, channel)]
             self.hub.delClient(oldRuleset)
         except KeyError:
