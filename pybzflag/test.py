@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 
-import BZFlag.Network
 import BZFlag.Client
 import BZFlag.ListServer
 import BZFlag.Player
 import BZFlag.Protocol.FromServer
+import BZFlag.Protocol.ToServer
 import sys
+
 
 if len(sys.argv) > 1:
     # There was a server name on the command line
@@ -16,8 +17,14 @@ else:
     serverName = server.name
     print server.info()
 
+
 class TestClient(BZFlag.Client.PlayerClient):
-    pass
+    def onMsgAccept(self, msg, socket, eventLoop):
+        alive = BZFlag.Protocol.ToServer.MsgAlive()
+        alive.position = (10,10,20)
+        alive.forward  = (1,0,0)
+        socket.write(alive)
+
 
 playerIdent = BZFlag.Player.Identity("Bob the Avenger")
 client = TestClient(serverName, playerIdent)

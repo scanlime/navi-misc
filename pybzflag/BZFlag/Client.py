@@ -31,8 +31,9 @@ from BZFlag.Protocol import FromServer, ToServer, Common
 class BaseClient:
     """Implements a very simple but extensible BZFlag client.
        This client can connect and disconnect, and it has a system
-       for asynchronously processing messages. It does not know
-       anything about players or the game state.
+       for asynchronously processing messages. It doesn't actually process
+       any messages. Most common messages are processed by the SimpleClient
+       subclass below.
 
        The methods of this class and its subclasses use the following
        naming conventions:
@@ -124,7 +125,7 @@ class BaseClient:
         # This can return None if part of the mesasge but not the whole
         # thing is available. The rest of the message will be rebuffered,
         # so we'll read the whole thing next time this is called.
-        msg = socket.readMessage()
+        msg = socket.readMessage(FromServer)
         if msg:
             msgName = msg.__class__.__name__
             handler = getattr(self, "on%s" % msgName, None)
@@ -140,15 +141,25 @@ class BaseClient:
            """
         pass
 
-    def onMsgSuperKill(self, msg, socket, eventLoop):
-        self.disconnect()
-
     def onUnhandledMessage(self, msg, socket, eventLoop):
         raise Errors.ProtocolException("Unhandled message %s" % msg.__class__.__name__)
     
 
-class StatefulClient(BaseClient):
-    """Extends the BaseClient to keep track of the state of the game
+class SimpleClient(BaseClient):
+    """Extends the BaseClient to handle basic message types that don't
+       involve updating a local view of the game world.
+       """
+    def onMsgSuperKill(self, msg, socket, eventLoop):
+        """The server wants us to die immediately"""
+        self.disconnect()
+
+    def onMsgLagPing(self, msg, socket, eventLoop):
+        """The server is measuring our lag, reply with the same message."""
+        socket.write(msg)
+        
+
+class StatefulClient(SimpleClient):
+    """Extends the SimpleClient to keep track of the state of the game
        world, as reported by the server and the other clients.
        """
     pass
@@ -165,18 +176,29 @@ class PlayerClient(StatefulClient):
         StatefulClient.__init__(self, server)
 
     def onConnect(self):
-        self.enterGame(self.playerIdentity)
+        self.enterGame()
 
-    def enterGame(self, playerIdentity):
+    def enterGame(self):
         msg = ToServer.MsgEnter()
-        msg.playerType = playerIdentity.type
-        msg.team = playerIdentity.team
-        msg.callSign = playerIdentity.callSign
-        msg.emailAddress = playerIdentity.emailAddress
+        msg.playerType = self.playerIdentity.type
+        msg.team = self.playerIdentity.team
+        msg.callSign = self.playerIdentity.callSign
+        msg.emailAddress = self.playerIdentity.emailAddress
         self.tcp.write(msg)
 
     def exitGame(self):
         self.tcp.write(ToServer.MsgExit())
+
+    def onMsgAccept(self, msg, socket, eventLoop):
+        """This is called after we try to enterGame, if it's successful."""
+        self.onEnterGame()
+
+    def onEnterGame(self):
+        pass
+
+    def onMsgReject(self, msg, socket, eventLoop):
+        """This is called after we try to enterGame, if we failed."""
+        raise Errors.GameException("Unable to enter the game")
 
 
 ### The End ###

@@ -33,6 +33,9 @@ class NetworkException(Exception):
 class ConnectionLost(NetworkException):
     pass
 
+class GameException(Exception):
+    pass
+
 ### The End ###
         
     
