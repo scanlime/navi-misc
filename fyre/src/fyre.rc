@@ -2,5 +2,5 @@
 // We don't need any of these resources to run,
 // this is just here to give our app a pretty icon
 
-101     ICON    DISCARDABLE     "src/platform/fyre.ico"
+101     ICON    DISCARDABLE     "fyre.ico"
 
