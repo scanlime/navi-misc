@@ -40,6 +40,7 @@ undetermined:
 when releasing:
 -	Check to make sure changelog is complete
 -	Make sure all version numbers are up-to-date
+		(configure.in, ChangeLog)
 -	Make sure screenshots on the web site are current
 -	Tag the release
 -	Notify http://www.gnomefiles.org 			- Dan
