@@ -13,6 +13,7 @@ keeping track of the number of misses.
 #
 
 import sys, string
+from urllib2 import urlopen
 from random import seed, choice
 
 __version__ = "0.2"
@@ -115,7 +116,7 @@ class Hangman:
 				the dictionary in self.words.
 				"""
 		# Get the strings from the file.
-		wordList = open(filename, 'r').readlines()
+		wordList = urlopen(filename).readlines()
 		wordList = [word.strip() for word in wordList]
 
 		# Make the dictionary.

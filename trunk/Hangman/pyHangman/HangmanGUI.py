@@ -299,7 +299,7 @@ class HangmanGUI:
 				and send it to be opened and read into the controller.
 				"""
 		filename = data.get_filename()
-		self.controller.openFile(filename)
+		self.controller.openFile("file://" + filename)
 
 	def error(self, parent=None, data=None):
 		""" General error message generator.  data is the text to be printed in
