@@ -22,22 +22,31 @@
 #
 #      REPOS="$1"
 #      REV="$2"
-#      $REPOS/hooks/ciabot_svn.py "$REPOS" "$REV"&
+#      $REPOS/hooks/ciabot_svn.py "$REPOS" "$REV" &
+#
+#    Or, if you have multiple project hosted, you can add each
+#    project's name to the commandline in that project's post-commit
+#    hook:
+#
+#      $REPOS/hooks/ciabot_svn.py "$REPOS" "$REV" "My Project" &
 #
 ############# There are some parameters for this script that you can customize:
 
 class config:
-    # Always replace this with your project's name
+    # Replace this with your project's name, or always provide a
+    # project name on the commandline.
     project = "YOUR_PROJECT_NAME_HERE"
 
-    # Subversion's normal directory hierarchy is powerful enough that it doesn't
-    # have special methods of specifying modules, tags, or branches like CVS does.
-    # Most projects do use a naming convention though that works similarly to CVS's
-    # modules, tags, and branches.
+    # Subversion's normal directory hierarchy is powerful enough that
+    # it doesn't have special methods of specifying modules, tags, or
+    # branches like CVS does.  Most projects do use a naming
+    # convention though that works similarly to CVS's modules, tags,
+    # and branches.
     #
-    # If non-None, this is a regex that matches a directory, with group names
-    # 'branch' and 'module'. If it matches, it is replaced with the empty string
-    # and the groups, if present, are stored in the commit message.
+    # If non-None, this is a regex that matches a directory, with
+    # group names 'branch' and 'module'. If it matches, it is replaced
+    # with the empty string and the groups, if present, are stored in
+    # the commit message.
     #
     # For example, in a repository containing paths like:
     #   trunk/module1
@@ -49,11 +58,11 @@ class config:
     # the filename within the particular branch/module:
     #
     #   pathRegex = r"""
-    #               ^(                                        # Always start at the beginning of the path
-    #                 ( trunk/ (?P<module>[^/]+) ) |          # This might be a module in the trunk...
-    #                 ( (branches|tags)/ (?P<branch>[^/]+) )  # ...or a branch or a tag
-    #               )/?                                       # Slurp up the slash if one is present, so it doesn't appear in the file path
-    #               """
+    #     ^(                                       # Start at beginning of path
+    #       ( trunk/ (?P<module>[^/]+) ) |         # Module in trunk...
+    #       ( (branches|tags)/ (?P<branch>[^/]+) ) # ...or a branch or a tag?
+    #      )/?                                     # Slurp up trailing slash
+    #     """
     #
     # Note that whitespace and comments in the regex are ignored.
     #
@@ -65,7 +74,8 @@ class config:
     # instead, you can replace this with "cia@cia.navi.cx"
     server = "http://cia.navi.cx"
 
-    # The SMTP server to use, only used if the CIA server above is an email address
+    # The SMTP server to use, only used if the CIA server above is an
+    # email address
     smtpServer = "localhost"
 
     # The 'from' address to use. If you're delivering commits via email, set
@@ -82,9 +92,10 @@ import sys, os, re
 
 
 class SvnClient:
-    """A CIA client for Subversion repositories. Uses svnlook to gather information"""
+    """A CIA client for Subversion repositories. Uses svnlook to
+    gather information"""
     name = 'Python Subversion client for CIA'
-    version = '1.11'
+    version = '1.12'
 
     def __init__(self, repository, revision, config):
         self.repository = repository
@@ -156,11 +167,14 @@ class SvnClient:
 
     def makeFileTags(self):
         """Return XML tags for our file list"""
-        return "<files>%s</files>" % ''.join(["<file>%s</file>" % file for file in self.files])
+        return "<files>%s</files>" % \
+               ''.join(["<file>%s</file>" % file for file in self.files])
 
     def svnlook(self, command):
-        """Run the given svnlook command on our current repository and revision, returning all output"""
-        return os.popen('svnlook %s -r "%s" "%s"' % (command, self.revision, self.repository)).read()
+        """Run the given svnlook command on our current repository and
+        revision, returning all output"""
+        return os.popen('svnlook %s -r "%s" "%s"' % \
+                        (command, self.revision, self.repository)).read()
 
     def collectData(self):
         self.author = self.svnlook('author').strip()
@@ -177,8 +191,10 @@ class SvnClient:
                 files.append(line)
 
         if self.config.pathRegex:
-            # We have a regex we'll be applying to each path to try to extract information out of it.
-            # We only apply any of the modifications if the regex matches each path with the same results.
+            # We have a regex we'll be applying to each path to try to
+            # extract information out of it.  We only apply any of the
+            # modifications if the regex matches each path with the
+            # same results.
             prevMatchDict = None
             regex = re.compile(self.config.pathRegex, re.VERBOSE)
             for file in files:
@@ -188,12 +204,14 @@ class SvnClient:
                     return files
                 matchDict = match.groupdict()
                 if prevMatchDict is not None and prevMatchDict != matchDict:
-                    # Also give up, it must match each time with the same results
+                    # Also give up, it must match each time with the
+                    # same results
                     return files
                 prevMatchDict = matchDict
 
-            # If we got this far, the regex matched every file with the same results.
-            # Now filter the matched portion out of each file and store the matches we found.
+            # If we got this far, the regex matched every file with
+            # the same results.  Now filter the matched portion out of
+            # each file and store the matches we found.
             self.__dict__.update(prevMatchDict)
             return [regex.sub('', file) for file in files]
         else:
@@ -210,4 +228,14 @@ def escapeToXml(text, isAttrib=0):
     return text
 
 if __name__ == "__main__":
+    # Print a usage message when not enough parameters are provided.
+    if len(sys.argv) < 3:
+        sys.stderr.write("USAGE: %s REPOS-PATH REVISION [PROJECTNAME]\n")
+        sys.exit(1)
+
+    # If a project name was provided, override the default project name.
+    if len(sys.argv) > 3:
+        config.project = sys.argv[3]
+
+    # Go do the real work.
     SvnClient(sys.argv[1], sys.argv[2], config).main()
