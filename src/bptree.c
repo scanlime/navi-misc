@@ -698,8 +698,66 @@ void              rtg_bptree_insert              (RtgBPTree*        self,
 						  gconstpointer     value,
 						  RtgBPIter*        iter)
 {
+    RtgPageAddress page;
+    int i;
+
+    /* Find the proper leaf for this new value to go in */
+    page = rtg_page_atom_value(self->storage, &self->root, RtgPageAddress);
+    while (!node_is_leaf(self, page))
+	page = index_child(self, page, index_search(self, page, key));
+
+    /* Is there room in this leaf? */
+    if (leaf_count(self, page) >= self->leaf.key_value_count) {
+	/* FIXME: need to split leaves here */
+	g_assert_not_reached();
+    }
+
+    /* Find the index of the item that should be just before this new one.
+     * If the new value is to become the first in this leaf, it will
+     * return -1.
+     */
+    i = leaf_search(self, page, key);
+
+    /* If we got -1, we can quickly slip in the new item before
+     * the current origin.
+     */
+    if (i == -1) {
+	i = leaf_origin(self, page);
+	if (i == 0)
+	    i = self->leaf.key_value_count - 1;
+	else
+	    i--;
+	leaf_origin(self, page) = i;
+    }
+
+    /* If we got the last item in the leaf, we can add a new
+     * item at the end without moving anything.
+     */
+    else if (i == leaf_last_index(self, page)) {
+	if (i == self->leaf.key_value_count - 1)
+	    i = 0;
+	else
+	    i++;
+    }
+
+    else {
+	/* FIXME: move existing items */
+	g_assert_not_reached();
+    }
+
+    /* Write the new item */
+    memcpy(leaf_key(self, page, i), key, self->sizeof_key);
+    leaf_count(self, page)++;
+    if (value)
+	memcpy(leaf_value(self, page, i), value, self->sizeof_value);
 
     rtg_bptree_invalidate_iters(self);
+
+    if (iter) {
+	iter->stamp = self->stamp;
+	iter->leaf_page = page;
+	iter->leaf_index = i;
+    }
 }
 
 void              rtg_bptree_remove              (RtgBPTree*        self,

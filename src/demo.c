@@ -8,6 +8,7 @@
 #include <glib.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 #include "pagestorage.h"
 #include "bptree.h"
 
@@ -34,6 +35,10 @@ int main(int argc, char** argv)
 
     tree = rtg_bptree_new(storage, "My Tree", sizeof(key), sizeof(value),
 			  compare_int_func, NULL);
+
+    key = time(NULL);
+    value = 486;
+    rtg_bptree_insert(tree, &key, &value, NULL);
 
     /* Show the tree's contents */
     rtg_bptree_foreach(tree, (RtgBPTreeCallback) foreach_func, NULL);

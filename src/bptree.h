@@ -139,6 +139,7 @@ void              rtg_bptree_foreach             (RtgBPTree*        self,
 
 /* Add a new key/value pair. Multiple values with the same key may exist.
  * If 'iter' is non-NULL, it will be positioned at the new node very quickly.
+ * If 'value' is NULL, the value will be left undefined.
  */
 void              rtg_bptree_insert              (RtgBPTree*        self,
 						  gconstpointer     key,
