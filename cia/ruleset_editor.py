@@ -199,7 +199,7 @@ class RulesetEditor:
         elif self.xml.get_widget("SingleProject").get_active():
             # One project
             projectName = self.xml.get_widget("SingleProjectName").get_text()
-            ruleset = ('<ruleset>\n\t<match path="/message/source/project>' +
+            ruleset = ('<ruleset>\n\t<match path="/message/source/project">' +
                        projectName + '</match>\n\t<formatter medium="irc"/>\n</ruleset>')
         else:
             # Empty
@@ -209,7 +209,8 @@ class RulesetEditor:
         channel = self.xml.get_widget("ChannelEntry").get_text()
         server = self.xml.get_widget("ServerEntry").get_text()
 
-        # Canonicalize the channel and server name a bit
+        # Canonicalize the channel and server name a bit so we don't get
+        # duplicates on our local list.
         if channel[0] != '#':
             channel = '#' + channel
         if server.find(":") < 0:
