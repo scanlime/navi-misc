@@ -428,7 +428,7 @@
 		      <child>
 			<widget class="GtkImageMenuItem" id="close1">
 			  <property name="visible">True</property>
-			  <property name="sensitive">False</property>
+			  <property name="sensitive">True</property>
 			  <property name="label" translatable="yes">Cl_ose</property>
 			  <property name="use_underline">True</property>
 			  <signal name="activate" handler="on_close1_activate" last_modification_time="Fri, 06 Feb 2004 23:41:13 GMT"/>
