@@ -40,7 +40,7 @@ bool CBZNextLoop::OnInit ( void )
 	SetGameName("susan");
 	SetGameStartString("test");
 
-	inUI = args.GetDataB("forceGame");
+	inUI = !args.GetDataB("forceGame");
 
 	// init the shit
 	ui.Set(this);
