@@ -1,6 +1,7 @@
 <?xml-stylesheet href="transform.xml" type="text/xsl"?>
 
 <kbpage title="Index">
+	<!-- just a test comment -->
 
   <section title="Users">
     * Installing <l>NativeMSI</l> and <l>NativeDCOM</l>
