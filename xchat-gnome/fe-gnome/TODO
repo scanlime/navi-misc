@@ -1,5 +1,4 @@
-* hook up the autoconnect column in the server prefs
-* put automatically connected-to servers at the top of the list
+* put automatically connected-to servers at the top of the config list
 * fix the about dialog such that it uses a real copyright symbol (check galeon's source
   for this)
 * make the connect dialog check existing open networks before creating a new connection
