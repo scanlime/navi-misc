@@ -74,7 +74,11 @@ class HubListener(object):
         f.write('<?xml version="1.0"?>\n')
         f.write('<ircRuleSets>\n')
 
-        for ruleset in self.rulesets.itervalues():
+        # Sort rulesets by (server,channel) so they're output in a predictable order.
+        # This makes 'diff' between multiple channel lists much more reliable.
+        rulesetItems = self.rulesets.items()
+        rulesetItems.sort(lambda a, b: cmp(a[0], b[0]))
+        for location, ruleset in rulesetItems:
             f.write("\n%s\n" % ruleset)
 
         f.write('\n</ircRuleSets>\n')
