@@ -49,17 +49,38 @@
 unbanked	udata_shr
 W_save		res	1	; register for saving W during ISR
 
+; Stick event buffer metadata in unbanked RAM so it's easier
+; to access our buffer that's spread across two banks.
+num_queued_events	res	1
+remaining_duration	res	1
+buffer_tail			res	1
+buffer_head			res 1
+
 bank0	udata
 Status_save	res	1	; registers for saving context
 PCLATH_save	res	1	;  during ISR
 FSR_save	res	1
 PIRmasked	res	1
 USBMaskedInterrupts  res  1
-epBuffer	res 8
-epBufferSize res 1
-epBufferSizeTemp res 1
-epBufferPtrTemp res 1
-epByteTemp	res 1
+
+tmr1_adj	res	2	; Adjustment applied to tmr1 each time it resets
+
+bank1	udata
+x_buffer	res	EVENT_BUFFER_SIZE
+y_buffer	res	EVENT_BUFFER_SIZE
+bank2	udata
+duration_buffer	res	EVENT_BUFFER_SIZE
+misc_buffer	res	EVENT_BUFFER_SIZE
+
+	global	num_queued_events
+	global	buffer_head
+	global	x_buffer
+	global	y_buffer
+	global	duration_buffer
+	global	misc_buffer
+	global	tmr1_adj
+
+	global	ServiceTimer
 
 	extern	InitUSB
 	extern	USBReset
@@ -159,7 +180,6 @@ EndISR
 ; ******************************************************************
 ; ServiceUSB
 ;    Services any outstanding USB interrupts.
-;    Checks for
 ;    This should be called from the main loop.
 ; ******************************************************************
 ServiceUSB
@@ -187,6 +207,88 @@ ServiceUSB
 	return
 
 
+; ******************************************************************
+; ServiceTimer
+;    Services any outstanding timer interrupts.
+;    This should be called from the main loop.
+; ******************************************************************
+
+ServiceTimer
+	banksel	PIR1		; Check for a TMR1 overflow, the rest of the loop should only run
+	btfss	PIR1, TMR1IF; at regular intervals determined by tmr1_adj.
+	return
+	bcf		PIR1, TMR1IF
+
+	movf	tmr1_adj, w	; Apply our adjustment to TMR1's speed
+	addwf	TMR1L, f
+	btfsc	STATUS, C
+	incf	TMR1H, f
+	movf	tmr1_adj+1, w
+	addwf	TMR1H, f
+
+	decfsz	remaining_duration, f ; Decrement this event's duration, give up if it isn't expiring
+	return
+
+	movf	num_queued_events, w ; Are we out of queued events?
+	pagesel	not_out_of_events
+	btfss	STATUS, Z
+	goto	not_out_of_events
+
+	incf	remaining_duration, f ; Stay in this event a little longer... we don't want to roll over
+	return
+	
+not_out_of_events
+	
+	; Extract the next event from our buffer
+	bankisel x_buffer
+	movlw	x_buffer
+	addwf	buffer_tail, w
+	movwf	FSR
+	movf	INDF, w
+	movwf	CCPR2L				; High byte of X axis -> CCPR2L
+
+	movlw	y_buffer
+	addwf	buffer_tail, w
+	movwf	FSR
+	movf	INDF, w
+	movwf	CCPR1L				; High byte of Y axis -> CCPR1L
+
+	bankisel duration_buffer
+	movlw	duration_buffer
+	addwf	buffer_tail, w
+	movwf	FSR
+	movf	INDF, w
+	movwf	remaining_duration	; Event duration
+
+	movlw	misc_buffer			; Misc buffer, holds enables and low bits
+	addwf	buffer_tail, w
+	movwf	FSR
+
+	movf	INDF, w				; Mask off and set the coil and laser enables
+	andlw	0xC0
+	movwf	PORTB
+
+	swapf	INDF, w				; Low bits of X axis -> CCP2CON
+	andlw	0x30
+	iorlw	CCP2CON_VALUE
+	movwf	CCP2CON
+
+	movf	INDF, w				; Low bits of Y axis -> CCP1CON
+	andlw	0x30
+	iorlw	CCP1CON_VALUE
+	movwf	CCP1CON
+
+	; Update buffer state
+	decf	num_queued_events, f
+	incf	buffer_tail, f
+	movf	buffer_tail, w		; Wrap around if necessary
+	xorlw	EVENT_BUFFER_SIZE
+	btfsc	STATUS, Z
+	clrf	buffer_tail
+
+	return
+
+
 ;******************************************************************* Setup
 
 Main
@@ -198,6 +300,10 @@ Main
 	pagesel	InitUSB
 	call	InitUSB
 
+	banksel	tmr1_adj	; Just run as slow as we can until the host gives us a better speed
+	clrf	tmr1_adj
+	clrf	tmr1_adj+1
+
 	; Initialize hardware
 	movlf	PORTA_VALUE, PORTA
 	movlf	PORTB_VALUE, PORTB
@@ -207,15 +313,30 @@ Main
 	movlf	TRISC_VALUE, TRISC
 	movlf	ADCON1_VALUE, ADCON1
 	movlf	T1CON_VALUE, T1CON
+	movlf	T2CON_VALUE, T2CON
+	movlf	PR2_VALUE, PR2_VALUE
+	movlf	CCP1CON_VALUE, CCP1CON
+	movlf	CCP2CON_VALUE, CCP2CON
+	movlf	CCPR1L_VALUE, CCPR1L
+	movlf	CCPR2L_VALUE, CCPR1L
+
+	; Initialize the event ringbuffer
+	clrf	num_queued_events
+	clrf	remaining_duration
+	clrf	buffer_tail
+	clrf	buffer_head
 
 
 ;******************************************************************* Main Loop
 
 MainLoop
+	clrwdt				; This should be the only place we clear the WDT!
+
 	pagesel ServiceUSB
 	call	ServiceUSB	; see if there are any USB tokens to process
 
-	clrwdt				; This should be the only place we clear the WDT!
+	pagesel	ServiceTimer
+	call	ServiceTimer
 
 	pagesel MainLoop
 	goto    MainLoop

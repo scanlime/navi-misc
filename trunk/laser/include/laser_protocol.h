@@ -30,21 +30,25 @@
 ;// Queue up an event, mapped as follows:
 ;//           wValue low: X axis, high byte
 ;//          wValue high: Y axis, high byte
-;//           wIndex low: duration
-;//   wIndex high, bit 7: laser enable
-;//   wIndex high, bit 6: tag, bit 2
-;//   wIndex high, bit 5: tag, bit 1
-;//   wIndex high, bit 4: tag, bit 0
-;//   wIndex high, bit 3: Y axis, bit 1
-;//   wIndex high, bit 2: Y axis, bit 0
+;//           wIndex low: duration (0 is treated as 256)
+;//   wIndex high, bit 7: coil driver enable
+;//   wIndex high, bit 6: laser enable
+;//   wIndex high, bit 5: Y axis, bit 1
+;//   wIndex high, bit 4: Y axis, bit 0
+;//   wIndex high, bit 3: reserved
+;//   wIndex high, bit 2: reserved
 ;//   wIndex high, bit 1: X axis, bit 1
 ;//   wIndex high, bit 0: X axis, bit 0
 ;//
-;// Event tags:
-;//   0: Begin loop
-;//   1: End loop, after this event it will jump to the beginning
+;// If there is insufficient room in the buffer for this event,
+;// it will wait until there is room before queueing the new
+;// event and sending an ACK.
 ;//
-#define RWAND_CTRL_ENQUEUE      0x01
+#define LASER_CTRL_ENQUEUE      0x01
+
+;// Change the timebase adjustment to a 16-bit value stored in wValue.
+;// Larger numbers shorten the units that event durations are measured in.
+#define LASER_CTRL_SET_TIMEBASE 0x02
 
 #endif
 
