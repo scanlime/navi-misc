@@ -137,10 +137,10 @@ class GenesisEmulator(Device.Emulator):
             ('BTN_C',      0.5, 0),
             ('BTN_B',      0.5, 0),
             ('BTN_A',      0.5, 0),
-            ('ABS_X',      0.3, 0),
-            ('ABS_X',     -0.3, 1),
-            ('ABS_Y',      0.3, 0),
-            ('ABS_Y',     -0.3, 1),
+            ('ABS_X',      0.4, 0),
+            ('ABS_X',     -0.4, 1),
+            ('ABS_Y',      0.4, 0),
+            ('ABS_Y',     -0.4, 1),
             )[0])
 
 ### The End ###

@@ -120,7 +120,15 @@ class UniconeHooks:
             return
         rc.post_event(Event(OSD_MESSAGE, arg="(+) Controller %d" % c.portNumber))
 
-        Controller.Mapping(c, self.emulator.attach(c.portNumber-1)).matchNames()
+        # FIXME: This mapping has a special case for the Genesis. This all
+        #        needs to be made spiffier and stuff.
+        mapping = Controller.Mapping(c, self.emulator.attach(c.portNumber-1))
+        mapping.matchNames()
+        try:
+            # Ugly workaround for the Sega Genesis
+            mapping.map("BTN_START", "BTN_C")
+        except KeyError:
+            pass
 
     def unplug(self, c):
         """A controller was just unplugged"""
