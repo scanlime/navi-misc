@@ -137,6 +137,15 @@ class MsgDropFlag(Common.Message):
         StructEntry(SubStruct(Common.FlagStatus), 'status'),
         ]
 
+class MsgGetWorld(Common.DataMessage):
+    messageId = 0x6777
+    entries = [
+        StructEntry(UInt32, 'remaining'),
+        ]
+
+class MsgWantWHash(Common.DataMessage):
+    messageId = 0x7768
+
 MsgPlayerUpdate = Common.MsgPlayerUpdate
 
 ### The End ###

@@ -179,9 +179,10 @@ class Message(Struct):
     """Subclass of Struct that includes a message Id and length in its marshalled form."""
     headerClass = MessageHeader
 
-    def __init__(self, packed=None):
+    def __init__(self, packed=None, **kw):
         self.header = self.headerClass()
         Struct.__init__(self, packed)
+        self.__dict__.update(kw)
 
     def unmarshall(self, packed):
         packed = self.header.unmarshall(packed)
@@ -194,6 +195,20 @@ class Message(Struct):
 
     def getSize(self, packed=None):
         return self.header.getSize() + Struct.getSize(self)
+
+
+class DataMessage(Message):
+    """This is a type of message that includes variable-length data
+       after all the defined entries.
+       """
+    def unmarshall(self, packed):
+        self.data = Message.unmarshall(self, packed)
+
+    def marshall(self):
+        return Message.marshall(self) + self.data
+
+    def getSize(self, packed=None):
+        return Message.getSize(self) + len(self.data)
 
 
 class MsgPlayerUpdate(Message):

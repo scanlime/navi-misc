@@ -24,7 +24,7 @@ in subclasses.
 # 
 
 import BZFlag
-from BZFlag import Network, Protocol, Errors, Player
+from BZFlag import Network, Protocol, Errors, Player, Game
 from BZFlag.Protocol import FromServer, ToServer, Common
 
 
@@ -73,8 +73,6 @@ class BaseClient:
         self.tcp.handler = self.handleHelloPacket
 
     def disconnect(self):
-        # Send a MsgExit first as a courtesy
-        self.tcp.write(ToServer.MsgExit())
         if self.tcp:
             self.tcp.close()
             self.tcp = None
@@ -164,6 +162,7 @@ class BaseClient:
     def onMsgSuperKill(self, msg):
         """The server wants us to die immediately"""
         self.disconnect()
+        msg.eventLoop.stop()
 
     def onMsgLagPing(self, msg):
         """The server is measuring our lag, reply with the same message."""
@@ -180,6 +179,35 @@ class StatefulClient(BaseClient):
     """Extends the BaseClient to keep track of the state of the game
        world, as reported by the server and the other clients.
        """
+    def __init__(self, server=None):
+        self.game = Game.Game()
+        self.worldDownloaded = 0
+        BaseClient.__init__(self, server)
+
+    def onConnect(self):
+        self.downloadWorld()
+
+    def downloadWorld(self):
+        self.binaryWorld = ''
+        self.tcp.write(ToServer.MsgGetWorld(offset=0))
+
+    def onMsgGetWorld(self, msg):
+        self.binaryWorld += msg.data
+        if msg.remaining:
+            # We need more data!
+            self.tcp.write(ToServer.MsgGetWorld(offset=len(self.binaryWorld)))
+        else:
+            # Download is complete. Convert the binary world
+            # into a World object and discard the binary world.
+            import StringIO
+            self.game.world.loadBinary(StringIO.StringIO(self.binaryWorld))
+            del self.binaryWorld
+            self.worldDownloaded = 1
+            self.onDownloadWorld()
+
+    def onDownloadWorld(self):
+        pass
+
     def onMsgFlagUpdate(self, msg):
         pass
 
@@ -213,9 +241,10 @@ class PlayerClient(StatefulClient):
        """
     def __init__(self, server, playerIdentity):
         self.player = Player.Player(playerIdentity)
+        self.inGame = 0
         StatefulClient.__init__(self, server)
 
-    def onConnect(self):
+    def onDownloadWorld(self):
         self.enterGame()
 
     def enterGame(self):
@@ -226,11 +255,17 @@ class PlayerClient(StatefulClient):
         msg.emailAddress = self.player.identity.emailAddress
         self.tcp.write(msg)
 
+    def disconnect(self):
+        self.exitGame()
+        StatefulClient.disconnect(self)
+
     def exitGame(self):
+        self.inGame = 0
         self.tcp.write(ToServer.MsgExit())
 
     def onMsgAccept(self, msg):
         """This is called after we try to enterGame, if it's successful."""
+        self.inGame = 1
         self.onEnterGame()
 
     def onEnterGame(self):

@@ -65,6 +65,15 @@ class MsgPlayerUpdate(Common.Message):
         StructEntry(Float,               'angularVelocity'),
         ]
 
+class MsgGetWorld(Common.Message):
+    messageId = 0x6777
+    entries = [
+        StructEntry(UInt32, 'offset'),
+        ]
+
+class MsgWantWHash(Common.Message):
+    messageId = 0x7768
+
 MsgPlayerUpdate = Common.MsgPlayerUpdate
 
 ### The End ###
