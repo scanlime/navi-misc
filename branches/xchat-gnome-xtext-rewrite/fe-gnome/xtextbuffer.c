@@ -153,7 +153,6 @@ xtext_buffer_append_indent (XTextBuffer *buffer, unsigned char *left, int llen, 
   ent->left_len = llen;
   ent->str = str;
   ent->str_len = llen + 1 + rlen;
-  ent->indent = (buffer->indent - llen);
 
   /* stamp? */
 

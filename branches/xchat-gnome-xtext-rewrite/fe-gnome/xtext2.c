@@ -28,6 +28,7 @@ static void       backend_draw_text      (XText2 *xtext, gboolean fill, GdkGC *g
 
 static void       paint                  (GtkWidget *widget, GdkRectangle *area);
 static void       render_page            (XText2 *xtext);
+static int        render_page_timeout    (XText2 *xtext);
 static int        render_line            (XText2 *xtext, XTextFormat *f, textentry *ent, int line, int lines_max, int subline, int win_width);
 static int        render_str             (XText2 *xtext, XTextFormat *f, int y, textentry *ent, unsigned char *str, int len, int win_width, int indent, int line, int left_only);
 static int        render_flush           (XText2 *xtext, int x, int y, unsigned char *str, int len, GdkGC *gc, gboolean multibyte);
@@ -46,6 +47,7 @@ static int        find_next_wrap         (XText2 *xtext, textentry *ent, unsigne
 static void       recalc_widths          (XText2 *xtext, gboolean do_str_width);
 static void       fix_indent             (XText2 *xtext);
 static void       reset                  (XText2 *xtext, gboolean mark, gboolean attribs);
+static void       adjustment_set         (XText2 *xtext, gboolean fire_signal);
 
 static gpointer parent_class;
 
@@ -57,6 +59,7 @@ static gpointer parent_class;
 
 #define MARGIN 2 /* left margin (in pixels) */
 #define WORDWRAP_LIMIT 24
+#define REFRESH_TIMEOUT 20
 
 /* is delimiter */
 #define is_del(c) \
@@ -136,9 +139,13 @@ struct _XText2Private
   gboolean     parsing_color;
   gboolean     parsing_backcolor;
   gboolean     render_hilights_only;
+  gboolean     indent_changed;
+  gboolean     add_io_tag;           /* "" when adding new text */
+  gint         io_tag;               /* for delayed refresh */
   int          nc;                   /* offset into xtext->priv->num */
-  int          col_fore;
-  int          col_back;
+  int          col_fore;             /* current foreground color */
+  int          col_back;             /* current background color */
+  gulong       vc_signal_tag;        /* signal handler for adj->"value changed" */
 
   /* state associated with rendering specific buffers */
   GHashTable  *buffer_info;          /* stores an XTextFormat for each buffer we observe */
@@ -168,11 +175,14 @@ struct _XText2Private
 
 struct _XTextFormat
 {
-  int        window_width;  /* window size when */
-  int        window_height; /* last rendered */
-  int        indent;        /* indent value */
+  int        window_width;   /* window size when */
+  int        window_height;  /* last rendered */
+  int        indent;         /* indent value */
   guint16    grid_offset[256];
   gboolean   grid_dirty;
+  gboolean   scrollbar_down; /* is scrollbar at the bottom? */
+  int        old_adj;        /* last known adjustment value */
+  int        num_lines;
 
   textentry *wrapped_first;
   textentry *wrapped_last;
@@ -962,6 +972,45 @@ render_page (XText2 *xtext)
 }
 
 static int
+render_page_timeout (XText2 *xtext)
+{
+  GtkAdjustment *adj = xtext->adj;
+  XTextFormat *f;
+
+  xtext->priv->add_io_tag = FALSE;
+
+  f = g_hash_table_lookup (xtext->priv->buffer_info, xtext->priv->current_buffer);
+
+  /* less than a complete page? */
+  if (f->num_lines <= adj->page_size)
+  {
+    f->old_adj = 0;
+    adj->value = 0;
+    render_page (xtext);
+  }
+  else if (f->scrollbar_down)
+  {
+    g_signal_handler_block (xtext->adj, xtext->priv->vc_signal_tag);
+    adjustment_set (xtext, FALSE);
+    gtk_adjustment_set_value (adj, adj->upper - adj->page_size);
+    g_signal_handler_unblock (xtext->adj, xtext->priv->vc_signal_tag);
+    f->old_adj = adj->value;
+    render_page (xtext);
+  }
+  else
+  {
+    adjustment_set (xtext, TRUE);
+    if (xtext->priv->indent_changed)
+    {
+      xtext->priv->indent_changed = FALSE;
+      render_page (xtext);
+    }
+  }
+
+  return 0;
+}
+
+static int
 render_line (XText2 *xtext, XTextFormat *f, textentry *ent, int line, int lines_max, int subline, int win_width)
 {
   unsigned char *str;
@@ -1557,10 +1606,50 @@ static void
 buffer_append (XTextBuffer *buffer, textentry *ent, XText2 *xtext)
 {
   XTextFormat *f;
+  textentry *newent;
+
   g_print ("%s\n", ent->str);
+
   f = g_hash_table_lookup (xtext->priv->buffer_info, buffer);
   f->wrapped_first = buffer->text_first;
   f->wrapped_last  = buffer->text_last;
+
+  newent = g_memdup (ent, sizeof(textentry));
+  /* append to the linked list */
+  if (f->wrapped_last)
+    f->wrapped_last->next = newent;
+  else
+    f->wrapped_first = newent;
+  newent->prev = f->wrapped_last;
+  f->wrapped_last = newent;
+
+  newent->lines_taken = count_lines_taken (xtext, ent);
+  f->num_lines += newent->lines_taken;
+
+  if (xtext->priv->current_buffer == buffer)
+  {
+#ifdef SCROLL_HACK
+    /* this could be improved */
+    if ((f->num_lines - 1) <= xtext->adj->page_size)
+      dontscroll (xtext);
+#endif /* SCROLL_HACK */
+      if (!xtext->priv->add_io_tag)
+      {
+	/* remove scrolling events */
+	if (xtext->priv->io_tag)
+	{
+	  g_source_remove (xtext->priv->io_tag);
+	  xtext->priv->io_tag = 0;
+	}
+	xtext->priv->add_io_tag = g_timeout_add (REFRESH_TIMEOUT * 2, (GSourceFunc) render_page_timeout, xtext);
+      }
+  }
+  else if (f->scrollbar_down)
+  {
+    f->old_adj = f->num_lines - xtext->adj->page_size;
+    if (f->old_adj < 0)
+      f->old_adj = 0;
+  }
 }
 
 static void
@@ -1806,4 +1895,28 @@ reset (XText2 *xtext, gboolean mark, gboolean attribs)
   xtext->priv->parsing_color = FALSE;
   xtext->priv->parsing_backcolor = FALSE;
   xtext->priv->nc = 0;
+}
+
+static void
+adjustment_set (XText2 *xtext, gboolean fire_signal)
+{
+  GtkAdjustment *adj = xtext->adj;
+  XTextFormat *f = g_hash_table_lookup (xtext->priv->buffer_info, xtext->priv->current_buffer);
+  adj->lower = 0;
+  adj->upper = f->num_lines;
+
+  if (adj->upper == 0)
+    adj->upper = 1;
+
+  adj->page_size = (GTK_WIDGET (xtext)->allocation.height - xtext->priv->font->descent) / xtext->priv->fontsize;
+  adj->page_increment = adj->page_size;
+
+  if (adj->value > adj->upper - adj->page_size)
+    adj->value = adj->upper - adj->page_size;
+
+  if (adj->value < 0)
+    adj->value = 0;
+
+  if (fire_signal)
+    gtk_adjustment_changed (adj);
 }
