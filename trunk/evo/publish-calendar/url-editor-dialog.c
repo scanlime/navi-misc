@@ -27,8 +27,40 @@
 static GtkDialogClass *parent_class = NULL;
 
 static void
+check_input (UrlEditorDialog2 *dialog)
+{
+	gint n = 0;
+	GSList *sources;
+
+	if (strlen (gtk_entry_get_text (GTK_ENTRY (dialog->url_entry))) == 0)
+		goto fail;
+	if (GTK_WIDGET_IS_SENSITIVE (dialog->events_selector)) {
+		sources = e_source_selector_get_selection (E_SOURCE_SELECTOR (dialog->events_selector));
+		n += g_slist_length (sources);
+	}
+	if (GTK_WIDGET_IS_SENSITIVE (dialog->tasks_selector)) {
+		sources = e_source_selector_get_selection (E_SOURCE_SELECTOR (dialog->tasks_selector));
+		n += g_slist_length (sources);
+	}
+	if (n == 0)
+		goto fail;
+
+	gtk_dialog_set_response_sensitive (GTK_DIALOG (dialog), GTK_RESPONSE_OK, TRUE);
+	return;
+fail:
+	gtk_dialog_set_response_sensitive (GTK_DIALOG (dialog), GTK_RESPONSE_OK, FALSE);
+}
+
+static void
 url_entry_changed (GtkEntry *entry, UrlEditorDialog2 *dialog)
 {
+	check_input (dialog);
+}
+
+static void
+source_selection_changed (ESourceSelector *selector, UrlEditorDialog2 *dialog)
+{
+	check_input (dialog);
 }
 
 static void
@@ -85,6 +117,7 @@ url_editor_dialog_construct2 (UrlEditorDialog2 *dialog)
 	dialog->ok = gtk_dialog_add_button (GTK_DIALOG (dialog), GTK_STOCK_OK, GTK_RESPONSE_OK);
 	gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_OK);
 	gtk_window_set_modal (GTK_WINDOW (dialog), TRUE);
+	gtk_dialog_set_response_sensitive (GTK_DIALOG (dialog), GTK_RESPONSE_OK, FALSE);
 
 	dialog->events_source_list = e_source_list_new_for_gconf (gconf, "/apps/evolution/calendar/sources");
 	dialog->events_selector = e_source_selector_new (dialog->events_source_list);
@@ -148,6 +181,8 @@ url_editor_dialog_construct2 (UrlEditorDialog2 *dialog)
 
 	g_signal_connect (G_OBJECT (dialog->url_entry), "changed", G_CALLBACK (url_entry_changed), dialog);
 	g_signal_connect (G_OBJECT (dialog->type_selector), "changed", G_CALLBACK (type_selector_changed), dialog);
+	g_signal_connect (G_OBJECT (dialog->events_selector), "selection_changed", G_CALLBACK (source_selection_changed), dialog);
+	g_signal_connect (G_OBJECT (dialog->tasks_selector), "selection_changed", G_CALLBACK (source_selection_changed), dialog);
 
 	g_object_unref (gconf);
 
@@ -228,6 +263,23 @@ url_editor_dialog_run2 (UrlEditorDialog2 *dialog)
 
 	response = gtk_dialog_run (GTK_DIALOG (dialog));
 	if (response == GTK_RESPONSE_OK) {
+		if (dialog->uri->location)
+			g_free (dialog->uri->location);
+		if (dialog->uri->username)
+			g_free (dialog->uri->username);
+		if (dialog->uri->password)
+			g_free (dialog->uri->password);
+
+		dialog->uri->location = g_strdup (gtk_entry_get_text (GTK_ENTRY (dialog->url_entry)));
+		dialog->uri->username = g_strdup (gtk_entry_get_text (GTK_ENTRY (dialog->username_entry)));
+		dialog->uri->password = g_strdup (gtk_entry_get_text (GTK_ENTRY (dialog->password_entry)));
+
+		if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (dialog->remember_pw))) {
+			e_passwords_add_password (dialog->uri->location, dialog->uri->password);
+			e_passwords_remember_password ("Calendar", dialog->uri->location);
+		} else {
+			e_passwords_forget_password ("Calendar", dialog->uri->location);
+		}
 	}
 	gtk_widget_hide_all (GTK_WIDGET (dialog));
 }
