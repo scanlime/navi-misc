@@ -32,6 +32,7 @@ static void de_jong_require_image(DeJong *self);
 static void de_jong_resize_color_table(DeJong *self, gulong minimum_entries);
 static void de_jong_generate_color_table(DeJong *self);
 static float de_jong_get_pixel_scale(DeJong *self);
+static gulong de_jong_get_max_usable_density(DeJong *self);
 
 static float uniform_variate();
 static float normal_variate();
@@ -231,11 +232,20 @@ void de_jong_update_image(DeJong *self) {
     guint32 *pixel_p;
     guint32* const color_table = self->color_table;
     guint *count_p, *sample_p;
+    guint count, count_clamp;
     const guint oversample = self->oversample;
     int x, y;
 
     pixel_p = (guint32*) gdk_pixbuf_get_pixels(self->image);
     count_p = self->histogram;
+
+    /* Clamp count values to the size of our color table.
+     * Assuming the color table generator did it's job
+     * correctly, any count values higher than the maximum
+     * one in the table would generate the same color as
+     * the highest one.
+     */
+    count_clamp = self->color_table_filled_size - 1;
 
     if (oversample > 1) {
       /* Nice ugly loop that downsamples multiple (oversample^2)
@@ -271,7 +281,13 @@ void de_jong_update_image(DeJong *self) {
 
 	  for (sample_y=oversample; sample_y; sample_y--) {
 	    for (sample_x=oversample; sample_x; sample_x--) {
-	      sample_pixel.word = color_table[*(sample_p++)];
+
+	      count = *(count_p++);
+	      if (count > count_clamp)
+		sample_pixel.word = color_table[count_clamp];
+	      else
+		sample_pixel.word = color_table[count];
+
 	      ch0 += sample_pixel.channels.ch0;
 	      ch1 += sample_pixel.channels.ch1;
 	      ch2 += sample_pixel.channels.ch2;
@@ -293,37 +309,47 @@ void de_jong_update_image(DeJong *self) {
     else {
       /* A much simpler and faster loop to use when oversampling is disabled */
 
-      for (y=self->height; y; y--)
-	for (x=self->width; x; x--)
-	  *(pixel_p++) = color_table[*(count_p++)];
+      for (y=self->height; y; y--) {
+	for (x=self->width; x; x--) {
+	  count = *(count_p++);
+	  if (count > count_clamp)
+	    *(pixel_p++) = color_table[count_clamp];
+	  else
+	    *(pixel_p++) = color_table[count];
+	}
+      }
     }
 
     self->render_dirty_flag = FALSE;
   }
 }
 
-static void de_jong_resize_color_table(DeJong *self, gulong minimum_size) {
-  /* Resize the color table to have room for at least minimum_entries.
+static void de_jong_resize_color_table(DeJong *self, gulong size) {
+  /* Resize the color table to exactly 'size' entries. Upon completion,
+   * self->color_table_filled_size will equal 'size', and
+   * self->color_table_allocated_size will be at least 'size'.
    * If the current table is too small, this reallocates one twice as
    * large as necessary, since the required size usually grows. However,
    * if the required size is less than 1/10 the current size, the table will
    * shrink to twice the current minimum size.
    */
 
+  self->color_table_filled_size = size;
+
   /* Just to reduce allocation overhead during those crucial first few frames,
    * put a lower limit on the amount of memory we're going to allocate.
    */
-  if (minimum_size < 1024)
-    minimum_size = 1024;
+  if (size < 1024)
+    size = 1024;
 
-  if ((self->color_table_size < minimum_size) ||
-      (self->color_table_size > 10 * minimum_size)) {
+  if ((self->color_table_allocated_size < size) ||
+      (self->color_table_allocated_size > 10 * size)) {
     if (self->color_table)
       g_free(self->color_table);
 
     /* Allocate it to double the size we need now, as we expect our needs to grow. */
-    self->color_table_size = minimum_size * 2;
-    self->color_table = g_malloc(self->color_table_size * sizeof(self->color_table[0]));
+    self->color_table_allocated_size = size * 2;
+    self->color_table = g_malloc(self->color_table_allocated_size * sizeof(self->color_table[0]));
   }
 }
 
@@ -361,14 +387,24 @@ static void de_jong_generate_color_table(DeJong *self) {
   guint count;
   int r, g, b, a;
   float pixel_scale = de_jong_get_pixel_scale(self);
+  gulong usable_density = de_jong_get_max_usable_density(self);
   float luma;
   double one_over_gamma = 1/self->gamma;
 
-  /* Make sure our table is appropriately sized */
-  de_jong_resize_color_table(self, self->current_density + 1);
+  /* Our actual color table size should be either the maximum
+   * usable density, or our histogram's current peak density,
+   * whichever is smaller.
+   */
+  if (usable_density > self->current_density)
+    usable_density = self->current_density;
 
-  /* Generate one color for every currently-possible count value... */
-  for (count=0; count<=self->current_density; count++) {
+  /* Make sure our table is appropriately sized */
+  de_jong_resize_color_table(self, usable_density + 1);
+
+  /* Generate one color for every currently-possible count value that
+   * doesn't fully saturate our image, as determined by de_jong_get_max_usable_density
+   */
+  for (count=0; count < self->color_table_filled_size; count++) {
 
     /* Scale and gamma-correct */
     luma = count * pixel_scale;
@@ -393,6 +429,82 @@ static void de_jong_generate_color_table(DeJong *self) {
     /* Colors are always ARGB order in little endian */
     self->color_table[count] = GUINT32_TO_LE( (a<<24) | (b<<16) | (g<<8) | r );
   }
+}
+
+static gulong de_jong_get_max_usable_density(DeJong *self) {
+  /* This determines the highest histogram count value that will
+   * produce any change in the color value of a pixel. This can be
+   * used as an upper limit on the size of the color table. Note that
+   * its value will change as the image is calculated, because it
+   * depends on the pixel_scale.
+   *
+   * This function is basically the inverse of our color table's
+   * function, mapping the most exposed color possible back to
+   * a count value.
+   */
+  double max_luma;
+
+  if (self->clamped) {
+    /* If clamping is on, the maximum useful luminance will always be 1. easy! */
+    max_luma = 1;
+  }
+  else {
+    /* But without clamping, it's possible for larger luminances to push
+     * our color 'past' the foreground color. Envision a vector in 4 dimensional
+     * RGBA space, pointing from background color to foreground color.
+     *
+     * This vector is represented by v_r, v_g, v_b, and v_a. We want to see how
+     * far we can extend this vector until the resulting color is fully saturated.
+     *
+     * The value of each component in the fully saturated color depends on the sign
+     * of the corresponding component in the vector. If it is zero, the resulting
+     * color will always equal the background color, If it's negative, it will
+     * eventually fall to 0, If it's positive, it will eventually reach 65535.
+     *
+     * Once we know what the fully saturated color is, we can easily use the
+     * per-channel deltas to find out how much luminance it would take to
+     * saturate each channel. The final max_luma is just the highest channel
+     * saturation luminance.
+     */
+    int delta_r, delta_g, delta_b, delta_a;
+    int clamped_r, clamped_g, clamped_b, clamped_a;
+    double max_luma_r, max_luma_g, max_luma_b, max_luma_a;
+
+    delta_r = self->fgcolor.red   - self->bgcolor.red;
+    delta_g = self->fgcolor.green - self->bgcolor.green;
+    delta_b = self->fgcolor.blue  - self->bgcolor.blue;
+    delta_a = self->fgalpha       - self->bgalpha;
+
+    if (delta_r > 0) clamped_r = 65535; else if (delta_r < 0) clamped_r = 0;
+      else clamped_r = self->bgcolor.red;
+    if (delta_g > 0) clamped_g = 65535; else if (delta_g < 0) clamped_g = 0;
+      else clamped_g = self->bgcolor.green;
+    if (delta_b > 0) clamped_b = 65535; else if (delta_b < 0) clamped_b = 0;
+      else clamped_b = self->bgcolor.blue;
+    if (delta_a > 0) clamped_a = 65535; else if (delta_a < 0) clamped_a = 0;
+      else clamped_a = self->bgalpha;
+
+    if (delta_r == 0) max_luma_r = 0;
+      else max_luma_r = ((double)(clamped_r - self->bgcolor.red))   / delta_r;
+    if (delta_g == 0) max_luma_g = 0;
+      else max_luma_g = ((double)(clamped_g - self->bgcolor.green)) / delta_g;
+    if (delta_b == 0) max_luma_b = 0;
+      else max_luma_b = ((double)(clamped_b - self->bgcolor.blue))  / delta_b;
+    if (delta_a == 0) max_luma_a = 0;
+      else max_luma_a = ((double)(clamped_a - self->bgalpha))       / delta_a;
+
+    max_luma = 0;
+    if (max_luma_r > max_luma) max_luma = max_luma_r;
+    if (max_luma_g > max_luma) max_luma = max_luma_g;
+    if (max_luma_b > max_luma) max_luma = max_luma_b;
+    if (max_luma_a > max_luma) max_luma = max_luma_a;
+  }
+
+  /* Put max_luma through the inverse of our color table's gamma operation */
+  max_luma = pow(max_luma, self->gamma);
+
+  /* And now we can finally get the count value by dividing out our pixel scale */
+  return max_luma / de_jong_get_pixel_scale(self);
 }
 
 

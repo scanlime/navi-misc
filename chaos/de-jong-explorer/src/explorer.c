@@ -490,15 +490,6 @@ void explorer_update_gui(Explorer *self) {
   gdk_draw_rgb_32_image(self->drawing_area->window, self->gc,
 			0, 0, self->dejong->width, self->dejong->height, GDK_RGB_DITHER_NORMAL,
 			gdk_pixbuf_get_pixels(self->dejong->image), self->dejong->width * 4);
-
-  /* This keeps our memory from growing without bound if the user just hit a
-   * stable oscillation, or left this running unattended for a long time...
-   * Memory grows linearly with the size of the color lookup table. This should
-   * force the user to pause at 1.5 million density, which would give
-   * a table size of between 6 and 12 megabytes.
-   */
-  if (self->dejong->current_density > 1500000)
-    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(glade_xml_get_widget(self->xml, "pause_menu")), TRUE);
 }
 
 static gboolean on_viewport_expose(GtkWidget *widget, GdkEventExpose *event, gpointer user_data) {
