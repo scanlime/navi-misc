@@ -63,6 +63,7 @@ except NameError:
     teleporterFieldMaterial = Material.New('TeleporterField')
     teleporterFieldMaterial.rgbCol = [0.0, 0.0, 0.0]
     teleporterFieldMaterial.alpha = 0.6
+    teleporterFieldMaterial.mode |= Material.Modes['ZTRANSP']
 
 try:
     teleporterBorderMaterial = Material.Get('TeleporterBorder')
