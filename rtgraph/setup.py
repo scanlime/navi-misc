@@ -6,6 +6,6 @@ setup (name = "rtgraph",
        maintainer = "Micah Dowty",
        maintainer_email = "micah@picogui.org",
        license = "LGPL",
-       packages = ['rtgraph'],
+       py_modules = ['rtgraph', 'Tweak'],
        )
 
