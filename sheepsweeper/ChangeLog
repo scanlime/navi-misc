@@ -1,3 +1,11 @@
+Thu Mar 18 00:33:56 PST 2004  Christian Hammond <chipx86@gnupdate.org>
+
+	* src/Sheep.cpp:
+	* src/Sheep.h:
+	  - Improved upon the Sheep class, I think. It handles its own
+	    image cache now, and the image changes when the direction is
+	    changed.
+
 Thu Mar 18 00:04:44 PST 2004  Christian Hammond <chipx86@gnupdate.org>
 
 	* src/IsoMapObjectFactory.cpp:

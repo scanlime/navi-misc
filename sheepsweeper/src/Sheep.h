@@ -8,6 +8,9 @@ class Sheep : public IsoMapObject
 	public:
 		Sheep(SDL_Surface *screen);
 		virtual ~Sheep();
+
+	protected:
+		virtual void directionChanged(Direction newDir);
 };
 
 #endif /* _SHEEP_H_ */
