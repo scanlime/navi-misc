@@ -25,6 +25,8 @@ specific to packets to and from the BZFlag server.
 
 from BZFlag.Protocol import *
 
+# Default BZFlag port
+defaultPort = 5155
 
 # An IP address, as defined by struct in_addr in netinet/in.h
 InAddr = VectorType("!BBBB")
