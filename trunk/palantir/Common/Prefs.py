@@ -1,6 +1,8 @@
 ''' Prefs.py
 
-Handles reading and writing of user prefs.
+Handles reading and writing of user prefs. Instantiating the Prefs
+object will read in the prefs from either the default file or from
+the user's custom file.
 '''
 # Copyright (C) 2004 W. Evan Sheehan <evan@navi.cx>
 #
