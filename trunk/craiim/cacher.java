@@ -40,6 +40,8 @@ public class cacher
 
     public void cacheMessage(String from, String message, boolean action)
     {
+	if(from.equals("AIM:"+nick)) return;
+	if(from.equals("*AIM:"+nick)) return;
 	if(action) cached = cached + "<br>* " + from + message;
 	else cached = cached + "<br>[" + from + "] " + message;
 	if(next != null) next.cacheMessage(from,message,action);
