@@ -1,18 +1,24 @@
 all: bassoon.pdf cello.pdf flute.pdf piano.pdf score.pdf
 
-bassoon.pdf: bassoon.ly 01_allegro_ma_non_troppo/bassoon.ly
+BASSOON = 01_allegro_ma_non_troppo/bassoon.ly
+CELLO = 01_allegro_ma_non_troppo/cello.ly
+FLUTE = 01_allegro_ma_non_troppo/flute.ly
+PIANO = 01_allegro_ma_non_troppo/piano.ly
+TEXT = 01_allegro_ma_non_troppo/text.ly
+
+bassoon.pdf: bassoon.ly $(BASSOON) $(TEXT)
 	lilypond bassoon.ly
 
-cello.pdf: cello.ly 01_allegro_ma_non_troppo/cello.ly 01_allegro_ma_non_troppo/text.ly
+cello.pdf: cello.ly $(CELLO) $(TEXT)
 	lilypond cello.ly
 
-flute.pdf: flute.ly 01_allegro_ma_non_troppo/flute.ly
+flute.pdf: flute.ly $(FLUTE) $(TEXT)
 	lilypond flute.ly
 
-piano.pdf: piano.ly 01_allegro_ma_non_troppo/piano.ly
+piano.pdf: piano.ly $(PIANO) $(TEXT)
 	lilypond piano.ly
 
-score.pdf: 01_allegro_ma_non_troppo/bassoon.ly 01_allegro_ma_non_troppo/cello.ly 01_allegro_ma_non_troppo/piano.ly 01_allegro_ma_non_troppo/text.ly
+score.pdf: $(BASSOON) $(CELLO) $(FLUTE) $(PIANO) $(TEXT)
 	lilypond score.ly
 
 clean:
