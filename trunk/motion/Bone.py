@@ -42,12 +42,3 @@ class Bone:
         except KeyError:
             self.dof = None
             self.limits = None
-
-    def display(self):
-        print self.name
-        print '\tid:\t\t',self.id
-        print '\tlength:\t\t',self.length
-        print '\tdirection:\t',self.direction
-        if self.dof is not None:
-            print '\tdof:\t\t',self.dof
-            print '\tlimits:\t\t',self.limits
