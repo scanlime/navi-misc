@@ -324,7 +324,7 @@ class Box(BZObject):
     def set_rotation(self, degrees=0):
         self.rotation = degrees
 
-    def set_size(self, x=1, y=1, z=1):
+    def set_size(self, x=1, y=1, z=0.942):
         self.size = [x,y,z]
 
     def serialize(self, writer):
@@ -368,5 +368,48 @@ class Box(BZObject):
 class Pyramid(Box):
     """A tetrahedron, pointing straight up or down, with rotation in the Z axis"""
     type = 'pyramid'
+
+    def __init__(self):
+        # Load defaults
+        self.set_position()
+        self.set_rotation()
+        self.set_size()
+
+    def set_position(self, x=0, y=0, z=0):
+        self.position = [x,y,z]
+
+    def set_rotation(self, degrees=0):
+        self.rotation = degrees
+
+    def set_size(self, x=0.82, y=0.82, z=1.025):
+        self.size = [x,y,z]
+
+    def toBlender(self):
+        verts = [( 1,  1, 0),
+                 (-1,  1, 0),
+                 (-1, -1, 0),
+                 ( 1, -1, 0),
+                 ( 0,  0, 1),
+                ]
+        faces = [(0, 4, 3),    # X+
+                 (2, 4, 1),    # X-
+                 (1, 4, 0),    # Y+
+                 (3, 4, 2),    # Y-
+                 (0, 1, 2, 3), # Z-
+                ]
+
+        pyramid = meshify(verts, faces)
+
+        pyramid.setSize(
+            self.size[0] / 10.0,
+            self.size[1] / 10.0,
+            self.size[2] / 10.0
+            )
+        pyramid.setLocation(
+            self.position[0] / 10.0,
+            self.position[1] / 10.0,
+            self.position[2] / 10.0
+            )
+        pyramid.setEuler((0, 0, self.rotation / 180.0 * math.pi))
 
 ### The End ###
