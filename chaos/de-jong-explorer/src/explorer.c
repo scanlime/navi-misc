@@ -178,6 +178,7 @@ Explorer* explorer_new(DeJong *dejong, Animation *animation) {
 
 void explorer_set_params(Explorer *self) {
   self->setting_params = TRUE;
+
   gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "param_a")), self->dejong->a);
   gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "param_b")), self->dejong->b);
   gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "param_c")), self->dejong->c);
@@ -188,14 +189,14 @@ void explorer_set_params(Explorer *self) {
   gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "param_rotation")), self->dejong->rotation);
   gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "param_blur_radius")), self->dejong->blur_radius);
   gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "param_blur_ratio")), self->dejong->blur_ratio);
-  gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "param_exposure")), self->dejong->exposure);
-  gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "param_gamma")), self->dejong->gamma);
-  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(glade_xml_get_widget(self->xml, "param_clamped")), self->dejong->clamped);
+  gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "param_exposure")), HISTOGRAM_IMAGER(self->dejong)->exposure);
+  gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "param_gamma")), HISTOGRAM_IMAGER(self->dejong)->gamma);
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(glade_xml_get_widget(self->xml, "param_clamped")), HISTOGRAM_IMAGER(self->dejong)->clamped);
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(glade_xml_get_widget(self->xml, "param_tileable")), self->dejong->tileable);
-  color_button_set_alpha(COLOR_BUTTON(self->fgcolor_button), self->dejong->fgalpha);
-  color_button_set_alpha(COLOR_BUTTON(self->bgcolor_button), self->dejong->bgalpha);
-  color_button_set_color(COLOR_BUTTON(self->fgcolor_button), &self->dejong->fgcolor);
-  color_button_set_color(COLOR_BUTTON(self->bgcolor_button), &self->dejong->bgcolor);
+  color_button_set_alpha(COLOR_BUTTON(self->fgcolor_button), HISTOGRAM_IMAGER(self->dejong)->fgalpha);
+  color_button_set_alpha(COLOR_BUTTON(self->bgcolor_button), HISTOGRAM_IMAGER(self->dejong)->bgalpha);
+  color_button_set_color(COLOR_BUTTON(self->fgcolor_button), &HISTOGRAM_IMAGER(self->dejong)->fgcolor);
+  color_button_set_color(COLOR_BUTTON(self->bgcolor_button), &HISTOGRAM_IMAGER(self->dejong)->bgcolor);
   self->setting_params = FALSE;
 }
 
@@ -269,15 +270,15 @@ static void on_randomize(GtkWidget *widget, gpointer user_data) {
 
 static void on_load_defaults(GtkWidget *widget, gpointer user_data) {
   Explorer *self = EXPLORER(user_data);
-  de_jong_reset_to_defaults(self->dejong);
+  parameter_holder_reset_to_defaults(PARAMETER_HOLDER(self->dejong));
   explorer_set_params(self);
 }
 
 static void on_resize(GtkWidget *widget, gpointer user_data) {
   Explorer *self = EXPLORER(user_data);
-  gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "resize_width")), self->dejong->width);
-  gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "resize_height")), self->dejong->height);
-  gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "resize_oversample")), self->dejong->oversample);
+  gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "resize_width")), HISTOGRAM_IMAGER(self->dejong)->width);
+  gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "resize_height")), HISTOGRAM_IMAGER(self->dejong)->height);
+  gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "resize_oversample")), HISTOGRAM_IMAGER(self->dejong)->oversample);
 
   gtk_widget_grab_focus(glade_xml_get_widget(self->xml, "resize_width"));
   gtk_widget_show(glade_xml_get_widget(self->xml, "resize_window"));
@@ -350,7 +351,7 @@ static void on_load_from_image(GtkWidget *widget, gpointer user_data) {
   if(gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_OK) {
     const gchar *filename;
     filename = gtk_file_selection_get_filename(GTK_FILE_SELECTION(dialog));
-    de_jong_load_image_file(self->dejong, filename);
+    histogram_imager_load_image_file(HISTOGRAM_IMAGER(self->dejong), filename);
     explorer_set_params(self);
     explorer_resize(self);
   }
@@ -367,7 +368,7 @@ static void on_save(GtkWidget *widget, gpointer user_data) {
   if(gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_OK) {
     const gchar *filename;
     filename = gtk_file_selection_get_filename(GTK_FILE_SELECTION(dialog));
-    de_jong_save_image_file(self->dejong, filename);
+    histogram_imager_save_image_file(HISTOGRAM_IMAGER(self->dejong), filename);
   }
   gtk_widget_destroy(dialog);
 }
@@ -401,35 +402,20 @@ void explorer_run_iterations(Explorer *self) {
   GTimer *timer;
   gulong elapsed;
 
-#ifdef BIFURCATION_TOY
-  DeJongPair pair;
-  pair.a = self->dejong;
-  pair.b = de_jong_new();
-#endif
-
   timer = g_timer_new();
   g_timer_start(timer);
+
   do {
-
-#ifdef BIFURCATION_TOY
-    de_jong_calculate_bifurcation(self->dejong, DE_JONG_INTERPOLATOR(de_jong_interpolate_linear),
-				  &pair, 5000);
-#else
     de_jong_calculate(self->dejong, 5000);
-#endif
-
     g_timer_elapsed(timer, &elapsed);
   } while (elapsed < 13000);
-  g_timer_destroy(timer);
 
-#ifdef BIFURCATION_TOY
-  g_object_unref(pair.b);
-#endif
+  g_timer_destroy(timer);
 }
 
 static void explorer_resize(Explorer *self) {
-  guint width = self->dejong->width;
-  guint height = self->dejong->height;
+  guint width = HISTOGRAM_IMAGER(self->dejong)->width;
+  guint height = HISTOGRAM_IMAGER(self->dejong)->height;
 
   gtk_widget_set_size_request(self->drawing_area, width, height);
 
@@ -487,28 +473,29 @@ void explorer_update_gui(Explorer *self) {
   /* Skip frame rate limiting and updating the iteration counter if we're in
    * a hurry to show the user the result of a modified rendering parameter.
    */
-  if (!self->dejong->render_dirty_flag) {
+  if (!HISTOGRAM_IMAGER(self->dejong)->render_dirty_flag) {
 
     if (explorer_auto_limit_update_rate(self))
       return;
 
     /* Update the iteration counter, removing the previous one if it existed */
     iters = g_strdup_printf("Iterations:    %.3e    \tPeak density:    %d    \tCurrent tool: %s",
-			    self->dejong->iterations, self->dejong->current_density, self->current_tool);
+			    self->dejong->iterations, HISTOGRAM_IMAGER(self->dejong)->peak_density, self->current_tool);
     if (self->render_status_message_id)
       gtk_statusbar_remove(self->statusbar, self->render_status_context, self->render_status_message_id);
     self->render_status_message_id = gtk_statusbar_push(self->statusbar, self->render_status_context, iters);
     g_free(iters);
   }
 
-  de_jong_update_image(self->dejong);
+  histogram_imager_update_image(HISTOGRAM_IMAGER(self->dejong));
 
   /* Update our entire drawing area.
    * We use GdkRGB directly here to force ignoring the alpha channel.
    */
-  gdk_draw_rgb_32_image(self->drawing_area->window, self->gc,
-			0, 0, self->dejong->width, self->dejong->height, GDK_RGB_DITHER_NORMAL,
-			gdk_pixbuf_get_pixels(self->dejong->image), self->dejong->width * 4);
+  gdk_draw_rgb_32_image(self->drawing_area->window, self->gc, 0, 0,
+			HISTOGRAM_IMAGER(self->dejong)->width, HISTOGRAM_IMAGER(self->dejong)->height,
+			GDK_RGB_DITHER_NORMAL, gdk_pixbuf_get_pixels(HISTOGRAM_IMAGER(self->dejong)->image),
+			HISTOGRAM_IMAGER(self->dejong)->width * 4);
 }
 
 static gboolean on_viewport_expose(GtkWidget *widget, GdkEventExpose *event, gpointer user_data) {
@@ -526,16 +513,17 @@ static gboolean on_expose(GtkWidget *widget, GdkEventExpose *event, gpointer use
   GdkRectangle *rects;
   int n_rects, i;
 
-  if (self->dejong->image && !self->dejong->size_dirty_flag) {
+  if (HISTOGRAM_IMAGER(self->dejong)->image &&
+      !HISTOGRAM_IMAGER(self->dejong)->size_dirty_flag) {
 
     gdk_region_get_rectangles(event->region, &rects, &n_rects);
 
     for (i=0; i<n_rects; i++) {
       /* Clip this rectangle to the image size, since reading outside our buffer is a bad thing */
-      if (rects[i].x + rects[i].width > self->dejong->width)
-	rects[i].width = self->dejong->width - rects[i].x;
-      if (rects[i].y + rects[i].height > self->dejong->height)
-	rects[i].height = self->dejong->height - rects[i].y;
+      if (rects[i].x + rects[i].width > HISTOGRAM_IMAGER(self->dejong)->width)
+	rects[i].width = HISTOGRAM_IMAGER(self->dejong)->width - rects[i].x;
+      if (rects[i].y + rects[i].height > HISTOGRAM_IMAGER(self->dejong)->height)
+	rects[i].height = HISTOGRAM_IMAGER(self->dejong)->height - rects[i].y;
       if (rects[i].width <= 0 || rects[i].height <= 0)
 	continue;
 
@@ -546,8 +534,10 @@ static gboolean on_expose(GtkWidget *widget, GdkEventExpose *event, gpointer use
 			    rects[i].x, rects[i].y,
 			    rects[i].width, rects[i].height,
 			    GDK_RGB_DITHER_NORMAL,
-			    gdk_pixbuf_get_pixels(self->dejong->image) + rects[i].x * 4 + rects[i].y * self->dejong->width * 4,
-			    self->dejong->width * 4);
+			    gdk_pixbuf_get_pixels(HISTOGRAM_IMAGER(self->dejong)->image) +
+			    rects[i].x * 4 +
+			    rects[i].y * HISTOGRAM_IMAGER(self->dejong)->width * 4,
+			    HISTOGRAM_IMAGER(self->dejong)->width * 4);
     }
 
     g_free(rects);

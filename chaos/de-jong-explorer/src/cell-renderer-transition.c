@@ -121,7 +121,7 @@ static void cell_renderer_transition_class_init(CellRendererTransitionClass *kla
 				  g_param_spec_boxed("spline",
 						     "Spline",
 						     "The spline object to draw this transition's curve with",
-						     TYPE_SPLINE,
+						     SPLINE_TYPE,
 						     G_PARAM_READWRITE));
 
   g_object_class_install_property(object_class,

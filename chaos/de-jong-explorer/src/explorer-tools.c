@@ -232,7 +232,7 @@ gboolean explorer_update_tools(Explorer *self) {
 /************************************************************************************/
 
 static void tool_grab(Explorer *self, ToolInput *i) {
-  double scale = 5.0 / self->dejong->zoom / self->dejong->width;
+  double scale = 5.0 / self->dejong->zoom / HISTOGRAM_IMAGER(self->dejong)->width;
   g_object_set(self->dejong,
 	       "xoffset", self->dejong->xoffset + i->delta_x * scale,
 	       "yoffset", self->dejong->yoffset + i->delta_y * scale,
@@ -272,8 +272,8 @@ static void tool_rotate(Explorer *self, ToolInput *i) {
 
 static void tool_exposure_gamma(Explorer *self, ToolInput *i) {
   g_object_set(self->dejong,
-	       "exposure", self->dejong->exposure - i->delta_y * 0.001,
-	       "gamma",    self->dejong->gamma    + i->delta_x * 0.001,
+	       "exposure", HISTOGRAM_IMAGER(self->dejong)->exposure - i->delta_y * 0.001,
+	       "gamma",    HISTOGRAM_IMAGER(self->dejong)->gamma    + i->delta_x * 0.001,
 	       NULL);
 }
 
