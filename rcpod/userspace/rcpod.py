@@ -140,7 +140,7 @@ class Device:
         self.poke(address, data)
 
     def __getitem__(self, address):
-        return self.poke(address)
+        return self.peek(address)
 
     def __setattr__(self, register, data):
         """Map our object attributes to register names"""
