@@ -38,7 +38,7 @@
 
 #include <p16C745.inc>
 #include "usb_defs.inc"
-#include "protocol.h"
+#include "../include/protocol.h"
 
 USBBANK	code
 	global	Config_desc_index
