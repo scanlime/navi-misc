@@ -194,7 +194,7 @@ gboolean navigation_click(GtkWidget *treeview, GdkEventButton *event, gpointer d
 	if(!event)
 		return FALSE;
 	if(event->button == 3) {
-		if(gtk_tree_view_get_path_at_pos (GTK_TREE_VIEW(treeview), event->x, event->y, &path, 0, 0, 0)) {
+		if(gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(treeview), event->x, event->y, &path, 0, 0, 0)) {
 			select = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
 			gtk_tree_selection_unselect_all(select);
 			gtk_tree_selection_select_path(select, path);

@@ -3,5 +3,4 @@
 * fix the about dialog such that it uses a real copyright symbol (check galeon's source for this)
 * make the connect dialog check existing open networks before creating a new connection
 * list accelerators in the context menus
-* convert the 'leave' item in the main menu to use the stock close icon
-* convert the 'clear' item in the main menu to use the stock clear icon
+* flesh out the userlist context menu

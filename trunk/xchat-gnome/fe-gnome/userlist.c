@@ -6,6 +6,8 @@
 #include "../common/userlist.h"
 
 gboolean userlist_click(GtkWidget *view, GdkEventButton *event, gpointer data);
+void userlist_context(GtkWidget *treeview, struct User *user);
+struct User *userlist_get_selected();
 
 GdkPixbuf *get_user_icon(struct server *serv, struct User *user) {
 	char *pre;
@@ -160,7 +162,9 @@ void userlist_display(session_gui *sess) {
 	gtk_tree_view_set_model(GTK_TREE_VIEW(treeview), sess->userlist_model);
 }
 
-static gboolean userlist_click(GtkWidget *view, GdkEventButton *event, gpointer data) {
+gboolean userlist_click(GtkWidget *view, GdkEventButton *event, gpointer data) {
+	GtkTreePath *path;
+	GtkTreeSelection *select;
 	if(!event)
 		return FALSE;
 
@@ -170,6 +174,50 @@ static gboolean userlist_click(GtkWidget *view, GdkEventButton *event, gpointer 
 	}
 
 	if(event->button == 3) {
-		g_print("pop up context menu...\n");
+		if(gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(view), event->x, event->y, &path, 0, 0, 0)) {
+			select = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
+			gtk_tree_selection_unselect_all(select);
+			gtk_tree_selection_select_path(select, path);
+			gtk_tree_path_free(path);
+		}
+		struct User *u = userlist_get_selected();
+		if(u != NULL)
+			userlist_context(view, u);
+		return TRUE;
 	}
+	return FALSE;
+}
+
+struct User *userlist_get_selected() {
+	GtkWidget *treeview;
+	GtkTreeSelection *select;
+	GtkTreeModel *model;
+	GtkTreeIter iter;
+	struct User *u;
+
+	treeview = glade_xml_get_widget(gui.xml, "userlist");
+	select = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
+	if(gtk_tree_selection_get_selected(select, &model, &iter)) {
+		gtk_tree_model_get(model, &iter, 2, &u, -1);
+		return u;
+	}
+	return NULL;
+}
+
+void userlist_context(GtkWidget *treeview, struct User *user) {
+	static GtkItemFactoryEntry entries[] = {
+		{"/User",			NULL, NULL, 0, "<Branch>"},
+		{"/User/Send File",		NULL, NULL, 0, "<Item>"},
+		{"/User/Open Dialog",		NULL, NULL, 0, "<Item>"},
+		{"/User/Kick",			NULL, NULL, 0, "<Item>"},
+		{"/User/Ban",			NULL, NULL, 0, "<Item>"}
+	};
+	GtkItemFactory *factory;
+	GtkWidget *menu;
+
+	factory = gtk_item_factory_new(GTK_TYPE_MENU, "<XChatGnomeUserlistContext>", NULL);
+	gtk_item_factory_create_items(factory, 5, entries, NULL);
+	menu = gtk_item_factory_get_widget(factory, "/User");
+
+	gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 0, 0);
 }
