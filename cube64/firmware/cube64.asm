@@ -230,6 +230,9 @@ set_virtual_button
 	map_button_to	BTN_D_DOWN,	N64_D_DOWN
 	map_button_to	BTN_D_UP,	N64_D_UP
 
+	map_button_to	BTN_X,		N64_C_DOWN
+	map_button_to	BTN_Y,		N64_B
+
 	map_button_to	BTN_START,	N64_START
 	map_button_to	BTN_Z,		N64_Z
 	map_button_to	BTN_B,		N64_B
