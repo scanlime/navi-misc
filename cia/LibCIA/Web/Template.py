@@ -32,6 +32,7 @@ value = tag('strong')
 error = tag('span', _class="error")
 unableToFormat = error[ "Unable to format data" ]
 breadcrumbSeparator = xml(" &raquo; ")
+pageBody = tag('div', _class="pageBody")
 
 
 def Photo(url, **attrs):
