@@ -170,16 +170,6 @@
 		<widget class="GtkMenu" id="menuitem3_menu">
 
 		  <child>
-		    <widget class="GtkCheckMenuItem" id="character_sheet">
-		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">Character Sheet</property>
-		      <property name="use_underline">True</property>
-		      <property name="active">False</property>
-		      <signal name="activate" handler="on_character_sheet_activate" last_modification_time="Sat, 10 Jan 2004 08:42:52 GMT"/>
-		    </widget>
-		  </child>
-
-		  <child>
 		    <widget class="GtkCheckMenuItem" id="time_stamps">
 		      <property name="visible">True</property>
 		      <property name="label" translatable="yes">Time Stamps</property>
@@ -382,30 +372,16 @@
 	      </child>
 
 	      <child>
-		<widget class="GtkScrolledWindow" id="scrolledwindow1">
+		<widget class="GtkScrolledWindow" id="ChatScroller">
 		  <property name="visible">True</property>
 		  <property name="can_focus">True</property>
-		  <property name="hscrollbar_policy">GTK_POLICY_NEVER</property>
-		  <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
-		  <property name="shadow_type">GTK_SHADOW_IN</property>
+		  <property name="hscrollbar_policy">GTK_POLICY_ALWAYS</property>
+		  <property name="vscrollbar_policy">GTK_POLICY_ALWAYS</property>
+		  <property name="shadow_type">GTK_SHADOW_NONE</property>
 		  <property name="window_placement">GTK_CORNER_TOP_LEFT</property>
 
 		  <child>
-		    <widget class="GtkTextView" id="ChatArea">
-		      <property name="visible">True</property>
-		      <property name="can_focus">True</property>
-		      <property name="editable">False</property>
-		      <property name="justification">GTK_JUSTIFY_LEFT</property>
-		      <property name="wrap_mode">GTK_WRAP_WORD</property>
-		      <property name="cursor_visible">False</property>
-		      <property name="pixels_above_lines">0</property>
-		      <property name="pixels_below_lines">0</property>
-		      <property name="pixels_inside_wrap">0</property>
-		      <property name="left_margin">4</property>
-		      <property name="right_margin">10</property>
-		      <property name="indent">0</property>
-		      <property name="text" translatable="yes"></property>
-		    </widget>
+		    <placeholder/>
 		  </child>
 		</widget>
 		<packing>
