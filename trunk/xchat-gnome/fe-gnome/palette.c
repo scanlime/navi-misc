@@ -65,8 +65,8 @@ GdkColor colors[] =
 	{0, 0x7f7f, 0x7f7f, 0x7f7f}, /* 30 grey */
 	{0, 0x9595, 0x9595, 0x9595}, /* 31 light grey */
 
-	{0, 0xa4a4, 0xdfdf, 0xffff}, /* 32 marktext Back (blue) */
-	{0, 0x0000, 0x0000, 0x0000}, /* 33 marktext Fore (black) */
+	{0, 0x0000, 0x0000, 0x0000}, /* 32 marktext Fore (black) */
+	{0, 0xa4a4, 0xdfdf, 0xffff}, /* 33 marktext Back (blue) */
 	{0, 0xdf3c, 0xdf3c, 0xdf3c}, /* 34 foreground (white) */
 	{0, 0x0000, 0x0000, 0x0000}, /* 35 background (black) */
 	{0, 0xcccc, 0x0000, 0x0000}, /* 36 marker line (red) */
@@ -84,8 +84,8 @@ const GdkColor colors_white_on_black[] =
 {
 	{0, 0xffff, 0xffff, 0xffff}, /* background (white) */
 	{0, 0x0000, 0x0000, 0x0000}, /* foreground (black) */
-	{0, 0xa4a4, 0xdfdf, 0xffff}, /* marktext back (blue) */
 	{0, 0x0000, 0x0000, 0x0000}, /* marktext fore (black) */
+	{0, 0xa4a4, 0xdfdf, 0xffff}, /* marktext back (blue) */
 	{0, 0x9999, 0x9999, 0x9999}, /* away user (grey) */
 };
 
@@ -93,8 +93,8 @@ const GdkColor colors_black_on_white[] =
 {
 	{0, 0x0000, 0x0000, 0x0000}, /* background (black) */
 	{0, 0xdf3c, 0xdf3c, 0xdf3c}, /* foreground (white) */
-	{0, 0xa4a4, 0xdfdf, 0xffff}, /* marktext back (blue) */
 	{0, 0xdf3c, 0xdf3c, 0xdf3c}, /* marktext fore (white) */
+	{0, 0xa4a4, 0xdfdf, 0xffff}, /* marktext back (blue) */
 	{0, 0x9999, 0x9999, 0x9999}, /* away user (grey) */
 };
 
@@ -192,7 +192,7 @@ palette_alloc (GtkWidget *widget)
 	cmap = gtk_widget_get_colormap (widget);
 
 	if (done)
-		gdk_colormap_free_colors (cmap, colors, 24);
+		gdk_colormap_free_colors (cmap, colors, 40);
 
 	for (i = 0; i < 40; i++)
 		gdk_colormap_alloc_color (cmap, &colors[i], FALSE, TRUE);
