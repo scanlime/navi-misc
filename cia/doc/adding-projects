@@ -17,7 +17,7 @@ There are only a few steps in connecting a project with CIA:
   for rulesets_ currently is read-only.
 
 - Likewise, your project's stats page will be a bit dull. Projects
-  or authors can add metadata to their stats page, to change the
+  or authors can add metadata_ to their stats page, to change the
   displayed title, add a URL to the project's homepage, add a short
   description, or even an image.
 
@@ -35,6 +35,7 @@ There are only a few steps in connecting a project with CIA:
 
     - `David Trowbridge`_
 
+.. _metadata: /doc/metadata
 .. _how CIA works: /doc/how-cia-works
 .. _stats browser: /stats
 .. _Freenode: http://freenode.org
