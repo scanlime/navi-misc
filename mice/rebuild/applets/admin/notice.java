@@ -29,6 +29,7 @@ public class notice implements ActionListener
 		myadmin = my;
 		text = new TextField("This is for notices",45);
 		submit = new Button("Submit Notice");
+		myadmin.help.setText("Enter the notice, and click submit to send it out.");
 		myadmin.ad(text);
 		myadmin.ad(submit);
 		submit.addActionListener(this);
