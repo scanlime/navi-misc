@@ -48,7 +48,7 @@ static gboolean initialized = FALSE;
 void preferences_servers_selected (GtkTreeSelection *selection, gpointer data);
 
 static void
-check_input (GtkWidget *entry, GtkWidget *dialog)
+check_input (GtkWidget *widget, GtkWidget *dialog)
 {
 	GtkWidget *name;
 	GtkWidget *globalnames, *real, *nick;
@@ -72,6 +72,27 @@ success:
 	return;
 fail:
 	gtk_dialog_set_response_sensitive (GTK_DIALOG (dialog), GTK_RESPONSE_OK, FALSE);
+}
+
+static void
+globals_toggled (GtkWidget *widget, GtkWidget *dialog)
+{
+	if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget))) {
+		GtkWidget *real, *nick;
+		gchar *text;
+		GConfClient *client = gconf_client_get_default ();
+		real = glade_xml_get_widget (gui.xml, "server config realname");
+		nick = glade_xml_get_widget (gui.xml, "server config nickname");
+		text = gconf_client_get_string (client, "/apps/xchat/irc/nickname", NULL);
+		gtk_entry_set_text (GTK_ENTRY (nick), text);
+		g_free (text);
+		text = gconf_client_get_string (client, "/apps/xchat/irc/realname", NULL);
+		gtk_entry_set_text (GTK_ENTRY(real), text);
+		g_free (text);
+		gtk_widget_set_sensitive (nick, FALSE);
+		gtk_widget_set_sensitive (real, FALSE);
+	}
+	check_input (widget, dialog);
 }
 
 static void
@@ -240,6 +261,7 @@ edit_clicked (GtkWidget *button, gpointer data)
 		gtk_entry_set_text (GTK_ENTRY (password), net->pass);
 
 	widget = glade_xml_get_widget (gui.xml, "server config usedefaults");
+	g_signal_connect (G_OBJECT (widget), "toggled", G_CALLBACK (globals_toggled), dialog);
 	if (net->flags & FLAG_USE_GLOBAL)
 	{
 		gchar *text;
