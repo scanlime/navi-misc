@@ -41,6 +41,15 @@ CFirestarterLoop::~CFirestarterLoop()
 {
 
 }
+void CFirestarterLoop::verifyDefaults ( void )
+{
+	CPrefsManager	&prefs = CPrefsManager::instance();
+
+	if (!prefs.ItemExists("PlayerName"))
+		prefs.SetItem("PlayerName","velvetpants");
+
+	prefs.Update();
+}
 
 bool CFirestarterLoop::OnInit ( void )
 {
@@ -49,6 +58,9 @@ bool CFirestarterLoop::OnInit ( void )
 	SetGameStartString("test");
 
 	inUI = !CCommandLineArgs::instance().GetDataB("forceGame");
+
+	// verify there is some default
+	verifyDefaults();
 
 	// init the shit
 	ui.Init();
