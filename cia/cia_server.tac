@@ -5,7 +5,7 @@
 
 from twisted.application import service, internet
 from twisted.web import server
-from LibCIA import Message, XMLRPC
+from LibCIA import Message, XMLRPC, IRC
 
 application = service.Application("cia_server")
 
@@ -18,9 +18,10 @@ hub = Message.Hub()
 f = server.Site(XMLRPC.SimpleCIAInterface(hub))
 internet.TCPServer(3910, f).setServiceParent(application)
 
-# For debugging, add a client to the hub that dumps all
-# messages received through it to stdout
+botNet = IRC.BotNetwork()
+srv = ('irc.freenode.net', 6667)
+botNet.addChannel(srv, '#botpark')
 def f(msg):
-    print msg
+    botNet.msg(srv, '#botpark', str(msg.xml.source.project))
 hub.addClient(f)
 

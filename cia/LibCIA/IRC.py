@@ -24,7 +24,7 @@ information to a set of channels and servers.
 #
 
 from twisted.protocols import irc
-from twisted.internet import protocol
+from twisted.internet import protocol, reactor
 
 
 class Bot(irc.IRCClient):
