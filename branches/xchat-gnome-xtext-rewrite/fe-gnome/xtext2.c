@@ -314,7 +314,11 @@ xtext2_realize (GtkWidget *widget)
   gdk_colormap_alloc_color (cmap, &color, FALSE, TRUE);
   gdk_gc_set_foreground (xtext->priv->thin_gc, &color);
 
-  /* FIXME: set fg & bg colors */
+  /* set the foreground & background colors. if the user has initialized
+   * the palette, this will do colors. At init the colors are all set to 0 */
+  set_fg (xtext, xtext->priv->fgc, 18);
+  set_bg (xtext, xtext->priv->fgc, 19);
+  set_fg (xtext, xtext->priv->fgc, 19);
 
   /* draw_directly to window */
   xtext->priv->draw_buffer = widget->window;
