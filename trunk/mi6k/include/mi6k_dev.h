@@ -16,6 +16,7 @@
 #define __MI6K_DEV_H
 
 #include <asm/types.h>
+#include "mi6k_protocol.h"
 
 /************************************************** Device node ***************/
 
@@ -40,6 +41,9 @@ struct mi6k_leds {
 	__u16 blue;
 };
 #define MI6KIO_LED_SET        0x3601
+
+/* Return zero or more MI6K_STATUS_* constants or'ed together, indicating device status */
+#define MI6KIO_STATUS         0x3602
 
 
 #endif /* __MI6K_DEV_H */
