@@ -1,4 +1,4 @@
-""" rtgraph.ScrollingLineGraph
+""" rtgraph.HScrollLineGraph
 
 A widget for graphing multiple channels of data on a line graph
 that scrolls horizontally as time progresses.
@@ -22,19 +22,16 @@ that scrolls horizontally as time progresses.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import gtk, time
+from HScrollGraph import *
 
-__all__ = ["ScrollingLineGraph"]
+__all__ = ["HScrollLineGraph"]
 
 
-class ScrollingLineGraph(gtk.DrawingArea):
-    """A graph that shows time on the horizontal axis, multiple channels
-       of data on the Y axis, and scrolls horizontally so current data
-       is always on the right edge of the graph.
-       """
-    def __init__(self, size=(384,128), gridSize=32, numChannels=8):
-        gtk.DrawingArea.__init__(self)
-        self.set_size_request(*size)
+class HScrollLineGraph(HScrollGraph):
+    """A horizontally scrolling real-time line plot"""
+
+    def __init__(self, size=(384,128), channels=[], gridSize=32):
+        Graph.__init__(self, size, channels)
         self.gridSize = gridSize
 
         # Number of pixels we've scrolled, modulo the gridSize (floating point)
@@ -43,29 +40,11 @@ class ScrollingLineGraph(gtk.DrawingArea):
         # Our initial scroll rate, in pixels per second
         self.scrollRate = 80.0
 
-        # All channels start out disabled
-        self.channels = [None] * numChannels
-        self.oldChannels = self.channels[:]
-
         # channelPenVectors stores the last position each channel was drawn at,
         # adjusted for graph scrolling. Disabled channels or channels that have
         # not been drawn yet should have None, other channels should have a 2-tuple
         # with the (x,y) coordinates.
         self.channelPenVectors = [None] * numChannels
-
-        # Handle configure (resize) and expose events
-        self.connect("expose_event", self.gtkExposeEvent)
-        self.connect("configure_event", self.gtkConfigureEvent)
-        self.set_events(gtk.gdk.EXPOSURE_MASK)
-
-        # Set up a timer that gets called at most every 10ms to handle
-        # updating the graph if necessary.
-        self.gtkTimeout = gtk.timeout_add(10, self.timerHandler)
-        self.lastUpdateTime = None
-
-        # Until we've been mapped onto the screen and configured by gtk,
-        # our width and height are undefined
-        self.width = self.height = None
 
     def graphChannels(self):
         """Graph the current values of each channel. Called each time the
@@ -115,25 +94,6 @@ class ScrollingLineGraph(gtk.DrawingArea):
         # each channel's pre-resize position with it's new pen position
         for i in range(len(self.channels)):
             self.channelPenVectors[i] = None
-        return gtk.TRUE
-
-    def gtkExposeEvent(self, widget, event):
-        """Redraw the damaged area of our widget using the backing store"""
-        x , y, width, height = event.area
-        widget.window.draw_drawable(widget.get_style().fg_gc[gtk.STATE_NORMAL],
-                                    self.backingPixmap, x, y, x, y, width, height)
-        return gtk.FALSE
-
-    def timerHandler(self):
-        """Called frequently to update the graph. This calculates the delta-t
-           and passes on the real work to integrate()
-           """
-        now = time.time()
-        if self.lastUpdateTime is not None:
-            self.integrate(now - self.lastUpdateTime)
-        self.lastUpdateTime = now
-
-        # Keep calling this handler, rather than treating it as a one-shot timer
         return gtk.TRUE
 
     def initGrid(self, drawable, width, height):
