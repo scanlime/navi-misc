@@ -75,7 +75,7 @@ class ASFReader:
     orientation = []
     grammar = None
     units = {}
-    hierarchy = {}
+    hierarchy = []
 
     def gotRoot(self, s, loc, toks):
         s = listToDict(toks[0])
@@ -156,5 +156,5 @@ class ASFReader:
             if l == 'end':
                 break
             s = l.split(' ')
-            self.hierarchy[s[0]] = s[1:]
+            self.hierarchy.append(s)
         file.close()

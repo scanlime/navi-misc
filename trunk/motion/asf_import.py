@@ -39,10 +39,20 @@ except ImportError:
                          'path properly.')
     ASFReader = None
 
+def addVectors(a, b):
+    x = []
+    for i in range(len(a)):
+        x.append(a[i] + b[i])
+    return x
+
 def importObjects(reader):
     scene = Blender.Scene.getCurrent()
     armObj = Blender.Object.New('Armature', reader.name)
     armData = Blender.Armature.New()
+
+    bones = {}
+
+    # import each bone. the head is always at the origin
     for k in reader.bones.keys():
         b = reader.bones[k]
         bone = Blender.Armature.Bone.New(k)
@@ -54,6 +64,25 @@ def importObjects(reader):
         bone.setTail(float(d[0]) * l, float(d[1]) * l, float(d[2]) * l)
 
         armData.addBone(bone)
+
+        bones[k] = bone
+
+    # add root
+    bone = Blender.Armature.Bone.New('root')
+    bone.setHead(0.0, 0.0, 0.0);
+    bone.setTail(0.0, 0.0, 0.0);
+    armData.addBone(bone)
+    bones['root'] = bone
+
+    for set in reader.hierarchy:
+        parent = set[0]
+        children = set[1:]
+        for bone in children:
+            pass
+            bones[bone].setHead(addVectors(bones[bone].head, bones[parent].tail))
+            bones[bone].setTail(addVectors(bones[bone].tail, bones[parent].tail))
+            #bones[bone].setParent(bones[parent])
+            #bones[bone].setLoc(bones[parent].loc + bones[parent].tail)
 
     armData.drawAxes(1)
     armObj.link(armData)
