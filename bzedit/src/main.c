@@ -13,7 +13,7 @@ int main(int argc, char **argv) {
   gtk_init(&argc, &argv);
   gtk_gl_init(&argc, &argv);
 
-  xml = glade_xml_new("bzedit.glade", NULL, NULL);
+  xml = glade_xml_new("data/bzedit.glade", NULL, NULL);
   if(!xml)
     return 1;
 
