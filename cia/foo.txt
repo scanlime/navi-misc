@@ -1,0 +1,74 @@
+==================
+My Document Thingy
+==================
+
+-------------------
+ for great justice
+-------------------
+
+introduction thingy
+=====================
+
+wibble
+
+First of all...
+===============
+
+1. numbers
+
+A. upper-case letters
+   and it goes over many lines
+
+   with two paragraphs and all!
+
+a. lower-case letters
+
+   3. with a sub-list starting at a different number
+   4. make sure the numbers are in the correct sequence though!
+
+I. upper-case roman numerals
+
+i. lower-case roman numerals
+
+(1) numbers again
+
+1) and again
+
+More stuff
+==========
+
+This is a paragraph.  It's quite
+short.
+
+   This paragraph will result in an indented block of
+   text, typically used for quoting other text.
+
+This is another one.
+
+An example::
+
+    Whitespace, newlines, blank lines, and all kinds of markup
+      (like *this* or \this) is preserved by literal blocks.
+  Lookie here, I've dropped an indentation level
+  (but not far enough)
+
+no more example
+
+
+* a bullet point using "*"
+
+  - a sub-list using "-"
+
+    + yet another sub-list
+
+  - another item
+
+
+what
+  Definition lists associate a term with a definition.
+
+*how*
+  The term is a one-line phrase, and the definition is one or more
+  paragraphs or body elements, indented relative to the term.
+  Blank lines are not allowed between term and definition.
+

@@ -38,6 +38,7 @@ webRoot.putChild('rulesets', Web.RulesetBrowser.RulesetList(rulesetStorage))
 webRoot.putChild('stats', Web.Stats.Browser.Page())
 webRoot.putChild('info', Web.Info.Page())
 webRoot.putChild('irc', Web.BotStatus.IRCBotPage(botNet))
+webRoot.putChild('foo', Web.Doc.Page('foo.txt'))
 
 # Add a VHostMonster we can use to safely proxy requests from Apache running on a different port
 webRoot.putChild('vhost', vhost.VHostMonsterResource())

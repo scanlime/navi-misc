@@ -108,9 +108,21 @@ class StaticSection(Section):
     """A section containing static content, usable with tag-like syntax:
        StaticSection(title)[body]
        """
-    def __init__(self, title, rows=[]):
+    def __init__(self, title=None, rows=[]):
         self.title = title
         self.rows = rows
+
+    def __call__(self, title=None, rows=None):
+        n = StaticSection()
+        if title is None:
+            n.title = self.title
+        else:
+            n.title = title
+        if rows is None:
+            n.rows = list(self.rows)
+        else:
+            n.rows = rows
+        return n
 
     def __getitem__(self, rows):
         return self.__class__(self.title, [rows])
