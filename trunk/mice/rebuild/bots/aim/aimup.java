@@ -26,22 +26,22 @@ import java.util.*;
 
 public class aimup
 {
-    public static botmain mybot;
+	public static botmain mybot;
 
-    public static void main(String[] args)
-    {
-	if(args.length < 2)
-	    System.out.println("name and password please");
-	else
+	public static void main(String[] args)
 	{
+		if(args.length < 2)
+	    System.out.println("name and password please");
+		else
+		{
 	    mybot = new botmain(args[0],args[1]);
-	    try {
-		Thread.sleep(300000);       //Wait for 5 minutes
+	    try
+			{
+				Thread.sleep(300000);       //Wait for 5 minutes
 	    }
-	    catch (InterruptedException ie) {
-	    }
+	    catch (InterruptedException ie) {}
+			
 	    mybot.sendMessage("gonkulator2","Hello, I'm going poof now");
-	    //mybot.sendMessage("lurgyllama","Hi Dan, I love you, bye bye :)");
+		}
 	}
-    }
 }

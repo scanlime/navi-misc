@@ -26,14 +26,14 @@ import java.util.*;
 
 public class botmain implements JaimEventListener 
 {
-    /** The connection for the bot, hence b. */
-    public JaimConnection b;
-
-    public botmain(String username, String password)
-    {
-	try
+	/** The connection for the bot, hence b. */
+	public JaimConnection b;
+	
+	public botmain(String username, String password)
 	{
-	    b = new JaimConnection("toc.oscar.aol.com",9898);
+		try
+		{
+			b = new JaimConnection("toc.oscar.aol.com",9898);
 	    b.connect();
 
 	    b.addEventListener(this);
@@ -44,103 +44,106 @@ public class botmain implements JaimEventListener
 
 	    b.setInfo("This is a bot based on <a href=\"http://jaimlib.sourceforge.net\">jaimlib</a>.");
 	    
-	}
-	catch(Exception e)
-	{
+		}
+		catch(Exception e)
+		{
 	    e.printStackTrace();
+		}
 	}
-    }
 
-    /** This method is a rip off from JaimTest.java */
-    public void receiveEvent(JaimEvent event)
-    {
-	TocResponse tr=event.getTocResponse();
-        String responseType=tr.getResponseType();
+	/** This method is a rip off from JaimTest.java */
+	public void receiveEvent(JaimEvent event)
+	{
+		TocResponse tr=event.getTocResponse();
+		String responseType=tr.getResponseType();
 	
-
-	if (responseType.equalsIgnoreCase(BuddyUpdateTocResponse.RESPONSE_TYPE)) {
-            receiveBuddyUpdate((BuddyUpdateTocResponse)tr);
-        }
-        else if (responseType.equalsIgnoreCase(IMTocResponse.RESPONSE_TYPE)) {
-            receiveIM((IMTocResponse)tr);
-        }
-	/*
-        else if (responseType.equalsIgnoreCase(EvilTocResponse.RESPONSE_TYPE)) {
-            receiveEvil((EvilTocResponse)tr);
-        }
-	else if (responseType.equalsIgnoreCase(GotoTocResponse.RESPONSE_TYPE)) {
+		if(responseType.equalsIgnoreCase(BuddyUpdateTocResponse.RESPONSE_TYPE))
+		{
+			receiveBuddyUpdate((BuddyUpdateTocResponse)tr);
+		}
+		else if (responseType.equalsIgnoreCase(IMTocResponse.RESPONSE_TYPE))
+		{
+			receiveIM((IMTocResponse)tr);
+		}
+		/*
+		else if (responseType.equalsIgnoreCase(EvilTocResponse.RESPONSE_TYPE)) 
+		{
+			receiveEvil((EvilTocResponse)tr);
+		}
+		else if (responseType.equalsIgnoreCase(GotoTocResponse.RESPONSE_TYPE))
+		{
 	    receiveGoto((GotoTocResponse)tr);
-	}
-	else if (responseType.equalsIgnoreCase(ConfigTocResponse.RESPONSE_TYPE)) {
+		}
+		else if (responseType.equalsIgnoreCase(ConfigTocResponse.RESPONSE_TYPE))
+		{
 	    receiveConfig();
-	}
-	else if (responseType.equalsIgnoreCase(ErrorTocResponse.RESPONSE_TYPE)) {
+		}
+		else if (responseType.equalsIgnoreCase(ErrorTocResponse.RESPONSE_TYPE))
+		{
 	    receiveError((ErrorTocResponse)tr);
-	}
-	*/
-	else if (responseType.equalsIgnoreCase(LoginCompleteTocResponse.RESPONSE_TYPE)) {
+		}
+		*/
+		else if (responseType.equalsIgnoreCase(LoginCompleteTocResponse.RESPONSE_TYPE)) {
 	    System.out.println("Login is complete");
-	}
-	else if (responseType.equalsIgnoreCase(ConnectionLostTocResponse.RESPONSE_TYPE)) {
+		}
+		else if (responseType.equalsIgnoreCase(ConnectionLostTocResponse.RESPONSE_TYPE)) {
 	    System.out.println("Connection lost!");
-	}
-	else {
+		}
+		else {
 	    System.out.println("Unknown TOC Response:"+tr.toString());
+		}
 	}
-    }
   
-    private void receiveIM(IMTocResponse im) {
-        System.out.println(im.getFrom()+"->"+Utils.stripHTML(im.getMsg()));
-        String from = im.getFrom();
-	String message = Utils.stripHTML(im.getMsg());
-	try 
+	private void receiveIM(IMTocResponse im)
 	{
-	    if(from.compareTo("gonkulator2") == 0)
-	    {
-		b.sendIM(message,"Hi " + message + " I'm a big bot now!",false);
-	    }
-	    else if(from.compareTo("lottabs2") == 0)
-	    {
-		StringTokenizer foo = new StringTokenizer(message,";",false);
-		String too = foo.nextToken();
-		String say = foo.nextToken();
-		b.sendIM(too,say,false);
-	    }
-	    else
-	    {
-		b.sendIM(im.getFrom(),"Hello "+im.getFrom(),false);
-		b.sendIM("gonkulator2",from+" said "+message,false);
-	    }
-        }
-        catch (IOException e){}
-    }
-    
-    private void receiveBuddyUpdate(BuddyUpdateTocResponse bu) {
-        System.out.println("Buddy update: "+bu.getBuddy());
-        if (bu.isOnline()) {
-            System.out.println("Online");
-        }
-        else {
-            System.out.println("Offline");
-        }
-        
-        if (bu.isAway()) {
-            System.out.println("Away");
-        }
-        
-        System.out.println("evil: "+bu.getEvil());
-        
-        System.out.println("Idle: "+bu.getIdleTime());
-        
-        System.out.println("On since "+bu.getSignonTime().toString());
-    }
-
-    public void sendMessage(String nick, String message)
-    {
-	try
-	{
-	    b.sendIM(nick,message);
+		System.out.println(im.getFrom()+"->"+Utils.stripHTML(im.getMsg()));
+		String from = im.getFrom();
+		String message = Utils.stripHTML(im.getMsg());
+		
+		if(from.compareTo("gonkulator2") == 0)
+		{
+			sendMessage(message,"Hi " + message + " I'm a big bot now!");
+		}
+		else if(from.compareTo("lottabs2") == 0)
+		{
+			StringTokenizer foo = new StringTokenizer(message,";",false);
+			String too = foo.nextToken();
+			String say = foo.nextToken();
+			sendMessage(too,say);
+		}
+		else
+		{
+			sendMessage(im.getFrom(),"Hello "+im.getFrom());
+			sendMessage("gonkulator2",from+" said "+message);
+		}
 	}
-	catch(IOException e){}
-    }
+
+	private void receiveBuddyUpdate(BuddyUpdateTocResponse bu)
+	{
+		System.out.println("Buddy update: "+bu.getBuddy());
+		if (bu.isOnline()) 
+		{
+			System.out.println("Online");
+		}
+		else
+		{
+			System.out.println("Offline");
+		}
+		if (bu.isAway()) 
+		{
+			System.out.println("Away");
+		}
+		System.out.println("evil: "+bu.getEvil());
+		System.out.println("Idle: "+bu.getIdleTime());
+		System.out.println("On since "+bu.getSignonTime().toString());
+	}
+
+	public void sendMessage(String nick, String message)
+	{
+		try
+		{
+	    b.sendIM(nick,message);
+		}
+		catch(IOException e){}
+	}
 }
