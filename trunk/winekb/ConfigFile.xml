@@ -10,8 +10,8 @@
   </section>
 
   <section title="Writing one">
-    By default you won't have a config file. So create an empty one. It should
-    look like this:
+    By default you won't have a config file. So create an empty file
+    called ~/.wine/config. It should look like this:
 
         WINE REGISTRY Version 2
 
