@@ -73,6 +73,8 @@ void on_help_about_menu_activate(GtkWidget *widget, gpointer data);
 void on_text_entry_activate(GtkWidget *widget, gpointer data);
 gboolean on_text_entry_key(GtkWidget *widget, GdkEventKey *key, gpointer data);
 
+void on_topic_entry_activate(GtkEntry *entry, gpointer user_data);
+
 gboolean on_resize(GtkWidget *widget, GdkEventConfigure *event, gpointer data);
 gboolean on_vpane_move(GtkPaned *widget, GParamSpec *param_spec, gpointer data);
 gboolean on_hpane_move(GtkPaned *widget, GParamSpec *param_spec, gpointer data);
@@ -117,6 +119,10 @@ void initialize_main_window() {
 	g_signal_connect(G_OBJECT(entry), "activate", G_CALLBACK(on_text_entry_activate), NULL);
 	g_signal_connect_after(G_OBJECT(entry), "key_press_event", G_CALLBACK(on_text_entry_key), NULL);
 	g_signal_connect(G_OBJECT(entry), "populate-popup", G_CALLBACK(entry_context), NULL);
+
+  /* XXX: Is this a leak?? */
+  entry = glade_xml_get_widget(gui.xml, "topic entry");
+  g_signal_connect(G_OBJECT(entry), "activate", G_CALLBACK(on_topic_entry_activate), NULL);
 
 	pane = glade_xml_get_widget(gui.xml, "VPane");
 	g_signal_connect(G_OBJECT(pane), "notify::position", G_CALLBACK(on_vpane_move), NULL);
@@ -361,6 +367,22 @@ void on_text_entry_activate(GtkWidget *widget, gpointer data) {
 	g_free(entry_text);
 }
 
+void on_topic_entry_activate (GtkEntry *entry, gpointer user_data)
+{
+  char *text = entry->text;
+  session *sess = gui.current_session;
+  GtkWidget *text_entry = glade_xml_get_widget(gui.xml, "text entry");
+
+  if (sess->channel[0] && sess->server->connected)
+  {
+    if (text[0] == 0)
+      text = NULL;
+    sess->server->p_topic(sess->server, sess->channel, text);
+  }
+  else
+    gtk_entry_set_text(entry, "");
+  gtk_widget_grab_focus(text_entry);
+}
 static void history_key_down(GtkEntry *entry) {
 	char *new_line;
 	new_line = history_down(&(gui.current_session->history));
