@@ -83,9 +83,10 @@ class AbstractStringCache:
                        Database.quote(id, 'varchar'))
         # This has to be "INSERT IGNORE" so we don't kerpode if
         # two cache misses happened concurrently.
-        cursor.execute("INSERT IGNORE INTO cache (id, value) VALUES (%s, '%s')" %
+        cursor.execute("INSERT IGNORE INTO cache (id, value, atime) VALUES (%s, '%s', %s)" %
                        (Database.quote(id, 'varchar'),
-                        Database.quoteBlob(str(value))))
+                        Database.quoteBlob(str(value)),
+                        Database.quote(int(time.time()), 'bigint')))
 
     def miss(self, *args):
         """Subclasses must implement this to generate the data we're supposed
@@ -103,5 +104,34 @@ class AbstractStringCache:
            abstract cache will have a different id space.
            """
         return md5.md5(repr( (self.__class__.__name__, args) )).hexdigest()
+
+
+class Maintenance:
+    """Maintenance operations we run regularly to keep the cache in shape:"""
+    # Maximum number of items we keep in the cache
+    maxItems = 100
+
+    def run(self):
+        """This is the entry point for all maintenance procedures"""
+        return Database.pool.runInteraction(self._run)
+
+    def _run(self, cursor):
+        """A database interaction implementing all maintenance operations"""
+        self.pruneItems(cursor)
+
+    def pruneItems(self, cursor):
+        """Limit the cache to a fixed number of items, delete the ones
+           we have accessed the least if necessary.
+           """
+        # Count the total number of items.
+        # I think this should be fast on MyISAM tables...
+        cursor.execute("SELECT COUNT(*) FROM cache")
+        count = cursor.fetchone()[0]
+
+        deleteLimit = count - self.maxItems
+        if deleteLimit > 0:
+            # Delete items starting with those that haven't been accessed
+            # in the longest amount of time.
+            cursor.execute("DELETE FROM cache ORDER BY atime LIMIT %d" % deleteLimit)
 
 ### The End ###
