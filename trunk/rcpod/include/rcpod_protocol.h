@@ -38,9 +38,6 @@
 ;// descriptor, so a fixed-size block of pin descriptors can be processed
 ;// without any extra bytes for length.
 
-;// One each of the RCPOD_PINDESC_BIT*, RCPOD_PINDESC_POLARITY*, and
-;// RCPOD_PINDESC_PORT* constants are or'ed together to form a pin descriptor.
-
 ;// MSB  7  6  5  4  3  2  1  0  LSB
 ;//      |  |  \_____/  \_____/
 ;//      |  |     |        |
@@ -103,22 +100,6 @@
 
 ;// Read the value of the pin descriptor in wIndex
 #define RCPOD_CTRL_GPIO_READ    0x41
-
-;//------------------ Synchronous serial
-
-;// These requests mainly exist to accelerate I2C a bit while still
-;// leaving most of the work on the host :)
-
-;// Write the byte given in the low byte of wValue LSB-first using the
-;// pin descriptor in the low byte of wIndex for data, and the pin
-;// descriptor in the high byte of wIndex for clock. The high byte of
-;// wValue gives the number of extra cycles to delay between clocks.
-#define RCPOD_CTRL_SYNC_TX      0x50
-
-;// Like SYNC_TX, except the low byte of wValue is ignored and
-;// a 1-byte packet is returned with the received data. Samples a bit
-;// just before deasserting the clock pin.
-#define RCPOD_CTRL_SYNC_RX      0x51
 
 #endif
 

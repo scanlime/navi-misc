@@ -21,22 +21,24 @@
 	extern	wrongstate
 	extern	temp
 	extern	Send_0Len_pkt
+
 	extern	rx_fsr
 	extern	rx_status
 	extern	rx_remaining
 	extern	rx_count
-	extern	io_pin
-	extern	io_High
-	extern	io_Low
-	extern	io_Output
-	extern	io_Input
+
+	extern	io_Assert
+	extern	io_Deassert
 	extern	io_Read
+	extern	io_pin
 
 	global	txe_pin
 
 bank0	udata
 txe_pin	res	1		 ; Pin number for transmit enable
 last_poke_addr res 2 ; Address of the last byte of the most recently completed 'poke'
+byte_iterator res 1
+buffer_ptr	res 1
 
 	code
 
@@ -109,18 +111,6 @@ CheckVendor
 	btfsc	STATUS,Z
 	goto	GpioReadRequest
 
-	movf	BufferData+bRequest,w
-	xorlw	RCPOD_CTRL_SYNC_TX
-	pagesel	SyncTxRequest
-	btfsc	STATUS,Z
-	goto	SyncTxRequest
-
-	movf	BufferData+bRequest,w
-	xorlw	RCPOD_CTRL_SYNC_RX
-	pagesel	SyncRxRequest
-	btfsc	STATUS,Z
-	goto	SyncRxRequest
-
 	pagesel	wrongstate		; Not a recognized request
 	goto	wrongstate
 
@@ -128,8 +118,14 @@ CheckVendor
 	; A 9-bit address in wIndex, 8-bit data in wValue
 PokeRequest
 	banksel BufferData
+
+	movf	BufferData+wIndex, w	; Save this poke address
+	movwf	last_poke_addr
+	movf	BufferData+(wIndex+1), w
+	movwf	last_poke_addr+1
+
 	bcf	STATUS, IRP	; Transfer bit 8 of wIndex into IRP
-	btfsc	BufferData+(wIndex+1), 0
+	btfsc	BufferData+wIndexHigh, 0
 	bsf	STATUS, IRP
 
 	movf	BufferData+wIndex, w ; And bits 0-7 into FSR
@@ -137,6 +133,81 @@ PokeRequest
 
 	movf	BufferData+wValue, w ; Now write bits 0-7 of wValue to [IRP:FSR]
 	movwf	INDF
+
+	; Acknowledge the request
+	pagesel	Send_0Len_pkt
+	call	Send_0Len_pkt
+	return
+
+	;********************* Request to write 4 bytes after the last one poked
+Poke4Request
+	
+prepare_poke macro
+	banksel	last_poke_addr			; Increment the last_poke_addr
+	incf	last_poke_addr, f
+	btfsc	STATUS, C
+	incf	last_poke_addr+1, f
+
+	bcf		STATUS, IRP				; Load the high bit of last_poke_addr into IRP
+	btfsc	last_poke_addr+1, 0
+	bsf		STATUS, IRP
+
+	movf	last_poke_addr, w 		; ...and bits 0-7 into FSR
+	movwf	FSR
+	banksel	BufferData
+	endm
+
+	; Write the proper 4 bytes from wValue and wIndex...
+	prepare_poke
+	movf	BufferData+wValue, w
+	movwf	INDF
+
+	prepare_poke
+	movf	BufferData+wValueHigh, w
+	movwf	INDF
+
+	prepare_poke
+	movf	BufferData+wIndex, w
+	movwf	INDF
+
+	prepare_poke
+	movf	BufferData+wIndexHigh, w
+	movwf	INDF
+
+	; Acknowledge the request
+	pagesel	Send_0Len_pkt
+	call	Send_0Len_pkt
+	return
+
+	;********************* Request to assert 4 pin descriptors
+GpioAssertRequest
+	banksel BufferData
+	movf	BufferData+wValue, w
+	banksel	io_pin
+	movwf	io_pin
+	pagesel	io_Assert
+	call	io_Assert
+
+	banksel BufferData
+	movf	BufferData+wValueHigh, w
+	banksel	io_pin
+	movwf	io_pin
+	pagesel	io_Assert
+	call	io_Assert
+
+	banksel BufferData
+	movf	BufferData+wIndex, w
+	banksel	io_pin
+	movwf	io_pin
+	pagesel	io_Assert
+	call	io_Assert
+
+	banksel BufferData
+	movf	BufferData+wIndexHigh, w
+	banksel	io_pin
+	movwf	io_pin
+	pagesel	io_Assert
+	call	io_Assert
 
 	; Acknowledge the request
 	pagesel	Send_0Len_pkt
@@ -154,8 +225,89 @@ PeekRequest
 	movf	BufferData+wIndex, w ; And bits 0-7 into FSR
 	movwf	FSR
 
+	movlw	8
+
 	movf	INDF, w		; Save the referenced byte in temp
 	movwf	temp
+
+	banksel	BD0IAL
+	movf	low BD0IAL,w	; get address of buffer
+	movwf	FSR
+	bsf 	STATUS,IRP	; indirectly to banks 2-3
+
+	movf	temp, w		;  Write the saved byte to our buffer
+	movwf	INDF
+	banksel	BD0IBC
+	bsf 	STATUS, RP0
+	movlw	0x01
+	movwf	BD0IBC		; set byte count to 1
+	movlw	0xc8		; DATA1 packet, DTS enabled
+	movwf	BD0IST		; give buffer back to SIE
+	return
+
+	;********************* Request read a 8 contiguous bytes from RAM
+	; 9-bit address in wIndex, returns an 8-byte packet
+Peek8Request
+	banksel	BD0IAL
+	movf	low BD0IAL,w	; get address of buffer
+	banksel	buffer_ptr
+	movwf	buffer_ptr		; Start a buffer pointer we'll increment...
+
+	banksel	byte_iterator
+	movlw	8				; We're peeking 8 bytes
+	movwf	byte_iterator
+peek8Loop
+
+	banksel BufferData
+	bcf	STATUS, IRP			; Transfer bit 8 of wIndex into IRP
+	btfsc	BufferData+wIndexHigh, 0
+	bsf	STATUS, IRP
+
+	movf	BufferData+wIndex, w ; And bits 0-7 into FSR
+	movwf	FSR
+
+	movf	INDF, w			; Save the referenced byte in temp
+	movwf	temp
+
+	banksel	buffer_ptr
+	movf	buffer_ptr,w	; get address of buffer
+	movwf	FSR
+	bsf 	STATUS,IRP		; indirectly to banks 2-3
+
+	movf	temp, w			;  Write the saved byte to our buffer
+	movwf	INDF
+
+	banksel	buffer_ptr
+	incf	buffer_ptr, f	; Next destination byte...
+
+	banksel	BufferData
+	incf	BufferData+wIndex, f ; Next source byte...
+	btfsc	STATUS, C		; If we get a carry, increment the high byte
+	incf	BufferData+wIndexHigh, f
+
+	banksel	byte_iterator	; Loop over all 8 bytes...
+	decfsz	byte_iterator, f
+	goto	peek8Loop
+
+	banksel	BD0IBC
+	bsf 	STATUS, RP0
+	movlw	0x08
+	movwf	BD0IBC			; set byte count to 8
+	movlw	0xc8			; DATA1 packet, DTS enabled
+	movwf	BD0IST			; give buffer back to SIE
+	return
+
+	;********************* Request read the value of a pin descriptor
+	; pin descriptor in wIndex
+GpioReadRequest
+	banksel BufferData
+	movf	BufferData+wIndex, w
+	banksel	io_pin
+	movwf	io_pin
+	pagesel	io_Read
+	call	io_Read
+
+	movwf	temp		; Save the return value in temp
 
 	banksel	BD0IAL
 	movf	low BD0IAL,w	; get address of buffer
@@ -207,7 +359,7 @@ adFinishLoop
 
 	pagesel	adChannelLoop	; Loop over all channels
 	decfsz	temp, f
-	goto	adFinishLoop
+	goto	adChannelLoop
 
 	banksel	ADCON0		; Turn off the ADC
 	clrf	ADCON0
@@ -240,8 +392,8 @@ TxRxRequest
 	movf	txe_pin, w
 	banksel	io_pin
 	movwf	io_pin
-	pagesel	io_High
-	call	io_High
+	pagesel	io_Assert
+	call	io_Assert
 
 txLoop
 	pagesel	txLoop
@@ -268,8 +420,8 @@ txFinish
 	movf	txe_pin, w
 	banksel	io_pin
 	movwf	io_pin
-	pagesel	io_Low
-	call	io_Low
+	pagesel	io_Deassert
+	call	io_Deassert
 
 skipTx
 
