@@ -1641,7 +1641,7 @@ buffer_append (XTextBuffer *buffer, textentry *ent, XText2 *xtext)
 	  g_source_remove (xtext->priv->io_tag);
 	  xtext->priv->io_tag = 0;
 	}
-	xtext->priv->add_io_tag = g_timeout_add (REFRESH_TIMEOUT * 2, (GSourceFunc) render_page_timeout, xtext);
+	xtext->priv->io_tag = g_timeout_add (REFRESH_TIMEOUT * 2, (GSourceFunc) render_page_timeout, xtext);
       }
   }
   else if (f->scrollbar_down)
