@@ -25,6 +25,13 @@
 	  operator/voice/etc status are inaccessible to colorblind people. In order to
 	  fix this, we need new icons that have distinct silhouettes.</p>
         </div>
+	<div class="section-title">Documentation Love</div>
+	<div class="section">
+	  <b>Anything, really</b><br />
+	  <p>At the moment, we have no user documentation other than the FAQ on this
+	  web site. It would be great to have some documentation that can be shown
+	  both in yelp and on the web.</p>
+	</div>
       </div>
     </div>
   </body>
