@@ -1,27 +1,40 @@
 <html>
-    <body>
+<head>
+    <title model="title" view="Text"/>
+    <style type="text/css" media="all"> @import url(/style.css);</style>
+</head>
+<body>
+    <div class="heading">
+        <div class="siteName">CIA</div>
+        <div class="title" model="title" view="Text"/>
+        <div class="subtitle">More wet kittens than you can shake a cheese grater at</div>
+        <div class="headingTabs">
+        </div>
+    </div>
+    <table class="columns">
 
-        <h3 model="title" view="Text"/>
+        <td class="left">
+            <span class="section">navigation</span>
+            <div class="section">
+                <div class="sectionTop"/>
+                <div class="row">
+                    <ul>
+                    </ul>
+                </div>
+            </div>
+        </td>
 
-        <ul model="recentMessages/10" view="List">
-            <li pattern="listItem"><span view="message"/></li>
-        </ul>
+        <td class="main">
+        </td>
 
-        <ul model="catalog" view="List">
-            <li pattern="listItem">
-                <a view="statsLink"/>
-
-	<!--
-		<div view="conditional" model="counters/forever/meanPeriod">
-	            <span view="Text" model="counters/forever/eventCount"/>
-	            commits since the first one was seen
-	            <span view="relativeDate" model="counters/forever/firstEventTime"/>
-	            ago.
-		</div>
-	-->
-
-            </li>
-        </ul>
-
-    </body>
+    </table>
+    <div class="footer">
+        <a href="http://navi.picogui.org">
+            <img src="/images/navi64.png" width="64" height="39" alt="Navi"/>
+        </a>
+        <a href="http://freenode.org">
+            <img src="/images/freenode.png" width="136" height="39" alt="Freenode"/>
+        </a>
+    </div>
+  </body>
 </html>
