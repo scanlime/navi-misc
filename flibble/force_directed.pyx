@@ -8,6 +8,9 @@ cdef extern from "stdlib.h":
     void free(void* ptr)
     long int random()
 
+cdef extern from "math.h":
+    float sqrtf(float x)
+
 cdef struct ArrayVertex:
     float x
     float y
@@ -15,6 +18,70 @@ cdef struct ArrayVertex:
 cdef struct ArrayEdge:
     int a
     int b
+
+
+cdef float fabs(float x):
+    if x < 0:
+        return -x
+    return x
+
+
+cdef float applySpring(ArrayVertex* v1, ArrayVertex* v2, float naturalLength, float stiffness):
+    """Apply spring forces between the given vertices, return
+       the amount of energy left in the system.
+       """
+    cdef ArrayVertex ab, unitv, force
+    cdef float length, forceMag
+
+    # Subtract v2 from v1, to get a vector pointing from v1 to v2
+    ab.x = v1.x - v2.x
+    ab.y = v1.y - v2.y
+
+    # Calculate the magnitude of ab, the current length of the spring
+    length = sqrtf(ab.x * ab.x + ab.y * ab.y)
+
+    # Calculate the magnitude of the spring force
+    forceMag = (length - naturalLength) * stiffness
+
+    # Calculate the actual force using ab's direction and forceMag
+    force.x = ab.x / length * forceMag
+    force.y = ab.y / length * forceMag
+
+    # Apply that force to the two vertices
+    v1.x = v1.x - force.x
+    v1.y = v1.y - force.y
+    v2.x = v2.x + force.x
+    v2.y = v2.x + force.y
+    return fabs(forceMag)
+
+
+cdef float repel(ArrayVertex* v1, ArrayVertex* v2, float strength):
+    """Apply a repulsion force between the given vertices, return
+       the amount of energy left in the system.
+       """
+    cdef ArrayVertex ab, unitv, force
+    cdef float length, forceMag
+
+    # Subtract v2 from v1, to get a vector pointing from v1 to v2
+    ab.x = v1.x - v2.x
+    ab.y = v1.y - v2.y
+
+    # Calculate the magnitude of ab, the current length of the spring
+    length = sqrtf(ab.x * ab.x + ab.y * ab.y)
+
+    # Calculate the magnitude of the spring force
+    forceMag = -strength
+
+    # Calculate the actual force using ab's direction and forceMag
+    force.x = ab.x / length * forceMag
+    force.y = ab.y / length * forceMag
+
+    # Apply that force to the two vertices
+    v1.x = v1.x - force.x
+    v1.y = v1.y - force.y
+    v2.x = v2.x + force.x
+    v2.y = v2.x + force.y
+    return fabs(forceMag)
 
 
 cdef class Graph:
@@ -31,6 +98,8 @@ cdef class Graph:
     cdef ArrayEdge *edges
 
     def __new__(self, edges, numVertices):
+        cdef int i
+
         self.numEdges = len(edges)
         self.edges = <ArrayEdge*> malloc(sizeof(ArrayEdge) * self.numEdges)
         if self.edges == NULL:
@@ -69,3 +138,27 @@ cdef class Graph:
         for i from 0 <= i < self.numVertices:
             l.append((self.vertices[i].x, self.vertices[i].y))
         return l
+
+    def iteration(self):
+        """Run one iteration of the spring system simulation,
+           returning the amount of energy left in the system.
+           """
+        cdef ArrayEdge *edge
+        cdef float energy
+        cdef int i, j
+
+        energy = 0
+
+        # Apply spring forces between the vertices of each edge
+#        for i from 0 <= i < self.numEdges:
+#            edge = &self.edges[i]
+#            energy = energy + applySpring(&self.vertices[edge.a], &self.vertices[edge.b],
+#                                          5, 0.2)
+
+        # Apply much longer springs to all other pairs of vertices
+        for i from 0 <= i < self.numVertices:
+            for j from i < j < self.numVertices:
+                energy = energy + repel(&self.vertices[i], &self.vertices[j], 0.001)
+
+        return energy
+
