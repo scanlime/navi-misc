@@ -6,6 +6,12 @@
 # This is similar to Unionfs, but works on a higher level and includes
 # code to spread new files around the available disks automatically.
 #
+# The list of mounts is given on the command line. Currently this is
+# hardcoded to use nonstandard RPC program numbers, in order to avoid
+# interfering with existing NFS servers. You would use an fstab line like:
+#
+# navi:/ /navi nfs soft,timeo=300,nolock,mountprog=100015,nfsprog=100013 0 0
+#
 # Copyright (C) 2005 Micah Dowty
 #
 
