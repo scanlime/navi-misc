@@ -21,6 +21,7 @@
 
 #include <gtk/gtk.h>
 #include <glade/glade.h>
+#include <gconf/gconf-client.h>
 #include <calendar/gui/e-cal-popup.h>
 #include <calendar/gui/e-cal-config.h>
 #include <libgnome/gnome-i18n.h>
@@ -37,16 +38,25 @@ enum {
 	URL_LIST_N_COLUMNS,
 };
 
+typedef struct {
+	GConfClient *gconf;
+	GtkWidget   *treeview;
+	GtkWidget   *url_add;
+	GtkWidget   *url_edit;
+	GtkWidget   *url_remove;
+	GtkWidget   *url_enable;
+} PublishUIData;
+
 static void
 url_list_enable_toggled (GtkCellRendererToggle *renderer,
                          const char            *path_string,
-			 GladeXML              *xml)
+			 PublishUIData         *ui)
 {
 	/* FIXME: implement */
 }
 
 static void
-selection_changed (GtkTreeSelection *selection, GladeXML *xml)
+selection_changed (GtkTreeSelection *selection, PublishUIData *ui)
 {
 }
 
@@ -54,7 +64,7 @@ static void
 url_list_double_click (GtkTreeView       *treeview,
 		       GtkTreePath       *path,
 		       GtkTreeViewColumn *column,
-		       GladeXML          *xml)
+		       PublishUIData     *ui)
 {
 }
 
@@ -68,32 +78,38 @@ GtkWidget *
 publish_calendar_locations (EPlugin *epl, EConfigHookItemFactoryData *data)
 {
 	GladeXML *xml;
-	GtkWidget *widget;
 	GtkCellRenderer *renderer;
 	GtkTreeSelection *selection;
+	GtkWidget *toplevel;
+	PublishUIData *ui = g_new0 (PublishUIData, 1);
 
 	xml = glade_xml_new (PLUGINDIR "/publish-calendar.glade", "toplevel", NULL);
 
-	widget = glade_xml_get_widget (xml, "url list");
+	ui->treeview = glade_xml_get_widget (xml, "url list");
 	if (store == NULL)
 		store = gtk_list_store_new (URL_LIST_N_COLUMNS, G_TYPE_BOOLEAN, G_TYPE_STRING, G_TYPE_POINTER);
-	gtk_tree_view_set_model (GTK_TREE_VIEW (widget), GTK_TREE_MODEL (store));
+	gtk_tree_view_set_model (GTK_TREE_VIEW (ui->treeview), GTK_TREE_MODEL (store));
 
 	renderer = gtk_cell_renderer_toggle_new ();
 	g_object_set (G_OBJECT (renderer), "activatable", TRUE, NULL);
-	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (widget), -1, _("Enabled"),
+	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (ui->treeview), -1, _("Enabled"),
 			                             renderer, "active", URL_LIST_ENABLED_COLUMN, NULL);
-	g_signal_connect (G_OBJECT (renderer), "toggled", G_CALLBACK (url_list_enable_toggled), xml);
+	g_signal_connect (G_OBJECT (renderer), "toggled", G_CALLBACK (url_list_enable_toggled), ui);
 	renderer = gtk_cell_renderer_text_new ();
-	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (widget), -1, _("Location"),
+	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (ui->treeview), -1, _("Location"),
 			                             renderer, "text", URL_LIST_LOCATION_COLUMN, NULL);
-	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (widget));
+	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (ui->treeview));
 	gtk_tree_selection_set_mode (selection, GTK_SELECTION_SINGLE);
-	g_signal_connect (G_OBJECT (selection), "changed", G_CALLBACK (selection_changed), xml);
-	gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (widget), TRUE);
-	g_signal_connect (G_OBJECT (widget), "row-activated", G_CALLBACK (url_list_double_click), xml);
+	g_signal_connect (G_OBJECT (selection), "changed", G_CALLBACK (selection_changed), ui);
+	gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (ui->treeview), TRUE);
+	g_signal_connect (G_OBJECT (ui->treeview), "row-activated", G_CALLBACK (url_list_double_click), ui);
 
-	widget = glade_xml_get_widget (xml, "toplevel");
-	gtk_widget_show_all (widget);
-	gtk_box_pack_start (GTK_BOX (data->parent), widget, FALSE, TRUE, 0);
+	ui->url_add = glade_xml_get_widget (xml, "url add");
+	ui->url_edit = glade_xml_get_widget (xml, "url edit");
+	ui->url_remove = glade_xml_get_widget (xml, "url remove");
+	ui->url_enable = glade_xml_get_widget (xml, "url enable");
+
+	toplevel = glade_xml_get_widget (xml, "toplevel");
+	gtk_widget_show_all (toplevel);
+	gtk_box_pack_start (GTK_BOX (data->parent), toplevel, FALSE, TRUE, 0);
 }

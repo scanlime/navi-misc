@@ -53,7 +53,7 @@
 	  <property name="spacing">6</property>
 
 	  <child>
-	    <widget class="GtkButton" id="add button">
+	    <widget class="GtkButton" id="url add">
 	      <property name="visible">True</property>
 	      <property name="can_default">True</property>
 	      <property name="can_focus">True</property>
@@ -64,7 +64,7 @@
 	  </child>
 
 	  <child>
-	    <widget class="GtkButton" id="edit button">
+	    <widget class="GtkButton" id="url edit">
 	      <property name="visible">True</property>
 	      <property name="can_default">True</property>
 	      <property name="can_focus">True</property>
@@ -129,7 +129,7 @@
 	  </child>
 
 	  <child>
-	    <widget class="GtkButton" id="remove button">
+	    <widget class="GtkButton" id="url remove">
 	      <property name="visible">True</property>
 	      <property name="can_default">True</property>
 	      <property name="can_focus">True</property>
@@ -140,7 +140,7 @@
 	  </child>
 
 	  <child>
-	    <widget class="GtkButton" id="enable button">
+	    <widget class="GtkButton" id="url enable">
 	      <property name="visible">True</property>
 	      <property name="can_default">True</property>
 	      <property name="can_focus">True</property>
