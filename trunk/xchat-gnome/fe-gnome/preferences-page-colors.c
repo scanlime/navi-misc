@@ -206,11 +206,11 @@ preferences_page_colors_new (gpointer prefs_dialog, GladeXML *xml)
 	gtk_label_set_mnemonic_widget (GTK_LABEL (page->color_label_1), page->combo);
 	gtk_box_pack_start (GTK_BOX (page->foreground_background_hbox), page->combo, FALSE, TRUE, 0);
 	scheme = gconf_client_get_int (p->gconf, "/apps/xchat/irc/color_scheme", NULL);
-	gtk_combo_box_set_active (GTK_COMBO_BOX (page->combo), scheme);
 
 	gconf_client_notify_add (p->gconf, "/apps/xchat/irc/color_scheme", (GConfClientNotifyFunc) gconf_color_changed, page, NULL, NULL);
 
 	g_signal_connect (G_OBJECT (page->combo), "changed", G_CALLBACK (colors_changed), page);
+	gtk_combo_box_set_active (GTK_COMBO_BOX (page->combo), scheme);
 
 	return page;
 }
