@@ -25,24 +25,42 @@
 void initialize_preferences_irc_page() {
 	GtkWidget *widget;
 	GtkSizeGroup *group;
+	char *text;
 
 	group = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
+
 	widget = glade_xml_get_widget(gui.xml, "nick name");
-	gtk_entry_set_text(GTK_ENTRY(widget), preferences_nickname());
+	text = preferences_nickname();
+	gtk_entry_set_text(GTK_ENTRY(widget), text);
+	g_free(text);
 	gtk_size_group_add_widget(group, widget);
+
 	widget = glade_xml_get_widget(gui.xml, "real name");
-	gtk_entry_set_text(GTK_ENTRY(widget), preferences_realname());
+	text = preferences_realname();
+	gtk_entry_set_text(GTK_ENTRY(widget), text);
+	g_free(text);
 	gtk_size_group_add_widget(group, widget);
+
 	widget = glade_xml_get_widget(gui.xml, "quit message");
-	gtk_entry_set_text(GTK_ENTRY(widget), preferences_quitmsg());
+	text = preferences_quitmsg();
+	gtk_entry_set_text(GTK_ENTRY(widget), text);
+	g_free(text);
 	gtk_size_group_add_widget(group, widget);
+
 	widget = glade_xml_get_widget(gui.xml, "part message");
-	gtk_entry_set_text(GTK_ENTRY(widget), preferences_partmsg());
+	text = preferences_partmsg();
+	gtk_entry_set_text(GTK_ENTRY(widget), text);
+	g_free(text);
 	gtk_size_group_add_widget(group, widget);
+
 	widget = glade_xml_get_widget(gui.xml, "away message");
-	gtk_entry_set_text(GTK_ENTRY(widget), preferences_awaymsg());
+	text = preferences_awaymsg();
+	gtk_entry_set_text(GTK_ENTRY(widget), text);
+	g_free(text);
 	gtk_size_group_add_widget(group, widget);
+
 	widget = glade_xml_get_widget(gui.xml, "highlight list container");
 	gtk_size_group_add_widget(group, widget);
+
 	g_object_unref(group);
 }

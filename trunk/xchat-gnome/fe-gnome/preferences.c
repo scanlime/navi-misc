@@ -25,12 +25,16 @@
 
 gboolean preferences_exist() {
 	GConfClient *client;
+	char *text;
 
 	client = gconf_client_get_default();
 
-	if(gconf_client_get_string(client, "/apps/xchat/version", NULL) == NULL)
+	text = gconf_client_get_string(client, "/apps/xchat/version", NULL);
+	if(text == NULL)
 		return FALSE;
-	
+	else
+		g_free(text);
+
 	/* probably eventually do some checking on the version to migrate from
 	   previous versions when new features are added */
 	return TRUE;
@@ -39,14 +43,29 @@ gboolean preferences_exist() {
 void load_preferences() {
 	GConfClient *client;
 	int color_scheme, palette_scheme;
+	char *text;
 
 	client = gconf_client_get_default();
 
-	strcpy(prefs.nick1, gconf_client_get_string(client, "/apps/xchat/irc/nickname", NULL));
-	strcpy(prefs.realname, gconf_client_get_string(client, "/apps/xchat/irc/realname", NULL));
-	strcpy(prefs.awayreason, gconf_client_get_string(client, "/apps/xchat/irc/awaymsg", NULL));
-	strcpy(prefs.quitreason, gconf_client_get_string(client, "/apps/xchat/irc/quitmsg", NULL));
-	strcpy(prefs.partreason, gconf_client_get_string(client, "/apps/xchat/irc/partmsg", NULL));
+	text = gconf_client_get_string(client, "/apps/xchat/irc/nickname", NULL);
+	strcpy(prefs.nick1, text);
+	g_free(text);
+
+	text = gconf_client_get_string(client, "/apps/xchat/irc/realname", NULL);
+	strcpy(prefs.realname, text);
+	g_free(text);
+
+	text = gconf_client_get_string(client, "/apps/xchat/irc/awaymsg", NULL);
+	strcpy(prefs.awayreason, text);
+	g_free(text);
+
+	text = gconf_client_get_string(client, "/apps/xchat/irc/quitmsg", NULL);
+	strcpy(prefs.quitreason, text);
+	g_free(text);
+
+	text = gconf_client_get_string(client, "/apps/xchat/irc/partmsg", NULL);
+	strcpy(prefs.partreason, text);
+	g_free(text);
 
 	color_scheme = gconf_client_get_int(client, "/apps/xchat/irc/color_scheme", NULL);
 	load_colors(color_scheme);
