@@ -118,6 +118,12 @@ class Undernet(BaseNetwork):
         ('amsterdam.nl.eu.undernet.org', None),
         )
 
+class Worldforge(BaseNetwork):
+    alias = 'worldforge'
+    servers = (
+        ('irc.worldforge.org', None),
+        ('purple.worldforge.org', None),
+        )
 
 _aliasCache = None
 _instCache = {}
