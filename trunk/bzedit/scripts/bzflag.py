@@ -505,11 +505,21 @@ class Box(BZObject):
         if not self.world:
             return
 
+        size = list(self.size)
+        position = list(self.position)
+
+        # Fixup objects with negative scales- upside-down objects
+        # are represented in blender with a positive scale and a rotation
+        upsideDown = size[2] < 0
+        if upsideDown:
+            size[2] = -size[2]
+            position[2] += size[2]
+
         mat = Blender.Mathutils.Matrix(
-            [self.size[0], 0,            0,            0],
-            [0,            self.size[1], 0,            0],
-            [0,            0,            self.size[2], 0],
-            [0,            0,            0,            1])
+            [size[0], 0,       0,       0],
+            [0,       size[1], 0,       0],
+            [0,       0,       size[2], 0],
+            [0,       0,       0,       1])
 
         theta = self.rotation * math.pi / 180.0
         cos = math.cos(theta)
@@ -520,8 +530,16 @@ class Box(BZObject):
             [ 0,   0,   1, 0],
             [ 0,   0,   0, 1])
 
+        if upsideDown:
+            # 180 degree rotation around the X axis
+            mat *= Blender.Mathutils.Matrix(
+                [0, 1,  0, 0],
+                [1, 0,  0, 0],
+                [0, 0, -1, 0],
+                [0, 0,  0, 1])
+
         mat *= Blender.Mathutils.TranslationMatrix(
-            Blender.Mathutils.Vector(self.position))
+            Blender.Mathutils.Vector(position))
 
         transform = self.world.getBzToBlendMatrix()
         transform.resize4x4()
