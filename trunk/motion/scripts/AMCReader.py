@@ -23,8 +23,9 @@ import Log
 log = Log.Logger()
 
 class AMCFrame:
-    number = None
-    bones = {}
+    def __init__(self):
+        self.number = None
+        self.bones = {}
 
 class AMCReader:
     frames = []

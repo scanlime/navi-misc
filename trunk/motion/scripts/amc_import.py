@@ -28,7 +28,7 @@ Tip: 'Imports an Acclaim AMC file and applies motion capture data to an armature
 """
 
 import Blender
-from Blender.Armature.Bone import ROT, LOC
+from Blender.Armature.Bone import ROT, LOC, SIZE
 import AMCReader
 
 dofTable = {}
@@ -38,48 +38,49 @@ def getQuat(object, bone, rot):
         dof = dofTable[bone]
     except KeyError:
         dof = object.getProperty('%s-dof' % bone).getData().split(',')
+        if dof is None:
+            dof = []
         dofTable[bone] = dof
     r = [0.0, 0.0, 0.0]
     i = 0
-    if dof:
-        for d in dof:
-            if d == 'rx':
-                r[0] = rot[i]
-            elif d == 'ry':
-                r[2] = rot[i]
-            else:
-                r[1] = rot[i]
-            i += 1
+    for d in dof:
+        if d == 'rx':
+            r[0] = rot[i]
+        elif d == 'ry':
+            r[1] = rot[i]
+        else:
+            r[2] = rot[i]
+        i += 1
     return r
 
 def importData (reader, object, filename):
-    action = Blender.Armature.NLA.NewAction(filename)
+    action = Blender.Armature.NLA.NewAction(filename.split('/')[-1])
     action.setActive(object)
     armature = object.getData()
     scene = Blender.Scene.getCurrent()
     context = scene.getRenderingContext()
     b = {}
 
+    context.framesPerSec(120)
+
     bones = armature.getBones()
     for bone in bones:
         b[bone.getName()] = bone
+        bone.setPose([ROT, LOC, SIZE])
 
     for frame in reader.frames:
         context.currentFrame(frame.number)
 
         # set root position/rotation
         #loc = frame.bones['root'][0:3]
-        #loc[0], loc[2], loc[1] = loc
         rot = frame.bones['root'][3:6]
-        rot[0], rot[2], rot[1] = rot
         euler = Blender.Mathutils.Euler(rot)
         quat = euler.toQuat()
         #b['root'].setLoc(loc)
         b['root'].setQuat(quat)
-        #b['root'].setPose([ROT,LOC], action)
-        b['root'].setPose([ROT], action)
+        b['root'].setPose([ROT, LOC, SIZE])
 
-        print frame.number
+        #print frame.number
 
         for bname, bone in frame.bones.iteritems():
             if bname == 'root':
@@ -89,7 +90,9 @@ def importData (reader, object, filename):
             euler = Blender.Mathutils.Euler(rot)
             quat = euler.toQuat()
             b[bname].setQuat(quat)
-            b[bname].setPose([ROT], action)
+            b[bname].setPose([ROT, LOC, SIZE])
+
+    Blender.Window.RedrawAll()
 
 def fileSelectedCallback(filename):
     reader = AMCReader.AMCReader()
