@@ -32,6 +32,7 @@
 
 static xchat_plugin *ph;				// Plugin handle.
 static gboolean window_visible = TRUE;	// Keep track of whether the window is visible.
+static NavTree *nav_tree;				// A reference to the navigation tree.
 static EggTrayIcon *notification;		// Notification area icon.
 static GtkWidget *image;				// The image displayed by the icon.
 static GdkPixbuf *logo,					// Pixbufs for the notification area.
@@ -62,6 +63,8 @@ xchat_plugin_init (xchat_plugin *plugin_handle, char **plugin_name,
 	GdkPixbuf *p;
 
 	ph = plugin_handle;
+
+	nav_tree = get_navigation_tree();
 
 	/* Set the plugin info. */
 	xchat_plugin_get_info (plugin_name, plugin_desc, plugin_version, NULL);
