@@ -157,8 +157,6 @@ edit_ok_clicked (GtkWidget *button, gpointer data)
 	}
 	net->name = g_strdup (text);
 
-	/* FIXME: check validity of everything before filling the ircnet struct */
-
 	newflags = 0;
 
 	widget = glade_xml_get_widget (gui.xml, "server config autoconnect");
@@ -334,15 +332,27 @@ remove_clicked (GtkWidget *button, gpointer data)
 	GtkTreeSelection *select;
 	GtkTreeIter iter;
 	GtkTreeModel *model;
+	GtkWidget *dialog;
+	ircnet *net;
+	gint r;
 
 	treeview = glade_xml_get_widget (gui.xml, "configure server list");
 
 	select = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
 
-	gtk_tree_selection_get_selected (select, &model, &iter);
-/*	gtk_tree_model_get(model, &iter, 2, &net, -1);*/
+	if (!gtk_tree_selection_get_selected (select, &model, &iter))
+		return;
+	gtk_tree_model_get(model, &iter, 2, &net, -1);
 
-	gtk_tree_store_remove (GTK_TREE_STORE (model), &iter);
+	dialog = gtk_message_dialog_new (NULL, GTK_DIALOG_MODAL, GTK_MESSAGE_QUESTION, GTK_BUTTONS_NONE, _("Really remove network \"%s\" and all of its servers?"), net->name);
+	gtk_dialog_add_button (GTK_DIALOG (dialog), GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL);
+	gtk_dialog_add_button (GTK_DIALOG (dialog), GTK_STOCK_REMOVE, GTK_RESPONSE_OK);
+	r = gtk_dialog_run (GTK_DIALOG (dialog));
+	if (r == GTK_RESPONSE_OK) {
+		gtk_list_store_remove (GTK_LIST_STORE (model), &iter);
+		servlist_net_remove (net);
+	}
+	gtk_widget_destroy (dialog);
 }
 
 void
