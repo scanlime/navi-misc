@@ -103,3 +103,7 @@ void set_gui_topic(struct session *sess, char *topic) {
 			gtk_entry_set_text(GTK_ENTRY(topicw), topic);
 	}
 }
+
+void clear_buffer(struct session *sess) {
+	gtk_xtext_clear(sess->gui->buffer);
+}
