@@ -41,6 +41,7 @@ static gboolean limit_update_rate               (GTimer* timer, float max_rate);
 static gdouble  explorer_get_iter_speed         (Explorer *self);
 static gchar*   explorer_strdup_status          (Explorer *self);
 static gchar*   explorer_strdup_speed           (Explorer *self);
+static gchar*   explorer_strdup_quality         (Explorer *self);
 static void     explorer_update_status_bar      (Explorer *self);
 
 static gdouble generate_random_param();
@@ -673,17 +674,19 @@ static gchar*   explorer_strdup_status (Explorer *self)
 {
     gchar *status;
     gchar *speed = explorer_strdup_speed(self);
-
+    gchar *quality = explorer_strdup_quality(self);
+    
     status = g_strdup_printf("Iterations:    %.3e    \t"
 			     "Speed:    %s    \t"
-			     "Peak density:    %ld    \t"
+			     "Quality:    %s    \t"
 			     "Current tool: %s",
 			     self->map->iterations,
 			     speed,
-			     HISTOGRAM_IMAGER(self->map)->peak_density,
+			     quality,
 			     self->current_tool);
 
     g_free(speed);
+    g_free(quality);
     return status;
 }
 
@@ -693,6 +696,15 @@ static gchar*   explorer_strdup_speed (Explorer *self)
 	return g_strdup_printf("%.3e/sec", explorer_get_iter_speed(self));
     else
 	return g_strdup("Paused");
+}
+
+static gchar*   explorer_strdup_quality (Explorer *self)
+{
+    gdouble q = histogram_imager_compute_quality(HISTOGRAM_IMAGER(self->map));
+    if (q > (G_MAXDOUBLE / 2))
+	return g_strdup("N/A");
+    else
+	return g_strdup_printf("%.3f", q);
 }
 
 static gdouble  explorer_get_iter_speed(Explorer *self)

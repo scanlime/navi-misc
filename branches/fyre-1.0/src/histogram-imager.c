@@ -45,6 +45,7 @@ static void histogram_imager_require_histogram (HistogramImager *self);
 static void histogram_imager_require_image (HistogramImager *self);
 static void histogram_imager_require_oversample_tables (HistogramImager *self);
 static gulong histogram_imager_get_max_usable_density (HistogramImager *self);
+static double histogram_imager_get_color_path_length (HistogramImager *self);
 
 static gboolean update_double_if_necessary (gdouble new_value, gboolean *dirty_flag, gdouble *param, gdouble epsilon);
 static gboolean update_uint_if_necessary (guint new_value, gboolean *dirty_flag, guint *param);
@@ -77,6 +78,7 @@ static gpointer parent_class = NULL;
 typedef enum {
     FYRE_HISTOGRAM_IMAGER_ERROR_NO_METADATA,
 } FyreHistogramImagerError;
+
 
 /************************************************************************************/
 /**************************************************** Initialization / Finalization */
@@ -945,6 +947,88 @@ histogram_imager_get_max_usable_density (HistogramImager *self)
     if (max_usable > G_MAXINT/2)
 	max_usable = G_MAXINT/2;
     return (gulong) max_usable;
+}
+
+static double
+histogram_imager_get_color_path_length (HistogramImager *self)
+{
+    /* This determines the total length of the path we take through
+     * an RGBA color cube, starting at the background color and ending
+     * when we hit the maximum usable density.
+     *
+     * FIXME: This is a slow numerical method. If this function turns
+     *        out to be a bottleneck, it can be implemented much faster
+     *        by dividing the path into straight segments and calculating
+     *        their length directly.
+     */
+    int i;
+    guint32 color;
+    double total = 0;
+    struct {
+	guchar r, g, b, a;
+    } current, previous;
+
+    histogram_imager_generate_color_table(self);
+
+    for (i=0; i<self->color_table.filled_size; i++) {
+	color = GUINT32_FROM_LE(self->color_table.table[i]);
+
+	current.r = (color >>  0) & 0xFF;
+	current.g = (color >>  8) & 0xFF;
+	current.b = (color >> 16) & 0xFF;
+	current.a = (color >> 24) & 0xFF;
+	
+	if (i > 0) {
+	    total += sqrt( (current.r - previous.r) * (current.r - previous.r) +
+			   (current.g - previous.g) * (current.g - previous.g) +
+			   (current.b - previous.b) * (current.b - previous.b) +
+			   (current.a - previous.a) * (current.a - previous.a) );
+	}
+	previous = current;
+    }
+
+    return total;
+}
+
+gdouble
+histogram_imager_compute_quality (HistogramImager *self)
+{
+    /* Compute a quality metric for the current histogram.
+     * The algorithm is described in more detail in histogram-imager.h
+     */
+    histogram_imager_check_dirty_flags (self);
+    histogram_imager_require_histogram (self);
+    {
+	guint *hist_p = self->histogram;
+	guint count;
+	guint hist_clamp = self->color_table.filled_size - 1;
+	int width = self->width * self->oversample;
+	int height = self->height * self->oversample;
+	int x, y;
+	gulong qual_denominator = 0;
+	gulong qual_numerator = 0;
+	gdouble path_len;
+
+	for (y=self->height; y; y--)
+	    for (x=self->width; x; x--) {
+		count = *(hist_p++);
+
+		/* We average only those buckets that aren't empty or satuated */
+		if (count <= hist_clamp && count > 0) {
+		    qual_numerator += count;
+		    qual_denominator++;
+		}
+	    }
+
+	if (!qual_denominator)
+	    return G_MAXDOUBLE;
+
+	path_len = histogram_imager_get_color_path_length(self);
+	if (path_len < 1.0)
+	    return G_MAXDOUBLE;
+
+	return ((double) qual_numerator) / qual_denominator / path_len;
+    }
 }
 
 

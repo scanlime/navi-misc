@@ -135,6 +135,24 @@ void             histogram_imager_get_hist_size   (HistogramImager *self,
 void             histogram_imager_clear           (HistogramImager *self);
 gdouble          histogram_imager_get_elapsed_time (HistogramImager *self);
 
+/* Calculate a quantitative measure of the image's current rendering
+ * quality. The result is a nonzero floating point number. Higher numbers
+ * indicate better images, with 1.0 indicating a reasonable default quality.
+ * In case the image quality can't be calculated (all buckets are empty or
+ * saturated, or the color path is zero-length) this returns G_MAXDOUBLE.
+ *
+ * This is calculated by first measuring the average number of samples per
+ * bucket, ignoring buckets that are empty or that are full enough to
+ * saturate the image. This average samples per pixel is then divided
+ * by the length of the color path we interpolate along. A value of 1.0
+ * therefore indicates that the average number of samples exactly matches
+ * the number of samples on our interpolation line.
+ *
+ * Efficiency: O(width * height)
+ *             This must scan the histogram to compute an average.
+ */
+gdouble          histogram_imager_compute_quality (HistogramImager *self);
+
 /* The imager's histogram buffer can be exported to a compact
  * stream format that can later be merged into an existing histogram
  * buffer. This is useful for merging rendering results computed
