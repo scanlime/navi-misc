@@ -5,7 +5,7 @@
 
 import os
 import cPickle as pickle
-import Pieces
+import GroupList
 
 DefaultPath = os.path.join(os.environ['HOME'],'.trough-playlist')
 
@@ -19,11 +19,11 @@ class PlayList:
 		try:
 			self.playlist = pickle.load(open(self.path,'r'))
 		except:
-			self.playlist = Pieces.Pieces()
+			self.playlist = GroupList.GroupList()
 
 	def dump (self):
 		print 'self.path=',self.path
 		pickle.dump(self.playlist,open(self.path,'w'),1)
 
-	def getPieces (self):
+	def getGroupList (self):
 		return self.playlist

@@ -1,35 +1,36 @@
 import FSTree
-from Piece import Piece
+from Group import Group
 
 from types import *
 import sys
 import os.path
 
-class Pieces:
-	''' Pieces
-		Holds each Piece; has conversations with FSTree.Directory to find them.
+class GroupList:
+	''' GroupList
+		Container for Groups, and holds lengthy nighttime
+		conversations with FSTree.Directory to find them.
 		Does not inherit pickles.
 	'''
 	def __init__ (self):
 		self.roots = []
-		self.pieces = []
+		self.groups = []
 
 	def addFilesSeparate (self, name, files):
 		if type(files) is not list:
-			self.pieces.append(Piece(files,[files],self))
+			self.groups.append(Group(files,[files],self))
 		else:
 			for file in files:
 				name = os.path.splitext(file.getName())[0]
-				self.pieces.append(Piece(name,file,self))
+				self.groups.append(Group(name,file,self))
 	
 	def addFilesGrouped (self, name, files):
 		if type(files) is not list:
-			self.pieces.append(Piece(name,[files],self))
+			self.groups.append(Group(name,[files],self))
 		else:
-			self.pieces.append(Piece(name,files,self))
+			self.groups.append(Group(name,files,self))
 
 	def addDirectory (self, dir):
-		''' Pieces.addDirectory
+		''' GroupList.addDirectory
 			Add the contents of a directory, sorting them into groups as necessary.
 			
 			The rules for file grouping are fairly simple; the files become a group 
@@ -67,13 +68,13 @@ class Pieces:
 			tree = FSTree.Directory(path)
 			self.addDirectory(tree)
 			self.roots.append(tree)
-#		print 'found ',len(self.pieces)
+#		print 'found ',len(self.group)
 
 	def getCount (self):
-		return len(self.pieces)
+		return len(self.groups)
 
-	def getPiece (self, num):
-		return self.pieces[num]
+	def getGroup (self, num):
+		return self.groups[num]
 
 	def removePaths (self, paths):
 		for path in paths:
@@ -85,18 +86,18 @@ class Pieces:
 			else:
 				sys.stderr.write('warning: '+path+' not found in tree\n')
 
-	def breakPieces (self, paths):
+	def breakGroups (self, paths):
 		for path in paths:
-			for p in self.pieces:
+			for p in self.group:
 				if(os.path.commonprefix([p.getWhere()[0].getPath(),path]) == path): 
 					self.addFilesSeparate(p.getWhere()[0].getPath(),p.getWhere())
-					self.delPiece(p)
+					self.delGroup(p)
 	
 
-	def delPiece (self, piece):
-		'''	Pieces.delPiece
+	def delGroup (self, group):
+		'''	GroupList.delGroup
 
-			Called by individual pieces to make sure they're cleaned
+			Called by individual groups to make sure they're cleaned
 			up happily.
 		'''
-		self.pieces.remove(piece)
+		self.groups.remove(group)

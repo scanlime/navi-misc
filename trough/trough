@@ -42,25 +42,25 @@ if options.add and options.remove:
 	parser.error("can't simultaneously add and remove")
 if options.add:
 	print 'adding ',arguments
-	playlist.getPieces().addPaths(arguments)
+	playlist.getGroupList().addPaths(arguments)
 	playlist.dump()
 	sys.exit(0)
 if options.remove:
 	print 'removing ',arguments
-	playlist.getPieces().removePaths(arguments)
+	playlist.getGroupList().removePaths(arguments)
 	playlist.dump()
 	sys.exit(0)
 if options.breakup:
 	print 'breaking ',arguments
-	playlist.getPieces().breakPieces(arguments)
+	playlist.getGroupList().breakGroups(arguments)
 	playlist.dump()
 	sys.exit(0)
 
 # At some point, this may be replaced by code that actually plays something
 #
-p = playlist.getPieces()
+p = playlist.getGroupList()
 
-print playlist.getPieces().getCount()
+print playlist.getGroupList().getCount()
                                                                                 
 for x in Trough.Select.Select(p):
 	print x.getPath()

@@ -2,9 +2,9 @@
 
 import types
 
-class Piece:
-	''' Piece
-		Grouped files
+class Group:
+	''' Group
+		A single group of files
 	'''
 
 	def __init__ (self, name, where, callback):
@@ -29,4 +29,4 @@ class Piece:
 	def removed (self,where):
 		self.where.remove(where)
 		if len(self.where) == 0:
-			self.callback.delPiece(self)
+			self.callback.delGroup(self)
