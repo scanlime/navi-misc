@@ -18,6 +18,9 @@
 #include "PlatformFactory.h"
 #include "BzfMedia.h"
 
+#include <map>
+#include <vector>
+
 const float		SpeedOfSound = 343.0f;			// meters/sec
 const int		MaxEvents = 30;
 const float		InterAuralDistance = 0.1f;		// meters
@@ -73,7 +76,7 @@ static int		resampleAudio(const float* in,
  */
 
 static int		usingAudio = 0;
-static const char*	soundFiles[] = {
+/*static const char*	soundFiles[] = {
 				"fire",
 				"explosion",
 				"ricochet",
@@ -104,13 +107,17 @@ static const char*	soundFiles[] = {
 				"message_private",
 				"message_team"
 			};
-#define	SFX_COUNT	((int)(countof(soundFiles)))
+//#define	SFX_COUNT	((int)(countof(soundFiles)))
+*/
 
 /*
  * producer/consumer shared arena
  */
 
-static AudioSamples	soundSamples[SFX_COUNT];
+std::vector<AudioSamples>	soundSamples;
+std::map<std::string,int> soundNameMap;
+
+//static AudioSamples	soundSamples[SFX_COUNT];
 static long		audioBufferSize;
 static int		soundLevel;
 
@@ -167,11 +174,11 @@ void			openSound(const char*)
     return;
 
   // initialize buffers
-  for (i = 0; i < SFX_COUNT; i++) {
+ /* for (i = 0; i < SFX_COUNT; i++) {
     soundSamples[i].data = NULL;
     soundSamples[i].mono = NULL;
     soundSamples[i].monoRaw = NULL;
-  }
+  } */
 
   // open audio data files
   if (!allocAudioSamples()) {
@@ -260,15 +267,15 @@ bool			isSoundOpen()
 static bool		allocAudioSamples()
 {
   bool anyFile = false;
+	AudioSamples	sample;
 
-  for (int i = 0; i < SFX_COUNT; i++) {
+  for (int i = 0; i < SFX_COUNT; i++)
+	{
     // read it
     int numFrames, rate;
-    float* samples = PlatformFactory::getMedia()->
-				readSound(soundFiles[i], numFrames, rate);
-    if (samples && resampleAudio(samples, numFrames, rate, soundSamples + i)) {
+    float* samples = PlatformFactory::getMedia()->readSound(soundFiles[i], numFrames, rate);
+    if (samples && resampleAudio(samples, numFrames, rate, soundSamples + i))
       anyFile = true;
-    }
     delete[] samples;
   }
 

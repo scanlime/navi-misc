@@ -51,6 +51,29 @@ void			WinMedia::sleep(float timeInSeconds)
   WaitForSingleObject(dummyEvent, (DWORD)(1000.0f * timeInSeconds));
 }
 
+
+std::vector<std::string> WinMedia::getResourcePaths ( void )
+{
+	std::vector<std::string> paths;
+
+	paths.push_back(makePath(mediaDir, ""));
+
+#if defined(INSTALL_DATA_DIR)
+	paths.push_back(makePath(INSTALL_DATA_DIR, ""));
+#endif
+
+	paths.push_back(makePath(DEFAULT_MEDIA_DIR, ""));
+
+	std::string name = "../";
+	name += DEFAULT_MEDIA_DIR;
+	paths.push_back(makePath(name, ""));
+
+	name = "../../";
+	name += DEFAULT_MEDIA_DIR;
+	paths.push_back(makePath(name, ""));
+
+	return paths;
+}
 bool			WinMedia::openAudio()
 {
   // don't re-initialize

@@ -71,6 +71,11 @@ class WinMedia : public BzfMedia {
     HANDLE		dummyEvent;
     static void		(*threadProc)(void*);
     static void*	threadData;
+
+protected:
+	// path search stuff
+	virtual std::vector<std::string> getResourcePaths ( void );
+
 };
 
 #endif // BZF_WINMEDIA_H
