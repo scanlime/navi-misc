@@ -140,6 +140,32 @@ static void animation_set_default_transition(Animation *self, GtkTreeIter *iter)
 		     -1);
 }
 
+gdouble animation_keyframe_get_time(Animation *self, GtkTreeIter *iter) {
+  /* Return the absolute time in seconds that the keyframe pointed to by 'iter' begins at.
+   */
+  GtkTreeModel *model = GTK_TREE_MODEL(self->model);
+  GtkTreeIter my_iter;
+  gboolean valid;
+  gdouble keyframe_duration;
+  gdouble total = 0;
+
+  valid = gtk_tree_model_get_iter_first(model, &my_iter);
+  while (valid) {
+
+    if (!memcmp(&my_iter, iter, sizeof(GtkTreeIter)))
+      break;
+
+    gtk_tree_model_get(model, &my_iter,
+		       ANIMATION_MODEL_DURATION, &keyframe_duration,
+		       -1);
+    total += keyframe_duration;
+
+    valid = gtk_tree_model_iter_next(model, &my_iter);
+  }
+
+  return total;
+}
+
 
 /************************************************************************************/
 /********************************************************************** Persistence */

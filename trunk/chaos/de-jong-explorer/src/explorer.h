@@ -83,7 +83,7 @@ struct _ExplorerClass {
 /************************************************************************************/
 
 GType      explorer_get_type();
-Explorer*  explorer_new(DeJong *dejong);
+Explorer*  explorer_new(DeJong *dejong, Animation *animation);
 
 
 G_END_DECLS

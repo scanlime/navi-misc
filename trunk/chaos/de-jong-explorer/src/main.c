@@ -25,6 +25,7 @@
 #include <time.h>
 #include <getopt.h>
 #include "de-jong.h"
+#include "animation.h"
 #include "explorer.h"
 
 static void usage(char **argv);
@@ -33,6 +34,7 @@ static void render_main(DeJong *dejong, const gchar *filename);
 
 int main(int argc, char ** argv) {
   DeJong* dejong;
+  Animation* animation;
   enum {INTERACTIVE, RENDER} mode = INTERACTIVE;
   const gchar *outputFile;
   int c, option_index=0;
@@ -41,6 +43,7 @@ int main(int argc, char ** argv) {
   g_type_init();
 
   dejong = de_jong_new();
+  animation = animation_new();
 
   while (1) {
     static struct option long_options[] = {
@@ -111,7 +114,7 @@ int main(int argc, char ** argv) {
 
   case INTERACTIVE:
     gtk_init(&argc, &argv);
-    explorer_new(dejong);
+    explorer_new(dejong, animation);
     gtk_main();
     break;
 

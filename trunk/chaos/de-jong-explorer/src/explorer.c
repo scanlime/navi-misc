@@ -255,10 +255,10 @@ static void explorer_dispose(GObject *gobject) {
   }
 }
 
-Explorer* explorer_new(DeJong *dejong) {
+Explorer* explorer_new(DeJong *dejong, Animation *animation) {
   Explorer *self = EXPLORER(g_object_new(explorer_get_type(), NULL));
 
-  self->animation = animation_new();
+  self->animation = ANIMATION(g_object_ref(animation));
   self->dejong = DE_JONG(g_object_ref(dejong));
 
   explorer_init_animation(self);
@@ -990,8 +990,11 @@ static void on_keyframe_view_cursor_changed(GtkWidget *widget, gpointer user_dat
   gtk_widget_set_sensitive(glade_xml_get_widget(self->xml, "anim_transition_box"), TRUE);
 
   if (!self->seeking_animation) {
-    animation_keyframe_load_dejong(self->animation, &iter, self->dejong);
-    explorer_set_params(self);
+    /* Assuming the user clicked us rather than this being called as the result of
+     * a seek, seek the animation to this keyframe's location.
+     */
+    gtk_range_set_value(GTK_RANGE(glade_xml_get_widget(self->xml, "anim_scale")),
+			animation_keyframe_get_time(self->animation, &iter));
 
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(glade_xml_get_widget(self->xml, "anim_play_button")), FALSE);
   }
@@ -1052,7 +1055,12 @@ static void explorer_update_animation_length(Explorer *self) {
   gdouble length = animation_get_length(self->animation);
   gboolean enable = length > 0.0001;
 
-  gtk_range_set_range(GTK_RANGE(scale), 0, length);
+  /* To keep the GtkRange from complaining */
+  if (!enable)
+    length = 1;
+
+  gtk_range_set_adjustment(GTK_RANGE(scale),
+			   GTK_ADJUSTMENT(gtk_adjustment_new(0, 0, length, 0.01, 1, 0)));
   gtk_widget_set_sensitive(scale, enable);
   gtk_widget_set_sensitive(glade_xml_get_widget(self->xml, "anim_play_button"), enable);
 }
@@ -1066,6 +1074,13 @@ static void on_anim_scale_changed(GtkWidget *widget, gpointer user_data) {
 
   /* Seek to the right place in the animation and load an interpolated frame */
   animation_iter_seek(self->animation, &iter, v);
+  if (!iter.valid) {
+    /* Don't do anything if we're past the end of the animation.
+     * This will happen because the animation's range is only [0, length)
+     * while the scale widget we represent it has a range of [0, length]
+     */
+    return;
+  }
   animation_iter_load_dejong(self->animation, &iter, self->dejong);
 
   /* Put the tree view's cursor on the current keyframe */
