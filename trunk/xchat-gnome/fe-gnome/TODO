@@ -1,5 +1,4 @@
 before 0.2:
-  * finish topic stuff
   * fix the completely-broken druid (probably replace with a simple dialog)
   * make it install the .desktop file
 
