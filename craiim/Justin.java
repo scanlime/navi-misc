@@ -110,7 +110,8 @@ public class Justin
     
     public void incomingMessage( MessageCommand msg )
     {
-	cacher.head.cacheMessage(msg.getSource().toString(),msg.getMessage(),false);
+	if(cacher.head != null)
+	    cacher.head.cacheMessage(msg.getSource().toString(),msg.getMessage(),false);
     }
     
     private String getParameter( String raw, String command )
@@ -137,7 +138,7 @@ public class Justin
 	botmain foo;
 	do
 	{
-	    foo = new botmain("tacobeambot","effer");
+	    foo = new botmain("tacobeambot","nope");
 	    Thread.sleep(10000);
 	}
 	while(!foo.connected);
