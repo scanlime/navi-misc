@@ -42,7 +42,6 @@
 
 /* Linux 2.4 compatibility */
 #ifndef EV_SYN
-#define EV_SYN 0
 struct input_absinfo {
   __s32 value;
   __s32 minimum;
@@ -395,12 +394,25 @@ static int evdev_send_event(int evdev, struct server *svr)
   ip_ev.code = htons(ev.code);
   server_write(svr, IPIPE_EVENT, sizeof(ip_ev), &ip_ev);
 
+#ifdef EV_SYN
   /* If this was a synchronization event, flush our buffers.
    * This will group together the individual events for each axis and button
    * into one frame in the underlying network transport hopefully.
    */
   if (ev.type == EV_SYN)
     server_flush(svr);
+
+#else
+  /* Oh no, we're running on linux 2.4, where there were no sync
+   * events! This is going to suck, but we'll have to generate
+   * a sync then flush for every event.
+   */
+  ip_ev.value = 0;
+  ip_ev.type = 0;
+  ip_ev.code = 0;
+  server_write(svr, IPIPE_EVENT, sizeof(ip_ev), &ip_ev);
+  server_flush(svr);
+#endif
 
   return 0;
 }
