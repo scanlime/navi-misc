@@ -78,7 +78,7 @@ int main(int argc, char ** argv) {
 #ifdef HAVE_GNET
     gnet_init();
 #  ifdef WIN32
-    gnet_ipv6_set_policy(GIPV6_POLICY_IPV4_THEN_ONLY);
+    gnet_ipv6_set_policy(GIPV6_POLICY_IPV4_THEN_IPV6);
 #  endif
 #endif
 
