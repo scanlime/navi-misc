@@ -102,10 +102,6 @@ check_input (UrlEditorDialog *dialog)
 		sources = e_source_selector_get_selection (E_SOURCE_SELECTOR (dialog->events_selector));
 		n += g_slist_length (sources);
 	}
-	if (GTK_WIDGET_IS_SENSITIVE (dialog->tasks_selector)) {
-		sources = e_source_selector_get_selection (E_SOURCE_SELECTOR (dialog->tasks_selector));
-		n += g_slist_length (sources);
-	}
 	if (n == 0)
 		goto fail;
 
@@ -210,15 +206,6 @@ publish_service_changed (GtkComboBox *combo, UrlEditorDialog *dialog)
 static void
 type_selector_changed (GtkComboBox *combo, UrlEditorDialog *dialog)
 {
-	gint selected = gtk_combo_box_get_active (combo);
-
-	if (selected == URI_PUBLISH_AS_FB) {
-		gtk_widget_set_sensitive (dialog->events_selector, TRUE);
-		gtk_widget_set_sensitive (dialog->tasks_selector, FALSE);
-	} else {
-		gtk_widget_set_sensitive (dialog->events_selector, TRUE);
-		gtk_widget_set_sensitive (dialog->tasks_selector, TRUE);
-	}
 	check_input (dialog);
 }
 
@@ -341,7 +328,6 @@ url_editor_dialog_construct (UrlEditorDialog *dialog)
 	GW(type_selector);
 
 	GW(events_swin);
-	GW(tasks_swin);
 
 	GW(publish_service);
 	GW(server_entry);
@@ -388,11 +374,6 @@ url_editor_dialog_construct (UrlEditorDialog *dialog)
 	gtk_widget_show (dialog->events_selector);
 	gtk_container_add (GTK_CONTAINER (dialog->events_swin), dialog->events_selector);
 
-	dialog->tasks_source_list = e_source_list_new_for_gconf (gconf, "/apps/evolution/tasks/sources");
-	dialog->tasks_selector = e_source_selector_new (dialog->tasks_source_list);
-	gtk_widget_show (dialog->tasks_selector);
-	gtk_container_add (GTK_CONTAINER (dialog->tasks_swin), dialog->tasks_selector);
-
 	group = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
 	gtk_size_group_add_widget (group, dialog->type_selector);
 	gtk_size_group_add_widget (group, dialog->publish_frequency);
@@ -425,12 +406,6 @@ url_editor_dialog_construct (UrlEditorDialog *dialog)
 			e_source_selector_select_source ((ESourceSelector *) dialog->events_selector, source);
 			g_free (source_uid);
 		}
-		for (p = uri->tasks; p; p = g_slist_next (p)) {
-			gchar *source_uid = g_strdup (p->data);
-			source = e_source_list_peek_source_by_uid (dialog->tasks_source_list, source_uid);
-			e_source_selector_select_source ((ESourceSelector *) dialog->tasks_selector, source);
-			g_free (source_uid);
-		}
 
 		if (uri->location && strlen (uri->location)) {
 			set_from_uri (dialog);
@@ -452,7 +427,6 @@ url_editor_dialog_construct (UrlEditorDialog *dialog)
 	g_signal_connect (G_OBJECT (dialog->publish_service), "changed",           G_CALLBACK (publish_service_changed),  dialog);
 	g_signal_connect (G_OBJECT (dialog->type_selector),   "changed",           G_CALLBACK (type_selector_changed),    dialog);
 	g_signal_connect (G_OBJECT (dialog->events_selector), "selection_changed", G_CALLBACK (source_selection_changed), dialog);
-	g_signal_connect (G_OBJECT (dialog->tasks_selector),  "selection_changed", G_CALLBACK (source_selection_changed), dialog);
 
 	g_signal_connect (G_OBJECT (dialog->server_entry),    "changed",           G_CALLBACK (server_entry_changed),     dialog);
 	g_signal_connect (G_OBJECT (dialog->file_entry),      "changed",           G_CALLBACK (file_entry_changed),       dialog);
@@ -554,10 +528,6 @@ url_editor_dialog_run (UrlEditorDialog *dialog)
 			g_slist_foreach (dialog->uri->events, (GFunc) g_free, NULL);
 			dialog->uri->events = NULL;
 		}
-		if (dialog->uri->tasks) {
-			g_slist_foreach (dialog->uri->tasks, (GFunc) g_free, NULL);
-			dialog->uri->tasks = NULL;
-		}
 
 		create_uri (dialog);
 
@@ -573,10 +543,6 @@ url_editor_dialog_run (UrlEditorDialog *dialog)
 		l = e_source_selector_get_selection (E_SOURCE_SELECTOR (dialog->events_selector));
 		for (p = l; p; p = g_slist_next (p))
 			dialog->uri->events = g_slist_append (dialog->uri->events, g_strdup (e_source_peek_uid (p->data)));
-
-		l = e_source_selector_get_selection (E_SOURCE_SELECTOR (dialog->tasks_selector));
-		for (p = l; p; p = g_slist_next (p))
-			dialog->uri->tasks = g_slist_append (dialog->uri->tasks, g_strdup (e_source_peek_uid (p->data)));
 	}
 	gtk_widget_hide_all (GTK_WIDGET (dialog));
 }
