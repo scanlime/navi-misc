@@ -167,12 +167,30 @@ sbit at 0xD7 CY   ;
 #define T0_MASK         0x0F
 #define T1_MASK         0xF0
 
-/* Interrupt numbers: address = (number * 8) + 3 */
-#define IE0_VECTOR      0       /* 0x03 external interrupt 0 */
-#define TF0_VECTOR      1       /* 0x0b timer 0 */
-#define IE1_VECTOR      2       /* 0x13 external interrupt 1 */
-#define TF1_VECTOR      3       /* 0x1b timer 1 */
-#define SI0_VECTOR      4       /* 0x23 serial port 0 */
+/* Interrupt vectors */
+#define VECTOR_NONE         0x00
+#define VECTOR_OEP1         0x12
+#define VECTOR_OEP2         0x14
+#define VECTOR_OEP3         0x16
+#define VECTOR_IEP1         0x22
+#define VECTOR_IEP2         0x24
+#define VECTOR_IEP3         0x26
+#define VECTOR_STPOW        0x30
+#define VECTOR_SETUP        0x32
+#define VECTOR_RESR         0x38
+#define VECTOR_SUSR         0x3A
+#define VECTOR_RSTR         0x3C
+#define VECTOR_I2C_TXE      0x40
+#define VECTOR_I2C_RXF      0x42
+#define VECTOR_IEP0         0x44
+#define VECTOR_OEP0         0x46
+#define VECTOR_UART_STATUS  0x50
+#define VECTOR_UART_MODEM   0x52
+#define VECTOR_UART_RXF     0x60
+#define VECTOR_UART_TXE     0x62
+#define VECTOR_DMA1         0x80
+#define VECTOR_DMA3         0x84
+
 
 /* Memory mapped USB control registers */
 /* Output 1 Endpoint Descriptor Block */
