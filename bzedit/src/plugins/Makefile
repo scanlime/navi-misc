@@ -4,17 +4,17 @@ CFLAGS		+= -fPIC -I..
 LIBS		+= $(shell pkg-config --libs $(PKGS))
 
 PLUGINS		=		\
-		base.so
+		core.so
 
-BASE_SO_OBJS	=		\
-		base.o		\
+CORE_SO_OBJS	=		\
+		core.o		\
 		box.o		\
 		world.o
 
 all:		$(PLUGINS)
 
-base.so:	$(BASE_SO_OBJS)
-		gcc -shared -o $@ $(BASE_SO_OBJS) $(LIBS)
+core.so:	$(CORE_SO_OBJS)
+		gcc -shared -o $@ $(CORE_SO_OBJS) $(LIBS)
 
 %.o:		%.c *.h
 		gcc -c -o $@ $< $(CFLAGS)
