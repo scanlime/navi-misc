@@ -1,0 +1,10 @@
+tweakables = [
+    Tweak('globalAmbient',
+          'float3',
+	  min = 0,
+	  max = 1,
+	  gui='color dialog'),
+    Tweak('modelViewProj',
+          'float4x4',
+	  analog = 'WorldViewProjection'),
+]
