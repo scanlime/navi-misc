@@ -11,6 +11,9 @@ from Character import Character
 
 
 class GTKsheet:
+  ''' Assemble the character sheet from the specified XML file using the
+      objects in GTKsheetElements.
+      '''
   def __init__(self, dataFile):
     self.character = Character()
     self.character.readCharacter(dataFile)

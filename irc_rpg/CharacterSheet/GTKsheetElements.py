@@ -6,7 +6,7 @@ widgets.
 Copyright (C) 2003 W. Evan Sheehan <evan@navi.picogui.org>
 """
 
-import gtk, re
+import gtk, re, traceback
 from Character import Character
 from random import randint
 
@@ -173,12 +173,13 @@ class mods(times):
   def __init__(self, node, character):
     times.__init__(self, node, character)
 
-class drop_down(hbox):
+class drop_down(gtk.HBox, sheetElement):
   ''' Drop down menu in the character sheet, can contain one dice button to roll dice determined
       by the menu.
       '''
   def __init__(self, node, character):
-    hbox.__init__(self, node, character)
+    sheetElement.__init__(self, node)
+    gtk.HBox.__init__(self)
     #self.menu = []
 
     self.items = []
@@ -194,12 +195,12 @@ class drop_down(hbox):
       #self.menu.append(gtk.Combo())
       #self.menu[i].connect("activate", self.setButton)
       #self.items.append({})
+    print self, node.childNodes
 
   def packChild(self, child):
     ''' If the child is a dice object copy it with a new callback and save
         a reference here.  Otherwise it's a menu item, so add it to the list
 	of menu items. '''
-    print "drop_down.packChild", child
     if isinstance(child, dice) and self.button is None:
       self.button = child.copyWithCallback(self.roll)
       self.pack_end(self.button)
