@@ -122,10 +122,14 @@ echo $PACKAGE v$VERSION
 echo
 
 if test "x$have_exr" != "xyes"; then
-   echo "Not including support for OpenEXR files"
+	echo "Not including support for OpenEXR files"
+else
+	echo "Including support for OpenEXR files"
 fi
 if test "x$have_gnet" != "xyes"; then
-   echo "Not including clustering or remote control support"
+	echo "Not including clustering or remote control support"
+else
+	echo "Including clustering or remote control support"
 fi
 
 echo
