@@ -4,13 +4,13 @@ RCS file: /cvsroot/xchat/xchat2/configure.in,v
 retrieving revision 1.75
 diff -u -r1.75 configure.in
 --- configure.in	2 Feb 2005 10:03:39 -0000	1.75
-+++ configure.in	18 Feb 2005 17:50:12 -0000
++++ configure.in	1 Mar 2005 02:45:27 -0000
 @@ -2,7 +2,7 @@
  
  AC_INIT(src)
  AM_CONFIG_HEADER(config.h)
 -AM_INIT_AUTOMAKE(xchat, 2.4.1)
-+AM_INIT_AUTOMAKE(xchat-gnome, 0.3pre)
++AM_INIT_AUTOMAKE(xchat-gnome, 0.3)
  AM_MAINTAINER_MODE
  AC_PROG_CC
  AC_PROG_CPP
@@ -182,7 +182,24 @@ RCS file: /cvsroot/xchat/xchat2/plugins/Makefile.am,v
 retrieving revision 1.4
 diff -u -r1.4 Makefile.am
 --- plugins/Makefile.am	13 Jan 2003 07:29:36 -0000	1.4
-+++ plugins/Makefile.am	18 Feb 2005 17:50:34 -0000
++++ plugins/Makefile.am	1 Mar 2005 02:45:27 -0000
+@@ -1,10 +1,10 @@
+ # temp. solution while mailcheck & xdcc arn't in SUBDIRS
+-EXTRA_DIST = plugin20.html Make.plugin plugin-conf.in \
+-				mailcheck/mailcheck.c \
+-				mailcheck/mailcheck-config.h.in \
+-				mailcheck/Makefile.am \
+-				xdcc/xdcc.c \
+-				xdcc/Makefile.am
++EXTRA_DIST =		\
++	plugin20.html	\
++	Make.plugin	\
++	plugin-conf.in	\
++	xdcc/xdcc.c	\
++	xdcc/Makefile.am
+ 
+ noinst_HEADERS = xchat-plugin.h
+ 
 @@ -20,5 +20,13 @@
  tcldir = tcl
  endif
@@ -198,13 +215,28 @@ diff -u -r1.4 Makefile.am
  #SUBDIRS = . $(pythondir) $(perldir) mailcheck xdcc
 -SUBDIRS = . $(pythondir) $(perldir) $(tcldir)
 +SUBDIRS = . $(pythondir) $(perldir) $(tcldir) $(urlscrprdir) $(notificationdir)
+Index: plugins/mailcheck/Makefile.am
+===================================================================
+RCS file: /cvsroot/xchat/xchat2/plugins/mailcheck/Makefile.am,v
+retrieving revision 1.1
+diff -u -r1.1 Makefile.am
+--- plugins/mailcheck/Makefile.am	17 Dec 2002 15:36:39 -0000	1.1
++++ plugins/mailcheck/Makefile.am	1 Mar 2005 02:45:27 -0000
+@@ -10,7 +10,6 @@
+ 
+ # This file must be in the form PLUGIN-config.h.in, it can be empty but
+ # must exist
+-EXTRA_DIST = mailcheck-config.h.in
+ 
+ # Remember to include this line in your Makefile.am
+ include @top_srcdir@/plugins/Make.plugin
 Index: src/Makefile.am
 ===================================================================
 RCS file: /cvsroot/xchat/xchat2/src/Makefile.am,v
 retrieving revision 1.1.1.1
 diff -u -r1.1.1.1 Makefile.am
 --- src/Makefile.am	28 Nov 2002 10:39:00 -0000	1.1.1.1
-+++ src/Makefile.am	18 Feb 2005 17:50:40 -0000
++++ src/Makefile.am	1 Mar 2005 02:45:56 -0000
 @@ -11,4 +11,8 @@
  gtk_fe = fe-gtk
  endif
