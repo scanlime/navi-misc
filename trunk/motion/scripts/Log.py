@@ -19,6 +19,8 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 
+import Blender
+
 class Logger:
     """This is a singleton that collects error and warning messages, presenting
        them to the user in batches.
