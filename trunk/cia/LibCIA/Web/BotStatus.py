@@ -81,10 +81,10 @@ class ListAttributeColumn(Nouvelle.AttributeColumn):
     """An AttributeColumn that formats lists nicely, and sorts by list length"""
     def render_data(self, context, obj):
         l = getattr(obj, self.attribute)
-        if not l:
-            return "None"
-        else:
-            return ", ".join(l.iterkeys())
+        return ", ".join(l.iterkeys())
+
+    def isVisible(self, context):
+        return context['table'].reduceColumn(self, max)
 
     def getValue(self, obj):
         return len(getattr(obj, self.attribute))
@@ -124,7 +124,7 @@ class LagColumn(Nouvelle.Column):
         if lag is None:
             return Template.error["unknown"]
         else:
-            return "%.2f s" % lag
+            return "%.2fs" % lag
 
 
 class BotsSection(Template.Section):
