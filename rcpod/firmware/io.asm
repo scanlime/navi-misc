@@ -161,25 +161,25 @@ io_SetFSR
 	
 	movlw	0x10		; PORTB
 	xorwf	io_tmp, w
-	movlw	PORTA
+	movlw	PORTB
 	btfsc	STATUS, Z
 	movwf	FSR
 
 	movlw	0x18		; PORTC
 	xorwf	io_tmp, w
-	movlw	PORTA
+	movlw	PORTC
 	btfsc	STATUS, Z
 	movwf	FSR
 
 	movlw	0x20		; PORTD
 	xorwf	io_tmp, w
-	movlw	PORTA
+	movlw	PORTD
 	btfsc	STATUS, Z
 	movwf	FSR
 
 	movlw	0x28		; PORTE
 	xorwf	io_tmp, w
-	movlw	PORTA
+	movlw	PORTE
 	btfsc	STATUS, Z
 	movwf	FSR
 
@@ -191,25 +191,25 @@ io_SetFSR
 	
 	movlw	0x50		; TRISB
 	xorwf	io_tmp, w
-	movlw	TRISA
+	movlw	TRISB
 	btfsc	STATUS, Z
 	movwf	FSR
 
 	movlw	0x58		; TRISC
 	xorwf	io_tmp, w
-	movlw	TRISA
+	movlw	TRISC
 	btfsc	STATUS, Z
 	movwf	FSR
 
 	movlw	0x60		; TRISD
 	xorwf	io_tmp, w
-	movlw	TRISA
+	movlw	TRISD
 	btfsc	STATUS, Z
 	movwf	FSR
 
 	movlw	0x68		; TRISE
 	xorwf	io_tmp, w
-	movlw	TRISA
+	movlw	TRISE
 	btfsc	STATUS, Z
 	movwf	FSR
 	return
