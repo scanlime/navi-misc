@@ -19,23 +19,20 @@
 #
 # Its record in the loginfo file should look like:
 #
-#       ALL        $CVSROOT/CVSROOT/ciabot.pl %s $USER project from_email dest_email ignore_regexp
+#       ALL        $CVSROOT/CVSROOT/ciabot.pl %{,,,s} $USER project from_email dest_email ignore_regexp
 #
-# Make sure that you add the script to 'checkoutlist' and give it 0755 permissions.
+# IMPORTANT: The %{,,,s} in loginfo is new, and is required for proper operation.
 #
-# Note that the last four parameters are optional, you can alternatively change
-# the defaults below in the configuration section.
+#            Make sure that you add the script to 'checkoutlist' and give it
+#            0755 permissions -before- committing it or adding it.
 #
-# If it does not work, try to disable $xml_rpc in the configuration section
-# below.
+#            Note that the last four parameters are optional, you can alternatively
+#            change the defaults below in the configuration section.
 #
-# $Id: ciabot.pl,v 1.112 2004/01/10 10:55:25 pasky Exp $
 
 use strict;
 use vars qw ($project $from_email $dest_email $rpc_uri $sendmail $sync_delay
 		$xml_rpc $ignore_regexp $alt_local_message_target);
-
-
 
 
 ### Configuration
@@ -103,6 +100,12 @@ my @dirfiles;  # This array is mapped to the @dir array and contains files
                # affected in each directory
 
 
+# A nice nonprinting character we can use as a separator relatively safely.
+# The commas in loginfo above give us 4 commas and a space between file
+# names given to us on the command line. This is the separator used internally.
+# Now we can handle filenames containing spaces, and probably anything except
+# strings of 4 commas or the ASCII bell character.
+$" = "\7";
 
 ### Input data loading
 
@@ -110,7 +113,7 @@ my @dirfiles;  # This array is mapped to the @dir array and contains files
 # These arguments are from %s; first the relative path in the repository
 # and then the list of files modified.
 
-@files = split (' ', ($ARGV[0] or ''));
+@files = split (' ,,,,', ($ARGV[0] or ''));
 $dir[0] = shift @files or die "$0: no directory specified\n";
 $dirfiles[0] = "@files" or die "$0: no files specified\n";
 
@@ -250,7 +253,7 @@ for (my $dirnum = 0; $dirnum < @dir; $dirnum++) {
     s/</&lt;/g;
     s/>/&gt;/g;
     $message .= "  <file>$_</file>\n";
-  } split(/ /, $dirfiles[$dirnum]);
+  } split($", $dirfiles[$dirnum]);
 }
 
 $message .= <<EM
