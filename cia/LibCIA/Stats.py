@@ -549,13 +549,19 @@ class Maintenance:
     # Maximum age for messages- currently set at about 6 months
     maxMessageAge = 60 * 60 * 24 * 30 * 6
 
+    scheduledRun = None
+
     def run(self):
         """Triggers one maintenance cycle, and sets up the next one"""
         log.msg("Initiating stats maintenance...")
         Database.pool.runInteraction(self._run)
 
+        if self.scheduledRun and self.scheduledRun.active():
+            log.msg("Cancelling previously scheduled stats maintenance run")
+            self.scheduledRun.cancel()
+
         log.msg("Scheduling another maintenance cycle in 1 hour")
-        reactor.callLater(60*60, self.run)
+        self.scheduledRun = reactor.callLater(60*60, self.run)
 
     def _run(self, cursor):
         """Database interaction implementing the maintenance cycle"""
