@@ -1,4 +1,4 @@
 CFLAGS := -I../include
-LDFLAGS := -lusb
+LDFLAGS := -lusb -lm
 
 all:	test
