@@ -7,5 +7,6 @@ setup (name = "mi6k",
        maintainer_email = "micah@navi.cx",
        license = "LGPL",
        py_modules = ['mi6k', 'vfdwidgets'],
+       scripts = ['vfd-echo.py'],
        )
 
