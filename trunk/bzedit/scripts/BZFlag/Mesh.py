@@ -30,17 +30,17 @@ class Face:
 
     def __init__(self, list=None):
         if list is not None:
-            for property in list[1:]:
+            for property in list:
                 getattr(self, "set_%s" % property[0])(property[1:])
 
     def set_vertices(self, vertices):
-        self.vertices = [float(n) for n in vertices]
+        self.vertices = [int(n) for n in vertices]
 
     def set_normals(self, normals):
-        self.normals = [float(n) for n in normals]
+        self.normals = [int(n) for n in normals]
 
     def set_texcoords(self, texcoords):
-        self.texcoords = [float(n) for n in texcoords]
+        self.texcoords = [int(n) for n in texcoords]
 
 class Mesh(Object):
     type = 'mesh'
@@ -58,7 +58,7 @@ class Mesh(Object):
 
     def set_face(self, face):
         f = Face(face)
-        self.faces.append(tuple(f.vertices))
+        self.faces.append(f.vertices)
 
     def set_vertex(self, vertex):
         self.verts.append([float(n) for n in vertex])
