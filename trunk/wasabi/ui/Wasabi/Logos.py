@@ -98,6 +98,7 @@ class JapaneseLogo(OrbitingLogo):
         self.title = HUD.Image(self.viewport.region(self.viewport.rect),
                                "wasabi_hiragana.png",
                                (height * 0.306358, height),
+                               color = (0,0,0,1),
                                alignment = (0.5, 0.5))
 
 
