@@ -75,6 +75,7 @@ irc_network_editor_init (IrcNetworkEditor *dialog)
 
 	GW(servers);
 	GW(add_server);
+	GW(edit_server);
 	GW(remove_server);
 
 	GW(use_globals);
@@ -84,6 +85,7 @@ irc_network_editor_init (IrcNetworkEditor *dialog)
 
 	GW(autojoin_channels);
 	GW(add_autojoin);
+	GW(edit_autojoin);
 	GW(remove_autojoin);
 
 	GW(toplevel);
