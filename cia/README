@@ -1,0 +1,76 @@
+CIA open source notification system
+-----------------------------------
+
+CIA is at its heart a system for distributing commit messages from the
+version control systems used by open source projects worldwide. It started
+out as a simple IRC bot distributing commit messages from the PicoGUI project,
+but has grown into a general message passing, filtering, and formatting system
+with web, IRC, XML-RPC, and email interfaces.
+
+
+-------- The most important top-level components of CIA:
+
+  - cia_server.tac
+
+    CIA's services for processing XML-RPC and web browser requests as well as
+    its outgoing connections for IRC are all run from within one Twisted
+    twistd process. This is the configuration file that plugs together the
+    above module into an actual application
+
+  - incoming_mail.py
+
+    A tiny script that can be placed in a procmailrc or .forward file to send
+    email to the CIA server via its XML-RPC interface
+
+  - ruleset_editor.py
+
+    A PyGTK/Glade editor for CIA's rulesets
+
+
+-------- An overview of CIA's internals:
+
+  - LibCIA.Message
+
+    Defines a generic format for passing messages around in XML, a python
+    encapsulation for that format, a Hub to distribute these messages, and
+    a Filter system based on XPath for selecting interesting messages
+
+  - LibCIA.Formatters
+
+    Accessed via the Message module, formatters provide a way to automatically
+    convert messages to human-readable representations in different output media
+
+  - LibCIA.Ruleset
+
+    A ruleset associates a URI with a set of message filters and formatters,
+    combining both into an intuitive but powerful XML format
+
+  - LibCIA.IncomingMail
+
+    Converts email messages to XML Messages, with support for the old CIA's
+    format for backward compatibility.
+
+  - LibCIA.IRC
+
+    A URI handler used in conjunction with Rulesets to deliver messages to IRC
+    channels. Defines a BotNetwork object that manages any number of bots on
+    any number of IRC networks.
+
+  - LibCIA.Stats
+
+    Handles the stats:// URI used to collect information on messages. These stats
+    can then be queried over the web or over XML-RPC.
+
+
+-------- Requirements
+
+ - Python 2.2.1 or later
+
+ - Twisted
+
+ - pygtk 2.0 or later for the GUI tools
+
+
+-------- Contacts
+
+Micah Dowty <micah@picogui.org>

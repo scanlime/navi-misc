@@ -1,9 +1,5 @@
 - We need a stats browser
 
-- Sending messages to query stats and query rulesets seems a bit overkill.
-  It would be nice for there to be a way to add extra commands to the XML-RPC
-  interface cleanly for these tasks
-
 - Rulesets could use some sort of subroutine call, maybe by embedding a <ruleset>
   tag with a different ruleset's URI. A new URI scheme could be added for rulesets
   that will never be executed on their own but should be referenceable from inside
