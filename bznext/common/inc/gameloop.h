@@ -69,6 +69,9 @@ public:
   CInputManager& GetInput ( void ) {return input;}
   CTimer& GetTimer ( void ) {return timer;}
 
+	// common operations
+	void ClearScene ( void );
+
   // OGRE frame listener
   bool frameStarted(const FrameEvent& evt);
   bool frameEnded(const FrameEvent& evt);

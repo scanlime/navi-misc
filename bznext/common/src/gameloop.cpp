@@ -70,6 +70,15 @@ bool CBaseGameLoop::Main ( int argc, char *argv[] )
   return Run();
 }
 
+void CBaseGameLoop::ClearScene ( void )
+{
+//	return;
+	mWindow->removeAllViewports();
+	GetSceneManager()->clearScene();
+	CreateCamera();
+	CreateViewports();
+}
+
 bool CBaseGameLoop::Run ( void )
 {
   mRoot = new Root();
@@ -247,12 +256,9 @@ void CBaseGameLoop::CreateCamera ( void )
     name = GetCameraName();
 
    mCamera = mSceneMgr->createCamera(name);
-
-   // set some default data, they can reset this in "init"
-   // Position it at 500 in Z direction
-   mCamera->setPosition(Vector3(0,0,500));
-   // Look back along -Z
-   mCamera->lookAt(Vector3(0,0,-300));
+	 float height = 1.25f;
+	 mCamera->setPosition(Vector3(0,0,height));
+	 mCamera->setOrientation(Quaternion(1.57079632f,Vector3(1,0,0)));
    mCamera->setNearClipDistance(0.01f);
 }
 
