@@ -54,16 +54,20 @@ static void make_window ()
 	time_rend = gtk_cell_renderer_text_new ();
 	time_col = gtk_tree_view_column_new_with_attributes ("Time", time_rend, "text", 0, NULL);
 	gtk_tree_view_column_set_visible (time_col, timestamps);
+	gtk_tree_view_column_set_resizable (time_col, TRUE);
 
 	nick_rend = gtk_cell_renderer_text_new ();
 	nick_col = gtk_tree_view_column_new_with_attributes ("Nick", nick_rend, "text", 1, NULL);
+	gtk_tree_view_column_set_resizable (nick_col, TRUE);
 
 	chan_rend = gtk_cell_renderer_text_new ();
 	chan_col = gtk_tree_view_column_new_with_attributes ("Channel", chan_rend, "text", 2, NULL);
+	gtk_tree_view_column_set_resizable (chan_col, TRUE);
 
 	url_rend = gtk_cell_renderer_text_new ();
 	g_object_set (G_OBJECT(url_rend), "ellipsize", PANGO_ELLIPSIZE_END, NULL);
 	url_col = gtk_tree_view_column_new_with_attributes ("URL", url_rend, "text", 3, NULL);
+	gtk_tree_view_column_set_resizable (url_col, TRUE);
 
 	gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), time_col);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), nick_col);
