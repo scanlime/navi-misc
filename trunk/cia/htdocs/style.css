@@ -89,7 +89,7 @@ td.sitename {
 a.sitename {
   padding: 0em 0.75em;
   margin: 0em;
-  font: 350% Verdana, Helvetical, Arial, sans-serif;
+  font: 350% sans-serif;
   color: #DDD;
   text-decoration: none;
 }
@@ -212,7 +212,7 @@ div.row {
 
 table {
   margin: 0em 0em 1em 0em;
-  font: 9pt Verdana, Helvetical, Arial, sans-serif;
+  font: 9pt sans-serif;
 }
 
 table th {
