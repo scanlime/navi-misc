@@ -248,7 +248,13 @@ class TargetSubTargetsColumn(Nouvelle.Column):
         return context['table'].reduceColumn(self, max) > 0
 
     def render_data(self, context, target):
-        return "%d items" % self.getValue(target)
+        value = self.getValue(target)
+        if value > 1:
+            return "%d items" % value
+        elif value == 1:
+            return "1 item"
+        else:
+            return ''
 
 
 class Catalog(Template.Section):
