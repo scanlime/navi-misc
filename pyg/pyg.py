@@ -27,6 +27,9 @@ class MainWindow:
     def open(self, w, data):
         file = FileDialog('Open', self)
 
+    def new(self, w, data):
+        source = SourcePage(sources)
+
     def get_main_menu(self, window):
         accel_group = gtk.AccelGroup()
         item_factory = gtk.ItemFactory(gtk.MenuBar, '<main>', accel_group)
@@ -38,7 +41,7 @@ class MainWindow:
     def __init__(self):
         self.menu_items = (
             ( '/_File',                        None,                None,             0, '<Branch>' ),
-            ( '/File/_New',                    None,                self.print_hello, 0, None ),
+            ( '/File/_New',                    None,                self.new,         0, None ),
             ( '/File/_Open',                   None,                self.open,        0, None ),
             ( '/File/sep1',                    None,                None,             0, '<Separator>' ),
             ( '/File/Open Setup',              None,                None,             0, None),
@@ -149,10 +152,14 @@ class SourcePage:
     def __init__(self, notebook, filename=None):
         self.editor = Editor(filename)
         self.notebook = notebook;
-        self.label = gtk.Label('Look Ma! A tab!')
+        if filename is not None:
+            self.label = gtk.Label(filename)
+        else:
+            self.label = gtk.Label('...')
         self.editor.tab = self
         self.editor.show_all()
-        notebook.append_page(self.editor, self.label)
+        notebook.prepend_page(self.editor, self.label)
+        notebook.set_current_page(0)
 
         def remove(self):
             # this assumes that the current tab is the one that exited
