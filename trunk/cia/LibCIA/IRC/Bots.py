@@ -28,85 +28,61 @@ import time
 
 
 class Request:
-    """The Request object is an abstract base class for needs that can
-       be fulfilled by a set of IRC bots.
+    """The Request object specifies a server, optionally a channel, and
+       a number of bots that need to inhabit that server/channel.
 
-       This class has a 'bot' member that holds a list of Bot instances
-       fulfilling this request. It will be an empty list if this request
-       is not fulfilled.
-
-       The recheck() method decides whether the request is fulfilled
-       or not by setting 'bot'. If the request isn't fulfilled, and
-       it has been longer than fulfillmentTimeout since the last
-       action was taken, takeAction will be called.
+       When a request is created, it registers itself with the BotNetwork,
+       which then tries its hardest to keep the request satisfied. The
+       bots satisfying this request are available in its 'bots' member.
        """
-    # Timers for this request, as mentioned above. All timers in seconds.
-    fulfillmentTimeout = 60*3
-
-    # Time at which the last action was taken
-    lastActionTime = None
-
-    fulfillmentTimer = None
     bots = None
     _active = True
 
-    def __init__(self, botNet):
+    def __init__(self, botNet, server, channel=None, numBots=1):
         self.botNet = botNet
-        log.msg("New request %r" % self)
-        botNet.addRequest(self)
-        self.recheck()
+        self.server = server
+        self.channel = channel
+        self.numBots = numBots
 
-    def cancelFulfillmentTimer(self):
-        if self.fulfillmentTimer and self.fulfillmentTimer.active():
-            self.fulfillmentTimer.cancel()
-        self.fulfillmentTimer = None
+        log.msg("New %r" % self)
+        botNet.addRequest(self)
+
+    def __repr__(self):
+        if self.numBots == 1:
+            botInfo = "1 bot"
+        else:
+            botInfo = "%d bots" % self.numBots
+        if self.channel:
+            chanInfo = " in %s" % self.channel
+        else:
+            chanInfo = ''
+        return "<Request for %s%s on %s>" % (botInfo, chanInfo, self.server)
 
     def active(self):
         """Return True if this request is still active, similar to DelayedCall's interface"""
         return self._active
 
     def cancel(self):
-        """Indicate that this request is no longer needed. It is
-           removed from the bot network, and all our current timers are disabled.
-           """
+        """Indicate that this request is no longer needed. It is removed from the bot network."""
         self.botNet.removeRequest(self)
-        self.cancelFulfillmentTimer()
         self._active = False
         log.msg("Cancelled %r" % self)
 
-    def recheck(self):
-        """Decide whether the request is fulfilled or not, and take actions if necessary"""
-        self.bots = self.findBots()
-        if self.isFulfilled():
-            # Yay, we're done. Clean up a bit.
-            self.lastActionTime = None
-            self.cancelFulfillmentTimer()
-        else:
-            # Nope, still not fulfilled.
-            # If it's been a while since the last action we took, try it again
-            if self.lastActionTime is None or time.time() > self.lastActionTime + self.fulfillmentTimeout:
-                self.lastActionTime = time.time()
-                self.takeAction()
-
-                # Set a timer to recheck in a while so that if that action failed we can try again
-                self.cancelFulfillmentTimer()
-                self.fulfillmentTimer = reactor.callLater(self.fulfillmentTimeout + 2, self.recheck)
-
     def findBots(self):
-        """To be implemented by subclasses: return a list of Bot instances that satisfy this Request"""
-        return []
+        """Find bots that match this request, storing them in self.bots"""
+        # Look for our server and channel in the map from servers to bot lists
+        matches = []
+        if self.server in self.botNet.servers:
+            # Look for our channel in the map from channel names to bot lists
+            for bot in self.botNet.servers[self.server]:
+                if self.channel in bot.channels:
+                    matches.append(bot)
 
-    def takeAction(self):
-        """To be implemented by subclasses: none of the current bots satisfy this
-           need, take some action to try to correct this.
-           """
-        pass
+        # Ignore any bots we don't need
+        self.bots = matches[:self.numBots]
 
     def isFulfilled(self):
-        """By default, a request is fulfilled if we have any bots attached.
-           If the subclass knows better, this can be overridden.
-           """
-        return len(self.bots) > 0
+        return len(self.bots) == self.numBots
 
 
 class Server:
@@ -136,48 +112,6 @@ class Server:
 
     def __hash__(self):
         return hash((self.host, self.port))
-
-
-class ChannelRequest(Request):
-    """A Request implementation that requires a specified number of bots to be
-       in a particular IRC channel on any server.
-       """
-    def __init__(self, botNet, server, channel, numBots=1):
-        self.server = server
-        self.channel = channel
-        self.numBots = numBots
-        Request.__init__(self, botNet)
-
-    def __repr__(self):
-        return "<ChannelRequest for %s on %s>" % (self.channel, self.server)
-
-    def findBots(self):
-        # Look for our server and channel in the map from servers to bot lists
-        matches = []
-        if self.server in self.botNet.servers:
-            # Look for our channel in the map from channel names to bot lists
-            for bot in self.botNet.servers[self.server]:
-                if self.channel in bot.channels:
-                    matches.append(bot)
-
-        # Ignore any bots we don't need
-        return matches[:self.numBots]
-
-    def isFulfilled(self):
-        return len(self.bots) == self.numBots
-
-    def takeAction(self):
-        # First, see if there are any existing bots already on our server that aren't full
-        for bot in self.botNet.servers.get(self.server, []):
-            if not bot.isFull():
-                bot.join(self.channel)
-                return
-
-        # Nope, ask for a new bot
-        self.botNet.requestNewBot(self, self.server)
-
-        # FIXME: HACK!
-        self.lastActionTime = None
 
 
 class BotNetwork:

@@ -26,10 +26,9 @@ import Bots
 
 
 class IrcURIHandler(Ruleset.RegexURIHandler):
-    """Handles irc:// URIs in rulesets. This is responsible for
-       keeping a BotNetwork in sync with the channels and servers
-       required of us by the rulesets, and dispatching completed
-       messages to the BotNetwork.
+    """Handles irc:// URIs in rulesets. This creates a message queue
+       for each URI, and delivers formatted messages to the proper
+       message queue instance.
        """
     scheme = 'irc'
     regex = r"""
@@ -77,9 +76,12 @@ class IrcURIHandler(Ruleset.RegexURIHandler):
 class ChannelMessageQueue:
     """A way to deliver buffered messages to a particular IRC server and
        channel, handling flood protection and load balancing when necessary.
+
+       This object creates a Request that is responsible for keeping
+       a proper number of bots in our channel.
        """
     def __init__(self, botNet, server, channel):
-        self.request = Bots.ChannelRequest(botNet, server, channel)
+        self.request = Bots.Request(botNet, server, channel)
         self.queuedLines = []
 
     def send(self, message):
