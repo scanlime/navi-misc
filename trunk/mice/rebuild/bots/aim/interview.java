@@ -79,14 +79,14 @@ public class interview
 		switch(state)
 		{
 		case 0:
-			send("What is your name?  This way I get your real name with your answers.");
+			send("Welcome to MICE!  Before we can get started, I need you to type your name as you want it to appear next to your answers.");
 			state = 1;
 			break;
 		case 1:
 			name = message;
 			if(!com.openConnection("localhost",8080))
 			{
-				send("Connection to server failed, contact the administrator");
+				send("Connection to server failed, please contact the administrator.");
 				return;
 			}
 			com.write("cint");
@@ -94,7 +94,7 @@ public class interview
 			com.write(nick);
 			com.write(key.encrypt(mykey,pass));
 			com.write(name);
-			send("Go ahead and send me a message when you're ready for your first question.  If you want to not answer a question, type 'skip' and you will get the next question.");
+			send("Thanks " + name + ".  Message me when you're ready to start answering questions.");
 			state = 3;
 			break;
 
@@ -138,5 +138,21 @@ public class interview
 	public void send(String message)
 	{
 		mybot.sendMessage(nick,message);
+	}
+	
+		
+	/**
+	 * This method makes this thread sleep.
+	 * @param seconds The duration of the nap in seconds.
+	 * @author Brandon Smith
+	 * @version 2.0
+	 */
+	public void sleep(int seconds)
+	{
+		try
+		{
+			Thread.sleep(seconds * 1000);
+		}
+		catch (Exception ie) {}
 	}
 }
