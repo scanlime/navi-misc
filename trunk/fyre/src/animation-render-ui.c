@@ -234,6 +234,8 @@ static gboolean set_confirm_on(AnimationRenderUi *self) {
 }
 
 static void animation_render_ui_start(AnimationRenderUi *self) {
+    GtkWidget *close;
+
     g_object_set(self->map,
 		 "width", self->width,
 		 "height", self->height,
@@ -241,6 +243,9 @@ static void animation_render_ui_start(AnimationRenderUi *self) {
 		 NULL);
 
     self->avi = avi_writer_new(fopen(self->filename, "wb"), self->width, self->height, self->frame_rate);
+
+    close = glade_xml_get_widget(self->xml, "cancel");
+    gtk_button_set_label(GTK_BUTTON(close), GTK_STOCK_CANCEL);
 
     /* Get the first frame ready for rendering */
     animation_iter_get_first(self->animation, &self->iter);
@@ -263,9 +268,14 @@ static void animation_render_ui_start(AnimationRenderUi *self) {
 }
 
 static void animation_render_ui_stop(AnimationRenderUi *self) {
+    GtkWidget *close;
+
     self->render_in_progress = FALSE;
 
     self->confirm_on = FALSE;
+
+    close = glade_xml_get_widget(self->xml, "cancel");
+    gtk_button_set_label(GTK_BUTTON(close), GTK_STOCK_CLOSE);
 
     avi_writer_close(self->avi);
     g_object_unref(self->avi);
