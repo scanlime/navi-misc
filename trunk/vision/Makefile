@@ -1,5 +1,5 @@
-CFLAGS = `opencv-config --cflags` -g -O3 -Ilib
-LDFLAGS = `opencv-config --libs` -lraw1394 -ldc1394_control
+CFLAGS = `opencv-config --cflags` -g -O3 -Ilib `sdl-config --cflags`
+LDFLAGS = `opencv-config --libs` -lraw1394 -ldc1394_control `sdl-config --libs`
 CC = g++
 BINS = cam_test face_tracker
 LIB_OBJS = lib/cv_dc1394.o

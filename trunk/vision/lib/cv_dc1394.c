@@ -50,15 +50,12 @@ static int num_opened_cameras;
 static dc1394_cameracapture camera_captures[MAX_CAMERAS];
 static IplImage* camera_images[MAX_CAMERAS];
 
-typedef void (*image_converter_t)(IplImage *, unsigned char *);
-
-static void init_camera(int port, nodeid_t node, int camera_number);
+static void init_camera(int port, nodeid_t node);
 static void fatal_error(const char *description);
 static IplImage* create_image();
-IplImage** cv_dc1394_capture_generic(int num_images, image_converter_t conv);
+static void cleanup();
 
 static void convert_yuv411_to_yuv24(IplImage *img, unsigned char *src);
-static void convert_yuv411_to_bgr24(IplImage *img, unsigned char *src);
 
 
 /************************************************************************************/
@@ -71,6 +68,8 @@ cv_dc1394_camera** cv_dc1394_init() {
   struct raw1394_portinfo ports[MAX_PORTS];
   int port, camCount, i, numPorts;
   nodeid_t *camera_nodes;
+
+  atexit(cleanup);
 
   raw_handle = raw1394_new_handle();
   if (!raw_handle)
@@ -88,7 +87,7 @@ cv_dc1394_camera** cv_dc1394_init() {
     raw1394_destroy_handle(raw_handle);
 
     for (i = 0; i < camCount; i++)
-      init_camera(port, camera_nodes[i], i);
+      init_camera(port, camera_nodes[i]);
 
     dc1394_free_camera_nodes(camera_nodes);
   }
@@ -103,19 +102,6 @@ void cv_dc1394_set_mode(int mode) {
 }
 
 IplImage** cv_dc1394_capture_yuv(int num_images) {
-  return cv_dc1394_capture_generic(num_images, convert_yuv411_to_yuv24);
-}
-
-IplImage** cv_dc1394_capture_rgb(int num_images) {
-  return cv_dc1394_capture_generic(num_images, convert_yuv411_to_bgr24);
-}
-
-
-/************************************************************************************/
-/**************************************************************** Private Functions */
-/************************************************************************************/
-
-IplImage** cv_dc1394_capture_generic(int num_images, image_converter_t conv) {
   cv_dc1394_camera **cam_p;
   IplImage **img_p;
 
@@ -126,19 +112,43 @@ IplImage** cv_dc1394_capture_generic(int num_images, image_converter_t conv) {
   for (cam_p=cameras, img_p=camera_images; num_images>0; cam_p++, img_p++, num_images--) {
     if (!img_p[0])
       img_p[0] = create_image();
-    conv(img_p[0], (unsigned char*) cam_p[0]->capture->capture_buffer);
+    convert_yuv411_to_yuv24(img_p[0], (unsigned char*) cam_p[0]->capture->capture_buffer);
     dc1394_dma_done_with_buffer(cam_p[0]->capture);
   }
 
   return camera_images;
 }
 
+IplImage** cv_dc1394_capture_rgb(int num_images) {
+  int i;
+
+  cv_dc1394_capture_yuv(num_images);
+  for (i=0; i<num_images; i++) {
+    cvCvtColor(camera_images[i], camera_images[i], CV_YCrCb2RGB);
+  }
+  return camera_images;
+}
+
+
+/************************************************************************************/
+/**************************************************************** Private Functions */
+/************************************************************************************/
+
+static void cleanup() {
+  cv_dc1394_camera **cam_p;
+  for (cam_p=cameras; cam_p[0]; cam_p++) {
+    dc1394_dma_unlisten(cam_p[0]->handle, cam_p[0]->capture);
+    dc1394_dma_release_camera(cam_p[0]->handle, cam_p[0]->capture);
+    dc1394_destroy_handle(cam_p[0]->handle);
+  }
+}
+
 static void fatal_error(const char *description) {
-  printf("%s\n", description);
+  printf("cv_dc1394 error: %s\n", description);
   exit(1);
 }
 
-static void init_camera(int port, nodeid_t node, int camera_number) {
+static void init_camera(int port, nodeid_t node) {
   /* Initialize a camera and append it to cameras[] */
   unsigned int channel, speed;
   cv_dc1394_camera* camera = (cv_dc1394_camera*) malloc(sizeof(cv_dc1394_camera));
@@ -157,7 +167,7 @@ static void init_camera(int port, nodeid_t node, int camera_number) {
   if (dc1394_get_iso_channel_and_speed(camera->handle, camera->node, &channel, &speed) != DC1394_SUCCESS)
     fatal_error("Unable to get camera channel and speed");
 
-  if (dc1394_dma_setup_capture(camera->handle, camera->node, camera_number+1,
+  if (dc1394_dma_setup_capture(camera->handle, camera->node, channel,
 			       FORMAT_VGA_NONCOMPRESSED, default_mode, SPEED_400,
 			       default_framerate, NUM_BUFFERS, DROP_FRAMES,
 			       NULL, camera->capture) != DC1394_SUCCESS)
@@ -202,57 +212,6 @@ static void convert_yuv411_to_yuv24(IplImage *img, unsigned char *src) {
       *(dest++) = y3;
       *(dest++) = u;
       *(dest++) = v;
-    }
-}
-
-#define YUV_TO_RGB(y,u,v,r,g,b) { \
-  int c = 298 * ((y) - 16); \
-  int d = (u) - 128; \
-  int e = (v) - 128; \
-  (r) = (c + 409*e + 128) >> 8; \
-  if ((r)>255) (r) = 255; \
-  if ((r)<0) (r) = 0; \
-  (g) = (c - 100*d - 208*e + 128) >> 8; \
-  if ((g)>255) (g) = 255; \
-  if ((g)<0) (g) = 0; \
-  (b) = (c + 516*d + 128) >> 8; \
-  if ((b)>255) (b) = 255; \
-  if ((b)<0) (b) = 0; \
-} while (0);
-
-static void convert_yuv411_to_bgr24(IplImage *img, unsigned char *src) {
-  int x,y;
-  int y0, y1, y2, y3, u, v, r, g, b;
-  unsigned char *dest = (unsigned char*) img->imageData;
-
-  for (y=0; y<img->height; y++)
-    for (x=0; x<img->width; x+=4) {
-      u  = *(src++);
-      y0 = *(src++);
-      y1 = *(src++);
-      v  = *(src++);
-      y2 = *(src++);
-      y3 = *(src++);
-
-      YUV_TO_RGB(y0, u, v, r, g, b);
-      *(dest++) = b;
-      *(dest++) = g;
-      *(dest++) = r;
-
-      YUV_TO_RGB(y1, u, v, r, g, b);
-      *(dest++) = b;
-      *(dest++) = g;
-      *(dest++) = r;
-
-      YUV_TO_RGB(y2, u, v, r, g, b);
-      *(dest++) = b;
-      *(dest++) = g;
-      *(dest++) = r;
-
-      YUV_TO_RGB(y3, u, v, r, g, b);
-      *(dest++) = b;
-      *(dest++) = g;
-      *(dest++) = r;
     }
 }
 
