@@ -24,8 +24,8 @@ diff -u -r1.59 configure.in
 -dnl [  --disable-gnome         disable use of gnome],
 -dnl        gnome=$enableval, gnome=yes)
 +AC_ARG_ENABLE(gnomefe,
-+[  --enable-gnomefe       build the gnome frontend (default: no)],
-+       gnomefe=$enableval, gnomefe=no)
++[  --disable-gnomefe       disable the gnome frontend],
++       gnomefe=$enableval, gnomefe=yes)
  
  dnl AC_ARG_ENABLE(zvt,
  dnl [  --disable-zvt           disable zvt/shelltab feature],
