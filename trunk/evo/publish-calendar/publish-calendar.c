@@ -23,8 +23,12 @@
 #include <glade/glade.h>
 #include <calendar/gui/e-cal-popup.h>
 #include <calendar/gui/e-cal-config.h>
+#include <libgnome/gnome-i18n.h>
 
 static GtkListStore *store = NULL;
+
+void       publish_calendar_context_activate (EPlugin *ep, ECalPopupTargetSource *target);
+GtkWidget *publish_calendar_locations (EPlugin *epl, EConfigHookItemFactoryData *data);
 
 enum {
 	URL_LIST_ENABLED_COLUMN,
@@ -33,10 +37,31 @@ enum {
 	URL_LIST_N_COLUMNS,
 };
 
+static void
+url_list_enable_toggled (GtkCellRendererToggle *renderer,
+                         const char            *path_string,
+			 GladeXML              *xml)
+{
+	/* FIXME: implement */
+}
+
+static void
+selection_changed (GtkTreeSelection *selection, GladeXML *xml)
+{
+}
+
+static void
+url_list_double_click (GtkTreeView       *treeview,
+		       GtkTreePath       *path,
+		       GtkTreeViewColumn *column,
+		       GladeXML          *xml)
+{
+}
+
 void
 publish_calendar_context_activate (EPlugin *ep, ECalPopupTargetSource *target)
 {
-	g_print ("publish!\n");
+	/* FIXME: implement */
 }
 
 GtkWidget *
@@ -47,11 +72,13 @@ publish_calendar_locations (EPlugin *epl, EConfigHookItemFactoryData *data)
 	GtkCellRenderer *renderer;
 	GtkTreeSelection *selection;
 
-	/* FIXME: create model */
-
 	xml = glade_xml_new (PLUGINDIR "/publish-calendar.glade", "toplevel", NULL);
 
 	widget = glade_xml_get_widget (xml, "url list");
+	if (store == NULL)
+		store = gtk_list_store_new (URL_LIST_N_COLUMNS, G_TYPE_BOOLEAN, G_TYPE_STRING, G_TYPE_POINTER);
+	gtk_tree_view_set_model (GTK_TREE_VIEW (widget), GTK_TREE_MODEL (store));
+
 	renderer = gtk_cell_renderer_toggle_new ();
 	g_object_set (G_OBJECT (renderer), "activatable", TRUE, NULL);
 	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (widget), -1, _("Enabled"),
