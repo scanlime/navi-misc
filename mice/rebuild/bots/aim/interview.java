@@ -16,7 +16,12 @@
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
- 
+
+import jaim.*;
+import java.net.*;
+import java.io.*;
+import java.util.*;
+
 public class interview
 {
 	/** The next interview person in the linked list. */
@@ -25,9 +30,13 @@ public class interview
 	/** The nickname of the person */
 	public String nick;
 
-	public interivew(interview prev, String NICK)
+	public interview(interview prev, botmain bot, String NICK)
 	{
 		next = prev;
 		nick = NICK;
+	}
+	
+	public void handle(String message)
+	{
 	}
 }

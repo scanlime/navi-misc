@@ -34,7 +34,7 @@ public class personindex
 		bots = new botmain[numbots];
 	}
 	
-	public registerBot(botmain toadd)
+	public void registerBot(botmain toadd)
 	{
 		if(bots[bots.length-1] != null)
 			return;
@@ -43,7 +43,42 @@ public class personindex
 	
 	public void handleMessage(String from, String message)
 	{
+		person found = findPerson(from);
+		if(found != null)
+		{
+			found.handle(message);
+			return;
+		}
+		interview othertemp = findInterview(from);
+		if(othertemp != null)
+		{
+			othertemp.handle(message);
+			return;
+		}
+		masshead = new person(masshead,bots[0],from);
+	}
+	
+	private interview findInterview(String nick)
+	{
+		interview temphead = inthead;
+		while(inthead != null)
+		{
+			if(temphead.nick.compareTo(nick) == 0)
+				return temphead;
+			temphead = temphead.next;
+		}
+		return null;
+	}
+	
+	private person findPerson(String nick)
+	{
 		person temphead = masshead;
-		interview othertemp = inthead;
+		while(temphead != null)
+		{
+			if(temphead.nick.compareTo(nick) == 0)
+				return temphead;
+			temphead = temphead.next;
+		}
+		return null;
 	}
 }
