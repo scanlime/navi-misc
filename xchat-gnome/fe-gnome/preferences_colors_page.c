@@ -20,9 +20,10 @@
  */
 
 #include "preferences_colors_page.h"
+#include "palette.h"
 
 void initialize_preferences_colors_page() {
-	GtkWidget *table, *button, *label;
+	GtkWidget *table, *button, *widget;
 	GtkWidget *hbox;
 	GtkSizeGroup *group;
 	int i, j;
@@ -32,36 +33,48 @@ void initialize_preferences_colors_page() {
 		for(j = 0; j < 2; j++) {
 			button = gtk_color_button_new();
 			gtk_widget_show(button);
+			gtk_color_button_set_color(GTK_COLOR_BUTTON(button), &colors[j * 8 + i]);
 			gtk_table_attach_defaults(GTK_TABLE(table), button, i, i+1, j, j+1);
 		}
 	}
 	hbox = glade_xml_get_widget(gui.xml, "text color hbox");
 	button = gtk_color_button_new();
+	gtk_color_button_set_color(GTK_COLOR_BUTTON(button), &colors[19]);
 	gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, TRUE, 0);
 	hbox = glade_xml_get_widget(gui.xml, "background color hbox");
 	button = gtk_color_button_new();
+	gtk_color_button_set_color(GTK_COLOR_BUTTON(button), &colors[20]);
 	gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, TRUE, 0);
 	hbox = glade_xml_get_widget(gui.xml, "foreground mark hbox");
 	button = gtk_color_button_new();
+	gtk_color_button_set_color(GTK_COLOR_BUTTON(button), &colors[17]);
 	gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, TRUE, 0);
 	hbox = glade_xml_get_widget(gui.xml, "background mark hbox");
 	button = gtk_color_button_new();
+	gtk_color_button_set_color(GTK_COLOR_BUTTON(button), &colors[16]);
 	gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, TRUE, 0);
 
 	group = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
-	label = glade_xml_get_widget(gui.xml, "color label 1");
-	gtk_size_group_add_widget(group, label);
-	label = glade_xml_get_widget(gui.xml, "color label 2");
-	gtk_size_group_add_widget(group, label);
-	label = glade_xml_get_widget(gui.xml, "color label 3");
-	gtk_size_group_add_widget(group, label);
-	label = glade_xml_get_widget(gui.xml, "color label 4");
-	gtk_size_group_add_widget(group, label);
-	label = glade_xml_get_widget(gui.xml, "color label 5");
-	gtk_size_group_add_widget(group, label);
-	label = glade_xml_get_widget(gui.xml, "color label 6");
-	gtk_size_group_add_widget(group, label);
-	label = glade_xml_get_widget(gui.xml, "color label 7");
-	gtk_size_group_add_widget(group, label);
+	widget = glade_xml_get_widget(gui.xml, "color label 1");
+	gtk_size_group_add_widget(group, widget);
+	widget = glade_xml_get_widget(gui.xml, "color label 2");
+	gtk_size_group_add_widget(group, widget);
+	widget = glade_xml_get_widget(gui.xml, "color label 3");
+	gtk_size_group_add_widget(group, widget);
+	widget = glade_xml_get_widget(gui.xml, "color label 4");
+	gtk_size_group_add_widget(group, widget);
+	widget = glade_xml_get_widget(gui.xml, "color label 5");
+	gtk_size_group_add_widget(group, widget);
+	widget = glade_xml_get_widget(gui.xml, "color label 6");
+	gtk_size_group_add_widget(group, widget);
+	widget = glade_xml_get_widget(gui.xml, "color label 7");
+	gtk_size_group_add_widget(group, widget);
+	g_object_unref(group);
+
+	group = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
+	widget = glade_xml_get_widget(gui.xml, "foreground background schemes");
+	gtk_size_group_add_widget(group, widget);
+	widget = glade_xml_get_widget(gui.xml, "palette schemes");
+	gtk_size_group_add_widget(group, widget);
 	g_object_unref(group);
 }
