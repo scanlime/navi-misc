@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="../style.xsl"?>
+
+<technique name="broken ram" level="blue" category="grab">
+  <attack>front tackle</attack>
+  <stances>
+    <defender>natural, hands up</defender>
+  </stances>
+  <steps>
+    <step>
+      Step back left to 4:30 into a right forward bow. Simultaneously,
+      execute a right outward hand sword to your opponent's left wrist
+      and a left outward hand sword to the side of their neck.
+    </step>
+    <step>
+      Pivot to a right neutral bow as you strike the back of your
+      opponent's neck with a right inward hand sword.
+    </step>
+    <step>
+      Pivot into a left foward bow (facing 4:30) with a right uppercut
+      under the arm (breaking their elbow against your bicep).
+    </step>
+    <step>
+      Execute a right back knuckle to the floating ribs and a right
+      scoop kick to the groin.
+    </step>
+    <step>
+      Plant your right foot back into a left forward bow as you perform
+      a right chopping punch to your opponent's head. Your right leg is
+      kicking out your opponent's leg, causing them to fall as you punch.
+    </step>
+  </steps>
+</technique>
