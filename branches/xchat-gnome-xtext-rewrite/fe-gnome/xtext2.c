@@ -38,6 +38,7 @@ static void       draw_sep               (XText2 *xtext, int y);
 static textentry* nth                    (XText2 *xtext, int line, int *subline);
 static textentry* find_char              (XText2 *xtext, int x, int y, int *offset, gboolean *out_of_bounds);
 static int        find_x                 (XText2 *xtext, int x, textentry *ent, int subline, int line, gboolean *out_of_bounds);
+static int        find_subline           (XText2 *xtext, textentry *ent, int line);
 static void       set_fg                 (XText2 *xtext, GdkGC *gc, int index);
 static void       set_bg                 (XText2 *xtext, GdkGC *gc, int index);
 static int        text_width_8bit        (XText2 *xtext, unsigned char *str, int len);
@@ -110,6 +111,7 @@ struct _XText2Private
   gboolean     overdraw: TRUE;       /* draw twice */
   gboolean     bold: TRUE;           /* draw in bold? */
   gboolean     time_stamp: TRUE;     /* show timestamp? */
+  GdkPixmap   *pixmap;               /* background pixmap (NULL = palette[19]) */
 
   /* drawing data */
   gint         depth;                /* gdk window depth */
@@ -133,9 +135,11 @@ struct _XText2Private
   int          jump_out_offset;      /* "" stop rendering */
   int          stamp_width;          /* timestamp width */
   int          clip_x;
-  int          clip_x2;
+  int          clip_x2;              /* clipping (x) */
   int          clip_y;
-  int          clip_y2;
+  int          clip_y2;              /* clipping (y) */
+  int          ts_x;                 /* ts origin for bgc GC */
+  int          ts_y;
   gboolean     dont_render;
   gboolean     dont_render2;
   gboolean     in_hilight;
@@ -200,8 +204,8 @@ struct _XTextFormat
   textentry *wrapped_first;
   textentry *wrapped_last;
   textentry *pagetop;
-  textentry *pagetop_subline;
-  textentry *pagetop_line;
+  int        pagetop_subline;
+  int        pagetop_line;
 
   /* handlers */
   guint      append_handler;
@@ -737,6 +741,8 @@ backend_draw_text (XText2 *xtext, gboolean fill, GdkGC *gc, int x, int y, char *
   GdkColor col;
   PangoLayoutLine *line;
 
+  g_print ("backend_draw_text ('%s')\n", str);
+
   pango_layout_set_text (xtext->priv->layout, str, len);
 
   if (fill)
@@ -760,6 +766,7 @@ backend_draw_text (XText2 *xtext, gboolean fill, GdkGC *gc, int x, int y, char *
 
   line = pango_layout_get_lines (xtext->priv->layout)->data;
   gdk_draw_layout_line_with_colors (xtext->priv->draw_buffer, gc, x, y, line, 0, 0);
+  g_print ("  drew line!\n");
 
   if (xtext->priv->overdraw)
     gdk_draw_layout_line_with_colors (xtext->priv->draw_buffer, gc, x, y, line, 0, 0);
@@ -928,6 +935,17 @@ render_page (XText2 *xtext)
     xtext->priv->last_pixel_pos = pos;
 
 #ifdef USE_DB
+#ifdef WIN32
+    if (!xtext->priv->transparent && !xtext->priv->pixmap && abs (overlap) < height)
+#else
+    if (!xtext->priv->pixmap && abs (overlap) < height)
+#endif /* WIN32 */
+#else /* USE_DB */
+#ifdef WIN32
+    if (!xtext->priv->transparent && !xtext->priv->pixmap && abs (overlap) < height)
+#else
+    if (!xtext->priv->pixmap && abs (overlap) < height - (3 * xtext->priv->fontsize))
+#endif /* WIN32 */
 #endif /* USE_DB */
     {
       /* so the obscured regions are exposed */
@@ -1097,8 +1115,6 @@ render_str (XText2 *xtext, XTextFormat *f, int y, textentry *ent, unsigned char 
   int offset;
   gboolean mark = FALSE;
   int ret = 1;
-
-  g_print ("render_str ('%s')\n", str);
 
   xtext->priv->in_hilight = FALSE;
 
@@ -1367,6 +1383,8 @@ render_flush (XText2 *xtext, int x, int y, unsigned char *str, int len, GdkGC *g
   GdkDrawable *pix = NULL;
   int dest_x, dest_y;
 
+  g_print ("render_flush ('%s', %d)\n", str, len);
+
   if (xtext->priv->dont_render || len < 1)
     return 0;
 
@@ -1374,6 +1392,10 @@ render_flush (XText2 *xtext, int x, int y, unsigned char *str, int len, GdkGC *g
 
   if (xtext->priv->dont_render2)
     return str_width;
+
+  /* HACK HACK HACK */
+  if (xtext->priv->clip_x2 == 0)
+    xtext->priv->clip_x2 = 1000000;
 
   /* roll-your-own clipping (avoiding XftDrawString is always good!) */
   if (x > xtext->priv->clip_x2 || x + str_width < xtext->priv->clip_x)
@@ -1392,22 +1414,61 @@ render_flush (XText2 *xtext, int x, int y, unsigned char *str, int len, GdkGC *g
   }
 
 #ifdef USE_DB
+#ifdef WIN32
+  if (!xtext->priv->transparent)
+#endif /* WIN32 */
+  {
+    pix = gdk_pixmap_new (xtext->priv->draw_buffer, str_width, xtext->priv->fontsize, xtext->priv->depth);
+    if (pix)
+    {
+#ifdef USE_XFT
+      XftDrawChange (xtext->priv->xftdraw, GDK_WINDOW_XWINDOW (pix));
+#endif /* USE_XFT */
+      dest_x = x;
+      dest_y = y - xtext->priv->font->ascent;
+      gdk_gc_set_ts_origin (xtext->priv->bgc, xtext->priv->ts_x - x, xtext->priv->ts_y - dest_y);
+      x = 0;
+      y = xtext->priv->font->ascent;
+      xtext->priv->draw_buffer = pix;
+    }
+  }
 #endif /* USE_DB */
 
   fill = TRUE;
 
   /* backcolor is always handled by XDrawImageString */
-#if 0
   if (!xtext->priv->backcolor && xtext->priv->pixmap)
   {
     /* draw the background pixmap behind the text - CAUSES FLICKER HERE!! */
     draw_bg (xtext, x, y - xtext->priv->font->ascent, str_width, xtext->priv->fontsize);
     fill = FALSE; /* already drawn the background */
   }
-#endif
   backend_draw_text (xtext, fill, gc, x, y, str, len, str_width, multibyte);
 
 #ifdef USE_DB
+  if (pix)
+  {
+    GdkRectangle clip;
+    GdkRectangle dest;
+    gdk_gc_set_ts_origin (xtext->priv->bgc, xtext->priv->ts_x, xtext->priv->ts_y);
+    xtext->priv->draw_buffer = GTK_WIDGET (xtext)->window;
+#ifdef USE_XFT
+#endif /* USE_XFT */
+    clip.x = xtext->priv->clip_x;
+    clip.y = xtext->priv->clip_y;
+    clip.width = xtext->priv->clip_x2 - xtext->priv->clip_x;
+    clip.height = xtext->priv->clip_y2 - xtext->priv->clip_x;
+
+    dest.x = dest_x;
+    dest.y = dest_y;
+    dest.width = str_width;
+    dest.height = xtext->priv->fontsize;
+
+    /* dump the buffer to window, within the clipping rect */
+    if (gdk_rectangle_intersect (&clip, &dest, &dest))
+      gdk_draw_drawable (xtext->priv->draw_buffer, xtext->priv->bgc, pix, dest.x - dest_x, dest.y - dest_y, dest.x, dest.y, dest.width, dest.height);
+    g_object_unref (pix);
+  }
 #endif /* USE_DB */
 
   if (xtext->priv->underline)
@@ -1583,6 +1644,128 @@ find_char (XText2 *xtext, int x, int y, int *offset, gboolean *out_of_bounds)
 static int
 find_x (XText2 *xtext, int x, textentry *ent, int subline, int line, gboolean *out_of_bounds)
 {
+  int indent;
+  unsigned char *str;
+  XTextFormat *f;
+
+  f = g_hash_table_lookup (xtext->priv->buffer_info, xtext->priv->current_buffer);
+
+  if (subline < 1)
+    indent = ent->indent;
+  else
+    indent = f->indent;
+
+  if (line > xtext->adj->page_size || line < 0)
+    return 0;
+
+  if (f->grid_dirty || line > 255)
+  {
+    str = ent->str + find_subline (xtext, ent, subline);
+    if (str >= ent->str + ent->str_len)
+      return 0;
+  }
+  else
+  {
+    if (f->grid_offset[line] > ent->str_len)
+      return 0;
+    str = ent->str + f->grid_offset[line];
+  }
+
+  if (x < indent)
+  {
+    *out_of_bounds = TRUE;
+    return (str - ent->str);
+  }
+
+  *out_of_bounds = FALSE;
+
+  {
+    int xx = indent;
+    int i = 0;
+    gboolean col = FALSE;
+    int nc = 0;
+    unsigned char *orig = str;
+    unsigned char *text = str;
+    int mbl;
+
+    while (*text)
+    {
+      mbl = 1;
+      if ((col && isdigit (*text) && nc < 2) ||
+	  (col && text[0] == ',' && isdigit (*(text+1)) && nc < 3))
+      {
+	nc++;
+	if (*text == ',')
+	  nc = 0;
+      }
+      else
+      {
+	col = FALSE;
+	switch (*text)
+	{
+	  case ATTR_COLOR:
+	    col = TRUE;
+	    nc = 0;
+	  case ATTR_BEEP:
+	  case ATTR_RESET:
+	  case ATTR_REVERSE:
+	  case ATTR_BOLD:
+	  case ATTR_UNDERLINE:
+	    text++;
+	    break;
+	  default:
+	    xx += backend_get_char_width (xtext, text, &mbl);
+	    text += mbl;
+	    if (xx >= x)
+	      return i + (orig - ent->str);
+	}
+      }
+      i += mbl;
+      if (text - orig >= ent->str_len)
+	return ent->str_len;
+    }
+  }
+  return ent->str_len;
+}
+
+static int
+find_subline (XText2 *xtext, textentry *ent, int line)
+{
+  int win_width;
+  unsigned char *str;
+  int indent, str_pos, line_pos, len;
+  XTextFormat *f;
+
+  f = g_hash_table_lookup (xtext->priv->buffer_info, xtext->priv->current_buffer);
+
+  if (ent->lines_taken < 2 || line < 1)
+    return 0;
+
+  /* we record the first 4 lines' wraps, so take a shortcut */
+  if (line <= RECORD_WRAPS)
+    return ent->wrap_offset[line - 1];
+
+  gdk_drawable_get_size (GTK_WIDGET (xtext)->window, &win_width, NULL);
+  win_width -= MARGIN;
+
+  /* start from the last recorded wrap and move forward */
+  indent = f->indent;
+  str_pos = ent->wrap_offset[RECORD_WRAPS - 1];
+  str = str_pos + ent->str;
+  line_pos = RECORD_WRAPS;
+
+  do
+  {
+    len = find_next_wrap (xtext, ent, str, win_width, indent);
+    indent = f->indent;
+    str += len;
+    str_pos += len;
+    line_pos++;
+    if (line_pos >= line)
+      return str_pos;
+  } while (str < ent->str + ent->str_len);
+
+  return 0;
 }
 
 void
@@ -1666,7 +1849,7 @@ xtext2_set_font (XText2 *xtext, char *name)
   {
     char *time_str;
     int stamp_size = get_stamp_str ("[%H:%M:%S] ", time (NULL), &time_str);
-    xtext->priv->stamp_width = backend_get_text_width (xtext, time_str, stamp_size, NULL);
+    xtext->priv->stamp_width = backend_get_text_width (xtext, time_str, stamp_size, FALSE);
     g_free (time_str);
   }
 #endif
