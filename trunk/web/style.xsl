@@ -49,7 +49,7 @@
         <!--========== Footer -->
         <div class="footer">
           <a href="/">
-            <img src="http://navi.picogui.org/images/web/navi64.png" width="64" height="39" alt="Navi"/>
+            <img src="/images/web/navi64.png" width="64" height="39" alt="Navi"/>
           </a>
         </div>
 
