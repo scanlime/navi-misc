@@ -76,6 +76,9 @@ History
     the project's home channel. After a morning of quick hacking,
     #commits on Freenode_ was born. Popularity grew almost instantly.
 
+    You can now get an `IRC log`_ detailing the first 24 hours of CIA's
+    life in #commits.
+
     Micah stepped into the shadows for a while. Mike maintained CIA, but
     the code remained stagnant.  It was a quick hack, so incremental
     changes just made it messier. It needed a rewrite.
@@ -107,6 +110,7 @@ Docutils_, PyGTK_, Squid_, and Linux_.
 CIA uses open standards, including XHTML, CSS2, and XML-RPC.
 
 
+.. _IRC log: /historical/first-24-hours.html
 .. _adding your project: /doc/adding-projects
 .. _changes to its own codebase: /stats/project/navi-misc/cia
 .. _stats browser: /stats
