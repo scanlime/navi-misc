@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from dc1394.libdc1394 import *
+import pygame
 
 # Ask libraw1394 how many ports we have
 handle = raw1394_new_handle()
@@ -37,5 +38,10 @@ dc1394_setup_capture(handle, cameraNode, 0, FORMAT_VGA_NONCOMPRESSED,
                      capture)
 dc1394_start_iso_transmission(handle, cameraNode)
 
-dc1394_single_capture(handle, capture)
-write_image(capture)
+# Show captured frames with pygame
+frame = get_capture_array(capture)
+screen = pygame.display.set_mode(frame.shape[:2], 0, frame.shape[2]*8)
+while 1:
+    dc1394_single_capture(handle, capture)
+    pygame.surfarray.blit_array(screen, frame)
+    pygame.display.flip()
