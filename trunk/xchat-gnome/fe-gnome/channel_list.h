@@ -6,6 +6,7 @@
 
 typedef struct {
 	GtkListStore *store;
+	GtkTreeModelSort *sort;
 	GladeXML *xml;
 	struct server *server;
 } channel_list_window;
