@@ -86,27 +86,3 @@ gboolean preferences_show_timestamp() {
 
 	return gconf_client_get_bool(client, "/apps/xchat/irc/showtimestamps", NULL);
 }
-
-int preferences_get_color_scheme() {
-	GConfClient *client;
-	client = gconf_client_get_default();
-	return gconf_client_get_int(client, "/apps/xchat/irc/color_scheme", NULL);
-}
-
-int preferences_get_palette_scheme() {
-	GConfClient *client;
-	client = gconf_client_get_default();
-	return gconf_client_get_int(client, "/apps/xchat/irc/palette_scheme", NULL);
-}
-
-void preferences_set_color_scheme(int selection) {
-	GConfClient *client;
-	client = gconf_client_get_default();
-	gconf_client_set_int(client, "/apps/xchat/irc/color_scheme", selection, NULL);
-}
-
-void preferences_set_palette_scheme(int selection) {
-	GConfClient *client;
-	client = gconf_client_get_default();
-	gconf_client_set_int(client, "/apps/xchat/irc/palette_scheme", selection, NULL);
-}

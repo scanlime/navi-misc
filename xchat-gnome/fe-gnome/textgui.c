@@ -116,8 +116,8 @@ void text_gui_print_line(xtext_buffer *buf, unsigned char *text, int len, gboole
 	if(len == 0)
 		len = 1;
 
-	/* FIXME: do timestamp */
 	if(!indent) {
+		/* FIXME: timestamp */
 		gtk_xtext_append(buf, text, len);
 		return;
 	}
