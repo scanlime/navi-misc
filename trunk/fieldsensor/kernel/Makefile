@@ -1,6 +1,6 @@
 ifneq ($(KERNELRELEASE),)
 
-EXTRA_CFLAGS += -I$(EFS_INCLUDEDIR)
+EXTRA_CFLAGS += -I$(EFS_INCLUDEDIR) -DDEBUG
 obj-m	:= efs.o
 
 else
