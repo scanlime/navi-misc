@@ -49,14 +49,11 @@ void fe_timeout_remove(int tag) {
 }
 
 void fe_new_window(struct session *sess) {
-	g_print("creating a new window of type %d\n", sess->type);
-	g_print("channel is currently %s\n", sess->channel);
 	navigation_tree_create_new_network_entry(sess);
 	text_gui_add_text_buffer(sess);
 }
 
 void fe_new_server(struct server *serv) {
-	g_print("creating a new server - %s:%s\n", serv->hostname, serv->servername);
 	/* FIXME: implement */
 }
 

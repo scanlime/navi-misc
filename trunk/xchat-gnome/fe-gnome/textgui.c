@@ -31,6 +31,7 @@ void text_gui_add_text_buffer(struct session *sess) {
 	sess->gui = tgui;
 
 	gtk_xtext_buffer_show(gui.xtext, tgui->buffer, TRUE);
+	gtk_xtext_set_time_stamp(tgui->buffer, TRUE);
 }
 
 void text_gui_print_line(xtext_buffer *buf, unsigned char *text, int len, gboolean indent) {
