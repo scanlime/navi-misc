@@ -37,7 +37,6 @@ making keys map to pickled callable objects would be too fragile.
 #
 
 from twisted.internet import defer
-from twisted.enterprise.util import quote as quoteSQL
 import string, os
 import Database, RPC
 
@@ -120,7 +119,7 @@ class CapabilityDB:
            """
         result = defer.Deferred()
         d = Database.pool.runQuery("SELECT key_data FROM capabilities WHERE id = %s AND owner IS NULL LIMIT 1" %
-                                   quoteSQL(repr(capability), 'text'))
+                                   Database.quote(repr(capability), 'text'))
         d.addCallback(self._returnOrCreateKey, capability, result)
         d.addErrback(result.errback)
         return result
@@ -142,8 +141,8 @@ class CapabilityDB:
            """
         if capabilities:
             return "SELECT 1 FROM capabilities WHERE key_data = %s AND (%s) LIMIT 1" % (
-                quoteSQL(key, 'text'),
-                " OR ".join(["id = " + quoteSQL(repr(c), 'text') for c in capabilities]),
+                Database.quote(key, 'text'),
+                " OR ".join(["id = " + Database.quote(repr(c), 'text') for c in capabilities]),
                 )
         else:
             return "SELECT 1"
@@ -182,13 +181,13 @@ class CapabilityDB:
            """
         newKey = createRandomKey()
         if owner:
-            owner = quoteSQL(owner, 'text')
+            owner = Database.quote(owner, 'text')
         else:
             owner = "NULL"
 
         Database.pool.runOperation("INSERT INTO capabilities (key_data, id, owner) values(%s, %s, %s)" % (
-            quoteSQL(newKey, 'text'),
-            quoteSQL(repr(capability), 'text'),
+            Database.quote(newKey, 'text'),
+            Database.quote(repr(capability), 'text'),
             owner,
             ))
         return newKey
