@@ -14,6 +14,11 @@ includes a very simple pickler than handles a small set of python types.
 Currently this includes strings, tuples, and integers. Lists are converted
 to tuples. More types may be added in the future as long as the output
 for any particular object never changes.
+
+This module includes a few simple data structures that sit on top of
+dictionaries, databases, or Racks. This currently includes a ring buffer
+and doubly-linked list. The linked list is used also used internally in
+Rack to allow iteration over keys and sub-namespaces within any namespace.
 """
 #
 # CIA open source notification system
@@ -34,27 +39,31 @@ for any particular object never changes.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import anydbm, cPickle, struct
+from __future__ import generators
+import cPickle, struct
 
 
 class Rack(dict):
     """A dictionary object that, instead of representing in-memory data,
        represents objects stored in a database or other dictionary-like
-       object that accepts strings for keys and values.
+       object that accepts strings for keys and values, such as an anydbm
+       database. This module includes an open() function that opens a
+       database file with anydbm and constructs a Rack around it.
 
        Values can be any object serializable by cPickle. Keys and namespaces
        can be any object serializable by KeyPickler.
 
        Basic usage:
 
-          >>> import Rack
-          >>> r = Rack.open('/tmp/rack_test.db', flags='n')
+          >>> db = {}
+          >>> r = Rack(db)
           >>> r[12] = 'banana'
           >>> r['squid'] = 4
           >>> r[1,2,('boing', (None,))] = [1, 2, 4, 'Poing']
-          >>> r.close()
 
-          >>> r = Rack.open('/tmp/rack_test.db')
+          >>> del r
+          >>> r = Rack(db)
+
           >>> r['squid']
           4
           >>> r[1,2,('boing', (None,))]
@@ -416,8 +425,14 @@ class KeyPickler(object):
 
 
 class RingBuffer(object):
-    """A FIFO buffer for the last n objects delivered to it, based on Rack.
-       The rack includes keys for the numbers 0 through n-1, plus the following
+    """A FIFO buffer with a fixed maximum size. Objects can be pushed and popped,
+       as you'd expect with a FIFO buffer. If an object is pushed into a full
+       RingBuffer, the oldest object is discarded. It is also possible to return
+       the first or last 'n' objects as lists, and iterate forwards or backwards.
+
+       The RingBuffer uses a dictionary-like object as storage. This can be a
+       normal dict, a Rack, or an anydbm-compatible database. The storage db
+       includes keys for the numbers 0 through n-1, plus the following
        strings:
 
           head  : The key to place the next node at
@@ -426,84 +441,165 @@ class RingBuffer(object):
                   The size specified to the constructor is only
                   used when a new database has been created.
 
-       >>> import Rack
-       >>> d = Rack.RingBuffer(Rack.open('/tmp/ringbuffer_test.db', 'n'))
-       >>> d.getLatest()
-       []
-       >>> d.push('foo')
-       >>> d.push('bar')
-       >>> d.push((42, None))
-       >>> d.getLatest()
-       ['foo', 'bar', (42, None)]
-       >>> for i in xrange(5000):
-       ...    d.push(str(i))
-       >>> len(d.getLatest())
-       1024
-       >>> len(d.getLatest(10000))
-       1024
-       >>> len(d.getLatest(100))
-       100
-       >>> d.getLatest(10)
-       ['4990', '4991', '4992', '4993', '4994', '4995', '4996', '4997', '4998', '4999']
-       """
-    def __init__(self, rack, size=1024):
-        self.rack = rack
+       Filling the FIFO with values:
+       (Note that db will usually be an on-disk database rather than a dict)
 
-        if not self.rack.has_key('size'):
+         >>> db = {}
+         >>> d = RingBuffer(db, 10)
+         >>> list(d)
+         []
+         >>> d.push(None)
+         >>> d.push('foo')
+         >>> d.push('bar')
+         >>> d.push((42, None))
+         >>> list(d)
+         [None, 'foo', 'bar', (42, None)]
+
+       If you're curious what the db looks like..
+
+         >>> db
+         {'count': 4, 0: None, 'head': 4, 3: (42, None), 1: 'foo', 2: 'bar', 'size': 10}
+
+       Numeric-style three argument slicing is supported:
+
+         >>> d[1]
+         'foo'
+         >>> d[-1]
+         (42, None)
+         >>> list(d[-2:])
+         ['bar', (42, None)]
+         >>> list(d[::-1])
+         [(42, None), 'bar', 'foo', None]
+
+       Removing items from the FIFO:
+
+         >>> list(d)
+         [None, 'foo', 'bar', (42, None)]
+         >>> list(d[:2])
+         [None, 'foo']
+         >>> d.pop(2)
+         >>> list(d)
+         ['bar', (42, None)]
+
+       The FIFO discards old items when it overflows:
+
+         >>> for i in xrange(1000):
+         ...     d.push(i)
+         >>> list(d)
+         [990, 991, 992, 993, 994, 995, 996, 997, 998, 999]
+         >>> list(d[-4:])
+         [996, 997, 998, 999]
+
+       Note that, being a ring buffer, the actual alignment of the
+       keys used in the database relative to the beginning and
+       end of the list will rotate:
+
+         >>> db
+         {'count': 10, 0: 996, 'head': 4, 3: 999, 4: 990, 5: 991, 6: 992, 7: 993, 8: 994, 9: 995, 2: 998, 1: 997, 'size': 10}
+
+       """
+    def __init__(self, db, size):
+        self.db = db
+
+        if not self.db.has_key('size'):
             # It's a new database, initialize the special keys
-            self.rack['head'] = 0
-            self.rack['count'] = 0
-            self.rack['size'] = size
+            self.db['head'] = 0
+            self.db['count'] = 0
+            self.db['size'] = size
 
         # Cache the special keys
-        self.head = self.rack['head']
-        self.count = self.rack['count']
-        self.size = self.rack['size']
+        self.head = self.db['head']
+        self.count = self.db['count']
+        self.size = self.db['size']
 
     def push(self, node):
         """Add the given node to the FIFO, overwriting
            the oldest entries if the buffer is full.
            """
         # Stow the new node at our head and increment it
-        self.rack[self.head] = node
+        self.db[self.head] = node
         self.head = self.head + 1
         if self.head >= self.size:
             self.head -= self.size
-        self.rack['head'] = self.head
+        self.db['head'] = self.head
 
         # If we haven't just also pushed out an old item,
-        # increment the count of items in our rack.
+        # increment the count of items in our db.
         if self.count < self.size:
             self.count += 1
-            self.rack['count'] = self.count
+            self.db['count'] = self.count
 
-    def getLatest(self, n=None):
-        """Returns up to the latest 'n' items. If n is None,
-           returns the entire contents of the FIFO.
-           Returns a list, oldest items first.
+    def pop(self, n):
+        """Delete the 'n' oldest items from the RingBuffer. This does
+           not return the items first, this should be done with the
+           iterators and other functions below.
            """
-        # Figure out how many items we can actually extract
-        if n is None or n > self.count:
-            n = self.count
-
-        # Find the key holding the oldest item we want to return,
-        # and start pulling items out from there
-        key = self.head - n
-        if key < 0:
-            key += self.size
-        results = []
-        while n > 0:
-            results.append(self.rack[key])
+        # Delete the items we no longer need,
+        # and most importantly decrease self.count
+        key = (self.head - self.count) % self.size
+        while n > 0 and self.count > 0:
+            del self.db[key]
             key += 1
-            if key >= self.size:
-                key -= self.size
+            if key == self.size:
+                key = 0
             n -= 1
-        return results
+            self.count -= 1
+
+    def _iter(self, key, count, increment=1):
+        """A general iterator for the RingBuffer that starts
+           at the given key (after wrapping if necessary) and returns
+           'count' items, incrementing the key by 'increment' after
+           each value yielded.
+           """
+        key %= self.size
+        while count > 0:
+            yield self.db[key]
+            key = (key + increment) % self.size
+            count -= 1
+
+    def __iter__(self):
+        """Forward-iterate over every item in the ring buffer,
+           oldest to newest
+           """
+        return self._iter(self.head - self.count, self.count)
+
+    def __getitem__(self, i):
+        """Implements Numeric-style slicing for iterating forward
+           or backward over any portion of the RingBuffer.
+           """
+        if type(i) == slice:
+            # Normalize the slice a bit such that it doesn't
+            # have any negative or None values
+            start, stop, step = i.start, i.stop, i.step
+            if start is None:
+                start = 0
+            elif start < 0:
+                start += self.count
+            if stop is None:
+                stop = self.count
+            elif stop < 0:
+                stop += self.count
+            if not step:
+                step = 1
+
+            # If we're iterating backwards, start at the end
+            if step < 0:
+                key = self.head - self.count + stop - 1
+            else:
+                key = self.head - self.count + start
+
+            return self._iter(key, stop - start, step)
+        else:
+            if i < 0:
+                i += self.count
+            return self.db[(self.head - self.count + i) % self.size]
 
 
 def open(filename, flags='c', mode=0666, rootNamespace=(), pickleProtocol=-1):
-    """Create a RackDict object from an anydbm-compatible database file"""
+    """Create a Rack instance from an anydbm-compatible database file"""
+    import anydbm
     return Rack(anydbm.open(filename, flags, mode), rootNamespace, pickleProtocol)
+
 
 def _test():
     import doctest, Rack
