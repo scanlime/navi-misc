@@ -28,8 +28,6 @@ static void navigation_tree_dispose    (GObject *object);
 static void navigation_tree_finalize   (GObject *object);
 
 void navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_data);
-static gboolean click             (GtkWidget *widget, GdkEventButton *event, gpointer user_data);
-static gboolean declick           (GtkWidget *widget, GdkEventButton *event, gpointer user_data);
 
 GType
 navigation_tree_get_type (void)
@@ -88,6 +86,44 @@ navigation_tree_finalize (GObject *object)
 	gtk_tree_path_free(navtree->current_path);
 }
 
+/***** Callbacks *****/
+static gboolean
+click(GtkWidget *treeview, GdkEventButton *event, gpointer data)
+{
+	GtkTreePath *path;
+	GtkTreeSelection *select;
+
+	if(!event)
+		return FALSE;
+
+	if(event->button == 3) {
+		if(gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(treeview), event->x, event->y, &path, 0, 0, 0)) {
+			select = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
+			gtk_tree_selection_unselect_all(select);
+			gtk_tree_selection_select_path(select, path);
+			gtk_tree_path_free(path);
+		}
+
+		/*session *s = navigation_get_selected();
+		if(s != NULL)
+			navigation_context(treeview, s);*/
+		return TRUE;
+	}
+
+	g_object_set(G_OBJECT(treeview), "can-focus", FALSE, NULL);
+	return FALSE;
+}
+
+static gboolean declick(GtkWidget *treeview, GdkEventButton *e, gpointer data) {
+	GtkWidget *entry;
+
+	entry = glade_xml_get_widget(gui.xml, "text entry");
+	gtk_widget_grab_focus(entry);
+	gtk_editable_set_position(GTK_EDITABLE(entry), -1);
+	g_object_set(G_OBJECT(treeview), "can-focus", TRUE, NULL);
+	return FALSE;
+}
+
 /* New NavTree. */
 NavTree*
 navigation_tree_new (NavModel *model)
@@ -96,6 +132,9 @@ navigation_tree_new (NavModel *model)
   GtkCellRenderer *icon_renderer, *text_renderer;
   GtkTreeViewColumn *column;
   GtkTreeSelection *select;
+
+  /* FIXME: something tells me this is a horrible idea. */
+  new_tree->parent = *GTK_TREE_VIEW(glade_xml_get_widget(gui.xml, "server channel list"));
 
 	new_tree = NAVTREE(g_object_new(navigation_tree_get_type(), NULL));
 	new_tree->model = model;
@@ -113,9 +152,9 @@ navigation_tree_new (NavModel *model)
   select = gtk_tree_view_get_selection(GTK_TREE_VIEW(new_tree));
   gtk_tree_selection_set_mode(select, GTK_SELECTION_SINGLE);
 /*
-  g_signal_connect(G_OBJECT(select), "changed", G_CALLBACK(navigation_selection_changed), NULL);
+  g_signal_connect(G_OBJECT(select), "changed", G_CALLBACK(navigation_selection_changed), NULL);*/
   g_signal_connect(G_OBJECT(new_tree), "button_press_event", G_CALLBACK(click), NULL);
-  g_signal_connect(G_OBJECT(new_tree), "button_release_event", G_CALLBACK(declick), NULL);*/
+  g_signal_connect(G_OBJECT(new_tree), "button_release_event", G_CALLBACK(declick), NULL);
 
 	return new_tree;
 }
