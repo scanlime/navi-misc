@@ -144,18 +144,21 @@ pixmaps.o:	$(srcdir)/pixmaps.c
 	$(COMPILE) -DXCHATSHAREDIR=\"$(xchat_gnomedir)\" -c $(srcdir)/pixmaps.c
 
 gui.o:		$(srcdir)/gui.c
-	$(COMPILE)  -DXCHATSHAREDIR=\"$(xchat_gnomedir)\" -c $(srcdir)/gui.c
+	$(COMPILE) -DXCHATSHAREDIR=\"$(xchat_gnomedir)\" -c $(srcdir)/gui.c
 
 channel_list.o:	$(srcdir)/channel_list.c
-	$(COMPILE)  -DXCHATSHAREDIR=\"$(xchat_gnomedir)\" -c $(srcdir)/channel_list.c
+	$(COMPILE) -DXCHATSHAREDIR=\"$(xchat_gnomedir)\" -c $(srcdir)/channel_list.c
 
 setup_druid.o:	$(srcdir)/setup_druid.c
-	$(COMPILE)  -DXCHATSHAREDIR=\"$(xchat_gnomedir)\" -c $(srcdir)/setup_druid.c
+	$(COMPILE) -DXCHATSHAREDIR=\"$(xchat_gnomedir)\" -c $(srcdir)/setup_druid.c
 
 transfers.o:	$(srcdir)/transfers.c
-	$(COMPILE)  -DXCHATSHAREDIR=\"$(xchat_gnomedir)\" -c $(srcdir)/transfers.c
+	$(COMPILE) -DXCHATSHAREDIR=\"$(xchat_gnomedir)\" -c $(srcdir)/transfers.c
 
 guir.o:		$(srcdir)/guir.c
-	$(COMPILE)  -DXCHATSHAREDIR=\"$(xchat_gnomedir)\" -c $(srcdir)/guir.c
+	$(COMPILE) -DXCHATSHAREDIR=\"$(xchat_gnomedir)\" -c $(srcdir)/guir.c
+
+main_window.o:	$(srcdir)/main_window.c
+	$(COMPILE) -DXCHATSHAREDIR=\"$(xchat_gnomedir)\" -c $(srcdir)/main_window.c
 
 SUBDIRS = data pixmaps

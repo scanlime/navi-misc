@@ -814,6 +814,45 @@ on_hpane_move (GtkPaned *widget, GParamSpec *param_spec, gpointer data)
 static void
 on_topic_change (GtkButton *widget, gpointer data)
 {
+	GladeXML *xml;
+	GtkWidget *dialog;
+	GtkWidget *entry;
+	gint response;
+	GtkTextBuffer *buffer;
+
+	xml = glade_xml_new ("topic-change.glade", NULL, NULL);
+	if (!xml)
+		xml = glade_xml_new (XCHATSHAREDIR "/topic-change.glade", NULL, NULL);
+	if (!xml)
+		/* FIXME - should do some error handling here */
+		return;
+
+	dialog = glade_xml_get_widget (xml, "topic change");
+	entry = glade_xml_get_widget (xml, "topic entry box");
+
+	buffer = gtk_text_buffer_new (NULL);
+	gtk_text_view_set_buffer (GTK_TEXT_VIEW (entry), buffer);
+	/* FIXME - set old topic */
+/*	gtk_text_buffer_set_text (buffer, topic, -1);*/
+
+	response = gtk_dialog_run (GTK_DIALOG (dialog));
+	g_print ("got response %d\n", response);
+
+	if (response == GTK_RESPONSE_OK)
+	{
+		GtkTextIter start;
+		GtkTextIter end;
+		gchar *newtopic;
+
+		gtk_text_buffer_get_start_iter (buffer, &start);
+		gtk_text_buffer_get_end_iter (buffer, &end);
+		newtopic = gtk_text_buffer_get_text (buffer, &start, &end, FALSE);
+		/* FIXME - set new topic */
+		g_free (newtopic);
+	}
+
+	gtk_widget_destroy (dialog);
+	g_object_unref (xml);
 }
 
 void
