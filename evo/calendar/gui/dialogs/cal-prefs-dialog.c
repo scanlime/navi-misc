@@ -101,6 +101,256 @@ eccp_widget_glade (EConfig *ec, EConfigItem *item, GtkWidget *parent, GtkWidget 
 	return glade_xml_get_widget (prefs->gui, item->label);
 }
 
+/* Returns a pointer to a static string with an X color spec for the current
+ * value of a color picker.
+ */
+static const char *
+spec_from_picker (GtkWidget *picker)
+{
+	static char spec[8];
+	GdkColor color;
+
+	gtk_color_button_get_color (GTK_COLOR_BUTTON (picker), &color);
+	g_snprintf (spec, sizeof (spec), "#%02x%02x%02x", color.red, color.green, color.blue);
+
+	return spec;
+}
+
+static void
+working_days_changed (GtkWidget *widget, CalendarPrefsDialog *prefs)
+{
+	CalWeekdays working_days = 0;
+	guint32 mask = 1;
+	int day;
+
+	for (day = 0; day < 7; day++) {
+		if (e_dialog_toggle_get (prefs->working_days[day]))
+			working_days |= mask;
+		mask <<= 1;
+	}
+
+	calendar_config_set_working_days (working_days);
+}
+
+static void
+timezone_changed (GtkWidget *widget, CalendarPrefsDialog *prefs)
+{
+	icaltimezone *zone;
+
+	zone = e_timezone_entry_get_timezone (E_TIMEZONE_ENTRY (prefs->timezone));
+	calendar_config_set_timezone (icaltimezone_get_location (zone));
+}
+
+static void
+start_of_day_changed (GtkWidget *widget, CalendarPrefsDialog *prefs)
+{
+	int start_hour, start_minute, end_hour, end_minute;
+	EDateEdit *start, *end;
+
+	start = E_DATE_EDIT (prefs->start_of_day);
+	end = E_DATE_EDIT (prefs->end_of_day);
+
+	e_date_edit_get_time_of_day (start, &start_hour, &start_minute);
+	e_date_edit_get_time_of_day (end, &end_hour, &end_minute);
+
+	if ((start_hour > end_hour) || (start_hour == end_hour && start_minute > end_minute)) {
+		if (start_hour < 23)
+			e_date_edit_set_time_of_day (end, start_hour + 1, start_minute);
+		else
+			e_date_edit_set_time_of_day (end, 23, 59);
+
+		return;
+	}
+
+	calendar_config_set_day_start_hour (start_hour);
+	calendar_config_set_day_start_minute (start_minute);
+}
+
+static void
+end_of_day_changed (GtkWidget *widget, CalendarPrefsDialog *prefs)
+{
+	int start_hour, start_minute, end_hour, end_minute;
+	EDateEdit *start, *end;
+
+	start = E_DATE_EDIT (prefs->start_of_day);
+	end = E_DATE_EDIT (prefs->end_of_day);
+
+	e_date_edit_get_time_of_day (start, &start_hour, &start_minute);
+	e_date_edit_get_time_of_day (end, &end_hour, &end_minute);
+
+	if ((end_hour < start_hour) || (end_hour == start_hour && end_minute < start_minute)) {
+		if (end_hour < 1)
+			e_date_edit_set_time_of_day (start, 0, 0);
+		else
+			e_date_edit_set_time_of_day (start, end_hour - 1, end_minute);
+
+		return;
+	}
+
+	calendar_config_set_day_end_hour (end_hour);
+	calendar_config_set_day_end_minute (end_minute);
+}
+static void
+week_start_day_changed (GtkWidget *widget, CalendarPrefsDialog *prefs)
+{
+	int week_start_day;
+
+	week_start_day = e_dialog_option_menu_get (prefs->week_start_day, week_start_day_map);
+	calendar_config_set_week_start_day (week_start_day);
+}
+
+static void
+use_24_hour_toggled (GtkToggleButton *toggle, CalendarPrefsDialog *prefs)
+{
+	gboolean use_24_hour;
+
+	use_24_hour = gtk_toggle_button_get_active (toggle);
+
+	e_date_edit_set_use_24_hour_format (E_DATE_EDIT (prefs->start_of_day), use_24_hour);
+	e_date_edit_set_use_24_hour_format (E_DATE_EDIT (prefs->end_of_day), use_24_hour);
+
+	calendar_config_set_24_hour_format (use_24_hour);
+}
+
+static void
+time_divisions_changed (GtkWidget *widget, CalendarPrefsDialog *prefs)
+{
+	int time_divisions;
+
+	time_divisions = e_dialog_option_menu_get (prefs->time_divisions, time_division_map);
+	calendar_config_set_time_divisions (time_divisions);
+}
+
+static void
+show_end_times_toggled (GtkToggleButton *toggle, CalendarPrefsDialog *prefs)
+{
+	calendar_config_set_show_event_end (gtk_toggle_button_get_active (toggle));
+}
+
+static void
+compress_weekend_toggled (GtkToggleButton *toggle, CalendarPrefsDialog *prefs)
+{
+	calendar_config_set_compress_weekend (gtk_toggle_button_get_active (toggle));
+}
+
+static void
+dnav_show_week_no_toggled (GtkToggleButton *toggle, CalendarPrefsDialog *prefs)
+{
+	calendar_config_set_dnav_show_week_no (gtk_toggle_button_get_active (toggle));
+}
+
+static void
+hide_completed_tasks_toggled (GtkToggleButton *toggle, CalendarPrefsDialog *prefs)
+{
+	gboolean hide;
+
+	hide = gtk_toggle_button_get_active (toggle);
+
+	gtk_widget_set_sensitive (prefs->tasks_hide_completed_interval, hide);
+	gtk_widget_set_sensitive (prefs->tasks_hide_completed_units, hide);
+
+	calendar_config_set_hide_completed_tasks (hide);
+}
+
+static void
+hide_completed_tasks_changed (GtkWidget *widget, CalendarPrefsDialog *prefs)
+{
+	calendar_config_set_hide_completed_tasks_value (e_dialog_spin_get_int (prefs->tasks_hide_completed_interval));
+}
+
+static void
+hide_completed_tasks_units_changed (GtkWidget *widget, CalendarPrefsDialog *prefs)
+{
+	calendar_config_set_hide_completed_tasks_units (
+		e_dialog_combo_box_get (prefs->tasks_hide_completed_units, hide_completed_units_map));
+}
+
+static void
+tasks_due_today_set_color (GtkColorButton *picker, guint r, guint g, guint b, guint a, CalendarPrefsDialog *prefs)
+{
+	calendar_config_set_tasks_due_today_color (spec_from_picker (prefs->tasks_due_today_color));
+}
+
+static void
+tasks_overdue_set_color (GtkColorButton *picker, guint r, guint g, guint b, guint a, CalendarPrefsDialog *prefs)
+{
+	calendar_config_set_tasks_overdue_color (spec_from_picker (prefs->tasks_overdue_color));
+}
+
+static void
+confirm_delete_toggled (GtkToggleButton *toggle, CalendarPrefsDialog *prefs)
+{
+	calendar_config_set_confirm_delete (gtk_toggle_button_get_active (toggle));
+}
+
+static void
+default_reminder_toggled (GtkToggleButton *toggle, CalendarPrefsDialog *prefs)
+{
+	calendar_config_set_use_default_reminder (gtk_toggle_button_get_active (toggle));
+}
+
+static void
+default_reminder_interval_changed (GtkWidget *widget, CalendarPrefsDialog *prefs)
+{
+	calendar_config_set_default_reminder_interval (
+		e_dialog_spin_get_int (prefs->default_reminder_interval));
+}
+
+static void
+default_reminder_units_changed (GtkWidget *widget, CalendarPrefsDialog *prefs)
+{
+	calendar_config_set_default_reminder_units (
+		e_dialog_option_menu_get (prefs->default_reminder_units, default_reminder_units_map));
+}
+
+static void
+template_url_changed (GtkEntry *entry, CalendarPrefsDialog *prefs)
+{
+	calendar_config_set_free_busy_template (gtk_entry_get_text (entry));
+}
+
+static void
+setup_changes (CalendarPrefsDialog *prefs)
+{
+	int i;
+
+	for (i = 0; i < 7; i ++)
+		g_signal_connect (G_OBJECT (prefs->working_days[i]), "toggled", G_CALLBACK (working_days_changed), prefs);
+
+	g_signal_connect (G_OBJECT (prefs->timezone), "changed", G_CALLBACK (timezone_changed), prefs);
+
+	g_signal_connect (G_OBJECT (prefs->start_of_day), "changed", G_CALLBACK (start_of_day_changed), prefs);
+	g_signal_connect (G_OBJECT (prefs->end_of_day), "changed", G_CALLBACK (end_of_day_changed), prefs);
+
+	g_signal_connect (G_OBJECT (prefs->week_start_day), "changed", G_CALLBACK (week_start_day_changed), prefs);
+
+	g_signal_connect (G_OBJECT (prefs->use_24_hour), "toggled", G_CALLBACK (use_24_hour_toggled), prefs);
+
+	g_signal_connect (G_OBJECT (prefs->time_divisions), "changed", G_CALLBACK (time_divisions_changed), prefs);
+
+	g_signal_connect (G_OBJECT (prefs->show_end_times), "toggled", G_CALLBACK (show_end_times_toggled), prefs);
+	g_signal_connect (G_OBJECT (prefs->compress_weekend), "toggled", G_CALLBACK (compress_weekend_toggled), prefs);
+	g_signal_connect (G_OBJECT (prefs->dnav_show_week_no), "toggled", G_CALLBACK (dnav_show_week_no_toggled), prefs);
+
+	g_signal_connect (G_OBJECT (prefs->tasks_hide_completed), "toggled",
+			  G_CALLBACK (hide_completed_tasks_toggled), prefs);
+	g_signal_connect (G_OBJECT (prefs->tasks_hide_completed_interval), "value-changed",
+			  G_CALLBACK (hide_completed_tasks_changed), prefs);
+	g_signal_connect (G_OBJECT (prefs->tasks_hide_completed_units), "changed", G_CALLBACK (hide_completed_tasks_units_changed), prefs);
+	g_signal_connect (G_OBJECT (prefs->tasks_due_today_color), "color-set",
+			  G_CALLBACK (tasks_due_today_set_color), prefs);
+	g_signal_connect (G_OBJECT (prefs->tasks_overdue_color), "color-set",
+			  G_CALLBACK (tasks_overdue_set_color), prefs);
+
+	g_signal_connect (G_OBJECT (prefs->confirm_delete), "toggled", G_CALLBACK (confirm_delete_toggled), prefs);
+	g_signal_connect (G_OBJECT (prefs->default_reminder), "toggled", G_CALLBACK (default_reminder_toggled), prefs);
+	g_signal_connect (G_OBJECT (prefs->default_reminder_interval), "changed",
+			  G_CALLBACK (default_reminder_interval_changed), prefs);
+	g_signal_connect (G_OBJECT (prefs->default_reminder_units), "changed", G_CALLBACK (default_reminder_units_changed), prefs);
+
+	g_signal_connect (G_OBJECT (prefs->template_url), "changed", G_CALLBACK (template_url_changed), prefs);
+}
+
 /* Sets the color in a color picker from an X color spec */
 static void
 set_color_picker (GtkWidget *picker, const char *spec)
@@ -606,6 +856,8 @@ calendar_prefs_dialog_construct (CalendarPrefsDialog *prefs)
 	gtk_container_add (GTK_CONTAINER (prefs), toplevel);
 
 	show_config (prefs);
+	/* FIXME: weakref? */
+	setup_changes (prefs);
 }
 
 GType
