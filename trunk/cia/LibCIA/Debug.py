@@ -57,6 +57,37 @@ class DebugInterface(xmlrpc.XMLRPC):
         except:
             catchFault()
 
+    def xmlrpc_eval(self, code, key):
+        """Evaluate arbitrary code in the context of this module.
+           Requires the universe key, for obvious reasons.
+           Returns the repr() of the result.
+           """
+        self.caps.faultIfMissing(key, 'universe')
+        try:
+            return repr(eval(code))
+        except:
+            catchFault()
+
+
+def typeInstances(t):
+    """Use gc mojo to return a list of all instances of the given type
+       (as returned by getTypeName(). This is the implementation of
+       debug.gc.typeInstances, and is provided as a module-level function
+       so it can be used in debug.eval
+       """
+    return [object for object in gc.get_objects() if getTypeName(object) == t]
+
+
+def getSingleton(t):
+    """Returns the singleton with the given type name, raising an exception
+       if exactly one object of that type doesn't exist.
+       Meant to be used from inside debug.eval().
+       """
+    insts = typeInstances(t)
+    if len(insts) != 1:
+        return Exception("Found %d instances of %r, expected it to be a singleton" % len(insts))
+    return insts[0]
+
 
 def catchFault(message="Exception occurred"):
     """Put this in the 'except' section of a try block to convert the exception
@@ -121,11 +152,7 @@ class GcInterface(xmlrpc.XMLRPC):
     def xmlrpc_typeInstances(self, t, key):
         """Return all objects of any one type, using the same type names as typeProfile"""
         self.caps.faultIfMissing(key, 'universe', 'debug', 'debug.gc', 'debug.gc.typeInstances')
-        results = []
-        for object in gc.get_objects():
-            if getTypeName(object) == t:
-                results.append(repr(object))
-        return results
+        return typeInstances(t)
 
     def xmlrpc_collect(self, key):
         """Force the garbage collector to run"""
