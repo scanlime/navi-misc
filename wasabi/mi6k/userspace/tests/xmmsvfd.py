@@ -18,6 +18,7 @@ class VFDupdater:
     spinnerStates = '/-\\|'
     spinnerIndex = 0
     spinnerSpeed = 18
+    colonIndex = 0
 
     spinnerIdle = array(
         [ [ 0, 0, 0, 0, 0 ],
@@ -141,7 +142,10 @@ class VFDupdater:
         else:
             spinner = self.spinnerIdle
 
-	clock = time.strftime("%H:%M", time.localtime())
+	# Clock with a flashing colon
+	self.colonIndex += dt * 3
+	self.colonIndex %= 2
+	clock = time.strftime("%%H%s%%M" % ": "[int(self.colonIndex)], time.localtime())
 
         spinnerChar = self.vfd.userDefinedCharacters[0]
         self.vfd.defineCharacter(spinnerChar, spinner)
