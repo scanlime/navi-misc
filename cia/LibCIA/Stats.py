@@ -59,6 +59,19 @@ class StatsInterface(xmlrpc.XMLRPC):
         self.caps = caps
         self.storage = storage
 
+    def dictify(self, d):
+        """Cast an object into a dictionary, converting lists to tuples
+           to make sure the keys end up hashable.
+           """
+        if type(d) == dict:
+            return d
+        newDict = {}
+        for key, value in d:
+            if type(key) == list:
+                key = tuple(key)
+            newDict[key] = value
+        return newDict
+
     def xmlrpc_catalog(self, path=''):
         """Return a list of subdirectories within this stats path.
            Defaults to the root of the stats:// namespace if 'path'
@@ -88,20 +101,27 @@ class StatsInterface(xmlrpc.XMLRPC):
            This requires one of the usual capability keys for everything, this
            module, or this function, but it can also be accessed using a capability
            key that unlocks only a particular path.
+
+           The provided dictionary 'd' can optionally be a list of (key, value)
+           tuples, to facilitate setting metadata keys that aren't strings.
            """
         self.caps.faultIfMissing(key, 'universe', 'stats', 'stats.metadata',
                                  ('stats.path', path))
-        self.storage.getPathTarget(path).metadata.update(d)
+        self.storage.getPathTarget(path).metadata.update(self.dictify(d))
         log.msg("Updating metadata for stats path %r\n%r" % (path, d))
         return True
 
     def xmlrpc_setMetadata(self, path, d, key):
-        """Replace a path's metadata with the given dictionary"""
+        """Replace a path's metadata with the given dictionary
+
+           The provided dictionary 'd' can optionally be a list of (key, value)
+           tuples, to facilitate setting metadata keys that aren't strings.
+           """
         self.caps.faultIfMissing(key, 'universe', 'stats', 'stats.metadata',
                                  ('stats.path', path))
         metadata = self.storage.getPathTarget(path).metadata
         metadata.clear()
-        metadata.update(d)
+        metadata.update(self.dictify(d))
         log.msg("Replacing metadata for stats path %r\n%r" % (path, d))
         return True
 
@@ -190,6 +210,13 @@ class StatsTarget(object):
         if self.pathSegments:
             return self.pathSegments[-1]
         return 'Stats'
+
+    def getMetadataType(self, key):
+        """Return the MIME type for a given metadata key. This is stored in another
+           metadata key, a 2-tuple with (original key, 'type'). The default
+           mime type is text/plain.
+           """
+        return self.metadata.get((key, 'type'), 'text/plain')
 
 
 class Counters(object):

@@ -13,6 +13,10 @@ from LibCIA import Client
 import os
 
 class Options(Client.Options):
+    optParameters = [
+        ['type', 't', None, "Sets the key's MIME type"]
+        ]
+
     def getSynopsis(self):
         return Client.Options.getSynopsis(self) + ' path key value'
 
@@ -26,10 +30,10 @@ class MetadataTool(Client.App):
     optionsClass = Options
 
     def main(self):
-        self.server.stats.updateMetadata(self.config['path'],
-                                         {self.config['dataKey']:
-                                          self.config['dataValue']},
-                                         self.key)
+        d = [ (self.config['dataKey'], self.config['dataValue']) ]
+        if self.config['type'] is not None:
+            d.append(((self.config['dataKey'], 'type'), self.config['type']))
+        self.server.stats.updateMetadata(self.config['path'], d, self.key)
 
 if __name__ == '__main__':
     MetadataTool().main()
