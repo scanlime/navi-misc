@@ -4,7 +4,7 @@
 '''
 
 import os
-import cPickle
+import cPickle as pickle
 import Pieces
 
 DefaultPath = os.path.join(os.environ['HOME'],'.trough-playlist')
@@ -14,12 +14,12 @@ class PlayList:
 		self.path=path
 		
 		try:
-			self.playlist = cPickle.load(open(path,'r'))
+			self.playlist = pickle.load(open(path,'r'))
 		except:
 			self.playlist = Pieces.Pieces()
 
 	def dump (self):
-		cPickle.dump(self.playlist,open(self.path,'w'),1)
+		pickle.dump(self.playlist,open(self.path,'w'),1)
 
 	def getPieces (self):
 		return self.playlist

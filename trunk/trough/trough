@@ -21,7 +21,7 @@ parser.add_option('-r','--remove',dest='remove',action="store_true",
 		help="treat all arguments as regexes, removing any matches")
 parser.add_option('-i','--info',dest='info',action="store_true",
 		help="retrieve information on current playlist")
-parser.add_option('-v','--verbose',dest="verbose",
+parser.add_option('-v','--verbose',dest="verbose",action="store_true",
 		help="give verbose output")
 (options,arguments) = parser.parse_args()
 
@@ -39,10 +39,12 @@ if options.add:
 	sys.exit(0)
 if options.remove:
 	print 'removing',arguments
-	playlist.getPieces().remove(arguments)
+	playlist.getPieces().removePaths(arguments)
 	playlist.dump()
 	sys.exit(0)
 
+# At some point, this may be replaced by code that actually plays something
+#
 p = playlist.getPieces()
 p.addPaths (sys.argv[1:])
                                                                                 
