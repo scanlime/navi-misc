@@ -33,40 +33,6 @@ import time, datetime, calendar
 import anydbm
 
 
-class StatsStorage(object):
-    """A thin abstraction around the directory that acts as a root for all stats:// URIs"""
-    def __init__(self, path):
-        self.path = path
-
-    def getTarget(self, pathSegments):
-        """Return a StatsTarget representing the stats stored at the given
-           path, represented as one or more nested directories. Disallowed
-           characters in each path segment are URI-encoded.
-           """
-        return StatsTarget(os.path.join(self.path, *map(self.uriencode, pathSegments)))
-
-    def getPathTarget(self, path, *extraSegments):
-        """Like getTarget, but split up 'path' into segments and optionall append extraSegments first"""
-        return self.getTarget(list(path.split("/")) + list(extraSegments))
-
-    def uriencode(self, s, allowedChars = string.ascii_letters + string.digits + "-_"):
-        """Return a URI-encoded version of 's', all characters not in the
-           given list will be replaced with their hexadecimal value prefixed
-           with '%'.
-           This is like urllib.quote(), but we can't use that since we don't assume
-           the '.' character is safe- it can be used to create hidden files and special
-           directory names, so it's easier to just quote it rather than detecting
-           those special cases.
-        """
-        chars = []
-        for char in s:
-            if char in allowedChars:
-                chars.append(char)
-            else:
-                chars.append("%%%02X" % ord(char))
-        return "".join(chars)
-
-
 class StatsURIHandler(Ruleset.RegexURIHandler):
     """Handles stats:// URIs. The message passed to a stats:// URI is
        URI-encoded and added to the end of the stats:// URI to form
@@ -125,6 +91,48 @@ class StatsInterface(xmlrpc.XMLRPC):
            """
         return self.storage.getPathTarget(path).catalogCounters()
 
+    def xmlrpc_getMetadata(self, path):
+        """Return a dictionary holding all metadata for a particular stats path"""
+        target = self.storage.getPathTarget(path)
+        if target.metadata:
+            return target.metadata.dict
+        else:
+            return {}
+
+
+class StatsStorage(object):
+    """A thin abstraction around the directory that acts as a root for all stats:// URIs"""
+    def __init__(self, path):
+        self.path = path
+
+    def getTarget(self, pathSegments):
+        """Return a StatsTarget representing the stats stored at the given
+           path, represented as one or more nested directories. Disallowed
+           characters in each path segment are URI-encoded.
+           """
+        return StatsTarget(os.path.join(self.path, *map(self.uriencode, pathSegments)))
+
+    def getPathTarget(self, path, *extraSegments):
+        """Like getTarget, but split up 'path' into segments and optionall append extraSegments first"""
+        return self.getTarget(list(path.split("/")) + list(extraSegments))
+
+    def uriencode(self, s, allowedChars = string.ascii_letters + string.digits + "-_"):
+        """Return a URI-encoded version of 's', all characters not in the
+           given list will be replaced with their hexadecimal value prefixed
+           with '%'.
+           This is like urllib.quote(), but we can't use that since we don't assume
+           the '.' character is safe- it can be used to create hidden files and special
+           directory names, so it's easier to just quote it rather than detecting
+           those special cases.
+        """
+        chars = []
+        for char in s:
+            if char in allowedChars:
+                chars.append(char)
+            else:
+                chars.append("%%%02X" % ord(char))
+        return "".join(chars)
+
 
 class StatsTarget(object):
     """Encapsulates all the stats-logging features used for one particular
@@ -159,6 +167,7 @@ class StatsTarget(object):
         for attrName, cls, filename in [
             ('counters', IntervalCounters, os.path.join(self.path, 'counters.xml')),
             ('recentMessages', LogDB, os.path.join(self.path, 'recent_messages.db')),
+            ('metadata', Metadata, os.path.join(self.path, 'metadata.xml')),
             ]:
             if hasattr(self, attrName) and getattr(self, attrName):
                 # Already open, skip it
@@ -318,6 +327,14 @@ class CounterList(XML.XMLStorage):
             else:
                 return None
         return self.counters[name]
+
+
+class Metadata(XML.XMLDict):
+    """A way to store metadata along with a stats:// path, primarily for
+       display on the web interface's stats browser.
+       """
+    def __init__(self, fileName):
+        XML.XMLStorage.__init__(self, fileName, 'metadata')
 
 
 class LogDB(object):

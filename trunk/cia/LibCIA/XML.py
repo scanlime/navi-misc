@@ -199,6 +199,39 @@ class XMLStorage(object):
         pass
 
 
+class XMLDict(XMLStorage):
+    """A simple XMLStorage subclass for storing a dictionary in which keys are
+       converted to XML elements and values are the elements' contents
+       (either strings or Element lists)
+       """
+    def emptyStorage(self):
+        self.dict = {}
+
+    def store(self, xml):
+        obj = XMLObject(xml)
+        if len(obj.xml.children) == 1 and type(obj.xml.children) in types.StringTypes:
+            # It only contains a string, store that
+            self.dict[obj.xml.name] = str(obj.xml.children)
+        else:
+            # Store a child list
+            self.dict[obj.xml.name] = obj.xml.children
+
+    def flatten(self):
+        results = []
+        # Sort the dictionary keys, so we output the values in a consistent order
+        keys = self.dict.keys()
+        keys.sort()
+        for key in keys:
+            element = domish.Element((None, key))
+            value = self.dict[key]
+            if type(value) in types.StringTypes:
+                element.addContent(value)
+            else:
+                element.children = value
+            results.append(XMLObject(element))
+        return results
+
+
 class XMLValidityError(Exception):
     """This error is raised by subclasses of XMLObject that encounter problems
        in the structure of XML documents presented to them. Normally this should
