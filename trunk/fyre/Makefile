@@ -15,35 +15,36 @@ endif
 CFLAGS  += -D__NO_INLINE__
 
 PKGS    += libglade-2.0 gtk+-2.0
-CFLAGS  += '-DGLADEDIR="data"'
+CFLAGS  += -DENABLE_BINRELOC '-DGLADEDIR="data"'
 CFLAGS  += $(shell pkg-config --cflags $(PKGS))
 LIBS    += $(shell pkg-config --libs $(PKGS))
 
 BIN     = fyre
 
 OBJS    = \
-	src/main.o		\
-	src/de-jong.o		\
-	src/explorer.o		\
-	src/color-button.o	\
-	src/animation.o		\
-	src/chunked-file.o	\
-	src/curve-editor.o	\
-	src/spline.o		\
-	src/explorer-tools.o	\
-	src/explorer-animation.o \
-	src/cell-renderer-transition.o \
+	src/main.o			\
+	src/de-jong.o			\
+	src/explorer.o			\
+	src/color-button.o		\
+	src/animation.o			\
+	src/chunked-file.o		\
+	src/curve-editor.o		\
+	src/spline.o			\
+	src/explorer-tools.o		\
+	src/explorer-animation.o	\
+	src/cell-renderer-transition.o	\
 	src/cell-renderer-bifurcation.o \
-	src/histogram-imager.o	\
-	src/iterative-map.o \
-	src/parameter-holder.o	\
-	src/bifurcation-diagram.o \
-	src/math-util.o		\
-	src/avi-writer.o	\
-	src/parameter-editor.o	\
-	src/histogram-view.o	\
-	src/animation-render-ui.o \
-	src/screensaver.o
+	src/histogram-imager.o		\
+	src/iterative-map.o		\
+	src/parameter-holder.o		\
+	src/bifurcation-diagram.o	\
+	src/math-util.o			\
+	src/avi-writer.o		\
+	src/parameter-editor.o		\
+	src/histogram-view.o		\
+	src/animation-render-ui.o	\
+	src/screensaver.o		\
+	src/prefix.o
 
 
 $(BIN): $(OBJS)

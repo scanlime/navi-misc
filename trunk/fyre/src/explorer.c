@@ -24,6 +24,7 @@
 #include "parameter-editor.h"
 #include "math-util.h"
 #include "histogram-view.h"
+#include "prefix.h"
 
 
 static void explorer_class_init(ExplorerClass *klass);
@@ -83,7 +84,9 @@ static void explorer_class_init(ExplorerClass *klass) {
 }
 
 static void explorer_init(Explorer *self) {
-  self->xml = glade_xml_new(GLADEDIR "/explorer.glade", NULL, NULL);
+  self->xml = glade_xml_new (GLADEDIR "/explorer.glade", NULL, NULL);
+  if (!self->xml)
+    self->xml = glade_xml_new(BR_DATADIR("/explorer.glade"), NULL, NULL);
   self->window = glade_xml_get_widget(self->xml, "explorer_window");
 
   /* Connect signal handlers */
