@@ -36,32 +36,6 @@ typedef void (xchat_plugin_get_info) (char **, char **, char **, char **);
 GSList *enabled_plugins;
 
 static void
-fe_plugin_add (char *filename)
-{
-	void *handle;
-	gpointer info_func;
-	char *name, *desc, *version;
-
-	handle = g_module_open (filename, 0);
-
-	/* FIXME: The problem with all of this is that it doesn't do any checking to make
-	 * sure the file is even a valid type. Should add some stuff to maybe check the
-	 * extension?
-	 */
-	if (handle != NULL && g_module_symbol (handle, "xchat_plugin_get_info", &info_func)) {
-		/* Create a new plugin instance and add it to our list of known plugins. */
-		/* FIXME: zed added a 'reserved' field, but i'm not sure what it is */
-		((xchat_plugin_get_info*) info_func) (&name, &desc, &version, NULL);
-	} else {
-		/* In the event that this foolish plugin has no get_info function we'll just use
-		 * the file name. */
-		name = strrchr (filename, '/') + 1;
-		version = _("unknown");
-		desc = _("unknown");
-	}
-}
-
-static void
 autoload_plugin_cb (gchar *filename, gpointer data)
 {
 	plugin_load (gui.current_session, filename, NULL);
@@ -77,22 +51,6 @@ void
 plugins_initialize ()
 {
 	GConfClient *client;
-	const gchar *homedir;
-	gchar *xchatdir;
-
-	homedir = g_get_home_dir ();
-	xchatdir = g_strdup_printf ("%s/.xchat2/plugins", homedir);
-
-	for_files (XCHATLIBDIR "/plugins", "*.so", fe_plugin_add);
-	for_files (XCHATLIBDIR "/plugins", "*.sl", fe_plugin_add);
-	for_files (XCHATLIBDIR "/plugins", "*.py", fe_plugin_add);
-	for_files (XCHATLIBDIR "/plugins", "*.pl", fe_plugin_add);
-	for_files (xchatdir, "*.so", fe_plugin_add);
-	for_files (xchatdir, "*.sl", fe_plugin_add);
-	for_files (xchatdir, "*.py", fe_plugin_add);
-	for_files (xchatdir, "*.pl", fe_plugin_add);
-
-	g_free (xchatdir);
 
 	client = gconf_client_get_default ();
 	enabled_plugins = gconf_client_get_list (client, "/apps/xchat/plugins/enabled", GCONF_VALUE_STRING, NULL);

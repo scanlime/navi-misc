@@ -38,6 +38,7 @@
 #include "channel-list.h"
 #include "transfers.h"
 #include "util.h"
+#include "plugins.h"
 
 int
 fe_args (int argc, char *argv[])
@@ -78,6 +79,8 @@ fe_init (void)
 	 * method for autoloading.
 	 */
 	skip_plugins = 1;
+
+	plugins_initialize ();
 	autoload_plugins ();
 }
 
@@ -414,7 +417,6 @@ fe_url_add(const char *text)
 void
 fe_pluginlist_update (void)
 {
-	preferences_plugins_page_update ();
 }
 
 void
