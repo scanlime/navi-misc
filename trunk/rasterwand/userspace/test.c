@@ -78,7 +78,7 @@ void update_coil_driver(usb_dev_handle *d, struct rwand_status *status,
 
 void update_display_timing(usb_dev_handle *d, struct rwand_status *status,
 			   float center, float width) {
-  const int num_columns = 80;
+  const int num_columns = 60;
   static float duty_cycle = 0.5;
   int col_and_gap_width = (status->period * (width/2)) / num_columns;
   int col_width = col_and_gap_width * duty_cycle;
@@ -170,24 +170,29 @@ void read_image(unsigned char *columns, const char *filename) {
   fclose(f);
 }
 
+void rwand_write12(usb_dev_handle *d, unsigned char *buffer) {
+  unsigned char pkt_data[9];
+
+  /* This is nuts, and I have no idea why yet */
+  pkt_data[8] = buffer[4];
+  memcpy(pkt_data+1, buffer+5, 7);
+
+  if (usb_control_msg(d, USB_TYPE_VENDOR | USB_ENDPOINT_OUT, RWAND_CTRL_SEQ_WRITE12,
+		      buffer[0] | (buffer[1] << 8),
+		      buffer[2] | (buffer[3] << 8),
+		      pkt_data, 9, 100) < 0) {
+    perror("usb_control_msg");
+  }
+}
+
+
 void refresh_display(usb_dev_handle *d, unsigned char *columns) {
   /* Write out an 80x8 frame, given an 80-byte column array */
+  int i;
 
-  return;
-  if (usb_control_msg(d, USB_TYPE_VENDOR | USB_ENDPOINT_OUT, RWAND_CTRL_SEQ_WRITE12,
-		      columns[0] | (columns[1] << 8),
-		      columns[2] | (columns[3] << 8),
-		      &columns[4], 8, 500) < 0) {
-    perror("usb_control_msg");
-    exit(1);
-  }
-  if (usb_control_msg(d, USB_TYPE_VENDOR | USB_ENDPOINT_OUT, RWAND_CTRL_SEQ_WRITE12,
-		      columns[12] | (columns[13] << 8),
-		      columns[14] | (columns[15] << 8),
-		      &columns[16], 8, 500) < 0) {
-    perror("usb_control_msg");
-    exit(1);
-  }
+  for (i=0; i<5; i++)
+    rwand_write12(d, columns+(i*12));
+
   control_write(d, RWAND_CTRL_FLIP, 0,0);
 }
 
@@ -231,7 +236,7 @@ int main(int argc, char **argv) {
     update_coil_driver(d, &status, 0.25, 0.2);
 
     /* Update display phase and column width */
-    update_display_timing(d, &status, 0.5, 0.75);
+    update_display_timing(d, &status, 0.5, 0.3);
 
     if (status.flip_count != last_status.flip_count)
       flip_pending = 0;
@@ -254,9 +259,9 @@ int main(int argc, char **argv) {
 	}
 
 	if (status.buttons & RWAND_BUTTON_LEFT)
-	  t-=0.4;
+	  t-=0.7;
 	else if (status.buttons & RWAND_BUTTON_RIGHT)
-	  t+=0.4;
+	  t+=0.7;
 
 	refresh_display(d, frame);
 	control_write(d, RWAND_CTRL_FLIP, 0, 0);
