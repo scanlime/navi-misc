@@ -114,6 +114,18 @@ int fps;
 int res;
 unsigned char *frame_buffer=NULL;
 
+struct point_info {
+    struct {
+	int x,y;
+    } camera[2];
+};
+
+struct point_info current_point;
+struct point_info origin_point;
+struct point_info x_point;
+struct point_info y_point;
+struct point_info z_point;
+
 
 static struct option long_options[]={
     {"device",1,NULL,0},
@@ -275,6 +287,7 @@ void display_frames()
 		const int NumPixels = device_width*device_height;
 		int y0, y1, y2, y3, u, v;
 		int x, y;
+		int weight=0;
 		unsigned long x_sum=0, y_sum=0, total=0;
 		for (y=0; y<device_height; y++)
 		    for (x=0; x<device_width; x+=4) {
@@ -285,11 +298,19 @@ void display_frames()
 			y2 = cam[i++];
 			y3 = cam[i++];
 
-			if (u < 75) {
-			    /* A duck pixel, add it to the average */
-			    x_sum += x;
-			    y_sum += y;
-			    total++;
+			/* Detect interesting pixels with a threshold */
+			if (u < 85) {
+			    /* A duck pixel, add it to the average.
+			     * Runs of consecutive interesting pixels
+			     * get more weight than individual interesting pixels.
+			     * This biases the average toward the right side of
+			     * the object, but it's simple.
+			     */
+			    if (weight < 1000)
+				weight = weight*2+1;
+			    x_sum += x * weight;
+			    y_sum += y * weight;
+			    total += weight;
 			}
 			else {
 			    /* Not a pixel we're interested in, dim it */
@@ -299,6 +320,8 @@ void display_frames()
 			    y3 >>= 1;
 			    u = ((u - 128)>>1) + 128;
 			    v = ((v - 128)>>1) + 128;
+
+			    weight = 0;
 			}
 
 			dest[j++] = y0;
@@ -311,8 +334,13 @@ void display_frames()
 			dest[j++] = v;
 		    }
 
-		if (total > 0)
-		    plop_cross(dest, x_sum / total, y_sum / total, 17);
+		if (total > 0) {
+		    x_sum /= total;
+		    y_sum /= total;
+		    current_point.camera[camera].x = x_sum;
+		    current_point.camera[camera].y = y_sum;
+		    plop_cross(dest, x_sum, y_sum, 17);
+		}
 	    }
 
 	xv_image=XvCreateImage(display,info[adaptor].base_id,format,frame_buffer,
@@ -323,6 +351,12 @@ void display_frames()
 
 	xv_image=NULL;
     }
+}
+
+void calculate_position()
+{
+    
+
 }
 
 void QueryXv()
@@ -550,6 +584,7 @@ int main(int argc,char *argv[])
 	dc1394_dma_multi_capture(cameras, numCameras);
 
 	display_frames();
+	calculate_position();
 	XFlush(display);
 
 	while(XPending(display)>0){
@@ -581,33 +616,25 @@ int main(int argc,char *argv[])
 		    XResizeWindow(display,window,width,height);
 		    display_frames();
 		    break;
+
 		case XK_0:
-		    freeze = !freeze;
+		    printf("Origin saved\n");
+		    origin_point = current_point;
 		    break;
+
 		case XK_1:
-		    fps =	FRAMERATE_1_875;
-		    for (i = 0; i < numCameras; i++)
-			dc1394_set_video_framerate(handles[i], cameras[i].node, fps);
+		    printf("X basis saved\n");
+		    x_point = current_point;
 		    break;
+
 		case XK_2:
-		    fps =	FRAMERATE_3_75;
-		    for (i = 0; i < numCameras; i++)
-			dc1394_set_video_framerate(handles[i], cameras[i].node, fps);
+		    printf("Y basis saved\n");
+		    y_point = current_point;
 		    break;
-		case XK_4:
-		    fps = FRAMERATE_15;
-		    for (i = 0; i < numCameras; i++)
-			dc1394_set_video_framerate(handles[i], cameras[i].node, fps);
-		    break;
-		case XK_5:
-		    fps = FRAMERATE_30;
-		    for (i = 0; i < numCameras; i++)
-			dc1394_set_video_framerate(handles[i], cameras[i].node, fps);
-		    break;
+
 		case XK_3:
-		    fps = FRAMERATE_7_5;
-		    for (i = 0; i < numCameras; i++)
-			dc1394_set_video_framerate(handles[i], cameras[i].node, fps);
+		    printf("Z basis saved\n");
+		    z_point = current_point;
 		    break;
 		}
 		break;
