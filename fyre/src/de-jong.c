@@ -57,6 +57,10 @@ enum {
   PROP_EMPHASIZE_TRANSIENT,
   PROP_TRANSIENT_ITERATIONS,
   PROP_INITIAL_CONDITIONS,
+  PROP_INITIAL_XSCALE,
+  PROP_INITIAL_YSCALE,
+  PROP_INITIAL_XOFFSET,
+  PROP_INITIAL_YOFFSET,
 };
 
 typedef void (*initial_conditions_t)(gdouble *x, gdouble *y);
@@ -336,6 +340,50 @@ static void de_jong_init_calc_params(GObjectClass *object_class) {
   param_spec_set_group             (spec, current_group);
   param_spec_set_dependency        (spec, emphasize_transient);
   g_object_class_install_property  (object_class, PROP_INITIAL_CONDITIONS, spec);
+
+  spec = g_param_spec_double       ("initial_xscale",
+				    "Initial X scale",
+				    "Horizontal initial condition scale factor",
+				    0, 1000, 1,
+				    G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
+				    G_PARAM_LAX_VALIDATION | PARAM_INTERPOLATE | PARAM_IN_GUI);
+  param_spec_set_group             (spec, current_group);
+  param_spec_set_increments        (spec, 0.001, 0.01, 3);
+  param_spec_set_dependency        (spec, emphasize_transient);
+  g_object_class_install_property  (object_class, PROP_INITIAL_XSCALE, spec);
+
+  spec = g_param_spec_double       ("initial_yscale",
+				    "Initial Y scale",
+				    "Vertical initial condition scale factor",
+				    0, 1000, 1,
+				    G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
+				    G_PARAM_LAX_VALIDATION | PARAM_INTERPOLATE | PARAM_IN_GUI);
+  param_spec_set_group             (spec, current_group);
+  param_spec_set_increments        (spec, 0.001, 0.01, 3);
+  param_spec_set_dependency        (spec, emphasize_transient);
+  g_object_class_install_property  (object_class, PROP_INITIAL_YSCALE, spec);
+
+  spec = g_param_spec_double       ("initial_xoffset",
+				    "Initial X offset",
+				    "Horizontal initial condition offset",
+				    -100, 100, 0,
+				    G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
+				    G_PARAM_LAX_VALIDATION | PARAM_INTERPOLATE | PARAM_IN_GUI);
+  param_spec_set_group             (spec, current_group);
+  param_spec_set_increments        (spec, 0.001, 0.01, 3);
+  param_spec_set_dependency        (spec, emphasize_transient);
+  g_object_class_install_property  (object_class, PROP_INITIAL_XOFFSET, spec);
+
+  spec = g_param_spec_double       ("initial_yoffset",
+				    "Initial Y offset",
+				    "Vertical initial condition offset",
+				    -100, 100, 0,
+				    G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
+				    G_PARAM_LAX_VALIDATION | PARAM_INTERPOLATE | PARAM_IN_GUI);
+  param_spec_set_group             (spec, current_group);
+  param_spec_set_increments        (spec, 0.001, 0.01, 3);
+  param_spec_set_dependency        (spec, emphasize_transient);
+  g_object_class_install_property  (object_class, PROP_INITIAL_YOFFSET, spec);
 }
 
 static void de_jong_init(DeJong *self) {
@@ -445,6 +493,22 @@ static void de_jong_set_property (GObject *object, guint prop_id, const GValue *
     update_enum_if_necessary(g_value_get_enum(value), &self->calc_dirty_flag, &self->initial_conditions);
     break;
 
+  case PROP_INITIAL_XOFFSET:
+    update_double_if_necessary(g_value_get_double(value), &self->calc_dirty_flag, &self->initial_xoffset, 0.000001);
+    break;
+
+  case PROP_INITIAL_YOFFSET:
+    update_double_if_necessary(g_value_get_double(value), &self->calc_dirty_flag, &self->initial_yoffset, 0.000001);
+    break;
+
+  case PROP_INITIAL_XSCALE:
+    update_double_if_necessary(g_value_get_double(value), &self->calc_dirty_flag, &self->initial_xscale, 0.0009);
+    break;
+
+  case PROP_INITIAL_YSCALE:
+    update_double_if_necessary(g_value_get_double(value), &self->calc_dirty_flag, &self->initial_yscale, 0.0009);
+    break;
+
   default:
     G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
     break;
@@ -514,6 +578,22 @@ static void de_jong_get_property (GObject *object, guint prop_id, GValue *value,
 
   case PROP_INITIAL_CONDITIONS:
     g_value_set_enum(value, self->initial_conditions);
+    break;
+
+  case PROP_INITIAL_XOFFSET:
+    g_value_set_double(value, self->initial_xoffset);
+    break;
+
+  case PROP_INITIAL_YOFFSET:
+    g_value_set_double(value, self->initial_yoffset);
+    break;
+
+  case PROP_INITIAL_XSCALE:
+    g_value_set_double(value, self->initial_xscale);
+    break;
+
+  case PROP_INITIAL_YSCALE:
+    g_value_set_double(value, self->initial_yscale);
     break;
 
   default:
@@ -633,6 +713,8 @@ void de_jong_calculate(IterativeMap *map, guint iterations) {
       else {
 	remaining_transient_iterations = self->transient_iterations-1;
 	initial_func(&point_x, &point_y);
+	point_x = self->initial_xscale * point_x + self->initial_xoffset;
+	point_y = self->initial_yscale * point_y + self->initial_yoffset;
       }
     }
 
