@@ -194,6 +194,9 @@
 						Name="gfx"
 						Filter="">
 						<File
+							RelativePath="..\game\test\gfx\src\playerDrawables.cpp">
+						</File>
+						<File
 							RelativePath="..\game\test\gfx\src\worldDrawables.cpp">
 						</File>
 					</Filter>
@@ -288,6 +291,9 @@
 					<Filter
 						Name="gfx"
 						Filter="">
+						<File
+							RelativePath="..\game\test\gfx\inc\playerDrawables.h">
+						</File>
 						<File
 							RelativePath="..\game\test\gfx\inc\worldDrawables.h">
 						</File>

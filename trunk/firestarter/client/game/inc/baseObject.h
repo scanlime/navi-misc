@@ -41,6 +41,8 @@ public:
 		virtual float GetValueF ( const char *item ){return 0;}
 		virtual int GetValueI ( const char *item ){return 0;}
 		virtual const char* GetValueS ( const char *item ){return 0;}
+
+		virtual	bool Visible ( void ) { return true; }
 protected:
 };
 

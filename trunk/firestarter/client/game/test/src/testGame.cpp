@@ -92,12 +92,17 @@ void CTestGame::Release ( void )
 
 bool CTestGame::Think ( void )
 {
-	//if (network.Connected())
+	// get some network data
+	if (network.Connected())
 		network.ProcessMessages();
 
 	if (CInputManager::instance().KeyDown(KEY_ESCAPE))
 		return true;
-	// do some game like things
+
+	// do some game like things here, logic and stuff like that
+	
+	// let the drawables update themseves ( if they exist )
+	CDrawManager::instance().ThinkAll();
 	return false;
 }
 
@@ -107,10 +112,11 @@ void CTestGame::OnConnect ( CNetworkPeer &peer )
 	message.SetType(_MESSAGE_ACKNOWLEDGE);
 	message.Send(peer,true);
 }
+
 void CTestGame::OnDisconnect ( CNetworkPeer &peer )
 {
+}	
 
-}
 void CTestGame::OnMessage ( CNetworkPeer &peer, CNetworkMessage &message )
 {
 	CNetworkMessage outMessage;
