@@ -176,12 +176,18 @@ bool CTestGame::Think ( void )
 	}
 	else
 	{
-		CNetworkMessage message;
-		message.SetType(_MESSAGE_USER_PART);
-		message.Send(network.GetServerPeer(),true);
-		network.Disconect();
+		if (network.Connected())
+		{
+			CNetworkMessage message;
+			message.SetType(_MESSAGE_USER_PART);
+			message.Send(network.GetServerPeer(),true);
+			network.ProcessMessages();
+			network.ProcessMessages();
+			network.Disconect();
+			network.ProcessMessages();
+			network.ProcessMessages();
+		}
 	}
-
 	return exit;
 }
 

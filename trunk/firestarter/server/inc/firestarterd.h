@@ -32,6 +32,19 @@ extern bool registerAsPublic;
 
 // functions
 int errorOut ( const char * error, const char* place = NULL, int ret = 1 );
-void logOut ( const char * error, const char* place );
+
+typedef enum
+{
+	eLogLevel0 = 0,	// no loging, silent mode
+	eLogLevel1,		// basic loging
+	eLogLevel2,		// loging of major messages
+	eLogLevel3,		// loging of minor messages
+	eLogLevel4,		// loging of debug level 1 class messages
+	eLogLevel5,		// loging of debug level 2 class messages, aka EVERYTHING
+}eLogLevel;
+
+void logOut ( const char * error, const char* place, eLogLevel level = eLogLevel1 );
+
+extern eLogLevel	eCurrentLogLevel;
 
 #endif //_FIRESTARTERD_H_
