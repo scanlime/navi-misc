@@ -30,25 +30,29 @@ namespace Fyre
 
 		/* The drawing extents are the size of our current drawing area. The
 		 * position depends on the scrollbars, and the size is always the pixel
-		 * size of the drawing area
+		 * size of the drawing area.
 		 *
 		 * The layout extents are the size of the drawing itself. This is
 		 * maintained via the graph layout algorithms.
 		 *
 		 * Scrollbars are determined by the union of the drawing and the layout
-		 * boxes.
+		 * boxes, plus some buffer around the layout (maybe 50px?) size to make
+		 * it easier to drag the document for a bigger size.
 		 */
 		Gdk.Rectangle		drawing_extents;
 		Gdk.Rectangle		layout_extents;
 
 		Gtk.EventBox		event_box;
 
-		// FIXME - so we've got the cursor data here, but it turns out that
-		// Gdk.Pixmap.CreateBitmapFromData isn't implemented yet (&#*^%*&).
-		// Avoid using these custom cursors for now.
+		// FIXME - Monodoc says that Gdk.Pixmap.CreateBitmapFromData is unimplemented,
+		// but according to tberman it's not. However, we *are* getting garbage
+		// cursors. At the moment, my best guess is that the string data type here
+		// is doing some funky unicode conversion that's screwing up our XBM data.
 
-		/* String data for our hand cursors. These have been taken pretty much
-		 * verbatim from eog */
+		/* String data for our hand cursors. The XBM data here has been
+		 * taken pretty much verbatim from eog. Remind me why these aren't
+		 * standard GDK cursors?
+		 */
 		static string hand_open_data =
 			"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x06\x00" +
 			"\x60\x36\x00\x60\x36\x00\xc0\x36\x01\xc0\xb6\x01" +
@@ -117,7 +121,7 @@ namespace Fyre
 			drawing_extents.Y = 0;
 
 
-			// Get a handle to our event box
+			// Get a handle to our event box and set event handlers
 			event_box = (Gtk.EventBox) xml.GetWidget ("pipeline_window");
 			event_box.ButtonPressEvent   += new Gtk.ButtonPressEventHandler   (ButtonPressHandler);
 			event_box.ButtonReleaseEvent += new Gtk.ButtonReleaseEventHandler (ButtonReleaseHandler);
@@ -159,8 +163,8 @@ namespace Fyre
 				hadj.PageIncrement = ev.Width;
 				vadj.PageIncrement = ev.Height;
 
-				// Temporarily set the range here. This will need to query
-				// the main canvas for extents once that exists
+				// FIXME - Temporarily set the range here. This will need to
+				// set the document extents and modify scrollbars
 				hadj.Upper = ev.Width * 8;
 				vadj.Upper = ev.Height * 8;
 			}
