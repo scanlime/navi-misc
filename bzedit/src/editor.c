@@ -121,7 +121,7 @@ editor_init (Editor *editor)
     t2 = g_type_children (t[i], &n2);
     for (i2 = 0; i < n2; i++)
     {
-      g_print ("      +- %s\n", g_type_name (t2[i]));
+      g_print ("     +- %s\n", g_type_name (t2[i]));
     }
     g_free (t2);
   }
