@@ -691,3 +691,24 @@ fe_get_inputbox_cursor (struct session *sess)
 	/* FIXME: implement? */
 	return 0;
 }
+
+void
+fe_open_url (const char *url)
+{
+	GError *err = NULL;
+
+	if (strstr (url, "://") == NULL) {
+		gchar *newword = g_strdup_printf ("http://%s", url);
+		gnome_url_show (newword, &err);
+		g_free (newword);
+	} else {
+		gnome_url_show (url, &err);
+	}
+
+	if (err != NULL) {
+		gchar *message = g_strdup_printf ("Unable to show '%s'", url);
+		error_dialog (_(message), _(err->message));
+		g_free (message);
+		g_error_free (err);
+	}
+}
