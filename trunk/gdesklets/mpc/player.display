@@ -1,11 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- This display file was shamelessly stolen and modified from the mpc
-     gdesklet created by Jonas Haggqvist.
-	 -->
+
+<!-- **********************************************************************
+     * This is the SideCandy template.
+     * You can use the template for your own desklets in SideCandy style.
+     ********************************************************************** -->
 
 <display id="win" anchor="ne"
          window-flags="sticky, below">
+
+
+<!-- **********************************************************************
+     * Enter your name and other meta information here:
+     ********************************************************************** -->
 
   <meta name="Moose"
         version="0.1"
@@ -26,7 +33,17 @@
          on-enter="if (sc_behavior == 'enter'): slide(self, SC_IN, SC_OUT)"
          on-leave="if (sc_behavior == 'enter'): slide(self, SC_IN, SC_OUT)">
 
+
+<!-- **********************************************************************
+     * You can change the height of the display here.
+     * But please leave the width as it is to ensure a uniform look between
+     * all SideCandies!
+     ********************************************************************** -->
+
     <group id="panel" width="5cm" height="1.7cm">
+
+<!-- ********************************************************************** -->
+
 
       <!-- the background image -->
       <group id="bg" width="100%" height="100%" bg-uri="images/bg.png"/>
@@ -34,13 +51,28 @@
 
       <group id="icon_group" y="0.1cm" width="1cm">
 
+
+<!-- **********************************************************************
+     * The icon area is a narrow area where SideCandies show an icon or
+     * information in a compressed way. This area is visible when the
+     * display is slid in.
+     ********************************************************************** -->
+
         <image uri="images/mpc.svg" image-width="1cm" image-height="1cm"/>
         <label id="lbl_state" anchor="center" x="50%" y="1.3cm" value="Playing" font="Sans 0.20cm" color="black"/>
+
+<!-- ********************************************************************** -->
 
       </group>
 
 
       <group id="info_group" y="0.1cm" width="3.8cm" height="1.5cm">
+
+
+<!-- **********************************************************************
+     * This is the main area of the display.
+     * Put your stuff in here:
+     ********************************************************************** -->
 
         <label id="artist"   font="Sans Bold 0.3cm" color="black"                   value="Artist"/>
         <label id="title"    font="Sans Bold 0.3cm" color="black" y="0.5cm"         value="Songtitle"/>
@@ -53,9 +85,15 @@
         <image uri="images/crystal_stop.png"  anchor="sw" y="95%" x="0.8cm" image-width="0.4cm" image-height="0.4cm"
                on-click="mpc.stop = 1" id="stopbutton" />
         <image uri="images/crystal_next.png"   anchor="sw" y="95%" x="1.2cm" image-width="0.4cm" image-height="0.4cm"
-               on-click="mpc.next = 1" id="nextbutton"/>
+			on-click="mpc.next = 1" id="nextbutton"/>
+		<image uri="images/playlist.png" anchor="sw" y="95%" x="1.7cm" image-width="0.4cm" image-height="0.4cm"/>
+        
+
+<!-- ********************************************************************** -->
 
       </group>
+
+    </group>
 
   </group>
 
@@ -155,7 +193,7 @@ def slideout():
             add_timer(slidetime*1000, slidein)
     except:
         pass
-
+        
 def slidein():
     slide(Dsp.slider, SC_IN, SC_OUT)
 
