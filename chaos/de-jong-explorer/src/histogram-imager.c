@@ -845,6 +845,7 @@ static void histogram_imager_require_histogram(HistogramImager *self) {
 }
 
 void histogram_imager_clear(HistogramImager *self) {
+  histogram_imager_check_dirty_flags(self);
   if (self->histogram) {
     memset(self->histogram, 0, sizeof(self->histogram[0]) *
 	   self->width * self->height *

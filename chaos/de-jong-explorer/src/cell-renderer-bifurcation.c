@@ -244,6 +244,7 @@ static void cell_renderer_bifurcation_get_size(GtkCellRenderer  *cell,
 					       gint             *height) {
   CellRendererBifurcation *self = CELL_RENDERER_BIFURCATION(cell);
 
+  /* We don't bother suggesting a size yet, just use whatever's available */
 }
 
 static void cell_renderer_bifurcation_render(GtkCellRenderer      *cell,
@@ -255,17 +256,48 @@ static void cell_renderer_bifurcation_render(GtkCellRenderer      *cell,
 					     GtkCellRendererState  flags) {
   CellRendererBifurcation *self = CELL_RENDERER_BIFURCATION(cell);
   BifurcationDiagram *bd = get_bifurcation_diagram(self);
+  GtkStateType state;
 
-  if (bd) {
-    g_object_set(bd, "size", "512x128", NULL);
-    bifurcation_diagram_calculate(bd, 10000, 100);
-    histogram_imager_update_image(HISTOGRAM_IMAGER(bd));
+  if (!bd)
+    return;
 
-    gdk_draw_pixbuf(window, GTK_WIDGET(widget)->style->fg_gc[GTK_STATE_NORMAL],
-		    HISTOGRAM_IMAGER(bd)->image,
-		    0, 0, cell_area->x, cell_area->y, 512, 128,
-		    GDK_RGB_DITHER_NONE, 0, 0);
+  /* Determine the correct state to render our text in, based on
+   * the cell's selectedness and the widget's current state.
+   * This was copied from GtkCellRendererText.
+   */
+  if ((flags & GTK_CELL_RENDERER_SELECTED) == GTK_CELL_RENDERER_SELECTED) {
+    if (GTK_WIDGET_HAS_FOCUS (widget))
+      state = GTK_STATE_SELECTED;
+    else
+      state = GTK_STATE_ACTIVE;
   }
+  else {
+    if (GTK_WIDGET_STATE (widget) == GTK_STATE_INSENSITIVE)
+      state = GTK_STATE_INSENSITIVE;
+    else
+      state = GTK_STATE_NORMAL;
+  }
+
+  /* Set the bifurcation diagram renderer's parameters appropriately for this
+   * cell renderer. It will automatically figure out what if anything it has
+   * to change internally. We size it to fit this cell exactly, and set
+   * the colors appropriately for our state and theme.
+   */
+  g_object_set(bd,
+	       "width",  cell_area->width,
+	       "height", cell_area->height,
+	       "fgcolor_gdk", &GTK_WIDGET(widget)->style->fg[state],
+	       "bgcolor_gdk", &GTK_WIDGET(widget)->style->base[state],
+	       NULL);
+
+  /* Render it a bit and update the image */
+  bifurcation_diagram_calculate(bd, 10000, 100);
+  histogram_imager_update_image(HISTOGRAM_IMAGER(bd));
+
+  gdk_draw_pixbuf(window, GTK_WIDGET(widget)->style->fg_gc[state],
+		  HISTOGRAM_IMAGER(bd)->image,
+		  0, 0, cell_area->x, cell_area->y, cell_area->width, cell_area->height,
+		  GDK_RGB_DITHER_NONE, 0, 0);
 }
 
 /* The End */
