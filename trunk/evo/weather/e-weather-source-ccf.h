@@ -23,6 +23,7 @@
 #ifndef E_WEATHER_SOURCE_CCF_H
 #define E_WEATHER_SOURCE_CCF_H
 
+#include <libgnomevfs/gnome-vfs.h>
 #include "e-weather-source.h"
 
 G_BEGIN_DECLS
@@ -42,6 +43,8 @@ struct _EWeatherSourceCCF {
 	EWeatherSource parent;
 
 	char *station;
+	SourceFinished done;
+	GnomeVFSAsyncHandle *handle;
 };
 
 struct _EWeatherSourceCCFClass {

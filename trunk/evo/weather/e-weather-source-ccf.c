@@ -22,7 +22,10 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <libgnome/gnome-i18n.h>
 #include "e-weather-source-ccf.h"
+
+#define DATA_SIZE 65535	/* 64k should be enough for anyone :P */
 
 EWeatherSource*
 e_weather_source_ccf_new (const char *uri)
@@ -141,6 +144,36 @@ ftoc (char *data)
 }
 
 static void
+e_weather_source_ccf_finish_read (GnomeVFSAsyncHandle *handle, GnomeVFSResult result, gpointer buffer,
+                                  GnomeVFSFileSize requested, GnomeVFSFileSize body_len, gpointer data)
+{
+	EWeatherSourceCCF *source = (EWeatherSourceCCF*) data;
+}
+
+static void
+e_weather_source_ccf_finish_open (GnomeVFSAsyncHandle *handle, GnomeVFSResult result, gpointer data)
+{
+	EWeatherSourceCCF *source = (EWeatherSourceCCF*) data;
+	char *body;
+	int body_len;
+	gboolean success = FALSE;
+
+	body = g_malloc0 (DATA_SIZE);
+
+	if (result != GNOME_VFS_OK)
+	{
+		g_warning(_("Failed to get CCF data.\n"));
+		source->handle = NULL;
+		g_free (body);
+	}
+	else
+	{
+		gnome_vfs_async_read (handle, body, DATA_SIZE - 1, e_weather_source_ccf_finish_read, data);
+	}
+	return;
+}
+
+static void
 e_weather_source_ccf_parse (EWeatherSource *source, SourceFinished done)
 {
 	/* CCF gives us either 2 or 7 days of forecast data. IFPS WFO's
@@ -155,6 +188,11 @@ e_weather_source_ccf_parse (EWeatherSource *source, SourceFinished done)
 	 */
 	EWeatherSourceCCF *ccfsource = (EWeatherSourceCCF*) source;
 	WeatherForecast *forecasts = g_new0 (WeatherForecast, 7);
+	char *url;
+
+	url = g_strdup_printf ("http://www.crh.noaa.gov/data/%s/CCF%s", ccfsource->station, ccfsource->station);
+	ccfsource->done = done;
+	gnome_vfs_async_open (ccfsource->handle, url, GNOME_VFS_OPEN_READ, 0, e_weather_source_ccf_finish_open, source);
 #if 0
 	GSList *tokens = tokenize (buffer);
 	GSList *date;
