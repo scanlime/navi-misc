@@ -25,8 +25,11 @@ __module_name__ = 'URL Scraper'
 __module_version__ = '0.1-pre'
 __module_description__ = 'Collect URLs said and display them in a separate window'
 
+def close( window, event, user_data ):
+    window.hide()
+
 window = gtk.Window( gtk.WINDOW_TOPLEVEL )
-window.connect( 'destroy', lambda w: gtk.main.quit() )
+window.connect( 'destroy', close)
 window.show()
 
 def grabURL( word, word_eol, user_data ):
