@@ -24,19 +24,59 @@ CREATE TABLE IF NOT EXISTS meta
     value        VARCHAR(255),
 );
 
-INSERT IGNORE INTO meta VALUES( 'version', 3 );
+INSERT IGNORE INTO meta VALUES( 'version', 4 );
 
 
 ------------------------------------------------------------------------
 ----------------------------------------------------------- Security
 ------------------------------------------------------------------------
 
+CREATE TABLE IF NOT EXISTS users
+(
+    uid           BIGINT PRIMARY KEY AUTO_INCREMENT,
+    secret_key    VARCHAR(32) NOT NULL,
+    active        BOOL,
+
+    full_name     TEXT NOT NULL,
+    email         TEXT,
+    creation_time BIGINT NOT NULL,
+    key_atime     BIGINT,
+
+    login_name    VARCHAR(32),
+    login_passwd  TEXT,
+    login_atime   BIGINT,
+    login_mtime   BIGINT,
+
+    INDEX(secret_key),
+    INDEX(login_name)
+) TYPE=INNODB;
+
 CREATE TABLE IF NOT EXISTS capabilities
 (
-    key_data  TEXT NOT NULL,
-    id        TEXT NOT NULL,
-    owner     TEXT
-);
+    uid           BIGINT NOT NULL,
+    capability    TEXT NOT NULL,
+
+    FOREIGN KEY (uid) REFERENCES users(uid) ON DELETE CASCADE,
+    INDEX (uid)
+) TYPE=INNODB;
+
+CREATE TABLE IF NOT EXISTS audit_trail
+(
+    id            BIGINT PRIMARY KEY AUTO_INCREMENT,
+    timestamp     BIGINT NOT NULL,
+    uid           BIGINT NOT NULL,
+
+    action_domain VARCHAR(32) NOT NULL,
+    action_name   TEXT NOT NULL,
+
+    main_param    TEXT,
+    params        LONGBLOB,
+
+    FOREIGN KEY (uid) REFERENCES users(uid) ON DELETE CASCADE,
+    INDEX (id),
+    INDEX (uid)
+) TYPE=INNODB;
+
 
 ------------------------------------------------------------------------
 ----------------------------------------------------------- Rulesets
