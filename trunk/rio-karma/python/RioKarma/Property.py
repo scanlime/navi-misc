@@ -92,7 +92,10 @@ def fromPlaylist(s):
         d['fid'] = ints[i]
         i += 1
         if hasGenerations and i < finishAt:
-            d['fid_generation'] = ints[i]
+            # Zero seems to be a "don't care" for the fid_generation.
+            # Leave it out so we don't try to use it as a search key.
+            if ints[i]:
+                d['fid_generation'] = ints[i]
             i += 1
         results.append(d)
     return results
@@ -107,7 +110,7 @@ def toPlaylist(s):
         ints.append(details.get('fid', 0))
         ints.append(details.get('fid_generation', 0))
 
-    return toEscaped(struct.pack("<%dI" % len(ints), ints))
+    return toEscaped(struct.pack("<%dI" % len(ints), *ints))
 
 # Decoding functions for properties that aren't plain strings
 propertyDecoders = {

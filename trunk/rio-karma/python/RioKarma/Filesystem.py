@@ -267,6 +267,14 @@ class Cache:
         self.cursor.execute("INSERT INTO dict (name, value) VALUES ('fileIdAllocator', '')")
         self.sync()
 
+    def _encode(self, obj):
+        """Encode an object for inclusion in the files table"""
+        if type(obj) is unicode:
+            obj = obj.encode('utf-8')
+        elif type(obj) is not str:
+            obj = str(obj)
+        return "'%s'" % sqlite.encode(obj)
+
     def insertFile(self, f):
         """Insert a new File object into the cache. If an existing file with this ID
            exists, it is updated rather than overwritten.
@@ -276,14 +284,15 @@ class Cache:
         self.fileIdAllocator.allocate(f.id)
 
         # Make name/value lists for everything we want to update
-        dbItems = {'details': "'%s'" % sqlite.encode(cPickle.dumps(f.details, -1))}
+        dbItems = {'details': self._encode(cPickle.dumps(f.details, -1))}
         for column in self.detailsColumns:
             if column in f.details:
-                dbItems[column] = "'%s'" % sqlite.encode(unicode(f.details[column]).encode('utf-8'))
+                dbItems[column] = self._encode(f.details[column])
 
         # First try updating an existing row
-        self.cursor.execute("UPDATE files SET %s WHERE fid = %d" % (
-            ", ".join(["%s = %s" % i for i in dbItems.iteritems()]), f.id))
+        self.cursor.execute("UPDATE files SET %s WHERE fid = %s" % (
+            ", ".join(["%s = %s" % i for i in dbItems.iteritems()]),
+            self._encode(f.id)))
 
         if self.cursor.rowcount < 1:
             # Nope. Insert a new item
@@ -294,11 +303,11 @@ class Cache:
     def deleteFile(self, f):
         """Delete a File object from the cache"""
         # FIXME: This can't remove the ID from the allocation tree yet
-        self.cursor.execute("DELETE FROM files WHERE fid = %d" % f.id)
+        self.cursor.execute("DELETE FROM files WHERE fid = %s" % self._encode(f.id))
 
     def getFile(self, fid):
         """Return a File object, given a file ID"""
-        self.cursor.execute("SELECT details FROM files WHERE fid = %d" % fid)
+        self.cursor.execute("SELECT details FROM files WHERE fid = %s" % self._encode(fid))
         return File(details=cPickle.loads(sqlite.decode(self.cursor.fetchone().details)))
 
     def findFiles(self, **kw):
@@ -311,8 +320,7 @@ class Cache:
         for key, value in kw.iteritems():
             if key not in self.detailsColumns:
                 raise ValueError("Key name %r is not searchable" % key)
-            constraints.append("%s = '%s'" % (
-                key, sqlite.encode(unicode(value).encode('utf-8'))))
+            constraints.append("%s = %s" % (key, self._encode(value)))
 
         self.cursor.execute("SELECT details FROM files WHERE %s" %
                             " AND ".join(constraints))
@@ -428,6 +436,7 @@ class FileManager:
     def _finishUnlock(self, stamp, result):
         if 'write' in self.locksHeld:
             self.cache.updateStamp(stamp)
+            self.cache.sync()
         self.locksHeld = ()
         result.callback(None)
 
@@ -497,15 +506,24 @@ class FileManager:
            from this file object. Returns a Deferred signalling completion.
            """
         self.cache.insertFile(f)
-        self.cache.sync()
         return self.protocol.sendRequest(Request.UpdateFileDetails(f.id, f.details))
 
-    def createFile(self):
+    def createFile(self, title=None):
         """Allocate a new file ID, and return a new File object representing it.
            Beware that a file isn't actually allocated until its details are uploaded
            for the first time, so multiple new files shouldn't be created at once.
            """
-        return File(id=self.cache.fileIdAllocator.findFirst())
+        f = File(id=self.cache.fileIdAllocator.findFirst())
+        if title is not None:
+            f.details['title'] = unicode(title)
+        return f
+
+    def deleteFile(self, f):
+        """Delete a file from the cache, and request that it be deleted from the
+           device. Returns a Deferred signalling completion.
+           """
+        self.cache.deleteFile(f)
+        return self.protocol.sendRequest(Request.DeleteFile(f.id))
 
     def loadFromDisk(self, remoteFile, localFilename, blockSize=None):
         """Load a file's metadata and content from a file on disk.
@@ -553,29 +571,42 @@ class FileManager:
     def getStorageDetails(self):
         return self.protocol.sendRequest(Request.GetStorageDetails())
 
-    def listPlaylists(self):
-        """Return a sequence of playlist names"""
-        return [f.details['title'] for f in self.cache.findFiles(type='playlist')]
-
-    def getPlaylistFiles(self, name):
-        """Return the contents of a playlist as a list of File instances, given its name.
-           If the playlist doesn't exist, this returns None.
+    def getPlaylistFiles(self, playlist):
+        """Given a File object representing a playlist, return a list of File
+           objects for its children.
            """
-        playlist = self.cache.findFiles(type='playlist', title=name)
-        if not playlist:
-            return None
         results = []
-        for details in playlist[0].details['playlist']:
+        for details in playlist.details['playlist']:
             results.extend(self.cache.findFiles(**details))
         return results
 
-    def setPlaylistFiles(self, name, files):
-        """Set the contents of a playlist from a list of File instances, given its name.
-           If the playlist doesn't exist yet it is created. If the list of files
-           is empty, the playlist is deleted. This requires a write lock, and returns
-           a Deferred indicating completion.
+    def setPlaylistFiles(self, playlist, children):
+        """Set the contents of a playlist from a list of File instances, given a
+           File instance for the playlist itself. Playlists may be created and
+           deleted with createFile/deleteFile.
+
+           This requires a write lock, and returns a Deferred indicating completion.
+
+           Note that for a playlist to actually appear in the menu, you have to place
+           it within another playlist. This will essentially create a floating playlist.
            """
-        raise NotImplementedError
+        playlist.details['type'] = 'playlist'
+        playlist.details['playlist'] = [f.details for f in children]
+        return self.updateFileDetails(playlist)
+
+    def getRootPlaylist(self):
+        """Playlists can contain other playlists- they're much like directories.
+           There is a hardcoded root playlist, called 'All Music' in English,
+           that the playlist menu first loads. Returns a File object.
+           """
+        # The name isn't always "All Music", but the FID seems to be hardcoded
+        root = self.cache.getFile(0x100)
+        if not root:
+            # Shouldn't happen, but just in case... create a new root playlist
+            root = File(0x100)
+            root.details['title'] = u'All Music'
+            root.details['type'] = 'playlist'
+        return root
 
 
 class File:
