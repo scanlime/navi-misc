@@ -55,7 +55,7 @@ class XMLObject(object):
 
     def loadFromStream(self, stream, uri=None):
         """Parse the given stream as XML and set the contents of the message"""
-        self.loadFromDom(Domlette.NonvalidatingReader.parseStream(string, uri or defaultURI))
+        self.loadFromDom(Domlette.NonvalidatingReader.parseStream(stream, uri or defaultURI))
 
     def loadFromDom(self, root):
         """Set the contents of the Message from a parsed DOM tree"""
@@ -161,8 +161,9 @@ def allText(node):
 
 def shallowTextGenerator(node):
     """A generator that, given a DOM tree, yields all text fragments contained immediately within"""
-    if node.nodeType == node.TEXT_NODE:
-        yield node.data
+    for child in node.childNodes:
+        if child.nodeType == child.TEXT_NODE:
+            yield child.data
 
 
 def shallowText(node):
@@ -185,6 +186,15 @@ def dig(node, *subElements):
         else:
             return
     return node
+
+
+def digValue(node, _type, *subElements):
+    """Search for a subelement using 'dig', then retrieve all contained
+       text and convert it to the given type. Strips extra whitespace.
+       """
+    foundNode = dig(node, *subElements)
+    if foundNode:
+        return _type(shallowText(foundNode).strip())
 
 
 def addElement(node, name, content=None, attributes={}):
