@@ -139,8 +139,6 @@ class Hangman:
   def NetGame(self):
     """ Start a new game using the word of the day from dictionary.com.
         """
-    page = urlopen("http://www.dictionary.com").read()
     parser = wordoftheday()
-    parser.feed(page)
-    self.words[parser.word] = ""
+    self.words = parser.get_word()
     self.NewGame()
