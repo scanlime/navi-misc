@@ -3558,7 +3558,7 @@
   </child>
 </widget>
 
-<widget class="GnomeAbout" id="about1">
+<widget class="GnomeAbout" id="about dialog">
   <property name="border_width">5</property>
   <property name="destroy_with_parent">True</property>
   <property name="logo">soap.png</property>
