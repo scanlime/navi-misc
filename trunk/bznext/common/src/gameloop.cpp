@@ -41,12 +41,12 @@ void OSSleep ( float time )
 {
 #ifdef _WIN32
   Sleep((DWORD)(1000.0f * time));
-/*	MSG  msg;		// should not need this
+	MSG  msg;		// should not need this
 	while( PeekMessage( &msg, NULL, 0U, 0U, PM_REMOVE ) )
 	{
 		TranslateMessage( &msg );
 		DispatchMessage( &msg );
-	} */
+	} 
 #else
   usleep((unsigned int )(100000 * time));
 #endif
