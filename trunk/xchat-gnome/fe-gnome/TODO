@@ -1,6 +1,7 @@
 pre-release:
   * install the schema into gconf when you make install (check evolution/shell
     for an example of this)
+  * come up with a tagline (maybe "it's called ex-chat for a reason" ??)
 
 ----
 
