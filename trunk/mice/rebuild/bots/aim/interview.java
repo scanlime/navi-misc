@@ -156,6 +156,7 @@ public class interview extends Thread
 		while(!happy)
 		{
 			sleep(1);
+			com.write("get");
 			in = com.read();
 			happy = !(in.charAt(0) == '-');
 		}
@@ -167,16 +168,20 @@ public class interview extends Thread
 		
 	/**
 	 * This method makes this thread sleep.
-	 * @param seconds The duration of the nap in seconds.
+	 * @param miliseconds The duration of the nap in seconds.
 	 * @author Brandon Smith
 	 * @version 2.0
 	 */
-	public void sleep(int seconds)
+	public void sleep(int miliseconds)
 	{
+		System.out.println("Sleeping for " + miliseconds);
 		try
 		{
-			sleep(seconds * 1000);
+			Thread.sleep((long) miliseconds);
 		}
-		catch (Exception ie) {}
+		catch (Exception ie)
+		{
+			System.out.println("Exception in Interview sleep\n" + ie);
+		}
 	}
 }
