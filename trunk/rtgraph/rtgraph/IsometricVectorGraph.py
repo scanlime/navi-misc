@@ -1,7 +1,6 @@
-""" rtgraph
+""" rtgraph.IsometricVectorGraph
 
-A python package providing several widgets for graphing data
-in real-time, using PyGTK.
+Graphs 3D vectors with an isometric view
 """
 #
 # rtgtaph real-time graphing package for PyGTK
@@ -22,27 +21,27 @@ in real-time, using PyGTK.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-# Information about this implementation
-name    = "rtgraph"
-version = "svn-dev"
-
-# Check the python version here before we proceed further
-requiredPythonVersion = (2,2,1)
-import sys, string
-if sys.version_info < requiredPythonVersion:
-    raise Exception("%s requires at least Python %s, found %s instead." % (
-        name,
-        string.join(map(str, requiredPythonVersion), "."),
-        string.join(map(str, sys.version_info), ".")))
-
-# Convenience imports
-from HScrollLineGraph import *
-from HScrollGraph import *
-from Channel import *
+from __future__ import division
 from Graph import *
-from PolarVectorGraph import *
-from IsometricVectorGraph import *
-from UI import *
-import Tweak
+import gtk
+
+__all__ = ["IsometricVectorGraph"]
+
+
+class IsometricVectorGraph(StaticGridGraph):
+    """A graph that shows multiple 3D cartesian vectors as dots in
+       an isometric grid.
+       Expects channel values to be 3-tuples of values in the range [0,1]
+       """
+    def __init__(self, size=(384,384), channels=[]):
+        StaticGridGraph.__init__(self, size, channels)
+
+    def graphChannel(self, channel):
+        """Draw the given channel on the backbuffer"""
+        vector = channel.getValue()
+
+    def initGrid(self, drawable, width, height):
+        """Draw a grid to the given drawable at the given size"""
+        drawable.draw_rectangle(self.bgGc, gtk.TRUE, 0, 0, width, height)
 
 ### The End ###
