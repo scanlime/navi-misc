@@ -152,6 +152,11 @@ class StatsTarget(object):
         """Return the StatsTarget for the given sub-target name under this one"""
         return StatsTarget(self.storage, tuple(self.pathSegments) + (str(name),))
 
+    def parent(self):
+        """Return the parent StatsTarget of this one, or None if we're the root"""
+        if self.pathSegments:
+            return StatsTarget(self.storage, self.pathSegments[:-1])
+
     def getTitle(self):
         """Return the human-readable title of this stats target-
            the 'title' metadata key if we have one, otherwise the last

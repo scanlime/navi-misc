@@ -25,6 +25,11 @@ import Base
 from Base import tag, place
 
 
+# Tags with 'class' attributes should be placed in this module
+catalogList = tag('ul', _class="catalog")
+headingTab = tag('a', _class="headingtab")
+counterValue = tag('strong')
+
 class Section(Base.DocumentOwner):
     """A portion of the web page with a title and a body, that may be placed
        in any of the page's columns.
@@ -100,6 +105,11 @@ class Page(Base.Page):
                 tag('td', _class="left")[ place("leftColumn") ],
                 tag('td', _class="main")[ place("mainColumn") ],
             ]],
+            tag('div', _class="footer")[
+                tag('a', href="http://navi.cx")[
+                    tag('img', src="/images/navi64.png", width="64", height="39", alt="Navi"),
+                ],
+            ],
         ],
     ]
 

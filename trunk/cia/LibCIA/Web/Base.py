@@ -102,8 +102,20 @@ class tag:
         self.content = []
         self.setAttributes(attributes)
 
+    def __call__(self, name=None, **attributes):
+        """A tag instance can be called just like the tag
+           class, so any tag instance can be used in place
+           of 'tag' to provide default values.
+           """
+        if name is None:
+            name = self.name
+        attrs = dict(self.attributes)
+        attrs.update(attributes)
+        return tag(name, **attrs)[ self.content ]
+
     def setAttributes(self, attributes):
         """Change this tag's attributes, rerendering the opening and closing text"""
+        self.attributes = attributes
         opening = '<' + self.name
         for key, value in attributes.iteritems():
             if key[0] == '_':
@@ -115,9 +127,12 @@ class tag:
         self.renderedClosing = xml('</%s>' % self.name)
 
     def __getitem__(self, content):
-        """Overloads the [] operator used, in Tag, to set the tag's contents"""
-        self.content = content
-        return self
+        """Overloads the [] operator used, in Tag, to return a new tag
+           with the given content
+           """
+        newTag = tag(self.name, **self.attributes)
+        newTag.content = content
+        return newTag
 
     def render(self, context=None):
         return [self.renderedOpening, self.content, self.renderedClosing]
@@ -125,7 +140,13 @@ class tag:
 
 class DocumentOwner(object):
     """A base class defining a 'render' function for objects that own a document"""
+    def isVisible(self, context):
+        """Subclasses can override this to decide whether the entire document should be rendered"""
+        return True
+
     def render(self, context={}):
+        if not self.isVisible(context):
+            return xml('')
         myContext = dict(context)
         myContext['owner'] = self
         return Serializer().render(self.document, myContext)
