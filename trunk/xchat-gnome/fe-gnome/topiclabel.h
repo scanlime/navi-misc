@@ -36,7 +36,7 @@ typedef struct _TopicLabelClass TopicLabelClass;
 
 typedef struct _TopicLabelSelectionInfo TopicLabelSelectionInfo;
 
-enum
+typedef enum
 {
   TOPIC_LABEL_DISPLAY_FULL,
   TOPIC_LABEL_DISPLAY_ABRIDGED,
@@ -44,15 +44,18 @@ enum
 
 struct _TopicLabel
 {
-  GtkMisc        parent;
+  GtkMisc        misc;
 
   /* private */
   gchar         *text;
+  guint		 jtype : 2;
+  gboolean	 wrap : TRUE;
   PangoAttrList *attrs;
   PangoAttrList *effective_attrs;
   PangoLayout   *layout;
 
   TopicLabelSelectionInfo *select_info;
+  TopicLabelDisplayType display;
 };
 
 struct _TopicLabelClass

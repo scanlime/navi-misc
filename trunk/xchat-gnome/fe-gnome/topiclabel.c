@@ -59,9 +59,9 @@ static void      topic_label_finalize      (GObject         *object);
 static void      topic_label_size_request  (GtkWidget       *widget,
                                             GtkRequisition  *requisition);
 static void      topic_label_size_allocate (GtkWidget       *widget,
-                                            GtkRequisition  *requisition);
+                                            GtkAllocation   *allocation);
 /* ... */
-static void     topic_label_expose         (GtkWidget       *widget,
+static gint     topic_label_expose         (GtkWidget       *widget,
                                             GdkEventExpose  *event);
 static void     topic_label_realize        (GtkWidget       *widget);
 static void     topic_label_unrealize      (GtkWidget       *widget);
@@ -88,6 +88,11 @@ static void topic_label_move_forward_word  (TopicLabel      *label,
 static void topic_label_move_backward_word (TopicLabel      *label,
                                             gint             start);
 
+static void topic_label_create_window      (TopicLabel      *label);
+static void topic_label_destroy_window     (TopicLabel      *label);
+static void topic_label_clear_layout       (TopicLabel      *label);
+static void topic_label_ensure_layout      (TopicLabel      *label);
+
 static GtkMiscClass *parent_class = NULL;
 
 GType
@@ -109,6 +114,8 @@ topic_label_get_type (void)
       0,                  /* n_preallocs */
       (GInstanceInitFunc) topic_label_init,
     };
+
+    topic_label_type = g_type_register_static (GTK_TYPE_MISC, "TopicLabel", &topic_label_info, 0);
   }
 
   return topic_label_type;
@@ -121,10 +128,24 @@ topic_label_class_init (TopicLabelClass *klass)
   GtkObjectClass *object_class = GTK_OBJECT_CLASS (klass);
   GtkWidgetClass *widget_class = GTK_WIDGET_CLASS (klass);
 
-  parent_class = g_type_class_peek_parent (class);
+  parent_class = g_type_class_peek_parent (klass);
 
   gobject_class->set_property = topic_label_set_property;
   gobject_class->get_property = topic_label_get_property;
+  gobject_class->finalize = topic_label_finalize;
+
+  object_class->destroy = topic_label_destroy;
+
+  widget_class->size_request = topic_label_size_request;
+  widget_class->size_allocate = topic_label_size_allocate;
+  widget_class->expose_event = topic_label_expose;
+  widget_class->realize = topic_label_realize;
+  widget_class->unrealize = topic_label_unrealize;
+  widget_class->map = topic_label_map;
+  widget_class->unmap = topic_label_unmap;
+  widget_class->button_press_event = topic_label_button_press;
+  widget_class->button_release_event = topic_label_button_release;
+  widget_class->motion_notify_event = topic_label_motion;
 }
 
 static void
@@ -132,7 +153,7 @@ topic_label_init (TopicLabel *label)
 {
   GTK_WIDGET_SET_FLAGS (label, GTK_NO_WINDOW);
 
-  label->label = NULL;
+  label->text = NULL;
 
   label->jtype = GTK_JUSTIFY_FILL;
   label->display = TOPIC_LABEL_DISPLAY_FULL;
@@ -140,8 +161,8 @@ topic_label_init (TopicLabel *label)
   label->layout = NULL;
   label->text = NULL;
   label->attrs = NULL;
-
-  topic_label_set_text (label, "");
+// FIXME
+//  topic_label_set_text (label, "");
 }
 
 static void
@@ -157,46 +178,157 @@ topic_label_get_property (GObject *object, guint prop_id, GValue *value, GParamS
 static void
 topic_label_destroy (GtkObject *object)
 {
+  GTK_OBJECT_CLASS (parent_class)->destroy (object);
 }
 
 static void
 topic_label_finalize (GObject *object)
 {
+  TopicLabel *label;
+  g_return_if_fail (IS_TOPIC_LABEL (object));
+  label = TOPIC_LABEL (object);
+
+  g_free (label->text);
+
+  if (label->layout)
+    g_object_unref (label->layout);
+
+  if (label->attrs)
+    pango_attr_list_unref (label->attrs);
+
+  if (label->effective_attrs)
+    pango_attr_list_unref (label->effective_attrs);
+
+  g_free (label->select_info);
+
+  G_OBJECT_CLASS (parent_class)->finalize (object);
 }
 
 static void
 topic_label_size_request (GtkWidget *widget, GtkRequisition *requisition)
 {
+  TopicLabel *label;
+  gint width, height;
+  PangoRectangle logical_rect;
+
+  g_return_if_fail (IS_TOPIC_LABEL (widget));
+  g_return_if_fail (requisition != NULL);
+
+  label = TOPIC_LABEL (widget);
+
+  /*
+   * If display is set to FULL, the height requisition can depend on:
+   *   - any width set on the widget via gtk_widget_set_usize()
+   *   - the padding of the widget (xpand, set by gtk_misc_set_padding)
+   *
+   * Instead of trying to detect changes to these quantities, if we are
+   * wrapping, we just rewrap for each size request. Since size
+   * requisitions are cached by the GTK+ core, this is not expensive.
+   */
+
+  if (label->wrap)
+    topic_label_clear_layout (label);
+
+  topic_label_ensure_layout (label);
+
+  width = label->misc.xpad * 2;
+  height = label->misc.ypad * 2;
+
+  pango_layout_get_extents (label->layout, NULL, &logical_rect);
+
+  width = label->misc.xpad * 2;
+  width += PANGO_PIXELS (logical_rect.width);
+
+  height = label->misc.ypad * 2;
+  height += PANGO_PIXELS (logical_rect.height);
+
+  requisition->width = width;
+  requisition->height = height;
 }
 
 static void
-topic_label_size_allocate (GtkWidget *widget, GtkRequisition *requisition)
+topic_label_size_allocate (GtkWidget *widget, GtkAllocation *allocation)
 {
+  TopicLabel *label;
+  g_return_if_fail (IS_TOPIC_LABEL (widget));
+  label = TOPIC_LABEL (widget);
+
+  (* GTK_WIDGET_CLASS (parent_class)->size_allocate) (widget, allocation);
+
+  if (label->select_info && label->select_info->window)
+  {
+    gdk_window_move_resize (label->select_info->window, allocation->x, allocation->y, allocation->width, allocation->height);
+  }
 }
 
-static void
+static gint
 topic_label_expose (GtkWidget *widget, GdkEventExpose  *event)
 {
+  TopicLabel *label;
+  gint x, y;
+
+  g_return_val_if_fail (IS_TOPIC_LABEL (widget), FALSE);
+  g_return_val_if_fail (event != NULL, FALSE);
+
+  label = TOPIC_LABEL (widget);
+
+  /* layout? */
+
+  if (GTK_WIDGET_VISIBLE (widget) && GTK_WIDGET_MAPPED (widget) && label->text && (label->text[0] != '\0'))
+  {
+    /* ... */
+  }
+  return FALSE;
 }
 
 static void
 topic_label_realize (GtkWidget *widget)
 {
+  TopicLabel *label;
+  label = TOPIC_LABEL (widget);
+
+  (* GTK_WIDGET_CLASS (parent_class)->realize) (widget);
+
+  if (label->select_info)
+    topic_label_create_window (label);
 }
 
 static void
 topic_label_unrealize (GtkWidget *widget)
 {
+  TopicLabel *label;
+  label = TOPIC_LABEL (widget);
+
+  /*
+  if (label->select_info)
+    topic_label_destroy_window (label);
+  */
+
+  (* GTK_WIDGET_CLASS (parent_class)->unrealize) (widget);
 }
 
 static void
 topic_label_map (GtkWidget *widget)
 {
+  TopicLabel *label;
+  label = TOPIC_LABEL (widget);
+
+  (* GTK_WIDGET_CLASS (parent_class)->map) (widget);
+
+  if (label->select_info)
+    gdk_window_show (label->select_info->window);
 }
 
 static void
 topic_label_unmap (GtkWidget *widget)
 {
+  TopicLabel *label;
+  label = TOPIC_LABEL (widget);
+
+  if (label->select_info)
+    gdk_window_hide (label->select_info->window);
+
+  (* GTK_WIDGET_CLASS (parent_class)->unmap) (widget);
 }
 
 static gboolean
@@ -242,4 +374,76 @@ topic_label_move_forward_word (TopicLabel *label, gint start)
 static void
 topic_label_move_backward_word (TopicLabel *label, gint start)
 {
+}
+
+static void
+topic_label_create_window (TopicLabel *label)
+{
+}
+
+static void
+topic_label_destroy_window (TopicLabel *label)
+{
+}
+
+static void
+topic_label_clear_layout (TopicLabel *label)
+{
+  if (label->layout)
+  {
+    g_object_unref (label->layout);
+    label->layout = NULL;
+  }
+}
+
+static void
+topic_label_ensure_layout (TopicLabel *label)
+{
+  GtkWidget *widget;
+  PangoRectangle logical_rect;
+  gint rwidth, rheight;
+  gboolean rtl;
+
+  widget = GTK_WIDGET (label);
+
+  rtl = (gtk_widget_get_direction (widget) == GTK_TEXT_DIR_RTL);
+  rwidth = label->misc.xpad * 2;
+  rheight = label->misc.ypad * 2;
+
+  if (!label->layout)
+  {
+    PangoAlignment align = PANGO_ALIGN_LEFT;
+
+    label->layout = gtk_widget_create_pango_layout (widget, label->text);
+
+    if (label->effective_attrs)
+      pango_layout_set_attributes (label->layout, label->effective_attrs);
+
+    switch (label->jtype)
+    {
+      case GTK_JUSTIFY_LEFT:
+        align = rtl ? PANGO_ALIGN_RIGHT : PANGO_ALIGN_LEFT;
+        break;
+      case GTK_JUSTIFY_RIGHT:
+        align = rtl ? PANGO_ALIGN_LEFT : PANGO_ALIGN_RIGHT;
+        break;
+      case GTK_JUSTIFY_CENTER:
+        align = PANGO_ALIGN_CENTER;
+        break;
+      case GTK_JUSTIFY_FILL:
+        /* FIXME: this just doesn't work to do this */
+        align = rtl ? PANGO_ALIGN_RIGHT : PANGO_ALIGN_LEFT;
+        pango_layout_set_justify (label->layout, TRUE);
+        break;
+      default:
+        g_assert_not_reached();
+    }
+
+    if (label->wrap)
+    {
+      GtkWidgetAuxInfo *aux_info;
+      gint longest_paragraph;
+      gint width, height;
+    }
+  }
 }
