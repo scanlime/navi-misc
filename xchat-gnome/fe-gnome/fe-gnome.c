@@ -48,7 +48,7 @@ fe_args (int argc, char *argv[])
 			return 0;
 		}
 	}
-	gnome_program_init ("xchat-gnome", "0.2", LIBGNOMEUI_MODULE, argc, argv, NULL);
+	gnome_program_init ("xchat-gnome", "0.3", LIBGNOMEUI_MODULE, argc, argv, NULL);
 
 	/* FIXME: this is kind of a silly place to put this, but it seems to want to
 		  follow gnome_program_init */

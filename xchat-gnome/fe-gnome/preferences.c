@@ -99,5 +99,5 @@ void set_version ()
 
 	client = gconf_client_get_default ();
 
-	gconf_client_set_string (client, "/apps/xchat/version", "0.2", NULL);
+	gconf_client_set_string (client, "/apps/xchat/version", "0.3", NULL);
 }
