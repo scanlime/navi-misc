@@ -642,3 +642,10 @@ fe_get_inputbox_contents (session *sess)
 	/* FIXME: implement? */
 	return NULL;
 }
+
+int
+fe_get_inputbox_cursor (struct session *sess)
+{
+	/* FIXME: implement? */
+	return 0;
+}
