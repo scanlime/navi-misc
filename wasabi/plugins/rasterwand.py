@@ -197,7 +197,7 @@ class PluginThread(threading.Thread):
     def waitForCompletion(self):
         self.stop = True
 	self.mpav.stop = True
-	while self.thread.isAlive():
+	while self.isAlive():
 	    time.sleep(0.1)
 
 
