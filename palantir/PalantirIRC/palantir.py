@@ -69,4 +69,6 @@ def nickComplete(text, nicks):
     if nick.find(text) != -1:
       match.append(nick)
 
+  if len(match) == 2:
+    match.remove(match[0])
   return match
