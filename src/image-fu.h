@@ -26,6 +26,9 @@
 
 #include <gtk/gtk.h>
 
+/* Convert an ARGB color to a packed guint32 */
+#define IMAGEFU_COLOR(a,r,g,b) (GUINT32_TO_LE(((a)<<24) | ((b)<<16) | ((g)<<8) | (r)))
+
 /* This must be a power of two. It's hardcoded in image_add_checkerboard
  * for speed, but it might be needed for calculations elsewhere.
  */
@@ -34,10 +37,17 @@
 /* Do an in-place composite on a GdkPixbuf to render it in front of a checkerboard pattern */
 void  image_add_checkerboard(GdkPixbuf *img);
 
+/* Orthogonal line drawing */
+void  image_draw_hline(GdkPixbuf *img, int x, int y, int width, guint32 color);
+void  image_draw_vline(GdkPixbuf *img, int x, int y, int height, guint32 color);
+void  image_draw_rect_outline(GdkPixbuf *img, int x, int y, int w, int h, guint32 color);
+
 /* Modify an image in-place to include a thin frame */
 void  image_add_thumbnail_frame(GdkPixbuf *img);
 
-/* Adjust an image's levels automatically, to make faint images more visible */
+/* Adjust an image's levels automatically, to make faint images more visible.
+ * This runs on RGBA images, but ignores the alpha channel.
+ */
 void  image_adjust_levels(GdkPixbuf *img);
 
 #endif /* __IMAGE_FU_H__ */

@@ -86,9 +86,6 @@ void explorer_init_history(Explorer *self)
     g_signal_connect             (self->map, "notify",         G_CALLBACK(on_change_notify),  self);
     g_signal_connect             (menu,      "show",           G_CALLBACK(on_go_menu_show),   self);
     g_signal_connect             (menu,      "hide",           G_CALLBACK(on_go_menu_hide),   self);
-
-    /* Record the default state after it's rendered a bit */
-    self->history_timer = g_timeout_add(200, on_record_change, self);
 }
 
 void explorer_dispose_history(Explorer *self)
@@ -120,8 +117,8 @@ static HistoryNode* history_node_new   (HistogramImager* map)
 
     /* Use the normal icon size plus a little extra */
     gtk_icon_size_lookup(GTK_ICON_SIZE_MENU, &width, &height);
-    width *= 1.5;
-    height *= 1.5;
+    width *= 1.75;
+    height *= 1.75;
     self->thumbnail = histogram_imager_make_thumbnail(map, width, height);
 
     return self;
@@ -311,9 +308,10 @@ static void         on_go_menu_show    (GtkWidget *menu, Explorer *self)
 
     /* The first few items are straight from the most recent list */
     for (i=0; i<max_linear_items; i++) {
-	explorer_add_go_item(self, current);
-	if (!(current = current->prev))
+	if (!current)
 	    return;
+	explorer_add_go_item(self, current);
+	current = current->prev;
     }
 
     /* The rest of the list is spread evenly over time, from the end
