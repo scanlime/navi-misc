@@ -24,7 +24,7 @@
 #include <linux/usb.h>
 
 #define MI6K_DEV_NAME     "widget"
-#define MI6K_MINOR_BASE	230
+#define MI6K_MINOR_BASE   230
 
 #define BUFFER_SIZE 8
 
@@ -72,8 +72,8 @@ static int mi6k_dev_release (struct inode *inode, struct file *file)
 }
 
 /* Send a control request to the device synchronously */
-static void mi6k_request (struct mi6k* widget, unsigned short request, 
-				unsigned short wValue, unsigned short wIndex)
+static void mi6k_request (struct mi6k* widget, unsigned short request,
+			  unsigned short wValue, unsigned short wIndex)
 {
 	usb_control_msg(widget->usbdev, usb_sndctrlpipe(widget->usbdev, 0),
 			request,
@@ -124,7 +124,7 @@ static struct file_operations mi6k_fops = {
 };
 
 static void *mi6k_probe(struct usb_device *dev, unsigned int ifnum,
-			     const struct usb_device_id *id)
+			const struct usb_device_id *id)
 {
 	struct usb_interface *iface;
 	struct usb_interface_descriptor *interface;
@@ -165,17 +165,17 @@ static void *mi6k_probe(struct usb_device *dev, unsigned int ifnum,
 
 	/* Initialize read URB */
 	/*
-	read_pipe = usb_rcvintpipe(dev, endpoint->bEndpointAddress);
-	usb_fill_int_urb(&widget->read_urb, dev, read_pipe, widget->read_data,
-			 min(usb_maxpacket(dev, read_pipe, usb_pipeout(read_pipe)), BUFFER_SIZE),
-			 mi6k_read_complete, widget, endpoint->bInterval);
+	  read_pipe = usb_rcvintpipe(dev, endpoint->bEndpointAddress);
+	  usb_fill_int_urb(&widget->read_urb, dev, read_pipe, widget->read_data,
+	  min(usb_maxpacket(dev, read_pipe, usb_pipeout(read_pipe)), BUFFER_SIZE),
+	  mi6k_read_complete, widget, endpoint->bInterval);
 	*/
 
 	/* Start up our interrupt read transfer */
 	/*
-	widget->read_urb.dev = widget->usbdev;
-	if (usb_submit_urb(&widget->read_urb))
-	        return NULL;
+	  widget->read_urb.dev = widget->usbdev;
+	  if (usb_submit_urb(&widget->read_urb))
+	  return NULL;
 	*/
 
 	return widget;
