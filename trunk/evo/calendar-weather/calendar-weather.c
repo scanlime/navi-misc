@@ -109,6 +109,8 @@ selection_changed (GtkTreeSelection *selection, GtkDialog *dialog)
 		gtk_tree_model_get (model, &iter, 1, &code, -1);
 		if (code != NULL)
 			gtk_dialog_set_response_sensitive (GTK_DIALOG (dialog), GTK_RESPONSE_OK, TRUE);
+		else
+			gtk_dialog_set_response_sensitive (GTK_DIALOG (dialog), GTK_RESPONSE_OK, FALSE);
 	} else {
 		gtk_dialog_set_response_sensitive (GTK_DIALOG (dialog), GTK_RESPONSE_OK, FALSE);
 	}
