@@ -266,19 +266,18 @@ cmtoin (float cm)
 static ECalComponent*
 create_weather (ECalBackendWeather *cbw, WeatherForecast *report)
 {
-	ECalComponent *cal_comp;
-	ECalComponentText comp_summary;
-	icalcomponent *ical_comp;
-	struct icaltimetype itt;
-	ECalComponentDateTime dt;
-	const char *uid;
-	GSList *text_list = NULL;
-	ECalComponentText *description;
-	char *pop, *snow;
-	ESource *source;
-	gboolean fahrenheit;
-	gboolean inches;
-	const char *format;
+	ECalComponent         *cal_comp;
+	ECalComponentText      comp_summary;
+	icalcomponent         *ical_comp;
+	struct icaltimetype    itt;
+	ECalComponentDateTime  dt;
+	const char            *uid;
+	GSList                *text_list = NULL;
+	ECalComponentText     *description;
+	char                  *pop, *snow;
+	ESource               *source;
+	gboolean               fahrenheit, inches;
+	const char            *format;
 
 	g_return_val_if_fail (E_IS_CAL_BACKEND_WEATHER (cbw), NULL);
 
@@ -482,7 +481,7 @@ e_cal_backend_weather_get_object (ECalBackendSync *backend, EDataCal *cal, const
 	*object = e_cal_component_get_as_string (comp);
 	g_free (comp);
 
-	return GNOME_Evolution_Calendar_ObjectNotFound;
+	return GNOME_Evolution_Calendar_Success;
 }
 
 static ECalBackendSyncStatus
