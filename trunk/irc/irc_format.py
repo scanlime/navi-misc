@@ -5,7 +5,7 @@
 #
 # -- Micah
 #
-import sys, time
+import sys, time, re
 from Nouvelle import tag, xml, Serializer
 
 
@@ -29,6 +29,9 @@ class LogFormatter:
       timestamp, message = line.split(" ", 1)
       timestamp = self.formatTimestamp(int(timestamp[1:]))
       nick = ()
+
+      # Strip colors
+      message = re.sub("(\x03..|\x0F|\x02)", "", message)
 
       if message[0] == '<':
          # Normal conversation
