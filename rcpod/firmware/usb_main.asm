@@ -179,7 +179,6 @@ CheckFinishSetAddr
 
 	pagesel finish_set_address
 	call	finish_set_address
-	clrf	STATUS		; bank 0
 
 ; ******************************************************************
 ; End ISR, restore context and return to the Main program
