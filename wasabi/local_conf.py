@@ -21,6 +21,8 @@ if have_wasabi_hardware:
     SHUTDOWN_SYS_CMD = 'sudo shutdown -h now'
     RESTART_SYS_CMD  = 'sudo shutdown -r now'
 
+    plugin.activate('rasterwand')
+
     # Show navigational and OSD information on the MI6K
     plugin.activate('mi6k_vfd')
     VFD_TITLE = "Wasabi"
