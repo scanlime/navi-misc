@@ -119,4 +119,13 @@ public class PipelineEditor
 	public void OnMenuEditDelete (object o, EventArgs args)
 	{
 	}
+	
+	public void SetInfo (Element e)
+	{
+		element_name.Markup = "<span weight=\"bold\" size=\"large\">" + e.Name + "</span>";
+		element_image.Pixbuf = e.Icon;
+		element_description.Text = e.Description;
+		element_inputs.Markup = e.InputDesc;
+		element_outputs.Markup = e.OutputDesc;
+	}
 }
