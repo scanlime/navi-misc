@@ -43,6 +43,7 @@ struct _NavTree
   GtkTreeView parent;
   GtkTreePath *current_path;
   NavModel *model;
+  gulong selection_changed_id;
 };
 
 struct _NavTreeClass
