@@ -183,15 +183,10 @@ class Page(Nouvelle.Twisted.Page):
     mainColumn  = []
 
     headingTabs = [
-        headingTab(href='/')['CIA'],
-        headingTab(href='/', _class="activeHeadingTab")['CIA'],
-        headingTab(href='/')['CIA'],
-        headingTab(href='/')['CIA'],
-        headingTab(href='/')['CIA'],
-        headingTab(href='/')['CIA'],
-        headingTab(href='/')['CIA'],
-        headingTab(href='/')['CIA'],
-        headingTab(href='/')['CIA'],
+        tag('a', _class='tab', href='/')['CIA'],
+        tag('a', _class='tab', href='/')['CIA'],
+        tag('a', _class='tab', id='active', href='/')['CIA'],
+        tag('a', _class='tab', href='/')['CIA'],
         ]
 
     document = [
@@ -207,11 +202,15 @@ class Page(Nouvelle.Twisted.Page):
                 ],
             tag('body')[
                 tag('div', _class="heading")[
-                    tag('div', _class="sitename")[ place("siteName") ],
-                    tag('div', _class="title")[ place("mainTitle") ],
-                    tag('div', _class="subtitle")[ place("subTitle") ],
-                    tag('div', _class="headingTabs")[ place("headingTabs") ],
-                    tag('div', _class="breadcrumbs")[ place("breadcrumbs") ],
+                    tag('table', _class="heading")[ tag('tr', _class="heading")[
+                        tag('td', _class="title")[
+                            tag('div', _class="mainTitle")[ place("mainTitle") ],
+                            tag('div', _class="subTitle")[ place("subTitle") ],
+                        ],
+                        tag('td', _class="sitename")[ place("siteName") ],
+                    ]],
+                    tag('div', _class="tabs")[ place("headingTabs") ],
+                    tag('div', _class="tabBar")[ place("breadcrumbs") ],
                 ],
                 tag('table', _class="columns")[ tag('tr')[
                     tag('td', _class="left")[ place("leftColumn") ],
