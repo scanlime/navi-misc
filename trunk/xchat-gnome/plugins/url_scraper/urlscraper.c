@@ -79,8 +79,8 @@ static void add_match (char **word, regmatch_t match)
 	strncpy (url_match, word[2], len);
 
 	chan = xchat_get_info (ph, "channel");
-	channel = malloc (strlen (chan) + 1);
-	strncpy (channel, chan, strlen (chan)+1);
+	channel = malloc (strlen (chan));
+	strncpy (channel, chan+1, strlen (chan));
 
 	if (urls >= MAXURLS) {
 		gtk_tree_model_get_iter_first (GTK_TREE_MODEL(list_store), &iter);
