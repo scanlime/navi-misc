@@ -32,3 +32,12 @@
 
 <!ELEMENT parry (#PCDATA)>
 <!ATTLIST parry side (left|right) #IMPLIED>
+
+
+
+<!ELEMENT concept (origin, overview, techniques)>
+<!ATTLIST concept name CDATA #REQUIRED>
+
+<!ELEMENT origin (#PCDATA)>
+<!ELEMENT overview (#PCDATA)>
+<!ELEMENT techniques (technique)+>
