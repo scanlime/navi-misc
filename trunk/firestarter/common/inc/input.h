@@ -28,7 +28,6 @@
 
 using namespace Ogre;
 
-
 enum InputKeyCode
 {
 	KEY_ESCAPE          =0x01,
@@ -177,14 +176,14 @@ enum InputKeyCode
 	KEY_MEDIASELECT     =0xED     /* Media Select */
 };
 
-
 class CAction;
+class CInputManager;
 
 class CActionListener
 {
 public:
 	virtual ~CActionListener() {return;}
-	virtual void eventCall ( CAction &caller ) = 0;
+	virtual void eventCall ( CAction *caller, bool newActionPointer ) = 0;
 };
 
 typedef std::vector<CActionListener*> tvActionListenerList;
@@ -193,6 +192,8 @@ class CAction
 {
 public:
 	CAction();
+	CAction( const CAction &r);
+
 	virtual ~CAction();
 
 	virtual float getRelative(void);
@@ -209,22 +210,32 @@ public:
 	void addListener ( CActionListener* listener );
 	void removeListener ( CActionListener *listener );
 
+	void clearAllListeners ( void );
+
 	// muters
 	void setMute ( bool value ) { mute = value;}
 	bool isMute ( void ) { return mute;}
 
 	// groups
-	void setGroup ( const char* theGroup ) {group = theGroup;}
+	void setGroup ( const char* theGroup );
 	const char* getGroup ( void ) {return group.c_str();}
 
+	// name
+	void setName ( const char* theName );
+	const char* getName( void ) {return name.c_str();}
+
+	friend CInputManager;
 protected:
 	bool									mute;
 	tvActionListenerList	listeners;
 	std::string						group;
+	std::string						name;
+	CInputManager					*manager;
 };
 
 typedef std::map<std::string, CAction*> tmActionMap;
-
+typedef std::vector<CAction*> tvActionList;
+typedef std::map<std::string, tvActionList> tmActionListMap;
 
 class CInputManager
 {
@@ -232,13 +243,47 @@ class CInputManager
 		CInputManager();
 		~CInputManager();
 
+		// old API
 		void Init ( RenderWindow *theWindow );
 		void Process ( void );
-
 		bool KeyDown ( InputKeyCode key );
 
+		// new API
 		// action API
-//		CAction* getAction ( const char* name );
+		
+		// action binding/retreval
+		CAction* getAction ( const char* name );
+
+		CAction* bindAction ( const char* name, const char* device, const char* maxItem, const char* minItem = NULL );
+		CAction* bindAction ( CAction* action, const char* device, const char* maxItem, const char* minItem = NULL );
+		CAction* bindAction ( const char* name, const char* device, int maxItem, int minItem = -1 );
+		CAction* bindAction ( CAction* action, const char* device, int maxItem, int minItem = -1 );
+
+		CAction* unbindAction ( const char* name );
+		CAction* unbindAction ( CAction* action );
+
+		CAction* renameAction ( const char* oldName, const char* newName );
+		CAction* renameAction ( CAction* oldAction, const char* newName );
+
+		// groups
+		void setActionGroup ( const char* name, const char* group );
+		void setActionGroup ( CAction* action, const char* group );
+
+		void muteGroup ( bool mute, const char* group );
+
+		// enumeration
+		// devices
+		int getDeviceCount ( void );
+		const char* getDeviceName ( int device );
+		int getDeviceItemCount ( int device );
+		const char* getDeviceItemName ( int device, int item );
+
+		// actions
+		int getActionCount ( void );
+		const char* getActionName ( int action );
+
+		bool configDevice ( int device );
+		bool configDevice ( const char* device );
 
 protected:
 	// ogre input stuff
@@ -246,7 +291,13 @@ protected:
 	InputReader* mInputDevice;
 
 	// actions
-//	tmActionMap				actions;
+	tvActionList			actions;
+	tmActionMap				actionNames;
+	tmActionListMap		actionGroups;
+
+	// the pimple
+	struct trInfo;
+	trInfo	*info;
 };
 
 #endif //_INPUT_H_

@@ -90,6 +90,11 @@ void CAction::removeListener ( CActionListener *listener )
 	}
 }
 
+void CAction::clearAllListeners ( void )
+{
+	listeners.clear();
+}
+
 // base input manager
 
 CInputManager::CInputManager()
