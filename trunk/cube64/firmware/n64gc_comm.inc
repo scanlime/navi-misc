@@ -279,3 +279,5 @@ not_last_bit
 	bsf	INDF, 0		; 2.2us
 	goto	bit_loop	; 2.4us
 	endm
+
+	;;; The End ;;;
