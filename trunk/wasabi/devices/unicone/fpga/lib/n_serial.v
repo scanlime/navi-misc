@@ -71,74 +71,6 @@ endmodule
 
 
 /*
- * Generates the serial timebase used for the transmit and receive modules.
- * The resulting 'tick' signal is high for one clock cycle every 1/4 bit.
- * This should be adjusted depending on the oscillator in use.
- *
- * It's a little unclear whether the protocol was designed to use fixed bit
- * widths, or to measure the relative times between high and low periods.
- * We assume fixed 4us-wide bits. Note that the GC controllers and the N64
- * seem to use 4us bits, while the GC console uses 5us bits. Our receiver
- * resync's its timebase frequently, so this shouldn't be a problem. I suspect
- * the Nintendo hardware does something similar.
- *
- * Two synchronous resets are provided- sync_begin resets to the beginning of
- * one tick cycle, sync_middle resets close to the center of a cycle. The
- * cycle immediately after sync_reset is asserted, a tick will be generated.
- */
-module n_serial_timebase (clk, reset, tick, sync_begin, sync_middle);
-	parameter BIT_WIDTH_US = 4;
-
-	parameter CLOCK_MHZ = 25;
-	parameter CLOCKS_PER_TICK = CLOCK_MHZ * BIT_WIDTH_US / 4;
-
-	input clk, reset, sync_begin, sync_middle;
-	output tick;
-	reg tick;
-	reg [7:0] counter;
-
-	always @(posedge clk or posedge reset)
-		if (reset) begin
-			tick <= 0;
-			counter <= 0;
-		end
-		else if (sync_begin) begin
-			tick <= 1;
-			counter <= 0;
-		end
-		else if (sync_middle) begin
-			tick <= 0;
-			counter <= CLOCKS_PER_TICK/2-1;
-		end
-		else if (counter == CLOCKS_PER_TICK-1) begin
-			tick <= 1;
-			counter <= 0;
-		end
-		else begin
-			tick <= 0;
-			counter <= counter + 1;
-		end
-endmodule
-
-
-/* A shared phase generator for the transmitters. Given a 'tick' signal
- * from the n_serial_timebase, this generates a 'phase' output that
- * corresponds to the four quarter-bits.
- */
-module n_serial_tx_phase (clk, reset, tick, phase);
-	input clk, reset, tick;
-	output [1:0] phase;
-	reg [1:0] phase;
-	
-	always @(posedge clk or posedge reset)
-		if (reset)
-			phase <= 0;
-		else if (tick)
-			phase <= phase+1;
-endmodule
-
-
-/*
  * A bit detector for receiving N64/Gamecube formatted
  * serial data. This detects the following types of conditions:
  *
@@ -299,149 +231,137 @@ endmodule
 
 
 /*
- * A transmitter for N64/Gamecube formatted serial data. Input is via
- * a pair of one-byte buffers. The transmit register can be loaded by the
- * module's user simultaneously while data in the internal shift register
- * is being transmitted.
+ * Generates timing signals shared by all serial transmitters.
+ * The timing bus is of the form: { sync, quarter }. sync is
+ * high for the one cycle preceeding a new bit, and quarter is a
+ * 2-bit bus indicating which quarter-bit is currently active.
+ */
+module n_serial_tx_timebase (clk, reset, tx_timing);
+	// Rate 'clk' oscillates at, in megahertz
+	parameter CLOCK_MHZ = 25;
+
+	// Nominal bit width, in microseconds
+	parameter BIT_WIDTH_US = 4;
+
+	// Nominal bit width in clock cycles
+	parameter CLOCKS_PER_BIT = CLOCK_MHZ * BIT_WIDTH_US;
+
+	input clk, reset;
+	output [2:0] tx_timing;
+
+	// Our only persistent state is a simple counter that loops every bit.
+	// This must be large enough to hold CLOCKS_PER_BIT-1.
+	reg [6:0] timer;
+	always @(posedge clk or posedge reset)
+		if (reset)
+			timer <= 0;
+		else if (timer == CLOCKS_PER_BIT-1)
+			timer <= 0;
+		else
+			timer <= timer + 1;
+	
+	// The actual timing signals are generated combinationally,
+	// for reduced FPGA area. If you need to optimize for speed,
+	// these outputs should be registered.
+	wire [1:0] quarter = timer < CLOCKS_PER_BIT/4   ? 0 :
+	                     timer < CLOCKS_PER_BIT/2   ? 1 :
+	                     timer < CLOCKS_PER_BIT*3/4 ? 2 : 3;
+	wire sync = (timer == CLOCKS_PER_BIT-1);
+	assign tx_timing = { sync, quarter };
+endmodule
+
+
+/*
+ * A bit generator for transmitting N64/Gamecube formatted serial data.
+ * Input is via a one-bit buffer loadable by our data source, output is
+ * locked to the provided tx_timing bus. Start conditions are implicit,
+ * and stop bits should be written as normal '1' bits.
  *
  * Writes should proceed as follows:
- *   1. Wait for 'busy' to be deasserted
- *   2. Either:
- *      - Set tx_stopbit to 1
- *      - ...or set tx_stopbit to 0 and place valid data in 'tx_data'
- *   3. Transition 'strobe' from low to high
+ *   1. Wait for 'tx_busy' to be deasserted
+ *   2. Place the next bit in 'tx_data'
+ *   3. Pulse 'strobe' high for one clock cycle
  *
  * Note that busy=0 does not mean we aren't transmitting, just that we
  * are ready for more data to be received.
- *
- * An external n_serial_timebase must supply the 'tick' signal, and
- * an n_serial_tx_phase module must supply 'phase'. One timebase can
- * be shared among all transmitters.
  */
-module n_serial_tx (clk, reset, tick, phase,
-                    busy, tx_stopbit, tx_data, strobe,
-                    serial_out);
-	input clk, reset, tick;
+module n_serial_bit_generator (clk, reset, tx_timing,
+                               busy, tx_data, strobe,
+                               serial_out);
+	input clk, reset;
+	input [2:0] tx_timing;
 	output busy;
-	input tx_stopbit;
-	input [7:0] tx_data;
-	input [1:0] phase;
-	input strobe;
+	input tx_data, strobe;
 	output serial_out;
 
-	/* Buffer the incoming data stream, consisting
-	 * of both the tx_data and the stop bit flag.
+	/* Unpack the tx_timing bus. 'sync' pulses the cycle before a new bit
+	 * begins, and 'quarter' contains the current quarter-bit number.
 	 */
-	wire buffer_full, buffer_clear;
-	wire buffered_stopbit;
-	wire [7:0] buffered_data;
+	wire sync = tx_timing[2];
+	wire [1:0] quarter = tx_timing[1:0];
+
+	/* Buffer for incoming data. It fills when our data source
+	 * pulses 'strobe'. At every sync pulse, the synchronized bit
+	 * and fullness status move into sync_data and sync_full.
+	 */
+	reg buffer_data, buffer_full;
+	reg sync_data, sync_full;
 	assign busy = buffer_full;
-	shallow_buffer #(9) buffer(
-		clk, reset, buffer_full,
-		{tx_stopbit, tx_data}, strobe,
-		{buffered_stopbit, buffered_data}, buffer_clear);
-
-	/* Split the output of the buffer into stop bits and normal bits */
-	wire normal_byte_ready = buffer_full && !buffered_stopbit;
-	wire stop_bit_ready = buffer_full && buffered_stopbit;
-	wire normal_byte_ack;
-	reg stop_bit_ack;
-	assign buffer_clear = normal_byte_ack || stop_bit_ack;
-
-	/* Serialize the buffered data stream. Note that this
-	 * will not proceed if it encounters a stop bit.
-	 * If ser_ready is high and new data is coming in, ser_strobe
-	 * will go high for each new bit output on ser_data.
-	 */
-	wire ser_data, ser_strobe, ser_is_empty;
-	reg ser_ready;
-	serializer ser(clk, reset, buffered_data, normal_byte_ready,
-		       normal_byte_ack, ser_data, ser_ready, ser_strobe, ser_is_empty);
-
-	reg [1:0] state;
-	parameter
-		S_WAIT_FOR_BIT = 0,
-		S_WAIT = 1,
-		S_SYNC_STOP_BIT = 2,
-		S_SYNC_NORMAL_BIT = 3;
-
-	/* Our state machine generates 'synced_bit', synchronized to the beginning of phase 0.
-	 * From there we use combinational logic to generate the actual transmitted waveform:
-	 * 0111 for ones, and 0001 for zeroes.
-         */
-	reg synced_bit;
-	wire bus_idle = (state == S_WAIT_FOR_BIT || state == S_WAIT) && ser_is_empty && !buffer_full;
-        assign serial_out = bus_idle ? 1 : 
-                            phase == 0 ? 0 :
-                            phase == 3 ? 1 :
-                            synced_bit;
-
 	always @(posedge clk or posedge reset)
 		if (reset) begin
-
-			state <= S_WAIT_FOR_BIT;
-			ser_ready <= 0;
-			synced_bit <= 1;
-			stop_bit_ack <= 0;
-
+			buffer_data <= 0;
+			buffer_full <= 0;
+			sync_data <= 0;
+			sync_full <= 0;
 		end
-		else case (state)
-
-			S_WAIT_FOR_BIT: begin
-				// This is a wait state we enter any time a new bit isn't
-				// available and waiting to be synchronized. We look for a new
-				// bit either from the serializer or in the form of a stop
-				// bit straight from our buffer.
-
-				if (stop_bit_ready && ser_is_empty) begin
-					// Insert a stop bit
-					state <= S_SYNC_STOP_BIT;					
-					stop_bit_ack <= 1;
-					ser_ready <= 0;
-				end
-				else if (ser_strobe) begin
-					// Insert a normal bit
-					state <= S_SYNC_NORMAL_BIT;
-					stop_bit_ack <= 0;
-					ser_ready <= 0;
-				end
-				else begin
-					// Ask for another bit. Stall for one clock cycle
-					// while the serializer gets it for us.
-					state <= S_WAIT;
-					stop_bit_ack <= 0;
-					ser_ready <= 1;					
-				end
+		else begin
+			if (strobe && sync) begin
+				buffer_data <= tx_data;
+				buffer_full <= 1;
+				sync_data <= buffer_data;
+				sync_full <= buffer_full;
 			end
-
-			S_WAIT: begin
-				// Do nothing for one cycle, immediately go back to S_WAIT_FOR_BIT
-				state <= S_WAIT_FOR_BIT;
-				stop_bit_ack <= 0;
-				ser_ready <= 0;					
+			else if (strobe) begin
+				buffer_data <= tx_data;
+				buffer_full <= 1;
 			end
-
-			S_SYNC_STOP_BIT: begin
-				// Output a stop bit next time we're about to flip to phase 0
-				if (tick && phase==3) begin
-					state <= S_WAIT_FOR_BIT;
-					synced_bit <= 1;
-				end
-				stop_bit_ack <= 0;
-				ser_ready <= 0;					
+			else if (sync) begin
+				buffer_full <= 0;
+				sync_data <= buffer_data;
+				sync_full <= buffer_full;
 			end
+		end
+	
+	/* Generate an output waveform corresponding
+	 * to our sync'ed bit. Zeroes generate 0001, ones generate 0111.
+	 */
+	wire sync_waveform = quarter == 0 ? 0 :
+	                     quarter == 1 ? sync_data :
+	                     quarter == 2 ? sync_data : 1;
+	
+	/* If our sync_data is valid, output the sync_waveform-
+	 * otherwise leave the bus in its idle state (1).
+	 */
+	assign serial_out = sync_full ? sync_waveform : 1;
+endmodule
 
-			S_SYNC_NORMAL_BIT: begin
-				// Output a bit from our serializer next time we're about to flip to phase 0
-				if (tick && phase==3) begin
-					state <= S_WAIT_FOR_BIT;
-					synced_bit <= ser_data;
-				end
-				stop_bit_ack <= 0;
-				ser_ready <= 0;					
-			end
 
-		endcase
+/*
+ * A variation on n_serial_bit_generator that includes a builtin
+ * timebase. This is mostly intended for convenience when simulating.
+ */
+module n_serial_bit_generator_with_timebase (clk, reset,
+                                             busy, tx_data, strobe,
+                                             serial_out);
+	input clk, reset;
+	output busy;
+	input tx_data, strobe;
+	output serial_out;
+	
+	wire [2:0] tx_timing;
+	n_serial_tx_timebase timebase(clk, reset, tx_timing);
+
+        n_serial_bit_generator bitgen(clk, reset, tx_timing, busy, tx_data, strobe, serial_out);
 endmodule
 
 /* The End */
