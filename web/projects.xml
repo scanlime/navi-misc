@@ -7,7 +7,7 @@
 
   <project name="fieldsensor" href="fieldsensor.xml">
     <description>
-      Experiments in cheap electric field position sensors
+      Experiments in cheap electric-field-based input devices
     </description>
     <status>
       First prototype built, second prototype designed
@@ -115,11 +115,11 @@
 
     <project name="mi6k" href="mi6k.xml">
       <description>
-        A USB peripheral combining IR receive and transmit with a VFD and LEDs
+        A USB peripheral combining infrared receive and transmit with a VFD and LEDs
       </description>
       <status>
         Set-top-box and portable prototypes built and mostly working. IR transmit
-        not quite working due to a firmware bug.
+        not quite working due to a firmware bug
       </status>
       <people>
         Micah

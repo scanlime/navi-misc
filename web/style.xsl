@@ -41,11 +41,13 @@
 
           <!--========== Main Content -->
 	  <td class="main">
-            <xsl:apply-templates/>
+            <xsl:apply-templates select="overview"/>
+            <xsl:apply-templates select="projectIndex"/>
 	  </td>
 
 	  <!--========== Auxiliary Content -->
 	  <td class="right">
+            <xsl:apply-templates select="activeProjects"/>
 	  </td>
 
         </table>
@@ -84,7 +86,7 @@
     </li>
   </xsl:template>
 
-  <xsl:template match="projectindex">
+  <xsl:template match="projectIndex">
     <span class="section">Project Index</span>
     <div class="section">
       <div class="sectionTop"/>
@@ -96,13 +98,31 @@
             <th>Status</th>
           </tr>
           <xsl:for-each select="document('projects.xml')//project">
+            <xsl:sort select="@name"/>
             <tr>
-              <td><xsl:value-of select="@name"/></td>
+              <td><a>
+                 <xsl:attribute name="href"><xsl:value-of select="@href"/></xsl:attribute>
+                 <xsl:value-of select="@name"/>
+              </a></td>
               <td><xsl:value-of select="description"/></td>
               <td><xsl:value-of select="status"/></td>
             </tr>
           </xsl:for-each>
         </table>
+      </div>
+    </div>
+  </xsl:template>
+
+  <xsl:template match="activeProjects">
+    <span class="section">Active</span>
+    <div class="section">
+      <div class="sectionTop"/>
+      <div class="row">
+        <ul>
+          <xsl:for-each select="document('projects.xml')//project/active">
+            <li><xsl:value-of select="../@name"/></li>
+          </xsl:for-each>
+	</ul>
       </div>
     </div>
   </xsl:template>
