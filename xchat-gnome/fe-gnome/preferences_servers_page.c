@@ -231,17 +231,22 @@ edit_clicked (GtkWidget *button, gpointer data)
 
 	client = gconf_client_get_default ();
 
+	treeview = glade_xml_get_widget (gui.xml, "configure server list");
+	select = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
+	gtk_tree_selection_get_selected (select, &model, &iter);
+	gtk_tree_model_get (model, &iter, 2, &net, -1);
+
 	dialog = glade_xml_get_widget (gui.xml, "server configuration");
 
 	group = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
 	password = glade_xml_get_widget (gui.xml, "server config password");
 	gtk_size_group_add_widget (group, password);
-	nick = glade_xml_get_widget (gui.xml, "server config nickname");
-	g_signal_connect (G_OBJECT (nick), "changed", G_CALLBACK (check_input), dialog);
-	gtk_size_group_add_widget (group, nick);
-	real = glade_xml_get_widget (gui.xml, "server config realname");
-	g_signal_connect (G_OBJECT (real), "changed", G_CALLBACK (check_input), dialog);
-	gtk_size_group_add_widget (group, real);
+
+	widget = glade_xml_get_widget (gui.xml, "server config network name");
+	gtk_entry_set_text (GTK_ENTRY (widget), net->name);
+	g_signal_connect (G_OBJECT (widget), "changed", G_CALLBACK (check_input), dialog);
+	gtk_size_group_add_widget (group, widget);
+
 	encoding = glade_xml_get_widget (gui.xml, "encoding combo");
 	if (!initialized) {
 		char **enc = (char **) encodings;
@@ -262,11 +267,14 @@ edit_clicked (GtkWidget *button, gpointer data)
 	gtk_size_group_add_widget (group, encoding);
 	g_object_unref (group);
 
-	treeview = glade_xml_get_widget (gui.xml, "configure server list");
-	select = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
-
-	gtk_tree_selection_get_selected (select, &model, &iter);
-	gtk_tree_model_get (model, &iter, 2, &net, -1);
+	group = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
+	nick = glade_xml_get_widget (gui.xml, "server config nickname");
+	g_signal_connect (G_OBJECT (nick), "changed", G_CALLBACK (check_input), dialog);
+	gtk_size_group_add_widget (group, nick);
+	real = glade_xml_get_widget (gui.xml, "server config realname");
+	g_signal_connect (G_OBJECT (real), "changed", G_CALLBACK (check_input), dialog);
+	gtk_size_group_add_widget (group, real);
+	g_object_unref (group);
 
 	if (net->pass != NULL)
 		gtk_entry_set_text (GTK_ENTRY (password), net->pass);
@@ -303,10 +311,6 @@ edit_clicked (GtkWidget *button, gpointer data)
 
 	widget = glade_xml_get_widget (gui.xml, "server config cycle");
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), (net->flags & FLAG_CYCLE));
-
-	widget = glade_xml_get_widget (gui.xml, "server config network name");
-	g_signal_connect (G_OBJECT (widget), "changed", G_CALLBACK (check_input), dialog);
-	gtk_entry_set_text (GTK_ENTRY (widget), net->name);
 
 	widget = glade_xml_get_widget (gui.xml, "server config ok");
 	g_signal_connect (G_OBJECT (widget), "clicked", G_CALLBACK (edit_ok_clicked), NULL);
@@ -355,6 +359,8 @@ edit_clicked (GtkWidget *button, gpointer data)
 	gtk_widget_show_all (dialog);
 
 	g_object_unref (client);
+
+	check_input (NULL, dialog);
 }
 
 static void
