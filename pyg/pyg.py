@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import gtk, gtk.gl, vte
+import gtk, gtk.gl, gtk.gdk, vte
 
 class MainWindow:
     def print_hello(self, w, data):
@@ -116,10 +116,11 @@ class GLView(gtk.gl.Area):
     def __init__(self):
         gtk.DrawingArea.__init__(self)
 
-# FIXME: change this to a vte widget or whatnot
 class Editor(vte.Terminal):
     def __init__(self):
         vte.Terminal.__init__(self)
+        self.set_color_foreground(gtk.gdk.color_parse('White'))
+        self.set_color_background(gtk.gdk.color_parse('Black'))
         self.fork_command('vim', ['vim'], None, '', gtk.FALSE, gtk.FALSE, gtk.FALSE)
 
 main = MainWindow()
