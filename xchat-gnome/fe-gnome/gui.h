@@ -39,7 +39,6 @@ typedef struct
 	GnomeApp *main_window;
 	GtkActionGroup *action_group;
 	GtkUIManager *manager;
-	GtkDialog *preferences_dialog;
 	GnomeAbout *about;
 	GtkXText *xtext;
 #if (GTK_CHECK_VERSION(2,5,0))
