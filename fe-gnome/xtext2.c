@@ -1888,8 +1888,6 @@ buffer_append (XTextBuffer *buffer, textentry *ent, XText2 *xtext)
   g_print ("%s\n", ent->str);
 
   f = g_hash_table_lookup (xtext->priv->buffer_info, buffer);
-  f->wrapped_first = buffer->text_first;
-  f->wrapped_last  = buffer->text_last;
 
   newent = g_memdup (ent, sizeof(textentry));
   /* append to the linked list */
@@ -1952,8 +1950,9 @@ allocate_buffer (XText2 *xtext, XTextBuffer *buffer)
 {
   XTextFormat *f = g_new0 (XTextFormat, 1);
   g_hash_table_insert (xtext->priv->buffer_info, buffer, f);
-  f->wrapped_first = buffer->text_first;
-  f->wrapped_last  = buffer->text_last;
+  /* FIXME: should copy existing lines & set wraps here */
+  f->wrapped_first = NULL;
+  f->wrapped_last  = NULL;
   f->append_handler = g_signal_connect (G_OBJECT (buffer), "append", G_CALLBACK (buffer_append), (gpointer) xtext);
   f->clear_handler  = g_signal_connect (G_OBJECT (buffer), "clear",  G_CALLBACK (buffer_clear),  (gpointer) xtext);
   f->remove_handler = g_signal_connect (G_OBJECT (buffer), "remove", G_CALLBACK (buffer_remove), (gpointer) xtext);
@@ -2149,6 +2148,27 @@ recalc_widths (XText2 *xtext, gboolean do_str_width)
 static void
 fix_indent (XText2 *xtext)
 {
+  int j;
+  XTextFormat *f;
+
+  if (xtext->priv->buffer_info == NULL)
+    return;
+
+  f = g_hash_table_lookup (xtext->priv->buffer_info, xtext->priv->current_buffer);
+
+  /* make indent a multiple of the space width */
+  if (f->indent && xtext->priv->spacewidth)
+  {
+    j = 0;
+    while (j < f->indent)
+    {
+      j += xtext->priv->spacewidth;
+    }
+    f->indent = j;
+  }
+
+  /* force scrolling off */
+  dontscroll (xtext);
 }
 
 static void
