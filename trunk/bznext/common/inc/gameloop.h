@@ -25,6 +25,8 @@
 
 using namespace Ogre;
 
+class CDrawManager;
+
 // main stuff
 // the app needs to provide a derived CBaseGameLoop
 // as the base on will just quit out
@@ -68,6 +70,7 @@ public:
 
   CInputManager& GetInput ( void ) {return input;}
   CTimer& GetTimer ( void ) {return timer;}
+  CDrawManager* GetDrawManager ( void ) {return drawManager;}
 
 	// common operations
 	void ClearScene ( void );
@@ -98,13 +101,15 @@ protected:
 
   CCommandLineArgs  args;
   CPrefsManager     prefs;
-  CInputManager    input;
+  CInputManager			input;
   CTimer            timer;
+	CDrawManager			*drawManager;
 
   Root *mRoot;
   Camera* mCamera;
   SceneManager* mSceneMgr;
   RenderWindow* mWindow;
+
 
 	bool				quit;
 	std::string	gameName;

@@ -27,8 +27,11 @@ public:
 	CBaseDrawable( CBaseObject* pParent ){Set(pParent);}
 	virtual ~CBaseDrawable(){return;}
 
-	virtual void Set ( CBaseObject* pParent ) = 0;
+	void Set ( CBaseObject* pParent ){parent = pParent;}
 	void Set ( CBaseGameLoop *pGameLoop ){gameLoop = pGameLoop;}
+
+	virtual void Init ( void ) = 0;
+	virtual void Think ( void ) = 0;
 
 	// name stuff
 	void SetName ( const char* name ){className = name;}
@@ -61,6 +64,8 @@ public:
 	int New ( const char* name, CBaseObject* parent );
 	bool Delete ( int item );
 	void ClearAll ( void );
+
+	void ThinkAll ( void );
 
 protected:
 	typedef std::map<std::string,CBaseDrawableFactory*> factoryMap;

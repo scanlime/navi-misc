@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../inc;../../common/inc;../../../ogrenew/ogremain/include;../ui/inc;../game/inc;../game/test/inc;../drawing/inc"
+				AdditionalIncludeDirectories="../inc;../../common/inc;../../../ogrenew/ogremain/include;../ui/inc;../game/inc;../game/test/inc;../drawing/inc;../game/test/gfx/inc"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_STLP_USE_DYNAMIC_LIB;OGRE_LIBRARY_IMPORTS"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -70,7 +70,7 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="../inc;../../common/inc;../../../ogrenew/ogremain/include;../ui/inc;../game/inc;../game/test/inc;../drawing/inc"
+				AdditionalIncludeDirectories="../inc;../../common/inc;../../../ogrenew/ogremain/include;../ui/inc;../game/inc;../game/test/inc;../drawing/inc;../game/test/gfx/inc"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_STLP_USE_DYNAMIC_LIB;OGRE_LIBRARY_IMPORTS"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
@@ -184,6 +184,10 @@
 							RelativePath="..\game\test\src\world.cpp">
 						</File>
 					</Filter>
+					<Filter
+						Name="gfx"
+						Filter="">
+					</Filter>
 				</Filter>
 			</Filter>
 			<Filter
@@ -260,6 +264,13 @@
 						Filter="">
 						<File
 							RelativePath="..\game\test\inc\world.h">
+						</File>
+					</Filter>
+					<Filter
+						Name="gfx"
+						Filter="">
+						<File
+							RelativePath="..\game\test\gfx\inc\worldDrawables.h">
 						</File>
 					</Filter>
 				</Filter>

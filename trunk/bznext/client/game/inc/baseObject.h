@@ -21,12 +21,17 @@ public:
 		CBaseObject(){return;}
 		virtual ~CBaseObject(){return;}
 
-		virtual bool GetPos ( float *pos ) = 0;
-		virtual bool GetRot ( float *rot ) = 0;
-		virtual bool GetScale ( float *scale ) = 0;
-		virtual bool GetMatrix( float *matrix ) = 0;
-		virtual bool GetType ( int *type ) = 0;
-		virtual bool GetMaterial ( int item, char *material ) = 0;
+		// basic
+		virtual bool GetPos ( float *pos ){return false;}
+		virtual bool GetRot ( float *rot ){return false;}
+		virtual bool GetScale ( float *scale ){return false;}
+		virtual bool GetMatrix( float *matrix ){return false;}
+		virtual bool GetType ( int *type ){return false;}
+		virtual bool GetMaterial ( int item, char *material ){return false;}
+		virtual bool GetMaterial (  const char * item, char *material ){return false;}
+		virtual float GetValueF ( const char *item ){return 0;}
+		virtual int GetValueI ( const char *item ){return 0;}
+		virtual const char* GetValueS ( const char *item ){return NULL;}
 protected:
 };
 
