@@ -72,17 +72,40 @@ editor_class_init (EditorClass *klass)
   glade_init();
 }
 
+static GList*
+find_leaves(GType base)
+{
+  GType *children, *t;
+  guint n, i, c;
+  GList *ret = g_list_alloc();
+
+  children = g_type_children (base, &n);
+  for (i = 0; i < n; i++)
+  {
+    t = g_type_children (children[i], &c);
+    if (c != 0)
+      g_list_concat (ret, find_leaves (children[i]));
+    else {
+      g_list_append (ret, GUINT_TO_POINTER (children[i]));
+    }
+    g_free (t);
+  }
+  g_free (children);
+
+  return ret;
+}
+
 static void
 editor_init (Editor *editor)
 {
   GdkGLConfig *config;
   GtkCellRenderer *icon_renderer, *text_renderer;
   GtkTreeViewColumn *column;
-  GType *t, *t2;
-  guint n, n2, i, i2;
+  GtkMenuItem *addmenu;
+  GtkMenu *am;
+  GList *types, *t;
 
   load_plugins();
-  g_print ("\n");
 
   editor->xml = glade_xml_new (GLADEDIR "/bzedit.glade", NULL, NULL);
   editor->window = glade_xml_get_widget (editor->xml, "editor window");
@@ -109,24 +132,22 @@ editor_init (Editor *editor)
   gtk_tree_view_column_set_attributes (column, text_renderer, "text", 0, "editable", TRUE, NULL);
   gtk_tree_view_append_column (editor->element_list, column);
 
-  editor->statusbar = GTK_STATUSBAR(glade_xml_get_widget(editor->xml, "statusbar"));
-  editor->editor_status_context = gtk_statusbar_get_context_id(editor->statusbar, "Editor status");
+  editor->statusbar = GTK_STATUSBAR (glade_xml_get_widget (editor->xml, "statusbar"));
+  editor->editor_status_context = gtk_statusbar_get_context_id (editor->statusbar, "Editor status");
 
-
-  g_print ("%s\n", g_type_name (PARAMETER_HOLDER_TYPE));
-  t = g_type_children (PARAMETER_HOLDER_TYPE, &n);
-  for (i = 0; i < n; i++)
+  types = find_leaves (PARAMETER_HOLDER_TYPE);
+  addmenu = GTK_MENU_ITEM (glade_xml_get_widget (editor->xml, "addmenu"));
+  am = GTK_MENU (gtk_menu_new ());
+  for (t = types; t; t = t->next)
   {
-    g_print (" +- %s\n", g_type_name (t[i]));
-    t2 = g_type_children (t[i], &n2);
-    for (i2 = 0; i < n2; i++)
+    if (GPOINTER_TO_UINT (t->data) != 0)
     {
-      g_print ("     +- %s\n", g_type_name (t2[i]));
+      gtk_menu_append (am, gtk_menu_item_new_with_label (g_type_name (GPOINTER_TO_UINT (t->data))));
     }
-    g_free (t2);
   }
-  g_free (t);
+  gtk_menu_item_set_submenu (addmenu, GTK_WIDGET (am));
 
+  g_list_free (types);
 }
 
 static void

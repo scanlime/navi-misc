@@ -46,6 +46,7 @@ load_plugins(void)
       g_print("loaded plugin '%s'\n", file);
     g_free(full);
   }
+  g_print ("\n");
 
   g_dir_close (dir);
 }
