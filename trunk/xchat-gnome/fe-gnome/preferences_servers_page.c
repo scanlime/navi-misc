@@ -276,6 +276,8 @@ edit_clicked (GtkWidget *button, gpointer data)
 	g_signal_connect (G_OBJECT (widget), "changed", G_CALLBACK (encoding_changed), net);
 
 	gtk_widget_show_all (dialog);
+
+	g_object_unref (client);
 }
 
 static void

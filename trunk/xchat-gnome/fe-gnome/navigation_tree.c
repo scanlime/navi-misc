@@ -1263,6 +1263,7 @@ on_close (GtkAction *action, gpointer data)
 			client = gconf_client_get_default ();
 			text = gconf_client_get_string (client, "/apps/xchat/irc/partmsg", NULL);
 			s->server->p_part(s->server, s->channel, text);
+			g_object_unref (client);
 			g_free (text);
 		}
 
@@ -1321,6 +1322,7 @@ on_channel_leave (GtkAction *action, gpointer data)
 			client = gconf_client_get_default ();
 			text = gconf_client_get_string (client, "/apps/xchat/irc/partmsg", NULL);
 			s->server->p_part(s->server, s->channel, text);
+			g_object_unref (client);
 			g_free (text);
 		}
 		gtk_tree_model_sort_convert_iter_to_child_iter (GTK_TREE_MODEL_SORT (model), &newiter, &iter);

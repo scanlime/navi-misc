@@ -98,6 +98,7 @@ text_gui_add_text_buffer (struct session *sess)
 	notify = gconf_client_notify_add (client, "/apps/xchat/irc/showtimestamps", (GConfClientNotifyFunc) gconf_timestamps_changed, tgui->buffer, NULL, NULL);
 	g_hash_table_insert (notify_table, tgui->buffer, GINT_TO_POINTER (notify));
 	gui.current_session = sess;
+	g_object_unref (client);
 
 	if (sess->topic == NULL)
 		tgui->topic = g_strdup ("");
@@ -121,6 +122,7 @@ text_gui_remove_text_buffer (struct session *sess)
 	notify = GPOINTER_TO_INT (g_hash_table_lookup (notify_table, tgui->buffer));
 	g_hash_table_remove (notify_table, tgui->buffer);
 	gconf_client_notify_remove (client, notify);
+	g_object_unref (client);
 
 	gtk_xtext_buffer_free (tgui->buffer);
 	g_free (tgui->topic);

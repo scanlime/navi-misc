@@ -92,6 +92,8 @@ ok_clicked (GtkButton *button, gpointer data)
 
 	gconf_client_set_string (client, "/apps/xchat/version", "0.3", NULL);
 
+	g_object_unref (client);
+
 	done = TRUE;
 }
 

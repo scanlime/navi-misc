@@ -216,7 +216,6 @@ initialize_main_window ()
 	g_signal_connect_after (G_OBJECT (entry), "key_press_event", G_CALLBACK (on_text_entry_key), NULL);
 	g_signal_connect (G_OBJECT (entry), "populate-popup", G_CALLBACK (entry_context), NULL);
 
-  /* XXX: Is this a leak?? */
 	topicchange = glade_xml_get_widget (gui.xml, "topic change");
 	g_signal_connect (G_OBJECT (topicchange), "clicked", G_CALLBACK (on_topic_change), NULL);
 	topicbox = glade_xml_get_widget (gui.xml, "topic hbox");
@@ -531,6 +530,7 @@ on_discussion_leave_activate (GtkAction *action, gpointer data)
 		client = gconf_client_get_default ();
 		text = gconf_client_get_string (client, "/apps/xchat/irc/partmsg", NULL);
 		s->server->p_part (s->server, s->channel, text);
+		g_object_unref (client);
 		g_free (text);
 	}
 }
@@ -548,6 +548,7 @@ on_discussion_close_activate (GtkAction *action, gpointer data)
 		client = gconf_client_get_default ();
 		text = gconf_client_get_string (client, "/apps/xchat/irc/partmsg", NULL);
 		s->server->p_part (s->server, s->channel, text);
+		g_object_unref (client);
 		g_free (text);
 	}
 	navigation_tree_remove (gui.server_tree, s);

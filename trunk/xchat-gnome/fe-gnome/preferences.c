@@ -38,6 +38,8 @@ preferences_exist ()
 	else
 		g_free (text);
 
+	g_object_unref (client);
+
 	/* probably eventually do some checking on the version to migrate from
 	   previous versions when new features are added */
 	return TRUE;
@@ -81,16 +83,8 @@ load_preferences ()
 	load_colors (color_scheme);
 	palette_scheme = gconf_client_get_int (client, "/apps/xchat/irc/palette_scheme", NULL);
 	load_palette (palette_scheme);
-}
 
-gboolean
-preferences_show_timestamp()
-{
-	GConfClient *client;
-
-	client = gconf_client_get_default ();
-
-	return gconf_client_get_bool (client, "/apps/xchat/irc/showtimestamps", NULL);
+	g_object_unref (client);
 }
 
 void set_version ()
@@ -100,4 +94,5 @@ void set_version ()
 	client = gconf_client_get_default ();
 
 	gconf_client_set_string (client, "/apps/xchat/version", "0.3", NULL);
+	g_object_unref (client);
 }
