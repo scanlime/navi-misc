@@ -80,8 +80,11 @@ class Interface(xmlrpc.XMLRPC):
             result = defer.Deferred()
 
             # First argument is the key
-            key = args[0]
-            args = args[1:]
+            try:
+                key = args[0]
+                args = args[1:]
+            except IndexError:
+                raise TypeError("This is a protected function, the first argument must be a capability key")
 
             # Look up the capabilities list
             caps = getattr(interface, "caps_%s" % path[-1], None)
