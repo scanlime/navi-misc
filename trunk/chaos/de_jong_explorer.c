@@ -27,6 +27,10 @@
 #include <unistd.h>
 #include <sys/time.h>
 
+#if (GTK_MAJOR_VERSION < 2) || (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION < 3)
+#error Sorry, this requires GTK 2.3 or later
+#endif
+
 
 struct {
   double x,y;
@@ -50,14 +54,15 @@ struct {
   guint target_density;
 
   double exposure, gamma;
+  GdkColor fgcolor, bgcolor;
 
   gboolean dirty_flag;
 } render;
 
 struct {
-  GtkWidget *window, *drawing_area, *iterl;
+  GtkWidget *window, *drawing_area, *iterations;
   GtkWidget *as, *bs, *cs, *ds, *zs, *xos, *yos;
-  GtkWidget *gamma, *exposure;
+  GtkWidget *gamma, *exposure, *fgcolor, *bgcolor;
   GtkWidget *start, *stop, *save, *randbutton;
   GdkGC *gc;
   guint idler;
@@ -85,13 +90,14 @@ gboolean deletee(GtkWidget *widget, GdkEvent *event, gpointer user_data);
 void startclick(GtkWidget *widget, gpointer user_data);
 void stopclick(GtkWidget *widget, gpointer user_data);
 void param_spinner_changed(GtkWidget *widget, gpointer user_data);
-void rendering_spinner_changed(GtkWidget *widget, gpointer user_data);
+void rendering_param_changed(GtkWidget *widget, gpointer user_data);
 float generate_random_param();
 void randomclick(GtkWidget *widget, gpointer user_data);
 gchar* save_parameters();
 void load_parameters(const gchar *params);
 void load_parameters_from_file(const char *name);
 void save_to_file(const char *name);
+void update_save_preview(GtkFileChooser *chooser, gpointer data);
 void saveclick(GtkWidget *widget, gpointer user_data);
 
 
@@ -277,121 +283,171 @@ void set_defaults() {
   params.zoom = 1;
   params.xoffset = 0;
   params.yoffset = 0;
+
   render.exposure = 0.05;
   render.gamma = 1;
   render.width = 800;
   render.height = 800;
+  gdk_color_parse("white", &render.bgcolor);
+  gdk_color_parse("black", &render.fgcolor);
+}
+
+void add_to_sidebar(GtkWidget *table, int *row, int x1, int x2, GtkWidget *w) {
+  gtk_table_attach(GTK_TABLE(table), w, x1, x2, *row, *row + 1,
+		   (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 4, 0);
+  (*row)++;
 }
 
 GtkWidget *build_sidebar() {
   GtkWidget *table;
+  int row;
 
-  table = gtk_table_new(12, 2, FALSE);
+  table = gtk_table_new(15, 2, FALSE);
   gtk_table_set_row_spacings(GTK_TABLE(table), 6);
   gtk_table_set_col_spacings(GTK_TABLE(table), 6);
 
   /* Labels */
   {
-    GtkWidget *label;
+    GtkWidget *label, *hsep;
+    row = 0;
 
-    label = gtk_label_new("a:");
-    gtk_table_attach(GTK_TABLE(table), label, 0, 1, 0, 1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
+    label = gtk_label_new("A:");
+    gtk_misc_set_alignment(GTK_MISC(label), 0, 0.5);
+    add_to_sidebar(table, &row, 0, 1, label);
 
-    label = gtk_label_new("b:");
-    gtk_table_attach(GTK_TABLE(table), label, 0, 1, 1, 2, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
+    label = gtk_label_new("B:");
+    gtk_misc_set_alignment(GTK_MISC(label), 0, 0.5);
+    add_to_sidebar(table, &row, 0, 1, label);
 
-    label = gtk_label_new("c:");
-    gtk_table_attach(GTK_TABLE(table), label, 0, 1, 2, 3, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
+    label = gtk_label_new("C:");
+    gtk_misc_set_alignment(GTK_MISC(label), 0, 0.5);
+    add_to_sidebar(table, &row, 0, 1, label);
 
-    label = gtk_label_new("d:");
-    gtk_table_attach(GTK_TABLE(table), label, 0, 1, 3, 4, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
+    label = gtk_label_new("D:");
+    gtk_misc_set_alignment(GTK_MISC(label), 0, 0.5);
+    add_to_sidebar(table, &row, 0, 1, label);
 
-    label = gtk_label_new("zoom:");
-    gtk_table_attach(GTK_TABLE(table), label, 0, 1, 4, 5, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
+    label = gtk_label_new("Zoom:");
+    gtk_misc_set_alignment(GTK_MISC(label), 0, 0.5);
+    add_to_sidebar(table, &row, 0, 1, label);
 
-    label = gtk_label_new("xoffset:");
-    gtk_table_attach(GTK_TABLE(table), label, 0, 1, 5, 6, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
+    label = gtk_label_new("X offset:");
+    gtk_misc_set_alignment(GTK_MISC(label), 0, 0.5);
+    add_to_sidebar(table, &row, 0, 1, label);
 
-    label = gtk_label_new("yoffset:");
-    gtk_table_attach(GTK_TABLE(table), label, 0, 1, 6, 7, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
+    label = gtk_label_new("Y offset:");
+    gtk_misc_set_alignment(GTK_MISC(label), 0, 0.5);
+    add_to_sidebar(table, &row, 0, 1, label);
 
-    label = gtk_label_new("exposure:");
-    gtk_table_attach(GTK_TABLE(table), label, 0, 1, 7, 8, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
+    hsep = gtk_hseparator_new();
+    add_to_sidebar(table, &row, 0, 2, hsep);
 
-    label = gtk_label_new("gamma:");
-    gtk_table_attach(GTK_TABLE(table), label, 0, 1, 8, 9, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
+    label = gtk_label_new("Exposure:");
+    gtk_misc_set_alignment(GTK_MISC(label), 0, 0.5);
+    add_to_sidebar(table, &row, 0, 1, label);
+
+    label = gtk_label_new("Gamma:");
+    gtk_misc_set_alignment(GTK_MISC(label), 0, 0.5);
+    add_to_sidebar(table, &row, 0, 1, label);
+
+    label = gtk_label_new("Foreground:");
+    gtk_misc_set_alignment(GTK_MISC(label), 0, 0.5);
+    add_to_sidebar(table, &row, 0, 1, label);
+
+    label = gtk_label_new("Background:");
+    gtk_misc_set_alignment(GTK_MISC(label), 0, 0.5);
+    add_to_sidebar(table, &row, 0, 1, label);
+
+    hsep = gtk_hseparator_new();
+    add_to_sidebar(table, &row, 0, 2, hsep);
   }
 
   /* Spin buttons */
   {
+    row = 0;
+
     gui.as = gtk_spin_button_new_with_range(-9.999, 9.999, 0.001);
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui.as), params.a);
-    gtk_table_attach(GTK_TABLE(table), gui.as, 1, 2, 0, 1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
+    add_to_sidebar(table, &row, 1, 2, gui.as);
     g_signal_connect(G_OBJECT(gui.as), "changed", G_CALLBACK(param_spinner_changed), NULL);
 
     gui.bs = gtk_spin_button_new_with_range(-9.999, 9.999, 0.001);
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui.bs), params.b);
-    gtk_table_attach(GTK_TABLE(table), gui.bs, 1, 2, 1, 2, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
+    add_to_sidebar(table, &row, 1, 2, gui.bs);
     g_signal_connect(G_OBJECT(gui.bs), "changed", G_CALLBACK(param_spinner_changed), NULL);
 
     gui.cs = gtk_spin_button_new_with_range(-9.999, 9.999, 0.001);
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui.cs), params.c);
-    gtk_table_attach(GTK_TABLE(table), gui.cs, 1, 2, 2, 3, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
+    add_to_sidebar(table, &row, 1, 2, gui.cs);
     g_signal_connect(G_OBJECT(gui.cs), "changed", G_CALLBACK(param_spinner_changed), NULL);
 
     gui.ds = gtk_spin_button_new_with_range(-9.999, 9.999, 0.001);
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui.ds), params.d);
-    gtk_table_attach(GTK_TABLE(table), gui.ds, 1, 2, 3, 4, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
+    add_to_sidebar(table, &row, 1, 2, gui.ds);
     g_signal_connect(G_OBJECT(gui.ds), "changed", G_CALLBACK(param_spinner_changed), NULL);
 
     gui.zs = gtk_spin_button_new_with_range(0.20, 100, 0.01);
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui.zs), params.zoom);
-    gtk_table_attach(GTK_TABLE(table), gui.zs, 1, 2, 4, 5, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
+    add_to_sidebar(table, &row, 1, 2, gui.zs);
     g_signal_connect(G_OBJECT(gui.zs), "changed", G_CALLBACK(param_spinner_changed), NULL);
 
     gui.xos = gtk_spin_button_new_with_range(-1.999, 1.999, 0.001);
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui.xos), params.xoffset);
-    gtk_table_attach(GTK_TABLE(table), gui.xos, 1, 2, 5, 6, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
+    add_to_sidebar(table, &row, 1, 2, gui.xos);
     g_signal_connect(G_OBJECT(gui.xos), "changed", G_CALLBACK(param_spinner_changed), NULL);
 
     gui.yos = gtk_spin_button_new_with_range(-1.999, 1.999, 0.001);
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui.yos), params.yoffset);
-    gtk_table_attach(GTK_TABLE(table), gui.yos, 1, 2, 6, 7, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
+    add_to_sidebar(table, &row, 1, 2, gui.yos);
     g_signal_connect(G_OBJECT(gui.yos), "changed", G_CALLBACK(param_spinner_changed), NULL);
+
+    /* Skip separator */
+    row++;
 
     gui.exposure = gtk_spin_button_new_with_range(0.001, 9.999, 0.001);
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui.exposure), render.exposure);
-    gtk_table_attach(GTK_TABLE(table), gui.exposure, 1, 2, 7, 8, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
-    g_signal_connect(G_OBJECT(gui.exposure), "changed", G_CALLBACK(rendering_spinner_changed), NULL);
+    add_to_sidebar(table, &row, 1, 2, gui.exposure);
+    g_signal_connect(G_OBJECT(gui.exposure), "changed", G_CALLBACK(rendering_param_changed), NULL);
 
     gui.gamma = gtk_spin_button_new_with_range(0.01, 9.99, 0.01);
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui.gamma), render.gamma);
-    gtk_table_attach(GTK_TABLE(table), gui.gamma, 1, 2, 8, 9, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
-    g_signal_connect(G_OBJECT(gui.gamma), "changed", G_CALLBACK(rendering_spinner_changed), NULL);
+    add_to_sidebar(table, &row, 1, 2, gui.gamma);
+    g_signal_connect(G_OBJECT(gui.gamma), "changed", G_CALLBACK(rendering_param_changed), NULL);
+
+    gui.fgcolor = gtk_color_button_new_with_color(&render.fgcolor);
+    add_to_sidebar(table, &row, 1, 2, gui.fgcolor);
+    g_signal_connect(G_OBJECT(gui.fgcolor), "color-set", G_CALLBACK(rendering_param_changed), NULL);
+
+    gui.bgcolor = gtk_color_button_new_with_color(&render.bgcolor);
+    add_to_sidebar(table, &row, 1, 2, gui.bgcolor);
+    g_signal_connect(G_OBJECT(gui.bgcolor), "color-set", G_CALLBACK(rendering_param_changed), NULL);
+
+    /* Skip separator */
+    row++;
   }
 
   /* Iteration counter */
-  gui.iterl = gtk_label_new("");
-  gtk_table_attach(GTK_TABLE(table), gui.iterl, 0, 2, 9, 10, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
+  gui.iterations = gtk_label_new("");
+  add_to_sidebar(table, &row, 0, 2, gui.iterations);
 
   /* Buttons */
   {
     gui.start = gtk_button_new_from_stock(GTK_STOCK_APPLY);
     gtk_widget_set_sensitive(gui.start, FALSE);
     g_signal_connect(G_OBJECT(gui.start), "clicked", G_CALLBACK(startclick), NULL);
-    gtk_table_attach(GTK_TABLE(table), gui.start, 0, 2, 10, 11, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
+    add_to_sidebar(table, &row, 0, 2, gui.start);
 
     gui.stop = gtk_button_new_from_stock(GTK_STOCK_STOP);
     g_signal_connect(G_OBJECT(gui.stop), "clicked", G_CALLBACK(stopclick), NULL);
-    gtk_table_attach(GTK_TABLE(table), gui.stop, 0, 2, 11, 12, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
+    add_to_sidebar(table, &row, 0, 2, gui.stop);
 
     gui.save = gtk_button_new_from_stock(GTK_STOCK_SAVE);
     g_signal_connect(G_OBJECT(gui.save), "clicked", G_CALLBACK(saveclick), NULL);
-    gtk_table_attach(GTK_TABLE(table), gui.save, 0, 2, 12, 13, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
+    add_to_sidebar(table, &row, 0, 2, gui.save);
 
     gui.randbutton = gtk_button_new_with_label("Random");
     g_signal_connect(G_OBJECT(gui.randbutton), "clicked", G_CALLBACK(randomclick), NULL);
-    gtk_table_attach(GTK_TABLE(table), gui.randbutton, 0, 2, 13, 14, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
+    add_to_sidebar(table, &row, 0, 2, gui.randbutton);
   }
 
   return table;
@@ -502,12 +558,15 @@ void update_color_table() {
 
   /* Generate one color for every currently-possible count value... */
   for (count=0; count<=render.current_density; count++) {
+
+    /* Scale and gamma-correct */
     luma = count * pixel_scale;
     luma = pow(luma, 1/render.gamma);
 
-    r = 255 - luma*255;
-    g = 255 - luma*255;
-    b = 255 - luma*255;
+    /* Linearly interpolate between fgcolor and bgcolor */
+    r = ((int)(render.bgcolor.red   * (1-luma) + render.fgcolor.red   * luma)) >> 8;
+    g = ((int)(render.bgcolor.green * (1-luma) + render.fgcolor.green * luma)) >> 8;
+    b = ((int)(render.bgcolor.blue  * (1-luma) + render.fgcolor.blue  * luma)) >> 8;
 
     /* Always clamp color components */
     if (r<0) r = 0;  if (r>255) r = 255;
@@ -515,7 +574,7 @@ void update_color_table() {
     if (b<0) b = 0;  if (b>255) b = 255;
 
     /* Colors are always ARGB order in little endian */
-    render.color_table[count] = GUINT32_TO_LE( 0xFF000000UL | (r<<16) | (g<<8) | b );
+    render.color_table[count] = GUINT32_TO_LE( 0xFF000000UL | (b<<16) | (g<<8) | r );
   }
 }
 
@@ -554,7 +613,7 @@ void update_gui() {
 
     /* Update the iteration counter */
     iters = g_strdup_printf("Iterations:\n%.3e\n\nmax density:\n%d", render.iterations, render.current_density);
-    gtk_label_set_text(GTK_LABEL(gui.iterl), iters);
+    gtk_label_set_text(GTK_LABEL(gui.iterations), iters);
     g_free(iters);
   }
 
@@ -652,9 +711,11 @@ void param_spinner_changed(GtkWidget *widget, gpointer user_data) {
   startclick(widget, user_data);
 }
 
-void rendering_spinner_changed(GtkWidget *widget, gpointer user_data) {
+void rendering_param_changed(GtkWidget *widget, gpointer user_data) {
   render.exposure = gtk_spin_button_get_value(GTK_SPIN_BUTTON(gui.exposure));
   render.gamma = gtk_spin_button_get_value(GTK_SPIN_BUTTON(gui.gamma));
+  gtk_color_button_get_color(GTK_COLOR_BUTTON(gui.fgcolor), &render.fgcolor);
+  gtk_color_button_get_color(GTK_COLOR_BUTTON(gui.bgcolor), &render.bgcolor);
   render.dirty_flag = TRUE;
 }
 
@@ -775,8 +836,7 @@ void save_to_file(const char *name) {
   gdk_pixbuf_unref(pixbuf);
 }
 
-#if (GTK_MAJOR_VERSION > 2) || (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 3)
-static void update_preview(GtkFileChooser *chooser, gpointer data) {
+void update_save_preview(GtkFileChooser *chooser, gpointer data) {
   GtkWidget *preview;
   char *filename;
   GdkPixbuf *pixbuf;
@@ -794,11 +854,8 @@ static void update_preview(GtkFileChooser *chooser, gpointer data) {
     gdk_pixbuf_unref(pixbuf);
   gtk_file_chooser_set_preview_widget_active(chooser, have_preview);
 }
-#endif
 
 void saveclick(GtkWidget *widget, gpointer user_data) {
-  /* Sorry, saving only works with gtk 2.3's file selector for now */
-#if (GTK_MAJOR_VERSION > 2) || (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 3)
   GtkWidget *dialog, *preview;
 
   dialog = gtk_file_chooser_dialog_new("Save", GTK_WINDOW(gui.window), GTK_FILE_CHOOSER_ACTION_SAVE,
@@ -812,7 +869,7 @@ void saveclick(GtkWidget *widget, gpointer user_data) {
 
   preview = gtk_image_new();
   gtk_file_chooser_set_preview_widget(GTK_FILE_CHOOSER(dialog), preview);
-  g_signal_connect(dialog, "update-preview", G_CALLBACK(update_preview), preview);
+  g_signal_connect(dialog, "update-preview", G_CALLBACK(update_save_preview), preview);
   if(gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
     char *filename;
     filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
@@ -821,9 +878,6 @@ void saveclick(GtkWidget *widget, gpointer user_data) {
   }
   g_object_unref(filter);
   gtk_widget_destroy(dialog);
-#else
-#warning "If you had gtk 2.3, you'd be able to save images"
-#endif
 }
 
 /* The End */
