@@ -32,11 +32,12 @@ This is just a preliminary roadmap, subject to whatever people want to work on.
 
 0.6:
 -	User documentation!
+-	Infrastructure for translation (maybe we have this?)
 
 undetermined:
--	Autopackage
--	Split each dialog out of into its own glade file
--	Make URLs in xtext show up as blue (configurable color)
+-	Autopackage/binreloc/relaytool
+-	Split each transient dialog out of into its own glade file
+-	Make URLs in xtext show up as blue (gconf configurable color?)
 -	Make text surrounded by asterisks show up as bold, text
 	surrouned by underscores show up as underlined, etc
 
