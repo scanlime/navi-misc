@@ -69,6 +69,7 @@ struct _BasicRenderPass
   RenderPass parent;
 
   GHashTable *texture_groups;
+  gint size;
 };
 
 struct _BasicRenderPassClass

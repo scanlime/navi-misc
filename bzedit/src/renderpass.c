@@ -106,3 +106,10 @@ render_pass_is_empty (RenderPass *pass)
   RenderPassClass *klass = RENDER_PASS_CLASS (G_OBJECT_GET_CLASS (pass));
   return klass->is_empty (pass);
 }
+
+gint
+render_pass_get_size (RenderPass *pass)
+{
+  RenderPassClass *klass = RENDER_PASS_CLASS (G_OBJECT_GET_CLASS (pass));
+  return klass->size (pass);
+}

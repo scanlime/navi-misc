@@ -74,14 +74,16 @@ void
 render_state_picking_name (RenderState *state, gpointer drawable)
 {
   g_hash_table_insert(state->picking_state, GUINT_TO_POINTER (state->picking_name), drawable);
+  glPushName (state->picking_name);
   state->picking_name++;
 }
 
 gpointer
 render_state_do_pick (RenderState *state, guint name)
 {
-  return g_hash_table_lookup (state->picking_state, GUINT_TO_POINTER (name));
+  gpointer result = g_hash_table_lookup (state->picking_state, GUINT_TO_POINTER (name));
   g_hash_table_destroy (state->picking_state);
   state->picking_state = g_hash_table_new (g_direct_hash, g_direct_equal);
   state->picking_name = 1;
+  return result;
 }

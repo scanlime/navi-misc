@@ -56,6 +56,7 @@ struct _RenderPassClass
   void     (*add)        (RenderPass *pass, Drawable *drawable);
   void     (*erase)      (RenderPass *pass);
   gboolean (*is_empty)   (RenderPass *pass);
+  gint     (*size)       (RenderPass *pass);
 
   guint filter_priority;
   guint render_priority;
@@ -68,6 +69,7 @@ void     render_pass_preprocess (RenderPass *pass);
 void     render_pass_add        (RenderPass *pass, Drawable *drawable);
 void     render_pass_erase      (RenderPass *pass);
 gboolean render_pass_is_empty   (RenderPass *pass);
+gint     render_pass_get_size   (RenderPass *pass);
 
 G_END_DECLS
 
