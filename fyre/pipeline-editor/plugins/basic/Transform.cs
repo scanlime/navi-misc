@@ -27,7 +27,9 @@ using Gdk;
 
 class TwoDTransform : Element
 {
-	private static Gdk.Pixbuf icon;
+	static Gdk.Pixbuf icon;
+	static string[,] inputs;
+	static string[,] outputs;
 
 	public override string Name ()
 	{
@@ -51,13 +53,24 @@ class TwoDTransform : Element
 		return "Creates an 3x3 matrix out\nof a set of 2D\ntransformations\n";
 	}
 
-	public override string InputDesc ()
+	public override string[,] InputDesc ()
 	{
-		return "<i>rotation</i>\n" + "<i>aspect</i>\n" + "<i>zoom</i>\n" + "<i>offset</i>";
+		if (inputs == null) {
+			inputs = new string[4,2];
+			inputs[0,0] = "<i>r</i>";	inputs[0,1] = "rotation";
+			inputs[1,0] = "<i>a</i>";	inputs[1,1] = "aspect ratio";
+			inputs[2,0] = "<i>z</i>";	inputs[2,1] = "zoom";
+			inputs[3,0] = "<i>t</i>";	inputs[3,1] = "translation";
+		}
+		return inputs;
 	}
 
-	public override string OutputDesc ()
+	public override string[,] OutputDesc ()
 	{
-		return "<b>M</b>:  matrix";
+		if (outputs == null) {
+			outputs = new string[1,2];
+			outputs[0,0] = "<b>M</b>";	outputs[0,1] = "matrix";
+		}
+		return outputs;
 	}
 }

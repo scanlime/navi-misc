@@ -32,6 +32,6 @@ public abstract class Element
 	/* These are expected to be in pango markup, for any
 	 * necessary subscripts, UTF-8 trickery, etc
 	 */
-	abstract public string		InputDesc ();
-	abstract public string		OutputDesc ();
+	abstract public string[,]	InputDesc ();
+	abstract public string[,]	OutputDesc ();
 }

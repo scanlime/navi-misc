@@ -38,5 +38,15 @@ public class ElementTooltip
 	{
 		Glade.XML gxml = new Glade.XML (null, "element-tooltip.glade", "tooltip", null);
 		gxml.Autoconnect (this);
+		
+		element_icon.Pixbuf = e.Icon ();
+		element_name.Markup =
+			"<span weight=\"bold\" size=\"large\">" +
+			e.Name () +
+			"</span>";
+		element_description.Markup =
+			"<span size=\"small\">" +
+			e.Description () +
+			"</span>";
 	}
 }

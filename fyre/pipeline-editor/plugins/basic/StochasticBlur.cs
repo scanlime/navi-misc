@@ -27,7 +27,9 @@ using Gdk;
 
 class StochasticBlur : Element
 {
-	private static Gdk.Pixbuf icon;
+	static Gdk.Pixbuf icon;
+	static string[,] inputs;
+	static string[,] outputs;
 
 	public override string Name ()
 	{
@@ -51,13 +53,23 @@ class StochasticBlur : Element
 		return "Creates a blur by\nstochastically perturbing\na point within the\ngiven radius\n";
 	}
 
-	public override string InputDesc ()
+	public override string[,] InputDesc ()
 	{
-		return "<i>v<sub>0</sub></i>:  point\n" + "<i>ratio</i>\n" + "<i>radius</i>";
+		if (inputs == null) {
+			inputs = new string[3,2];
+			inputs[0,0] = "<i>v<sub>0</sub></i>";	inputs[0,1] = "point";
+			inputs[1,0] = "<i>p</i>";		inputs[1,1] = "ratio";
+			inputs[2,0] = "<i>r</i>";		inputs[2,1] = "radius";
+		}
+		return inputs;
 	}
 
-	public override string OutputDesc ()
+	public override string[,] OutputDesc ()
 	{
-		return "<i>v<sub>1</sub></i>:  new point";
+		if (outputs == null) {
+			outputs = new string[1,2];
+			outputs[0,0] = "<i>v<sub>1</sub></i>";	outputs[0,1] = "new point";
+		}
+		return outputs;
 	}
 }
