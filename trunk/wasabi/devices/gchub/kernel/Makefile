@@ -31,10 +31,12 @@ endif # pre-2.5
 else
 # Outside the kernel build system, enter it
 
-KDIR	:= /lib/modules/$(shell uname -r)/build
+ifeq ($(KERNEL_PATH),)
+  KERNEL_PATH  := /lib/modules/$(shell uname -r)/build
+endif
 PWD	:= $(shell pwd)
 GCHUB_INCLUDEDIR := $(PWD)/../include
 
 default:
-	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) GCHUB_INCLUDEDIR=$(GCHUB_INCLUDEDIR) modules
+	$(MAKE) -C $(KERNEL_PATH) SUBDIRS=$(PWD) GCHUB_INCLUDEDIR=$(GCHUB_INCLUDEDIR) modules
 endif
