@@ -27,33 +27,11 @@ Web Interface
 - Clean up the relation graphing interface so it isn't stuck hackishly at /graph.
   Maybe stats metadata could be used to attach graphs to individual targets?
 
-- Web interface for editing rulesets and stats metadata- how would we handle
-  authentication, if necessary?
+- Possibly allow anyone to edit metadata before a project has been 'claimed' by one person
+  and assigned a key?
 
-  One idea:
-
-    Initially anyone can edit any stats metadata or any ruleset- within limits.
-    Potentially harmful rulesets should not be allowed, and deleting stats
-    targets shouldn't be allowed. This level of priviledge could be represented
-    perhaps by a 'guest' key granting some set of capabilities.
-
-    In this state, anyone can 'claim' a ruleset or stats target. Claiming the target
-    would then lock out the 'guest' key and grant a new key for editing that target/rule.
-    The idea would be that the person responsible for the CIA connection to a project
-    would claim it, then they could distribute keys to others that also want to edit
-    it. If a target was claimed maliciously or unintentionally, the proper owner
-    could dispute the claim.
-
-    This seems like it would work alright for stats targets, as they always exist,
-    they just require the addition of metadata. Rulesets however must be created.
-    It's probably a bad idea to let anyone create stats targets or xmlrpc targets,
-    as a badly constructed or malicious stats target can fill the database with
-    garbage, and a malicious xmlrpc target could put CIA into an infinite loop.
-    It is however a good idea to let people get CIA into their own IRC channel without
-    having to request help from someone with authority.
-
-    So, perhaps anyone can create an IRC ruleset, then either claim that ruleset
-    for themselves (with a key being granted) or leave it open to the public?
+- Implement a web interface for editing rulesets. This should be fairly easy
+  since the Keyring object was implemented for the metadata editor.
 
 - rrdtool (or similar) for graphing stats target activity
 

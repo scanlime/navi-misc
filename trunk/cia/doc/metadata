@@ -5,18 +5,21 @@ Using Metadata
 Tools
 -----
 
-Currently the only tool for modifying CIA metadata is in the `CIA source`_:
-tools/stats_metadata.py
+There are currently two tools you can use to set project metadata. The easiest
+to use is the new web interface. Visit the "View/Edit Metadata" link on any stats
+page and paste in your CIA key. You'll need a browser that supports SSL. A guide
+to the supported key-value pairs is below.
 
-To use stats_metadata.py, you will need a capability key for CIA that grants
+The other method is stats_metadata.py, a tool included with the CIA source.
+It has fewer dependencies than the rest of CIA, but
+you will need Python_ 2.2.1 or later and Twisted_.
+
+To use either tool, you will need a capability key for CIA that grants
 access to at least the metadata for one stats target. Currently you have to
 ask Micah_ for such a key. Your key will be a 24-digit string of random
-alphanumeric gibberish. Most users should place it in the file "~/.cia_key",
-but users on non-UNIX-like platforms or users with keys for multiple CIA
-servers will need to place it in a different file.
-
-The stats_metadata.py tool has fewer dependencies than the rest of CIA, but
-you will need Python_ 2.2.1 or later and Twisted_.
+alphanumeric gibberish. The recommended place to keep it on UNIX-like
+platforms is "~/.cia_key", since that's where the CIA tools look for it by
+default. If you only plan on using the web-based tools, it doesn't matter.
 
 The full usage text, as given by running
 stats_metadata.py with no options, is::
