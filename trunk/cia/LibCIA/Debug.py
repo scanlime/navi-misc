@@ -59,7 +59,9 @@ class DebugInterface(xmlrpc.XMLRPC):
 
     def xmlrpc_eval(self, code, key):
         """Evaluate arbitrary code in the context of this module.
-           Requires the universe key, for obvious reasons.
+           Requires the universe key, since it would be trivial to use this
+           to access CapabilityDB or SecurityInterface directly and ask for
+           the universe key.
            Returns the repr() of the result.
            """
         self.caps.faultIfMissing(key, 'universe')
@@ -183,8 +185,12 @@ class GcInterface(xmlrpc.XMLRPC):
         keys.sort(lambda a,b: cmp(typeFreq[a],typeFreq[b]))
 
         # And return a nice table
-        return "\n".join([
-            "%30s :  %-10d %s..." % (key, typeFreq[key], ", ".join(typeInstances[key])[:80])
-            for key in keys])
+        lines = []
+        for key in keys:
+            contents = ", ".join(typeInstances[key]).replace("\n", "\\n")
+            if len(contents) > 100:
+                contents = contents[:100] + "..."
+            lines.append("%45s :  %-10d %s" % (key, typeFreq[key], contents))
+        return "\n".join(lines)
 
 ### The End ###
