@@ -41,18 +41,18 @@ def mapAddress(name):
     return name
 
 
-def to_ucharArray(list):
+def to_ucharArray(l):
     """Converts a python list or string to a malloc'ed C unsigned
        char array. The resulting array must be freed with delete_ucharArray.
        """
     # Convert strings to lists
-    if type(list) == type(''):
-        list = [ord(c) for c in txData]
+    if type(l) == type(''):
+        l = [ord(c) for c in l]
 
-    n = len(list)
+    n = len(l)
     a = new_ucharArray(n)
     for i in xrange(n):
-        ucharArray_setitem(a, i, list[i])
+        ucharArray_setitem(a, i, l[i])
     return a
 
 

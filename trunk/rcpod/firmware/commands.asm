@@ -48,81 +48,45 @@ acq_iterator res 1	 ; Iterator for analog aquisition
 
 	code
 
-; *********************************************************************
-; Vendor Specific calls
-; control is transferred here when bmRequestType bits 5 & 6 = 10 indicating
-; the request is a vendor specific request.  This function then would
-; interpret the bRequest field to determine what action is required.
-; The end of each vendor specific command should be terminated with a
-; return.
-; *********************************************************************
+;; **********************************************************************************
+;; *************************************************************** Request Table ****
+;; **********************************************************************************
+
+defineRequest	macro	id,	handler
+	movf	BufferData+bRequest,w
+	xorlw	id
+	pagesel	handler
+	btfsc	STATUS,Z
+	goto	handler
+	endm
+
 CheckVendor
-	movf	BufferData+bRequest,w
-	xorlw	RCPOD_CTRL_POKE
-	pagesel	PokeRequest
-	btfsc	STATUS,Z
-	goto	PokeRequest
-
-	movf	BufferData+bRequest,w
-	xorlw	RCPOD_CTRL_PEEK
-	pagesel	PeekRequest
-	btfsc	STATUS,Z
-	goto	PeekRequest
-
-	movf	BufferData+bRequest,w
-	xorlw	RCPOD_CTRL_POKE4
-	pagesel	Poke4Request
-	btfsc	STATUS,Z
-	goto	Poke4Request
-
-	movf	BufferData+bRequest,w
-	xorlw	RCPOD_CTRL_PEEK8
-	pagesel	Peek8Request
-	btfsc	STATUS,Z
-	goto	Peek8Request
-
-	movf	BufferData+bRequest,w
-	xorlw	RCPOD_CTRL_ANALOG_ALL
-	pagesel	AnalogAllRequest
-	btfsc	STATUS,Z
-	goto	AnalogAllRequest
-
-	movf	BufferData+bRequest,w
-	xorlw	RCPOD_CTRL_USART_TXRX
-	pagesel	TxRxRequest
-	btfsc	STATUS,Z
-	goto	TxRxRequest
-
-	movf	BufferData+bRequest,w
-	xorlw	RCPOD_CTRL_USART_RX_PROGRESS
-	pagesel	RxProgressRequest
-	btfsc	STATUS,Z
-	goto	RxProgressRequest
-
-	movf	BufferData+bRequest,w
-	xorlw	RCPOD_CTRL_USART_TXE
-	pagesel	TxeRequest
-	btfsc	STATUS,Z
-	goto	TxeRequest
-
-	movf	BufferData+bRequest,w
-	xorlw	RCPOD_CTRL_GPIO_ASSERT
-	pagesel	GpioAssertRequest
-	btfsc	STATUS,Z
-	goto	GpioAssertRequest
-
-	movf	BufferData+bRequest,w
-	xorlw	RCPOD_CTRL_GPIO_READ
-	pagesel	GpioReadRequest
-	btfsc	STATUS,Z
-	goto	GpioReadRequest
+	defineRequest	RCPOD_CTRL_POKE,		request_Poke
+	defineRequest	RCPOD_CTRL_PEEK,		request_Peek
+	defineRequest	RCPOD_CTRL_POKE4,		request_Poke4
+	defineRequest	RCPOD_CTRL_PEEK8,		request_Peek8
+	defineRequest	RCPOD_CTRL_ANALOG_ALL,		request_AnalogAll
+	defineRequest	RCPOD_CTRL_USART_TXRX,		request_UsartTxRx
+	defineRequest	RCPOD_CTRL_USART_RX_PROGRESS,	request_UsartRxProgress
+	defineRequest	RCPOD_CTRL_USART_TXE,		request_UsartTxe
+	defineRequest	RCPOD_CTRL_GPIO_ASSERT,		request_GpioAssert
+	defineRequest	RCPOD_CTRL_GPIO_READ,		request_GpioRead
+	defineRequest	RCPOD_CTRL_I2C_SET,		request_I2CSet
+	defineRequest	RCPOD_CTRL_I2C_WRITE0,		request_I2CWrite0
+	defineRequest	RCPOD_CTRL_I2C_WRITE1,		request_I2CWrite1
+	defineRequest	RCPOD_CTRL_I2C_WRITE2,		request_I2CWrite2
+	defineRequest	RCPOD_CTRL_I2C_WRITE3,		request_I2CWrite3
+	defineRequest	RCPOD_CTRL_I2C_WRITE4,		request_I2CWrite4
+	defineRequest	RCPOD_CTRL_I2C_READ8,		request_I2CRead8
+	defineRequest	RCPOD_CTRL_I2C_W1READ8,		request_I2CW1Read8
+	defineRequest	RCPOD_CTRL_I2C_TXRX,		request_I2CTxRx
 
 	pagesel	wrongstate		; Not a recognized request
 	goto	wrongstate
 
 	;********************* Request to write a byte to RAM
 	; A 9-bit address in wIndex, 8-bit data in wValue
-PokeRequest
+request_Poke
 	banksel BufferData
 	movf	BufferData+wIndex, w	; Save this poke address
 	banksel	last_poke_addr
@@ -144,13 +108,16 @@ PokeRequest
 	movwf	INDF
 
 	; Acknowledge the request
-	pagesel	Send_0Len_pkt
-	call	Send_0Len_pkt
-	return
+	psgoto	Send_0Len_pkt
 
-	;********************* Request to write 4 bytes after the last one poked
-Poke4Request
-	
+
+;; **********************************************************************************
+;; *************************************************************** Memory Access ****
+;; **********************************************************************************
+
+	; **** Request to write 4 bytes after the last one poked
+request_Poke4
+
 prepare_poke macro
 	banksel	last_poke_addr			; Increment the last_poke_addr
 	incf	last_poke_addr, f
@@ -184,48 +151,12 @@ prepare_poke macro
 	movwf	INDF
 
 	; Acknowledge the request
-	pagesel	Send_0Len_pkt
-	call	Send_0Len_pkt
-	return
+	psgoto	Send_0Len_pkt
 
-	;********************* Request to assert 4 pin descriptors
-GpioAssertRequest
-	banksel BufferData
-	movf	BufferData+wValue, w
-	banksel	io_pin
-	movwf	io_pin
-	pagesel	io_Assert
-	call	io_Assert
 
-	banksel BufferData
-	movf	BufferData+wValueHigh, w
-	banksel	io_pin
-	movwf	io_pin
-	pagesel	io_Assert
-	call	io_Assert
-
-	banksel BufferData
-	movf	BufferData+wIndex, w
-	banksel	io_pin
-	movwf	io_pin
-	pagesel	io_Assert
-	call	io_Assert
-
-	banksel BufferData
-	movf	BufferData+wIndexHigh, w
-	banksel	io_pin
-	movwf	io_pin
-	pagesel	io_Assert
-	call	io_Assert
-
-	; Acknowledge the request
-	pagesel	Send_0Len_pkt
-	call	Send_0Len_pkt
-	return
-
-	;********************* Request to read a byte from RAM
+	;**** Request to read a byte from RAM
 	; 9-bit address in wIndex, an 8-bit value returned in a 1-byte packet
-PeekRequest
+request_Peek
 	banksel BufferData
 	bcf	STATUS, IRP	; Transfer bit 8 of wIndex into IRP
 	btfsc	BufferData+(wIndex+1), 0
@@ -254,9 +185,10 @@ PeekRequest
 	movwf	BD0IST		; give buffer back to SIE
 	return
 
-	;********************* Request to read a 8 contiguous bytes from RAM
+
+	;**** Request to read a 8 contiguous bytes from RAM
 	; 9-bit address in wIndex, returns an 8-byte packet
-Peek8Request
+request_Peek8
 	banksel	BD0IAL
 	movf	low BD0IAL,w	; get address of buffer
 	banksel	buffer_ptr
@@ -306,9 +238,48 @@ peek8Loop
 	movwf	BD0IST			; give buffer back to SIE
 	return
 
-	;********************* Request to read the value of a pin descriptor
+
+;; **********************************************************************************
+;; *********************************************************** General Purpose I/O **
+;; **********************************************************************************
+
+	;**** Request to assert 4 pin descriptors
+request_GpioAssert
+	banksel BufferData
+	movf	BufferData+wValue, w
+	banksel	io_pin
+	movwf	io_pin
+	pagesel	io_Assert
+	call	io_Assert
+
+	banksel BufferData
+	movf	BufferData+wValueHigh, w
+	banksel	io_pin
+	movwf	io_pin
+	pagesel	io_Assert
+	call	io_Assert
+
+	banksel BufferData
+	movf	BufferData+wIndex, w
+	banksel	io_pin
+	movwf	io_pin
+	pagesel	io_Assert
+	call	io_Assert
+
+	banksel BufferData
+	movf	BufferData+wIndexHigh, w
+	banksel	io_pin
+	movwf	io_pin
+	pagesel	io_Assert
+	call	io_Assert
+
+	; Acknowledge the request
+	psgoto	Send_0Len_pkt
+
+
+	;**** Request to read the value of a pin descriptor
 	; pin descriptor in wIndex
-GpioReadRequest
+request_GpioRead
 	banksel BufferData
 	movf	BufferData+wIndex, w
 	banksel	io_pin
@@ -333,9 +304,10 @@ GpioReadRequest
 	movwf	BD0IST		; give buffer back to SIE
 	return
 
-	;********************* Request to read all A/D converters
+
+	;**** Request to read all A/D converters
 	; No inputs, returns an 8-byte packet
-AnalogAllRequest
+request_AnalogAll
 	banksel	BD0IAL
 	movf	low BD0IAL,w	; get address of buffer
 	movwf	FSR
@@ -356,7 +328,7 @@ adChannelLoop
 aquisitionLoop
 	clrwdt
 	decfsz	acq_iterator, f
-	goto	aquisitionLoop	
+	goto	aquisitionLoop
 
 	banksel	ADCON0
 	bsf	ADCON0, GO		; Start the ADC
@@ -391,10 +363,15 @@ adFinishLoop
 	movwf	BD0IST		; give buffer back to SIE
 	return
 
-	;********************* Request to send then receive via the USART
+
+;; **********************************************************************************
+;; *********************************************************** Serial Port **********
+;; **********************************************************************************
+
+	;**** Request to send then receive via the USART
 	; A 9-bit buffer address in wIndex, number of bytes to transmit in wValue,
 	; number of bytes to receive in wValue+1
-TxRxRequest
+request_UsartTxRx
 	pagesel	rx_Reset		; Cancel any receive we may be doing
 	call	rx_Reset
 
@@ -486,13 +463,12 @@ skipTx
 	movwf	rx_size
 
 	; Acknowledge the request
-	pagesel	Send_0Len_pkt
-	call	Send_0Len_pkt
-	return
+	psgoto	Send_0Len_pkt
 
-	;********************* Request to get USART reception progress
+
+	;**** Request to get USART reception progress
 	; Returns the number of bytes received without cancelling the reception
-RxProgressRequest
+request_UsartRxProgress
 	banksel	BD0IAL
 	movf	low BD0IAL,w	; get address of buffer
 	movwf	FSR
@@ -510,17 +486,49 @@ RxProgressRequest
 	movwf	BD0IST			; give buffer back to SIE
 	return
 
-	;********************* Set the USART transmit enable pin
-TxeRequest
+
+	;**** Set the USART transmit enable pin
+request_UsartTxe
 	banksel BufferData
 	movf	BufferData+wValue, w
 	banksel	txe_pin
 	movwf	txe_pin
 
 	; Acknowledge the request
-	pagesel	Send_0Len_pkt
-	call	Send_0Len_pkt
-	return
+	psgoto	Send_0Len_pkt
+
+
+;; **********************************************************************************
+;; *********************************************************** I2C Master ***********
+;; **********************************************************************************
+
+
+request_I2CSet
+	psgoto	Send_0Len_pkt
+
+request_I2CWrite0
+	psgoto	Send_0Len_pkt
+
+request_I2CWrite1
+	psgoto	Send_0Len_pkt
+
+request_I2CWrite2
+	psgoto	Send_0Len_pkt
+
+request_I2CWrite3
+	psgoto	Send_0Len_pkt
+
+request_I2CWrite4
+	psgoto	Send_0Len_pkt
+
+request_I2CRead8
+	psgoto	Send_0Len_pkt
+
+request_I2CW1Read8
+	psgoto	Send_0Len_pkt
+
+request_I2CTxRx
+	psgoto	Send_0Len_pkt
 
 	end
 
