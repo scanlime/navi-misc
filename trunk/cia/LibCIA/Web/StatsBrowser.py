@@ -25,6 +25,7 @@ from __future__ import division
 import time, math
 import Template, Nouvelle
 from LibCIA import TimeUtil, Message
+from twisted.web import resource
 from Nouvelle import tag, place
 
 
@@ -112,14 +113,46 @@ class Counters(Template.Section):
 
 
 class StatsLink:
-    """An anchor tag linking to the given stats target"""
-    def __init__(self, target, tagFactory=tag('a')):
+    """An anchor tag linking to the given stats target.
+       Text for the link may be specified, but by default the
+       target's title is used.
+       """
+    def __init__(self, target, tagFactory=tag('a'), text=None):
         self.target = target
         self.tagFactory = tagFactory
+        self.text = text
+
+    def getURL(self, context):
+        return context['statsRootPath'] + '/'.join(self.target.pathSegments)
 
     def render(self, context):
-        url = context['statsRootPath'] + '/'.join(self.target.pathSegments)
-        return self.tagFactory(href=url)[self.target.getTitle()]
+        text = self.text
+        if text is None:
+            text = self.target.getTitle()
+        return self.tagFactory(href=self.getURL(context))[text]
+
+
+class MetadataLink:
+    """An anchor tag linking to an item in the given stats target's metadata.
+       Text for the link may be specified, but by default the key is used.
+
+       This class only works for keys that are strings.
+       """
+    def __init__(self, target, key, tagFactory=tag('a'), text=None):
+        self.target = target
+        self.tagFactory = tagFactory
+        self.key = key
+        self.text = text
+
+    def getURL(self, context):
+        print "root path %r, path segments %r" % (context['statsRootPath'], self.target.pathSegments)
+        return context['statsRootPath'] + '/'.join(self.target.pathSegments) + '/.metadata/' + self.key
+
+    def render(self, context):
+        text = self.text
+        if text is None:
+            text = self.key
+        return self.tagFactory(href=self.getURL(context))[text]
 
 
 class TargetTitleColumn(Nouvelle.Column):
@@ -316,6 +349,12 @@ class MetadataKeyColumn(Nouvelle.Column):
     def getValue(self, item):
         return item[0]
 
+    def render_data(self, context, item):
+        if type(item[0]) == str:
+            return MetadataLink(context['statsTarget'], item[0])
+        else:
+            return repr(item[0])
+
 
 class MetadataValueColumn(Nouvelle.Column):
     """A column that displays a metadata key's associated value, formatted appropriately"""
@@ -323,6 +362,35 @@ class MetadataValueColumn(Nouvelle.Column):
 
     def getValue(self, item):
         return item[1]
+
+    def render_data(self, context, item):
+        """Farm this off to an appropriate handler for the data's MIME type"""
+        target = context['statsTarget']
+        key, value = item
+        mime = target.getMetadataType(key)
+        try:
+            # First look for a handler for one particular MIME type after
+            # replacing the / with an underscore
+            f = getattr(self, 'renderData_' + mime.replace('/', '_'))
+        except AttributeError:
+            try:
+                # Nope, try looking for a handler for only the content type,
+                # not the subtype
+                f = getattr(self, 'renderData_' + mime.split('/')[0])
+            except AttributeError:
+                # Nothing, use a generic handler
+                f = self.renderData_other
+        return f(context, mime, value)
+
+    def renderData_text(self, context, mimeType, value):
+        return value
+
+    def renderData_image(self, context, mimeType, value):
+        """Return an <img> tag linking to the key's value"""
+        return 'foo'
+
+    def renderData_other(self, context, mimeType, value):
+        return "Unable to format data of type %r" % mimeType
 
 
 class MetadataSection(Template.Section):
@@ -339,22 +407,50 @@ class MetadataSection(Template.Section):
             ])]
 
 
+class MetadataValuePage(resource.Resource):
+    """A web resource that returns the raw value of a metadata key, with the proper MIME type"""
+    def __init__(self, target, key):
+        self.target = target
+        self.key = key
+        resource.Resource.__init__(self)
+
+    def render(self, request):
+        try:
+            value = self.target.metadata[self.key]
+        except KeyError:
+            return "404"
+        return str(value)
+
+
 class MetadataPage(Template.Page):
     """A web page providing an interface for viewing and editing a StatsTarget's
        metadata. Children of this page are pages that render individual metadata keys
        with no extra formatting.
        """
-    def __init__(self, caps, target):
-        self.caps = caps
-        self.target = target
+    def __init__(self, statsPage):
+        self.statsPage = statsPage
+
+    def preRender(self, context):
+        # We need our stats page to add its 'statsRootPath' so we can generate hyperlinks properly
+        self.statsPage.preRender(context)
 
     def render_mainTitle(self, context):
-        return "Metadata for stats://%s" % "/".join(self.target.pathSegments)
+        return "Metadata for stats://%s" % "/".join(self.statsPage.target.pathSegments)
 
     def render_mainColumn(self, context):
         return [
-            MetadataSection(self.target.metadata),
+            MetadataSection(self.statsPage.target.metadata),
             ]
+
+    def getChildWithDefault(self, name, request):
+        """Part of IResource, called by twisted.web to retrieve pages for URIs
+           below this one. Children of a MetadataPage are MetadataValuePages
+           """
+        if not name:
+            # Ignore empty path sections
+            return self
+        else:
+            return MetadataValuePage(self.statsPage.target, name)
 
 
 class StatsPage(Template.Page):
@@ -372,14 +468,15 @@ class StatsPage(Template.Page):
 
     def getChildWithDefault(self, name, request):
         """Part of IResource, called by twisted.web to retrieve pages for URIs
-           below this one. This just creates a StatsPage instance for our StatsTarget's child.
+           below this one. This just creates a StatsPage instance for our StatsTarget's child,
+           with a few special cases used for metadata and editing.
            """
         if not name:
             # Ignore empty path sections
             return self
         elif name == '.metadata':
             # Return a special page that accesses this stats target's metadata
-            return MetadataPage(self.caps, self.target)
+            return MetadataPage(self)
         else:
             # Return the stats page for a child
             return StatsPage(self.caps, self.storage,
@@ -397,6 +494,7 @@ class StatsPage(Template.Page):
 
     def preRender(self, context):
         context['statsRootPath'] = self.findRootPath(context['request'])
+        context['statsTarget'] = self.target
 
     def render_mainTitle(self, context):
         return self.target.getTitle()
