@@ -609,10 +609,7 @@ void			BackgroundRenderer::drawGround()
       glColor3fv(groundColor[styleIndex]);
     groundGState[styleIndex].setState();
   }
-
-	glDepthMask(1);
   simpleGroundList[styleIndex].execute();
-	glDepthMask(0);
 }
 
 void			BackgroundRenderer::drawGroundGrid(
