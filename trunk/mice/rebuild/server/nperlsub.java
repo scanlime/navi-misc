@@ -50,10 +50,11 @@ public class nperlsub extends nbase
 	 */
 	private String hexwash(String toclean)
 	{
-		String toreturn, temp;
+		String toreturn = "", temp;
 		int value = 32;
 		StringTokenizer tokens = new StringTokenizer(toclean,"%",false);
-		toreturn = tokens.nextToken();
+		if(toreturn.hasMoreTokens())
+			tokens.nextToken();
 		while(tokens.hasMoreTokens())
 		{
 			//squeeze the juice out of it!

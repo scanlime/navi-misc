@@ -31,7 +31,7 @@ public class asubmit
 	public static void submit(String Name, String Question)
 	{
 		//this is where we have checks for auto-rejection
-	
+		if(Name == null || Question == null) return;
 		//create a new question
 		question in = new question(Name,Question);
 		//add it to the input queue
