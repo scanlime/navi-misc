@@ -91,6 +91,7 @@ void startclick(GtkWidget *widget, gpointer user_data);
 void stopclick(GtkWidget *widget, gpointer user_data);
 void param_spinner_changed(GtkWidget *widget, gpointer user_data);
 void rendering_param_changed(GtkWidget *widget, gpointer user_data);
+void color_changed(GtkWidget *widget, gpointer user_data);
 float generate_random_param();
 void randomclick(GtkWidget *widget, gpointer user_data);
 gchar* save_parameters();
@@ -463,11 +464,11 @@ GtkWidget *build_sidebar() {
 
     gui.fgcolor = color_button_new("Foreground Color", &render.fgcolor);
     add_to_sidebar(table, &row, 1, 2, gui.fgcolor);
-    g_signal_connect(G_OBJECT(gui.fgcolor), "changed", G_CALLBACK(rendering_param_changed), NULL);
+    g_signal_connect(G_OBJECT(gui.fgcolor), "changed", G_CALLBACK(color_changed), NULL);
 
     gui.bgcolor = color_button_new("Background Color", &render.bgcolor);
     add_to_sidebar(table, &row, 1, 2, gui.bgcolor);
-    g_signal_connect(G_OBJECT(gui.bgcolor), "changed", G_CALLBACK(rendering_param_changed), NULL);
+    g_signal_connect(G_OBJECT(gui.bgcolor), "changed", G_CALLBACK(color_changed), NULL);
 
     /* Skip separator */
     row++;
@@ -799,9 +800,22 @@ void param_spinner_changed(GtkWidget *widget, gpointer user_data) {
 void rendering_param_changed(GtkWidget *widget, gpointer user_data) {
   render.exposure = gtk_spin_button_get_value(GTK_SPIN_BUTTON(gui.exposure));
   render.gamma = gtk_spin_button_get_value(GTK_SPIN_BUTTON(gui.gamma));
+  render.dirty_flag = TRUE;
+}
+
+void color_changed(GtkWidget *widget, gpointer user_data) {
+  /* The simple method of just setting dirty_flag works well when the spin
+   * button values change, but the color picker sucks up too much event loop
+   * time for that to work nicely for colors. This is a bit of a hack that
+   * makes color picking run much more smoothly.
+   */
+
   color_button_get_color(COLOR_BUTTON(gui.fgcolor), &render.fgcolor);
   color_button_get_color(COLOR_BUTTON(gui.bgcolor), &render.bgcolor);
   render.dirty_flag = TRUE;
+
+  gtk_main_iteration();
+  update_gui();
 }
 
 float generate_random_param() {
