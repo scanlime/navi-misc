@@ -1,0 +1,144 @@
+html, body {
+  font-family: bitstream vera sans, trebuchet MS, trebuchet, verdana, sans-serif;
+  font-size: 9pt;
+  background: white;
+  margin: 0; padding: 0;
+  bottom: 0px;
+  height: 100%;
+}
+
+.body {
+  position: relative;
+  height: 100%;
+}
+
+html > body .body {
+  height: auto;
+  min-height: 100%;
+}
+
+.title {
+  position: absolute;
+  background: #ccc;
+  background-image: url("xchat-gnome.png");
+  background-repeat: no-repeat;
+  background-position: 1px 1px;
+  border-bottom: 1px solid #666;
+  left: 0; top: 0;
+  right: 0;
+  height: 50px;
+  font-size: 38px;
+  color: #666;
+  padding-left: 52px;
+  clear: both;
+}
+
+.subtitle {
+  position: absolute;
+  right: 0;
+  padding-right: 12px;
+}
+
+.sidebar {
+  position: absolute;
+  width: 180px;
+  background: #f3f3f3;
+  color: #444;
+  border-left: 1px dotted #bbb;
+  border-bottom: 1px dotted #bbb;
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+  clear: both;
+}
+
+.sidebar a:link {
+  text-decoration: none;
+  color: #444;
+}
+
+.sidebar a:visited {
+  text-decoration: none;
+  color: #444;
+}
+
+.sidebar a:hover {
+  text-decoration: underline;
+}
+
+.sidebar-section {
+  padding: 10px;
+  border-top: 1px dotted #bbb;
+}
+
+.sidebar-section:first-child {
+  border-top: 0px;
+}
+
+.content {
+  position: relative;
+  margin-right: 180px;
+  margin-top: 51px;
+  padding: 1em;
+  clear: both;
+  color: #000;
+}
+
+.code {
+  margin-left: 2em;
+  margin-top: 2em;
+  font-family: monospace;
+  border: 1px dotted #bbb;
+}
+
+p {
+  margin: 0em;
+  margin-top: 1em;
+  text-indent: 3em;
+}
+
+.section-title {
+  margin-bottom: 10px;
+  font-size: 120%;
+  background: #ccc;
+  color: #444;
+  padding: 2px 5px 2px 5px;
+  border: 1px solid black;
+  top: 2em;
+  vertical-align: middle;
+}
+
+.section {
+  padding-left: 3em;
+  margin-bottom: 30px;
+}
+
+.content a:link {
+  text-decoration: none;
+  color: #9f4747;
+}
+
+.content a:visited {
+  text-decoration: none;
+  color: #9f4747;
+}
+
+.content a:hover {
+  text-decoration: underline;
+}
+.section a.download:link {
+  padding-left: 1.5em;
+}
+
+.section a.download:visited {
+  padding-left: 1.5em;
+}
+
+.comment {
+  font-style: italic;
+  color: #777;
+}
+
+.section img {
+  border: 0;
+}

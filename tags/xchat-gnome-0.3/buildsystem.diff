@@ -1,0 +1,249 @@
+Index: configure.in
+===================================================================
+RCS file: /cvsroot/xchat/xchat2/configure.in,v
+retrieving revision 1.75
+diff -u -r1.75 configure.in
+--- configure.in	2 Feb 2005 10:03:39 -0000	1.75
++++ configure.in	1 Mar 2005 02:45:27 -0000
+@@ -2,7 +2,7 @@
+ 
+ AC_INIT(src)
+ AM_CONFIG_HEADER(config.h)
+-AM_INIT_AUTOMAKE(xchat, 2.4.1)
++AM_INIT_AUTOMAKE(xchat-gnome, 0.3)
+ AM_MAINTAINER_MODE
+ AC_PROG_CC
+ AC_PROG_CPP
+@@ -62,6 +62,10 @@
+ [  --enable-memdebug       enable use of Memory Debug (default: no)],
+         memdebug=$enableval, memdebug=no)
+ 
++AC_ARG_ENABLE(profiling,
++[  --enable-profiling      turn on profiling support (default: no)],
++        profiling=$enableval, profiling=no)
++
+ AC_ARG_ENABLE(socks,
+ [  --enable-socks          link with SOCKS5 library (default: no)],
+         socks=$enableval, socks=no)
+@@ -86,9 +90,9 @@
+ [  --enable-textfe         build the text frontend (default: no)],
+         textfe=$enableval, textfe=no)
+ 
+-dnl AC_ARG_ENABLE(gnome,
+-dnl [  --disable-gnome         disable use of gnome],
+-dnl        gnome=$enableval, gnome=yes)
++AC_ARG_ENABLE(gnomefe,
++[  --disable-gnomefe       disable the gnome frontend],
++       gnomefe=$enableval, gnomefe=yes)
+ 
+ dnl AC_ARG_ENABLE(zvt,
+ dnl [  --disable-zvt           disable zvt/shelltab feature],
+@@ -114,6 +118,14 @@
+ [  --enable-tcl[=PATH]       directory with Tcl config file: tclConfig.sh],
+         tcl=$enableval, tcl=yes)
+ 
++AC_ARG_ENABLE(url_scraper,
++[  --disable-url_scraper,  don't build the url scraper plugin],
++		urlscraper=$enableval, urlscraper=yes)
++
++AC_ARG_ENABLE(notification,
++[  --disable-notification,  don't build the notification plugin],
++	  notification=$enableval, notification=yes)
++
+ AC_ARG_ENABLE(plugin,
+ [  --disable-plugin        disable plugin support],
+         plugin=$enableval, plugin=yes)
+@@ -160,7 +172,6 @@
+ fi
+ 
+ if test "$gtkfe" != yes; then
+-	gnome=no
+ 	zvt=no
+ 	COMMON_LIBS="$GLIB_LIBS"
+ 	COMMON_CFLAGS="$GLIB_CFLAGS"
+@@ -173,22 +184,38 @@
+ GUI_LIBS="$GUI_LIBS $GTK_LIBS"
+ GUI_CFLAGS="$GUI_CFLAGS $GTK_CFLAGS"
+ 
+-gnome=no
+-#if test "$gnome" = yes; then
+-#	AC_PATH_PROG(pkgconfigpath, pkg-config)
+-#	AC_MSG_CHECKING(Gnome2 compile flags)
+-#	GNOME_CFLAGS="`$pkgconfigpath libgnome-2.0 --cflags 2>/dev/null`"
+-#	if test "_$GNOME_CFLAGS" = _ ; then
+-#		gnome=no
+-#		AC_MSG_RESULT([Gnome not found, building without it.])
+-#	else
+-#		GNOME_VER="`$pkgconfigpath libgnome-2.0 --modversion`"
+-#		GUI_LIBS="$GUI_LIBS `$pkgconfigpath libgnome-2.0 --libs`"
+-#		GUI_CFLAGS="$GUI_CFLAGS $GNOME_CFLAGS"
+-#		AC_DEFINE(USE_GNOME)
+-#		AC_MSG_RESULT(ok)
+-#	fi
+-#fi
++AM_PATH_GTK_2_0(2.3.1, havenewgtk=yes, havenewgtk=no)
++
++if test "$havenewgtk" != yes; then
++	gnomefe=no
++	echo
++	echo Cannot find GTK+ 2.3\! Not building GNOME FrontEnd.
++	echo
++fi
++
++if test "$gnomefe" = yes; then
++	AC_PATH_PROG(pkgconfigpath, pkg-config)
++	AC_MSG_CHECKING(Gnome2 compile flags)
++	GNOME_CFLAGS="`$pkgconfigpath libgnome-2.0 libgnomeui-2.0 libglade-2.0 gnome-vfs-2.0 gconf-2.0 --cflags 2>/dev/null`"
++	if test "_$GNOME_CFLAGS" = _ ; then
++		gnomefe=no
++		AC_MSG_RESULT([Gnome not found, building without it.])
++	else
++		GNOME_VER="`$pkgconfigpath libgnome-2.0 --modversion`"
++		GUI_LIBS="$GUI_LIBS `$pkgconfigpath libgnome-2.0 --libs`"
++		GUI_LIBS="$GUI_LIBS `$pkgconfigpath libgnomeui-2.0 --libs`";
++		GUI_LIBS="$GUI_LIBS `$pkgconfigpath libglade-2.0 --libs`";
++		GUI_LIBS="$GUI_LIBS `$pkgconfigpath gnome-vfs-2.0 --libs`";
++		GUI_LIBS="$GUI_LIBS `$pkgconfigpath gconf-2.0 --libs`";
++		GUI_CFLAGS="$GUI_CFLAGS $GNOME_CFLAGS"
++		AC_MSG_RESULT(ok)
++	fi
++
++fi
++
++# GConf
++AC_PATH_PROG(GCONFTOOL, gconftool-2, no)
++AM_GCONF_SOURCE_2
+ 
+ dnl *********************************************************************
+ dnl ** XFT **************************************************************
+@@ -467,9 +494,12 @@
+ AM_CONDITIONAL(USE_OPENSSL, test "x$openssl" = "xyes")
+ AM_CONDITIONAL(DO_TEXT, test "x$textfe" = "xyes")
+ AM_CONDITIONAL(DO_GTK, test "x$gtkfe" = "xyes")
++AM_CONDITIONAL(DO_GNOME, test "x$gnomefe" = "xyes")
+ AM_CONDITIONAL(DO_PERL, test "x$perl" = "xyes")
+ AM_CONDITIONAL(DO_PYTHON, test "x$python" = "xyes")
+ AM_CONDITIONAL(DO_TCL, test "x$tcl" = "xyes")
++AM_CONDITIONAL(DO_URLSCRAPER, test "x$urlscraper" = "xyes")
++AM_CONDITIONAL(DO_NOTIFICATION, test "x$notification" = "xyes")
+ AM_CONDITIONAL(DO_PLUGIN, test "x$plugin" = "xyes")
+ 
+ dnl *********************************************************************
+@@ -563,6 +593,10 @@
+ 	fi
+ fi
+ 
++if test x$enable_profiling = xyes; then
++	CFLAGS="$CFLAGS -pg"
++fi
++
+ dnl *********************************************************************
+ dnl ** FUNCTIONS/LIBS/CFLAGS ********************************************
+ dnl *********************************************************************
+@@ -654,12 +688,17 @@
+ src/Makefile
+ src/common/Makefile
+ src/fe-text/Makefile
++src/fe-gnome/Makefile
++src/fe-gnome/data/Makefile
++src/fe-gnome/pixmaps/Makefile
+ src/fe-gtk/Makefile
+ src/pixmaps/Makefile
+ plugins/Makefile
+ plugins/python/Makefile
+ plugins/perl/Makefile
+ plugins/tcl/Makefile
++plugins/url_scraper/Makefile
++plugins/notification/Makefile
+ intl/Makefile
+ po/Makefile.in
+ ])
+@@ -667,10 +706,14 @@
+ echo
+ echo xchat $VERSION
+ echo
+-echo Building GTK+ Interface .... : $gtkfe
+-echo Building TEXT Interface .... : $textfe
++echo Building GTK+  Interface .... : $gtkfe
++echo Building TEXT  Interface .... : $textfe
++echo Building GNOME Interface .... : $gnomefe
+ echo
+-echo PLUGINS: Perl: $perl Python: $python TCL: $tcl
++echo PLUGINS:
++echo Perl: $perl\    Python: $python 
++echo TCL: $tcl\      Url Scraper: $urlscraper
++echo Notification: $notification
+ echo
+ echo mmx tinting ......... : $mmx
+ echo XShm tinting ........ : $shm\	plugin interface .... : $plugin
+Index: plugins/Makefile.am
+===================================================================
+RCS file: /cvsroot/xchat/xchat2/plugins/Makefile.am,v
+retrieving revision 1.4
+diff -u -r1.4 Makefile.am
+--- plugins/Makefile.am	13 Jan 2003 07:29:36 -0000	1.4
++++ plugins/Makefile.am	1 Mar 2005 02:45:27 -0000
+@@ -1,10 +1,10 @@
+ # temp. solution while mailcheck & xdcc arn't in SUBDIRS
+-EXTRA_DIST = plugin20.html Make.plugin plugin-conf.in \
+-				mailcheck/mailcheck.c \
+-				mailcheck/mailcheck-config.h.in \
+-				mailcheck/Makefile.am \
+-				xdcc/xdcc.c \
+-				xdcc/Makefile.am
++EXTRA_DIST =		\
++	plugin20.html	\
++	Make.plugin	\
++	plugin-conf.in	\
++	xdcc/xdcc.c	\
++	xdcc/Makefile.am
+ 
+ noinst_HEADERS = xchat-plugin.h
+ 
+@@ -20,5 +20,13 @@
+ tcldir = tcl
+ endif
+ 
++if DO_URLSCRAPER
++urlscrprdir = url_scraper
++endif
++
++if DO_NOTIFICATION
++notificationdir = notification
++endif
++
+ #SUBDIRS = . $(pythondir) $(perldir) mailcheck xdcc
+-SUBDIRS = . $(pythondir) $(perldir) $(tcldir)
++SUBDIRS = . $(pythondir) $(perldir) $(tcldir) $(urlscrprdir) $(notificationdir)
+Index: plugins/mailcheck/Makefile.am
+===================================================================
+RCS file: /cvsroot/xchat/xchat2/plugins/mailcheck/Makefile.am,v
+retrieving revision 1.1
+diff -u -r1.1 Makefile.am
+--- plugins/mailcheck/Makefile.am	17 Dec 2002 15:36:39 -0000	1.1
++++ plugins/mailcheck/Makefile.am	1 Mar 2005 02:45:27 -0000
+@@ -10,7 +10,6 @@
+ 
+ # This file must be in the form PLUGIN-config.h.in, it can be empty but
+ # must exist
+-EXTRA_DIST = mailcheck-config.h.in
+ 
+ # Remember to include this line in your Makefile.am
+ include @top_srcdir@/plugins/Make.plugin
+Index: src/Makefile.am
+===================================================================
+RCS file: /cvsroot/xchat/xchat2/src/Makefile.am,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 Makefile.am
+--- src/Makefile.am	28 Nov 2002 10:39:00 -0000	1.1.1.1
++++ src/Makefile.am	1 Mar 2005 02:45:56 -0000
+@@ -11,4 +11,8 @@
+ gtk_fe = fe-gtk
+ endif
+ 
+-SUBDIRS = pixmaps common $(gtk_fe) $(text_fe)
++if DO_GNOME
++gnome_fe = fe-gnome
++endif
++
++SUBDIRS = pixmaps common $(gtk_fe) $(text_fe) $(gnome_fe)

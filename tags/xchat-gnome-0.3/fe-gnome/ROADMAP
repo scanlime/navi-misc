@@ -1,0 +1,54 @@
+This is just a preliminary roadmap, subject to whatever people want to work on.
+
+0.3:	Features
+-	Color palette/schemes					- David (complete)
+-	Network/server configuration				- David (complete)
+-	URLScraper plugin					- Evan (complete enough)
+-	Verify that all hardcoded strings are
+	enclosed in intltool _() macros				- David (complete)
+-	Implement searching (firefox style would be nice!)	- David (complete)
+-	Fix close bug with Connect and Prefs dialogs		- Evan (complete)
+
+0.4:	Bugfixes
+-	Autogenerate inline pngs during build
+-	Fix connect dialog to check for existing open
+	networks before creating a new connection
+-	Fix context menus - implement unworking,
+	make menus actually depend on the context
+-	Fix navigation tree to use non-case-sensitive
+	sorting rather than lexicographical order
+-	Fix plugins preferences to properly handle scripts	- Evan
+
+0.5:	Features
+-	Redo DCC UI						- David
+-	Implement options in channel list dialog
+-	Allow plugins to add a prefs page to the prefs dialog	- Evan
+-	Finish implementing keybindings UI?			- Dan
+
+
+0.6:	Refactoring
+-	Convert individual dialogs/pages into GObjects where
+	possible, keeping pointers to widgets - remove most
+	of the calls to glade_xml_get_widget()
+-	Refactor for multiple conversation windows
+
+0.7:
+-	User documentation!
+-	Any other infrastructure for translation
+
+undetermined:
+-	Autopackage/binreloc/relaytool
+-	Split each transient dialog out of into its own glade file
+-	Make URLs in xtext show up as blue (gconf configurable color?)
+-	Make text surrounded by asterisks show up as bold, text
+	surrouned by underscores show up as underlined, etc
+
+when releasing:
+-	Check to make sure changelog is complete
+-	Make sure all version numbers are up-to-date
+		(configure.in, ChangeLog)
+-	Make sure screenshots on the web site are current
+-	Tag the release
+-	Notify http://www.gnomefiles.org 			- Dan
+-	Notify freshmeat 					- David
+-	Notify footnotes
