@@ -115,29 +115,86 @@ highlight_selection_changed (GtkTreeSelection *select, PreferencesIrcPage *page)
 	}
 }
 
-#if 0
 static void
-save_highlight ()
+save_highlight (PreferencesIrcPage *page)
 {
 	GtkTreeIter iter;
-	gchar *hilight, *tmp, *tmp2;
-
-	if (gtk_tree_model_get_iter_first (GTK_TREE_MODEL (hilight_store), &iter)) {
-		gtk_tree_model_get (GTK_TREE_MODEL (hilight_store), &iter, 0, &tmp, -1);
-		hilight = g_strdup (tmp);
+	gchar *highlight, *tmp1, *tmp2;
+	if (gtk_tree_model_get_iter_first (GTK_TREE_MODEL (page->highlight_store), &iter)) {
+		gtk_tree_model_get (GTK_TREE_MODEL (page->highlight_store), &iter, 0, &tmp1, -1);
+		highlight = g_strdup (tmp1);
 	} else {
+		prefs.bluestring[0] = '\0';
 		return;
 	}
-	while (gtk_tree_model_iter_next (GTK_TREE_MODEL (hilight_store), &iter)) {
-		tmp2 = hilight;
-		gtk_tree_model_get (GTK_TREE_MODEL (hilight_store), &iter, 0, &tmp, -1);
-		hilight = g_strdup_printf ("%s,%s", tmp2, tmp);
+	while (gtk_tree_model_iter_next (GTK_TREE_MODEL (page->highlight_store), &iter)) {
+		tmp2 = highlight;
+		gtk_tree_model_get (GTK_TREE_MODEL (page->highlight_store), &iter, 0, &tmp1, -1);
+		highlight = g_strdup_printf ("%s,%s", tmp2, tmp1);
 		g_free (tmp2);
 	}
-	strncpy (prefs.bluestring, hilight, 300);
-	g_free (hilight);
+	strncpy (prefs.bluestring, highlight, 300);
+	g_free (highlight);
 }
-#endif
+
+static void
+highlight_add (GtkButton *button, PreferencesIrcPage *page)
+{
+	GtkTreeIter iter;
+	GtkTreePath *path;
+
+	gtk_list_store_append (page->highlight_store, &iter);
+	path = gtk_tree_model_get_path (GTK_TREE_MODEL (page->highlight_store), &iter);
+	gtk_tree_view_set_cursor (GTK_TREE_VIEW (page->highlight_list), path, page->highlight_column, TRUE);
+	gtk_tree_path_free (path);
+}
+
+static void
+highlight_edit (GtkButton *button, PreferencesIrcPage *page)
+{
+	GtkTreeSelection *select;
+	GtkTreeIter iter;
+	GtkTreeModel *model;
+	GtkTreePath *path;
+
+	select = gtk_tree_view_get_selection (GTK_TREE_VIEW (page->highlight_list));
+	if (gtk_tree_selection_get_selected (select, &model, &iter)) {
+		path = gtk_tree_model_get_path (GTK_TREE_MODEL (page->highlight_store), &iter);
+		gtk_tree_view_set_cursor (GTK_TREE_VIEW (page->highlight_list), path, page->highlight_column, TRUE);
+		gtk_tree_path_free (path);
+	}
+}
+
+static void
+highlight_remove (GtkButton *button, PreferencesIrcPage *page)
+{
+	GtkTreeSelection *select;
+	GtkTreeIter iter;
+	GtkTreeModel *model;
+
+	select = gtk_tree_view_get_selection (GTK_TREE_VIEW (page->highlight_list));
+	if (gtk_tree_selection_get_selected (select, &model, &iter)) {
+		gtk_list_store_remove (GTK_LIST_STORE (model), &iter);
+		save_highlight (page);
+	}
+}
+
+static void
+highlight_edited (GtkCellRendererText *renderer, gchar *arg1, gchar *newtext, PreferencesIrcPage *page)
+{
+	GtkTreeSelection *selection;
+	GtkTreeModel *model;
+	GtkTreeIter iter;
+
+	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (page->highlight_list));
+	if (gtk_tree_selection_get_selected (selection, &model, &iter)) {
+		if (strlen (newtext))
+			gtk_list_store_set (GTK_LIST_STORE (model), &iter, 0, newtext, -1);
+		else
+			gtk_list_store_remove (GTK_LIST_STORE (model), &iter);
+		save_highlight (page);
+	}
+}
 
 PreferencesIrcPage *
 preferences_page_irc_new (gpointer prefs_dialog, GladeXML *xml)
@@ -186,16 +243,19 @@ preferences_page_irc_new (gpointer prefs_dialog, GladeXML *xml)
 	gtk_size_group_add_widget (group, page->font_selection);
 	g_object_unref (group);
 
-	g_signal_connect (G_OBJECT (page->nick_name),       "changed",  G_CALLBACK (entry_changed),    "/apps/xchat/irc/nickname");
-	g_signal_connect (G_OBJECT (page->real_name),       "changed",  G_CALLBACK (entry_changed),    "/apps/xchat/irc/realname");
-	g_signal_connect (G_OBJECT (page->quit_message),    "changed",  G_CALLBACK (entry_changed),    "/apps/xchat/irc/quitmsg");
-	g_signal_connect (G_OBJECT (page->part_message),    "changed",  G_CALLBACK (entry_changed),    "/apps/xchat/irc/partmsg");
-	g_signal_connect (G_OBJECT (page->away_message),    "changed",  G_CALLBACK (entry_changed),    "/apps/xchat/irc/awaymsg");
-	g_signal_connect (G_OBJECT (page->usesysfonts),     "toggled",  G_CALLBACK (bool_changed),     "/apps/xchat/main_window/use_sys_fonts");
-	g_signal_connect (G_OBJECT (page->usesysfonts),     "toggled",  G_CALLBACK (sysfonts_changed), NULL);
-	g_signal_connect (G_OBJECT (page->font_selection),  "font-set", G_CALLBACK (font_changed),     "/apps/xchat/main_window/font");
-	g_signal_connect (G_OBJECT (page->show_colors),     "toggled",  G_CALLBACK (bool_changed),     "/apps/xchat/irc/showcolors");
-	g_signal_connect (G_OBJECT (page->show_timestamps), "toggled",  G_CALLBACK (bool_changed),     "/apps/xchat/irc/showtimestamps");
+	g_signal_connect (G_OBJECT (page->nick_name),        "changed",  G_CALLBACK (entry_changed),    "/apps/xchat/irc/nickname");
+	g_signal_connect (G_OBJECT (page->real_name),        "changed",  G_CALLBACK (entry_changed),    "/apps/xchat/irc/realname");
+	g_signal_connect (G_OBJECT (page->quit_message),     "changed",  G_CALLBACK (entry_changed),    "/apps/xchat/irc/quitmsg");
+	g_signal_connect (G_OBJECT (page->part_message),     "changed",  G_CALLBACK (entry_changed),    "/apps/xchat/irc/partmsg");
+	g_signal_connect (G_OBJECT (page->away_message),     "changed",  G_CALLBACK (entry_changed),    "/apps/xchat/irc/awaymsg");
+	g_signal_connect (G_OBJECT (page->usesysfonts),      "toggled",  G_CALLBACK (bool_changed),     "/apps/xchat/main_window/use_sys_fonts");
+	g_signal_connect (G_OBJECT (page->usesysfonts),      "toggled",  G_CALLBACK (sysfonts_changed), NULL);
+	g_signal_connect (G_OBJECT (page->font_selection),   "font-set", G_CALLBACK (font_changed),     "/apps/xchat/main_window/font");
+	g_signal_connect (G_OBJECT (page->show_colors),      "toggled",  G_CALLBACK (bool_changed),     "/apps/xchat/irc/showcolors");
+	g_signal_connect (G_OBJECT (page->show_timestamps),  "toggled",  G_CALLBACK (bool_changed),     "/apps/xchat/irc/showtimestamps");
+	g_signal_connect (G_OBJECT (page->highlight_add),    "clicked",  G_CALLBACK (highlight_add),    page);
+	g_signal_connect (G_OBJECT (page->highlight_edit),   "clicked",  G_CALLBACK (highlight_edit),   page);
+	g_signal_connect (G_OBJECT (page->highlight_remove), "clicked",  G_CALLBACK (highlight_remove), page);
 
 	gconf_client_notify_add (p->gconf, "/apps/xchat/irc/nickname",              (GConfClientNotifyFunc) gconf_entry_changed, page->nick_name,       NULL, NULL);
 	gconf_client_notify_add (p->gconf, "/apps/xchat/irc/realname",              (GConfClientNotifyFunc) gconf_entry_changed, page->real_name,       NULL, NULL);
@@ -245,11 +305,14 @@ preferences_page_irc_new (gpointer prefs_dialog, GladeXML *xml)
 	page->highlight_store = gtk_list_store_new (1, G_TYPE_STRING);
 	gtk_tree_view_set_model (GTK_TREE_VIEW (page->highlight_list), GTK_TREE_MODEL (page->highlight_store));
 	renderer = gtk_cell_renderer_text_new ();
-	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (page->highlight_list), 0, "highlight", renderer, "text", 0, NULL);
+	g_object_set (G_OBJECT (renderer), "editable", TRUE, NULL);
+	page->highlight_column = gtk_tree_view_column_new_with_attributes ("highlight", renderer, "text", 0, NULL);
+	gtk_tree_view_insert_column (GTK_TREE_VIEW (page->highlight_list), page->highlight_column, 0);
 	gtk_widget_set_sensitive (page->highlight_edit, FALSE);
 	gtk_widget_set_sensitive (page->highlight_remove, FALSE);
 	select = gtk_tree_view_get_selection (GTK_TREE_VIEW (page->highlight_list));
 	g_signal_connect (G_OBJECT (select), "changed", G_CALLBACK (highlight_selection_changed), page);
+	g_signal_connect (G_OBJECT (renderer), "edited", G_CALLBACK (highlight_edited), page);
 
 	highlight_entries = g_strsplit (prefs.bluestring, ",", 0);
 	for (i = 0; highlight_entries[i]; i++) {
