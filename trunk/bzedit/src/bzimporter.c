@@ -76,6 +76,8 @@ enum
   BZ_TOKEN_ROTATION,
   BZ_TOKEN_SIZE,
   BZ_TOKEN_BORDER,
+  BZ_TOKEN_FROM,
+  BZ_TOKEN_TO,
   BZ_TOKEN_END,
   BZ_TOKEN_LAST
 };
@@ -130,15 +132,17 @@ initialize_scanner()
   g_scanner_scope_add_symbol (scanner, BZ_SCOPE_TELEPORTER, "border",   GINT_TO_POINTER (BZ_TOKEN_BORDER));
   g_scanner_scope_add_symbol (scanner, BZ_SCOPE_TELEPORTER, "end",      GINT_TO_POINTER (BZ_TOKEN_END));
 
-  g_scanner_scope_add_symbol (scanner, BZ_SCOPE_LINK, "end",      GINT_TO_POINTER (BZ_TOKEN_END));
+  g_scanner_scope_add_symbol (scanner, BZ_SCOPE_LINK, "from", GINT_TO_POINTER (BZ_TOKEN_FROM));
+  g_scanner_scope_add_symbol (scanner, BZ_SCOPE_LINK, "to",   GINT_TO_POINTER (BZ_TOKEN_TO));
+  g_scanner_scope_add_symbol (scanner, BZ_SCOPE_LINK, "end",  GINT_TO_POINTER (BZ_TOKEN_END));
 
-  g_scanner_scope_add_symbol (scanner, BZ_SCOPE_BASE, "end",      GINT_TO_POINTER (BZ_TOKEN_END));
+  g_scanner_scope_add_symbol (scanner, BZ_SCOPE_BASE, "end", GINT_TO_POINTER (BZ_TOKEN_END));
 
-  g_scanner_scope_add_symbol (scanner, BZ_SCOPE_WEAPON, "end",      GINT_TO_POINTER (BZ_TOKEN_END));
+  g_scanner_scope_add_symbol (scanner, BZ_SCOPE_WEAPON, "end", GINT_TO_POINTER (BZ_TOKEN_END));
 
-  g_scanner_scope_add_symbol (scanner, BZ_SCOPE_ZONE, "end",      GINT_TO_POINTER (BZ_TOKEN_END));
+  g_scanner_scope_add_symbol (scanner, BZ_SCOPE_ZONE, "end", GINT_TO_POINTER (BZ_TOKEN_END));
 
-  g_scanner_scope_add_symbol (scanner, BZ_SCOPE_WORLD, "end",      GINT_TO_POINTER (BZ_TOKEN_END));
+  g_scanner_scope_add_symbol (scanner, BZ_SCOPE_WORLD, "end", GINT_TO_POINTER (BZ_TOKEN_END));
 
   box        = g_type_from_name ("Box");
   pyramid    = g_type_from_name ("Pyramid");
@@ -150,20 +154,38 @@ parse_double (SceneObject *object, const gchar *property)
 {
   GTokenType token;
   GTokenValue value;
+  gboolean negative = FALSE;
+  gdouble v;
 
   token = g_scanner_get_next_token (scanner);
+  if (token == G_TOKEN_CHAR)
+  {
+    value = g_scanner_cur_value (scanner);
+    if (value.v_char == '-')
+      negative = TRUE;
+    else
+    {
+      g_scanner_unexp_token (scanner, G_TOKEN_FLOAT, NULL, NULL, NULL, NULL, TRUE);
+      return FALSE;
+    }
+    token = g_scanner_get_next_token (scanner);
+  }
   if (token != G_TOKEN_FLOAT)
   {
     g_scanner_unexp_token (scanner, G_TOKEN_FLOAT, NULL, NULL, NULL, NULL, TRUE);
     return FALSE;
   }
   value = g_scanner_cur_value (scanner);
-  g_object_set (G_OBJECT (object), property, value.v_float, NULL);
+  v = value.v_float;
+  if (negative)
+    v *= -1.0;
+  if (property != NULL)
+    g_object_set (G_OBJECT (object), property, v, NULL);
   return TRUE;
 }
 
 static gboolean
-parse_box (Scene *scene)
+parse_box (Editor *editor)
 {
   GTokenType token;
   SceneObject *b = SCENE_OBJECT (g_object_new (box, NULL));
@@ -199,7 +221,9 @@ parse_box (Scene *scene)
     };
   } while (token != BZ_TOKEN_END);
 
-  scene_add (scene, b);
+  scene_add (editor->scene, b);
+  g_signal_connect (G_OBJECT (b), "selected", G_CALLBACK (editor_selected), (gpointer) editor);
+  scene_object_select (b);
   return TRUE;
 
   fail:
@@ -208,7 +232,7 @@ parse_box (Scene *scene)
 }
 
 static gboolean
-parse_pyramid (Scene *scene)
+parse_pyramid (Editor *editor)
 {
   GTokenType token;
   SceneObject *p = SCENE_OBJECT (g_object_new (pyramid, NULL));
@@ -244,7 +268,9 @@ parse_pyramid (Scene *scene)
     }
   } while (token != BZ_TOKEN_END);
 
-  scene_add (scene, p);
+  scene_add (editor->scene, p);
+  g_signal_connect (G_OBJECT (p), "selected", G_CALLBACK (editor_selected), (gpointer) editor);
+  scene_object_select (p);
   return TRUE;
 
   fail:
@@ -253,7 +279,7 @@ parse_pyramid (Scene *scene)
 }
 
 static gboolean
-parse_teleporter (Scene *scene)
+parse_teleporter (Editor *editor)
 {
   GTokenType token;
   SceneObject *t = SCENE_OBJECT (g_object_new (teleporter, NULL));
@@ -277,6 +303,8 @@ parse_teleporter (Scene *scene)
         if (!parse_double (t, "rotation")) goto fail;
 	break;
       case BZ_TOKEN_SIZE:
+	/* no X size */
+	parse_double (t, NULL);
         if (!parse_double (t, "width")) goto fail;
         if (!parse_double (t, "height")) goto fail;
 	break;
@@ -291,7 +319,9 @@ parse_teleporter (Scene *scene)
     }
   } while (token != BZ_TOKEN_END);
 
-  scene_add (scene, t);
+  scene_add (editor->scene, t);
+  g_signal_connect (G_OBJECT (t), "selected", G_CALLBACK (editor_selected), (gpointer) editor);
+  scene_object_select (t);
   return TRUE;
 
   fail:
@@ -300,11 +330,11 @@ parse_teleporter (Scene *scene)
 }
 
 static gboolean
-parse_link (Scene *scene)
+parse_link (Editor *editor)
 {
   GTokenType token;
 
-  g_scanner_set_scope (scanner, BZ_SCOPE_TELEPORTER);
+  g_scanner_set_scope (scanner, BZ_SCOPE_LINK);
 
   do
   {
@@ -314,8 +344,15 @@ parse_link (Scene *scene)
       case G_TOKEN_EOF:
         g_scanner_error (scanner, "%s: unexpected EOF at line %d\n", scanner->input_name, g_scanner_cur_line (scanner));
 	goto fail;
+
+      case BZ_TOKEN_FROM:
+      case BZ_TOKEN_TO:
+        token = g_scanner_get_next_token (scanner);
+	break;
+
       case BZ_TOKEN_END:
         break;
+
       default:
         g_scanner_unexp_token (scanner, token, NULL, NULL, NULL, NULL, TRUE);
 	goto fail;
@@ -329,7 +366,7 @@ parse_link (Scene *scene)
 }
 
 gboolean
-import_bz (gchar *filename, Scene *scene)
+import_bz (gchar *filename, Editor *editor)
 {
   gint fd;
   GTokenType token;
@@ -352,16 +389,16 @@ import_bz (gchar *filename, Scene *scene)
     switch (token)
     {
       case BZ_TOKEN_BOX:
-        if (!parse_box (scene)) goto fail;
+        if (!parse_box (editor)) goto fail;
 	break;
       case BZ_TOKEN_PYRAMID:
-        if (!parse_pyramid (scene)) goto fail;
+        if (!parse_pyramid (editor)) goto fail;
 	break;
       case BZ_TOKEN_TELEPORTER:
-        if (!parse_teleporter (scene)) goto fail;
+        if (!parse_teleporter (editor)) goto fail;
 	break;
       case BZ_TOKEN_LINK:
-        if (!parse_link (scene)) goto fail;
+        if (!parse_link (editor)) goto fail;
 	break;
       case G_TOKEN_EOF:
         break;

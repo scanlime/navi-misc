@@ -71,7 +71,7 @@ scene_object_class_init (SceneObjectClass *klass)
                                   NULL, NULL,
                                   g_cclosure_marshal_VOID__VOID,
                                   G_TYPE_NONE, 0);
-  
+
   signals[SELECT] = g_signal_new ("selected", G_OBJECT_CLASS_TYPE (klass),
                                   G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION,
                                   G_STRUCT_OFFSET (SceneObjectClass, selected),
@@ -93,6 +93,7 @@ scene_object_init (SceneObject *self)
 {
   self->selected = FALSE;
   self->parent = NULL;
+  self->name = NULL;
 }
 
 void

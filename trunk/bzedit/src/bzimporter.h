@@ -23,8 +23,8 @@
 #ifndef __BZ_IMPORTER_H__
 #define __BZ_IMPORTER_H__
 
-#include "scene.h"
+#include "editor.h"
 
-gboolean import_bz (gchar *filename, Scene *scene);
+gboolean import_bz (gchar *filename, Editor *editor);
 
 #endif

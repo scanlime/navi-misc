@@ -69,6 +69,7 @@ struct _EditorClass
 
 GType   editor_get_type (void) G_GNUC_CONST;
 Editor* editor_new      (void);
+void    editor_selected (SceneObject *object, Editor *editor);
 
 G_END_DECLS
 
