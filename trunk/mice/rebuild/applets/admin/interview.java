@@ -32,6 +32,15 @@ public class interview implements ActionListener
 	/** The passwords for the interviews text fields */
 	private TextField[] passwords;
 	
+	/** The checkbox group array for them */
+	private CheckboxGroup[] cbgs;
+	
+	/** The Java checkboxes. */
+	private Checkbox[] java;
+	
+	/** The AIM checkboxes. */
+	private Checkbox[] aim;
+	
 	/**
 	 * This constructs the interview object, and gets everything all set up
 	 * @param my A reference to the applet for adding and removing purposes
@@ -92,13 +101,24 @@ public class interview implements ActionListener
 		int i;
 		usernames = new TextField[count];
 		passwords = new TextField[count];
-		admin.help.setText("Please enter the usernames and passwords for each of the interviews.  If IRC or AIM is used for the password, then the username will be seen as an AIM or IRC nickname to be used.");
+		
+		cbgs = new CheckboxGroup[count];
+		java = new Checkbox[count];
+		aim = new Checkbox[count];
+		
+		admin.help.setText("Please enter the usernames and passwords for each of the interviews, and select the type of client they will use.  If iChat is selected, the password field will be ignored.");
 		for(i=0;i<count;i++)
 		{
 			usernames[i] = new TextField(("username " + (i+1)),20);
 			passwords[i] = new TextField(("password " + (i+1)),20);
+			cbgs[i] = new CheckboxGroup();
+			java[i] = new Checkbox("Java",cbgs[i],true);
+			aim[i] = new Checkbox("iChat",cbgs[i],false);
+			
 			myadmin.ad(usernames[i]);
 			myadmin.ad(passwords[i]);
+			myadmin.ad(java[i]);
+			myadmin.ad(aim[i]);
 		}
 		myadmin.ad(submit);
 	}
