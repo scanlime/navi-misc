@@ -2,6 +2,7 @@
 \include "01_allegro_ma_non_troppo/cello.ly"
 \include "01_allegro_ma_non_troppo/flute.ly"
 \include "01_allegro_ma_non_troppo/piano.ly"
+\include "01_allegro_ma_non_troppo/timpani.ly"
 
 \book {
 	\header {
@@ -22,6 +23,11 @@
 					\mvmtOneBassoon
 				}
 			>>
+			\context Staff = "timpani" {
+				\set Staff.instrument = "Timpani"
+				\set Staff.instr = "Timp."
+				\mvmtOneTimpani
+			}
 			\context PianoStaff <<
 				\set PianoStaff.connectArpeggios = ##t
 				\set PianoStaff.instrument = "Piano"
@@ -43,7 +49,7 @@
 			>>
 		>>
 		\layout {
-			\context { \RemoveEmptyStaffContext }
+%			\context { \RemoveEmptyStaffContext }
 		}
 	}
 }
