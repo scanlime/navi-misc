@@ -91,15 +91,8 @@ static void update_color_table() {
   /* Reallocate the color table if necessary, then regenerate its contents
    * to match the current_density, exposure, gamma, and other rendering parameters.
    * The color tabls is what maps counts[] values to pixels[] values quickly.
-   *
-   * Note that the target_density doesn't include oversampling. Since the
-   * final accumulated count value can range to the current density times
-   * oversample^2, we need that much of a larger array. Yay. We don't however
-   * have to account for this when computing fscale, since it uses the
-   * non-oversampled size in calculating image density.
    */
-  guint oversampled_density = render.current_density * render.oversample * render.oversample;
-  guint required_size = oversampled_density + 1;
+  guint required_size = render.current_density + 1;
   guint count;
   int r, g, b;
   float pixel_scale = get_pixel_scale();
@@ -117,7 +110,7 @@ static void update_color_table() {
   }
 
   /* Generate one color for every currently-possible count value... */
-  for (count=0; count<=oversampled_density; count++) {
+  for (count=0; count<=render.current_density; count++) {
 
     /* Scale and gamma-correct */
     luma = count * pixel_scale;
@@ -149,10 +142,7 @@ void update_pixels() {
   guint32 *pixel_p;
   guint *count_p, *sample_p;
   const int oversample = render.oversample;
-  const int sample_stride = (render.width * oversample) - oversample;
-  const int sample_y_stride = (render.width * oversample) * (oversample - 1);
-  int x, y, sample_x, sample_y;
-  guint sample;
+  int x, y;
 
   update_color_table();
 
@@ -162,21 +152,48 @@ void update_pixels() {
   if (oversample > 1) {
     /* Nice ugly loop that downsamples from counts[] to pixels[] */
 
+    const int oversample_squared = oversample * oversample;
+    const int sample_stride = (render.width * oversample) - oversample;
+    const int sample_y_stride = (render.width * oversample) * (oversample - 1);
+    int sample_x, sample_y;
+    int ch0, ch1, ch2, ch3;
+    union {
+      guint32 word;
+      struct {
+	guchar ch0, ch1, ch2, ch3;
+      } channels;
+    } sample_pixel;
+
     for (y=render.height; y; y--) {
       for (x=render.width; x; x--) {
 
-	/* For each output pixel, accumulate an oversample^2 region of point counts */
-	sample = 0;
+	/* Convert each oversampled input point to a color separately, then
+	 * average the resulting colors using the ch0 through ch3 channel
+	 * accumulators. Note that which channel is which depends on the
+	 * machine's endianness, so we can't name them red, green, blue,
+	 * and alpha here.
+	 */
+
+	ch0 = ch1 = ch2 = ch3 = 0;
 	sample_p = count_p;
+
 	for (sample_y=oversample; sample_y; sample_y--) {
 	  for (sample_x=oversample; sample_x; sample_x--) {
-	    sample += *(sample_p++);
+	    sample_pixel.word = render.color_table[*(sample_p++)];
+	    ch0 += sample_pixel.channels.ch0;
+	    ch1 += sample_pixel.channels.ch1;
+	    ch2 += sample_pixel.channels.ch2;
+	    ch3 += sample_pixel.channels.ch3;
 	  }
 	  sample_p += sample_stride;
 	}
-
 	count_p += oversample;
-	*(pixel_p++) = render.color_table[sample];
+
+	sample_pixel.channels.ch0 = ch0 / oversample_squared;
+	sample_pixel.channels.ch1 = ch1 / oversample_squared;
+	sample_pixel.channels.ch2 = ch2 / oversample_squared;
+	sample_pixel.channels.ch3 = ch3 / oversample_squared;
+	*(pixel_p++) = sample_pixel.word;
       }
       count_p += sample_y_stride;
     }
