@@ -133,12 +133,12 @@ public class PipelineEditor
 		// create the canvas
 		pipeline_drawing = new PipelineDrawing();
 		pipeline_window.Add (pipeline_drawing);
-		pipeline_drawing.ShowAll ();
+		pipeline_drawing.Show ();
 
 		pipeline_drawing.SetScrollAdjustments (drawing_hscroll.Adjustment, drawing_vscroll.Adjustment);
 
-		// Set up drag-and-drop for the frame, since the canvas doesn't
-		// seem to do drag hilighting properly
+		// Set up drag-and-drop for the frame. This looks better than setting it
+		// up for the drawing area, but it doesn't really affect structure
 		Gtk.Drag.DestSet (pipeline_window, Gtk.DestDefaults.All, targets, Gdk.DragAction.Copy);
 	}
 
