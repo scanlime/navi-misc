@@ -214,9 +214,12 @@ namespace Fyre
 			int mouse_x = (int) ev.XRoot;
 			int mouse_y = (int) ev.YRoot;
 
-			// FIXME: replace this with document extents * 0.1
+			Gdk.Rectangle canvas = drawing.CanvasExtents;
+
+			// Always use a 200px box for our navigation window
+			float aspect = ((float) canvas.Height) / ((float) canvas.Width);
 			position.Width  = 200;
-			position.Height = 150;
+			position.Height = (int) (200 * aspect);
 
 			// FIXME: determine window extents
 			visible[0] = 40;
