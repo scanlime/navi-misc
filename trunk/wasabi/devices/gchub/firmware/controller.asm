@@ -81,10 +81,14 @@ clearLoop
 	goto	clearLoop
 	endm
 
+map_byte	macro	gc_src, packet_dest
+	movf	gamecube_buffer + gc_src, w
+	movwf	controller_buffer + packet_dest
+	endm
 
 	;; Poll one controller, fpsleep'ing for each packet it generates
 poll_controller	macro	port_number
-	local	timeout
+	local	timeout_handler
 	local	done
 
 	banksel	gamecube_buffer
@@ -109,24 +113,32 @@ poll_controller	macro	port_number
 	movwf	FSR
 	movlw	8
 	bcf	STATUS, RP0		; Back to bank 0
-	n64gc_rx_buffer	PORTA, port_number, timeout
+	n64gc_rx_buffer	PORTA, port_number, timeout_handler
 
 	;; Send back analog status
-	movlw	GCHUB_PACKET_ANALOG | port_number
 	banksel	controller_buffer
+	movlw	GCHUB_PACKET_ANALOG | port_number
 	movwf	controller_buffer
+	map_byte 2, 1
+	map_byte 3, 2
+	map_byte 4, 3
+	map_byte 5, 4
+	map_byte 6, 5
+	map_byte 7, 6
 	fpsleep	poll_state
 
 	;; Then send button status
-	movlw	GCHUB_PACKET_BUTTONS | port_number
 	banksel	controller_buffer
+	movlw	GCHUB_PACKET_BUTTONS | port_number
 	movwf	controller_buffer
+	map_byte 0, 1
+	map_byte 1, 2
 	fpsleep	poll_state
 
 	;; Send a disconnect packet for this controller if it timed out
 	pagesel	done
 	goto	done
-timeout
+timeout_handler
 	movlw	GCHUB_PACKET_DISCONNECT | port_number
 	banksel	controller_buffer
 	movwf	controller_buffer
@@ -155,6 +167,10 @@ controller_io_reset
 ;************************************************** Frontend
 
 controller_init
+	banksel	ADCON1		; Configure all pins as digital rather than analog
+	movlw	0x07
+	movwf	ADCON1
+
 	banksel	PORTA		; All outputs low by default
 	clrf	PORTA
 	clrf	PORTB
