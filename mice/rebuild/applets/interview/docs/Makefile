@@ -1,5 +1,8 @@
-docs:
+documents:
 	javadoc ../*.java
 
+run: documents
+	open index.html
+
 clean:
-	rm *.html *.css package-list
+	rm -Rf *.html *.css package-list resources/
