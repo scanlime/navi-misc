@@ -236,7 +236,7 @@ void run_iterations(int count) {
   const int count_height = render.height * render.oversample;
   const double scale = count_width / 5.0 * params.zoom;
   const double xcenter = count_width / 2.0 + params.xoffset * scale;
-  const double ycenter = count_height / 2.0 + params.xoffset * scale;
+  const double ycenter = count_height / 2.0 + params.yoffset * scale;
 
   /* Toggles to disable features that aren't needed */
   const gboolean rotation_enabled = params.rotation > 0.0001 || params.rotation < -0.0001;
