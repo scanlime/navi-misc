@@ -1,0 +1,19 @@
+#!/bin/sh
+
+if [ -e ./@target@ ] && [ -e ./Makefile.am ] ; then
+    echo "*** Running uninstalled @target@ ***"
+
+    export FYRE_WRAPPER_PATH="$PWD/@wrapper@"
+
+    THIS_EXE="./@target@"
+else
+    export FYRE_WRAPPER_PATH="@bindir@/@wrapper@"
+
+    THIS_EXE="@pkglibdir@/@target@"
+fi
+
+if [ -n "@extragac@" ]; then
+    export MONO_GAC_PREFIX="@extragac@:$MONO_GAC_PREFIX"
+fi
+
+exec mono --debug $MONO_EXTRA_ARGS $THIS_EXE "$@"
