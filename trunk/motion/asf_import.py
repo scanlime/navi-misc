@@ -21,7 +21,7 @@
 #
 
 """ Registration info for Blender menus
-Name: 'ASF Skeleton File (.asf)'
+Name: 'ASF Skeleton File (.asf)...'
 Blender: 236
 Group: 'Import'
 Tip: 'Imports an Acclaim ASF file and builds a set of armatures'
@@ -49,9 +49,10 @@ def importObjects(reader):
         bone = Blender.Armature.Bone.New(name)
 
         bone.setHead(0.0, 0.0, 0.0)
-        l = data.length
+        l = data.length * 0.1
         d = data.direction
-        bone.setTail(float(d[0]) * l, float(d[1]) * l, float(d[2]) * l)
+        # swizzle Y and Z
+        bone.setTail(float(d[0]) * l, float(d[2]) * l, float(d[1]) * l)
 
         bones[name] = bone
 
@@ -69,6 +70,10 @@ def importObjects(reader):
         for bone in children:
             bones[bone].setTail(addVectors(bones[bone].tail, bones[parent].tail))
             bones[bone].setHead(addVectors(bones[bone].head, bones[parent].tail))
+    for set in reader.hierarchy:
+        parent = set[0]
+        children = set[1:]
+        for bone in children:
             bones[bone].setParent(bones[parent])
             armData.addBone(bones[bone])
 
