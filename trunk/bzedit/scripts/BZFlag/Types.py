@@ -20,10 +20,17 @@ from Pyramid import *
 from World import *
 
 typeMap = {
-    'box' : Box,
-    'link' : None,
-    'options' : None,
-    'pyramid' : Pyramid,
-    'teleporter' : None,
-    'world' : None,
+    'arc'           : None,
+    'base'          : None,
+    'box'           : Box,
+    'define'        : None,
+    'dynamicColor'  : None,
+    'link'          : None,
+    'material'      : None,
+    'options'       : None,
+    'physics'       : None,
+    'pyramid'       : Pyramid,
+    'teleporter'    : None,
+    'textureMatrix' : None,
+    'world'         : None,
 }
