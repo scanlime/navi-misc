@@ -42,11 +42,12 @@ blockquote {
 }
 
 pre.literal-block {
+  /* Note that this is basically the same as div.formChoice */
   margin: 0em 2em;
-  padding: 0em;
-  background: #dee7ec;
-  border: 1px solid #8CACBB;
-}  
+  padding: 0.5em;
+  margin: 1em 2em;
+  border: 1px dotted #666;
+}
 
 ul {
   list-style-image: url(/images/bullet.png);
