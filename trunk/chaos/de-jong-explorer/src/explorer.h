@@ -59,7 +59,10 @@ struct _Explorer {
   GTimeVal last_update;
 
   gchar* current_tool;
+  gboolean tool_active;
   double last_mouse_x, last_mouse_y;
+  double last_click_x, last_click_y;
+  GTimeVal last_tool_idle_update;
 
   GtkWidget *fgcolor_button, *bgcolor_button;
 };
