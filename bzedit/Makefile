@@ -6,6 +6,7 @@ LIBS	+= $(shell pkg-config --libs $(PKGS))
 BIN	= bzedit
 
 OBJS	= 			\
+	src/box.o		\
 	src/editor.o		\
 	src/gldrawingarea.o	\
 	src/main.o		\
