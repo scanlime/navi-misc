@@ -152,16 +152,8 @@ int main(int argc, char ** argv) {
 	    quality = atof(optarg);
 	    break;
 
-	case 'r':
-	    mode = REMOTE;
-	    break;
-
 	case 'v':
 	    verbose = TRUE;
-	    break;
-
-	case 'P':
-	    port_number = atol(optarg);
 	    break;
 
 #ifdef HAVE_GNET
@@ -177,12 +169,25 @@ int main(int argc, char ** argv) {
 		cluster_model_enable_discovery(cluster);
 	    }
 	    break;
+	case 'r':
+	    mode = REMOTE;
+	    break;
+	case 'P':
+	    port_number = atol(optarg);
+	    break;
 #else
 	case 'c':
 	case 'C':
+	case 'P':
 	    fprintf(stderr,
 		    "This Fyre binary was compiled without gnet support.\n"
 		    "Cluster support is not available.\n");
+	    break;
+	case 'r':
+	    fprintf(stderr,
+		    "This Fyre binary was compiled without gnet support.\n"
+		    "Cluster support is not available.\n");
+	    exit(1);
 	    break;
 #endif
 
