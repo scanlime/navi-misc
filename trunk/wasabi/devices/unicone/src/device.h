@@ -63,13 +63,15 @@ int                       unicone_device_reconnect        (struct unicone_device
  * if the contents are different, or -1 on error.
  */
 int                       unicone_device_compare_firmware (struct unicone_device*    self,
-							   const char*               filename);
+							   const char*               filename,
+							   struct progress_reporter* progress);
 
 /* Returns 0 if the given bitstream file has the same contents as the device, 1
  * if the contents are different, or -1 on error.
  */
 int                       unicone_device_compare_bitstream(struct unicone_device*    self,
-							   const char*               filename);
+							   const char*               filename,
+							   struct progress_reporter* progress);
 
 /* Ensure that the device contains the given firmware and FPGA configuration
  * bitstream, sending them only if they differ from what (if anything) is in

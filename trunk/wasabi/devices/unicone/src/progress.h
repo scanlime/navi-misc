@@ -23,29 +23,47 @@
 #ifndef _H_PROGRESS
 #define _H_PROGRESS
 
-/* Generic interface for reporting progress. Typical usage is something like:
- *
- * void* operation = progress->start(progress, "Cleaning antimatter extractor");
- * while (1) {
- *   do_something();
- *   progress->report(progress, operation, ((float) completed) / total);
- * }
- * if (successful)
- *   progress->finish(progress, operation, NULL);
- * else
- *   progress->finish(progress, operation, "Neutron clog in port 4");
- *
+/* Generic interface for progress reporters. Since the concrete progress
+ * reporter implementation is responsible for creating and destroying all
+ * objects and only requires that these entry points be preserved, these
+ * two structures can be 'subclassed' by embedding them as the first entry
+ * in a larger structure.
  */
 struct progress_reporter {
-  void* (*start)(struct progress_reporter *self, const char* operation_name);
-  void (*report)(struct progress_reporter *self, void* operation, float completion);
-  void (*finish)(struct progress_reporter *self, void* operation, const char *error);
-  void *private;
+  struct progress_operation* (*start)    (struct progress_reporter*  self,
+					  const char*                operation_name);
+  void                       (*message)  (struct progress_reporter*  self,
+					  const char*                message);
+  void                       (*error)    (struct progress_reporter*  self,
+					  const char*                error);
+  void                       (*destroy)  (struct progress_reporter*  self);
 };
 
-/* Create a new progress reporter that just splats some dots onto stdout */
+struct progress_operation {
+  void                       (*update)   (struct progress_operation* self,
+					  float                      completion);
+  void                       (*finish)   (struct progress_operation* self,
+					  const char*                error);
+};
+
+/* Abstract interface to any progress reporter object.
+ * All interfaces are no-ops if the supplied progress reporter is NULL,
+ * so it's easy to use in a context where progress reports are optional.
+ */
+struct progress_operation* progress_operation_new    (struct progress_reporter*  reporter,
+						      const char*                operation_name);
+void                       progress_operation_update (struct progress_operation* self,
+						      float                      completion);
+void                       progress_operation_finish (struct progress_operation* self,
+						      const char*                error);
+void                       progress_reporter_delete  (struct progress_reporter*  self);
+void                       progress_message          (struct progress_reporter*  self,
+						      const char*                message);
+void                       progress_error            (struct progress_reporter*  self,
+						      const char*                error);
+
+/* Constructors for concrete implementations of progress reporters */
 struct progress_reporter*  progress_reporter_console_new();
-void                       progress_reporter_console_delete(struct progress_reporter *self);
 
 #endif /* _H_PROGRESS */
 

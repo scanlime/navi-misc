@@ -6,6 +6,7 @@ BINS = \
 
 COMMON_OBJS = \
 	src/bit_file.o \
+	src/progress.o \
 	src/progress_console.o \
 	src/device.o \
 	src/sha1.o
