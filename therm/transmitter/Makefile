@@ -5,7 +5,7 @@ all: $(BIN)
 install: $(BIN)
 	pista < pista.conf
 
-%.hex: %.asm
+%.hex: %.asm *.inc
 	gpasm $<
 
 clean:
