@@ -43,22 +43,13 @@ blockquote {
 
 ul {
   list-style-image: url(/images/bullet.png);
-  padding: 0em 0em 0em 1.5em;
+  padding: 0em 0em 0em 3em;
   margin: 0em;
-  marker-offset: 0.5em;
 }
 
 li {
   padding: 0.25em;
-}
-
-table.columns td.left p {
-  /* This is a bit of a kludge to remove grossly huge amounts of extra space
-   * from lists in sidebars formed by reStructuredText documents. The document
-   * converter includes all text in a <p> for consistency, so the margin from
-   * the <p> and form the <li> take effect, making it gigantically spaced.
-   */
-  padding: 0em;
+  margin: 0em;
 }
 
 td > p {
@@ -107,7 +98,6 @@ td.title {
 
 div.mainTitle {
   font: 250% sans-serif;
-  font-style: bold;
   padding: 0em;
   margin: 0em;
 }
