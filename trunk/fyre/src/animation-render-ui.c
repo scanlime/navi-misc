@@ -22,6 +22,7 @@
  *
  */
 
+#include <config.h>
 #include "animation-render-ui.h"
 #include "gui-util.h"
 #include "prefix.h"
@@ -94,10 +95,8 @@ static void animation_render_ui_class_init(AnimationRenderUiClass *klass) {
 static void animation_render_ui_init(AnimationRenderUi *self) {
     if (g_file_test (FYRE_DATADIR "/animation-render.glade", G_FILE_TEST_EXISTS))
         self->xml = glade_xml_new(FYRE_DATADIR "/animation-render.glade", NULL, NULL);
-#ifdef ENABLE_BINRELOC
     if (!self->xml)
 	self->xml = glade_xml_new(BR_DATADIR("/fyre/animation-render.glade"), NULL, NULL);
-#endif
 
     fyre_set_icon_later(glade_xml_get_widget(self->xml, "window"));
 
