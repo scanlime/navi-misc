@@ -1,9 +1,12 @@
 #include <unistd.h>
 #include <fcntl.h>
+#include <sys/ioctl.h>
 #include <string.h>
 #include <stdio.h>
 #include <pthread.h>
 #include <xmms/plugin.h>
+#include <rwand_dev.h>
+#include <math.h>
 
 static void plugin_init(void);
 static void plugin_cleanup(void);
@@ -55,11 +58,25 @@ void *refresh_thread(void *foo) {
 }
 
 static void plugin_init(void) {
+  struct rwand_settings s;
+
   fd = open("/dev/usb/rwand0", O_WRONLY);
   if (fd < 0) {
     perror("open");
     return;
   }
+
+  /* Set up the display parameters to give us a more spectrum-analyzer-looking
+   * output. This makes our pixels fairly wide, so they look like the LEDs
+   * on a stereo. We also skew the display toward the right so when it's dominated
+   * by low frequencies it looks centered.
+   */
+  ioctl(fd, RWANDIO_GET_SETTINGS, &s);
+  s.display_center = 37838;
+  s.display_width  = 29256;
+  s.duty_cycle     = 45250;
+  s.fine_adjust    = 0;
+  ioctl(fd, RWANDIO_PUT_SETTINGS, &s);
 
   pthread_create(&my_thread,NULL,refresh_thread,NULL);
 }
