@@ -58,10 +58,8 @@ void initialize_main_window() {
 void initialize_navigation_tree() {
 	GtkWidget *navigation_view;
 	GtkTreeStore *store;
-	GtkTreeIter parent, child;
 	GtkCellRenderer *icon_renderer, *text_renderer;
 	GtkTreeViewColumn *icon_column, *text_column;
-	GdkPixbuf *a, *b;
 
 	navigation_view = glade_xml_get_widget(gui.xml, "server channel list");
 
@@ -74,25 +72,6 @@ void initialize_navigation_tree() {
 	text_renderer = gtk_cell_renderer_text_new();
 	text_column = gtk_tree_view_column_new_with_attributes("name", text_renderer, "text", 1, NULL);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(navigation_view), text_column);
-
-	a = gdk_pixbuf_new_from_file("data/logout.png", NULL);
-	b = gdk_pixbuf_new_from_file("data/notauthorized.png", NULL);
-	gtk_tree_store_append(store, &parent, NULL);
-	gtk_tree_store_set(store, &parent, 0, a, 1, "FreeNode", -1);
-	gtk_tree_store_append(store, &child, &parent);
-	gtk_tree_store_set(store, &child, 0, b, 1, "#bzflag", -1);
-	gtk_tree_store_append(store, &child, &parent);
-	gtk_tree_store_set(store, &child, 0, b, 1, "#commits", -1);
-	gtk_tree_store_append(store, &child, &parent);
-	gtk_tree_store_set(store, &child, 1, "#tacobeam", -1);
-	gtk_tree_store_append(store, &child, &parent);
-	gtk_tree_store_set(store, &child, 1, "Diablo-D3", -1);
-	gtk_tree_store_append(store, &parent, NULL);
-	gtk_tree_store_set(store, &parent, 0, b, 1, "GIMPNet", -1);
-	gtk_tree_store_append(store, &child, &parent);
-	gtk_tree_store_set(store, &child, 1, "#bounties", -1);
-	gtk_tree_store_append(store, &child, &parent);
-	gtk_tree_store_set(store, &child, 1, "#evolution", -1);
 }
 
 void on_preferences_menu_activate(GtkWidget *widget, gpointer data) {
