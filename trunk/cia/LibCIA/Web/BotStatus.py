@@ -147,7 +147,10 @@ class BotsSection(Template.Section):
         bots = []
         for serverBots in self.botNet.servers.itervalues():
             bots.extend(serverBots)
-        return [Template.Table(bots, self.columns, id='bots')]
+        if bots:
+            return [Template.Table(bots, self.columns, id='bots')]
+        else:
+            return []
 
 
 class OptionalAttributeStringColumn(Nouvelle.AttributeColumn):
@@ -221,7 +224,10 @@ class RequestsSection(Template.Section):
         self.botNet = botNet
 
     def render_rows(self, context):
-        return [Template.Table(self.botNet.requests, self.columns, id='requests')]
+        if self.botNet.requests:
+            return [Template.Table(self.botNet.requests, self.columns, id='requests')]
+        else:
+            return []
 
 
 class NewBotsSection(Template.Section):
@@ -240,7 +246,10 @@ class NewBotsSection(Template.Section):
         newBots = []
         for server, timer in self.botNet.newBotServers.iteritems():
             newBots.append((server, TimeUtil.formatDuration(timer.getTime() - time.time())))
-        return [Template.Table(newBots, self.columns, id='newBots')]
+        if newBots:
+            return [Template.Table(newBots, self.columns, id='newBots')]
+        else:
+            return []
 
 
 class IRCBotPage(Template.Page):
