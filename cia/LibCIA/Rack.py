@@ -73,19 +73,19 @@ class BaseRack(object):
        namespaces or keeping iterable lists of namespaces and keys.
        """
     def __init__(self, db,
-                 namespaces = (),
+                 path = (),
                  serializer = None,
                  ):
         if serializer is None:
             serializer = RackSerializer()
         self.db = db
-        self.namespaces = namespaces
+        self.path = path
         self.serializer = serializer
         self._internalNs = None
 
     def _dumpKey(self, key):
         """Return a string representation of the given key, in the current namespace"""
-        return self.serializer.dumpKey((self.namespaces, self._internalNs, key))
+        return self.serializer.dumpKey((self.path, self._internalNs, key))
 
     def close(self):
         self.db.close()
@@ -158,7 +158,7 @@ class InternalRack(BaseRack):
     def __init__(self, externalRack, name):
         BaseRack.__init__(self,
                           externalRack.db,
-                          externalRack.namespaces,
+                          externalRack.path,
                           externalRack.serializer)
         self._internalNs = name
 
@@ -201,23 +201,29 @@ class Rack(BaseRack):
 
        Namespaces:
 
-          >>> eggs = r.namespace('eggs')
+          >>> eggs = r.child('eggs')
           >>> eggs[12]
           Traceback (most recent call last):
           ...
           KeyError: '12'
           >>> eggs[12] = ('spatula', 27)
-          >>> r[12]
+          >>> eggs.parent()[12]
           'banana'
           >>> eggs[12]
           ('spatula', 27)
+
+          >>> list(r.catalog())
+          ['eggs']
+          >>> del eggs[12]
+          >>> eggs
+          {}
+          >>> list(r.catalog())
+          []
 
        Other mapping operators:
 
           >>> 6 in r
           True
-          >>> 6 in eggs
-          False
           >>> del r[6]
           >>> 6 in r
           False
@@ -227,16 +233,21 @@ class Rack(BaseRack):
 
           >>> r.items()
           [(12, 'banana'), ('squid', 4), ((1, 2, ('boing', (None,))), [1, 2, 4, 'Poing'])]
-          >>> eggs.items()
-          [(12, ('spatula', 27))]
        """
-    def namespace(self, *ns):
+    def child(self, *ns):
         """Return a new Rack object that refers to a namespace within this one.
            The namespace can be any object serializable by KeyPickler.
            If more than one argument is given, this burrows more than one
            level deep in the Rack's namespace hierarchy.
            """
-        return Rack(self.db, self.namespaces + ns, self.serializer)
+        return Rack(self.db, self.path + ns, self.serializer)
+
+    def parent(self):
+        """Retrieve the parent namespace of this one"""
+        if len(self.path) > 0:
+            return Rack(self.db, self.path[:-1], self.serializer)
+        else:
+            return None
 
     def _getKeyList(self):
         """Return a LinkedList holding all keys in this namespace"""
@@ -248,11 +259,26 @@ class Rack(BaseRack):
 
     def _newKey(self, key):
         """Append a new key to the linked list for this namespace"""
-        pass
+        keyList = self._getKeyList()
+        if len(keyList) == 0:
+            # We're the first key, add this to our parent namespace's subnamespace list
+            parent = self.parent()
+            if parent:
+                parent._getSubNsList().append(self.path[-1])
+
+        # Always add new keys to the key list
+        keyList.append(key)
 
     def _delKey(self, key):
         """Delete a key from the linked list for this namespace"""
-        pass
+        keyList = self._getKeyList()
+        keyList.remove(key)
+
+        if len(keyList) == 0:
+            # We just removed the last key, remove this from the parent's subnamespace list
+            parent = self.parent()
+            if parent:
+                parent._getSubNsList().remove(self.path[-1])
 
     def clear(self):
         for key in self:
@@ -261,6 +287,10 @@ class Rack(BaseRack):
     def __iter__(self):
         """Iterate over all keys in this rack namespace"""
         return self._getKeyList().__iter__()
+
+    def catalog(self):
+        """Iterate over all child namespaces"""
+        return self._getSubNsList().__iter__()
 
     def iterkeys(self):
         return self.__iter__()
