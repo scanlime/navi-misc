@@ -309,7 +309,7 @@ static void         on_go_menu_show    (GtkWidget *menu, Explorer *self)
     HistoryNode* node;
     explorer_cleanup_go_items(self);
 
-    /* The first five items are straight from the most recent list */
+    /* The first few items are straight from the most recent list */
     for (i=0; i<max_linear_items; i++) {
 	explorer_add_go_item(self, current);
 	if (!(current = current->prev))
@@ -382,6 +382,7 @@ static void         on_change_notify   (ParameterHolder *holder, GParamSpec* spe
     }
     self->history_timer = g_timeout_add(150, on_record_change, self);
 }
+
 static gboolean     on_record_change   (gpointer user_data)
 {
     Explorer* self = EXPLORER(user_data);
