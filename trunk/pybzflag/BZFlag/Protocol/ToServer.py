@@ -28,12 +28,18 @@ from BZFlag.Protocol import Common
 
 class MsgExit(Common.Message):
     messageId = 0x6578
-    entries = []
+
+class MsgEnter(Common.Message):
+    messageId = 0x656E
+    entries = [
+        StructEntry(UInt16,             'playerType'),
+        StructEntry(UInt16,             'team'),
+        StructEntry(ScalarType("32s"),  'callSign'),
+        StructEntry(ScalarType("128s"), 'emailAddress'),
+        ]
 
 
-messages = {
-    MsgExit.messageId:  MsgExit,
-    }
+messages = [MsgExit, MsgEnter]
     
 ### The End ###
         

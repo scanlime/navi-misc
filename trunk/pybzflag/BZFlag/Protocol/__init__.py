@@ -178,6 +178,8 @@ class Struct:
        instances will be responsible for marshalling and unmarshalling
        individual variables.
        """
+    entries = []
+    
     def __init__(self, packed=None):
         if packed:
             self.unmarshall(packed)
