@@ -111,7 +111,7 @@ OptionParser::help ()
 	if (help_msg_show_opts) {
 		for (int i=0; i < opts.size(); i++)
 			printf("  %-*s %-*s  %s\n", shrt_flag_max_len+1, opts[i].shrt_flag.c_str(),
-          lng_flag_max_len+3, opts[i].lng_flag.c_str(),
+          lng_flag_max_len+2, opts[i].lng_flag.c_str(),
 					opts[i].help.c_str());
 	}
 	exit(0);
