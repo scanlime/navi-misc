@@ -81,7 +81,6 @@
 	      <property name="visible">True</property>
 	      <property name="label" translatable="yes">_Edit</property>
 	      <property name="use_underline">True</property>
-	      <signal name="activate" handler="on_edit_activate" last_modification_time="Sun, 18 Jan 2004 23:40:12 GMT"/>
 
 	      <child>
 		<widget class="GtkMenu" id="edit_menu">
@@ -959,7 +958,7 @@
 				  </child>
 
 				  <child>
-				    <widget class="GtkEntry" id="entry9">
+				    <widget class="GtkEntry" id="nickname">
 				      <property name="visible">True</property>
 				      <property name="can_focus">True</property>
 				      <property name="editable">True</property>
@@ -1013,7 +1012,7 @@
 				  </child>
 
 				  <child>
-				    <widget class="GtkEntry" id="entry10">
+				    <widget class="GtkEntry" id="realname">
 				      <property name="visible">True</property>
 				      <property name="can_focus">True</property>
 				      <property name="editable">True</property>
@@ -1067,7 +1066,7 @@
 				  </child>
 
 				  <child>
-				    <widget class="GtkEntry" id="entry11">
+				    <widget class="GtkEntry" id="quitmsg">
 				      <property name="visible">True</property>
 				      <property name="can_focus">True</property>
 				      <property name="editable">True</property>
@@ -1121,7 +1120,7 @@
 				  </child>
 
 				  <child>
-				    <widget class="GtkEntry" id="entry12">
+				    <widget class="GtkEntry" id="partmsg">
 				      <property name="visible">True</property>
 				      <property name="can_focus">True</property>
 				      <property name="editable">True</property>
@@ -1175,7 +1174,7 @@
 				  </child>
 
 				  <child>
-				    <widget class="GtkEntry" id="entry13">
+				    <widget class="GtkEntry" id="awaymsg">
 				      <property name="visible">True</property>
 				      <property name="can_focus">True</property>
 				      <property name="editable">True</property>
@@ -1277,7 +1276,7 @@
 			  </child>
 
 			  <child>
-			    <widget class="GtkVButtonBox" id="vbuttonbox1">
+			    <widget class="GtkVButtonBox" id="add_remove">
 			      <property name="visible">True</property>
 			      <property name="layout_style">GTK_BUTTONBOX_SPREAD</property>
 			      <property name="spacing">0</property>
@@ -1321,7 +1320,7 @@
 			      <property name="window_placement">GTK_CORNER_TOP_LEFT</property>
 
 			      <child>
-				<widget class="GtkTreeView" id="treeview1">
+				<widget class="GtkTreeView" id="highlight">
 				  <property name="visible">True</property>
 				  <property name="can_focus">True</property>
 				  <property name="headers_visible">False</property>
