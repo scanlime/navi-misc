@@ -67,6 +67,7 @@ void fe_cleanup(void) {
 }
 
 void fe_exit(void) {
+	xchat_exit();
 	gtk_main_quit();
 }
 
