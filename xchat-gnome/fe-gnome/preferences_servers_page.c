@@ -56,13 +56,60 @@ static void edit_ok_clicked(GtkWidget *button, gpointer data) {
 
 	widget = glade_xml_get_widget(gui.xml, "server config network name");
 	text = (char *) gtk_entry_get_text(GTK_ENTRY(widget));
-	if(!((servlist_net_find(text, &position) == NULL) || (strcmp(realname, text) == 0))) {
+	if(!((servlist_net_find(text, &position) == NULL) || (strcasecmp(realname, text) == 0))) {
 		/* FIXME: pop up error about duplicate */
 		return;
 	} else if(strlen(text) == 0) {
 		/* FIXME: pop up error about empty */
 		return;
 	}
+	net->name = g_strdup(text);
+
+	/* FIXME: check validity of everything before filling the ircnet struct */
+
+	widget = glade_xml_get_widget(gui.xml, "server config autoconnect");
+	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget))) {
+		net->flags &= FLAG_AUTO_CONNECT;
+	} else {
+		net->flags &= (!FLAG_AUTO_CONNECT);
+	}
+	widget = glade_xml_get_widget(gui.xml, "server config ssl");
+	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget))) {
+		net->flags &= FLAG_USE_SSL;
+	} else {
+		net->flags &= (!FLAG_USE_SSL);
+	}
+	widget = glade_xml_get_widget(gui.xml, "server config cycle");
+	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget))) {
+		net->flags &= FLAG_CYCLE;
+	} else {
+		net->flags &= (!FLAG_CYCLE);
+	}
+	widget = glade_xml_get_widget(gui.xml, "server config password");
+	net->pass = g_strdup(gtk_entry_get_text(GTK_ENTRY(widget)));
+	widget = glade_xml_get_widget(gui.xml, "server config usedefaults");
+	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget))) {
+		net->flags &= FLAG_USE_GLOBAL;
+	} else {
+		net->flags &= (!FLAG_USE_GLOBAL);
+		widget = glade_xml_get_widget(gui.xml, "server config nickname");
+		text = (char *) gtk_entry_get_text(GTK_ENTRY(widget));
+		if(strlen(text) == 0) {
+			/* FIXME: pop up error about empty */
+			return;
+		}
+		net->nick = g_strdup(text);
+		widget = glade_xml_get_widget(gui.xml, "server config realname");
+		text = (char *) gtk_entry_get_text(GTK_ENTRY(widget));
+		if(strlen(text) == 0) {
+			/* FIXME: pop up error about empty */
+			return;
+		}
+		net->real = g_strdup(text);
+	}
+
+	servlist_save();
+	preferences_servers_page_populate(treeview, network_list);
 
 	dialog = glade_xml_get_widget(gui.xml, "server configuration");
 	gtk_widget_hide_all(dialog);
@@ -149,11 +196,14 @@ void initialize_preferences_servers_page() {
 	GtkCellRenderer *text_renderer, *autoconnect_renderer;
 	GtkTreeViewColumn *text_column, *autoconnect_column;
 	GtkTreeSelection *select;
+	GtkTreeModelSort *sort;
 
 	treeview = glade_xml_get_widget(gui.xml, "configure server list");
 
 	store = gtk_list_store_new(3, G_TYPE_STRING, G_TYPE_BOOLEAN, G_TYPE_POINTER);
-	gtk_tree_view_set_model(GTK_TREE_VIEW(treeview), GTK_TREE_MODEL(store));
+	sort = gtk_tree_model_sort_new_with_model(GTK_TREE_MODEL(store));
+	gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(sort), 1, GTK_SORT_DESCENDING);
+	gtk_tree_view_set_model(GTK_TREE_VIEW(treeview), GTK_TREE_MODEL(sort));
 
 	text_renderer = gtk_cell_renderer_text_new();
 	text_column = gtk_tree_view_column_new_with_attributes("name", text_renderer, "text", 0, NULL);
@@ -177,6 +227,7 @@ void initialize_preferences_servers_page() {
 
 void preferences_servers_page_populate(GtkWidget *treeview, GSList *netlist) {
 	GtkListStore *store;
+	GtkTreeModel *model;
 	GtkTreeIter iter;
 	ircnet *net;
 
@@ -186,7 +237,8 @@ void preferences_servers_page_populate(GtkWidget *treeview, GSList *netlist) {
 //		servlist_server_add(net, "newserver/6667");
 		netlist = network_list;
 	}
-	store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(treeview)));
+	model = gtk_tree_view_get_model(GTK_TREE_VIEW(treeview));
+	store = GTK_LIST_STORE(gtk_tree_model_sort_get_model(GTK_TREE_MODEL_SORT(model)));
 	gtk_list_store_clear(store);
 
 	while(netlist) {
