@@ -408,7 +408,7 @@ fe_url_add(const char *text)
 void
 fe_pluginlist_update (void)
 {
-	preferences_plugins_page_populate ();
+	preferences_plugins_page_update ();
 }
 
 void

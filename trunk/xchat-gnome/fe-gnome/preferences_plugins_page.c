@@ -92,7 +92,7 @@ initialize_preferences_plugins_page ()
  * from fe-gnome.c
  */
 void
-preferences_plugins_page_populate()
+preferences_plugins_page_update()
 {
 	GtkWidget *treeview;
 	GtkTreeModel *model;
