@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="BZNext"
+	Name="Firestarter"
 	ProjectGUID="{23798B04-A478-49D1-9735-54ECF2AF156F}"
 	Keyword="Win32Proj">
 	<Platforms>
@@ -33,11 +33,11 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="ogremain.lib sdl.lib sdlmain.lib"
-				OutputFile="$(OutDir)/BZNext.exe"
+				OutputFile="$(OutDir)/Firestarter.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="../../../ogrenew/ogremain/lib/debug/"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile="$(OutDir)/BZNext.pdb"
+				ProgramDatabaseFile="$(OutDir)/Firestarter.pdb"
 				SubSystem="2"
 				TargetMachine="1"/>
 			<Tool
@@ -82,7 +82,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="ogremain.lib sdl.lib sdlmain.lib"
-				OutputFile="$(OutDir)/BZNext.exe"
+				OutputFile="$(OutDir)/Firestarter.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="../../../ogrenew/ogremain/lib/release/"
 				GenerateDebugInformation="TRUE"
@@ -121,10 +121,10 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
 			<File
-				RelativePath="..\src\bznext.cpp">
+				RelativePath="..\src\firestarter.cpp">
 			</File>
 			<File
-				RelativePath="..\src\bznextmain.cpp">
+				RelativePath="..\src\firestartermain.cpp">
 			</File>
 			<Filter
 				Name="core"
@@ -203,7 +203,7 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
 			<File
-				RelativePath="..\inc\bznext.h">
+				RelativePath="..\inc\firestarter.h">
 			</File>
 			<Filter
 				Name="Core"
