@@ -74,7 +74,7 @@ struct _RtgBPTree {
     RtgPageAddress first_leaf, last_leaf;
 
     /* A version stamp used to track iterator validity */
-    int stamp;
+    gulong stamp;
 };
 
 
@@ -82,10 +82,13 @@ struct _RtgBPTree {
  * It is invalidated by modifying the tree.
  */
 struct _RtgBPIter {
-    int             stamp;
+    gulong          stamp;
     RtgPageAddress  leaf_page;
     int             leaf_index;
 };
+
+/* The function called by rtg_bptree_foreach */
+typedef int (*RtgBPTreeCallback)(gpointer key, gpointer value, gpointer user_data);
 
 
 /************************************************************************************/
@@ -116,6 +119,23 @@ RtgBPTree*        rtg_bptree_new                 (RtgPageStorage*   storage,
 /* Delete the RtgBPTree object. This doesn't affect data in our page storage */
 void              rtg_bptree_close               (RtgBPTree*        self);
 
+/* Test an iterator's validity. Iterators are valid across storage
+ * allocations, but not across tree modification.
+ */
+static inline
+gboolean          rtg_bptree_iter_is_valid       (RtgBPTree*        self,
+						  RtgBPIter*        iter)
+{
+    return self->stamp == iter->stamp;
+}
+
+/* Call a user-supplied function for each item in the tree. Return nonzero
+ * to terminate iteration.
+ */
+void              rtg_bptree_foreach             (RtgBPTree*        self,
+						  RtgBPTreeCallback func,
+						  gpointer          user_data);
+
 /* Add a new key/value pair. Multiple values with the same key may exist.
  * If 'iter' is non-NULL, it will be positioned at the new node very quickly.
  */
@@ -127,7 +147,7 @@ void              rtg_bptree_insert              (RtgBPTree*        self,
 /* Position an iterator at the first occurrance of a key exactly equal
  * to the given one.
  */
-void              rtg_bptree_find_equal          (RtgBPTree*        self,
+void              rtg_bptree_find                (RtgBPTree*        self,
 						  gpointer          key,
 						  RtgBPIter*        iter);
 
@@ -136,6 +156,10 @@ void              rtg_bptree_find_equal          (RtgBPTree*        self,
  * iterator may be NULL to disregard that value. If the given key exists
  * in the tree, both returned iterators will point to an instance of it.
  */
+void              rtg_bptree_find_nearest        (RtgBPTree*        self,
+						  gpointer          key,
+						  RtgBPIter*        less,
+						  RtgBPIter*        greater);
 
 /* Seek an iterator to the first/last values in the tree */
 void              rtg_bptree_first               (RtgBPTree*        self,
@@ -166,7 +190,7 @@ void              rtg_bptree_write_value         (RtgBPTree*        self,
 						  gpointer          key);
 
 /* Delete the current key and value pointed to by an iterator */
-void              rtg_bptree_delete              (RtgBPTree*        self,
+void              rtg_bptree_remove              (RtgBPTree*        self,
 						  RtgBPIter*        iter);
 
 G_END_DECLS

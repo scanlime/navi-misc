@@ -28,6 +28,9 @@
 G_BEGIN_DECLS
 
 /* Define an integer type that's the same size as a pointer */
+#ifndef SIZEOF_VOID_P
+#error autoconf is screwy or you forgot config.h
+#endif
 #if SIZEOF_VOID_P == SIZEOF_UNSIGNED_SHORT
 typedef unsigned short RtgAddress;
 #elif SIZEOF_VOID_P == SIZEOF_UNSIGNED_INT

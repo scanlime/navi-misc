@@ -5,9 +5,10 @@ INCLUDES = -I ../include $(PACKAGE_CFLAGS)
 rtgraph_demo_SOURCES =			\
 	pagestorage.c			\
 	pagestorage-posix.c		\
-	demo.c
+	demo.c				\
+	bptree.c
 
-#	bptree.c			\
+
 #	channel.c			\
 
 noinst_HEADERS =			\
