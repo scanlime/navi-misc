@@ -60,28 +60,28 @@ a particular value in the image.  There are several different operators for this
 allows the user some control over the final image via parameters such as exposure, gamma
 correction and color interpolation.
 
-With a histogram-based apprach, the plotting process produces a matrix that we can treat
-just like a high dynamic range image.  By choosing an appropriate tone-mapping operator,
-different features of the image can be emphasized.  The source image can contain detail
-at all densities, and the user can adjust which of these are visible depending on what
-needs to be shown.
-
 \begin{subfigures}
 \label{logistic}
 
 \begin{figure}[htb]
 \centering
-\includegraphics[width=6in]{figures/logistic-traditional-200.png}
+\includegraphics[width=5in]{figures/logistic-traditional-200.png}
 \caption{A bifurcation diagram of the Logistic Map, rendered with 200 iterations per pixel column and traditional 1-bit point plotting.}
 \end{figure}
 
 \begin{figure}[htb]
 \centering
-\includegraphics[width=6in]{figures/logistic-histogram-8m.png}
+\includegraphics[width=5in]{figures/logistic-histogram-8m.png}
 \caption{At the same image resolution, histogram-based rendering shows the extra detail obtained by running 8 million iterations per pixel column.}
 \end{figure}
 
 \end{subfigures}
+
+With a histogram-based apprach, the plotting process produces a matrix that we can treat
+just like a high dynamic range image.  By choosing an appropriate tone-mapping operator,
+different features of the image can be emphasized.  The source image can contain detail
+at all densities, and the user can adjust which of these are visible depending on what
+needs to be shown.
 
 As can be seen in figure \ref{logistic}, using a histogram exposes an enormous amount of
 detail.  The image here is one of the canonical examples in nonlinear dynamics: a bifurcation
