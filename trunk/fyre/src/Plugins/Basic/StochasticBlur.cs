@@ -30,29 +30,40 @@ class StochasticBlur : Fyre.Element
 	static string[,] inputs;
 	static string[,] outputs;
 
-	public override string Name ()
+	public
+	StochasticBlur ()
+	{
+		NewID ();
+	}
+
+	public override string
+	Name ()
 	{
 		return "Stochastic Blur";
 	}
 
-	public override string Category()
+	public override string
+	Category()
 	{
 		return "Arithmetic";
 	}
 
-	public override Gdk.Pixbuf Icon ()
+	public override Gdk.Pixbuf
+	Icon ()
 	{
 		if (icon == null)
 			icon = new Gdk.Pixbuf (null, "StochasticBlur.png");
 		return icon;
 	}
 
-	public override string Description ()
+	public override string
+	Description ()
 	{
 		return "Creates a blur by\nstochastically perturbing\na point within the\ngiven radius";
 	}
 
-	public override string[,] InputDesc ()
+	public override string[,]
+	InputDesc ()
 	{
 		if (inputs == null) {
 			inputs = new string[3,2];
@@ -63,7 +74,8 @@ class StochasticBlur : Fyre.Element
 		return inputs;
 	}
 
-	public override string[,] OutputDesc ()
+	public override string[,]
+	OutputDesc ()
 	{
 		if (outputs == null) {
 			outputs = new string[1,2];
@@ -72,12 +84,14 @@ class StochasticBlur : Fyre.Element
 		return outputs;
 	}
 
-	public override void Serialize (XmlWriter writer)
+	public override void
+	Serialize (XmlWriter writer)
 	{
 		base.Serialize (writer);
 	}
 
-	public override void DeSerialize (XmlReader reader)
+	public override void
+	DeSerialize (XmlReader reader)
 	{
 		base.DeSerialize (reader);
 	}
