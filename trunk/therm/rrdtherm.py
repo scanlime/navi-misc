@@ -219,8 +219,10 @@ class ThermGrapher:
             os.rename(tempFile, file)
 
 
-def daemonize():
-    """Daemonize this process with the UNIX double-fork trick"""
+def daemonize(pidfile=None):
+    """Daemonize this process with the UNIX double-fork trick.
+       Writes the new PID to the provided file name if not None.
+       """
     pid = os.fork()
     if pid > 0:
         sys.exit(0)
@@ -228,13 +230,15 @@ def daemonize():
     os.umask(0)
     pid = os.fork()
     if pid > 0:
+        if pidfile:
+            open(pidfile, "w").write(str(pid))
         sys.exit(0)
  
 
 if __name__ == '__main__':
     # The -f option forks into the background
     if len(sys.argv) > 1 and sys.argv[1] == '-f':
-        daemonize()
+        daemonize("rrdtherm.pid")
     ThermGrapher().run()
 
 ### The End ###
