@@ -10,7 +10,7 @@
   <xsl:template match="/page">
     <html>
       <head>
-        <title>navi-misc : <xsl:value-of select="@title"/></title>
+        <title><xsl:value-of select="@title"/></title>
         <style type="text/css" media="all"> @import url(style.css);</style>
       </head>
       <body>

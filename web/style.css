@@ -1,7 +1,7 @@
 /* CSS for the navi-misc web site */
 
 body {
-  font: 80% Verdana, Helvetica, Arial, sans-serif;
+  font: 8pt Verdana, Helvetica, Arial, sans-serif;
   background: #eef4eb;
   color: Black;
   margin: 0;
@@ -142,7 +142,10 @@ table td {
 }
 
 table.columns {
-	width: 100%;
+    width: 100%;
+    font: 8pt Verdana, Helvetica, Arial, sans-serif;
+    margin: 0em;
+    margin: 0em;
 }
 
 table.columns td.left {
