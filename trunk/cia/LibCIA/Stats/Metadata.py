@@ -207,10 +207,25 @@ class MetadataThumbnailCache(Cache.AbstractStringCache):
 
     def makeThumbnail(self, imageData, size, result):
         i = Image.open(StringIO(imageData))
-        i = i.convert("RGBA")
-        i.thumbnail(size, Image.ANTIALIAS)
+
+        # Our thumbnails look much better if we paste the image into
+        # a larger transparent one first with a margin about equal to one
+        # pixel in our final thumbnail size. This smoothly blends
+        # the edge of the image to transparent rather than chopping
+        # off a fraction of a pixel. It looks, from experimentation,
+        # like this margin is only necessary on the bottom and right
+        # sides of the image.
+        margins = (i.size[0] // size[0] + 1,
+                   i.size[1] // size[1] + 1)
+        bg = Image.new("RGBA",
+                       (i.size[0] + margins[0],
+                        i.size[1] + margins[1]),
+                       (0, 0, 0, 0))
+        bg.paste(i, (0,0))
+       
+        bg.thumbnail(size, Image.ANTIALIAS)
         s = StringIO()
-        i.save(s, 'PNG')
+        bg.save(s, 'PNG')
         result.callback(s.getvalue())
 
 ### The End ###
