@@ -25,6 +25,15 @@
 #define RWAND_DEV_NAMEFORMAT   "usb/rwand%d"
 #define RWAND_MINOR_BASE       216
 
+
+/************************************************** Hardware Constants ********/
+
+/* Size of the device's framebuffer, in columns and in bytes.
+ */
+#define RWAND_FB_COLUMNS       80
+#define RWAND_FB_BYTES         RWAND_FB_COLUMNS
+
+
 #endif /* __RWAND_DEV_H */
 
 /* The End */

@@ -120,28 +120,67 @@ void unstall(usb_dev_handle *d) {
   unsigned period = -1;
   int unstall_edges = 0;
   struct rwand_status status, last_status;
+  time_t now, then;
 
   printf("Possibly stalled, trying to restart...\n");
 
-  read_rwand_status(d, &last_status);
-  status = last_status;
+  while (1) {
+    control_write(d, RWAND_CTRL_SET_MODES, RWAND_MODE_ENABLE_COIL, 0);
 
-  while (unstall_edges < 40) {
-    if (period > 50000)
-      period = 45000;
-    period += 5;
+    read_rwand_status(d, &last_status);
+    status = last_status;
 
-    printf("period = %d, edges = %d\n", period, unstall_edges);
-    control_write(d, RWAND_CTRL_SET_PERIOD, period, 0);
-    update_coil_driver(d, &status, 0.25, 0.25);
+    for (unstall_edges=0; unstall_edges<40;) {
+      if (period > 50000)
+	period = 45000;
+      period += 5;
 
-    usleep(10000);
+      printf("period = %d, edges = %d\n", period, unstall_edges);
+      control_write(d, RWAND_CTRL_SET_PERIOD, period, 0);
+      update_coil_driver(d, &status, 0.25, 0.25);
 
-    last_status = status;
-    read_rwand_status(d, &status);
-    unstall_edges += (status.edge_count - last_status.edge_count) & 0xFF;
+      usleep(10000);
+
+      last_status = status;
+      read_rwand_status(d, &status);
+      unstall_edges += (status.edge_count - last_status.edge_count) & 0xFF;
+    }
+
+    /* Looks like it's started far enough we can try sync'ing */
+    control_write(d, RWAND_CTRL_SET_MODES,
+		  RWAND_MODE_ENABLE_SYNC |
+		  RWAND_MODE_ENABLE_COIL, 0);
+
+    /* Verify it's still running */
+    then = time(NULL);
+    for (unstall_edges=0; unstall_edges<10;) {
+      now = time(NULL);
+      if (now > then+2)
+	break;
+
+      update_coil_driver(d, &status, 0.25, 0.25);
+      usleep(10000);
+
+      last_status = status;
+      read_rwand_status(d, &status);
+      unstall_edges += (status.edge_count - last_status.edge_count) & 0xFF;
+    }
+    if (unstall_edges < 10)
+      printf("Timed out, retrying\n");
+    else
+      break;
   }
+
+  /* Yay, we're finally pretty sure there's no stall, enable everything
+   * including the stall detector timer.
+   */
   printf("Non-stall verified\n");
+  control_write(d, RWAND_CTRL_SET_MODES,
+		RWAND_MODE_ENABLE_SYNC |
+		RWAND_MODE_ENABLE_COIL |
+		RWAND_MODE_STALL_DETECT |
+		RWAND_MODE_ENABLE_DISPLAY, 0);
+
 }
 
 void read_image(unsigned char *columns, const char *filename) {
@@ -171,16 +210,10 @@ void read_image(unsigned char *columns, const char *filename) {
 }
 
 void rwand_write12(usb_dev_handle *d, unsigned char *buffer) {
-  unsigned char pkt_data[9];
 
-  /* This is nuts, and I have no idea why yet */
-  pkt_data[8] = buffer[4];
-  memcpy(pkt_data+1, buffer+5, 7);
-
-  if (usb_control_msg(d, USB_TYPE_VENDOR | USB_ENDPOINT_OUT, RWAND_CTRL_SEQ_WRITE12,
-		      buffer[0] | (buffer[1] << 8),
-		      buffer[2] | (buffer[3] << 8),
-		      pkt_data, 9, 100) < 0) {
+  if (usb_control_msg(d, USB_TYPE_VENDOR | USB_ENDPOINT_OUT, RWAND_CTRL_RANDOM_WRITE8,
+		      0,0,
+		      buffer, 16, 100) < 0) {
     perror("usb_control_msg");
   }
 }
@@ -223,20 +256,14 @@ int main(int argc, char **argv) {
      * if it's stalled. Run the unstall algorithm.
      */
     if (!(status.mode & RWAND_MODE_ENABLE_DISPLAY)) {
-      control_write(d, RWAND_CTRL_SET_MODES, RWAND_MODE_ENABLE_COIL, 0);
       unstall(d);
-      control_write(d, RWAND_CTRL_SET_MODES,
-		    RWAND_MODE_ENABLE_SYNC |
-		    RWAND_MODE_ENABLE_COIL |
-		    RWAND_MODE_STALL_DETECT |
-		    RWAND_MODE_ENABLE_DISPLAY, 0);
     }
 
     /* update coil driver phase */
     update_coil_driver(d, &status, 0.25, 0.2);
 
     /* Update display phase and column width */
-    update_display_timing(d, &status, 0.5, 0.3);
+    update_display_timing(d, &status, 0.5, 0.4);
 
     if (status.flip_count != last_status.flip_count)
       flip_pending = 0;
