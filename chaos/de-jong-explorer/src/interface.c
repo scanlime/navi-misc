@@ -38,6 +38,7 @@ struct {
   guint render_status_context;
 
   guint idler;
+  gboolean writing_params;
 } gui;
 
 static int limit_update_rate(float max_rate);
@@ -51,13 +52,13 @@ static void write_gui_params();
 
 gboolean on_expose(GtkWidget *widget, GdkEventExpose *event, gpointer user_data);
 gboolean on_window_delete(GtkWidget *widget, GdkEvent *event, gpointer user_data);
-void on_start_clicked(GtkWidget *widget, gpointer user_data);
-void on_stop_clicked(GtkWidget *widget, gpointer user_data);
+void on_start_activate(GtkWidget *widget, gpointer user_data);
+void on_stop_activate(GtkWidget *widget, gpointer user_data);
 void on_param_spinner_changed(GtkWidget *widget, gpointer user_data);
 void on_render_spinner_changed(GtkWidget *widget, gpointer user_data);
 void on_color_changed(GtkWidget *widget, gpointer user_data);
-void on_random_clicked(GtkWidget *widget, gpointer user_data);
-void on_save_clicked(GtkWidget *widget, gpointer user_data);
+void on_random_activate(GtkWidget *widget, gpointer user_data);
+void on_save_activate(GtkWidget *widget, gpointer user_data);
 GtkWidget *custom_color_button_new(gchar *widget_name, gchar *string1, gchar *string2, gint int1, gint int2);
 
 
@@ -201,6 +202,9 @@ gboolean on_window_delete(GtkWidget *widget, GdkEvent *event, gpointer user_data
 }
 
 static void read_gui_params() {
+  if (gui.writing_params)
+    return;
+
   params.a = gtk_spin_button_get_value(GTK_SPIN_BUTTON(glade_xml_get_widget(gui.xml, "param_a")));
   params.b = gtk_spin_button_get_value(GTK_SPIN_BUTTON(glade_xml_get_widget(gui.xml, "param_b")));
   params.c = gtk_spin_button_get_value(GTK_SPIN_BUTTON(glade_xml_get_widget(gui.xml, "param_c")));
@@ -218,6 +222,7 @@ static void read_gui_params() {
 }
 
 static void write_gui_params() {
+  gui.writing_params = TRUE;
   gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(gui.xml, "param_a")), params.a);
   gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(gui.xml, "param_b")), params.b);
   gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(gui.xml, "param_c")), params.c);
@@ -232,9 +237,10 @@ static void write_gui_params() {
   gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(gui.xml, "param_gamma")), render.gamma);
   color_button_set_color(COLOR_BUTTON(glade_xml_get_widget(gui.xml, "param_fgcolor")), &render.fgcolor);
   color_button_set_color(COLOR_BUTTON(glade_xml_get_widget(gui.xml, "param_bgcolor")), &render.bgcolor);
+  gui.writing_params = FALSE;
 }
 
-void on_start_clicked(GtkWidget *widget, gpointer user_data) {
+void on_start_activate(GtkWidget *widget, gpointer user_data) {
   /*
   gtk_widget_set_sensitive(gui.stop, TRUE);
   gtk_widget_set_sensitive(gui.start, FALSE);
@@ -244,7 +250,7 @@ void on_start_clicked(GtkWidget *widget, gpointer user_data) {
   gui.idler = g_idle_add(interactive_idle_handler, NULL);
 }
 
-void on_stop_clicked(GtkWidget *widget, gpointer user_data) {
+void on_stop_activate(GtkWidget *widget, gpointer user_data) {
   /*
   gtk_widget_set_sensitive(gui.stop, FALSE);
   gtk_widget_set_sensitive(gui.start, TRUE);
@@ -253,11 +259,17 @@ void on_stop_clicked(GtkWidget *widget, gpointer user_data) {
 }
 
 void on_param_spinner_changed(GtkWidget *widget, gpointer user_data) {
-  on_stop_clicked(widget, user_data);
-  on_start_clicked(widget, user_data);
+  if (gui.writing_params)
+    return;
+
+  on_stop_activate(widget, user_data);
+  on_start_activate(widget, user_data);
 }
 
 void on_render_spinner_changed(GtkWidget *widget, gpointer user_data) {
+  if (gui.writing_params)
+    return;
+
   read_gui_params();
   render.dirty_flag = TRUE;
 }
@@ -268,6 +280,9 @@ void on_color_changed(GtkWidget *widget, gpointer user_data) {
    * time for that to work nicely for colors. This is a bit of a hack that
    * makes color picking run much more smoothly.
    */
+
+  if (gui.writing_params)
+    return;
 
   read_gui_params();
   render.dirty_flag = TRUE;
@@ -280,16 +295,15 @@ static float generate_random_param() {
   return uniform_variate() * 12 - 6;
 }
 
-void on_random_clicked(GtkWidget *widget, gpointer user_data) {
-  /*
-  gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui.a), generate_random_param());
-  gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui.b), generate_random_param());
-  gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui.c), generate_random_param());
-  gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui.d), generate_random_param());
-  */
+void on_random_activate(GtkWidget *widget, gpointer user_data) {
+  params.a = generate_random_param();
+  params.b = generate_random_param();
+  params.c = generate_random_param();
+  params.d = generate_random_param();
+  write_gui_params();
 
-  on_stop_clicked(widget, user_data);
-  on_start_clicked(widget, user_data);
+  on_stop_activate(widget, user_data);
+  on_start_activate(widget, user_data);
 }
 
 GtkWidget *custom_color_button_new(gchar *widget_name, gchar *string1,
@@ -322,7 +336,7 @@ void update_save_preview(GtkFileChooser *chooser, gpointer data) {
   gtk_file_chooser_set_preview_widget_active(chooser, have_preview);
 }
 
-void on_save_clicked(GtkWidget *widget, gpointer user_data) {
+void on_save_activate(GtkWidget *widget, gpointer user_data) {
   GtkWidget *dialog, *preview;
 
   dialog = gtk_file_chooser_dialog_new("Save", GTK_WINDOW(gui.window), GTK_FILE_CHOOSER_ACTION_SAVE,
@@ -350,7 +364,7 @@ void on_save_clicked(GtkWidget *widget, gpointer user_data) {
 #else /* GTK < 2.3 */
 
 /* File picker for GTK versions before 2.3 */
-void on_save_clicked(GtkWidget *widget, gpointer user_data) {
+void on_save_activate(GtkWidget *widget, gpointer user_data) {
   GtkWidget *dialog;
 
   dialog = gtk_file_selection_new("Save");
