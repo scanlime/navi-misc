@@ -107,6 +107,9 @@ static void get_text_callback               (GtkClipboard     *clipboard,
                                              gpointer          user_data_or_owner);
 static void clear_text_callback             (GtkClipboard     *clipboard,
                                              gpointer          user_data_or_owner);
+static void get_layout_location             (TopicLabel       *label,
+                                             gint             *xp,
+                                             gint             *yp);
 
 static GtkMiscClass *parent_class = NULL;
 
@@ -176,8 +179,7 @@ topic_label_init (TopicLabel *label)
   label->layout = NULL;
   label->text = NULL;
   label->attrs = NULL;
-// FIXME
-//  topic_label_set_text (label, "");
+  topic_label_set_text (label, "");
 }
 
 static void
@@ -287,10 +289,13 @@ topic_label_expose (GtkWidget *widget, GdkEventExpose  *event)
 
   label = TOPIC_LABEL (widget);
 
-  /* layout? */
+  topic_label_ensure_layout (label);
 
   if (GTK_WIDGET_VISIBLE (widget) && GTK_WIDGET_MAPPED (widget) && label->text && (label->text[0] != '\0'))
   {
+    get_layout_location (label, &x, &y);
+    gtk_paint_layout (widget->style, widget->window, GTK_WIDGET_STATE (widget), FALSE, &event->area, widget, "label", x, y, label->layout);
+
     /* ... */
   }
   return FALSE;
@@ -578,6 +583,37 @@ clear_text_callback (GtkClipboard *clipboard, gpointer user_data_or_owner)
     label->select_info->selection_anchor = label->select_info->selection_end;
     gtk_widget_queue_draw (GTK_WIDGET (label));
   }
+}
+
+static void
+get_layout_location (TopicLabel *label, gint *xp, gint *yp)
+{
+  GtkMisc *misc;
+  GtkWidget *widget;
+  gfloat xalign;
+  gint x, y;
+
+  misc = GTK_MISC (label);
+  widget = GTK_WIDGET (label);
+
+  if (gtk_widget_get_direction (widget) == GTK_TEXT_DIR_LTR)
+    xalign = misc->xalign;
+  else
+    xalign = 1.0 - misc->xalign;
+
+  x = floor (widget->allocation.x + (gint)misc->xpad + xalign * (widget->allocation.width - widget->requisition.width) + 0.5);
+
+  if (gtk_widget_get_direction (widget) == GTK_TEXT_DIR_LTR)
+    x = MAX (x, widget->allocation.x + misc->xpad);
+  else
+    x = MIN (x, widget->allocation.x + widget->allocation.width - widget->requisition.width - misc->xpad);
+
+  y = floor (widget->allocation.y + (gint)misc->ypad + MAX (((widget->allocation.height - widget->requisition.height) * misc->yalign) + 0.5, 0));
+
+  if (xp)
+    *xp = x;
+  if (yp)
+    *yp = y;
 }
 
 GtkWidget*
