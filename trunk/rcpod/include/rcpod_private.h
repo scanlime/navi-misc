@@ -2,7 +2,7 @@
  * rcpod_private.h - Internal data structures and functions for librcpod
  *
  * Remote Controlled PIC of Doom
- * Copyright (C) 2003-2004 Micah Dowty <micah@picogui.org>
+ * Copyright (C) 2003-2004 Micah Dowty <micah@navi.cx>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public

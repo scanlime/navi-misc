@@ -5,7 +5,7 @@
 ;//                    shared by the firmware and librcpod.
 ;//
 ;// This file is part of the rcpod project.
-;// Micah Dowty <micah@picogui.org>
+;// Micah Dowty <micah@navi.cx>
 ;//
 ;//###############################################################################
 
