@@ -1,11 +1,15 @@
-all: bassoon.pdf cello.pdf flute.pdf piano.pdf score.pdf timpani.pdf
+all: bass.pdf bassoon.pdf cello.pdf flute.pdf piano.pdf score.pdf timpani.pdf
 
+BASS = 01_allegro_ma_non_troppo/bass.ly
 BASSOON = 01_allegro_ma_non_troppo/bassoon.ly
 CELLO = 01_allegro_ma_non_troppo/cello.ly
 FLUTE = 01_allegro_ma_non_troppo/flute.ly
 PIANO = 01_allegro_ma_non_troppo/piano.ly
 TEXT = 01_allegro_ma_non_troppo/text.ly
 TIMPANI = 01_allegro_ma_non_troppo/timpani.ly
+
+bass.pdf: bass.ly $(BASS) $(TEXT)
+	lilypond bass.ly
 
 bassoon.pdf: bassoon.ly $(BASSOON) $(TEXT)
 	lilypond bassoon.ly
