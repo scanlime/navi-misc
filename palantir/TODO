@@ -27,3 +27,5 @@ Chat buffer:
 * Make character sheets detachable
 * Colored tabs
 * Character sheet builder
+* A way to create custom dice systems would be nice, maybe an XML file that
+	defines the dice bar in the window and the behaviour of the rolls...
