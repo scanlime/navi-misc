@@ -67,6 +67,7 @@ class Counters(Template.Section):
                    ' messages since the first one, ',
                    Template.counterValue[ place('relativeDate', 'forever', 'firstEventTime') ],
                    ' ago',
+                   place('averagePeriod', 'forever'),
                ],
         ]
 
@@ -94,6 +95,19 @@ class Counters(Template.Section):
         value = self.counters.getCounter(counterName).get(valueName, 0)
         if value is not None:
             return TimeUtil.formatDuration(time.time() - value)
+
+    def render_averagePeriod(self, context, counterName):
+        counter = self.counters.getCounter(counterName)
+        events = counter.get('eventCount', 0)
+        first = counter.get('firstEventTime')
+        last = counter.get('lastEventTime')
+        if events < 2 or (not first) or (not last) or first == last:
+            return ''
+        return [
+            ', for an average of ',
+            Template.counterValue[ TimeUtil.formatDuration( (last - first) / events ) ],
+            ' between messages',
+            ]
 
 
 class StatsLink:
