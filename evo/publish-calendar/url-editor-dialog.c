@@ -22,9 +22,76 @@
 
 #include "url-editor-dialog.h"
 #include <libedataserverui/e-passwords.h>
+#include <libgnomevfs/gnome-vfs-utils.h>
 #include <string.h>
 
 static GtkDialogClass *parent_class = NULL;
+
+static void
+create_uri (UrlEditorDialog *dialog)
+{
+	EPublishUri *uri;
+
+	uri = dialog->uri;
+
+	/* GnomeVFSURI *vfs_uri; */
+	if (uri->service_type == TYPE_URI) {
+		if (uri->location)
+			g_free (uri->location);
+		uri->location = g_strdup (gtk_entry_get_text (GTK_ENTRY (dialog->server_entry)));
+		/*
+		vfs_uri = gnome_vfs_uri_new (uri->location);
+		if (vfs_uri == NULL) {
+		}
+		*/
+	} else {
+		char *method, *server, *file, *port, *username, *password;
+
+		server   = gnome_vfs_escape_string (gtk_entry_get_text (GTK_ENTRY (dialog->server_entry)));
+		file     = gnome_vfs_escape_string (gtk_entry_get_text (GTK_ENTRY (dialog->file_entry)));
+		port     = gnome_vfs_escape_string (gtk_entry_get_text (GTK_ENTRY (dialog->port_entry)));
+		username = gnome_vfs_escape_string (gtk_entry_get_text (GTK_ENTRY (dialog->username_entry)));
+		password = gnome_vfs_escape_string (gtk_entry_get_text (GTK_ENTRY (dialog->password_entry)));
+
+		switch (uri->service_type) {
+		case TYPE_SMB:
+			method = "smb";
+			break;
+
+		case TYPE_SSH:
+			method = "sftp";
+			break;
+
+		case TYPE_ANON_FTP:
+			g_free (username);
+			username = g_strdup ("anonymous");
+		case TYPE_FTP:
+			method = "ftp";
+			break;
+
+		case TYPE_DAV:
+			method = "dav";
+			break;
+
+		case TYPE_DAVS:
+			method = "davs";
+			break;
+		}
+
+		uri->location = g_strdup_printf ("%s://%s%s%s%s%s%s",
+						 method,
+						 username, (username[0] != 0) ? "@" : "",
+						 server,
+						 (port[0] != 0) ? ":" : "", port,
+						 file);
+
+		g_free (server);
+		g_free (file);
+		g_free (port);
+		g_free (username);
+		g_free (password);
+	}
+}
 
 static void
 check_input (UrlEditorDialog *dialog)
