@@ -7,13 +7,16 @@
 
 typedef boost::numeric::ublas::vector<double> twov;
 
+#define WIDTH 800
+#define HEIGHT 800
+
 twov point(2);
 GtkWidget *window, *drawing_area, *iterl;
 GtkWidget *as, *bs, *cs, *ds, *start, *stop, *save;
 GdkPixmap *backb;
 int iterations;
 GdkGC *grey[65536], *gc;
-int data[800][800];
+int data[WIDTH][HEIGHT];
 double a, b, c, d;
 guint idler;
 
@@ -43,7 +46,7 @@ int main(int argc, char ** argv) {
   window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   g_signal_connect(G_OBJECT(window), "delete-event", G_CALLBACK(deletee), NULL);
   drawing_area = gtk_drawing_area_new();
-  gtk_widget_set_size_request(drawing_area, 800, 800);
+  gtk_widget_set_size_request(drawing_area, WIDTH, HEIGHT);
   vsep = gtk_vseparator_new();
   hbox = gtk_hbox_new(FALSE, 0);
   gtk_box_pack_start(GTK_BOX(hbox), build_sidebar(), TRUE, TRUE, 0);
@@ -53,7 +56,7 @@ int main(int argc, char ** argv) {
   g_signal_connect(G_OBJECT(drawing_area), "expose-event", G_CALLBACK(expose), NULL);
   gtk_widget_show_all(window);
 
-  backb = gdk_pixmap_new(NULL, 800, 800, 24);
+  backb = gdk_pixmap_new(NULL, WIDTH, HEIGHT, 24);
 
   GdkColor c;
   for(int i = 0; i < 65536; i++) {
@@ -64,7 +67,7 @@ int main(int argc, char ** argv) {
   }
   gc = gdk_gc_new(drawing_area->window);
 
-  bzero(data, 800 * 800 * sizeof(int));
+  bzero(data, WIDTH * HEIGHT * sizeof(int));
 
   draw();
 
@@ -129,12 +132,12 @@ GtkWidget *build_sidebar() {
 }
 
 void draw() {
-  gdk_draw_rectangle(backb, grey[65535], TRUE, 0, 0, 800, 800);
+  gdk_draw_rectangle(backb, grey[65535], TRUE, 0, 0, WIDTH, HEIGHT);
   flip();
 }
 
 void flip() {
-  gdk_draw_drawable(drawing_area->window, gc, backb, 0, 0, 0, 0, 800, 800);
+  gdk_draw_drawable(drawing_area->window, gc, backb, 0, 0, 0, 0, WIDTH, HEIGHT);
 }
 
 static void plop(int x, int y) {
@@ -147,10 +150,14 @@ static void plop(int x, int y) {
 static int draw_more(void *data) {
   double x, y;
   const int iterationsAtOnce = 10000;
+  static int xoffset = WIDTH / 2;
+  static int yoffset = HEIGHT / 2;
+  static float xscale = float(xoffset) / 2.5;
+  static float yscale = float(yoffset) / 2.5;
 
   for(int i = iterationsAtOnce; i; --i) {
     point = dejong(a, b, c, d, point);
-    plop(int(point(0) * 160 + 400), int(point(1) * 160 + 400));
+    plop(int(point(0) * xscale + xoffset), int(point(1) * yscale + yoffset));
   }
 
   flip();
@@ -182,7 +189,7 @@ void startclick(GtkWidget *widget, gpointer user_data) {
   gtk_widget_set_sensitive(stop, TRUE);
   gtk_widget_set_sensitive(start, FALSE);
   gtk_widget_set_sensitive(save, FALSE);
-  bzero(data, 800 * 800 * sizeof(int));
+  bzero(data, WIDTH * HEIGHT * sizeof(int));
   draw();
   a = gtk_spin_button_get_value(GTK_SPIN_BUTTON(as));
   b = gtk_spin_button_get_value(GTK_SPIN_BUTTON(bs));
@@ -218,7 +225,7 @@ void saveclick(GtkWidget *widget, gpointer user_data) {
   if(gtk_dialog_run(GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT) {
     char *filename;
     filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
-    GdkPixbuf *buf = gdk_pixbuf_get_from_drawable(NULL, backb, NULL, 0, 0, 0, 0, 800, 800);
+    GdkPixbuf *buf = gdk_pixbuf_get_from_drawable(NULL, backb, NULL, 0, 0, 0, 0, WIDTH, HEIGHT);
     gdk_pixbuf_save(buf, filename, "png", NULL, NULL);
     g_free(filename);
   }
