@@ -26,7 +26,7 @@ the actual stats target using part of the message.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import Ruleset, XML
+import Ruleset, XML, Message
 import re, string, os, time
 
 
@@ -48,8 +48,8 @@ class StatsURIHandler(Ruleset.RegexURIHandler):
            for queryStats messages. The extra level of indirection here helps
            rebuild() work its magic without breaking.
            """
-        self.hub.addClient(lambda msg: self.queryStats(msg),
-                           Message.Filter('<find path="/message/body/queryStats">'))
+        hub.addClient(lambda msg: self.queryStats(msg),
+                      Message.Filter('<find path="/message/body/queryStats">'))
 
     def queryStats(self, message):
         """Handle <queryStats> messages"""
