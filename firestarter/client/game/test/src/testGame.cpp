@@ -144,9 +144,8 @@ bool CTestGame::Think ( void )
 
 		while (itr != players.end())
 		{
-			if (itr->second->active)
+			if (itr->second && itr->second->active)
 				itr->second->Think();
-
 			itr++;
 		}
 
@@ -256,6 +255,7 @@ void CTestGame::OnMessage ( CNetworkPeer &peer, CNetworkMessage &message )
 				newPlayer->name = message.ReadStr();
 				newPlayer->material = message.ReadStr();
 
+				newPlayer->Init(true);
 				// get there current pos
 				message.ReadV(newPlayer->pos);
 				message.ReadV(newPlayer->rot);
@@ -273,7 +273,6 @@ void CTestGame::OnMessage ( CNetworkPeer &peer, CNetworkMessage &message )
 
 				if (newPlayer && !newPlayer->active)
 				{
-					newPlayer->Init(true);
 					message.ReadV(newPlayer->pos);
 					message.ReadV(newPlayer->rot);
 					message.ReadV(newPlayer->vec);
