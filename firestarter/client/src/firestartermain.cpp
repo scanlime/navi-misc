@@ -20,7 +20,7 @@
 * email: jeffm2501@sbcglobal.net
 */
 
-#include "bznext.h"
+#include "firestarter.h"
 
 /** Main for entire app
 		@note
@@ -42,7 +42,7 @@ int APIENTRY WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine
 int main (int argc, char **argv)
 {
   srand(time((time_t *)NULL));
-  CBZNextLoop  loop;
+  CFirestarterLoop  loop;
   if (loop.Main(argc,argv))
     return 1;
   return 0;
