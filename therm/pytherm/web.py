@@ -46,7 +46,7 @@ class template:
     doctype = xml('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"'
                   ' "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">\n')
     htmlTag = tag('html', xmlns="http://www.w3.org/1999/xhtml")
-    refresh = xml('<meta http-equiv="refresh" content="30" />')
+    refresh = xml('<meta http-equiv="refresh" content="60" />')
 
     footer = tag('div', _class='footer')[
         "Page generated on ", lambda context: time.ctime()
