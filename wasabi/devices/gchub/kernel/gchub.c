@@ -606,15 +606,15 @@ static void controller_set_led(struct gchub_controller* ctl,
 	else {
 		dbg("Setting LED color while the LED is off");
 		goto done;
-	}		
+	}
 
 	dbg("Changing LED color from %d to %d", ctl->outputs.led_color, led_color);
-	
+
 	if (ctl->outputs.led_color != led_color) {
 		ctl->outputs.led_color = led_color;
 		ctl->outputs.dirty = 1;
 	}
-	
+
 done:
 	spin_unlock_irqrestore(&ctl->outputs.lock, flags);
 }
