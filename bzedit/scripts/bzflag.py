@@ -33,18 +33,20 @@ def createTexture(name, filename):
     image = Image.Load(filename)
     texture.image = image
     texture.setType('Image')
-    material.setTexture(0, texture)
+    material.setTexture(0, texture, Texture.TexCo['GLOB'])
     return material
 
 try:
     boxTopMaterial = Material.Get('BoxTop')
 except NameError:
-    boxTopMaterial = createTexture('BoxTop', '/usr/share/bzflag/tetrawall.png')
+    boxTopMaterial = createTexture('BoxTop', '/usr/share/bzedit/tetrawall.png')
+    boxTopMaterial.spec = 0.1
 
 try:
     boxWallMaterial = Material.Get('BoxWall')
 except NameError:
-    boxWallMaterial = createTexture('BoxWall', '/usr/share/bzflag/boxwall.png')
+    boxWallMaterial = createTexture('BoxWall', '/usr/share/bzedit/boxwall.png')
+    boxWallMaterial.spec = 0.1
 
 def meshify(vertex, face, material):
     mesh = NMesh.GetRaw()
@@ -418,14 +420,13 @@ class Box(BZObject):
 
     faces = [(0, 1, 3, 2), # X+
              (6, 7, 5, 4), # X-
-             (0, 4, 5, 1), # Y+
-             (6, 2, 3, 7), # Y-
+             (4, 5, 1, 0), # Y+
+             (2, 3, 7, 6), # Y-
              (0, 2, 6, 4), # Z+
              (1, 5, 7, 3), # Z-
              ]
-
-    materials = [boxTopMaterial, boxWallMaterial]
-    materialIndex = [1, 1, 1, 1, 2, 2]
+    materials = [boxWallMaterial, boxTopMaterial]
+    materialIndex = [0, 0, 0, 0, 1, 1]
 
     def __init__(self):
         # Load defaults
