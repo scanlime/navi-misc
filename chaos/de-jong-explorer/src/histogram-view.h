@@ -44,6 +44,8 @@ struct _HistogramView {
 
   HistogramImager *imager;
   GdkPixbuf *viewable_image;
+
+  int old_width, old_height;
 };
 
 struct _HistogramViewClass {
