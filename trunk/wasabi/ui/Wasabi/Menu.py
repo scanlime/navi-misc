@@ -108,9 +108,11 @@ class RingMenu(Menu):
             )
 
     def finalize(self):
-        # Break a circular reference (self -> self.dock -> self.dock.trackFunction)
-        # that python's GC seems to have trouble with, at least in version 2.2.3
+        # Forcibly break a few circular references that python's GC seems
+        # to have trouble with, at least in version 2.2.3
         self.dock = None
+        self.items = None
+        self.bindings = None
 
     def add(self, *items):
         """Adds one or more items to the menu"""
