@@ -45,9 +45,7 @@ class XMLObject(object):
 
     def loadFromString(self, string):
         """Parse the given string as XML and set the contents of the message"""
-        parser = DomishStringParser()
-        parser.parse(string)
-        self.loadFromElement(parser.root)
+        self.loadFromElement(parseString(string))
 
     def loadFromElement(self, root):
         """Set the contents of the Message from a parsed document tree given
@@ -97,5 +95,12 @@ class DomishStringParser(domish.SuxElementStream):
 
     def docEnd(self):
         self.done = 1
+
+
+def parseString(string):
+    """Parse the given string as XML, return a domish.Element"""
+    parser = DomishStringParser()
+    parser.parse(string)
+    return parser.root
 
 ### The End ###

@@ -83,6 +83,35 @@ class ColorTextParser:
     """Parses a commit in the old format (with {color} tags) and generates a <colorText>
        element containing the message's contents.
 
+       Common usage:
+
+         >>> p = ColorTextParser()
+
+         >>> p.parse('hello').toXml()
+         '<colorText>hello</colorText>'
+
+         >>> p.parse('{bold}hello').toXml()
+         '<colorText><b>hello</b></colorText>'
+
+         >>> p.parse('{bold}hello{normal} world').toXml()
+         '<colorText><b>hello</b> world</colorText>'
+
+       Some pathological examples:
+
+         >>> p.parse('{bold}{dark blue}{reverse}{yellow}hello{normal}{underline} world').toXml()
+         "<colorText><color bg='dark blue'><color fg='yellow'><b>hello</b></color></color><u> world</u></colorText>"
+
+         >>> p.parse('{wiggle}').toXml()
+         '<colorText>{wiggle}</colorText>'
+
+         >>> p.parse('{blue}').toXml()
+         '<colorText/>'
+
+         >>> p.parse('<b>').toXml()
+         '<colorText>&lt;b&gt;</colorText>'
+
+         >>> p.parse('{blue}{normal}hello').toXml()
+         '<colorText>hello</colorText>'
        """
     def parse(self, message):
         """Given a string of text in the original CIA commit format, return a <colorText>
@@ -222,5 +251,12 @@ class ColorTextParser:
                          {},
                          {'underline': True},
                          )
+
+def _test():
+    import doctest, ColorText
+    return doctest.testmod(ColorText)
+
+if __name__ == "__main__":
+    _test()
 
 ### The End ###
