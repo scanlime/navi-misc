@@ -152,7 +152,7 @@ class BotNetwork:
     botCheckInterval = 60
 
     # Timeout, in seconds, for creating new bots
-    newBotTimeout = 120
+    newBotTimeout = 60 * 5
 
     # Bots are given this many seconds after being marked inactive before they're
     # disconnected. This way if a request is deleted then immediately replaced
@@ -278,16 +278,17 @@ class BotNetwork:
         # Do we have any existing bots that can join a channel to fulfill the request?
         if request.channel and request.server in self.servers:
             for bot in self.servers[request.server]:
-                # If the bot's already trying to connect to our channel,
-                # decrease the needed bots count so we don't end up asking
-                # all our bots to join this channel before the first one succeeds
-                if request.channel in bot.requestedChannels:
-                    neededBots -= 1
-                elif not bot.isFull():
-                    bot.join(request.channel)
-                    neededBots -= 1
-                if neededBots <= 0:
-                    return
+                if bot not in request.bots:
+                    # If the bot's already trying to connect to our channel,
+                    # decrease the needed bots count so we don't end up asking
+                    # all our bots to join this channel before the first one succeeds
+                    if request.channel in bot.requestedChannels:
+                        neededBots -= 1
+                    elif not bot.isFull():
+                        bot.join(request.channel)
+                        neededBots -= 1
+                    if neededBots <= 0:
+                        return
 
         # Nope... how about asking more bots to join the request's server?
         if not request.server in self.newBotServers:
@@ -303,8 +304,10 @@ class BotNetwork:
 
     def newBotTimedOut(self, server):
         """We just timed out waiting for a new bot connection. Try again."""
-        log.msg("Timed out waiting for an IRC bot to connect to %s, trying again" % server)
-        self.createBot(server)
+        log.msg("Timed out waiting for an IRC bot to connect to %s" % server)
+        del self.newBotServers[server]
+        # Don't immediately assume that we need to try again, but give us a chance to check
+        self.checkBots()
 
     def botInactivityCallback(self, bot):
         """Bots that have been unused for a while eventually end up here, and are disconnected"""
@@ -525,7 +528,7 @@ class Bot(irc.IRCClient):
            If this channel isn't already on our requests list, we send a join
            command and set up a timeout.
            """
-        if channel not in self.requestedChannels:
+        if channel not in self.requestedChannels and channel not in self.channels:
             self.requestedChannels[channel] = reactor.callLater(self.joinTimeout, self.joinTimedOut, channel)
             irc.IRCClient.join(self, channel)
 

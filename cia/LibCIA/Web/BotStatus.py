@@ -176,6 +176,25 @@ class RequestsSection(Template.Section):
         return [Template.Table(self.botNet.requests, self.columns, id='requests')]
 
 
+class NewBotsSection(Template.Section):
+    """A section listing new bots we're waiting on connections from"""
+    title = 'new bots'
+
+    columns = [
+        Nouvelle.IndexedColumn('connecting to...', 0),
+        Nouvelle.IndexedColumn('time remaining', 1),
+       ]
+
+    def __init__(self, botNet):
+        self.botNet = botNet
+
+    def render_rows(self, context):
+        newBots = []
+        for server, timer in self.botNet.newBotServers.iteritems():
+            newBots.append((server, TimeUtil.formatDuration(timer.getTime() - time.time())))
+        return [Template.Table(newBots, self.columns, id='newBots')]
+
+
 class IRCBotPage(Template.Page):
     """A web page showing the status of the BotNetwork"""
     def __init__(self, botNet):
@@ -184,6 +203,7 @@ class IRCBotPage(Template.Page):
     def render_mainColumn(self, context):
         return [
             BotsSection(self.botNet),
+            NewBotsSection(self.botNet),
             RequestsSection(self.botNet),
             ]
 
