@@ -521,7 +521,7 @@ static void on_anim_save_as(GtkWidget *widget, gpointer user_data) {
   GtkWidget *dialog;
 
   dialog = gtk_file_selection_new("Save Animation Keyframes");
-  gtk_file_selection_set_filename(GTK_FILE_SELECTION(dialog), "animation.dja");
+  gtk_file_selection_set_filename(GTK_FILE_SELECTION(dialog), "animation.fa");
 
   if(gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_OK) {
     const gchar *filename;
