@@ -11,11 +11,15 @@ CORE_SO_OBJS		=			\
 			base.o			\
 			box.o			\
 			core.o			\
+			flagzone.o		\
 			group.o			\
 			link.o			\
 			pyramid.o		\
+			tankzone.o		\
 			teleporter.o		\
-			world.o
+			world.o			\
+			worldweapon.o		\
+			zone.o
 
 RENDERPASSES_SO_OBJS	=			\
 			basicrenderpass.o	\
