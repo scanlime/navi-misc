@@ -25,7 +25,7 @@
 static void gl_drawing_area_class_init     (GLDrawingAreaClass *klass);
 static void gl_drawing_area_init           (GLDrawingArea      *darea);
 static void gl_drawing_area_realize        (GtkWidget          *widget);
-static void gl_drawing_area_finalize       (GObject            *object);
+static void gl_drawing_area_dispose        (GObject            *object);
 static void gl_drawing_area_send_configure (GLDrawingArea      *darea);
 
 GType
@@ -61,7 +61,7 @@ gl_drawing_area_class_init (GLDrawingAreaClass *klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   widget_class->realize = gl_drawing_area_realize;
-  object_class->finalize = gl_drawing_area_finalize;
+  object_class->dispose = gl_drawing_area_dispose;
 }
 
 static void
@@ -156,7 +156,7 @@ void gl_drawing_area_swap_buffers (GLDrawingArea *glarea)
 }
 
 static void
-gl_drawing_area_finalize (GObject *object)
+gl_drawing_area_dispose (GObject *object)
 {
   GLDrawingArea *darea = GL_DRAWING_AREA(object);
   g_object_unref(darea->config);
