@@ -68,12 +68,13 @@ class Message(XML.XMLObject):
 
        """
     def preprocess(self):
-        if self.xml.name != "message":
+        message = XML.dig(self.xml, "message")
+        if not message:
             raise XML.XMLValidityError("A Message's root node must be named 'message'")
 
         # Stamp it with the current time if it has no timestamp yet
-        if not self.xml.timestamp:
-            self.xml.addElement("timestamp", content="%d" % time.time())
+        if not XML.dig(message, "timestamp"):
+            XML.addElement(message, "timestamp", "%d" % time.time())
 
 
 class Hub(object):
