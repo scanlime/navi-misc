@@ -42,17 +42,17 @@ static gchar*   explorer_strdup_speed           (Explorer *self);
 
 static gdouble generate_random_param();
 
-static void on_randomize(GtkWidget *widget, gpointer user_data);
-static void on_load_defaults(GtkWidget *widget, gpointer user_data);
-static void on_save(GtkWidget *widget, gpointer user_data);
-static void on_save_exr(GtkWidget *widget, gpointer user_data);
-static void on_quit(GtkWidget *widget, gpointer user_data);
-static void on_pause_rendering_toggle(GtkWidget *widget, gpointer user_data);
-static void on_load_from_image(GtkWidget *widget, gpointer user_data);
-static void on_widget_toggle(GtkWidget *widget, gpointer user_data);
-static void on_render_time_changed(GtkWidget *widget, gpointer user_data);
-static void on_calculation_finished(IterativeMap *map, gpointer user_data);
-static gboolean on_interactive_prefs_delete(GtkWidget *widget, GdkEvent *event, gpointer user_data);
+static void     on_randomize                (GtkWidget *widget, Explorer* self);
+static void     on_load_defaults            (GtkWidget *widget, Explorer* self);
+static void     on_save                     (GtkWidget *widget, Explorer* self);
+static void     on_save_exr                 (GtkWidget *widget, Explorer* self);
+static void     on_quit                     (GtkWidget *widget, Explorer* self);
+static void     on_pause_rendering_toggle   (GtkWidget *widget, Explorer* self);
+static void     on_load_from_image          (GtkWidget *widget, Explorer* self);
+static void     on_widget_toggle            (GtkWidget *widget, Explorer* self);
+static void     on_render_time_changed      (GtkWidget *widget, Explorer* self);
+static void     on_calculation_finished     (IterativeMap *map, Explorer* self);
+static gboolean on_interactive_prefs_delete (GtkWidget *widget, GdkEvent *event, Explorer* self);
 
 static gchar *file_location = NULL;
 
@@ -226,9 +226,7 @@ static gdouble generate_random_param() {
     return uniform_variate() * 12 - 6;
 }
 
-static void on_randomize(GtkWidget *widget, gpointer user_data) {
-    Explorer *self = EXPLORER(user_data);
-
+static void on_randomize(GtkWidget *widget, Explorer* self) {
     g_object_set(self->map,
 		 "a", generate_random_param(),
 		 "b", generate_random_param(),
@@ -237,8 +235,7 @@ static void on_randomize(GtkWidget *widget, gpointer user_data) {
 		 NULL);
 }
 
-static void on_load_defaults(GtkWidget *widget, gpointer user_data) {
-    Explorer *self = EXPLORER(user_data);
+static void on_load_defaults(GtkWidget *widget, Explorer* self) {
     parameter_holder_reset_to_defaults(PARAMETER_HOLDER(self->map));
 }
 
@@ -247,15 +244,14 @@ static void on_load_defaults(GtkWidget *widget, gpointer user_data) {
 /******************************************************************** Misc GUI goop */
 /************************************************************************************/
 
-static void on_quit(GtkWidget *widget, gpointer user_data) {
+static void on_quit(GtkWidget *widget, Explorer* self) {
     gtk_main_quit();
 }
 
-static void on_widget_toggle(GtkWidget *widget, gpointer user_data) {
+static void on_widget_toggle(GtkWidget *widget, Explorer* self) {
     /* Toggle visibility of another widget. This widget should be named
      * toggle_foo to control the visibility of a widget named foo.
      */
-    Explorer *self = EXPLORER(user_data);
     const gchar *name;
     GtkWidget *toggled;
 
@@ -322,8 +318,7 @@ update_image_preview (GtkFileChooser *chooser, GtkImage *image) {
 }
 #endif
 
-static void on_load_from_image (GtkWidget *widget, gpointer user_data) {
-    Explorer *self = EXPLORER (user_data);
+static void on_load_from_image (GtkWidget *widget, Explorer* self) {
     GtkWidget *dialog, *image;
     GError *error = NULL;
     gchar *filename = NULL;
@@ -378,8 +373,7 @@ static void on_load_from_image (GtkWidget *widget, gpointer user_data) {
     g_free (filename);
 }
 
-static void on_save (GtkWidget *widget, gpointer user_data) {
-    Explorer *self = EXPLORER (user_data);
+static void on_save (GtkWidget *widget, Explorer* self) {
     GtkWidget *dialog;
     GError *error = NULL;
     gchar *filename = NULL;
@@ -434,9 +428,8 @@ static void on_save (GtkWidget *widget, gpointer user_data) {
 	g_free (filename);
 }
 
-static void on_save_exr (GtkWidget *widget, gpointer user_data) {
+static void on_save_exr (GtkWidget *widget, Explorer* self) {
 #ifdef HAVE_EXR
-    Explorer *self = EXPLORER (user_data);
     GtkWidget *dialog;
     GError *error = NULL;
     gchar *filename = NULL;
@@ -494,15 +487,13 @@ static void on_save_exr (GtkWidget *widget, gpointer user_data) {
 #endif /* HAVE_EXR */
 }
 
-static void on_render_time_changed(GtkWidget *widget, gpointer user_data) {
+static void on_render_time_changed(GtkWidget *widget, Explorer* self) {
     double v = gtk_range_get_adjustment(GTK_RANGE(widget))->value;
-    Explorer *self = EXPLORER(user_data);
     self->map->render_time = v / 1000.0;  /* Milliseconds to seconds */
 }
 
-static gboolean on_interactive_prefs_delete(GtkWidget *widget, GdkEvent *event, gpointer user_data) {
+static gboolean on_interactive_prefs_delete(GtkWidget *widget, GdkEvent *event, Explorer* self) {
     /* Just hide the window when the user tries to close it */
-    Explorer *self = EXPLORER(user_data);
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(glade_xml_get_widget(self->xml, "toggle_interactive_prefs")), FALSE);
     return TRUE;
 }
@@ -512,8 +503,7 @@ static gboolean on_interactive_prefs_delete(GtkWidget *widget, GdkEvent *event, 
 /************************************************************************ Rendering */
 /************************************************************************************/
 
-static void on_pause_rendering_toggle(GtkWidget *widget, gpointer user_data) {
-    Explorer *self = EXPLORER(user_data);
+static void on_pause_rendering_toggle(GtkWidget *widget, Explorer* self) {
     if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget)))
 	iterative_map_stop_calculation(self->map);
     else
@@ -524,9 +514,8 @@ static void on_pause_rendering_toggle(GtkWidget *widget, gpointer user_data) {
     explorer_update_gui(self);
 }
 
-static void on_calculation_finished(IterativeMap *map, gpointer user_data)
+static void on_calculation_finished(IterativeMap *map, Explorer* self)
 {
-    Explorer *self = EXPLORER(user_data);
     explorer_update_gui(self);
     explorer_update_animation(self);
     explorer_update_tools(self);
