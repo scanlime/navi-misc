@@ -157,14 +157,24 @@ on_load_plugin_clicked (GtkButton *button, gpointer user_data)
 
 	/* Ooooh... something's highlighted... */
   if (gtk_tree_selection_get_selected (selection, &model, &iter)) {
+		char *buf;
 		/* Yay! We got a filename! */
     gtk_tree_model_get (model, &iter, 3, &filename, -1);
 
 		/* Ya know what's more clever than using /LOAD to load the plugin?
 		 * using the plugin_load function provided by the core... way to go
 		 * evan, you dumbass.
+		 *
+		 * Actually, using the LOAD command is probably more betterly because
+		 * then it'll work better with scripts too, jerk.
 		 */
-		plugin_load (gui.current_session, filename, NULL);
+		buf = malloc (strlen (filename) + 9);
+		if (strchr (filename, ' '))
+			sprintf (buf, "LOAD \"%s\"", filename);
+		else
+			sprintf (buf, "LOAD %s", filename);
+		handle_command (gui.current_session, buf, FALSE);
+		free (buf);
   }
 }
 
@@ -182,10 +192,21 @@ on_unload_plugin_clicked (GtkButton *button, gpointer user_data)
   selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
 
   if (gtk_tree_selection_get_selected (selection, &model, &iter)) {
+		char *buf;
     gtk_tree_model_get (model, &iter, 3, &filename, -1);
-		if (plugin_kill (filename, TRUE) == 1)
-			gtk_list_store_set (GTK_LIST_STORE (model), &iter, 4, FALSE, -1);
-  }
+		/* Some of this code was taken from the fe-gtk plugingui,
+		 * the names have been changed to protect the innocent.
+		 */
+		buf = malloc (strlen (filename) + 10);
+		if (strchr (filename, ' '))
+			sprintf (buf, "UNLOAD \"%s\"", filename);
+		else
+			sprintf (buf, "UNLOAD %s", filename);
+		handle_command (gui.current_session, buf, FALSE);
+		free (buf);
+		/* FIXME: Bad to assume that the plugin was successfully unloaded. */
+		gtk_list_store_set (GTK_LIST_STORE (model), &iter, 4, FALSE, -1);
+	}
 }
 
 static void
