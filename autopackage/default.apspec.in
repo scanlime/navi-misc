@@ -39,7 +39,7 @@ unprepareBuild
 echo '*' | import
 
 [Prepare]
-require @gtk.org/gtk 2.4
+require @gtk.org/gtk 2.2
 require @glade.gnome.org/libglade 2.0
 
 [Install]
