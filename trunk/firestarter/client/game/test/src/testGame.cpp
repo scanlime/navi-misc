@@ -18,7 +18,6 @@
 void CTestGame::Init ( void )
 {
 	// do one time init stuff here
-	world.Set(gameLoop);
 }
 
 void CTestGame::Attach ( void )

@@ -25,6 +25,7 @@
 #include "timer.h"
 #include "prefs.h"
 #include "commandargs.h"
+#include "gameManager.h"
 
 template <>
 CFirestarterLoop* Singleton<CFirestarterLoop>::_instance = (CFirestarterLoop*)0;
@@ -51,7 +52,7 @@ bool CFirestarterLoop::OnInit ( void )
 
 	// init the shit
 	ui.Init();
-	game.Set(this);
+	CGameManger &game = CGameManger::instance();
 	game.Init();
 
 	if (inUI)
@@ -107,6 +108,7 @@ const char* CFirestarterLoop:: GetWindowName ( void )
 bool CFirestarterLoop::GameLoop ( void )
 {
 	// check for sreenshot
+	CGameManger &game = CGameManger::instance();
 	float togleTime = 0.5f;
 	if (CInputManager::instance().KeyDown(KEY_SYSRQ) && (lastScreenShotTime < CTimer::instance().GetTime()+togleTime))
 	{
@@ -139,6 +141,7 @@ bool CFirestarterLoop::GameLoop ( void )
 	}
   return quit;
 }
+
 void CFirestarterLoop::OnFrameEnd ( void )
 {
 }

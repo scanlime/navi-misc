@@ -29,7 +29,6 @@
 
 #include "gameloop.h"
 #include "ui.h"
-#include "gameManager.h"
 #include "Singleton.h"
 
 class  CFirestarterLoop : public Singleton<CFirestarterLoop>, public CBaseGameLoop
@@ -58,9 +57,6 @@ protected:
 	bool				inUI;
 	int					numScreenShots;
 	float				lastScreenShotTime;
-
-	// game manager
-	CGameManger			game;
 
 	// UI core
 	CUserInterface	ui;

@@ -15,22 +15,13 @@
 
 CTestWorld::CTestWorld()
 {
-		gameLoop = NULL;
 }
 
-CTestWorld::CTestWorld ( CBaseGameLoop * pGameLoop )
-{
-	Set(pGameLoop);
-}
+
 
 CTestWorld::~CTestWorld()
 {
 
-}
-
-void CTestWorld::Set ( CBaseGameLoop * pGameLoop )
-{
-	gameLoop = pGameLoop;
 }
 
 void CTestWorld::Load ( trWorldInfo &info, bool draw )

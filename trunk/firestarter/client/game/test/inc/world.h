@@ -14,9 +14,10 @@
 #ifndef _TEST_WORLD_H_
 #define _TEST_WORLD_H_
 
-#include "gameloop.h"
 #include "baseObject.h"
-
+#include <string>
+#include <vector>
+#include <map>
 
 typedef struct 
 {
@@ -42,11 +43,8 @@ class CTestWorld : public CBaseObject
 {
 	public:
 		CTestWorld();
-		CTestWorld ( CBaseGameLoop * pGameLoop );
 		~CTestWorld();
 		
-		void Set ( CBaseGameLoop * pGameLoop );
-
 		void Load ( trWorldInfo &info, bool draw );	
 		void AddWorldObject ( trObjectInfo &info );
 
@@ -58,7 +56,6 @@ class CTestWorld : public CBaseObject
 		// other stuff here for all the other world things that we need to do.
 
 	protected:
-		CBaseGameLoop * gameLoop;
 		int							worldDrawable;
 };
 
