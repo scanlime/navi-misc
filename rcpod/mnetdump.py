@@ -118,7 +118,12 @@ class MnetLogger:
         else:
             status = "Packet received with INVALID CHECKSUM"
 
-        self.log("%s\nFrom %s, to %s\n%s" % (status, source, destination, self.hexDump(data)))
+        if data:
+            dataStr = self.hexDump(data)
+        else:
+            dataStr = "(no data)"
+
+        self.log("%s\nFrom %s, to %s\n%s" % (status, source, destination, dataStr))
 
 
 if __name__ == "__main__":
