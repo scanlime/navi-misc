@@ -7,6 +7,7 @@
 %{
 #include <libdc1394/dc1394_control.h>
 #include <libraw1394/raw1394.h>
+#include <Numeric/arrayobject.h>
 %}
 
 %include carrays.i
@@ -20,10 +21,23 @@
 %array_functions(dc1394_camerainfo, cameraInfoArray)
 
 %inline %{
-  void write_image(dc1394_cameracapture *capture) {
-    FILE* image = fopen("image.ppm", "wb");
-    fprintf(image, "P6\n%d %d\n255\n",  capture->frame_width, capture->frame_height);
-    fwrite(capture->capture_buffer, 1, capture->frame_width * capture->frame_height * 3, image);
-    fclose(image);
+  PyObject* get_capture_array(dc1394_cameracapture *capture) {
+    int dims[3];
+    PyArrayObject *arr;
+
+    import_array();
+
+    dims[0] = capture->frame_width;
+    dims[1] = capture->frame_height;
+    dims[2] = 3;
+
+    arr = (PyArrayObject*) PyArray_FromDimsAndData(3, dims, PyArray_UBYTE, (char*) capture->capture_buffer);
+    if (arr) {
+      arr->strides[0] = 3;
+      arr->strides[1] = 640*3;
+      arr->strides[2] = 1;
+      arr->flags = OWN_DIMENSIONS | OWN_STRIDES | SAVESPACE;
+    }
+    return (PyObject*) arr;
   }
 %}
