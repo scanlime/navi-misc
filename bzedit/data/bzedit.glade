@@ -524,7 +524,14 @@
 		  <property name="window_placement">GTK_CORNER_TOP_LEFT</property>
 
 		  <child>
-		    <placeholder/>
+		    <widget class="GtkViewport" id="property editor viewport">
+		      <property name="visible">True</property>
+		      <property name="shadow_type">GTK_SHADOW_NONE</property>
+
+		      <child>
+			<placeholder/>
+		      </child>
+		    </widget>
 		  </child>
 		</widget>
 		<packing>

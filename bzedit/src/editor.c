@@ -24,7 +24,6 @@
 #include <GL/gl.h>
 #include "editor.h"
 #include "gldrawingarea.h"
-#include "parameter-editor.h"
 #include "plugins.h"
 #include "sceneobject.h"
 
@@ -71,11 +70,38 @@ editor_class_init (EditorClass *klass)
 }
 
 static void
-object_create_toolbar (GtkToolButton *button, Scene *scene)
+editor_selected (SceneObject *object, Editor *editor)
+{
+  GtkWidget *viewport = glade_xml_get_widget (editor->xml, "property editor viewport");
+
+  if (editor->selected)
+  {
+    scene_object_deselect (editor->selected);
+    gtk_container_remove (GTK_CONTAINER (viewport), GTK_WIDGET (editor->pe));
+    g_object_unref (editor->pe);
+  }
+
+  if (gtk_bin_get_child (GTK_BIN (viewport)) != NULL)
+  {
+    GtkWidget *child = gtk_bin_get_child (GTK_BIN (viewport));
+    gtk_container_remove (GTK_CONTAINER (viewport), child);
+  }
+
+  editor->pe = parameter_editor_new (PARAMETER_HOLDER (object));
+  gtk_container_add (GTK_CONTAINER (viewport), GTK_WIDGET (editor->pe));
+  gtk_widget_show_all (viewport);
+
+  editor->selected = object;
+}
+
+static void
+object_create_toolbar (GtkToolButton *button, Editor *editor)
 {
   GType type = GPOINTER_TO_UINT (g_object_get_data (G_OBJECT(button), "create-type"));
   SceneObject *object = SCENE_OBJECT (g_object_new (type, NULL));
-  scene_add (scene, object);
+  scene_add (editor->scene, object);
+  g_signal_connect (G_OBJECT (object), "selected", G_CALLBACK (editor_selected), (gpointer) editor);
+  scene_object_select (object);
 }
 
 static void
@@ -126,6 +152,8 @@ editor_init (Editor *editor)
   editor->statusbar = GTK_STATUSBAR (glade_xml_get_widget (editor->xml, "statusbar"));
   editor->editor_status_context = gtk_statusbar_get_context_id (editor->statusbar, "Editor status");
 
+  editor->selected = NULL;
+
   types = find_type_leaves (PARAMETER_HOLDER_TYPE);
   addmenu = GTK_MENU_ITEM (glade_xml_get_widget (editor->xml, "addmenu"));
   am = GTK_MENU (gtk_menu_new ());
@@ -150,21 +178,13 @@ editor_init (Editor *editor)
         gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), image1);
         gtk_menu_shell_append (GTK_MENU_SHELL (am), GTK_WIDGET (item));
         gtk_toolbar_insert (tbar, titem, -1);
-	g_signal_connect (G_OBJECT (titem), "clicked", G_CALLBACK (object_create_toolbar), (gpointer) editor->scene);
+	g_signal_connect (G_OBJECT (titem), "clicked", G_CALLBACK (object_create_toolbar), (gpointer) editor);
       }
       if (klass->autocreate)
       {
-        v = gtk_hseparator_new();
-        gtk_box_pack_start (box, v, FALSE, TRUE, 0);
-        l = gtk_label_new (g_type_name (type));
-        gtk_box_pack_start (box, l, FALSE, TRUE, 0);
-        v = gtk_hseparator_new();
-        gtk_box_pack_start (box, v, FALSE, TRUE, 0);
         SceneObject *object = SCENE_OBJECT (g_object_new (type, NULL));
-        p = PARAMETER_HOLDER (object);
         scene_add (editor->scene, object);
-        e = parameter_editor_new (p);
-        gtk_box_pack_start (box, e, FALSE, TRUE, 0);
+	g_signal_connect (G_OBJECT (object), "selected", G_CALLBACK (editor_selected), (gpointer) editor);
       }
       g_type_class_unref (klass);
     }

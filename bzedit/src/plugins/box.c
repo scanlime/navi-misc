@@ -165,7 +165,7 @@ box_set_property (GObject *object, guint prop_id, const GValue *value, GParamSpe
       if (DISPLAY_LIST (self->sides)->dirty)
 	g_signal_emit_by_name (G_OBJECT (self->sides), "dirty");
       if (DISPLAY_LIST (self->top)->dirty)
-	g_signal_emit_by_name (G_OBJECT (self->sides), "dirty");
+	g_signal_emit_by_name (G_OBJECT (self->top), "dirty");
       break;
 
     case PROP_POSITION_Y:
@@ -179,7 +179,7 @@ box_set_property (GObject *object, guint prop_id, const GValue *value, GParamSpe
       if (DISPLAY_LIST (self->sides)->dirty)
 	g_signal_emit_by_name (G_OBJECT (self->sides), "dirty");
       if (DISPLAY_LIST (self->top)->dirty)
-	g_signal_emit_by_name (G_OBJECT (self->sides), "dirty");
+	g_signal_emit_by_name (G_OBJECT (self->top), "dirty");
       break;
 
     case PROP_POSITION_Z:
@@ -193,7 +193,7 @@ box_set_property (GObject *object, guint prop_id, const GValue *value, GParamSpe
       if (DISPLAY_LIST (self->sides)->dirty)
 	g_signal_emit_by_name (G_OBJECT (self->sides), "dirty");
       if (DISPLAY_LIST (self->top)->dirty)
-	g_signal_emit_by_name (G_OBJECT (self->sides), "dirty");
+	g_signal_emit_by_name (G_OBJECT (self->top), "dirty");
       break;
 
     case PROP_ROTATION:
@@ -207,7 +207,7 @@ box_set_property (GObject *object, guint prop_id, const GValue *value, GParamSpe
       if (DISPLAY_LIST (self->sides)->dirty)
 	g_signal_emit_by_name (G_OBJECT (self->sides), "dirty");
       if (DISPLAY_LIST (self->top)->dirty)
-	g_signal_emit_by_name (G_OBJECT (self->sides), "dirty");
+	g_signal_emit_by_name (G_OBJECT (self->top), "dirty");
       break;
 
     case PROP_SIZE_X:
@@ -221,7 +221,7 @@ box_set_property (GObject *object, guint prop_id, const GValue *value, GParamSpe
       if (DISPLAY_LIST (self->sides)->dirty)
 	g_signal_emit_by_name (G_OBJECT (self->sides), "dirty");
       if (DISPLAY_LIST (self->top)->dirty)
-	g_signal_emit_by_name (G_OBJECT (self->sides), "dirty");
+	g_signal_emit_by_name (G_OBJECT (self->top), "dirty");
       break;
 
     case PROP_SIZE_Y:
@@ -235,7 +235,7 @@ box_set_property (GObject *object, guint prop_id, const GValue *value, GParamSpe
       if (DISPLAY_LIST (self->sides)->dirty)
 	g_signal_emit_by_name (G_OBJECT (self->sides), "dirty");
       if (DISPLAY_LIST (self->top)->dirty)
-	g_signal_emit_by_name (G_OBJECT (self->sides), "dirty");
+	g_signal_emit_by_name (G_OBJECT (self->top), "dirty");
       break;
 
     case PROP_SIZE_Z:
@@ -249,7 +249,7 @@ box_set_property (GObject *object, guint prop_id, const GValue *value, GParamSpe
       if (DISPLAY_LIST (self->sides)->dirty)
 	g_signal_emit_by_name (G_OBJECT (self->sides), "dirty");
       if (DISPLAY_LIST (self->top)->dirty)
-	g_signal_emit_by_name (G_OBJECT (self->sides), "dirty");
+	g_signal_emit_by_name (G_OBJECT (self->top), "dirty");
       break;
 
     case PROP_DRIVE_THROUGH:
@@ -650,12 +650,14 @@ box_top_drawable_draw_to_list (DisplayList *dl)
 
     /* Z- side */
     glNormal3f (0.0, 0.0, -1.0);
-    /* FIXME - implement when box can be elevated to check
-    glTexCoord2f ();
-    glTexCoord2f ();
-    glTexCoord2f ();
-    glTexCoord2f ();
-    */
+    glTexCoord2f ( 0,      0);
+    glVertex3f   (-width, -depth, 0);
+    glTexCoord2f ( 0,      hrep);
+    glVertex3f   (-width,  depth, 0);
+    glTexCoord2f ( wrep,   hrep);
+    glVertex3f   ( width,  depth, 0);
+    glTexCoord2f ( wrep,   0);
+    glVertex3f   ( width, -depth, 0);
   }
   glEnd ();
 
