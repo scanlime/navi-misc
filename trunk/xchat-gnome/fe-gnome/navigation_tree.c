@@ -170,14 +170,20 @@ void navigation_selection_changed(GtkTreeSelection *selection, gpointer data) {
 	if(gtk_tree_selection_get_selected(selection, &model, &iter)) {
 		GtkWidget *topic, *entry;
 
+		/* back up existing entry */
+		tgui = gui.current_session->gui;
+		g_free(tgui->entry);
+		entry = glade_xml_get_widget(gui.xml, "text entry");
+		tgui->entry = g_strdup(gtk_entry_get_text(GTK_ENTRY(entry)));
+
 		gtk_tree_model_get(model, &iter, 2, &s, -1);
 		sess = (session *) s;
 		tgui = (session_gui *) sess->gui;
 		gtk_xtext_buffer_show(gui.xtext, tgui->buffer, TRUE);
 		topic = glade_xml_get_widget(gui.xml, "topic entry");
-		gtk_text_view_set_buffer(GTK_TEXT_VIEW(topic), tgui->topic_buffer);
+		gtk_entry_set_text(GTK_ENTRY(topic), tgui->topic);
 		entry = glade_xml_get_widget(gui.xml, "text entry");
-		gtk_text_view_set_buffer(GTK_TEXT_VIEW(entry), tgui->entry_buffer);
+		gtk_entry_set_text(GTK_ENTRY(entry), tgui->entry);
 		gui.current_session = sess;
 		userlist_display(tgui);
 		set_nickname(sess->server, NULL);
