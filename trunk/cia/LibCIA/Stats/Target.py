@@ -487,7 +487,7 @@ class Maintenance:
         self.checkOneRollover(cursor, 'lastWeek', 'thisWeek')
         self.checkOneRollover(cursor, 'lastMonth', 'thisMonth')
 
-    def pruneTargets(self, cursor, quantity=25):
+    def pruneTargets(self, cursor, quantity=500):
         """Eventually prune all stats targets. To avoid a huge database load
            all at once, this randomly queues all stats targets then prunes them
            just a few at a time.
