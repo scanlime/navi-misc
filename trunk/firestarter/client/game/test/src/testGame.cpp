@@ -12,10 +12,19 @@
 #include "testGame.h"
 #include "input.h"
 #include "firestarter.h"
+#include "prefs.h"
 
 // the drawables for this game
 #include "worldDrawables.h"
 
+// messages
+#define	_MESSAGE_SERVER_INFO 0x5349	// SI 
+#define	_MESSAGE_CLIENT_INFO 0x4349	// CI 
+#define	_MESSAGE_USER_PART 0x5550		// UP
+#define	_MESSAGE_USER_ADD 0x5541		// UA
+#define	_MESSAGE_KICK 0x4b4b				// KK
+#define _MESSAGE_UPDATE 0x5544			//UD
+#define _MESSAGE_ACKNOWLEDGE 0x414b	//AK
 
 void CTestGame::registerFactory (const char* name, CBaseDrawableFactory* factory)
 {
@@ -95,7 +104,7 @@ bool CTestGame::Think ( void )
 void CTestGame::OnConnect ( CNetworkPeer &peer )
 {
 	CNetworkMessage message;
-	message.SetType("AK");
+	message.SetType(_MESSAGE_ACKNOWLEDGE);
 	message.Send(peer,true);
 }
 void CTestGame::OnDisconnect ( CNetworkPeer &peer )
@@ -104,8 +113,19 @@ void CTestGame::OnDisconnect ( CNetworkPeer &peer )
 }
 void CTestGame::OnMessage ( CNetworkPeer &peer, CNetworkMessage &message )
 {
-	CNetworkMessage message2;
-	message2.SetType("AK");
-	message2.Send(peer,true);
+	CNetworkMessage outMessage;
+	CPrefsManager &prefs = CPrefsManager::instance();
 
+	switch(message.GetType())
+	{
+		case _MESSAGE_SERVER_INFO:
+			outMessage.SetType("CI");
+			outMessage.AddStr(prefs.GetItemS("PlayerName"));
+			outMessage.Send(peer,true);
+			break;
+
+		default:
+			outMessage.SetType("AK");
+			outMessage.Send(peer,true);
+	}
 }
