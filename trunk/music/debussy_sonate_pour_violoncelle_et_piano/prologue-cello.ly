@@ -5,17 +5,26 @@ prologueCello = \notes \relative c {
   \time 4/4
   \clef bass
 
+  \once \override TextScript #'extra-offset = #'(0 . 2.0)
   r1
   ^\prologueTempo
   r1
   r1
-  r8 d,32\f (g d' g d'4\tenuto) ~
+  r8
+  \phrasingSlurDown
+  \override PhrasingSlur #'attachment-offset = #'((0.5 . 0) . (2 . 0))
+  d,32\f \(g d' g\) d'4\tenuto (
   \clef tenor
-  d8 (e f e16 d)
+  d8)
+  \override PhrasingSlur #'attachment-offset = #'((-2.5 . 0) . (0 . 0))
+  \phrasingSlurUp
+  e \(f e16 d\)
+  \revert Slur #'attachment-offset
+  \revert PhrasingSlur #'attachment-offset
   \set subdivideBeams = ##t
   e32 ([g f e d8] ~ d32 [e d c a c a g])
   \clef bass
-  \set decrescendoText = \markup { \italic "dim. " }
+  \set decrescendoText = \markup { \bold \italic "dim. " }
   \set decrescendoSpanner = #'dashed-line
   e ([g f e d8] ~
   \>
@@ -38,17 +47,17 @@ prologueCello = \notes \relative c {
   r8
   ^\pocoAnimando
   a8
-  _\markup {\italic "dolce sostenuto"}
+  _\markup {\bold \italic "dolce sostenuto"}
   (f e) r8 a16 (f e4) ~
   e8 (d16 c a4 ~ a8\> f e d\!)
   \clef bass
   r8 bes
-  _\markup {\italic "più dolce"}
+  _\markup {\bold \italic "più dolce"}
   (c d e d16 c bes4 ~
   bes8\> a g4)\! ~ g8 r8 r4
   \clef tenor
   r8 a''8
-  _\markup {\italic "più" \dynamic p}
+  _\markup {\bold \italic "più" \dynamic p}
   (f e) r8 (a16 f e4) ~
   e8 (d16 c aes4 ~ aes8\< bes c d\!)
   \clef bass
