@@ -66,6 +66,7 @@ class DebugInterface(xmlrpc.XMLRPC):
            """
         self.caps.faultIfMissing(key, 'universe')
         try:
+            log.msg("Executing code in debug.eval: %r" % code)
             return repr(eval(code))
         except:
             catchFault()
@@ -159,6 +160,7 @@ class GcInterface(xmlrpc.XMLRPC):
     def xmlrpc_collect(self, key):
         """Force the garbage collector to run"""
         self.caps.faultIfMissing(key, 'universe', 'debug', 'debug.gc', 'debug.gc.collect')
+        log.msg("Forcing garbage collection")
         gc.collect()
         return True
 
