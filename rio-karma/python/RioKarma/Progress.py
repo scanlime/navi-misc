@@ -165,18 +165,26 @@ class ConsoleReporter(Reporter):
            this console reporter is installed.
            """
         buffer = StringIO()
+        self._hideMessage(buffer)
+        buffer.write(text)
+        self._showMessage(buffer)
+        self._savedStderr.write(buffer.getvalue())
 
+    def _hideMessage(self, buffer):
+        """Writes as necessary to the supplied file-like object
+           in order to erase the currentMessage
+           """
         if self.currentMessage is not None:
             buffer.write('\b' * len(self.currentMessage))
             buffer.write(' ' * len(self.currentMessage))
             buffer.write('\b' * len(self.currentMessage))
 
-        buffer.write(text)
-
+    def _showMessage(self, buffer):
+        """Writes as necessary to the supplied file-like object
+           in order to draw the currentMessage
+           """
         if self.currentMessage is not None:
             buffer.write(self.currentMessage)
-
-        self._savedStderr.write(buffer.getvalue())
 
     def setMessage(self, message):
         """Replace the currently displayed progress message,
@@ -184,16 +192,9 @@ class ConsoleReporter(Reporter):
            None to clear the old without writing a new one.
            """
         buffer = StringIO()
-
-        if self.currentMessage is not None:
-            buffer.write('\b' * len(self.currentMessage))
-            buffer.write(' ' * len(self.currentMessage))
-            buffer.write('\b' * len(self.currentMessage))
-
+        self._hideMessage(buffer)
         self.currentMessage = message
-        if self.currentMessage is not None:
-            buffer.write(self.currentMessage)
-
+        self._showMessage(buffer)
         self._savedStderr.write(buffer.getvalue())
 
     def update(self):

@@ -1,5 +1,3 @@
-- Add progress reporting
-- Autodetect rio devices, collect and store passwords
 - Split demo.py into separate useful utilities
 - Write a spiffy synchronization app
 - Create another local database to store play counts, profiles, and such
