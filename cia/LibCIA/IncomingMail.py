@@ -22,6 +22,7 @@ and delivers them to the Message.Hub.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
+from twisted.web.xmlrpc import XMLRPC
 from twisted.xish import domish
 from Message import Message
 from ColorText import ColorTextParser
@@ -38,6 +39,21 @@ interestingHeaders = (
     'Message-Id',
     'Date'
     )
+
+
+class MailInterface(XMLRPC):
+    """An XML-RPC interface for delivering messages via an IncomingMailParser
+       to the Message.Hub.
+       """
+    def __init__(self, hub):
+        self.hub = hub
+
+    def xmlrpc_deliver(self, message):
+        """Given the raw text of an email message, log it and process it if applicable"""
+        xmlMessage = IncomingMailParser().parseString(message)
+        if xmlMessage:
+            self.hub.deliver(xmlMessage)
+        return True
 
 
 class IncomingMailParser:
