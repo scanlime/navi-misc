@@ -45,7 +45,30 @@ namespace Fyre {
 		{
 			ArrayList all_plugin_types = new ArrayList ();
 
-			string [] files = Directory.GetFiles (directory, "*.dll");
+			ArrayList files = new ArrayList();
+			string current_dir = Directory.GetCurrentDirectory();
+
+			if (current_dir.IndexOf (Defines.DATADIR) == -1) {
+				// Fyre is being run from the install dir.
+				current_dir = String.Concat (current_dir, "/Plugins");
+				string [] dirs = Directory.GetDirectories (current_dir);
+
+				// Before make install is run, the plugins are in the Plugins/<plugin name>
+				// directory. So we go through each dir in the Plugins/ dir and look
+				// for dll's. The nested for loops are a bit gross, but it's not likely
+				// that there's a huge amount of stuff in this directory.
+				foreach (string d in dirs) {
+					foreach (string file in Directory.GetFiles (d, "*.dll"))
+						files.Add (file);
+				}
+			}
+
+			// Add all the files in the PLUGINSDIR to the list of plugins.
+			if (Directory.Exists (directory))
+				foreach (string file in Directory.GetFiles (directory, "*.dll")) {
+					if (!files.Contains (file))
+						files.Add (file);
+				}
 
 			// Pull in types from assemblies
 			foreach (string file in files) {
