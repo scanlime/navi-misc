@@ -31,6 +31,8 @@ autotools:
 
 * migrate all menus (main, context, etc) to use GtkUIManager
 
+* make text surrounded by asterisks bold in the xtext widget
+
 context menus:
 * flesh out the userlist context menu
 * make the context menu for navtree stuff actually dependent on context - see above note
