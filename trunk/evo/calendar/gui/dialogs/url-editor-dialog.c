@@ -58,34 +58,94 @@ url_editor_dialog_init (UrlEditorDialog *dialog)
 {
 }
 
+static gboolean
+is_valid_url (const gchar *url)
+{
+	const gchar *p = url;
+
+	if (strlen (url) == 0) {
+		return FALSE;
+	}
+	while (*p) {
+		if ((*p == '\\') || (*p == ' ')) {
+			return FALSE;
+		}
+		p++;
+	}
+	return TRUE;
+}
+
 static void
 fb_url_changed (GtkEntry *url_entry, UrlEditorDialog *dialog)
 {
-	/* FIXME */
+	const gchar *entry_contents;
+	GtkTreeModel *model;
+	GtkTreeIter iter;
+	gboolean valid;
+
+	model = dialog->url_list_model;
+
+	entry_contents = gtk_entry_get_text (url_entry);
+	if (!is_valid_url (entry_contents)) {
+		gtk_widget_set_sensitive (dialog->ok, FALSE);
+		return;
+	}
+	/* check for duplicates */
+	valid = gtk_tree_model_get_iter_first (model, &iter);
+	while (valid) {
+		gchar *url_name;
+		gtk_tree_model_get (model, &iter, URL_LIST_LOCATION_COLUMN, &url_name, -1);
+		if (!strcasecmp (url_name, entry_contents)) {
+			gtk_widget_set_sensitive (dialog->ok, FALSE);
+			return;
+		}
+		valid = gtk_tree_model_iter_next (model, &iter);
+	}
+	/* valid and unique */
+	gtk_widget_set_sensitive (dialog->ok, TRUE);
+	gtk_widget_grab_default (dialog->ok);
+	gtk_entry_set_activates_default (GTK_ENTRY (dialog->url_entry), TRUE);
 }
 
 static void
 fb_url_activated (GtkEntry *url_entry, UrlEditorDialog *dialog)
 {
-	/* FIXME */
+	dialog->uri->location = g_strdup (gtk_entry_get_text (GTK_ENTRY (url_entry)));
 }
 
 static void
 fb_ok_enable (GtkWidget *widget, UrlEditorDialog *dialog)
 {
-	/* FIXME */
+	gtk_widget_set_sensitive (dialog->ok, TRUE);
 }
 
 static void
 fb_daily_toggled (GtkWidget *button, UrlEditorDialog *dialog)
 {
-	/* FIXME */
+	enum publish_frequency frequency;
+
+	frequency = e_dialog_radio_get (dialog->daily, pub_frequency_type_map);
+	dialog->uri->publish_freq = frequency;
+	gtk_widget_set_sensitive (dialog->ok, TRUE);
 }
 
 static void
 selection_changed (ESourceSelector *selector, UrlEditorDialog *dialog)
 {
-	/* FIXME */
+	GSList *selection = e_source_selector_get_selection (selector);
+
+	if (selection != NULL) {
+		GSList *p, *l = NULL;
+
+		for (p = selection; p; p = g_slist_next (p)) {
+			ESource *source = E_SOURCE (p->data);
+			gchar *source_uid = g_strdup (e_source_peek_uid (source));
+			l = g_slist_append (l, source_uid);
+		}
+		dialog->uri->calendars = l;
+	}
+	e_source_selector_free_selection (selection);
+	gtk_widget_set_sensitive (dialog->ok, TRUE);
 }
 
 static void
@@ -204,6 +264,8 @@ url_editor_dialog_construct (UrlEditorDialog *dialog)
 			e_dialog_radio_set (dialog->daily, URI_PUBLISH_USER, pub_frequency_type_map);
 	}
 
+	gtk_widget_set_sensitive (dialog->ok, FALSE);
+
 	toplevel = glade_xml_get_widget (gui, "toplevel_dialog");
 	gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), toplevel);
 }
@@ -216,6 +278,7 @@ url_editor_dialog_new (GtkTreeModel *url_list_model, EPublishUri *pub_uri)
 	dialog = (UrlEditorDialog *) g_object_new (url_editor_dialog_get_type (), NULL);
 
 	dialog->uri = pub_uri;
+	dialog->url_list_model = url_list_model;
 
 	url_editor_dialog_construct (dialog);
 
