@@ -26,20 +26,16 @@ __module_version__ = '0.1-pre'
 __module_description__ = 'Collect URLs said and display them in a separate window'
 
 def close( window, event, user_data ):
-    window.destroy()
-
-window = gtk.Window( gtk.WINDOW_TOPLEVEL )
-store = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING )
-view = gtk.TreeView( store )
-view.append_column( gtk.TreeViewColumn( 'Nick', gtk.CellRendererText(), text=0 ) )
-view.append_column( gtk.TreeViewColumn( 'URL', gtk.CellRendererText(), text=1 ) )
-window.add( view )
-window.connect( 'destroy', close)
-window.show_all()
+    ''' Unload the module when you close the window. '''
+    # FIXME: In the future this might just hide the window if we can add a
+    #        item to the main window that would allow us to show the window,
+    #        in which case we wouldn't unload the plugin here.
+    xchat.command( 'py unload '+__module_name__ )
 
 def grabbedURL( nick, match ):
-    print '%s said url: %s' % ( nick, match.group() )
-    store.set( store.append(), 0, nick, 1, match.group() )
+    ''' Handler for a URL. Append the URL to the store. '''
+    # FIXME: We'll eventually want a configurable history length here.
+    store.set( store.append(), 0, nick, 1, xchat.get_info('channel'), 2, match.group())
 
 def grabbedEmail( nick, match ):
     print '%s said an email address: %s' % (nick, match.group())
@@ -60,7 +56,22 @@ def grabURL( word, word_eol, user_data ):
 
 def unload( user_data ):
     ''' Destroy the window and stuff before we go away. '''
+    window.destroy()
     print 'URL Scraper unloaded.'
+
+window = gtk.Window( gtk.WINDOW_TOPLEVEL )
+window.set_default_size( 300, 350 )
+
+store = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING )
+
+view = gtk.TreeView( store )
+view.append_column( gtk.TreeViewColumn( 'Nick', gtk.CellRendererText(), text=0 ) )
+view.append_column( gtk.TreeViewColumn( 'Channel', gtk.CellRendererText(), text=1) )
+view.append_column( gtk.TreeViewColumn( 'URL', gtk.CellRendererText(), text=2 ) )
+
+window.add( view )
+window.connect( 'destroy', close)
+window.show_all()
 
 xchat.hook_print( 'Channel Message', grabURL )
 xchat.hook_unload( unload )
