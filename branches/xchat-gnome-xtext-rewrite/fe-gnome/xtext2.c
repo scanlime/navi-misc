@@ -17,6 +17,7 @@ static void           xtext2_unrealize       (GtkWidget *widget);
 static void           xtext2_size_request    (GtkWidget *widget, GtkRequisition *requisition);
 static void           xtext2_size_allocate   (GtkWidget *widget, GtkAllocation *allocation);
 static gboolean       xtext2_expose          (GtkWidget *widget, GdkEventExpose *event);
+static gboolean       xtext2_scroll          (GtkWidget *widget, GdkEventScroll *event);
 
 static void           backend_init           (XText2 *xtext);
 static void           backend_deinit         (XText2 *xtext);
@@ -270,6 +271,7 @@ xtext2_class_init (XText2Class *klass)
   widget_class->size_request          = xtext2_size_request;
   widget_class->size_allocate         = xtext2_size_allocate;
   widget_class->expose_event          = xtext2_expose;
+  widget_class->scroll_event          = xtext2_scroll;
 
   pspec = g_param_spec_string ("font",
                                "Font",
@@ -579,6 +581,29 @@ static gboolean
 xtext2_expose (GtkWidget *widget, GdkEventExpose *event)
 {
   paint (widget, &event->area);
+  return FALSE;
+}
+
+static gboolean
+xtext2_scroll (GtkWidget *widget, GdkEventScroll *event)
+{
+  XText2 *xtext = XTEXT2 (widget);
+  gfloat new_value;
+
+  if (event->direction == GDK_SCROLL_UP)
+  {
+    new_value = xtext->adj->value - (xtext->adj->page_increment / 10);
+    if (new_value < xtext->adj->lower)
+      new_value = xtext->adj->lower;
+    gtk_adjustment_set_value (xtext->adj, new_value);
+  }
+  else if (event->direction == GDK_SCROLL_DOWN)
+  {
+    new_value = xtext->adj->value + (xtext->adj->page_increment / 10);
+    if (new_value > (xtext->adj->upper - xtext->adj->page_size))
+      new_value = xtext->adj->upper - xtext->adj->page_size;
+    gtk_adjustment_set_value (xtext->adj, new_value);
+  }
   return FALSE;
 }
 
@@ -2110,6 +2135,8 @@ buffer_append (XTextBuffer *buffer, textentry *ent, XText2 *xtext)
   else
     space = 0;
 
+  ent->str_width = text_width (xtext, ent->str, ent->str_len, NULL);
+
   /* do we need to auto-adjust the separator position? */
   if (xtext->priv->auto_indent && ent->indent < MARGIN + space)
   {
@@ -2440,6 +2467,8 @@ recalc_widths (XText2 *xtext, gboolean do_str_width)
 
   f = g_hash_table_lookup (xtext->priv->buffer_info, xtext->priv->current_buffer);
 
+  g_print ("recalc_widths ()\n");
+
   /* since we have a new font, we have to recalc the text widths */
   ent = f->wrapped_first;
   while (ent)
@@ -2497,10 +2526,9 @@ fix_indent (XText2 *xtext)
   int j;
   XTextFormat *f;
 
-  if (xtext->priv->buffer_info == NULL)
-    return;
-
   f = g_hash_table_lookup (xtext->priv->buffer_info, xtext->priv->current_buffer);
+
+  g_print ("fix_indent ()\n");
 
   /* make indent a multiple of the space width */
   if (f->indent && xtext->priv->spacewidth)
