@@ -33,6 +33,7 @@
 #include "navigation_tree.h"
 #include "textgui.h"
 #include "palette.h"
+#include "transfers.h"
 
 #ifdef HAVE_GTKSPELL
 #include <gtkspell/gtkspell.h>
@@ -70,9 +71,11 @@ void on_go_previous_network_activate (GtkWidget *widget, gpointer data);
 void on_go_next_network_activate (GtkWidget *widget, gpointer data);
 void on_go_previous_discussion_activate (GtkWidget *widget, gpointer data);
 void on_go_next_discussion_activate (GtkWidget *widget, gpointer data);
-void on_discussion_jump_activate (GtkAccelGroup *accelgroup, GObject *arg1, guint arg2,GdkModifierType arg3, gpointer data);
+void on_discussion_jump_activate (GtkAccelGroup *accelgroup, GObject *arg1, guint arg2, GdkModifierType arg3, gpointer data);
 void on_discussion_plus_activate (GtkAccelGroup *accelgroup, GObject *arg1, guint arg2, GdkModifierType arg3, gpointer data);
 void on_discussion_minus_activate (GtkAccelGroup *accelgroup, GObject *arg1, guint arg2, GdkModifierType arg3, gpointer data);
+void on_pgup (GtkAccelGroup *accelgroup, GObject *arg1, guint arg2, GdkModifierType arg3, gpointer data);
+void on_pgdn (GtkAccelGroup *accelgroup, GObject *arg1, guint arg2, GdkModifierType arg3, gpointer data);
 void on_help_about_menu_activate (GtkWidget *widget, gpointer data);
 
 void on_text_entry_activate (GtkWidget *widget, gpointer data);
@@ -129,12 +132,38 @@ initialize_main_window ()
 	g_signal_connect (G_OBJECT (entry), "populate-popup", G_CALLBACK (entry_context), NULL);
 
   /* XXX: Is this a leak?? */
-	gui.topic = glade_xml_get_widget (gui.xml, "topic label");
 	topicbox = glade_xml_get_widget (gui.xml, "topic hbox");
-	gtk_box_pack_start (GTK_BOX (topicbox), gui.topic, TRUE, TRUE, 0);
-	gtk_box_reorder_child (GTK_BOX (topicbox), gui.topic, 1);
+#if (GTK_CHECK_VERSION(2,5,0))
+	gui.topic_expander = gtk_expander_new (NULL);
+	gtk_box_pack_start (GTK_BOX (topicbox), GTK_WIDGET (gui.topic_expander), TRUE, FALSE, 0);
+	gtk_box_reorder_child (GTK_BOX (topicbox), GTK_WIDGET (gui.topic_expander), 0);
+#endif
+	gui.topic_label = GTK_LABEL (gtk_label_new(""));
+	gtk_box_pack_start (GTK_BOX (topicbox), GTK_WIDGET (gui.topic_label), TRUE, TRUE, 0);
+	gtk_box_reorder_child (GTK_BOX (topicbox), GTK_WIDGET (gui.topic_label), 1);
 	// FIXME
 //	g_signal_connect(G_OBJECT(entry), "activate", G_CALLBACK(on_topic_entry_activate), NULL);
+
+	/* Hook up accelerators for pgup/pgdn */
+	{
+		GtkAccelGroup *pg_accel;
+		GClosure *closure;
+
+		/* Create our accelerator group */
+		pg_accel = gtk_accel_group_new ();
+
+		/* Add the two accelerators */
+		closure = g_cclosure_new (G_CALLBACK (on_pgup), NULL, NULL);
+		gtk_accel_group_connect (pg_accel, GDK_Page_Up, 0, GTK_ACCEL_VISIBLE, closure);
+		g_closure_unref (closure);
+
+		closure = g_cclosure_new (G_CALLBACK (on_pgdn), NULL, NULL);
+		gtk_accel_group_connect (pg_accel, GDK_Page_Down, 0, GTK_ACCEL_VISIBLE, closure);
+		g_closure_unref (closure);
+
+		/* Add the accelgroup to the main window. */
+		gtk_window_add_accel_group (GTK_WINDOW (gui.main_window), pg_accel);
+	}
 
 	/* Hook up accelerators for alt-#. */
 	{
@@ -183,7 +212,7 @@ initialize_main_window ()
 		g_closure_unref (closure);
 
 		/* Add the accelgroup to the main window. */
-		gtk_window_add_accel_group (gui.main_window, discussion_accel);
+		gtk_window_add_accel_group (GTK_WINDOW (gui.main_window), discussion_accel);
 	}
 
 #ifdef HAVE_GTKSPELL
@@ -480,6 +509,42 @@ on_discussion_minus_activate (GtkAccelGroup *accelgroup, GObject *arg1, guint ar
 }
 
 void
+on_pgup (GtkAccelGroup *accelgroup, GObject *arg1, guint arg2, GdkModifierType arg3, gpointer data)
+{
+	GtkWidget *scrollbar;
+	GtkAdjustment *adj;
+	int value, end;
+
+	scrollbar = glade_xml_get_widget (gui.xml, "text area scrollbar");
+	adj = GTK_RANGE (scrollbar)->adjustment;
+	end = adj->upper - adj->lower - adj->page_size;
+	value = adj->value - (adj->page_size - 1);
+	if (value < 0)
+		value = 0;
+	if (value > end)
+		value = end;
+	gtk_adjustment_set_value (adj, value);
+}
+
+void
+on_pgdn (GtkAccelGroup *accelgroup, GObject *arg1, guint arg2, GdkModifierType arg3, gpointer data)
+{
+	GtkWidget *scrollbar;
+	GtkAdjustment *adj;
+	int value, end;
+
+	scrollbar = glade_xml_get_widget (gui.xml, "text area scrollbar");
+	adj = GTK_RANGE (scrollbar)->adjustment;
+	end = adj->upper - adj->lower - adj->page_size;
+	value = adj->value + (adj->page_size - 1);
+	if (value < 0)
+		value = 0;
+	if (value > end)
+		value = end;
+	gtk_adjustment_set_value (adj, value);
+}
+
+void
 on_help_about_menu_activate (GtkWidget *widget, gpointer data)
 {
 	show_about_dialog ();
@@ -490,7 +555,7 @@ on_text_entry_activate (GtkWidget *widget, gpointer data)
 {
 	char *entry_text = g_strdup (gtk_entry_get_text (GTK_ENTRY (widget)));
 	gtk_entry_set_text (GTK_ENTRY (widget), "");
-	handle_multiline (gui.current_session, (const char *) entry_text, TRUE, FALSE);
+	handle_multiline (gui.current_session, (char *) entry_text, TRUE, FALSE);
 	g_free (entry_text);
 }
 

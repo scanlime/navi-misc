@@ -29,6 +29,8 @@ EXTRA_DIST =				\
 	connect_dialog.h		\
 	connect_dialog.c		\
 	fe-gnome.c			\
+	gtkutil.h			\
+	gtkutil.c			\
 	gui.h				\
 	gui.c				\
 	main_window.h			\
@@ -75,6 +77,8 @@ xchat_gnome_SOURCES =			\
 	connect_dialog.h		\
 	connect_dialog.c		\
 	fe-gnome.c			\
+	gtkutil.h			\
+	gtkutil.c			\
 	gui.h				\
 	gui.c				\
 	main_window.h			\

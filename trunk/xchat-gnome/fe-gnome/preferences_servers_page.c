@@ -75,7 +75,6 @@ static void
 encoding_changed (GtkComboBox *combo, ircnet *net)
 {
 	guint index;
-	gchar *enc;
 	if (net->encoding)
 		g_free (net->encoding);
 	index = gtk_combo_box_get_active (combo);
@@ -189,7 +188,7 @@ edit_clicked (GtkWidget *button, gpointer data)
 	encoding = glade_xml_get_widget (gui.xml, "encoding combo");
 	if (!initialized)
 	{
-		char **enc = encodings;
+		char **enc = (char **) encodings;
 		guint index = 0;
 
 		enctoindex = g_hash_table_new (g_str_hash, g_str_equal);
@@ -286,7 +285,6 @@ remove_clicked (GtkWidget *button, gpointer data)
 	GtkTreeSelection *select;
 	GtkTreeIter iter;
 	GtkTreeModel *model;
-	ircnet *net;
 
 	treeview = glade_xml_get_widget (gui.xml, "configure server list");
 
@@ -295,7 +293,7 @@ remove_clicked (GtkWidget *button, gpointer data)
 	gtk_tree_selection_get_selected (select, &model, &iter);
 /*	gtk_tree_model_get(model, &iter, 2, &net, -1);*/
 
-	gtk_tree_store_remove (GTK_LIST_STORE (model), &iter);
+	gtk_tree_store_remove (GTK_TREE_STORE (model), &iter);
 }
 
 void
@@ -311,7 +309,7 @@ initialize_preferences_servers_page ()
 	treeview = glade_xml_get_widget (gui.xml, "configure server list");
 
 	store = gtk_list_store_new (3, G_TYPE_STRING, G_TYPE_BOOLEAN, G_TYPE_POINTER);
-	sort = gtk_tree_model_sort_new_with_model (GTK_TREE_MODEL (store));
+	sort = GTK_TREE_MODEL_SORT (gtk_tree_model_sort_new_with_model (GTK_TREE_MODEL (store)));
 	gtk_tree_sortable_set_sort_column_id (GTK_TREE_SORTABLE (sort), 1, GTK_SORT_DESCENDING);
 	gtk_tree_view_set_model (GTK_TREE_VIEW (treeview), GTK_TREE_MODEL (sort));
 

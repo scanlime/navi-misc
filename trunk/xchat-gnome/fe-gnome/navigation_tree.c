@@ -28,6 +28,7 @@
 #include "palette.h"
 #include "channel_list.h"
 #include "main_window.h"
+#include "../common/fe.h"
 #include "../common/servlist.h"
 
 /***** NavTree *****/
@@ -49,68 +50,68 @@ static void row_expanded                 (GtkTreeView *treeview, GtkTreeIter *it
 GType
 navigation_tree_get_type (void)
 {
-  static GType navigation_tree_type = 0;
+	static GType navigation_tree_type = 0;
 
 	/* If we haven't registered the type yet. */
-  if (!navigation_tree_type) {
-    static const GTypeInfo navigation_tree_info =
-    {
-      sizeof (NavTreeClass),
-      NULL, /* base init. */
-      NULL, /* base finalize. */
-      (GClassInitFunc) navigation_tree_class_init,
-      NULL, /* class finalize. */
-      NULL, /* class data. */
-      sizeof (NavTree),
-      0,    /* n_preallocs. */
-      (GInstanceInitFunc) navigation_tree_init,
-    };
+	if (!navigation_tree_type) {
+		static const GTypeInfo navigation_tree_info =
+		{
+			sizeof (NavTreeClass),
+			NULL, /* base init. */
+			NULL, /* base finalize. */
+			(GClassInitFunc) navigation_tree_class_init,
+			NULL, /* class finalize. */
+			NULL, /* class data. */
+			sizeof (NavTree),
+			0,    /* n_preallocs. */
+			(GInstanceInitFunc) navigation_tree_init,
+		};
 
 		/* Register the type. */
-    navigation_tree_type = g_type_register_static(GTK_TYPE_TREE_VIEW, "NavTree", &navigation_tree_info, 0);
-  }
+		navigation_tree_type = g_type_register_static(GTK_TYPE_TREE_VIEW, "NavTree", &navigation_tree_info, 0);
+	}
 
-  return navigation_tree_type;
+	return navigation_tree_type;
 }
 
 static void
 navigation_tree_init (NavTree *navtree)
 {
-  GtkCellRenderer *icon_renderer, *text_renderer;
-  GtkTreeViewColumn *column;
-  GtkTreeSelection *select;
+	GtkCellRenderer *icon_renderer, *text_renderer;
+	GtkTreeViewColumn *column;
+	GtkTreeSelection *select;
 
-  g_object_set((gpointer)navtree, "headers-visible", FALSE, NULL);
+	g_object_set((gpointer)navtree, "headers-visible", FALSE, NULL);
 	navtree->current_path = NULL;
 	navtree->model = NULL;
-  navtree->selection_changed_id = 0;
+	navtree->selection_changed_id = 0;
 
 	/* This sets up all our columns. */
-  column = gtk_tree_view_column_new();
-  icon_renderer = gtk_cell_renderer_pixbuf_new();
-  text_renderer = gtk_cell_renderer_text_new();
+	column = gtk_tree_view_column_new();
+	icon_renderer = gtk_cell_renderer_pixbuf_new();
+	text_renderer = gtk_cell_renderer_text_new();
 	/* Icon columns. */
-  gtk_tree_view_column_pack_start(column, icon_renderer, FALSE);
-  gtk_tree_view_column_set_attributes(column, icon_renderer, "pixbuf", 0, NULL);
+	gtk_tree_view_column_pack_start(column, icon_renderer, FALSE);
+	gtk_tree_view_column_set_attributes(column, icon_renderer, "pixbuf", 0, NULL);
 	/* text columns. */
-  gtk_tree_view_column_pack_start(column, text_renderer, TRUE);
-  gtk_tree_view_column_set_attributes(column, text_renderer, "text", 1, "foreground-gdk", 4, NULL);
+	gtk_tree_view_column_pack_start(column, text_renderer, TRUE);
+	gtk_tree_view_column_set_attributes(column, text_renderer, "text", 1, "foreground-gdk", 4, NULL);
 	/* Add the column to the TreeView. */
-  gtk_tree_view_append_column(GTK_TREE_VIEW(navtree),column);
+	gtk_tree_view_append_column(GTK_TREE_VIEW(navtree),column);
 
 	/* Set our selction mode. */
-  select = gtk_tree_view_get_selection(GTK_TREE_VIEW(navtree));
-  gtk_tree_selection_set_mode(select, GTK_SELECTION_SINGLE);
+	select = gtk_tree_view_get_selection(GTK_TREE_VIEW(navtree));
+	gtk_tree_selection_set_mode(select, GTK_SELECTION_SINGLE);
 
 	/* FIXME: Should insert navtree into the window here when we replace the existing
 	 * navigation tree stuff with this.
 	 */
 
 	/* Connect the callbacks. */
-  navtree->selection_changed_id = g_signal_connect(G_OBJECT(select), "changed", G_CALLBACK(navigation_selection_changed), NULL);
+	navtree->selection_changed_id = g_signal_connect(G_OBJECT(select), "changed", G_CALLBACK(navigation_selection_changed), NULL);
 	g_signal_connect(G_OBJECT(navtree), "row-expanded", G_CALLBACK(row_expanded), NULL);
-  g_signal_connect(G_OBJECT(navtree), "button_press_event", G_CALLBACK(click), NULL);
-  g_signal_connect(G_OBJECT(navtree), "button_release_event", G_CALLBACK(declick), NULL);
+	g_signal_connect(G_OBJECT(navtree), "button_press_event", G_CALLBACK(click), NULL);
+	g_signal_connect(G_OBJECT(navtree), "button_release_event", G_CALLBACK(declick), NULL);
 }
 
 static void
@@ -127,7 +128,7 @@ navigation_tree_dispose (GObject *object)
 {
 	NavTree *navtree = (NavTree*) object;
 	if (navtree->model) {
-	  g_object_unref((gpointer)navtree->model);
+		g_object_unref((gpointer)navtree->model);
 		navtree->model = NULL;
 	}
 }
@@ -150,7 +151,7 @@ navigation_tree_new (NavModel *model)
 
 	/* Assign a NavModel to the NavTree. */
 	new_tree->model = model;
-  gtk_tree_view_set_model(GTK_TREE_VIEW(new_tree), new_tree->model->sorted);
+	gtk_tree_view_set_model(GTK_TREE_VIEW(new_tree), new_tree->model->sorted);
 
 	return new_tree;
 }
@@ -203,23 +204,25 @@ navigation_tree_create_new_channel_entry (NavTree *navtree, struct session *sess
 void
 navigation_tree_remove (NavTree *navtree, struct session *sess)
 {
-	GtkTreePath *path = gtk_tree_path_copy(navtree->current_path);
-	GtkTreeSelection *select = gtk_tree_view_get_selection(GTK_TREE_VIEW(navtree));
+	GtkTreePath *path = gtk_tree_path_copy (navtree->current_path);
+	GtkTreeSelection *select = gtk_tree_view_get_selection (GTK_TREE_VIEW (navtree));
 
-	if (!gtk_tree_path_prev(path)) {
-	  if (!gtk_tree_path_up(path)) {
-			gtk_tree_path_free(path);
-			path = gtk_tree_path_new_from_string("0");
+	if (!gtk_tree_path_prev (path))
+	{
+		if (!gtk_tree_path_up (path))
+		{
+			gtk_tree_path_free (path);
+			path = gtk_tree_path_new_from_string ("0");
 		}
 	}
 
 	/* Change the selection before we remove the session so that things can be
 	 * ref'ed and unref'ed properly without too much silliness.
 	 */
-	gtk_tree_selection_select_path(select, path);
+	gtk_tree_selection_select_path (select, path);
 	navigation_model_remove (navtree->model, sess);
 
-	gtk_tree_path_free(path);
+	gtk_tree_path_free (path);
 }
 
 /* Channel/server selection functions. */
@@ -321,12 +324,12 @@ navigation_tree_select_next_channel (NavTree *navtree, gboolean wrap)
 		if (navtree->current_path)
 		{
 			gtk_tree_model_get_iter (model, &iter, navtree->current_path);
-		/* Otherwise return. */
+			/* Otherwise return. */
 		}
 		else
 		{
-			/*gtk_tree_model_get_iter_first(model, &iter);
-			gtk_tree_selection_select_iter(selection, &iter);*/
+			/*gtk_tree_model_get_iter_first (model, &iter);
+			gtk_tree_selection_select_iter (selection, &iter);*/
 			return;
 		}
 	}
@@ -343,8 +346,8 @@ navigation_tree_select_next_channel (NavTree *navtree, gboolean wrap)
 		/* If we have a child, move to the first one, select it and return. */
 		if (gtk_tree_model_iter_has_child (model, &iter))
 		{
-		  /* Expand just in case. */
-		  gtk_tree_view_expand_row (GTK_TREE_VIEW (navtree), path, TRUE);
+			/* Expand just in case. */
+			gtk_tree_view_expand_row (GTK_TREE_VIEW (navtree), path, TRUE);
 			gtk_tree_path_down (path);
 			gtk_tree_model_get_iter (model, &iter, path);
 			gtk_tree_selection_select_iter (selection, &iter);
@@ -355,7 +358,8 @@ navigation_tree_select_next_channel (NavTree *navtree, gboolean wrap)
 	/* Try to move forward, otherwise select the first channel on this network. */
 	if (!gtk_tree_model_iter_next (model, &iter))
 	{
-		if (wrap) {
+		if (wrap)
+		{
 			  gtk_tree_path_up (path);
 			  gtk_tree_path_down (path);
 			  gtk_tree_model_get_iter (model, &iter, path);
@@ -456,7 +460,6 @@ navigation_tree_select_prev_channel (NavTree *navtree, gboolean wrap)
 			}
 			else
 			{
-				GtkTreeIter temp;
 				gtk_tree_path_up (path);
 				if (!gtk_tree_path_prev (path))
 					return;
@@ -858,7 +861,7 @@ navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_dat
 	 *      not a GtkTreeModel. The iter is for that ModelSort.
 	 */
 	if (gtk_tree_selection_get_selected (treeselection, &model, &iter) && gui.current_session) {
-		GtkWidget *topic, *entry;
+		GtkWidget *entry;
 
 		/* back up existing entry */
 		tgui = (session_gui *) gui.current_session->gui;
@@ -897,7 +900,7 @@ navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_dat
 		gtk_xtext_buffer_show (gui.xtext, tgui->buffer, TRUE);
 
 		/* Set the topic. */
-		gtk_label_set_text (GTK_LABEL (gui.topic), tgui->topic);
+		gtk_label_set_text (GTK_LABEL (gui.topic_label), tgui->topic);
 
 		/* Set the text entry field to whatever is in the text entry of this session. */
 		entry = glade_xml_get_widget (gui.xml, "text entry");
@@ -1084,7 +1087,7 @@ navigation_model_add_new_channel (NavModel *model, struct session *sess)
 	gtk_tree_model_foreach (GTK_TREE_MODEL (model->store), (GtkTreeModelForeachFunc) navigation_model_create_new_channel_entry_iterate, (gpointer) sess);
 }
 
-static gboolean
+/* FIXME ?
 navigation_model_remove_iterate (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, struct session *data)
 {
 	struct session *s;
@@ -1096,6 +1099,7 @@ navigation_model_remove_iterate (GtkTreeModel *model, GtkTreePath *path, GtkTree
 	}
 	return FALSE;
 }
+*/
 
 void
 navigation_model_remove (NavModel *model, struct session *sess)

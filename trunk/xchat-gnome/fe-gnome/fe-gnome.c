@@ -473,10 +473,37 @@ fe_beep (void)
 	gdk_beep();
 }
 
+typedef struct
+{
+	session *sess;
+	unsigned char *sstr;
+} fe_lastlog_info;
+
+static void
+fe_lastlog_foreach (GtkXText *xtext, unsigned char *text, fe_lastlog_info *info)
+{
+	session_gui *tgui = (session_gui *) info->sess->gui;
+
+	if (nocasestrstr (text, info->sstr))
+		text_gui_print (tgui->buffer, text, TRUE);
+}
+
 void
 fe_lastlog (session *sess, session *lastlog_sess, char *sstr)
 {
-	/* FIXME: implement */
+	session_gui *tgui = (session_gui *) sess->gui;
+	session_gui *lgui = (session_gui *) lastlog_sess->gui;
+	if (gtk_xtext_is_empty (tgui->buffer))
+	{
+		text_gui_print (lgui->buffer, _("Search buffer is empty.\n"), TRUE);
+	}
+	else
+	{
+		fe_lastlog_info info;
+		info.sess = lastlog_sess;
+		info.sstr = sstr;
+		gtk_xtext_foreach (tgui->buffer, (GtkXTextForeach) fe_lastlog_foreach, &info);
+	}
 }
 
 void
@@ -572,18 +599,6 @@ fe_set_away (server *serv)
 
 void
 fe_serverlist_open (session *sess)
-{
-	/* FIXME: implement */
-}
-
-void
-fe_get_str (char *prompt, char *def, void *callback, void *ud)
-{
-	/* FIXME: implement */
-}
-
-void
-fe_get_int (char *prompt, int def, void *callback, void *ud)
 {
 	/* FIXME: implement */
 }

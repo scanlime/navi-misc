@@ -39,21 +39,21 @@ typedef struct _GuiClass GuiClass;
 
 typedef struct
 {
-  GladeXML *xml;
-  GtkWidget *xtext;
-  session *current_session;
+	GladeXML *xml;
+	GtkWidget *xtext;
+	session *current_session;
 } GuiPrivate;
 
 struct _Gui
 {
-  GObject parent;
+	GObject parent;
 
-  GuiPrivate priv;
+	GuiPrivate priv;
 };
 
 struct _GuiClass
 {
-  GObjectClass parent_class;
+	GObjectClass parent_class;
 };
 
 GType gui_get_type (void) G_GNUC_CONST;
