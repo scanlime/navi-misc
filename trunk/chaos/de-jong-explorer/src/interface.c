@@ -62,6 +62,7 @@ void on_color_changed(GtkWidget *widget, gpointer user_data);
 void on_randomize_activate(GtkWidget *widget, gpointer user_data);
 void on_load_defaults_activate(GtkWidget *widget, gpointer user_data);
 void on_save_activate(GtkWidget *widget, gpointer user_data);
+void on_quit_activate(GtkWidget *widget, gpointer user_data);
 gboolean on_viewport_expose(GtkWidget *widget, gpointer user_data);
 GtkWidget *custom_color_button_new(gchar *widget_name, gchar *string1, gchar *string2, gint int1, gint int2);
 
@@ -219,6 +220,11 @@ gboolean on_expose(GtkWidget *widget, GdkEventExpose *event, gpointer user_data)
 }
 
 gboolean on_window_delete(GtkWidget *widget, GdkEvent *event, gpointer user_data) {
+  g_source_remove(gui.idler);
+  gtk_main_quit();
+}
+
+void on_quit_activate(GtkWidget *widget, gpointer user_data) {
   g_source_remove(gui.idler);
   gtk_main_quit();
 }
