@@ -47,8 +47,7 @@ e_weather_source_get_type (void)
 {
 	static GType e_weather_source_type = 0;
 
-	if (!e_weather_source_type)
-	{
+	if (!e_weather_source_type) {
 		static GTypeInfo info = {
 			sizeof (EWeatherSourceClass),
 			(GBaseInitFunc) NULL,

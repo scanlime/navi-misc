@@ -283,17 +283,15 @@ create_weather (ECalBackendWeather *cbw, WeatherForecast *report)
 
 	source = e_cal_backend_get_source (E_CAL_BACKEND (cbw));
 	format = e_source_get_property (source, "temperature");
-	if (format == NULL) {
+	if (format == NULL)
 		fahrenheit = FALSE;
-	} else {
+	else
 		fahrenheit = (strcmp (format, "fahrenheit") == 0);
-	}
 	format = e_source_get_property (source, "snowfall");
-	if (format == NULL) {
+	if (format == NULL)
 		inches = FALSE;
-	} else {
+	else
 		inches = (strcmp (format, "inches") == 0);
-	}
 
 	/* create the component and event object */
 	ical_comp = icalcomponent_new (ICAL_VEVENT_COMPONENT);
@@ -318,15 +316,12 @@ create_weather (ECalBackendWeather *cbw, WeatherForecast *report)
 	e_cal_component_set_dtend (cal_comp, &dt);
 
 	/* The summary is the high or high/low temperatures */
-	if (report->high == report->low)
-	{
+	if (report->high == report->low) {
 		if (fahrenheit)
 			comp_summary.value = g_strdup_printf (_("%.1f°F"), ctof (report->high));
 		else
 			comp_summary.value = g_strdup_printf (_("%.1f°C"), report->high);
-	}
-	else
-	{
+	} else {
 		if (fahrenheit)
 			comp_summary.value = g_strdup_printf (_("%.1f/%.1f°F"), ctof (report->high), ctof (report->low));
 		else
@@ -444,7 +439,17 @@ e_cal_backend_weather_open (ECalBackendSync *backend, EDataCal *cal, gboolean on
 static ECalBackendSyncStatus
 e_cal_backend_weather_remove (ECalBackendSync *backend, EDataCal *cal)
 {
-	return GNOME_Evolution_Calendar_PermissionDenied;
+	ECalBackendWeather *cbw;
+	ECalBackendWeatherPrivate *priv;
+
+	cbw = E_CAL_BACKEND_WEATHER (backend);
+	priv = cbw->priv;
+
+	if (!priv->cache)
+		return GNOME_Evolution_Calendar_OtherError;
+
+	e_file_cache_remove (E_FILE_CACHE (priv->cache));
+	return GNOME_Evolution_Calendar_Success;
 }
 
 static ECalBackendSyncStatus
@@ -851,8 +856,7 @@ e_cal_backend_weather_get_type (void)
 {
 	static GType e_cal_backend_weather_type = 0;
 
-	if (!e_cal_backend_weather_type)
-	{
+	if (!e_cal_backend_weather_type) {
 		static GTypeInfo info = {
 			sizeof (ECalBackendWeatherClass),
 			(GBaseInitFunc) NULL,

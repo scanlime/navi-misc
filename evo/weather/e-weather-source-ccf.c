@@ -134,8 +134,7 @@ date2tm (char *date, struct tm *times)
 static WeatherConditions
 decodeConditions (char code)
 {
-	switch (code)
-	{
+	switch (code) {
 		case 'A': return WEATHER_FAIR;
 		case 'B': return WEATHER_PARTLY_CLOUDY;
 		case 'C': return WEATHER_CLOUDY;
@@ -172,8 +171,7 @@ decodePOP (char data)
 {
 	int ret;
 
-	switch (data)
-	{
+	switch (data) {
 		case '-':
 			ret = 5;
 			break;
@@ -246,8 +244,7 @@ e_weather_source_ccf_do_parse (EWeatherSourceCCF *source, char *buffer)
 	forecasts[1].conditions = decodeConditions (((char*)(current->data))[1]);
 
 	current = g_slist_next (current);
-	if (tms.tm_hour < 12)
-	{
+	if (tms.tm_hour < 12) {
 		for (i = 0; i < 2; i++) {
 			forecasts[i].high = ftoc (current->data);
 			current = g_slist_next (current);
@@ -258,9 +255,7 @@ e_weather_source_ccf_do_parse (EWeatherSourceCCF *source, char *buffer)
 		current = g_slist_next (current);
 		forecasts[0].pop = decodePOP (((char*)(current->data))[2]);
 		forecasts[1].pop = decodePOP (((char*)(current->data))[4]);
-	}
-	else
-	{
+	} else {
 		for (i = 0; i < 2; i++) {
 			current = g_slist_next (current);
 			forecasts[i].high = ftoc (current->data);
@@ -273,17 +268,13 @@ e_weather_source_ccf_do_parse (EWeatherSourceCCF *source, char *buffer)
 	}
 
 	current = g_slist_next (current);
-	if (strlen (current->data) == 4)
-	{
+	if (strlen (current->data) == 4) {
 		/* we've got the optional snowfall field */
-		if (tms.tm_hour < 12)
-		{
+		if (tms.tm_hour < 12) {
 			decodeSnowfall (current->data, &forecasts[0].low, &forecasts[0].high);
 			current = g_slist_next (g_slist_next (current));
 			decodeSnowfall (current->data, &forecasts[1].low, &forecasts[1].high);
-		}
-		else
-		{
+		} else {
 			current = g_slist_next (current);
 			decodeSnowfall (current->data, &forecasts[0].low, &forecasts[0].high);
 		}
@@ -297,8 +288,7 @@ e_weather_source_ccf_do_parse (EWeatherSourceCCF *source, char *buffer)
 	for (i = 0; i < 7; i++)
 		forecasts[i].date = base + 86400*i;
 
-	if (current == NULL || strlen (current->data) == 3)
-	{
+	if (current == NULL || strlen (current->data) == 3) {
 		/* We've got a pre-IFPS station. Realloc and return */
 		WeatherForecast *f = g_new0(WeatherForecast, 2);
 		memcpy (f, forecasts, sizeof (WeatherForecast) * 2);
@@ -316,8 +306,7 @@ e_weather_source_ccf_do_parse (EWeatherSourceCCF *source, char *buffer)
 
 	/* Temperature forecasts */
 	current = g_slist_next (current);
-	if (tms.tm_hour < 12)
-	{
+	if (tms.tm_hour < 12) {
 		forecasts[2].low  = ftoc (current->data);
 		for  (i = 3; i < 6; i++) {
 			current = g_slist_next (current);
@@ -335,9 +324,7 @@ e_weather_source_ccf_do_parse (EWeatherSourceCCF *source, char *buffer)
 		forecasts[5].pop = decodePOP (((char*)(current->data))[7]);
 		forecasts[6].pop = decodePOP (((char*)(current->data))[9]);
 		n = 7;
-	}
-	else
-	{
+	} else {
 		for (i = 2; i < 6; i++) {
 			forecasts[i].high = ftoc (current->data);
 			current = g_slist_next (current);
@@ -355,8 +342,7 @@ e_weather_source_ccf_do_parse (EWeatherSourceCCF *source, char *buffer)
 		forecasts[5].pop = decodePOP (((char*)(current->data))[8]);
 	}
 
-	for (i = 0; i < n; i++)
-	{
+	for (i = 0; i < n; i++) {
 		fc = g_list_append (fc, &forecasts[i]);
 	}
 	source->done (fc, source->finished_data);
@@ -372,20 +358,16 @@ retrieval_done (SoupMessage *message, EWeatherSourceCCF *source)
 	const char *newuri;
 
 	/* Handle redirection ourselves */
-	if (SOUP_STATUS_IS_REDIRECTION (message->status_code))
-	{
+	if (SOUP_STATUS_IS_REDIRECTION (message->status_code)) {
 		newuri = soup_message_get_header (message->response_headers, "Location");
 
-		if (newuri)
-		{
+		if (newuri) {
 			SoupMessage *soup_message;
 			soup_message = soup_message_new (SOUP_METHOD_GET, newuri);
 			soup_message_set_flags (soup_message, SOUP_MESSAGE_NO_REDIRECT);
 			soup_session_queue_message (source->soup_session, soup_message, (SoupMessageCallbackFn) retrieval_done, source);
 			return;
-		}
-		else
-		{
+		} else {
 			source->done (NULL, source->finished_data);
 		}
 
@@ -393,8 +375,7 @@ retrieval_done (SoupMessage *message, EWeatherSourceCCF *source)
 	}
 
 	/* check status code */
-	if (!SOUP_STATUS_IS_SUCCESSFUL (message->status_code))
-	{
+	if (!SOUP_STATUS_IS_SUCCESSFUL (message->status_code)) {
 		source->done (NULL, source->finished_data);
 		return;
 	}
@@ -445,8 +426,7 @@ e_weather_source_ccf_get_type (void)
 {
 	static GType e_weather_source_ccf_type = 0;
 
-	if (!e_weather_source_ccf_type)
-	{
+	if (!e_weather_source_ccf_type) {
 		static GTypeInfo info = {
 			sizeof (EWeatherSourceCCFClass),
 			(GBaseInitFunc) NULL,
