@@ -23,13 +23,6 @@ Documentation
 Web Interface
 -------------
 
-- Since google's already using so much bandwidth indexing CIA, might as well add
-  a google site search box.
-
-- Detect search engine spiders by user agent and disable links to pages that shouldn't
-  be indexed, like the resorting links on ResortableTables, and maybe links to individual
-  messages.
-
 - Make CIA more accessable to text browsers and non-CSS browsers. This probably
   means using some tricks like Plone does to have headings and links that are hidden when
   using CSS, and making headings and tabs into <h1> tags and <li> tags rather than
