@@ -1029,6 +1029,7 @@ histogram_imager_compute_quality (HistogramImager *self)
 	int stride;
 
 	gulong denominator = 0;
+	gulong num_saturated = 0;
 	double numerator = 0;
 
 	if (self->color_table.filled_size < 1)
@@ -1049,8 +1050,11 @@ histogram_imager_compute_quality (HistogramImager *self)
 	    while (x > 0) {
 		count = *hist_p;
 
-		/* We average only those buckets that aren't empty or satuated */
-		if (count <= hist_clamp && count > 0) {
+		/* We average only those buckets that fall within the output device's dynamic range */
+		if (count > hist_clamp) {
+		    num_saturated++;
+		}
+		else if (count > 0) {
 		    numerator += qual_p[count];
 		    denominator++;
 		}
@@ -1058,12 +1062,19 @@ histogram_imager_compute_quality (HistogramImager *self)
 		x -= x_scale;
 		hist_p += x_scale;
 	    }
-	    
+
 	    y -= y_scale;
 	    row += stride;
 	}
 
 	if (!denominator)
+	    return G_MAXDOUBLE;
+
+	/* If the number of samples we have is less than 1% of the saturated
+	 * samples, this is probably a very highly saturated image like a silhouette
+	 * and it's done rendering.
+	 */
+	if (denominator < num_saturated/100)
 	    return G_MAXDOUBLE;
 
 	return numerator / denominator;
