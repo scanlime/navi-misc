@@ -120,10 +120,11 @@ int main (int argc, char **argv)
 	py (point);
 
 	histogram_imager_get_hist_size (hi, &w, &h);
-	histogram_imager_prepare_plots (hi, &plot);
 
 	fprintf (stderr, "running integration for point (%f, %f, %f, %f)\n", point[0], point[1], point[2], point[3]);
 	while (1) {
+		histogram_imager_prepare_plots (hi, &plot);
+
 		points += hhrun (point);
 		point[0] = -point[0];
 		hhrun (point);
