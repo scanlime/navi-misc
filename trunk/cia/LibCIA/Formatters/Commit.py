@@ -339,11 +339,7 @@ class CommitToXHTML(CommitFormatter):
                         # up there but it will be safely ignored
                         nonListItemLines.append(line)
 
-            if isPreFormatted:
-                # This is probably a preformatted message, stick it in a <pre>
-                content.append(tag('pre')[ "\n".join(lines) ])
-
-            elif listItems:
+            if listItems:
                 # It looks like a bulleted list. First output the nonListItemLines,
                 # then stick the items inside a list.
                 for line in nonListItemLines:
@@ -351,6 +347,10 @@ class CommitToXHTML(CommitFormatter):
                         content.append(tag('br'))
                     content.append(line)
                 content.append(tag('ul')[[ tag('li')[item] for item in listItems ]])
+
+            elif isPreFormatted:
+                # This is probably a preformatted message, stick it in a <pre>
+                content.append(tag('pre')[ "\n".join(lines) ])
 
             else:
                 # Plain old text, just stick <br>s between the lines
