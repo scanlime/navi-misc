@@ -6,6 +6,3 @@
   resulting in a quick flicker
 * dialog "windows" don't set their title correctly
 * the completion list is not modified when the user changes nicks
-* channel activity indicators don't seem to be properly resetting when the channel
-  is activated - if the nicksaid icon was up, the next time someone says something,
-  it will pop up the nicksaid icon regardless
