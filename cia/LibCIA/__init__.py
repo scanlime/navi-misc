@@ -39,10 +39,18 @@ if sys.version_info < requiredPythonVersion:
         name,
         string.join(map(str, requiredPythonVersion), "."),
         string.join(map(str, sys.version_info), ".")))
-
-# It's important to keep this namespace clean, since our rebuild()
-# support will look here for loaded modules in the LibCIA package.
 del sys
 del string
+
+# Use psyco to speed this up if we have it
+from twisted.python import log
+try:
+    import psyco
+    psyco.full()
+    log.msg("optimized using psyco")
+    del psyco
+except ImportError:
+    log.msg("psyco not found")
+del log
 
 ### The End ###

@@ -4,22 +4,10 @@
 #
 
 from twisted.application import service, internet
-from twisted.web import server, xmlrpc
-from twisted.persisted import sob
-from twisted.python import log
+from twisted.web import server, xmlrpc, static, vhost
 from LibCIA import Message, Ruleset, IRC, Stats, IncomingMail, Interface
 
-# Use psyco to speed this up if we have it
-try:
-    import psyco
-    psyco.full()
-    log.msg("optimized using psyco")
-except ImportError:
-    log.msg("psyco not found")
-
 application = service.Application("cia_server")
-
-# The central point all messages pass through
 hub = Message.Hub()
 
 # A place to store stats, written to by the StatsURIHandler and queried
@@ -35,11 +23,22 @@ uriRegistry = Ruleset.URIRegistry(
 # Use a persistent set of rulesets to filter and format messages
 rulesetStorage = Ruleset.RulesetStorage("data/rulesets.xml", hub, uriRegistry)
 
-# Add XML-RPC interfaces for the components that need them
-root = xmlrpc.XMLRPC()
-root.putSubHandler('sys', Interface.SysInterface())
-root.putSubHandler('hub', Message.HubInterface(hub))
-root.putSubHandler('ruleset', Ruleset.RulesetInterface(rulesetStorage))
-root.putSubHandler('mail', IncomingMail.MailInterface(hub))
-root.putSubHandler('stats', Stats.StatsInterface(statsStorage))
-internet.TCPServer(3910, server.Site(root)).setServiceParent(application)
+# Create the web interface. We start with all the static files
+# in 'htdocs' and add dynamic content from there.
+webRoot = static.File("htdocs")
+
+# Add VHostMonster support, so we can have CIA serve web requests
+# behind our main Apache web server.
+webRoot.putChild('vhost', vhost.VHostMonsterResource())
+
+# Create a root XML-RPC object, with interfaces attached for each subsystem
+rpc = xmlrpc.XMLRPC()
+rpc.putSubHandler('sys', Interface.SysInterface())
+rpc.putSubHandler('hub', Message.HubInterface(hub))
+rpc.putSubHandler('ruleset', Ruleset.RulesetInterface(rulesetStorage))
+rpc.putSubHandler('mail', IncomingMail.MailInterface(hub))
+rpc.putSubHandler('stats', Stats.StatsInterface(statsStorage))
+webRoot.putChild('RPC2', rpc)
+
+# Now create an HTTP server holding both our XML-RPC and web interfaces
+internet.TCPServer(3910, server.Site(webRoot)).setServiceParent(application)
