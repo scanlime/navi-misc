@@ -33,16 +33,10 @@
 #include "../e-pub-utils.h"
 #include "../calendar-config.h"
 #include "cal-prefs-dialog.h"
+#include "url-editor-dialog.h"
 #include <widgets/misc/e-dateedit.h>
 #include <e-util/e-dialog-widgets.h>
 #include <libgnome/gnome-i18n.h>
-
-enum {
-	URL_LIST_ENABLED_COLUMN,
-	URL_LIST_LOCATION_COLUMN,
-	URL_LIST_FREE_BUSY_URL_COLUMN,
-	URL_LIST_N_COLUMNS,
-};
 
 static const int week_start_day_map[] = {
 	1, 2, 3, 4, 5, 6, 0, -1
@@ -431,6 +425,7 @@ url_list_enable_toggled (GtkCellRendererToggle *renderer,
 static void
 url_edit_clicked (GtkWidget *button, CalendarPrefsDialog *prefs)
 {
+	/* FIXME
 	if (!prefs->url_editor) {
 		GtkTreeSelection *selection;
 		EPublishUri *url = NULL;
@@ -442,7 +437,8 @@ url_edit_clicked (GtkWidget *button, CalendarPrefsDialog *prefs)
 			gtk_tree_model_get (model, &iter, URL_LIST_FREE_BUSY_URL_COLUMN, &url, -1);
 
 		if (url) {
-			prefs->url_editor = url_editor_dialog_new (prefs, url);
+			prefs->url_editor = url_editor_dialog_new (model, url);
+			prefs->url_editor_dlg = url_editor_dialog_new
 
 			gtk_list_store_set ((GtkListStore *) model, &iter, URL_LIST_LOCATION_COLUMN,
 					   g_strdup (url->location), URL_LIST_ENABLED_COLUMN,
@@ -462,6 +458,7 @@ url_edit_clicked (GtkWidget *button, CalendarPrefsDialog *prefs)
 	} else {
 		gdk_window_raise (prefs->url_editor_dlg->window);
 	}
+	*/
 }
 
 static void
@@ -486,8 +483,9 @@ url_add_clicked (GtkWidget *button, CalendarPrefsDialog *prefs)
 	url->enabled = TRUE;
 	url->location = "";
 
+	/* FIXME
 	if (!prefs->url_editor) {
-		prefs->url_editor = url_editor_dialog_new (prefs, url);
+		prefs->url_editor = url_editor_dialog_new (model, url);
 		if (url->location != "") {
 			gtk_list_store_append(GTK_LIST_STORE (model), &iter);
 			gtk_list_store_set (GTK_LIST_STORE(model), &iter, URL_LIST_ENABLED_COLUMN,
@@ -508,6 +506,7 @@ url_add_clicked (GtkWidget *button, CalendarPrefsDialog *prefs)
 	} else {
 		gdk_window_raise (prefs->url_editor_dlg->window);
 	}
+	*/
 }
 
 static void
