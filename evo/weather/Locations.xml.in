@@ -35,7 +35,6 @@
 			<location type="accid" code="AGXX0008">Tamanrasset</location>
 			<location type="accid" code="AGXX0018">Tebessa</location>
 			<location type="accid" code="AGXX0009">Tenes</location>
-			<location type="accid" code="AGXX0039">Tessalit</location>
 			<location type="accid" code="AGXX0020">Tiaret</location>
 			<location type="accid" code="AGXX0032">Timimoun</location>
 			<location type="accid" code="AGXX0010">Tindouf</location>
@@ -101,7 +100,6 @@
 		</country>
 		<country name="Comoros">
 			<location type="accid" code="CNXX0001">Dzaoudzi</location>
-			<location type="accid" code="CNXX0002">Dzaoudzi/Pamanzi</location>
 			<location type="accid" code="CNXX0003">Moroni/Hahaya</location>
 		</country>
 		<country name="Congo, Democratic Republic of the">
@@ -528,26 +526,6 @@
 			<location type="accid" code="WIXX0004">Lemsid</location>
 			<location type="accid" code="WIXX0005">Villa Cisneros</location>
 		</country>
-		<country name="Zambia">
-			<location type="accid" code="ZAXX0001">Chingolo</location>
-			<location type="accid" code="ZAXX0002">Kabwe</location>
-			<location type="accid" code="ZAXX0003">Livingstone</location>
-			<location type="accid" code="ZAXX0004">Lusaka</location>
-			<location type="accid" code="ZAXX0005">Ndola</location>
-		</country>
-		<country name="Zimbabwe">
-			<location type="accid" code="ZIXX0011">Buffalo Range</location>
-			<location type="accid" code="ZIXX0001">Bulawayo</location>
-			<location type="accid" code="ZIXX0002">Chegutu</location>
-			<location type="accid" code="ZIXX0003">Chitungwiza</location>
-			<location type="accid" code="ZIXX0004">Harare</location>
-			<location type="accid" code="ZIXX0008">Hwange National Park</location>
-			<location type="accid" code="ZIXX0005">Karoi</location>
-			<location type="accid" code="ZIXX0010">Masvingo</location>
-			<location type="accid" code="ZIXX0006">Mount Darwin</location>
-			<location type="accid" code="ZIXX0009">Rusape</location>
-			<location type="accid" code="ZIXX0007">Victoria Falls</location>
-		</country>
 	</region>
 	<region name="Antarctica">
 		<location type="accid" code="AYXX0007">Base Arturo Prat</location>
@@ -563,7 +541,6 @@
 	<region name="Asia">
 		<country name="Afghanistan">
 			<location type="accid" code="AFXX0005">Bost/Laskar</location>
-			<location type="accid" code="AFXX0001">Ghurian</location>
 			<location type="accid" code="AFXX0002">Herat</location>
 			<location type="accid" code="AFXX0003">Kabul</location>
 			<location type="accid" code="AFXX0004">Qandahar</location>
@@ -1094,7 +1071,6 @@
 			<location type="accid" code="CHXX0494">Longzhou</location>
 			<location type="accid" code="CHXX0495">Xinyi</location>
 			<location type="accid" code="CHXX0496">Shanwei</location>
-			<location type="accid" code="CHXX0497">Taidong</location>
 			<location type="accid" code="CHXX0498">Qinzhou</location>
 			<location type="accid" code="CHXX0499">Beihai</location>
 			<location type="accid" code="CHXX0500">Yangjiang</location>
@@ -1125,7 +1101,6 @@
 			<location type="accid" code="GGXX0004">T'bilisi</location>
 		</country>
 		<country name="India">
-			<location type="accid" code="INXX0001">Ahmadabad</location>
 			<location type="accid" code="INXX0002">Ajmer</location>
 			<location type="accid" code="INXX0003">Allahabad</location>
 			<location type="accid" code="INXX0004">Alleppey</location>
@@ -1539,7 +1514,6 @@
 			<location type="accid" code="MVXX0001">Male</location>
 		</country>
 		<country name="Mongolia">
-			<location type="accid" code="MGXX0001">Aldar</location>
 			<location type="accid" code="MGXX0002">Dzuunmod</location>
 			<location type="accid" code="MGXX0003">Ulan Bator</location>
 			<location type="accid" code="MGXX0004">Rinchinlhumbe</location>
@@ -1705,7 +1679,6 @@
 			<location type="accid" code="RPXX0069">Puerto Princesa</location>
 		</country>
 		<country name="Singapore">
-			<location type="accid" code="SNXX0001">Bukit Panjang</location>
 			<location type="accid" code="SNXX0002">Bukit Timah</location>
 			<location type="accid" code="SNXX0003">Changi</location>
 			<location type="accid" code="SNXX0004">Paya Lebar</location>
@@ -1904,7 +1877,6 @@
 			<location type="accid" code="UZXX0009">Urgench</location>
 		</country>
 		<country name="Vietnam">
-			<location type="accid" code="VMXX0001">An Nhon</location>
 			<location type="accid" code="VMXX0002">Bac Giang</location>
 			<location type="accid" code="VMXX0024">Bach Long Vi</location>
 			<location type="accid" code="VMXX0003">Bien Hoa</location>
@@ -2082,7 +2054,7 @@
 			<location type="accid" code="USVI0006">Saint Thomas</location>
 		</territory>
 	</region>
-	<region name="Australasia & Oceania">
+	<region name="Australasia &amp; Oceania">
 		<country name="Australia">
 			<state name="Australian Capital Territory">
 				<location type="accid" code="ASXX0023">Canberra</location>
@@ -2728,9 +2700,6 @@
 			<location type="accid" code="BPXX0002">Munda</location>
 			<location type="accid" code="BPXX0003">Auki</location>
 		</country>
-		<country name="Tonga">
-			<location type="accid" code="TNXX0001">Nuku'alofa</location>
-		</country>
 		<country name="Tuvalu">
 			<location type="accid" code="TVXX0001">Funafuti</location>
 		</country>
@@ -2848,7 +2817,6 @@
 			<location type="accid" code="ARMA0124">Las Lenas/Los Molles</location>
 			<location type="accid" code="ARMA0125">Punta de Vacas</location>
 			<location type="accid" code="ARMA0126">Los Molles</location>
-			<location type="accid" code="ARMA0127">San Rafael</location>
 			<location type="accid" code="ARMS0117">Iguazu Aerodrome</location>
 			<location type="accid" code="ARMS0118">Posadas</location>
 			<location type="accid" code="ARMS0120">Puerto Iguazu</location>
@@ -2877,7 +2845,6 @@
 			<location type="accid" code="ARSC0134">El Calafate</location>
 			<location type="accid" code="ARSE0041">La Banda</location>
 			<location type="accid" code="ARSE0096">Santiago del Estero</location>
-			<location type="accid" code="ARSE0101">Termas de Rio Hondo</location>
 			<location type="accid" code="ARSF0011">Canada de Gomez</location>
 			<location type="accid" code="ARSF0012">Casilda</location>
 			<location type="accid" code="ARSF0015">Ceres</location>
@@ -3768,7 +3735,6 @@
 			<location type="accid" code="CIXX0040">Pucon</location>
 			<location type="accid" code="CIXX0041">Termas de Chillan</location>
 			<location type="accid" code="CIXX0042">Los Cuartitos</location>
-			<location type="accid" code="CIXX0043">Vina Del Mar</location>
 			<location type="accid" code="CIXX0044">Portillo</location>
 			<location type="accid" code="CIXX0045">Monturaque</location>
 			<location type="accid" code="CIXX0046">Cerro Canasta</location>
@@ -3830,7 +3796,6 @@
 			<location type="accid" code="COXX0047">Pijao</location>
 			<location type="accid" code="COXX0048">Salento</location>
 			<location type="accid" code="COXX0049">Corinto</location>
-			<location type="accid" code="CPXX0045">La Estrella</location>
 		</country>
 		<country name="Costa Rica">
 			<location type="accid" code="CSXX0001">Alajuela</location>
@@ -4186,7 +4151,6 @@
 			<location type="accid" code="VEXX0035">Puerto Ordaz</location>
 			<location type="accid" code="VEXX0036">Trujilo</location>
 			<location type="accid" code="VEXX0037">Puerto Fijo</location>
-			<location type="accid" code="VEXX0039">Isla de Margarita</location>
 			<location type="accid" code="VEXX0040">Carora</location>
 			<location type="accid" code="VEXX0041">Baruta</location>
 			<location type="accid" code="VEXX0042">Charallave</location>
@@ -4364,7 +4328,6 @@
 			<location type="accid" code="BUXX0017">Calafat</location>
 		</country>
 		<country name="Croatia">
-			<location type="accid" code="HRXX0001">Dubrovnik</location>
 			<location type="accid" code="HRXX0002">Karlovac</location>
 			<location type="accid" code="HRXX0003">Osijek</location>
 			<location type="accid" code="HRXX0004">Split</location>
@@ -4460,7 +4423,6 @@
 			<location type="accid" code="DAXX0042">Hammer Odde</location>
 		</country>
 		<country name="Estonia">
-			<location type="accid" code="ENXX0001">Ivangorod</location>
 			<location type="accid" code="ENXX0002">Maardu</location>
 			<location type="accid" code="ENXX0003">Raasiku</location>
 			<location type="accid" code="ENXX0004">Tallinn</location>
@@ -4604,7 +4566,6 @@
 			<location type="accid" code="FRXX0088">Saint-Die</location>
 			<location type="accid" code="FRXX0089">Saint-Etienne-du-Rouvray</location>
 			<location type="accid" code="FRXX0090">Saint-Lo</location>
-			<location type="accid" code="FRXX0091">Saint-Nazaire</location>
 			<location type="accid" code="FRXX0092">Saint-Raphael</location>
 			<location type="accid" code="FRXX0093">Salon-de-Provence</location>
 			<location type="accid" code="FRXX0094">Sete</location>
@@ -4974,7 +4935,6 @@
 			<location type="accid" code="GMXX0280">Bad Hersfeld</location>
 			<location type="accid" code="GMXX6426">Garmisch</location>
 			<location type="accid" code="GMXX6427">Pocking</location>
-			<location type="accid" code="GMXX6428">Passau</location>
 			<location type="accid" code="GMXX6430">Sylt</location>
 			<location type="accid" code="GMXX6431">Niendorf/Ostsee</location>
 			<location type="accid" code="GMXX6432">Travemunde</location>
@@ -5076,8 +5036,6 @@
 			<location type="accid" code="HUXX0017">Nagykanizsa</location>
 			<location type="accid" code="HUXX0018">Pecs/Pogany</location>
 			<location type="accid" code="HUXX0019">Szeged</location>
-			<location type="accid" code="HUXX0020">Gussing</location>
-			<location type="accid" code="HUXX0021">Oberwart</location>
 		</country>
 		<country name="Iceland">
 			<location type="accid" code="ICXX0001">Hveragerdi</location>
@@ -5178,7 +5136,6 @@
 			<location type="accid" code="EIXX0092">Carrick On Suir</location>
 			<location type="accid" code="EIXX0094">Clonakilty</location>
 			<location type="accid" code="EIXX0100">Ballinafad</location>
-			<location type="accid" code="UKXX2097">Tramore</location>
 		</country>
 		<country name="Italy">
 			<location type="accid" code="ITXX0001">Alcamo</location>
@@ -5281,7 +5238,6 @@
 			<location type="accid" code="ITXX0095">Capo Palinuro</location>
 			<location type="accid" code="ITXX0096">Brindisi</location>
 			<location type="accid" code="ITXX0097">Reggio Calabria</location>
-			<location type="accid" code="ITXX0098">Landeck</location>
 			<location type="accid" code="ITXX0100">Agnone</location>
 			<location type="accid" code="ITXX0101">Alghero</location>
 			<location type="accid" code="ITXX0102">Ancona/Falconara</location>
@@ -5336,7 +5292,6 @@
 			<location type="accid" code="ITXX0151">San Marco Dei Ca</location>
 			<location type="accid" code="ITXX0152">Santa Caterina</location>
 			<location type="accid" code="ITXX0153">Spoleto</location>
-			<location type="accid" code="ITXX0154">San Marino</location>
 			<location type="accid" code="ITXX0155">Sassari</location>
 			<location type="accid" code="ITXX0156">Syrakus</location>
 			<location type="accid" code="ITXX0157">Spezzano</location>
@@ -6118,39 +6073,6 @@
 			<location type="accid" code="RSXX1251">Odesskoe</location>
 			<location type="accid" code="RSXX1252">Cerlak</location>
 		</country>
-		<country name="Serbia and Montenegro">
-			<location type="accid" code="MWXX0001">Podgorica</location>
-			<location type="accid" code="MWXX0002">Tivat</location>
-			<location type="accid" code="MWXX0003">Plevlja</location>
-			<location type="accid" code="MWXX0004">Niksic</location>
-			<location type="accid" code="SRXX0001">Belgrade</location>
-			<location type="accid" code="SRXX0002">Novi Sad</location>
-			<location type="accid" code="SRXX0003">Pristina</location>
-			<location type="accid" code="SRXX0004">Ruma</location>
-			<location type="accid" code="SRXX0005">Smederevo</location>
-			<location type="accid" code="SRXX0006">Tompa</location>
-			<location type="accid" code="SRXX0007">Novi Sad Rimski Sancevi</location>
-			<location type="accid" code="SRXX0008">Zrenjanin</location>
-			<location type="accid" code="SRXX0009">Kikinda</location>
-			<location type="accid" code="SRXX0010">Vrsac</location>
-			<location type="accid" code="SRXX0011">Loznica</location>
-			<location type="accid" code="SRXX0012">Sremska Mitrovica</location>
-			<location type="accid" code="SRXX0013">Valjevo</location>
-			<location type="accid" code="SRXX0015">Veliko Gradiste</location>
-			<location type="accid" code="SRXX0016">Crni Vrh</location>
-			<location type="accid" code="SRXX0017">Negotin</location>
-			<location type="accid" code="SRXX0018">Zlatibor</location>
-			<location type="accid" code="SRXX0019">Sjenica</location>
-			<location type="accid" code="SRXX0020">Kraljevo</location>
-			<location type="accid" code="SRXX0021">Kopaonik</location>
-			<location type="accid" code="SRXX0022">Krusevac</location>
-			<location type="accid" code="SRXX0023">Cuprija</location>
-			<location type="accid" code="SRXX0024">Nis</location>
-			<location type="accid" code="SRXX0025">Leskovac</location>
-			<location type="accid" code="SRXX0026">Dimitrovgrad</location>
-			<location type="accid" code="SRXX0027">Vranje</location>
-			<location type="accid" code="SRXX0030">Palic</location>
-		</country>
 		<country name="Slovakia">
 			<location type="accid" code="LOXX0001">Bratislava</location>
 			<location type="accid" code="LOXX0002">Ivanka pri Dunaji</location>
@@ -6628,7 +6550,6 @@
 				<location type="accid" code="UKXX0023">Bradford</location>
 				<location type="accid" code="UKXX0226">Carlisle</location>
 				<location type="accid" code="UKXX1632">Hawarden</location>
-				<location type="accid" code="UKXX0171">Isle Of Man/Ronaldsway Airport</location>
 				<location type="accid" code="UKXX0078">Leeds</location>
 				<location type="accid" code="UKXX0083">Liverpool</location>
 				<location type="accid" code="UKXX0092">Manchester</location>
@@ -6953,7 +6874,6 @@
 			<location type="accid" code="UKXX0429">St Albans</location>
 			<location type="accid" code="UKXX0430">Radcliffe</location>
 			<location type="accid" code="UKXX0431">St Helier</location>
-			<location type="accid" code="UKXX0432">Douglas</location>
 			<location type="accid" code="UKXX0456">Heanor</location>
 			<location type="accid" code="UKXX0474">High Wycombe</location>
 			<location type="accid" code="UKXX0482">Esher</location>
@@ -7429,7 +7349,6 @@
 			<location type="accid" code="SAXX0017">Riyadh</location>
 			<location type="accid" code="SAXX0018">Riyadh/Khaled</location>
 			<location type="accid" code="SAXX0019">Sakakah</location>
-			<location type="accid" code="SAXX0020">Shaqra'</location>
 			<location type="accid" code="SAXX0021">Zahran</location>
 			<location type="accid" code="SAXX0022">Turaif</location>
 			<location type="accid" code="SAXX0023">Arar</location>
@@ -7470,14 +7389,6 @@
 			<location type="accid" code="SYXX0016">Palmyra</location>
 			<location type="accid" code="SYXX0017">Dara'A</location>
 		</country>
-		<country name="United Arab Emirates">
-			<location type="accid" code="TCXX0001">Abu Dhabi</location>
-			<location type="accid" code="TCXX0002">Ajman</location>
-			<location type="accid" code="TCXX0003">Ash Shariqah</location>
-			<location type="accid" code="TCXX0004">Dubai</location>
-			<location type="accid" code="TCXX0005">Sharjah</location>
-			<location type="accid" code="TCXX0006">Umm al Qaywayn</location>
-		</country>
 		<area name="West Bank">
 			<location type="accid" code="WEXX0001">Bethlehem</location>
 			<location type="accid" code="WEXX0002">Hebron</location>
@@ -7485,15 +7396,6 @@
 			<location type="accid" code="WEXX0004">Qalandiyah</location>
 			<location type="accid" code="WEXX0005">Ram Allah</location>
 		</area>
-		<country name="Yemen">
-			<location type="accid" code="YMXX0001">Aden</location>
-			<location type="accid" code="YMXX0002">Al Hudaydah</location>
-			<location type="accid" code="YMXX0003">Ash Shaykh Uthman</location>
-			<location type="accid" code="YMXX0004">Lahij</location>
-			<location type="accid" code="YMXX0007">Mamoudzou</location>
-			<location type="accid" code="YMXX0005">Sanaa</location>
-			<location type="accid" code="YMXX0006">Taizz</location>
-		</country>
 	</region>
 	<region name="North America">
 		<country name="Canada">
@@ -8300,7 +8202,6 @@
 			<location type="accid" code="MXTO0098">Macuspana</location>
 			<location type="accid" code="MXTO0099">Paraiso</location>
 			<location type="accid" code="MXTO0152">Villahermosa</location>
-			<location type="accid" code="MXTO2025">Villahermosa</location>
 			<location type="accid" code="MXTS0100">Ciudad Madero</location>
 			<location type="accid" code="MXTS0101">Matamoros</location>
 			<location type="accid" code="MXTS0102">Nuevo Laredo</location>
