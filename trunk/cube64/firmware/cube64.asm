@@ -32,7 +32,7 @@
 	;; of 8 bits long not including the single '1' bit used as a stop bit.
 	;;
 	;; The N64 initiates communications by sending a 1-byte command packet. The
-	;; following commands are known:
+	;; following commands have been observed:
 	;;
 	;;   0x00 :   Asks the controller to identify itself. Returns a 24-bit word.
 	;;            An official N64 controller will respond with 0x050002 if it has
@@ -42,14 +42,31 @@
 	;;   0x01 :   Returns a 32-bit status word including all button and axis state.
 	;;            The format of this status word is documented in the sources above.
 	;;
-	;;   0x03 :   Seems to initialize the expansion slot. Some games (Ocarina of Time
-	;;            and Majora's Mask at least) require this to be supported even if
-	;;            the controller's response to the identification command doesn't
-	;;            indicate that it has a memory/rumble pak.
+	;;   0x02 :   Read 32 bytes from the controller pak bus. The N64 follows the 0x02
+	;;            with two bytes that have an unknown relation to the address on the
+	;;            controller bus. The controller returns 32 bytes of data.
 	;;
-	;;            Immediately after the 0x03, Majora's Mask sends 0x80, 0x01, then 32
-	;;            bytes all 0xFE. The controller then responds with 0x1E.
+	;;   0x03 :   Write 32 bytes to the controller pak bus. The 0x03 is followed by
+	;;            two address bytes using the same encoding as the read command,
+	;;            then 32 data bytes. The controller responds with a 1-byte status
+	;;            code. 0x1E indicates that no controler pak is attached, 0xE1 seems
+	;;            to indicate success.
 	;;
+	;; Most games work fine if only the 0x00 and 0x01 commands are implemented,
+	;; but some games will attempt to use the controller pak read/write commands
+	;; and report that no controller is found if they fail. This includes Ocarina of
+	;; Time and Majora's Mask.
+	;;
+	;; The exact meanings of the address and status bytes in the controller pak
+	;; reads/writes are still unknown. At startup, the N64 writes 0xFE bytes to
+	;; addresses 0x0000 through 0x003F using the command 03 80 01. It then reads back
+	;; the same addresses using 02 80 01. The Rumble Pak returns all 0x80 bytes, while
+	;; the memory pak returns all 0x00. It's still unknown why the memory pak doesn't
+	;; return 0xFE instead. It's possible that some bits in the address word and one
+	;; of the still unknown pins on the controller pak connector are used as a chip
+	;; select for the RAM.
+	;;
+
 
 	list	p=16f84a
 	#include p16f84a.inc
@@ -79,10 +96,10 @@
 		bit_count
 		temp
 		gamecube_buffer:8
-		n64_command
 		n64_status_buffer:4
 		n64_id_buffer:3
-		n64_expansion_buffer:34
+		n64_command
+		n64_bus_buffer:34	; Must immediately follow n64_command
 	endc
 
 	;; *******************************************************************************
@@ -248,81 +265,6 @@ n64_translate_status
 	return
 
 
-
-	;; *******************************************************************************
-	;; ******************************************************  N64 Interface *********
-	;; *******************************************************************************
-
-	;; Service commands coming in from the N64
-n64_wait_for_command
-	call	n64_wait_for_idle	; Ensure the line is idle first, so we don't jump in to the middle of a command
-
-	movlw	n64_command		; Receive 1 command byte
-	movwf	FSR
-	movlw	1
-	call	n64_rx_buffer
-
-	movf	n64_command, w
-	btfsc	STATUS, Z
-	goto	n64_send_id		; 0x00 sends a controller identification packet
-	xorlw	0x01
-	btfsc	STATUS, Z
-	goto	n64_send_status		; 0x01 sends a status packet
-
-	goto	n64_wait_for_command	; Ignore other commands
-
-n64_send_status
-	movlw	n64_status_buffer	; Transmit the status buffer
-	movwf	FSR
-	movlw	4
-	goto	n64_tx_buffer
-
-n64_send_id
-	movlw	n64_id_buffer		; Transmit the ID buffer
-	movwf	FSR
-	movlw	3
-	goto	n64_tx_buffer
-
-
-	;; Don't return until the N64 data line has been idle long enough to ensure
-	;; we aren't in the middle of a packet already.
-n64_wait_for_idle
-	movlw	0x10
-	movwf	temp
-keep_waiting_for_idle
-	btfss	N64_PIN
-	goto	n64_wait_for_idle
-	decfsz	temp, f
-	goto	keep_waiting_for_idle
-	return
-
-
-	;; *******************************************************************************
-	;; ******************************************************  Gamecube Interface  ***
-	;; *******************************************************************************
-
-	;; Poll the gamecube controller's state by transmitting a magical
-	;; poll command (0x400300) then receiving 8 bytes of status.
-gamecube_poll_status
-	movlw	0x40			; Put 0x400300 in the gamecube_buffer
-	movwf	gamecube_buffer+0
-	movlw	0x03
-	movwf	gamecube_buffer+1
-	movlw	0x00
-	movwf	gamecube_buffer+2
-
-	movlw	gamecube_buffer		; Transmit the gamecube_buffer
-	movwf	FSR
-	movlw	3
-	call	gamecube_tx_buffer
-
-	movlw	gamecube_buffer		; Receive 8 status bytes
-	movwf	FSR
-	movlw	8
-	call	gamecube_rx_buffer
-	return
-
-
 	;; *******************************************************************************
 	;; ******************************************************  Low-level Comm  *******
 	;; *******************************************************************************
@@ -331,7 +273,7 @@ gamecube_poll_status
 	;; The data is modified as it is transmitted, as we don't have enough time
 	;; to copy each byte to a temporary location. Returns when done. This macro
 	;; works with the gamecube or N64, as they both use the same low-level protocol.
-tx_buffer macro port, bit
+tx_buffer macro port, bit, wide_stop_bit
 	local	bit_loop
 	local	not_last_byte
 	local	not_last_bit
@@ -372,6 +314,13 @@ bit_loop
 	nop			; 0.4us
 	movlw	8		; 0.6us  Setup for the next receive
 	movwf	bit_count	; 0.8us
+
+	if	wide_stop_bit
+	goto	$+1		; Use a 2us stop bit rather than 1us, waste 5 cycles
+	goto	$+1
+	nop
+	endif
+
 	bsf	port, bit	; 1.0us  Rising edge for the stop bit
 	return			; 1.2us  Done for now. The first instruction after the
 				;        macro is at 1.6us after the beginning of the
@@ -406,37 +355,59 @@ not_last_bit
 	;; during otherwise wasted cycles.
 rx_buffer macro port, bit, clear_watchdog
 	local	bit_loop
+	local	not_last_bit
+	local	not_last_byte
+	local	edge_det_loop
+
 	movwf	byte_count	; Stow our byte count
 
-	;; We can use a far more conventional and less crazy loop for receiving,
-	;; since we have enough time to do the checks at the end. We poll for
-	;; the low state signalling the beginning of a bit, time out 2us (putting
-	;; us right in the middle of the bit) and then sample. This probably isn't
+	;; We poll for the low state signalling the beginning of a bit, time out 2us
+	;; (putting us right in the middle of the bit) and then sample. This probably isn't
 	;; how the GC/N64 hardware decodes the received data, but it's close enough.
 	;;
 	;; The overhead from sampling to the beginning of the next poll needs to
 	;; be less than 2us (10 cycles)
 bit_loop
+	btfss	port, bit	; Before looking for the falling edge, make sure the line is 1.
+	goto	bit_loop	; This is necessary if the loop below is speedy enough to finish
+				; before the end of the low portion of a bit.
+
+edge_det_loop
 	if	clear_watchdog
 	clrwdt
 	endif
+
 	btfsc	port, bit	; 0.0us  Poll for the beginning of the bit, max 0.6us jitter
-	goto	bit_loop	; 0.2us
+	goto	edge_det_loop	; 0.2us
 	rlf	INDF, f		; 0.4us  Make room for the new bit
 	bcf	INDF, 0		; 0.6us  Assume it's 0 to begin with
-	goto	$+1		; 0.8us
-	goto	$+1		; 1.2us
+	decfsz	bit_count, f	; 0.8us  Is this the last bit?
+	goto	not_last_bit	; 1.0us  We have an alternate ending for the last bit...
+
+	decfsz	byte_count,f	; 1.2us  Is this the last byte?
+	goto	not_last_byte	; 1.4us	 Yet another alternate ending for the last byte...
+
+	movlw	8		; 1.6us  Reset bit count
+	movwf	bit_count	; 1.8us
+	btfsc	port, bit	; 2.0us  Sample the incoming bit
+	bsf	INDF, 0		; 2.2us
+	incf	FSR, f		; 2.4us  Leave FSR pointing after the end of our buffer, for further receiving
+	return
+
+not_last_byte
+	movlw	8		; 1.8us
+	btfsc	port, bit	; 2.0us  Sample the incoming bit
+	bsf	INDF, 0		; 2.2us
+	incf	FSR, f		; 2.4us  Next byte...
+	movwf	bit_count	; 2.6us  Reset bit count
+	goto	bit_loop	; 2.8us
+
+not_last_bit
+	nop			; 1.4us
 	goto	$+1		; 1.6us
 	btfsc	port, bit	; 2.0us  Sample the incoming bit
 	bsf	INDF, 0		; 2.2us
-	decfsz	bit_count, f	; 2.4us
-	goto	bit_loop	; 2.6us  Next bit...
-	incf	FSR, f		; 2.8us  Next byte...
-	movlw	8		; 3.0us
-	movwf	bit_count	; 3.2us
-	decfsz	byte_count, f	; 3.4us
-	goto	bit_loop	; 3.6us
-	return
+	goto	bit_loop	; 2.4us
 	endm
 
 
@@ -444,19 +415,123 @@ bit_loop
 	;;
 	;; Before transmitting, we explicitly force the output latch low- it may have
 	;; been left high by a read-modify-write operation elsewhere.
-	;;
-	;; Also note that we clrwdt when waiting on the N64, since that's the
-	;; normal mode of operation.. but we don't when waiting on the gamecube
-	;; since it should always respond quickly.
-gamecube_tx_buffer
+gamecube_tx
 	bcf	GAMECUBE_PIN
-	tx_buffer GAMECUBE_TRIS
-gamecube_rx_buffer
+	tx_buffer GAMECUBE_TRIS, 0
+gamecube_rx
 	rx_buffer GAMECUBE_PIN, 0
-n64_tx_buffer
+
+n64_tx
 	bcf	N64_PIN
-	tx_buffer N64_TRIS
-n64_rx_buffer
-	rx_buffer N64_PIN, 1
+	tx_buffer N64_TRIS, 0
+n64_tx_widestop
+	bcf	N64_PIN
+	tx_buffer N64_TRIS, 1
+n64_rx
+	rx_buffer N64_PIN, 0
+n64_rx_command
+	rx_buffer N64_PIN, 1		; Clear the watchdog while waiting for commands
+
+
+	;; *******************************************************************************
+	;; ******************************************************  N64 Interface *********
+	;; *******************************************************************************
+
+	;; Service commands coming in from the N64
+n64_wait_for_command
+	call	n64_wait_for_idle	; Ensure the line is idle first, so we don't jump in to the middle of a command
+
+	movlw	n64_command		; Receive 1 command byte
+	movwf	FSR
+	movlw	1
+	call	n64_rx_command
+
+	;; We need to handle controller pak writes very fast because there's no pause
+	;; between the initial command byte and the 34 bytes following. Every
+	;; extra instuction here decreases the sampling quality in the receive,
+	;; so we include our own copy of the receive macro. This also lets us disable
+	;; watchdog clearing, so we won't get stalled in here if the N64 gives up.
+	movlw	0x03
+	xorwf	n64_command, w
+	btfss	STATUS, Z
+	goto	not_bus_write
+	movlw	.34
+	call	n64_rx			; FSR is already pointing at our buffer, it's after n64_command
+	;; Fall through...
+
+n64_bus_write
+	movlw	0x1E			; Always indicate that we have no controller pak
+	movwf	n64_command
+	movlw	n64_command
+	movwf	FSR
+	movlw	1
+	goto	n64_tx_widestop		; I don't know why, but these replies use a funky stop bit
+
+n64_bus_read				; Not implemented yet...
+	goto	n64_wait_for_command
+
+n64_send_status
+	movlw	n64_status_buffer	; Transmit the status buffer
+	movwf	FSR
+	movlw	4
+	goto	n64_tx
+
+n64_send_id
+	movlw	n64_id_buffer		; Transmit the ID buffer
+	movwf	FSR
+	movlw	3
+	goto	n64_tx
+
+not_bus_write
+	movf	n64_command, w
+	btfsc	STATUS, Z
+	goto	n64_send_id		; 0x00 sends a controller identification packet
+	xorlw	0x01
+	btfsc	STATUS, Z
+	goto	n64_send_status		; 0x01 sends a status packet
+	movf	n64_command, w
+	xorlw	0x02
+	btfsc	STATUS, Z
+	goto	n64_bus_read		; 0x02 is a read from the controller pak bus
+	goto	n64_wait_for_command	; Ignore other commands
+
+
+	;; Don't return until the N64 data line has been idle long enough to ensure
+	;; we aren't in the middle of a packet already.
+n64_wait_for_idle
+	movlw	0x10
+	movwf	temp
+keep_waiting_for_idle
+	btfss	N64_PIN
+	goto	n64_wait_for_idle
+	decfsz	temp, f
+	goto	keep_waiting_for_idle
+	return
+
+
+	;; *******************************************************************************
+	;; ******************************************************  Gamecube Interface  ***
+	;; *******************************************************************************
+
+	;; Poll the gamecube controller's state by transmitting a magical
+	;; poll command (0x400300) then receiving 8 bytes of status.
+gamecube_poll_status
+	movlw	0x40			; Put 0x400300 in the gamecube_buffer
+	movwf	gamecube_buffer+0
+	movlw	0x03
+	movwf	gamecube_buffer+1
+	movlw	0x00
+	movwf	gamecube_buffer+2
+
+	movlw	gamecube_buffer		; Transmit the gamecube_buffer
+	movwf	FSR
+	movlw	3
+	call	gamecube_tx
+
+	movlw	gamecube_buffer		; Receive 8 status bytes
+	movwf	FSR
+	movlw	8
+	call	gamecube_rx
+	return
 
 	end
