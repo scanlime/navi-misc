@@ -141,6 +141,7 @@ static void cleanup() {
     dc1394_dma_release_camera(cam_p[0]->handle, cam_p[0]->capture);
     dc1394_destroy_handle(cam_p[0]->handle);
   }
+  cameras[0] = NULL;
 }
 
 static void fatal_error(const char *description) {
