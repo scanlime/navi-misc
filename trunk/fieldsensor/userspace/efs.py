@@ -1,0 +1,31 @@
+import time, struct, fcntl
+
+class FieldSensor:
+    def __init__(self, devName="/dev/usb/efs0"):
+        self.dev = open(devName)
+        self.reset()
+
+    def reset(self):
+        block = 0
+        for adcon in (0x81, 0x89):
+            for xor in (0x03, 0x0C, 0x30, 0xC0):
+                self.setParam(block, 0, block)    # EFS_PARAM_RESULT_NUM
+                self.setParam(block, 1, xor)      # EFS_PARAM_LC_PORT_XOR
+                self.setParam(block, 2, adcon)    # EFS_PARAM_ADCON_INIT
+                self.setParam(block, 3, 227)      # EFS_PARAM_PERIOD
+                self.setParam(block, 4, 226)      # EFS_PARAM_PHASE
+                self.setParam(block, 5, 30)       # EFS_PARAM_NUM_HALF_PERIODS
+                self.setParam(block, 6, 0x00)     # EFS_PARAM_LC_TRIS_INIT
+                self.setParam(block, 7, 0x55)     # EFS_PARAM_LC_PORT_INIT
+                block += 1
+
+    def readPacket(self):
+        return struct.unpack("i" * 9, self.dev.read(4*9))
+
+    def readAverages(self):
+        packet = self.readPacket()
+        if packet[8]:
+            return [packet[i] / float(packet[8]) for i in xrange(8)]
+
+    def setParam(self, block, param, value):
+        fcntl.ioctl(self.dev, 0x3A01, struct.pack("iii", block, param, value))
