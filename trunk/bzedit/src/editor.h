@@ -48,6 +48,9 @@ struct _Editor {
 
   GtkStatusbar *statusbar;
   guint editor_status_context;
+
+  GtkTreeView *element_list;
+  GtkTreeStore *element_store;
 };
 
 struct _EditorClass {

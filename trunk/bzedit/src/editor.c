@@ -73,6 +73,8 @@ static void
 editor_init (Editor *editor)
 {
   GdkGLConfig *config;
+  GtkCellRenderer *icon_renderer, *text_renderer;
+  GtkTreeViewColumn *column;
 
   editor->xml = glade_xml_new (GLADEDIR "/bzedit.glade", NULL, NULL);
   editor->window = glade_xml_get_widget (editor->xml, "editor window");
@@ -84,7 +86,20 @@ editor_init (Editor *editor)
   editor->glarea = gl_drawing_area_new(config);
   g_signal_connect_after(G_OBJECT(editor->glarea), "realize", G_CALLBACK(on_glarea_realize), NULL);
   editor->eventbox = glade_xml_get_widget (editor->xml, "event box");
-  gtk_container_add(GTK_CONTAINER(editor->eventbox), editor->glarea);
+  gtk_container_add (GTK_CONTAINER (editor->eventbox), editor->glarea);
+
+  editor->element_list = GTK_TREE_VIEW (glade_xml_get_widget (editor->xml, "element list"));
+  editor->element_store = gtk_tree_store_new(3, G_TYPE_STRING, GDK_TYPE_PIXBUF, G_TYPE_POINTER);
+  gtk_tree_view_set_model (editor->element_list, GTK_TREE_MODEL (editor->element_store));
+
+  icon_renderer = gtk_cell_renderer_pixbuf_new();
+  text_renderer = gtk_cell_renderer_text_new();
+  column = gtk_tree_view_column_new();
+  gtk_tree_view_column_pack_start (column, icon_renderer, FALSE);
+  gtk_tree_view_column_pack_start (column, text_renderer, TRUE);
+  gtk_tree_view_column_set_attributes (column, icon_renderer, "pixbuf", 1, NULL);
+  gtk_tree_view_column_set_attributes (column, text_renderer, "text", 0, NULL);
+  gtk_tree_view_append_column (editor->element_list, column);
 
   editor->statusbar = GTK_STATUSBAR(glade_xml_get_widget(editor->xml, "statusbar"));
   editor->editor_status_context = gtk_statusbar_get_context_id(editor->statusbar, "Editor status");
