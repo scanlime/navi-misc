@@ -56,7 +56,7 @@ class ImageCaptcha(Captcha.BaseCaptcha):
             size = self.defaultSize
         img = Image.new("RGB", size)
         for layer in self._layers:
-            layer.render(img)
+            img = layer.render(img) or img
         return img
 
 
@@ -64,6 +64,10 @@ class Layer(object):
     """A renderable object representing part of a CAPTCHA.
        The render() function should return approximately the same result, regardless
        of the image size. This means any randomization must occur in the constructor.
+
+       If the render() function returns something non-None, it is taken as an image to
+       replace the current image with. This can be used to implement transformations
+       that result in a separate image without having to copy the results back to the first.
        """
     def render(self, img):
         pass

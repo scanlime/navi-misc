@@ -32,7 +32,8 @@ class PseudoGimpy(ImageCaptcha):
         return [
             Backgrounds.TiledImage(),
             Text.TextLayer(word, borderSize=1),
-            Distortions.WigglyBlocks(),
+            #Distortions.WigglyBlocks(),
+            Distortions.SineWarp(),
             #Backgrounds.RandomDots(),
             ]
 
