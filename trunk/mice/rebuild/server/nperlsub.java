@@ -33,7 +33,7 @@ public class nperlsub extends nbase
 		name = read();
 		postn = read();
 		question = read();
-		name = name + "(" + postn + ")";
+		name = name + " (" + postn + ")";
 		name = hexwash(name);
 		question = hexwash(question);
 		asubmit.submit(name,question);

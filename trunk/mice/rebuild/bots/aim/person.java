@@ -36,6 +36,7 @@ public class person
 		mybot = bot;
 		nick = ick;
 		status = 0;
+		next = previous;
 		mybot.sendMessage(nick,"What is your name (this is what it will appear as if you ask any questions)");
 	}
 	
@@ -55,7 +56,7 @@ public class person
 		  break;
 		case 2:
 			standmajor = standmajor + "/" + message;
-			send("You are now registered as: " + name + "(" + standmajor + ").  To ask a question, simply greet me, and I will ask you for your question :)");
+			send("You are now registered as: " + name + " (" + standmajor + ").  To ask a question, simply greet me, and I will ask you for your question :)");
 			status = 3;
 			break;
 		case 3:

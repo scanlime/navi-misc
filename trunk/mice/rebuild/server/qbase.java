@@ -1,5 +1,7 @@
 /**
  * This class is the question database, singularly known throughout the server.
+ * @author Brandon Smith
+ * @version 2.0
  */
 
 public class qbase

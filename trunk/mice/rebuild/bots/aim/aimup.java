@@ -36,7 +36,7 @@ public class aimup
 
 	public static void main(String[] args)
 	{
-		botmain interviewbot = initbots(1,"wrongpassword");
+		botmain interviewbot = initbots(1,"passverd");
 		startServer(8082);
 		sleep(2);
 		configureServer(interviewbot);

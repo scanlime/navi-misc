@@ -42,6 +42,11 @@ public class nchatint extends nbase
 		closeConnection();
 	}
 	
+	/**
+	 * This method handles the bread and butter of the connection.
+	 * @author Brandon Smith
+	 * @version 2.0
+	 */
 	private void runloop()
 	{
 		String cmd;
@@ -50,10 +55,10 @@ public class nchatint extends nbase
 			cmd = read();
 			switch(cmd.charAt(0))
 			{
-			case 'a':
+			case 'a'://answer a question
 				view.answer(read());
 				break;
-			case 'r':
+			case 'r'://reject a question
 				view.reject();
 				break;
 			case 'g':
@@ -66,7 +71,7 @@ public class nchatint extends nbase
 						try{
 							Thread.sleep(20000);
 						}
-						catch(InteruptedException e){}
+						catch(Exception e){}
 						cmd = view.getQuestion();
 					}
 				}
@@ -76,6 +81,11 @@ public class nchatint extends nbase
 		}
 	}
 	
+	/**
+	 * This method handles the authentication of the client
+	 * @author Brandon Smith
+	 * @version 2.0
+	 */
 	private boolean authenticate()
 	{
 		String uname, pword, rname;

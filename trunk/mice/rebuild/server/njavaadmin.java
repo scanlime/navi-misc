@@ -51,6 +51,8 @@ public class njavaadmin extends nbase
 	
 	/**
 	 * This method handles the notice loop type stuff.
+	 * @author Brandon Smith
+	 * @version 2.0
 	 */
 	public void noticeloop()
 	{

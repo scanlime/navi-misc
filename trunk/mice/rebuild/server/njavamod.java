@@ -24,7 +24,7 @@ public class njavamod extends nbase
 	public njavamod(Socket gonnection, BufferedReader IN, OutputStreamWriter OUT)
 	{
 		super(gonnection,IN,OUT);
-		netdebug = true;
+		//netdebug = true;
 	}
 	
 	/**
@@ -45,6 +45,11 @@ public class njavamod extends nbase
 		closeConnection();
 	}
 	
+	/**
+	 * This method initializes the client by telling them who the interviews were.
+	 * @author Brandon Smith
+	 * @version 2.0
+	 */
 	public void cliinit()
 	{
 		int i;
@@ -54,7 +59,11 @@ public class njavamod extends nbase
 			write(imain.database.interviewuser[i]);
 	}
 	
-	
+	/**
+	 * This method handles the actual moderation after everything is set up.
+	 * @author Brandon Smith
+	 * @version 2.0
+	 */
 	public void modloop()
 	{
 		String cmd;
