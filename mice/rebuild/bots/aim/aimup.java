@@ -30,14 +30,25 @@ public class aimup
 	
 	public static ServerSocket server;
 
+	public static net link;
+
 	public static void main(String[] args)
 	{
-		botmain interviewbot = initbots(1,"pass");
+		botmain interviewbot = initbots(1,"password");
 		startServer(8082);
-		while(true)
-		{
-			sleep(100);
-		}
+		configureServer();
+		updateLoop();
+		link.closeConnection();
+	}
+	
+	public static void updateLoop()
+	{
+	}
+	
+	public static void configureServer()
+	{
+		String mykey = key.keygen();
+		link.write(mykey);
 	}
 	
 	public static void startServer(int port)
@@ -45,6 +56,8 @@ public class aimup
 		try 
 		{
 			server = new ServerSocket(port);
+			Socket mine = server.accept();
+			link = new net(mine);
 		}
 		catch(IOException exception)
 		{

@@ -77,7 +77,7 @@ public class interview
 			break;
 
 		case 2: //This is all about sending the answer off, and getting the next question on its way.
-			if(message.toUpper().compareTo("SKIP") == 0) com.write("reject")
+			if(message.toUpperCase().compareTo("SKIP") == 0) com.write("reject");
 			else
 			{
 				com.write("answ");

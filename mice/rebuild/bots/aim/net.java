@@ -20,6 +20,30 @@ public class net
 	public OutputStreamWriter out;
 	
 	/**
+	 * This constructor is empty for normal client connections.
+	 * @author Brandon Smith
+	 * @version 2.0
+	 */
+	public net(){}
+	
+	/**
+	 * This constructor is what is called when a link is up from a server socket.
+	 * @param ink The Socket that is returned from the .accept() method.
+	 * @author Brandon Smith
+	 * @version 2.0
+	 */
+	public net(Socket ink)
+	{
+		link = ink;
+		try
+		{
+			BufferedReader in = new BufferedReader(new InputStreamReader(ink.getInputStream()));
+			OutputStreamWriter out = new OutputStreamWriter(ink.getOutputStream());
+		}
+		catch(IOException e){}
+	}
+	
+	/**
 	 * This method initializes a connection with a server
 	 * @param host A string that resolves to a host out there.
 	 * @param port The port that the server is running on, on the host.
