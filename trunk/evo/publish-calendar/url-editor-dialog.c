@@ -29,18 +29,52 @@ url_editor_dialog_construct2 (UrlEditorDialog2 *dialog)
 {
 	GladeXML *gui;
 	GtkWidget *toplevel;
+	ESourceList *source_list;
+	GConfClient *gconf;
 
-	gui = glade_xml_new (PLUGINDIR "/publish-calendar.glade", "publish vbox", NULL);
+	gconf = gconf_client_get_default ();
+
+	gui = glade_xml_new (PLUGINDIR "/publish-calendar.glade", "publishing toplevel", NULL);
 	dialog->gui = gui;
+
+#define GW(name) ((dialog->name) = glade_xml_get_widget (dialog->gui, #name))
+	GW(url_entry);
+	GW(publish_frequency);
+
+	GW(type_selector);
+	GW(publish_events);
+	GW(events_swin);
+	GW(publish_tasks);
+	GW(tasks_swin);
+
+	GW(username_entry);
+	GW(password_entry);
+	GW(remember_pw);
+#undef GW
 
 	g_return_val_if_fail (gui != NULL, FALSE);
 
-	toplevel = glade_xml_get_widget (gui, "publish vbox");
+	toplevel = glade_xml_get_widget (gui, "publishing toplevel");
 	gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), toplevel);
+
+//	gtk_container_set_border_width (GTK_CONTAINER (dialog), 6);
 
 	dialog->cancel = gtk_dialog_add_button (GTK_DIALOG (dialog), GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL);
 	dialog->ok = gtk_dialog_add_button (GTK_DIALOG (dialog), GTK_STOCK_OK, GTK_RESPONSE_OK);
 	gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_OK);
+
+	source_list = e_source_list_new_for_gconf (gconf, "/apps/evolution/calendar/sources");
+	dialog->events_selector = e_source_selector_new (source_list);
+	gtk_widget_show (dialog->events_selector);
+	gtk_container_add (GTK_CONTAINER (dialog->events_swin), dialog->events_selector);
+
+	source_list = e_source_list_new_for_gconf (gconf, "/apps/evolution/tasks/sources");
+	dialog->tasks_selector = e_source_selector_new (source_list);
+	gtk_widget_show (dialog->tasks_selector);
+	gtk_container_add (GTK_CONTAINER (dialog->tasks_swin), dialog->tasks_selector);
+
+	g_object_unref (gconf);
+
 	return TRUE;
 }
 
