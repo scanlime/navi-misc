@@ -13,8 +13,4 @@ pic.T2CON = 0x05
 Tweak.Window( Tweak.Quantity(pic, 'CCPR1L', range=(0,255)),
               Tweak.Quantity(pic, 'PR2', range=(0,255)) )
 
-class test:
-    def run(self):
-        while True:
-            time.sleep(1)
-Tweak.run(test())
+Tweak.run()
