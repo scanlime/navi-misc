@@ -29,30 +29,30 @@
 G_BEGIN_DECLS
 
 enum publish_frequency {
-	URI_PUBLISH_AUTO,
 	URI_PUBLISH_DAILY,
 	URI_PUBLISH_WEEKLY,
 	URI_PUBLISH_MANUAL,
+	/* URI_PUBLISH_AUTO, */
 };
 
 static const int publish_frequency_type_map[] = {
-	URI_PUBLISH_AUTO,
 	URI_PUBLISH_DAILY,
 	URI_PUBLISH_WEEKLY,
 	URI_PUBLISH_MANUAL,
+	/* URI_PUBLISH_AUTO, */
 	-1,
 };
 
 enum publish_format {
 	URI_PUBLISH_AS_ICAL,
-	URI_PUBLISH_AS_HTML,
 	URI_PUBLISH_AS_FB,
+	/* URI_PUBLISH_AS_HTML, */
 };
 
 static const int publish_format_type_mask[] = {
 	URI_PUBLISH_AS_ICAL,
-	URI_PUBLISH_AS_HTML,
 	URI_PUBLISH_AS_FB,
+	/* URI_PUBLISH_AS_HTML, */
 	-1,
 };
 
