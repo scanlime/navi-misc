@@ -33,6 +33,7 @@ CTestWorld::CTestWorld()
 
 	wallHeight = 10.0f;
 	size[0] = size[1] = 300.0f;
+	textureRepeat = 80.0f;
 }
 
 bool CTestWorld::initDefaultWorld ( void )
@@ -46,6 +47,11 @@ bool CTestWorld::initDefaultWorld ( void )
 
 	wallHeight = 5.0f;
 	size[0] = size[1] = 400.0f;
+
+	ambientColor[0] = ambientColor[1] = ambientColor[2] = 0.5f;
+	sunPos[0] = sunPos[1] = sunPos[2] = 100;
+	sunColor[0] = sunColor[1] = sunColor[2] = 0.75f;
+	textureRepeat = 40;
 
 	return true;
 }
@@ -65,16 +71,16 @@ bool CTestWorld::init ( const char* mapFileName )
 	std::string line;
 
 	//name: name
-	name = &(mapFile.ReadLine()[5]);
+	name = &(mapFile.ReadLine()[6]);
 
 	//sky: name
-	skybox = &(mapFile.ReadLine()[4]);
+	skybox = &(mapFile.ReadLine()[5]);
 
 	//ground: name
-	groundMaterial = &(mapFile.ReadLine()[7]);
+	groundMaterial = &(mapFile.ReadLine()[8]);
 
 	//wall: name
-	wallMaterial = &(mapFile.ReadLine()[5]);
+	wallMaterial = &(mapFile.ReadLine()[6]);
 
 	//wallZ: value
 	wallHeight = (float)atof(&(mapFile.ReadLine()[6]));
@@ -82,10 +88,19 @@ bool CTestWorld::init ( const char* mapFileName )
 	//size: x y
 	sscanf(mapFile.ReadLine(),"size: %f %f",&size[0],&size[1]);
 
+	//repeat: r
+	textureRepeat = (float)atof(&(mapFile.ReadLine()[7]));
+
+	//ambient: r g b
+	sscanf(mapFile.ReadLine(),"ambient: %f %f %f",&ambientColor[0],&ambientColor[1],&ambientColor[2]);
+
+	//sun: x y z r g b
+	sscanf(mapFile.ReadLine(),"sun: %f %f %f %f %f %f",&sunPos[0],&sunPos[1],&sunPos[2],&sunColor[0],&sunColor[1],&sunColor[2]);
+
 	// tuft groups
 	int tufCount = 0;
 	//tufts: n
-	sscanf(mapFile.ReadLine(),"tufts: %d",tufts);
+	sscanf(mapFile.ReadLine(),"tufts: %d",&tufCount);
 	
 	trTuftDef	tuft;
 	int			temp;
@@ -95,7 +110,7 @@ bool CTestWorld::init ( const char* mapFileName )
 		sscanf(mapFile.ReadLine(),"tuft: %d",&temp);
 
 		//mesh: name
-		tuft.mesh = &(mapFile.ReadLine()[5]);
+		tuft.mesh = &(mapFile.ReadLine()[6]);
 
 		//count: n
 		sscanf(mapFile.ReadLine(),"count: %d",&tuft.count);
@@ -104,12 +119,11 @@ bool CTestWorld::init ( const char* mapFileName )
 		sscanf(mapFile.ReadLine(),"center: %f %f",&tuft.center[0],&tuft.center[1]);
 
 		//range: r
-		sscanf(mapFile.ReadLine(),"range: %d",&tuft.range);
+		sscanf(mapFile.ReadLine(),"range: %f",&tuft.range);
 
 		tufts.push_back(tuft);
 	}
 	mapFile.Close();
-
 
 	return true;
 }
@@ -128,8 +142,12 @@ void CTestWorld::sendMapTo ( CNetworkPeer &peer )
 	message.AddStr(skybox.c_str());
 	message.AddStr(groundMaterial.c_str());
 	message.AddF(wallHeight);
+	message.AddF(textureRepeat);
 	message.AddF(size[0]);
 	message.AddF(size[1]);
+	message.AddV(sunPos);
+	message.AddV(sunColor);
+	message.AddV(ambientColor);
 	message.AddI((int)tufts.size());
 
 	std::vector<trTuftDef>::iterator	itr = tufts.begin();

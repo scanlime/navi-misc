@@ -13,6 +13,7 @@
 
 #include "worldDrawables.h"
 #include "firestarter.h"
+#include "world.h"
 
 // skybox factory
 CBaseDrawable* CSkyboxObjectFactory::New ( CBaseObject* parent )
@@ -38,7 +39,7 @@ CSkyObject::~CSkyObject()
 
 void CSkyObject::Init ( void )
 {
-	CFirestarterLoop::instance().GetSceneManager()->setSkyBox(true, parent->GetValueS("skybox"),parent->GetValueF("groundSize")*4,true,Quaternion(1.57079632f,Vector3(1,0,0)));
+	CFirestarterLoop::instance().GetSceneManager()->setSkyBox(true, parent->GetValueS("skybox"),parent->GetValueF("groundSizeX")*4,true,Quaternion(1.57079632f,Vector3(1,0,0)));
 }
 
 void CSkyObject::Think ( void )
@@ -70,7 +71,7 @@ CGroundObject::~CGroundObject()
 
 void CGroundObject::Init ( void )
 {
-	Mesh* mesh = MeshManager::getSingleton().createPlane("GroundPlane", Plane (Vector3(0,1,0),Vector3(0,0,0),Vector3(1,0,0)),parent->GetValueF("groundSize"), parent->GetValueF("groundSize"),1,1,true,1,parent->GetValueF("groundTextureRepeat"),parent->GetValueF("groundTextureRepeat"));
+	Mesh* mesh = MeshManager::getSingleton().createPlane("GroundPlane", Plane (Vector3(0,1,0),Vector3(0,0,0),Vector3(1,0,0)),parent->GetValueF("groundSizeX"), parent->GetValueF("groundSizeY"),1,1,true,1,parent->GetValueF("groundTextureRepeat"),parent->GetValueF("groundTextureRepeat"));
 	if (mesh && mesh->getSubMeshIterator().hasMoreElements())
 	{
 		mesh->getSubMeshIterator().getNext()->setMaterialName(parent->GetValueS("groundTexture"));
@@ -102,9 +103,42 @@ void CGroundObject::Init ( void )
 	ballNode->rotate(Vector3(1,0,0),90);
 #endif //_DEBUG
 
-	 //random tufts
+	 // tufts
+	std::vector<trTuftDef> *tufts = (std::vector<trTuftDef>*)parent->GetValueI("tufts");
 
-	int numTuft = 500;
+	if (tufts)
+	{
+		std::vector<trTuftDef>::iterator itr = tufts->begin();
+
+		int baseName = 0;
+		while (itr != tufts->end())
+		{
+
+			float xyRange = itr->range;
+
+			for (int i = 0; i < itr->count; i++)
+			{
+				char name[512];
+				sprintf(name,"tuft:tuft%d-%d",baseName,i);
+
+				float pos[3];
+				pos[0] = (((float)rand()/(float)RAND_MAX)*xyRange*2)-xyRange + itr->center[0];
+				pos[1] = (((float)rand()/(float)RAND_MAX)*xyRange*2)-xyRange + itr->center[1];
+				pos[2] = 0.0f;
+
+				Entity* tuftEnt = CFirestarterLoop::instance().GetSceneManager()->createEntity(name, itr->mesh.c_str());
+				//tuftEnt->getMesh()->getSubMeshIterator().getNext()->setMaterialName("tuft:tuft1");
+				//	tuftEnt->setRenderQueueGroup(RENDER_QUEUE_9);
+				SceneNode* tuftNode = static_cast<SceneNode*>(CFirestarterLoop::instance().GetSceneManager()->getRootSceneNode()->createChild());
+				tuftNode->attachObject(tuftEnt);
+				tuftNode->rotate(Vector3(0,0,1),(((float)rand()/(float)RAND_MAX)*360));
+				tuftNode->translate(pos[0],pos[1],pos[2]); 
+			}
+			itr++;
+			baseName++;
+		}
+	}
+	/*int numTuft = 500;
 	float xyRange = 400;
 
 	for (int i = 0; i < numTuft; i++)
@@ -162,7 +196,7 @@ void CGroundObject::Init ( void )
 		tuftNode->attachObject(tuftEnt);
 		tuftNode->rotate(Vector3(0,0,1),(((float)rand()/(float)RAND_MAX)*360));
 		tuftNode->translate(pos[0],pos[1],pos[2]); 
-	}
+	} */
 }
 
 void CGroundObject::Think ( void )

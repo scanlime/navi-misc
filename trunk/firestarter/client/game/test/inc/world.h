@@ -18,13 +18,17 @@
 #include <string>
 #include <vector>
 #include <map>
+#include "networking.h"
 
 typedef struct 
 {
+	std::string	name;
 	std::string skybox;
 	std::string groundTexture;
-	float groundSize;
+	std::string wallTexture;
+	float groundSize[2];
 	float groundTextureRepeat;
+	float wallSize;
 	float sunPos[3];
 	float	sunColor[3];
 	float ambientColor[3];
@@ -39,6 +43,14 @@ typedef	 struct
 	std::vector<std::string> textures;
 }trObjectInfo;
 
+typedef struct 
+{
+	std::string mesh;
+	int					count;
+	float				center[2];
+	float				range;
+}trTuftDef;
+
 class CTestWorld : public CBaseObject
 {
 	public:
@@ -46,7 +58,10 @@ class CTestWorld : public CBaseObject
 		~CTestWorld();
 		
 		void Load ( trWorldInfo &info, bool draw );	
+		void Load ( CNetworkMessage &message, bool draw );	
+
 		void AddWorldObject ( trObjectInfo &info );
+		void AddTuft ( trTuftDef &tuft );
 
 		bool Think ( void );
 
@@ -59,8 +74,9 @@ class CTestWorld : public CBaseObject
 		// other stuff here for all the other world things that we need to do.
 
 	protected:
-		int							worldDrawables[2];
-		trWorldInfo			worldInfo;
+		int											worldDrawables[2];
+		trWorldInfo							worldInfo;
+		std::vector<trTuftDef>	tufts;
 };
 
 #endif //_TEST_WORLD_H_

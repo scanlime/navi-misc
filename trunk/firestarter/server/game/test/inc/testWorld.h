@@ -44,8 +44,13 @@ protected:
 	std::string		groundMaterial;
 	std::string		wallMaterial;
 
+	float			textureRepeat;
 	float			wallHeight;
 	float			size[2];
+
+	float sunPos[3];
+	float	sunColor[3];
+	float ambientColor[3];
 
 	typedef struct 
 	{
