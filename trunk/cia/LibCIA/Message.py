@@ -35,12 +35,12 @@ class XMLObject(object):
        'xml' is either a twisted.xish.domish.Element, a string containing
        the message in XML, or any object with a read() method.
        """
-    def __init__(self, xml):
+    def __init__(self, xml=None):
         if isinstance(xml, domish.Element):
             self.loadFromElement(xml)
         elif hasattr(xml, 'read'):
             self.loadFromString(xml.read())
-        else:
+        elif xml is not None:
             self.loadFromString(xml)
 
     def __str__(self):
@@ -110,6 +110,14 @@ class Message(XMLObject):
             self.xml.addElement("timestamp", content="%d" % time.time())
 
 
+class Hub(object):
+    """A central location where messages are delivered, filtered, and dispatched
+       to interested parties.
+       """
+    pass
+
+
+
 class Filter(XMLObject):
     """A filter is a description of some subset of all valid Message objects,
        described using a simple XML-based format and a subset of XPath. The
@@ -124,7 +132,7 @@ class Filter(XMLObject):
          >>> msg = Message(open('../xml/sample_message.xml'))
 
        The <match> tag returns true if the entire text content of any tag
-       matched by the given XPath matches the text in the tag.
+       matched by the given XPath matches the text in the <match> tag:
 
          >>> f = Filter('<match path="/message/source/project">navi-misc</match>')
          >>> f(msg)
@@ -209,6 +217,31 @@ class Filter(XMLObject):
          True
          >>> Filter('<not><false/><true/><false/></not>')(msg)
          False
+
+       As if we weren't already having too much fun, several of Python bitwise
+       operators can be used like logical operators to combine Filter instances
+       after they're parsed but before their value has been determined:
+
+         >>> f = Filter('<false/>') | Filter('<false/>')
+         >>> f(msg)
+         False
+         >>> f = Filter('<true/>') | Filter('<false/>')
+         >>> f(msg)
+         True
+
+         >>> f = Filter('<false/>') & Filter('<true/>')
+         >>> f(msg)
+         False
+         >>> f = Filter('<true/>') & Filter('<true/>')
+         >>> f(msg)
+         True
+
+         >>> f = ~Filter('<true/>')
+         >>> f(msg)
+         False
+         >>> f = ~Filter('<false/>')
+         >>> f(msg)
+         True
 
        """
     def preprocess(self):
@@ -336,6 +369,24 @@ class Filter(XMLObject):
         def alwaysFalse(msg):
             return False
         return alwaysFalse
+
+    def __and__(self, other):
+        """Perform a logical 'and' on two Filters without evaluating them"""
+        newFilter = Filter()
+        newFilter.matchFunc = lambda msg: self(msg) and other(msg)
+        return newFilter
+
+    def __or__(self, other):
+        """Perform a logical 'or' on two Filters without evaluating them"""
+        newFilter = Filter()
+        newFilter.matchFunc = lambda msg: self(msg) or other(msg)
+        return newFilter
+
+    def __invert__(self):
+        """Perform a logical 'not' on this Filter without evaluating it"""
+        newFilter = Filter()
+        newFilter.matchFunc = lambda msg: not self(msg)
+        return newFilter
 
 
 class DomishStringParser(domish.SuxElementStream):
