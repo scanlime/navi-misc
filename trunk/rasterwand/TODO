@@ -1,5 +1,3 @@
 Firmware:
 
-- Interleaved 4-byte write (page flip resets pointer)
-
-- Non-interleaved 12-byte write?
+- Bounds checking on backbuffer writes

@@ -519,6 +519,7 @@ TokenOutPID  ; STARTS IN BANK2
 	btfss	STATUS,Z	; was it EP0?
 	goto	tryEP1 		; no, try EP1
 
+	banksel	USB_dev_req
 	movf	USB_dev_req,w
 	xorlw	EP0_WRITE_BACKBUFFER
 	pagesel	ep0_write_backbuffer

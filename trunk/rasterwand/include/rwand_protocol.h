@@ -57,7 +57,7 @@
 ;// A gap width of zero will avoid inserting any gap between columns.
 #define RWAND_CTRL_SET_COLUMN_WIDTH	0x07
 
-;// Starting at the column given in the low byte of wValue, write
+;// Set the write pointer to the low byte of wValue, then write
 ;// the values at wValue+1, wIndex, and wIndex+1 to the backbuffer.
 #define RWAND_CTRL_RANDOM_WRITE3	0x08
 
@@ -76,9 +76,13 @@
 
 ;// Starting at the current write pointer (reset on page flip) write the given
 ;// 12 bytes of data to the backbuffer, incrementing the write pointer as necessary.
-;// The first 4 bytes come sequentially fro, wValue and wIndex, the other 8 bytes
+;// The first 4 bytes come sequentially from wValue and wIndex, the other 8 bytes
 ;// are sent in a data packet.
 #define RWAND_CTRL_SEQ_WRITE12		0x0C
+
+;// Starting at the current write pointer (reset on page flip) write the given
+;// 4 bytes in wValue and wIndex to the backbuffer
+#define RWAND_CTRL_SEQ_WRITE4		0x0C
 
 
 ;//************************************************** Mode bits

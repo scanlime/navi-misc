@@ -241,7 +241,9 @@ MainLoop
 	movlw	8				; Set byte count
 	movwf	BD1IBC
 
+	; We need this to breathe
 	movf	BD1IAL, w		; Point IRP:FSR at the EP1 buffer
+	movwf	FSR
 	bsf		STATUS, IRP
 
 	banksel	display_save_status	; Save the status packet
