@@ -39,6 +39,7 @@ extern GdkPixbuf *pix_prefs_colors;
 extern GdkPixbuf *pix_prefs_dcc;
 extern GdkPixbuf *pix_prefs_networks;
 extern GdkPixbuf *pix_prefs_plugins;
+extern GdkPixbuf *pix_prefs_keybindings;
 
 extern void pixmaps_init (void);
 

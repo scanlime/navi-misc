@@ -95,6 +95,8 @@ initialize_pages_list ()
 	gtk_list_store_set (store, &iter, 0, pix_prefs_networks, 1, "Networks", 2, 3, -1);
 	gtk_list_store_append (store, &iter);
 	gtk_list_store_set (store, &iter, 0, pix_prefs_plugins, 1, "Scripts and Plugins", 2, 4, -1);
+	gtk_list_store_append (store, &iter);
+	gtk_list_store_set (store, &iter, 0, pix_prefs_keybindings, 1, "Keyboard Shortcuts", 2, 5, -1);
 }
 
 void initialize_file_transfers_page() {

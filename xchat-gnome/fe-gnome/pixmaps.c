@@ -40,6 +40,7 @@ GdkPixbuf *pix_prefs_colors;
 GdkPixbuf *pix_prefs_dcc;
 GdkPixbuf *pix_prefs_networks;
 GdkPixbuf *pix_prefs_plugins;
+GdkPixbuf *pix_prefs_keybindings;
 
 void
 pixmaps_init (void)
@@ -113,5 +114,11 @@ pixmaps_init (void)
 	if (!p)
 		p = gdk_pixbuf_new_from_inline (-1, pluginmanagerpng, FALSE, 0);
 	pix_prefs_plugins = gdk_pixbuf_scale_simple (p, 16, 16, GDK_INTERP_BILINEAR);
+	gdk_pixbuf_unref (p);
+
+	p = gdk_pixbuf_new_from_file (XCHATSHAREDIR"/preferences-keybindings.png", NULL);
+	if (!p)
+		p = gdk_pixbuf_new_from_inline (-1, keybindingspng, FALSE, 0);
+	pix_prefs_keybindings = gdk_pixbuf_scale_simple (p, 16, 16, GDK_INTERP_BILINEAR);
 	gdk_pixbuf_unref (p);
 }
