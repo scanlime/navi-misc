@@ -43,8 +43,10 @@ static void
 on_unload_plugin_clicked (GtkButton *button, gpointer user_data);
 static void
 xchat_gnome_plugin_add (char *filename);
-static void
-plugin_list_add (char *filename, void *handle, xchat_init_func *init_func, xchat_deinit_func * deinit_func);
+static xchat_plugin *
+plugin_list_add (xchat_context *ctx, char *filename, const char *name,
+		const char* desc, const char *version, void *handle,
+		xchat_deinit_func *deinit_func, int fake);
 
 void
 initialize_preferences_plugins_page ()
@@ -207,12 +209,18 @@ xchat_gnome_plugin_add (char *filename)
 	void *handle;
 	xchat_init_func *init_func;
 	xchat_deinit_func *deinit_func;
+	xchat_plugin *pl;
 
+	/* For now we are just assuming it's ok to use gmodule, if this is a mistake
+	 * we can change this to match the common plugins stuff so that we use
+	 * gmodule if it's available, otherwise we'll do something else.
+	 */
 	handle = g_module_open (filename, 0);
 
 	if (handle == NULL)
 		return;
 
+	/* All plugins must have an init function. */
 	if (!g_module_symbol (handle, "xchat_plugin_init", (gpointer *)&init_func)) {
 		printf ("%s has no init\n", filename);
 		g_module_close (handle);
@@ -221,11 +229,39 @@ xchat_gnome_plugin_add (char *filename)
 	if (!g_module_symbol (handle, "xchat_plugin_deinit", (gpointer *)&deinit_func))
 		deinit_func = NULL;
 
-	plugin_list_add (filename, handle, init_func, deinit_func);
+	/* Create a new plugin instance and add it to our list of known plugins. */
+	/*pl = plugin_list_add (gui.current_session, filename, filename,
+			NULL, NULL, handle, deinit_func, FALSE);
+
+	/* run xchat_plugin_init, if it returns 0, close the plugin *
+	if (((xchat_init_func *)init_func) (pl, &pl->name, &pl->desc, &pl->version, NULL) == 0)
+	{
+		// FIXME: we need one of thse too.
+		//plugin_free (pl, FALSE, FALSE);
+		return;
+	}*/
+
 }
 
-static void
-plugin_list_add (char *filename, void *handle, xchat_init_func *init_func, xchat_deinit_func * deinit_func)
+static xchat_plugin *
+plugin_list_add (xchat_context *ctx, char *filename, const char *name,
+		const char* desc, const char *version, void *handle,
+		xchat_deinit_func *deinit_func, int fake)
 {
-	/* FIXME: Look, Ma! No code! */
+	xchat_plugin *pl;
+
+	pl = malloc (sizeof (xchat_plugin));
+
+	pl->handle = handle;
+	pl->context = ctx;
+	pl->filename = filename;
+	pl->name = (char*)name;
+	pl->version = (char*)version;
+	pl->desc = (char*)desc;
+	pl->deinit_callback = deinit_func;
+	pl->fake = fake;
+
+	known_plugins = g_slist_prepend (known_plugins, pl);
+
+	return pl;
 }
