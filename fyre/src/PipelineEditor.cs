@@ -43,12 +43,11 @@ namespace Fyre
 		// Status bar
 		[Glade.Widget] Gtk.Statusbar		statusbar;
 
+		// Static copy, for singleton-like behavior
+		public static PipelineEditor		instance;
+
 		// D-n-D target data
 		static Gtk.TargetEntry[]		targets;
-		static Gtk.TargetList			target_list;
-
-		public static PipelineEditor	instance;
-
 		public static Gtk.TargetEntry[]		DragTargets
 		{
 			get {
@@ -59,6 +58,7 @@ namespace Fyre
 				return targets;
 			}
 		}
+		static Gtk.TargetList			target_list;
 		public static Gtk.TargetList		TargetList
 		{
 			get {
