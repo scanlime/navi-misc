@@ -51,6 +51,45 @@ class Page:
         pass
 
 
+class PageWrapper(Page):
+    """A page that acts as a wrapper around another, adding extra functionality"""
+    def __init__(self, view, subpage):
+        Page.__init__(self, view)
+        self.subpage = subpage
+
+        # Link the subpage's onFinish to our onFinish such that if it quits, we do too
+        self.subpage.onFinish.observe(self.onFinish)
+
+    def finalize(self):
+        """Give our subpage a chance to clean up"""
+        self.subpage.finalize()
+
+
+class PageTimerWrapper(PageWrapper):
+    """A page wrapper that calls onFinish after the page has been active for a
+       fixed amount of time.
+       """
+    def __init__(self, view, subpage, duration):
+        PageWrapper.__init__(self, view, subpage)
+        self.duration = duration
+        self.viewport.onSetupFrame.observe(self.setupFrame)
+
+    def setupFrame(self):
+        # There are other methods we could use to decide when to quit, but this
+        # one is most robust when nonstandard Timekeepers are involved, as is
+        # the case when recording movies.
+        self.duration -= self.time.step()
+        if self.duration <= 0:
+            self.onFinish()
+
+
+def PageTimer(duration, page):
+    """Given a page class or a callable, return a callable for creating that page
+       with a PageTimerWrapper around it.
+       """
+    return lambda view: PageTimerWrapper(view, page(view), duration)
+
+
 class Book(Page):
     """A collection of Pages. A Book is responsible for controlling the overal flow
        of control in a program built from multiple Pages. The page at the beginning
@@ -61,9 +100,10 @@ class Book(Page):
        Pages added at the end are activated after all other pages have finished.
 
        Note that since pages are only instantiated when active, pages specified for
-       insertion into the Book are given as a (class, parameters) tuple. The 'view'
-       parameter is assumed, and is not given in the parameters list. If no parameters
-       are needed, the class can be given bare rather than as part of a tuple.
+       insertion into the Book are given as a callable with a single 'view' parameter.
+       If the class doesn't take any extra parameters, this can simply be a class.
+       Otherwise, it is convenient for this to be a lambda expression to instantiate
+       the class properly.
 
        Also note that a book is, itself, a page. This is a convenient way to group
        pages hierarchially.
@@ -72,7 +112,7 @@ class Book(Page):
         Page.__init__(self, view)
         self.pages = initialPages
         self.activeInstance = None
-        self.activeSpec = None
+        self.activeClass = None
         self.evaluatePages()
 
     def pushFront(self, pages):
@@ -100,26 +140,17 @@ class Book(Page):
            reference to the old active page is lost, terminating it.
            """
         if self.pages:
-            # If the currently active page wasn't created from the spec at the front of the page list,
+            # If the currently active page wasn't created from the class at the front of the page list,
             # it should no longer be active. Make it so.
-            if self.activeSpec is not self.pages[0]:
+            if self.activeClass is not self.pages[0]:
                 if self.activeInstance:
                     self.activeInstance.finalize()
-                self.activeSpec = None
+                self.activeClass = None
                 self.activeInstance = None
 
-                # Transform the item at the front of self.pages into a pageClass and pageParameters.
-                # This accounts for the format described in this class's doc string- a page specification
-                # may be a bare class or it may be a (class, parameters) tuple.
-                try:
-                    pageClass, pageParameters = self.pages[0]
-                except TypeError:
-                    pageClass = self.pages[0]
-                    pageParameters = ()
-
                 # Create the new active page instance
-                self.activeSpec = self.pages[0]
-                self.activeInstance = pageClass(self.view, *pageParameters)
+                self.activeClass = self.pages[0]
+                self.activeInstance = self.activeClass(self.view)
 
                 # Set up an observer on the page's onFinish handler that removes it from the book
                 self.activeInstance.onFinish.observe(self.popFront)
@@ -127,7 +158,7 @@ class Book(Page):
             # No more pages, disable any currently active page and call our onFinish event
             if self.activeInstance:
                 self.activeInstance.finalize()
-            self.activeSpec = None
+            self.activeClass = None
             self.activeInstance = None
             self.onFinish()
 
