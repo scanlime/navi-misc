@@ -266,7 +266,7 @@ void fe_set_title(struct session *sess) {
 }
 
 void fe_set_nonchannel(struct session *sess, int state) {
-	g_print("fe_set_nonchannel()\n");
+	g_print("fe_set_nonchannel() - state=%d\n", state);
 	/* FIXME: implement */
 }
 

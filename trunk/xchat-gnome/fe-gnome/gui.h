@@ -1,6 +1,7 @@
 #include <glade/glade.h>
 #include <gnome.h>
 #include "xtext.h"
+#include "../common/xchat.h"
 
 #ifndef XCHAT_GNOME_GUI_H
 #define XCHAT_GNOME_GUI_H
@@ -11,6 +12,7 @@ typedef struct {
 	GtkDialog *preferences_dialog;
 	GnomeAbout *about;
 	GtkXText *xtext;
+	session *current_session;
 } XChatGUI;
 
 extern XChatGUI gui;
