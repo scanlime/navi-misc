@@ -387,7 +387,7 @@ class Rack(BaseRack):
                     internalNsKeys.append(dbkey)
 
             # Is it a child of our path?
-            if len(path) == len(self.path) + 1 and path[:-1] == self.path:
+            if len(path) > len(self.path) and path[:-1] == self.path:
                 name = path[-1]
                 if not name in subNsList:
                     subNsList.append(name)
