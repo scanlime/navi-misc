@@ -316,13 +316,15 @@ setup_menu ()
 static void
 close_find_key (GtkWidget *entry, GdkEventKey *event, gpointer data)
 {
-	GtkWidget *hbox;
+	GtkWidget *widget;
 
 	if (event->keyval != GDK_Escape)
 		return;
 
-	hbox = glade_xml_get_widget (gui.xml, "find hbox");
-	gtk_widget_hide (hbox);
+	widget = glade_xml_get_widget (gui.xml, "find hbox");
+	gtk_widget_hide (widget);
+	widget = glade_xml_get_widget (gui.xml, "text entry");
+	gtk_widget_grab_focus (widget);
 }
 
 static void
@@ -723,12 +725,12 @@ on_discussion_close_activate (GtkAction *action, gpointer data)
 static void
 on_discussion_find_activate (GtkAction *action, gpointer data)
 {
-	GtkWidget *find;
+	GtkWidget *widget;
 
-	find = glade_xml_get_widget (gui.xml, "find hbox");
-	gtk_widget_show (find);
-	find = glade_xml_get_widget (gui.xml, "find entry");
-	gtk_widget_grab_focus (find);
+	widget = glade_xml_get_widget (gui.xml, "find hbox");
+	gtk_widget_show (widget);
+	widget = glade_xml_get_widget (gui.xml, "find entry");
+	gtk_widget_grab_focus (widget);
 }
 
 static void
