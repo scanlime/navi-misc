@@ -129,6 +129,8 @@ preferences_dialog_init (PreferencesDialog *p)
 	p->networks_page = preferences_page_networks_new (p, xml);
 	p->plugins_page  = preferences_page_plugins_new  (p, xml);
 
+	gtk_window_set_title (GTK_WINDOW (p), "Preferences");
+
 	g_object_unref (xml);
 }
 
