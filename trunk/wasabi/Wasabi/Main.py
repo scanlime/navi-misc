@@ -49,13 +49,14 @@ class Main:
         self.viewport.setCaption("Wasabi UI")
         self.view = ThreeDRender.View(self.viewport)
 
+        # The UI runs fine without ThreeDControl, but it's useful for debugging
+        # and doesn't get in the way during normal use.
+        self.control = ThreeDControl.Viewing(self.view, self.viewport)
+
         # If we're running on actual wasabi hardware, go fullscreen
         if self.hardware.uvswitch:
             self.viewport.display.toggle_fullscreen()
             pygame.mouse.set_visible(0)
-        else:
-            # Otherwise, set up a ThreeDControl to make debugging easier
-            self.control = ThreeDControl.Viewing(self.view, self.viewport)
 
         # Set up our main book
         self.book = Sequencer.CyclicBook(self.view, self.getPages())
@@ -113,6 +114,7 @@ class VideoInput(Menu.PageItem):
         Menu.PageItem.__init__(self,
                                VideoSwitch.getInputDict()[channel],
                                userPageInterrupter(lambda book: VideoChannelPage(book, self.menu.hardware, channel))
+#                               Sequencer.PageTimer(5, lambda book: VideoChannelPage(book, self.menu.hardware, channel))
                                )
 
 
