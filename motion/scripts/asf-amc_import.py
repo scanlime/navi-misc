@@ -149,8 +149,8 @@ def loadAMC (filename):
     action.setActive (armatureObj)
 
     context = scene.getRenderingContext ()
-    # FIXME _ Pretty much all of the data we've gotten is at 120Hz. It would
-    # be nice to pull this out of the data file, but for now, just hardcode it
+    # FIXME - Pretty much all of the data we've gotten is at 120Hz. It would
+    # be nice to pull this out of the data file, but for now, just hardcode it.
     context.framesPerSec (120)
 
     totalFrames = len (amcReader.frames)
@@ -181,10 +181,11 @@ def loadAMC (filename):
             #bones[name].setQuat (quat)
             #bones[name].setPose ([ROT])
 
-    # No more wait
+    # No more wait indicators, since we're done
     Blender.Window.WaitCursor (False)
-    Blender.Window.DrawProgressBar (1.0, '')
+    Blender.Window.DrawProgressBar (1.0, 'Finished AMC import')
     Blender.Window.RedrawAll ()
     cleanup ()
 
+# Show our ASF file selector
 Blender.Window.FileSelector (loadASF, 'Load ASF Skeleton File')
