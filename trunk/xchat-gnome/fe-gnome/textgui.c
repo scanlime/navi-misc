@@ -105,5 +105,6 @@ void set_gui_topic(struct session *sess, char *topic) {
 }
 
 void clear_buffer(struct session *sess) {
-	gtk_xtext_clear(sess->gui->buffer);
+	session_gui *sgui = sess->gui;
+	gtk_xtext_clear(sgui->buffer);
 }
