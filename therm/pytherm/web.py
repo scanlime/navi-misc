@@ -436,7 +436,7 @@ class SourceGraphs(ModPython.Page):
         graph = rrd.RrdGraph(rrd.graphDefineSource(rrdf) +
                              rrd.graphUnknownData() +
                              rrd.graphColorRange(-20.0, rrd.Color(0.5, 0.5, 1),
-                                                 40.0, rrd.Color(1, 1, 0),
+                                                 40.0, rrd.Color(1, 0.5, 0),
                                                  id=[0]) +
                              rrd.graphSpan("%s - Temperature" % self.source) +
                              rrd.graphHorizontalRule(0, "Freezing Point"),
