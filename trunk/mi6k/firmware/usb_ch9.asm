@@ -113,6 +113,7 @@ USB_BTS_ERR		res	2
 	extern	StringDescriptions
 	extern  GetStringIndex
 	extern	VFD_SendByte
+	extern	IR_SendByte
 
 ; **********************************************************************
 ; This section contains the functions to interface with the main 
@@ -1742,6 +1743,12 @@ CheckVendor
 	btfsc	STATUS,Z
 	goto	LEDSetRequest
 
+	movf	BufferData+bRequest,w ; Is it an IR write request?
+	xorlw	MI6K_CTRL_IR_SEND
+	pagesel	IRSendRequest
+	btfsc	STATUS,Z
+	goto	IRSendRequest
+
 	pagesel	wrongstate			; Not a recognized request
 	goto	wrongstate
 
@@ -1769,6 +1776,23 @@ VFDWriteRequest
 	pagesel	VFD_SendByte
 	movf	BufferData+(wIndex+1), w
 	call	VFD_SendByte
+
+	; Acknowledge the request
+	pagesel	Send_0Len_pkt
+	call	Send_0Len_pkt
+	return
+
+	;********************* Request to send IR pulses
+IRSendRequest
+	banksel BufferData
+	pagesel	IR_SendByte
+	movf	BufferData+wValue, w
+	call	IR_SendByte
+	
+	banksel BufferData
+	pagesel	IR_SendByte
+	movf	BufferData+wIndex, w
+	call	IR_SendByte
 
 	; Acknowledge the request
 	pagesel	Send_0Len_pkt

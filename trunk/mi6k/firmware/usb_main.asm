@@ -71,10 +71,24 @@ PCLATH_save	res	1	;  during ISR
 FSR_save	res	1
 PIRmasked	res	1
 USBMaskedInterrupts  res  1
-ByteCount	res	1
-SerialByte	res 1
-DelayTemp	res 1
-BitCount	res 1
+
+	; Ring buffers for IR receive and transmit. Buffer size must be a power of two.
+	; Head indices point to the next available slot for new data, tail indices
+	; point to the oldest stored data.
+bank1	udata
+#define BUFFER_SIZE 16
+ir_rx_Buffer res BUFFER_SIZE
+ir_rx_Head	res 1
+ir_rx_Tail	res 1
+ir_tx_Buffer res BUFFER_SIZE
+ir_tx_Head	res 1
+ir_tx_Tail	res 1
+SendTemp	res 1
+
+	; IR transmitter state- must be in a bank that has TMR0 (either 0 or 2)
+bank2	udata
+ir_tx_Cycles	res 1
+ir_tx_Mask		res 1
 
 	extern	InitUSB
 	extern	PutEP1
@@ -111,18 +125,47 @@ InterruptServiceVector
 	; Is it a TMR0 interrupt? (used for the IR transmitter)
 	; This is the most time-critical interrupt.
 TEST_TMR0
-	pagesel PERIPHERALTEST
 	btfss	INTCON, T0IF
 	goto	PERIPHERALTEST
 	bcf		INTCON, T0IF	; A TMR0 overflow occurred. Reset the timer ASAP
-	movlw	.197			; 256 - (6 MIPS / 38 KHz / 2 - 20 cycles overhead)
-	banksel	TMR0
+	movlw	.199			; 256 - (6 MIPS / 38 KHz / 2 - 18 cycles overhead)
+	banksel	ir_tx_Mask		; TMR0, ir_tx_Cycles, and ir_tx_Mask all in the same bank
 	movwf	TMR0
-	movlw	IR_TX_MASK		; Flip the transmitter bit
+	movf	ir_tx_Mask, w	; Flip the transmitter bit if necessary
 	xorwf	PORTB, f
+	decfsz	ir_tx_Cycles	; If we finished this batch of transmit cycles, get some more from
+	goto	EndISR			; the buffer. If not, return from the interrupt now.
+
+	; Code to execute after each transmitted pulse or space	
+	movf	ir_tx_Mask, w	; We just finished one pulse or space. Flip the tx mask so we do the opposite now
+	xorlw	IR_TX_MASK
+	movwf	ir_tx_Mask
+	bcf		IR_TX			; Shut off the transmitter
+
+	banksel	ir_tx_Buffer	; If our transmit buffer is now empty, disable the TMR0 interrupt
+	movf	ir_tx_Head, w
+	xorwf	ir_tx_Tail, w
+	btfss	STATUS, Z
+	goto	txNextByte
+	bcf		INTCON, T0IE
+	goto	EndISR			; ...and exit the ISR
+
+txNextByte					; If the buffer was not empty, pop the next ir_tx_Cycles off of it
+	bankisel ir_tx_Buffer
+	movf	ir_tx_Tail, w
+	addlw	ir_tx_Buffer
+	movwf	FSR				; ir_tx_Buffer[ir_tx_Tail]
+	movf	INDF, w
+	banksel	ir_tx_Cycles
+	movwf	ir_tx_Cycles
+	banksel	ir_tx_Buffer
+	incf	ir_tx_Tail, f	; Increment the buffer tail, modulo BUFFER_SIZE
+	movlw	BUFFER_SIZE-1
+	andwf	ir_tx_Tail, f
+	goto	EndISR			; ...and exit the ISR
+
 
 PERIPHERALTEST
-	pagesel EndISR
 	btfss	INTCON,PEIE	; is there a peripheral interrupt?
 	goto	EndISR		; all done....
 
@@ -133,7 +176,6 @@ TEST_PIR1
 	andwf	PIR1,w		; mask the enables with the flags
 	movwf	PIRmasked
 
-	pagesel TryADIF
 	btfss	PIRmasked,USBIF	; USB interrupt flag
 	goto	TryADIF
 	bcf	PIR1,USBIF
@@ -260,12 +302,16 @@ Main
 	movlw	TRISC_VALUE
 	movwf	TRISC
 
+	banksel	ir_tx_Buffer
+	clrf	ir_tx_Head	; Clear all the transmit/receive buffers
+	clrf	ir_tx_Tail
+	clrf	ir_rx_Head
+	clrf	ir_rx_Tail
+	movlw	IR_TX_MASK	; First transmission is a pulse
+	movwf	ir_tx_Mask
+
 	pagesel	InitUSB
 	call	InitUSB
-
-	movlw	0x88		; Pullups disabled, interrupt on falling edge of IR signal, TMR0 on instruction clock
-	banksel	OPTION_REG
-	movwf	OPTION_REG
 
 	movlw	.77			; Set UART to 19200 baud 
 	banksel	SPBRG
@@ -291,9 +337,12 @@ Main
 	banksel	T2CON
 	movwf	T2CON
 
-	banksel	INTCON
-	bsf		INTCON, T0IE ; TMR0 overflow interrupt enable
-	bsf		INTCON, INTE ; External (IR receiver) interrupt enable
+	movlw	0x88		; Pullups disabled, interrupt on falling edge of IR signal, TMR0 on instruction clock
+	banksel	OPTION_REG
+	movwf	OPTION_REG
+
+	;banksel	INTCON
+	;bsf		INTCON, INTE ; External (IR receiver) interrupt enable
 	
 
 ;******************************************************************* Main Loop
@@ -325,6 +374,41 @@ sendLoop:
 	btfss	PIR1, TXIF
 	goto	sendLoop
 	return
+
+	; Push a byte onto the transmit buffer from 'w', return without waiting.
+	; If the TMR0 interrupt is already running, we have to push the value on
+	; to the transmit ring buffer. If not, we set up the interrupt and get it
+	; started sending right away.
+IR_SendByte:
+	global	IR_SendByte
+	banksel	INTCON			; If the TMR0 interrupt is already running, we have to enqueue our value
+	btfsc	INTCON, T0IE
+	goto	enqueueTxByte
+
+	; Send the value immediately, starting the interrupt handler
+	banksel	ir_tx_Cycles	; Store this value in ir_tx_Cycles for immediate transmission
+	movwf	ir_tx_Cycles
+	clrf	TMR0			; Reset TMR0 so we don't actually start for 258 cycles
+	banksel	INTCON			; Enable the TMR0 interrupt, making sure the interrupt flag starts out clear
+	bcf		INTCON, T0IF
+	bsf		INTCON, T0IE
+	return
+
+	; Push the value into our transmit ring buffer
+enqueueTxByte
+	banksel	ir_tx_Buffer	
+	bankisel ir_tx_Buffer
+	movwf	SendTemp		; Save w while we calculate the buffer address
+	movf	ir_tx_Head, w
+	addlw	ir_tx_Buffer
+	movwf	FSR				; ir_tx_Buffer[ir_tx_Head] = SendTemp
+	movf	SendTemp, w
+	movwf	INDF
+	incf	ir_tx_Head, f	; Increment the buffer head, modulo BUFFER_SIZE
+	movlw	BUFFER_SIZE-1
+	andwf	ir_tx_Head, f
+	return
+	
 
 	end
 
