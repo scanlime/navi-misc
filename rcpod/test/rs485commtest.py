@@ -52,6 +52,10 @@ class CommTest(Dual485Test):
         self.assertEqual(destination.serialRxProgress(), len(self.data))
         self.assertEqual(destination.serialRxRead(type(self.data)), self.data)
         self.assertEqual(destination.serialRxRead(), [])
+        source.serialTx(self.data)
+        self.assertEqual(destination.serialRxProgress(), len(self.data) * 2)
+        self.assertEqual(destination.serialRxRead(type(self.data)), self.data)
+        self.assertEqual(destination.serialRxRead(), [])
 
     def __str__(self):
         return "sending from rcpod%d to rcpod%d at %d baud" % (
@@ -72,9 +76,12 @@ class CommSuite(unittest.TestSuite):
         testPackets = [[byte] for byte in testBytes]
 
         # Add a few random maximum-length packets
-        for i in xrange(4):
+        for i in xrange(5):
             testPackets.append([random.randint(0,255)
                                 for j in xrange(pyrcpod.device.RCPOD_SCRATCHPAD_SIZE)])
+
+        # Make sure zero-length packets work
+        testPackets.append([])
 
         for packet in testPackets:
             for baud in (300, 9600, 57600, 115200):
