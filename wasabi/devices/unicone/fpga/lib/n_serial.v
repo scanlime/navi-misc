@@ -139,65 +139,59 @@ endmodule
 
 
 /*
- * A receiver for N64/Gamecube formatted serial data.
+ * A bit detector for receiving N64/Gamecube formatted
+ * serial data. This detects the following types of conditions:
  *
- * A typical transmission:
- *   1. Activity is detected on the input
- *   2. rx_start is asserted for one clock cycle
- *   3. Data bytes are received. Each one is returned
- *      via rx_data, with a 1-cycle pulse on strobe.
- *   4. If inappropriate codes are received or the
- *      packet ends without a stop bit, rx_error is
- *      asserted for one clock cycle.
- *   5. If the packet is ended successfully, rx_stop
- *      is asserted.
+ * 1. Start conditions (a bit beginning on an idle line)
+ *     - rx_start goes high for one cycle
+ *
+ * 2. Stop bits (a 1 bit with no high-to-low transition)
+ *     - rx_stop goes high for one cycle
+ *
+ * 3. Error conditions (stop bits or normal bits with out-of-range timings)
+ *     - rx_error goes high for one cycle
+ *
+ * 4. Normal data bits
+ *     - rx_data holds the received bit while strobe goes high for one cycle
  */
-module n_serial_rx (clk, reset, serial_in,
-                    rx_start, rx_stop, rx_error,
-                    rx_data, strobe);
+module n_serial_bit_detector (clk, reset, serial_in,
+	                      rx_start, rx_stop, rx_error,
+                              rx_data, strobe);
+	// Rate 'clk' oscillates at, in megahertz
+	parameter CLOCK_MHZ = 25;
+
+	// Nominal bit width, in microseconds
 	parameter BIT_WIDTH_US = 5;
+
+	// Nominal bit width in clock cycles
+	parameter CLOCKS_PER_BIT = CLOCK_MHZ * BIT_WIDTH_US;
+
+	// Boundary, in the low-time of the input, between a zero and a one bit
+	parameter ZERO_ONE_BOUNDARY = CLOCKS_PER_BIT / 2;
+	
+	// Minimum and maximum periods for one bit
+	parameter MAX_BIT_WIDTH = CLOCKS_PER_BIT + CLOCKS_PER_BIT/3;
+	parameter MIN_BIT_WIDTH = CLOCKS_PER_BIT - CLOCKS_PER_BIT/3;
+
+	// Large enough to hold MAX_BIT_WIDTH
+	reg [7:0] timer;
 
 	input clk, reset;
 	input serial_in;
-	output rx_start, rx_stop, rx_error;
-	output [7:0] rx_data;
-	output strobe;
+	output rx_start, rx_stop, rx_error, rx_data, strobe;
+	reg rx_start, rx_stop, rx_error, rx_data, strobe;
 
-	reg rx_start, rx_stop, rx_error, strobe;
-	reg [7:0] rx_data;
-	reg [2:0] bit_count;
-	reg [7:0] shifter;
-	reg [3:0] qbits;
-	reg [2:0] state;
-
+	reg [1:0] state;
 	parameter
 		S_IDLE = 0,
-		S_WAIT_FOR_Q1 = 1,
-		S_WAIT_FOR_Q2 = 2,
-		S_WAIT_FOR_Q3 = 3,
-		S_WAIT_FOR_Q4 = 4,
-		S_DECODE_QBITS = 5;
-
-	/* 1/4 bit serial timebase. Every time we get a high->low transition
-	 * on the input, resynchronize to its halfway point. This keeps us
-	 * sampling in the middle of each 1/4-bit, even if our peer's data
-	 * rate is a little different.
-	 */
-	wire tick;
-	wire tick_sync_reset = 1'b0;
-	wire tick_sync_center;
-	falling_edge_detector rx_timebase_syncdet(
-		clk, reset, serial_in, tick_sync_center);
-	n_serial_timebase #(BIT_WIDTH_US) rx_timebase(
-		clk, reset, tick, tick_sync_reset, tick_sync_center);
+		S_LOW_PERIOD = 1,
+		S_HIGH_PERIOD = 2;
 
 	always @(posedge clk or posedge reset)
 		if (reset) begin
 
 			state <= S_IDLE;
-			qbits <= 4'b1111;
-			bit_count <= 0;
-			shifter <= 0;
+			timer <= 0;
 
 			rx_start <= 0;
 			rx_stop <= 0;
@@ -210,150 +204,96 @@ module n_serial_rx (clk, reset, serial_in,
 
 			S_IDLE: begin
 				// We're waiting for incoming data, our timebase is in reset.
-				// Leave when we see our serial input go low.
-				if (!serial_in) begin
-					state <= S_WAIT_FOR_Q1;
-					rx_start <= 1;
-				end
-				else begin
+				// Leave when we see our serial input go low. We only hit this
+				// state between transactions, since consecutive bits jump right from
+				// S_HIGH_PERIOD to S_LOW_PERIOD.
+				if (serial_in) begin
+					timer <= 0;
 					rx_start <= 0;
 				end
+				else begin
+					state <= S_LOW_PERIOD;
+					timer <= 1;
+					rx_start <= 1;
+				end
 				rx_stop <= 0;
 				rx_error <= 0;
 				strobe <= 0;
-				rx_data <= 0;
-				bit_count <= 0;
-				shifter <= 0;
-				qbits <= 4'b1111;
 			end
-
-			S_WAIT_FOR_Q1: begin
-				// At the next clock tick, we sample the Q1 quarter-bit.
-				if (tick) begin
-					if (serial_in) begin
-						/* Normally the Q1 bit is always zero- if it's one, we have
-						 * a special case that warps us right to S_DECODE_QBITS
-						 * with qbits==1111. This isn't strictly necessary, but
-						 * it means we need only 1/8 bit period rather than a full
-						 * bit period after the packet ends to detect the stop condition.
-						 */
-
-						state <= S_DECODE_QBITS;
-						qbits <= 4'b1111;
-					end
-					else begin
-						state <= S_WAIT_FOR_Q2;
-						qbits[3] <= serial_in;
-					end
+			
+			S_LOW_PERIOD: begin
+				// We're timing the low period of this bit
+				if (timer > MAX_BIT_WIDTH) begin
+					// Overflow, this couldn't have been a bit. Signal an error and reset.
+					state <= S_IDLE;
+					timer <= 0;
+					rx_error <= 1;
+				end
+				else if (serial_in) begin
+					// The low period just ended, evaluate it
+					rx_data <= (timer < ZERO_ONE_BOUNDARY);
+					state <= S_HIGH_PERIOD;
+					timer <= timer + 1;
+					rx_error <= 0;
+				end
+				else begin
+					// Keep timing
+					timer <= timer + 1;
+					rx_error <= 0;
 				end
 				rx_start <= 0;
 				rx_stop <= 0;
-				rx_error <= 0;
 				strobe <= 0;
 			end
 
-			S_WAIT_FOR_Q2: begin
-				// At the next clock tick, we sample the Q2 quarter-bit
-				if (tick) begin
-					state <= S_WAIT_FOR_Q3;
-					qbits[2] <= serial_in;
-				end
-				rx_start <= 0;
-				rx_stop <= 0;
-				rx_error <= 0;
-				strobe <= 0;
-			end
-
-			S_WAIT_FOR_Q3: begin
-				// At the next clock tick, we sample the Q3 quarter-bit
-				if (tick) begin
-					state <= S_WAIT_FOR_Q4;
-					qbits[1] <= serial_in;
-				end
-				rx_start <= 0;
-				rx_stop <= 0;
-				rx_error <= 0;
-				strobe <= 0;
-			end
-
-			S_WAIT_FOR_Q4: begin
-				// At the next clock tick, we sample the Q4 quarter-bit
-				if (tick) begin
-					state <= S_DECODE_QBITS;
-					qbits[0] <= serial_in;
-				end
-				rx_start <= 0;
-				rx_stop <= 0;
-				rx_error <= 0;
-				strobe <= 0;
-			end
-
-			S_DECODE_QBITS: begin
-				// We've received a full bit, decode the quarter-bits to
-				// determine what it was.
-				if (qbits == 4'b0111) begin
-					// Successfully received a '1' bit
-
-					if (bit_count == 7) begin
-						// Last bit in this byte
-						bit_count <= 0;
-						rx_data <= {shifter[6:0], 1'b1};
-						strobe <= 1;
-					end
-					else begin
-						bit_count <= bit_count + 1;
-						shifter <= {shifter[6:0], 1'b1};
-						strobe <= 0;
-					end
-					state <= S_WAIT_FOR_Q1;
-
-				end
-				else if (qbits == 4'b0001) begin
-					// Successfully received a '0' bit
-
-					if (bit_count == 7) begin
-						// Last bit in this byte
-						bit_count <= 0;
-						rx_data <= {shifter[6:0], 1'b0};
-						strobe <= 1;
-					end
-					else begin
-						bit_count <= bit_count + 1;
-						shifter <= {shifter[6:0], 1'b0};
-						strobe <= 0;
-					end
-					state <= S_WAIT_FOR_Q1;
-
-				end
-				else if (qbits == 4'b1111) begin
-					// The line is idle again. If we just got a stop bit,
-					// this is the end of a transmission
-
-					if (bit_count == 1 && shifter[0] == 1'b1) begin
-						// Yep, we have a stop bit. Signal a successful stop
-						rx_stop <= 1;
+			S_HIGH_PERIOD: begin
+				// Time the high period of this bit
+				if (timer > MAX_BIT_WIDTH) begin
+					// Overflow. It's been high too long to be a normal bit.
+					// If the low period was measured as a one, this was a stop
+					// bit. Otherwise it was just an error condition.
+					state <= S_IDLE;
+					timer <= 0;
+					strobe <= 0;
+					if (rx_data) begin
 						rx_error <= 0;
+						rx_stop <= 1;
 					end
 					else begin
-						// No stop bit, this is an error
 						rx_error <= 1;
 						rx_stop <= 0;
 					end
-					state <= S_IDLE;
-					strobe <= 0;
-
 				end
-
-				else begin
-					// Anything else is an error
-
-					rx_error <= 1;
+				else if (serial_in) begin
+					// Keep timing
+					timer <= timer + 1;
+					rx_error <= 0;
+					strobe <= 0;
 					rx_stop <= 0;
-					state <= S_IDLE;
-					strobe <= 0;
-
 				end
+				else begin
+					// The high period just ended, evaluate it
+					if (timer > MAX_BIT_WIDTH || timer < MIN_BIT_WIDTH) begin
+						// Out of range, this wasn't a valid bit
+						state <= S_IDLE;
+						timer <= 0;
+						rx_error <= 1;
+						strobe <= 0;
+						rx_stop <= 0;
+					end
+					else begin
+						// Looks like that was a successful bit. Strobe it
+						// and get on with timing the next bit's low period.
+						state <= S_LOW_PERIOD;
+						timer <= 1;
+						rx_error <= 0;
+						strobe <= 1;
+						rx_stop <= 0;
+					end
+				end
+				rx_start <= 0;
 			end
+
 		endcase
 endmodule
 
