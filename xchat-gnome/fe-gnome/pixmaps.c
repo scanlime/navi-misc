@@ -43,6 +43,8 @@ GdkPixbuf *pix_prefs_plugins;
 void
 pixmaps_init (void)
 {
+	GdkPixbuf *p;
+
 	pix_purple = gdk_pixbuf_new_from_file(XCHATSHAREDIR"/purple.png", 0);
 	if (!pix_purple)
 		pix_purple = gdk_pixbuf_new_from_inline(-1, purplepng, FALSE, 0);
@@ -63,28 +65,35 @@ pixmaps_init (void)
 	if (!pix_voice)
 		pix_voice = gdk_pixbuf_new_from_inline(-1, voicepng, FALSE, 0);
 
-	pix_newdata = gdk_pixbuf_scale_simple(
-				gdk_pixbuf_new_from_file("data/newdata.png", 0),
-				16, 16, GDK_INTERP_BILINEAR);
-	pix_nicksaid = gdk_pixbuf_scale_simple(
-				gdk_pixbuf_new_from_file("data/nicksaid.png", 0),
-				16, 16, GDK_INTERP_BILINEAR);
-	pix_msgsaid = gdk_pixbuf_scale_simple(gdk_pixbuf_new_from_file("data/global-message.png", 0),
-				16, 16, GDK_INTERP_BILINEAR);
+	p = gdk_pixbuf_new_from_file("data/newdata.png", 0);
+	pix_newdata = gdk_pixbuf_scale_simple(p, 16, 16, GDK_INTERP_BILINEAR);
+	gdk_pixbuf_unref(p);
 
-	pix_prefs_irc = gdk_pixbuf_scale_simple(
-				gdk_pixbuf_new_from_file("data/irc.png", NULL),
-				16, 16, GDK_INTERP_BILINEAR);
-	pix_prefs_colors = gdk_pixbuf_scale_simple(
-				gdk_pixbuf_new_from_file("data/color.png", NULL),
-				16, 16, GDK_INTERP_BILINEAR);
-	pix_prefs_dcc = gdk_pixbuf_scale_simple(
-				gdk_pixbuf_new_from_file("data/dcc.png", NULL),
-				16, 16, GDK_INTERP_BILINEAR);
-	pix_prefs_networks = gdk_pixbuf_scale_simple(
-				gdk_pixbuf_new_from_file("data/servers.png", NULL),
-				16, 16, GDK_INTERP_BILINEAR);
-	pix_prefs_plugins = gdk_pixbuf_scale_simple(
-				gdk_pixbuf_new_from_file("data/plugin-manager.png", NULL),
-				16, 16, GDK_INTERP_BILINEAR);
+	p = gdk_pixbuf_new_from_file("data/nicksaid.png", 0);
+	pix_nicksaid = gdk_pixbuf_scale_simple(p, 16, 16, GDK_INTERP_BILINEAR);
+	gdk_pixbuf_unref(p);
+
+	p = gdk_pixbuf_new_from_file("data/global-message.png", 0);
+	pix_msgsaid = gdk_pixbuf_scale_simple(p, 16, 16, GDK_INTERP_BILINEAR);
+	gdk_pixbuf_unref(p);
+
+	p = gdk_pixbuf_new_from_file("data/irc.png", NULL);
+	pix_prefs_irc = gdk_pixbuf_scale_simple(p, 16, 16, GDK_INTERP_BILINEAR);
+	gdk_pixbuf_unref(p);
+
+	p = gdk_pixbuf_new_from_file("data/color.png", NULL);
+	pix_prefs_colors = gdk_pixbuf_scale_simple(p, 16, 16, GDK_INTERP_BILINEAR);
+	gdk_pixbuf_unref(p);
+
+	p = gdk_pixbuf_new_from_file("data/dcc.png", NULL);
+	pix_prefs_dcc = gdk_pixbuf_scale_simple(p, 16, 16, GDK_INTERP_BILINEAR);
+	gdk_pixbuf_unref(p);
+
+	p = gdk_pixbuf_new_from_file("data/servers.png", NULL);
+	pix_prefs_networks = gdk_pixbuf_scale_simple(p, 16, 16, GDK_INTERP_BILINEAR);
+	gdk_pixbuf_unref(p);
+
+	p = gdk_pixbuf_new_from_file("data/plugin-manager.png", NULL);
+	pix_prefs_plugins = gdk_pixbuf_scale_simple(p, 16, 16, GDK_INTERP_BILINEAR);
+	gdk_pixbuf_unref(p);
 }
