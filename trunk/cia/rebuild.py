@@ -9,12 +9,13 @@
 # to the new code.
 #
 
-import xmlrpclib
-from LibCIA.Security import CapabilityDB
+from LibCIA import Client
 
-cap = CapabilityDB("data/security.db").get('rebuild')
-s = xmlrpclib.ServerProxy("http://localhost:3910")
+class Rebuilder(Client.App):
+    def rebuild(self):
+        self.server.sys.rebuild(self.key)
 
-s.sys.rebuild(cap)
+if __name__ == '__main__':
+    Rebuilder().rebuild()
 
 ### The End ###
