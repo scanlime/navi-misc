@@ -553,6 +553,30 @@ class FileManager:
     def getStorageDetails(self):
         return self.protocol.sendRequest(Request.GetStorageDetails())
 
+    def listPlaylists(self):
+        """Return a sequence of playlist names"""
+        return [f.details['title'] for f in self.cache.findFiles(type='playlist')]
+
+    def getPlaylistFiles(self, name):
+        """Return the contents of a playlist as a list of File instances, given its name.
+           If the playlist doesn't exist, this returns None.
+           """
+        playlist = self.cache.findFiles(type='playlist', title=name)
+        if not playlist:
+            return None
+        results = []
+        for details in playlist[0].details['playlist']:
+            results.extend(self.cache.findFiles(**details))
+        return results
+
+    def setPlaylistFiles(self, name, files):
+        """Set the contents of a playlist from a list of File instances, given its name.
+           If the playlist doesn't exist yet it is created. If the list of files
+           is empty, the playlist is deleted. This requires a write lock, and returns
+           a Deferred indicating completion.
+           """
+        raise NotImplementedError
+
 
 class File:
     """A File represents one media or data file corresponding to an entry in
