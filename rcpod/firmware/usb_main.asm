@@ -90,7 +90,7 @@ STARTUP	code
 InterruptServiceVector
 	movwf	W_save		; save W
 	movf	STATUS,W
-	clrf	STATUS		; force to page 0
+	banksel	Status_save
 	movwf	Status_save	; save STATUS
 	movf	PCLATH,w
 	movwf	PCLATH_save	; save PCLATH
@@ -118,12 +118,12 @@ TEST_PIR1
 
 testSerialInterrupt
 
-	movf	rx_remaining, w ; Are there any bytes left to receive?
-	btfsc	STATUS, Z
-	goto	testUsbInterrupt
-
 	btfss	PIRmasked, RCIF	; Is there a byte available?
 	goto	testUsbInterrupt
+
+	movf	rx_remaining, w ; Are there any bytes left to receive?
+	btfsc	STATUS, Z
+	goto	ignoreSerialInterrupt
 
 	movf	rx_fsr, w		; Yay, load up IRP:FSR to point to the next buffer location
 	movwf	FSR
@@ -138,6 +138,12 @@ testSerialInterrupt
 	incf	rx_fsr, f
 	incf	rx_count, f
 	decf	rx_remaining, f
+	goto	testUsbInterrupt
+
+ignoreSerialInterrupt		; We have new serial data, but we aren't in the middle of a receive.
+							; Grab it and do nothing with it, to clear the receive interrupt flag.
+	banksel	RCREG
+	movf	RCREG, w
 
 testUsbInterrupt
 
@@ -165,7 +171,7 @@ testUsbInterrupt
 CheckFinishSetAddr
 	banksel UIR
 	bcf	UIR, TOK_DNE	; clear Token Done
-	bcf	STATUS,RP0	; bank 2
+	banksel	USB_dev_req
 	movf	USB_dev_req,w	; yes: Are we waiting for the In transaction ack-ing the end of the set address?
 	xorlw	SET_ADDRESS
 	btfss	STATUS,Z
@@ -179,7 +185,7 @@ CheckFinishSetAddr
 ; End ISR, restore context and return to the Main program
 ; ******************************************************************
 EndISR
-	clrf	STATUS		; select bank 0
+	banksel	FSR_save
 	movf	FSR_save,w	; restore the FSR
 	movwf	FSR
 	movf	PCLATH_save,w	; restore PCLATH
