@@ -5,6 +5,11 @@ directories on DVD, with MD5 catalogs stored both on DVD and
 on navi itself.
 This uses growisofs, and assumes your burner is at /dev/dvd.
 
+Files and/or directories that shouldn't be backed up can
+be marked with a CVS-like '.backup-ignore' file. This file
+gives regexes, one per line, that match directories or files
+not to back up.
+
  Usages:
 
   * navi-backup store <paths>
@@ -320,6 +325,29 @@ class CatalogWriter:
         f.write(line + "\n")
 
 
+class IgnoreFile:
+    """Abstraction for a file full of regex to filter
+       out files or directories from our backup.
+       """
+    def __init__(self, root):
+        self.regexes = []
+        path = os.path.join(root, ".backup-ignore")
+        if os.path.isfile(path):
+            for line in open(path):
+                line = line.strip()
+                if line:
+                    self.regexes.append(re.compile(line))
+
+    def filter(self, list):
+        deletions = []
+        for item in list:
+            for regex in self.regexes:
+                if regex.match(item):
+                    deletions.append(item)
+        for item in deletions:
+            list.remove(item)
+
+
 def flattenBackupPaths(paths):
     """From a list of paths, generates a list of full filenames in sorted order.
        Since this should always crawl a list of files in the same way we
@@ -331,13 +359,16 @@ def flattenBackupPaths(paths):
             yield path
         else:
             for root, dirs, files in os.walk(path):
-                # Recursively ignore directories with ".navi-backup-skip" files in them
-                if ".navi-backup-skip" in files:
-                    del files[:]
-                    del dirs[:]
+                # Process an ignore file if we have one
+                ignore = IgnoreFile(root)
+                ignore.filter(dirs)
+                ignore.filter(files)
 
+                # Directories and files are always in asciibetical order
                 dirs.sort()
                 files.sort()
+
+                # Generate full paths
                 for name in files:
                     fullPath = os.path.join(root, name)
                     if os.path.isfile(fullPath):
@@ -518,8 +549,12 @@ def cmd_pending(paths):
             index.fileStatus(path)
             totalSize += os.stat(path).st_size
             totalCount += 1
-    print "%d files pending backup, totalling %.1f MB" % (
-        totalCount, totalSize / (1024.0**2))
+
+    if totalCount:
+        sys.stderr.write("%d files pending backup, totalling %.1f MB\n" % (
+            totalCount, totalSize / (1024.0**2)))
+    else:
+        sys.stderr.write("No files pending backup\n")
 
 
 def cmd_md5(paths, filesPerCommand=8):
