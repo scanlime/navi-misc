@@ -498,37 +498,71 @@ static void on_anim_new(GtkWidget *widget, gpointer user_data) {
     explorer_update_animation_length(self);
 }
 
-static void on_anim_open(GtkWidget *widget, gpointer user_data) {
-    Explorer *self = EXPLORER(user_data);
+static void on_anim_open (GtkWidget *widget, gpointer user_data) {
+    Explorer *self = EXPLORER (user_data);
     GtkWidget *dialog;
 
-    dialog = gtk_file_selection_new("Open Animation Keyframes");
+#if (GTK_CHECK_VERSION(2, 4, 0))
+    dialog = gtk_file_chooser_dialog_new ("Open Animation Keyframes",
+					  GTK_WINDOW (glade_xml_get_widget (self->xml, "animation_window")),
+					  GTK_FILE_CHOOSER_ACTION_OPEN,
+					  GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+					  GTK_STOCK_OK, GTK_RESPONSE_OK,
+					  NULL);
 
-    if(gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_OK) {
-	const gchar *filename;
-	filename = gtk_file_selection_get_filename(GTK_FILE_SELECTION(dialog));
-	animation_load_file(self->animation, filename);
-	explorer_update_animation_length(self);
+    if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_OK) {
+	gchar *filename;
+	filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
+	animation_load_file (self->animation, filename);
+	explorer_update_animation_length (self);
+	g_free (filename);
     }
-    gtk_widget_destroy(dialog);
+#else
+    dialog = gtk_file_selection_new ("Open Animation Keyframes");
+
+    if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_OK) {
+	const gchar *filename;
+	filename = gtk_file_selection_get_filename (GTK_FILE_SELECTION(dialog));
+	animation_load_file (self->animation, filename);
+	explorer_update_animation_length (self);
+    }
+#endif
+    gtk_widget_destroy (dialog);
 }
 
 static void on_anim_save(GtkWidget *widget, gpointer user_data) {
     on_anim_save_as(widget, user_data);
 }
 
-static void on_anim_save_as(GtkWidget *widget, gpointer user_data) {
-    Explorer *self = EXPLORER(user_data);
+static void on_anim_save_as (GtkWidget *widget, gpointer user_data) {
+    Explorer *self = EXPLORER (user_data);
     GtkWidget *dialog;
 
-    dialog = gtk_file_selection_new("Save Animation Keyframes");
-    gtk_file_selection_set_filename(GTK_FILE_SELECTION(dialog), "animation.fa");
+#if (GTK_CHECK_VERSION(2, 4, 0))
+    dialog = gtk_file_chooser_dialog_new ("Save Animation Keyframes",
+		                          GTK_WINDOW (glade_xml_get_widget (self->xml, "animation_window")),
+					  GTK_FILE_CHOOSER_ACTION_SAVE,
+					  GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+					  GTK_STOCK_OK, GTK_RESPONSE_OK,
+					  NULL);
+    gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (dialog), "animation.fa");
 
-    if(gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_OK) {
-	const gchar *filename;
-	filename = gtk_file_selection_get_filename(GTK_FILE_SELECTION(dialog));
-	animation_save_file(self->animation, filename);
+    if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_OK) {
+        gchar *filename;
+	filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
+	animation_save_file (self->animation, filename);
+	g_free (filename);
     }
+#else
+    dialog = gtk_file_selection_new ("Save Animation Keyframes");
+    gtk_file_selection_set_filename (GTK_FILE_SELECTION (dialog), "animation.fa");
+
+    if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_OK) {
+	const gchar *filename;
+	filename = gtk_file_selection_get_filename (GTK_FILE_SELECTION (dialog));
+	animation_save_file (self->animation, filename);
+    }
+#endif
     gtk_widget_destroy(dialog);
 }
 
