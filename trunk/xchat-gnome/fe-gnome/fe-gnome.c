@@ -67,7 +67,6 @@ void fe_add_rawlog(struct server *serv, char *text, int len, int outbound) {
 }
 
 void fe_message(char *msg, int wait) {
-	g_print("fe_message()\n");
 	/* FIXME: implement */
 }
 
@@ -103,7 +102,7 @@ void fe_set_topic(struct session *sess, char *topic) {
 }
 
 void fe_set_hilight(struct session *sess) {
-	/* FIXME: implement */
+	navigation_tree_set_hilight(sess);
 }
 
 void fe_set_tab_color(struct session *sess, int col, int flash) {
@@ -171,7 +170,8 @@ void fe_progressbar_end(struct server *serv) {
 void fe_print_text(struct session *sess, char *text) {
 	session_gui *tgui = sess->gui;
 	text_gui_print(tgui->buffer, text, TRUE);
-	/* FIXME: implement */
+	sess->new_data = TRUE;
+	navigation_tree_set_hilight(sess);
 }
 
 void fe_userlist_insert(struct session *sess, struct User *newuser, int row, int sel) {
