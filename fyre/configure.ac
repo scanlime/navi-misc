@@ -3,7 +3,7 @@ dnl Process this file with autoconf to create configure.
 dnl ################################################################
 dnl # Initialize autoconf
 dnl ################################################################
-AC_INIT(fyre, 0.8, trowbrds@cs.colorado.edu)
+AC_INIT(fyre, 0.9svn, trowbrds@cs.colorado.edu)
 AC_PREREQ(2.50)
 AC_CONFIG_SRCDIR(config.h.in)
 AC_COPYRIGHT([Copyright 2004-2005 David Trowbridge and Micah Dowty])
@@ -11,7 +11,7 @@ AC_COPYRIGHT([Copyright 2004-2005 David Trowbridge and Micah Dowty])
 dnl ################################################################
 dnl # Initialize automake
 dnl ################################################################
-VERSION=0.8
+VERSION=0.9svn
 PACKAGE=fyre
 AM_INIT_AUTOMAKE($PACKAGE, $VERSION)
 
@@ -56,22 +56,32 @@ AC_CHECK_FUNC(getopt_long, have_getopt=yes)
 AM_CONDITIONAL([HAVE_GETOPT], [test "x$have_getopt" = "xyes"])
 
 # Check for OpenEXR- we support saving OpenEXR files if the library is available
-PKG_CHECK_MODULES(EXR, OpenEXR, have_exr=yes, have_exr=no)
-AC_SUBST(EXR_CFLAGS)
-AC_SUBST(EXR_LIBS)
-if test "x$have_exr" = "xyes"; then
-	AC_DEFINE(HAVE_EXR, 1,[compile in OpenEXR support])
+AC_ARG_ENABLE(openexr, [  --disable-openexr       build without OpenEXR support])
+if test x$enable_openexr != xno; then
+	PKG_CHECK_MODULES(EXR, OpenEXR, have_exr=yes, have_exr=no)
+	AC_SUBST(EXR_CFLAGS)
+	AC_SUBST(EXR_LIBS)
+	if test "x$have_exr" = "xyes"; then
+		AC_DEFINE(HAVE_EXR, 1,[compile in OpenEXR support])
+	fi
+	AM_CONDITIONAL([HAVE_EXR], [test "x$have_exr" = "xyes"])
+else
+	AM_CONDITIONAL([HAVE_EXR], false)
 fi
-AM_CONDITIONAL([HAVE_EXR], [test "x$have_exr" = "xyes"])
 
 # Check for gnet, required for cluster and remote control support
-PKG_CHECK_MODULES(GNET, gnet-2.0, have_gnet=yes, have_gnet=no)
-AC_SUBST(GNET_CFLAGS)
-AC_SUBST(GNET_LIBS)
-if test "x$have_gnet" = "xyes"; then
-	AC_DEFINE(HAVE_GNET, 1,[compile in gnet support])
+AC_ARG_ENABLE(gnet, [  --disable-gnet          build without clustering/remote control])
+if test x$enable_gnet != xno; then
+	PKG_CHECK_MODULES(GNET, gnet-2.0, have_gnet=yes, have_gnet=no)
+	AC_SUBST(GNET_CFLAGS)
+	AC_SUBST(GNET_LIBS)
+	if test "x$have_gnet" = "xyes"; then
+		AC_DEFINE(HAVE_GNET, 1,[compile in gnet support])
+	fi
+	AM_CONDITIONAL([HAVE_GNET], [test "x$have_gnet" = "xyes"])
+else
+	AM_CONDITIONAL([HAVE_GNET], false)
 fi
-AM_CONDITIONAL([HAVE_GNET], [test "x$have_gnet" = "xyes"])
 
 dnl # Use wall if we have GCC
 dnl # Also disable glibc versions of functions that have faster versions
@@ -112,10 +122,10 @@ echo $PACKAGE v$VERSION
 echo
 
 if test "x$have_exr" != "xyes"; then
-   echo "OpenEXR missing, not including support for OpenEXR files"
+   echo "Not including support for OpenEXR files"
 fi
 if test "x$have_gnet" != "xyes"; then
-   echo "gnet missing, not including clustering or remote control support"
+   echo "Not including clustering or remote control support"
 fi
 
 echo
