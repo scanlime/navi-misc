@@ -187,6 +187,30 @@ class RandomAcronymNickAllocator(NickAllocator):
             yield "".join([random.choice(self.alphabet) for i in xrange(self.length)])
 
 
+class UnknownMessage:
+    """An entry in the UnknownMessageLog"""
+    def __init__(self, bot, prefix, command, params):
+        self.bot = bot
+        self.prefix = prefix
+        self.command = command
+        self.params = params
+        self.timestamp = time.time()
+
+
+class UnknownMessageLog:
+    """Temporarily logs unknown IRC messages, possibly errors, received by the bots"""
+    numMessages = 20
+
+    def __init__(self):
+        self.buffer = []
+
+    def log(self, unknownMessage):
+        self.buffer = self.buffer[-self.numMessages:] + [unknownMessage]
+        log.msg("%r received unknown IRC command %s: %r" % (unknownMessage.bot,
+                                                            unknownMessage.command,
+                                                            unknownMessage.params))
+
+
 class BotNetwork:
     """A collection of IRC bots that work to satisfy a collection of Request objects.
        Users should interact with the BotNetwork via Request instances.
@@ -215,6 +239,7 @@ class BotNetwork:
     def __init__(self, nickAllocator):
         self.nickAllocator = nickAllocator
         self.requests = []
+        self.unknownMessageLog = UnknownMessageLog()
 
         # A map from Server to list of Bots
         self.servers = {}
@@ -731,11 +756,11 @@ class Bot(irc.IRCClient):
            """
         pass
 
-    def irc_unknown(self, *args):
+    def irc_unknown(self, prefix, command, params):
         """Log unknown commands, making debugging easier. This also lets
            us see responses in the log for commands sent via debug_tool.
            """
-        log.msg("%r received unknown IRC command %r" % (self, args))
+        self.factory.botNet.unknownMessageLog.log(UnknownMessage(self, prefix, command, params))
 
     def topicUpdated(self, user, channel, newTopic):
         self.channels[channel].topic = newTopic
