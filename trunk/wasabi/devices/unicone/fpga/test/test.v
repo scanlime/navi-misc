@@ -32,7 +32,7 @@ endmodule
 // A state machine implementing a simple I2C slave, that responds
 // to one address and stores writes to a 16-bit register.
 module i2c_slave (clk, scl, sda, out);
-	parameter I2C_ADDRESS = 7'h42; 
+	parameter I2C_ADDRESS = 7'h21; 
 
 	input clk;
 	input scl;
@@ -67,7 +67,7 @@ module i2c_slave (clk, scl, sda, out);
 				state <= S_STARTED;
 			else if (wr) begin
 				// Is this our address?
-				if (write_data == I2C_ADDRESS)
+				if (write_data[7:1] == I2C_ADDRESS)
 					state <= S_ADDRESSED;
 				else
 					state <= S_IDLE;
@@ -137,10 +137,20 @@ module i2c_slave_serializer (clk, scl, sda, start, stop, write_data, wr);
 		S_WAIT_FOR_SCL_LOW = 1,
 		S_WAIT_FOR_SCL_HIGH = 2;
 	
+	// 2-stage sync'ed SCL and SDA inputs
+	reg scl_sync, scl_sync1;
+	reg sda_sync, sda_sync1;
+	always @(posedge clk) begin
+		scl_sync1 <= scl;
+		scl_sync <= scl_sync1;
+		sda_sync1 <= sda;
+		sda_sync <= sda_sync1;
+	end
+	
 	// SDA edge detection
 	reg prev_sda;
 	always @(posedge clk)
-		prev_sda <= sda;
+		prev_sda <= sda_sync;
 	
 	always @(posedge clk) case (state)
 
@@ -152,7 +162,7 @@ module i2c_slave_serializer (clk, scl, sda, start, stop, write_data, wr);
 			stop <= 0;
 			bit_count <= 0;
 
-			if ((!sda) && prev_sda) begin
+			if ((!sda_sync) && prev_sda) begin
 				// A start condition. Note it and wait for SCL to go low
 				state <= S_WAIT_FOR_SCL_LOW;
 				start <= 1;
@@ -170,12 +180,18 @@ module i2c_slave_serializer (clk, scl, sda, start, stop, write_data, wr);
 			wr <= 0;
 			start <= 0;
 			
-			if (!scl) begin
+			if (!scl_sync) begin
 				// Another data bit
 				state <= S_WAIT_FOR_SCL_HIGH;
-				stop <= 0;	
+				stop <= 0;
+				
+				// If the next bit is the ACK, go ahead
+				// and pull SDA low now, to ensure our ACK
+				// bit is valid once SCL goes back high.
+				if (bit_count == 8)
+					sda_out <= 0;	
 			end
-			else if (sda && (!prev_sda)) begin
+			else if (sda_sync && (!prev_sda)) begin
 				// Stop condition
 				stop <= 1;
 				state <= S_WAIT_FOR_START;
@@ -186,10 +202,11 @@ module i2c_slave_serializer (clk, scl, sda, start, stop, write_data, wr);
 			// SCL is low. When it goes high, another data bit will have been
 			// clocked in. If it's a normal bit, store it- if it's an ACK,
 			// pull SDA low.
-			if (scl) begin
+			if (scl_sync) begin
 				// Is this an ACK bit (bit 8) or a normal bit?
 				if (bit_count == 8) begin
-					// ACK byte. Strobe the data byte we just received.
+					// ACK bit. Strobe the data byte we just received,
+					// and keep pulling SDA low.
 					bit_count <= 0;
 					sda_out <= 0;
 					wr <= 1;
@@ -201,7 +218,7 @@ module i2c_slave_serializer (clk, scl, sda, start, stop, write_data, wr);
 					wr <= 0;
 					
 					// Sample a bit from SDA into our big shift register
-					write_data <= { write_data[6:0], sda };
+					write_data <= { write_data[6:0], sda_sync };
 				end
 				state <= S_WAIT_FOR_SCL_LOW;
 			end

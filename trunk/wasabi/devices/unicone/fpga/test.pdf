@@ -10,7 +10,7 @@ top_level=VHDL
 HDL netlist format=Auto
 generics=MAX
 sim_mode=FUNC
-lib_order=155 155 155 155 155 155 133 155
+lib_order=155 155 155 155 155 155 155 155 155 155 155 155 155 133 155
 [libraries]
 133=c:\fndtn\active\syslib\simprims
 155=c:\fndtn\active\syslib\xc4000x
@@ -20,6 +20,7 @@ lid=0
 format=19
 source=c:\unicone\fpga\test\test.v
 server_hwnd=655922
+
 
 
 
@@ -73,7 +74,7 @@ test.v=21
 [hdl_sheets]
 test.v= 
 [OpenDoc]
-hde/test=5111998,1,154,154,1114,883,test.v
+hde/test=983338,1,154,154,1114,883,test.v
 [OPEN32]
 nMaxFile=10000
 lpstrFile=
@@ -119,9 +120,7 @@ xact9=On
 part=4010XLPC84-09
 xilinx=4010XLPC84-09
 [timings]
-test=
 [designs]
-foo=
 [implement_XIE]
 version=ver1
 revision=rev1
