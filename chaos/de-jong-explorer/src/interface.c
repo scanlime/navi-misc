@@ -46,6 +46,7 @@ static void update_gui();
 static void update_drawing_area();
 static int interactive_idle_handler(gpointer user_data);
 static float generate_random_param();
+static void read_gui_params();
 
 gboolean on_expose(GtkWidget *widget, GdkEventExpose *event, gpointer user_data);
 gboolean on_window_delete(GtkWidget *widget, GdkEvent *event, gpointer user_data);
@@ -197,23 +198,30 @@ gboolean on_window_delete(GtkWidget *widget, GdkEvent *event, gpointer user_data
   gtk_main_quit();
 }
 
-void on_start_clicked(GtkWidget *widget, gpointer user_data) {
-  clear();
+static void read_gui_params() {
+  params.a = gtk_spin_button_get_value(GTK_SPIN_BUTTON(glade_xml_get_widget(gui.xml, "param_a")));
+  params.b = gtk_spin_button_get_value(GTK_SPIN_BUTTON(glade_xml_get_widget(gui.xml, "param_b")));
+  params.c = gtk_spin_button_get_value(GTK_SPIN_BUTTON(glade_xml_get_widget(gui.xml, "param_c")));
+  params.d = gtk_spin_button_get_value(GTK_SPIN_BUTTON(glade_xml_get_widget(gui.xml, "param_d")));
+  params.zoom = gtk_spin_button_get_value(GTK_SPIN_BUTTON(glade_xml_get_widget(gui.xml, "param_zoom")));
+  params.xoffset = gtk_spin_button_get_value(GTK_SPIN_BUTTON(glade_xml_get_widget(gui.xml, "param_xoffset")));
+  params.yoffset = gtk_spin_button_get_value(GTK_SPIN_BUTTON(glade_xml_get_widget(gui.xml, "param_yoffset")));
+  params.rotation = gtk_spin_button_get_value(GTK_SPIN_BUTTON(glade_xml_get_widget(gui.xml, "param_rotation")));
+  params.blur_radius = gtk_spin_button_get_value(GTK_SPIN_BUTTON(glade_xml_get_widget(gui.xml, "param_blur_radius")));
+  params.blur_ratio = gtk_spin_button_get_value(GTK_SPIN_BUTTON(glade_xml_get_widget(gui.xml, "param_blur_ratio")));
+  render.exposure = gtk_spin_button_get_value(GTK_SPIN_BUTTON(glade_xml_get_widget(gui.xml, "param_exposure")));
+  render.gamma = gtk_spin_button_get_value(GTK_SPIN_BUTTON(glade_xml_get_widget(gui.xml, "param_gamma")));
+  color_button_get_color(COLOR_BUTTON(glade_xml_get_widget(gui.xml, "param_fgcolor")), &render.fgcolor);
+  color_button_get_color(COLOR_BUTTON(glade_xml_get_widget(gui.xml, "param_bgcolor")), &render.bgcolor);
+}
 
+void on_start_clicked(GtkWidget *widget, gpointer user_data) {
   /*
   gtk_widget_set_sensitive(gui.stop, TRUE);
   gtk_widget_set_sensitive(gui.start, FALSE);
-  params.a = gtk_spin_button_get_value(GTK_SPIN_BUTTON(gui.a));
-  params.b = gtk_spin_button_get_value(GTK_SPIN_BUTTON(gui.b));
-  params.c = gtk_spin_button_get_value(GTK_SPIN_BUTTON(gui.c));
-  params.d = gtk_spin_button_get_value(GTK_SPIN_BUTTON(gui.d));
-  params.zoom = gtk_spin_button_get_value(GTK_SPIN_BUTTON(gui.zoom));
-  params.xoffset = gtk_spin_button_get_value(GTK_SPIN_BUTTON(gui.xoffset));
-  params.yoffset = gtk_spin_button_get_value(GTK_SPIN_BUTTON(gui.yoffset));
-  params.rotation = gtk_spin_button_get_value(GTK_SPIN_BUTTON(gui.rotation));
-  params.blur_radius = gtk_spin_button_get_value(GTK_SPIN_BUTTON(gui.blur_radius));
-  params.blur_ratio = gtk_spin_button_get_value(GTK_SPIN_BUTTON(gui.blur_ratio));
   */
+  clear();
+  read_gui_params();
   gui.idler = g_idle_add(interactive_idle_handler, NULL);
 }
 
@@ -231,10 +239,7 @@ void on_param_spinner_changed(GtkWidget *widget, gpointer user_data) {
 }
 
 void on_render_spinner_changed(GtkWidget *widget, gpointer user_data) {
-  /*
-  render.exposure = gtk_spin_button_get_value(GTK_SPIN_BUTTON(gui.exposure));
-  render.gamma = gtk_spin_button_get_value(GTK_SPIN_BUTTON(gui.gamma));
-  */
+  read_gui_params();
   render.dirty_flag = TRUE;
 }
 
@@ -245,10 +250,7 @@ void on_color_changed(GtkWidget *widget, gpointer user_data) {
    * makes color picking run much more smoothly.
    */
 
-  /*
-  color_button_get_color(COLOR_BUTTON(gui.fgcolor), &render.fgcolor);
-  color_button_get_color(COLOR_BUTTON(gui.bgcolor), &render.bgcolor);
-  */
+  read_gui_params();
   render.dirty_flag = TRUE;
 
   gtk_main_iteration();
@@ -273,8 +275,10 @@ void on_random_clicked(GtkWidget *widget, gpointer user_data) {
 
 GtkWidget *custom_color_button_new(gchar *widget_name, gchar *string1,
 				   gchar *string2, gint int1, gint int2) {
-  GdkColor foo;
-  return color_button_new("Boing", &foo);
+  GtkWidget *w;
+  w = color_button_new(string1, int1 ? &render.fgcolor : &render.bgcolor);
+  gtk_widget_show_all(w);
+  return w;
 }
 
 /* File picker for GTK 2.3 and above */
