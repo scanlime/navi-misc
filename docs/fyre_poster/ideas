@@ -16,3 +16,6 @@ As for images, we ought to have:
   rendered with histogram & plotting half-dark points
 
 * something pointing out the 4d-color luminance niftiness
+
+* comparison of a bunch of images pointing out the differences that HDR
+  interpolation can make - accentuate different features in the image
