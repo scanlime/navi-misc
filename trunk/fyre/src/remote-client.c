@@ -106,21 +106,27 @@ static void remote_client_dispose(GObject *gobject)
 	self->response_queue = NULL;
     }
 
-    if (self->status_timer) {
-	g_timer_destroy(self->status_timer);
-	self->status_timer = NULL;
+    if (self->status_speed_timer) {
+	g_timer_destroy(self->status_speed_timer);
+	self->status_speed_timer = NULL;
     }
-    if (self->stream_timer) {
-	g_timer_destroy(self->stream_timer);
-	self->stream_timer = NULL;
+    if (self->stream_speed_timer) {
+	g_timer_destroy(self->stream_speed_timer);
+	self->stream_speed_timer = NULL;
+    }
+    if (self->stream_request_timer) {
+	g_timer_destroy(self->stream_request_timer);
+	self->stream_request_timer = NULL;
     }
 }
 
 static void remote_client_init(RemoteClient *self)
 {
     self->response_queue = g_queue_new();
-    self->status_timer = g_timer_new();
-    self->stream_timer = g_timer_new();
+    self->status_speed_timer = g_timer_new();
+    self->stream_speed_timer = g_timer_new();
+    self->stream_request_timer = g_timer_new();
+    self->min_stream_interval = 1.0;
 }
 
 RemoteClient*  remote_client_new              (const gchar*          hostname,
@@ -395,7 +401,7 @@ static void    histogram_merge_callback       (RemoteClient*     self,
     double elapsed;
 
     self->pending_stream_requests--;
-    
+
     if (self->pending_param_changes) {
 	/* This data is for an old parameter set, ignore it.
 	 * FIXME: This doesn't distinguish between parameters that
@@ -411,9 +417,9 @@ static void    histogram_merge_callback       (RemoteClient*     self,
 
     /* Update our download speed */
     self->byte_accumulator += response->data_length;
-    elapsed = g_timer_elapsed(self->stream_timer, NULL);
+    elapsed = g_timer_elapsed(self->stream_speed_timer, NULL);
     if (elapsed > MINIMUM_SPEED_WINDOW) {
-	g_timer_start(self->stream_timer);
+	g_timer_start(self->stream_speed_timer);
 	self->bytes_per_sec = self->byte_accumulator / elapsed;
 	self->byte_accumulator = 0;
     }
@@ -453,9 +459,9 @@ static void    status_merge_callback          (RemoteClient*     self,
 
     /* Update our iteration speed */
     self->iter_accumulator += iter_delta;
-    elapsed = g_timer_elapsed(self->status_timer, NULL);
+    elapsed = g_timer_elapsed(self->status_speed_timer, NULL);
     if (elapsed > MINIMUM_SPEED_WINDOW) {
-	g_timer_start(self->status_timer);
+	g_timer_start(self->status_speed_timer);
 	self->iters_per_sec = self->iter_accumulator / elapsed;
 	self->iter_accumulator = 0;
 	if (self->speed_callback)
@@ -467,12 +473,21 @@ static void    status_merge_callback          (RemoteClient*     self,
 void           remote_client_merge_results    (RemoteClient*     self,
 					       IterativeMap*     dest)
 {
+    double elapsed;
+
     /* Don't let our stream requests get too backed up */
     if (self->pending_stream_requests >= 4)
 	return;
 
+    /* Always keep the status updated */
     remote_client_command(self, status_merge_callback, dest,
 			  "calc_status");
+
+    /* Have we waited long enough since the last request? */
+    elapsed = g_timer_elapsed(self->stream_request_timer, NULL);
+    if (elapsed < self->min_stream_interval)
+	return;
+    g_timer_start(self->stream_request_timer);
 
     self->pending_stream_requests++;
     remote_client_command(self, histogram_merge_callback, dest,

@@ -50,6 +50,10 @@ struct _RemoteServerConn {
     /* State we maintain on behalf of the client */
     IterativeMap*        map;
     ParameterHolderPair  frame;
+
+    /* Temporary buffer for sending back histogram streams */
+    guchar*              buffer;
+    gsize                buffer_size;
 };
 
 typedef void      (*RemoteServerCallback)     (RemoteServerConn*     self,
@@ -149,6 +153,10 @@ static void       remote_server_disconnect    (RemoteServerConn*     self)
     gnet_conn_delete(self->gconn);
     iterative_map_stop_calculation(self->map);
     g_object_unref(self->map);
+
+    if (self->buffer)
+	g_free(self->buffer);
+
     g_free(self);
 }
 
@@ -260,12 +268,27 @@ static void       cmd_get_histogram_stream (RemoteServerConn*  self,
 					    const char*        command,
 					    const char*        parameters)
 {
-    guchar buffer[512 * 1024];
     gsize size;
 
+    if (!self->buffer) {
+	/* Allocate it with an initial size of 128kB */
+	self->buffer_size = 128 * 1024;
+	self->buffer = g_malloc(self->buffer_size);
+    }
+
     size = histogram_imager_export_stream(HISTOGRAM_IMAGER(self->map),
-					  buffer, sizeof(buffer));
-    remote_server_send_binary(self, buffer, size);
+					  self->buffer, self->buffer_size);
+    remote_server_send_binary(self, self->buffer, size);
+
+    /* If we used more than half the buffer, double its size.
+     * This ensures that if we do run out of room, we'll have plenty
+     * of space to send the remainder of the buffer next time.
+     */
+    if (size > (self->buffer_size / 2)) {
+	g_free(self->buffer);
+	self->buffer_size *= 2;
+	self->buffer = g_malloc(self->buffer_size);
+    }
 }
 
 static void       remote_server_init_commands (RemoteServer*  self)
