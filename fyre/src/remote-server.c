@@ -201,9 +201,15 @@ static void       remote_server_send_binary   (RemoteServerConn*  self,
 					       unsigned char*     data,
 					       unsigned long      length)
 {
+    int write_size;
     remote_server_send_response(self, FYRE_RESPONSE_BINARY,
 				"%d byte binary response", length);
-    gnet_conn_write(self->gconn, data, length);
+    while (length > 0) {
+	write_size = MIN(length, 4096);
+	gnet_conn_write(self->gconn, data, write_size);
+	length -= write_size;
+	data += write_size;
+    }
 }
 
 static void       remote_server_add_command   (RemoteServer*          self,
