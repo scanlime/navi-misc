@@ -71,4 +71,38 @@
 		<menuitem name="UserlistKickItem" action="UserlistKick"/>
 		<menuitem name="UserlistBanItem" action="UserlistBan"/>
 	</popup>
+
+        <popup name="ServerPopup" action="PopupAction">
+                <menuitem name="ServerInformation" action="ServerInformation"/>
+                <separator name="ServerPopupSep0"/>
+                <menuitem name="ServerReconnect" action="ServerReconnect"/>
+                <menuitem name="ServerDisconnect" action="ServerDisconnect"/>
+                <separator name="ServerPopupSep1"/>
+                <menuitem name="ServerChannels" action="ServerChannels"/>
+        </popup>
+
+        <popup name="ChannelPopup" action="PopupAction">
+                <menuitem name="ChannelSave" action="ChannelSave"/>
+                <menuitem name="ChannelSaveAs" action="ChannelSaveAs"/>
+                <separator name="ChannelSep0"/>
+                <menuitem name="ChannelLeave" action="ChannelLeave"/>
+                <menuitem name="ChannelClose" action="ChannelClose"/>
+                <separator name="ChannelSep1"/>
+                <menuitem name="ChannelFind" action="ChannelFind"/>
+                <menuitem name="ChannelFindAgain" action="ChannelFindAgain"/>
+                <menuitem name="ChannelClear" action="ChannelClear"/>
+                <separator name="ChannelSep2"/>
+                <menuitem name="ChannelBans" action="ChannelBans"/>
+        </popup>
+
+        <popup name="DialogPopup" action="PopupAction">
+                <menuitem name="DialogSave" action="DialogSave"/>
+                <menuitem name="DialogSaveAs" action="DialogSaveAs"/>
+                <separator name="DialogSep0"/>
+                <menuitem name="DialogClose" action="DialogClose"/>
+                <separator name="DialogSep1"/>
+                <menuitem name="DialogFind" action="DialogFind"/>
+                <menuitem name="DialogFindAgain" action="DialogFindAgain"/>
+                <menuitem name="DialogClear" action="DialogClear"/>
+        </popup>
 </ui>
