@@ -38,8 +38,10 @@ int main()
 
   unicone_usb_init();
   dev = unicone_device_new();
-  if (!dev)
+  if (!dev) {
+    printf("Can't open unicone device\n");
     return 1;
+  }
 
   theta = 0;
   while (1) {
