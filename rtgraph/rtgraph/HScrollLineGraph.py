@@ -28,7 +28,9 @@ __all__ = ["HScrollLineGraph"]
 
 
 class HScrollLineGraph(HScrollGraph):
-    """A horizontally scrolling real-time line plot"""
+    """A horizontally scrolling real-time line plot.
+       Expects scalar values in the range [0,1].
+    """
     def __init__(self, *args, **kwargs):
         HScrollGraph.__init__(self, *args, **kwargs)
         self.penVectors = {}
@@ -47,8 +49,8 @@ class HScrollLineGraph(HScrollGraph):
         # Store the pen vector for later
         self.penVectors[channel] = penVector
 
-    def resize(self):
-        HScrollGraph.resize(self)
+    def resized(self):
+        HScrollGraph.resized(self)
 
         # Invalidate saved pen vectors
         self.penVectors = {}

@@ -52,12 +52,20 @@ class Graph(gtk.DrawingArea):
         # our width and height are undefined
         self.width = self.height = None
 
+    def initStyle(self):
+        """Setup colors important for this widget, but not specific
+           to any one input channel.
+           """
+        self.bgGc = self.get_style().light_gc[gtk.STATE_NORMAL]
+        self.gridGc = self.get_style().mid_gc[gtk.STATE_NORMAL]
+
     def gtkConfigureEvent(self, widget=None, event=None):
         """Called when the widget is created or resized, we use it
            to create an appropriately sized backing store pixmap and
            grid pixmap.
            """
         x, y, self.width, self.height = self.get_allocation()
+        self.initStyle()
 
         # Make the backing pixmap the size of our whole widget
         self.backingPixmap = gtk.gdk.Pixmap(self.window, self.width, self.height)
