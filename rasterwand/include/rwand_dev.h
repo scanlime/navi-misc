@@ -29,9 +29,10 @@
 #define RWAND_FB_BYTES         RWAND_FB_COLUMNS
 
 /* Power modes */
-#define RWAND_POWER_AUTO       0   /* Controlled by switch */
+#define RWAND_POWER_SWITCH     0   /* Controlled by power switch (default) */
 #define RWAND_POWER_OFF        1
 #define RWAND_POWER_ON         2
+#define RWAND_POWER_AUTO       3   /* On if and only if the device node is open */
 
 
 struct rwand_settings {

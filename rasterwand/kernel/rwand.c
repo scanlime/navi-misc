@@ -495,8 +495,11 @@ static void rwand_process_status(struct rwand_dev *dev, const unsigned char *pac
 	case RWAND_POWER_ON:
 		power = 1;
 		break;
-	case RWAND_POWER_AUTO:
+	case RWAND_POWER_SWITCH:
 		power = (new_status.buttons & RWAND_BUTTON_POWER) != 0;
+		break;
+	case RWAND_POWER_AUTO:
+		power = dev->open_count != 0;
 		break;
 	default:
 		power = 0;
@@ -662,7 +665,7 @@ static void rwand_reset_settings(struct rwand_dev *dev)
 	dev->settings.coil_width     = 0x7000;
 	dev->settings.duty_cycle     = 0xA000;
 	dev->settings.fine_adjust    = 0;
-	dev->settings.power_mode     = RWAND_POWER_AUTO;
+	dev->settings.power_mode     = RWAND_POWER_SWITCH;
 }
 
 /* Calculate all the fun little timing parameters needed by the hardware */

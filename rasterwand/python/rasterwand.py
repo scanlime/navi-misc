@@ -25,9 +25,10 @@ import struct, os, fcntl, time
 
 
 powerModes = {
-    'auto': 0,
+    'switch': 0,
     'off': 1,
     'on': 2,
+    'auto': 3,
     }
 
 
