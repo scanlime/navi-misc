@@ -2376,7 +2376,6 @@ xtext2_show_buffer (XText2 *xtext, XTextBuffer *buffer)
   }
 
   /* FIXME: recalc stuff! */
-
   xtext->priv->current_buffer = buffer;
   xtext->adj->value = f->old_adj;
   xtext->adj->upper = f->num_lines;
@@ -2388,6 +2387,20 @@ xtext2_show_buffer (XText2 *xtext, XTextBuffer *buffer)
     if (xtext->adj->value < 0)
       xtext->adj->value = 0;
   }
+
+  if (f->window_width != w)
+  {
+    f->window_width = w;
+    calc_lines (xtext, FALSE);
+    if (f->scrollbar_down)
+      gtk_adjustment_set_value (xtext->adj, xtext->adj->upper - xtext->adj->page_size);
+  } else if (f->window_height != h)
+  {
+    f->window_height = h;
+    f->pagetop = NULL;
+    adjustment_set (xtext, FALSE);
+  }
+
   render_page (xtext);
   gtk_adjustment_changed (xtext->adj);
 }
