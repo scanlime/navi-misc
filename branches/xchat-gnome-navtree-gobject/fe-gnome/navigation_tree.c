@@ -431,46 +431,48 @@ navigation_tree_select_next_network (NavTree *navtree)
 void
 navigation_tree_select_prev_network (NavTree *navtree)
 {
+	GtkTreeIter iter;
+	GtkTreeModel *model;
 	GtkTreeSelection *selection;
+	GtkTreePath *path;
 
 	/* Get our tree view and selection. */
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(navtree));
 
-	/* If the path depth is greater than one we need to move up a level
-	 * (there are only two levels possible) to select a server, instead
-	 * of a channel.
-	 */
-	if(gtk_tree_path_get_depth(navtree->current_path) > 1)
-		gtk_tree_path_up(navtree->current_path);
+	/* If there is nothing selected in the GtkTreeSelection... */
+	if (!gtk_tree_selection_get_selected(selection, &model, &iter)) {
+		/* Set the model. */
+		model = gtk_tree_view_get_model(GTK_TREE_VIEW(navtree));
+		/* If there's a current_path set path to that. */
+		if (navtree->current_path)
+			path = gtk_tree_path_copy(navtree->current_path);
+		/* Otherwise set path to the root. */
+		else
+			path = gtk_tree_path_new_from_string("0");
+	}
+	/* If there is a selection set path to that point. */
+	else
+		path = gtk_tree_model_get_path(model, &iter);
 
-	/* Try to move the path to the previous node, if this fails we will
-	 * move iter forward one node until we reach the end.
-	 */
-  else if(!gtk_tree_path_prev(navtree->current_path)) {
-    GtkTreeIter iter, last_iter;
-	  GtkTreeModel *model;
+	/* If the path isn't a server move it up one. */
+	if (gtk_tree_path_get_depth(path) > 1)
+		gtk_tree_path_up(path);
 
-    model = gtk_tree_view_get_model(GTK_TREE_VIEW(navtree));
-    gtk_tree_model_get_iter(model, &iter, navtree->current_path);
-		/* Keep track of the last valid position of the iter before
-		 * trying to advance it.
-		 */
-		last_iter = iter;
-		/* Advance the iter til we reach the end of the list.
-		 * XXX:(Is there a more efficient way to find the end
-		 * of the list?)
-		 */
-		while(gtk_tree_model_iter_next(model, &iter))
-			last_iter = iter;
-
-		/* Adjust the path to point to the end of the list. */
-    if (navtree->current_path != NULL)
-      gtk_tree_path_free(navtree->current_path);
-		navtree->current_path = gtk_tree_model_get_path(model, &last_iter);
+	/* If we can't move it forward... */
+	if (!gtk_tree_path_prev(path)) {
+		/* Find the last entry in the server. */
+		GtkTreeIter current, previous;
+		gtk_tree_model_get_iter_first(model, &current);
+		previous = current;
+		while (gtk_tree_model_iter_next(model, &current))
+			previous = current;
+		/* Free the old path and set it to the iter that points to the last entry. */
+		gtk_tree_path_free(path);
+		path = gtk_tree_model_get_path(model, &previous);
 	}
 
-	/* Move the selection to the new path. */
-	gtk_tree_selection_select_path(selection, navtree->current_path);
+	/* Select the path in our GtkTreeSelection. */
+	gtk_tree_selection_select_path(selection, path);
 }
 
 /* Misc. Functions. */
