@@ -52,6 +52,7 @@ class RulesetEditor:
             "modified_changed", self.on_RulesetBuffer_modified_changed)
 
         self.window = self.xml.get_widget('RulesetEditorWindow')
+        self.window.set_title("CIA - IRC ruleset editor - %s" % ciaServer)
         self.initChannelList(self.xml.get_widget('ChannelList'))
 
     def queryRulesets(self):
@@ -227,9 +228,15 @@ class RulesetEditor:
 
 
 if __name__ == "__main__":
-    # Locate our glade file by looking wherever our source file is located.
-    gladeFile = os.path.join(os.path.dirname(sys.argv[0]), "ruleset_editor.glade")
-    ui = RulesetEditor(gladeFile, "http://localhost:3910")
+    # Locate our glade file by looking in the 'data' directory wherever our source file is located.
+    gladeFile = os.path.join(os.path.dirname(sys.argv[0]), "data", "ruleset_editor.glade")
+
+    # Default to connecting to navi, but let the user override that on the command line
+    server = "http://navi.picogui.org:3910"
+    if len(sys.argv) > 1:
+        server = sys.argv[1]
+
+    ui = RulesetEditor(gladeFile, server)
     ui.window.connect("destroy", gtk.mainquit)
     gtk.main()
 
