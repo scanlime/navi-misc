@@ -23,7 +23,7 @@ that can be tweaked in real-time.
 from __future__ import division
 import gtk, threading
 
-__version__ = "0.70"
+__version__ = "pre-0.71"
 
 
 def Window(*controlLists):

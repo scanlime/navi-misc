@@ -1,5 +1,5 @@
 rtgraph
-version 0.70
+version pre-0.71
 -------------
 
 rtgraph is a collection of real-time graphing widgets for Gtk 2, written in Python.
