@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<!--
+  The master list of techniques
+-->
+<techniques>
+  <technique name="lone kimono" href="lone-kimono.xml" level="orange" category="grab"/>
+</techniques>

@@ -97,12 +97,20 @@
   <xsl:template match="//concepts/concept">
     <li>
       <a>
-        <xsl:attribute name="href">concepts/<xsl:value-of select="@href"/></xsl:attribute>
+        <xsl:attribute name="href"><xsl:value-of select="@href"/></xsl:attribute>
         <xsl:value-of select="@name"/>
       </a>
       <ul>
         <xsl:apply-templates select="concept"/>
       </ul>
+    </li>
+  </xsl:template>
+  <xsl:template match="//techniques/technique">
+    <li>
+      <a>
+        <xsl:attribute name="href"><xsl:value-of select="@href"/></xsl:attribute>
+        <xsl:value-of select="@name"/>
+      </a>
     </li>
   </xsl:template>
 
@@ -213,6 +221,13 @@
         <xsl:attribute name="href">../<xsl:value-of select="."/>.xml</xsl:attribute>
         <xsl:value-of select="."/>
       </a>
+    </div>
+  </xsl:template>
+
+  <xsl:template match="note">
+    <div class="row">
+      <span class="emph">Note: </span>
+      <xsl:value-of select="."/>
     </div>
   </xsl:template>
 </xsl:stylesheet>
