@@ -359,7 +359,7 @@ static void on_save (GtkWidget *widget, gpointer user_data) {
     Explorer *self = EXPLORER (user_data);
     GtkWidget *dialog;
     GError *error = NULL;
-    gchar *filename;
+    gchar *filename = NULL;
 
 #if (GTK_CHECK_VERSION(2, 4, 0))
     dialog = gtk_file_chooser_dialog_new ("Save Image",
@@ -400,7 +400,9 @@ static void on_save (GtkWidget *widget, gpointer user_data) {
 	gtk_dialog_run (GTK_DIALOG (dialog));
 	gtk_widget_hide_all (dialog);
     }
-    g_free (filename);
+
+    if (filename)
+	g_free (filename);
 }
 
 static void on_save_exr (GtkWidget *widget, gpointer user_data) {
