@@ -92,7 +92,7 @@ static void animation_init(Animation *self) {
 				     G_TYPE_STRING,       /* ANIMATION_MODEL_PARAMS      */
 				     G_TYPE_DOUBLE,       /* ANIMATION_MODEL_DURATION    */
 				     SPLINE_TYPE,         /* ANIMATION_MODEL_SPLINE      */
-				     GTK_TYPE_TREE_ITER,  /* ANIMATION_MODEL_ITER        */
+				     G_TYPE_ULONG,        /* ANIMATION_MODEL_ROW_ID      */
 				     G_TYPE_OBJECT);      /* ANIMATION_MODEL_BIFURCATION */
 }
 
@@ -174,7 +174,7 @@ void animation_keyframe_append (Animation       *self,
 static void animation_keyframe_append_default(Animation *self, GtkTreeIter *iter) {
     gtk_list_store_append(self->model, iter);
     gtk_list_store_set(self->model, iter,
-		       ANIMATION_MODEL_ITER, iter,
+		       ANIMATION_MODEL_ROW_ID,   self->next_row_id++,
 		       ANIMATION_MODEL_DURATION, (gdouble) 5.0,
 		       ANIMATION_MODEL_SPLINE,   &spline_template_smooth,
 		       -1);
@@ -208,6 +208,35 @@ gdouble animation_keyframe_get_time(Animation *self, GtkTreeIter *iter) {
     }
 
     return total;
+}
+
+gulong       animation_keyframe_get_id       (Animation           *self,
+					      GtkTreeIter         *iter)
+{
+    GtkTreeModel *model = GTK_TREE_MODEL(self->model);
+    gulong id;
+    gtk_tree_model_get(model, iter,
+		       ANIMATION_MODEL_ROW_ID, &id,
+		       -1);
+    return id;
+}
+
+
+gboolean     animation_keyframe_find_by_id   (Animation           *self,
+					      gulong               id,
+					      GtkTreeIter         *iter)
+{
+    GtkTreeModel *model = GTK_TREE_MODEL(self->model);
+    gboolean valid;
+
+    valid = gtk_tree_model_get_iter_first(model, iter);
+    while (valid) {
+	if (animation_keyframe_get_id(self, iter) == id)
+	    break;
+	valid = gtk_tree_model_iter_next(model, iter);
+    }
+
+    return valid;
 }
 
 

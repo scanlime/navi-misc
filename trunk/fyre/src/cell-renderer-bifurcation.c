@@ -58,7 +58,7 @@ static BifurcationDiagram* get_bifurcation_diagram  (CellRendererBifurcation  *s
 
 enum {
     PROP_0,
-    PROP_ITER,
+    PROP_ROW_ID,
     PROP_ANIMATION,
 };
 
@@ -103,11 +103,11 @@ static void cell_renderer_bifurcation_class_init(CellRendererBifurcationClass *k
     cell_class->render = cell_renderer_bifurcation_render;
 
     g_object_class_install_property(object_class,
-				    PROP_ITER,
-				    g_param_spec_boxed("iter",
-						       "Iterator",
-						       "A GtkTreeIter pointing to the keyframe this diagram starts at",
-						       GTK_TYPE_TREE_ITER,
+				    PROP_ROW_ID,
+				    g_param_spec_ulong("row-id",
+						       "Row Id",
+						       "A row ID pointing to the keyframe this diagram starts at",
+						       0, (gulong)-1, 1,
 						       G_PARAM_READWRITE));
 
     g_object_class_install_property(object_class,
@@ -148,8 +148,8 @@ static void cell_renderer_bifurcation_get_property(GObject    *object,
 
     switch (prop_id) {
 
-    case PROP_ITER:
-	g_value_set_boxed(value, &self->keyframe);
+    case PROP_ROW_ID:
+	g_value_set_ulong(value, self->row_id);
 	break;
 
     case PROP_ANIMATION:
@@ -170,8 +170,8 @@ static void cell_renderer_bifurcation_set_property(GObject       *object,
 
     switch (prop_id) {
 
-    case PROP_ITER:
-	self->keyframe = *((GtkTreeIter*) g_value_get_boxed(value));
+    case PROP_ROW_ID:
+	self->row_id = g_value_get_ulong(value);
 	break;
 
     case PROP_ANIMATION:
@@ -192,17 +192,22 @@ static BifurcationDiagram* get_bifurcation_diagram  (CellRendererBifurcation  *s
      */
     GObject *obj;
     BifurcationDiagram *bd;
-    GtkTreeIter next_keyframe;
+    GtkTreeIter keyframe, next_keyframe;
     DeJong *a, *b;
 
-    next_keyframe = self->keyframe;
+    /* Look up the first keyframe from a row ID */
+    if (!animation_keyframe_find_by_id(self->animation, self->row_id, &keyframe))
+	return NULL;
+
+    /* Iterate to the next keyframe */
+    next_keyframe = keyframe;
     if (!gtk_tree_model_iter_next(GTK_TREE_MODEL(self->animation->model), &next_keyframe)) {
 	/* We're at the last keyframe, no bifurcation diagram for us */
 	return NULL;
     }
 
     /* Try to extract an existing bifurcation diagram */
-    gtk_tree_model_get(GTK_TREE_MODEL(self->animation->model), &self->keyframe,
+    gtk_tree_model_get(GTK_TREE_MODEL(self->animation->model), &keyframe,
 		       ANIMATION_MODEL_BIFURCATION, &obj,
 		       -1);
     if (obj) {
@@ -212,7 +217,7 @@ static BifurcationDiagram* get_bifurcation_diagram  (CellRendererBifurcation  *s
     else {
 	/* Nope, create a new object and store it in the model */
 	bd = bifurcation_diagram_new();
-	gtk_list_store_set(self->animation->model, &self->keyframe,
+	gtk_list_store_set(self->animation->model, &keyframe,
 			   ANIMATION_MODEL_BIFURCATION, bd,
 			   -1);
     }
@@ -220,7 +225,7 @@ static BifurcationDiagram* get_bifurcation_diagram  (CellRendererBifurcation  *s
     /* Load parameters from both keyframes */
     a = de_jong_new();
     b = de_jong_new();
-    animation_keyframe_load(self->animation, &self->keyframe, PARAMETER_HOLDER(a));
+    animation_keyframe_load(self->animation, &keyframe, PARAMETER_HOLDER(a));
     animation_keyframe_load(self->animation, &next_keyframe,  PARAMETER_HOLDER(b));
 
     /* Set up this bifurcation diagram for linear interpolation between the two */

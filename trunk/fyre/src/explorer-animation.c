@@ -166,7 +166,7 @@ static void explorer_init_keyframe_view(Explorer *self) {
 
     gtk_tree_view_column_pack_start(col, renderer, TRUE);
     gtk_tree_view_column_set_attributes(col, renderer,
-					"iter", ANIMATION_MODEL_ITER,
+					"row-id", ANIMATION_MODEL_ROW_ID,
 					NULL);
 
     gtk_tree_view_append_column(tv, col);
