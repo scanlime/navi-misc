@@ -983,6 +983,9 @@ class Bot(irc.IRCClient, pb.Referenceable):
         elif text == 'eats %s' % me:
             self.me(channel, 'tastes crunchy')
 
+        elif text == "rubs %s's tummy" % me:
+	    self.say(channel, "*purr*")
+
     def remote_msg(self, target, text):
         self.msg(target, text)
 
