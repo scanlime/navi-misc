@@ -77,13 +77,16 @@ public class interview
 			break;
 
 		case 2: //This is all about sending the answer off, and getting the next question on its way.
-			com.write("answ");
-			StringTokenizer botfood = new StringTokenizer(message,"\n",false);
-			message = "";
-			while(botfood.hasMoreTokens())
-				message = message + "<br>" + botfood.nextToken();
-			com.write(message);
-			
+			if(message.compareTo("skip") == 0) com.write("reject")
+			else
+			{
+				com.write("answ");
+				StringTokenizer botfood = new StringTokenizer(message,"\n",false);
+				message = "";
+				while(botfood.hasMoreTokens())
+					message = message + "<br>" + botfood.nextToken();
+				com.write(message);
+			}
 		case 3: //this is the "raw" get state, in that it gets a question without sending an answer
 			String tname, tques;
 			com.write("get");
