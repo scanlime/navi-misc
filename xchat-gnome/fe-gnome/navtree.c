@@ -20,6 +20,8 @@
  */
 
 #include "navtree.h"
+#include "userlist_gui.h"
+#include "userlist.h"
 
 /***** NavTree *****/
 static void navigation_tree_init       (NavTree *navtree);
@@ -28,6 +30,8 @@ static void navigation_tree_dispose    (GObject *object);
 static void navigation_tree_finalize   (GObject *object);
 
 /* Callback. */
+static gboolean click             (GtkWidget *widget, GdkEventButton *event, gpointer user_data);
+static gboolean declick           (GtkWidget *widget, GdkEventButton *event, gpointer user_data);
 void navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_data);
 
 GType
@@ -60,8 +64,34 @@ navigation_tree_get_type (void)
 static void
 navigation_tree_init (NavTree *navtree)
 {
+  GtkCellRenderer *icon_renderer, *text_renderer;
+  GtkTreeViewColumn *column;
+  GtkTreeSelection *select;
+
 	navtree->current_path = gtk_tree_path_new();
 	navtree->model = NULL;
+
+	/* This sets up all our columns. */
+  column = gtk_tree_view_column_new();
+  icon_renderer = gtk_cell_renderer_pixbuf_new();
+  text_renderer = gtk_cell_renderer_text_new();
+	/* Icon columns. */
+  gtk_tree_view_column_pack_start(column, icon_renderer, FALSE);
+  gtk_tree_view_column_set_attributes(column, icon_renderer, "pixbuf", 0, NULL);
+	/* text columns. */
+  gtk_tree_view_column_pack_start(column, text_renderer, TRUE);
+  gtk_tree_view_column_set_attributes(column, text_renderer, "text", 1, "foreground-gdk", 4, NULL);
+	/* Add the column to the TreeView. */
+  gtk_tree_view_append_column(GTK_TREE_VIEW(navtree),column);
+
+	/* Set our selction mode. */
+  select = gtk_tree_view_get_selection(GTK_TREE_VIEW(navtree));
+  gtk_tree_selection_set_mode(select, GTK_SELECTION_SINGLE);
+
+	/* Connect the callbacks. */
+  /*g_signal_connect(G_OBJECT(select), "changed", G_CALLBACK(navigation_selection_changed), NULL);*/
+  g_signal_connect(G_OBJECT(navtree), "button_press_event", G_CALLBACK(click), NULL);
+  g_signal_connect(G_OBJECT(navtree), "button_release_event", G_CALLBACK(declick), NULL);
 }
 
 static void
@@ -96,6 +126,9 @@ click(GtkWidget *treeview, GdkEventButton *event, gpointer data)
 {
 	GtkTreePath *path;
 	GtkTreeSelection *select;
+	GtkTreeModel *model;
+	GtkTreeIter iter;
+	struct session *s;
 
 	if(!event)
 		return FALSE;
@@ -108,10 +141,12 @@ click(GtkWidget *treeview, GdkEventButton *event, gpointer data)
 			gtk_tree_path_free(path);
 		}
 
-		/* FIXME */
-		/*session *s = navigation_get_selected();
+		model = GTK_TREE_MODEL(NAVTREE(treeview)->model->sorted);
+		gtk_tree_model_get_iter(model, &iter, NAVTREE(treeview)->current_path);
+		gtk_tree_model_get(model, &iter, 2, &s, -1);
 		if(s != NULL)
-			navigation_context(treeview, s);*/
+			/* FIXME */
+			navigation_context(treeview, s);
 		return TRUE;
 	}
 
@@ -129,14 +164,57 @@ static gboolean declick(GtkWidget *treeview, GdkEventButton *e, gpointer data) {
 	return FALSE;
 }
 
+void
+navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_data)
+{
+	GtkTreeIter iter, newiter;
+	GtkTreeModel *model, *store;
+	GtkTreeView *treeview;
+	gpointer *s;
+	session *sess;
+	struct session_gui *tgui;
+
+	treeview = GTK_TREE_VIEW (glade_xml_get_widget (gui.xml, "userlist"));
+
+	if(gtk_tree_selection_get_selected(treeselection, &model, &iter) && gui.current_session) {
+		GtkWidget *topic, *entry;
+
+		/* back up existing entry */
+		tgui = (struct session_gui *) gui.current_session->gui;
+		if(tgui == NULL)
+			return;
+		g_free(tgui->entry);
+		entry = glade_xml_get_widget(gui.xml, "text entry");
+		tgui->entry = g_strdup(gtk_entry_get_text(GTK_ENTRY(entry)));
+
+		gtk_tree_model_get(model, &iter, 2, &s, -1);
+		sess = (session *) s;
+		sess->nick_said = FALSE;
+		sess->msg_said = FALSE;
+		sess->new_data = FALSE;
+		tgui = (session_gui *) sess->gui;
+		if(tgui == NULL)
+			return;
+		gtk_xtext_buffer_show(gui.xtext, tgui->buffer, TRUE);
+		topic = glade_xml_get_widget(gui.xml, "topic entry");
+		gtk_entry_set_text(GTK_ENTRY(topic), tgui->topic);
+		entry = glade_xml_get_widget(gui.xml, "text entry");
+		gtk_entry_set_text(GTK_ENTRY(entry), tgui->entry);
+		gui.current_session = sess;
+		gtk_tree_view_set_model (treeview, GTK_TREE_MODEL (userlist_get_store (u, sess)));
+		set_nickname(sess->server, NULL);
+		rename_main_window(sess->server->networkname, sess->channel);
+		/* remove any icon that exists */
+		store = gtk_tree_model_sort_get_model(GTK_TREE_MODEL_SORT(model));
+		gtk_tree_model_sort_convert_iter_to_child_iter(GTK_TREE_MODEL_SORT(model), &newiter, &iter);
+		gtk_tree_store_set(GTK_TREE_STORE(store), &newiter, 0, NULL, 3, 0, -1);
+	}
+}
 /* New NavTree. */
 NavTree*
 navigation_tree_new (NavModel *model)
 {
 	NavTree *new_tree;
-  GtkCellRenderer *icon_renderer, *text_renderer;
-  GtkTreeViewColumn *column;
-  GtkTreeSelection *select;
 
 	/* Create the new NavTree. */
 	new_tree = NAVTREE(g_object_new(navigation_tree_get_type(), NULL));
@@ -144,31 +222,6 @@ navigation_tree_new (NavModel *model)
 	/* Assign a NavModel to the NavTree. */
 	new_tree->model = model;
   gtk_tree_view_set_model(GTK_TREE_VIEW(new_tree), new_tree->model->sorted);
-
-	/* FIXME: I think this sets our NavTree's parent to point to the server channel list. */
-	(GtkTreeView*)new_tree = glade_xml_get_widget(gui.xml, "server channel list");
-
-	/* This sets up all our columns. */
-  column = gtk_tree_view_column_new();
-  icon_renderer = gtk_cell_renderer_pixbuf_new();
-  text_renderer = gtk_cell_renderer_text_new();
-	/* Icon columns. */
-  gtk_tree_view_column_pack_start(column, icon_renderer, FALSE);
-  gtk_tree_view_column_set_attributes(column, icon_renderer, "pixbuf", 0, NULL);
-	/* text columns. */
-  gtk_tree_view_column_pack_start(column, text_renderer, TRUE);
-  gtk_tree_view_column_set_attributes(column, text_renderer, "text", 1, "foreground-gdk", 4, NULL);
-	/* Add the column to the TreeView. */
-  gtk_tree_view_append_column(GTK_TREE_VIEW(new_tree),column);
-
-	/* Set our selction mode. */
-  select = gtk_tree_view_get_selection(GTK_TREE_VIEW(new_tree));
-  gtk_tree_selection_set_mode(select, GTK_SELECTION_SINGLE);
-
-	/* Connect the callbacks. */
-  /*g_signal_connect(G_OBJECT(select), "changed", G_CALLBACK(navigation_selection_changed), NULL);*/
-  g_signal_connect(G_OBJECT(new_tree), "button_press_event", G_CALLBACK(click), NULL);
-  g_signal_connect(G_OBJECT(new_tree), "button_release_event", G_CALLBACK(declick), NULL);
 
 	return new_tree;
 }
