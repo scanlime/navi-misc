@@ -1,21 +1,21 @@
 <div class="heading">19 February 2005 - 1.0.0 released</div>
-<img src="news-icons/go-menu.png" width="106" height="106" class="newsIcon" />
 <p>
     It's finally here! Sporting a flashy new "go" menu for browsing image history,
     a new quality metric for rendering better animations faster and a small mountain
     of bugfixes, 1.0.0 is ready.  At this point, the 1.0 branch is being considered
     feature complete, but there are big plans for 2.0, which we'll be writing about
     soon.
-    <ul>
-        <li>The Fyre 1.0.0 <a href="http://navi.cx/svn/misc/tags/fyre-1.0.0/README">README</a> and
-            <a href="http://navi.cx/svn/misc/tags/fyre-1.0.0/ChangeLog">ChangeLog</a></li>
-        <li><a href="http://flapjack.navi.cx/releases/fyre/fyre-1.0.0.tar.gz">Source Code (.tar.gz)</a></li>
-        <li><a href="http://flapjack.navi.cx/releases/fyre/fyre-1.0.0.tar.bz2">Source Code (.tar.bz2)</a></li>
-	<li><a href="http://flapjack.navi.cx/releases/fyre/fyre-1.0.0.x86.package">Linux x86 Autopackage</a></li>
-        <li><a href="http://flapjack.navi.cx/releases/fyre/fyre-1.0.0.exe">Windows Installer (recommended)</a></li>
-        <li><a href="http://flapjack.navi.cx/releases/fyre/fyre-1.0.0.zip">Windows .zip file, doesn't require installation</a></li>
-    </ul>
+    <img src="news-icons/go-menu.png" width="106" height="106" class="newsIcon" alt="The new Go menu" />
 </p>
+<ul>
+    <li>The Fyre 1.0.0 <a href="http://navi.cx/svn/misc/tags/fyre-1.0.0/README">README</a> and
+        <a href="http://navi.cx/svn/misc/tags/fyre-1.0.0/ChangeLog">ChangeLog</a></li>
+    <li><a href="http://flapjack.navi.cx/releases/fyre/fyre-1.0.0.tar.gz">Source Code (.tar.gz)</a></li>
+    <li><a href="http://flapjack.navi.cx/releases/fyre/fyre-1.0.0.tar.bz2">Source Code (.tar.bz2)</a></li>
+    <li><a href="http://flapjack.navi.cx/releases/fyre/fyre-1.0.0.x86.package">Linux x86 Autopackage</a></li>
+    <li><a href="http://flapjack.navi.cx/releases/fyre/fyre-1.0.0.exe">Windows Installer (recommended)</a></li>
+    <li><a href="http://flapjack.navi.cx/releases/fyre/fyre-1.0.0.zip">Windows .zip file, doesn't require installation</a></li>
+</ul>
 
 <div class="heading">07 February 2005 - 0.9 released</div>
 <p>
@@ -23,16 +23,16 @@
     improvements, automatic cluster discovery, and bug fixes. We're also producing
     Windows binaries once again, now that the build system makes that much easier.
     Fyre 0.9 is available as:
-    <ul>
-        <li><a href="http://flapjack.navi.cx/releases/fyre/fyre-0.9.tar.gz">Source Code (.tar.gz)</a></li>
-        <li><a href="http://flapjack.navi.cx/releases/fyre/fyre-0.9.tar.bz2">Source Code (.tar.bz2)</a></li>
-        <li><a href="http://flapjack.navi.cx/releases/fyre/fyre-0.9.exe">Windows Installer (recommended)</a></li>
-        <li><a href="http://flapjack.navi.cx/releases/fyre/fyre-0.9.zip">Windows .zip file, doesn't require installation</a></li>
-    </ul>
 </p>
+<ul>
+    <li><a href="http://flapjack.navi.cx/releases/fyre/fyre-0.9.tar.gz">Source Code (.tar.gz)</a></li>
+    <li><a href="http://flapjack.navi.cx/releases/fyre/fyre-0.9.tar.bz2">Source Code (.tar.bz2)</a></li>
+    <li><a href="http://flapjack.navi.cx/releases/fyre/fyre-0.9.exe">Windows Installer (recommended)</a></li>
+    <li><a href="http://flapjack.navi.cx/releases/fyre/fyre-0.9.zip">Windows .zip file, doesn't require installation</a></li>
+</ul>
 
 <div class="heading">31 January 2005 - Spiraling Shape</div>
-<img src="news-icons/spiraling-shape.png" width="104" height="80" class="newsIcon" />
+<img src="news-icons/spiraling-shape.png" width="104" height="80" class="newsIcon" alt="Spiraling Shape thumbnail" />
 <p>
     If you haven't seen Fyre's animation capabilities in action yet, here's your
     chance. The first entry in an online video gallery is online. <em>Spiraling
