@@ -41,6 +41,14 @@ class SelfTest(RcpodTestCase):
         result = self.rcpod.peek(address, len(testPattern))
         self.assertEqual(testPattern, result)
 
+    def testPokePeekBlockSection(self):
+        """poke a block of random data, then peek a section of it"""
+        address = pyrcpod.mapAddress('scratchpad')
+        testPattern = [random.randint(0, 255) for i in xrange(*self.rcpod.scratchpadRange)]
+        self.rcpod.poke(address, testPattern)
+        result = self.rcpod.peek(address+3, len(testPattern)-3)
+        self.assertEqual(testPattern[3:], result)
+
     def testPokePeekBlockSizes(self):
         """poke and peek with block sizes that are corner cases for librcpod"""
         address = 'scratchpad'
@@ -88,11 +96,25 @@ class SelfTest(RcpodTestCase):
             self.assert_(pin.value not in seenValues, "Duplicate pin value")
             seenValues.append(pin.value)
 
+    def testPinReadSanity(self):
+        """verify that values returned by testing pin descriptors are always 0 or 1"""
+        for originalPin in self.rcpod.pins.itervalues():
+            for pin in (
+                originalPin,
+                originalPin.negate(),
+                originalPin.input(),
+                originalPin.output(),
+                ):
+                value = pin.test()
+                self.assertEqual(type(value), int)
+                self.assert_(value==0 or value==1)
+
     def testPinResetDirections(self):
         """verify, using pin descriptors, that all pins are initialized as inputs"""
         for pin in self.rcpod.pins.itervalues():
-            self.assertEqual(pin.input().test(), True, "%s is not True" % pin.input())
-            self.assertEqual(pin.output().test(), False, "%s is an False" % pin.output())
+            print pin
+            self.assertEqual(pin.input().test(), 1, "%s is not True" % pin.input())
+            self.assertEqual(pin.output().test(), 0, "%s is an False" % pin.output())
 
     def testPinOutputs(self):
         """verify, using pin descriptors, that all pins' values can be toggled as outputs"""
@@ -165,7 +187,11 @@ class SelfTest(RcpodTestCase):
 
                     # Set tristates to the initial value
                     for reg in ('trisa', 'trisb', 'trisc', 'trisd', 'trise'):
-                        self.rcpod.poke(reg, initialValue)
+                        # Mask off the high bits of trise, they have special meanings
+                        if reg == 'trise':
+                            self.rcpod.poke(reg, initialValue & 0x07)
+                        else:
+                            self.rcpod.poke(reg, initialValue)
 
                     # Make a list of registers to check, and record 'before' values
                     regs = ('trisa', 'trisb', 'trisc', 'trisd', 'trise')
@@ -209,14 +235,20 @@ class SelfTest(RcpodTestCase):
                     # the one we're testing.
                     bit = int(name[2])
                     for reg in ('trisa', 'trisb', 'trisc', 'trisd', 'trise'):
+                        # Mask off the high bits of trise, they have special meanings
+                        if reg == 'trise':
+                            iv = initialValue & 0x07
+                        else:
+                            iv = initialValue
+
                         if reg[-1] == name[1]:
                             # This is the port we're testing, flip a bit
                             if polarity:
-                                self.rcpod.poke(reg, initialValue | (1<<bit))
+                                self.rcpod.poke(reg, iv | (1<<bit))
                             else:
-                                self.rcpod.poke(reg, initialValue & ~(1<<bit))
+                                self.rcpod.poke(reg, iv & ~(1<<bit))
                         else:
-                            self.rcpod.poke(reg, initialValue)
+                            self.rcpod.poke(reg, iv)
 
                     self.assert_(pin.test(), str(pin))
 
