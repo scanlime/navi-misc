@@ -91,7 +91,6 @@ static void plugin_init(void) {
   s.display_center = 0xFFFF * 0.53;
   s.display_width  = 0xFFFF * 0.45;
   s.duty_cycle     = 0xFFFF * 0.66;
-  s.fine_adjust    = 0;
   ioctl(fd, RWANDIO_PUT_SETTINGS, &s);
 
   pthread_create(&my_thread,NULL,refresh_thread,NULL);
