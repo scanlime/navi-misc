@@ -77,6 +77,13 @@ void FieldSensor::boot(void) {
   sendSlowly("0000hg");
 }
 
+void FieldSensor::waitForData(void) {
+  fd_set rfds;
+  FD_ZERO(&rfds);
+  FD_SET(fd, &rfds);
+  select(fd+1, &rfds, NULL, NULL, NULL);
+}
+
 void FieldSensor::readPacket(double *packet) {
   unsigned char c, theirChecksum, ourChecksum;
   union {
@@ -88,10 +95,13 @@ void FieldSensor::readPacket(double *packet) {
   while (1) {
     /* Synchronize to 0x80 synchronization byte */
     do {
+      waitForData();
       read(fd, &c, 1);
     } while (c != 0x80);
     
+    waitForData();
     read(fd, &rawPacket, 16);
+    waitForData();
     read(fd, &theirChecksum, 1);
 
     /* Verify the checksum byte */
