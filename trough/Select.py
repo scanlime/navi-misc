@@ -6,7 +6,7 @@ from Pieces import Pieces
 
 def Select(pieces):
 	s = random.randint(0,pieces.getCount()-1)
-	return pieces.getPiece(s).getPaths()
+	return pieces.getPiece(s).getWhere()
 	 
 
 if __name__ == "__main__":
