@@ -95,7 +95,7 @@ gl_drawing_area_realize (GtkWidget *widget)
   attributes.visual = gtk_widget_get_visual (widget);
   attributes.colormap = gtk_widget_get_colormap (widget);
   attributes.event_mask = gtk_widget_get_events (widget) | GDK_EXPOSURE_MASK |
-                          GDK_BUTTON_PRESS_MASK | GDK_BUTTON3_MOTION_MASK |
+                          GDK_BUTTON_PRESS_MASK | GDK_BUTTON2_MOTION_MASK |
 			  GDK_KEY_PRESS_MASK | GDK_KEY_RELEASE_MASK | GDK_SCROLL_MASK;
 
   attributes_mask = GDK_WA_X | GDK_WA_Y | GDK_WA_VISUAL | GDK_WA_COLORMAP;
