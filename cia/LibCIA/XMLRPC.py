@@ -32,7 +32,8 @@ from twisted.web import xmlrpc
 from Message import Message
 from twisted.python.rebuild import rebuild
 from IncomingMail import IncomingMailParser
-import sys
+import sys, traceback
+from twisted.python import log
 
 
 class SimpleCIAInterface(xmlrpc.XMLRPC):
@@ -51,6 +52,9 @@ class SimpleCIAInterface(xmlrpc.XMLRPC):
             result = self.hub.deliver(Message(xml))
         except:
             e = sys.exc_info()[1]
+            log.msg("Exception occurred while delivering message received over XML-RPC\n" +
+                    "--- Original message\n%s\n--- Exception\n%s" %
+                    (xml, "".join(traceback.format_exception(*sys.exc_info()))))
             return xmlrpc.Fault(e.__class__.__name__, str(e))
         result = self.hub.deliver(Message(xml))
         if result is not None:
