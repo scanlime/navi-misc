@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 
-
 class Piece:
 	''' Piece
-		A single (n-movement) classical piece or jazz/pop album.
+		A media file group.
 	'''
 
-	def __init__ (self,name,files):
+	def __init__ (self,name,piece):
 		self.name = name
 		self.paths = files
 		

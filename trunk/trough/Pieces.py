@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 
-from Dir import Dir
+import FSTree
 from Piece import Piece
 from types import *
 
 class Pieces:
 	''' Pieces
-		Holds each Piece; has conversations with Dir to find them.
+		Holds each Piece; has conversations with FSTree.Directory to find them.
+		Does not inherit pickles.
 	'''
 	def __init__ (self):
 		self.pieces = []
@@ -24,8 +25,8 @@ class Pieces:
 		else:
 			self.pieces.append(Piece(path,files))
 
-	def addDir (self, dir):
-		''' Pieces.addDir
+	def addDirectory (self, dir):
+		''' Pieces.addDirectory
 			Add the contents of a directory, sorting them into groups as necessary.
 			
 			The rules for file grouping are fairly simple; the files become a group 
@@ -38,24 +39,25 @@ class Pieces:
 			the directory should be a group.
 		'''
 		files = dir.getFiles()
-		subdirs = dir.getSubDirs()
+		subdirs = dir.getDirectories()
 
 		if files:
 			if not subdirs:
 				files.sort()
-				if files[len(files)-1][0].isdigit():
-					self.addFilesGrouped (dir.getName(),dir.getFilePaths())
+				if files[len(files)-1].getName()[0].isdigit():
+					self.addFilesGrouped (dir.getName(),dir.getFiles())
 				else:
-					self.addFilesSeparate (dir.getName(),dir.getFilePaths())
+					self.addFilesSeparate (dir.getName(),dir.getFiles())
 			else:
-				self.addFilesSeparate (dir.getPath(),dir.getFilePaths())
+				self.addFilesSeparate (dir.getPath(),dir.getFiles())
 		
-		for subdir in dir.getSubDirs():
-			self.addDir (subdir)
+		for subdir in dir.getDirectories():
+			self.addDirectory (subdir)
 
 	def addPaths (self, paths):
 		for path in paths:
-			self.addDir(Dir(path))
+			self.addDirectory(FSTree.Directory(path))
+		print 'found ',len(self.pieces)
 
 	def getCount (self):
 		return len(self.pieces)
@@ -69,3 +71,4 @@ if __name__ == "__main__":
 
 	p = Pieces()
 	p.addPaths (sys.argv[1:])
+		print 'sorting...'
