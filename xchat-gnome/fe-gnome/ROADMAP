@@ -1,14 +1,14 @@
 This is just a preliminary roadmap, subject to whatever people want to work on.
 
 0.3:
--	Color palette/schemes				- David (complete)
--	Network/server configuration			- David
--	URLScraper plugin				- Evan
+-	Color palette/schemes					- David (complete)
+-	Network/server configuration				- David
+-	URLScraper plugin					- Evan
 -	Verify that all hardcoded strings are
 	enclosed in intltool _() macros
 
 0.4:
--	Redo DCC UI
+-	Redo DCC UI						- David
 -	Autogenerate inline pngs during build
 -	Fix connect dialog to check for existing open
 	networks before creating a new connection
@@ -16,6 +16,8 @@ This is just a preliminary roadmap, subject to whatever people want to work on.
 	make menus actually depend on the context
 -	Fix navigation tree to use non-case-sensitive
 	sorting rather than lexicographical order
+-	Fix plugins preferences to properly handle scripts	- Evan
+-	Finish implementing keybindings UI?			- Dan
 
 
 0.5:
@@ -32,9 +34,9 @@ undetermined:
 	underscores show up as underlined, etc
 
 when releasing:
-	check to make sure changelog is complete
-	make sure all version numbers are up-to-date
-	tag the release
-	notify http://www.gnomefiles.org (Dan)
-	notify freshmeat (David)
-	notify footnotes
+-	Check to make sure changelog is complete
+-	Make sure all version numbers are up-to-date
+-	Tag the release
+-	Notify http://www.gnomefiles.org (Dan)
+-	Notify freshmeat (David)
+-	Notify footnotes
