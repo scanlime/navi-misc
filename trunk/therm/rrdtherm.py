@@ -104,7 +104,7 @@ class ThermGrapher:
         self.thermColors = [
             Color(1, 0, 0.5),
             Color(0, 0.8, 0),
-            Color(0, 0, 1),
+            Color(0, 0, 0.8),
             Color(1, 0, 0),
             ]
 
@@ -213,7 +213,7 @@ class ThermGrapher:
         # A little info about us
         index.write("""
 <hr><center>
-<a href="http://navi.picogui.org/svn/misc/trunk/therm/">therm</a> package,
+<a href="http://navi.picogui.org/svn/misc/trunk/therm/">rrdtherm</a>,
 built with <a href="http://navi.picogui.org/svn/misc/trunk/rcpod/">rcpod</a>
 and <a href="http://ee-staff.ethz.ch/~oetiker/webtools/rrdtool/">rrdtool</a>
 </center></body></html>
