@@ -124,7 +124,7 @@ class MainWindow:
 
   def on_preferences_activate(self, widget, data=None):
     ''' Open the color selection dialog. '''
-    self.tree.get_widget('colorselectiondialog').show()
+    self.tree.get_widget('Preferences').show()
 
   def on_dd_dice_activate(self, widget, data=None):
     ''' Set the dice system for Dungeons & Dragons. '''
