@@ -1,4 +1,4 @@
-* Finish the unimplemented function in GtkPalantir.py
+* Finish the unimplemented functions in GtkPalantir.py
 * Separate buffers for private chat windows
 * Tweak dice rolling systems to handle critical failures
 * Store user preferences for the chat client
@@ -8,3 +8,6 @@
   the factory instead of adding unnecessary function calls.
 * Make chat buffer scroll a little further for niceness of viewing.
 * Replace pyxml stuff with twisted's xml stuff.
+* Add irc_RPL_NAMEREPLY and irc_RPL_ENDOFNAMES instead of sending WHO
+* Make character sheets detachable
+* Update screenshots
