@@ -4,10 +4,16 @@ import BZFlag.Network
 import BZFlag.Client
 import BZFlag.ListServer
 import BZFlag.Protocol.FromServer
+import sys
 
-# Just pick the first server on the list that's compatible with us
-server = BZFlag.ListServer.getDefault().filteredList()[0]
-print server.info()
+if len(sys.argv) > 1:
+    # There was a server name on the command line
+    serverName = sys.argv[1]
+else:
+    # Just pick the first server on the list that's compatible with us
+    server = BZFlag.ListServer.getDefault().filteredList()[0]
+    serverName = server.name
+    print server.info()
 
 class TestClient(BZFlag.Client.BaseClient):
     def onConnect(self):
@@ -23,4 +29,4 @@ class TestClient(BZFlag.Client.BaseClient):
         print
 
 
-TestClient(server.name).run()
+TestClient(serverName).run()
