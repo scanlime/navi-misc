@@ -32,27 +32,23 @@ Iterated Function Systems are a celebrated class of dynamical systems in the
 computer graphics world. By defining a constrictive set of functions and
 recursing, beautiful fractal images can be created. Classically, these
 systems use a set of affine transformations, such as Sierpinski's Gasket.
-The addition of nonlinear transformations creates the popular ``flame''
-fractal. A subclass of these are chaotic maps. Whereas traditional iterated
-function systems use a set equation to create a tree structure, chaotic maps
-iterate a single equation. This creates a single reproducable orbit through
-the space occupied by the attractor. As the point jumps around it exposes
-itself onto the image region, leaving a characteristic picture of the map.
+More complex versions of these can be seen in the popular ``flame'' fractals
+and single-orbit chaotic maps. When any of these systems is computed the
+result is a density field which can then be rendered in any number of ways.
 
-The imaging techniques used to visualize these types of systems are often
-very simple, allowing only a few thousand points to be drawn. However,
-with high-dynamic-range image processing techniques these images can
-contain many millions of points, exposing far more internal structure.
+The traditional imaging techniques used to visualize these types of systems
+are usually very simple, allowing only a few thousand points to be drawn.
+However, with high-dynamic-range image processing techniques these images
+can contain many millions of points, exposing far more internal structure.
 
 \section{Exposition}
 Generally the literature discussing chaotic maps and other systems which
-produce density fields is full of black and white images, created where
-each pixel is darkened as the point moves around the image region. This
-technique is often sufficient for analyzing the structure of a map but
-does not provide a sound basis for the use of the map as an artistic
-entity. The structure of the attractor is only minimally visible using
-such techniques, because a long iteration run will quickly result in a
-completely black image.
+produce density fields is full of greyscale images created where each pixel
+is darkened as the point moves around the image region. This technique is
+often sufficient for analyzing the structure of a map but does not provide
+a sound basis for the use of the map as an artistic entity. The structure
+of the attractor is only minimally visible using such techniques, because
+a long iteration run will quickly result in a completely black image.
 
 \begin{figure}[ht]
 \centering
@@ -105,6 +101,8 @@ The possibility of interactivity enables this technique to be used not only
 for data visualization but as an artists tool. In particular, the ability
 to interactively explore the parameter space of a chaotic map allows the
 discovery of beautiful attractors which can then serve as textures or other
-feed material where subtlety is required.
+feed material. Possible future directions of this technique involve the use
+of computer vision to automatically detect and avoid parameter sets which
+result in non-chaotic attractors such as fixed points.
 
 \end{document}
