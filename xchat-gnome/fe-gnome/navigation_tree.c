@@ -71,6 +71,7 @@ void initialize_navigation_tree() {
 	g_signal_connect(G_OBJECT(select), "changed", G_CALLBACK(navigation_selection_changed), NULL);
 	g_signal_connect(G_OBJECT(navigation_view), "button_press_event", G_CALLBACK(navigation_click), NULL);
 	g_signal_connect(G_OBJECT(navigation_view), "button_release_event", G_CALLBACK(declick), NULL);
+	g_object_set(G_OBJECT(navigation_view), "can-focus", FALSE, NULL);
 }
 
 void navigation_tree_create_new_network_entry(struct session *sess) {
