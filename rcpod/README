@@ -1,0 +1,11 @@
+rcpod - the Remote Controlled PIC of Doom
+-----------------------------------------
+
+This is a piece of firmware and a python module that lets you peek and poke values
+into the registers of a PIC16C745 or PIC16C765 microcontroller over USB. It is
+intended as a way to rapidly prototype firmware or test hardware when timing isn't
+critical. Python functions are provided that can control I/O ports and other onboard
+hardware like the PWM modules and USART.
+
+-- Micah Dowty <micah@navi.picogui.org>
+
