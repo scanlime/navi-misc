@@ -35,6 +35,7 @@ typedef struct {
 	GtkDialog *preferences_dialog;
 	GnomeAbout *about;
 	GtkXText *xtext;
+	GtkWidget *topic;
 	session *current_session;
 	GnomeDruid *setup_druid;
 	gboolean quit;

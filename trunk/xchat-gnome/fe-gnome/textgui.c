@@ -180,12 +180,8 @@ void set_gui_topic(session *sess, char *topic) {
 			tgui->topic = g_strdup(sess->topic);
 	else
 		tgui->topic = g_strdup(topic);
-	if(sess == gui.current_session) {
-		GtkWidget *topicbar;
-
-		topicbar = glade_xml_get_widget(gui.xml, "topic label");
-		topic_label_set_text (topicbar, tgui->topic);
-	}
+	if(sess == gui.current_session)
+		topic_label_set_text (gui.topic, tgui->topic);
 }
 
 void clear_buffer(struct session *sess) {
