@@ -1,11 +1,28 @@
 #!BPY
 #
-# Blender to BZFlag World exporter
-# Micah Dowty <micah@navi.cx>
+# bz_export.py - Exports all specially tagged Blender objects
+#                to a BZFlag world file.
+#
+# Blender-based BZFlag World Editor
+# Copyright (C) 2004 David Trowbridge and Micah Dowty
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 
 """ Registration info for Blender menus:
-Name: 'BZFlag World'
+Name: 'BZFlag World...'
 Blender: 234
 Group: 'Export'
 Tip: 'Exports specially tagged Blender objects to a BZFlag world file'
@@ -14,79 +31,70 @@ Tip: 'Exports specially tagged Blender objects to a BZFlag world file'
 import Blender
 import math
 
-class BzWorldExporter:
-    def __init__(self, scale=10):
-        self.scale = scale
+try:
+    import bzflag
+except ImportError:
+    Blender.Draw.PupMenu("Error importing 'bzflag' module%t|"
+                         "You may have to start the Blender game engine|"
+                         "momentarily then exit it to set the Python|"
+                         "path properly.")
+    bzflag = None
 
+
+class BzWorldExporter:
     def collectObjects(self):
         """Look through all Blender objects, finding those tagged with
-           a 'bztype' property. This builds self.bzTypeMap, mapping bztypes
-           to lists of objects.
+           a 'bztype' property. This looks for exactly one 'world' object,
+           storing it in self.world. All bzflag objects are added to
+           self.objects.
            """
-        self.bzTypeMap = {}
+        self.world = None
+        self.objects = []
+        typeReg = bzflag.getTypeRegistry()
+
         for object in Blender.Object.Get():
-            props = object.getAllProperties()
-            for prop in props:
-                if prop.getName() == "bztype":
-                    self.bzTypeMap.setdefault(prop.getData(), []).append(object)
+            try:
+                bztype = object.getProperty("bztype")
+            except AttributeError:
+                pass
+            else:
+                # Create a BZObject using the TypeRegistry
+                bzo = typeReg.fromBlender(object)
+                self.objects.append(bzo)
 
-    def writeLine(self, *args):
-        self.stream.write(" ".join([str(arg) for arg in args]) + "\n")
+                if bztype == 'world':
+                    if self.world:
+                        bzflag.log.err("Multiple 'world' objects are not allowed")
+                        return
+                    else:
+                        self.world = bzo
 
-    def check(self):
-        """Check the world for correctness. Returns True if correct,
-           or False if incorrect. A popup reports errors to the user if
-           they are found.
-           """
-        errors = []
-
-        if 'world' not in self.bzTypeMap:
-            errors.append("A 'world' object is required")
-        elif len(self.bzTypeMap['world']) > 1:
-            errors.append("Multiple 'world' objects are not allowed")
-
-        if errors:
-            Blender.Draw.PupMenu("Errors exporting BZFlag world:%t|" + "|".join(errors))
-            return False
-        else:
-            return True
+        if not self.world:
+            bzflag.log.err("A 'world' object is required")
 
     def save(self, filename):
         """Write all collected bzflag objects to the given file"""
-        self.stream = open(filename, "w")
-        for type, objects in self.bzTypeMap.iteritems():
-            handler = getattr(self, "write_" + type)
+        writer = bzflag.WorldWriter(filename)
+        for objects in self.bzTypeMap.itervalues():
             for object in objects:
-                handler(object)
-                self.stream.write("\n")
+                writer.writeObject(object)
 
-    def writeCommon(self, object):
-        self.writeLine("position",
-                       object.LocX * self.scale,
-                       object.LocY * self.scale,
-                       object.LocZ * self.scale)
-        self.writeLine("rotation", object.RotZ * 180 / math.pi)
-        self.writeLine("size",
-                       object.SizeX * self.scale,
-                       object.SizeZ * self.scale,
-                       object.SizeY * self.scale)
 
-    def write_box(self, object):
-        self.writeLine("box")
-        self.writeCommon(object)
-        self.writeLine("end")
+def main():
+    exp = BzWorldExporter()
+    exp.collectObjects()
+    if bzflag.log.numErrors:
+        bzflag.log.report("Errors in collecting objects")
+        return
 
-    def write_world(self, object):
-        self.writeLine("world")
-        self.writeLine("size", object.SizeX * self.scale)
-        self.writeLine("end")
+    def onFileSelected(name):
+        exp.save(name)
+        if bzflag.log.numErrors:
+            bzflag.log.report("Errors in saving world file")
 
-    def write_pyramid(self, object):
-        self.writeLine("pyramid")
-        self.writeCommon(object)
-        self.writeLine("end")
+    Blender.Window.FileSelector(onFileSelected, "Save BZFlag World")
 
-exp = BzWorldExporter()
-exp.collectObjects()
-if exp.check():
-    Blender.Window.FileSelector(exp.save, "Save BZFlag World")
+if bzflag:
+    main()
+
+### The End ###
