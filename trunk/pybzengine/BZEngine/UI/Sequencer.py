@@ -293,15 +293,15 @@ def PageInterrupter(events, page):
 
 
 def UserPageInterrupter(page):
-    """Wraps a page such that it can be interrupted by user interaction
-       (a key or mouse button press)
+    """Wraps a page such that it can be interrupted by user interaction.
+       This consists of clicking the left mouse button, pressing enter,
+       or pressing the space bar.
        """
     def factory(book):
-        events = [
-            book.viewport.onKeyDown,
-            book.viewport.onMouseButtonDown,
-            ]
-        return PageInterrupter(events, page)(book)
+        # Instantiate the page
+        p = page(book)
+
+        # Add event handlers to the page's viewport
     return factory
 
 
