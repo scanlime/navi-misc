@@ -8,7 +8,8 @@
         <hook class="com.novell.evolution.calendar.config:1.0">
             <group
 	     target="source"
-	     id="com.novell.evolution.calendar.calendarProperties">
+	     id="com.novell.evolution.calendar.calendarProperties"
+	     commit="e_calendar_http_commit">
                 <item
 		 type="item_table"
 		 path="00.general/00.source/30.url"
