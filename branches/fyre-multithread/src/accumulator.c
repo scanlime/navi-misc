@@ -103,4 +103,6 @@ accumulator_merge (Accumulator *acc, IterativeMap *image)
     }
   }
   histogram_imager_finish_plots (HISTOGRAM_IMAGER (acc), &acc->plot);
+
+  acc->total_iterations += image->iterations;
 }
