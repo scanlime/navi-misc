@@ -64,6 +64,14 @@ static void tool_blur(double dx, double dy);
 static void tool_zoom(double dx, double dy);
 static void tool_rotate(double dx, double dy);
 static void tool_exposure_gamma(double dx, double dy);
+static void tool_a_b(double dx, double dy);
+static void tool_a_c(double dx, double dy);
+static void tool_a_d(double dx, double dy);
+static void tool_b_c(double dx, double dy);
+static void tool_b_d(double dx, double dy);
+static void tool_c_d(double dx, double dy);
+static void tool_ab_cd(double dx, double dy);
+static void tool_ac_bd(double dx, double dy);
 
 gboolean on_expose(GtkWidget *widget, GdkEventExpose *event, gpointer user_data);
 void on_param_spinner_changed(GtkWidget *widget, gpointer user_data);
@@ -482,6 +490,14 @@ gboolean on_motion_notify(GtkWidget *widget, GdkEvent *event) {
     {"tool_zoom",           tool_zoom},
     {"tool_rotate",         tool_rotate},
     {"tool_exposure_gamma", tool_exposure_gamma},
+    {"tool_a_b",            tool_a_b},
+    {"tool_a_c",            tool_a_c},
+    {"tool_a_d",            tool_a_d},
+    {"tool_b_c",            tool_b_c},
+    {"tool_b_d",            tool_b_d},
+    {"tool_c_d",            tool_c_d},
+    {"tool_ab_cd",          tool_ab_cd},
+    {"tool_ac_bd",          tool_ac_bd},
 
     {NULL, NULL},
   };
@@ -534,6 +550,58 @@ static void tool_exposure_gamma(double dx, double dy) {
   render.exposure -= dy * 0.001;
   render.gamma += dx * 0.001;
   gui.update_render_params_when_convenient = TRUE;
+}
+
+static void tool_a_b(double dx, double dy) {
+  params.a += dx * 0.001;
+  params.b += dy * 0.001;
+  gui.update_calc_params_when_convenient = TRUE;
+}
+
+static void tool_a_c(double dx, double dy) {
+  params.a += dx * 0.001;
+  params.c += dy * 0.001;
+  gui.update_calc_params_when_convenient = TRUE;
+}
+
+static void tool_a_d(double dx, double dy) {
+  params.a += dx * 0.001;
+  params.d += dy * 0.001;
+  gui.update_calc_params_when_convenient = TRUE;
+}
+
+static void tool_b_c(double dx, double dy) {
+  params.b += dx * 0.001;
+  params.c += dy * 0.001;
+  gui.update_calc_params_when_convenient = TRUE;
+}
+
+static void tool_b_d(double dx, double dy) {
+  params.b += dx * 0.001;
+  params.d += dy * 0.001;
+  gui.update_calc_params_when_convenient = TRUE;
+}
+
+static void tool_c_d(double dx, double dy) {
+  params.c += dx * 0.001;
+  params.d += dy * 0.001;
+  gui.update_calc_params_when_convenient = TRUE;
+}
+
+static void tool_ab_cd(double dx, double dy) {
+  params.a += dx * 0.001;
+  params.b += dx * 0.001;
+  params.c += dy * 0.001;
+  params.d += dy * 0.001;
+  gui.update_calc_params_when_convenient = TRUE;
+}
+
+static void tool_ac_bd(double dx, double dy) {
+  params.a += dx * 0.001;
+  params.c += dx * 0.001;
+  params.b += dy * 0.001;
+  params.d += dy * 0.001;
+  gui.update_calc_params_when_convenient = TRUE;
 }
 
 /* The End */
