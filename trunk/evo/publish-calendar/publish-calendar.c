@@ -301,7 +301,6 @@ publish_calendar_locations (EPlugin *epl, EConfigHookItemFactoryData *data)
 		}
 
 		l = g_slist_next (l);
-		g_free (xml);
 	}
 	if (gtk_tree_model_get_iter_first (GTK_TREE_MODEL (store), &iter))
 		gtk_tree_selection_select_iter (selection, &iter);
