@@ -26,71 +26,68 @@ class ASFReader:
     axis = None
     position = []
     orientation = []
+    grammar = None
 
-float = Word(nums + '.e+-')
-comment = Literal('#') + Optional (restOfLine)
+    def gotRoot(self, s, loc, toks):
+        print 'root:\t',toks[0]
+    def gotUnit(self, s, loc, toks):
+        print 'units:\t',toks[0]
+    def gotBone(self, s, loc, toks):
+        print 'bone:\t',toks[0]
 
-axisOrder = oneOf("XYZ XZY YXZ YZX ZXY ZYX")
-ro = oneOf("TX TY TZ RX RY RZ")
+    def getGrammar(self):
+        if self.grammar is None:
+            float = Word(nums + '.e+-')
+            comment = Literal('#') + Optional (restOfLine)
+            axisOrder = oneOf("XYZ XZY YXZ YZX ZXY ZYX")
+            ro = oneOf("TX TY TZ RX RY RZ")
+            rootElement = Group(
+                "order" + ro + ro + ro + ro + ro + ro \
+              | "axis" + axisOrder \
+              | "position" + float + float + float \
+              | "orientation" + float + float + float
+              )
+            root = Group(OneOrMore(rootElement))
+            unitElement = Group("mass" + float | "length" + float | "angle" + oneOf("deg rad"))
+            unit = Group(OneOrMore(unitElement))
+            dof = oneOf("rx ry rz")
+            triplet = Literal('(').suppress() + float + float + Literal(')').suppress()
+            boneElement = Group(
+                "id" + Word(nums) \
+              | "name" + Word(alphanums) \
+              | "direction" + float + float + float \
+              | "length" + float \
+              | "axis" + float + float + float + axisOrder \
+              | "dof" + OneOrMore(dof) \
+              | "limits" + OneOrMore(triplet)
+              )
+            bone = Suppress("begin") + Group(OneOrMore(boneElement)) + Suppress("end")
+            bonedata = ZeroOrMore(bone)
+            hierElement = Group(OneOrMore(Word(alphanums)))
+            hierarchy = Suppress("begin") + OneOrMore(hierElement)
+            docLine = Combine(OneOrMore(Word(alphanums + '!"#$%&\'()*+,-./;<=>?@[\\]^_`{|}~')), joinString=' ', adjacent=False)
+            sectstart = LineStart() + Literal(':').suppress()
+            section = Group(
+                sectstart + "version" + float \
+              | sectstart + "name" + Word(printables) \
+              | sectstart + "units" + unit \
+              | sectstart + "documentation" + docLine \
+              | sectstart + "root" + root \
+              | sectstart + "bonedata" + bonedata \
+              | sectstart + "hierarchy" + hierarchy
+              )
+            part = section | Suppress(comment)
+            self.grammar = OneOrMore(part)
 
-rootElement = Group(
-    "order" + ro + ro + ro + ro + ro + ro \
-  | "axis" + axisOrder \
-  | "position" + float + float + float \
-  | "orientation" + float + float + float
-  )
-root = Group(OneOrMore(rootElement))
+            root.setParseAction(self.gotRoot)
+            unit.setParseAction(self.gotUnit)
+            bone.setParseAction(self.gotBone)
 
-unitElement = Group("mass" + float | "length" + float | "angle" + oneOf("deg rad"))
-unit = Group(OneOrMore(unitElement))
-
-dof = oneOf("rx ry rz")
-triplet = Literal('(').suppress() + float + float + Literal(')').suppress()
-
-boneElement = Group(
-    "id" + Word(nums) \
-  | "name" + Word(alphanums) \
-  | "direction" + float + float + float \
-  | "length" + float \
-  | "axis" + float + float + float + axisOrder \
-  | "dof" + OneOrMore(dof) \
-  | "limits" + OneOrMore(triplet)
-  )
-bone = Suppress("begin") + Group(OneOrMore(boneElement)) + Suppress("end")
-bonedata = ZeroOrMore(bone)
-
-hierElement = Group(OneOrMore(Word(alphanums)))
-#hierarchy = Group("begin" + OneOrMore(hierElement) + "end")
-hierarchy = Suppress("begin") + OneOrMore(hierElement)
-
-docLine = Combine(OneOrMore(Word(alphanums + '!"#$%&\'()*+,-./;<=>?@[\\]^_`{|}~')), joinString=' ', adjacent=False)
-
-sectstart = LineStart() + Literal(':').suppress()
-section = Group(
-    sectstart + "version" + float \
-  | sectstart + "name" + Word(printables) \
-  | sectstart + "units" + unit \
-  | sectstart + "documentation" + docLine \
-  | sectstart + "root" + root \
-  | sectstart + "bonedata" + bonedata \
-  | sectstart + "hierarchy" + hierarchy
-  )
-
-part = section | Suppress(comment)
-
-asfFile = OneOrMore(part)
-
-def gotRoot(s, loc, toks):
-    print 'root:\t',toks[0]
-def gotUnit(s, loc, toks):
-    print 'units:\t',toks[0]
-def gotBone(s, loc, toks):
-    print 'bone:\t',toks[0]
-root.setParseAction(gotRoot)
-unit.setParseAction(gotUnit)
-bone.setParseAction(gotBone)
+        return self.grammar
 
 # main program
+reader = ASFReader()
+asfFile = reader.getGrammar()
 x = asfFile.parseFile('02.asf')
 
 s = {}
