@@ -311,7 +311,7 @@ GtkWidget *build_sidebar() {
   GtkWidget *table;
   int row;
 
-  table = gtk_table_new(18, 2, FALSE);
+  table = gtk_table_new(20, 2, FALSE);
   gtk_table_set_row_spacings(GTK_TABLE(table), 6);
   gtk_table_set_col_spacings(GTK_TABLE(table), 6);
 
@@ -319,6 +319,11 @@ GtkWidget *build_sidebar() {
   {
     GtkWidget *label, *hsep;
     row = 0;
+
+    label = gtk_label_new("<span weight=\"bold\">Computation\nSettings</span>");
+    gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
+    gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_CENTER);
+    add_to_sidebar(table, &row, 0, 2, label);
 
     label = gtk_label_new("A:");
     gtk_misc_set_alignment(GTK_MISC(label), 0, 0.5);
@@ -363,6 +368,11 @@ GtkWidget *build_sidebar() {
     hsep = gtk_hseparator_new();
     add_to_sidebar(table, &row, 0, 2, hsep);
 
+    label = gtk_label_new("<span weight=\"bold\">Rendering\nSettings</span>");
+    gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
+    gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_CENTER);
+    add_to_sidebar(table, &row, 0, 2, label);
+
     label = gtk_label_new("Exposure:");
     gtk_misc_set_alignment(GTK_MISC(label), 0, 0.5);
     add_to_sidebar(table, &row, 0, 1, label);
@@ -386,6 +396,9 @@ GtkWidget *build_sidebar() {
   /* Spin buttons */
   {
     row = 0;
+
+    /* Skip label */
+    row++;
 
     gui.a = gtk_spin_button_new_with_range(-9.999, 9.999, 0.001);
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui.a), params.a);
@@ -438,6 +451,9 @@ GtkWidget *build_sidebar() {
     g_signal_connect(G_OBJECT(gui.blur_ratio), "changed", G_CALLBACK(param_spinner_changed), NULL);
 
     /* Skip separator */
+    row++;
+
+    /* Skip label */
     row++;
 
     gui.exposure = gtk_spin_button_new_with_range(0.001, 9.999, 0.001);
