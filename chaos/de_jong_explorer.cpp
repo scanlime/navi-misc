@@ -207,19 +207,18 @@ void stopclick(GtkWidget *widget, gpointer user_data) {
 }
 
 void saveclick(GtkWidget *widget, gpointer user_data) {
-  /* wait for gtk 2.3....
   GtkWidget *dialog;
 
-  dialog = gtk_file_chooser_dialog_new("Save", window, GTK_FILE_CHOOSER_ACTION_SAVE,
+  dialog = gtk_file_chooser_dialog_new("Save", GTK_WINDOW(window), GTK_FILE_CHOOSER_ACTION_SAVE,
   				       GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
 				       GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
 				       NULL);
   if(gtk_dialog_run(GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT) {
     char *filename;
     filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
-    g_print("saving to '%s'\n", filename);
+    GdkPixbuf *buf = gdk_pixbuf_get_from_drawable(NULL, backb, NULL, 0, 0, 0, 0, 800, 800);
+    gdk_pixbuf_save(buf, filename, "png", NULL, NULL);
     g_free(filename);
   }
   gtk_widget_destroy(dialog);
-  */
 }
