@@ -98,33 +98,33 @@ bool CTestWorld::init ( const char* mapFileName )
 	sscanf(mapFile.ReadLine(),"sun: %f %f %f %f %f %f",&sunPos[0],&sunPos[1],&sunPos[2],&sunColor[0],&sunColor[1],&sunColor[2]);
 
 	// tuft groups
-	int tufCount = 0;
+	int flairCount = 0;
 	//tufts: n
-	sscanf(mapFile.ReadLine(),"flairgroups: %d",&tufCount);
+	sscanf(mapFile.ReadLine(),"flairgroups: %d",&flairCount);
 	
-	trTuftDef	tuft;
+	trFlairDef	flair;
 	int			temp;
-	for(int i = 0; i < tufCount; i++)
+	for(int i = 0; i < flairCount; i++)
 	{
 		//tuft: n
 		sscanf(mapFile.ReadLine(),"flair: %d",&temp);
 
 		//mesh: name
-		tuft.mesh = &(mapFile.ReadLine()[6]);
+		flair.mesh = &(mapFile.ReadLine()[6]);
 
 		//count: n
-		sscanf(mapFile.ReadLine(),"count: %d",&tuft.count);
+		sscanf(mapFile.ReadLine(),"count: %d",&flair.count);
 
 		//center: x y
-		sscanf(mapFile.ReadLine(),"center: %f %f",&tuft.center[0],&tuft.center[1]);
+		sscanf(mapFile.ReadLine(),"center: %f %f",&flair.center[0],&flair.center[1]);
 
 		//range: r
-		sscanf(mapFile.ReadLine(),"range: %f",&tuft.range);
+		sscanf(mapFile.ReadLine(),"range: %f",&flair.range);
 
 		//scale: min max
-		sscanf(mapFile.ReadLine(),"scale: %f %f",&tuft.scale[0],&tuft.scale[1]);
+		sscanf(mapFile.ReadLine(),"scale: %f %f",&flair.scale[0],&flair.scale[1]);
 
-		tufts.push_back(tuft);
+		flairGroups.push_back(flair);
 	}
 	mapFile.Close();
 
@@ -133,7 +133,7 @@ bool CTestWorld::init ( const char* mapFileName )
 
 void CTestWorld::clear ( void )
 {
-	tufts.clear();
+	flairGroups.clear();
 }
 
 void CTestWorld::sendMapTo ( CNetworkPeer &peer )
@@ -152,10 +152,10 @@ void CTestWorld::sendMapTo ( CNetworkPeer &peer )
 	message.AddV(sunPos);
 	message.AddV(sunColor);
 	message.AddV(ambientColor);
-	message.AddI((int)tufts.size());
+	message.AddI((int)flairGroups.size());
 
-	std::vector<trTuftDef>::iterator	itr = tufts.begin();
-	while (itr != tufts.end())
+	std::vector<trFlairDef>::iterator	itr = flairGroups.begin();
+	while (itr != flairGroups.end())
 	{
 		message.AddStr(itr->mesh.c_str());
 		message.AddI(itr->count);
