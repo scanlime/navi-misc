@@ -381,6 +381,8 @@ open_url (GtkAction *action, gpointer data)
 static void
 copy_text (GtkAction *action, gpointer data)
 {
+	GtkClipboard *clipboard = gtk_clipboard_get (GDK_NONE);
+	gtk_clipboard_set_text (clipboard, selected_word, strlen (selected_word));
 }
 
 static void
