@@ -352,8 +352,8 @@ class Reader:
               | Group(CaselessLiteral('texcoord') + TwoDPoint)
               | materialProperty
               | phydrv
-              | smoothbounce
-              | noclusters
+              | Group(smoothbounce)
+              | Group(noclusters)
               | obstacleProperty
               )
             mesh = Group(CaselessLiteral('mesh') + OneOrMore(meshProperty) + end)

@@ -23,6 +23,25 @@ BZFlag.Object implementing a mesh.
 from Object import Object
 import Blender
 
+class Face:
+    vertices = []
+    normals = []
+    texcoords = []
+
+    def __init__(self, list=None):
+        if list is not None:
+            for property in list[1:]:
+                getattr(self, "set_%s" % property[0])(property[1:])
+
+    def set_vertices(self, vertices):
+        self.vertices = [float(n) for n in vertices]
+
+    def set_normals(self, normals):
+        self.normals = [float(n) for n in normals]
+
+    def set_texcoords(self, texcoords):
+        self.texcoords = [float(n) for n in texcoords]
+
 class Mesh(Object):
     type = 'mesh'
 
@@ -38,7 +57,8 @@ class Mesh(Object):
                     print 'error!',property[0],e
 
     def set_face(self, face):
-        pass
+        f = Face(face)
+        self.faces.append(tuple(f.vertices))
 
     def set_vertex(self, vertex):
         self.verts.append([float(n) for n in vertex])
@@ -47,6 +67,9 @@ class Mesh(Object):
         pass
 
     def set_texcoord(self, texcoord):
+        pass
+
+    def set_smoothbounce(self, s):
         pass
 
     def set_matref(self, matref):
