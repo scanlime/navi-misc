@@ -7,15 +7,16 @@
 
 typedef boost::numeric::ublas::vector<double> twov;
 
-#define WIDTH 800
-#define HEIGHT 800
+#define WIDTH   800
+#define HEIGHT  800
+#define COLORS  65536
 
 twov point(2);
 GtkWidget *window, *drawing_area, *iterl;
 GtkWidget *as, *bs, *cs, *ds, *start, *stop, *save;
 GdkPixmap *backb;
 int iterations;
-GdkGC *grey[65536], *gc;
+GdkGC *colormap[COLORS], *gc;
 int data[WIDTH][HEIGHT];
 double a, b, c, d;
 guint idler;
@@ -59,11 +60,11 @@ int main(int argc, char ** argv) {
   backb = gdk_pixmap_new(NULL, WIDTH, HEIGHT, 24);
 
   GdkColor c;
-  for(int i = 0; i < 65536; i++) {
-    c.red = c.green = c.blue = i;
-    grey[i] = gdk_gc_new(backb);
-    gdk_gc_set_rgb_bg_color(grey[i], &c);
-    gdk_gc_set_rgb_fg_color(grey[i], &c);
+  for(int i = 0; i < COLORS; i++) {
+    c.red = c.green = c.blue = (COLORS - 1 - i) * 65535 / COLORS;
+    colormap[i] = gdk_gc_new(backb);
+    gdk_gc_set_rgb_bg_color(colormap[i], &c);
+    gdk_gc_set_rgb_fg_color(colormap[i], &c);
   }
   gc = gdk_gc_new(drawing_area->window);
 
@@ -132,7 +133,7 @@ GtkWidget *build_sidebar() {
 }
 
 void draw() {
-  gdk_draw_rectangle(backb, grey[65535], TRUE, 0, 0, WIDTH, HEIGHT);
+  gdk_draw_rectangle(backb, colormap[0], TRUE, 0, 0, WIDTH, HEIGHT);
   flip();
 }
 
@@ -141,10 +142,20 @@ void flip() {
 }
 
 static void plop(int x, int y) {
-  if(data[x][y] < 64880) {
-    data[x][y] += 655;
-  }
-  gdk_draw_point(backb, grey[65535 - data[x][y]], x, y);
+  int p = data[x][y] + 1;
+  data[x][y] = p;
+
+  /* Scale our data to a luminance between 0 and 1 that gets fed through our
+   * colormap[] to generate an actual gdk color. 'p' contains the number of
+   * times our point has passed the current pixel.
+   *
+   * iterations / (WIDTH * HEIGHT) gives us the average density of data[].
+   */
+  float density = ((float)iterations) / (WIDTH * HEIGHT);
+  float luma = p / density * 0.01;
+
+  if (luma > 1) luma = 1;
+  gdk_draw_point(backb, colormap[int(luma * (COLORS-1))], x, y);
 }
 
 static int draw_more(void *data) {
@@ -155,13 +166,21 @@ static int draw_more(void *data) {
   static float xscale = float(xoffset) / 2.5;
   static float yscale = float(yoffset) / 2.5;
 
+  /* Add in half our iterations before the loop and half after, so
+   * the density calculations in plop() are half correct. We must
+   * have at least one iteration before calling plop(), or we get
+   * a divide by zero, and those are bad.
+   */
+  iterations += iterationsAtOnce / 2;
+
   for(int i = iterationsAtOnce; i; --i) {
     point = dejong(a, b, c, d, point);
     plop(int(point(0) * xscale + xoffset), int(point(1) * yscale + yoffset));
   }
 
+  iterations += iterationsAtOnce / 2;
+
   flip();
-  iterations += iterationsAtOnce;
   gchar *iters = g_strdup_printf("%d", iterations);
   gtk_label_set_text(GTK_LABEL(iterl), iters);
   g_free(iters);
