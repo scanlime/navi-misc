@@ -145,7 +145,18 @@ ClusterModel*  cluster_model_new              (IterativeMap*         master_map)
     g_signal_connect(self->master_map, "calculation-start",    G_CALLBACK(on_calc_start),    self);
     g_signal_connect(self->master_map, "calculation-stop",     G_CALLBACK(on_calc_stop),     self);
 
+    g_object_set_data(G_OBJECT(self->master_map), "ClusterModel", self);
+
     return self;
+}
+
+ClusterModel*  cluster_model_get              (IterativeMap*         master_map)
+{
+    ClusterModel *self = g_object_get_data(G_OBJECT(master_map), "ClusterModel");
+    if (self)
+	return g_object_ref(self);
+    else
+	return cluster_model_new(master_map);
 }
 
 

@@ -21,6 +21,8 @@
  *
  */
 
+#include "config.h"
+
 #ifdef WIN32
 #include <windows.h>
 #include <io.h>
@@ -38,20 +40,22 @@
 #include "avi-writer.h"
 #include "screensaver.h"
 #include "remote-server.h"
-#include "config.h"
+#include "batch-image-render.h"
 
-static void usage                  (char       **argv);
-static void animation_render_main  (DeJong      *dejong,
-				    Animation   *animation,
-				    const gchar *filename,
-				    gulong       target_density);
-static void image_render_main      (DeJong      *dejong,
-				    const gchar *filename,
-				    gulong       target_density);
+#ifdef HAVE_GNET
+#include "cluster-model.h"
+#endif
+
+static void usage                  (char          **argv);
+static void animation_render_main  (IterativeMap   *map,
+				    Animation      *animation,
+				    const gchar    *filename,
+				    gulong          target_density);
 static void acquire_console        (void);
 
+
 int main(int argc, char ** argv) {
-    DeJong* dejong;
+    IterativeMap* map;
     Animation* animation;
     gboolean animate = FALSE;
     gboolean have_gtk;
@@ -65,7 +69,7 @@ int main(int argc, char ** argv) {
     g_type_init();
     have_gtk = gtk_init_check(&argc, &argv);
 
-    dejong = de_jong_new();
+    map = ITERATIVE_MAP(de_jong_new());
     animation = animation_new();
 
     while (1) {
@@ -77,13 +81,14 @@ int main(int argc, char ** argv) {
 	    {"param",       1, NULL, 'p'},
 	    {"size",        1, NULL, 's'},
 	    {"oversample",  1, NULL, 'S'},
-	    {"density",     1, NULL, 'd'},
+	    {"density",     1, NULL, 't'},
 	    {"remote",      0, NULL, 'r'},
 	    {"port",        1, NULL, 'P'},
+	    {"cluster",     1, NULL, 'c'},
 	    {"screensaver", 0, NULL, 1000},   /* Undocumented, still experimental */
 	    {NULL},
 	};
-	c = getopt_long(argc, argv, "hi:n:o:p:s:S:d:rP:",
+	c = getopt_long(argc, argv, "hi:n:o:p:s:S:t:rP:c:",
 			long_options, &option_index);
 	if (c == -1)
 	    break;
@@ -91,7 +96,7 @@ int main(int argc, char ** argv) {
 	switch (c) {
 
 	case 'i':
-	    histogram_imager_load_image_file(HISTOGRAM_IMAGER(dejong), optarg);
+	    histogram_imager_load_image_file(HISTOGRAM_IMAGER(map), optarg);
 	    break;
 
 	case 'n':
@@ -105,18 +110,18 @@ int main(int argc, char ** argv) {
 	    break;
 
 	case 'p':
-	    parameter_holder_load_string(PARAMETER_HOLDER(dejong), optarg);
+	    parameter_holder_load_string(PARAMETER_HOLDER(map), optarg);
 	    break;
 
 	case 's':
-	    parameter_holder_set(PARAMETER_HOLDER(dejong), "size" , optarg);
+	    parameter_holder_set(PARAMETER_HOLDER(map), "size" , optarg);
 	    break;
 
 	case 'S':
-	    parameter_holder_set(PARAMETER_HOLDER(dejong), "oversample", optarg);
+	    parameter_holder_set(PARAMETER_HOLDER(map), "oversample", optarg);
 	    break;
 
-	case 'd':
+	case 't':
 	    target_density = atol(optarg);
 	    break;
 
@@ -126,6 +131,20 @@ int main(int argc, char ** argv) {
 
 	case 'P':
 	    port_number = atol(optarg);
+	    break;
+
+	case 'c':
+#ifdef HAVE_GNET
+	    {
+		ClusterModel *cluster = cluster_model_get(map);
+		cluster_model_add_nodes(cluster, optarg);
+		g_object_unref(cluster);
+	    }
+#else
+	    fprintf(stderr,
+		    "This Fyre binary was compiled without gnet support.\n"
+		    "Cluster support is not available.\n");
+#endif
 	    break;
 
 	case 1000:
@@ -151,16 +170,16 @@ int main(int argc, char ** argv) {
 	    fprintf(stderr, "GTK intiailization failed, can't start in interactive mode\n");
 	    return 1;
 	}
-	explorer_new(ITERATIVE_MAP(dejong), animation);
+	explorer_new(map, animation);
 	gtk_main();
 	break;
 
     case RENDER:
 	acquire_console();
 	if (animate)
-	    animation_render_main(dejong, animation, outputFile, target_density);
+	    animation_render_main(map, animation, outputFile, target_density);
 	else
-	    image_render_main(dejong, outputFile, target_density);
+	    batch_image_render(map, outputFile, target_density);
 	break;
 
     case REMOTE:
@@ -178,7 +197,7 @@ int main(int argc, char ** argv) {
 	    fprintf(stderr, "GTK intiailization failed, can't start in screensaver mode\n");
 	    return 1;
 	}
-	screensaver_new(ITERATIVE_MAP(dejong), animation);
+	screensaver_new(map, animation);
 	gtk_main();
 	break;
     }
@@ -203,6 +222,8 @@ static void usage(char **argv) {
 	    "  -r, --remote            Remote control mode. This is an automation-friendly\n"
 	    "                            interface provided on stdin and stdout.\n"
 	    "  -P N, --port N          Set the TCP port number used for remote control mode\n"
+	    "  -c LIST, --cluster LIST Use a rendering cluster, specified as a comma-separated\n"
+	    "                            list of hostnames, optionally of the form host:port.\n"
 	    "\n"
 	    "Parameters:\n"
 	    "  -p, --param KEY=VALUE   Set a calculation or rendering parameter, using the\n"
@@ -225,63 +246,18 @@ static void usage(char **argv) {
 	    argv[0]);
 }
 
-static void image_render_main (DeJong     *dejong,
-			       const char *filename,
-			       gulong      target_density) {
-    /* Main function for noninteractive rendering. This renders an image with the
-     * current settings until render.current_density reaches target_density. We show helpful
-     * progress doodads on stdout while the poor user has to wait.
-     */
-    float elapsed, remaining;
-
-    while (HISTOGRAM_IMAGER(dejong)->peak_density < target_density) {
-	iterative_map_calculate(ITERATIVE_MAP(dejong), 1000000);
-
-	/* This should be a fairly accurate time estimate, since (asymptotically at least)
-	 * current_density increases linearly with the number of iterations performed.
-	 * Elapsed time and time remaining are in seconds.
-	 */
-	elapsed = histogram_imager_get_elapsed_time(HISTOGRAM_IMAGER(dejong));
-	remaining = elapsed * target_density / HISTOGRAM_IMAGER(dejong)->peak_density - elapsed;
-
-	/* After each batch of iterations, show the percent completion, number
-	 * of iterations (in scientific notation), iterations per second,
-	 * density / target density, and elapsed time / remaining time.
-	 */
-	printf("%6.02f%%   %.3e   %.2e/sec   %6ld / %ld   %02d:%02d:%02d / %02d:%02d:%02d\n",
-	       100.0 * HISTOGRAM_IMAGER(dejong)->peak_density / target_density,
-	       ITERATIVE_MAP(dejong)->iterations, ITERATIVE_MAP(dejong)->iterations / elapsed,
-	       HISTOGRAM_IMAGER(dejong)->peak_density, target_density,
-	       ((int)elapsed) / (60*60), (((int)elapsed) / 60) % 60, ((int)elapsed)%60,
-	       ((int)remaining) / (60*60), (((int)remaining) / 60) % 60, ((int)remaining)%60);
-    }
-
-#ifdef HAVE_EXR
-    /* Save as an OpenEXR file if it has a .exr extension, otherwise use PNG */
-    if (strlen(filename) > 4 && strcmp(".exr", filename + strlen(filename) - 4)==0) {
-	printf("Creating OpenEXR image...\n");
-	exr_save_image_file(HISTOGRAM_IMAGER(dejong), filename);
-    }
-    else
-#endif
-	{
-	    printf("Creating PNG image...\n");
-	    histogram_imager_save_image_file(HISTOGRAM_IMAGER(dejong), filename);
-	}
-}
-
-static void animation_render_main (DeJong      *dejong,
-				   Animation   *animation,
-				   const gchar *filename,
-				   gulong      target_density) {
+static void animation_render_main (IterativeMap *map,
+				   Animation    *animation,
+				   const gchar  *filename,
+				   gulong       target_density) {
     const double frame_rate = 24;
     AnimationIter iter;
     ParameterHolderPair frame;
     guint frame_count = 0;
     gboolean continuation;
     AviWriter *avi = avi_writer_new(fopen(filename, "wb"),
-				    HISTOGRAM_IMAGER(dejong)->width,
-				    HISTOGRAM_IMAGER(dejong)->height,
+				    HISTOGRAM_IMAGER(map)->width,
+				    HISTOGRAM_IMAGER(map)->height,
 				    frame_rate);
 
     animation_iter_get_first(animation, &iter);
@@ -292,16 +268,17 @@ static void animation_render_main (DeJong      *dejong,
 
 	continuation = FALSE;
 	do {
-	    iterative_map_calculate_motion(ITERATIVE_MAP(dejong), 100000, continuation,
+	    iterative_map_calculate_motion(map, 100000, continuation,
 					   PARAMETER_INTERPOLATOR(parameter_holder_interpolate_linear),
 					   &frame);
-	    printf("Frame %d, %e iterations, %ld density\n", frame_count, ITERATIVE_MAP(dejong)->iterations, HISTOGRAM_IMAGER(dejong)->peak_density);
+	    printf("Frame %d, %e iterations, %ld density\n", frame_count,
+		   map->iterations, HISTOGRAM_IMAGER(map)->peak_density);
 	    continuation = TRUE;
-	} while (HISTOGRAM_IMAGER(dejong)->peak_density < target_density);
+	} while (HISTOGRAM_IMAGER(map)->peak_density < target_density);
 
 
-	histogram_imager_update_image(HISTOGRAM_IMAGER(dejong));
-	avi_writer_append_frame(avi, HISTOGRAM_IMAGER(dejong)->image);
+	histogram_imager_update_image(HISTOGRAM_IMAGER(map));
+	avi_writer_append_frame(avi, HISTOGRAM_IMAGER(map)->image);
 
 	frame_count++;
     }

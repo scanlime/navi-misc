@@ -54,6 +54,7 @@ fyre_SOURCES = 				\
 	animation-render-ui.c		\
 	screensaver.c			\
 	prefix.c			\
+	batch-image-render.c		\
 	$(EXR_SRC)			\
 	$(GNET_SRC)
 
