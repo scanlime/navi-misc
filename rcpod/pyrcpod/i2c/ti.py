@@ -21,6 +21,7 @@ Interfaces to specialized I2C devices produced by Texas Instruments
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
+import time
 from pyrcpod import i2c
 
 
@@ -118,20 +119,38 @@ class ADS1112(i2c.Device):
         """Read the latest value, returning None if no new value is available.
            Optionally changes the input channel before reading.
            """
-        if channel is not None:
+        if channel is not None and channel != self.inputChannel:
             self.setChannel(channel)
+            if not self.singleMode:
+                # The A/D converter was probably already busy on the
+                # previous channel- we need to wait for that to finish
+                # so this next value is definitely from the correct channel.
+                self.blockingRead()
+
         high, low, status = self.busRead(3)
         if status & 0x80:
             return None
         else:
             return self._decode(high, low, returnType)
 
-    def read(self, channel=None, returnType=float):
-        """Read the most recently converted value, without regard to whether
-           it has already been read. Optionally changes the input channel first.
+    def blockingRead(self, channel=None, returnType=float, timeout=2.0):
+        """Like readWithStatus, but we keep trying until new data is here
+           or there's an error of some sort. A timeout, in seconds, limits
+           the number of attempts we make.
            """
-        if channel is not None:
-            self.setChannel(channel)
+        deadline = time.time() + timeout
+        while time.time() < deadline:
+            result = self.readWithStatus(channel, returnType)
+            if result is not None:
+                return result
+        raise IOError("Timeout in blocking read from ADS1112 device")
+
+    def read(self, returnType=float):
+        """Read the most recently converted value, without regard to whether
+           it has already been read. This does not support changing input
+           channels, since without reading the status bit we won't know if
+           this data is actually from a different channel or not.
+           """
         high, low = self.busRead(2)
         return self._decode(high, low, returnType)
 

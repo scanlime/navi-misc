@@ -33,8 +33,8 @@ class AnalogUpdaterThread(threading.Thread):
 
     def run(self):
         while self.running:
-            for channel in range(1):
-                self.channels[channel].value = self.adc.read(channel)
+            for channel in range(4):
+                self.channels[channel].value = self.adc.blockingRead(channel)
 
 def main():
     channels = [
