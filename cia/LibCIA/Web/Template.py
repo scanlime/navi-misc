@@ -22,15 +22,20 @@ Template classes for building web pages using our particular style
 #
 
 import Nouvelle.Twisted
-from Nouvelle import tag, place
+from Nouvelle import tag, place, xml
 
 
 # Tags with 'class' attributes should be placed in this module
 catalogList = tag('ul', _class="catalog")
 headingTab = tag('a', _class="headingtab")
 value = tag('strong')
-photo = tag('img', _class="photo")
 
+
+class Photo(tag):
+    """A tag holding an image to be displayed as a photo"""
+    def __init__(self, url, **attrs):
+        tag.__init__(self, 'div', _class='photo')
+        self[ tag('img', src=url, _class='photo', **attrs) ]
 
 class Bargraph(tag):
     """A tag that uses its size to express a value between 0 and 1"""
@@ -129,28 +134,31 @@ class Page(Nouvelle.Twisted.Page):
     leftColumn  = []
     mainColumn  = []
 
-    document = tag('html')[
-        tag('head')[
-            tag('title')[ place("pageTitle") ],
-            tag('style', type="text/css", media="all")[ "@import url(/style.css);" ],
-            ],
-        tag('body')[
-            tag('div', _class="heading")[
-                tag('div', _class="sitename")[ place("siteName") ],
-                tag('div', _class="title")[ place("mainTitle") ],
-                tag('div', _class="subtitle")[ place("subTitle") ],
-                tag('div', _class="headingTabs")[ place("headingTabs") ],
-            ],
-            tag('table', _class="columns")[ tag('tr')[
-                tag('td', _class="left")[ place("leftColumn") ],
-                tag('td', _class="main")[ place("mainColumn") ],
-            ]],
-            tag('div', _class="footer")[
-                tag('a', href="http://navi.cx")[
-                    tag('img', src="/images/navi64.png", width="64", height="39", alt="Navi"),
+    document = [
+        xml('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" '
+            '"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">'),
+        tag('html', xmlns="http://www.w3.org/1999/xhtml")[
+            tag('head')[
+                tag('title')[ place("pageTitle") ],
+                tag('style', type="text/css", media="all")[ "@import url(/style.css);" ],
+                ],
+            tag('body')[
+                tag('div', _class="heading")[
+                    tag('div', _class="sitename")[ place("siteName") ],
+                    tag('div', _class="title")[ place("mainTitle") ],
+                    tag('div', _class="subtitle")[ place("subTitle") ],
+                    tag('div', _class="headingTabs")[ place("headingTabs") ],
+                ],
+                tag('table', _class="columns")[ tag('tr')[
+                    tag('td', _class="left")[ place("leftColumn") ],
+                    tag('td', _class="main")[ place("mainColumn") ],
+                ]],
+                tag('div', _class="footer")[
+                    tag('a', href="http://navi.cx")[
+                        tag('img', src="/images/navi64.png", width="64", height="39", alt="Navi"),
+                    ],
                 ],
             ],
-        ],
-    ]
+        ]]
 
 ### The End ###
