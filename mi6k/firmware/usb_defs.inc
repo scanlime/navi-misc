@@ -38,6 +38,9 @@
 ;
 ;################################################################################
 
+; Size of our transmit and receive ring buffers
+#define BUFFER_SIZE .32
+
 ; Edit these as appropriate for your descriptors
 #define	NUM_CONFIGURATIONS	1
 #define	NUM_INTERFACES		1
