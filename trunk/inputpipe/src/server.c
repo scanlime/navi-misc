@@ -100,6 +100,9 @@ static struct client*   client_new             (int read_fd,
 static void             client_delete          (struct client* self);
 static void             client_poll            (struct client* self);
 static const char*      client_format_addr     (struct client* self);
+static void             client_set_phys        (struct client* self,
+                                                void *content,
+						int length);
 static void             client_received_packet (struct client* self,
 						int type,
 						int length,
@@ -170,6 +173,9 @@ static struct client* client_new(int read_fd, int write_fd)
   if (self->socket->read_fd >= fd_count)
     fd_count = self->socket->read_fd + 1;
 
+  /* Set a default physical address, in case the client never sends one */
+  client_set_phys(self, "unknown", 8);
+
   return self;
 }
 
@@ -227,6 +233,21 @@ static void client_poll(struct client* self)
   }
 }
 
+static void client_set_phys(struct client* self, void *content, int length)
+{
+  char buffer[1024];
+  int prefix_len, copy_len;
+  prefix_len = snprintf(buffer, sizeof(buffer), IPIPE_PHYS_PREFIX "%s/",
+			client_format_addr(self));
+  copy_len = sizeof(buffer) - prefix_len - 1;
+  if (copy_len > length)
+    copy_len = length;
+  memcpy(buffer+prefix_len, content, copy_len);
+  buffer[prefix_len + copy_len] = '\0';
+  if (ioctl(self->uinput_fd, UI_SET_PHYS, buffer) < 0)
+    perror("ioctl UI_SET_PHYS");
+}
+
 static void client_received_packet(struct client* self,
 				   int type, int length, void *content)
 {
@@ -271,19 +292,7 @@ static void client_received_packet(struct client* self,
     /* The client's given us their original physical path. We use
      * this to build a full path of the form ipipe://client:port/path
      */
-    {
-      char buffer[1024];
-      int prefix_len, copy_len;
-      prefix_len = snprintf(buffer, sizeof(buffer), IPIPE_PHYS_PREFIX "%s/",
-			    client_format_addr(self));
-      copy_len = sizeof(buffer) - prefix_len - 1;
-      if (copy_len > length)
-	copy_len = length;
-      memcpy(buffer+prefix_len, content, copy_len);
-      buffer[prefix_len + copy_len] = '\0';
-      if (ioctl(self->uinput_fd, UI_SET_PHYS, buffer) < 0)
-	perror("ioctl UI_SET_PHYS");
-    }
+    client_set_phys(self, content, length);
     break;
 
   case IPIPE_DEVICE_ID:
