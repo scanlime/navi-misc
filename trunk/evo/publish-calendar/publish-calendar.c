@@ -90,6 +90,19 @@ url_add_clicked (GtkButton *button, PublishUIData *ui)
 static void
 url_edit_clicked (GtkButton *button, PublishUIData *ui)
 {
+	GtkTreeSelection *selection;
+	GtkTreeModel *model;
+	GtkTreeIter iter;
+
+	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (ui->treeview));
+	if (gtk_tree_selection_get_selected (selection, &model, &iter)) {
+		EPublishUri *uri;
+		GtkWidget *url_editor;
+
+		gtk_tree_model_get (GTK_TREE_MODEL (model), &iter, 2, &uri, -1);
+		url_editor = url_editor_dialog_new2 (model, uri);
+		url_editor_dialog_run2 ((UrlEditorDialog2 *) url_editor);
+	}
 }
 
 static void
