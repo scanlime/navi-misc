@@ -22,6 +22,14 @@
 #include <stdio.h>
 #include "field-sensor.h"
 
+guchar phase[]  = {24,     33,     21,     28,     26,     34,     17,     14};
+guchar period[] = {27,     26,     29,     26,     27,     30,     29,     29};
+float  mean[]   = {179.27, 199.08, 190.07, 178.63, 205.96, 167.80, 251.76, 236.91};
+float  lbound[] = {168,    167,    172,    164,    179,    158,    183,    176};
+float  ubound[] = {212,    254,    252,    253,    255,    198,    253,    240};
+
+#define max(n,m) ((n > m) ? (n) : (m))
+
 struct filter{
 	unsigned char *buffer;
 	int *sums;
@@ -54,6 +62,25 @@ void filter_append(struct filter* self, unsigned char *sample)
 	self->current = (self->current + 1) % self->num_samples;
 }
 
+float
+scale (float input, int channel)
+{
+	static float scale[8];
+	static gboolean init = FALSE;
+	int i;
+	float f;
+
+	if (!init) {
+		for (i = 0; i < 8; i++) {
+			scale[i] = max (ubound[i] - mean[i], mean[i] - lbound[i]);
+		}
+		init = TRUE;
+	}
+
+	f = (input - mean[channel]) / scale[channel];
+	return 127.0f + (f * 127);
+}
+
 int
 main (int argc, char *argv[])
 {
@@ -71,14 +98,12 @@ main (int argc, char *argv[])
 		int tx = i / 2;
 		field_sensor_set_result_index (sensor, i, i);
 		field_sensor_set_lc_port_xor  (sensor, i, 0xff);
-		field_sensor_set_period       (sensor, i, 29);
-		field_sensor_set_phase        (sensor, i, 71);
+		field_sensor_set_period       (sensor, i, period[i]);
+		field_sensor_set_phase        (sensor, i, phase[i]);
 		field_sensor_set_half_periods (sensor, i, 10);
 		field_sensor_set_lc_port      (sensor, i, 0x55);
-
 		if (i % 2) field_sensor_set_adcon_select (sensor, i, FS_RX_1);
 		else       field_sensor_set_adcon_select (sensor, i, FS_RX_0);
-
 		field_sensor_set_lc_tristate (sensor, i, (1 << tx));
 	}
 
@@ -87,7 +112,7 @@ main (int argc, char *argv[])
 		filter_append(&filter, buffer);
 
 		for (i = 0; i < filter.sample_size; i++)
-			printf ("%f ", (float)filter.sums[i] / filter.num_samples);
+			printf ("%f ", scale ((float)filter.sums[i] / filter.num_samples, i));
 		printf ("\n");
 		fflush(stdout);
 	}
