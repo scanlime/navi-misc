@@ -11,8 +11,7 @@ from LibCIA.Web import StatsBrowser, RulesetBrowser, BotStatus
 application = service.Application("cia_server")
 hub = Message.Hub()
 
-# A place to store stats, written to by the StatsURIHandler and queried
-# by the StatsInterface over XML-RPC
+# A place to store stats, written to by the StatsURIHandler
 statsStorage = Stats.StatsStorage('data/stats.db')
 
 # A network of IRC bots used to handle irc:// URIs

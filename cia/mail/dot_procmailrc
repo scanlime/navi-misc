@@ -6,6 +6,7 @@ UMASK=033
 :0 c
 $CIADIR/data/mail.log
 
+
 ###### Addresses that aren't allowed to send to CIA
 
 # This one seems to be spamming it with
@@ -13,6 +14,7 @@ $CIADIR/data/mail.log
 :0
 * ^From: zwiki-wiki@zwiki.org
 /dev/null
+
 
 ###### Filters for mailing list commit messages
 
@@ -31,6 +33,7 @@ $CIADIR/data/mail.log
 :0
 * ^List-Id:.*XFree86
 | $CIADIR/mail/filter_xfree86.py
+
 
 ###### Pass on other messages to the server
 
