@@ -15,48 +15,48 @@ class therm:
 
     def i2c_readbit(self):
         self.b = self.busmask | ~self.clockmask			# bus high (input), clock low
-	pic.TRISB = self.b
+	self.pic.TRISB = self.b
 	self.b |= self.clockmask				# clock high
-	pic.TRISB = self.b
+	self.pic.TRISB = self.b
 	self.b &= ~self.clockmask				# clock low
-	pic.TRISB = self.b
+	self.pic.TRISB = self.b
 	return self.PORTB
 
     def i2c_start(self):
         self.b = self.busmask | self.clockmask			# bus high, clock high
-	pic.TRISB = self.b
+	self.pic.TRISB = self.b
 	self.b &= ~self.busmask					# bus low
-	pic.TRISB = self.b
+	self.pic.TRISB = self.b
 	self.b &= ~self.clockmask				# clock low
-	pic.TRISB = self.b
+	self.pic.TRISB = self.b
 
     def i2c_stop(self):
         self.b = ~self.busmask | self.clockmask			# bus low, clock high
-	pic.TRISB = self.b
+	self.pic.TRISB = self.b
 	self.b |= self.busmask					# bus high
-	pic.TRISB = self.b
+	self.pic.TRISB = self.b
 	self.b &= ~self.clockmask				# clock low
-	pic.TRISB = self.b
+	self.pic.TRISB = self.b
 
     def i2c_writebit(self, v):
         if v:
 	    self.b = self.busmask | ~self.clockmask		# bus high, clock low
-	    pic.TRISB = self.b
+	    self.pic.TRISB = self.b
 	else:
 	    self.b = ~self.busmask | ~self.clockmask		# bus low, clock low
-	    pic.TRISB = self.b
+	    self.pic.TRISB = self.b
 	self.b |= self.clockmask				# clock high
-	pic.TRISB = self.b
+	self.pic.TRISB = self.b
 	self.b &= ~self.clockmask				# clock low
-	pic.TRISB = self.b
+	self.pic.TRISB = self.b
         pass
 
     def i2c_ack(self):
     	# for now, just do a clock cycle but don't read
 	self.b = self.clockmask					# bus high, clock high
-	pic.TRISB = self.b
+	self.pic.TRISB = self.b
 	self.b &= ~self.clockmask				# bus high, clock low
-	pic.TRISB = self.b
+	self.pic.TRISB = self.b
 
     def i2c_writebyte(self, byte):
         for i in range(7, -1, -1):
