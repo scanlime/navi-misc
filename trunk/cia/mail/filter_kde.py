@@ -37,7 +37,8 @@ class KdeFilter(CommitFilter):
             line = self.body.readline()
 
             # Remove all those annoying CVS_SILENT thingies
-            line.replace("CVS_SILENT", "")
+            for word in ('CVS_SILENT:' , 'CVS_SILENT'):
+                line = line.replace(word, "")
 
             # Quit when we get to a line starting with "---", this means we've reached the included diffs
             if line.startswith('---'):
