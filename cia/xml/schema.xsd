@@ -23,12 +23,42 @@
 </xsd:complexType>
 
 <!--
+  ********************************************************* Builder results
+  This message type is intended for results from some
+  sort of automated build or test system. Results are
+  separated into 'packages' containing a 'log' with
+  general output from the test/build, and information
+  about a success or failure if there was one.
+  -->
+
+<xsd:complexType name="package">
+  <xsd:choice maxOccurs="unbounded">
+    <xsd:element name="success" type="xsd:string"/>
+    <xsd:element name="failure" type="xsd:string"/>
+    <xsd:element name="log" type="xsd:string"/>
+  </xsd:choice>
+</xsd:complexType>
+
+<xsd:complexType name="results">
+  <xsd:choice maxOccurs="unbounded">
+    <xsd:element name="package" type="package"/>
+  </xsd:choice>
+</xsd:complexType>
+
+<xsd:complexType name="builder">
+  <xsd:choice maxOccurs="unbounded">
+    <xsd:element name="results" type="results"/>
+  </xsd:choice>
+</xsd:complexType>
+
+<!--
   ********************************************************* Message Envelope
   -->
 
 <xsd:complexType name="message-body">
   <xsd:choice>
     <xsd:element name="commit" type="commit"/>
+    <xsd:element name="builder" type="builder"/>
   </xsd:choice>
 </xsd:complexType>
 
