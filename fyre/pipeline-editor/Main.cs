@@ -31,9 +31,12 @@ public class PipelineEditor
 	PluginManager plugin_manager;
 
 	/* Widgets */
+	[Widget] Gtk.Window		toplevel;
+
 	/* Element list (left) */
 	private Gtk.TreeStore		element_store;
-	private Gtk.TreeModelSort	sorted_store;
+	private Gtk.TreeModel		sorted_store;
+	private Gtk.TreeViewColumn	column;
 	[Widget] Gtk.TreeView		element_list;
 
 	/* Editor workspace (right) */
@@ -41,7 +44,7 @@ public class PipelineEditor
 	[Widget] Gtk.DrawingArea	pipeline_drawing;
 	
 	/* Current tooltip */
-	private Gtk.Window		current_tooltip;
+	private ElementTooltip		current_tooltip;
 	private uint			tooltip_timeout;
 	private Gdk.Rectangle		tip_rect;
 
@@ -54,17 +57,17 @@ public class PipelineEditor
 	{
 		Application.Init();
 
-		Glade.XML gxml = new Glade.XML (null, "pipeline-editor.glade", "window1", null);
+		Glade.XML gxml = new Glade.XML (null, "pipeline-editor.glade", "toplevel", null);
 		gxml.Autoconnect (this);
 
 		/* Do all the setup for the element tree view */
-		element_store = new Gtk.TreeStore (typeof (Gdk.Pixbuf), typeof (string), typeof (Type), typeof (ElementTooltip));
+		 element_store = new Gtk.TreeStore (typeof (Gdk.Pixbuf), typeof (string), typeof (Type), typeof (ElementTooltip));
 		sorted_store = new Gtk.TreeModelSort (element_store);
 		element_list.Model = sorted_store;
 
 		Gtk.CellRenderer pixbuf_renderer = new Gtk.CellRendererPixbuf ();
 		Gtk.CellRenderer text_renderer   = new Gtk.CellRendererText ();
-		Gtk.TreeViewColumn column = new Gtk.TreeViewColumn ();
+		column = new Gtk.TreeViewColumn ();
 
 		column.Title = "Elements";
 		column.PackStart (pixbuf_renderer, false);
@@ -73,6 +76,13 @@ public class PipelineEditor
 		column.AddAttribute (text_renderer, "text", 1);
 
 		element_list.AppendColumn (column);
+
+		/*
+		TargetEntry[] targets = new TargetEntry[1];
+		targets[0] = new TargetEntry ("fyre element drag", Gtk.TargetFlags.App, 0);
+		element_list.EnableModelDragSource ((Gdk.ModifierType) 0, targets, Gdk.DragAction.Copy);
+		*/
+		element_list.Reorderable = true;
 
 		current_tooltip = null;
 		tooltip_timeout = 0;
@@ -85,10 +95,9 @@ public class PipelineEditor
 		/* Finally, run the application */
 		Application.Run();
 	}
-	
+
 	void ElementListMotionNotifyEvent (object o, MotionNotifyEventArgs args)
 	{
-		System.Console.WriteLine("MotionNotifyEvent!");
 		Gdk.EventMotion ev = args.Event;
 		if (tooltip_timeout != 0) {
 			if ((ev.Y > tip_rect.Y) && ((ev.Y - tip_rect.Height) < tip_rect.Y))
@@ -99,10 +108,10 @@ public class PipelineEditor
 		}
 
 		Gtk.TreePath path;
-		element_list.GetPathAtPos ((int) ev.X, (int) ev.Y, out path);
-		tip_rect = element_list.GetCellArea (path, null);
-		
-		tooltip_timeout = GLib.Timeout.Add (200, new GLib.TimeoutHandler(TooltipTimeout));
+		if (element_list.GetPathAtPos ((int) ev.X, (int) ev.Y, out path)) {
+			tip_rect = element_list.GetCellArea (path, column);
+			tooltip_timeout = GLib.Timeout.Add (200, new GLib.TimeoutHandler(TooltipTimeout));
+		}
 	}
 
 	bool TooltipTimeout ()
@@ -112,15 +121,22 @@ public class PipelineEditor
 		if (!element_list.GetPathAtPos (tip_rect.X, tip_rect.Y, out path))
 			return false;
 		sorted_store.GetIter (out iter, path);
-		current_tooltip = (Gtk.Window) sorted_store.GetValue (iter, 3);
-		current_tooltip.ShowAll ();
+		if (current_tooltip != null)
+			current_tooltip.Hide ();
+		current_tooltip = (ElementTooltip) sorted_store.GetValue (iter, 3);
+		if (current_tooltip == null)
+			return false;
+
+		int x, y;
+		toplevel.GetPosition (out x, out y);
+		current_tooltip.Move (x + tip_rect.X + 160, y + tip_rect.Y + 80);
+		current_tooltip.Show ();
 		tooltip_timeout = 0;
-		return false;
+	 	return false;
 	}
 
         void ElementListLeaveNotifyEvent (object o, LeaveNotifyEventArgs args)
         {
-        	System.Console.WriteLine ("LeaveNotifyEvent!");
         	if (tooltip_timeout != 0) {
         		GLib.Source.Remove (tooltip_timeout);
         		tooltip_timeout = 0;

@@ -50,6 +50,21 @@ public class ElementTooltip
 		this.outputs.PackStart (CreateDescTable (e.OutputDesc ()), false, true, 0);
 	}
 
+	public void Show ()
+	{
+		tooltip.ShowAll ();
+	}
+	
+	public void Hide ()
+	{
+		tooltip.HideAll ();
+	}
+
+	public void Move (double x, double y)
+	{
+		tooltip.Move ((int) x, (int) y);
+	}
+
 	/* Create a 2xn table from a list of strings */
 	private Gtk.Table CreateDescTable (string[,] s)
 	{	
