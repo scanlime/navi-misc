@@ -196,7 +196,10 @@ void fe_userlist_numbers(struct session *sess) {
 }
 
 void fe_userlist_clear(struct session *sess) {
-	/* FIXME: implement */
+	session_gui *s;
+
+	s = sess->gui;
+	gtk_list_store_clear(GTK_LIST_STORE(s->userlist_model));
 }
 
 void fe_dcc_add(struct DCC *dcc) {
