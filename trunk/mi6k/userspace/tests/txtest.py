@@ -13,14 +13,13 @@ class test:
 
     def run(self):
         while True:
-            self.transmit(10000,5000, 500,500, 500,500, 100,500)
-            #self.transmit(self.pulse, self.space)
+            self.transmit(self.pulse, self.space)
 
     def transmit(self, *a):
-        for v in a:
-            self.f.write(struct.pack("i", int(v)))
+        for i in xrange(16):
+            for v in a:
+                self.f.write(struct.pack("i", int(v)))
         self.f.flush()
-        time.sleep(0.1)
 
 t = test()
 Tweak.Window( Tweak.Quantity(t, 'pulse', (0,10000)),
