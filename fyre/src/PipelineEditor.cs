@@ -35,7 +35,7 @@ public class PipelineEditor
 	[Widget] Gtk.Window		toplevel;
 
 	/* Element list (left) */
-	private ElementListModel	element_store;
+	private Gtk.TreeStore		element_store;
 	private Gtk.TreeModelSort	sorted_store;
 	private Gtk.TreeViewColumn	column;
 	[Widget] Gtk.TreeView		element_list;
@@ -78,8 +78,8 @@ public class PipelineEditor
 
 	void SetupElementList ()
 	{
-		/*                                            Icon                 Name             Type           Tooltip Window */
-		element_store = new ElementListModel (typeof (Gdk.Pixbuf), typeof (string), typeof (Type), typeof (ElementTooltip));
+		/*                                         Icon                 Name             Type           Tooltip Window */
+		element_store = new Gtk.TreeStore (typeof (Gdk.Pixbuf), typeof (string), typeof (Type), typeof (ElementTooltip));
 
 		/* We sort the element list in alphabetical order by name/category,
 		 * since we don't know what order plugins will be loaded in, and
@@ -109,7 +109,8 @@ public class PipelineEditor
 		/* Set up drag-and-drop for our tree view */
 		TargetEntry[] targets = new TargetEntry[1];
 		targets[0] = new TargetEntry ("fyre element drag", Gtk.TargetFlags.App, 0);
-		element_list.EnableModelDragSource ((Gdk.ModifierType) 0, targets, Gdk.DragAction.Copy);
+
+		Gtk.Drag.SourceSet (element_list, Gdk.ModifierType.Button1Mask, targets, Gdk.DragAction.Copy);
 		element_list.DragBegin += ElementListDragBegin;
 	}
 
