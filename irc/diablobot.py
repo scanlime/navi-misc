@@ -80,7 +80,7 @@ class Bot(SingleServerIRCBot):
         try:
             self.on_pubmsg_protected(c,e)
         except:
-	    import sys
+            import sys
             self.log("--- EXCEPTION: %s %s" % (sys.exc_info()[0], sys.exc_info()[1]))
 
     def on_pubmsg_protected(self, c, e):
