@@ -115,7 +115,7 @@ ScreenSaver* screensaver_new(IterativeMap *map, Animation *animation) {
 
     self->animation = ANIMATION(g_object_ref(animation));
     self->map = ITERATIVE_MAP(g_object_ref(map));
-    self->view = histogram_view_new(HISTOGRAM_IMAGER(self->map));
+    self->view = g_object_ref(histogram_view_new(HISTOGRAM_IMAGER(self->map)));
 
     /* Allocate and interpolate all frames */
     self->framerate = 10;

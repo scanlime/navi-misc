@@ -60,11 +60,13 @@ void explorer_init_about(Explorer *self)
 static void on_about_close(GtkWidget *widget, Explorer *self)
 {
     GtkWidget *dialog = glade_xml_get_widget(self->xml, "about_window");
+    GtkWidget* image_container = glade_xml_get_widget(self->xml, "about_image");
 
     gtk_widget_hide(dialog);
 
     /* Make sure to delete our incredibly memory and CPU hungry about iamge */
     if (self->about_image) {
+	gtk_container_remove(GTK_CONTAINER(image_container), self->about_image->view);
 	g_object_unref(self->about_image);
 	self->about_image = NULL;
     }
