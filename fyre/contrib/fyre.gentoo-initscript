@@ -1,0 +1,19 @@
+#!/sbin/runscript
+
+depend() {
+	need net
+}
+
+start() {
+	ebegin "Starting fyre"
+	start-stop-daemon --start --quiet --nicelevel 10 --background \
+		--pidfile /var/run/fyre.pid \
+		--startas /usr/local/bin/fyre -- -r
+	eend $?
+}
+
+stop() {
+	ebegin "Stopping fyre"
+	start-stop-daemon --stop --quiet --pidfile /var/run/fyre.pid
+	eend $?
+}
