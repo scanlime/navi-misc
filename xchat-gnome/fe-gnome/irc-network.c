@@ -39,6 +39,7 @@ const char *encodings[] =
 };
 
 static GHashTable *enctoindex = NULL;
+static GObjectClass *parent_class;
 
 static void
 irc_network_finalize (GObject *object)
@@ -55,13 +56,14 @@ irc_network_finalize (GObject *object)
 		g_free (((ircserver *) s->data)->hostname);
 	g_slist_foreach (network->servers, (GFunc) g_free, NULL);
 	g_slist_free (network->servers);
+
+	parent_class->finalize (object);
 }
 
 static void
 irc_network_class_init (IrcNetworkClass *klass)
 {
 	GObjectClass *object_class = (GObjectClass *) klass;
-
 	object_class->finalize = irc_network_finalize;
 }
 
@@ -97,6 +99,8 @@ irc_network_get_type (void)
 
 		irc_network_type = g_type_register_static (G_TYPE_OBJECT, "IrcNetwork", &irc_network_info, 0);
 	}
+
+	parent_class = g_type_class_ref (G_TYPE_OBJECT);
 
 	return irc_network_type;
 }

@@ -24,6 +24,8 @@
 #include <gtk/gtk.h>
 #include <string.h>
 
+static GtkDialogClass *parent_class;
+
 static void
 irc_network_editor_dispose (GObject *object)
 {
@@ -37,13 +39,15 @@ irc_network_editor_dispose (GObject *object)
 		g_object_unref (e->network);
 		e->network = NULL;
 	}
+
+	((GObjectClass *) parent_class)->dispose (object);
 }
 
 static void
 irc_network_editor_class_init (IrcNetworkEditorClass *klass)
 {
-	GObjectClass *parent_class = (GObjectClass *) klass;
-	parent_class->dispose = irc_network_editor_dispose;
+	GObjectClass *parent = (GObjectClass *) klass;
+	parent->dispose = irc_network_editor_dispose;
 }
 
 static void
@@ -328,6 +332,8 @@ irc_network_editor_get_type (void)
 
 		irc_network_editor_type = g_type_register_static (GTK_TYPE_DIALOG, "IrcNetworkEditor", &irc_network_editor_info, 0);
 	}
+
+	parent_class = g_type_class_ref (GTK_TYPE_DIALOG);
 
 	return irc_network_editor_type;
 }
