@@ -3,7 +3,7 @@
 
 <glade-interface>
 
-<widget class="GtkWindow" id="window1">
+<widget class="GtkWindow" id="tooltip">
   <property name="visible">True</property>
   <property name="title" translatable="yes">window1</property>
   <property name="type">GTK_WINDOW_POPUP</property>
