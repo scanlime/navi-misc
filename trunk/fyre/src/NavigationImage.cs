@@ -118,16 +118,26 @@ namespace Fyre
 			if (mouse[0] == mx && mouse[1] == my)
 				return;
 
-			Gdk.Rectangle r = new Gdk.Rectangle ();
+			Gdk.Rectangle oldMouse = new Gdk.Rectangle ();
+			Gdk.Rectangle newMouse = new Gdk.Rectangle ();
+			Gdk.Rectangle area;
 
+			int vx = visible[0] / 2;
+			int vy = visible[1] / 2;
+
+			oldMouse.X = mouse[0] - vx - 1;
+			oldMouse.Y = mouse[1] - vy - 1;
+			newMouse.X = mx - vx - 1;
+			newMouse.Y = my - vy - 1;
+
+			oldMouse.Width  = newMouse.Width  = visible[0] + 2;
+			oldMouse.Height = newMouse.Height = visible[1] + 2;
 
 			mouse[0] = mx;
 			mouse[1] = my;
 
-			r.X = 0; r.Y = 0;
-			r.Width  = size[0];
-			r.Height = size[1];
-			GdkWindow.InvalidateRect (r, true);
+			area = oldMouse.Union (newMouse);
+			GdkWindow.InvalidateRect (area, true);
 		}
 	}
 
