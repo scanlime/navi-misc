@@ -7,20 +7,20 @@
 #include <SDL.h>
 #include <getopt.h>
 
-void plot_crosshairs(IplImage *image, CvPoint *point,
-		     int size=15, double color=CV_RGB(255,0,0),
+void plot_crosshairs(IplImage *image, CvPoint point,
+		     int size=15, double color=CV_RGB(255,0,128),
 		     int thickness=1) {
   /* Show some simple crosshairs on an image at the given point */
   CvPoint endpoint1, endpoint2;
-  endpoint1.x = point->x - size/2;
-  endpoint1.y = point->y;
-  endpoint2.x = point->x + size/2;
-  endpoint2.y = point->y;
+  endpoint1.x = point.x - size/2;
+  endpoint1.y = point.y;
+  endpoint2.x = point.x + size/2;
+  endpoint2.y = point.y;
   cvLine(image, endpoint1, endpoint2, color, thickness);
-  endpoint1.y = point->y - size/2;
-  endpoint1.x = point->x;
-  endpoint2.y = point->y + size/2;
-  endpoint2.x = point->x;
+  endpoint1.y = point.y - size/2;
+  endpoint1.x = point.x;
+  endpoint2.y = point.y + size/2;
+  endpoint2.x = point.x;
   cvLine(image, endpoint1, endpoint2, color, thickness);
 }
 
@@ -171,7 +171,10 @@ void interactive_camshift(int n_cameras, bool show_backprojections) {
 		 cvTermCriteria(CV_TERMCRIT_EPS, 0, 0.1),
 		 &comp, &box);
       windowIn[i] = comp.rect;
-      draw_box(images[i], box);
+      if (box.size.width > 0 && box.size.height > 0) {
+	draw_box(images[i], box);
+	plot_crosshairs(images[i], cvPoint((int)box.center.x, (int)box.center.y));
+      }
     }
 
     if (SDL_GetVideoSurface()) {
