@@ -59,9 +59,10 @@ class HubListener(object):
            channel has any filters assigned, a bot will inhabit it.
 
            An <ircFilters> tag has attributes specifying the server,
-           port, and channel it applies to. It contains zero or more
-           <ircFilter> tags, followed by tags describing transforms
-           applied to all messages delivered to the channel.
+           port, and channel it applies to. The leading '#' on a channel
+           name is optional.
+           It contains zero or more <ircFilter> tags, followed by tags
+           describing transforms applied to all messages delivered to the channel.
 
            An <ircFilter> tag's first child must be a valid Message.Filter.
            All other children are treated as transforms applied to the
@@ -71,7 +72,7 @@ class HubListener(object):
            An couple example <ircFilters> messages..
 
               <message><body>
-                 <ircFilters channel="#commits" host="irc.freenode.net" port="6667">
+                 <ircFilters channel="commits" host="irc.freenode.net" port="6667">
                     <ircFilter>
                        <find path="/message/body/commit"/>
                        <formatter name="commit"/>
@@ -87,6 +88,8 @@ class HubListener(object):
         ircFilters = message.xml.body.ircFilters
         server = ircFilters['host'], int(ircFilters['port'])
         channel = ircFilters['channel']
+        if channel[0] != '#':
+            channel = '#' + channel
 
         if ircFilters.ircFilter:
             self.botNet.addChannel(server, channel)
@@ -136,6 +139,7 @@ class BotFactory(protocol.ClientFactory):
     def __init__(self, allocator):
         self.allocator = allocator
         self.reconnect = True
+        log.msg("Connecting a new bot to host %r, port %r" % (allocator.host, allocator.port))
         reactor.connectTCP(allocator.host, allocator.port, self)
 
     def clientConnectionLost(self, connector, reason):
@@ -241,6 +245,7 @@ class BotAllocator:
         # Check for room in our existing bots
         for bot in self.bots.itervalues():
             if len(bot.channels) < self.channelsPerBot:
+                log.msg("Requesting that bot %r on server %r join %r" % (bot.nickname, self.host, channel))
                 bot.join(channel)
                 self.existingBotRequests.append(channel)
                 return None
@@ -269,6 +274,7 @@ class BotAllocator:
         # If we're already connected to this channel, leave it
         if self.channels.has_key(channel):
             bot = self.channels[channel]
+            log.msg("Requesting that bot %r on server %r leave %r" % (bot.nickname, self.host, channel))
             bot.leave(channel)
 
     def msg(self, channel, text):
