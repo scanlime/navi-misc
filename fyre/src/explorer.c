@@ -274,7 +274,7 @@ static void on_save_exr(GtkWidget *widget, gpointer user_data) {
 static void on_render_time_changed(GtkWidget *widget, gpointer user_data) {
   double v = gtk_range_get_adjustment(GTK_RANGE(widget))->value;
   Explorer *self = EXPLORER(user_data);
-  self->render_time = (gulong)(v * 1000.0 + 0.5);  /* Milliseconds to microseconds */
+  self->render_time = v / 1000.0;  /* Milliseconds to seconds */
 }
 
 static gboolean on_interactive_prefs_delete(GtkWidget *widget, GdkEvent *event, gpointer user_data) {
@@ -309,20 +309,8 @@ static int explorer_idle_handler(gpointer user_data) {
 }
 
 void explorer_run_iterations(Explorer *self) {
-  /* Run as many blocks of iterations as we can in 13 milliseconds
-   */
-  GTimer *timer;
-  gulong elapsed;
-
-  timer = g_timer_new();
-  g_timer_start(timer);
-
-  do {
-    iterative_map_calculate(ITERATIVE_MAP(self->map), 5000);
-    g_timer_elapsed(timer, &elapsed);
-  } while (elapsed < self->render_time);
-
-  g_timer_destroy(timer);
+  iterative_map_calculate_timed(ITERATIVE_MAP(self->map),
+				self->render_time);
 }
 
 static gboolean limit_update_rate(GTimeVal *last_update, float max_rate) {
