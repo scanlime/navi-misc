@@ -293,7 +293,7 @@ xdata at 0xFFA2 unsigned char LCR;              /* Line control register  */
         #define LCR_STP      (1<<2)             /* 1.5 or 2 stop bits  */
         #define LCR_PRTY     (1<<3)             /* Generate parity  */
         #define LCR_EPRTY    (1<<4)             /* Even parity  */
-        #define LCR_PRTY     (1<<5)             /* Forced parity  */
+        #define LCR_FPTY     (1<<5)             /* Forced parity  */
         #define LCR_BRK      (1<<6)             /* Break condition  */
         #define LCR_FEN      (1<<7)             /* FIFO enabled  */
 xdata at 0xFFA3 unsigned char FCRL;             /* Flow control register  */
