@@ -50,6 +50,8 @@ EXTRA_DIST =					\
 	error_dialog.c				\
 	error_dialog.h				\
 	fe-gnome.c				\
+	irc-network.c				\
+	irc-network.h				\
 	gtkutil.h				\
 	gtkutil.c				\
 	gui.h					\
@@ -105,6 +107,8 @@ xchat_gnome_SOURCES =				\
 	error_dialog.c				\
 	error_dialog.h				\
 	fe-gnome.c				\
+	irc-network.c				\
+	irc-network.h				\
 	gtkutil.h				\
 	gtkutil.c				\
 	gui.h					\
