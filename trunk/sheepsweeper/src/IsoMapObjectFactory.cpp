@@ -96,6 +96,12 @@ IsoMapObjectFactory::makeObject(MapObjectType type)
 	return obj;
 }
 
+MapObject *
+IsoMapObjectFactory::makeSheep()
+{
+	return new Sheep(getScreen());
+}
+
 MapTile *
 IsoMapObjectFactory::makeTile(MapTileType type)
 {

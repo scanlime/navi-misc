@@ -8,6 +8,7 @@ class MapObjectFactory
 {
 	public:
 		virtual MapObject *makeObject(MapObjectType type) = 0;
+		virtual MapObject *makeSheep() = 0;
 		virtual MapTile *makeTile(MapTileType type) = 0;
 
 	protected:
