@@ -1,0 +1,86 @@
+--------------------------------------
+N64 Protocol and hardware observations
+--------------------------------------
+
+The existing resources on the 'net weren't quite enough
+to write a successful emulation of an N64 controller.
+The following are some random notes from my own reverse-engineering.
+
+Command summary:
+  00: identify, returns 05 00 02 with no controller pak,
+                05 00 01 with a memory or rumble pak
+
+  01: status, returns a 24-bit button and axis status packet
+
+  02: read from expansion bus, followed by 2 bytes (always 80 01)
+      from the N64.
+
+  03: write to expansion bus. Followed by 2 bytes (always 80 01)
+      then 32 bytes of data.
+
+Expansion bus pinout, numbered according to the silkscreen markings
+on the controller's PCB:
+
+  1   Ground
+  2   A14
+  3   A12
+  4   A7
+  5   A6
+  6   A5
+  7   A4
+  8   A3
+  9   A2
+  10  A1
+  11  A0
+  12  D0
+  13  D1
+  14
+  15  power?
+  16  D2
+
+  17  Ground
+  18
+  19
+  20  /WE
+  21  A13
+  22  A8
+  23  A9
+  24  A11
+  25  /CS
+  26  D7
+  27  D6
+  28  D5
+  29  D4
+  30  D3
+  31  power?
+  32  D2
+
+
+I. Majora's Mask observed startup sequence
+
+	1. N64 sends identify command, 0x00
+	   Controller responds with 05 00 02 with no controller pak,
+	   05 00 01 with memory pak.
+
+	2. N64 reads controller status (0x01)
+
+	3. Another 0x00 command, with the same response
+
+	4. N64 sends:
+	   03 80 01 followed by 32 bytes, all FE
+	   Response: 0xE1 with memory pak, 0x1E without.
+	   The response has no stop bit! instead, the data line
+	   goes low for 2us immediately after the last data bit.
+
+II. Majora's Mask title screen polling sequence
+
+	1. Status request (0x01)
+
+	2. Identification command (0x00)
+
+	3. Another 0x03 command as described above
+
+	4. N64 sends:
+	   02 80 01
+
+
