@@ -244,6 +244,7 @@ class SourcePage(ModPython.Page):
             tag('body')[
                 tag('h1')[ place('source') ],
                 place('description'),
+                place('navigation'),
                 place('intervals'),
                 template.footer,
             ],
@@ -272,19 +273,29 @@ class SourcePage(ModPython.Page):
 
         self.latest = source.getLatestPacket()
 
+    def showDetails(self, context):
+        """Should we show extra details on battery level, signal strength, and such?"""
+        return bool(int(context['args'].get('details', (0,))[0]))
+
     def render_navigation(self, context):
+        if self.showDetails(context):
+            detailSwitch = tag('a', _class='navigation', href="?details=0")["Hide details"]
+        else:
+            detailSwitch = tag('a', _class='navigation', href="?details=1")["Show details"]
+
         return tag('div', _class='navigation')[
             tag('a', _class='navigation', href='../../')[ "All Sensors..." ],
             [tag('a', _class='navigation', href="#%s" % anchor or 'top')[ name ]
              for name, length, anchor in self.intervals],
+            detailSwitch,
             ]
 
     def render_intervals(self, context):
         return [[
-            tag('a', _name=anchor, id=anchor),
-            place('navigation'),
-            tag('h2')[ name ],
-            tag('div', _class='sensorInterval')[ ' ', self.renderInterval(length) ],
+            tag('a', _name=anchor, id=anchor)[
+                tag('h2')[ name ],
+            ],
+            tag('div', _class='sensorInterval')[ ' ', self.renderInterval(length, context) ],
         ] for name, length, anchor in self.intervals]
 
     def render_description(self, context):
@@ -300,7 +311,7 @@ class SourcePage(ModPython.Page):
             tag('p')[ ", ".join(details) ],
             ]
 
-    def renderInterval(self, length):
+    def renderInterval(self, length, context):
         if not length:
             return self.renderLatest()
 
@@ -308,12 +319,14 @@ class SourcePage(ModPython.Page):
         if self.latest:
             if self.latest.get('average'):
                 graphs.append('temperature')
-            if self.latest.get('voltage'):
-                graphs.append('voltage')
-            if self.latest.get('signal_strength'):
-                graphs.append('signal')
-                graphs.append('packetLoss')
-                graphs.append('packetCopies')
+
+            if self.showDetails(context):
+                if self.latest.get('voltage'):
+                    graphs.append('voltage')
+                if self.latest.get('signal_strength'):
+                    graphs.append('signal')
+                    graphs.append('packetLoss')
+                    graphs.append('packetCopies')
 
         return  [tag('img', _class='graph',
                      width=691, height=205,
