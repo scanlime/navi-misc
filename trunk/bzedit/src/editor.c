@@ -129,20 +129,6 @@ tree_model_drag_data_get (GtkTreeDragSource *drag_source, GtkTreePath *path, Gtk
 }
 
 static gboolean
-tree_model_drag_data_delete (GtkTreeDragSource *drag_source, GtkTreePath *path)
-{
-  g_print ("drag_data_delete ()\n");
-  return TRUE;
-}
-
-static gboolean
-tree_model_drag_data_received (GtkTreeDragDest *drag_dest, GtkTreePath *dest, GtkSelectionData *selection_data)
-{
-  g_print ("drag_data_received ()\n");
-  return FALSE;
-}
-
-static gboolean
 tree_model_row_drop_possible (GtkTreeDragDest *drag_dest, GtkTreePath *dest, GtkSelectionData *selection_data)
 {
   GtkTreePath *path;
@@ -159,17 +145,7 @@ tree_model_row_drop_possible (GtkTreeDragDest *drag_dest, GtkTreePath *dest, Gtk
 
     gtk_tree_model_get (GTK_TREE_MODEL (drag_dest), &iter, 3, &object, -1);
     klass = SCENE_OBJECT_CLASS (G_OBJECT_GET_CLASS (object));
-    g_print ("testing against class '%s'...", g_type_name (G_TYPE_FROM_INSTANCE (object)));
-    if (klass->canparent)
-    {
-      g_print ("yes!\n");
-      return TRUE;
-    }
-    else
-    {
-      g_print ("no!\n");
-      return FALSE;
-    }
+    return (klass->canparent);
   }
   else
   {
@@ -230,9 +206,7 @@ editor_init (Editor *editor)
   desti = GTK_TREE_DRAG_DEST_GET_IFACE (editor->scene->element_store);
   srci->row_draggable = tree_model_row_draggable;
   srci->drag_data_get = tree_model_drag_data_get;
-  srci->drag_data_delete = tree_model_drag_data_delete;
   desti->row_drop_possible = tree_model_row_drop_possible;
-  desti->drag_data_received = tree_model_drag_data_received;
 
   icon_renderer = gtk_cell_renderer_pixbuf_new();
   text_renderer = gtk_cell_renderer_text_new();
