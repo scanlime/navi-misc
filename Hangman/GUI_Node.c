@@ -211,6 +211,8 @@ GUI_Node* make_drawfield()
 {
 	GUI_Node* newField;
 
+	newField = GUI_Node_Init();
+
 	newField->color = malloc(sizeof(SDL_Color));
 	newField->color->r = 0;
 	newField->color->g = 0;
@@ -276,9 +278,14 @@ int draw_button(GUI_Node *node, SDL_Surface *dest)
 /************************************/
 int draw_textfield(GUI_Node *node, SDL_Surface *dest)
 {
-	boxRGBA(dest, node->x, node->y, node->x+node->w, node->y+node->h,
-			node->color->r, node->color->g, node->color->b, 255);
-
+	if(!node)
+		return 1;
+	if (node->color)
+		boxRGBA(dest, node->x, node->y, node->x+node->w, node->y+node->h,
+				node->color->r, node->color->g, node->color->b, 255);
+	else
+		boxRGBA(dest, node->x, node->y, node->x+node->w, node->y+node->h,
+				150,150,150,255);
 	return 0;
 }
 

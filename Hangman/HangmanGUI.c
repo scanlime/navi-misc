@@ -26,6 +26,12 @@ void HM_Window_Init(HM_Window* window)
 	window->root->w = 640;
 	window->root->h = 480;
 	window->root->draw = draw_drawfield;
+	
+	/* root window colors */
+	window->root->color = malloc(sizeof(SDL_Color));
+	window->root->color->r = 255;
+	window->root->color->g = 255;
+	window->root->color->b = 255;
 
 	/* Initialize remaining variables to 0 */
 	window->missedText = 0;
@@ -65,7 +71,7 @@ void UpdateTree(HM_Window* window, Hangman data)
 }
 
 /****************************************/
-void DrawWindow(HM_Window window)
+void DrawWindow(HM_Window *window)
 {
-	draw_tree(window.root, window.screen);
+	draw_tree(window->root, window->screen);
 }
