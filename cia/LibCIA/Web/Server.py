@@ -151,7 +151,6 @@ class StaticJoiner(static.File):
         return self.indexPage.render(request)
 
     def createSimilarFile(self, path):
-        print path
         f = static.File(path, self.defaultType, self.ignoredExts, self.registry)
         f.processors = self.processors
         f.indexNames = self.indexNames[:]
