@@ -7,13 +7,16 @@ more normal level of activity.
 """
 
 import Client, RandomMessage
-import time, random
+import time, random, socket
 
 class MessageGenerator(Client.App):
     def main(self):
         while True:
-            time.sleep(random.uniform(0, 10))
-            self.server.hub.deliver(RandomMessage.generate())
+            time.sleep(random.uniform(0, 7))
+            try:
+                self.server.hub.deliver(RandomMessage.generate())
+            except socket.error:
+                pass
 
 if __name__ == '__main__':
     MessageGenerator().main()
