@@ -57,7 +57,6 @@ static void on_discussion_plus_activate (GtkAccelGroup *accelgroup, GObject *arg
 static void on_discussion_minus_activate (GtkAccelGroup *accelgroup, GObject *arg1, guint arg2, GdkModifierType arg3, gpointer data);
 static void on_pgup (GtkAccelGroup *accelgroup, GObject *arg1, guint arg2, GdkModifierType arg3, gpointer data);
 static void on_pgdn (GtkAccelGroup *accelgroup, GObject *arg1, guint arg2, GdkModifierType arg3, gpointer data);
-static void on_topic_change (GtkButton *widget, gpointer data);
 
 /* action callbacks */
 static void on_irc_connect_activate (GtkAction *action, gpointer data);
@@ -85,6 +84,7 @@ static void on_discussion_find_activate (GtkAction *action, gpointer data);
 static void on_discussion_find_next_activate (GtkAction *action, gpointer data);
 static void on_discussion_clear_window_activate (GtkAction *action, gpointer data);
 static void on_discussion_bans_activate (GtkAction *action, gpointer data);
+static void on_discussion_topic_change_activate (GtkButton *widget, gpointer data);
 static void on_go_previous_network_activate (GtkAction *action, gpointer data);
 static void on_go_next_network_activate (GtkAction *action, gpointer data);
 static void on_go_previous_discussion_activate (GtkAction *action, gpointer data);
@@ -154,6 +154,7 @@ static GtkActionEntry action_entries [] = {
 	{ "DiscussionFind", GTK_STOCK_FIND, _("_Find"), "<control>F", NULL, G_CALLBACK (on_discussion_find_activate) },
 	{ "DiscussionFindNext", NULL, _("Find Ne_xt"), "<control>G", NULL, G_CALLBACK (on_discussion_find_next_activate) },
 	{ "DiscussionClearWindow", GTK_STOCK_CLEAR, _("_Clear Window"), "<control>L", NULL, G_CALLBACK (on_discussion_clear_window_activate) },
+	{ "DiscussionChangeTopic", GTK_STOCK_REFRESH, _("Change _Topic"), "<alt>T", NULL, G_CALLBACK (on_discussion_topic_change_activate) },
 	{ "DiscussionBans", GTK_STOCK_DIALOG_WARNING, _("_Bans"), "<alt>B", NULL, G_CALLBACK (on_discussion_bans_activate) },
 
 	/* Go menu */
@@ -349,7 +350,7 @@ clear_find (GtkWidget *entry, gpointer data)
 void
 initialize_main_window ()
 {
-	GtkWidget *entry, *topicbox, *topicchange, *menu_vbox, *widget;
+	GtkWidget *entry, *topicbox, *close, *menu_vbox, *widget;
 	GError *error = NULL;
 
 	gui.main_window = GNOME_APP (glade_xml_get_widget (gui.xml, "xchat-gnome"));
@@ -390,8 +391,8 @@ initialize_main_window ()
 	g_signal_connect_after (G_OBJECT (entry), "key_press_event", G_CALLBACK (on_text_entry_key), NULL);
 	g_signal_connect (G_OBJECT (entry), "populate-popup", G_CALLBACK (entry_context), NULL);
 
-	topicchange = glade_xml_get_widget (gui.xml, "topic change");
-	g_signal_connect (G_OBJECT (topicchange), "clicked", G_CALLBACK (on_topic_change), NULL);
+	close = glade_xml_get_widget (gui.xml, "close discussion");
+	g_signal_connect (G_OBJECT (close), "clicked", G_CALLBACK (on_discussion_close_activate), NULL);
 	topicbox = glade_xml_get_widget (gui.xml, "topic hbox");
 	gui.topic_label = GTK_LABEL (gtk_label_new(""));
 	gtk_widget_show (GTK_WIDGET (gui.topic_label));
@@ -1051,7 +1052,7 @@ on_hpane_move (GtkPaned *widget, GParamSpec *param_spec, gpointer data)
 }
 
 static void
-on_topic_change (GtkButton *widget, gpointer data)
+on_discussion_topic_change_activate (GtkButton *widget, gpointer data)
 {
 	GladeXML *xml = NULL;
 	GtkWidget *dialog;

@@ -48,6 +48,7 @@
 			<menuitem name="DiscussionFindNextItem" action="DiscussionFindNext"/>
 			<menuitem name="DiscussionClearWindowItem" action="DiscussionClearWindow"/>
 			<separator name="DiscussionSep3"/>
+			<menuitem name="DiscussionChangeTopicItem" action="DiscussionChangeTopic"/>
 			<menuitem name="DiscussionBansItem" action="DiscussionBans"/>
 		</menu>
 
