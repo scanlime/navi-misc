@@ -66,8 +66,7 @@ e_weather_source_get_type (void)
 
 EWeatherSource*	e_weather_source_new (const char *uri)
 {
-	const char *base = strchr (uri, ':') + 1;
-	if (strncmp (base, "ccf/", 4) == 0)
+	if (strncmp (uri, "ccf/", 4) == 0)
 		return g_object_new (e_weather_source_ccf_get_type(), 0);
 	return NULL;
 }
