@@ -247,6 +247,16 @@ void parameter_holder_interpolate_linear(ParameterHolder *self, double alpha, Pa
 				  g_value_get_uint(&b_val) * (alpha) + 0.5));
       }
 
+      else if (G_TYPE_IS_ENUM(properties[i]->value_type)) {
+	/* We can't interpolate between enums but, like bools, they can
+	 * be changed during the animation.
+	 */
+	if (alpha < 0.5)
+	  g_value_set_enum(&self_val, g_value_get_enum(&a_val));
+	else
+	  g_value_set_enum(&self_val, g_value_get_enum(&b_val));
+      }
+
       else {
 	g_log(G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
 	      "Can't interpolate values of type %s",
