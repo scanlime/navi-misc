@@ -13,20 +13,22 @@
         <style type="text/css" media="all"> @import url(style.css);</style>
       </head>
       <body>
-        <xsl:choose>
-          <xsl:when test="/page@index=true">
-            <div class="majorTitle"><xsl:value-of select="/page@title"/></div>
-          </xsl:when>
-          <xsl:otherwise>
-            <div class="heading">
-              <div class="title"><xsl:value-of select="/page/heading"/></div>
-              <div class="headingTabs">
-                <xsl:apply-templates select="document('tabs.xml')//headingTab"/>
-              </div>
-            </div>
-          </xsl:otherwise>
-        </xsl:choose>
-        <xsl:apply-templates select="img"/>
+        <div class="heading">
+          <div class="title"><xsl:value-of select="@title"/></div>
+          <div class="headingTabs">
+            <xsl:apply-templates select="document('tabs.xml')//headingTab"/>
+          </div>
+        </div>
+        <table class="columns">
+          <!--====== Navigation -->
+          <td class="left">
+          </td>
+
+          <!--====== Navigation -->
+          <td class="main">
+            <xsl:apply-templates select="section"/>
+          </td>
+        </table>
 
         <div class="footer">
           <a href="/">
@@ -45,12 +47,15 @@
     </a>
   </xsl:template>
 
-  <!--================================== Images -->
-  <xsl:template match="img">
-    <img class="centered">
-      <xsl:attribute name="src"><xsl:value-of select="@src"/></xsl:attribute>
-      <xsl:attribute name="alt"><xsl:value-of select="@alt"/></xsl:attribute>
-    </img>
+  <!--================================== Content Sections -->
+  <xsl:template match="section">
+    <span class="section"><xsl:value-of select="@title"/></span>
+    <div class="section">
+      <div class="sectionTop"/>
+      <div class="row">
+        <xsl:apply-templates/>
+      </div>
+    </div>
   </xsl:template>
 
 </xsl:stylesheet>

@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="style.xsl"?>
+
+<page title="Navi disk status">
+  <section title="charts">
+    Insert charts here.
+  </section>
+  <section title="uptime">
+    Yay, uptime.
+  </section>
+</page>
