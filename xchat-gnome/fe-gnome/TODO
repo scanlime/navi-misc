@@ -1,4 +1,3 @@
-* Fix schema install
 * Several options in the 'Discussion' menu don't make sense for servers
 * Connect dialog should have a "connect in new ???" option. Maybe just do
   that as the default and let users close other connections, since replacing
