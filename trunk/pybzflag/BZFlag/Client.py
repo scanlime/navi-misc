@@ -162,7 +162,20 @@ class StatefulClient(SimpleClient):
     """Extends the SimpleClient to keep track of the state of the game
        world, as reported by the server and the other clients.
        """
-    pass
+    def onMsgFlagUpdate(self, msg, socket, eventLoop):
+        pass
+
+    def onMsgTeamUpdate(self, msg, socket, eventLoop):
+        pass
+
+    def onMsgAddPlayer(self, msg, socket, eventLoop):
+        pass
+
+    def onMsgNewRabbit(self, msg, socket, eventLoop):
+        pass
+
+    def onMsgAlive(self, msg, socket, eventLoop):
+        pass
 
 
 class PlayerClient(StatefulClient):

@@ -32,10 +32,10 @@ class MsgExit(Common.Message):
 class MsgEnter(Common.Message):
     messageId = 0x656E
     entries = [
-        StructEntry(UInt16,             'playerType'),
-        StructEntry(UInt16,             'team'),
-        StructEntry(ScalarType("32s"),  'callSign'),
-        StructEntry(ScalarType("128s"), 'emailAddress'),
+        StructEntry(Common.PlayerType, 'playerType'),
+        StructEntry(Common.TeamColor,  'team'),
+        StructEntry(StringField(32),   'callSign'),
+        StructEntry(StringField(128),  'emailAddress'),
         ]
 
 class MsgAlive(Common.Message):

@@ -24,12 +24,8 @@ areas like identity and motion that may be managed individually.
 
 class Identity:
     """A simple container for basic player information"""
-    def __init__(self, callSign, team=0, emailAddress="PyBZFlag"):
-        # FIXME: Player type and callsign need to be converted from strings
-        #        to enumerations... should probably add a system like
-        #        PicoGUI's python client has to convert between enumerated
-        #        values and strings.
-        self.type = 0
+    def __init__(self, callSign, team='rogue', emailAddress="PyBZFlag", type='tank'):
+        self.type = type
         self.callSign = callSign
         self.team = team
         self.emailAddress = emailAddress

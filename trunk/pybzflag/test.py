@@ -25,6 +25,9 @@ class TestClient(BZFlag.Client.PlayerClient):
         alive.forward  = (1,0,0)
         socket.write(alive)
 
+    def onMsgMessage(self, msg, socket, eventLoop):
+        print "Message from %s to %s: %s" % (msg.fromId, msg.toId, msg.message)
+
 
 playerIdent = BZFlag.Player.Identity("Bob the Avenger")
 client = TestClient(serverName, playerIdent)

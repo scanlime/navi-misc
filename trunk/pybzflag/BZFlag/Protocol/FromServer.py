@@ -31,8 +31,8 @@ class HelloPacket(Struct):
        the server version and providing the client with an Id number.
        """
     entries = [
-        StructEntry(ScalarType("8s"), 'version'),
-        StructEntry(UInt8,            'clientId'),
+        StructEntry(StringField(8), 'version'),
+        StructEntry(UInt8,          'clientId'),
         ]
 
 class MsgNull(Common.Message):
@@ -77,9 +77,9 @@ class MsgAddPlayer(Common.Message):
 class MsgMessage(Common.Message):
     messageId = 0x6D67
     entries = [
-        StructEntry(Common.PlayerId,    'fromId'),
-        StructEntry(Common.PlayerId,    'toId'),
-        StructEntry(ScalarType("128s"), 'message'),
+        StructEntry(Common.PlayerId,  'fromId'),
+        StructEntry(Common.PlayerId,  'toId'),
+        StructEntry(StringField(128), 'message'),
         ]
 
 class MsgPlayerUpdate(Common.Message):
