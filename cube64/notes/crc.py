@@ -103,8 +103,13 @@ def largeTableCRC(packet, table):
     return crc
 
 
-def smallTableCRC(packet, table):
+def smallTableCRC(packet, table=None):
     """Table-driven reimplementation of Nintendo's CRC using a 32-byte table"""
+    if not table:
+        # This is the one it should generate for a correct data set
+        table = [224, 42, 204, 69, 167, 33, 41, 54, 227, 208, 106, 50, 236, 58, 243,
+                 239, 192, 85, 152, 139, 78, 66, 82, 109, 199, 160, 212, 101, 216, 117, 231, 223]
+
     crc = 0xFF
     y = 0xCD
     for byte in xrange(32):
