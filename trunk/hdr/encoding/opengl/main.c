@@ -1,53 +1,14 @@
-#include <stdlib.h>
-#include <SDL.h>
-#include <SDL/SDL_endian.h>
-#include <GL/gl.h>
-#include <GL/glu.h>
-#include <Cg/cg.h>
-#include <Cg/cgGL.h>
+/*
+ * main.c - SDL frontend for the HDR encoding test
+ *
+ * Copyright (C) 2004 Micah Dowty <micah@navi.cx>
+ *
+ */
+
+#include "hdr_test.h"
 
 SDL_Surface *screen;
-
-int load_mesh(const char *filename) {
-  /* Load a .mesh file into a display list
-   */
-  SDL_RWops* rw;
-  int num_vertices, num_triangles, list, i, j;
-  float* vertices;
-
-  rw = SDL_RWFromFile(filename, "rb");
-  if (!rw) {
-    printf("Error opening file '%s'\n", filename);
-    exit(1);
-  }
-
-  /* Read the tiny header */
-  num_vertices = SDL_ReadBE32(rw);
-  num_triangles = SDL_ReadBE32(rw);
-
-  /* Read vertices directly into a glInterleavedArray */
-  vertices = malloc(sizeof(float) * 6 * num_vertices);
-  SDL_RWread(rw, vertices, sizeof(float) * 6, num_vertices);
-  glInterleavedArrays(GL_N3F_V3F, 0, vertices);
-  glEnableClientState(GL_VERTEX_ARRAY);
-  glEnableClientState(GL_NORMAL_ARRAY);
-
-  /* Inside a display list, draw all triangles */
-  list = glGenLists(1);
-  glNewList(list, GL_COMPILE);
-  glBegin(GL_TRIANGLES);
-  for (i=0; i<num_triangles; i++)
-    for (j=0; j<3; j++)
-      glArrayElement(SDL_ReadBE32(rw));
-  glEnd();
-  glEndList();
-
-  glDisableClientState(GL_VERTEX_ARRAY);
-  glDisableClientState(GL_NORMAL_ARRAY);
-  free(vertices);
-  SDL_FreeRW(rw);
-  return list;
-}
+GLhandleARB program;
 
 void scene_init() {
   float diffuse[] = {0.5, 0.5, 0.52, 0};
@@ -56,6 +17,14 @@ void scene_init() {
   float m_ambient[]  = {0, 0, 0, 0};
   float m_diffuse[]  = {1, 1, 1, 0};
   float m_specular[] = {0.8, 0.8, 0.8, 0};
+
+  program = shader_link_program(shader_compile_from_files(GL_VERTEX_SHADER_ARB,
+							  DATADIR "/test.vert",
+							  NULL),
+				shader_compile_from_files(GL_FRAGMENT_SHADER_ARB,
+							  DATADIR "/test.frag",
+							  NULL),
+				0);
 
   glViewport(0, 0, screen->w, screen->h);
   glMatrixMode(GL_PROJECTION);
@@ -86,10 +55,7 @@ void scene_init() {
 }
 
 void scene_draw(float dt) {
-  static int model = 0;
   static float angle = 0;
-  if (!model)
-    model = load_mesh("torus_sphere.mesh");
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -100,7 +66,7 @@ void scene_draw(float dt) {
   glRotatef(angle, 0, 1, 0);
 
   glRotatef(-90, 1, 0, 0);
-  glCallList(model);
+  model_draw();
 
   SDL_GL_SwapBuffers();
 }
@@ -150,6 +116,11 @@ int main() {
 
       case SDL_QUIT:
 	done = 1;
+	break;
+
+      case SDL_KEYDOWN:
+	if (event.key.keysym.sym == SDLK_SPACE)
+	  model_switch();
 	break;
 
       }
