@@ -58,4 +58,16 @@ mvmtOneBass = \relative c {
 
 	% 60
 	R1*2
+	d2\mp (cis
+	dis e)
+	fis (gis)
+
+	% 65
+	r4\mf \< fis, (a cis \!
+	d2) r2
+	r4\mf \< f, (a d \!
+	e2) r2\fermata
+
+	\time 6/8
+	R1*6/8*14
 }
