@@ -72,9 +72,13 @@ class MainWindow:
         hpane.pack2(right, gtk.TRUE, gtk.FALSE)
 
         left.pack1(gtk.Label('  Left Top '), gtk.TRUE, gtk.FALSE)
-        left.pack2(gtk.Label('Left Bottom'), gtk.TRUE, gtk.FALSE)
         right.pack1(gtk.Label(' Right Top  '), gtk.TRUE, gtk.FALSE)
         right.pack2(gtk.Label('Right Bottom'), gtk.TRUE, gtk.FALSE)
+
+        compiler_output = gtk.TextView(buffer=None)
+        compiler_output.set_editable(gtk.FALSE)
+        compiler_output.set_cursor_visible(gtk.FALSE)
+        left.pack2(compiler_output, gtk.TRUE, gtk.FALSE)
 
         main_vbox.pack_start(hpane, gtk.TRUE, gtk.TRUE, 0)
 
