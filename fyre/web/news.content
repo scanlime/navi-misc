@@ -1,4 +1,5 @@
 <div class="heading">19 February 2005 - 1.0.0 released</div>
+<img src="news-icons/go-menu.png" width="106" height="106" class="newsIcon" />
 <p>
     It's finally here! Sporting a flashy new "go" menu for browsing image history,
     a new quality metric for rendering better animations faster and a small mountain
@@ -31,7 +32,7 @@
 </p>
 
 <div class="heading">31 January 2005 - Spiraling Shape</div>
-<img src="http://flapjack.navi.cx/media/fyre/spiraling-shape-thumb.png" width="96" height="72" class="newsIcon" />
+<img src="news-icons/spiraling-shape.png" width="104" height="80" class="newsIcon" />
 <p>
     If you haven't seen Fyre's animation capabilities in action yet, here's your
     chance. The first entry in an online video gallery is online. <em>Spiraling
