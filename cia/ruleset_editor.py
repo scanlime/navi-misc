@@ -139,7 +139,39 @@ class NewRulesetDialog(GladeUI):
         self.hide()
 
     def on_NewRulesetOk_clicked(self, button):
+        self.callback(self.buildRuleset())
         self.hide()
+
+    def buildRuleset(self):
+        """Actually create a ruleset from our dialog's current parameters"""
+        # All rulesets have a URI
+        uri = self.xml.get_widget("URIEntry").get_text()
+
+        # Call the proper function to build the guts of the ruleset:
+        if self.xml.get_widget('GenericRuleset').get_active():
+            rules = self.buildGenericRules()
+        elif self.xml.get_widget('IRCRuleset').get_active():
+            if self.xml.get_widget('SingleProject').get_active():
+                rules = self.buildSingleProjectRules(self.xml.get_widget("ProjectEntry").get_text())
+            elif self.xml.get_widget('AllProjects').get_active():
+                rules = self.buildAllProjectsRules()
+            elif self.xml.get_widget('BlankRuleset').get_active():
+                rules = self.buildGenericRules()
+
+        # Wrap the actual rules inside a ruleset with our URI
+        return "<ruleset uri=%r>\n%s</ruleset>" % (uri, rules)
+
+    def buildGenericRules(self):
+        """Return a generic do-nothing ruleset"""
+        return "\t<return/>\n"
+
+    def buildAllProjectsRules(self):
+        """Return a ruleset for showing all projects in IRC"""
+        return "\t<formatter medium='irc'/>\n\t<formatter name='IRCProjectName'/>\n"
+
+    def buildSingleProjectRules(self, project):
+        """Return a ruleset for showing one project on IRC"""
+        return "\t<match path='/message/source/project'>%s</match>\n\t<formatter medium='irc'/>\n" % project
 
 
 class URIList(GladeUI):
@@ -195,7 +227,8 @@ class URIList(GladeUI):
 
     def newRuleset(self, ruleset):
         """Called by the 'new ruleset' dialog when a new ruleset is successfully created"""
-        print ruleset
+        self.client.message(ruleset)
+        self.refresh()
 
 
 class RulesetEditor(GladeUI):
