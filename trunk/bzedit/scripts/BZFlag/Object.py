@@ -27,6 +27,12 @@ class Object:
     name = None
     blendObj = None
 
+    # If a world is associated with this object, it will be used
+    # in computing transformations between blender coordinates
+    # and bzflag coordinates such that all other objects are positioned
+    # relative to the world
+    world = None
+
     def set_name(self, *name):
         self.name = string.join(name, ' ')
 
