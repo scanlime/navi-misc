@@ -127,10 +127,6 @@ void unstall(usb_dev_handle *d) {
   status = last_status;
 
   while (unstall_edges < 40) {
-    /* This part needs a lot of work...
-     * We need to use our sole source of feedback (whether we get
-     * angle sensor edges or not) to try to zero in on the resonant frequency.
-     */
     if (unstall_edges == 0) {
       if (period > 50000)
 	period = 45000;
@@ -200,17 +196,13 @@ void refresh_display(usb_dev_handle *d, unsigned char *columns) {
 int main(int argc, char **argv) {
   usb_dev_handle *d;
   struct rwand_status status, last_status;
-  time_t last_edge_timestamp;
   unsigned char frame[80];
   int flip_pending = 0;
 
   if (!(d = open_rwand()))
     return 1;
 
-  /* start out stalled, so we can verify our current status */
-  last_edge_timestamp = 0;
   read_rwand_status(d, &status);
-
   while (status.buttons & RWAND_BUTTON_POWER) {
     /* Read the current period prediction, calculate the frequency.
      * (the period is in units of 16 CPU cycles on a 6 MIPS processor)
@@ -224,15 +216,12 @@ int main(int argc, char **argv) {
       status.buttons);
     */
 
-    /* Have we had any synchronization edges this time? */
-    if (status.edge_count != last_status.edge_count)
-      last_edge_timestamp = time(NULL);
-
-    /* If it's been a while since we've seen a sync edge, conclude we're stalled */
-    if (time(NULL) > last_edge_timestamp + 1) {
+    /* The STALL_DETECT bit will turn off the coil and display automatically
+     * if it's stalled. Run the unstall algorithm.
+     */
+    if (!(status.mode & RWAND_MODE_ENABLE_COIL)) {
       control_write(d, RWAND_CTRL_SET_MODES, RWAND_MODE_ENABLE_COIL, 0);
       unstall(d);
-      last_edge_timestamp = time(NULL);
       control_write(d, RWAND_CTRL_SET_MODES,
 		    RWAND_MODE_ENABLE_SYNC |
 		    RWAND_MODE_ENABLE_COIL |
