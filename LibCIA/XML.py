@@ -1,6 +1,6 @@
 """ LibCIA.XML
 
-Helpful utilities for dealing with DOM trees and higher-level objects built on them
+Classes and utility functions to make the DOM suck less
 """
 #
 # CIA open source notification system
@@ -26,7 +26,20 @@ import Nouvelle
 from Ft.Xml import Domlette
 from cStringIO import StringIO
 
-parseString = Domlette.NonvalidatingReader.parseString
+# 4Suite requires a URI for everything, but it doesn't make sense for most of our XML snippets
+defaultURI = "cia://anonymous-xml"
+
+
+def parseString(s, uri=defaultURI):
+    """A parseString wrapper that doesn't require a URI"""
+    return Domlette.NonvalidatingReader.parseString(s, uri)
+
+
+def toString(xml):
+    """Convert a DOM tree back to a string"""
+    io = StringIO()
+    Domlette.Print(xml, io)
+    return io.getvalue()
 
 
 class XMLObject(object):
@@ -37,8 +50,6 @@ class XMLObject(object):
        'xml' is either a DOM node, a string containing
        the message in XML, or a stream-like object.
        """
-    defaultUri = "cia://anonymous-xml"
-
     def __init__(self, xml=None, uri=None):
         if type(xml) in types.StringTypes:
             self.loadFromString(xml, uri)
@@ -48,17 +59,15 @@ class XMLObject(object):
             self.loadFromDom(xml)
 
     def __str__(self):
-        io = StringIO()
-        Domlette.Print(self.xml, io)
-        return io.getvalue()
+        return toString(self.xml)
 
     def loadFromString(self, string, uri=None):
         """Parse the given string as XML and set the contents of the message"""
-        self.loadFromDom(Domlette.NonvalidatingReader.parseString(string, uri or self.defaultUri))
+        self.loadFromDom(Domlette.NonvalidatingReader.parseString(string, uri or defaultURI))
 
     def loadFromStream(self, stream, uri=None):
         """Parse the given stream as XML and set the contents of the message"""
-        self.loadFromDom(Domlette.NonvalidatingReader.parseStream(string, uri or self.defaultUri))
+        self.loadFromDom(Domlette.NonvalidatingReader.parseStream(string, uri or defaultURI))
 
     def loadFromDom(self, root):
         """Set the contents of the Message from a parsed DOM tree"""
@@ -86,15 +95,13 @@ class XMLObjectParser(XMLObject):
            The result returned from parsing the tree's root element
            is set to our resultAttribute.
            """
-        docElement = self.xml.documentElement
-
         # Validate the root element type if the subclass wants us to.
         # This is hard to do elsewhere, since the element handlers don't
         # know where they are in the XML document.
         if self.requiredRootElement is not None:
-            if docElement.nodeName != self.requiredRootElement:
-                raise XMLValidityError("Found a %r element where a root element of %r is required" %
-                                       (docElement.nodeName, self.requiredRootElement))
+            if not dig(self.xml, self.requiredRootElement):
+                raise XMLValidityError("Missing a required %r root element" %
+                                       self.requiredRootElement)
 
         setattr(self, self.resultAttribute, self.parse(docElement))
 
@@ -170,6 +177,37 @@ def shallowTextGenerator(node):
 def shallowText(node):
     """Concatenate all text immediately within the given node"""
     return "".join(shallowText(node))
+
+
+def dig(node, *subElements):
+    """Search for the given named subelements inside a node. Returns
+       None if any subelement isn't found.
+       """
+    for name in subElements:
+        nextNode = None
+        for child in node.childNodes:
+            if child.nodeType == child.ELEMENT_NODE and child.nodeName == name:
+                nextNode = child
+                break
+        if nextNode:
+            node = nextNode
+        else:
+            return
+    return node
+
+
+def addElement(node, name, content=None, attributes={}):
+    """Add a new child element to the given node, optionally containing
+       the given text and attributes. The attributes are specified as a
+       simple mapping from name string to value string. This function
+       does not support namespaces.
+       """
+    newElement = node.ownerDocument.createElementNS(None, name)
+    if content:
+        newElement.appendChild(node.ownerDocument.createTextNode(content))
+    for attrName, attrValue in attributes.iteritems():
+        newElement.setAttributeNS(None, attrName, attrValue)
+    node.appendChild(newElement)
 
 
 class HTMLPrettyPrinter(XMLObjectParser):
