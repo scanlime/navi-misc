@@ -6,8 +6,8 @@ input[1] = n64
 input[2] = ps2
 input[3] = dreamcast
 input[4] = nintendo
-input[5] = vidInput
-input[6] = vidInput
-input[7] = vidInput
-input[8] = vidInput
+input[5] = unknownInput
+input[6] = unknownInput
+input[7] = unknownInput
+input[8] = unknownInput
 
