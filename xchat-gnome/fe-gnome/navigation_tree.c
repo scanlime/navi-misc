@@ -226,6 +226,12 @@ navigation_tree_select_nth_channel (NavTree *navtree, gint chan_num)
 void
 navigation_tree_select_session (NavTree *navtree, struct session *sess)
 { /* FIXME: Impelement. */
+  GtkTreeIter *iter;
+  GtkTreeSelection *selection;
+
+  navigation_model_get_iter(navtree->model, iter, sess);
+  selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(navtree));
+  gtk_tree_selection_select_iter(selection, iter);
 }
 
 void
@@ -959,7 +965,7 @@ navigation_model_create_new_channel_entry_iterate (GtkTreeModel *model, GtkTreeP
 		sort = GTK_TREE_MODEL_SORT(gtk_tree_view_get_model(treeview));
 
 		gtk_tree_store_append(GTK_TREE_STORE(model), child, iter);
-		g_hash_table_insert(NAVMODEL(model)->session_iters, (gpointer)data, (gpointer)child);
+		g_hash_table_insert(gui.tree_model->session_iters, (gpointer)data, (gpointer)child);
 
 		gtk_tree_store_set(GTK_TREE_STORE(model), child, 1, data->channel, 2, data, 3, 0, 4, NULL, -1);
 
@@ -987,9 +993,9 @@ navigation_model_remove_iterate (GtkTreeModel *model, GtkTreePath *path, GtkTree
 	if(s == data) {
 		GtkTreeIter *tmp;
 		gtk_tree_store_remove(GTK_TREE_STORE(model), iter);
-		tmp = (GtkTreeIter*)g_hash_table_lookup(NAVMODEL(model)->session_iters, (gpointer)data);
+		tmp = (GtkTreeIter*)g_hash_table_lookup(gui.tree_model->session_iters, (gpointer)data);
 		gtk_tree_iter_free(tmp);
-		g_hash_table_remove(NAVMODEL(model)->session_iters, (gconstpointer)data);
+		g_hash_table_remove(gui.tree_model->session_iters, (gconstpointer)data);
 		return TRUE;
 	}
 	return FALSE;
@@ -1002,7 +1008,7 @@ navigation_model_remove (NavModel *model, struct session *sess)
 }
 
 void
-navigation_mode_get_iter (NavModel *model, GtkTreeIter *iter, struct session *sess)
+navigation_model_get_iter (NavModel *model, GtkTreeIter *iter, struct session *sess)
 {
 	iter = (GtkTreeIter*)g_hash_table_lookup(model->session_iters, (gpointer)sess);
 }
