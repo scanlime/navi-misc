@@ -565,11 +565,10 @@ void de_jong_calculate_bifurcation(DeJong             *self,
     BifurcationColumn *column;
     DeJong *interpolant;
     double x, y, a, b, c, d, alpha, point_x, point_y;
-    gulong density, column_density, bucket;
+    gulong density, bucket;
     int i, block, ix, iy;
     guint *p;
 
-    density = self->current_density;
     interpolant = de_jong_new();
 
     if (!self->column_heap) {
@@ -596,7 +595,7 @@ void de_jong_calculate_bifurcation(DeJong             *self,
       alpha = (column->column_number + uniform_variate()) / (hist_width - 1);
       interp(interpolant, alpha, interp_data);
       ix = column->column_number;
-      column_density = column->peak_density;
+      density = column->peak_density;
       point_x = column->point_x;
       point_y = column->point_y;
       a = interpolant->a;
@@ -621,20 +620,23 @@ void de_jong_calculate_bifurcation(DeJong             *self,
 	  bucket = *p = *p + 1;
 	  if (bucket > density)
 	    density = bucket;
-	  if (bucket > column_density)
-	    column_density = bucket;
 
 	  self->iterations++;
 	}
       }
 
       /* Update the column and re-add it to the heap */
-      column->peak_density = column_density;
+      column->peak_density = density;
       column->point_x = point_x;
       column->point_y = point_y;
       heap_insert(self->column_heap, column);
     }
 
+    /* We report the 'peak density' as the lowest column peak density,
+     * rather than the peak over the entire image. This is different
+     * than what happens during normal non-bifurcation-diagram rendering,
+     * but is more meaningful here.
+     */
     self->current_density = density;
     g_object_unref(interpolant);
   }
