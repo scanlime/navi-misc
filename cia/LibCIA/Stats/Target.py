@@ -24,7 +24,7 @@ interacting with stats targets.
 
 from twisted.internet import defer
 from LibCIA import Ruleset, Database, TimeUtil
-import time, posixpath, sys
+import time, posixpath, sys, cPickle
 from Metadata import Metadata
 
 
@@ -174,6 +174,59 @@ class StatsTarget:
                 break
             results.append(StatsTarget(row[0]))
         return results
+
+
+class SubscriptionDelivery:
+    """The object responsible for actually notifiying entities that
+       have subscribed to a stats target.
+       """
+    def __init__(self, target):
+        self.target = target
+
+    def notify(self, scope):
+        """Notify all subscribers to this stats target of a change in 'scope'"""
+        # Get a list of applicable triggers from the database
+        Database.pool.runQuery("SELECT id, trigger FROM stats_subscriptions "
+                               "WHERE target_path = %s "
+                               "AND (scope is NULL or scope = %s)" %
+                               (Database.quote(self.target.path, 'varchar'),
+                                Database.quote(scope, 'varchar'))).addCallback(self.runTriggers)
+
+    def runTriggers(self, rows):
+        """After retrieving a list of applicable triggers, this calls them.
+           'rows' should be a sequence of (id, trigger) tuples.
+           """
+        if rows:
+            log.msg("Notifying %d subscribers for %r" % (len(rows), self.target))
+        for id, trigger in rows:
+            f, args, kwargs = cPickle.loads(trigger)
+            defer.maybeDeferred(f, *args, **kwargs).addCallback(
+                self.triggerSuccess, id).addErrback(
+                self.triggerFailure, id)
+
+    def triggerSuccess(self, result, id):
+        """Record a successful trigger run for the given subscription id"""
+        # Zero the consecutive failure count
+        Database.pool.runOperation("UPDATE stats_subscriptions SET failures = 0 WHERE id = %s" %
+                                   Database.quote(id, 'bigint'))
+
+    def triggerFailure(self, failure, id):
+        """Record an unsuccessful trigger run for the given subscription id"""
+        Database.pool.runInteraction(self._triggerFailure, failure, id)
+
+    def _triggerFailure(self, cursor, failure, id, maxFailures=3):
+        # Increment the consecutive failure count
+        log.msg("Failed to notify subscriber %d for %r: %r" % (id, self.target, failure))
+        cursor.execute("UPDATE stats_subscriptions SET failures = failures + 1 WHERE id = %s" %
+                       Database.quote(id, 'bigint'))
+
+        # Cancel the subscription if we've had too many failures
+        cursor.execute("DELETE FROM stats_subscriptions WHERE id = %s AND failures > %s" %
+                       (Database.quote(id, 'bigint'),
+                        Database.quote(maxFailures, 'int')))
+        if cursor.rowcount:
+            log.msg("Unsubscribing subscriber %d for %r, more than %d consecutive failures" %
+                    (id, self.target, maxFailures))
 
 
 class Messages(object):

@@ -27,7 +27,7 @@ from twisted.internet import defer
 from twisted.web import xmlrpc
 from LibCIA import RpcServer
 from Target import StatsTarget
-import Subscription
+import cPickle, urlparse
 
 
 class StatsInterface(RpcServer.Interface):
@@ -123,5 +123,101 @@ class MetadataInterface(RpcServer.Interface):
     def protected_remove(self, path, name):
         """Remove one metadata key for this target, if it exists"""
         return StatsTarget(path).metadata.remove(name)
+
+
+class SubscriptionInterface(RpcServer.Interface):
+    """An XML-RPC interface for subscribing to be notified when changes
+       occur to a stats target. This provides multiple ways of subscribing,
+       for compatibility with multiple existing standards.
+       """
+    def _unsubscribe(self, cursor, client):
+        """Remove all subscriptions for the given client.
+           This is intended to be run inside a database interaction.
+           """
+        cursor.execute("DELETE FROM stats_subscriptions WHERE client = %s" %
+                       Database.quote(client, 'varchar'))
+
+    def makeTrigger(self, triggerFunc, *triggerArgs, **triggerKwargs):
+        """Given a trigger function and the arguments to pass it,
+           returns a pickled representation of the trigger.
+           """
+        return cPickle.dumps((triggerFunc, triggerArgs, triggerKwargs))
+
+    def _subscribe(self, cursor, target, client, trigger, scope=None, ttl=25*60*60):
+        """A database interaction for adding subscriptions.
+           'target' must be the StatsTarget object this subscription is for.
+           'client' is the IP address of the client requesting this subscription.
+           'trigger' is a trigger pickle, as returned by makeTrigger
+           'scope' refers to a part of the stats target this refers to. By default, all of it.
+           'ttl' is the time to live for this subscription, 25 hours by default.
+           """
+        cursor.execute("INSERT INTO stats_subscriptions "
+                       "(target_path, expiration, scope, client, trigger) "
+                       "VALUES (%s, %s, %s, %s, '%s')" %
+                       (Database.quote(target.path, 'varchar'),
+                        Database.quote(int(time.time() + ttl), 'bigint'),
+                        Database.quote(scope, 'varchar'),
+                        Database.quote(client, 'varchar'),
+                        Database.quoteBlob(trigger)))
+
+    def xmlrpc_rss2(self, procedureName, clientPort, responderPath, protocol, urls, request=None):
+        """This is the flavor of subscription required for the RSS 2.0 <cloud>
+           tag. The client IP should be determined from this request. 'urls'
+           is a list of URLs the client is interested in monitoring- we have
+           to convert those into stats targets.
+           """
+        log.msg("Received an RSS 2.0 subscription request for %r reporting via %r at %r on port %r to %r" %
+                (urls, protocol, responderPath, clientPort, procedureName))
+
+        # Reject protocols we can't handle
+        if protocol != 'xml-rpc':
+            log.msg("Rejecting request: unsupported protocol")
+            return False
+
+        # Poing off into a database interaction for most of this...
+        return Database.pool.runInteraction(self._rss2, procedureName, clientPort,
+                                            responderPath, urls, request.getClientIP())
+
+    def _rss2(self, cursor, procedureName, clientPort, responderPath, urls, clientIP):
+        """The database interaction implementing RSS 2.0 subscriptions"""
+        # Unsubscribe all of this client's previous requests
+        self._unsubscribe(cursor, clientIP)
+
+        # Generate a new subscription for each of its new URLs
+        for url in urls:
+            # Figure out the associated stats target for this URL
+            target = self.getTargetFromURL(url)
+            if not target:
+                log.msg("Ignoring URL %r which doesn't appear to be a stats target" % url)
+                continue
+
+            # Make a trigger that notifies the client as requested.
+            xmlrpcUrl = "http://%s:%s%s" % (clientIP, clientPort, responderPath)
+            trigger = self.makeTrigger(xmlrpc.Proxy(xmlrpcUrl).callRemote,
+                                       procedureName, url)
+
+            # Finally jam the trigger in our database
+            self._subscribe(cursor, target, clientIP, trigger)
+
+        # According to the RSS 2.0 spec, return True to indicate success
+        return True
+
+    def getTargetFromURL(self, url):
+        """Given a URL that presumably refers to our HTTP server, extract a stats
+           target from it. The URL should be to an RSS feed, but we won't be too
+           picky. If we can't find a related stats target, return None.
+           """
+        # We ignore everything except the path, assuming the URL actually
+        # refers to this host. There's no reason for someone to ask us to
+        # notify them if another server's page changes, and it would take
+        # more effort than it's worth to accurately determine if the given
+        # host refers to this CIA server, with all the proxying and DNS
+        # multiplicity that could be going on.
+        path = urlparse.urlparse(url)[2]
+
+        # FIXME: really cheesy hack!
+        if not path.startswith("/stats/"):
+            return None
+        return StatsTarget(path[7:].split("/.",1)[0])
 
 ### The End ###
