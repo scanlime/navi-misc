@@ -1,0 +1,30 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <link href="style.css" type="text/css" rel="stylesheet" />
+    <title>xchat-gnome - contact</title>
+  </head>
+  <body>
+    <div class="title">
+      xchat-gnome
+      <span class="subtitle">Contact</span>
+    </div>
+    <div class="body">
+      <div class="sidebar">
+        <!--#include file="navigation.inc"-->
+      </div>
+      <div class="content">
+        <div class="section">
+          It's a good possibility your question is already answered on the
+	  <a href="faq.shtml">FAQ</a> page.
+	  <br /><br />
+          The best place to get support and information is in our IRC channel,
+          <a href="irc://irc.freenode.net/xchat-gnome">#xchat-gnome</a> on irc.freenode.net.
+	  <br /><br />
+	  If you prefer email, send mesages to
+	  <a href="trowbrds+xchat@cs.colorado.edu">trowbrds+xchat@cs.colorado.edu</a>.
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

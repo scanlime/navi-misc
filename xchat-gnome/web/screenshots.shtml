@@ -1,0 +1,33 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <link href="style.css" type="text/css" rel="stylesheet" />
+    <title>xchat-gnome - screenshots</title>
+  </head>
+  <body>
+    <div class="title">
+      xchat-gnome
+      <span class="subtitle">Screenshots</span>
+    </div>
+    <div class="body">
+      <div class="sidebar">
+        <!--#include file="navigation.inc"-->
+      </div>
+      <div class="content">
+        <div class="section-title">Main Window</div>
+        <div class="section">
+          <a href="main.png"><img src="main-t.png" width="480" height="377" alt="main window" /></a><br />
+        </div>
+        <div class="section-title">Preferences Dialog</div>
+        <div class="section">
+          <a href="prefs-irc.png"><img src="prefs-irc-t.png" width="480" height="343" alt="irc preferences" /></a><br /><br />
+          <a href="prefs-plugins.png"><img src="prefs-plugins-t.png" width="480" height="343" alt="plugins preferences" /></a><br />
+        </div>
+        <div class="section-title">Channels Window</div>
+        <div class="section">
+          <a href="chanlist.png"><img src="chanlist-t.png" width="480" height="446" alt="channel list" /><br />
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
