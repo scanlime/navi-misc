@@ -259,7 +259,6 @@ void fe_dcc_send_filereq(struct session *sess, char *nick, int maxcps, int passi
 }
 
 void fe_set_channel(struct session *sess) {
-	g_print("fe_set_channel() - \"%s\"\n", sess->channel);
 	navigation_tree_set_channel_name(sess);
 }
 
