@@ -2,6 +2,10 @@ Definitely fix before the next release:
 
 - The win32 build hasn't been tested in a while, make sure it still
   works with all the new gnet and openexr stuff.
+- The emblem is put on everything right now, should test for the
+  existance of metadata
+- If things aren't installed to a prefix, loading the emblem file
+  won't work
 
 Probably fix before the next release, definitely for 1.0:
 
