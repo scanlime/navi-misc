@@ -24,6 +24,6 @@
 #ifndef XCHAT_GNOME_PREFERENCES_COLORS_PAGE_H
 #define XCHAT_GNOME_PREFERENCES_COLORS_PAGE_H
 
-void initialize_preferences_colors_page();
+void initialize_preferences_colors_page ();
 
 #endif

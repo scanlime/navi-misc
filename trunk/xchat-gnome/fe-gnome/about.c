@@ -21,24 +21,28 @@
 
 #include "about.h"
 
-void on_about_close(GtkWidget *widget, gpointer data);
+void on_about_close (GtkWidget *widget, gpointer data);
 
-void initialize_about_dialog() {
+void
+initialize_about_dialog ()
+{
 	GdkPixbuf *logo;
-	const gchar *authors[] = {
+	const gchar *authors[] =
+	{
 		"Evan Sheehan",
 		"Dan Kuester",
 		"David Trowbridge",
 		NULL
 	};
-	const gchar *documentors[] = {
+	const gchar *documentors[] =
+	{
 		NULL
 	};
 
-	logo = gdk_pixbuf_new_from_file("data/xchat-gnome-small.png", NULL);
+	logo = gdk_pixbuf_new_from_file ("data/xchat-gnome-small.png", NULL);
 	if (!logo)
 		logo = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/xchat-gnome-small.png", NULL);
-	gui.about = GNOME_ABOUT(gnome_about_new(
+	gui.about = GNOME_ABOUT (gnome_about_new(
 		"X-Chat GNOME",
 		"0.2pre",
 		"Copyright (c) 2004",
@@ -49,11 +53,15 @@ void initialize_about_dialog() {
 		logo));
 }
 
-void show_about_dialog() {
-	initialize_about_dialog();
-	gtk_widget_show_all(GTK_WIDGET(gui.about));
+void
+show_about_dialog ()
+{
+	initialize_about_dialog ();
+	gtk_widget_show_all (GTK_WIDGET (gui.about));
 }
 
-void on_about_close(GtkWidget *widget, gpointer data) {
-	gtk_widget_hide_all(GTK_WIDGET(gui.about));
+void
+on_about_close (GtkWidget *widget, gpointer data)
+{
+	gtk_widget_hide_all (GTK_WIDGET (gui.about));
 }

@@ -29,7 +29,8 @@
 #include "../common/cfgfiles.h"
 
 
-GdkColor colors[] = {
+GdkColor colors[] =
+{
 	{0, 0xcf3c, 0xcf3c, 0xcf3c}, /* 0  white */
 	{0, 0x0000, 0x0000, 0x0000}, /* 1  black */
 	{0, 0x0000, 0x0000, 0xcccc}, /* 2  blue */
@@ -79,7 +80,8 @@ GdkColor colors[] = {
 
 #define MAX_COL 40
 
-const GdkColor colors_white_on_black[] = {
+const GdkColor colors_white_on_black[] =
+{
 	{0, 0xffff, 0xffff, 0xffff}, /* background (white) */
 	{0, 0x0000, 0x0000, 0x0000}, /* foreground (black) */
 	{0, 0xa4a4, 0xdfdf, 0xffff}, /* marktext back (blue) */
@@ -87,7 +89,8 @@ const GdkColor colors_white_on_black[] = {
 	{0, 0x9999, 0x9999, 0x9999}, /* away user (grey) */
 };
 
-const GdkColor colors_black_on_white[] = {
+const GdkColor colors_black_on_white[] =
+{
 	{0, 0x0000, 0x0000, 0x0000}, /* background (black) */
 	{0, 0xdf3c, 0xdf3c, 0xdf3c}, /* foreground (white) */
 	{0, 0xa4a4, 0xdfdf, 0xffff}, /* marktext back (blue) */
@@ -97,13 +100,15 @@ const GdkColor colors_black_on_white[] = {
 
 GdkColor custom_colors[5];
 
-const GdkColor *color_schemes[] = {
+const GdkColor *color_schemes[] =
+{
 	colors_white_on_black,
 	colors_black_on_white,
 	custom_colors,
 };
 
-const GdkColor default_palette[] = {
+const GdkColor default_palette[] =
+{
 	{0, 0xcf3c, 0xcf3c, 0xcf3c}, /* 0  white */
 	{0, 0x0000, 0x0000, 0x0000}, /* 1  black */
 	{0, 0x0000, 0x0000, 0xcccc}, /* 2  blue */
@@ -141,12 +146,15 @@ const GdkColor default_palette[] = {
 
 GdkColor custom_palette[32];
 
-const GdkColor *palette_schemes[] = {
+const GdkColor *palette_schemes[] =
+{
 	default_palette,
 	custom_palette,
 };
 
-void load_colors(int selection) {
+void
+load_colors (int selection)
+{
 	colors[35] = color_schemes[selection][0];
 	colors[34] = color_schemes[selection][1];
 	colors[32] = color_schemes[selection][2];
@@ -154,37 +162,40 @@ void load_colors(int selection) {
 	colors[40] = color_schemes[selection][4];
 }
 
-void load_palette(int selection) {
+void
+load_palette (int selection)
+{
 	int i;
 
-	for(i = 0; i < 32; i++) {
+	for (i = 0; i < 32; i++)
 		colors[i] = palette_schemes[selection][i];
-	}
 }
 
-void palette_init() {
+void
+palette_init ()
+{
 	int i;
 
-	for(i = 0; i < 32; i++) {
+	for (i = 0; i < 32; i++)
 		custom_palette[i] = palette_schemes[0][i];
-	}
-	for(i = 0; i < 5; i++) {
+	for (i = 0; i < 5; i++)
 		custom_colors[i] = color_schemes[0][i];
-	}
 }
 
-void palette_alloc(GtkWidget *widget) {
+void
+palette_alloc (GtkWidget *widget)
+{
 	static gboolean done = FALSE;
 	GdkColormap *cmap;
 	int i;
 
-	cmap = gtk_widget_get_colormap(widget);
+	cmap = gtk_widget_get_colormap (widget);
 
-	if(done)
-		gdk_colormap_free_colors(cmap, colors, 24);
+	if (done)
+		gdk_colormap_free_colors (cmap, colors, 24);
 
-	for(i = 0; i < 40; i++)
-		gdk_colormap_alloc_color(cmap, &colors[i], FALSE, TRUE);
+	for (i = 0; i < 40; i++)
+		gdk_colormap_alloc_color (cmap, &colors[i], FALSE, TRUE);
 
 	done = TRUE;
 }

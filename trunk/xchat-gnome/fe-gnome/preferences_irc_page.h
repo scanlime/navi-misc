@@ -24,6 +24,6 @@
 #ifndef XCHAT_GNOME_PREFERENCES_IRC_PAGE_H
 #define XCHAT_GNOME_PREFERENCES_IRC_PAGE_H
 
-void initialize_preferences_irc_page();
+void initialize_preferences_irc_page ();
 
 #endif

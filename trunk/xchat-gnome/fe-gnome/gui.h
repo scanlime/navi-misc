@@ -29,7 +29,8 @@
 #ifndef XCHAT_GNOME_GUI_H
 #define XCHAT_GNOME_GUI_H
 
-typedef struct {
+typedef struct
+{
 	GladeXML *xml;
 	GnomeApp *main_window;
 	GtkDialog *preferences_dialog;
@@ -47,8 +48,8 @@ typedef struct {
 extern XChatGUI gui;
 extern Userlist *u;
 
-gboolean initialize_gui_1();
-gboolean initialize_gui_2();
+gboolean initialize_gui_1 ();
+gboolean initialize_gui_2 ();
 int xtext_get_stamp_str (time_t tim, char **ret);
 
 #endif
