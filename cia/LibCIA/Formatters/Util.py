@@ -21,5 +21,33 @@ Utilities shared by several formatters
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
+from LibCIA import XML
+
+
+def wrapLine(line, width):
+    """Given a long line, wrap it if possible to the given width,
+       returning a list of lines.
+       """
+    lines = []
+    newLine = ''
+    for word in line.split(" "):
+        oldLine = newLine
+        if newLine:
+            newLine = newLine + ' ' + word
+        else:
+            newLine = word
+        if len(newLine) > width:
+            lines.append(oldLine.rstrip())
+            newLine = word
+    if newLine:
+        lines.append(newLine.rstrip())
+    return lines
+
+
+def extractSummary(self, element, widthLimit=80):
+    """Extract all text from the given XML element, remove extra
+       whitespace, and truncate it to no longer than the given width.
+       """
+    return wrapLine(re.sub("\s+", " ", XML.allText(element)).strip(), widthLimit)[0]
 
 ### The End ###

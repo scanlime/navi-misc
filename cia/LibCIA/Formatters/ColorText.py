@@ -24,6 +24,7 @@ This is the legacy format that old non-XML commits are converted to.
 
 from LibCIA import Message, XML
 import Nouvelle, re
+import Util
 
 __all__ = ['ColortextToIRC', 'ColortextTitle', 'ColortextToPlaintext', 'ColortextToXHTML']
 
@@ -58,14 +59,9 @@ class ColortextToIRC(Message.Formatter):
 class ColortextTitle(ColortextFormatter):
     """Extracts a title from colorText messages"""
     medium = 'title'
-    widthLimit = 80
 
     def format(self, message, input=None):
-        # Extract plaintext from the entire message, collapse whitespace, and truncate
-        log = re.sub("\s+", " ", XML.allText(message.xml.body.colorText).strip())
-        if len(log) > self.widthLimit:
-            log = log[:self.widthLimit] + " ..."
-        return log
+        return Util.extractSummary(message.xml.body.colorText)
 
 
 class ColortextToPlaintext(ColortextFormatter):
