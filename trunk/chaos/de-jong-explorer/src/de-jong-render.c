@@ -589,8 +589,6 @@ void de_jong_calculate_bifurcation(DeJong             *self,
       /* Using the heap, find the column with the lowest peak density. */
       column = heap_extract_maximum(self->column_heap);
 
-      printf("minimum peak density %d\n", column->peak_density);
-
       /* At each iteration block, we pick a new interpolated set of points
        * and the corresponding X coordinate on our histogram.
        * Vary the alpha parameter within the column to pick up features smaller than a pixel.
