@@ -536,6 +536,7 @@ static int uinput_ioctl(struct inode *inode, struct file *file, unsigned int cmd
 				break;
 			}
 			req->retval = ff_up.retval;
+			memcpy(req, &ff_up.effect, sizeof(struct ff_effect));
 			req->completed = 1;
 			wake_up_interruptible(&req->waitq);
 			break;
