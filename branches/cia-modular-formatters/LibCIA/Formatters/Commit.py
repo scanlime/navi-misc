@@ -201,28 +201,43 @@ class CommitToIRC(CommitFormatter):
     widthLimit = 220
     wrapWidth = 80
 
-    defaultComponentTree = """<format>
-    <author/> <branch/> * <version/> <autoHide>r<revision/></autoHide> <module/>/<files/>: <log/>
-    </format>"""
+    defaultComponentTree = """
+    <format>
+        <author/> <branch/> *
+        <version/><autoHide>r<revision/></autoHide>
+        <module/>/<files/>:
+        <log/>
+    </format>
+    """
 
     def __init__(self):
-        """By default, use the IRC color formatter"""
-        from LibCIA.IRC.Formatting import format
-        self.colorFormatter = format
+        # Blah, we have to do this to avoid circular dependency
+        from LibCIA.IRC import Formatting
+        self.Formatting = Formatting
 
-    def noColorFormatter(self, text, *tags):
-        """A replacement formatter that ignores colors"""
-        return text
+    def format(self, args):
+        self.colorStack = self.Formatting.ColorStack()
+        return CommitFormatter.format(self, args)
 
     def param_noColor(self, tag):
-        """The <noColor> parameter disables all colors, naturally"""
-        self.colorFormatter = self.noColorFormatter
+        """The <noColor> parameter disables colors.
+           This is equivalent to a <format> parameter with CommitFormatter's
+           default component tree.
+           """
+        self.componentTree = XML.parseString(CommitFormatter.defaultComponentTree
+                                             ).documentElement
+
+    def component_b(self, element, args):
+        self.colorStack.push("bold")
+        return self.colorStack.wrap(self.walkComponents(element.childNodes, args))
+
+    def component_u(self, element, args):
+        self.colorStack.push("underline")
+        return self.colorStack.wrap(self.walkComponents(element.childNodes, args))
 
     def component_color(self, element, args):
-        """This formatter component lets you use colorText-style
-           colorization tags inside the <format> parameter.
-           """
-        pass
+        self.colorStack.push(*self.Formatting.parseColorElement(element))
+        return self.colorStack.wrap(self.walkComponents(element.childNodes, args))
 
 
 class CommitToPlaintext(CommitFormatter):
