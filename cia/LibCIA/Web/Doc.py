@@ -48,6 +48,7 @@ class Component(Server.Component):
     def __init__(self, basePath):
         self.basePath = basePath
         self.resource = Page(self)
+	self.resource.load()
 
     def __contains__(self, page):
         return isinstance(page, Page)
