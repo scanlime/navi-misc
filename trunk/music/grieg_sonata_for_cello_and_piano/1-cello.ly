@@ -2,25 +2,30 @@ allegroAgitatoCello = \relative c {
 	\time 2/2
 	\clef bass
 
-	\tag #'part <<
-		\set fontSize = #-2
-		\times 2/3 {
-			e8_"Piano" <a c> e    <a c> e <a c>    e8 <a c> e    <a c> e <a c>
-	\\
-		r1
-		}
+	<<
+		\tag #'part <<
+			\set fontSize = #-2
+			\times 2/3 {
+				\override TupletBracket #'bracket-visibility = ##f
+				\override TupletBracket #'number-visibility = ##f
+				\stemUp
+				e8_"Piano" [<a c> e]    <a c> [e <a c>]    e8 [<a c> e]    <a c> [e <a c>]
+			}
+		\\
+			r1
+		>>
+		\tag #'score r1
 	>>
-	\tag #'score r1
 
 	e2 ( f2
 	e2 ~ e8) a8 (b c)
 	e,4 e4 (f4) f4 (
 	e2 ~ e8) c'8 (d e)
-	e2 (f2)
+	e,2 (f2)
 	e2 (b'2)
 	e,2 (e'2) ~
-	e8 f8 (e d \acciaccatura {c16[ d]} c8 b c d)
-	e2 (e2)
+	e8 f8 \(e d \acciaccatura {c16[ d]} c8 b c d\)
+	e,2 (e2)
 	e2 ~ e8 e (f g
 	e4 e) e (e)
 	e2 ~ e8 g8 (a bes)
@@ -61,12 +66,12 @@ allegroAgitatoCello = \relative c {
 
 	% B
 	a2 a2
-	a2 ~ \(a8 a8) b c
+	a2 ~ \(a8 a8\) b c
 	a4 ~ a4 a a
 	a1
 	\clef bass
 	a,2 a2
-	a2 ~ \(a8 a8) b c
+	a2 ~ \(a8 a8\) b c
 	a4 ~ a4 a a
 	a1
 	a,1 ~
