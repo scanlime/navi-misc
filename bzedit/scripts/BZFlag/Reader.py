@@ -31,15 +31,15 @@ class Reader:
                             Optional(CaselessIteral('E') + Word('+-'+nums, nums)))
             3dPoint = float + float + float
 
-            end = CaselessLiteral("end")
-            name = CaselessLiteral("name")
-            pos = CaselessLiteral("pos") | CaselessLiteral("position")
-            rot = CaselessLiteral("rot") | CaselessLiteral("rotation")
-            scale = CaselessLiteral("scale")
-            shear = CaselessLiteral("shear")
-            shift = CaselessLiteral("shift")
-            size = CaselessLiteral("size")
-            spin = CaselessLiteral("spin")
+            end = CaselessLiteral('end')
+            name = CaselessLiteral('name')
+            pos = CaselessLiteral('pos') | CaselessLiteral('position')
+            rot = CaselessLiteral('rot') | CaselessLiteral('rotation')
+            scale = CaselessLiteral('scale')
+            shear = CaselessLiteral('shear')
+            shift = CaselessLiteral('shift')
+            size = CaselessLiteral('size')
+            spin = CaselessLiteral('spin')
 
             objectProperty = name + Word(alphanums)
             locationProperty =
@@ -52,28 +52,28 @@ class Reader:
               | spin + 3dPoint
               | objectProperty
             obstacleProperty =
-                CaselessLiteral("drivethrough")
-              | CaselessLiteral("shootthrough")
-              | CaselessLiteral("passable")
+                CaselessLiteral('drivethrough')
+              | CaselessLiteral('shootthrough')
+              | CaselessLiteral('passable')
               | locationProperty
 
-            box = CaselessLiteral("box") + OneOrMore(obstacleProperty) + end
+            box = CaselessLiteral('box') + OneOrMore(obstacleProperty) + end
 
             pyramidProperty =
-                CaselessLiteral("flipz")
+                CaselessLiteral('flipz')
               | obstacleProperty
-            pyramid = CaselessLiteral("pyramid") + OneOrMore(pyramidProperty) + end
+            pyramid = CaselessLiteral('pyramid') + OneOrMore(pyramidProperty) + end
 
             worldProperty =
                 size + float
-              | CaselessLiteral("flagHeight") + float
+              | CaselessLiteral('flagHeight') + float
               | objectProperty
-            world = CaselessLiteral("world") + OneOrMore(worldProperty) + end
+            world = CaselessLiteral('world') + OneOrMore(worldProperty) + end
 
             teleporterProperty =
-                CaselessLiteral("border") + float
+                CaselessLiteral('border') + float
               | obstacleProperty
-            teleporter = CaselessLiteral("teleporter") + OneOrMore(teleporterProperty) + end
+            teleporter = CaselessLiteral('teleporter') + OneOrMore(teleporterProperty) + end
 
             teleporterSpec =
                 Word(digits)
@@ -83,3 +83,15 @@ class Reader:
               | CaselessLiteral('from') + teleporterSpec
               | objectProperty
             link = CaselessLiteral('link') + OneOrMore(linkProperty) + end
+
+            # FIXME - add material to this object
+            arcProperty =
+                CaselessLiteral('divisions') + Word(nums)
+              | CaselessLiteral('angle') + float
+              | CaselessLiteral('ratio') + float
+              | CaselessLiteral('texsize') + float + float + float + float
+              | CaselessLiteral('phydrv') + Word(alphanums)
+              | CaselessLiteral('smoothbounce')
+              | CaselessLiteral('flatshading')
+              | obstacleProperty
+            arc = CaselessLiteral('arc') + OneOrMore(arcProperty) + end
