@@ -15,6 +15,7 @@
 			<text_field label="Exp:" path="/character/exp">
 			</text_field>
 		</hbox>
+		<text_box label="History"/>
 		</tab>
 
 		<tab label="Attrs">
@@ -38,6 +39,13 @@
 				<times>/character/dexterity</times>
 				<mods>-3</mods>
 			</dice>
+		</tab>
+
+		<tab label="Misc">
+			<hbox>
+				<text_box label="Appearance"/>
+				<text_box label="Coterie"/>
+			</hbox>
 		</tab>
 	</tab_view>
 </character_sheet>
