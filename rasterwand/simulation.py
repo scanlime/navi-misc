@@ -55,15 +55,22 @@ class WindowComparator(rtgraph.Channel):
 
 class PulseTracker(rtgraph.Channel):
     """Algorithm for recovering a sinusoidal signal given a pulse
-       when the signal is within some small off-center window
+       when the signal is within some small off-center window.
+       This is a simple form of digital phase-locked loop.
        """
+    # Tolerance for differences in sync window durations. Should be slightly
+    # larger than the upper bound on timer noise.
+    tolerance = 0.01
+
     def __init__(self, name, pulse, oscillator):
         rtgraph.Channel.__init__(self, name=name)
         self.pulse = pulse
         self.oscillator = oscillator
+        self.reset()
 
-        # Pulse edge-detector and period measurement
+    def reset(self):
         self.pulseTimer = TimeStepper()
+        self.locked = False
         self.stepBuffer = []
         self.lastPulseVal = None
 
@@ -80,7 +87,8 @@ class PulseTracker(rtgraph.Channel):
                 self.stepBuffer = self.stepBuffer[-3:] + [dt]
                 self.sync()
 
-        return self.oscVal
+        if self.locked:
+            return self.oscVal
 
     def sync(self):
         # By examining our current step buffer, infer the period and phase
@@ -95,6 +103,11 @@ class PulseTracker(rtgraph.Channel):
             # We're outside of the sync window, wait 'til we're back in
             return
 
+        # Our two sync window samples should be about the same. If not, we
+        # probably missed a sample and need to start over.
+        if abs(step[0] - step[2]) > self.tolerance:
+            self.reset()
+
         # Adjust the oscillator period by adding all step times
         self.oscillator.frequency = 1 / sum(step)
 
@@ -106,15 +119,18 @@ class PulseTracker(rtgraph.Channel):
         else:
             # The origin is in the center of step[2]
             t = step[3]/2
-        print t
+
         # Then calculate the current theta using this time and our period
         self.oscillator.theta = -math.pi/2 + 2*math.pi * self.oscillator.frequency * t
 
+        # Yay, we should be synchronized now
+        self.locked = True
+
 
 def simulate():
-    trueAngle = SineWave("True Angle", 0.6)
+    trueAngle = SineWave("True Angle", 1)
     iSensor = WindowComparator("Interruption Sensor", trueAngle, (-0.5, -0.4))
-    recoveredAngle = PulseTracker("Recovered Angle", iSensor, SineWave())
+    recoveredAngle = PulseTracker("Recovered Angle", iSensor, SineWave(None, 0))
 
     channels = [trueAngle,
                 iSensor,
