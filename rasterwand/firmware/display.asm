@@ -31,7 +31,6 @@
 	global	display_poll
 	global	display_init
 	global	display_request_flip
-	global	display_check_flip	
 	global	display_save_status
 
 	global	edge_buffer
@@ -46,6 +45,8 @@
 	global	display_column_width
 	global	display_gap_width
 	global	back_buffer
+	global	num_active_columns
+	global	flip_counter
 
 	extern	temp
 	extern	temp2
@@ -67,6 +68,11 @@ edge_counter	res	1	; A counter that increments every time our synchronization al
 						; edge detected on the angle sensor input. Normally this will increment four times per period.
 						; This can let the host know whether the wand is actually moving, whereas the predictor
 						; is always running.
+
+flip_counter	res 1	; A counter that increments every time a page flip is completed
+
+num_active_columns	res	1	; Effective width of our display, always <= NUM_COLUMNS
+
 unbanked	udata_shr
 
 coil_window_min	res	2	; Minimum and maximum wand_phase to enable the coil for
@@ -126,7 +132,12 @@ display_init
 	clrf	mode_flags
 	clrf	display_flags
 	clrf	edge_counter
+	clrf	flip_counter
 	clrf	current_column
+
+	movlw	NUM_COLUMNS
+	movwf	num_active_columns
+
 	return
 
 
@@ -153,13 +164,6 @@ display_request_flip
 	return
 
 
-	; Check the status of a flip in progress, nonzero if it's in progress
-display_check_flip
-	btfss	FLAG_FLIP_REQUEST
-	retlw	0x00
-	retlw	0xFF
-
-
 	; Starting at the location in IRP:FSR, save an 8-byte status
 	; packet as described in rwand_protocol.h for RWAND_CTRL_READ_STATUS.
 display_save_status
@@ -182,8 +186,7 @@ display_save_status
 	movf	mode_flags, w		; 6
 	movwf	INDF
 	incf	FSR, f
-	pagesel	display_check_flip	; 7
-	call	display_check_flip
+	movf	flip_counter, w		; 7
 	movwf	INDF
 	incf	FSR, f
 	banksel	BUTTON_PORT			; 8
@@ -273,11 +276,6 @@ no_phase_rollover
 	; LED_PORT from video memory.
 display_led_scan
 
-	; Is the display disabled?
-	pagesel	led_scan_disabled
-	btfss	mode_flags, RWAND_MODE_ENABLE_DISPLAY_BIT
-	goto	led_scan_disabled
-
 	; Check for the beginning of a forward scan
 	pagesel	no_forward_scan
 	btfsc	FLAG_FWD_TRIGGERED		; If we've already started, don't bother
@@ -306,17 +304,17 @@ no_forward_scan
 	bsf		FLAG_DISPLAY_REV			; Set flags
 	bcf		FLAG_DISPLAY_FWD
 	bsf		FLAG_REV_TRIGGERED
-	movlw	NUM_COLUMNS-1				; Start at the end
+	decf	num_active_columns, w		; Start at the end (num_active_columns - 1)
 	banksel	current_column
 	movwf	current_column
 no_reverse_scan
 
 	; Bounds check the current column. If it's out of range, disable current scans
-	movlw	NUM_COLUMNS				; Test current_column - NUM_COLUMNS
+	movf	num_active_columns, w		; Test current_column - num_active_columns
 	subwf	current_column, w
 	pagesel	led_scan_disabled
 	btfsc	STATUS, C
-	goto	led_scan_disabled		; C=1, B=0, NUM_COLUMNS <= current_column
+	goto	led_scan_disabled			; C=1, B=0, num_active_columns <= current_column
 
 	; Is there any scan in progress? If not...
 	pagesel	scan_in_progress
@@ -327,7 +325,7 @@ no_reverse_scan
 
 	; Blank the LEDs, clear the scan bits, and return.
 	; This is invoked at the end of a scan, (once current_column is out of bounds)
-	; if no scan has been started, or if the LED scanner has been disabled entirely.
+	; or if no scan has been started.
 led_scan_disabled
 	movlw	0xFF
 	banksel	LED_PORT
@@ -345,6 +343,8 @@ scan_in_progress
 	addwf	current_column, w
 	movwf	FSR
 	comf	INDF, w						; Invert (the LEDs are active-low) and blast to LED_PORT.
+	btfss	mode_flags, RWAND_MODE_ENABLE_DISPLAY_BIT 	; If the display has been disabled, blank the LEDs
+	movlw	0xFF
 	btfsc	FLAG_IN_GAP					; If we're in a gap, blank the LEDs
 	movlw	0xFF
 	movwf	LED_PORT					; It's just as fast to invert it while moving as to not invert it,
@@ -383,7 +383,7 @@ in_gap
 	addwf	remaining_col_width+1, f
 
 	pagesel	next_column_loop	
-	decfsz	temp
+	decfsz	temp, f
 	return								; We're giving up
 
 not_in_gap
@@ -402,7 +402,7 @@ not_in_gap
 	addwf	remaining_col_width+1, f
 
 	pagesel	next_column_loop	
-	decfsz	temp
+	decfsz	temp, f
 	return								; We're giving up
 
 
@@ -429,6 +429,7 @@ start_scan_common
 	btfss	FLAG_FLIP_REQUEST			; We're done if we haven't had a page flip request
 	return
 	bcf		FLAG_FLIP_REQUEST
+	incf	flip_counter, f
 
 	clrf	current_column				; Start the blit at the first column
 	pagesel	flip_blit_loop
@@ -531,10 +532,6 @@ coil_disabled
 	; and phase to what we're detecting on the wand's angle sensor.
 display_sync
 
-	; Is synchronization disabled?
-	btfss	mode_flags, RWAND_MODE_ENABLE_SYNC_BIT
-	return
-
 	; Add our current delta-t to the latest slot on the edge buffer
 	banksel	edge_buffer
 	movf	delta_t+1, w
@@ -561,8 +558,9 @@ display_sync
 	btfsc	ANGLE_SENSOR
 	bsf		FLAG_ASENSOR_TEMP
 
-	; Attempt to synchronize using our current edge_buffer data
+	; Attempt to synchronize using our current edge_buffer data, if synchronization is enabled
 	pagesel	sync_detect
+	btfsc	mode_flags, RWAND_MODE_ENABLE_SYNC_BIT
 	call	sync_detect
 
 	banksel	edge_buffer

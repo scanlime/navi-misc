@@ -1,17 +1,5 @@
 Firmware:
 
-- Add a way to set the period without modifying the phase. Maybe this
-  could be done if phase == 0xFFFF.
-- Sync bit enables period/phase calculation, but edges are still sampled
-
-- Use a page flip counter rather than a page flip busy bit, so that page
-   flips can be reliably detected even when receiving interrupt packets
-   that lag the actual registers slightly.
-
-- Display bit enables/disables actual LED drive, but timing calculations
-  always run. This would keep the first frame after enabling from being
-  misaligned.
-
 - Interleaved 4-byte write (page flip resets pointer)
 
 - Non-interleaved 12-byte write?
@@ -22,7 +10,4 @@ Firmware:
   This prevents the LEDs from overheating if the host isn't paying attention
   and the wand stalls. Making it a mode bit makes it easy to disable for
   debugging or special effects.
-
-- Add a register for setting the display width, so smaller widths can be
-  used to tweak the aspect ratio.
 

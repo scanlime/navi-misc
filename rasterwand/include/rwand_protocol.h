@@ -37,7 +37,7 @@
 ;//     This can be used to detect a stalled wand or other condition that would give bad
 ;//     predictions.
 ;//   * Mode bits, 8-bit unsigned int.
-;//   * Page flip status, 8-bit unsigned int. Nonzero when a flip is in progress
+;//   * Page flip counter, 8-bit unsigned int. Increments when a page flip is completed.
 ;//   * Button status, 8-bit unsigned int. Copy of the PORTA inputs.
 #define RWAND_CTRL_READ_STATUS		0x02
 
@@ -65,6 +65,14 @@
 ;// No more backbuffer writes should be performed until the flip has been
 ;// confirmed to be completed.
 #define RWAND_CTRL_FLIP				0x09
+
+;// Set the period to wValue, leave phase alone
+#define RWAND_CTRL_SET_PERIOD		0x0A
+
+;// Set the width of the display, in columns. This must not be more than 80,
+;// the maximum number of columns we have video memory for. The number
+;// of columns should be in the low byte of wValue.
+#define RWAND_CTRL_SET_NUM_COLUMNS	0x0B
 
 
 ;//************************************************** Mode bits
