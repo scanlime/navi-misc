@@ -40,6 +40,7 @@ static gulong histogram_imager_get_max_usable_density(HistogramImager *self);
 static void histogram_imager_check_dirty_flags(HistogramImager *self);
 static void histogram_imager_require_histogram(HistogramImager *self);
 static void histogram_imager_require_image(HistogramImager *self);
+static void histogram_imager_require_oversample_tables(HistogramImager *self);
 
 static void update_double_if_necessary(gdouble new_value, gboolean *dirty_flag, gdouble *param, gdouble epsilon);
 static void update_uint_if_necessary(guint new_value, gboolean *dirty_flag, guint *param);
@@ -55,6 +56,7 @@ enum {
   PROP_SIZE,
   PROP_EXPOSURE,
   PROP_GAMMA,
+  PROP_OVERSAMPLE_GAMMA,
   PROP_FGCOLOR,
   PROP_BGCOLOR,
   PROP_FGALPHA,
@@ -171,6 +173,16 @@ static void histogram_imager_init_render_params(GObjectClass *object_class) {
   param_spec_set_increments        (spec, 0.01, 0.1, 3);
   g_object_class_install_property  (object_class, PROP_GAMMA, spec);
 
+  spec = g_param_spec_double       ("oversample_gamma",
+				    "Oversampling gamma",
+				    "Gamma correction used when downconverting oversampled histograms",
+				    0, 10, 1.66,
+				    G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
+				    G_PARAM_LAX_VALIDATION | PARAM_INTERPOLATE | PARAM_IN_GUI);
+  param_spec_set_group             (spec, current_group);
+  param_spec_set_increments        (spec, 0.01, 0.1, 3);
+  g_object_class_install_property  (object_class, PROP_OVERSAMPLE_GAMMA, spec);
+
   spec = g_param_spec_string       ("fgcolor",
 				    "Foreground",
 				    "The foreground color, as a color name or #RRGGBB hex triple",
@@ -240,9 +252,17 @@ static void histogram_imager_dispose(GObject *gobject) {
     gdk_pixbuf_unref(self->image);
     self->image = NULL;
   }
-  if (self->color_table) {
-    g_free(self->color_table);
-    self->color_table = NULL;
+  if (self->color_table.table) {
+    g_free(self->color_table.table);
+    self->color_table.table = NULL;
+  }
+  if (self->oversample_tables.linearize) {
+    g_free(self->oversample_tables.linearize);
+    self->oversample_tables.linearize = NULL;
+  }
+  if (self->oversample_tables.nonlinearize) {
+    g_free(self->oversample_tables.nonlinearize);
+    self->oversample_tables.nonlinearize = NULL;
   }
 
   G_OBJECT_CLASS(parent_class)->dispose(gobject);
@@ -334,6 +354,10 @@ static void histogram_imager_set_property (GObject *object, guint prop_id, const
     update_double_if_necessary(g_value_get_double(value), &self->render_dirty_flag, &self->gamma, 0.00009);
     break;
 
+  case PROP_OVERSAMPLE_GAMMA:
+    update_double_if_necessary(g_value_get_double(value), &self->render_dirty_flag, &self->oversample_gamma, 0.00009);
+    break;
+
   case PROP_FGCOLOR:
     /* Convert to a GdkColor and set the fgcolor-gdk property. This is necessary
      * so that notify signals attached to fgcolor-gdk are sent properly, and in
@@ -402,6 +426,10 @@ static void histogram_imager_get_property (GObject *object, guint prop_id, GValu
 
   case PROP_GAMMA:
     g_value_set_double(value, self->gamma);
+    break;
+
+  case PROP_OVERSAMPLE_GAMMA:
+    g_value_set_double(value, self->oversample_gamma);
     break;
 
   case PROP_FGALPHA:
@@ -540,7 +568,7 @@ void histogram_imager_update_image(HistogramImager *self) {
 
   {
     guint32 *pixel_p;
-    guint32* const color_table = self->color_table;
+    guint32* const color_table = self->color_table.table;
     guint *hist_p, *sample_p;
     guint count, hist_clamp;
     const guint oversample = self->oversample;
@@ -555,7 +583,7 @@ void histogram_imager_update_image(HistogramImager *self) {
      * one in the table would generate the same color as
      * the highest one.
      */
-    hist_clamp = self->color_table_filled_size - 1;
+    hist_clamp = self->color_table.filled_size - 1;
 
     if (oversample > 1) {
       /* Nice ugly loop that downsamples multiple (oversample^2)
@@ -565,6 +593,8 @@ void histogram_imager_update_image(HistogramImager *self) {
       const int oversample_squared = oversample * oversample;
       const int sample_stride = (self->width * oversample) - oversample;
       const int sample_y_stride = (self->width * oversample) * (oversample - 1);
+      guint* linearize_table;
+      guint8* nonlinearize_table;
       int sample_x, sample_y;
       int ch0, ch1, ch2, ch3;
       union {
@@ -573,6 +603,10 @@ void histogram_imager_update_image(HistogramImager *self) {
 	  guchar ch0, ch1, ch2, ch3;
 	} channels;
       } sample_pixel;
+
+      histogram_imager_require_oversample_tables(self);
+      linearize_table = self->oversample_tables.linearize;
+      nonlinearize_table = self->oversample_tables.nonlinearize;
 
       for (y=self->height; y; y--) {
 	for (x=self->width; x; x--) {
@@ -598,19 +632,19 @@ void histogram_imager_update_image(HistogramImager *self) {
 	      else
 		sample_pixel.word = color_table[count];
 
-	      ch0 += sample_pixel.channels.ch0;
-	      ch1 += sample_pixel.channels.ch1;
-	      ch2 += sample_pixel.channels.ch2;
-	      ch3 += sample_pixel.channels.ch3;
+	      ch0 += linearize_table[sample_pixel.channels.ch0];
+	      ch1 += linearize_table[sample_pixel.channels.ch1];
+	      ch2 += linearize_table[sample_pixel.channels.ch2];
+	      ch3 += linearize_table[sample_pixel.channels.ch3];
 	    }
 	    sample_p += sample_stride;
 	  }
 	  hist_p += oversample;
 
-	  sample_pixel.channels.ch0 = ch0 / oversample_squared;
-	  sample_pixel.channels.ch1 = ch1 / oversample_squared;
-	  sample_pixel.channels.ch2 = ch2 / oversample_squared;
-	  sample_pixel.channels.ch3 = ch3 / oversample_squared;
+	  sample_pixel.channels.ch0 = nonlinearize_table[ch0];
+	  sample_pixel.channels.ch1 = nonlinearize_table[ch1];
+	  sample_pixel.channels.ch2 = nonlinearize_table[ch2];
+	  sample_pixel.channels.ch3 = nonlinearize_table[ch3];
 	  *(pixel_p++) = sample_pixel.word;
 	}
 	hist_p += sample_y_stride;
@@ -634,15 +668,15 @@ void histogram_imager_update_image(HistogramImager *self) {
 
 static void histogram_imager_resize_color_table(HistogramImager *self, gulong size) {
   /* Resize the color table to exactly 'size' entries. Upon completion,
-   * self->color_table_filled_size will equal 'size', and
-   * self->color_table_allocated_size will be at least 'size'.
+   * self->color_table.filled_size will equal 'size', and
+   * self->color_table.allocated_size will be at least 'size'.
    * If the current table is too small, this reallocates one twice as
    * large as necessary, since the required size usually grows. However,
    * if the required size is less than 1/10 the current size, the table will
    * shrink to twice the current minimum size.
    */
 
-  self->color_table_filled_size = size;
+  self->color_table.filled_size = size;
 
   /* Just to reduce allocation overhead during those crucial first few frames,
    * put a lower limit on the amount of memory we're going to allocate.
@@ -650,14 +684,15 @@ static void histogram_imager_resize_color_table(HistogramImager *self, gulong si
   if (size < 1024)
     size = 1024;
 
-  if ((self->color_table_allocated_size < size) ||
-      (self->color_table_allocated_size > 10 * size)) {
-    if (self->color_table)
-      g_free(self->color_table);
+  if ((self->color_table.allocated_size < size) ||
+      (self->color_table.allocated_size > 10 * size)) {
+    if (self->color_table.table)
+      g_free(self->color_table.table);
 
     /* Allocate it to double the size we need now, as we expect our needs to grow. */
-    self->color_table_allocated_size = size * 2;
-    self->color_table = g_malloc(self->color_table_allocated_size * sizeof(self->color_table[0]));
+    self->color_table.allocated_size = size * 2;
+    self->color_table.table = g_malloc(self->color_table.allocated_size *
+				       sizeof(self->color_table.table[0]));
   }
 }
 
@@ -714,7 +749,7 @@ static void histogram_imager_generate_color_table(HistogramImager *self) {
   /* Generate one color for every currently-possible count value that
    * doesn't fully saturate our image, as determined by histogram_imager_get_max_usable_density
    */
-  for (count=0; count < self->color_table_filled_size; count++) {
+  for (count=0; count < self->color_table.filled_size; count++) {
 
     /* Scale and gamma-correct */
     luma = count * pixel_scale;
@@ -737,7 +772,7 @@ static void histogram_imager_generate_color_table(HistogramImager *self) {
     if (a<0) a = 0;  if (a>255) a = 255;
 
     /* Colors are always ARGB order in little endian */
-    self->color_table[count] = GUINT32_TO_LE( (a<<24) | (b<<16) | (g<<8) | r );
+    self->color_table.table[count] = GUINT32_TO_LE( (a<<24) | (b<<16) | (g<<8) | r );
   }
 }
 
@@ -888,6 +923,61 @@ static void histogram_imager_require_image(HistogramImager *self) {
   if (!self->image) {
     self->image = gdk_pixbuf_new(GDK_COLORSPACE_RGB, TRUE, 8, self->width, self->height);
     self->render_dirty_flag = TRUE;
+  }
+}
+
+static void histogram_imager_require_oversample_tables(HistogramImager *self) {
+  /* Allocate or regenerate the oversample tables as necessary. */
+  gboolean need_realloc = FALSE;
+  gboolean need_regenerate = FALSE;
+
+  /* Bits of precision to use in the intermediate linear values.
+   * Increasing this increases the accuracy of the oversampled image,
+   * to some extent, but exponentially increases memory usage for
+   * the nonlinearize table.
+   */
+  const guint32 linear_bits = 12;
+
+  const guint32 nonlinearize_table_size = (1<<linear_bits) * self->oversample * self->oversample;
+
+  if (self->oversample_tables.oversample != self->oversample)
+    need_realloc = TRUE;
+  if (self->oversample_tables.gamma != self->oversample_gamma)
+    need_regenerate = TRUE;
+  if (!self->oversample_tables.linearize || !self->oversample_tables.nonlinearize)
+    need_realloc = TRUE;
+
+  if (need_realloc) {
+    if (self->oversample_tables.linearize)
+      g_free(self->oversample_tables.linearize);
+    self->oversample_tables.linearize = g_new(guint, 256);
+
+    if (self->oversample_tables.nonlinearize)
+      g_free(self->oversample_tables.nonlinearize);
+    self->oversample_tables.nonlinearize = g_new(guint8, nonlinearize_table_size);
+
+    self->oversample_tables.oversample = self->oversample;
+    need_regenerate = TRUE;
+  }
+
+  if (need_regenerate) {
+    int i;
+    guint* ip;
+    guint8* bp;
+    gdouble gamma = self->oversample_gamma;
+    gdouble inv_gamma = 1/gamma;
+
+    /* Generate the first mapping, from 8-bit nonlinear to linear_bits linear */
+    ip = self->oversample_tables.linearize;
+    for (i=0; i<256; i++)
+      *(ip++) = (int) (pow(i / 255.0, gamma) * ((1<<linear_bits) - 1) + 0.5);
+
+    /* Generate the second mapping, which goes from oversample^2 summed results
+     * of the above table back to an 8-bit nonlinear result.
+     */
+    bp = self->oversample_tables.nonlinearize;
+    for (i=0; i<nonlinearize_table_size; i++)
+      *(bp++) = (int) (pow(i / (nonlinearize_table_size-1.0), inv_gamma) * 255 + 0.5);
   }
 }
 
