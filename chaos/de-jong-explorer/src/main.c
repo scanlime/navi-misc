@@ -1,6 +1,7 @@
 /*
- * de Jong Explorer - interactive exploration of the Peter de Jong attractor
+ * main.c - Command line interface, parameter loading and saving, and other such glue
  *
+ * de Jong Explorer - interactive exploration of the Peter de Jong attractor
  * Copyright (C) 2004 David Trowbridge and Micah Dowty
  *
  * This program is free software; you can redistribute it and/or
@@ -21,20 +22,15 @@
 
 #include <gtk/gtk.h>
 #include <stdlib.h>
-#include <string.h>
-#include <math.h>
 #include <time.h>
 #include <getopt.h>
-#include "main.h"
+#include "de-jong.h"
 
 static void usage(char **argv);
 static void render_main(const char *filename);
-static float get_pixel_scale();
-static void update_color_table();
 static gchar* describe_color(GdkColor *c);
 static void set_size_from_string(const char *s);
 
-struct vector2 point;
 struct computation_params params;
 struct render_params render;
 
@@ -222,186 +218,6 @@ void set_defaults() {
   render.target_density = 10000;
   gdk_color_parse("white", &render.bgcolor);
   gdk_color_parse("black", &render.fgcolor);
-}
-
-void resize(int w, int h) {
-  render.width = w;
-  render.height = h;
-
-  if (render.counts)
-    g_free(render.counts);
-  render.counts = g_malloc(sizeof(render.counts[0]) * render.width * render.height);
-
-  if (render.pixels)
-    g_free(render.pixels);
-  render.pixels = g_malloc(4 * render.width * render.height);
-
-  clear();
-}
-
-static float get_pixel_scale() {
-  /* Calculate the scale factor for converting count[] values to luminance
-   * values between 0 and 1.
-   */
-  float density, fscale;
-
-  /* Scale our counts to a luminance between 0 and 1 that gets fed through our
-   * colormap[] to generate an actual gdk color. 'p' contains the number of
-   * times our point has passed the current pixel.
-   *
-   * iterations / (width * height) gives us the average density of counts[].
-   */
-  density = render.iterations / (render.width * render.height);
-
-  /* fscale is a floating point number that, when multiplied by a raw
-   * counts[] value, gives values between 0 and 1 corresponding to full
-   * white and full black.
-   */
-  fscale = (render.exposure * params.zoom) / density;
-
-  /* The very first frame we render will often be very underexposed.
-   * If fscale > 0.5, this makes countsclamp negative and we get incorrect
-   * results. The lowest usable value of countsclamp is 1.
-   */
-  if (fscale > 0.5)
-    fscale = 0.5;
-
-  return fscale;
-}
-
-static void update_color_table() {
-  /* Reallocate the color table if necessary, then regenerate its contents
-   * to match the current_density, exposure, gamma, and other rendering parameters.
-   * The color tabls is what maps counts[] values to pixels[] values quickly.
-   */
-  guint required_size = render.current_density + 1;
-  guint count;
-  int r, g, b;
-  float pixel_scale = get_pixel_scale();
-  float luma;
-
-  /* Current table too small? */
-  if (render.color_table_size < required_size) {
-    if (render.color_table)
-      g_free(render.color_table);
-
-    /* Allocate it to double the size we need now, as we expect our needs to grow. */
-    render.color_table_size = required_size * 2;
-    render.color_table = g_malloc(render.color_table_size * sizeof(render.color_table[0]));
-  }
-
-  /* Generate one color for every currently-possible count value... */
-  for (count=0; count<=render.current_density; count++) {
-
-    /* Scale and gamma-correct */
-    luma = count * pixel_scale;
-    luma = pow(luma, 1/render.gamma);
-
-    /* Linearly interpolate between fgcolor and bgcolor */
-    r = ((int)(render.bgcolor.red   * (1-luma) + render.fgcolor.red   * luma)) >> 8;
-    g = ((int)(render.bgcolor.green * (1-luma) + render.fgcolor.green * luma)) >> 8;
-    b = ((int)(render.bgcolor.blue  * (1-luma) + render.fgcolor.blue  * luma)) >> 8;
-
-    /* Always clamp color components */
-    if (r<0) r = 0;  if (r>255) r = 255;
-    if (g<0) g = 0;  if (g>255) g = 255;
-    if (b<0) b = 0;  if (b>255) b = 255;
-
-    /* Colors are always ARGB order in little endian */
-    render.color_table[count] = GUINT32_TO_LE( 0xFF000000UL | (b<<16) | (g<<8) | r );
-  }
-}
-
-void update_pixels() {
-  /* Convert counts[] to colored 8-bit ARGB image data using our color lookup table */
-  guint32 *pixel_p;
-  guint *count_p;
-  int x, y;
-
-  update_color_table();
-
-  pixel_p = render.pixels;
-  count_p = render.counts;
-
-  for (y=render.height; y; y--)
-    for (x=render.width; x; x--)
-      *(pixel_p++) = render.color_table[*(count_p++)];
-
-  render.dirty_flag = FALSE;
-}
-
-void clear() {
-  memset(render.counts, 0, render.width * render.height * sizeof(int));
-  render.current_density = 0;
-  render.iterations = 0;
-  point.x = uniform_variate();
-  point.y = uniform_variate();
-}
-
-float uniform_variate() {
-  /* A uniform random variate between 0 and 1 */
-  return ((float) rand()) / RAND_MAX;
-}
-
-float normal_variate() {
-  /* A unit-normal random variate, implemented with the Box-Muller method */
-  return sqrt(-2*log(uniform_variate())) * cos(uniform_variate() * (2*M_PI));
-}
-
-void run_iterations(int count) {
-  double x, y;
-  unsigned int i, ix, iy;
-  guint *p;
-
-  guint d;
-  const double xcenter = render.width / 2.0;
-  const double ycenter = render.height / 2.0;
-  const double scale = xcenter / 2.5 * params.zoom;
-
-  for(i=count; i; --i) {
-    /* These are the actual Peter de Jong map equations. The new point value
-     * gets stored into 'point', then we go on and mess with x and y before plotting.
-     */
-    x = sin(params.a * point.y) - cos(params.b * point.x);
-    y = sin(params.c * point.x) - cos(params.c * point.y);
-    point.x = x;
-    point.y = y;
-
-    /* If rotation is enabled, rotate each point around
-     * the origin by params.rotation radians.
-     */
-    if (params.rotation) {
-      x =  cos(params.rotation)*point.x + sin(params.rotation)*point.y;
-      y = -sin(params.rotation)*point.x + cos(params.rotation)*point.y;
-    }
-
-    /* If blurring is enabled, use blur_ratio to decide how often to perturb
-     * the apparent point position, and blur_radius to determine how much.
-     * By perturbing the point using a normal variate, we create a true gaussian
-     * blur as the number of iterations approaches infinity.
-     */
-    if (params.blur_ratio && params.blur_radius) {
-      if (uniform_variate() < params.blur_ratio) {
-	x += normal_variate() * params.blur_radius;
-	y += normal_variate() * params.blur_radius;
-      }
-    }
-
-    /* Scale and translate our (x,y) coordinates into pixel coordinates */
-    ix = (int)((x + params.xoffset) * scale + xcenter);
-    iy = (int)((y + params.yoffset) * scale + ycenter);
-
-    /* Clip to the size of our image. Note that ix and iy are
-     * unsigned, so we only have to make one comparison each.
-     */
-    if (ix < render.width && iy < render.height) {
-      p = render.counts + ix + render.width * iy;
-      d = *p = *p + 1;
-      if (d > render.current_density)
-	render.current_density = d;
-    }
-  }
-  render.iterations += count;
 }
 
 static gchar* describe_color(GdkColor *c) {

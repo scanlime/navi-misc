@@ -1,5 +1,5 @@
 /*
- * main.h - Shared declarations
+ * de-jong.h - Shared declarations
  *
  * de Jong Explorer - interactive exploration of the Peter de Jong attractor
  * Copyright (C) 2004 David Trowbridge and Micah Dowty
@@ -22,8 +22,8 @@
 
 #include <gtk/gtk.h>
 
-#ifndef __DE_JONG_MAIN_H_
-#define __DE_JONG_MAIN_H__
+#ifndef __DE_JONG_H_
+#define __DE_JONG_H__
 
 struct vector2 {
   double x,y;
@@ -60,17 +60,19 @@ extern struct render_params render;
 
 /* main.c */
 void set_defaults();
-void resize(int w, int h);
-void update_pixels();
-void clear();
-void run_iterations(int count);
 gchar* save_parameters();
 gboolean set_parameter(const char *key, const char *value);
 void load_parameters(const gchar *paramstring);
 void load_parameters_from_file(const char *name);
 void save_to_file(const char *name);
+
+/* render.c */
 float uniform_variate();
 float normal_variate();
+void resize(int w, int h);
+void update_pixels();
+void clear();
+void run_iterations(int count);
 
 /* interface.c */
 void interactive_main(int argc, char **argv);
