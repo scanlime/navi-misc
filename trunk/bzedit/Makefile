@@ -16,6 +16,7 @@ OBJS	= 			\
 	src/plugins.o		\
 	src/renderpass.o	\
 	src/renderstate.o	\
+	src/scene.o		\
 	src/sceneobject.o	\
 	src/texturemanager.o
 

@@ -95,7 +95,7 @@ world_class_init (WorldClass *klass)
 static void
 world_init (World *world)
 {
-  world->drawables = g_list_alloc ();
+  world->drawables = NULL;
   Drawable *ground = ground_drawable_new ();
 
   g_list_append (world->drawables, (gpointer) ground);

@@ -58,16 +58,16 @@ find_leaves (GType base)
 {
   GType *children, *t;
   guint n, i, c;
-  GList *ret = g_list_alloc();
+  GList *ret = NULL;
 
   children = g_type_children (base, &n);
   for (i = 0; i < n; i++)
   {
     t = g_type_children (children[i], &c);
     if (c != 0)
-      g_list_concat (ret, find_leaves (children[i]));
+      ret = g_list_concat (ret, find_leaves (children[i]));
     else {
-      g_list_append (ret, GUINT_TO_POINTER (children[i]));
+      ret = g_list_append (ret, GUINT_TO_POINTER (children[i]));
     }
     g_free (t);
   }
