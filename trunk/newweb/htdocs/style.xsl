@@ -39,8 +39,7 @@
                 <div class="section">
                   <div class="sectionTop"/>
                   <div class="row">
-                    blah<br/>
-                    blah<br/>
+                    <xsl:apply-templates select="document('navigation.xml')//pages/link"/>
                   </div>
                 </div>
               </td>
@@ -59,6 +58,19 @@
         </xsl:choose>
       </body>
     </html>
+  </xsl:template>
+
+  <!--================================== Navigation Links -->
+  <xsl:template match="/pages/link">
+    <li>
+      <a>
+        <xsl:attribute name="href"><xsl:value-of select="@href"/></xsl:attribute>
+        <xsl:value-of select="@name"/>
+      </a>
+      <ul>
+        <xsl:apply-templates select="link"/>
+      </ul>
+    </li>
   </xsl:template>
 
   <!--================================== Heading Tabs -->
