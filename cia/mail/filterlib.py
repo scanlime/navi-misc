@@ -37,7 +37,21 @@ class Filter:
     project = None
     server = "http://localhost:3910"
 
+    def pullLine(self):
+        """Read one line from the message, with support for lookahead"""
+        if self.pushedLines:
+            l = self.pushedLines[0]
+            del self.pushedLines[0]
+            return l
+        else:
+            return self.body.readline()
+
+    def pushLine(self, line):
+        """Push back one line, for lookahead"""
+        self.pushedLines.insert(0,line)
+
     def main(self):
+        self.pushedLines = []
         self.message = email.message_from_file(sys.stdin)
         self.body = StringIO(self.message.get_payload())
 
