@@ -96,6 +96,7 @@
     </div>
   </xsl:template>
 
+  <!--================================== Random Things -->
   <xsl:template match="logo">
     <div class="centered">
       <img src="/images/web/navi_small.png" alt="Navi Logo"/>
