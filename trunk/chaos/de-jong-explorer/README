@@ -56,6 +56,34 @@ rendering process. These lines include:
   - elapsed and estimated remaining time
 
 
+Animation
+---------
+
+de Jong Explorer now includes a somewhat experimental animation system.
+From the main explorer window, use View -> Animation window to open the
+animation interface. Animations are represented as a list of keyframes,
+with a transition after each. Keyframes can be manipulated with the
+buttons at the top of the window. Transitions consist of a duration, in
+seconds, and an editable curve. This curve's presets can be used to
+transition linearly or ease in and out of keyframes, but you can also
+edit the curve for more complex effects.
+
+Each keyframe in the list also shows you the bifurcation diagram between
+that keyframe's parameters and the next. Intense black dots or lines in
+the bifurcation diagrams are fixed points or limit cycles, which usually
+don't look good in animation.
+
+You can preview the animation by dragging the two horizontal seek bars,
+or using the 'play' button. The keyframe list can be loaded from and
+saved to a custom binary format. Once you have an animation you like,
+you can get a higher quality version using File -> Render. The result
+will be an uncompressed .AVI file. You can use tools like mencoder or
+transcode to compress this file with your favorite codec.
+
+Animations can also be rendered from the command line using the -n and
+-o options together.
+
+
 Dependencies
 ------------
 
