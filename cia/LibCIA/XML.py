@@ -29,18 +29,10 @@ This implementation uses PyXML's 4DOM.
 
 import types
 import Nouvelle
-from xml.dom.ext.reader import Sax2
-import xml.dom.ext
-import xml.dom.Event
-import xml.dom.FtNode
+from xml.dom import minidom
 import xml.xpath
 from cStringIO import StringIO
 from twisted.python import log
-
-# This is a hack to disable DOM2 event support, hopefully with a dramatic
-# decrease in the number of empty lists we have lying around.
-xml.dom.FtNode.FtNode._4dom_fireMutationEvent = lambda *args, **kwargs: None
-del xml.dom.Event.supportedEvents[:]
 
 
 class XMLObject(object):
@@ -273,25 +265,22 @@ def addElement(node, name, content=None, attributes={}):
     return newElement
 
 
-reader = Sax2.Reader()
-parseStream = reader.fromStream
+parseStream = minidom.parse
 
 def parseString(string):
     try:
-        return reader.fromString(string)
+        return minidom.parseString(string)
     except:
         log.msg("Error loading the following XML string:\n%s" % string)
         raise
 
 
 def createRootNode():
-    return xml.dom.implementation.createDocument(None, None, None)
+    return minidom.getDOMImplementation().createDocument(None, None, None)
 
 def toString(doc):
     """Convert a DOM tree back to a string"""
-    io = StringIO()
-    xml.dom.ext.Print(doc, io)
-    return io.getvalue()
+    return doc.toxml()
 
 
 def getChildElements(doc):
@@ -328,7 +317,7 @@ class HTMLPrettyPrinter(XMLObjectParser):
         # Format the element name and attributes
         elementName = Nouvelle.tag('span', _class="xml-element-name")[ element.nodeName ]
         elementContent = [ elementName ]
-        for attr in element.attributes.itervalues():
+        for attr in element.attributes.values():
             elementContent.extend([
                 ' ',
                 Nouvelle.tag('span', _class='xml-attribute-name')[ attr.name ],
