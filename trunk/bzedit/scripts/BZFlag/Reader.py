@@ -35,12 +35,13 @@ class Reader:
             TwoDPoint = float + float
             ThreeDPoint = float + float + float
             globalReference = Word(alphanums + '/:*_?')
+            localReference = Word(alphanums)
             flagShortName = Word(alphas, min=1, max=2)
 
             rgbColor = Group(float + float + float) | Word(alphanums)
             rgbaColor = rgbColor + Optional(float)
 
-            phydrv = Group(CaselessLiteral('phydrv') + Word(alphanums))
+            phydrv = Group(CaselessLiteral('phydrv') + localReference)
             smoothbounce = CaselessLiteral('smoothbounce')
             flatshading = CaselessLiteral('flatshading')
             shootthrough = CaselessLiteral('shootthrough')
@@ -128,26 +129,65 @@ class Reader:
               | objectProperty
             link = Group(CaselessLiteral('link') + OneOrMore(linkProperty) + end)
 
-            # FIXME - add material to this object
+            filename = Word(printables)
+            ambient = CaselessLiteral('ambient')
+            diffuse = CaselessLiteral('diffuse') | CaselessLiteral('color')
+            specular = CaselessLiteral('specular')
+            emission = CaselessLiteral('emission')
+            shininess = CaselessLiteral('shininess')
+            materialProperty =                                    \
+                Group(CaselessLiteral('texture') + filename)      \
+              | Group(CaselessLiteral('addTexture') + filename)   \
+              | CaselessLiteral('notextures')                     \
+              | CaselessLiteral('notexcolor')                     \
+              | CaselessLiteral('notexalpha')                     \
+              | Group(CaselessLiteral('texmat') + localReference) \
+              | Group(CaselessLiteral('dyncol') + localReference) \
+              | Group(ambient + rgbaColor)                        \
+              | Group(diffuse + rgbaColor)                        \
+              | Group(specular + rgbaColor)                       \
+              | Group(emission + rgbaColor)                       \
+              | Group(shininess + float)                          \
+              | Group(CaselessLiteral('matref') + localReference) \
+              | CaselessLiteral('resetmat')                       \
+              | objectProperty
+            material = Group(CaselessLiteral('material') + OneOrMore(materialProperty) + end)
+
             curveProperty =                               \
                 Group(CaselessLiteral('divisions') + int) \
               | phydrv                                    \
               | smoothbounce                              \
               | flatshading
 
+            meshboxSide =                    \
+                CaselessLiteral('top')       \
+              | CaselessLiteral('bottom')    \
+              | CaselessLiteral('inside')    \
+              | CaselessLiteral('outside')   \
+              | CaselessLiteral('startside') \
+              | CaselessLiteral('endside')
             meshboxProperty =                                                     \
                 Group(CaselessLiteral('angle') + float)                           \
               | Group(CaselessLiteral('ratio') + float)                           \
               | Group(CaselessLiteral('texsize') + float + float + float + float) \
+              | materialProperty                                                  \
+              | Group(meshboxSide + materialProperty)                             \
               | curveProperty                                                     \
               | obstacleProperty
             meshbox = Group(CaselessLiteral('meshbox') + OneOrMore(meshboxProperty) + end)
 
+            meshpyrSide =                    \
+                CaselessLiteral('edge')      \
+              | CaselessLiteral('bottom')    \
+              | CaselessLiteral('startside') \
+              | CaselessLiteral('endside')
             meshpyrProperty =                                     \
                 Group(CaselessLiteral('angle') + float)           \
               | Group(CaselessLiteral('ratio') + float)           \
               | Group(CaselessLiteral('texsize') + float + float) \
               | CaselessLiteral('flipz')                          \
+              | materialProperty                                  \
+              | Group(meshpyrSide + materialProperty)             \
               | curveProperty                                     \
               | obstacleProperty
             meshpyr = Group(CaselessLiteral('meshpyr') + OneOrMore(meshpyrProperty) + end)
@@ -156,15 +196,22 @@ class Reader:
                 Group(CaselessLiteral('ratio') + float)                           \
               | Group(CaselessLiteral('angle') + float)                           \
               | Group(CaselessLiteral('texsize') + float + float + float + float) \
+              | materialProperty                                                  \
+              | Group(meshboxSide + materialProperty)                             \
               | curveProperty                                                     \
               | obstacleProperty
             arc = Group(CaselessLiteral('arc') + OneOrMore(arcProperty) + end)
 
             hemisphere = CaselessLiteral('hemisphere') | CaselessLiteral('hemi')
+            sphereSide = \
+                CaselessLiteral('edge') \
+              | CaselessLiteral('bottom')
             sphereProperty =                                      \
                 Group(CaselessLiteral('radius') + float)          \
               | hemisphere                                        \
               | Group(CaselessLiteral('texsize') + float + float) \
+              | materialProperty                                  \
+              | Group(sphereSide + materialProperty)              \
               | curveProperty                                     \
               | obstacleProperty
             sphere = Group(CaselessLiteral('sphere') + OneOrMore(sphereProperty) + end)
@@ -172,15 +219,17 @@ class Reader:
             coneProperty =                                        \
                 Group(CaselessLiteral('angle') + float)           \
               | Group(CaselessLiteral('texsize') + float + float) \
+              | materialProperty                                  \
+              | Group(meshpyrSide + materialProperty)             \
               | curveProperty                                     \
               | obstacleProperty
             cone = Group(CaselessLiteral('cone') + OneOrMore(coneProperty) + end)
 
-            # FIXME - add material to this object
             tetraProperty =                              \
                 CaselessLiteral('vertex') + ThreeDPoint  \
               | CaselessLiteral('normals') + ThreeDPoint \
               | CaselessLiteral('texcoords') + TwoDPoint \
+              | materialProperty                         \
               | obstacleProperty
             tetra = Group(CaselessLiteral('tetra') + OneOrMore(tetraProperty) + end)
 
@@ -202,9 +251,9 @@ class Reader:
               | locationProperty
             weapon = Group(CaselessLiteral('weapon') + OneOrMore(weaponProperty) + end)
 
-            # FIXME - add material to this object
             waterLevelProperty =                         \
                 Group(CaselessLiteral('height') + float) \
+              | materialProperty                         \
               | objectProperty
             waterLevel = Group(CaselessLiteral('waterLevel') + OneOrMore(waterLevelProperty) + end)
 
@@ -237,11 +286,11 @@ class Reader:
               | objectProperty
             transform = Group(CaselessLiteral('transform') + OneOrMore(transformProperty) + end)
 
-            # FIXME - add material to this object
             faceProperty =                                                       \
                 Group(CaselessLiteral('vertices') + int + int + OneOrMore(int))  \
               | Group(CaselessLiteral('normals') + int + int + OneOrMore(int))   \
               | Group(CaselessLiteral('texcoords') + int + int + OneOrMore(int)) \
+              | materialProperty                                                 \
               | phydrv                                                           \
               | smoothbounce                                                     \
               | noclusters                                                       \
@@ -250,7 +299,6 @@ class Reader:
               | passable
             face = Group(CaselessLiteral('face') + OneOrMore(faceProperty) + CaselessLiteral('endface').suppress())
 
-            # FIXME - add material to this object
             meshProperty =                                      \
                 face                                            \
               | Group(CaselessLiteral('inside') + ThreeDPoint)  \
@@ -258,6 +306,7 @@ class Reader:
               | Group(CaselessLiteral('vertex') + ThreeDPoint)  \
               | Group(CaselessLiteral('normal') + ThreeDPoint)  \
               | Group(CaselessLiteral('texcoord') + TwoDPoint)  \
+              | materialProperty                                \
               | phydrv                                          \
               | smoothbounce                                    \
               | noclusters                                      \
@@ -269,7 +318,7 @@ class Reader:
             groupProperty = \
                 Group(CaselessLiteral('team') + int) \
               | Group(CaselessLiteral('tint') + rgbaColor) \
-              | Group(CaselessLiteral('matref') + Word(alphanums)) \
+              | Group(CaselessLiteral('matref') + localReference) \
               | phydrv \
               | obstacleProperty
             group = Group(CaselessLiteral('group') + OneOrMore(groupProperty) + end)
