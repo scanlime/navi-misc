@@ -313,10 +313,28 @@ setup_menu ()
 	g_object_unref (client);
 }
 
+static void
+close_find_key (GtkWidget *entry, GdkEventKey *event, gpointer data)
+{
+	GtkWidget *hbox;
+
+	if (event->keyval != GDK_Escape)
+		return;
+
+	hbox = glade_xml_get_widget (gui.xml, "find hbox");
+	gtk_widget_hide (hbox);
+}
+
+static void
+find_next (GtkWidget *entry, gpointer data)
+{
+	/* FIXME */
+}
+
 void
 initialize_main_window ()
 {
-	GtkWidget *entry, *topicbox, *topicchange, *menu_vbox, *find;
+	GtkWidget *entry, *topicbox, *topicchange, *menu_vbox, *widget;
 	GError *error = NULL;
 
 	gui.main_window = GNOME_APP (glade_xml_get_widget (gui.xml, "xchat-gnome"));
@@ -452,6 +470,11 @@ initialize_main_window ()
 	gtkspell_new_attach(GTK_TEXT_VIEW(entry), NULL, NULL);
 #endif
 #endif
+
+	/* setup find stuff */
+	widget = glade_xml_get_widget (gui.xml, "find entry");
+	g_signal_connect (G_OBJECT (widget), "activate", G_CALLBACK (find_next), NULL);
+	g_signal_connect (G_OBJECT (widget), "key-press-event", G_CALLBACK (close_find_key), NULL);
 }
 
 void
@@ -700,7 +723,12 @@ on_discussion_close_activate (GtkAction *action, gpointer data)
 static void
 on_discussion_find_activate (GtkAction *action, gpointer data)
 {
-	/* FIXME: implement */
+	GtkWidget *find;
+
+	find = glade_xml_get_widget (gui.xml, "find hbox");
+	gtk_widget_show (find);
+	find = glade_xml_get_widget (gui.xml, "find entry");
+	gtk_widget_grab_focus (find);
 }
 
 static void
