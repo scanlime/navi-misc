@@ -194,31 +194,35 @@ static void render_main(const char *filename) {
    * current settings until render.current_density reaches target_density. We show helpful
    * progress doodads on stdout while the poor user has to wait.
    */
-  time_t start_time, now, elapsed, remaining;
-  start_time = time(NULL);
+  GTimeVal start_time, now;
+  float elapsed, remaining;
+
+  g_get_current_time(&start_time);
 
   while (render.current_density < render.target_density) {
     run_iterations(1000000);
 
     /* This should be a fairly accurate time estimate, since (asymptotically at least)
      * current_density increases linearly with the number of iterations performed.
+     * Elapsed time and time remaining are in seconds.
      */
-    now = time(NULL);
-    elapsed = now - start_time;
-    remaining = ((float)elapsed) * render.target_density / render.current_density - elapsed;
+    g_get_current_time(&now);
+    elapsed = ((now.tv_usec - start_time.tv_usec) / 1000000.0 +
+	       (now.tv_sec  - start_time.tv_sec ));
+    remaining = elapsed * render.target_density / render.current_density - elapsed;
+
+    printf("%f\n", elapsed);
 
     /* After each batch of iterations, show the percent completion, number
      * of iterations (in scientific notation), iterations per second,
      * density / target density, and elapsed time / remaining time.
      */
-    if (elapsed > 0) {
-      printf("%6.02f%%   %.3e   %.2e/sec   %6d / %d   %02d:%02d:%02d / %02d:%02d:%02d\n",
-	     100.0 * render.current_density / render.target_density,
-	     render.iterations, render.iterations / elapsed,
-	     render.current_density, render.target_density,
-	     elapsed / (60*60), (elapsed / 60) % 60, elapsed % 60,
-	     remaining / (60*60), (remaining / 60) % 60, remaining % 60);
-    }
+    printf("%6.02f%%   %.3e   %.2e/sec   %6d / %d   %02d:%02d:%02d / %02d:%02d:%02d\n",
+	   100.0 * render.current_density / render.target_density,
+	   render.iterations, render.iterations / elapsed,
+	   render.current_density, render.target_density,
+	   ((int)elapsed) / (60*60), (((int)elapsed) / 60) % 60, ((int)elapsed)%60,
+	   ((int)remaining) / (60*60), (((int)remaining) / 60) % 60, ((int)remaining)%60);
   }
 
   printf("Creating image...\n");
