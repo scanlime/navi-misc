@@ -330,15 +330,31 @@ class Rack(BaseRack):
         # but this performs some extra consistency checking to make sure the
         # key we iterate to actually exists, to keep us from crashing if
         # our db is a little out of sync with itself.
+
+        # This is a nasty hack because our db seems prone to circular links
+        nItems = 0
         for item in self._getKeyList():
             if item in self:
                 yield item
+                nItems += 1
+                # NASTY HACK!
+                if nItems > 1000:
+                    self.reindex()
+                    raise Exception("Circular link corrected, try again")
             else:
                 self._delKey(item)
 
     def catalog(self):
         """Iterate over all child namespaces"""
-        return self._getSubNsList().__iter__()
+        # This is a nasty hack because our db seems prone to circular links
+        nItems = 0
+        for item in self._getSubNsList():
+            yield item
+            nItems += 1
+            # NASTY HACK!
+            if nItems > 1000:
+                self.reindex()
+                raise Exception("Circular link corrected, try again")
 
     def __repr__(self):
         return repr(dict(self.iteritems()))
