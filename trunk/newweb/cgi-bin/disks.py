@@ -69,6 +69,6 @@ class DiskChart:
         return total
 
 if __name__ == '__main__':
-    print 'Content-type text/xml\n\n'
+    print 'Content-type text/plain\n\n'
     print '<?xml version="1.0"?>'
     print '<xml-stylesheet type="text/xsl" href="/new/style.xsl"?>'
