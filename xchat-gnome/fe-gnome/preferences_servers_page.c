@@ -54,6 +54,7 @@ edit_clicked (GtkWidget *button, gpointer data)
 	irc_network_editor_run (e);
 	gtk_widget_destroy (GTK_WIDGET (e));
 	g_object_unref (n);
+	preferences_servers_page_populate (treeview, NULL);
 }
 
 static void
@@ -61,6 +62,9 @@ add_clicked (GtkWidget *button, gpointer data)
 {
 	IrcNetwork *n;
 	IrcNetworkEditor *e;
+	GtkWidget *treeview;
+
+	treeview = glade_xml_get_widget (gui.xml, "configure server list");
 
 	n = irc_network_new (NULL);
 	e = irc_network_editor_new (n);
@@ -68,6 +72,7 @@ add_clicked (GtkWidget *button, gpointer data)
 	irc_network_editor_run (e);
 	gtk_widget_destroy (GTK_WIDGET (e));
 	g_object_unref (n);
+	preferences_servers_page_populate (treeview, NULL);
 }
 
 static void
@@ -102,6 +107,7 @@ remove_clicked (GtkWidget *button, gpointer data)
 		servlist_save ();
 	}
 	gtk_widget_destroy (dialog);
+	preferences_servers_page_populate (treeview, NULL);
 }
 
 void
