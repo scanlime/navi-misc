@@ -82,11 +82,11 @@ Next, add this line to the "loginfo" file. loginfo runs the script. Here is the 
 
 The last file to modify is ciabot_cvs.pl itself. You have to tell it where to send emails, and other information. Open ciabot_cvs.pl in a text editor, and then scroll down to the "Configuration" section. Edit the following lines:
 
-* $project = "projectname";
+* $project = 'projectname';
 	
 	Replace projectname with your project's UNIX name assigned by Sourceforge, or whatever name you are going by. This name should be fairly short, and shouldn't contain any whitespace or odd characters. It will be used in your project's URL on CIA, and it will be used on IRC. You can use metadata_ later to assign a longer name for use in the web interface.
 
-* $from_email = "leader@example.org";
+* $from_email = 'leader@example.org';
 	
 	Put in one of the project leaders email addresses here.
 
