@@ -1,11 +1,11 @@
 /* -*- mode: c; c-basic-offset: 4; -*-
  *
- * remote.c - Remote control mode, an interface for automating
- *            Fyre rendering. Among other things, this is used
- *            to implement slave nodes in a cluster.
+ * remote-server.c - Remote control mode, an interface for automating
+ *                   Fyre rendering. Among other things, this is used
+ *                   to implement slave nodes in a cluster.
  *
- *            This communicates using a line oriented protocol
- *            with SMTP-like numeric response codes.
+ *                   This communicates using a line oriented protocol
+ *                   with SMTP-like numeric response codes.
  *
  * Fyre - rendering and interactive exploration of chaotic functions
  * Copyright (C) 2004 David Trowbridge and Micah Dowty
@@ -32,60 +32,60 @@
 #include <stdlib.h>
 #include "animation.h"
 #include "iterative-map.h"
-#include "remote.h"
+#include "remote-server.h"
 
-static void       remote_class_init    (RemoteClass *klass);
-static void       remote_init          (Remote *self);
-static void       remote_dispose       (GObject *gobject);
+static void       remote_server_class_init    (RemoteServerClass*    klass);
+static void       remote_server_init          (RemoteServer*         self);
+static void       remote_server_dispose       (GObject*              gobject);
 
-static void       remote_send_response (Remote*          self,
-					int              response_code,
-					const char*      response_message,
-					...);
-static void       remote_send_binary   (Remote*          self,
-					unsigned char*   data,
-					unsigned long    length);
-static void       remote_add_command   (Remote*          self,
-					const char*      command,
-					RemoteCallback   callback);
-static void       remote_init_commands (Remote*          self);
+static void       remote_server_send_response (RemoteServer*         self,
+					       int                   response_code,
+					       const char*           response_message,
+					       ...);
+static void       remote_server_send_binary   (RemoteServer*         self,
+					       unsigned char*        data,
+					       unsigned long         length);
+static void       remote_server_add_command   (RemoteServer*         self,
+					       const char*           command,
+					       RemoteServerCallback  callback);
+static void       remote_server_init_commands (RemoteServer*         self);
 
 
 /************************************************************************************/
 /**************************************************** Initialization / Finalization */
 /************************************************************************************/
 
-GType remote_get_type(void) {
+GType remote_server_get_type(void) {
     static GType anim_type = 0;
 
     if (!anim_type) {
 	static const GTypeInfo dj_info = {
-	    sizeof(RemoteClass),
+	    sizeof(RemoteServerClass),
 	    NULL, /* base_init */
 	    NULL, /* base_finalize */
-	    (GClassInitFunc) remote_class_init,
+	    (GClassInitFunc) remote_server_class_init,
 	    NULL, /* class_finalize */
 	    NULL, /* class_data */
-	    sizeof(Remote),
+	    sizeof(RemoteServer),
 	    0,
-	    (GInstanceInitFunc) remote_init,
+	    (GInstanceInitFunc) remote_server_init,
 	};
 
-	anim_type = g_type_register_static(G_TYPE_OBJECT, "Remote", &dj_info, 0);
+	anim_type = g_type_register_static(G_TYPE_OBJECT, "RemoteServer", &dj_info, 0);
     }
 
     return anim_type;
 }
 
-static void remote_class_init(RemoteClass *klass) {
+static void remote_server_class_init(RemoteServerClass *klass) {
     GObjectClass *object_class;
     object_class = (GObjectClass*) klass;
 
-    object_class->dispose      = remote_dispose;
+    object_class->dispose      = remote_server_dispose;
 }
 
-static void remote_dispose(GObject *gobject) {
-    Remote *self = REMOTE(gobject);
+static void remote_server_dispose(GObject *gobject) {
+    RemoteServer *self = REMOTE_SERVER(gobject);
 
     if (self->command_hash) {
 	g_hash_table_destroy(self->command_hash);
@@ -93,20 +93,20 @@ static void remote_dispose(GObject *gobject) {
     }
 }
 
-static void remote_init(Remote *self) {
+static void remote_server_init(RemoteServer *self) {
     self->command_hash = g_hash_table_new(g_str_hash, g_str_equal);
 
     self->output_f = stdout;
     self->input_f = stdin;
 
-    remote_init_commands(self);
+    remote_server_init_commands(self);
 }
 
-Remote*    remote_new        (IterativeMap* map,
-			      Animation*    animation,
-			      gboolean      have_gtk)
+RemoteServer*    remote_server_new        (IterativeMap* map,
+					   Animation*    animation,
+					   gboolean      have_gtk)
 {
-    Remote *self = REMOTE(g_object_new(remote_get_type(), NULL));
+    RemoteServer *self = REMOTE_SERVER(g_object_new(remote_server_get_type(), NULL));
 
     self->map = map;
     self->animation = animation;
@@ -120,10 +120,10 @@ Remote*    remote_new        (IterativeMap* map,
 /***************************************************************** I/O Layer ********/
 /************************************************************************************/
 
-static void       remote_send_response (Remote*          self,
-					int              response_code,
-					const char*      response_message,
-					...)
+static void       remote_server_send_response (RemoteServer*          self,
+					       int              response_code,
+					       const char*      response_message,
+					       ...)
 {
     va_list ap;
 
@@ -137,29 +137,31 @@ static void       remote_send_response (Remote*          self,
     fflush(self->output_f);
 }
 
-static void       remote_send_binary   (Remote*          self,
-					unsigned char*   data,
-					unsigned long    length)
+static void       remote_server_send_binary   (RemoteServer*          self,
+					       unsigned char*   data,
+					       unsigned long    length)
 {
-    remote_send_response(self, 380, "%d byte binary response", length);
+    remote_server_send_response(self, FYRE_RESPONSE_BINARY,
+				"%d byte binary response", length);
     fwrite(data, length, 1, self->output_f);
     fflush(self->output_f);
 }
 
-static void       remote_add_command   (Remote*          self,
-					const char*      command,
-					RemoteCallback   callback)
+static void       remote_server_add_command   (RemoteServer*          self,
+					       const char*      command,
+					       RemoteServerCallback   callback)
 {
     g_hash_table_insert(self->command_hash, (void*) command, callback);
 }
 
-void              remote_main_loop     (Remote* self)
+void              remote_server_main_loop     (RemoteServer* self)
 {
     char line[1024];
     char* args;
-    RemoteCallback callback;
+    RemoteServerCallback callback;
 
-    remote_send_response(self, 220, "Fyre rendering server ready");
+    remote_server_send_response(self, FYRE_RESPONSE_READY,
+				"Fyre rendering server ready");
 
     while (fgets(line, sizeof(line)-1, self->input_f)) {
 	line[sizeof(line)-1] = '\0';
@@ -175,12 +177,13 @@ void              remote_main_loop     (Remote* self)
 	else
 	    args = "";
 
-	callback = (RemoteCallback) g_hash_table_lookup(self->command_hash, line);
+	callback = (RemoteServerCallback) g_hash_table_lookup(self->command_hash, line);
 
 	if (callback)
 	    callback(self, line, args);
 	else
-	    remote_send_response(self, 500, "Command not recognized");
+	    remote_server_send_response(self, FYRE_RESPONSE_UNRECOGNIZED,
+					"Command not recognized");
 
     }
 }
@@ -190,24 +193,24 @@ void              remote_main_loop     (Remote* self)
 /******************************************************** Command Implementations ***/
 /************************************************************************************/
 
-static void       cmd_set_param        (Remote*          self,
+static void       cmd_set_param        (RemoteServer*          self,
 					const char*      command,
 					const char*      parameters)
 {
     parameter_holder_set_from_line(PARAMETER_HOLDER(self->map), parameters);
-    remote_send_response(self, 250, "ok");
+    remote_server_send_response(self, FYRE_RESPONSE_OK, "ok");
 }
 
-static void       cmd_calculate_timed  (Remote*          self,
+static void       cmd_calculate_timed  (RemoteServer*          self,
 					const char*      command,
 					const char*      parameters)
 {
     iterative_map_calculate_timed(self->map, atof(parameters));
-    remote_send_response(self, 251, "iterations=%.3e density=%ld",
-			 self->map->iterations, HISTOGRAM_IMAGER(self->map)->peak_density);
+    remote_server_send_response(self, FYRE_RESPONSE_PROGRESS, "iterations=%.3e density=%ld",
+				self->map->iterations, HISTOGRAM_IMAGER(self->map)->peak_density);
 }
 
-static void       cmd_get_histogram_stream (Remote*          self,
+static void       cmd_get_histogram_stream (RemoteServer*          self,
 					    const char*      command,
 					    const char*      parameters)
 {
@@ -216,15 +219,15 @@ static void       cmd_get_histogram_stream (Remote*          self,
 
     size = histogram_imager_export_stream(HISTOGRAM_IMAGER(self->map),
 					  buffer, sizeof(buffer));
-    remote_send_binary(self, buffer, size);
+    remote_server_send_binary(self, buffer, size);
 }
 
-static void       remote_init_commands (Remote*          self)
+static void       remote_server_init_commands (RemoteServer*          self)
 {
-    remote_add_command(self, "set_param",            cmd_set_param);
-    remote_add_command(self, "calculate_timed",      cmd_calculate_timed);
+    remote_server_add_command(self, "set_param",            cmd_set_param);
+    remote_server_add_command(self, "calculate_timed",      cmd_calculate_timed);
 
-    remote_add_command(self, "get_histogram_stream", cmd_get_histogram_stream);
+    remote_server_add_command(self, "get_histogram_stream", cmd_get_histogram_stream);
 }
 
 

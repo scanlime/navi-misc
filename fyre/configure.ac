@@ -37,12 +37,23 @@ PKG_CHECK_MODULES(PACKAGE, [$pkg_modules])
 AC_SUBST(PACKAGE_CFLAGS)
 AC_SUBST(PACKAGE_LIBS)
 
+# Check for OpenEXR- we support saving OpenEXR files if the library is available
 PKG_CHECK_MODULES(EXR, OpenEXR, have_exr=yes, have_exr=no)
 AC_SUBST(EXR_CFLAGS)
 AC_SUBST(EXR_LIBS)
 if test "x$have_exr" = "xyes"; then
 	AC_DEFINE(HAVE_EXR, 1,[compile in OpenEXR support])
 fi
+AM_CONDITIONAL([HAVE_EXR], [test "x$have_exr" = "xyes"])
+
+# Check for gnet, required for cluster and remote control support
+PKG_CHECK_MODULES(GNET, gnet-2.0, have_gnet=yes, have_gnet=no)
+AC_SUBST(GNET_CFLAGS)
+AC_SUBST(GNET_LIBS)
+if test "x$have_gnet" = "xyes"; then
+	AC_DEFINE(HAVE_GNET, 1,[compile in gnet support])
+fi
+AM_CONDITIONAL([HAVE_GNET], [test "x$have_gnet" = "xyes"])
 
 dnl # Use wall if we have GCC
 dnl # Also disable glibc versions of functions that have faster versions
@@ -79,6 +90,14 @@ AC_OUTPUT
 
 echo
 echo $PACKAGE v$VERSION
+echo
+
+if test "x$have_exr" != "xyes"; then
+   echo "OpenEXR missing, not including support for OpenEXR files"
+fi
+if test "x$have_gnet" != "xyes"; then
+   echo "gnet missing, not including clustering or remote control support"
+fi
 
 echo
 echo "Now type make to compile"

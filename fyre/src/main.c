@@ -37,7 +37,7 @@
 #include "explorer.h"
 #include "avi-writer.h"
 #include "screensaver.h"
-#include "remote.h"
+#include "remote-server.h"
 #include "config.h"
 
 static void usage                  (char       **argv);
@@ -158,7 +158,13 @@ int main(int argc, char ** argv) {
 	break;
 
     case REMOTE:
-	remote_main_loop(remote_new(ITERATIVE_MAP(dejong), animation, have_gtk));
+#ifdef HAVE_GNET
+	remote_server_main_loop(remote_server_new(ITERATIVE_MAP(dejong), animation, have_gtk));
+#else
+	fprintf(stderr,
+		"This Fyre binary was compiled without gnet support.\n"
+		"Remote control mode is not available.\n");
+#endif
 	break;
 
     case SCREENSAVER:
