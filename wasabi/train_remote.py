@@ -7,7 +7,11 @@ import os, sys, time, mi6k
 from Wasabi import IR
 
 remoteDir = "remotes"
-remoteName = "wasabi"
+
+if len(sys.argv) > 1:
+    remoteName = sys.argv[1]
+else:
+    remoteName = "wasabi"
 
 # Open our remote config file and scan for code names
 conf = open(os.path.join(remoteDir, remoteName))
