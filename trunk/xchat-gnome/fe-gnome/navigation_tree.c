@@ -766,22 +766,6 @@ navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_dat
 		sess->msg_said = FALSE;
 		sess->new_data = FALSE;
 
-		/* Set tgui to the gui of the new session. */
-		tgui = (session_gui *) sess->gui;
-		if (tgui == NULL)
-			return;
-
-		/* Show the xtext buffer for the session. */
-		gtk_xtext_buffer_show (gui.xtext, tgui->buffer, TRUE);
-
-		/* Set the topic. */
-		gtk_label_set_text (GTK_LABEL (gui.topic_label), tgui->topic);
-
-		/* Set the text entry field to whatever is in the text entry of this session. */
-		entry = glade_xml_get_widget (gui.xml, "text entry");
-		gtk_entry_set_text (GTK_ENTRY (entry), tgui->entry);
-		gtk_entry_set_position (GTK_ENTRY (entry), -1);
-
 		/* Make this our current session. */
 		gui.current_session = sess;
 
@@ -814,6 +798,22 @@ navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_dat
 		store = gtk_tree_model_sort_get_model (GTK_TREE_MODEL_SORT (model));
 		gtk_tree_model_sort_convert_iter_to_child_iter (GTK_TREE_MODEL_SORT (model), &newiter, &iter);
 		gtk_tree_store_set (GTK_TREE_STORE (store), &newiter, 0, NULL, 3, 0, -1);
+
+		/* Set tgui to the gui of the new session. */
+		tgui = (session_gui *) sess->gui;
+		if (tgui == NULL)
+			return;
+
+		/* Show the xtext buffer for the session. */
+		gtk_xtext_buffer_show (gui.xtext, tgui->buffer, TRUE);
+
+		/* Set the topic. */
+		gtk_label_set_text (GTK_LABEL (gui.topic_label), tgui->topic);
+
+		/* Set the text entry field to whatever is in the text entry of this session. */
+		entry = glade_xml_get_widget (gui.xml, "text entry");
+		gtk_entry_set_text (GTK_ENTRY (entry), tgui->entry);
+		gtk_entry_set_position (GTK_ENTRY (entry), -1);
 	}
 }
 
