@@ -69,6 +69,7 @@ int main(int argc, char ** argv) {
     int c, option_index=0;
     gulong target_density = 10000;
     int port_number = FYRE_DEFAULT_PORT;
+    GError *error = NULL;
 
     g_random_set_seed(time(NULL));
     g_type_init();
@@ -103,12 +104,7 @@ int main(int argc, char ** argv) {
 
 	case 'i':
 	{
-	    GError *error = NULL;
 	    histogram_imager_load_image_file(HISTOGRAM_IMAGER(map), optarg, &error);
-	    if (error) {
-		g_print ("Error: %s\n", error->message);
-		g_error_free (error);
-	    }
 	    break;
         }
 
@@ -181,21 +177,43 @@ int main(int argc, char ** argv) {
 
     switch (mode) {
 
-    case INTERACTIVE:
+    case INTERACTIVE: {
+	Explorer *explorer;
+
 	if (!have_gtk) {
 	    fprintf(stderr, "GTK intiailization failed, can't start in interactive mode\n");
 	    return 1;
 	}
-	explorer_new(map, animation);
+	explorer = explorer_new (map, animation);
+	if (error) {
+	    GtkWidget *dialog, *label;
+	    gchar *text;
+
+	    dialog = glade_xml_get_widget (explorer->xml, "error dialog");
+	    label = glade_xml_get_widget (explorer->xml, "error label");
+
+	    text = g_strdup_printf ("<span weight=\"bold\" size=\"larger\">Error!</span>\n\n%s", error->message);
+	    gtk_label_set_markup (GTK_LABEL (label), text);
+	    g_free (text);
+	    g_error_free (error);
+
+	    gtk_dialog_run (GTK_DIALOG (dialog));
+	    gtk_widget_hide (dialog);
+	}
 	gtk_main();
 	break;
+    }
 
     case RENDER:
 	acquire_console();
+	if (error) {
+	    g_print ("Error: %s\n", error->message);
+	    g_error_free (error);
+	}
 	if (animate)
-	    animation_render_main(map, animation, outputFile, target_density);
+	    animation_render_main (map, animation, outputFile, target_density);
 	else
-	    batch_image_render(map, outputFile, target_density);
+	    batch_image_render (map, outputFile, target_density);
 	break;
 
     case REMOTE:

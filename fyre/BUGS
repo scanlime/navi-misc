@@ -1,8 +1,6 @@
 * The AVI files exported by Fyre don't play in windows media player.
   Is the exporter broken, or can WMP just not handle uncompressed RGB?
   This is probably actually the lack of an index
-* If opening an image on the command line but running in interactive mode,
-  it'll still output to stdout. Should pop up an error message in this case.
 * There are some remaining problems with the win32 build:
   - Resources (for the icon) haven't been implemented in
     the autoconfiscated build system
