@@ -139,6 +139,27 @@ class Catalog(Template.Section):
         return [tag('li')[StatsLink(self.target.child(name))] for name in self.names]
 
 
+class Info(Template.Section):
+    """A section that displays a StatsTarget's miscellaneous metadata"""
+    title = "information"
+
+    def __init__(self, target):
+        metadata = target.metadata
+        self.url = metadata.get('url')
+        self.description = metadata.get('description')
+
+    def isVisible(self, context):
+        return self.url or self.description
+
+    def render_rows(self, context):
+        rows = []
+        if self.url:
+            rows.append(tag('a', href=self.url)[self.url])
+        if self.description:
+            rows.append(self.description)
+        return rows
+
+
 class MessageList(Template.Section):
     """A list of messages, with metadata and hyperlinks. Must be
        constructed with a list of Message instances.
@@ -234,6 +255,9 @@ class StatsPage(Template.Page):
     def render_mainTitle(self, context):
         return self.target.getTitle()
 
+    def render_subTitle(self, context):
+        return self.target.metadata.get('subtitle', 'Real-time open source activity stats')
+
     def render_mainColumn(self, context):
         return [
             Counters(self.target),
@@ -243,6 +267,7 @@ class StatsPage(Template.Page):
 
     def render_leftColumn(self, context):
         return [
+            Info(self.target),
             Clock()
             ]
 
