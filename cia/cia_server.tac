@@ -5,8 +5,7 @@
 
 from twisted.application import service, internet
 from twisted.web import static, vhost
-from LibCIA import Message, Ruleset, IRC, Stats, IncomingMail, Debug, Security, RPC
-from LibCIA.Web import StatsBrowser, RulesetBrowser, BotStatus, Server
+from LibCIA import Message, Ruleset, IRC, Stats, IncomingMail, Debug, Security, RPC, Web
 
 application = service.Application("cia_server")
 hub = Message.Hub()
@@ -29,9 +28,9 @@ Security.caps.saveKey('universe', '~/.cia_key')
 # Create the web interface. We start with all the static
 # files in 'htdocs' and add dynamic content from there.
 webRoot = static.File("htdocs")
-webRoot.putChild('rulesets', RulesetBrowser.RulesetList(rulesetStorage))
-webRoot.putChild('stats', StatsBrowser.StatsPage())
-webRoot.putChild('irc', BotStatus.IRCBotPage(botNet))
+webRoot.putChild('rulesets', Web.RulesetBrowser.RulesetList(rulesetStorage))
+webRoot.putChild('stats', Web.Stats.Browser.Page())
+webRoot.putChild('irc', Web.BotStatus.IRCBotPage(botNet))
 
 # Add a VHostMonster we can use to safely proxy requests from Apache running on a different port
 webRoot.putChild('vhost', vhost.VHostMonsterResource())
@@ -47,4 +46,4 @@ rpc.putSubHandler('debug', Debug.DebugInterface())
 webRoot.putChild('RPC2', rpc)
 
 # Now create an HTTP server holding both our XML-RPC and web interfaces
-internet.TCPServer(3910, Server.Site(webRoot)).setServiceParent(application)
+internet.TCPServer(3910, Web.Server.Site(webRoot)).setServiceParent(application)
