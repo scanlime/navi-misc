@@ -109,7 +109,7 @@ class PalantirClientFactory(protocol.ClientFactory):
   ### IRC Commands ###
   def me(self, channel, action):
     ''' Emote something. '''
-    self.client.me(self.channels, action)
+    self.client.me(channel, action)
 
   def join(self, channel, msg=None):
     ''' Join a channel '''

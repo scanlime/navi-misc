@@ -11,6 +11,7 @@ from twisted.internet import gtk2reactor
 gtk2reactor.install()
 
 import re, gtk, gtk.glade, palantirIRC
+from time import localtime
 from dieRoller import DieRoller
 from CharacterSheet.Character import Character
 from CharacterSheet.GTKsheet import GTKsheet
@@ -34,7 +35,7 @@ class PalantirWindow:
     self.tree.get_widget('Nick').set_text(self.factory.nickname)
 
   ### Must be implemented for palantirIRC to work.  These methods are called by the
-  ### the client when
+  ### the client when it receives certain events and needs to display them in the UI.
   def messageReceive(self, user, channel, msg):
     ''' When the client receives a privmsg it calls this function to display the message
         in the UI, however the UI sees fit.
@@ -42,9 +43,14 @@ class PalantirWindow:
     # Format the nick if there is one, otherwise just display the text.
     if user:
       nick = re.search('([^!]*)!?[^@]*@?.*', user).group(1)
-      text = '<' + nick + '>' + msg + '\n'
+      text = '<' + nick + '> ' + msg + '\n'
     else:
       text = msg + '\n'
+
+    if self.tree.get_widget('time_stamps').get_active():
+      hour, min, sec = self.GetTime()
+      text = '[' + str(hour) + ':' + str(min) + ':' + str(sec) + '] ' + text
+
     self.PrintText(text)
 
   def meReceive(self, user, channel, msg):
@@ -52,6 +58,11 @@ class PalantirWindow:
     # Format the nick.
     nick = re.search('([^!]*).*', user).group(1)
     text = '* ' + nick + ' ' + msg + '\n'
+
+    if self.tree.get_widget('time_stamps').get_active():
+      hour, min, sec = self.GetTime()
+      text = '[' + str(hour) + ':' + str(min) + ':' + str(sec) + '] ' + text
+
     self.PrintText(text)
 
   def nickReceive(self, oldNick, channel, newNick):
@@ -249,6 +260,11 @@ class PalantirWindow:
 	'''
     text = str(times) + 'd' + str(sides) + ' => ' + str(total)
     self.messageReceive(None, self.factory.channels[0], 'You rolled: ' + text)
+
+  def GetTime(self):
+    ''' Return the local hour, minute and seconds. '''
+    time = localtime()
+    return (time[3], time[4], time[5])
 
 ### This was created for doing tabbed chatting, so that you could connect to multiple
 ### channels.  The client still supports multiple channels, but the UI does not.  I'm
