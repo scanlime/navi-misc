@@ -215,7 +215,10 @@ static void mi6k_ir_tx_send(struct usb_mi6k *dev, lirc_t pulse, lirc_t space)
 	space = (space & PULSE_MASK) * 100 / 1316;
 	if (space > 0xFFFF) space = 0xFFFF;
 
-	dbg("ir_send %d %d", pulse, space);
+	/* At this time our firmware only correctly handles values 255 or lower. Issue a warning if this is a problem */
+	if (pulse > 255 || space > 255) {
+	  dbg("sending a pulse/space too large for current firmware (%d, %d)", pulse, space);
+	}
 	mi6k_request(dev, MI6K_CTRL_IR_SEND, pulse, space);
 }
 
