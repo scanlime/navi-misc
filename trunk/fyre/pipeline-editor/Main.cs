@@ -28,79 +28,79 @@ public class PipelineEditor
 	/* Element list (upper left) */
 	private Gtk.TreeStore		element_store;
 	[Widget] Gtk.TreeView		element_list;
-	
+
 	/* Element information (bottom left) */
 	[Widget] Gtk.Image		element_image;
 	[Widget] Gtk.Label		element_name;
 	[Widget] Gtk.Label		element_description;
 	[Widget] Gtk.Label		element_inputs;
 	[Widget] Gtk.Label		element_outputs;
-	
+
 	/* Editor workspace (right) */
 	[Widget] Gtk.ScrolledWindow	pipeline_window;
 	[Widget] Gtk.DrawingArea	pipeline_drawing;
 
-        public static void Main (string[] args)
-        {
-                new PipelineEditor (args);
-        }
+	public static void Main (string[] args)
+	{
+		new PipelineEditor (args);
+	}
 
-        public PipelineEditor (string[] args) 
-        {
-                Application.Init();
+	public PipelineEditor (string[] args)
+	{
+		Application.Init();
 
-                Glade.XML gxml = new Glade.XML (null, "pipeline-editor.glade", "window1", null);
-                gxml.Autoconnect (this);
+		Glade.XML gxml = new Glade.XML (null, "pipeline-editor.glade", "window1", null);
+		gxml.Autoconnect (this);
 
-                /* Do all the setup for the element tree view */
-                this.element_store = new Gtk.TreeStore (typeof (Gdk.Pixbuf), typeof (string));
-                element_list.Model = this.element_store;
-                
-                Gtk.CellRenderer pixbuf_renderer = new Gtk.CellRendererPixbuf ();
-                Gtk.CellRenderer text_renderer   = new Gtk.CellRendererText ();
-                Gtk.TreeViewColumn column = new Gtk.TreeViewColumn ();
+		/* Do all the setup for the element tree view */
+		this.element_store = new Gtk.TreeStore (typeof (Gdk.Pixbuf), typeof (string));
+		element_list.Model = this.element_store;
 
-                column.Title = "Elements";
-                column.PackStart (pixbuf_renderer, false);
-                column.AddAttribute (pixbuf_renderer, "pixbuf", 0);
-                column.PackStart (text_renderer, true);
-                column.AddAttribute (text_renderer, "text", 1);
-                
-                element_list.AppendColumn (column);
+		Gtk.CellRenderer pixbuf_renderer = new Gtk.CellRendererPixbuf ();
+		Gtk.CellRenderer text_renderer   = new Gtk.CellRendererText ();
+		Gtk.TreeViewColumn column = new Gtk.TreeViewColumn ();
+
+		column.Title = "Elements";
+		column.PackStart (pixbuf_renderer, false);
+		column.AddAttribute (pixbuf_renderer, "pixbuf", 0);
+		column.PackStart (text_renderer, true);
+		column.AddAttribute (text_renderer, "text", 1);
+
+		element_list.AppendColumn (column);
 
 		/* Finally, run the application */
-                Application.Run();
+		Application.Run();
         }
 
-        /* Event handlers - most of these come from the glade file */
-        /* Window events */
-        public void OnDeleteEvent (object o, DeleteEventArgs args) 
-        {
-                Application.Quit ();
-                args.RetVal = true;
-        }
-        
-        /* Shared events - menus/toolbars */
+	/* Event handlers - most of these come from the glade file */
+	/* Window events */
+	public void OnDeleteEvent (object o, DeleteEventArgs args)
+	{
+		Application.Quit ();
+		args.RetVal = true;
+	}
+
+	/* Shared events - menus/toolbars */
 	public void OnNew (object o, EventArgs args)
 	{
 	}
-	
+
 	public void OnOpen (object o, EventArgs args)
 	{
 	}
-		
+
 	public void OnSave (object o, EventArgs args)
 	{
 	}
-		
+
 	public void OnCut (object o, EventArgs args)
 	{
 	}
-		
+
 	public void OnCopy (object o, EventArgs args)
 	{
 	}
-		
+
 	public void OnPaste (object o, EventArgs args)
 	{
 	}
@@ -109,13 +109,13 @@ public class PipelineEditor
 	public void OnMenuFileSaveAs (object o, EventArgs args)
 	{
 	}
-		
+
 	public void OnMenuFileQuit (object o, EventArgs args)
 	{
 		Application.Quit ();
 	}
-		
-	/* 'Edit' Menu events */		
+
+	/* 'Edit' Menu events */
 	public void OnMenuEditDelete (object o, EventArgs args)
 	{
 	}
