@@ -27,7 +27,7 @@ class KdeFilter(CommitFilter):
 
         # A regex that matches lines containing file information, returning groups
         # for the status, lines added, lines removed, name, and revision.
-        fileRegex = re.compile(r"  (?P<status>[UPARMC\?]) (\+(?P<addedLines>[0-9]+))? (\-(?P<removedLines>[0-9]+))? +(?P<file>[^ ]+) +(?P<revision>[0-9]+(\.[0-9]+)+)\n")
+        fileRegex = re.compile(r"^  (?P<status>[UPARMC\?]) (\+(?P<addedLines>[0-9]+))? (\-(?P<removedLines>[0-9]+))? +(?P<file>[^ ]+) +(?P<revision>[0-9]+(\.[0-9]+)+)( +\[[^\[\]]+\])? *$\n")
 
         # Read in the rest of the file, sorting lines into either log message
         # lines or file information lines.
