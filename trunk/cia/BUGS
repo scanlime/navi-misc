@@ -14,8 +14,6 @@
   any requests will get removed, bots will try to take their preferred nick if
   they don't have it already.
 
-- The stats browser is getting really slow with targets containing large catalogs
-
 ######## Noncritical
 
 - The XML parser (somewhat hacked up domish) breaks when messages specify
@@ -51,4 +49,7 @@
       any assumptions about the stats hierarchy into CIA, but where do these go?
     - How do we account for any differences in commit authors with stats author
       pages, as caused by the ruleset?
+
+- We have an RSS 2.0 interface now, but it doesn't yet display much. The formatters for
+  the 'rss' medium should be enhanced.
 
