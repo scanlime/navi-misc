@@ -1,6 +1,7 @@
 #include "IsoMapObjectFactory.h"
 #include "IsoMapObject.h"
 #include "IsoMapTile.h"
+#include "Sheep.h"
 
 #include <SDL/SDL_image.h>
 
@@ -54,8 +55,13 @@ IsoMapObjectFactory::makeObject(MapObjectType type)
 	if (!isValidObjectType(type))
 		return NULL;
 
-	obj = new IsoMapObject(getScreen());
-	obj->setObjectType(type);
+	if (type == MAP_OBJECT_SHEEP)
+		obj = new Sheep(getScreen());
+	else
+	{
+		obj = new IsoMapObject(getScreen());
+		obj->setObjectType(type);
+	}
 
 	if (objImageCache[type] != NULL)
 		image = objImageCache[type];
