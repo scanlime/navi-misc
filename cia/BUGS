@@ -43,3 +43,12 @@
 - documentation
 
 - rrdtool (or similar) for graphing stats target activity
+
+- Link from authors and projects in the stats browser's message lists to the appropriate
+  author and project pages. It would be great to, while browsing a project, be able
+  to easily see what a particular person is working on elsewhere. A few things to consider:
+    - stats metadata could be used to make the connection without hardcoding
+      any assumptions about the stats hierarchy into CIA, but where do these go?
+    - How do we account for any differences in commit authors with stats author
+      pages, as caused by the ruleset?
+
