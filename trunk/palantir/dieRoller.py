@@ -25,41 +25,57 @@ class DieRoller:
     ''' Roll the dice. '''
     ### This needs to be cleaned up a lot.  And support for critical misses should be
     ### added.
-    total = 0
     totalTimes = 0
     rolls = []
 
     # Roll the dice and store each individual roll as well as a running total
     for time in times:
       totalTimes += time
+    for roll in range(totalTimes):
+      rolls.append(randint(1, sides))
 
     # Use the dice system from D&D.
     if self.system == 'D&D':
-      for roll in range(totalTimes):
-        rolls.append(randint(1, sides))
-        total += rolls[len(rolls) - 1]
-
-      # Add the modifiers to the total.
-      for mod in mods:
-        total += mod
-
-    # Use the dice system from the White Wolf games.
-    else:
-      for roll in range(totalTimes):
-	# Get the die roll.
-	score = randint(1, sides)
-	# Critical failure.
-	if score == 1:
-	  total -= 1
-	else:
-	  # Add the modifiers.
-	  for mod in mods:
-	    score += mod
-	  # If it's a success increase the total by one.
-	  if score >= diff:
-	    total += 1
-	# Append the roll to the list of rolls.
-        rolls.append(score)
+      total = self.D_and_D(rolls, mods)
+    # Use White Wolf dice system.
+    elif self.system == 'WW':
+      total = self.White_Wolf(rolls, mods, diff)
 
     # Send the results to the channel.
     self.ui.SendRoll(totalTimes, sides, rolls, total)
+
+  def D_and_D(self, rolls, mods):
+    ''' Take rolls (a list of dice rolls) and calculate the total score, plus all the
+        modifiers and return it.
+	rolls is a list, mods is an integer.
+	'''
+    total = 0
+    # Add the rolls to the total.
+    for roll in rolls:
+      total += roll
+    # Add the modifiers to the total.
+    for mod in mods:
+      total += mod
+    # Return the total.
+    return total
+
+  def White_Wolf(self, rolls, mods, diff):
+    ''' Take rolls and calculate the total number of rolls that scored equal to or greater
+        than diff after adding mods to them.
+	rolls is a list of integers, mods and diff are integers.
+	'''
+    total = 0
+    for i in range(len(rolls)):
+      # If the roll isn't a critical failure...
+      if rolls[i] != 1:
+	# Add the modifiers.
+        for mod in mods:
+	  rolls[i] += mod
+	# If the roll beats the difficulty increase the total successes.
+	if rolls[i] >= diff:
+	  total += 1
+      # On a critical failure subtract one from the successes.
+      else:
+	total -= 1
+    # Return the total successes.
+    return total
