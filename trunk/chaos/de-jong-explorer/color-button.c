@@ -22,7 +22,7 @@
  *
  */
 
-#include "color_button.h"
+#include "color-button.h"
 #include <gtk/gtk.h>
 
 
