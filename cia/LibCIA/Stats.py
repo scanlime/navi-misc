@@ -88,8 +88,11 @@ class StatsInterface(xmlrpc.XMLRPC):
     def __init__(self, storage):
         self.storage = storage
 
-    def xmlrpc_catalog(self, path):
-        """Return a list of subdirectories within this stats path"""
+    def xmlrpc_catalog(self, path=''):
+        """Return a list of subdirectories within this stats path.
+           Defaults to the root of the stats:// namespace if 'path'
+           isn't specified.
+           """
         return self.storage.getPathTarget(path).catalog()
 
     def xmlrpc_getLatestMessages(self, path, limit=None):
