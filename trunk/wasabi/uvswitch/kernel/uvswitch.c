@@ -75,7 +75,8 @@ struct usb_uvswitch {
 	int			active_inputs[UVSWITCH_CHANNELS]; /* Nonzero values for active video inputs */
 	int			adc_samples;		/* Number of samples in adc_accumulator */
 	wait_queue_head_t	adc_wait;		/* Processes waiting for video detection input changes */
-	struct usb_endpoint_descriptor *endpoint;
+	struct usb_endpoint_descriptor *endpoint;	/* Endpoint descriptor for interrupt transfers */
+	int			adc_change_id;		/* Incremented every time active_inputs changes */
 
 	struct semaphore	sem;			/* locks this structure */
 };
@@ -83,7 +84,8 @@ struct usb_uvswitch {
 /* Private data for each file descriptor */
 struct uvswitch_fd_private {
 	struct usb_uvswitch	*dev;
-	int			read_count;
+	int			not_first_read;		/* Set after the first successful read() */
+	int			last_change_id;		/* The adc_change_id last time a read() was done */
 };
 
 /* the global devfs handle for the USB subsystem */
@@ -223,6 +225,7 @@ static void uvswitch_adc_irq(struct urb *urb)
 				    dev->active_inputs[0], dev->active_inputs[1], dev->active_inputs[2], dev->active_inputs[3],
 				    dev->active_inputs[4], dev->active_inputs[5], dev->active_inputs[6], dev->active_inputs[7]);
 
+				dev->adc_change_id++;
 				wake_up_interruptible(&dev->adc_wait);
 			}
 		}
@@ -275,8 +278,8 @@ static int uvswitch_open(struct inode *inode, struct file *file)
 	}
 
 	/* save our object in the file's private structure */
+	memset(prv, 0, sizeof(struct uvswitch_fd_private));
 	prv->dev = dev;
-	prv->read_count = 0;
 	file->private_data = prv;
 
  exit:
@@ -419,8 +422,8 @@ static ssize_t uvswitch_read(struct file *file, char *buffer, size_t count, loff
 		goto exit;
 	}
 
-	/* If this isn't the first read, wait for new data */
-	if (prv->read_count) {
+	/* If this isn't the first read or there's no new data, wait */
+	while (prv->not_first_read && prv->last_change_id == dev->adc_change_id) {
 		if (file->f_flags & O_NONBLOCK) {
 			retval = -EAGAIN;
 			goto exit;
@@ -469,7 +472,8 @@ static ssize_t uvswitch_read(struct file *file, char *buffer, size_t count, loff
 	}
 	retval = count;
 
-	prv->read_count++;
+	prv->not_first_read = 1;
+	prv->last_change_id = dev->adc_change_id;
 
 exit:
 	/* unlock the device */
@@ -599,8 +603,10 @@ static unsigned int uvswitch_poll(struct file *file, poll_table *wait)
 	if (dev->udev == NULL)
 		return POLLERR | POLLHUP;
 
-	/* Assume there's data availalbe becase we were awakened */
-	return POLLIN | POLLRDNORM;
+	if (dev->adc_change_id != prv->last_change_id)
+		return POLLIN | POLLRDNORM;
+
+	return 0;
 }
 
 
