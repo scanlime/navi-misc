@@ -16,6 +16,7 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 from Box import *
+from World import *
 
 typeMap = {
     'box' : Box,
@@ -23,4 +24,5 @@ typeMap = {
     'options' : None,
     'pyramid' : None,
     'teleporter' : None,
+    'world' : None,
 }

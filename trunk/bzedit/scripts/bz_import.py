@@ -22,7 +22,7 @@
 #
 
 """ Registration info for Blender menus:
-Name: 'BZFlag World...'
+Name: 'BZFlag World (.bzw)...'
 Blender: 234
 Group: 'Import'
 Tip: 'Imports a BZFlag world file into specially tagged Blender objects'
@@ -36,13 +36,13 @@ def importObjects(reader):
     # First determine if we have a world. If not, we'll need to create a default one.
     world = None
     objects = []
-    for object in reader:
-        if isinstance(object, bzflag.World):
+    for object in reader.objects:
+        if isinstance(object, BZFlag.World):
             world = object
         else:
             objects.append(object)
     if not world:
-        world = bzflag.World()
+        world = BZFlag.World()
 
     # Create the Blender object for the world first
     world.toBlender()
@@ -60,7 +60,7 @@ def fileSelectedCallback(filename):
     except IOError, s:
         bzflag.log.err(s)
     else:
-        importObjects(reader.readObjects())
+        importObjects(reader)
 
         # Remove that pesky default cube if it's still around
         try:
@@ -71,7 +71,7 @@ def fileSelectedCallback(filename):
     if BZFlag.log.numErrors:
         BZFlag.log.report("Errors in loading world file")
 
-if bzflag:
+if BZFlag:
     Blender.Window.FileSelector(fileSelectedCallback, "Load BZFlag World")
 
 ### The End ###
