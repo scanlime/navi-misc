@@ -27,29 +27,29 @@ from a Subversion_ repository_.
 History
 -------
 
-May 23, 2003
+- May 23, 2003
 
-  CIA started out as a simple bot hacked together by Micah Dowty in an
-  afternoon to monitor commit messages for the PicoGUI_ project.  Lalo
-  Martins came up with the name "CIA" to refer to this IRC bot:
-  PicoGUI_ is hosted in Subversion_, and the bot was a brainless entity
-  designed to keep an eye on subversion :)
+    CIA started out as a simple bot hacked together by Micah Dowty in an
+    afternoon to monitor commit messages for the PicoGUI_ project.  Lalo
+    Martins came up with the name "CIA" to refer to this IRC bot:
+    PicoGUI_ is hosted in Subversion_, and the bot was a brainless entity
+    designed to keep an eye on subversion :)
 
-June 1, 2003
+- June 1, 2003
 
-  About a week later, Mike Hearn suggested expanding it to work with
-  other projects, displaying them all in one channel in addition to
-  the project's home channel. After a morning of quick hacking,
-  #commits on Freenode_ was born. Popularity grew almost instantly.
+    About a week later, Mike Hearn suggested expanding it to work with
+    other projects, displaying them all in one channel in addition to
+    the project's home channel. After a morning of quick hacking,
+    #commits on Freenode_ was born. Popularity grew almost instantly.
 
-  Micah stepped into the shadows for a while. Mike maintained CIA, but
-  the code remained stagnant.  It was a quick hack, so incremental
-  changes just made it messier. It needed a rewrite.
+    Micah stepped into the shadows for a while. Mike maintained CIA, but
+    the code remained stagnant.  It was a quick hack, so incremental
+    changes just made it messier. It needed a rewrite.
 
-December 13, 2003
+- December 13, 2003
 
-  Micah finally gets the motivation to rewrite CIA, bringing you what
-  you see here.
+    Micah finally gets the motivation to rewrite CIA, bringing you what
+    you see here.
 
 
 Brought to you by...
