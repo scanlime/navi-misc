@@ -4,17 +4,13 @@ Implements CIA's simple security model. CIA uses a simple capabilities
 system, where a particular capability is represented on the wire as an
 unguessable random key, and internally by any hashable python object.
 
-For example, the capability for rebuilding the server may be called
-'rebuild' internally. Any object with access to the CapabilityDB can
-retrieve the key associated with the 'rebuild' capability or test a
-given key against the 'rebuild' capability.
+Generally the 'universe' key will be saved somewhere only the server's
+owner can access it on startup. The 'universe' key can be used to grant
+other keys, which can then be distributed to other people or machines.
 
-Any object with access to the CapabilityDB can be infinitely priveliged,
-as it can retrieve any capability's key. As the CapabilityDB is stored on
-disk, this includes any process with read access to the on-disk database.
-This means that the local user running CIA is a superuser, but can hand
-out particular capabilities to any other entity without handing over any
-particular identity.
+Keys are represented in the database as a chunk of random binary data,
+but they are represented everywhere else base64-encoded, to make them
+XML-friendly.
 """
 #
 # CIA open source notification system
@@ -36,7 +32,7 @@ particular identity.
 #
 
 from twisted.web import xmlrpc
-import anydbm, cPickle, base64, os
+import anydbm, pickle, binascii, struct, os
 
 
 class SecurityInterface(xmlrpc.XMLRPC):
@@ -64,6 +60,12 @@ class SecurityInterface(xmlrpc.XMLRPC):
         self.caps.faultIfMissing(key, 'universe', 'security.list')
         return self.caps.list()
 
+    def xmlrpc_test(self, capability, key):
+        """Test the given key against a capability, returning True if it
+           passes, False if it fails.
+           """
+        return self.caps.test(key, capability)
+
 
 def createRandomKey(bytes=128):
     """Create a somewhat-secure random string of the given number of bytes.
@@ -78,19 +80,76 @@ def createRandomKey(bytes=128):
     return n
 
 
+def decodeKey(key):
+    """Convert the external representation of a key to the binary representation"""
+    if key:
+        return binascii.a2b_base64(key)
+
+def encodeKey(key):
+    """Conver the binary representation of a key to the external representation"""
+    return binascii.b2a_base64(key)
+
+
+def serializeCap(obj):
+    r"""Serialize an arbitrary python object used as a capability identifier.
+        Capabilities are serialized to the format used by the 'pickle' module,
+        but we write our own pickler in order to guarantee that a particular input
+        always generates the same serialized output. (This is not true in the standard
+        pickler)
+
+        This pickler is quite simple, and currently only supports data structures composed
+        of tuples and strings. It will pickle lists as tuples.
+        It may be extended to support other types as long as the serialized representation
+        of all supported objects stays constant.
+
+        >>> p = serializeCap('boing')
+        >>> p
+        'T\x05\x00\x00\x00boing.'
+        >>> pickle.loads(p)
+        'boing'
+
+        >>> p = serializeCap(('boing', ['x', 'squeegie']))
+        >>> p
+        '(T\x05\x00\x00\x00boing(T\x01\x00\x00\x00xT\x08\x00\x00\x00squeegiett.'
+        >>> pickle.loads(p)
+        ('boing', ('x', 'squeegie'))
+        """
+    # Most of the work is done in _serializeCap, but we have to tack on
+    # the stop instruction after it all.
+    return _serializeCap(obj) + '.'
+
+
+def _serializeCap(obj):
+    """Recursive innards of serializeCap()"""
+    if type(obj) == type(()) or type(obj) == type([]):
+        return '(' + ''.join([_serializeCap(i) for i in obj]) + 't'
+    elif type(obj) == str:
+        return 'T' + struct.pack('<I', len(obj)) + obj
+    else:
+        raise TypeError("Unsupported type %r in serializeCap()" % type(obj))
+
+
+def deserializeCap(obj):
+    """Since a serialized capability is just a pickle with some added restrictions,
+       we can use python's standard unpickler for this.
+       """
+    return pickle.loads(obj)
+
+
 class CapabilityDB(object):
     """A simple capability database- capabilities are mapped from a
-       short identifier that can be any hashable python object to an
-       actual capability key taking the form of an 'unguessable' random
-       number.
+       short identifier to an actual capability key taking the form of
+       an 'unguessable' random number. Capability identifiers are anything
+       that can be handled by serializeCap/deserializeCap-
+       currently this includes data structures composed of sequences,
+       strings, and numbers.
 
        This database provides the ability to test a key for some particular
        capability, retrieve the key for a particular capability, and revoke
        capabilities. Revoking a capability invalidates the key assigned to it.
 
-       Internally, the capability is an anydbm-compatible database where
-       keys are pickled representations of a capability, and values are the
-       associated random keys stored as 8-bit strings.
+       We use an anydbm database to map from serialized Capabilities to raw
+       capability keys.
        """
     def __init__(self, fileName, flags='c', mode=0600):
         self.db = anydbm.open(fileName, flags, mode)
@@ -110,21 +169,18 @@ class CapabilityDB(object):
     def close(self):
         self.db.close()
 
-    def _dbKey(self, capability):
-        """Returns the database key used for the given capability"""
-        return cPickle.dumps(capability)
-
-    def _dbCap(self, dbkey):
-        """Returns the capability associated with the given db key"""
-        return cPickle.loads(dbkey)
-
     def test(self, key, capability):
         """Test the given key for some capability"""
-        return key and self.grant(capability, create=False) == key
+        decoded = decodeKey(key)
+        try:
+            return self.db[serializeCap(capability)] == decoded
+        except KeyError:
+            return False
 
     def faultIfMissing(self, key, *capabilities):
         """Raise a fault if the given key doesn't match any of the given capabilities"""
         for capability in capabilities:
+            print self.test(key, capability), capability
             if self.test(key, capability):
                 return
         import xmlrpclib
@@ -138,26 +194,34 @@ class CapabilityDB(object):
            returns None.
            """
         try:
-            return self.db[self._dbKey(capability)]
+            return encodeKey(self.db[serializeCap(capability)])
         except KeyError:
             if create:
                 return self.create(capability)
 
     def create(self, capability):
         """Create a new key for the given capability, returning it"""
-        key = base64.encodestring(createRandomKey())
-        self.db[self._dbKey(capability)] = key
-        return key
+        key = createRandomKey()
+        self.db[serializeCap(capability)] = key
+        return encodeKey(key)
 
     def revoke(self, capability):
         """Delete the current key for the given capability if one exists"""
         try:
-            del self.db[self._dbKey(capability)]
+            del self.db[serializeCap(capability)]
         except KeyError:
             pass
 
     def list(self):
         """Return all capabilities we have in the database"""
-        return map(self._dbCap, self.db.keys())
+        return map(deserializeCap, self.db.keys())
+
+
+def _test():
+    import doctest, Security
+    return doctest.testmod(Security)
+
+if __name__ == "__main__":
+    _test()
 
 ### The End ###

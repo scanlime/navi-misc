@@ -64,7 +64,7 @@ class RulesetInterface(xmlrpc.XMLRPC):
         try:
             dom = XML.parseString(xml)
             self.caps.faultIfMissing(key, 'universe', 'ruleset', 'ruleset.store',
-                                     ('ruleset.uri', dom['uri']))
+                                     ('ruleset.uri', str(dom['uri'])))
             self.storage.store(dom)
             self.storage.save()
         except:
