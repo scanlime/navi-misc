@@ -42,7 +42,7 @@ class Input:
                 self.moveMouse(t.x, t.y)
         if t.dev == 'kbd':
             if t.name == 'key up':
-                if t.key == 96:	# `
+                if t.key == 96:        # `
                     console.toggle()
 
     def scrollWheel(self, y):
