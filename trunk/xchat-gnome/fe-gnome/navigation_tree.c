@@ -105,5 +105,6 @@ void navigation_selection_changed(GtkTreeSelection *selection, gpointer data) {
 		gui.current_session = sess;
 		userlist_display(tgui);
 		set_nickname(sess->server, NULL);
+		set_gui_topic(sess, NULL);
 	}
 }
