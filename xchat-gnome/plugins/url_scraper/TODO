@@ -17,3 +17,8 @@
 
 * Hook it up to a URL handler so that you can open a link by clicking
 	it.
+
+* This is probably too complicated for a little script like this, but
+	consider the possibility of allowing users to block certain channels/
+	users. So that the scraper doesn't fill up with URLs from commits
+	in #commits, for example.
