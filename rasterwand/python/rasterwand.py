@@ -202,4 +202,30 @@ class TextScroller:
                     d[i] = 0
                     p[i] = end[i]
 
+
+class AnimatedImage:
+    """A simple animation loop for the Rasterwand based on ImageDraw"""
+    def __init__(self, dev,
+                 numColumns   = 40,
+                 displayWidth = 0.6,
+                 dutyCycle    = 0.2
+                 ):
+        import Image, ImageDraw
+
+        self.dev = dev
+        dev.params.display_width = 0xFFFF * displayWidth
+        dev.params.duty_cycle = 0xFFFF * dutyCycle
+        self.numColumns = numColumns
+        self.image = Image.new("1", (numColumns, 8))
+        self.draw = ImageDraw.Draw(self.image)
+
+    def run(self):
+        then = time.time()
+        while 1:
+            now = time.time()
+            self.image.paste(0)
+            self.update(now - then)
+            then = now
+            self.dev.writeImage(self.image)
+
 ### The End ###
