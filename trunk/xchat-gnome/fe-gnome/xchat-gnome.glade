@@ -3760,7 +3760,7 @@
 			  </child>
 
 			  <child>
-			    <widget class="GtkEntry" id="per server nick name">
+			    <widget class="GtkEntry" id="server config nickname">
 			      <property name="visible">True</property>
 			      <property name="can_focus">True</property>
 			      <property name="editable">True</property>
@@ -3814,7 +3814,7 @@
 			  </child>
 
 			  <child>
-			    <widget class="GtkEntry" id="per server real name">
+			    <widget class="GtkEntry" id="server config realname">
 			      <property name="visible">True</property>
 			      <property name="can_focus">True</property>
 			      <property name="editable">True</property>
