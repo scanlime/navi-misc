@@ -48,6 +48,7 @@ void update_pixels();
 void clear();
 void resize(int w, int h);
 void set_defaults();
+void load_parameters_from_file(const char *name);
 void interactive_main(int argc, char **argv);
 void save_to_file(const char *name);
 void run_iterations(int count);
@@ -73,7 +74,7 @@ int main(int argc, char ** argv) {
   set_defaults();
 
   while (1) {
-    opt = getopt(argc, argv, "a:b:c:d:x:y:z:w:h:e:o:");
+    opt = getopt(argc, argv, "a:b:c:d:x:y:z:w:h:e:o:i:");
     if (opt == -1)
       break;
 
@@ -88,6 +89,10 @@ int main(int argc, char ** argv) {
     case 'z':  zoom     = atof(optarg);  break;
     case 'w':  width    = atoi(optarg);  break;
     case 'h':  height   = atoi(optarg);  break;
+
+    case 'i':
+      load_parameters_from_file(optarg);
+      break;
 
     case 'o':
       mode = RENDER;
@@ -526,6 +531,71 @@ gchar* save_parameters() {
 			 "yoffset = %f\n"
 			 "exposure = %f\n",
 			 a, b, c, d, zoom, xoffset, yoffset, exposure);
+}
+
+void load_parameters(const gchar *params) {
+  /* Load all recognized parameters from a string given in the same
+   * format as the one produced by save_parameters()
+   */
+  gchar *copy, *line, *nextline;
+  gchar *key;
+  float value;
+
+  /* Make a copy of the parameters, since we'll be modifying it */
+  copy = g_strdup(params);
+
+  /* Iterate over lines... */
+  line = copy;
+  while (line) {
+    nextline = strchr(line, '\n');
+    if (nextline) {
+      *nextline = '\0';
+      nextline++;
+    }
+
+    /* Separate it into key and value */
+    key = g_malloc(strlen(line)+1);
+    if (sscanf(line, " %s = %f", key, &value) == 2) {
+      printf("%s = %f", key, value);
+
+      /* We found a valid key/value line.. see if we recognize the key */
+      if (!strcmp(key, "a"))
+	a = value;
+      else if (!strcmp(key, "b"))
+	b = value;
+      else if (!strcmp(key, "c"))
+	c = value;
+      else if (!strcmp(key, "d"))
+	d = value;
+      else if (!strcmp(key, "zoom"))
+	zoom = value;
+      else if (!strcmp(key, "xoffset"))
+	xoffset = value;
+      else if (!strcmp(key, "yoffset"))
+	yoffset = value;
+      else if (!strcmp(key, "exposure"))
+	exposure = value;
+      else
+	printf(" (unrecognized)");
+
+      printf("\n");
+    }
+    g_free(key);
+    line = nextline;
+  }
+  g_free(copy);
+}
+
+void load_parameters_from_file(const char *name) {
+  /* Try to open the given PNG file and load parameters from it */
+  const gchar *params;
+  GdkPixbuf *pixbuf = gdk_pixbuf_new_from_file(name, NULL);
+  params = gdk_pixbuf_get_option(pixbuf, "tEXt::de_jong_params");
+  if (params)
+    load_parameters(params);
+  else
+    printf("No parameters chunk found\n");
+  gdk_pixbuf_unref(pixbuf);
 }
 
 void save_to_file(const char *name) {
