@@ -27,6 +27,14 @@
 static void drawable_class_init (DrawableClass *klass);
 static void drawable_init       (Drawable *drawable);
 
+enum
+{
+  DIRTY,
+  LAST_SIGNAL,
+};
+
+static guint signals[LAST_SIGNAL] = { 0 };
+
 GType
 drawable_get_type (void)
 {
@@ -56,6 +64,14 @@ drawable_get_type (void)
 static void
 drawable_class_init (DrawableClass *klass)
 {
+  GObjectClass *gobject_class = (GObjectClass*) klass;
+
+  signals[DIRTY] = g_signal_new ("dirty", G_OBJECT_CLASS_TYPE (klass),
+                                 G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION,
+				 G_STRUCT_OFFSET (DrawableClass, dirty),
+				 NULL, NULL,
+				 g_cclosure_marshal_VOID__VOID,
+				 G_TYPE_NONE, 0);
 }
 
 static void

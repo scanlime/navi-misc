@@ -25,6 +25,14 @@
 static void scene_object_class_init (SceneObjectClass *klass);
 static void scene_object_init       (SceneObject *self);
 
+enum
+{
+  DIRTY,
+  LAST_SIGNAL,
+};
+
+static guint signals[LAST_SIGNAL] = { 0 };
+
 GType
 scene_object_get_type (void)
 {
@@ -54,7 +62,14 @@ scene_object_get_type (void)
 static void
 scene_object_class_init (SceneObjectClass *klass)
 {
-  /* nothing to do here yet */
+  GObjectClass *gobject_class = (GObjectClass*) klass;
+
+  signals[DIRTY] = g_signal_new ("dirty", G_OBJECT_CLASS_TYPE (klass),
+                                 G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION,
+				 G_STRUCT_OFFSET (SceneObjectClass, dirty),
+				 NULL, NULL,
+				 g_cclosure_marshal_VOID__VOID,
+				 G_TYPE_NONE, 0);
 }
 
 static void

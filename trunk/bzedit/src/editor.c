@@ -32,8 +32,6 @@ static void editor_class_init   (EditorClass *klass);
 static void editor_init         (Editor      *editor);
 static void editor_dispose      (GObject     *object);
 
-static void on_glarea_configure (GtkWidget *widget, GdkEventConfigure *event, gpointer data);
-static void on_glarea_expose    (GtkWidget *widget, GdkEventExpose *event, gpointer data);
 static void on_glarea_realize   (GtkWidget *widget, gpointer data);
 
 GType
@@ -178,52 +176,14 @@ editor_new (void)
 }
 
 static void
-on_glarea_configure (GtkWidget *widget, GdkEventConfigure *event, gpointer data)
-{
-  Editor *editor = EDITOR (data);
-
-  gl_drawing_area_make_current (GL_DRAWING_AREA(widget));
-
-  glViewport(0, 0, event->width, event->height);
-  glMatrixMode (GL_PROJECTION);
-  glLoadIdentity ();
-  gluPerspective (45.0, (float)event->width / (float)event->height, 0.1, 2500.0);
-  glMatrixMode (GL_MODELVIEW);
-  glLoadIdentity ();
-  glDepthRange (0.1, 2000.0);
-
-  glClearColor (0.0, 0.0, 0.0, 0.0);
-  glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  view_render (editor->view);
-  gl_drawing_area_swap_buffers (GL_DRAWING_AREA(widget));
-}
-
-static void
-on_glarea_expose (GtkWidget *widget, GdkEventExpose *event, gpointer data)
-{
-  Editor *editor = EDITOR (data);
-
-  gl_drawing_area_make_current (GL_DRAWING_AREA(widget));
-  glClearColor (0.0, 0.0, 0.0, 0.0);
-  glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  view_render (editor->view);
-  gl_drawing_area_swap_buffers (GL_DRAWING_AREA(widget));
-}
-
-static void
 on_glarea_realize (GtkWidget *widget, gpointer data)
 {
   Editor *editor = EDITOR (data);
 
-  gl_drawing_area_make_current (GL_DRAWING_AREA(widget));
-
-  editor->view = view_new (editor->scene);
+  editor->view = view_new (editor->scene, GL_DRAWING_AREA (widget));
 
   editor->view->camera->azimuth = 45;
   editor->view->camera->elevation = 25;
   editor->view->camera->distance = 900;
   editor->view->camera->position[2] = 4;
-
-  g_signal_connect(G_OBJECT(widget), "configure-event", G_CALLBACK(on_glarea_configure), data);
-  g_signal_connect(G_OBJECT(widget), "expose-event", G_CALLBACK(on_glarea_expose), data);
 }
