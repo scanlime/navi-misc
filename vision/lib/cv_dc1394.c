@@ -232,20 +232,19 @@ static void convert_yuv411_to_yuv24(IplImage *img, unsigned char *src) {
     for (x=0; x<img->width; x+=4) {
       u  = *(src++);
       y0 = *(src++);
-      y1 = *(src++);
-      v  = *(src++);
-      y2 = *(src++);
-      y3 = *(src++);
-
       *(dest++) = y0;
       *(dest++) = u;
+      y1 = *(src++);
+      v  = *(src++);
       *(dest++) = v;
       *(dest++) = y1;
       *(dest++) = u;
       *(dest++) = v;
+      y2 = *(src++);
       *(dest++) = y2;
       *(dest++) = u;
       *(dest++) = v;
+      y3 = *(src++);
       *(dest++) = y3;
       *(dest++) = u;
       *(dest++) = v;
@@ -254,22 +253,16 @@ static void convert_yuv411_to_yuv24(IplImage *img, unsigned char *src) {
 
 static void convert_yuv411_to_gray(IplImage *img, unsigned char *src) {
   int x,y;
-  unsigned char y0, y1, y2, y3, u, v;
   unsigned char *dest = (unsigned char*) img->imageData;
 
   for (y=0; y<img->height; y++)
     for (x=0; x<img->width; x+=4) {
-      u  = *(src++);
-      y0 = *(src++);
-      y1 = *(src++);
-      v  = *(src++);
-      y2 = *(src++);
-      y3 = *(src++);
-
-      *(dest++) = y0;
-      *(dest++) = y1;
-      *(dest++) = y2;
-      *(dest++) = y3;
+      src++;
+      *(dest++) = *(src++);
+      *(dest++) = *(src++);
+      src++;
+      *(dest++) = *(src++);
+      *(dest++) = *(src++);
     }
 }
 
