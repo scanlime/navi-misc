@@ -105,40 +105,31 @@ class MetadataInterface(RPC.Interface):
 
     def xmlrpc_getKeyList(self, path):
         """Return a list of metadata keys for a particular stats path"""
-        try:
-            return self.storage.getPathTarget(path).metadata.keys()
-        except:
-            Debug.catchFault()
+        return self.storage.getPathTarget(path).metadata.keys()
 
     def xmlrpc_getKeyValues(self, path, keys=None):
         """Return a mapping from key to value. If a key list is specified,
            only keys in that list are returned- otherwise all available keys
            are returned.
            """
-        try:
-            metadata = self.storage.getPathTarget(path).metadata
-            results = {}
-            for key in metadata:
-                if keys is None or key in keys:
-                    results[key] = self.getKeyValue(metadata, key)
-            return results
-        except:
-            Debug.catchFault()
+        metadata = self.storage.getPathTarget(path).metadata
+        results = {}
+        for key in metadata:
+            if keys is None or key in keys:
+                results[key] = self.getKeyValue(metadata, key)
+        return results
 
     def xmlrpc_getKeyTypes(self, path, keys=None):
         """Return a mapping from key to MIME type. If a key list is specified,
            only keys in that list are returned- otherwise all available keys
            are returned.
            """
-        try:
-            metadata = self.storage.getPathTarget(path).metadata
-            results = {}
-            for key in metadata:
-                if keys is None or key in keys:
-                    results[key] = metadata.getType(key)
-            return results
-        except:
-            Debug.catchFault()
+        metadata = self.storage.getPathTarget(path).metadata
+        results = {}
+        for key in metadata:
+            if keys is None or key in keys:
+                results[key] = metadata.getType(key)
+        return results
 
     def xmlrpc_getKeys(self, path, keys=None):
         """Return a mapping from key to a mapping of all information available
@@ -146,67 +137,44 @@ class MetadataInterface(RPC.Interface):
            If a key list is specified, only keys in that list are returned-
            otherwise all available keys are returned.
            """
-        try:
-            metadata = self.storage.getPathTarget(path).metadata
-            results = {}
-            for key in metadata:
-                if keys is None or key in keys:
-                    results[key] = {
-                        'type': metadata.getType(key),
-                        'value': self.getKeyValue(metadata, key),
-                        }
-            return results
-        except:
-            Debug.catchFault()
+        metadata = self.storage.getPathTarget(path).metadata
+        results = {}
+        for key in metadata:
+            if keys is None or key in keys:
+                results[key] = {
+                    'type': metadata.getType(key),
+                    'value': self.getKeyValue(metadata, key),
+                    }
+        return results
 
-    def xmlrpc_setKeyValues(self, path, keyMap, key):
+    def protected_setKeyValues(self, path, keyMap):
         """For each key/value pair in the given map, set the corresponding
            key in the given path's metadata. Requires a capability key
            for this module or for the particular path in question.
            """
-        self.caps.faultIfMissing(key, 'universe', 'stats', 'stats.metadata',
-                                 ('stats.path', path))
-        try:
-            self.storage.getPathTarget(path).metadata.update(keyMap)
-            self.storage.sync()
-            log.msg("Updating metadata values for stats path %r\n%r" % (path, keyMap))
-            return True
-        except:
-            Debug.catchFault()
+        self.storage.getPathTarget(path).metadata.update(keyMap)
+        self.storage.sync()
+        log.msg("Updating metadata values for stats path %r\n%r" % (path, keyMap))
 
-    def xmlrpc_setKeyTypes(self, path, keyMap, key):
+    def protected_setKeyTypes(self, path, keyMap):
         """For each key/value pair in the given map, set the corresponding
            MIME type in the given path's metadata. Requires a capability key
            for this module or for the particular path in question.
            """
-        self.caps.faultIfMissing(key, 'universe', 'stats', 'stats.metadata',
-                                 ('stats.path', path))
-        try:
-            metadata = self.storage.getPathTarget(path).metadata
-            for mdKey, mdType in keyMap.iteritems():
-                metadata.setType(mdKey, mdType)
-            self.storage.sync()
-            log.msg("Updating metadata types for stats path %r\n%r" % (path, keyMap))
-            return True
-        except:
-            Debug.catchFault()
+        metadata = self.storage.getPathTarget(path).metadata
+        for mdKey, mdType in keyMap.iteritems():
+            metadata.setType(mdKey, mdType)
+        log.msg("Updating metadata types for stats path %r\n%r" % (path, keyMap))
 
-    def xmlrpc_delKeys(self, path, metadataKeys, key):
+    def protected_delKeys(self, path, metadataKeys, key):
         """Delete zero or more metadata keys from the given list.
            Requires a capability key for this module or for the particular
            path in question.
            """
-        self.caps.faultIfMissing(key, 'universe', 'stats', 'stats.metadata',
-                                 ('stats.path', path))
-        try:
-            metadata = self.storage.getPathTarget(path).metadata
-            for mdKey in metadataKeys:
-                del metadata[mdKey]
-                log.msg("Deleted metadata key %r for stats path %r" % (mdKey, path))
-            self.storage.sync()
-            return True
-        except:
-            Debug.catchFault()
+        metadata = self.storage.getPathTarget(path).metadata
+        for mdKey in metadataKeys:
+            del metadata[mdKey]
+            log.msg("Deleted metadata key %r for stats path %r" % (mdKey, path))
 
 
 class StatsTarget:
@@ -302,27 +270,18 @@ class StatsTarget:
                  it needs a new target.
            """
         parent = self.parent()
-        try:
-            if parent:
-                # If we have a parent, we have to worry about creating it
-                # if it doesn't exist and generating the proper parent path.
-                parent._autoCreateTargetFor(cursor, cursor.execute,
-                                            "INSERT INTO stats_catalog (parent_path, target_path) VALUES(%s, %s)" %
-                                            (quoteSQL(parent.path, 'varchar'),
-                                             quoteSQL(self.path, 'varchar')))
-            else:
-                # This is the root node. We still need to insert a parent to keep the
-                # table consistent, but our parent in this case is NULL.
-                cursor.execute("INSERT INTO stats_catalog (target_path) VALUES(%s)" %
-                                    quoteSQL(self.path, 'varchar'))
-        except:
-            # Ignore duplicate key errors
-            args = sys.exc_info()[1].args
-            if type(args) == type(()) and args[0] == 1062:
-                # Duplicate entry exception, ignore it
-                pass
-            else:
-                raise
+        if parent:
+            # If we have a parent, we have to worry about creating it
+            # if it doesn't exist and generating the proper parent path.
+            parent._autoCreateTargetFor(cursor, cursor.execute,
+                                        "INSERT IGNORE INTO stats_catalog (parent_path, target_path) VALUES(%s, %s)" %
+                                        (quoteSQL(parent.path, 'varchar'),
+                                         quoteSQL(self.path, 'varchar')))
+        else:
+            # This is the root node. We still need to insert a parent to keep the
+            # table consistent, but our parent in this case is NULL.
+            cursor.execute("INSERT IGNORE INTO stats_catalog (target_path) VALUES(%s)" %
+                           quoteSQL(self.path, 'varchar'))
 
     def _autoCreateTargetFor(self, cursor, func, *args, **kwargs):
         """Run the given function. If an exception occurs that looks like a violated
@@ -339,6 +298,7 @@ class StatsTarget:
         try:
             func(*args, **kwargs)
         except:
+            # Cheesy way to detect foreign key errors without being too DBMS-specific
             if str(sys.exc_info()[1]).find("foreign key") >= 0:
                 self._create(cursor)
                 func(*args, **kwargs)
@@ -461,11 +421,22 @@ class Counters:
 
     def _incrementCounter(self, cursor, name):
         """Increment one counter, creating it if necessary"""
-        cursor.execute("UPDATE stats_counters SET event_count = event_count + 1 WHERE target_path = %s AND name = %s" %
+        now = int(time.time())
+
+        # Insert a default value, which will be ignored if the counter already exists
+        cursor.execute("INSERT IGNORE INTO stats_counters (target_path, name, first_time) VALUES(%s, %s, %s)" %
                        (quoteSQL(self.target.path, 'varchar'),
+                        quoteSQL(name, 'varchar'),
+                        quoteSQL(now, 'bigint')))
+
+        # Increment the counter and update its timestamp
+        cursor.execute("UPDATE stats_counters SET "
+                       "event_count = event_count + 1,"
+                       "last_time = %s "
+                       "WHERE target_path = %s AND name = %s" %
+                       (quoteSQL(now, 'bigint'),
+                        quoteSQL(self.target.path, 'varchar'),
                         quoteSQL(name, 'varchar')))
-#        if cursor.rowcount == 0:
-        #self._createCounter(cursor, name)
 
     def getCounter(self, name):
         """Return the Rack associated with a counter. The Rack
