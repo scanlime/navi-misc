@@ -19,8 +19,8 @@ Object for dealing with the character sheets loaded into the MainWindow.
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-from Palantir.Sheet import Sheet
-from Palantir.Character import Character
+from Common.Sheet import Sheet
+from Common.Character import Character
 import SheetElements, gtk, gtk.glade
 
 class CharacterSheet:
