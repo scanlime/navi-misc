@@ -269,7 +269,7 @@ clicked_word (GtkWidget *xtext, char *word, GdkEventButton *event, gpointer data
 				 * elsewhere in gnome */
 				GError *err = NULL;
 
-				if (strncmp (word, "http", 4)) {
+				if (strstr (word, "://") == NULL) {
 					gchar *newword = g_strdup_printf ("http://%s", word);
 					gnome_url_show (newword, &err);
 					g_free (newword);
