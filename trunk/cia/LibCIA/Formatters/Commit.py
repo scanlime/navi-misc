@@ -285,6 +285,10 @@ class CommitToXHTML(CommitFormatter):
     """Converts commit messages to XHTML, represented as a Nouvelle tag tree."""
     medium = 'xhtml'
 
+    def __init__(self):
+        from LibCIA.Web import RegexTransform
+        self.hyperlinker = RegexTransform.AutoHyperlink()
+
     def joinMessage(self, metadata, log):
         """Join the metadata and log message into a CSS-happy box"""
         return [
@@ -356,7 +360,8 @@ class CommitToXHTML(CommitFormatter):
                     content.append(line)
         else:
             content.append(tag('i')["No log message"])
-        return content
+
+        return self.hyperlinker.apply(content)
 
     def format_author(self, author):
         return [

@@ -5,6 +5,9 @@
 
 import doctest
 
+import LibCIA.Web.RegexTransform
+doctest.testmod(LibCIA.Web.RegexTransform)
+
 import LibCIA.IRC.Formatting
 doctest.testmod(LibCIA.IRC.Formatting)
 
