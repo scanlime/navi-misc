@@ -517,6 +517,14 @@ class MetadataPage(Template.Page):
         tabs.append(StatsLink(self.statsPage.target, Template.headingTab))
         return tabs
 
+    leftColumn = [
+        Template.StaticSection('information', [
+        "This page lists all the metadata associated with a particular stats target.",
+        "A stats target is anything that can keeps track of a particular category of "
+        "messages and/or holds other stats targets. Metadata for these stats targets "
+        "control how they are displayed in the stats browser.",
+        ])]
+
 
 class StatsPage(Template.Page):
     """A web page providing an interface to one StatsTarget.
