@@ -108,7 +108,8 @@ namespace Fyre
 			pipeline_drawing.SetScrollAdjustments (drawing_hscroll.Adjustment, drawing_vscroll.Adjustment);
 
 			// Set up drag-and-drop for the frame. This looks better than setting it
-			// up for the drawing area, but it doesn't really affect structure
+			// up for the drawing area, but it doesn't really affect structure, since
+			// we just delegate the event back to the proper objects
 			Gtk.Drag.DestSet (pipeline_window, Gtk.DestDefaults.All, DragTargets, Gdk.DragAction.Copy);
 		}
 
