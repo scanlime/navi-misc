@@ -254,8 +254,12 @@ void navigation_tree_set_hilight(struct session *sess) {
 	GtkTreeModel *store, *model;
 	GtkWidget *treeview;
 
-	if(sess == gui.current_session)
+	if(sess == gui.current_session) {
+		sess->nick_said = FALSE;
+		sess->msg_said = FALSE;
+		sess->new_data = FALSE;
 		return;
+	}
 
 	treeview = glade_xml_get_widget(gui.xml, "server channel list");
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(treeview));
