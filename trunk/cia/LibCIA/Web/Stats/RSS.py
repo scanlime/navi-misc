@@ -61,7 +61,7 @@ class RSSFeed(Nouvelle.Twisted.Page):
     def _render_photo(self, hasPhoto, context, result):
         if hasPhoto:
             result.callback(tag('image')[
-                tag('url')[ MetadataLink(self.target, 'photo').getURL(context) ],
+                tag('url')[ Link.MetadataLink(self.target, 'photo').getURL(context) ],
                 tag('title')[ place('title') ],
                 tag('link')[ place('link') ],
                 ])

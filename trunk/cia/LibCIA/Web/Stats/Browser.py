@@ -26,7 +26,7 @@ to metadata or RSS pages.
 from twisted.internet import defer
 from LibCIA.Web import Template
 from LibCIA import Stats, Message, TimeUtil
-from Nouvelle import tag
+from Nouvelle import tag, place
 import Nouvelle, time
 import Metadata, Link, Catalog, RSS
 
@@ -91,7 +91,7 @@ class Page(Template.Page):
         return self.target.getTitle()
 
     def render_subTitle(self, context):
-        return self.target.metadata.get('subtitle', 'Real-time open source activity stats')
+        return self.target.metadata.getValue('subtitle', 'Real-time open source activity stats')
 
     def render_mainColumn(self, context):
         return [
@@ -128,79 +128,104 @@ class Clock(Template.Section):
 class Counters(Template.Section):
     """A Section displaying the counters from a StatsTarget"""
     title = "event counters"
-    rows = []
 
-#     rows = [
-#                [
-#                    'The last message was received ',
-#                    Template.value[ place('relativeDate', 'forever', 'lastEventTime') ],
-#                    ' ago at ',
-#                    Template.value[ place('date', 'forever', 'lastEventTime') ],
-#                ],
-#                [
-#                    Template.value[ place('value', 'today', 'eventCount') ],
-#                    ' messages so far today, ',
-#                    Template.value[ place('value', 'yesterday', 'eventCount') ],
-#                    ' messages yesterday',
-#                ],
-#                [
-#                    Template.value[ place('value', 'thisWeek', 'eventCount') ],
-#                    ' messages so far this week, ',
-#                    Template.value[ place('value', 'lastWeek', 'eventCount') ],
-#                    ' messages last week',
-#                ],
-#                [
-#                    Template.value[ place('value', 'thisMonth', 'eventCount') ],
-#                    ' messages so far this month, ',
-#                    Template.value[ place('value', 'lastMonth', 'eventCount') ],
-#                    ' messages last month',
-#                ],
-#                [
-#                    Template.value[ place('value', 'forever', 'eventCount') ],
-#                    ' messages since the first one, ',
-#                    Template.value[ place('relativeDate', 'forever', 'firstEventTime') ],
-#                    ' ago',
-#                    place('averagePeriod', 'forever'),
-#                ],
-#         ]
+    rows = [
+               [
+                   'The last message was received ',
+                   Template.value[ place('value', 'forever', 'lastEventTime', 'relativeDate') ],
+                   ' ago at ',
+                   Template.value[ place('value', 'forever', 'lastEventTime', 'date') ],
+               ],
+               [
+                   Template.value[ place('value', 'today', 'eventCount') ],
+                   ' messages so far today, ',
+                   Template.value[ place('value', 'yesterday', 'eventCount') ],
+                   ' messages yesterday',
+               ],
+               [
+                   Template.value[ place('value', 'thisWeek', 'eventCount') ],
+                   ' messages so far this week, ',
+                   Template.value[ place('value', 'lastWeek', 'eventCount') ],
+                   ' messages last week',
+               ],
+               [
+                   Template.value[ place('value', 'thisMonth', 'eventCount') ],
+                   ' messages so far this month, ',
+                   Template.value[ place('value', 'lastMonth', 'eventCount') ],
+                   ' messages last month',
+               ],
+               [
+                   Template.value[ place('value', 'forever', 'eventCount') ],
+                   ' messages since the first one, ',
+                   Template.value[ place('value', 'forever', 'firstEventTime', 'relativeDate') ],
+                   ' ago',
+                   place('averagePeriod', 'forever'),
+               ],
+        ]
 
     def __init__(self, target):
         self.counters = target.counters
 
-    def isVisible(self, context):
-        """Hide the counters if this target has never received an event"""
-        return self.counters.getCounter('forever').get('eventCount', 0) != 0
+    def render_rows(self, context):
+        """If this target has received at least one event, render the rows normally..
+           otherwise, hide this section completely.
+           """
+        result = defer.Deferred()
+        self.counters.getCounter('forever').addCallback(
+            self._render_rows, result).addErrback(result.errback)
+        return result
 
-    def render_value(self, context, counterName, valueName):
-        return self.counters.getCounter(counterName).get(valueName, 0)
+    def _render_rows(self, foreverCounter, result):
+        if foreverCounter and foreverCounter['eventCount'] > 0:
+            result.callback(self.rows)
+        else:
+            result.callback([])
 
-    def render_date(self, context, counterName, valueName):
-        value = self.counters.getCounter(counterName).get(valueName)
-        if value is not None:
-            return TimeUtil.formatDate(value)
+    def render_value(self, context, counterName, valueName, filter=None):
+        """Fetch a counter value, rendering its value optionally via
+           a filter function. 'filter' is a string which will be used to
+           look up a filter_* method from this class.
+           """
+        result = defer.Deferred()
+        self.counters.getCounter(counterName).addCallback(
+            self._render_value, valueName, filter, result).addErrback(result.errback)
+        return result
 
-    def render_duration(self, context, counterName, valueName):
-        value = self.counters.getCounter(counterName).get(valueName)
-        if value is not None:
-            return TimeUtil.formatDuration(value)
+    def _render_value(self, counter, valueName, filter, result):
+        if counter:
+            value = counter.get(valueName, 0)
+        else:
+            value = 0
+        if filter:
+            value = getattr(self, 'filter_'+filter)(value)
+        result.callback(value)
 
-    def render_relativeDate(self, context, counterName, valueName):
-        value = self.counters.getCounter(counterName).get(valueName, 0)
-        if value is not None:
-            return TimeUtil.formatDuration(time.time() - value)
+    def filter_date(self, value):
+        return TimeUtil.formatDate(value)
+
+    def filter_relativeDate(self, value):
+        return TimeUtil.formatDuration(time.time() - value)
 
     def render_averagePeriod(self, context, counterName):
-        counter = self.counters.getCounter(counterName)
+        result = defer.Deferred()
+        self.counters.getCounter(counterName).addCallback(
+            self._render_averagePeriod, result).addErrback(result.errback)
+        return result
+
+    def _render_averagePeriod(self, counter, result):
+        if not counter:
+            result.callback('')
+            return
         events = counter.get('eventCount', 0)
         first = counter.get('firstEventTime')
-        last = counter.get('lastEventTime')
-        if events < 2 or (not first) or (not last) or first == last:
-            return ''
-        return [
+        if events < 2 or not first:
+            result.callback('')
+            return
+        result.callback([
             ', for an average of ',
-            Template.value[ TimeUtil.formatDuration( (last - first) / events ) ],
+            Template.value[ TimeUtil.formatDuration( (time.time() - first) / events ) ],
             ' between messages',
-            ]
+            ])
 
 
 class MessageDateColumn(Nouvelle.Column):
