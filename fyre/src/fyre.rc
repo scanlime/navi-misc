@@ -3,4 +3,4 @@
 // this is just here to give our app a pretty icon
 
 101     ICON    DISCARDABLE     "fyre.ico"
-
+102     ICON    DISCARDABLE     "x-fyre-animation.ico"
