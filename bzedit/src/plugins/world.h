@@ -49,6 +49,7 @@ struct _World
 
   WorldParams param;
   gboolean state_dirty;
+  Drawable *ground;
   GList *drawables;
 };
 
@@ -74,7 +75,7 @@ struct _GroundDrawable
   DisplayList parent;
 
   guint base_texture_repeat, overlay_texture_repeat;
-  guint size;
+  guint size[2];
 };
 
 struct _GroundDrawableClass

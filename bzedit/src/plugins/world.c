@@ -96,9 +96,9 @@ static void
 world_init (World *world)
 {
   world->drawables = NULL;
-  Drawable *ground = ground_drawable_new ();
+  world->ground = ground_drawable_new ();
 
-  g_list_append (world->drawables, (gpointer) ground);
+  world->drawables = g_list_append (world->drawables, (gpointer) world->ground);
 }
 
 static void
@@ -120,10 +120,14 @@ world_set_property (GObject *object, guint prop_id, const GValue *value, GParamS
   {
     case PROP_X:
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.size[0], 0.9);
+      GROUND_DRAWABLE (self->ground)->size[0] = self->param.size[0];
+      DISPLAY_LIST (self->ground)->dirty = TRUE;
       break;
 
     case PROP_Y:
-      update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.size[0], 0.9);
+      update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.size[1], 0.9);
+      GROUND_DRAWABLE (self->ground)->size[1] = self->param.size[1];
+      DISPLAY_LIST (self->ground)->dirty = TRUE;
       break;
 
     case PROP_GRAVITY:
@@ -228,6 +232,8 @@ world_creatable (void)
 static GList*
 world_get_drawables (SceneObject *self)
 {
+  World *world = WORLD (self);
+  return world->drawables;
 }
 
 GType
@@ -269,6 +275,8 @@ ground_drawable_init (GroundDrawable *gd)
 {
   Drawable *d = DRAWABLE (gd);
 
+  d->texture = g_strdup ("data/textures/ground.png");
+  d->render.statico = FALSE;
   gd->base_texture_repeat = 90;
   gd->overlay_texture_repeat = 1;
 }
@@ -277,6 +285,8 @@ static void
 ground_drawable_draw_to_list (DisplayList *dl)
 {
   GroundDrawable *gd = GROUND_DRAWABLE (dl);
+
+  g_print ("ground_drawable_draw_to_list ()\n");
 
   glPushMatrix ();
 
@@ -289,16 +299,16 @@ ground_drawable_draw_to_list (DisplayList *dl)
   glNormal3f (0, 0, 1);
 
   glTexCoord2f (gd->base_texture_repeat, gd->base_texture_repeat);
-  glVertex3f (gd->size, gd->size, 0);
+  glVertex3f (gd->size[0], gd->size[1], 0);
 
   glTexCoord2f (0, gd->base_texture_repeat);
-  glVertex3f (-gd->size, gd->size, 0);
+  glVertex3f (-gd->size[0], gd->size[1], 0);
 
   glTexCoord2f (0, 0);
-  glVertex3f (-gd->size, -gd->size, 0);
+  glVertex3f (-gd->size[0], -gd->size[1], 0);
 
   glTexCoord2f (gd->base_texture_repeat, 0);
-  glVertex3f (gd->size, -gd->size, 0);
+  glVertex3f (gd->size[0], -gd->size[1], 0);
 
   glEnd();
   glEnable (GL_CULL_FACE);

@@ -95,10 +95,10 @@ editor_init (Editor *editor)
 
   config = gdk_gl_config_new_by_mode (GDK_GL_MODE_RGBA  |
                                       GDK_GL_MODE_DEPTH |
-				      GDK_GL_MODE_DOUBLE);
+                                      GDK_GL_MODE_DOUBLE);
 
   editor->glarea = gl_drawing_area_new(config);
-  g_signal_connect_after(G_OBJECT(editor->glarea), "realize", G_CALLBACK(on_glarea_realize), NULL);
+  g_signal_connect_after(G_OBJECT(editor->glarea), "realize", G_CALLBACK(on_glarea_realize), (gpointer) editor);
   editor->eventbox = glade_xml_get_widget (editor->xml, "event box");
   gtk_container_add (GTK_CONTAINER (editor->eventbox), editor->glarea);
 
@@ -118,6 +118,9 @@ editor_init (Editor *editor)
   editor->statusbar = GTK_STATUSBAR (glade_xml_get_widget (editor->xml, "statusbar"));
   editor->editor_status_context = gtk_statusbar_get_context_id (editor->statusbar, "Editor status");
 
+  editor->scene = scene_new ();
+  editor->view = view_new (editor->scene);
+
   types = find_type_leaves (PARAMETER_HOLDER_TYPE);
   addmenu = GTK_MENU_ITEM (glade_xml_get_widget (editor->xml, "addmenu"));
   am = GTK_MENU (gtk_menu_new ());
@@ -136,10 +139,10 @@ editor_init (Editor *editor)
         GtkMenuItem *item = GTK_MENU_ITEM (gtk_image_menu_item_new_with_label (g_type_name (type)));
         GtkWidget *image1 = gtk_image_new_from_pixbuf (((SceneObjectClass*) klass)->get_icon ());
         GtkWidget *image2 = gtk_image_new_from_pixbuf (((SceneObjectClass*) klass)->get_icon ());
-	GtkToolItem *titem = GTK_TOOL_ITEM (gtk_tool_button_new (image2, g_type_name (type)));
+        GtkToolItem *titem = GTK_TOOL_ITEM (gtk_tool_button_new (image2, g_type_name (type)));
         gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), image1);
         gtk_menu_shell_append (GTK_MENU_SHELL (am), GTK_WIDGET (item));
-	gtk_toolbar_insert (tbar, titem, -1);
+        gtk_toolbar_insert (tbar, titem, -1);
       }
       v = gtk_hseparator_new();
       gtk_box_pack_start (box, v, FALSE, TRUE, 0);
@@ -147,7 +150,9 @@ editor_init (Editor *editor)
       gtk_box_pack_start (box, l, FALSE, TRUE, 0);
       v = gtk_hseparator_new();
       gtk_box_pack_start (box, v, FALSE, TRUE, 0);
-      p = PARAMETER_HOLDER (g_object_new (type, NULL));
+      SceneObject *object = SCENE_OBJECT (g_object_new (type, NULL));
+      p = PARAMETER_HOLDER (object);
+      scene_add (editor->scene, object);
       e = parameter_editor_new (p);
       gtk_box_pack_start (box, e, FALSE, TRUE, 0);
       g_type_class_unref (klass);
@@ -156,6 +161,11 @@ editor_init (Editor *editor)
   gtk_menu_item_set_submenu (addmenu, GTK_WIDGET (am));
 
   g_list_free (types);
+
+  editor->view->camera->azimuth = 45;
+  editor->view->camera->elevation = 75;
+  editor->view->camera->distance = 750;
+  editor->view->camera->position[2] = 4;
 }
 
 static void
@@ -176,24 +186,30 @@ editor_new (void)
 static void
 on_glarea_configure (GtkWidget *widget, GdkEventConfigure *event, gpointer data)
 {
+  Editor *editor = EDITOR (data);
+
   gl_drawing_area_make_current (GL_DRAWING_AREA(widget));
   glClearColor (0.0, 0.0, 0.0, 0.0);
   glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  view_render (editor->view);
   gl_drawing_area_swap_buffers (GL_DRAWING_AREA(widget));
 }
 
 static void
 on_glarea_expose (GtkWidget *widget, GdkEventExpose *event, gpointer data)
 {
+  Editor *editor = EDITOR (data);
+
   gl_drawing_area_make_current (GL_DRAWING_AREA(widget));
   glClearColor (0.0, 0.0, 0.0, 0.0);
   glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  view_render (editor->view);
   gl_drawing_area_swap_buffers (GL_DRAWING_AREA(widget));
 }
 
 static void
 on_glarea_realize (GtkWidget *widget, gpointer data)
 {
-  g_signal_connect(G_OBJECT(widget), "configure-event", G_CALLBACK(on_glarea_configure), NULL);
-  g_signal_connect(G_OBJECT(widget), "expose-event", G_CALLBACK(on_glarea_expose), NULL);
+  g_signal_connect(G_OBJECT(widget), "configure-event", G_CALLBACK(on_glarea_configure), data);
+  g_signal_connect(G_OBJECT(widget), "expose-event", G_CALLBACK(on_glarea_expose), data);
 }

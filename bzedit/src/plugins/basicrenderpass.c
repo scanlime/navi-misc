@@ -91,10 +91,11 @@ texture_group_draw (Drawable *d, RenderState *rstate)
 {
   DisplayList *dl = DISPLAY_LIST (d);
   TextureGroup *tg = TEXTURE_GROUP (d);
+  g_print("texture_group_draw()\n");
   GList *dr;
 
   if (dl->dirty)
-    texture_group_draw_to_list (dl);
+    display_list_build_list (dl);
   glCallList (dl->list);
 
   for (dr = tg->dynamic_drawables; dr; dr = dr->next)
@@ -127,8 +128,11 @@ texture_group_draw_to_list (DisplayList *dl)
   GList *d;
   TextureGroup *tg = TEXTURE_GROUP (dl);
 
+  g_print ("texture_group_draw_to_list()\n");
+
   for (d = tg->static_drawables; d; d = d->next)
   {
+    g_print ("iterating static drawables, drawable = '%s'\n", g_type_name (G_TYPE_FROM_INSTANCE (d->data)));
     display_list_build_list (DISPLAY_LIST (d->data));
   }
 }
@@ -136,10 +140,14 @@ texture_group_draw_to_list (DisplayList *dl)
 static void
 texture_group_add (TextureGroup *tg, Drawable *drawable)
 {
+  DisplayList *dl = DISPLAY_LIST (tg);
+
   if (drawable->render.statico)
-    g_list_append (tg->static_drawables, (gpointer) g_object_ref (drawable));
+    tg->static_drawables = g_list_append (tg->static_drawables, (gpointer) g_object_ref (drawable));
   else
-    g_list_append (tg->dynamic_drawables, (gpointer) g_object_ref (drawable));
+    tg->dynamic_drawables = g_list_append (tg->dynamic_drawables, (gpointer) g_object_ref (drawable));
+
+  dl->dirty = TRUE;
 }
 
 TextureGroup*
@@ -203,6 +211,8 @@ brp_render_iterate (gchar *texture, TextureGroup *group, RenderState *rstate)
   static TextureManager *tman = NULL;
   if (!tman)
     tman = texture_manager_new ();
+
+  g_print ("iterating over texture groups, texture = '%s'\n", texture);
 
   texture_manager_bind (tman, texture);
   texture_group_draw (DRAWABLE (group), rstate);
@@ -279,5 +289,5 @@ static gboolean
 basic_render_pass_is_empty (RenderPass *pass)
 {
   BasicRenderPass *brp = BASIC_RENDER_PASS (pass);
-  return g_hash_table_size (brp->texture_groups);
+  return (g_hash_table_size (brp->texture_groups) == 0);
 }
