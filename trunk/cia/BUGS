@@ -6,6 +6,16 @@
 - The IRC ruleset load/save code is a bit messy, it should be generalized and
   moved to the XML module
 
+- Remove the notion of "IRC rulesets" and just support generic rulesets with
+  URIs attached. URIs will automatically have handlers assigned on ruleset
+  creation and deletion (for adding/removing IRC bots) and on message delivery.
+  This will give us another big decrease in the amount of IRC-specific code
+  and allow the same ruleset editing tools to work with other message destinations.
+  There isn't a real standard for an irc:// URI, but "irc://server/channel" seems
+  to be commonplace. Avoiding any attempt to transform the URI until an actual
+  connection needs to be made will also prevent any need to do so in the ruleset
+  editor.
+
 - The gtk ruleset_editor needs refactoring, it's getting messy
 
 - Formatters need to be able to take parameters, so they can be generalized more.
