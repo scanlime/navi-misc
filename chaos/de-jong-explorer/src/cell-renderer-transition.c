@@ -58,6 +58,7 @@ static PangoLayout* cell_renderer_transition_get_text_layout (CellRendererTransi
 static void cell_renderer_transition_render_spline (CellRendererTransition   *self,
 						    GdkWindow                *window,
 						    GtkWidget                *widget,
+						    GtkStateType             state,
 						    GdkRectangle             *area);
 
 enum {
@@ -269,11 +270,13 @@ static void cell_renderer_transition_render(GtkCellRenderer      *cell,
 
   pango_layout_get_pixel_extents(layout, NULL, &text_rect);
 
+  spline_rect = *cell_area;
+
   gtk_paint_layout(widget->style, window, state, TRUE, cell_area, widget,
 		   "cellrenderertransition", cell_area->x + cell->xpad,
 		   cell_area->y + cell->ypad, layout);
 
-  cell_renderer_transition_render_spline(self, window, widget, &spline_rect);
+  cell_renderer_transition_render_spline(self, window, widget, state, &spline_rect);
 
   g_object_unref(layout);
 }
@@ -303,9 +306,28 @@ static PangoLayout* cell_renderer_transition_get_text_layout (CellRendererTransi
 static void cell_renderer_transition_render_spline (CellRendererTransition  *self,
 						    GdkWindow               *window,
 						    GtkWidget               *widget,
+						    GtkStateType             state,
 						    GdkRectangle            *area) {
+    GtkStyle *style = GTK_WIDGET(widget)->style;
+    gfloat *interpolated;
+    GdkPoint *points;
+    int i;
 
-  
+    /* Get enough points to have one per column of pixels */
+    interpolated = g_malloc(sizeof(gfloat) * area->width);
+    spline_solve_and_eval_all(self->spline, area->width, interpolated);
+
+    /* Map those into our area rectangle */
+    points = g_malloc(sizeof(GdkPoint) * area->width);
+    for (i=0; i<area->width; i++) {
+      points[i].x = area->x + area->width * i / area->width;
+      points[i].y = area->y + area->height * (1 - interpolated[i]);
+    }
+
+    gdk_draw_lines(window, style->fg_gc[state], points, area->width);
+
+    g_free(interpolated);
+    g_free(points);
 }
 
 

@@ -355,7 +355,6 @@ curve_editor_graph_events (GtkWidget *widget, GdkEvent *event, CurveEditor *c)
       new_type = GDK_FLEUR;
       c->grab_point = -1;
       retval = TRUE;
-      g_signal_emit(G_OBJECT(c), curve_editor_signals[CHANGED_SIGNAL], 0);
       break;
 
     case GDK_MOTION_NOTIFY:
@@ -397,6 +396,7 @@ curve_editor_graph_events (GtkWidget *widget, GdkEvent *event, CurveEditor *c)
 	    }
 	  curve_editor_interpolate (c, width, height);
 	  curve_editor_draw (c, width, height);
+	  g_signal_emit(G_OBJECT(c), curve_editor_signals[CHANGED_SIGNAL], 0);
 	}
 
       if (new_type != (GdkCursorType) c->cursor_type)
