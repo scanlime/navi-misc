@@ -580,8 +580,8 @@ class StatsPage(Template.Page):
     def render_mainColumn(self, context):
         return [
             Counters(self.target),
-            RecentMessages(self.target),
             Catalog(self.target),
+            RecentMessages(self.target),
             ]
 
     def render_leftColumn(self, context):
