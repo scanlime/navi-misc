@@ -94,6 +94,8 @@ url_add_clicked (GtkButton *button, PublishUIData *ui)
 				    URL_LIST_ENABLED_COLUMN, uri->enabled,
 				    URL_LIST_LOCATION_COLUMN, uri->location,
 				    URL_LIST_URL_COLUMN, uri, -1);
+	} else {
+		g_free (uri);
 	}
 	gtk_widget_destroy (url_editor);
 }
@@ -113,6 +115,11 @@ url_edit_clicked (GtkButton *button, PublishUIData *ui)
 		gtk_tree_model_get (GTK_TREE_MODEL (model), &iter, 2, &uri, -1);
 		url_editor = url_editor_dialog_new2 (model, uri);
 		url_editor_dialog_run2 ((UrlEditorDialog2 *) url_editor);
+
+		gtk_list_store_set (GTK_LIST_STORE (model), &iter,
+				    URL_LIST_ENABLED_COLUMN, uri->enabled,
+				    URL_LIST_LOCATION_COLUMN, uri->location,
+				    URL_LIST_URL_COLUMN, uri, -1);
 	}
 }
 
