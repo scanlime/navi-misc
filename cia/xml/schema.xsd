@@ -2,6 +2,7 @@
 <xsd:schema
  xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 
+<!-- ====== data types for a CIA message -->
 <xsd:complexType name="fileList">
   <xsd:choice maxOccurs="unbounded">
     <xsd:element name="file" type="xsd:string"/>
@@ -34,10 +35,11 @@
   <xsd:choice maxOccurs="unbounded">
     <xsd:element name="name" type="xsd:string"/>
     <xsd:element name="version" type="xsd:decimal"/>
-    <xsd:element name="url" type="xsd:string"/>
+    <xsd:element name="url" type="xsd:anyURI"/>
   </xsd:choice>
 </xsd:complexType>
 
+<!-- ====== top-level CIA message -->
 <xsd:element name="message">
   <xsd:complexType>
     <xsd:choice maxOccurs="unbounded" minOccurs="0">
@@ -48,5 +50,46 @@
     </xsd:choice>
   </xsd:complexType>
 </xsd:element>
+
+<!-- ====== data types for a CIA filter -->
+<xsd:complexType name="filter-element" mixed="true">
+  <xsd:attribute name="path" type="xsd:string"/>
+</xsd:complexType>
+
+<xsd:complexType name="empty"/>
+
+<xsd:complexType name="filter-container">
+  <xsd:choice>
+    <xsd:element name="and" type="filter-aggregation"/>
+    <xsd:element name="or" type="filter-aggregation"/>
+    <xsd:element name="match" type="filter-element"/>
+    <xsd:element name="find" type="filter-element"/>
+    <xsd:element name="not" type="filter-container"/>
+    <xsd:element name="true" type="empty"/>
+    <xsd:element name="false" type="empty"/>
+  </xsd:choice>
+</xsd:complexType>
+</xsd:complexType>
+
+<xsd:complexType name="filter-aggregation">
+  <xsd:choice maxOccurs="unbounded">
+    <xsd:element name="and" type="filter-aggregation"/>
+    <xsd:element name="or" type="filter-aggregation"/>
+    <xsd:element name="match" type="filter-element"/>
+    <xsd:element name="find" type="filter-element"/>
+    <xsd:element name="not" type="filter-container"/>
+    <xsd:element name="true" type="empty"/>
+    <xsd:element name="false" type="empty"/>
+  </xsd:choice>
+</xsd:complexType>
+
+<!-- ====== top-level filters -->
+<xsd:element name="and" type="filter-aggregation"/>
+<xsd:element name="or" type="filter-aggregation"/>
+<xsd:element name="match" type="filter-element"/>
+<xsd:element name="find" type="filter-element"/>
+<xsd:element name="not" type="filter-container"/>
+<xsd:element name="true" type="empty"/>
+<xsd:element name="false" type="empty"/>
 
 </xsd:schema>
