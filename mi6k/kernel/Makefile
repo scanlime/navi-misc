@@ -1,13 +1,10 @@
-#WARN    := -W -Wall -Wstrict-prototypes -Wmissing-prototypes
 WARN	:=
-INCLUDE := -isystem /lib/modules/`uname -r`/build/include
-CFLAGS  := -O2 -DMODULE -D__KERNEL__ ${WARN} ${INCLUDE}
+INCLUDE := -isystem /lib/modules/`uname -r`/build/include -I../include
+CFLAGS  := -O2 -DMODULE -D__KERNEL__ ${WARN} ${INCLUDE} -DDEBUG
 CC      := gcc
 OBJS    := ${patsubst %.c, %.o, ${wildcard *.c}}
 
 all: ${OBJS}
-
-.PHONY: clean
 
 clean:
 	rm -rf *.o
