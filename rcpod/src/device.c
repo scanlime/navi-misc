@@ -137,6 +137,7 @@ rcpod_dev* rcpod_Open(struct usb_device *usbdev) {
     rcpod_HandleError("rcpod_GetDevices", ENOMEM, strerror(ENOMEM));
     return NULL;
   }
+  memset(rcpod, 0, sizeof(rcpod_dev));
 
   rcpod->usbdevh = usb_open(usbdev);
   if (!rcpod->usbdevh) {
@@ -179,6 +180,9 @@ void rcpod_Reset(rcpod_dev *rcpod) {
 
   /* Cancel a serial receive if one is happening */
   rcpod_UsartTxRx(rcpod, 0, 0, 0);
+
+  /* We don't know what the device's current I2C bus is */
+  rcpod->last_i2c_dev_valid = 0;
 
   rcpod_Poke(rcpod, RCPOD_REG_PORTA, 0);
   rcpod_Poke(rcpod, RCPOD_REG_PORTB, 0);

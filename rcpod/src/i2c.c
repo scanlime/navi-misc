@@ -44,15 +44,17 @@ static int           softi2c_write_read (rcpod_dev *rcpod, rcpod_i2c_dev *idev,
 					 const unsigned char* write_buffer, int write_count,
 					 unsigned char* read_buffer, int read_count);
 
-static int           i2c_write_read     (rcpod_dev *rcpod, rcpod_i2c_dev *idev,
+static int           i2c_set_dev        (rcpod_dev *rcpod, rcpod_i2c_dev *idev);
+
+static int           i2c_write_read     (rcpod_dev *rcpod,
 					 const unsigned char* write_buffer, int write_count,
 					 unsigned char* read_buffer, int read_count);
-static int           i2c_write1_read8   (rcpod_dev *rcpod, rcpod_i2c_dev *idev,
+static int           i2c_write1_read8   (rcpod_dev *rcpod,
 					 unsigned char write_byte,
 					 unsigned char* read_buffer, int read_count);
-static int           i2c_read8          (rcpod_dev *rcpod, rcpod_i2c_dev *idev,
+static int           i2c_read8          (rcpod_dev *rcpod,
 					 unsigned char* read_buffer, int read_count);
-static int           i2c_write4         (rcpod_dev *rcpod, rcpod_i2c_dev *idev,
+static int           i2c_write4         (rcpod_dev *rcpod,
 					 const unsigned char* write_buffer, int write_count);
 
 
@@ -211,22 +213,134 @@ static int softi2c_write_read(rcpod_dev *rcpod, rcpod_i2c_dev *idev,
 /************************************************** Low-level I2C commands ***********/
 /*************************************************************************************/
 
-static int i2c_write_read(rcpod_dev *rcpod, rcpod_i2c_dev *idev,
+static int i2c_set_dev(rcpod_dev *rcpod, rcpod_i2c_dev *idev) {
+  /* Set the current I2C device, returns nonzero on error */
+  int retval;
+
+  /* Nothing to change? */
+  if (rcpod->last_i2c_dev_valid &&
+      memcmp(&rcpod->last_i2c_dev, idev, sizeof(rcpod_i2c_dev))==0)
+    return;
+
+  retval = usb_control_msg(rcpod->usbdevh, USB_TYPE_VENDOR | USB_ENDPOINT_OUT,
+			   RCPOD_CTRL_I2C_SET,
+			   (idev->speed << 8) | idev->address,
+			   (idev->clock << 8) | idev->data,
+			   NULL, 0, RCPOD_TIMEOUT);
+  if (retval < 0) {
+    rcpod_HandleError("i2c_set_dev", errno, strerror(errno));
+  }
+  else {
+    memcpy(&rcpod->last_i2c_dev, idev, sizeof(rcpod_i2c_dev));
+    rcpod->last_i2c_dev_valid = 1;
+  }
+
+  return retval;
+}
+
+static int i2c_write_read(rcpod_dev *rcpod,
 			  const unsigned char* write_buffer, int write_count,
 			  unsigned char* read_buffer, int read_count) {
+  unsigned char ack_count;
+  int retval;
+
+  /* Check buffer sizes before we do anything */
+  if (write_count > RCPOD_SCRATCHPAD_SIZE) {
+    rcpod_HandleError("i2c_write_read", EINVAL, "Size of I2C write exceeds scratchpad buffer size");
+    return 0;
+  }
+  if (read_count > RCPOD_SCRATCHPAD_SIZE) {
+    rcpod_HandleError("i2c_write_read", EINVAL, "Size of I2C read exceeds scratchpad buffer size");
+    return 0;
+  }
+
+  /* Write the transmit buffer to the scratchpad */
+  if (write_count > 0)
+    rcpod_PokeBuffer(rcpod, RCPOD_REG_SCRATCHPAD, write_buffer, write_count);
+
+  retval = usb_control_msg(rcpod->usbdevh, USB_TYPE_VENDOR | USB_ENDPOINT_IN,
+			   RCPOD_CTRL_I2C_TXRX,
+			   (read_count << 8) | write_count,
+			   RCPOD_REG_SCRATCHPAD,
+			   &ack_count, 1, RCPOD_TIMEOUT);
+  if (retval < 0) {
+    rcpod_HandleError("i2c_write_read", errno, strerror(errno));
+    return 0;
+  }
+
+  /* Read the scratchpad back into the receive buffer */
+  if (read_count > 0)
+    rcpod_PeekBuffer(rcpod, RCPOD_REG_SCRATCHPAD, read_buffer, read_count);
+
+  return ack_count;
 }
 
-static int i2c_write1_read8(rcpod_dev *rcpod, rcpod_i2c_dev *idev,
+static int i2c_write1_read8(rcpod_dev *rcpod,
 			    unsigned char write_byte,
 			    unsigned char* read_buffer, int read_count) {
+  int retval;
+
+  retval = usb_control_msg(rcpod->usbdevh, USB_TYPE_VENDOR | USB_ENDPOINT_IN,
+			   RCPOD_CTRL_I2C_W1READ8,
+			   write_byte, read_count,
+			   read_buffer, read_count, RCPOD_TIMEOUT);
+  if (retval < 0) {
+    rcpod_HandleError("i2c_write1_read8", errno, strerror(errno));
+    return 0;
+  }
+  else if (retval == 0) {
+    return 0;
+  }
+
+  /* One ACK for each address byte and one for the one write byte */
+  return 3;
 }
 
-static int i2c_read8(rcpod_dev *rcpod, rcpod_i2c_dev *idev,
+static int i2c_read8(rcpod_dev *rcpod,
 		     unsigned char* read_buffer, int read_count) {
+  int retval;
+
+  retval = usb_control_msg(rcpod->usbdevh, USB_TYPE_VENDOR | USB_ENDPOINT_IN,
+			   RCPOD_CTRL_I2C_READ8,
+			   read_count, 0,
+			   read_buffer, read_count, RCPOD_TIMEOUT);
+  if (retval < 0) {
+    rcpod_HandleError("i2c_read8", errno, strerror(errno));
+    return 0;
+  }
+  else if (retval == 0) {
+    return 0;
+  }
+
+  /* One ACK for the read's address byte */
+  return 1;
 }
 
-static int i2c_write4(rcpod_dev *rcpod, rcpod_i2c_dev *idev,
+static int i2c_write4(rcpod_dev *rcpod,
 		      const unsigned char* write_buffer, int write_count) {
+  int retval, cmd;
+  unsigned char ack_count;
+
+  if (write_count < 0) write_count = 0;
+  if (write_count > 4) write_count = 4;
+
+  switch (write_count) {
+  case 0:  cmd = RCPOD_CTRL_I2C_WRITE0;  break;
+  case 1:  cmd = RCPOD_CTRL_I2C_WRITE1;  break;
+  case 2:  cmd = RCPOD_CTRL_I2C_WRITE2;  break;
+  case 3:  cmd = RCPOD_CTRL_I2C_WRITE3;  break;
+  case 4:  cmd = RCPOD_CTRL_I2C_WRITE4;  break;
+  }
+
+  retval = usb_control_msg(rcpod->usbdevh, USB_TYPE_VENDOR | USB_ENDPOINT_IN, cmd,
+			   write_buffer[0] | (((int)write_buffer[1])<<8),
+			   write_buffer[2] | (((int)write_buffer[3])<<8),
+			   &ack_count, 1, RCPOD_TIMEOUT);
+  if (retval < 0) {
+    rcpod_HandleError("i2c_write4", errno, strerror(errno));
+    return 0;
+  }
+  return ack_count;
 }
 
 
@@ -245,10 +359,13 @@ int rcpod_I2CWriteRead(rcpod_dev* rcpod, rcpod_i2c_dev* idev,
   if (!rcpod_HasAcceleratedI2C(rcpod))
     return softi2c_write_read(rcpod, idev, write_buffer, write_count, read_buffer, read_count);
 
-  if (write_count == 1 && read_count <= 8)
-    return i2c_write1_read8(rcpod, idev, write_buffer[0], read_buffer, read_count);
+  if (i2c_set_dev(rcpod, idev))
+    return 0;
 
-  return i2c_write_read(rcpod, idev, write_buffer, write_count, read_buffer, read_count);
+  if (write_count == 1 && read_count <= 8)
+    return i2c_write1_read8(rcpod, write_buffer[0], read_buffer, read_count);
+
+  return i2c_write_read(rcpod, write_buffer, write_count, read_buffer, read_count);
 }
 
 int rcpod_I2CWrite(rcpod_dev* rcpod, rcpod_i2c_dev* idev,
@@ -256,10 +373,13 @@ int rcpod_I2CWrite(rcpod_dev* rcpod, rcpod_i2c_dev* idev,
   if (!rcpod_HasAcceleratedI2C(rcpod))
     return softi2c_write(rcpod, idev, write_buffer, write_count);
 
-  if (write_count <= 4)
-    return i2c_write4(rcpod, idev, write_buffer, write_count);
+  if (i2c_set_dev(rcpod, idev))
+    return 0;
 
-  return i2c_write_read(rcpod, idev, write_buffer, write_count, NULL, 0);
+  if (write_count <= 4)
+    return i2c_write4(rcpod, write_buffer, write_count);
+
+  return i2c_write_read(rcpod, write_buffer, write_count, NULL, 0);
 }
 
 int rcpod_I2CRead(rcpod_dev* rcpod, rcpod_i2c_dev* idev,
@@ -267,10 +387,13 @@ int rcpod_I2CRead(rcpod_dev* rcpod, rcpod_i2c_dev* idev,
   if (!rcpod_HasAcceleratedI2C(rcpod))
     return softi2c_read(rcpod, idev, read_buffer, read_count);
 
-  if (read_count <= 8)
-    return i2c_read8(rcpod, idev, read_buffer, read_count);
+  if (i2c_set_dev(rcpod, idev))
+    return 0;
 
-  return i2c_write_read(rcpod, idev, NULL, 0, read_buffer, read_count);
+  if (read_count <= 8)
+    return i2c_read8(rcpod, read_buffer, read_count);
+
+  return i2c_write_read(rcpod, NULL, 0, read_buffer, read_count);
 }
 
 /* The End */

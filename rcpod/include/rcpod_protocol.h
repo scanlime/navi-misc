@@ -125,13 +125,15 @@
 
 ;// Write one byte, from wValue, then read wIndex bytes of data, up to 8
 ;// bytes. This is an optimization for the common case where you need
-;// to write a command address then read from that address.
+;// to write a command address then read from that address. Returns a
+;// zero-length packet if the write or the address byte does not acknowledge.
 #define RCPOD_CTRL_I2C_W1READ8  0x37
 
 ;// Optionally do a generic transmit to the current address, then optionally
 ;// do a generic receive. Uses a buffer at the address in wIndex. The low byte
 ;// of wValue holds the number of bytes to transmit, the high byte of wValue
-;// holds the number of bytes to receive.
+;// holds the number of bytes to receive. Returns a 1-byte packet with the
+;// ACK count.
 #define RCPOD_CTRL_I2C_TXRX     0x38
 
 

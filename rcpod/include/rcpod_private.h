@@ -48,6 +48,12 @@ struct tag_rcpod_dev {
     int  unread;      /* Number of received bytes that we haven't yet read */
     int  tail_index;  /* Index into the receive buffer where the oldest received byte is stored */
   } rx;
+
+  /* Store the last rcpod_i2c_dev we used, so we only send this over the
+   * wire when we switch devices, busses, or speeds.
+   */
+  rcpod_i2c_dev last_i2c_dev;
+  int last_i2c_dev_valid;
 };
 
 
@@ -76,7 +82,7 @@ extern rcpod_errorHandler *rcpod_HandleError;
  */
 
 /* Write 4 bytes after the last byte poked */
-void rcpod_Poke4(rcpod_dev* rcpod, unsigned char data[4]);
+void rcpod_Poke4(rcpod_dev* rcpod, const unsigned char data[4]);
 
 /* Read 8 bytes starting at the given 9-bit address in the rcpod's RAM,
  * into the provided buffer

@@ -154,7 +154,7 @@ void rcpod_PeekBuffer(rcpod_dev* rcpod, int address, unsigned char *buffer, int 
  * indicated address. The result is undefined if the writes extend past the PIC's
  * address space.
  */
-void rcpod_PokeBuffer(rcpod_dev* rcpod, int address, unsigned char *buffer, int bytes);
+void rcpod_PokeBuffer(rcpod_dev* rcpod, int address, const unsigned char *buffer, int bytes);
 
 
 /*************************************************************************************/
