@@ -42,10 +42,10 @@ class Page:
        The Book manages instantiating and deleting Pages. A page signals that it's
        job is finished by triggering its onFinish event.
        """
-    def __init__(self, view):
+    def __init__(self, book):
         Event.attach(self, "onFinish")
-        self.viewport = view.viewport
-        self.view = view
+        self.viewport = book.viewport
+        self.view = book.view
         self.time = Animated.Timekeeper()
 
     def finalize(self):
@@ -55,8 +55,8 @@ class Page:
 
 class PageWrapper(Page):
     """A page that acts as a wrapper around another, adding extra functionality"""
-    def __init__(self, view, subpage):
-        Page.__init__(self, view)
+    def __init__(self, book, subpage):
+        Page.__init__(self, book)
         self.subpage = subpage
 
         # Link the subpage's onFinish to our onFinish such that if it quits, we do too
@@ -67,7 +67,7 @@ class PageWrapper(Page):
         self.subpage.finalize()
 
 
-class Book(Page):
+class Book:
     """A collection of Pages. A Book is responsible for controlling the overal flow
        of control in a program built from multiple Pages. The page at the beginning
        of the Book is always the active page. Pages are removed from
@@ -77,16 +77,15 @@ class Book(Page):
        Pages added at the end are activated after all other pages have finished.
 
        Note that since pages are only instantiated when active, pages specified for
-       insertion into the Book are given as a callable with a single 'view' parameter.
+       insertion into the Book are given as a callable with a single 'book' parameter.
        If the class doesn't take any extra parameters, this can simply be a class.
        Otherwise, it is convenient for this to be a lambda expression to instantiate
        the class properly.
-
-       Also note that a book is, itself, a page. This is a convenient way to group
-       pages hierarchially.
        """
     def __init__(self, view, initialPages):
-        Page.__init__(self, view)
+        Event.attach(self, "onFinish")
+        self.view = view
+        self.viewport = view.viewport
         self.pages = initialPages
         self.activeInstance = None
         self.activeClass = None
@@ -127,7 +126,7 @@ class Book(Page):
 
                 # Create the new active page instance
                 self.activeClass = self.pages[0]
-                self.activeInstance = self.activeClass(self.view)
+                self.activeInstance = self.activeClass(self)
 
                 # Set up an observer on the page's onFinish handler that removes it from the book
                 self.activeInstance.onFinish.observe(self.popFront)
@@ -144,8 +143,8 @@ class PageTimerWrapper(PageWrapper):
     """A page wrapper that calls onFinish after the page has been active for a
        fixed amount of time.
        """
-    def __init__(self, view, subpage, duration):
-        PageWrapper.__init__(self, view, subpage)
+    def __init__(self, book, subpage, duration):
+        PageWrapper.__init__(self, book, subpage)
         self.duration = duration
         self.viewport.onSetupFrame.observe(self.setupFrame)
 
@@ -162,13 +161,13 @@ def PageTimer(duration, page):
     """Given a page class or a callable, return a callable for creating that page
        with a PageTimerWrapper around it.
        """
-    return lambda view: PageTimerWrapper(view, page(view), duration)
+    return lambda book: PageTimerWrapper(book, page(book), duration)
 
 
 class FadeInWrapper(PageWrapper):
     """A page wrapper that fades in any page from a given solid color over the given duration."""
-    def __init__(self, view, subpage, duration, color):
-        PageWrapper.__init__(self, view, subpage)
+    def __init__(self, book, subpage, duration, color):
+        PageWrapper.__init__(self, book, subpage)
         self.rate = 1/duration
         self.color = list(color[:3]) + [1]
         self.overlay = self.viewport.region(self.viewport.rect)
@@ -192,15 +191,15 @@ def FadeIn(duration, color, page):
     """Given a page class or a callable, return a callable for creating that page
        with a FadeInWrapper around it.
        """
-    return lambda view: FadeInWrapper(view, page(view), duration, color)
+    return lambda book: FadeInWrapper(book, page(book), duration, color)
 
 
 class FadeOutWrapper(PageWrapper):
     """A page wrapper that fades in any page to a solid color over the given
        duration after that page's onFinish has been called.
        """
-    def __init__(self, view, subpage, duration, color):
-        PageWrapper.__init__(self, view, subpage)
+    def __init__(self, book, subpage, duration, color):
+        PageWrapper.__init__(self, book, subpage)
         self.rate = 1/duration
         self.color = list(color[:3]) + [0]
         self.overlay = None
@@ -230,7 +229,7 @@ def FadeOut(duration, color, page):
     """Given a page class or a callable, return a callable for creating that page
        with a FadeOutWrapper around it.
        """
-    return lambda view: FadeOutWrapper(view, page(view), duration, color)
+    return lambda book: FadeOutWrapper(book, page(book), duration, color)
 
 
 def PageInterrupter(events, page):
@@ -239,9 +238,9 @@ def PageInterrupter(events, page):
        to specify a list of events that will automatically terminate the given
        page if it's active. All parameters given by the events are ignored.
        """
-    def factory(view):
+    def factory(book):
         # Actually instantiate the page
-        p = page(view)
+        p = page(book)
 
         # Wrapper to ignore all arguments from the event
         def finish(*args, **kw):
