@@ -163,40 +163,47 @@ class PalantirWindow:
     self.tree.get_widget('UserList').get_buffer().set_text('')
     self.tree.get_widget('Topic').set_text('')
 
-  def ctcpReceive(self, user, channel, messages):
+  # CTCP messages.
+  def DM(self, user, channel, data):
+    ''' The user who sent this message has DM status, so we display that icon next to their
+        name in the user list.
+	'''
     nick = self.GetNick(user)
-    # If the ctcp message is a dice roll format the message to display the roll.
-    if 'ROLL' in messages[0]:
-      data = re.search('(\[.*\]) ([0-9]*) ([0-9]*)', messages[0][1])
-      text = nick + ' rolled a ' + str(len(data.group(1).split())) + 'd' + data.group(2) + ': ' + data.group(1) + ' => ' + data.group(3)
+    image = gtk.Image()
+    image.set_from_file('pixmaps/dm.png')
+    self.tree.get_widget('UserList').get_model().foreach(self.setUserIcon, (nick, image.get_pixbuf()))
+    self.messageReceive(None, channel, '*** ' + nick + ' now has DM status.')
 
-    # If we've received a DM notification, set the DM icon on that user.
-    elif 'DM' in messages[0]:
-      image = gtk.Image()
-      image.set_from_file('pixmaps/dm.png')
-      self.tree.get_widget('UserList').get_model().foreach(self.setUserIcon, (nick, image.get_pixbuf()))
-      text = '*** ' + nick + ' set Dungeon Master status.'
+  def UNDM(self, user, channel, data):
+    ''' The user who sent this message has removed DM status from themselves, so remove the
+        icon from next to their name.
+	'''
+    nick = self.GetNick(user)
+    self.tree.get_widget('UserList').get_model().foreach(self.setUserIcon, (nick, None))
+    self.messageReceive(None, channel, '*** ' + nick + ' has removed DM status.')
 
-   # If we received notification of someone un-dm'ing themselves unset the DM icon.
-    elif '-DM' in messages[0]:
-      image = gtk.Image()
-      self.tree.get_widget('UserList').get_model().foreach(self.setUserIcon, (nick, image.get_pixbuf()))
-      text = '*** ' + nick + ' removed Dungeon Master status.'
+  def DMQUERY(self, user, channel, data):
+    ''' This is a request for our DM status.  If we have ourselves marked as DM we send a
+        send a CTCP DM message to the person who made the query, otherwise do nothing.
+	'''
+    if self.tree.get_widget('dungeon_master').get_active():
+      self.factory.SendCTCP(self.GetNick(user), [('DM',None)])
 
-    # DMQUERY is the message sent to find out who has Dungeon Master status in the channel.
-    elif 'DMQUERY' in messages[0]:
-      if self.tree.get_widget('dungeon_master').get_active():
-	self.factory.SendCTCP(nick, [('DM',None)])
-      return
+  def ROLL(self, user, channel, data):
+    ''' Someone rolled some dice, so we'll format the results and display. '''
+    nick = self.GetNick(user)
+    data = re.search('(\[.*\]) ([0-9]*) ([0-9]*)', messages[0][1])
+    text = nick + ' rolled a ' + str(len(data.group(1).split())) + 'd' + data.group(2) + ': ' + data.group(1) + ' => ' + data.group(3)
+    self.messageReceive(None, channel, text)
 
-  # If it isn't a dice roll just display the message.
+  def unknownCTCP(self, user, channel, data):
+    ''' Any non-specific ctcp message just gets displayed as text. '''
+    nick = self.GetNick(user)
+    if messages[0][1]:
+      message = string.join(messages[0])
     else:
-      if messages[0][1]:
-        message = string.join(messages[0])
-      else:
-	message = messages[0][0]
-      text = 'Received a CTCP ' + message + ' from ' + nick + ' (to ' + channel + ')'
-
+      message = messages[0][0]
+    text = 'Received a CTCP ' + message + ' from ' + nick + ' (to ' + channel + ')'
     self.messageReceive(None, channel, text)
 
   ### Glade Callbacks ###
@@ -250,11 +257,11 @@ class PalantirWindow:
     image = gtk.Image()
     if widget.get_active():
       image.set_from_file('pixmaps/dm.png')
-      text = '*** You set Dungeon Master status.'
+      text = '*** You now have DM status.'
       ctcp = ('DM',None)
     else:
-      text = '*** You removed Dungeon Master status.'
-      ctcp = ('-DM',None)
+      text = '*** You removed DM status.'
+      ctcp = ('UNDM',None)
 
     self.factory.SendCTCP(self.factory.channels[0], [ctcp])
     self.messageReceive(None, self.factory.channels[0], text)
