@@ -332,6 +332,7 @@ void
 font_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, gpointer user_data)
 {
 	gchar *font;
+	GtkAdjustment *adj;
 
 	if (gconf_client_get_bool (client, "/apps/xchat/main_window/use_sys_fonts", NULL))
 		font = gconf_client_get_string (client, "/desktop/gnome/interface/font_name", NULL);
@@ -339,6 +340,8 @@ font_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, gpointer us
 		font = gconf_client_get_string (client, "/apps/xchat/main_window/font", NULL);
 
 	gtk_xtext_set_font (GTK_XTEXT (gui.xtext), font);
+	adj = GTK_XTEXT (gui.xtext)->adj;
+	gtk_adjustment_set_value (adj, adj->upper - adj->page_size);
 	gtk_xtext_refresh (GTK_XTEXT (gui.xtext), 0);
 
 	g_free (font);
