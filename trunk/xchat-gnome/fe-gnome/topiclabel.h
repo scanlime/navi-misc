@@ -48,8 +48,9 @@ struct _TopicLabel
 
   /* private */
   gchar         *text;
-  guint		 jtype : 2;
-  gboolean	 wrap : TRUE;
+  gchar         *label;
+  guint          jtype : 2;
+  gboolean       wrap : TRUE;
   PangoAttrList *attrs;
   PangoAttrList *effective_attrs;
   PangoLayout   *layout;
