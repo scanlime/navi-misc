@@ -1,0 +1,7 @@
+# usb module         match_flags idVendor idProduct bcdDevice_lo bcdDevice_hi bDeviceClass bDeviceSubClass bDeviceProtocol bInterfaceClass bInterfaceSubClass bInterfaceProtocol driver_info
+
+# Send all USB HID devices with no interface protocol or
+# the mouse interface protocol. This will catch mice plus
+# joysticks and other odd devices, but no keyboards.
+inputpipe 0x0280 0x0000 0x0000 0x0000 0x0000 0x00 0x00 0x00 0x03 0x00 0x00
+inputpipe 0x0280 0x0000 0x0000 0x0000 0x0000 0x00 0x00 0x00 0x03 0x00 0x02
