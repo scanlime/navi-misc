@@ -196,7 +196,7 @@ static void de_jong_init_calc_params(GObjectClass *object_class) {
   spec = g_param_spec_double       ("a",
 				    "A",
 				    "de Jong parameter A",
-				    -100, 100, 1.41914,
+				    -100, 100, 2.38767,
 				    G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
 				    G_PARAM_LAX_VALIDATION | PARAM_INTERPOLATE | PARAM_IN_GUI);
   param_spec_set_group             (spec, current_group);
@@ -206,7 +206,7 @@ static void de_jong_init_calc_params(GObjectClass *object_class) {
   spec = g_param_spec_double       ("b",
 				    "B",
 				    "de Jong parameter B",
-				    -100, 100, -2.28413,
+				    -100, 100, -1.22713,
 				    G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
 				    G_PARAM_LAX_VALIDATION | PARAM_INTERPOLATE | PARAM_IN_GUI);
   param_spec_set_group             (spec, current_group);
@@ -216,7 +216,7 @@ static void de_jong_init_calc_params(GObjectClass *object_class) {
   spec = g_param_spec_double       ("c",
 				    "C",
 				    "de Jong parameter C",
-				    -100, 100, 2.42754,
+				    -100, 100, -0.39595,
 				    G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
 				    G_PARAM_LAX_VALIDATION | PARAM_INTERPOLATE | PARAM_IN_GUI);
   param_spec_set_group             (spec, current_group);
@@ -226,7 +226,7 @@ static void de_jong_init_calc_params(GObjectClass *object_class) {
   spec = g_param_spec_double       ("d",
 				    "D",
 				    "de Jong parameter D",
-				    -100, 100, -2.17719,
+				    -100, 100, -4.67104,
 				    G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
 				    G_PARAM_LAX_VALIDATION | PARAM_INTERPOLATE | PARAM_IN_GUI);
   param_spec_set_group             (spec, current_group);
