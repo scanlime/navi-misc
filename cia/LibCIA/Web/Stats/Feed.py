@@ -22,10 +22,10 @@ Pages for getting real-time message feeds in RSS and unformatted XML
 #
 
 from twisted.internet import defer
-from LibCIA import Message, Formatters
+from LibCIA import Message, Formatters, TimeUtil
 import Nouvelle
 import Nouvelle.Twisted
-from Nouvelle import tag, place, xml
+from Nouvelle import tag, place, xml, quote
 import Link
 
 
@@ -82,15 +82,29 @@ class RSSFeed(BaseFeed):
     def formatItems(self, messages, context, result):
         items = []
         for m in messages:
-            try:
-                m = Message.Message(m)
-                items.append(Formatters.factory.findMedium('rss', m).format(m))
-            except Message.NoFormatterError:
-                # We can't find a formatter, stick in a placeholder noting this fact
-                items.append(tag('item')[ tag('description')[
-                    "(Unable to format message)"
-                    ]])
+            items.append(tag('item')[self.messageToItemContent(Message.Message(m))])
         result.callback(items)
+
+    def messageToItemContent(self, m):
+        """Render an XML message as the content of an RSS <item>"""
+        # We can always get a timestamp
+        tags = [
+            tag('pubDate')[ TimeUtil.formatDateRFC822(int(str(m.xml.timestamp))) ],
+            ]
+
+        # Generate a title if we can, but if we can't don't worry too much
+        try:
+            tags.append(tag('title')[ Formatters.factory.findMedium('title', m).format(m) ])
+        except Message.NoFormatterError:
+            pass
+
+        # Put in the description as quoted XHTML, with an error message if we can't format it
+        try:
+            tags.append(tag('description')[ quote(Formatters.factory.findMedium('xhtml', m).format(m)) ])
+        except Message.NoFormatterError:
+            tags.append(tag('description')[ quote(tag('i')["Unable to format message"]) ])
+
+        return tags
 
     document = tag('rss', version='2.0')[ tag('channel')[
         tag('title')[ place('title') ],
