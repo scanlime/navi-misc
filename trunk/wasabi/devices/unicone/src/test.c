@@ -1,7 +1,30 @@
 #include <usb.h>
+#include <sys/time.h>
 #include <math.h>
 #include <unicone.h>
 #include "device.h"
+
+float delta_time() {
+  /* Get the time, in seconds, since the last call to this function */
+
+  static struct timeval then;
+  static int then_valid = 0;
+  struct timeval now;
+  float delta;
+
+  gettimeofday(&now, NULL);
+
+  if (then_valid)
+    delta = (now.tv_sec - then.tv_sec) +
+            (now.tv_usec - then.tv_usec) / 1000000.0;
+  else
+    delta = 0;
+
+  then = now;
+  then_valid = 1;
+  return delta;
+}
+
 
 int main()
 {
@@ -15,7 +38,7 @@ int main()
 
   theta = 0;
   while (1) {
-    theta += 0.1;
+    theta += delta_time() * 3.0;
 
     brightness = sin(theta) * 0.4 + 0.5;
     brightness = pow(brightness, 1.8);

@@ -26,6 +26,7 @@
 void           i2c_write_byte (unsigned char b, bit is_last);
 unsigned char  i2c_read_byte  (bit is_last);
 void           i2c_start      (unsigned char addr);
+int            i2c_status     (void);
 
 #endif /* _H_I2C */
 
