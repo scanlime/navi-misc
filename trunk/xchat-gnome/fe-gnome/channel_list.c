@@ -187,11 +187,11 @@ void create_channel_list(session *sess) {
 
 
 	widget = glade_xml_get_widget(win->xml, "window 1");
-	gtk_widget_show_all(widget);
 	preferences_get_channel_list_window_size(&width, &height);
 	if(!(width == 0 || height == 0))
 		gtk_window_resize(GTK_WINDOW(widget), width, height);
 	g_signal_connect(G_OBJECT(widget), "configure-event", G_CALLBACK(chanlist_resize), NULL);
+	gtk_widget_show_all(widget);
 
 	g_slist_append(chanlists, win);
 }

@@ -33,5 +33,7 @@ typedef struct {
 extern TransferGui transfer_gui; 
 
 void initialize_transfers_window();
+void show_transfers_window();
+void hide_transfers_window();
 
 #endif
