@@ -144,6 +144,9 @@ class CommitFormatter(Message.Formatter):
     def format_author(self, author):
         return self.format_default(author)
 
+    def format_branch(self, branch):
+        return self.format_default(branch)
+
     def format_revision(self, rev):
         return self.format_default('r' + rev)
 
