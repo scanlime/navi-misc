@@ -13,7 +13,9 @@ To add capabilities:
 Some examples:
 
    ./security.py -c 'Johnny Pineapple' -e 'john@pineapple.co.uk'
+
    ./security.py -g 123 ruleset.uri irc://irc.freenode.net/tacobeam
+
    ./security.py -g 123 stats.path project/e-duck
 """
 
