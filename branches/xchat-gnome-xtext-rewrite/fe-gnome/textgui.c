@@ -60,11 +60,11 @@ void text_gui_add_text_buffer(struct session *sess) {
 	session_gui *tgui;
 
 	tgui = malloc(sizeof(session_gui));
-//	tgui->buffer = gtk_xtext_buffer_new(gui.xtext);
+	tgui->buffer = xtext_buffer_new ();
 	sess->gui = (struct session_gui *) tgui;
 
+	xtext2_show_buffer(gui.xtext, tgui->buffer);
 /*
-	gtk_xtext_buffer_show(gui.xtext, tgui->buffer, TRUE);
 	if(preferences_show_timestamp())
 		gtk_xtext_set_time_stamp(tgui->buffer, TRUE);
 		*/
@@ -83,9 +83,8 @@ void text_gui_remove_text_buffer(struct session *sess) {
 	session_gui *tgui;
 
 	tgui = (session_gui *) sess->gui;
-	/*
-	gtk_xtext_buffer_free(tgui->buffer);
-	*/
+	g_object_unref (tgui->buffer);
+	tgui->buffer = NULL;
 	g_free(tgui->topic);
 	g_free(tgui->entry);
 	if(tgui->lag_text)
@@ -96,8 +95,7 @@ void text_gui_remove_text_buffer(struct session *sess) {
 	sess->gui = NULL;
 }
 
-#if 0
-void text_gui_print_line(xtext_buffer *buf, unsigned char *text, int len, gboolean indent) {
+void text_gui_print_line(XTextBuffer *buf, unsigned char *text, int len, gboolean indent) {
 	int leftlen;
 	unsigned char *tab;
 	if(len == 0)
@@ -105,24 +103,20 @@ void text_gui_print_line(xtext_buffer *buf, unsigned char *text, int len, gboole
 
 	/* FIXME: do timestamp */
 	if(!indent) {
-	  /*
-		gtk_xtext_append(buf, text, len);
-		*/
+		xtext_buffer_append (buf, text, len);
 		return;
 	}
 
-/*
 	tab = strchr(text, '\t');
 	if(tab && tab < (text + len)) {
 		leftlen = tab - text;
-		gtk_xtext_append_indent(buf, text, leftlen, tab + 1, len - (leftlen + 1));
+		xtext_buffer_append_indent (buf, text, leftlen, tab + 1, len - (leftlen + 1));
 	} else {
-		gtk_xtext_append_indent(buf, 0, 0, text, len);
+		xtext_buffer_append_indent (buf, NULL, 0, text, len);
 	}
-	*/
 }
 
-void text_gui_print(xtext_buffer *buf, unsigned char *text, gboolean indent) {
+void text_gui_print(XTextBuffer *buf, unsigned char *text, gboolean indent) {
 	char *last_text = text;
 	int len = 0;
 
@@ -149,7 +143,6 @@ void text_gui_print(xtext_buffer *buf, unsigned char *text, gboolean indent) {
 		}
 	}
 }
-#endif
 
 void set_nickname(struct server *serv, char *newnick) {
 	if(serv == gui.current_session->server) {
