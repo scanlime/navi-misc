@@ -1749,6 +1749,12 @@ CheckVendor
 	btfsc	STATUS,Z
 	goto	IRSendRequest
 
+	movf	BufferData+bRequest,w ; Is it a status request?
+	xorlw	MI6K_CTRL_STATUS
+	pagesel	VendorStatusRequest
+	btfsc	STATUS,Z
+	goto	VendorStatusRequest
+
 	pagesel	wrongstate			; Not a recognized request
 	goto	wrongstate
 
@@ -1860,6 +1866,31 @@ LEDSetRequest
 	; Acknowledge the request
 	pagesel	Send_0Len_pkt
 	call	Send_0Len_pkt
+	return
+
+	;********************* Request to get vendor-specific status bits
+VendorStatusRequest
+	banksel	BD0IAL
+	movf	low BD0IAL,w	; get address of buffer
+	movwf	FSR
+	bsf 	STATUS,IRP		; indirectly to banks 2-3
+
+	clrw					; Initialize all status bits to zero
+	banksel PORTB			; Prepare to test power GPIO pins
+
+	btfsc	EXT_POWER_SENSE	; Check for external power
+	iorlw	MI6K_STATUS_EXTPOWER
+
+	btfsc	VFD_POWER		; Check for VFD power
+	iorlw	MI6K_STATUS_VFDPOWER
+
+	movwf	INDF			; Write the completed status byte to our buffer
+	banksel	BD0IBC
+	bsf 	STATUS, RP0
+	movlw	0x01
+	movwf	BD0IBC			; set byte count to 1
+	movlw	0xc8			; DATA1 packet, DTS enabled
+	movwf	BD0IST			; give buffer back to SIE
 	return
 
 	end
