@@ -1,5 +1,5 @@
 CIADIR=$HOME/cia
-MAILDIR=$HOME/Mail/Maildir/
+MAILDIR=$HOME/.maildir/
 LOGFILE=/dev/null
 UMASK=033
 
