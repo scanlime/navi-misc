@@ -12,6 +12,7 @@ CSFLAGS =		\
 CSFILES =			\
 	CanvasElement.cs	\
 	Element.cs		\
+	ElementList.cs		\
 	ElementTooltip.cs	\
 	Pipeline.cs		\
 	PipelineDrawing.cs	\
