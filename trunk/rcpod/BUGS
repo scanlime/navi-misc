@@ -2,7 +2,5 @@ Known bugs in rcpod firmware/software
 (Doesn't include hardware bugs, those are listed as ERRATA for each revision)
 -----------------------------------------------------------------------------
 
-- There is currently no way to list all data received over RS-485, just ways
-  to capture data in a given interval. This could be fixed by making the
-  receiver use a ring buffer, providing functions to query the current buffer
-  pointers and increment the tail pointer by a given amount.
+(no known bugs currently)
+
