@@ -4,10 +4,9 @@ fyredata_DATA = 		\
 	explorer.glade		\
 	animation-render.glade	\
 	metadata-emblem.png	\
-	wicker-shoelace.png
+	wicker-shoelace.png	\
+	fyre-48x48.png
 
 EXTRA_DIST =			\
-	explorer.glade		\
-	animation-render.glade	\
-	metadata-emblem.png	\
-	wicker-shoelace.png
+	$(fyredata_DATA)	\
+	fyre-48x48.xcf.gz

@@ -1,6 +1,8 @@
 SUBDIRS = data src contrib
 
 desktopdir = $(datadir)/applications
+fyre.desktop: fyre.desktop.in
+	sed 's|\@DATADIR\@|$(datadir)/fyre/|' $< > $@
 desktop_DATA = fyre.desktop
 
 EXTRA_DIST = \
@@ -8,4 +10,4 @@ EXTRA_DIST = \
 	ChangeLog \
 	autogen.sh \
 	configure.ac \
-	$(desktop_DATA)
+	fyre.desktop.in
