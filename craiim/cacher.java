@@ -55,11 +55,23 @@ public class cacher
 	    quiet = true;
 	    return;
 	}
-	if(message.startsWith("/me"))
-	    message = "*AIM:"+nick+ message.substring(3);
-	else
-	    message = "<AIM:"+nick+"> " + message;
 	cacher.head.cacheMessage("AIM:"+nick,message,false);
+
+	if(nick.equals("gonkulator2"))
+	{
+	    // Special case for gonkulator, since he talks a lot and nobody wants to have to read his nick twice
+            if(message.startsWith("/me"))
+                Justin.me.sayAction(message.substring(3));
+            else
+                Justin.me.say(message);
+        }
+        else
+	{
+	    if(message.startsWith("/me"))
+		message = "*AIM:"+nick+ message.substring(3);
+	    else
+		message = "<AIM:"+nick+"> " + message;
+	}
 	Justin.me.say(message);
     }
 
