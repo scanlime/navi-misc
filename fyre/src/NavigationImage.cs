@@ -26,10 +26,8 @@ namespace Fyre
 	class NavigationWindow : Gtk.Window
 	{
 		Gdk.Pixmap	pixmap;
-		Gdk.GC		white;
-		Gdk.GC		black;
-		int		width;
-		int		height;
+		Gdk.GC		white, black;
+		int		width, height;
 
 		void AllocGCs ()
 		{
@@ -81,6 +79,10 @@ namespace Fyre
 		Gtk.Image		image;
 		NavigationWindow	window;
 
+		// FIXME: replace with a Gdk.Rectangle
+		int			win_x, win_y;
+		int			win_w, win_h;
+
 		public NavigationImage()
 		{
 			Gdk.Pixbuf pixbuf = new Gdk.Pixbuf (null, "navigation.png");
@@ -107,13 +109,13 @@ namespace Fyre
 			int mouse_y = (int) ev.YRoot;
 
 			// FIXME: replace this with document extents * 0.1
-			int width = 200;
-			int height = 150;
+			win_w = 200;
+			win_h = 150;
 
-			window = new NavigationWindow (width, height);
+			window = new NavigationWindow (win_w, win_h);
 
-			int win_x = GetWindowPosition (mouse_x, width, screen.Width);
-			int win_y = GetWindowPosition (mouse_y, height, screen.Height);
+			win_x = GetWindowPosition (mouse_x, win_w, screen.Width);
+			win_y = GetWindowPosition (mouse_y, win_h, screen.Height);
 
 			window.Move (win_x, win_y);
 			window.Show ();
@@ -126,6 +128,26 @@ namespace Fyre
 			window.Hide ();
 			window = null;
 
+			return true;
+		}
+
+		void ClampMouse (ref int mouse, int size)
+		{
+			if (mouse < 0)
+				mouse = 0;
+			else if (mouse >= size)
+				mouse = size - 1;
+		}
+
+		protected override bool OnMotionNotifyEvent (Gdk.EventMotion ev)
+		{
+			int mx = ((int) ev.XRoot) - win_x;
+			int my = ((int) ev.YRoot) - win_y;
+
+			ClampMouse (ref mx, win_w);
+			ClampMouse (ref my, win_h);
+
+			// FIXME: Add drawing the boxey thing
 			return true;
 		}
 	}
