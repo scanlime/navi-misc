@@ -187,8 +187,8 @@ static void mi6k_ir_rx_store(struct usb_mi6k *dev, unsigned char *buffer, size_t
 	if (dev->ir_rx_clients == 0)
 		return;
 
-	while (count >= sizeof(lirc_t)) {
-		value = (*(lirc_t *)buffer);
+	while (count >= 2) {
+		value = ((lirc_t)buffer[0]) + (((lirc_t)buffer[1]) << 8);
 		if (value == 0xFFFF) {
 			value = PULSE_MASK;
 		}
