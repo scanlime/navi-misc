@@ -3,14 +3,11 @@
 import sys, gtk
 from GTKsheet import GTKsheet
 
-try:
-  sheet = GTKsheet(sys.argv[1])
-except IndexError:
-  print 'Usage: sheetViewer <filename>'
-else:
-  window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-  window.connect('delete_event', lambda w, d: gtk.main_quit())
-  window.add(sheet.root)
-  sheet.root.show()
-  window.show()
-  gtk.main()
+sheet = GTKsheet(sys.argv[1])
+
+window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+window.connect('delete_event', lambda w, d: gtk.main_quit())
+window.add(sheet.root)
+sheet.root.show()
+window.show()
+gtk.main()

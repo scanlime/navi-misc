@@ -20,7 +20,10 @@ class Character:
     """ Return the data from path. """
     nodes = xml.xpath.Evaluate(path, self.dom)
     if len(nodes) > 0:
-      return nodes[0].childNodes[0].data.strip()
+      if len(nodes[0].childNodes) > 0: return nodes[0].childNodes[0].data.strip()
+    else:
+      self.makeNode(path)
+
     return ""
 
   def getNode(self, path):
@@ -35,6 +38,13 @@ class Character:
 
   def makeNode(self, path):
     ''' Create the node at path. '''
+    parentPath = path[:path.rfind('/')]
+    node = self.dom.createElement(path[path.rfind('/')+1:])
+    node.appendChild(self.dom.createTextNode(' '))
+    parent = xml.xpath.Evaluate(parentPath, self.dom)[0]
+    parent.appendChild(node)
+    parent.appendChild(self.dom.createTextNode('\n'))
+    self.writeOut()
 
   def setData(self, path, data):
     ''' Set the data at the node denoted by path. '''

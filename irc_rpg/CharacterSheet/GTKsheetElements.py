@@ -255,6 +255,7 @@ class drop_down(hbox):
     elif isinstance(child, drop_down_item):
       for item in child.data:
         self.items.append(item)
+      self.path = child.path
       self.menu.set_popdown_strings(self.items)
 
   def show(self):
@@ -278,7 +279,7 @@ class drop_down(hbox):
 
   def writeOut(self):
     ''' Write out the data in the menu. '''
-    self.characterData.setData(self.paths[0], self.buffer.get_text(self.buffer.get_start_iter(), self.buffer.get_end_iter()))
+    self.characterData.setData(self.path, self.buffer.get_text(self.buffer.get_start_iter(), self.buffer.get_end_iter()))
     self.characterData.writeOut()
 
   def addEditable(self, list):
