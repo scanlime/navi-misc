@@ -14,13 +14,13 @@ class therm:
 	self.b		= 0x00
 
     def i2c_readbit(self):
-        self.b = self.busmask | ~self.clockmask			# bus high (input), clock low
+        self.b = self.busmask & ~self.clockmask			# bus high (input), clock low
 	self.pic.TRISB = self.b
 	self.b |= self.clockmask				# clock high
 	self.pic.TRISB = self.b
 	self.b &= ~self.clockmask				# clock low
 	self.pic.TRISB = self.b
-	return self.PORTB
+	return self.pic.PORTB & self.busmask
 
     def i2c_start(self):
         self.b = self.busmask | self.clockmask			# bus high, clock high
@@ -31,7 +31,7 @@ class therm:
 	self.pic.TRISB = self.b
 
     def i2c_stop(self):
-        self.b = ~self.busmask | self.clockmask			# bus low, clock high
+        self.b = ~self.busmask & self.clockmask			# bus low, clock high
 	self.pic.TRISB = self.b
 	self.b |= self.busmask					# bus high
 	self.pic.TRISB = self.b
@@ -40,10 +40,10 @@ class therm:
 
     def i2c_writebit(self, v):
         if v:
-	    self.b = self.busmask | ~self.clockmask		# bus high, clock low
+	    self.b = self.busmask & ~self.clockmask		# bus high, clock low
 	    self.pic.TRISB = self.b
 	else:
-	    self.b = ~self.busmask | ~self.clockmask		# bus low, clock low
+	    self.b = ~self.busmask & ~self.clockmask		# bus low, clock low
 	    self.pic.TRISB = self.b
 	self.b |= self.clockmask				# clock high
 	self.pic.TRISB = self.b
@@ -64,8 +64,15 @@ class therm:
             self.i2c_writebit(bit)
 
     def i2c_readbyte(self):
-        # hmm, tricky. perhaps return a list of bytes?
-	return 0x00
+        # just returns a sequence of stuff on portb - would be
+	# nice to slice out only the active i2c busses
+	a = [0, 0, 0, 0, 0, 0, 0, 0]
+	for i in range(8):
+	    bits = self.i2c_readbit()
+	    for j in range(8):
+	        a[j] <<= 1
+		a[j] |= (bits >> j) & 0x01
+	return a
 
     def i2c_write(self, address, register, byte):
         self.i2c_start()
