@@ -10,7 +10,6 @@
 #include "xchat-plugin.h"
 
 #define VERSION "0.2"
-#define MAXURLS 10
 
 #define URLREGEX "(ht|f)tps?://[~a-z0-9./_=#%&?,-]+[a-z0-9]+"
 #define EMAILREGEX "[a-z0-9.+_-]+@([0-9a-z-]+\\.)+[a-z]+"
@@ -18,7 +17,7 @@
 static xchat_plugin *ph;	// Plugin handle.
 static regex_t *email;		// Regex that matches e-mail addresses.
 static regex_t *url;		// Regex that matches urls.
-static gint urls;			// Current total in the scraper.
+static int urls, history;	// Current total in the scraper and max history.
 static gboolean timestamps;	// Show timestamps?
 
 static GtkWidget *window;
@@ -112,17 +111,22 @@ static void add_match (char **word, regmatch_t match, gboolean isurl)
 		} while (gtk_tree_model_iter_next (GTK_TREE_MODEL(list_store), &iter));
 	}
 
-	if (urls >= MAXURLS) {
+	if (urls >= history) {
 		gtk_tree_model_get_iter_first (GTK_TREE_MODEL(list_store), &iter);
 		gtk_list_store_remove (list_store, &iter);
 	}
 	else
 		urls++;
+
+	/* Get time stamp. */
 	footime = time (NULL);
 	time_struct = localtime (&footime);
-	sprintf (time_str, "%d:%d:%d", time_struct->tm_hour, time_struct->tm_min, time_struct->tm_sec);
+	sprintf (time_str, "%02d:%02d:%02d",
+			time_struct->tm_hour, time_struct->tm_min, time_struct->tm_sec);
+
 	gtk_list_store_append (list_store, &iter);
-	gtk_list_store_set (list_store, &iter, 0, time_str, 1, word[1], 2, channel, 3, url_match, 4, isurl, -1);
+	gtk_list_store_set (list_store, &iter,
+			0, time_str, 1, word[1], 2, channel, 3, url_match, 4, isurl, -1);
 }
 
 static int grabURL (char **word, void *userdata)
@@ -189,8 +193,10 @@ int xchat_plugin_init (xchat_plugin *plugin_handle,
 		return 0;
 	}
 
+	urls = 0;
+
 	/* Set our prefs from GConf. */
-	urls = gconf_client_get_int (client, "/apps/xchat/urlscraper/history", NULL);
+	history = gconf_client_get_int (client, "/apps/xchat/urlscraper/history", NULL);
 	timestamps = gconf_client_get_bool (client, "/apps/xchat/urlscraper/timestamps", NULL);
 
 	make_window ();
