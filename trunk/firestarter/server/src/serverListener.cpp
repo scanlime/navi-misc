@@ -25,6 +25,7 @@
 
 CServerListener::CServerListener()
 {
+	InitNetwork();
 	//CNetworkServer	server;
 	//tmNetUserMap		users;
 	lastID = 0;
@@ -33,6 +34,7 @@ CServerListener::CServerListener()
 
 CServerListener::~CServerListener()
 {
+	FreeNetwork();
 	kill();
 }
 
