@@ -7,7 +7,7 @@
 ; PIC16C745 and PIC16C765 microcontrollers. New code added for the fieldsensor project
 ; is placed in the public domain.
 ;
-; fieldsensor modifications done by Micah Dowty <micah@picogui.org>
+; fieldsensor modifications done by Micah Dowty <micah@navi.cx>
 ;
 ;###############################################################################
 ;
@@ -51,7 +51,7 @@ USBBANK	code
 
 	extern	EP0_start
 	extern	temp		; temp var used in get config index
-	extern	temp2 		; another temp, in bank2 
+	extern	temp2 		; another temp, in bank2
 
 ; ******************************************************************
 ; Given a configuration descriptor index, returns the beginning address
@@ -66,7 +66,7 @@ Config_desc_index
 	btfsc	STATUS,C
 	incf	PCLATH,f
 	movwf	PCL
-CDI_start			; this table calculates the offsets for each 
+CDI_start			; this table calculates the offsets for each
 	retlw	low  Config1	; configuration descriptor from the beginning
 	retlw	high Config1	; of the table
 	; more configurations can be added here
@@ -114,7 +114,7 @@ StartDevDescr
 ; This table is retrieved by the host after the address has been set.
 ; This table defines the configurations available for the device.
 ; See section 9.6.2 of the Rev 1.0 USB specification (page 184).
-; These fields are application DEPENDENT. 
+; These fields are application DEPENDENT.
 ; Modify these to meet your specifications.
 ; ******************************************************************
 Config1
@@ -144,7 +144,7 @@ Endpoint1In
 	retlw	0x03		; Interrupt
 	retlw	0x08		; max packet size (8 bytes) low order byte
 	retlw	0x00		; max packet size (8 bytes) high order byte
-	retlw	0x08		; polling interval (8ms)
+	retlw	0x05		; polling interval (5ms)
 EndConfig1
 
 
@@ -178,7 +178,7 @@ StringDescriptions
 	movwf	PCL
 
 String0
-	retlw	low (String1 - String0)	; length of string 
+	retlw	low (String1 - String0)	; length of string
 	retlw	0x03		; descriptor type 3?
 	retlw	0x09		; language ID (as defined by MS 0x0409)
 	retlw	0x04
@@ -223,27 +223,19 @@ String1
 	retlw	0x00
 	retlw	'@'
 	retlw	0x00
-	retlw	'p'
+	retlw	'n'
 	retlw	0x00
-	retlw	'i'
+	retlw	'a'
 	retlw	0x00
-	retlw	'c'
-	retlw	0x00
-	retlw	'o'
-	retlw	0x00
-	retlw	'g'
-	retlw	0x00
-	retlw	'u'
+	retlw	'v'
 	retlw	0x00
 	retlw	'i'
 	retlw	0x00
 	retlw	'.'
 	retlw	0x00
-	retlw	'o'
+	retlw	'c'
 	retlw	0x00
-	retlw	'r'
-	retlw	0x00
-	retlw	'g'
+	retlw	'x'
 	retlw	0x00
 	retlw	'>'
 	retlw	0x00

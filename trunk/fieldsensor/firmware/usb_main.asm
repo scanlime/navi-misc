@@ -7,7 +7,7 @@
 ; PIC16C745 and PIC16C765 microcontrollers. New code added for the fieldsensor project
 ; is placed in the public domain.
 ;
-; fieldsensor modifications done by Micah Dowty <micah@picogui.org>
+; fieldsensor modifications done by Micah Dowty <micah@navi.cx>
 ;;
 ;###############################################################################
 ;
@@ -104,17 +104,6 @@ TEST_PIR1
 	banksel	PIRmasked
 	movwf	PIRmasked
 
-TEST_TMR2IF					; Timer 2 interrupt, for transmitter modulation
-	btfss	PIRmasked,TMR2IF
-	goto	EndISR
-	banksel	PIR1
-	bcf		PIR1,TMR2IF
-
-	banksel	PORTB			; Complement PORTB, to toggle active transmitters
-	comf	PORTB, f
-
-TEST_USBIF
-	banksel	PIRmasked
 	btfss	PIRmasked,USBIF	; USB interrupt flag
 	goto	EndISR
 	banksel	PIR1
@@ -208,28 +197,16 @@ Main
 	pagesel	InitUSB
 	call	InitUSB
 
-	; Initialize TMR2, we use it to keep time for modulation and demodulation.
-	; It runs at 2x the modulation frequency.
-	banksel	T2CON
-	movlw	0x04		; Enabled, pre/postscalers both 1:1 
-	movwf	T2CON
-	banksel	PIE1		; Enable interrupt
-	bsf		PIE1, TMR2IE
-
 	; All our transmitter LC tanks are hooked up on PORTB.
 	; PORTB is initially loaded with 01010101 binary, then complemented
 	; at each TMR2 interrupt. Unused transmitters are tristated,
 	; active transmitters are made outputs. The alternating bits provide
 	; differential drive, so the transmit electrode voltage is 10*Q,
-	; where Q is the quality constant for the LC tank. This can reach
-	; hundreds of volts.
+	; where Q is the quality constant for the LC tank. This normally
+	; reaches hundreds of volts.
 	movlw	0x55
 	banksel	PORTB
 	movwf	PORTB
-
-	; Just for testing, turn on all transmitters
-	banksel	TRISB
-	clrf	TRISB
 
 ;******************************************************************* Main Loop
 
