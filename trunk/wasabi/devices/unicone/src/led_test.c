@@ -3,7 +3,7 @@
  */
 
 #include <unicone.h>
-#include "device.h"
+#include "unicone_device.h"
 #include "progress.h"
 
 int main()
