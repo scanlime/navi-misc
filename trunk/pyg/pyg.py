@@ -78,7 +78,9 @@ class MainWindow:
         compiler_output = gtk.TextView(buffer=None)
         compiler_output.set_editable(gtk.FALSE)
         compiler_output.set_cursor_visible(gtk.FALSE)
-        left.pack2(compiler_output, gtk.TRUE, gtk.FALSE)
+        compiler_frame = gtk.Frame(label=None)
+        compiler_frame.add(compiler_output)
+        left.pack2(compiler_frame, gtk.TRUE, gtk.FALSE)
 
         main_vbox.pack_start(hpane, gtk.TRUE, gtk.TRUE, 0)
 
