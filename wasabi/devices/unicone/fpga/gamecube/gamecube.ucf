@@ -7,14 +7,7 @@ NET "scl" LOC=P18;
 NET "sda" LOC=P23;
 
 NET "gc_ports<0>" LOC=P7;
-#NET "gc_ports<1>" LOC=P9;
-#NET "gc_ports<2>" LOC=P20;
-#NET "gc_ports<3>" LOC=P25;
-
-#NET "debug<0>"  LOC="P45";
-#NET "debug<1>"  LOC="P46";
-#NET "debug<2>"  LOC="P47";
-#NET "debug<3>"  LOC="P48";
-#NET "debug<4>"  LOC="P68";
-
+NET "gc_ports<1>" LOC=P9;
+NET "gc_ports<2>" LOC=P20;
+NET "gc_ports<3>" LOC=P25;
 
