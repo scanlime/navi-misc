@@ -21,6 +21,7 @@
  */
 
 #include <stdio.h>
+#include <string.h>
 
 #include <uart_driver.h>
 #include <tusb.h>
@@ -29,23 +30,32 @@
 #include <unicone.h>
 #include "hardware.h"
 
+unsigned char fpga_version_stamp[20];
+
 static bit config_in_progress;
+static bit reading_version_stamp;
+static unsigned char version_stamp_index;
 
 static void      fpga_config_write_byte(unsigned char c);
-static void      fpga_init();
 
 
 /**************************************************************************/
 /********************************************** Low-level configuration ***/
 /**************************************************************************/
 
-static void fpga_init()
+void fpga_init()
 {
+  memset(fpga_version_stamp, 0, sizeof(fpga_version_stamp));
+
   fpga_din_off();
   fpga_cclk_off();
+
   fpga_program_off();
-  delay(1000);
+  delay(10);
   fpga_program_on();
+
+  /* We need to give the FPGA time for one internal memory-clear cycle */
+  delay(100);
 }
 
 static void fpga_config_write_byte(unsigned char c)
@@ -81,7 +91,6 @@ void fpga_config_begin()
 {
   config_in_progress = 1;
   fpga_init();
-  printf("Configuring FPGA... ");
 }
 
 void fpga_config_write(unsigned char *cfgdata, int length)
@@ -112,11 +121,11 @@ unsigned char fpga_config_end()
     delay(100);
     fpga_din_off();
 
-    printf(" Done\n");
+    printf("FPGA configured\n");
     return UNICONE_STATUS_OK;
   }
   else {
-    printf(" Error\n");
+    printf("Error configuring FPGA\n");
     return UNICONE_STATUS_ERROR;
   }
 }

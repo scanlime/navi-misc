@@ -29,9 +29,12 @@
 #include "device.h"
 #include "progress.h"
 #include "bit_file.h"
+#include "sha1.h"
 
 #define TIMEOUT               500            /* In milliseconds */
-#define MAX_FIRMWARE_SIZE     8192
+#define CODESPACE_SIZE        0x2000
+#define SHA1_STAMP_SIZE       20
+#define MAX_FIRMWARE_SIZE     (CODESPACE_SIZE - SHA1_STAMP_SIZE)
 #define FIRMWARE_HEADER_SIZE  3
 
 static void               unicone_device_delete_content   (struct unicone_device *self);
@@ -174,8 +177,11 @@ int                       unicone_device_upload_firmware  (struct unicone_device
   int bytes_uploaded = 0;
   int firmware_size, remaining;
   FILE *fw_file = NULL;
-  unsigned char fw_buffer[MAX_FIRMWARE_SIZE + FIRMWARE_HEADER_SIZE + 1];
+  unsigned char fw_buffer[CODESPACE_SIZE + FIRMWARE_HEADER_SIZE + 1];
   unsigned char *current;
+  unsigned char sha1_digest[32];
+
+  memset(fw_buffer, 0, sizeof(fw_buffer));
 
   assert(self);
   assert(!self->firmware_installed);
@@ -205,11 +211,22 @@ int                       unicone_device_upload_firmware  (struct unicone_device
   fclose(fw_file);
   fw_file = NULL;
 
-  /* Set up the header- a 16-bit little endian length, followed by an 8-bit checksum */
-  fw_buffer[0] = firmware_size & 0xFF;
-  fw_buffer[1] = firmware_size >> 8;
+  /* Take an SHA-1 message digest of the whole file, install it at the very
+   * last 20 bytes of memory. This can be read later by the firmware to see
+   * if it's up to date with what's on disk.
+   */
+  sha_buffer(fw_buffer + FIRMWARE_HEADER_SIZE, firmware_size, sha1_digest);
+  memcpy(fw_buffer + FIRMWARE_HEADER_SIZE + CODESPACE_SIZE - SHA1_STAMP_SIZE,
+	 sha1_digest, SHA1_STAMP_SIZE);
+
+  /* Set up the header- a 16-bit little endian length, followed by an 8-bit checksum.
+   * We always send the entire fw_buffer to our device, since we need to send it the
+   * version stamp located at the end of code space.
+   */
+  fw_buffer[0] = CODESPACE_SIZE & 0xFF;
+  fw_buffer[1] = CODESPACE_SIZE >> 8;
   fw_buffer[2] = 0;
-  remaining = firmware_size;
+  remaining = CODESPACE_SIZE;
   current = fw_buffer + FIRMWARE_HEADER_SIZE;
   while (remaining > 0) {
     fw_buffer[2] += *current;
@@ -218,7 +235,7 @@ int                       unicone_device_upload_firmware  (struct unicone_device
   }
 
   /* Send the firmware in chunks of 128 bytes */
-  remaining = firmware_size + FIRMWARE_HEADER_SIZE;
+  remaining = CODESPACE_SIZE + FIRMWARE_HEADER_SIZE;
   current = fw_buffer;
   while (remaining > 0) {
     int packet_size = remaining;
@@ -238,7 +255,7 @@ int                       unicone_device_upload_firmware  (struct unicone_device
     current += retval;
 
     if (progress)
-      progress->report(progress, progress_op, ((float) bytes_uploaded) / firmware_size);
+      progress->report(progress, progress_op, ((float) bytes_uploaded) / CODESPACE_SIZE);
   }
 
  done:
@@ -290,7 +307,7 @@ int                       unicone_device_upload_bitstream (struct unicone_device
   }
 
   if (progress)
-    progress_op = progress->start(progress, "Uploading bitstream");
+    progress_op = progress->start(progress, "Configuring FPGA");
 
   if (!bf)
     goto done;

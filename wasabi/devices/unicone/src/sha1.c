@@ -33,8 +33,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "unlocked-io.h"
-
 /*
   Not-swap is a macro that does an endian swap on architectures that are
   big-endian, as SHA needs some data in a little-endian format
@@ -88,11 +86,11 @@ sha_init_ctx (struct sha_ctx *ctx)
 void *
 sha_read_ctx (const struct sha_ctx *ctx, void *resbuf)
 {
-  ((md5_uint32 *) resbuf)[0] = NOTSWAP (ctx->A);
-  ((md5_uint32 *) resbuf)[1] = NOTSWAP (ctx->B);
-  ((md5_uint32 *) resbuf)[2] = NOTSWAP (ctx->C);
-  ((md5_uint32 *) resbuf)[3] = NOTSWAP (ctx->D);
-  ((md5_uint32 *) resbuf)[4] = NOTSWAP (ctx->E);
+  ((sha_uint32 *) resbuf)[0] = NOTSWAP (ctx->A);
+  ((sha_uint32 *) resbuf)[1] = NOTSWAP (ctx->B);
+  ((sha_uint32 *) resbuf)[2] = NOTSWAP (ctx->C);
+  ((sha_uint32 *) resbuf)[3] = NOTSWAP (ctx->D);
+  ((sha_uint32 *) resbuf)[4] = NOTSWAP (ctx->E);
 
   return resbuf;
 }
@@ -106,7 +104,7 @@ void *
 sha_finish_ctx (struct sha_ctx *ctx, void *resbuf)
 {
   /* Take yet unprocessed bytes into account.  */
-  md5_uint32 bytes = ctx->buflen;
+  sha_uint32 bytes = ctx->buflen;
   size_t pad;
 
   /* Now count remaining bytes.  */
@@ -118,8 +116,8 @@ sha_finish_ctx (struct sha_ctx *ctx, void *resbuf)
   memcpy (&ctx->buffer[bytes], fillbuf, pad);
 
   /* Put the 64-bit file length in *bits* at the end of the buffer.  */
-  *(md5_uint32 *) &ctx->buffer[bytes + pad + 4] = NOTSWAP (ctx->total[0] << 3);
-  *(md5_uint32 *) &ctx->buffer[bytes + pad] = NOTSWAP ((ctx->total[1] << 3) |
+  *(sha_uint32 *) &ctx->buffer[bytes + pad + 4] = NOTSWAP (ctx->total[0] << 3);
+  *(sha_uint32 *) &ctx->buffer[bytes + pad] = NOTSWAP ((ctx->total[1] << 3) |
 						    (ctx->total[0] >> 29));
 
   /* Process last bytes.  */
@@ -194,7 +192,7 @@ sha_stream (FILE *stream, void *resblock)
   return 0;
 }
 
-/* Compute MD5 message digest for LEN bytes beginning at BUFFER.  The
+/* Compute SHA-1 message digest for LEN bytes beginning at BUFFER.  The
    result is always in little endian byte order, so that a byte-wise
    output yields to the wanted ASCII representation of the message
    digest.  */
@@ -247,9 +245,9 @@ sha_process_bytes (const void *buffer, size_t len, struct sha_ctx *ctx)
 /* To check alignment gcc has an appropriate operator.  Other
    compilers don't.  */
 # if __GNUC__ >= 2
-#  define UNALIGNED_P(p) (((md5_uintptr) p) % __alignof__ (md5_uint32) != 0)
+#  define UNALIGNED_P(p) (((sha_uintptr) p) % __alignof__ (sha_uint32) != 0)
 # else
-#  define UNALIGNED_P(p) (((md5_uintptr) p) % sizeof (md5_uint32) != 0)
+#  define UNALIGNED_P(p) (((sha_uintptr) p) % sizeof (sha_uint32) != 0)
 # endif
       if (UNALIGNED_P (buffer))
 	while (len > 64)
@@ -284,7 +282,7 @@ sha_process_bytes (const void *buffer, size_t len, struct sha_ctx *ctx)
     }
 }
 
-/* --- Code below is the primary difference between md5.c and sha.c --- */
+/* --- Code below is the primary difference between sha.c and sha.c --- */
 
 /* SHA1 round constants */
 #define K1 0x5a827999L
@@ -305,15 +303,15 @@ sha_process_bytes (const void *buffer, size_t len, struct sha_ctx *ctx)
 void
 sha_process_block (const void *buffer, size_t len, struct sha_ctx *ctx)
 {
-  const md5_uint32 *words = buffer;
-  size_t nwords = len / sizeof (md5_uint32);
-  const md5_uint32 *endp = words + nwords;
-  md5_uint32 x[16];
-  md5_uint32 a = ctx->A;
-  md5_uint32 b = ctx->B;
-  md5_uint32 c = ctx->C;
-  md5_uint32 d = ctx->D;
-  md5_uint32 e = ctx->E;
+  const sha_uint32 *words = buffer;
+  size_t nwords = len / sizeof (sha_uint32);
+  const sha_uint32 *endp = words + nwords;
+  sha_uint32 x[16];
+  sha_uint32 a = ctx->A;
+  sha_uint32 b = ctx->B;
+  sha_uint32 c = ctx->C;
+  sha_uint32 d = ctx->D;
+  sha_uint32 e = ctx->E;
 
   /* First increment the byte count.  RFC 1321 specifies the possible
      length of the file up to 2^64 bits.  Here we only compute the
@@ -335,7 +333,7 @@ sha_process_block (const void *buffer, size_t len, struct sha_ctx *ctx)
 
   while (words < endp)
     {
-      md5_uint32 tm;
+      sha_uint32 tm;
       int t;
       /* FIXME: see sha1.c for a better implementation.  */
       for (t = 0; t < 16; t++)
