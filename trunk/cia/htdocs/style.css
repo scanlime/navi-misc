@@ -316,4 +316,35 @@ div.xml-element {
   margin: 0em;
 }
 
+table.messageHeaders {
+  border: 1px solid #888;
+  background-color: #DDD;
+  padding: 0.25em 0.5em;
+  margin: 0em;
+  width: 100%;
+}
+
+table.messageHeaders tr {
+  margin: 0em;
+  padding: 0em;
+}
+
+table.messageHeaders td.name {
+  margin: 0em;
+  padding: 0.1em 0.25em;
+  font-weight: bold;
+  text-align: right;
+}
+
+table.messageHeaders td.value {
+  margin: 0em;
+  padding: 0em;
+  width: 100%;
+}
+
+p.messageBody {
+  margin: 1em 0em;
+  padding: 0.25em 0em;
+}
+
 /* The End */

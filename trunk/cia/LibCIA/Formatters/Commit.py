@@ -24,11 +24,13 @@ Note that this only handles real XML commit messages. The legacy
 #
 
 from LibCIA import Message
-import Nouvelle
+from Nouvelle import tag
 import re, posixpath
+from twisted.python.util import OrderedDict
 import Util
 
-__all__ = ['CommitToIRC', 'CommitToPlaintext', 'CommitToXHTML', 'CommitTitle']
+__all__ = ['CommitToIRC', 'CommitToPlaintext', 'CommitToXHTML',
+           'CommitTitle', 'CommitToXHTMLLong']
 
 
 class CommitFormatter(Message.Formatter):
@@ -263,6 +265,16 @@ class CommitToPlaintext(CommitFormatter):
     medium = 'plaintext'
 
 
+class CommitTitle(CommitFormatter):
+    """Extracts a title from commit messages"""
+    medium = 'title'
+
+    def format(self, message, input=None):
+        log = message.xml.body.commit.log
+        if log:
+            return Util.extractSummary(log)
+
+
 class CommitToXHTML(CommitFormatter):
     """Converts commit messages to XHTML, represented as a Nouvelle tag tree."""
     medium = 'xhtml'
@@ -270,13 +282,13 @@ class CommitToXHTML(CommitFormatter):
     def joinMessage(self, metadata, log):
         """Join the metadata and log message into a CSS-happy box"""
         return [
-            Nouvelle.tag('div', style=
+            tag('div', style=
                          "border: 1px solid #888; "
                          "background-color: #DDD; "
                          "padding: 0.25em 0.5em;"
-                         "margin: 0;"
+                         "margin: 0em;"
                          )[ metadata ],
-            Nouvelle.tag('p', style=
+            tag('p', style=
                          "padding: 0em; "
                          "margin: 0.5em 0em; "
                          )[ log ],
@@ -291,33 +303,33 @@ class CommitToXHTML(CommitFormatter):
         if log:
             for line in log.split("\n"):
                 if content:
-                    content.append(Nouvelle.tag('br'))
+                    content.append(tag('br'))
                 content.append(line)
         else:
-            content.append(Nouvelle.tag('i')["No log message"])
+            content.append(tag('i')["No log message"])
         return content
 
     def format_author(self, author):
         return [
             " Commit by ",
-            Nouvelle.tag('strong')[ str(author) ],
+            tag('strong')[ str(author) ],
             " ",
             ]
 
     def format_separator(self):
-        return Nouvelle.tag('span', style="color: #888;")[" :: "]
+        return tag('span', style="color: #888;")[" :: "]
 
     def format_revision(self, rev):
-        return [' r', Nouvelle.tag('b')[str(rev).strip()], ' ']
+        return [' r', tag('b')[str(rev).strip()], ' ']
 
     def format_version(self, ver):
-        return [' ', Nouvelle.tag('b')[str(ver)], ' ']
+        return [' ', tag('b')[str(ver)], ' ']
 
     def format_branch(self, branch):
         return [' on ', str(branch), ' ']
 
     def format_module(self, module):
-        return Nouvelle.tag('b')[str(module).strip()]
+        return tag('b')[str(module).strip()]
 
     def format_moduleAndFiles(self, message):
         """Format the module name and files, joined together if they are both present."""
@@ -332,13 +344,41 @@ class CommitToXHTML(CommitFormatter):
         return items
 
 
-class CommitTitle(CommitFormatter):
-    """Extracts a title from commit messages"""
-    medium = 'title'
+class CommitToXHTMLLong(CommitToXHTML):
+    """Builds on the xhtml formatter to generate a longer representation of the commit,
+       suitable for a full page rather than just an item in a listing.
+       """
+    medium = 'xhtml-long'
 
     def format(self, message, input=None):
-        log = message.xml.body.commit.log
-        if log:
-            return Util.extractSummary(log)
+        commit = message.xml.body.commit
+        source = message.xml.source
+        headers = OrderedDict()
+
+        if commit.author:
+            headers['Author'] = str(commit.author)
+        if source:
+            if source.project:
+                headers['Project'] = str(source.project)
+            if source.module:
+                headers['Module'] = str(source.module)
+        if commit.version:
+            headers['Version'] = str(commit.version)
+        if commit.revision:
+            headers['Revision'] = str(commit.revision)
+
+        return [
+            tag('h1')[ "Commit Message" ],
+            tag('table', _class="messageHeaders")[[
+                tag('tr')[
+                    tag('td', _class='name')[ name, ":" ],
+                    tag('td', _class='value')[ value ],
+                ]
+                for name, value in headers.iteritems()
+            ]],
+            tag('p', _class="messageBody")[ self.format_log(commit.log) ],
+            tag('h1')[ "Modified Files" ],
+            self.format_files(message.xml.body.commit.files),
+            ]
 
 ### The End ###
