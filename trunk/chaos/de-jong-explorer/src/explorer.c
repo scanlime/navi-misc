@@ -481,6 +481,7 @@ void explorer_update_gui(Explorer *self) {
    */
   GtkWidget *statusbar;
   gchar *iters;
+  static int count = 0;
 
   /* Skip frame rate limiting and updating the iteration counter if we're in
    * a hurry to show the user the result of a modified rendering parameter.
@@ -507,6 +508,10 @@ void explorer_update_gui(Explorer *self) {
   gdk_draw_rgb_32_image(self->drawing_area->window, self->gc,
 			0, 0, self->dejong->width, self->dejong->height, GDK_RGB_DITHER_NORMAL,
 			gdk_pixbuf_get_pixels(self->dejong->image), self->dejong->width * 4);
+
+  if(count == 0)
+    gtk_window_set_icon(GTK_WINDOW(self->window), self->dejong->image);
+  count = (count + 1) % 50;
 }
 
 static gboolean on_viewport_expose(GtkWidget *widget, GdkEventExpose *event, gpointer user_data) {
