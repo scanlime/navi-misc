@@ -83,3 +83,13 @@ void text_gui_print(xtext_buffer *buf, unsigned char *text, gboolean indent) {
 		}
 	}
 }
+
+void set_nickname(struct server *serv, char *newnick) {
+	if (serv == gui.current_session->server) {
+		GtkWidget *nick = glade_xml_get_widget(gui.xml, "nickname");
+		if(newnick == NULL)
+			gtk_label_set_text(GTK_LABEL(nick), serv->nick);
+		else
+			gtk_label_set_text(GTK_LABEL(nick), newnick);
+	}
+}

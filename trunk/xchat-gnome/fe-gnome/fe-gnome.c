@@ -273,8 +273,7 @@ void fe_set_nonchannel(struct session *sess, int state) {
 }
 
 void fe_set_nick(struct server *serv, char *newnick) {
-	g_print("fe_set_nick() - \"%s\"\n", newnick);
-	/* FIXME: implement */
+	set_nickname(serv, newnick);
 }
 
 void fe_ignore_update(int level) {
