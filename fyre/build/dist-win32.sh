@@ -130,6 +130,9 @@ mkdir -p $OUTPUTDIR
 
 $NSIS - <<EOF
 
+    ; Use the trendy Modern UI
+    !include "MUI.nsh"
+
     Name "Fyre $VERSION"
 
     OutFile "$OUTPUTDIR\\$TARGET_NAME.exe"
@@ -141,12 +144,41 @@ $NSIS - <<EOF
     ; overwrite the old one automatically)
     InstallDirRegKey HKLM Software\\Fyre "Install_Dir"
 
-    Page components
-    Page directory
-    Page instfiles
+    SetCompressor /FINAL lzma
 
-    UninstPage uninstConfirm
-    UninstPage instfiles
+    ; ---- UI Settings
+
+    !define MUI_HEADERIMAGE
+    !define MUI_WELCOMEFINISHPAGE_BITMAP "\${NSISDIR}\\Contrib\\Graphics\\Wizard\\orange.bmp"
+    !define MUI_UNWELCOMEFINISHPAGE_BITMAP "\${NSISDIR}\\Contrib\\Graphics\\Wizard\\orange-uninstall.bmp"
+    !define MUI_COMPONENTSPAGE_SMALLDESC
+
+    ; ---- Pages
+
+    !define MUI_WELCOMEPAGE_TITLE "Welcome to the Fyre Setup Wizard"
+    !define MUI_WELCOMEPAGE_TEXT "This wizard will guide you through the installation of Fyre $VERSION.\\r\\n\\r\\n\$_CLICK"
+
+    !insertmacro MUI_PAGE_WELCOME
+    !insertmacro MUI_PAGE_COMPONENTS
+    !insertmacro MUI_PAGE_DIRECTORY
+    !insertmacro MUI_PAGE_INSTFILES
+
+    !define MUI_FINISHPAGE_LINK "Visit the Fyre web site for the latest news and updates"
+    !define MUI_FINISHPAGE_LINK_LOCATION "http://fyre.navi.cx"
+
+    !define MUI_FINISHPAGE_SHOWREADME "$INSTDIR\\README.txt"
+
+    !insertmacro MUI_PAGE_FINISH
+
+    !insertmacro MUI_UNPAGE_WELCOME
+    !insertmacro MUI_UNPAGE_CONFIRM
+    !insertmacro MUI_UNPAGE_INSTFILES
+
+    ; ---- Installer languages
+
+    !insertmacro MUI_LANGUAGE "English"
+
+    ; ---- Sections
 
     Section "Fyre"
 
