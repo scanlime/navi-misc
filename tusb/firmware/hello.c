@@ -69,18 +69,22 @@ void usb_handle_vendor_request() {
     break;
 
   case 123:
-    printf("length: %d\n", usb_setup_buffer.wLength);
-    /* ACK the setup packet */
-    OEPBCNT_0 = 0;
+    /* Put some data in the EP0 IN buffer */
+    usb_ep0in_buffer[0] = v;
+    IEPBCNT_0 = 1;
 
     /* Leave setup */
     USBCTL &= ~SIR;
     USBSTA = SETUP;
 
-    /* Send some IN data */
-    printf("   sending %d\n", v);
-    usb_ep0in_buffer[0] = v;
-    IEPBCNT_0 = 1;
+    /* Wait for the IN data to be picked up */
+    printf("Waiting for IN data\n");
+    while ((IEPBCNT_0 & 0x80) == 0)
+      watchdog_reset();
+    printf("Sent data\n");
+
+    /* ACK the setup packet */
+    OEPBCNT_0 = 0;
     break;
 
   }
