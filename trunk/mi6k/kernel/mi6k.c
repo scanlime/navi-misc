@@ -191,7 +191,7 @@ static void mi6k_ir_rx_store(struct usb_mi6k *dev, unsigned char *buffer, size_t
 	while (count >= 2) {
 		value = ((lirc_t)buffer[0]) + (((lirc_t)buffer[1]) << 8);
 		if (value == 0xFFFF) {
-			/* The mi6k's timer overflowed. Replace this with a 
+			/* The mi6k's timer overflowed. Replace this with a
 			 * suitably large number to make irrecord and xmode2 happy.
 			 */
 			value = 2000000;
@@ -217,20 +217,26 @@ static void mi6k_ir_rx_store(struct usb_mi6k *dev, unsigned char *buffer, size_t
 	wake_up_interruptible(&dev->ir_rx_wait);
 }
 
-static void mi6k_ir_tx_send(struct usb_mi6k *dev, lirc_t pulse, lirc_t space)
+static lirc_t mi6k_ir_tx_convert(lirc_t v)
 {
-	/* Send a pulse and space to the device synchronously.
-	 * This converts from LIRC's microsecond units to the hardware's ~26.3 microsecond units
-	 */
-	pulse = (pulse & PULSE_MASK) * 100 / 1316;
-	if (pulse > 0xFFFF) pulse = 0xFFFF;
-	space = (space & PULSE_MASK) * 100 / 1316;
-	if (space > 0xFFFF) space = 0xFFFF;
+	/* Convert a pulse or space value from microseconds to the transmitter's ~13.5us units */
+        v = ((v & PULSE_MASK) * 100 + 50) / 1350;
+	if (v > 0xFFFF) v = 0xFFFF;
 
 	/* At this time our firmware only correctly handles values 255 or lower. Issue a warning if this is a problem */
-	if (pulse > 255 || space > 255) {
-	  dbg("sending a pulse/space too large for current firmware (%d, %d)", pulse, space);
+	if (v > 255) {
+		dbg("sending a pulse/space too large for current firmware");
 	}
+
+	return v;
+}
+
+static void mi6k_ir_tx_send(struct usb_mi6k *dev, lirc_t pulse, lirc_t space)
+{
+	/* Send a pulse and space to the device synchronously. */
+	pulse = mi6k_ir_tx_convert(pulse);
+	space = mi6k_ir_tx_convert(space);
+	dbg("ir_tx_send %d %d", pulse, space);
 	mi6k_request(dev, MI6K_CTRL_IR_SEND, pulse, space);
 }
 
