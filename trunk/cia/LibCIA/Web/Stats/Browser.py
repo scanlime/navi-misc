@@ -25,9 +25,9 @@ to metadata or RSS pages.
 
 from twisted.internet import defer
 from LibCIA.Web import Template, Info
-from LibCIA import Stats, Message, TimeUtil
+from LibCIA import Stats, Message, TimeUtil, Formatters
 from Nouvelle import tag, place
-import Nouvelle, time
+import Nouvelle, time, sys
 import Metadata, Link, Catalog, Feed
 
 
@@ -248,7 +248,10 @@ class MessageContentColumn(Nouvelle.Column):
     heading = 'content'
 
     def getValue(self, message):
-        return Message.AutoFormatter('xhtml').format(message)
+        try:
+            return Formatters.factory.findMedium('xhtml', message).format(message)
+        except Message.NoFormatterError:
+            return Template.error[str(sys.exc_info()[1])]
 
 
 class MessageList(Template.Section):
