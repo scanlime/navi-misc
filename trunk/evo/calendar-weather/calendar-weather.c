@@ -19,6 +19,11 @@
  *
  */
 
+#include <gtk/gtktable.h>
+#include <gtk/gtkspinbutton.h>
+#include <gtk/gtkoptionmenu.h>
+#include <gtk/gtklabel.h>
+#include <gtk/gtkbutton.h>
 #include <e-util/e-config.h>
 #include <calendar/gui/e-cal-config.h>
 #include <libedataserver/e-source.h>
