@@ -1,6 +1,6 @@
 \include "text.ly"
 
-serenadeFinaleCello = \notes \relative c {
+serenadeCello = \notes \relative c {
   \key d \minor
   \time 4/4
   \clef bass

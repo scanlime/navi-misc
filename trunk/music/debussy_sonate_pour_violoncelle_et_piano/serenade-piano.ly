@@ -1,6 +1,6 @@
 \include "text.ly"
 
-serenadeFinalePianoTreble = \notes \relative c {
+serenadePianoTreble = \notes \relative c {
   \key d \minor
   \time 4/4
 
@@ -9,7 +9,7 @@ serenadeFinalePianoTreble = \notes \relative c {
   ^\serenadeTempo
 }
 
-serenadeFinalePianoBass = \notes \relative c, {
+serenadePianoBass = \notes \relative c, {
   \key d \minor
   \time 4/4
   \clef bass
