@@ -391,7 +391,7 @@ class Metadata:
         cursor.execute("SELECT COUNT(*) FROM stats_metadata WHERE target_path = %s AND name = %s" %
                        (Database.quote(self.target.path, 'varchar'),
                         Database.quote(name, 'varchar')))
-        return bool(cursor.fetchone())
+        return bool(cursor.fetchone()[0])
 
     def _get(self, cursor, name, default):
         """Database interaction to return the value and type for a particular key"""
