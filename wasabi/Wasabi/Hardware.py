@@ -23,7 +23,8 @@ the mi6k (both through the mi6k module and through lircd) and the uvswitch
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import IR, Mixer, threading, time
+import IR, Mixer, threading, time, math
+from BZEngine import Animated
 
 
 class Devices:
@@ -67,7 +68,6 @@ class Devices:
         # If we have an mi6k connection, start the updater thread
         if self.mi6k:
             self.mi6kUpdater = Mi6kUpdater(self.mi6k)
-            self.mi6kUpdater.start()
 
     def warn(self, msg):
         """Issue a warning related to hardware initialization"""
@@ -112,11 +112,49 @@ class Mi6kUpdater(threading.Thread):
        """
     def __init__(self, mi6k):
         threading.Thread.__init__(self)
-        self.running = 1
+
         self.mi6k = mi6k
 
-    def run(self):
+        IR.defaultClient.onReceivedCode.observe(self.irFeedback)
+
+        self.running = 1
+        self.start()
+
+    def run(self, hzLimit=100):
+        """Run self.integrate() up to hzLimit times per second, calculating the proper
+           delta-t value.
+           """
+        then = time.time()
         while self.running:
-            self.mi6k.lights.blue = time.time() % 1
+            now = time.time()
+            dt = now - then
+            then = now
+            self.integrate(dt)
+            sleepTime = 1.0 / hzLimit - dt
+            if sleepTime > 0:
+                time.sleep(sleepTime)
+
+    def integrate(self, dt):
+        """Called every loop iteration with a delta-t value, to update the
+           current state of the mi6k displays.
+           """
+        # Decay the current LED brightnesses
+        lights = self.mi6k.lights
+        for color in ('blue', 'white'):
+            value = getattr(lights, color)
+            # Don't bother updating it once it's below the smallest
+            # light level the hardware can display.
+            if value > 0.0001:
+                value *= math.pow(0.005, dt)
+                setattr(lights, color, value)
+
+    def irFeedback(self, code):
+        """Visual feedback for received IR codes"""
+        if code.remote == "wasabi":
+            # A button on wasabi's remote
+            self.mi6k.lights.blue = 0.3
+        else:
+            # Any other recognized remote
+            self.mi6k.lights.white = 0.3
 
 ### The End ###
