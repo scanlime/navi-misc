@@ -117,13 +117,6 @@ class PalantirWindow:
     ''' Create a new connection. '''
     self.ConnectionDialog()
 
-  def on_character_sheet_activate(self, widget, data=None):
-    '''Show the part of the window that displays character sheets. '''
-    if self.tree.get_widget('character_sheet').get_active():
-      self.tree.get_widget('CharacterSheetPane').show()
-    else:
-      self.tree.get_widget('CharacterSheetPane').hide()
-
   def on_set_character_as_nick_activate(self, widget, data=None):
     ''' Looks in the name tag of the data for a character name and sets that
         as the user's nick.
@@ -267,6 +260,7 @@ class PalantirWindow:
 
     # Kill the file selector.
     self.tree.dialog.get_widget('SheetSelection').destroy()
+    self.tree.get_widget('CharacterSheetPane').show()
 
   def AddUserToList(self, nick, channel):
     ''' Add nick the userlist. '''
