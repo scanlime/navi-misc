@@ -24,30 +24,32 @@ Utilities for accessing CIA's persistent data stored in an SQL database
 from twisted.enterprise.adbapi import ConnectionPool
 import os
 
-# Ths is the global ConnectionPool object that we use to access our database.
-# Note that a ConnectionPool doesn't actually connect to the database, it
-# just imports the database module, validates it, and provides a way to
-# run queries. This is initialized at the module level, so we can use rebuild
-# to modify the database information if necessary.
-#
-# The database password is retrieved from ~/.mysql_passwd so it isn't stored
-# in this file. If the file can't be read, an exception is raised.
+def createPool():
+    # This creates the global ConnectionPool object that we use to access our database.
+    # Note that a ConnectionPool doesn't actually connect to the database, it
+    # just imports the database module, validates it, and provides a way to
+    # run queries. This is initialized at the module level, so we can use rebuild
+    # to modify the database information if necessary.
+    #
+    # The database password is retrieved from ~/.mysql_passwd so it isn't stored
+    # in this file. If the file can't be read, an exception is raised.
 
-passwdFilename = os.path.expanduser("~/.mysql_passwd")
-try:
-    passwd = open(passwdFilename).read().strip()
-    os.chmod(passwdFilename, 0600)
-except IOError:
-    raise Exception("Please create a file %r containing the MySQL database password" % passwdFilename)
+    passwdFilename = os.path.expanduser("~/.mysql_passwd")
+    try:
+        passwd = open(passwdFilename).read().strip()
+        os.chmod(passwdFilename, 0600)
+    except IOError:
+        raise Exception("Please create a file %r containing the MySQL database password" % passwdFilename)
 
-pool = ConnectionPool('MySQLdb',
-                      host   = 'localhost',
-                      db     = 'cia',
-                      user   = 'root',
-                      passwd = passwd,
+    return ConnectionPool('MySQLdb',
+                          host   = 'localhost',
+                          db     = 'cia',
+                          user   = 'root',
+                          passwd = passwd,
+                          # This is so we don't splurt our password out to twistd.log...
+                          cp_noisy = False,
+                          )
 
-                      # This is so we don't splurt our password out to twistd.log...
-                      cp_noisy = False,
-                      )
+pool = createPool()
 
 ### The End ###

@@ -26,10 +26,10 @@ the actual stats target using part of the message.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from twisted.web import xmlrpc
 from twisted.python import log
-import Ruleset, Message, Rack, TimeUtil, Debug
-import string, os, time, types
+from twisted.web import xmlrpc
+import Ruleset, Message, TimeUtil, RPC
+import string, os, time, types, posixpath
 
 
 class StatsURIHandler(Ruleset.RegexURIHandler):
@@ -40,44 +40,29 @@ class StatsURIHandler(Ruleset.RegexURIHandler):
     scheme = 'stats'
     regex = r"^stats://(?P<path>([a-zA-Z0-9_-]+(/[a-zA-Z0-9_-]+)*)?)$"
 
-    def __init__(self, storage):
-        self.storage = storage
-        Ruleset.RegexURIHandler.__init__(self)
-
     def message(self, uri, message, content):
         """Appends 'content' to the path represented by the given URI
            and delivers a message to its associated stats target.
            """
-        target = self.storage.getPathTarget(self.parseURI(uri)['path'], content)
-        target.deliver(message)
+        path = posixpath.join(self.parseURI(uri)['path'], content)
+        StatsTarget(path).deliver(message)
 
 
-class StatsInterface(xmlrpc.XMLRPC):
+class StatsInterface(RPC.Interface):
     """An XML-RPC interface used to query stats"""
-    def __init__(self, caps, storage):
-        xmlrpc.XMLRPC.__init__(self)
-        self.caps = caps
-        self.storage = storage
-        self.putSubHandler('metadata', MetadataInterface(self.caps, self.storage))
+    def __init__(self):
+        RPC.Interface.__init__(self)
+        self.putSubHandler('metadata', MetadataInterface())
 
     def xmlrpc_catalog(self, path=''):
-        """Return a list of subdirectories within this stats path.
-           Defaults to the root of the stats:// namespace if 'path'
-           isn't specified.
-           """
-        try:
-            return self.storage.getPathTarget(path).catalog()
-        except:
-            Debug.catchFault()
+        """Return a list of subdirectories within this stats path"""
+        return StatsTarget(path).catalog()
 
     def xmlrpc_getLatestMessages(self, path, limit=None):
         """Return 'limit' latest messages delivered to this stats target,
            or all available recent messages if 'limit' isn't specified.
            """
-        try:
-            return self.storage.getPathTarget(path).recentMessages.getLatest(limit)
-        except:
-            Debug.catchFault()
+        return StatsTarget(path).getLatestMessages(limit)
 
     def xmlrpc_getCounterValues(self, path, name):
         """Returns a dictionary with current values for the given counter.
@@ -252,7 +237,7 @@ class StatsStorage(object):
         return StatsTarget(self)
 
 
-class MetadataRack(Rack.Rack):
+class MetadataRack:
     """A Rack subclass that only stores strings, but allows retrieval
        and specification of meta-metadata such as a value's MIME type.
        """
