@@ -201,6 +201,12 @@ class Dock(object):
         self.icons.extend([DockIcon(self, icon) for icon in icons])
         self.respaceIcons()
 
+    def remove(self, *icons):
+        """Remove the given icons from the menu"""
+        for icon in icons:
+            self.icons.remove(icon)
+        self.respaceIcons()
+
     def jump(self):
         """Instantly jump all current animation to its next resting point"""
         for icon in self.icons:
