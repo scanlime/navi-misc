@@ -206,7 +206,7 @@ create_weather (ECalBackendWeather *cbw, WeatherForecast *report)
 	ECalComponentDateTime dt;
 	const char *name, *uid;
 	GSList *text_list = NULL;
-	ECalComponentText description;
+	ECalComponentText *description;
 	int i;
 	char *pop, *snow;
 
@@ -258,10 +258,11 @@ create_weather (ECalBackendWeather *cbw, WeatherForecast *report)
 		snow = g_strdup_printf ("%d\" snowfall\n", (int) report->snowhigh);
 	else
 		snow = g_strdup_printf ("%d-%d\" snowfall\n", (int) report->snowlow, (int) report->snowhigh);
-	description.value = g_strdup_printf ("%s\n%s%s", getConditions (report), pop, snow);
-	description.altrep = g_strdup_printf ("");
-	text_list = g_slist_append (text_list, &description);
-	e_cal_component_set_description_list (cal_comp, text_list);
+	description = g_new0 (ECalComponentText, 1);
+	description->value = g_strdup_printf ("%s\n%s%s", getConditions (report), pop, snow);
+	description->altrep = g_strdup_printf ("");
+	text_list = g_slist_append (text_list, description);
+//	e_cal_component_set_description_list (cal_comp, text_list);
 
 	/* Set category and visibility */
 	e_cal_component_set_categories (cal_comp, getConditions (report));
