@@ -8,6 +8,10 @@ class Therm:
        and a place for readings to be stored. Note that the address
        here is not the full I2C address, it is the number from 0 to 7
        printed on the TC74's package.
+
+       The current temperature at this therm is stored in the 'value'
+       attribute as degrees celsius. It will be None if no reading has
+       been taken or this therm is disconnected.
        """
     def __init__(self, bus, address, description=None):
         self.bus = bus
@@ -16,8 +20,17 @@ class Therm:
         self.value = None
 
     def __repr__(self):
-        return '<Therm %r on bus %s, address %s, reading %s>' % (
-            self.description, self.bus, self.address, self.value)
+        if self.value is None:
+            data = "no reading"
+        else:
+            data = "%.02f F" % self.inFahrenheit()
+        return '<Therm %r at %s:%s, %s>' % (
+            self.description, self.bus, self.address, data)
+
+    def inFahrenheit(self):
+        """Return the therm's value in degrees fahrenheit rather than the default degrees celcius"""
+        if self.value is not None:
+            return self.value * 9.0 / 5 + 32
 
 
 class ThermSampler:
@@ -48,7 +61,14 @@ class ThermSampler:
             for addrTherm in addrTherms:
                 for busNum, temp in temps.items():
                     if addrTherm.bus == busNum:
-                        addrTherm.value = temp
+
+                        # If our temperature reading is 255, the thermometer is
+                        # disconnected (the bus's idle state is 1, and the devices
+                        # can't produce readings that high)
+                        if temp == 255:
+                            addrTherm.value = None
+                        else:
+                            addrTherm.value = temp
 
 
 class MultiTherm:
