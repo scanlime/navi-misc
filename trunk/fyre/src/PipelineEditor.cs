@@ -60,8 +60,20 @@ namespace Fyre
 		int					click_x, click_y;
 		bool					dragging;
 		bool					check_drag;
-		Gtk.TargetEntry[]			targets;
-		Gtk.TargetList				target_list;
+
+		static Gtk.TargetEntry[]		targets;
+		static Gtk.TargetList			target_list;
+		public static Gtk.TargetEntry[]		DragTargets
+		{
+			get {
+				if (targets == null) {
+					targets = new Gtk.TargetEntry[1];
+					targets[0] = new Gtk.TargetEntry ("fyre element drag", Gtk.TargetFlags.App, 0);
+					target_list = new Gtk.TargetList (targets);
+				}
+				return targets;
+			}
+		}
 
 		public static void Main (string[] args)
 		{
@@ -74,11 +86,6 @@ namespace Fyre
 
 			Glade.XML gxml = new Glade.XML (null, "pipeline-editor.glade", "toplevel", null);
 			gxml.Autoconnect (this);
-
-			// Create drag-and-drop target
-			targets = new Gtk.TargetEntry[1];
-			targets[0] = new Gtk.TargetEntry ("fyre element drag", Gtk.TargetFlags.App, 0);
-			target_list = new Gtk.TargetList (targets);
 
 			// Set up the major parts of the UI
 			SetupElementList ();
@@ -132,7 +139,7 @@ namespace Fyre
 			element_list.AppendColumn (column);
 
 			// Set up drag-and-drop for our tree view
-			Gtk.Drag.SourceSet (element_list, Gdk.ModifierType.Button1Mask, targets, Gdk.DragAction.Copy);
+			Gtk.Drag.SourceSet (element_list, Gdk.ModifierType.Button1Mask, DragTargets, Gdk.DragAction.Copy);
 		}
 
 		void SetupDrawingCanvas ()
@@ -146,7 +153,7 @@ namespace Fyre
 
 			// Set up drag-and-drop for the frame. This looks better than setting it
 			// up for the drawing area, but it doesn't really affect structure
-			Gtk.Drag.DestSet (pipeline_window, Gtk.DestDefaults.All, targets, Gdk.DragAction.Copy);
+			Gtk.Drag.DestSet (pipeline_window, Gtk.DestDefaults.All, DragTargets, Gdk.DragAction.Copy);
 		}
 
 		void SetupNavigationBox ()
