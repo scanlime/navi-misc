@@ -104,7 +104,10 @@ class Devices:
         if self.mi6k:
             self.mi6k.lights.blue = 0
             self.mi6k.lights.white = 0
-            self.mi6k.vfd.powerOff()
+
+            # Blank the VFD, don't power it off yet
+            self.mi6k.vfd.writeScreen("")
+            #self.mi6k.vfd.powerOff()
 
 
 class Mi6kUpdater(threading.Thread):
@@ -123,7 +126,7 @@ class Mi6kUpdater(threading.Thread):
         self.running = 1
         self.start()
 
-    def run(self, hzLimit=100):
+    def run(self, hzLimit=10):
         """Run self.integrate() up to hzLimit times per second, calculating the proper
            delta-t value.
            """
@@ -164,6 +167,9 @@ class Mi6kUpdater(threading.Thread):
             # Any other recognized remote
             self.mi6k.lights.white = 0.3
 
+        if hasattr(self.vfdPage, 'status'):
+            self.vfdPage.status = "%s - %s" % (code.remote, code.name)
+
 
 class VFDPage:
     """An abstract page of information that is displayed on the VFD. Updated by
@@ -180,14 +186,28 @@ class StatusClockVFDPage(VFDPage):
     """A VFD page that displays a clock and a status line"""
     def __init__(self):
         self.colonIndex = 0
-        self.status = "Idle"
+        self.status = ""
+        self.lastStatus = ""
+        self.brightness = 0
 
     def integrate(self, dt, vfd):
         # Clock with a flashing colon
 	self.colonIndex += dt * 3
 	self.colonIndex %= 2
-	clock = time.strftime("%%H%s%%M" % ": "[int(self.colonIndex)], time.localtime())
+        localTime = time.localtime()
+	clockTime = time.strftime("%%H%s%%M" % ": "[int(self.colonIndex)], localTime)
+        clockDate = time.strftime("%a %b %d", localTime)
 
-        vfd.writeScreen("%s\n%s" % (self.status, clock))
+        # If the status has changed, make the VFD bright and dim it gradually
+        if self.status != self.lastStatus:
+            self.brightness = 1
+            self.lastStatus = self.status
+        if self.brightness > 0.01:
+            self.brightness -= dt * 2
+        else:
+            self.brightness = 0
+        vfd.setBrightness(self.brightness)
+
+        vfd.writeScreen("%s\n%5s%15s" % (self.status, clockTime, clockDate))
 
 ### The End ###
