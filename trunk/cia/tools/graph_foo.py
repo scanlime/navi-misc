@@ -81,10 +81,18 @@ class RelationGrapher:
             self._generateDot, f, result).addErrback(result.errback)
         return result
 
+    def quote(self, t):
+        """Quote the given text for inclusion in a dot file"""
+        t = t.replace("\\", "\\\\")
+        for badChar in '":<>|':
+            t = t.replace(badChar, '\\' + badChar)
+        return '"' + t + '"'
+
     def dictToAttrs(self, d):
         """Convert a dictionary to a dot attribute string"""
         if d:
-            return "[%s]" % ",".join(['%s="%s"' % item for item in d.iteritems()])
+            return "[%s]" % ",".join(['%s=%s' % (key, self.quote(str(value)))
+                                      for key, value in d.iteritems()])
         else:
             return ""
 
@@ -105,14 +113,16 @@ class RelationGrapher:
                 if node in selector:
                     attributes = selector.getAttributes(node)
                     break
-            f.write('\t"%s" %s;\n' % (node, self.dictToAttrs(attributes)))
+            f.write('\t%s %s;\n' % (self.quote(node), self.dictToAttrs(attributes)))
 
         # Write edges
         for row in rows:
             attributes = {
                 'len': 5.0,
                 }
-            f.write('\t"%s" -- "%s" %s;\n' % (row[0], row[1], self.dictToAttrs(attributes)))
+            f.write('\t%s -- %s %s;\n' % (self.quote(row[0]),
+                                          self.quote(row[1]),
+                                          self.dictToAttrs(attributes)))
 
         f.write("}\n")
         result.callback(None)
@@ -165,6 +175,7 @@ if __name__ == '__main__':
         reactor.stop()
     def oops(result):
         print result
+        reactor.stop()
 
     RelationGrapher(
         PrefixSelector('project/', color='#FF0000', shape='box'),
