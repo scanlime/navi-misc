@@ -44,10 +44,8 @@ public:
 	virtual const char* GetPrefsName ( void );
 
 	virtual const char* GetGameName ( void );
-protected:
-  void updateStats ( void );
-  void showDebugOverlay(bool show);
 
+protected:
 	// global flags
 	bool				inUI;
 	int					numScreenShots;

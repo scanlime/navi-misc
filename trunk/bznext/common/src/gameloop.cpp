@@ -52,6 +52,7 @@ std::string GetUpperString( char *szData )
 CBaseGameLoop::CBaseGameLoop()
 {
   mRoot = 0;
+	showDebug = false;
 }
 
 CBaseGameLoop::~CBaseGameLoop()
@@ -84,6 +85,7 @@ void CBaseGameLoop::ClearScene ( void )
 	TextureManager::getSingleton().setDefaultNumMipMaps(5);
 	input.Init(GetRenderWindow());
 
+	showDebugOverlay(showDebug);
 }
 
 bool CBaseGameLoop::Run ( void )
@@ -104,6 +106,15 @@ bool CBaseGameLoop::Run ( void )
 
 	input.Init(GetRenderWindow());
   timer.Init();
+
+	// load the debug overlay
+	showDebug = args.GetDataB("showDebug");
+
+#ifdef _SHOW_FRAME_OVERLAY
+	showDebug = true;
+#endif
+	showDebugOverlay(showDebug);
+	return false;
 
   if(OnInit())
   {
@@ -208,6 +219,9 @@ bool CBaseGameLoop::frameStarted(const FrameEvent& evt)
 
 bool CBaseGameLoop::frameEnded(const FrameEvent& evt)
 {
+	if (showDebug)
+		updateStats();
+
   OnFrameEnd();
   return true;
 }
@@ -351,6 +365,51 @@ void CBaseGameLoop::SetGameStartString ( const char *startString )
 		gameStartString = "";
 	else
 		gameStartString = startString;
+}
+
+void CBaseGameLoop::showDebugOverlay ( bool show )
+{
+	Overlay* o = (Overlay*)OverlayManager::getSingleton().getByName("Core/DebugOverlay");
+	if (!o)
+		Except( Exception::ERR_ITEM_NOT_FOUND, "Could not find overlay Core/DebugOverlay",
+		"showDebugOverlay" );
+	if (show)
+	{
+		o->show();
+	}
+	else
+	{
+		o->hide();
+	}
+}
+void CBaseGameLoop::updateStats(void)
+{
+	static String currFps = "Current FPS: ";
+	static String avgFps = "Average FPS: ";
+	static String bestFps = "Best FPS: ";
+	static String worstFps = "Worst FPS: ";
+	static String tris = "Triangle Count: ";
+
+	// update stats when necessary
+	GuiElement* guiAvg = GuiManager::getSingleton().getGuiElement("Core/AverageFps");
+	GuiElement* guiCurr = GuiManager::getSingleton().getGuiElement("Core/CurrFps");
+	GuiElement* guiBest = GuiManager::getSingleton().getGuiElement("Core/BestFps");
+	GuiElement* guiWorst = GuiManager::getSingleton().getGuiElement("Core/WorstFps");
+
+	const RenderTarget::FrameStats& stats = GetRenderWindow()->getStatistics();
+
+	guiAvg->setCaption(avgFps + StringConverter::toString(stats.avgFPS));
+	guiCurr->setCaption(currFps + StringConverter::toString(stats.lastFPS));
+	guiBest->setCaption(bestFps + StringConverter::toString(stats.bestFPS)
+		+" "+StringConverter::toString(stats.bestFrameTime)+" ms");
+	guiWorst->setCaption(worstFps + StringConverter::toString(stats.worstFPS)
+		+" "+StringConverter::toString(stats.worstFrameTime)+" ms");
+
+	GuiElement* guiTris = GuiManager::getSingleton().getGuiElement("Core/NumTris");
+	guiTris->setCaption(tris + StringConverter::toString((unsigned int)stats.triangleCount));
+
+	GuiElement* guiDbg = GuiManager::getSingleton().getGuiElement("Core/DebugText");
+	guiDbg->setCaption(GetRenderWindow()->getDebugText());
 }
 
 

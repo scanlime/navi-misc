@@ -93,6 +93,9 @@ protected:
   void CreateCamera ( void );
   void CreateViewports ( void );
 
+	void updateStats ( void );
+	void showDebugOverlay(bool show);
+
   CCommandLineArgs  args;
   CPrefsManager     prefs;
   CInputManager    input;
@@ -106,6 +109,8 @@ protected:
 	bool				quit;
 	std::string	gameName;
 	std::string gameStartString;
+
+	bool				showDebug;
 };
 
 #endif //_GAME_LOOP_H_

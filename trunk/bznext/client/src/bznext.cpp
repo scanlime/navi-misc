@@ -41,13 +41,7 @@ bool CBZNextLoop::OnInit ( void )
 	else
 		game.Attach();
 
-	bool showDebug = args.Exists("showDebug");
-
-#ifdef _SHOW_FRAME_OVERLAY
-		showDebug = true;
-#endif
-		showDebugOverlay(showDebug);
-  return false;
+	return false;
 }
 
 bool CBZNextLoop::OnKill( void )
@@ -134,51 +128,5 @@ bool CBZNextLoop::GameLoop ( void )
 }
 void CBZNextLoop::OnFrameEnd ( void )
 {
-  updateStats();
 }
 
-void CBZNextLoop::showDebugOverlay ( bool show )
-{
-  Overlay* o = (Overlay*)OverlayManager::getSingleton().getByName("Core/DebugOverlay");
-  if (!o)
-    Except( Exception::ERR_ITEM_NOT_FOUND, "Could not find overlay Core/DebugOverlay",
-    "showDebugOverlay" );
-  if (show)
-  {
-    o->show();
-  }
-  else
-  {
-    o->hide();
-  }
-}
-
-void CBZNextLoop::updateStats(void)
-{
-  static String currFps = "Current FPS: ";
-  static String avgFps = "Average FPS: ";
-  static String bestFps = "Best FPS: ";
-  static String worstFps = "Worst FPS: ";
-  static String tris = "Triangle Count: ";
-
-  // update stats when necessary
-  GuiElement* guiAvg = GuiManager::getSingleton().getGuiElement("Core/AverageFps");
-  GuiElement* guiCurr = GuiManager::getSingleton().getGuiElement("Core/CurrFps");
-  GuiElement* guiBest = GuiManager::getSingleton().getGuiElement("Core/BestFps");
-  GuiElement* guiWorst = GuiManager::getSingleton().getGuiElement("Core/WorstFps");
-
-  const RenderTarget::FrameStats& stats = GetRenderWindow()->getStatistics();
-
-  guiAvg->setCaption(avgFps + StringConverter::toString(stats.avgFPS));
-  guiCurr->setCaption(currFps + StringConverter::toString(stats.lastFPS));
-  guiBest->setCaption(bestFps + StringConverter::toString(stats.bestFPS)
-    +" "+StringConverter::toString(stats.bestFrameTime)+" ms");
-  guiWorst->setCaption(worstFps + StringConverter::toString(stats.worstFPS)
-    +" "+StringConverter::toString(stats.worstFrameTime)+" ms");
-
-  GuiElement* guiTris = GuiManager::getSingleton().getGuiElement("Core/NumTris");
-  guiTris->setCaption(tris + StringConverter::toString((unsigned int)stats.triangleCount));
-
-  GuiElement* guiDbg = GuiManager::getSingleton().getGuiElement("Core/DebugText");
-  guiDbg->setCaption(GetRenderWindow()->getDebugText());
-}
