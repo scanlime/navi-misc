@@ -140,7 +140,7 @@ class PalantirWindow:
       ctcp = ('UNDM',None)
 
     self.factory.SendCTCP(self.factory.channels[0], [ctcp])
-    self.chatWindow.DisplayText(time, text)
+    self.chatWindow.DisplayText(time, '', text)
     store.foreach(self.setUserIcon, (self.factory.nickname, image.get_pixbuf()))
 
   ### Color Selection Dialog ###
@@ -523,7 +523,7 @@ class PalantirWindow:
 
     # Format the text to display in our window.
     if self.tree.get_widget('time_stamps').get_active():
-      hour, min, sec = self.GetTime()
+      hour, min, sec = palantir.getTime()
       time = '[' + hour + ':' + min + ':' + sec + ']'
     else:
       time = ''
