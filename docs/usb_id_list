@@ -16,3 +16,5 @@ vendor ID:
 000A  Gamecube Controller Hub
 000B  Unicone (bootloader mode)
 000C  Unicone
+000D  TUSB3210 Example Firmware
+000E  TUSB3210 Example Firmware (bootloader mode)
