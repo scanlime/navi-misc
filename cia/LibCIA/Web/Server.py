@@ -124,6 +124,15 @@ class Request(server.Request):
         self.finish()
         return reason
 
+    def getClientIP(self):
+        """Get the real IP address of our client. This is aware of proxies
+           that support the X-Forwarded-For HTTP header.
+           """
+        xff = self.getHeader('X-Forwarded-For')
+        if xff:
+            return xff.split(',', 1)[0].strip()
+        return server.Request.getClientIP(self)
+
     def process(self):
         # Count this request, yay
         server.Request.process(self)
