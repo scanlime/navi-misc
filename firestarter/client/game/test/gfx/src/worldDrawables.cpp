@@ -38,7 +38,7 @@ CSkyObject::~CSkyObject()
 
 void CSkyObject::Init ( void )
 {
-	CFirestarterLoop::instance().GetSceneManager()->setSkyBox(true, "grassland_skybox",5000,true,Quaternion(1.57079632f,Vector3(1,0,0)));
+	CFirestarterLoop::instance().GetSceneManager()->setSkyBox(true, parent->GetValueS("skybox"),parent->GetValueF("groundSize")*4,true,Quaternion(1.57079632f,Vector3(1,0,0)));
 }
 
 void CSkyObject::Think ( void )
@@ -70,10 +70,10 @@ CGroundObject::~CGroundObject()
 
 void CGroundObject::Init ( void )
 {
-	Mesh* mesh = MeshManager::getSingleton().createPlane("GroundPlane", Plane (Vector3(0,1,0),Vector3(0,0,0),Vector3(1,0,0)),800, 800,1,1,true,1,60,60);
+	Mesh* mesh = MeshManager::getSingleton().createPlane("GroundPlane", Plane (Vector3(0,1,0),Vector3(0,0,0),Vector3(1,0,0)),parent->GetValueF("groundSize"), parent->GetValueF("groundSize"),1,1,true,1,parent->GetValueF("groundTextureRepeat"),parent->GetValueF("groundTextureRepeat"));
 	if (mesh && mesh->getSubMeshIterator().hasMoreElements())
 	{
-		mesh->getSubMeshIterator().getNext()->setMaterialName("ground_mat");
+		mesh->getSubMeshIterator().getNext()->setMaterialName(parent->GetValueS("groundTexture"));
 	}
 	Entity *mGroundEntity = CFirestarterLoop::instance().GetSceneManager()->createEntity("Ground","GroundPlane");
 	mGroundNode = static_cast<SceneNode*>(CFirestarterLoop::instance().GetSceneManager()->getRootSceneNode()->createChild());

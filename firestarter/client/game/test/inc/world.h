@@ -52,11 +52,15 @@ class CTestWorld : public CBaseObject
 
 		// functions for the world drawable to call
 		const char* GetValueS ( const char *item );
+		float GetValueF ( const char *item );
+		int GetValueI ( const char *item );
+
 
 		// other stuff here for all the other world things that we need to do.
 
 	protected:
 		int							worldDrawables[2];
+		trWorldInfo			worldInfo;
 };
 
 #endif //_TEST_WORLD_H_
