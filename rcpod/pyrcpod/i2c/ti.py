@@ -326,7 +326,7 @@ class ADS7828(i2c.Device):
             sd = 0x00
         else:
             sd = 0x80
-        commandByte = sd | (channel << 4) | (powerMode << 2) 
+        commandByte = sd | (self.channelTable[channel] << 4) | (powerMode << 2) 
 
         high, low = self.busWriteRead([commandByte], 2)
         return self._decode(high, low, returnType)
