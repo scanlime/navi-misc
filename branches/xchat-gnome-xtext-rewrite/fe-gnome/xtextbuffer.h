@@ -23,6 +23,8 @@ struct _XTextBuffer
 
   textentry *text_first;
   textentry *text_last;
+  guint num_lines;
+  guint max_lines;
 };
 
 struct _XTextBufferClass
