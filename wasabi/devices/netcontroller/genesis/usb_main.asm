@@ -51,11 +51,14 @@ unbanked	udata_shr
 W_save		res	1	; register for saving W during ISR
 
 bank0	udata
+
 Status_save	res	1	; registers for saving context
 PCLATH_save	res	1	;  during ISR
 FSR_save	res	1
 PIRmasked	res	1
 USBMaskedInterrupts  res  1
+
+porta_select	res	4
 
 	extern	InitUSB
 	extern	USBReset
@@ -67,6 +70,8 @@ USBMaskedInterrupts  res  1
 	extern	USB_dev_req
 	extern	finish_set_address
 
+	global	porta_select
+
 STARTUP	code
 	pagesel	Main
 	goto	Main
@@ -74,17 +79,37 @@ STARTUP	code
 InterruptServiceVector
 	movwf	W_save		; save W
 	movf	STATUS,W
-	banksel	Status_save
+	clrf	STATUS
 	movwf	Status_save	; save STATUS
-	movf	PCLATH,w
-	movwf	PCLATH_save	; save PCLATH
 	movf	FSR,w
 	movwf	FSR_save	; save FSR
 
 ; *************************************************************
-; Interrupt Service Routine
-; First we step through several stages, attempting to identify the source
-; of the interrupt.
+; Select updates
+; ******************************************************************
+
+	;; Our first priority is to update our outputs as fast
+	;; as possible if a select input might have changed.
+	;; We don't even bother checking whether this is really a
+	;; portb change interrupt, since if it isn't we aren't doing
+	;; any harm. Everything's been precalculated for us, we
+	;; just use the two select bits (RB4 and RB5) to index
+	;; into a table of values for PORTA.
+
+	swapf	PORTB, w
+	andlw	0x03
+	addwf	porta_select, w
+	movwf	FSR
+	movf	INDF, w
+	movwf	PORTA
+	bcf	INTCON, RBIF
+
+	;; Now that we aren't rushing to update PORTA, save PCLATH
+	movf	PCLATH,w
+	movwf	PCLATH_save	; save PCLATH
+
+; *************************************************************
+; USB Interrupt Service Routine
 ; ******************************************************************
 
 PERIPHERALTEST
@@ -191,8 +216,36 @@ Main
 	decfsz	W_save,f		; W_save is merely a convienient register
 	goto	$-1			; to use for the delay counter.
 
-	pagesel	InitUSB
+	;; Initialize I/O...
+
+	banksel PORTA
+	movlw	0x0F		; Active-high controllers, active-low reset
+	movwf	PORTA
+	movlw	0x0F		; Active-high controllers
+	movwf	PORTB
+	movlw	0x47		; Active-high controllers, active-low power
+	movwf	PORTC
+
+	banksel	TRISA
+	movlw	0x1F		; controller outputs, reset is input when inactive
+	movwf	TRISA
+	movlw	0x30		; controller outputs, two select inputs
+	movwf	TRISB
+	movlw	0xFF		; controller and power switch outputs
+	movwf	TRISC
+
+	banksel	porta_select	; Put sane initial PORTA values on porta_select
+	movlw	0x0F		;   *before* enabling any interrupts
+	movwf	porta_select+0
+	movwf	porta_select+1
+	movwf	porta_select+2
+	movwf	porta_select+3
+
+	pagesel	InitUSB		; This turns on GIE and some USB interrupts
 	call	InitUSB
+
+	bcf	INTCON, RBIF	; Enable the PORTB interrupt-on-change, to quickly
+	bsf	INTCON, RBIE	;   respond to changes in the select lines.x
 
 
 ;******************************************************************* Main Loop
@@ -200,11 +253,9 @@ Main
 MainLoop
 	clrwdt
 
-	pagesel ServiceUSB
-	call	ServiceUSB	; see if there are any USB tokens to process
+	pscall	ServiceUSB
 
-	pagesel MainLoop
-	goto    MainLoop
+	psgoto    MainLoop
 
 	end
 
