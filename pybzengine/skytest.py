@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-from BZFlag.UI import Viewport, ThreeDRender, ThreeDControl, Environment, Drawable
-from BZFlag import Event
+from BZEngine.UI import Viewport, ThreeDRender, ThreeDControl, Environment, Drawable
+from BZEngine import Event
 
 # Viewport, view, and event loop setup
 loop = Event.EventLoop()

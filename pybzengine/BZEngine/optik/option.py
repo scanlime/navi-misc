@@ -12,7 +12,7 @@ __revision__ = "$Id: option.py,v 1.2 2003/07/06 03:57:28 micahjd Exp $"
 
 import sys
 import types
-from BZFlag.optik.errors import OptionError, OptionValueError
+from BZEngine.optik.errors import OptionError, OptionValueError
 
 # Do the right thing with boolean values for all known Python versions.
 try:

@@ -1,4 +1,4 @@
-""" BZFlag.UI.Viewport
+""" BZEngine.UI.Viewport
 
 A Viewport in this context is an area that can be drawn to and
 provides event handling. The idea is that views associate with
@@ -18,7 +18,7 @@ the view, keyboard events can have focus handled, etc. depending
 on the needs of a particular view multiplexer class.
 """
 #
-# Python BZFlag Package
+# Python BZEngine Package
 # Copyright (C) 2003 Micah Dowty <micahjd@users.sourceforge.net>
 #
 #  This library is free software; you can redistribute it and/or

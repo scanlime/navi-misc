@@ -1,4 +1,4 @@
-""" BZFlag.UI.Drawable.VRML.Parser
+""" BZEngine.UI.Drawable.VRML.Parser
 
 A simple heuristic-based VRML parser.
 This includes a real lexer, built with Python 2.2's new regular expression
@@ -11,7 +11,7 @@ according to the standard, is easy to extract information from.
 It uses this extracted information to instantiate the Mesh class.
 """
 #
-# Python BZFlag Package
+# Python BZEngine Package
 # Copyright (C) 2003 Micah Dowty <micahjd@users.sourceforge.net>
 #
 #  This library is free software; you can redistribute it and/or
@@ -29,8 +29,8 @@ It uses this extracted information to instantiate the Mesh class.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from BZFlag import Util
-from BZFlag.Geometry import *
+from BZEngine import Util
+from BZEngine.Geometry import *
 from Mesh import Mesh
 import re
 

@@ -1,9 +1,9 @@
-""" BZFlag.Errors
+""" BZEngine.Errors
 
-User-defined exception classes used by the BZFlag package
+User-defined exception classes used by the BZEngine package
 """
 #
-# Python BZFlag Package
+# Python BZEngine Package
 # Copyright (C) 2003 Micah Dowty <micahjd@users.sourceforge.net>
 #
 #  This library is free software; you can redistribute it and/or

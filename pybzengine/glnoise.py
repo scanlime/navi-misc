@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-from BZFlag.Event import EventLoop
-from BZFlag.UI import Viewport, GLNoise, Texture, ThreeDRender, ThreeDControl, Drawable
-from BZFlag import Animated
+from BZEngine.Event import EventLoop
+from BZEngine.UI import Viewport, GLNoise, Texture, ThreeDRender, ThreeDControl, Drawable
+from BZEngine import Animated
 
 loop = EventLoop()
 viewport = Viewport.OpenGLViewport(loop)

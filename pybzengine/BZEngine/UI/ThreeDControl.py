@@ -1,9 +1,9 @@
-""" BZFlag.UI.ThreeDControl
+""" BZEngine.UI.ThreeDControl
 
 Controller classes for manipulating 3D views
 """
 #
-# Python BZFlag Package
+# Python BZEngine Package
 # Copyright (C) 2003 Micah Dowty <micahjd@users.sourceforge.net>
 #
 #  This library is free software; you can redistribute it and/or
@@ -22,8 +22,8 @@ Controller classes for manipulating 3D views
 #
 
 import math, sys, pygame
-from BZFlag import Animated, Event
-from BZFlag.UI import ThreeDRender, Viewport, Instrument
+from BZEngine import Animated, Event
+from BZEngine.UI import ThreeDRender, Viewport, Instrument
 
 
 class Modifiers:
@@ -285,7 +285,7 @@ class Viewing:
             print "--- Stopped recording"
         else:
             try:
-                from BZFlag.UI import MovieRecorder
+                from BZEngine.UI import MovieRecorder
                 self.movieRecorder = MovieRecorder.Recorder(self.viewport)
                 filename = self.movieRecorder.start()
                 print "--- Recording video to %s" % filename

@@ -16,10 +16,10 @@ __version__ = "1.4.1"
 
 
 # Re-import these for convenience
-from BZFlag.optik.option import Option
-from BZFlag.optik.option_parser import *
-from BZFlag.optik.help import *
-from BZFlag.optik.errors import *
+from BZEngine.optik.option import Option
+from BZEngine.optik.option_parser import *
+from BZEngine.optik.help import *
+from BZEngine.optik.errors import *
 
 
 # Some day, there might be many Option classes.  As of Optik 1.3, the

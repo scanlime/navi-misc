@@ -2,8 +2,8 @@
 #
 # Test the perlin noise generator
 #
-from BZFlag.UI import Viewport
-from BZFlag import Event, Noise
+from BZEngine.UI import Viewport
+from BZEngine import Event, Noise
 from Numeric import *
 import pygame
 

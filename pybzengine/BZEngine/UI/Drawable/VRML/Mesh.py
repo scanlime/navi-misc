@@ -1,4 +1,4 @@
-""" BZFlag.UI.Drawable.VRML.Mesh
+""" BZEngine.UI.Drawable.VRML.Mesh
 
 Mesh is the actual drawable behind a VRML mesh. It accepts
 VRML nodes parsed by Parser, and performs any additional processing
@@ -6,7 +6,7 @@ necessary to render them. This includes tesselating polygons and
 calculating surface normals.
 """
 #
-# Python BZFlag Package
+# Python BZEngine Package
 # Copyright (C) 2003 Micah Dowty <micahjd@users.sourceforge.net>
 #
 #  This library is free software; you can redistribute it and/or
@@ -24,9 +24,9 @@ calculating surface normals.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from BZFlag.UI.Drawable.Array import *
-from BZFlag.UI.Drawable.DisplayList import *
-from BZFlag.Geometry import *
+from BZEngine.UI.Drawable.Array import *
+from BZEngine.UI.Drawable.DisplayList import *
+from BZEngine.Geometry import *
 from OpenGL.GL import *
 from Numeric import *
 import os

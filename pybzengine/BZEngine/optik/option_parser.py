@@ -12,9 +12,9 @@ __revision__ = "$Id: option_parser.py,v 1.2 2003/07/06 03:57:28 micahjd Exp $"
 
 import sys, os
 import types
-from BZFlag.optik.option import Option, NO_DEFAULT
-from BZFlag.optik.help import IndentedHelpFormatter
-from BZFlag.optik.errors import OptionConflictError, OptionValueError, BadOptionError
+from BZEngine.optik.option import Option, NO_DEFAULT
+from BZEngine.optik.help import IndentedHelpFormatter
+from BZEngine.optik.errors import OptionConflictError, OptionValueError, BadOptionError
 
 __all__ = ['SUPPRESS_HELP', 'SUPPRESS_USAGE',
            'STD_HELP_OPTION', 'STD_VERSION_OPTION',

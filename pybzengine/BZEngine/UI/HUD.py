@@ -1,9 +1,9 @@
-""" BZFlag.UI.HUD
+""" BZEngine.UI.HUD
 
 Views and utilities for rendering the Heads Up Display
 """
 #
-# Python BZFlag Package
+# Python BZEngine Package
 # Copyright (C) 2003 Micah Dowty <micahjd@users.sourceforge.net>
 #
 #  This library is free software; you can redistribute it and/or
@@ -23,8 +23,8 @@ Views and utilities for rendering the Heads Up Display
 
 from __future__ import division
 from OpenGL.GL import *
-from BZFlag.UI import GLText, GLExtension
-from BZFlag import Animated
+from BZEngine.UI import GLText, GLExtension
+from BZEngine import Animated
 
 
 class Panel:

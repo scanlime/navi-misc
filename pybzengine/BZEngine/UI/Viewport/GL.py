@@ -1,4 +1,4 @@
-""" BZFlag.UI.Viewport.OpenGL
+""" BZEngine.UI.Viewport.OpenGL
 
 A Viewport implementation for OpenGL. This uses Pygame to set up an OpenGL
 context and receive events, hence this is a subclass of the Pygame viewport.
@@ -10,7 +10,7 @@ If the feature should affect sub-viewports created by region(), or it's importan
 that it only ever be invoked once per frame, it might be a good cantidate to go here.
 """
 #
-# Python BZFlag Package
+# Python BZEngine Package
 # Copyright (C) 2003 Micah Dowty <micahjd@users.sourceforge.net>
 #
 #  This library is free software; you can redistribute it and/or
@@ -33,8 +33,8 @@ from Pygame import PygameViewport
 from Base import Viewport
 from OpenGL.GL import *
 from OpenGL.GLU import *
-from BZFlag.UI import GLExtension
-from BZFlag import Event
+from BZEngine.UI import GLExtension
+from BZEngine import Event
 import pygame
 
 
@@ -204,7 +204,7 @@ class XRayMode(ClearedMode):
         self.texRepeats = (glGetIntegerv(GL_VIEWPORT)[2] / self.texSize,
                            glGetIntegerv(GL_VIEWPORT)[3] / self.texSize)
 
-        from BZFlag.UI import GLText
+        from BZEngine.UI import GLText
         self.depthTextures = {}
         font = GLText.Font(self.fontName, [self.fontSize]).findRendered(self.fontSize).font
         for depth in self.depthRange:

@@ -1,9 +1,9 @@
-""" BZFlag.UI.ThreeDRender.Engine
+""" BZEngine.UI.ThreeDRender.Engine
 
 The core classes forming our simple 3D engine as described in ThreeDRender
 """
 #
-# Python BZFlag Package
+# Python BZEngine Package
 # Copyright (C) 2003 Micah Dowty <micahjd@users.sourceforge.net>
 #
 #  This library is free software; you can redistribute it and/or
@@ -21,9 +21,9 @@ The core classes forming our simple 3D engine as described in ThreeDRender
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from BZFlag import Animated
+from BZEngine import Animated
 from OpenGL.GL import *
-from BZFlag.UI import Drawable
+from BZEngine.UI import Drawable
 import Pass
 from Numeric import subtract
 from OpenGL.GLU import gluPickMatrix

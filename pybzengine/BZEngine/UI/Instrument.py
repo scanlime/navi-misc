@@ -1,9 +1,9 @@
-""" BZFlag.Instrument
+""" BZEngine.Instrument
 
 Instruments for measuring and displaying quantities
 """
 #
-# Python BZFlag Package
+# Python BZEngine Package
 # Copyright (C) 2003 Micah Dowty <micahjd@users.sourceforge.net>
 #
 #  This library is free software; you can redistribute it and/or
@@ -22,7 +22,7 @@ Instruments for measuring and displaying quantities
 #
 
 import Numeric, time
-from BZFlag.UI import HUD, Layout, GLText
+from BZEngine.UI import HUD, Layout, GLText
 
 
 class RingBuffer:

@@ -1,4 +1,4 @@
-""" BZFlag.UI.Tweak
+""" BZEngine.UI.Tweak
 
 A system for building a UI that runs in a separate thread, adjusting
 parameters in a real-time rendering or simulation.
@@ -6,7 +6,7 @@ parameters in a real-time rendering or simulation.
 This implementation uses pygtk.
 """
 #
-# Python BZFlag Package
+# Python BZEngine Package
 # Copyright (C) 2003 Micah Dowty <micahjd@users.sourceforge.net>
 #
 #  This library is free software; you can redistribute it and/or

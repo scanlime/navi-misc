@@ -1,10 +1,10 @@
-""" BZFlag.UI.StereoView
+""" BZEngine.UI.StereoView
 
 A 3d scene renderer that does side-by-side 2-channel stereo (usually for SGI
 visualization hardware)
 """
 #
-# Python BZFlag Package
+# Python BZEngine Package
 # Copyright (C) 2003 Micah Dowty <micahjd@users.sourceforge.net>
 #
 #  This library is free software; you can redistribute it and/or
@@ -22,8 +22,8 @@ visualization hardware)
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from BZFlag.UI import Viewport, ThreeDView, ThreeDControl, ThreeDRender, Layout, HUD
-import BZFlag, math
+from BZEngine.UI import Viewport, ThreeDView, ThreeDControl, ThreeDRender, Layout, HUD
+import BZEngine, math
 from OpenGL.GL import *
 
 class EyeCamera(ThreeDRender.Camera):

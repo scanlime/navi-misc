@@ -1,4 +1,4 @@
-""" BZFlag.UI.Drawable.GLDrawable
+""" BZEngine.UI.Drawable.GLDrawable
 
 Abstract base class for an object that can be drawn to an OpenGL context.
 This is the basic unit used by the ThreeDView to sort objects by texture,
@@ -7,7 +7,7 @@ The blended flag is used to put objects that need blending into a
 second rendering pass.
 """
 #
-# Python BZFlag Package
+# Python BZEngine Package
 # Copyright (C) 2003 Micah Dowty <micahjd@users.sourceforge.net>
 #
 #  This library is free software; you can redistribute it and/or
@@ -24,7 +24,7 @@ second rendering pass.
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-from BZFlag.UI import Texture, GLExtension
+from BZEngine.UI import Texture, GLExtension
 
 __all__ = ['GLDrawable', 'RenderSettings', 'RenderState']
 

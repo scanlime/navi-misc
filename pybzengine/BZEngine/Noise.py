@@ -1,9 +1,9 @@
-""" BZFlag.Noise
+""" BZEngine.Noise
 
 Various methods of generating noise quickly using Numeric
 """
 #
-# Python BZFlag Package
+# Python BZEngine Package
 # Copyright (C) 2003 Micah Dowty <micahjd@users.sourceforge.net>
 #
 #  This library is free software; you can redistribute it and/or
@@ -21,7 +21,7 @@ Various methods of generating noise quickly using Numeric
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 from Numeric import *
-from BZFlag import Geometry
+from BZEngine import Geometry
 import time, random
 
 # Keep a constantly incrementing seed to use when none is explicitly given.

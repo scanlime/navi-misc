@@ -1,11 +1,11 @@
-""" BZFlag.UI.ThreeDRender.Pass
+""" BZEngine.UI.ThreeDRender.Pass
 
 Abstract implementation of a rendering pass, as well as several
 concrete rendering passes. Provides an interface for instantiating
 the available rendering passes with the proper priorities.
 """
 #
-# Python BZFlag Package
+# Python BZEngine Package
 # Copyright (C) 2003 Micah Dowty <micahjd@users.sourceforge.net>
 #
 #  This library is free software; you can redistribute it and/or
@@ -23,7 +23,7 @@ the available rendering passes with the proper priorities.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from BZFlag.UI import Drawable, GLExtension, Texture
+from BZEngine.UI import Drawable, GLExtension, Texture
 from OpenGL.GL import *
 from OpenGL.GL.ARB.multitexture import *
 import LinearAlgebra, Numeric
@@ -309,7 +309,7 @@ class ReflectionRenderPass(DecalRenderPass):
 class CameraRenderPass(BasicRenderPass):
     """A rendering pass for any camera-induced artifacts. Most of these will be
        lense flares, but this could include things such as the cracked glass effect
-       from BZFlag proper
+       from BZEngine proper
        """
     def filter(self, drawable):
         return drawable.render.camera

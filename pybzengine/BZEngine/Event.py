@@ -1,11 +1,11 @@
-""" BZFlag.Event
+""" BZEngine.Event
 
 Event processing utilities, including the default EventLoop class
 and an Event class that can transparently convert member functions
 into observable and traceable events.
 """
 #
-# Python BZFlag Package
+# Python BZEngine Package
 # Copyright (C) 2003 Micah Dowty <micahjd@users.sourceforge.net>
 #
 #  This library is free software; you can redistribute it and/or
@@ -23,7 +23,7 @@ into observable and traceable events.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from BZFlag import Network, Errors
+from BZEngine import Network, Errors
 import select, time, sys, weakref, types
 
 

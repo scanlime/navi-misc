@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-from BZFlag.UI import Viewport, ThreeDRender, ThreeDControl, Drawable
-from BZFlag.UI import ParticleSystem, Environment, Tweak, Texture
-from BZFlag import Event, Geometry, Noise, Animated
+from BZEngine.UI import Viewport, ThreeDRender, ThreeDControl, Drawable
+from BZEngine.UI import ParticleSystem, Environment, Tweak, Texture
+from BZEngine import Event, Geometry, Noise, Animated
 from OpenGL.GL import *
 from Numeric import *
 
@@ -33,7 +33,7 @@ class ParticleTest(Drawable.SpriteArray):
         self.constAccel = self.model.add(ParticleSystem.ConstantAccelAffector, (0,0,0))
 
     def getTweakControls(self):
-        from BZFlag.UI import Tweak
+        from BZEngine.UI import Tweak
         return (
             Tweak.Text(self.texProxy, 'targetName'),
             Tweak.Boolean(self, 'glowing'),

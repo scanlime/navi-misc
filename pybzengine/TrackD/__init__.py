@@ -1,9 +1,9 @@
-""" BZFlag.UI.TrackD
+""" BZEngine.UI.TrackD
 
 OpenGL drawables for 3d views
 """
 #
-# Python BZFlag Protocol Package
+# Python BZEngine Protocol Package
 # Copyright (C) 2003 Micah Dowty <micahjd@users.sourceforge.net>
 #
 #  This library is free software; you can redistribute it and/or

@@ -1,10 +1,10 @@
 #!/usr/bin/env python
-from BZFlag.UI import Viewport, ThreeDRender, ThreeDControl, Drawable, ParticleSystem, Texture
-from BZFlag import Event, Animated
+from BZEngine.UI import Viewport, ThreeDRender, ThreeDControl, Drawable, ParticleSystem, Texture
+from BZEngine import Event, Animated
 from Numeric import *
 from time import time
 from OpenGL.GL import *
-from BZFlag.Geometry import *
+from BZEngine.Geometry import *
 
 
 class Wind:

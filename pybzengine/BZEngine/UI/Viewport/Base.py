@@ -1,9 +1,9 @@
-""" BZFlag.UI.Viewport.Base
+""" BZEngine.UI.Viewport.Base
 
 An abstract base class defining the Viewport interface
 """
 #
-# Python BZFlag Package
+# Python BZEngine Package
 # Copyright (C) 2003 Micah Dowty <micahjd@users.sourceforge.net>
 #
 #  This library is free software; you can redistribute it and/or
@@ -21,7 +21,7 @@ An abstract base class defining the Viewport interface
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from BZFlag import Event
+from BZEngine import Event
 import copy
 
 __all__ = ('Viewport', 'RegionMixin')

@@ -1,9 +1,9 @@
-""" BZFlag.UI.Texture
+""" BZEngine.UI.Texture
 
 Texture loading utilities
 """
 #
-# Python BZFlag Package
+# Python BZEngine Package
 # Copyright (C) 2003 Micah Dowty <micahjd@users.sourceforge.net>
 #
 #  This library is free software; you can redistribute it and/or
@@ -25,8 +25,8 @@ from __future__ import division
 import Image, pygame
 from OpenGL.GL import *
 from OpenGL.GLU import *
-from BZFlag import Util, Animated
-from BZFlag.UI import GLExtension
+from BZEngine import Util, Animated
+from BZEngine.UI import GLExtension
 from OpenGL.GL.EXT.texture_filter_anisotropic import *
 import copy, math, random
 
@@ -105,7 +105,7 @@ class Texture:
 
     def loadBackbuffer(self, size, position=(0,0), format=GL_RGB):
         """Load this texture from the given location on the backbuffer. This accepts
-           coordinates in PyBZFlag style rather than OpenGL style- the origin is at the top-left
+           coordinates in PyBZEngine style rather than OpenGL style- the origin is at the top-left
            corner of the viewport.
            """
         self.size = size

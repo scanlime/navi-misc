@@ -1,10 +1,10 @@
-""" BZFlag
+""" BZEngine
 
 This is a Python package providing an interface to all network
-protocols used by BZFlag.
+protocols used by BZEngine.
 """
 #
-# Python BZFlag Package
+# Python BZEngine Package
 # Copyright (C) 2003 Micah Dowty <micahjd@users.sourceforge.net>
 #
 #  This library is free software; you can redistribute it and/or
@@ -22,11 +22,11 @@ protocols used by BZFlag.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-# The version of the BZFlag protocol this should be compatible with
+# The version of the BZEngine protocol this should be compatible with
 protocolVersion = "BZFS109a"
 
 # Information about this implementation
-name    = "PyBZFlag"
+name    = "PyBZEngine"
 version = "cvs-dev"
 
 about = "%s - code version %s, protocol version %s" % \
