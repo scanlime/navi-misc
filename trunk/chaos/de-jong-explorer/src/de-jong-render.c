@@ -591,9 +591,9 @@ void de_jong_calculate_bifurcation(DeJong             *self,
 	  bucket = *p = *p + 1;
 	  if (bucket > density)
 	    density = bucket;
-	}
 
-	self->iterations++;
+	  self->iterations++;
+	}
       }
 
       points[ix].x = point_x;
