@@ -1,11 +1,11 @@
 TUSB_DIR = ../..
 OBJS = \
+	hello.rel \
+	hello_descript.rel \
 	$(TUSB_DIR)/src/usb_driver.rel \
 	$(TUSB_DIR)/src/uart_driver.rel \
 	$(TUSB_DIR)/src/util.rel \
-	$(TUSB_DIR)/src/i2c_driver.rel \
-	hello.rel \
-	hello_descript.rel
+	$(TUSB_DIR)/src/i2c_driver.rel
 
 BINS = hello hello_test
 
