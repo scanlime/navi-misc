@@ -71,6 +71,7 @@ fyre_SOURCES = 				\
 	parameter-holder.c		\
 	bifurcation-diagram.c		\
 	math-util.c			\
+	gui-util.c			\
 	avi-writer.c			\
 	parameter-editor.c		\
 	histogram-view.c		\

@@ -27,6 +27,7 @@
 #include "explorer.h"
 #include "parameter-editor.h"
 #include "math-util.h"
+#include "gui-util.h"
 #include "histogram-view.h"
 #include "de-jong.h"
 #include "prefix.h"
@@ -103,7 +104,14 @@ static void explorer_init(Explorer *self) {
     if (!self->xml)
 	self->xml = glade_xml_new(BR_DATADIR("/fyre/explorer.glade"), NULL, NULL);
 #endif
+
     self->window = glade_xml_get_widget(self->xml, "explorer_window");
+    fyre_set_icon_later(self->window);
+    fyre_set_icon_later(glade_xml_get_widget(self->xml, "animation_window"));
+    fyre_set_icon_later(glade_xml_get_widget(self->xml, "interactive_prefs"));
+    fyre_set_icon_later(glade_xml_get_widget(self->xml, "cluster_window"));
+    fyre_set_icon_later(glade_xml_get_widget(self->xml, "about_window"));
+    fyre_set_icon_later(glade_xml_get_widget(self->xml, "error dialog"));
 
     /* Connect signal handlers */
     glade_xml_signal_connect_data(self->xml, "on_randomize",                    G_CALLBACK(on_randomize),                    self);

@@ -45,6 +45,7 @@
 #include "screensaver.h"
 #include "remote-server.h"
 #include "batch-image-render.h"
+#include "gui-util.h"
 
 #ifdef HAVE_GNET
 #include "cluster-model.h"
@@ -258,6 +259,7 @@ int main(int argc, char ** argv) {
 
 	screensaver = screensaver_new(map, animation);
 	window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	fyre_set_icon_later(window);
 	gtk_window_set_title(GTK_WINDOW(window), "Fyre Screensaver");
 	gtk_container_add(GTK_CONTAINER(window), screensaver->view);
 	gtk_widget_show_all(window);
