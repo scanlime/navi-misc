@@ -1,20 +1,6 @@
 #!/usr/bin/env python
-import time, struct, fcntl
+from efs import FieldSensor
 import gtk, rtgraph, Tweak
-
-
-class FieldSensor:
-    def __init__(self, devName="/dev/usb/efs0"):
-        self.dev = open(devName)
-
-    def readAverages(self):
-        packet = struct.unpack("i" * 9, self.dev.read(4*9))
-        if packet[8]:
-            return [packet[i] / float(packet[8]) for i in xrange(8)]
-
-    def setParam(self, block, param, value):
-        fcntl.ioctl(self.dev, 0x3A01, struct.pack("iii", block, param, value))
-
 
 class ParamTweaker(object):
     def __init__(self, efs, num, default):
@@ -39,25 +25,15 @@ def main():
 
     def poll_handler():
         averages = efs.readAverages()
-        for i in xrange(8):
-            channels[i].value = averages[i]
+        if averages:
+            for i in xrange(8):
+                channels[i].value = averages[i]
         gtk.timeout_add(10, poll_handler)
     gtk.timeout_add(10, poll_handler)
 
     graph = rtgraph.GraphUI(channels,
                             rtgraph.HScrollLineGraph(range=(0,255)),
                             valueUpdateInterval = 500)
-
-    block = 0
-    for adcon in (0x81, 0x89):
-        for xor in (0x03, 0x0C, 0x30, 0xC0):
-            efs.setParam(block, 0, block)    # EFS_PARAM_RESULT_NUM
-            efs.setParam(block, 1, xor)      # EFS_PARAM_LC_PORT_XOR
-            efs.setParam(block, 2, adcon)    # EFS_PARAM_ADCON_INIT
-            efs.setParam(block, 5, 30)       # EFS_PARAM_NUM_HALF_PERIODS
-            efs.setParam(block, 6, 0x00)     # EFS_PARAM_LC_TRIS_INIT
-            efs.setParam(block, 7, 0x55)     # EFS_PARAM_LC_PORT_INIT
-            block += 1
 
     tweaker = Tweak.List([
         Tweak.Quantity(ParamTweaker(efs, 3, default=227), 'value', range=(0,255), name="Period"),
