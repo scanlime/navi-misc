@@ -35,7 +35,6 @@ class ImageFactory(File.RandomFileFactory):
 
 
 abstract = ImageFactory("abstract")
-
-defaultImageFactory = abstract
+nature = ImageFactory("nature")
 
 ### The End ###
