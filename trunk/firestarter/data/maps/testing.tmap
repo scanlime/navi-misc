@@ -1,0 +1,18 @@
+name: testMap
+sky: grassland_skybox
+ground: ground_mat
+wall: wall_mat
+wallZ: 5.0
+size: 800 800
+tufts: 5
+tuft: 1
+mesh: tuft1
+count: 500
+center: 0 0
+range: 400
+tuft: 2
+mesh: tuft1
+count: 250
+center: 0 0
+range: 400
+

@@ -1,5 +1,5 @@
 /* Firestarter
-* messages.h :
+* testWorld.h :
 *
 * Copyright (C) 2004 Jeffrey Myers
 *
@@ -20,20 +20,42 @@
 * email: jeffm2501@sbcglobal.net
 */
 
-#ifndef _MESSAGES_H_
-#define _MESSAGES_H_
+#ifndef _TEST_WORLD_H_
+#define _TEST_WORLD_H_
 
-// message types used in games
+#include "networking.h"
+#include <string>
+#include <vector>
 
-#define	_MESSAGE_SERVER_INFO 0x4953			// SI 
-#define	_MESSAGE_CLIENT_INFO 0x4943			// CI 
-#define	_MESSAGE_USER_PART 0x5055			// UP
-#define	_MESSAGE_USER_ADD 0x4155			// UA
-#define	_MESSAGE_KICK 0x4b4b				// KK
-#define _MESSAGE_UPDATE 0x4455				//UD
-#define _MESSAGE_ACKNOWLEDGE 0x4b41			//AK
-#define _MESSAGE_SPAWN 0x5053				//SP
-#define _MESSAGE_TIME_PING	 0x5054			//TP
-#define _MESSAGE_WORLD_INFO	 0x4957			//WI
+class CTestWorld
+{
+public:
+	CTestWorld();
+	virtual ~CTestWorld();
 
-#endif //_MESSAGES_H_
+	virtual bool init ( const char* map );
+	virtual void clear ( void );
+	virtual void sendMapTo ( CNetworkPeer &peer );
+
+	virtual	bool initDefaultWorld ( void );
+protected:
+	std::string		name;
+	std::string		skybox;
+	std::string		groundMaterial;
+	std::string		wallMaterial;
+
+	float			wallHeight;
+	float			size[2];
+
+	typedef struct 
+	{
+		std::string mesh;
+		int			count;
+		float		center[2];
+		float		range;
+	}trTuftDef;
+
+	std::vector<trTuftDef> tufts;
+};
+
+#endif// _TEST_WORLD_H_

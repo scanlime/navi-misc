@@ -347,6 +347,9 @@
 					RelativePath="..\..\common\inc\Singleton.h">
 				</File>
 				<File
+					RelativePath="..\..\common\inc\syncedClock.h">
+				</File>
+				<File
 					RelativePath="..\..\common\inc\timer.h">
 				</File>
 			</Filter>
