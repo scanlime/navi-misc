@@ -19,23 +19,35 @@
 #
 from pyparsing import *
 
+class AMCFrame:
+    number = None
+    bones = {}
+
 class AMCReader:
     frames = []
-    grammar = None
 
-    def gotFrame(self, s, loc, toks):
-        frames.append(toks[1:])
+    def parse (self, filename):
+        f = open(filename, 'r')
+        l = f.readlines()
+        f.close()
+        curFrame = None
 
-    def getGrammar(self):
-        if self.grammar is None:
-
-        return self.grammar
-            float = Word(nums + '.e+-')
-            comment = Literal('#') + Optional (restOfLine) \
-                    | Literal(':') + Optional (restOfLine)
-            bonePosition = Group(Word(alphas) + zeroOrMore(float) + EndOfLine())
-            frame = Group(Word(nums) + oneOrMore(bonePosition)
-            part = frame | Suppress(comment)
-            self.grammar = OneOrMore(part)
-
-            frame.setParseAction(self.gotFrame)
+        for i in range(len(l)):
+            line = l[i].strip(' \n\r')
+            if line[0] == '#' or line[0] == ':':
+                # comments - we treat : as a comment even though it really isn't,
+                # because it's just giving us redundant information from the ASF
+                continue
+            data = line.split(' ')
+            if len(data) == 1:
+                if curFrame is None:
+                    curFrame = AMCFrame()
+                else:
+                    self.frames.append(curFrame)
+                    curFrame = AMCFrame()
+                    curFrame.number = int(data[0])
+            else:
+                curFrame.bones[data[0]] = data[1:]
+                for j in range(len(data[1:])):
+                    curFrame.bones[data[0]][j] = float(curFrame.bones[data[0]][j])
+        self.frames.append(curFrame)
