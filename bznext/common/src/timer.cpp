@@ -21,7 +21,7 @@
 */
 
 #include "timer.h"
-#include <SDL/SDL.h>
+#include <SDL.h>
 
 CTimer::CTimer()
 {
