@@ -62,6 +62,8 @@ public class interview
 	{
 		next = prev;
 		nick = NICK;
+		pass = PASS;
+		mybot = bot;
 		com = new net();
 		state = 0;
 	}
