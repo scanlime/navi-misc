@@ -24,7 +24,7 @@ these logos.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from BZEngine.UI import Sequencer, Viewport, HUD
+from BZEngine.UI import Sequencer, Viewport, HUD, Drawable
 from BZEngine import Util, Animated, Geometry
 import cPickle, math
 from Numeric import *
@@ -60,10 +60,10 @@ class OrbitingLogo(Sequencer.Page):
 
         self.viewport.mode = Viewport.GL.ClearedMode(clearColor=(0, 0, 0, 1))
 
-        self.view.camera.position = (0.0314, -3, 0)
-        self.view.camera.distance = 4.49
-        self.view.camera.azimuth = 3
-        self.view.camera.elevation = 2.4
+        self.view.camera.position = (0, 0, 0)
+        self.view.camera.distance = 7.5
+        self.view.camera.azimuth = 0
+        self.view.camera.elevation = 0
         self.view.camera.jump()
 
         orbitParticles = ("green_flame.particle", "green_nebula.particle")
@@ -93,6 +93,18 @@ class EnglishLogo(OrbitingLogo):
                               fontName  = "geodesic.ttf")
 
 
+class JapaneseLogo(OrbitingLogo):
+    def __init__(self, view):
+        OrbitingLogo.__init__(self, view)
+
+        self.meshes = Drawable.VRML.load('wasabi_hiragana.wrl').values()
+        self.view.scene.add(self.meshes)
+
+    def finalize(self):
+        OrbitingLogo.finalize(self)
+        self.view.scene.remove(self.meshes)
+
+
 def getLogoList():
     """Returns a list of factory functions for all the logos"""
 
@@ -102,7 +114,8 @@ def getLogoList():
     fade      = lambda page: fromBlack(toBlack(page))
 
     return [
-        fade(Sequencer.PageTimer(5,EnglishLogo)),
+        fade(Sequencer.PageTimer(60, JapaneseLogo)),
+        fade(Sequencer.PageTimer(60, EnglishLogo)),
         ]
 
 
