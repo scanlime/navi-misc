@@ -210,8 +210,7 @@ find_previous_action (gchar *name)
 }
 
 static void
-keybinding_key_changed (GConfClient *client, guint cnxn_id, GConfEntry *e, gpointer
-			user_data)
+keybinding_key_changed (GConfClient *client, guint cnxn_id, GConfEntry *e, gpointer user_data)
 {
 	GConfValue *value;
 	gchar *name;
@@ -221,23 +220,21 @@ keybinding_key_changed (GConfClient *client, guint cnxn_id, GConfEntry *e, gpoin
 	value = gconf_entry_get_value (e);
 	name = g_strrstr (gconf_entry_get_key (e), "/");
 
-	if (name == NULL) /* this should never, ever be able to happen.. */
-	{
+	if (name == NULL) {
+		/* this should never, ever be able to happen.. */
 		g_warning ("eek, gconf snafu");
 		return;
 	}
 	name = &name[1];
 
-	if (e == NULL) /* nothing's there any more, so let's leave it */
-	{
-		g_warning ("some impertinent character keryoinked the %s keybinding",
-			   name);
+	if (e == NULL) {
+		/* nothing's there any more, so let's leave it */
+		g_warning ("some impertinent character keryoinked the %s keybinding", name);
 		return;
 	}
 
 	entry = find_action_entry (name);
-	if (entry == NULL)
-	{
+	if (entry == NULL) {
 		g_warning ("eek, menu snafu");
 		return;
 	}
@@ -249,8 +246,7 @@ keybinding_key_changed (GConfClient *client, guint cnxn_id, GConfEntry *e, gpoin
 	action = gtk_action_new (entry -> name, entry -> label,
 				 entry -> tooltip, entry -> stock_id);
 
-	if (oldaction == NULL)
-	{
+	if (oldaction == NULL) {
 		g_warning ("couldn't find the old action");
 		return;
 	}
@@ -260,8 +256,7 @@ keybinding_key_changed (GConfClient *client, guint cnxn_id, GConfEntry *e, gpoin
 						gconf_client_get_string (client, gconf_entry_get_key(e), NULL));
 
 	if (entry -> callback != NULL)
-		g_signal_connect (action, "activate", G_CALLBACK (entry->callback),
-				  gui.xml);
+		g_signal_connect (action, "activate", G_CALLBACK (entry->callback), gui.xml);
 
 	g_message ("somebody changed a keybinding!");
 }
@@ -303,8 +298,7 @@ setup_menu_item (GConfClient *client, GtkActionEntry *entry)
 						gconf_client_get_string (client, key_string->str, NULL));
 
 	if (entry -> callback != NULL)
-		g_signal_connect (action, "activate", G_CALLBACK (entry->callback),
-				  gui.xml);
+		g_signal_connect (action, "activate", G_CALLBACK (entry->callback), gui.xml);
 	g_string_free (key_string, TRUE);
 }
 
@@ -318,6 +312,8 @@ setup_menu ()
 
 	for (i = 0; i < G_N_ELEMENTS (action_entries); i++)
 		setup_menu_item (client, &action_entries[i]);
+
+	g_object_unref (client);
 }
 
 void
