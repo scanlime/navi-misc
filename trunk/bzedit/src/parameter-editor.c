@@ -83,12 +83,22 @@ static void parameter_editor_class_init(ParameterEditorClass *klass) {
 
 static void parameter_editor_init(ParameterEditor *self) {
   self->label_sizegroup = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
+  self->notify_handlers = g_hash_table_new (g_str_hash, g_str_equal);
+}
+
+static gboolean
+remove_notify_callbacks (const gchar *signal, gulong *handler, ParameterHolder *holder)
+{
+  g_signal_handler_disconnect (G_OBJECT (holder), *handler);
+  g_free (handler);
+  return TRUE;
 }
 
 static void parameter_editor_finalize(GObject *object) {
   ParameterEditor *self = PARAMETER_EDITOR(object);
 
   if (self->holder) {
+    g_hash_table_foreach_remove (self->notify_handlers, (GHRFunc) remove_notify_callbacks, (gpointer) self->holder);
     g_object_unref(self->holder);
     self->holder = NULL;
   }
@@ -216,9 +226,11 @@ static void parameter_editor_connect_notify(ParameterEditor *self,
    * attach the ParameterEditor to the widget.
    */
   gchar *signal_name;
+  gulong *handler = g_new (gulong, 1);
   signal_name = g_strdup_printf("notify::%s", property_name);
   g_object_set_data(G_OBJECT(widget), "ParameterEditor", self);
-  g_signal_connect(self->holder, signal_name, func, widget);
+  *handler = g_signal_connect(self->holder, signal_name, func, widget);
+  g_hash_table_insert (self->notify_handlers, (gpointer) signal_name, (gpointer) handler);
   g_free(signal_name);
 }
 
@@ -357,10 +369,14 @@ static void on_notify_numeric(ParameterHolder *holder, GParamSpec *spec, GtkWidg
   ParameterEditor *self = g_object_get_data(G_OBJECT(widget), "ParameterEditor");
   GValue gv, double_gv;
 
+  /* it's possible that we can be called before we finish initializing. protect against that */
+  if (!self)
+    return;
+
   if (self->suppress_notify)
     return;
 
-  /* Conver the current property value to a double and set our spin button */
+  /* Convert the current property value to a double and set our spin button */
   memset(&gv, 0, sizeof(gv));
   memset(&double_gv, 0, sizeof(double_gv));
   g_value_init(&gv, spec->value_type);

@@ -49,6 +49,7 @@ struct _ParameterEditor {
 
   gboolean suppress_notify;
   gboolean suppress_changed;
+  GHashTable *notify_handlers;
 };
 
 struct _ParameterEditorClass {
