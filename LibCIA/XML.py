@@ -87,7 +87,13 @@ class XMLObjectParser(XMLObject):
         # This is hard to do elsewhere, since the element handlers don't
         # know where they are in the XML document.
         if self.requiredRootElement is not None:
-            if not dig(self.xml, self.requiredRootElement):
+            rootElement = None
+            if self.xml.nodeType == self.xml.DOCUMENT_NODE:
+                rootElement = self.xml.documentElement
+            elif self.xml.nodeType == self.xml.ELEMENT_NODE:
+                rootElement = self.xml
+
+            if (not rootElement) or rootElement.nodeName != self.requiredRootElement:
                 raise XMLValidityError("Missing a required %r root element" %
                                        self.requiredRootElement)
 
