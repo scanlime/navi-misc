@@ -42,7 +42,7 @@ class MatrixMultiply : Element
 	public override Gdk.Pixbuf Icon ()
 	{
 		if (icon == null)
-			icon = new Gdk.Pixbuf ("/usr/share/fyre/2.0/MatrixMultiply.png");
+			icon = new Gdk.Pixbuf ("MatrixMultiply.png");
 		return icon;
 	}
 

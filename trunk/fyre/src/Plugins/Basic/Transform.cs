@@ -44,7 +44,7 @@ class TwoDTransform : Element
 	public override Gdk.Pixbuf Icon ()
 	{
 		if (icon == null)
-			icon = new Gdk.Pixbuf ("/usr/share/fyre/2.0/TwoDTransform.png");
+			icon = new Gdk.Pixbuf ("TwoDTransform.png");
 		return icon;
 	}
 
