@@ -56,8 +56,6 @@ struct _Explorer {
   gboolean status_dirty_flag;
 
   guint idler;
-  gboolean setting_params;
-  gboolean just_resized;
   GTimeVal last_gui_update;
 
   gchar* current_tool;
