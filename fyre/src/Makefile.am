@@ -1,4 +1,4 @@
-SUBDIRS = .
+SUBDIRS = . Plugins
 
 CSC = mcs -g
 
