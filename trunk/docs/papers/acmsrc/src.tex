@@ -25,19 +25,28 @@ In many cases, a few black points on a white background is sufficient as a visua
 of such systems.  However, because dynamical systems can exhibit such strange structure,
 it can be deceiving since only a small part of a trajectory can be shown in a single image.
 When a statement about a dynamical system is made, that statement refers to the long-term
-behavior of the system in a particular state, rather than only a short piece of it. In such
+behavior of the system in a particular state, rather than only a short piece of it.  In such
 cases, an imaging technique capable of displaying millions of points is required.
 
 \section{Background}
+When plotting points of zero size, each pixel is effectively a bucket which collects samples.
+Traditionally, a single sample completely saturates a pixel, which means that the bucket
+can be represented by a single bit.  The problem with this approach is that when a pixel is
+hit more than once, information is lost.  Instead, if we treat the image region as a variable
+depth histogram we can capture all the information contained in a long computation run.
+
+With a histogram, the total image density is tracked as points are added.  The result of this
+is that the number of points which can be plotted is unbounded.  To create a visible image
+from this histogram structure, we treat it as a high dynamic range image.  
 
 \section{Related Work}
 Tone mapping of high dynamic range images has been studied extensively, primarily in the
-context of digital photography. A comprehensive survey of tone-mapping techniques can be
-found in \cite{kd}. Some particularly influential tone-mapping operators are discussed
+context of digital photography.  A comprehensive survey of tone-mapping techniques can be
+found in \cite{kd}.  Some particularly influential tone-mapping operators are discussed
 in \cite{jt}, \cite{jtjhbg} and \cite{gw}.
 
 Histogram-based imaging techniques have been used previously in the rendering of so-called
-``fractal flames.'' These are discussed in Scott Draves' informal paper describing the
+``fractal flames.''  These are discussed in Scott Draves' informal paper describing the
 internals of the \emph{Electric Sheep} screen-saver software\cite{sd}.
 
 \section{Imaging in Real Time}
