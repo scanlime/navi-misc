@@ -172,6 +172,9 @@ class BotNetwork:
     # a bot we just deleted. I'm sure it has other good qualities too.
     botInactivityTimeout = 60 * 5
 
+    # Maximum acceptable lag, in seconds. After this much the bot is disconnected
+    maximumLag = 90
+
     botCheckTimer = None
 
     def __init__(self, nickAllocator):
@@ -267,6 +270,14 @@ class BotNetwork:
                     for channel in bot.channels.iterkeys():
                         if channel not in usedChannels:
                             bot.part(channel)
+
+                    # Since we need this bot, make sure it's still responsive. If its lag
+                    # is too high, force it to give up. IF we have to disconnect the bot,
+                    # give up this checkBots() and start over when botDisconnected() calls
+                    # us again.
+                    if bot.getLag() > self.maximumLag:
+                        self.botDisconnected(bot)
+                        return
 
                 else:
                     # We don't need this bot. Tell it to part all of its channels,
