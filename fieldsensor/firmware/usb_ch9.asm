@@ -9,7 +9,7 @@
 ; PIC16C745 and PIC16C765 microcontrollers. New code added for the fieldsensor project
 ; is placed in the public domain.
 ;
-; fieldsensor modifications done by Micah Dowty <micah@picogui.org>
+; fieldsensor modifications done by Micah Dowty <micah@navi.cx>
 ;
 ;###############################################################################
 ;
