@@ -44,7 +44,7 @@ void CTestGame::Attach ( void )
 	info.sunPos[0] = info.sunPos[1] = info.sunPos[2] = 100;
 	info.sunColor[0] = info.sunColor[1] = info.sunColor[2] = 0.75f;
 	info.groundSize = 800;
-	info.groundTextureRepeat = 80;
+	info.groundTextureRepeat = 60;
 
 	info.groundTexture = "ground_mat";
 	info.skybox = "malrav1sky";
