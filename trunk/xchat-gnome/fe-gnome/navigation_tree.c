@@ -28,7 +28,6 @@
 #include "palette.h"
 #include "channel_list.h"
 #include "main_window.h"
-#include "topiclabel.h"
 #include "../common/servlist.h"
 
 /***** NavTree *****/
@@ -160,40 +159,42 @@ navigation_tree_new (NavModel *model)
 void
 navigation_tree_create_new_network_entry (NavTree *navtree, struct session *sess)
 {
-  GtkTreeIter *iter;
+	GtkTreeIter *iter;
 
 	navigation_model_add_new_network(navtree->model, sess);
 
-  /* Because we added a network it is likely that the path to the current session has changed
-   * so we update it.
-   */
-  iter = navigation_model_get_sorted_iter(navtree->model, gui.current_session);
-  if (iter) {
-    navtree->current_path = gtk_tree_model_get_path(GTK_TREE_MODEL(navtree->model->sorted),iter);
-    gtk_tree_iter_free(iter);
-  }
+	/* Because we added a network it is likely that the path to the current session has changed
+	 * so we update it.
+	 */
+	iter = navigation_model_get_sorted_iter(navtree->model, gui.current_session);
+	if (iter)s
+	{
+		navtree->current_path = gtk_tree_model_get_path(GTK_TREE_MODEL(navtree->model->sorted),iter);
+		gtk_tree_iter_free(iter);
+	}
 
-  navigation_tree_select_session(navtree, sess);
+	navigation_tree_select_session(navtree, sess);
 }
 
 void
 navigation_tree_create_new_channel_entry (NavTree *navtree, struct session *sess)
 {
-  GtkTreeIter *iter;
+	GtkTreeIter *iter;
 
 	navigation_model_add_new_channel(navtree->model, sess);
 
-  /* Because we're adding a new channel it's possible that the path to the current
-   * session has changed, so we'll update it.
-   * XXX: We could probably add some kind of test to only update current_path
-   *      if it's truly necessary (e.g. the new channel is on the same network as
-   *      the old one), but do we need to bother?
-   */
-  iter = navigation_model_get_sorted_iter(navtree->model, gui.current_session);
-  if (iter) {
-    navtree->current_path = gtk_tree_model_get_path(GTK_TREE_MODEL(navtree->model->sorted), iter);
-    gtk_tree_iter_free(iter);
-  }
+	/* Because we're adding a new channel it's possible that the path to the current
+	 * session has changed, so we'll update it.
+	 * XXX: We could probably add some kind of test to only update current_path
+	 *      if it's truly necessary (e.g. the new channel is on the same network as
+	 *      the old one), but do we need to bother?
+	 */
+	iter = navigation_model_get_sorted_iter(navtree->model, gui.current_session);
+	if (iter)
+	{
+		navtree->current_path = gtk_tree_model_get_path(GTK_TREE_MODEL(navtree->model->sorted), iter);
+		gtk_tree_iter_free(iter);
+	}
 
 	navigation_tree_select_session(navtree, sess);
 
@@ -212,14 +213,15 @@ navigation_tree_remove (NavTree *navtree, struct session *sess)
 		}
 	}
 
-  /* Change the selection before we remove the session so that things can be
-   * ref'ed and unref'ed properly without too much silliness.
-   */
+	/* Change the selection before we remove the session so that things can be
+	 * ref'ed and unref'ed properly without too much silliness.
+	 */
 	gtk_tree_selection_select_path(select, path);
 	navigation_model_remove (navtree->model, sess);
 
 	gtk_tree_path_free(path);
 }
+
 /* Channel/server selection functions. */
 void
 navigation_tree_select_nth_channel (NavTree *navtree, gint chan_num)
@@ -672,12 +674,12 @@ static void
 server_context (GtkWidget *treeview, session *selected)
 {
 	static GnomeUIInfo server_context[] = {
-		GNOMEUIINFO_ITEM_STOCK("_Information", NULL, NULL, GTK_STOCK_DIALOG_INFO),
+		GNOMEUIINFO_ITEM_STOCK(_("_Information"), NULL, NULL, GTK_STOCK_DIALOG_INFO),
 		GNOMEUIINFO_SEPARATOR,
-		GNOMEUIINFO_ITEM_STOCK("_Reconnect", NULL, NULL, GTK_STOCK_REFRESH),
-		GNOMEUIINFO_ITEM_STOCK("_Disconnect", disconnect_server, NULL, GTK_STOCK_STOP),
+		GNOMEUIINFO_ITEM_STOCK(_("_Reconnect"), NULL, NULL, GTK_STOCK_REFRESH),
+		GNOMEUIINFO_ITEM_STOCK(_("_Disconnect"), disconnect_server, NULL, GTK_STOCK_STOP),
 		GNOMEUIINFO_SEPARATOR,
-		GNOMEUIINFO_ITEM_STOCK("_Channels", show_channel_list, NULL, GNOME_STOCK_TEXT_BULLETED_LIST)
+		GNOMEUIINFO_ITEM_STOCK(_("_Channels"), show_channel_list, NULL, GNOME_STOCK_TEXT_BULLETED_LIST)
 	};
 	GtkWidget *menu;
 
@@ -754,14 +756,14 @@ channel_context (GtkWidget *treeview, session *selected)
 		GNOMEUIINFO_MENU_SAVE_ITEM(NULL, NULL),
 		GNOMEUIINFO_MENU_SAVE_AS_ITEM(NULL, NULL),
 		GNOMEUIINFO_SEPARATOR,
-		GNOMEUIINFO_ITEM_STOCK("_Leave", leave_dialog, NULL, GTK_STOCK_QUIT),
+		GNOMEUIINFO_ITEM_STOCK(_("_Leave"), leave_dialog, NULL, GTK_STOCK_QUIT),
 		GNOMEUIINFO_MENU_CLOSE_ITEM(close_dialog, NULL),
 		GNOMEUIINFO_SEPARATOR,
 		GNOMEUIINFO_MENU_FIND_ITEM(NULL, NULL),
 		GNOMEUIINFO_MENU_FIND_AGAIN_ITEM(NULL, NULL),
 		GNOMEUIINFO_MENU_CLEAR_ITEM(clear_dialog, NULL),
 		GNOMEUIINFO_SEPARATOR,
-		GNOMEUIINFO_ITEM_STOCK("_Bans", NULL, NULL, GTK_STOCK_DIALOG_WARNING)
+		GNOMEUIINFO_ITEM_STOCK(_("_Bans"), NULL, NULL, GTK_STOCK_DIALOG_WARNING)
 	};
 	GtkWidget *menu;
 
@@ -895,7 +897,7 @@ navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_dat
 		gtk_xtext_buffer_show (gui.xtext, tgui->buffer, TRUE);
 
 		/* Set the topic. */
-		topic_label_set_text (TOPIC_LABEL (gui.topic), tgui->topic);
+		gtk_label_set_text (GTK_LABEL (gui.topic), tgui->topic);
 
 		/* Set the text entry field to whatever is in the text entry of this session. */
 		entry = glade_xml_get_widget (gui.xml, "text entry");
@@ -978,8 +980,13 @@ navigation_model_get_type (void)
 static void
 navigation_model_init (NavModel *navmodel)
 {
-	/* FIXME: comment this up so we know what all the columns are. */
-	navmodel->store = gtk_tree_store_new (6, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_POINTER, G_TYPE_INT, GDK_TYPE_COLOR, G_TYPE_INT);
+	navmodel->store = gtk_tree_store_new (6,
+		GDK_TYPE_PIXBUF,	/* status image */
+		G_TYPE_STRING,		/* name */
+		G_TYPE_POINTER,		/* session pointer */
+		G_TYPE_INT,		/* status # (for tracking highest state) */
+		GDK_TYPE_COLOR,		/* status color (disconnected, etc) */
+		G_TYPE_INT);		/* reference count */
 	navmodel->sorted = gtk_tree_model_sort_new_with_model (GTK_TREE_MODEL (navmodel->store));
 	gtk_tree_sortable_set_sort_column_id (GTK_TREE_SORTABLE (navmodel->sorted), 1, GTK_SORT_ASCENDING);
 
@@ -1032,7 +1039,7 @@ navigation_model_add_new_network (NavModel *model, struct session *sess)
 	GtkTreeRowReference *rowref;
 
 	gtk_tree_store_append (model->store, &iter, NULL);
-	gtk_tree_store_set (model->store, &iter, 1, "<none>", 2, sess, 3, 0, 4, NULL, 5, 0, -1);
+	gtk_tree_store_set (model->store, &iter, 1, _("<none>"), 2, sess, 3, 0, 4, NULL, 5, 0, -1);
 
 	path = gtk_tree_model_get_path (GTK_TREE_MODEL (model->store), &iter);
 	rowref = gtk_tree_row_reference_new (GTK_TREE_MODEL (model->store), path);

@@ -22,7 +22,6 @@
 #include "textgui.h"
 #include "palette.h"
 #include "preferences.h"
-#include "topiclabel.h"
 #include "../common/text.h"
 #include "../common/xchatc.h"
 #include <libgnome/gnome-url.h> /* gnome_url_show */
@@ -126,8 +125,17 @@ text_gui_print_line (xtext_buffer *buf, unsigned char *text, int len, gboolean i
 
 	if (!indent)
 	{
-		/* FIXME: timestamp */
-		gtk_xtext_append (buf, text, len);
+		int stamp_size;
+		char *stamp;
+		unsigned char *new_text;
+
+		stamp_size = get_stamp_str (prefs.stamp_format, time(NULL), &stamp);
+		new_text = g_malloc (len + stamp_size + 1);
+		memcpy (new_text, stamp, stamp_size);
+		g_free (stamp);
+		memcpy (new_text + stamp_size, text, len);
+		gtk_xtext_append (buf, new_text, len + stamp_size);
+		g_free (new_text);
 		return;
 	}
 
@@ -202,7 +210,7 @@ set_gui_topic (session *sess, char *topic)
 	else
 		tgui->topic = g_strdup (topic);
 	if (sess == gui.current_session)
-		topic_label_set_text (TOPIC_LABEL (gui.topic), tgui->topic);
+		gtk_label_set_text (GTK_LABEL (gui.topic), tgui->topic);
 }
 
 void

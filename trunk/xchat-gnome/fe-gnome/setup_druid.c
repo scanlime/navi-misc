@@ -44,28 +44,35 @@ initialize_setup_druid ()
 	GtkTreeViewColumn *text_column, *autoconnect_column;
 	GtkTreeSelection *select;
 
-	gui.setup_druid = GNOME_DRUID (glade_xml_get_widget (gui.xml, "setup druid"));
+	gui.setup_xml = glade_xml_new ("setup_druid.glade", NULL, NULL);
+	if (!gui.setup_xml)
+		gui.setup_xml = glade_xml_new (XCHATSHAREDIR "/setup_druid.glade", NULL, NULL);
+	if (!gui.setup_xml)
+		return;
+
+	gui.setup_druid = GNOME_DRUID (glade_xml_get_widget (gui.setup_xml, "setup druid"));
 
 	group = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
-	widget = glade_xml_get_widget (gui.xml, "setup druid nickname");
+	widget = glade_xml_get_widget (gui.setup_xml, "setup druid nickname");
 	gtk_size_group_add_widget (group, widget);
-	widget = glade_xml_get_widget (gui.xml, "setup druid realname");
+	widget = glade_xml_get_widget (gui.setup_xml, "setup druid realname");
 	gtk_size_group_add_widget (group, widget);
 	g_object_unref (group);
 
-	nickname_page = glade_xml_get_widget (gui.xml, "setup druid nicknames");
+	nickname_page = glade_xml_get_widget (gui.setup_xml, "setup druid nicknames");
 	g_signal_connect (G_OBJECT (nickname_page), "prepare", G_CALLBACK (setup_druid_nicknames_prepare), NULL);
-	finish_page = glade_xml_get_widget (gui.xml, "setup druid finish");
+	finish_page = glade_xml_get_widget (gui.setup_xml, "setup druid finish");
 	g_signal_connect (G_OBJECT (finish_page), "prepare", G_CALLBACK (setup_druid_finish_prepare), NULL);
 	g_signal_connect (G_OBJECT (finish_page), "finish", G_CALLBACK (setup_druid_finish), NULL);
 
-	nickname_entry = glade_xml_get_widget (gui.xml, "setup druid nickname");
+	nickname_entry = glade_xml_get_widget (gui.setup_xml, "setup druid nickname");
 	g_signal_connect (G_OBJECT (nickname_entry), "changed", G_CALLBACK (setup_druid_nickname_changed), NULL);
 	g_signal_connect (G_OBJECT (nickname_entry), "realize", G_CALLBACK (setup_druid_nickname_changed), NULL);
-	realname_entry = glade_xml_get_widget (gui.xml, "setup druid realname");
+	realname_entry = glade_xml_get_widget (gui.setup_xml, "setup druid realname");
 	g_signal_connect (G_OBJECT (realname_entry), "changed", G_CALLBACK (setup_druid_realname_changed), NULL);
 
-	treeview = glade_xml_get_widget (gui.xml, "setup druid server list");
+	/*
+	treeview = glade_xml_get_widget (gui.setup_xml, "setup druid server list");
 
 	store = gtk_list_store_new (2, G_TYPE_STRING, G_TYPE_BOOLEAN);
 	gtk_tree_view_set_model (GTK_TREE_VIEW (treeview), GTK_TREE_MODEL (store));
@@ -81,6 +88,7 @@ initialize_setup_druid ()
 	gtk_tree_selection_set_mode (select, GTK_SELECTION_NONE);
 
 	setup_druid_servers_populate (treeview);
+	*/
 }
 
 void
@@ -89,7 +97,7 @@ run_setup_druid ()
 	GtkWidget *druid_window;
 
 	druid_finished = FALSE;
-	druid_window = glade_xml_get_widget (gui.xml, "setup druid window");
+	druid_window = glade_xml_get_widget (gui.setup_xml, "setup druid window");
 
 	gtk_widget_show_all (GTK_WIDGET (gui.setup_druid));
 	gtk_widget_show_all (GTK_WIDGET (druid_window));
@@ -124,8 +132,8 @@ setup_druid_nicknames_prepare (GnomeDruidPage *p, GtkWidget *w, gpointer d)
 {
 	GtkWidget *nick, *real;
 
-	real = glade_xml_get_widget (gui.xml, "setup druid realname");
-	nick = glade_xml_get_widget (gui.xml, "setup druid nickname");
+	real = glade_xml_get_widget (gui.setup_xml, "setup druid realname");
+	nick = glade_xml_get_widget (gui.setup_xml, "setup druid nickname");
 	gtk_entry_set_text (GTK_ENTRY (real), g_get_real_name ());
 	gtk_widget_grab_focus (nick);
 }
@@ -144,12 +152,12 @@ setup_druid_finish (GnomeDruidPage *p, GtkWidget *w, gpointer d)
 	const char *nicktext, *realtext;
 	GConfClient *client;
 
-	druid_window = glade_xml_get_widget (gui.xml, "setup druid window");
+	druid_window = glade_xml_get_widget (gui.setup_xml, "setup druid window");
 	gtk_widget_hide_all (druid_window);
 	druid_finished = TRUE;
 
-	nick = glade_xml_get_widget (gui.xml, "setup druid nickname");
-	real = glade_xml_get_widget (gui.xml, "setup druid realname");
+	nick = glade_xml_get_widget (gui.setup_xml, "setup druid nickname");
+	real = glade_xml_get_widget (gui.setup_xml, "setup druid realname");
 	nicktext = gtk_entry_get_text (GTK_ENTRY (nick));
 	realtext = gtk_entry_get_text (GTK_ENTRY (real));
 
@@ -165,8 +173,8 @@ setup_druid_nickname_changed (GtkEditable *entry, gpointer d)
 {
 	GtkWidget *nick, *real;
 
-	nick = glade_xml_get_widget (gui.xml, "setup druid nickname");
-	real = glade_xml_get_widget (gui.xml, "setup druid realname");
+	nick = glade_xml_get_widget (gui.setup_xml, "setup druid nickname");
+	real = glade_xml_get_widget (gui.setup_xml, "setup druid realname");
 	if (strlen (gtk_entry_get_text (GTK_ENTRY (nick))) == 0 || strlen (gtk_entry_get_text (GTK_ENTRY (real))) == 0)
 		gnome_druid_set_buttons_sensitive (gui.setup_druid, TRUE, FALSE, TRUE, TRUE);
 	else
@@ -178,8 +186,8 @@ setup_druid_realname_changed (GtkEditable *entry, gpointer d)
 {
 	GtkWidget *nick, *real;
 
-	nick = glade_xml_get_widget (gui.xml, "setup druid nickname");
-	real = glade_xml_get_widget (gui.xml, "setup druid realname");
+	nick = glade_xml_get_widget (gui.setup_xml, "setup druid nickname");
+	real = glade_xml_get_widget (gui.setup_xml, "setup druid realname");
 	if (strlen (gtk_entry_get_text (GTK_ENTRY (nick))) == 0 || strlen (gtk_entry_get_text (GTK_ENTRY (real))) == 0)
 		gnome_druid_set_buttons_sensitive (gui.setup_druid, TRUE, FALSE, TRUE, TRUE);
 	else

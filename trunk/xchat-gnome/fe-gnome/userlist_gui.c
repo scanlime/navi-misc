@@ -52,7 +52,6 @@ initialize_userlist ()
 
 	select = gtk_tree_view_get_selection (GTK_TREE_VIEW (userlist_view));
 	gtk_tree_selection_set_mode (select, GTK_SELECTION_SINGLE);
-	/* FIXME: selection signal */
 
 	tooltips = gtk_tooltips_new ();
 
