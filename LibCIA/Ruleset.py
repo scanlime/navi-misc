@@ -463,8 +463,7 @@ class RulesetStorage:
 
     def store(self, rulesetXml):
         """Find a URIHandler for the given ruleset and add it to
-           our mapping and to the hub. 'ruleset' is given as a
-           domish.Element.
+           our mapping and to the hub. 'ruleset' is given as a DOM tree.
 
            Storing an empty ruleset for a particular URI is equivalent
            to removing that URI's ruleset.

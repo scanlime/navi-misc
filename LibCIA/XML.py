@@ -205,6 +205,36 @@ def digValue(node, _type, *subElements):
         return _type(shallowText(foundNode).strip())
 
 
+def bury(node, *subElements):
+    """Search for the given named subelements inside a node,
+       creating any that can't be found.
+       """
+    for name in subElements:
+        nextNode = None
+        for child in node.childNodes:
+            if child.nodeType == child.ELEMENT_NODE and child.nodeName == name:
+                nextNode = child
+                break
+        if nextNode:
+            node = nextNode
+        else:
+            node = addElement(node, name)
+    return node
+
+
+def buryValue(node, value, *subElements):
+    """Search for a subelement using 'bury' then store the given value,
+       overwriting the previous content of that node.
+       """
+    node = bury(node, *subElements)
+
+    for child in list(node.childNodes):
+        if child.nodeType == child.TEXT_NODE:
+            node.removeChild(child)
+
+    node.appendChild(node.ownerDocument.createTextNode(str(value)))
+
+
 def addElement(node, name, content=None, attributes={}):
     """Add a new child element to the given node, optionally containing
        the given text and attributes. The attributes are specified as a
