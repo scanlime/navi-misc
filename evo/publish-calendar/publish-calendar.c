@@ -20,6 +20,7 @@
  */
 
 #include <gtk/gtk.h>
+#include <calendar/gui/e-cal-popup.h>
 
 void
 menu_publish_activate (EPlugin *ep, ECalPopupTargetSource *target)
