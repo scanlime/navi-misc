@@ -1,12 +1,10 @@
 #include <tusb.h>
-#include <stdio.h>
 #include <string.h>
-#include "usb_driver.h"
 #include "util.h"
+#include "usb_driver.h"
 
 static void usb_handle_setup();
 static void usb_handle_standard_request();
-static void usb_unhandled_request();
 static void usb_handle_descriptor_request();
 static void usb_leave_setup();
 static void usb_write_ep0_string_descriptor(unsigned char *string);
@@ -51,7 +49,6 @@ static void usb_handle_standard_request() {
 
   case USB_REQ_SET_ADDRESS:
     /* Set the device address and send a 0-length response */
-    printf("Setting address to %d\n", usb_setup_buffer.wValue);
     FUNADR = usb_setup_buffer.wValue;
     usb_write_ack();
     break;
@@ -67,8 +64,6 @@ static void usb_handle_standard_request() {
     usb_write_ack();
     break;
 
-  default:
-    usb_unhandled_request();
   }
 }
 
@@ -183,31 +178,16 @@ static void usb_handle_setup() {
     usb_handle_vendor_request();
     break;
 
-  default:
-    usb_unhandled_request();
   }
-
-  /* Yay, we're done */
-  USBCTL &= ~SIR;
-}
-
-static void usb_unhandled_request() {
-  printf("Unhandled request: request_type=%d request=%d value=%d index=%d length=%d\n",
-	 usb_setup_buffer.bRequestType,
-	 usb_setup_buffer.bRequest,
-	 usb_setup_buffer.wValue,
-	 usb_setup_buffer.wIndex,
-	 usb_setup_buffer.wLength);
+  usb_leave_setup();
 }
 
 void usb_poll() {
   /* Look for SETUP packets, ignore function resets
    * and suspend/resume requests for now.
    */
-  if (USBSTA & SETUP) {
+  if (USBSTA & SETUP)
     usb_handle_setup();
-    USBSTA = SETUP;
-  }
 }
 
 void usb_init() {
@@ -219,8 +199,50 @@ void usb_init() {
 
   USBCTL &= ~CONT;  /* Disconnect from USB */
   USBSTA = 0xFF;    /* Clear USB status bits */
-  delay(1000);     /* Wait a bit and reconnect */
+  delay(1000);      /* Wait a bit and reconnect */
   USBCTL |= CONT;
+}
+
+void usb_dma_write_setup(int ep, xdata unsigned char *buffer, unsigned char buffer_size) {
+  ep = ep - 1 + EDB_IEP1;
+  EDB[ep].config = STALL | UBME;
+  EDB[ep].x_base = (((unsigned short)buffer) >> 3) & 0xFF;
+  EDB[ep].buffer_size = buffer_size;
+  EDB[ep].x_count = 0;
+}
+
+void usb_dma_write_stall(int ep) {
+  ep = ep - 1 + EDB_IEP1;
+  EDB[ep].config = UBME | STALL;
+}
+
+int  usb_dma_write_status(int ep) {
+  unsigned char c = EDB[ep-1+EDB_IEP1].x_count;
+  if (c & 0x80)
+    return c & 0x7F;
+  else
+    return 0;
+}
+
+void usb_dma_read_setup(int ep, xdata unsigned char *buffer, unsigned char buffer_size) {
+  ep = ep - 1 + EDB_OEP1;
+  EDB[ep].config = UBME;
+  EDB[ep].x_base = (((unsigned short)buffer) >> 3) & 0xFF;
+  EDB[ep].buffer_size = buffer_size;
+  EDB[ep].x_count = 0;
+}
+
+void usb_dma_read_stall(int ep) {
+  ep = ep - 1 + EDB_OEP1;
+  EDB[ep].config = UBME | STALL;
+}
+
+int  usb_dma_read_status(int ep) {
+  unsigned char c = EDB[ep-1+EDB_OEP1].x_count;
+  if (c & 0x80)
+    return c & 0x7F;
+  else
+    return 0;
 }
 
 /* The End */

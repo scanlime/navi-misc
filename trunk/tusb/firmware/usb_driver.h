@@ -194,14 +194,32 @@ volatile xdata at 0xFF00 struct usb_ctrlrequest usb_setup_buffer;
 void usb_init();
 void usb_poll();
 
-/* Request reply functions (blocking) */
-void usb_write_ep0_buffer(unsigned char *buffer, int length);
-void usb_write_ack();
-
 /* Application-defined */
 void usb_handle_vendor_request();
 extern const struct usb_descriptor_entry usb_descriptors[];
 
+/* Request reply functions (blocking) */
+void usb_write_ep0_buffer(unsigned char *buffer, int length);
+void usb_write_ack();
+
+/* Setup and polling of DMA transfers to/from EP1 through EP3.
+ * The usb_dma_write functions write data to EP1-EP3 IN, and the
+ * usb_dma_read functions read data from EP1-EP3 OUT. 'ep' must
+ * be between 1 and 3.
+ *
+ * Buffer addresses must be in external RAM, aligned on an
+ * 8-byte boundary.
+ *
+ * The status functions return 0 if nothing has happened, or they
+ * return the number of bytes transferred. A setup function must
+ * be called to receive another block.
+ */
+void usb_dma_write_setup(int ep, xdata unsigned char *buffer, unsigned char buffer_size);
+void usb_dma_write_stall(int ep);
+int  usb_dma_write_status(int ep);
+void usb_dma_read_setup(int ep, xdata unsigned char *buffer, unsigned char buffer_size);
+void usb_dma_read_stall(int ep);
+int  usb_dma_read_status(int ep);
 
 #endif /* __USB_DRIVER_H */
 
