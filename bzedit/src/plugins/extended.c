@@ -22,18 +22,20 @@
 
 #include <gmodule.h>
 #include "group.h"
+#include "shadow.h"
 #include "plugins.h"
 
 const gchar*
 g_module_check_init (GModule *module)
 {
-  static GType group;
+  static GType group, shadow;
 
   /* permanently insert ourself */
   g_module_make_resident (module);
 
   /* and register our types */
   group = GROUP_TYPE;
+  shadow = SHADOW_TYPE;
 
   return NULL;
 }

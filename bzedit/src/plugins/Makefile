@@ -23,7 +23,8 @@ CORE_SO_OBJS		=			\
 
 EXTENDED_SO_OBJS	=			\
 			extended.o		\
-			group.o
+			group.o			\
+			shadow.o
 
 RENDERPASSES_SO_OBJS	=			\
 			basicrenderpass.o	\

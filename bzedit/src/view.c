@@ -258,6 +258,10 @@ view_pick (View *view, guint pos[2])
 {
   RenderState *rstate = render_state_new ();
   GLuint viewport[4];
+  gint width, height;
+
+  gdk_window_get_size (GTK_WIDGET(view->context)->window, &width, &height);
+  gl_drawing_area_make_current (view->context);
 
   rstate->picking = TRUE;
 
@@ -266,7 +270,7 @@ view_pick (View *view, guint pos[2])
   glPushMatrix ();
   glLoadIdentity ();
   gluPickMatrix ((double)pos[0], (double) (viewport[3] - pos[1]), 1.0, 1.0, viewport);
-  gluPerspective (45.0, (float) (viewport[2] - viewport[0]) / (float) (viewport[3] - viewport[1]), 3.0, 2500.0);
+  gluPerspective (45.0, (float)width / (float)height, 0.1, 2500.0);
 
   glMatrixMode (GL_MODELVIEW);
   camera_load (view->camera);
