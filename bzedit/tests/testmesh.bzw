@@ -1,0 +1,54 @@
+# BZFlag client: saved world on Fri Jan  7 20:56:21 2005
+mesh
+    inside 0 0 0.2
+
+    vertex -1 -1 0
+    vertex 1 -1 0
+    vertex 1 1 0
+    vertex -1 1 0
+    vertex 1 1 1
+    vertex -1 1 1
+
+    face
+	vertices 3 2 1 0
+    endface
+    face
+	vertices 2 3 5 4
+    endface
+    face
+	vertices 0 1 4 5
+    endface
+    face
+	vertices 5 3 0
+    endface
+    face
+	vertices 1 2 4
+    endface
+end
+
+mesh
+    inside 0 0 0.2
+
+    vertex -1 -1 0
+    vertex 1 -1 0
+    vertex 1 1 0
+    vertex -1 1 0
+    vertex 1 1 1
+    vertex -1 1 1
+
+    face
+	vertices 3 2 1 0
+    endface
+    face
+	vertices 2 3 5 4
+    endface
+    face
+	vertices 0 1 4 5
+    endface
+    face
+	vertices 5 3 0
+    endface
+    face
+	vertices 1 2 4
+    endface
+end
