@@ -1,0 +1,19 @@
+HTTP://www.ogre3d.org
+OGRE Licensing Terms
+
+Ogre is licensed under the GNU Lesser Public License (LGPL), a copy of which is in the doc directory. This basically means that you can get the full source code for nothing, nada, zip. There is such a thing as a free lunch.
+
+Under the LGPL you may use Ogre for any purpose you wish, as long as you:
+
+   1. Release any modifications to the OGRE source back to the community
+   2. Pass on the source to Ogre with all the copyrights intact
+   3. Make it clear where you have customised it. 
+
+The above is a precis, please read the full license agreement before downloading any source.
+
+In addition, if you use Ogre it would be nice if you would display the Ogre logo somewhere in your application (start up or shutdown) for a minimum of 2 seconds. This splash-screen is displayed on the standard Ogre configuration dialog anyway, so if you use that you don't need to do anything extra. The logo is included in the download archive as Samples\Media\ogrelogo.png. You don't have to do this under the conditions of the LGPL, but it would be appreciated.
+Using OGRE for commercial projects
+
+Commercial products can be made using Ogre with no limitations other than the ones listed above.
+
+Previously OGRE was licensed under the GPL which required you to release the source code to all of your project (not just the modifications you made to OGRE) which put some people off using it. We had intended to release OGRE under a commercial license in parallel with the GPL for closed-source projects (to give people an incentive to try to use the GPL) but the reality of dealing with all the contractual / legal issues, coupled with the fact that we're all doing this in our spare time eventually convinced us to just license under the LGPL instead. 

@@ -1,0 +1,21 @@
+HTTP://www.libsdl.org/
+Licensing the Simple DirectMedia Layer library
+
+    The Simple DirectMedia Layer library is currently available under the GNU Lesser General Public License (LGPL) version 2 or newer. This license allows you to link with the library in such a way that users can modify the library and have your application use the new version.
+
+    The GNU LGPL license can either be found in the doc directory, or online at:
+    http://www.gnu.org/copyleft/lgpl.html
+
+    To comply with this license, you must give prominent notice that you use the Simple DirectMedia Layer library, and that it is included under the terms of the LGPL license. You must include a copy of the LGPL license.
+    You must also do one of the following:
+
+       1. Include the source code for the version of SDL that you link with, as well as the full source or object code to your application so that the user can relink your application,
+          or
+       2. Include a written offer, valid for at least three years, to provide the materials listed in option 1, charging no more than the cost of providing this distribution,
+          or
+       3. Make the materials listed in option 1 available from the same place that your application is available. 
+
+    The most common way to comply with the license is to dynamically link with SDL, and then include the SDL source code and appropriate notices with your application.
+
+    Embedded Use:
+    Personally, I don't have a problem with anybody statically linking SDL for use with embedded environments that don't already have an open development environment. (i.e. the users can't relink programs anyway) However, this does technically violate the LGPL, so be cautioned. 
