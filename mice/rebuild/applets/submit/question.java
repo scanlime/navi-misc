@@ -71,7 +71,14 @@ public class question extends java.applet.Applet implements ActionListener
 
 		if(qstring.compareTo("") == 0) return;
 
-		openConnection("studentactivities.mscd.edu",8080);
+		if(!openConnection("localhost",8080))
+		{
+			name.setText("connection failure");
+			ques.setText("");
+			position.setText("");
+			submit.removeActionListener(this);
+			return;
+		}
 		write("jsub");
 		write(nstring);
 		qstring = tokens.nextToken();
