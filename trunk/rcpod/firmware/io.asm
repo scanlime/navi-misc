@@ -24,6 +24,7 @@
 	errorlevel -226		; suppress the crazy include file warnings on gpasm
 
 #include <p16C765.inc>
+#include "usb_defs.inc"
 
 	errorlevel -302		; supress "register not in bank0, check page bits" message
 
@@ -34,18 +35,19 @@
 	global	io_Read		; Test the value of the pin descriptor io_pin, return it in 'w'
 
 bank1	udata
-io_pin	res	1
-io_tmp  res 1
-io_iterator res 1
 
-io_dummy_port res 1		; FSR is pointed at this by io_SetFSR if the pin descriptor is a no-op
-	                        ; Must be in an IRP=0 bank (0 or 1) to match PORT*
+io_pin		res	1	; Current pin number, supplied by other modules
 
-LATA	res	1		; Latch registers, holding the current output values of all ports.
-LATB	res	1		;    These are used to avoid read-modify-write errors on the GPIOs.
-LATC	res	1
-LATD	res	1
-LATE	res	1
+io_tmp		res	1
+io_byte		res	1
+io_mask		res	1	; Mask with the current I/O bit, decoded from io_pin
+io_base_fsr	res	1	; Current I/O base- points to LATA for writes, PORTA for reads.
+
+LATA		res	1	; Latch registers, holding the current output values of all ports.
+LATB		res	1	;    These are used to avoid read-modify-write errors on the GPIOs.
+LATC		res	1
+LATD		res	1
+LATE		res	1
 
 	code
 
@@ -55,199 +57,113 @@ io_Deassert
 	xorwf	io_pin, f	; and fall through to io_Assert...
 
 io_Assert
-	pagesel	io_SetFSR
-	call	io_SetFSR
+	banksel	io_base_fsr	; For non-TRIS output, write via the latch registers
+	movlw	LATA
+	movwf	io_base_fsr
 
-	banksel	io_pin
-	movlw	0x87		; Mask off the low/high and bit number bits
-	andwf	io_pin, w
-	movwf	io_tmp
-
-	; Test io_tmp and run the proper bcf/bsf instruction on INDF
-	pagesel io_Assert
-	banksel	io_tmp
-
-	movlw	0x00		; Clear bit 0
-	xorwf	io_tmp, w
-	btfsc	STATUS, Z
-	bcf		INDF, 0
-
-	movlw	0x01		; Clear bit 1
-	xorwf	io_tmp, w
-	btfsc	STATUS, Z
-	bcf		INDF, 1
-
-	movlw	0x02		; Clear bit 2
-	xorwf	io_tmp, w
-	btfsc	STATUS, Z
-	bcf		INDF, 2
-
-	movlw	0x03		; Clear bit 3
-	xorwf	io_tmp, w
-	btfsc	STATUS, Z
-	bcf		INDF, 3
-
-	movlw	0x04		; Clear bit 4
-	xorwf	io_tmp, w
-	btfsc	STATUS, Z
-	bcf		INDF, 4
-
-	movlw	0x05		; Clear bit 5
-	xorwf	io_tmp, w
-	btfsc	STATUS, Z
-	bcf		INDF, 5
-
-	movlw	0x06		; Clear bit 6
-	xorwf	io_tmp, w
-	btfsc	STATUS, Z
-	bcf		INDF, 6
-
-	movlw	0x07		; Clear bit 7
-	xorwf	io_tmp, w
-	btfsc	STATUS, Z
-	bcf		INDF, 7
-
-	movlw	0x80		; Set bit 0
-	xorwf	io_tmp, w
-	btfsc	STATUS, Z
-	bsf		INDF, 0
-
-	movlw	0x81		; Set bit 1
-	xorwf	io_tmp, w
-	btfsc	STATUS, Z
-	bsf		INDF, 1
-
-	movlw	0x82		; Set bit 2
-	xorwf	io_tmp, w
-	btfsc	STATUS, Z
-	bsf		INDF, 2
-
-	movlw	0x83		; Set bit 3
-	xorwf	io_tmp, w
-	btfsc	STATUS, Z
-	bsf		INDF, 3
-
-	movlw	0x84		; Set bit 4
-	xorwf	io_tmp, w
-	btfsc	STATUS, Z
-	bsf		INDF, 4
-
-	movlw	0x85		; Set bit 5
-	xorwf	io_tmp, w
-	btfsc	STATUS, Z
-	bsf		INDF, 5
-
-	movlw	0x86		; Set bit 6
-	xorwf	io_tmp, w
-	btfsc	STATUS, Z
-	bsf		INDF, 6
-
-	movlw	0x87		; Set bit 7
-	xorwf	io_tmp, w
-	btfsc	STATUS, Z
-	bsf		INDF, 7
+	pscall	io_SetFSR	; Point at the current port...
+	xorlw	0		; w=1 if the port is invalid, give up
+	btfss	STATUS, Z
 	return
+	pscall	io_SetMask	; Mask off the current bit
+
+	movf	INDF, w		; Put the old value of this port in io_byte
+	movwf	io_byte
+
+	comf	io_mask, w	; AND it with the complement of our current mask
+	andwf	io_byte, f
+
+	movf	io_mask, w	; If it's active-high, OR our mask back in
+	btfsc	io_pin, 7
+	iorwf	io_byte, f
+
+	movf	io_byte, w	; Put io_byte back in INDF
+	movwf	INDF
+
+	btfsc	io_pin, 6	; If that was a TRIS pin descriptor, we're done
+	return
+
+	banksel	io_base_fsr	; If not, we need to update the PORT with the new latch value
+	movlw	PORTA
+	movwf	io_base_fsr
+	pscall	io_SetFSR
+
+	movf	io_byte, w
+	movwf	INDF
+	return
+
 
 	; Test the current pin descriptor, return its value in w
 io_Read
-	pagesel	io_SetFSR
-	call	io_SetFSR
+	banksel	io_base_fsr	; Point at the correct PORT or TRIS register
+	movlw	PORTA
+	movwf	io_base_fsr
+	pscall	io_SetFSR
+	xorlw	0		; w=1 if the port is invalid, always return 0
+	btfss	STATUS, Z
+	retlw	0
+	pscall	io_SetMask	; Mask off the current bit
 
-	movlw	0x07		; Mask off bit number, stick it plus 1 into io_iterator
-	andwf	io_pin, w
-	movwf	io_iterator
-	incf	io_iterator, f
-
-	movf	INDF, w		; Copy the current port value into io_tmp
-	movwf	io_tmp
+	movf	INDF, w		; Copy the current port value into io_byte
+	movwf	io_byte
 
 	btfss	io_pin, 7	; If the 'active high' bit is not set, complement our port reading
-	comf	io_tmp, f
+	comf	io_byte, f
 
-	pagesel	ioReadShiftLoop
-ioReadShiftLoop
-	rrf		io_tmp, f	; Shift the bit we're interested in into the Carry flag
-	decfsz	io_iterator, f
-	goto	ioReadShiftLoop
-
-	btfss	STATUS, C	; Return the carry flag's value
+	movf	io_mask, w	; Test against our mask
+	andwf	io_byte, w
+	btfss	STATUS, Z
+	retlw	1
 	retlw	0
+
+
+	;; Set FSR to point to the I/O port indicated by the current pin descriptor.
+	;; If the pin descriptor is invalid, returns with w=1, on success returns w=0.
+	;; For non-TRIS ports, uses the base address in io_base_fsr.
+io_SetFSR
+	bankisel PORTA		; All PORT, TRIS, and LAT registers are at an address < 0x100
+
+	banksel	io_pin
+	movlw	TRISA		; Set the base address to TRISA if the TRIS bit is set
+	btfsc	io_pin, 6
+	movwf	io_base_fsr
+
+	rrf	io_pin, w	; Shift and mask the port number, put it in io_tmp
+	movwf	io_tmp
+	rrf	io_tmp, f
+	rrf	io_tmp, w
+	andlw	0x07
+	movwf	io_tmp
+
+	movlw	5		; 5 is PORTE, the highest allowed port
+	subwf	io_tmp, w
+	btfss	STATUS, C	; If B=1, C=0 and the port is bad
 	retlw	1
 
+	movf	io_base_fsr, w	; FSR = io_base_fsr + io_tmp
+	addwf	io_tmp, w
+	movwf	FSR
+	retlw	0
 
-	; Set FSR to point to the I/O port indicated by the current pin descriptor
-io_SetFSR
+
+	;; Set io_mask with the bit referred to in io_pin
+io_SetMask
 	banksel	io_pin
-	movlw	0x78		; Mask off the PORT/TRIS and port number bits
-	andwf	io_pin, w
-	movwf	io_tmp
-	bankisel PORTA		; All PORT and TRIS registers are at an address < 0x100
+	andlw	0x07		; Mask off the bit number
+	movwf	io_tmp		; ...and put it in io_tmp
 
-	; If we don't have a valid address, point FSR at a dummy variable
-	movlw	io_dummy_port
-	movwf	FSR
+	movlw	1		; Start with the mask 0x01
+	movwf	io_mask
 
-	; Test io_tmp and set the proper PORT/TRIS address in FSR
-	movlw	0x08		; PORTA
-	xorwf	io_tmp, w
-	movlw	PORTA
+set_mask_loop
+	movf	io_tmp, w	; Terminate when the bit count is zero
 	btfsc	STATUS, Z
-	movwf	FSR
-
-	movlw	0x10		; PORTB
-	xorwf	io_tmp, w
-	movlw	PORTB
-	btfsc	STATUS, Z
-	movwf	FSR
-
-	movlw	0x18		; PORTC
-	xorwf	io_tmp, w
-	movlw	PORTC
-	btfsc	STATUS, Z
-	movwf	FSR
-
-	movlw	0x20		; PORTD
-	xorwf	io_tmp, w
-	movlw	PORTD
-	btfsc	STATUS, Z
-	movwf	FSR
-
-	movlw	0x28		; PORTE
-	xorwf	io_tmp, w
-	movlw	PORTE
-	btfsc	STATUS, Z
-	movwf	FSR
-
-	movlw	0x48		; TRISA
-	xorwf	io_tmp, w
-	movlw	TRISA
-	btfsc	STATUS, Z
-	movwf	FSR
-
-	movlw	0x50		; TRISB
-	xorwf	io_tmp, w
-	movlw	TRISB
-	btfsc	STATUS, Z
-	movwf	FSR
-
-	movlw	0x58		; TRISC
-	xorwf	io_tmp, w
-	movlw	TRISC
-	btfsc	STATUS, Z
-	movwf	FSR
-
-	movlw	0x60		; TRISD
-	xorwf	io_tmp, w
-	movlw	TRISD
-	btfsc	STATUS, Z
-	movwf	FSR
-
-	movlw	0x68		; TRISE
-	xorwf	io_tmp, w
-	movlw	TRISE
-	btfsc	STATUS, Z
-	movwf	FSR
 	return
+
+	rlf	io_mask, f	; Otherwise rotate the IO mask and decrement the bit count
+	decf	io_tmp, f
+	psgoto	set_mask_loop
+
 
 	end
 
