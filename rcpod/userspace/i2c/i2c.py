@@ -80,26 +80,6 @@ class i2c:
 	self.nack()
 	return a
 
-class eeprom(i2c):
-    def write_byte(self, address, byte):
-        self.start()
-	self.writebyte(0xa0)					# device address + write
-	self.writebyte((address >> 8) & 0xff)			# high byte
-	self.writebyte(address & 0xff)				# low byte
-	self.writebyte(byte)					# data
-	self.stop()
-
-    def random_read(self, address):
-        self.start()
-	self.writebyte(0xa0)					# device address + write
-	self.writebyte((address >> 8) & 0xff)			# high byte
-	self.writebyte(address & 0xff)				# low byte
-	self.start()
-	self.writebyte(0xa1)					# device address + read
-	blah = self.readbyte()
-	self.stop()
-	return blah
-
 class therm(i2c):
     def write(self, address, register, byte):
         self.start()
