@@ -1,4 +1,4 @@
-""" pyunicone.event
+""" PyUnicone.Event
 
 A spiffy little system for setting up events with observers,
 by default using weak references.

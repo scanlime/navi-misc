@@ -1,4 +1,4 @@
-""" pyunicone.device
+""" PyUnicone.Device
 
 Low-level interface for initializing the Unicone device
 and communicating with controller emulators installed in its FPGA.
@@ -98,5 +98,104 @@ class UniconeDevice(object):
        report using it instead. Progress reporting can be suppressed entirely
        by setting this to None.
        """
+
+
+class Emulator(object):
+    """Abstract base class for controller emulators. Every emulator
+       has a set of ports that hold Controller instances. These could
+       be any type of Controller, but the emulator specifies the type
+       of controller it's designed to work with. The emulator also
+       specifies the name of the FPGA configuration that knows how
+       to emulate this type of controller.
+
+       The emulator has an onSync event that should be triggered
+       to update the hardware with the current state of our virtual
+       controllers. We encode all controllers, then send the encoded
+       data to an I2C device in the FPGA.
+       """
+    numPorts = None
+    controllerClass = None
+    fpgaConfigName = None
+
+    def __init__(self, uniconeDevice):
+        self.dev = uniconeDevice
+        self.ports = [None] * self.numPorts
+        self.configure()
+
+    def configure(self):
+        self.dev.configure("fpga/%(fpgaConfigName)s/%(fpgaConfigName)s.bit" %
+                           self.__class__.__dict__)
+
+    def attach(self, controller, portNumber):
+        self.ports[portNumber] = controller
+
+    def remove(self, controller):
+        self.ports[self.ports.index(controller)] = None
+
+    def sync(self):
+        """Send our our current controller status to the hardware.
+           The default implementation calls encodePort on each
+           port, concatenates the results, and sends the resulting
+           packet to I2C address 0x40.
+           """
+        assert len(self.ports) == self.numPorts
+        packet = ''.join([self.encodePort(port) for port in self.ports])
+        self.dev.i2cWrite(0x40, packet)
+
+        # Make the status LED glow a bit to indicate activity
+        self.dev.setLed(0.05, 0.001)
+
+
+def packAxisBytes(controller, format):
+    """Given a Controller and a list of (actuator name, scale, bias) tuples,
+       encode a set of axes into a string of bytes. The controller may be
+       None, in which case all axes read zero.
+       """
+    bytes = []
+    for name, scale, bias in format:
+        if controller:
+            ac = controller[name]
+            if ac:
+                v = ac.value or 0
+            else:
+                v = 0
+        else:
+            v = 0
+        byte = min(0xFF, max(0x00, int(v * scale + bias + 0.5)))
+        bytes.append(chr(byte))
+    return ''.join(bytes)
+
+def packButtonBits(controller, format):
+    """Given a controller and a list of (actuator name, threshold, invert) tuples,
+       encode a set of buttons into a string of bytes. The controller may be
+       None, in which case all buttons are released. Without 'invert', a '1' bit
+       is inserted anywhere the actuator value is greater than the given threshold.
+       'invert' reverses this. It may be used in conjunction with an actuator name
+       of None to insert constant bits. Bits are specified starting with the MSB
+       of the first byte.
+       """
+    bytes = []
+    byte = 0
+    mask = 0x80
+    for name, threshold, invert in format:
+        if controller:
+            ac = controller[name]
+            if ac:
+                v = (ac.value or 0) > threshold
+            else:
+                v = False
+        else:
+            v = False
+        v ^= invert
+        if v:
+            byte |= mask
+        mask >>= 1
+        if not mask:
+            bytes.append(chr(byte))
+            byte = 0
+            mask = 0x80
+    if mask != 0x80:
+        bytes.append(chr(byte))
+    return ''.join(bytes)
 
 ### The End ###

@@ -1,6 +1,8 @@
-""" linux_input
+""" PyUnicone.LinuxInput
 
-Constants and support classes for dealing with linux input events
+A Python wraper around all the constants, bitfields, ioctls
+and other fiddly bits involved in using the Linux input
+subsystem.
 
 """
 #
@@ -42,7 +44,7 @@ def iocGetAbs(fd, axis):
     """Get information about an absolute axis given its number. Returns
        a dict with 'value', 'min', 'max', 'fuzz', and 'flat'.
        """
-    axis = Event.codeMaps['EV_ABS'].toNumber(axis)
+    axis = LinuxEvent.codeMaps['EV_ABS'].toNumber(axis)
     fmt = "i" * 5
     buffer = "\0" * struct.calcsize(fmt)
     values = struct.unpack(fmt, ioctl(fd, EVIOCGABS + axis, buffer))
@@ -70,11 +72,11 @@ def iocGetBitNames(fd, name):
        list of EV_* bits.
        """
     if name:
-        number = Event.typeMap.toNumber(name)
-        map = Event.codeMaps[name]
+        number = LinuxEvent.typeMap.toNumber(name)
+        map = LinuxEvent.codeMaps[name]
     else:
         number = 0
-        map = Event.typeMap
+        map = LinuxEvent.typeMap
     return [map.fromNumber(x) for x in iocGetBits(fd, number)]
 
 
@@ -96,7 +98,7 @@ class EnumDict:
         return self.numberMap.get(num, num)
 
 
-class Event:
+class LinuxEvent:
     """Represents one linux input system event. It can
        be encoded and decoded in the 'struct input_event'
        format used by the kernel. Types and codes are automatically
@@ -476,7 +478,7 @@ class Event:
             self.unpack(unpack)
 
     def __repr__(self):
-        return "<Event timestamp=%r type=%r code=%r value=%r>" % (
+        return "<LinuxEvent timestamp=%r type=%r code=%r value=%r>" % (
             self.timestamp, self.type, self.code, self.value)
 
     def pack(self):
