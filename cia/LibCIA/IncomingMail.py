@@ -74,7 +74,7 @@ class IncomingMailParser:
            (if any) and passes control to it.
            """
         self.message = message
-        subject = message['Subject']
+        subject = message['Subject'].strip()
         if not subject:
             # No subject, ignore this mail
             return None
