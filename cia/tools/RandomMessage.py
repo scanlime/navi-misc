@@ -27,40 +27,112 @@ make use of the random messages.
 import random, time
 
 
-randomAuthor = (
-    ('jim', 'captain_', 'flux', 'mr', 'sr', 'lurgy', 'mj', 'kr', 'zx',
+class RandomList:
+    """A list of items that are serialized to a string
+       by randomly selecting one item to serialize.
+       """
+    def __init__(self, *l):
+        self.list = l
+
+    def __str__(self):
+        return str(random.choice(self.list))
+
+class JoinedList(list):
+    """A list of items that are serializable to a string
+       by serializing all child objects and joining them.
+       """
+    def __init__(self, *l):
+        self.list = l
+
+    def __str__(self):
+        return ''.join(map(str, self.list))
+
+class Optional:
+    """A class that, when serialized, randomly chooses whether
+       or not to include its argument. If not, it returns the empty string.
+       """
+    def __init__(self, arg, probability):
+        self.arg = arg
+        self.probability = probability
+
+    def __str__(self):
+        if random.random() <= self.probability:
+            return str(self.arg)
+        else:
+            return ''
+
+class RandomInt:
+    """Serializes to a ranom integer"""
+    def __init__(self, lower, upper):
+        self.lower = lower
+        self.upper = upper
+
+    def __str__(self):
+        return str(random.randint(self.lower, self.upper))
+
+
+class RandomRepeat:
+    """Repeats and joins the argument a random number of times"""
+    def __init__(self, arg, lower, upper, separator=''):
+        self.arg = arg
+        self.lower = lower
+        self.upper = upper
+        self.separator = separator
+
+    def __str__(self):
+        return self.separator.join(map(str, [self.arg]*random.randint(self.lower, self.upper)))
+
+
+randomAuthor = JoinedList(
+    RandomList('jim', 'captain_', 'flux', 'mr', 'sr', 'lurgy', 'mj', 'kr', 'zx',
      'agent_', 'death_', 'monkey_', 'super_', 'talkie', 'waffle',
      'squid', 'slinky', 'ensign_', 'professor_', 'liquid_', 'larry',
-     '', '', '', ''),
-    ('proton', 'fry', 'neo', 'bender', 'diablo', 'muffin', 'wibble',
-     'zork', 'bob', 'smith', 'chuck', 'bologna', 'cheese', 'guru', 'leper',
-     'duck', 'yam', 'squid', 'zoidberg', 'guido', 'spielberg', 'torvalds',
-     'tigert'),
-    ('', '', '', '', '', '42', '3', '999'),
+               '', '', '', ''),
+    RandomList('proton', 'fry', 'neo', 'bender', 'diablo', 'muffin', 'wibble',
+               'zork', 'bob', 'smith', 'chuck', 'bologna', 'cheese', 'guru', 'leper',
+               'duck', 'yam', 'squid', 'zoidberg', 'guido', 'spielberg', 'torvalds',
+               'tigert'),
+    RandomList('', '', '', '', '', '42', '3', '999'),
     )
 
-randomProject = (
-    ('py', 'c', 'x', 'g', 'k', 'lib', ''),
-    ('widgets', 'desktop', 'mouse', 'snail', 'vacuum', 'squeegie', 'dog', 'squiggle'),
-    ('', '', '', '', '', '++', '2', '3', '-enhanced'),
+randomProject = JoinedList(
+    RandomList('py', 'c', 'x', 'g', 'k', 'lib', ''),
+    RandomList('widgets', 'desktop', 'mouse', 'snail', 'vacuum', 'squeegie', 'dog', 'squiggle'),
+    RandomList('', '', '', '', '', '++', '2', '3', '-enhanced'),
     )
 
-randomLog = (
-    ('Update ', 'Frobnicate ', 'Break ', 'Explode ', 'Revert ', 'Test ', 'Rewrite '),
-    ('all ', 'the ', 'a few ', '', '', '', ''),
-    ('recent ', 'old ', 'tasty ', '', '', ''),
-    ('bits ', 'files ', 'classes ', 'squirrels '),
-    ('in ', 'in ', 'in ', 'near '),
-    ('the ',),
-    ('database ', 'network ', 'operating system ', 'lego ', 'graphics ', 'build system '),
-    ('module', 'package', 'subsystem'),
+randomLog = JoinedList(
+    Optional(RandomList('oops... ', 'Scratch that. ', 'Maybe it would help if I added this file correctly... ',
+                        'Wow, a duck. ', 'Good thing I was wearing my bullet-proof socks. '),
+             0.1),
+    RandomRepeat(RandomList(JoinedList(RandomList('Updated ', 'Rewrote ', 'Fixed ', 'Retested '),
+                                       RandomList('this', 'everything', 'this module', 'the makefile'),
+                                       Optional(' yet again', 0.1),
+                                       Optional(' for the third time', 0.1),
+                                       Optional(JoinedList(' this ',
+                                                           RandomList('week', 'month', 'day', 'hour', 'year')),
+                                                0.1),
+                                       '.',
+                                       ),
+                            JoinedList(RandomList('Update ', 'Frobnicate ', 'Break ', 'Explode ', 'Revert ', 'Test ', 'Rewrite '),
+                                       RandomList('all ', 'the ', 'a few ', '', '', '', ''),
+                                       RandomList('recent ', 'old ', 'tasty ', '', '', ''),
+                                       RandomList('bits ', 'files ', 'classes ', 'squirrels '),
+                                       RandomList('in ', 'in ', 'in ', 'near '),
+                                       RandomList('the ',),
+                                       RandomList('database ', 'network ', 'operating system ', 'lego ', 'graphics ', 'build system '),
+                                       RandomList('module', 'package', 'subsystem'),
+                                       '.',
+                                       ),
+                            ),
+                 1, 6, ' '),
+    Optional(" Let's hope it works.", 0.02),
+    Optional(JoinedList(" Cleaning up after ", randomAuthor, "."), 0.1),
+    Optional(JoinedList(" Let's hope ", randomAuthor, " doesn't notice."), 0.1),
+    Optional(JoinedList(" Closes bug #", RandomInt(100, 100000)),
+             0.4),
     )
 
-def fromList(l):
-    """Generate a random message my combining random strings chosen
-       from the provided sequence of sequences of strings.
-       """
-    return ''.join([random.choice(choices) for choices in l])
 
 def generate(rev=None):
     """Create a random commit message"""
@@ -80,9 +152,9 @@ def generate(rev=None):
             </commit>
         </body>
     </message>
-    """ % (fromList(randomProject),
-           fromList(randomAuthor),
-           fromList(randomLog),
+    """ % (randomProject,
+           randomAuthor,
+           randomLog,
 	   rev)
 
 ### The End ###
