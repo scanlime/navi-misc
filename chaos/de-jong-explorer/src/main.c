@@ -48,7 +48,7 @@ int main(int argc, char ** argv) {
   int c, option_index=0;
   gulong target_density = 10000;
 
-  srand(time(NULL));
+  g_random_set_seed(time(NULL));
   g_type_init();
 
   dejong = de_jong_new();
