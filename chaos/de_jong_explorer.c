@@ -26,10 +26,10 @@ guint idler;
 
 void flip();
 void clear();
-static int draw_more(void *data);
+int interactive_idle_handler(void *data);
 gboolean expose(GtkWidget *widget, GdkEventExpose *event, gpointer user_data);
-void paramSpinnerChanged(GtkWidget *widget, gpointer user_data);
-void exposureChanged(GtkWidget *widget, gpointer user_data);
+void param_spinner_changed(GtkWidget *widget, gpointer user_data);
+void exposure_changed(GtkWidget *widget, gpointer user_data);
 void startclick(GtkWidget *widget, gpointer user_data);
 void stopclick(GtkWidget *widget, gpointer user_data);
 void saveclick(GtkWidget *widget, gpointer user_data);
@@ -70,7 +70,7 @@ int main(int argc, char ** argv) {
   clear();
   flip();
 
-  idler = g_idle_add(draw_more, NULL);
+  idler = g_idle_add(interactive_idle_handler, NULL);
 
   gtk_main();
 }
@@ -116,42 +116,42 @@ GtkWidget *build_sidebar() {
     as = gtk_spin_button_new_with_range(-9.999, 9.999, 0.001);
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(as), a);
     gtk_table_attach(GTK_TABLE(table), as, 1, 2, 0, 1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
-    g_signal_connect(G_OBJECT(as), "changed", G_CALLBACK(paramSpinnerChanged), NULL);
+    g_signal_connect(G_OBJECT(as), "changed", G_CALLBACK(param_spinner_changed), NULL);
 
     bs = gtk_spin_button_new_with_range(-9.999, 9.999, 0.001);
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(bs), b);
     gtk_table_attach(GTK_TABLE(table), bs, 1, 2, 1, 2, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
-    g_signal_connect(G_OBJECT(bs), "changed", G_CALLBACK(paramSpinnerChanged), NULL);
+    g_signal_connect(G_OBJECT(bs), "changed", G_CALLBACK(param_spinner_changed), NULL);
 
     cs = gtk_spin_button_new_with_range(-9.999, 9.999, 0.001);
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(cs), c);
     gtk_table_attach(GTK_TABLE(table), cs, 1, 2, 2, 3, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
-    g_signal_connect(G_OBJECT(cs), "changed", G_CALLBACK(paramSpinnerChanged), NULL);
+    g_signal_connect(G_OBJECT(cs), "changed", G_CALLBACK(param_spinner_changed), NULL);
 
     ds = gtk_spin_button_new_with_range(-9.999, 9.999, 0.001);
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(ds), d);
     gtk_table_attach(GTK_TABLE(table), ds, 1, 2, 3, 4, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
-    g_signal_connect(G_OBJECT(ds), "changed", G_CALLBACK(paramSpinnerChanged), NULL);
+    g_signal_connect(G_OBJECT(ds), "changed", G_CALLBACK(param_spinner_changed), NULL);
 
     zs = gtk_spin_button_new_with_range(0.01, 100, 0.01);
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(zs), zoom);
     gtk_table_attach(GTK_TABLE(table), zs, 1, 2, 4, 5, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
-    g_signal_connect(G_OBJECT(zs), "changed", G_CALLBACK(paramSpinnerChanged), NULL);
+    g_signal_connect(G_OBJECT(zs), "changed", G_CALLBACK(param_spinner_changed), NULL);
 
     xos = gtk_spin_button_new_with_range(-1.999, 1.999, 0.001);
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(xos), xoffset);
     gtk_table_attach(GTK_TABLE(table), xos, 1, 2, 5, 6, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
-    g_signal_connect(G_OBJECT(xos), "changed", G_CALLBACK(paramSpinnerChanged), NULL);
+    g_signal_connect(G_OBJECT(xos), "changed", G_CALLBACK(param_spinner_changed), NULL);
 
     yos = gtk_spin_button_new_with_range(-1.999, 1.999, 0.001);
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(yos), yoffset);
     gtk_table_attach(GTK_TABLE(table), yos, 1, 2, 6, 7, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
-    g_signal_connect(G_OBJECT(yos), "changed", G_CALLBACK(paramSpinnerChanged), NULL);
+    g_signal_connect(G_OBJECT(yos), "changed", G_CALLBACK(param_spinner_changed), NULL);
 
     ls = gtk_spin_button_new_with_range(0.001, 9.999, 0.001);
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(ls), exposure);
     gtk_table_attach(GTK_TABLE(table), ls, 1, 2, 7, 8, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
-    g_signal_connect(G_OBJECT(ls), "changed", G_CALLBACK(exposureChanged), NULL);
+    g_signal_connect(G_OBJECT(ls), "changed", G_CALLBACK(exposure_changed), NULL);
   }
 
   /* Iteration counter */
@@ -284,17 +284,16 @@ void clear() {
   point.y = ((float) rand()) / RAND_MAX;
 }
 
-static int draw_more(void *extra) {
+void run_iterations(int count) {
   double x, y;
   int i, ix, iy;
   guint d;
-  const int iterationsAtOnce = 10000;
   const double xcenter = WIDTH / 2.0;
   const double ycenter = HEIGHT / 2.0;
   const double xscale = xcenter / 2.5 * zoom;
   const double yscale = ycenter / 2.5 * zoom;
 
-  for(i=iterationsAtOnce; i; --i) {
+  for(i=count; i; --i) {
     x = sin(a * point.y) - cos(b * point.x);
     y = sin(c * point.x) - cos(c * point.y);
     point.x = x;
@@ -310,8 +309,14 @@ static int draw_more(void *extra) {
 	dataMax = d;
     }
   }
-  iterations += iterationsAtOnce;
+  iterations += count;
+}
 
+int interactive_idle_handler(void *extra) {
+  /* An idle handler used for interactively rendering. This runs a relatively
+   * small number of iterations, then calls flip() to update our visible image.
+   */
+  run_iterations(10000);
   flip();
   return 1;
 }
@@ -337,7 +342,7 @@ void startclick(GtkWidget *widget, gpointer user_data) {
   zoom = gtk_spin_button_get_value(GTK_SPIN_BUTTON(zs));
   xoffset = gtk_spin_button_get_value(GTK_SPIN_BUTTON(xos));
   yoffset = gtk_spin_button_get_value(GTK_SPIN_BUTTON(yos));
-  idler = g_idle_add(draw_more, NULL);
+  idler = g_idle_add(interactive_idle_handler, NULL);
 }
 
 void stopclick(GtkWidget *widget, gpointer user_data) {
@@ -346,12 +351,12 @@ void stopclick(GtkWidget *widget, gpointer user_data) {
   g_source_remove(idler);
 }
 
-void paramSpinnerChanged(GtkWidget *widget, gpointer user_data) {
+void param_spinner_changed(GtkWidget *widget, gpointer user_data) {
   stopclick(widget, user_data);
   startclick(widget, user_data);
 }
 
-void exposureChanged(GtkWidget *widget, gpointer user_data) {
+void exposure_changed(GtkWidget *widget, gpointer user_data) {
   exposure = gtk_spin_button_get_value(GTK_SPIN_BUTTON(ls));
 }
 
