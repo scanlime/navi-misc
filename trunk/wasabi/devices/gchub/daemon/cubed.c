@@ -72,22 +72,29 @@ int main(int argc, char **argv) {
 
   while (1) {
     unsigned char buffer[8];
-    int result;
-    /*
-    result = usb_interrupt_read(d, 1, buffer, 8, 500);
+    int result, i;
+
+    result = usb_interrupt_read(d, 1, buffer, sizeof(buffer), 500);
 
     if (result < 0) {
       perror("usb_interrupt_read");
       exit(1);
     }
+    else if (result != sizeof(buffer)) {
+      printf("Short read: %d\n", result);
+      exit(1);
+    }
 
-    printf("[%d] %d %d %d\n", result, buffer[0], buffer[1], buffer[2]);
-    */
+    for (i=0; i<sizeof(buffer); i++)
+      printf("%02X ", buffer[i]);
+    printf("\n");
 
+    /*
     control_write(d, GCHUB_CTRL_SET_STATUS, 0, 0x40);
     usleep(100000);
     control_write(d, GCHUB_CTRL_SET_STATUS, 0, 0x80);
     usleep(100000);
+    */
   }
 
   return 0;

@@ -41,6 +41,16 @@
 
 ;************************************************** Variables
 
+	;; Note that the transmitter has to hang around in bank1
+	;; since that's where TRISA is, while the receiver uses bank0.
+	;; To simplify, all shared iterators are made unbanked.
+
+unbanked	udata_shr
+
+byte_count	res 1
+bit_count	res 1
+parameter_iter	res 1
+
 bank0	udata
 
 poll_state	res 2
@@ -50,9 +60,6 @@ rumble_bits	res 1
 
 gamecube_buffer	res 8
 
-byte_count	res 1
-bit_count	res 1
-parameter_iter	res 1
 
 controller	code
 
@@ -95,15 +102,18 @@ poll_controller	macro	port_number
 	movlw	gamecube_buffer
 	movwf	FSR
 	movlw	3
+	banksel	TRISA			; To bank 1
 	n64gc_tx_buffer	TRISA, port_number, 0
 
 	movlw	gamecube_buffer		; Receive the controller's 8-byte status packet
 	movwf	FSR
 	movlw	8
-	n64gc_rx_buffer	PORTA, port_number, timeout
+	bcf	STATUS, RP0		; Back to bank 0
+	;; n64gc_rx_buffer	PORTA, port_number, timeout
 
 	;; Send back analog status
 	movlw	GCHUB_PACKET_ANALOG | port_number
+	banksel	controller_buffer
 	movwf	controller_buffer
 	fpsleep	poll_state
 
@@ -112,6 +122,7 @@ poll_controller	macro	port_number
 	goto	done
 timeout
 	movlw	GCHUB_PACKET_DISCONNECT | port_number
+	banksel	controller_buffer
 	movwf	controller_buffer
 	fpsleep	poll_state
 
