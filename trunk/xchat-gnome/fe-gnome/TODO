@@ -1,6 +1,7 @@
 before 0.2:
-	finish topic stuff
-	fix the completely-broken druid (probably replace with a simple dialog)
+  * finish topic stuff
+  * fix the completely-broken druid (probably replace with a simple dialog)
+  * make it install the .desktop file
 
 autotools:
   * check for an adequate version of gnome-icon-theme, etc
