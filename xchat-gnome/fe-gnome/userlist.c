@@ -161,8 +161,10 @@ userlist_insert (Userlist *userlist, session *sess, struct User *newuser, int ro
 	GdkPixbuf *icon;
 	GList *item;
 
-	if (!store)
+	if (!store) {
+		printf("New userlist store.\n");
 		store = create_userlist (userlist, sess);
+	}
 
 	icon = get_user_icon (sess->server, newuser);
 
