@@ -69,8 +69,8 @@ EXTRA_DIST =					\
 	preferences-colors-page.c		\
 	preferences-dialog.h			\
 	preferences-dialog.c			\
-	preferences-irc-page.h			\
-	preferences-irc-page.c			\
+	preferences-page-irc.h			\
+	preferences-page-irc.c			\
 	preferences-keybindings-page.c		\
 	preferences-keybindings-page.h		\
 	preferences-plugins-page.h		\
@@ -127,8 +127,8 @@ xchat_gnome_SOURCES =				\
 	preferences-colors-page.c		\
 	preferences-dialog.h			\
 	preferences-dialog.c			\
-	preferences-irc-page.h			\
-	preferences-irc-page.c			\
+	preferences-page-irc.h			\
+	preferences-page-irc.c			\
 	preferences-keybindings-page.c		\
 	preferences-keybindings-page.h		\
 	preferences-plugins-page.h		\

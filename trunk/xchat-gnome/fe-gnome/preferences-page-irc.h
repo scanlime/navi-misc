@@ -1,5 +1,5 @@
 /*
- * preferences-irc-page.h - helpers for the irc preferences page
+ * preferences-page-irc.h - helpers for the irc preferences page
  *
  * Copyright (C) 2004-2005 xchat-gnome team
  *

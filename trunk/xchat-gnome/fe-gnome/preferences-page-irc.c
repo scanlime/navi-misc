@@ -1,5 +1,5 @@
 /*
- * preferences-irc-page.c - helpers for the irc preferences page
+ * preferences-page-irc.c - helpers for the irc preferences page
  *
  * Copyright (C) 2004-2005 xchat-gnome team
  *
@@ -20,7 +20,7 @@
  */
 
 #include <gconf/gconf-client.h>
-#include "preferences-irc-page.h"
+#include "preferences-page-irc.h"
 #include "preferences-dialog.h"
 
 extern struct xchatprefs prefs;

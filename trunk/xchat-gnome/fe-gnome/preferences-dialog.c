@@ -20,7 +20,6 @@
  */
 
 #include "preferences-dialog.h"
-#include "preferences-irc-page.h"
 #include "preferences-servers-page.h"
 #include "preferences-colors-page.h"
 #include "preferences-keybindings-page.h"
