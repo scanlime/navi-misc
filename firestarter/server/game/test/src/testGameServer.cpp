@@ -18,6 +18,8 @@
 #define	_MESSAGE_USER_ADD 0x5541		// UA
 #define	_MESSAGE_KICK 0x4b4b				// KK
 #define _MESSAGE_UPDATE 0x5544			//UD
+#define _MESSAGE_ACKNOWLEDGE 0x414b	//AK
+
 
 void CTestGameServer::init ( void )
 {
@@ -68,6 +70,10 @@ bool CTestGameServer::message ( int playerID, CNetworkPeer &peer, CNetworkMessag
 		// this we should never get
 		case _MESSAGE_USER_ADD:	// UA
 		case _MESSAGE_KICK:			// KK
+			break;
+
+		// don't care about this one
+		case _MESSAGE_ACKNOWLEDGE:
 			break;
 
 		case _MESSAGE_UPDATE: //UD
