@@ -28,5 +28,6 @@
 
 gboolean preferences_exist ();
 void load_preferences ();
+void set_version ();
 
 #endif
