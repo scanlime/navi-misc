@@ -1,1 +1,4 @@
 This dir is for the executables
+
+it will contain the apps
+and the base ogre libs

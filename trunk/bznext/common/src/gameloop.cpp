@@ -73,6 +73,8 @@ bool CBaseGameLoop::Main ( int argc, char *argv[] )
 bool CBaseGameLoop::Run ( void )
 {
   mRoot = new Root();
+
+	LoadPlugins();
   SetupResources();
   
   if (!SetupConfigure())
@@ -103,6 +105,27 @@ bool CBaseGameLoop::Run ( void )
   OnKill();
  // input.Release();
   return true;
+}
+
+bool CBaseGameLoop::LoadPlugins ( void )
+{
+	COSDir	rootDir;
+	COSFile	file;
+	std::map<std::string,bool>	resList;
+	std::string extension;
+
+	rootDir.SetStdDir(GetPluginsDir());
+	std::string libExtenstion;
+#ifdef _WIN32
+		libExtenstion = "*.dll";
+#else
+	libExtenstion = "*.so";
+#endif _WIN32
+
+	while (rootDir.GetNextFile(file,libExtenstion.c_str(),true))
+		mRoot->loadPlugin(file.GetFullOSPath());
+
+	return true;
 }
 
 bool CBaseGameLoop::SetupConfigure ( void )
@@ -265,6 +288,11 @@ const char* CBaseGameLoop::GetCameraName ( void )
 const char* CBaseGameLoop::GetRootResDir ( void )
 {
 	return "./data";
+}
+
+const char* CBaseGameLoop::GetPluginsDir ( void )
+{
+	return "./plugins";
 }
 
 bool	CBaseGameLoop::OnInit ( void )
