@@ -108,7 +108,7 @@ static GtkActionEntry action_entries [] = {
 	/* Toplevel */
 	{ "IRC", NULL, _("_IRC") },
 	{ "Edit", NULL, _("_Edit") },
-	{ "Insert", NULL, _("_Insert") },
+	{ "Insert", NULL, _("In_sert") },
 	{ "Network", NULL, _("_Network") },
 	{ "Discussion", NULL, _("_Discussion") },
 	{ "Go", NULL, _("_Go") },
