@@ -7,16 +7,8 @@ prologueTempo = \markup {
   Sostenuto e molto resoluto
 }
 
-raisePrologueTempo = \markup {
-  \raise #5 \prologueTempo
-}
-
 cedez = \markup {
   \large\bold "Cédez"
-}
-
-raiseCedez = \markup {
-  \large\bold \raise #2 "Cédez"
 }
 
 pocoAnimando = \markup {
@@ -25,7 +17,7 @@ pocoAnimando = \markup {
 
 auMouvt = \markup {
   \large\bold "au Mouv"
-  \raise #0.5 t
+  \bold \raise #0.5 t
 }
 
 serenadeTempo = \markup {
