@@ -26,6 +26,24 @@ the actual stats target using part of the message.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-# Write me!
+import Ruleset
+import re
+
+
+class URIHandler(Ruleset.RegexURIHandler):
+    """Handles stats:// URIs. The message passed to a stats:// URI is
+       URI-encoded and added to the end of the stats:// URI to form
+       a path identifying a class of messages that stats are collected for.
+       """
+    scheme = 'stats'
+    regex = r"^stats://(?P<path>[a-zA-Z0-9_-]+(/[a-zA-Z0-9_-]+)*)$"
+
+    def __init__(self, statsDirectory):
+        self.statsDirectory = statsDirectory
+        Ruleset.RegexURIHandler.__init__(self)
+
+    def message(self, uri, message, content):
+        path = self.parseURI(uri)['path']
+        print "BOING", path
 
 ### The End ###

@@ -5,13 +5,14 @@
 
 from twisted.application import service, internet
 from twisted.web import server
-from LibCIA import Message, XMLRPC, Ruleset, IRC
+from LibCIA import Message, XMLRPC, Ruleset, IRC, Stats
 
 application = service.Application("cia_server")
 hub = Message.Hub()
 
 uriRegistry = Ruleset.URIRegistry([
     IRC.URIHandler(IRC.BotNetwork("CIA-%d")),
+    Stats.URIHandler('data/stats'),
     ])
 
 storage = Ruleset.RulesetStorage("data/rulesets.xml", hub, uriRegistry)

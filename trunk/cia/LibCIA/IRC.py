@@ -26,38 +26,34 @@ from twisted.protocols import irc
 from twisted.internet import protocol, reactor
 from twisted.python import log
 import XML, ColorText, Ruleset
-import types, re
+import types
 
 
-class URIHandler(Ruleset.BaseURIHandler):
+class URIHandler(Ruleset.RegexURIHandler):
     """Handles irc:// URIs in rulesets. This is responsible for
        keeping a BotNetwork in sync with the channels and servers
        required of us by the rulesets, and dispatching completed
        messages to the BotNetwork.
        """
     scheme = 'irc'
+    regex = r"""
+       ^irc://(?P<host>[a-zA-Z]([a-zA-Z0-9.-]*[a-zA-Z0-9])?)
+       (:(?P<port>[0-9]+))?/(?P<channel>[^\s#]\S*)$
+       """
 
     def __init__(self, botNet):
         self.botNet = botNet
-
-        # This regex matches any legal IRC URI, according to the characters
-        # allowed in a hostname and in an IRC channel name.
-        # Note that we explicitly disallow channel names to be specified with a leading #.
-        # There's no standard for irc:// URIs, but from what I've seen leaving out the #
-        # is most common. This reduces the amount of ambiguity in irc:// URIs.
-        self.uriRegex = re.compile(
-            "irc://(?P<host>[a-zA-Z]([a-zA-Z0-9.-]*[a-zA-Z0-9])?)(:(?P<port>[0-9]+))?/(?P<channel>[^\s#]\S*)")
+        Ruleset.RegexURIHandler.__init__(self)
 
     def parseURI(self, uri):
-        """Given an irc:// URI, return a ((host, port), channel) tuple.
-           The regex we compile on initialization does our dirty work.
+        """On top of the regex matching done by our superclass, separate
+           the URI into host, port, and channel.
+           We apply the default port number if the URI doesn't have one,
+           and prepend a '#' to the channel.
            """
-        match = self.uriRegex.match(uri)
-        if not match:
-            raise Ruleset.InvalidURIException("Invalid URI: %r" % uri)
-        host, port, channel = match.group('host', 'port', 'channel')
+        d = Ruleset.RegexURIHandler.parseURI(self, uri)
+        host, port, channel = d['host'], d['port'], d['channel']
         if not port:
-            # Default port
             port = 6667
         return ((host, port), '#' + channel)
 
@@ -67,7 +63,7 @@ class URIHandler(Ruleset.BaseURIHandler):
     def unassigned(self, uri):
         self.botNet.delChannel(*self.parseURI(uri))
 
-    def message(self, uri, content):
+    def message(self, uri, message, content):
         server, channel = self.parseURI(uri)
         self.botNet.msg(server, channel, content)
 
