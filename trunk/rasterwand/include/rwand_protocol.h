@@ -53,7 +53,8 @@
 ;// Set the forward display phase (wValue) and reverse display phase (wIndex)
 #define RWAND_CTRL_SET_DISPLAY_PHASE 0x06
 
-;// Set the display's column width (wValue)
+;// Set the display's column width (wValue) and gap width (wIndex)
+;// A gap width of zero will avoid inserting any gap between columns.
 #define RWAND_CTRL_SET_COLUMN_WIDTH	0x07
 
 ;// Starting at the column given in the low byte of wValue, write

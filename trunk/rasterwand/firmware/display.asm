@@ -44,6 +44,7 @@
 	global	display_fwd_phase
 	global	display_rev_phase
 	global	display_column_width
+	global	display_gap_width
 	global	back_buffer
 
 	extern	temp
@@ -54,21 +55,22 @@ bank0	udata
 edge_buffer		res	8	; Stores 16-bit duration values at the last 4 angle sensor edges.
 						; Units are 16 instruction cycles, or about 2.666us
 
-coil_window_min	res	2	; Minimum and maximum wand_phase to enable the coil for
-coil_window_max	res	2
-
 display_fwd_phase	res	2	; The wand_phase value to start forward display at
 display_rev_phase	res 2	; The wand_phase value to start reverse display at
 display_column_width res 2	; The wand_phase width of each column of pixels
+display_gap_width	res 2	; The wand_phase width of the blank gap between columns
 
 wand_period		res	2	; The wand oscillation period, 16-bit little endian in 16-cycle units
 wand_phase		res	2	; The current phase angle of the want, ranging from 0 to wand_period-1
+
 edge_counter	res	1	; A counter that increments every time our synchronization algorithm runs at an
 						; edge detected on the angle sensor input. Normally this will increment four times per period.
 						; This can let the host know whether the wand is actually moving, whereas the predictor
 						; is always running.
-
 unbanked	udata_shr
+
+coil_window_min	res	2	; Minimum and maximum wand_phase to enable the coil for
+coil_window_max	res	2
 
 current_column		res	1	; The current display column, starting at zero
 remaining_col_width	res 2	; Remaining width in this column
@@ -77,7 +79,6 @@ mode_flags		res	1	; Holds the mode flags, settable by the USB host. These are de
 display_flags	res	1
 delta_t			res	2	; 16-bit time delta, in cycles, since the last poll
 tmr1_prev		res	2	; Previous value of TMR1, for calculating delta_t
-tmr1_cur		res	2	; TMR1 value captured at the beginning of the polling loop
 
 #define FLAG_ASENSOR_TEMP 	display_flags, 0	; The previous sample recorded from the angle sensor
 #define FLAG_FLIP_REQUEST 	display_flags, 1	; At the beginning of the next display scan, copy the backbuffer
@@ -86,6 +87,7 @@ tmr1_cur		res	2	; TMR1 value captured at the beginning of the polling loop
 #define FLAG_DISPLAY_REV	display_flags, 3	; Set if we're currently traversing video memory backwards
 #define FLAG_FWD_TRIGGERED	display_flags, 4	; Keep track of whether we've done a forward scan yet this period
 #define FLAG_REV_TRIGGERED	display_flags, 5	; Keep track of whether we've done a reverse scan yet this period
+#define FLAG_IN_GAP			display_flags, 6	; Set if we're in a gap rather than an actual column
 
 bank1	udata
 front_buffer	res	NUM_COLUMNS
@@ -206,17 +208,17 @@ display_keep_time
 	pagesel	try_tmr1_again
 try_tmr1_again
 	movf	TMR1H, w			; Read the high byte followed by the low byte
-	movwf	tmr1_cur+1
+	movwf	temp2
 	movf	TMR1L, w
-	movwf	tmr1_cur
+	movwf	temp
 	movf	TMR1H, w			; Read the high byte again, in case it rolled over.
-	subwf	tmr1_cur+1, w
+	subwf	temp2, w
 	btfss	STATUS, Z
 	goto	try_tmr1_again		; It rolled over, try again
 	
-	movf	tmr1_cur, w			; Copy to delta_t
+	movf	temp, w				; Copy to delta_t
 	movwf	delta_t
-	movf	tmr1_cur+1, w
+	movf	temp2, w
 	movwf	delta_t+1
 
 	movf	tmr1_prev, w		; Subtract tmr1_prev from delta_t
@@ -226,9 +228,9 @@ try_tmr1_again
 	movf	tmr1_prev+1, w
 	subwf	delta_t+1, f
 
-	movf	tmr1_cur, w			; Copy to tmr1_prev
+	movf	temp, w				; Copy to tmr1_prev
 	movwf	tmr1_prev
-	movf	tmr1_cur+1, w
+	movf	temp2, w
 	movwf	tmr1_prev+1
 
 	rrf		delta_t+1, f		; Divide by 2, to get a final 16:1 prescale
@@ -343,6 +345,8 @@ scan_in_progress
 	addwf	current_column, w
 	movwf	FSR
 	comf	INDF, w						; Invert (the LEDs are active-low) and blast to LED_PORT.
+	btfsc	FLAG_IN_GAP					; If we're in a gap, blank the LEDs
+	movlw	0xFF
 	movwf	LED_PORT					; It's just as fast to invert it while moving as to not invert it,
 										; so we might as well do that here.
 
@@ -355,24 +359,46 @@ scan_in_progress
 	movf	delta_t+1, w				; Subtract the high byte
 	subwf	remaining_col_width+1, f
 
-	; Skip columns until remaining_col_width is positive, up to a maximum of NUM_COLUMNS
+	; Skip columns until remaining_col_width is positive, up to a maximum of NUM_COLUMNS*2
 	; (to prevent infinite looping of display_column_width is zero)
-	movlw	NUM_COLUMNS
+	movlw	NUM_COLUMNS*2
 	movwf	temp
 next_column_loop
 	btfss	remaining_col_width+1, 7
 	return
 	
+	; Are we skipping to the next column, or to the gap after this column?
+	pagesel	not_in_gap
+	btfss	FLAG_IN_GAP
+	goto	not_in_gap
+
+in_gap
+	bcf		FLAG_IN_GAP					; Exit this gap
+
+	movf	display_column_width, w		; Give the next column all its allocated width.
+	addwf	remaining_col_width, f		; Note that this carries over the error from the last column
+	btfsc	STATUS, C
+	incf	remaining_col_width+1, f
+	movf	display_column_width+1, w
+	addwf	remaining_col_width+1, f
+
+	pagesel	next_column_loop	
+	decfsz	temp
+	return								; We're giving up
+
+not_in_gap
+	bsf		FLAG_IN_GAP					; Enter a gap
+
 	btfsc	FLAG_DISPLAY_FWD			; Increment/decrement the current column
 	incf	current_column, f
 	btfsc	FLAG_DISPLAY_REV
 	decf	current_column, f
 
-	movf	display_column_width, w		; Give this column all its allocated width.
-	addwf	remaining_col_width, f		; Note that this carries over the error from the last column.
+	movf	display_gap_width, w		; Give this next gap all its allocated width.
+	addwf	remaining_col_width, f		; Note that this carries over the error from the last gap
 	btfsc	STATUS, C
 	incf	remaining_col_width+1, f
-	movf	display_column_width+1, w
+	movf	display_gap_width+1, w
 	addwf	remaining_col_width+1, f
 
 	pagesel	next_column_loop	
@@ -397,6 +423,8 @@ start_scan_common
 	incf	remaining_col_width+1, f
 	movf	delta_t+1, w
 	addwf	remaining_col_width+1, f
+
+	bcf		FLAG_IN_GAP					; Start in a column, not a gap
 
 	btfss	FLAG_FLIP_REQUEST			; We're done if we haven't had a page flip request
 	return

@@ -44,7 +44,7 @@
 
 	errorlevel -302		; supress "register not in bank0, check page bits" message
 
-	__CONFIG  _H4_OSC & _WDT_OFF & _PWRTE_OFF & _CP_OFF
+	__CONFIG  _H4_OSC & _WDT_ON & _PWRTE_OFF & _CP_OFF
 
 unbanked	udata_shr
 W_save		res	1	; register for saving W during ISR
@@ -222,6 +222,8 @@ Main
 MainLoop
 	pagesel ServiceUSB
 	call	ServiceUSB	; see if there are any USB tokens to process
+
+	clrwdt				; This should be the only place we clear the WDT!
 
 	pagesel	display_poll
 	call	display_poll

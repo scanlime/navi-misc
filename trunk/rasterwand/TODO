@@ -16,11 +16,6 @@ Firmware:
 
 - Non-interleaved 12-byte write?
 
-- Use the PIC's watchdog, clrwdt in display_poll
-
-- In addition to column width, add an optional blank width to put
-  after each column for implementing dotted rather than continuous scans
-
 - Add a watchdog mode bit: if the current sync edge timer is greater than
   the current period and the watchdog bit is on, the display and coil modes
   would be cleared.

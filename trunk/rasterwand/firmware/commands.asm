@@ -45,6 +45,7 @@
 	extern	display_fwd_phase
 	extern	display_rev_phase
 	extern	display_column_width
+	extern	display_gap_width
 
 	extern	display_request_flip
 	extern	display_save_status
@@ -265,6 +266,14 @@ request_setColumnWidth
 	movf	BufferData+(wValue+1), w
 	banksel	display_column_width
 	movwf	display_column_width+1
+	banksel	BufferData
+	movf	BufferData+wIndex, w
+	banksel	display_gap_width
+	movwf	display_gap_width
+	banksel	BufferData
+	movf	BufferData+(wIndex+1), w
+	banksel	display_gap_width
+	movwf	display_gap_width+1
 	returnEmpty
 
 
