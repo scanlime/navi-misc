@@ -356,7 +356,7 @@ class MessageContentColumn(Nouvelle.Column):
     heading = 'content'
 
     def getValue(self, message):
-        return Nouvelle.xml(Message.AutoFormatter('xhtml').format(message))
+        return Message.AutoFormatter('xhtml').format(message)
 
 
 class MessageList(Template.Section):
@@ -542,10 +542,13 @@ class RSSFeed(Nouvelle.Twisted.Page):
         """Renders the most recent commits as items in the RSS feed"""
         formatter = Message.AutoFormatter('rss')
         items = []
-        for m in self.target.recentMessages.getLatest(limit):
+        # Get the latest message, in reverse chronological order
+        latest = self.target.recentMessages.getLatest(limit)
+        latest.reverse()
+        for m in latest:
             i = formatter.format(Message.Message(m))
             if i:
-                items.append(Nouvelle.xml(i))
+                items.append(i)
             else:
                 # We can't find a formatter, stick in a placeholder noting this fact
                 items.append(tag('item')[ tag('description')[
