@@ -67,7 +67,7 @@ def OpenFileDialog(okCallback, defaultDir):
   ''' Open up the file selector dialog and connect the ok button the callback
       'okCallback'.
       '''
-  tree.dialog = gtk.glade.XML('sheetselection.glade')
+  tree.dialog = gtk.glade.XML('data/sheetselection.glade')
   tree.dialog.signal_autoconnect({'on_ok_button_clicked' : okCallback,
                                   'on_cancel_button_clicked' : CloseDialog})
   if defaultDir:
