@@ -510,22 +510,13 @@ url_remove_clicked (GtkWidget *button, CalendarPrefsDialog *prefs)
 	if (gtk_tree_selection_get_selected (selection, &model, &iter))
 		gtk_tree_model_get (model, &iter, URL_LIST_FREE_BUSY_URL_COLUMN, &url, -1);
 
-	confirm = gtk_message_dialog_new (GTK_WINDOW (prefs),
-					  GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
-					  GTK_MESSAGE_QUESTION,
-					  GTK_BUTTONS_NONE,
+	confirm = gtk_message_dialog_new (NULL, GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+					  GTK_MESSAGE_QUESTION, GTK_BUTTONS_NONE,
 					  _("Are you sure you want to remove this URL?"));
 
-	button = gtk_button_new_from_stock (GTK_STOCK_YES);
-	gtk_button_set_label (GTK_BUTTON (button), _("Remove"));
-	gtk_dialog_add_action_widget (GTK_DIALOG (confirm), button, GTK_RESPONSE_YES);
-	gtk_widget_show (button);
-
-	button = gtk_button_new_from_stock (GTK_STOCK_NO);
-	gtk_button_set_label (GTK_BUTTON (button), _("Don't Remove"));
-	gtk_dialog_add_action_widget (GTK_DIALOG (confirm), button, GTK_RESPONSE_NO);
-
-	gtk_widget_show (button);
+	gtk_dialog_add_button (GTK_DIALOG (confirm), GTK_STOCK_CANCEL, GTK_RESPONSE_NO);
+	gtk_dialog_add_button (GTK_DIALOG (confirm), GTK_STOCK_REMOVE, GTK_RESPONSE_YES);
+	gtk_dialog_set_default_response (GTK_DIALOG (confirm), GTK_RESPONSE_CANCEL);
 
 	ans = gtk_dialog_run (GTK_DIALOG (confirm));
 	gtk_widget_destroy (confirm);
