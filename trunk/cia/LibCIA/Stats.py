@@ -29,6 +29,7 @@ the actual stats target using part of the message.
 from twisted.python import log
 from twisted.web import xmlrpc
 from twisted.enterprise.util import quote as quoteSQL
+from twisted.internet import defer
 import Ruleset, Message, TimeUtil, RPC, Database
 import string, os, time, types, posixpath, sys
 
@@ -57,13 +58,23 @@ class StatsInterface(RPC.Interface):
 
     def xmlrpc_catalog(self, path=''):
         """Return a list of subdirectories within this stats path"""
-        return StatsTarget(path).catalog()
+        result = defer.Deferred()
+        d = StatsTarget(path).catalog()
+        d.addErrback(result.errback)
+        d.addCallback(self._catalog, result)
+        return result
+
+    def _catalog(self, items, result):
+        """Convert the returned catalog into target names and return them via
+           the provided Deferred instance.
+           """
+        result.callback([target.name for target in items])
 
     def xmlrpc_getLatestMessages(self, path, limit=None):
         """Return 'limit' latest messages delivered to this stats target,
            or all available recent messages if 'limit' isn't specified.
            """
-        return StatsTarget(path).getLatestMessages(limit)
+        return StatsTarget(path).messages.getLatest(limit)
 
     def xmlrpc_getCounterValues(self, path, name):
         """Returns a dictionary with current values for the given counter.
@@ -84,13 +95,8 @@ class StatsInterface(RPC.Interface):
         return self.makeDefaultCaps(rpcPath) + [('stats.path', statsPath)]
 
 
-class MetadataInterface(xmlrpc.XMLRPC):
+class MetadataInterface(RPC.Interface):
     """An XML-RPC interface for querying and modifying stats metadata"""
-    def __init__(self, caps, storage):
-        xmlrpc.XMLRPC.__init__(self)
-        self.caps = caps
-        self.storage = storage
-
     def getKeyValue(self, metadata, key):
         """Return the value of a particular metadata key, enclosing it
            in a Binary object if its mime type isn't in text/*.
@@ -214,14 +220,20 @@ class StatsTarget:
     """Encapsulates all the stats-logging features used for one particular
        target. This can be one project, one class of messages, etc.
        Every StatsTarget is identified by a UNIX-style pathname.
-       """
-    def __init__(self, path):
-        self.path = self.normalizePath(path)
+       The root stats target's path is the empty string.
 
-    def normalizePath(self, path):
-        """Remove leading and trailing slashes, remove duplicate
-           slashes, process '.' and '..' directories.
-           """
+       This object doesn't store any of the actual data, it's just a way to
+       access the persistent data stored in our global SQL database.
+       """
+    def __init__(self, path=''):
+        self.setPath(path)
+        self.messages = Messages(self)
+        self.counters = Counters(self)
+        self.metadata = Metadata(self)
+
+    def setPath(self, path):
+        # Remove leading and trailing slashes, remove duplicate
+        # slashes, process '.' and '..' directories.
         segments = []
         for segment in path.split('/'):
             if segment == '..':
@@ -229,22 +241,22 @@ class StatsTarget:
                     del segments[-1]
             elif segment and segment != '.':
                 segments.append(segment)
-        path = '/'.join(segments)
+        self.path = '/'.join(segments)
 
         # Our database uses VARCHAR(128), make sure this fits
-        if len(path) > 128:
+        if len(self.path) > 128:
             raise StatsPathException("Stats paths are currently limited to 128 characters")
-        return path
 
-    def __repr__(self):
-        return "<StarsTarget %r>" % self.path
+        # Our name is the last path segment, or None if we're the root
+        if segments:
+            self.name = segments[-1]
+        else:
+            self.name = None
 
     def deliver(self, message=None):
         """An event has occurred which should be logged by this stats target"""
-        return Database.pool.runInteraction(self._deliver, message)
-
-    def catalog(self):
-        """Return a list of subdirectories of this stats target"""
+        if message:
+            self.messages.push(message)
 
     def child(self, name):
         """Return the StatsTarget for the given sub-target name under this one"""
@@ -255,17 +267,22 @@ class StatsTarget:
         if self.path:
             return self.child('..')
 
+    def catalog(self):
+        """Return a list of StatsTargets instances representing all children of this target"""
+        return Database.pool.runInteraction(self._catalog)
+
     def getTitle(self):
-        """Return the human-readable title of this stats target-
-           the 'title' metadata key if we have one, otherwise the last
-           section of our path. The root stats target has the special
-           default title 'Stats', since it has no last path segment.
+        """Return the human-readable title of this stats target. In
+           decreasing order of preference, this is:
+             - our 'title' metadata key
+             - self.name, the last segment of our path
+             - 'Stats'
            """
         title = self.metadata.get('title')
         if title:
             return title
-        if self.pathSegments:
-            return self.pathSegments[-1]
+        if self.name:
+            return self.name
         return 'Stats'
 
     def clear(self):
@@ -274,6 +291,9 @@ class StatsTarget:
         # deleted due to cascading foreign keys
         return Database.pool.runOperation("DELETE FROM stats_catalog WHERE target_path = %s" %
                                           quoteSQL(self.path, 'varchar'))
+
+    def __repr__(self):
+        return "<StatsTarget at %r>" % self.path
 
     def _create(self, transaction):
         """Internal function to create a new stats target, meant to be run from
@@ -287,7 +307,7 @@ class StatsTarget:
            """
         parent = self.parent()
         try:
-            if parent.path:
+            if parent:
                 # If we have a parent, we have to worry about creating it
                 # if it doesn't exist and generating the proper parent path.
                 parent._autoCreateTargetFor(transaction, transaction.execute,
@@ -295,7 +315,8 @@ class StatsTarget:
                                             (quoteSQL(parent.path, 'varchar'),
                                              quoteSQL(self.path, 'varchar')))
             else:
-                # If we have no parent target, this is simpler
+                # This is the root node. We still need to insert a parent to keep the
+                # table consistent, but our parent in this case is NULL.
                 transaction.execute("INSERT INTO stats_catalog (target_path) VALUES(%s)" %
                                     quoteSQL(self.path, 'varchar'))
         except:
@@ -324,25 +345,74 @@ class StatsTarget:
             else:
                 raise
 
-    def _deliver(self, transaction, message):
-        """A database interaction implementing deliver(), runs in a separate thread
-           and can access the database without a mess of deferreds :)
+    def _catalog(self, transaction):
+        """Database interaction representing the internals of catalog()"""
+        transaction.execute("SELECT target_path FROM stats_catalog WHERE parent_path = %s" %
+                            quoteSQL(self.path, 'varchar'))
+        results = []
+        while True:
+            row = transaction.fetchone()
+            if row is None:
+                break
+            results.append(StatsTarget(row[0]))
+        return results
+
+
+class Messages(object):
+    """Represents the set of stored messages associated with one stats target"""
+    def __init__(self, target):
+        self.target = target
+
+    def push(self, message):
+        """Store a new message for this stats target"""
+        # This must be done inside a database interaction, since we may need
+        # to create the target's catalog entry if it doesn't exist.
+        return Database.pool.runInteraction(self._push, message)
+
+    def _push(self, transaction, message):
+        self.target._autoCreateTargetFor(transaction, transaction.execute,
+                                         "INSERT INTO stats_messages (target_path, xml) VALUES(%s, %s)" %
+                                         (quoteSQL(self.target.path, 'varchar'),
+                                          quoteSQL(message, 'text')))
+
+    def getLatest(self, limit=None):
+        """Return the most recent messages as XML strings, optionally up to a provided
+           maximum value. The messages are returned in reverse chronological order.
            """
-        if message:
-            # Store the message in our stats_messages table.
-            self._autoCreateTargetFor(transaction, transaction.execute,
-                                      "INSERT INTO stats_messages (target_path, xml) VALUES(%s, %s)" %
-                                      (quoteSQL(self.path, 'varchar'),
-                                       quoteSQL(message, 'text')))
+        return Database.pool.runInteraction(self._getLatest, limit)
+
+    def _getLatest(self, transaction, limit):
+        if limit is None:
+            limitClause = ''
+        else:
+            limitClause = " LIMIT %d" % limit
+        transaction.execute("SELECT xml FROM stats_messages WHERE target_path = %s ORDER BY id DESC%s" %
+                            (quoteSQL(self.target.path, 'varchar'),
+                             limitClause))
+        results = []
+        while True:
+            row = transaction.fetchone()
+            if row is None:
+                break
+            results.append(row[0])
+        return results
 
 
-class Counters(object):
+class Metadata:
+    """An abstraction for the metadata that may be stored for any stats target.
+       Metadata objects consist of a name, a MIME type, and a value. The value
+       can be any binary or text object stored as a string.
+       """
+    def __init__(self, target):
+        self.target = target
+
+
+class Counters:
     """A set of counters which are used together to track events
        occurring over several TimeUtil.Intervals. Stored in a Rack.
        """
-    def __init__(self, rack):
-        self.rack = rack
-        self.checkRollovers()
+    def __init__(self, target):
+        self.target = target
 
     def getCounter(self, name):
         """Return the Rack associated with a counter. The Rack
