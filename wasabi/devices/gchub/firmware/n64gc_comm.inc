@@ -253,70 +253,22 @@ done
 	;; *********************************************************** Receiver **********
 	;; *******************************************************************************
 
-	;; Unrolled timeout loop. for 10us at 24MHz, this needs to be 60 instructions
-timeout_10us	macro	port, bit, found_bit
-
-	btfss	port, bit
-	goto	found_bit
-	btfss	port, bit
-	goto	found_bit
-	btfss	port, bit
-	goto	found_bit
-	btfss	port, bit
-	goto	found_bit
-	btfss	port, bit
-	goto	found_bit
-	btfss	port, bit
-	goto	found_bit
-	btfss	port, bit
-	goto	found_bit
-	btfss	port, bit
-	goto	found_bit
-	btfss	port, bit
-	goto	found_bit
-	btfss	port, bit
-	goto	found_bit
-	btfss	port, bit
-	goto	found_bit
-	btfss	port, bit
-	goto	found_bit
-	btfss	port, bit
-	goto	found_bit
-	btfss	port, bit
-	goto	found_bit
-	btfss	port, bit
-	goto	found_bit
-	btfss	port, bit
-	goto	found_bit
-	btfss	port, bit
-	goto	found_bit
-	btfss	port, bit
-	goto	found_bit
-	btfss	port, bit
-	goto	found_bit
-	btfss	port, bit
-	goto	found_bit
-	btfss	port, bit
-	goto	found_bit
-	btfss	port, bit
-	goto	found_bit
-	btfss	port, bit
-	goto	found_bit
-	btfss	port, bit
-	goto	found_bit
-	btfss	port, bit
-	goto	found_bit
-	btfss	port, bit
-	goto	found_bit
-	btfss	port, bit
-	goto	found_bit
-	btfss	port, bit
-	goto	found_bit
-	btfss	port, bit
-	goto	found_bit
+	;; Unrolled timeout loop. for 1.6666us at 24MHz, this needs to be 10 instructions
+timeout_1_6us	macro	port, bit, found_bit
 	btfss	port, bit
 	goto	found_bit
 
+	btfss	port, bit
+	goto	found_bit
+
+	btfss	port, bit
+	goto	found_bit
+
+	btfss	port, bit
+	goto	found_bit
+
+	btfss	port, bit
+	goto	found_bit
 	endm
 
 	;; Receive byte_count bytes of data over the indicated pin, starting at IRP:FSR.
@@ -330,7 +282,7 @@ timeout_10us	macro	port, bit, found_bit
 	;;
 	;; This leaves FSR pointing at the last byte received.
 	;;
-n64gc_rx_buffer macro port, bit, timeout
+n64gc_rx_buffer macro port, bit, timed_out
 	local	bit_loop
 	local	not_last_bit
 	local	not_last_byte
@@ -349,10 +301,17 @@ n64gc_rx_buffer macro port, bit, timeout
 	;; be less than 2us (10 cycles)
 bit_loop
 
-	timeout_10us	port, bit, found_bit
-	goto	timeout
-
+	timeout_1_6us	port, bit, found_bit
+	timeout_1_6us	port, bit, found_bit
+	timeout_1_6us	port, bit, found_bit
+	timeout_1_6us	port, bit, found_bit
+	timeout_1_6us	port, bit, found_bit
+	timeout_1_6us	port, bit, found_bit
+	goto	timed_out
 found_bit
+
+	goto	done
+
 	rlf	INDF, f		; 0.4us  Make room for the new bit
 	bcf	INDF, 0		; 0.6us  Assume it's 0 to begin with
 	decfsz	bit_count, f	; 0.8us  Is this the last bit?
