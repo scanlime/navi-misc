@@ -10,9 +10,10 @@ for the IRC stuff.
 from twisted.internet import gtk2reactor
 gtk2reactor.portableInstall()
 
-import gtk, gtk.glade, gobject, palantir, palantirIRC, CharacterSheet.GtkSheetElements
+import gtk, gtk.glade, gobject, CharacterSheet.GtkSheetElements
 from GtkChatBuffer import GtkChatBuffer
-from dieRoller import DieRoller
+from PalantirIRC import palantir, palantirIRC
+from PalantirIRC.dieRoller import DieRoller
 from CharacterSheet.Character import Character
 from CharacterSheet.Sheet import Sheet
 from twisted.internet import reactor
@@ -200,24 +201,6 @@ class PalantirWindow:
       if len(matched) > 1:
 	self.messageReceive(None, self.factory.channels[0], string.join(nicks[1:]))
 
-      # If we got a valid iter from the treeview.
-      #if iter:
-	# Loop through the nicks looking for any that contain the substring.
-	#while iter:
-	  #if model.get_value(iter, 1).find(text) != -1:
-	    # If we find a match add it to the list of possibles.
-	    #nicks.append(model.get_value(iter, 1))
-	  #iter = model.iter_next(iter)
-
-	# If we've only got one match put it in the send field.
-        #if len(nicks) == 1:
-	  #self.tree.get_widget('SendField').set_text(nicks[0] + ': ')
-
-	# Multiple matches get displayed in the chat buffer.
-	#elif len(nicks) > 1:
-	  #self.messageReceive(None, self.factory.channels[0], string.join(nicks))
-      #self.tree.get_widget('SendField').set_position(-1)
-      # If we do our nick completion don't call the default handler.
       return gtk.TRUE
 
     return gtk.FALSE
