@@ -237,6 +237,43 @@ write_next
 	return
 
 
+	;; Read into i2c_byte. This does not clock in an ACK byte, call either i2c_read_ack
+	;; or i2c_read_nak after this, to indicate whether you want more data.
+i2c_read_byte
+	movlw	8
+	movwf	i2c_bit_count
+read_loop
+
+	pscall	i2c_delay		; Clock high, wait for valid data
+	pscall	clock_high
+	pscall	i2c_delay
+
+	pscall	data_read		; Shift in the next bit
+	rlf	i2c_byte, f
+	iorwf	i2c_byte, f
+
+	pscall	clock_low		; Clock low again
+	banksel	i2c_bit_count		; Next bit...
+	pagesel	read_loop
+	decfsz	i2c_bit_count, f
+	goto	read_loop
+	return
+
+
+	;; Clock out a low bit indicating that we've acknowledged a read and want more data
+i2c_read_ack
+	pscall	data_low
+	pscall	i2c_clockout
+	return
+
+
+	;; Clock out a high bit indicating that we don't want any more data
+i2c_read_nak
+	pscall	data_high
+	pscall	i2c_clockout
+	return
+
+
 ;; **********************************************************************************
 ;; *************************************************************** Public Methods ***
 ;; **********************************************************************************
@@ -291,9 +328,47 @@ i2c_Write_done
 	return
 
 
+	;; Read 'w' bytes into IRP:FSR from the current bus
 i2c_Read
+	pscall	i2c_save_pointer
 	pscall	i2c_start
 
+	banksel	i2c_address		; Write the address, with the read bit set
+	rlf	i2c_address, w
+	andlw	0xFE
+	iorlw	0x01
+	movwf	i2c_byte
+
+	pscall	i2c_write_byte		; Write the byte, give up if we get no ACK
+	pagesel	i2c_Read_done
+	btfss	STATUS, Z
+	goto	i2c_Read_done
+
+	banksel	i2c_ack_count		; Note that we got an ACK
+	incf	i2c_ack_count, f
+
+	movf	i2c_byte_count, w	; If we have no bytes to read, skip the loop
+	pagesel	i2c_Read_done
+	btfsc	STATUS, Z
+	goto	i2c_Read_done
+
+	psgoto	i2c_Read_first_loop	; Don't ack before reading the first byte
+
+i2c_Read_loop
+	pscall	i2c_read_ack		; ACK the last byte read
+
+i2c_Read_first_loop
+	pscall	i2c_read_byte		; Read the byte
+	pscall	i2c_load_pointer	; Store it to our current pointer
+	banksel	i2c_byte
+	movf	i2c_byte, w
+	movwf	INDF
+
+	i2c_buffer_loop i2c_Read_loop	; Next...
+
+	pscall	i2c_read_nak		; NAK the last byte read
+
+i2c_Read_done
 	pscall	i2c_stop
 	return
 
