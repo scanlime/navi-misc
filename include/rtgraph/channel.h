@@ -79,7 +79,7 @@ Other levels: B+-tree associating quantized X value keys with interval stats.
 #ifndef __RTG_CHANNEL_H__
 #define __RTG_CHANNEL_H__
 
-#include <gtk/gtk.h>
+#include <glib.h>
 
 G_BEGIN_DECLS
 

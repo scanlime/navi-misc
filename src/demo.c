@@ -1,5 +1,5 @@
 #include <config.h>
-#include <gtk/gtk.h>
+#include <glib.h>
 #include <stdio.h>
 #include <string.h>
 #include "pagestorage.h"
@@ -17,8 +17,6 @@ int main(int argc, char** argv)
   RtgBPTree* tree;
   int key;
   gdouble value;
-
-  gtk_init(&argc, &argv);
 
   storage = rtg_page_storage_mapped_new("foo.rtg", 0);
 
