@@ -58,11 +58,27 @@ li {
 
 div.relatedHeading {
   font-weight: bold;
+  border-bottom: 1px solid #8CACBB;
+  margin: 0em 0em 0.5em 0em;
 }
 
 div.relatedFooter {
+  color: #444;
   font-style: italic;
   text-align: right;
+}
+
+table.related {
+  padding: 0em;
+  margin: 0em;
+}
+
+table.related td {
+  padding: 0.2em 0em 0.2em 1em;
+}
+
+table.related td:first-child {
+  padding: 0.2em 0em 0em 0em;
 }
 
 td > p {

@@ -33,6 +33,10 @@ import LibCIA.Stats.Graph
 import Link, Columns
 
 
+class RelatedTable(Nouvelle.BaseTable):
+    tableTag = tag('table', _class='related')
+
+
 class RelatedSection(Template.Section):
     """A section showing links to related stats targets. This works by looking for
        nodes connected to this one in the stats_relations graph. The paths and
@@ -130,7 +134,7 @@ class RelatedSection(Template.Section):
 
         return [
             tag('div', _class='relatedHeading')[ section ],
-            Nouvelle.BaseTable(rows, self.columns, showHeading=False),
+            RelatedTable(rows, self.columns, showHeading=False),
             footer,
             ]
 
