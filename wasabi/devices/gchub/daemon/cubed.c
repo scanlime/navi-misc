@@ -72,7 +72,10 @@ int main(int argc, char **argv) {
 
   while (1) {
     unsigned char buffer[8];
-    int result, i;
+    int result, i, rumble;
+
+    rumble = time(NULL) & 1;
+
 
     result = usb_interrupt_read(d, 1, buffer, sizeof(buffer), 500);
 
@@ -89,11 +92,11 @@ int main(int argc, char **argv) {
       printf("%02X ", buffer[i]);
     printf("\n");
 
+    control_write(d, GCHUB_CTRL_SET_STATUS, rumble, 0x40);
     /*
-    control_write(d, GCHUB_CTRL_SET_STATUS, 0, 0x40);
-    usleep(100000);
-    control_write(d, GCHUB_CTRL_SET_STATUS, 0, 0x80);
-    usleep(100000);
+    usleep(5000);
+    control_write(d, GCHUB_CTRL_SET_STATUS, rumble, 0x80);
+    usleep(5000);
     */
   }
 
