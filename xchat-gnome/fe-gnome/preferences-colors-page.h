@@ -20,9 +20,38 @@
  */
 
 #include "gui.h"
+#include <glade/glade-xml.h>
 
 #ifndef XCHAT_GNOME_PREFERENCES_COLORS_PAGE_H
 #define XCHAT_GNOME_PREFERENCES_COLORS_PAGE_H
+
+typedef struct
+{
+	GtkWidget *combo;
+
+	GtkWidget *color_buttons[4];
+	GtkWidget *palette_buttons[32];
+
+	GtkWidget *color_label_1;
+	GtkWidget *color_label_2;
+	GtkWidget *color_label_3;
+	GtkWidget *color_label_4;
+	GtkWidget *color_label_5;
+
+	GtkWidget *foreground_background_hbox;
+	GtkWidget *text_color_hbox;
+	GtkWidget *background_color_hbox;
+	GtkWidget *foreground_mark_hbox;
+	GtkWidget *background_mark_hbox;
+
+	GtkWidget *mirc_palette_table;
+	GtkWidget *extra_palette_table;
+
+	GdkPixbuf *icon;
+} PreferencesColorsPage;
+
+PreferencesColorsPage *preferences_page_colors_new (gpointer prefs_dialog, GladeXML *xml);
+void preferences_page_colors_free (PreferencesColorsPage *page);
 
 void initialize_preferences_colors_page ();
 

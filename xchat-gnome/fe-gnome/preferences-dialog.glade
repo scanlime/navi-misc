@@ -940,15 +940,15 @@
 			  <property name="spacing">6</property>
 
 			  <child>
-			    <widget class="GtkHBox" id="foreground background hbox">
+			    <widget class="GtkHBox" id="foreground_background_hbox">
 			      <property name="visible">True</property>
 			      <property name="homogeneous">False</property>
 			      <property name="spacing">6</property>
 
 			      <child>
-				<widget class="GtkLabel" id="color label 1">
+				<widget class="GtkLabel" id="color_label_1">
 				  <property name="visible">True</property>
-				  <property name="label" translatable="yes">Built-_in schemes:</property>
+				  <property name="label" translatable="yes">Buil_t-in schemes:</property>
 				  <property name="use_underline">True</property>
 				  <property name="use_markup">False</property>
 				  <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -979,13 +979,13 @@
 			  </child>
 
 			  <child>
-			    <widget class="GtkHBox" id="text color hbox">
+			    <widget class="GtkHBox" id="text_color_hbox">
 			      <property name="visible">True</property>
 			      <property name="homogeneous">False</property>
 			      <property name="spacing">6</property>
 
 			      <child>
-				<widget class="GtkLabel" id="color label 2">
+				<widget class="GtkLabel" id="color_label_2">
 				  <property name="visible">True</property>
 				  <property name="label" translatable="yes">_Foreground color:</property>
 				  <property name="use_underline">True</property>
@@ -1018,13 +1018,13 @@
 			  </child>
 
 			  <child>
-			    <widget class="GtkHBox" id="background color hbox">
+			    <widget class="GtkHBox" id="background_color_hbox">
 			      <property name="visible">True</property>
 			      <property name="homogeneous">False</property>
 			      <property name="spacing">6</property>
 
 			      <child>
-				<widget class="GtkLabel" id="color label 3">
+				<widget class="GtkLabel" id="color_label_3">
 				  <property name="visible">True</property>
 				  <property name="label" translatable="yes">_Background color:</property>
 				  <property name="use_underline">True</property>
@@ -1057,13 +1057,13 @@
 			  </child>
 
 			  <child>
-			    <widget class="GtkHBox" id="foreground mark hbox">
+			    <widget class="GtkHBox" id="foreground_mark_hbox">
 			      <property name="visible">True</property>
 			      <property name="homogeneous">False</property>
 			      <property name="spacing">6</property>
 
 			      <child>
-				<widget class="GtkLabel" id="color label 4">
+				<widget class="GtkLabel" id="color_label_4">
 				  <property name="visible">True</property>
 				  <property name="label" translatable="yes">Foreground mark:</property>
 				  <property name="use_underline">True</property>
@@ -1096,13 +1096,13 @@
 			  </child>
 
 			  <child>
-			    <widget class="GtkHBox" id="background mark hbox">
+			    <widget class="GtkHBox" id="background_mark_hbox">
 			      <property name="visible">True</property>
 			      <property name="homogeneous">False</property>
 			      <property name="spacing">6</property>
 
 			      <child>
-				<widget class="GtkLabel" id="color label 5">
+				<widget class="GtkLabel" id="color_label_5">
 				  <property name="visible">True</property>
 				  <property name="label" translatable="yes">Background mark:</property>
 				  <property name="use_underline">True</property>
@@ -1197,7 +1197,7 @@
 		      </child>
 
 		      <child>
-			<widget class="GtkTable" id="mirc palette table">
+			<widget class="GtkTable" id="mirc_palette_table">
 			  <property name="visible">True</property>
 			  <property name="n_rows">2</property>
 			  <property name="n_columns">8</property>
@@ -1268,7 +1268,7 @@
 		      </child>
 
 		      <child>
-			<widget class="GtkTable" id="extra palette table">
+			<widget class="GtkTable" id="extra_palette_table">
 			  <property name="visible">True</property>
 			  <property name="n_rows">2</property>
 			  <property name="n_columns">8</property>
