@@ -179,6 +179,7 @@ class ResortableTable(BaseTable):
        used to keep the table's state across page views.
        """
     headingLinkTag = tag('a')
+    sortArgPrefix = "s_"
 
     def __init__(self, rows, columns,
                  defaultSortColumnIndex = 0,
@@ -188,11 +189,7 @@ class ResortableTable(BaseTable):
         self.defaultSortColumnIndex = defaultSortColumnIndex
         self.defaultSortReversed = defaultSortReversed
         BaseTable.__init__(self, rows, columns)
-
-        if id:
-            self.sortArgName = '%sSort' % id
-        else:
-            self.sortArgName = 'sort'
+        self.sortArgName = self.sortArgPrefix + (id or '')
 
     def render(self, context={}):
         cookie = self.getCookieFromContext(context)
@@ -237,12 +234,23 @@ class ResortableTable(BaseTable):
             return None
 
     def getCookieHyperlink(self, context, cookie):
-        newArgs = dict(context['args'])
+        """Build a new hyperlink including the new sort cookie and all arguments
+           that are safe to include in the new hyperlink.
+           """
+        newArgs = self.getCookieHyperlinkArgs(context)
         newArgs[self.sortArgName] = [cookie]
         pairs = []
         for key in newArgs:
             for value in newArgs[key]:
                 pairs.append('%s=%s' % (key, value))
         return '?' + '&'.join(pairs)
+
+    def getCookieHyperlinkArgs(self, context):
+        """Return a new dictionary of arguments that are safe to include in our hyperlinks"""
+        d = {}
+        for key, values in context['args'].iteritems():
+            if key.startswith(self.sortArgPrefix):
+                d[key] = values
+        return d
 
 ### The End ###
