@@ -25,6 +25,7 @@ class IconTest(Sequencer.Page):
             Icon.Icon('icon_n64.png', 'Nintendo 64', imageAspect=1.04),
 	    Icon.Icon('icon_atari.png', 'Atari', imageAspect=1.52),
 	    Icon.Icon('icon_ps2.png', 'Playstation 2', imageAspect=5.627),
+	    Icon.Icon('icon_dreamcast.png', 'Dreamcast', imageAspect=1.66),
             ])
 
         self.viewport.onKeyDown.observe(self.keyDown)
