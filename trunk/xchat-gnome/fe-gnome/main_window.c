@@ -818,6 +818,7 @@ on_topic_change (GtkButton *widget, gpointer data)
 	GladeXML *xml;
 	GtkWidget *dialog;
 	GtkWidget *entry;
+	GtkWidget *text_entry;
 	gint response;
 	GtkTextBuffer *buffer;
 	gchar *title;
@@ -859,6 +860,10 @@ on_topic_change (GtkButton *widget, gpointer data)
 
 	gtk_widget_destroy (dialog);
 	g_object_unref (xml);
+
+	/* send focus back to the text entry */
+	text_entry = glade_xml_get_widget (gui.xml, "text entry");
+	gtk_widget_grab_focus(text_entry);
 }
 
 void
