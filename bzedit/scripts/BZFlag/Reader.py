@@ -81,9 +81,9 @@ class Reader:
               | objectProperty
               )
             obstacleProperty = (
-                drivethrough
-              | shootthrough
-              | passable
+                Group(drivethrough)
+              | Group(shootthrough)
+              | Group(passable)
               | locationProperty
               )
 
