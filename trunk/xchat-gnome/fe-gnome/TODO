@@ -1,9 +1,5 @@
 * Fix schema install
 * Hook up apply button in network configuration
-* Change font preferences to be HIG-style:
-	- radio buttons:
-		o use system terminal font
-		o use this font: [bitstream...|9]
 * Change server username preferences to be HIG-style:
 	o use global user settings
 	o use these user settings:
