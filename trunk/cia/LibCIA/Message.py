@@ -432,23 +432,16 @@ class AutoFormatter(Formatter):
           '\x02Hello\x0fWorld'
         """
     def __init__(self, medium):
-        # Load all formatters with the given medium and a non-None detector
-        import Formatters
-        self.formatters = []
-        for cls in Formatters.__dict__.itervalues():
-            if type(cls) is type and hasattr(cls, 'format'):
-                if cls.medium == medium and cls.detector is not None:
-                    # Load the formatter's detector function
-                    # and make a list of (Formatter, Filter) instance
-                    # tuples
-                    filter = Filter(cls.detector)
-                    self.formatters.append((cls(), filter))
+        self.medium = medium
 
     def format(self, message, input=None):
         """Find and invoke a formatter applicable to this message"""
-        for formatter, filter in self.formatters:
-            if filter(message):
-                return formatter.format(message, input)
+        import Formatters
+        for cls in Formatters.__dict__.itervalues():
+            if type(cls) is type and hasattr(cls, 'format'):
+                if cls.medium == self.medium and cls.detector is not None:
+                    if cls.detector(message):
+                        return cls().format(message, input)
 
 
 class NamedFormatter(Formatter):
