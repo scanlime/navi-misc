@@ -441,7 +441,7 @@ class Formatter:
            element it comes across.
            """
         for tag in XML.getChildElements(xml):
-            f = getattr(self, 'param_'+tag.name, None)
+            f = getattr(self, 'param_'+tag.nodeName, None)
             if f:
                 f(tag)
 
