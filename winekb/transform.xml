@@ -39,6 +39,7 @@
             align: middle;
             background: lightgrey;
             border-bottom: 1px black solid;
+            padding-bottom: 4px;
           }
 
           .type:before {
@@ -54,11 +55,26 @@
             padding: 4px;
             border: 1px dotted lightgrey;
           }
+
+          .backlink {
+            font-size: small;
+            padding-right: 2em;
+            color: grey;
+          }
         </style>
       </head>
 
       <body style="margin: 0px">
-        <div class="title"><img align="middle" src="wine.png"/> <xsl:value-of select="@title"/></div>
+        <div class="title">
+          <table borderwidth="0">
+            <tr>
+              <td width="100%"><a href="index.xml"><img align="middle" src="wine.png" border="0"/></a> <xsl:value-of select="@title"/></td>
+              <xsl:if test="@backlink">
+                <td nowrap="true" class="backlink"><a href="{@backlink}.xml">&lt;&lt; back to <xsl:value-of select="@backlink"/></a></td>
+              </xsl:if>
+            </tr>
+          </table>
+        </div>
 
         <div style="padding: 10px">
           <xsl:apply-templates/>
