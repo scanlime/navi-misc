@@ -33,28 +33,33 @@ namespace Fyre
 		[Glade.Widget] Gtk.Window		toplevel;
 
 		// Element list (left)
-		private Gtk.TreeStore			element_store;
-		private Gtk.TreeModelSort		sorted_store;
-		private Gtk.TreeViewColumn		column;
+		Gtk.TreeStore				element_store;
+		Gtk.TreeModelSort			sorted_store;
+		Gtk.TreeViewColumn			column;
 		[Glade.Widget] Gtk.TreeView		element_list;
 
 		// Editor workspace (right)
 		[Glade.Widget] Gtk.Frame		pipeline_window;
-		private PipelineDrawing			pipeline_drawing;
+		PipelineDrawing				pipeline_drawing;
 		[Glade.Widget] Gtk.Scrollbar		drawing_hscroll;
 		[Glade.Widget] Gtk.Scrollbar		drawing_vscroll;
 
 		// Current tooltip
-		private ElementTooltip			current_tooltip;
-		private uint				tooltip_timeout;
-		private Gdk.Rectangle			tip_rect;
+		ElementTooltip				current_tooltip;
+		uint					tooltip_timeout;
+		Gdk.Rectangle				tip_rect;
+
+		// statusbar data
+		[Glade.Widget] Gtk.ComboBox		zoom;
+		float					zoom_level;
+		[Glade.Widget] Gtk.Statusbar		statusbar;
 
 		// D-n-D private data
-		private int				click_x, click_y;
-		private bool				dragging;
-		private bool				check_drag;
-		private Gtk.TargetEntry[]		targets;
-		private Gtk.TargetList			target_list;
+		int					click_x, click_y;
+		bool					dragging;
+		bool					check_drag;
+		Gtk.TargetEntry[]			targets;
+		Gtk.TargetList				target_list;
 
 		public static void Main (string[] args)
 		{
@@ -82,6 +87,10 @@ namespace Fyre
 			click_x = -1;
 			click_y = -1;
 			dragging = false;
+
+			// Our zoom starts at 100%
+			zoom_level = 1.0f;
+			zoom.Active = 6;
 
 			// Set up plugins directory
 			plugin_manager = new PluginManager (Defines.PLUGINSDIR);
