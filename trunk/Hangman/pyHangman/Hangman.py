@@ -26,7 +26,7 @@ class Hangman:
 	def __init__(self):
 		seed()
 		# List of words to select an answer from.
-		self.words = []
+		self.words = {}
 		# Answer for the current game.
 		self.answer = None
 		# List of incorrectly guessed characters.
@@ -62,7 +62,8 @@ class Hangman:
 		self.guesses = []
 		self.correct = []
 		# Set a new word.
-		self.answer = choice(self.words)
+		wordList = self.words.keys()
+		self.answer = choice(wordList)
 
 		# Fill the correct list with '_'.
 		for i in range(len(self.answer)):
@@ -108,6 +109,31 @@ class Hangman:
 		# If the guess is right, return it.
 		else:
 			return entry
+
+	def openFile(self, filename):
+		""" Open file filename and read it into a list.  Separate the list into
+				a dictionary wher the key is the word and the value is a clue.  Store
+				the dictionary in self.words.
+				"""
+		# Get the strings from the file.
+		wordList = open(filename, 'r').readlines()
+		wordList = [word.strip() for word in wordList]
+
+		# Make the dictionary.
+		self.words = dict([self.getClues(wordList, i) for i in range(len(wordList))])
+
+	def getClues(self, wordList, i):
+		""" Allows the use of a list comprehension to create key value pairs
+				of the strings from a file.  If no clue is provided after a word then
+				the value returned with the word is None.
+				"""
+		# If there is no clue along with the word.
+		if wordList[i].count(' ') == 0:
+			return (wordList[i],None)
+		# Otherwise split the word from the clue.
+		else:
+			index = wordList[i].find(' ')
+			return (wordList[i][:index].strip(),wordList[i][index:].strip())
 
 class HangmanGUI:
 	""" Acts as a view and controller for the Hangman class.  __init__ creates
@@ -308,7 +334,7 @@ class HangmanGUI:
 	def NewGame(self, widget=None, data=None):
 		""" Begin a new game. """
 		# If there is nothing loaded bring up the file selection widget.
-		if self.controller.words == []:
+		if self.controller.words == {}:
 			self.openFile()
 			return
 
@@ -344,8 +370,7 @@ class HangmanGUI:
 			self.error(data, "Please choose a .txt file.")
 			return gtk.TRUE
 		else:
-			self.controller.words = open(filename, 'r').readlines()
-			self.controller.words = [word.strip() for word in self.controller.words]
+			self.controller.openFile(filename)
 
 	def error(self, parent=None, data=None):
 		""" General error message generator.  data is the text to be printed in
