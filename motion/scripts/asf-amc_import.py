@@ -58,6 +58,7 @@ def addVectors (a, b):
     return x
 
 def loadASF (filename):
+    print 'loading',filename
     asfReader = ASFReader.ASFReader ()
     try:
         asfReader.parse (filename)
@@ -128,7 +129,11 @@ def loadASF (filename):
     # Finally, pop up a file selector for importing the AMC
     Blender.Window.FileSelector (loadAMC, 'Load AMC Motion Capture')
 
+def getRotation (bone):
+    pass
+
 def loadAMC (filename):
+    print 'loading',filename
     amcReader = AMCReader.AMCReader ()
     try:
         amcReader.parse (filename)
@@ -140,30 +145,29 @@ def loadAMC (filename):
         cleanup ()
 
     # Create a new action, named after the file
-    action = Blender.Armature.NLA.NewAction (filename.split ('/')[-1])
+    action = Blender.Armature.NLA.NewAction (filename.split (Blender.sys.dirsep)[-1])
     action.setActive (armatureObj)
 
     context = scene.getRenderingContext ()
-    # Pretty much all of the data we've gotten is at 120Hz. It would be nice
-    # to pull this out of the data file, but for now, just hardcode it - FIXME
+    # FIXME _ Pretty much all of the data we've gotten is at 120Hz. It would
+    # be nice to pull this out of the data file, but for now, just hardcode it
     context.framesPerSec (120)
+
+    totalFrames = len (amcReader.frames)
 
     for frame in amcReader.frames:
         context.currentFrame (frame.number)
 
-        # FIXME - importing this data can take a *long* time, so we should provide
-        # some kind of feedback to the user - "frame n/total" progress bar, etc.
-        # Should probably also do some profiling to find out why it takes so freaking
-        # long to create a single frame.
+        Blender.Window.DrawProgressBar (float (frame.number) / totalFrames, 'Frame %d of %d' % (frame.number, totalFrames))
 
         # Set root position/orientation. We need to and scale this just like we
         # did for the positions of the individual bones
         location = [(n * 0.1) for n in frame.bones['root'][0:3]]
         rotation = Blender.Mathutils.Euler (frame.bones['root'][3:6]).toQuat ()
 
-        # bones['root'].setLoc (location)
-        # bones['root'].setQuat (quat)
-        # bones['root'].setPose ([ROT, LOC])
+        bones['root'].setLoc (location)
+        bones['root'].setQuat (quat)
+        bones['root'].setPose ([ROT, LOC])
 
         # Set orientations for each bone for this frame
         for name, bone in frame.bones.iteritems ():
@@ -174,6 +178,7 @@ def loadAMC (filename):
             #bones[name].setQuat (quat)
             #bones[name].setPose ([ROT])
 
+    Blender.Window.DrawProgressBar (1.0, '')
     Blender.Window.RedrawAll ()
     cleanup ()
 
