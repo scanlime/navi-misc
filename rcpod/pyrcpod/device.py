@@ -78,6 +78,7 @@ class OpenedRcpod:
         # Make the scratchpad location more easily accessable
         self.scratchpadRange = (RCPOD_REG_SCRATCHPAD,
                                 RCPOD_REG_SCRATCHPAD + RCPOD_SCRATCHPAD_SIZE)
+        self.scratchpadSize = RCPOD_SCRATCHPAD_SIZE
 
         # Initially the PIC model number is unknown. It can be determined
         # automatically in reset(), or set manually if reset has been disabled.
