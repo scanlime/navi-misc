@@ -75,6 +75,7 @@ struct usb_uvswitch {
 	int			active_inputs[UVSWITCH_CHANNELS]; /* Nonzero values for active video inputs */
 	int			adc_samples;		/* Number of samples in adc_accumulator */
 	wait_queue_head_t	adc_wait;		/* Processes waiting for video detection input changes */
+	struct usb_endpoint_descriptor *endpoint;
 
 	struct semaphore	sem;			/* locks this structure */
 };
@@ -108,6 +109,7 @@ static DECLARE_MUTEX(minor_table_mutex);
 static int uvswitch_updateStatus(struct usb_uvswitch *dev);
 static int uvswitch_updateCalibration(struct usb_uvswitch *dev);
 static int uvswitch_initCalibration(struct usb_uvswitch *dev);
+static void uvswitch_adc_irq(struct urb *urb);
 
 static int uvswitch_open(struct inode *inode, struct file *file);
 static int uvswitch_release(struct inode *inode, struct file *file);
@@ -140,6 +142,28 @@ static int uvswitch_updateStatus(struct usb_uvswitch *dev)
 /* Update the device's ADC settings from our calibration structure */
 static int uvswitch_updateCalibration(struct usb_uvswitch *dev)
 {
+	int i;
+
+	dbg("Updating calibration: precharge=%d, integration=%d, interval=%d, packets=%d, threshold=%d",
+	    dev->calibration.precharge_reads,
+	    dev->calibration.integration_reads,
+	    dev->calibration.interval,
+	    dev->calibration.integration_packets,
+	    dev->calibration.threshold);
+
+	/* Begin our interrupt transfer polling the video detector ADC */
+	usb_unlink_urb(&dev->adc_urb);
+	FILL_INT_URB(&dev->adc_urb, dev->udev,
+		     usb_rcvintpipe(dev->udev, dev->endpoint->bEndpointAddress),
+		     dev->adc_buffer, UVSWITCH_CHANNELS,
+		     uvswitch_adc_irq, dev, dev->calibration.interval);
+	dbg("Submitting adc_urb, interval %d", dev->calibration.interval);
+	i = usb_submit_urb(&dev->adc_urb);
+	if (i) {
+		dbg("Error submitting URB: %d", i);
+	}
+
+	/* Send a packet to change the device's ADC settings */
 	return usb_control_msg(dev->udev, usb_sndctrlpipe(dev->udev, 0),
 			       UVSWITCH_CTRL_ADC_CYCLES, 0x40,
 			       dev->calibration.integration_reads,
@@ -151,9 +175,10 @@ static int uvswitch_updateCalibration(struct usb_uvswitch *dev)
 static int uvswitch_initCalibration(struct usb_uvswitch *dev)
 {
 	dev->calibration.precharge_reads = 10;
-	dev->calibration.integration_reads = 200;
-	dev->calibration.integration_packets = 50;
-	dev->calibration.threshold = 3000;
+	dev->calibration.integration_reads = 50;
+	dev->calibration.interval = 10;
+	dev->calibration.integration_packets = 5;
+	dev->calibration.threshold = 200;
 
 	uvswitch_updateCalibration(dev);
 }
@@ -589,7 +614,6 @@ static void * uvswitch_probe(struct usb_device *udev, unsigned int ifnum, const 
 {
 	struct usb_uvswitch *dev = NULL;
 	struct usb_interface *interface;
-	struct usb_endpoint_descriptor *endpoint;
 	int minor;
 	int buffer_size;
 	int i;
@@ -624,7 +648,7 @@ static void * uvswitch_probe(struct usb_device *udev, unsigned int ifnum, const 
 
 	interface = &udev->actconfig->interface[ifnum];
 	iface_desc = &interface->altsetting[interface->act_altsetting];
-	endpoint = &iface_desc->endpoint[0];
+	dev->endpoint = &iface_desc->endpoint[0];
 
 	init_MUTEX(&dev->sem);
 	dev->udev = udev;
@@ -649,17 +673,6 @@ static void * uvswitch_probe(struct usb_device *udev, unsigned int ifnum, const 
 				     S_IRGRP | S_IWGRP | S_IROTH,
 				     &uvswitch_dev_fops, NULL);
 	info("uvswitch device now attached to %s", name);
-
-	/* Begin our interrupt transfer polling the video detector ADC */
-	FILL_INT_URB(&dev->adc_urb, dev->udev,
-		     usb_rcvintpipe(dev->udev, endpoint->bEndpointAddress),
-		     dev->adc_buffer, UVSWITCH_CHANNELS,
-		     uvswitch_adc_irq, dev, endpoint->bInterval);
-	dbg("Submitting adc_urb, interval %d", endpoint->bInterval);
-	i = usb_submit_urb(&dev->adc_urb);
-	if (i) {
-		dbg("Error submitting URB: %d", i);
-	}
 
 	goto exit;
 
