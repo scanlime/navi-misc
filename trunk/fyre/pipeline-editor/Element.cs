@@ -28,7 +28,7 @@ public class Element
 	public string		Category;
 	public string		Description;
 	public Gdk.Pixbuf	Icon;
-	
+
 	/* These are expected to be in pango markup, for any
 	 * necessary subscripts, UTF-8 trickery, etc
 	 */

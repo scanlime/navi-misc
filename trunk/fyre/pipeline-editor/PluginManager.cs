@@ -31,7 +31,7 @@ class PluginManager
 {
 	string directory;
 	FileSystemWatcher dir_watcher;
-	ArrayList plugin_types;
+	public ArrayList plugin_types;
 
 	public PluginManager (string directory)
 	{
@@ -41,7 +41,7 @@ class PluginManager
 		dir_watcher.Created += OnPluginCreated;
 		dir_watcher.Deleted += OnPluginDeleted;
 		dir_watcher.EnableRaisingEvents = true;
-		
+
 		plugin_types = FindPluginTypes ();
 	}
 
