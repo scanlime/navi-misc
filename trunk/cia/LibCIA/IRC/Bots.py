@@ -177,7 +177,7 @@ class BotNetwork:
 
     botGcTimer = None
 
-    def __init__(self):
+    def __init__(self, nickFormat):
         self.requests = []
 
         # A map from Server to a map from channel name to list of Bot instances
@@ -196,7 +196,11 @@ class BotNetwork:
         self.inactiveBots = {}
 
         # Start the bot garbage collection cycle
-        self.gcBots()
+        #self.gcBots()
+
+    def msg(*args):
+        # FIXME: no-op until the rest is ready
+        pass
 
     def addRequest(self, request):
         """Add a request to be serviced by this bot network. This should
