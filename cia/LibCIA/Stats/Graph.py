@@ -379,9 +379,9 @@ class RenderCache(Cache.AbstractStringCache):
        that writes its results to a file-like object and has a repr() that
        uniquely represents its state.
 
-       Cached results expire after 1 hour by default.
+       Cached results expire after 4 hours by default.
        """
-    def __init__(self, obj, lifespan=60*60):
+    def __init__(self, obj, lifespan=60*60*4):
         self.obj = obj
         self.lifespan = lifespan
 
