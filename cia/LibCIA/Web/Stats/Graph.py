@@ -37,6 +37,20 @@ class RelatedTable(Nouvelle.BaseTable):
     tableTag = tag('table', _class='related')
 
 
+class RelatedFilter(Database.Filter):
+    """An XML filter that can control what's displayed in the 'related' box
+       on a per-stats-target basis. These filters come from stats metadata,
+       so we need to restrict the available SQL variables.
+       """
+    def varLookup(self, var):
+        # Map from some abstract variable names to concrete variable names.
+        # The returned variables must match the ones in RelatedSection.query below.
+        return {
+            'parent_path': 'C.parent_path',
+            'target_path': 'C.target_path',
+            }[var]
+
+
 class RelatedSection(Template.Section):
     """A section showing links to related stats targets. This works by looking for
        nodes connected to this one in the stats_relations graph. The paths and
@@ -70,6 +84,7 @@ class RelatedSection(Template.Section):
             ON (C.target_path = M_ICON.target_path  AND M_ICON.name  = 'icon')
         WHERE (R.target_a_path = %(path)s or R.target_b_path = %(path)s)
             AND C.parent_path != %(path)s
+            AND %(filter)s
     ORDER BY C.parent_path, R.freshness DESC
     """
 
@@ -91,14 +106,22 @@ class RelatedSection(Template.Section):
         return Link.StatsLink(target, text=title)
 
     def render_rows(self, context):
-        # Run our big SQL query to get all data for this section first
+        # First look for a related-filter metadata key for this target.
+        # The default allows all related items to be displayed.
         result = defer.Deferred()
+        self.target.metadata.getValue("related-filter", default="<true/>").addCallback(
+            self._send_query, context, result
+            ).addErrback(result.errback)
+        return result
+
+    def _send_query(self, filter, context, result):
+        # Run our big SQL query to get all data for this section
         Database.pool.runQuery(self.query % {
             'path': Database.quote(self.target.path, 'varchar'),
+            'filter': RelatedFilter(filter).sql,
             }).addCallback(
             self._render_rows, context, result
             ).addErrback(result.errback)
-        return result
 
     def _render_rows(self, queryResults, context, result):
         # From the rows returned from our SQL query, construct a
