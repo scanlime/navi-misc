@@ -262,7 +262,7 @@ static void on_widget_toggle(GtkWidget *widget, gpointer user_data) {
 #if (GTK_CHECK_VERSION(2, 4, 0))
 static void
 update_image_preview (GtkFileChooser *chooser, GtkImage *image) {
-    GdkPixbuf *image_pixbuf;
+    GdkPixbuf *image_pixbuf, *temp;
     static GdkPixbuf *emblem_pixbuf = NULL;
     gchar *filename;
     gboolean have_preview;
@@ -283,7 +283,15 @@ update_image_preview (GtkFileChooser *chooser, GtkImage *image) {
     pixmap = gdk_pixmap_new (GTK_WIDGET (image)->window, width + 16, height + 16, -1);
     gdk_draw_rectangle (pixmap, GTK_WIDGET (image)->style->bg_gc[GTK_STATE_NORMAL], TRUE, 0, 0, width + 16, height + 16);
     gdk_draw_pixbuf (pixmap, NULL, image_pixbuf, 0, 0, 0, 0, width - 1, height - 1, GDK_RGB_DITHER_NONE, 0, 0);
-    gdk_draw_pixbuf (pixmap, NULL, emblem_pixbuf, 0, 0, width - 16, height - 16, 31, 31, GDK_RGB_DITHER_NONE, 0, 0);
+
+    temp = gdk_pixbuf_new_from_file (filename, NULL);
+    if (temp) {
+        if (gdk_pixbuf_get_option (temp, "tEXt::fyre_params"))
+            gdk_draw_pixbuf (pixmap, NULL, emblem_pixbuf, 0, 0, width - 16, height - 16, 31, 31, GDK_RGB_DITHER_NONE, 0, 0);
+        else if (gdk_pixbuf_get_option (temp, "tEXt::de_jong_params"))
+            gdk_draw_pixbuf (pixmap, NULL, emblem_pixbuf, 0, 0, width - 16, height - 16, 31, 31, GDK_RGB_DITHER_NONE, 0, 0);
+        gdk_pixbuf_unref (temp);
+    }
 
     if (image_pixbuf)
 	gdk_pixbuf_unref (image_pixbuf);
