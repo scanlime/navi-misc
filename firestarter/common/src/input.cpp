@@ -148,6 +148,8 @@ CInputManager::~CInputManager()
 
 void CInputManager::Init ( RenderWindow *theWindow )
 {
+	mInputDevice = PlatformManager::getSingleton().createInputReader();
+	mInputDevice->initialise(theWindow,true,false);
 }
 
 void CInputManager::Process ( void )

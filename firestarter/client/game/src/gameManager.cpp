@@ -58,6 +58,13 @@ void CGameManger::Init ( void )
 {
 	RegisterGameModules();
 	activeGame = true;
+
+	gameModuleMap::iterator itr =	gameModules.begin();
+	while (itr != gameModules.end())
+	{
+		itr->second->Init();
+		itr++;
+	}
 }
 
 void CGameManger::RegisterGameModules ( void )
