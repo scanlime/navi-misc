@@ -61,7 +61,7 @@ public class nchatint extends nbase
 			case 'r'://reject a question
 				view.reject();
 				break;
-			case 'g':
+			case 'g'://
 				cmd = view.getQuestion();
 				if(cmd == null)
 				{
@@ -75,6 +75,7 @@ public class nchatint extends nbase
 						cmd = view.getQuestion();
 					}
 				}
+				else write("+OK");
 				write(cmd);
 				break;
 			}
