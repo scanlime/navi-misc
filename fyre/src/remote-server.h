@@ -40,7 +40,8 @@ G_BEGIN_DECLS
 /************************************************************************************/
 
 void              remote_server_main_loop     (int        port_number,
-					       gboolean   have_gtk);
+					       gboolean   have_gtk,
+					       gboolean   verbose);
 
 
 /************************************************************************************/
