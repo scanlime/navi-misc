@@ -38,7 +38,7 @@ def main():
         Tweak.Quantity(dev.params, 'fine_adjust', range=(-1000,1000)),
         Tweak.Quantity(dev.startup, 'min_period', range=(0,0xFFFF)),
         Tweak.Quantity(dev.startup, 'max_period', range=(0,0xFFFF)),
-        Tweak.Quantity(dev.startup, 'climb_rate', range=(0,100)),
+        Tweak.Quantity(dev.startup, 'climb_rate', range=(-5000,5000)),
         ])
 
     win = gtk.Window(gtk.WINDOW_TOPLEVEL)
