@@ -179,8 +179,7 @@ void fe_userlist_insert(struct session *sess, struct User *newuser, int row, int
 }
 
 int fe_userlist_remove(struct session *sess, struct User *user) {
-	/* FIXME: implement */
-	return 0;
+	return userlist_remove(sess, user);
 }
 
 void fe_userlist_rehash(struct session *sess, struct User *user) {

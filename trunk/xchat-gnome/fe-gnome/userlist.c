@@ -37,6 +37,7 @@ GdkPixbuf *get_user_icon(struct server *serv, struct User *user) {
 			pre--;
 		}
 	}
+	return NULL;
 }
 
 void initialize_userlist() {
@@ -87,7 +88,46 @@ void userlist_insert(session *sess, struct User *newuser, int row, int sel) {
 
 	gtk_list_store_insert(store, &iter, row);
 	gtk_list_store_set(store, &iter, 0, pix, 1, newuser->nick, 2, newuser, -1);
-	/* FIXME: colors, away status, icons, selection */
+	/* FIXME: colors, away status, selection */
+}
+
+static GtkTreeIter *find_row(GtkTreeView *view, GtkTreeModel *model, struct User *user, gboolean *selected) {
+	static GtkTreeIter iter;
+	struct User *row_user;
+
+	*selected = FALSE;
+	if(gtk_tree_model_get_iter_first(model, &iter)) {
+		do {
+			gtk_tree_model_get(model, &iter, 2, &row_user, -1);
+			if(row_user == user) {
+				if(gtk_tree_view_get_model(view) == model) {
+					if(gtk_tree_selection_iter_is_selected(gtk_tree_view_get_selection(view), &iter))
+						*selected = TRUE;
+					return &iter;
+				}
+			}
+		} while(gtk_tree_model_iter_next(model, &iter));
+	}
+	return NULL;
+}
+
+gboolean userlist_remove(session *sess, struct User *user) {
+	GtkTreeIter *iter;
+	GtkWidget *userlist_view;
+	GtkTreeModel *model;
+	gboolean sel;
+	session_gui *s;
+
+	userlist_view = glade_xml_get_widget(gui.xml, "userlist");
+	s = sess->gui;
+	model = s->userlist_model;
+
+	iter = find_row(GTK_TREE_VIEW(userlist_view), model, user, &sel);
+	if(!iter)
+		return FALSE;
+
+	gtk_list_store_remove(GTK_LIST_STORE(model), iter);
+	return sel;
 }
 
 void userlist_display(session_gui *sess) {
