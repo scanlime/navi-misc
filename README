@@ -113,10 +113,11 @@ Dependencies
 ------------
 
 Hard Dependencies:
-- GTK+ 2.4
+- GTK+ 2.0
 - libglade
 
 Soft Dependencies:
+- GTK+ 2.4
 - OpenEXR, necessary for saving .exr files
 - GNet, for clustering and remote control mode
 
