@@ -13,5 +13,7 @@ Errata for the revision A rcpod-485 PCB and schematic
    reversed, so when no RS-485 connection is present,
    the (active-low) receive line is low and the RX light
    is on.
-
+   (Is this really worth correcting? Might be a nice feature
+    that the RX light is on continuously if the RS-485 network
+    is disconnected)
 
