@@ -130,7 +130,13 @@ class ColorTextParser:
         # Break up the message into lines, each with its whitespace stripped.
         # Run our lexical scanner on each line separately, turning it into
         # a stream of events. Insert <br/> tags between lines.
-        lines = [line.strip() for line in message.strip().split("\n")]
+        lines = []
+        for line in message.split("\n"):
+            # Ignore extra whitespace
+            line = line.strip()
+            # Ignore blank lines
+            if line:
+                lines.append(line)
         for i in xrange(len(lines)):
             if i != 0:
                 self.elementStack[-1][0].addElement('br')
