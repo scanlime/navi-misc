@@ -7,7 +7,7 @@ TUSB3410 (Keyspan HS-19US, firmware removed):
  3.3v power (2) - Configuration EEPROM power
  USB data   (3) - USB port
  I2C Clock  (4) - Configuration EEPROM and FPGA, SCL
- I2C Data   (5) - Configuration EEPROM and FPGA, SDA
+ I2C Data   (5) - Configuration EEPROM and FPGA, SDA. 1k pullup to 3.3v (2)
  GPIO P3.0  (6) - FPGA 'CCLK' (pin 73)
  GPIO P3.1  (7) - RS-232 driver power
  GPIO P3.3  (8) - (used by the Keyspan HS-19US for an unknown purpose?)
@@ -59,7 +59,7 @@ XC4010XL (Xess XS40, everything except FPGA and oscillator removed):
   P67           - DB-25 pin 24
   P68           - DB-25 pin 25
 
- Unused:
+ Unused, connected to 3.3v:
   P70
   P75
   P77
