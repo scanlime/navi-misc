@@ -86,7 +86,7 @@ gboolean on_hpane_move(GtkPaned *widget, GParamSpec *param_spec, gpointer data);
 static void entry_context(GtkEntry *entry, GtkMenu *menu, gpointer user_data);
 
 void initialize_main_window() {
-	GtkWidget *entry, *pane, *topic, *topicbox;
+	GtkWidget *entry, *pane, *topicbox;
 
 	gui.main_window = GNOME_APP(glade_xml_get_widget(gui.xml, "xchat-gnome"));
 	g_signal_connect(G_OBJECT(gui.main_window), "delete-event", G_CALLBACK(on_main_window_close), NULL);
@@ -126,12 +126,10 @@ void initialize_main_window() {
 	g_signal_connect(G_OBJECT(entry), "populate-popup", G_CALLBACK(entry_context), NULL);
 
   /* XXX: Is this a leak?? */
-	/*
-	topic = topic_label_new ();
+	gui.topic = topic_label_new ();
 	topicbox = glade_xml_get_widget (gui.xml, "topic hbox");
-	gtk_box_pack_start (GTK_BOX (topicbox), topic, TRUE, TRUE, 0);
-	gtk_box_reorder_child (GTK_BOX (topicbox), topic, 1);
-	*/
+	gtk_box_pack_start (GTK_BOX (topicbox), gui.topic, TRUE, TRUE, 0);
+	gtk_box_reorder_child (GTK_BOX (topicbox), gui.topic, 1);
 	// FIXME
 //	g_signal_connect(G_OBJECT(entry), "activate", G_CALLBACK(on_topic_entry_activate), NULL);
 
@@ -161,37 +159,29 @@ void initialize_main_window() {
 			num[0] = i + '1';
 
 			/* Set up our GClosure with user data set to i. */
-			closure = g_cclosure_new(G_CALLBACK(on_discussion_jump_activate),
-					GINT_TO_POINTER(i), NULL);
+			closure = g_cclosure_new(G_CALLBACK(on_discussion_jump_activate), GINT_TO_POINTER(i), NULL);
 
 			/* Connect up the accelerator. */
-			gtk_accel_group_connect(discussion_accel, gdk_keyval_from_name(num),
-					GDK_MOD1_MASK, GTK_ACCEL_VISIBLE, closure);
+			gtk_accel_group_connect(discussion_accel, gdk_keyval_from_name(num), GDK_MOD1_MASK, GTK_ACCEL_VISIBLE, closure);
 
 			/* Delete the reference to the GClosure. */
 			g_closure_unref(closure);
 		}
 
 		/* Now we set up keypress alt-0 with user data 9. */
-		closure = g_cclosure_new(G_CALLBACK(on_discussion_jump_activate),
-				GUINT_TO_POINTER(9), NULL);
-		gtk_accel_group_connect(discussion_accel, gdk_keyval_from_name("0"),
-				GDK_MOD1_MASK, GTK_ACCEL_VISIBLE, closure);
+		closure = g_cclosure_new(G_CALLBACK(on_discussion_jump_activate), GUINT_TO_POINTER(9), NULL);
+		gtk_accel_group_connect(discussion_accel, gdk_keyval_from_name("0"), GDK_MOD1_MASK, GTK_ACCEL_VISIBLE, closure);
 		g_closure_unref(closure);
 
-    /* alt-+ */
-    closure = g_cclosure_new(G_CALLBACK(on_discussion_plus_activate),
-        NULL, NULL);
-    gtk_accel_group_connect(discussion_accel, gdk_keyval_from_name("equal"),
-        GDK_MOD1_MASK, GTK_ACCEL_VISIBLE, closure);
-    g_closure_unref(closure);
+		/* alt-+ */
+		closure = g_cclosure_new(G_CALLBACK(on_discussion_plus_activate), NULL, NULL);
+		gtk_accel_group_connect(discussion_accel, gdk_keyval_from_name("equal"), GDK_MOD1_MASK, GTK_ACCEL_VISIBLE, closure);
+		g_closure_unref(closure);
 
-    /* alt-- */
-    closure = g_cclosure_new(G_CALLBACK(on_discussion_minus_activate),
-        NULL, NULL);
-    gtk_accel_group_connect(discussion_accel, gdk_keyval_from_name("minus"),
-        GDK_MOD1_MASK, GTK_ACCEL_VISIBLE, closure);
-    g_closure_unref(closure);
+		/* alt-- */
+		closure = g_cclosure_new(G_CALLBACK(on_discussion_minus_activate), NULL, NULL);
+		gtk_accel_group_connect(discussion_accel, gdk_keyval_from_name("minus"), GDK_MOD1_MASK, GTK_ACCEL_VISIBLE, closure);
+		g_closure_unref(closure);
 
 		/* Add the accelgroup to the main window. */
 		gtk_window_add_accel_group(gui.main_window, discussion_accel);
