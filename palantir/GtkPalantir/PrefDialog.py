@@ -25,13 +25,15 @@ class PrefDialog:
   def __init__(self, tree):
     self.tree = tree
     dialog = tree.get_widget('Preferences')
+    tree.get_widget('pref notebook').set_show_tabs(gtk.FALSE)
+
     self.SetUpNav()
 
     self.prefs = Prefs()
 
     # Create an object for the general prefs.
-    #self.general = GenPrefs(self.tree)
-    #self.general.Set(self.prefs)
+    self.general = GenPrefs(self.tree)
+    self.general.Set(self.prefs)
 
     # Hook up the buttons.
     tree.get_widget('pref cancel').connect('clicked',lambda w: dialog.hide())
@@ -47,14 +49,15 @@ class PrefDialog:
     notebook = self.tree.get_widget('pref notebook')
 
     store = gtk.ListStore(gobject.TYPE_STRING)
+    cell = gtk.CellRendererText()
+    cell.visible = gtk.TRUE
     navigation.set_model(model=store)
-    navigation.append_column(gtk.TreeViewColumn('Pages', gtk.CellRendererText(), text=1))
+    navigation.append_column(gtk.TreeViewColumn('Pages', cell, text=0))
 
     for num in range(notebook.get_n_pages()):
       page = notebook.get_nth_page(num)
       pageName = notebook.get_tab_label_text(page)
-      print num, pageName
-      #store.set(store.append(), 0, pageName)
+      store.set(store.append(), 0, pageName)
 
   def SavePrefs(self, widget, data=None):
     self.general.Save(self.prefs)
