@@ -173,6 +173,7 @@ class RulesetEditor:
         channel, server = self.currentChannel
         buffer = self.xml.get_widget('RulesetEditor').get_buffer()
         ruleset = buffer.get_text(*buffer.get_bounds())
+        self.rulesets[channel, server] = minidom.parseString(ruleset).getElementsByTagName('ruleset')[0]
         self.server.deliverMessage(self.envelope %
                                    ("<ircRuleset channel=%r server=%r>%s</ircRuleset>" %
                                     (channel, server, ruleset)))
@@ -222,7 +223,6 @@ class RulesetEditor:
             server = server + ":6667"
 
         # Apply the ruleset in our local channel list and on the server
-        self.rulesets[channel, server] = minidom.parseString(ruleset).getElementsByTagName('ruleset')[0]
         self.loadChannelListModel()
         self.setCurrentChannel(channel, server)
         self.applyCurrentRuleset()
