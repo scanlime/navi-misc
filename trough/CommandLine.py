@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 
-import optik
+try:
+	import optik as parser
+except:
+	import optparse as parser
+
 import sys
 from PlayList import PlayList
 
@@ -8,7 +12,7 @@ version = '0.0.0'
 
 class CommandLine:
 	def __init__(self):
-		self.parser = optik.OptionParser (version=version)
+		self.parser = parser.OptionParser (version=version)
 
 		self.parser.add_option('-a','--add',dest='add',action="store_true",
 							   help="recursively add path(s) to the playlist")

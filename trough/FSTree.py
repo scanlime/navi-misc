@@ -74,8 +74,12 @@ class Directory (File):
 			entries = os.listdir(path)
 		except:
 			print 'Unable to read ',path
-			
+			return
+
+		entries.sort()
+
 		for i in xrange(0,len(entries)):
+			print entries[i]
 			if os.path.isdir(os.path.join(path,entries[i])):
 				self.subdirs.append(Directory(entries[i], self))
 			else:
