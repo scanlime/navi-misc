@@ -57,9 +57,11 @@ def extractSummary(element, widthLimit=80):
     # Use wrapLine to cleanly break it if possible, but
     # truncate it if necessary- wrapLine will not break words in
     # half if they are longer than the wrap width.
-    summary = wrapLine(text, widthLimit)[0][:widthLimit]
-    if len(summary) < len(text):
-        summary += "..."
-    return summary
+    lines = wrapLine(text, widthLimit)
+    if lines:
+        summary = lines[0][:widthLimit]
+        if len(summary) < len(text):
+            summary += "..."
+        return summary
 
 ### The End ###
