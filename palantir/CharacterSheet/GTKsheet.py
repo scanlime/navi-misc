@@ -6,7 +6,7 @@ widgets for a usable interface.
 Copyright (C) 2003 W. Evan Sheehan <evan@navi.picogui.org>
 '''
 
-import xml.dom, xml.dom.minidom, GTKsheetElements
+import GTKsheetElements, xml.dom, xml.dom.minidom, string
 from Character import Character
 
 

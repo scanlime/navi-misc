@@ -73,7 +73,6 @@ def OpenFileDialog(okCallback, defaultDir):
 
 def CloseDialog(widget=None, data=None):
   tree.dialog.get_widget('SheetSelection').destroy()
-  print tree.dialog
 
 def NewSheet(widget, data=None):
   ''' Create a new sheet from the layout file selected. '''

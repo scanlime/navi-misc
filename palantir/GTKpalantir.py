@@ -2,7 +2,7 @@ import gtk, gtk.glade
 from CharacterSheet.Character import Character
 from CharacterSheet.GTKsheet import GTKsheet
 
-def ShowMain():
+def Init():
   ''' Show the main window. '''
   global tree
   tree = gtk.glade.XML('palantirMain.glade')
