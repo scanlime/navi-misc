@@ -23,8 +23,9 @@ memory and rumble paks.
 
 All code here is released under the GPL. This means that if you have basic
 electronics skills and a way to program the microcontroller, you can build
-your own cube64 adaptorr easily. The hardware is extremely simple, and all
+your own cube64 adaptor easily. The hardware is extremely simple, and all
 the complexity of reverse engineering and writing code is done for you ;)
+
 
 Usage
 -----
@@ -89,6 +90,28 @@ joystick, C-stick, L button, or R button:
      recalibrate, since the adaptor doesn't lose power or get reinitialized)
 
 
+Hardware
+--------
+
+There are currently two versions of the Cube64 hardware:
+
+  - The "Cube64 Basic" uses a very common PIC16F84A microcontroller, and
+    requires an external 5V power supply. Just about any electronics hobbyist
+    should be able to build it easily. 
+
+  - The "Cube64 Mini" uses a tiny 8-pin PIC12F629 microcontroller, and
+    includes a charge pump that generates the 5V supply for the rumble motor.
+    It is smaller and more convenient than the Cube64 Basic, but it requires
+    a less common microcontroller and a charge pump that's only available
+    in surface mount packages.
+
+Both versions of the hardware have the same button remapping features
+and responsiveness, as the only difference in their firmware is a few lines
+worth of compile-time configuration. You can also of course use the charge
+pump circuit from the Cube64 Mini with a PIC16F84A- but if you're using
+tiny chips anyway, might as well go all the way ;)
+
+
 Status
 ------
 
@@ -102,10 +125,11 @@ for the motor can be supplied to the gamecube controller, its rumble motor
 will be used to emulate the N64 rumble pak.
 
 It should be possible to emulate the N64 memory pak using the results of my
-reverse engineering, but the PIC16F84 probably isn't fast enough to run the
+reverse engineering, but a 20 MHz PIC probably isn't fast enough to run the
 CRC algorithm in time to return a status byte to the N64. If a faster
 implementation of the CRC is discovered or a processor about twice as fast is
 used, the memory pak could be emulated easily.
+
 
 Contents
 --------
