@@ -50,8 +50,6 @@ static void fpga_init()
 
 static void fpga_config_write_byte(unsigned char c)
 {
-  int i;
-
   /* Clock out bits left-to-right. This loop was unrolled for speed. */
 #define CLOCK_OUT_BIT(mask) \
   if (c & mask) \
@@ -69,6 +67,8 @@ static void fpga_config_write_byte(unsigned char c)
   CLOCK_OUT_BIT(0x04)
   CLOCK_OUT_BIT(0x02)
   CLOCK_OUT_BIT(0x01)
+
+#undef CLOCK_OUT_BIT
 }
 
 
