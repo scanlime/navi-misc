@@ -55,6 +55,14 @@ class Bot(irc.IRCClient):
         self.channels.append(channel)
         self.factory.allocator.botJoined(self, channel)
 
+    def left(self, channel):
+        # If we no longer are in any channels, turn off
+        # automatic reconnect so we can quit without being reconnected.
+        self.channels.remove(channel)
+        if not self.channels:
+            self.factory.reconnect = False
+        self.factory.allocator.botLeft(self, channel)
+
 
 class BotFactory(protocol.ClientFactory):
     """Twisted ClientFactory for creating Bot instances"""
@@ -62,16 +70,17 @@ class BotFactory(protocol.ClientFactory):
 
     def __init__(self, allocator):
         self.allocator = allocator
+        self.reconnect = True
         reactor.connectTCP(allocator.host, allocator.port, self)
 
     def clientConnectionLost(self, connector, reason):
-        # Automatically reconnect
-        connector.connect()
+        if self.reconnect:
+            connector.connect()
 
 
 class BotAllocator:
     """Manages bot allocation for one IRC server"""
-    def __init__(self, server, nickFormat="CIA-%d", channelsPerBot=2):
+    def __init__(self, server, nickFormat="CIA-%d", channelsPerBot=15):
         self.nickFormat = nickFormat
         self.channelsPerBot = channelsPerBot
         self.host, self.port = server
@@ -92,7 +101,6 @@ class BotAllocator:
 
     def botConnected(self, bot):
         """Called by one of our bots when it's connected successfully and ready to join channels"""
-        print "%r connected" % bot.nickname
         self.bots[bot.nickname] = bot
 
         # Join as many channels as this bot is allowed to,
@@ -109,15 +117,21 @@ class BotAllocator:
 
     def botJoined(self, bot, channel):
         """Called by one of our bots when it's successfully joined to a channel"""
-        print "%r joined %r" % (bot.nickname, channel)
         self.existingBotRequests.remove(channel)
         self.channels[channel] = bot
 
+    def botLeft(self, bot, channel):
+        """Called by one of our bots when it has finished leaving a channel"""
+        del self.channels[channel]
+
+        # If there's no reason to keep this bot around any more, disconnect it
+        if not bot.channels:
+            bot.quit()
+
     def botDisconnected(self, bot):
         """Called when one of our bots has been disconnected"""
-        print "%r disconnected" % bot.nickname
         del self.bots[bot.nickname]
-        for channel in self.channels.iterkeys():
+        for channel in self.channels.keys():
             if self.channels[channel] == bot:
                 del self.channels[channel]
 
@@ -158,7 +172,6 @@ class BotAllocator:
         # Check for room in our existing bots
         for bot in self.bots.itervalues():
             if len(bot.channels) < self.channelsPerBot:
-                print "%r joining %r" % (bot.nickname, channel)
                 bot.join(channel)
                 self.existingBotRequests.append(channel)
                 return None
@@ -169,6 +182,31 @@ class BotAllocator:
         self.newBotRequests.append(channel)
         if len(self.newBotRequests) == 1:
             BotFactory(self)
+
+    def delChannel(self, channel):
+        """Remove a channel from the list of those supported by the bots
+           on this server, deleting any bots no longer necessary.
+           """
+        # Remove it from our requested channel lists if it's there
+        try:
+            self.existingBotRequests.remove(channel)
+        except:
+            pass
+        try:
+            self.newBotRequests.remove(channel)
+        except:
+            pass
+
+        # If we're already connected to this channel, leave it
+        if self.channels.has_key(channel):
+            bot = self.channels[channel]
+            bot.leave(channel)
+
+    def msg(self, channel, text):
+        """Send a message to the specified channel, using whichever
+           bot is appropriate.
+           """
+        self.channels[channel].msg(channel, text)
 
 
 class BotController(xmlrpc.XMLRPC):
@@ -184,41 +222,68 @@ class BotController(xmlrpc.XMLRPC):
 
     def xmlrpc_getChannels(self, server):
         """Return the list of channels we're in on the given server"""
-        return self.servers[server].channels.keys()
+        return self.servers[tuple(server)].channels.keys()
 
     def xmlrpc_getBots(self, server):
         """Return a list of all bot nicknames on the given server"""
-        return [bot.nickname for bot in self.servers[server].bots]
+        return self.servers[tuple(server)].bots.keys()
 
     def xmlrpc_getBotChannels(self, server, bot):
         """Return a list of all the channels a particular bot is in, given its server and nickname"""
-        return self.servers[server].bots[bot].channels
+        return self.servers[tuple(server)].bots[bot].channels
 
     def xmlrpc_addChannel(self, server, channel):
         """Add a new server/channel to the list supported by our bots.
-           New bots are automatically started as needed.
+           New bots are automatically started as needed. Returns True
+           if this channel has already been added, or False if it's
+           still in the process of being added.
            """
+        server = tuple(server)
         if not self.servers.has_key(server):
             self.servers[server] = BotAllocator(server)
-        self.servers[server].addChannel(channel)
+        if self.servers[server].addChannel(channel):
+            return True
+        else:
+            return False
+
+    def xmlrpc_delChannel(self, server, channel):
+        """Remove a server/channel to the list supported by our bots.
+           New bots are automatically deleted as they are no longer needed.
+           """
+        server = tuple(server)
+        self.servers[server].delChannel(channel)
+        if not self.servers[server].channels:
+            del self.servers[server]
+        return False
+
+    def xmlrpc_msg(self, server, channel, text):
+        """Send text to the given channel on the given server.
+           This will generate an exception if the server and/or
+           channel isn't currently occupied by one of our bots.
+           """
+        self.servers[tuple(server)].msg(channel, text)
+        return False
 
 
 def main():
+    r = BotController()
+    # Listen on a UNIX socket with fairly restrictive permissions,
+    # since this server by itself is quite insecure and only needs
+    # to be accessed by the BotFrontend.
+    reactor.listenUNIX(socketName, server.Site(r), mode=0600)
+    reactor.run()
+
+
+if __name__ == "__main__":
+    # For testing, runs the BotController on http so it's easy to
+    # poke at it via libxmlrpc.
     r = BotController()
 
     freenode = ("irc.freenode.net", 6667)
     for i in xrange(5):
         r.xmlrpc_addChannel(freenode, "#botpark_%d" % i)
 
-    # Listen on a UNIX socket with fairly restrictive permissions,
-    # since this server is quite insecure and only needs to be accessed
-    # by the BotFrontend.
-    reactor.listenUNIX(socketName, server.Site(r), mode=0600)
+    reactor.listenTCP(12345, server.Site(r))
     reactor.run()
-
-if __name__ == "__main__":
-    # Helpful for testing- just run the BotController server.
-    # Normally the main() would be invoked automatically by BotFrontend
-    main()
 
 ### The End ###
