@@ -25,7 +25,7 @@
 #ifndef __ACCUMULATOR_H__
 #define __ACCUMULATOR_H__
 
-#include <glib-object.h>
+#include "histogram-imager.h"
 
 G_BEGIN_DECLS
 
@@ -39,11 +39,11 @@ typedef struct _Accumulator      Accumulator;
 typedef struct _AccumulatorClass AccumulatorClass;
 
 struct _Accumulator {
-  GObject parent;
+  HistogramImager parent;
 };
 
 struct _AccumulatorClass {
-  GObjectClass parent_class;
+  HistogramImagerClass parent_class;
 };
 
 GType        accumulator_get_type ();

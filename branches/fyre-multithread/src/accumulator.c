@@ -26,3 +26,40 @@
 
 static void accumulator_class_init (AccumulatorClass *klass);
 static void accumulator_init (Accumulator *self);
+
+/************************************************************************************/
+/**************************************************** Initialization / Finalization */
+/************************************************************************************/
+
+GType accumulator_get_type (void)
+{
+  static GType acc_type = 0;
+  if (!acc_type)
+  {
+    static const GTypeInfo acc_info = {
+      sizeof (AccumulatorClass),
+      NULL, /* base_init */
+      NULL, /* base_finalize */
+      (GClassInitFunc) accumulator_class_init,
+      NULL, /* class_finalize */
+      NULL, /* class_data */
+      sizeof (Accumulator),
+      0, /* n_preallocs */
+      (GInstanceInitFunc) accumulator_init,
+    };
+
+    acc_type = g_type_register_static (HISTOGRAM_IMAGER_TYPE, "Accumulator", &acc_info, 0);
+  }
+
+  return acc_type;
+}
+
+static void
+accumulator_class_init (AccumulatorClass *klass)
+{
+}
+
+static void
+accumulator_init (Accumulator *self)
+{
+}
