@@ -217,7 +217,7 @@ void flip() {
   last_flip = now;
 
   /* Update the iteration counter */
-  gchar *iters = g_strdup_printf("%.0lf", iterations);
+  gchar *iters = g_strdup_printf("Iterations:\n%.3e", iterations);
   gtk_label_set_text(GTK_LABEL(iterl), iters);
   g_free(iters);
 
