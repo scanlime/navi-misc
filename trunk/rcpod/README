@@ -14,25 +14,27 @@ source code comments.
 
 -------- Contents of this package:
 
- hardware : PCB designs and schematics for boards based on rcpod.
-            Currently this includes a test harness board with RS-485,
-	    and a multi-port I2C bus interface with remote thermal sensors.
+ hardware    : PCB designs and schematics for boards based on rcpod.
+               Currently this includes a test harness board with RS-485,
+	       and a multi-port I2C bus interface with remote thermal sensors.
 
- firmware : Assembly language source for the rcpod firmware. The firmware
-            accepts simple commands via USB control requests.
+ firmware    : Assembly language source for the rcpod firmware. The firmware
+               accepts simple commands via USB control requests.
 
- include  : Header files for librcpod and the firmware
+ include     : Header files for librcpod and the firmware
 
- src      : Source for the 'librcpod' library, providing higher level interfaces
-            to rcpod's commands. This is based on libusb, so it should be portable
-            to any OS supported by it, including linux, various BSDs, and Darwin.
+ src         : Source for the 'librcpod' library, providing higher level interfaces
+               to rcpod's commands. This is based on libusb, so it should be portable
+               to any OS supported by it, including linux, various BSDs, and Darwin.
 
- example  : Small example programs to demonstrate librcpod
+ example     : Small example programs to demonstrate librcpod
 
- python   : A python package for accessing the rcpod, example programs using it,
-            and a simple test suite for the rcpod. The rcpod test suite is built
-            using python's "unittest" module, and serves as an example for using
-            the rcpod and unittest to perform tests on external hardware.
+ pyrcpod     : A python package for accessing the rcpod. The python programs in the
+               package's root serve as examples for this package
+
+ selftest.py : A simple test suite for the rcpod, built using python's "unittest"
+               module. This also serves as an example for using the rcpod to test
+               external hardware.
 
 
 -------- Prerequisites

@@ -73,7 +73,7 @@ if Tool('swig').exists(env):
         # for the python module to be usable. We want to override the
         # shared library prefix, since it isn't needed or wanted for building
         # dynamically loadable python extensions.
-        env.SharedLibrary('python/rcpod/_librcpod', ['python/rcpod/librcpod.i', staticLib],
+        env.SharedLibrary('pyrcpod/_librcpod', ['pyrcpod/librcpod.i', staticLib],
                           LIBS=libs, SHLIBPREFIX='')
 
     else:
