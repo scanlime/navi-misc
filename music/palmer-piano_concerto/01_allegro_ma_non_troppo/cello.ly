@@ -91,9 +91,9 @@ mvmtOneCello = \relative c, {
 	gis8 r4 cis16^\accent \> cis \! cis-. cis-. cis-. cis-.
 	\setHairpinDecresc
 	\time 4/4
-	\times 4/6 {<gis cis>8-> [<gis cis> <gis cis>-. <gis cis>-. <gis cis>-. <gis cis>-.]}
 	\once \override TextScript #'extra-offset = #'(0 . 1.0)
-        \times 4/6 {<g c>8->^\tempoI [<g c> <g c>-. <g c>-. <g c>-. <g c>-.]}
+	\times 4/6 {<gis cis>8->^\tempoI [<gis cis> <gis cis>-. <gis cis>-. <gis cis>-. <gis cis>-.]}
+        \times 4/6 {<g c>8-> [<g c> <g c>-. <g c>-. <g c>-. <g c>-.]}
 
 	% 90
 	<g c>4\pp aes8->\mf r8 r4 g8-> r8
