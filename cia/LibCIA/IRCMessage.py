@@ -132,7 +132,7 @@ class HubListener(object):
            those of the <getIrcFilters> tag.
            """
         ircRuleset = self.rulesets[self.parseIrcRulesetAttribs(message.xml.body.getIrcRuleset)]
-        return XML.prettyPrint(ircRuleset.ruleset.xml)
+        return ircRuleset.ruleset.xml.toXml()
 
 
 class IRCRuleset(object):
