@@ -11,7 +11,8 @@ control = ThreeDControl.Viewing(view, viewport)
 
 # Our main book, running only once
 mainBook = Sequencer.Book(view, [
-    Sequencer.FadeOut(3, (0,0,0), Sequencer.UserPageInterrupter(Logos.getLogoSubBook()))
+#    Sequencer.FadeOut(3, (0,0,0), Sequencer.UserPageInterrupter(Logos.getLogoSubBook()))
+    Logos.getLogoSubBook()
     ])
 
 # Exit our main loop once the mainBook finishes

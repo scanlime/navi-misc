@@ -94,13 +94,11 @@ class EnglishLogo(OrbitingLogo):
 class JapaneseLogo(OrbitingLogo):
     def __init__(self, view):
         OrbitingLogo.__init__(self, view)
-
-        self.meshes = Drawable.VRML.load('wasabi_hiragana.wrl').values()
-        self.view.scene.add(self.meshes)
-
-    def finalize(self):
-        OrbitingLogo.finalize(self)
-        self.view.scene.remove(self.meshes)
+        height = self.viewport.size[1] / 2
+        self.title = HUD.Image(self.viewport.region(self.viewport.rect),
+                               "wasabi_hiragana.png",
+                               (height * 0.306358, height),
+                               alignment = (0.5, 0.5))
 
 
 def getLogoList():

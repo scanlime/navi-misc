@@ -25,7 +25,7 @@ against the current OpenGL context.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 from OpenGL.GL import *
-from BZEngine.UI import GLExtension
+from BZEngine.UI import GLExtension, Texture
 
 
 def rectVertices(size, alignment=(0,0)):
@@ -35,20 +35,20 @@ def rectVertices(size, alignment=(0,0)):
        the usage of alignment elsewhere- (0,0) places the
        top-left corner at the origin, (1,1) places the bottom-right
        at the origin, and so on.
-       Texture coordinates such that (0,0) is at the top-left and
-       (1,1) is at the bottom-right are specified.
+       Texture coordinates such that (0,1) is at the top-left and
+       (1,0) is at the bottom-right are specified.
        Vertices are in clockwise order.
        """
-    glTexCoord2f(0,0)
+    glTexCoord2f(0,1)
     glVertex2f(-alignment[0] * size[0],
-               -alignment[1] * size[1])
-    glTexCoord2f(1,0)
-    glVertex2f(size[0] - alignment[0] * size[0],
                -alignment[1] * size[1])
     glTexCoord2f(1,1)
     glVertex2f(size[0] - alignment[0] * size[0],
+               -alignment[1] * size[1])
+    glTexCoord2f(1,0)
+    glVertex2f(size[0] - alignment[0] * size[0],
                size[1] - alignment[1] * size[1])
-    glTexCoord2f(0,1)
+    glTexCoord2f(0,0)
     glVertex2f(-alignment[0] * size[0],
                size[1] - alignment[1] * size[1])
 
@@ -71,13 +71,6 @@ def rectOutline(size, alignment=(0,0)):
     glEnd()
 
 
-def setColor(*color):
-    """Set a 4-tuple color. Equivalent to glColor4f, but here to keep the
-       level of abstraction consistent.
-       """
-    glColor4f(*color)
-
-
 def setup():
     """Set up the current OpenGL context for default 2D rendering"""
     glEnable(GL_BLEND)
@@ -88,5 +81,28 @@ def setup():
     GLExtension.disableMultitex()
     glDisable(GL_TEXTURE_2D)
     glLoadIdentity()
+
+
+def setTexture(tex=None):
+    """Set the current texture, None to disable it. The texture can be
+       given either as a texture object or as a string naming a data file
+       to load.
+       """
+    GLExtension.disableMultitex()
+    if tex:
+        glEnable(GL_TEXTURE_2D)
+        if hasattr(tex, 'bind'):
+            tex.bind()
+        else:
+            Texture.load(tex).bind()
+    else:
+        glDisable(GL_TEXTURE_2D)
+
+
+# Some aliases to OpenGL APIs, to keep the level of abstraction consistent
+setColor = glColor4f
+push = glPushMatrix
+pop = glPopMatrix
+translate = lambda x,y: glTranslatef(x,y,0)
 
 ### The End ###
