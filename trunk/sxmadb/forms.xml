@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<!--
+  The master list of forms
+-->
+<forms>
+  <form name="short form 1" href="short-form-1.xml"/>
+</forms>
