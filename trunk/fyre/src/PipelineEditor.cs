@@ -133,6 +133,12 @@ namespace Fyre
 			// up for the drawing area, and we delegate the event back into the
 			// PipelineDrawing object when we drop.
 			Gtk.Drag.DestSet (pipeline_frame, Gtk.DestDefaults.All, DragTargets, Gdk.DragAction.Copy);
+			pipeline_frame.DragDataReceived += new Gtk.DragDataReceivedHandler (DrawingReceivedDrag);
+		}
+
+		void DrawingReceivedDrag (object o, Gtk.DragDataReceivedArgs args)
+		{
+			System.Console.WriteLine ("drop: {0}", args.SelectionData.Text);
 		}
 
 		public Gtk.Window
