@@ -30,9 +30,9 @@
 
 G_BEGIN_DECLS
 
-#define URL_EDITOR_DIALOG_TYPE            (url_editor_dialog_get_type2 ())
-#define URL_EDITOR_DIALOG(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), URL_EDITOR_DIALOG_TYPE, UrlEditorDialog2))
-#define URL_EDITOR_DIALOG_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), URL_EDITOR_DIALOG_TYPE, UrlEditorDialogClass2))
+#define URL_EDITOR_DIALOG_TYPE            (url_editor_dialog_get_type ())
+#define URL_EDITOR_DIALOG(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), URL_EDITOR_DIALOG_TYPE, UrlEditorDialog))
+#define URL_EDITOR_DIALOG_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), URL_EDITOR_DIALOG_TYPE, UrlEditorDialogClass))
 #define IS_URL_EDITOR_DIALOG(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), URL_EDITOR_DIALOG_TYPE))
 #define IS_URL_EDITOR_DIALOG_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), URL_EDITOR_DIALOG_TYPE))
 
@@ -43,10 +43,20 @@ enum {
 	URL_LIST_N_COLUMNS,
 };
 
-typedef struct _UrlEditorDialog2 UrlEditorDialog2;
-typedef struct _UrlEditorDialogClass2 UrlEditorDialogClass2;
+enum {
+	TYPE_SSH,
+	TYPE_ANON_FTP,
+	TYPE_FTP,
+	TYPE_SMB,
+	TYPE_DAV,
+	TYPE_DAVS,
+	TYPE_URI,
+};
 
-struct _UrlEditorDialog2 {
+typedef struct _UrlEditorDialog UrlEditorDialog;
+typedef struct _UrlEditorDialogClass UrlEditorDialogClass;
+
+struct _UrlEditorDialog {
 	GtkDialog parent;
 
 	GtkTreeModel *url_list_model;
@@ -74,17 +84,31 @@ struct _UrlEditorDialog2 {
 	GtkWidget *password_entry;
 	GtkWidget *remember_pw;
 
+	GtkWidget *optional_label;
+
+	GtkWidget *port_hbox;
+	GtkWidget *username_hbox;
+	GtkWidget *password_hbox;
+	GtkWidget *server_hbox;
+	GtkWidget *file_hbox;
+
+	GtkWidget *port_label;
+	GtkWidget *username_label;
+	GtkWidget *password_label;
+	GtkWidget *server_label;
+	GtkWidget *file_label;
+
 	GtkWidget *ok;
 	GtkWidget *cancel;
 };
 
-struct _UrlEditorDialogClass2 {
+struct _UrlEditorDialogClass {
 	GtkDialogClass parent_class;
 };
 
-GtkWidget *url_editor_dialog_new2 (GtkTreeModel *url_list_model, EPublishUri *uri);
-GType      url_editor_dialog_get_type2 (void);
-void       url_editor_dialog_run2 (UrlEditorDialog2 *dialog);
+GtkWidget *url_editor_dialog_new (GtkTreeModel *url_list_model, EPublishUri *uri);
+GType      url_editor_dialog_get_type (void);
+void       url_editor_dialog_run (UrlEditorDialog *dialog);
 
 G_END_DECLS
 

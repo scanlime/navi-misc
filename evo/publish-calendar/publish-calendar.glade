@@ -756,14 +756,14 @@ Custom Location</property>
 		      </child>
 
 		      <child>
-			<widget class="GtkHBox" id="hbox20">
+			<widget class="GtkHBox" id="server_hbox">
 			  <property name="border_width">3</property>
 			  <property name="visible">True</property>
 			  <property name="homogeneous">False</property>
 			  <property name="spacing">6</property>
 
 			  <child>
-			    <widget class="GtkLabel" id="label35">
+			    <widget class="GtkLabel" id="server_label">
 			      <property name="visible">True</property>
 			      <property name="label" translatable="yes">_Server:</property>
 			      <property name="use_underline">True</property>
@@ -812,7 +812,7 @@ Custom Location</property>
 		      </child>
 
 		      <child>
-			<widget class="GtkHBox" id="hbox21">
+			<widget class="GtkHBox" id="file_hbox">
 			  <property name="border_width">3</property>
 			  <property name="visible">True</property>
 			  <property name="homogeneous">False</property>
@@ -882,7 +882,7 @@ Custom Location</property>
 	      </child>
 
 	      <child>
-		<widget class="GtkLabel" id="label31">
+		<widget class="GtkLabel" id="optional_label">
 		  <property name="visible">True</property>
 		  <property name="label" translatable="yes">&lt;span weight=&quot;bold&quot;&gt;Optional Information&lt;/span&gt;</property>
 		  <property name="use_underline">False</property>
@@ -936,14 +936,14 @@ Custom Location</property>
 		      <property name="spacing">0</property>
 
 		      <child>
-			<widget class="GtkHBox" id="hbox22">
+			<widget class="GtkHBox" id="port_hbox">
 			  <property name="border_width">3</property>
 			  <property name="visible">True</property>
 			  <property name="homogeneous">False</property>
 			  <property name="spacing">6</property>
 
 			  <child>
-			    <widget class="GtkLabel" id="label37">
+			    <widget class="GtkLabel" id="port_label">
 			      <property name="visible">True</property>
 			      <property name="label" translatable="yes">_Port:</property>
 			      <property name="use_underline">True</property>
@@ -992,14 +992,14 @@ Custom Location</property>
 		      </child>
 
 		      <child>
-			<widget class="GtkHBox" id="hbox23">
+			<widget class="GtkHBox" id="username_hbox">
 			  <property name="border_width">3</property>
 			  <property name="visible">True</property>
 			  <property name="homogeneous">False</property>
 			  <property name="spacing">6</property>
 
 			  <child>
-			    <widget class="GtkLabel" id="label39">
+			    <widget class="GtkLabel" id="username_label">
 			      <property name="visible">True</property>
 			      <property name="label" translatable="yes">_Username:</property>
 			      <property name="use_underline">True</property>
@@ -1048,14 +1048,14 @@ Custom Location</property>
 		      </child>
 
 		      <child>
-			<widget class="GtkHBox" id="password hbox">
+			<widget class="GtkHBox" id="password_hbox">
 			  <property name="border_width">3</property>
 			  <property name="visible">True</property>
 			  <property name="homogeneous">False</property>
 			  <property name="spacing">6</property>
 
 			  <child>
-			    <widget class="GtkLabel" id="label40">
+			    <widget class="GtkLabel" id="password_label">
 			      <property name="visible">True</property>
 			      <property name="label" translatable="yes">_Password:</property>
 			      <property name="use_underline">True</property>
