@@ -84,7 +84,7 @@ struct _GroundDrawableClass
 };
 
 GType     ground_drawable_get_type (void) G_GNUC_CONST;
-Drawable* ground_drawable_new (void);
+Drawable* ground_drawable_new      (void);
 
 #define WALL_SIDES_DRAWABLE_TYPE            (wall_sides_drawable_get_type ())
 #define WALL_SIDES_DRAWABLE(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), WALL_SIDES_DRAWABLE_TYPE, WallSidesDrawable))

@@ -24,6 +24,7 @@
 #define __BOX_H__
 
 #include "sceneobject.h"
+#include "displaylist.h"
 
 G_BEGIN_DECLS
 
@@ -52,6 +53,7 @@ struct _Box
   BoxParams param;
   gboolean state_dirty;
   GList *drawables;
+  Drawable *sides, *top;
 };
 
 struct _BoxClass
@@ -61,6 +63,58 @@ struct _BoxClass
 
 GType box_get_type (void) G_GNUC_CONST;
 Box*  box_new      (void);
+
+#define BOX_SIDES_DRAWABLE_TYPE            (box_sides_drawable_get_type ())
+#define BOX_SIDES_DRAWABLE(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), BOX_SIDES_DRAWABLE_TYPE, BoxSidesDrawable))
+#define BOX_SIDES_DRAWABLE_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), BOX_SIDES_DRAWABLE_TYPE, BoxSidesDrawableClass))
+#define IS_BOX_SIDES_DRAWABLE(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BOX_SIDES_DRAWABLE_TYPE))
+#define IS_BOX_SIDES_DRAWABLE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BOX_SIDES_DRAWABLE_TYPE))
+
+typedef struct _BoxSidesDrawable      BoxSidesDrawable;
+typedef struct _BoxSidesDrawableClass BoxSidesDrawableClass;
+
+struct _BoxSidesDrawable
+{
+  DisplayList parent;
+
+  gfloat position[3];
+  gfloat size[3];
+  gfloat rotation;
+};
+
+struct _BoxSidesDrawableClass
+{
+  DisplayListClass parent_class;
+};
+
+GType     box_sides_drawable_get_type (void) G_GNUC_CONST;
+Drawable* box_sides_drawable_new      (void);
+
+#define BOX_TOP_DRAWABLE_TYPE            (box_top_drawable_get_type ())
+#define BOX_TOP_DRAWABLE(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), BOX_TOP_DRAWABLE_TYPE, BoxTopDrawable))
+#define BOX_TOP_DRAWABLE_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), BOX_TOP_DRAWABLE_TYPE, BoxTopDrawableClass))
+#define IS_BOX_TOP_DRAWBLE(obj)          (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BOX_TOP_DRAWABLE_TYPE))
+#define IS_BOX_TOP_DRAWABLE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BOX_TOP_DRAWABLE_TYPE))
+
+typedef struct _BoxTopDrawable      BoxTopDrawable;
+typedef struct _BoxTopDrawableClass BoxTopDrawableClass;
+
+struct _BoxTopDrawable
+{
+  DisplayList parent;
+
+  gfloat position[3];
+  gfloat size[3];
+  gfloat rotation;
+};
+
+struct _BoxTopDrawableClass
+{
+  DisplayListClass parent_class;
+};
+
+GType     box_top_drawable_get_type (void) G_GNUC_CONST;
+Drawable* box_top_drawable_new      (void);
 
 G_END_DECLS
 

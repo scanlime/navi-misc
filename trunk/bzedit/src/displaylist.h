@@ -22,6 +22,9 @@
 
 #include "drawable.h"
 
+#ifndef __DISPLAY_LIST_H__
+#define __DISPLAY_LIST_H__
+
 G_BEGIN_DECLS
 
 #define DISPLAY_LIST_TYPE            (display_list_get_type ())
@@ -53,3 +56,5 @@ GType display_list_get_type (void) G_GNUC_CONST;
 void  display_list_build_list (DisplayList *display_list);
 
 G_END_DECLS
+
+#endif

@@ -70,6 +70,13 @@ editor_class_init (EditorClass *klass)
   glade_init();
 }
 
+static void
+object_create_toolbar (GtkToolButton *button, Scene *scene)
+{
+  GType type = GPOINTER_TO_UINT (g_object_get_data (G_OBJECT(button), "create-type"));
+  SceneObject *object = SCENE_OBJECT (g_object_new (type, NULL));
+  scene_add (scene, object);
+}
 
 static void
 editor_init (Editor *editor)
@@ -137,9 +144,12 @@ editor_init (Editor *editor)
         GtkWidget *image1 = gtk_image_new_from_pixbuf (((SceneObjectClass*) klass)->get_icon ());
         GtkWidget *image2 = gtk_image_new_from_pixbuf (((SceneObjectClass*) klass)->get_icon ());
         GtkToolItem *titem = GTK_TOOL_ITEM (gtk_tool_button_new (image2, g_type_name (type)));
+	g_object_set_data (G_OBJECT (item), "create-type", t->data);
+	g_object_set_data (G_OBJECT (titem), "create-type", t->data);
         gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), image1);
         gtk_menu_shell_append (GTK_MENU_SHELL (am), GTK_WIDGET (item));
         gtk_toolbar_insert (tbar, titem, -1);
+	g_signal_connect (G_OBJECT (titem), "clicked", G_CALLBACK (object_create_toolbar), (gpointer) editor->scene);
       }
       if (klass->autocreate)
       {
