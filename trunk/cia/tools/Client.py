@@ -1,4 +1,4 @@
-""" client.py
+""" Client
 
 Utilities to aid in writing clients for CIA's XML-RPC interface.
 Includes a command line parser that can handle setting a server URI
