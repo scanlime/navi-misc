@@ -9,7 +9,7 @@ prog: $(CLASSES)
 tcppipe.class: tcppipe.java
 	javac tcppipe.java
 
-udpfw.class: udbfw.java
+udpfw.class: udpfw.java
 	javac udpfw.java
 
 tcpfw.class: tcpfw.java
