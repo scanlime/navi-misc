@@ -44,7 +44,28 @@ enum
 
 struct _TopicLabel
 {
-  GtkMisc misc;
+  GtkMisc        parent;
+
+  /* private */
+  gchar         *text;
+  PangoAttrList *attrs;
+  PangoAttrList *effective_attrs;
+  PangoLayout   *layout;
+
+  TopicLabelSelectionInfo *select_info;
+};
+
+struct _TopicLabelClass
+{
+  GtkMiscClass parent_class;
+
+  void (* move_cursor)    (TopicLabel      *label,
+                           GtkMovementStep  step,
+                           gint             count,
+                           gboolean         extend_selection);
+  void (* copy_clipboard) (TopicLabel      *label);
+  void (* populate_popup) (TopicLabel      *label,
+                           GtkMenu         *menu);
 };
 
 GType      topic_label_get_type    (void) G_GNUC_CONST;
