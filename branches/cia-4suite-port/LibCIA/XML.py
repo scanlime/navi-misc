@@ -230,6 +230,18 @@ def getChildElements(xml):
             yield child
 
 
+def firstChildElement(xml):
+    try:
+        return getChildElements(xml).next()
+    except StopIteration:
+        return None
+
+
+def hasChildElements(xml):
+    # Force a boolean result
+    return not not firstChildElement(xml)
+
+
 class HTMLPrettyPrinter(XMLObjectParser):
     """An object parser that converts arbitrary XML to pretty-printed
        representations in the form of Nouvelle-serializable tag trees.

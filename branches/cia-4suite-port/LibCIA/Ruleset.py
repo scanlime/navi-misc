@@ -41,7 +41,6 @@ used to store and query rulesets in a RulesetStorage.
 
 import XML, Message, Debug, Database, Security, RpcServer, Formatters
 from twisted.python import log
-from twisted.xish.xpath import XPathQuery
 from twisted.internet import defer
 import sys, traceback, re
 
@@ -63,7 +62,7 @@ class RulesetInterface(RpcServer.Interface):
            In addition to the usual ones, allow ('ruleset.uri', x) where x is the
            ruleset's URI.
            """
-        uri = XML.parseString(xml).getAttribute('uri')
+        uri = XML.parseString(xml).documentElement.getAttributeNS(None, 'uri')
         return self.makeDefaultCaps(path) + [('ruleset.uri', uri)]
 
     def protected_getUriKey(self, uri, owner=None):
@@ -200,7 +199,7 @@ class Ruleset(XML.XMLFunction):
            """
         # Go ahead and store the URI attribute if we have one.
         # If not, this will be None.
-        self.uri = element.getAttribute('uri')
+        self.uri = element.getAttributeNS(None, 'uri')
 
         # Create a function to evaluate this element as a <rule> would be evaluated
         ruleFunc = self.element_rule(element)
@@ -219,7 +218,7 @@ class Ruleset(XML.XMLFunction):
 
     def element_rule(self, element):
         """Evaluate each child element in sequence until one returns False"""
-        childFunctions = [self.parse(child) for child in element.elements()]
+        childFunctions = list(self.childParser(element))
         def rulesetRule(msg):
             for child in childFunctions:
                 if not child(msg):
@@ -230,7 +229,7 @@ class Ruleset(XML.XMLFunction):
     def element_return(self, element):
         """Set the current result and exit the ruleset immediately"""
         if element.hasAttribute('path'):
-            xp = XPathQuery(element['path'])
+            xp = XML.XPath(element.getAttributeNS(Node, 'path'))
             # Define a rulesetReturn function that returns the value of the XPath
             def rulesetReturn(msg):
                 nodes = xp.queryForNodes(msg.xml)
@@ -285,9 +284,7 @@ class Ruleset(XML.XMLFunction):
 
     def isEmpty(self):
         """Returns True if the ruleset has no contents"""
-        # Note that the obvious xml.elements() doesn't work- it will
-        # always be true, because the returned object is a generator.
-        return not self.xml.firstChildElement()
+        return not XML.hasChildElements(self.xml.documentElement)
 
 
 class BaseURIHandler(object):
