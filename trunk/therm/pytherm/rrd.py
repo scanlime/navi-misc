@@ -471,8 +471,10 @@ def graphDefineSource(rrd):
 def graphUnknownData(title="No data",
                      color=Color(1,1,0).blend(Color(1,1,1), 0.8)):
     return [
-        "CDEF:no_data=data_min,data_max,+,UN,INF,UNKN,IF",
-        "AREA:no_data%s:%s" % (color, title),
+        "CDEF:no_data_pos=data_min,data_max,+,UN,INF,UNKN,IF",
+        "AREA:no_data_pos%s:%s" % (color, title),
+        "CDEF:no_data_neg=data_min,data_max,+,UN,-INF,UNKN,IF",
+        "AREA:no_data_neg%s:%s" % (color, title),
         ]
 
 def graphHorizontalRule(value, title, color=Color(0,0,0)):

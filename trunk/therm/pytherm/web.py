@@ -94,10 +94,16 @@ class IndexPage(ModPython.Page):
                 ])
 
         info.extend([
-            tag('div', _class='name')[ database.prettifyName(source.name) ],
+            tag('div', _class='name')[ source ],
             tag('div', _class='description')[ source.description ],
-            self.getThumbnails(context, source),
-            ])
+            tag('div', _class='thumbnails')[[
+                tag('img', _class='thumbnail',
+                    width=168, height=50,
+                    src="source/%s/graph/temperature:%s/scale/x50" %
+                    (source.name, interval))
+                for interval in ('day', 'week', 'month', 'year')
+            ]],
+        ])
 
         if latest.get('voltage'):
             voltage = latest['voltage']
@@ -264,7 +270,8 @@ class SourceGraphs(ModPython.Page):
             for packet in self.source.iterPacketsAfter(stamp):
                 value = packet.get(key)
                 if value is not None:
-                    value = filter(value)
+                    if filter:
+                        value = filter(value)
                     yield packet['id'], packet['time'].ticks(), value
 
         rrdf = rrd.RrdFile("%s-%s" % (self.source.name, key))
