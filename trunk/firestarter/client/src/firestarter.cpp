@@ -55,10 +55,14 @@ bool CFirestarterLoop::OnInit ( void )
 	CGameManger &game = CGameManger::instance();
 	game.Init();
 
+	// contact the list server and see if we can get some lists
+	listServer.get();
+
 	if (inUI)
 		ui.Attach();
 	else
 		game.Attach();
+
 
 	return false;
 }
