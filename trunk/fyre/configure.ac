@@ -47,4 +47,7 @@ dnl ################################################################
 AC_OUTPUT([
 Makefile
 src/Makefile
+src/Plugins/Makefile
+src/Plugins/Basic/Makefile
+src/Plugins/HistogramImager/Makefile
 ])
