@@ -134,7 +134,7 @@ class SvnClient:
 
     def makeFileTags(self):
         """Return XML tags for our file list"""
-        return ''.join(["<file>%s</file>" % file for file in self.files])
+        return "<files>%s</files>" % ''.join(["<file>%s</file>" % file for file in self.files])
 
     def svnlook(self, command):
         """Run the given svnlook command on our current repository and revision, returning all output"""
@@ -144,7 +144,7 @@ class SvnClient:
         self.author = self.svnlook('author').strip()
         self.log = self.svnlook('log')
         self.diffLines = len(self.svnlook('diff').split('\n'))
-        self.files = "<files>%s</files>" % self.collectFiles()
+        self.files = self.collectFiles()
 
     def collectFiles(self):
         # Extract all the files from the output of 'svnlook changed'
