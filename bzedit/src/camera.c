@@ -39,15 +39,15 @@ camera_get_type (void)
   {
     static const GTypeInfo camera_info =
     {
-	sizeof (CameraClass),
-	NULL,               /* base init */
-	NULL,               /* base finalize */
-	(GClassInitFunc)    camera_class_init,
-	NULL,               /* class finalize */
-	NULL,               /* class data */
-	sizeof (Camera),
-	0,                  /* n preallocs */
-	(GInstanceInitFunc) camera_init,
+      sizeof (CameraClass),
+      NULL,               /* base init */
+      NULL,               /* base finalize */
+      (GClassInitFunc)    camera_class_init,
+      NULL,               /* class finalize */
+      NULL,               /* class data */
+      sizeof (Camera),
+      0,                  /* n preallocs */
+      (GInstanceInitFunc) camera_init,
     };
 
     camera_type = g_type_register_static (G_TYPE_OBJECT, "Camera", &camera_info, 0);
