@@ -178,6 +178,7 @@ struct _XTextFormat
   textentry *wrapped_last;
   textentry *pagetop;
   textentry *pagetop_subline;
+  textentry *pagetop_line;
 
   /* handlers */
   guint      append_handler;
@@ -866,19 +867,65 @@ render_page (XText2 *xtext)
   if (f == NULL)
     return;
 
-  if (xtext->priv->fontsize == 0)
-  {
-    g_print ("fontsize = 0!\n");
-    return;
-  }
-
   subline = line = 0;
   ent = f->wrapped_first;
 
   if (startline > 0)
     ent = nth (xtext, startline, &subline);
 
-  /* FIXME: stuff */
+  f->pagetop = ent;
+  f->pagetop_subline = subline;
+  f->pagetop_line = startline;
+
+#ifdef SCROLL_HACK
+  {
+    int pos, overlap;
+    GdkRectangle area;
+
+    if (f->num_lines <= xtext->adj->page_size)
+      dontscroll (xtext);
+
+#ifdef SMOOTH_SCROLL
+    pos = xtext->adj->value * xtext->priv->fontsize;
+#else
+    pos = startline * xtext->priv->fontsize;
+#endif /* SMOOTH_SCROLL */
+
+    overlap = f->last_pixel_pos - pos;
+    f->last_pixel_pos = pos;
+
+#ifdef USE_DB
+#endif /* USE_DB */
+    {
+      /* so the obscured regions are exposed */
+      gdk_gc_set_exposures (xtext->priv->fgc, TRUE);
+      if (overlap < 1)
+      {
+	int remainder;
+	gdk_draw_drawable (xtext->priv->draw_buffer, xtext->priv->fgc, xtext->priv->draw_buffer, 0, -overlap, 0, 0, width, height + overlap);
+	remainder = ((height - xtext->priv->font->descent) % xtext->priv->fontsize) + xtext->priv->font->descent;
+	area.y = (height + overlap) - remainder;
+	area.height = remainder - overlap;
+      }
+      else
+      {
+	gdk_draw_drawable (xtext->priv->draw_buffer, xtext->priv->fgc, xtext->priv->draw_buffer, 0, 0, 0, overlap, width, height - overlap);
+	area.y = 0;
+	area.height = overlap;
+      }
+      gdk_gc_set_exposures (xtext->priv->fgc, FALSE);
+
+      if (area.height > 0)
+      {
+	area.x = 0;
+	area.width = width;
+	paint (GTK_WIDGET (xtext), &area);
+      }
+      f->grid_dirty = TRUE;
+      return;
+    }
+  }
+#endif /* SCROLL_HACK */
 
   f->grid_dirty = FALSE;
   width -= MARGIN;
