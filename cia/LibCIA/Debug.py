@@ -23,15 +23,15 @@ CIA is running.
 #
 
 from twisted.python import rebuild, log
-import RPC
+import RpcServer
 import gc
 import sys, traceback
 
 
-class DebugInterface(RPC.Interface):
+class DebugInterface(RpcServer.Interface):
     """An XML-RPC interface for remote debugging and dynamic reloading of CIA."""
     def __init__(self):
-        RPC.Interface.__init__(self)
+        RpcServer.Interface.__init__(self)
         self.putSubHandler('gc', GcInterface())
 
     def protected_rebuild(self, *packageNames):
@@ -117,7 +117,7 @@ def getTypeName(obj):
     return t
 
 
-class GcInterface(RPC.Interface):
+class GcInterface(RpcServer.Interface):
     """Memory debugging and profiling via python's garbage collector interface"""
     def protected_garbageInfo(self):
         """Return a string representation of the items in gc.garbage"""

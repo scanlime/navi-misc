@@ -25,7 +25,7 @@ and delivers them to the Message.Hub.
 from twisted.xish import domish
 from Message import Message
 from ColorText import ColorTextParser
-import XML, RPC
+import XML, RpcServer
 import email
 
 
@@ -41,13 +41,13 @@ interestingHeaders = (
     )
 
 
-class MailInterface(RPC.Interface):
+class MailInterface(RpcServer.Interface):
     """An XML-RPC interface for delivering messages via an IncomingMailParser
        to the Message.Hub.
        """
     def __init__(self, hub):
         self.hub = hub
-        RPC.Interface.__init__(self)
+        RpcServer.Interface.__init__(self)
 
     def xmlrpc_deliver(self, message):
         """Given the raw text of an email message, log it and process it if applicable."""

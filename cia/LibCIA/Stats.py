@@ -29,7 +29,7 @@ stats target using part of the message.
 from twisted.python import log
 from twisted.web import xmlrpc
 from twisted.internet import defer
-import Ruleset, Message, TimeUtil, RPC, Database
+import Ruleset, Message, TimeUtil, RpcServer, Database
 import string, os, time, posixpath, sys
 
 
@@ -48,10 +48,10 @@ class StatsURIHandler(Ruleset.RegexURIHandler):
         StatsTarget(path).deliver(message)
 
 
-class StatsInterface(RPC.Interface):
+class StatsInterface(RpcServer.Interface):
     """An XML-RPC interface used to query stats"""
     def __init__(self):
-        RPC.Interface.__init__(self)
+        RpcServer.Interface.__init__(self)
         self.putSubHandler('metadata', MetadataInterface())
 
     def xmlrpc_catalog(self, path=''):
@@ -91,7 +91,7 @@ class StatsInterface(RPC.Interface):
         return self.makeDefaultCaps(rpcPath) + [('stats.path', statsPath)]
 
 
-class MetadataInterface(RPC.Interface):
+class MetadataInterface(RpcServer.Interface):
     """An XML-RPC interface for querying and modifying stats metadata"""
     def wrapTuple(self, t):
         """Wrap the value in a (value, type) tuple in an xmlrpc.Binary
@@ -340,9 +340,7 @@ class Messages(object):
 class Metadata:
     """An abstraction for the metadata that may be stored for any stats target.
        Metadata objects consist of a name, a MIME type, and a value. The value
-       can be any binary or text object stored as a string. Metadata keys
-       are stored base64-encoded in a LONGBLOB, as it's probably faster than
-       string quoting.
+       can be any binary or text object stored as a string.
        """
     def __init__(self, target):
         self.target = target
@@ -539,6 +537,7 @@ class Counters:
         """Delete all counters for this target. Returns a Deferred"""
         return Database.pool.runOperation("DELETE FROM stats_counters WHERE target_path = %s" %
                                           Database.quote(self.target.path, 'varchar'))
+
 
 ###### Rollovers are still broke
 
