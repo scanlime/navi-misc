@@ -5,6 +5,8 @@
 * list accelerators in the context menus
 * flesh out the userlist context menu
 
+* switch context menus to use the gnome-popup-menu stuff
+
 autotools:
 * slurp the gtkspell check from gaim's configure.in
 * check for an adequate version of gnome-icon-theme
