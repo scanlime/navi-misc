@@ -101,6 +101,69 @@ void CMainMenu::Attach ( void )
 	ships[2]->attachObject(mShip4);
 	ships[2]->rotate(Vector3(0,0,1),0);
 	ships[2]->translate(-rad,0,z); 
+
+
+	//random tufts
+
+	int numTuft = 100;
+	float xyRange = 200;
+
+	for (int i = 0; i < numTuft; i++)
+	{
+		char name[512];
+		sprintf(name,"tuft:tuft1-%d",i);
+
+		float pos[3];
+		pos[0] = (((float)rand()/(float)RAND_MAX)*xyRange*2)-xyRange;
+		pos[1] = (((float)rand()/(float)RAND_MAX)*xyRange*2)-xyRange;
+		pos[2] = 0.0f;
+
+		Entity* tuftEnt = CFirestarterLoop::instance().GetSceneManager()->createEntity(name, "tuft1.mesh");
+		tuftEnt->getMesh()->getSubMeshIterator().getNext()->setMaterialName("tuft:tuft1");
+		//	tuftEnt->setRenderQueueGroup(RENDER_QUEUE_9);
+		SceneNode* tuftNode = static_cast<SceneNode*>(CFirestarterLoop::instance().GetSceneManager()->getRootSceneNode()->createChild());
+		tuftNode->attachObject(tuftEnt);
+		tuftNode->rotate(Vector3(0,0,1),(((float)rand()/(float)RAND_MAX)*360));
+		tuftNode->translate(pos[0],pos[1],pos[2]); 
+	}
+
+	for (int i = 0; i < numTuft; i++)
+	{
+		char name[512];
+		sprintf(name,"tuft:tuft2-%d",i);
+
+		float pos[3];
+		pos[0] = (((float)rand()/(float)RAND_MAX)*xyRange*2)-xyRange;
+		pos[1] = (((float)rand()/(float)RAND_MAX)*xyRange*2)-xyRange;
+		pos[2] = 0.0f;
+
+		Entity* tuftEnt = CFirestarterLoop::instance().GetSceneManager()->createEntity(name, "tuft1.mesh");
+		tuftEnt->getMesh()->getSubMeshIterator().getNext()->setMaterialName("tuft:tuft2");
+		//	tuftEnt->setRenderQueueGroup(RENDER_QUEUE_9);
+		SceneNode* tuftNode = static_cast<SceneNode*>(CFirestarterLoop::instance().GetSceneManager()->getRootSceneNode()->createChild());
+		tuftNode->attachObject(tuftEnt);
+		tuftNode->rotate(Vector3(0,0,1),(((float)rand()/(float)RAND_MAX)*360));
+		tuftNode->translate(pos[0],pos[1],pos[2]); 
+	}
+
+	for (int i = 0; i < numTuft; i++)
+	{
+		char name[512];
+		sprintf(name,"tuft:tuft3-%d",i);
+
+		float pos[3];
+		pos[0] = (((float)rand()/(float)RAND_MAX)*xyRange*2)-xyRange;
+		pos[1] = (((float)rand()/(float)RAND_MAX)*xyRange*2)-xyRange;
+		pos[2] = 0.0f;
+
+		Entity* tuftEnt = CFirestarterLoop::instance().GetSceneManager()->createEntity(name, "tuft1.mesh");
+		tuftEnt->getMesh()->getSubMeshIterator().getNext()->setMaterialName("tuft:tuft3");
+		//	tuftEnt->setRenderQueueGroup(RENDER_QUEUE_9);
+		SceneNode* tuftNode = static_cast<SceneNode*>(CFirestarterLoop::instance().GetSceneManager()->getRootSceneNode()->createChild());
+		tuftNode->attachObject(tuftEnt);
+		tuftNode->rotate(Vector3(0,0,1),(((float)rand()/(float)RAND_MAX)*360));
+		tuftNode->translate(pos[0],pos[1],pos[2]); 
+	}
 }
 
 void CMainMenu::Release ( void )
