@@ -55,7 +55,7 @@ class Event:
        If the callable isn't expected to complete its tasks right away,
        it should return a Deferred.
        """
-    def __init__(self, period, callable, name=None, runNow=True):
+    def __init__(self, period, callable, name=None, runNow=False):
         if not name:
             name = repr(callable)
 
