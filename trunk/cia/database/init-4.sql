@@ -35,17 +35,17 @@ CREATE TABLE IF NOT EXISTS users
 (
     uid           BIGINT PRIMARY KEY AUTO_INCREMENT,
     secret_key    VARCHAR(32) NOT NULL,
-    active        BOOL,
+    active        BOOL NOT NULL DEFAULT 1,
 
     full_name     TEXT NOT NULL,
     email         TEXT,
     creation_time BIGINT NOT NULL,
     key_atime     BIGINT,
 
-    login_name    VARCHAR(32),
-    login_passwd  TEXT,
-    login_atime   BIGINT,
-    login_mtime   BIGINT,
+    login_name       VARCHAR(32),
+    login_passwd_md5 VARCHAR(32),
+    login_atime      BIGINT,
+    login_mtime      BIGINT,
 
     INDEX(secret_key),
     INDEX(login_name)
