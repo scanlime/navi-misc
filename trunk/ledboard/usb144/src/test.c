@@ -35,6 +35,16 @@ void control_write(usb_dev_handle *d, int request, int value, int index) {
   }
 }
 
+int control_read_byte(usb_dev_handle *d, int request, int value, int index) {
+  unsigned char reply;
+  if (usb_control_msg(d, USB_TYPE_VENDOR | USB_ENDPOINT_IN, request,
+		      value, index, &reply, 1, 500) < 0) {
+    perror("usb_control_msg");
+    exit(1);
+  }
+  return reply;
+}
+
 int brightness_fn(int x, int y) {
   static int o = 0;
   if (x==0 && y==0) o++;
@@ -50,12 +60,15 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-  control_write(d, LEDBOARD_CTRL_STATUS_INTENSITY, 0x8000, 0);
-  control_write(d, LEDBOARD_CTRL_SET_PWM_CYCLES, 64, 0);
+  printf("%.02fV LED power supply\n",
+	 control_read_byte(d, LEDBOARD_CTRL_GET_LED_VOLTAGE, 0, 0) / 255.0 * 10);
+
+  control_write(d, LEDBOARD_CTRL_STATUS_INTENSITY, 0x1000, 0);
+  control_write(d, LEDBOARD_CTRL_SET_PWM_CYCLES, 1, 0);
   control_write(d, LEDBOARD_CTRL_SET_SCAN_RATE, 0xFD00, 0);
 
   for (x=0; x<16; x++) {
-    int pwmValue = pow(x/15.0, 2.5) * 63;
+    int pwmValue = pow(x/15.0, 2.5) * 20;
     printf("pwm table: %d -> %d\n", x, pwmValue);
     control_write(d, LEDBOARD_CTRL_SET_PWM_ENTRY,
 		  pwmValue, x);
