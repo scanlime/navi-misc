@@ -7,7 +7,7 @@ This is just a preliminary roadmap, subject to whatever people want to work on.
 -	Fix context menus - implement unworking,
 	make menus actually depend on the context
 -	Fix navigation tree to use non-case-sensitive
-	sorting rather than lexicographical order
+	sorting rather than lexicographical order		- David (done)
 -	Fix plugins preferences to properly handle scripts	- Evan
 
 0.5:	Features

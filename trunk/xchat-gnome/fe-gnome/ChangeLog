@@ -1,4 +1,5 @@
 0.4
+	* Sort the channel list in case-independent order - David Trowbridge
 
 0.3 "You be the horse, and I'll be the buggy" (03 March 2005)
 	* Plugin autoloading - Evan Sheehan
