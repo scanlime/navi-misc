@@ -82,6 +82,15 @@ plotted with no loss of detail.
 \caption{A Typical Attractor.}
 \end{figure}
 
+Like other rendering techniques that progressively refine an image, this
+histogram method performes particularly well in interactive applications.
+Our software for interactively browsing parameter space runs iterations
+for each frame only until a predetermined amount of time has elapsed,
+displaying a low quality but complete image nearly instantaneously.
+Instead of waiting for a preset number of iterations to complete, the user
+can zoom through parameter space quickly, viewing only what the CPU has time
+to render. As soon as the user stops changing parameters, the image quality
+will begin to improve.
 
 
 % possible applications
