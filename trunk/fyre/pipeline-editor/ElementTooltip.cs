@@ -48,7 +48,7 @@ public class ElementTooltip
 			"<span size=\"small\">" +
 			e.Description () +
 			"</span>";
-			
+
 		string[,] inputs = e.InputDesc ();
 		Gtk.Table input = new Gtk.Table ((uint) inputs.Length / 2, 2, false);
 		for (uint i = 0; i < inputs.Length / 2; i++) {

@@ -9,7 +9,8 @@ SOURCES = \
 ./ElementTooltip.cs
 
 RESOURCES = \
-./pipeline-editor.glade
+./pipeline-editor.glade \
+./element-tooltip.glade
 
 RESOURCES_BUILD = $(foreach res,$(RESOURCES), $(addprefix -resource:,$(res)),$(notdir $(res)))
 
