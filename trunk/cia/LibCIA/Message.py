@@ -25,7 +25,7 @@ by XML documents.
 from twisted.xish import domish
 from twisted.xish.xpath import XPathQuery
 from twisted.python import log
-import time
+import time, types
 import XML, RpcServer
 
 
@@ -428,12 +428,20 @@ class CompositeFormatter(Formatter):
         <value path=...>      : Evaluate an XPath from the message being formatted
 
         <value>text</value>   : Literal text. (<value> is very similar to a ruleset's <return>)
+                                Text may be included anywhere, but it is usually stripped of leading
+                                and trailing whitespace. <value> does not do this.
 
         <input>               : The input to this formatter
 
         <pipe>                : This element must have two child elements.
                                 The first element is evaluated normally, then its
                                 output is used as input when evaluating the second element.
+
+        <tag name=...>        : Generate a Nouvelle tag. Attributes can be defined with <attribute> elements,
+                                or by attributes of the <tag> element. The contents of this element are concatenated
+                                and placed inside the Nouvelle tag.
+
+        <attribute name=...>  : Define an attribute on the enclosing <tag>
        """
     def loadParametersFrom(self, xml):
         self.format = CompositeFormatterParser(xml).result
@@ -441,6 +449,37 @@ class CompositeFormatter(Formatter):
 
 class CompositeFormatterParser(XML.XMLObjectParser):
     """Parses CompositeFormatter's arguments into a format(message, input) function"""
+    def join(self, l, message, input):
+        """Given a list of literals and functions, reduces them to a
+           single string or list as appropriate.
+           """
+        results = []
+        allStrings = True
+        for f in l:
+            if not f:
+                # Ignore Nones
+                continue
+            elif callable(f):
+                # Call child functions, recording their result
+                result = f(message, input)
+                if not result:
+                    continue
+            elif f:
+                # Allow non-callable parse results for literals
+                result = f
+
+            results.append(result)
+            if type(result) not in types.StringTypes:
+                allStrings = False
+
+        # If all results are strings, we can join the list now.
+        # This might not be the case if, for example, we're generating
+        # a Nouvelle document tree.
+        if allStrings:
+            return "".join(results)
+        else:
+            return results
+
     def element_formatter(self, element):
         """Another formatter, or possibly our root element. If it has any
            attributes, we need to get a formatter using the FormatterFactory.
@@ -463,10 +502,10 @@ class CompositeFormatterParser(XML.XMLObjectParser):
             # This is a nested CompositeFormatterParser, we must handle these
             # here since that's what this class is for. We always have at least
             # one of these, at the root of the parsed XML document.
-            childFunctions = [self.parse(child) for child in element.elements()]
-            def concatenateFormatters(message, input):
-                return "".join([f(message, input) for f in childFunctions])
-            return concatenateFormatters
+            children = [self.parse(child) for child in element.children]
+            def joinChildren(message, input):
+                return self.join(children, message, input)
+            return joinChildren
 
     def element_value(self, element):
         """Include a value obtained from an XPath or from this element's contents"""
@@ -480,9 +519,7 @@ class CompositeFormatterParser(XML.XMLObjectParser):
 
         else:
             # No path, return this node's contents
-            def formatLiteral(message, input):
-                return str(element)
-            return formatLiteral
+            return str(element)
 
     def element_input(self, element):
         """Returns the formatter's input"""
@@ -501,6 +538,62 @@ class CompositeFormatterParser(XML.XMLObjectParser):
         def formatPipe(message, input):
             return pipeOutput(message, pipeInput(message, input))
         return formatPipe
+
+    def element_attribute(self, element):
+        """<attribute> elements inside a <tag> are handled by element_tag(), this just
+           returns an error if an attribute is found elsewhere.
+           """
+        raise XML.XMLValidityError("<attribute> is only allowed inside a <tag>")
+
+    def element_tag(self, element):
+        """Support for generating Nouvelle tags"""
+        from Nouvelle import tag
+
+        # Make a dict of attributes defined in the element,
+        # as these are always static. Other attributes may depend
+        # on the input or message, so they have to be filled in dynamically.
+        staticAttrs = dict(element.attributes)
+        tagName = staticAttrs['name']
+        del staticAttrs['name']
+
+        # For each dynamically defined attribute, this maps an attribute
+        # name to a parsed element list that can be passed to self.join()
+        dynamicAttrs = {}
+
+        # Scan child nodes, separating them into attributes and data. Attributes
+        # get parsed, and sorted into staticAttrs and dynamicAttrs. Other children
+        # get parsed and added to
+        children = []
+        for child in element.children:
+            if isinstance(child, XML.domish.Element) and child.name == "attribute":
+                dynamicAttrs[child['name']] = [self.parse(c) for c in child.children]
+            else:
+                children.append(child)
+
+        def formatTag(message, input):
+            # Generate a final attribute list from both static and dynamic attributes
+            attrs = dict(staticAttrs)
+            for name, value in attrs.iteritems():
+                attrs[name] = self.join(value, message, input)
+
+            # Join our non-attribute children to form the tag's content
+            content = self.join(children, message, input)
+
+            return tag(tagName, **attrs)[ content ]
+        return formatTag
+
+    def parseString(self, element):
+        """If there is any non-whitespace text, include it literally"""
+        text = str(element).strip()
+        if text:
+            return text
+
+
+def parseCompositeFormatter(xml):
+    """A convenience function for defining format functions as XML
+       composite formatters at import-time.
+       """
+    return CompositeFormatterParser(xml).result
 
 
 class NoFormatterError(Exception):
