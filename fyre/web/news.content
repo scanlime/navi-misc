@@ -1,3 +1,18 @@
+<div class="heading">19 February 2005 - 1.0.0 released</div>
+<p>
+    It's finally here! Sporting a flashy new "go" menu for browsing image history,
+    a new quality metric for rendering better animations faster and a small mountain
+    of bugfixes, 1.0 is ready.  At this point, the 1.0 branch is being considered
+    feature complete, but there are big plans for 2.0, which we'll be writing about
+    soon.
+    <ul>
+        <li><a href="http://flapjack.navi.cx/releases/fyre/fyre-1.0.0.tar.gz">Source Code (.tar.gz)</a></li>
+        <li><a href="http://flapjack.navi.cx/releases/fyre/fyre-1.0.0.tar.bz2">Source Code (.tar.bz2)</a></li>
+        <li><a href="http://flapjack.navi.cx/releases/fyre/fyre-1.0.0.exe">Windows Installer (recommended)</a></li>
+        <li><a href="http://flapjack.navi.cx/releases/fyre/fyre-1.0.0.zip">Windows .zip file, doesn't require installation</a></li>
+    </ul>
+</p>
+
 <div class="heading">07 February 2005 - 0.9 released</div>
 <p>
     Hot on the heels of 0.8 comes 0.9. Most notably this release includes GUI
