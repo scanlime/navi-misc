@@ -143,7 +143,11 @@ class BotAllocator:
         del self.bots[bot.nickname]
         for channel in self.channels.keys():
             if self.channels[channel] == bot:
+                # This is a channel formerly serviced by the bot that was just disconnected.
+                # Remove it from our list of active channels, but try to get a bot back
+                # in there ASAP.
                 del self.channels[channel]
+                self.addChannel(channel)
 
     def nickInUse(self, nick):
         """Determine if a nickname is in use. Currently this only checks those
