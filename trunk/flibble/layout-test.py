@@ -39,40 +39,19 @@ class Graph:
             self.edgeTuples.append((self.vertexMap[edge.a], self.vertexMap[edge.b]))
 
 
-if __name__ == '__main__':
-    # Load the CIA dataset, formatted as a sequence of (path_a, path_b, strength, freshness) tuples
-    import cPickle
-    rows = cPickle.load(open('cia-dataset.p'))
-
-    # Load the edges into a high-level graph object
-    hlGraph = Graph([Edge(a, b) for a, b, s, f in rows])
-
+def runLayout(hlGraph):
+    """Given a high-level Graph instance, run layout and write an SVG file"""
     # Make a force_directed graph from that
     fdGraph = force_directed.Graph(hlGraph.edgeTuples, len(hlGraph.vertexList))
     print fdGraph
 
     fdGraph.randomize(0, 0, 100, 100)
-
-
+    try:
+        while 1:
+            print "energy: %f" % fdGraph.iteration()
+    except KeyboardInterrupt:
+        pass
     vectors = fdGraph.getVectors()
-
-#     # Solve for a local minimum in the energy of our spring system
-#     springLen = 5
-#     try:
-#         while 1:
-#             energy = 0
-#             for a, b in graph.edgeArray:
-#                 ab = positions[a] - positions[b]
-#                 magnitude = Numeric.dot(ab, ab)
-#                 unitv = ab / magnitude
-#                 forceMag = (magnitude - springLen) * 0.2
-#                 energy += abs(forceMag)
-#                 force = unitv * forceMag
-#                 positions[a] -= force
-#                 positions[b] += force
-#             print energy
-#     except KeyboardInterrupt:
-#         pass
 
     # Begin the SVG
     svg = open('graph.svg', 'w')
@@ -97,3 +76,37 @@ if __name__ == '__main__':
 
     svg.write('</svg>\n')
     print "Graph written"
+
+
+if __name__ == '__main__':
+    # Load the CIA dataset, formatted as a sequence of (path_a, path_b, strength, freshness) tuples
+    import cPickle
+    rows = cPickle.load(open('cia-dataset.p'))
+
+    # Load the edges into a high-level graph object
+    cia = Graph([Edge(a, b) for a, b, s, f in rows])
+
+    test = Graph([
+        Edge(1, 2),
+        Edge(2, 3),
+        Edge(4, 5),
+        Edge(5, 6),
+        Edge(7, 8),
+        Edge(8, 9),
+        Edge(10, 11),
+        Edge(11, 12),
+        Edge(1, 4),
+        Edge(2, 5),
+        Edge(3, 6),
+        Edge(7, 10),
+        Edge(8, 11),
+        Edge(9, 12),
+        Edge(1, 7),
+        Edge(2, 8),
+        Edge(3, 9),
+        Edge(4, 10),
+        Edge(5, 11),
+        Edge(6, 12),
+        ])
+
+    runLayout(test)
