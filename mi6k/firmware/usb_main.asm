@@ -64,6 +64,8 @@
 
 unbanked	udata_shr
 W_save		res	1	; register for saving W during ISR
+tmr1h_save	res 1
+tmr1l_save	res 1
 
 bank0	udata
 Status_save	res	1	; registers for saving context 
@@ -126,7 +128,7 @@ InterruptServiceVector
 	; This is the most time-critical interrupt.
 TEST_TMR0
 	btfss	INTCON, T0IF
-	goto	PERIPHERALTEST
+	goto	TEST_RB0_INT
 	bcf		INTCON, T0IF	; A TMR0 overflow occurred. Reset the timer ASAP
 	movlw	.199			; 256 - (6 MIPS / 38 KHz / 2 - 18 cycles overhead)
 	banksel	ir_tx_Mask		; TMR0, ir_tx_Cycles, and ir_tx_Mask all in the same bank
@@ -162,6 +164,40 @@ txNextByte					; If the buffer was not empty, pop the next ir_tx_Cycles off of i
 	incf	ir_tx_Tail, f	; Increment the buffer tail, modulo BUFFER_SIZE
 	movlw	BUFFER_SIZE-1
 	andwf	ir_tx_Tail, f
+	goto	EndISR			; ...and exit the ISR
+
+
+	; Is it an external interrupt? (state of the IR receiver changed)
+TEST_RB0_INT
+	btfss	INTCON, INTF
+	goto	PERIPHERALTEST
+	banksel	TMR1H
+	movf	TMR1H, w		; Save the tmr1 value ASAP
+	movwf	tmr1h_save
+	movf	TMR1L, w
+	movwf	tmr1l_save
+	bcf		INTCON, INTF	; Clear the external interrupt flag
+	banksel	ir_rx_Head
+	bankisel ir_rx_Head
+	movf	ir_rx_Head, w	; Push the low byte onto our rx ringbuffer
+	addlw	ir_rx_Buffer
+	movwf	FSR
+	movf	tmr1l_save, w
+	movwf	INDF
+	incf	ir_rx_Head, f	; Increment the buffer head, modulo BUFFER_SIZE
+	movlw	BUFFER_SIZE-1
+	andwf	ir_rx_Head, f
+	movf	ir_rx_Head, w	; Push the high byte onto our rx ringbuffer
+	addlw	ir_rx_Buffer
+	movwf	FSR
+	movf	tmr1h_save, w
+	movwf	INDF
+	incf	ir_rx_Head, f	; Increment the buffer head, modulo BUFFER_SIZE
+	movlw	BUFFER_SIZE-1
+	andwf	ir_rx_Head, f
+	banksel	OPTION_REG		; Now trigger our interrupt on the opposite edge
+	movlw	0x40			; (toggle the INTEDG bit)
+	xorwf	OPTION_REG, f
 	goto	EndISR			; ...and exit the ISR
 
 
@@ -314,8 +350,6 @@ Main
 	banksel	T2CON
 	movwf	T2CON
 
-	banksel	OPTION_REG
-	
 	; Initialize TMR0 according to example 6-1 in the PIC16C745 data sheet
 	banksel	OPTION_REG
 	movlw	0x87		; Pullups disabled, interrupt on falling edge of IR signal
@@ -327,8 +361,15 @@ Main
 	movwf	OPTION_REG
 	clrwdt				; Necessary to prevent the WDT from unexpectedly resetting
 
-	;banksel	INTCON
-	;bsf		INTCON, INTE ; External (IR receiver) interrupt enable
+	movlw	0x31		; TMR1 enabled, 1:8 prescaler. This causes it to count in 4/3us units
+	banksel	T1CON
+	movwf	T1CON
+	clrf	TMR1L		; Clear the timer such that it's safe from rollovers
+	clrf	TMR1H
+	clrf	TMR1L
+
+	banksel	INTCON
+	bsf		INTCON, INTE ; External (IR receiver) interrupt enable
 	
 
 ;******************************************************************* Main Loop
