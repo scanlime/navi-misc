@@ -9,11 +9,11 @@ sensor = efs.FieldSensor()
 sensor.initScan()
 channel = rtgraph.Channel()
 
-def poll_handler():
+def update():
     reading = sensor.readAverages()
     channel.value = [model.predict(reading) for model in models]
-    gtk.timeout_add(10, poll_handler)
-gtk.timeout_add(10, poll_handler)
+    gtk.timeout_add(10, update)
+update()
 
 graph = rtgraph.IsometricVectorGraph(channels=[channel])
 
