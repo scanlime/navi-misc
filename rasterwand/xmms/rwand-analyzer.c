@@ -1,6 +1,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
+#include <sys/time.h>
 #include <string.h>
 #include <stdio.h>
 #include <pthread.h>
