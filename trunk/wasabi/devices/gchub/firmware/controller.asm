@@ -185,6 +185,9 @@ controller_init
 
 	clearBuffer	controller_buffer, 8
 
+	banksel	rumble_bits	; Let's not have the controller rumbling as soon as you plug this in
+	clrf	rumble_bits
+
 	;; Start at the beginning of the polling loop
 	fpset	poll_state, controller_poll_loop
 	return
