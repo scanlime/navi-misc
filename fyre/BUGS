@@ -4,5 +4,3 @@
   we're using a freed string somewhere in the networking
   code that's getting trashed by the color picking
   code.
-
-- The Win32 build is still untested with OpenEXR
