@@ -418,13 +418,6 @@ class RulesetStorage:
        At startup, refresh() is called to read in rulesets from the
        'rulesets' database table.
        """
-    tableSchema = """
-    CREATE TABLE IF NOT EXISTS rulesets (
-        uri TEXT,
-        xml TEXT,
-    )
-    """
-
     def __init__(self, hub, uriRegistry):
         self.uriRegistry = uriRegistry
         self.hub = hub
@@ -438,19 +431,13 @@ class RulesetStorage:
         # First we ensure the database table exists
         result = defer.Deferred()
         log.msg("Starting to refresh rulesets...")
-        d = Database.pool.runOperation(self.tableSchema)
-        d.addCallback(self._queryDbRulesets, result)
-        d.addErrback(result.errback)
-        return result
-
-    def _queryDbRulesets(self, none, result):
-        """The second step in the refresh() process- query the database for all rulesets"""
         d = Database.pool.runQuery("SELECT * FROM rulesets")
         d.addCallback(self._storeDbRulesets, result)
         d.addErrback(result.errback)
+        return result
 
     def _storeDbRulesets(self, rulesets, result):
-        """The last step in the refresh() process, loading the retrieved list of rulesets"""
+        """The second step in the refresh() process, loading the retrieved list of rulesets"""
         log.msg("%d ruleset%s received from the database" % (len(rulesets), "s"[len(rulesets) == 1:]))
         self.emptyStorage()
         for uri, xml in rulesets:
@@ -498,21 +485,21 @@ class RulesetStorage:
         # Delete the old ruleset, if there was one
         result = defer.Deferred()
         d = Database.pool.runOperation("DELETE FROM rulesets WHERE uri = %s" % quoteSQL(ruleset.uri, 'text'))
-        d.addErrback(result.errback)
 
         # If we need to insert a new ruleset, do that after the delete finishes
         if ruleset.isEmpty():
             d.addCallback(result.callback)
         else:
             d.addCallback(self._insertRuleset, result, ruleset)
+        d.addErrback(result.errback)
         return result
 
     def _insertRuleset(self, none, result, ruleset):
         """Callback used by store() to insert a new or modified ruleset into the SQL database"""
         d = Database.pool.runOperation("INSERT INTO rulesets (uri, xml) values(%s, %s)" % (
             quoteSQL(ruleset.uri, 'text'), quoteSQL(ruleset.xml.toXml(), 'text')))
-        d.addErrback(result.errback)
         d.addCallback(result.callback)
+        d.addErrback(result.errback)
 
     def _store(self, ruleset):
         """Internal version of store() that doesn't update the database,

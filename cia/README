@@ -18,6 +18,11 @@ with web, IRC, XML-RPC, and email interfaces.
     above module into an actual application.
     The CIA server is usually started by running "twistd -oy cia_server.tac"
 
+  - database
+
+    Scripts for maintaining CIA's SQL database. You must run init.sql to
+    set up the tables CIA requires.
+
   - mail
 
     Filter incoming email with procmail and dispatch it to the CIA server
@@ -83,6 +88,7 @@ with web, IRC, XML-RPC, and email interfaces.
  - Python 2.2.1 or later
  - Twisted 1.1.1 or later
  - pygtk 2.0 or later for the GUI tools
+ - MySQL
 
 
 -------- Contacts

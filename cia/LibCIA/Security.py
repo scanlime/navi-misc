@@ -90,21 +90,6 @@ class CapabilityDB:
 
        All functions return a Deferred.
        """
-    tableSchema = """
-    CREATE TABLE IF NOT EXISTS capabilities (
-        key_data  TEXT,
-        id        TEXT,
-        owner     TEXT,
-    )
-    """
-    def __init__(self):
-        # Make sure our table exists in the database.
-        # Note that this can be a race condition, if something else in
-        # our initialization assumes the table exists already before this
-        # command will have had a chance to complete.
-        # Currently this isn't the case, so we won't worry about it :)
-        Database.pool.runOperation(self.tableSchema)
-
     def saveKey(self, capability, file):
         """Save the key for a capability to the given filename.
            Useful for saving important keys on initialization so that
@@ -115,8 +100,8 @@ class CapabilityDB:
            """
         result = defer.Deferred()
         d = self.getKey(capability)
-        d.addErrback(result.errback)
         d.addCallback(self._saveKeyCallback, os.path.expanduser(file), result)
+        d.addErrback(result.errback)
         return result
 
     def _saveKeyCallback(self, key, file, result):
@@ -136,8 +121,8 @@ class CapabilityDB:
         result = defer.Deferred()
         d = Database.pool.runQuery("SELECT key_data FROM capabilities WHERE id = %s AND owner IS NULL LIMIT 1" %
                                    quoteSQL(repr(capability), 'text'))
-        d.addErrback(result.errback)
         d.addCallback(self._returnOrCreateKey, capability, result)
+        d.addErrback(result.errback)
         return result
 
     def _returnOrCreateKey(self, keys, capability, result):
@@ -167,8 +152,8 @@ class CapabilityDB:
         """Test the given key for any of the given capabilities. Returns a Deferred"""
         result = defer.Deferred()
         d = Database.pool.runQuery(self._createTestQuery(key, capabilities))
-        d.addErrback(result.errback)
         d.addCallback(self._testCallback, result)
+        d.addErrback(result.errback)
         return result
 
     def _testCallback(self, matched, result):
