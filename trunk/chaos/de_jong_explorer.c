@@ -565,7 +565,7 @@ void clear() {
 
 void run_iterations(int count) {
   double x, y;
-  int i, ix, iy;
+  unsigned int i, ix, iy;
   guint *p;
   guint d;
   const double xcenter = width / 2.0;
@@ -581,7 +581,10 @@ void run_iterations(int count) {
     ix = (int)((x + xoffset) * scale + xcenter);
     iy = (int)((y + yoffset) * scale + ycenter);
 
-    if (ix >= 0 && iy >= 0 && ix < width && iy < height) {
+    /* Clip to the size of our image. Note that ix and iy are
+     * unsigned, so we only have to make one comparison each.
+     */
+    if (ix < width && iy < height) {
       p = counts + ix + width * iy;
       d = *p = *p + 1;
       if (d > countsMax)
