@@ -1193,6 +1193,18 @@ on_server_information (GtkAction *action, gpointer data)
 static void
 on_server_reconnect (GtkAction *action, gpointer data)
 {
+	GtkTreeView *treeview;
+	GtkTreeSelection *select;
+	GtkTreeModel *model;
+	GtkTreeIter iter;
+	session *s;
+
+	treeview = GTK_TREE_VIEW (gui.server_tree);
+	select = gtk_tree_view_get_selection (treeview);
+	if (gtk_tree_selection_get_selected (select, &model, &iter)) {
+		gtk_tree_model_get (model, &iter, 2, &s, -1);
+		s->server->auto_reconnect (s->server, FALSE, -1);
+	}
 }
 
 static void
