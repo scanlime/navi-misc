@@ -1,18 +1,33 @@
 #!/usr/bin/env python
-#
-# Quick little python program for backing up parts of navi to DVD.
-#
-# This recreates the appropriate parts of the directory
-# tree under a date-coded directory on the DVD:
-#
-# /navi/foo -> /YYYYMMDD/navi/foo
-# /navi/bar/widget -> /YYYYMMDD/navi/bar/widget
-#
-# This also creates a date-stamped file of md5sums in both
-# the /catalog directory on the DVD, and the /navi/backups/catalog directory.
-#
-# This uses growisofs, and assumes your burner is at /dev/dvd.
-#
+"""
+This is a utility for backing up parts of navi into date-coded
+directories on DVD, with MD5 catalogs stored both on DVD and
+on navi itself.
+This uses growisofs, and assumes your burner is at /dev/dvd.
+
+ Usages:
+
+  * navi-backup store <paths>
+    Archive all paths on the current DVD, without checking for
+    available space or preexisting backups
+
+  * navi-backup status <paths>
+    Using the catalogs on navi, show the backup status of all files
+    in the given paths
+
+  * navi-backup auto <paths>
+    Find files under the given paths that need backing up, sort
+    them, and fit as many as possible onto the remaining space
+    on the current DVD.
+
+If the path list is omitted, the current directory is assumed.
+Note that this uses an on-disk md5sum cache, to avoid horrible
+slowness a lot of the time. If you have reason to believe that
+any files may have been corrupted or updated, the md5 cache
+(at ~/.navi_backup_md5cache) should be removed.
+
+-- Micah Dowty <micah@navi.cx>
+"""
 
 import time, os, sys, re, shutil
 
@@ -23,13 +38,51 @@ def shellEscape(s):
 def shellJoin(args):
     return " ".join(map(shellEscape, args))
 
-def md5sum(filename):
-    """Compute the md5sum of a file remotely on navi"""
-    sum = os.popen("ssh navi md5sum %s" % shellEscape(shellEscape(filename)),
-                   "r").readline().strip()
-    if not sum:
-        raise IOError("md5sum on %r failed" % filename)
-    return sum
+
+class MD5Cache:
+    """In-memory and on-disk caches for md5sums. Sums we don't have
+       are computed on navi and returned via ssh. The disk cache
+       is awful cheesy, but better than waiting on a new md5sum.
+       """
+    def __init__(self, filename="~/.navi_backup_md5cache"):
+        self.cache = {}
+        self.filename = os.path.expanduser(filename)
+        try:
+            self.readDiskCache()
+        except IOError:
+            pass
+
+    def readDiskCache(self):
+        for line in open(self.filename):
+            line = line.strip()
+            self.cache[line.split()[1]] = line
+
+    def updateDiskCache(self, line):
+        open(self.filename, "a").write(line + "\n")
+
+    def calc(self, filename):
+        """Calculate an md5sum remotely"""
+        sys.stderr.write("Waiting on md5sum...")
+        sum = os.popen("ssh navi md5sum %s" % shellEscape(shellEscape(filename)),
+                       "r").readline().strip()
+        if not sum:
+            raise IOError("md5sum on %r failed" % filename)
+        sys.stderr.write("\r" + " "*30 + "\r")
+        return sum
+
+    def get(self, filename):
+        """Get a sum from the cache, calculating if necessary"""
+        filename = os.path.abspath(filename)
+        try:
+            return self.cache[filename]
+        except KeyError:
+            sum = self.calc(filename)
+            self.cache[filename] = sum
+            self.updateDiskCache(sum)
+            return sum
+
+md5sum = MD5Cache().get
+
 
 class BurnFailure(Exception):
     pass
@@ -105,12 +158,14 @@ class DVDBurner:
 
 class CatalogWriter:
     """Creates catalog files from a list of paths being backed up"""
+    catalogDir = "/navi/backups/catalog"
+
     def __init__(self, paths):
         self.paths = paths
         self.name = self._getName()
         self.temp_name = "/tmp/navi_backup_%r.catalog" % os.getpid()
         self.cd_name = os.path.join("catalog", self.name)
-        self.archive_name = os.path.join("/navi/backups/catalog", self.name)
+        self.archive_name = os.path.join(self.catalogDir, self.name)
 
     def _getName(self):
         """Determine the name of our catalog, based on the current time and
@@ -149,13 +204,84 @@ class CatalogWriter:
         f.write(sum + "\n")
 
 
-def map_normal_path(pathMap, fs_path):
-    """Map a normal file to its datestamped equivalent directory on CD"""
-    assert fs_path[0] == os.sep
-    pathMap[time.strftime("%Y%m%d") + fs_path] = fs_path
+class CatalogIndex:
+    """This is a slow junk-heap for searching the backup catalog.
+       It could be made lots more efficient, but given the speed of
+       my computer and the size of my CD binder, this shouldn't matter.
+       """
+    def __init__(self):
+        self.empty()
+        self.reindexAll()
+
+    def empty(self):
+        self.md5Map = {}
+        self.dateMap = {}
+
+    def reindexAll(self):
+        """Reindex all catalog files, in order"""
+        catalogs = os.listdir(CatalogWriter.catalogDir)
+        catalogs.sort()
+        for catalog in catalogs:
+            self.reindexFile(os.path.join(CatalogWriter.catalogDir, catalog))
+
+    def prettifyDate(self, date):
+        """Convert the filename date codes into a tuple of easier
+           to read date and time codes.
+
+           >>> prettifyDate('20041101_204327')
+           ['2004-11-01', '20:43:27']
+           """
+        return re.sub(r"(....)(..)(..)_(..)(..)(..)",
+                      r"\1-\2-\3 \4:\5:\6", date).split()
+
+    def reindexFile(self, filename):
+        # Extract the date from the catalog's filename
+        currentDate = self.prettifyDate(os.path.split(filename)[1].split('.', 1)[0])
+
+        # Save the md5sum and date for each file we find within
+        for line in open(filename):
+            sum, filename = line.strip().split()
+            self.dateMap[filename] = currentDate
+            self.md5Map[filename] = sum
+
+    def isFileModified(self, filename):
+        """Check whether a file has been modified since it was archived"""
+        filename = os.path.abspath(filename)
+        currentSum = md5sum(filename).split()[0]
+        storedSum = self.md5Map[filename]
+        return currentSum != storedSum
+
+    def fileStatus(self, filename):
+        """Show a status line for one file. This starts with a one-character
+           status code: '?' if the file is unknown, 'M' if it has been modified
+           since the backup, and ' ' if it matches the backup. This is followed
+           by a backup timestamp if one exists, then the filename.
+           """
+        try:
+            backupDate = self.dateMap[os.path.abspath(filename)][0]
+        except KeyError:
+            status = '?'
+            backupDate = ''
+        else:
+            if self.isFileModified(filename):
+                status = 'M'
+            else:
+                status = ' '
+        print "%1s %10s  %s" % (status, backupDate, filename)
+
+    def pathStatus(self, path):
+        """Show a status line recursively if necessary for a file or path"""
+        if os.path.isfile(path):
+            self.fileStatus(path)
+        else:
+            for root, dirs, files in os.walk(path):
+                dirs.sort()
+                files.sort()
+                for name in files:
+                    self.fileStatus(os.path.join(root, name))
 
 
-def backup(burner, paths):
+def backup(paths, burner):
     """Perform a normal catalogging and backup of a list of paths"""
     paths = map(os.path.abspath, paths)
 
@@ -166,20 +292,42 @@ def backup(burner, paths):
     # Map fs paths to disc paths
     pathMap = {}
     cat.addToDisc(pathMap)
+    prefix = time.strftime("%Y%m%d")
     for path in paths:
-        map_normal_path(pathMap, path)
+        assert path[0] == os.sep
+        pathMap[prefix + path] = path
 
     # Burn the DVD. If that worked, archive the catalog
     burner.burn(pathMap)
     cat.archive()
 
 
-def main():
-    paths = sys.argv[1:]
+def cmd_store(paths):
+    backup(paths, DVDBurner())
 
-    backup(DVDBurner(), paths)
+
+def cmd_status(paths):
+    index = CatalogIndex()
+    for path in paths:
+        index.pathStatus(path)
+
+
+def usage():
+    print __doc__
+    sys.exit(0)
 
 if __name__ == "__main__":
-    main()
+    if len(sys.argv) < 2:
+        usage()
+    command = sys.argv[1]
+    paths = sys.argv[2:]
+    if not paths:
+        paths = '.'
+    try:
+        f = globals()["cmd_%s" % command]
+    except:
+        usage()
+    else:
+        f(paths)
 
 ### The End ###
