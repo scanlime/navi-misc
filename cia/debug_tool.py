@@ -12,6 +12,7 @@ class Options(Client.Options):
 
     optParameters = [
         ['rebuild', 'r', None, 'Rebuild one specific package or module'],
+        ['eval', 'e', None, 'Evaluate arbitrary code in the context of the Debug module'],
         ]
 
 class DebugTool(Client.App):
@@ -22,6 +23,8 @@ class DebugTool(Client.App):
             self.server.debug.rebuild(self.config['rebuild'], self.key)
         if self.config['type-profile']:
             print self.server.debug.gc.typeProfile(self.key)
+        if self.config['eval']:
+            print self.server.debug.eval(self.config['eval'], self.key)
 
 if __name__ == '__main__':
     DebugTool().main()
