@@ -22,7 +22,7 @@ and selecting items.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from BZEngine.UI import Sequencer, Layout, HUD
+from BZEngine.UI import Sequencer, Layout, HUD, Input
 from BZEngine import Event
 from Wasabi import Icon
 from math import *
@@ -67,15 +67,7 @@ class RingMenu(Menu):
         Menu.__init__(self, book)
         self.items = items
         self.dock = Icon.Dock(self.overlay, self.trackFunction, [item.icon for item in items])
-        self.viewport.onKeyDown.observe(self.keyDown)
-
-    def keyDown(self, ev):
-        if ev.key == pygame.K_SPACE or ev.key == pygame.K_RETURN or ev.key == pygame.K_UP:
-            self.selectCurrent()
-        elif ev.key == pygame.K_LEFT:
-            self.spinLeft()
-        elif ev.key == pygame.K_RIGHT:
-            self.spinRight()
+        self.bindings = Input.load(self.viewport, self, 'ringmenu_keys.py')
 
     def spinLeft(self):
         """Spin to the next icon leftwardsly"""
