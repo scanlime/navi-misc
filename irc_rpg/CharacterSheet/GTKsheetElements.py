@@ -221,7 +221,6 @@ class drop_down(hbox):
     #self.menu = []
 
     self.items = []
-    self.paths = []
     self.characterData = character
     self.button = None
 
@@ -254,7 +253,6 @@ class drop_down(hbox):
       self.button = child.copyWithCallback(self.roll)
       self.pack_end(self.button, padding=5)
     elif isinstance(child, drop_down_item):
-      if child.path: self.paths.append(child.path)
       for item in child.data:
         self.items.append(item)
       self.menu.set_popdown_strings(self.items)
@@ -311,6 +309,7 @@ class drop_down_item(sheetElement):
     # Get the data from the data sheet, split it on new lines and strip whitespace.
     if node.childNodes[0].data.count('/') > 0:
       self.data = character.getData(node.childNodes[0].data).split('\n')
+      print self.data
       self.data = [item.strip() for item in self.data]
       self.path = node.childNodes[0].data.strip()
     # The data is constant in the layout sheet, so just save it.

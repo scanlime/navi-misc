@@ -28,8 +28,13 @@ class Character:
     nodes = xml.xpath.Evaluate(path, self.dom)
     if len(nodes) > 0:
       return nodes[0]
+    else:
+      self.makeNode(path)
 
     return ""
+
+  def makeNode(self, path):
+    ''' Create the node at path. '''
 
   def setData(self, path, data):
     ''' Set the data at the node denoted by path. '''
