@@ -39,6 +39,17 @@
 	#define	GAMECUBE_PIN	PORTB, 1
 	#define	GAMECUBE_TRIS	TRISB, 1
 
+	;; Magic word and the address it should be at in the EEPROM,
+	;; as a big-endian 16-bit value.
+	;;
+	;; This is used to identify the contents of our EEPROM as ours,
+	;; so that if this firmware is installed on a chip with a blank
+	;; EEPROM or one with different data in it, we reinitialize it.
+	;; Change this value if the EEPROM data format changes.
+	;;
+	#define	EEPROM_MAGIC_WORD	0xEF71
+	#define EEPROM_MAGIC_ADDR	0x20
+
 	;; Reset and interrupt vectors
 	org 0
 	goto	startup
@@ -119,6 +130,9 @@ startup
 	movwf	OPTION_REG
 	bcf	STATUS, RP0
 
+	;; Check our EEPROM for validity, and reset it if it's blank or corrupted
+	call	validate_eeprom
+
 	;; Calibrate as soon as the N64 is powered up and the controller is plugged in.
 	;; Note that we have to continue on with n64_translate_status and n64_wait_for_command
 	;; because the gamecube controller won't be ready for another poll immediately.
@@ -135,8 +149,91 @@ main_loop
 
 
 	;; *******************************************************************************
-	;; ******************************************************  Button/Axis mapping ***
+	;; ******************************************************  Axis Calibration  *****
 	;; *******************************************************************************
+
+	;; Store calibration values for one gamecube axis. This takes its
+	;; actual neutral position from the gamecube_buffer, and is given
+	;; its ideal neutral position as a parameter. The resulting calibration
+	;; is added to the axis later, with clamping to prevent rollover.
+store_calibration macro axis_byte, calibration, ideal_neutral
+	movf	gamecube_buffer + axis_byte, w
+	sublw	ideal_neutral
+	movwf	calibration
+	endm
+
+
+	;; Add the stored neutral values to an axis to calibrate it, clamping
+	;; it in the event of an overflow.
+apply_calibration macro axis_byte, calibration
+	local	negative
+	local	done
+
+	movf	calibration, w		; Add the calibration
+	addwf	gamecube_buffer + axis_byte, f
+	btfsc	calibration, 7		; Test whether the value we just added was negative
+	goto	negative
+
+	movlw	0xFF			; It was positive, clamp to 0xFF if we carried
+	btfsc	STATUS, C
+	movwf	gamecube_buffer + axis_byte
+	goto	done
+
+negative
+	btfss	STATUS, C		; It was negative, clamp to 0 if we borrowed (C=0)
+	clrf	gamecube_buffer + axis_byte
+
+done
+	endm
+
+
+	;; Store calibration values for each axis. The controller's joysticks should
+	;; be centered and the L and R buttons should be released when this is called.
+	;; We assume this is true at startup, and it should be true when the user invokes
+	;; it by holding down X, Y, and Start.
+gamecube_reset_calibration
+	store_calibration	GC_JOYSTICK_X,	joystick_x_calibration,	0x80
+	store_calibration	GC_JOYSTICK_Y,	joystick_y_calibration,	0x80
+	store_calibration	GC_CSTICK_X,	cstick_x_calibration,	0x80
+	store_calibration	GC_CSTICK_Y,	cstick_y_calibration,	0x80
+	store_calibration	GC_L_ANALOG,	left_calibration,	0x00
+	store_calibration	GC_R_ANALOG,	right_calibration,	0x00
+	return
+
+
+	;; This runs at the beginning of each key remap to check for the X+Y+Start
+	;; calibration sequence. Since we don't have a good way to measure out exactly
+	;; 3 seconds to emulate the gamecube's behavior, we just count the number of
+	;; status polls the keys are held down for. We don't know the exact polling rate,
+	;; but on most games 30 polls should be around a second, which is long enough
+	;; to avoid accidentally recalibrating.
+check_calibration_combo
+	btfss	gamecube_buffer + GC_X
+	goto	no_calibration_combo
+	btfss	gamecube_buffer + GC_Y
+	goto	no_calibration_combo
+	btfss	gamecube_buffer + GC_START
+	goto	no_calibration_combo
+
+	incf	calibration_count, f
+	movf	calibration_count, w
+	xorlw	.30
+	btfsc	STATUS, Z
+	goto	gamecube_reset_calibration
+	return
+
+no_calibration_combo
+	clrf	calibration_count
+	return
+
+
+	;; *******************************************************************************
+	;; **********************************************  Static Button/Axis Mappings  **
+	;; *******************************************************************************
+
+	;; This static mapping layer translates axes directly from N64 to gamecube, and
+	;; it translates buttons via an intermetdiate virtual button ID that's used by
+	;; the dynamic mapping layer. This layer defines our default mappings.
 
 	;; Button IDs. These are a superset of the gamecube and N64, without any correspondance
 	;; with the wire protocol used by either. They're used as intermediate values when
@@ -159,6 +256,9 @@ main_loop
 	#define	BTN_C_RIGHT	0x0D
 	#define	BTN_C_DOWN	0x0E
 	#define	BTN_C_UP	0x0F
+
+	#define	NUM_VIRTUAL_BUTTONS	0x10
+
 
 	;; Map a gamecube button to a virtual button, and eventually to an N64 button
 map_button_from macro src_byte, src_bit, virtual
@@ -211,41 +311,6 @@ map_start macro
 	endm
 
 
-	;; Store calibration values for one gamecube axis. This takes its
-	;; actual neutral position from the gamecube_buffer, and is given
-	;; its ideal neutral position as a parameter. The resulting calibration
-	;; is added to the axis later, with clamping to prevent rollover.
-store_calibration macro axis_byte, calibration, ideal_neutral
-	movf	gamecube_buffer + axis_byte, w
-	sublw	ideal_neutral
-	movwf	calibration
-	endm
-
-
-	;; Add the stored neutral values to an axis to calibrate it, clamping
-	;; it in the event of an overflow.
-apply_calibration macro axis_byte, calibration
-	local	negative
-	local	done
-
-	movf	calibration, w		; Add the calibration
-	addwf	gamecube_buffer + axis_byte, f
-	btfsc	calibration, 7		; Test whether the value we just added was negative
-	goto	negative
-
-	movlw	0xFF			; It was positive, clamp to 0xFF if we carried
-	btfsc	STATUS, C
-	movwf	gamecube_buffer + axis_byte
-	goto	done
-
-negative
-	btfss	STATUS, C		; It was negative, clamp to 0 if we borrowed (C=0)
-	clrf	gamecube_buffer + axis_byte
-
-done
-	endm
-
-
 	;; Copy status from the gamecube buffer to the N64 buffer. This first
 	;; stage maps all axes, and maps gamecube buttons to virtual buttons.
 n64_translate_status
@@ -259,6 +324,8 @@ n64_translate_status
 	apply_calibration	GC_CSTICK_Y,	cstick_y_calibration
 	apply_calibration	GC_L_ANALOG,	left_calibration
 	apply_calibration	GC_R_ANALOG,	right_calibration
+
+	call	check_remap_combo	; Must be after calibration, since it uses analog L and R values
 
 	map_button_from	GC_A,		BTN_A
 	map_button_from	GC_B,		BTN_B
@@ -283,24 +350,10 @@ n64_translate_status
 	return
 
 
-	;; Store calibration values for each axis. The controller's joysticks should
-	;; be centered and the L and R buttons should be released when this is called.
-	;; We assume this is true at startup, and it should be true when the user invokes
-	;; it by holding down X, Y, and Start.
-gamecube_reset_calibration
-	store_calibration	GC_JOYSTICK_X,	joystick_x_calibration,	0x80
-	store_calibration	GC_JOYSTICK_Y,	joystick_y_calibration,	0x80
-	store_calibration	GC_CSTICK_X,	cstick_x_calibration,	0x80
-	store_calibration	GC_CSTICK_Y,	cstick_y_calibration,	0x80
-	store_calibration	GC_L_ANALOG,	left_calibration,	0x00
-	store_calibration	GC_R_ANALOG,	right_calibration,	0x00
-	return
-
-
 	;; This is called for each virtual button set. It translates the virtual
 	;; button through our remapping table in EEPROM, then maps that into an N64 button.
 set_virtual_button
-	movwf	virtual_button
+	call	remap_virtual_button
 
 	map_button_to	BTN_D_RIGHT,	N64_D_RIGHT
 	map_button_to	BTN_D_LEFT,	N64_D_LEFT
@@ -324,29 +377,93 @@ set_virtual_button
 	return
 
 
-	;; This runs at the beginning of each key remap to check for the X+Y+Start
-	;; calibration sequence. Since we don't have a good way to measure out exactly
-	;; 3 seconds to emulate the gamecube's behavior, we just count the number of
-	;; status polls the keys are held down for. We don't know the exact polling rate,
-	;; but on most games 30 polls should be around a second, which is long enough
-	;; to avoid accidentally recalibrating.
-check_calibration_combo
-	btfss	gamecube_buffer + GC_X
-	goto	no_calibration_combo
-	btfss	gamecube_buffer + GC_Y
-	goto	no_calibration_combo
-	btfss	gamecube_buffer + GC_START
-	goto	no_calibration_combo
+	;; *******************************************************************************
+	;; *************************************************  Dynamic Button Remapping  **
+	;; *******************************************************************************
 
-	incf	calibration_count, f
-	movf	calibration_count, w
-	xorlw	.30
-	btfsc	STATUS, Z
-	goto	gamecube_reset_calibration
+	;; read from address 'w' of the eeprom, return in 'w'.
+eeread
+	movwf	EEADR
+	bsf	STATUS, RP0
+	bsf	EECON1, RD
+	bcf	STATUS, RP0
+	movf	EEDATA, w
 	return
 
-no_calibration_combo
-	clrf	calibration_count
+	;; Write to the EEPROM using the current EEADR and EEDATA values,
+	;; block until the write is complete.
+eewrite
+	bsf	STATUS, RP0
+	bsf	EECON1, WREN	; Enable write
+	movlw	0x55		; Write the magic sequence to EECON2
+	movwf	EECON2
+	movlw	0xAA
+	movwf	EECON2
+	bsf	EECON1, WR	; Begin write
+	btfsc	EECON1, WR	; Wait for it to finish...
+	goto	$-1
+	bcf	EECON1, WREN	; Write protect
+	bcf	STATUS, RP0
+	return
+
+
+	;; This is called each time we poll status, for each virtual button that's pressed.
+	;; Here we get a virtual button code in 'w', remap it, and save it to virtual_button.
+	;;
+	;; Our EEPROM starts with one byte per virtual button, containing the virtual button
+	;; code its mapped to. By default, each byte just contains its address, mapping all
+	;; virtual buttons to themselves.
+remap_virtual_button
+	call	eeread
+	movwf	virtual_button
+	return
+
+
+	;; Looks for the key combinations we use to change button mapping
+check_remap_combo
+	return
+
+
+	;; Check our EEPROM for the magic word identifying it as button mapping data for
+	;; this version of our firmware. If we don't find the magic word, reset its contents.
+validate_eeprom
+	movlw	EEPROM_MAGIC_ADDR	; Check high byte
+	call	eeread
+	xorlw	EEPROM_MAGIC_WORD >> 8
+	btfss	STATUS, Z
+	goto	reset_eeprom
+	movlw	EEPROM_MAGIC_ADDR+1	; Check low byte
+	call	eeread
+	xorlw	EEPROM_MAGIC_WORD & 0xFF
+	btfss	STATUS, Z
+	goto	reset_eeprom
+	return
+
+
+	;; Write an identity mapping and a valid magic word to the EEPROM.
+reset_eeprom
+	clrf	EEADR			; Loop over all virtual buttons, writing the identity mapping
+	clrf	EEDATA
+eeprom_reset_loop
+	call	eewrite
+	incf	EEADR, f
+	incf	EEDATA, f
+	movf	EEDATA, w
+	xorlw	NUM_VIRTUAL_BUTTONS
+	btfss	STATUS, Z
+	goto	eeprom_reset_loop
+
+	movlw	EEPROM_MAGIC_ADDR	; Write the magic word
+	movwf	EEADR
+	movlw	EEPROM_MAGIC_WORD >> 8
+	movwf	EEDATA
+	call	eewrite
+	movlw	EEPROM_MAGIC_ADDR+1
+	movwf	EEADR
+	movlw	EEPROM_MAGIC_WORD & 0xFF
+	movwf	EEDATA
+	call	eewrite
+
 	return
 
 
