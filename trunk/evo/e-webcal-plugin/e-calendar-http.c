@@ -261,6 +261,7 @@ e_calendar_http_check (EPlugin *epl, EConfigHookPageCheckData *data)
 	EUri *uri;
 	gboolean ok = FALSE;
 
+	/* FIXME - check pageid */
 	uri = e_uri_new (gtk_entry_get_text (GTK_ENTRY (entry)));
 	ok = ((!strcmp (uri->protocol, "webcal")) || (!strcmp (uri->protocol, "http")));
 	e_uri_free (uri);
