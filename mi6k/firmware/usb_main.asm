@@ -177,10 +177,13 @@ TEST_RB0_INT
 	btfss	INTCON, INTF
 	goto	PERIPHERALTEST
 	banksel	TMR1H
-	movf	TMR1H, w		; Save the tmr1 value ASAP
+	movf	TMR1H, w		; Save and reset the tmr1 value ASAP
 	movwf	tmr1h_save
 	movf	TMR1L, w
 	movwf	tmr1l_save
+	clrf	TMR1L
+	clrf	TMR1H
+	clrf	TMR1L
 	bcf		INTCON, INTF	; Clear the external interrupt flag
 	banksel	ir_rx_Head
 	bankisel ir_rx_Head
