@@ -55,7 +55,7 @@ static int uinput_dev_event(struct input_dev *dev, unsigned int type, unsigned i
 {
 	struct uinput_device	*udev;
 
-	udev = (struct uinput_device *)dev->private;
+	udev = dev->private;
 
 	udev->buff[udev->head].type = type;
 	udev->buff[udev->head].code = code;
@@ -71,7 +71,7 @@ static int uinput_dev_event(struct input_dev *dev, unsigned int type, unsigned i
 static int uinput_request_alloc_id(struct input_dev *dev, struct uinput_request *request)
 {
 	/* Atomically allocate an ID for the given request. Returns 0 on success. */
-	struct uinput_device *udev = (struct uinput_device *)dev->private;
+	struct uinput_device *udev = dev->private;
 	int id;
 
 	down(&udev->requests_sem);
@@ -98,7 +98,7 @@ static struct uinput_request* uinput_request_find(struct uinput_device *udev, in
 
 static void uinput_request_init(struct input_dev *dev, struct uinput_request *request, int code)
 {
-	struct uinput_device *udev = (struct uinput_device *)dev->private;
+	struct uinput_device *udev = dev->private;
 
 	memset(request, 0, sizeof(struct uinput_request));
 	request->code = code;
@@ -111,7 +111,7 @@ static void uinput_request_init(struct input_dev *dev, struct uinput_request *re
 
 static void uinput_request_submit(struct input_dev *dev, struct uinput_request *request)
 {
-	struct uinput_device *udev = (struct uinput_device *)dev->private;
+	struct uinput_device *udev = dev->private;
 	int retval;
 
 	/* Tell our userspace app about this new request by queueing an input event */
@@ -265,7 +265,7 @@ static int uinput_alloc_device(struct file *file, const char __user *buffer, siz
 
 	retval = count;
 
-	udev = (struct uinput_device *)file->private_data;
+	udev = file->private_data;
 	dev = udev->dev;
 
 	user_dev = kmalloc(sizeof(*user_dev), GFP_KERNEL);
@@ -317,7 +317,7 @@ exit:
 
 static ssize_t uinput_write(struct file *file, const char __user *buffer, size_t count, loff_t *ppos)
 {
-	struct uinput_device	*udev = file->private_data;
+	struct uinput_device *udev = file->private_data;
 
 	if (test_bit(UIST_CREATED, &(udev->state))) {
 		struct input_event	ev;
@@ -394,7 +394,7 @@ static int uinput_burn_device(struct uinput_device *udev)
 
 static int uinput_close(struct inode *inode, struct file *file)
 {
-	return uinput_burn_device((struct uinput_device *)file->private_data);
+	return uinput_burn_device(file->private_data);
 }
 
 static int uinput_ioctl(struct inode *inode, struct file *file, unsigned int cmd, unsigned long arg)
@@ -407,7 +407,7 @@ static int uinput_ioctl(struct inode *inode, struct file *file, unsigned int cmd
 	struct uinput_request   *req;
 	int                     length;
 
-	udev = (struct uinput_device *)file->private_data;
+	udev = file->private_data;
 
 	/* device attributes can not be changed after the device is created */
 	switch (cmd) {
