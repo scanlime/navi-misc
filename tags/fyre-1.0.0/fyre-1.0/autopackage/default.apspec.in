@@ -1,0 +1,57 @@
+# -*-shell-script-*-
+
+[Meta]
+RootName: @fyre.navi.cx/fyre:$SOFTWAREVERSION
+DisplayName: Fyre
+ShortName: fyre
+Maintainer: Micah Dowty <micah@navi.cx>
+Packager: Mike Hearn <mike@navi.cx>
+Summary: Fyre renders and animates Peter de Jong maps
+SoftwareVersion: @VERSION@
+AutopackageTarget: 1.0
+
+# Only uncomment InterfaceVersion if your package exposes interfaces to other software,
+# for instance if it includes DSOs or python/perl modules. See the developer guide for more info,
+# or ask on autopackage-dev if you don't understand interface versioning in autopackage.
+#
+# InterfaceVersion: 0.0
+
+PackageVersion: 1
+
+[Description]
+Fyre provides a rendering of the Peter de Jong map, with an
+interactive GTK+ frontend and a command line interface for easy and
+efficient rendering of high-resolution, high quality images.
+
+[BuildPrepare]
+export APBUILD_STATIC="gnet-2.0"
+export APBUILD_DISABLE_BOGUS_DETECTOR=1
+
+# exr pulls in c++ even when we're not building with it due to automake wackyness
+# so override it here
+export CXX=apgcc
+prepareBuild
+
+[BuildUnprepare]
+unprepareBuild
+
+[Imports]
+echo '*' | import
+
+[Prepare]
+require @gtk.org/gtk 2.2
+require @glade.gnome.org/libglade 2.0
+
+[Install]
+installExe ./bin/*
+installData ./share/fyre
+installIcon ./share/icons/hicolor
+installIcon ./share/pixmaps
+
+installDesktop "Graphics" ./share/applications/fyre.desktop
+
+installMime share/mime/packages/fyre.xml
+
+[Uninstall]
+# Usually just the following line is enough to uninstall everything
+uninstallFromLog
