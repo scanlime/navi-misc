@@ -57,9 +57,50 @@ GType accumulator_get_type (void)
 static void
 accumulator_class_init (AccumulatorClass *klass)
 {
+  /* nothing to do here */
 }
 
 static void
 accumulator_init (Accumulator *self)
 {
+  /* nothing to do here */
+}
+
+Accumulator*
+accumulator_new ()
+{
+  return ACCUMULATOR (g_object_new (accumulator_get_type (), NULL));
+}
+
+void
+accumulator_clear (Accumulator *acc)
+{
+  histogram_imager_clear (HISTOGRAM_IMAGER (acc));
+
+  acc->total_iterations = 0;
+}
+
+void
+accumulator_merge (Accumulator *acc, IterativeMap *image)
+{
+  int ax, ay;
+  int ix, iy;
+  int i, j;
+  HistogramImager *ha = HISTOGRAM_IMAGER (acc);
+  HistogramImager *hi = HISTOGRAM_IMAGER (image);
+
+  histogram_imager_get_hist_size (ha, &ax, &ay);
+  histogram_imager_get_hist_size (hi, &ix, &iy);
+
+  g_assert ((ax == ix) && (ay == iy));
+
+  histogram_imager_prepare_plots (ha, &acc->plot);
+  for (i = 0; i < ay; i++)
+  {
+    for (j = 0; j < ax; j++)
+    {
+      HISTOGRAM_IMAGER_PLOT_MULTIPLE(acc->plot, i, j, ((guint**)hi->histogram)[i][j]);
+    }
+  }
+  histogram_imager_finish_plots (HISTOGRAM_IMAGER (acc), &acc->plot);
 }

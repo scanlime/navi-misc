@@ -26,6 +26,7 @@
 #define __ACCUMULATOR_H__
 
 #include "histogram-imager.h"
+#include "iterative-map.h"
 
 G_BEGIN_DECLS
 
@@ -40,6 +41,9 @@ typedef struct _AccumulatorClass AccumulatorClass;
 
 struct _Accumulator {
   HistogramImager parent;
+  HistogramPlot plot;
+
+  gdouble total_iterations;
 };
 
 struct _AccumulatorClass {
@@ -48,6 +52,8 @@ struct _AccumulatorClass {
 
 GType        accumulator_get_type ();
 Accumulator* accumulator_new      ();
+void         accumulator_clear    (Accumulator *acc);
+void         accumulator_merge    (Accumulator *acc, IterativeMap *image);
 
 G_END_DECLS
 
