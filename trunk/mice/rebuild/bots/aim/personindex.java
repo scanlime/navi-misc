@@ -58,6 +58,16 @@ public class personindex
 		masshead = new person(masshead,bots[0],from);
 	}
 	
+	public void broadcast(String message)
+	{
+		person now = masshead;
+		while(now != null)
+		{
+			now.send(message);
+			now = now.next;
+		}
+	}
+	
 	private interview findInterview(String nick)
 	{
 		interview temphead = inthead;
