@@ -35,6 +35,19 @@ static void chanlist_save(GtkWidget *button, channel_list_window *win) {
 }
 
 static void chanlist_join(GtkWidget *button, channel_list_window *win) {
+	GtkWidget *treeview;
+	GtkTreeModel *model;
+	GtkTreeSelection *select;
+	GtkTreeIter iter;
+	char *channel;
+	server *serv;
+
+	treeview = glade_xml_get_widget(win->xml, "channel list");
+	select = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
+	if(gtk_tree_selection_get_selected(select, &model, &iter)) {
+		gtk_tree_model_get(model, &iter, 0, &channel, 3, &serv, -1);
+		serv->p_join(serv, channel, "");
+	}
 }
 
 static void chanlist_selected(GtkTreeSelection *selection, channel_list_window *win) {
