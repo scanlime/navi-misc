@@ -5,7 +5,7 @@
 #include "uart_driver.h"
 #include "util.h"
 
-volatile xdata at 0xFD00 unsigned char ep1_out_buffer[64];
+volatile xdata at 0xF800 unsigned char ep1_out_buffer[64];
 int c;
 
 void main() {
@@ -19,8 +19,8 @@ void main() {
 
   /* Set up extra endpoints */
   OEPCNF_1 = UBME;
-  OEPBBAX_1 = ((int)ep1_out_buffer) >> 3;
-  OEPBCTX_1 = 0;
+  OEPBBAX_1 = 0;  /* Point to our buffer at 0xF800 */
+  OEPBCTX_1 = 1;
 
   while (1) {
     watchdog_reset();
@@ -32,7 +32,7 @@ void main() {
       printf("ep1: %d bytes, %02X %02X %02X %02x...\n", c,
 	     ep1_out_buffer[0], ep1_out_buffer[1], ep1_out_buffer[2], ep1_out_buffer[3]);
     }
-    OEPBCTX_1 = 0;
+    OEPBCTX_1 = 1;
   }
 }
 

@@ -44,8 +44,6 @@ static void usb_handle_descriptor_request() {
     }
     return;
   }
-
-  printf("Descriptor unavailable, ignoring\n");
 }
 
 static void usb_handle_standard_request() {
@@ -60,8 +58,6 @@ static void usb_handle_standard_request() {
 
   case USB_REQ_GET_DESCRIPTOR:
     /* Send back one of our descriptors from the table */
-    printf("Descriptor 0x%04X requested, language 0x%04X, length %d\n",
-	   usb_setup_buffer.wValue, usb_setup_buffer.wIndex, usb_setup_buffer.wLength);
     usb_handle_descriptor_request();
     break;
 
@@ -223,7 +219,7 @@ void usb_init() {
 
   USBCTL &= ~CONT;  /* Disconnect from USB */
   USBSTA = 0xFF;    /* Clear USB status bits */
-  delay(60000);     /* Wait a bit and reconnect */
+  delay(1000);     /* Wait a bit and reconnect */
   USBCTL |= CONT;
 }
 
