@@ -184,6 +184,36 @@ unsigned char rcpod_AnalogReadChannel(rcpod_dev* rcpod, int channel);
 /************************************************** Serial I/O ***********************/
 /*************************************************************************************/
 
+/* Initialize the serial port for asynchronous 8-N-1 transmit and receive
+ * at the specified baud rate.
+ */
+void rcpod_SerialInit(rcpod_dev* rcpod, int baudRate);
+
+/* Transmit the given buffer of length 'txBytes' (txBytes <= RCPOD_SCRATCHPAD_SIZE)
+ * then immediately begin receiving data until either 'rxBytes' bytes are received
+ * or rcpod_SerialRxFinish is called.
+ */
+void rcpod_SerialTxRxStart(rcpod_dev* rcpod, unsigned char* buffer, int txBytes, int rxBytes);
+
+/* Transmit the given buffer of 'count' bytes (count <= RCPOD_SCRATCHPAD_SIZE) */
+void rcpod_SerialTx(rcpod_dev* rcpod, unsigned char* buffer, int count);
+
+/* Start receiving up to 'count' bytes. The received data can be collected
+ * with a call to rcpod_SerialRxFinish.
+ */
+void rcpod_SerialRxStart(rcpod_dev* rcpod, int count);
+
+/* Stop a currently in progress serial receive, copying up to 'count' received
+ * bytes into the provided buffer. Returns the actual number of bytes received
+ * (may be greater than the number of bytes copied, if it's larger than 'count')
+ */
+int rcpod_SerialRxFinish(rcpod_dev* rcpod, unsigned char* buffer, int count);
+
+/* Use the given pin as a transmit enable- it is asserted before transmitting,
+ * and deasserted as soon as a transmission has completely finished.
+ * This feature can be disabled by passing RCPOD_PIN_NONE.
+ */
+int rcpod_SerialSetTxEnable(rcpod_dev* rcpod, rcpod_pin pin);
 
 
 /*************************************************************************************/
@@ -276,6 +306,9 @@ unsigned char rcpod_AnalogReadChannel(rcpod_dev* rcpod, int channel);
 
 /* Inverts the polarity of the given pin descriptor (swaps active low and active high) */
 #define RCPOD_NEGATE(pin)  ((pin) ^ RCPOD_PIN_HIGH)
+
+/* The no-op pin descriptor, has no effect when asserted or deasserted */
+#define RCPOD_PIN_NONE  0
 
 /* Macros for normal active high I/O port pin descriptors. Combined with the RCPOD_TRIS
  * and RCPOD_NEGATE macros, the above RCPOD_PIN_* constants shouldn't have to be used

@@ -20,7 +20,10 @@
 /*************************************** Error handler */
 
 %inline %{
-  /* Set to a malloc'ed string if an error has occurred, NULL normally */
+  /* Nonzero if an error occurred, pyrcpod_errorBuffer will contain
+   * a malloc'ed string with an error message.
+   */
+  int pyrcpod_errorOccurred = 0;
   char *pyrcpod_errorBuffer = NULL;
 
   /* An error callback that sets the above variable */
@@ -30,6 +33,7 @@
       pyrcpod_errorBuffer = NULL;
     }
     pyrcpod_errorBuffer = strdup(message);
+    pyrcpod_errorOccurred = 1;
   }
   %}
 
@@ -38,7 +42,8 @@
 /* Include all rcpod.h functions, wrapping them with a proper exception handler */
 %exception {
   $action
-  if (pyrcpod_errorBuffer) {
+  if (pyrcpod_errorOccurred) {
+    pyrcpod_errorOccurred = 0;
     SWIG_exception(SWIG_IOError, pyrcpod_errorBuffer);
   }
 }

@@ -352,6 +352,30 @@ class SelfTest(RcpodTestCase):
         for channel in (-1, 8, 256):
             self.assertRaises(ValueError, self.rcpod.analogReadChannel, channel)
 
+    def testSerialSanity(self):
+        """Verify that all serial APIs at least run with errors only where they're supposed to be.
+           This can't test that correct data is being transmitted, and it can do almost nothing
+           to test the receive APIs.
+           """
+        for rate in (2400, 9600, 300, 57600):
+            self.rcpod.serialInit(rate)
+
+        # Make sure buffers that are too large cause an exception
+        self.assertRaises(IOError, self.rcpod.serialTxRxStart, [0] * (pyrcpod.device.RCPOD_SCRATCHPAD_SIZE + 1), 5)
+        # But that buffers that are just big enough don't
+        self.rcpod.serialTxRxStart([0] * pyrcpod.device.RCPOD_SCRATCHPAD_SIZE, 5)
+        # Same with receive size
+        self.assertRaises(IOError, self.rcpod.serialTxRxStart, "", pyrcpod.device.RCPOD_SCRATCHPAD_SIZE+1)
+        self.rcpod.serialTxRxStart("", pyrcpod.device.RCPOD_SCRATCHPAD_SIZE)
+
+        self.rcpod.serialTxRxStart([1,36,72,3], 5)
+        self.rcpod.serialTxRxStart([], 5)
+        self.rcpod.serialTxRxStart("", 0)
+        self.rcpod.serialTxRxStart("Hello, World!", 0)
+        while 1:
+            self.rcpod.serialTxRxStart("UUUUUUUUUUUU", 0)
+#            self.rcpod.serialTxRxStart("U" * pyrcpod.device.RCPOD_SCRATCHPAD_SIZE, 0)
+
 
 if __name__ == '__main__':
     main()

@@ -240,6 +240,52 @@ class OpenedDevice:
         rcpod_GpioDeassertBuffer(self.dev, arr, len(pins))
         delete_ucharArray(arr)
 
+    def serialInit(self, baudRate):
+        """Initialize the serial port and set it to the given baud rate"""
+        rcpod_SerialInit(self.dev, baudRate)
+
+    def serialTxRxStart(self, txData, rxBytes):
+        """Transmit txData if present, then begin receiving up to rxBytes bytes.
+           txData may be a list of byte values, or a string.
+           """
+        # Convert strings to lists
+        if type(txData) == type(''):
+            txData = [ord(c) for c in txData]
+
+        arr = to_ucharArray(txData)
+        rcpod_SerialTxRxStart(self.dev, arr, len(txData), rxBytes)
+        delete_ucharArray(arr)
+
+    def serialTx(self, txData):
+        """Transmit the contents of txData, which may be a list of byte values or a string."""
+        self.serialTxRxStart(TxData, 0)
+
+    def serialRxStart(self, count):
+        """Start receiving up to 'count' bytes"""
+        rcpod_SerialRxStart(self.dev, count)
+
+    def serialRxFinish(self, retType=list):
+        """Stop a currently in progress serial receive, return the received data
+           in the specified data type, either a list or a string.
+           """
+        buffer = new_ucharArray(RCPOD_SCRATCHPAD_SIZE)
+        count = rcpod_SerialRxFinish(self.dev, buffer, RCPOD_SCRATCHPAD_SIZE)
+        data = from_ucharArray(buffer)[:count]
+        delete_ucharArray(arr)
+        if retType == str:
+            s = ""
+            for value in data:
+                s += chr(value)
+            return s
+        return data
+
+    def serialSetTxEnable(self, pin):
+        """Set the given Pin instance as a serial transmit enable.
+           It will be asserted immediately before transmitting and deasserted
+           after the transmission is completely finished.
+           """
+        rcpod_SerialSetTxEnable(self.dev, pin.value)
+
 
 class Pin:
     """Encapsulates an rcpod pin descriptor, a value which describes
