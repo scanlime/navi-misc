@@ -45,6 +45,7 @@ class Page:
        """
     def __init__(self, book):
         Event.attach(self, "onFinish")
+        self.book = book
         self.viewport = book.viewport
         self.view = book.view
         self.time = Animated.Timekeeper()
@@ -93,16 +94,16 @@ class Book:
         self.activeClass = None
         self.evaluatePages()
 
-    def pushFront(self, pages):
+    def pushFront(self, *pages):
         """Add the given list of pages to the front of the book. The first page
            given will become active.
            """
-        self.pages = pages + self.pages
+        self.pages = list(pages) + self.pages
         self.evaluatePages()
 
-    def pushBack(self, pages):
+    def pushBack(self, *pages):
         """Add the given list of pages to the back of the book"""
-        self.pages = self.pages + pages
+        self.pages = self.pages + list(pages)
         self.evaluatePages()
 
     def popFront(self):
