@@ -134,6 +134,20 @@ namespace Fyre
 		}
 
 		protected override bool
+		OnDragDrop (Gdk.DragContext context, int x, int y, uint time_)
+		{
+			System.Console.WriteLine ("drag+drop!");
+			return true;
+		}
+
+		protected override void
+		OnDragDataGet (Gdk.DragContext context, Gtk.SelectionData data, uint info, uint time_)
+		{
+			System.Console.WriteLine ("DragDataGet");
+			data.Text = "hi!";
+		}
+
+		protected override bool
 		OnButtonPressEvent (Gdk.EventButton ev)
 		{
 			if (current_tooltip != null) {
