@@ -6,8 +6,7 @@ This is just a preliminary roadmap, subject to whatever people want to work on.
 
 0.4:
 	Redo all the existing DCC stuff
-	Finish implementing everything else in the prefs dialog
-		(hilighting, etc)
+	Finish implementing all the other piddly little preferences
 
 0.5:
 	Split things such that multiple conversation windows are possible
