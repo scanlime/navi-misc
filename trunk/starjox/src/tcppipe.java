@@ -29,45 +29,49 @@ import java.util.*;
 
 public class tcppipe extends Thread
 {
-	/** The input stream this tcppipe reads from. */
-	public InputStream in;
-	/** The output stream this tcppipe writes to. */
-	public OutputStream out;
-	
-	/**
-	 * A constructor for the tcppipe object
-	 * @param from The input stream to read 'from'
-	 * @param to The output stream to write 'to'
-	 * @author Brandon Smith
-	 * @version 1.0
-	 */
-	public tcppipe(InputStream from, OutputStream to)
+    /** The input stream this tcppipe reads from. */
+    public InputStream in;
+    /** The output stream this tcppipe writes to. */
+    public OutputStream out;
+    /** The String for outputting what I transmit */
+    public String label;
+    
+    /**
+     * A constructor for the tcppipe object
+     * @param from The input stream to read 'from'
+     * @param to The output stream to write 'to'
+     * @author Brandon Smith
+     * @version 1.0
+     */
+    public tcppipe(InputStream from, OutputStream to, String nope)
+    {
+	in = from;
+	out = to;
+	label = nope;
+    }
+    
+    /**
+     * This method implements the run method for Threaded stuff.
+     * @author Brandon Smith
+     * @version 1.0
+     */
+    public void run()
+    {
+	int temp;
+	try
 	{
-		in = from;
-		out = to;
+	    while(true)
+	    {
+		temp = in.read();
+		out.write(temp);
+		out.flush();
+		System.out.println(label+":"+temp);
+		if(temp == -1) return;
+	    }
 	}
-	
-	/**
-	 * This method implements the run method for Threaded stuff.
-	 * @author Brandon Smith
-	 * @version 1.0
-	 */
-	public void run()
+	catch(Exception e)
 	{
-		int temp;
-		try
-		{
-			while(true)
-			{
-				temp = in.read();
-				out.write(temp);
-				out.flush();
-				if(temp == -1) return;
-			}
-		}
-		catch(Exception e)
-		{
-			System.out.println(e);
-		}
+	    System.out.println(e);
 	}
+    }
 }

@@ -87,11 +87,11 @@ public class tcpfw extends Thread
 				//slot a into tab a
 				out = sout.getOutputStream();
 				in = sin.getInputStream();
-				new tcppipe(in,out).start();
+				new tcppipe(in,out,"In -> Out").start();
 				//slot b into tab b
 				out = sin.getOutputStream();
 				in = sout.getInputStream();
-				new tcppipe(in,out).start();
+				new tcppipe(in,out,"Out -> In").start();
 				
 				//tell the world I am happy!
 				System.out.println("Connection from "+sout.getInetAddress().getHostAddress());
