@@ -9,12 +9,13 @@ from LibCIA import Client
 class Options(Client.Options):
     optFlags = [
         ['type-profile', 't', 'Show a chart profiling which data types have the most instances'],
-        ]
+        ['sync', 'y', 'Write out pending stats database changes to disk'],	
+	]
 
     optParameters = [
         ['rebuild', 'r', None, 'Rebuild one specific package or module'],
         ['eval', 'e', None, 'Evaluate arbitrary code in the context of the Debug module'],
-        ]
+	]
 
 class DebugTool(Client.App):
     optionsClass = Options
@@ -26,6 +27,8 @@ class DebugTool(Client.App):
             print self.server.debug.gc.typeProfile(self.key)
         if self.config['eval']:
             print self.server.debug.eval(self.config['eval'], self.key)
+	if self.config['sync']:
+	    self.server.stats.sync()
 
 if __name__ == '__main__':
     DebugTool().main()
