@@ -1,5 +1,15 @@
 <?xml version="1.0"?>
 <evolutionweather format="1.0">
+    <region name="Atlantic Ocean">
+	<territory name="Puerto Rico">
+	    <!-- FIXME: JSJ/CCFSJU : SJU -->
+	    <location name="San Juan" resource="ccf/SJU/SJU"/>
+	</territory>
+	<territory name="Virgin Islands">
+	    <!-- FIXME: JSJ/CCFSJU : STT -->
+	    <location name="Charlotte Amalie" resource="ccf/SJU/STT"/>
+	</territory>
+    </region>
     <region name="North America">
 	<country name="United States">
 	    <state name="Alabama">
@@ -130,6 +140,9 @@
 		<location name="Macon" resource="ccf/FFC/MCN"/>
 		<location name="Rome" resource="ccf/FFC/RMG"/>
 		<location name="Valdosta" resource="ccf/TAE/VLD"/>
+	    </state>
+	    <state name="Hawaii">
+	        <location name="Honolulu" resource="ccf/HFO/HNL"/>
 	    </state>
 	    <state name="Idaho">
 		<location name="Boise" resource="ccf/BOI/BOI"/>
