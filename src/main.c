@@ -59,6 +59,7 @@ static void animation_render_main  (IterativeMap   *map,
 				    const gchar    *filename,
 				    double          quality);
 static void acquire_console        (void);
+static void daemonize_to_pidfile   (const char* filename);
 
 
 int main(int argc, char ** argv) {
@@ -70,6 +71,7 @@ int main(int argc, char ** argv) {
     gboolean hidden = FALSE;
     enum {INTERACTIVE, RENDER, SCREENSAVER, REMOTE} mode = INTERACTIVE;
     const gchar *outputFile = NULL;
+    const gchar *pidfile = NULL;
     int c, option_index=0;
     double quality = 1.0;
     int port_number = FYRE_DEFAULT_PORT;
@@ -107,6 +109,7 @@ int main(int argc, char ** argv) {
 	    {"screensaver",  0, NULL, 1000},   /* Undocumented, still experimental */
 	    {"hidden",       0, NULL, 1001},
 	    {"chdir",        1, NULL, 1002},   /* Undocumented, used by win32 file associations */
+	    {"pidfile",      1, NULL, 1003},
 	    {NULL},
 	};
 	c = getopt_long(argc, argv, "hi:n:o:p:s:S:q:rvP:c:C",
@@ -194,6 +197,10 @@ int main(int argc, char ** argv) {
 	    chdir(optarg);
 	    break;
 
+	case 1003: /* --pidfile */
+	    pidfile = optarg;
+	    break;
+
 	case 'h':
 	default:
 	    usage(argv);
@@ -254,13 +261,7 @@ int main(int argc, char ** argv) {
 	    acquire_console();
 	}
 	else {
-#  ifdef HAVE_FORK
-	    /* FIXME: Don't assume HAVE_FORK means that daemon() will work */
-	    if (daemon(0, 0) < 0) {
-		perror("daemon");
-		return 1;
-	    }
-#  endif
+	    daemonize_to_pidfile(pidfile);
 	}
 	if (!hidden)
 	    discovery_server_new(FYRE_DEFAULT_SERVICE, port_number);
@@ -326,6 +327,8 @@ static void usage(char **argv) {
 	    "                            console and don't run as a daemon.\n"
 	    "  --hidden                In remote control mode, don't reply to broadcast\n"
 	    "                            requests for detecting available Fyre servers.\n"
+	    "  --pidfile FILE          When running in the background under a UNIX-like OS,\n"
+	    "                            save the new process ID to this file.\n"
 	    "\n"
 	    "Parameters:\n"
 	    "  -p, --param KEY=VALUE   Set a calculation or rendering parameter, using the\n"
@@ -393,6 +396,35 @@ static void animation_render_main (IterativeMap *map,
 
     avi_writer_close(avi);
 }
+
+
+/* Daemonize this process, saving the new PID to a file if a name
+ * is specified. No pidfile is written if the filename is NULL.
+ */
+#ifdef HAVE_FORK
+static void daemonize_to_pidfile(const char* filename)
+{
+    FILE* f;
+
+    /* Open the file before our current directory and console disappear */
+    f = fopen(filename, "w");
+    if (!f) {
+	printf("Can't open pidfile '%s'\n", filename);
+	exit(1);
+    }
+
+    if (daemon(0, 0) < 0) {
+	perror("daemon");
+	exit(1);
+    }
+
+    fprintf(f, "%d", getpid());
+    fclose(f);
+}
+#else
+static void daemonize_to_pidfile(const char* filename) {}
+#endif /* HAVE_FORK */
+
 
 #ifdef WIN32
 static int console_running = 1;
