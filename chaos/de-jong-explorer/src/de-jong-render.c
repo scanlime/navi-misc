@@ -291,6 +291,12 @@ static void de_jong_resize_color_table(DeJong *self, gulong minimum_size) {
    * shrink to twice the current minimum size.
    */
 
+  /* Just to reduce allocation overhead during those crucial first few frames,
+   * put a lower limit on the amount of memory we're going to allocate.
+   */
+  if (minimum_size < 1024)
+    minimum_size = 1024;
+
   if ((self->color_table_size < minimum_size) ||
       (self->color_table_size > 10 * minimum_size)) {
     if (self->color_table)
