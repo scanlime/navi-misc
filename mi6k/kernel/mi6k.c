@@ -227,7 +227,17 @@ static void mi6k_ir_rx_irq(struct urb *urb)
 	/* Callback for processing incoming interrupt transfers from the IR receiver */
 	struct usb_mi6k *dev = (struct usb_mi6k*)urb->context;
 
-	dbg("ir_rx_irq, status %d, length %d", urb->status, urb->actual_length);
+	dbg("ir_rx_irq, status %d, length %d, buffer: %02X%02X %02X%02X %02X%02X %02X%02X",
+	    urb->status, urb->actual_length,
+	    dev->ir_rx_tbuffer[0],
+	    dev->ir_rx_tbuffer[1],
+	    dev->ir_rx_tbuffer[2],
+	    dev->ir_rx_tbuffer[3],
+	    dev->ir_rx_tbuffer[4],
+	    dev->ir_rx_tbuffer[5],
+	    dev->ir_rx_tbuffer[6],
+	    dev->ir_rx_tbuffer[7]);
+
 	if (urb->status == 0 && urb->actual_length > 0) {
 		down(&dev->sem);
 		mi6k_ir_rx_store(dev, dev->ir_rx_tbuffer, urb->actual_length);
@@ -283,7 +293,7 @@ static int mi6k_open(struct inode *inode, struct file *file)
 			     dev->ir_rx_tbuffer, IR_URB_BUFFER_SIZE,
 			     mi6k_ir_rx_irq, dev, endpoint->bInterval);
 
-		dbg("Submitting ir_rx_urb");
+		dbg("Submitting ir_rx_urb, interval %d", endpoint->bInterval);
 		if (usb_submit_urb(&dev->ir_rx_urb)) {
 			dbg("Error submitting URB");
 		}
@@ -329,11 +339,9 @@ static int mi6k_release(struct inode *inode, struct file *file)
 	/* decrement our usage count for the device */
 	--dev->open_count;
 	if (dev->open_count <= 0) {
-		dev->open_count = 0;
-
-		/* This is the last process closing us, unlink our URBs */
 		dbg("unlinking URBs");
 		usb_unlink_urb(&dev->ir_rx_urb);
+		dev->open_count = 0;
 	}
 
 exit_not_opened:
@@ -806,6 +814,9 @@ static void mi6k_disconnect(struct usb_device *udev, void *ptr)
 		dev->udev = NULL;
 		up(&dev->sem);
 	}
+
+	dbg("disconnect- unlinking URBs");
+	usb_unlink_urb(&dev->ir_rx_urb);
 
 	info("mi6k #%d now disconnected", minor);
 	up(&minor_table_mutex);
