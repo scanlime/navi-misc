@@ -201,19 +201,19 @@ class SpreadFile(SpreadFileBase):
         if not self.openedFile:
             self.open()
 
-        self.openedFile.seek(offset)
-        return self.openedFile.read(count)
+        os.lseek(self.openedFile, offset, 0)
+        return os.read(self.openedFile, count)
 
     def open(self):
         """We have a limited number of total open files.
            If we're about to exceed that, close someone else's file.
            """
         while len(self.fs.openFiles) >= self.fs.maxOpenFiles:
-            self.fs.openFiles[0].openedFile.close()
+            os.close(self.fs.openFiles[0].openedFile)
             self.fs.openFiles[0].openedFile = None
             del self.fs.openFiles[0]
 
-        self.openedFile = open(self.absPath, "rb")
+        self.openedFile = os.open(self.absPath, os.O_RDONLY)
         self.fs.openFiles.append(self)
 
 
