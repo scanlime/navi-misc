@@ -34,10 +34,10 @@ void initialize_preferences_servers_page() {
 
 void preferences_servers_page_populate(GtkWidget *treeview, GSList *netlist) {
 	GtkListStore *store;
-	GtkTreeIter *iter;
-	GtkTreePath *path;
+	GtkTreeIter iter;
 	ircnet *net;
 
+	/* FIXME: get a custom list? */
 	if(!netlist) {
 //		net = servlist_net_add(_("New Network"), "");
 //		servlist_server_add(net, "newserver/6667");
