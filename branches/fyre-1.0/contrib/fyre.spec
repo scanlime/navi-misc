@@ -2,9 +2,10 @@
 
 Name:      fyre
 Summary:   gtk2-based explorer for iterated chaotic functions
-Requires:  gtk2 gtk2-devel
+Requires:  gtk2 gnet2 OpenEXR
+BuildRequires:  gtk2-devel gnet2-devel OpenEXR-devel
 Version:   1.0.0
-Release:   1
+Release:   2
 License:   GPL
 Vendor:    David Trowbridge <trowbrds@cs.colorado.edu> Micah Dowty <micah@navi.cx>
 Packager:  Mirco Mueller <macslow@bangang.de>
@@ -23,7 +24,7 @@ of high-resolution, high quality images.
 rm -rf $RPM_BUILD_DIR/%{name}-%{version}
 tar zxvf $RPM_SOURCE_DIR/%{name}-%{version}.tar.gz
 cd $RPM_BUILD_DIR/%{name}-%{version}
-./configure --prefix=%{_prefix}
+./configure --prefix=%{_prefix} --enable-gnet --enable-openexr
 
 %build
 cd $RPM_BUILD_DIR/%{name}-%{version}
@@ -60,5 +61,9 @@ make install
 %{_sharedir}/pixmaps/fyre-48x48.png
 
 %changelog
-* Wed Mar 03 2005 Mirco Mueller <macslow@bangang.de> 1.0.0-1
+* Fri Mar 04 2005 Mirco Mueller <macslow@bangang.de> 1.0.0-2
+- stupid me, I totally forgot to enable gnet2 and OpenEXR support
+
+* Thu Mar 03 2005 Mirco Mueller <macslow@bangang.de> 1.0.0-1
 - initial .spec file written for fyre-1.0.0.tar.gz
+
