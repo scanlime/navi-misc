@@ -69,6 +69,7 @@ void initial_func_square_uniform    (gdouble *x, gdouble *y);
 void initial_func_gaussian          (gdouble *x, gdouble *y);
 void initial_func_circular_uniform  (gdouble *x, gdouble *y);
 void initial_func_radial            (gdouble *x, gdouble *y);
+void initial_func_sphere            (gdouble *x, gdouble *y);
 
 static const
 GEnumValue initial_conditions_enum[] =
@@ -77,6 +78,7 @@ GEnumValue initial_conditions_enum[] =
   { 1, "square_uniform",    "Square uniform"    },
   { 2, "gaussian",          "Gaussian"          },
   { 3, "radial",            "Radial"            },
+  { 4, "sphere",            "Sphere"            },
   { 0 },
 };
 
@@ -87,6 +89,7 @@ initial_conditions_t initial_conditions_table[] =
   initial_func_square_uniform,
   initial_func_gaussian,
   initial_func_radial,
+  initial_func_sphere,
 };
 
 static GType initial_conditions_enum_get_type(void);
@@ -849,11 +852,17 @@ void initial_func_square_uniform (gdouble *x, gdouble *y) {
 }
 
 void initial_func_gaussian (gdouble *x, gdouble *y) {
+  /* Just a unit normal in each axis */
   *x = normal_variate();
   *y = normal_variate();
 }
 
 void initial_func_circular_uniform (gdouble *x, gdouble *y) {
+  /* A uniform distribution in each axis, but discarding
+   * all values that fall outside the unit circle. This
+   * gives a similar look to square_uniform, but with smooth
+   * edges rather than corners.
+   */
   gdouble i, j;
   do {
     i = uniform_variate()*2 - 1;
@@ -864,10 +873,32 @@ void initial_func_circular_uniform (gdouble *x, gdouble *y) {
 }
 
 void initial_func_radial (gdouble *x, gdouble *y) {
+  /* Pick a radius and angle uniformly, then convert to cartesian
+   * coordinates. This also produces a unit circle, but it isn't
+   * uniform- it has a strong dense spot in the center that fades
+   * off toward the edges. Unlike gaussian, this still has distinct
+   * edges.
+   */
   gdouble theta = uniform_variate() * M_PI * 2;
   gdouble radius = uniform_variate();
   *x = cos(theta) * radius;
   *y = sin(theta) * radius;
+}
+
+void initial_func_sphere (gdouble *x, gdouble *y) {
+  /* The opposite of radial's effect- a circle that's dense at
+   * the edges and light in the center. This creates a distribution
+   * uniform along the surface of a sphere, then flattens it.
+   *
+   * We currently implement this by normalizing the vector produced
+   * by three normal variates- this is really slow.
+   */
+  gdouble vx = normal_variate();
+  gdouble vy = normal_variate();
+  gdouble vz = normal_variate();
+  gdouble mag = sqrt(vx*vx + vy*vy + vz*vz);
+  *x = vx / mag;
+  *y = vy / mag;
 }
 
 
