@@ -42,6 +42,15 @@ use vars qw ($project $from_email $dest_email $rpc_uri $sendmail $sync_delay
 ### Configuration
 
 # Project name (as known to CIA).
+#
+# NOTE: This shouldn't be a long description of your project. Ideally
+#       it is a short identifier with no spaces, punctuation, or
+#       unnecessary capitalization. This will be used in URLs related
+#       to your project, as an internal identifier, and in IRC messages.
+#       If you want a longer name shown for your project on the web
+#       interface, please use the "title" metadata key rather than
+#       putting that here.
+#
 $project = 'YOUR_PROJECT_HERE';
 
 # The from address in generated mails.

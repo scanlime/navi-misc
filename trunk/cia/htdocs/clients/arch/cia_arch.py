@@ -10,7 +10,17 @@ import string
 debug = False
 server = "http://cia.navi.cx"
 
-# you may wish to use your computers name here, as arch archives are often personal in nature
+# Your project name, as known by CIA. You may wish to use your
+# computer's name here, as arch archives are often personal in nature.
+#
+# NOTE: This shouldn't be a long description of your project. Ideally
+#       it is a short identifier with no spaces, punctuation, or
+#       unnecessary capitalization. This will be used in URLs related
+#       to your project, as an internal identifier, and in IRC messages.
+#       If you want a longer name shown for your project on the web
+#       interface, please use the "title" metadata key rather than
+#       putting that here.
+#
 project = "littlegreen"
 
 ###############
