@@ -20,7 +20,7 @@ main ()
 {
 	g_type_init ();
 	gnome_vfs_init ();
-	EWeatherSource *source = e_weather_source_ccf_new ("weather:ccf/BOU");
+	EWeatherSource *source = e_weather_source_ccf_new ("weather:ccf/BOU/DEN");
 	done = FALSE;
 	e_weather_source_parse (source, finished);
 	while (!done)
