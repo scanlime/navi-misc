@@ -93,7 +93,8 @@ static void explorer_class_init(ExplorerClass *klass) {
 }
 
 static void explorer_init(Explorer *self) {
-    self->xml = glade_xml_new (FYRE_DATADIR "/explorer.glade", NULL, NULL);
+    if (g_file_test (FYRE_DATADIR "/explorer.glade", G_FILE_TEST_EXISTS))
+        self->xml = glade_xml_new (FYRE_DATADIR "/explorer.glade", NULL, NULL);
 #ifdef ENABLE_BINRELOC
     if (!self->xml)
 	self->xml = glade_xml_new(BR_DATADIR("/fyre/explorer.glade"), NULL, NULL);
