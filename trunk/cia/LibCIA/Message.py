@@ -462,17 +462,24 @@ class Ruleset(XML.XMLFunction):
         each formatter is given the previous formatter's output as input, so they may be stacked.
 
         <formatter name="foo">   : Applies the formatter named 'foo'
+
         <formatter medium="irc"> : Automatically picks a formatter for the particular
                                    input message and the given medium type
+
         any Filter tag           : Evaluates the filter, terminating the current rule
                                    if it returns false.
+
         <rule>                   : Marks a section of the ruleset that can be exited
                                    when a filter returns false. A <rule> with a filter
                                    as the first child can be used to create conditionals.
+
         <return>                 : Normally the result of the last formatter is returned,
                                    this causes the text inside the <return>
                                    tag to be returned immediately. An empty <return>
                                    tag causes None to be returned from this ruleset..
+
+        <break>                  : Return immediately from the ruleset, but don't change
+                                   the current return value
 
         >>> msg = Message('<message>' +
         ...                   '<source>' +
@@ -558,6 +565,12 @@ class Ruleset(XML.XMLFunction):
                 self.result = None
             raise RulesetReturnException()
         return rulesetReturn
+
+    def element_break(self, element):
+        """Just exit the ruleset immediately"""
+        def rulesetBreak(msg):
+            raise RulesetReturnException()
+        return rulesetBreak
 
     def element_formatter(self, element):
         """Creates a Formatter instance matching the element's description,
