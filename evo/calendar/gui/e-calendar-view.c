@@ -47,7 +47,6 @@
 #include "e-calendar-view.h"
 #include "e-comp-editor-registry.h"
 #include "itip-utils.h"
-#include "e-pub-utils.h"
 #include "dialogs/delete-comp.h"
 #include "dialogs/delete-error.h"
 #include "dialogs/event-editor.h"
