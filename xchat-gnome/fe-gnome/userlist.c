@@ -1,6 +1,7 @@
 #include "userlist.h"
 #include "pixmaps.h"
 #include "textgui.h"
+#include "palette.h"
 #include "../common/xchat.h"
 #include "../common/userlist.h"
 
@@ -52,7 +53,7 @@ void initialize_userlist() {
 	icon_column = gtk_tree_view_column_new_with_attributes("icon", icon_renderer, "pixbuf", 0, NULL);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(userlist_view), icon_column);
 	text_renderer = gtk_cell_renderer_text_new();
-	text_column = gtk_tree_view_column_new_with_attributes("name", text_renderer, "text", 1, NULL);
+	text_column = gtk_tree_view_column_new_with_attributes("name", text_renderer, "text", 1, "foreground-gdk", 3, NULL);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(userlist_view), text_column);
 
 	select = gtk_tree_view_get_selection(GTK_TREE_VIEW(userlist_view));
@@ -67,7 +68,7 @@ void create_userlist(session *sess) {
 
 	treeview = glade_xml_get_widget(gui.xml, "userlist");
 
-	store = gtk_list_store_new(3, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_POINTER);
+	store = gtk_list_store_new(4, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_POINTER, GDK_TYPE_COLOR);
 	s = sess->gui;
 	s->userlist_model = GTK_TREE_MODEL(store);
 	gtk_tree_view_set_model(GTK_TREE_VIEW(treeview), GTK_TREE_MODEL(store));
@@ -87,7 +88,7 @@ void userlist_insert(session *sess, struct User *newuser, int row, int sel) {
 	pix = get_user_icon(sess->server, newuser);
 
 	gtk_list_store_insert(store, &iter, row);
-	gtk_list_store_set(store, &iter, 0, pix, 1, newuser->nick, 2, newuser, -1);
+	gtk_list_store_set(store, &iter, 0, pix, 1, newuser->nick, 2, newuser, 3, newuser->away? &colors[23] : NULL, -1);
 	/* FIXME: colors, away status, selection */
 }
 
@@ -144,8 +145,8 @@ void userlist_change(session *sess, struct User *user) {
 	iter = find_row(GTK_TREE_VIEW(userlist_view), model, user, &sel);
 	if(!iter)
 		return;
-	
-	gtk_list_store_set(GTK_LIST_STORE(model), iter, 1, user->nick, 2, user, -1);
+
+	gtk_list_store_set(GTK_LIST_STORE(model), iter, 1, user->nick, 2, user, 3, user->away? &colors[23] : NULL, -1);
 }
 
 void userlist_display(session_gui *sess) {

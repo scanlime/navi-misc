@@ -156,7 +156,7 @@ void fe_text_clear(struct session *sess) {
 }
 
 void fe_close_window(struct session *sess) {
-	/* FIXME: implement */
+	navigation_tree_remove(sess);
 }
 
 void fe_progressbar_start(struct session *sess) {
