@@ -15,6 +15,19 @@ static gint chanlist_compare(gconstpointer a, gconstpointer b, gpointer data) {
 	else return 1;
 }
 
+static gboolean chanlist_delete(GtkWidget *widget, GdkEvent *event, gpointer data) {
+	GtkWidget *window;
+	channel_list_window *win = (channel_list_window *) data;
+
+	g_slist_remove(chanlists, data);
+
+	window = glade_xml_get_widget(win->xml, "window 1");
+	gtk_widget_hide_all(window);
+	g_object_unref(win->xml);
+	g_free(win);
+	return FALSE;
+}
+
 void create_channel_list(session *sess) {
 	channel_list_window *win;
 	GtkWidget *treeview, *widget;
@@ -30,7 +43,7 @@ void create_channel_list(session *sess) {
 	if(g_slist_find_custom(chanlists, sess, (GCompareFunc) chanlist_compare) != NULL)
 		return;
 
-	win = malloc(sizeof(channel_list_window));
+	win = g_malloc(sizeof(channel_list_window));
 
 	win->server = sess->server;
 
@@ -39,6 +52,12 @@ void create_channel_list(session *sess) {
 		free(win);
 		return;
 	}
+
+	widget = glade_xml_get_widget(win->xml, "window 1");
+	gchar *title = g_strdup_printf("%s Channel List", sess->server->networkname);
+	gtk_window_set_title(GTK_WINDOW(widget), title);
+	g_free(title);
+	g_signal_connect(G_OBJECT(widget), "delete-event", G_CALLBACK(chanlist_delete), win);
 
 	treeview = glade_xml_get_widget(win->xml, "channel list");
 
