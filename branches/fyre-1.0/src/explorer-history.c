@@ -300,13 +300,25 @@ static void         on_go_menu_show    (GtkWidget *menu, Explorer *self)
     const int max_linear_items = 4;
     const int max_scaled_items = 10;
     int i, num_scaled_items;
-    GList *current = g_queue_peek_tail_link(self->history_queue);
+    GList *current;
     gdouble t_total, t;
     GTimeVal *scaled_reference;
     HistoryNode* node;
     explorer_cleanup_go_items(self);
 
+    /* If our queue is empty, add a new record immediately. This
+     * will prevent us from getting an empty 'go' menu right after
+     * startup- instead it will have a thumbnail of our defaults
+     * or whatever image the user happened to load. This can't
+     * go in our initialization above since that happens before
+     * we've actually rendered anything. Putting it here is more
+     * reliable than using a timer.
+     */
+    if (self->history_queue->length < 1)
+	explorer_append_history(self, history_node_new(HISTOGRAM_IMAGER(self->map)));
+
     /* The first few items are straight from the most recent list */
+    current = g_queue_peek_tail_link(self->history_queue);
     for (i=0; i<max_linear_items; i++) {
 	if (!current)
 	    return;
