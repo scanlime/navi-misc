@@ -13,6 +13,7 @@ gtk2reactor.portableInstall()
 import string, gtk, gtk.glade, gobject, CharacterSheet.GtkSheetElements
 
 from ChatBuffer import ChatBuffer
+from CharacterSheet import CharacterSheet
 from PalantirIRC import palantir
 from PalantirIRC.factory import Factory
 from PalantirIRC.dieRoller import DieRoller
@@ -84,6 +85,10 @@ class MainWindow:
     # Create an object to handle die rolls.
     self.dieRoller = DieRoller(self)
 
+    # Character sheet object.
+    self.sheet = CharacterSheet(self.tree.get_widget('character sheet view'))
+    self.tree.get_widget('open_sheet').connect('activate', self.sheet.openSheet)
+
     # tabs keeps track of all the open chat buffers.  The key is the channel/
     # user name for which the buffer is storing text.
     self.tabs = {'None':self.chatWindow}
@@ -104,16 +109,6 @@ class MainWindow:
       if nick is not '':
 	self.factory.client.setNick(str(nick))
 	self.tree.get_widget('Nick').set_text(nick)
-
-  def on_open_sheet_activate(self, widget, data=None):
-    ''' Open a character sheet, it will displayed in the
-        CharacterSheetPane if that is visible.
-	'''
-    self.tree.dialog = gtk.glade.XML('data/sheetselection.glade')
-    self.tree.dialog.get_widget('SheetSelection').set_filename('CharacterSheet/data/')
-    self.tree.dialog.signal_autoconnect({ 'on_ok_button_clicked':self.OpenSheet,
-      'on_cancel_button_clicked':
-      lambda w: self.tree.dialog.get_widget('SheetSelection').destroy()})
 
   def on_preferences_activate(self, widget, data=None):
     ''' Open the color selection dialog. '''
@@ -160,7 +155,7 @@ class MainWindow:
   def on_Tabs_switch_page(self, notebook, page, data=None):
     self.chatWindow = self.tabs[notebook.get_tab_label_text(self.chatWindow)]
 
-  ### Color Selection Dialog ###
+  ### FIXME: Color Selection Dialog ###
   def on_color_ok_button_clicked(self, widget, data=None):
     dialog = self.tree.get_widget('color_selection')
     self.chatWindow.background.modify_bg(gtk.STATE_NORMAL, dialog.get_current_color())
@@ -622,26 +617,6 @@ class MainWindow:
     ''' Disconnect from the current server. '''
     self.factory.quit()
     self.tree.get_widget('UserList').get_model().clear()
-
-  def OpenSheet(self, widget, data=None):
-    ''' Open up a character sheet in the client. '''
-    # Store the character data.
-    self.data = Character(self.tree.dialog.get_widget('SheetSelection').get_filename())
-
-    # If we've already loaded a sheet it needs to be removed.
-    if hasattr(self, 'sheet'):
-      self.characterSheetWindow.remove(self.sheet.root)
-    # Create a new sheet.
-    self.sheet = Sheet(self.data, self.dieRoller, CharacterSheet.GtkSheetElements)
-    # Store the filename the sheet was read from... (why did I do this?)
-    self.sheet.filename = self.tree.dialog.get_widget('SheetSelection').get_filename()
-    # Add the sheet to the CharacterViewPort and show it.
-    self.characterSheetWindow.add_with_viewport(self.sheet.root)
-    self.sheet.root.show()
-
-    # Kill the file selector.
-    self.tree.dialog.get_widget('SheetSelection').destroy()
-    self.characterSheetWindow.show()
 
   def AddUserToList(self, user):
     ''' Add nick the userlist. '''
