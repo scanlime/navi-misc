@@ -50,22 +50,14 @@ class XMLObject(object):
         elif hasattr(doc, 'read'):
             self.loadFromStream(doc, uri)
         elif hasattr(doc, 'nodeType'):
-            # FIXME: This is loading via a string since loadFromDom
-            #        currently has a memory leak.
-            self.loadFromString(toString(doc), uri)
-            #self.loadFromDom(doc)
+            self.loadFromDom(doc)
 
     def __str__(self):
         return toString(self.xml)
 
     def loadFromString(self, string, uri=None):
         """Parse the given string as XML and set the contents of the message"""
-        try:
-            dom = parseString(string)
-        except:
-            log.msg("Error loading the following XML string:\n%s" % string)
-            raise
-        self.loadFromDom(dom)
+        self.loadFromDom(parseString(string))
 
     def loadFromStream(self, stream, uri=None):
         """Parse the given stream as XML and set the contents of the message"""
@@ -73,8 +65,6 @@ class XMLObject(object):
 
     def loadFromDom(self, root):
         """Set the contents of the Message from a parsed DOM tree"""
-        # FIXME: This method leaks memory
-
         if hasattr(root, "documentElement"):
             self.xml = root
         else:
@@ -277,8 +267,15 @@ def addElement(node, name, content=None, attributes={}):
 
 
 reader = Sax2.Reader()
-parseString = reader.fromString
 parseStream = reader.fromStream
+
+def parseString(string):
+    try:
+        return reader.fromString(string)
+    except:
+        log.msg("Error loading the following XML string:\n%s" % string)
+        raise
+
 
 def createRootNode():
     return xml.dom.implementation.createDocument(None, None, None)

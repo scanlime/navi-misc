@@ -279,7 +279,7 @@ class CommitToXHTML(CommitFormatter):
     """Converts commit messages to XHTML, represented as a Nouvelle tag tree."""
     medium = 'xhtml'
     defaultComponentTree = """
-    <format>
+    <format xmlns:n='http://www.w3.org/1999/xhtml'>
         <n:div style='border: 1px solid #888; background-color: #DDD; padding: 0.25em 0.5em; margin: 0em;'>
             <autoHide> Commit by <n:strong><author/></n:strong></autoHide>
             <autoHide> on <branch/></autoHide>
@@ -421,7 +421,7 @@ class CommitToXHTMLLong(CommitToXHTML):
        """
     medium = 'xhtml-long'
     defaultComponentTree = """
-    <format>
+    <format xmlns:n='http://www.w3.org/1999/xhtml'>
         <n:h1>Commit Message</n:h1>
         <headers/>
         <n:p class='messageBody'><log/></n:p>
