@@ -26,7 +26,7 @@ void HM_Window_Init(HM_Window* window)
 	window->root->w = 640;
 	window->root->h = 480;
 	window->root->draw = draw_drawfield;
-	
+
 	/* root window colors */
 	window->root->color = malloc(sizeof(SDL_Color));
 	window->root->color->r = 255;
