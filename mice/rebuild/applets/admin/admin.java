@@ -20,5 +20,9 @@ public class admin extends java.applet.Applet
 	 */
 	public void init()
 	{
+		//net.openConnection("localhost",8080);
+		info.help = new TextArea("This is the information window, it will tell you everything you could want to know about what you need to do, and what stuff is.",6,70,TextArea.SCROLLBARS_VERTICAL_ONLY);
+		//authenticate auth = new authenticate();
+		add(info.help);
 	}
 }
