@@ -102,8 +102,6 @@ xchat_gnome_SOURCES =			\
 	userlist.c			\
 	userlist_gui.h			\
 	userlist_gui.c			\
-	xtext.h				\
-	xtext.c				\
 	xtext2.h			\
 	xtext2.c			\
 	xtextbuffer.h			\
@@ -113,14 +111,6 @@ xchat_gnome_DATA =			\
 	channel-list.glade		\
 	xchat-gnome.glade
 xchat_gnomedir = $(xchatsharedir)
-
-about.c:	xtext.h
-
-xtext.h: @top_srcdir@/src/fe-gtk/xtext.h
-	cp -pR @top_srcdir@/src/fe-gtk/xtext.h .
-
-xtext.c: @top_srcdir@/src/fe-gtk/xtext.c xtext.h
-	cp -pR @top_srcdir@/src/fe-gtk/xtext.c .
 
 mmx_cmod.h:	@top_srcdir@/src/fe-gtk/mmx_cmod.h
 	cp -pR @top_srcdir@/src/fe-gtk/mmx_cmod.h .

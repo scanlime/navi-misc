@@ -57,7 +57,3 @@ gboolean initialize_gui_2() {
 	initialize_transfers_window();
 	return TRUE;
 }
-
-int xtext_get_stamp_str (time_t tim, char **ret) {
-	return get_stamp_str("[%H:%M:%S] ", tim, ret);
-}
