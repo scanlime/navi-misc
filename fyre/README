@@ -33,6 +33,9 @@ Additionally, Gaussian blurs can be applied to the image using a
 stochastic process that produces much more natural-looking images than
 most programs, again without losing any of the image's original precision.
 
+Contact info and the latest version of Fyre is available from:
+  http://fyre.navi.cx
+
 
 Loading and Saving
 ------------------
@@ -103,6 +106,12 @@ Athlon XP, Pentium 4, Itanium2 and PowerPC G3 CPUs.
 If you have the Intel C compiler installed, you can use this by setting
 your CC environment variable to "icc". On a 1500MHz ia64 test, using the
 intel compiler compiler resulted in a 25% speed increase.
+
+Fyre supports Windows now. You'll need windows versions of gcc, binutils,
+gtk, libglade, and their dependencies to compile it. More information on
+compiling the windows version is in Makefile.win32, or you can download
+a binary release for windows from http://fyre.navi.cx
+
 
 Authors
 --------
