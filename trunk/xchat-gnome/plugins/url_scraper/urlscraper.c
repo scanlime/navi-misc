@@ -21,8 +21,7 @@ static int urls;			// Current total in the scraper.
 static GtkWidget *window;
 static GtkListStore *list_store;
 
-static void url_open (GtkTreeView *treeview, GtkTreePath *path,
-		GtkTreeViewColumn *column, gpointer user_data);
+static void url_open (GtkTreeViewColumn *column, gpointer user_data);
 
 
 static gboolean delete_cb (GtkWidget *widget, GdkEvent *event, gpointer user_data)
@@ -68,7 +67,7 @@ static void make_window ()
 
 	gtk_container_add (GTK_CONTAINER(window), scrolled);
 
-	g_signal_connect (G_OBJECT(treeview), "row-activated", G_CALLBACK(url_open), NULL);
+	g_signal_connect (G_OBJECT(url_col), "clicked", G_CALLBACK(url_open), treeview);
 
 	gtk_widget_show_all (window);
 }
@@ -133,8 +132,7 @@ void xchat_plugin_get_info (char **plugin_name,
 	*plugin_version = VERSION;
 }
 
-static void url_open (GtkTreeView *treeview, GtkTreePath *path,
-		GtkTreeViewColumn *column, gpointer user_data)
+static void url_open (GtkTreeViewColumn *column, gpointer user_data)
 {
 	char *cur_url = NULL;
 	GtkTreeSelection *selection;
@@ -142,8 +140,8 @@ static void url_open (GtkTreeView *treeview, GtkTreePath *path,
 	GError *err = NULL;
 	GtkTreeIter iter;
 
-	model = GTK_TREE_MODEL(treeview);
-	selection = gtk_tree_view_get_selection (treeview);
+	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW(user_data));
+	model = gtk_tree_view_get_model (GTK_TREE_VIEW(user_data));
 	gtk_tree_selection_get_selected (selection, &model, &iter);
 	gtk_tree_model_get (model, &iter, 2, cur_url, -1);
 	gnome_url_show (cur_url, &err);
