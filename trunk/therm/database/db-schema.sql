@@ -63,6 +63,7 @@ CREATE TABLE IF NOT EXISTS packets
 
     FOREIGN KEY (source) REFERENCES sources(id) ON DELETE CASCADE,
     INDEX (source),
+    INDEX (id),
     INDEX (time)
 ) TYPE=INNODB;
 
