@@ -27,7 +27,9 @@ the actual stats target using part of the message.
 #
 
 import Ruleset, XML, Message
-import string, os, time, datetime, calendar
+import string, os
+import time, datetime, calendar
+import anydbm
 
 
 class StatsURIHandler(Ruleset.RegexURIHandler):
@@ -87,7 +89,7 @@ class StatsTarget(object):
         self.path = path
         self.createIfNecessary(path)
         self.counters = IntervalCounters(os.path.join(self.path, 'counters.xml'))
-        self.recentMessages = MessageBuffer(os.path.join(self.path, 'recent_messages.xml'))
+        self.recentMessages = LogDB(os.path.join(self.path, 'recent_messages.db'))
 
     def createIfNecessary(self, path):
         try:
@@ -98,7 +100,7 @@ class StatsTarget(object):
     def deliver(self, message):
         """A message has been received which should be logged by this stats target"""
         self.counters.increment()
-        self.recentMessages.push(message)
+        self.recentMessages.push(str(message))
 
 
 class TimeInterval(object):
@@ -205,26 +207,92 @@ class CounterList(XML.XMLStorage):
         return self.counters[name]
 
 
-class MessageBuffer(XML.XMLStorage):
-    """A FIFO holding the last n messages delivered to it"""
-    def __init__(self, fileName, size=100):
-        self.size = size
-        XML.XMLStorage.__init__(self, fileName, 'messages')
+class LogDB(object):
+    """A database (accessed via anydbm) used as a FIFO for the
+       last n objects delivered to it. The objects in this
+       case are always strings. The database is organized as a
+       ring buffer. Keys include the numbers 0 through n-1,
+       plus the following special keys:
 
-    def emptyStorage(self):
-        self.buffer = []
+          head  : The key to place the next node at
+          count : Total number of nodes in the buffer
+          size  : Size of this buffer, can't be changed after it's created.
+                  The size specified to the constructor is only
+                  used when a new database has been created.
 
-    def store(self, xml):
-        self.buffer.append(Message.Message(xml))
+       >>> d = LogDB('/tmp/example.db', 'n')
+       >>> d.getLatest()
+       []
+       >>> d.push('foo')
+       >>> d.push('bar')
+       >>> d.push('boing')
+       >>> d.getLatest()
+       ['foo', 'bar', 'boing']
+       >>> for i in xrange(5000):
+       ...    d.push(str(i))
+       >>> len(d.getLatest())
+       1024
+       >>> len(d.getLatest(10000))
+       1024
+       >>> len(d.getLatest(100))
+       100
+       >>> d.getLatest(10)
+       ['4990', '4991', '4992', '4993', '4994', '4995', '4996', '4997', '4998', '4999']
+       """
+    def __init__(self, fileName, flags='c', size=1024):
+        self.db = anydbm.open(fileName, flags)
+        if not self.db.has_key('size'):
+            # It's a new database, initialize the special keys
+            self.db['head'] = '0'
+            self.db['count'] = '0'
+            self.db['size'] = str(size)
+        self.size = int(self.db['size'])
+        self.head = int(self.db['head'])
+        self.count = int(self.db['count'])
 
-    def flatten(self):
-        return self.buffer
+    def close(self):
+        self.db.close()
 
-    def push(self, message):
-        self.buffer.append(message)
-        while len(self.buffer) > self.size:
-            del self.buffer[0]
-        self.save()
+    def push(self, node):
+        """Add the given node to the FIFO, overwriting
+           the oldest entries if the buffer is full.
+           'node' must be a string.
+           """
+        # Stow the new node at our head and increment it
+        self.db[str(self.head)] = node
+        self.head = self.head + 1
+        if self.head >= self.size:
+            self.head -= self.size
+        self.db['head'] = str(self.head)
+
+        # If we haven't just also pushed out an old item,
+        # increment the count of items in our db.
+        if self.count < self.size:
+            self.count += 1
+            self.db['count'] = str(self.count)
+
+    def getLatest(self, n=None):
+        """Returns up to the latest 'n' items. If n is None,
+           returns the entire contents of the FIFO.
+           Returns a list, oldest items first.
+           """
+        # Figure out how many items we can actually extract
+        if n is None or n > self.count:
+            n = self.count
+
+        # Find the key holding the oldest item we want to return,
+        # and start pulling items out from there
+        key = self.head - n
+        if key < 0:
+            key += self.size
+        results = []
+        while n > 0:
+            results.append(self.db[str(key)])
+            key += 1
+            if key >= self.size:
+                key -= self.size
+            n -= 1
+        return results
 
 
 class IntervalCounters(CounterList):
