@@ -21,12 +21,17 @@ logfile = open(sys.argv[1], "w")
 def log(values):
     formatted = ', '.join(map(str, values))
     logfile.write(formatted + "\n")
-    print formatted
 
-startTime = time.time()
-log(["Time (s)"] + ["Channel %s (V)" % i for i in range(8)])
-while 1:
-    readings = self.rcpod.analogReadAll()
-    log([time.time() - startTime] + [c / 255.0 * 5.0 for c in readings])
+print "Collecting data to %s, press CTRL-C to stop" % (sys.argv[1])
+
+try:
+    startTime = time.time()
+    log(["Time (s)"] + ["Channel %s (V)" % i for i in range(8)])
+    while 1:
+       readings = rcpod.analogReadAll()
+       log([time.time() - startTime] + [c / 255.0 * 5.0 for c in readings])
+except KeyboardInterrupt:
+    pass
+print "Finished successfully"
 
 ### The End ###
