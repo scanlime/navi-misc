@@ -1,6 +1,12 @@
 """ LibCIA.XML
 
-Classes and utility functions to make the DOM suck less
+Classes and utility functions to make the DOM suck less. CIA has been
+ported across DOM implementations multiple times, and may need to be
+ported again in the future. This file, in addition to making life easier,
+should hide quirks of particular DOM implementations as best as possible.
+
+This implementation uses PyXML's 4DOM.
+
 """
 #
 # CIA open source notification system
@@ -23,12 +29,11 @@ Classes and utility functions to make the DOM suck less
 
 import types, weakref
 import Nouvelle
-from Ft.Xml import Domlette
+from xml.dom.ext.reader import Sax2
+import xml.dom.ext
+import xml.xpath
 from cStringIO import StringIO
 from twisted.python import log
-
-# 4Suite requires a URI for everything, but it doesn't make sense for most of our XML snippets
-defaultURI = "cia://anonymous-xml"
 
 
 class XMLObject(object):
@@ -36,19 +41,19 @@ class XMLObject(object):
        methods to load it from a string or a DOM tree, and convert
        it back to an XML string.
 
-       'xml' is either a DOM node, a string containing
+       'doc' is either a DOM node, a string containing
        the message in XML, or a stream-like object.
        """
-    def __init__(self, xml=None, uri=None):
-        if type(xml) in types.StringTypes:
-            self.loadFromString(xml, uri)
-        elif hasattr(xml, 'read'):
-            self.loadFromStream(xml, uri)
-        elif hasattr(xml, 'nodeType'):
+    def __init__(self, doc=None, uri=None):
+        if type(doc) in types.StringTypes:
+            self.loadFromString(doc, uri)
+        elif hasattr(doc, 'read'):
+            self.loadFromStream(doc, uri)
+        elif hasattr(doc, 'nodeType'):
             # FIXME: This is loading via a string since loadFromDom
             #        currently has a memory leak.
-            self.loadFromString(toString(xml), uri)
-            #self.loadFromDom(xml)
+            self.loadFromString(toString(doc), uri)
+            #self.loadFromDom(doc)
 
     def __str__(self):
         return toString(self.xml)
@@ -56,7 +61,7 @@ class XMLObject(object):
     def loadFromString(self, string, uri=None):
         """Parse the given string as XML and set the contents of the message"""
         try:
-            dom = Domlette.NonvalidatingReader.parseString(string, uri or defaultURI)
+            dom = parseString(string)
         except:
             log.msg("Error loading the following XML string:\n%s" % string)
             raise
@@ -64,7 +69,7 @@ class XMLObject(object):
 
     def loadFromStream(self, stream, uri=None):
         """Parse the given stream as XML and set the contents of the message"""
-        self.loadFromDom(Domlette.NonvalidatingReader.parseStream(stream, uri or defaultURI))
+        self.loadFromDom(parseStream(stream))
 
     def loadFromDom(self, root):
         """Set the contents of the Message from a parsed DOM tree"""
@@ -271,44 +276,37 @@ def addElement(node, name, content=None, attributes={}):
     return newElement
 
 
-def parseString(s, uri=defaultURI):
-    """A parseString wrapper that doesn't require a URI"""
-    return Domlette.NonvalidatingReader.parseString(s, uri)
+reader = Sax2.Reader()
+parseString = reader.fromString
+parseStream = reader.fromStream
 
+def createRootNode():
+    return xml.dom.implementation.createDocument(None, None, None)
 
-def parseStream(s, uri=defaultURI):
-    """A parseStream wrapper that doesn't require a URI"""
-    return Domlette.NonvalidatingReader.parseStream(s, uri)
-
-
-def createRootNode(uri=defaultURI):
-    return Domlette.implementation.createRootNode(uri)
-
-
-def toString(xml):
+def toString(doc):
     """Convert a DOM tree back to a string"""
     io = StringIO()
-    Domlette.Print(xml, io)
+    xml.dom.ext.Print(doc, io)
     return io.getvalue()
 
 
-def getChildElements(xml):
+def getChildElements(doc):
     """A generator that returns all child elements of a node"""
-    for child in xml.childNodes:
+    for child in doc.childNodes:
         if child.nodeType == child.ELEMENT_NODE:
             yield child
 
 
-def firstChildElement(xml):
+def firstChildElement(doc):
     try:
-        return getChildElements(xml).next()
+        return getChildElements(doc).next()
     except StopIteration:
         return None
 
 
-def hasChildElements(xml):
+def hasChildElements(doc):
     # Force a boolean result
-    return firstChildElement(xml) is not None
+    return firstChildElement(doc) is not None
 
 
 class HTMLPrettyPrinter(XMLObjectParser):
@@ -361,20 +359,13 @@ class XPath:
        """
     def __init__(self, path, context=None):
         global xPathCache
-        from Ft.Xml import XPath
-
         try:
             self.compiled = xPathCache[path]
         except KeyError:
-            self.compiled = XPath.Compile(path)
+            self.compiled = xml.xpath.Compile(path)
             xPathCache[path] = self.compiled
 
-        if context is None:
-            context = XPath.Context.Context(None, processorNss={})
-        self.context = context
-
     def queryForNodes(self, doc):
-        from Ft.Xml import XPath
-        return XPath.Evaluate(self.compiled, doc, self.context)
+        return self.compiled.evaluate(xml.xpath.CreateContext(doc))
 
 ### The End ###
