@@ -113,6 +113,7 @@ void tracker(int n_cameras, CvCalibFilter *calib) {
     if (!cv_sdl_process_events())
       return;
     images = cv_dc1394_capture_yuv(n_cameras);
+    calib->Undistort(images, images);
 
     /* Draw an X or a check on each camera to indicate current calibration status */
     for (int i=0; i<n_cameras; i++) {
@@ -163,7 +164,7 @@ void tracker(int n_cameras, CvCalibFilter *calib) {
       if (!cv_sdl_event_handler(&event))
 	return;
 
-      if (event.type = SDL_KEYDOWN)
+      if (event.type == SDL_KEYDOWN)
 	switch (event.key.keysym.sym) {
 
 	case 'o':
@@ -184,6 +185,7 @@ void tracker(int n_cameras, CvCalibFilter *calib) {
 	    static int sequence = 0;
 	    if (efs_output) {
 	      fclose(efs_output);
+	      efs_output = NULL;
 	      printf("Closed log\n");
 	    }
 	    else {
