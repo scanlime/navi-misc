@@ -28,30 +28,30 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
-public class TunnelMain
+public class TunnelList extends JPanel implements ListSelectionListener
 {
-    public static void swingInit()
-    {
-	JFrame.setDefaultLookAndFeelDecorated(true);
-	JFrame frame = new JFrame("SSH Tunnel");
-	frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-	
-	TunnelList tunnelList = new TunnelList(frame);
-	tunnelList.setOpaque(true);
-	frame.setContentPane(tunnelList);
-
-	frame.pack();
-	frame.setVisible(true);	
-    }
+    private JFrame myFrame;
+    private JList tList;
+    private DefaultListModel tListModel;
     
-    public static void main(String[] args)
+
+    public TunnelList(JFrame frame)
     {
-	javax.swing.SwingUtilities.invokeLater(new Runnable() 
-	    {
-		public void run()
-		{
-		    swingInit();
-		}
-	    });
+	super(new BorderLayout());
+	myFrame = frame;
+	tListModel = new DefaultListModel();
+	
+	tList = new JList(tListModel);
+	tList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+	tList.setSelectedIndex(0);
+	tList.addListSelectionListener(this);
+	tList.setVisibleRowCount(10);
+	JScrollPane listScrollPane = new JScrollPane(tList);
+	add(listScrollPane, BorderLayout.CENTER);
+    }
+
+    public void valueChanged(ListSelectionEvent e)
+    {
+	
     }
 }
