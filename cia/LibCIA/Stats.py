@@ -521,8 +521,14 @@ class Counters:
            """
         return Database.pool.runInteraction(self._getCounter, name)
 
+    def dict(self):
+        """Return a Deferred that eventually results in a dictionary mapping
+           counter name to the dictionary that would be returned by getCounter.
+           """
+        return Database.pool.runInteraction(self._dict)
+
     def _getCounter(self, cursor, name):
-        """Database interaction implementing _getCounter"""
+        """Database interaction implementing getCounter"""
         cursor.execute("SELECT first_time, last_time, event_count FROM stats_counters WHERE"
                        " target_path = %s AND name = %s" %
                        (Database.quote(self.target.path, 'varchar'),
@@ -534,6 +540,23 @@ class Counters:
                 'lastEventTime':  row[1],
                 'eventCount':     row[2],
                 }
+
+    def _dict(self, cursor):
+        """Database interaction implementing _getCounterDict"""
+        cursor.execute("SELECT name, first_time, last_time, event_count FROM stats_counters WHERE"
+                       " target_path = %s" %
+                       Database.quote(self.target.path, 'varchar'))
+        results = {}
+        while True:
+            row = cursor.fetchone()
+            if row is None:
+                break
+            results[row[0]] = {
+                'firstEventTime': row[1],
+                'lastEventTime':  row[2],
+                'eventCount':     row[3],
+                }
+        return results
 
     def clear(self):
         """Delete all counters for this target. Returns a Deferred"""
