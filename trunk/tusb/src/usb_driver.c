@@ -121,10 +121,19 @@ static void usb_ack_ep0_in() {
 void usb_write_ep0_buffer(unsigned char *buffer, int length) {
   /* Sent a response to a request expecting EP0 IN data */
   int packet_length;
+  bit explicit_stop;
 
-  /* Never send more than the host wants */
-  if (length > usb_setup_buffer.wLength)
+  if (length >= usb_setup_buffer.wLength) {
+    /* Never send more than the host wants */
+    explicit_stop = 0;
     length = usb_setup_buffer.wLength;
+  }
+  else {
+    /* The host is asking for more than we have, we need
+     * to make sure we explicitly terminate the transaction.
+     */
+    explicit_stop = 1;
+  }
 
   /* Always send at least one packet, even if our length is zero */
   do {
@@ -141,6 +150,15 @@ void usb_write_ep0_buffer(unsigned char *buffer, int length) {
     buffer += packet_length;
     length -= packet_length;
   } while (length > 0);
+
+  /* If our last packet wasn't smaller than the maximum packet length
+   * and they asked for more data than we've sent, we need to send
+   * a short packet to explicitly terminate the transction.
+   */
+  if (explicit_stop && packet_length == 8) {
+    IEPBCNT_0 = 0;
+    usb_wait_for_ep0_in();
+  }
 
   usb_ack_ep0_in();
 }
