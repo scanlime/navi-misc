@@ -5,6 +5,7 @@ LIBS			+= $(shell pkg-config --libs $(PKGS))
 
 PLUGINS			=			\
 			core.so			\
+			extended.so		\
 			renderpasses.so
 
 CORE_SO_OBJS		=			\
@@ -12,7 +13,6 @@ CORE_SO_OBJS		=			\
 			box.o			\
 			core.o			\
 			flagzone.o		\
-			group.o			\
 			link.o			\
 			pyramid.o		\
 			tankzone.o		\
@@ -20,6 +20,10 @@ CORE_SO_OBJS		=			\
 			world.o			\
 			worldweapon.o		\
 			zone.o
+
+EXTENDED_SO_OBJS	=			\
+			extended.o		\
+			group.o
 
 RENDERPASSES_SO_OBJS	=			\
 			basicrenderpass.o	\
@@ -30,6 +34,9 @@ all:			$(PLUGINS)
 
 core.so:		$(CORE_SO_OBJS)
 			gcc -shared -o $@ $(CORE_SO_OBJS) $(LIBS)
+
+extended.so:		$(EXTENDED_SO_OBJS)
+			gcc -shared -o $@ $(EXTENDED_SO_OBJS) $(LIBS)
 
 renderpasses.so:	$(RENDERPASSES_SO_OBJS)
 			gcc -shared -o $@ $(RENDERPASSES_SO_OBJS) $(LIBS)

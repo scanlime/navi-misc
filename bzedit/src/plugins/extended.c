@@ -1,5 +1,5 @@
 /*
- * core.c - The core objects
+ * extended.c - BZEdit extensions
  *
  * BZEdit
  * Copyright (C) 2004 David Trowbridge
@@ -21,35 +21,19 @@
  */
 
 #include <gmodule.h>
-#include "box.h"
-#include "teleporter.h"
-#include "pyramid.h"
-#include "base.h"
-#include "world.h"
-#include "link.h"
-#include "flagzone.h"
-#include "tankzone.h"
-#include "worldweapon.h"
+#include "group.h"
 #include "plugins.h"
 
 const gchar*
 g_module_check_init (GModule *module)
 {
-  static GType base, box, link, pyramid, teleporter, world, fez, tez, ww;
+  static GType group;
 
   /* permanently insert ourself */
   g_module_make_resident (module);
 
   /* and register our types */
-  box = BOX_TYPE;
-  pyramid = PYRAMID_TYPE;
-  teleporter = TELEPORTER_TYPE;
-  base = BASE_TYPE;
-  link = LINK_TYPE;
-  fez = FLAG_ZONE_TYPE;
-  tez = TANK_ZONE_TYPE;
-  ww = WORLD_WEAPON_TYPE;
-  world = WORLD_TYPE;
+  group = GROUP_TYPE;
 
   return NULL;
 }
