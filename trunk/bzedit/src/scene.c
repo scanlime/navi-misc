@@ -145,11 +145,10 @@ filter_priority_compare (RenderPass *p1, RenderPass *p2)
 static void
 scene_preprocess_iterate (SceneObject *object, GList *drawables, GList *passes)
 {
-  GList *drawable, *pass, *filter_sort;
+  GList *drawable, *pass;
 
-  filter_sort = g_list_sort (passes, (GCompareFunc) filter_priority_compare);
   for (drawable = drawables; drawable; drawable = drawable->next)
-    for (pass = filter_sort; pass; pass = pass->next)
+    for (pass = passes; pass; pass = pass->next)
       if (render_pass_filter (RENDER_PASS (pass->data), DRAWABLE (drawable->data)))
         render_pass_add (RENDER_PASS (pass->data), DRAWABLE (drawable->data));
 }
@@ -157,15 +156,14 @@ scene_preprocess_iterate (SceneObject *object, GList *drawables, GList *passes)
 void
 scene_preprocess (Scene *self)
 {
-  GList *render_sort;
   GList *i;
 
   /* rebuilds rendering passes. This operation clears the 'dirty' flag, and
    * is called automatically when a dirty scene needs rendering
    */
 
-  render_sort = g_list_sort (self->render_passes, (GCompareFunc) render_priority_compare);
-  for (i = render_sort; i; i = i->next)
+  self->render_passes = g_list_sort (self->render_passes, (GCompareFunc) filter_priority_compare);
+  for (i = self->render_passes; i; i = i->next)
   {
     RenderPass *pass = RENDER_PASS (i->data);
     render_pass_erase (pass);
@@ -174,9 +172,9 @@ scene_preprocess (Scene *self)
   /* divy up the drawables into rendering passes using the passes' filter function */
   g_hash_table_foreach (self->objects, (GHFunc) scene_preprocess_iterate, (gpointer) self->render_passes);
 
-  render_sort = g_list_sort (self->render_passes, (GCompareFunc) render_priority_compare);
+  self->render_passes = g_list_sort (self->render_passes, (GCompareFunc) render_priority_compare);
   /* give each pass a chance to preprocess */
-  for (i = render_sort; i; i = i->next)
+  for (i = self->render_passes; i; i = i->next)
   {
     RenderPass *pass = RENDER_PASS (i->data);
     render_pass_preprocess (pass);
