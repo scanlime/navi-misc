@@ -16,11 +16,4 @@ PipelineDrawing.cs:
 	drawing to grow as needed.
   * Add drawing code
 
-NavigationImage.cs:
-  * Optimize drawing. Right now we just redraw the entire navigation window
-	when we move the mouse. This isn't terrible, but it would be much
-	nicer to just blit what we need, when we need it. This probably
-	involves some tracking to see when/how far the mouse actually moves
-	in the context of the window's area.
-
 Plugins all need element-specific implementation
