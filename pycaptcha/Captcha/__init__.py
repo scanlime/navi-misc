@@ -47,15 +47,9 @@ def checkVersion():
 checkVersion()
 
 
-# Determine the data directory. This can be overridden after import-time if needed.
-def getDefaultDataDir():
-    import os
-    return os.path.join(os.path.split(os.path.abspath(__file__))[0], "data")
-dataDir = getDefaultDataDir()
-
-
 # Convenience imports
 from Base import *
+import File
 import Words
 
 ### The End ###

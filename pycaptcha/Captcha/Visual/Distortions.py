@@ -58,7 +58,7 @@ class WarpBase(Layer):
        PIL's mesh transform to warp the image.
        """
     filtering = Image.BILINEAR
-    resolution = 16
+    resolution = 10
 
     def getTransform(self, image):
         """Return a transformation function, subclasses should override this"""
@@ -66,8 +66,8 @@ class WarpBase(Layer):
 
     def render(self, image):
         r = self.resolution
-        xPoints = image.size[0] / r + 1
-        yPoints = image.size[1] / r + 1
+        xPoints = image.size[0] / r + 2
+        yPoints = image.size[1] / r + 2
         f = self.getTransform(image)
 
         # Create a list of arrays with transformed points
@@ -114,7 +114,7 @@ class SineWarp(WarpBase):
 
     def __init__(self,
                  amplitudeRange = (3, 8),
-                 periodRange    = (0.02, 0.1),
+                 periodRange    = (0.04, 0.1),
                  ):
         self.amplitude = random.uniform(*amplitudeRange)
         self.period = random.uniform(*periodRange)

@@ -22,7 +22,7 @@ Utilities for managing word lists and finding random words
 #
 
 import random, os
-import Captcha
+import File
 
 
 class WordList(object):
@@ -39,7 +39,7 @@ class WordList(object):
 
     def read(self):
         """Read words from disk"""
-        f = open(os.path.join(Captcha.dataDir, "words", self.fileName))
+        f = open(os.path.join(File.dataDir, "words", self.fileName))
 
         self.words = []
         for line in f.xreadlines():
