@@ -42,7 +42,7 @@ used to store and query rulesets in a RulesetStorage.
 import XML, Message
 from twisted.python import log
 from twisted.xish.xpath import XPathQuery
-import sys, traceback
+import sys, traceback, re
 
 
 class RulesetReturnException(Exception):
@@ -270,11 +270,39 @@ class BaseURIHandler(object):
            """
         pass
 
-    def message(self, uri, content):
-        """Deliver a message to the given URI. The 'content' will be whatever
-           results from parsing a ruleset generally.
+    def message(self, uri, message, content):
+        """Deliver a message to the given URI. The 'message' is the original
+           unprocessed message resulting in this content, and the 'content'
+           is the result of passing the message through whatever ruleset
+           caused it to end up here.
            """
         pass
+
+
+class RegexURIHandler(BaseURIHandler):
+    """A URIHandler that validates and parses URIs using a regular expression.
+       This class compiles a regular expression on initialization and provides
+       a parseURI method that generates a dictionary of groups matched in the
+       regex, or raises an UnsupportedURI exception if the regex does not match.
+       It implements a default assigned() function that runs parseURI just to
+       cause an error in setting the URI if it's invalid.
+       """
+    regex = None
+    regexFlags = re.VERBOSE
+
+    def __init__(self):
+        # Compile the regex
+        self.compiledRegex = re.compile(self.regex, self.regexFlags)
+
+    def parseURI(self, uri):
+        """Given a valid URI, return a dictionary of named groups in the regex match"""
+        match = self.compiledRegex.match(uri)
+        if not match:
+            raise InvalidURIException("Invalid URI: %r" % uri)
+        return match.groupdict()
+
+    def assigned(self, uri, newRuleset):
+        self.parseURI(uri)
 
 
 class RulesetDelivery(object):
@@ -297,7 +325,7 @@ class RulesetDelivery(object):
         try:
             result = self.ruleset(message)
             if result:
-                self.uriHandler.message(self.ruleset.uri, result)
+                self.uriHandler.message(self.ruleset.uri, message, result)
         except:
             e = sys.exc_info()[1]
             log.msg("Exception occurred in RulesetDelivery\n" +
