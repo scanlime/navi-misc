@@ -103,7 +103,6 @@ if __name__ == "__main__":
     import math
 
     fyre = FyreServer()
-    fyre.command("set_gui_style", "simple")
     fyre.command("set_render_time", 0.05)
     fyre.setParams(size = "400x300",
                    exposure = 0.030000,
@@ -120,6 +119,7 @@ if __name__ == "__main__":
                    initial_conditions = "circular_uniform",
                    initial_xscale = 0.824000,
                    initial_yscale = 0.018000)
+    fyre.command("set_gui_style", "simple")
 
     t = 0
     while 1:
