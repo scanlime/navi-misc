@@ -309,7 +309,7 @@ class CommitToRSS(CommitFormatter):
         return Nouvelle.tag('item')[
             Nouvelle.tag('description')[
                 # Quoted again, since this will be interpreted as HTML
-                Nouvelle.quote(self.format_log(commit.log)),
+                Nouvelle.quote(CommitFormatter.format(self, message)),
             ],
             Nouvelle.tag('pubDate')[
                 TimeUtil.formatDateRFC822(int(str(message.xml.timestamp))),
