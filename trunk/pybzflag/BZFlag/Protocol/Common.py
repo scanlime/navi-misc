@@ -32,7 +32,7 @@ defaultPort = 5155
 InAddr = VectorType("!BBBB")
 
 # A vector in 3D space
-Vector3 = VectorType("fff")
+Vector3 = VectorType("!fff")
 
 # A player identifier is now a single unsigned byte (changed from 1.7)
 PlayerId = UInt8

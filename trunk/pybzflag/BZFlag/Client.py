@@ -28,13 +28,13 @@ from BZFlag import Network, Protocol, Errors
 from BZFlag.Protocol import FromServer, ToServer, Common
 
 
-class PlayerInfo:
+class PlayerIdentity:
     """A simple container for basic player information"""
-    def __init__(self, callSign, team=0):
+    def __init__(self, callSign, team=0, emailAddress="PyBZFlag"):
         self.type = 0
         self.callSign = callSign
         self.team = team
-        self.emailAddress = "PyBZFlag"
+        self.emailAddress = emailAddress
 
 
 class BaseClient:
@@ -123,12 +123,12 @@ class BaseClient:
            """
         pass
 
-    def enterGame(self, playerInfo):
+    def enterGame(self, playerIdentity):
         msg = ToServer.MsgEnter()
-        msg.playerType = playerInfo.type
-        msg.team = playerInfo.team
-        msg.callSign = playerInfo.callSign
-        msg.emailAddress = playerInfo.emailAddress
+        msg.playerType = playerIdentity.type
+        msg.team = playerIdentity.team
+        msg.callSign = playerIdentity.callSign
+        msg.emailAddress = playerIdentity.emailAddress
         self.tcp.write(msg)
 
 ### The End ###
