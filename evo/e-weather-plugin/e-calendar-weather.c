@@ -33,14 +33,13 @@ e_calendar_weather_location (EPlugin *epl, EConfigHookItemFactoryData *data)
 	int row;
 	ECConfigTargetSource *t = (ECConfigTargetSource *) data->target;
 	ESource *source = t->source;
-	EUri *uri;
+	ESourceGroup *group = e_source_peek_group (source);
 	static GtkWidget *hidden = NULL;
 
 	if (!hidden)
 		hidden = gtk_label_new ("");
 
-	uri = e_uri_new (e_source_get_uri (source));
-	if (strcmp (uri->protocol, "weather"))
+	if (strcmp (e_source_group_peek_name (group), _("Weather")))
 		return hidden;
 
 	if (data->old)
@@ -80,16 +79,14 @@ e_calendar_weather_refresh (EPlugin *epl, EConfigHookItemFactoryData *data)
 	int row, i;
 	ECConfigTargetSource *t = (ECConfigTargetSource *) data->target;
 	ESource *source = t->source;
-	EUri *uri;
+	ESourceGroup *group = e_source_peek_group (source);
 	static GtkWidget *hidden = NULL;
 
 	if (!hidden)
 		hidden = gtk_label_new ("");
 
-	uri = e_uri_new (e_source_get_uri (source));
-	if (strcmp (uri->protocol, "weather"))
+	if (strcmp (e_source_group_peek_name (group), _("Weather")))
 		return hidden;
-	e_uri_free (uri);
 
 	if (data->old)
 		return data->old;

@@ -1,6 +1,6 @@
-set values for refresh counters
-hook up _commit() in core
-hook up _commit and _abort for plugins
+get/set value for refresh counter in e-weather
+
+accelerators
 
 come up with some method of representing separate city entries with the same station
 	- could just combine them with / in xml
