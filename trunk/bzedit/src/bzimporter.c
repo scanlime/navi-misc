@@ -21,16 +21,16 @@
  */
 
 #include "bzimporter.h"
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
 
 static GScannerConfig parser_config =
 {
   (" \t\r\n"),		/* cset_skip_characters */
-  (G_CSET_a_2_z
-   " "
-   G_CSET_A_2_Z),	/* cset_identifier_first */
-  (G_CSET_a_2_z
-   " -0123456789"
-   G_CSET_A_2_Z),	/* cset_identifier_nth */
+  (""),			/* cset_identifier_first */
+  (""),                 /* cset_identifier_nth */
   ("#\n"),		/* cpair_comment_single */
   FALSE,		/* case_sensitive */
   FALSE,		/* skip_comment_multi */
@@ -47,7 +47,7 @@ static GScannerConfig parser_config =
   FALSE,		/* scan_hex_dollar */
   FALSE,		/* scan_string_sq */
   FALSE,		/* scan_string_dq */
-  FALSE,		/* numbers_2_int */
+  TRUE,			/* numbers_2_int */
   TRUE,			/* int_2_float */
   FALSE,		/* identifier_2_string */
   FALSE,		/* char_2_token */
@@ -157,6 +157,8 @@ parse_box (Scene *scene)
 {
   GTokenType token;
   SceneObject *b = SCENE_OBJECT (g_object_new (box, NULL));
+
+  g_print ("parse_box ()\n");
 
   g_scanner_set_scope (scanner, BZ_SCOPE_BOX);
 
@@ -321,10 +323,17 @@ parse_link (Scene *scene)
 gboolean
 import_bz (gchar *filename, Scene *scene)
 {
+  gint fd;
+
   if (!initialized)
     initialize_scanner ();
 
+  /* bleh, fd. yick */
+  fd = open (filename, O_RDONLY);
+
+  g_scanner_input_file (scanner, fd);
   scanner->input_name = g_strdup (filename);
+
   while (!g_scanner_eof (scanner))
   {
     GTokenType token;
@@ -333,12 +342,6 @@ import_bz (gchar *filename, Scene *scene)
     g_scanner_set_scope (scanner, BZ_SCOPE_DEFAULT);
 
     token = g_scanner_get_next_token (scanner);
-    if (token != G_TOKEN_SYMBOL)
-    {
-      g_scanner_unexp_token (scanner, G_TOKEN_SYMBOL, NULL, "keyword", NULL, NULL, TRUE);
-      g_free ((gchar*) scanner->input_name);
-      return FALSE;
-    }
 
     switch (token)
     {
@@ -354,12 +357,20 @@ import_bz (gchar *filename, Scene *scene)
       case BZ_TOKEN_LINK:
         if (!parse_link (scene)) goto fail;
 	break;
+      case G_TOKEN_EOF:
+        break;
+      default:
+        g_print ("token is %d\n", token);
+        g_scanner_unexp_token (scanner, G_TOKEN_SYMBOL, NULL, "keyword", NULL, NULL, TRUE);
+	goto fail;
     }
   }
   g_free ((gchar*) scanner->input_name);
+  close (fd);
   return TRUE;
 
   fail:
   g_free ((gchar*) scanner->input_name);
+  close (fd);
   return FALSE;
 }
