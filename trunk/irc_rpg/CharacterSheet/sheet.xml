@@ -28,6 +28,11 @@
 		<tab label="Combat">
 			<dice label="Melee" sides="10">
 				<times>3</times>
+				<times>/character/strength</times>
+			</dice>
+			<dice label="Ranged" sides="10">
+				<times>/character/dexterity</times>
+				<mods>-3</mods>
 			</dice>
 		</tab>
 	</tab_view>

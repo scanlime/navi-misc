@@ -37,10 +37,6 @@ class GTKsheet:
 	if node.nodeType is xml.dom.Node.ELEMENT_NODE: newObject.packChild(self.makeObjects(node, newObject))
       return newObject
 
-    # Tag is data for it's parent object.
-    elif hasattr(parent, newNode.tagName):
-      print "data handling not implemented"
-
     # Should do better error handling
     else:
       print "Tag error:", newNode.tagName

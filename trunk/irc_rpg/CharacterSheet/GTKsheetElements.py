@@ -8,7 +8,7 @@ Copyright (C) 2003 W. Evan Sheehan <evan@navi.picogui.org>
 
 import gtk
 from Character import Character
-
+from random import randint
 
 class sheetElement:
   """ Superclass for all the tags. """
@@ -98,16 +98,40 @@ class dice(gtk.Button, sheetElement):
     self.node = node
     # Will this work?
     self.connect("clicked", self.roll)
-    self.times = []
+    self.data = {'times':[], 'mods':[]}
 
   def packChild(self, child):
-    self.times.append(child.node.childNodes[0].data.strip())
+    """ Children of a dice node will always be data for that node.
+        """
+    self.data[child.name].append(child.data)
 
   def roll(self, widget):
-    for time in self.times:
-      print time
+    """ Roll the dice. """
+    rolls = []
+    times = 0
+    for time in self.data['times']:
+      times += time
+    for i in range(times):
+      roll = randint(1, int(self.attributes['sides']))
+      for mod in self.data['mods']:
+	roll += mod
+      rolls.append(roll)
+    print rolls
 
 class times:
-  """ Data tags for dice tags. """
-  def __init__(self, node, data):
-    self.node = node
+  """ Number of times to roll the dice. """
+  def __init__(self, node, character):
+    self.name = node.tagName
+    if node.childNodes[0].data.count('/') > 0:
+      self.data = int(character.getData(node.childNodes[0].data))
+    else:
+      self.data = int(node.childNodes[0].data)
+
+class mods:
+  """ Modifiers to results. """
+  def __init__(self, node, character):
+    self.name = node.tagName
+    if node.childNodes[0].data.count('/') > 0:
+      self.data = int(character.getData(node.childNodes[0].data))
+    else:
+      self.data = int(node.childNodes[0].data)
