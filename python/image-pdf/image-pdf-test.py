@@ -10,6 +10,7 @@
 import Image, os
 from random import random
 from Numeric import *
+import psyco
 
 def openGrayImage(f):
     img = Image.open(f).convert("L")
@@ -24,45 +25,75 @@ def showArray(a):
     img.save("output.png")
     os.system("eog output.png")
 
-def buildTree(a, origin=(0,0), vertical=False):
+def binSearch(array, key):
+    """Return the index of the largest value in 'array' less than or
+       equal to 'key'. The contents of 'array' must be sorted.
+       """
+    a = 0
+    b = len(array)-1
+    while 1:
+        if array[b] <= key:
+            return b
+        if array[a] > key:
+            return None
+        center_low = (a + b) / 2
+        center_high = center_low + 1
+        if array[center_low] <= key and array[center_high] > key:
+            return center_low
+        elif array[center_low] > key:
+            b = center_low
+        elif array[center_high] <= key:
+            a = center_high
+        else:
+            assert 0
+
+def buildTree(a, origin=0):
+
     # Stopping conditions
-    if a.shape[0] == 1 and a.shape[1] == 1:
+    if len(a) == 1:
+        # Got a single pixel
         return origin
-    if a.shape[0] < 1 or a.shape[0] < 1:
+    if len(a) == 0:
+        # Empty region, this should never be reached when walking the tree
         return None
 
-    if vertical:
-        s = a.shape[0] / 2
-        subimages = a[:s,:], a[s:,:]
-        origin2 = (origin[0], origin[1]+s)
-    else:
-        s = a.shape[1] / 2
-        subimages = a[:,:s], a[:,s:]
-        origin2 = (origin[0]+s, origin[1])
+    sums = cumsum(a)
+    total = sums[-1]
 
-    sums = [sum(sum(i)) for i in subimages]
-    total = sums[0] + sums[1]
-    if not total:
-        # All image areas under this split have a probability of zero
+    if total < 1:
         return None
-    prob = sums[0] / float(total)
 
-    return (prob,
-            buildTree(subimages[0], origin, not vertical),
-            buildTree(subimages[1], origin2, not vertical))
+    # Split at approximately 0.5 probability
+    splitLoc = binSearch(sums, total / 2 + 1)
+    if not splitLoc:
+        splitLoc = 1
+
+    left = a[:splitLoc]
+    right = a[splitLoc:]
+
+    return (buildTree(left, origin),
+            buildTree(right, origin + splitLoc))
+
 
 def walkTree(t):
     while 1:
-        if len(t) == 2:
-            return t
-        else:
-            if random() < t[0]:
-                t = t[1]
+        if type(t) is tuple:
+            if random() < 0.5:
+                t = t[0]
             else:
-                t = t[2]
+                t = t[1]
+        else:
+            return t
+
+psyco.bind(binSearch)
+psyco.bind(buildTree)
+psyco.bind(walkTree)
 
 print "Opening image..."
 a = openGrayImage("test.png")
+originalShape = a.shape
+a = reshape(a, (-1,))
+
 print "Building tree..."
 t = buildTree(a)
 
@@ -71,13 +102,12 @@ out = zeros(a.shape, Int32)
 for i in xrange(100000):
     v = walkTree(t)
     try:
-        out[v[1], v[0]] += 1
+        out[v] += 1
     except IndexError:
         pass
 
 print "Generating image"
-peak = maximum.reduce( maximum.reduce(out) )
+peak = maximum.reduce(out)
 print "Peak density %d" % peak
-out = out * (255.0 / peak)
-
+out = reshape(out * (255.0 / peak), originalShape)
 showArray(out)
