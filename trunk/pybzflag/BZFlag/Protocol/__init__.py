@@ -51,6 +51,7 @@ __all__ = [
     'EntryType', 'ScalarType', 'VectorType', 'SubStruct', 'StructEntry',
     'StructPadding', 'Struct', 'Int8', 'UInt8', 'Int16', 'UInt16', 'Int32',
     'UInt32', 'Float', 'Double', 'StringField', 'Enum', 'Bitfield',
+    'ConstStructEntry',
     ]
 
 
@@ -151,6 +152,31 @@ class StructEntry:
         return self.entryType.getSize(packed)
 
 
+class ConstStructEntry:
+    """A class that can be used in place of a StructEntry when the value
+       is always constant, for example magic numbers or synchronization bytes.
+       By default, unmarshalling is skipped. If an exception instance is supplied,
+       it will be raised if the unmarshalled value doesn't match the given value.
+       """
+    def __init__(self, entryType, entryValue, badMatchException=None):
+        self.entryType = entryType
+        self.entryValue = entryValue
+        self.badMatchException = badMatchException
+
+    def unmarshall(self, struct, packed):
+        bytes = self.entryType.getSize(packed)
+        if self.badMatchException:
+            if self.entryType.unmarshall(packed[:bytes]) != self.entryValue:
+                raise self.badMatchException
+        return packed[bytes:]
+
+    def marshall(self, struct, packed):
+        return packed + self.entryType.marshall(self.entryValue)
+
+    def getSize(self, packed=None):
+        return self.entryType.getSize(packed)
+
+
 class StructPadding:
     """A class that can be used in place of StructEntry to waste a particular
        number of bytes without actually marshalling any data.
@@ -164,6 +190,9 @@ class StructPadding:
 
     def marshall(self, struct, packed):
         return packed + (chr(self.padByte) * self.size)
+
+    def getSize(self, packed=None):
+        return self.size
 
 
 class Enum(EntryType):
@@ -284,9 +313,10 @@ class Struct:
        """
     entries = []
     
-    def __init__(self, packed=None):
+    def __init__(self, packed=None, **kw):
         if packed:
             self.unmarshall(packed)
+        self.__dict__.update(kw)
       
     def __str__(self):
         return self.marshall()
@@ -317,6 +347,10 @@ class Struct:
     def postUnmarshall(self):
         """This is a hook subclasses can use to verify constant fields"""
         pass
+
+    def read(self, f):
+        """Read this struct in from a file-like object"""
+        self.unmarshall(f.read(self.getSize()))
 
 
 #  EntryType instances for scalar types, all in network byte order

@@ -1,6 +1,9 @@
-""" BZFlag.Errors
+""" BZFlag.Game
 
-User-defined exception classes used by the BZFlag package
+Classes for holding the current game state. This includes the world,
+all players, all flags. This is the hub around which the rest of this
+package operates- clients and servers transmit and receive game state
+over the network, frontends display and modify it.
 """
 # 
 # Python BZFlag Protocol Package
@@ -21,20 +24,49 @@ User-defined exception classes used by the BZFlag package
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA 
 # 
 
-class NonfatalException(Exception):
-    pass
+from BZFlag.Protocol import BinaryWorld, Common
+from BZFlag import Errors
 
-class ProtocolException(NonfatalException):
-    pass
+class World:
+    """Abstraction for a BZFlag world. Currently this can only be created
+       from binary worlds downloaded from the server, but eventually this
+       will need to be able to read textual bzflag world files as well.
+       """
+    def loadBinary(self, bin):
+        """Load a binary world from the supplied file-like object"""
+        blockDict = Common.getMessageDict(BinaryWorld)
+        blocks = []
+        while 1:
+            # Read the block header
+            header = BinaryWorld.BlockHeader()
+            packedHeader = bin.read(header.getSize())
+            if len(packedHeader) < header.getSize():
+                raise Errors.ProtocolException("Premature end of binary world data")
+            header.unmarshall(packedHeader)
 
-class NetworkException(Exception):
-    pass
+            # Look up the block type and instantiate it
+            try:
+                block = blockDict[header.id]()
+            except KeyError:
+                raise Errors.ProtocolException(
+                    "Unknown block type 0x%04X in binary world data" % header.id)
 
-class ConnectionLost(NetworkException):
-    pass
+            # Read the block body
+            packedBody = bin.read(block.getSize() - len(packedHeader))
+            if len(packedBody) < (block.getSize() - len(packedHeader)):
+                raise Errors.ProtocolException("Incomplete block in binary world data")
+            block.unmarshall(packedHeader + packedBody)
+            blocks.append(block)
+        print blocks
 
-class GameException(Exception):
-    pass
+
+class Game:
+    """Container for all game state information"""
+    def __init__(self):
+        self.players = {}
+        self.flags = {}
+        self.world = World()
+        
 
 ### The End ###
         
