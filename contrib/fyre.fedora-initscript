@@ -1,0 +1,78 @@
+#! /bin/bash
+#
+# fyre          Start/Stop the fyre daemon.
+#
+# chkconfig: 2345 99 99
+# description: Fyre cluster daemon
+# processname: fyre
+# pidfile: /var/run/fyre.pid
+
+# Source function library.
+. /etc/init.d/functions
+
+RETVAL=0
+
+# See how we were called.
+
+prog="fyre"
+
+start() {
+	echo -n $"Starting $prog: "
+	daemon $prog -r
+	RETVAL=$?
+	echo
+	[ $RETVAL -eq 0 ] && touch /var/lock/subsys/fyre
+	return $RETVAL
+}
+
+stop() {
+	echo -n $"Stopping $prog: "
+	killproc fyre
+	RETVAL=$?
+	echo
+	[ $RETVAL -eq 0 ] && rm -f /var/lock/subsys/fyre
+	return $RETVAL
+}
+
+rhstatus() {
+	status $prog
+}
+
+restart() {
+	stop
+	start
+}
+
+reload() {
+	echo -n $"Reloading fyre configuration: "
+	killproc fyre -HUP
+	retval=$?
+	echo
+	return $RETVAL
+}
+
+case "$1" in
+  start)
+	start
+	;;
+  stop)
+  	stop
+	;;
+  restart)
+  	restart
+	;;
+  reload)
+  	reload
+	;;
+  status)
+  	rhstatus
+	;;
+  condrestart)
+  	[ -f /var/lock/subsys/$prog ] && restart || :
+	;;
+  *)
+	echo $"Usage: $0 {start|stop|status|reload|restart|condrestart}"
+	exit 1
+esac
+
+exit $?
