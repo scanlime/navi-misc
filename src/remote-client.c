@@ -46,9 +46,13 @@ static void       remote_client_recv_line     (RemoteClient*         self,
 static void       remote_client_update_status (RemoteClient*         self,
 					       const gchar*          fmt,
 					       ...);
-static void       histogram_merge_callback    (RemoteClient*     self,
-					       RemoteResponse*   response,
-					       gpointer          user_data);
+static void       histogram_merge_callback    (RemoteClient*         self,
+					       RemoteResponse*       response,
+					       gpointer              user_data);
+static void       remote_client_start_retry   (RemoteClient*         self);
+static void       remote_client_stop_retry    (RemoteClient*         self);
+static gboolean   remote_client_retry_callback(gpointer              user_data);
+static void       remote_client_empty_queue   (RemoteClient*         self);
 
 /* Smallest time interval, in seconds, to allow in speed calculations */
 #define MINIMUM_SPEED_WINDOW 1.0
@@ -93,18 +97,15 @@ static void remote_client_dispose(GObject *gobject)
 {
     RemoteClient *self = REMOTE_CLIENT(gobject);
 
+    remote_client_stop_retry(self);
+
     if (self->gconn) {
 	gnet_conn_delete(self->gconn);
 	self->gconn = NULL;
     }
 
     if (self->response_queue) {
-	/* Empty the queue of any outstanding requests */
-	RemoteClosure *closure;
-	while ((closure = g_queue_pop_tail(self->response_queue)))
-	    g_free(closure);
-
-	/* Free it */
+	remote_client_empty_queue(self);
 	g_queue_free(self->response_queue);
 	self->response_queue = NULL;
     }
@@ -123,13 +124,28 @@ static void remote_client_dispose(GObject *gobject)
     }
 }
 
+static
+void       remote_client_empty_queue   (RemoteClient*         self)
+{
+    /* Empty the queue of any outstanding requests */
+    RemoteClosure *closure;
+    while ((closure = g_queue_pop_tail(self->response_queue)))
+	g_free(closure);
+}
+
 static void remote_client_init(RemoteClient *self)
 {
     self->response_queue = g_queue_new();
     self->status_speed_timer = g_timer_new();
     self->stream_speed_timer = g_timer_new();
     self->stream_request_timer = g_timer_new();
+
+    /* Default stream interval: every second */
     self->min_stream_interval = 1.0;
+
+    /* By default, retry connections every minute */
+    self->retry_timeout = 60.0;
+    self->is_retry_enabled = TRUE;
 }
 
 RemoteClient*  remote_client_new              (const gchar*          hostname,
@@ -161,6 +177,23 @@ void           remote_client_set_speed_cb     (RemoteClient*         self,
 
 void           remote_client_connect          (RemoteClient*         self)
 {
+    /* Clean up after the previous connection, if we need to */
+    if (self->gconn) {
+	gnet_conn_delete(self->gconn);
+	self->gconn = NULL;
+    }
+    remote_client_empty_queue(self);
+
+    /* Reset our speed counters and rate limiting timers */
+    self->iter_accumulator = 0;
+    self->byte_accumulator = 0;
+    self->iters_per_sec = 0;
+    self->bytes_per_sec = 0;
+    g_timer_start(self->stream_request_timer);
+    g_timer_start(self->status_speed_timer);
+    g_timer_start(self->stream_speed_timer);
+
+    /* Create the new connection object */
     self->gconn = gnet_conn_new(self->host, self->port, remote_client_callback, self);
     gnet_conn_set_watch_error(self->gconn, TRUE);
     gnet_conn_connect(self->gconn);
@@ -168,6 +201,35 @@ void           remote_client_connect          (RemoteClient*         self)
 
     remote_client_update_status(self, "Connecting...");
 }
+
+static
+void       remote_client_start_retry   (RemoteClient*         self)
+{
+    remote_client_stop_retry(self);
+    if (self->is_retry_enabled)
+	self->retry_timer = g_timeout_add(self->retry_timeout * 1000,
+					  remote_client_retry_callback,
+					  self);
+}
+
+static
+void       remote_client_stop_retry    (RemoteClient*         self)
+{
+    if (self->retry_timer) {
+	g_source_remove(self->retry_timer);
+	self->retry_timer = 0;
+    }
+}
+
+static
+gboolean   remote_client_retry_callback(gpointer              user_data)
+{
+    RemoteClient* self = REMOTE_CLIENT(user_data);
+    self->retry_timer = 0;
+    remote_client_connect(self);
+    return FALSE;
+}
+
 
 gboolean       remote_client_is_ready         (RemoteClient*     self)
 {
@@ -247,16 +309,19 @@ static void       remote_client_callback      (GConn*                gconn,
     case GNET_CONN_CLOSE:
 	self->is_ready = FALSE;
 	remote_client_update_status(self, "Connection closed");
+	remote_client_start_retry(self);
 	break;
 
     case GNET_CONN_TIMEOUT:
 	self->is_ready = FALSE;
 	remote_client_update_status(self, "Timed out");
+	remote_client_start_retry(self);
 	break;
 
     case GNET_CONN_ERROR:
 	self->is_ready = FALSE;
 	remote_client_update_status(self, "Connection error");
+	remote_client_start_retry(self);
 	break;
 
     default:
