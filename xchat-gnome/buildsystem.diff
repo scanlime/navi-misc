@@ -1,10 +1,19 @@
 Index: configure.in
 ===================================================================
 RCS file: /cvsroot/xchat/xchat2/configure.in,v
-retrieving revision 1.59
-diff -u -r1.59 configure.in
---- configure.in	7 Apr 2004 06:03:45 -0000	1.59
-+++ configure.in	9 May 2004 18:04:25 -0000
+retrieving revision 1.68
+diff -u -r1.68 configure.in
+--- configure.in	14 Aug 2004 07:47:11 -0000	1.68
++++ configure.in	13 Sep 2004 19:01:39 -0000
+@@ -2,7 +2,7 @@
+ 
+ AC_INIT(src)
+ AM_CONFIG_HEADER(config.h)
+-AM_INIT_AUTOMAKE(xchat, 2.4.0)
++AM_INIT_AUTOMAKE(xchat-gnome, 0.2)
+ AM_MAINTAINER_MODE
+ AC_PROG_CC
+ AC_PROG_CPP
 @@ -60,6 +60,10 @@
  [  --enable-memdebug       enable use of Memory Debug (default: no)],
          memdebug=$enableval, memdebug=no)
@@ -140,7 +149,7 @@ RCS file: /cvsroot/xchat/xchat2/src/Makefile.am,v
 retrieving revision 1.1.1.1
 diff -u -r1.1.1.1 Makefile.am
 --- src/Makefile.am	28 Nov 2002 10:39:00 -0000	1.1.1.1
-+++ src/Makefile.am	9 May 2004 18:04:26 -0000
++++ src/Makefile.am	13 Sep 2004 19:01:39 -0000
 @@ -11,4 +11,8 @@
  gtk_fe = fe-gtk
  endif
