@@ -25,7 +25,8 @@ class GTKsheet:
     if len(self.dom.getElementsByTagName('character_sheet')) != 1:
       print 'Tag Error: no <character_sheet>'
     else:
-      self.makeObjects(self.dom.getElementsByTagName('character_sheet')[0], None).show()
+      for element in self.dom.getElementsByTagName('character_sheet'):
+        self.makeObjects(element, None).show()
 
   def makeObjects(self, newNode, parent):
     """ Make objects out of the node passed. """

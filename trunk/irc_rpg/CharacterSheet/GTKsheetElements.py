@@ -44,8 +44,8 @@ class tab_view(gtk.Notebook, sheetElement):
     gtk.Notebook.append_page(self, child, child.label)
     child.show()
 
-class tab(gtk.VBox, sheetElement):
-  """ Tabs are just treated as vertical boxes. """
+class vbox(gtk.VBox, sheetElement):
+  """ Just a normal vertical box for packing. """
   def __init__(self, node, data):
     sheetElement.__init__(self, node)
     gtk.VBox.__init__(self, homogeneous=gtk.TRUE)
@@ -54,6 +54,11 @@ class tab(gtk.VBox, sheetElement):
   def packChild(self, child):
     gtk.VBox.pack_start(self, child, padding=5)
     child.show()
+
+class tab(vbox, sheetElement):
+  """ Treat tabs just like a vbox. """
+  def __init__(self, node, data):
+    vbox.__init__(self, node, data)
 
 class hbox(gtk.HBox, sheetElement):
   """ Just a normal horizontal box for packing. """
@@ -143,3 +148,24 @@ class mods:
     else:
       self.data = int(node.childNodes[0].data)
 
+class drop_down(gtk.Combo, sheetElement):
+  """ Drop down menu. """
+  def __init__(self, node, character):
+    gtk.Combo.__init__(self)
+    sheetElement.__init__(self, node)
+    self.items = {}
+
+  def packChild(self, child):
+    self.items[child.name] = child.data
+    self.set_popdown_strings(self.items.keys())
+
+class drop_down_item(sheetElement):
+  def __init__(self, node, character):
+    sheetElement.__init__(self, node)
+
+    if node.childNodes[0].data.count('/') > 0:
+      self.data = int(character.getData(node.childNodes[0].data))
+    else:
+      self.data = int(node.childNodes[0].data)
+    
+    self.name = self.attributes.get('label', self.data)
