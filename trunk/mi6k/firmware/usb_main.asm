@@ -22,7 +22,7 @@
 ;    has been added.
 ;    Received IR pulses cause an interrupt which uses TMR1 to generate mark and
 ;    space timings for the received pulses. These timings are buffered, then stored
-;    in the endpoint 0 buffer when full, for pickup by the host.
+;    in the endpoint 0 buffer for pickup by the host.
 ;    VFD serial, VFD power, status information, LED control, and IR transmission
 ;    are all triggered by USB requests in the main loop. They all use peripherals
 ;    for timing rather than cycle-counting, so interrupts will not disrupt serial
@@ -71,8 +71,6 @@ PCLATH_save	res	1	;  during ISR
 FSR_save	res	1
 PIRmasked	res	1
 USBMaskedInterrupts  res  1
-BUFFER		res	8	; Location for data to be sent to host
-COUNTER		res	1   
 ByteCount	res	1
 SerialByte	res 1
 DelayTemp	res 1
@@ -110,7 +108,19 @@ InterruptServiceVector
 ; of the interrupt.
 ; ******************************************************************
 
-;Process_ISR
+	; Is it a TMR0 interrupt? (used for the IR transmitter)
+	; This is the most time-critical interrupt.
+TEST_TMR0
+	pagesel PERIPHERALTEST
+	btfss	INTCON, T0IF
+	goto	PERIPHERALTEST
+	bcf		INTCON, T0IF	; A TMR0 overflow occurred. Reset the timer ASAP
+	movlw	.197			; 256 - (6 MIPS / 38 KHz / 2 - 20 cycles overhead)
+	banksel	TMR0
+	movwf	TMR0
+	movlw	IR_TX_MASK		; Flip the transmitter bit
+	xorwf	PORTB, f
+
 PERIPHERALTEST
 	pagesel EndISR
 	btfss	INTCON,PEIE	; is there a peripheral interrupt?
@@ -229,10 +239,9 @@ ServiceUSB
 
 	return
 
-; ******************************************************************
-; test program that sets up the buffers and calls the ISR for processing.
-;     
-; ******************************************************************
+
+;******************************************************************* Setup
+
 Main
 	movlw	.30			; delay 16 uS to wait for USB to reset
 	movwf	W_save		; SIE before initializing registers
@@ -253,6 +262,10 @@ Main
 
 	pagesel	InitUSB
 	call	InitUSB
+
+	movlw	0x88		; Pullups disabled, interrupt on falling edge of IR signal, TMR0 on instruction clock
+	banksel	OPTION_REG
+	movwf	OPTION_REG
 
 	movlw	.77			; Set UART to 19200 baud 
 	banksel	SPBRG
@@ -278,6 +291,11 @@ Main
 	banksel	T2CON
 	movwf	T2CON
 
+	banksel	INTCON
+	bsf		INTCON, T0IE ; TMR0 overflow interrupt enable
+	bsf		INTCON, INTE ; External (IR receiver) interrupt enable
+	
+
 ;******************************************************************* Main Loop
 
 MainLoop
@@ -293,7 +311,8 @@ MainLoop
 
 	goto	MainLoop
 
-;******************************************************************* VFD functions
+
+;******************************************************************* Peripherals
 
 	; Send a byte to the VFD from 'w', return once it's done
 VFD_SendByte:
