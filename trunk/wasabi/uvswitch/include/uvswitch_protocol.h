@@ -34,17 +34,9 @@
 ;// switch's video output.
 #define UVSWITCH_CTRL_SWITCH	0x01
 
-;// Set the values used to detect video inputs. The low byte of wIndex is the
-;// number of precharge reads done to ensure the A/D converter's capacitor has
-;// stabilized with these low-impedance inputs. The high byte of wIndex is the
-;// number of integration reads. The low byte of wValue is the threshold value
-;// to check after integration.
-#define UVSWITCH_CTRL_CALIBRATE 0x02
-
 ;//************************************************** Endpoints
 
-;// The EP1 IN endpoint transmits 1-byte packets containing a bitfield
-;// of active video input channels. The LSB corresponds to port 1.
+;// The EP1 IN endpoint transmits 8-byte packets containing the video detector readings
 
 #endif
 
