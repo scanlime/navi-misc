@@ -190,13 +190,25 @@ static void mi6k_ir_rx_store(struct usb_mi6k *dev, unsigned char *buffer, size_t
 
 	while (count >= 2) {
 		value = ((lirc_t)buffer[0]) + (((lirc_t)buffer[1]) << 8);
-		if (value == 0xFFFF)
-			value = PULSE_MASK;
-		else
+		if (value == 0xFFFF) {
+			/* The mi6k's timer overflowed. Replace this with a 
+			 * suitably large number to make irrecord and xmode2 happy.
+			 */
+			value = 2000000;
+
+			/* We also use these overflows to synchronize pulses and spaces.
+			 * We assume that only a space should be long enough to cause an overflow.
+			 */
+			dev->pulse_flag = 0;
+		}
+		else {
+			/* Convert the timer value to microseconds */
 			value = value * 4 / 3;
 
-		value |= dev->pulse_flag;
-		dev->pulse_flag ^= PULSE_BIT;
+			/* Alternate pulses and spaces */
+			dev->pulse_flag ^= PULSE_BIT;
+			value |= dev->pulse_flag;
+		}
 
 		mi6k_ir_rx_push(dev, value);
 		buffer += 2;
