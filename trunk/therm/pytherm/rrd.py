@@ -448,7 +448,7 @@ class RrdFile(CachedResource):
         # Start out with the parameters to define our RRD file and data source
         params = ["create", filename,
                   "--step", stepSize,
-                  "--start", int(time.time() - 60*60*24*365*2),
+                  "--start", "-2years",
                   "DS:x:GAUGE:%s:U:U" % int(stepSize * 10)]
 
         # Define RRAs with all the combining functions we're interested in
@@ -475,8 +475,8 @@ def graphUnknownData(title="No data",
         "AREA:no_data%s:%s" % (color, title),
         ]
 
-def graphFreezingPoint(color=Color(0,0,0)):
-    return ["HRULE:0%s" % color]
+def graphHorizontalRule(value, title, color=Color(0,0,0)):
+    return ["HRULE:%f%s:%s" % (value, color, title)]
 
 def graphSpan(description, color=Color(0,0,1), alpha=0.7, background=Color(1,1,1)):
     """Graph a line along the average, and a translucent band between its min and max"""

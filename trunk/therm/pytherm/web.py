@@ -40,7 +40,98 @@ from Nouvelle import tag, place, xml, ModPython
 from mod_python import apache
 
 
-css = """
+class IndexPage(ModPython.Page):
+    """The root page of the web site- gives a summary of each individual sensor,
+       graph thumbnails, and links to the other pages.
+       """
+    isLeaf = False
+    document = [
+        xml('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"'
+            ' "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">\n'),
+        tag('html', xmlns="http://www.w3.org/1999/xhtml")[
+            tag('head')[
+                tag('title')[ "Navi - Therm Server" ],
+                xml('<meta http-equiv="refresh" content="30" />'),
+                tag('link', rel='stylesheet', type='text/css', href='style.css'),
+            ],
+            tag('body')[
+                place('sources'),
+                tag('div', _class='footer')[
+                   "Page generated on ", place('date'),
+                ],
+            ],
+        ],
+    ]
+
+    def __init__(self):
+        self.db = database.open()
+        self.children = {
+            'style.css': StylesheetPage(),
+            'source': SourceLookupPage(self.db),
+            }
+
+    def render_date(self, context):
+        return time.ctime()
+
+    def render_sources(self, context):
+        results = []
+        for source in self.db.iterSources():
+            results.append(self.renderSource(source, context))
+        return results
+
+    def renderSource(self, source, context):
+        latest = source.getLatestPacket()
+
+        info = []
+
+        if latest.get('average'):
+            degC = latest['average']
+            degF = units.degCtoF(degC)
+            info.append(tag('div', _class='temperatures')[
+                tag('span', _class='mainTemperature')[ "%.01f" % degF, xml("&deg;"), "F" ],
+                tag('span', _class='temperatureSeparator')[ " / " ],
+                tag('span', _class='altTemperature')[ "%.01f" % degC, xml("&deg;"), "C" ],
+                ])
+
+        info.extend([
+            tag('div', _class='name')[ database.prettifyName(source.name) ],
+            tag('div', _class='description')[ source.description ],
+            self.getThumbnails(context, source),
+            ])
+
+        if latest.get('voltage'):
+            voltage = latest['voltage']
+            minVoltage = 6.5
+            maxVoltage = 9.0
+            qualitative = (voltage - minVoltage) / (maxVoltage - minVoltage)
+            info.append(tag('div', _class='extraInfo')[
+                "Battery: ", self.renderBargraph(qualitative), "%.03f V" % voltage,
+            ])
+
+        if latest.get('time'):
+            delta = time.time() - latest['time'].ticks()
+            info.append(tag('div', _class='extraInfo')[
+                "Last reading received ",
+                tag('strong')[ units.time.format(delta) ], " ago",
+            ])
+
+        return tag('div', _class='source')[info]
+
+    def renderBargraph(self, alpha, numBars=30):
+        alpha = max(0, min(1, alpha))
+        filledBars = int(alpha * numBars + 0.5)
+        bars = []
+        for i in xrange(numBars):
+            if i < filledBars:
+                bars.append(tag('span', _class="filledBar")[ " " ])
+            else:
+                bars.append(tag('span', _class="emptyBar")[ " " ])
+        return tag('span', _class="bargraph")[ bars ]
+
+
+class StylesheetPage(ModPython.Page):
+    contentType = 'text/css'
+    document = """
 .footer {
     text-align: center;
     border-top: 1px solid #777;
@@ -121,136 +212,148 @@ span.emptyBar {
 """
 
 
-class IndexPage(ModPython.Page):
-    document = [
-        xml('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"'
-            ' "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">\n'),
-        tag('html', xmlns="http://www.w3.org/1999/xhtml")[
-            tag('head')[
-                tag('title')[ "Navi - Therm Server" ],
-                xml('<meta http-equiv="refresh" content="30" />'),
-                tag('style', type='text/css')[ css ],
-            ],
-            tag('body')[
-                place('sources'),
-                tag('div', _class='footer')[
-                   "Page generated on ", place('date'),
-                ],
-            ],
-        ],
-    ]
+class SourceLookupPage(ModPython.Page):
+    """A page that directs all children to SourcePages"""
+    def __init__(self, db):
+        self.db = db
 
-    def render_date(self, context):
-        return time.ctime()
+    def render(self, context):
+        return apache.HTTP_NOT_FOUND
 
-    def render_sources(self, context):
-        results = []
-        for source in database.open().iterSources():
-            results.append(self.renderSource(source, context))
-        return results
-
-    def renderSource(self, source, context):
-        latest = source.getLatestPacket()
-
-        info = []
-
-        if latest.get('average'):
-            degC = latest['average']
-            degF = units.degCtoF(degC)
-            info.append(tag('div', _class='temperatures')[
-                tag('span', _class='mainTemperature')[ "%.01f" % degF, xml("&deg;"), "F" ],
-                tag('span', _class='temperatureSeparator')[ " / " ],
-                tag('span', _class='altTemperature')[ "%.01f" % degC, xml("&deg;"), "C" ],
-                ])
-
-        info.extend([
-            tag('div', _class='name')[ database.prettifyName(source.name) ],
-            tag('div', _class='description')[ source.description ],
-            self.getThumbnails(context, source),
-            ])
-
-        if latest.get('voltage'):
-            voltage = latest['voltage']
-            minVoltage = 6.5
-            maxVoltage = 9.0
-            qualitative = (voltage - minVoltage) / (maxVoltage - minVoltage)
-            info.append(tag('div', _class='extraInfo')[
-                "Battery: ", self.renderBargraph(qualitative), "%.03f V" % voltage,
-            ])
-
-        if latest.get('time'):
-            delta = time.time() - latest['time'].ticks()
-            info.append(tag('div', _class='extraInfo')[
-                "Last reading received ",
-                tag('strong')[ units.time.format(delta) ], " ago",
-            ])
-
-        return tag('div', _class='source')[info]
-
-    def renderBargraph(self, alpha, numBars=30):
-        alpha = max(0, min(1, alpha))
-        filledBars = int(alpha * numBars + 0.5)
-        bars = []
-        for i in xrange(numBars):
-            if i < filledBars:
-                bars.append(tag('span', _class="filledBar")[ " " ])
-            else:
-                bars.append(tag('span', _class="emptyBar")[ " " ])
-        return tag('span', _class="bargraph")[ bars ]
-
-    def getThumbnails(self, context, source):
-        # FIXME
-        return []
+    def getChild(self, name):
+        source = self.db.getSource(name)
+        if source:
+            return SourcePage(source)
 
 
-def getSourceRrd(source, key):
-    """Maintain an RrdFile for the specified key in packets from the specified source.
-       Returns a tuple with the RrdFile instance and the latest stamp.
+class SourcePage(ModPython.Page):
+    """A page that shows detailed information on one therm source, and holds
+       pages for rendering graphs for that source.
        """
-    def dataGenerator(stamp):
-        for packet in source.iterPacketsAfter(stamp):
-            value = packet.get(key)
-            if value is not None:
-                yield packet['id'], packet['time'].ticks(), packet[key]
+    isLeaf = False
+    document = "FIXME"
 
-    rrdf = rrd.RrdFile("%s-%s" % (source.name, key))
-    return (rrdf, rrdf.update(dataGenerator))
+    def __init__(self, source):
+        self.source = source
 
-
-def getSourceGraph(source, key, description, interval="day"):
-    """Maintain an RrdGraph showing data from a single source. Returns
-       a tuple with the RrdGraph instance and the latest stamp."""
-    rrdf, stamp = getSourceRrd(source, key)
-    graph = rrd.RrdGraph(rrd.graphDefineSource(rrdf) +
-                         rrd.graphColorRange(-20.0, rrd.Color(0.5, 0.5, 1),
-                                             40.0, rrd.Color(1, 1, 0),
-                                             id=[0]) +
-                         rrd.graphSpan(description),
-                         interval=interval)
-    graph.updateToLatest()
-    return (graph, stamp)
+        self.children = {
+            'graph': SourceGraphs(source),
+            }
 
 
-def handler(req):
-    # Crufty temporary request handler
+class SourceGraphs(ModPython.Page):
+    """A page that holds the many graphs available for a therm source. Children
+       are a graph style and interval separated by a colon.
+       """
+    def __init__(self, source):
+        self.source = source
 
-    pathSegments = [seg for seg in req.path_info.split("/") if seg]
+    def render(self, context):
+        return apache.HTTP_NOT_FOUND
 
-    if not pathSegments:
-        # Index Page
-        page = IndexPage()(req=req)
-        req.content_type = "text/html"
-        req.write(page)
+    def getChild(self, name):
+        style, interval = name.split(":")
+        f = getattr(self, "graph_%s" % style, None)
+        if not f:
+            return apache.HTTP_NOT_FOUND
+        return ImageResourcePage(f(interval))
+
+    def getSourceRrd(self, key, filter=None):
+        """Returns an RrdFile for the specified key in packets from the specified source"""
+        def dataGenerator(stamp):
+            for packet in self.source.iterPacketsAfter(stamp):
+                value = packet.get(key)
+                if value is not None:
+                    value = filter(value)
+                    yield packet['id'], packet['time'].ticks(), value
+
+        rrdf = rrd.RrdFile("%s-%s" % (self.source.name, key))
+        rrdf.update(dataGenerator)
+        return rrdf
+
+    def graph_temperature(self, interval):
+        """Return an RrdGraph showing temperature data"""
+        rrdf = self.getSourceRrd('average')
+        graph = rrd.RrdGraph(rrd.graphDefineSource(rrdf) +
+                             rrd.graphUnknownData() +
+                             rrd.graphColorRange(-20.0, rrd.Color(0.5, 0.5, 1),
+                                                 40.0, rrd.Color(1, 1, 0),
+                                                 id=[0]) +
+                             rrd.graphSpan("%s - Temperature" % self.source) +
+                             rrd.graphHorizontalRule(0, "Freezing Point"),
+                             interval=interval,
+                             yLabel="Degrees Celsius")
+        graph.updateToLatest()
+        return graph
+
+    def graph_voltage(self, interval):
+        """Return an RrdGraph showing battery voltage"""
+        rrdf = self.getSourceRrd('voltage')
+        graph = rrd.RrdGraph(rrd.graphDefineSource(rrdf) +
+                             rrd.graphUnknownData() +
+                             rrd.graphColorRange(6, rrd.Color(1, 1, 1),
+                                                 9.5, rrd.Color(0, 0, 1),
+                                                 id=[0]) +
+                             rrd.graphSpan("%s - Battery Voltage" % self.source),
+                             interval=interval,
+                             yLabel="Volts")
+        graph.updateToLatest()
+        return graph
+
+    def graph_signal(self, interval):
+        """Return an RrdGraph showing signal strength"""
+        # Convert to percent
+        rrdf = self.getSourceRrd('signal_strength', lambda x: x*100)
+        graph = rrd.RrdGraph(rrd.graphDefineSource(rrdf) +
+                             rrd.graphUnknownData() +
+                             rrd.graphSpan("%s - Signal Strength" % self.source) +
+                             rrd.graphHorizontalRule(100, "Full Strength"),
+                             interval=interval,
+                             yLabel="Percent Signal")
+        graph.updateToLatest()
+        return graph
+
+
+class ImageResourcePage(ModPython.Page):
+    """Returns an image from the RRD cache. Includes a child resource
+       for generating thumbnails.
+       """
+    contentType = "image/png"
+    def __init__(self, resource):
+        self.resource = resource
+        self.children = {
+            'scale': ImageScalerPage(self.resource),
+            }
+
+    def render(self, context):
+        req = context['request']
+        stamp = self.resource.getLatestStamp()
+        filename = self.resource.getFile(stamp)
+        req.content_type = self.contentType
+        shutil.copyfileobj(open(filename), req)
         return apache.OK
 
-    if pathSegments[0] == 'graph':
-        req.content_type = "image/png"
-        source = database.open().getSource('outside')
-        graph, stamp = getSourceGraph(source, 'average', "Outside Temperature")
-        shutil.copyfileobj(open(graph.getFile(stamp)), req)
-        return apache.OK
 
-    req.write(repr(pathSegments))
-    return apache.OK
+class ImageScalerPage(ModPython.Page):
+    """A page that scales another image. Children are sizes of the form [width]x[height]"""
+    def __init__(self, original):
+        self.original = original
+
+    def getChild(self, name):
+        width, height = name.split('x')
+        if width:
+            width = int(width)
+        else:
+            width = None
+        if height:
+            height = int(height)
+        else:
+            height = None
+        scaled = rrd.ScaledImageResource(self.original, width, height)
+        scaled.updateToLatest()
+        return ImageResourcePage(scaled)
+
+
+handler = IndexPage().handler
 
 ### The End ###
