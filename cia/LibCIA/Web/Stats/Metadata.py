@@ -336,7 +336,10 @@ class MetadataPage(Template.Page):
         sections = []
 
         if uploadResult:
-            sections.append(str(uploadResult))
+            sections.append(Template.StaticSection("error", [[
+                tag('strong')[ str(uploadResult.type) ],
+                tag('p')[ str(uploadResult.value) ],
+                ]]))
 
         sections.extend([
             MetadataViewSection(self.statsPage.target),
