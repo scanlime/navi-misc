@@ -24,6 +24,8 @@ EXTRA_DIST =				\
 	palette.c			\
 	pixmaps.h			\
 	pixmaps.c			\
+	preferences.h			\
+	preferences.c			\
 	preferences_dialog.h		\
 	preferences_dialog.c		\
 	preferences_servers_page.h	\
@@ -53,6 +55,8 @@ xchat_gnome_SOURCES =			\
 	palette.c			\
 	pixmaps.h			\
 	pixmaps.c			\
+	preferences.h			\
+	preferences.c			\
 	preferences_dialog.h		\
 	preferences_dialog.c		\
 	preferences_servers_page.h	\

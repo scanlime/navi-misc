@@ -26,7 +26,7 @@ void initialize_setup_druid() {
 	GtkWidget *widget;
 	GtkSizeGroup *group;
 
-	gui.setup_druid = GNOME_DRUID(glade_xml_get_widget(gui.xml, "setup druid"));
+	gui.setup_druid = glade_xml_get_widget(gui.xml, "setup druid");
 
 	group = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
 	widget = glade_xml_get_widget(gui.xml, "setup druid nickname");

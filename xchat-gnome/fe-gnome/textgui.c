@@ -51,6 +51,7 @@ void initialize_text_gui() {
 }
 
 void text_gui_add_text_buffer(struct session *sess) {
+	GtkWidget *topic, *entry;
 	session_gui *tgui;
 
 	tgui = malloc(sizeof(session_gui));
@@ -60,6 +61,13 @@ void text_gui_add_text_buffer(struct session *sess) {
 	gtk_xtext_buffer_show(gui.xtext, tgui->buffer, TRUE);
 	gtk_xtext_set_time_stamp(tgui->buffer, TRUE);
 	gui.current_session = sess;
+
+	tgui->topic_buffer = gtk_text_buffer_new(NULL);
+	topic = glade_xml_get_widget(gui.xml, "topic entry");
+	gtk_text_view_set_buffer(GTK_TEXT_VIEW(topic), tgui->topic_buffer);
+	tgui->entry_buffer = gtk_text_buffer_new(NULL);
+	entry = glade_xml_get_widget(gui.xml, "text entry");
+	gtk_text_view_set_buffer(GTK_TEXT_VIEW(entry), tgui->entry_buffer);
 }
 
 void text_gui_remove_text_buffer(struct session *sess) {
@@ -67,6 +75,8 @@ void text_gui_remove_text_buffer(struct session *sess) {
 
 	tgui = sess->gui;
 	gtk_xtext_buffer_free(tgui->buffer);
+	g_object_unref(tgui->topic_buffer);
+	g_object_unref(tgui->entry_buffer);
 	free(tgui);
 	sess->gui = NULL;
 }
@@ -132,14 +142,14 @@ void set_nickname(struct server *serv, char *newnick) {
 
 void set_gui_topic(struct session *sess, char *topic) {
 	if(sess == gui.current_session) {
-		GtkWidget *topicw = glade_xml_get_widget(gui.xml, "topic entry");
+		session_gui *tgui = sess->gui;
 		if(topic == NULL)
 			if(sess->topic == NULL)
-				gtk_entry_set_text(GTK_ENTRY(topicw), "");
+				gtk_text_buffer_set_text(tgui->topic_buffer, "", 0);
 			else
-				gtk_entry_set_text(GTK_ENTRY(topicw), sess->topic);
+				gtk_text_buffer_set_text(tgui->topic_buffer, sess->topic, strlen(sess->topic));
 		else
-			gtk_entry_set_text(GTK_ENTRY(topicw), topic);
+			gtk_text_buffer_set_text(tgui->topic_buffer, topic, strlen(topic));
 	}
 }
 

@@ -95,14 +95,16 @@ void initialize_main_window() {
 	g_signal_connect(G_OBJECT(glade_xml_get_widget(gui.xml, "next1")), "activate", G_CALLBACK(on_go_next_discussion_activate), NULL);
 	g_signal_connect(G_OBJECT(glade_xml_get_widget(gui.xml, "about1")), "activate", G_CALLBACK(on_help_about_menu_activate), NULL);
 
-	gtk_widget_show_all(GTK_WIDGET(gui.main_window));
-
 	entry = glade_xml_get_widget(gui.xml, "text entry");
 	g_signal_connect(G_OBJECT(entry), "key-release-event", G_CALLBACK(on_text_entry_activate), NULL);
 
 #ifdef HAVE_GTKSPELL
 	gtkspell_new_attach(GTK_TEXT_VIEW(entry), NULL, NULL);
 #endif
+}
+
+void run_main_window() {
+	gtk_widget_show_all(GTK_WIDGET(gui.main_window));
 }
 
 void on_irc_connect_menu_activate(GtkWidget *widget, gpointer data) {
