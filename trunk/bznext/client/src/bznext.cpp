@@ -27,7 +27,6 @@ bool CBZNextLoop::OnInit ( void )
 {
 	ui.Set(this);
 	ui.Init();
-
 	game.Set(this);
 	game.Init();
 
@@ -98,7 +97,9 @@ bool CBZNextLoop::GameLoop ( void )
 		{
 			ui.Release();
 			inUI = false;
-			game.Attach();
+
+			if (!game.GameActive())
+				game.Attach();
 		}
 	}
 	else
@@ -157,7 +158,7 @@ void CBZNextLoop::updateStats(void)
     +" "+StringConverter::toString(stats.worstFrameTime)+" ms");
 
   GuiElement* guiTris = GuiManager::getSingleton().getGuiElement("Core/NumTris");
-  guiTris->setCaption(tris + StringConverter::toString(stats.triangleCount));
+  guiTris->setCaption(tris + StringConverter::toString((unsigned int)stats.triangleCount));
 
   GuiElement* guiDbg = GuiManager::getSingleton().getGuiElement("Core/DebugText");
   guiDbg->setCaption(GetRenderWindow()->getDebugText());

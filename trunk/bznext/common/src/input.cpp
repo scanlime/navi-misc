@@ -25,7 +25,7 @@ void CInputManager::Process ( void )
 	mInputDevice->capture();
 }
 
-bool CInputManager::KeyDown ( int key )
+bool CInputManager::KeyDown ( InputKeyCode key )
 {
 	return mInputDevice->isKeyDown((Ogre::KeyCode)key);
 }

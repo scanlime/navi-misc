@@ -30,6 +30,9 @@ public:
 		void Release ( void );
 
 		bool Think ( void );
+	
+		bool GameActive ( void );
+
 protected:
 	CBaseGameLoop * gameLoop;
 };

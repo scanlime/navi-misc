@@ -16,6 +16,33 @@
 #define _UI_H_
 
 #include "gameloop.h"
+#include <string>
+#include <map>
+#include <vector>
+
+typedef enum
+{
+	ePanelContinue = 0,
+	ePanelExit,
+	ePanelBack,
+	ePanelNext,
+	ePanelStart
+}tePanelReturn;
+
+class CBaseUIPanel
+{
+public:
+	CBaseUIPanel(){gameLoop = NULL;}
+	virtual ~CBaseUIPanel(){return;}
+
+	virtual Init ( CBaseGameLoop * pGameLoop ){gameLoop = pGameLoop;}
+	virtual void Attach ( void ) = 0;
+	virtual void Release ( void ) = 0;
+	virtual tePanelReturn Process ( std::string &next ) = 0;
+
+protected:
+	CBaseGameLoop * gameLoop;
+};
 
 class CUserInterface
 {
@@ -31,8 +58,15 @@ public:
 		void Release ( void );
 
 		bool Think ( void );
+
 protected:
+	void LoadPanels ( void );
+
 	CBaseGameLoop * gameLoop;
+	std::vector<CBaseUIPanel*>	panelStack;
+
+	typedef std::map<std::string, CBaseUIPanel*>	panelmap;
+	panelmap	panels;
 };
 
 #endif //_UI_H_

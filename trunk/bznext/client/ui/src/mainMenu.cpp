@@ -9,48 +9,36 @@
 * IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED
 * WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 */
-#include "gameManager.h"
+#include "mainMenu.h"
 
-CGameManger::CGameManger()
+CMainMenu::CMainMenu()
 {
-	gameLoop = NULL;
+	CBaseUIPanel::CBaseUIPanel();
 }
 
-CGameManger::CGameManger ( CBaseGameLoop * pGameLoop )
-{
-	Set(pGameLoop);
-}
-
-CGameManger::~CGameManger()
-{
-}
-
-void CGameManger::Set ( CBaseGameLoop * pGameLoop )
-{
-	gameLoop = pGameLoop;
-}
-
-void CGameManger::Init ( void )
-{
-
-}
-void CGameManger::Attach ( void )
+CMainMenu::~CMainMenu()
 {
 
 }
 
-void CGameManger::Release ( void )
+CMainMenu::Init ( CBaseGameLoop * pGameLoop )
 {
+	(CBaseUIPanel*)this->Init(pGameLoop);
 
+	// init other stuff here
 }
 
-bool CGameManger::Think ( void )
+void CMainMenu::Attach ( void )
 {
-		return false;
+	//Overlay* o = (Overlay*)OverlayManager::getSingleton().getByName("Core/DebugOverlay");
+
 }
 
-bool CGameManger::GameActive ( void )
-{	
-	return false;
+void CMainMenu::Release ( void )
+{
 }
 
+tePanelReturn CMainMenu::Process ( std::string &next )
+{
+	return ePanelContinue;
+}
