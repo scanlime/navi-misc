@@ -118,7 +118,7 @@ class CommitFormatter(Message.Formatter):
             metadata.append(self.format_author(commit.author))
         if message.xml.source and message.xml.source.branch:
             metadata.append(self.format_branch(message.xml.source.branch))
-        metadata.append(self.format_asterisk())
+        metadata.append(self.format_separator())
         if commit.version:
             metadata.append(self.format_version(commit.version))
         if commit.revision:
@@ -132,8 +132,8 @@ class CommitFormatter(Message.Formatter):
            """
         return "%s: %s" % (" ".join(metadata), log)
 
-    def format_asterisk(self):
-        """Format an asterisk that goes between the author + branch and the
+    def format_separator(self):
+        """Format an separator that goes between the author + branch and the
            rest of the message, to enhance the message visually.
            """
         return "*"
@@ -294,47 +294,99 @@ class CommitToIRC(CommitFormatter):
 
 
 class CommitToXHTML(CommitFormatter):
-    """Converts commit messages to XHTML.
-       Note that since this is intended to be used with Nouvelle, it doesn't handle quoting.
-       """
+    """Converts commit messages to XHTML, represented as a Nouvelle tag tree."""
     medium = 'xhtml'
 
+    def joinMessage(self, metadata, log):
+        """Join the metadata and log message into a CSS-happy box"""
+        return [
+            Nouvelle.tag('div', style=
+                         "border: 1px solid #888; "
+                         "background-color: #DDD; "
+                         "padding: 0.25em 0.5em;"
+                         "margin: 0.5em 0em; "
+                         )[ metadata ],
+            Nouvelle.tag('p', style=
+                         "padding: 0em; "
+                         "margin: 0em; "
+                         )[ log ],
+            ]
 
-class CommitToRSS(CommitFormatter):
-    """Converts commit messages to <item> tags for use in RSS feeds"""
-    medium = 'rss'
+    def format_log(self, log):
+        """Convert the log message to HTML by replacing newlines with <br> tags.
+           Remember that Nouvelle handles quoting automagically for us.
+           """
+        content = []
+        log = str(log).strip()
+        if log:
+            for line in log.split("\n"):
+                if content:
+                    content.append(Nouvelle.tag('br'))
+                content.append(line)
+        else:
+            content.append(Nouvelle.tag('i')["No log message"])
+        return content
+
+    def format_author(self, author):
+        return [
+            " Commit by ",
+            Nouvelle.tag('strong')[ str(author) ],
+            " ",
+            ]
+
+    def format_separator(self):
+        return Nouvelle.tag('span', style="color: #888;")[" :: "]
+
+    def format_revision(self, rev):
+        return [' r', Nouvelle.tag('b')[str(rev).strip()], ' ']
+
+    def format_version(self, ver):
+        return [' ', Nouvelle.tag('b')[str(ver)], ' ']
+
+    def format_branch(self, branch):
+        return [' on ', str(branch), ' ']
+
+    def format_module(self, module):
+        return Nouvelle.tag('b')[str(module).strip()]
+
+    def format_moduleAndFiles(self, message):
+        """Format the module name and files, joined together if they are both present."""
+        items = [' ']
+        if message.xml.source and message.xml.source.module:
+            items.append(self.format_module(message.xml.source.module))
+        if message.xml.body.commit.files:
+            if items:
+                items.append("/")
+            items.append(self.format_files(message.xml.body.commit.files))
+        items.append(' ')
+        return items
+
+
+class CommitTitle(CommitFormatter):
+    """Extracts a title from commit messages"""
+    medium = 'title'
+    widthLimit = 80
 
     def format(self, message, input=None):
-        commit = message.xml.body.commit
-        return Nouvelle.tag('item')[
-            Nouvelle.tag('description')[
-                # Quoted again, since this will be interpreted as HTML
-                Nouvelle.quote(CommitFormatter.format(self, message)),
-            ],
-            Nouvelle.tag('pubDate')[
-                TimeUtil.formatDateRFC822(int(str(message.xml.timestamp))),
-            ],
-        ]
+        # Get the log message, collapse whitespace, and truncate
+        log = re.sub("\s+", " ", str(message.xml.body.commit.log))
+        if len(log) > self.widthLimit:
+            log = log[:self.widthLimit] + " ..."
+        return log
 
 
-class ColortextToRSS(Message.Formatter):
-    """Converts messages with colorText content to RSS <item> tags.
-       The message itself is stripped of color and placed in a
-       <description>.
-       """
+class ColortextTitle(Message.Formatter):
+    """Extracts a title from colorText messages"""
     detector = Message.Filter('<find path="/message/body/colorText"/>')
-    medium = 'rss'
+    medium = 'title'
+    widthLimit = 80
 
     def format(self, message, input=None):
-        return Nouvelle.tag('item')[
-            Nouvelle.tag('description')[
-                # Quoted again, since this will be interpreted as HTML
-                Nouvelle.quote(XML.allText(message.xml.body.colorText)),
-            ],
-            Nouvelle.tag('pubDate')[
-                TimeUtil.formatDateRFC822(int(str(message.xml.timestamp))),
-            ],
-        ]
+        # Extract plaintext from the entire message, collapse whitespace, and truncate
+        log = re.sub("\s+", " ", XML.allText(message.xml.body.colorText))
+        if len(log) > self.widthLimit:
+            log = log[:self.widthLimit] + " ..."
+        return log
 
 
 class ColortextToXHTML(Message.Formatter):
