@@ -194,6 +194,10 @@ class TargetLastEventColumn(Nouvelle.Column):
     """A Column displaying the amount of time since the last message was delivered to each target"""
     heading = "last event"
 
+    def __init__(self):
+        # We only want one of these, so reduceColumn can be cached effectively
+        self.visibilityColumn = TargetCounterColumn(None, 'forever')
+
     def getValue(self, target):
         """Returns the number of seconds since the last event"""
         lastTime = target.counters.getCounter('forever').get('lastEventTime')
@@ -202,7 +206,7 @@ class TargetLastEventColumn(Nouvelle.Column):
 
     def isVisible(self, context):
         # Hide this column if none of the targets have had any messages
-        return context['table'].reduceColumn(TargetCounterColumn(None, 'forever'), max) > 0
+        return context['table'].reduceColumn(self.visibilityColumn, max) > 0
 
     def render_data(self, context, target):
         value = self.getValue(target)
