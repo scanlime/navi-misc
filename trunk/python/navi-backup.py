@@ -16,7 +16,7 @@
 # This uses growisofs, and assumes your burner is at /dev/dvd.
 #
 
-import time, os, sys, re
+import time, os, sys, re, shutil
 
 def escape_path(s):
     """Escape a path for use with mkisofs graft points"""
@@ -71,21 +71,27 @@ def main():
 
     # Name and map the catalog
     catalog_name = get_catalog_name(paths)
+    catalog_tmp_name = "/tmp/navi_backup_%r.catalog" % os.getpid()
     catalog_cd_name = os.path.join("catalog", catalog_name)
-    catalog_fs_name = os.path.join("/navi/backups/catalog", catalog_name)
-    record_cmd.append(map_path(catalog_cd_name, catalog_fs_name))
+    catalog_archive_name = os.path.join("/navi/backups/catalog", catalog_name)
 
-    # Fill the catalog
-    catalog = open(catalog_fs_name, "w")
+    # Fill the catalog. Write it to a temporary file, and map that
+    # temp file onto the CD.
+    catalog = open(catalog_tmp_name, "w")
     for path in paths:
         add_tree_to_catalog(catalog, path)
     catalog.close()
+    record_cmd.append(map_path(catalog_cd_name, catalog_tmp_name))
 
     # Map other paths
     for path in paths:
         record_cmd.append(map_normal_path(path))
 
-    os.system(" ".join(record_cmd))
+    if os.system(" ".join(record_cmd)) == 0:
+        print "Burn succeeded, saving catalog"
+        shutil.move(catalog_tmp_name, catalog_archive_name)
+    else:
+        print "Burn failed, temporary catalog still in %s" % catalog_tmp_name
 
 if __name__ == "__main__":
     main()
