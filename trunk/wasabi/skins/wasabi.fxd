@@ -201,7 +201,9 @@
                     <text font="info value">)</text>
                 </if>
                 <if expression="runtime">
-                    <goto_pos x="30" mode="relative"/>
+                    <if expression="year">
+                        <goto_pos x="30" mode="relative"/>
+                    </if>
                     <text font="info value" expression="runtime"/>
                     <newline/>
                 </if>
