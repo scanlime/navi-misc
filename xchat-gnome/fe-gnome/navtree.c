@@ -22,7 +22,13 @@
 #include "navtree.h"
 
 /***** NavTree *****/
-GType navigation_tree_get_type (void) G_GNUC_CONST
+static void navigation_tree_init       (NavTree *navtree);
+static void navigation_tree_class_init (NavTreeModel *klass);
+static void navigation_tree_dispose    (GObject *object);
+static void navigation_tree_finalize   (GObject *object);
+
+GType
+navigation_tree_get_type (void) G_GNUC_CONST
 {
   static GType navigation_tree_type = 0;
   if (!navigation_tree_type) {
@@ -45,12 +51,63 @@ GType navigation_tree_get_type (void) G_GNUC_CONST
   return navigation_tree_type;
 }
 
+static void
+navigation_tree_init (NavTree *navtree)
+{
+	navtree->current_path = gtk_tree_path_new();
+	model = NULL;
+}
+
+static void
+navigation_tree_class_init (NavTreeClas *klass)
+{
+	GObjectClass *object_class = (GObjectClass*) klass;
+
+	object_class->dispose = navigation_tree_dispose;
+	object_class->finalize = navigation_tree_finalize;
+}
+
+static void
+navigation_tree_dispose (GObject *object)
+{
+	NavTree *navtree = (NavTree*) object;
+	if (navtree->model) {
+	  g_object_unref((gpointer)navtree->model);
+		navtree->model = NULL;
+	}
+}
+
+static void
+navigation_tree_finalize (GObject *object)
+{
+	NavTree *navtree = (NavTree*) object;
+	gtk_tree_path_free(navtree->current_path);
+}
+
+/* New NavTree. */
+NavTree*
+navigation_tree_new (NavModel *model)
+{
+	NavTree *new_tree;
+
+	new_tree = NAVTREE(g_object_new(navigation_tree_get_type(), NULL));
+	new_tree->model = model;
+
+	return new_tree;
+}
+
+/* Add/remove server/channel functions. */
+
+/* Channel/server selection functions. */
+
 /***** NavModel *****/
 
-static void navigation_model_init(NavModel *navmodel);
-static void navigation_model_class_init(NavModelClass *klass);
+static void navigation_model_init       (NavModel *navmodel);
+static void navigation_model_class_init (NavModelClass *klass);
+static void navigation_model_dispose    (GObject *object);
 
-GType navigation_model_get_type (void) G_GNUC_CONST
+GType
+navigation_model_get_type (void) G_GNUC_CONST
 {
   static GType navigation_model_type = 0;
   if (!navigation_model_type) {
@@ -71,4 +128,30 @@ GType navigation_model_get_type (void) G_GNUC_CONST
   }
 
   return navigation_model_type;
+}
+
+static void
+navigation_model_init (NavModel *navmodel)
+{
+	navmodel->model = gtk_tree_model_new();
+}
+
+static void
+navigation_model_class_init (NavModelClass *klass)
+{
+	GObjectClass *object_class = (GObjectClass*) klass;
+	object_class->dispose = navigation_model_dispose;
+}
+
+static void
+navigation_model_dispose (NavModel *navmodel)
+{
+	g_object_unref((gpointer)navmodel->model);
+}
+
+/* New NavModel. */
+NavModel*
+navigation_model_new ()
+{
+	return NAVMODEL(g_object_new(navigation_model_get_type(), NULL));
 }
