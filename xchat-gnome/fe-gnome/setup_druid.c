@@ -23,12 +23,17 @@
 #include "gui.h"
 
 static gboolean druid_finished;
-void setup_druid_finish(GnomeDruidPage *druidpage, GtkWidget *widget, gpointer user_data);
+void setup_druid_nicknames_prepare(GnomeDruidPage *p, GtkWidget *w, gpointer d);
+void setup_druid_finish_prepare(GnomeDruidPage *p, GtkWidget *w, gpointer d);
+void setup_druid_finish(GnomeDruidPage *p, GtkWidget *w, gpointer d);
+void setup_druid_nickname_changed(GtkEditable *entry, gpointer d);
+void setup_druid_realname_changed(GtkEditable *entry, gpointer d);
 
 void initialize_setup_druid() {
 	GtkWidget *widget;
 	GtkSizeGroup *group;
-	GtkWidget *finish_page;
+	GtkWidget *nickname_page, *finish_page;
+	GtkWidget *nickname_entry, *realname_entry;
 
 	gui.setup_druid = glade_xml_get_widget(gui.xml, "setup druid");
 
@@ -39,8 +44,16 @@ void initialize_setup_druid() {
 	gtk_size_group_add_widget(group, widget);
 	g_object_unref(group);
 
+	nickname_page = glade_xml_get_widget(gui.xml, "setup druid nicknames");
+	g_signal_connect(G_OBJECT(nickname_page), "prepare", G_CALLBACK(setup_druid_nicknames_prepare), NULL);
 	finish_page = glade_xml_get_widget(gui.xml, "setup druid finish");
-	g_signal_connect(G_OBJECT(finish_page), "finish", setup_druid_finish, NULL);
+	g_signal_connect(G_OBJECT(finish_page), "prepare", G_CALLBACK(setup_druid_finish_prepare), NULL);
+	g_signal_connect(G_OBJECT(finish_page), "finish", G_CALLBACK(setup_druid_finish), NULL);
+
+	nickname_entry = glade_xml_get_widget(gui.xml, "setup druid nickname");
+	g_signal_connect(G_OBJECT(nickname_entry), "changed", G_CALLBACK(setup_druid_nickname_changed), NULL);
+	realname_entry = glade_xml_get_widget(gui.xml, "setup druid realname");
+	g_signal_connect(G_OBJECT(realname_entry), "changed", G_CALLBACK(setup_druid_realname_changed), NULL);
 }
 
 void run_setup_druid() {
@@ -51,6 +64,43 @@ void run_setup_druid() {
 	}
 }
 
-void setup_druid_finish(GnomeDruidPage *druidpage, GtkWidget *widget, gpointer user_data) {
+void setup_druid_nicknames_prepare(GnomeDruidPage *p, GtkWidget *w, gpointer d) {
+	GtkWidget *realname_entry;
+
+	realname_entry = glade_xml_get_widget(gui.xml, "setup druid realname");
+	gtk_entry_set_text(GTK_ENTRY(realname_entry), g_get_real_name());
+
+	gnome_druid_set_buttons_sensitive(GNOME_DRUID(gui.setup_druid), FALSE, FALSE, FALSE, FALSE);
+}
+
+void setup_druid_finish_prepare(GnomeDruidPage *p, GtkWidget *w, gpointer d) {
+	gnome_druid_set_show_finish(GNOME_DRUID(gui.setup_druid), TRUE);
+}
+
+void setup_druid_finish(GnomeDruidPage *p, GtkWidget *w, gpointer d) {
 	druid_finished = TRUE;
+}
+
+void setup_druid_nickname_changed(GtkEditable *entry, gpointer d) {
+	GtkWidget *nick, *real;
+
+	nick = glade_xml_get_widget(gui.xml, "setup druid nickname");
+	real = glade_xml_get_widget(gui.xml, "setup druid realname");
+	if(strlen(gtk_entry_get_text(GTK_ENTRY(nick))) == 0 ||
+	   strlen(gtk_entry_get_text(GTK_ENTRY(real))) == 0)
+		gnome_druid_set_buttons_sensitive(GNOME_DRUID(gui.setup_druid), TRUE, FALSE, TRUE, TRUE);
+	else
+		gnome_druid_set_buttons_sensitive(GNOME_DRUID(gui.setup_druid), TRUE, TRUE, TRUE, TRUE);
+}
+
+void setup_druid_realname_changed(GtkEditable *entry, gpointer d) {
+	GtkWidget *nick, *real;
+
+	nick = glade_xml_get_widget(gui.xml, "setup druid nickname");
+	real = glade_xml_get_widget(gui.xml, "setup druid realname");
+	if(strlen(gtk_entry_get_text(GTK_ENTRY(nick))) == 0 ||
+	   strlen(gtk_entry_get_text(GTK_ENTRY(real))) == 0)
+		gnome_druid_set_buttons_sensitive(GNOME_DRUID(gui.setup_druid), TRUE, FALSE, TRUE, TRUE);
+	else
+		gnome_druid_set_buttons_sensitive(GNOME_DRUID(gui.setup_druid), TRUE, TRUE, TRUE, TRUE);
 }
