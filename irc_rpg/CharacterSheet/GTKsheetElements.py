@@ -269,7 +269,6 @@ class drop_down(hbox):
     ''' Roll the dice object. '''
     # Get the data from the menu: number of times, number of sides and modifiers.
     values = re.search('\[([1-9]+)d([1-9]+)\+?([1-9]*)\]', self.menu.entry.get_text())
-    print values.group(2)
     if values:
       self.button.attributes['sides'] = values.group(2)
       self.button.data['times'] = [int(values.group(1))]
@@ -310,7 +309,6 @@ class drop_down_item(sheetElement):
     # Get the data from the data sheet, split it on new lines and strip whitespace.
     if node.childNodes[0].data.count('/') > 0:
       self.data = character.getData(node.childNodes[0].data).split('\n')
-      print self.data
       self.data = [item.strip() for item in self.data]
       self.path = node.childNodes[0].data.strip()
     # The data is constant in the layout sheet, so just save it.
@@ -323,12 +321,13 @@ class text_box(gtk.Frame, sheetElement):
   def __init__(self, node, character):
     sheetElement.__init__(self, node)
     gtk.Frame.__init__(self, self.attributes.get('label', ''))
-
+    self.characterData = character
     # Text view.
     self.text = gtk.TextView()
     self.text.set_editable(gtk.FALSE)
     # Get the buffer.
     self.buffer = self.text.get_buffer()
+    self.buffer.set_text(self.characterData.getData(self.attributes['path']))
     self.text.show()
 
     # Give the text view a scroller.
@@ -342,4 +341,13 @@ class text_box(gtk.Frame, sheetElement):
 
   def addEditable(self, list):
     ''' Add the text box to the list of editable fields in the sheet. '''
-    list.append(self.text)
+    list.append(self)
+
+  def set_editable(self, is_editable):
+    self.text.set_editable(is_editable)
+
+  def writeOut(self):
+    ''' Write the data in the text box to the data file. '''
+    self.characterData.setData(self.attributes['path'],\
+	self.buffer.get_text(self.buffer.get_start_iter(), self.buffer.get_end_iter()))
+    self.characterData.writeOut()
