@@ -188,7 +188,7 @@ class Bindings:
            and the commandObject as 'command'.
            """
         # Set up the execution namespace
-        ns = globals()
+        ns = dict(globals())
         ns['bindings'] = self
         ns['command'] = commandObject
 
