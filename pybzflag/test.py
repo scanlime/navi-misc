@@ -11,3 +11,5 @@ print server.info()
 # Connect a client
 client = BZFlag.Client.BaseClient(server.name)
 print client.id
+client.disconnect()
+

@@ -39,6 +39,12 @@ class BaseClient:
             self.connect(server)
 
     def connect(self, server):
+        """This does the bare minimum necessary to connect to the
+           BZFlag server. It does not negotiate flags, obtain the
+           world database, or join the game. After this function
+           returns, the client is connected to the server and can
+           receive and transmit messages.
+           """
         # Establish the TCP socket
         if self.tcp:
             self.disconnect()
@@ -56,12 +62,11 @@ class BaseClient:
         self.id = hello.clientId
 
     def disconnect(self):
+        # Send a MsgExit first as a courtesy
+        self.tcp.write(ToServer.MsgExit())
         if self.tcp:
             self.tcp.close()
-            self.tcp = None
-
-    
-        
+            self.tcp = None        
 
 ### The End ###
         

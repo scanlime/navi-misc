@@ -24,6 +24,16 @@ sent from the game server to the clients.
 
 from BZFlag.Protocol import *
 from BZFlag.Protocol import Common
+
+
+class MsgExit(Common.Message):
+    messageId = 0x6578
+    entries = []
+
+
+messages = {
+    MsgExit.messageId:  MsgExit,
+    }
     
 ### The End ###
         

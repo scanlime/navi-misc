@@ -108,7 +108,7 @@ class Message(Struct):
     headerClass = MessageHeader
 
     def __init__(self, packed=None):
-        header = headerClass()
+        self.header = self.headerClass()
         Struct.__init__(self, packed)
         
     def unmarshall(self, packed):
@@ -116,9 +116,9 @@ class Message(Struct):
         return Struct.unmarshall(self, packed)
 
     def marshall(self):
-        self.header.length = Struct.getSize()
+        self.header.length = Struct.getSize(self)
         self.header.id = self.messageId
-        return self.header.marshall() + Struct.marshall(self, packed)
+        return self.header.marshall() + Struct.marshall(self)
 
     def getSize(self, packed=None):
         return self.header.getSize() + Struct.getSize(self)
