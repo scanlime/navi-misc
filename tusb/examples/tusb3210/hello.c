@@ -15,14 +15,18 @@ volatile xdata at 0xFD00 unsigned char ep1_out_x[64];
 
 
 void main() {
-
   usb_init();
 
   while (1) {
-    P3_0 = 1;
-    P3_0 = 0;
-  }
+    /* Debug code. Look at P3.0 on an oscilloscope to
+     * measure main loop period, to get an idea of max
+     * latency for things serviced from here.
+     */
+    P3_0 = !P3_0;
 
+    watchdog_reset();
+    usb_poll();
+  }
 }
 
 void usb_handle_vendor_request() {
