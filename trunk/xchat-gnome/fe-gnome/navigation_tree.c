@@ -818,6 +818,7 @@ navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_dat
 		/* Set the text entry field to whatever is in the text entry of this session. */
 		entry = glade_xml_get_widget (gui.xml, "text entry");
 		gtk_entry_set_text (GTK_ENTRY (entry), tgui->entry);
+		gtk_entry_set_position (GTK_ENTRY (entry), -1);
 
 		/* Make this our current session. */
 		gui.current_session = sess;
