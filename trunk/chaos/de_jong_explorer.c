@@ -154,7 +154,7 @@ void flip() {
    * been running for a while though, the image changes much less and a very slow
    * frame rate will suffice.
    */
-  max_frame_rate = 1000 / (1 + (log(iterations) - 9.21) * 4);
+  max_frame_rate = 200 / (1 + (log(iterations) - 9.21) * 4);
 
   /* Limit the maximum frame rate, so we're more responsive when dragging parameters */
   gettimeofday(&now, NULL);
