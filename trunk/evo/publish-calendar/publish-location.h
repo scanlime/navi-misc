@@ -66,6 +66,8 @@ struct _EPublishUri {
 	gchar *password;
 	GSList *events, *tasks;
 	gchar *last_pub_time;
+
+	gint service_type;
 };
 
 EPublishUri *e_publish_uri_from_xml (const gchar *xml);
