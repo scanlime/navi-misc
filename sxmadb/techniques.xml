@@ -8,6 +8,7 @@
 	<technique category="kick" href="intellectual-departure.xml" name="intellectual departure"/>
 	<technique category="grab" href="broken-ram.xml" level="blue" name="broken ram"/>
 	<technique category="punch" href="shield-and-mace.xml" level="blue" name="shield and mace"/>
+	<technique category="punch" href="reversing-mace.xml" level="orange" name="reversing mace"/>
 	<technique category="grab" href="lone-kimono.xml" level="orange" name="lone kimono"/>
 	<technique category="push" href="glancing-salute.xml" level="orange" name="glancing salute"/>
 	<technique category="grab" href="sword-and-hammer.xml" level="yellow" name="sword and hammer"/>

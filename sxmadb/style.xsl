@@ -336,6 +336,12 @@
     <xsl:value-of select="."/>
     block
   </xsl:template>
+  <xsl:template match="parry">
+    <xsl:value-of select="@side"/>
+    <xsl:text> </xsl:text>
+    <xsl:value-of select="."/>
+    parry
+  </xsl:template>
   <xsl:template match="kick">
     <xsl:value-of select="@side"/>
     <xsl:text> </xsl:text>
