@@ -6,7 +6,8 @@ key differences:
 
   - nevow is based on Twisted, while Nouvelle can work in any web
     server environment without requiring more than Python's standard
-    library.
+    library. Nouvelle supports twisted.web and deferred rendering,
+    but this is in an add-on rather than in the core of Nouvelle.
 
   - While nevow is a relatively simple web framework, Nouvelle is
     even simpler, making it very easy to understand and quick to load.
