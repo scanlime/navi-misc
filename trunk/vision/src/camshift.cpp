@@ -42,50 +42,6 @@ void gray_to_yuv(IplImage *src, IplImage *dest) {
   }
 }
 
-void yuv_to_hs(IplImage *yuv, IplImage **planes,
-		unsigned char ignored = 255,
-		unsigned char min_saturation = 10,
-		unsigned char min_value = 10,
-		unsigned char max_value = 245) {
-  /* Convert a YUV image to hue and saturation planes.
-   * Anywhere the value component is too high or too low, or where saturation is too
-   * low, the hue is set to the given 'ignored' value.
-   */
-  static IplImage *temp = 0;
-  IplImage *hue = planes[0];
-  IplImage *saturation = planes[1];
-
-  if (!temp)
-    temp = cvCreateImage(cvGetSize(yuv), 8, 3);
-  cvCvtColor(yuv, temp, CV_YCrCb2RGB);
-  cvCvtColor(yuv, temp, CV_RGB2HSV);
-
-  unsigned char *src_p,  *src_row  = (unsigned char*) temp->imageData;
-  unsigned char *hue_p,  *hue_row  = (unsigned char*) hue->imageData;
-  unsigned char *saturation_p,  *saturation_row  = (unsigned char*) saturation->imageData;
-  unsigned char h, s, v;
-  int i, j;
-  for (j=temp->height; j; --j) {
-    src_p = src_row;
-    hue_p = hue_row;
-    saturation_p = saturation_row;
-    for (i=temp->width; i; --i) {
-      h = *(src_p++);
-      s = *(src_p++);
-      v = *(src_p++);
-
-      if (s < min_saturation || v < min_value || v > max_value)
-	h = ignored;
-
-      *(hue_p++) = h;
-      *(saturation_p++) = s;
-    }
-    src_row += temp->widthStep;
-    hue_row += hue->widthStep;
-    saturation_row += saturation->widthStep;
-  }
-}
-
 void draw_box(IplImage *image, CvBox2D box, double color=CV_RGB(0,255,128)) {
   CvPoint2D32f boxPoints[4];
 
@@ -137,7 +93,7 @@ void interactive_camshift(int n_cameras = 1,
 			  bool mirror = false) {
   IplImage **images;
   IplImage *yuv_backprojections[n_cameras];
-  IplImage *planes[2];
+  IplImage *planes[3];
   IplImage *view_grid[n_cameras*2];
   IplImage *backprojection;
   CvHistogram* object_hist[n_cameras];
@@ -170,7 +126,7 @@ void interactive_camshift(int n_cameras = 1,
   cvSetIdentity(slow_kalman->error_cov_post, cvRealScalar(1));
 
   /* Allocate images, now that we know the camera resolution */
-  for (i=0; i<2; i++)
+  for (i=0; i<3; i++)
     planes[i] = cvCreateImage(cvGetSize(images[0]), 8, 1);
   for (i=0; i<n_cameras; i++)
     yuv_backprojections[i] = cvCreateImage(cvGetSize(images[0]), 8, 3);
@@ -178,11 +134,11 @@ void interactive_camshift(int n_cameras = 1,
 
   /* Allocate histograms */
   for (i=0; i<n_cameras; i++) {
-    int hist_size[] = {182, 16}; /* Hue, saturation */
-    float h_range[] = {0, 181};
-    float s_range[] = {0, 255};
-    float* ranges[] = {h_range, s_range};
-    object_hist[i] = cvCreateHist(2, hist_size, CV_HIST_ARRAY, ranges, 1);
+    int hist_size[] = {180, 128, 32};
+    float h_range[] = {0, 180};
+    float sv_range[] = {0, 255};
+    float* ranges[] = {h_range, sv_range, sv_range};
+    object_hist[i] = cvCreateHist(3, hist_size, CV_HIST_ARRAY, ranges, 1);
   }
 
   /* Initialize the search windows for CAMSHIFT. Subsequently these
@@ -205,6 +161,8 @@ void interactive_camshift(int n_cameras = 1,
     for (i=0; i<n_cameras; i++)
       view_grid[num_views++] = yuv_backprojections[i];
 
+  uinput_mouse_init("CamShift");
+
   while (1) {
     images = cv_dc1394_capture_yuv(n_cameras);
 
@@ -213,9 +171,8 @@ void interactive_camshift(int n_cameras = 1,
 	cvFlip(images[i], images[i], 1);
 
       /* Calculate the backprojection, in YUV space */
-      yuv_to_hs(images[i], planes);
+      cvCvtPixToPlane(images[i], planes[0], planes[1], planes[2], 0);
       cvCalcBackProject(planes, backprojection, object_hist[i]);
-      cvThreshold(backprojection, backprojection, 16, 255, CV_THRESH_TOZERO);
 
       if (show_backprojections) {
 	/* Make a YUV version of the output, for display */
@@ -360,11 +317,18 @@ void interactive_camshift(int n_cameras = 1,
        * reference histogram for the object we're trying to track.
        */
       if (mouse_buttons & SDL_BUTTON(1)) {
+	cvSetImageROI(images[mouse_camera], sample_rect);
 	cvSetImageROI(planes[0], sample_rect);
 	cvSetImageROI(planes[1], sample_rect);
+	cvSetImageROI(planes[2], sample_rect);
+
+	cvCvtPixToPlane(images[mouse_camera], planes[0], planes[1], planes[2], 0);
 	cvCalcHist(planes, object_hist[mouse_camera], 1);
+
+	cvResetImageROI(images[mouse_camera]);
 	cvResetImageROI(planes[0]);
 	cvResetImageROI(planes[1]);
+	cvResetImageROI(planes[2]);
 
 	/* Also set the windowIn to the sampling rectangle, to point CAMSHIFT at
 	 * what we're interested in.
@@ -442,8 +406,6 @@ int main(int argc, char **argv) {
   }
 
   cv_dc1394_init();
-  uinput_mouse_init("CamShift");
-
   interactive_camshift(n_cameras, show_backprojections, mirror);
   return 0;
 }
