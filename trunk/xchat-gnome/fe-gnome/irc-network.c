@@ -58,7 +58,7 @@ irc_network_dispose (GObject *object)
 static void
 irc_network_class_init (IrcNetworkClass *klass)
 {
-	GObjectClass *object_class;
+	GObjectClass *object_class = (GObjectClass *) klass;
 
 	object_class->dispose = irc_network_dispose;
 }
