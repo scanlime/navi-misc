@@ -278,6 +278,9 @@
 				<File
 					RelativePath="..\game\inc\gameManager.h">
 				</File>
+				<File
+					RelativePath="..\..\common\inc\messages.h">
+				</File>
 				<Filter
 					Name="test"
 					Filter="">

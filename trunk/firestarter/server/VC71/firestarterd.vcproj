@@ -269,6 +269,9 @@
 				Name="game"
 				Filter="">
 				<File
+					RelativePath="..\..\common\inc\messages.h">
+				</File>
+				<File
 					RelativePath="..\game\inc\serverGameManager.h">
 				</File>
 				<Filter
