@@ -11,11 +11,12 @@ class Options(Client.Options):
     optFlags = [
         ['type-profile', 't', 'Show a chart profiling which data types have the most instances'],
         ['console', 'c', 'Start an interactive debugging console'],
+        ['preserve-namespace', 'p', "Don't reset the remote interpreter namespace"],
 	]
 
     optParameters = [
         ['rebuild', 'r', None, 'Rebuild one specific package or module'],
-        ['eval', 'e', None, 'Evaluate arbitrary code in the current remote interpreter namespace'],
+        ['eval', 'e', None, 'Evaluate one statement of arbitrary code, printing the output'],
 	]
 
 
@@ -27,7 +28,6 @@ class RemoteConsole(code.InteractiveConsole):
        """
     def __init__(self, app):
         self.app = app
-        app.server.debug.resetInterpreter(app.key)
         code.InteractiveConsole.__init__(self)
 
     def runsource(self, source, filename=None):
@@ -36,6 +36,8 @@ class RemoteConsole(code.InteractiveConsole):
             return True
         else:
             sys.stdout.write(result)
+            if result and result[-1] != '\n':
+                sys.stdout.write('\n')
             return False
 
     def interact(self, banner=None):
@@ -53,6 +55,9 @@ class DebugTool(Client.App):
 
         if self.config['type-profile']:
             print self.server.debug.gc.typeProfile(self.key)
+
+        if not self.config['preserve-namespace']:
+            self.server.debug.resetInterpreter(app.key)
 
         if self.config['eval']:
             result = self.server.debug.eval(self.key, self.config['eval'])
