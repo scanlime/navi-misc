@@ -1,5 +1,5 @@
 /*
- * userlist.c - helpers for the userlist view
+ * userlist_gui.c - helpers for the userlist view
  *
  * Copyright (C) 2004 David Trowbridge and Dan Kuester
  *
@@ -20,7 +20,7 @@
  */
 
 #include <gnome.h>
-#include "userlist.h"
+#include "userlist_gui.h"
 #include "pixmaps.h"
 #include "textgui.h"
 #include "palette.h"

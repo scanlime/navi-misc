@@ -1,5 +1,5 @@
 /*
- * userlist.h - helpers for the userlist view
+ * userlist_gui.h - helpers for the userlist view
  *
  * Copyright (C) 2004 David Trowbridge and Dan Kuester
  *
@@ -22,8 +22,8 @@
 #include "gui.h"
 #include "textgui.h"
 
-#ifndef XCHAT_GNOME_USERLIST_H
-#define XCHAT_GNOME_USERLIST_H
+#ifndef XCHAT_GNOME_USERLIST_GUI_H
+#define XCHAT_GNOME_USERLIST_GUI_H
 
 void initialize_userlist();
 void create_userlist(session *sess);
