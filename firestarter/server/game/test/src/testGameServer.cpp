@@ -13,15 +13,7 @@
 #include "timer.h"
 #include "firestarterd.h"
 
-// messages
-#define	_MESSAGE_SERVER_INFO 0x5349	// SI 
-#define	_MESSAGE_CLIENT_INFO 0x4349	// CI 
-#define	_MESSAGE_USER_PART 0x5550		// UP
-#define	_MESSAGE_USER_ADD 0x5541		// UA
-#define	_MESSAGE_KICK 0x4b4b				// KK
-#define _MESSAGE_UPDATE 0x5544			//UD
-#define _MESSAGE_ACKNOWLEDGE 0x414b	//AK
-#define _MESSAGE_SPAWN 0x5350				//SP
+#include "messages.h"
 
 void CTestGameServer::init ( void )
 {
