@@ -1,7 +1,6 @@
-""" LibCIA.Email
+""" LibCIA.IncomingMail
 
-Functionality related to Email, of course :)
-This includes an IncomingMailParser that converts emails to Messages
+Includes an IncomingMailParser that converts emails to Messages
 and delivers them to the Message.Hub.
 """
 #
@@ -23,18 +22,17 @@ and delivers them to the Message.Hub.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
+from twisted.xish import domish
 from Message import Message
+from ColorText import ColorTextParser
 import email
 
 
 class IncomingMailParser:
-    """Parses commands from incoming email messages, generating and dispatching
-       Message instances to the provided Hub. The parse() method determines
-       the nature of the message and directs execution to a command_* method.
+    """Parses commands from incoming email messages, generating an XML Message
+       object representing its contents. This returned object can be dispatched
+       by a Message.Hub.
        """
-    def __init__(self, hub):
-        self.hub = hub
-
     def parseString(self, string):
         """Convert the given string to an email.Message, then parse it"""
         self.parse(email.message_from_string(string))
@@ -43,6 +41,7 @@ class IncomingMailParser:
         """Given an email.Message instance, determines the command it represents
            (if any) and passes control to it.
            """
+        self.message = message
         subjectFields = message['Subject'].split(" ")
         command = subjectFields[0]
         args = subjectFields[1:]
@@ -51,12 +50,31 @@ class IncomingMailParser:
             f = getattr(self, "command_" + command)
         except AttributeError:
             # Unknown command, ignore this mail
-            return
+            return None
 
-        f(message, *args)
+        # Pass on control to the command_* function...
+        return f(*args)
 
-    def command_Announce(self, message, project):
-        """Old-style announcements."""
-        print project
+    def command_Announce(self, project):
+        """Old-style announcements: Announce <project> in the subject line.
+           The body of the email contained the message's text, marked up
+           with {color} tags but with no metadata.
+           """
+        xml = domish.Element((None, "message"))
+
+        # Convert the given project name to a <project> tag inside <source>,
+        # after filtering it a bit... in the old CIA project names and IRC channel
+        # names weren't particularly distinct, so preceeding "#" characters on
+        # projects were ignored. We preserve this behaviour.
+        if project[0] == "#":
+            project = project[1:]
+        xml.addElement("source").addElement("project", content=project)
+
+        # Since old-style commits didn't have any metadata, the best we can do
+        # is to represent the log in a <colorText> element
+        colorText = ColorTextParser().parse(self.message.get_payload())
+        xml.addElement("body").addChild(colorText)
+
+        print xml.toXml()
 
 ### The End ###
