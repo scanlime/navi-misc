@@ -9,7 +9,7 @@
 ; Hardware description:
 ;      GP0: Battery voltage sensor (470Kohms to battery+, 470K to ground)
 ;      GP1: Transmitter data
-;      GP2: Transmitter and I2C power
+;      GP2: Transmitter power
 ;      GP3: Unused input-only pin, external 4.7k pullup resistor to I2C power
 ;      GP4: I2C data, 4.7k pullup resistor to VCC
 ;      GP5: I2C clock
@@ -32,7 +32,7 @@
 ; sequence never occurs. After any run of three "1" bits, a "0" is explicitly
 ; inserted. On the receiving side, after receiving a run of three "1" bits
 ; another "1" will indicate a flag but a "0" will be removed. All values
-; are sent LSB-first unless otherwise indicated.
+; are sent LSB-first.
 ;
 ; Packets are of the following form:
 ;
@@ -42,8 +42,8 @@
 ;         - 6-bit station ID
 ;         - 5-bit packet sequence number
 ;         - 10-bit battery voltage
-;         - 8-bit sensor value(s), MSB first (streamed directly from I2C)
-;         - 8-bit frame check sequence (CRC-8 of above)
+;         - 16-bit temperature accumulator
+;         - 8-bit temperature sample count
 ;      - 6-bit Flag sequence
 ;
 
@@ -58,7 +58,11 @@
 
 STATION_ID	equ	1	; A unique ID between 0 and 63
 TC74_ADDR	equ	7	; The address marked on this station's TC74
-SLEEP_TIME	equ	1	; Time to sleep between readings, in 2.3 second units
+
+N_THERM_SAMPLES	equ	.50	; Number of temperature readings per RF burst.
+				;   This also determines the interval between
+				;   RF bursts, in 2.3-second units.
+N_PACKETS	equ	.5	; Number of duplicate packets sent in a burst
 
 
 ;----------------------------------------------------- Constants
@@ -93,16 +97,58 @@ TX_LONG_DELAY	equ (.258 - (TX_LONG / 4))
 
 	cblock 0x20
 		temp, consecutive_ones, crc_reg, temp2, packet_seq
-		iolatch
+		iolatch, therm_total_low, therm_total_high, therm_count
+		main_iter
 	endc
 
 
-;----------------------------------------------------- Initialization
+;----------------------------------------------------- Main Loop
 	org 0
-start
 
-	; Initialize I/O
-	movlw	POWER_MASK | SCL_MASK
+	clrf	packet_seq
+	call	tc74_flush
+main_loop
+	incf	packet_seq, f
+
+	;; Power up the transmitter and related fluff, and sample the battery volts
+	call	init_high_power
+	call	init_timer_normal
+	call	battvolts_acquire
+	call	tx_send_preamble ; Send preamble bits while sampling
+	call	battvolts_sample
+	call	tx_send_preamble
+
+	;; Send a burst of packets. Note that the first packet we send after
+	;; powering up will have no therm data (zero samples).
+	;; This lets the receiver detect resets or battery changes if necessary.
+	movlw	N_PACKETS
+	movwf	main_iter
+packet_burst_loop
+	call	tx_packet
+	decfsz	main_iter, f
+	goto	packet_burst_loop
+
+	;; Take several therm readings, sleeping 2.3 seconds between each
+	call	tc74_flush
+	movlw	N_THERM_SAMPLES
+	movwf	main_iter
+therm_sample_loop
+	call	init_low_power
+	call	tc74_init
+	call	init_timer_sleep
+	sleep
+	call	tc74_read
+	decfsz	main_iter, f
+	goto	therm_sample_loop
+
+	goto	main_loop
+
+
+;----------------------------------------------------- Power Management
+
+	;; Initialize I/O with the transmitter off
+init_low_power
+	movlw	SCL_MASK
 	movwf	iolatch
 	movwf	GPIO
 	movlw	BATT_VOLT_MASK | UNUSED_MASK | SDA_MASK
@@ -110,14 +156,22 @@ start
 	movwf	TRISIO
 	bcf	STATUS, RP0
 
-	;; Set up the A/D converter, start an acquisition on channel 0
-	bsf	STATUS, RP0
-	movlw	0x31		; RC osc, only AN0 is analog
-	movwf	ANSEL
-	bcf	STATUS, RP0
-	movlw	0x81		; Right justified, VDD reference, channel 0, converter on
-	movwf	ADCON0
+	clrf	ADCON0		; Turn off the A/D converter
+	return
 
+	; Initialize I/O with the transmitter on
+init_high_power
+	movlw	POWER_MASK | SCL_MASK
+	movwf	iolatch
+	movwf	GPIO
+	movlw	BATT_VOLT_MASK | UNUSED_MASK | SDA_MASK
+	bsf	STATUS, RP0
+	movwf	TRISIO
+	bcf	STATUS, RP0
+	return
+
+	;; Prepare the timers for normal use
+init_timer_normal
 	;; Calibrate the oscillator
 	bsf	STATUS, RP0
 	call	0x3FF
@@ -135,15 +189,41 @@ start
 	clrf	TMR0
 	clrf	INTCON
 	clrwdt
+	return
 
-	;; Initialize variables
-	clrf	crc_reg
-	clrf	consecutive_ones
+	;; Prepare the timers for low-power sleep
+init_timer_sleep
+	;; Assign a 1:128 prescaler to the WDT. Each 'sleep' we do now
+	;; will last as long as possible, about 2.3 seconds.
+	clrwdt			; Clear the watchdog
+	clrf	TMR0		; Clear the prescaler
+	movlw	0xDF		; Reassign prescaler
+	bsf	STATUS, RP0
+	movwf	OPTION_REG
+	bcf	STATUS, RP0
+	return
 
 
-;----------------------------------------------------- Temperature Sampling
+	;; Start acquiring the battery voltage
+battvolts_acquire
+	bsf	STATUS, RP0
+	movlw	0x31		; RC osc, only AN0 is analog
+	movwf	ANSEL
+	bcf	STATUS, RP0
+	movlw	0x81		; Right justified, VDD reference, channel 0, converter on
+	movwf	ADCON0
+	return
 
-	;; Turn on the TC74
+	;; Start sampling the battery voltage
+battvolts_sample
+	bsf	ADCON0, GO
+	return
+
+
+;----------------------------------------------------- Temperature Sensor
+
+	;; Take the TC74 out of standby mode if necessary
+tc74_init
 	call	i2c_start
 	movlw	TC74_ADDR_WRITE	; Address it
 	movwf	temp
@@ -155,11 +235,10 @@ start
 	movwf	temp
 	call	i2c_send_byte
 	call	i2c_stop
+	return
 
-	;; Send the preamble while waiting for a sample
-	call	tx_send_preamble
-
-	;; Point at the TEMP register
+	;; Read and store one sample from the TC74
+tc74_read
 	call	i2c_start
 	movlw	TC74_ADDR_WRITE	; Address it
 	movwf	temp
@@ -169,68 +248,32 @@ start
 	call	i2c_send_byte
 	call	i2c_stop
 
-	;; Get ready to read the temperature below
 	call	i2c_start
-	movlw	TC74_ADDR_READ
+	movlw	TC74_ADDR_READ	; Address it for reading
 	movwf	temp
 	call	i2c_send_byte
-
-;----------------------------------------------------- Packet Contents
-
-	call	tx_begin_content
-	incf	packet_seq, f
-
-	movlw	0		; 2-bit protocol ID
-	movwf	temp
-	call	tx_content_2bit
-
-	movlw	STATION_ID	; 6-bit station Id
-	movwf	temp
-	call	tx_content_6bit
-
-	bsf	ADCON0, GO	; Start converting the battery voltage
-
-	movf	packet_seq, w	; 5-bit packet sequence number
-	movwf	temp
-	call	tx_content_5bit
-
-	bsf	STATUS, RP0	; 10-bit battery voltage
-	movf	ADRESL, w
-	bcf	STATUS, RP0
-	movwf	temp
-	call	tx_content_8bit
-	movf	ADRESH, w
-	movwf	temp
-	call	tx_content_2bit
-
-	call	tx_i2c_byte	; 8-bit temperature, read directly from I2C
+	call	i2c_read_byte	; Read the result
 	call	i2c_stop
 
-	call	tx_end_content
+	btfss	temp2, 0	; If the read was unsuccessful, return now
+	return
 
-;----------------------------------------------------- Shutdown
+	incf	therm_count, f	; Accumulate this sample
+	movf	temp, w
+	addwf	therm_total_low, f
+	btfsc	STATUS, C	; Carry the one...
+	incf	therm_total_high, f
+	btfsc	temp, 7		; Sign extend
+	decf	therm_total_high, f
+	return
 
-	clrf	GPIO		; Turn off external peripherals
-	clrf	iolatch
-	clrf	ADCON0		; Turn off the A/D converter
 
-	;; Assign a 1:128 prescaler to the WDT. Each 'sleep' we do now
-	;; will last as long as possible, about 2.3 seconds.
-	clrwdt			; Clear the watchdog
-	clrf	TMR0		; Clear the prescaler
-	movlw	0xDC		; Reassign prescaler
-	bsf	STATUS, RP0
-	movwf	OPTION_REG
-	bcf	STATUS, RP0
-
-	movlw	SLEEP_TIME	; Sleep for a configurable amount of time
-	movwf	temp
-sleep_loop
-	sleep
-	decfsz	temp, f
-	goto	sleep_loop
-
-	goto	start		; Reinitialize and send another packet
+	;; Clear the temperature accumulator
+tc74_flush
+	clrf	therm_total_low
+	clrf	therm_total_high
+	clrf	therm_count
+	return
 
 
 ;----------------------------------------------------- I2C Master
@@ -321,33 +364,83 @@ i2c_send_byte
 	call	i2c_send_bit
 	call	i2c_send_bit
 	i2c_scl_high		; Clock in and ignore the ACK
+	call	i2c_delay
 	i2c_scl_low
 	return
 
-	;; Read a bit from I2C and transmit it as packet content
-tx_i2c_bit
+	;; Shift one bit into 'temp'
+i2c_read_bit
+	rlf	temp, f
+	bcf	temp, 0
 	i2c_scl_high
 	call	i2c_delay
-	call	tx_i2c_bit_test
+	btfsc	GPIO, SDA_PIN
+	bsf	temp, 0
 	i2c_scl_low
 	call	i2c_delay
 	return
-tx_i2c_bit_test
-	btfsc	GPIO, SDA_PIN
-	goto	tx_content_one
-	goto	tx_content_zero
 
-tx_i2c_byte
-	call	tx_i2c_bit
-	call	tx_i2c_bit
-	call	tx_i2c_bit
-	call	tx_i2c_bit
-	call	tx_i2c_bit
-	call	tx_i2c_bit
-	call	tx_i2c_bit
-	call	tx_i2c_bit
-	i2c_scl_high		; Clock in and ignore the ACK
+	;; Shift one byte into 'temp'. Returns with temp2=1 on success,
+	;; temp2=0 on failure.
+i2c_read_byte
+	call	i2c_read_bit
+	call	i2c_read_bit
+	call	i2c_read_bit
+	call	i2c_read_bit
+	call	i2c_read_bit
+	call	i2c_read_bit
+	call	i2c_read_bit
+	call	i2c_read_bit
+
+	i2c_sda_high		; Clock in the ACK
+	call	i2c_delay
+	i2c_scl_high
+	call	i2c_delay
+	clrf	temp2		; Read the ACK, store our return code
+	btfsc	GPIO, SDA_PIN
+	bsf	temp2, 0
 	i2c_scl_low
+	return
+
+
+;----------------------------------------------------- Protocol: Complete packets
+
+tx_packet
+	call	tx_begin_content
+
+	movlw	0		; 2-bit protocol ID
+	movwf	temp
+	call	tx_content_2bit
+
+	movlw	STATION_ID	; 6-bit station Id
+	movwf	temp
+	call	tx_content_6bit
+
+	movf	packet_seq, w	; 5-bit packet sequence number
+	movwf	temp
+	call	tx_content_5bit
+
+	bsf	STATUS, RP0	; 10-bit battery voltage
+	movf	ADRESL, w
+	bcf	STATUS, RP0
+	movwf	temp
+	call	tx_content_8bit
+	movf	ADRESH, w
+	movwf	temp
+	call	tx_content_2bit
+
+	movf	therm_total_low, w ; 16-bit temperature total
+	movwf	temp
+	call	tx_content_8bit
+	movf	therm_total_high, w
+	movwf	temp
+	call	tx_content_8bit
+
+	movf	therm_count, w	; 8-bit sample count
+	movwf	temp
+	call	tx_content_8bit
+
+	call	tx_end_content
 	return
 
 
