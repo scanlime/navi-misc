@@ -59,10 +59,26 @@ public class person
 			status = 3;
 			break;
 		case 3:
-			send(message + " to you too!  Go ahead and ask your question.");
+			send(message + " to you too!  Go ahead and ask your question, or if you accidently messaged me, simply type '*'.");
 			status = 4;
 			break;
 		case 4:
+			if(message.charAt(0) == '*')
+			{
+				send("Ok, your non-question hasn't been submitted.");
+				status = 3;
+				break;
+			}
+			net temp = new net();
+			if(!temp.openConnection("localhost",8080))
+			{
+				send("I couldn't connect to the server, try again later.");
+				return;
+			}
+			temp.write("csub");
+			temp.write(name + " " + standmajor);
+			temp.write(message);
+			temp.closeConnection();
 			send("Your question has been submitted.");
 			status = 3;
 			break;

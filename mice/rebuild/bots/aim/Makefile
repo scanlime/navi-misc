@@ -1,4 +1,5 @@
 CLASSES=\
+	net.class\
 	person.class\
 	personindex.class\
 	interview.class\
@@ -6,6 +7,9 @@ CLASSES=\
 	aimup.class
 
 bot: $(CLASSES)
+
+net.class: net.java
+	javac net.java
 
 person.class: person.java
 	javac person.java
