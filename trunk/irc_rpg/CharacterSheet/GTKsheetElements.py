@@ -6,7 +6,7 @@ widgets.
 Copyright (C) 2003 W. Evan Sheehan <evan@navi.picogui.org>
 """
 
-import gtk
+import gtk, re
 from Character import Character
 from random import randint
 
@@ -150,7 +150,9 @@ class mods:
       self.data = int(node.childNodes[0].data)
 
 class drop_down(hbox):
-  """ Drop down menu. """
+  ''' Drop down menu in the character sheet, can contain one dice button to roll dice determined
+      by the menu.
+      '''
   def __init__(self, node, character):
     hbox.__init__(self, node, character)
     #self.menu = []
@@ -165,11 +167,11 @@ class drop_down(hbox):
       #self.items.append({})
 
   def setButton(self, widget):
-    print "setButton"
     if self.button != None:
-      print self.menu.entry.get_text()[self.menu.entry.get_text().index('['):]
-      #self.button.data['times'] = value[0]
-      #self.button.attributes['sides'] = value[1]
+      values = re.search('\[([1-9]*)d([1-9]*)\]', self.menu.entry.get_text())
+      if values is not None:
+        self.button.data['times'].append(int(values.group(1)))
+        self.button.attributes['sides'] = values.group(2)
 
   def packChild(self, child):
     if isinstance(child, dice) and self.button is None:
