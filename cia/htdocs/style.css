@@ -10,7 +10,7 @@ body.white {
   background: #ffffff;
 }
 
-img {
+img.footer {
   border: none;
   vertical-align: middle;
   padding: 0em 1em;
@@ -186,6 +186,11 @@ span.bargraph {
 
 div.photo {
   text-align: center;
+}
+
+img.photo {
+  border: 1px dashed #8CACBB;
+  padding: 0.5em;
 }
 
 .fgColor-black       { color: #000000; }
