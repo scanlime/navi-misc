@@ -226,7 +226,8 @@ class MessageProjectColumn(Nouvelle.Column):
     heading = 'project'
 
     def getValue(self, message):
-        return str(message.xml.source.project)
+        if message.xml.source:
+            return str(message.xml.source.project)
 
 
 class MessageContentColumn(Nouvelle.Column):
