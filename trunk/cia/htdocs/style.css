@@ -36,8 +36,12 @@ blockquote {
 
 ul {
   list-style-image: url(/images/bullet.png);
-  padding: 0em 0em 0em 2em;
+  padding: 0.5em 0em 0.5em 2em;
   margin: 0em;
+}
+
+li {
+  padding: 0.25em;
 }
 
 div.headingTabs {

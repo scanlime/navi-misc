@@ -84,3 +84,21 @@ messages from your project to their destination.
   URI schemes are used to describe destinations such as IRC channels, stats
   targets, or even XML-RPC methods.
 
+Picking a Client
+----------------
+
+This section needs work.
+
+For now, here is a list of the XML client scripts available locally:
+
+================ ============== ============= ========== =========================================
+ Name             Author         VCS           Language   Comments
+================ ============== ============= ========== =========================================
+ciabot_cvs.pl_   Petr Baudis    CVS           Perl       email or XML-RPC, simple filtering
+ciabot_svn.py_   Micah Dowty    Subversion    Python     XML-RPC only, can extract branch/module
+ciabot_svn.sh_   Micah Dowty    Subversion    Shell      very simple, email only
+================ ============== ============= ========== =========================================
+
+.. _ciabot_cvs.pl: /clients/ciabot_cvs.pl
+.. _ciabot_svn.py: /clients/ciabot_svn.py
+.. _ciabot_svn.sh: /clients/ciabot_svn.sh

@@ -53,6 +53,7 @@ class NouvelleTranslator(nodes.NodeVisitor):
         self.docSubtitle = None
         self.stack = [self.root]
         self.sectionStack = []
+        self.inTableHeading = False
 
         nodes.NodeVisitor.__init__(self, document)
 
@@ -81,6 +82,13 @@ class NouvelleTranslator(nodes.NodeVisitor):
             self.stack.append(self.stack[-1])
 
     def unknown_departure(self, node):
+        # HTML sucks, paragraphs give us extra whitespace.
+        # Remove paragraphs if we have only one of them.
+        if len(self.stack[-1]) == 1:
+            obj = self.stack[-1][0]
+            if isinstance(obj, tag) and obj.name == 'p':
+                self.stack[-1][0] = obj.content
+
         del self.stack[-1]
 
     def visit_Text(self, node):
@@ -140,6 +148,18 @@ class NouvelleTranslator(nodes.NodeVisitor):
             # Internal links not supported yet
             self.stack.append(self.stack[-1])
 
+    def visit_thead(self, node):
+        self.inTableHeading = True
+
+    def depart_thead(self, node):
+        self.inTableHeading = False
+
+    def visit_entry(self, node):
+        if self.inTableHeading:
+            self.enterTag(tag('th'))
+        else:
+            self.enterTag(tag('td'))
+
     tagMap = {
         'paragraph':       tag('p'),
         'enumerated_list': tag('ol'),
@@ -151,6 +171,8 @@ class NouvelleTranslator(nodes.NodeVisitor):
         'literal_block':   tag('pre'),
         'definition':      tag('dd'),
         'definition_list': tag('dl'),
+        'table':           tag('table'),
+        'row':             tag('tr'),
         'caption':         tag('p', _class='caption'),
         'system_message':  Template.error,
         'problematic':     Template.error,
