@@ -29,12 +29,13 @@ from BZFlag.Protocol import FromServer, ToServer, Common
 
 
 class BaseClient:
-    """Implements the simplest possible BZFlag client. Subclasses
-       can build on this with functionality to implement a player
-       or a UI.
+    """Implements a very simple BZFlag client. Subclasses can build
+       on this with functionality to implement a player or a UI.
        """
     def __init__(self, server=None):
         self.tcp = None
+        self.udp = None
+        self.connected = 0
         if server:
             self.connect(server)
 
@@ -50,23 +51,68 @@ class BaseClient:
             self.disconnect()
         self.tcp = Network.Socket()
         self.tcp.connect(server, Common.defaultPort)
+        self.tcp.setBlocking(0)
 
-        # Wait for the Hello packet, with the
-        # server version and cilent ID
-        hello = self.tcp.readStruct(FromServer.HelloPacket)
+        # Now we have to wait for the server's Hello packet,
+        # with the server version and client ID.
+        self.tcp.handler = self.expectHelloPacket
+
+    def expectHelloPacket(self, socket, eventLoop):
+        # We should have just received a Hello packet with
+        # the server version and our client ID.
+        hello = socket.readStruct(FromServer.HelloPacket)
         if hello.version != BZFlag.protocolVersion:
             raise Protocol.ProtocolError(
                 "Protocol version mismatch: The server is version " +
                 "'%s', this client is version '%s'." % (
                 hello.version, BZFlag.protocolVersion))
         self.id = hello.clientId
+        
+        # Now we're connected
+        self.connected = 1
+        socket.handler = self.expectMessage
+        self.onConnect()
 
+    def onConnect(self):
+        """This is called after a connection has been established.
+           By default it doesn't do anything, it's up to subclasses
+           to define what this does next.
+           """
+        pass
+
+    def expectMessage(self, socket, eventLoop):
+        print "Message"
+        
     def disconnect(self):
         # Send a MsgExit first as a courtesy
         self.tcp.write(ToServer.MsgExit())
         if self.tcp:
             self.tcp.close()
-            self.tcp = None        
+            self.tcp = None
+        if self.udp:
+            self.udp.close()
+            self.udp = None
+        self.connected = 0
+
+    def getSockets(self):
+        """Returns a list of sockets the client expects
+           incoming data on. This is meant to be used with the
+           Network.EventLoop class or compatible.
+           """
+        sockets = []
+        if self.tcp:
+            sockets.append(self.tcp)
+        if self.udp:
+            sockets.append(self.udp)
+        return sockets
+
+    def run(self):
+        """A simple built-in event loop, for those not wanting
+           to integrate the BZFlag client into an existing event
+           loop using the above getSockets() and the sockets'
+           poll() method.
+           """
+        Network.EventLoop().run(self.getSockets())
 
 ### The End ###
         
