@@ -45,12 +45,9 @@ struct usb_widget {
 	struct usb_device *usbdev;
 	devfs_handle_t devfs;
 	struct urb read_urb;
-	struct urb write_urb;
-	unsigned char read_data[BUFFER_SIZE+1];   /* The '+1' is so the buffers will stay null-terminated */
-	unsigned char write_data[BUFFER_SIZE+1];  /* and we can dbg() them easily */
+	unsigned char read_data[BUFFER_SIZE];
 	int open;
 	struct usb_endpoint_descriptor *endpoint;
-	wait_queue_head_t write_wqh;
 };
 
 static void usb_widget_read_complete(struct urb *urb)
@@ -61,24 +58,6 @@ static void usb_widget_read_complete(struct urb *urb)
 	if (urb->status) return;
 
        	dbg("Received %d bytes - %02X %02X %02X %02X", urb->actual_length, data[0], data[1], data[2], data[3]);
-}
-
-static void usb_widget_write_complete(struct urb *urb)
-{
-	struct usb_widget *widget = urb->context;
-
-	if (urb->status) return;
-
-	dbg("Write complete, status %d, wrote %d bytes, interval %d, buffer: '%s'",
-	    urb->status, urb->actual_length, urb->interval, urb->transfer_buffer);
-
-	if (waitqueue_active(&widget->write_wqh)) {
-		/* Cancel the transfer before it gets automatically resent */
-		usb_unlink_urb(&widget->write_urb);
-
-		dbg("waking up processes");
-		wake_up_interruptible(&widget->write_wqh);
-	}
 }
 
 static int usb_widget_dev_open (struct inode *inode, struct file *file)
@@ -99,31 +78,16 @@ static ssize_t usb_widget_dev_write (struct file *file, const char *buffer, size
 
 	if (count) {
 		/* We have at least one byte to write, write one */
-		int status, write_pipe;
-		int transfer_size;
+		unsigned char byte;
 
-		transfer_size = min(count, BUFFER_SIZE);
-		if (copy_from_user(widget->write_data, buffer, transfer_size))
+		if (copy_from_user(&byte, buffer, 1))
 			return -EFAULT;
-		dbg("Sending %d bytes", transfer_size);
+		dbg("Sending 0x%02X", byte);
 
-		/* Clear out old cruft from the URB */
-		usb_unlink_urb(&widget->write_urb);
+		usb_control_msg(widget->usbdev, usb_sndctrlpipe(widget->usbdev, 0),
+				0, 0x40, byte, 0, NULL, 0, 2);
 
-		/* Initialize a write URB with our data to send */
-		write_pipe = usb_sndintpipe(widget->usbdev, widget->endpoint->bEndpointAddress);
-		usb_fill_int_urb(&widget->write_urb, widget->usbdev, write_pipe, widget->write_data, transfer_size,
-				 usb_widget_write_complete, widget, 0);
-
-		status = usb_submit_urb(&widget->write_urb);
-		dbg("usb_submit_usb status %d", status);
-
-		/* Block the calling process until the request has finished */
-		dbg("sleeping, status is %d", widget->write_urb.status);
-		interruptible_sleep_on(&widget->write_wqh);
-		dbg("waking up, status is %d", widget->write_urb.status);
-
-		return transfer_size;
+		return 1;
 	}
 	else {
 		/* Nothing to do */
@@ -169,8 +133,6 @@ static void *usb_widget_probe(struct usb_device *dev, unsigned int ifnum,
 	widget->usbdev = dev;
 	widget->endpoint = endpoint;
 
-	init_waitqueue_head(&widget->write_wqh);
-
 	/* Create a devfs entry */
 	widget->devfs = devfs_register (usb_devfs_handle, USB_WIDGET_DEV_NAME,
 					DEVFS_FL_DEFAULT, USB_MAJOR,
@@ -202,7 +164,6 @@ static void usb_widget_disconnect(struct usb_device *dev, void *ptr)
 {
 	struct usb_widget *widget = ptr;
 	usb_unlink_urb(&widget->read_urb);
-	usb_unlink_urb(&widget->write_urb);
 	devfs_unregister(widget->devfs);
 	kfree(widget);
 }
