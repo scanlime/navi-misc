@@ -350,12 +350,29 @@ void explorer_update_gui(Explorer *self) {
 
   histogram_imager_update_image(HISTOGRAM_IMAGER(self->dejong));
 
+  if (self->image)
+    gdk_pixbuf_unref(self->image);
+
+  if (HISTOGRAM_IMAGER(self->dejong)->fgalpha < 0xFFFF ||
+      HISTOGRAM_IMAGER(self->dejong)->bgalpha < 0xFFFF) {
+    /* If we need to draw with alpha, composite our histogram imager's output on top of a checkerboard */
+    self->image = gdk_pixbuf_composite_color_simple(HISTOGRAM_IMAGER(self->dejong)->image,
+						    HISTOGRAM_IMAGER(self->dejong)->width,
+						    HISTOGRAM_IMAGER(self->dejong)->height,
+						    GDK_INTERP_TILES, 255,
+						    16, 0xaaaaaa, 0x555555);
+  }
+  else {
+    /* If we don't need alpha, just render the histogram imager's pixbuf directly */
+    self->image = gdk_pixbuf_ref(HISTOGRAM_IMAGER(self->dejong)->image);
+  }
+
   /* Update our entire drawing area.
    * We use GdkRGB directly here to force ignoring the alpha channel.
    */
   gdk_draw_rgb_32_image(self->drawing_area->window, self->gc, 0, 0,
 			HISTOGRAM_IMAGER(self->dejong)->width, HISTOGRAM_IMAGER(self->dejong)->height,
-			GDK_RGB_DITHER_NORMAL, gdk_pixbuf_get_pixels(HISTOGRAM_IMAGER(self->dejong)->image),
+			GDK_RGB_DITHER_NORMAL, gdk_pixbuf_get_pixels(self->image),
 			HISTOGRAM_IMAGER(self->dejong)->width * 4);
 
   HISTOGRAM_IMAGER(self->dejong)->render_dirty_flag = FALSE;
@@ -377,8 +394,7 @@ static gboolean on_expose(GtkWidget *widget, GdkEventExpose *event, gpointer use
   GdkRectangle *rects;
   int n_rects, i;
 
-  if (HISTOGRAM_IMAGER(self->dejong)->image &&
-      !HISTOGRAM_IMAGER(self->dejong)->size_dirty_flag) {
+  if (self->image && !HISTOGRAM_IMAGER(self->dejong)->size_dirty_flag) {
 
     gdk_region_get_rectangles(event->region, &rects, &n_rects);
 
@@ -398,7 +414,7 @@ static gboolean on_expose(GtkWidget *widget, GdkEventExpose *event, gpointer use
 			    rects[i].x, rects[i].y,
 			    rects[i].width, rects[i].height,
 			    GDK_RGB_DITHER_NORMAL,
-			    gdk_pixbuf_get_pixels(HISTOGRAM_IMAGER(self->dejong)->image) +
+			    gdk_pixbuf_get_pixels(self->image) +
 			    rects[i].x * 4 +
 			    rects[i].y * HISTOGRAM_IMAGER(self->dejong)->width * 4,
 			    HISTOGRAM_IMAGER(self->dejong)->width * 4);
