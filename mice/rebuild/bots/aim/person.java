@@ -88,12 +88,13 @@ public class person
 			{
 				send("Ok, your non-question hasn't been submitted.");
 				status = 3;
-				break;
+				return;
 			}
 			net temp = new net();
 			if(!temp.openConnection("localhost",8080))
 			{
 				send("I couldn't connect to the server, try again later.");
+				status = 3;
 				return;
 			}
 			temp.write("csub");
