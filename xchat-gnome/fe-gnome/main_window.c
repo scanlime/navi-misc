@@ -150,7 +150,13 @@ void on_discussion_save_as_activate(GtkWidget *widget, gpointer data) {
 }
 
 void on_discussion_leave_activate(GtkWidget *widget, gpointer data) {
-	/* FIXME: implement */
+	session *s = gui.current_session;
+	if(s->type == SESS_CHANNEL) {
+		s->server->p_part(s->server, s->channel, "ex-chat");
+		/* FIXME: part reason */
+	}
+	navigation_tree_remove(s);
+	text_gui_remove_text_buffer(s);
 }
 
 void on_discussion_find_activate(GtkWidget *widget, gpointer data) {
