@@ -25,6 +25,7 @@ implemented using the OSS /dev/mixer device.
 from fcntl import ioctl
 import struct
 
+
 # Mapping from channel name to OSS channel number
 channelDict = {
     'volume': 0,
@@ -42,6 +43,11 @@ channelDict = {
     'igain': 12,
     'ogain': 13,
     }
+
+
+# The volume to set channels to when they're fully on.
+# This is set to a value less than 1 to avoid clipping.
+onVolume = 0.9
 
 
 class Device(object):
