@@ -33,7 +33,9 @@
 static int uinput_fd = 0;
 static float subpixel_residual_x = 0;
 static float subpixel_residual_y = 0;
-
+static float old_abs_x = 0;
+static float old_abs_y = 0;
+static int old_abs_valid = 0;
 
 void uinput_mouse_init(const char *dev_name) {
   struct uinput_user_dev dev;
@@ -93,6 +95,18 @@ void uinput_mouse_move_subpixel(float rel_x, float rel_y) {
   uinput_mouse_move(ix, iy);
   subpixel_residual_x = rel_x - ix;
   subpixel_residual_y = rel_y - iy;
+}
+
+void uinput_mouse_absolute_movement(float abs_x, float abs_y) {
+  if (old_abs_valid)
+    uinput_mouse_move_subpixel(abs_x - old_abs_x, abs_y - old_abs_y);
+  old_abs_x = abs_x;
+  old_abs_y = abs_y;
+  old_abs_valid = 1;
+}
+
+void uinput_mouse_absolute_discontinuity() {
+  old_abs_valid = 0;
 }
 
 /* The End */
