@@ -96,7 +96,7 @@ class GenericNetwork(BaseNetwork):
         if port is None:
             return host
         else:
-            return "%s:%d" % (host, port)
+            return "%s:%r" % (host, port)
 
     def __repr__(self):
             return "<IRC.Network.%s %s>" % (self.__class__.__name__, self)
