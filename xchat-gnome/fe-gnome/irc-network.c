@@ -95,8 +95,6 @@ irc_network_new (ircnet *net)
 	IrcNetwork *n = IRC_NETWORK (g_object_new (irc_network_get_type (), 0));
 
 	n->name        = g_strdup (net->name);
-	g_print ("name = 0x%x\n", n->name);
-	g_print ("name = %s\n\n", n->name);
 	n->autoconnect = net->flags & FLAG_AUTO_CONNECT;
 	n->use_ssl     = net->flags & FLAG_USE_SSL;
 	n->cycle       = net->flags & FLAG_CYCLE;

@@ -89,7 +89,6 @@ irc_network_editor_get_type (void)
 static void
 irc_network_editor_populate (IrcNetworkEditor *e)
 {
-	g_print ("name = 0x%x\n", e->network->name);
 	gtk_entry_set_text           (GTK_ENTRY         (e->network_name),     e->network->name);
 
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (e->autoconnect),      e->network->autoconnect);
