@@ -54,7 +54,10 @@ struct _NavTreeClass
 GType navigation_tree_get_type (void) G_GNUC_CONST;
 NavTree* navigation_tree_new   (NavModel *model);
 
-/* Add/remove server/channel functions. */
+/* Add/remove server/channel functions. FIXME: I bet we don't need this,
+ * just the ones from the NavModel should be fine. I think the GUI will store
+ * a reference to the model independently of the NavTree.
+ */
 void navigation_tree_create_new_network_entry (NavTree *navtree, struct session *sess);
 void navigation_tree_create_new_channel_entry (NavTree *navtree, struct session *sess);
 void navigation_tree_remove_channel_entry     (NavTree *navtree, struct session *sess);
@@ -97,8 +100,7 @@ NavModel* navigation_model_new  (void);
 /* Add/remove server/channel functions. */
 void navigation_model_add_new_network (NavModel *model, struct session *sess);
 void navigation_model_add_new_channel (NavModel *model, struct session *sess);
-void navigation_model_remove_network  (NavModel *model, struct session *sess);
-void navigation_model_remove_channel  (NavModel *model, struct session *sess);
+void navigation_model_remove          (NavModel *model, struct session *sess);
 
 G_END_DECLS
 

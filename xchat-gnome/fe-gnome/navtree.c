@@ -428,7 +428,7 @@ navigation_tree_new (NavModel *model)
 
 /* Channel/server selection functions. */
 
-/***** NavModel *****/
+/********** NavModel **********/
 
 static void navigation_model_init       (NavModel *navmodel);
 static void navigation_model_class_init (NavModelClass *klass);
@@ -489,4 +489,63 @@ NavModel*
 navigation_model_new ()
 {
 	return NAVMODEL(g_object_new(navigation_model_get_type(), NULL));
+}
+
+void
+navigation_model_add_new_network (NavModel *model, struct session *sess)
+{
+	GtkTreeIter iter;
+
+	gtk_tree_store_append(GTK_TREE_STORE(model->store), &iter, NULL);
+	gtk_tree_store_set(model->store, &iter, 1, "<none>", 2, sess, 3, 0, 4, NULL, -1);
+}
+
+static gboolean
+navigation_model_create_new_channel_entry_iterate (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, struct session *data)
+{
+	struct session *s;
+	gtk_tree_model_get(model, iter, 2, &s, -1);
+	if(s->type == SESS_SERVER && s->server == data->server) {
+		GtkTreeIter child, sorted;
+		GtkWidget *entry, *treeview;
+		GtkTreeModelSort *sort;
+
+		treeview = glade_xml_get_widget(gui.xml, "server channel list");
+		sort = GTK_TREE_MODEL_SORT(NAVTREE(treeview)->model->sorted);
+
+		gtk_tree_store_append(GTK_TREE_STORE(model), &child, iter);
+
+		gtk_tree_store_set(GTK_TREE_STORE(model), &child, 1, data->channel, 2, data, 3, 0, 4, NULL, -1);
+
+		gtk_tree_model_sort_convert_child_iter_to_iter(sort, &sorted, iter);
+
+		entry = glade_xml_get_widget(gui.xml, "text entry");
+		gtk_widget_grab_focus(entry);
+		return TRUE;
+	}
+	return FALSE;
+}
+
+void
+navigation_model_add_new_channel (NavModel *model, struct session *sess)
+{
+	gtk_tree_model_foreach(GTK_TREE_MODEL(model->store), (GtkTreeModelForeachFunc) navigation_model_create_new_channel_entry_iterate, (gpointer) sess);
+}
+
+static gboolean
+navigation_model_remove_iterate (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, struct session *data)
+{
+	struct session *s;
+	gtk_tree_model_get(model, iter, 2, &s, -1);
+	if(s == data) {
+		gtk_tree_store_remove(GTK_TREE_STORE(model), iter);
+		return TRUE;
+	}
+	return FALSE;
+}
+
+void
+navigation_model_remove (NavModel *model, struct session *sess)
+{
+	gtk_tree_model_foreach(GTK_TREE_MODEL(model->store), (GtkTreeModelForeachFunc) navigation_model_remove_iterate, (gpointer) sess);
 }
