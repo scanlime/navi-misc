@@ -71,6 +71,31 @@ e_calendar_weather_location (EPlugin *epl, EConfigHookItemFactoryData *data)
 	return treeview;
 }
 
+static void
+set_refresh_time (ESource *source, GtkWidget *spin, GtkWidget *option)
+{
+	int time;
+	int item_num = 0;
+	const char *refresh_str = e_source_get_property (source, "refresh");
+	time = refresh_str ? atoi (refresh_str) : 30;
+
+	if (time  && !(time % 10080)) {
+		/* weeks */
+		item_num = 3;
+		time /= 10080;
+	} else if (time && !(time % 1440)) {
+		/* days */
+		item_num = 2;
+		time /= 1440;
+	} else if (time && !(time % 60)) {
+		/* hours */
+		item_num = 1;
+		time /= 60;
+	}
+	gtk_option_menu_set_history (GTK_OPTION_MENU (option), item_num);
+	gtk_spin_button_set_value (GTK_SPIN_BUTTON (spin), time);
+}
+
 GtkWidget *
 e_calendar_weather_refresh (EPlugin *epl, EConfigHookItemFactoryData *data)
 {
@@ -120,9 +145,60 @@ e_calendar_weather_refresh (EPlugin *epl, EConfigHookItemFactoryData *data)
 		gtk_menu_shell_append (GTK_MENU_SHELL (menu), times[i]);
 	}
 	gtk_option_menu_set_menu (GTK_OPTION_MENU (option), menu);
+	set_refresh_time (source, spin, option);
 	gtk_box_pack_start (GTK_BOX (hbox), option, FALSE, TRUE, 0);
 
 	gtk_table_attach (GTK_TABLE (parent), hbox, 1, 2, row, row+1, GTK_EXPAND | GTK_FILL, 0, 0, 0);
 
+	g_object_set_data (G_OBJECT (epl), "calendar.weather.refresh.spin", spin);
+	g_object_set_data (G_OBJECT (epl), "calendar.weather.refresh.option", option);
+
 	return hbox;
+}
+
+static char *
+get_refresh_minutes (GtkWidget *spin, GtkWidget *option)
+{
+	int setting = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (spin));
+	switch (gtk_option_menu_get_history (GTK_OPTION_MENU (option))) {
+	case 0:
+		/* minutes */
+		break;
+	case 1:
+		/* hours */
+		setting *= 60;
+		break;
+	case 2:
+		/* days */
+		setting *= 1440;
+		break;
+	case 3:
+		/* weeks - is this *really* necessary? */
+		setting *= 10080;
+		break;
+	default:
+		g_warning ("Time unit out of range");
+		break;
+	}
+
+	return g_strdup_printf ("%d", setting);
+}
+
+void
+e_calendar_weather_commit (EPlugin *epl, ECConfigTargetSource *t)
+{
+	GtkWidget *spin, *option;
+	ESource *source = t->source;
+	char *refresh_str;
+	ESourceGroup *group = e_source_peek_group (source);
+
+	if (strcmp (e_source_group_peek_name (group), _("Weather")))
+		return;
+
+	spin = g_object_get_data (G_OBJECT (epl), "calendar.weather.refresh.spin");
+	option = g_object_get_data (G_OBJECT (epl), "calendar.weather.refresh.option");
+
+	refresh_str = get_refresh_minutes (spin, option);
+	e_source_set_property (source, "refresh", refresh_str);
+	g_free (refresh_str);
 }
