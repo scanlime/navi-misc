@@ -355,60 +355,11 @@ GtkWidget *custom_color_button_new(gchar *widget_name, gchar *string1,
   return w;
 }
 
-/* File picker for GTK 2.3 and above */
-#if (GTK_MAJOR_VERSION > 2) || (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 3)
-
-void update_save_preview(GtkFileChooser *chooser, gpointer data) {
-  GtkWidget *preview;
-  char *filename;
-  GdkPixbuf *pixbuf;
-  gboolean have_preview;
-
-  preview = GTK_WIDGET(data);
-  filename = gtk_file_chooser_get_preview_filename(chooser);
-
-  pixbuf = gdk_pixbuf_new_from_file_at_size(filename, 128, 128, NULL);
-  have_preview = (pixbuf != NULL);
-  g_free(filename);
-
-  gtk_image_set_from_pixbuf(GTK_IMAGE(preview), pixbuf);
-  if(pixbuf)
-    gdk_pixbuf_unref(pixbuf);
-  gtk_file_chooser_set_preview_widget_active(chooser, have_preview);
-}
-
-void on_save_activate(GtkWidget *widget, gpointer user_data) {
-  GtkWidget *dialog, *preview;
-
-  dialog = gtk_file_chooser_dialog_new("Save", GTK_WINDOW(gui.window), GTK_FILE_CHOOSER_ACTION_SAVE,
-  				       GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
-				       GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-				       NULL);
-  GtkFileFilter *filter = gtk_file_filter_new();
-  gtk_file_filter_add_pattern(filter, "*.png");
-  gtk_file_filter_set_name(filter, "PNG Image");
-  gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog), filter);
-
-  preview = gtk_image_new();
-  gtk_file_chooser_set_preview_widget(GTK_FILE_CHOOSER(dialog), preview);
-  g_signal_connect(dialog, "update-preview", G_CALLBACK(update_save_preview), preview);
-  if(gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
-    char *filename;
-    filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
-    save_to_file(filename);
-    g_free(filename);
-  }
-  g_object_unref(filter);
-  gtk_widget_destroy(dialog);
-}
-
-#else /* GTK < 2.3 */
-
-/* File picker for GTK versions before 2.3 */
 void on_save_activate(GtkWidget *widget, gpointer user_data) {
   GtkWidget *dialog;
 
   dialog = gtk_file_selection_new("Save");
+  gtk_file_selection_set_filename(GTK_FILE_SELECTION(dialog), "rendering.png");
 
   if(gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_OK) {
     const gchar *filename;
@@ -417,7 +368,5 @@ void on_save_activate(GtkWidget *widget, gpointer user_data) {
   }
   gtk_widget_destroy(dialog);
 }
-
-#endif /* GTK version */
 
 /* The End */
