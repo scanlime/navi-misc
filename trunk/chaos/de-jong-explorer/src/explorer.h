@@ -60,7 +60,6 @@ struct _Explorer {
   gboolean just_resized;
   GTimeVal last_update;
 
-  guint tools_idler;
   gchar* current_tool;
   gboolean tool_active;
   double last_mouse_x, last_mouse_y;
@@ -95,7 +94,7 @@ Explorer*  explorer_new(DeJong *dejong, Animation *animation);
 /************************************************************************************/
 
 void explorer_init_tools(Explorer *self);
-void explorer_dispose_tools(Explorer *self);
+gboolean explorer_update_tools(Explorer *self);
 
 void explorer_init_animation(Explorer *self);
 void explorer_dispose_animation(Explorer *self);
