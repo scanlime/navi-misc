@@ -11,6 +11,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <SDL/SDL_image.h>
+#include <SDL/SDL_ttf.h>
+#include <SDL_gfxPrimitives.h>
+
 #include "GUI.h"
 
 /********************************* Initialize ******************************/
@@ -23,8 +27,6 @@ void GUI_Node_Init(GUI_Node *node)
 
 	node->percent = 0;
 	
-	node->division = UNSET;
-
 	node->split = 0;
 	node->draw = 0;
 
@@ -128,7 +130,7 @@ GUI_Node* make_button()
 	GUI_Node_Init(newButton);
 
 	newButton->draw = draw_button;
-	newButton->action =  button_control;
+	newButton->action = button_control;
 
 	return newButton;
 }
@@ -145,7 +147,7 @@ GUI_Node* make_textfield()
 	newField->draw = draw_textfield;
 	newField->action = textfield_control;
 
-	return newButton;
+	return newField;
 }
 
 /********************************************/
@@ -155,10 +157,68 @@ GUI_Node* make_drawfield()
 
 	/* Initialize */
 	newField = malloc(sizeof(GUI_Node));
-	GUI_Init_Node(newField);
+	GUI_Node_Init(newField);
 
 	newField->draw = draw_drawfield;
 	newField->action = drawfield_control;
 
 	return newField;
+}
+/******************************** Draw Functions *******************************/
+int draw_button(GUI_Node *node, SDL_Surface *dest)
+{
+	SDL_Surface *char_surface;
+	TTF_Font *font;
+	SDL_Color color;
+
+	boxRGBA(dest, node->x, node->y, node->x+node->w, node->y+node->h,
+			150,150,150, 255);
+	rectangleRGBA(dest, node->x, node->y, node->x+node->w, node->y+node->h,
+			255,255,255, 255);
+
+	if (node->text) {
+		if (TTF_Init() == -1) 
+			return -1;
+		font = TTF_OpenFont("/home/evan/bitstream/VeraMono.ttf", ((node->w * node->h) * 33)/100);
+		if (!label)
+			return -1;
+		color.r = 0;
+		color.g = 0;
+		color.b = 0;
+		char_print = TTF_RenderText_Solid(font, node->text, color);
+	}
+
+	return 0;
+}
+
+/************************************/
+int draw_textfield(GUI_Node *node, SDL_Surface *dest)
+{
+	boxRGBA(dest, node->x, node->y, node->x+node->w, node->y+node->h,
+			0,0,0, 255);
+
+	return 0;
+}
+
+/************************************/
+int draw_drawfield(GUI_Node *node, SDL_Surface *dest)
+{
+	boxRGBA(dest, node->x, node->y, node->x+node->w, node->y+node->h,
+			0,0,0, 255);
+
+	return 0;
+}
+/********************************** Controls ***********************************/
+void button_control(GUI_Node *node)
+{
+}
+
+/************************************/
+void textfield_control(GUI_Node *node)
+{
+}
+
+/************************************/
+void drawfield_control(GUI_Node *node)
+{
 }
