@@ -10,6 +10,8 @@ viewport = Viewport.OpenGLViewport(loop)
 viewport.setCaption("Wasabi Test")
 view = ThreeDRender.View(viewport)
 
+viewport.display.toggle_fullscreen()
+pygame.mouse.set_visible(False)
 
 class IconTest(Sequencer.Page):
     def __init__(self, book):
@@ -59,6 +61,11 @@ class IconTest(Sequencer.Page):
         # UGLY HACK!!!!!!!!!
         self.dock = None
 
+
+def globalKeyDown(ev):
+    if ev.key == pygame.K_ESCAPE:
+        loop.stop()
+viewport.onKeyDown.observe(globalKeyDown)
 
 mainBook = Sequencer.CyclicBook(view, [
     # Cycle through wasabi logos until user intervention, then fade out
