@@ -19,8 +19,8 @@ class sheetElement:
     ''' Store all of the tags attributes in a dictionary with attribute names
         as the keys.
 	'''
-    return dict([(node.attributes.item(i).name,\
-	node.getAttribute(node.attributes.item(i).name))\
+    return dict([(node.attributes.item(i).name,
+	node.getAttribute(node.attributes.item(i).name))
 	for i in range(node.attributes.length)])
 
   def addEditable(self, list):
@@ -201,7 +201,10 @@ class times(sheetElement):
   def __init__(self, node, character):
     self.name = node.tagName
     if node.childNodes[0].data.count('/') > 0:
-      self.data = int(character.getData(node.childNodes[0].data))
+      try:
+        self.data = int(character.getData(node.childNodes[0].data))
+      except ValueError:
+	self.data = 0
     else:
       self.data = int(node.childNodes[0].data)
 
