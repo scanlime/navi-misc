@@ -5,7 +5,7 @@ In progress:
   IRC client
 
 To do:
-  Handle different dice systems (D&D and WW for the moment) in dieRoller.py
+  Tweak dice rolling systems to handle critical failures
   Store user preferences in the chat client
   More flexible character sheet layouts
   Character sheet builder
