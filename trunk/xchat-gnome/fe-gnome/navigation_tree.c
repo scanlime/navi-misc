@@ -28,6 +28,7 @@
 #include "palette.h"
 #include "channel_list.h"
 #include "main_window.h"
+#include "util.h"
 #include "../common/fe.h"
 #include "../common/servlist.h"
 
@@ -868,17 +869,6 @@ navigation_model_get_type (void)
 	return navigation_model_type;
 }
 
-static gint
-sort_func (GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpointer data)
-{
-	gchar *as, *bs;
-	gtk_tree_model_get (model, a, 1, &as, -1);
-	gtk_tree_model_get (model, b, 1, &bs, -1);
-	if (as == NULL) return 1;
-	if (bs == NULL) return -1;
-	return strcasecmp (as, bs);
-}
-
 static void
 navigation_model_init (NavModel *navmodel)
 {
@@ -891,7 +881,7 @@ navigation_model_init (NavModel *navmodel)
 		G_TYPE_INT);		/* reference count */
 	navmodel->sorted = gtk_tree_model_sort_new_with_model (GTK_TREE_MODEL (navmodel->store));
 	gtk_tree_sortable_set_sort_column_id (GTK_TREE_SORTABLE (navmodel->sorted), 1, GTK_SORT_ASCENDING);
-	gtk_tree_sortable_set_sort_func (GTK_TREE_SORTABLE (navmodel->sorted), 1, (GtkTreeIterCompareFunc) sort_func, NULL, NULL);
+	gtk_tree_sortable_set_sort_func (GTK_TREE_SORTABLE (navmodel->sorted), 1, gtk_tree_iter_sort_func_nocase, NULL, NULL);
 
 	/* Set up our hash table for direct hashing. */
 	navmodel->session_rows = g_hash_table_new (g_direct_hash, g_direct_equal);

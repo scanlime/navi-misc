@@ -25,5 +25,6 @@
 #define XCHAT_GNOME_ERROR_DIALOG_H
 
 void error_dialog (const gchar *header, const gchar *message);
+gint gtk_tree_iter_sort_func_nocase (GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpointer data);
 
 #endif
