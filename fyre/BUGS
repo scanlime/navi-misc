@@ -1,8 +1,1 @@
 - (fyre:27045): libgnomevfs-CRITICAL **: file gnome-vfs-utils.c: line 749 (gnome_vfs_get_uri_from_local_path): assertion`local_full_path[0] == '/''
-
-- Changing the foreground/background color while
-  using a rendering cluster, in windows, causes a
-  crash in _libwsock32_a_iname(). It's possible that
-  we're using a freed string somewhere in the networking
-  code that's getting trashed by the color picking
-  code.
