@@ -58,6 +58,12 @@ div.topic {
 	padding-right: 1em;
 }
 
+div.date {
+  font-size: large;
+  color: #382d37;
+  font-variant: small-caps;
+}
+
 img.header {
 	padding-bottom: 10px;
 	padding-left: 20px;
