@@ -41,7 +41,7 @@ class IrcURIHandler(Ruleset.RegexURIHandler):
        (:(?P<port>[0-9]+))?/(?P<channel>[^\s#]\S*)$
        """
 
-    def __init__(self, hub, botNet):
+    def __init__(self, botNet):
         # A reverse map for the result of uriToTuple,
         # so a (server,channel) tuple can be uniquely
         # converted back to the URI that generated it.
@@ -50,9 +50,7 @@ class IrcURIHandler(Ruleset.RegexURIHandler):
         # to a server and channel we're already in.
         self.tupleToUriMap = {}
 
-        self.hub = hub
         self.botNet = botNet
-        botNet.kickCallback = self.kickCallback
         Ruleset.RegexURIHandler.__init__(self)
 
     def uriToTuple(self, uri):
@@ -82,22 +80,6 @@ class IrcURIHandler(Ruleset.RegexURIHandler):
     def message(self, uri, message, content):
         server, channel = self.uriToTuple(uri)
         self.botNet.msg(server, channel, content)
-
-    def kickCallback(self, server, channel, kicker, message):
-        """Called with a ((host, port), channel) tuple whenever a bot has
-           been kicked from that channel. Since we're no longer wanted,
-           send a message back into the hub to delete that channel's ruleset.
-           """
-        xml = XML.domish.Element((None, 'message'))
-        gen = xml.addElement('generator')
-        gen.addElement('name', content='IRC kick handler')
-        kick = gen.addElement('kick')
-        if kicker:
-            kick.addElement('kicker', content=str(kicker))
-        if message:
-            kick.addElement('message', content=str(message))
-        xml.addElement('body').addElement('ruleset')['uri'] = self.tupleToUriMap[(server, channel)]
-        self.hub.deliver(Message.Message(xml))
 
 
 class Bot(irc.IRCClient):

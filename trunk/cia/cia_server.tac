@@ -19,7 +19,7 @@ statsStorage = Stats.StatsStorage('data/stats')
 
 # A list of URI handlers that can be used as targets for rulesets
 uriRegistry = Ruleset.URIRegistry(
-    IRC.IrcURIHandler(hub, IRC.BotNetwork("CIA-%d")),
+    IRC.IrcURIHandler(IRC.BotNetwork("CIA-%d")),
     Stats.StatsURIHandler(statsStorage),
     )
 
