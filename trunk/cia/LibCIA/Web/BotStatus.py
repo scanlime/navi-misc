@@ -127,6 +127,14 @@ class LagColumn(Nouvelle.Column):
             return "%.2fs" % lag
 
 
+class StringAttributeColumn(Nouvelle.AttributeColumn):
+    """A column that has a fixed heading and returns some attribute
+       from each row, forced into a string.
+       """
+    def getValue(self, row):
+        return str(getattr(row, self.attribute))
+
+
 class BotsSection(Template.Section):
     """A section holding a table listing all bots"""
     title = 'bots'
@@ -135,7 +143,7 @@ class BotsSection(Template.Section):
         self.botNet = botNet
 
         self.columns = [
-            Nouvelle.AttributeColumn('network', 'network'),
+            StringAttributeColumn('network', 'network'),
             Nouvelle.AttributeColumn('nickname', 'nickname'),
             ListAttributeColumn('channels', 'channels'),
             ListAttributeColumn('requested', 'requestedChannels'),
