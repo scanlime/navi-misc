@@ -230,7 +230,7 @@ void run_iterations(int count) {
   const int blur_table_size = 1024; /* Must be a power of two */
 
   double x, y, sine_rotation, cosine_rotation;
-  unsigned int i, ix, iy;
+  int i, ix, iy;
   guint *p;
   guint d;
   int blur_index;
@@ -288,15 +288,24 @@ void run_iterations(int count) {
     ix = (int)((x + params.xoffset) * scale + xcenter);
     iy = (int)((y + params.yoffset) * scale + ycenter);
 
-    /* Clip to the size of our image. Note that ix and iy are
-     * unsigned, so we only have to make one comparison each.
-     */
-    if (ix < count_width && iy < count_height) {
-      p = render.counts + ix + count_width * iy;
-      d = *p = *p + 1;
-      if (d > render.current_density)
-	render.current_density = d;
+    if (params.tileable) {
+      /* In tileable rendering, we wrap at the edges */
+      ix %= count_width;
+      iy %= count_height;
+      if (ix < 0) ix += count_width;
+      if (iy < 0) iy += count_height;
     }
+    else {
+      /* Otherwise, clip off the edges */
+      if (ix < 0 || ix >= count_width || iy < 0 || iy >= count_height)
+	continue;
+    }
+
+    /* Plot our point in the counts array, updating the peak density */
+    p = render.counts + ix + count_width * iy;
+    d = *p = *p + 1;
+    if (d > render.current_density)
+      render.current_density = d;
   }
   render.iterations += count;
 }

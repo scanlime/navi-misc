@@ -61,6 +61,7 @@ int main(int argc, char ** argv) {
       {"density",     1, NULL, 'd'},
       {"clamped",     0, NULL, 1004},
       {"oversample",  1, NULL, 1005},
+      {"tileable",    0, NULL, 1006},
       NULL,
     };
     c = getopt_long(argc, argv, "hi:o:a:b:c:d:x:y:z:r:e:g:s:t:",
@@ -90,6 +91,7 @@ int main(int argc, char ** argv) {
     case 1003: set_parameter("bgcolor",        optarg); break;
     case 1004: set_parameter("clamped",        "1");    break;
     case 1005: set_parameter("oversample",     optarg); break;
+    case 1006: set_parameter("tileable",       "1");    break;
 
     case 'h':
     default:
@@ -144,6 +146,7 @@ static void usage(char **argv) {
          "  -r, --rotation RADS   Set the rotation, in radians [%f]\n"
 	 "  --blur-radius RADIUS  Set the blur radius [%f]\n"
 	 "  --blur-ratio RATIO    Set the blur ratio [%f]\n"
+	 "  --tileable            Generate a tileable image by wrapping at the edges\n"
 	 "\n"
 	 "Rendering:\n"
 	 "  -e, --exposure EXP    Set the image exposure [%f]\n"
@@ -225,6 +228,7 @@ void set_defaults() {
   params.rotation = 0;
   params.blur_radius = 0;
   params.blur_ratio = 1;
+  params.tileable = FALSE;
 
   render.exposure = 0.05;
   render.gamma = 1;
@@ -265,12 +269,13 @@ gchar* save_parameters() {
 			   "gamma = %f\n"
 			   "bgcolor = %s\n"
 			   "fgcolor = %s\n"
-			   "clamped = %d\n",
+			   "clamped = %d\n"
+			   "tileable = %d\n",
 			   params.a, params.b, params.c, params.d,
 			   params.zoom, params.xoffset, params.yoffset, params.rotation,
 			   params.blur_radius, params.blur_ratio,
 			   render.exposure, render.gamma,
-			   bg, fg, render.clamped);
+			   bg, fg, render.clamped, params.tileable);
 
   g_free(fg);
   g_free(bg);
@@ -342,6 +347,9 @@ gboolean set_parameter(const char *key, const char *value) {
 
   else if (!strcmp(key, "clamped"))
     render.clamped = atol(value) != 0;
+
+  else if (!strcmp(key, "tileable"))
+    params.tileable = atol(value) != 0;
 
   else if (!strcmp(key, "oversample")) {
     render.oversample = atol(value);
