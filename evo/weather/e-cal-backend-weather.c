@@ -106,7 +106,11 @@ maybe_start_reload_timeout (ECalBackendWeather *cbw)
 
 	refresh_str = e_source_get_property (source, "refresh");
 
-	priv->reload_timeout_id = g_timeout_add ((refresh_str ? atoi (refresh_str) : 30) * 60000,
+	/* By default, reload every 4 hours. At least for CCF, the forecasts only come out
+	 * twice a day, and chances are while the NWS and similar organizations have some
+	 * serious bandwidth, they would appreciate it if we didn't hammer their servers
+	 */
+	priv->reload_timeout_id = g_timeout_add ((refresh_str ? atoi (refresh_str) : 240) * 60000,
 	    					 (GSourceFunc) reload_cb, cbw);
 }
 
@@ -132,7 +136,6 @@ finished_retrieval_cb (GList *forecasts, ECalBackendWeather *cbw)
 		comp = create_weather (cbw, l->data);
 		e_cal_backend_cache_put_component (priv->cache, comp);
 		icomp = e_cal_component_get_icalcomponent (comp);
-		g_print ("%s\n\n", icalcomponent_as_ical_string (icomp));
 		e_cal_backend_notify_object_created (E_CAL_BACKEND (cbw), icalcomponent_as_ical_string (icomp));
 	}
 }
@@ -210,9 +213,9 @@ create_weather (ECalBackendWeather *cbw, WeatherForecast *report)
 	g_return_val_if_fail (E_IS_CAL_BACKEND_WEATHER (cbw), NULL);
 
 	if (report->high == report->low)
-		temperature = g_strdup_printf("%f °F", report->high);
+		temperature = g_strdup_printf("%f\ns%f\n", report->high, report->high);
 	else
-		temperature = g_strdup_printf("%s: %f °F\n%s: %f °F", _("High"), report->high, _("Low"), report->low);
+		temperature = g_strdup_printf("%f\n%f", report->high, report->low);
 	summary = g_strdup_printf ("%s\n", temperature);
 	g_free (temperature);
 
