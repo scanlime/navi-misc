@@ -72,6 +72,19 @@ struct rwand_settings {
 	int                     duty_cycle;             /* The ratio of pixels to gaps. 0xFFFF has no gap,
 							 * 0x0000 is all gap and no pixel.
 							 */
+	int                     fine_adjust;            /* Fine tuning for the front/back alignment */
+	int                     power_mode;             /* RWAND_POWER_* */
+	int                     num_columns;            /* The number of columns actually being displayed */
+};
+
+/* Timing calculated from the current status and settings */
+struct rwand_timings {
+	int                     column_width;
+	int                     gap_width;
+	int                     fwd_phase;
+	int                     rev_phase;
+	int                     coil_begin;
+	int                     coil_end;
 };
 
 struct rwand_dev {
@@ -88,12 +101,14 @@ struct rwand_dev {
 	struct rwand_settings   settings;
 
 	/* Our local model of the device state */
-	int                     fb_size;                /* The device's current framebuffer size */
 	unsigned char           fb[RWAND_FB_BYTES+4];   /* Our local copy of the device framebuffer. The 4 here gives
 							 * us some slack for reading past the end of the framebuffer
 							 * when doing writes in blocks of 4, 8, or 12 bytes.
 							 */
 	struct rwand_status     status;
+
+	int                     page_flip_pending;      /* Are we waiting on a page flip? */
+	wait_queue_head_t       page_flip_waitq;        /* Processes waiting on a page flip */
 
 	int                     open_count;
 	struct semaphore	sem;			/* locks this structure */
@@ -136,7 +151,6 @@ static int     rwand_probe       (struct usb_interface *interface, const struct 
 static void    rwand_disconnect  (struct usb_interface *interface);
 
 static void    rwand_status_irq  (struct urb *urb, struct pt_regs *regs);
-static void    rwand_display_irq (struct urb *urb, struct pt_regs *regs);
 
 static void    rwand_delete      (struct rwand_dev *dev);
 
@@ -148,7 +162,10 @@ static void    rwand_request_flip(struct rwand_dev *dev);
 
 static void    rwand_decode_status (const unsigned char *in, struct rwand_status *out);
 static void    rwand_process_status(struct rwand_dev *dev, const unsigned char *packet);
-static void    rwand_poll_status   (struct rwand_dev *dev);
+static void    rwand_reset_settings(struct rwand_dev *dev);
+static void    rwand_calc_timings(struct rwand_settings *settings,
+				  struct rwand_status *status,
+				  struct rwand_timings *timings);
 
 
 /******************************************************************************/
@@ -233,41 +250,60 @@ static void rwand_decode_status(const unsigned char *in, struct rwand_status *ou
 
 
 /* Given an encoded status packet, process it and update the
- * device's state in any way necessary. This may be called from interrupt
- * context or from process context, since status packets can be received
- * by request or through our interrupt endpoint.
+ * device's state in any way necessary. This should be called
+ * from interrupt context.
  */
 static void rwand_process_status(struct rwand_dev *dev, const unsigned char *packet)
 {
-	rwand_decode_status(packet, &dev->status);
+	struct rwand_status new_status;
+	int power, new_mode;
+	rwand_decode_status(packet, &new_status);
 
 	/* Report button status to the input subsystem */
-	input_report_key(&dev->input, MAPPED_BTN_SQUARE, dev->status.buttons & RWAND_BUTTON_SQUARE);
-	input_report_key(&dev->input, MAPPED_BTN_RIGHT, dev->status.buttons & RWAND_BUTTON_RIGHT);
-	input_report_key(&dev->input, MAPPED_BTN_LEFT, dev->status.buttons & RWAND_BUTTON_LEFT);
-	input_report_key(&dev->input, MAPPED_BTN_UP, dev->status.buttons & RWAND_BUTTON_UP);
-	input_report_key(&dev->input, MAPPED_BTN_DOWN, dev->status.buttons & RWAND_BUTTON_DOWN);
-	input_report_key(&dev->input, MAPPED_BTN_POWER, dev->status.buttons & RWAND_BUTTON_POWER);
+	input_report_key(&dev->input, MAPPED_BTN_SQUARE, new_status.buttons & RWAND_BUTTON_SQUARE);
+	input_report_key(&dev->input, MAPPED_BTN_RIGHT,  new_status.buttons & RWAND_BUTTON_RIGHT);
+	input_report_key(&dev->input, MAPPED_BTN_LEFT,   new_status.buttons & RWAND_BUTTON_LEFT);
+	input_report_key(&dev->input, MAPPED_BTN_UP,     new_status.buttons & RWAND_BUTTON_UP);
+	input_report_key(&dev->input, MAPPED_BTN_DOWN,   new_status.buttons & RWAND_BUTTON_DOWN);
+	input_report_key(&dev->input, MAPPED_BTN_POWER,  new_status.buttons & RWAND_BUTTON_POWER);
 	input_sync(&dev->input);
-}
 
-
-/* Perform a blocking request for a new status packet,
- * processing it on arrival.
- */
-static void rwand_poll_status(struct rwand_dev *dev)
-{
-	unsigned char packet[STATUS_PACKET_SIZE];
-	int retval;
-
-	retval = usb_control_msg(dev->udev, usb_rcvctrlpipe(dev->udev, 0),
-				 RWAND_CTRL_READ_STATUS, USB_TYPE_VENDOR | USB_DIR_IN,
-				 0, 0, packet, sizeof(packet), REQUEST_TIMEOUT);
-	if (retval != sizeof(packet)) {
-		err("Error polling status, retval=%d", retval);
-		return;
+	/* If the page flip counter has incremented, clear our flip pending flag
+	 * and wake up any processes that might be waiting on it.
+	 */
+	if (new_status.flip_count != dev->status.flip_count) {
+		dev->page_flip_pending = 0;
+		wake_up_interruptible(&dev->page_flip_waitq);
 	}
-	rwand_process_status(dev, packet);
+
+	/* Is the display supposed to be on now? */
+	switch (dev->settings.power_mode) {
+	case RWAND_POWER_ON:
+		power = 1;
+		break;
+	case RWAND_POWER_AUTO:
+		power = (new_status.buttons & RWAND_BUTTON_POWER) != 0;
+		break;
+	default:
+		power = 0;
+	}
+
+	if (power) {
+		/* The display should be on. Is it? */
+		struct rwand_timings timings;
+		rwand_calc_timings(&dev->settings, &new_status, &timings);
+		dbg("%d %d %d %d %d %d",
+		    timings.column_width, timings.gap_width, timings.fwd_phase,
+		    timings.rev_phase, timings.coil_begin, timings.coil_end);
+
+	}
+	else {
+		/* It should be off */
+		new_mode = 0;
+	}
+
+
+	dev->status = new_status;
 }
 
 
@@ -290,7 +326,29 @@ static void rwand_request(struct rwand_dev *dev, unsigned short request,
  */
 static int rwand_wait_for_fb(struct rwand_dev *dev)
 {
-	return 0;
+	DECLARE_WAITQUEUE(wait, current);
+	int retval = 0;
+
+	if (dev->page_flip_pending && (dev->status.mode & RWAND_MODE_ENABLE_DISPLAY)) {
+		add_wait_queue(&dev->page_flip_waitq, &wait);
+		current->state = TASK_INTERRUPTIBLE;
+
+		while (dev->page_flip_pending && (dev->status.mode & RWAND_MODE_ENABLE_DISPLAY)) {
+			if (signal_pending(current)) {
+				retval = -ERESTARTSYS;
+				break;
+			}
+
+			up(&dev->sem);
+			schedule();
+			down(&dev->sem);
+		}
+
+		current->state = TASK_RUNNING;
+		remove_wait_queue(&dev->page_flip_waitq, &wait);
+	}
+
+	return retval;
 }
 
 
@@ -302,16 +360,16 @@ static void rwand_update_fb(struct rwand_dev *dev, int bytes, unsigned char *fb)
 	int retval, i;
 
 	/* Change the display width if necessary */
-	if (bytes != dev->fb_size) {
+	if (bytes != dev->settings.num_columns) {
 		rwand_request(dev, RWAND_CTRL_SET_NUM_COLUMNS, bytes, 0);
-		dev->fb_size = bytes;
+		dev->settings.num_columns = bytes;
 	}
 
 	/* Currently this does the whole update using SEQ_WRITE4.
 	 * This might be fast enough, but there's plenty of room for improvement.
 	 */
 	memcpy(dev->fb, fb, bytes);
-	for (i=0; i<dev->fb_size; i+=4) {
+	for (i=0; i<dev->settings.num_columns; i+=4) {
 		retval = usb_control_msg(dev->udev, usb_sndctrlpipe(dev->udev, 0),
 					 RWAND_CTRL_SEQ_WRITE4, USB_TYPE_VENDOR,
 					 fb[i] | (fb[i+1] << 8),
@@ -329,7 +387,65 @@ static void rwand_update_fb(struct rwand_dev *dev, int bytes, unsigned char *fb)
  */
 static void rwand_request_flip(struct rwand_dev *dev)
 {
+	dev->page_flip_pending = 1;
 	rwand_request(dev, RWAND_CTRL_FLIP, 0, 0);
+}
+
+
+/* Change our timing and mode settings back to the defaults */
+static void rwand_reset_settings(struct rwand_dev *dev)
+{
+	dev->settings.display_center = 0x8000;
+	dev->settings.display_width  = 0xE000;
+	dev->settings.coil_center    = 0x4000;
+	dev->settings.coil_width     = 0x7000;
+	dev->settings.duty_cycle     = 0x8000;
+	dev->settings.fine_adjust    = 0;
+	dev->settings.power_mode     = RWAND_POWER_AUTO;
+}
+
+/* Calculate all the fun little timing parameters needed by the hardware */
+static void    rwand_calc_timings(struct rwand_settings *settings,
+				  struct rwand_status *status,
+				  struct rwand_timings *timings)
+{
+	int col_and_gap_width, total_width;
+
+	/* The coil driver just needs to have its relative timings
+	 * multiplied by our predictor's current period. This is fixed
+	 * point math with 16 digits to the right of the binary point.
+	 */
+	timings->coil_begin = (status->period * (settings->coil_center - settings->coil_width/2)) >> 16;
+	timings->coil_end   = (status->period * (settings->coil_center + settings->coil_width/2)) >> 16;
+
+	if (settings->num_columns > 0) {
+		/* Now calculate the display timings. We start out with the precise
+		 * width of our columns, so that the width of the whole display
+		 * can be calculated accurately.
+		 */
+		col_and_gap_width = (status->period / settings->num_columns * settings->display_width) >> 17;
+		timings->column_width = (col_and_gap_width * settings->duty_cycle) >> 16;
+		timings->gap_width = col_and_gap_width - timings->column_width;
+		total_width = (settings->num_columns+1) * timings->column_width + settings->num_columns * timings->gap_width;
+
+		/* Now that we know the true width of the display, we can calculate the
+		 * two phase timings. These indicate when it starts the forward scan and the
+		 * backward scan, relative to the left position. The alignment between
+		 * the forward and backward scans should be calculated correctly, but it
+		 * can be tweaked using settings->fine_adjust.
+		 */
+		timings->fwd_phase = ((status->period * settings->display_center) >> 17) - total_width/2;
+		timings->rev_phase = status->period - timings->fwd_phase - total_width + settings->fine_adjust;
+	}
+	else {
+		/* We can't calculate timings for a zero-width display without dividing by
+		 * zero, so just fill in some invalid timings that will blank the display.
+		 */
+		timings->column_width = 1;
+		timings->gap_width = 1;
+		timings->fwd_phase = 0xFFFF;
+		timings->rev_phase = 0xFFFF;
+	}
 }
 
 
@@ -596,8 +712,10 @@ static int rwand_probe(struct usb_interface *interface, const struct usb_device_
 		return -ENOMEM;
 	}
 	memset(dev, 0, sizeof(*dev));
+	rwand_reset_settings(dev);
 
 	init_MUTEX(&dev->sem);
+	init_waitqueue_head(&dev->page_flip_waitq);
 	dev->udev = udev;
 	dev->interface = interface;
 
