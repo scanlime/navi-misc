@@ -272,6 +272,23 @@ void usb_init() {
   IEPCNFG_0 = STALL | UBME;
   OEPCNFG_0 = STALL | UBME;
 
+  /* Mark all endpoint buffers as empty. This will cause
+   * usb_dma_status() to behave consistently before our
+   * first transfer takes place.
+   */
+  usb_dma_unstall(EDB_IEP1);
+  usb_dma_unstall(EDB_IEP2);
+  usb_dma_unstall(EDB_IEP3);
+  usb_dma_unstall(EDB_OEP1);
+  usb_dma_unstall(EDB_OEP2);
+  usb_dma_unstall(EDB_OEP3);
+  EDB[EDB_IEP1].x_count = 0x80;
+  EDB[EDB_IEP2].x_count = 0x80;
+  EDB[EDB_IEP3].x_count = 0x80;
+  EDB[EDB_OEP1].x_count = 0x80;
+  EDB[EDB_OEP2].x_count = 0x80;
+  EDB[EDB_OEP3].x_count = 0x80;
+
   USBSTA = 0xFF;
   USBCTL |= CONT;
 }
