@@ -270,6 +270,12 @@ class StatefulClient(BaseClient):
     def onMsgShotBegin(self, msg):
         pass
 
+    def onMsgGrabFlag(self, msg):
+        pass
+
+    def onMsgDropFlag(self, msg):
+        pass
+
 
 class PlayerClient(StatefulClient):
     """Extends the StatefulClient with functionality for implementing
