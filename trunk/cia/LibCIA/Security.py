@@ -37,14 +37,14 @@ making keys map to pickled callable objects would be too fragile.
 #
 
 from twisted.internet import defer
-import string, os, md5
+import string, os, md5, time
 import Database, RpcServer
 
 
 class SecurityInterface(RpcServer.Interface):
     """An XML-RPC interface to the global capabilities database"""
-    def protected_grant(self, capability, owner=None):
-        """Return a new key for the given capability. Note that this means
+    def protected_grant(self, capability, uid):
+        """Grant the given capability to the given user. Note that this means
            that the capability to use this function is effectively equivalent
            to the 'universe' key
            """
@@ -52,7 +52,7 @@ class SecurityInterface(RpcServer.Interface):
         if type(capability) == list:
             capability = tuple(capability)
 
-        return caps.grant(capability, owner)
+        return User(int(uid)).grant(capability)
 
     def xmlrpc_test(self, key, *capabilities):
         """Test the given key against one or more capabilities, returning True if it
@@ -193,9 +193,10 @@ class User:
            users and granting capabilities requires one to already have
            a powerful user's key.
            """
-        return Database.pool.runInteraction(self._saveKey)
+        return Database.pool.runInteraction(self._saveKey, file, *grantCapabilities)
 
     def _saveKey(self, cursor, file, *grantCapabilities):
+        file = os.path.expanduser(file)
         self._grant(cursor, *grantCapabilities)
         key = self._getInfo(cursor)['secret_key']
         f = open(file, "w")

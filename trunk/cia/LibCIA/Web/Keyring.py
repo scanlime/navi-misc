@@ -133,7 +133,7 @@ class SecuritySection(Template.Section):
                     ],
                 ]
             ]
-                    
+
         else:
             # We don't have a key, show a login box
             return [
@@ -150,7 +150,7 @@ class SecuritySection(Template.Section):
 
     def makeCapabilityList(self, key):
         result = defer.Deferred()
-        Security.caps.getCapabilities(key).addCallback(
+        Security.User(key=key).getCapabilities().addCallback(
            self._makeCapabilityList, result).addErrback(
            result.errback)
         return result

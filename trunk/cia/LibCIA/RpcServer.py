@@ -152,7 +152,7 @@ class Interface(xmlrpc.XMLRPC):
 
             # Check the capabilities asynchronously (requires a database query)
             import Security
-            d = Security.caps.require(key, *caps)
+            d = Security.User(key=key).require(*caps)
             d.addCallback(keyValidated)
             d.addErrback(result.errback)
             return result

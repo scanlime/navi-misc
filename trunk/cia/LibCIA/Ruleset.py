@@ -65,14 +65,14 @@ class RulesetInterface(RpcServer.Interface):
         uri = XML.parseString(xml).documentElement.getAttributeNS(None, 'uri')
         return self.makeDefaultCaps(path) + [('ruleset.uri', uri)]
 
-    def protected_getUriKey(self, uri, owner=None):
+    def protected_grantUri(self, uri, uid):
         """Returns a key for the capability ('ruleset.uri', uri).
            This can be used to delegate control of a particular URI's ruleset-
            an administrator would call this function to retrieve a key for a particular
            URI, then hand that to someone else who would only have the ability
            to edit that URI.
            """
-        return Security.caps.grant(('ruleset.uri', str(uri)), owner)
+        return Security.User(int(uid)).grant(('ruleset.uri', str(uri)))
 
     def xmlrpc_getUriList(self):
         """Return a list of all URIs with non-empty rulesets"""
