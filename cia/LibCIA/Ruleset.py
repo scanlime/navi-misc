@@ -422,7 +422,7 @@ class RulesetController(object):
         uri = tag.getAttribute('uri')
         results = []
         for delivery in self.storage.rulesetMap.itervalues():
-            if uri is not None and delivery.ruleset.uri == uri:
+            if uri is None or delivery.ruleset.uri == uri:
                 results.append(str(delivery.ruleset))
         return results
 
