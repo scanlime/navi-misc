@@ -23,7 +23,7 @@
 
 #include <stdio.h>
 #include <getopt.h>
-#include "device.h"
+#include "unicone_device.h"
 #include "progress.h"
 
 static int    config_force_bitstream = 0;
