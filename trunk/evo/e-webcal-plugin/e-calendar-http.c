@@ -69,6 +69,8 @@ e_calendar_http_url (EPlugin *epl, EConfigHookItemFactoryData *data)
 	gtk_entry_set_text (GTK_ENTRY (entry), e_source_get_uri (source));
 	gtk_table_attach (GTK_TABLE (parent), entry, 1, 2, row, row+1, GTK_EXPAND | GTK_FILL, 0, 0, 0);
 
+	g_object_set_data (G_OBJECT (epl), "calendar.http.uri", entry);
+
 	return entry;
 }
 
@@ -80,17 +82,14 @@ e_calendar_http_refresh (EPlugin *epl, EConfigHookItemFactoryData *data)
 	int row, i;
 	ECConfigTargetSource *t = (ECConfigTargetSource *) data->target;
 	ESource *source = t->source;
-	EUri *uri;
+	ESourceGroup *group = e_source_peek_group (source);
 	static GtkWidget *hidden = NULL;
 
 	if (!hidden)
 		hidden = gtk_label_new ("");
 
-	uri = e_uri_new (e_source_get_uri (source));
-	if (strcmp (uri->protocol, "webcal") &&
-	    strcmp (uri->protocol, "http"))
+	if (strcmp (e_source_group_peek_name (group), _("On The Web")))
 		return hidden;
-	e_uri_free (uri);
 
 	if (data->old)
 		return data->old;
@@ -128,5 +127,66 @@ e_calendar_http_refresh (EPlugin *epl, EConfigHookItemFactoryData *data)
 
 	gtk_table_attach (GTK_TABLE (parent), hbox, 1, 2, row, row+1, GTK_EXPAND | GTK_FILL, 0, 0, 0);
 
+	g_object_set_data (G_OBJECT (epl), "calendar.http.refresh.spin", spin);
+	g_object_set_data (G_OBJECT (epl), "calendar.http.refresh.option", option);
+
 	return hbox;
+}
+
+static gchar *
+print_uri_noproto (EUri *uri)
+{
+	gchar *uri_noproto;
+
+	if (uri->port != 0)
+		uri_noproto = g_strdup_printf (
+			"%s%s%s%s%s%s%s:%d%s%s%s",
+			uri->user ? uri->user : "",
+			uri->authmech ? ";auth=" : "",
+			uri->authmech ? uri->authmech : "",
+			uri->passwd ? ":" : "",
+			uri->passwd ? uri->passwd : "",
+			uri->user ? "@" : "",
+			uri->host ? uri->host : "",
+			uri->port,
+			uri->path ? uri->path : "",
+			uri->query ? "?" : "",
+			uri->query ? uri->query : "");
+	else
+		uri_noproto = g_strdup_printf (
+			"%s%s%s%s%s%s%s%s%s%s",
+			uri->user ? uri->user : "",
+			uri->authmech ? ";auth=" : "",
+			uri->authmech ? uri->authmech : "",
+			uri->passwd ? ":" : "",
+			uri->passwd ? uri->passwd : "",
+			uri->user ? "@" : "",
+			uri->host ? uri->host : "",
+			uri->path ? uri->path : "",
+			uri->query ? "?" : "",
+			uri->query ? uri->query : "");
+	return uri_noproto;
+}
+
+void
+e_calendar_http_commit (EPlugin *epl, ECConfigTargetSource *t)
+{
+	GtkWidget *entry, *spin, *option;
+	ESource *source = t->source;
+	EUri *uri;
+	char *relative_uri;
+	ESourceGroup *group = e_source_peek_group (source);
+
+	if (strcmp (e_source_group_peek_name (group), _("On The Web")))
+		return;
+
+	entry = g_object_get_data (G_OBJECT (epl), "calendar.http.uri");
+	spin = g_object_get_data (G_OBJECT (epl), "calendar.http.refresh.spin");
+	option = g_object_get_data (G_OBJECT (epl), "calendar.http.refresh.option");
+
+	uri = e_uri_new (gtk_entry_get_text (GTK_ENTRY (entry)));
+	relative_uri = print_uri_noproto (uri);
+	e_source_set_relative_uri (source, relative_uri);
+	g_free (relative_uri);
+	g_free (uri);
 }
