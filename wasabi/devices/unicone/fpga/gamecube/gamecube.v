@@ -98,10 +98,11 @@ module gc_i2c (clk, reset,
 	gc_controller controller(clk, reset, tx, rx, controller_state, rumble);
 
 	// Big 64-bit-wide I2C-accessable register to hold the current controller state
+	wire i2c_reg_strobe;
 	i2c_slave_reg #(I2C_ADDRESS, 8) i2creg64(
 		clk, reset,
 		scl, sda_in, sda_out,
-		controller_state);
+		controller_state, i2c_reg_strobe);
 endmodule
 
 
@@ -124,13 +125,26 @@ endmodule
  *                is the rumble motor flag. Returns the 8-byte controller state.
  *
  *    0x41      - Get origins.
- *                An official controller appears to respond to this by returning
- *                a normal 8-byte status packet, but with calibrated origins
- *                rather than the current status for all analog axes. Buttons
- *                still show their current state.
- *                Since I've never seen this command issued at any time other than
- *                right after controller is plugged in, we currently cheat and
- *                treat this the same as a normal poll.
+ *                This command appears to get joystick calibration information
+ *                from the controller. This returns a 10-byte packet. An official
+ *                controller I was testing returned this one:
+ *
+ *                  00 80 84 7B 84 82 1D 1D 02 02
+ *
+ *                The first two bytes indicate button status, just as in the normal
+ *                controller poll command. The next four bytes hold analog axes,
+ *                just as in the normal status packet, but instead of current axis
+ *                positions these bytes hold neutral positions calibrated at powerup.
+ *                The last bytes appear to always be 0x02 0x02. They might indicate
+ *                a hardcoded joystick tolerance or dead zone.
+ *
+ *                Since we're assuming our host has already calibrated each axis,
+ *                we return ideal calibrations: the joystick and c-stick axes
+ *                have origins at 0x80, and both triggers have origins at 0x00.
+ *
+ * There are no other 1-byte commands that official controllers respond do.
+ * I haven't checked for other three-byte commands yet.
+ *
  */
 module gc_controller (clk, reset, tx, rx, controller_state, rumble);
 	/*
@@ -141,19 +155,23 @@ module gc_controller (clk, reset, tx, rx, controller_state, rumble);
 	 *
 	 * This is the value that standard controllers are observed to return:
 	 */
-	parameter CONTROLLER_ID = 24'h090020;
+	parameter CONTROLLER_ID = 24'h090000;
 
 	input clk, reset;
 	input rx;
 	output tx;
 	input [63:0] controller_state;
 	output rumble;
-	
+
 	reg rumble;
 	reg [7:0] rx_poll_flags;
-	reg [63:0] latched_controller_state;
-	reg [3:0] tx_byte_count;
-	reg [23:0] latched_controller_id;
+
+	/* Wide byte-at-a-time shift register. Must be wide enough to hold our
+	 * 10-byte 'get origins' response. Smaller responses are left-justified.
+	 */
+	parameter SHIFTER_WIDTH = 80;
+	reg [SHIFTER_WIDTH-1:0] shifter;
+	reg [3:0] tx_bytes_remaining;
 
 	wire rx_start, rx_stop, rx_error, rx_strobe;
 	wire [7:0] rx_data;
@@ -175,11 +193,10 @@ module gc_controller (clk, reset, tx, rx, controller_state, rumble);
 		S_RX_POLL_CMD_2 = 3,
 		S_FINISH_ID_COMMAND = 4,
 		S_FINISH_POLL_COMMAND = 5,
-		S_TX_STOPBIT = 6,
-		S_TX_ID = 7,
-		S_TX_ID_WAIT = 8,
-		S_TX_STATE = 9,
-		S_TX_STATE_WAIT = 10;
+		S_FINISH_ORIGINS_COMMAND = 6,
+		S_TX_STOPBIT = 7,
+		S_TX_BYTE = 8,
+		S_TX_WAIT = 9;
 
 	always @(posedge clk or posedge reset)
 		if (reset) begin
@@ -189,9 +206,8 @@ module gc_controller (clk, reset, tx, rx, controller_state, rumble);
 			tx_data <= 0;
 			rumble <= 0;
 			rx_poll_flags <= 0;
-			tx_byte_count <= 0;
-			latched_controller_state <= 0;
-			latched_controller_id <= 0;
+			tx_bytes_remaining <= 0;
+			shifter <= 0;
 			state <= S_IDLE;
 
 		end
@@ -204,7 +220,7 @@ module gc_controller (clk, reset, tx, rx, controller_state, rumble);
 				tx_stopbit <= 0;
 				tx_strobe <= 0;
 				tx_data <= 0;
-				tx_byte_count <= 0;
+				tx_bytes_remaining <= 0;
 			end
 
 			S_RX_CMD_0: begin
@@ -214,34 +230,29 @@ module gc_controller (clk, reset, tx, rx, controller_state, rumble);
 				else if (rx_strobe) begin
 					
 					if (rx_data == 8'h00) begin
-						/* An identification request command, send the 1st ID byte */
+						/* An identification request command */
 
 						state <= S_FINISH_ID_COMMAND;
 
 					end
 					else if (rx_data == 8'h40) begin
 						/* The beginning of a polling command */
+
 						state <= S_RX_POLL_CMD_1;
 
 					end
 					else if (rx_data == 8'h41) begin
-						/* A 'get origins' command. We currently treat this
-						 * the same as we would treat a polling command.
-						 * Note that the way this is currently implemented,
-						 * we clear the rx_poll_flags, thus turning off
-						 * the rumble motor. It shouldn't be a problem, since
-						 * this command is only sent at controller init.
-						 */
-						 
-						 rx_poll_flags <= 8'h00;
-						 state <= S_FINISH_POLL_COMMAND;
+						/* A 'get origins' command */
+
+						state <= S_FINISH_ORIGINS_COMMAND;
 
 					end
 					else begin
 						/* An unknown command, ignore it */
+
 						state <= S_IDLE;
-					end
-						
+
+					end						
 				end
 			end
 			
@@ -279,10 +290,10 @@ module gc_controller (clk, reset, tx, rx, controller_state, rumble);
 				if (rx_start || rx_error || rx_strobe)
 					state <= S_IDLE;
 				else if (rx_stop) begin
-					// Prepare to send a response
-					latched_controller_id <= CONTROLLER_ID;
-					tx_byte_count <= 0;
-					state <= S_TX_ID;
+					// Load our controller ID into the response buffer and start sending
+					shifter[SHIFTER_WIDTH-1:SHIFTER_WIDTH-24] <= CONTROLLER_ID;
+					tx_bytes_remaining <= 3;
+					state <= S_TX_BYTE;
 				end
 			end
 			
@@ -297,12 +308,33 @@ module gc_controller (clk, reset, tx, rx, controller_state, rumble);
 					rumble <= rx_poll_flags[0];
 
 					// Prepare to send a response
-					latched_controller_state <= controller_state;
-					tx_byte_count <= 0;
-					state <= S_TX_STATE;					
+					shifter[SHIFTER_WIDTH-1:SHIFTER_WIDTH-64] <= controller_state;
+					tx_bytes_remaining <= 8;
+					state <= S_TX_BYTE;					
 				end
 			end
-			
+	
+			S_FINISH_ORIGINS_COMMAND: begin
+				// We've recieved a 'get origins' command. Wait for the stop, then assemble
+				// and start sending a big response.
+				if (rx_start || rx_error || rx_strobe)
+					state <= S_IDLE;
+				else if (rx_stop) begin
+				
+					// The first two bytes hold the current button status
+					shifter[SHIFTER_WIDTH-1:SHIFTER_WIDTH-16] <= controller_state[63:48];
+					
+					// All axes have ideal origins
+					shifter[SHIFTER_WIDTH-17:SHIFTER_WIDTH-64] <= 48'h808080800000;
+					
+					// The last two bytes, for now, are magic numbers
+					shifter[SHIFTER_WIDTH-65:SHIFTER_WIDTH-80] <= 16'h0202;
+
+					tx_bytes_remaining <= 10;
+					state <= S_TX_BYTE;					
+				end
+			end		
+
 			S_TX_STOPBIT: begin
 				// Transmit a stop bit next chance we get, then head back to idle
 				if (!tx_busy) begin
@@ -312,54 +344,30 @@ module gc_controller (clk, reset, tx, rx, controller_state, rumble);
 				end
 			end
 			
-			S_TX_ID: begin
-				// Send back the controller ID
+			S_TX_BYTE: begin
+				// Send the next byte from our shifter
 				if (!tx_busy) begin
-					tx_data <= latched_controller_id[23:16];
-					latched_controller_id <= { latched_controller_id[15:0], 8'h00 };
-					tx_stopbit <= 0;
-					tx_strobe <= 1;
-					tx_byte_count <= tx_byte_count + 1;
-					
-					// Wait one cycle for the transmitter
-					// to update its queue status
-					state <= S_TX_ID_WAIT;
-				end
-			end
-			
-			S_TX_ID_WAIT: begin
-				// Waiting for the transmitter to update itself.
-				// Head back to another ID bit, or the stop bit.
-				tx_strobe <= 0;
-				if (tx_byte_count == 3)
-					state <= S_TX_STOPBIT;
-				else
-					state <= S_TX_ID;
-			end
-			
-			S_TX_STATE: begin
-				// Send back the controller state
-				if (!tx_busy) begin
-					tx_data <= latched_controller_state[63:56];
-					latched_controller_state <= { latched_controller_state[55:0], 8'h00 };
-					tx_stopbit <= 0;
-					tx_strobe <= 1;
-					tx_byte_count <= tx_byte_count + 1;
-					
-					// Wait one cycle for the transmitter
-					// to update its queue status
-					state <= S_TX_STATE_WAIT;
-				end
-			end
+					tx_data <= shifter[SHIFTER_WIDTH-1:SHIFTER_WIDTH-8];
+					shifter <= { shifter[SHIFTER_WIDTH-9:0], 8'h00 };
 
-			S_TX_STATE_WAIT: begin
+					tx_stopbit <= 0;
+					tx_strobe <= 1;
+					tx_bytes_remaining <= tx_bytes_remaining - 1;
+					
+					// Wait one cycle for the transmitter
+					// to update its queue status
+					state <= S_TX_WAIT;
+				end
+			end
+			
+			S_TX_WAIT: begin
 				// Waiting for the transmitter to update itself.
 				// Head back to another ID bit, or the stop bit.
 				tx_strobe <= 0;
-				if (tx_byte_count == 8)
+				if (tx_bytes_remaining == 0)
 					state <= S_TX_STOPBIT;
 				else
-					state <= S_TX_STATE;
+					state <= S_TX_BYTE;
 			end
 
 		endcase

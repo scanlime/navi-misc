@@ -32,12 +32,13 @@ module pwm16_i2c (clk, reset,
 	input scl, sda_in;
 	output sda_out, out;
 	wire [15:0] duty_cycle;
+	wire reg_strobe;
 
 	pwm16 p(clk, reset, duty_cycle, out);
 	i2c_slave_reg #(I2C_ADDRESS, 2) i2creg16(
 		clk, reset,
 		scl, sda_in, sda_out,
-		duty_cycle);
+		duty_cycle, reg_strobe);
 endmodule             
                   
 

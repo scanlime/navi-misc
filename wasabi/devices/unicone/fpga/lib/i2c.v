@@ -71,14 +71,18 @@ endmodule
 
 
 /*
- * A simple I2C slave that lets the host write to a single N-byte register
+ * A simple I2C slave that lets the host write to a single N-byte register.
+ * reg_out will always hold the current contents of the register.
+ * reg_out_strobe goes high for one clock cycle after reg_out has been updated
+ * by the I2C master.
  */
 module i2c_slave_reg (clk, reset,
                       scl, sda_in, sda_out,
-                      reg_out);
+                      reg_out, reg_out_strobe);
 
 	parameter I2C_ADDRESS = 0;
 	parameter BYTES_WIDE = 1;
+	parameter DEFAULT_VALUE = 0;
 
 	parameter BITS_WIDE = BYTES_WIDE * 8;
 	parameter COUNT_WIDTH = 3;
@@ -87,10 +91,12 @@ module i2c_slave_reg (clk, reset,
 	input scl, sda_in;
 	output sda_out;
 	output [BITS_WIDE-1:0] reg_out;
+	output reg_out_strobe;
 
 	reg [BITS_WIDE-1:0] reg_out;
 	reg [BITS_WIDE-1:0] out_buffer;
 	reg [COUNT_WIDTH-1:0] byte_count;
+	reg reg_out_strobe;
 
 	wire start, stop, wr;
 	reg wr_ack;
@@ -110,11 +116,12 @@ module i2c_slave_reg (clk, reset,
 	always @(posedge clk or posedge reset)
 		if (reset) begin
 		
-			reg_out <= 0;
+			reg_out <= DEFAULT_VALUE;
 			out_buffer <= 0;
 			byte_count <= 0;
 			state <= S_IDLE;
 			wr_ack <= 0;
+			reg_out_strobe <= 0;
 		
 		end
 		else case (state)
@@ -124,6 +131,7 @@ module i2c_slave_reg (clk, reset,
 				if (start)
 					state <= S_WAIT_FOR_ADDRESS;
 				byte_count <= 0;
+				reg_out_strobe <= 0;
 			end
 
 			S_WAIT_FOR_ADDRESS: begin
@@ -141,6 +149,7 @@ module i2c_slave_reg (clk, reset,
 						wr_ack <= 0;
 					end	
 				end
+				reg_out_strobe <= 0;
 			end
 
 			S_WAIT_FOR_BYTE: begin
@@ -150,7 +159,11 @@ module i2c_slave_reg (clk, reset,
 					byte_count <= 0;
 				end
 				else if (wr) begin
-					out_buffer <= {out_buffer[BITS_WIDE-9:0], write_data};
+					if (BITS_WIDE > 8)
+						out_buffer <= {out_buffer[BITS_WIDE-9:0], write_data};
+					else
+						out_buffer <= write_data;
+					
 					wr_ack <= 1;
 					if (byte_count == BYTES_WIDE-1) begin
 						state <= S_WAIT_FOR_STOP;
@@ -160,15 +173,22 @@ module i2c_slave_reg (clk, reset,
 						byte_count <= byte_count + 1;
 					end
 				end
+				reg_out_strobe <= 0;
 			end
 
 			S_WAIT_FOR_STOP: begin
 				// We have everything. If we get a stop condition, latch it all
-				if (start)
+				if (start) begin
 					state <= S_WAIT_FOR_ADDRESS;
+					reg_out_strobe <= 0;
+				end
 				else if (stop) begin
 					reg_out <= out_buffer;
+					reg_out_strobe <= 1;
 					state <= S_IDLE;
+				end
+				else begin
+					reg_out_strobe <= 0;
 				end
 				byte_count <= 0;
 			end
