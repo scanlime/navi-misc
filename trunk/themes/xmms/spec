@@ -1,15 +1,20 @@
 Buttons:
-	23px x 18px
-	rw button is placed at 16, 88
-
-	Eject: 22px x 16px, at 136,89
+	- 23px x 18px
+	- rw button is placed at 16, 88
+	- Eject: 22px x 16px, at 136,89
 
 Position bar:
-	about 249px x 10px
-	starts at about 14,72
-	indicator: 29px x 10px
+	- about 249px x 10px
+	- starts at about 14,72
+	- indicator: 29px x 10px
 
 Balance:
-	38px x 13px
-	position 176,55
-	slider: 14px x 11px
+	- 38px x 13px
+	- position 176,55
+	- slider: 14px x 11px
+
+display area:
+	- taller area on the left containing the time and vis stuff is about
+	88px x 48px and should begin somewhere around 18,19
+	- longer, shorter area on the write that scrolls the track info is about
+	164px x 36px; the upper right corner is at approximately 270,18
