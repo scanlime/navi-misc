@@ -47,7 +47,7 @@ $project = 'YOUR_PROJECT_HERE';
 $from_email = 'YOUR_EMAIL_HERE';
 
 # Mail all reports to this address.
-$dest_email = 'cia@navi.cx';
+$dest_email = 'cia@cia.navi.cx';
 
 # If using XML-RPC, connect to this URI.
 $rpc_uri = 'http://cia.navi.cx/RPC2';
