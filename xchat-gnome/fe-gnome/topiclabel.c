@@ -447,3 +447,14 @@ topic_label_ensure_layout (TopicLabel *label)
     }
   }
 }
+
+GtkWidget*
+topic_label_new ()
+{
+  return GTK_WIDGET (g_object_new (topic_label_get_type (), NULL));
+}
+
+void
+topic_label_set_text (TopicLabel *label, const gchar *str)
+{
+}
