@@ -239,7 +239,7 @@ def firstChildElement(xml):
 
 def hasChildElements(xml):
     # Force a boolean result
-    return not not firstChildElement(xml)
+    return firstChildElement(xml) is not None
 
 
 class HTMLPrettyPrinter(XMLObjectParser):

@@ -152,12 +152,4 @@ def datetimeToTimestamp(datetime):
     """Convert a UTC datetime object to a UTC timestamp"""
     return mktime_utc(datetime.utctimetuple())
 
-
-def _test():
-    import doctest, TimeUtil
-    return doctest.testmod(TimeUtil)
-
-if __name__ == "__main__":
-    _test()
-
 ### The End ###

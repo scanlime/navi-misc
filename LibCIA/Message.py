@@ -131,7 +131,7 @@ class Filter(XML.XMLFunction):
 
        Some examples, matching against the sample commit message...
 
-         >>> msg = Message(open('../xml/sample_message.xml'))
+         >>> msg = Message(open('xml/sample_message.xml'))
 
        The <match> tag returns true if the entire text content of any tag
        matched by the given XPath matches the text in the <match> tag:
@@ -741,13 +741,5 @@ class FormatterFactory:
         if f:
             f.loadParametersFrom(xml)
         return f
-
-
-def _test():
-    import doctest, Message
-    return doctest.testmod(Message)
-
-if __name__ == "__main__":
-    _test()
 
 ### The End ###

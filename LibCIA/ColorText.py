@@ -258,11 +258,4 @@ class ColorTextParser:
                          {'underline': True},
                          )
 
-def _test():
-    import doctest, ColorText
-    return doctest.testmod(ColorText)
-
-if __name__ == "__main__":
-    _test()
-
 ### The End ###
