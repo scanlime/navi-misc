@@ -104,7 +104,7 @@ def fft_loop(input, *outputs):
     # Frequency tap indices for each bar
     s = 20
     taps = (exp(arange(0, 1, 0.07)) * s - s).astype(Int)
-    print taps
+    #print taps
 
     bars = None
     while 1:
@@ -135,10 +135,10 @@ def fft_loop(input, *outputs):
 if __name__ == "__main__":
     mpav = MPAVClient()
     rw = RasterBargraph()
-    sb = SDLBargraph()
+    #sb = SDLBargraph()
     delayed = Delay(30, mpav.getBuffer)
     try:
-        fft_loop(delayed, rw.writeBars, sb.writeBars)
+        fft_loop(delayed, rw.writeBars)
     finally:
         # Clear the rasterwand on exit
         rw.writeBars(array([0]))
