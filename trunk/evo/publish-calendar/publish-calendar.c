@@ -302,7 +302,7 @@ url_add_clicked (GtkButton *button, PublishUIData *ui)
 				    URL_LIST_URL_COLUMN, uri, -1);
 		url_list_changed (ui);
 		publish_uris = g_slist_prepend (publish_uris, uri);
-		/* FIXME: timeouts */
+		add_timeout (uri);
 		publish (uri);
 	} else {
 		g_free (uri);
