@@ -3657,7 +3657,7 @@
   </child>
 </widget>
 
-<widget class="GtkWindow" id="setup druid">
+<widget class="GtkWindow" id="setup druid window">
   <property name="title" translatable="yes">xchat-gnome Setup Assistant</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_NONE</property>
@@ -3666,10 +3666,10 @@
   <property name="destroy_with_parent">False</property>
 
   <child>
-    <widget class="GnomeDruid" id="druid1">
+    <widget class="GnomeDruid" id="setup druid">
       <property name="border_width">12</property>
       <property name="visible">True</property>
-      <property name="show_help">False</property>
+      <property name="show_help">True</property>
 
       <child>
 	<widget class="GnomeDruidPageEdge" id="druidpagestart1">
@@ -3706,7 +3706,7 @@ Your Xchat-gnome preferences have not yet been set.   You can continue to the Xc
 		      <property name="label" translatable="yes">First, enter a nickname and a real name that you would like to use for most networks. You can set the same information for individual networks later inside the &quot;Networks&quot; portion of the setup dialog.</property>
 		      <property name="use_underline">False</property>
 		      <property name="use_markup">False</property>
-		      <property name="justify">GTK_JUSTIFY_FILL</property>
+		      <property name="justify">GTK_JUSTIFY_LEFT</property>
 		      <property name="wrap">True</property>
 		      <property name="selectable">False</property>
 		      <property name="xalign">0.5</property>
@@ -3716,8 +3716,8 @@ Your Xchat-gnome preferences have not yet been set.   You can continue to the Xc
 		    </widget>
 		    <packing>
 		      <property name="padding">0</property>
-		      <property name="expand">False</property>
-		      <property name="fill">False</property>
+		      <property name="expand">True</property>
+		      <property name="fill">True</property>
 		    </packing>
 		  </child>
 
