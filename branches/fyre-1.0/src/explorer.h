@@ -88,7 +88,7 @@ struct _Explorer {
     gboolean             seeking_animation_transition;
     gboolean             playing_animation;
 
-    gboolean             paused;
+    gboolean             unpause_on_restore;
 
     GTimeVal             last_anim_frame_time;
 
@@ -124,11 +124,13 @@ void      explorer_update_animation      (Explorer *self);
 void      explorer_init_cluster          (Explorer *self);
 void      explorer_dispose_cluster       (Explorer *self);
 
+void      explorer_init_about            (Explorer *self);
+
 void      explorer_run_iterations        (Explorer *self);
 void      explorer_update_gui            (Explorer *self);
 
-void      explorer_init_about            (Explorer *self);
-
+void      explorer_force_pause           (Explorer *self);
+void      explorer_restore_pause         (Explorer *self);
 
 G_END_DECLS
 

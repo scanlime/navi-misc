@@ -76,12 +76,8 @@ static void on_about_close(GtkWidget *widget, Explorer *self)
 	self->about_image = NULL;
     }
 
-    /* Restart the main animation. */
-    if(!self->paused) {
-        iterative_map_start_calculation(self->map);
-	self->status_dirty_flag = TRUE;
-	explorer_update_gui(self);
-    }
+    /* Restart the main animation if appropriate */
+    explorer_restore_pause(self);
 }
 
 static gboolean on_about_close_window(GtkWidget *window, GdkEvent *event, Explorer *self)
@@ -96,9 +92,7 @@ static void on_about_activate(GtkWidget *widget, Explorer *self)
     GtkWidget* image_container = glade_xml_get_widget(self->xml, "about_image");
 
     /* Pause calculation so the CPU can go toward our wonderful about image :) */
-    iterative_map_stop_calculation(self->map);
-    self->status_dirty_flag = TRUE;
-    explorer_update_gui(self);
+    explorer_force_pause(self);
 
     if (!self->about_image) {
 	IterativeMap* map;

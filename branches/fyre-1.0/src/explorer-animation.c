@@ -619,7 +619,7 @@ static void on_anim_render(GtkWidget *widget, gpointer user_data) {
     /* The user probably wants the main window to pause, so it doesn't
      * suck up CPU they would rather be using for animation...
      */
-    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(glade_xml_get_widget(self->xml, "pause_menu")), TRUE);
+    explorer_force_pause(self);
 
     gtk_widget_set_sensitive(glade_xml_get_widget(self->xml, "anim_render"), FALSE);
     self->render_window = animation_render_ui_new(self->animation);
