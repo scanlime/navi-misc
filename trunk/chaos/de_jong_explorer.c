@@ -191,7 +191,7 @@ void flip() {
    * data[] value, gives values between 0 and 1 corresponding to full
    * white and full black.
    */
-  fscale = exposure / density;
+  fscale = (exposure * zoom) / density;
 
   /* The very first frame we render will often be very underexposed.
    * If fscale > 0.5, this makes dataclamp negative and we get incorrect
