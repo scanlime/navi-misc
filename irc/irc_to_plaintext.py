@@ -27,5 +27,6 @@ if __name__ == '__main__':
    f = LogFormatter()
    while 1:
       f.formatLine(sys.stdin.readline())
+      sys.stdout.flush()
 
 ### The End ###
