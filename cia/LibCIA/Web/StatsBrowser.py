@@ -23,6 +23,7 @@ A web interface using Woven for browsing CIA's stats:// namespace
 
 from twisted.web import static, domhelpers
 from twisted.web.woven import page, widgets, model
+from LibCIA import Message
 import os, urllib, time
 
 
@@ -43,6 +44,18 @@ class CounterListModel(model.Wrapper):
             counter = self.original.getCounter(name, create=False)
             return CounterModel(counter)
         return CounterModel(None)
+
+
+class RecentMessagesModel(model.Wrapper):
+    """A Model wrapping a StatsTarget's recentMesssages attribute
+       (a LogDB instance). Submodels are integers representing how many
+       messages to list. Submodels of those integers are lists of
+       messages in XML.
+       """
+    def getSubmodel(self, request, name):
+        if self.original:
+            return model.ListModel(self.original.getLatest(int(name)))
+        return model.ListModel([])
 
 
 class CounterModel(model.MethodModel):
@@ -222,6 +235,12 @@ class StatsPage(page.Page):
            """
         return CounterListModel(self.target.counters)
 
+    def wmfactory_recentMessages(self, request):
+        """Returns a model that can be used to return the 'n' most recent
+           messages delivered to this stats target.
+           """
+        return RecentMessagesModel(self.target.recentMessages)
+
 
     ######################################### Widget Factories
 
@@ -247,5 +266,11 @@ class StatsPage(page.Page):
     def wvfactory_relativeDate(self, request, node, data):
         """Convert a UTC UNIX time in the past to an indication of how long ago it was"""
         return widgets.Text(self.addTimeUnits(time.time() - data.original))
+
+    def wvfactory_message(self, request, node, data):
+        """Use AutoFormatter to display a message in XHTML"""
+        html = Message.AutoFormatter('xhtml').format(Message.Message(data.original))
+        return widgets.RawText(html)
+
 
 ### The End ###
