@@ -275,6 +275,30 @@ class VerticalMenu(DockMenu):
         self.onSelected(item)
         self.onFinish()
 
+class ThreeColumnMenu(Menu):
+    """A 3-column display"""
+    keyFile = 'vertical_menu_keys.py'
+    def __init__(self, book, items=[]):
+        Menu.__init__(self, book)
+
+        self.left = VerticalMenu(book, items)
+        self.left.horz = 0.2
+        self.left.bindings = None
+        self.left.background = None
+        self.center = VerticalMenu(book, items)
+        self.center.horz = 0.5
+        self.center.bindings = None
+        self.center.background = None
+
+    def spinUp(self):
+        self.center.spinUp()
+
+    def spinDown(self):
+        self.center.spinDown()
+
+    def selectCurrent(self):
+        self.center.selectCurrent()
+
 def defaultFades(page):
     """A page wrapper that applies a default fade in from and out to black"""
     return Sequencer.FadeIn(0.25, (0,0,0), Sequencer.FadeOut(0.25, (0,0,0), page))
