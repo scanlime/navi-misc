@@ -70,62 +70,84 @@ SDA_MASK       equ 0x08
 SCL_MASK       equ 0x10
 I2C_POWER_MASK equ 0x20
 
-TX_SHORT_DELAY equ .168		; 156.3us
-TX_LONG_DELAY  equ .42		; 364.6us
+TX_SHORT_DELAY equ .178		; 156.3us
+TX_LONG_DELAY  equ .74		; 364.6us
 
 
 ;----------------------------------------------------- Variables
 
 	cblock 0x20
-		temp, consecutive_ones, crc_reg
+		temp, consecutive_ones, crc_reg, temp2
 	endc
 
 
 ;----------------------------------------------------- Initialization
 	org 0
+start
 
 	; Initialize I/O
-	banksel	GPIO			; Set initial latch values
 	movlw	I2C_POWER_MASK | SDA_MASK | SCL_MASK | TX_POWER_MASK
 	movwf	GPIO
-	banksel	TRISIO
 	movlw	BATT_VOLT_MASK		; Set pin directions (also turns on peripherals)
+	bsf	STATUS, RP0
 	movwf	TRISIO
+	bcf	STATUS, RP0
 
-	;; Initialize TMR0
-	banksel	OPTION_REG
-	bcf	OPTION_REG, T0CS
+	;; Calibrate the oscillator
+	bsf	STATUS, RP0
+	call	0x3FF
+	movwf	OSCCAL
+	bcf	STATUS, RP0
+
+	;; Initialize TMR0 and the watchdog timer. Initially, we assign
+	;; a 1:2 prescaler to TMR0 so we can time delays long enough for our
+	;; slow bits. Before sleeping we swap that over to the WDT.
+	clrwdt
+	movlw	0xD0
+	bsf	STATUS, RP0
+	movwf	OPTION_REG
+	bcf	STATUS, RP0
 	clrf	TMR0
-	bcf	INTCON, T0IF
+	clrf	INTCON
+	clrwdt
 
 	;; Initialize variables
 	clrf	crc_reg
 	clrf	consecutive_ones
-
-	banksel	GPIO
 
 
 ;----------------------------------------------------- Main Program
 
 	call	tx_begin_content
 
-	movlw	0x42
+	movlw	0x4F
 	movwf	temp
 	call	tx_content_8bit
 
 	call	tx_end_content
 
-
-	;; Go to sleep, turning off all peripherals
-	clrf	GPIO
-	sleep
+	;; Turn off all peripherals, assign a 1:128 prescaler to the WDT, and hit the sack
+	clrf	GPIO		; Peripherals off
+	clrwdt			; Clear the watchdog
+	clrf	TMR0		; Clear the prescaler
+	movlw	0xDF		; Reassign prescaler
+	bsf	STATUS, RP0
+	movwf	OPTION_REG
+	bcf	STATUS, RP0
+	sleep			; Clear the watchdog and sleep until it resets us
+	goto	start		; Reinitialize and send another packet
 
 ;----------------------------------------------------- Protocol: Frame check sequence
 
-	;; Reinitialize the CRC8 and send a flag
+	;; Reinitialize the CRC8 and send a few copies of the flag sequence
 tx_begin_content
 	clrf	crc_reg
-	goto	tx_send_flag
+	call	tx_send_start
+	call	tx_send_flag
+	call	tx_send_flag
+	call	tx_send_flag
+	call	tx_send_flag
+	return
 
 	;; A macro to shift a new bit into the CRC
 crc_shift macro value
@@ -155,7 +177,8 @@ tx_end_content
 	movf	crc_reg, w	; Send the CRC
 	movwf	temp
 	call	tx_content_8bit
-	goto	tx_send_flag	; Send the flag and return
+	call	tx_send_flag
+	goto	tx_send_end
 
 	;; Send a bit-stuffed "1" that is included in the CRC8
 tx_content_one
@@ -231,14 +254,12 @@ tx_set_timer macro value
 
 	;; Wait for TMR0 to overflow
 tx_wait_timer macro
+	local keep_waiting
+keep_waiting
+	clrwdt
 	btfss	INTCON, T0IF
-	goto	$-1
+	goto	keep_waiting
 	endm
-
-	;; Start a new transmission
-tx_send_start
-	tx_set_timer 0xFF
-	return
 
 	;; Bring the transmit pin high
 tx_pin_high macro
@@ -251,6 +272,38 @@ tx_pin_low macro
 	movlw	I2C_POWER_MASK | SDA_MASK | SCL_MASK | TX_POWER_MASK
 	movwf	GPIO
 	endm
+
+	;; A longish delay used in the synchronization preamble
+sync_delay
+	clrf	temp
+sync_loop
+	clrwdt
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	decfsz	temp, f
+	goto	sync_loop
+	return
+
+	;; Start a new transmission. This sends a sequence intended to let
+	;; the receiver's bias level stabilize and to let the transmitter warm up.
+tx_send_start
+	tx_pin_high
+	call	sync_delay
+	tx_pin_low
+	call	sync_delay
+	return
+
+	;; End a transmission (wait for the last bit to finish)
+tx_send_end
+	tx_wait_timer
+	return
+
 
 	;; Send a '1' bit
 tx_send_one
