@@ -128,7 +128,7 @@ render_priority_compare (RenderPass *p1, RenderPass *p2)
   c1 = RENDER_PASS_CLASS (G_OBJECT_GET_CLASS (p1));
   c2 = RENDER_PASS_CLASS (G_OBJECT_GET_CLASS (p2));
 
-  return (c1->render_priority - c2->render_priority);
+  return (c2->render_priority - c1->render_priority);
 }
 
 static gint
@@ -139,7 +139,7 @@ filter_priority_compare (RenderPass *p1, RenderPass *p2)
   c1 = RENDER_PASS_CLASS (G_OBJECT_GET_CLASS (p1));
   c2 = RENDER_PASS_CLASS (G_OBJECT_GET_CLASS (p2));
 
-  return (c1->filter_priority - c2->filter_priority);
+  return (c2->filter_priority - c1->filter_priority);
 }
 
 static void
@@ -147,10 +147,14 @@ scene_preprocess_iterate (SceneObject *object, GList *drawables, GList *passes)
 {
   GList *drawable, *pass;
 
-  for (drawable = drawables; drawable; drawable = drawable->next)
-    for (pass = passes; pass; pass = pass->next)
-      if (render_pass_filter (RENDER_PASS (pass->data), DRAWABLE (drawable->data)))
+  for (drawable = drawables; drawable; drawable = drawable->next) {
+    for (pass = passes; pass; pass = pass->next) {
+      if (render_pass_filter (RENDER_PASS (pass->data), DRAWABLE (drawable->data))) {
         render_pass_add (RENDER_PASS (pass->data), DRAWABLE (drawable->data));
+	break;
+      }
+    }
+  }
 }
 
 void
