@@ -42,18 +42,6 @@
 #define DRIVER_DESC    "Raster Wand driver"
 
 
-/* Status packets following this format are returned from the
- * device when it's asked, or from the EP1 interrupt endpoint.
- */
-struct rwand_status {
-	unsigned short          period;                 /* Period estimation, in 2.66us units */
-	unsigned short          phase;                  /* Phase estimation, in 2.66us units */
-	unsigned char           edge_count;             /* 8-bit counter of sync edges */
-	unsigned char           mode;                   /* RWAND_MODE_* bits */
-	unsigned char           flip_count;             /* 8-bit page flip counter */
-	unsigned char           buttons;                /* RWAND_BUTTON_* bits */
-};
-
 /* Timing calculated from the current status and settings */
 struct rwand_timings {
 	int                     column_width;
@@ -478,7 +466,7 @@ static void    rwand_calc_timings(struct rwand_settings *settings,
 		col_and_gap_width = (status->period / settings->num_columns * settings->display_width) >> 17;
 		timings->column_width = (col_and_gap_width * settings->duty_cycle) >> 16;
 		timings->gap_width = col_and_gap_width - timings->column_width;
-		total_width = (settings->num_columns+1) * timings->column_width + settings->num_columns * timings->gap_width;
+		total_width = settings->num_columns * col_and_gap_width;
 
 		/* Now that we know the true width of the display, we can calculate the
 		 * two phase timings. These indicate when it starts the forward scan and the
@@ -628,6 +616,13 @@ static int rwand_ioctl(struct inode *inode, struct file *file, unsigned int cmd,
 
 	case RWANDIO_GET_SETTINGS:
 		if (copy_to_user((struct rwand_settings*) arg, &dev->settings, sizeof(dev->settings))) {
+			retval = -EFAULT;
+			break;
+		}
+		break;
+
+	case RWANDIO_GET_STATUS:
+		if (copy_to_user((struct rwand_status*) arg, &dev->status, sizeof(dev->status))) {
 			retval = -EFAULT;
 			break;
 		}
