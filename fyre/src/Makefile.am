@@ -79,10 +79,12 @@ noinst_HEADERS =			\
 	animation.h			\
 	animation-render-ui.h		\
 	avi-writer.h			\
+	batch-image-render.h		\
 	bifurcation-diagram.h		\
 	cell-renderer-bifurcation.h	\
 	cell-renderer-transition.h	\
 	chunked-file.h			\
+	cluster-model.h			\
 	color-button.h			\
 	curve-editor.h			\
 	de-jong.h			\
