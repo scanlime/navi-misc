@@ -4,6 +4,32 @@ import sys, gtk
 from GTKsheet import GTKsheet
 from Character import Character
 
+def InitWindow():
+  ''' Initialize and show the window. '''
+  # Set up the window.
+  window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+  window.connect('delete_event', lambda w, d: gtk.main_quit())
+  window.set_title('Character Sheet')
+  window.set_default_size(300, 200)
+
+  box = gtk.VBox()
+  window.add(box)
+
+  menubar, accelGroup = Menu()
+  window.add_accel_group(accelGroup)
+  box.pack_start(menubar, gtk.FALSE)
+
+  if len(sys.argv) > 1:
+    character = Character()
+    character.readCharacter(sys.argv[1])
+    sheet = GTKsheet(character)
+
+    box.pack_start(sheet.root)
+    sheet.root.show()
+  
+  box.show()
+  window.show()
+
 def Menu():
   ''' Return a menu with accelerators. '''
   items = (('/_File', None, None, 0, '<Branch>'),
@@ -25,26 +51,22 @@ def Menu():
 
 def NewSheet():
   ''' Create a new character. '''
-  print 'Not Implemented.'
+  print 'Not implemented.'
 
-def OpenSheet():
+def OpenSheet(data, widget):
   ''' Open a sheet. '''
-  print 'Not Implemented.'
+  # Create the file selector.
+  fileWindow = gtk.FileSelection('Character Sheet')
+  fileWindow.set_filename('data/')
 
-character = Character()
-character.readCharacter(sys.argv[1])
-sheet = GTKsheet(character)
+  # OK button.
+  #fileWindow.ok_button.connect('clicked', readNewData, fileWindow)
+  fileWindow.ok_button.connect('clicked', lambda w: fileWindow.destroy())
 
-window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-window.connect('delete_event', lambda w, d: gtk.main_quit())
+  # Cancel button.
+  fileWindow.cancel_button.connect('clicked', lambda w: fileWindow.destroy())
 
-menu, accelGroup = Menu()
-window.add_accel_group(accelGroup)
-box = gtk.VBox()
-box.pack_start(menu, gtk.FALSE)
-box.pack_start(sheet.root)
-box.show()
-window.add(box)
-sheet.root.show()
-window.show()
+  fileWindow.show()
+
+InitWindow()
 gtk.main()

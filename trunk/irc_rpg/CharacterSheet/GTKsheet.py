@@ -31,8 +31,7 @@ class GTKsheet:
       node = self.dom.getElementsByTagName('character_sheet')[0]
       self.root = GTKsheetElements.__dict__['character_sheet'](node, self.character)
       for child in node.childNodes:
-	if child.nodeType is xml.dom.Node.ELEMENT_NODE: 
-	  self.root.packChild(self.makeObjects(child, self.root, editables))
+	if child.nodeType is xml.dom.Node.ELEMENT_NODE: self.root.packChild(self.makeObjects(child, self.root, editables))
       self.root.editables = editables
 
   def makeObjects(self, newNode, parent, editList):
