@@ -51,13 +51,13 @@ class Page(Template.Page):
        capabilities database and StatsStorage. Children will
        be automatically created with child targets.
        """
-    childFactories = {
-        '.metadata': Metadata.MetadataPage,
-        '.rss':      Feed.RSSFeed,
-        '.xml':      Feed.XMLFeed,
-        }
-
     def __init__(self, component, target=None):
+        self.childFactories = {
+            '.metadata': Metadata.MetadataPage,
+            '.rss':      Feed.RSSFeed,
+            '.xml':      Feed.XMLFeed,
+            }
+
         if target is None:
             target = Stats.StatsTarget()
         self.component = component
