@@ -56,6 +56,10 @@ class Bot(irc.IRCClient):
             self.factory.reconnect = False
         self.factory.allocator.botLeft(self, channel)
 
+    def kickedFrom(self, channel, kicker, message):
+        self.left(channel)
+        self.factory.allocator.botKicked(self, channel, kicker, message)
+
 
 class BotFactory(protocol.ClientFactory):
     """Twisted ClientFactory for creating Bot instances"""
@@ -78,6 +82,7 @@ class BotAllocator:
         self.nickFormat = nickFormat
         self.channelsPerBot = channelsPerBot
         self.host, self.port = server
+        self.kickCallback = None
 
         # Map nicknames to bot instances
         self.bots = {}
@@ -124,6 +129,13 @@ class BotAllocator:
         # If there's no reason to keep this bot around any more, disconnect it
         if not bot.channels:
             bot.quit()
+
+    def botKicked(self, bot, channel, kicker, message):
+        """Apparently we aren't wanted any longer. Log the event and report to our owner"""
+        log.msg("Bot %r on server %r was kicked from %r by %r: %r" %
+                (bot.nickname, self.host, channel, kicker, message))
+        if self.kickCallback:
+            self.kickCallback((self.host, self.port), channel)
 
     def botDisconnected(self, bot):
         """Called when one of our bots has been disconnected"""
@@ -217,6 +229,10 @@ class BotNetwork:
         # A map from (host, port) to BotAllocator instances
         self.servers = {}
 
+        # An optional callback to be called with a the server tuple
+        # and channel name whenever a bot is kicked.
+        self.kickCallback = None
+
     def getServers(self):
         """Return a list of (host, port) tuples specifying all servers we know about"""
         return self.servers.keys()
@@ -239,7 +255,9 @@ class BotNetwork:
            """
         server = tuple(server)
         if not self.servers.has_key(server):
-            self.servers[server] = BotAllocator(server)
+            allocator = BotAllocator(server)
+            allocator.kickCallback = self.kickCallback
+            self.servers[server] = allocator
         self.servers[server].addChannel(channel)
 
     def delChannel(self, server, channel):
