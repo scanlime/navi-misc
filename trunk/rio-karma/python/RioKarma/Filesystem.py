@@ -33,6 +33,10 @@ from twisted.internet import defer, reactor
 from RioKarma import Request, Metadata
 
 
+class PlaylistError(Exception):
+    pass
+
+
 class AllocationTree:
     """This is a data structure for keeping track of unused areas of an
        abstract address space, marking areas as used, and looking for unused
@@ -179,20 +183,23 @@ class Cache:
     CREATE TABLE files
     (
         -- All of these fields match keys in 'details'
-        fid       INT PRIMARY KEY,
-        type      VARCHAR(16),
-        rid       VARCHAR(32),
-        title     VARCHAR(255),
-        artist    VARCHAR(255),
-        source    VARCHAR(255),
-        codec     VARCHAR(32),
+        fid            INT PRIMARY KEY,
+        type           VARCHAR(16),
+        rid            VARCHAR(32),
+        title          VARCHAR(255),
+        artist         VARCHAR(255),
+        source         VARCHAR(255),
+        codec          VARCHAR(32),
+        fid_generation INT,
+        ctime          INT,
 
-        details   TEXT NOT NULL
+        details        TEXT NOT NULL
     );
     """
 
     # This is a list of the items from 'details' that get their own database column
-    detailsColumns = ('fid', 'type', 'rid', 'title', 'artist', 'source', 'codec')
+    detailsColumns = ('fid', 'type', 'rid', 'title', 'artist',
+                      'source', 'codec', 'fid_generation', 'ctime')
 
     def __init__(self, filename):
         self.filename = os.path.expanduser(filename)
