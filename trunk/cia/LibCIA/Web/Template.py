@@ -167,8 +167,22 @@ class Page(Nouvelle.Twisted.Page):
                     tag('td', _class="main")[ place("mainColumn") ],
                 ]],
                 tag('div', _class="footer")[
+                    # Navi logo, because we like navi
                     tag('a', href="http://navi.cx")[
-                        tag('img', _class="footer", src="/images/navi64.png", width="64", height="39", alt="Navi"),
+                        tag('img', _class="footer", src="/images/navi64.png",
+                            width="64", height="39", alt="Navi"),
+                    ],
+
+                    # Yep, this should be valid XHTML
+                    tag('a', href="http://validator.w3.org/check/referer")[
+                        tag('img', src="http://www.w3.org/Icons/valid-xhtml10",
+                            alt="Valid XHTML 1.0!", height=31, width=88, _class="footer"),
+                    ],
+
+                    # And valid CSS
+                    tag('a', href="http://jigsaw.w3.org/css-validator/check/referer")[
+                        tag('img', src="http://jigsaw.w3.org/css-validator/images/vcss",
+                            alt="Valid CSS!", height=31, width=88, _class="footer"),
                     ],
                 ],
             ],
