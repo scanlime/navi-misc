@@ -234,9 +234,9 @@ void run_iterations(int count) {
   /* Constants used in mapping rendering coordinates to image coordinates */
   const int count_width = render.width * render.oversample;
   const int count_height = render.height * render.oversample;
-  const double xcenter = count_width / 2.0;
-  const double ycenter = count_height / 2.0;
-  const double scale = xcenter / 2.5 * params.zoom;
+  const double scale = count_width / 5.0 * params.zoom;
+  const double xcenter = count_width / 2.0 + params.xoffset * scale;
+  const double ycenter = count_height / 2.0 + params.xoffset * scale;
 
   /* Toggles to disable features that aren't needed */
   const gboolean rotation_enabled = params.rotation > 0.0001 || params.rotation < -0.0001;
@@ -318,8 +318,8 @@ void run_iterations(int count) {
     }
 
     /* Scale and translate our (x,y) coordinates into pixel coordinates */
-    x = (x + params.xoffset) * scale + xcenter;
-    y = (y + params.yoffset) * scale + ycenter;
+    x = x * scale + xcenter;
+    y = y * scale + ycenter;
 
     /* Convert (x,y) to integers.
      * Note that just casting to int here is incorrect! We want the behaviour
