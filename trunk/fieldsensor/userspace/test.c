@@ -1,12 +1,7 @@
 #include <usb.h>
-#include <math.h>
 #include <stdio.h>
+#include <SDL.h>
 #include "../include/efs_protocol.h"
-
-struct phase_info {
-  int position;
-  float average;
-};
 
 usb_dev_handle *open_efs(void) {
   struct usb_bus *busses;
@@ -82,18 +77,13 @@ int tune_period(usb_dev_handle *d) {
   return max_i;
 }
 
-void tune_phases(usb_dev_handle *d, struct phase_info *p) {
+int tune_phase(usb_dev_handle *d) {
   /* After a proper period has been chosen, this searches
-   * for local minima in the output as the phase is varied,
-   * and generates a set of phase values for 90, 180, 270, and
-   * 360 degrees. 0 degrees can't be measured because it occurs
-   * before A/D sampling can begin. For each measured phase,
-   * a phase_info structure is filled in with its EFS_PARAM_PHASE
-   * value and it's average reading. This is used later to account
-   * for the LC tank quenching after the square wave has been removed.
+   * for the first local maximum in the output as the phase is varied.
+   * This will be at 90 degrees on the sine wave.
    */
-  int i, extreme_i, cycle_period;
-  float reading, extreme_value;
+  int i, max_i;
+  float reading, max_value;
   const int samples = 15;
   const float epsilon = 7;
 
@@ -108,122 +98,97 @@ void tune_phases(usb_dev_handle *d, struct phase_info *p) {
    * This is true for the transmitter parameters below. The slope
    * depends on several things, including whether EFS_PARAM_NUM_HALF_PERIODS
    * is even or odd, and the initial polarity given in EFS_PARAM_LC_PORT_INIT.
-   *
-   * Start by searching for the first local maximum. This is our
-   * 90 degree mark.
    */
   i = 255;
-  extreme_i = 255;
-  extreme_value = 0;
+  max_i = 255;
+  max_value = 0;
   while (i > 0) {
     set_param_byte(d, EFS_PARAM_PHASE, i);
     reading = take_average_reading(d, samples);
-    if (reading > extreme_value) {
-      extreme_value = reading;
-      extreme_i = i;
+    if (reading > max_value) {
+      max_value = reading;
+      max_i = i;
     }
     else {
       /* If we've fallen below the extreme by at least 'epsilon', stop searching */
-      if (reading < (extreme_value - epsilon))
+      if (reading < (max_value - epsilon))
 	break;
     }
     i--;
   }
-  p[0].position = extreme_i;
-  p[0].average = extreme_value;
-  fprintf(stderr, " * found 90 degrees at %d, reading %f\n", extreme_i, extreme_value);
-
-  /* Now, starting where we left off, look for the next local minumum.
-   * That will be our 270 degree mark
-   */
-  i = extreme_i;
-  extreme_value = 255;
-  while (i > 0) {
-    set_param_byte(d, EFS_PARAM_PHASE, i);
-    reading = take_average_reading(d, samples);
-    if (reading < extreme_value) {
-      extreme_value = reading;
-      extreme_i = i;
-    }
-    else {
-      /* If we've risen above the extreme by at least 'epsilon', stop searching */
-      if (reading > (extreme_value + epsilon))
-	break;
-    }
-    i--;
-  }
-  p[2].position = extreme_i;
-  p[2].average = extreme_value;
-  fprintf(stderr, " * found 270 degrees at %d, reading %f\n", extreme_i, extreme_value);
-
-  /* Now that we know the 90 and 270 degree locations, we can assume the frequency
-   * is constant and infer the location of the 180 and 360 degree points. We do still have
-   * to measure their average reading however.
-   *
-   * One side effect of this calculation is that we now know the period of our waveform
-   * in CPU cycles (1/6 microseconds) and that's easy to convert to kilohertz.
-   */
-  cycle_period = (p[0].position - p[2].position) * 2;
-  fprintf(stderr, " * assuming frequency of %.02f kHz\n", 6000.0 / cycle_period);
-
-  p[1].position = p[0].position - cycle_period / 4;
-  set_param_byte(d, EFS_PARAM_PHASE, p[1].position);
-  p[1].average = take_average_reading(d, samples);
-  fprintf(stderr, " * inferred 180 degrees at %d, reading %f\n", p[1].position, p[1].average);
-
-  p[3].position = p[2].position - cycle_period / 4;
-  set_param_byte(d, EFS_PARAM_PHASE, p[3].position);
-  p[3].average = take_average_reading(d, samples);
-  fprintf(stderr, " * inferred 360 degrees at %d, reading %f\n", p[3].position, p[3].average);
-}
-
-float demodulate(usb_dev_handle *d, struct phase_info *p) {
-  /* Given the phase information found by tune_phases,
-   * take four samples and calculate the amplitude at our
-   * transmit frequency.
-   */
-  float readings[4];
-  int i;
-  float s, c;
-
-  /* Calculate the approximate gain in the signal after 180 degrees phase difference.
-   * This is used to counteract the LC oscillator's quenching during demodulation.
-   */
-  const float gain_180 = (p[2].average - p[3].average) / (p[1].average - p[0].average);
-
-  for (i=0; i<4; i++) {
-    set_param_byte(d, EFS_PARAM_PHASE, p[i].position);
-    readings[i] = take_average_reading(d, 5);
-  }
-
-  s = readings[0] - readings[2] * gain_180;
-  c = readings[1] - readings[3] * gain_180;
-
-  return sqrt(s*s + c*c);
+  return max_i;
 }
 
 int main(int argc, char **argv) {
+  struct {
+    int port_xor;
+    int adcon;
+    int period;
+    int phase;
+    float base;
+  } channels[] = {
+    {0x03, 0x81, 0, 0},
+    {0x0C, 0x81, 0, 0},
+    {0x30, 0x81, 0, 0},
+    {0xC0, 0x81, 0, 0},
+    {0x03, 0x89, 0, 0},
+    {0x0C, 0x89, 0, 0},
+    {0x30, 0x89, 0, 0},
+    {0xC0, 0x89, 0, 0},
+  };
+
+  SDL_Surface *screen;
+  SDL_Event event;
+  SDL_Rect r;
+  int i;
+  float x;
   usb_dev_handle *d = open_efs();
-  struct phase_info p[4];
   if (!d)
     return 1;
 
-  set_param_byte(d, EFS_PARAM_LC_PORT_XOR,      0x30);
-  set_param_byte(d, EFS_PARAM_ADCON_INIT,       0x81);
+  SDL_Init(SDL_INIT_VIDEO);
+  screen = SDL_SetVideoMode(640, 480, 0, 0);
+
   set_param_byte(d, EFS_PARAM_NUM_HALF_PERIODS, 30);
   set_param_byte(d, EFS_PARAM_LC_TRIS_INIT,     0x00);
   set_param_byte(d, EFS_PARAM_LC_PORT_INIT,     0x55);
-  set_param_byte(d, EFS_PARAM_PERIOD,           tune_period(d));
-  tune_phases(d, p);
 
-  fprintf(stderr, "Demodulating...\n");
-  while (1) {
-    float x = demodulate(d, p);
-    int i;
-    for (i=0; i<x; i++)
-      printf("*");
-    printf("\n");
+  for (i=0; i<8; i++) {
+    fprintf(stderr, "Optimizing channel %d...\n", i);
+    set_param_byte(d, EFS_PARAM_LC_PORT_XOR, channels[i].port_xor);
+    set_param_byte(d, EFS_PARAM_ADCON_INIT,  channels[i].adcon);
+    channels[i].period = tune_period(d);
+    set_param_byte(d, EFS_PARAM_PERIOD,      channels[i].period);
+    channels[i].phase  = tune_phase(d);
+    set_param_byte(d, EFS_PARAM_PHASE,       channels[i].phase);
+    channels[i].base = take_average_reading(d, 30);
   }
 
-  return 0;
+  fprintf(stderr, "Running\n");
+
+  while (1) {
+    SDL_FillRect(screen, NULL, 0x000000);
+
+    for (i=0; i<8; i++) {
+      set_param_byte(d, EFS_PARAM_LC_PORT_XOR, channels[i].port_xor);
+      set_param_byte(d, EFS_PARAM_ADCON_INIT,  channels[i].adcon);
+      set_param_byte(d, EFS_PARAM_PERIOD,      channels[i].period);
+      set_param_byte(d, EFS_PARAM_PHASE,       channels[i].phase);
+
+      x = take_reading(d);
+      r.x = i * 40;
+      r.y = screen->h * (0.5 + (x - channels[i].base) * 0.01);
+      r.w = 30;
+      r.h = screen->h - r.y;
+      SDL_FillRect(screen, &r, 0x8080FF);
+    }
+
+    while (SDL_PollEvent(&event)) {
+      if (event.type == SDL_QUIT) {
+	SDL_Quit();
+	return 0;
+      }
+    }
+    SDL_Flip(screen);
+  }
 }
