@@ -38,13 +38,15 @@ static int loader()
 
   unicone_usb_init();
   dev = unicone_device_new();
-  if (!dev)
+  if (!dev) {
+    printf("Can't open unicone device\n");
     return 1;
+  }
 
   if (dev->firmware_installed && config_force_firmware) {
     printf("Firmware already loaded, rebooting to clear it.\n");
     unicone_device_remove_firmware(dev);
-    if (unicone_device_reconnect(dev, progress, 1000) < 0)
+    if (unicone_device_reconnect(dev, progress) < 0)
       return 1;
   }
 
@@ -55,7 +57,7 @@ static int loader()
     printf("Firmware not installed.\n");
     if (unicone_device_upload_firmware(dev, config_firmware_path, progress) < 0)
       return 1;
-    if (unicone_device_reconnect(dev, progress, 1000) < 0)
+    if (unicone_device_reconnect(dev, progress) < 0)
       return 1;
   }
 

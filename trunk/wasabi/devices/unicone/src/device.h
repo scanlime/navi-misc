@@ -47,8 +47,7 @@ void                      unicone_device_delete           (struct unicone_device
 
 /* Disconnect from a device, then reconnect after a delay */
 int                       unicone_device_reconnect        (struct unicone_device *self,
-							   struct progress_reporter* progress,
-							   int delay_milliseconds);
+							   struct progress_reporter* progress);
 
 /* Install firmware from the given raw binary file. Optionally
  * report progress using the given interface. Returns the number of

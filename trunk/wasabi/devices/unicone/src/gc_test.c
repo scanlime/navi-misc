@@ -146,8 +146,10 @@ int main(int argc, char **argv)
 
   unicone_usb_init();
   dev = unicone_device_new();
-  if (!dev)
+  if (!dev) {
+    printf("Can't open unicone device\n");
     return 1;
+  }
   if (!(dev->fpga_configured && dev->firmware_installed)) {
     printf("The Unicone device must have firmware and FPGA configuration installed");
     return 1;

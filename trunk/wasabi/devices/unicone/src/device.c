@@ -65,12 +65,10 @@ struct unicone_device*    unicone_device_new              ()
 	self->usbdev = usb_open(dev);
 
 	if (usb_set_configuration(self->usbdev, 1)) {
-	  perror("Error setting bootloader device configuration");
 	  goto error;
 	}
 
 	if (usb_claim_interface(self->usbdev, 0)) {
-	  perror("Error claiming bootloader device interfce");
 	  goto error;
 	}
 
@@ -83,7 +81,6 @@ struct unicone_device*    unicone_device_new              ()
 	self->usbdev = usb_open(dev);
 
 	if (usb_claim_interface(self->usbdev, 0)) {
-	  perror("Error claiming device interfce");
 	  goto error;
 	}
 
@@ -92,7 +89,6 @@ struct unicone_device*    unicone_device_new              ()
 	if (usb_control_msg(self->usbdev, USB_TYPE_VENDOR | 0x80,
 			    UNICONE_REQ_FPGA_STATUS,
 			    0, 0, &retbyte, 1, TIMEOUT) < 0) {
-	  perror("Error checking FPGA status");
 	  goto error;
 	}
 	self->fpga_configured = (retbyte == UNICONE_STATUS_OK);
@@ -102,7 +98,7 @@ struct unicone_device*    unicone_device_new              ()
     }
   }
 
-  fprintf(stderr, "No Unicone device found\n");
+  /* No device found */
 
  error:
   unicone_device_delete(self);
@@ -123,13 +119,13 @@ void                      unicone_device_delete           (struct unicone_device
 }
 
 int                       unicone_device_reconnect        (struct unicone_device *self,
-							   struct progress_reporter* progress,
-							   int delay_milliseconds)
+							   struct progress_reporter* progress)
 {
   void *progress_op;
   const char *error = NULL;
   struct unicone_device *new_dev;
   int ms_completed;
+  const int ms_timeout = 700;
   const int ms_step = 20;
 
   if (progress)
@@ -139,14 +135,19 @@ int                       unicone_device_reconnect        (struct unicone_device
   unicone_device_delete_content(self);
 
   /* Spin our progress indicator as we wait for the device to initialize */
-  for (ms_completed=0; ms_completed < delay_milliseconds; ms_completed+=ms_step) {
+  for (ms_completed=0; ms_completed < ms_timeout; ms_completed+=ms_step) {
     usleep(ms_step * 1000);
+
+    /* Are we there yet? */
+    usb_find_devices();
+    new_dev = unicone_device_new();
+    if (new_dev)
+      break;
+
     if (progress)
-      progress->report(progress, progress_op, ((float) ms_completed) / delay_milliseconds);
+      progress->report(progress, progress_op, ((float) ms_completed) / ms_timeout);
   }
 
-  usb_find_devices();
-  new_dev = unicone_device_new();
   if (!new_dev) {
     error = "Can't open device";
     goto done;
