@@ -67,9 +67,9 @@ public class question
 	public String toNet()
 	{
 		if(answer == null)
-			return name + "\r\n.\r\n" + text + "\r\n.";
+			return name + "\r\n" + text;
 		else
-			return name + "\r\n.\r\n" + text + "\r\n.\r\n" + answer + "\r\n.";
+			return name + "\r\n" + text + "\r\n" + answer;
 	}
 	
 	/**
