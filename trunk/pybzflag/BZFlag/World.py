@@ -27,9 +27,43 @@ from BZFlag import Errors
 import os
 
 
-class Octree:
+class Scene:
+    """Abstract base class for a scene manager. This class provides
+       a way to store scene objects and later select objects based
+       on geometric criteria, for example frustum culling.
+       """
     def add(self, block):
         pass
+
+    def clip(self, filter, action):
+        """Filter blocks through the provided filter function, passing
+           them to the provided action function if they pass. The
+           implementation is free to assume that if the filter fails
+           for any particular volume, it will also fail for any objects
+           contained completely within that volume.
+           """
+        pass
+
+    def filter(self, filter, action):
+        """Like clip, but doesn't assume the filter is geometric in
+           nature so it is forced to test all scene nodes.
+           """
+        pass
+    
+
+class SceneList:
+    """Implementation of Scene using a flat list"""
+    def __init__(self):
+        self.list = []
+        self.clip = self.filter
+
+    def add(self, block):
+        self.list.append(block)
+
+    def filter(self, filter, action):
+        for item in self.list:
+            if filter(item):
+                action(item)
 
 
 class TeleporterSide:
@@ -48,8 +82,14 @@ class World:
     """Abstraction for a BZFlag world. Currently this can only be created
        from binary worlds downloaded from the server, but eventually this
        will need to be able to read textual bzflag world files as well.
+
+       The data structure used to store the world's contents in a form efficient
+       for in-game use is separated into a Scene class. You can tell this class
+       which Scene implementation to use in the constructor. By default it uses
+       a flat list, but if this is being used for a 3D client it might be better
+       to implement an Octree.
        """
-    def __init__(self, sceneClass=Octree):
+    def __init__(self, sceneClass=SceneList):
         self.sceneClass = sceneClass
         self.erase()
     
