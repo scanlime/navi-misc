@@ -26,7 +26,9 @@
 		</tab>
 
 		<tab label="Combat">
-			<dice label="Melee" sides="10"/>
+			<dice label="Melee" sides="10">
+				<times>3</times>
+			</dice>
 		</tab>
 	</tab_view>
 </character_sheet>
