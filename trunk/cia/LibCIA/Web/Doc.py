@@ -64,7 +64,7 @@ class NouvelleTranslator(nodes.NodeVisitor):
         self.docTitle = None
         self.docSubtitle = None
         self.stack = [self.root]
-        self.sectionStack = []
+        self.headingLevel = 0
         self.inTableHeading = False
 
         nodes.NodeVisitor.__init__(self, document)
@@ -106,43 +106,27 @@ class NouvelleTranslator(nodes.NodeVisitor):
         raise nodes.SkipNode
 
     def visit_section(self, node):
-        if not self.sectionStack:
-            # This is a top-level section. Convert it to a Template.Section
-            self.sectionStack.append(self.enterTag(Template.StaticSection()))
-        else:
-            # Inner section, make a heading tag
-            s = tag('h%d' % len(self.sectionStack))
-            self.stack[-1].append(s)
-            self.stack.append(self.stack[-1])
-            self.sectionStack.append(s)
+        self.headingLevel += 1
 
     def depart_section(self, node):
-        del self.stack[-1]
-        del self.sectionStack[-1]
+        self.headingLevel -= 1
 
     def visit_title(self, node):
         title = ''.join(map(str, node.children))
-
-        if self.sectionStack:
-            # We're inside a section, assign it this title.
-            # Note that this viciously breaks the tag immutability
-            # rule, but at the moment I can't think of a cleaner
-            # way to do this.
-            section = self.sectionStack[-1]
-            if hasattr(section, 'title'):
-                section.title = title
-            elif hasattr(section, 'content'):
-                section.content = title
-
+        if self.headingLevel:
+            # Make this into a heading tag
+            self.stack[-1].append(tag('h%d' % self.headingLevel)[title])
         else:
-            # Nope, this must be the top-level title
+            # Nope, this must be the top-level title.
             self.docTitle = title
-
         raise nodes.SkipNode
+
+    def depart_title(self, node):
+        pass
 
     def visit_subtitle(self, node):
         # We really only care about the top-level subtitle now
-        if not self.sectionStack:
+        if not self.headingLevel:
             self.docSubtitle = ''.join(map(str, node.children))
         raise nodes.SkipNode
 
@@ -259,7 +243,7 @@ class Page(Template.Page):
             # It's a normal document. Get the document itself and its sidebar,
             # and store the formatter results that we're interested in.
             self.mainDoc = getFormattedDoc(self.fsPath)
-            self.mainColumn = self.mainDoc.output
+            self.mainColumn = Template.pageBody[self.mainDoc.output]
             self.mainTitle = self.mainDoc.docTitle
             if self.mainDoc.docSubtitle:
                 self.subTitle = self.mainDoc.docSubtitle

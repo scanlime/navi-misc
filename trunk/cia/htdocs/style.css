@@ -10,7 +10,7 @@
  */
 
 body {
-  font: 9pt Verdana, Helvetica, Arial, sans-serif;
+  font: 9pt sans-serif;
   color: Black;
   margin: 0;
   padding: 0;
@@ -43,8 +43,9 @@ blockquote {
 
 ul {
   list-style-image: url(/images/bullet.png);
-  padding: 0.5em 0em 0.5em 2em;
+  padding: 0em 0em 0em 1.5em;
   margin: 0em;
+  marker-offset: 0.5em;
 }
 
 li {
@@ -105,7 +106,8 @@ td.title {
 }
 
 div.mainTitle {
-  font: 250% bold;
+  font: 250% sans-serif;
+  font-style: bold;
   padding: 0em;
   margin: 0em;
 }
@@ -155,6 +157,24 @@ div.section {
   background-image: url(/images/dots.png);
   background-repeat: repeat-y;
   background-position: right;
+}
+
+div.pageBody {
+  border: 1px solid #8CACBB;
+  margin: 0em 0em 2em 0em;
+  padding: 1em;
+  background-color: white;
+}
+
+h1 {
+  font: 200% sans-serif;
+  padding: 0em;
+  margin: 0.75em 0em;
+  border-bottom: 1px solid #CCC;
+}
+
+h1:first-child {
+  margin: 0em 0em 0.75em 0em;
 }
 
 div.tabs {
