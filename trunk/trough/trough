@@ -10,8 +10,5 @@ cmdl = CommandLine.CommandLine()
 p = cmdl.getPieces()
 p.addPaths (sys.argv[1:])
                                                                                 
-s = Select.Select(p)
-if type(s) is StringType:
-	s = [s]
-for x in s:
-	print x
+for x in Select.Select(p):
+	print x.getPath()

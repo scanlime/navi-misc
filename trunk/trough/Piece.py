@@ -1,16 +1,22 @@
 #!/usr/bin/env python
 
+import types
+
 class Piece:
 	''' Piece
 		A media file group.
 	'''
 
-	def __init__ (self,name,piece):
+	def __init__ (self, name, where):
 		self.name = name
-		self.paths = files
 		
-	def getPaths (self):
-		return self.paths
+		if type(where) is list:
+			self.where = where
+		else:
+			self.where = [where]
+		
+	def getWhere (self):
+		return self.where
 
 	def getName (self):
 		return self.name

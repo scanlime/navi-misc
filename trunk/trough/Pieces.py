@@ -12,18 +12,18 @@ class Pieces:
 	def __init__ (self):
 		self.pieces = []
 
-	def addFilesSeparate (self, path, files):
-		if type(files) is StringType:
+	def addFilesSeparate (self, name, files):
+		if type(files) is not list:
 			self.pieces.append(Piece(files,[files]))
 		else:
 			for file in files:
-				self.pieces.append(Piece(file,file))
+				self.pieces.append(Piece(name,file))
 	
-	def addFilesGrouped (self, path, files):
-		if type(files) is StringType:
-			self.pieces.append(Piece(path,[files]))
+	def addFilesGrouped (self, name, files):
+		if type(files) is not list:
+			self.pieces.append(Piece(name,[files]))
 		else:
-			self.pieces.append(Piece(path,files))
+			self.pieces.append(Piece(name,files))
 
 	def addDirectory (self, dir):
 		''' Pieces.addDirectory
@@ -71,4 +71,3 @@ if __name__ == "__main__":
 
 	p = Pieces()
 	p.addPaths (sys.argv[1:])
-		print 'sorting...'
