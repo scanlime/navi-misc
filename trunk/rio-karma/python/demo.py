@@ -67,7 +67,14 @@ class Uploader(RioApp):
 class PlaylistDownloader(RioApp):
     def main(self):
         # This operates entirely out of the cache, no need for locking and such
-        self.showPlaylist(self.fileManager.getRootPlaylist(), {})
+
+        #self.showPlaylist(self.fileManager.getRootPlaylist(), {})
+
+        from RioKarma import Metadata
+        c = Metadata.getLocalCache()
+        c.scan("/navi/media/audio/groups")
+        c.close()
+
         yield defer.succeed(None)
 
     def showPlaylist(self, f, memo, indentIncrement='    ', indent=''):
