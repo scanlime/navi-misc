@@ -49,11 +49,9 @@ public class amoderate
 	 */
 	public String getQuestion()
 	{
-		System.out.println("DEBUG1: " + current);
 		if(current != null)
 			return "No Questions\r\nAt This Time";
 		current = input.pop();
-		System.out.println("DEBUG2: " + current);
 		if(current == null)
 			return "No Questions\r\nAt This Time";
 		return current.toNet();
