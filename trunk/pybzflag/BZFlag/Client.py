@@ -177,6 +177,9 @@ class StatefulClient(SimpleClient):
     def onMsgAlive(self, msg, socket, eventLoop):
         pass
 
+    def onMsgPlayerUpdate(self, msg, socket, eventLoop):
+        pass
+
 
 class PlayerClient(StatefulClient):
     """Extends the StatefulClient with functionality for implementing
