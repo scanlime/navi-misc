@@ -23,6 +23,7 @@ interacting with stats targets.
 #
 
 from twisted.internet import defer
+from twisted.python import log
 from LibCIA import Ruleset, Database, TimeUtil
 import time, posixpath, sys, cPickle
 from Metadata import Metadata
