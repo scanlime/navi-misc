@@ -50,9 +50,9 @@ class ColortextToIRC(Message.Formatter):
         self.formatter = ColortextFormatter()
 
     def format(self, args):
-        colorText = args.message.xml.body.colorText
+        colorText = XML.dig(args.message.xml, "message", "body", "colorText")
         if self.color:
-            return self.formatter.format(colorText)
+            return self.formatter.parse(colorText)
         else:
             return XML.allText(colorText)
 

@@ -89,7 +89,7 @@ class RulesetInterface(RpcServer.Interface):
         """Returns all rulesets in the form of a mapping from URI to ruleset text"""
         results = {}
         for delivery in self.storage.rulesetMap.itervalues():
-            results[delivery.ruleset.uri] = str(delivery.ruleset)
+            results[delivery.ruleset.uri] = XML.toString(delivery.ruleset)
         return results
 
 
@@ -154,7 +154,7 @@ class Ruleset(XML.XMLFunction):
 
         >>> r = Ruleset('<ruleset><return>Boing</return><formatter medium="irc"/></ruleset>')
         >>> r(msg)
-        'Boing'
+        u'Boing'
 
         >>> r = Ruleset('<ruleset>' +
         ...                 '<formatter medium="irc"/>' +
@@ -164,7 +164,7 @@ class Ruleset(XML.XMLFunction):
         ...                 '</rule>' +
         ...             '</ruleset>')
         >>> r(msg)
-        '*censored*'
+        u'*censored*'
 
         >>> r = Ruleset('<ruleset>' +
         ...                 '<formatter medium="irc"/>' +
@@ -175,7 +175,7 @@ class Ruleset(XML.XMLFunction):
         ...                 '<formatter name="IRCProjectName"/>' +
         ...             '</ruleset>')
         >>> r(msg)
-        '\x02robo-hamster:\x0f \x02Hello\x0fWorld'
+        u'\x02robo-hamster:\x0f \x02Hello\x0fWorld'
 
         >>> r = Ruleset('<ruleset><return/></ruleset>')
         >>> r(msg) is None
@@ -183,12 +183,12 @@ class Ruleset(XML.XMLFunction):
 
         >>> r = Ruleset('<ruleset><return path="/message/source/project"/></ruleset>')
         >>> r(msg)
-        'robo-hamster'
+        u'robo-hamster'
 
         >>> Ruleset('<ruleset/>').uri is None
         True
         >>> Ruleset('<ruleset uri="sponge://"/>').uri
-        'sponge://'
+        u'sponge://'
         """
     requiredRootElement = "ruleset"
 
@@ -199,7 +199,7 @@ class Ruleset(XML.XMLFunction):
            """
         # Go ahead and store the URI attribute if we have one.
         # If not, this will be None.
-        self.uri = element.getAttributeNS(None, 'uri')
+        self.uri = element.getAttributeNS(None, 'uri') or None
 
         # Create a function to evaluate this element as a <rule> would be evaluated
         ruleFunc = self.element_rule(element)
@@ -228,8 +228,8 @@ class Ruleset(XML.XMLFunction):
 
     def element_return(self, element):
         """Set the current result and exit the ruleset immediately"""
-        if element.hasAttribute('path'):
-            xp = XML.XPath(element.getAttributeNS(Node, 'path'))
+        if element.hasAttributeNS(None, 'path'):
+            xp = XML.XPath(element.getAttributeNS(None, 'path'))
             # Define a rulesetReturn function that returns the value of the XPath
             def rulesetReturn(msg):
                 nodes = xp.queryForNodes(msg.xml)
@@ -243,7 +243,7 @@ class Ruleset(XML.XMLFunction):
         else:
             # No path, define a rulesetReturn function that returns this element's string value
             def rulesetReturn(msg):
-                self.result = str(element)
+                self.result = XML.shallowText(element)
                 if not self.result:
                     self.result = None
                 raise RulesetReturnException()
@@ -535,13 +535,5 @@ class RulesetStorage:
 class InvalidURIException(Exception):
     """An exception that URI handlers can raise when a URI is invalid"""
     pass
-
-
-def _test():
-    import doctest, Ruleset
-    return doctest.testmod(Ruleset)
-
-if __name__ == "__main__":
-    _test()
 
 ### The End ###
