@@ -57,13 +57,14 @@ typedef void (rcpod_errorHandler)(const char *function, int retValue);
 void rcpod_Init(void);
 
 /* Scan the USB device tree for rcpods. Must be called after usb_init, usb_find_busses,
- * and usb_find_devices.
+ * and usb_find_devices, must be called again if usb_find_busses/usb_find_devices are
+ * called again.
  */
-int rcpod_FindDevices(void);
+void rcpod_FindDevices(void);
 
 /* Return a doubly linked list of usb_device structures for each rcpod found.
  * This is created in rcpod_find_devices, so the returned nodes must not be
- * modified or freed. Returns NULL if no devices are found.
+ * modified or freed. Returns NULL if no devices were found.
  */
 struct usb_device* rcpod_GetDevices(void);
 
