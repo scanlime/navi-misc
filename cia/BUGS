@@ -1,8 +1,6 @@
 ######## Critical
 
-- Rack is cool, but the current implementation isn't nearly robust enough.
-  Look into implementing a similar system on top of a better database, like maybe
-  MySQL.
+- Stats rollover, remove old messages periodically
 
 - The IRC bot allocator really needs rethinking (again). It's looking like a much
   better approach would be to have a Request object that specifies a channel and
