@@ -41,9 +41,7 @@ class Bus:
 
     def read(self, address):
         """Read a 32-byte block from the given (non-coded) address"""
-        reply = self.bridge.write(struct.pack(">BH", 2, addrEncode(address)), 32)[1]
-        return reply
-
+        reply = self.bridge.write(struct.pack(">BH", 2, addrEncode(address)), 33)[1]
         crc = reply[-1]
         data = reply[:-1]
         self._checkCRC(crc, data)
