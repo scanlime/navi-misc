@@ -46,7 +46,7 @@ display_list_get_type (void)
 	(GInstanceInitFunc) display_list_init,
       };
 
-      dl_type = g_type_register_static (G_TYPE_OBJECT, "DisplayList", &dl_info, 0);
+      dl_type = g_type_register_static (DRAWABLE_TYPE, "DisplayList", &dl_info, 0);
     }
 
   return dl_type;

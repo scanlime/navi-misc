@@ -65,20 +65,20 @@ scene_object_init (SceneObject *self)
 void
 scene_object_render (SceneObject *self, guint name)
 {
-  SceneObjectClass *class = SCENE_OBJECT_CLASS (G_OBJECT_GET_CLASS (self));
-  class->render (self, name);
+  SceneObjectClass *klass = SCENE_OBJECT_CLASS (G_OBJECT_GET_CLASS (self));
+  klass->render (self, name);
 }
 
 void
 scene_object_serialize (SceneObject *self, GIOChannel *out)
 {
-  SceneObjectClass *class = SCENE_OBJECT_CLASS (G_OBJECT_GET_CLASS (self));
-  class->serialize (self, out);
+  SceneObjectClass *klass = SCENE_OBJECT_CLASS (G_OBJECT_GET_CLASS (self));
+  klass->serialize (self, out);
 }
 
 GList*
 scene_object_get_drawables (SceneObject *self)
 {
-  SceneObjectClass *class = SCENE_OBJECT_CLASS (G_OBJECT_GET_CLASS (self));
-  return class->get_drawables (self);
+  SceneObjectClass *klass = SCENE_OBJECT_CLASS (G_OBJECT_GET_CLASS (self));
+  return klass->get_drawables (self);
 }

@@ -14,6 +14,7 @@ OBJS	= 			\
 	src/parameter-editor.o	\
 	src/parameter-holder.o	\
 	src/plugins.o		\
+	src/renderpass.o	\
 	src/sceneobject.o	\
 	src/texturemanager.o
 
