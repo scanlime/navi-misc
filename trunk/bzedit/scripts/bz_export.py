@@ -1,14 +1,21 @@
+#!BPY
 #
 # Blender to BZFlag World exporter
 # Micah Dowty <micah@navi.cx>
 #
 
+""" Registration info for Blender menus:
+Name: 'BZFlag World'
+Blender: 234
+Group: 'Export'
+Tip: 'Exports specially tagged Blender objects to a BZFlag world file'
+"""
+
 import Blender
 import math
 
 class BzWorldExporter:
-    def __init__(self, filename, scale=10):
-        self.stream = open(filename, "w")
+    def __init__(self, scale=10):
         self.scale = scale
 
     def collectObjects(self):
@@ -26,9 +33,27 @@ class BzWorldExporter:
     def writeLine(self, *args):
         self.stream.write(" ".join([str(arg) for arg in args]) + "\n")
 
-    def save(self):
-        """Write all collected bzflag objects to the current stream"""
-        assert len(self.bzTypeMap['world']) <= 1
+    def check(self):
+        """Check the world for correctness. Returns True if correct,
+           or False if incorrect. A popup reports errors to the user if
+           they are found.
+           """
+        errors = []
+
+        if 'world' not in self.bzTypeMap:
+            errors.append("A 'world' object is required")
+        elif len(self.bzTypeMap['world']) > 1:
+            errors.append("Multiple 'world' objects are not allowed")
+
+        if errors:
+            Blender.Draw.PupMenu("Errors exporting BZFlag world:%t|" + "|".join(errors))
+            return False
+        else:
+            return True
+
+    def save(self, filename):
+        """Write all collected bzflag objects to the given file"""
+        self.stream = open(filename, "w")
         for type, objects in self.bzTypeMap.iteritems():
             handler = getattr(self, "write_" + type)
             for object in objects:
@@ -61,7 +86,7 @@ class BzWorldExporter:
         self.writeCommon(object)
         self.writeLine("end")
 
-
-exp = BzWorldExporter("test.bzw")
+exp = BzWorldExporter()
 exp.collectObjects()
-exp.save()
+if exp.check():
+    Blender.Window.FileSelector(exp.save, "Save BZFlag World")
