@@ -33,12 +33,19 @@ void GameObject::draw(void) {}
 
 void GameObject::animate(float dt) {}
 
-Rect GameObject::getBoundingBox(void) {
-  Rect r;
-  return r;
+/* Return true if the given line segment intersects this object */
+bool GameObject::testCollision(Vector3 v1, Vector3 v2) {
+  return false;
 }
 
-void GameObject::collision(GameObject *object) {}
+bool GameObject::collision(GameObject *object) {
+  return true;
+}
+
+SimpleCamera::SimpleCamera(void) {
+  position.set(-0.5, -0.3, -1.1);
+  angles.set(-45,0,0);
+}
 
 void SimpleCamera::setMatrix(void) {
   glLoadIdentity();
@@ -80,7 +87,8 @@ void SimpleGame::run(void) {
       switch (event.type) {
 	
       case SDL_QUIT:
-	return;
+	running = false;
+	break;
 	
       }
     
@@ -91,11 +99,13 @@ void SimpleGame::run(void) {
     float dt = (newTicks - oldTicks) / 1000.0;
     oldTicks = newTicks;
 
-    for (vector<GameObject>::iterator i=objects.begin(); i!=objects.end(); i++)
-      i->animate(dt);
+    sensorInput = sensor.getPosition();
 
-    for (vector<GameObject>::iterator i=objects.begin(); i!=objects.end(); i++)
-      i->draw();
+    for (vector<GameObject*>::iterator i=objects.begin(); i!=objects.end(); i++)
+      (*i)->animate(dt);
+
+    for (vector<GameObject*>::iterator i=objects.begin(); i!=objects.end(); i++)
+      (*i)->draw();
 
     SDL_GL_SwapBuffers();
   }

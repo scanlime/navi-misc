@@ -37,19 +37,19 @@ using namespace std;
 
 class SimpleGame;
 
-struct Rect {
-  Vector2 topLeft, size;
-};
-
 
 class GameObject {
  public:
   GameObject(class SimpleGame *game);
 
-  void draw(void);
-  void animate(float dt);
-  Rect getBoundingBox(void);
-  void collision(GameObject *object);
+  virtual void draw(void);
+  virtual void animate(float dt);
+
+  /* Return true if the given line segment intersects this object */
+  virtual bool testCollision(Vector3 v1, Vector3 v2);
+
+  /* Return true to bounce (the default) */
+  virtual bool collision(GameObject *object);
 
   SimpleGame* game;
 };
@@ -57,6 +57,8 @@ class GameObject {
 
 class SimpleCamera {
  public:
+  SimpleCamera(void);
+
   void setMatrix(void);
 
   Vector3 position;
@@ -70,10 +72,13 @@ class SimpleGame {
   void run(void);
 
   SimpleCamera cam;
-  vector<GameObject> objects;
+  vector<GameObject*> objects;
+  bool running;
+  Vector3 sensorInput;
+
+ private:
   FieldSensor sensor;
   SDL_Surface *surface;
-  bool running;
 };
 
 #endif /* __H_SIMPLEGAME */
