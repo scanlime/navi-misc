@@ -16,6 +16,9 @@ public class admin extends java.applet.Applet implements ActionListener
 	/** The start button */
 	public Button start;
 	
+	/** The Help TextArea */
+	public static TextArea help;
+	
 	/**
 	 * This method initializes the applet and makes it all well and good
 	 * @author Brandon Smith
@@ -24,9 +27,9 @@ public class admin extends java.applet.Applet implements ActionListener
 	public void init()
 	{
 		//net.openConnection("localhost",8080);
-		info.help = new TextArea("This is the information window, it will tell you everything you could want to know about what you need to do, and what stuff is.  Please press start to continue.",6,60,TextArea.SCROLLBARS_VERTICAL_ONLY);
+		admin.help = new TextArea("This is the information window, it will tell you everything you could want to know about what you need to do, and what stuff is.  Please press start to continue.",6,60,TextArea.SCROLLBARS_VERTICAL_ONLY);
 		//authenticate auth = new authenticate();
-		add(info.help);
+		add(admin.help);
 		start = new Button("Start");
 		start.addActionListener(this);
 		add(start);
@@ -39,7 +42,7 @@ public class admin extends java.applet.Applet implements ActionListener
 	{
 		start.removeActionListener(this);
 		remove(start);
-		info.auth = new authenticate(this);
+		new authenticate(this);
 	}
 	
 	/**

@@ -16,8 +16,17 @@ import java.io.*;
  
 public class authenticate implements ActionListener
 {
+	/** The admin applet reference for messing with stuff. */
 	private admin myadmin;
 
+	/** The username text field */
+	private TextField username;
+	/** The password text field */
+	private TextField password;
+	
+	/** The button for submission */
+	private Button submit;
+	
 	/**
 	 * This method creates a new authentication object.
 	 * @param my The admin applet reference for adding and removing stuff to it.
@@ -27,14 +36,14 @@ public class authenticate implements ActionListener
 	public authenticate(admin my)
 	{
 		myadmin = my;
-		info.username = new TextField("username",30);
-		info.password = new TextField("password",30);
-		info.submit = new Button("Submit");
-		info.submit.addActionListener(this);
-		myadmin.ad(info.username);
-		myadmin.ad(info.password);
-		myadmin.ad(info.submit);
-		info.help.setText("Please enter your username and password, then click submit to authenticate yourself to the server.");
+		username = new TextField("username",30);
+		password = new TextField("password",30);
+		submit = new Button("Submit");
+		admin.help.setText("Please enter your username and password, then click submit to authenticate yourself to the server.");
+		myadmin.ad(username);
+		myadmin.ad(password);
+		myadmin.ad(submit);
+		submit.addActionListener(this);
 	}
 	
 	/**
@@ -46,8 +55,9 @@ public class authenticate implements ActionListener
 	 */
 	public void actionPerformed(ActionEvent e)
 	{
-		myadmin.rm(info.username);
-		myadmin.rm(info.password);
-		myadmin.rm(info.submit);
+		myadmin.rm(username);
+		myadmin.rm(password);
+		myadmin.rm(submit);
+		new moderator(myadmin);
 	}
 }
