@@ -46,7 +46,6 @@
 	errorlevel -302		; supress "register not in bank0, check page bits" message
 
 ;#define	SHOW_ENUM_STATUS
-;#define COUNTERRORS
 
 unbanked	udata_shr		; these will get assigned to unbanked RAM (0x70-0x7F)
 temp			res	1	; short term temp register used in Get Interface
@@ -80,8 +79,6 @@ bufindex		res	1
 USB_Interface		res	3	; allow 3 interfaces to have alternate endpoints
 inner			res	1
 outer			res	1
-dest_ptr		res	1	; used in buffer copies for Get and
-source_ptr		res	1	; Put USB calls
 hid_dest_ptr		res	1	; used in buffer copies for HIDSetReport
 hid_source_ptr		res	1	;
 counter			res	1
@@ -95,17 +92,6 @@ USB_USTAT		res	1
 	global	USB_dev_req
 	global	USB_Interface
 	global	USB_Protocol
-
-#ifdef	COUNTERRORS
-USB_PID_ERR		res	2	; 16 bit counters for each error condition
-USB_CRC5_ERR		res	2
-USB_CRC16_ERR		res	2
-USB_DFN8_ERR		res	2
-USB_BTO_ERR		res	2
-USB_WRT_ERR		res	2
-USB_OWN_ERR		res	2
-USB_BTS_ERR		res	2
-#endif
 
 	extern	Config_desc_index
 	extern	Descriptions
@@ -121,50 +107,6 @@ USB_BTS_ERR		res	2
 ; **********************************************************************
 
 interface	code
-
-; **********************************************************************
-; GETEP1 and GETEP2
-;
-; Note:  These functions are macros defined in usb_defs.inc.
-;        To save ROM, delete the instances below that you will not need.
-;
-; Enter with buffer pointer in IRP+FSR.
-; Each function checks the UOWNs bit for the particular OUT endpoint,
-; and copies the buffer if available.  Upon completion of the function,
-; the bank bits are restored to the state they were in when this
-; function was entered.
-;
-; Returns the bytecount in the W register and return status in the carry
-; bit as follows:
-; 0 - no buffer available,
-; 1 - Buffer copied and buffer made available for next transfer.
-;
-; The number of bytes moved is returned in W reg.
-; **********************************************************************
-
-	GETEP1		; create instance of GETEP1
-;	GETEP2		; create instance of GETEP2
-
-; **********************************************************************
-; PUTEP1 and PUTEP2
-;
-; Note:  These functions are macros defined in usb_defs.inc.
-;        To save ROM, delete the instances below that you will not need.
-;
-; Enter with bytecount in W and buffer pointer in IRP+FSR.
-;
-; Tests the UOWNs bit for the IN side of the specified Endpoint.
-; If we own the buffer, the buffer pointed to by the FSR is copied
-; to the EPn IN buffer, then the UOWNs bit is set so the data will be
-; TX'd next time polled.
-;
-; Returns the status in the carry bit as follows:
-; 1 - buffer available and copied.
-; 0 - buffer not available (try again later)
-; **********************************************************************
-
-	PUTEP1		; create instance of PUTEP1
-;	PUTEP2		; create instance of PUTEP2
 
 ; *********************************************************************
 ; Stall Endpoint.
@@ -280,30 +222,13 @@ InitUSB
 	movwf	UCTRL
 
 	movlw	1
+	banksel	USB_status_device
 	movwf	USB_status_device
 	clrf	USB_Interface
 	clrf	USB_Interface+1
 	clrf	USB_Interface+2
 	movlw	0xFF
 	movwf	USB_dev_req	; no device requests in process
-#ifdef COUNTERRORS
-	clrf	USB_PID_ERR
-	clrf	USB_PID_ERR+1
-	clrf	USB_CRC5_ERR
-	clrf	USB_CRC5_ERR+1
-	clrf	USB_CRC16_ERR
-	clrf	USB_CRC16_ERR+1
-	clrf	USB_DFN8_ERR
-	clrf	USB_DFN8_ERR+1
-	clrf	USB_BTO_ERR
-	clrf	USB_BTO_ERR+1
-	clrf	USB_WRT_ERR
-	clrf	USB_WRT_ERR+1
-	clrf	USB_OWN_ERR
-	clrf	USB_OWN_ERR+1
-	clrf	USB_BTS_ERR
-	clrf	USB_BTS_ERR+1
-#endif
 	banksel PIR1		; bank 0
 	bcf 	PIR1,USBIF	; clear the USB flag
 	banksel	PIE1
@@ -384,10 +309,6 @@ USBReset
 	banksel	USB_status_device
 	movlw	0x01
 	movwf	USB_status_device ; Self powered, remote wakeup disabled
-#ifdef SHOW_ENUM_STATUS
-	banksel	PORTB
-	bsf 	PORTB,1		; set bit one to indicate Reset status
-#endif
 	return  		; to keep straight with host controller tests
 
 ; ******************************************************************
@@ -462,26 +383,6 @@ TokenDone
 	banksel	USB_USTAT
 	movwf	USB_USTAT	; Save USTAT in bank 2
 
-#ifdef SHOW_ENUM_STATUS
-; This toggles the activity bits on portB  (EP0 -> Bit 5; EP1 -> bit 6; EP2 -> bit 7)
-	banksel	PORTB
-	andlw	0x18		; save endpoint bits
-	pagesel tryEP1activity
-	btfss	STATUS,Z	; is it EP0?
-	goto	tryEP1activity
-	movlw	0x20
-	pagesel maskport
-	goto	maskport
-tryEP1activity
-	xorlw	0x08		; is it bit one?
-	btfss	STATUS,Z
-	movlw	0x80		; No, It's not EP0, nor 1 so it must be EP2.  toggle bit 7
-	btfsc	STATUS,Z
-	movlw	0x40		; Yes, toggle bit 6 to Show EP1 activity
-maskport
-	xorwf	PORTB,f
-#endif
-
 ; check UOWN bit here if desired
 	banksel	BufferDescriptor
 	movf	BufferDescriptor,w  ; get the first byte of the BD
@@ -513,7 +414,8 @@ maskport
 ; tokens to deal with.
 ; EP1 and EP2 have live data destined for the application
 ; ******************************************************************
-TokenOutPID  ; STARTS IN BANK2
+TokenOutPID
+	banksel	USB_USTAT
 	movf	USB_USTAT,w	; get the status register
 	pagesel	tryEP1
 	btfss	STATUS,Z	; was it EP0?
@@ -556,9 +458,10 @@ tryEP2  ; bank 2
 ; ******************************************************************
 ; Process in tokens
 ; ******************************************************************
-TokenInPID  ; starts in bank2
+TokenInPID
 ; Assumes EP0 vars are setup in a previous call to setup.
 EP0_in
+	banksel	USB_USTAT
 	movf	USB_USTAT,w	; get the status register
 	andlw	0x18		; save only EP bits (we already know it's an IN)
 	pagesel	tryEP1in
