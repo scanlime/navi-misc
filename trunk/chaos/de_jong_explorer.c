@@ -15,7 +15,7 @@ struct {
 
 GtkWidget *window, *drawing_area, *iterl;
 GtkWidget *as, *bs, *cs, *ds, *ls, *start, *stop, *save, *randbutton;
-gulong iterations;
+double iterations;
 GdkGC *gc;
 guint data[WIDTH][HEIGHT];
 guchar pixels[WIDTH * HEIGHT * 4];
@@ -168,7 +168,7 @@ void flip() {
   last_flip = now;
 
   /* Update the iteration counter */
-  gchar *iters = g_strdup_printf("%d", iterations);
+  gchar *iters = g_strdup_printf("%.0lf", iterations);
   gtk_label_set_text(GTK_LABEL(iterl), iters);
   g_free(iters);
 
@@ -178,7 +178,7 @@ void flip() {
    *
    * iterations / (WIDTH * HEIGHT) gives us the average density of data[].
    */
-  density = ((float)iterations) / (WIDTH * HEIGHT);
+  density = iterations / (WIDTH * HEIGHT);
 
   /* fscale is a floating point number that, when multiplied by a raw
    * data[] value, gives values between 0 and 1 corresponding to full
