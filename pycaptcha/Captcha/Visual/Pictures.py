@@ -30,9 +30,6 @@ class ImageFactory(File.RandomFileFactory):
     extensions = [".png", ".jpeg"]
     basePath = "pictures"
 
-    def pick(self):
-        return Image.open(File.RandomFileFactory.pick(self))
-
 
 abstract = ImageFactory("abstract")
 nature = ImageFactory("nature")

@@ -59,6 +59,7 @@ class AngryGimpy(ImageCaptcha):
 class AntiSpam(ImageCaptcha):
     """A fixed-solution CAPTCHA that can be used to hide email addresses or URLs from bots"""
     fontFactory = Text.FontFactory(20, "vera/VeraBd.ttf")
+    defaultSize = (512,50)
 
     def getLayers(self, solution="murray@example.com"):
         self.addSolution(solution)
@@ -66,10 +67,6 @@ class AntiSpam(ImageCaptcha):
         textLayer = Text.TextLayer(solution,
                                    borderSize = 2,
                                    fontFactory = self.fontFactory)
-
-        # Automatically calculate a good default size given our text and font
-        self.defaultSize = (textLayer.textSize[0] + 40,
-                            textLayer.textSize[1] + 20)
 
         return [
             Backgrounds.CroppedImage(),

@@ -46,9 +46,10 @@ class FontFactory(File.RandomFileFactory):
             self.maxSize = sizes
 
     def pick(self):
+        """Returns a (fileName, size) tuple that can be passed to ImageFont.truetype()"""
         fileName = File.RandomFileFactory.pick(self)
         size = int(random.uniform(self.minSize, self.maxSize) + 0.5)
-        return ImageFont.truetype(fileName, size)
+        return (fileName, size)
 
 # Predefined font factories
 defaultFontFactory = FontFactory((30, 40), "vera")
@@ -81,7 +82,6 @@ class TextLayer(Visual.Layer):
             alignment = (random.uniform(0,1),
                          random.uniform(0,1))
 
-        self.textSize    = font.getsize(text)
         self.text        = text
         self.alignment   = alignment
         self.font        = font
@@ -90,11 +90,13 @@ class TextLayer(Visual.Layer):
         self.borderColor = borderColor
 
     def render(self, img):
+        font = ImageFont.truetype(*self.font)
+    	textSize = font.getsize(self.text)
         draw = ImageDraw.Draw(img)
 
         # Find the text's origin given our alignment and current image size
-        x = int((img.size[0] - self.textSize[0] - self.borderSize*2) * self.alignment[0] + 0.5)
-        y = int((img.size[1] - self.textSize[1] - self.borderSize*2) * self.alignment[1] + 0.5)
+        x = int((img.size[0] - textSize[0] - self.borderSize*2) * self.alignment[0] + 0.5)
+        y = int((img.size[1] - textSize[1] - self.borderSize*2) * self.alignment[1] + 0.5)
 
         # Draw the border if we need one. This is slow and ugly, but there doesn't
         # seem to be a better way with PIL.
@@ -104,9 +106,9 @@ class TextLayer(Visual.Layer):
                     if bx and by:
                         draw.text((x + bx * self.borderSize,
                                    y + by * self.borderSize),
-                                  self.text, font=self.font, fill=self.borderColor)
+                                  self.text, font=font, fill=self.borderColor)
 
         # And the text itself...
-        draw.text((x,y), self.text, font=self.font, fill=self.textColor)
+        draw.text((x,y), self.text, font=font, fill=self.textColor)
 
 ### The End ###
