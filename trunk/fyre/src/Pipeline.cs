@@ -51,6 +51,13 @@ namespace Fyre
 			comparer = new UidComparer ();
 			element_store = new Hashtable (null, comparer);
 		}
+
+		public void
+		AddElement (Element e)
+		{
+			element_store.Add (e.id, e);
+			System.Console.WriteLine ("Adding {0} to the pipeline", e.id.ToString ("d"));
+		}
 	}
 
 }
