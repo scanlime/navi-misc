@@ -6,7 +6,6 @@
 <requires lib="bonobo"/>
 
 <widget class="GnomeApp" id="xchat-gnome">
-  <property name="visible">True</property>
   <property name="title" translatable="yes">ex-chat</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_NONE</property>
@@ -419,7 +418,6 @@
 
 <widget class="GtkDialog" id="preferences">
   <property name="border_width">12</property>
-  <property name="visible">True</property>
   <property name="title" translatable="yes">Preferences</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_NONE</property>
