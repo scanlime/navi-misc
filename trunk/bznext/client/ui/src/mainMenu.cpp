@@ -26,6 +26,7 @@ CMainMenu::Init ( CBaseGameLoop * pGameLoop )
 	CBaseUIPanel::Init(pGameLoop);
 
 	// init other stuff here
+	ships[0] = ships[1] = ships[2] = ships[3] = NULL;
 }
 
 void CMainMenu::Attach ( void )
@@ -49,10 +50,43 @@ void CMainMenu::Attach ( void )
 	Entity *mGroundEntity = gameLoop->GetSceneManager()->createEntity("Ground","GroundPlane");
 	SceneNode * mGroundNode = static_cast<SceneNode*>(gameLoop->GetSceneManager()->getRootSceneNode()->createChild());
 	mGroundNode->attachObject(mGroundEntity);
+
+	// make some ships
+	float	z = 1.50f;
+	float rad = 8.0f;
+
+	Entity* mShip1 = gameLoop->GetSceneManager()->createEntity("MK3-1", "MK3.mesh");
+	mShip1->getMesh()->getSubMeshIterator().getNext()->setMaterialName("RedkMK3");
+	ships[0] = static_cast<SceneNode*>(gameLoop->GetSceneManager()->getRootSceneNode()->createChild());
+	ships[0]->attachObject(mShip1);
+	ships[0]->rotate(Vector3(0,0,1),180);
+	ships[0]->translate(rad,0,z); 
+
+	Entity* mShip2 = gameLoop->GetSceneManager()->createEntity("MK3-2", "MK3.mesh");
+	mShip2->getMesh()->getSubMeshIterator().getNext()->setMaterialName("BlackMK3");
+	ships[1] = static_cast<SceneNode*>(gameLoop->GetSceneManager()->getRootSceneNode()->createChild());
+	ships[1]->attachObject(mShip2);
+	ships[1]->rotate(Vector3(0,0,1),-90);
+	ships[1]->translate(0,rad,z); 
+
+	Entity* mShip3 = gameLoop->GetSceneManager()->createEntity("MK3-3", "MK3.mesh");
+	mShip3->getMesh()->getSubMeshIterator().getNext()->setMaterialName("YellowMK3");
+	ships[3] = static_cast<SceneNode*>(gameLoop->GetSceneManager()->getRootSceneNode()->createChild());
+	ships[3]->attachObject(mShip3);
+	ships[3]->rotate(Vector3(0,0,1),90);
+	ships[3]->translate(0,-rad,z); 
+
+	Entity* mShip4 = gameLoop->GetSceneManager()->createEntity("MK3-4", "MK3.mesh");
+//	mShip4->getMesh()->getSubMeshIterator().getNext()->setMaterialName("BlackMK3");
+	ships[2] = static_cast<SceneNode*>(gameLoop->GetSceneManager()->getRootSceneNode()->createChild());
+	ships[2]->attachObject(mShip4);
+	ships[2]->rotate(Vector3(0,0,1),0);
+	ships[2]->translate(-rad,0,z); 
 }
 
 void CMainMenu::Release ( void )
 {
+	ships[0] = ships[1] = ships[2] = ships[3] = NULL;
 }
 
 tePanelReturn CMainMenu::Process ( std::string &next )
@@ -61,5 +95,25 @@ tePanelReturn CMainMenu::Process ( std::string &next )
 	Vector3 PitchAxis(1,0,0);
 	float MoveFactor = 15.0f *gameLoop->GetTimer().GetFrameTime();
 	gameLoop->GetCamera()->rotate(YawAxis,-MoveFactor);
+
+	float rotSpeed = 60.0f * gameLoop->GetTimer().GetFrameTime();
+	if (ships[0])
+	{
+		ships[0]->rotate(Vector3(0,0,1),rotSpeed);
+		ships[1]->rotate(Vector3(0,0,1),-rotSpeed);
+		ships[2]->rotate(Vector3(0,0,1),rotSpeed);
+		ships[3]->rotate(Vector3(0,0,1),-rotSpeed);
+	}
+	if (gameLoop->GetInput().KeyDown(KEY_RETURN))
+	{
+		// put somethign not lame here
+		gameLoop->SetGameName("bzflag");
+		gameLoop->SetGameStartString("test");
+		return ePanelStart;
+	}
+
+	if (gameLoop->GetInput().KeyDown(KEY_Q))
+		return ePanelBack;
+
 	return ePanelContinue;
 }
