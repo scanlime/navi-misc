@@ -26,26 +26,33 @@
 
 ;//************************************************** Control requests
 
-#define MI6K_CTRL_VFD_WRITE		0x01	;// Write up to 4 bytes to the VFD. The bytes
-										;// are stored contiguously in the setup packet's
-										;// wValue and wIndex fields. The VFD treats 0x00
-										;// as a no-op
+;// Write up to 4 bytes to the VFD. The bytes
+;// are stored contiguously in the setup packet's
+;// wValue and wIndex fields. The VFD treats 0x00
+;// as a no-op
+#define MI6K_CTRL_VFD_WRITE		0x01
 
-#define MI6K_CTRL_VFD_POWER		0x02	;// Turn on the VFD if wValue is 0x0001, turn it off
-										;// if wValue is 0x0000. Other values are undefined.
+;// Turn on the VFD if wValue is 0x0001, turn it off
+;// if wValue is 0x0000. Other values are undefined.
+#define MI6K_CTRL_VFD_POWER		0x02
 
-#define MI6K_CTRL_LED_SET		0x03	;// Set LED brightnesses. The brighness values range
-										;// from 0x0000 for fully off to 0x03FF for fully on.
-										;// wValue specifies the white LEDs brightness, wIndex
-										;// specifies the blue LEDs brightness.
+;// Set LED brightnesses. The brighness values range
+;// from 0x0000 for fully off to 0x03FF for fully on.
+;// wValue specifies the white LEDs brightness, wIndex
+;// specifies the blue LEDs brightness.
+#define MI6K_CTRL_LED_SET		0x03
 
-#define MI6K_CTRL_STATUS		0x04	;// Returns a 1-byte data packet with status bits
-										;// set according to the MI6K_STATUS_* constants.
+;// Returns a 1-byte data packet with status bits
+;// set according to the MI6K_STATUS_* constants.
+#define MI6K_CTRL_STATUS		0x04
 
 ;//************************************************** Status bits
 
-#define MI6K_STATUS_EXTPOWER	0x01	;// Set if external power is available
-#define MI6K_STATUS_VFDPOWER	0x02	;// Set if the VFD is powered on
+;// Set if external power is available
+#define MI6K_STATUS_EXTPOWER	0x01
+
+;// Set if the VFD is powered on
+#define MI6K_STATUS_VFDPOWER	0x02
 
 #endif
 
