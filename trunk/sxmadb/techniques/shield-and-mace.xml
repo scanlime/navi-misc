@@ -14,12 +14,12 @@
       <footManeuver side="left">step</footManeuver> into a
       <stance side="left">neutral bow</stance> as you perform a
       <block side="right">vertical outward</block> and a
-      <strike side="left">straight punch</strike> to the ribs.
+      <punch side="left">thrusting horizontal punch</punch> to the ribs.
     </step>
     <step>
       <footManeuver>pivot</footManeuver> into a
       <stance side="left">forward bow</stance> and execute a
-      <strike side="right">reverse punch</strike>, also to the ribs.
+      <punch side="right">reverse punch</punch>, also to the ribs.
     </step>
     <step>
       <!-- FIXME - characterize check -->
@@ -32,7 +32,8 @@
     <step>
       <footManeuver>pivot</footManeuver> back into a
       <stance side="left">forward bow</stance> as you strike your opponent's
-      face with a <strike side="right">inward circular palm heel claw</strike>.
+      face with a
+      <fingerTechnique side="right">inward circular claw</fingerTechnique>.
     </step>
     <step>
       Continue the motion of your right hand circularly as you

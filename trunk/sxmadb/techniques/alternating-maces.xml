@@ -19,13 +19,13 @@
     <step>
       <footManeuver>pivot</footManeuver> to a
       <stance side="right">forward bow</stance> while executing a
-      <strike side="left">vertical reverse punch</strike> to your opponent's
+      <punch side="left">vertical reverse punch</punch> to your opponent's
       solar plexus.
     </step>
     <step>
       <footManeuver>pivot</footManeuver> to a
       <stance side="right">neutral bow</stance> while executing a
-      <strike side="right">outward back knuckle</strike> to your opponent's
+      <strike side="right">back knuckle</strike> to your opponent's
       right temple.
     </step>
   </steps>

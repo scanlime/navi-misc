@@ -24,17 +24,17 @@
     <step>
       <footManeuver>pivot</footManeuver> into a
       <stance side="left">forward bow</stance> (facing 4:30) with a
-      <strike side="right">uppercut</strike> under the arm (breaking their
+      <punch side="right">uppercut</punch> under the arm (breaking their
       elbow against your bicep).
     </step>
     <step>
-      Execute an <strike side="right">outward back knuckle</strike> to the
+      Execute an <strike side="right">back knuckle</strike> to the
       floating ribs and a <kick side="right">scoop</kick> to the groin.
     </step>
     <step>
       <!-- FIXME - how to describe kick? -->
       Plant your right foot back into a <stance side="left">forward bow</stance>
-      as you perform a <strike side="right">chopping punch</strike> to your
+      as you perform a <punch side="right">chopping punch</punch> to your
       opponent's head. Your right leg is kicking out your opponent's leg,
       causing them to fall as you punch.
     </step>
