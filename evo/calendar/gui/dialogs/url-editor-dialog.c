@@ -157,7 +157,6 @@ init_widgets (UrlEditorDialog *dialog)
 	GSList *p;
 
 #define GW(name) ((dialog->name) = glade_xml_get_widget (dialog->gui, #name))
-	GW(url_editor);
 	GW(calendar_list_label);
 	GW(url_entry);
 	GW(daily);
@@ -172,10 +171,6 @@ init_widgets (UrlEditorDialog *dialog)
 	gtk_dialog_add_button (GTK_DIALOG (dialog), GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL);
 	gtk_dialog_add_button (GTK_DIALOG (dialog), GTK_STOCK_OK, GTK_RESPONSE_OK);
 	gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_OK);
-
-	gtk_widget_ensure_style (dialog->url_editor);
-	gtk_container_set_border_width (GTK_CONTAINER (GTK_DIALOG (dialog->url_editor)->vbox), 0);
-	gtk_container_set_border_width (GTK_CONTAINER (GTK_DIALOG (dialog->url_editor)->action_area), 12);
 
 	g_signal_connect (G_OBJECT (dialog->url_entry), "changed", G_CALLBACK (fb_url_changed), dialog);
 	g_signal_connect (G_OBJECT (dialog->username_entry), "changed", G_CALLBACK (fb_ok_enable), dialog);
@@ -212,7 +207,7 @@ init_widgets (UrlEditorDialog *dialog)
 
 	icon_list = e_icon_factory_get_icon_list ("stock_calendar");
 	if (icon_list) {
-		gtk_window_set_icon_list (GTK_WINDOW (dialog->url_editor), icon_list);
+		gtk_window_set_icon_list (GTK_WINDOW (dialog), icon_list);
 		g_list_foreach (icon_list, (GFunc) g_object_unref, NULL);
 		g_list_free (icon_list);
 	}
@@ -297,7 +292,7 @@ url_editor_dialog_get_type (void)
 
 	if (!type) {
 		static GTypeInfo type_info = {
-			sizeof (UrlEditorDialog),
+			sizeof (UrlEditorDialogClass),
 			NULL, NULL,
 			(GClassInitFunc) url_editor_dialog_class_init,
 			NULL, NULL,
@@ -321,7 +316,7 @@ url_editor_dialog_run (UrlEditorDialog *dialog)
 
 	r = gtk_dialog_run (GTK_DIALOG (dialog));
 	if (r == GTK_RESPONSE_OK) {
-		fb_url_activated (dialog->url_entry, dialog);
+		fb_url_activated (GTK_ENTRY (dialog->url_entry), dialog);
 		dialog->uri->username = g_strdup (gtk_entry_get_text (GTK_ENTRY (dialog->username_entry)));
 		dialog->uri->password = g_strdup (gtk_entry_get_text (GTK_ENTRY (dialog->password_entry)));
 		if (e_dialog_toggle_get (dialog->remember_pw)) {
@@ -332,5 +327,5 @@ url_editor_dialog_run (UrlEditorDialog *dialog)
 		}
 	}
 
-	gtk_widget_hide_all (dialog);
+	gtk_widget_hide_all (GTK_WIDGET (dialog));
 }

@@ -61,7 +61,6 @@ struct _UrlEditorDialog {
 	GladeXML *gui;
 	EPublishUri *uri;
 
-	GtkWidget *url_editor;
 	GtkWidget *calendar_list_label;
 	GtkWidget *url_entry;
 	GtkWidget *daily;
