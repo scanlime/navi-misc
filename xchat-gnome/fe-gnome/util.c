@@ -1,5 +1,5 @@
 /*
- * error_dialog.c: Simple helper for showing error dialogs
+ * util.c: Helper functions for miscellaneous tasks
  *
  * Copyright (C) 2005 David Trowbridge
  *
@@ -19,7 +19,7 @@
  *
  */
 
-#include "error_dialog.h"
+#include "util.h"
 
 void
 error_dialog (const gchar *header, const gchar *message)
