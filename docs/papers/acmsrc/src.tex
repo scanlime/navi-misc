@@ -132,8 +132,15 @@ optimization process very intuitive.
 
 This approach makes the algorithm particularly suitable to parallel processing.  If the
 system being visualized converges toward a single attractor, many iteraton or integration
-runs can be performed simultaneously.  Periodically, the histograms produced by each
-of these can be merged.  This can dramatically improve the quality of images, and makes
+runs can be performed simultaneously. This algorithm is not only very easy to parallelize, it is
+also very scalable. Each rendering node can individually choose a random
+set of initial conditions then start running iterations.. The only communication necessary between
+nodes is to merge each node's results into one master histogram. The rate at which these merges
+happen can be adjusted, making it easy to scale the total bandwidth required by a cluster.
+At minimum, a merge only needs to happen once just before the final tone-mapping
+step. Realistically, it is helpful to merge histograms more often for interactivity reasons
+or in order to continuously assess the image's current quality level.
+Cluster rendering can dramatically improve the quality of images, and makes
 this technique feasable even for slow computations and high-dimensional systems where a
 plane of section is used to produce the image.
 
