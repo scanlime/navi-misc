@@ -22,7 +22,7 @@ A web interface for CIA's stats:// namespace
 #
 
 from __future__ import division
-import time, math
+import time, math, posixpath
 import Template, Nouvelle
 import Nouvelle.Twisted
 from LibCIA import TimeUtil, Message
@@ -113,18 +113,26 @@ class Counters(Template.Section):
             ]
 
 
-class StatsLink:
+class TargetRelativeLink:
+    """Abstract base class for a link to a stats target or something relative to it"""
+    def __init__(self, target, relativePathSegments=()):
+        self.target = target
+        self.relativePathSegments = tuple(relativePathSegments)
+
+    def getURL(self, context):
+        return context['statsRootPath'] + posixpath.join(*(
+            tuple(self.target.pathSegments) + self.relativePathSegments))
+
+
+class StatsLink(TargetRelativeLink):
     """An anchor tag linking to the given stats target.
        Text for the link may be specified, but by default the
        target's title is used.
        """
     def __init__(self, target, tagFactory=tag('a'), text=None):
-        self.target = target
+        TargetRelativeLink.__init__(self, target)
         self.tagFactory = tagFactory
         self.text = text
-
-    def getURL(self, context):
-        return context['statsRootPath'] + '/'.join(self.target.pathSegments)
 
     def render(self, context):
         text = self.text
@@ -133,7 +141,7 @@ class StatsLink:
         return self.tagFactory(href=self.getURL(context))[text]
 
 
-class MetadataLink:
+class MetadataLink(TargetRelativeLink):
     """An anchor tag linking to an item in the given stats target's metadata.
        Text for the link may be specified, but by default the key is used.
 
@@ -141,16 +149,14 @@ class MetadataLink:
        to the metadata index.
        """
     def __init__(self, target, key=None, tagFactory=tag('a'), text=None):
-        self.target = target
+        segments = ['.metadata']
+        if key:
+            segments.append(key)
+        TargetRelativeLink.__init__(self, target, segments)
+
         self.tagFactory = tagFactory
         self.key = key
         self.text = text
-
-    def getURL(self, context):
-        url = context['statsRootPath'] + '/'.join(self.target.pathSegments) + '/.metadata'
-        if self.key is not None:
-            url += '/' + self.key
-        return url
 
     def render(self, context):
         text = self.text
@@ -162,15 +168,12 @@ class MetadataLink:
         return self.tagFactory(href=self.getURL(context))[text]
 
 
-class RSSLink:
+class RSSLink(TargetRelativeLink):
     """An anchor tag linking to the RSS feed for a given stats target"""
     def __init__(self, target, tagFactory=tag('a'), text=None):
-        self.target = target
+        TargetRelativeLink.__init__(self, target, ('.rss',))
         self.tagFactory = tagFactory
         self.text = text
-
-    def getURL(self, context):
-        return context['statsRootPath'] + '/'.join(self.target.pathSegments) + '/.rss'
 
     def render(self, context):
         text = self.text

@@ -24,6 +24,7 @@ and support for asynchronous rendering using Deferred.
 #
 
 import Nouvelle
+from Nouvelle import xml
 from twisted.web import resource
 from twisted.internet import defer
 from twisted.web import server
@@ -41,7 +42,7 @@ class TwistedSerializer(Nouvelle.Serializer):
         """A wrapper around render() that handles deferred rendering of the web page"""
         result = self.render(obj, context)
         if isinstance(result, defer.Deferred):
-            result.addCallback(self.deferred_renderPage, context)
+            result.addCallback(self.deferredRenderPage, context)
             return server.NOT_DONE_YET
         else:
             return str(result)
@@ -57,16 +58,52 @@ class TwistedSerializer(Nouvelle.Serializer):
         if isinstance(obj, defer.Deferred):
             # Render the deferred when it produces a result, returning our own Deferred
             result = defer.Deferred()
-            obj.addCallback(self.render_deferred, context, result)
+            obj.addCallback(self.deferredRender, context, result)
             return result
         else:
             return Nouvelle.Serializer.render(self, obj, context)
 
-    def render_deferred(self, obj, context, result):
+    def deferredRender(self, obj, context, result):
         """A Deferred callback that renders data when it becomes available, adding the
            result to our 'result' deferred.
            """
         result.callback(self.render(obj, context))
+
+    def render_list(self, obj, context):
+        """A new version of render_list that returns a Deferred
+           if any item in the list is a Deferred.
+           """
+        results = []
+        hasDeferreds = False
+        for item in obj:
+            result = self.render(item, context)
+            results.append(result)
+            if isinstance(result, defer.Deferred):
+                hasDeferreds = True
+
+        # If we had any deferred items, we need to create a DeferredList
+        # so we get notified once all of our content is rendered. Otherwise
+        # we can join them now.
+        if hasDeferreds:
+            deferreds = []
+            for result in results:
+                # Wrap non-deferred objects in deferreds
+                if not isinstance(result, defer.Deferred):
+                    d = defer.Deferred()
+                    d.callback(result)
+                    result = d
+                deferreds.append(result)
+            dl = defer.DeferredList(deferreds)
+
+            # Now once all items in our DeferredList are ready, join them
+            result = defer.Deferred()
+            dl.addCallback(self.deferredRenderList, context, result)
+            return result
+        else:
+            return xml(''.join(results))
+
+    def deferredRenderList(self, obj, context, result):
+        result.callback(xml(''.join([result for success, result in obj])))
 
 
 class Page(resource.Resource):
