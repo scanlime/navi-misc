@@ -988,3 +988,8 @@ navigation_model_remove (NavModel *model, struct session *sess)
 {
 	gtk_tree_model_foreach(GTK_TREE_MODEL(model->store), (GtkTreeModelForeachFunc) navigation_model_remove_iterate, (gpointer) sess);
 }
+
+void
+navigation_mode_get_iter (NavModel *model, GtkTreeIter *iter, struct session *sess)
+{
+}

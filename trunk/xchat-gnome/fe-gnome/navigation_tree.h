@@ -41,8 +41,15 @@ typedef struct _NavModelClass NavModelClass;
 struct _NavTree
 {
   GtkTreeView parent;
+	/* current_path stores a GtkTreePath to the most recently selected
+	 * item in the NavTree.
+	 */
   GtkTreePath *current_path;
+	/* This is the model for the GtkTreeView. */
   NavModel *model;
+	/* We need the handler id for the selection_changed call back so that we
+	 * can block it sometimes.
+	 */
   gulong selection_changed_id;
 };
 
@@ -85,6 +92,8 @@ struct _NavModel
   GObject parent;
   GtkTreeModel *sorted;
   GtkTreeStore *store;
+	/* Stores an iter for each session in the model. */
+  GHashTable *session_iters;
 };
 
 struct _NavModelClass
@@ -99,6 +108,8 @@ NavModel* navigation_model_new  (void);
 void navigation_model_add_new_network (NavModel *model, struct session *sess);
 void navigation_model_add_new_channel (NavModel *model, struct session *sess);
 void navigation_model_remove          (NavModel *model, struct session *sess);
+
+void navigation_model_get_iter        (NavModel *model, GtkTreeIter *iter, struct session *sess);
 
 G_END_DECLS
 
