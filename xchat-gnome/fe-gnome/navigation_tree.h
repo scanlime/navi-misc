@@ -93,7 +93,7 @@ struct _NavModel
 	/* Stores an iter for each session in the model. These iters are for the unsorted
 	 * store.
 	 */
-  GHashTable *session_iters;
+  GHashTable *session_rows;
 };
 
 struct _NavModelClass
@@ -126,8 +126,8 @@ void navigation_model_sorted_iter_unref (NavModel *model, GtkTreeIter *iter);
 /* Returns a GtkTreeIter* to the row containing sess. The iter is for the
  * GtkTreeModelSort, not the unsorted TreeStore.
  */
-GtkTreeIter* navigation_model_get_iter (NavModel *model, struct session *sess);
-
+GtkTreeIter* navigation_model_get_sorted_iter   (NavModel *model, struct session *sess);
+GtkTreeIter* navigation_model_get_unsorted_iter (NavModel *model, struct session *sess);
 G_END_DECLS
 
 #endif
