@@ -24,6 +24,7 @@
 #include "../common/xchatc.h"
 #include "../common/servlist.h"
 #include "../common/fe.h"
+#include "../common/util.h"
 #include "gui.h"
 #include "navigation_tree.h"
 #include "textgui.h"
@@ -332,7 +333,38 @@ void fe_lastlog(session *sess, session *lastlog_sess, char *sstr) {
 }
 
 void fe_set_lag(server *serv, int lag) {
-	/* FIXME: implement */
+	GSList *list = sess_list;
+	session *sess;
+	gdouble per;
+	char tip[64];
+	unsigned long nowtim;
+	session_gui *tgui;
+
+	if(lag == -1) {
+		if(!serv->lag_sent)
+			return;
+		nowtim = make_ping_time();
+		lag = (nowtim - serv->lag_sent) / 100000;
+	}
+
+	per = (double)((double)lag / 40.0);
+	if(per > 1.0)
+		per = 1.0;
+	snprintf(tip, sizeof(tip) - 1, "Lag: %s%d.%ds", serv->lag_sent ? "+" : "", lag / 10, lag % 10);
+	while(list) {
+		sess = list->data;
+		if(sess->server == serv) {
+			tgui = (session_gui*) sess->gui;
+			tgui->lag_value = per;
+			if(tgui->lag_text)
+				free(tgui->lag_text);
+			tgui->lag_text = strdup(tip);
+		}
+		list = list->next;
+	}
+	if(serv == gui.current_session->server) {
+		set_statusbar();
+	}
 }
 
 void fe_set_throttle (server *serv) {

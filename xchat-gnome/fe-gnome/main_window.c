@@ -430,3 +430,15 @@ gboolean on_hpane_move(GtkWidget *widget, gpointer data) {
 	preferences_set_main_window_h_position(pos);
 	return FALSE;
 }
+
+void set_statusbar() {
+	GtkWidget *appbar;
+	session_gui *tgui;
+	if(gui.current_session == NULL)
+		return;
+	appbar = glade_xml_get_widget(gui.xml, "appbar1");
+	tgui = (session_gui *) gui.current_session->gui;
+	if(tgui->lag_text != NULL) {
+		gnome_appbar_set_status(GNOME_APPBAR(appbar), tgui->lag_text);
+	}
+}

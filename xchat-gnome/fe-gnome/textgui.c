@@ -71,6 +71,7 @@ void text_gui_add_text_buffer(struct session *sess) {
 	else
 		tgui->topic = g_strdup(sess->topic);
 	tgui->entry = g_strdup("");
+	tgui->lag_text = NULL;
 }
 
 void text_gui_remove_text_buffer(struct session *sess) {
