@@ -61,7 +61,7 @@ struct _CellEditableTableClass {
 };
 
 GType      cell_editable_table_get_type();
-GtkWidget* cell_editable_table_new();
+GtkWidget* cell_editable_table_new(guint rows, guint columns, gboolean homogeneous);
 
 G_END_DECLS
 

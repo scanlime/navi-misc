@@ -10,7 +10,8 @@ HEADERS = \
 	src/explorer.h		\
 	src/animation.h		\
 	src/chunked-file.h	\
-	src/cell-editable-table.h
+	src/cell-editable-table.h \
+	src/cell-renderer-transition.h
 
 OBJS    = \
 	src/main.o		\
@@ -20,7 +21,8 @@ OBJS    = \
 	src/color-button.o	\
 	src/animation.o		\
 	src/chunked-file.o	\
-	src/cell-editable-table.o
+	src/cell-editable-table.o \
+	src/cell-renderer-transition.o
 
 
 $(BIN): $(OBJS)

@@ -22,6 +22,7 @@
 
 #include "explorer.h"
 #include "color-button.h"
+#include "cell-renderer-transition.h"
 #include <stdlib.h>
 #include <math.h>
 
@@ -881,23 +882,14 @@ static void explorer_init_animation(Explorer *self) {
 
   gtk_tree_view_append_column(tv, col);
 
-  /* The second column displays and edits all transition parameters
+  /* The second column displays and edits all transition parameters.
+   * This is all implemented by our custom CellRendererTransition object.
    */
   col = gtk_tree_view_column_new();
   gtk_tree_view_column_set_title(col, "Transition");
 
-  renderer = gtk_cell_renderer_text_new();
-  g_object_set(renderer, "editable", TRUE, NULL);
+  renderer = cell_renderer_transition_new();
   gtk_tree_view_column_pack_start(col, renderer, TRUE);
-  gtk_tree_view_column_set_attributes(col, renderer,
-				      "text", ANIMATION_MODEL_DURATION,
-				      NULL);
-
-  renderer = gtk_cell_renderer_text_new();
-  gtk_tree_view_column_pack_start(col, renderer, TRUE);
-  gtk_tree_view_column_set_attributes(col, renderer,
-				      "text", ANIMATION_MODEL_DURATION,
-				      NULL);
 
   gtk_tree_view_append_column(tv, col);
 }
