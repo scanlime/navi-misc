@@ -166,11 +166,10 @@ bool CTestGame::Think ( void )
 				message.AddV(localPlayer->vec);
 				message.Send(network.GetServerPeer(),false);
 				lastNetUpdateTime = CTimer::instance().GetTime();
-			}
+			}	
+			// let the drawables update themseves ( if they exist )
+			CDrawManager::instance().ThinkAll();
 		}
-
-		// let the drawables update themseves ( if they exist )
-		CDrawManager::instance().ThinkAll();
 	}
 	else
 	{
