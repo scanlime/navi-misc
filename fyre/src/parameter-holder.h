@@ -139,8 +139,7 @@ const gchar*      param_spec_get_group      (GParamSpec  *pspec);
 
 const ParameterIncrements* param_spec_get_increments (GParamSpec  *pspec);
 
-GParamSpec*       param_spec_get_dependency (GParamSpec  *pspec,
-					     GParamSpec  *dependency);
+GParamSpec*       param_spec_get_dependency (GParamSpec  *pspec);
 
 
 G_END_DECLS
