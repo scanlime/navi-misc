@@ -165,6 +165,7 @@ class Reader:
               | CaselessLiteral('notexalpha')
               | CaselessLiteral('noculling')
               | CaselessLiteral('nosorting')
+              | Group(CaselessLiteral('alphathresh') + float)
               | Group(CaselessLiteral('texmat') + localReference)
               | Group(CaselessLiteral('dyncol') + localReference)
               | Group(ambient + rgbaColor)
