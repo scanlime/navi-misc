@@ -60,14 +60,25 @@ public class updater
 	public static void mainLoop(String filename)
 	{
 		String cmd;
+		String notice;
+		String qb, qt, ab, at;
 		while(true)
 		{
 			cmd = read();
 			switch(cmd.charAt(0))
 			{
 			case 'a':
+				qb = read();
+				qt = read();
+				ab = read();
+				at = read();
+				head = new element(head,qb,qt,ab,at);
+				updatePage(filename);
 				break;
 			case 'n':
+				notice = read();
+				head = new element(head,notice);
+				updatePage(filename);
 				break;
 			case 'q':
 				return;
@@ -85,7 +96,15 @@ public class updater
 	{
 		try 
 		{ 
+			element temp = head;
 			PrintWriter outfile = new PrintWriter(new BufferedWriter(new FileWriter(filename)));
+			outfile.println(element.strgs.header);
+			while(temp != null)
+			{
+				outfile.println(temp);
+				temp = temp.next;
+			}
+			outfile.println(element.strgs.footer);
 			outfile.close();
 		}
 		catch(IOException exception)
@@ -96,9 +115,8 @@ public class updater
 		write("+OK");
 	}
 
-/**********************************************************************************/
-	//just the typical network single line read/write stuff, to make it all happy and good
-	
+/******************************************************************************/
+
 	/**
 	 * This method reads a string from the socket
 	 * @author Brandon Smith
