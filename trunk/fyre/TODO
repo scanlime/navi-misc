@@ -11,6 +11,12 @@ Element.cs:
   * Implement XML serialization
   * Implement edge tracking - guid + pad#
 
+ErrorDialog.cs:
+  * It might be nice to have multiple classes in here to handle different
+	levels of errors - warnings, fatal errors, confirmations, etc.
+	This would require generalizing the glade file a little and
+	extracting some stuff (like label assembly) into a base class.
+
 Pipeline.cs:
   * This needs lots of design work before implementation can go forward.
   * We'll need some way to keep track of annotations (maybe composite).
@@ -25,6 +31,12 @@ PipelineDrawing.cs:
 	show up as garbage.  It may not be possible to do this with Gtk#
 	right now, but it would be nice to get these working.
   * Add drawing code
+
+PluginManager.cs:
+  * Use the ErrorDialog to display any errors that occur when loading
+	plugins. It might be handy to do something like inkscape and
+	allow the user to turn off display of these errors, but that
+	would require introducing preferences of some sort.
 
 Plugins all need element-specific implementation
   * serialization
