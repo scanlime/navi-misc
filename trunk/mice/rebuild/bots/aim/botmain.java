@@ -99,23 +99,8 @@ public class botmain implements JaimEventListener
 		System.out.println(im.getFrom()+"->"+Utils.stripHTML(im.getMsg()));
 		String from = im.getFrom();
 		String message = Utils.stripHTML(im.getMsg());
-		
-		if(from.compareTo("gonkulator2") == 0)
-		{
-			sendMessage(message,"Hi " + message + " I'm a big bot now!");
-		}
-		else if(from.compareTo("gonkulator3") == 0)
-		{
-			StringTokenizer foo = new StringTokenizer(message,";",false);
-			String too = foo.nextToken();
-			String say = foo.nextToken();
-			sendMessage(too,say);
-		}
-		else
-		{
-			sendMessage(im.getFrom(),"Hello "+im.getFrom());
-			sendMessage("gonkulator2",from+" said "+message);
-		}
+		sendMessage(im.getFrom(),"Hello "+im.getFrom());
+		sendMessage("gonkulator2",from+" said "+message);
 	}
 
 	private void receiveBuddyUpdate(BuddyUpdateTocResponse bu)
