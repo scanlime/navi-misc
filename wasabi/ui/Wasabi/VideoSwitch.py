@@ -48,7 +48,7 @@ class Device(object):
 
         # Add ourselves to the main loop if we have one
         self.activeChannels = []
-        Event.attach(self, "onChannelActive", "onChannelInactive")
+        Event.attach(self, "onChannelActive", "onChannelInactive", "onActiveChannelsChanged")
 
         if eventLoop:
             eventLoop.add(self)
@@ -131,5 +131,6 @@ class Device(object):
             if not channel in newActiveChannels:
                 self.onChannelInactive(channel)
         self.activeChannels = newActiveChannels
+        self.onActiveChannelsChanged()
 
 ### The End ###
