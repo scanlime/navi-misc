@@ -123,5 +123,4 @@ class XMLLink(TargetRelativeLink):
             text = "Unformatted XML"
         return self.tagFactory(href=self.getURL(context))[text]
 
-
 ### The End ###
