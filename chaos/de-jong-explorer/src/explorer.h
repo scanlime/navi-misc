@@ -58,7 +58,8 @@ struct _Explorer {
   guint idler;
   gboolean setting_params;
   gboolean just_resized;
-  GTimeVal last_update;
+  GTimeVal last_gui_update;
+  GTimeVal last_icon_update;
 
   gchar* current_tool;
   gboolean tool_active;
