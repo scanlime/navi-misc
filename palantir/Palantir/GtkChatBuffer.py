@@ -23,18 +23,19 @@ class GtkChatBuffer(gtk.TextView):
     #self.modify_bg(gtk.STATE_NORMAL, gtk.gdk.Color(235, 235, 235))
 
 
-  def DisplayText(self, time, nick, msg, nickends=(' ',' '),highlight=False):
+  def DisplayText(self, time, nick, msg, nickends=(' ',' '), highlight=False):
+    ''' Called to display msg in the buffer.  'nickends' go around the nick. '''
     buffer = self.get_buffer()
     buffer.insert(buffer.get_end_iter(), time + nickends[0] + nick + nickends[1] + msg + '\n')
-    buffer.place_cursor(buffer.get_end_iter())
 
+    # Apply highlighting tags.
     if highlight:
       bounds = buffer.get_end_iter().backward_search(nick.strip(string.join(nickends,(' '))), 1)
       buffer.apply_tag_by_name('highlight', bounds[0], bounds[1])
 
     iter = buffer.get_end_iter()
-    print iter.get_line()
     iter.backward_line()
+
     for end in nickends:
       bounds = iter.forward_search(end.strip(), 1)
       if bounds:

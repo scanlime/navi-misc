@@ -22,7 +22,7 @@ class PalantirWindow:
   ''' Creates the main window. '''
   def __init__(self):
     ''' Create the layout tree from the .glade file and connect everything. '''
-    self.tree = gtk.glade.XML('palantirMain.glade')
+    self.tree = gtk.glade.XML('data/palantirMain.glade')
 
     # Connect the functions to their appropriate widgets.  By convention all callbacks
     # for the window start with 'on_' and match the name of the callback defined in
@@ -145,7 +145,7 @@ class PalantirWindow:
 	'''
     nick = self.GetNick(user)
     image = gtk.Image()
-    image.set_from_file('pixmaps/dm.png')
+    image.set_from_file('/usr/share/palantir/pixmaps/dm.png')
     self.tree.get_widget('UserList').get_model().foreach(self.setUserIcon, (nick, image.get_pixbuf()))
     self.messageReceive(None, channel, '*** ' + nick + ' now has DM status.')
 
@@ -231,7 +231,7 @@ class PalantirWindow:
     store = self.tree.get_widget('UserList').get_model()
     image = gtk.Image()
     if widget.get_active():
-      image.set_from_file('pixmaps/dm.png')
+      image.set_from_file('/usr/share/palantir/pixmaps/dm.png')
       text = '*** You now have DM status.'
       ctcp = ('DM',None)
     else:
