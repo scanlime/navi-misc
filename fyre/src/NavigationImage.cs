@@ -103,7 +103,20 @@ namespace Fyre
 
 			Gdk.Rectangle i;
 			if (area.Intersect (mouse_r, out i))
-				backing.DrawRectangle (black, false, mouse_r);
+				DrawMouseBox (mouse_r);
+		}
+
+		void
+		DrawMouseBox (Gdk.Rectangle mouse)
+		{
+			backing.DrawRectangle (black, false, mouse);
+
+			mouse.X += 1;
+			mouse.Y += 1;
+			mouse.Width -= 2;
+			mouse.Height -= 2;
+
+			backing.DrawRectangle (black, false, mouse);
 		}
 
 		protected override bool
