@@ -1,6 +1,6 @@
 #include <usb.h>
 #include <stdio.h>
-#include "include/rwand_protocol.h"
+#include <rwand_protocol.h>
 
 usb_dev_handle *open_rwand(void) {
   struct usb_bus *busses;
@@ -25,6 +25,14 @@ usb_dev_handle *open_rwand(void) {
   return NULL;
 }
 
+void control_write(usb_dev_handle *d, int request, int value, int index) {
+  if (usb_control_msg(d, USB_TYPE_VENDOR, request,
+		      value, index, NULL, 0, 500) < 0) {
+    perror("usb_control_msg");
+    exit(1);
+  }
+}
+
 int main(int argc, char **argv) {
   usb_dev_handle *d = open_rwand();
   unsigned char c[8];
@@ -32,31 +40,12 @@ int main(int argc, char **argv) {
   if (!d)
     return 1;
 
-  if (usb_control_msg(d, USB_TYPE_VENDOR, RWAND_CTRL_SET_PREDICTION,
-		      0, 43000, NULL, 0, 500) < 0)
-    perror("usb_control_msg");
-  if (usb_control_msg(d, USB_TYPE_VENDOR, RWAND_CTRL_SET_COIL_PHASE,
-		      8000, 15000, NULL, 0, 500) < 0)
-    perror("usb_control_msg");
-
-  while (1) {
-    if (usb_control_msg(d, USB_TYPE_VENDOR | USB_ENDPOINT_IN, 1,
-			0, 0, c, 8, 500) < 0)
-      perror("usb_control_msg");
-    if (usb_control_msg(d, USB_TYPE_VENDOR | USB_ENDPOINT_IN, 2,
-			0, 0, x, 4, 500) < 0)
-      perror("usb_control_msg");
-
-    printf("Poing %d %d %d %d - %d %d\n",
-	   c[0] | (c[1] << 8),
-	   c[2] | (c[3] << 8),
-	   c[4] | (c[5] << 8),
-	   c[6] | (c[7] << 8),
-	   x[0] | (x[1] << 8),
-	   x[2] | (x[3] << 8));
-
-    usleep(1000);
-  }
+  control_write(d, RWAND_CTRL_SET_MODES,
+		RWAND_MODE_ENABLE_SYNC |
+		RWAND_MODE_ENABLE_COIL |
+		RWAND_MODE_ENABLE_DISPLAY,
+		0);
+  control_write(d, RWAND_CTRL_SET_COIL_PHASE, 8000, 15000);
 
   return 0;
 }
