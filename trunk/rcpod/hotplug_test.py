@@ -9,6 +9,9 @@
 import pyrcpod, time
 
 oldList = pyrcpod.devices[:]
+print "Initial device list: %r" % (oldList,)
+print "Scanning for changes..."
+
 while 1:
     pyrcpod.scanForDevices()
     newList = pyrcpod.devices[:]
