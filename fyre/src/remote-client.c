@@ -368,11 +368,17 @@ void           remote_client_send_param       (RemoteClient*     self,
     g_value_init(&strval, G_TYPE_STRING);
     g_value_transform(&val, &strval);
     string = g_value_get_string(&strval);
-    g_assert(string != NULL);
 
-    self->pending_param_changes++;
-    remote_client_command(self, set_param_callback, NULL, "set_param %s = %s",
-			  name, string);
+    /* 'string' will be NULL if the value couldn't be serialized- currently
+     * this happens for colors, since we get the GdkColor property rather than
+     * the corresponding string property. Currently this isn't a problem since
+     * render nodes don't deal with colors, but it's something to be aware of.
+     */
+    if (string) {
+	self->pending_param_changes++;
+	remote_client_command(self, set_param_callback, NULL, "set_param %s = %s",
+			      name, string);
+    }
 
     g_value_unset(&strval);
     g_value_unset(&val);
