@@ -352,12 +352,32 @@ CRobotPlayer::CRobotPlayer()
 	if (!playerInfo)
 		return false;
 
+	// some constants
+	float grav = -10.0f;
+
 	// just make it spin
 	playerInfo->rot[2] += 0.5f;
+
+	// make em fall if they are all up high
+	if (playerInfo->pos[2] > 0)
+	{
+		if ( playerInfo->vec[2] <= 0)
+			playerInfo->vec[2] = grav;
+	}
+	else
+		playerInfo->vec[2] = 0;
+
+	// apply bot physics
+	float updateTime = (float)CTimer::instance().GetFrameTime();
+	playerInfo->pos[0] += playerInfo->vec[0]*updateTime;
+	playerInfo->pos[1] += playerInfo->vec[1]*updateTime;
+	playerInfo->pos[2] += playerInfo->vec[2]*updateTime;
 
 	float botUpdateTime = 1.0f/0.5f;
 	if (CTimer::instance().GetTime() - lastUpdateTime > botUpdateTime )
 		return true;
+	else
+		return false;
  }
 
  bool CRobotPlayer::message ( CNetworkMessage &message )
