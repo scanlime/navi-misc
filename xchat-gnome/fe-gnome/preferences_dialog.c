@@ -2,12 +2,15 @@
 #include "preferences_servers_page.h"
 
 void initialize_pages_list();
+void hide_preferences_dialog(GtkWidget *widget, gpointer data);
 void initialize_irc_preferences_page();
 void initialize_file_transfers_page();
 void initialize_servers_page();
 void settings_page_changed(GtkTreeSelection *selection, gpointer data);
 
 void initialize_preferences_dialog() {
+	GtkWidget *close_button;
+
 	gui.preferences_dialog = GTK_DIALOG(glade_xml_get_widget(gui.xml, "preferences"));
 	gtk_window_set_transient_for(GTK_WINDOW(gui.preferences_dialog), GTK_WINDOW(gui.main_window));
 	gtk_widget_hide_all(GTK_WIDGET(gui.preferences_dialog));
@@ -16,6 +19,13 @@ void initialize_preferences_dialog() {
 	initialize_irc_preferences_page();
 	initialize_file_transfers_page();
 	initialize_preferences_servers_page();
+
+	close_button = glade_xml_get_widget(gui.xml, "close preferences");
+	g_signal_connect(G_OBJECT(close_button), "clicked", G_CALLBACK(hide_preferences_dialog), NULL);
+}
+
+void hide_preferences_dialog(GtkWidget *widget, gpointer data) {
+	gtk_widget_hide_all(GTK_WIDGET(gui.preferences_dialog));
 }
 
 void initialize_pages_list() {
