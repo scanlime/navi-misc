@@ -98,11 +98,11 @@ Dependencies
 - Python 2.2.1 or later
 - Twisted 1.1.1 or later
 - PyGTK 2.0 or later for the GUI tools
-- PyXML
+- PyXML 0.8.4 or later (earlier versions had a disasterous pyexpat memory leak)
 - MySQL (MUST have support for the InnoDB table type)
 - Nouvelle_ (latest svn)
 - Docutils_
-- the `Python Imaging Library`_ (1.1.5a3 or later preferred, but 1.1.4 will work)
+- the `Python Imaging Library`_ 1.1.5a3 or later (1.1.4 has problems loading some PNGs)
 - PyCAPTCHA_ for adding new users via the web interface
 - Graphviz_ and Sodipodi_ to generate graphs
 - Procmail_ for the e-mail interface
