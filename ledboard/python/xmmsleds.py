@@ -373,7 +373,7 @@ class PlayingState(VisualizerState):
             # Corner effects
             [ [BeatMapEffect(self.vis, {'group': 'corners', 'color': 'blue'},  'x', 0, 0, 0.3),
                BeatMapEffect(self.vis, {'group': 'corners', 'color': 'white'}, 'x', 0, 4)],
-	      ],
+              ],
             ]
         
         self.resetEffect()
