@@ -46,6 +46,11 @@
 ;// set according to the MI6K_STATUS_* constants.
 #define MI6K_CTRL_STATUS		0x04
 
+;// Queue one pulse and space to be sent via the IR transmitter.
+;// Pulse length is in wValue and space length is in wIndex.
+;// Both are specified in number of 38khz cycles.
+#define MI6K_CTRL_IR_SEND		0x05
+
 ;//************************************************** Status bits
 
 ;// Set if external power is available
