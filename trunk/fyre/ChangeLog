@@ -1,6 +1,10 @@
 0.9
-	* Made the about box cooler than sliced cheese
+	* Made the about box the coolest thing since sliced cheese
 	* Added keybindings for zoom presets
+	* Added an index to AVI files created with the animation renderer,
+	  allowing them to be played in Windows Media Player
+	* Added file associations for image/png, application/x-fyre-animation
+	* Minor bugfixes and UI polishing
 
 0.8 (27 January 2005)
 	* Minor bugfixes
