@@ -35,6 +35,8 @@ class GtkChatBuffer(gtk.ScrolledWindow):
 
     if time:
       time = '[' + string.join([str(field) for field in time],':') + '] '
+    else:
+      time = ''
 
     buffer.insert(buffer.get_end_iter(),time + nick + text + '\n')
 
