@@ -21,6 +21,8 @@
 ;
 ;###############################################################################
 
+	errorlevel -226
+
 #include <p16C745.inc>
 #include "usb_defs.inc"
 #include "../include/gchub_protocol.h"
@@ -49,7 +51,7 @@ defineRequest	macro	id,	handler
 	endm
 
 CheckVendor
-	defineRequest	GCHUB_CTRL_SET_RUMBLE,		request_setRumble
+	defineRequest	GCHUB_CTRL_SET_STATUS,		request_setStatus
 
 	pagesel	wrongstate		; Not a recognized request
 	goto	wrongstate
@@ -67,11 +69,18 @@ returnEmpty		macro
 
 ;********************************************** Request handlers
 
-request_setRumble
-	banksel BufferData
+request_setStatus
+
+	banksel BufferData		; LEDs
+	movf	BufferData+wIndex, w
+	banksel	PORTB
+	movwf	PORTB
+
+	banksel BufferData		; Rumble bits
 	movf	BufferData+wValue, w
 	banksel	rumble_bits
 	movwf	rumble_bits
+
 	returnEmpty
 
 	end

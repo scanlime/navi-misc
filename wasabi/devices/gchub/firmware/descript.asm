@@ -37,6 +37,8 @@
 ;
 ;################################################################################
 
+	errorlevel -226
+
 #include <p16C745.inc>
 #include "usb_defs.inc"
 #include "../include/gchub_protocol.h"

@@ -40,36 +40,10 @@
 
 ;//************************************************** Control requests
 
-;// Set the polling status for all ports, and the LED indicator status.
-;// wValue's high byte and low byte are two LED status bytes that we
-;// periodically alternate between, for blink effects. wIndex is divided
-;// into four nybbles, giving polling status for each port starting with the
-;// least significant nybble.
-
-#define GCHUB_CTRL_SET_STATUS         0x01
-
-;// Each port's polling status is defined by 4 bits:
-;// zero disables that port, other values poll using the string indicated
-;// in the low three bits. If the high bit is one, the polling is repeated,
-;// otherwise after polling once the status nybble resets to zero. This
-;// means that strings 0 to 7 are usable in auto-repeat mode, while only
-;// 1 through 7 are usable in one-shot mode.
-
-;// The polling strings are defined in a 32-byte block of RAM that is
-;// downloaded using the following commands. This makes our firmware
-;// and hardware potentially compatible with gamecube hardware other
-;// than the controllers.
-
-;// Seek to the address given in the high byte of wIndex, then
-;// contiguously write the low byte of wIndex, the high byte of
-;// wValue, and the low byte of wValue. Writes that exceed the
-;// capacity of the string buffer are ignored.
-#define GCHUB_CTRL_WRITE_STRINGS      0x02
-
-;// This 32-byte block of RAM begins with 8 start addresses, corresponding
-;// to the strings referred to by the polling status nybbles. These start
-;// addresses point to strings, each of which begin with a length byte
-;// that counts the number of following data bytes.
+;// Set the rumble motor and LED status. LEDs are packed into
+;// the low 8 bits of wIndex, the rumble motor enable bits for
+;// each controller are in the four LSBs of wValue.
+#define GCHUB_CTRL_SET_STATUS    0x01
 
 
 ;//************************************************** Endpoints
