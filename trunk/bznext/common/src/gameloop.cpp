@@ -28,7 +28,7 @@
 #include "gameloop.h"
 #include "events.h"
 #include "osfile.h"
-#include <SDL/SDL.h>
+#include <SDL.h>
 
 // C RunTime Header Files
 #include <stdlib.h>
