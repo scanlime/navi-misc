@@ -7,7 +7,7 @@
 #define INDEX(length, min, max, value)   (((value)-(min))*(length)/((max)-(min)))
 // #define ENERGY 0.08333
 #define ENERGY 0.125
-#define POINTS 20000
+#define POINTS 4000
 
 /* axes:
  * x:  [-0.5, 1.0]
@@ -17,7 +17,7 @@
 HistogramPlot plot;
 HistogramImager *hi;
 int w, h;
-long iterations;
+long long iterations;
 
 void ode (float *last, float *deriv, float time)
 {
@@ -38,12 +38,13 @@ void py (float *point)
 	point[3] = sqrt (-1*(x*x + y*y + 2.0*x*x*y - (2.0/3)*y*y*y + px*px - 2*ENERGY));
 }
 
-int hhrun (float *point)
+long hhrun (float *point)
 {
 	float point1[5], point2[5];
 	float *a, *b, *c;
 	float t = 0, tdelt = 0.001;
-	int i, xi, yi;
+	int xi, yi;
+	long i;
 	int points = 0;
 	float *scratch = g_new0 (float, 5 * 6);
 
@@ -71,8 +72,6 @@ int hhrun (float *point)
 			points++;
 			if (points % 100 == 0)
 				fprintf (stderr, ".");
-			if (points % 2000 == 0)
-				fprintf (stderr, "\n    ");
 		}
 		t += tdelt;
 
@@ -103,6 +102,8 @@ int main (int argc, char **argv)
 
 	srand (time (NULL));
 
+	iterations = 0;
+
 	histogram_imager_get_hist_size (hi, &w, &h);
 	histogram_imager_prepare_plots (hi, &plot);
 
@@ -118,11 +119,15 @@ int main (int argc, char **argv)
 	point[4] = 0;
 
 	py (point);
-	fprintf (stderr, "running integration for point (%f, %f, %f, %f)\n    ", point[0], point[1], point[2], point[3]);
-	iterations = hhrun (point);
 
-	histogram_imager_finish_plots (hi, &plot);
-	filename = g_strdup_printf ("%f-%f-%f-%f--%d.png", point[0], point[1], point[2], point[3], iterations);
-	histogram_imager_save_image_file (hi, filename);
-	g_free (filename);
+	fprintf (stderr, "running integration for point (%f, %f, %f, %f)\n    ", point[0], point[1], point[2], point[3]);
+	while (1) {
+		iterations += hhrun (point);
+
+		histogram_imager_finish_plots (hi, &plot);
+		filename = g_strdup_printf ("%f-%f-%f-%f--%d.png", point[0], point[1], point[2], point[3], iterations);
+		histogram_imager_save_image_file (hi, filename);
+		g_free (filename);
+		g_print ("Completed %d iterations\n", iterations);
+	}
 }
