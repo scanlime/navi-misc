@@ -137,7 +137,7 @@ class CommitFormatter(Message.Formatter):
         else:
             formattedFiles = ""
 
-        module = XML.dig(message.xml, "message", "body", "source", "module")
+        module = XML.dig(message.xml, "message", "source", "module")
         if module:
             formattedModule = self.format_module(XML.shallowText(module).strip())
         else:
