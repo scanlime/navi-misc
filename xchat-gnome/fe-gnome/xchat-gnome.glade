@@ -49,7 +49,7 @@
 			  <accelerator key="N" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image936">
+			    <widget class="GtkImage" id="image959">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">stock_link.png</property>
 			      <property name="xalign">0.5</property>
@@ -171,7 +171,7 @@
 			  <signal name="activate" handler="on_insert_color_code1_activate" last_modification_time="Sat, 24 Jan 2004 17:22:02 GMT"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image937">
+			    <widget class="GtkImage" id="image960">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-select-color</property>
 			      <property name="icon_size">1</property>
@@ -205,7 +205,7 @@
 			  <signal name="activate" handler="on_information1_activate" last_modification_time="Fri, 23 Jan 2004 03:53:48 GMT"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image938">
+			    <widget class="GtkImage" id="image961">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-dialog-info</property>
 			      <property name="icon_size">1</property>
@@ -234,7 +234,7 @@
 			  <accelerator key="R" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image939">
+			    <widget class="GtkImage" id="image962">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-refresh</property>
 			      <property name="icon_size">1</property>
@@ -257,7 +257,7 @@
 			  <accelerator key="D" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image940">
+			    <widget class="GtkImage" id="image963">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-stop</property>
 			      <property name="icon_size">1</property>
@@ -296,7 +296,7 @@
 			  <accelerator key="C" modifiers="GDK_MOD1_MASK" signal="activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image941">
+			    <widget class="GtkImage" id="image964">
 			      <property name="visible">True</property>
 			      <property name="stock">gnome-stock-text-bulleted-list</property>
 			      <property name="icon_size">1</property>
@@ -411,7 +411,7 @@
 			  <accelerator key="B" modifiers="GDK_MOD1_MASK" signal="activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image942">
+			    <widget class="GtkImage" id="image965">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-dialog-warning</property>
 			      <property name="icon_size">1</property>
@@ -446,7 +446,7 @@
 			  <accelerator key="Left" modifiers="GDK_MOD1_MASK" signal="activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image943">
+			    <widget class="GtkImage" id="image966">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-goto-first</property>
 			      <property name="icon_size">1</property>
@@ -468,7 +468,7 @@
 			  <accelerator key="Right" modifiers="GDK_MOD1_MASK" signal="activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image944">
+			    <widget class="GtkImage" id="image967">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-goto-last</property>
 			      <property name="icon_size">1</property>
@@ -496,7 +496,7 @@
 			  <accelerator key="Left" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image945">
+			    <widget class="GtkImage" id="image968">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-go-back</property>
 			      <property name="icon_size">1</property>
@@ -518,7 +518,7 @@
 			  <accelerator key="Right" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image946">
+			    <widget class="GtkImage" id="image969">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-go-forward</property>
 			      <property name="icon_size">1</property>
