@@ -44,9 +44,12 @@ EXTRA_DIST =				\
 	setup_druid.c			\
 	textgui.h			\
 	textgui.c			\
+	transfers.h			\
+	transfers.c			\
 	userlist_gui.h			\
 	userlist_gui.c			\
 	channel-list.glade		\
+	transfers.glade			\
 	xchat-gnome.glade
 
 xchat_gnome_LDADD = ../common/libxchatcommon.a $(GUI_LIBS)
@@ -87,6 +90,8 @@ xchat_gnome_SOURCES =			\
 	setup_druid.c			\
 	textgui.h			\
 	textgui.c			\
+	transfers.h			\
+	transfers.c			\
 	userlist_gui.h			\
 	userlist_gui.c			\
 	xtext.h				\
@@ -119,5 +124,8 @@ gui.o:		$(srcdir)/gui.c
 
 channel_list.o:	$(srcdir)/channel_list.c
 	$(COMPILE)  -DXCHATSHAREDIR=\"$(xchatsharedir)\" -c $(srcdir)/channel_list.c
+
+transfers.o:	$(srcdir)/transfers.c
+	$(COMPILE)  -DXCHATSHAREDIR=\"$(xchatsharedir)\" -c $(srcdir)/transfers.c
 
 SUBDIRS = data

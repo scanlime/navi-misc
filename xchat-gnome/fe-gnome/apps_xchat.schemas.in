@@ -186,5 +186,27 @@
       </locale>
     </schema>
 
+    <!-- file transfers window -->
+    <schema>
+      <key>/schemas/apps/xchat/transfers_window/width</key>
+      <applyto>/apps/xchat/transfers_window/width</applyto>
+      <owner>xchat</owner>
+      <type>int</type>
+      <default>0</default>
+      <locale name="C">
+        <short>Transfers window width</short>
+      </locale>
+    </schema>
+    <schema>
+      <key>/schemas/apps/xchat/transfers_window/height</key>
+      <applyto>/apps/xchat/transfers_window/height</applyto>
+      <owner>xchat</owner>
+      <type>int</type>
+      <default>0</default>
+      <locale name="C">
+        <short>Transfers window height</short>
+      </locale>
+    </schema>
+
   </schemalist>
 </gconfschemafile>
