@@ -1,8 +1,13 @@
-class i2c_bus:
-    def __init__(self, pic):
+class MultiBus:
+    """Multiple I2C busses, with data lines all connected to one port (currently PORTB)
+       and clock shared (pin RA0)
+
+       busMask: mask of bits on PORTB being used for I2C busses
+       """
+    def __init__(self, pic, busMask=0xFF):
         self.pic	= pic
-        self.busmask	= 0x03					# 0000 0001 - i2c bus on RB0
-	self.pic.poke('trisa', 0x00)				# all output
+        self.busmask	= busMask
+	self.pic.poke('trisa', 0xFE)				# clock line set to output
 
     def start(self):
         self.pic.poke('trisb', self.busmask)			# bus high
