@@ -406,7 +406,7 @@ def format(text, *codeNames):
        """
     if codeNames:
         codes = "".join([str(FormattingCode(codeName)) for codeName in codeNames])
-        return code + text + str(FormattingCode('normal'))
+        return codes + text + str(FormattingCode('normal'))
     else:
         return text
 
