@@ -99,4 +99,10 @@ the XP3 into a rasterwand device.
     - The kernel module needs to use different coil timings, since
       mechanically the XP3 and ravinia clocks are slightly different.
 
+21. For best results, add a strip of adhesive-backed foam along the inside
+    of the outer edge on the back half of the case, where the wand would
+    hit if it was swinging too fast. This will let you use a wide coil
+    pulse without having to worry too much about annoying noises and
+    potential damage if the wand hits the side of the case.
+
 --- The End ---
