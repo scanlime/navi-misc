@@ -1,6 +1,12 @@
-I really want new stopping conditions, at the very least a way
-    to limit animation frames by wallclock time rather than density.
-    Maybe change "Target density: ___" to smoething of the form "Stop
-    frames at: ______ [density|seconds]"
+* Fyre really needs new stopping conditions, the 'target density' is
+  easily confused by spirals and other statistically odd images.
+  An easy workaround would be to add a way to limit by iterations
+  or wallclock time, but that would be silly.
 
-Get .fa document icon working in linux
+  Currently, highest on my list of things to try is doing a
+  1-D histogram of the values in our HistogramImager- then use that
+  to throw out extremes and compute an average samples per bucket
+  for the remainder of the image. This would let us have a 'quality'
+  parameter that's proportional to samples per bucket.
+
+* Get .fa document icon working in linux
