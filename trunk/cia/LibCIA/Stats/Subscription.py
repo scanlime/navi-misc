@@ -29,6 +29,7 @@ from twisted.internet import defer
 from urlparse import urlparse
 from LibCIA import RpcServer, Database
 import time, cPickle
+from Target import StatsTarget
 
 
 class SubscriptionInterface(RpcServer.Interface):

@@ -23,63 +23,11 @@ used to cache thumbnails generated with PIL.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from twisted.web import xmlrpc
 from twisted.internet import defer
-from LibCIA import RpcServer, Database, Cache
+from LibCIA import Database, Cache
 import time
 from cStringIO import StringIO
 import Image
-
-
-class MetadataInterface(RpcServer.Interface):
-    """An XML-RPC interface for querying and modifying stats metadata"""
-    def wrapTuple(self, t):
-        """Wrap the value in a (value, type) tuple in an xmlrpc.Binary
-           if the type doesn't start with text/.
-           """
-        if t and not t[1].startswith("text/"):
-            return (xmlrpc.Binary(t[0]), t[1])
-        else:
-            return t
-
-    def xmlrpc_get(self, path, name, default=False):
-        """Get a (value, type) tuple for the metadata key with the given
-           name, returning 'default' if it isn't found
-           """
-        result = defer.Deferred()
-        StatsTarget(path).metadata.get(name, default).addCallback(
-            self._get, result).addErrback(result.errback)
-        return result
-
-    def _get(self, t, result):
-        """Backend for get() that ensures the results are serializable"""
-        result.callback(self.wrapTuple(t))
-
-    def xmlrpc_dict(self, path):
-        """Return a mapping of names to (value, type) tuples for the given path"""
-        result = defer.Deferred()
-        StatsTarget(path).metadata.dict().addCallback(
-            self._dict, result).addErrback(result.errback)
-        return result
-
-    def _dict(self, original, result):
-        """Backend for dict() that ensures the results are serializable"""
-        d = {}
-        for name, t in original.iteritems():
-            d[name] = self.wrapTuple(t)
-        result.callback(d)
-
-    def protected_set(self, path, name, value, mimeType='text/plain'):
-        """Set a metadata key's value and MIME type"""
-        return StatsTarget(path).metadata.set(name, str(value), mimeType)
-
-    def protected_clear(self, path):
-        """Remove all metadata for one target"""
-        return StatsTarget(path).metadata.clear()
-
-    def protected_remove(self, path, name):
-        """Remove one metadata key for this target, if it exists"""
-        return StatsTarget(path).metadata.remove(name)
 
 
 class Metadata:
@@ -127,7 +75,7 @@ class Metadata:
         # The rest of getThumbnail. We have the modification time now, so we can
         # ask the cache to either retrieve or create a thumbnail image.
         cache = MetadataThumbnailCache()
-        cache.get(self.target.path, name, size, mtime).addCallback(
+        cache.get(self.target, name, size, mtime).addCallback(
             self._finishGetThumbnail, cache, result).addErrback(result.errback)
 
     def _finishGetThumbnail(self, value, cache, result):
@@ -244,16 +192,16 @@ class Metadata:
 
 class MetadataThumbnailCache(Cache.AbstractStringCache):
     """A cache for thumbnails of image metadata, generated using PIL.
-       The cache is keyed by a target path, metadata key, maximum
+       The cache is keyed by a target, metadata key, maximum
        thumbnail size, and metadata key modification time.
        """
     # The mime type our generated thumbnails should be in
     mimeType = 'image/png'
 
-    def miss(self, targetPath, metadataKey, size, mtime=None):
+    def miss(self, target, metadataKey, size, mtime=None):
         # Get the metadata value first
         result = defer.Deferred()
-        StatsTarget(targetPath).metadata.getValue(metadataKey, typePrefix='image/').addCallback(
+        target.metadata.getValue(metadataKey, typePrefix='image/').addCallback(
             self.makeThumbnail, size, result).addErrback(result.errback)
         return result
 

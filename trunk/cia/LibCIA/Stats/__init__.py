@@ -39,4 +39,9 @@ are directed into the stats subsystem using a stats:// URI handler.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
+# Convenience imports
+import Handler
+import Interface
+import Target
+
 ### The End ###

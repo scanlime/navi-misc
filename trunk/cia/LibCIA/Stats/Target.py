@@ -23,8 +23,9 @@ interacting with stats targets.
 #
 
 from twisted.internet import defer
-from LibCIA import Ruleset, Database
+from LibCIA import Ruleset, Database, TimeUtil
 import time, posixpath, sys
+from Metadata import Metadata
 
 
 class StatsTarget:
@@ -341,5 +342,84 @@ class Counters:
         """Delete all counters for this target. Returns a Deferred"""
         return Database.pool.runOperation("DELETE FROM stats_counters WHERE target_path = %s" %
                                           Database.quote(self.target.path, 'varchar'))
+
+
+class Maintenance:
+    """This class performs periodic maintenance of the stats database, including
+       counter rollover and removing old messages.
+       """
+    # Maximum number of messages to keep around for each stats target
+    maxTargetMessages = 200
+
+    def run(self):
+        """Performs one stats maintenance cycle, returning a Deferred that
+           yields None when the maintenance is complete.
+           """
+        return Database.pool.runInteraction(self._run)
+
+    def _run(self, cursor):
+        """Database interaction implementing the maintenance cycle"""
+        self.checkRollovers(cursor)
+        self.pruneSubscriptions(cursor)
+        self.pruneTargets(cursor)
+
+    def checkOneRollover(self, cursor, previous, current):
+        """Check for rollovers in one pair of consecutive time intervals,
+           like yesterday/today or lastMonth/thisMonth. This is meant to
+           be run inside a database interaction.
+           """
+        # Delete counters that are too old to bother keeping at all
+        cursor.execute("DELETE FROM stats_counters "
+                       "WHERE (name = %s OR name = %s) "
+                       "AND first_time < %s" %
+                       (Database.quote(previous, 'varchar'),
+                        Database.quote(current, 'varchar'),
+                        Database.quote(long(TimeUtil.Interval(previous).getFirstTimestamp()), 'bigint')))
+
+        # Roll over remaining counters that are too old for current
+        # but still within the range of previous. Note that there is a
+        # race condition in which this update will fail because a timer
+        # has been incremented between it and the above DELETE. It could
+        # be prevented by locking the table, but it's probably not worth
+        # it. If the rollover fails this time, it will get another chance.
+        cursor.execute("UPDATE stats_counters SET name = %s "
+                       "WHERE name = %s "
+                       "AND first_time < %s" %
+                       (Database.quote(previous, 'varchar'),
+                        Database.quote(current, 'varchar'),
+                        Database.quote(long(TimeUtil.Interval(current).getFirstTimestamp()), 'bigint')))
+
+    def checkRollovers(self, cursor):
+        """Check all applicable counters for rollovers. This should
+           be executed inside a database interaction.
+           """
+        self.checkOneRollover(cursor, 'yesterday', 'today')
+        self.checkOneRollover(cursor, 'lastWeek', 'thisWeek')
+        self.checkOneRollover(cursor, 'lastMonth', 'thisMonth')
+
+    def pruneTargets(self, cursor):
+        """Find all stats targets, running pruneTarget on each"""
+        cursor.execute("SELECT target_path FROM stats_catalog")
+        for row in cursor.fetchall():
+            self.pruneTarget(cursor, row[0])
+        cursor.execute("OPTIMIZE TABLE stats_messages")
+
+    def pruneTarget(self, cursor, path):
+        """Delete messages that are too old, from one particular stats target"""
+        # Find the ID of the oldest message we want to keep
+        cursor.execute("SELECT id FROM stats_messages WHERE target_path = %s "
+                       "ORDER BY id DESC LIMIT 1 OFFSET %d" %
+                       (Database.quote(path, 'varchar'),
+                        self.maxTargetMessages))
+        row = cursor.fetchone()
+        if row:
+            id = row[0]
+            cursor.execute("DELETE FROM stats_messages WHERE target_path = %s AND id < %d" %
+                           (Database.quote(path, 'varchar'), id))
+
+    def pruneSubscriptions(self, cursor, maxFailures=3):
+        """Delete subscriptions that have expired"""
+        cursor.execute("DELETE FROM stats_subscriptions WHERE expiration < %s" %
+                       Database.quote(int(time.time()), 'bigint'))
 
 ### The End ###

@@ -46,7 +46,7 @@ class TargetTitleColumn(Nouvelle.Column):
            """
         title = row[self.titleIndex]
         if title is None:
-            return Stats.StatsTarget(row[self.pathIndex]).name
+            return Stats.Target.StatsTarget(row[self.pathIndex]).name
         else:
             return title
         # Note that we don't have to worry about the case (name is None)
@@ -62,7 +62,7 @@ class TargetTitleColumn(Nouvelle.Column):
         # to look up the title, but that would end up creating an SQL query
         # for each row in the table- not good when we're trying to view a page
         # with 1000 projects without making our server explode.
-        target = Stats.StatsTarget(row[self.pathIndex])
+        target = Stats.Target.StatsTarget(row[self.pathIndex])
         return Link.StatsLink(target, text=self._findTitle(row))
 
 
