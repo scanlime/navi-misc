@@ -24,6 +24,13 @@ import java.net.*;
 import java.io.*;
 import java.util.*;
 
+/**
+ * This class takes care of the basic operations of a bot.
+ * I pulled a lot of this code from the JaimTest program supplied with jaimlib.
+ * @author Brandon Smith
+ * @version 2.0
+ * @see <a href="http://jaimlib.sourceforge.net">jaimlib</a>
+ */
 public class botmain implements JaimEventListener 
 {
 	/** The connection for the bot, hence b. */
@@ -32,6 +39,14 @@ public class botmain implements JaimEventListener
 	/** A connection to the person index, so it can reply correctly. */
 	public personindex index;
 	
+	/**
+	 * This method constructs a new bot.
+	 * @param username The username the bot has.
+	 * @param password The password the bot has.
+	 * @param foo The index that this bot gets associated with
+	 * @author Brandon Smith
+	 * @version 2.0
+	 */
 	public botmain(String username, String password, personindex foo)
 	{
 		index = foo;
@@ -55,49 +70,28 @@ public class botmain implements JaimEventListener
 		}
 	}
 
-	/** This method is a rip off from JaimTest.java */
+	/**
+	 * This method is a rip off from JaimTest.java 
+	 * @param event The object that holds all the magical information.
+	 * @author paulw
+	 * @version 2.0
+	 */
 	public void receiveEvent(JaimEvent event)
 	{
 		TocResponse tr=event.getTocResponse();
 		String responseType=tr.getResponseType();
-	
-		if(responseType.equalsIgnoreCase(BuddyUpdateTocResponse.RESPONSE_TYPE))
-		{
-			receiveBuddyUpdate((BuddyUpdateTocResponse)tr);
-		}
-		else if (responseType.equalsIgnoreCase(IMTocResponse.RESPONSE_TYPE))
+		if(responseType.equalsIgnoreCase(IMTocResponse.RESPONSE_TYPE))
 		{
 			receiveIM((IMTocResponse)tr);
 		}
-		/*
-		else if (responseType.equalsIgnoreCase(EvilTocResponse.RESPONSE_TYPE)) 
-		{
-			receiveEvil((EvilTocResponse)tr);
-		}
-		else if (responseType.equalsIgnoreCase(GotoTocResponse.RESPONSE_TYPE))
-		{
-	    receiveGoto((GotoTocResponse)tr);
-		}
-		else if (responseType.equalsIgnoreCase(ConfigTocResponse.RESPONSE_TYPE))
-		{
-	    receiveConfig();
-		}
-		else if (responseType.equalsIgnoreCase(ErrorTocResponse.RESPONSE_TYPE))
-		{
-	    receiveError((ErrorTocResponse)tr);
-		}
-		*/
-		else if (responseType.equalsIgnoreCase(LoginCompleteTocResponse.RESPONSE_TYPE)) {
-	    System.out.println("Login is complete");
-		}
-		else if (responseType.equalsIgnoreCase(ConnectionLostTocResponse.RESPONSE_TYPE)) {
-	    System.out.println("Connection lost!");
-		}
-		else {
-	    System.out.println("Unknown TOC Response:"+tr.toString());
-		}
 	}
   
+	/**
+	 * This method is called when a message is recieved
+	 * @param im The information involved in an instant message
+	 * @author Brandon Smith
+	 * @version 2.0
+	 */
 	private void receiveIM(IMTocResponse im)
 	{
 		//System.out.println(im.getFrom()+"->"+Utils.stripHTML(im.getMsg()));
@@ -106,26 +100,13 @@ public class botmain implements JaimEventListener
 		index.handleMessage(from,message);
 	}
 
-	private void receiveBuddyUpdate(BuddyUpdateTocResponse bu)
-	{
-		System.out.println("Buddy update: "+bu.getBuddy());
-		if (bu.isOnline()) 
-		{
-			System.out.println("Online");
-		}
-		else
-		{
-			System.out.println("Offline");
-		}
-		if (bu.isAway()) 
-		{
-			System.out.println("Away");
-		}
-		System.out.println("evil: "+bu.getEvil());
-		System.out.println("Idle: "+bu.getIdleTime());
-		System.out.println("On since "+bu.getSignonTime().toString());
-	}
-
+	/**
+	 * This sends a message through this bot.
+	 * @param nick The nick of the person to send it to.
+	 * @param message The message to send to the person.
+	 * @author Brandon Smith
+	 * @version 2.0
+	 */
 	public void sendMessage(String nick, String message)
 	{
 		try

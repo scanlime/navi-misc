@@ -19,16 +19,28 @@
 
 /**
  * This is a class that handes person lookups to use the person's "get message"
+ * @author Brandon Smith
+ * @version 2.0
  */
- 
 public class personindex
 {
+	/** This is the array that holds the bots interanally. */
 	public botmain[] bots;
+	/** The number of bots that I currently have. */
 	public int botcount;
+	/** The next bot in the array to be assigned. */
 	public int currentbot;
+	/** The head of the person linked list. */
 	public person masshead;
+	/** The head of the interviewee linked list. */
 	public interview inthead;
 	
+	/**
+	 * This constructs the personindex.
+	 * @param numbots The number of bots involved in the chat.
+	 * @author Brandon Smith
+	 * @version 2.0
+	 */
 	public personindex(int numbots)
 	{
 		int botcount = 0;
@@ -37,6 +49,12 @@ public class personindex
 		inthead = null;
 	}
 	
+	/**
+	 * This method registers a bot with the index.
+	 * @param toadd The bot thats to be added.
+	 * @author Brandon Smith
+	 * @version 2.0
+	 */
 	public void registerBot(botmain toadd)
 	{
 		if(bots[bots.length-1] != null)
@@ -44,6 +62,13 @@ public class personindex
 		bots[botcount++] = toadd;
 	}
 	
+	/**
+	 * This method handles the messages that comes in from any and all the bots.
+	 * @param from The nick of the user who sent the message
+	 * @param message The message that came in from them.
+	 * @author Brandon Smith
+	 * @version 2.0
+	 */
 	public void handleMessage(String from, String message)
 	{
 		person found = findPerson(from);
@@ -63,11 +88,25 @@ public class personindex
 		if(currentbot == botcount) currentbot = 0;
 	}
 	
+	/**
+	 * This method registers an interviewee with the index.
+	 * @param bot The bot that is going to handle the communication
+	 * @param name The nickname of the person being interviewed.
+	 * @param pass Their password, but that is transparent to the user.
+	 * @author Brandon Smith
+	 * @version 2.0
+	 */
 	public void addinterview(botmain bot, String name, String pass)
 	{
 		inthead = new interview(inthead, bot, name, pass);
 	}
 	
+	/**
+	 * This method sends a message to everyone in the list.
+	 * @param message The message being sent to everyone.
+	 * @author Brandon Smith
+	 * @version 2.0
+	 */
 	public void broadcast(String message)
 	{
 		person now = masshead;
@@ -78,6 +117,13 @@ public class personindex
 		}
 	}
 	
+	/**
+	 * This method searches for someone in the list with the nick as is passed.
+	 * @param nick The nick to search for.
+	 * @author Brandon Smith
+	 * @version 2.0
+	 * @return The interview object associated with that nickname.
+	 */
 	private interview findInterview(String nick)
 	{
 		interview temphead = inthead;
@@ -90,6 +136,13 @@ public class personindex
 		return null;
 	}
 	
+	/**
+	 * This method searches for someone in the list with the nick as is passed.
+	 * @param nick The nick to search for.
+	 * @author Brandon Smith
+	 * @version 2.0
+	 * @return The person object associated with that nickname.
+	 */
 	private person findPerson(String nick)
 	{
 		person temphead = masshead;

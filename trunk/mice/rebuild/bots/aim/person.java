@@ -16,21 +16,35 @@
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
- 
+
+/**
+ * This class is what represents a conversation with someone.
+ * @author Brandon Smith
+ * @version 2.0
+ */
 public class person
 {
+	/** This is the bot that this person gets spoken to through. */
 	public botmain mybot;
-	
+	/** This is the person's nickname. */
 	public String nick;
-	
+	/** This is the person's real name. */
 	public String name;
-	
+	/** This is the person's standing and major. */
 	public String standmajor;
-	
+	/** This is the next person in the linked list. */
 	public person next;
-	
+	/** Conversations are state based, this holds the status of this convo. */
 	private int status;
 	
+	/**
+	 * This constructs the person when a message comes from them.
+	 * @param previous The person to be put as my "next" person for linked list.
+	 * @param bot The bot that this person gets talked to from.
+	 * @param ick The person's nick.
+	 * @author Brandon Smith
+	 * @version 2.0
+	 */
 	public person(person previous, botmain bot, String ick)
 	{
 		mybot = bot;
@@ -40,6 +54,12 @@ public class person
 		mybot.sendMessage(nick,"What is your name (this is what it will appear as if you ask any questions)");
 	}
 	
+	/**
+	 * This method handles when this person gets a message.
+	 * @param message The message they get.
+	 * @author Brandon Smith
+	 * @version 2.0
+	 */
 	public void handle(String message)
 	{
 		switch(status)
@@ -86,6 +106,12 @@ public class person
 		}
 	}
 	
+	/**
+	 * This method sends something to this person
+	 * @param tosend The string thats getting sent.
+	 * @author Brandon Smith
+	 * @version 2.0
+	 */
 	public void send(String tosend)
 	{
 		mybot.sendMessage(nick,tosend);
