@@ -9,6 +9,7 @@
 libSrc = [
     'device.c',
     'command.c',
+    'i2c.c',
     ]
 examples = [
     'blinkytest',
