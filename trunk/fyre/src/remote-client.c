@@ -356,7 +356,7 @@ void           remote_client_send_param       (RemoteClient*     self,
     /* Serialize one parameter value, and send it to the server */
 
     GValue val, strval;
-    gchar* string;
+    const gchar* string;
     GParamSpec *spec = g_object_class_find_property(G_OBJECT_GET_CLASS(ph), name);
     g_assert(spec != NULL);
 
