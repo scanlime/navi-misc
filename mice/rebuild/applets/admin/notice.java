@@ -15,11 +15,15 @@ import java.io.*;
 public class notice implements ActionListener
 {
 	private admin myadmin;
-
 	private TextField text;
-	
 	private Button submit;
 
+	/**
+	 * This method constructs the notice form and such.
+	 * @param my The applet object so I can add and remove components.
+	 * @author Brandon Smith
+	 * @version 2.0
+	 */
 	public notice(admin my)
 	{
 		myadmin = my;
@@ -30,6 +34,12 @@ public class notice implements ActionListener
 		submit.addActionListener(this);
 	}
 	
+	/**
+	 * This method handles the click, and sends the notice to the server.
+	 * @param e An unused piece of information
+	 * @author Brandon Smith
+	 * @version 2.0
+	 */
 	public void actionPerformed(ActionEvent e)
 	{
 		if(text.getText().charAt(0) == '*')
@@ -46,6 +56,11 @@ public class notice implements ActionListener
 		}
 	}
 	
+	/**
+	 * This method destroys whats in here
+	 * @author Brandon Smith
+	 * @version 2.0
+	 */
 	public void destroy()
 	{
 		myadmin.rm(text);
