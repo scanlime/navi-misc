@@ -167,7 +167,7 @@ class ThermWidget(gtk.HBox):
         self.source.getLatest('average').addCallback(self._update_average, widget)
 
     def _update_average(self, temperature, widget):
-        if not temperature:
+	if temperature is None:
             widget.set_text("No data")
             return
 
