@@ -139,6 +139,11 @@ static struct server* server_new(const char *host_and_port)
 
   /* Connect the socket to our parsed address */
   host = gethostbyname(self->host);
+  if (!host) {
+    fprintf(stderr, "Unknown host '%s'\n", self->host);
+    server_delete(self);
+    return NULL;
+  }
   memset(&in_addr, 0, sizeof(in_addr));
   in_addr.sin_family = AF_INET;
   memcpy(&in_addr.sin_addr.s_addr, host->h_addr_list[0], sizeof(in_addr.sin_addr.s_addr));
@@ -463,6 +468,14 @@ int main(int argc, char **argv) {
   struct server *svr;
   int evdev;
 
+  if (argc != 3 || argv[1][0]=='-' || argv[2][0]=='-') {
+    printf("Usage: %s server[:port] /dev/input/eventN\n\n"
+	   "Export any device registered with the Linux input system to\n"
+	   "a remote machine running inputpipe-server.\n",
+	   argv[0]);
+    return 1;
+  }
+
   svr = server_new(argv[1]);
   if (!svr)
     return 1;
@@ -471,6 +484,7 @@ int main(int argc, char **argv) {
   if (evdev < 0)
     return 1;
 
+  /* Tell the server about our device, then just start forwarding data */
   if (evdev_send_metadata(evdev, svr))
     return 1;
   return event_loop(svr, evdev);

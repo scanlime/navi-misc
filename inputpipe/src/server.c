@@ -322,6 +322,22 @@ static void client_received_packet(struct client* self,
       self->dev_info.absmin[axis] = ntohl(ip_abs->min);
       self->dev_info.absfuzz[axis] = ntohl(ip_abs->fuzz);
       self->dev_info.absflat[axis] = ntohl(ip_abs->flat);
+
+      /* Validate the absinfo. If we don't catch problems here and fix
+       * them, (with a warning) the device creation will fail completely.
+       */
+      if (self->dev_info.absmax[axis] < self->dev_info.absmin[axis]+2) {
+	client_message(self, "Warning, axis %d has invalid min/max", axis);
+	self->dev_info.absmax[axis] = self->dev_info.absmin[axis]+2;
+      }
+      if (self->dev_info.absflat[axis] <= self->dev_info.absmin[axis]) {
+	client_message(self, "Warning, axis %d absflat is too low", axis);
+	self->dev_info.absflat[axis] = self->dev_info.absmin[axis]+1;
+      }
+      if (self->dev_info.absflat[axis] >= self->dev_info.absmax[axis]) {
+	client_message(self, "Warning, axis %d absflat is too high", axis);
+	self->dev_info.absflat[axis] = self->dev_info.absmax[axis]-1;
+      }
     }
     break;
 
@@ -375,15 +391,22 @@ static void client_received_packet(struct client* self,
     break;
 
   case IPIPE_CREATE:
-    /* Yay, send the uinput_user_dev and actually create our device */
-    if (self->device_created) {
-      client_message(self, "Duplicate IPIPE_CREATE received");
-      break;
+    {
+      /* Yay, send the uinput_user_dev and actually create our device */
+      int write_res, ioctl_res;
+      if (self->device_created) {
+	client_message(self, "Duplicate IPIPE_CREATE received");
+	break;
+      }
+      write_res = write(self->uinput_fd, &self->dev_info, sizeof(self->dev_info));
+      ioctl_res = ioctl(self->uinput_fd, UI_DEV_CREATE, 0);
+      if (write_res < 0 || ioctl_res < 0) {
+	client_message(self, "Failed to create new device \"%s\"", self->dev_info.name);
+	break;
+      }
+      self->device_created = 1;
+      client_message(self, "Created new device \"%s\"", self->dev_info.name);
     }
-    write(self->uinput_fd, &self->dev_info, sizeof(self->dev_info));
-    ioctl(self->uinput_fd, UI_DEV_CREATE, 0);
-    self->device_created = 1;
-    client_message(self, "Created new device \"%s\"", self->dev_info.name);
     break;
 
   default:
