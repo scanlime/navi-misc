@@ -26,6 +26,20 @@
 
 void preferences_servers_selected(GtkTreeSelection *selection, gpointer data);
 
+static void edit_global_changed(GtkToggleButton *togglebutton, gpointer data) {
+	GtkWidget *nick, *real;
+
+	nick = glade_xml_get_widget(gui.xml, "server config nickname");
+	real = glade_xml_get_widget(gui.xml, "server config realname");
+	if(gtk_toggle_button_get_active(togglebutton)) {
+		gtk_widget_set_sensitive(nick, FALSE);
+		gtk_widget_set_sensitive(real, FALSE);
+	} else {
+		gtk_widget_set_sensitive(nick, TRUE);
+		gtk_widget_set_sensitive(real, TRUE);
+	}
+}
+
 static void edit_clicked(GtkWidget *button, gpointer data) {
 	GtkWidget *dialog, *password, *nick, *real;
 	GtkWidget *treeview, *widget;
@@ -71,7 +85,8 @@ static void edit_clicked(GtkWidget *button, gpointer data) {
 		if(net->real != NULL)
 			gtk_entry_set_text(GTK_ENTRY(real), net->real);
 	}
-	
+	g_signal_connect(G_OBJECT(widget), "toggled", G_CALLBACK(edit_global_changed), NULL);
+
 	widget = glade_xml_get_widget(gui.xml, "server config autoconnect");
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), (net->flags & FLAG_AUTO_CONNECT));
 
