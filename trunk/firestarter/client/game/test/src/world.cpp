@@ -107,7 +107,7 @@ float CTestWorld::GetValueF ( const char *item )
 	if (label == "groundSizeY")
 		return worldInfo.groundSize[1];
 	if (label == "groundTextureRepeat")
-		return worldInfo.groundTextureRepeat;
+		return worldInfo.groundTextureRepeat;	
 	if (label == "wallHeight")
 		return worldInfo.wallSize;
 

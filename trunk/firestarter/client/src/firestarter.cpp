@@ -22,7 +22,7 @@
 
 #include "firestarter.h"
 #include "input.h"
-#include "timer.h"
+#include "syncedClock.h"
 #include "prefs.h"
 #include "commandargs.h"
 #include "gameManager.h"
@@ -46,10 +46,13 @@ void CFirestarterLoop::verifyDefaults ( void )
 	CPrefsManager	&prefs = CPrefsManager::instance();
 
 	if (!prefs.ItemExists("PlayerName"))
-		prefs.SetItem("PlayerName","velvetpants");
+		prefs.SetItem("PlayerName","VelvetPants");
 
 	if (!prefs.ItemExists("PlayerMesh"))
 		prefs.SetItem("PlayerMesh","mk3.mesh");
+
+	if (!prefs.ItemExists("syncUpdateTime"))
+		prefs.SetItem("syncUpdateTime",60.0f);
 
 	prefs.Update();
 }
@@ -128,12 +131,12 @@ bool CFirestarterLoop::GameLoop ( void )
 	// check for sreenshot
 	CGameManger &game = CGameManger::instance();
 	float togleTime = 0.5f;
-	if (CInputManager::instance().KeyDown(KEY_SYSRQ) && (lastScreenShotTime < CTimer::instance().GetTime()+togleTime))
+	if (CInputManager::instance().KeyDown(KEY_SYSRQ) && (lastScreenShotTime < CSyncedClock::instance().GetTime()+togleTime))
 	{
 		char tmp[128];
 		sprintf(tmp, "screenshot_%d.png", ++numScreenShots);
 		GetRenderWindow()->writeContentsToFile(tmp);
-		lastScreenShotTime = CTimer::instance().GetTime();
+		lastScreenShotTime = CSyncedClock::instance().GetTime();
 		//GetRenderWindow()->setDebugText(String("Wrote ") + tmp);
 	}
 	if (inUI)

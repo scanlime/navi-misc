@@ -13,7 +13,7 @@
 #include "input.h"
 #include "firestarter.h"
 #include "prefs.h"
-#include "timer.h"
+#include "syncedClock.h"
 #include "input.h"
 
 // the drawables for this game
@@ -36,6 +36,9 @@ void CTestGame::Init ( void )
 	registerFactory("walls",new CWallObjectFactory);
 	registerFactory("playerTank",new CPlayerObjectFactory);
 	registerFactory("camera",new CCameraObjectFactory);
+
+	lastSyncPingTime = -1;
+	syncPingInterval = CPrefsManager::instance().GetItemF("syncUpdateTime");
 }
 
 void CTestGame::Kill ( void )
@@ -124,6 +127,17 @@ bool CTestGame::Think ( void )
 	if (network.Connected())
 		network.ProcessMessages();
 
+	// check for a clock sync
+
+	if (CTimer::instance().GetTime() - lastSyncPingTime > syncPingInterval )
+	{
+		lastSyncPingTime = CTimer::instance().GetTime();
+		CNetworkMessage message;
+		message.SetType(_MESSAGE_TIME_PING);
+		message.AddI(CSyncedClock::instance().GetNewSyncPing());
+		message.Send(network.GetServerPeer(),false);
+	}
+
 	bool exit = false;
 
 	if (CInputManager::instance().KeyDown(KEY_ESCAPE))
@@ -159,7 +173,7 @@ bool CTestGame::Think ( void )
 
 			bool still = false; //localPlayer->vec[0] == 0 && localPlayer->vec[1] == 0 && localPlayer->vec[2] ==0;
 
-			if (!still && CTimer::instance().GetTime() - lastNetUpdateTime > updateTime)
+			if (!still && CSyncedClock::instance().GetTime() - lastNetUpdateTime > updateTime)
 			{
 				CNetworkMessage message;
 				message.SetType(_MESSAGE_UPDATE);
@@ -167,7 +181,7 @@ bool CTestGame::Think ( void )
 				message.AddV(localPlayer->rot);
 				message.AddV(localPlayer->vec);
 				message.Send(network.GetServerPeer(),false);
-				lastNetUpdateTime = CTimer::instance().GetTime();
+				lastNetUpdateTime = CSyncedClock::instance().GetTime();
 			}	
 			// let the drawables update themseves ( if they exist )
 			CDrawManager::instance().ThinkAll();
@@ -207,6 +221,10 @@ void CTestGame::OnMessage ( CNetworkPeer &peer, CNetworkMessage &message )
 
 	switch(message.GetType())
 	{
+		case _MESSAGE_TIME_PING:
+			CSyncedClock::instance().ReturnSyncPing(message.ReadI(),message.ReadF());
+		break;
+
 		case _MESSAGE_WORLD_INFO:			// the server has sent us the world
 				world.Load(message,true);
 
@@ -308,7 +326,7 @@ void CTestGame::OnMessage ( CNetworkPeer &peer, CNetworkMessage &message )
 				if (playerID != localPlayer->idNumber)
 					newPlayer = players[playerID];
 
-				newPlayer->updateTime = CTimer::instance().GetTime();
+				newPlayer->updateTime = CSyncedClock::instance().GetTime();
 
 				if (newPlayer->active)
 				{
@@ -357,7 +375,7 @@ bool CTestGame::GetRot ( float *rot )
 bool CTestGame::processPlayerInput ( void )
 {
 	CInputManager	&input = CInputManager::instance();
-	CTimer	&timer = CTimer::instance();
+	CSyncedClock	&timer = CSyncedClock::instance();
 
 	if (!localPlayer)
 		return true;

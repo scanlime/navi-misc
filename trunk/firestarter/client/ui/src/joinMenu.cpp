@@ -22,7 +22,7 @@
 #include "joinMenu.h"
 #include "firestarter.h"
 #include "input.h"
-#include "timer.h"
+#include "syncedClock.h"
 
 CJoinMenu::CJoinMenu()
 {
@@ -183,10 +183,10 @@ tePanelReturn CJoinMenu::Process ( std::string &next )
 
 	Vector3 YawAxis(0,0,1);
 	Vector3 PitchAxis(1,0,0);
-	float MoveFactor = 15.0f *CTimer::instance().GetFrameTime();
+	float MoveFactor = 15.0f *CSyncedClock::instance().GetFrameTime();
 	gameLoop.GetCamera()->rotate(YawAxis,-MoveFactor);
 
-	float rotSpeed = 60.0f * CTimer::instance().GetFrameTime();
+	float rotSpeed = 60.0f * CSyncedClock::instance().GetFrameTime();
 	if (ships[0])
 	{
 		ships[0]->rotate(Vector3(0,0,1),rotSpeed);

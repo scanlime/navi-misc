@@ -56,6 +56,8 @@ class CTestGame : public CBaseGame , CNetworkMessageProcessor, CBaseObject
 		CPlayerObject				*localPlayer;						
 
 		float								lastNetUpdateTime;
+		float								lastSyncPingTime;
+		float								syncPingInterval;
 
 		int									camera;
 		// game methods

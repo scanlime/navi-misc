@@ -13,7 +13,7 @@
 
 #include "players.h"
 #include <vector>
-#include "timer.h"
+#include "syncedClock.h"
 #include "prefs.h"
 
 CPlayerObject::CPlayerObject()
@@ -55,9 +55,9 @@ bool CPlayerObject::Think ( void )
 {
 	// do some dead reco if we didn't just get this update
 
-	//if (updateTime != CTimer::instance().GetTime())
+	if (updateTime != CSyncedClock::instance().GetTime())
 	{
-		float updateTime = CTimer::instance().GetFrameTime();
+		float updateTime = CSyncedClock::instance().GetFrameTime();
 		pos[0] += vec[0]*updateTime;
 		pos[1] += vec[1]*updateTime;
 		pos[2] += vec[2]*updateTime;
