@@ -130,9 +130,6 @@ class XMLStorage(object):
            """
         self.emptyStorage()
         f = open(self.fileName)
-        # This is a gross hack that works around how domish doesn't
-        # understand XML processing instructions.
-        f.readline()
         xml = parseString(f.read())
         f.close()
 
@@ -212,6 +209,7 @@ class DomishStringParser(domish.SuxElementStream):
         self.ElementEvent = self.elem
         self.DocumentEndEvent = self.docEnd
         self.done = 0
+        self.root = None
 
     def docStart(self, elem):
         self.root = elem
@@ -221,11 +219,14 @@ class DomishStringParser(domish.SuxElementStream):
         # to properly parse text included directly into the root node.
         if self.currElem:
             domish.SuxElementStream.gotText(self, data)
-        else:
+        elif self.root:
             self.root.addContent(data)
 
     def elem(self, elem):
-        self.root.addChild(elem)
+        if self.root:
+            self.root.addChild(elem)
+        else:
+            self.root = elem
 
     def docEnd(self):
         self.done = 1
