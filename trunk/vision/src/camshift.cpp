@@ -5,9 +5,7 @@
 #include <cv.hpp>
 #include <cvaux.h>
 #include <SDL.h>
-
-#define N_CAMERAS    1
-
+#include <getopt.h>
 
 void plot_crosshairs(IplImage *image, CvPoint *point,
 		     int size=15, double color=CV_RGB(255,0,0),
@@ -68,7 +66,7 @@ void draw_box(IplImage *image, CvBox2D box, double color=CV_RGB(0,255,128)) {
 	   color);
 }
 
-void map_mouse_position(int *x, int *y, int *camera, IplImage *image) {
+void map_mouse_position(int *x, int *y, int *camera, IplImage *image, int grid_w, int grid_h) {
   /* Given a mouse position in window coordinates, return
    * a mouse position in image coordiantes and a camera number.
    * A sample image must be provided so this knows our camera resolution.
@@ -78,8 +76,8 @@ void map_mouse_position(int *x, int *y, int *camera, IplImage *image) {
   /* Convert the mouse coordinates to be relative to the YUV surface,
    * undoing any resizing the user may have performed on our window.
    */
-  *x = *x * image->width * N_CAMERAS / surface->w;
-  *y = *y * image->height * 2 / surface->h;
+  *x = *x * image->width * grid_w / surface->w;
+  *y = *y * image->height * grid_h / surface->h;
 
   /* Assuming the cameras are horizontally tiled, figure out
    * the camera we're clicking in and the position within that camera's frame
@@ -89,31 +87,30 @@ void map_mouse_position(int *x, int *y, int *camera, IplImage *image) {
   *y %= image->height;
 }
 
-int main() {
+void interactive_camshift(int n_cameras, bool show_backprojections) {
   IplImage **images;
-  IplImage *yuv_backprojections[N_CAMERAS];
+  IplImage *yuv_backprojections[n_cameras];
   IplImage *planes[3];
-  IplImage *view_grid[N_CAMERAS*2];
+  IplImage *view_grid[n_cameras*2];
   IplImage *backprojection;
-  CvHistogram* object_hist[N_CAMERAS];
-  int i, j;
-  CvRect windowIn[N_CAMERAS];
+  CvHistogram* object_hist[n_cameras];
+  int i;
+  int num_views = 0;
+  CvRect windowIn[n_cameras];
   int sample_square_size = 32;
 
-  cv_dc1394_init();
-
   /* Take a reference frame from each camera */
-  images = cv_dc1394_capture_yuv(N_CAMERAS);
+  images = cv_dc1394_capture_yuv(n_cameras);
 
   /* Allocate images, now that we know the camera resolution */
   for (i=0; i<3; i++)
     planes[i] = cvCreateImage(cvGetSize(images[0]), 8, 1);
-  for (i=0; i<N_CAMERAS; i++)
+  for (i=0; i<n_cameras; i++)
     yuv_backprojections[i] = cvCreateImage(cvGetSize(images[0]), 8, 3);
   backprojection = cvCreateImage(cvGetSize(images[0]), 8, 1);
 
   /* Allocate histograms */
-  for (i=0; i<N_CAMERAS; i++) {
+  for (i=0; i<n_cameras; i++) {
     int hist_size[] = {180, 128, 32};
     float h_range[] = {0, 180};
     float sv_range[] = {0, 255};
@@ -125,7 +122,7 @@ int main() {
    * will be set to the previously located image, to exploit
    * frame coherence for speed.
    */
-  for (i=0; i<N_CAMERAS; i++) {
+  for (i=0; i<n_cameras; i++) {
     windowIn[i].x = 0;
     windowIn[i].y = 0;
     windowIn[i].width = images[i]->width;
@@ -135,26 +132,24 @@ int main() {
   /* Tile cameras horizontally, with original image on
    * top and backprojection on bottom.
    */
-  j = 0;
-  for (i=0; i<N_CAMERAS; i++) {
-    view_grid[j] = images[i];
-    j++;
-  }
-  for (i=0; i<N_CAMERAS; i++) {
-    view_grid[j] = yuv_backprojections[i];
-    j++;
-  }
+  for (i=0; i<n_cameras; i++)
+    view_grid[num_views++] = images[i];
+  if (show_backprojections)
+    for (i=0; i<n_cameras; i++)
+      view_grid[num_views++] = yuv_backprojections[i];
 
   while (cv_sdl_process_events()) {
-    images = cv_dc1394_capture_yuv(N_CAMERAS);
+    images = cv_dc1394_capture_yuv(n_cameras);
 
-    for (i=0; i<N_CAMERAS; i++) {
+    for (i=0; i<n_cameras; i++) {
       /* Calculate the backprojection, in YUV space */
       cvCvtPixToPlane(images[i], planes[0], planes[1], planes[2], 0);
       cvCalcBackProject(planes, backprojection, object_hist[i]);
 
-      /* Make a YUV version of the output, for display */
-      gray_to_yuv(backprojection, yuv_backprojections[i]);
+      if (show_backprojections) {
+	/* Make a YUV version of the output, for display */
+	gray_to_yuv(backprojection, yuv_backprojections[i]);
+      }
 
       /* Run the output through the CAMSHIFT algorithm to locate objects */
       CvBox2D box;
@@ -188,7 +183,8 @@ int main() {
 
       /* Get the current sampling rect, centered on the mouse cursor */
       mouse_buttons = SDL_GetMouseState(&mouse_x, &mouse_y);
-      map_mouse_position(&mouse_x, &mouse_y, &mouse_camera, images[0]);
+      map_mouse_position(&mouse_x, &mouse_y, &mouse_camera, images[0],
+			 n_cameras, show_backprojections ? 2 : 1);
       sample_rect.x = mouse_x - sample_square_size/2;
       sample_rect.y = mouse_y - sample_square_size/2;
       sample_rect.width = sample_square_size;
@@ -215,6 +211,11 @@ int main() {
 	cvResetImageROI(planes[0]);
 	cvResetImageROI(planes[1]);
 	cvResetImageROI(planes[2]);
+
+	/* Also set the windowIn to the sampling rectangle, to point CAMSHIFT at
+	 * what we're interested in.
+	 */
+	windowIn[mouse_camera] = sample_rect;
       }
 
       /* Draw a box around the current sampling rectangle */
@@ -223,6 +224,61 @@ int main() {
 		  CV_RGB(128,128,255), 1);
     }
 
-    cv_sdl_show_yuv_tiles(view_grid, N_CAMERAS*2, N_CAMERAS);
+    cv_sdl_show_yuv_tiles(view_grid, num_views, n_cameras);
   }
 }
+
+static void usage(char **argv) {
+  printf("Usage: %s [options]\n"
+	 "Interactive frontend for OpenCV's CAMSHIFT implementation\n"
+	 "\n"
+	 "  -b, --hide-backprojection  Hide the backprojection images shown below the cameras\n"
+	 "  -c. --cameras N            Set the number of cameras to use\n",
+	 argv[0]);
+}
+
+int main(int argc, char **argv) {
+  int c, option_index=0;
+  int n_cameras = 1;
+  bool show_backprojections = true;
+
+  while (1) {
+    static struct option long_options[] = {
+      {"help",                0, NULL, 'h'},
+      {"hide-backprojection", 0, NULL, 'b'},
+      {"cameras",             1, NULL, 'c'},
+      NULL,
+    };
+    c = getopt_long(argc, argv, "hbc:",
+		    long_options, &option_index);
+    if (c == -1)
+      break;
+
+    switch (c) {
+
+    case 'b':
+      show_backprojections = false;
+      break;
+
+    case 'c':
+      n_cameras = atoi(optarg);
+      break;
+
+    case 'h':
+    default:
+      usage(argv);
+      return 1;
+    }
+  }
+
+  if (optind < argc) {
+    usage(argv);
+    return 1;
+  }
+
+  cv_dc1394_init();
+  interactive_camshift(n_cameras, show_backprojections);
+  return 0;
+}
+
+/* The End */
