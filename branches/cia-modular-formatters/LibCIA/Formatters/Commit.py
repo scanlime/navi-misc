@@ -303,17 +303,14 @@ class CommitToXHTML(CommitFormatter):
            """
         results = self.walkComponents(element.childNodes, args)
         if self._checkVisibility(results):
-            print 'Visible'
             return results
         else:
-            print 'Hidden!'
             return []
 
     def _checkVisibility(self, nodes):
         """Recursively check visibility for autoHide. Empty lists cause
            us to return 0, and Nouvelle tags are recursed into.
            """
-        print nodes
         for node in nodes:
             if not node:
                 return 0
