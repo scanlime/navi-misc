@@ -111,19 +111,35 @@ preferences_plugins_page_populate()
 	sprintf (xchatdir, "%s/.xchat2/plugins", homedir);
 
 	/* Create a list of all the plugins in our known directories. */
-  for_files (XCHATLIBDIR"/plugins", "*.so", xchat_gnome_plugin_add);
-  for_files (XCHATLIBDIR"/plugins", "*.sl", xchat_gnome_plugin_add);
 	for_files (xchatdir, "*.so", xchat_gnome_plugin_add);
 	for_files (xchatdir, "*.sl", xchat_gnome_plugin_add);
 
 	/* Put our fun, happy plugins of joy into the great list store of pluginny goodness.
-	 * FIXME: It would be a good idea to use xchat's list of loaded plugins to toggle the
-	 * loaded thingy here.
+	 * starting with the list of plugins we keep and then the list of plugins loaded by
+	 * the xchat core in its infinite wisdom. While we do the loaded plugins we'll add
+	 * them to our list of known plugins.
 	 */
 	list = known_plugins;
 	while (list)
 	{
 		plugin = list->data;
+    printf ("%s %s\n", plugin->filename, plugin->name);
+		if (plugin->version[0] != 0)
+		{
+			gtk_list_store_append (store, &iter);
+			gtk_list_store_set (store, &iter, 0, plugin->name, 1, plugin->version, 2, plugin->desc, 3, plugin->filename, -1);
+		}
+		list = list->next;
+	}
+
+	list = plugin_list;
+	while (list)
+	{
+		plugin = list->data;
+		/* FIXME: I wonder if this could cause problems when you unload a plugin, will it
+		 * disappear from the known_plugins list?
+		 */
+		known_plugins = g_slist_prepend (known_plugins, plugin);
     printf ("%s %s\n", plugin->filename, plugin->name);
 		if (plugin->version[0] != 0)
 		{
@@ -230,16 +246,16 @@ xchat_gnome_plugin_add (char *filename)
 		deinit_func = NULL;
 
 	/* Create a new plugin instance and add it to our list of known plugins. */
-	/*pl = plugin_list_add (gui.current_session, filename, filename,
+	pl = plugin_list_add (gui.current_session, filename, filename,
 			NULL, NULL, handle, deinit_func, FALSE);
 
-	/* run xchat_plugin_init, if it returns 0, close the plugin *
+	/* run xchat_plugin_init, if it returns 0, close the plugin */
 	if (((xchat_init_func *)init_func) (pl, &pl->name, &pl->desc, &pl->version, NULL) == 0)
 	{
 		// FIXME: we need one of thse too.
 		//plugin_free (pl, FALSE, FALSE);
 		return;
-	}*/
+	}
 
 }
 
