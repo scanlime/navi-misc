@@ -271,6 +271,10 @@ update_image_preview (GtkFileChooser *chooser, GtkImage *image) {
 
     if (emblem_pixbuf == NULL) {
 	emblem_pixbuf = gdk_pixbuf_new_from_file (FYRE_DATADIR "/metadata-emblem.png", NULL);
+#ifdef ENABLE_BINRELOC
+	if (!emblem_pixbuf)
+	    emblem_pixbuf = gdk_pixbuf_new_from_file (BR_DATADIR ("/metadata-emblem.png"), NULL);
+#endif
     }
 
     filename = gtk_file_chooser_get_filename (chooser);
