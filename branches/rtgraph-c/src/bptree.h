@@ -27,7 +27,7 @@
 #ifndef __RTG_BPTREE_H__
 #define __RTG_BPTREE_H__
 
-#include <gtk/gtk.h>
+#include <glib.h>
 #include "pagestorage.h"
 #include "pageatom.h"
 

@@ -23,7 +23,7 @@
 #ifndef __RTG_MEM_H__
 #define __RTG_MEM_H__
 
-#include <gtk/gtk.h>
+#include <glib.h>
 
 G_BEGIN_DECLS
 

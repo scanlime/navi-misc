@@ -38,7 +38,7 @@
 #ifndef __RTG_PAGE_STORAGE_H__
 #define __RTG_PAGE_STORAGE_H__
 
-#include <gtk/gtk.h>
+#include <glib.h>
 #include "rtgmem.h"
 
 G_BEGIN_DECLS

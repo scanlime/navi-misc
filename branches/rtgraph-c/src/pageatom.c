@@ -36,7 +36,6 @@
 #include <config.h>
 #include <string.h>
 #include <stdio.h>
-#include <gtk/gtk.h>
 #include "pageatom.h"
 
 /* Any page that's part of the atom list is marked as such by this

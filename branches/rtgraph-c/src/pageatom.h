@@ -36,7 +36,7 @@
 #ifndef __RTG_PAGE_ATOM_H__
 #define __RTG_PAGE_ATOM_H__
 
-#include <gtk/gtk.h>
+#include <glib.h>
 #include "rtgmem.h"
 #include "pagestorage.h"
 
