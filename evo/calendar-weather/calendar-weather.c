@@ -109,10 +109,16 @@ selection_changed (GtkTreeSelection *selection, GtkDialog *dialog)
 	if (gtk_tree_selection_get_selected (selection, &model, &iter)) {
 		gchar *code = NULL;
 		gtk_tree_model_get (model, &iter, 1, &code, -1);
-		if (code != NULL)
+		if (code != NULL) {
 			gtk_dialog_set_response_sensitive (GTK_DIALOG (dialog), GTK_RESPONSE_OK, TRUE);
-		else
+		} else {
+			GtkTreeView *view = gtk_tree_selection_get_tree_view (selection);
+			GtkTreePath *path;
+			path = gtk_tree_model_get_path (model, &iter);
+			gtk_tree_view_expand_row (view, path, FALSE);
+			gtk_tree_path_free (path);
 			gtk_dialog_set_response_sensitive (GTK_DIALOG (dialog), GTK_RESPONSE_OK, FALSE);
+		}
 	} else {
 		gtk_dialog_set_response_sensitive (GTK_DIALOG (dialog), GTK_RESPONSE_OK, FALSE);
 	}
