@@ -66,9 +66,9 @@ io_Deassert
 
 io_Assert
 	banksel	io_pin		; Select a half of the table, load PCLATH
-	movlw	io_assert_table_1
+	movlw	high io_assert_table_1
 	btfsc	io_pin, 7
-	movlw	io_assert_table_2
+	movlw	high io_assert_table_2
 	movwf	PCLATH
 
 	rlf	io_pin, w	; Jump to the entry corresponding with io_pin*2
@@ -79,9 +79,9 @@ io_Assert
 	; Test the current pin descriptor, return its value in w
 io_Read
 	banksel	io_pin		; Select a half of the table, load PCLATH
-	movlw	io_read_table_1
+	movlw	high io_read_table_1
 	btfsc	io_pin, 6
-	movlw	io_read_table_2
+	movlw	high io_read_table_2
 	movwf	PCLATH
 
 	rlf	io_pin, w	; Jump to the entry corresponding with io_pin*4
