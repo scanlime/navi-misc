@@ -159,8 +159,8 @@ class AutoHyperlink(RegexTransformBase):
         return Nouvelle.tag('a', href="mailto:"+address)[ address ]
 
     regexes = {
-        '(ht|f)tps?://[^\s\>\]\)]+': link_url,
-        '[\w\.\-\+]+@[^\s\>\]\)]+':  link_email,
+        '(ht|f)tps?://[^\s\>\]\)]+':                      link_url,
+        '[\w\.\-\+]+@[0-9a-zA-Z\-]+(\.[0-9a-zA-Z\-]+)+':  link_email,
         }
 
 ### The End ###
