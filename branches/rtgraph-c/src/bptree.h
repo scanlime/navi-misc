@@ -36,9 +36,6 @@ typedef struct _RtgBPTree       RtgBPTree;
 typedef struct _RtgBPTreeHeader RtgBPTreeHeader;
 typedef struct _RtgBPTreeIter   RtgBPTreeIter;
 
-/* An index into the memory at pointer_base */
-typedef e
-
 typedef gpointer                RtgBPIndexPointer;
 typedef gpointer                RtgBPLeafPointer;
 
@@ -88,61 +85,6 @@ enum {
 /************************************************************************************/
 /******************************************************************* Public Methods */
 /************************************************************************************/
-
-GType         rtg_channel_get_type          ();
-RtgChannel*   rtg_channel_new               ();
-
-/* The channel's capacity, specified as a number of samples
- * and/or a maximum range of X values. Zero indicates no restriction.
- */
-void          rtg_channel_set_max_samples   (RtgChannels* self, gulong max_samples);
-gulong        rtg_channel_get_max_samples   (RtgChannels* self);
-
-/* A channel may be equipped with strings specifying a name, and units
- * for each variable. These are optional, and not used by the channel itself.
- */
-void          rtg_channel_set_name          (RtgChannel* self, gchar* name);
-gchar*        rtg_channel_get_name          (RtgChannel* self);
-void          rtg_channel_set_x_units       (RtgChannel* self, gchar* units);
-gchar*        rtg_channel_get_x_units       (RtgChannel* self);
-void          rtg_channel_set_y_units       (RtgChannel* self, gchar* units);
-gchar*        rtg_channel_get_y_units       (RtgChannel* self);
-
-/* The channel's current interpolation type, an RTG_INTERPOLATION_* constant.
- * These are used when looking up values from channel iterators.
- */
-void          rtg_channel_set_interpolation (RtgChannel* self, guint interpolation);
-guint         rtg_channel_get_interpolation (RtgChannel* self);
-
-/* Adding new values, requires only an X and Y coordinate to add */
-void          rtg_channel_add_value         (RtgChannel* self, gdouble x, gdouble y);
-
-/* Initialize an iterator to the current beginning or end of our buffer */
-void          rtg_channel_iter_first        (RtgChannel* self, RtgChannelIter* iter);
-void          rtg_channel_iter_last         (RtgChannel* self, RtgChannelIter* iter);
-
-/* Is this iterator still valid? Invalid iterators may be those that extend
- * past the bounds of our buffer, or refer to data points that no longer exist.
- */
-gboolean      rtg_channel_iter_is_valid     (RtgChannel* self, RtgChannelIter* iter);
-
-/* Seeking an iterator given an X coordinate. This can put the iterator exactly
- * at the given coordinate, in which case an interpolated value is used, or it can
- * snap to the data point before it, after it, or nearest to it.
- */
-void          rtg_channel_iter_at           (RtgChannel* self, RtgChannelIter* iter, gdouble x);
-void          rtg_channel_iter_before       (RtgChannel* self, RtgChannelIter* iter, gdouble x);
-void          rtg_channel_iter_after        (RtgChannel* self, RtgChannelIter* iter, gdouble x);
-void          rtg_channel_iter_nearest      (RtgChannel* self, RtgChannelIter* iter, gdouble x);
-
-/* Seek an iterator forward (toward positive X) by some number of samples or by an X
- * coordinate amount. Negative numbers seek toward negative X.
- */
-void          rtg_channel_iter_seek_samples (RtgChannel* self, RtgChannelIter* iter, int samples);
-void          rtg_channel_iter_seek         (RtgChannel* self, RtgChannelIter* iter, gdouble x);
-
-/* Retrieve the current Y value at an iterator, interpolating as necessary */
-gdouble       rtg_channel_iter_read         (RtgChannel* self, RtgChannelIter* iter);
 
 
 G_END_DECLS

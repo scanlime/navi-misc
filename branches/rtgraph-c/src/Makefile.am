@@ -1,11 +1,13 @@
 bin_PROGRAMS = rtgraph-demo
 
-INCLUDES = -I include
+INCLUDES = -I ../include $(PACKAGE_CFLAGS)
 
 rtgraph_demo_SOURCES =			\
-	bptree.c			\
-	channel.c			\
-	pagestorage.c
+	pagestorage.c			\
+	demo.c
+
+#	bptree.c			\
+#	channel.c			\
 
 noinst_HEADERS =			\
 	bptree.h			\

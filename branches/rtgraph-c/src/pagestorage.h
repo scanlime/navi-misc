@@ -58,11 +58,21 @@ struct _RtgPageStorage {
     gsize     page_size;
     gsize     num_pages;
 
-    /* Resize to be at least new_num_pages large. The backend may resize
-     * in larger increments if that would be more efficient.
+    /* Extra amount to allocate, relative to what's absolutely necessary,
+     * when we need to grow the size of the storage. This is initialized
+     * to a default value, but the user may modify it.
+     */
+    gfloat    grow_margin;
+
+    /* Resize to be at least new_num_pages large. This must fill in num_pages
+     * with the actual new size before returning.
      */
     void  (*resize)(RtgPageStorage *self, gsize new_num_pages);
     void  (*close)(RtgPageStorage *self);
+
+    /* Implementation-specific data may be placed afterwards
+     * by embedding this structure in an implementation-specific one.
+     */
 };
 
 
@@ -91,10 +101,8 @@ void              rtg_page_storage_close         (RtgPageStorage*   self);
  * storage, the saved page size is always used rather than a specified
  * page size.
  */
-RtgPageStorage*   rtg_page_storage_temp_new      (RtgPageStorage*   self,
-						  gsize             page_size);
-RtgPageStorage*   rtg_page_storage_mapped_new    (RtgPageStorage*   self,
-						  const char*       filename,
+RtgPageStorage*   rtg_page_storage_temp_new      (gsize             page_size);
+RtgPageStorage*   rtg_page_storage_mapped_new    (const char*       filename,
 						  gsize             page_size);
 
 /* The first page in a pagestorage is used internally as a header.
@@ -131,6 +139,13 @@ int               rtg_page_storage_header_validate (RtgPageStorage* self);
 
 /* Initialize an empty page storage */
 void              rtg_page_storage_init            (RtgPageStorage* self);
+
+/* Internal resize function that determines the actual
+ * new size, calls an implementation-specific resize function,
+ * and initializes/destroys pages as necessary.
+ */
+void              rtg_page_storage_resize          (RtgPageStorage* self,
+						    gsize           new_num_pages);
 
 G_END_DECLS
 

@@ -28,28 +28,28 @@
 G_BEGIN_DECLS
 
 /* Define an integer type that's the same size as a pointer */
-#if sizeof(gpointer) == sizeof(unsigned short)
+#if SIZEOF_VOID_P == SIZEOF_UNSIGNED_SHORT
 typedef unsigned short RtgAddress;
-#elif sizeof(gpointer) == sizeof(unsigned int)
+#elif SIZEOF_VOID_P == SIZEOF_UNSIGNED_INT
 typedef unsigned int RtgAddress;
-#elif sizeof(gpointer) == sizeof(unsigned long)
+#elif SIZEOF_VOID_P == SIZEOF_UNSIGNED_LONG
 typedef unsigned long RtgAddress;
-#elif sizeof(gpointer) == sizeof(unsigned long long)
+#elif SIZEOF_VOID_P == SIZEOF_UNSIGNED_LONG_LONG
 typedef unsigned long long RtgAddress;
 #else
 #error Can't find an integer type of equal size to this architecture's pointers
 #endif
 
 /* Sanity check- make sure G_MEM_ALIGN is a power of two */
-#if (G_MEM_ALIGN & (G_MEM_ALIGN-1)) != 0
+#if ((G_MEM_ALIGN) & ((G_MEM_ALIGN)-1)) != 0
 #error G_MEM_ALIGN doesnt appear to be a power of two
 #endif
 
 /* Round an address or size down to a multiple of G_MEM_ALIGN */
-#define RTG_ALIGN_FLOOR(x)  (x & ~((RtgAddress)(G_MEM_ALIGN-1)))
+#define RTG_ALIGN_FLOOR(x)  ((x) & (~((RtgAddress)((G_MEM_ALIGN)-1))))
 
 /* Round an address or size up to a multiple of G_MEM_ALIGN */
-#define RTG_ALIGN_CEIL(x)   (RTG_ALIGN_FLOOR(x) + G_MEM_ALIGN)
+#define RTG_ALIGN_CEIL(x)   (RTG_ALIGN_FLOOR(x) + (G_MEM_ALIGN))
 
 G_END_DECLS
 
