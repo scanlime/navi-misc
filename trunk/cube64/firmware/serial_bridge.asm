@@ -12,8 +12,13 @@
 	;; clocked at 20 MHz. The Nintendo device's bidirectional data line
 	;; is on RA0, serial receive is on RB0, serial transmit is on RB1.
 	;;
+	;; RA4 is set up for transition detection, useful in figuring out the
+	;; address mapping.
+	;;
 	;; This accepts commands of the following form over the serial port,
 	;; which is configured for 38400 baud, 8-N-1:
+	;;
+	;; Host to device:
 	;;
 	;;   Byte   Function
 	;; ----------------------
@@ -21,6 +26,13 @@
 	;;   1      Number of bytes to transmit (up to 40)
 	;;   2      Number of bytes to receive afterwards (up to 40)
 	;;   3-n    Data to transmit
+	;;
+	;; Device to host:
+	;;
+	;;   Byte   Function
+	;; ----------------------
+	;;   0      Number of transitions detected on RA4
+	;;   1-n    Received data
 	;;
 
 	list	p=16f84a
@@ -62,9 +74,12 @@ startup
 	clrf	PORTA
 	clrf	PORTB
 	bsf	STATUS, RP0
-	movlw	0x01
+	movlw	0x11
 	movwf	TRISA
+	movlw	0x01
 	movwf	TRISB
+	movlw	0xEF
+	movwf	OPTION_REG
 
 	n64gc_init
 
@@ -94,6 +109,8 @@ tx_read_loop
 	decfsz	byte_count, f
 	goto	tx_read_loop
 
+	clrf	TMR0
+
 	movlw	buffer		; Transmit to the Nintendo bus...
 	movwf	FSR
 	movf	cmd_tx_count, w
@@ -106,6 +123,9 @@ nothing_to_transmit
 	btfsc	STATUS, Z	; but not if we have nothing to receive
 	goto	main_loop
 	call	nintendo_rx
+
+	movf	TMR0, w		; Transmit the transition detection byte
+	call	serial_tx
 
 	movlw	buffer		; Send the data we received
 	movwf	FSR
