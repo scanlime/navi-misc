@@ -1,9 +1,7 @@
 INCLUDES =						\
 	-DG_LOG_DOMAIN=\"libecalbackendweather\"	\
 	-DWEATHER_DATADIR=\""$(weatherdatadir)"\"	\
-	$(EDS_BACKEND_CFLAGS)				\
-	$(EVOLUTION_CALENDAR_CFLAGS)			\
-	$(SOUP_CFLAGS)
+	$(EDS_BACKEND_CFLAGS)
 
 extension_LTLIBRARIES = libecalbackendweather.la
 
