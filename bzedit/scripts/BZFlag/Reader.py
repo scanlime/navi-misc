@@ -31,6 +31,7 @@ class Reader:
                             Optional(CaselessIteral('E') + Word('+-'+nums, nums)))
             3dPoint = float + float + float
 
+            end = CaselessLiteral("end")
             name = CaselessLiteral("name")
             pos = CaselessLiteral("pos") | CaselessLiteral("position")
             rot = CaselessLiteral("rot") | CaselessLiteral("rotation")
@@ -56,4 +57,20 @@ class Reader:
               | CaselessLiteral("passable")
               | locationProperty
 
-            box = CaselessLiteral("box") + oneOrMore(obstacleProperty) + CaselessLiteral("end")
+            box = CaselessLiteral("box") + OneOrMore(obstacleProperty) + end
+
+            pyramidProperty =
+                CaselessLiteral("flipz")
+              | obstacleProperty
+            pyramid = CaselessLiteral("pyramid") + OneOrMore(pyramidProperty) + end
+
+            worldProperty =
+                size + float
+              | CaselessLiteral("flagHeight") + float
+              | objectProperty
+            world = CaselessLiteral("world") + OneOrMore(worldProperty) + end
+
+            teleporterProperty =
+                CaselessLiteral("border") + float
+              | obstacleProperty
+            teleporter = CaselessLiteral("teleporter") + OneOrMore(teleporterProperty) + end
