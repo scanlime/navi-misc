@@ -49,7 +49,7 @@
 			  <accelerator key="N" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image1202">
+			    <widget class="GtkImage" id="image1228">
 			      <property name="visible">True</property>
 			      <property name="pixbuf">stock_link.png</property>
 			      <property name="xalign">0.5</property>
@@ -208,7 +208,7 @@
 			  <signal name="activate" handler="on_insert_color_code1_activate" last_modification_time="Sat, 24 Jan 2004 17:22:02 GMT"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image1203">
+			    <widget class="GtkImage" id="image1229">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-select-color</property>
 			      <property name="icon_size">1</property>
@@ -243,7 +243,7 @@
 			  <signal name="activate" handler="on_information1_activate" last_modification_time="Fri, 23 Jan 2004 03:53:48 GMT"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image1204">
+			    <widget class="GtkImage" id="image1230">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-dialog-info</property>
 			      <property name="icon_size">1</property>
@@ -272,7 +272,7 @@
 			  <signal name="activate" handler="on_reconnect1_activate" last_modification_time="Fri, 23 Jan 2004 03:45:51 GMT"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image1205">
+			    <widget class="GtkImage" id="image1231">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-refresh</property>
 			      <property name="icon_size">1</property>
@@ -294,7 +294,7 @@
 			  <signal name="activate" handler="on_disconnect1_activate" last_modification_time="Fri, 23 Jan 2004 03:47:39 GMT"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image1206">
+			    <widget class="GtkImage" id="image1232">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-stop</property>
 			      <property name="icon_size">1</property>
@@ -322,7 +322,7 @@
 			  <accelerator key="C" modifiers="GDK_MOD1_MASK" signal="activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image1207">
+			    <widget class="GtkImage" id="image1233">
 			      <property name="visible">True</property>
 			      <property name="stock">gnome-stock-text-bulleted-list</property>
 			      <property name="icon_size">1</property>
@@ -391,7 +391,7 @@
 			  <signal name="activate" handler="on_leave1_activate" last_modification_time="Sat, 24 Jan 2004 17:19:31 GMT"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image1208">
+			    <widget class="GtkImage" id="image1234">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-quit</property>
 			      <property name="icon_size">1</property>
@@ -414,7 +414,7 @@
 			  <accelerator key="W" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image1209">
+			    <widget class="GtkImage" id="image1235">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-close</property>
 			      <property name="icon_size">1</property>
@@ -460,7 +460,7 @@
 			  <accelerator key="L" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image1210">
+			    <widget class="GtkImage" id="image1236">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-clear</property>
 			      <property name="icon_size">1</property>
@@ -489,7 +489,7 @@
 			  <accelerator key="B" modifiers="GDK_MOD1_MASK" signal="activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image1211">
+			    <widget class="GtkImage" id="image1237">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-dialog-warning</property>
 			      <property name="icon_size">1</property>
@@ -521,11 +521,11 @@
 			  <property name="sensitive">False</property>
 			  <property name="label" translatable="yes">Pre_vious Network</property>
 			  <property name="use_underline">True</property>
-			  <signal name="activate" handler="on_previous_network1_activate" last_modification_time="Sat, 24 Jan 2004 18:10:02 GMT"/>
+			  <signal name="activate" handler="on_go_previous_network_activate" last_modification_time="Sat, 03 Apr 2004 07:22:15 GMT"/>
 			  <accelerator key="Left" modifiers="GDK_MOD1_MASK" signal="activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image1212">
+			    <widget class="GtkImage" id="image1238">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-goto-first</property>
 			      <property name="icon_size">1</property>
@@ -544,11 +544,11 @@
 			  <property name="sensitive">False</property>
 			  <property name="label" translatable="yes">Nex_t Network</property>
 			  <property name="use_underline">True</property>
-			  <signal name="activate" handler="on_next_network1_activate" last_modification_time="Sat, 24 Jan 2004 18:10:02 GMT"/>
+			  <signal name="activate" handler="on_go_next_network_activate" last_modification_time="Sat, 03 Apr 2004 07:22:15 GMT"/>
 			  <accelerator key="Right" modifiers="GDK_MOD1_MASK" signal="activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image1213">
+			    <widget class="GtkImage" id="image1239">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-goto-last</property>
 			      <property name="icon_size">1</property>
@@ -570,14 +570,13 @@
 		      <child>
 			<widget class="GtkImageMenuItem" id="previous1">
 			  <property name="visible">True</property>
-			  <property name="sensitive">False</property>
 			  <property name="label" translatable="yes">_Previous Discussion</property>
 			  <property name="use_underline">True</property>
 			  <signal name="activate" handler="on_previous1_activate" last_modification_time="Sat, 24 Jan 2004 17:28:03 GMT"/>
 			  <accelerator key="Left" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image1214">
+			    <widget class="GtkImage" id="image1240">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-go-back</property>
 			      <property name="icon_size">1</property>
@@ -593,14 +592,13 @@
 		      <child>
 			<widget class="GtkImageMenuItem" id="next1">
 			  <property name="visible">True</property>
-			  <property name="sensitive">False</property>
 			  <property name="label" translatable="yes">_Next Discussion</property>
 			  <property name="use_underline">True</property>
 			  <signal name="activate" handler="on_next1_activate" last_modification_time="Sat, 24 Jan 2004 17:28:03 GMT"/>
 			  <accelerator key="Right" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 			  <child internal-child="image">
-			    <widget class="GtkImage" id="image1215">
+			    <widget class="GtkImage" id="image1241">
 			      <property name="visible">True</property>
 			      <property name="stock">gtk-go-forward</property>
 			      <property name="icon_size">1</property>
