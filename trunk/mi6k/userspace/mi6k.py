@@ -15,7 +15,6 @@ class CenturyVFD:
 
     def __init__(self, dev):
         self.dev = dev
-        self.powerOn()
 
     def powerOn(self):
         ioctl(self.dev, 0x3600, 1)
