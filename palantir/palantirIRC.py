@@ -39,6 +39,7 @@ class PalantirClient(irc.IRCClient):
     self.sendLine('WHO ' + channel)
     self.factory.ui.messageReceive(None, channel, 'Joined ' + channel + '\n')
     self.factory.ui.messageReceive(None, channel, 'Topic for ' + channel + ' is: ')
+    self.ctcpMakeQuery(channel, [('DMQUERY',None)])
 
   def left(self, channel):
     ''' Called when we've left a channel, print a message that we've gone. '''
