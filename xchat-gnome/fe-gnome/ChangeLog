@@ -1,6 +1,7 @@
 0.3pre
-	* Conversion to GtkUIManager - Christian Persch
+	* Conversion to GtkUIManager - Christian Persch / David Trowbridge
 	* Implemented Hilight List editing - David Trowbridge
+	* Color Configuration (schemes, custom) - David Trowbridge
 
 0.2 "This is my boomstick" (13 September 2004)
 	* various GUI prettification - Ramón Rey Vicente
