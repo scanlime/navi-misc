@@ -158,6 +158,26 @@ find_location (gchar *relative_url)
 	return find_data.result;
 }
 
+static gboolean
+treeview_clicked (GtkTreeView *treeview, GdkEventButton *event, GtkDialog *dialog)
+{
+	if (event->type == GDK_2BUTTON_PRESS) {
+		GtkTreeSelection *selection = gtk_tree_view_get_selection (treeview);
+		GtkTreeModel *model;
+		GtkTreeIter iter;
+
+		if (gtk_tree_selection_get_selected (selection, &model, &iter)) {
+			gchar *code = NULL;
+			gtk_tree_model_get (model, &iter, 1, &code, -1);
+			if (code != NULL) {
+				gtk_dialog_response (dialog, GTK_RESPONSE_OK);
+				return TRUE;
+			}
+		}
+	}
+	return FALSE;
+}
+
 static GtkDialog *
 create_source_selector (ESource *source)
 {
@@ -186,6 +206,8 @@ create_source_selector (ESource *source)
 	gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (treeview), FALSE);
 	gtk_widget_show (treeview);
 	gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW (scrolledwindow), treeview);
+	gtk_widget_add_events (treeview, GDK_BUTTON_PRESS);
+	g_signal_connect (G_OBJECT (treeview), "button-press-event", G_CALLBACK (treeview_clicked), dialog);
 	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
 	gtk_tree_selection_set_mode (selection, GTK_SELECTION_BROWSE);
 
