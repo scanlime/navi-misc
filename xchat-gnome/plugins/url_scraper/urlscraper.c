@@ -15,6 +15,11 @@ static int urls;			// Current total in the scraper.
 static GtkWidget *window;
 static GtkListStore *list_store;
 
+static gboolean delete_cb (GtkWidget *widget, GdkEvent *event, gpointer user_data)
+{
+	return TRUE;
+}
+
 static void make_window ()
 {
 	GtkWidget *treeview, *scrolled;
@@ -23,6 +28,7 @@ static void make_window ()
 
 	window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_default_size (GTK_WINDOW(window), 400, 400);
+	g_signal_connect (G_OBJECT(window), "delete-event", G_CALLBACK(delete_cb), 0);
 
 	list_store = gtk_list_store_new (3, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
 
@@ -56,14 +62,13 @@ static void make_window ()
 
 static int grabURL (char **word, void *userdata)
 {
-	/*GtkTreeIter iter;
+	GtkTreeIter iter;
 
-	char *chan;
+	const char *chan;
 	size_t len;
 	regmatch_t *match;
 
-	if (regexec(&email, word[4], len, match, 0) == 0 ||
-		regexec(&url, word[4], len, match, 0) == 0)
+	if (regexec(&url, word[4], len, match, 0) == 0)
 	{
 		chan = xchat_get_info(ph, "channel");
 
@@ -79,7 +84,7 @@ static int grabURL (char **word, void *userdata)
 
 		gtk_list_store_append (list_store, &iter);
 		gtk_list_store_set (list_store, &iter, 0, word[3], 1, chan, 2, match, -1);
-	}*/
+	}
 
 	return XCHAT_EAT_NONE;
 }
@@ -96,8 +101,8 @@ int xchat_plugin_init (xchat_plugin *plugin_handle,
 	*plugin_desc = "Grabs URLs and puts them in a separate window for easy viewing.";
 	*plugin_version = VERSION;
 
-	//regcomp (&email, "[\w\.\-\+]+@([0-9a-z\-]+\.)+[a-z]+", REG_ICASE);
-	//regcomp (&url, "(ht|f)tps?://[^\s\>\]\)]+", REG_ICASE);
+	regcomp (&email, "[\\w\\.\\-\\+]+@([0-9a-z\\-]+\\.)+[a-z]+", REG_ICASE);
+	regcomp (&url, "(ht|f)tps?://[^\\s\\>\\]\\)]+", REG_ICASE);
 
 	urls = 0;
 
