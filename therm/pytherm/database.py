@@ -31,8 +31,8 @@ import os, time
 class ThermSource:
     """One data source in the therm database"""
     packetQuery = """
-        SELECT P.id, P.time, P.num_copies, P.sequence, P.signal_strength,
-               T.average, V.voltage FROM packets P
+        SELECT P.id, P.time, P.num_copies, P.sequence, P.signal_strength, T.average, V.voltage
+            FROM packets P FORCE INDEX (id)
             LEFT OUTER JOIN temperatures T ON (T.packet = P.id)
             LEFT OUTER JOIN battery_voltage V ON (V.packet = P.id)
         """
