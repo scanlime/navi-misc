@@ -22,7 +22,7 @@ and selecting items.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from BZEngine.UI import Sequencer, Layout, HUD, Input
+from BZEngine.UI import Sequencer, Layout, HUD, Input, Viewport
 from BZEngine import Event
 from Wasabi import Icon
 from math import *
@@ -69,6 +69,9 @@ class Menu(Sequencer.Page):
 
         # Create an ortho mode viewport over the whole screen
         self.overlay = self.viewport.region(Layout.Rect(self.viewport))
+
+        # No need to clear the viewport, we're drawing a background
+        self.viewport.mode = Viewport.GL.UnclearedMode()
 
         # Draw a background image
         self.background = HUD.Background(self.overlay, "calm.png")

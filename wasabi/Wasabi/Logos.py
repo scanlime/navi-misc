@@ -64,6 +64,9 @@ class OrbitingLogo(Sequencer.Page):
         self.view.camera.elevation = 0
         self.view.camera.jump()
 
+        # We need the viewport to clear our background to black
+        self.viewport.mode = Viewport.GL.ClearedMode()
+
         orbitParticles = ("green_flame.particle", "green_nebula.particle")
         self.orbits = [OrbitingParticles(cPickle.load(open(Util.dataFile(name)))) for name in orbitParticles]
         for orbit in self.orbits:
