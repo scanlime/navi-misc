@@ -13,7 +13,6 @@ gboolean initialize_gui() {
 	initialize_main_window();
 	initialize_preferences_dialog();
 	initialize_connection_dialog();
-	initialize_about_dialog();
 	return TRUE;
 }
 
