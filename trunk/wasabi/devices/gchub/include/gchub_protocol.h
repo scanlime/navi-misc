@@ -31,7 +31,7 @@
 ;// The protocol version, stored in binary coded decimal.
 ;// This is available from the device in the bcdDevice field
 ;// of its DEVICE descriptor.
-#define GCHUB_PROTOCOL_VERSION        0x0100
+#define GCHUB_PROTOCOL_VERSION        0x0101
 
 ;// Device vendor and product IDs.
 ;// The device class and protocol are both set to 'vendor-specific'.
@@ -55,8 +55,15 @@
 ;// the packet describes and the format of the rest of the packet.
 ;// The low nybble of this code identifies the controller
 ;// (from 0 to 3) while the high nybble holds one of the
-;// following codes:
+;// following codes.
+
 ;// (note that all bytes not mentioned are undefined)
+
+;// also note that in some cases it will require multiple
+;// packets to fully describe the state of the controller.
+;// In this case, the current state should only be pushed
+;// to an application when the GCHUB_SYNC bit is set:
+#define GCHUB_SYNC               0x80
 
 ;// Type code for packets identifying controllers that
 ;// are unplugged. No meaningful data follows the code byte.

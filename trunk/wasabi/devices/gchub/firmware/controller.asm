@@ -130,7 +130,7 @@ poll_controller	macro	port_number
 
 	;; Then send button status
 	banksel	controller_buffer
-	movlw	GCHUB_PACKET_BUTTONS | port_number
+	movlw	GCHUB_PACKET_BUTTONS | GCHUB_SYNC | port_number
 	movwf	controller_buffer
 	map_byte 0, 1
 	map_byte 1, 2
@@ -140,7 +140,7 @@ poll_controller	macro	port_number
 	pagesel	done
 	goto	done
 timeout_handler
-	movlw	GCHUB_PACKET_DISCONNECT | port_number
+	movlw	GCHUB_PACKET_DISCONNECT | GCHUB_SYNC | port_number
 	banksel	controller_buffer
 	movwf	controller_buffer
 	fpsleep	poll_state
