@@ -170,7 +170,7 @@ def benchmark(server, numMessages=5000, verbose=True):
     for i, message in enumerate(messages):
         server.hub.deliver(message)
         speed = (i+1) / (time.time() - startTime)
-        if verbose:
+        if verbose and not i % 50:
             print "Message %d/%d...\taverage %.02f messages/second" % (i, len(messages), speed)
     return speed
 
