@@ -71,11 +71,11 @@ render_pass_render (RenderPass *pass)
   klass->render (pass);
 }
 
-void
+gboolean
 render_pass_filter (RenderPass *pass, Drawable *drawable)
 {
   RenderPassClass *klass = RENDER_PASS_CLASS (G_OBJECT_GET_CLASS (pass));
-  klass->filter (pass, drawable);
+  return klass->filter (pass, drawable);
 }
 
 void

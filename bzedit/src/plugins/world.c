@@ -267,6 +267,8 @@ ground_drawable_class_init (GroundDrawableClass *klass)
 static void
 ground_drawable_init (GroundDrawable *gd)
 {
+  Drawable *d = DRAWABLE (gd);
+
   gd->base_texture_repeat = 90;
   gd->overlay_texture_repeat = 1;
 }

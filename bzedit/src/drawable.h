@@ -39,11 +39,23 @@ G_BEGIN_DECLS
 typedef struct _Drawable      Drawable;
 typedef struct _DrawableClass DrawableClass;
 
+typedef struct
+{
+  gboolean blended;       /* This primitive uses blending, and should be rendered after solid objects */
+  gboolean overlay;       /* This object is on top of the scene, rather than part of it */
+  gboolean statico;       /* This object doesn't change, so it can be cached in a display list */
+  gboolean decal;         /* This object is a decal, to be drawn with a depth offset */
+  gboolean camera;        /* This object is a camera-induced effect */
+  gboolean reflection;    /* This object is a cube-mapped reflection */
+  gboolean background;    /* This object is part of a location-independent background behind the scene */
+} RenderSettings;
+
 struct _Drawable
 {
   GObject object;
 
   gchar *texture;
+  RenderSettings render;
 };
 
 struct _DrawableClass

@@ -30,10 +30,10 @@
 G_BEGIN_DECLS
 
 #define TEXTURE_MANAGER_TYPE            (texture_manager_get_type ())
-#define TEXTURE_MANAGER(obj)            (G_OBJECT_INSTANCE_CAST ((obj), TEXTURE_MANAGER_TYPE, TextureManager))
-#define TEXTURE_MANAGER_CLASS(klass)    (G_OBJECT_CLASS_CAST ((klass), TEXTURE_MANAGER_TYPE, TextureManagerClass))
-#define IS_TEXTURE_MANAGER(obj)         (G_OBJECT_CHECK_INSTANCE_TYPE ((obj), TEXTURE_MANAGER_TYPE))
-#define IS_TEXTURE_MANAGER_CLASS(klass) (G_OBJECT_CHECK_CLASS_TYPE ((klass), TEXTURE_MANAGER_TYPE))
+#define TEXTURE_MANAGER(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), TEXTURE_MANAGER_TYPE, TextureManager))
+#define TEXTURE_MANAGER_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), TEXTURE_MANAGER_TYPE, TextureManagerClass))
+#define IS_TEXTURE_MANAGER(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TEXTURE_MANAGER_TYPE))
+#define IS_TEXTURE_MANAGER_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), TEXTURE_MANAGER_TYPE))
 
 typedef struct _TextureManager      TextureManager;
 typedef struct _TextureManagerClass TextureManagerClass;
