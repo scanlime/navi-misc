@@ -669,7 +669,6 @@ class Teleporter(Box):
     def serialize(self, writer):
         BZObject.serialize(self, writer)
         writer(("position",) + tuple(self.position))
-        print self.size
         writer(("size", 0.0, self.size[1], self.size[2]))
         writer(("rotation", self.rotation))
         writer(("border", self.border))
