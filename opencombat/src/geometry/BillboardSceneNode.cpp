@@ -272,6 +272,7 @@ void			BillboardSceneNode::addLight(
 void			BillboardSceneNode::notifyStyleChange(
 				const SceneRenderer&)
 {
+	show = hasTexture;
 }
 
 void			BillboardSceneNode::addRenderNodes(
