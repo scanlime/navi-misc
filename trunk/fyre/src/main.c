@@ -49,6 +49,7 @@
 
 #ifdef HAVE_GNET
 #include "cluster-model.h"
+#include "discovery-server.h"
 #endif
 
 static void usage                  (char          **argv);
@@ -65,6 +66,7 @@ int main(int argc, char ** argv) {
     gboolean animate = FALSE;
     gboolean have_gtk;
     gboolean verbose = FALSE;
+    gboolean hidden = FALSE;
     enum {INTERACTIVE, RENDER, SCREENSAVER, REMOTE} mode = INTERACTIVE;
     const gchar *outputFile = NULL;
     int c, option_index=0;
@@ -101,6 +103,7 @@ int main(int argc, char ** argv) {
 	    {"port",        1, NULL, 'P'},
 	    {"cluster",     1, NULL, 'c'},
 	    {"screensaver", 0, NULL, 1000},   /* Undocumented, still experimental */
+	    {"hidden",      0, NULL, 1001},
 	    {NULL},
 	};
 	c = getopt_long(argc, argv, "hi:n:o:p:s:S:t:rvP:c:",
@@ -167,8 +170,12 @@ int main(int argc, char ** argv) {
 #endif
 	    break;
 
-	case 1000:
+	case 1000: /* --screensaver */
 	    mode = SCREENSAVER;
+	    break;
+
+	case 1001: /* --hidden */
+	    hidden = TRUE;
 	    break;
 
 	case 'h':
@@ -239,6 +246,8 @@ int main(int argc, char ** argv) {
 	    }
 #  endif
 	}
+	if (!hidden)
+	    discovery_server_new(FYRE_DEFAULT_SERVICE, port_number);
 	remote_server_main_loop(port_number, have_gtk, verbose);
 #else
 	fprintf(stderr,
@@ -286,13 +295,18 @@ static void usage(char **argv) {
 	    "  -o, --output FILE       Instead of presenting an interactive GUI, render\n"
 	    "                            an image or animation with the provided settings\n"
 	    "                            noninteractively, and store it in FILE.\n"
-	    "  -r, --remote            Remote control mode. This is an automation-friendly\n"
-	    "                            interface provided on stdin and stdout.\n"
-	    "  -P N, --port N          Set the TCP port number used for remote control mode\n"
-	    "  -v, --verbose           In remote control mode, display status messages on the\n"
-	    "                            console and don't run as a daemon.\n"
+	    "\n"
+	    "Clustering:\n"
 	    "  -c LIST, --cluster LIST Use a rendering cluster, specified as a comma-separated\n"
 	    "                            list of hostnames, optionally of the form host:port.\n"
+	    "  -r, --remote            Remote control mode. Fyre will listen by default on\n"
+	    "                            port 7931 for commands, and can act as a rendering\n"
+	    "                            server in a cluster.\n"
+	    "  -P N, --port N          Set the TCP port number used for remote control mode.\n"
+	    "  -v, --verbose           In remote control mode, display status messages on the\n"
+	    "                            console and don't run as a daemon.\n"
+	    "  --hidden                In remote control mode, don't reply to broadcast requests\n"
+	    "                            for detecting available Fyre servers.\n"
 	    "\n"
 	    "Parameters:\n"
 	    "  -p, --param KEY=VALUE   Set a calculation or rendering parameter, using the\n"
