@@ -14,9 +14,62 @@ the XP3 into a rasterwand device.
    everything off of 5v, where the original design
    had separate 5v and 15v rails.
 
-4. Remove R1, Y1, C1, C2, and C3. The new microcontroller
-   needs 6MHz rather than 4MHz, and it can't be mounted
-   in the same spot easily, so the original oscillator
-   is of no use to us. You may be able to save the capacitors
-   for use later on.
+4. Remove R1, Y1, C1, and C2. Replace Y1 with a 6 MHz crystal,
+   and replace C1 with a 33pf capacitor. Ensure C3 is 33pf.
+
+5. Cut traces, near U1, connecting it to the LEDs, coil driver,
+   interruption sensor, and switches. We'll have to reroute
+   all the processor's I/O, since the PIC16C745 uses some pins
+   for USB that would have been needed for LED drive.
+
+6. Replace C5 with a 22uf electrolytic capacitor. The original
+   2200uf was overkill, only necessary for filtering an AC
+   supply- but we do need some filtering, to keep the coil
+   driver from dirtying our 5v too much. Note the polarity.
+
+7. Connect the coil driver input (the side of R3 that originally
+   connected to U1) to U1 pin 11 (RC0). Wire-wrapping wire on the
+   back of the board is good for this.
+
+8. Connect the interruption sensor output (the junction of Q3 and R4)
+   to U1 pin 12 (RC1).
+
+9. Connect a 0.22uf capacitor between pin 14 of U1 (Vusb) and ground.
+   0.22uf is nominal, but two 0.1uf capacitors in parallel or even
+   one 0.1uf capacitor should be close enough. You can solder this
+   capacitor on the back of the PCB, between pin 14 of U1 and the
+   nearby grounded side of D4 (which was removed).
+
+10. Add a 1.5k resistor between pins 15 and 15 of U1. Again, this
+    can go on the back of the PCB. 1k should be close enough, but
+    1.5k is nominal.
+
+11. Prepare the USB cable. Either obtain a suitable USB cable with
+    a type A plug, or cut the type B plug off of an A-B cable.
+    Thread the cut end of the cable through the former power adaptor
+    hole in the metal base. tie a knot in it about 8 inches from the
+    end, and cut the outer insulation and shielding off of the last
+    6 inches or so.
+
+12. Solder the red USB wire to the cathode side of D3 (removed).
+    This is the +5v supply. Solder the black USB wire to the anode
+    side of D5 (ground plane)
+
+13. In order to get the USB data signals to the back of the board
+    in a physically sturdy way, we'll solder them to the former
+    location of big diodes. Solder the green wire (D+) to
+    the anode side of D3 and the white wire (D-) to the anode
+    side of D2.
+    Be very careful not to touch the flat cable with your soldering
+    iron during this process.
+
+14. Cut the traces running from the diodes to J2, as near to the
+    diodes as possible. This probably isn't necessary, but it keeps
+    the capacitance of D+ and D- down.
+
+15. Connect the cathode of D5 (lower-right-most diode pin looking at
+    the back of the board) to U1 pin 16. Connect the cathode of D4
+    (just to the left, looking at the back) to U1 pin 15.
+    USB should now work- with a chip in the U1 socket, the device
+    should be enumerated and appear in lsusb or usbview.
 
