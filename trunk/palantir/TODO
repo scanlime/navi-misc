@@ -7,3 +7,5 @@
 * Change colors in the chat buffer
 * Remove extraneous functions in the factory and have the UI access the client via
   the factory instead of adding unnecessary function calls.
+* Move the character sheets out from under the userlist over to the right of the
+  chat buffer.
