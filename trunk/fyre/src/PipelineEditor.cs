@@ -183,7 +183,17 @@ public class PipelineEditor
 			/* If we're just continuing a drag, don't do anything */
 			if (dragging)
 				return;
-			/* Check that we're on a child node */
+			/* Check that we have a path */
+			if (element_list.GetPathAtPos ((int) ev.X, (int) ev.Y, out path) == false)
+				return;
+
+			/* Check that the path exists */
+			Gtk.TreeIter iter;
+			if (sorted_store.GetIter (out iter, path) == false)
+				return;
+			/* Check that the currently selected tree entry is an Element */
+			if (sorted_store.GetValue (iter, 2) == null)
+				return;
 			/* Start a drag */
 			dragging = true;
 			Gtk.Drag.Begin (element_list, target_list, Gdk.DragAction.Copy, 1, ev);
