@@ -130,11 +130,11 @@ namespace Fyre
 			drawing_extents = new Gdk.Rectangle ();
 			layout_extents = new Gdk.Rectangle ();
 
-			// For now, initialize the layout extents to 400x400, centered at the origin
-			layout_extents.X = -200;
-			layout_extents.Y = -200;
-			layout_extents.Width  = 400;
-			layout_extents.Height = 400;
+			// For now, initialize the layout extents to 300x300, centered at the origin
+			layout_extents.X = -150;
+			layout_extents.Y = -150;
+			layout_extents.Width  = 300;
+			layout_extents.Height = 300;
 
 			drawing_extents.X = 0;
 			drawing_extents.Y = 0;
