@@ -45,7 +45,7 @@ def generateRandom(l):
        """
     return ''.join([random.choice(choices) for choices in l])
 
-def randomCommit():
+def randomCommit(rev=1):
     """Create a random commit message"""
     return """
     <message>
@@ -55,12 +55,14 @@ def randomCommit():
             <commit>
                 <author>%s</author>
                 <log>%s</log>
+		<revision>%s</revision>
             </commit>
         </body>
     </message>
     """ % (generateRandom(randomProject),
            generateRandom(randomAuthor),
-           generateRandom(randomLog))
+           generateRandom(randomLog),
+	   rev)
 
 
 class TortureStats(Client.App):
@@ -88,7 +90,7 @@ class TortureStats(Client.App):
         # Deliver random messages. We generate them beforehand,
         # so the time that takes isn't included in the simple benchmark
         print "Generating messages..."
-        messages = [randomCommit() for i in xrange(10000)]
+        messages = [randomCommit(i) for i in xrange(10000)]
         startTime = time.time()
         for i, message in enumerate(messages):
             speed = i / (time.time() - startTime)
