@@ -76,7 +76,7 @@ struct rwand_status {
 struct rwand_startup {
   int  min_period;            /* Minimum period, in 2.66us units */
   int  max_period;            /* Maximum period, in 2.66us units */
-  int  climb_rate;            /* Period climb rate, in 2.66us units per jiffy */
+  int  climb_rate;            /* Period climb rate, in 2.66us units per second */
 };
 
 

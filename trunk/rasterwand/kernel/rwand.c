@@ -257,7 +257,7 @@ static struct model_intrinsics model_table[] = {
 		.startup       = {
 			.min_period = 45000,
 			.max_period = 50000,
-			.climb_rate = 700/HZ,
+			.climb_rate = 700,
 		},
 	},
 	{
@@ -269,7 +269,7 @@ static struct model_intrinsics model_table[] = {
 		.startup       = {
 			.min_period = 45000,
 			.max_period = 50000,
-			.climb_rate = 700/HZ,
+			.climb_rate = 700,
 		},
 	},
 	{ }
@@ -344,8 +344,9 @@ static void rwand_update_state_off(struct rwand_dev *dev, struct rwand_status *n
 static void rwand_update_state_starting(struct rwand_dev *dev, struct rwand_status *new_status)
 {
 	int new_period;
+	struct rwand_timings timings;
 	unsigned long now = jiffies;
-	unsigned long dt = now - dev->state_timer;
+	long dt = now - dev->state_timer;
 	dev->state_timer = now;
 
 	rwand_ensure_mode(dev, new_status,
@@ -353,11 +354,21 @@ static void rwand_update_state_starting(struct rwand_dev *dev, struct rwand_stat
 
 	/* Cycle through different frequencies trying to get our wand to start up */
 	new_period = new_status->period;
+
 	if (new_period > dev->startup.max_period ||
-	    new_period < dev->startup.min_period)
-		new_period = dev->startup.min_period;
-	new_period += dt * dev->startup.climb_rate;
+	    new_period < dev->startup.min_period) {
+		if (dev->startup.climb_rate >= 0)
+			new_period = dev->startup.min_period;
+		else
+			new_period = dev->startup.max_period;
+	}
+
+	new_period += dt * dev->startup.climb_rate / HZ;
+
+	/* Set the new period and coil phase */
+	rwand_calc_timings(&dev->settings, new_period, &timings);
 	rwand_nb_request(dev, RWAND_CTRL_SET_PERIOD, new_period, 0);
+	rwand_nb_request(dev, RWAND_CTRL_SET_COIL_PHASE, timings.coil_begin, timings.coil_end);
 
 	if (dev->edge_count > STARTING_EDGES)
 		rwand_enter_state_stabilizing(dev);
