@@ -1,4 +1,5 @@
-/*
+/* -*- mode: c; c-basic-offset: 4; -*-
+ *
  * bptree.c - A somewhat generic B+-Tree implementation used by rtgraph
  *            channels internally. Keys and values are stored in the nodes
  *            themselves, and are arbitrary but fixed sizes. User-defined
@@ -195,13 +196,13 @@ static void       init_namespaced_page_atom      (RtgPageStorage*   storage,
 static gboolean   validate_iter                  (RtgBPTree*        self,
 						  RtgBPIter*        iter)
 {
-  if (rtg_bptree_iter_is_valid(self, iter)) {
-    return TRUE;
-  }
-  else {
-    g_warning("Invalid RtgBPIter %p in tree %p", iter, self);
-    return FALSE;
-  }
+    if (rtg_bptree_iter_is_valid(self, iter)) {
+	return TRUE;
+    }
+    else {
+	g_warning("Invalid RtgBPIter %p in tree %p", iter, self);
+	return FALSE;
+    }
 }
 
 
@@ -235,11 +236,11 @@ RtgBPTree*        rtg_bptree_new                 (RtgPageStorage*   storage,
 
     /* Create the root if it doesn't exist */
     if (rtg_page_atom_value(storage, &self->root, RtgPageAddress) == RTG_PAGE_NULL) {
-      RtgPageAddress root = rtg_page_storage_alloc(storage);
-      rtg_page_atom_value(storage, &self->root, RtgPageAddress) = root;
+	RtgPageAddress root = rtg_page_storage_alloc(storage);
+	rtg_page_atom_value(storage, &self->root, RtgPageAddress) = root;
 
-      index_parent(self, root) = RTG_PAGE_NULL;
-      index_count(self, root) = 0;
+	index_parent(self, root) = RTG_PAGE_NULL;
+	index_count(self, root) = 0;
     }
 
     return self;
@@ -289,49 +290,49 @@ void              rtg_bptree_last                (RtgBPTree*        self,
 void              rtg_bptree_prev                (RtgBPTree*        self,
 						  RtgBPIter*        iter)
 {
-  if (!validate_iter(self, iter))
-    return;
+    if (!validate_iter(self, iter))
+	return;
 
 }
 
 void              rtg_bptree_next                (RtgBPTree*        self,
 						  RtgBPIter*        iter)
 {
-  if (!validate_iter(self, iter))
-    return;
+    if (!validate_iter(self, iter))
+	return;
 
 }
 
 gpointer          rtg_bptree_read_key            (RtgBPTree*        self,
 						  RtgBPIter*        iter)
 {
-  if (!validate_iter(self, iter))
-    return NULL;
-  return leaf_key(self, iter->leaf_page, iter->leaf_index);
+    if (!validate_iter(self, iter))
+	return NULL;
+    return leaf_key(self, iter->leaf_page, iter->leaf_index);
 }
 
 gpointer          rtg_bptree_read_value          (RtgBPTree*        self,
 						  RtgBPIter*        iter)
 {
-  if (!validate_iter(self, iter))
-    return NULL;
-  return leaf_value(self, iter->leaf_page, iter->leaf_index);
+    if (!validate_iter(self, iter))
+	return NULL;
+    return leaf_value(self, iter->leaf_page, iter->leaf_index);
 }
 
 void              rtg_bptree_write_value         (RtgBPTree*        self,
 						  RtgBPIter*        iter,
 						  gpointer          key)
 {
-  if (!validate_iter(self, iter))
-    return;
+    if (!validate_iter(self, iter))
+	return;
 
 }
 
 void              rtg_bptree_remove              (RtgBPTree*        self,
 						  RtgBPIter*        iter)
 {
-  if (!validate_iter(self, iter))
-    return;
+    if (!validate_iter(self, iter))
+	return;
 }
 
 /* The End */

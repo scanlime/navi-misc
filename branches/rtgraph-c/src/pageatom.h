@@ -1,4 +1,5 @@
-/*
+/* -*- mode: c; c-basic-offset: 4; -*-
+ *
  * pageatom.h - Page atoms are defined as simple, space-efficient,
  *              and unsorted/unindexed associations between strings
  *              and small pieces of data.

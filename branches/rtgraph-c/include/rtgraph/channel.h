@@ -1,4 +1,5 @@
-/*
+/* -*- mode: c; c-basic-offset: 4; -*-
+ *
  * RtgChannel - The channel object retrieves and stores (x,y) pairs,
  *              where X is an independent variable (usually time).
  *              One or more channels may supply the content in a
@@ -8,6 +9,8 @@
  *
  *
  *
+
+FIXME: These are just temporary notes
 
 Operations:
 
@@ -94,11 +97,11 @@ typedef struct _RtgChannelClass RtgChannelClass;
 typedef struct _RtgChannelIter  RtgChannelIter;
 
 struct _RtgChannel {
-  GObject object;
+    GObject object;
 };
 
 struct _RtgChannelClass {
-  GObjectClass parent_class;
+    GObjectClass parent_class;
 };
 
 struct _RtgChannelIter {
@@ -106,10 +109,10 @@ struct _RtgChannelIter {
 };
 
 enum {
-  RTG_INTERPOLATION_PREVIOUS,
-  RTG_INTERPOLATION_NEAREST,
-  RTG_INTERPOLATION_LINEAR,
-  RTG_INTERPOLATION_SMOOTH,
+    RTG_INTERPOLATION_PREVIOUS,
+    RTG_INTERPOLATION_NEAREST,
+    RTG_INTERPOLATION_LINEAR,
+    RTG_INTERPOLATION_SMOOTH,
 };
 
 

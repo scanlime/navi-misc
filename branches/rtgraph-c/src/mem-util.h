@@ -1,4 +1,5 @@
-/*
+/* -*- mode: c; c-basic-offset: 4; -*-
+ *
  * mem-util.h - Utilities for doing speedy and only slightly
  *              unholy things with pointers. This includes
  *              packing/unpacking pointers into relative

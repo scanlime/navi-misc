@@ -1,4 +1,5 @@
-/*
+/* -*- mode: c; c-basic-offset: 4; -*-
+ *
  * pagestorage.c - Defines a simple way to allocate, free, and
  *                 address fixed-size blocks of data. This data may
  *                 exist in RAM only, or it may be a memory-mapped
@@ -204,7 +205,7 @@ RtgPageStorage*   rtg_page_storage_temp_new      (gsize             page_size)
 
     /* Just some arbitrary default */
     if (page_size == 0)
-      page_size = 1024;
+        page_size = 1024;
 
     self->page_size = page_size;
     self->resize = temp_storage_resize;
