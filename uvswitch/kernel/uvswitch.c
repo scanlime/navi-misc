@@ -156,6 +156,7 @@ static int uvswitch_updateStatus(struct usb_uvswitch *dev)
 {
 	dev->status_request.wValue = dev->status.video_channel | (((int)dev->status.bypass_switch)<<8);
 	dev->status_request.wIndex = dev->status.red_audio_channel | (((int)dev->status.white_audio_channel)<<8);
+	dbg("Status: 0x%04X 0x%04X", dev->status_request.wValue, dev->status_request.wIndex);
 	return usb_submit_urb(dev->status_urb, SLAB_ATOMIC);
 }
 
@@ -579,7 +580,7 @@ static ssize_t uvswitch_write(struct file *file, const char *buffer, size_t coun
 
 	/* First token - video/audio channels */
 	token = strsep(&pkbuf, delim);
-	if (token) {
+	if (token && *token) {
 
 		/* Is it the special "auto" keyword? */
 		if (!strcmp(token, "auto")) {
@@ -601,7 +602,7 @@ static ssize_t uvswitch_write(struct file *file, const char *buffer, size_t coun
 
 	/* Second token - bypass enable */
 	token = strsep(&pkbuf, delim);
-	if (token) {
+	if (token && *token) {
 		v = simple_strtol(token, NULL, 10);
 		if (v < 0 || v > 1) {
 			retval = -EINVAL;
@@ -613,7 +614,7 @@ static ssize_t uvswitch_write(struct file *file, const char *buffer, size_t coun
 
 	/* Third token - white/red audio channel */
 	token = strsep(&pkbuf, delim);
-	if (token) {
+	if (token && *token) {
 		v = simple_strtol(token, NULL, 10);
 		if (v < 0 || v > 8) {
 			retval = -EINVAL;
@@ -626,7 +627,7 @@ static ssize_t uvswitch_write(struct file *file, const char *buffer, size_t coun
 
 	/* Fourth token - red audio channel */
 	token = strsep(&pkbuf, delim);
-	if (token) {
+	if (token && *token) {
 		v = simple_strtol(token, NULL, 10);
 		if (v < 0 || v > 8) {
 			retval = -EINVAL;
