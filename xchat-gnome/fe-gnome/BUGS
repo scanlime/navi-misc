@@ -9,3 +9,4 @@
 * right now the tree view does not allow focus, due to the momentary highlighting
   being terribly annoying. This should change so that the tree view can be keyboard
   navigable
+* channel lists seem to have gotten broken somewhere
