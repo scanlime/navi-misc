@@ -293,6 +293,15 @@ xtext2_init (XText2 *xtext)
   xtext->priv->original_buffer = xtext_buffer_new ();
   xtext->priv->current_buffer = xtext->priv->original_buffer;
   xtext2_show_buffer (xtext, xtext->priv->original_buffer);
+
+  xtext->priv->indent = TRUE;
+  xtext->priv->show_separator = TRUE;
+  xtext->priv->word_wrap = TRUE;
+  xtext->priv->pixel_offset = 0;
+  xtext->priv->clip_x = 0;
+  xtext->priv->clip_x2 = 1000000;
+  xtext->priv->clip_y = 0;
+  xtext->priv->clip_y2 = 1000000;
 }
 
 GtkWidget*
