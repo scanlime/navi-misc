@@ -7,6 +7,7 @@
 #include <math.h>
 #include <unicone.h>
 #include "device.h"
+#include "progress.h"
 
 float delta_time() {
   /* Get the time, in seconds, since the last call to this function */
@@ -32,6 +33,7 @@ float delta_time() {
 int main()
 {
   struct unicone_device* dev;
+  struct progress_reporter* progress = progress_reporter_console_new();
   float theta, brightness;
   int i_brightness;
   unsigned char led_data[2];
@@ -40,6 +42,11 @@ int main()
   dev = unicone_device_new();
   if (!dev) {
     printf("Can't open unicone device\n");
+    return 1;
+  }
+
+  if (unicone_device_configure(dev, "firmware.bin", "fpga/test/test.bit", progress) < 0) {
+    printf("Error configuring unicone device\n");
     return 1;
   }
 

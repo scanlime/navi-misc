@@ -297,6 +297,49 @@ int                       unicone_device_compare_bitstream(struct unicone_device
   return sha_compare(file_sha1, device_sha1);
 }
 
+int                       unicone_device_configure        (struct unicone_device*    self,
+							   const char*               firmware_file,
+							   const char*               bitstream_file,
+							   struct progress_reporter* progress)
+{
+  int retval;
+
+  /* Check our firmware */
+  retval = unicone_device_compare_firmware(self, firmware_file);
+  if (retval < 0)
+    return retval;
+
+  if (retval > 0) {
+    /* Firmware needs upgrading or needs initial installation */
+
+    if (self->firmware_installed) {
+      /* Reboot to clear its current firmware */
+      unicone_device_remove_firmware(self);
+      if (unicone_device_reconnect(self, progress) < 0)
+	return -1;
+    }
+
+    /* Install firmware and reconnect */
+    if (unicone_device_upload_firmware(self, firmware_file, progress) < 0)
+      return -1;
+    if (unicone_device_reconnect(self, progress) < 0)
+      return -1;
+  }
+
+  /* Decide whether we need to install a bitstream */
+  retval = unicone_device_compare_bitstream(self, bitstream_file);
+  if (retval < 0)
+    return retval;
+
+  if (retval > 0) {
+    /* FPGA needs configuration */
+
+    if (unicone_device_upload_bitstream(self, bitstream_file, progress) < 0)
+      return -1;
+  }
+  return 0;
+}
+
 
 /******************************************************************************/
 /**************************************************** Firmware / FPGA Upload **/

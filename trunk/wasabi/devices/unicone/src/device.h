@@ -71,6 +71,15 @@ int                       unicone_device_compare_firmware (struct unicone_device
 int                       unicone_device_compare_bitstream(struct unicone_device*    self,
 							   const char*               filename);
 
+/* Ensure that the device contains the given firmware and FPGA configuration
+ * bitstream, sending them only if they differ from what (if anything) is in
+ * the device already.
+ */
+int                       unicone_device_configure        (struct unicone_device*    self,
+							   const char*               firmware_file,
+							   const char*               bitstream_file,
+							   struct progress_reporter* progress);
+
 
 /******************************************************************************/
 /**************************************************** Firmware / FPGA Upload **/
