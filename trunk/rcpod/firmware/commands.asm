@@ -39,6 +39,7 @@ txe_pin	res	1		 ; Pin number for transmit enable
 last_poke_addr res 2 ; Address of the last byte of the most recently completed 'poke'
 byte_iterator res 1
 buffer_ptr	res 1
+acq_iterator res 1	 ; Iterator for analog aquisition
 
 	code
 
@@ -214,7 +215,7 @@ GpioAssertRequest
 	call	Send_0Len_pkt
 	return
 
-	;********************* Request read a byte from RAM
+	;********************* Request to read a byte from RAM
 	; 9-bit address in wIndex, an 8-bit value returned in a 1-byte packet
 PeekRequest
 	banksel BufferData
@@ -245,7 +246,7 @@ PeekRequest
 	movwf	BD0IST		; give buffer back to SIE
 	return
 
-	;********************* Request read a 8 contiguous bytes from RAM
+	;********************* Request to read a 8 contiguous bytes from RAM
 	; 9-bit address in wIndex, returns an 8-byte packet
 Peek8Request
 	banksel	BD0IAL
@@ -297,7 +298,7 @@ peek8Loop
 	movwf	BD0IST			; give buffer back to SIE
 	return
 
-	;********************* Request read the value of a pin descriptor
+	;********************* Request to read the value of a pin descriptor
 	; pin descriptor in wIndex
 GpioReadRequest
 	banksel BufferData
@@ -324,7 +325,7 @@ GpioReadRequest
 	movwf	BD0IST		; give buffer back to SIE
 	return
 
-	;********************* Request read all A/D converters
+	;********************* Request to read all A/D converters
 	; No inputs, returns an 8-byte packet
 AnalogAllRequest
 	banksel	BD0IAL
@@ -340,16 +341,16 @@ AnalogAllRequest
 	movwf	temp
 adChannelLoop
 
-	banksel	ADCON0		; Ignore one ADC sample as a delay to allow for signal aquisition
-	bsf		ADCON0, GO	; (charging time of the holding capacitor)
+	pagesel	aquisitionLoop
+	banksel	acq_iterator
+	movlw	0xFF		; Wait a while to for the ADC holding capacitor to aquire the signal.
+	movwf	acq_iterator ; This should be plenty long enough for an input with an impedence up to 1k ohm
 aquisitionLoop
-	btfsc	ADCON0, NOT_DONE
+	decfsz	acq_iterator, f
 	goto	aquisitionLoop	
 
-	banksel	ADCON0		; Start the ADC
-	bsf	ADCON0, GO
-
-	pagesel	adFinishLoop	; Wait for it to finish
+	bsf	ADCON0, GO		; Start the ADC
+	pagesel	adFinishLoop ; Wait for it to finish
 adFinishLoop
 	btfsc	ADCON0, NOT_DONE
 	goto	adFinishLoop
