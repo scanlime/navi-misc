@@ -3,10 +3,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BZNext", "..\client\vc71\bz
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OgreMain", "..\..\ogrenew\OgreMain\scripts\OgreMain.vcproj", "{35AFBABB-DF05-43DE-91A7-BB828A874015}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
-EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -17,10 +13,6 @@ Global
 		{23798B04-A478-49D1-9735-54ECF2AF156F}.Debug.Build.0 = Debug|Win32
 		{23798B04-A478-49D1-9735-54ECF2AF156F}.Release.ActiveCfg = Release|Win32
 		{23798B04-A478-49D1-9735-54ECF2AF156F}.Release.Build.0 = Release|Win32
-		{35AFBABB-DF05-43DE-91A7-BB828A874015}.Debug.ActiveCfg = Debug|Win32
-		{35AFBABB-DF05-43DE-91A7-BB828A874015}.Debug.Build.0 = Debug|Win32
-		{35AFBABB-DF05-43DE-91A7-BB828A874015}.Release.ActiveCfg = Release|Win32
-		{35AFBABB-DF05-43DE-91A7-BB828A874015}.Release.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection
