@@ -76,7 +76,7 @@ static void add_match (char **word, regmatch_t match)
 
 	url_match = malloc (len + 1);
 
-	strncpy (url_match, word[2], len);
+	strncpy (url_match, word[2] + match.rm_so, len);
 
 	chan = xchat_get_info (ph, "channel");
 	channel = malloc (strlen (chan));
