@@ -42,6 +42,9 @@ public class TunnelList extends JPanel implements ListSelectionListener
 	myFrame = frame;
 	tListModel = new DefaultListModel();
 	
+	tListModel.addElement("Place Holder");
+	
+
 	tList = new JList(tListModel);
 	tList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 	tList.setSelectedIndex(0);
