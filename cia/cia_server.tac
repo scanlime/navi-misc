@@ -9,7 +9,10 @@ from twisted.web import vhost
 from twisted.internet import ssl
 from LibCIA import Message, Ruleset, IRC, Stats, IncomingMail, Cron
 from LibCIA import Debug, Security, RpcServer, RpcClient, Web, Cache
+from twisted.internet import tcp
 
+# Only bind on one interface
+tcp.Port.interface = "10.30.0.2"
 
 application = service.Application("cia_server")
 hub = Message.Hub()

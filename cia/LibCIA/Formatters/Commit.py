@@ -403,7 +403,7 @@ class CommitToXHTMLLong(CommitToXHTML):
         <n:h1>Commit Message</n:h1>
         <headers/>
         <n:p class='messageBody'><log/></n:p>
-        <autoHide><n:h1>Modified Files</n:h1><files/></autoHide>
+        <n:h1>Modified Files</n:h1><files/>
     </format>
     """
 
@@ -462,15 +462,14 @@ class CommitToXHTMLLong(CommitToXHTML):
         # [fileTag, children] lists. We then create a visual representation
         # of each fileTag and generate the final dictionary.
         fileTree = {}
-        if xmlFiles:
-            for fileTag in XML.getChildElements(xmlFiles):
-                if fileTag.nodeName == 'file':
-                    # Separate the file into path segments and walk into our tree
-                    node = [None, fileTree]
-                    for segment in XML.shallowText(fileTag).split('/'):
-                        node = node[1].setdefault(segment, [None, {}])
-                    # The leaf node owns this fileTag
-                    node[0] = fileTag
+        for fileTag in XML.getChildElements(files):
+            if fileTag.nodeName == 'file':
+                # Separate the file into path segments and walk into our tree
+                node = [None, fileTree]
+                for segment in XML.shallowText(fileTag).split('/'):
+                    node = node[1].setdefault(segment, [None, {}])
+                # The leaf node owns this fileTag
+                node[0] = fileTag
 
         return [Template.FileTree(self.format_file_tree(fileTree))]
 
