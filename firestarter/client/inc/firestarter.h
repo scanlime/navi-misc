@@ -30,8 +30,9 @@
 #include "gameloop.h"
 #include "ui.h"
 #include "gameManager.h"
+#include "Singleton.h"
 
-class  CFirestarterLoop : public CBaseGameLoop
+class  CFirestarterLoop : public Singleton<CFirestarterLoop>, public CBaseGameLoop
 {
 public:
   CFirestarterLoop();

@@ -20,6 +20,8 @@
 * email: jeffm2501@sbcglobal.net
 */
 #include "mainMenu.h"
+#include "firestarter.h"
+#include "input.h"
 
 CMainMenu::CMainMenu()
 {
@@ -31,9 +33,9 @@ CMainMenu::~CMainMenu()
 
 }
 
-CMainMenu::Init ( CBaseGameLoop * pGameLoop )
+void CMainMenu::Init ( void  )
 {
-	CBaseUIPanel::Init(pGameLoop);
+	CBaseUIPanel::Init();
 
 	// init other stuff here
 	ships[0] = ships[1] = ships[2] = ships[3] = NULL;
@@ -41,57 +43,59 @@ CMainMenu::Init ( CBaseGameLoop * pGameLoop )
 
 void CMainMenu::Attach ( void )
 {
+	CFirestarterLoop &gameLoop = CFirestarterLoop::instance();
+
 	mainMenu = (Overlay*)OverlayManager::getSingleton().getByName("menu/mainMenu");
 	mainMenu->show();
 
-	gameLoop->GetCamera()->moveRelative(Vector3(0,1.5f,0));
+	gameLoop.GetCamera()->moveRelative(Vector3(0,1.5f,0));
 
 	// set up a very very simple scene
-	gameLoop->GetSceneManager()->setAmbientLight(ColourValue(0.5, 0.5, 0.5));
-	Light* sun = gameLoop->GetSceneManager()->createLight("Sun");
+	gameLoop.GetSceneManager()->setAmbientLight(ColourValue(0.5, 0.5, 0.5));
+	Light* sun = gameLoop.GetSceneManager()->createLight("Sun");
 	sun->setPosition(Vector3(100,100,100));
 	sun->setDiffuseColour(1,1,1);
 	sun->setType(Light::LT_POINT);
 
-	gameLoop->GetSceneManager()->setSkyBox(true, "grassland_skybox",5000,true,Quaternion(1.57079632f,Vector3(1,0,0)));
+	gameLoop.GetSceneManager()->setSkyBox(true, "grassland_skybox",5000,true,Quaternion(1.57079632f,Vector3(1,0,0)));
 
 	Mesh* mesh = MeshManager::getSingleton().createPlane("GroundPlane", Plane (Vector3(0,1,0),Vector3(0,0,0),Vector3(1,0,0)),800, 800,1,1,true,1,60,60);
 	if (mesh && mesh->getSubMeshIterator().hasMoreElements())
 	{
 		mesh->getSubMeshIterator().getNext()->setMaterialName("ground_mat");
 	}
-	Entity *mGroundEntity = gameLoop->GetSceneManager()->createEntity("Ground","GroundPlane");
-	mGroundNode = static_cast<SceneNode*>(gameLoop->GetSceneManager()->getRootSceneNode()->createChild());
+	Entity *mGroundEntity = gameLoop.GetSceneManager()->createEntity("Ground","GroundPlane");
+	mGroundNode = static_cast<SceneNode*>(gameLoop.GetSceneManager()->getRootSceneNode()->createChild());
 	mGroundNode->attachObject(mGroundEntity);
 
 	// make some ships
 	float	z = 1.50f;
 	float rad = 8.0f;
 
-	Entity* mShip1 = gameLoop->GetSceneManager()->createEntity("MK3-1", "MK3.mesh");
+	Entity* mShip1 = gameLoop.GetSceneManager()->createEntity("MK3-1", "MK3.mesh");
 	mShip1->getMesh()->getSubMeshIterator().getNext()->setMaterialName("RedkMK3");
-	ships[0] = static_cast<SceneNode*>(gameLoop->GetSceneManager()->getRootSceneNode()->createChild());
+	ships[0] = static_cast<SceneNode*>(gameLoop.GetSceneManager()->getRootSceneNode()->createChild());
 	ships[0]->attachObject(mShip1);
 	ships[0]->rotate(Vector3(0,0,1),180);
 	ships[0]->translate(rad,0,z); 
 
-	Entity* mShip2 = gameLoop->GetSceneManager()->createEntity("MK3-2", "MK3.mesh");
+	Entity* mShip2 = gameLoop.GetSceneManager()->createEntity("MK3-2", "MK3.mesh");
 	mShip2->getMesh()->getSubMeshIterator().getNext()->setMaterialName("BlackMK3");
-	ships[1] = static_cast<SceneNode*>(gameLoop->GetSceneManager()->getRootSceneNode()->createChild());
+	ships[1] = static_cast<SceneNode*>(gameLoop.GetSceneManager()->getRootSceneNode()->createChild());
 	ships[1]->attachObject(mShip2);
 	ships[1]->rotate(Vector3(0,0,1),-90);
 	ships[1]->translate(0,rad,z); 
 
-	Entity* mShip3 = gameLoop->GetSceneManager()->createEntity("MK3-3", "MK3.mesh");
+	Entity* mShip3 = gameLoop.GetSceneManager()->createEntity("MK3-3", "MK3.mesh");
 	mShip3->getMesh()->getSubMeshIterator().getNext()->setMaterialName("YellowMK3");
-	ships[3] = static_cast<SceneNode*>(gameLoop->GetSceneManager()->getRootSceneNode()->createChild());
+	ships[3] = static_cast<SceneNode*>(gameLoop.GetSceneManager()->getRootSceneNode()->createChild());
 	ships[3]->attachObject(mShip3);
 	ships[3]->rotate(Vector3(0,0,1),90);
 	ships[3]->translate(0,-rad,z); 
 
-	Entity* mShip4 = gameLoop->GetSceneManager()->createEntity("MK3-4", "MK3.mesh");
+	Entity* mShip4 = gameLoop.GetSceneManager()->createEntity("MK3-4", "MK3.mesh");
 //	mShip4->getMesh()->getSubMeshIterator().getNext()->setMaterialName("BlackMK3");
-	ships[2] = static_cast<SceneNode*>(gameLoop->GetSceneManager()->getRootSceneNode()->createChild());
+	ships[2] = static_cast<SceneNode*>(gameLoop.GetSceneManager()->getRootSceneNode()->createChild());
 	ships[2]->attachObject(mShip4);
 	ships[2]->rotate(Vector3(0,0,1),0);
 	ships[2]->translate(-rad,0,z); 
@@ -99,41 +103,45 @@ void CMainMenu::Attach ( void )
 
 void CMainMenu::Release ( void )
 {
+	CFirestarterLoop &gameLoop = CFirestarterLoop::instance();
+
 	mainMenu->hide();
 //	OverlayManager::getSingleton().unload(mainMenu);
 	mainMenu = NULL;
 
-/*	gameLoop->GetSceneManager()->getRootSceneNode()->removeAllChildren();
-	gameLoop->GetSceneManager()->destroyAllOverlays();
-	gameLoop->GetSceneManager()->removeAllEntities();
-	gameLoop->GetSceneManager()->removeAllLights();
+/*	gameLoop.GetSceneManager()->getRootSceneNode()->removeAllChildren();
+	gameLoop.GetSceneManager()->destroyAllOverlays();
+	gameLoop.GetSceneManager()->removeAllEntities();
+	gameLoop.GetSceneManager()->removeAllLights();
 
 	return;
 	ships[0]->detachAllObjects();
-	gameLoop->GetSceneManager()->destroySceneNode(ships[0]->getName());
+	gameLoop.GetSceneManager()->destroySceneNode(ships[0]->getName());
 	ships[1]->detachAllObjects();
-	gameLoop->GetSceneManager()->destroySceneNode(ships[1]->getName());
+	gameLoop.GetSceneManager()->destroySceneNode(ships[1]->getName());
 	ships[2]->detachAllObjects();
-	gameLoop->GetSceneManager()->destroySceneNode(ships[2]->getName());
+	gameLoop.GetSceneManager()->destroySceneNode(ships[2]->getName());
 	ships[3]->detachAllObjects();
-	gameLoop->GetSceneManager()->destroySceneNode(ships[3]->getName()); */
+	gameLoop.GetSceneManager()->destroySceneNode(ships[3]->getName()); */
 	ships[0] = ships[1] = ships[2] = ships[3] = NULL;
 
 //	mGroundNode->detachAllObjects();
-//	gameLoop->GetSceneManager()->destroySceneNode(mGroundNode->getName());
+//	gameLoop.GetSceneManager()->destroySceneNode(mGroundNode->getName());
 	mGroundNode = NULL;
 
-	gameLoop->ClearScene();
+	gameLoop.ClearScene();
 }
 
 tePanelReturn CMainMenu::Process ( std::string &next )
 {
+	CFirestarterLoop &gameLoop = CFirestarterLoop::instance();
+
 	Vector3 YawAxis(0,0,1);
 	Vector3 PitchAxis(1,0,0);
-	float MoveFactor = 15.0f *gameLoop->GetTimer().GetFrameTime();
-	gameLoop->GetCamera()->rotate(YawAxis,-MoveFactor);
+	float MoveFactor = 15.0f *gameLoop.GetTimer().GetFrameTime();
+	gameLoop.GetCamera()->rotate(YawAxis,-MoveFactor);
 
-	float rotSpeed = 60.0f * gameLoop->GetTimer().GetFrameTime();
+	float rotSpeed = 60.0f * gameLoop.GetTimer().GetFrameTime();
 	if (ships[0])
 	{
 		ships[0]->rotate(Vector3(0,0,1),rotSpeed);
@@ -141,15 +149,15 @@ tePanelReturn CMainMenu::Process ( std::string &next )
 		ships[2]->rotate(Vector3(0,0,1),rotSpeed);
 		ships[3]->rotate(Vector3(0,0,1),-rotSpeed);
 	}
-	if (gameLoop->GetInput().KeyDown(KEY_RETURN))
+	if (CInputManager::instance().KeyDown(KEY_RETURN))
 	{
 		// put somethign not lame here
-		gameLoop->SetGameName("susan");
-		gameLoop->SetGameStartString("test");
+		gameLoop.SetGameName("susan");
+		gameLoop.SetGameStartString("test");
 		return ePanelStart;
 	}
 
-	if (gameLoop->GetInput().KeyDown(KEY_Q))
+	if (CInputManager::instance().KeyDown(KEY_Q))
 		return ePanelBack;
 
 	return ePanelContinue;

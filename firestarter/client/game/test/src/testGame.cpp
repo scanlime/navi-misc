@@ -10,6 +10,7 @@
 * WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 */
 #include "testGame.h"
+#include "input.h"
 
 // the drawables for this game
 //#include "worldDrawables"
@@ -32,7 +33,7 @@ void CTestGame::Release ( void )
 
 bool CTestGame::Think ( void )
 {
-	if (gameLoop->GetInput().KeyDown(KEY_ESCAPE))
+	if (CInputManager::instance().KeyDown(KEY_ESCAPE))
 		return true;
 	// do some game like things
 	return false;

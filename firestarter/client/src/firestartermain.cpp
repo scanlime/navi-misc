@@ -33,7 +33,7 @@
 int APIENTRY WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmdShow)
 {
   srand(GetTickCount());
-  CFirestarterLoop  loop;
+	CFirestarterLoop  &loop = CFirestarterLoop::instance();
   if (loop.Main(lpCmdLine))
     return 1;
   return 0;
@@ -42,7 +42,7 @@ int APIENTRY WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine
 int main (int argc, char **argv)
 {
   srand(time((time_t *)NULL));
-  CFirestarterLoop  loop;
+  CFirestarterLoop  loop = CFirestarterLoop::instance();
   if (loop.Main(argc,argv))
     return 1;
   return 0;

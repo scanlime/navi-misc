@@ -27,7 +27,6 @@
 #include "OgreConfigFile.h"
 #include "commandargs.h"
 #include "prefs.h"
-#include "input.h"
 #include "timer.h"
 
 #include <string>
@@ -201,7 +200,6 @@ public:
   CCommandLineArgs& GetArgs ( void ) {return args;}
   CPrefsManager& GetPrefs ( void ) {return prefs;}
 
-  CInputManager& GetInput ( void ) {return input;}
   CTimer& GetTimer ( void ) {return timer;}
   CDrawManager* GetDrawManager ( void ) {return drawManager;}
 
@@ -237,7 +235,6 @@ protected:
 
   CCommandLineArgs  args;
   CPrefsManager     prefs;
-  CInputManager			input;
   CTimer            timer;
 	CDrawManager			*drawManager;
 

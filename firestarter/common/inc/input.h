@@ -26,6 +26,7 @@
 #include "Ogre.h"
 #include "OgreConfigFile.h"
 
+#include "Singleton.h"
 using namespace Ogre;
 
 // standard keys
@@ -177,7 +178,7 @@ enum InputKeyCode
 	KEY_MEDIASELECT     =0xED     /* Media Select */
 };
 
-class CInputManager
+class CInputManager : public Singleton<CInputManager>
 {
 	public:
 		CInputManager();
