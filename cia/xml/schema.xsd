@@ -10,9 +10,9 @@
   -->
 
 <xsd:complexType name="file-element" mixed="true">
-  <xsd:choice maxOccurs="unbounded">
-    <xsd:attribute name="uri" type="xsd:string"/>
-  </xsd:choice>
+  <xsd:attribute name="uri" type="xsd:string"/>
+  <xsd:attribute name="action" type="xsd:string"/>
+  <xsd:attribute name="to" type="xsd:string"/>
 </xsd:complexType>
 
 <xsd:complexType name="fileList">
