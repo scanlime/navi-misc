@@ -162,6 +162,34 @@ class SecurityInterface(RpcServer.Interface):
             raise SecurityException("That user already exists")
         result.callback((info['uid'], info['secret_key']))
 
+    def xmlrpc_selfGrant(self, captchaId, captchaSolutions, userKey, capability):
+        """Any user can use this function, and a CAPTCHA solution (to prevent
+           scripted aquisition of many capabilities) to grant themselves certain
+           capabilities. Only a limited number of capabilities can be granted
+           with this function.
+           """
+        self.requireCaptcha(captchaId, captchaSolutions)
+        # XML-RPC will munge tuples into lists, when we really want a tuple
+        if type(capability) == list:
+            capability = tuple(capability)
+
+        # Make sure the capability is one we allow
+        if not self.isSelfGrantable(capability):
+            raise SecurityException("This capability can not be self-granted")
+
+        return User(key=userKey).grant(capability)
+
+    def isSelfGrantable(self, capability):
+        """Defines policy on which capabilities can be self-granted by a user"""
+        if type(capability) == tuple and len(capability) == 2:
+            # Two-element tuples...
+
+            if capability[0] == "stats.path":
+                # Granting a capability to a stats path is allowed
+                return True
+
+        return False
+
 
 def createRandomKey(bytes = 24,
                     allowedChars = string.ascii_letters + string.digits):
