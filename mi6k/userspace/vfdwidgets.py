@@ -104,8 +104,8 @@ class Text(Widget):
         self.offset = (0, 0)
 
     def setText(self, text):
-        self._text = text
-        self.textChanged(text.split('\n'))
+        self._text = str(text)
+        self.textChanged(self._text.split('\n'))
 
     def getText(self):
         return self._text
@@ -475,7 +475,10 @@ class Surface(object):
                 return
             elif result is False:
                 # Vertical failure, remove the lowest priority widget no matter what
-                toPlace.remove(toRemove[0])
+                try:
+                    toPlace.remove(toRemove[0])
+                except ValueError:
+                    pass
                 del toRemove[0]
             else:
                 # Horizontal failure, remove one of the suggested widgets, starting

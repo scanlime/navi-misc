@@ -35,10 +35,11 @@ from Numeric import *
 class CenturyVFD:
     width = 20
     lines = 2
-    userDefinedCharacters = "\xF6\xF7\xF8\xF9\xFA\xFB\xFC\xFD\xFE\xFF"
+    userDefinedCharacters = ''.join(map(chr, range(0xF6, 0x100)))
 
     def __init__(self, dev):
         self.dev = dev
+        self.remainingUserChars = self.userDefinedCharacters
 
     def powerOn(self):
         ioctl(self.dev, 0x3600, 1)
@@ -118,6 +119,7 @@ class CenturyVFD:
 
         # The VFD has a strange dot ordering, we swizzle our original
         # bitmap into an array ordered first by bit position then by byte
+        data = asarray(data)
         bits = take(data.flat, ( (17, 13,  9,  5,  1),
                                  ( 0, 31, 27, 23, 19),
                                  (16, 12,  8,  4,  0),
@@ -132,6 +134,15 @@ class CenturyVFD:
 
         # Convert to a command string and send it
         self.writeVFD(chr(0x18) + char + bytes.astype(UInt8).tostring())
+
+    def allocCharacter(self, data):
+        """Store the given array into the next available user defined
+           character, returning it.
+           """
+        char = self.remainingUserChars[0]
+        self.remainingUserChars = self.remainingUserChars[1:]
+        self.defineCharacter(char, data)
+        return char
 
     def setBrightness(self, l, column=0xFF):
         """Set the brightness of one column, or by default the entire display. l should be in the range [0,1]"""
