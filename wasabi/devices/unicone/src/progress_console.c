@@ -68,7 +68,7 @@ static void* console_start(struct progress_reporter* self,
   assert(op != NULL);
   memset(op, 0, sizeof(struct console_operation));
 
-  fprintf(stderr, "%s ", operation_name);
+  fprintf(stderr, "%-20s ", operation_name);
   fflush(stderr);
 
   return op;
@@ -93,6 +93,8 @@ static void console_finish(struct progress_reporter* self,
 			   void* operation, const char *error)
 {
   struct console_operation *op = operation;
+
+  console_report(self, operation, 1.0f);
 
   if (error)
     fprintf(stderr, " [%s]\n", error);
