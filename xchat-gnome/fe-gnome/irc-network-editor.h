@@ -55,6 +55,7 @@ struct _IrcNetworkEditor
 	GtkWidget *giveup_reconnect;
 
 	GtkWidget *password;
+	GtkWidget *encoding_hbox;
 	GtkWidget *encoding;
 
 	GtkWidget *servers;
