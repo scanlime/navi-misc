@@ -1,4 +1,10 @@
 #!/usr/bin/env python
+#
+# A simple example of using multiple HScrollLineGraph widgets
+#
+# -- Micah Dowty <micah@picogui.org>
+#
+
 import gtk
 import rtgraph, time, math
 
