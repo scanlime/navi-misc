@@ -1,4 +1,4 @@
-// bzflag:next main menu overlay scripts
+// XXXXX main menu overlay scripts
 menu/mainMenu
 {
 	zorder 250

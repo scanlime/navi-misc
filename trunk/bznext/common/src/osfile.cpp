@@ -1,17 +1,24 @@
-/* 
- * Copyright (c) 2002 - 2003 Jeffrey Myers
- *
- * This package is free software;  you can redistribute it and/or
- * modify it under the terms of the license found in the file
- * named license.txt that should have accompanied this file.
- *
- * THIS PACKAGE IS PROVIDED ``AS IS'' AND WITHOUT ANY EXPRESS OR
- * IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED
- * WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
- */
-
-// OSFile.cpp : Defines the entry point for the DLL application.
-//
+/* XXXXX
+* OSFile.cpp : Defines the entry point for the DLL application.
+*
+* Copyright (C) 2004 Jeffrey Myers
+*
+* This library is free software; you can redistribute it and/or
+* modify it under the terms of the GNU Lesser General Public
+* License as published by the Free Software Foundation; either
+* version 2.1 of the License, or (at your option) any later version.
+*
+* This library is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+* Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public
+* License along with this library; if not, write to the Free Software
+* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*
+* email: jeffm2501@sbcglobal.net
+*/
 
 #include "osfile.h"
 
@@ -36,12 +43,12 @@ void GetUperName ( char *szData )
 
 typedef std::vector<std::string> tvFileNameList;
 
-// these are the core file name conversions
+// These are the core file name conversions
 // std pathnames are unix style
-// if you are adding a platform
+// If you are adding a platform
 // this is one place you need to add conversions to/from your OS
 
-// util functions
+// utility functions
 void OSFileStdToOSDir ( char *dir )
 {
 #ifndef _WIN32
@@ -76,14 +83,14 @@ void OSFileOSToStdDir ( char *dir )
 #endif//WIN32
 }
 
-// windows specific make path
+// Windows specific make path
 #ifdef _WIN32
 void WindowsMakePath(const char * path)
 {
 	// scan the folder path and make it
 	char *pos = strchr (path,'\\');
 
-	if (!pos) // dono maybe the screwed up
+	if (!pos) // Maybe they messed up
 	{
 		std::string str = "\\";
 		str += path;
@@ -390,7 +397,7 @@ const char* COSFile::GetFileName ( void )
 	if (info->stdName.size()== 0)
 		return NULL;
 
-	// yes I know this part is horible, put it in the pimple
+	// yes I know this part is horrible, put it in the pimple
 //	static std::string title;
 	char	*path = strrchr(info->stdName.c_str(),'/');
 

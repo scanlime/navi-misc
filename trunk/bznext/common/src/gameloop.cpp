@@ -1,23 +1,35 @@
-/* 3dScreamers
- * Copyright (c) 2002 - 2003 Jeffrey Myers
- *
- * This package is free software;  you can redistribute it and/or
- * modify it under the terms of the license found in the file
- * named license.txt that should have accompanied this file.
- *
- * THIS PACKAGE IS PROVIDED ``AS IS'' AND WITHOUT ANY EXPRESS OR
- * IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED
- * WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
- */
-// game loop.cpp
-// ***** TODO
+/* XXXXX
+* gameloop.cpp :
+*
+* Copyright (C) 2004 Jeffrey Myers
+*
+* This library is free software; you can redistribute it and/or
+* modify it under the terms of the GNU Lesser General Public
+* License as published by the Free Software Foundation; either
+* version 2.1 of the License, or (at your option) any later version.
+*
+* This library is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+* Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public
+* License along with this library; if not, write to the Free Software
+* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*
+* email: jeffm2501@sbcglobal.net
+*/
+
+// TODO
 //
-// Add other OS stuff
+// Add other OS-specific stuff
 //
+
 #include "gameloop.h"
 #include "events.h"
 #include "osfile.h"
 #include <SDL/SDL.h>
+
 // C RunTime Header Files
 #include <stdlib.h>
 #include <map>
@@ -184,9 +196,10 @@ bool CBaseGameLoop::SetupConfigure ( void )
 
 bool CBaseGameLoop::SetupResources ( void )
 {
-  // Don't Load resource paths from config file since it don't do recursion
-  // as for the root dir, use our spiffy OSDir class and get all the stuff that is in there
-  // fire in zips as zip
+  // Don't load resource paths from config file since it doesn't do recursion.
+  // As for the root dir, use our spiffy OSDir class and get all the stuff that is in there.
+  // Fire in zips as zip.
+
   COSDir	rootDir;
   COSFile	file;
   std::map<std::string,bool>	resList;
@@ -237,8 +250,9 @@ bool CBaseGameLoop::Process ( void )
 
   bool bDone = false;
 
-  //get all the events and dispatch them
-  // then call game loop
+  // Get all the events and dispatch them,
+  // then call game loop.
+
   while (SDL_PollEvent(&event)) 
   {
     switch(event.type)
@@ -290,7 +304,7 @@ void CBaseGameLoop::CreateViewports ( void )
   vp->setBackgroundColour(ColourValue(0,0,0));
 }
 
-// provide your own version of these
+// Provide your own version of these.
 
 SceneType CBaseGameLoop::GetSceneType ( void )
 {
@@ -391,7 +405,8 @@ void CBaseGameLoop::updateStats(void)
 	static String worstFps = "Worst FPS: ";
 	static String tris = "Triangle Count: ";
 
-	// update stats when necessary
+	// Update stats when necessary.
+	
 	GuiElement* guiAvg = GuiManager::getSingleton().getGuiElement("Core/AverageFps");
 	GuiElement* guiCurr = GuiManager::getSingleton().getGuiElement("Core/CurrFps");
 	GuiElement* guiBest = GuiManager::getSingleton().getGuiElement("Core/BestFps");
@@ -412,7 +427,3 @@ void CBaseGameLoop::updateStats(void)
 	GuiElement* guiDbg = GuiManager::getSingleton().getGuiElement("Core/DebugText");
 	guiDbg->setCaption(GetRenderWindow()->getDebugText());
 }
-
-
-
-
