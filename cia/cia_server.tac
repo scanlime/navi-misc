@@ -14,6 +14,7 @@ hub = Message.Hub()
 
 # A network of IRC bots used to handle irc:// URIs
 botNet = IRC.Bots.BotNetwork(IRC.Bots.SequentialNickAllocator("CIA-"))
+#botNet = IRC.Bots.BotNetwork(IRC.Bots.RandomAcronymNickAllocator())
 
 # Set up periodic maintenance tasks
 Cron.Scheduler(

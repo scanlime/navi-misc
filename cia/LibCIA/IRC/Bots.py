@@ -24,7 +24,7 @@ A small library for managing multiple IRC bots on multiple IRC networks
 from twisted.protocols import irc
 from twisted.internet import protocol, reactor, defer
 from twisted.python import log, util
-import time
+import time, random
 
 
 class Request:
@@ -126,15 +126,28 @@ class Server:
         return hash((self.host, self.port))
 
 
-class SequentialNickAllocator:
+class NickAllocator:
     """A nick allocator is responsible for determining what constitutes a valid nick,
-       and generating a list of valid nicks. This particular implementation
-       uses sequentially numbered bots starting with a given prefix.
+       and generating a list of valid nicks. This is an abstract base class.
        """
-    def __init__(self, prefix, username='CIA', realname='CIA Bot (http://cia.navi.cx)'):
+    username = 'CIA'
+    realname = 'CIA Bot (http://cia.navi.cx)'
+
+    def isValid(self, nick):
+        """Returns True if the given nickname would be a valid output for our generator"""
+        return False
+
+    def generate(self):
+        """Generate a sequence of valid nicks, starting with the most preferable.
+           This must be an infinite (or nearly infinite) generator.
+           """
+        pass
+
+
+class SequentialNickAllocator(NickAllocator):
+    """Generate sequentially numbered nicks starting with a given prefix"""
+    def __init__(self, prefix):
         self.prefix = prefix
-        self.username = username
-        self.realname = realname
 
     def isValid(self, nick):
         if not nick.startswith(self.prefix):
@@ -147,11 +160,31 @@ class SequentialNickAllocator:
             return False
 
     def generate(self):
-        """Generate a sequence of valid nicks, starting with the most preferable"""
         i = 1
         while True:
             yield self.prefix + str(i)
             i += 1
+
+
+class RandomAcronymNickAllocator(NickAllocator):
+    """A nick allocator that generates random acronyms of a given length.
+       No, it doesn't know what they mean yet :)
+       """
+    def __init__(self, length=3, alphabet="ABCDEFGHIJKLMNOPQRSTUVWXYZ"):
+        self.length = length
+        self.alphabet = alphabet
+
+    def isValid(self, nick):
+        if len(nick) != self.length:
+            return False
+        for letter in nick:
+            if letter not in self.alphabet:
+                return False
+        return True
+
+    def generate(self):
+        while True:
+            yield "".join([random.choice(self.alphabet) for i in xrange(self.length)])
 
 
 class BotNetwork:
