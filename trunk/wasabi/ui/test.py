@@ -39,13 +39,14 @@ class IconTest(Sequencer.Page):
            the middle of the screen. The bottom of the circle is at 0,
            increasing parameters move clockwise. The icon at 0 is the largest.
            """
-        radius = self.viewport.size[1] * 0.1
+        radius = self.viewport.size[1] * 0.04
         theta = -x * 2*pi - pi/2
-        size = pow(sin(theta)*0.5+0.5, 2) * 120 + 20
+        size = pow(sin(theta)*0.5+0.5, 3) * 120 + 40
         center = (self.viewport.size[0] * 0.5,
                   self.viewport.size[1] * 0.25)
+        aspect = 2.9
         return (
-            (cos(theta) * (radius + size) + center[0],
+            (cos(theta) * aspect * (radius + size) + center[0],
              sin(theta) * (radius + size) + center[1]),
             size
             )
