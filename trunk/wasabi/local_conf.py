@@ -62,7 +62,6 @@ EVENTS['video']['RIGHT'] = Event('SEEK', arg=15)
 # Make freevo knowful of Navi
 common_items = [
     ('Navi', '/navi'),
-    ('Local Files', '/'),
     ]
 VIDEO_ITEMS = [
     ('Movies', '/navi/media/video/movies'),
@@ -96,7 +95,7 @@ plugin.remove('tv')
 # Add standard plugins we want
 plugin.activate('audio.mplayervis')
 
-LIRCRC = 'lircrc'
+LIRCRC = '/home/freevo/wasabi/lircrc'
 
 # Always start up with the wasabi skin
 SKIN_XML_FILE = 'wasabi-calm'

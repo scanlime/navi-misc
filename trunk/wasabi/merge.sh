@@ -13,6 +13,7 @@ WASABI=`pwd`
 
 ln -sf $WASABI/lircrc $FREEVO/
 ln -sf $WASABI/local_conf.py $FREEVO/
+ln -sf $WASABI/local_conf.py $HOME/.freevo/
 ln -sf $WASABI/plugins/*.py $FREEVO/src/plugins/
 
 ln -sf $WASABI/skins/* $FREEVO/share/skins/main/
@@ -21,5 +22,3 @@ ln -sf $WASABI/images/* $FREEVO/share/images/wasabi
 
 cd $FREEVO
 ./freevo setup
-perl -pi -e 's/800x600/640x480/' ~/.freevo/freevo.conf
-
