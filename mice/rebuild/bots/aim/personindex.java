@@ -71,6 +71,7 @@ public class personindex
 	 */
 	public void handleMessage(String from, String message)
 	{
+		from = from.toUpperCase();
 		System.out.print("Message from " + from);
 		interview othertemp = findInterview(from);
 		if(othertemp != null)
@@ -103,7 +104,7 @@ public class personindex
 	 */
 	public void addinterview(botmain bot, String name, String pass)
 	{
-		inthead = new interview(inthead, bot, name, pass);
+		inthead = new interview(inthead, bot, name.toUpperCase(), pass);
 	}
 	
 	/**

@@ -50,7 +50,7 @@ public class person
 	public person(person previous, botmain bot, String ick)
 	{
 		mybot = bot;
-		nick = ick;
+		nick = ick.toUpperCase();
 		status = 0;
 		next = previous;
 		mybot.sendMessage(nick,"Hello " + nick + " to make me be quiet, just type 'quit' at any time.");
@@ -81,6 +81,7 @@ public class person
 			standmajor = " (" + standmajor + "/" + message + ")";
 			mybot.sendMessage(nick,"You are now registered as: " + name + standmajor + ".  To ask a question, just send it to me and I'll submit it for you :)");
 			status = 3;
+			sendable=true;
 			break;
 		case 3:
 			if(message.startsWith("quit"))
