@@ -1,6 +1,13 @@
 Definitely fix before the next release:
-	* The win32 build hasn't been tested in a while, make sure it still
-	  works with all the new gnet and openexr stuff.
+        * There are some remaining problems with the win32 build:
+                - Resources (for the icon) haven't been implemented in
+                  the autoconfiscated build system
+                - Cluster support compiles, but it doesn't seem to work at
+                  all. In server mode it isn't listening, and in client mode
+                  it can't connect to rendering servers. Maybe a gnet problem?
+                - Libpng isn't linking correctly. I know this at least breaks
+                  the about box, and it probably also breaks loading/saving
+                - Still untested with OpenEXR
 
 Probably fix before the next release, definitely for 1.0:
 	* Fyre has no icon
