@@ -24,7 +24,6 @@
 
 #include "de-jong.h"
 #include "math-util.h"
-#include "probability-map.h"
 #include <stdlib.h>
 #include <math.h>
 
@@ -56,7 +55,6 @@ enum {
     PROP_BLUR_RADIUS,
     PROP_BLUR_RATIO,
     PROP_TILEABLE,
-    PROP_SKIPPED_ITERATIONS,
     PROP_EMPHASIZE_TRANSIENT,
     PROP_TRANSIENT_ITERATIONS,
     PROP_INITIAL_CONDITIONS,
@@ -73,7 +71,6 @@ void initial_func_gaussian          (gdouble *x, gdouble *y);
 void initial_func_circular_uniform  (gdouble *x, gdouble *y);
 void initial_func_radial            (gdouble *x, gdouble *y);
 void initial_func_sphere            (gdouble *x, gdouble *y);
-void initial_func_image             (gdouble *x, gdouble *y);
 
 static const
 GEnumValue initial_conditions_enum[] =
@@ -83,7 +80,6 @@ GEnumValue initial_conditions_enum[] =
 	{ 2, "gaussian",          "Gaussian"          },
 	{ 3, "radial",            "Radial"            },
 	{ 4, "sphere",            "Sphere"            },
-	{ 5, "image",             "Image mapped"      },
 	{ 0 },
     };
 
@@ -95,7 +91,6 @@ initial_conditions_t initial_conditions_table[] =
 	initial_func_gaussian,
 	initial_func_radial,
 	initial_func_sphere,
-	initial_func_image,
     };
 
 static GType initial_conditions_enum_get_type(void);
@@ -318,16 +313,6 @@ static void de_jong_init_calc_params(GObjectClass *object_class) {
     param_spec_set_group             (spec, current_group);
     g_object_class_install_property  (object_class, PROP_TILEABLE, spec);
 
-    spec = g_param_spec_uint         ("skipped_iterations",
-				      "Skipped iterations",
-				      "Number of iterations to disregard after setting initial conditions",
-				      0, 100000, 0,
-				      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
-				      PARAM_INTERPOLATE | PARAM_IN_GUI);
-    param_spec_set_group             (spec, current_group);
-    param_spec_set_increments        (spec, 1, 10, 0);
-    g_object_class_install_property  (object_class, PROP_SKIPPED_ITERATIONS, spec);
-
     spec = g_param_spec_boolean      ("emphasize_transient",
 				      "Emphasize transient",
 				      "Re-randomize the point periodically to emphasize transients",
@@ -340,7 +325,7 @@ static void de_jong_init_calc_params(GObjectClass *object_class) {
     spec = g_param_spec_uint         ("transient_iterations",
 				      "Transient iterations",
 				      "Number of iterations between re-randomization, when 'Emphasize transient' is enabled",
-				      0, 100000, 50,
+				      1, 100000, 50,
 				      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
 				      PARAM_INTERPOLATE | PARAM_IN_GUI);
     param_spec_set_group             (spec, current_group);
@@ -499,10 +484,6 @@ static void de_jong_set_property (GObject *object, guint prop_id, const GValue *
 	update_boolean_if_necessary(g_value_get_boolean(value), &self->calc_dirty_flag, &self->tileable);
 	break;
 
-    case PROP_SKIPPED_ITERATIONS:
-	update_uint_if_necessary(g_value_get_uint(value), &self->calc_dirty_flag, &self->skipped_iterations);
-	break;
-
     case PROP_EMPHASIZE_TRANSIENT:
 	update_boolean_if_necessary(g_value_get_boolean(value), &self->calc_dirty_flag, &self->emphasize_transient);
 	break;
@@ -590,10 +571,6 @@ static void de_jong_get_property (GObject *object, guint prop_id, GValue *value,
 	g_value_set_boolean(value, self->tileable);
 	break;
 
-    case PROP_SKIPPED_ITERATIONS:
-	g_value_set_uint(value, self->skipped_iterations);
-	break;
-
     case PROP_EMPHASIZE_TRANSIENT:
 	g_value_set_boolean(value, self->emphasize_transient);
 	break;
@@ -633,31 +610,7 @@ static void de_jong_get_property (GObject *object, guint prop_id, GValue *value,
 /********************************************************************** Calculation */
 /************************************************************************************/
 
-static inline void de_jong_map(const DeJongParams* param, double* x0, double* y0, double* x1, double* y1)
-{
-    /* Tada, the Peter de Jong map itself */
-    *x1 = sin(param->a * *y0) - cos(param->b * *x0);
-    *y1 = sin(param->c * *x0) - cos(param->d * *y0);
-
-    /* Some alternatives... */
-#if 0
-    *x1 = sin(param->a * *y0) + param->c * cos(param->a * *x0);
-    *y1 = sin(param->b * *x0) + param->d * cos(param->b * *y0);
-#endif
-
-#if 0
-    *x1 = sin(param->a * *y0) - tanh(param->b * *x0);
-    *y1 = sin(param->c * *x0) - tanh(param->d * *y0);
-#endif
-
-#if 0
-    *x1 = sin(*y0 * param->b) + param->c * sin(*x0 * param->b);
-    *y1 = sin(*x0 * param->a) + param->d * sin(*y0 * param->a);
-#endif
-}
-
-void de_jong_calculate(IterativeMap *map, guint iterations)
-{
+void de_jong_calculate(IterativeMap *map, guint iterations) {
     /* Copy frequently used parameters to local variables */
     DeJong *self = DE_JONG(map);
     const gboolean tileable = self->tileable;
@@ -688,7 +641,6 @@ void de_jong_calculate(IterativeMap *map, guint iterations)
     double scale, xcenter, ycenter;
     int i, ix, iy;
     guint remaining_transient_iterations;
-    guint remaining_skipped_iterations;
     initial_conditions_t initial_func;
 
     /* Reset calculation if we need to */
@@ -748,76 +700,50 @@ void de_jong_calculate(IterativeMap *map, guint iterations)
     point_x = self->point_x;
     point_y = self->point_y;
     remaining_transient_iterations = self->remaining_transient_iterations;
-    remaining_skipped_iterations = self->remaining_skipped_iterations;
     initial_func = initial_conditions_table[self->initial_conditions];
 
     for(i=iterations; i; --i) {
 
+	/* If transient emphasis is enabled, we periodically re-randomize
+	 * the point. When remaining_transient_iterations hits zero, we
+	 * re-randomize and set it back to the transient iteration count
+	 * set by the user.
+	 */
 	if (emphasize_transient) {
-	    /* Transient emphasis is enabled, we periodically re-randomize
-	     * the point. When remaining_transient_iterations hits zero, we
-	     * re-randomize and set it back to the transient iteration count
-	     * set by the user.
-	     */
-
-	    if (remaining_transient_iterations > 1) {
-		/* We're still counting down */
-
-		de_jong_map(&param, &point_x, &point_y, &x, &y);
-		point_x = x;
-		point_y = y;
-
+	    if (remaining_transient_iterations) {
 		remaining_transient_iterations--;
 	    }
 	    else {
-		if (remaining_transient_iterations == 1) {
-		    /* This is the last iteration, reset the counter and the iterative map afterwards */
-
-		    de_jong_map(&param, &point_x, &point_y, &x, &y);
-		}
-		else {
-		    /* If remaining_transient_iterations is zero, this is a special case
-		     * (but an intuitive one for the user probably) that doesn't perform
-		     * any iterations at all, instead showing the user what the initial
-		     * conditions themselves look like.
-		     */
-		    x = point_x;
-		    y = point_y;
-		}
-
+		remaining_transient_iterations = self->transient_iterations-1;
 		initial_func(&point_x, &point_y);
 		point_x = self->initial_xscale * point_x + self->initial_xoffset;
 		point_y = self->initial_yscale * point_y + self->initial_yoffset;
-
-		remaining_transient_iterations = self->transient_iterations;
-		remaining_skipped_iterations = self->skipped_iterations;
 	    }
 	}
-	else {
-	    /* Emphasize transient is off */
 
-	    de_jong_map(&param, &point_x, &point_y, &x, &y);
-	    point_x = x;
-	    point_y = y;
-	}
+	/* These are the actual Peter de Jong map equations. The new point value
+	 * gets stored into 'point', then we go on and mess with x and y before plotting.
+	 */
+	x = sin(param.a * point_y) - cos(param.b * point_x);
+	y = sin(param.c * point_x) - cos(param.d * point_y);
+	/*
+	  x = sin(param.a * point_y) + param.c * cos(param.a * point_x);
+	  y = sin(param.b * point_x) + param.d * cos(param.b * point_y);
+	*/
+	/*
+	  x = sin(param.a * point_y) - tanh(param.b * point_x);
+	  y = sin(param.c * point_x) - tanh(param.d * point_y);
+	*/
+	/*
+	  x = sin(point_y * param.b) + param.c * sin(point_x * param.b);
+	  y = sin(point_x * param.a) + param.d * sin(point_y * param.a);
+	*/
+	point_x = x;
+	point_y = y;
 
-	/* Should we skip transforming and plotting this iteration? */
-	if (remaining_skipped_iterations) {
-	    remaining_skipped_iterations--;
-
-	    if (emphasize_transient) {
-		/* Don't count skipped iterations in the transient iterations */
-		remaining_transient_iterations++;
-	    }
-
-	    continue;
-	}
-
-	/* Optional rotation/scaling/shear in a precomputed matrix */
 	if (matrix_enabled) {
-	    double tx = x;
-	    x = x * mat_a + y * mat_b;
-	    y = tx * mat_c + y * mat_d;
+	    x = point_x * mat_a + point_y * mat_b;
+	    y = point_x * mat_c + point_y * mat_d;
 	}
 
 	/* If blurring is enabled, use blur_ratio to decide how often to perturb
@@ -878,7 +804,6 @@ void de_jong_calculate(IterativeMap *map, guint iterations)
     self->point_x = point_x;
     self->point_y = point_y;
     self->remaining_transient_iterations = remaining_transient_iterations;
-    self->remaining_skipped_iterations = remaining_skipped_iterations;
 }
 
 void de_jong_calculate_motion(IterativeMap         *self,
@@ -909,9 +834,7 @@ static void de_jong_reset_calc(DeJong *self) {
     /* Reset the histogram and calculation state */
     histogram_imager_clear(HISTOGRAM_IMAGER(self));
     ITERATIVE_MAP(self)->iterations = 0;
-
     self->remaining_transient_iterations = 0;
-    self->remaining_skipped_iterations = self->skipped_iterations;
 
     /* Random starting point, use a simple uniform variate
      * for this. We have more complex initial condition controls
@@ -988,15 +911,6 @@ void initial_func_sphere (gdouble *x, gdouble *y) {
     gdouble mag = sqrt(vx*vx + vy*vy + vz*vz);
     *x = vx / mag;
     *y = vy / mag;
-}
-
-void initial_func_image (gdouble *x, gdouble *y) {
-    static ProbabilityMap *map;
-
-    if (!map)
-	map = probability_map_new_file("/navi/media/images/animals/spider.jpeg");
-
-    probability_map_uniform(map, x, y);
 }
 
 

@@ -54,7 +54,6 @@ struct _DeJong {
 
     gboolean emphasize_transient;
     guint transient_iterations;
-    guint skipped_iterations;
     gint initial_conditions;
     gdouble initial_xscale, initial_yscale;
     gdouble initial_xoffset, initial_yoffset;
@@ -64,7 +63,6 @@ struct _DeJong {
     /* Current calculation state */
     gdouble point_x, point_y;
     guint remaining_transient_iterations;
-    guint remaining_skipped_iterations;
 };
 
 struct _DeJongClass {
