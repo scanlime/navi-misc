@@ -1,6 +1,5 @@
 BINS = \
 	loader_tool \
-	gc_test \
 	PyUnicone/_libunicone.so \
 	firmware.bin
 
@@ -13,9 +12,6 @@ COMMON_OBJS = \
 
 LOADER_TOOL_OBJS = $(COMMON_OBJS) \
 	src/loader_tool.o
-
-GC_TEST_OBJS = $(COMMON_OBJS) \
-	src/gc_test.o
 
 PYUNICONE_OBJS = $(COMMON_OBJS) \
 	src/progress_python.o \
@@ -44,9 +40,6 @@ all: $(BINS)
 
 loader_tool: $(LOADER_TOOL_OBJS)
 	$(CC) -o $@ $(LOADER_TOOL_OBJS) $(LDFLAGS)
-
-gc_test: $(GC_TEST_OBJS)
-	$(CC) -o $@ $(GC_TEST_OBJS) $(LDFLAGS)
 
 PyUnicone/_libunicone.so: $(PYUNICONE_OBJS)
 	$(CC) -o $@ $(PYUNICONE_OBJS) $(LDFLAGS) -shared

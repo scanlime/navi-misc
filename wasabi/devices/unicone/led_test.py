@@ -1,7 +1,8 @@
 #!/usr/bin/env python
-import PyUnicone, time
+import PyUnicone.Device
+import time
 
-dev = PyUnicone.UniconeDevice()
+dev = PyUnicone.Device.UniconeDevice()
 dev.configure("fpga/test/test.bit")
 
 while 1:
