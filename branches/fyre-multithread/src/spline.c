@@ -82,7 +82,7 @@ Spline* spline_unserialize(const guchar *data, gsize size) {
   Spline *n = g_malloc(sizeof(Spline));
   n->num_points = size / sizeof(SplineControlPoint);
   n->points = g_malloc(n->num_points * sizeof(SplineControlPoint));
-  memcpy(n->points, data, n->num_points * sizeof(SplineControlPoint));
+  memcpy(n->points, (void *) data, n->num_points * sizeof(SplineControlPoint));
   return n;
 }
 

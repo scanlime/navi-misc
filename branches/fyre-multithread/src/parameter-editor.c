@@ -149,7 +149,7 @@ static void parameter_editor_add_paramspec(ParameterEditor *self, GParamSpec *sp
   /* Get this parameter's group name, adding a new group header if it's changed */
   group = param_spec_get_group(spec);
   if (group) {
-    if ((!self->previous_group) || strcmp(group, self->previous_group))
+    if ((!self->previous_group) || strcmp((void *) group, self->previous_group))
       parameter_editor_add_group_heading(self, group);
     if (self->previous_group)
       g_free(self->previous_group);
