@@ -32,9 +32,8 @@ source code comments.
  pyrcpod     : A python package for accessing the rcpod. The python programs in the
                package's root serve as examples for this package
 
- selftest.py : A simple test suite for the rcpod, built using python's "unittest"
-               module. This also serves as an example for using the rcpod to test
-               external hardware.
+ test        : Self-tests for the rcpod API and hardware, and examples for using the
+               rcpod to test external hardware. Requires pyrcpod.
 
 
 -------- Prerequisites
@@ -51,11 +50,11 @@ In order to compile and use librcpod, the following minimum dependencies must be
 (Note that librcpod theoretically should work on several unix-like operating systems,
  but has so far only been tested on linux)
 
-Optional components that will make rcpod much more useful:
+Additional requirements for pyrcpod and the self-tests:
 
   - Python 2.2.1 or later
   - SWIG, to generate the Python interface to librcpod (http://swig.org)
-  - pygtk, used to provide a GUI for some of the python apps
+  - pygtk (only for GUI python apps)
 
 To compile rcpod's firmware, you'll need:
 

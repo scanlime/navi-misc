@@ -59,6 +59,13 @@ def from_ucharArray(a, n):
 class OpenedDevice:
     """Wraps an opened rcpod device, represented in librcpod
        by the rcpod_dev* opaque type.
+       Functions are provided to interface with the librcpod API.
+       Additionally, objects representing pin descriptors are available
+       as attributes of this class, named after the pins. ('rb4' for example)
+
+       On reset, the PIC's model number and the set of pins implemented
+       in hardware is determined. The 'model' attribute is either "PIC16C745"
+       or "PIC16C765", and the 'pins' attribute is a list of Pin instances.
        """
     def __init__(self, dev, availableDevice):
         self.dev = dev
@@ -68,19 +75,9 @@ class OpenedDevice:
         self.scratchpadRange = (RCPOD_REG_SCRATCHPAD,
                                 RCPOD_REG_SCRATCHPAD + RCPOD_SCRATCHPAD_SIZE)
 
-        # Create pin descriptors corresponding to the ones in librcpod
-        # of the form R*. (The others are building blocks for pin
-        # descriptors, rather than complete descriptors for actual pins)
-        for key, value in globals().iteritems():
-            if key.startswith("RCPOD_PIN_R"):
-                # Hack off the "RCPOD_PIN_" part and lowercase it
-                pinName = key[10:].lower()
-
-                # Wrap it in a Pin class
-                self.__dict__[pinName] = Pin(self, value)
-
-        # Initially the PIC model number is unknown. It can be determined in reset()
-        self.model = None
+        # Initially the PIC model number is unknown. It can be determined
+        # automatically in reset(), or set manually if reset has been disabled.
+        self.setModel(None)
 
     def close(self):
         """Terminate our connection to the rcpod. No attributes
@@ -103,12 +100,37 @@ class OpenedDevice:
         # isn't implemented and will read as 0x00.
         trisd = self.peek('trisd')
         if trisd == 0x00:
-            self.model = 'PIC16C745'
+            self.setModel('PIC16C745')
         elif trisd == 0xFF:
-            self.model = 'PIC16C765'
+            self.setModel('PIC16C765')
         else:
             self.model = None
             raise ValueError('Incorrect value of TRISD after reset (0x%02X)' % trisd)
+
+    def setModel(self, name):
+        """Set the PIC model name, and generate a list of pins available on this PIC"""
+        self.model = name
+
+        # Create pin descriptors corresponding to the ones in librcpod
+        # of the form R*. (The others are building blocks for pin
+        # descriptors, rather than complete descriptors for actual pins)
+        self.pins = {}
+        for key, value in globals().iteritems():
+            if key.startswith("RCPOD_PIN_R"):
+                # Hack off the "RCPOD_PIN_" part and lowercase it
+                pinName = key[10:].lower()
+
+                # Don't do anything with this pin if it's not implemented
+                # in hardware- this means PORTD and PORTE, on the PIC16C745
+                if self.model == "PIC16C745" and (pinName.startswith('rd' or pinName.startswith('re'))):
+                    continue
+
+                # Wrap it in a Pin class
+                self.pins[pinName] = Pin(self, value)
+
+        # Merge in the pins dict with this class's dict, for convenience
+        # (device.rb4, rather than device.pins['rb4'])
+        self.__dict__.update(self.pins)
 
     def poke(self, address, data):
         """Put the given 8-bit value into an address in the PIC's RAM.
