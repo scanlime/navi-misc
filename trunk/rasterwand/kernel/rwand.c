@@ -60,6 +60,14 @@ struct rwand_timings {
 				 * slightly incorrect timing.
 				 */
 
+#define STARTING_EDGES   20     /* Number of edges to successfully exit startup */
+#define STABILIZER_EDGES 8      /* Number of edges to successfully exit stabilization */
+#define STABILIZER_TIME  HZ     /* Number of jiffies to unsuccessfully exit stabilization */
+
+#define PERIOD_CLIMB_RATE 7/10  /* Rate, in 2.66-us period units per jiffy, that the period
+				 * should climb while in the startup phase.
+				 */
+
 /* A simple averaging low-pass filter, O(1) */
 struct filter {
 	int                     buffer[FILTER_SIZE];    /* Circular buffer */
@@ -70,7 +78,7 @@ struct filter {
 
 #define STATE_OFF         0      /* Don't even try to start the display, we're off */
 #define STATE_STARTING    1      /* We have no timing feedback, we're just blindly trying to get it started.
-				  * This state is done as soon as we get any sync edges from the device.
+				  * This state is done as soon as we get STARTING_EDGES edges from the device.
 				  */
 #define STATE_STABILIZING 2      /* We have timing feedback, but we aren't sure it's stable yet.
 				  * This moves to STATE_RUNNING if it gets a sufficient number
@@ -111,6 +119,7 @@ struct rwand_dev {
 
 	int                     edge_count;             /* A larger resettable extension of the device's
 							 * tiny edge counter */
+	unsigned long           state_timer;
 
 	int                     page_flip_pending;      /* Are we waiting on a page flip? */
 	wait_queue_head_t       page_flip_waitq;        /* Processes waiting on a page flip */
@@ -271,12 +280,14 @@ static void    rwand_enter_state_starting     (struct rwand_dev *dev)
 {
 	dev->state = STATE_STARTING;
 	dev->edge_count = 0;
+	dev->state_timer = jiffies;
 }
 
 static void    rwand_enter_state_stabilizing  (struct rwand_dev *dev)
 {
 	dev->state = STATE_STABILIZING;
 	dev->edge_count = 0;
+	dev->state_timer = jiffies + STABILIZER_TIME;
 }
 
 static void    rwand_enter_state_running      (struct rwand_dev *dev)
@@ -293,6 +304,9 @@ static void rwand_update_state_off(struct rwand_dev *dev, struct rwand_status *n
 static void rwand_update_state_starting(struct rwand_dev *dev, struct rwand_status *new_status)
 {
 	int new_period;
+	unsigned long now = jiffies;
+	unsigned long dt = now - dev->state_timer;
+	dev->state_timer = now;
 
 	rwand_ensure_mode(dev, new_status,
 			  RWAND_MODE_ENABLE_COIL);
@@ -301,21 +315,29 @@ static void rwand_update_state_starting(struct rwand_dev *dev, struct rwand_stat
 	new_period = new_status->period;
 	if (new_period > 50000 || new_period < 45000)
 		new_period = 45000;
-	new_period += 5;
-	dbg("period: %d", new_period);
+	new_period += dt * PERIOD_CLIMB_RATE;
 	rwand_nb_request(dev, RWAND_CTRL_SET_PERIOD, new_period, 0);
 
-	/* If we get any edges at all in this mode, go to stabilizing */
-	if (dev->edge_count > 0)
+	if (dev->edge_count > STARTING_EDGES)
 		rwand_enter_state_stabilizing(dev);
 }
 
 static void rwand_update_state_stabilizing(struct rwand_dev *dev, struct rwand_status *new_status)
 {
-	/* Let the device start trying to synchronize itself */
 	rwand_ensure_mode(dev, new_status,
 			  RWAND_MODE_ENABLE_SYNC |
 			  RWAND_MODE_ENABLE_COIL);
+
+	if (dev->edge_count > STABILIZER_EDGES) {
+		/* Successful exit */
+		rwand_enter_state_running(dev);
+		return;
+	}
+	if (time_after(jiffies, dev->state_timer)) {
+		/* Unsuccessful exit */
+		rwand_enter_state_starting(dev);
+		return;
+	}
 }
 
 static void rwand_update_state_running(struct rwand_dev *dev, struct rwand_status *new_status)
@@ -1007,7 +1029,6 @@ static int rwand_probe(struct usb_interface *interface, const struct usb_device_
 	 * Even when our device node isn't open we need to be able to deal with input
 	 * events, predictor updates, and such.
 	 */
-	dbg("First URB submitted");
 	usb_submit_urb(dev->irq, GFP_KERNEL);
 
 	dev->minor = interface->minor;
