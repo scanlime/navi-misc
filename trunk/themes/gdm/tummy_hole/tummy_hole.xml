@@ -16,8 +16,7 @@
       <item type="label">
         <pos anchor="n" x="50%"/>
         <normal color="#FFFFFF" font="Bitstream Vera Sans 14"/>
-	      <!-- Stock label for: Welcome to %h -->
-	      <stock type="welcome-label"/>
+		<text>Come back, tummy hole</text>
       </item>
       <item type="label" id="pam-prompt">
         <pos anchor="nw" x="10%"/>
