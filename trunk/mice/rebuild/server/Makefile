@@ -68,6 +68,8 @@ server.jar:
 	jar cmf .manifest server.jar *.class
 
 jar: $(CLASSFILES) server.jar
+	rm server.jar
+	jar cmf .manifest server.jar *.class
 
 run: $(CLASSFILES) server.jar
 	java -jar server.jar

@@ -10,8 +10,6 @@ import java.io.*;
  */
 public class imain
 {
-	private ServerSocket server = null;
-	
 	/**
 	 * This is the main static class thingy that gets the server going
 	 * @param args The string of arguments from the command line
@@ -24,6 +22,9 @@ public class imain
 		imain listener = new imain(8080);
 		listener.handle();
 	}
+
+	/** The server socket that listens for stuff */
+	private ServerSocket server = null;
 	
 	/**
 	 * This method constructs the server, and handles the basic initialization
@@ -70,9 +71,8 @@ public class imain
 					closeConnection(link);
 					break;
 				case 1:
-					System.out.println(read(link,in));
-					System.out.println(read(link,in));
-					closeConnection(link);
+					njavasub.go(link,in,out);
+					System.out.println("foo");
 					break;
 				}
 			}

@@ -11,6 +11,26 @@ import java.io.*;
 
 public class njavasub extends nbase
 {
+	/** This is the head of the linked list of njavasub threads */
+	public static njavasub head;
+	/**
+	 * This method handles the submission and thread management stuff
+	 */
+	public static void go(Socket LINK, BufferedReader IN, OutputStreamWriter OUT)
+	{
+		if(head == null)
+		{
+			head = new njavasub();
+			head.reinit(LINK,IN,OUT);
+			head.start();
+		}
+		else
+		{
+			head.reinit(LINK,IN,OUT);
+			head.start();
+		}
+	}
+	
 	/** A reference to the next java submission thread. */
 	public njavasub next;
 	
