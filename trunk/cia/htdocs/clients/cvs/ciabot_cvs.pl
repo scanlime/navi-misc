@@ -177,6 +177,7 @@ exit unless $dirfiles[0];
 my $sum; # _VERY_ simple hash of the log message. It is really weak, but I'm
          # lazy and it's really sorta exceptional to even get more commits
          # running simultanously anyway.
+$sum = 0;
 map { $sum += ord $_ } split(//, $logmsg);
 
 my $syncfile; # Name of the file used for syncing
@@ -224,7 +225,7 @@ if (-f $syncfile and -w $syncfile) {
 ### Compose the mail message
 
 
-my ($VERSION) = '2.2';
+my ($VERSION) = '2.3';
 my ($URL) = 'http://cia.navi.cx/clients/cvs/ciabot_cvs.pl';
 my $ts = time;
 
