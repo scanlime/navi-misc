@@ -223,7 +223,7 @@ void animation_generate_chunks(Animation *self, ChunkCallback callback, gpointer
   gboolean valid;
   gchar *params;
   GdkPixbuf *thumb_pixbuf;
-  gchar *buffer;
+  guchar *buffer;
   guint buffer_len;
   gdouble duration;
   Spline *spline;
@@ -243,7 +243,7 @@ void animation_generate_chunks(Animation *self, ChunkCallback callback, gpointer
     callback(user_data, CHUNK_KEYFRAME_START, 0, NULL);
 
     if (params) {
-      callback(user_data, CHUNK_FYRE_PARAMS, strlen(params), params);
+      callback(user_data, CHUNK_FYRE_PARAMS, strlen((void *) params), (void *) params);
       g_free(params);
     }
 
@@ -301,7 +301,7 @@ void animation_store_chunk(AnimChunkState *state,
      */
     tempstring = g_malloc(length+1);
     tempstring[length] = '\0';
-    memcpy(tempstring, data, length);
+    memcpy(tempstring, (void *) data, length);
     gtk_list_store_set(state->self->model, &state->iter,
 		       ANIMATION_MODEL_PARAMS, tempstring,
 		       -1);
@@ -326,7 +326,7 @@ void animation_store_chunk(AnimChunkState *state,
     }
     else {
       g_log(G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
-	    "Duration chunk is incorrectly sized, %d bytes instead of %d",
+	    "Duration chunk is incorrectly sized, %ld bytes instead of %ld",
 	    length, sizeof(gdouble));
     }
     break;

@@ -98,20 +98,20 @@ static guint32 chunk_crc(ChunkType type, gsize length, const guchar* data) {
 /************************************************************************************/
 
 void chunked_file_write_signature(FILE* self, const gchar* signature) {
-  fwrite(signature, strlen(signature), 1, self);
+  fwrite((void *) signature, strlen((void *) signature), 1, self);
 }
 
 gboolean chunked_file_read_signature(FILE* self, const gchar* signature) {
   /* Read a signature from the file, returning TRUE on success and FALSE on failure
    */
-  int expected_size = strlen(signature);
+  int expected_size = strlen((void *) signature);
   gchar read_sig[expected_size];
 
   fseek(self, 0, SEEK_SET);
   if (fread(read_sig, 1, expected_size, self) != expected_size)
     return FALSE;
 
-  if (memcmp(read_sig, signature, expected_size))
+  if (memcmp(read_sig, (void *) signature, expected_size))
     return FALSE;
 
   return TRUE;

@@ -246,7 +246,7 @@ static void image_render_main (DeJong     *dejong,
      * of iterations (in scientific notation), iterations per second,
      * density / target density, and elapsed time / remaining time.
      */
-    printf("%6.02f%%   %.3e   %.2e/sec   %6d / %d   %02d:%02d:%02d / %02d:%02d:%02d\n",
+    printf("%6.02f%%   %.3e   %.2e/sec   %6ld / %ld   %02d:%02d:%02d / %02d:%02d:%02d\n",
 	   100.0 * HISTOGRAM_IMAGER(dejong)->peak_density / target_density,
 	   ITERATIVE_MAP(dejong)->iterations, ITERATIVE_MAP(dejong)->iterations / elapsed,
 	   HISTOGRAM_IMAGER(dejong)->peak_density, target_density,
@@ -283,7 +283,7 @@ static void animation_render_main (DeJong      *dejong,
       iterative_map_calculate_motion(ITERATIVE_MAP(dejong), 100000, continuation,
 			       PARAMETER_INTERPOLATOR(parameter_holder_interpolate_linear),
 			       &frame);
-      printf("Frame %d, %e iterations, %d density\n", frame_count, ITERATIVE_MAP(dejong)->iterations, HISTOGRAM_IMAGER(dejong)->peak_density);
+      printf("Frame %d, %e iterations, %ld density\n", frame_count, ITERATIVE_MAP(dejong)->iterations, HISTOGRAM_IMAGER(dejong)->peak_density);
       continuation = TRUE;
     } while (HISTOGRAM_IMAGER(dejong)->peak_density < target_density);
 

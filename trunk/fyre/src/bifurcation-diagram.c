@@ -25,7 +25,6 @@
 
 #include "bifurcation-diagram.h"
 #include "math-util.h"
-#include <math.h>
 
 static void               bifurcation_diagram_class_init        (BifurcationDiagramClass *klass);
 static void               bifurcation_diagram_init              (BifurcationDiagram      *self);

@@ -4,7 +4,11 @@
 CFLAGS  += $(shell if grep mmx /proc/cpuinfo > /dev/null; then echo -march=i686; fi)
 
 # -O3 and -ffast-math should make it go much faster on any system
-CFLAGS  += -O3 -ffast-math
+ifeq ($(CC),icc)
+	CFLAGS  += -O3
+else
+	CFLAGS  += -O3 -ffast-math
+endif
 
 # Disable glibc versions of functions that have faster versions
 # as gcc inlines. This should speed up trig on some systems.
@@ -43,10 +47,10 @@ OBJS    = \
 
 
 $(BIN): $(OBJS)
-	gcc -o $@ $(OBJS) $(LIBS)
+	$(CC) -o $@ $(OBJS) $(LIBS)
 
 %.o: %.c src/*.h
-	gcc -c -o $@ $< $(CFLAGS)
+	$(CC) -c -o $@ $< $(CFLAGS)
 
 clean:
 	rm -f $(BIN) src/*.o

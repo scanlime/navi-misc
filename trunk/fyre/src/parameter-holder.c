@@ -24,6 +24,7 @@
 
 #include "parameter-holder.h"
 #include <stdlib.h>
+#include <stdio.h>
 
 static void parameter_holder_class_init(ParameterHolderClass *klass);
 
