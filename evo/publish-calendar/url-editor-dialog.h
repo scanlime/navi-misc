@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef _URL_EDITOR_DIALOG_H_
-#define _URL_EDITOR_DIALOG_H_
+#ifndef URL_EDITOR_DIALOG_H
+#define URL_EDITOR_DIALOG_H
 
 #include <gtk/gtk.h>
 #include <glade/glade.h>
@@ -31,10 +31,10 @@
 G_BEGIN_DECLS
 
 #define URL_EDITOR_DIALOG_TYPE            (url_editor_dialog_get_type2 ())
-#define URL_EDITOR_DIALOG(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), URL_EDITOR_DIALOG, UrlEditorDialog))
-#define URL_EDITOR_DIALOG_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), URL_EDITOR_DIALOG, UrlEditorDialogClass))
-#define IS_URL_EDITOR_DIALOG(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), URL_EDITOR_DIALOG))
-#define IS_URL_EDITOR_DIALOG_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), URL_EDITOR_DIALOG))
+#define URL_EDITOR_DIALOG(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), URL_EDITOR_DIALOG_TYPE, UrlEditorDialog2))
+#define URL_EDITOR_DIALOG_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), URL_EDITOR_DIALOG_TYPE, UrlEditorDialogClass2))
+#define IS_URL_EDITOR_DIALOG(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), URL_EDITOR_DIALOG_TYPE))
+#define IS_URL_EDITOR_DIALOG_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), URL_EDITOR_DIALOG_TYPE))
 
 enum {
 	URL_LIST_ENABLED_COLUMN,
