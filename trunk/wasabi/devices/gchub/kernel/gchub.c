@@ -69,7 +69,13 @@ struct gchub_controller_outputs {
 
 struct gchub_controller {
 	struct input_dev dev;
-	int attached;            /* Nonzero if this controller is physically present */
+	int attached;            /* Nonzero if this controller is physically present.
+				  * When it's zero, the controller is assumed to be disconnected.
+				  * This is set to CONTROLLER_RETRY_ATTEMPTS every time a valid
+				  * controller status update is received, and decremented every
+				  * time we don't get any data. This lets us tolerate infrequent
+				  * glitches.
+				  */
 	int dev_registered;      /* Nonzero if 'dev' has been registered */
 	int reg_in_progress;     /* Nonzero if a registration/unregistration is pending */
 	int calibration_valid;   /* If zero, we'll sample calibration_status next chance we get */
@@ -101,6 +107,13 @@ struct gchub_dev {
 				     */
 
 #define STATUS_PACKET_INTERVAL 1    /* Polling interval, in milliseconds per packet */
+
+#define CONTROLLER_RETRY_ATTEMPTS 20 /* Number of times a controller must report no data to be
+				      * considered disconnected. This gives us tolerance for glitches
+				      * in the received or transmitted packets, and also effectively
+				      * gives us a timeout on controller disconnect. 20 packets
+				      * will take around 0.15 seconds normally.
+				      */
 
 
 static int    gchub_probe              (struct usb_interface*           interface,
@@ -187,6 +200,7 @@ static int controller_init(struct gchub_controller* ctl,
 		return -ENOMEM;
 	strcpy(ctl->dev.phys, name_buf);
 
+#if 0
 	/* Copy USB bus info to our input device */
 	ctl->dev.id.bustype = BUS_USB;
 	ctl->dev.id.vendor  = usb->descriptor.idVendor;
@@ -196,6 +210,7 @@ static int controller_init(struct gchub_controller* ctl,
 
 	/* Set up callbacks */
 	ctl->dev.private = ctl;
+#endif
 
 	/* Set up work structures for queueing attach/detach operations */
 	INIT_WORK(&ctl->reg_work, controller_attach, ctl);
@@ -221,9 +236,9 @@ static int controller_init(struct gchub_controller* ctl,
 		case ABS_Y:
 		case ABS_RX:
 		case ABS_RY:
-			ctl->dev.absmax[axis]  =  110;
-			ctl->dev.absmin[axis]  = -110;
-			ctl->dev.absflat[axis] =  16;
+			ctl->dev.absmax[axis]  =  127;
+			ctl->dev.absmin[axis]  = -128;
+			ctl->dev.absflat[axis] =  10;
 			ctl->dev.absfuzz[axis] =  2;
 			break;
 
@@ -449,11 +464,48 @@ static void gchub_process_status(struct gchub_dev *dev, const unsigned char *pac
 	switch (packet_type) {
 
 	case GCHUB_PACKET_DISCONNECT:
-		port->attached = 0;
+		/* We get a disconnect packet when the firmware timed out
+		 * reading a response from the indicated controller. This
+		 * generally means the controller was unplugged, but there
+		 * are some special circumstances we handle here.
+		 *
+		 * First, we don't actually disconnect a controller until
+		 * it has many consecutive timeouts. This filters out
+		 * signal glitches.
+		 *
+		 * Second, if you hold down X, Y, and Start for three
+		 * seconds, the controller will stop responding to packets.
+		 * This is the button combination used by the Gamecube
+		 * for recalibration- they implement this by having
+		 * the controller appear as though it's actually been
+		 * unplugged and plugged back in. This will annoy any
+		 * apps that are reading from the controller though, so
+		 * we cheat. If we see disconnects and the X, Y, and Start
+		 * buttons were down last we saw them, assume the controller
+		 * was put into calibration mode. We assume it's still
+		 * connected, but invalidate our current calibration for
+		 * it. Unfortunately, this means that if a controller
+		 * really was unplugged while someone was holding down X, Y,
+		 * and Start we won't see it.
+		 */
+
+		if ((port->current_status.buttons & GCHUB_BUTTON_X) &&
+		    (port->current_status.buttons & GCHUB_BUTTON_Y) &&
+		    (port->current_status.buttons & GCHUB_BUTTON_START)) {
+
+			port->calibration_valid = 0;
+		}
+		else if (port->attached > 0) {
+			port->attached--;
+			dbg("Disconnect on '%s', %d retries left\n", port->dev.name, port->attached);
+		}
+		else {
+			port->attached = 0;
+		}
 		break;
 
 	case GCHUB_PACKET_ANALOG:
-		port->attached = 1;
+		port->attached = CONTROLLER_RETRY_ATTEMPTS;
 		port->current_status.joystick[0] = packet[1];
 		port->current_status.joystick[1] = packet[2];
 		port->current_status.cstick[0]   = packet[3];
@@ -463,7 +515,7 @@ static void gchub_process_status(struct gchub_dev *dev, const unsigned char *pac
 		break;
 
 	case GCHUB_PACKET_BUTTONS:
-		port->attached = 1;
+		port->attached = CONTROLLER_RETRY_ATTEMPTS;
 		port->current_status.buttons = (packet[1] << 8) | packet[2];
 		break;
 
