@@ -137,8 +137,9 @@ public class PipelineEditor
 
 		pipeline_drawing.SetScrollAdjustments (drawing_hscroll.Adjustment, drawing_vscroll.Adjustment);
 
-		// Set up drag-and-drop for the canvas
-		Gtk.Drag.DestSet (pipeline_drawing, Gtk.DestDefaults.All, targets, Gdk.DragAction.Copy);
+		// Set up drag-and-drop for the frame, since the canvas doesn't
+		// seem to do drag hilighting properly
+		Gtk.Drag.DestSet (pipeline_window, Gtk.DestDefaults.All, targets, Gdk.DragAction.Copy);
 	}
 
 	void ElementListDragBegin (object o, DragBeginArgs args)
