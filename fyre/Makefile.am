@@ -1,7 +1,7 @@
 SUBDIRS = data src contrib
 
 desktopdir = $(datadir)/applications
-fyre.desktop: fyre.desktop.in
+fyre.desktop:	fyre.desktop.in
 	sed 's|\@DATADIR\@|$(datadir)/fyre/|' $< > $@
 desktop_DATA = fyre.desktop
 
