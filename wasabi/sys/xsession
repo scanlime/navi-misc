@@ -1,9 +1,0 @@
-# Yes, this needs to be here twice. Not sure why...
-sudo /usr/bin/nvtv -t -r 640,480 -s normal -S NTSC
-sudo /usr/bin/nvtv -t -r 640,480 -s normal -S NTSC
-
-export DISPLAY=:0
-xhost +
-
-cd ~/freevo
-while true; do ./freevo; sleep 1; done
