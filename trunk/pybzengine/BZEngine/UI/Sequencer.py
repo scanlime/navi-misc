@@ -29,6 +29,7 @@ define transitions or other modifiers.
 from __future__ import division
 from BZEngine import Event, Animated
 from BZEngine.UI import GLOrtho
+import gc
 
 
 class Page:
@@ -82,11 +83,12 @@ class Book:
        Otherwise, it is convenient for this to be a lambda expression to instantiate
        the class properly.
        """
-    def __init__(self, view, initialPages):
+    def __init__(self, view, initialPages=[]):
         Event.attach(self, "onFinish")
         self.view = view
         self.viewport = view.viewport
-        self.pages = initialPages
+        self.initialPages = list(initialPages)
+        self.pages = self.initialPages[:]
         self.activeInstance = None
         self.activeClass = None
         self.evaluatePages()
@@ -110,6 +112,20 @@ class Book:
         del self.pages[0]
         self.evaluatePages()
 
+    def deactivateInstance(self):
+        """Used internally in evaluatePages, this deactivates the currently active
+           page if there is one, calling its finalize() method properly.
+           """
+        if self.activeInstance:
+            self.activeInstance.finalize()
+
+        # Unreference the active page and invoke the garbage collector immediately,
+        # so weakrefs used by Events are cleaned up right away avoiding any nasty
+        # race conditions and such later.
+        self.activeClass = None
+        self.activeInstance = None
+        gc.collect()
+
     def evaluatePages(self):
         """Used internally, this looks at the list of pages and determines if the active
            page needs to be changed. If so, the new active page is instantiated and the
@@ -119,10 +135,7 @@ class Book:
             # If the currently active page wasn't created from the class at the front of the page list,
             # it should no longer be active. Make it so.
             if self.activeClass is not self.pages[0]:
-                if self.activeInstance:
-                    self.activeInstance.finalize()
-                self.activeClass = None
-                self.activeInstance = None
+                self.deactivateInstance()
 
                 # Create the new active page instance
                 self.activeClass = self.pages[0]
@@ -132,11 +145,21 @@ class Book:
                 self.activeInstance.onFinish.observe(self.popFront)
         else:
             # No more pages, disable any currently active page and call our onFinish event
-            if self.activeInstance:
-                self.activeInstance.finalize()
-            self.activeClass = None
-            self.activeInstance = None
+            self.deactivateInstance()
             self.onFinish()
+
+    def reset(self):
+        """Return the book to its initial set of pages"""
+        self.deactivateInstance()
+        self.pages = self.initialPages[:]
+        if self.pages:
+            self.evaluatePages()
+
+
+class CyclicBook(Book):
+    """A book that, upon onFinish, resets to its initial state"""
+    def onFinish(self):
+        self.reset()
 
 
 class PageTimerWrapper(PageWrapper):

@@ -84,8 +84,9 @@ class TextureTest(Sequencer.Page):
         self.view.scene.remove(self.meshes)
 
 
-# Load a sequence of the above pages into a book
-book = Sequencer.Book(view, [
+# Load a sequence of the above pages into a book. CyclicBook resets itself after its
+# onFinish event, efectively looping our animation.
+book = Sequencer.CyclicBook(view, [
 
     # Zoom in on the 'texture_test' model. This page finishes itself when the camera is close enough.
     # We fade in from black slowly, and fade out to white quickly
@@ -100,6 +101,4 @@ book = Sequencer.Book(view, [
     Sequencer.FadeIn(0.1, (1,1,1), Sequencer.FadeOut(1, (0,0,0), Sequencer.UserPageInterrupter(Monkey))),
     ])
 
-# Run our event loop until the book finishes
-book.onFinish.observe(loop.stop)
 loop.run()
