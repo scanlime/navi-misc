@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdarg.h>
 #include <signal.h>
+#include <errno.h>
 
 #include "camconfig.h"
 #include "socket.h"
