@@ -63,9 +63,9 @@ class WordList(object):
 
 
 # Define several shared word lists that are read from disk on demand
-basic_english      = WordList("basic-english")
-basic_english_min5 = WordList("basic-english", minLength=5)
+basic_english            = WordList("basic-english")
+basic_english_restricted = WordList("basic-english", minLength=5, maxLength=10)
 
-defaultWordList = basic_english_min5
+defaultWordList = basic_english_restricted
 
 ### The End ###
