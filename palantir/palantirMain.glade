@@ -126,6 +126,16 @@
 		  </child>
 
 		  <child>
+		    <widget class="GtkCheckMenuItem" id="dungeon_master">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">Dungeon Master</property>
+		      <property name="use_underline">True</property>
+		      <property name="active">False</property>
+		      <signal name="activate" handler="on_dungeon_master_activate" last_modification_time="Sat, 07 Feb 2004 00:04:14 GMT"/>
+		    </widget>
+		  </child>
+
+		  <child>
 		    <widget class="GtkMenuItem" id="dice_system">
 		      <property name="visible">True</property>
 		      <property name="label" translatable="yes">Dice System</property>

@@ -221,6 +221,20 @@ class PalantirWindow:
     self.tree.get_widget('wwd10').show()
     self.dieRoller.system = 'WW'
 
+  def on_dungeon_master_activate(self, widget, data=None):
+    ''' When the Dungeon Master menu item is toggled either display or hide the DM icon
+        next to our nick.
+	'''
+    store = self.tree.get_widget('UserList').get_model()
+    image = gtk.Image()
+    if widget.get_active():
+      image.set_from_file('pixmaps/dm.png')
+
+    store.foreach(self.setUserIcon, (self.factory.nickname, image.get_pixbuf()))
+
+
+    #store.set_value(iter, 0, image.get_pixbuf())
+
   ### Color Selection Dialog ###
   def on_color_ok_button_clicked(self, widget, data=None):
     dialog = self.tree.get_widget('color_selection')
@@ -413,3 +427,20 @@ class PalantirWindow:
     if len(sec) is 1: sec = '0'+sec
 
     return (hour, min, sec)
+
+  def setUserIcon(self, listStore, path, iter, data):
+    ''' Sets the icon next to the username in the userlist, return gtk.TRUE if and when we find the
+        user specified in data, return gtk.FALSE otherwise.  data is a list or tuple of
+        the username and a gdk.Pixbuf.
+	'''
+    # Unpack.
+    name, pixbuf = data
+
+    # Get the username we're on.
+    user = listStore.get_value(iter, 1)
+
+    if user == name:
+      listStore.set(iter, 0, pixbuf)
+      return gtk.TRUE
+    else:
+      return gtk.FALSE
