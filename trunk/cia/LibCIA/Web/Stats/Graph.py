@@ -67,13 +67,14 @@ class RelatedSection(Template.Section):
     query = """
     SELECT
         C.parent_path,
+        R.freshness,
         PARENT_TITLE.value,
         C.target_path,
         TARGET_TITLE.value,
         IF(M_ICON.name IS NOT NULL, M_ICON.name, M_PHOTO.name)
     FROM stats_relations R
         LEFT OUTER JOIN stats_catalog C
-            ON (C.target_path = IF(R.target_a_path = %(path)s, R.target_b_path, R.target_a_path))
+            ON (C.target_path = target_%(otherSide)s_path)
         LEFT OUTER JOIN stats_metadata TARGET_TITLE
             ON (TARGET_TITLE.name = 'title' AND TARGET_TITLE.target_path = C.target_path)
         LEFT OUTER JOIN stats_metadata PARENT_TITLE
@@ -82,17 +83,17 @@ class RelatedSection(Template.Section):
             ON (C.target_path = M_PHOTO.target_path AND M_PHOTO.name = 'photo')
         LEFT OUTER JOIN stats_metadata M_ICON
             ON (C.target_path = M_ICON.target_path  AND M_ICON.name  = 'icon')
-        WHERE (R.target_a_path = %(path)s or R.target_b_path = %(path)s)
+        WHERE R.target_%(thisSide)s_path = %(path)s
             AND C.parent_path != %(path)s
             AND %(filter)s
-    ORDER BY C.parent_path, R.freshness DESC
+    ORDER BY NULL
     """
 
     sectionLimit = 15
 
     columns = [
-        Columns.IndexedIconColumn(iconIndex=2, pathIndex=0),
-        Columns.TargetTitleColumn(pathIndex=0, titleIndex=1),
+        Columns.IndexedIconColumn(iconIndex=4, pathIndex=2),
+        Columns.TargetTitleColumn(pathIndex=2, titleIndex=3),
         ]
 
     def __init__(self, target):
@@ -110,37 +111,55 @@ class RelatedSection(Template.Section):
         # The default allows all related items to be displayed.
         result = defer.Deferred()
         self.target.metadata.getValue("related-filter", default="<true/>").addCallback(
-            self._send_query, context, result
+            self._startQuery, context, result
             ).addErrback(result.errback)
         return result
 
-    def _send_query(self, filter, context, result):
-        # Run our big SQL query to get all data for this section
-        Database.pool.runQuery(self.query % {
-            'path': Database.quote(self.target.path, 'varchar'),
-            'filter': RelatedFilter(filter).sql,
-            }).addCallback(
+    def _startQuery(self, filter, context, result):
+        # We have our related-filter, start a db interaction to do our actual
+        # queries then pass the results on to _render_rows.
+        Database.pool.runInteraction(self._runQuery, filter).addCallback(
             self._render_rows, context, result
             ).addErrback(result.errback)
 
-    def _render_rows(self, queryResults, context, result):
-        # From the rows returned from our SQL query, construct a
-        # dictionary that maps from a parent hyperlink to a list
-        # of child rows sorted by decreasing freshness.
-        currentParentLink = None
-        currentParentPath = None
-        d = {}
-        for parentPath, parentTitle, targetPath, targetTitle, iconName in queryResults:
-            if parentPath != currentParentPath:
-                currentParentPath = parentPath
-                currentParentLink = self.makeLink(parentPath, parentTitle)
-            d.setdefault(currentParentLink, []).append((targetPath, targetTitle, iconName))
+    def _runQuery(self, cursor, filter):
+        # Set up and run two SQL queries, one for each side of the graph link that this
+        # target may be on. We can't do this in one step and still have the server use
+        # its indexes effectively.
 
-        # Sort these parent sections by decreasing size. We want
-        # the most interesting ones at the top, and those are usually the biggest.
-        sections = d.keys()
-        sections.sort(lambda a,b: cmp(len(d[b]), len(d[a])))
-        result.callback([self.render_section(section, d[section]) for section in sections])
+        filterSql = RelatedFilter(filter).sql
+        sections = {}
+
+        for thisSide, otherSide in ( ('a','b'), ('b', 'a') ):
+            cursor.execute(self.query % dict(
+                path = Database.quote(self.target.path, 'varchar'),
+                filter = filterSql,
+                thisSide = thisSide,
+                otherSide = otherSide,
+                ))
+
+            while 1:
+                row = cursor.fetchone()
+                if not row:
+                    break
+                # Drop rows into sections according to their parent path
+                try:
+                    sections[row[0]].append(row[1:])
+                except KeyError:
+                    sections[row[0]] = [row[1:]]
+
+        # Sort sections descending by freshness
+        for items in sections.itervalues():
+            items.sort()
+            items.reverse()
+        return sections
+
+    def _render_rows(self, queryResults, context, result):
+        # Sort sections by decreasing size. We want the most interesting ones at
+        # the top, and those are usually the biggest.
+        sections = queryResults.keys()
+        sections.sort(lambda a,b: cmp(len(queryResults[b]), len(queryResults[a])))
+        result.callback([self.render_section(section, queryResults[section]) for section in sections])
 
     def render_section(self, section, rows):
         """Given a heading renderable and a list of rows for that
@@ -155,8 +174,9 @@ class RelatedSection(Template.Section):
         else:
             footer = ()
 
+        parentTitle = rows[0][1]
         return [
-            tag('div', _class='relatedHeading')[ section ],
+            tag('div', _class='relatedHeading')[ self.makeLink(section, parentTitle) ],
             RelatedTable(rows, self.columns, showHeading=False),
             footer,
             ]
