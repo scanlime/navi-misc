@@ -9,6 +9,7 @@ try:
     while True:
         t = time.time() - startTime
         vfd.setBrightness(sin(t * 10) * 0.5 + 0.5)
-        time.sleep(0.01)
+	vfd.flush()
+	time.sleep(0.01)
 finally:
     vfd.setBrightness(1)
