@@ -1,6 +1,10 @@
 # -*- mode: python; -*-
 #
-# This is a .tac configuration file that sets up a CIA server.
+# This is a .tac configuration file that sets up a full CIA
+# server with all the bells and whistles. It requires a MySQL
+# database for rulesets and stats, and provides a full web
+# interface.
+#
 # Start the server by running 'twistd -oy' on this file.
 #
 
@@ -31,8 +35,10 @@ uriRegistry = Ruleset.URIRegistry(
     RpcClient.XmlrpcURIHandler(),
     )
 
-# Use a persistent set of rulesets to filter and format messages
-rulesetStorage = Ruleset.RulesetStorage(hub, uriRegistry)
+# Use a persistent set of rulesets to filter and format messages.
+# We keep the rulesets in a database table, updating them according
+# to requests from the ruleset editor.
+rulesetStorage = Ruleset.DatabaseRulesetStorage(hub, uriRegistry)
 
 # Give the default user a 'universe' capability and save its key,
 # so it can be used later by the administrative tools. This effectively

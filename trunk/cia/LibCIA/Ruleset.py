@@ -42,7 +42,12 @@ used to store and query rulesets in a RulesetStorage.
 import XML, Message, Debug, Database, Security, RpcServer, Formatters
 from twisted.python import log
 from twisted.internet import defer
-import sys, traceback, re
+import sys, traceback, re, os
+
+
+class InvalidURIException(Exception):
+    """An exception that URI handlers can raise when a URI is invalid"""
+    pass
 
 
 class RulesetInterface(RpcServer.Interface):
@@ -410,48 +415,47 @@ class URIRegistry(object):
 
 
 class RulesetStorage:
-    """A persistent list of Rulesets, stored in RulesetDelivery objects
-       with URIHandlers looked up from the provided URIRegistry.
-       The generated RulesetDelivery objects are automatically added
+    """Abstract base class for a persistent list of Rulesets, stored in
+       RulesetDelivery objects with URIHandlers looked up from the provided
+       URIRegistry. The generated RulesetDelivery objects are automatically added
        to and removed from the supplied Message.Hub.
 
-       At startup, refresh() is called to read in rulesets from the
-       'rulesets' database table.
+       At startup, rulesets are loaded from some persistent source and any
+       modifications are recorded. Subclasses must implement this persistence.
        """
     def __init__(self, hub, uriRegistry):
         self.uriRegistry = uriRegistry
         self.hub = hub
-        self.emptyStorage()
+        self._emptyStorage()
         self.refresh()
 
     def refresh(self):
         """Begin the process of loading our rulesets in from the SQL database.
            Returns a Deferred that signals the operation's completion.
            """
-        # First we ensure the database table exists
-        result = defer.Deferred()
         log.msg("Starting to refresh rulesets...")
-        d = Database.pool.runQuery("SELECT * FROM rulesets")
-        d.addCallback(self._storeDbRulesets, result)
-        d.addErrback(result.errback)
+        result = defer.Deferred()
+        defer.maybeDeferred(self.dbIter).addCallback(
+            self._refresh, result).addErrback(result.errback)
         return result
 
-    def _storeDbRulesets(self, rulesets, result):
-        """The second step in the refresh() process, loading the retrieved list of rulesets"""
-        log.msg("%d ruleset%s received from the database" % (len(rulesets), "s"[len(rulesets) == 1:]))
-        self.emptyStorage()
-        for uri, xml in rulesets:
+    def _refresh(self, seq, result):
+        self._emptyStorage()
+        count = 0
+        for ruleset in seq:
             try:
-                self._store(Ruleset(xml))
+                self._store(Ruleset(ruleset))
+                count += 1
             except:
-                log.msg("Failed to load ruleset for %r:\n%s" % (
-                    uri,
+                log.msg("Failed to load ruleset %r:\n%s" % (
+                    ruleset,
                     "".join(traceback.format_exception(*sys.exc_info())),
                     ))
-        log.msg("Rulesets refreshed.")
-        return rulesets
+        log.msg("%d rulesets loaded" % count)
+        result.callback(None)
+        return seq
 
-    def emptyStorage(self):
+    def _emptyStorage(self):
         # Remove any existing rulesets from the Message.Hub
         if hasattr(self, 'rulesetMap'):
             for value in self.rulesetMap.itervalues():
@@ -472,7 +476,7 @@ class RulesetStorage:
            input errors have already been detected.
 
            This updates both our in-memory mapping of compiled rulesets,
-           and the table of XML rulesets in our database.
+           and the table of XML rulesets in our persistent storage.
 
            Returns a deferred, the callback of which is executed
            when the SQL database for this ruleset has been updated.
@@ -480,25 +484,7 @@ class RulesetStorage:
            """
         ruleset = Ruleset(rulesetXml)
         self._store(ruleset)
-
-        # Delete the old ruleset, if there was one
-        result = defer.Deferred()
-        d = Database.pool.runOperation("DELETE FROM rulesets WHERE uri = %s" % Database.quote(ruleset.uri, 'text'))
-
-        # If we need to insert a new ruleset, do that after the delete finishes
-        if ruleset.isEmpty():
-            d.addCallback(result.callback)
-        else:
-            d.addCallback(self._insertRuleset, result, ruleset)
-        d.addErrback(result.errback)
-        return result
-
-    def _insertRuleset(self, none, result, ruleset):
-        """Callback used by store() to insert a new or modified ruleset into the SQL database"""
-        d = Database.pool.runOperation("INSERT INTO rulesets (uri, xml) values(%s, %s)" % (
-            Database.quote(ruleset.uri, 'text'), Database.quote(XML.toString(ruleset.xml), 'text')))
-        d.addCallback(result.callback)
-        d.addErrback(result.errback)
+        self.dbStore(ruleset)
 
     def _store(self, ruleset):
         """Internal version of store() that doesn't update the database,
@@ -535,11 +521,101 @@ class RulesetStorage:
 
     def flatten(self):
         """Return a flat list of all Ruleset objects so we can store 'em"""
-        return [delivery.ruleset for delivery in self.rulesetMap.itervalues()]
+        for delivery in self.rulesetMap.itervalues():
+            yield delivery.ruleset
+
+    def dbIter(self):
+        """Returns (optionally via a Deferred) an iterable that
+           contains a Ruleset object (or a string or DOM representing
+           a ruleset) for every ruleset stored persistently.
+           Implemented by subclasses.
+           """
+        return []
+
+    def dbStore(self, ruleset):
+        """Stores the given Ruleset object persistently in our
+           database. If ruleset.isEmpty(), this should end up
+           deleting the stored ruleset for the given URI if it exists.
+           """
+        pass
 
 
-class InvalidURIException(Exception):
-    """An exception that URI handlers can raise when a URI is invalid"""
-    pass
+class DatabaseRulesetStorage(RulesetStorage):
+    """A RulesetStorage that keeps rulesets in an SQL database"""
+    def dbIter(self):
+        """Begin the process of loading our rulesets in from the SQL database.
+           Returns the list of rulesets via a deferred.
+           """
+        result = defer.Deferred()
+        d = Database.pool.runQuery("SELECT * FROM rulesets")
+        d.addCallback(self._storeDbRulesets, result)
+        d.addErrback(result.errback)
+        return result
+
+    def _storeDbRulesets(self, rulesets, result):
+        """The second step in the refresh() process, loading the retrieved list of rulesets"""
+        result.callback(self._iterRulesetValues(rulesets))
+        return rulesets
+
+    def _iterRulesetValues(self, rulesets):
+        for uri, ruleset in rulesets:
+            yield ruleset
+
+    def dbStore(self, ruleset):
+        """Store a ruleset persistently in our SQL database"""
+        # Delete the old ruleset, if there was one
+        result = defer.Deferred()
+        d = Database.pool.runOperation("DELETE FROM rulesets WHERE uri = %s" % Database.quote(ruleset.uri, 'text'))
+
+        # If we need to insert a new ruleset, do that after the delete finishes
+        if ruleset.isEmpty():
+            d.addCallback(result.callback)
+        else:
+            d.addCallback(self._insertRuleset, result, ruleset)
+        d.addErrback(result.errback)
+        return result
+
+    def _insertRuleset(self, none, result, ruleset):
+        """Callback used by store() to insert a new or modified ruleset into the SQL database"""
+        d = Database.pool.runOperation("INSERT INTO rulesets (uri, xml) values(%s, %s)" % (
+            Database.quote(ruleset.uri, 'text'), Database.quote(XML.toString(ruleset.xml), 'text')))
+        d.addCallback(result.callback)
+        d.addErrback(result.errback)
+
+
+class FileRulesetStorage(RulesetStorage):
+    """A simple RulesetStorage that uses a simple flat text file"""
+    def __init__(self, hub, uriRegistry, path):
+        self.path = path
+        RulesetStorage.__init__(self, hub, uriRegistry)
+
+    def dbIter(self):
+        if os.path.isfile(self.path):
+            dom = XML.parseStream(open(self.path))
+            for element in XML.getChildElements(dom.documentElement):
+                if element.nodeName == "ruleset":
+                    yield element
+        else:
+            log.msg("The file %r does not exist, loading no rulesets" % self.path)
+
+    def dbStore(self, ruleset=None):
+        """Write all rulesets to disk in one big XML file"""
+        doc = XML.parseString("<rulesets>\n"
+                              "<!--\n"
+                              "This is a ruleset storage for CIA. It tells the CIA server\n"
+                              "how to deliver messages. Don't edit it by hand while the server\n"
+                              "is running, use tools/ruleset_editor.py\n"
+                              "-->\n"
+                              "\n"
+                              "</rulesets>")
+        root = doc.documentElement
+        for ruleset in self.flatten():
+            root.appendChild(XML.Domlette.ConvertDocument(ruleset.xml).documentElement)
+            root.appendChild(doc.createTextNode("\n\n"))
+
+        f = open(self.path, "w")
+        XML.Domlette.Print(doc, f)
+        f.write("\n")
+
 
 ### The End ###
