@@ -23,39 +23,62 @@
  */
 
 #include "avi-writer.h"
+#include <string.h>
 
-static void avi_writer_class_init(AviWriterClass *klass);
-static void avi_writer_init(AviWriter *self);
+static void avi_writer_class_init           (AviWriterClass *klass);
+static void avi_writer_init                 (AviWriter *self);
 
-static void avi_writer_write_header_list(AviWriter *self);
-static void avi_writer_write_main_header(AviWriter *self);
-static void avi_writer_write_stream_header(AviWriter *self);
-static void avi_writer_write_stream_format(AviWriter *self);
+static void avi_writer_write_header_list    (AviWriter *self);
+static void avi_writer_write_main_header    (AviWriter *self);
+static void avi_writer_write_stream_header  (AviWriter *self);
+static void avi_writer_write_stream_format  (AviWriter *self);
+static void avi_writer_write_index          (AviWriter *self);
 
-static void write_fourcc(FILE *f, const char *fourcc);
-static void write_int32(FILE *f, gint32 i);
-static void write_int16(FILE *f, gint16 i);
+static void write_fourcc                    (FILE *f, const char *fourcc);
+static void write_int32                     (FILE *f, gint32 i);
+static void write_int16                     (FILE *f, gint16 i);
 
-static void avi_writer_push_chunk(AviWriter *self, const char *fourcc);
-static void avi_writer_pop_chunk(AviWriter *self);
-static void avi_writer_push_header(AviWriter *self, const char *fileType);
-static void avi_writer_push_list(AviWriter *self, const char *listType);
-
+static void avi_writer_push_chunk           (AviWriter *self, const char *fourcc);
+static void avi_writer_pop_chunk            (AviWriter *self);
+static void avi_writer_push_header          (AviWriter *self, const char *fileType);
+static void avi_writer_push_list            (AviWriter *self, const char *listType);
+static void avi_writer_pop_chunk_with_index (AviWriter *self, int index_flags);
 
 typedef struct {
+    char fourcc[5];   /* The chunk's FOURCC code */
     long size_field;  /* The file offset of the beginning of the chunk header's size field */
     long data_start;  /* The file offset where data starts, for measuring chunk size */
 } ChunkStackEntry;
 
+typedef struct {
+    char fourcc[5];   /* The chunk's FOURCC code */
+    int flags;        /* AVIIF_* flags */
+    long offset;      /* File offset- number of bytes between the end of "movi" and the end
+		       * of the chunk's FOURCC code. The documentation is fuzzy, but this
+		       * is how mencoder seems to treat the field.
+		       */
+    long size;        /* Size of the indexed chunk- should match the size stored in the
+		       * chunk's header after it's fixed up.
+		       */
+} IndexQueueEntry;
+
+
 /* Scale factor for video stream length and frame rate */
 #define RATE_SCALE 1000
 
+/* Header flags */
 #define AVIF_HASINDEX           0x00000010
 #define AVIF_MUSTUSEINDEX       0x00000020
 #define AVIF_ISINTERLEAVED      0x00000100
 #define AVIF_TRUSTCKTYPE        0x00000800
 #define AVIF_WASCAPTUREFILE     0x00010000
 #define AVIF_COPYRIGHTED        0x00020000
+
+/* Index flags */
+#define AVIIF_LIST              0x00000001
+#define AVIIF_KEYFRAME          0x00000010
+#define AVIIF_NOTIME            0x00000100
+#define AVIIF_COMPUSE           0x0FFF0000
 
 
 /************************************************************************************/
@@ -105,6 +128,12 @@ AviWriter*  avi_writer_new(FILE       *file,
     avi_writer_push_header(self, "AVI ");
     avi_writer_write_header_list(self);
     avi_writer_push_list(self, "movi");
+
+    /* Right here, at the beginning of the 'movi' list, is where index
+     * offsets are measured from.
+     */
+    self->index_queue = g_queue_new();
+    self->index_origin_offset = ftell(self->file);
 
     return self;
 }
@@ -156,14 +185,17 @@ void avi_writer_append_frame (AviWriter *self, const GdkPixbuf *frame) {
 	row -= rowstride;
     }
 
-    avi_writer_pop_chunk(self);
+    avi_writer_pop_chunk_with_index(self, AVIIF_KEYFRAME);
     self->frame_count++;
 }
 
 void avi_writer_close (AviWriter *self) {
-    /* Close all open chunks */
-    while (self->chunk_stack)
-	avi_writer_pop_chunk(self);
+    avi_writer_pop_chunk(self);     /* Close the "movi" list */
+    avi_writer_write_index(self);
+    avi_writer_pop_chunk(self);     /* Close the "AVI" chunk */
+
+    /* At this point, there should be no more open chunks */
+    g_assert(self->chunk_stack == NULL);
 
     /* Fix up frame count and stream length */
     fseek(self->file, self->frame_count_offset, SEEK_SET);
@@ -172,6 +204,7 @@ void avi_writer_close (AviWriter *self) {
     write_int32(self->file, self->frame_count * self->frame_rate * RATE_SCALE);
 
     fclose(self->file);
+    g_queue_free(self->index_queue);
 }
 
 
@@ -205,7 +238,7 @@ static void avi_writer_write_main_header(AviWriter *self) {
     write_int32(self->file, 0);
 
     /* flags (AVIF_* constants) */
-    write_int32(self->file, 0);
+    write_int32(self->file, AVIF_HASINDEX);
 
     /* total frames (we fill this in later) */
     self->frame_count_offset = ftell(self->file);
@@ -344,6 +377,8 @@ static void avi_writer_push_chunk(AviWriter *self, const char *fourcc) {
     ChunkStackEntry *new_chunk = g_new(ChunkStackEntry, 1);
 
     write_fourcc(self->file, fourcc);
+    strncpy(new_chunk->fourcc, fourcc, 4);
+    new_chunk->fourcc[4] = '\0';
 
     /* Write a dummy size field, pointing to it for later updating */
     new_chunk->size_field = ftell(self->file);
@@ -385,6 +420,50 @@ static void avi_writer_push_header(AviWriter *self, const char *fileType) {
 static void avi_writer_push_list(AviWriter *self, const char *listType) {
     avi_writer_push_chunk(self, "LIST");
     write_fourcc(self->file, listType);
+}
+
+
+/************************************************************************************/
+/************************************************************************ AVI Index */
+/************************************************************************************/
+
+/* Write the "idx1" list, using the queued chunk positions from our index FIFO */
+static void avi_writer_write_index(AviWriter *self)
+{
+    IndexQueueEntry *current_entry;
+
+    avi_writer_push_chunk(self, "idx1");
+
+    /* Write all IndexQueueEntry nodes, freeing them as we go */
+    while ((current_entry = g_queue_pop_head(self->index_queue))) {
+
+	write_fourcc(self->file, current_entry->fourcc);
+	write_int32(self->file, current_entry->flags);
+	write_int32(self->file, current_entry->offset);
+	write_int32(self->file, current_entry->size);
+
+	g_free(current_entry);
+    }
+
+    avi_writer_pop_chunk(self);
+}
+
+/* This is a version of avi_writer_pop_chunk() that adds the finished chunk
+ * to this AVI file's index, using the provided flags.
+ */
+static void avi_writer_pop_chunk_with_index (AviWriter *self, int index_flags)
+{
+    IndexQueueEntry *new_entry = g_new(IndexQueueEntry, 1);
+    ChunkStackEntry *current_chunk = self->chunk_stack->data;
+    long current_offset = ftell(self->file);
+
+    memcpy(new_entry->fourcc, current_chunk->fourcc, 5);
+    new_entry->flags = index_flags;
+    new_entry->offset = current_chunk->data_start - self->index_origin_offset - 4;
+    new_entry->size = current_offset - current_chunk->data_start;
+
+    g_queue_push_tail(self->index_queue, new_entry);
+    avi_writer_pop_chunk(self);
 }
 
 /* The End */
