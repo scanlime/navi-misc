@@ -109,7 +109,7 @@
   </item>
 
   <item type="pixmap">
-    <pos anchor="sw" x="2%" y="97%"/>
+    <pos anchor="sw" x="2%" y="97%" />
     <normal file="tummy_hole.png"/>
   </item>
 </greeter>
