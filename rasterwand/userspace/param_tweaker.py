@@ -69,7 +69,7 @@ def main():
         Tweak.Quantity(p, 'coil_center', range=(0,0xFFFF)),
         Tweak.Quantity(p, 'coil_width', range=(0,0xFFFF)),
         Tweak.Quantity(p, 'duty_cycle', range=(0,0xFFFF)),
-        Tweak.Quantity(p, 'fine_adjust', range=(-800,800)),
+        Tweak.Quantity(p, 'fine_adjust', range=(-1000,1000)),
         ])
 
     win = gtk.Window(gtk.WINDOW_TOPLEVEL)
