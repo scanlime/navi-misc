@@ -27,6 +27,12 @@ class NonfatalException(Exception):
 class ProtocolException(NonfatalException):
     pass
 
+class NetworkException(Exception):
+    pass
+
+class ConnectionLost(NetworkException):
+    pass
+
 ### The End ###
         
     
