@@ -160,7 +160,7 @@ navigation_tree_create_new_network_entry (NavTree *navtree, struct session *sess
 void
 navigation_tree_create_new_channel_entry (NavTree *navtree, struct session *sess)
 {
-	navigation_model_add_new_channel_entry(navtree->model, sess);
+	navigation_model_add_new_channel(navtree->model, sess);
 	navigation_tree_select_session(navtree, sess);
 }
 
@@ -232,8 +232,8 @@ navigation_tree_select_next_channel (NavTree *navtree)
 	GtkTreeSelection *selection;
 
 	/* Grab our treeview and get a gtk selection. */
-	selection = gtk_tree_view_get_selection(NAVTREE(navtree));
-	model = gtk_tree_view_get_model(NAVTREE(navtree));
+	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(navtree));
+	model = gtk_tree_view_get_model(GTK_TREE_VIEW(navtree));
 
 	if (!navtree->current_path) {
 		gtk_tree_model_get_iter_first(model, &iter);
@@ -262,23 +262,23 @@ navigation_tree_select_next_channel (NavTree *navtree)
 		path_to_bottom = gtk_tree_model_get_path(model, &iter);
 
 		/* Advance the path one node. */
-		gtk_tree_path_next(path);
+		gtk_tree_path_next(navtree->current_path);
 
 		/* If our new path goes beyond the path to the last node
 		 * we need to wrap around to the top.
 		 */
-		if(gtk_tree_path_compare(path_to_bottom, path) == -1) {
-			gtk_tree_path_up(path);
-			gtk_tree_path_down(path);
+		if(gtk_tree_path_compare(path_to_bottom, navtree->current_path) == -1) {
+			gtk_tree_path_up(navtree->current_path);
+			gtk_tree_path_down(navtree->current_path);
 		}
 	}
 
 	/* If we don't have a valid path, return, otherwise move
 	 * the selection to our new path.
 	 */
-	if(path == NULL)
+	if(navtree->current_path == NULL)
 		return;
-	gtk_tree_selection_select_path(selection, path);
+	gtk_tree_selection_select_path(selection, navtree->current_path);
 }
 
 void
@@ -302,7 +302,8 @@ navigation_tree_select_prev_channel (NavTree *navtree)
 	if (gtk_tree_model_iter_has_child(model, &iter))
 		gtk_tree_path_down(navtree->current_path);
 
-	if (!gtk_tree_path_prev(navtree->current_path)) {
+	if (gtk_tree_path_get_depth(navtree->current_path) > 1 &&
+			!gtk_tree_path_prev(navtree->current_path)) {
 		GtkTreeIter parent;
 		gint children;
 
@@ -314,17 +315,53 @@ navigation_tree_select_prev_channel (NavTree *navtree)
 		gtk_tree_model_iter_nth_child(model, &iter, &parent, children-1);
 
 		/* Set path to the last child. */
-		path = gtk_tree_model_get_path(model, &iter);
+		gtk_tree_path_free(navtree->current_path);
+		navtree->current_path = gtk_tree_model_get_path(model, &iter);
 	}
 
 	if (!gtk_tree_view_row_expanded(GTK_TREE_VIEW(navtree), navtree->current_path))
-		gtk_tree_view_expand_row(GTK_TREE_VIEW(navtree), navtree->current_path);
+		gtk_tree_view_expand_row(GTK_TREE_VIEW(navtree), navtree->current_path, TRUE);
 
 	if (navtree->current_path == NULL)
 		return;
 
 	gtk_tree_selection_select_path(selection, navtree->current_path);
 }
+
+void
+navigation_tree_select_next_network (NavTree *navtree)
+{
+	GtkTreeIter iter;
+	GtkTreeModel *model;
+	GtkTreeSelection *selection;
+
+	/* Get our tree view and selection. */
+	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(navtree));
+	model = gtk_tree_view_get_model(GTK_TREE_VIEW(navtree));
+
+	/* Make sure we get our iterator and model. */
+	if(navtree->current_path) {
+		/* Test the depth of the path to make sure we have a server selected
+	 	 * (depth of 1). If we have a channel selected (depth > 1) we need
+	 	 * to move up to the parent (server).
+	 	 */
+		if(gtk_tree_path_get_depth(navtree->current_path) > 1) {
+			GtkTreeIter parent;
+			gtk_tree_model_iter_parent(model, &parent, &iter);
+			iter = parent;
+		}
+
+		/* Try and move the iter forward, if that fails we're probably at the end
+	 	 * of the list and should wrap around to the first server.
+	 	 */
+		if(!gtk_tree_model_iter_next(model, &iter))
+			gtk_tree_model_get_iter_first(model, &iter);
+
+	  /* Move the selection to the new position. */
+	  gtk_tree_selection_select_iter(selection, &iter);
+	}
+}
+
 /* Misc. Functions. */
 /***** Context Menus *****/
 static void
@@ -448,7 +485,7 @@ close_dialog(gpointer data, guint action, GtkWidget *widget)
 			s->server->p_part(s->server, s->channel, "ex-chat");
 			/* FIXME: part reason */
 		}
-		navigation_tree_remove(s);
+		/*FIXME: navigation_tree_remove(s); */
 		text_gui_remove_text_buffer(s);
 	}
 }
