@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS users
     key_atime     BIGINT,
 
     login_name       VARCHAR(32),
-    login_passwd_md5 VARCHAR(32),
+    login_passwd_md5 CHAR(32),
     login_atime      BIGINT,
     login_mtime      BIGINT,
 
@@ -53,11 +53,13 @@ CREATE TABLE IF NOT EXISTS users
 
 CREATE TABLE IF NOT EXISTS capabilities
 (
-    uid           BIGINT NOT NULL,
-    capability    TEXT NOT NULL,
+    uid       BIGINT NOT NULL,
+    cap_md5   CHAR(32) NOT NULL,
+    cap_repr  TEXT NOT NULL,
 
     FOREIGN KEY (uid) REFERENCES users(uid) ON DELETE CASCADE,
-    INDEX (uid)
+    INDEX (cap_md5),
+    UNIQUE INDEX (uid, cap_md5)
 ) TYPE=INNODB;
 
 CREATE TABLE IF NOT EXISTS audit_trail

@@ -8,7 +8,7 @@
 # -- Micah Dowty
 #
 
-import sys, os, time
+import sys, os, time, md5
 sys.path[0] = os.path.join(sys.path[0], "..")
 from LibCIA import Database
 cursor = Database.pool.connect().cursor()
@@ -61,7 +61,7 @@ CREATE TABLE users
     key_atime     BIGINT,
 
     login_name       VARCHAR(32),
-    login_passwd_md5 VARCHAR(32),
+    login_passwd_md5 CHAR(32),
     login_atime      BIGINT,
     login_mtime      BIGINT,
 
@@ -73,11 +73,13 @@ CREATE TABLE users
 cursor.execute("""
 CREATE TABLE capabilities
 (
-    uid           BIGINT NOT NULL,
-    capability    TEXT NOT NULL,
+    uid       BIGINT NOT NULL,
+    cap_md5   CHAR(32) NOT NULL,
+    cap_repr  TEXT NOT NULL,
 
     FOREIGN KEY (uid) REFERENCES users(uid) ON DELETE CASCADE,
-    INDEX (uid)
+    INDEX (cap_md5),
+    UNIQUE INDEX (uid, cap_md5)
 ) TYPE=INNODB
 """)
 
@@ -115,9 +117,10 @@ for key in key_owner.iterkeys():
 # Populate the capabilities table
 for key in key_owner.iterkeys():
     for capability in key_capabilities[key]:
-        cursor.execute("INSERT INTO capabilities (uid, capability) VALUES(%s, %s)" % (
+        cursor.execute("INSERT INTO capabilities (uid, cap_md5, cap_repr) VALUES(%s, %s, %s)" % (
             key_uids[key],
-            Database.quote(capability, 'varchar')))
+            Database.quote(md5.new(capability).hexdigest(), 'char'),
+            Database.quote(capability, 'text')))
 
 # Seems this was a success, bump the db version
 cursor.execute("UPDATE meta SET value = '4' WHERE name = 'version'")
