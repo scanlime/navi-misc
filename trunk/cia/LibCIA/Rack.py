@@ -317,10 +317,10 @@ class Rack(BaseRack):
             yield key, self[key]
 
     def keys(self):
-        return list(self.keys())
+        return list(self.iterkeys())
 
     def values(self):
-        return list(self.values())
+        return list(self.itervalues())
 
     def items(self):
         return list(self.iteritems())
