@@ -1,5 +1,5 @@
 /*
- * link.h - Definition for the link object
+ * zone.h - Definition for the zone object
  *
  * BZEdit
  * Copyright (C) 2004 David Trowbridge
@@ -20,35 +20,45 @@
  *
  */
 
-#ifndef __LINK_H__
-#define __LINK_H__
+#ifndef __ZONE_H__
+#define __ZONE_H__
 
 #include "sceneobject.h"
 #include "displaylist.h"
 
 G_BEGIN_DECLS
 
-#define LINK_TYPE            (link_get_type ())
-#define LINK(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), LINK_TYPE, Link))
-#define LINK_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), LINK_TYPE, LinkClass))
-#define IS_LINK(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), LINK_TYPE))
-#define IS_LINK_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), LINK_TYPE))
+#define ZONE_TYPE            (zone_get_type ())
+#define ZONE(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), ZONE_TYPE, Zone))
+#define ZONE_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), ZONE_TYPE, ZoneClass))
+#define IS_ZONE(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), ZONE_TYPE))
+#define IS_ZONE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), ZONE_TYPE))
 
-typedef struct _Link      Link;
-typedef struct _LinkClass LinkClass;
+typedef struct _Zone      Zone;
+typedef struct _ZoneClass ZoneClass;
 
-struct _Link
+typedef struct
+{
+  gdouble position[3];
+  gdouble size[3];
+  gdouble rotation;
+} ZoneParams;
+
+struct _Zone
 {
   SceneObject parent;
+
+  ZoneParams param;
+  gboolean state_dirty;
   GList *drawables;
 };
 
-struct _LinkClass
+struct _ZoneClass
 {
   SceneObjectClass parent_class;
 };
 
-GType link_get_type (void) G_GNUC_CONST;
+GType zone_get_type (void) G_GNUC_CONST;
 
 G_END_DECLS
 

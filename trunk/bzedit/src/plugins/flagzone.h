@@ -1,5 +1,5 @@
 /*
- * link.h - Definition for the link object
+ * flagzone.h - Definition for the fez object
  *
  * BZEdit
  * Copyright (C) 2004 David Trowbridge
@@ -20,35 +20,33 @@
  *
  */
 
-#ifndef __LINK_H__
-#define __LINK_H__
+#ifndef __FLAG_ZONE_H__
+#define __FLAG_ZONE_H__
 
-#include "sceneobject.h"
-#include "displaylist.h"
+#include "zone.h"
 
 G_BEGIN_DECLS
 
-#define LINK_TYPE            (link_get_type ())
-#define LINK(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), LINK_TYPE, Link))
-#define LINK_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), LINK_TYPE, LinkClass))
-#define IS_LINK(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), LINK_TYPE))
-#define IS_LINK_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), LINK_TYPE))
+#define FLAG_ZONE_TYPE            (flag_zone_get_type ())
+#define FLAG_ZONE(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), FLAG_ZONE_TYPE, FlagZone))
+#define FLAG_ZONE_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), FLAG_ZONE_TYPE, FlagZoneClass))
+#define IS_FLAG_ZONE(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), FLAG_ZONE_TYPE))
+#define IS_FLAG_ZONE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), FLAG_ZONE_TYPE))
 
-typedef struct _Link      Link;
-typedef struct _LinkClass LinkClass;
+typedef struct _FlagZone      FlagZone;
+typedef struct _FlagZoneClass FlagZoneClass;
 
-struct _Link
+struct _FlagZone
 {
-  SceneObject parent;
-  GList *drawables;
+  Zone parent;
 };
 
-struct _LinkClass
+struct _FlagZoneClass
 {
-  SceneObjectClass parent_class;
+  ZoneClass parent_class;
 };
 
-GType link_get_type (void) G_GNUC_CONST;
+GType flag_zone_get_type (void) G_GNUC_CONST;
 
 G_END_DECLS
 

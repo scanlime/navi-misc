@@ -28,12 +28,15 @@
 #include "world.h"
 #include "link.h"
 #include "group.h"
+#include "flagzone.h"
+#include "tankzone.h"
+#include "worldweapon.h"
 #include "plugins.h"
 
 const gchar*
 g_module_check_init (GModule *module)
 {
-  static GType base, box, group, link, pyramid, teleporter, world;
+  static GType base, box, group, link, pyramid, teleporter, world, fez, tez, ww;
 
   /* permanently insert ourself */
   g_module_make_resident (module);
@@ -44,6 +47,9 @@ g_module_check_init (GModule *module)
   teleporter = TELEPORTER_TYPE;
   base = BASE_TYPE;
   link = LINK_TYPE;
+  fez = FLAG_ZONE_TYPE;
+  tez = TANK_ZONE_TYPE;
+  ww = WORLD_WEAPON_TYPE;
   group = GROUP_TYPE;
   world = WORLD_TYPE;
 

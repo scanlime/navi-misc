@@ -1,5 +1,5 @@
 /*
- * link.h - Definition for the link object
+ * tankzone.h - Definition for the tez object
  *
  * BZEdit
  * Copyright (C) 2004 David Trowbridge
@@ -20,35 +20,35 @@
  *
  */
 
-#ifndef __LINK_H__
-#define __LINK_H__
+#ifndef __TANK_ZONE_H__
+#define __TANK_ZONE_H__
 
-#include "sceneobject.h"
-#include "displaylist.h"
+#include "zone.h"
 
 G_BEGIN_DECLS
 
-#define LINK_TYPE            (link_get_type ())
-#define LINK(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), LINK_TYPE, Link))
-#define LINK_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), LINK_TYPE, LinkClass))
-#define IS_LINK(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), LINK_TYPE))
-#define IS_LINK_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), LINK_TYPE))
+#define TANK_ZONE_TYPE            (tank_zone_get_type ())
+#define TANK_ZONE(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), TANK_ZONE_TYPE, TankZone))
+#define TANK_ZONE_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), TANK_ZONE_TYPE, TankZoneClass))
+#define IS_TANK_ZONE(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TANK_ZONE_TYPE))
+#define IS_TANK_ZONE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), TANK_ZONE_TYPE))
 
-typedef struct _Link      Link;
-typedef struct _LinkClass LinkClass;
+typedef struct _TankZone      TankZone;
+typedef struct _TankZoneClass TankZoneClass;
 
-struct _Link
+struct _TankZone
 {
-  SceneObject parent;
+  Zone parent;
+
   GList *drawables;
 };
 
-struct _LinkClass
+struct _TankZoneClass
 {
-  SceneObjectClass parent_class;
+  ZoneClass parent_class;
 };
 
-GType link_get_type (void) G_GNUC_CONST;
+GType tank_zone_get_type (void) G_GNUC_CONST;
 
 G_END_DECLS
 

@@ -1,5 +1,5 @@
 /*
- * link.h - Definition for the link object
+ * worldweapon.h - Definition for the world weapon object
  *
  * BZEdit
  * Copyright (C) 2004 David Trowbridge
@@ -20,35 +20,35 @@
  *
  */
 
-#ifndef __LINK_H__
-#define __LINK_H__
+#ifndef __WORLD_WEAPON_H__
+#define __WORLD_WEAPON_H__
 
 #include "sceneobject.h"
 #include "displaylist.h"
 
 G_BEGIN_DECLS
 
-#define LINK_TYPE            (link_get_type ())
-#define LINK(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), LINK_TYPE, Link))
-#define LINK_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), LINK_TYPE, LinkClass))
-#define IS_LINK(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), LINK_TYPE))
-#define IS_LINK_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), LINK_TYPE))
+#define WORLD_WEAPON_TYPE            (world_weapon_get_type ())
+#define WORLD_WEAPON(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), WORLD_WEAPON_TYPE, WorldWeapon))
+#define WORLD_WEAPON_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), WORLD_WEAPON_TYPE, WorldWeaponClass))
+#define IS_WORLD_WEAPON(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), WORLD_WEAPON_TYPE))
+#define IS_WORLD_WEAPON_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), WORLD_WEAPON_TYPE))
 
-typedef struct _Link      Link;
-typedef struct _LinkClass LinkClass;
+typedef struct _WorldWeapon      WorldWeapon;
+typedef struct _WorldWeaponClass WorldWeaponClass;
 
-struct _Link
+struct _WorldWeapon
 {
   SceneObject parent;
   GList *drawables;
 };
 
-struct _LinkClass
+struct _WorldWeaponClass
 {
   SceneObjectClass parent_class;
 };
 
-GType link_get_type (void) G_GNUC_CONST;
+GType world_weapon_get_type (void) G_GNUC_CONST;
 
 G_END_DECLS
 
