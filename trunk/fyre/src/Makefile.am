@@ -48,7 +48,8 @@ noinst_HEADERS =			\
 	parameter-holder.h		\
 	prefix.h			\
 	screensaver.h			\
-	spline.h
+	spline.h			\
+	var-int.h
 
 fyre_LDADD = \
 	$(BINRELOC_LIBS)		\
