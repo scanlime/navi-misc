@@ -40,6 +40,9 @@ struct {
   guint idler;
   gboolean writing_params;
   gboolean just_resized;
+  gboolean params_dirty;
+
+  double last_mouse_x, last_mouse_y;
 } gui;
 
 static int limit_update_rate(float max_rate);
@@ -52,6 +55,11 @@ static void read_gui_params();
 static void write_gui_params();
 static void gui_resize(int width, int height);
 static void restart_rendering();
+
+static void tool_grab(double dx, double dy);
+static void tool_blur(double dx, double dy);
+static void tool_zoom(double dx, double dy);
+static void tool_rotate(double dx, double dy);
 
 gboolean on_expose(GtkWidget *widget, GdkEventExpose *event, gpointer user_data);
 void on_param_spinner_changed(GtkWidget *widget, gpointer user_data);
@@ -67,7 +75,8 @@ void on_resize(GtkWidget *widget, gpointer user_data);
 void on_resize_cancel(GtkWidget *widget, gpointer user_data);
 void on_resize_ok(GtkWidget *widget, gpointer user_data);
 gboolean on_viewport_expose(GtkWidget *widget, gpointer user_data);
-gboolean on_motion_notify(GtkWidget *widget, GdkEventMotion *event);
+gboolean on_motion_notify(GtkWidget *widget, GdkEvent *event);
+gboolean on_button_press(GtkWidget *widget, GdkEvent *event);
 GtkWidget *custom_color_button_new(gchar *widget_name, gchar *string1, gchar *string2, gint int1, gint int2);
 
 
@@ -86,6 +95,10 @@ void interactive_main(int argc, char **argv) {
   gui.window = glade_xml_get_widget(gui.xml, "explorer_window");
 
   gui.drawing_area = glade_xml_get_widget(gui.xml, "main_drawingarea");
+  gtk_widget_add_events(gui.drawing_area,
+			GDK_BUTTON_PRESS_MASK |
+			GDK_BUTTON_RELEASE_MASK |
+			GDK_BUTTON_MOTION_MASK);
   gui.gc = gdk_gc_new(gui.drawing_area->window);
   gui_resize(render.width, render.height);
 
@@ -199,6 +212,12 @@ static int interactive_idle_handler(gpointer user_data) {
   /* An idle handler used for interactively rendering. This runs a relatively
    * small number of iterations, then calls update_gui() to update our visible image.
    */
+  if (gui.params_dirty) {
+    write_gui_params();
+    restart_rendering();
+    gui.params_dirty = FALSE;
+  }
+
   run_iterations(10000);
   update_gui();
   return 1;
@@ -429,9 +448,64 @@ void on_save(GtkWidget *widget, gpointer user_data) {
   gtk_widget_destroy(dialog);
 }
 
-gboolean on_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
-  printf("foo %d %f %f %d\n", event->is_hint, event->x, event->y, event->state);
-  return TRUE;
+gboolean on_motion_notify(GtkWidget *widget, GdkEvent *event) {
+  int i;
+
+  /* Compute delta position */
+  double dx = event->motion.x - gui.last_mouse_x;
+  double dy = event->motion.y - gui.last_mouse_y;
+
+  /* A table of tool handlers and menu item names */
+  static const struct {
+    gchar *menu_name;
+    void (*handler)(double dx, double dy);
+  } tools[] = {
+
+    {"tool_grab",   tool_grab},
+    {"tool_blur",   tool_blur},
+    {"tool_zoom",   tool_zoom},
+    {"tool_rotate", tool_rotate},
+
+    {NULL, NULL},
+  };
+
+  for (i=0;tools[i].menu_name;i++) {
+    GtkWidget *w = glade_xml_get_widget(gui.xml, tools[i].menu_name);
+    if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(w)))
+      tools[i].handler(dx, dy);
+  }
+
+  gui.last_mouse_x = event->motion.x;
+  gui.last_mouse_y = event->motion.y;
+  return FALSE;
+}
+
+gboolean on_button_press(GtkWidget *widget, GdkEvent *event) {
+  gui.last_mouse_x = event->button.x;
+  gui.last_mouse_y = event->button.y;
+  return FALSE;
+}
+
+static void tool_grab(double dx, double dy) {
+  params.xoffset += dx * 0.005 / params.zoom;
+  params.yoffset += dy * 0.005 / params.zoom;
+  gui.params_dirty = TRUE;
+}
+
+static void tool_blur(double dx, double dy) {
+  params.blur_ratio += dx * 0.002;
+  params.blur_radius += -dy * 0.001;
+  gui.params_dirty = TRUE;
+}
+
+static void tool_zoom(double dx, double dy) {
+  params.zoom += -dy * 0.01;
+  gui.params_dirty = TRUE;
+}
+
+static void tool_rotate(double dx, double dy) {
+  params.rotation += -dx * 0.008;
+  gui.params_dirty = TRUE;
 }
 
 /* The End */
