@@ -50,6 +50,19 @@ preferences_dialog_class_init (PreferencesDialogClass *klass)
 }
 
 static void
+page_selection_changed (GtkTreeSelection *select, PreferencesDialog *p)
+{
+	GtkTreeIter iter;
+	GtkTreeModel *model;
+	gint page;
+
+	if (gtk_tree_selection_get_selected (select, &model, &iter)) {
+		gtk_tree_model_get (model, &iter, 2, &page, -1);
+		gtk_notebook_set_current_page (GTK_NOTEBOOK (p->settings_notebook), page);
+	}
+}
+
+static void
 preferences_dialog_init (PreferencesDialog *p)
 {
 	GtkCellRenderer *icon_renderer, *text_renderer;
@@ -74,8 +87,6 @@ preferences_dialog_init (PreferencesDialog *p)
 	GW(settings_notebook);
 #undef GW
 
-	g_object_unref (xml);
-
 	p->gconf = gconf_client_get_default ();
 
 	gtk_dialog_add_button (GTK_DIALOG (p), GTK_STOCK_CLOSE, GTK_RESPONSE_CLOSE);
@@ -99,6 +110,11 @@ preferences_dialog_init (PreferencesDialog *p)
 
 	select = gtk_tree_view_get_selection (GTK_TREE_VIEW (p->settings_page_list));
 	gtk_tree_selection_set_mode (select, GTK_SELECTION_SINGLE);
+	g_signal_connect (G_OBJECT (select), "changed", G_CALLBACK (page_selection_changed), p);
+
+	p->irc_page = preferences_page_irc_new (p, xml);
+
+	g_object_unref (xml);
 }
 
 GType

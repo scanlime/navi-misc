@@ -21,6 +21,7 @@
 
 #include "gui.h"
 #include <gconf/gconf-client.h>
+#include "preferences-irc-page.h"
 
 #ifndef XCHAT_GNOME_PREFERENCES_DIALOG_H
 #define XCHAT_GNOME_PREFERENCES_DIALOG_H
@@ -46,6 +47,8 @@ struct _PreferencesDialog
 	GtkWidget *settings_notebook;
 
 	GtkListStore *page_store;
+
+	PreferencesIrcPage *irc_page;
 };
 
 struct _PreferencesDialogClass

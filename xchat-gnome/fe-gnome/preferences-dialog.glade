@@ -81,7 +81,7 @@
 	      <property name="window_placement">GTK_CORNER_TOP_LEFT</property>
 
 	      <child>
-		<widget class="GtkTreeView" id="settings page list">
+		<widget class="GtkTreeView" id="settings_page_list">
 		  <property name="visible">True</property>
 		  <property name="can_focus">True</property>
 		  <property name="headers_visible">False</property>
@@ -99,7 +99,7 @@
 	  </child>
 
 	  <child>
-	    <widget class="GtkNotebook" id="settings notebook">
+	    <widget class="GtkNotebook" id="settings_notebook">
 	      <property name="border_width">12</property>
 	      <property name="visible">True</property>
 	      <property name="can_focus">True</property>
@@ -194,7 +194,7 @@
 				      <property name="yalign">0.5</property>
 				      <property name="xpad">0</property>
 				      <property name="ypad">0</property>
-				      <property name="mnemonic_widget">nick name</property>
+				      <property name="mnemonic_widget">nick_name</property>
 				    </widget>
 				    <packing>
 				      <property name="padding">0</property>
@@ -204,7 +204,7 @@
 				  </child>
 
 				  <child>
-				    <widget class="GtkEntry" id="nick name">
+				    <widget class="GtkEntry" id="nick_name">
 				      <property name="visible">True</property>
 				      <property name="can_focus">True</property>
 				      <property name="editable">True</property>
@@ -250,7 +250,7 @@
 				      <property name="yalign">0.5</property>
 				      <property name="xpad">0</property>
 				      <property name="ypad">0</property>
-				      <property name="mnemonic_widget">real name</property>
+				      <property name="mnemonic_widget">real_name</property>
 				    </widget>
 				    <packing>
 				      <property name="padding">0</property>
@@ -260,7 +260,7 @@
 				  </child>
 
 				  <child>
-				    <widget class="GtkEntry" id="real name">
+				    <widget class="GtkEntry" id="real_name">
 				      <property name="visible">True</property>
 				      <property name="can_focus">True</property>
 				      <property name="editable">True</property>
@@ -305,7 +305,7 @@
 				      <property name="yalign">0.5</property>
 				      <property name="xpad">0</property>
 				      <property name="ypad">0</property>
-				      <property name="mnemonic_widget">quit message</property>
+				      <property name="mnemonic_widget">quit_message</property>
 				    </widget>
 				    <packing>
 				      <property name="padding">0</property>
@@ -315,7 +315,7 @@
 				  </child>
 
 				  <child>
-				    <widget class="GtkEntry" id="quit message">
+				    <widget class="GtkEntry" id="quit_message">
 				      <property name="visible">True</property>
 				      <property name="can_focus">True</property>
 				      <property name="editable">True</property>
@@ -360,7 +360,7 @@
 				      <property name="yalign">0.5</property>
 				      <property name="xpad">0</property>
 				      <property name="ypad">0</property>
-				      <property name="mnemonic_widget">part message</property>
+				      <property name="mnemonic_widget">part_message</property>
 				    </widget>
 				    <packing>
 				      <property name="padding">0</property>
@@ -370,7 +370,7 @@
 				  </child>
 
 				  <child>
-				    <widget class="GtkEntry" id="part message">
+				    <widget class="GtkEntry" id="part_message">
 				      <property name="visible">True</property>
 				      <property name="can_focus">True</property>
 				      <property name="editable">True</property>
@@ -415,7 +415,7 @@
 				      <property name="yalign">0.5</property>
 				      <property name="xpad">0</property>
 				      <property name="ypad">0</property>
-				      <property name="mnemonic_widget">away message</property>
+				      <property name="mnemonic_widget">away_message</property>
 				    </widget>
 				    <packing>
 				      <property name="padding">0</property>
@@ -425,7 +425,7 @@
 				  </child>
 
 				  <child>
-				    <widget class="GtkEntry" id="away message">
+				    <widget class="GtkEntry" id="away_message">
 				      <property name="visible">True</property>
 				      <property name="can_focus">True</property>
 				      <property name="editable">True</property>
@@ -569,7 +569,7 @@
 				      <property name="window_placement">GTK_CORNER_TOP_LEFT</property>
 
 				      <child>
-					<widget class="GtkTreeView" id="highlight list">
+					<widget class="GtkTreeView" id="highlight_list">
 					  <property name="visible">True</property>
 					  <property name="can_focus">True</property>
 					  <property name="headers_visible">False</property>
@@ -593,7 +593,7 @@
 				      <property name="spacing">6</property>
 
 				      <child>
-					<widget class="GtkButton" id="hilight add">
+					<widget class="GtkButton" id="hilight_add">
 					  <property name="visible">True</property>
 					  <property name="can_default">True</property>
 					  <property name="can_focus">True</property>
@@ -605,9 +605,21 @@
 				      </child>
 
 				      <child>
-					<widget class="GtkButton" id="hilight remove">
+					<widget class="GtkButton" id="hilight_edit">
 					  <property name="visible">True</property>
 					  <property name="sensitive">False</property>
+					  <property name="can_default">True</property>
+					  <property name="can_focus">True</property>
+					  <property name="label">gtk-edit</property>
+					  <property name="use_stock">True</property>
+					  <property name="relief">GTK_RELIEF_NORMAL</property>
+					  <property name="focus_on_click">True</property>
+					</widget>
+				      </child>
+
+				      <child>
+					<widget class="GtkButton" id="highlight_remove">
+					  <property name="visible">True</property>
 					  <property name="can_default">True</property>
 					  <property name="can_focus">True</property>
 					  <property name="label">gtk-remove</property>
@@ -758,7 +770,7 @@
 				  </child>
 
 				  <child>
-				    <widget class="GtkFontButton" id="font selection">
+				    <widget class="GtkFontButton" id="font_selection">
 				      <property name="visible">True</property>
 				      <property name="can_focus">True</property>
 				      <property name="show_style">True</property>
@@ -783,7 +795,7 @@
 			      </child>
 
 			      <child>
-				<widget class="GtkCheckButton" id="show colors">
+				<widget class="GtkCheckButton" id="show_colors">
 				  <property name="visible">True</property>
 				  <property name="can_focus">True</property>
 				  <property name="label" translatable="yes">_Show colors</property>
@@ -802,7 +814,7 @@
 			      </child>
 
 			      <child>
-				<widget class="GtkCheckButton" id="show timestamps">
+				<widget class="GtkCheckButton" id="show_timestamps">
 				  <property name="visible">True</property>
 				  <property name="can_focus">True</property>
 				  <property name="label" translatable="yes">Show _timestamps</property>

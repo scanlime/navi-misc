@@ -20,10 +20,33 @@
  */
 
 #include "gui.h"
+#include <glade/glade-xml.h>
 
 #ifndef XCHAT_GNOME_PREFERENCES_IRC_PAGE_H
 #define XCHAT_GNOME_PREFERENCES_IRC_PAGE_H
 
+typedef struct
+{
+	GtkWidget *nick_name;
+	GtkWidget *real_name;
+	GtkWidget *quit_message;
+	GtkWidget *part_message;
+	GtkWidget *away_message;
+
+	GtkWidget *highlight_list;
+	GtkWidget *highlight_add;
+	GtkWidget *highlight_edit;
+	GtkWidget *highlight_remove;
+
+	GtkWidget *usesysfonts;
+	GtkWidget *usethisfont;
+	GtkWidget *font_selection;
+
+	GtkWidget *show_colors;
+	GtkWidget *show_timestamps;
+} PreferencesIrcPage;
+
 void initialize_preferences_irc_page ();
+PreferencesIrcPage *preferences_page_irc_new (gpointer prefs_dialog, GladeXML *xml);
 
 #endif
