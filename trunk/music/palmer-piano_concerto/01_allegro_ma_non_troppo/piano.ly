@@ -517,7 +517,18 @@ mvmtOnePianoSectSixLeft = \relative b, {
 % Section 7: accompaniment to the climax build %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+hideTuplets = {
+  \override TupletBracket #'bracket-visibility = ##f
+  \override TupletBracket #'number-visibility = ##f
+}
+
+showTuplets = {
+  \override TupletBracket #'bracket-visibility = #'if-no-beam
+  \override TupletBracket #'number-visibility = ##t
+}
+
 mvmtOnePianoSectSevenRight = \relative a' {
+  % 151
   | << { a4. a4 gis8 } \\
        { r8. dis16 fis gis a8 d, cis16 d } >>
   | << { a'4.~ a4 g8 } \\
@@ -529,17 +540,31 @@ mvmtOnePianoSectSevenRight = \relative a' {
        { a,8 fis16 a <bis dis> <cis eis> 
          <gis bis fis'>8. <dis' a'>16( <bis eis gis> <b dis fis>) } >>
   | <gis cis eis>8 \times 2/3 { cis16( gis' cis } \times 2/3 { eis, cis' gis') }
-    \override TupletBracket #'bracket-visibility = ##f
-    \override TupletBracket #'number-visibility = ##f
-    \times 2/3 { bis( dis^\simile gis, } \times 2/3 { dis gis gis, } \times 2/3 { bis, gis' dis) }
+    \hideTuplets
+    \times 2/3 { bis( dis^\simile gis, dis gis gis, bis, gis' dis) }
+  | \times 2/3 { e( b bis' cis e, e' cis' b gis) } 
+    \times 2/3 { ais( gis cis, fis cis fis, a fis cis) }
+  | \times 2/3 { gis( a e' cis e gis fisis gis cis) }
+    \times 2/3 { e( cis gis' a fis cis' e cis gis) }
+  | \showTuplets
+    \times 4/5 { e32( g b e g }
+    \hideTuplets
+    \times 2/3 { b16 d, g b, e, g) }
+    \times 2/3 { fis( ais, cis e, fis ais cis ais, cis) }
+  | \showTuplets r2.
 }
 
 mvmtOnePianoSectSevenLeft = \relative fis, {
+  % 151
   | fis16( cis' fis a cis eis) eis,,( b' eis gis b d)
   | e,,( cis' dis eis fis a) e,,( cis'' e g b a)
   | dis,,( a' b c fis a) d,,( gis b d gis b)
   | cis,,( fis a dis gis a) c,,( fis a c dis gis)
   | cis,4. r4.
+  | r2. | r2.
+  \hideTuplets
+  | r4. \times 2/3 { fis,,16( cis' fis cis fis cis' fis, cis' fis) }
+  | <b, b,>4. r4.
 }
 
 
