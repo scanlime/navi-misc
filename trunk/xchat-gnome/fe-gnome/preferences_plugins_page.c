@@ -100,8 +100,12 @@ initialize_preferences_plugins_page ()
 	/* Create a list of all the plugins in our known directories. */
 	for_files (XCHATLIBDIR"/plugins", "*.so", xchat_gnome_plugin_add);
 	for_files (XCHATLIBDIR"/plugins", "*.sl", xchat_gnome_plugin_add);
+	for_files (XCHATLIBDIR"/plugins", "*.py", xchat_gnome_plugin_add);
+	for_files (XCHATLIBDIR"/plugins", "*.pl", xchat_gnome_plugin_add);
 	for_files (xchatdir, "*.so", xchat_gnome_plugin_add);
 	for_files (xchatdir, "*.sl", xchat_gnome_plugin_add);
+	for_files (xchatdir, "*.py", xchat_gnome_plugin_add);
+	for_files (xchatdir, "*.pl", xchat_gnome_plugin_add);
 }
 
 /* FIXME: As far as I can tell this function is getting called atleast 3 times at the
