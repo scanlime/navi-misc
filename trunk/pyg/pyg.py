@@ -120,6 +120,7 @@ class Editor(vte.Terminal):
         self.set_color_background(gtk.gdk.color_parse('White'))
         try:
             editor = os.environ['EDITOR']
+            os.environ['DISPLAY'] = None
             self.fork_command(editor, [editor], None, os.getcwd(), gtk.FALSE, gtk.FALSE, gtk.FALSE)
         except:
             self.fork_command('vim', ['vim'], None, os.getcwd(), gtk.FALSE, gtk.FALSE, gtk.FALSE)
