@@ -229,13 +229,14 @@ void run_iterations(int count) {
   const double scale = xcenter / 2.5 * params.zoom;
   const gboolean rotation_enabled = params.rotation > 0.0001 || params.rotation < -0.0001;
   const gboolean blur_enabled = params.blur_ratio > 0.0001 && params.blur_radius > 0.00001;
-  const int blur_table_size = 1024; /* Must be a power of two */
+  const int blur_table_size = 1024;   /* Must be a power of two */
+  const int blur_ratio_period = 1024; /* Must be a power of two */
 
   double x, y, sine_rotation, cosine_rotation;
   int i, ix, iy;
   guint *p;
   guint d;
-  int blur_index;
+  int blur_index, blur_ratio_index, blur_ratio_threshold;
   float blur_table[blur_table_size];
 
   /* Precalculate the sine and cosine of the rotation angle, if we'll need it */
@@ -253,6 +254,8 @@ void run_iterations(int count) {
     for (i=0; i<blur_table_size; i++)
       blur_table[i] = normal_variate() * params.blur_radius;
     blur_index = 0;
+    blur_ratio_index = 0;
+    blur_ratio_threshold = params.blur_ratio * blur_ratio_period;
   }
 
   for(i=count; i; --i) {
@@ -278,12 +281,13 @@ void run_iterations(int count) {
      * blur as the number of iterations approaches infinity.
      */
     if (blur_enabled) {
-      if (uniform_variate() < params.blur_ratio) {
+      if (blur_ratio_index < blur_ratio_threshold) {
 	x += blur_table[blur_index];
 	blur_index = (blur_index+1) & (blur_table_size-1);
 	y += blur_table[blur_index];
 	blur_index = (blur_index+1) & (blur_table_size-1);
       }
+      blur_ratio_index = (blur_ratio_index+1) & (blur_ratio_period-1);
     }
 
     /* Scale and translate our (x,y) coordinates into pixel coordinates.
