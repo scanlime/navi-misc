@@ -17,8 +17,6 @@ import java.io.*;
  */
 public class accepted implements ActionListener
 {
-	private int ID;
-	
 	/** The text area that the question goes into. */
 	public TextArea quest;
 	
@@ -27,14 +25,12 @@ public class accepted implements ActionListener
 	
 	/**
 	 * This method sets the ID as its the constructor.
-	 * @param ident The ID of the person that this will be approved for
 	 * @param questio The TextArea that has the question in it.
 	 * @author Brandon Smith
 	 * @version 2.0
 	 */
-	public accepted(int ident, TextArea questio, Checkbox[] switches)
+	public accepted(TextArea questio, Checkbox[] switches)
 	{
-		ID = ident;
 		quest = questio;
 		group = switches;
 	}

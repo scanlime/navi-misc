@@ -52,27 +52,6 @@ public class submit extends Thread implements ActionListener
 		name = net.read();
 		ques = net.read();
 		if(name == null) return;
-		if(name.compareTo("No Questions") == 0) this.start();
-		head.question.setText(name + " Asks: " + ques);
-	}
-	
-	/**
-	 * This method is the thread that gets spawned off if there aren't any questions available
-	 * @author Brandon Smith
-	 * @version 2.1
-	 */
-	public void run()
-	{
-		boolean happy = false;
-		String in,tname,tques;
-		while(!happy)
-		{
-			sleep(1);
-			in = net.read();
-			happy = !(in.charAt(0) == '-');
-		}
-		name = net.read();
-		ques = net.read();
 		head.question.setText(name + " Asks: " + ques);
 	}
 		

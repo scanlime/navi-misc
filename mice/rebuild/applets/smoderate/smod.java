@@ -59,7 +59,7 @@ public class smod extends java.applet.Applet implements ActionListener
 		
 		for(i=0;i<10;i++)
 		{
-			acptfor[i] = new Checkbox("000000000000");
+			acptfor[i] = new Checkbox("00000000000000000000000000000000000");
 			add(acptfor[i]);
 		}
 
@@ -83,6 +83,7 @@ public class smod extends java.applet.Applet implements ActionListener
 		auth.addActionListener(new quit(question));
 		bget.addActionListener(new get(question));
 		breject.addActionListener(new reject(question));
+		accept.addActionListener(new accepted(question,acptfor));
 		j=Integer.parseInt(net.read());
 		for(i=0;i<j;i++)
 		{
