@@ -61,31 +61,9 @@ public class PipelineEditor
 		Glade.XML gxml = new Glade.XML (null, "pipeline-editor.glade", "toplevel", null);
 		gxml.Autoconnect (this);
 
-		/* Do all the setup for the element tree view */
-		element_store = new Gtk.TreeStore (typeof (Gdk.Pixbuf), typeof (string), typeof (Type), typeof (ElementTooltip));
-		sorted_store = new Gtk.TreeModelSort (element_store);
-		element_list.Model = sorted_store;
+		SetupElementList ();
 
-		sorted_store.SetSortColumnId (1, Gtk.SortType.Ascending);
-
-		Gtk.CellRenderer pixbuf_renderer = new Gtk.CellRendererPixbuf ();
-		Gtk.CellRenderer text_renderer   = new Gtk.CellRendererText ();
-		column = new Gtk.TreeViewColumn ();
-
-		column.Title = "Elements";
-		column.PackStart (pixbuf_renderer, false);
-		column.AddAttribute (pixbuf_renderer, "pixbuf", 0);
-		column.PackStart (text_renderer, true);
-		column.AddAttribute (text_renderer, "text", 1);
-
-		element_list.AppendColumn (column);
-
-		/*
-		TargetEntry[] targets = new TargetEntry[1];
-		targets[0] = new TargetEntry ("fyre element drag", Gtk.TargetFlags.App, 0);
-		element_list.EnableModelDragSource ((Gdk.ModifierType) 0, targets, Gdk.DragAction.Copy);
-		*/
-
+		/* These start out nulled */
 		current_tooltip = null;
 		tooltip_timeout = 0;
 
@@ -96,6 +74,42 @@ public class PipelineEditor
 
 		/* Finally, run the application */
 		Application.Run();
+	}
+
+	void SetupElementList ()
+	{
+		/*                                 Icon                 Name             Type           Tooltip Window */
+		element_store = new Gtk.TreeStore (typeof (Gdk.Pixbuf), typeof (string), typeof (Type), typeof (ElementTooltip));
+
+		/* We sort the element list in alphabetical order by name/category,
+		 * since we don't know what order plugins will be loaded in, and
+		 * alphabetical order makes sense to people. */
+		sorted_store = new Gtk.TreeModelSort (element_store);
+		sorted_store.SetSortColumnId (1, Gtk.SortType.Ascending);
+
+		/* And set it as the model */
+		element_list.Model = sorted_store;
+
+		/* Create the column and the renderers */
+		column = new Gtk.TreeViewColumn ();
+		column.Title = "Elements";
+
+		/* Icon */
+		Gtk.CellRenderer pixbuf_renderer = new Gtk.CellRendererPixbuf ();
+		column.PackStart (pixbuf_renderer, false);
+		column.AddAttribute (pixbuf_renderer, "pixbuf", 0);
+
+		/* Name */
+		Gtk.CellRenderer text_renderer   = new Gtk.CellRendererText ();
+		column.PackStart (text_renderer, true);
+		column.AddAttribute (text_renderer, "text", 1);
+
+		element_list.AppendColumn (column);
+
+		/* Set up drag-and-drop for our tree view */
+		TargetEntry[] targets = new TargetEntry[1];
+		targets[0] = new TargetEntry ("fyre element drag", Gtk.TargetFlags.App, 0);
+		element_list.EnableModelDragSource ((Gdk.ModifierType) 0, targets, Gdk.DragAction.Copy);
 	}
 
 	void ElementListMotionNotifyEvent (object o, MotionNotifyEventArgs args)
