@@ -72,13 +72,18 @@ def importData (reader, object, filename):
         context.currentFrame(frame.number)
 
         # set root position/rotation
-        #loc = frame.bones['root'][0:3]
+        loc = frame.bones['root'][0:3]
+        (loc[0], loc[2], loc[1]) = loc
+        for i in range(len(loc)):
+            loc[i] *= 0.1
+        loc[0] *= -1
+        loc[1] *= -1
         rot = frame.bones['root'][3:6]
         euler = Blender.Mathutils.Euler(rot)
         quat = euler.toQuat()
-        #b['root'].setLoc(loc)
+        b['root'].setLoc(loc)
         b['root'].setQuat(quat)
-        b['root'].setPose([ROT, LOC, SIZE])
+        b['root'].setPose([ROT, LOC])
 
         #print frame.number
 
@@ -89,7 +94,12 @@ def importData (reader, object, filename):
             rot = getQuat(object, bname, rot)
             euler = Blender.Mathutils.Euler(rot)
             quat = euler.toQuat()
-            b[bname].setQuat(quat)
+            parent = b[bname].getParent()
+            pquat = parent.getQuat()
+            #while parent.hasParent():
+                #parent = parent.getParent()
+                #quat += parent.getQuat()
+            b[bname].setQuat(quat + pquat)
             b[bname].setPose([ROT, LOC, SIZE])
 
     Blender.Window.RedrawAll()
