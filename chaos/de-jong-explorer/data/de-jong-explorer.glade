@@ -618,7 +618,7 @@ Settings&lt;/b&gt;</property>
 			  <property name="snap_to_ticks">False</property>
 			  <property name="wrap">False</property>
 			  <property name="adjustment">0 -9.999 9.999 0.001 0.01 0.01</property>
-			  <signal name="value_changed" handler="on_param_spinner_changed" last_modification_time="Sun, 15 Feb 2004 05:07:31 GMT"/>
+			  <signal name="value_changed" handler="on_param_spinner_changed" last_modification_time="Sun, 15 Feb 2004 07:48:22 GMT"/>
 			</widget>
 			<packing>
 			  <property name="left_attach">1</property>
@@ -640,7 +640,7 @@ Settings&lt;/b&gt;</property>
 			  <property name="snap_to_ticks">False</property>
 			  <property name="wrap">False</property>
 			  <property name="adjustment">0 -9.999 9.999 0.001 0.01 0.01</property>
-			  <signal name="value_changed" handler="on_param_spinner_changed" last_modification_time="Sun, 15 Feb 2004 05:07:40 GMT"/>
+			  <signal name="value_changed" handler="on_param_spinner_changed" last_modification_time="Sun, 15 Feb 2004 07:48:17 GMT"/>
 			</widget>
 			<packing>
 			  <property name="left_attach">1</property>
@@ -662,7 +662,7 @@ Settings&lt;/b&gt;</property>
 			  <property name="snap_to_ticks">False</property>
 			  <property name="wrap">False</property>
 			  <property name="adjustment">0 -9.999 9.999 0.001 0.01 0.01</property>
-			  <signal name="value_changed" handler="on_param_spinner_changed" last_modification_time="Sun, 15 Feb 2004 05:07:48 GMT"/>
+			  <signal name="value_changed" handler="on_param_spinner_changed" last_modification_time="Sun, 15 Feb 2004 07:48:12 GMT"/>
 			</widget>
 			<packing>
 			  <property name="left_attach">1</property>
@@ -684,7 +684,7 @@ Settings&lt;/b&gt;</property>
 			  <property name="snap_to_ticks">False</property>
 			  <property name="wrap">False</property>
 			  <property name="adjustment">1 0.2 99.99 0.01 0.1 0.1</property>
-			  <signal name="value_changed" handler="on_param_spinner_changed" last_modification_time="Sun, 15 Feb 2004 05:07:56 GMT"/>
+			  <signal name="value_changed" handler="on_param_spinner_changed" last_modification_time="Sun, 15 Feb 2004 07:48:07 GMT"/>
 			</widget>
 			<packing>
 			  <property name="left_attach">1</property>
@@ -816,7 +816,7 @@ Settings&lt;/b&gt;</property>
 			  <property name="snap_to_ticks">False</property>
 			  <property name="wrap">False</property>
 			  <property name="adjustment">0 -9.999 9.999 0.001 0.01 0.01</property>
-			  <signal name="value_changed" handler="on_param_spinner_changed" last_modification_time="Sun, 15 Feb 2004 05:07:13 GMT"/>
+			  <signal name="value_changed" handler="on_param_spinner_changed" last_modification_time="Sun, 15 Feb 2004 07:48:27 GMT"/>
 			</widget>
 			<packing>
 			  <property name="left_attach">1</property>
@@ -933,11 +933,10 @@ Settings&lt;/b&gt;</property>
 	      <property name="window_placement">GTK_CORNER_TOP_LEFT</property>
 
 	      <child>
-		<widget class="GtkViewport" id="viewport1">
-		  <property name="width_request">805</property>
-		  <property name="height_request">805</property>
+		<widget class="GtkViewport" id="drawing_area_viewport">
 		  <property name="visible">True</property>
 		  <property name="shadow_type">GTK_SHADOW_ETCHED_IN</property>
+		  <signal name="expose_event" handler="on_viewport_expose" last_modification_time="Sun, 15 Feb 2004 07:43:11 GMT"/>
 
 		  <child>
 		    <widget class="GtkDrawingArea" id="main_drawingarea">

@@ -39,6 +39,7 @@ struct {
 
   guint idler;
   gboolean writing_params;
+  gboolean just_resized;
 } gui;
 
 static int limit_update_rate(float max_rate);
@@ -49,6 +50,7 @@ static int interactive_idle_handler(gpointer user_data);
 static float generate_random_param();
 static void read_gui_params();
 static void write_gui_params();
+static void gui_resize(int width, int height);
 
 gboolean on_expose(GtkWidget *widget, GdkEventExpose *event, gpointer user_data);
 gboolean on_window_delete(GtkWidget *widget, GdkEvent *event, gpointer user_data);
@@ -59,6 +61,7 @@ void on_render_spinner_changed(GtkWidget *widget, gpointer user_data);
 void on_color_changed(GtkWidget *widget, gpointer user_data);
 void on_random_activate(GtkWidget *widget, gpointer user_data);
 void on_save_activate(GtkWidget *widget, gpointer user_data);
+gboolean on_viewport_expose(GtkWidget *widget, gpointer user_data);
 GtkWidget *custom_color_button_new(gchar *widget_name, gchar *string1, gchar *string2, gint int1, gint int2);
 
 
@@ -78,13 +81,32 @@ void interactive_main(int argc, char **argv) {
 
   gui.drawing_area = glade_xml_get_widget(gui.xml, "main_drawingarea");
   gui.gc = gdk_gc_new(gui.drawing_area->window);
-  gtk_widget_set_size_request(gui.drawing_area, render.width, render.height);
+  gui_resize(render.width, render.height);
 
   gui.statusbar = GTK_STATUSBAR(glade_xml_get_widget(gui.xml, "statusbar"));
   gui.render_status_context = gtk_statusbar_get_context_id(gui.statusbar, "Rendering status");
 
   gui.idler = g_idle_add(interactive_idle_handler, NULL);
   gtk_main();
+}
+
+static void gui_resize(int width, int height) {
+  gtk_widget_set_size_request(gui.drawing_area, width, height);
+
+  /* A bit of a hack to make the default window size more sane */
+  gtk_widget_set_size_request(glade_xml_get_widget(gui.xml, "drawing_area_viewport"),
+			      width+5, height+5);
+  gui.just_resized = TRUE;
+}
+
+gboolean on_viewport_expose(GtkWidget *widget, gpointer user_data) {
+  /* After the drawing area is shown, go back to the natural size request */
+  if (gui.just_resized) {
+    printf("boing\n");
+    gtk_widget_set_size_request(widget, -1, -1);
+    gui.just_resized = FALSE;
+  }
+  return TRUE;
 }
 
 static int limit_update_rate(float max_rate) {
