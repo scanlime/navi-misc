@@ -138,21 +138,6 @@ class PalantirWindow:
     ''' Recieved a topic change, so set the topic bar to the new topic. '''
     self.tree.get_widget('Topic').set_text(topic)
 
-  def joinReceive(self, user, channel, newChannel):
-    ''' When we join a new channel close the connection to the current channel and join
-        the new one.
-	'''
-    self.closeReceive(user, channel)
-    self.factory.join(newChannel)
-
-  def closeReceive(self, user, channel, msg='Leaving...'):
-    ''' When we leave a channel close the connection to the channel and clear the topic
-        and userlist from that channel.
-	'''
-    self.factory.close(channel, msg)
-    self.tree.get_widget('UserList').get_model().clear()
-    self.tree.get_widget('Topic').set_text('')
-
   # CTCP messages.
   def DM(self, user, channel, data):
     ''' The user who sent this message has DM status, so we display that icon next to their
@@ -283,8 +268,7 @@ class PalantirWindow:
       # Get the arguments to the command.
       arg = text[text.find(' '):].strip()
 
-      # If the client has a method for the command execute it and assume the UI has a
-      # matching receive method.
+      # If the command is implemented here, call that function.
       if hasattr(self, command):
         getattr(self, command)(arg)
 
@@ -346,7 +330,7 @@ class PalantirWindow:
   def join(self, args):
     self.tree.get_widget('SendField').set_text('')
     self.tree.get_widget('UserList').get_model().clear()
-    if len(self.factory.channels) > 0:
+    if self.factory.channels[0]:
       self.factory.close(self.factory.channels[0])
     self.factory.join(args)
 
@@ -427,8 +411,7 @@ class PalantirWindow:
       self.Disconnect()
 
     # Set the channel name to join.
-    if channel:
-      self.factory.channels[0] = channel
+    self.factory.channels[0] = channel
 
     # Set the server name.
     self.factory.SetServer(server)

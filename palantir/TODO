@@ -1,0 +1,7 @@
+To do:
+	File names are all relative to /home/evan/navi-misc/palantir -- that's BAD =P
+	Some commands like /close don't seem to work
+	Separate buffers for private chat windows
+	Tweak dice rolling systems to handle critical failures
+	Store user preferences in the chat client
+	Character sheet builder
