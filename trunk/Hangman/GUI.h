@@ -27,6 +27,10 @@ typedef struct GUI_Node {
 	 * screen.
 	 */
 	char* text;
+
+	/* In case the node needs to control the color of whatever is being drawin inside
+	 */
+	SDL_Color *color;
 	
 	/* Pointer to the split function for the node. */
 	int (*split)(struct GUI_Node *node);
