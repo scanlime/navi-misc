@@ -22,7 +22,7 @@ The irc:// URI handler, acting as a frontend to our network of bots
 #
 
 from LibCIA import Ruleset
-import Bots
+import Bots, Network
 
 
 class IrcURIHandler(Ruleset.RegexURIHandler):
@@ -45,6 +45,10 @@ class IrcURIHandler(Ruleset.RegexURIHandler):
           irc://irc.foo.net/muffin,isnick
             Refers to a users with the nick 'muffin' on irc.foo.net's default port
 
+       The full hostname may also be replaced with a network name, as defined
+       in Network.py. This implies a random choice from multiple servers, and possibly
+       other network-specific behaviour.
+
        This is starting to be updated to a newer irc:// draft that recommends
        including the #, but still supports the above URIs.
        """
@@ -63,17 +67,17 @@ class IrcURIHandler(Ruleset.RegexURIHandler):
     def createQueueFromURI(self, uri):
         """Convert a URI to a new message queue instance"""
         d = self.parseURI(uri)
-        server = Bots.Server(d['host'], d['port'])
+        network = Network.find(d['host'], d['port'])
 
         if d['isnick']:
             # This refers to a nickname- deliver private messages to that user
-            return PrivateMessageQueue(self.botNet, server, d['target'])
+            return PrivateMessageQueue(self.botNet, network, d['target'])
         else:
             # It's a channel. Add the # if necesary.
             channel = d['target']
             if channel[0] != '#':
                 channel = '#' + channel
-            return ChannelMessageQueue(self.botNet, server, channel)
+            return ChannelMessageQueue(self.botNet, network, channel)
 
     def assigned(self, uri, newRuleset):
         # If this URI is new, create a new message queue for it
@@ -91,9 +95,9 @@ class IrcURIHandler(Ruleset.RegexURIHandler):
 
 class MessageQueue:
     """Abstract base class for a queue we can deliver IRC messages to"""
-    def __init__(self, botNet, server, channel, target):
+    def __init__(self, botNet, network, channel, target):
         self.target = target
-        self.request = Bots.Request(botNet, server, channel)
+        self.request = Bots.Request(botNet, network, channel)
         self.queuedLines = []
 
     def cancel(self):
@@ -120,13 +124,13 @@ class MessageQueue:
 
 class PrivateMessageQueue(MessageQueue):
     """Send private messages to a particular user, using one bot"""
-    def __init__(self, botNet, server, nick):
-        MessageQueue.__init__(self, botNet, server, None, nick)
+    def __init__(self, botNet, network, nick):
+        MessageQueue.__init__(self, botNet, network, None, nick)
 
 
 class ChannelMessageQueue(MessageQueue):
     """Send messages to a channel, using multiple bots if necessary"""
-    def __init__(self, botNet, server, channel):
-        MessageQueue.__init__(self, botNet, server, channel, channel)
+    def __init__(self, botNet, network, channel):
+        MessageQueue.__init__(self, botNet, network, channel, channel)
 
 ### The End ###
