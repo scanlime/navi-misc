@@ -23,6 +23,7 @@ stats:// namespace.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
+import sys, os; sys.path[0] = os.path.join(sys.path[0], '..')
 import xmlrpclib, BaseHTTPServer, urllib, os
 from LibCIA import Message, XML, Stats
 

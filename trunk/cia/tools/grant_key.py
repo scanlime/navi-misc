@@ -18,6 +18,7 @@ the URI 'irc://irc.freenode.net/tacobeam':
    ./grant_key.py -k data/universe.key -o tacobeam.key ruleset.uri irc://irc.freenode.net/tacobeam
 """
 
+import sys, os; sys.path[0] = os.path.join(sys.path[0], '..')
 from twisted.python import usage
 from LibCIA import Client
 import os
