@@ -115,7 +115,7 @@ static void histogram_imager_init_size_params(GObjectClass *object_class) {
   spec = g_param_spec_uint         ("width",
 				    "Width",
 				    "Width of the rendered image, in pixels",
-				    0, G_MAXUINT, 600,
+				    0, 10000, 600,
 				    G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED | PARAM_IN_GUI);
   param_spec_set_group             (spec, current_group);
   param_spec_set_increments        (spec, 1, 16, 0);
@@ -124,7 +124,7 @@ static void histogram_imager_init_size_params(GObjectClass *object_class) {
   spec = g_param_spec_uint         ("height",
 				    "Height",
 				    "Height of the rendered image, in pixels",
-				    0, G_MAXUINT, 600,
+				    0, 10000, 600,
 				    G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED | PARAM_IN_GUI);
   param_spec_set_group             (spec, current_group);
   param_spec_set_increments        (spec, 1, 16, 0);
@@ -173,21 +173,21 @@ static void histogram_imager_init_render_params(GObjectClass *object_class) {
   g_object_class_install_property  (object_class, PROP_GAMMA, spec);
 
   spec = g_param_spec_string       ("fgcolor",
-				    "Foreground Color",
+				    "Foreground",
 				    "The foreground color, as a color name or #RRGGBB hex triple",
 				    "#000000",
 				    G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED);
   g_object_class_install_property  (object_class, PROP_FGCOLOR, spec);
 
   spec = g_param_spec_string       ("bgcolor",
-				    "Background Color",
+				    "Background",
 				    "The background color, as a color name or #RRGGBB hex triple",
 				    "#FFFFFF",
 				    G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED);
   g_object_class_install_property  (object_class, PROP_BGCOLOR, spec);
 
   spec = g_param_spec_boxed        ("fgcolor_gdk",
-				    "Foreground GdkColor",
+				    "Foreground",
 				    "The foreground color, as a GdkColor",
 				    GDK_TYPE_COLOR,
 				    G_PARAM_READWRITE | PARAM_INTERPOLATE | PARAM_IN_GUI);
@@ -196,7 +196,7 @@ static void histogram_imager_init_render_params(GObjectClass *object_class) {
   g_object_class_install_property  (object_class, PROP_FGCOLOR_GDK, spec);
 
   spec = g_param_spec_boxed        ("bgcolor_gdk",
-				    "Background GdkColor",
+				    "Background",
 				    "The background color, as a GdkColor",
 				    GDK_TYPE_COLOR,
 				    G_PARAM_READWRITE | PARAM_INTERPOLATE | PARAM_IN_GUI);
@@ -205,7 +205,7 @@ static void histogram_imager_init_render_params(GObjectClass *object_class) {
   g_object_class_install_property  (object_class, PROP_BGCOLOR_GDK, spec);
 
   spec = g_param_spec_uint         ("fgalpha",
-				    "Foreground Alpha",
+				    "Foreground alpha",
 				    "The foreground color's opacity",
 				    0, 65535, 65535,
 				    G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
@@ -213,7 +213,7 @@ static void histogram_imager_init_render_params(GObjectClass *object_class) {
   g_object_class_install_property  (object_class, PROP_FGALPHA, spec);
 
   spec = g_param_spec_uint         ("bgalpha",
-				    "Background Alpha",
+				    "Background alpha",
 				    "The background color's opacity",
 				    0, 65535, 65535,
 				    G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |

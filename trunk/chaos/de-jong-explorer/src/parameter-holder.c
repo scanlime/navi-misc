@@ -138,7 +138,6 @@ void parameter_holder_set(ParameterHolder *self, const gchar* property, const gc
   g_value_init(&converted, spec->value_type);
   g_value_set_string(&strval, value);
 
-  //  if (g_param_value_convert(spec, &strval, &converted, FALSE)) {
   if (g_value_transform(&strval, &converted)) {
     g_object_set_property(G_OBJECT(self), property, &converted);
   }
@@ -354,6 +353,14 @@ void param_spec_set_increments (GParamSpec  *pspec,
   pi->page = page;
   pi->digits = digits;
   g_param_spec_set_qdata_full(pspec, g_quark_from_static_string("increments"), pi, g_free);
+}
+
+const gchar* param_spec_get_group (GParamSpec  *pspec) {
+  return g_param_spec_get_qdata(pspec, g_quark_from_static_string("group-name"));
+}
+
+const ParameterIncrements* param_spec_get_increments (GParamSpec  *pspec) {
+  return g_param_spec_get_qdata(pspec, g_quark_from_static_string("increments"));
 }
 
 /* The End */

@@ -229,7 +229,6 @@ static void on_keyframe_view_cursor_changed(GtkWidget *widget, gpointer user_dat
      * but we need to make sure because zero-duration keyframes can't be seeked to.
      */
     animation_keyframe_load(self->animation, &iter, PARAMETER_HOLDER(self->dejong));
-    explorer_set_params(self);
 
     /* Set the transition scale to zero. Normally setting anim_scale would be
      * enough, but if the keyframe changes but the scale value doesn't (such

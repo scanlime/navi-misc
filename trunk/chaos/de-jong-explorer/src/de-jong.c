@@ -95,7 +95,7 @@ static void de_jong_init_calc_params(GObjectClass *object_class) {
   spec = g_param_spec_double       ("a",
 				    "A",
 				    "de Jong parameter A",
-				    -G_MAXDOUBLE, G_MAXDOUBLE, 1.41914,
+				    -100, 100, 1.41914,
 				    G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
 				    G_PARAM_LAX_VALIDATION | PARAM_INTERPOLATE | PARAM_IN_GUI);
   param_spec_set_group             (spec, current_group);
@@ -105,7 +105,7 @@ static void de_jong_init_calc_params(GObjectClass *object_class) {
   spec = g_param_spec_double       ("b",
 				    "B",
 				    "de Jong parameter B",
-				    -G_MAXDOUBLE, G_MAXDOUBLE, -2.28413,
+				    -100, 100, -2.28413,
 				    G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
 				    G_PARAM_LAX_VALIDATION | PARAM_INTERPOLATE | PARAM_IN_GUI);
   param_spec_set_group             (spec, current_group);
@@ -115,7 +115,7 @@ static void de_jong_init_calc_params(GObjectClass *object_class) {
   spec = g_param_spec_double       ("c",
 				    "C",
 				    "de Jong parameter C",
-				    -G_MAXDOUBLE, G_MAXDOUBLE, 2.42754,
+				    -100, 100, 2.42754,
 				    G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
 				    G_PARAM_LAX_VALIDATION | PARAM_INTERPOLATE | PARAM_IN_GUI);
   param_spec_set_group             (spec, current_group);
@@ -125,7 +125,7 @@ static void de_jong_init_calc_params(GObjectClass *object_class) {
   spec = g_param_spec_double       ("d",
 				    "D",
 				    "de Jong parameter D",
-				    -G_MAXDOUBLE, G_MAXDOUBLE, -2.17719,
+				    -100, 100, -2.17719,
 				    G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
 				    G_PARAM_LAX_VALIDATION | PARAM_INTERPOLATE | PARAM_IN_GUI);
   param_spec_set_group             (spec, current_group);
@@ -143,9 +143,9 @@ static void de_jong_init_calc_params(GObjectClass *object_class) {
   g_object_class_install_property  (object_class, PROP_ZOOM, spec);
 
   spec = g_param_spec_double       ("xoffset",
-				    "X Offset",
+				    "X offset",
 				    "Horizontal image offset",
-				    -G_MAXDOUBLE, G_MAXDOUBLE, 0,
+				    -100, 100, 0,
 				    G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
 				    G_PARAM_LAX_VALIDATION | PARAM_INTERPOLATE | PARAM_IN_GUI);
   param_spec_set_group             (spec, current_group);
@@ -153,9 +153,9 @@ static void de_jong_init_calc_params(GObjectClass *object_class) {
   g_object_class_install_property  (object_class, PROP_XOFFSET, spec);
 
   spec = g_param_spec_double       ("yoffset",
-				    "Y Offset",
+				    "Y offset",
 				    "Vertical image offset",
-				    -G_MAXDOUBLE, G_MAXDOUBLE, 0,
+				    -100, 100, 0,
 				    G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
 				    G_PARAM_LAX_VALIDATION | PARAM_INTERPOLATE | PARAM_IN_GUI);
   param_spec_set_group             (spec, current_group);
@@ -165,7 +165,7 @@ static void de_jong_init_calc_params(GObjectClass *object_class) {
   spec = g_param_spec_double       ("rotation",
 				    "Rotation",
 				    "Rotation angle, in radians",
-				    -G_MAXDOUBLE, G_MAXDOUBLE, 0,
+				    -100, 100, 0,
 				    G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
 				    G_PARAM_LAX_VALIDATION | PARAM_INTERPOLATE | PARAM_IN_GUI);
   param_spec_set_group             (spec, current_group);
@@ -173,7 +173,7 @@ static void de_jong_init_calc_params(GObjectClass *object_class) {
   g_object_class_install_property  (object_class, PROP_ROTATION, spec);
 
   spec = g_param_spec_double       ("blur_radius",
-				    "Blur Radius",
+				    "Blur radius",
 				    "Gaussian blur radius",
 				    0, 100, 0,
 				    G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
@@ -183,7 +183,7 @@ static void de_jong_init_calc_params(GObjectClass *object_class) {
   g_object_class_install_property  (object_class, PROP_BLUR_RADIUS, spec);
 
   spec = g_param_spec_double       ("blur_ratio",
-				    "Blur Ratio",
+				    "Blur ratio",
 				    "Amount of blurred vs non-blurred rendering",
 				    0, 1, 1,
 				    G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
