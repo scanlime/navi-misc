@@ -22,10 +22,13 @@
 	extern	temp
 	extern	Send_0Len_pkt
 
-	extern	rx_fsr
-	extern	rx_status
-	extern	rx_remaining
-	extern	rx_count
+	extern	rx_fsr_initial	; Initial buffer pointer, rx_fsr is reset to this when rx_remaining runs out
+	extern	rx_fsr			; Pointer into the buffer where the next received byte will be stored
+	extern	rx_status		; STATUS byte containing an IRP bit pointing to our buffer
+	extern	rx_remaining	; Number of bytes until the buffer must roll over
+	extern	rx_size			; Initial rx_remaining, and the value it is reset to when it hits zero
+	extern	rx_count		; Total number of received bytes, modulo 256
+	extern	rx_Reset		; Resets the above values to the receiver's idle state
 
 	extern	io_Assert
 	extern	io_Deassert
@@ -87,12 +90,6 @@ CheckVendor
 	pagesel	TxRxRequest
 	btfsc	STATUS,Z
 	goto	TxRxRequest
-
-	movf	BufferData+bRequest,w
-	xorlw	RCPOD_CTRL_USART_RX_END
-	pagesel	RxEndRequest
-	btfsc	STATUS,Z
-	goto	RxEndRequest
 
 	movf	BufferData+bRequest,w
 	xorlw	RCPOD_CTRL_USART_RX_PROGRESS
@@ -394,6 +391,9 @@ adFinishLoop
 	; A 9-bit buffer address in wIndex, number of bytes to transmit in wValue,
 	; number of bytes to receive in wValue+1
 TxRxRequest
+	pagesel	rx_Reset		; Cancel any receive we may be doing
+	call	rx_Reset
+
 	pagesel	skipTx
 	banksel	BufferData
 	movf	BufferData+wValue, w ; See if we have anything to transmit
@@ -420,6 +420,7 @@ TxRxRequest
 	movwf	FSR
 	banksel	rx_fsr		; And save it for receiving later
 	movwf	rx_fsr
+	movwf	rx_fsr_initial
 
 txLoop
 	pagesel	txLoop
@@ -460,27 +461,17 @@ skipTx
 	banksel	RCREG
 	movf	RCREG, w
 
+	; Store the number of bytes to receive before rolling over
 	banksel	BufferData
-	movf	BufferData+(wValue+1), w ; Store the number of bytes to receive
+	movf	BufferData+(wValue+1), w
 	banksel	rx_remaining
 	movwf	rx_remaining
-
-	banksel	rx_count	; Clear the count of received bytes
-	clrf	rx_count
+	movwf	rx_size
 
 	; Acknowledge the request
 	pagesel	Send_0Len_pkt
 	call	Send_0Len_pkt
 	return
-
-	;********************* Request to cancel USART reception
-	; Cancels an ongoing USART receive, and returns the number of bytes received.
-RxEndRequest
-	banksel	rx_remaining	; Disable the receive
-	clrf	rx_remaining
-	
-	pagesel	RxProgressRequest ; Now just return the number of bytes received
-	goto	RxProgressRequest
 
 	;********************* Request to get USART reception progress
 	; Returns the number of bytes received without cancelling the reception
@@ -488,17 +479,18 @@ RxProgressRequest
 	banksel	BD0IAL
 	movf	low BD0IAL,w	; get address of buffer
 	movwf	FSR
-	bsf 	STATUS,IRP	; indirectly to banks 2-3
+	bsf 	STATUS,IRP		; indirectly to banks 2-3
 
 	banksel	rx_count
-	movf	rx_count, w	;  Write the received byte count to our buffer
+	movf	rx_count, w		;  Write the received byte count to our buffer
 	movwf	INDF
+
 	banksel	BD0IBC
 	bsf 	STATUS, RP0
 	movlw	0x01
-	movwf	BD0IBC		; set byte count to 1
-	movlw	0xc8		; DATA1 packet, DTS enabled
-	movwf	BD0IST		; give buffer back to SIE
+	movwf	BD0IBC			; set byte count to 1
+	movlw	0xc8			; DATA1 packet, DTS enabled
+	movwf	BD0IST			; give buffer back to SIE
 	return
 
 	;********************* Set the USART transmit enable pin

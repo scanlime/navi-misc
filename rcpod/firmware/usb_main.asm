@@ -59,15 +59,21 @@ epBufferPtrTemp res 1
 epByteTemp	res 1
 
 	;; USART receiver, running in the background
-rx_fsr		res	1	; Saved FSR pointing to the location for the next received byte
-rx_status	res	1	; Saved STATUS with the high bit of the buffer pointer
-rx_remaining	res	1	; Number of bytes left to receive
-rx_count	res	1	; number of bytes received so far
+rx_fsr_initial	res 1	; Initial buffer pointer, rx_fsr is reset to this when rx_remaining runs out
+rx_fsr			res 1	; Pointer into the buffer where the next received byte will be stored
+rx_status		res 1	; STATUS byte containing an IRP bit pointing to our buffer
+rx_remaining	res 1	; Number of bytes until the buffer must roll over
+rx_size			res 1	; Initial rx_remaining, and the value it is reset to when it hits zero
+rx_count		res 1	; Total number of received bytes, modulo 256
 
+	global	rx_fsr_initial
 	global	rx_fsr
 	global	rx_status
 	global	rx_remaining
+	global	rx_size
 	global	rx_count
+
+	global	rx_Reset
 
 	extern	txe_pin
 
@@ -137,7 +143,15 @@ testSerialInterrupt
     banksel rx_fsr             ; Update our receive progress
     incf    rx_fsr, f
     incf    rx_count, f
-    decf    rx_remaining, f
+    decfsz  rx_remaining, f		; If rx_remaining is nonzero, we can move on to the USB interrupt
+    goto    testUsbInterrupt
+
+	; We just ran out of buffer bytes, wrap back to the beginning
+	movf	rx_fsr_initial, w
+	movwf	rx_fsr
+	movf	rx_size, w
+	movwf	rx_remaining
+
     goto    testUsbInterrupt
 
 ignoreSerialInterrupt          ; We have new serial data, but we aren't in the middle of a receive.
@@ -239,10 +253,9 @@ Main
 
 	banksel	txe_pin
 	clrf	txe_pin
-	banksel	rx_remaining
-	clrf	rx_remaining
-	banksel	rx_count
-	clrf	rx_count
+
+	pagesel	rx_Reset
+	call	rx_Reset
 
 	pagesel	InitUSB
 	call	InitUSB
@@ -258,6 +271,19 @@ MainLoop
 
 	pagesel	MainLoop
 	goto	MainLoop
+
+
+;******************************************************************* Serial Receiver Reset
+
+rx_Reset
+	banksel	rx_fsr_initial
+	clrf	rx_fsr_initial
+	clrf	rx_fsr
+	clrf	rx_status
+	clrf	rx_remaining
+	clrf	rx_size
+	clrf	rx_count
+	return
 
 	end
 

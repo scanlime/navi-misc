@@ -18,7 +18,7 @@
 ;// The protocol version, stored in binary coded decimal.
 ;// This is available from the device in the bcdDevice field
 ;// of its DEVICE descriptor.
-#define RCPOD_PROTOCOL_VERSION  0x0104
+#define RCPOD_PROTOCOL_VERSION  0x0110
 
 ;// Device vendor and product IDs.
 ;// The RCPOD's device class and protocol are both set to 'vendor-specific'.
@@ -78,22 +78,25 @@
 ;// Using current USART settings, perform an optional transmit and optional receive
 ;// using a buffer at the address in wIndex. The number of bytes specified in the
 ;// low byte of wValue are transmitted, then from the beginning of the same buffer
-;// an asynchronous receive is started. It runs in the background, until the number
-;// of bytes in the high byte of wValue have been received or UART_RX_END is called.
+;// an asynchronous receive is started. It runs in the background until another
+;// transmit is started. The receive can be stopped with no other effects by sending
+;// a USART_TXRX with both bytes of wValue set to zero.
+;// The receive pointer wraps back to the beginning of the buffer after the number
+;// of bytes specified in the high byte of wValue has been received.
 ;// Either byte of wValue can be zero to perform only a transmit or only a receive.
 #define RCPOD_CTRL_USART_TXRX   0x20
-
-;// Cancels an ongoing USART receive, returns the number of bytes actually received
-#define RCPOD_CTRL_USART_RX_END 0x21
 
 ;// Sets the pin descriptor to use as a USART transmit enable, in wValue.
 ;// When transmitting, this pin is asserted, then after the transmission is
 ;// complete it is deasserted. This feature is disabled by setting the pin to
 ;// zero (a no-op pin descriptor)
-#define RCPOD_CTRL_USART_TXE    0x23
+#define RCPOD_CTRL_USART_TXE    0x21
 
-;// Returns the number of bytes received so far in the current serial receive
-#define RCPOD_CTRL_USART_RX_PROGRESS 0x24
+;// Returns the number of bytes received so far in the current serial receive.
+;// Note that this can be larger than the receive buffer size if the receive
+;// buffer has wrapped around. Note also that this value will wrap around once
+;// it passes 255.
+#define RCPOD_CTRL_USART_RX_PROGRESS 0x22
 
 ;//------------------ General purpose I/O
 
