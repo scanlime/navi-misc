@@ -1,4 +1,4 @@
-BINS = raw_test
+BINS = raw_test new_net train_net
 
 LIBSRC = \
 	lib/FieldSensor.o \
@@ -28,8 +28,14 @@ all: $(BINS)
 raw_test: src/raw_test.cpp $(INCLUDES) $(LIBS)
 	g++ -o $@ $< $(CPPFLAGS) $(LDFLAGS) $(LIBS)
 
+new_net: src/new_net.cpp $(INCLUDES) $(LIBS)
+	g++ -o $@ $< $(CPPFLAGS) $(LDFLAGS) $(LIBS)
+
+train_net: src/train_net.cpp $(INCLUDES) $(LIBS)
+	g++ -o $@ $< $(CPPFLAGS) $(LDFLAGS) $(LIBS)
+
 lib/libfield.a: $(LIBSRC)
-	ar r $@ $<
+	ar r $@ $(LIBSRC)
 	ranlib $@
 
 clean:
