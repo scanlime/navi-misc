@@ -3,18 +3,21 @@
 
 OUTPUTDIR := ./build/bin
 
-all: depcheck __init Makefile.pipeline-editor.all 
+all: depcheck __init Makefile.pipeline-editor.all Makefile.basic.all 
 
 __init:
 	mkdir -p $(OUTPUTDIR)
 
-clean: Makefile.pipeline-editor.clean 
+clean: Makefile.pipeline-editor.clean Makefile.basic.clean 
 
-depcheck: Makefile.pipeline-editor.depcheck 
+depcheck: Makefile.pipeline-editor.depcheck Makefile.basic.depcheck 
 
 run: all
 	cd $(OUTPUTDIR) && mono pipeline-editor.exe
 
 Makefile.pipeline-editor.%:
 	@cd ./ && $(MAKE) -f $(subst .$*,,$@) $*
+
+Makefile.basic.%:
+	@cd ./plugins/basic && $(MAKE) -f $(subst .$*,,$@) $*
 

@@ -1,5 +1,7 @@
 /*
- * Element.cs - abstract data type defining an Element
+ * Transform.cs - An Element which takes translation, rotation,
+ *	scale, and aspect ratio and produces a matrix representing
+ *	those transformations.
  *
  * Fyre - rendering and interactive exploration of chaotic functions
  * Copyright (C) 2004-2005 David Trowbridge and Micah Dowty
@@ -22,16 +24,49 @@
 
 using Gdk;
 
-public class Element
+class TwoDTransform : Element
 {
-	public string		Name;
-	public string		Category;
-	public string		Description;
-	public Gdk.Pixbuf	Icon;
+	private static Gdk.Pixbuf icon;
 	
-	/* These are expected to be in pango markup, for any
-	 * necessary subscripts, UTF-8 trickery, etc
-	 */
-	public string		InputDesc;
-	public string		OutputDesc;
+	new public string Name
+	{
+		get { return "TwoDTransform"; }
+	}
+	
+	new public string Category {
+		get { return "Arithmetic"; }
+	}
+	
+	new public Gdk.Pixbuf Icon
+	{
+		get
+		{
+			/* FIXME: initialize */
+			return icon;
+		}
+	}
+	
+	new public string Description 
+	{
+		get
+		{
+			return "Creates an 3x3 matrix out of a set of 2D transformations";
+		}
+	}
+	
+	new public string InputDesc
+	{
+		get
+		{
+			return "<i>rotation</i>\n" + "<i>aspect</i>\n" + "<i>zoom</i>\n" + "<i>offset</i>";
+		}
+	}
+	
+	new public string OutputDesc
+	{
+		get
+		{
+			return "<b>M</b>:\tmatrix";
+		}
+	}
 }
