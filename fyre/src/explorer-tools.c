@@ -257,8 +257,17 @@ static void tool_zoom(Explorer *self, ToolInput *i) {
 }
 
 static void tool_rotate(Explorer *self, ToolInput *i) {
+  /* We're a bit tricky here and also rotate the X and Y offset such that we're
+   * rotating around the center of the view, rather than rotating around the
+   * center of rendering coordinates.
+   */
+  double delta_r = -i->delta_x * 0.0089;
+  double sin_d_r = sin(delta_r);
+  double cos_d_r = cos(delta_r);
   g_object_set(self->map,
-	       "rotation", (gdouble) (DE_JONG(self->map)->rotation - i->delta_x * 0.0089),
+	       "rotation", (gdouble) (DE_JONG(self->map)->rotation + delta_r),
+	       "xoffset",  (gdouble) ( cos_d_r * DE_JONG(self->map)->xoffset + sin_d_r * DE_JONG(self->map)->yoffset),
+	       "yoffset",  (gdouble) (-sin_d_r * DE_JONG(self->map)->xoffset + cos_d_r * DE_JONG(self->map)->yoffset),
 	       NULL);
 }
 
