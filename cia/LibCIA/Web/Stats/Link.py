@@ -98,6 +98,12 @@ class MetadataLink(TargetRelativeLink):
         return self.tagFactory(href=self.getURL(context))[text]
 
 
+class ThumbnailLink(TargetRelativeLink):
+    """An anchor tag linking to a thumbnail of a particular metadata image"""
+    def __init__(self, target, key, size):
+        TargetRelativeLink.__init__(self, target, ('.metadata', key, '.thumbnail', '%dx%d' % size))
+
+
 class RSSLink(TargetRelativeLink):
     """An anchor tag linking to the default RSS feed for a particular stats target"""
     def __init__(self, target, tagFactory=tag('a'), text="RSS 2.0 Feed", extraSegments=()):
