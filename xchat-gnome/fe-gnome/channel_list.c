@@ -88,16 +88,24 @@ void create_channel_list(session *sess) {
 	g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(chanlist_join), win);
 
 	win->store = gtk_list_store_new(4, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_POINTER);
-	gtk_tree_view_set_model(GTK_TREE_VIEW(treeview), GTK_TREE_MODEL(win->store));
+	win->sort = GTK_TREE_MODEL_SORT(gtk_tree_model_sort_new_with_model(GTK_TREE_MODEL(win->store)));
+	gtk_tree_view_set_model(GTK_TREE_VIEW(treeview), GTK_TREE_MODEL(win->sort));
+	gtk_tree_view_set_headers_clickable(GTK_TREE_VIEW(treeview), TRUE);
 
 	channel_r = gtk_cell_renderer_text_new();
 	channel_c = gtk_tree_view_column_new_with_attributes("Channel Name", channel_r, "text", 0, NULL);
+	gtk_tree_view_column_set_resizable(channel_c, TRUE);
+	gtk_tree_view_column_set_sort_column_id(channel_c, 0);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), channel_c);
 	users_r = gtk_cell_renderer_text_new();
 	users_c = gtk_tree_view_column_new_with_attributes("Users", users_r, "text", 1, NULL);
+	gtk_tree_view_column_set_resizable(users_c, TRUE);
+	gtk_tree_view_column_set_sort_column_id(users_c, 1);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), users_c);
 	topic_r = gtk_cell_renderer_text_new();
 	topic_c = gtk_tree_view_column_new_with_attributes("Topic", topic_r, "text", 2, NULL);
+	gtk_tree_view_column_set_resizable(topic_c, TRUE);
+	gtk_tree_view_column_set_sort_column_id(topic_c, 2);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), topic_c);
 
 	group = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
@@ -119,6 +127,7 @@ void create_channel_list(session *sess) {
 void channel_list_append(server *serv, char *channel, char *users, char *topic) {
 	GtkWidget *treeview;
 	GtkListStore *store;
+	GtkTreeModelSort *sort;
 	GtkTreeIter iter;
 	GSList *element;
 	channel_list_window *win;
@@ -129,7 +138,8 @@ void channel_list_append(server *serv, char *channel, char *users, char *topic) 
 
 	win = element->data;
 	treeview = glade_xml_get_widget(win->xml, "channel list");
-	store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(treeview)));
+	sort = GTK_TREE_MODEL_SORT(gtk_tree_view_get_model(GTK_TREE_VIEW(treeview)));
+	store = GTK_LIST_STORE(gtk_tree_model_sort_get_model(sort));
 
 	gtk_list_store_append(store, &iter);
 	gtk_list_store_set(store, &iter, 0, channel, 1, users, 2, topic, 3, serv, -1);
