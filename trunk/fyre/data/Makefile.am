@@ -8,4 +8,6 @@ fyredata_DATA = 		\
 
 EXTRA_DIST =			\
 	explorer.glade		\
-	animation-render.glade
+	animation-render.glade	\
+	metadata-emblem.png	\
+	wicker-shoelace.png
