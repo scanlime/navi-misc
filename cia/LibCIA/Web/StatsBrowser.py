@@ -392,7 +392,7 @@ class MetadataValueColumn(Nouvelle.Column):
            returning anything if we're not dealing with text.
            """
         target, key = item
-        if target.metadata.getType(key).startswith("text/"):
+        if target.getType(key).startswith("text/"):
             return target.metadata[key]
 
     def render_data(self, context, item):
