@@ -15,6 +15,7 @@ class Node:
     fontName = None
     position = None
     opacity = 0
+    isGrabbed = False
 
     def __init__(self, text):
         self.text = text
@@ -29,20 +30,23 @@ class Node:
         if self.opacity < 1:
             self.opacity += 0.01
 
-        # Stay away from other nodes
-        for other in graph.nodes:
-            if other.position:
-                repulsionForce(self, other, 80)
+        if not self.isGrabbed:
+            # Forces don't apply if we're being grabbed
 
-        # Stay away from the viewport edges
-        edgeStrength = 200
-        for axis in (0,1):
-            self.position[axis] += edgeStrength / max(self.position[axis], 1)
-            self.position[axis] -= edgeStrength / max(graph.viewport.size[axis] - self.position[axis], 1)
+            # Stay away from other nodes
+            for other in graph.nodes:
+                if other.position:
+                    repulsionForce(self, other, 80)
 
-        # Random wandering
-        self.position += (random.normalvariate(0, graph.temperature),
-                          random.normalvariate(0, graph.temperature))
+            # Stay away from the viewport edges
+            edgeStrength = 200
+            for axis in (0,1):
+                self.position[axis] += edgeStrength / max(self.position[axis], 1)
+                self.position[axis] -= edgeStrength / max(graph.viewport.size[axis] - self.position[axis], 1)
+
+            # Random wandering
+            self.position += (random.normalvariate(0, graph.temperature),
+                              random.normalvariate(0, graph.temperature))
 
     def render(self):
         # Lazy texture loading
@@ -196,6 +200,8 @@ class GraphController:
             closestNode = None
             closestDist = minDistance ** 2
             for node in self.graph.nodes:
+                if not node.position:
+                    continue
                 v = node.position - event.pos
                 d2 = Numeric.dot(v,v)
                 if d2 < closestDist:
@@ -210,9 +216,11 @@ class GraphController:
 
     def selectNode(self, node):
         if self.selectedNode:
+            self.selectedNode.isGrabbed = False
             self.selectedNode.circleColor = self.selectedNode.__class__.circleColor
         self.selectedNode = node
         if node:
+            node.isGrabbed = True
             node.circleColor = (0.5, 1, 0.5)
 
 
