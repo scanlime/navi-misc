@@ -73,7 +73,9 @@ void connection_dialog_connect(GtkWidget *widget, gpointer data) {
 
 	if(gtk_tree_selection_get_selected(select, &model, &iter)) {
 		gtk_tree_model_get(model, &iter, 0, &network, -1);
-		g_print("want to connect to \"%s\"\n", network);
+		g_print("trying to connect to \"%s\"\n", network);
+		servlist_connect_by_netname(NULL, network);
+		connection_dialog_close(widget, data);
 		g_free(network);
 	}
 }

@@ -1,5 +1,7 @@
 #include <gnome.h>
 #include "../common/xchat.h"
+#include "../common/xchatc.h"
+#include "../common/servlist.h"
 #include "../common/fe.h"
 #include "gui.h"
 
@@ -15,6 +17,7 @@ int fe_args(int argc, char *argv[]) {
 }
 
 void fe_init(void) {
+	strcpy(prefs.nick1, "flobidob");
 	servlist_init();
 	initialize_gui();
 }
@@ -45,10 +48,14 @@ void fe_timeout_remove(int tag) {
 
 void fe_new_window(struct session *sess) {
 	g_print("creating a new window of type %d\n", sess->type);
+	server_fill_her_up(sess->server);
+	g_print("server is %s:%s\n\n", sess->server->hostname, sess->server->servername);
+	sess->server->p_join(sess->server, "#tacobeam", "");
 	/* FIXME: implement */
 }
 
 void fe_new_server(struct server *serv) {
+	server_fill_her_up(serv);
 	g_print("creating a new server - %s:%s\n", serv->hostname, serv->servername);
 	/* FIXME: implement */
 }
@@ -89,6 +96,7 @@ void fe_idle_add(void *func, void *data) {
 }
 
 void fe_set_topic(struct session *sess, char *topic) {
+	/* FIXME: implement */
 }
 
 void fe_set_hilight(struct session *sess) {
