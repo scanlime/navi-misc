@@ -42,4 +42,57 @@ mvmtOneCello = \relative c, {
 	\repeat "tremolo" 6 { a16 e16 }  ais16 e16 ais16 e16
 	\repeat "tremolo" 6 { a16 e16 }  b'16 e,16 b'16 e,16
 	a8 [c r a] r gis [r c]
+	c8 r8 r4 r2
+
+	% 55
+	r8 cis' b a gis fis e d
+	cis d16 d d8 fis r e [r dis]
+	r cis fis (e dis cis) r r
+	r2 e
+	dis1
+
+	% 60
+	r1
+	e2 (d
+	b cis4 e
+	gis2.) fis4 (
+	dis2 eis)
+
+	% 65
+	r4 fis, (a cis
+	d2) r2
+	r4 f, (a d
+	e2) r2 \fermata
+
+	\time 6/8
+	R1*6/8*10
+
+	<<
+		{
+		s4. bes (
+		cis d)
+		s a (
+		c des)
+		}
+	\\
+		{
+		r4. bes
+		a f
+		r a
+		aes fis
+		}
+	>>
+	r4. r8 dis'16 e dis8-.->
+	gis,8-> r4 r4.
+
+	% 85
+	r4. r8 cis16 d cis8-.->
+	b8-> r4 r8 a'16 b a8-.->
+	d,8-> r4 r8 c16 b a8-.->
+	gis8 r4 cis16-> cis cis-. cis-. cis-. cis-.
+	\time 4/4
+	\times 2/3 {<gis cis>8-> <gis cis> <gis cis>-.} \times 2/3 {<gis cis>-. <gis cis>-. <gis cis>-.} \times 2/3 {<g c>8-> <g c> <g c>-.} \times 2/3 {<g c>-. <g c>-. <g c>-.}
+
+	% 90
+	<g c>4\pp ais8->\mf r8 r4 g8-> r8
 }
