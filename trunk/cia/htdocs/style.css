@@ -60,6 +60,11 @@ table.columns td.left p {
   padding: 0em;
 }
 
+td > p {
+  /* Another spacing hack for paragraphs inside any table cell */
+  padding: 0em;
+}
+
 div.heading {
   padding: 0em;
   margin: 0em;
