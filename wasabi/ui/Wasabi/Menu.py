@@ -33,6 +33,8 @@ class Item:
     """A single menu items, used by all Menu subclasses. Specifies
        an icon for the menu item to be represented by, and an event handler
        to be called when the item is selected.
+
+       The onSelected() event is passed a reference to the menu selecting this item.
        """
     def __init__(self, icon):
         Event.attach(self, 'onSelected')
@@ -45,9 +47,13 @@ class Menu(Sequencer.Page):
        onSelected event is called when a selection is made, then the menu's onFinish
        is called to end this page. Normally the onSelected event would push new pages
        onto the sequencer book to implement the selection.
+
+       The menu's onSelected event is called when any item is selected. It is given
+       a reference to the Item instance selected.
        """
     def __init__(self, book):
         Sequencer.Page.__init__(self, book)
+        Event.attach(self, 'onSelected')
 
         # Create an ortho mode viewport over the whole screen
         self.overlay = self.viewport.region(Layout.Rect(self.viewport))
@@ -59,16 +65,38 @@ class Menu(Sequencer.Page):
 class RingMenu(Menu):
     def __init__(self, book, items):
         Menu.__init__(self, book)
+        self.items = items
         self.dock = Icon.Dock(self.overlay, self.trackFunction, [item.icon for item in items])
         self.viewport.onKeyDown.observe(self.keyDown)
 
     def keyDown(self, ev):
-        if ev.key == pygame.K_SPACE:
-            self.onFinish()
+        if ev.key == pygame.K_SPACE or ev.key == pygame.K_RETURN:
+            self.selectCurrent()
         elif ev.key == pygame.K_LEFT:
-            self.dock.selectionIndex -= 1
+            self.spinLeft()
         elif ev.key == pygame.K_RIGHT:
-            self.dock.selectionIndex += 1
+            self.spinRight()
+
+    def spinLeft(self):
+        """Spin to the next icon leftwardsly"""
+        self.dock.selectionIndex -= 1
+
+    def spinRight(self):
+        """Spin to the next icon rightwardsly"""
+        self.dock.selectionIndex += 1
+
+    def selectCurrent(self):
+        """Select the currently largest icon and finish the menu"""
+        # Round to the nearest integer index. modulo the size of our list.
+        # (the index may actually be much larger or smaller than the range
+        # of our item list, since the index itself doesn't wrap around.
+        # This is currently done to make the animation code simpler)
+        index = int(floor(self.dock.selectionIndex + 0.5) % len(self.dock.icons))
+        item = self.items[index]
+
+        item.onSelected(self)
+        self.onSelected(item)
+        self.onFinish()
 
     def trackFunction(self, x):
         """A track function that moves the icons along a circle in
