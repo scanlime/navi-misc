@@ -25,6 +25,10 @@ if have_wasabi_hardware:
     plugin.activate('mi6k_vfd')
     VFD_TITLE = "Wasabi"
 
+    # Since we get information about the currently playing music
+    # on the MI6K, we don't need the detachbar any more.
+    plugin.remove('audio.detachbar')
+
     # Add the USB Video Switch plugin and map all our inputs
     plugin.activate('uvswitch.detector')
     plugin.activate('uvswitch.input', args=(1, 'Nintendo 64', 'n64'))
