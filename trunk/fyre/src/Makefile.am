@@ -25,11 +25,13 @@ ASSEMBLIES =			\
 
 RESOURCES =							\
 	-resource:$(top_srcdir)/data/pipeline-editor.glade	\
-	-resource:$(top_srcdir)/data/element-tooltip.glade
+	-resource:$(top_srcdir)/data/element-tooltip.glade	\
+	-resource:$(top_srcdir)/data/navigation.png
 
 RESOURCEFILES =						\
 	$(top_srcdir)/data/pipeline-editor.glade	\
-	$(top_srcdir)/data/element-tooltip.glade
+	$(top_srcdir)/data/element-tooltip.glade	\
+	$(top_srcdir)/data/navigation.png
 
 $(TARGET): $(CSFILES) $(srcdir)/Defines.cs $(RESOURCEFILES)
 	$(CSC) -o $@ $(CSFLAGS) $(CSFILES) $(srcdir)/Defines.cs $(ASSEMBLIES) $(RESOURCES)
