@@ -173,7 +173,6 @@ decodePOP (char data)
 {
 	int ret;
 
-	g_print ("decoding POP - data is '%c' -> %d, ret is ", data, data - '0');
 	switch (data)
 	{
 		case '-':
@@ -188,7 +187,6 @@ decodePOP (char data)
 		default:
 			ret = (data - '0') * 10;
 	}
-	g_print ("%d\n", ret);
 	return ret;
 }
 
@@ -243,43 +241,34 @@ e_weather_source_ccf_do_parse (EWeatherSourceCCF *source, char *buffer)
 	current = g_slist_nth (tokens, 5);
 	while (strcmp(current->data, source->substation))
 		current = g_slist_next (current);
-	g_print ("found station '%s'\n", current->data);
 	current = g_slist_next (current);
 	/* pick up the first two conditions reports */
 	forecasts[0].conditions = decodeConditions (((char*)(current->data))[0]);
 	forecasts[1].conditions = decodeConditions (((char*)(current->data))[1]);
-	g_print ("found conditions '%s'\n", current->data);
 
 	current = g_slist_next (current);
 	if (tms.tm_hour < 12)
 	{
 		for (i = 0; i < 2; i++) {
 			forecasts[i].high = ftoc (current->data);
-			g_print ("found high '%s'\n", current->data);
 			current = g_slist_next (current);
 			forecasts[i].low  = ftoc (current->data);
-			g_print ("found low '%s'\n", current->data);
 			current = g_slist_next (current);
 		}
 		forecasts[2].high = ftoc (current->data);
-		g_print ("found high '%s'\n", current->data);
 		current = g_slist_next (current);
 		forecasts[0].pop = decodePOP (((char*)(current->data))[2]);
 		forecasts[1].pop = decodePOP (((char*)(current->data))[4]);
-		g_print ("found POP '%s'\n", current->data);
 	}
 	else
 	{
 		for (i = 0; i < 2; i++) {
 			current = g_slist_next (current);
 			forecasts[i].high = ftoc (current->data);
-			g_print ("found high '%s'\n", current->data);
 			current = g_slist_next (current);
 			forecasts[i].low  = ftoc (current->data);
-			g_print ("found low '%s'\n", current->data);
 		}
 		current = g_slist_next (current);
-		g_print ("found POP '%s'\n", current->data);
 		forecasts[0].pop = decodePOP (((char*)(current->data))[1]);
 		forecasts[1].pop = decodePOP (((char*)(current->data))[3]);
 	}
@@ -319,7 +308,6 @@ e_weather_source_ccf_do_parse (EWeatherSourceCCF *source, char *buffer)
 		source->done (fc, source->finished_data);
 	}
 
-	g_print ("found conditions '%s'\n", current->data);
 	/* Grab the conditions for the next 5 days */
 	forecasts[2].conditions = decodeConditions (((char*)(current->data))[0]);
 	forecasts[3].conditions = decodeConditions (((char*)(current->data))[1]);
@@ -335,16 +323,13 @@ e_weather_source_ccf_do_parse (EWeatherSourceCCF *source, char *buffer)
 		for  (i = 3; i < 6; i++) {
 			current = g_slist_next (current);
 			forecasts[i].high = ftoc (current->data);
-			g_print ("found high '%s'\n", current->data);
 			current = g_slist_next (current);
 			forecasts[i].low  = ftoc (current->data);
-			g_print ("found low '%s'\n", current->data);
 		}
 		current = g_slist_next (current);
 		forecasts[6].high = ftoc (current->data);
 		forecasts[6].low  = forecasts[6].high;
 		current = g_slist_next (current);
-		g_print ("found POP '%s'\n", current->data);
 		forecasts[2].pop = decodePOP (((char*)(current->data))[1]);
 		forecasts[3].pop = decodePOP (((char*)(current->data))[3]);
 		forecasts[4].pop = decodePOP (((char*)(current->data))[5]);
@@ -356,17 +341,14 @@ e_weather_source_ccf_do_parse (EWeatherSourceCCF *source, char *buffer)
 	{
 		for (i = 2; i < 6; i++) {
 			forecasts[i].high = ftoc (current->data);
-			g_print ("found high '%s'\n", current->data);
 			current = g_slist_next (current);
 			forecasts[i].low  = ftoc (current->data);
-			g_print ("found low '%s'\n", current->data);
 			current = g_slist_next (current);
 		}
 		n = 6;
 		/* hack for people who put out bad data, like Pueblo, CO. Yes, PUB, that means you */
 		if (strlen (current->data) == 3)
 			current = g_slist_next (current);
-		g_print ("found POP '%s'\n", current->data);
 		forecasts[1].pop = decodePOP (((char*)(current->data))[0]);
 		forecasts[2].pop = decodePOP (((char*)(current->data))[2]);
 		forecasts[3].pop = decodePOP (((char*)(current->data))[4]);
