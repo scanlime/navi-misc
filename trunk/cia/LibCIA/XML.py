@@ -218,35 +218,6 @@ class XMLStorage(object):
         pass
 
 
-class XMLDict(XMLStorage):
-    """A simple XMLStorage subclass for storing a dictionary in which keys are
-       converted to XML <key> elements and values are the elements' contents as strings.
-       """
-    # No blank lines between the items like XMLStorage will add by default,
-    # our items are small enough it just looks silly.
-    separator = '\n'
-
-    def emptyStorage(self):
-        self.dict = {}
-
-    def store(self, xml):
-        obj = XMLObject(xml)
-        self.dict[obj.xml.getAttribute('name')] = str(obj.xml)
-
-    def flatten(self):
-        results = []
-        # Sort the dictionary keys, so we output the values in a consistent order
-        keys = self.dict.keys()
-        keys.sort()
-        for key in keys:
-            element = domish.Element((None, 'key'))
-            element['name'] = str(key)
-            value = str(self.dict[key])
-            element.addContent(value)
-            results.append(XMLObject(element))
-        return results
-
-
 class XMLValidityError(Exception):
     """This error is raised by subclasses of XMLObject that encounter problems
        in the structure of XML documents presented to them. Normally this should
