@@ -83,9 +83,7 @@ namespace Fyre
 			background.DrawRectangle (white, true, 0, 0, size[0] - 1, size[1] - 1);
 			background.DrawRectangle (black, false, 0, 0, size[0] - 1, size[1] - 1);
 
-			// FIXME - we want to draw our pipeline onto this window at
-			// reduced size (either some fixed relative, like 1/10 or
-			// force to a width of 200(?) pixels).
+			// FIXME - we want to draw our pipeline onto this window at reduced size
 		}
 
 		void
@@ -221,10 +219,14 @@ namespace Fyre
 			position.Width  = 200;
 			position.Height = (int) (200 * aspect);
 
-			// FIXME: determine window extents
-			visible[0] = 40;
-			visible[1] = 30;
+			// Determine visible window extents
+			Gdk.Rectangle vwin = drawing.DrawingExtents;
+			float ratio = ((float) vwin.Width) / ((float) canvas.Width);
+			aspect = ((float) vwin.Height) / ((float) vwin.Width);
+			visible[0] = (int) (200 * ratio);
+			visible[1] = (int) (visible[0] * aspect);
 
+			// Create our window
 			window = new NavigationWindow (position.Width, position.Height, visible[0], visible[1]);
 
 			position.X = GetWindowPosition (mouse_x, position.Width,  screen.Width);
