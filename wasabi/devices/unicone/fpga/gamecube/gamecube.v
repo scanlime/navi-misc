@@ -132,8 +132,8 @@ endmodule
  * This emulator responds to the following request words from the gamecube:
  *
  *    0x00      - Request controller ID.
- *                Returns CONTROLLER_ID, which defaults to the same ID returned
- *                by standard gamecube controllers.
+ *                Returns 09 00 00, the same ID returned by standard gamecube
+ *                controllers.
  *
  *    0x4003XX  - Poll controller status.
  *                The last byte of the command seems to be a collection of flags
@@ -155,36 +155,32 @@ endmodule
  *                a hardcoded joystick tolerance or dead zone.
  *
  *                Since we're assuming our host has already calibrated each axis,
- *                we return ideal calibrations, given in CONTROLLER_CALIBRATION.
+ *                we return ideal calibrations:
+ *
+ *                  00 80 80 80 80 80 00 00 02 02
  *
  * There are no other 1-byte commands that official controllers respond do.
  * I haven't checked for other three-byte commands yet.
  *
- * This retrieves the controller state as it is needed using a memory-friendly
- * one-bit-wide interface. The required address, in bits, is placed on state_addr
- * and state_request is brought high. Once state_ack goes high, the corresponding
- * bit should be available at state_data. The data source has a little less than
- * one bit time to make this happen- on the order of several hundred clock cycles.
+ * This retrieves the controller state as it is needed using an interface designed
+ * for time-multiplexed access to SRAM. The required address, in bits, is placed on
+ * state_addr. Once it's our turn to access the RAM, state_ack should be high.
  *
  */
 module gc_controller (clk, reset, tx_timing, gc_port, rumble,
-                      state_addr, state_request, state_data, state_ack,
-                      debug);
-	parameter CONTROLLER_ID = 24'h090000;
-	parameter CONTROLLER_CALIBRATION = 80'h00808080808000000202;
-
+                      state_addr, state_data, state_ack);
 	input clk, reset;
 	input [2:0] tx_timing;
 	inout gc_port;
 	
 	output rumble;
 	output [5:0] state_addr;
-	output state_request;
 	input state_data;
 	input state_ack;
-	
-	output [2:0] debug;
 
+	// The bit being transmitted or received
+	reg [6:0] bit_count;
+	
 	// Split our GC port into separate transmit and receive wires
 	wire tx, rx;
 	n_serial_io_buffer iobuffer(clk, reset, gc_port, tx, rx);
@@ -192,31 +188,29 @@ module gc_controller (clk, reset, tx_timing, gc_port, rumble,
 	// Hook a bit generator up to the transmit output,
 	// and a bit detector to our receive input. These give us
 	// a simple serial interface to the raw codes used on the wire.
-	wire tx_busy, tx_data, tx_strobe;
+	wire tx_busy, tx_data;
+	reg tx_strobe;
 	wire rx_start, rx_stop, rx_error, rx_data, rx_strobe;
 	n_serial_bit_generator bit_gen(clk, reset, tx_timing, tx_busy,
 	                               tx_data, tx_strobe, tx);
 	n_serial_bit_detector bit_det(clk, reset, rx, rx_start, rx_stop,
 	                              rx_error, rx_data, rx_strobe);
-
-	// Keep track of the number of bits received so far in this transfer,
-	// without allowing rollovers.
-	reg [6:0] bit_count;
-	always @(posedge clk or posedge reset)
-		if (reset)
-			bit_count <= 0;
-		else if (rx_start)
-			bit_count <= 0;
-		else if (bit_count == 127)
-			bit_count <= 127;
-		else if (rx_strobe)
-			bit_count <= bit_count + 1;
 	
 	// For each type of request we can receive, keep track
 	// of whether it's still possible that we'll be receiving
 	// it. If we hit a bit that doesn't match, clear the associated bit.
+	// Each command, when active, is responsible for supplying three signals
+	// to the transmitter:
+	//
+	//  - resp_*_data
+	//    The next bit to transmit (includes stop bit)
+	//  - resp_*_ack
+	//    One, if and only if txs_data is valid
+	//  - resp_*_done
+	//    A function of bit_count indicating whether we're done transmitting
+	//
 	
-	// ID request: 0x00
+	// ID request: 00
 	reg req_id;
 	wire req_id_complete = req_id && rx_stop && (bit_count == 8);
 	always @(posedge clk or posedge reset)
@@ -229,7 +223,12 @@ module gc_controller (clk, reset, tx_timing, gc_port, rumble,
 		else if (rx_strobe)
 			req_id <= !rx_data;	// All bits zero
 
-	// Get origins: 0x41
+	// ID response: 09 00 00 stop
+	wire resp_id_data = (bit_count == 4) || (bit_count == 7) || (bit_count == 24);
+	wire resp_id_ack = 1;
+	wire resp_id_done = bit_count > 24;
+
+	// Get origins: 41
 	reg req_origins;
 	wire req_origins_complete = req_origins && rx_stop && (bit_count == 8);
 	always @(posedge clk or posedge reset)
@@ -252,7 +251,15 @@ module gc_controller (clk, reset, tx_timing, gc_port, rumble,
 				default: req_origins <= 1;    // Don't care		
 			endcase
 
-	// Get status: 0x4003XX
+	// Get origins response: 00 80 80 80 80 80 00 00 02 02 stop
+	wire resp_origins_data = (bit_count == 8)  || (bit_count == 16) ||
+	                         (bit_count == 24) || (bit_count == 32) ||
+	                         (bit_count == 40) || (bit_count == 70) ||
+	                         (bit_count == 78) || (bit_count == 80);
+	wire resp_origins_ack = 1;
+	wire resp_origins_done = bit_count > 80;		
+
+	// Get status: 40 03 XX
 	// The last byte has flags sent from GC to controller:
 	//   Bit 0:  Rumble flag
 	reg req_status;
@@ -292,8 +299,104 @@ module gc_controller (clk, reset, tx_timing, gc_port, rumble,
 				default: req_status <= 1;    // Don't care		
 			endcase
 
-	assign debug = {req_id_complete, req_status_complete, req_origins_complete};
+	// Status response: 64 bits, read as we need them from external RAM, plus stop bit
+	wire resp_status_data = (bit_count >= 64) ? 1 : state_data;
+	wire resp_status_ack = (bit_count >= 64) ? 1 : state_ack;
+	wire resp_status_done = bit_count > 64;
+	assign state_addr = bit_count[5:0];		
 
+	// Multiplex the various receive and transmit modes for each request.
+	// This in effect creates a four-state machine determining which command
+	// we're transmitting, with the above receive detectors determining the next state.
+	// This all provides a single interface between all requests and a generic
+	// receive/transmit state machine.
+	parameter
+		REQ_NONE    = 3'b000,
+		REQ_ID      = 3'b100,
+		REQ_STATUS  = 3'b010,
+		REQ_ORIGINS = 3'b001;
+	wire rx_request = {req_id_complete, req_status_complete, req_origins_complete};
+	reg [2:0] tx_request;
+	assign tx_data         = (tx_request == REQ_ID)      ? resp_id_data :
+	                         (tx_request == REQ_STATUS)  ? resp_status_data :
+	                         (tx_request == REQ_ORIGINS) ? resp_origins_data : 0;
+	wire resp_current_ack  = (tx_request == REQ_ID)      ? resp_id_ack :
+	                         (tx_request == REQ_STATUS)  ? resp_status_ack :
+	                         (tx_request == REQ_ORIGINS) ? resp_origins_ack : 0;
+	wire resp_current_done = (tx_request == REQ_ID)      ? resp_id_done :
+	                         (tx_request == REQ_STATUS)  ? resp_status_done :
+	                         (tx_request == REQ_ORIGINS) ? resp_origins_done : 0;
+
+	// Keep track of the current bit count.
+	// If tx_request == REQ_NONE, we're receiving- the bit count is controlled by
+	// rx_start. Otherwise, the bit count is controlled by a small state machine
+	// that pumps data into our transmitter.
+	reg wait_for_tx;
+	always @(posedge clk or posedge reset)
+		if (reset) begin
+			bit_count <= 0;
+			tx_request <= REQ_NONE;
+			tx_strobe <= 0;
+			wait_for_tx <= 0;
+		end
+		else begin
+
+			if (tx_request == REQ_NONE) begin
+				// Our transmitter is idle, we're receiving
+
+				// Have we just finished receiving something?
+				if (rx_request != REQ_NONE) begin
+					// Good. Start transmitting
+					tx_request <= rx_request;
+					bit_count <= 0;
+					tx_strobe <= 0;
+				end
+				else begin
+					// Keep receiving, tracking the number
+					// of bits captured so far without
+					// allowing rollovers.
+
+					tx_strobe <= 0;
+					if (rx_start)
+						bit_count <= 0;
+					else if (bit_count == 127)
+						bit_count <= 127;
+					else if (rx_strobe)
+						bit_count <= bit_count + 1;
+				end
+				
+				wait_for_tx <= 0;
+			end
+
+			else begin
+				// We're in the middle of transmitting something.
+				// It doesn't matter what, since above we've multiplexed
+				// all flow control signals into resp_current_ack and
+				// resp_current_done.
+				
+				if (resp_current_done) begin
+					// We just finished transmitting the whole thing, including stop bit
+					tx_request <= REQ_NONE;
+					bit_count <= 0;
+					tx_strobe <= 0;
+					wait_for_tx <= 0;
+				end
+				else if (resp_current_ack && !tx_busy) begin
+					// We happen to have data available and room in the transmitter.
+					// Strobe out one bit. After this, we need to wait one clock cycle
+					// for tx_busy to be updated.
+					if (wait_for_tx) begin
+						wait_for_tx <= 0;
+						tx_strobe <= 0;
+					end
+					else begin
+						bit_count <= bit_count + 1;
+						tx_strobe <= 1;
+						wait_for_tx <= 1;
+					end
+				end
+			end
+		end
 endmodule
 
 
@@ -302,21 +405,18 @@ endmodule
  * timebase. This is mostly intended for convenience when simulating.
  */
 module gc_controller_with_timebase (clk, reset, gc_port, rumble,
-                                    state_addr, state_request, state_data, state_ack,
-                                    debug);
+                                    state_addr, state_data, state_ack);
 	input clk, reset;
 	inout gc_port;
 	output rumble;
 	output [5:0] state_addr;
-	output state_request;
 	input state_data, state_ack;
-	output [2:0] debug;
 	
 	wire [2:0] tx_timing;
 	n_serial_tx_timebase timebase(clk, reset, tx_timing);
 
         gc_controller gcc(clk, reset, tx_timing, gc_port, rumble, state_addr,
-                          state_request, state_data, state_ack, debug);
+                          state_data, state_ack);
 endmodule
 
 /* The End */

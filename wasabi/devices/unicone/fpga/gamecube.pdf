@@ -11,7 +11,7 @@ HDL netlist format=Auto
 generics=MAX
 sim_mode=FUNC
 library_net=ON
-lib_order=155 155 155 155 155 155 155 155 155 155 155 155 133 155
+lib_order=155 155 133 155
 [libraries]
 133=c:\fndtn\active\syslib\simprims
 155=c:\fndtn\active\syslib\xc4000x
@@ -19,8 +19,9 @@ lib_order=155 155 155 155 155 155 155 155 155 155 155 155 133 155
 oid=0
 lid=0
 format=19
-source=C:\unicone\fpga\lib\n_serial.v
-server_hwnd=3932706
+source=C:\unicone\fpga\gamecube\gamecube.v
+server_hwnd=656082
+
 
 
 
@@ -139,6 +140,9 @@ family=2
 xfam=XC4000XL
 part=4010XLPC84-09
 xilinx=4010XLPC84-09
+functional=ver1
+optimized=ver1-Optimized
+design=gc_controller_with_timebase,c:\unicone\fpga\gamecube\gamecube.v
 [xilinx]
 family=2
 xfam=XC4000XL
@@ -155,3 +159,6 @@ lpstrTitle=Select file
 nFilterIndex=0
 Flags=530436
 cmdLine=-h 796 -hp 686 -m PCM_OPEN_32_MESSAGE -f C:\FNDTN\ACTIVE\PROJECTS\current.pdf
+[implement_XIE]
+version=ver1
+revision=rev1
