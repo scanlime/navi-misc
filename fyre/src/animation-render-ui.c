@@ -185,7 +185,7 @@ static void on_select_output_file_clicked(GtkWidget *widget, AnimationRenderUi *
 					  GTK_STOCK_OK, GTK_RESPONSE_OK,
 					  NULL);
     gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (dialog),
-		                   gtk_entry_get_text (GTK_ENTRY (glade_xml_get_widget (self->xml, "output_fille"))));
+		                   gtk_entry_get_text (GTK_ENTRY (glade_xml_get_widget (self->xml, "output_file"))));
     if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_OK) {
 	    gchar *filename;
 	    filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
@@ -201,8 +201,8 @@ static void on_select_output_file_clicked(GtkWidget *widget, AnimationRenderUi *
 	gtk_entry_set_text (GTK_ENTRY (glade_xml_get_widget (self->xml, "output_file")),
 			    gtk_file_selection_get_filename (GTK_FILE_SELECTION (dialog)));
     }
-    gtk_widget_destroy (dialog);
 #endif
+    gtk_widget_destroy (dialog);
 }
 
 static gboolean on_delete_event(GtkWidget *widget, GdkEvent *event, AnimationRenderUi *self) {
