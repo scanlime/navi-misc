@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from BZEngine.UI import Viewport, ThreeDRender, Sequencer, Layout, HUD, ThreeDControl, Input
 from BZEngine import Event
-from Wasabi import Logos, Menu, Icon, IR
+from Wasabi import Logos, Menu, Icon, Hardware, IR
 from math import *
 import pygame
 
@@ -14,8 +14,7 @@ view = ThreeDRender.View(viewport)
 viewport.display.toggle_fullscreen()
 pygame.mouse.set_visible(0)
 
-# Set up an LIRC client
-IR.getDefaultClient().attachToLoop(loop)
+hw = Hardware.Devices(loop)
 
 # A sequencer page that displays a piece of text in the center of the screen, over a background image
 class TextPage(Sequencer.Page):
