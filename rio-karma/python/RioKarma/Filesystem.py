@@ -334,13 +334,16 @@ class FileManager:
         reactor.addSystemEventTrigger('before', 'shutdown', self.shutdown)
 
     def shutdown(self):
-        """Cleanly shut down the file manager"""
+        """Cleanly shut down the file manager. This will block waiting for a write
+           lock to be released, if one was held. If you'd rather not block, release
+           the lock before calling this.
+           """
         if self.cache:
             self.cache.close()
             self.cache = None
 
         if self.writeLockHeld:
-            print "Releasing write lock..."
+            sys.stderr.write("\n\nReleasing write lock...\n")
             d = self.unlock()
             while not d.called:
                 reactor.iterate(0.1)
