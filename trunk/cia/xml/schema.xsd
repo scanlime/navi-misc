@@ -11,6 +11,7 @@
 
 <xsd:complexType name="commit">
   <xsd:choice maxOccurs="unbounded">
+    <xsd:element name="user" type="xsd:string"/>
     <xsd:element name="revision" type="xsd:string"/>
     <xsd:element name="log" type="xsd:string"/>
     <xsd:element name="files" type="fileList"/>
