@@ -1,0 +1,51 @@
+CIADIR=$HOME/cia
+LOGFILE=/dev/null
+UMASK=033
+
+# Log all incoming messages
+:0 c
+$CIADIR/data/mail.log
+
+###### Addresses that aren't allowed to send to CIA
+
+# This one seems to be spamming it with
+# changes made to a particular wiki page
+:0
+* ^From: zwiki-wiki@zwiki.org
+/dev/null
+
+###### Filters for mailing list commit messages
+
+:0
+* ^To: kde-cvs@kde.org
+| $CIADIR/mail/filter_kde.py
+
+:0
+* ^Subject:.*\[mythtv-commits\]
+| $CIADIR/mail/filter_mythtv.py
+
+:0
+* ^Mailing-List: contact perl5-changes-help@perl.org
+| $CIADIR/mail/filter_perl5.py
+
+:0
+* ^To: plone-cvs@lists.sourceforge.net
+| $CIADIR/mail/filter_plone.py
+
+:0
+* ^Subject: \[Python-checkins\]
+| $CIADIR/mail/filter_python.py
+
+:0
+* ^List-Id:.*XFree86
+| $CIADIR/mail/filter_xfree86.py
+
+:0
+* ^Subject: \[Emacs-commit\]
+| $CIADIR/mail/filter_emacs.py
+
+###### Pass on other messages to the server
+
+:0
+| $CIADIR/mail/incoming.py
+
