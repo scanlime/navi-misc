@@ -131,7 +131,7 @@ class Filter(XML.XMLFunction):
 
        Some examples, matching against the sample commit message...
 
-         >>> msg = Message(open('xml/sample_message.xml'))
+         >>> msg = Message(open('xml/samples/simple-message.xml'))
 
        The <match> tag returns true if the entire text content of any tag
        matched by the given XPath matches the text in the <match> tag:
