@@ -183,6 +183,14 @@ on_glarea_configure (GtkWidget *widget, GdkEventConfigure *event, gpointer data)
   Editor *editor = EDITOR (data);
 
   gl_drawing_area_make_current (GL_DRAWING_AREA(widget));
+
+  glMatrixMode (GL_PROJECTION);
+  glLoadIdentity ();
+  gluPerspective (45.0, (float)event->width / (float)event->height, 0.1, 2500.0);
+  glMatrixMode (GL_MODELVIEW);
+  glLoadIdentity ();
+  glDepthRange (0.1, 2000.0);
+
   glClearColor (0.0, 0.0, 0.0, 0.0);
   glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   view_render (editor->view);
