@@ -36,6 +36,7 @@
 #include "explorer.h"
 #include "avi-writer.h"
 #include "screensaver.h"
+#include "config.h"
 
 static void usage                  (char       **argv);
 static void animation_render_main  (DeJong      *dejong,

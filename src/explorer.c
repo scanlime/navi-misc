@@ -20,13 +20,13 @@
  *
  */
 
+#include <string.h>
 #include "explorer.h"
 #include "parameter-editor.h"
 #include "math-util.h"
 #include "histogram-view.h"
 #include "prefix.h"
-#include <string.h>
-
+#include "config.h"
 
 static void explorer_class_init(ExplorerClass *klass);
 static void explorer_init(Explorer *self);
