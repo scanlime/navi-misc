@@ -57,10 +57,5 @@ void on_text_entry_activate(GtkWidget *widget, GdkEventKey *event, gpointer data
 		entry_text = gtk_text_buffer_get_text(buffer, &start, &end, FALSE);
 		handle_multiline(gui.current_session, entry_text, TRUE, FALSE);
 		gtk_text_buffer_set_text(buffer, "", -1);
-		/*
-		entry_text = gtk_entry_get_text(GTK_ENTRY(widget));
-		handle_multiline(gui.current_session, entry_text, TRUE, FALSE);
-		gtk_entry_set_text(GTK_ENTRY(widget), "");
-		*/
 	}
 }
