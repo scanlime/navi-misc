@@ -3038,6 +3038,7 @@
 	    <widget class="GtkButton" id="server config ok">
 	      <property name="visible">True</property>
 	      <property name="can_default">True</property>
+	      <property name="has_default">True</property>
 	      <property name="can_focus">True</property>
 	      <property name="label">gtk-ok</property>
 	      <property name="use_stock">True</property>
@@ -4277,7 +4278,7 @@ Your Xchat-gnome preferences have not yet been set.  You can continue to the Xch
 	      <property name="can_focus">True</property>
 	      <property name="label" translatable="yes">&lt;span weight=&quot;bold&quot; size=&quot;larger&quot;&gt;Error!&lt;/span&gt;
 
-It's like a baloon, and something bad happens!</property>
+It's like a balloon, and something bad happens!</property>
 	      <property name="use_underline">False</property>
 	      <property name="use_markup">True</property>
 	      <property name="justify">GTK_JUSTIFY_LEFT</property>
