@@ -46,6 +46,7 @@
 	extern	display_rev_phase
 	extern	display_column_width
 	extern	display_gap_width
+	extern 	num_active_columns
 
 	extern	display_request_flip
 	extern	display_save_status
@@ -78,6 +79,8 @@ CheckVendor
 	defineRequest	RWAND_CTRL_SET_COLUMN_WIDTH, request_setColumnWidth
 	defineRequest	RWAND_CTRL_RANDOM_WRITE3,	request_randomWrite3
 	defineRequest	RWAND_CTRL_FLIP,			request_flip
+	defineRequest	RWAND_CTRL_SET_PERIOD,		request_setPeriod
+	defineRequest	RWAND_CTRL_SET_NUM_COLUMNS,	request_setNumColumns
 
 	pagesel	wrongstate		; Not a recognized request
 	goto	wrongstate
@@ -206,6 +209,18 @@ request_setPrediction
 	movwf	wand_period+1
 	returnEmpty
 
+	; Set prediction balues: wValue -> period
+request_setPeriod
+	banksel	BufferData
+	movf	BufferData+wValue, w
+	banksel	wand_period
+	movwf	wand_period
+	banksel	BufferData
+	movf	BufferData+(wValue+1), w
+	banksel	wand_period
+	movwf	wand_period+1
+	returnEmpty
+
 	; Set coil driver, enable between wValue and wIndex
 request_setCoilPhase
 	banksel	BufferData
@@ -253,6 +268,15 @@ request_setDisplayPhase
 	movf	BufferData+(wIndex+1), w
 	banksel	display_fwd_phase
 	movwf	display_rev_phase+1
+	returnEmpty
+
+
+	; Set the number of active columns from wValue, clamping at NUM_COLUMNS
+request_setNumColumns
+	banksel	BufferData
+	movf	BufferData+wValue, w
+	banksel	num_active_columns
+	movwf	num_active_columns
 	returnEmpty
 
 
