@@ -29,11 +29,16 @@ namespace Fyre
 		Gtk.Adjustment		hadj;
 		Gtk.Adjustment		vadj;
 
-		// The drawing extents are the size of our current drawing area. This
-		// can be modified via the arrows on the scrollbars. It is always a
-		// superset of the layout extents, which are the size of the pipeline
-		// itself. When scrolling around, the drawing extents shrink to the
-		// layout extents when the area isn't visible.
+		/* The drawing extents are the size of our current drawing area. The
+		 * position depends on the scrollbars, and the size is always the pixel
+		 * size of the drawing area
+		 *
+		 * The layout extents are the size of the drawing itself. This is
+		 * maintained via the graph layout algorithms.
+		 *
+		 * Scrollbars are determined by the union of the drawing and the layout
+		 * boxes.
+		 */
 		Gdk.Rectangle		drawing_extents;
 		Gdk.Rectangle		layout_extents;
 
@@ -48,7 +53,8 @@ namespace Fyre
 			layout_extents.Width  = 300;
 			layout_extents.Height = 300;
 
-			drawing_extents = layout_extents;
+			drawing_extents.X = 0;
+			drawing_extents.Y = 0;
 
 			Show ();
 		}
@@ -76,6 +82,9 @@ namespace Fyre
 				hadj.Upper = ev.Width * 8;
 				vadj.Upper = ev.Height * 8;
 			}
+
+			drawing_extents.Width = ev.Width;
+			drawing_extents.Height = ev.Height;
 
 			return base.OnConfigureEvent (ev);
 		}
