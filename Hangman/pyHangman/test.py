@@ -4,12 +4,7 @@
 Yay for tiny test controllers.
 """
 
-from Menu import menu
-import Hangman
+import Hangman, gtk
 
-control = Hangman.Hangman()
-r = menu("Test", {
-    "Read":control.DisplayFile,
-		"Play":control.FilePlay})
-r(control.GetFileName())
-
+window = Hangman.HangmanGUI()
+gtk.main()
