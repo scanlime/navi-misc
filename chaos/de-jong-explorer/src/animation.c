@@ -115,7 +115,14 @@ void animation_keyframe_load_dejong(Animation *self, GtkTreeIter *iter, DeJong *
 void animation_keyframe_append(Animation *self, DeJong *dejong) {
   GtkTreeIter iter;
   gtk_list_store_append(self->model, &iter);
+
+  /* Save de jong parameters */
   animation_keyframe_store_dejong(self, &iter, dejong);
+
+  /* Set a default transition */
+  gtk_list_store_set(self->model, &iter,
+		     ANIMATION_MODEL_DURATION, (gfloat) 1.0,
+		     -1);
 }
 
 /* The End */

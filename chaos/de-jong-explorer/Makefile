@@ -8,7 +8,8 @@ HEADERS = \
 	src/color-button.h	\
 	src/de-jong.h		\
 	src/explorer.h		\
-	src/animation.h
+	src/animation.h		\
+	src/chunked-file.h
 
 OBJS    = \
 	src/main.o		\
@@ -16,7 +17,8 @@ OBJS    = \
 	src/de-jong-render.o	\
 	src/explorer.o		\
 	src/color-button.o	\
-	src/animation.o
+	src/animation.o		\
+	src/chunked-file.o
 
 
 $(BIN): $(OBJS)
