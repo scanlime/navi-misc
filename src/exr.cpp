@@ -35,7 +35,7 @@ extern "C" void exr_save_image_file(HistogramImager *hi, const gchar* filename)
   int width = hi->width;
   int height = hi->height;
   RgbaOutputFile file (filename, width, height);
-  Rgba pixels[width * height];
+  Rgba *pixels = new Rgba[width * height];
   Rgba *cur_pixel = pixels;
   const guint oversample = hi->oversample;
   float fscale = histogram_imager_get_pixel_scale(hi);
@@ -137,6 +137,8 @@ extern "C" void exr_save_image_file(HistogramImager *hi, const gchar* filename)
 
   file.setFrameBuffer(pixels, 1, width);
   file.writePixels(height);
+
+  delete[] pixels;
 }
 
 /* The End */
