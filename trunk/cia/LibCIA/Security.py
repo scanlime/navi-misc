@@ -278,7 +278,7 @@ class User:
     def _getUidFromKey(self, cursor, key):
         """Find a user by their key"""
         cursor.execute("SELECT uid FROM users WHERE secret_key = %s" %
-                       Database.quote(key, 'varchar'))
+                       Database.quote(key.strip(), 'varchar'))
         row = cursor.fetchone()
         if row:
             return int(row[0])
