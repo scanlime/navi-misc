@@ -168,7 +168,7 @@ def limitFloatPrecision(v, d):
 
 
 class FunctionChannel(Channel):
-    """A channel that evaluates the given function.
+    """A channel that evaluates a function, specified as a Python expression
 
        fString : The function to evaluate, as a string
        name    : The name to give this channel, None to use the function string

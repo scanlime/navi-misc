@@ -22,18 +22,18 @@ in real-time, using PyGTK.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-# Information about this implementation
-name    = "rtgraph"
-version = "svn-dev"
+__version__ = "pre-0.70"
 
 # Check the python version here before we proceed further
 requiredPythonVersion = (2,2,1)
-import sys, string
-if sys.version_info < requiredPythonVersion:
-    raise Exception("%s requires at least Python %s, found %s instead." % (
-        name,
-        string.join(map(str, requiredPythonVersion), "."),
-        string.join(map(str, sys.version_info), ".")))
+def checkVersion():
+    import sys, string
+    if sys.version_info < requiredPythonVersion:
+        raise Exception("%s requires at least Python %s, found %s instead." % (
+            name,
+            string.join(map(str, requiredPythonVersion), "."),
+            string.join(map(str, sys.version_info), ".")))
+del checkVersion
 
 # Convenience imports
 from HScrollLineGraph import *
