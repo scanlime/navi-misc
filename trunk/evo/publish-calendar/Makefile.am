@@ -11,7 +11,9 @@ plugin_DATA = 					\
 plugin_LTLIBRARIES = liborg-gnome-publish-calendar.la
 
 liborg_gnome_publish_calendar_la_SOURCES =	\
-	publish-calendar.c
+	publish-calendar.c			\
+	url-editor-dialog.c			\
+	url-editor-dialog.h
 
 liborg_gnome_publish_calendar_la_LDFLAGS = -module -avoid-version
 
