@@ -46,6 +46,9 @@ namespace Fyre
 		// D-n-D target data
 		static Gtk.TargetEntry[]		targets;
 		static Gtk.TargetList			target_list;
+
+		public static PipelineEditor	instance;
+
 		public static Gtk.TargetEntry[]		DragTargets
 		{
 			get {
@@ -71,9 +74,11 @@ namespace Fyre
 			new PipelineEditor (args);
 		}
 
-		public
+		private
 		PipelineEditor (string[] args)
 		{
+			instance = this;
+
 			Gtk.Application.Init();
 
 			Glade.XML.SetCustomHandler (new Glade.XMLCustomWidgetHandler (GladeCustomHandler));
@@ -88,6 +93,7 @@ namespace Fyre
 			plugin_manager = new PluginManager (Defines.PLUGINSDIR);
 			foreach (System.Type t in plugin_manager.plugin_types)
 				element_list.AddType (t);
+
 
 			// Finally, run the application
 			Gtk.Application.Run();
@@ -122,6 +128,12 @@ namespace Fyre
 			// up for the drawing area, and we delegate the event back into the
 			// PipelineDrawing object when we drop.
 			Gtk.Drag.DestSet (pipeline_frame, Gtk.DestDefaults.All, DragTargets, Gdk.DragAction.Copy);
+		}
+
+		public Gtk.Window
+		GetWindow ()
+		{
+			return toplevel;
 		}
 
 		// Event handlers - most of these come from the glade file

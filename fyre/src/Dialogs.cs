@@ -43,6 +43,10 @@ namespace Fyre
 			label2.Text = description;
 
 			VBox.PackStart (toplevel, true, true, 0);
+
+			// Get the main window and set the dialog transient and modal for that window.
+			TransientFor = PipelineEditor.instance.GetWindow();
+			Modal = true;
 		}
 	}
 
