@@ -42,10 +42,10 @@ load_plugins (void)
     plugin = g_module_open (full, G_MODULE_BIND_LOCAL);
     if (plugin != NULL)
       g_print("loaded plugin '%s'\n", file);
-      /*
+    /*
     else
       g_print("%s\n", g_module_error ());
-      */
+    */
     g_free(full);
   }
   g_print ("\n");

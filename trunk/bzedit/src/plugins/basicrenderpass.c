@@ -104,19 +104,19 @@ texture_group_draw (Drawable *d, RenderState *rstate)
 }
 
 static void
-texture_group_picking_draw (Drawable *d, RenderState *rstate)
+texture_group_draw_picking (Drawable *d, RenderState *rstate)
 {
   TextureGroup *tg = TEXTURE_GROUP (d);
   GList *dr;
 
   for (dr = tg->static_drawables; dr; dr = dr->next)
   {
-    /* store name */
+    render_state_picking_name (rstate, dr->data);
     drawable_draw (DRAWABLE (dr->data), rstate);
   }
   for (dr = tg->dynamic_drawables; dr; dr = dr->next)
   {
-    /* store name */
+    render_state_picking_name (rstate, dr->data);
     drawable_draw (DRAWABLE (dr->data), rstate);
   }
 }
@@ -200,19 +200,33 @@ basic_render_pass_init (BasicRenderPass *self)
 static void
 brp_render_iterate (gchar *texture, TextureGroup *group, RenderState *rstate)
 {
-  TextureManager *tman = texture_manager_new ();
+  static TextureManager *tman = NULL;
+  if (!tman)
+    tman = texture_manager_new ();
 
   texture_manager_bind (tman, texture);
   texture_group_draw (DRAWABLE (group), rstate);
 }
 
 static void
+brp_render_iterate_picking (gchar *texture, TextureGroup *group, RenderState *rstate)
+{
+  texture_group_draw_picking (DRAWABLE (group), rstate);
+}
+
+static void
 basic_render_pass_render (RenderPass *pass, RenderState *rstate)
 {
-  /* if picking ... */
   BasicRenderPass *brp = BASIC_RENDER_PASS (pass);
-  TextureManager *tman = texture_manager_new ();
-  g_hash_table_foreach (brp->texture_groups, (GHFunc) brp_render_iterate, (gpointer) rstate);
+
+  if (rstate->picking)
+  {
+    g_hash_table_foreach (brp->texture_groups, (GHFunc) brp_render_iterate_picking, (gpointer) rstate);
+  }
+  else
+  {
+    g_hash_table_foreach (brp->texture_groups, (GHFunc) brp_render_iterate, (gpointer) rstate);
+  }
 }
 
 static gboolean

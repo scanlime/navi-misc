@@ -57,6 +57,7 @@ struct _SceneClass
 };
 
 GType        scene_get_type      (void) G_GNUC_CONST;
+Scene*       scene_new           (void);
 gboolean     scene_has_main_view (Scene *self);
 void         scene_erase         (Scene *self);
 void         scene_preprocess    (Scene *self);
