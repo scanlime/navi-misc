@@ -2,7 +2,7 @@
  * command.c - General purpose I/O commands implemented for the rcpod
  *
  * Remote Controlled PIC of Doom
- * Copyright (C) 2003 Micah Dowty <micah@picogui.org>
+ * Copyright (C) 2003-2004 Micah Dowty <micah@picogui.org>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
