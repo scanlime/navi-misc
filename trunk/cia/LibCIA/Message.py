@@ -175,6 +175,8 @@ class Filter(XML.XMLFunction):
          True
          >>> Filter('<find path="/message/source/project">navi-miscski</find>')(msg)
          False
+         >>> Filter('<find path="/message/source">trunk</find>')(msg)
+         True
 
        The <find> tag with an empty search string can be used to test for the
        existence of an XPath match:
@@ -272,10 +274,9 @@ class Filter(XML.XMLFunction):
         except KeyError:
             caseSensitive = 1
 
-        if caseSensitive:
-            text = str(element).strip()
-        else:
-            text = str(element).strip().lower()
+        text = str(element).strip()
+        if not caseSensitive:
+            text = text.lower()
 
         def filterMatch(msg):
             # Use queryForNodes then str() so that matched
@@ -285,14 +286,13 @@ class Filter(XML.XMLFunction):
             # for the existence of an XPath match.
             nodes = xp.queryForNodes(msg.xml)
             if nodes:
-                matchStrings = map(str, nodes)
+                matchStrings = map(XML.allText, nodes)
 
                 # Any of the XPath matches can make our match true
                 for matchString in matchStrings:
-                    if caseSensitive:
-                        matchString = matchString.strip()
-                    else:
-                        matchString = matchString.strip().lower()
+                    matchString = matchString.strip()
+                    if not caseSensitive:
+                        matchString = matchString.lower()
                     if function(matchString, text):
                         return True
             return False

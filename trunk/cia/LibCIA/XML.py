@@ -22,6 +22,7 @@ Utilities for dealing with objects built on top of XML trees
 #
 
 from twisted.xish import domish
+import types
 
 
 class XMLObject(object):
@@ -154,5 +155,20 @@ def prettyPrint(xml):
 
     # Filter out blank lines
     return "\n".join([line for line in s.split("\n") if line.strip()])
+
+
+def allText(xml):
+    """Concatenate all text under the given domish.Element and return it.
+       For a document like:
+
+          <a>boing<b> </b>ha</a>
+
+       The str() operator will return only 'boing' but this function
+       will return 'boing ha'.
+       """
+    if type(xml) in types.StringTypes:
+        return xml
+    else:
+        return "".join([allText(child) for child in xml.children])
 
 ### The End ###
