@@ -16,7 +16,8 @@
 #
 
 import os, sys, stat, statvfs, random
-import threading, time
+import threading, time, Queue
+import fam, select, errno
 import pinefs.srv
 import pinefs.rpc
 import pinefs.memfs
@@ -136,6 +137,7 @@ class SpreadFileBase(pinefs.fsbase.FileObj):
        files and directories.
        """
     def __init__(self, fs, path, type, size=0):
+        self.monitorKeys = []
         self.path = path
         self.fs = fs
         self.type = type
@@ -144,8 +146,16 @@ class SpreadFileBase(pinefs.fsbase.FileObj):
         self.blocks = (size-1)/self.blocksize+1
         pinefs.fsbase.FileObj.__init__(self)
 
-    def isValid(self):
-        return True
+    def monitor(self):
+        """Start watching this filesystem object for changes"""
+
+    def unmonitor(self):
+        """Reverse the effects of monitor(). The default implementation
+           expects monitor() to fill self.monitorKeys.
+           """
+        for key in self.monitorKeys:
+            self.fs.fileMonitor.unmonitor(key)
+        self.monitorKeys = []
 
     def read(self, offset, count):
         raise NotImplementedError
@@ -181,9 +191,6 @@ class SpreadFile(SpreadFileBase):
         SpreadFileBase.__init__(self, fs, path, rfc1094.NFREG,
                                 size=self.fileStat.st_size)
 
-    def isValid(self):
-        return os.path.isfile(self.absPath)
-
     def read(self, offset, count):
         if not self.openedFile:
             self.open()
@@ -206,11 +213,9 @@ class SpreadFile(SpreadFileBase):
 
 class SpreadDirectory(SpreadFileBase):
     """A Pinefs file object for a directory on the DiskSet"""
-    dirCacheLifetime = 5.0
 
     def __init__(self, fs, path=''):
         self.dirCache = None
-        self.dirCacheExpiration = None
         SpreadFileBase.__init__(self, fs, path, rfc1094.NFDIR)
 
     def getChild(self, name):
@@ -218,24 +223,26 @@ class SpreadDirectory(SpreadFileBase):
         path = os.path.join(self.path, name)
         return self.fs.mapper.getObjectFromPath(path)
 
+    def monitor(self):
+        """Watch for changes to this directory, on every disk"""
+        # FIXME: This currently only works for disks where the directory already exists
+        for path in self.fs.diskSet.findIter(self.path):
+            self.monitorKeys.append(self.fs.fileMonitor.monitor('dir', path, self.onMonitorEvent))
+
+    def onMonitorEvent(self, event):
+        if event.code2str() in ('changed', 'deleted', 'created', 'moved'):
+            self.fs.mapper.invalidateObject(self)
+
     def get_dir(self):
         """Return a directory listing, as a mapping from child names to their file handles"""
 
-        # This is a very common operation for the NFS server
-        # to ask us to perform. Cache the results, but since we
-        # don't yet have a way of seeing when the underlying
-        # filesystem changes we limit the wallclock time in which
-        # the cache is valid.
-        now = time.time()
-        if self.dirCache is not None and now > self.dirCacheExpiration:
-            self.dirCache = None
-
+        # Our results get cached for the lifetime of this object,
+        # since file objects get removed when the underlying data on disk changes.
         if self.dirCache is None:
             dir = {}
             for name in self.fs.diskSet.listdir(self.path):
                 dir[name] = self.getChild(name).fileHandle
             self.dirCache = dir
-            self.dirCacheExpiration = now + self.dirCacheLifetime
 
         return self.dirCache
 
@@ -316,17 +323,14 @@ class SpreadMapper:
     def getObjectFromPath(self, path):
         obj = self.objectCache.get(path)
 
-        if obj and not obj.isValid():
-            # Invalidate this object in our cache
-            del self.objectCache[path]
-            obj = None
-
         if not obj:
             # Create a new file object
             try:
                 obj = SpreadFile(self.fs, path)
+                monitorType = 'file'
             except FileTypeException:
                 obj = SpreadDirectory(self.fs, path)
+                monitorType = 'dir'
             if not obj:
                 return None
 
@@ -334,9 +338,19 @@ class SpreadMapper:
             obj.fileHandle = self.getHandleFromPath(path)
             obj.fileid = int(obj.fileHandle, 16)
 
+            # Start watching for changes so we can automatically
+            # invalidate objects when the underlying disk data
+            # is modified.
+            obj.monitor()
+
             self.objectCache[path] = obj
 
         return obj
+
+    def invalidateObject(self, obj):
+        """Remove an object from our cache"""
+        obj.unmonitor()
+        del self.objectCache[obj.path]
 
 
 class SpreadFilesystem:
@@ -347,8 +361,9 @@ class SpreadFilesystem:
        """
     maxOpenFiles = 100
 
-    def __init__(self, diskSet):
+    def __init__(self, diskSet, fileMonitor):
         self.diskSet = diskSet
+        self.fileMonitor = fileMonitor
         self.openFiles = []
         self.mapper = SpreadMapper(self)
         self.rootHandle = self.mapper.getHandleFromPath('/')
@@ -407,6 +422,99 @@ class SpreadNfsServer(pinefs.srv.NfsSrv):
         return stat
 
 
+class FileMonitor(threading.Thread):
+    """This is a thread that monitors files using FAM, running
+       in a separate thread and running callbacks from that
+       thread.
+       """
+    def __init__(self):
+        self.requests = {}
+        self.functionQueue = Queue.Queue()
+        self.connection = None
+        self.wakeupPipe = os.pipe()
+        threading.Thread.__init__(self)
+
+    def stop(self):
+        self.running = False
+        self.wake()
+
+    def wake(self):
+        """Use a pipe to wake up our running thread"""
+        os.write(self.wakeupPipe[1], 'x')
+
+    def runInThread(self, f):
+        """Run the provided function later from inside the thread"""
+        self.functionQueue.put(f)
+        self.wake()
+
+    def run(self):
+        self.running = True
+        self.connection = fam.open()
+        self.monitorTypes = {
+            'file': self.connection.monitorFile,
+            'dir': self.connection.monitorDirectory,
+            }
+
+        # Register existing requests now that we have a connection
+        for key in self.requests.keys():
+            (t, path, callback) = key
+            self.requests[key] = self.monitorTypes[t](path, callback)
+
+        while self.running:
+
+            # Wait for either a FAM event or a wakeup event from our pipe.
+            try:
+                readFds = select.select([self.connection, self.wakeupPipe[0]],
+                                        [], [])[0]
+            except select.error, (number, message):
+                if number != errno.EINTR:
+                    raise
+
+            # Slurp up data from the wakeup pipe
+            if self.wakeupPipe[0] in readFds:
+                os.read(self.wakeupPipe[0], 1)
+
+            # Carry out any pending functions that need to
+            # be run in this thread.
+            try:
+                while 1:
+                    self.functionQueue.get_nowait()()
+            except Queue.Empty:
+                pass
+
+            # Read anything pending from FAM
+            while self.connection.pending():
+                event = self.connection.nextEvent()
+                event.userData(event)
+
+        c = self.connection
+        self.connection = None
+        c.close()
+
+    def monitor(self, type, path, callback):
+        """Start monitoring a file or directory, running 'callback'
+           on every event we receive. Returns a key that can be used
+           to unmonitor() the request.
+           """
+        key = type, path, callback
+        print "Monitoring: %r" % (key,)
+
+        # Remember that we need this request. It will be actually
+        # filled in later from inside the thread.
+        self.requests[key] = None
+        self.runInThread(lambda: self.requests.__setitem__(
+            key, self.monitorTypes[type](path, callback)))
+
+        return key
+
+    def unmonitor(self, key):
+        print "Unmonitoring: %r" % (key,)
+        r = self.requests[key]
+        if self.connection:
+            self.runInThread(r.cancelMonitor)
+        self.requests[key] = None
+
+
 if __name__ == "__main__":
 
     # Get a list of mounts from the command line
@@ -415,7 +523,11 @@ if __name__ == "__main__":
         print "usage: %s mounts..." % sys.argv[0]
         sys.exit(1)
 
-    fs = SpreadFilesystem(DiskSet(mounts))
+    # Create a FAM client, in a separate thread
+    fileMonitor = FileMonitor()
+    fileMonitor.start()
+
+    fs = SpreadFilesystem(DiskSet(mounts), fileMonitor)
     lock = threading.Lock()
     serverClass = pinefs.rpc.UDPServer
 
@@ -441,6 +553,7 @@ if __name__ == "__main__":
     finally:
         mountRpc.stop()
         nfsRpc.stop()
+        fileMonitor.stop()
         mountRpc.unregister()
         nfsRpc.unregister()
 
