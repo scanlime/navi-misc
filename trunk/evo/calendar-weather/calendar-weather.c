@@ -53,8 +53,6 @@ e_plugin_lib_enable (EPluginLib *ep, int enable)
 	GSList *groups;
 	ESourceGroup *weather = NULL;
 
-	g_print ("migration!\n");
-
 	component = calendar_component_peek ();
 	source_list = calendar_component_peek_source_list (component);
 
@@ -79,6 +77,8 @@ e_plugin_lib_enable (EPluginLib *ep, int enable)
 
 	if (weather)
 		g_object_unref (weather);
+
+	e_source_list_sync (source_list, NULL);
 	return 0;
 }
 
