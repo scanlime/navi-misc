@@ -10,7 +10,7 @@ top_level=VHDL
 HDL netlist format=Auto
 generics=MAX
 sim_mode=FUNC
-lib_order=155 155 155 133 155
+lib_order=155 155 155 155 155 155 155 133 155
 [libraries]
 133=c:\fndtn\active\syslib\simprims
 155=c:\fndtn\active\syslib\xc4000x
@@ -18,8 +18,13 @@ lib_order=155 155 155 133 155
 oid=0
 lid=0
 format=19
-source=C:\unicone\fpga\lib\util.v
-server_hwnd=3080586
+source=C:\unicone\fpga\gamecube\gamecube.v
+server_hwnd=983812
+
+
+
+
+
 
 
 
@@ -28,12 +33,16 @@ server_hwnd=3080586
 test.v=21
 i2c.v=21
 pwm.v=21
+util.v=21
+n_serial.v=21
 [hdl_sheets]
 test.v=
 i2c.v= 
 pwm.v= 
+util.v= 
+n_serial.v= 
 [OpenDoc]
-hde/test=0,0,110,110,1070,839,test.v
+hde/test=0,1,-4,-4,1404,1026,test.v
 hde/i2c=0,0,44,441,1004,1170,i2c.v
 hde/pwm=0,0,53,534,1013,1263,pwm.v
 [netlist]
@@ -56,21 +65,6 @@ Pulse Global Reset Net Enabled=On
 Pulse Global Reset Net=1000
 [timings]
 [designs]
-[implement_HDL]
-family=2
-xfam=XC4000XL
-part=4010XLPC84-09
-xilinx=4010XLPC84-09
-functional=ver1
-optimized=ver1-Optimized
-design=test,c:\unicone\fpga\test\test.v
-[xilinx]
-family=2
-xfam=XC4000XL
-xact9=On
-[device]
-part=4010XLPC84-09
-xilinx=4010XLPC84-09
 [OPEN32]
 nMaxFile=10000
 lpstrFile=
@@ -81,7 +75,16 @@ nFilterIndex=0
 Flags=530964
 HelpID=10380
 HelpFileName=C:\FNDTN\ACTIVE\EXE\PCM.HLP
-cmdLine=-h 286 -hp 260 -m PCM_OPEN_32_MESSAGE -f C:\FNDTN\ACTIVE\PROJECTS\current.pdf
-[implement_XIE]
-version=ver1
-revision=rev1
+cmdLine=-h 240 -hp 146 -m PCM_OPEN_32_MESSAGE -f C:\FNDTN\ACTIVE\PROJECTS\current.pdf
+[implement_HDL]
+family=2
+xfam=XC4000XL
+part=4010XLPC84-09
+xilinx=4010XLPC84-09
+[xilinx]
+family=2
+xfam=XC4000XL
+xact9=On
+[device]
+part=4010XLPC84-09
+xilinx=4010XLPC84-09
