@@ -291,9 +291,24 @@ static void
 apply_changes (IrcNetworkEditor *e)
 {
 	IrcNetwork *net;
-	if (net->name)
-		g_free (net->name);
-	net->name = g_strdup (gtk_entry_get_text (GTK_ENTRY (e->network_name)));
+	if (net->name)     g_free (net->name);
+	if (net->password) g_free (net->password);
+	if (net->nick)     g_free (net->nick);
+	if (net->real)     g_free (net->real);
+	if (net->autojoin) g_free (net->autojoin);
+
+	net->name     = g_strdup (gtk_entry_get_text (GTK_ENTRY (e->network_name)));
+	net->password = g_strdup (gtk_entry_get_text (GTK_ENTRY (e->password)));
+	net->nick     = g_strdup (gtk_entry_get_text (GTK_ENTRY (e->nickname)));
+	net->real     = g_strdup (gtk_entry_get_text (GTK_ENTRY (e->realname)));
+	net->autojoin = g_strdup ("");
+
+	net->autoconnect        = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (e->autoconnect));
+	net->use_ssl            = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (e->use_ssl));
+	net->cycle              = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (e->cycle));
+	net->reconnect          = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (e->autoreconnect));
+	net->nogiveup_reconnect = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (e->giveup_reconnect));
+	net->use_global         = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (e->use_globals));
 
 	irc_network_save (net);
 }
