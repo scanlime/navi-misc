@@ -57,6 +57,7 @@ xchat_plugin_init (xchat_plugin *plugin_handle, char **plugin_name,
 		char **plugin_desc, char **plugin_version, char *arg)
 {
 	GtkWidget *box;
+	GdkPixbuf *p;
 
 	ph = plugin_handle;
 
@@ -64,11 +65,18 @@ xchat_plugin_init (xchat_plugin *plugin_handle, char **plugin_name,
 	xchat_plugin_get_info (plugin_name, plugin_desc, plugin_version, NULL);
 
 	/* Load the pixbufs. */
-	xchat_printf (ph, "%s\n", XCHATSHAREDIR);
-	logo = gdk_pixbuf_new_from_file (XCHATSHAREDIR"/xchat-gnome-small.png", 0);
-	new_data = gdk_pixbuf_new_from_file (XCHATSHAREDIR"/newdata.png", 0);
-	msg_said = gdk_pixbuf_new_from_file (XCHATSHAREDIR"/global-message.png", 0);
-	nick_said = gdk_pixbuf_new_from_file (XCHATSHAREDIR"/nicksaid.png", 0);
+	p = gdk_pixbuf_new_from_file (XCHATSHAREDIR"/xchat-gnome-small.png", 0);
+	logo = gdk_pixbuf_scale_simple (p, 16, 16, GDK_INTERP_BILINEAR);
+
+	p = gdk_pixbuf_new_from_file (XCHATSHAREDIR"/newdata.png", 0);
+	new_data = gdk_pixbuf_scale_simple (p, 16, 16, GDK_INTERP_BILINEAR);
+
+	p = gdk_pixbuf_new_from_file (XCHATSHAREDIR"/global-message.png", 0);
+	msg_said = gdk_pixbuf_scale_simple (p, 16, 16, GDK_INTERP_BILINEAR);
+
+
+	p = gdk_pixbuf_new_from_file (XCHATSHAREDIR"/nicksaid.png", 0);
+	nick_said = gdk_pixbuf_scale_simple (p, 16, 16, GDK_INTERP_BILINEAR);
 
 	/* Create the notification icon. */
 	notification = egg_tray_icon_new ("xchat-gnome");

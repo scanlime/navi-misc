@@ -12,4 +12,4 @@ INCLUDES = $(COMMON_CFLAGS) \
 		   -DGTK_DISABLE_DEPRECATED \
 		   -DGDK_DISABLE_DEPRECATED \
 		   -DG_DISABLE_DEPRECATED \
-		   -DXCHATSHAREDIR="\"$(xchat_gnomedir)\""
+		   -DXCHATSHAREDIR="\"$(datadir)/xchat\""
