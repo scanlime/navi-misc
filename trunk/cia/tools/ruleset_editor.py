@@ -79,7 +79,7 @@ class RulesetClient(object):
 
     def setRuleset(self, ruleset, uri=None):
         """Set a new ruleset for the given URI, also updating our cache"""
-        self.server.ruleset.store(ruleset, self.key)
+        self.server.ruleset.store(self.key, ruleset)
         if uri:
             self.rulesetCache[uri] = [ruleset]
 
