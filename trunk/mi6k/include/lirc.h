@@ -1,12 +1,15 @@
-/* This file is from drivers/lirc.h in the lirc-0.6.6 release */
-
-/*      $Id: lirc.h,v 5.7 2002/07/01 20:35:21 lirc Exp $      */
+/*      $Id: lirc.h,v 5.8 2003/01/26 12:57:59 lirc Exp $      */
 
 #ifndef _LINUX_LIRC_H
 #define _LINUX_LIRC_H
 
+#if defined (__linux__)
 #include <asm/types.h>
 #include <linux/ioctl.h>
+#else
+#include <sys/types.h>
+typedef u_int32_t __u32;
+#endif
 
 #define PULSE_BIT  0x01000000
 #define PULSE_MASK 0x00FFFFFF
