@@ -108,18 +108,6 @@
       </locale>
     </schema>
 
-    <!-- palette -->
-    <schema>
-      <key>/schemas/apps/xchat/irc/palette_scheme</key>
-      <applyto>/apps/xchat/irc/palette_scheme</applyto>
-      <owner>xchat</owner>
-      <type>int</type>
-      <default>0</default>
-      <locale name="C">
-        <short>Selected palette scheme</short>
-      </locale>
-    </schema>
-
     <!-- fonts -->
     <schema>
       <key>/schemas/apps/xchat/main_window/use_sys_fonts</key>
