@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import gtk, gtk.gl
+import gtk, gtk.gl, vte
 
 class MainWindow:
     def print_hello(self, w, data):
@@ -117,11 +117,9 @@ class GLView(gtk.gl.Area):
         gtk.DrawingArea.__init__(self)
 
 # FIXME: change this to a vte widget or whatnot
-class Editor(gtk.Frame):
+class Editor(vte.Terminal):
     def __init__(self):
-        gtk.Frame.__init__(self, label=None)
-        self.text = gtk.TextView()
-        self.add(self.text)
+        vte.Terminal.__init__(self)
 
 main = MainWindow()
 
