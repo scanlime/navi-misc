@@ -40,6 +40,7 @@
 
 #include <p16C745.inc>
 #include "usb_defs.inc"
+#include "hardware.inc"
 #include "../include/protocol.h"
 
 	errorlevel -302		; supress "register not in bank0, check page bits" message
@@ -1723,11 +1724,17 @@ SetConfiguration
 ; return.  
 ; *********************************************************************
 CheckVendor
-	movf	BufferData+bRequest,w ; It's a VFD write request
+	movf	BufferData+bRequest,w ; Is it a VFD write request?
 	xorlw	MI6K_CTRL_VFD_WRITE
 	pagesel	VFDWriteRequest
 	btfsc	STATUS,Z
 	goto	VFDWriteRequest
+
+	movf	BufferData+bRequest,w ; Is it a VFD power request?
+	xorlw	MI6K_CTRL_VFD_POWER
+	pagesel	VFDPowerRequest
+	btfsc	STATUS,Z
+	goto	VFDPowerRequest
 
 	pagesel	wrongstate			; Not a recognized request
 	goto	wrongstate
@@ -1757,6 +1764,22 @@ VFDWriteRequest
 	movf	BufferData+(wIndex+1), w
 	call	VFD_SendByte
 
+	; Acknowledge the request
+	pagesel	Send_0Len_pkt
+	call	Send_0Len_pkt
+	return
+
+	;********************* Request to turn the VFD on or off
+VFDPowerRequest
+	banksel BufferData
+	btfss	BufferData+wValue, 0
+	goto	vfdOff
+	bsf		VFD_POWER
+	goto	vfdPowerDone
+vfdOff
+	bcf		VFD_POWER
+vfdPowerDone
+	
 	; Acknowledge the request
 	pagesel	Send_0Len_pkt
 	call	Send_0Len_pkt
