@@ -80,7 +80,7 @@ class CommitFormatter(Message.Formatter):
             metadata.append(self.format_revision(str(commit.revision).strip()))
         if commit.files:
             metadata.append(self.format_files(commit.files))
-        return self.joinMessage(self, metadata, self.format_log(str(log)))
+        return self.joinMessage(self, metadata, self.format_log(str(commit.log)))
 
     def joinMessage(self, metadata, log):
         """Join a list of formatted metadata and a formatted log message
