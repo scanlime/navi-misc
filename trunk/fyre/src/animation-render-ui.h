@@ -61,7 +61,6 @@ struct _AnimationRenderUi {
   gboolean continuation;
   guint idler;
 
-  gulong iterations_per_idle;
   gdouble elapsed_anim_time;
   gdouble anim_length;
   gboolean render_in_progress;
