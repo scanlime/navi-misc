@@ -1,6 +1,9 @@
 TUSB_DIR = tusb
 OBJS = \
-	therm-rx.rel \
+	main.rel \
+	leds.rel \
+	receiver.rel \
+	tc74.rel \
 	descript.rel \
 	$(TUSB_DIR)/src/usb_driver.rel \
 	$(TUSB_DIR)/src/uart_driver.rel \
@@ -9,7 +12,7 @@ OBJS = \
 
 BIN = therm-rx.bin
 
-CFLAGS = -I $(TUSB_DIR)/include
+CFLAGS = -I $(TUSB_DIR)/include -I ../include
 LDFLAGS = --xram-loc 0xF800 --xram-size 0x500
 
 all: $(BIN)
@@ -23,7 +26,7 @@ install: $(BIN)
 therm-rx.ihx: $(OBJS)
 	sdcc -o therm-rx.ihx $(OBJS) $(LDFLAGS)
 
-%.rel: %.c $(TUSB_DIR)/include/*.h
+%.rel: %.c $(TUSB_DIR)/include/*.h ../include/*.h
 	sdcc -o $@ -c $< $(CFLAGS)
 
 install-eeprom: boot-eeprom.bin
