@@ -246,16 +246,22 @@ class BotNetwork:
         """Remove a server/channel to the list supported by our bots.
            New bots are automatically deleted as they are no longer needed.
            """
-        server = tuple(server)
-        self.servers[server].delChannel(channel)
-        if not self.servers[server].channels:
-            del self.servers[server]
+        try:
+            server = tuple(server)
+            self.servers[server].delChannel(channel)
+            if not self.servers[server].channels:
+                del self.servers[server]
+        except KeyError:
+            # We weren't in this channel to begin with, ignore it
+            pass
 
     def msg(self, server, channel, text):
         """Send text to the given channel on the given server.
            This will generate an exception if the server and/or
            channel isn't currently occupied by one of our bots.
+           Multiple lines of text are split into multiple IRC messages.
            """
-        self.servers[tuple(server)].msg(channel, text)
+        for line in text.split("\n"):
+            self.servers[tuple(server)].msg(channel, line)
 
 ### The End ###
