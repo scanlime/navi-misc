@@ -15,22 +15,12 @@ class webpageParser(HTMLParser):
 			for specific tags, and retrieve the data contained by the tags
 			or that is surrounded by the tags.
 			"""
-
-	def feed(self, page):
-		""" Over ridden feed function.  Stores the page as a list of lines
-				so that the result of handle_starttag can be compared with the
-				argument to handle_starttag.
+	def handle_starttag(self, tag, attrs):
+		""" Overridden from HTMLParser, called when a start tag is encountered.
 				"""
-		fed = False
-		while fed == False:
-			try:
-				self.page = page.split('\n')
-				HTMLParser.feed(self, page)
-				fed = True
-			except HTMLParseError:
-				line, offset = self.getpos()
-				page = string.join(self.page[:line],'\n') + '\n' + string.join(self.page[line+1:],'\n')
 
+
+# It is highly likely none of the following will be kept.
 	def findTags(self, tag, numTags=0):
 		""" Return a list of all the positions at which 'tag' occurs.  Number of
 				items returned can be limited by numTags, if numTags is 0 return all
