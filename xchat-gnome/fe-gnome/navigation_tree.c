@@ -23,6 +23,7 @@
 #include "textgui.h"
 #include "userlist.h"
 #include "pixmaps.h"
+#include "palette.h"
 
 void navigation_selection_changed(GtkTreeSelection *selection, gpointer data);
 gboolean navigation_click(GtkWidget *treeview, GdkEventButton *event, gpointer data);
@@ -40,11 +41,11 @@ void initialize_navigation_tree() {
 
 	navigation_view = glade_xml_get_widget(gui.xml, "server channel list");
 
-	store = gtk_tree_store_new(4, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_POINTER, G_TYPE_INT);
+	store = gtk_tree_store_new(5, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_POINTER, G_TYPE_INT, GDK_TYPE_COLOR);
 	gtk_tree_view_set_model(GTK_TREE_VIEW(navigation_view), GTK_TREE_MODEL(store));
 
 	text_renderer = gtk_cell_renderer_text_new();
-	text_column = gtk_tree_view_column_new_with_attributes("name", text_renderer, "text", 1, NULL);
+	text_column = gtk_tree_view_column_new_with_attributes("name", text_renderer, "text", 1, "foreground-gdk", 4, NULL);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(navigation_view), text_column);
 	icon_renderer = gtk_cell_renderer_pixbuf_new();
 	icon_column = gtk_tree_view_column_new_with_attributes("icon", icon_renderer, "pixbuf", 0, NULL);
@@ -65,7 +66,7 @@ void navigation_tree_create_new_network_entry(struct session *sess) {
 	store = GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(treeview)));
 
 	gtk_tree_store_append(store, &iter, NULL);
-	gtk_tree_store_set(store, &iter, 1, "<none>", 2, sess, 3, 0, -1);
+	gtk_tree_store_set(store, &iter, 1, "<none>", 2, sess, 3, 0, 4, NULL, -1);
 }
 
 static gboolean navigation_tree_create_new_channel_entry_iterate(GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, struct session *data) {
@@ -78,7 +79,7 @@ static gboolean navigation_tree_create_new_channel_entry_iterate(GtkTreeModel *m
 		treeview = glade_xml_get_widget(gui.xml, "server channel list");
 
 		gtk_tree_store_append(GTK_TREE_STORE(model), &child, iter);
-		gtk_tree_store_set(GTK_TREE_STORE(model), &child, 1, "<none>", 2, data, 3, 0, -1);
+		gtk_tree_store_set(GTK_TREE_STORE(model), &child, 1, "<none>", 2, data, 3, 0, 4, NULL, -1);
 		/* make sure the tree expands to show the new channel */
 		gtk_tree_view_expand_row(GTK_TREE_VIEW(treeview), path, TRUE);
 		return TRUE;
@@ -170,7 +171,7 @@ void navigation_selection_changed(GtkTreeSelection *selection, gpointer data) {
 		userlist_display(tgui);
 		set_nickname(sess->server, NULL);
 		/* remove any icon that exists */
-		gtk_tree_store_set(GTK_TREE_STORE(model), &iter, 0, NULL, 3, 0, -1);
+		gtk_tree_store_set(GTK_TREE_STORE(model), &iter, 0, NULL, 3, 0, 4, NULL, -1);
 	}
 }
 
@@ -303,6 +304,25 @@ void server_context(GtkWidget *treeview, session *selected) {
 	gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 0, 0);
 }
 
+static void leave_dialog(gpointer data, guint action, GtkWidget *widget) {
+	GtkWidget *treeview;
+	GtkTreeSelection *select;
+	GtkTreeModel *model;
+	GtkTreeIter iter;
+	session *s;
+
+	treeview = glade_xml_get_widget(gui.xml, "server channel list");
+	select= gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
+	if(gtk_tree_selection_get_selected(select, &model, &iter)) {
+		gtk_tree_model_get(model, &iter, 2, &s, -1);
+		if(s->type == SESS_CHANNEL) {
+			s->server->p_part(s->server, s->channel, "ex-chat");
+			/* FIXME: part reason */
+		}
+		gtk_tree_store_set(GTK_TREE_STORE(model), &iter, 4, &colors[23], -1);
+	}
+}
+
 static void close_dialog(gpointer data, guint action, GtkWidget *widget) {
 	GtkWidget *treeview;
 	GtkTreeSelection *select;
@@ -329,7 +349,8 @@ void channel_context(GtkWidget *treeview, session *selected) {
 		{"/Channel/_Save",		NULL, NULL,		0, "<StockItem>", GTK_STOCK_SAVE},
 		{"/Channel/Save _As...",	NULL, NULL,		0, "<StockItem>", GTK_STOCK_SAVE_AS},
 		{"/Channel/Separator1",		NULL, NULL,		0, "<Separator>"},
-		{"/Channel/Leave",		NULL, close_dialog,	0, "<StockItem>", GTK_STOCK_CLOSE},
+		{"/Channel/_Leave",		NULL, leave_dialog,	0, "<StockItem>", GTK_STOCK_QUIT},
+		{"/Channel/Cl_ose",		NULL, close_dialog,	0, "<StockItem>", GTK_STOCK_CLOSE},
 		{"/Channel/Separator2",		NULL, NULL,		0, "<Separator>"},
 		{"/Channel/_Find...",		NULL, NULL,		0, "<StockItem>", GTK_STOCK_FIND},
 		{"/Channel/Find Ne_xt",		NULL, NULL,		0, "<StockItem>", GTK_STOCK_FIND},
