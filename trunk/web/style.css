@@ -14,14 +14,14 @@ img {
   padding: 0em 1em;
 }
 
-.siteName {
+div.siteName {
   float: right;
   margin: 0em 0.5em;
   font: 400% Verdana, Helvetica, Arial, sans-serif;
   color: #D0D0D0;
 }
 
-.footer {
+div.footer {
   background: white;
   border-top: 1px solid black;
   border-bottom: 1px solid black;
@@ -39,22 +39,22 @@ a:hover {
   text-decoration: underline;
 }
 
-.heading {
+div.heading {
   background: White;
   border-bottom: 1px solid Black;
   padding: 0.5em 0.5em 0em 0.5em;
   margin: 0em 0em 2.0em 0em;
 }
 
-.headingTabs {
+div.headingTabs {
   margin: 1em 0em 0em 0em;
 }
 
-.title {
+div.title {
   font: 250% bold;
 }
 
-.subtitle {
+div.subtitle {
   font: 100% italic;
   margin: 0em 3em;
 }
@@ -139,4 +139,18 @@ table th {
 table td {
   padding: 0.8em 0.8em 0em 0.8em;
   text-align: left;
+}
+
+div.navbar {
+  position: absolute;
+  left: -2em;
+  width: 16em;
+  padding: 1.5em;
+}
+
+div.content {
+  position: absolute;
+  right: 0em;
+  left: 14em;
+  padding: 1.5em 0em;
 }

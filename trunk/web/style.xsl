@@ -24,7 +24,18 @@
 	  </div>
         </div>
 
-        <xsl:apply-templates select="introduction"/>
+	<div class="navbar">
+	    <div class="section">
+              <div class="sectionTop">Projects</div>
+	      <div class="row">
+	        boing
+              </div>
+            </div>
+	</div>
+
+	<div class="content">
+          <xsl:apply-templates select="introduction"/>
+	</div>
 
       </body>
     </html>
@@ -33,18 +44,11 @@
   <!--================================== Introduction -->
 
   <xsl:template match="introduction">
-    <span class="section">
-  
-    <div class="row">
-      <xsl:attribute name="id">package--<xsl:value-of select="@name"/></xsl:attribute>
-      <xsl:apply-templates select="require"/>
-      <div class="item"><xsl:value-of select="@name"/></div>
-      <xsl:apply-templates select="description"/>
-      <span class="itemDetail">Versions</span>
-      <div class="itemDetail">
-        <xsl:apply-templates select="version">
-          <xsl:sort select="@name"/>
-        </xsl:apply-templates>
+    <span class="section">Introduction</span>
+    <div class="section">
+      <div class="sectionTop"/>
+      <div class="row">
+        boing
       </div>
     </div>
   </xsl:template>
