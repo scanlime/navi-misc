@@ -110,6 +110,8 @@ static void cluster_model_dispose(GObject *gobject)
     ClusterModel *self = CLUSTER_MODEL(gobject);
 
     if (self->master_map) {
+	g_object_set_data(G_OBJECT(self->master_map), "ClusterModel", NULL);
+
 	g_signal_handlers_disconnect_matched(self->master_map,
 					     G_SIGNAL_MATCH_DATA,
 					     0, 0, NULL, NULL, self);
@@ -150,13 +152,19 @@ ClusterModel*  cluster_model_new              (IterativeMap*         master_map)
     return self;
 }
 
-ClusterModel*  cluster_model_get              (IterativeMap*         master_map)
+ClusterModel*  cluster_model_get              (IterativeMap*         master_map,
+					       gboolean              allocate_if_necessary)
 {
     ClusterModel *self = g_object_get_data(G_OBJECT(master_map), "ClusterModel");
-    if (self)
+    if (self) {
 	return g_object_ref(self);
-    else
-	return cluster_model_new(master_map);
+    }
+    else {
+	if (allocate_if_necessary)
+	    return cluster_model_new(master_map);
+	else
+	    return NULL;
+    }
 }
 
 
@@ -288,6 +296,39 @@ void           cluster_model_disable_node     (ClusterModel*         self,
 		       CLUSTER_MODEL_SPEED, "",
 		       CLUSTER_MODEL_BANDWIDTH, "",
 		       -1);
+}
+
+void           cluster_model_show_status      (ClusterModel*         self)
+{
+    GtkTreeIter iter;
+    gchar* host;
+    gboolean enabled;
+    int port;
+    gchar* status;
+    gchar* speed;
+    gchar* bandwidth;
+
+    /* Iterate over all cluster nodes that are ready */
+    if (gtk_tree_model_get_iter_first(GTK_TREE_MODEL(self), &iter)) {
+	do {
+	    gtk_tree_model_get(GTK_TREE_MODEL(self), &iter,
+			       CLUSTER_MODEL_ENABLED, &enabled,
+			       CLUSTER_MODEL_HOSTNAME, &host,
+			       CLUSTER_MODEL_PORT, &port,
+			       CLUSTER_MODEL_STATUS, &status,
+			       CLUSTER_MODEL_SPEED, &speed,
+			       CLUSTER_MODEL_BANDWIDTH, &bandwidth,
+			       -1);
+	    if (enabled) {
+
+		printf("%s:%d [%s]  %s  %s\n",
+		       host, port, status,
+		       speed ? speed : "",
+		       bandwidth ? bandwidth : "");
+
+	    }
+	} while (gtk_tree_model_iter_next(GTK_TREE_MODEL(self), &iter));
+    }
 }
 
 

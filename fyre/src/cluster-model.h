@@ -71,13 +71,17 @@ GType          cluster_model_get_type         ();
 ClusterModel*  cluster_model_new              (IterativeMap*         master_map);
 
 /* Return a new reference to the ClusterModel associated with a particular
- * IterativeMap, allocating a new one if necessary.
+ * IterativeMap, optionally allocating a new one if necessary.
  */
-ClusterModel*  cluster_model_get              (IterativeMap*         master_map);
+ClusterModel*  cluster_model_get              (IterativeMap*         master_map,
+					       gboolean              allocate_if_necessary);
 
 RemoteClient*  cluster_model_add_node         (ClusterModel*         self,
 					       const gchar*          hostname,
 					       gint                  port);
+
+/* Show the cluster status on stdout. Good for debugging, and batch-mode rendering */
+void           cluster_model_show_status      (ClusterModel*         self);
 
 /* Add a comma-separated list of host[:port] specifiers */
 void           cluster_model_add_nodes        (ClusterModel*         self,

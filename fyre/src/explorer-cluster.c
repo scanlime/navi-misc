@@ -54,7 +54,7 @@ void explorer_init_cluster(Explorer *self)
     glade_xml_signal_connect_data(self->xml, "on_cluster_remove_host",           G_CALLBACK(on_cluster_remove_host),          self);
     glade_xml_signal_connect_data(self->xml, "on_cluster_host_or_port_changed",  G_CALLBACK(on_cluster_host_or_port_changed), self);
 
-    self->cluster_model = cluster_model_get(self->map);
+    self->cluster_model = cluster_model_get(self->map, TRUE);
     explorer_init_cluster_view(self);
 
     explorer_set_port(self, FYRE_DEFAULT_PORT);
