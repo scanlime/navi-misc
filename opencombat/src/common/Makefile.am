@@ -28,7 +28,8 @@ libCommon_a_SOURCES  =			\
 	bzfio.cpp			\
 	bzsignal.c			\
 	global.cpp			\
-	md5.cpp
+	md5.cpp			\
+	MathUtils.cpp
 
 if BUILD_REGEX
 libCommon_a_LIBADD = \

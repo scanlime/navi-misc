@@ -105,6 +105,9 @@
 				RelativePath="..\..\src\3d\3DOptionsManager.cpp">
 			</File>
 			<File
+				RelativePath="..\..\src\3d\3dtypes.cpp">
+			</File>
+			<File
 				RelativePath="..\..\src\3d\DisplayListManager.cpp">
 			</File>
 			<File
@@ -120,6 +123,9 @@
 				RelativePath="..\..\src\3d\TextureManager.cpp">
 			</File>
 			<File
+				RelativePath="..\..\src\3d\ViewCull.cpp">
+			</File>
+			<File
 				RelativePath="..\..\src\3d\VisualElementManager.cpp">
 			</File>
 		</Filter>
@@ -129,6 +135,9 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
 			<File
 				RelativePath="..\..\include\3DOptionsManager.h">
+			</File>
+			<File
+				RelativePath="..\..\include\3dtypes.h">
 			</File>
 			<File
 				RelativePath="..\..\include\DisplayListManager.h">
@@ -141,6 +150,9 @@
 			</File>
 			<File
 				RelativePath="..\..\include\TextureManager.h">
+			</File>
+			<File
+				RelativePath="..\..\include\ViewCull.h">
 			</File>
 			<File
 				RelativePath="..\..\include\VisualElementManager.h">

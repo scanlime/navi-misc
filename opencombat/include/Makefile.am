@@ -107,7 +107,10 @@ noinst_HEADERS =		\
 	resource.h		\
 	udpnetwork.h		\
 	version.h		\
-	win32.h
+	win32.h		\
+	3dTypes.h		\
+	ViewCull.h		\
+	MathUtils.h		\
 
 MAINTAINERCLEANFILES = \
 	config.h.in \

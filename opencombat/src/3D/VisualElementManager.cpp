@@ -12,6 +12,7 @@
 
 #include "VisualElementManager.h"
 #include "TextUtils.h"
+#include "ViewCull.h"
 
 // ==== base visual element ===========
 BaseVisualElement::BaseVisualElement()
@@ -30,7 +31,7 @@ bool BaseVisualElement::init ( void )
 	return true;
 }
 
-bool BaseVisualElement::visible ( void )
+bool BaseVisualElement::visible ( ViewFrustum *frustum )
 {
 	return false;
 }
@@ -120,11 +121,15 @@ void VisualElementManager::deleteObject ( BaseVisualElement* element )
 
 void VisualElementManager::calcVisObjects ( void )
 {
+	ViewFrustum		frustum;
+
+	frustum.Get();
+
 	visibles.clear();
 	std::vector<BaseVisualElement*>::iterator itr = objects.begin();
 	while (itr != objects.end())
 	{
-			if ((*itr)->visible())
+			if ((*itr)->visible(&frustum))
 				visibles.push_back(*itr);
 			itr++;
 	}

@@ -12,7 +12,9 @@ lib3D_a_SOURCES =		\
 	FontManager.cpp		\
 	TextureFont.cpp		\
 	TextureManager.cpp	\
-	VisualElementManager.cpp
+	VisualElementManager.cpp \
+	3dTypes.cpp			\
+	ViewCull.cpp
 
 EXTRA_DIST = \
 	README

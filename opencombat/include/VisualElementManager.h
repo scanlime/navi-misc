@@ -22,6 +22,7 @@
 #include <string>
 
 class BaseVisualElementFactory;
+class ViewFrustum;
 
 class BaseVisualElement
 {
@@ -30,7 +31,7 @@ public:
 	virtual ~BaseVisualElement();
 
 	virtual bool init ( void );
-	virtual bool visible ( void );
+	virtual bool visible ( ViewFrustum *frustum  );
 	virtual void draw ( void );
 
 	virtual void kill ( void );

@@ -10,13 +10,40 @@
 * WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 */
 
-#include "MainDrawables.h"
-#include "DrawablesManager.h"
-#include "VisualElementsManager.h"
+#include "TeleporterDrawable.h"
 
 
-void registerVisualElements ( void )
+TeleporterDrawable::TeleporterDrawable()
+{
+//	int	baseTexture;
+//	int	fieldTexture;
+//	int baseListID;
+//	int fieldListID;
+}
+
+TeleporterDrawable::~TeleporterDrawable()
 {
 
-
 }
+
+// for the visual element
+bool TeleporterDrawable::init ( void )
+{
+	return true;
+}
+
+bool TeleporterDrawable::visible ( ViewFrustum *frustum )
+{
+	return false;
+}
+
+void TeleporterDrawable::draw ( void )
+{
+}
+
+// or the drawables
+bool TeleporterDrawable::draw ( int texture, int pass, int priority, void* param )
+{
+	return false;
+}
+
