@@ -356,6 +356,7 @@ void           remote_client_send_param       (RemoteClient*     self,
     /* Serialize one parameter value, and send it to the server */
 
     GValue val, strval;
+    gchar* string;
     GParamSpec *spec = g_object_class_find_property(G_OBJECT_GET_CLASS(ph), name);
     g_assert(spec != NULL);
 
@@ -366,10 +367,12 @@ void           remote_client_send_param       (RemoteClient*     self,
     memset(&strval, 0, sizeof(strval));
     g_value_init(&strval, G_TYPE_STRING);
     g_value_transform(&val, &strval);
+    string = g_value_get_string(&strval);
+    g_assert(string != NULL);
 
     self->pending_param_changes++;
     remote_client_command(self, set_param_callback, NULL, "set_param %s = %s",
-			  name, g_value_get_string(&strval));
+			  name, string);
 
     g_value_unset(&strval);
     g_value_unset(&val);
