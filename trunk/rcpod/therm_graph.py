@@ -24,7 +24,7 @@ class ScrollingLineGraph(gtk.DrawingArea):
         self.gridPhase = 0.0
 
         # Our initial scroll rate, in pixels per second
-        self.scrollRate = 0.5
+        self.scrollRate = 1
 
         # All channels start out disabled
         self.channels = [None] * numChannels
@@ -221,6 +221,7 @@ class AnalogUpdaterThread(threading.Thread):
 	            if (temp >> 7) & 0x01:
 		        temp |= 0xffffff00
 		temps2 = [value * 9.0 / 5 + 32 for value in temps]
+		print temps2
                 self.graph.channels = [value / 260.0 for value in temps2]
             time.sleep(0.1)
 

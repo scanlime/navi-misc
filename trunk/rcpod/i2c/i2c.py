@@ -1,7 +1,7 @@
 class i2c_bus:
     def __init__(self, pic):
         self.pic	= pic
-        self.busmask	= 0x01					# 0000 0001 - i2c bus on RB0
+        self.busmask	= 0x03					# 0000 0001 - i2c bus on RB0
 	self.pic.poke('trisa', 0x00)				# all output
 
     def start(self):
