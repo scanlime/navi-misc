@@ -204,6 +204,9 @@ class MetadataPage(Template.Page):
     def __init__(self, statsPage):
         self.statsPage = statsPage
 
+    def parent(self):
+        return self.statsPage
+
     def preRender(self, context):
         context['component'] = self.statsPage.component
 
