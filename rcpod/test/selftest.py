@@ -265,6 +265,34 @@ class SelfTest(RcpodTestCase):
 
                     self.assert_(pin.test(), str(pin))
 
+    def testPinDescList(self):
+        """test asserting and deasserting multiple pin descriptors at once"""
+        # Make PORTA and PORTE pins digital rather than the default of analog
+        self.rcpod.poke('adcon1', 0xFF)
+
+        # Make all pins outputs
+        self.rcpod.assertPins([pin.output() for pin in self.rcpod.pins.values()])
+
+        # Make sure all pins read low
+        for pin in self.rcpod.pins.values():
+            self.assertEqual(pin.test(), False)
+
+        # Assert all pins
+        self.rcpod.assertPins(self.rcpod.pins.values())
+
+        # Make sure all pins read high...
+        for name, pin in self.rcpod.pins.iteritems():
+            # ...except ra4, which is open-drain and can't drive its output high
+            if name != 'ra4':
+                self.assertEqual(pin.test(), True)
+
+        # Deassert all pins
+        self.rcpod.deassertPins(self.rcpod.pins.values())
+
+        # Make sure all pins read low
+        for pin in self.rcpod.pins.values():
+            self.assertEqual(pin.test(), False)
+
     def testPinDescPortRead(self):
         """test reading port values using pin descriptors"""
         # Make PORTA and PORTE pins digital rather than the default of analog
