@@ -52,7 +52,14 @@ class Channel(object):
         self._value = value
         self._timestamp = timestamp
 
-    value = property(getValue, setValue)
+
+    # Create wrappers around getValue/setValue so if subclasses override them,
+    # the property still points to them properly.
+    def _getValue(self):
+        return self.getValue()
+    def _setValue(self, value):
+        return self.setValue(value)
+    value = property(_getValue, _setValue)
 
     def getTimestamp(self):
         """Return the time at which this channel was last updated, to determine
@@ -137,5 +144,19 @@ class Channel(object):
             for luma in (0.9, 0.5):
                 for hue in (0.66, 0, 0.33, 0.75):
                     yield colorsys.hsv_to_rgb(hue, 1, luma)
+
+    def strValue(self):
+        """Get a string representation of the current value.
+           If the value is a float, return a string representation of it
+           with a reasonable amount of precision. Otherwise, this lets
+           repr() handle the conversion.
+           If you need other representations, subclass Channel
+           and override this function.
+           """
+        v = self.value
+        if type(v) == float:
+            return "%.04f" % v
+        else:
+            return repr(v)
 
 ### The End ###

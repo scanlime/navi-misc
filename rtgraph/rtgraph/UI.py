@@ -35,13 +35,14 @@ class ChannelList(gtk.TreeView):
        widget when a 'visible' checkbox is set.
        Automatically generates new colors for each channel if autoColor is true.
        """
-    def __init__(self, graph, availableChannels, autoColor=True):
+    def __init__(self, graph, channels, autoColor=True, valueUpdateInterval=50):
         self.graph = graph
-        self.availableChannels = availableChannels
+        self.channels = channels
+        self.valueUpdateInterval = valueUpdateInterval
 
         if autoColor:
             i = None
-            for channel in availableChannels:
+            for channel in channels:
                 i = channel.autoColor(i)
 
         self.initModel()
@@ -69,19 +70,25 @@ class ChannelList(gtk.TreeView):
                                    gobject.TYPE_BOOLEAN,   # (2) Visibility flag
                                    gobject.TYPE_BOOLEAN,   # (3) Activatable flag
                                    gobject.TYPE_OBJECT,    # (4) Color sample pixbuf
+                                   gobject.TYPE_STRING,    # (5) Channel value
                                    )
 
     def fillModel(self):
         """Fills the model with data, must be called after self.window is valid"""
-        for channel in self.availableChannels:
+        for channel in self.channels:
             self.model.append(row=(
                 channel,
                 str(channel),
                 gtk.FALSE,
                 gtk.TRUE,
                 self.makeColorSamplePixbuf(channel),
+                "",
                 ))
         self.modelFilled = True
+
+        # Give all values one initial update, then start a callback for updating them regularly.
+        self.updateValues()
+        self.valueUpdateTimeout = gtk.timeout_add(self.valueUpdateInterval, self.updateValues)
 
     def initView(self):
         """Initializes all columns in the model viewed by this class"""
@@ -95,6 +102,9 @@ class ChannelList(gtk.TreeView):
 
         # Show the channel name
         self.append_column(gtk.TreeViewColumn("Name", gtk.CellRendererText(), text=1))
+
+        # Show the current channel value
+        self.append_column(gtk.TreeViewColumn("Value", gtk.CellRendererText(), text=5))
 
     def visibilityToggleCallback(self, cell, path, model):
         """Callback triggered by clicking on a 'visible' checkbox.
@@ -130,6 +140,15 @@ class ChannelList(gtk.TreeView):
         pixbuf.get_from_drawable(pixmap, self.window.get_colormap(), 0,0, 0,0, width, height)
         return pixbuf
 
+    def updateValues(self):
+        """Update the 'value' column for all channels"""
+        row = 0
+        for channel in self.channels:
+            i = self.model.get_iter(row)
+            self.model.set_value(i, 5, str(channel.strValue()))
+            row += 1
+        return gtk.TRUE
+
 
 class GraphUI(gtk.VPaned):
     """A paned widget combining a specified graph with
@@ -137,11 +156,11 @@ class GraphUI(gtk.VPaned):
        If the supplied graph is None, this creates a default
        HScrollLineGraph instance.
        """
-    def __init__(self, availableChannels, graph=None):
+    def __init__(self, channels, graph=None):
         if not graph:
             graph = HScrollLineGraph()
         self.graph = graph
-        self.availableChannels = availableChannels
+        self.channels = channels
         gtk.VPaned.__init__(self)
         self.add1(self.createTopContents())
         self.add2(self.createBottomContents())
@@ -179,7 +198,7 @@ class GraphUI(gtk.VPaned):
 
     def createChannelList(self):
         """Create the channel list widget and a scrolling container for it"""
-        self.channelList = ChannelList(self.graph, self.availableChannels)
+        self.channelList = ChannelList(self.graph, self.channels)
         self.channelList.set_size_request(256, 128)
         self.channelList.show()
 
@@ -194,10 +213,10 @@ class GraphUI(gtk.VPaned):
         return frame
 
 
-def GraphUIWindow(availableChannels, graph=None, title=None):
+def GraphUIWindow(channels, graph=None, title=None):
     """Creates a window containing a GraphUI widget"""
     win = gtk.Window(gtk.WINDOW_TOPLEVEL)
-    ui = GraphUI(availableChannels, graph)
+    ui = GraphUI(channels, graph)
     if title:
         win.set_title(title)
     win.set_border_width(8)
