@@ -63,7 +63,7 @@ def installRateLimiter():
     if not hasattr(Server.Request, "_original_process"):
         Server.Request._original_process = Server.Request.process
     def rateLimiter(self):
-        if getIoStatus()['io_tokens'] > 10000:
+        if getIoStatus()['io_tokens'] > 100000:
             return Server.Request._original_process(self)
         else:
             reactor.callLater(0.1, rateLimiter, self)
