@@ -97,7 +97,21 @@ of these can be merged.  This can dramatically improve the quality of images, an
 this technique feasable even for slow computations and high-dimensional systems where a
 plane of section is used to produce the image.
 
-% \section{Results and Contributions}
+\section{Results}
+By using histograms and high dynamic range imaging techniques, iterative systems can be
+visualized in much higher detail than conventional plotting techniques.  Because
+nonlinear iterative systems can exhibit such complexity in state space, a visualization
+tool capable of showing long-term behavior is required. This technique has shown to
+work particularly well in the visualization of strange attractors and other chaotic
+systems.
+
+The ability to explore parameter space interactively and create high-quality images
+using the same algorithm is a very powerful tool.  In addition, because the tone-mapping
+operator can be changed at any point, rendering controls such as exposure and color
+interpolation can be adjusted in real time, even while computation continues. Depending
+on the input system, the algorithm extends gracefully to parallel processing, making
+it a feasable visualization technique even for extremely computationally intensive
+systems.
 
 \begin{thebibliography}{77}
 \bibitem{kd} Devlin, Kate: ``A Review of Tone Reproduction Techniques'' {\it Technical Report CSTR-02-005,} Department of Computer Science, University of Bristol, November 2002.
