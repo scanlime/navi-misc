@@ -693,6 +693,126 @@ fe_get_inputbox_cursor (struct session *sess)
 	return 0;
 }
 
+static void
+get_str_response (GtkDialog *dialog, gint arg1, gpointer entry)
+{
+	void (*callback) (int cancel, char *text, void *user_data);
+	char *text;
+	void *user_data;
+
+	text = (char *) gtk_entry_get_text (GTK_ENTRY (entry));
+	callback = g_object_get_data (G_OBJECT (dialog), "cb");
+	user_data = g_object_get_data (G_OBJECT (dialog), "ud");
+
+	switch (arg1)
+	{
+	case GTK_RESPONSE_REJECT:
+		callback (TRUE, text, user_data);
+		gtk_widget_destroy (GTK_WIDGET (dialog));
+		break;
+	case GTK_RESPONSE_ACCEPT:
+		callback (FALSE, text, user_data);
+		gtk_widget_destroy (GTK_WIDGET (dialog));
+		break;
+	}
+}
+static void
+str_enter (GtkWidget *entry, GtkWidget *dialog)
+{
+	gtk_dialog_response (GTK_DIALOG (dialog), GTK_RESPONSE_ACCEPT);
+}
+
+void
+fe_get_str (char *msg, char *def, void *callback, void *userdata)
+{
+	GtkWidget *dialog;
+	GtkWidget *entry;
+	GtkWidget *hbox;
+	GtkWidget *label;
+
+	dialog = gtk_dialog_new_with_buttons (msg, NULL, 0, GTK_STOCK_CANCEL, GTK_RESPONSE_REJECT, GTK_STOCK_OK, GTK_RESPONSE_ACCEPT, NULL);
+	gtk_box_set_homogeneous (GTK_BOX (GTK_DIALOG (dialog)->vbox), TRUE);
+	gtk_window_set_position (GTK_WINDOW (dialog), GTK_WIN_POS_MOUSE);
+	hbox = gtk_hbox_new (TRUE, 0);
+
+	g_object_set_data (G_OBJECT (dialog), "cb", callback);
+	g_object_set_data (G_OBJECT (dialog), "ud", userdata);
+
+	entry = gtk_entry_new ();
+	g_signal_connect (G_OBJECT (entry), "activate", G_CALLBACK (str_enter), dialog);
+	gtk_entry_set_text (GTK_ENTRY (entry), def);
+	gtk_box_pack_end (GTK_BOX (hbox), entry, 0, 0, 0);
+
+	label = gtk_label_new (msg);
+	gtk_box_pack_end (GTK_BOX (hbox), label, 0, 0, 0);
+
+	g_signal_connect (G_OBJECT (dialog), "response", G_CALLBACK (get_str_response), entry);
+
+	gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), hbox);
+
+	gtk_widget_show_all (dialog);
+}
+
+static void
+get_number_response (GtkDialog *dialog, gint arg1, gpointer spin)
+{
+	void (*callback) (int cancel, int value, void *user_data);
+	int num;
+	void *user_data;
+
+	num = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (spin));
+	callback = g_object_get_data (G_OBJECT (dialog), "cb");
+	user_data = g_object_get_data (G_OBJECT (dialog), "ud");
+
+	switch (arg1)
+	{
+	case GTK_RESPONSE_REJECT:
+		callback (TRUE, num, user_data);
+		gtk_widget_destroy (GTK_WIDGET (dialog));
+		break;
+	case GTK_RESPONSE_ACCEPT:
+		callback (FALSE, num, user_data);
+		gtk_widget_destroy (GTK_WIDGET (dialog));
+		break;
+	}
+}
+
+void
+fe_get_int (char *msg, int def, void *callback, void *userdata)
+{
+	GtkWidget *dialog;
+	GtkWidget *spin;
+	GtkWidget *hbox;
+	GtkWidget *label;
+	GtkAdjustment *adj;
+
+	dialog = gtk_dialog_new_with_buttons (msg, NULL, 0, GTK_STOCK_CANCEL, GTK_RESPONSE_REJECT, GTK_STOCK_OK, GTK_RESPONSE_ACCEPT, NULL);
+	gtk_box_set_homogeneous (GTK_BOX (GTK_DIALOG (dialog)->vbox), TRUE);
+	gtk_window_set_position (GTK_WINDOW (dialog), GTK_WIN_POS_MOUSE);
+	hbox = gtk_hbox_new (TRUE, 0);
+
+	g_object_set_data (G_OBJECT (dialog), "cb", callback);
+	g_object_set_data (G_OBJECT (dialog), "ud", userdata);
+
+	spin = gtk_spin_button_new (NULL, 1, 0);
+	adj = gtk_spin_button_get_adjustment (GTK_SPIN_BUTTON (spin));
+	adj->lower = 0;
+	adj->upper = 1024;
+	adj->step_increment = 1;
+	gtk_adjustment_changed (adj);
+	gtk_spin_button_set_value (GTK_SPIN_BUTTON (spin), def);
+	gtk_box_pack_end (GTK_BOX (hbox), spin, 0, 0, 0);
+
+	label = gtk_label_new (msg);
+	gtk_box_pack_end (GTK_BOX (hbox), label, 0, 0, 0);
+
+	g_signal_connect (G_OBJECT (dialog), "response", G_CALLBACK (get_number_response), spin);
+
+	gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), hbox);
+
+	gtk_widget_show_all (dialog);
+}
+
 void
 fe_open_url (const char *url)
 {
