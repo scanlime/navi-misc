@@ -22,10 +22,12 @@ Pages for getting real-time message feeds in RSS and unformatted XML
 #
 
 from twisted.internet import defer
+from twisted.web import resource
 from LibCIA import Message, Formatters, TimeUtil
 import Nouvelle
 import Nouvelle.Twisted
 from Nouvelle import tag, place, xml, quote
+from LibCIA.Web import Template
 import Link
 
 
@@ -60,8 +62,8 @@ class BaseFeed(Nouvelle.Twisted.Page):
         return result
 
 
-class RSSFeed(BaseFeed):
-    """A web resource representing an RSS feed for a particular stats target."""
+class RSS2Feed(BaseFeed):
+    """A web resource representing an RSS 2.0 feed for a particular stats target."""
     def render_photo(self, context):
         # First figure out if we have a photo. Actually render it in the Deferred if we do.
         result = defer.Deferred()
@@ -114,6 +116,161 @@ class RSSFeed(BaseFeed):
         place('photo'),
         place('items'),
         ]]
+
+
+class CustomizeRSS(Template.Page):
+    """A web page that lets the user generate a customized RSS feed for a particular
+       stats target. This can change the format, message style, number of messages, and such.
+       """
+    def __init__(self, statsPage):
+        Template.Page.__init__(self)
+        self.statsPage = statsPage
+
+    def preRender(self, context):
+        context['component'] = self.statsPage.component
+
+    def render_mainTitle(self, context):
+        return [
+            "Customized RSS for ",
+            self.statsPage.render_mainTitle(context),
+            ]
+
+    def render_form(self, context):
+        return tag('form',
+                   action = Link.RSSLink(self.statsPage.target).getURL(context),
+                   )[place('formContent')]
+
+    leftColumn = [
+        Template.StaticSection('information')[
+            "This page is a form you can use to tweak everything tweakable about "
+            "the way CIA generates RSS feeds. After finding the settings you want, "
+            "the submission button at the bottom will redirect you to the customized "
+            "RSS feed."
+        ],
+    ]
+
+    mainColumn = [
+        Template.pageBody[ place('form') ],
+    ]
+
+    formContent = [
+        tag('h1')[ "RSS Format" ],
+        tag('p')[
+            "There are two current RSS format specifications. Both are named RSS, but "
+            "they are actually very different formats with different goals. RSS 2.0 is not "
+            "'newer' or 'better' than RSS 1.0 just because 2 is greater than 1, they are "
+            "just different specifications. CIA gives you the choice of either."
+        ],
+        tag('div', _class='formChoice')[
+            tag('input', _type='radio', value='2', _name='ver', checked='checked'),
+            tag('strong')[ " RSS 2.0 " ],
+            tag('p')[
+                "The default format. RSS 2.0 is simple, and has a publish/subscribe "
+                "system that can make it possible to receive updates immediately without "
+                "polling. Unfortunately, very few news aggregators currently implement "
+                "the <cloud> tag necessary for publish/subscribe. "
+            ],
+            tag('p')[
+                "The CIA server implements the <cloud> tag, so if you have a compatible "
+                "aggregator and a globally routable IP address you should see RSS feed "
+                "updates almost instantly. However, the only compatible aggregator we're "
+                "aware of at the moment is Radio Userland, and it is a commercial product. "
+                "The ability to receive RSS updates in real-time would go a long way toward "
+                "CIA's goals, so please let us know if you have seen other RSS aggregators "
+                "supporting the <cloud> tag."
+            ],
+        ],
+        tag('div', _class='formChoice')[
+            tag('input', _type='radio', value='1', _name='ver'),
+            tag('strong')[ " RSS 1.0 " ],
+            tag('p')[
+                "RSS 1.0 is more of an attempt to rethink RSS and design it with extensibility "
+                "in mind. It makes use of XML namespaces to provide a core set of functionality "
+                "along with 'modules' that can add domain-specific elements or attributes. RSS 1.0 "
+                "is based on the RDF (Resource Description Framework) W3C reccomendation, giving "
+                "it a rich and well-defined way to represent metadata. "
+            ],
+            tag('p')[
+                "CIA doesn't yet make use of an RSS 1.0 module to provide full metadata on commits. "
+                "Until an RSS 1.0 module for commit messages is designed, the best way to get all "
+                "possible information from CIA is to use the raw XML feeds."
+            ],
+            tag('p')[
+                "There seems to have been a 'changedpage' module in the works for RSS 1.0 that provides "
+                "features similar to the <cloud> element mentioned above for RSS 2.0, however the page "
+                "for it seems to have disappeared. Please contact us with more information if you have any."
+            ],
+        ],
+
+        tag('h1')[ "Messages" ],
+        tag('p')[
+            "This section controls which medium CIA tries to format messages in before embedding "
+            "them in the RSS feed. The default of XHTML is optimal, but alternatives are provided "
+            "if you need them."
+        ],
+        tag('div', _class='formChoice')[
+            tag('input', _type='radio', value='xhtml', _name='medium', checked='checked'),
+            tag('strong')[ " XHTML " ],
+            tag('p')[
+                "Format messages as XHTML with embedded CSS styles. This should "
+                "work and look good in most RSS aggregators. "
+            ],
+        ],
+        tag('div', _class='formChoice')[
+            tag('input', _type='radio', value='plaintext', _name='medium'),
+            tag('strong')[ " Plain Text " ],
+            tag('p')[
+                "Format messages in plain text, properly quoted for inclusion in RSS. "
+                "This is the preferred choice if your RSS aggregator runs on a text-only "
+                "console or can't handle HTML. "
+            ],
+        ],
+        tag('div', _class='formChoice')[
+            tag('input', _type='radio', value='unquoted', _name='medium'),
+            tag('strong')[ " Unquoted Text " ],
+            tag('p')[
+                "Format messages as plain text, but instead of quoting them twice (once "
+                "on account of the RSS feed being in XML, once because the content is "
+                "interpreted as HTML) this only quotes the text once. This should "
+                "only be used if your RSS aggregator is buggy and does not follow the "
+                "specification!"
+            ],
+        ],
+        tag('p')[
+            "You can optionally change the maximum number of messages a feed will contain "
+            "at once. Leave it blank to use the default. There is no explicit upper limit, "
+            "But the database does store a finite number of messages for each stats target. "
+            "Please be reasonable. "
+        ],
+        tag('div', _class='formChoice')[
+            tag('p')[ "Retrieve at most: " ],
+            tag('p')[ tag('input', _type='text', _name='limit', size=10), " messages" ],
+        ],
+
+        tag('h1')[ "Your RSS Feed" ],
+        tag('p')[
+            "This button will now redirect you to an RSS feed with the settings above, "
+            "ripe for opening in your favorite RSS aggregator or copying and pasting somewhere useful."
+        ],
+        tag('p')[
+            tag('input', _type='submit', value='Get my customized RSS feed'),
+        ],
+    ]
+
+
+class RSSFrontend(resource.Resource):
+    """A web resource representing an RSS feed, the format and content of which depends
+       on parameters passed to us. Children are supported- for now this includes the
+       'customize' page that helps you build RSS URLs with non-default options.
+       """
+    def __init__(self, statsPage):
+        resource.Resource.__init__(self)
+        self.statsPage = statsPage
+        self.putChild('customize', CustomizeRSS(statsPage))
+
+    def render(self, request):
+        # Use RSS 2 by default
+        return RSS2Feed(self.statsPage).render(request)
 
 
 class XMLFeed(BaseFeed):

@@ -287,4 +287,10 @@ img.sortIndicator {
   padding: 0em 0.5em;
 }
 
+div.formChoice {
+  padding: 0.25em;
+  margin: 1em 2em;
+  border: 1px dotted #666;
+}
+
 /* The End */

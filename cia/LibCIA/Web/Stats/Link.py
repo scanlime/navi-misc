@@ -88,17 +88,20 @@ class MetadataLink(TargetRelativeLink):
 
 
 class RSSLink(TargetRelativeLink):
-    """An anchor tag linking to the RSS feed for a given stats target"""
-    def __init__(self, target, tagFactory=tag('a'), text=None):
-        TargetRelativeLink.__init__(self, target, ('.rss',))
+    """An anchor tag linking to the default RSS feed for a particular stats target"""
+    def __init__(self, target, tagFactory=tag('a'), text="RSS 2.0 Feed", extraSegments=()):
+        TargetRelativeLink.__init__(self, target, ('.rss',) + extraSegments)
         self.tagFactory = tagFactory
         self.text = text
 
     def render(self, context):
-        text = self.text
-        if text is None:
-            text = "RSS 2.0 Feed"
-        return self.tagFactory(href=self.getURL(context))[text]
+        return self.tagFactory(href=self.getURL(context))[self.text]
+
+
+class RSSCustomizer(RSSLink):
+    """An anchor tag leading to a page that lets the user customize the generated RSS"""
+    def __init__(self, target, tagFactory=tag('a'), text="Customized RSS"):
+        RSSLink.__init__(self, target, tagFactory, text, ('customize',))
 
 
 class XMLLink(TargetRelativeLink):

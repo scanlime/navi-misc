@@ -39,7 +39,10 @@ class Component(Server.Component):
         self.resource = Page(self)
 
     def __contains__(self, page):
-        for cls in (Page, Metadata.MetadataPage):
+        for cls in (Page,
+                    Metadata.MetadataPage,
+                    Feed.CustomizeRSS,
+                    ):
             if isinstance(page, cls):
                 return True
         return False
@@ -72,7 +75,7 @@ class Page(Template.Page):
            """
         childFactories = {
             '.metadata': Metadata.MetadataPage,
-            '.rss':      Feed.RSSFeed,
+            '.rss':      Feed.RSSFrontend,
             '.xml':      Feed.XMLFeed,
             }
 
@@ -306,6 +309,7 @@ class LinksSection(Template.Section):
         return [
             Link.MetadataLink(self.target),
             Link.RSSLink(self.target),
+            Link.RSSCustomizer(self.target),
             Link.XMLLink(self.target),
             ]
 
