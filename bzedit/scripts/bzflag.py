@@ -351,37 +351,34 @@ class Box(BZObject):
                 ]
 
         box = meshify(verts, faces)
+        self.setTransform(obj)
+        return box
 
-        box.setSize(
+    def setTransform(self, obj):
+        """Set the transformation on the given Blender object
+           to match our position, size, and rotation. This will
+           be used both by the Box object and by other objects
+           with similar interfaces that subclass Box.
+           """
+        obj.setSize(
             self.size[0] / 10.0,
             self.size[1] / 10.0,
             self.size[2] / 10.0
             )
-        box.setLocation(
+        obj.setLocation(
             self.position[0] / 10.0,
             self.position[1] / 10.0,
             self.position[2] / 10.0
             )
-        box.setEuler((0, 0, self.rotation / 180.0 * math.pi))
+        obj.setEuler((0, 0, self.rotation / 180.0 * math.pi))
 
 
 class Pyramid(Box):
     """A tetrahedron, pointing straight up or down, with rotation in the Z axis"""
     type = 'pyramid'
 
-    def __init__(self):
-        # Load defaults
-        self.set_position()
-        self.set_rotation()
-        self.set_size()
-
-    def set_position(self, x=0, y=0, z=0):
-        self.position = [x,y,z]
-
-    def set_rotation(self, degrees=0):
-        self.rotation = degrees
-
     def set_size(self, x=0.82, y=0.82, z=1.025):
+        # Pyramids have different size defaults than the box
         self.size = [x,y,z]
 
     def toBlender(self):
@@ -399,17 +396,7 @@ class Pyramid(Box):
                 ]
 
         pyramid = meshify(verts, faces)
-
-        pyramid.setSize(
-            self.size[0] / 10.0,
-            self.size[1] / 10.0,
-            self.size[2] / 10.0
-            )
-        pyramid.setLocation(
-            self.position[0] / 10.0,
-            self.position[1] / 10.0,
-            self.position[2] / 10.0
-            )
-        pyramid.setEuler((0, 0, self.rotation / 180.0 * math.pi))
+        self.setTransform(pyramid)
+        return pyramid
 
 ### The End ###
