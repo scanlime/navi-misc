@@ -104,18 +104,35 @@ url_editor_dialog_construct2 (UrlEditorDialog2 *dialog)
 		ESource *source;
 		GSList *p;
 
-		for (p = dialog->uri->events; p; p = g_slist_next (p)) {
-			gchar *source_uid = g_strdup (p->data);
-			source = e_source_list_peek_source_by_uid (dialog->events_source_list, source_uid);
-			e_source_selector_select_source ((ESourceSelector *) dialog->events_selector, source);
-			g_free (source_uid);
+		if (g_slist_length (dialog->uri->events) == 0) {
+			gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (dialog->publish_events), FALSE);
+		} else {
+			gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (dialog->publish_events), TRUE);
+			for (p = dialog->uri->events; p; p = g_slist_next (p)) {
+				gchar *source_uid = g_strdup (p->data);
+				source = e_source_list_peek_source_by_uid (dialog->events_source_list, source_uid);
+				e_source_selector_select_source ((ESourceSelector *) dialog->events_selector, source);
+				g_free (source_uid);
+			}
 		}
-		for (p = dialog->uri->events; p; p = g_slist_next (p)) {
-			gchar *source_uid = g_strdup (p->data);
-			source = e_source_list_peek_source_by_uid (dialog->tasks_source_list, source_uid);
-			e_source_selector_select_source ((ESourceSelector *) dialog->tasks_selector, source);
-			g_free (source_uid);
+		if (g_slist_length (dialog->uri->tasks) == 0) {
+			gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (dialog->publish_tasks), FALSE);
+		} else {
+			gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (dialog->publish_tasks), TRUE);
+			for (p = dialog->uri->events; p; p = g_slist_next (p)) {
+				gchar *source_uid = g_strdup (p->data);
+				source = e_source_list_peek_source_by_uid (dialog->tasks_source_list, source_uid);
+				e_source_selector_select_source ((ESourceSelector *) dialog->tasks_selector, source);
+				g_free (source_uid);
+			}
 		}
+
+		if (dialog->uri->location && strlen (dialog->uri->location)) {
+			gtk_entry_set_text (GTK_ENTRY (dialog->url_entry), dialog->uri->location);
+			if (dialog->uri->username && strlen (dialog->uri->username))
+				gtk_entry_set_text (GTK_ENTRY (dialog->username_entry), dialog->uri->username);
+		}
+		gtk_combo_box_set_active (GTK_COMBO_BOX (dialog->publish_frequency), dialog->uri->publish_frequency);
 	}
 
 	g_signal_connect (G_OBJECT (dialog->publish_events), "toggled", G_CALLBACK (publish_events_toggled), dialog);
