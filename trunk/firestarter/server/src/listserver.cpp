@@ -139,8 +139,6 @@ bool CListServerServerConnection::update ( trServerInfo &info )
 	if (info.token == -1)
 		return add(info);
 
-	// clear out the token as we want to get a new one
-	info.token = -1;
 	// get the base URL
 	std::string serverbaseURL = "firestarter.bakadigital.com/list/";
 
