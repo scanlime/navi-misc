@@ -154,9 +154,15 @@ static struct usb_driver uvswitch_driver = {
  */
 static int uvswitch_updateStatus(struct usb_uvswitch *dev)
 {
-	dev->status_request.wValue = dev->status.video_channel | (((int)dev->status.bypass_switch)<<8);
-	dev->status_request.wIndex = dev->status.red_audio_channel | (((int)dev->status.white_audio_channel)<<8);
-	dbg("Status: 0x%04X 0x%04X", dev->status_request.wValue, dev->status_request.wIndex);
+        unsigned short wValue, wIndex;
+
+	wValue = dev->status.video_channel | (((int)dev->status.bypass_switch)<<8);
+	wIndex = dev->status.red_audio_channel | (((int)dev->status.white_audio_channel)<<8);
+	dbg("Status: 0x%04X 0x%04X", wValue, wIndex);
+
+	dev->status_request.wValue = cpu_to_le16p(&wValue);
+	dev->status_request.wIndex = cpu_to_le16p(&wIndex);
+
 	return usb_submit_urb(dev->status_urb, SLAB_ATOMIC);
 }
 
