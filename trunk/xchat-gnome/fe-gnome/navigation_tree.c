@@ -813,9 +813,6 @@ navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_dat
 		/* Show the xtext buffer for the session. */
 		gtk_xtext_buffer_show(gui.xtext, tgui->buffer, TRUE);
 
-		while (g_main_context_pending (NULL))
-			g_main_context_iteration (NULL, TRUE);
-
 		/* Set the topic. */
 		topic = glade_xml_get_widget(gui.xml, "topic label");
 		gtk_label_set_text(GTK_LABEL(topic), tgui->topic);
