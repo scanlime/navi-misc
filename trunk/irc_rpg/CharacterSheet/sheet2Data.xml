@@ -1,0 +1,11 @@
+<character>
+	<level>12</level>
+	<exp>10</exp>
+	<name>Bob Dole</name>
+	<race>Unknown</race>
+
+	<layoutSheet>sheet.xml</layoutSheet>
+
+	<strength>2</strength>
+	<dexterity>1</dexterity>
+</character>
