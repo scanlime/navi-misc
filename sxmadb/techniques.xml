@@ -4,7 +4,9 @@
 
 <techniques>
 	<technique category="grab" href="delayed-sword.xml" level="yellow" name="delayed sword"/>
+	<technique category="punch" href="sword-of-destruction.xml" level="yellow" name="sword of destruction"/>
 	<technique category="grab" href="broken-ram.xml" level="blue" name="broken ram"/>
 	<technique category="punch" href="shield-and-mace.xml" level="blue" name="shield and mace"/>
 	<technique category="grab" href="lone-kimono.xml" level="orange" name="lone kimono"/>
+	<technique category="push" href="alternating-maces.xml" level="yellow" name="alternating maces"/>
 </techniques>
