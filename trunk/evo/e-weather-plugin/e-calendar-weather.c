@@ -130,6 +130,7 @@ e_calendar_weather_location (EPlugin *epl, EConfigHookItemFactoryData *data)
 
 	swin = gtk_scrolled_window_new (NULL, NULL);
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (swin), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+	gtk_widget_set_size_request (swin, 100, 250); /* BLAH */
 	gtk_widget_show (swin);
 	gtk_box_pack_end (GTK_BOX (vbox), swin, TRUE, TRUE, 0);
 
