@@ -71,7 +71,6 @@ struct usb_uvswitch {
 	int			active_inputs[UVSWITCH_CHANNELS]; /* Nonzero values for active video inputs */
 	int			adc_samples;		/* Number of samples in adc_accumulator */
 	wait_queue_head_t	adc_wait;		/* Processes waiting for video detection input changes */
-	struct usb_endpoint_descriptor *endpoint;	/* Endpoint descriptor for interrupt transfers */
 	int			adc_change_id;		/* Incremented every time active_inputs changes */
 
 	struct semaphore	sem;			/* locks this structure */
@@ -154,8 +153,6 @@ static int uvswitch_updateStatus(struct usb_uvswitch *dev)
 /* Update the device's ADC settings from our calibration structure */
 static int uvswitch_updateCalibration(struct usb_uvswitch *dev)
 {
-	int i;
-
 	dbg("Updating calibration: precharge=%d, integration=%d, interval=%d, packets=%d, threshold=%d",
 	    dev->calibration.precharge_reads,
 	    dev->calibration.integration_reads,
@@ -180,7 +177,7 @@ static int uvswitch_initCalibration(struct usb_uvswitch *dev)
 	dev->calibration.integration_packets = 50;
 	dev->calibration.threshold = 800;
 
-	uvswitch_updateCalibration(dev);
+	return uvswitch_updateCalibration(dev);
 }
 
 /* Callback for handling incoming data from the device's interrupt endpoint.
@@ -382,7 +379,7 @@ static int uvswitch_ioctl(struct inode *inode, struct file *file, unsigned int c
 		break;
 
 	case UVSWITCHIO_ADC_RESET:
-		uvswitch_initCalibration(dev);
+		retval = uvswitch_initCalibration(dev);
 		break;
 
 	default:
@@ -589,7 +586,6 @@ static unsigned int uvswitch_poll(struct file *file, poll_table *wait)
 {
 	struct uvswitch_fd_private *prv;
 	struct usb_uvswitch *dev;
-	int retval = 0;
 
 	prv =(struct uvswitch_fd_private *)file->private_data;
 	if (prv == NULL) {
@@ -653,7 +649,6 @@ static int uvswitch_probe(struct usb_interface *interface, const struct usb_devi
 	init_MUTEX(&dev->sem);
 	dev->udev = udev;
 	dev->interface = interface;
-	dev->endpoint = &interface->altsetting[interface->act_altsetting].endpoint[0].desc;
 
 	usb_set_intfdata(interface, dev);
 	retval = usb_register_dev(interface, &uvswitch_class);
@@ -679,13 +674,13 @@ static int uvswitch_probe(struct usb_interface *interface, const struct usb_devi
 
 	/* Begin our interrupt transfer polling the video detector ADC */
 	usb_fill_int_urb(dev->adc_urb, dev->udev,
-			 usb_rcvintpipe(dev->udev, dev->endpoint->bEndpointAddress),
+			 usb_rcvintpipe(dev->udev, host_interface->endpoint[0].desc.bEndpointAddress),
 			 dev->adc_buffer, UVSWITCH_CHANNELS,
 			 uvswitch_adc_irq, dev, dev->calibration.interval);
 
 	dbg("Submitting adc_urb, interval %d", dev->calibration.interval);
 	if (usb_submit_urb(dev->adc_urb, GFP_KERNEL))
-		dbg("Error submitting URB: %d", i);
+		dbg("Error submitting URB");
 
 	/* Put all the switches into a known state (we initialized them
 	 * above in the Big Giant Memset)
