@@ -17,17 +17,19 @@ read(STDIN, $buffer, $ENV{'CONTENT_LENGTH'});
 ($foo,$pregunta) = split(/=/,$pairs[2]);
 
 my $sock = new IO::Socket::INET (
-                                 PeerAddr => 'studentactivities.mscd.edu',
-#                                PeerAddr => 'localhost',
+#                                PeerAddr => 'studentactivities.mscd.edu',
+                                 PeerAddr => 'localhost',
                                  PeerPort => '8080',
                                  Proto => 'tcp',
                                 );
 die "Could not create socket: $!<br>Try your submission again<br>\n" unless $sock;
+
 print "Question submitted successfully.<br>
-Use the back button to return to the chat.
+Use the back button to return to the chat.<br>
+This needs to be replaced with an HTML re-direct to the chat page.<br>
 </HTML>";
 
-print $sock "PSUB\r\n";
+print $sock "psub\r\n";
 
 print $sock $name,"\r\n";
 print $sock $tag,"\r\n";

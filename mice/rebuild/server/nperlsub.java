@@ -31,7 +31,7 @@ public class nperlsub extends nbase
 	 * @author Brandon Smith
 	 * @version 2.0
 	 */
-	public njavasub(){}
+	public nperlsub(){}
 	
 	/**
 	 * This method initializes this thread with the new connection information
@@ -53,10 +53,15 @@ public class nperlsub extends nbase
 	 */
 	public void run()
 	{
-		String name, question;
+		String name, postn, question;
 		name = read();
+		postn = read();
 		question = read();
+		name = name + "(" + postn + ")";
+		name = hexwash(name);
+		question = hexwash(question);
 		asubmit.submit(name,question);
+		closeConnection();
 	}
 	
 	/**

@@ -57,5 +57,6 @@ public class njavasub extends nbase
 		name = read();
 		question = read();
 		asubmit.submit(name,question);
+		closeConnection();
 	}
 }
