@@ -1,4 +1,5 @@
-/*
+/* -*- mode: c; c-basic-offset: 4; -*-
+ *
  * cell-renderer-bifurcation.h - A GtkCellRenderer for viewing a bifurcation
  *                               diagram over the range of a keyframe's transition.
  *

@@ -1,4 +1,5 @@
-/*
+/* -*- mode: c; c-basic-offset: 4; -*-
+ *
  * histogram-imager.h - An object that stores a 2D histogram and generates
  *                      images from it. Supports oversampling, gamma correction,
  *                      color interpolation, and exposure adjustment.

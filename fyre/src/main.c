@@ -1,4 +1,5 @@
-/*
+/* -*- mode: c; c-basic-offset: 4; -*-
+ *
  * main.c - Initialization and command line interface
  *
  * Fyre - rendering and interactive exploration of chaotic functions

@@ -1,4 +1,5 @@
-/*
+/* -*- mode: c; c-basic-offset: 4; -*-
+ *
  * color-button.c - Interactive color selection button. This is a composite
  *                  widget that shows a color sample inside a button. When
  *                  the button is clicked, a color picker with auto-apply

@@ -1,4 +1,5 @@
-/*
+/* -*- mode: c; c-basic-offset: 4; -*-
+ *
  * explorer.h - An interactive GUI for manipulating an IterativeMap
  *              object and viewing its output
  *

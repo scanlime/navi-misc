@@ -1,4 +1,5 @@
-/*
+/* -*- mode: c; c-basic-offset: 4; -*-
+ *
  * avi-writer.c - A simple interface for writing uncompressed RGB frames to
  *                a Microsoft AVI video file.
  *

@@ -1,4 +1,5 @@
-/*
+/* -*- mode: c; c-basic-offset: 4; -*-
+ *
  * explorer-animation.c - Implements the explorer GUI's animation editor
  *
  * Fyre - rendering and interactive exploration of chaotic functions

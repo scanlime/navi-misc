@@ -1,4 +1,5 @@
-/*
+/* -*- mode: c; c-basic-offset: 4; -*-
+ *
  * chunked-file.c - A simple interface for reading and writing binary files
  *                  consisting of PNG-style chunks with 4-character identifiers.
  *

@@ -1,4 +1,5 @@
-/*
+/* -*- mode: c; c-basic-offset: 4; -*-
+ *
  * cell-renderer-transition.c - A GtkCellRenderer for viewing a keyframe's transition,
  *                              including the transition curve and duration.
  *
