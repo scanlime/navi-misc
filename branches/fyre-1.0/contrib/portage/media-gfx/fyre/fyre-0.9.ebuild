@@ -4,13 +4,13 @@
 
 inherit eutils fdo-mime
 
-DESCRIPTION="Fyre provides a rendering of the Peter de Jong map."
+DESCRIPTION="Gyre provides a rendering of the Peter de Jong map."
 SRC_URI="http://flapjack.navi.cx/releases/${PN}/${PN}-${PV}.tar.bz2"
 HOMEPAGE="http://fyre.navi.cx/"
 
 SLOT="0"
 LICENSE="GPL-2"
-KEYWORDS="x86"
+KEYWORDS="~x86"
 IUSE="binreloc binreloc-threads cluster exr"
 
 DEPEND="media-libs/libpng
@@ -21,7 +21,8 @@ DEPEND="media-libs/libpng
 	>=gnome-base/libglade-2.0
 	>=x11-libs/gtk+-2.0"
 
-PATCHES="${FILESDIR}/${P}-nomimeupdates.diff"
+PATCHES="${FILESDIR}/${P}-nomimeupdates.diff
+	 ${FILESDIR}/${P}-initscript.diff"
 
 pkg_setup() {
 	if ! use binreloc && use binreloc-threads; then
@@ -37,6 +38,12 @@ src_unpack() {
 	# on install.  We take care of that later.
 	epatch ${FILESDIR}/${P}-nomimeupdates.diff || die
 
+	# Patch the initscript to drop to nobody before running.
+	# Also change the daemon path from /usr/local/bin/fyre to
+	# what it actually is.
+	epatch ${FILESDIR}/${P}-initscript.diff || die
+
+	# Update the makefiles
 	aclocal
 	automake
 	autoconf
