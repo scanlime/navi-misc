@@ -41,11 +41,7 @@ public class njavaint extends nbase
 	{
 		String in;
 		String mine;
-		mine = view.getQuestion();
-		if(mine != null)
-			write(mine);
-		else
-			write("No question\r\nIn queue");
+		mine = null;
 		while(true)
 		{
 			in = read();
@@ -58,10 +54,21 @@ public class njavaint extends nbase
 				write(view.getQuestion());//this generates TWO read()s for the client
 				break;
 			case 's': //submit
+				if(mine == null)
+				{
+					read();
+					break;
+				}
 				view.answer(read());
+				mine = null;
 				break;
 			case 'g': //get a question
-				write(view.getQuestion());//this generates TWO read()s for the client
+				if(mine == null)
+					mine = view.getQuestion();
+				if(mine != null)
+					write(mine);
+				else
+					write("No question\r\nIn queue");
 				break;
 			}
 		}
