@@ -92,3 +92,12 @@ preferences_show_timestamp()
 
 	return gconf_client_get_bool (client, "/apps/xchat/irc/showtimestamps", NULL);
 }
+
+void set_version ()
+{
+	GConfClient *client;
+
+	client = gconf_client_get_default ();
+
+	gconf_client_set_string (client, "/apps/xchat/version", "0.2", NULL);
+}
