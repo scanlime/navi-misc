@@ -49,23 +49,28 @@ void load_preferences() {
 	client = gconf_client_get_default();
 
 	text = gconf_client_get_string(client, "/apps/xchat/irc/nickname", NULL);
-	strcpy(prefs.nick1, text);
+	if(text != NULL)
+		strcpy(prefs.nick1, text);
 	g_free(text);
 
 	text = gconf_client_get_string(client, "/apps/xchat/irc/realname", NULL);
-	strcpy(prefs.realname, text);
+	if(text != NULL)
+		strcpy(prefs.realname, text);
 	g_free(text);
 
 	text = gconf_client_get_string(client, "/apps/xchat/irc/awaymsg", NULL);
-	strcpy(prefs.awayreason, text);
+	if(text != NULL)
+		strcpy(prefs.awayreason, text);
 	g_free(text);
 
 	text = gconf_client_get_string(client, "/apps/xchat/irc/quitmsg", NULL);
-	strcpy(prefs.quitreason, text);
+	if(text != NULL)
+		strcpy(prefs.quitreason, text);
 	g_free(text);
 
 	text = gconf_client_get_string(client, "/apps/xchat/irc/partmsg", NULL);
-	strcpy(prefs.partreason, text);
+	if(text != NULL)
+		strcpy(prefs.partreason, text);
 	g_free(text);
 
 	color_scheme = gconf_client_get_int(client, "/apps/xchat/irc/color_scheme", NULL);

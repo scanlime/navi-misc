@@ -128,7 +128,7 @@ void navigation_tree_create_new_network_entry(struct session *sess) {
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
 	sort = GTK_TREE_MODEL_SORT(gtk_tree_view_get_model(GTK_TREE_VIEW(treeview)));
 	gtk_tree_model_sort_convert_child_iter_to_iter(sort, &sorted, &iter);
-//	gtk_tree_selection_select_iter(selection, &sorted);
+	gtk_tree_selection_select_iter(selection, &sorted);
 }
 
 static gboolean navigation_tree_create_new_channel_entry_iterate(GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, struct session *data) {
@@ -233,11 +233,13 @@ void navigation_selection_changed(GtkTreeSelection *selection, gpointer data) {
 	session *sess;
 	session_gui *tgui;
 
-	if(gtk_tree_selection_get_selected(selection, &model, &iter)) {
+	if(gtk_tree_selection_get_selected(selection, &model, &iter) && gui.current_session) {
 		GtkWidget *topic, *entry;
 
 		/* back up existing entry */
-		tgui = gui.current_session->gui;
+		tgui = (session_gui *) gui.current_session->gui;
+		if(tgui == NULL)
+			return;
 		g_free(tgui->entry);
 		entry = glade_xml_get_widget(gui.xml, "text entry");
 		tgui->entry = g_strdup(gtk_entry_get_text(GTK_ENTRY(entry)));
@@ -248,6 +250,8 @@ void navigation_selection_changed(GtkTreeSelection *selection, gpointer data) {
 		sess->msg_said = FALSE;
 		sess->new_data = FALSE;
 		tgui = (session_gui *) sess->gui;
+		if(tgui == NULL)
+			return;
 		gtk_xtext_buffer_show(gui.xtext, tgui->buffer, TRUE);
 		topic = glade_xml_get_widget(gui.xml, "topic entry");
 		gtk_entry_set_text(GTK_ENTRY(topic), tgui->topic);
