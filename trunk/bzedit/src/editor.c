@@ -24,6 +24,8 @@
 #include <GL/gl.h>
 #include "editor.h"
 #include "gldrawingarea.h"
+#include "parameter-editor.h"
+#include "box.h"
 
 static void editor_class_init   (EditorClass *klass);
 static void editor_init         (Editor      *editor);
@@ -75,6 +77,8 @@ editor_init (Editor *editor)
   GdkGLConfig *config;
   GtkCellRenderer *icon_renderer, *text_renderer;
   GtkTreeViewColumn *column;
+  Box *box;
+  GtkWidget *swin, *peditor;
 
   editor->xml = glade_xml_new (GLADEDIR "/bzedit.glade", NULL, NULL);
   editor->window = glade_xml_get_widget (editor->xml, "editor window");
@@ -89,7 +93,7 @@ editor_init (Editor *editor)
   gtk_container_add (GTK_CONTAINER (editor->eventbox), editor->glarea);
 
   editor->element_list = GTK_TREE_VIEW (glade_xml_get_widget (editor->xml, "element list"));
-  editor->element_store = gtk_tree_store_new(3, G_TYPE_STRING, GDK_TYPE_PIXBUF, G_TYPE_POINTER);
+  editor->element_store = gtk_tree_store_new(5, G_TYPE_STRING, GDK_TYPE_PIXBUF, G_TYPE_POINTER, G_TYPE_BOOLEAN, GDK_TYPE_PIXBUF);
   gtk_tree_view_set_model (editor->element_list, GTK_TREE_MODEL (editor->element_store));
 
   icon_renderer = gtk_cell_renderer_pixbuf_new();
@@ -98,8 +102,13 @@ editor_init (Editor *editor)
   gtk_tree_view_column_pack_start (column, icon_renderer, FALSE);
   gtk_tree_view_column_pack_start (column, text_renderer, TRUE);
   gtk_tree_view_column_set_attributes (column, icon_renderer, "pixbuf", 1, NULL);
-  gtk_tree_view_column_set_attributes (column, text_renderer, "text", 0, NULL);
+  gtk_tree_view_column_set_attributes (column, text_renderer, "text", 0, "editable", TRUE, NULL);
   gtk_tree_view_append_column (editor->element_list, column);
+
+  box = box_new ();
+  peditor = parameter_editor_new (PARAMETER_HOLDER (box));
+  swin = glade_xml_get_widget (editor->xml, "property editor swin");
+  gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW (swin), peditor);
 
   editor->statusbar = GTK_STATUSBAR(glade_xml_get_widget(editor->xml, "statusbar"));
   editor->editor_status_context = gtk_statusbar_get_context_id(editor->statusbar, "Editor status");
