@@ -682,9 +682,14 @@ static int uvswitch_probe(struct usb_interface *interface, const struct usb_devi
 	if (usb_submit_urb(dev->adc_urb, GFP_KERNEL))
 		dbg("Error submitting URB");
 
-	/* Put all the switches into a known state (we initialized them
-	 * above in the Big Giant Memset)
+	/* Put all the switches into a known default state.
+	 * In this default, no input is selected but the bypass switch
+	 * is on, so we get video from the computer's output.
 	 */
+	dev->status.video_channel = 0;
+	dev->status.white_audio_channel = 0;
+	dev->status.red_audio_channel = 0;
+	dev->status.bypass_switch = 1;
 	uvswitch_updateStatus(dev);
 
 	/* Set up default ADC calibration */
