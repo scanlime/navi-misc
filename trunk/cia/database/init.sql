@@ -1,9 +1,7 @@
 --
--- Schema for CIA's database: run this to create tables needed by CIA
--- in a blank database, or repair deleted tables. This will -not- upgrade
--- existing old tables to a new schema.
+-- This file initializes CIA's PostgreSQL database.
 --
--- In postgresql, for example:
+-- For example:
 --   dbcreate cia
 --   psql -f init.sql cia
 --
@@ -27,34 +25,44 @@ CREATE TABLE rulesets
 
 ----------------------------------------------------------- Stats
 
+-- Generates unique IDs for all messages we store
+CREATE SEQUENCE stats_message_id;
+
+-- Map the full path of each stats target to its parent.
+-- Every stats target we know about is in this table, and
+-- deleting a target causes all metadata, messages, subtargets,
+-- and counters for that target to be automatically deleted.
+CREATE TABLE stats_catalog
+(
+    parent_path  VARCHAR(128) REFERENCES stats_catalog (target_path) ON DELETE CASCADE,
+    target_path  VARCHAR(128) PRIMARY KEY
+);
+
+-- A place to store all stats messages, with a global continuously increasing ID.
+-- This doesn't yet include rules to automatically delete old messages, so the log is infinite :-/
 CREATE TABLE stats_messages
 (
-    target_path  VARCHAR(128) NOT NULL,
-    id           INT NOT NULL,
+    target_path  VARCHAR(128) REFERENCES stats_catalog ON DELETE CASCADE,
+    id           BIGINT DEFAULT nextval('stats_message_id'),
     xml          TEXT NOT NULL,
     PRIMARY KEY(target_path, id)
 );
 
-CREATE TABLE stats_catalog
-(
-    target_path  VARCHAR(128) NOT NULL,
-    parent_path  VARCHAR(128) NOT NULL,
-    PRIMARY KEY(target_path, parent_path)
-);
-
+-- Store metadata keys, times, and values for each target
 CREATE TABLE stats_metadata
 (
-    target_path  VARCHAR(128) NOT NULL,
-    name         VARCHAR(32) NOT NULL,
+    target_path  VARCHAR(128) REFERENCES stats_catalog ON DELETE CASCADE,
+    name         VARCHAR(32),
     mime_type    VARCHAR(32) NOT NULL,
     value        BYTEA NOT NULL,
     PRIMARY KEY(target_path, name)
 );
 
+-- Store counters
 CREATE TABLE stats_counters
 (
-    target_path  VARCHAR(128) NOT NULL,
-    name         VARCHAR(32) NOT NULL,
+    target_path  VARCHAR(128) REFERENCES stats_catalog ON DELETE CASCADE,
+    name         VARCHAR(32),
     event_count  INT NOT NULL DEFAULT 0,
     first_time   BIGINT,
     last_time    BIGINT,

@@ -289,28 +289,10 @@ class RecentMessages:
 
     def push(self, message):
         """Add a new message to the recent messages list"""
-        return Database.pool.runInteraction(self._push, message)
-
-    def _push(self, cursor, message):
-        """A database interaction that pushes one XML message into the stats_messages
-           table, with this target's path. If we're over our maximum allowed number
-           of messages, this deletes old ones.
-           """
-        cursor.execute("INSERT INTO stats_messages (target_path, xml) VALUES(%s, %s)" % (
+        return Database.pool.runOperation("INSERT INTO stats_messages (target_path, xml) VALUES(%s, %s)" % (
             quoteSQL(self.target.path, 'varchar'),
             quoteSQL(message, 'text'),
             ))
-
-        # Figure out how many messages we currently have so we know how many to delete, if any
-        cursor.execute("SELECT COUNT(id) FROM stats_messages WHERE target_path = %s;" %
-                       quoteSQL(self.target.path, 'varchar')
-                       )
-        deleteCount = cursor.fetchall()[0][0] - self.maxMessages
-        if deleteCount > 0:
-            cursor.execute("DELETE FROM stats_messages WHERE target_path = %s ORDER BY id LIMIT %d" % (
-                quoteSQL(self.target.path, 'varchar'),
-                deleteCount,
-                ))
 
     def clear(self):
         """Delete all the recent messages for this stats target"""
