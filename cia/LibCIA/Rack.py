@@ -388,7 +388,7 @@ class Rack(BaseRack):
 
             # Is it a child of our path?
             if len(path) > len(self.path) and path[:-1] == self.path:
-                name = path[-1]
+                name = path[len(self.path)]
                 if not name in subNsList:
                     subNsList.append(name)
 
