@@ -11,6 +11,8 @@
 
 * find a writer to rewrite all the horribly-worded explainations of things!
 
+* migrate all menus (main, context, etc) to use GtkUIManager
+
 context menus:
 * flesh out the userlist context menu
 * make the context menu for navtree stuff actually dependent on context - see above note
