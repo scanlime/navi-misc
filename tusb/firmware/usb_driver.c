@@ -53,8 +53,6 @@ static void usb_handle_standard_request() {
     memcpy(usb_ep0in_buffer, ((unsigned char *)&dev_descript)+offset, len);
     offset += usb_setup_buffer.wLength;
 
-    printf("0x%02X\n", IEPCNFG_0);
-
     IEPBCNT_0 = len;
     break;
 
@@ -78,6 +76,10 @@ static void usb_handle_setup() {
 
   case USB_TYPE_STANDARD:
     usb_handle_standard_request();
+    break;
+
+  case USB_TYPE_VENDOR:
+    usb_handle_vendor_request();
     break;
 
   default:
