@@ -150,10 +150,10 @@ static int uvswitch_updateCalibration(struct usb_uvswitch *dev)
 /* Set up default values for the ADC calibration */
 static int uvswitch_initCalibration(struct usb_uvswitch *dev)
 {
-	dev->calibration.precharge_reads = 80;
-	dev->calibration.integration_reads = 150;
-	dev->calibration.integration_packets = 20;
-	dev->calibration.threshold = 1200;
+	dev->calibration.precharge_reads = 10;
+	dev->calibration.integration_reads = 200;
+	dev->calibration.integration_packets = 50;
+	dev->calibration.threshold = 3000;
 
 	uvswitch_updateCalibration(dev);
 }
