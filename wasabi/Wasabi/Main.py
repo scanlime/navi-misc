@@ -112,7 +112,7 @@ class VideoInput(Menu.PageItem):
     def __init__(self, channel):
         Menu.PageItem.__init__(self,
                                VideoSwitch.getInputDict()[channel],
-                               userPageInterrupter(lambda book: VideoChannelPage(book, menu.hardware, self.channel))
+                               userPageInterrupter(lambda book: VideoChannelPage(book, self.menu.hardware, channel))
                                )
 
 
