@@ -9,6 +9,8 @@
 ;
 ;###############################################################################
 
+	errorlevel -226		; suppress the crazy include file warnings on gpasm
+
 #include <p16C765.inc>
 #include "usb_defs.inc"
 #include "../include/rcpod_protocol.h"
