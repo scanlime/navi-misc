@@ -90,11 +90,11 @@ editor_selected (SceneObject *object, Editor *editor)
   if (editor->selected)
   {
     scene_object_deselect (editor->selected);
-    gtk_container_remove (GTK_CONTAINER (viewport), GTK_WIDGET (editor->pe));
+    gtk_widget_destroy (editor->pe);
   }
 
   editor->pe = parameter_editor_new (PARAMETER_HOLDER (object));
-  gtk_container_add (GTK_CONTAINER (viewport), GTK_WIDGET (editor->pe));
+  gtk_container_add (GTK_CONTAINER (viewport), editor->pe);
   gtk_widget_show_all (viewport);
 
   editor->selected = object;
