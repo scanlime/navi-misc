@@ -1,10 +1,12 @@
-* When xchat-gnome and the python plugin support it add an object for
-	a prefs page that can be sent to xchat-gnome and displayed in the
-	preferences window.
+* Hook it up to a URL handler so that you can open a link by clicking
+	it.
 
-* There is a bug in the python plugin preventing you from reloading
-	a script that uses extension modules. Add a workaround here until
-	the plugin is fixed(?).
+* Add a TreeModelSort.
+
+* Don't keep redundant copies of urls/emails.
+
+* When xchat-gnome supports it, add an object for a prefs page that
+	can be sent to xchat-gnome and displayed in the preferences window.
 
 * Find a better way of displaying emails in the window when email
 	scraping is turned on. Maybe something as simple as being able
@@ -15,14 +17,13 @@
 	URL, the title reverts to normal whenever the window gets focused
 	next. Like in Gaim.
 
-* Hook it up to a URL handler so that you can open a link by clicking
-	it.
-
-* This is probably too complicated for a little script like this, but
+* This is probably too complicated for a little plugin like this, but
 	consider the possibility of allowing users to block certain channels/
 	users. So that the scraper doesn't fill up with URLs from commits
 	in #commits, for example.
 
-* Add a TreeModelSort.
+Python script related:
 
-* Don't keep redundant copies of urls/emails.
+* There is a bug in the python plugin preventing you from reloading
+	a script that uses extension modules. Add a workaround here until
+	the plugin is fixed(?).
