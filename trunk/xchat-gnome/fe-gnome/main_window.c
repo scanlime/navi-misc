@@ -97,8 +97,6 @@ static void on_expand_topic (GtkExpander *expander, gpointer data);
 static void on_text_entry_activate (GtkWidget *widget, gpointer data);
 static gboolean on_text_entry_key (GtkWidget *widget, GdkEventKey *key, gpointer data);
 
-static void on_topic_entry_activate (GtkEntry *entry, gpointer user_data);
-
 static gboolean on_resize (GtkWidget *widget, GdkEventConfigure *event, gpointer data);
 static gboolean on_vpane_move (GtkPaned *widget, GParamSpec *param_spec, gpointer data);
 static gboolean on_hpane_move (GtkPaned *widget, GParamSpec *param_spec, gpointer data);
@@ -674,24 +672,6 @@ on_text_entry_activate (GtkWidget *widget, gpointer data)
 }
 
 static void
-on_topic_entry_activate (GtkEntry *entry, gpointer user_data)
-{
-	char *text = entry->text;
-	session *sess = gui.current_session;
-	GtkWidget *text_entry = glade_xml_get_widget(gui.xml, "text entry");
-
-	if (sess->channel[0] && sess->server->connected)
-	{
-		if (text[0] == 0)
-			text = NULL;
-		sess->server->p_topic(sess->server, sess->channel, text);
-	}
-	else
-		gtk_entry_set_text(entry, "");
-	gtk_widget_grab_focus(text_entry);
-}
-
-static void
 history_key_down (GtkEntry *entry)
 {
 	char *new_line;
@@ -958,7 +938,7 @@ on_topic_change (GtkButton *widget, gpointer data)
 
 	/* send focus back to the text entry */
 	text_entry = glade_xml_get_widget (gui.xml, "text entry");
-	gtk_widget_grab_focus(text_entry);
+	gtk_widget_grab_focus (text_entry);
 }
 
 void
