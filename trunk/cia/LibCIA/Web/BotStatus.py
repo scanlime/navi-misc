@@ -22,7 +22,7 @@ A web interface showing the current status of the BotNetwork
 #
 
 import Template
-from Base import tag, place
+from Nouvelle import tag, place
 
 
 class TotalsSection(Template.Section):

@@ -21,8 +21,8 @@ Template classes for building web pages using our particular style
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import Base
-from Base import tag, place
+import Nouvelle.Twisted
+from Nouvelle import tag, place
 
 
 # Tags with 'class' attributes should be placed in this module
@@ -30,7 +30,7 @@ catalogList = tag('ul', _class="catalog")
 headingTab = tag('a', _class="headingtab")
 value = tag('strong')
 
-class Section(Base.DocumentOwner):
+class Section(Nouvelle.DocumentOwner):
     """A portion of the web page with a title and a body, that may be placed
        in any of the page's columns.
        """
@@ -65,7 +65,7 @@ class StaticSection(Section):
         return self.__class__(self.title, [rows])
 
 
-class Page(Base.Page):
+class Page(Nouvelle.Twisted.Page):
     """A template for pages using our CSS- all pages have a heading with
        title, subtitle, and site name. Pages may have a list of hyperlinked
        tabs at the bottom of the heading, as well as columns containing

@@ -22,7 +22,7 @@ A web interface for CIA's ruleset database
 #
 
 import Template
-from Base import tag, place
+from Nouvelle import tag, place
 from twisted.protocols import http
 import urllib
 

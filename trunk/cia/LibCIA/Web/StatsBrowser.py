@@ -22,9 +22,9 @@ A web interface for CIA's stats:// namespace
 #
 
 import time
-import Template, Base
+import Template, Nouvelle
 from LibCIA import TimeUtil, Message
-from Base import tag, place
+from Nouvelle import tag, place
 
 
 class Clock(Template.Section):
@@ -244,7 +244,7 @@ class MessageList(Template.Section):
         except:
             project = None
 
-        message = Base.xml(self.formatter.format(message))
+        message = Nouvelle.xml(self.formatter.format(message))
 
         return [
             tag('td')[ date ],
