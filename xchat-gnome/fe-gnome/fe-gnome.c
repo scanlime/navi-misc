@@ -31,7 +31,7 @@
 #include "main_window.h"
 #include "userlist_gui.h"
 #include "preferences.h"
-#include "setup_druid.h"
+#include "setup_dialog.h"
 #include "palette.h"
 #include "preferences_plugins_page.h"
 #include "channel_list.h"
@@ -65,10 +65,7 @@ fe_init (void)
 	palette_init ();
 	initialize_gui_1 ();
 	if (!preferences_exist ())
-	{
-		initialize_setup_druid ();
-		run_setup_druid ();
-	}
+		run_setup_dialog ();
 	load_preferences ();
 	initialize_gui_2 ();
 	run_main_window ();
