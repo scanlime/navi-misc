@@ -196,7 +196,8 @@ void fe_text_clear(struct session *sess) {
 }
 
 void fe_close_window(struct session *sess) {
-	navigation_tree_remove(gui.server_tree, sess);
+	if (!gui.quit)
+  	navigation_tree_remove(gui.server_tree, sess);
 	kill_session_callback(sess);
 }
 
