@@ -34,7 +34,7 @@ Synchronization sensor:
 Modifications
 =============
 
-- Removed all parts except: C8, D1, Q1, L1, R12, R1, IS0, U3, C7,
+- Removed all parts except: C6, D1, Q1, L1, R12, R1, IS0, U3, C7,
   and the 8 violet-green-black resistors near U3.
 
 - Jumpered across the input and output at the former location
