@@ -21,7 +21,53 @@ that can be tweaked in real-time.
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 """
 from __future__ import division
-import gtk
+import gtk, threading
+
+
+def Window(*controlLists):
+    """Creates a gtk Window containing a Tweak.List.
+       For convenience, the constructor's argument list can be one
+       or more tweak controls or lists of tweak controls.
+       """
+    win = gtk.Window(gtk.WINDOW_TOPLEVEL)
+    list = List(*controlLists)
+    win.set_border_width(8)
+    list.show()
+    win.add(list)
+    win.show()
+    return win
+
+
+def run(runnable=None):
+    """A utility function to create a Tweak.Thread, call runnable.run(), then
+       safely tell the Tweak.Thread to stop. This is designed to be used with
+       an event loop, but should suppport any runnable object.
+       """
+    if runnable:
+        try:
+            tweakThread = Thread()
+            runnable.run()
+        finally:
+            tweakThread.stop()
+    else:
+        # If we have no runnable, no need to make a thread
+	gtk.main()
+
+
+class Thread(threading.Thread):
+    """A thread to run gtk's main loop, used when Tweak.run() is called with an argument"""
+    def __init__(self):
+        threading.Thread.__init__(self)
+        self.start()
+
+    def run(self):
+        """The thread's run function, started by start()"""
+        gtk.threads_init()
+        gtk.main()
+
+    def stop(self):
+        """Force the gtk event loop to terminate"""
+        gtk.main_quit()
 
 
 class List(gtk.Table):

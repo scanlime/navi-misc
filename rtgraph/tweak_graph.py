@@ -7,7 +7,8 @@
 # -- Micah Dowty <micah@picogui.org>
 #
 import gtk
-import rtgraph, time, math
+import time, math
+import rtgraph, Tweak
 
 win = gtk.Window(gtk.WINDOW_TOPLEVEL)
 vbox = gtk.VBox()
@@ -26,10 +27,10 @@ frame.add(graph)
 frame.show()
 vbox.pack_start(frame)
 
-tweaker = rtgraph.Tweak.List([
-    rtgraph.Tweak.Quantity(graph.channels[0], 'value', name="Red"),
-    rtgraph.Tweak.Quantity(graph.channels[1], 'value', name="Green"),
-    rtgraph.Tweak.Quantity(graph.channels[2], 'value', name="Blue"),
+tweaker = Tweak.List([
+    Tweak.Quantity(graph.channels[0], 'value', name="Red"),
+    Tweak.Quantity(graph.channels[1], 'value', name="Green"),
+    Tweak.Quantity(graph.channels[2], 'value', name="Blue"),
     ])
 tweaker.show()
 vbox.pack_start(tweaker, gtk.FALSE)

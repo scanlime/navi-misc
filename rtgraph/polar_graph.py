@@ -16,8 +16,6 @@ functions = [
 
 varDict = {'t': rtgraph.TimeVariable()}
 channels = [rtgraph.FunctionChannel(f, vars=varDict) for f in functions]
-win = rtgraph.GraphUIWindow(channels, rtgraph.PolarVectorGraph())
+win = rtgraph.GraphUIWindow(channels, rtgraph.PolarVectorGraph(), defaultSize=(500,300))
 win.connect("destroy", gtk.mainquit)
-win.set_default_size(500,300)
-win.show()
 gtk.main()
