@@ -1,17 +1,36 @@
 #include "about.h"
 
+void on_about_close(GtkWidget *widget, gpointer data);
+
 void initialize_about_dialog() {
 	GtkWidget *about;
 	GdkPixbuf *soap;
+	gchar *authors[] = {
+		"David Trowbridge",
+		"Dan Kuester",
+		NULL
+	};
+	gchar *documentors[] = {
+		NULL
+	};
 
-	about = glade_xml_get_widget(gui.xml, "about dialog");
 	soap = gdk_pixbuf_new_from_file("data/soap.png", NULL);
-	g_object_set(G_OBJECT(about), "logo", soap, NULL);
+	gui.about = GNOME_ABOUT(gnome_about_new(
+		"X-Chat GNOME",
+		"x.x",
+		"Copyright (c) 2004\nDavid Trowbridge and Daniel Kuester",
+		"It has been well observed that a trombone\nis not a suitable instrument for a gentleman",
+		authors,
+		documentors,
+		"",
+		soap));
 }
 
 void show_about_dialog() {
-	GtkWidget *about;
+	initialize_about_dialog();
+	gtk_widget_show_all(GTK_WIDGET(gui.about));
+}
 
-	about = glade_xml_get_widget(gui.xml, "about dialog");
-	gtk_widget_show_all(about);
+void on_about_close(GtkWidget *widget, gpointer data) {
+	gtk_widget_hide_all(GTK_WIDGET(gui.about));
 }
