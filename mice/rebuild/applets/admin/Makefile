@@ -1,6 +1,8 @@
 CLASSES=\
 	info.class\
 	net.class\
+	keyinfo.class\
+	key.class\
 	authenticate.class\
 	interview.class\
 	moderator.class\
@@ -19,6 +21,12 @@ authenticate.class: authenticate.java
 
 interview.class: interview.java
 	javac interview.java
+
+keyinfo.class: keyinfo.java
+	javac keyinfo.java
+
+key.class: key.java
+	javac key.java
 
 moderator.class: moderator.java
 	javac moderator.java
