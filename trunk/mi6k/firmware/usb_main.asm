@@ -8,6 +8,26 @@
 ;
 ; MI6K modifications done by Micah Dowty <micah@picogui.org>
 ;
+; Peripheral resources:
+;    CCP1, CCP2, TMR2 - LED brightness controls
+;    USART            - VFD serial
+;    TMR1             - IR receive timing
+;    TMR0             - IR transmit timing
+;    INT              - IR receiver external interrupt
+;
+; Control flow:
+;    USB activity and the resulting control requests are processed from the
+;    program's main loop. The interrupt driven parts of the original USB code
+;    have been preserved, and in addition a service routine for the IR receiver
+;    has been added.
+;    Received IR pulses cause an interrupt which uses TMR1 to generate mark and
+;    space timings for the received pulses. These timings are buffered, then stored
+;    in the endpoint 0 buffer when full, for pickup by the host.
+;    VFD serial, VFD power, status information, LED control, and IR transmission
+;    are all triggered by USB requests in the main loop. They all use peripherals
+;    for timing rather than cycle-counting, so interrupts will not disrupt serial
+;    communications, make the LEDs flicker, or disrupt IR transmission.
+;
 ;###############################################################################
 ;
 ; The original license agreement and author information for the USB firmware follow:
