@@ -238,7 +238,7 @@ static int server_read(struct server *self, int *length, void **content)
 	}
 
 	/* Can't do anything else until we get the content */
-	free(content);
+	free(*content);
 	return 0;
       }
       else {
