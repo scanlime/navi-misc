@@ -143,7 +143,7 @@ void              leaf_init                      (RtgBPTree*        self)
  * structure element within a storage page
  */
 #define DYNAMIC_STRUCT_ITEM(tree, page, offset_name, type) \
-    ((type)(rtg_page_storage_lookup(tree, page) + tree->offset_name##_offset))
+    ((type)(rtg_page_storage_lookup(tree->storage, page) + tree->offset_name##_offset))
 
 /* Macros that refer to individual items in our dynamically
  * proportioned structures. By implementing these as macros,
@@ -153,6 +153,7 @@ void              leaf_init                      (RtgBPTree*        self)
 #define index_count(tree, page)    (*DYNAMIC_STRUCT_ITEM(tree, page, index.count, int*))
 #define index_key(tree, page, i)   (DYNAMIC_STRUCT_ITEM(tree, page, index.keys, gpointer) + (tree)->sizeof_key*(i))
 #define index_child(tree, page, i) (DYNAMIC_STRUCT_ITEM(tree, page, index.child, RtgPageAddress*)[i])
+
 #define leaf_prev(tree, page)      (*DYNAMIC_STRUCT_ITEM(tree, page, leaf.prev, RtgPageAddress*))
 #define leaf_next(tree, page)      (*DYNAMIC_STRUCT_ITEM(tree, page, leaf.next, RtgPageAddress*))
 #define leaf_parent(tree, page)    (*DYNAMIC_STRUCT_ITEM(tree, page, leaf.parent, RtgPageAddress*))
@@ -185,10 +186,22 @@ static void       init_namespaced_page_atom      (RtgPageStorage*   storage,
     /* Init a RtgPageAtom to hold a page address with a particular name,
      * namespaced within our tree name.
      */
-    gchar *name = g_strdup_printf("RtgBPTree/%s/%s", tree_name, page_name);
+    gchar *name = g_strdup_printf("%s.%s", tree_name, page_name);
     rtg_page_atom_find_or_create(storage, RTG_PAGE_HEADER, atom, name,
 				 RtgPageAddress, RTG_PAGE_NULL);
     g_free(name);
+}
+
+static gboolean   validate_iter                  (RtgBPTree*        self,
+						  RtgBPIter*        iter)
+{
+  if (rtg_bptree_iter_is_valid(self, iter)) {
+    return TRUE;
+  }
+  else {
+    g_warning("Invalid RtgBPIter %p in tree %p", iter, self);
+    return FALSE;
+  }
 }
 
 
@@ -219,6 +232,15 @@ RtgBPTree*        rtg_bptree_new                 (RtgPageStorage*   storage,
     init_namespaced_page_atom(storage, &self->root, name, "root");
     init_namespaced_page_atom(storage, &self->first_leaf, name, "first_leaf");
     init_namespaced_page_atom(storage, &self->last_leaf, name, "last_leaf");
+
+    /* Create the root if it doesn't exist */
+    if (rtg_page_atom_value(storage, &self->root, RtgPageAddress) == RTG_PAGE_NULL) {
+      RtgPageAddress root = rtg_page_storage_alloc(storage);
+      rtg_page_atom_value(storage, &self->root, RtgPageAddress) = root;
+
+      index_parent(self, root) = RTG_PAGE_NULL;
+      index_count(self, root) = 0;
+    }
 
     return self;
 }
@@ -267,34 +289,49 @@ void              rtg_bptree_last                (RtgBPTree*        self,
 void              rtg_bptree_prev                (RtgBPTree*        self,
 						  RtgBPIter*        iter)
 {
+  if (!validate_iter(self, iter))
+    return;
+
 }
 
 void              rtg_bptree_next                (RtgBPTree*        self,
 						  RtgBPIter*        iter)
 {
+  if (!validate_iter(self, iter))
+    return;
+
 }
 
 gpointer          rtg_bptree_read_key            (RtgBPTree*        self,
 						  RtgBPIter*        iter)
 {
+  if (!validate_iter(self, iter))
     return NULL;
+  return leaf_key(self, iter->leaf_page, iter->leaf_index);
 }
 
 gpointer          rtg_bptree_read_value          (RtgBPTree*        self,
 						  RtgBPIter*        iter)
 {
+  if (!validate_iter(self, iter))
     return NULL;
+  return leaf_value(self, iter->leaf_page, iter->leaf_index);
 }
 
 void              rtg_bptree_write_value         (RtgBPTree*        self,
 						  RtgBPIter*        iter,
 						  gpointer          key)
 {
+  if (!validate_iter(self, iter))
+    return;
+
 }
 
 void              rtg_bptree_remove              (RtgBPTree*        self,
 						  RtgBPIter*        iter)
 {
+  if (!validate_iter(self, iter))
+    return;
 }
 
 /* The End */
