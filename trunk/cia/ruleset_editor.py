@@ -227,9 +227,9 @@ class RulesetEditor:
 
 
 if __name__ == "__main__":
-    # Locate our glade file by looking in the 'data' directory wherever our source file is located.
-    gladeFile = os.path.join(os.path.dirname(sys.argv[0]), "data", "ruleset_editor.glade")
-    ui = RulesetEditor(gladeFile, "http://yoshi:3910")
+    # Locate our glade file by looking wherever our source file is located.
+    gladeFile = os.path.join(os.path.dirname(sys.argv[0]), "ruleset_editor.glade")
+    ui = RulesetEditor(gladeFile, "http://localhost:3910")
     ui.window.connect("destroy", gtk.mainquit)
     gtk.main()
 
