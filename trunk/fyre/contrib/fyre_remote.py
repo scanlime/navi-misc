@@ -14,12 +14,13 @@ RESPONSE_FALSE        = 252
 RESPONSE_BINARY       = 380
 RESPONSE_UNRECOGNIZED = 500
 RESPONSE_BAD_VALUE    = 501
+RESPONSE_UNSUPPORTED  = 502
 
 
 class FyreException(Exception):
     def __init__(self, code, message, command):
-        Exception.__init__(self, "In response to '%r' received %d %s" %
-                           (command, code, message))
+        Exception.__init__(self, "%d %s (in response to %r)" %
+                           (code, message, command))
 
 
 class FyreServer:
@@ -49,7 +50,8 @@ class FyreServer:
         """Read the server's next response, returning
            a (response_code, message) tuple.
            """
-        code, message = self.file.readline().strip().split(" ", 1)
+        line = self.file.readline().strip()
+        code, message = line.split(" ", 1)
         return int(code), message
 
     def command(self, *tokens):

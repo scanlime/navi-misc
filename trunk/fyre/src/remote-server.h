@@ -62,7 +62,7 @@ void              remote_server_main_loop     (int        port_number,
 					  */
 #define FYRE_RESPONSE_UNRECOGNIZED  500  /* Command not recognized */
 #define FYRE_RESPONSE_BAD_VALUE     501  /* Inappropriate parameter value */
-
+#define FYRE_RESPONSE_UNSUPPORTED   502  /* Command was recognized, but is not currently supported */
 
 G_END_DECLS
 
