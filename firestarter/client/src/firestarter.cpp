@@ -85,7 +85,7 @@ SceneType CFirestarterLoop::GetSceneType ( void )
 
 const char* CFirestarterLoop::GetCameraName ( void )
 {
-  return "FirestarterCam";
+  return "playerCam";
 }
 
 const char*  CFirestarterLoop::GetRootResDir ( void )
