@@ -9,5 +9,11 @@ viewport.setCaption("Wasabi")
 view = ThreeDRender.View(viewport)
 control = ThreeDControl.Viewing(view, viewport)
 
-book = Sequencer.CyclicBook(view, Logos.getLogoList())
+# Our main book, running only once
+mainBook = Sequencer.Book(view, [
+    Sequencer.FadeOut(3, (0,0,0), Sequencer.UserPageInterrupter(Logos.getLogoSubBook()))
+    ])
+
+# Exit our main loop once the mainBook finishes
+mainBook.onFinish.observe(loop.stop)
 loop.run()
