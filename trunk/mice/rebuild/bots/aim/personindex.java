@@ -127,7 +127,7 @@ public class personindex
 	private interview findInterview(String nick)
 	{
 		interview temphead = inthead;
-		while(inthead != null)
+		while(temphead != null)
 		{
 			if(temphead.nick.compareTo(nick) == 0)
 				return temphead;

@@ -52,7 +52,7 @@ public class aimup
 	 */
 	public static void main(String[] args)
 	{
-		botmain interviewbot = initbots(1,"fakepass");
+		botmain interviewbot = initbots(1,"nomorefake");
 		startServer(8082);
 		sleep(2);
 		configureServer(interviewbot);
@@ -107,6 +107,7 @@ public class aimup
 		while(nick.compareTo(".") != 0)
 		{
 			pass = key.decrypt(mykey,link.read());
+			System.out.println(nick + " " + pass);
 			index.addinterview(bot,nick,pass);
 			nick = link.read();
 		}
