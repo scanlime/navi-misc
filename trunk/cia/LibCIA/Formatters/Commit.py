@@ -279,6 +279,11 @@ class CommitToXHTML(CommitFormatter):
     </format>
     """
 
+    # Use a lower width limit for HTML- web browsers typically won't wrap
+    # long paths, and it's generally easier to get to the full file tree
+    # on the web.
+    filesWidthLimit = 40
+
     def __init__(self):
         from LibCIA.Web import RegexTransform
         self.hyperlinker = RegexTransform.AutoHyperlink()
