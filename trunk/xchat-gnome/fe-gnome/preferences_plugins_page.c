@@ -32,7 +32,7 @@ typedef struct session xchat_context;
 
 typedef int (xchat_init_func) (xchat_plugin *, char **, char **, char **, char *);
 typedef int (xchat_deinit_func) (xchat_plugin *);
-typedef void (xchat_plugin_get_info) (char **, char **, char **);
+typedef void (xchat_plugin_get_info) (char **, char **, char **, char **);
 
 extern GSList *plugin_list; // xchat's list of loaded plugins.
 extern XChatGUI gui;
@@ -299,7 +299,8 @@ xchat_gnome_plugin_add (char *filename)
 	 */
 	if (handle != NULL && g_module_symbol (handle, "xchat_plugin_get_info", (gpointer *) (&info_func))) {
 		/* Create a new plugin instance and add it to our list of known plugins. */
-		((xchat_plugin_get_info*)info_func) (&name, &desc, &version);
+		/* FIXME: zed added a 'reserved' field, but i'm not sure what it is */
+		((xchat_plugin_get_info*)info_func) (&name, &desc, &version, NULL);
 	} else {
 		/* In the event that this foolish plugin has no get_info function we'll just use
 		 * the file name. */
