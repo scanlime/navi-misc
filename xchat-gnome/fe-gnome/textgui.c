@@ -245,7 +245,7 @@ set_gui_topic (session *sess, char *topic)
 	else
 		tgui->topic = g_strdup (topic);
 	if (sess == gui.current_session)
-		gtk_label_set_markup (GTK_LABEL (gui.topic_label), tgui->topic);
+		gtk_label_set_text (GTK_LABEL (gui.topic_label), tgui->topic);
 }
 
 void

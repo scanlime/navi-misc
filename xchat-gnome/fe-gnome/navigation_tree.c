@@ -245,7 +245,7 @@ navigation_tree_create_new_channel_entry (NavTree *navtree, struct session *sess
 
 	navigation_tree_select_session (navtree, sess);
 
-	gtk_label_set_markup (GTK_LABEL (gui.topic_label), sess->topic);
+	gtk_label_set_text (GTK_LABEL (gui.topic_label), sess->topic);
 	net = sess->server->network;
 	if (net == NULL)
 		rename_main_window (NULL, sess->channel);
@@ -808,7 +808,7 @@ navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_dat
 			gtk_xtext_buffer_show (gui.xtext, tgui->buffer, TRUE);
 
 			/* Set the topic. */
-			gtk_label_set_markup (GTK_LABEL (gui.topic_label), tgui->topic);
+			gtk_label_set_text (GTK_LABEL (gui.topic_label), tgui->topic);
 
 			/* Set the text entry field to whatever is in the text entry of this session. */
 			entry = glade_xml_get_widget (gui.xml, "text entry");
