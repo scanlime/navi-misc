@@ -1,3 +1,7 @@
+/*
+ *   (C) 2004 Brandon Smith smibrand@mscd.edu
+ */
+
 /**
  * This serves as an abstract interface for interview protocol classes
  */

@@ -1,3 +1,7 @@
+/*
+ *   (C) 2004 Brandon Smith smibrand@mscd.edu
+ */
+
 /**
  * This class handles the chat based interview clients.
  * @author Brandon Smith

@@ -1,3 +1,7 @@
+/*
+ *   (C) 2004 Brandon Smith smibrand@mscd.edu
+ */
+
 /**
  * This is a static class that allows for a quick and easy connections and 
  * socket IO.

@@ -1,3 +1,7 @@
+/*
+ *   (C) 2004 Brandon Smith smibrand@mscd.edu
+ */
+
 /**
  * This class sets up the web update configuration.
  * @author Brandon Smith

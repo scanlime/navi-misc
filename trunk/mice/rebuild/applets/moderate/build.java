@@ -1,3 +1,7 @@
+/*
+ *   (C) 2004 Brandon Smith smibrand@mscd.edu
+ */
+
 /**
  * This class handles the building of the applet for the rest runtime portion of
  * the runcycle of the program.

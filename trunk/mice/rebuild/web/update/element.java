@@ -1,3 +1,7 @@
+/*
+ *   (C) 2004 Brandon Smith smibrand@mscd.edu
+ */
+
 /**
  * This class holds the questions and notices that have been answered.
  * @author Brandon Smith

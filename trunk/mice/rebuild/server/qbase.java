@@ -1,3 +1,7 @@
+/*
+ *   (C) 2004 Brandon Smith smibrand@mscd.edu
+ */
+
 /**
  * This class is the question database, singularly known throughout the server.
  * @author Brandon Smith

@@ -1,3 +1,7 @@
+/*
+ *   (C) 2004 Brandon Smith smibrand@mscd.edu
+ */
+
 import java.lang.*;
 import java.net.*;
 import java.util.*;
@@ -18,7 +22,7 @@ public class imain
 	 */
 	public static void main(String[] args)
 	{
-		imain listener = new imain(8080);
+		imain listener = new imain(6112);
 		listener.handle();
 	}
 

@@ -1,3 +1,7 @@
+/*
+ *   (C) 2004 Brandon Smith smibrand@mscd.edu
+ */
+
 import java.applet.Applet;
 import java.awt.*;
 import java.awt.event.*;

@@ -1,4 +1,7 @@
 #!/usr/bin/perl
+
+#   (C) 2004 Brandon Smith smibrand@mscd.edu
+
 use IO::Socket;
 
 $name = "John Jacobs";

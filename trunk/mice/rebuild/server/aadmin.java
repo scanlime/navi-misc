@@ -1,3 +1,7 @@
+/*
+ *   (C) 2004 Brandon Smith smibrand@mscd.edu
+ */
+
 /**
  * This is the class that handles administration.  It keeps static information
  * on the state of the server, so if the administrator gets disconnected, life

@@ -1,3 +1,7 @@
+/*
+ *   (C) 2004 Brandon Smith smibrand@mscd.edu
+ */
+ 
 /**
  *This object stores an individual question, and handles all the singularly questionable things.
  */
