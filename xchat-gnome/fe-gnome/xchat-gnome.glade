@@ -3651,7 +3651,7 @@ Your Xchat-gnome preferences have not yet been set.  You can continue to the Xch
 
 <widget class="GtkDialog" id="error dialog">
   <property name="border_width">6</property>
-  <property name="title" translatable="yes">dialog1</property>
+  <property name="title" translatable="yes">Error</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_NONE</property>
   <property name="modal">True</property>

@@ -28,7 +28,7 @@ error_dialog (const gchar *header, const gchar *message)
 	dialog = glade_xml_get_widget (gui.xml, "error dialog");
 	label = glade_xml_get_widget (gui.xml, "error label");
 	gchar *text = g_strdup_printf ("<span weight=\"bold\" size=\"larger\">%s</span>\n\n%s", header, message);
-	gtk_label_set_text (GTK_LABEL (label), text);
+	gtk_label_set_markup (GTK_LABEL (label), text);
 	g_free (text);
 	gtk_dialog_run (GTK_DIALOG (dialog));
 	gtk_widget_hide (dialog);
