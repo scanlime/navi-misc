@@ -2,8 +2,8 @@
 	<schemalist>
 
 		<schema>
-			<key>/schemas/apps/xchat/urlscraper/history</key>
-			<applyto>/apps/xchat/urlscraper/history</applyto>
+			<key>/schemas/apps/xchat/plugins/urlscraper/history</key>
+			<applyto>/apps/xchat/plugins/urlscraper/history</applyto>
 			<owner>xchat</owner>
 			<type>int</type>
 			<default>10</default>
@@ -13,8 +13,8 @@
 		</schema>
 
 		<schema>
-			<key>/schemas/apps/xchat/urlscraper/timestamps</key>
-			<applyto>/apps/xchat/urlscraper/timestamps</applyto>
+			<key>/schemas/apps/xchat/plugins/urlscraper/timestamps</key>
+			<applyto>/apps/xchat/plugins/urlscraper/timestamps</applyto>
 			<owner>xchat</owner>
 			<type>bool</type>
 			<default>true</default>
