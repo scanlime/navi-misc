@@ -32,8 +32,8 @@ G_BEGIN_DECLS
 #define IS_FIELD_SENSOR(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), FIELD_SENSOR_TYPE))
 #define IS_FIELD_SENSOR_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), FIELD_SENSOR_TYPE))
 
-typedef struct _FieldSensor      FieldSensor;
-typedef struct _FieldSensorClass FieldSensorClass;
+typedef struct _FieldSensor        FieldSensor;
+typedef struct _FieldSensorClass   FieldSensorClass;
 typedef struct _FieldSensorPrivate FieldSensorPrivate;
 
 #define FS_TX_0 (1 << 0)
