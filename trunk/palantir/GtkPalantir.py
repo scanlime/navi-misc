@@ -262,15 +262,21 @@ class PalantirWindow:
 
     # If the message is a command (i.e. starts with '/') try and execute that command.
     if text.startswith('/'):
-      # Strip out the slash and the arguments to the command.
-      command = text[1:text.find(' ')].lower()
-
-      # Get the arguments to the command.
-      arg = text[text.find(' '):].strip()
-
+      if text.find(' ') is -1:
+	command = text[1:]
+	arg = None
+      else:
+        # Strip out the slash and the arguments to the command.
+        command = text[1:text.find(' ')].lower()
+        # Get the arguments to the command.
+        arg = text[text.find(' '):].strip()
+      
       # If the command is implemented here, call that function.
       if hasattr(self, command):
-        getattr(self, command)(arg)
+	if arg:
+          getattr(self, command)(arg)
+	else:
+	  getattr(self, command)()
 
     # If the message isn't a command it's a regular message.
     else:
@@ -328,16 +334,19 @@ class PalantirWindow:
     self.Connect(args)
 
   def join(self, args):
+    ''' Join command. '''
     self.tree.get_widget('SendField').set_text('')
     self.tree.get_widget('UserList').get_model().clear()
     if self.factory.channels[0]:
       self.factory.close(self.factory.channels[0])
     self.factory.join(args)
 
-  def close(self, args):
+  def close(self, args="Leaving..."):
+    ''' Close command. '''
     self.tree.get_widget('SendField').set_text('')
-    self.tree.get_widget('UserList').get_model().clear()
-    self.factory.close(self.factory.channels[0])
+    if self.factory.channels[0]:
+      self.tree.get_widget('UserList').get_model().clear()
+      self.factory.close(self.factory.channels[0])
 
   def me(self, args):
     self.factory.me(self.factory.channels[0], args)
@@ -351,7 +360,14 @@ class PalantirWindow:
   def ping(self, args):
     print 'Not Done'
 
-  def quit(self, args):
+  def quit(self, args="Leaving..."):
+    # Clear the text field.
+    self.tree.get_widget('SendField').set_text('')
+    # Leave the channel.
+    if self.factory.channels[0]:
+      self.factory.close(self.factory.channels[0], args)
+    # Notify the user they disconnected.
+    self.messageReceive(None, None, '*** You disconnected.')
     self.Disconnect()
 
   ### Misc. Necessary Functions ###
