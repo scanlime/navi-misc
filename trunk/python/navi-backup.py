@@ -201,9 +201,6 @@ class DVDReader:
         gc.collect()
         if os.system("umount %s" % shellEscape(self.mountpoint)):
             raise IOError("Error unmounting %s" % self.mountpoint)
-        else:
-            # try ejecting
-            os.system("eject")
 
 
 class DVDBurner:
