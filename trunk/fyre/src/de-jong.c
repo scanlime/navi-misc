@@ -627,13 +627,13 @@ void de_jong_calculate(IterativeMap *map, guint iterations) {
   const gboolean emphasize_transient = self->emphasize_transient;
 
   /* Blurring variables */
-  int blur_table_size;
-  int blur_ratio_period;
-  int blur_index, blur_ratio_index, blur_ratio_threshold;
-  float *blur_table;
+  int blur_table_size = 0;
+  int blur_ratio_period = 0;
+  int blur_index = 0, blur_ratio_index = 0, blur_ratio_threshold = 0;
+  float *blur_table = NULL;
 
   /* Rotation/aspect matrix variables */
-  double sine_rotation, cosine_rotation, mat_a, mat_b, mat_c, mat_d;
+  double sine_rotation, cosine_rotation, mat_a = 0, mat_b = 0, mat_c = 0, mat_d = 0;
 
   /* Iteration and projection variables */
   double x, y, point_x, point_y;
