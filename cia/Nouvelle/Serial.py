@@ -28,6 +28,13 @@ I think lowercase makes more sense.
 
 __all__ = ['place', 'xml', 'subcontext', 'tag', 'quote', 'Serializer', 'DocumentOwner']
 
+# Use psyco if we can, as this module is the bottleneck in most web apps
+# and the code is small enough that the memory penalty is minimal
+try:
+    from psyco.classes import __metaclass__
+except ImportError:
+    pass
+
 
 class place:
     """A placeholder for data that can be rendered by a document's owner.
@@ -174,15 +181,30 @@ class Serializer:
        are allowed to render themselves, other types must have renderers looked
        up in this class's render_* methods.
        """
+    def __init__(self):
+        self.cache = {}
+
     def render(self, obj, context):
-        """Look up a render_* function based on the object's type"""
-        if hasattr(obj, 'render'):
-            return self.render_renderable(obj, context)
+        # We cache rendering functions based on obj.__class__.
+        # This assumes that classes won't spontaneously
+        # grow a render() method, which is safe enough for our purposes.
+        # If you know otherwise, you can just create a new Serializer or
+        # invalidate the cache on this one.
         try:
-            f = getattr(self, 'render_' + obj.__class__.__name__)
-        except AttributeError:
-            f = self.render_other
+            f = self.cache[obj.__class__]
+        except KeyError:
+            f = self.lookupRenderer(obj.__class__)
+            self.cache[obj.__class__] = f
         return f(obj, context)
+
+    def lookupRenderer(self, cls):
+        """Look up a rendering function for the given class"""
+        if hasattr(cls, 'render'):
+            return self.render_renderable
+        try:
+            return getattr(self, 'render_' + cls.__name__)
+        except AttributeError:
+            return self.render_other
 
     def render_xml(self, obj, context):
         return obj
