@@ -73,13 +73,16 @@ public class ElementTooltip
 		for (uint i = 0; i < len; i++) {
 			Gtk.Label variable = new Gtk.Label ();
 			Gtk.Label desc     = new Gtk.Label ();
-			
+
+			variable.Xalign = 0.0f;
+			desc.Xalign     = 0.0f;
+
 			variable.Markup = BuildString (s[i,0]);
 			desc.Markup     = BuildString (s[i,1]);
 		
 			t.Attach (variable, 0, 1, i, i+1);
 			t.Attach (desc,     1, 2, i, i+1);
-			t.ColumnSpacing = 6;
+			t.ColumnSpacing = 12;
 			t.RowSpacing = 3;
 		}
 		return t;
