@@ -32,13 +32,14 @@ static float get_pixel_scale();
 static void update_color_table();
 
 
-void resize(int w, int h) {
+void resize(int w, int h, int oversample) {
   render.width = w;
   render.height = h;
+  render.oversample = oversample;
 
   if (render.counts)
     g_free(render.counts);
-  render.counts = g_malloc(sizeof(render.counts[0]) * render.width * render.height);
+  render.counts = g_malloc(sizeof(render.counts[0]) * w * h * oversample * oversample);
 
   if (render.pixels)
     g_free(render.pixels);
@@ -48,7 +49,8 @@ void resize(int w, int h) {
 }
 
 void clear() {
-  memset(render.counts, 0, render.width * render.height * sizeof(int));
+  memset(render.counts, 0, render.width * render.height *
+	 render.oversample * render.oversample * sizeof(int));
   render.current_density = 0;
   render.iterations = 0;
   point.x = uniform_variate();
@@ -90,7 +92,8 @@ static void update_color_table() {
    * to match the current_density, exposure, gamma, and other rendering parameters.
    * The color tabls is what maps counts[] values to pixels[] values quickly.
    */
-  guint required_size = render.current_density + 1;
+  guint oversampled_density = render.current_density * render.oversample * render.oversample;
+  guint required_size = oversampled_density + 1;
   guint count;
   int r, g, b;
   float pixel_scale = get_pixel_scale();
@@ -108,7 +111,7 @@ static void update_color_table() {
   }
 
   /* Generate one color for every currently-possible count value... */
-  for (count=0; count<=render.current_density; count++) {
+  for (count=0; count<=oversampled_density; count++) {
 
     /* Scale and gamma-correct */
     luma = count * pixel_scale;
@@ -134,19 +137,40 @@ static void update_color_table() {
 }
 
 void update_pixels() {
-  /* Convert counts[] to colored 8-bit ARGB image data using our color lookup table */
+  /* Convert counts[] to colored 8-bit ARGB image data using our color lookup table,
+   * downsampling by combining all count buckets that represent each of our output pixels.
+   */
   guint32 *pixel_p;
-  guint *count_p;
-  int x, y;
+  guint *count_p, *sample_p;
+  const int oversample = render.oversample;
+  const int sample_stride = (render.width * oversample) - oversample;
+  const int sample_y_stride = (render.width * oversample) * (oversample - 1);
+  int x, y, sample_x, sample_y;
+  guint sample;
 
   update_color_table();
 
   pixel_p = render.pixels;
   count_p = render.counts;
 
-  for (y=render.height; y; y--)
-    for (x=render.width; x; x--)
-      *(pixel_p++) = render.color_table[*(count_p++)];
+  for (y=render.height; y; y--) {
+    for (x=render.width; x; x--) {
+
+      /* For each output pixel, accumulate an oversample^2 region of point counts */
+      sample = 0;
+      sample_p = count_p;
+      for (sample_y=oversample; sample_y; sample_y--) {
+	for (sample_x=oversample; sample_x; sample_x--) {
+	  sample += *(sample_p++);
+	}
+	sample_p += sample_stride;
+      }
+
+      count_p += oversample;
+      *(pixel_p++) = render.color_table[sample];
+    }
+    count_p += sample_y_stride;
+  }
 
   render.dirty_flag = FALSE;
 }
@@ -162,8 +186,10 @@ float normal_variate() {
 }
 
 void run_iterations(int count) {
-  const double xcenter = render.width / 2.0;
-  const double ycenter = render.height / 2.0;
+  const int count_width = render.width * render.oversample;
+  const int count_height = render.height * render.oversample;
+  const double xcenter = count_width / 2.0;
+  const double ycenter = count_height / 2.0;
   const double scale = xcenter / 2.5 * params.zoom;
   const gboolean rotation_enabled = params.rotation > 0.0001 || params.rotation < -0.0001;
   const gboolean blur_enabled = params.blur_ratio > 0.0001 && params.blur_radius > 0.00001;
@@ -231,8 +257,8 @@ void run_iterations(int count) {
     /* Clip to the size of our image. Note that ix and iy are
      * unsigned, so we only have to make one comparison each.
      */
-    if (ix < render.width && iy < render.height) {
-      p = render.counts + ix + render.width * iy;
+    if (ix < count_width && iy < count_height) {
+      p = render.counts + ix + count_width * iy;
       d = *p = *p + 1;
       if (d > render.current_density)
 	render.current_density = d;

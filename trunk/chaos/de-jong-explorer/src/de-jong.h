@@ -37,6 +37,7 @@ struct computation_params {
 
 struct render_params {
   guint width, height;
+  guint oversample;
   guint *counts;
   guint32 *pixels;
 
@@ -70,7 +71,7 @@ void save_to_file(const char *name);
 /* render.c */
 float uniform_variate();
 float normal_variate();
-void resize(int w, int h);
+void resize(int w, int h, int oversample);
 void update_pixels();
 void clear();
 void run_iterations(int count);

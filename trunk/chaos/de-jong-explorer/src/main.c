@@ -100,7 +100,7 @@ int main(int argc, char ** argv) {
     return 1;
   }
 
-  resize(render.width, render.height);
+  resize(render.width, render.height, render.oversample);
 
   switch (mode) {
 
@@ -225,6 +225,7 @@ void set_defaults() {
 
   render.width = 600;
   render.height = 600;
+  render.oversample = 2;
   render.target_density = 10000;
 }
 
