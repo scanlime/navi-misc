@@ -42,7 +42,7 @@ class DonationSection(Web.Template.Section):
 # Remove the non-main CIA server notice, since this is in fact the
 # main server, and add the above donation box.
 Web.Template.Page.site_mainServerNotice = []
-Web.Template.Page.site_belowFirstSidebox = [DonationSection()]
+Web.Template.Page.site_belowLeftColumn.append(DonationSection())
 
 
 # FIXME: This is an experimental rate limiter that shoudl keep CIA
