@@ -129,7 +129,11 @@ class PalantirWindow:
 	'''
     store = self.tree.get_widget('UserList').get_model()
     image = gtk.Image()
-    time = palantir.getTime()
+
+    if self.tree.get_widget('time_stamps').get_active():
+      time = palantir.getTime()
+    else:
+      time = None
 
     if widget.get_active():
       image.set_from_file('/usr/share/palantir/pixmaps/dm.png')
@@ -295,6 +299,9 @@ class PalantirWindow:
 	'''
     time,nick,text,addressed = palantir.formatMessage(user, msg,
 	                                         ourName=self.factory.nickname)
+    if not self.tree.get_widget('time_stamps').get_active():
+      time = None
+
     self.chatWindow.DisplayText(time, nick, text, addressed)
 
   def meReceive(self, user, channel, msg):
@@ -305,7 +312,10 @@ class PalantirWindow:
 
   def nickReceive(self, oldNick, channel, newNick):
     ''' When someone changes a nick display it. '''
-    time = palantir.getTime()
+    if self.tree.get_widget('time_stamps').get_active():
+      time = palantir.getTime()
+    else:
+      time = None
     self.chatWindow.DisplayText(time, '', oldNick + ' is now known as ' + newNick)
 
   ### If implemented, these are called by palantirIRC when their events
@@ -314,27 +324,39 @@ class PalantirWindow:
     ''' Just display a short message saying we joined the channel and send
         a WHO request to get the users in the channel.
 	'''
-    time = palantir.getTime()
+    if self.tree.get_widget('time_stamps').get_active():
+      time = palantir.getTime()
+    else:
+      time = None
     self.chatWindow.DisplayText(time, '', 'Joined ' + channel)
 
   def left(self, channel):
     ''' Clear the userlist when we leave a channel and display a small
         message saying we've left.
 	'''
-    time = palantir.getTime()
+    if self.tree.get_widget('time_stamps').get_active():
+      time = palantir.getTime()
+    else:
+      time = None
     self.tree.get_widget('UserList').get_model().clear()
     self.chatWindow.DisplayText(time, '', 'Left ' + channel)
     self.tree.get_widget('Topic').set_text('')
 
   def topicReceive(self, user, channel, topic):
     ''' Recieved a topic change, so set the topic bar to the new topic. '''
-    time = palantir.getTime()
+    if self.tree.get_widget('time_stamps').get_active():
+      time = palantir.getTime()
+    else:
+      time = None
     self.tree.get_widget('Topic').set_text(topic)
     self.chatWindow.DisplayText(time, '', user + ' has changed the topic to: ' + topic)
 
   def setTopicOnJoin(self, params):
     ''' Handle the topic notification for joining a channel specially. '''
-    time = palantir.getTime()
+    if self.tree.get_widget('time_stamps').get_active():
+      time = palantir.getTime()
+    else:
+      time = None
     self.chatWindow.DisplayText(time, '', 'Topic for ' + params[1] + ' is: ' + params[2])
     self.tree.get_widget('Topic').set_text(params[2])
 
@@ -343,14 +365,20 @@ class PalantirWindow:
         list.
 	'''
     self.AddUserToList(user)
-    time = palantir.getTime()
+    if self.tree.get_widget('time_stamps').get_active():
+      time = palantir.getTime()
+    else:
+      time = None
     self.chatWindow.DisplayText(time, '', user + ' has joined ' + channel)
 
   def userLeft(self, user, channel):
     ''' When a user leaves the channel display a notification and
         remove them from the user list.
 	'''
-    time = palantir.getTime()
+    if self.tree.get_widget('time_stamps').get_active():
+      time = palantir.getTime()
+    else:
+      time = None
     self.tree.get_widget('UserList').get_model().foreach(self.RemoveUserFromList,user)
     self.chatWindow.DisplayText(time, '', user + ' has left ' + channel)
 
@@ -369,7 +397,10 @@ class PalantirWindow:
         display that icon next to their name in the user list.
 	'''
     nick = palantir.getNick(user, False)
-    time = palantir.getTime()
+    if self.tree.get_widget('time_stamps').get_active():
+      time = palantir.getTime()
+    else:
+      time = None
     image = gtk.Image()
     image.set_from_file('/usr/share/palantir/pixmaps/dm.png')
     self.tree.get_widget('UserList').get_model().foreach(
@@ -381,7 +412,10 @@ class PalantirWindow:
         themselves, so remove the icon from next to their name.
 	'''
     nick = palantir.getNick(user, False)
-    time = palantir.getTime()
+    if self.tree.get_widget('time_stamps').get_active():
+      time = palantir.getTime()
+    else:
+      time = None
     self.tree.get_widget('UserList').get_model().foreach(self.setUserIcon, (nick, None))
     self.chatWindow.DisplayText(time, '', '*** ' + nick + ' has removed DM status.')
 
