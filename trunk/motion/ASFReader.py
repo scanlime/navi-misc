@@ -71,6 +71,7 @@ class ASFReader:
     order = []
     axis = None
     position = []
+    name = None
     orientation = []
     grammar = None
     units = {}
@@ -88,10 +89,13 @@ class ASFReader:
         dict = listToDict(toks[0])
         bone = Bone(dict)
         self.bones[bone.name] = bone
+    def gotName(self, s, loc, toks):
+        self.name = toks[0]
 
     def getGrammar(self):
         if self.grammar is None:
             float = Word(nums + '.e+-')
+            name = Word(printables)
             comment = Literal('#') + Optional (restOfLine)
             axisOrder = oneOf("XYZ XZY YXZ YZX ZXY ZYX")
             ro = oneOf("TX TY TZ RX RY RZ")
@@ -121,7 +125,7 @@ class ASFReader:
             sectstart = LineStart() + Literal(':').suppress()
             section = Group(
                 sectstart + "version" + float \
-              | sectstart + "name" + Word(printables) \
+              | sectstart + "name" + name \
               | sectstart + "units" + unit \
               | sectstart + "documentation" + docLine \
               | sectstart + "root" + root \
@@ -134,6 +138,7 @@ class ASFReader:
             root.setParseAction(self.gotRoot)
             unit.setParseAction(self.gotUnit)
             bone.setParseAction(self.gotBone)
+            name.setParseAction(self.gotName)
 
         return self.grammar
 

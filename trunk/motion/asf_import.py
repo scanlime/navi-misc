@@ -40,7 +40,26 @@ except ImportError:
     ASFReader = None
 
 def importObjects(reader):
-    pass
+    scene = Blender.Scene.getCurrent()
+    armObj = Blender.Object.New('Armature', reader.name)
+    armData = Blender.Armature.New()
+    for k in reader.bones.keys():
+        b = reader.bones[k]
+        bone = Blender.Armature.Bone.New(k)
+
+        bone.setHead(0.0, 0.0, 0.0)
+
+        l = b.length
+        d = b.direction
+        bone.setTail(float(d[0]) * l, float(d[1]) * l, float(d[2]) * l)
+
+        armData.addBone(bone)
+
+    armData.drawAxes(1)
+    armObj.link(armData)
+    scene.link(armObj)
+    armObj.makeDisplayList()
+    Blender.Window.RedrawAll()
 
 def fileSelectedCallback(filename):
     reader = ASFReader.ASFReader()
