@@ -1,0 +1,22 @@
+The Fascinations XP3 "programmable message clock"
+is available from Thinkgeek, among other places.
+Its full schematic was reverse engineered and included
+here. The following are the steps I took to convert
+the XP3 into a rasterwand device.
+
+1. Remove U1, we wont be needing it
+
+2. Remove C5, D2 through D5, J2, U2, and R8.
+   These parts formed the XP3's power supply, but
+   we'll be running on USB power.
+
+3. Bridge across pins 1 and 3 of U2. We'll be running
+   everything off of 5v, where the original design
+   had separate 5v and 15v rails.
+
+4. Remove R1, Y1, C1, C2, and C3. The new microcontroller
+   needs 6MHz rather than 4MHz, and it can't be mounted
+   in the same spot easily, so the original oscillator
+   is of no use to us. You may be able to save the capacitors
+   for use later on.
+
