@@ -100,7 +100,6 @@ request_setStatus
 	copybit	STATUS_POWER,		PIN_POWER, 0
 
 	;; Copy RESET the hard way, since it crosses banks over to TRIS
-	bsf	PIN_RESET
 	pagesel	reset_on
 	btfsc	STATUS_RESET
 	goto	reset_on
