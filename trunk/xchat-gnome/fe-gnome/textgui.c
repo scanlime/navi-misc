@@ -36,7 +36,8 @@ static void open_url (GtkAction *action, gpointer data);
 static void copy_text (GtkAction *action, gpointer data);
 static void send_email (GtkAction *action, gpointer data);
 
-GHashTable *notify_table;
+static GHashTable *notify_table;
+static gchar *selected_word;
 
 static GtkActionEntry action_entries[] = {
 	/* URL Popup */
@@ -285,29 +286,9 @@ clicked_word (GtkWidget *xtext, char *word, GdkEventButton *event, gpointer data
 				return;
 			case WORD_URL:
 			case WORD_HOST:
-			{
-				/* we handle URLs here to be consistent with left-click behavior
-				 * elsewhere in gnome */
-				GError *err = NULL;
-
-				if (strstr (word, "://") == NULL) {
-					gchar *newword = g_strdup_printf ("http://%s", word);
-					gnome_url_show (newword, &err);
-					g_free (newword);
-				} else {
-					gnome_url_show (word, &err);
-				}
-				if (err != NULL)
-				{
-					/* FIXME: should actually check the contents of the error quark, and
-					 * should eventually output this error in a better way than stdout
-					 */
-					char *msg = g_strdup_printf (_("Unable to activate the URL '%s"), word);
-					g_print (msg);
-					g_free (msg);
-					g_error_free (err);
-				}
-			}
+				selected_word = word;
+				open_url (NULL, NULL);
+				break;
 		}
 		return;
 	}
@@ -326,6 +307,7 @@ clicked_word (GtkWidget *xtext, char *word, GdkEventButton *event, gpointer data
 					GtkWidget *menu;
 					menu = gtk_ui_manager_get_widget (gui.manager, "/TextURLPopup");
 					g_return_if_fail (menu != NULL);
+					selected_word = word;
 					gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 3, gtk_get_current_event_time ());
 					return;
 				}
@@ -340,6 +322,7 @@ clicked_word (GtkWidget *xtext, char *word, GdkEventButton *event, gpointer data
 					GtkWidget *menu;
 					menu = gtk_ui_manager_get_widget (gui.manager, "/TextEmailPopup");
 					g_return_if_fail (menu != NULL);
+					selected_word = word;
 					gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 3, gtk_get_current_event_time ());
 					return;
 				}
@@ -377,6 +360,22 @@ gconf_timestamps_changed (GConfClient *client, guint cnxn_id, const gchar *key, 
 static void
 open_url (GtkAction *action, gpointer data)
 {
+	GError *err = NULL;
+
+	if (strstr (selected_word, "://") == NULL) {
+		gchar *newword = g_strdup_printf ("http://%s", selected_word);
+		gnome_url_show (newword, &err);
+		g_free (newword);
+	} else {
+		gnome_url_show (selected_word, &err);
+	}
+	if (err != NULL) {
+		/* FIXME: should eventually output this error in a better way than stdout */
+		char *msg = g_strdup_printf (_("Unable to activate the URL '%s': %s\n"), selected_word, err->message);
+		g_print (msg);
+		g_free (msg);
+		g_error_free (err);
+	}
 }
 
 static void
