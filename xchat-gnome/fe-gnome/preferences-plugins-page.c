@@ -328,6 +328,12 @@ set_loaded_if_match (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, 
 	return FALSE;
 }
 
+static gint
+filename_test (gconstpointer a, gconstpointer b)
+{
+	return strcmp ((char*)a, (char*)b);
+}
+
 static void
 load_unload (char *filename, gboolean loaded, GtkTreeModel *model, GtkTreeIter iter)
 {
@@ -379,10 +385,4 @@ autoload_plugin_cb (gpointer data, gpointer user_data)
 	 * fine.
 	 */
 	plugin_load (gui.current_session, filename, NULL);
-}
-
-gint
-filename_test (gconstpointer a, gconstpointer b)
-{
-	return strcmp ((char*)a, (char*)b);
 }
