@@ -25,9 +25,13 @@
 #include "prefs.h"
 #include "events.h"
 #include "timer.h"
+#include "serverGameManager.h"
 
 trServerInfo		serverInfo;
 CListServerServerConnection	serverListServerConnection;
+
+#include "serverlistener.h"
+CServerListener		serverListener;
 
 float	lastListServerUpdate;
 float	listServerUpdateTime = 120;
@@ -35,6 +39,18 @@ float	listServerUpdateTime = 120;
 bool registerAsPublic = true;
 
 bool eventCycle ( void );
+
+//logings
+int errorOut ( const char * error, const char* place, int ret )
+{
+	printf("Fatal Error: %s at %s\n",error,place);
+	return ret;
+}
+
+void logOut ( const char * error, const char* place )
+{
+	printf("log: %s at %s\n",error,place);
+}
 
 bool getServerInfo ( void )
 {
@@ -101,12 +117,6 @@ bool getServerInfo ( void )
 	return true;
 }
 
-int errorOut ( const char * error, const char* place, int ret )
-{
-	printf("Fatal Error: %s at %s",error,place);
-	return ret;
-}
-
 bool updateListServ ( void )
 {
 	if (!registerAsPublic)
@@ -114,8 +124,14 @@ bool updateListServ ( void )
 	
 	if (lastListServerUpdate + listServerUpdateTime < CTimer::instance().GetTime())
 	{
+		logOut("list server update sent","updateListServ");
+
+		serverInfo.currentPlayers = serverListener.getCurrentPlayers();
+
 		if (!serverListServerConnection.update(serverInfo))
 			return errorOut("list server connection error","serverListServerConnection.Update(serverInfo)") != 0;
+
+		logOut("list server update complete","updateListServ");
 
 		lastListServerUpdate = (float)CTimer::instance().GetTime();
 	}
@@ -124,7 +140,9 @@ bool updateListServ ( void )
 
 int main (int argc, char **argv)
 {
+	logOut("Firestarterd: starting fires","main");
 	CTimer::instance().Init();
+	CServerGameManger::instance().init();
 
 	CCommandLineArgs	&args = CCommandLineArgs::instance();
 	args.Set(argc,argv);
@@ -133,6 +151,8 @@ int main (int argc, char **argv)
 		CPrefsManager::instance().Init((char*)args.GetDataS("prefs"));
 	else
 		CPrefsManager::instance().Init("firestarterd");
+
+	logOut("Prefs loaded","main");
 
 	registerAsPublic = args.GetDataB("public");
 
@@ -143,31 +163,40 @@ int main (int argc, char **argv)
 
 	getServerInfo();
 
+	if (!serverListener.init(serverInfo.game.c_str(),serverInfo.port,serverInfo.maxPlayers))
+		return errorOut("server listener init error","serverListener.init(serverInfo.game.c_str(),serverInfo.port)");
+
 	if (registerAsPublic)
 	{
+		logOut("Contacting list server","main");
 		if (!serverListServerConnection.add(serverInfo))
 			return errorOut("list server connection error","serverListServerConnection.Add(serverInfo)");
+		logOut("List server add processed","main");
 	}
-
 	bool	done = false;
 	while (!done)
 	{
 		CTimer::instance().Update();
 		done = eventCycle();
-		if (done)
-			done = updateListServ();
+		if (!done)
+			updateListServ();
 		OSSleep(0.001f);
 	}
+	logOut("Server shutdown comencing","main");
 
 	if (registerAsPublic)
 	{
+		logOut("list server remove sent","main");
 		if (!serverListServerConnection.remove(serverInfo))
 			return errorOut("list server connection error","serverListServerConnection.Add(serverInfo)");
+		logOut("list server remove completed","main");
 	}
+
+	serverListener.kill();
 	return 0;
 }
 
 bool eventCycle ( void )
 {
-	return false;
+	return serverListener.update();
 }
