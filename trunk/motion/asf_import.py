@@ -28,16 +28,8 @@ Tip: 'Imports an Acclaim ASF file and builds a set of armatures'
 """
 
 import Blender
+import ASFReader
 import math
-
-try:
-    import ASFReader
-except ImportError:
-    Blender.Draw.PupMenu('Error importing "ASFReader" module%t|'
-                         'You may have to start the blender game engine|'
-                         'momentarily then exit it to set the Python|'
-                         'path properly.')
-    ASFReader = None
 
 def addVectors(a, b):
     x = []
@@ -63,13 +55,11 @@ def importObjects(reader):
         d = b.direction
         bone.setTail(float(d[0]) * l, float(d[1]) * l, float(d[2]) * l)
 
-        armData.addBone(bone)
-
         bones[k] = bone
 
     # add root
     bone = Blender.Armature.Bone.New('root')
-    bone.setHead(0.0, 0.0, 0.0);
+    bone.setHead(0.0, 0.0, 1.0);
     bone.setTail(0.0, 0.0, 0.0);
     armData.addBone(bone)
     bones['root'] = bone
@@ -79,12 +69,11 @@ def importObjects(reader):
         children = set[1:]
         for bone in children:
             pass
-            bones[bone].setHead(addVectors(bones[bone].head, bones[parent].tail))
-            bones[bone].setTail(addVectors(bones[bone].tail, bones[parent].tail))
-            #bones[bone].setParent(bones[parent])
-            #bones[bone].setLoc(bones[parent].loc + bones[parent].tail)
+            bones[bone].setParent(bones[parent])
+            armData.addBone(bones[bone])
+            #bones[bone].setHead(addVectors(bones[bone].head, bones[parent].tail))
+            #bones[bone].setTail(addVectors(bones[bone].tail, bones[parent].tail))
 
-    armData.drawAxes(1)
     armObj.link(armData)
     scene.link(armObj)
     armObj.makeDisplayList()
