@@ -264,12 +264,14 @@ class Bitfield(EntryType):
                 matches.append(key)
         return matches
 
-    def marshall(self, object):
-        try:
-            object = self.bitMap[object]
-        except KeyError:
-            pass
-        return self.baseType.marshall(object)
+    def marshall(self, items):
+        bits = 0
+        for item in items:
+            try:
+                bits |= self.bitMap[item]
+            except KeyError:
+                pass
+        return self.baseType.marshall(bits)
 
     def getSize(self, packed=None):
         return self.baseType.getSize(packed)
