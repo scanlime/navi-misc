@@ -89,7 +89,13 @@ def userPageInterrupter(page):
             Input.KeyPress(book.viewport, pygame.K_SPACE),
             Input.KeyPress(book.viewport, pygame.K_RETURN),
             Input.MousePress(book.viewport, 1),
-            IR.ButtonPress(),
+            IR.ButtonPress(book.viewport, 'enter'),
+            IR.ButtonPress(book.viewport, 'up'),
+            IR.ButtonPress(book.viewport, 'down'),
+            IR.ButtonPress(book.viewport, 'left'),
+            IR.ButtonPress(book.viewport, 'right'),
+            IR.ButtonPress(book.viewport, 'play'),
+            IR.ButtonPress(book.viewport, 'stop'),
             ]
         return Sequencer.PageInterrupter(events, page)(book)
     return f

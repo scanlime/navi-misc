@@ -19,3 +19,7 @@ bindings.add(MouseGrab, dragButton)
 bindings.add(MouseDrag, dragButton, None, 0.2).observe(command.rotate)
 bindings.add(MouseDrag, dragButton, pygame.KMOD_SHIFT).observe(command.pan)
 bindings.add(MouseDrag, dragButton, pygame.KMOD_CTRL).observe(command.lift)
+
+from Wasabi import IR
+bindings.add(IR.ButtonPress, 'display').observe(command.toggleXRay)
+
