@@ -99,11 +99,13 @@ GType      de_jong_get_type();
 DeJong*    de_jong_new();
 
 void       de_jong_reset_to_defaults(DeJong *self);
-gchar*     de_jong_save_parameters(DeJong *self);
-void       de_jong_load_parameters(DeJong *self, const gchar *params);
+void       de_jong_set(DeJong *self, const gchar* property, const gchar* value);
 
 void       de_jong_calculate(DeJong *self, guint iterations);
 void       de_jong_update_image(DeJong *self);
+
+void       de_jong_load_string(DeJong *self, const gchar *params);
+gchar*     de_jong_save_string(DeJong *self);
 
 void       de_jong_load_image_file(DeJong *self, const gchar *filename);
 void       de_jong_save_image_file(DeJong *self, const gchar *filename);

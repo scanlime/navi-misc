@@ -26,39 +26,6 @@
 #ifndef __DE_JONG_H_
 #define __DE_JONG_H__
 
-struct vector2 {
-  double x,y;
-};
-
-struct computation_params {
-  double a, b, c, d;
-  double zoom, xoffset, yoffset, rotation;
-  double blur_radius, blur_ratio;
-  gboolean tileable;
-};
-
-struct render_params {
-  guint width, height;
-  guint oversample;
-  guint *counts;
-  GdkPixbuf *pixbuf;
-
-  guint color_table_size;
-  guint32 *color_table;
-
-  double iterations;
-  guint current_density;
-  guint target_density;
-
-  double exposure, gamma;
-  GdkColor fgcolor, bgcolor;
-  guint16 fgalpha, bgalpha;
-  gboolean clamped;
-
-  gboolean dirty_flag;
-};
-
-
 struct gui_state {
   GladeXML *xml;
   GtkWidget *window;
@@ -86,30 +53,10 @@ struct gui_state {
   } anim;
 };
 
-
-extern struct computation_params params;
-extern struct render_params render;
 extern struct gui_state gui;
 
-
-/* main.c */
-void set_defaults();
-gchar* save_parameters();
-gboolean set_parameter(const char *key, const char *value);
-void load_parameters(const gchar *paramstring);
-void load_parameters_from_file(const char *name);
-void save_to_file(const char *name);
-
-/* render.c */
-float uniform_variate();
-float normal_variate();
-void resize(int w, int h, int oversample);
-void update_pixels();
-void clear();
-void run_iterations(int count);
-
 /* ui-main.c */
-void interactive_main(int argc, char **argv);
+void interactive_main(DeJong* dejong, int argc, char **argv);
 void restart_rendering();
 void write_gui_params();
 
