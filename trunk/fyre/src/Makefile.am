@@ -100,6 +100,7 @@ noinst_HEADERS =			\
 	curve-editor.h			\
 	de-jong.h			\
 	explorer.h			\
+	gui-util.h			\
 	histogram-imager.h		\
 	histogram-view.h		\
 	iterative-map.h			\
