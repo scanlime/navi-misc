@@ -35,9 +35,19 @@ void *refresh_thread(void *foo) {
   int i, level;
   unsigned char levels[9] = {0x00, 0x80, 0xC0, 0xE0, 0xF0, 0xF8, 0xFC, 0xFE, 0xFF};
   const float scale = 14 / log(256);
+  struct timeval then, now;
+  float dt;
+
+  gettimeofday(&then, NULL);
 
   while (fd) {
+    /* Get the time step for this frame, in seconds */
+    gettimeofday(&now, NULL);
+    dt = (now.tv_sec - then.tv_sec) + (now.tv_usec - then.tv_usec)/1000000.0;
+    then = now;
+
     for (i=0; i<NUM_COLUMNS; i++) {
+      /* Scale our columns logarithmically and draw them to the frame */
       if (columns[i] > 256) {
 	level = log((columns[i]>>8)) * scale;
 	if (level > 8)
@@ -48,10 +58,15 @@ void *refresh_thread(void *foo) {
 	frame[i] = 0;
       }
 
-      columns[i] -= 400;
+      /* Decay our original column values linearly, giving an exponential
+       * decay in the displayed values after the log() above.
+       */
+      columns[i] -= dt * 14285;;
       if (columns[i] < 0)
 	columns[i] = 0;
     }
+
+    /* Write this frame, blocking until it blits to the front buffer */
     write(fd, frame, sizeof(frame));
   }
   return NULL;
