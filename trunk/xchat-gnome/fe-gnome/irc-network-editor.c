@@ -57,8 +57,8 @@ use_globals_set (GtkRadioButton *button, IrcNetworkEditor *e)
 	gtk_entry_set_text (GTK_ENTRY (e->realname), text);
 	g_free (text);
 
-	gtk_widget_set_sensitive (e->nickname, FALSE);
-	gtk_widget_set_sensitive (e->realname, FALSE);
+	gtk_widget_set_sensitive (GTK_WIDGET (e->nickname), FALSE);
+	gtk_widget_set_sensitive (GTK_WIDGET (e->realname), FALSE);
 }
 
 static void
@@ -69,9 +69,14 @@ use_custom_set (GtkRadioButton *button, IrcNetworkEditor *e)
 }
 
 static void
+edit_server_clicked (GtkButton *button, IrcNetworkEditor *e)
+{
+	gtk_cell_editable_start_editing (GTK_CELL_EDITABLE (e->server_renderer), NULL);
+}
+
+static void
 irc_network_editor_init (IrcNetworkEditor *dialog)
 {
-	GtkCellRenderer *renderer;
 	GtkSizeGroup *group;
 	gchar **enc;
 
@@ -117,11 +122,11 @@ irc_network_editor_init (IrcNetworkEditor *dialog)
 #undef GW
 
 	dialog->store = gtk_list_store_new (2, G_TYPE_STRING, G_TYPE_POINTER);
-	renderer = gtk_cell_renderer_text_new ();
+	dialog->server_renderer = gtk_cell_renderer_text_new ();
 
 	gtk_tree_view_set_model (GTK_TREE_VIEW (dialog->servers), GTK_TREE_MODEL (dialog->store));
-	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (dialog->servers), 0, "Server", renderer, "text", 0, NULL);
-	g_object_set (G_OBJECT (renderer), "editable", TRUE, NULL);
+	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (dialog->servers), 0, "Server", dialog->server_renderer, "text", 0, NULL);
+	g_object_set (G_OBJECT (dialog->server_renderer), "editable", TRUE, NULL);
 
 	dialog->encoding = gtk_combo_box_new_text ();
 	gtk_widget_show (dialog->encoding);
@@ -133,7 +138,7 @@ irc_network_editor_init (IrcNetworkEditor *dialog)
 	gtk_size_group_add_widget (group, dialog->password);
 	g_object_unref (group);
 
-	enc = encodings;
+	enc = (gchar **) encodings;
 	do {
 		gtk_combo_box_append_text (GTK_COMBO_BOX (dialog->encoding), _(*enc));
 		enc++;
@@ -149,8 +154,9 @@ irc_network_editor_init (IrcNetworkEditor *dialog)
 	gtk_dialog_set_has_separator (GTK_DIALOG (dialog), FALSE);
 	gtk_window_set_modal (GTK_WINDOW (dialog), TRUE);
 
-	g_signal_connect (G_OBJECT (dialog->use_globals), "toggled", G_CALLBACK (use_globals_set), dialog);
-	g_signal_connect (G_OBJECT (dialog->use_custom),  "toggled", G_CALLBACK (use_custom_set),  dialog);
+	g_signal_connect (G_OBJECT (dialog->use_globals), "toggled", G_CALLBACK (use_globals_set),     dialog);
+	g_signal_connect (G_OBJECT (dialog->use_custom),  "toggled", G_CALLBACK (use_custom_set),      dialog);
+	g_signal_connect (G_OBJECT (dialog->edit_server), "clicked", G_CALLBACK (edit_server_clicked), dialog);
 }
 
 GType
@@ -198,9 +204,15 @@ populate_autojoin_list (IrcNetworkEditor *e)
 static void
 irc_network_editor_populate (IrcNetworkEditor *e)
 {
+	gchar *title;
+
 	e->gconf = gconf_client_get_default ();
 
-	gtk_entry_set_text           (GTK_ENTRY         (e->network_name),     e->network->name);
+	title = g_strdup_printf ("%s Network Properties", e->network->name);
+	gtk_window_set_title (GTK_WINDOW (e), title);
+	g_free (title);
+
+	gtk_entry_set_text (GTK_ENTRY (e->network_name), e->network->name);
 
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (e->autoconnect),      e->network->autoconnect);
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (e->use_ssl),          e->network->use_ssl);
