@@ -1,5 +1,5 @@
 EXTRA_DIST = 			\
+	alert-dialog.glade	\
 	element-tooltip.glade	\
-	error-dialog.glade	\
 	pipeline-editor.glade	\
 	navigation.png

@@ -36,7 +36,7 @@ namespace Fyre
 			HasSeparator = false;
 
 
-			Glade.XML xml = new Glade.XML (null, "error-dialog.glade", "toplevel", null);
+			Glade.XML xml = new Glade.XML (null, "alert-dialog.glade", "toplevel", null);
 			xml.Autoconnect (this);
 
 			label1.Markup = "<span weight=\"bold\" size=\"larger\">" + summary + "</span>";
