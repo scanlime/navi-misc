@@ -35,15 +35,20 @@ typedef void (xchat_plugin_get_info) (char **, char **, char **);
 extern GSList *plugin_list; // xchat's list of loaded plugins.
 extern XChatGUI gui;
 
+/* Callbacks */
 static void on_load_plugin_clicked (GtkButton *button, gpointer user_data);
 static void on_unload_plugin_clicked (GtkButton *button, gpointer user_data);
+static void on_open_plugin_clicked (GtkButton *button, gpointer user_data);
+static void on_remove_plugin_clicked (GtkButton *button, gpointer user_data);
+
+/* Helpers */
 static void xchat_gnome_plugin_add (char *filename);
 static gboolean set_loaded_if_match (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, gpointer data);
 
 void
 initialize_preferences_plugins_page ()
 {
-	GtkWidget *treeview, *load, *unload;
+	GtkWidget *treeview, *load, *unload, *open, *remove;
 	GtkListStore *store;
 	GtkCellRenderer *text_renderer, *load_renderer;
 	GtkTreeViewColumn *text_column, *load_column;
@@ -53,6 +58,8 @@ initialize_preferences_plugins_page ()
 	treeview = glade_xml_get_widget (gui.xml, "plugins list");
   load = glade_xml_get_widget (gui.xml, "plugin load");
   unload = glade_xml_get_widget (gui.xml, "plugin unload");
+	open = glade_xml_get_widget (gui.xml, "plugin open");
+	remove = glade_xml_get_widget (gui.xml, "plugin remove");
 
   /* Plugin name, version, description, file, loaded (true or false) */
 	store = gtk_list_store_new (5, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_BOOLEAN);
@@ -70,13 +77,15 @@ initialize_preferences_plugins_page ()
 
   g_signal_connect (G_OBJECT(load), "clicked", G_CALLBACK (on_load_plugin_clicked), NULL);
   g_signal_connect (G_OBJECT(unload), "clicked", G_CALLBACK (on_unload_plugin_clicked), NULL);
+  g_signal_connect (G_OBJECT(open), "clicked", G_CALLBACK (on_open_plugin_clicked), NULL);
+  g_signal_connect (G_OBJECT(remove), "clicked", G_CALLBACK (on_remove_plugin_clicked), NULL);
 
 	/* Fun little string things that ultimately become the path to ~/.xchat2/plugins.
 	 * FIXME: It might behoove us to store the expanded path string to ~/.xchat2 somewhere
 	 * more permanent...
 	 */
 	homedir = g_get_home_dir();
-	xchatdir = malloc (strlen (homedir) + strlen (".xchat2/plugins") + 1);
+	xchatdir = malloc (strlen (homedir) + strlen ("/.xchat2/plugins") + 1);
 	sprintf (xchatdir, "%s/.xchat2/plugins", homedir);
 
 	/* Create a list of all the plugins in our known directories. */
@@ -164,6 +173,26 @@ on_unload_plugin_clicked (GtkButton *button, gpointer user_data)
 		if (plugin_kill (filename, TRUE) == 1)
 			gtk_list_store_set (GTK_LIST_STORE (model), &iter, 4, FALSE, -1);
   }
+}
+
+static void
+on_open_plugin_clicked (GtkButton *button, gpointer user_data)
+{
+	GtkWidget *file_selector; // because everyone needs a file selec-tor!
+	char *homedir, *plugindir;
+
+	file_selector = glade_xml_get_widget (gui.xml, "load plugin filechooser");
+
+	homedir = g_get_home_dir();
+	plugindir = malloc (strlen (homedir) + strlen ("/.xchat2/plugins") + 1);
+	sprintf (plugindir, "%s/.xchat2/plugins", homedir);
+	//gtk_file_selection_set_filename( GTK_FILE_SELECTION (file_selector), plugindir);
+	gtk_widget_show (file_selector);
+}
+
+static void
+on_remove_plugin_clicked (GtkButton *button, gpointer user_data)
+{
 }
 
 static void
