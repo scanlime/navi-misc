@@ -236,9 +236,9 @@ int main(int argc, char ** argv) {
     if (optind != argc) {
 	char *ext = strrchr (argv[optind], '.');
 	if (ext) {
-	    if (strcasecmp(ext, ".png") == 0) {
+	    if (g_strcasecmp(ext, ".png") == 0) {
 		histogram_imager_load_image_file(HISTOGRAM_IMAGER(map), argv[optind], &error);
-	    } else if (strcasecmp(ext, ".fa") == 0) {
+	    } else if (g_strcasecmp(ext, ".fa") == 0) {
 	        GtkTreeIter iter;
 
 		animation_load_file(animation, argv[optind]);
