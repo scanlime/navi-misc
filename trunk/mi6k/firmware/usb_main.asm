@@ -1,3 +1,17 @@
+;################################################################################
+;
+; usb_main.asm - Main loop and interrupt service routine for the MI6K project.
+;
+; This file is part of the MI6K project. This file is based on the revision 2.00
+; USB firmware distributed by Microchip for use with the PIC16C745 and PIC16C765
+; microcontrollers. New code added for the MI6K project is placed in the public domain.
+;
+; MI6K modifications done by Micah Dowty <micah@picogui.org>
+;
+;###############################################################################
+;
+; The original license agreement and author information for the USB firmware follow:
+;
 ;                            Software License Agreement
 ;
 ; The software supplied herewith by Microchip Technology Incorporated (the "Company")
@@ -17,54 +31,11 @@
 ; COMPANY SHALL NOT, IN ANY CIRCUMSTANCES, BE LIABLE FOR SPECIAL, INCIDENTAL OR
 ; CONSEQUENTIAL DAMAGES, FOR ANY REASON WHATSOEVER.
 ;
-;###############################################################################
-; filename:	USB_MAIN.ASM
-;		Sample mainline program
-;
-; This file implements a basic interrupt service routine and shows how the
-; USB interrupt would be serviced, and also how InitUSB and PutUSB
-; should be called.  It may be used as a reference, or as a starting point 
-; from which to build an application.  
-;
-;###############################################################################
-;
 ;	Author:			Dan Butler and Reston Condit
 ;	Company:		Microchip Technology Inc
 ;
-;	Revision:		2.00 (Polling Version)
-;	Date:			06 November 2002
-;	Assembled using:	MPASM 2.80
-;	Configuration Bits:	H4 Oscillator, WDT Off, Power up timer off
-; 
-;	Notes about the polling version:
-;
-;	V2.00 marks a fairly substantial change in architecture from the V1.xx 
-;	versions.  While V1.xx handled the USB completely from the ISR, V2.00 shifts 
-;	most of the processing to a function called from the main program loop.  There 
-;	are several advantages for this.  Firstly, it eliminates the may levels of the 
-;	stack that currently must be reserved for the ISR.  Secondly, it minimizes the 
-;	length of the ISR which is desirable from a "good software engineering 
-;	practices" standpoint.  And finally it gives control over when the USB is 
-;	serviced to the software engineer writing the application.  This is 
-;	particularly important for timing critical systems where a few hundred 
-;	instruction cycles to process the interrupt at the wrong time could potentially 
-;	damage the system.   
-;
-;	This version is intended for use with the PIC16C745/765, revision A2 only (date 
-;	code 0231 and later.)  The PCM16XQ1 processor module must be used to emulate
-;	this revision of the silicon.  See the PIC16C745/765 rev. A1 and PIC16C745/765 
-;	rev. A2 errata for differences in the revisions.  
-;
-;	Revision History:
-; 		none
-;
 ;################################################################################
-;
-;    include files:
-;        P16C765.inc    Rev 1.00
-;        usb_defs.inc   Rev 2.00
-;
-;################################################################################
+
 #include <p16c745.inc>
 #include "usb_defs.inc"
 
@@ -89,7 +60,6 @@ BitCount	res 1
 	extern	InitUSB
 	extern	PutEP1
 	extern	GetEP1
-	extern	RemoteWakeup	; Remote Wakeup works with the use of the RA4 pin (active low)
 	extern	USBReset
 	extern	USBActivity
 	extern	USBStall
@@ -379,3 +349,4 @@ bitLoop:
 
 	end
 
+;### The End ###
