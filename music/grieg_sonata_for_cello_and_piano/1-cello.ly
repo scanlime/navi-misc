@@ -17,34 +17,39 @@ allegroAgitatoCello = \relative c {
 		\tag #'score r1
 	>>
 
-	e2 ( f2
-	e2 ~ e8) a8 (b c)
-	e,4 e4 (f4) f4 (
+	e2 \p \< ( f2 \! \>
+	e2 \! ~ e8) a8 (b c)
+	e,4 \< e4 \! (f4) \> f4 \! (
 	e2 ~ e8) c'8 (d e)
-	e,2 (f2)
-	e2 (b'2)
-	e,2 (e'2) ~
+	e,2 (f2 \accent)
+	\setTextCresc
+	\once \override DynamicTextSpanner #'dash-fraction = #0.0
+	e2 \< (b'2 \accent)
+	e,2 (e'2 \accent \!) ~
+	\setHairpinCresc
 	e8 f8 \(e d \acciaccatura {c16[ d]} c8 b c d\)
-	e,2 (e2)
-	e2 ~ e8 e (f g
-	e4 e) e (e)
+	e,2 \p \< \tenuto (e2 \! \> \tenuto)
+	e2 \! ~ e8 e (f g
+	e4 \staccato e \staccato) e \staccato (e \staccato)
 	e2 ~ e8 g8 (a bes)
-	a2 (bes2)
-	a2 (d2)
-	a2 (f'2) ~
+	a2 (bes2 \accent)
+	\setTextCresc
+	\once \override DynamicTextSpanner #'dash-fraction = #0.0
+	a2 \< (d2 \accent)
+	a2 \! (f'2 \fp \accent) ~
 	f1 ~
-	f1 ~
-	f1 ~
+	f1 \> ~
+	f1 \! ~
 	f2 r2
 	r1
-	r8 c8  b a gis (a) g fis
-	r8 c'8 b a gis (a) g fis
-	r8 c'8 b a gis (a) g f
-	e (f) e d c (d) c b
+	r8 c8 \upbow b a gis \accent (a) g fis
+	r8 c'8 b a gis \accent (a) g fis
+	r8 c'8 b a gis \accent (a) g \staccato (f \staccato)
+	e \accent (f) e d c_\accent (d) c b
 
 	% A
-	a2 d,2
-	a'2 r2
+	a2 \f \accent d,2 \accent
+	a'2 \accent r2
 	r4 a d, d
 	a' a r2
 	r4 e' d d,
