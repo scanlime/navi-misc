@@ -6,8 +6,8 @@
      GUI.visual = DefaultVisualOfScreen (GUI.screen);
 -    GUI.window_width = IMAGE_WIDTH;
 -    GUI.window_height = IMAGE_HEIGHT;
-+    GUI.window_width = 640;
-+    GUI.window_height = 480;
++    GUI.window_width = 800;
++    GUI.window_height = 600;
  
  #ifdef USE_OPENGL
      // XXX:
