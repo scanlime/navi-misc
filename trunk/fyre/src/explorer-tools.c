@@ -158,11 +158,17 @@ static gboolean on_motion_notify(GtkWidget *widget, GdkEvent *event, gpointer us
   if (tool && (tool->flags & TOOL_USE_MOTION_EVENTS)) {
     tool->handler(self, &ti);
 
-    /* If we're paused, manually update one frame */
-    if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(glade_xml_get_widget(self->xml, "pause_menu")))) {
-      explorer_run_iterations(self);
-      explorer_update_gui(self);
-    }
+    /* Always push through one frame of updates manually
+     * before going on. This serves multiple purposes-
+     * if we're paused, we need this to get any response
+     * at all. This also forces an update to happen even
+     * if the idle handler won't be run for a while, making
+     * the GUI more responsive. This is especially important
+     * under Windows, where the idle handler seems to have
+     * a lower priority.
+     */
+    explorer_run_iterations(self);
+    explorer_update_gui(self);
   }
 
   return FALSE;
