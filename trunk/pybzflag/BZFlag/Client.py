@@ -53,7 +53,7 @@ class BaseClient:
                 "Protocol version mismatch: The server is version " +
                 "'%s', this client is version '%s'." % (
                 hello.version, BZFlag.protocolVersion))
-        self.id = hello.id
+        self.id = hello.clientId
 
     def disconnect(self):
         if self.tcp:

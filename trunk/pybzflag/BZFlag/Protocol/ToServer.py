@@ -24,8 +24,6 @@ sent from the game server to the clients.
 
 from BZFlag.Protocol import *
 from BZFlag.Protocol import Common
-
-Common.foo
     
 ### The End ###
         
