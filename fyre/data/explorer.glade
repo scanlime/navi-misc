@@ -41,7 +41,7 @@
 		      <accelerator key="o" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image204">
+			<widget class="GtkImage" id="image223">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-open</property>
 			  <property name="icon_size">1</property>
@@ -63,7 +63,7 @@
 		      <accelerator key="d" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image205">
+			<widget class="GtkImage" id="image224">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-clear</property>
 			  <property name="icon_size">1</property>
@@ -85,7 +85,7 @@
 		      <accelerator key="r" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image206">
+			<widget class="GtkImage" id="image225">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-refresh</property>
 			  <property name="icon_size">1</property>
@@ -113,7 +113,7 @@
 		      <accelerator key="s" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image207">
+			<widget class="GtkImage" id="image226">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-save-as</property>
 			  <property name="icon_size">1</property>
@@ -152,7 +152,7 @@
 		      <accelerator key="q" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image208">
+			<widget class="GtkImage" id="image227">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-quit</property>
 			  <property name="icon_size">1</property>
@@ -395,6 +395,36 @@
 		      <property name="active">False</property>
 		      <property name="group">tool_none</property>
 		      <signal name="activate" handler="on_tool_activate" last_modification_time="Wed, 18 Feb 2004 03:57:55 GMT"/>
+		    </widget>
+		  </child>
+
+		  <child>
+		    <widget class="GtkMenuItem" id="separator10">
+		      <property name="visible">True</property>
+		    </widget>
+		  </child>
+
+		  <child>
+		    <widget class="GtkRadioMenuItem" id="tool_initial_offset">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">Initial Offset</property>
+		      <property name="use_underline">True</property>
+		      <property name="active">False</property>
+		      <property name="group">tool_none</property>
+		      <signal name="activate" handler="on_tool_activate" last_modification_time="Sun, 20 Jun 2004 22:00:50 GMT"/>
+		      <accelerator key="g" modifiers="GDK_SHIFT_MASK" signal="activate"/>
+		    </widget>
+		  </child>
+
+		  <child>
+		    <widget class="GtkRadioMenuItem" id="tool_initial_scale">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">Initial Scale</property>
+		      <property name="use_underline">True</property>
+		      <property name="active">False</property>
+		      <property name="group">tool_none</property>
+		      <signal name="activate" handler="on_tool_activate" last_modification_time="Sun, 20 Jun 2004 22:00:50 GMT"/>
+		      <accelerator key="z" modifiers="GDK_SHIFT_MASK" signal="activate"/>
 		    </widget>
 		  </child>
 		</widget>
