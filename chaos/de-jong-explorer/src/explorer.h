@@ -1,5 +1,5 @@
 /*
- * de-jong.h - Shared declarations
+ * explorer.h - An interactive GUI for manipulating a DeJong object and viewing its output
  *
  * de Jong Explorer - interactive exploration of the Peter de Jong attractor
  * Copyright (C) 2004 David Trowbridge and Micah Dowty
@@ -20,13 +20,29 @@
  *
  */
 
+#ifndef __EXPLORER_H__
+#define __EXPLORER_H__
+
 #include <gtk/gtk.h>
 #include <glade/glade.h>
+#include "de-jong.h"
 
-#ifndef __DE_JONG_H_
-#define __DE_JONG_H__
+G_BEGIN_DECLS
 
-struct gui_state {
+#define EXPLORER_TYPE            (explorer_get_type ())
+#define EXPLORER(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), EXPLORER_TYPE, Explorer))
+#define EXPLORER_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), EXPLORER_TYPE, ExplorerClass))
+#define IS_EXPLORER(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), EXPLORER_TYPE))
+#define IS_EXPLORER_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), EXPLORER_TYPE))
+
+typedef struct _Explorer      Explorer;
+typedef struct _ExplorerClass ExplorerClass;
+
+struct _Explorer {
+  GObject object;
+
+  DeJong *dejong;
+
   GladeXML *xml;
   GtkWidget *window;
 
@@ -40,30 +56,27 @@ struct gui_state {
   guint idler;
   gboolean writing_params;
   gboolean just_resized;
-
-  gboolean update_calc_params_when_convenient;
-  gboolean update_render_params_when_convenient;
+  GTimeVal last_update;
 
   gchar* current_tool;
   double last_mouse_x, last_mouse_y;
-
-  struct {
-    GtkListStore *keyframe_list;
-    GtkTreeView *keyframe_view;
-  } anim;
 };
 
-extern struct gui_state gui;
-
-/* ui-main.c */
-void interactive_main(DeJong* dejong, int argc, char **argv);
-void restart_rendering();
-void write_gui_params();
-
-/* ui-animation.c */
-void animation_ui_init();
+struct _ExplorerClass {
+  GObjectClass parent_class;
+};
 
 
-#endif /* __DE_JONG_MAIN_H__ */
+/************************************************************************************/
+/******************************************************************* Public Methods */
+/************************************************************************************/
+
+GType      explorer_get_type();
+Explorer*  explorer_new(DeJong *dejong);
+
+
+G_END_DECLS
+
+#endif /* __EXPLORER_H__ */
 
 /* The End */

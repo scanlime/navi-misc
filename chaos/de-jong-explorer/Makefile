@@ -1,21 +1,20 @@
-PKGS    = libglade-2.0 gtk+-2.0
-CFLAGS  = `pkg-config --cflags $(PKGS)` -O3 -ffast-math -march=i686
-LIBS    = `pkg-config --libs $(PKGS)`
+PKGS    += libglade-2.0 gtk+-2.0
+CFLAGS  += `pkg-config --cflags $(PKGS)` -O3 -ffast-math -march=i686
+LIBS    += `pkg-config --libs $(PKGS)`
 
 BIN     = de-jong-explorer
 
 HEADERS = \
 	src/color-button.h	\
 	src/de-jong.h		\
-	src/main.h
+	src/explorer.h
 
 OBJS    = \
 	src/main.o		\
 	src/de-jong.o		\
-	src/de-jong-render.o
-#	src/ui-main.o		\
-#	src/ui-animation.o	\
-#	src/color-button.o
+	src/de-jong-render.o	\
+	src/explorer.o		\
+	src/color-button.o
 
 
 $(BIN): $(OBJS)
