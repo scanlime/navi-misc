@@ -51,7 +51,7 @@ class App(object):
 
         self.server = xmlrpclib.ServerProxy(self.config['server'], allow_none=True)
         if self.config['key']:
-            self.key = open(os.path.expanduser(self.config['key'])).read()
+            self.key = open(os.path.expanduser(self.config['key'])).read().strip()
         else:
             self.key = None
 
