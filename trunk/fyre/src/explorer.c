@@ -267,6 +267,7 @@ update_image_preview (GtkFileChooser *chooser, GtkImage *image) {
     gchar *filename;
     gboolean have_preview;
     GdkPixmap *pixmap;
+    gint width, height;
 
     if (emblem_pixbuf == NULL) {
 	emblem_pixbuf = gdk_pixbuf_new_from_file (FYRE_DATADIR "/metadata-emblem.png", NULL);
@@ -275,12 +276,14 @@ update_image_preview (GtkFileChooser *chooser, GtkImage *image) {
     filename = gtk_file_chooser_get_filename (chooser);
 
     image_pixbuf = gdk_pixbuf_new_from_file_at_size (filename, 112, 112, NULL);
+    width = gdk_pixbuf_get_width (image_pixbuf);
+    height = gdk_pixbuf_get_height (image_pixbuf);
     have_preview = (image_pixbuf != NULL);
 
-    pixmap = gdk_pixmap_new (GTK_WIDGET (image)->window, 128, 128, -1);
-    gdk_draw_rectangle (pixmap, GTK_WIDGET (image)->style->bg_gc[GTK_STATE_NORMAL], TRUE, 0, 0, 128, 128);
-    gdk_draw_pixbuf (pixmap, NULL, image_pixbuf, 0, 0, 0, 0, 115, 115, GDK_RGB_DITHER_NONE, 0, 0);
-    gdk_draw_pixbuf (pixmap, NULL, emblem_pixbuf, 0, 0, 104, 104, 23, 23, GDK_RGB_DITHER_NONE, 0, 0);
+    pixmap = gdk_pixmap_new (GTK_WIDGET (image)->window, width + 16, height + 16, -1);
+    gdk_draw_rectangle (pixmap, GTK_WIDGET (image)->style->bg_gc[GTK_STATE_NORMAL], TRUE, 0, 0, width + 16, height + 16);
+    gdk_draw_pixbuf (pixmap, NULL, image_pixbuf, 0, 0, 0, 0, width - 1, height - 1, GDK_RGB_DITHER_NONE, 0, 0);
+    gdk_draw_pixbuf (pixmap, NULL, emblem_pixbuf, 0, 0, width - 16, height - 16, 31, 31, GDK_RGB_DITHER_NONE, 0, 0);
 
     if (image_pixbuf)
 	gdk_pixbuf_unref (image_pixbuf);
