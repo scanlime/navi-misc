@@ -1,5 +1,7 @@
 SRC=\
 	net.class\
+	key.class\
+	keyinfo.class\
 	submit.class\
 	reject.class\
 	quit.class\
@@ -9,6 +11,12 @@ program: $(SRC)
 
 net.class: net.java
 	javac net.java
+
+key.class: key.java
+	javac key.java
+
+keyinfo.class: keyinfo.java
+	javac keyinfo.java
 
 submit.class: submit.java
 	javac submit.java
