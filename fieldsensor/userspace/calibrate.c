@@ -44,11 +44,11 @@ int
 main (int argc, char *argv[])
 {
 	int i, j;
-	FILE *data[8];
-	char filename[] = "datax";
 	unsigned char buffer[8];
 	float time;
 	FieldSensor *sensor;
+	int range[8][2];
+	float average[8];
 
 	g_type_init ();
 
@@ -67,17 +67,33 @@ main (int argc, char *argv[])
 		else       field_sensor_set_adcon_select (sensor, i, FS_RX_0);
 		field_sensor_set_lc_tristate (sensor, i, (1 << tx));
 
-		filename[4] = i + '0';
-		data[i] = fopen (filename, "w");
+		average[i] = 0;
+		range[i][0] = -1;
+		range[i][1] = -1;
 	}
 
 	for (j = 0;; j++) {
 		time = gettime ();
 		field_sensor_take_reading (sensor, buffer);
 		for (i = 0; i < 8; i++) {
-			fprintf (data[i], "%f %d\n", time, (int) buffer[i]);
-			if ((j % 100) == 0)
-				fflush (data[i]);
+			if (range[i][0] == -1)
+				range[i][0] = buffer[i];
+			if (range[i][1] == -1)
+				range[i][1] = buffer[i];
+
+			if (range[i][0] > buffer[i])
+				range[i][0] = buffer[i];
+			if (range[i][1] < buffer[i])
+				range[i][1] = buffer[i];
+
+			average[i] = ((float)j * average[i] + buffer[i]) / (j + 1);
+		}
+
+		if (j % 1000 == 0) {
+			for (i = 0; i < 8; i++) {
+				printf ("%f ", average[i]);
+			}
+			printf ("\n[%d,%d] [%d,%d] [%d,%d] [%d,%d] [%d,%d] [%d,%d] [%d,%d] [%d,%d]\n\n", range[0][0], range[0][1], range[1][0], range[1][1], range[2][0], range[2][1], range[3][0], range[3][1], range[4][0], range[4][1], range[5][0], range[5][1], range[6][0], range[6][1], range[7][0], range[7][1]);
 		}
 	}
 }
