@@ -91,11 +91,15 @@ to render. As soon as the user stops changing parameters, the image quality
 will begin to improve.
 
 Because a particular histogram bucket may contain tens of thousands of hits,
-high-dynamic-range image processing techniques can be applied. By using a
-non-linear exposure function and gamma correction, even more information
-and detail can be extracted from the image. If the image is not being
-analyzed from a scientific basis, oversampling provides an effective means
-of smoothing out aliasing.
+high-dynamic-range image processing techniques can be applied. This includes
+gamma correction, exposure control, and color interpolation at the histogram's
+full precision. By clamping each color component as late as possible in the
+rendering process, ``glow'' effects can be obtained without any extra processing.
+
+A histogram of infinitely small points can not be antialiased, but aliasing
+artifacts can be reduced by oversampling- using multiple histogram buckets
+per pixel.
+
 
 \section{Conclusion}
 
