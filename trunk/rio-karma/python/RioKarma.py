@@ -64,9 +64,20 @@ class RequestResponseProtocol(protocol.Protocol):
        variable length and different requests may require different algorithms
        for buffering the received responses. We maintain a queue of outstanding
        requests, and the oldest one determines which read algorithm we use.
+
+       The queue itself is unbounded, but bulk writes to it, for the file
+       transfers themselves, are throttled such that the queue remains full
+       enough to avoid wasting transmit or receive time, but that we don't
+       waste all our CPU filling it. This ideal fill level is set in the
+       constructor.
        """
-    def __init__(self):
+    def __init__(self, preferredBacklog=10):
         self.buffer = ''
+
+        # When the queue is less than preferredBacklog deep, we have
+        # a list of clients waiting to be notified so they can add more.
+        self.preferredBacklog = 4
+        self.queueListeners = []
 
         # A list is really a suboptimal data type for this. If we feel like
         # requiring python 2.4, a collections.dequeue would be great.
@@ -80,6 +91,25 @@ class RequestResponseProtocol(protocol.Protocol):
         self.requestQueue.append(request)
         request.sendTo(self.transport)
         return request.result
+
+    def throttle(self, callable):
+        """Add the provided callable to a list of clients that will be
+           notified when the queue has fewer than the preferred number
+           of requests in it. If the queue is already empty enough, the
+           callable will be invoked immediately.
+           """
+        self.queueListeners.append(callable)
+        self._checkQueueListeners()
+
+    def _checkQueueListeners(self):
+        """If the queue is empty enough, call everyone on the queueListeners list"""
+        if len(self.requestQueue) < self.preferredBacklog:
+            # Create the new listener list first, so it can be
+            # safely written to by our callbacks.
+            listeners = self.queueListeners
+            self.queueListeners = []
+            for callable in listeners:
+                callable()
 
     def dataReceived(self, data):
         # Our new buffer goes into a StringIO, so individual requests
@@ -102,6 +132,7 @@ class RequestResponseProtocol(protocol.Protocol):
             if currentRequest.result.called:
                 # This request is done, on to the next
                 del self.requestQueue[0]
+                self._checkQueueListeners()
             else:
                 # This request needs more data. If it did complete, we go around
                 # and let the next request look at our buffer.
@@ -667,39 +698,22 @@ class AlignedBlockReader:
 
 
 class AlignedBlockWriter:
-    """This object copies all data from the source into one
-       4-byte-aligned block in the destination.
+    """This object copies a fixed-size block of data from the
+       source into one 4-byte-aligned block in the destination.
        """
-    def __init__(self, readLimit=None, bufferSize=16384):
-        self.bufferSize = bufferSize
-        self.readLimit = readLimit
+    def __init__(self, size):
+        self.size = size
 
     def next(self, source, destination):
-        totalLength = 0
-        block = ''
+        # This is probably the most speed-crucial part of the whole program-
+        # so start of really simple. If we actually get oddly sized reads
+        # here, we'll have to add a special case later.
+        # buffering.
+        block = source.read(self.size)
+        if len(block) != self.size:
+            raise IOError("Unexpected end of file")
 
-        # Copy as many complete buffers as we can, tracking the total size
-        while 1:
-            # Enforce the readLimit, if we have one
-            readSize = self.bufferSize
-            if self.readLimit is not None:
-                readSize = min(readSize, self.readLimit - totalLength)
-                if readSize <= 0:
-                    break
-
-            block = source.read(readSize)
-            if not block:
-                raise IOError("Unexpected end of file")
-            totalLength += len(block)
-            if len(block) == self.bufferSize:
-                destination.write(block)
-            else:
-                break
-
-        # Pad the last block as necessary
-        block += "\x00" * ((4 - (totalLength & 0x03)) & 0x03)
-        if block:
-            destination.write(block)
+        destination.write(block + "\x00" * ((4 - (len(block) & 0x03)) & 0x03))
 
 
 class LineBufferedWriter:
@@ -1368,52 +1382,61 @@ class File:
         dest.close()
         chainTo(retval)
 
-    def saveContentTo(self, fileObj):
+    def saveContentTo(self, fileObj, blockSize=8192):
         """Save this file's content to a file-like object.
            Returns a deferred signalling completion.
            """
-        return self._transferContent(Request_ReadFileChunk, fileObj)
+        return ContentTransfer(Request_ReadFileChunk,
+                               self, fileObj, blockSize).result
 
-    def loadContentFrom(self, fileObj):
+    def loadContentFrom(self, fileObj, blockSize=8192):
         """Load this file's content from a file-like object.
            Returns a Deferred signalling completion.
            """
-        return self._transferContent(Request_WriteFileChunk, fileObj)
+        return ContentTransfer(Request_WriteFileChunk,
+                               self, fileObj, blockSize).result
 
-    def _transferContent(self, request, fileObj, blockSize=8192):
-        """Transfer content, in either direction, in small blocks"""
-        offset = 0
-        length = self.details['length']
-        result = defer.Deferred()
 
-        # This queues up all our read chunks immediately, so that they can overlap.
-        # They always go in order and are protected by TCP- we have errbacks for all
-        # of them, but our completion is triggered by the last one. The sizes returned
-        # on each read are pretty worthless, so there's no harm in ignoring them.
+class ContentTransfer:
+    """This is an object that transfers content, in either direction, between the
+       device and a file-like object. The transfer is buffered by Protocol, but
+       also throttled so we don't dump the entire file into the request queue
+       right away.
+       """
+    def __init__(self, request, rioFile, fileObj, blockSize):
+        self.rioFile = rioFile
+        self.request = request
+        self.fileObj = fileObj
+        self.blockSize = blockSize
+        self.offset = 0
+        self.remaining = self.rioFile.details['length']
+        self.result = defer.Deferred()
 
-        # FIXME: This puts a lot of stress on our request queue, on big files
-        #        it might be a significant bottleneck. This should be redone to
-        #        keep only a small set of requests buffered at once- perhaps it
-        #        would get a callback from the Protocol when data is removed
-        #        from the queue, and this would only add new requests if the queue
-        #        was under some minimum length.
+        self.next()
 
-        while length > 0:
-            # Read the next chunk...
-            chunkLen = min(length, blockSize)
-            d = self.filesystem.protocol.sendRequest(request(
-                self.fileID, offset, chunkLen, fileObj))
-            length -= chunkLen
-            offset += chunkLen
+    def next(self):
+        """Queue up another transfer block"""
 
-            if length <= 0:
-                # This is the last one, chain to our deferred
-                d.addCallback(result.callback)
-            else:
-                # FIXME: real progress updates should be triggered here
-                d.addCallback(lambda x: sys.stderr.write("."))
+        if self.remaining <= 0:
+            return
 
-            d.addErrback(result.errback)
-        return result
+        chunkLen = min(self.remaining, self.blockSize)
+        d = self.rioFile.filesystem.protocol.sendRequest(self.request(
+            self.rioFile.fileID, self.offset, chunkLen, self.fileObj))
+        self.remaining -= chunkLen
+        self.offset += chunkLen
+
+        if self.remaining <= 0:
+            # This is the last one, chain to our deferred and
+            # stop setting up transfers.
+            d.addCallback(self.result.callback)
+            return
+
+        # FIXME: real progress updates should be triggered here
+        d.addCallback(lambda x: sys.stderr.write("."))
+        d.addErrback(self.result.errback)
+
+        # Queue up the next block once Protocol thinks we should
+        self.rioFile.filesystem.protocol.throttle(self.next)
 
 ### The End ###
