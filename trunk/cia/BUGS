@@ -1,5 +1,13 @@
-- The Stats code can store message counts now, but still needs a way to query
-  data, store the last n messages, and maybe even keep RRDs up to date.
+- We need a stats browser
+
+- Sending messages to query stats and query rulesets seems a bit overkill.
+  It would be nice for there to be a way to add extra commands to the XML-RPC
+  interface cleanly for these tasks
+
+- Rulesets could use some sort of subroutine call, maybe by embedding a <ruleset>
+  tag with a different ruleset's URI. A new URI scheme could be added for rulesets
+  that will never be executed on their own but should be referenceable from inside
+  others.
 
 - The XML-RPC interface needs a way to protect some commands, probably by requiring
   a random 'magic cookie' as an argument. This should include at least 'rebuild', and
