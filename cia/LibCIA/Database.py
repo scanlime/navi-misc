@@ -24,6 +24,7 @@ Utilities for accessing CIA's persistent data stored in an SQL database
 from twisted.enterprise.adbapi import ConnectionPool
 import _mysql
 import os
+import XML
 
 
 # Import quoting functions for use elsewhere.
@@ -87,5 +88,92 @@ def createPool():
     return ConnectionPool('MySQLdb', **info)
 
 pool = createPool()
+
+
+class Filter(XML.XMLObjectParser):
+    """A Database.Filter is syntactically very similar to a Message.Filter,
+       but describes an SQL expression. This class as-is is a generic SQL expression
+       builder, which is probably too lenient for most apps. Subclasses can
+       define their own variable lookup methods, to restrict the SQL expressions
+       this can generate.
+
+       After parsing, the completed SQL expression is available in the 'sql' attribute.
+
+       >>> Filter('<or> \
+                       <match var="parent_path">project</match> \
+                       <match var="parent_path">author</match> \
+                   </or>').sql
+       "((parent_path = 'project') OR (parent_path = 'author'))"
+
+       """
+    resultAttribute = 'sql'
+
+    def varLookup(self, var):
+        """Given a variable attribute, return an SQL expression representing it.
+           The default assumes it's already valid SQL, but subclasses may implement
+           this differently.
+           """
+        return var
+
+    def element_match(self, element):
+        """Compare a given variable exactly to the element's content, not including
+           leading and trailing whitespace.
+           """
+        return "(%s = %s)" % (self.varLookup(element['var']), quote(str(element).strip(), 'varchar'))
+
+    def element_like(self, element):
+        """Compare a given variable to the element's content using SQL's 'LIKE' operator,
+           not including leading and trailing whitespace. This is case-insensitive, and includes
+           the '%' wildcard which may be placed at the beginning or end of the string.
+           """
+        return "(%s LIKE %s)" % (self.varLookup(element['var']), quote(str(element).strip(), 'varchar'))
+
+    def element_and(self, element):
+        """Evaluates to True if and only if all child expressions evaluate to True"""
+        return "(%s)" % (" AND ".join([self.parse(child) for child in element.elements()]))
+
+    def element_or(self, element):
+        """Evaluates to True if and only if any child function evaluates to True"""
+        return "(%s)" % (" OR ".join([self.parse(child) for child in element.elements()]))
+
+    def element_not(self, element):
+        """The NOR function, returns false if and only if any child expression evaluates to True.
+           For the reasoning behind calling this 'not', see the doc string for this class.
+           """
+        return "(!%s)" % self.element_or(element)
+
+    def element_true(self, element):
+        """Always evaluates to True"""
+        return "(1)"
+
+    def element_false(self, element):
+        """Always evaluates to False"""
+        return "(0)"
+
+    def __and__(self, other):
+        """Perform a logical 'and' on two Filters without evaluating them"""
+        newFilter = Filter()
+        newFilter.sql = "(%s AND %s)" % (self.sql, other.sql)
+        return newFilter
+
+    def __or__(self, other):
+        """Perform a logical 'or' on two Filters without evaluating them"""
+        newFilter = Filter()
+        newFilter.sql = "(%s OR %s)" % (self.sql, other.sql)
+        return newFilter
+
+    def __invert__(self):
+        """Perform a logical 'not' on this Filter without evaluating it"""
+        newFilter = Filter()
+        newFilter.sql = "(!%s)" % self.sql
+        return newFilter
+
+
+def _test():
+    import doctest, Database
+    return doctest.testmod(Database)
+
+if __name__ == "__main__":
+    _test()
 
 ### The End ###
