@@ -1,6 +1,6 @@
-""" LibCIA.Web
+""" LibCIA.Web.Stats
 
-twisted.web resources and templates implementing CIA's web interface
+Implements the web interface to CIA's stats subsystem
 """
 #
 # CIA open source notification system
@@ -22,9 +22,6 @@ twisted.web resources and templates implementing CIA's web interface
 #
 
 # Convenience imports
-import Stats
-import RulesetBrowser
-import BotStatus
-import Server
+import Browser
 
 ### The End ###
