@@ -152,7 +152,7 @@ void fe_update_channel_limit(struct session *sess) {
 
 int fe_is_chanwindow(struct server *serv) {
 	/* FIXME: implement */
-	return 0;
+	return FALSE;
 }
 
 void fe_add_chan_list(struct server *serv, char *chan, char *users, char *topic) {
@@ -265,12 +265,10 @@ void fe_clear_channel(struct session *sess) {
 }
 
 void fe_session_callback(struct session *sess) {
-	g_print("fe_session_callback()\n");
 	/* FIXME: implement */
 }
 
 void fe_server_callback(struct server *serv) {
-	g_print("fe_server_callback()\n");
 	/* FIXME: implement */
 }
 
