@@ -67,7 +67,8 @@ class OptionParser
 		vector<std::string> arguments;			// List of the arguments with no flag
 
 	private:
-    int lng_flag_max_len, shrt_flag_max_len; // max length of the largest flags
+    unsigned int lng_flag_max_len,
+								 shrt_flag_max_len; // max length of the largest flags
 		bool help_msg_show_opts;  // If true we'll display the help messages for each
                               // option when help() is called.
 		std::string use_msg;	    // usage message.
