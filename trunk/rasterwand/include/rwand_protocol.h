@@ -82,7 +82,12 @@
 
 ;// Starting at the current write pointer (reset on page flip) write the given
 ;// 4 bytes in wValue and wIndex to the backbuffer
-#define RWAND_CTRL_SEQ_WRITE4		0x0C
+#define RWAND_CTRL_SEQ_WRITE4		0x0D
+
+;// Set the current write pointer to the low byte of wValue,
+;// write the contents of the following data packet (up to 8 bytes)
+;// to the backbuffer.
+#define RWAND_CTRL_RANDOM_WRITE8		0x0E
 
 
 ;//************************************************** Mode bits

@@ -43,7 +43,6 @@
 	extern	coil_window_min
 	extern	coil_window_max
 	extern	mode_flags
-	extern	back_buffer
 	extern	display_fwd_phase
 	extern	display_rev_phase
 	extern	display_column_width
@@ -52,6 +51,7 @@
 
 	extern	display_request_flip
 	extern	display_save_status
+	extern	display_seek
 	extern	display_seq_write_byte
 
 bank0	udata
@@ -85,6 +85,8 @@ CheckVendor
 	defineRequest	RWAND_CTRL_SET_PERIOD,		request_setPeriod
 	defineRequest	RWAND_CTRL_SET_NUM_COLUMNS,	request_setNumColumns
 	defineRequest	RWAND_CTRL_SEQ_WRITE12,		request_seqWrite12
+	defineRequest	RWAND_CTRL_SEQ_WRITE4,		request_seqWrite4
+	defineRequest	RWAND_CTRL_RANDOM_WRITE8,	request_randomWrite8
 
 	pagesel	wrongstate		; Not a recognized request
 	goto	wrongstate
@@ -315,21 +317,64 @@ request_flip
 	; Perform a random 3-byte write to the display, using
 	; the low byte of wValue as a column address.
 request_randomWrite3
-	bankisel back_buffer		; Point IRP:FSR at the column of interest.
-	banksel	BufferData			; FIXME: no bounds checking here yet
+	banksel	BufferData
 	movf	BufferData+wValue, w
-	addlw	back_buffer
-	movwf	FSR
-	
-	movf	BufferData+(wValue+1), w	; Write 1...
-	movwf	INDF
-	incf	FSR, f
-	movf	BufferData+wIndex, w		; Write 2...
-	movwf	INDF
-	incf	FSR, f
-	movf	BufferData+(wIndex+1), w	; Write 3...
-	movwf	INDF
+	pagesel	display_seek
+	call	display_seek
+
+	banksel	BufferData
+	movf	BufferData+(wValue+1), w
+	pagesel	display_seq_write_byte
+	call	display_seq_write_byte
+
+	banksel	BufferData
+	movf	BufferData+wIndex, w
+	pagesel	display_seq_write_byte
+	call	display_seq_write_byte
+
+	banksel	BufferData
+	movf	BufferData+(wIndex+1), w
+	pagesel	display_seq_write_byte
+	call	display_seq_write_byte
 	returnEmpty
+
+
+	; Sequentially write 4 bytes from wValue and wIndex
+request_seqWrite4
+	banksel	BufferData
+	movf	BufferData+wValue, w
+	pagesel	display_seq_write_byte
+	call	display_seq_write_byte
+
+	banksel	BufferData
+	movf	BufferData+(wValue+1), w
+	pagesel	display_seq_write_byte
+	call	display_seq_write_byte
+
+	banksel	BufferData
+	movf	BufferData+wIndex, w
+	pagesel	display_seq_write_byte
+	call	display_seq_write_byte
+
+	banksel	BufferData
+	movf	BufferData+(wIndex+1), w
+	pagesel	display_seq_write_byte
+	call	display_seq_write_byte
+	returnEmpty
+
+	
+	; Seek to the column given in the low byte of wValue, write data sent to EP0
+request_randomWrite8
+	banksel	BufferData
+	movf	BufferData+wValue, w
+	pagesel	display_seek
+	call	display_seek
+
+	; Don't acknowledge yet, wait for some data on EP0 OUT
+	movlw	EP0_WRITE_BACKBUFFER
+	banksel	USB_dev_req
+	movwf	USB_dev_req
+	return
 
 
 	; Perform a sequential 12-byte write. Start with the 4 bytes in this

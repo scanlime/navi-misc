@@ -33,6 +33,7 @@
 	global	display_request_flip
 	global	display_save_status
 	global	display_seq_write_byte
+	global	display_seek
 
 	global	edge_buffer
 	global	wand_period
@@ -208,12 +209,26 @@ display_save_status
 	return
 
 
+	; Set our write pointer to the given column number, form 'w'.
+display_seek
+	addlw	back_buffer
+	banksel	write_pointer
+	movwf	write_pointer
+	return
+
+
 	; Sequentially write the byte given in 'w' to the backbuffer.
 display_seq_write_byte
 	movwf	temp
 	banksel	write_pointer
 	bankisel back_buffer
-	movf	write_pointer, w
+
+	movf	back_buffer+NUM_COLUMNS, w	; Test write_pointer - back_buffer[NUM_COLUMNS]
+	subwf	write_pointer, w
+	btfsc	STATUS, C
+	return								; Out of range
+
+	movf	write_pointer, w			; Write and increment
 	movwf	FSR
 	movf	temp, w
 	movwf	INDF
