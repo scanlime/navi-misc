@@ -15,6 +15,13 @@ h1 {
   padding: 0em 0em 0.2em 0.2em;
 }
 
+h2 {
+  font: 250% sans-serif;
+  border-bottom: 1px dashed #888;
+  color: #888;
+  margin: 0em;
+}
+
 a.navigation:hover {
   text-decoration: underline;
 }
