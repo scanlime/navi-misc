@@ -113,12 +113,14 @@
         <content x="150" y="0" type="menu" font="title area" align="center" valign="center"/>
     </layout>
 
+
+    <!-- *********************************************************** Media Info -->
+
     <layout label="info">
         <background>
             <rectangle size="0" radius="10" bgcolor="0xaa000000"/>
         </background>
         <content x="10" y="10" type="text" height="max-20" width="max-20" spacing="20" font="default">
-
             <!-- Format the contents of the 'info' box. Adapted from the blurr skin.-->
 
             <item type="default">
@@ -293,6 +295,91 @@
 
         </content>
     </layout>
+
+
+    <!-- *********************************************************** Audio Player -->
+
+    <!-- This was mostly adapted from the 'basic' skin -->
+
+    <player>
+	<screen layout="screen" x="0" y="0" width="640" height="480"/>
+	<title visible="no"/>
+
+	<view layout="player view" x="300" y="140" width="300" height="300"/>
+	<info layout="player info" x="30" y="30" width="440" height="240"/>
+    </player>
+
+    <layout label="player view">
+	<background>
+	    <rectangle size="0" bgcolor="player mask" radius="10" width="max"/>
+	</background>
+	<content x="0" y="0" height="max" width="max" type="text" spacing="5"/>
+    </layout>
+
+    <layout label="player info">
+	<background>
+	    <rectangle size="0" bgcolor="player mask" radius="10" width="max"/>
+	</background>
+	<content x="10" y="10" height="max-20" width="max-20" type="text" spacing="10">
+	    <item type="default">
+		<if expression="title">
+		    <text font="player title" expression="title"/>
+		    <newline/>
+		</if>
+		<if expression="not title">
+		    <text font="player title" expression="name"/>
+		    <newline/>
+		</if>
+		<if expression="description">
+		    <text font="player info" expression="description"/>
+		    <newline/>
+		</if>
+		<if expression="artist">
+		    <text font="player artist" expression="artist"/>
+		    <newline/>
+		</if>
+		<goto_pos y="15" mode="relative"/>
+		<if expression="album">
+		    <text width="80" align="right" font="player info">Album:</text>
+		    <goto_pos x="10" mode="relative"/>
+		    <text font="player info" expression="album"/>
+		    <if expression="date">
+			<text font="player info"> (</text>
+			<text font="player info" expression="date"/>
+			<text font="player info">)</text>
+		    </if>
+		    <newline/>
+		</if>
+		<if expression="trackno">
+		    <text width="80" align="right" font="player info">Track:</text>
+		    <goto_pos x="10" mode="relative"/>
+		    <text font="player info" expression="trackno"/>
+		    <newline/>
+		</if>
+		<goto_pos y="15" mode="relative"/>
+		<if expression="length">
+		    <text width="80" align="right" font="player info">Length:</text>
+		    <goto_pos x="10" mode="relative"/>
+		    <text font="player info" expression="length"/>
+		    <newline/>
+		</if>
+		<if expression="elapsed">
+		    <text width="80" align="right" font="player info">Elapsed:</text>
+		    <goto_pos x="10" mode="relative"/>
+		    <text font="player info" expression="elapsed"/>
+		    <newline/>
+		</if>
+	    </item>
+	</content>
+    </layout>
+
+    <font label="player title" name="VeraBd.ttf" size="19" color="0xffffff">
+	<shadow x="2" y="2" color="0x000000" visible="yes"/>
+    </font>
+    <font label="player artist" name="VeraBd.ttf" size="14" color="0xffffff"/>
+    <font label="player info"   name="VeraBd.ttf" size="11" color="0xffffaa"/>
+
+    <color label="player mask" value="0xA0000000"/>
 
 </skin>
 </freevo>
