@@ -18,7 +18,7 @@
  */
  
 /**
- * This class is for setting up the proxy server and creating new connections.
+ * This class is for opening a single server port, and forwarding it elsewhere.
  * @author Brandon Smith
  * @version 1.0
  */
@@ -27,27 +27,40 @@ import java.net.*;
 import java.io.*;
 import java.util.*;
 
-public class smain
+public class tcpfw extends Thread
 {
 	/** This holds the string that describes the host getting proxied to. */
-	public static String host;
+	public String host;
 	/** The external port (open to the rest of the world). */
-	public static int eport;
+	public int eport;
 	/** The port on the internal network (what it gets forwarded to). */
-	public static int iport;
+	public int iport;
 	/** The proxy server's listening socket. */
-	public static ServerSocket server;
+	public ServerSocket server;
 	
 	/**
-	 * This is the main function, starts everything going.
-	 * @param args The command line arguments to this program.
+	 * This sets up the tcp forwarder to run with the info given.
+	 * @param remotehost The host to forward data to.
+	 * @param externalport The port to listen on from the outside world.
+	 * @param internalport The port to connect to on the internal network.
 	 * @author Brandon Smith
 	 * @version 1.0
 	 */
-	public static void main(String[] args)
+	public tcpfw(String remotehost, int externalport, int internalport)
 	{
-		argparse(args);
-		System.out.println("Forwarding localhost:"+eport+" to "+host+":"+iport);
+		host = remotehost;
+		eport = externalport;
+		iport = internalport;
+		System.out.println("Set to forward tcp: localhost:"+eport+" to "+host+":"+iport);
+	}
+	
+	/**
+	 * This method starts the server, and listens for connections
+	 * @author Brandon Smith
+	 * @version 1.0
+	 */
+	public void run()
+	{
 		startserver();
 		listen();
 	}
@@ -57,7 +70,7 @@ public class smain
 	 * @author Brandon Smith
 	 * @version 1.0
 	 */
-	public static void listen()
+	public void listen()
 	{
 		Socket sout = null;
 		Socket sin = null;
@@ -74,11 +87,11 @@ public class smain
 				//slot a into tab a
 				out = sout.getOutputStream();
 				in = sin.getInputStream();
-				new pipe(in,out).start();
+				new tcppipe(in,out).start();
 				//slot b into tab b
 				out = sin.getOutputStream();
 				in = sout.getInputStream();
-				new pipe(in,out).start();
+				new tcppipe(in,out).start();
 				
 				//tell the world I am happy!
 				System.out.println("Connection from "+sout.getInetAddress().getHostAddress());
@@ -95,7 +108,7 @@ public class smain
 	 * @author Brandon Smith
 	 * @version 1.0
 	 */
-	public static void startserver()
+	public void startserver()
 	{
 		try
 		{
@@ -114,7 +127,7 @@ public class smain
 	 * @author Brandon Smith
 	 * @version 1.0
 	 */
-	public static void argparse(String[] args)
+	public void argparse(String[] args)
 	{
 		try
 		{

@@ -1,17 +1,28 @@
 CLASSES =\
-	pipe.class\
-	smain.class
+	tcppipe.class\
+	udppipe.class\
+	tcpfw.class\
+	run.class
 
 prog: $(CLASSES)
 
-pipe.class: pipe.java
-	javac pipe.java
+udppipe.class: udppipe.java
+	javac udppipe.java
 
-smain.class: smain.java
-	javac smain.java
+tcppipe.class: tcppipe.java
+	javac tcppipe.java
+
+tcpfw.class: tcpfw.java
+	javac tcpfw.java
+
+run.class: run.java
+	javac run.java
 
 run: prog
-	java smain localhost 6112
+	java tcpfw localhost 6112
 
 jar: prog
 	jar cvmf .manifest starjox.jar *.class
+
+clean:
+	rm -Rf *.class *.jar *~
