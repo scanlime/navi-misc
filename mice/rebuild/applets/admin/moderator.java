@@ -40,7 +40,7 @@ public class moderator implements ActionListener
 	public moderator(admin my)
 	{
 		myadmin = my;
-		admin.help.setText("Please enter the number of moderators.");
+		admin.help.setText("Please enter the number of moderators, from 1 to 9");
 		countin = new TextField("",4);
 		myadmin.ad(countin);
 		submit = new Button("Submit");
@@ -50,14 +50,28 @@ public class moderator implements ActionListener
 	
 	public void actionPerformed(ActionEvent e)
 	{
+		int i;
+		
 		if(count == 0)
 		{
 			count = Integer.parseInt(countin.getText());
+			if(count < 1 || count > 9) return;
 			myadmin.rm(submit);
 			myadmin.rm(countin);
 			step1();
 		}
-		
+		else
+		{
+			if(step2())
+			{
+				for(i=0;i<count;i++)
+				{
+					myadmin.rm(usernames[i]);
+					myadmin.rm(passwords[i]);
+				}
+				myadmin.rm(submit);
+			}
+		}
 	}
 	
 	private void step1()
@@ -65,6 +79,7 @@ public class moderator implements ActionListener
 		int i;
 		usernames = new TextField[count];
 		passwords = new TextField[count];
+		admin.help.setText("Please enter the usernames and passwords for each of the moderators.");
 		for(i=0;i<count;i++)
 		{
 			usernames[i] = new TextField(("username " + (i+1)),30);
@@ -75,7 +90,20 @@ public class moderator implements ActionListener
 		myadmin.ad(submit);
 	}
 	
-	private void step2()
+	private boolean step2()
 	{
+		int i;
+		String temp;
+		for(i=0;i<count;i++)
+		{
+			temp = usernames[i].getText();
+			if(temp.startsWith("user")) return false;
+			if(temp.compareTo("") == 0) return false;
+			temp = passwords[i].getText();
+			if(temp.startsWith("pass")) return false;
+			if(temp.compareTo("") == 0) return false;
+		}
+		// Kick them across the network to the server */
+		return true;
 	}
 }
