@@ -66,7 +66,7 @@ LIB32=link.exe -lib
 # PROP Output_Dir "..\..\src\common\Debug"
 # PROP Intermediate_Dir "..\..\src\common\Debug"
 # PROP Target_Dir ""
-# ADD BASE CPP /nologo /W3 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /Gz /c
+# ADD BASE CPP /nologo /Gz /W3 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /c
 # ADD CPP /nologo /MDd /W3 /Gm /GX /Zi /Od /I "./" /I "../../include" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
@@ -112,7 +112,7 @@ LIB32=link.exe -lib
 # PROP Output_Dir "..\..\src\3D\SDL_Debug"
 # PROP Intermediate_Dir "..\..\src\3D\SDL_Debug"
 # PROP Target_Dir ""
-# ADD BASE CPP /nologo /MDd /W3 /Gm /GX /Zi /Od /I "./" /I "../../include" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /Gz /c
+# ADD BASE CPP /nologo /Gz /MDd /W3 /Gm /GX /Zi /Od /I "./" /I "../../include" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /c
 # ADD CPP /nologo /MDd /W3 /Gm /GX /Zi /Od /I "./" /I "../../include" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /D "HAVE_SDL" /YX /FD /GZ /c
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
@@ -157,6 +157,10 @@ SOURCE=..\..\src\3D\TextureFont.cpp
 # Begin Source File
 
 SOURCE=..\..\src\3D\TextureManager.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\3D\VisualElementManager.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -245,6 +249,10 @@ SOURCE=..\..\include\TextureManager.h
 # Begin Source File
 
 SOURCE=..\..\include\TextUtils.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\VisualElementManager.h
 # End Source File
 # Begin Source File
 

@@ -21,7 +21,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "ocadmin"=.\ocadmin.dsp - Package Owner=<4>
+Project: "Drawables"=.\Drawables.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -29,93 +29,6 @@ Package=<5>
 
 Package=<4>
 {{{
-    Begin Project Dependency
-    Project_Dep_Name opencombat
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name date
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name net
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name common
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "opencombat"=.\opencombat.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name common
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name geometry
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name net
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name obstacle
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name ogl
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name platform
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name scene
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name mediafile
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name date
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name 3D
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name game
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name world
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "opencombatd"=.\opencombatd.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name common
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name net
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name date
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name game
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name world
-    End Project Dependency
 }}}
 
 ###############################################################################
@@ -267,6 +180,30 @@ Package=<4>
 
 ###############################################################################
 
+Project: "ocadmin"=.\ocadmin.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name opencombat
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name date
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name net
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name common
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Project: "ogl"=.\ogl.dsp - Package Owner=<4>
 
 Package=<5>
@@ -275,6 +212,81 @@ Package=<5>
 
 Package=<4>
 {{{
+}}}
+
+###############################################################################
+
+Project: "opencombat"=.\opencombat.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name common
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name geometry
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name net
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name obstacle
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name ogl
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name platform
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name scene
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name mediafile
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name date
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name 3D
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name game
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name world
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "opencombatd"=.\opencombatd.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name common
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name net
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name date
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name game
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name world
+    End Project Dependency
 }}}
 
 ###############################################################################

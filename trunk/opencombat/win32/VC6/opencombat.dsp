@@ -1,5 +1,5 @@
 # Microsoft Developer Studio Project File - Name="opencombat" - Package Owner=<4>
-# Microsoft Developer Studio Generated Build File, Format Version 5.00
+# Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Application" 0x0101
@@ -24,6 +24,7 @@ CFG=opencombat - Win32 SDL_Debug
 !MESSAGE 
 
 # Begin Project
+# PROP AllowPerConfigDependencies 0
 # PROP Scc_ProjName ""
 # PROP Scc_LocalPath ""
 CPP=cl.exe
@@ -58,7 +59,7 @@ LINK32=link.exe
 # ADD LINK32 sdlmain.lib sdl.lib ws2_32.lib dsound.lib winmm.lib glu32.lib opengl32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /pdb:"../src/opencombat/opencombat.pdb" /machine:I386 /nodefaultlib:"LIBCMT"
 # SUBTRACT LINK32 /pdb:none
 # Begin Special Build Tool
-SOURCE=$(InputPath)
+SOURCE="$(InputPath)"
 PostBuild_Cmds=copy ..\..\src\opencombat\*.exe ..\..\*.exe
 # End Special Build Tool
 
@@ -75,8 +76,8 @@ PostBuild_Cmds=copy ..\..\src\opencombat\*.exe ..\..\*.exe
 # PROP Intermediate_Dir "..\..\src\opencombat\Debug"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
-# ADD BASE CPP /nologo /W3 /GX /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /YX /FD /Zi /GZ /c
-# ADD CPP /nologo /MDd /W3 /GX /Od /I "..\..\include" /I "..\..\win32" /I ".\\" /D "_WINDOWS" /D "WIN32" /D "_DEBUG" /D "_MBCS" /FD /Zi /GZ /c
+# ADD BASE CPP /nologo /W3 /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /YX /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /GX /ZI /Od /I "..\..\include" /I "..\..\win32" /I ".\\" /D "_WINDOWS" /D "WIN32" /D "_DEBUG" /D "_MBCS" /FD /GZ /c
 # SUBTRACT CPP /YX
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
@@ -90,9 +91,8 @@ LINK32=link.exe
 # ADD LINK32 sdlmain.lib sdl.lib ws2_32.lib dsound.lib winmm.lib glu32.lib opengl32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /debug /machine:I386 /nodefaultlib:"LIBCMT" /pdbtype:sept
 # SUBTRACT LINK32 /pdb:none
 # Begin Special Build Tool
-SOURCE=$(InputPath)
-PostBuild_Cmds=copy ..\..\src\opencombat\debug\*.exe ..\..\*.exe	copy\
-  ..\..\src\opencombat\debug\*.pdb ..\..\*.pdb
+SOURCE="$(InputPath)"
+PostBuild_Cmds=copy ..\..\src\opencombat\debug\*.exe ..\..\*.exe	copy   ..\..\src\opencombat\debug\*.pdb ..\..\*.pdb
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "opencombat - Win32 SDL_Release"
@@ -126,7 +126,7 @@ LINK32=link.exe
 # ADD LINK32 sdlmain.lib sdl.lib ws2_32.lib dsound.lib winmm.lib glu32.lib opengl32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /pdb:"../src/opencombat/opencombat.pdb" /machine:I386 /nodefaultlib:"LIBCMT"
 # SUBTRACT LINK32 /pdb:none
 # Begin Special Build Tool
-SOURCE=$(InputPath)
+SOURCE="$(InputPath)"
 PostBuild_Cmds=copy ..\..\src\opencombat\SDL_Release\*.exe ..\..\*.exe
 # End Special Build Tool
 
@@ -144,9 +144,9 @@ PostBuild_Cmds=copy ..\..\src\opencombat\SDL_Release\*.exe ..\..\*.exe
 # PROP Intermediate_Dir "..\..\src\opencombat\SDL_Debug"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
-# ADD BASE CPP /nologo /MDd /W3 /GX /Od /I "..\..\include" /I "..\..\win32" /I ".\\" /D "_WINDOWS" /D "WIN32" /D "_DEBUG" /D "_MBCS" /FD /Zi /GZ /c
+# ADD BASE CPP /nologo /MDd /W3 /GX /Zi /Od /I "..\..\include" /I "..\..\win32" /I ".\\" /D "_WINDOWS" /D "WIN32" /D "_DEBUG" /D "_MBCS" /FD /GZ /c
 # SUBTRACT BASE CPP /YX
-# ADD CPP /nologo /MDd /W3 /GX /Od /I "..\..\include" /I "..\..\win32" /I ".\\" /D "_WINDOWS" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "HAVE_SDL" /FD /Zi /GZ /c
+# ADD CPP /nologo /MDd /W3 /GX /ZI /Od /I "..\..\include" /I "..\..\win32" /I ".\\" /D "_WINDOWS" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "HAVE_SDL" /FD /GZ /c
 # SUBTRACT CPP /YX
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
@@ -161,9 +161,8 @@ LINK32=link.exe
 # ADD LINK32 sdlmain.lib sdl.lib ws2_32.lib dsound.lib winmm.lib glu32.lib opengl32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /debug /machine:I386 /nodefaultlib:"LIBCMT" /pdbtype:sept
 # SUBTRACT LINK32 /pdb:none
 # Begin Special Build Tool
-SOURCE=$(InputPath)
-PostBuild_Cmds=copy ..\..\src\opencombat\SDL_debug\*.exe ..\..\*.exe	copy\
-  ..\..\src\opencombat\SDL_debug\*.pdb ..\..\*.pdb
+SOURCE="$(InputPath)"
+PostBuild_Cmds=copy ..\..\src\opencombat\SDL_debug\*.exe ..\..\*.exe	copy   ..\..\src\opencombat\SDL_debug\*.pdb ..\..\*.pdb
 # End Special Build Tool
 
 !ENDIF 
@@ -182,263 +181,252 @@ PostBuild_Cmds=copy ..\..\src\opencombat\SDL_debug\*.exe ..\..\*.exe	copy\
 # PROP Default_Filter ""
 # Begin Source File
 
-SOURCE=..\..\src\opencombat\AudioMenu,cpp
+SOURCE="..\..\src\opencombat\AudioMenu,cpp"
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\opencombat\DisplayMenu,cpp
+SOURCE="..\..\src\opencombat\DisplayMenu,cpp"
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\opencombat\FormatMenu,cpp
+SOURCE="..\..\src\opencombat\FormatMenu,cpp"
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\opencombat\GUIOptionsMenu,cpp
+SOURCE="..\..\src\opencombat\GUIOptionsMenu,cpp"
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\opencombat\HelpMenu,cpp
+SOURCE="..\..\src\opencombat\HelpMenu,cpp"
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\opencombat\HUDDialog,cpp
+SOURCE="..\..\src\opencombat\HUDDialog,cpp"
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\opencombat\HUDDialogStack,cpp
+SOURCE="..\..\src\opencombat\HUDDialogStack,cpp"
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\opencombat\InputMenu,cpp
+SOURCE="..\..\src\opencombat\InputMenu,cpp"
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\opencombat\JoinMenu,cpp
+SOURCE="..\..\src\opencombat\JoinMenu,cpp"
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\opencombat\KeyboardMapMenu,cpp
+SOURCE="..\..\src\opencombat\KeyboardMapMenu,cpp"
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\opencombat\MainMenu,cpp
+SOURCE="..\..\src\opencombat\MainMenu,cpp"
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\opencombat\MenuDefaultKey,cpp
+SOURCE="..\..\src\opencombat\MenuDefaultKey,cpp"
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\opencombat\OptionsMenu,cpp
+SOURCE="..\..\src\opencombat\OptionsMenu,cpp"
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\opencombat\QuickKeysMenu,cpp
+SOURCE="..\..\src\opencombat\QuickKeysMenu,cpp"
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\opencombat\QuitMenu,cpp
+SOURCE="..\..\src\opencombat\QuitMenu,cpp"
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\opencombat\SaveWorldMenu,cpp
+SOURCE="..\..\src\opencombat\SaveWorldMenu,cpp"
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\opencombat\ServerItem,cpp
+SOURCE="..\..\src\opencombat\ServerItem,cpp"
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\opencombat\ServerList,cpp
+SOURCE="..\..\src\opencombat\ServerList,cpp"
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\opencombat\ServerMenu,cpp
+SOURCE="..\..\src\opencombat\ServerMenu,cpp"
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\opencombat\ServerStartMenu,cpp
+SOURCE="..\..\src\opencombat\ServerStartMenu,cpp"
 # End Source File
 # End Group
 # Begin Source File
 
-SOURCE=..\..\src\opencombat\ActionBinding,cpp
+SOURCE="..\..\src\opencombat\ActionBinding,cpp"
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\opencombat\AutoPilot,cpp
+SOURCE="..\..\src\opencombat\AutoPilot,cpp"
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\opencombat\BackgroundRenderer,cpp
+SOURCE="..\..\src\opencombat\BackgroundRenderer,cpp"
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\opencombat\BaseLocalPlayer,cpp
+SOURCE="..\..\src\opencombat\BaseLocalPlayer,cpp"
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\opencombat\bzflag,cpp
+SOURCE="..\..\src\opencombat\bzflag,cpp"
 # End Source File
 # Begin Source File
 
 SOURCE=..\bzflag.rc
-
-!IF  "$(CFG)" == "bzflag - Win32 Release"
-
-!ELSEIF  "$(CFG)" == "bzflag - Win32 Debug"
-
-!ELSEIF  "$(CFG)" == "bzflag - Win32 SDL_Release"
-
-!ELSEIF  "$(CFG)" == "bzflag - Win32 SDL_Debug"
-
-!ENDIF 
-
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\opencombat\callbacks,cpp
+SOURCE="..\..\src\opencombat\callbacks,cpp"
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\opencombat\clientCommands,cpp
+SOURCE="..\..\src\opencombat\clientCommands,cpp"
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\opencombat\ComposeDefaultKey,cpp
+SOURCE="..\..\src\opencombat\ComposeDefaultKey,cpp"
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\opencombat\ControlPanel,cpp
+SOURCE="..\..\src\opencombat\ControlPanel,cpp"
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\opencombat\daylight,cpp
+SOURCE="..\..\src\opencombat\daylight,cpp"
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\opencombat\FlashClock,cpp
+SOURCE="..\..\src\opencombat\FlashClock,cpp"
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\opencombat\GuidedMissleStrategy,cpp
+SOURCE="..\..\src\opencombat\GuidedMissleStrategy,cpp"
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\opencombat\HUDRenderer,cpp
+SOURCE="..\..\src\opencombat\HUDRenderer,cpp"
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\opencombat\HUDui,cpp
+SOURCE="..\..\src\opencombat\HUDui,cpp"
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\opencombat\LocalPlayer,cpp
+SOURCE="..\..\src\opencombat\LocalPlayer,cpp"
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\opencombat\MainWindow,cpp
+SOURCE="..\..\src\opencombat\MainWindow,cpp"
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\opencombat\Player,cpp
+SOURCE="..\..\src\opencombat\Player,cpp"
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\opencombat\playing,cpp
+SOURCE="..\..\src\opencombat\playing,cpp"
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\opencombat\RadarRenderer,cpp
+SOURCE="..\..\src\opencombat\RadarRenderer,cpp"
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\opencombat\Region,cpp
+SOURCE="..\..\src\opencombat\Region,cpp"
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\opencombat\RegionPriorityQueue,cpp
+SOURCE="..\..\src\opencombat\RegionPriorityQueue,cpp"
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\opencombat\RemotePlayer,cpp
+SOURCE="..\..\src\opencombat\RemotePlayer,cpp"
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\opencombat\RobotPlayer,cpp
+SOURCE="..\..\src\opencombat\RobotPlayer,cpp"
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\opencombat\Roster,cpp
+SOURCE="..\..\src\opencombat\Roster,cpp"
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\opencombat\SceneBuilder,cpp
+SOURCE="..\..\src\opencombat\SceneBuilder,cpp"
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\opencombat\SceneRenderer,cpp
+SOURCE="..\..\src\opencombat\SceneRenderer,cpp"
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\opencombat\SegmentedShotStrategy,cpp
+SOURCE="..\..\src\opencombat\SegmentedShotStrategy,cpp"
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\opencombat\ServerCommandKey,cpp
+SOURCE="..\..\src\opencombat\ServerCommandKey,cpp"
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\opencombat\ServerLink,cpp
+SOURCE="..\..\src\opencombat\ServerLink,cpp"
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\opencombat\ServerListCache,cpp
+SOURCE="..\..\src\opencombat\ServerListCache,cpp"
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\opencombat\ShockWaveStrategy,cpp
+SOURCE="..\..\src\opencombat\ShockWaveStrategy,cpp"
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\opencombat\ShotPath,cpp
+SOURCE="..\..\src\opencombat\ShotPath,cpp"
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\opencombat\ShotPathSegment,cpp
+SOURCE="..\..\src\opencombat\ShotPathSegment,cpp"
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\opencombat\ShotStrategy,cpp
+SOURCE="..\..\src\opencombat\ShotStrategy,cpp"
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\opencombat\SilenceDefaultKey,cpp
+SOURCE="..\..\src\opencombat\SilenceDefaultKey,cpp"
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\opencombat\sound,cpp
+SOURCE="..\..\src\opencombat\sound,cpp"
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\opencombat\stars,cpp
+SOURCE="..\..\src\opencombat\stars,cpp"
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\opencombat\TargetingUtils,cpp
+SOURCE="..\..\src\opencombat\TargetingUtils,cpp"
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\opencombat\World,cpp
+SOURCE="..\..\src\opencombat\World,cpp"
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\opencombat\WorldBuilder,cpp
+SOURCE="..\..\src\opencombat\WorldBuilder,cpp"
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\opencombat\WorldPlayer,cpp
+SOURCE="..\..\src\opencombat\WorldPlayer,cpp"
 # End Source File
 # End Group
 # Begin Group "Header Files"

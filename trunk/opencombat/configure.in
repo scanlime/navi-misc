@@ -516,6 +516,7 @@ AC_OUTPUT(bzflag.info
 	src/date/Makefile
 	src/3D/Makefile
 	src/game/Makefile
+	src/drawables/Makefile
 	src/geometry/Makefile
 	src/geometry/models/Makefile
 	src/geometry/models/tank/Makefile
