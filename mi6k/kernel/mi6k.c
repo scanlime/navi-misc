@@ -677,12 +677,12 @@ static int mi6k_lirc_ioctl(struct inode *inode, struct file *file, unsigned int 
 	switch(cmd) {
 
 	case LIRC_GET_SEND_MODE:
-		retval = put_user(LIRC_SEND2MODE(LIRC_CAN_SEND_PULSE),
+		retval = put_user(LIRC_MODE_PULSE,
 				  (unsigned long *) arg);
 		break;
 
 	case LIRC_GET_REC_MODE:
-		retval = put_user(LIRC_REC2MODE(LIRC_CAN_REC_MODE2),
+		retval = put_user(LIRC_MODE_MODE2,
 				  (unsigned long *) arg);
 		break;
 
@@ -833,7 +833,7 @@ static void mi6k_disconnect(struct usb_interface *interface)
 	usb_deregister_dev(interface, &mi6k_class);
 
 	lirc_buffer_free(&dev->ir_rx_buffer);
-	lirc_unregister_plugin(mi6k_lirc_plugin.minor);
+	lirc_unregister_plugin(dev->ir_plugin.minor);
 
 	/* if the device is not opened, then we clean up right now */
 	if (!dev->open_count) {
