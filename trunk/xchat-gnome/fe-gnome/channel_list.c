@@ -15,17 +15,25 @@ static gint chanlist_compare(gconstpointer a, gconstpointer b, gpointer data) {
 	else return 1;
 }
 
-static gboolean chanlist_delete(GtkWidget *widget, GdkEvent *event, gpointer data) {
+static gboolean chanlist_delete(GtkWidget *widget, GdkEvent *event, channel_list_window *win) {
 	GtkWidget *window;
-	channel_list_window *win = (channel_list_window *) data;
 
-	g_slist_remove(chanlists, data);
+	g_slist_remove(chanlists, (gpointer) win);
 
 	window = glade_xml_get_widget(win->xml, "window 1");
 	gtk_widget_hide_all(window);
 	g_object_unref(win->xml);
 	g_free(win);
 	return FALSE;
+}
+
+static void chanlist_refresh(GtkWidget *button, channel_list_window *win) {
+}
+
+static void chanlist_save(GtkWidget *button, channel_list_window *win) {
+}
+
+static void chanlist_join(GtkWidget *button, channel_list_window *win) {
 }
 
 void create_channel_list(session *sess) {
@@ -60,6 +68,13 @@ void create_channel_list(session *sess) {
 	g_signal_connect(G_OBJECT(widget), "delete-event", G_CALLBACK(chanlist_delete), win);
 
 	treeview = glade_xml_get_widget(win->xml, "channel list");
+
+	widget = glade_xml_get_widget(win->xml, "refresh button");
+	g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(chanlist_refresh), win);
+	widget = glade_xml_get_widget(win->xml, "save button");
+	g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(chanlist_save), win);
+	widget = glade_xml_get_widget(win->xml, "join button");
+	g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(chanlist_join), win);
 
 	win->store = gtk_list_store_new(4, G_TYPE_STRING, G_TYPE_INT, G_TYPE_STRING, G_TYPE_STRING);
 	gtk_tree_view_set_model(GTK_TREE_VIEW(treeview), GTK_TREE_MODEL(win->store));
