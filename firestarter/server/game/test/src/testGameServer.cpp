@@ -300,6 +300,14 @@ void CTestGameServer::kill ( void )
 	CNetworkMessage	message;
 	message.SetType(_MESSAGE_KICK); 	// KicK
 	sendToAllBut(message,-1);
+
+	std::map<int,trPlayerInfo>::iterator players = users.begin();
+	while (players != users.end())
+	{
+		if (players->second.bot)
+			delete(players->second.bot);
+		players++;
+	}
 	users.clear();
 }
 
