@@ -159,9 +159,12 @@ def getRotation (bone, rotation, d):
             euler[1] = rotation[i] + correction.y
         if dof[i] == 'rz':
             euler[2] = rotation[i] + correction.z
+
+    euler[0] = -baxis.x
+    euler[1] = -baxis.x
+    euler[2] = -baxis.x
     euler = Blender.Mathutils.Euler (euler)
 
-    quat = euler.toQuat ()
     parent = bone
     while parent.hasParent ():
         parent = parent.getParent ()
