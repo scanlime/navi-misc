@@ -833,7 +833,7 @@ void de_jong_load_string(DeJong *self, const gchar *params) {
 
 
 /************************************************************************************/
-/************************************************************************* File I/O */
+/************************************************************************ Image I/O */
 /************************************************************************************/
 
 void de_jong_load_image_file(DeJong *self, const gchar *filename) {
@@ -860,6 +860,24 @@ void de_jong_save_image_file(DeJong *self, const gchar *filename) {
   params = de_jong_save_string(self);
   gdk_pixbuf_save(self->image, filename, "png", NULL, "tEXt::de_jong_params", params, NULL);
   g_free(params);
+}
+
+GdkPixbuf* de_jong_make_thumbnail(DeJong *self, guint max_width, guint max_height) {
+  float aspect = ((float)self->width) / ((float)self->height);
+  guint width, height;
+
+  de_jong_update_image(self);
+
+  if (aspect > 1) {
+    width = max_width;
+    height = width / aspect;
+  }
+  else {
+    height = max_height;
+    width = height * aspect;
+  }
+
+  return gdk_pixbuf_scale_simple(self->image, width, height, GDK_INTERP_BILINEAR);
 }
 
 /* The End */

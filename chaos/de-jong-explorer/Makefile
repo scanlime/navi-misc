@@ -7,14 +7,16 @@ BIN     = de-jong-explorer
 HEADERS = \
 	src/color-button.h	\
 	src/de-jong.h		\
-	src/explorer.h
+	src/explorer.h		\
+	src/animation.h
 
 OBJS    = \
 	src/main.o		\
 	src/de-jong.o		\
 	src/de-jong-render.o	\
 	src/explorer.o		\
-	src/color-button.o
+	src/color-button.o	\
+	src/animation.o
 
 
 $(BIN): $(OBJS)

@@ -26,6 +26,7 @@
 #include <gtk/gtk.h>
 #include <glade/glade.h>
 #include "de-jong.h"
+#include "animation.h"
 
 G_BEGIN_DECLS
 
@@ -42,6 +43,7 @@ struct _Explorer {
   GObject object;
 
   DeJong *dejong;
+  Animation *animation;
 
   GladeXML *xml;
   GtkWidget *window;

@@ -101,6 +101,7 @@ void       de_jong_set(DeJong *self, const gchar* property, const gchar* value);
 
 void       de_jong_calculate(DeJong *self, guint iterations);
 void       de_jong_update_image(DeJong *self);
+GdkPixbuf* de_jong_make_thumbnail(DeJong *self, guint max_width, guint max_height);
 
 void       de_jong_load_string(DeJong *self, const gchar *params);
 gchar*     de_jong_save_string(DeJong *self);
