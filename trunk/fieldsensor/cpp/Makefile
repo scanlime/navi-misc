@@ -4,6 +4,7 @@ LIBSRC = \
 	lib/FieldSensor.o \
 	lib/SimpleGame.o \
 	lib/PongObjects.o \
+	lib/FieldNetwork.o \
 	annie/src/Layer.o \
 	annie/src/Exception.o \
 	annie/src/File.o \

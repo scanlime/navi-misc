@@ -4,7 +4,7 @@ using namespace std;
 
 int main(void) {
   try {
-    annie::TwoLayerNetwork net("data/current.net");
+    annie::FieldNetwork net("data/current.net");
     annie::TrainingSet pattern("data/4x4cube.pattern");
     
     while (1) {
