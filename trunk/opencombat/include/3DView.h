@@ -16,7 +16,7 @@
 #include "ViewCull.h"
 #include "Singleton.h"
 
-class View3D : public ViewFrustumGL,  Singleton<View3D>
+class View3D : public ViewFrustumGL, public Singleton<View3D>
 {
 public:
 	View3D();
@@ -33,6 +33,11 @@ public:
 	void transform ( void );
 	void untransform ( void );
 
+	void setOrtho ( void );
+	void unsetOrtho ( void );
+
+	void clearFrameBuffer ( void );
+
 	/*
 	void setBillboard ( void );
 	void unsetBillboard ( void );
@@ -47,6 +52,7 @@ protected:
 	float lastHither;
 	float	lastYon;
 	bool	pushed;
+	bool	inOrtho;
 	C3DVertex camera;
 	C3DVertex viewTarget;
 };

@@ -91,6 +91,8 @@ static const char copyright[] = "Copyright (c) 1993 - 2004 Tim Riker";
 #include "TextureManager.h"
 #include "VisualElementManager.h"
 #include "DrawablesManager.h"
+#include "3DView.h"
+
 
 // versioning that makes us recompile every time
 #include "version.h"
@@ -4005,11 +4007,42 @@ static int		getZoomFactor()
   return zoom;
 }
 
+
+void renderManagedDialog ( void )
+{
+	if (HUDDialogStack::get()->isActive())
+	{
+		const int width = mainWindow->getWidth();
+		const int height = mainWindow->getHeight();
+		const int ox = mainWindow->getOriginX();
+		const int oy = mainWindow->getOriginY();
+
+		glPushMatrix();
+	/*	glScissor(ox, oy, width, height);
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		glOrtho(0.0, width, 0.0, height, -1.0, 1.0);
+		glMatrixMode(GL_MODELVIEW);
+		glPushMatrix();
+		glLoadIdentity(); */
+
+		OpenGLGState::resetState();
+		HUDDialogStack::get()->render();
+
+		OpenGLGState::resetState();
+		glPopMatrix();
+	}
+}
+
 //
 // drawing ( new )
 //
 void drawManagedScene ( float fov )
 {
+
+	View3D	&view = View3D::instance();
+
+	view.transform();
 	// compute the visible objects
 	VisualElementManager::instance().calcVisObjects();
 
@@ -4019,14 +4052,18 @@ void drawManagedScene ( float fov )
 	// draw the things in texutre/pass order
 	DrawablesManager::instance().draw();
 
+	view.setOrtho();
 	// do the radar and stuff
-/*
-	hud->render(*sceneRenderer);
+
+//	hud->render(*sceneRenderer);
 	renderDialog();
-	controlPanel->render(*sceneRenderer);
-	if (radar)
-		radar->render(*sceneRenderer, blankRadar);
-*/
+//	controlPanel->render(*sceneRenderer);
+//	if (radar)
+//		radar->render(*sceneRenderer, myTank && myTank->isPaused());
+
+	view.unsetOrtho();
+	view.untransform();
+	mainWindow->getWindow()->swapBuffers();
 }
 
 //
@@ -4668,14 +4705,16 @@ void setRoamingCameraInfo ( float* &myTankPos, float* &myTankDir, float &fov, GL
 void setViewFrustum ( float fov, GLfloat *eyePoint, GLfloat *targetPoint )
 {
 	bool useManagers = BZDB.isTrue("useNewRendering");
+	float worldSize = BZDB.eval(StateDatabase::BZDB_WORLDSIZE);
 
 	if (useManagers)
 	{
 		// set some kinda camera object
+		View3D::instance().setViewDist(1.1f, 1.5f * worldSize);	// this will ONLY do stuff when it changes, but this is WAY LAME.
+		View3D::instance().set(eyePoint,targetPoint,fov);
 	}
 	else
 	{	
-		float worldSize = BZDB.eval(StateDatabase::BZDB_WORLDSIZE);
 
 		sceneRenderer->getViewFrustum().setProjection(fov,1.1f, 1.5f * worldSize,mainWindow->getWidth(),mainWindow->getHeight(),mainWindow->getViewHeight());
 		sceneRenderer->getViewFrustum().setView(eyePoint, targetPoint);
@@ -5129,7 +5168,7 @@ void			startPlaying(BzfDisplay* _display,
   // spec.  we really should redraw the control panel every frame
   // but this works on every system so far.
   {
-    int n = 3;	// assume triple buffering
+    int n = 1;	// assume triple buffering
     controlPanel->setNumberOfFrameBuffers(n);
   }
 
@@ -5155,17 +5194,17 @@ void			startPlaying(BzfDisplay* _display,
   // show window and clear it immediately
   mainWindow->showWindow(true);
   glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-  glDisable(GL_SCISSOR_TEST);
-  glClear(GL_COLOR_BUFFER_BIT);
+ // glDisable(GL_SCISSOR_TEST);
+  glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
   mainWindow->getWindow()->swapBuffers();
 
   // resize and draw basic stuff
-  glClear(GL_COLOR_BUFFER_BIT);
-  glEnable(GL_SCISSOR_TEST);
-  controlPanel->resize();
-  sceneRenderer->render();
-  controlPanel->render(*sceneRenderer);
-  mainWindow->getWindow()->swapBuffers();
+	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
+ // glEnable(GL_SCISSOR_TEST);
+  //controlPanel->resize();
+ // sceneRenderer->render();
+ // controlPanel->render(*sceneRenderer);
+ // mainWindow->getWindow()->swapBuffers();
 
   // startup error callback adds message to control panel and
   // forces an immediate redraw.

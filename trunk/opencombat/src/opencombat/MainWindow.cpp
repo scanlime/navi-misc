@@ -16,7 +16,7 @@
 #include "BzfWindow.h"
 #include "SceneRenderer.h"
 #include "bzfgl.h"
-
+#include "3DView.h"
 //
 // MainWindow
 //
@@ -224,6 +224,7 @@ void			MainWindow::resize()
   window->makeCurrent();
   window->create();
   setQuadrant(quadrant);
+	View3D::instance().setViewPort(trueWidth,trueHeight);
 }
 
 void			MainWindow::resizeCB(void* _self)
