@@ -229,6 +229,21 @@ class TargetPercentColumn(TargetCounterColumn):
         return "%.03f" % (value / total * 100)
 
 
+class TargetSubTargetsColumn(Nouvelle.Column):
+    """A Column displaying the number of subtargets within a particular target"""
+    heading = "contents"
+
+    def getValue(self, target):
+        return len(target.catalog())
+
+    def isVisible(self, context):
+        # Hide this column if none of the targets have children
+        return context['table'].reduceColumn(self, max) > 0
+
+    def render_data(self, context, target):
+        return "%d items" % self.getValue(target)
+
+
 class Catalog(Template.Section):
     """A Section displaying links to all children of a StatsTarget, with
        other information about the children displayed as applicable.
@@ -252,6 +267,7 @@ class Catalog(Template.Section):
             TargetBargraphColumn('total events', 'forever'),
             TargetPercentColumn('% total', 'forever'),
             TargetLastEventColumn(),
+            TargetSubTargetsColumn(),
             ])]
 
 
