@@ -1,8 +1,6 @@
 frontend:
 	field verification - need to find some way of setting ok button sensitivity
 
-webcal:
-
 weather:
 	get/set location
 	come up with some method of representing separate city entries with the same station
