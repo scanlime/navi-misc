@@ -267,7 +267,10 @@ xtext2_init (XText2 *xtext)
   xtext->priv = g_new0 (XText2Private, 1);
 
   xtext->priv->buffer_info = g_hash_table_new (g_direct_hash, g_direct_equal);
-  g_print ("xtext2_init() - buffer_info is 0x%x\n", xtext->priv->buffer_info);
+  g_print ("xtext2_init()\n");
+  g_print ("  xtext       is 0x%x\n", xtext);
+  g_print ("  buffer_info is 0x%x\n", xtext->priv->buffer_info);
+  g_print ("\n");
 
   xtext->adj = gtk_adjustment_new (0, 0, 1, 1, 1, 1);
   g_object_ref (G_OBJECT (xtext->adj));
@@ -1179,8 +1182,13 @@ xtext2_show_buffer (XText2 *xtext, XTextBuffer *buffer)
 {
   XTextFormat *f;
 
+  g_assert (IS_XTEXT2 (xtext));
+
   f = g_hash_table_lookup (xtext->priv->buffer_info, buffer);
-  g_print ("xtext2_show_buffer() - buffer_info is 0x%x\n", xtext->priv->buffer_info);
+  g_print ("xtext2_show_buffer()\n");
+  g_print ("  xtext       is 0x%x\n", xtext);
+  g_print ("  buffer_info is 0x%x\n", xtext->priv->buffer_info);
+  g_print ("\n");
   if (f == NULL)
   {
     /* this isn't a buffer we've seen before */

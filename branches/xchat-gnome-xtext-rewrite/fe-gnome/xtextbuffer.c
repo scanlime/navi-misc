@@ -230,6 +230,7 @@ append_entry (XTextBuffer *buffer, textentry *ent)
   }
 
   /* notify viewers */
+  g_signal_emit_by_name (G_OBJECT (buffer), "append");
 }
 
 static int
