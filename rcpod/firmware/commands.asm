@@ -352,6 +352,7 @@ aquisitionLoop
 	decfsz	acq_iterator, f
 	goto	aquisitionLoop	
 
+	banksel	ADCON0
 	bsf	ADCON0, GO		; Start the ADC
 	pagesel	adFinishLoop ; Wait for it to finish
 adFinishLoop
