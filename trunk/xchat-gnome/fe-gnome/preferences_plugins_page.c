@@ -41,10 +41,15 @@ static void on_open_plugin_clicked (GtkButton *button, gpointer user_data);
 static void on_remove_plugin_clicked (GtkButton *button, gpointer user_data);
 static void on_selection_changed (GtkTreeSelection *selection, gpointer user_data);
 static void on_plugin_filechooser (GtkDialog *dialog, gint response, gpointer user_data);
+static void on_row_activated (GtkTreeView *treeview, GtkTreePath *path,
+		GtkTreeViewColumn *col, gpointer user_data);
 
 /* Helpers */
 static void xchat_gnome_plugin_add (char *filename);
-static gboolean set_loaded_if_match (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, gpointer data);
+static gboolean set_loaded_if_match (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter,
+		gpointer data);
+static void load_unload (char *filename, gboolean loaded, GtkTreeModel *model,
+		GtkTreeIter iter);
 
 static GtkWidget *file_selector; // because everyone needs a file selec-tor!
 
@@ -78,9 +83,10 @@ initialize_preferences_plugins_page ()
 	select = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
 	gtk_tree_selection_set_mode (select, GTK_SELECTION_SINGLE);
 	g_signal_connect (G_OBJECT (load_renderer), "toggled", G_CALLBACK (on_load_toggled), NULL);
-  g_signal_connect (G_OBJECT (open), "clicked", G_CALLBACK (on_open_plugin_clicked), NULL);
-  g_signal_connect (G_OBJECT (remove), "clicked", G_CALLBACK (on_remove_plugin_clicked), NULL);
+	g_signal_connect (G_OBJECT (open), "clicked", G_CALLBACK (on_open_plugin_clicked), NULL);
+	g_signal_connect (G_OBJECT (remove), "clicked", G_CALLBACK (on_remove_plugin_clicked), NULL);
 	g_signal_connect (G_OBJECT (select), "changed", G_CALLBACK (on_selection_changed), NULL);
+	g_signal_connect (G_OBJECT (treeview), "row-activated", G_CALLBACK (on_row_activated), NULL);
 
 	file_selector = gtk_file_chooser_dialog_new ("Open Plugin",
 			GTK_WINDOW (glade_xml_get_widget (gui.xml, "preferences")),
@@ -153,38 +159,18 @@ on_load_toggled (GtkCellRendererToggle *toggle, gchar *arg, gpointer user_data)
 	gboolean loaded;
 
 	treeview = glade_xml_get_widget (gui.xml, "plugins list");
-  model = gtk_tree_view_get_model (GTK_TREE_VIEW (treeview));
-  selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
+	model = gtk_tree_view_get_model (GTK_TREE_VIEW (treeview));
+	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
 
-  if (gtk_tree_selection_get_selected (selection, &model, &iter)) {
+	if (gtk_tree_selection_get_selected (selection, &model, &iter)) {
 		char *buf;
-    gtk_tree_model_get (model, &iter, 3, &filename, 4, &loaded, -1);
+		gtk_tree_model_get (model, &iter, 3, &filename, 4, &loaded, -1);
 		/* Some of this code was taken from the fe-gtk plugingui,
 		 * the names have been changed to protect the innocent.
 		 */
-		if (loaded) {
-			buf = malloc (strlen (filename) + 10);
-			if (strchr (filename, ' '))
-				sprintf (buf, "UNLOAD \"%s\"", filename);
-			else
-				sprintf (buf, "UNLOAD %s", filename);
-
-			/* FIXME: Bad to assume that the plugin was successfully unloaded. */
-			gtk_list_store_set (GTK_LIST_STORE (model), &iter, 4, FALSE, -1);
-		}
-		else {
-			buf = malloc (strlen (filename) + 9);
-			if (strchr (filename, ' '))
-				sprintf (buf, "LOAD \"%s\"", filename);
-			else
-				sprintf (buf, "LOAD %s", filename);
-		}
-
-		handle_command (gui.current_session, buf, FALSE);
-		free (buf);
+		load_unload (filename, loaded, model, iter);
 	}
 }
-
 static void
 on_open_plugin_clicked (GtkButton *button, gpointer user_data)
 {
@@ -247,6 +233,26 @@ static void on_plugin_filechooser (GtkDialog *dialog, gint response, gpointer us
 	gtk_widget_hide (file_selector);
 }
 
+static void on_row_activated (GtkTreeView *treeview, GtkTreePath *path,
+		GtkTreeViewColumn *col, gpointer user_data)
+{
+	GtkTreeModel *model;
+	GtkTreeSelection *selection;
+	GtkTreeIter iter;
+	gboolean loaded;
+	char *file;
+
+	model = gtk_tree_view_get_model (treeview);
+	selection = gtk_tree_view_get_selection (treeview);
+
+	if (gtk_tree_selection_get_selected (selection, &model, &iter))
+	{
+		gtk_tree_model_get (model, &iter, 3, &file, 4, &loaded, -1);
+		gtk_list_store_set (GTK_LIST_STORE(model), &iter, 4, !loaded, -1);
+		load_unload (file, loaded, model, iter);
+	}
+}
+
 static void
 xchat_gnome_plugin_add (char *filename)
 {
@@ -303,4 +309,31 @@ set_loaded_if_match (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, 
 	}
 
 	return FALSE;
+}
+
+static void load_unload (char *filename, gboolean loaded, GtkTreeModel *model,
+		GtkTreeIter iter)
+{
+	char *buf;
+
+	if (loaded) {
+		buf = malloc (strlen (filename) + 10);
+		if (strchr (filename, ' '))
+			sprintf (buf, "UNLOAD \"%s\"", filename);
+		else
+			sprintf (buf, "UNLOAD %s", filename);
+
+		/* FIXME: Bad to assume that the plugin was successfully unloaded. */
+		gtk_list_store_set (GTK_LIST_STORE (model), &iter, 4, FALSE, -1);
+	}
+	else {
+		buf = malloc (strlen (filename) + 9);
+		if (strchr (filename, ' '))
+			sprintf (buf, "LOAD \"%s\"", filename);
+		else
+			sprintf (buf, "LOAD %s", filename);
+	}
+
+	handle_command (gui.current_session, buf, FALSE);
+	free (buf);
 }
