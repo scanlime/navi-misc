@@ -42,14 +42,13 @@ def sendBits(bits):
 	    port.write("\xC0")
 	else:
 	    port.write("\xFC")
-    port.flush()
 
 def sendFrame(frame, flag="011110"):
     """Receive sequences of bits bounded by two 'flag' sequences. Yields
        (bitstring, signalStrength) tuples.
        """
-    preamble = "10"*100 + flag + flag
-    sendBits(preamble + flag + stuff(frame) + flag)
+    port.write("U" * 32)
+    sendBits(flag*4 + stuff(frame) + flag)
 
 def sendContent(content):
     sendFrame(content + pack(crc8(content), 8))
@@ -66,4 +65,5 @@ def sendPacket(protocol=0, station=2, voltage=1.234, temperature=19):
 
 while 1:
     sendPacket()
+    port.flush()
     time.sleep(1)
