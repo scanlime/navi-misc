@@ -1,0 +1,11 @@
+:0
+* ^Subject:.*\[mythtv-commits\]
+| $CIADIR/mail/filter_mythtv.py
+
+:0
+* ^Mailing-List: contact perl5-changes-help@perl.org
+| $CIADIR/mail/filter_perl5.py
+
+:0
+* ^Subject: \[Emacs-commit\]
+| $CIADIR/mail/filter_emacs.py
