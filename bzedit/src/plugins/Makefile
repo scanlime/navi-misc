@@ -10,6 +10,7 @@ PLUGINS			=			\
 CORE_SO_OBJS		=			\
 			box.o			\
 			core.o			\
+			group.o			\
 			pyramid.o		\
 			teleporter.o		\
 			world.o
