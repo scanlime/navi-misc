@@ -40,7 +40,7 @@ mvmtOneTimpani = \relative c {
 	% 54
 	cis4\f r r2
 	cis4 r gis'16\mp \< gis gis gis gis gis gis gis \!
-	cis,4.\f r8 r2
+	cis,4.\f^\menoMosso r8 r2
 	R1*2
 	r8 cis'16 cis cis8 cis,16 cis cis8 r8 r cis16 cis
 
@@ -49,9 +49,9 @@ mvmtOneTimpani = \relative c {
 	R1*8
 
 	\time 6/8
-	R1*6/8*20
+	R1*6/8*20^\andante
 	\time 4/4
-	R1
+	R1^\tempoI
 
 	% 90
 	r4 aes'\mf r g
@@ -76,7 +76,7 @@ mvmtOneTimpani = \relative c {
 	R1*3
 
 	\time 6/8
-	R1*6/8*21
+	R1*6/8*21^\andante
 	r4. \times 2/3 {fis16\mp \< fis fis fis fis fis fis fis fis\!}
 	b8\ff r4 r4.
 	R1*6/8*7
@@ -88,7 +88,7 @@ mvmtOneTimpani = \relative c {
 	\repeat "percent" 4 {fis2.}
 	fis4. \< fis,8 fis fis \!
 	\time 4/4
-	b4\ff fis fis fis
+	b4\ff^\moderatoMaestoso fis fis fis
 	e e e fis
 	e e fis fis
 
