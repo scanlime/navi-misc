@@ -39,10 +39,24 @@ def Photo(url, **attrs):
     """A factory for images presented as a photo"""
     return tag('div', _class='photo')[ tag('img', _class='photo', src=url, alt="Photo", **attrs) ]
 
+
 def Bargraph(value, width=4, padding=0.2):
     """A factory for tags that use their size to express a value between 0 and 1"""
     return tag('span', _class='bargraph',
                style="padding: 0em %.4fem" % (value * width + padding))
+
+
+def MessageHeaders(d):
+    """A factory for displaying message headers from a dictionary-like object.
+       If order is important (it probably is) use twisted.python.util.OrderedDict.
+       """
+    return tag('table', _class="messageHeaders")[[
+        tag('tr')[
+            tag('td', _class='name')[ name, ":" ],
+            tag('td', _class='value')[ value ],
+        ]
+        for name, value in d.iteritems()
+    ]]
 
 
 class Section:

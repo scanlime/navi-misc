@@ -351,6 +351,8 @@ class CommitToXHTMLLong(CommitToXHTML):
     medium = 'xhtml-long'
 
     def format(self, message, input=None):
+        from LibCIA.Web import Template
+
         commit = message.xml.body.commit
         source = message.xml.source
         headers = OrderedDict()
@@ -369,13 +371,7 @@ class CommitToXHTMLLong(CommitToXHTML):
 
         return [
             tag('h1')[ "Commit Message" ],
-            tag('table', _class="messageHeaders")[[
-                tag('tr')[
-                    tag('td', _class='name')[ name, ":" ],
-                    tag('td', _class='value')[ value ],
-                ]
-                for name, value in headers.iteritems()
-            ]],
+            Template.MessageHeaders(headers),
             tag('p', _class="messageBody")[ self.format_log(commit.log) ],
             tag('h1')[ "Modified Files" ],
             self.format_files(message.xml.body.commit.files),
