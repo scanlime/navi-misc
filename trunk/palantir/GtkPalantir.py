@@ -71,7 +71,11 @@ class PalantirWindow:
       time = self.GetFormattedTime()
     else:
       time = ''
-    self.chatWindow.DisplayText(time, nick, msg)
+    if msg.find(self.factory.nickname) is not -1:
+      addressed = True
+    else:
+      addressed = False
+    self.chatWindow.DisplayText(time, nick, msg, addressed)
 
   def meReceive(self, user, channel, msg):
     ''' When someone does a '/me' display the action. '''
