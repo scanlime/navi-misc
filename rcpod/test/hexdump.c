@@ -16,8 +16,7 @@ int main() {
     printf("%04X:  ", lineAddr);
 
     /* Fill the line buffer */
-    rcpod_CmdPeek8(rcpod, lineAddr, lineBuffer);
-    rcpod_CmdPeek8(rcpod, lineAddr+8, lineBuffer+8);
+    rcpod_PeekBuffer(rcpod, lineAddr, lineBuffer, 16);
 
     /* Hex values for this line */
     for (i=0; i<16; i++)
