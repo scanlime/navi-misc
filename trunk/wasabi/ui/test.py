@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from BZEngine.UI import Viewport, ThreeDRender, ThreeDControl, Sequencer, HUD, GLOrtho
+from BZEngine.UI import Viewport, ThreeDRender, ThreeDControl, Sequencer, HUD, GLOrtho, Layout
 from BZEngine import Event, Animated
 from Wasabi import Logos, Icon
 from math import *
@@ -17,7 +17,7 @@ class IconTest(Sequencer.Page):
     def __init__(self, book):
         Sequencer.Page.__init__(self, book)
 
-        overlay = self.viewport.region(self.viewport.rect)
+        overlay = self.viewport.region(Layout.Rect(self.viewport))
         self.background = HUD.Image(overlay,
                                     "brushed_metal.png",
                                     overlay.size)
@@ -26,7 +26,7 @@ class IconTest(Sequencer.Page):
             Icon.Icon('icon_navi.png', 'Navi', imageAspect=1.623),
             Icon.Icon('icon_n64.png', 'Nintendo 64', imageAspect=1.04),
 	    Icon.Icon('icon_atari.png', 'Atari', imageAspect=1.52),
-	    Icon.Icon('icon_ps2.png', 'Playstation 2', imageAspect=5.627),
+	    Icon.Icon('icon_ps2.png', 'Playstation 2', imageAspect=0.983),
 	    Icon.Icon('icon_dreamcast.png', 'Dreamcast', imageAspect=1.66),
             ])
 
