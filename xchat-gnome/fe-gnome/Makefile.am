@@ -109,9 +109,7 @@ xchat_gnome_SOURCES =			\
 	userlist_gui.h			\
 	userlist_gui.c			\
 	xtext.h				\
-	xtext.c				\
-	xtext2.h			\
-	xtext2.c
+	xtext.c
 
 xchat_gnome_DATA =			\
 	channel-list.glade		\
