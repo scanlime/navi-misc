@@ -539,7 +539,7 @@ e_calendar_weather_temperature (EPlugin *epl, EConfigHookItemFactoryData *data)
 	set_temperature_units (source, option);
 	gtk_label_set_mnemonic_widget (GTK_LABEL (label), option);
 	g_signal_connect (G_OBJECT (option), "changed", G_CALLBACK (temperature_units_changed), t);
-	gtk_table_attach (GTK_TABLE (parent), option, 1, 2, row, row+1, GTK_EXPAND | GTK_FILL, 0, 0, 0);
+	gtk_table_attach (GTK_TABLE (parent), option, 1, 2, row, row+1, GTK_FILL, 0, 0, 0);
 
 	return option;
 }
@@ -617,7 +617,7 @@ e_calendar_weather_snowfall (EPlugin *epl, EConfigHookItemFactoryData *data)
 	set_snowfall_units (source, option);
 	gtk_label_set_mnemonic_widget (GTK_LABEL (label), option);
 	g_signal_connect (G_OBJECT (option), "changed", G_CALLBACK (snowfall_units_changed), t);
-	gtk_table_attach (GTK_TABLE (parent), option, 1, 2, row, row+1, GTK_EXPAND | GTK_FILL, 0, 0, 0);
+	gtk_table_attach (GTK_TABLE (parent), option, 1, 2, row, row+1, GTK_FILL, 0, 0, 0);
 
 	return option;
 }
