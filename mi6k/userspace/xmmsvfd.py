@@ -132,22 +132,20 @@ class VFDupdater:
         else:
             playTime = " --:--.--"
 
-        # Status string
         if xmms.is_paused():
-            status = 'Paused'
             spinner = self.spinnerPaused
         elif xmms.is_playing():
-            status = 'Playing'
             self.spinnerIndex %= len(self.spinnerPlaying)
             spinner = self.spinnerPlaying[int(self.spinnerIndex)]
             self.spinnerIndex += dt * self.spinnerSpeed
         else:
-            status = 'Idle'
             spinner = self.spinnerIdle
+
+	clock = time.strftime("%H:%M:%S", time.localtime())
 
         spinnerChar = self.vfd.userDefinedCharacters[0]
         self.vfd.defineCharacter(spinnerChar, spinner)
-        self.vfd.writeScreen("%s\n%-9s%s %s" % (title, status, playTime, spinnerChar))
+        self.vfd.writeScreen("%s\n%-9s%s %s" % (title, clock, playTime, spinnerChar))
 
 
 if __name__ == '__main__':
