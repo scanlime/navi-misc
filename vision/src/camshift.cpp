@@ -198,8 +198,6 @@ void interactive_camshift(int n_cameras = 1,
 	      uinput_mouse_move((int)(dx * 2.5),
 				(int)(dy * 2.5));
 	    }
-
-	    
 	  }
 
 	  prev_box_center = box.center;
@@ -276,6 +274,12 @@ void interactive_camshift(int n_cameras = 1,
       sample_rect.y = mouse_y - sample_square_size/2;
       sample_rect.width = sample_square_size;
       sample_rect.height = sample_square_size;
+      if (sample_rect.x < 0) sample_rect.x = 0;
+      if (sample_rect.y < 0) sample_rect.y = 0
+;      if (sample_rect.x > images[0]->width - sample_rect.width - 1)
+	sample_rect.x = images[0]->width - sample_rect.width - 1;
+      if (sample_rect.y > images[0]->height - sample_rect.height - 1)
+	sample_rect.y = images[0]->height - sample_rect.height - 1;
 
       /* The right mouse button clears our histogram */
       if (mouse_buttons & SDL_BUTTON(3)) {
