@@ -167,18 +167,12 @@ class HangmanGUI:
 				menu items from the list, using directory names as the style name.
 				"""
 		styleMenu = [("/Options/Game Style/"+style, None, self.setStyle,
-									self.gallows.styleList.index(style), "<CheckItem>")
+									self.gallows.styleList.index(style), "<RadioItem>")
 									for style in self.gallows.styleList]
 		return styleMenu
 
 	def setStyle(self, data, widget):
 		""" Set the style from the menu check item selected. """
-		# If a style has been previously selected from the menu deactivate that check item.
-		if self.currentStyle:
-			self.currentStyle.set_active(gtk.FALSE)
-		# Save a reference to the selected widget so it can be deactivated later if necessary.
-		self.currentStyle = widget
-		# Set the gallows to the new style directory.
 		self.gallows.setStyle(data)
 		self.gallowsFrame.set(0.5, ratio=self.gallows.imageAspect, obey_child=gtk.FALSE)
 
@@ -337,6 +331,7 @@ class Gallows(gtk.DrawingArea):
 		for style in self.styleList:
 			if style[:1] == '.':
 				self.styleList.remove(style)
+		self.styleList.sort()
 
 		# Load the first .png.
 		self.image = gtk.gdk.pixbuf_new_from_file("graphics/styles/Burton/gallows.png")
