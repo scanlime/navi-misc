@@ -127,6 +127,7 @@ class SourcePage:
         notebook.append_page(self.editor, self.label)
 
         def remove(self):
+            # this assumes that the current tab is the one that exited
             page = self.tab.notebook.get_current_page()
             self.tab.notebook.remove_page(page)
         self.editor.connect('child-exited', remove)
