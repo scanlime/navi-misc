@@ -23,7 +23,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 """
 
-import struct, sys
+import struct, sys, os, time
+from fcntl import ioctl
 
 __all__ = ["Event", "Device"]
 
@@ -31,31 +32,39 @@ def demo():
     """Open the event device named on the command line, use incoming
        events to update a device, and show the state of this device.
        """
-    ev = open(sys.argv[1])
-    dev = Device()
+    dev = Device(sys.argv[1])
     while 1:
-        dev.update(Event(readFrom=ev))
+        dev.poll()
+        time.sleep(0.1)
         print dev
 
 
-class Device:
-    """Represents the state of an input device, with axes and buttons.
+class BaseDevice:
+    """Base class representing the state of an input device, with axes and buttons.
        Event instances can be fed into the Device to update its state.
        """
     def __init__(self):
         self.axes = {}
         self.buttons = {}
+        self.name = None
 
     def __repr__(self):
-        return "<Device axes=%r buttons=%r>" % (self.axes, self.buttons)
+        return "<Device name=%r axes=%r buttons=%r>" % (
+            self.name, self.axes, self.buttons)
 
     def update(self, event):
-        if event.type == "EV_KEY":
-            self.buttons[event.code] = event.value
-        elif event.type == "EV_ABS":
-            self.axes[event.code] = event.value
-        elif event.type == "EV_REL":
-            self.axes[event.code] += event.value
+        f = getattr(self, "update_%s" % event.type, None)
+        if f:
+            f(event)
+
+    def update_EV_KEY(self, event):
+        self.buttons[event.code] = event.value
+
+    def update_EV_ABS(self, event):
+        self.axes[event.code] = event.value
+
+    def update_EV_REL(self, event):
+        self.axes[event.code] += event.value
 
     def __getitem__(self, name):
         """Retrieve the current value of an axis or button,
@@ -65,6 +74,58 @@ class Device:
             return self.axes[name]
         else:
             return self.buttons.get(name, 0)
+
+
+# evdev ioctl constants. The horrible mess here
+# is to silence silly FutureWarnings
+EVIOCGNAME_512 = ~int(~0x82004506L & 0xFFFFFFFFL)
+EVIOCGID       = ~int(~0x80084502L & 0xFFFFFFFFL)
+EVIOCGBIT_512  = ~int(~0x81fe4520L & 0xFFFFFFFFL)
+EVIOCGABS_512  = ~int(~0x80144540L & 0xFFFFFFFFL)
+
+
+class Device(BaseDevice):
+    """An abstract input device attached to a Linux evdev device node"""
+    def __init__(self, filename):
+        BaseDevice.__init__(self)
+        self.fd = os.open(filename, os.O_RDWR | os.O_NONBLOCK)
+        self.packetSize = struct.calcsize(Event.format)
+        self.readMetadata()
+
+    def poll(self):
+        """Receive and process all available input events"""
+        while 1:
+            try:
+                buffer = os.read(self.fd, self.packetSize)
+            except OSError:
+                return
+            self.update(Event(unpack=buffer))
+
+    def readMetadata(self):
+        """Read device identity and capabilities via ioctl()"""
+        buffer = "\0"*512
+
+        # Read the name
+        self.name = ioctl(self.fd, EVIOCGNAME_512, buffer)
+        self.name = self.name[:self.name.find("\0")]
+
+        # Read info on each absolute axis
+        absmap = Event.codeMaps['EV_ABS']
+        buffer = "\0" * struct.calcsize("iiiii")
+        self.absAxisInfo = {}
+        for name, number in absmap.nameMap.iteritems():
+            values = struct.unpack("iiiii", ioctl(self.fd, EVIOCGABS_512 + number, buffer))
+            values = dict(zip(( 'value', 'min', 'max', 'fuzz', 'flat' ),values))
+            self.absAxisInfo[name] = values
+
+    def update_EV_ABS(self, event):
+        """Scale the absolute axis into the range [-1, 1] using absAxisInfo"""
+        try:
+            info = self.absAxisInfo[event.code]
+        except KeyError:
+            return
+        range = float(info['max'] - info['min'])
+        self.axes[event.code] = (event.value - info['min']) / range * 2.0 - 1.0
 
 
 class EnumDict:
