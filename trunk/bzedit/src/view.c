@@ -119,6 +119,18 @@ view_click (GLDrawingArea *widget, GdkEventButton *event, View *view)
     view->mouse[0] = event->x;
     view->mouse[1] = event->y;
   }
+  else if (event->button == 3)
+  {
+    /* right button, do picking */
+    guint pos[2];
+    SceneObject *object;
+
+    pos[0] = event->x;
+    pos[1] = event->y;
+    object = view_pick (view, pos);
+    if (object)
+      scene_object_select (object);
+  }
 
   return TRUE;
 }
@@ -245,6 +257,18 @@ SceneObject*
 view_pick (View *view, guint pos[2])
 {
   RenderState *rstate = render_state_new ();
+  GLuint viewport[4];
+
+  rstate->picking = TRUE;
+
+  glGetIntegerv (GL_VIEWPORT, viewport);
+  glMatrixMode (GL_PROJECTION);
+  glPushMatrix ();
+  glLoadIdentity ();
+  gluPickMatrix ((double)pos[0], (double) (viewport[3] - pos[1]), 1.0, 1.0, viewport);
+  gluPerspective (45.0, (float) (viewport[2] - viewport[0]) / (float) (viewport[3] - viewport[1]), 3.0, 2500.0);
+
+  glMatrixMode (GL_MODELVIEW);
   camera_load (view->camera);
   return scene_pick (view->scene, rstate, pos);
 }

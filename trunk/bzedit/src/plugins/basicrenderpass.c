@@ -40,6 +40,7 @@ static void     basic_render_pass_preprocess (RenderPass *pass);
 static void     basic_render_pass_add        (RenderPass *pass, Drawable *drawable);
 static void     basic_render_pass_erase      (RenderPass *pass);
 static gboolean basic_render_pass_is_empty   (RenderPass *pass);
+static gint     basic_render_pass_size       (RenderPass *pass);
 
 GType
 texture_group_get_type (void)
@@ -227,6 +228,7 @@ basic_render_pass_class_init (BasicRenderPassClass *klass)
   rpc->add = basic_render_pass_add;
   rpc->erase = basic_render_pass_erase;
   rpc->is_empty = basic_render_pass_is_empty;
+  rpc->size = basic_render_pass_size;
 
   rpc->filter_priority = 0;
   rpc->render_priority = 100;
@@ -236,6 +238,7 @@ static void
 basic_render_pass_init (BasicRenderPass *self)
 {
   self->texture_groups = g_hash_table_new (g_str_hash, g_str_equal);
+  self->size = 0;
 }
 
 static void
@@ -299,6 +302,8 @@ basic_render_pass_add (RenderPass *pass, Drawable *drawable)
   BasicRenderPass *brp = BASIC_RENDER_PASS (pass);
   TextureGroup *group;
 
+  brp->size++;
+
   group = g_hash_table_lookup (brp->texture_groups, (gpointer) drawable->texture);
   if (group)
   {
@@ -322,6 +327,7 @@ basic_render_pass_erase (RenderPass *pass)
   BasicRenderPass *brp = BASIC_RENDER_PASS (pass);
   g_hash_table_foreach_remove (brp->texture_groups, (GHRFunc) brp_tg_destroy, NULL);
   g_free(brp->texture_groups);
+  brp->size = 0;
   brp->texture_groups = g_hash_table_new (g_str_hash, g_str_equal);
 }
 
@@ -330,4 +336,11 @@ basic_render_pass_is_empty (RenderPass *pass)
 {
   BasicRenderPass *brp = BASIC_RENDER_PASS (pass);
   return (g_hash_table_size (brp->texture_groups) == 0);
+}
+
+static gint
+basic_render_pass_size (RenderPass *pass)
+{
+  BasicRenderPass *brp = BASIC_RENDER_PASS (pass);
+  return brp->size;
 }

@@ -261,4 +261,48 @@ scene_thaw (Scene *self)
 SceneObject*
 scene_pick (Scene *self, RenderState *rstate, guint position[2])
 {
+  gint total_drawables;
+  GList *pass;
+  GLuint *buffer;
+  GLint hits;
+  Drawable *d;
+  guint choose;
+
+  total_drawables = 0;
+  for (pass = self->render_passes; pass; pass = pass->next)
+    total_drawables += render_pass_get_size (RENDER_PASS (pass->data));
+
+  buffer = g_new (GLuint, total_drawables * 4);
+  glSelectBuffer (total_drawables * 4, buffer);
+  glRenderMode (GL_SELECT);
+  glInitNames ();
+  glPushName (0);
+
+  scene_render (self, rstate);
+
+  glMatrixMode (GL_PROJECTION);
+  glPopMatrix ();
+  glMatrixMode (GL_MODELVIEW);
+  hits = glRenderMode (GL_RENDER);
+  if (hits > 0)
+  {
+    guint depth = buffer[1];
+    int i;
+    choose = buffer[3];
+    for (i = 1; i < hits; i++)
+    {
+      if (buffer[i * 4 + 1] < depth)
+      {
+	choose = buffer[i * 4 + 3];
+	depth = buffer[i * 4 + 1];
+      }
+    }
+    choose--;
+  }
+  d = (Drawable*) render_state_do_pick (rstate, choose);
+  g_free (buffer);
+  if (d != NULL)
+    return d->parent;
+  else
+    return NULL;
 }
