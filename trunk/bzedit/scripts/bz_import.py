@@ -30,16 +30,7 @@ Tip: 'Imports a BZFlag world file into specially tagged Blender objects'
 
 import Blender
 import math
-
-try:
-    import bzflag
-except ImportError:
-    Blender.Draw.PupMenu("Error importing 'bzflag' module%t|"
-                         "You may have to start the Blender game engine|"
-                         "momentarily then exit it to set the Python|"
-                         "path properly.")
-    bzflag = None
-
+import BZFlag
 
 def importObjects(reader):
     # First determine if we have a world. If not, we'll need to create a default one.
@@ -64,7 +55,8 @@ def importObjects(reader):
 
 def fileSelectedCallback(filename):
     try:
-        reader = bzflag.WorldReader(filename)
+        reader = BZFlag.Reader()
+        reader.parse(filename)
     except IOError, s:
         bzflag.log.err(s)
     else:
@@ -76,8 +68,8 @@ def fileSelectedCallback(filename):
         except AttributeError:
             pass
 
-    if bzflag.log.numErrors:
-        bzflag.log.report("Errors in loading world file")
+    if BZFlag.log.numErrors:
+        BZFlag.log.report("Errors in loading world file")
 
 if bzflag:
     Blender.Window.FileSelector(fileSelectedCallback, "Load BZFlag World")

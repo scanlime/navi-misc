@@ -115,7 +115,8 @@ class Box(Object):
 
         # Fix-up objects with negative scales - upside-down objects
         # are represented in blender with a positive scale and a rotation
-        if size[2] < 0:
+        upsideDown = size[2] < 0
+        if upsideDown:
             size[2] = -size[2]
             position[2] += size[2]
 
@@ -134,8 +135,60 @@ class Box(Object):
             [ 0,   0,   1, 0],
             [ 0,   0,   0, 1])
 
+        if upsideDown:
+            # 180 degree rotation around the X axis
+            mat *= Blender.Mathutils.Matrix(
+                [0, 1,  0, 0],
+                [1, 0,  0, 0],
+                [0, 0, -1, 0],
+                [0, 0,  0, 1])
+
+        mat *= Blender.Mathutils.TranslationMatrix(Blender.Mathutils.Vector(position))
+        transform = self.world.getBzToBlendMatrix()
+        transform.resize4x4()
+        mat *= transform
+
+        mat *= Blender.Mathutils.TranslationMatrix(self.world.blendObject.mat.translationPart())
+
+        obj.setMatrix(mat)
+
     def loadBlenderTransform(self, obj):
         """Retrieves the object's position, size, and rotation
            from a Blender object- the inverse of transformBlenderObject().
            """
-        pass
+
+        # Before anything else, subtract the world origin
+        mat = obj.mat * Blender.Mathutils.TranslationMatrix(self.world.blendObject.mat.translationPart() * -1.0)
+
+        # Convert to BZFlag coordinates, relative to the World object
+        transform = self.world.getBlendToBzMatrix()
+        transform.resize4x4()
+        mat *= transform
+
+        # Extract translation, leave a 3x3 matrix with rotation and scale
+        self.position = list(mat.translationPart())
+        mat = mat.rotationPart()
+
+        # Extract the rotation using blender's handy quaternion-fu
+        euler = mat.toEuler()
+        self.rotation = euler[2]
+
+        # We could determine scale by multiplying our three basis vectors
+        # each by the matrix and measuring their length. This is the same
+        # as treating each column of the 3x3 matrix as a vector and taking
+        # their length.
+        self.size = [
+                     math.sqrt(mat[0][0]**2 + mat[0][1]**2 + mat[0][2]**2),
+                     math.sqrt(mat[1][0]**2 + mat[1][1]**2 + mat[1][2]**2),
+                     math.sqrt(mat[2][0]**2 + mat[2][1]**2 + mat[2][2]**2)
+                    ]
+
+        # There are only two allowed orientations in bzflag:
+        # (0, 0, x) and (180, 0, x). We don't strictly enforce these,
+        # but we do assume that if euler[0] > 90, it's in this second
+        # orientation and it's an upside-down object. This only makes
+        # sense in the case of pyramids- the origin is moved back to the
+        # bottom, and the Z size is flipped.
+        if euler[0] > 90 or euler[0] < -90:
+            self.position[2] -= self.size[2]
+            self.size[2] *= -1
