@@ -1,11 +1,20 @@
 
-all: cube64.hex serial_bridge.hex
+all: cube64_16f84.hex cube64_12f629.hex serial_bridge.hex
+
+cube64_16f84.hex: cube64.asm *.inc
+	gpasm -p PIC16F84A $<
+
+cube64_12f629.hex: cube64.asm *.inc
+	gpasm -p PIC12F629 $<
 
 %.hex: %.asm *.inc
 	gpasm $<
 
-install: cube64.hex
-	pista < pista.conf
+install-84: cube64_16f84.hex
+	pista < pista-84.conf
+
+install-629: cube64_12f629.hex
+	pista < pista-629.conf
 
 clean:
 	rm -f *.hex *.lst *.cod

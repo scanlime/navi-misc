@@ -7,12 +7,9 @@
 	;;   the Free Software Foundation; either version 2 of the License, or
 	;;   (at your option) any later version.
 	;;
-	;; This firmware is designed to run on a PIC16F84A microcontroller
-	;; clocked at 20 MHz. The gamecube's bidirectional data line
-	;; (with 1k pullup) is on RB1, the N64's bidirectional data line
-	;; is on RB0/INT. The PIC16F84 was chosen due to its relatively high
-	;; speed and wide availability, but this code should be portable
-	;; to other PICs at the same clock speed without much effort.
+	;; This firmware is designed to run on a PIC16F84A or PIC12F629 microcontroller
+	;; clocked at 20 MHz. The '84 is one of the most common microcontrollers ever,
+	;; whereas the '629 is a newer 8-pin micro.
 	;;
 	;; See n64gc_comm.inc for code and documentation related to the protocol
 	;; used between here, the N64, and the Gamecube.
@@ -26,18 +23,59 @@
 	;; the CRC algorithm is used and the address check bits are ignored.
 	;;
 
-	list	p=16f84a
-	#include p16f84a.inc
-	#include n64gc_comm.inc
 	errorlevel -302
 
-	__CONFIG   _CP_OFF & _PWRTE_OFF & _WDT_ON & _HS_OSC
+	;; Definitions for the PIC16F84A version
+	ifdef __16F84A
+		#include p16f84a.inc
 
-	;; Hardware declarations
-	#define N64_PIN		PORTB, 0
-	#define N64_TRIS	TRISB, 0
-	#define	GAMECUBE_PIN	PORTB, 1
-	#define	GAMECUBE_TRIS	TRISB, 1
+		__CONFIG   _CP_OFF & _PWRTE_OFF & _WDT_ON & _HS_OSC
+
+		#define N64_PIN		PORTB, 0
+		#define N64_TRIS	TRISB, 0
+		#define	GAMECUBE_PIN	PORTB, 1
+		#define	GAMECUBE_TRIS	TRISB, 1
+
+		#define RAM_START	0x0C
+
+io_init		macro
+		bcf	STATUS, RP0
+		clrf	PORTA
+		clrf	PORTB
+		bsf	STATUS, RP0
+		clrf	TRISA
+		movlw	0x03
+		movwf	TRISB
+		endm
+
+	;; Definitions for the PIC12F629 version
+	else
+	ifdef  __12F629
+	  	#include p12f629.inc
+
+		__CONFIG   _CP_OFF & _PWRTE_OFF & _WDT_ON & _HS_OSC
+
+		#define N64_PIN		GPIO, 0
+		#define N64_TRIS	TRISIO, 0
+		#define	GAMECUBE_PIN	GPIO, 1
+		#define	GAMECUBE_TRIS	TRISIO, 1
+
+		#define RAM_START	0x20
+
+io_init		macro
+		bcf	STATUS, RP0
+		clrf	GPIO
+		bsf	STATUS, RP0
+		movlw	0x03
+		movwf	TRISIO
+		endm
+
+	else
+		messg	"Unsupported processor"
+	endif
+	endif
+
+	#include n64gc_comm.inc
 
 	;; Magic word and the address it should be at in the EEPROM,
 	;; as a big-endian 16-bit value.
@@ -57,8 +95,8 @@
 	org 4
 	retfie
 
-	;; Variables
-	cblock	0x0C
+	;; Variables, must be no larger than 64 bytes for the PIC12F629.
+	cblock	RAM_START
 		temp
 		temp2
 		byte_count
@@ -86,9 +124,9 @@
 		n64_bus_packet:.32
 		n64_crc
 
+		n64_id_buffer:0		; 3 bytes, overlaid with gamecube_buffer
 		gamecube_buffer:8
 		n64_status_buffer:4
-		n64_id_buffer:3
 	endc
 
 	;; The rumble motor should be on
@@ -110,16 +148,7 @@
 	;; *******************************************************************************
 
 startup
-	;; Initialize I/O ports- all unused pins output low, the two controller
-	;; data pins initially tristated (they simulate open-collector outputs).
-	bcf	STATUS, RP0
-	clrf	PORTA
-	clrf	PORTB
-	bsf	STATUS, RP0
-	clrf	TRISA
-	movlw	0x03
-	movwf	TRISB
-
+	io_init
 	n64gc_init
 
 	clrf	flags
