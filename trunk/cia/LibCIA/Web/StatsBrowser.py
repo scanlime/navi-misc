@@ -231,6 +231,7 @@ class Info(Template.Section):
         metadata = target.metadata
         self.url = metadata.get('url')
         self.description = metadata.get('description')
+        self.photo_url = metadata.get('photo_url')
 
     def isVisible(self, context):
         return self.url or self.description
@@ -239,6 +240,8 @@ class Info(Template.Section):
         rows = []
         if self.url:
             rows.append(tag('a', href=self.url)[self.url])
+        if self.photo_url:
+            rows.append(Template.photo(src=self.photo_url))
         if self.description:
             rows.append(self.description)
         return rows
