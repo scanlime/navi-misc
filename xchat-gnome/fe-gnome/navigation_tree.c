@@ -237,7 +237,47 @@ void server_context(GtkWidget *treeview, session *selected) {
 }
 
 void channel_context(GtkWidget *treeview, session *selected) {
+	static GtkItemFactoryEntry entries[] = {
+		{"/Channel",			NULL, NULL, 0, "<Branch>"},
+		{"/Channel/_Save",		NULL, NULL, 0, "<StockItem>", GTK_STOCK_SAVE},
+		{"/Channel/Save _As...",	NULL, NULL, 0, "<StockItem>", GTK_STOCK_SAVE_AS},
+		{"/Channel/Separator1",		NULL, NULL, 0, "<Separator>"},
+		{"/Channel/Leave",		NULL, NULL, 0, "<StockItem>", GTK_STOCK_CLOSE},
+		{"/Channel/Separator2",		NULL, NULL, 0, "<Separator>"},
+		{"/Channel/_Find...",		NULL, NULL, 0, "<StockItem>", GTK_STOCK_FIND},
+		{"/Channel/Find Ne_xt",		NULL, NULL, 0, "<StockItem>", GTK_STOCK_FIND},
+		{"/Channel/_Clear Window",	NULL, NULL, 0, "<StockItem>", GTK_STOCK_CLEAR},
+		{"/Channel/Separator3",		NULL, NULL, 0, "<Separator>"},
+		{"/Channel/_Bans",		NULL, NULL, 0, "<StockItem>", GTK_STOCK_DIALOG_WARNING}
+	};
+	GtkItemFactory *factory;
+	GtkWidget *menu;
+
+	factory = gtk_item_factory_new(GTK_TYPE_MENU, "<XChatGnomeNavigationChannelContext>", NULL);
+	gtk_item_factory_create_items(factory, 11, entries, NULL);
+	menu = gtk_item_factory_get_widget(factory, "/Channel");
+
+	gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 0, 0);
 }
 
 void dialog_context(GtkWidget *treeview, session *selected) {
+	static GtkItemFactoryEntry entries[] = {
+		{"/Dialog",			NULL, NULL, 0, "<Branch>"},
+		{"/Dialog/_Save",		NULL, NULL, 0, "<StockItem>", GTK_STOCK_SAVE},
+		{"/Dialog/Save _As...",		NULL, NULL, 0, "<StockItem>", GTK_STOCK_SAVE_AS},
+		{"/Dialog/Separator1",		NULL, NULL, 0, "<Separator>"},
+		{"/Dialog/Close",		NULL, NULL, 0, "<StockItem>", GTK_STOCK_CLOSE},
+		{"/Dialog/Separator2",		NULL, NULL, 0, "<Separator>"},
+		{"/Dialog/_Find...",		NULL, NULL, 0, "<StockItem>", GTK_STOCK_FIND},
+		{"/Dialog/Find Ne_xt",		NULL, NULL, 0, "<StockItem>", GTK_STOCK_FIND},
+		{"/Dialog/_Clear Window",	NULL, NULL, 0, "<StockItem>", GTK_STOCK_CLEAR}
+	};
+	GtkItemFactory *factory;
+	GtkWidget *menu;
+
+	factory = gtk_item_factory_new(GTK_TYPE_MENU, "<XChatGnomeNavigationDialogContext>", NULL);
+	gtk_item_factory_create_items(factory, 9, entries, NULL);
+	menu = gtk_item_factory_get_widget(factory, "/Dialog");
+
+	gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 0, 0);
 }
