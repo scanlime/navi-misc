@@ -38,7 +38,7 @@
 #include <linux/tcp.h>
 
 #include <linux/input.h>
-#include <linux/uinput.h>
+#include <uinput.h>
 #include "inputpipe.h"
 
 
@@ -107,6 +107,8 @@ static void             client_received_packet (struct client* self,
 						int type,
 						int length,
 						void* content);
+static void             client_received_event  (struct client* self,
+						struct input_event *ev);
 
 static void             client_list_remove     (struct client* client);
 static void             client_list_insert     (struct client* client);
@@ -149,7 +151,7 @@ static struct client* client_new(int tcp_fd, struct sockaddr_in *addr)
 
   if (fcntl(tcp_fd, F_SETFL, fcntl(tcp_fd, F_GETFL, 0) | O_NONBLOCK) < 0) {
     perror("fcntl");
-    listener_delete(self);
+    client_delete(self);
     return NULL;
   }
   self->tcp_fd = tcp_fd;
@@ -207,6 +209,13 @@ static const char* client_format_addr (struct client* self)
 
 static void client_poll(struct client* self)
 {
+  /* Is there data waiting on our uinput device? */
+  if (FD_ISSET(self->uinput_fd, &fd_read)) {
+    struct input_event ev;
+    if (read(self->uinput_fd, &ev, sizeof(ev)) == sizeof(ev))
+      client_received_event(self, &ev);
+  }
+
   /* Is our TCP socket ready? */
   if (FD_ISSET(self->tcp_fd, &fd_read)) {
 
@@ -415,12 +424,35 @@ static void client_received_packet(struct client* self,
       }
       self->device_created = 1;
       client_message(self, "Created new device \"%s\"", self->dev_info.name);
+
+      /* Now we can safely register our uinput device for select() */
+      FD_SET(self->uinput_fd, &fd_request_read);
+      if (self->uinput_fd >= fd_count)
+	fd_count = self->uinput_fd + 1;
     }
     break;
 
   default:
     client_message(self, "Received unknown packet type 0x%04X", type);
   }
+}
+
+static void client_received_event(struct client* self,
+				  struct input_event *ev)
+{
+  /* We got an app to device input event from uinput. In most
+   * cases we forward these to the corresponding client, but
+   * we process EV_UINPUT events here.
+   */
+  if (ev->type == EV_UINPUT) {
+
+    switch (ev->code) {
+
+    }
+    return;
+  }
+
+  printf("0x%04X 0x%04X 0x%04X\n", ev->type, ev->code, ev->value);
 }
 
 

@@ -3,7 +3,7 @@ SERVER_OBJS = src/server.o
 CLIENT_OBJS = src/client.o
 
 LINUX_DIR = /lib/modules/$(shell uname -r)/build
-CFLAGS = -I$(LINUX_DIR)/include -g
+CFLAGS = -I$(LINUX_DIR)/include -I uinput -g
 
 all: $(BINS)
 
