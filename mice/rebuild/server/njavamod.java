@@ -11,6 +11,8 @@ import java.io.*;
 
 public class njavamod extends nbase
 {
+	public amoderate moder;
+
 	/**
 	 * This is an empty constructor for the initial initialization
 	 * @param gonnection The socket descriptor for the connection type stuff
@@ -22,6 +24,7 @@ public class njavamod extends nbase
 	public njavamod(Socket gonnection, BufferedReader IN, OutputStreamWriter OUT)
 	{
 		super(gonnection,IN,OUT);
+		netdebug = true;
 	}
 	
 	/**
@@ -31,6 +34,46 @@ public class njavamod extends nbase
 	 */
 	public void run()
 	{
+		if(!authenticate())
+		{
+			write("-ERR");
+			closeConnection();
+		}
+		write("+OK");
+		cliinit();
+		modloop();
+		closeConnection();
+	}
+	
+	public void cliinit()
+	{
+		int i;
+		int users = imain.database.interviewuser.length;
+		write("" + users);
+		for(i=0;i<users;i++)
+			write(imain.database.interviewuser[i]);
+	}
+	
+	
+	public void modloop()
+	{
 		
+	}
+	
+	/**
+	 * This method handles the authentication of the client.
+	 * @author Brandon Smith
+	 * @version 2.0
+	 * @return True on a successful authentication, false on failure
+	 */
+	public boolean authenticate()
+	{
+		String mykey, uname, pword;
+		mykey = key.keygen();
+		write(mykey);
+		uname = key.decrypt(mykey,read());
+		pword = key.decrypt(mykey,read());
+		moder = new amoderate(imain.database);
+		return moder.authenticate(imain.database,uname,pword);
 	}
 }

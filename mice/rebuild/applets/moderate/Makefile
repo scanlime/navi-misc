@@ -2,6 +2,7 @@ CLASSES =\
 	net.class\
 	keyinfo.class\
 	key.class\
+	build.class\
 	moderate.class\
 	authenticate.class
 
@@ -9,6 +10,9 @@ app: $(CLASSES)
 
 moderate.class: moderate.java
 	javac moderate.java
+
+build.class: build.java
+	javac build.java
 
 keyinfo.class: keyinfo.java
 	javac keyinfo.java
