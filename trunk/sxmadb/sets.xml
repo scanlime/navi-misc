@@ -5,4 +5,5 @@
 <sets>
   <set name="blocking set 1" href="blocking-set-1.xml" level="yellow"/>
   <set name="kicking set 1" href="kicking-set-1.xml" level="orange"/>
+  <set name="stance set 1" href="stance-set-1.xml" level="orange"/>
 </sets>

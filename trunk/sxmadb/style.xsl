@@ -194,7 +194,7 @@
       <xsl:for-each select="step">
         <div class="row">
           <xsl:number format="1. "/>
-          <xsl:value-of select="."/>
+          <xsl:apply-templates/>
         </div>
       </xsl:for-each>
     </div>
@@ -317,5 +317,22 @@
       <span class="emph">Note: </span>
       <xsl:value-of select="."/>
     </div>
+  </xsl:template>
+
+  <xsl:template match="stance">
+    <xsl:value-of select="@side"/>
+    <xsl:text> </xsl:text>
+    <xsl:value-of select="."/>
+  </xsl:template>
+  <xsl:template match="block">
+    <xsl:value-of select="@side"/>
+    <xsl:text> </xsl:text>
+    <xsl:value-of select="."/>
+    block
+  </xsl:template>
+  <xsl:template match="strike">
+    <xsl:value-of select="@side"/>
+    <xsl:text> </xsl:text>
+    <xsl:value-of select="."/>
   </xsl:template>
 </xsl:stylesheet>
