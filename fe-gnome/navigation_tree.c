@@ -65,7 +65,7 @@ navigation_tree_get_type (void)
     };
 
 		/* Register the type. */
-    navigation_tree_type = g_type_register_static(G_TYPE_OBJECT, "NavTree", &navigation_tree_info, 0);
+    navigation_tree_type = g_type_register_static(GTK_TYPE_TREE_VIEW, "NavTree", &navigation_tree_info, 0);
   }
 
   return navigation_tree_type;
@@ -79,7 +79,7 @@ navigation_tree_init (NavTree *navtree)
   GtkTreeSelection *select;
 
 	printf("navigation tree init\n");
-	navtree->current_path = gtk_tree_path_new();
+	navtree->current_path = NULL;
 	navtree->model = NULL;
 
 	/* This sets up all our columns. */
@@ -295,7 +295,6 @@ navigation_tree_select_prev_channel (NavTree *navtree)
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(navtree));
 
 	if (!navtree->current_path) {
-		GtkTreePath *new_path;
 		gtk_tree_model_get_iter_first(model, &iter);
 		gtk_tree_path_free(navtree->current_path);
 		navtree->current_path = gtk_tree_model_get_path(model, &iter);
@@ -396,14 +395,14 @@ navigation_context(GtkWidget *treeview, session *selected)
 static void
 clear_dialog(gpointer data, guint action, GtkWidget *widget)
 {
-	GtkWidget *treeview;
+	GtkTreeView *treeview;
 	GtkTreeSelection *select;
 	GtkTreeModel *model;
 	GtkTreeIter iter;
 	session *s;
 
-	treeview = glade_xml_get_widget(gui.xml, "server channel list");
-	select = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
+	treeview = GTK_TREE_VIEW(gui.server_tree);
+	select = gtk_tree_view_get_selection(treeview);
 	if(gtk_tree_selection_get_selected(select, &model, &iter)) {
 		gtk_tree_model_get(model, &iter, 2, &s, -1);
 		clear_buffer(s);
@@ -413,14 +412,14 @@ clear_dialog(gpointer data, guint action, GtkWidget *widget)
 static void
 disconnect_server(gpointer data, guint action, GtkWidget *widget)
 {
-	GtkWidget *treeview;
+	GtkTreeView *treeview;
 	GtkTreeSelection *select;
 	GtkTreeModel *model;
 	GtkTreeIter iter;
 	session *s;
 
-	treeview = glade_xml_get_widget(gui.xml, "server channel list");
-	select = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
+	treeview = GTK_TREE_VIEW(gui.server_tree);
+	select = gtk_tree_view_get_selection(treeview);
 	if(gtk_tree_selection_get_selected(select, &model, &iter)) {
 		gtk_tree_model_get(model, &iter, 2, &s, -1);
 		s->server->disconnect(s, TRUE, -1);
@@ -431,13 +430,13 @@ static void
 show_channel_list(gpointer data, guint action, GtkWidget *widget)
 {
 	g_print("channel list!\n");
-	GtkWidget *treeview;
+	GtkTreeView *treeview;
 	GtkTreeSelection *select;
 	GtkTreeModel *model;
 	GtkTreeIter iter;
 	session *s;
 
-	treeview = glade_xml_get_widget(gui.xml, "server channel list");
+	treeview = GTK_TREE_VIEW(gui.server_tree);
 	select = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
 	if(gtk_tree_selection_get_selected(select, &model, &iter)) {
 		gtk_tree_model_get(model, &iter, 2, &s, -1);
@@ -466,14 +465,14 @@ server_context(GtkWidget *treeview, session *selected)
 static void
 leave_dialog(gpointer data, guint action, GtkWidget *widget)
 {
-	GtkWidget *treeview;
+	GtkTreeView *treeview;
 	GtkTreeSelection *select;
 	GtkTreeModel *model, *store;
 	GtkTreeIter iter, newiter;
 	session *s;
 
-	treeview = glade_xml_get_widget(gui.xml, "server channel list");
-	select= gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
+	treeview = GTK_TREE_VIEW(gui.server_tree);
+	select= gtk_tree_view_get_selection(treeview);
 	if(gtk_tree_selection_get_selected(select, &model, &iter)) {
 		gtk_tree_model_get(model, &iter, 2, &s, -1);
 		store = gtk_tree_model_sort_get_model(GTK_TREE_MODEL_SORT(model));
@@ -489,14 +488,14 @@ leave_dialog(gpointer data, guint action, GtkWidget *widget)
 static void
 close_dialog(gpointer data, guint action, GtkWidget *widget)
 {
-	GtkWidget *treeview;
+	GtkTreeView *treeview;
 	GtkTreeSelection *select;
 	GtkTreeModel *model;
 	GtkTreeIter iter;
 	session *s;
 
-	treeview = glade_xml_get_widget(gui.xml, "server channel list");
-	select = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
+	treeview = GTK_TREE_VIEW(gui.server_tree);
+	select = gtk_tree_view_get_selection(treeview);
 	if(gtk_tree_selection_get_selected(select, &model, &iter)) {
 		gtk_tree_model_get(model, &iter, 2, &s, -1);
 		if(s->type == SESS_CHANNEL) {
@@ -599,7 +598,7 @@ navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_dat
 {
 	GtkTreeIter iter, newiter;
 	GtkTreeModel *model, *store;
-	GtkTreeView *treeview, *navigation;
+	GtkTreeView *treeview;
 	gpointer *s;
 	session *sess;
 	session_gui *tgui;
@@ -650,9 +649,9 @@ navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_dat
 		gtk_tree_store_set(GTK_TREE_STORE(store), &newiter, 0, NULL, 3, 0, -1);
 
 		/* Update current_path. */
-		navigation = GTK_TREE_VIEW(glade_xml_get_widget(gui.xml, "server channel list"));
-		gtk_tree_path_free(NAVTREE(navigation)->current_path);
-		NAVTREE(navigation)->current_path = gtk_tree_model_get_path(GTK_TREE_MODEL(model), &iter);
+		if(gui.server_tree->current_path)
+		  gtk_tree_path_free(gui.server_tree->current_path);
+	  gui.server_tree->current_path = gtk_tree_model_get_path(GTK_TREE_MODEL(model), &iter);
 	}
 }
 
@@ -737,11 +736,12 @@ navigation_model_create_new_channel_entry_iterate (GtkTreeModel *model, GtkTreeP
 	gtk_tree_model_get(model, iter, 2, &s, -1);
 	if(s->type == SESS_SERVER && s->server == data->server) {
 		GtkTreeIter child, sorted;
-		GtkWidget *entry, *treeview;
+		GtkWidget *entry;
+		GtkTreeView *treeview;
 		GtkTreeModelSort *sort;
 
-		treeview = glade_xml_get_widget(gui.xml, "server channel list");
-		sort = GTK_TREE_MODEL_SORT(gtk_tree_view_get_model(GTK_TREE_VIEW(treeview)));
+		treeview = GTK_TREE_VIEW(gui.server_tree);
+		sort = GTK_TREE_MODEL_SORT(gtk_tree_view_get_model(treeview));
 
 		gtk_tree_store_append(GTK_TREE_STORE(model), &child, iter);
 
