@@ -42,7 +42,7 @@ xchat_plugin_get_info (char **plugin_name, char **plugin_desc,
 {
 	*plugin_name = "Notification";
 	*plugin_desc = "A notification area plugin.";
-	*pluing_version = VERSION;
+	*plugin_version = VERSION;
 
 	if (reserved)
 		*reserved = NULL;
