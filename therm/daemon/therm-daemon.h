@@ -25,6 +25,7 @@
 
 #include <usb.h>
 #include <stdarg.h>
+#include <mysql.h>
 
 struct rx_packet {
   int buffer_bytes;
@@ -56,8 +57,8 @@ usb_dev_handle*   receiver_open           ();
  */
 struct rx_packet* receiver_read           (usb_dev_handle* self, int timeout);
 
-/* Get the local temperature at the receiver */
-int               receiver_get_local_temp (usb_dev_handle* self);
+/* Get the local temperature at the receiver. Returns 0 on success, -1 on failure */
+int               receiver_get_local_temp (usb_dev_handle* self, int *temperature);
 
 char*  strdup_vprintf            (const char* format, va_list ap);
 char*  strdup_printf             (const char* format, ...);

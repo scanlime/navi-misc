@@ -20,9 +20,16 @@
  *
  */
 
-#include "therm-daemon.h"
+#include <stdio.h>
 #include <therm-rx-protocol.h>
 #include <assert.h>
+#include "therm-daemon.h"
+
+#define FIRMWARE_FILENAME     "therm-rx.bin"
+
+#define CODESPACE_SIZE        0x2000
+#define FIRMWARE_HEADER_SIZE  3
+
 
 static void receiver_download_firmware(usb_dev_handle* self);
 
@@ -208,7 +215,7 @@ struct rx_packet* receiver_read(usb_dev_handle* self, int timeout)
   return packet;
 }
 
-int receiver_get_local_temp(usb_dev_handle* self)
+int receiver_get_local_temp(usb_dev_handle* self, int *temperature)
 {
   unsigned char b;
   int temp;
@@ -216,19 +223,105 @@ int receiver_get_local_temp(usb_dev_handle* self)
   if (usb_control_msg(self, USB_TYPE_VENDOR | 0x80, THERMRX_REQ_LOCAL_TEMP,
 		      0, 0, &b, 1, 100) < 0) {
     perror("usb_control_msg");
-    exit(1);
+    return -1;
   }
 
   /* Sign extend */
   temp = b;
   if (temp & 0x80)
     temp -= 0x100;
+  *temperature = temp;
 
-  return temp;
+  return 0;
+}
+
+static int arith_checksum_8bit(const unsigned char* buffer, int length)
+{
+  /* Perform a simple 8-bit arithmetic checksum, as used by the TUSB3410 bootloader */
+  int i;
+  unsigned char sum = 0;
+  for (i=0; i<length; i++)
+    sum += buffer[i];
+  return sum;
+}
+
+static int send_bulk_ep_buffer(usb_dev_handle* self, int endpoint,
+			       unsigned char* buffer, int length)
+{
+  /* Send a large block of data to the given USB bulk endpoint, in small blocks.
+   * Returns negative on error, or the number of bytes uploaded on success.
+   */
+
+  const int block_size = 128;
+  int remaining = length;
+  unsigned char *current = buffer;
+  int bytes_uploaded = 0;
+
+  while (remaining > 0) {
+    int packet_size = remaining;
+    int retval;
+
+    if (packet_size > block_size)
+      packet_size = block_size;
+
+    retval = usb_bulk_write(self, endpoint, current, packet_size, 200);
+    if (retval <= 0)
+      return retval;
+
+    bytes_uploaded += retval;
+    remaining -= retval;
+    current += retval;
+  }
+  return bytes_uploaded;
 }
 
 static void receiver_download_firmware(usb_dev_handle* self)
 {
+  int bytes_uploaded;
+  int firmware_size;
+  FILE *fw_file = NULL;
+  unsigned char fw_buffer[CODESPACE_SIZE + FIRMWARE_HEADER_SIZE + 1];
+
+  memset(fw_buffer, 0, sizeof(fw_buffer));
+
+  fw_file = fopen(FIRMWARE_FILENAME, "rb");
+  if (!fw_file) {
+    printf("Error opening firmware file, can't program device!\n");
+    return;
+  }
+
+  /* Read up to the maximum firmware size plus one byte- to make sure
+   * the file isn't larger than the device can handle.
+   */
+  firmware_size = fread(fw_buffer + FIRMWARE_HEADER_SIZE, 1, CODESPACE_SIZE+1, fw_file);
+  if (firmware_size <= 0) {
+    printf("Error reading firmware file, can't program device!\n");
+    fclose(fw_file);
+    return;
+  }
+  if (firmware_size > CODESPACE_SIZE) {
+    printf("Firmware too large!\n");
+    fclose(fw_file);
+    return;
+  }
+
+  fclose(fw_file);
+  fw_file = NULL;
+
+  /* Set up the header- a 16-bit little endian length, followed by an 8-bit checksum.
+   */
+  fw_buffer[0] = firmware_size & 0xFF;
+  fw_buffer[1] = firmware_size >> 8;
+  fw_buffer[2] = arith_checksum_8bit(fw_buffer + FIRMWARE_HEADER_SIZE, firmware_size);
+
+  bytes_uploaded = send_bulk_ep_buffer(self, THERMRX_BOOT_ENDPOINT,
+				       fw_buffer, FIRMWARE_HEADER_SIZE + firmware_size);
+  if (bytes_uploaded < 0) {
+    printf("Error writing firmware\n");
+    return;
+  }
+
+  printf("Firmware uploaded, device should reattach\n");
 }
 
 /* The End */
