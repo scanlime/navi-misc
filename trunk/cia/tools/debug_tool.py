@@ -4,7 +4,7 @@ A client providing easy access to common debugging features
 """
 
 import Client
-import code, sys, readline
+import code, sys, readline, socket
 
 
 class Options(Client.Options):
@@ -31,10 +31,24 @@ class RemoteConsole(code.InteractiveConsole):
         code.InteractiveConsole.__init__(self)
 
     def runsource(self, source, filename=None):
-        result = self.app.server.debug.eval(self.app.key, source)
+        try:
+            result = self.app.server.debug.eval(self.app.key, source)
+        except socket.error:
+            # We won't let a puny socket error stop us!
+            # Any errors in establishing an initial connection
+            # will still show up when we run getBanner(), but this
+            # keeps an otherwise perfectly good debug session
+            # from being ended if you press 'enter' while restarting
+            # the server.
+            print "Communications Error: %s" % sys.exc_info()[1]
+            return False
+
         if result is False:
+            # The input is incomplete
             return True
         else:
+            # It was complete, show the result adding a trailing
+            # newline if there isn't one already.
             sys.stdout.write(result)
             if result and result[-1] != '\n':
                 sys.stdout.write('\n')
