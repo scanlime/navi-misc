@@ -109,13 +109,36 @@ class NewRulesetDialog(GladeUI):
     def hide(self):
         self.window.hide()
 
-    def on_SingleProject_toggled(self, button):
-        self.xml.get_widget("ProjectNameTable").set_sensitive(button.get_active())
+    def on_GenericRuleset_toggled(self, button):
+        self.xml.get_widget("GenericRulesetOptions").set_sensitive(button.get_active())
 
-    def on_RulesetDialogCancel_clicked(self, button):
+    def on_IRCRuleset_toggled(self, button):
+        self.xml.get_widget("IRCRulesetOptions").set_sensitive(button.get_active())
+
+    def on_SingleProject_toggled(self, button):
+        self.xml.get_widget("SingleProjectOptions").set_sensitive(button.get_active())
+
+    def updateIrcURI(self):
+        """Update the URI field from the current channel and server values"""
+        channel = self.xml.get_widget("ChannelEntry").get_text()
+        server = self.xml.get_widget("ServerEntry").get_text()
+
+        # Strip off the '#' from the channel for our URI
+        if channel and channel[0] == '#':
+            channel = channel[1:]
+
+        self.xml.get_widget("URIEntry").set_text("irc://%s/%s" % (server, channel))
+
+    def on_ServerEntry_changed(self, entry):
+        self.updateIrcURI()
+
+    def on_ChannelEntry_changed(self, entry):
+        self.updateIrcURI()
+
+    def on_NewRulesetCancel_clicked(self, button):
         self.hide()
 
-    def on_RulesetDialogOk_clicked(self, button):
+    def on_NewRulesetOk_clicked(self, button):
         self.hide()
 
 
@@ -129,6 +152,7 @@ class URIList(GladeUI):
         self.callback = callback
         self.view = self.xml.get_widget('URIList')
         self.initView()
+        self.newDialog = NewRulesetDialog(xml, self.newRuleset)
 
     def initView(self):
         self.refresh()
@@ -165,6 +189,13 @@ class URIList(GladeUI):
 
     def on_RefreshButton_clicked(self, button):
         self.refresh()
+
+    def on_NewButton_clicked(self, button):
+        self.newDialog.show()
+
+    def newRuleset(self, ruleset):
+        """Called by the 'new ruleset' dialog when a new ruleset is successfully created"""
+        print ruleset
 
 
 class RulesetEditor(GladeUI):
