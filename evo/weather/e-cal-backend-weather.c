@@ -50,6 +50,7 @@ struct _ECalBackendWeatherPrivate {
 	/* The calendar's default timezone, used for resolving DATE and
 	   floating DATE-TIME values. */
 	icaltimezone *default_zone;
+	GHashTable *zones;
 
 	/* Reload */
 	guint reload_timeout_id;
@@ -364,7 +365,40 @@ e_cal_backend_weather_get_timezone (ECalBackendSync *backend, EDataCal *cal, con
 	return GNOME_Evolution_Calendar_Success;
 }
 
-/* FIXME e_cal_backend_weather_add_timezone */
+static ECalBackendSyncStatus
+e_cal_backend_weather_add_timezone (ECalBackendSync *backend, EDataCal *cal, const char *tzobj)
+{
+	ECalBackendWeather *cbw;
+	ECalBackendWeatherPrivate *priv;
+	icalcomponent *tz_comp;
+	icaltimezone *zone;
+	char *tzid;
+
+	cbw = (ECalBackendWeather*) backend;
+
+	g_return_val_if_fail (E_IS_CAL_BACKEND_WEATHER (cbw), GNOME_Evolution_Calendar_OtherError);
+	g_return_val_if_fail (tzobj != NULL, GNOME_Evolution_Calendar_OtherError);
+
+	priv = cbw->priv;
+
+	tz_comp = icalparser_parse_string (tzobj);
+	g_return_val_if_fail (tz_comp != NULL, GNOME_Evolution_Calendar_InvalidObject);
+
+	if (icalcomponent_isa (tz_comp) != ICAL_VTIMEZONE_COMPONENT)
+		return GNOME_Evolution_Calendar_InvalidObject;
+
+	zone = icaltimezone_new ();
+	icaltimezone_set_component (zone, tz_comp);
+	tzid = icaltimezone_get_tzid (zone);
+
+	if (g_hash_table_lookup (priv->zones, tzid)) {
+		icaltimezone_free (zone, TRUE);
+		return GNOME_Evolution_Calendar_Success;
+	}
+
+	g_hash_table_insert (priv->zones, g_strdup (tzid), zone);
+	return GNOME_Evolution_Calendar_Success;
+}
 
 static ECalBackendSyncStatus
 e_cal_backend_weather_set_default_timezone (ECalBackendSync *backend, EDataCal *cal, const char *tzid)
@@ -525,6 +559,12 @@ e_cal_backend_weather_internal_get_timezone (ECalBackend *backend, const char *t
 	return cbw->priv->default_zone;
 }
 
+static void
+free_zone (gpointer data)
+{
+	icaltimezone_free (data, TRUE);
+}
+
 
 
 /* Finalize handler for the weather backend */
@@ -545,6 +585,8 @@ e_cal_backend_weather_finalize (GObject *object)
 		priv->cache = NULL;
 	}
 
+	g_hash_table_destroy (priv->zones);
+
 	g_free (priv);
 	cbw->priv = NULL;
 
@@ -564,6 +606,8 @@ e_cal_backend_weather_init (ECalBackendWeather *cbw, ECalBackendWeatherClass *cl
 
 	priv->reload_timeout_id = 0;
 	priv->opened = FALSE;
+
+	priv->zones = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, free_zone);
 }
 
 /* Class initialization function for the weather backend */
@@ -595,7 +639,7 @@ e_cal_backend_weather_class_init (ECalBackendWeatherClass *class)
 	sync_class->get_object_sync = e_cal_backend_weather_get_object;
 	sync_class->get_object_list_sync = e_cal_backend_weather_get_object_list;
 	sync_class->get_timezone_sync = e_cal_backend_weather_get_timezone;
-//	sync_class->add_timezone_sync = e_cal_backend_weather_add_timezone;
+	sync_class->add_timezone_sync = e_cal_backend_weather_add_timezone;
 	sync_class->set_default_timezone_sync = e_cal_backend_weather_set_default_timezone;
 	sync_class->get_freebusy_sync = e_cal_backend_weather_get_free_busy;
 	sync_class->get_changes_sync = e_cal_backend_weather_get_changes;
