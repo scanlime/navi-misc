@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <link href="style.css" type="text/css" rel="stylesheet" />
-    <title>xchat-gnome - contact</title>
+    <title>xchat-gnome - love</title>
   </head>
   <body>
     <div class="title">
@@ -35,6 +35,7 @@
 	  both in yelp and on the web.</p>
 	</div>
 	<div class="section-title">Medium-Difficulty Hackery Love</div>
+	<div class="section">
 	  <b>Fix navigation-pane behavior</b><br />
 	  <p>The navigation pane behaves strangely in some cases, such as parting/rejoining
 	  channels. A lot involved in fixing this is just to determine what the default
