@@ -373,13 +373,18 @@ class CommitToXHTMLLong(CommitToXHTML):
         if commit.url:
             headers['URL'] = tag('a', href=str(commit.url))[ Util.extractSummary(commit.url) ]
 
-        return [
+        content = [
             tag('h1')[ "Commit Message" ],
             Template.MessageHeaders(headers),
             tag('p', _class="messageBody")[ self.format_log(commit.log) ],
-            tag('h1')[ "Modified Files" ],
-            self.format_files(message.xml.body.commit.files),
             ]
+
+        if message.xml.body.commit.files and message.xml.body.commit.files.firstChildElement():
+            content.extend([
+                tag('h1')[ "Modified Files" ],
+                self.format_files(message.xml.body.commit.files),
+                ])
+	return content
 
     def format_files(self, xmlFiles):
         """Format the contents of our <files> tag as a tree with nested lists"""
