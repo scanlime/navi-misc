@@ -52,12 +52,6 @@ class Page(Template.Page):
        be automatically created with child targets.
        """
     def __init__(self, component, target=None):
-        self.childFactories = {
-            '.metadata': Metadata.MetadataPage,
-            '.rss':      Feed.RSSFeed,
-            '.xml':      Feed.XMLFeed,
-            }
-
         if target is None:
             target = Stats.StatsTarget()
         self.component = component
@@ -76,11 +70,17 @@ class Page(Template.Page):
            below this one. This just creates a Page instance for our StatsTarget's child,
            with a few special cases used for metadata and editing.
            """
+        childFactories = {
+            '.metadata': Metadata.MetadataPage,
+            '.rss':      Feed.RSSFeed,
+            '.xml':      Feed.XMLFeed,
+            }
+
         if not name:
             # Ignore empty path sections
             return self
-        elif name in self.childFactories:
-            return self.childFactories[name](self)
+        elif name in childFactories:
+            return childFactories[name](self)
         else:
             # Return the stats page for a child
             return self.__class__(self.component, self.target.child(name))
