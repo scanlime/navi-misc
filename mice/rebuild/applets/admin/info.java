@@ -14,5 +14,5 @@ import java.io.*;
 
 public class info
 {
-	public static TextArea 
+	public static TextArea help;
 }
