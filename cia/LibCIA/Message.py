@@ -114,8 +114,39 @@ class Hub(object):
     """A central location where messages are delivered, filtered, and dispatched
        to interested parties.
        """
-    pass
+    def __init__(self):
+        # Maps callables to filters
+        self.clients = {}
+        self.updateClients()
 
+    def addClient(self, callable, filter=None):
+        """Add a callable object to the list of those notified when new messages
+           arrive. If filter is not None, the callable is only called if the filter
+           evaluates to True.
+           """
+        self.clients[callable] = filter
+        self.updateClients()
+
+    def delClient(self, callable):
+        """Delate a callable object from the list of those notified when new messages arrive"""
+        del self.clients[callable]
+        self.updateClients()
+
+    def updateClients(self):
+        """Update a cached items() list for our clients dict, to speed up deliver().
+           Must be called whenever clients changes.
+           """
+        self.clientItems = self.clients.items()
+
+    def deliver(self, message):
+        """Given a Message instance, determine who's interested
+           in its contents and delivers it to them.
+           """
+        for callable, filter in self.clientItems:
+            if filter is None:
+                callable(message)
+            elif filter(message):
+                callable(message)
 
 
 class Filter(XMLObject):
