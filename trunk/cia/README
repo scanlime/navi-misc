@@ -73,11 +73,6 @@ with web, IRC, XML-RPC, and email interfaces.
     Handles the stats:// URI used to collect information on messages. These stats
     can then be queried over the web or over XML-RPC.
 
-  - Nouvelle
-
-    A web objects system similar to nevow but with a few key differences outlined
-    in its doc string.
-
   - LibCIA.Web
 
     A web interface to CIA built with Nouvelle
@@ -89,6 +84,7 @@ with web, IRC, XML-RPC, and email interfaces.
  - Twisted 1.1.1 or later
  - pygtk 2.0 or later for the GUI tools
  - MySQL with support for the InnoDB table type
+ - Nouvelle (http://navi.cx/svn/misc/trunk/nouvelle/)
 
 
 -------- Contacts
