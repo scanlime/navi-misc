@@ -1,6 +1,8 @@
 #include <stdlib.h>
 #include <SDL.h>
+#include <SDL/SDL_endian.h>
 #include <GL/gl.h>
+#include <GL/glu.h>
 #include <Cg/cg.h>
 #include <Cg/cgGL.h>
 
@@ -10,7 +12,7 @@ int load_mesh(const char *filename) {
   /* Load a .mesh file into a display list
    */
   SDL_RWops* rw;
-  int num_vertices, num_triangles, list, i;
+  int num_vertices, num_triangles, list, i, j;
   float* vertices;
 
   rw = SDL_RWFromFile(filename, "rb");
@@ -34,11 +36,9 @@ int load_mesh(const char *filename) {
   list = glGenLists(1);
   glNewList(list, GL_COMPILE);
   glBegin(GL_TRIANGLES);
-  for (i=0; i<num_triangles; i++) {
-    glArrayElement(SDL_ReadBE32(rw));
-    glArrayElement(SDL_ReadBE32(rw));
-    glArrayElement(SDL_ReadBE32(rw));
-  }
+  for (i=0; i<num_triangles; i++)
+    for (j=0; j<3; j++)
+      glArrayElement(SDL_ReadBE32(rw));
   glEnd();
   glEndList();
 
@@ -50,53 +50,83 @@ int load_mesh(const char *filename) {
 }
 
 void scene_init() {
-  glClearDepth(1.0);
-  glDepthFunc(GL_LESS);
-  glEnable(GL_DEPTH_TEST);
-  glClearColor(0.25, 0.25, 0.25, 1.0);
+  float diffuse[] = {0.5, 0.5, 0.52, 0};
+  float specular[] = {1.0, 1.0, 0.8, 0};
+  float position[] = {1, 1, -1, 1};
+  float m_ambient[]  = {0, 0, 0, 0};
+  float m_diffuse[]  = {1, 1, 1, 0};
+  float m_specular[] = {0.8, 0.8, 0.8, 0};
 
   glViewport(0, 0, screen->w, screen->h);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  gluPerspective(30.0, ((float)screen->w) / screen->h, 0.1, 100);
+  gluPerspective(30.0, ((float)screen->w) / screen->h, 0.1, 100.0);
 
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
+  glClearDepth(1);
+  glDepthFunc(GL_LESS);
+  glShadeModel(GL_SMOOTH);
+  glFrontFace(GL_CCW);
+  glEnable(GL_DEPTH_TEST);
+  glEnable(GL_CULL_FACE);
+  glClearColor(0, 0, 0, 1);
+
   glEnable(GL_LIGHTING);
-  {
-    float diffuse[] = {0.6, 0.6, 0.5, 0};
-    float specular[] = {1.0, 1.0, 1.0, 0};
-    float position[] = {1, 1, -1, 1};
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuse);
-    glLightfv(GL_LIGHT0, GL_SPECULAR, specular);
-    glLightfv(GL_LIGHT0, GL_POSITION, position);
-    glEnable(GL_LIGHT0);
-  }
+  glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuse);
+  glLightfv(GL_LIGHT0, GL_SPECULAR, specular);
+  glLightfv(GL_LIGHT0, GL_POSITION, position);
+  glEnable(GL_LIGHT0);
+
+  glMaterialfv(GL_FRONT, GL_AMBIENT, m_ambient);
+  glMaterialfv(GL_FRONT, GL_DIFFUSE, m_diffuse);
+  glMaterialfv(GL_FRONT, GL_SPECULAR, m_specular);
+  glMaterialf(GL_FRONT, GL_SHININESS, 30);
 }
 
-void scene_draw() {
-  static int bunny = 0;
+void scene_draw(float dt) {
+  static int model = 0;
   static float angle = 0;
-  if (!bunny)
-    bunny = load_mesh("stanford_bunny.mesh");
+  if (!model)
+    model = load_mesh("torus_sphere.mesh");
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
-  glTranslatef(0, -0.3, -9);
+  glTranslatef(0, 0, -9);
 
-  glRotatef(angle += 1.0, 0, 1, 0);
+  angle += 40 * dt;
+  glRotatef(angle, 0, 1, 0);
+
   glRotatef(-90, 1, 0, 0);
-  glCallList(bunny);
+  glCallList(model);
 
   SDL_GL_SwapBuffers();
+}
+
+void fps_report(Uint32 now) {
+  /* Measure and report the number of frames per second. Called every frame. */
+  static Uint32 start_time = 0;
+  const Uint32 interval = 1000;
+  static int n_frames = 0;
+  float fps;
+
+  n_frames++;
+  if (now > start_time + interval) {
+    fps = n_frames * 1000.0 / (now - start_time);
+    printf("\r%8.02f FPS ", fps);
+    fflush(stdout);
+
+    n_frames = 0;
+    start_time = now;
+  }
 }
 
 int main() {
   int done = 0;
   SDL_Event event;
+  Uint32 now = 0, then = 0;
 
   if (SDL_Init(SDL_INIT_VIDEO) < 0) {
     printf("Error initializing SDL: %s\n", SDL_GetError());
@@ -124,7 +154,11 @@ int main() {
 
       }
     }
-    scene_draw();
+
+    then = now;
+    now = SDL_GetTicks();
+    scene_draw((now - then) / 1000.0);
+    fps_report(now);
   }
 
   SDL_Quit();
