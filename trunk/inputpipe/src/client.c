@@ -42,6 +42,7 @@
 #include <linux/input.h>
 
 #include "inputpipe.h"
+#include "packet.h"
 
 /* Linux 2.4 compatibility */
 #ifndef EV_SYN
@@ -57,27 +58,10 @@ struct input_absinfo {
 #define test_bit(nr, addr) \
         (((1UL << ((nr) & 31)) & (((const unsigned int *) addr)[(nr) >> 5])) != 0)
 
-struct buffer {
-  unsigned char data[4096];
-  int remaining;
-  unsigned char *current;
-};
-
 struct server {
-  int tcp_fd;
-  FILE *tcp_file;
-  struct buffer tcp_buffer;
-
+  struct packet_socket *socket;
   char *host;
   int port;
-
-  /* Header and flag used for tracking receive state. stdio
-   * buffering will ensure we don't get a partial header or
-   * content, but we need to be able to receive a header but
-   * wait before getting content.
-   */
-  struct inputpipe_packet tcp_packet;
-  int received_header;
 };
 
 /* One input device and one server struct. We have one connection
@@ -115,15 +99,6 @@ static int config_connect_led_polarity = 1;
 
 static struct server*     server_new          (const char *host_and_port);
 static void               server_delete       (struct server *self);
-
-static void               server_write        (struct server *self,
-					       int packet_type,
-					       int length,
-					       void *content);
-static int                server_read         (struct server *self,
-					       int *length,
-					       void **content);
-static void               server_flush        (struct server *self);
 
 static int                evdev_new           (const char *path);
 static void               evdev_delete        (int evdev);
@@ -174,16 +149,12 @@ static struct server* server_new(const char *host_and_port)
   char *p;
   struct sockaddr_in in_addr;
   struct hostent* host;
-  int opt;
+  int fd;
 
   /* Allocate the new server object */
   self = malloc(sizeof(struct server));
   assert(self != NULL);
   memset(self, 0, sizeof(struct server));
-
-  /* Reset the write buffer */
-  self->tcp_buffer.remaining = sizeof(self->tcp_buffer.data);
-  self->tcp_buffer.current = self->tcp_buffer.data;
 
   /* Parse the host:port string */
   self->host = strdup(host_and_port);
@@ -195,19 +166,9 @@ static struct server* server_new(const char *host_and_port)
   }
 
   /* New socket */
-  self->tcp_fd = socket(PF_INET, SOCK_STREAM, 0);
-  if (self->tcp_fd < 0) {
+  fd = socket(PF_INET, SOCK_STREAM, 0);
+  if (fd < 0) {
     perror("socket");
-    server_delete(self);
-    return NULL;
-  }
-
-  /* Try disabling the "Nagle algorithm" or "tinygram prevention".
-   * This will keep our latency low, and we do our own write buffering.
-   */
-  opt = 1;
-  if (setsockopt(self->tcp_fd, 6 /*PROTO_TCP*/, TCP_NODELAY, (void *)&opt, sizeof(opt))) {
-    perror("Setting TCP_NODELAY");
     server_delete(self);
     return NULL;
   }
@@ -223,120 +184,24 @@ static struct server* server_new(const char *host_and_port)
   in_addr.sin_family = AF_INET;
   memcpy(&in_addr.sin_addr.s_addr, host->h_addr_list[0], sizeof(in_addr.sin_addr.s_addr));
   in_addr.sin_port = htons(self->port);
-  if (connect(self->tcp_fd, (struct sockaddr*) &in_addr, sizeof(in_addr))) {
+  if (connect(fd, (struct sockaddr*) &in_addr, sizeof(in_addr))) {
     perror("Connecting to inputpipe-server");
     server_delete(self);
     return NULL;
   }
 
-  /* Use nonblocking I/O */
-  fcntl(self->tcp_fd, F_SETFL, fcntl(self->tcp_fd, F_GETFL, 0) | O_NONBLOCK);
-
-  /* Buffer reads using a stdio file. We do our own write buffering,
-   * as fflush() is a bit finicky on sockets.
-   */
-  self->tcp_file = fdopen(self->tcp_fd, "r");
-  assert(self->tcp_file != NULL);
+  self->socket = packet_socket_new(fd);
+  assert(self->socket);
 
   return self;
 }
 
 static void server_delete(struct server *self)
 {
-  if (self->host) {
+  if (self->host)
     free(self->host);
-  }
-
-  if (self->tcp_file) {
-    fclose(self->tcp_file);
-  }
-  else if (self->tcp_fd) {
-    close(self->tcp_fd);
-  }
-
-  free(self);
-}
-
-static void server_write(struct server *self, int packet_type,
-			int length, void *content)
-{
-  struct inputpipe_packet pkt;
-  assert(length < 0x10000);
-  assert(length + sizeof(pkt) < sizeof(self->tcp_buffer.data));
-
-  pkt.type = htons(packet_type);
-  pkt.length = htons(length);
-
-  if (length + sizeof(pkt) > self->tcp_buffer.remaining)
-    server_flush(self);
-
-  self->tcp_buffer.remaining -= length + sizeof(pkt);
-  memcpy(self->tcp_buffer.current, &pkt, sizeof(pkt));
-  self->tcp_buffer.current += sizeof(pkt);
-  memcpy(self->tcp_buffer.current, content, length);
-  self->tcp_buffer.current += length;
-}
-
-/* Flush our write buffer. This should happen after
- * initialization, and whenever we get a sync event. That
- * will have the effect of combining our protocol's packets
- * into larger TCP packets and ethernet frames. Ideally, one group
- * of updates (for each of the device's modified axes and buttons)
- * will always correspond to one frame in the underlying transport.
- */
-static void server_flush(struct server *self)
-{
-  int size = self->tcp_buffer.current - self->tcp_buffer.data;
-  if (size == 0)
-    return;
-  write(self->tcp_fd, self->tcp_buffer.data, size);
-  self->tcp_buffer.remaining = sizeof(self->tcp_buffer.data);
-  self->tcp_buffer.current = self->tcp_buffer.data;
-}
-
-/* If we can receive a packet, this returns its type and puts its
- * length and content in the provided addresses. If not, returns 0.
- * The caller must free(content) if this function returns nonzero.
- */
-static int server_read(struct server *self, int *length, void **content)
-{
-  while (1) {
-    /* Already received a packet header? Try to get the content */
-    if (self->received_header) {
-      int type = ntohs(self->tcp_packet.type);
-      *length = ntohs(self->tcp_packet.length);
-
-      if (*length > 0) {
-	/* We have content to receive... */
-	*content = malloc(*length);
-	assert(*content != NULL);
-
-	if (fread(*content, *length, 1, self->tcp_file)) {
-	  /* Yay, got a whole packet to process */
-	  self->received_header = 0;
-	  return type;
-	}
-
-	/* Can't do anything else until we get the content */
-	free(*content);
-	return 0;
-      }
-      else {
-	/* This packet included no content, we're done */
-	self->received_header = 0;
-	*content = NULL;
-	return type;
-      }
-    }
-
-    /* See if we can get another header */
-    if (fread(&self->tcp_packet, sizeof(self->tcp_packet), 1, self->tcp_file)) {
-      /* Yep. Next we'll try to get the content. */
-      self->received_header = 1;
-    }
-    else
-      return 0;
-  }
+  if (self->socket)
+    packet_socket_delete(self->socket);
 }
 
 
@@ -392,7 +257,7 @@ static int evdev_send_metadata(int evdev, struct server *svr)
   buffer[0] = '\0';
   ioctl(evdev, EVIOCGNAME(sizeof(buffer)), buffer);
   buffer[sizeof(buffer)-1] = '\0';
-  server_write(svr, IPIPE_DEVICE_NAME, strlen(buffer), buffer);
+  packet_socket_write(svr->socket, IPIPE_DEVICE_NAME, strlen(buffer), buffer);
 
   /* Send device ID */
   ioctl(evdev, EVIOCGID, id);
@@ -400,7 +265,7 @@ static int evdev_send_metadata(int evdev, struct server *svr)
   ip_id.vendor  = htons(id[1]);
   ip_id.product = htons(id[2]);
   ip_id.version = htons(id[3]);
-  server_write(svr, IPIPE_DEVICE_ID, sizeof(ip_id), &ip_id);
+  packet_socket_write(svr->socket, IPIPE_DEVICE_ID, sizeof(ip_id), &ip_id);
 
   /* Send bits */
   for (i=0; i<EV_MAX; i++) {
@@ -411,7 +276,7 @@ static int evdev_send_metadata(int evdev, struct server *svr)
 
     repack_bits((unsigned long*) buffer, buffer2 + sizeof(uint16_t), len);
     *(uint16_t*)buffer2 = htons(i);
-    server_write(svr, IPIPE_DEVICE_BITS, len + sizeof(uint16_t), buffer2);
+    packet_socket_write(svr->socket, IPIPE_DEVICE_BITS, len + sizeof(uint16_t), buffer2);
 
     /* If we just grabbed the EV_ABS bits, look for absolute axes
      * we need to send IPIPE_DEVICE_ABSINFO packets for.
@@ -435,7 +300,7 @@ static int evdev_send_metadata(int evdev, struct server *svr)
 	  ip_abs.min = htonl(absinfo.minimum);
 	  ip_abs.fuzz = htonl(absinfo.fuzz);
 	  ip_abs.flat = htonl(absinfo.flat);
-	  server_write(svr, IPIPE_DEVICE_ABSINFO, sizeof(ip_abs), &ip_abs);
+	  packet_socket_write(svr->socket, IPIPE_DEVICE_ABSINFO, sizeof(ip_abs), &ip_abs);
 	}
       }
     }
@@ -444,11 +309,11 @@ static int evdev_send_metadata(int evdev, struct server *svr)
   /* Send the number of maximum concurrent force-feedback effects */
   ioctl(evdev, EVIOCGEFFECTS, &i);
   i32 = htonl(i);
-  server_write(svr, IPIPE_DEVICE_FF_EFFECTS_MAX, sizeof(i32), &i32);
+  packet_socket_write(svr->socket, IPIPE_DEVICE_FF_EFFECTS_MAX, sizeof(i32), &i32);
 
   /* Create the device and flush all this to the server */
-  server_write(svr, IPIPE_CREATE, 0, NULL);
-  server_flush(svr);
+  packet_socket_write(svr->socket, IPIPE_CREATE, 0, NULL);
+  packet_socket_flush(svr->socket);
   return 0;
 }
 
@@ -481,7 +346,7 @@ static int evdev_send_event(int evdev, struct server *svr)
   ip_ev.value = htonl(ev.value);
   ip_ev.type = htons(ev.type);
   ip_ev.code = htons(ev.code);
-  server_write(svr, IPIPE_EVENT, sizeof(ip_ev), &ip_ev);
+  packet_socket_write(svr->socket, IPIPE_EVENT, sizeof(ip_ev), &ip_ev);
 
 #ifdef EV_SYN
   /* If this was a synchronization event, flush our buffers.
@@ -489,7 +354,7 @@ static int evdev_send_event(int evdev, struct server *svr)
    * into one frame in the underlying network transport hopefully.
    */
   if (ev.type == EV_SYN)
-    server_flush(svr);
+    packet_socket_flush(svr->socket);
 
 #else
   /* Oh no, we're running on linux 2.4, where there were no sync
@@ -499,8 +364,8 @@ static int evdev_send_event(int evdev, struct server *svr)
   ip_ev.value = 0;
   ip_ev.type = 0;
   ip_ev.code = 0;
-  server_write(svr, IPIPE_EVENT, sizeof(ip_ev), &ip_ev);
-  server_flush(svr);
+  packet_socket_write(svr->socket, IPIPE_EVENT, sizeof(ip_ev), &ip_ev);
+  packet_socket_flush(svr->socket);
 #endif
 
   return 0;
@@ -572,13 +437,13 @@ static void connection_add_fds(struct connection *self,
 			       fd_set *fd_read)
 {
   if (fd_max) {
-    if (*fd_max <= self->server->tcp_fd)
-      *fd_max = self->server->tcp_fd + 1;
+    if (*fd_max <= self->server->socket->fd)
+      *fd_max = self->server->socket->fd + 1;
     if (*fd_max <= self->evdev_fd)
       *fd_max = self->evdev_fd + 1;
   }
   if (fd_read) {
-    FD_SET(self->server->tcp_fd, fd_read);
+    FD_SET(self->server->socket->fd, fd_read);
     FD_SET(self->evdev_fd, fd_read);
   }
 }
@@ -588,8 +453,8 @@ static int connection_poll(struct connection *self, fd_set *fd_read)
   int retval;
 
   /* Can we read from the server? */
-  if (FD_ISSET(self->server->tcp_fd, fd_read)) {
-    if (feof(self->server->tcp_file)) {
+  if (FD_ISSET(self->server->socket->fd, fd_read)) {
+    if (feof(self->server->socket->file)) {
       connection_message(self, "Connection lost");
       return 1;
     }
@@ -713,7 +578,7 @@ static void event_from_server(struct server *svr, int evdev)
 
   /* Read packets from the server while they're available */
   while (1) {
-    switch (server_read(svr, &length, &content)) {
+    switch (packet_socket_read(svr->socket, &length, &content)) {
 
     case 0:
       return;

@@ -1,9 +1,16 @@
 BINS = inputpipe-server inputpipe-client
-SERVER_OBJS = src/server.o
-CLIENT_OBJS = src/client.o
+
+COMMON_OBJS = \
+	src/packet.o
+
+SERVER_OBJS = $(COMMON_OBJS) \
+	src/server.o
+
+CLIENT_OBJS = $(COMMON_OBJS) \
+	src/client.o
 
 LINUX_DIR = /lib/modules/$(shell uname -r)/build
-CFLAGS = -I$(LINUX_DIR)/include -I uinput -g
+CFLAGS = -I$(LINUX_DIR)/include -I uinput -DLOCAL_UINPUT_H -g
 
 all: $(BINS)
 
