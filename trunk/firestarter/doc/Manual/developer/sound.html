@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="iso-8859-1"?> 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<title>Firestarter::Sound Manager</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<link rel="stylesheet" type="text/css" href="../../CSS/basic.css" />
+</head>
+
+<body>
+<div id="container">
+
+<div id="header">
+<h1><a href="../../index.html">Firestarter</a></h1>
+</div>
+
+<div id="nav">
+<ul>
+	<li class="head">About
+	<ul>
+		<li><a href="../../news.html">News</a></li>
+		<li><a href="../../readme.html">Readme</a></li>
+		<li><a href="../../todo.html">Todo</a></li>
+		<li><a href="../../relnotes.html">Release Notes</a></li>
+		<li><a href="../../bugs.html">Bugs</a></li>
+		<li><a href="../../devinfo.html">Developer Info</a></li>
+		<li><a href="../../compiling.html">Compiling</a></li>
+		<li><a href="../../coding.html">Coding Style</a></li>
+		<li><a href="../../porting.html">Porting</a></li>
+		<li><a href="../../copying.html">Copying</a></li>
+		<li><a href="../../authors.html">Authors</a></li>
+		<li><a href="../../contacts.html">Contact Us</a></li>
+	</ul>
+	</li>
+</ul>
+<ul>
+	<li class="head">Documentation
+	<ul>
+		<li><a href="../user/index.html">User Manual</a></li>
+		<li><a href="index.html">Developer Manual</a></li>
+	</ul>
+	</li>
+</ul>
+<ul>
+	<li class="head">Resources
+	<ul>
+		<li><a href="http://forum.firestarter.org">Forum</a></li>
+		<li><a href="http://somecgiircthing">Irc</a></li>
+		<li><a href="http://www.ogre3d.org">Ogre</a></li>
+		<li><a href="http://www.libsdl.org">SDL</a></li>
+		<li><a href="http://www.bzflag.org">BZFlag</a></li>
+	</ul>
+	</li>
+</ul>
+
+<br />
+<p class="copy">Copyright &copy; 2004<br />Jeff Myers</p>
+</div>
+
+<div id="content">
+<h4>Sound Manager</h4>
+<p><b>Sound API requirements doc</b></p>
+<ul>
+<li>One central Sound manager
+<li>Able to load in raw and compressed sounds, wav and ogg at a minimum, mp3 would be nice
+<li>Able to play 2 types of sounds, effects and songs
+<li>Effects are played ether as positional or fixed ballance, and are loaded into memory
+<li>Effects can be looped
+<li>Positional Effects should use 3d hardware if they can.
+<li>Positional Effects can have there postion and velocity updated each frame
+<li>All effects can have there volumes set
+<li>fixed effects can have there ballance set.
+<li>both mono and sterio effects are supported
+<li>All effects are loaded by name when needed, but can be refrenced by an ID for speed
+<li>Effects that have not been used in N time can be unloaded
+<li>Songs are background musics that are streamed from the harddrive or a network server
+<li>Streaming from standard shout/icecast services is optimal but a custom stream can be worked
+<li>File based songs are supported in a playlist type arangment with next, last, random and repeat features.
+<li>The FMOD library supports all this allready
+</ul>
+</div>
+
+</div> <!-- End Container div -->
+</body>
+</html>
