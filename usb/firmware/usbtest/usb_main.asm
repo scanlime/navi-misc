@@ -279,11 +279,11 @@ MainLoop
 	btfss	STATUS,Z	; Z = 1 when configured
 	goto	MainLoop    ; Wait until we're configured
 
-;	pagesel GetEP1		; Read endpoint 1 into PORTB
-;	bankisel PORTB
-;	movlw	PORTB
-;	movwf	FSR
-;	call	GetEP1
+	pagesel GetEP1		; Read endpoint 1 into PORTB
+	bankisel PORTB
+	movlw	PORTB
+	movwf	FSR
+	call	GetEP1
 
 	pagesel	PutEP1
 	banksel COUNTER
