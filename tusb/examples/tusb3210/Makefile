@@ -7,15 +7,12 @@ OBJS = \
 	hello.rel \
 	hello_descript.rel
 
-BINS = hello hello_test
+BINS = hello
 
 CFLAGS = -I $(TUSB_DIR)/include
 LDFLAGS = --xram-loc 0xF800 --xram-size 0x500
 
 all: $(BINS)
-
-hello_test:
-	gcc -o hello_test hello_test.c -lusb
 
 hello: hello.ihx
 	objcopy -I ihex -O binary hello.ihx hello
@@ -30,6 +27,6 @@ hello.ihx: $(OBJS)
 	sdcc -o $@ -c $< $(CFLAGS)
 
 clean:
-	rm -f *.ihx *.lnk *.lst *.map *.mem *.rst *.sym *.asm
+	rm -f *.ihx *.lnk *.lst *.map *.mem *.rel *.rst *.sym *.asm
 	rm -f $(BINS)
 	rm -f $(OBJS)
