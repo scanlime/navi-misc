@@ -20,7 +20,8 @@ This is just a preliminary roadmap, subject to whatever people want to work on.
 0.6:	Refactoring
 -	Convert individual dialogs/pages into GObjects where
 	possible, keeping pointers to widgets - remove most
-	of the calls to glade_xml_get_widget()
+	of the calls to glade_xml_get_widget(), free GladeXML
+	data asap to reduce footprint
 -	Refactor for multiple conversation windows
 
 0.7:
