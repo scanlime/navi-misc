@@ -80,4 +80,44 @@ e_publish_uri_from_xml (const gchar *xml)
 gchar *
 e_publish_uri_to_xml (EPublishUri *uri)
 {
+	xmlDocPtr doc;
+	xmlNodePtr root;
+	gchar *enabled, *frequency;
+	GSList *calendars = NULL;
+	xmlChar *xml_buffer;
+	char *returned_buffer;
+	int xml_buffer_size;
+
+	g_return_val_if_fail (uri != NULL, NULL);
+	g_return_val_if_fail (uri->location != NULL, NULL);
+
+	doc = xmlNewDoc ("1.0");
+
+	root = xmlNewDocNode (doc, NULL, "uri", NULL);
+	enabled = g_strdup_printf ("%d", uri->enabled);
+	frequency = g_strdup_printf ("%d", uri->publish_frequency);
+	xmlSetProp (root, "location", uri->location);
+	xmlSetProp (root, "enabled", enabled);
+	xmlSetProp (root, "frequency", frequency);
+	xmlSetProp (root, "username", uri->username);
+	xmlSetProp (root, "publish_time", uri->last_pub_time);
+
+	for (calendars = uri->calendars; calendars != NULL; calendars = g_slist_next (calendars)) {
+		xmlNodePtr node;
+		node = xmlNewChild (root, NULL, "source", NULL);
+		xmlSetProp (node, "uid", calendars->data);
+	}
+	xmlDocSetRootElement (doc, root);
+
+	xmlDocDumpMemory (doc, &xml_buffer, &xml_buffer_size);
+	xmlFreeDoc (doc);
+
+	returned_buffer = g_malloc (xml_buffer_size + 1);
+	memcpy (returned_buffer, xml_buffer, xml_buffer_size);
+	returned_buffer[xml_buffer_size] = '\0';
+	xmlFree (xml_buffer);
+	g_free (enabled);
+	g_free (frequency);
+
+	return returned_buffer;
 }
