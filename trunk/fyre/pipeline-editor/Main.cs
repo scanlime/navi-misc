@@ -173,8 +173,8 @@ public class PipelineEditor
 	{
 		element_name.Markup = "<span weight=\"bold\" size=\"large\">" + e.Name () + "</span>";
 		element_image.Pixbuf = e.Icon ();
-		element_description.Text = e.Description ();
-		element_inputs.Markup = e.InputDesc ();
-		element_outputs.Markup = e.OutputDesc ();
+		element_description.Markup = "<span size=\"small\">" + e.Description () + "</span>";
+		element_inputs.Markup = "<span size=\"small\">" + e.InputDesc () + "</span>";
+		element_outputs.Markup = "<span size=\"small\">" + e.OutputDesc () + "</span>";
 	}
 }
