@@ -75,6 +75,10 @@ struct rwand_settings {
 	int                     fine_adjust;            /* Fine tuning for the front/back alignment */
 	int                     power_mode;             /* RWAND_POWER_* */
 	int                     num_columns;            /* The number of columns actually being displayed */
+
+	int                     dirty;                  /* Set whenever the settings have changed but
+							 * timing has not been updated to reflect them.
+							 */
 };
 
 /* Timing calculated from the current status and settings */
@@ -151,11 +155,15 @@ static int     rwand_probe       (struct usb_interface *interface, const struct 
 static void    rwand_disconnect  (struct usb_interface *interface);
 
 static void    rwand_status_irq  (struct urb *urb, struct pt_regs *regs);
+static void    rwand_nb_irq      (struct urb *urb, struct pt_regs *regs);
 
 static void    rwand_delete      (struct rwand_dev *dev);
 
 static void    rwand_request     (struct rwand_dev *dev, unsigned short request,
 				  unsigned short wValue, unsigned short wIndex);
+static void    rwand_nb_request  (struct rwand_dev *dev, unsigned short request,
+				  unsigned short wValue, unsigned short wIndex);
+
 static int     rwand_wait_for_fb (struct rwand_dev *dev);
 static void    rwand_update_fb   (struct rwand_dev *dev, int bytes, unsigned char *fb);
 static void    rwand_request_flip(struct rwand_dev *dev);
@@ -237,6 +245,22 @@ static void rwand_status_irq(struct urb *urb, struct pt_regs *regs)
 }
 
 
+/* Completion handler for anonymous nonblocking requests. prints out
+ * errors, but normally just frees the URB and goes on. Frees the
+ * additional data in urb->context if not NULL.
+ */
+static void rwand_nb_irq(struct urb *urb, struct pt_regs *regs)
+{
+	if (urb->status < 0)
+		err("Bad URB status/size: status=%d, length=%d", urb->status, urb->actual_length);
+	if (urb->context) {
+		kfree(urb->context);
+		urb->context = NULL;
+	}
+	usb_free_urb(urb);
+}
+
+
 /* Decode a status packet, store the results in 'out' */
 static void rwand_decode_status(const unsigned char *in, struct rwand_status *out)
 {
@@ -290,18 +314,33 @@ static void rwand_process_status(struct rwand_dev *dev, const unsigned char *pac
 
 	if (power) {
 		/* The display should be on. Is it? */
-		struct rwand_timings timings;
-		rwand_calc_timings(&dev->settings, &new_status, &timings);
-		dbg("%d %d %d %d %d %d",
-		    timings.column_width, timings.gap_width, timings.fwd_phase,
-		    timings.rev_phase, timings.coil_begin, timings.coil_end);
 
+		/* Update timings if the period, mode, or settings have changed */
+		if (new_status.period != dev->status.period ||
+		    new_status.mode != dev->status.mode ||
+		    dev->settings.dirty) {
+			struct rwand_timings timings;
+			rwand_calc_timings(&dev->settings, &new_status, &timings);
+			rwand_nb_request(dev, RWAND_CTRL_SET_COIL_PHASE, timings.coil_begin, timings.coil_end);
+			rwand_nb_request(dev, RWAND_CTRL_SET_COLUMN_WIDTH, timings.column_width, timings.gap_width);
+			rwand_nb_request(dev, RWAND_CTRL_SET_DISPLAY_PHASE, timings.fwd_phase, timings.rev_phase);
+			dev->settings.dirty = 0;
+		}
+
+		new_mode =
+			RWAND_MODE_STALL_DETECT |
+			RWAND_MODE_ENABLE_SYNC |
+			RWAND_MODE_ENABLE_COIL |
+			RWAND_MODE_ENABLE_DISPLAY;
 	}
 	else {
 		/* It should be off */
 		new_mode = 0;
 	}
 
+	/* Change modes if we need to */
+	if (new_mode != new_status.mode)
+		rwand_nb_request(dev, RWAND_CTRL_SET_MODES, new_mode, 0);
 
 	dev->status = new_status;
 }
@@ -313,9 +352,47 @@ static void rwand_request(struct rwand_dev *dev, unsigned short request,
 {
 	int retval;
 	retval = usb_control_msg(dev->udev, usb_sndctrlpipe(dev->udev, 0),
-				 request, 0x40, wValue, wIndex, NULL, 0, REQUEST_TIMEOUT);
+				 request, USB_TYPE_VENDOR, wValue, wIndex, NULL, 0, REQUEST_TIMEOUT);
 	if (retval) {
-		dbg("Error in rwand_request, retval=%d", retval);
+		err("Error in rwand_request, retval=%d", retval);
+	}
+}
+
+
+/* Send a generic nonblocking control request, without completion notification.
+ * This is safe for use in interrupt context.
+ */
+static void rwand_nb_request(struct rwand_dev *dev, unsigned short request,
+			  unsigned short wValue, unsigned short wIndex)
+{
+	int retval;
+	struct urb *urb;
+	struct usb_ctrlrequest *dr = kmalloc(sizeof(struct usb_ctrlrequest), GFP_ATOMIC);
+	if (!dr) {
+		err("Out of memory in rwand_nb_request");
+		return;
+	}
+
+	dr->bRequestType = USB_TYPE_VENDOR;
+	dr->bRequest = request;
+	dr->wValue = cpu_to_le16p(&wValue);
+	dr->wIndex = cpu_to_le16p(&wIndex);
+	dr->wLength = 0;
+
+	urb = usb_alloc_urb(0, SLAB_ATOMIC);
+	if (!urb) {
+		kfree(dr);
+		err("Out of memory in rwand_nb_request");
+		return;
+	}
+
+	usb_fill_control_urb(urb, dev->udev, usb_sndctrlpipe(dev->udev, 0),
+			     (unsigned char*)dr, NULL, 0,
+			     rwand_nb_irq, dr);
+
+	retval = usb_submit_urb(urb, SLAB_ATOMIC);
+	if (retval) {
+		dbg("Error in rwand_nb_request, retval=%d", retval);
 	}
 }
 
@@ -396,7 +473,7 @@ static void rwand_request_flip(struct rwand_dev *dev)
 static void rwand_reset_settings(struct rwand_dev *dev)
 {
 	dev->settings.display_center = 0x8000;
-	dev->settings.display_width  = 0xE000;
+	dev->settings.display_width  = 0x4000;
 	dev->settings.coil_center    = 0x4000;
 	dev->settings.coil_width     = 0x7000;
 	dev->settings.duty_cycle     = 0x8000;
