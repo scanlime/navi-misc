@@ -27,13 +27,14 @@ class PalantirWindow:
     for func in self.__class__.__dict__.iterkeys():
       if func.startswith('on_'):
         self.tree.signal_connect(func, getattr(self, func))
-    
+
     # Client factory.
     self.factory = palantirIRC.PalantirClientFactory('nuku-nuku',
 	channels='#palantir', ui=self)
     self.tree.get_widget('Nick').set_text(self.factory.nickname)
 
-  ### Must be implemented for palantirIRC to work. ###
+  ### Must be implemented for palantirIRC to work.  These methods are called by the
+  ### the client when 
   def messageReceive(self, user, channel, msg):
     ''' When the client receives a privmsg it calls this function to display the message
         in the UI, however the UI sees fit.
@@ -44,7 +45,7 @@ class PalantirWindow:
       text = '<' + nick + '>' + msg + '\n'
     else:
       text = msg + '\n'
-    self.PrintText(text)    
+    self.PrintText(text)
 
   def meReceive(self, user, channel, msg):
     ''' When someone does a '/me' display the action. '''
@@ -57,9 +58,25 @@ class PalantirWindow:
     ''' When someone changes a nick display it. '''
     text = oldNick + ' is now known as ' + newNick + '\n'
     self.PrintText(text)
-  
-  def SetTopic(self, user, channel, topic):
+
+  def topicReceive(self, user, channel, topic):
+    ''' Recieved a topic change, so set the topic bar to the new topic. '''
     self.tree.get_widget('Topic').set_text(topic)
+
+  def joinReceive(self, user, channel, newChannel):
+    ''' When we join a new channel close the connection to the current channel and join
+        the new one.
+	'''
+    self.closeReceive(user, channel)
+    self.factory.join(newChannel)
+
+  def closeReceive(self, user, channel, msg='Leaving...'):
+    ''' When we leave a channel close the connection to the channel and clear the topic
+        and userlist from that channel.
+	'''
+    self.factory.close(channel, msg)
+    self.tree.get_widget('UserList').get_buffer().set_text('')
+    self.tree.get_widget('Topic').set_text('')
 
   ### Glade Callbacks ###
   # Menu Items.
@@ -116,7 +133,7 @@ class PalantirWindow:
       if hasattr(self.factory, command):
         getattr(self, command + 'Receive')(self.factory.nickname,
 	    self.factory.channels[0], arg)
-	getattr(self.factory, command)(arg)
+	getattr(self.factory, command)(self.factory.channels[0], arg)
 
     # If the message isn't a command it's a regular message.
     else:
@@ -136,10 +153,11 @@ class PalantirWindow:
 
   # Closing stuff.
   def on_Main_destroy(self, widget, data=None):
-    gtk.main_quit()
+    self.on_quit_activate(widget)
 
   def on_quit_activate(self, widget, data=None):
     gtk.main_quit()
+    reactor.stop()
 
   ### Misc. Necessary Functions ###
   def OpenSheet(self, widget, data=None):

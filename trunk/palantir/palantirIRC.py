@@ -37,7 +37,12 @@ class PalantirClient(irc.IRCClient):
   def joined(self, channel):
     ''' When we join a channel get a list of who is in the channel. '''
     self.sendLine('WHO ' + channel)
-    self.factory.ui.messageReceive(None, channel, 'Joined ' + channel)
+    self.factory.ui.messageReceive(None, channel, 'Joined ' + channel + '\n')
+    self.factory.ui.messageReceive(None, channel, 'Topic for ' + channel + ' is: ')
+
+  def left(self, channel):
+    ''' Called when we've left a channel, print a message that we've gone. '''
+    self.factory.ui.messageReceive(None, channel, 'Left ' + channel)
 
   def irc_RPL_WHOREPLY(self, prefix, params):
     ''' When we get a reply from a WHO query send the nick and channel to the ui. '''
@@ -55,7 +60,8 @@ class PalantirClient(irc.IRCClient):
     self.factory.ui.meReceive(user, channel, msg)
 
   def topicUpdated(self, user, channel, newTopic):
-    self.factory.ui.SetTopic(user, channel, newTopic)
+    self.factory.ui.topicReceive(user, channel, newTopic)
+    self.factory.ui.messageReceive(user, channel, newTopic)
 
 class PalantirClientFactory(protocol.ClientFactory):
   ''' Factory to create the IRC client.  The factory will be used as an interface
@@ -95,19 +101,20 @@ class PalantirClientFactory(protocol.ClientFactory):
     self.client.say(channel, msg)
 
   ### IRC Commands ###
-  def me(self, action):
+  def me(self, channel, action):
     ''' Emote something. '''
     self.client.me(self.channels, action)
 
-  def join(self, channel):
+  def join(self, channel, msg=None):
     ''' Join a channel '''
     self.channels.append(channel)
     self.client.join(channel)
 
   def close(self, channel, reason):
+    self.channels.remove(channel)
     self.client.leave(channel, reason)
 
-  def nick(self, nick):
+  def nick(self, channel, nick):
     ''' Change your nick. '''
     self.nickname = nick
     if hasattr(self, 'client'):
