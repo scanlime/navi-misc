@@ -149,7 +149,7 @@ public class njavaadmin extends nbase
 		aadmin.ipas = new String[interviews];
 		for(i=0;i<interviews;i++)
 		{
-			aadmin.iuns[i] = key.decrypt(newkey,read().toUpperCase());
+			aadmin.iuns[i] = key.decrypt(newkey,read()).toUpperCase();
 			aadmin.ipas[i] = key.decrypt(newkey,read());
 		}
 		write("+OK");

@@ -99,7 +99,7 @@ public class nchatint extends nbase
 		String uname, pword, rname;
 		String mykey = key.keygen();
 		write(mykey);
-		uname = "AIM0" + read().toUpperCase();
+		uname = "AIM0" + read();
 		pword = key.decrypt(mykey,read());
 		rname = read();
 		view = new ainterview(rname);
