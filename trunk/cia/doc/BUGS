@@ -20,7 +20,3 @@ Known Bugs
   on the other lines. The stripping code should be changed to remove
   homogeneous leading spacing, and convert multiple spaces to &nbsp; in the
   XHTML formatters.
-
-- The MIME types the web server gives out are a bit weird in the client
-  scripts directory. Everything except HTML and images should probably be
-  given out as text/plain.

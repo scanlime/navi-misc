@@ -139,14 +139,34 @@ class Request(server.Request):
         self.site.requestCount += 1
 
 
-class StaticJoiner(static.File):
+class File(static.File):
+    """A local subclass of static.File that overrides the default MIME type map"""
+    print static.File.contentTypes
+    contentTypes = {
+        '.png':   'image/png',
+        '.ico':   'image/png',
+        '.jpeg':  'image/jpeg',
+        '.jpg':   'image/jpeg',
+        '.gif':   'image/gif',
+        '.xml':   'text/xml',
+        '.html':  'text/html',
+        '.css':   'text/css',
+        '.js':    'application/x-javascript',
+        }
+
+
+class StaticJoiner(File):
     """This web page acts mostly like a static.File, and all children
        are files under the given directory- however this page itself
        renders the provided 'index' page. This can be used to create
        a dynamically generated front page that references static pages
        or images as its children.
        """
-    def __init__(self, path, indexPage, defaultType="text/html", ignoredExts=(), registry=None, allowExt=0):
+    def __init__(self, path, indexPage,
+                 defaultType = "text/plain",
+                 ignoredExts = (),
+                 registry    = None,
+                 allowExt    = 0):
         self.indexPage = indexPage
         static.File.__init__(self, path, defaultType, ignoredExts, registry, allowExt)
 
@@ -160,7 +180,7 @@ class StaticJoiner(static.File):
         return self.indexPage.render(request)
 
     def createSimilarFile(self, path):
-        f = static.File(path, self.defaultType, self.ignoredExts, self.registry)
+        f = File(path, self.defaultType, self.ignoredExts, self.registry)
         f.processors = self.processors
         f.indexNames = self.indexNames[:]
         return f
