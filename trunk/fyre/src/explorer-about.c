@@ -69,6 +69,8 @@ static void on_about_close(GtkWidget *widget, Explorer *self)
 
     /* Make sure to delete our incredibly memory and CPU hungry about image */
     if (self->about_image) {
+	/* We need to stop the screensaver before invalidating its window reference */
+	screensaver_stop(self->about_image);
 	gtk_container_remove(GTK_CONTAINER(image_container), self->about_image->view);
 	g_object_unref(self->about_image);
 	self->about_image = NULL;

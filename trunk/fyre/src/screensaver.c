@@ -71,10 +71,7 @@ static void screensaver_init(ScreenSaver *self) {
 static void screensaver_dispose(GObject *gobject) {
     ScreenSaver *self = SCREENSAVER(gobject);
 
-    if (self->idler) {
-	g_source_remove(self->idler);
-	self->idler = 0;
-    }
+    screensaver_stop(self);
 
     if (self->frame_renders) {
 	int i;
@@ -141,7 +138,7 @@ ScreenSaver* screensaver_new(IterativeMap *map, Animation *animation) {
     g_free(common_parameters);
     self->direction = 1;
 
-    self->idler = g_idle_add(screensaver_idle_handler, self);
+    screensaver_start(self);
     return self;
 }
 
@@ -150,6 +147,20 @@ ScreenSaver* screensaver_new(IterativeMap *map, Animation *animation) {
 /************************************************************************ Rendering */
 /************************************************************************************/
 
+void          screensaver_start    (ScreenSaver *self)
+{
+    if (!self->idler)
+	self->idler = g_idle_add(screensaver_idle_handler, self);
+}
+
+void          screensaver_stop     (ScreenSaver *self)
+{
+    if (self->idler) {
+	g_source_remove(self->idler);
+	self->idler = 0;
+    }
+}
+
 static int screensaver_idle_handler(gpointer user_data) {
     ScreenSaver *self = SCREENSAVER(user_data);
 
@@ -157,21 +168,23 @@ static int screensaver_idle_handler(gpointer user_data) {
 				   TRUE, PARAMETER_INTERPOLATOR(parameter_holder_interpolate_linear),
 				   &self->frame_parameters[self->current_frame]);
 
+    if (GTK_WIDGET_DRAWABLE(self->view)) {
 
-    histogram_view_set_imager(HISTOGRAM_VIEW(self->view),
-			      HISTOGRAM_IMAGER(self->frame_renders[self->current_frame]));
-    histogram_view_update(HISTOGRAM_VIEW(self->view));
+	histogram_view_set_imager(HISTOGRAM_VIEW(self->view),
+				  HISTOGRAM_IMAGER(self->frame_renders[self->current_frame]));
+	histogram_view_update(HISTOGRAM_VIEW(self->view));
 
-    self->current_frame += self->direction;
-    if (self->current_frame >= self->num_frames) {
-	self->current_frame = self->num_frames-2;
-	self->direction = -1;
+	self->current_frame += self->direction;
+	if (self->current_frame >= self->num_frames) {
+	    self->current_frame = self->num_frames-2;
+	    self->direction = -1;
+	}
+	if (self->current_frame < 0) {
+	    self->current_frame = 1;
+	    self->direction = 1;
+	}
+
     }
-    if (self->current_frame < 0) {
-	self->current_frame = 1;
-	self->direction = 1;
-    }
-
     return 1;
 }
 
