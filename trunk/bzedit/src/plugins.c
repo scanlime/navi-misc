@@ -39,7 +39,7 @@ load_plugins (void)
   while (file = g_dir_read_name (dir))
   {
     gchar *full = g_strdup_printf("src/plugins/%s", file);
-    plugin = g_module_open (full, G_MODULE_BIND_LOCAL);
+    plugin = g_module_open (full, 0);
     if (plugin != NULL)
       g_print("loaded plugin '%s'\n", file);
     /*
