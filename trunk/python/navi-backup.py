@@ -42,6 +42,10 @@ not to back up.
     in question, in case you want to use navi-backup's cache
     to get a file's digest.
 
+  * navi-backup history
+    Shows a list of backup catalogs that have been generated, along
+    with the date that each was last verified.
+
 If the path list is omitted, the current directory is assumed.
 
 -- Micah Dowty <micah@navi.cx>
@@ -750,6 +754,34 @@ def cmd_verify(paths=[]):
     finally:
         if not wasMounted:
             reader.unmount()
+
+
+def cmd_history(paths=[]):
+    catalogDir = CatalogWriter.catalogDir
+    catalogs = os.listdir(catalogDir)
+    catalogs.sort()
+    for catalog in catalogs:
+        # Look for verification records
+        catalogPath = os.path.join(catalogDir, catalog)
+        if not os.path.isfile(catalogPath):
+            continue
+
+        try:
+            verified = os.listdir(os.path.join(catalogDir, "verified", catalog))
+        except OSError:
+            verified = []
+        verified.sort()
+
+        if verified:
+            # It's been verified- look at the most recent record
+            # and see if there were any errors.
+            lastVerified = verified[-1]
+            logFile = open(os.path.join(catalogDir, "verified", catalog, lastVerified))
+            lastVerified = "%s (%d errors)" % (lastVerified, len(logFile.readlines()))
+        else:
+            lastVerified = "[Not verified]"
+
+        print " %-30s %s" % (lastVerified, catalog)
 
 
 def usage():
