@@ -23,6 +23,7 @@ Remote Controlled PIC of Doom (rcpod) via librcpod.
 #
 
 from device import *
+from board import *
 
 # Check the python version here before we proceed further
 requiredPythonVersion = (2,2,1)
