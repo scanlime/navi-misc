@@ -29,13 +29,24 @@ if have_wasabi_hardware:
     # on the MI6K, we don't need the detachbar any more.
     plugin.remove('audio.detachbar')
 
+    class InputHooks:
+        def start(self):
+            from gui import ProgressBox
+            import time
+            b = ProgressBox(text="Wheeee....", full=100)
+            b.show()
+            for i in xrange(100):
+                time.sleep(0.01)
+                b.tick()
+            b.destroy()
+
     # Add the USB Video Switch plugin and map all our inputs
     plugin.activate('uvswitch.detector')
     plugin.activate('uvswitch.input', args=(1, 'Nintendo 64', 'n64'))
     plugin.activate('uvswitch.input', args=(2, 'Playstation 2', 'playstation'))
     plugin.activate('uvswitch.input', args=(3, 'Sega Dreamcast', 'dreamcast'))
     plugin.activate('uvswitch.input', args=(4, 'NES', 'nes'))
-    plugin.activate('uvswitch.input', args=(5, 'Nintendo Gamecube', 'gamecube'))
+    plugin.activate('uvswitch.input', args=(5, 'Nintendo Gamecube', 'gamecube', InputHooks()))
     plugin.activate('uvswitch.input', args=(6, 'Sega Genesis', 'sega'))
     plugin.activate('uvswitch.input', args=(7, 'Atari', 'atari'))
     plugin.activate('uvswitch.input', args=(8, 'Video Input', 'video_input'))
@@ -71,6 +82,8 @@ CACHE_IMAGES = 1
 GAMES_ITEMS = [
     ('Super Nintendo', '/navi/media/games/snes',
      ('SNES', '/bin/sh', '/home/freevo/wasabi/snes9x.sh', '', None)),
+    ('Nintendo Entertainment System', '/navi/media/games/nes',
+     ('GENERIC', '/bin/sh', '/home/freevo/wasabi/fceu.sh', '', None)),
     ]
 
 # Remove standard plugins we have no use for
