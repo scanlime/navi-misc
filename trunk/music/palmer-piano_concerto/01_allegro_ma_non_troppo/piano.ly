@@ -1,4 +1,5 @@
 \version "2.4.2"
+\include "01_allegro_ma_non_troppo/text.ly"
 
 %%%%%%%%%%%%%%%%%%
 % Theme A, intro %
@@ -512,6 +513,35 @@ mvmtOnePianoSectSixLeft = \relative b, {
   | <fis c a fis>2 <fis dis b fis>
 }
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Section 7: accompaniment to the climax build %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+mvmtOnePianoSectSevenRight = \relative a' {
+  | << { a4. a4 gis8 } \\
+       { r8. dis16 fis gis a8 d, cis16 d } >>
+  | << { a'4.~ a4 g8 } \\
+       { cis,4 b8 <b e> b16 cis dis e } >>
+  | << { fis4. fis4 gis8 } \\
+       { fis8. dis16 <eis cis> <eis d b>-. 
+         b8. dis16 <eis c> <eis cis a> } >>
+  | << { fis2. } \\
+       { a,8 fis16 a <bis dis> <cis eis> 
+         <gis bis fis'>8. <dis' a'>16( <bis eis gis> <b dis fis>) } >>
+  | <gis cis eis>8 \times 2/3 { cis16( gis' cis } \times 2/3 { eis, cis' gis') }
+    \override TupletBracket #'bracket-visibility = ##f
+    \override TupletBracket #'number-visibility = ##f
+    \times 2/3 { bis( dis^\simile gis, } \times 2/3 { dis gis gis, } \times 2/3 { bis, gis' dis) }
+}
+
+mvmtOnePianoSectSevenLeft = \relative fis, {
+  | fis16( cis' fis a cis eis) eis,,( b' eis gis b d)
+  | e,,( cis' dis eis fis a) e,,( cis'' e g b a)
+  | dis,,( a' b c fis a) d,,( gis b d gis b)
+  | cis,,( fis a dis gis a) c,,( fis a c dis gis)
+  | cis,4. r4.
+}
+
 
 mvmtOnePianoRight = {
   \clef treble
@@ -529,6 +559,9 @@ mvmtOnePianoRight = {
   \mvmtOnePianoSectFiveRight
   R1*8
   \mvmtOnePianoSectSixRight
+  \time 6/8
+  R2.*14
+  \mvmtOnePianoSectSevenRight
 }
 
 mvmtOnePianoLeft = {
@@ -547,4 +580,7 @@ mvmtOnePianoLeft = {
   \mvmtOnePianoSectFiveLeft
   R1*8
   \mvmtOnePianoSectSixLeft
+  \time 6/8
+  R2.*14
+  \mvmtOnePianoSectSevenLeft
 }
