@@ -28,7 +28,8 @@
 	extern	channel_bypass
 	extern	switch_Update
 
-;; bank0	udata
+	extern	analog_precharge_samples
+	extern	analog_integration_samples
 
 	code
 
@@ -41,11 +42,18 @@
 ; return.
 ; *********************************************************************
 CheckVendor
+
 	movf	BufferData+bRequest,w
 	xorlw	UVSWITCH_CTRL_SWITCH
 	pagesel	SwitchRequest
 	btfsc	STATUS,Z
 	goto	SwitchRequest
+
+	movf	BufferData+bRequest,w
+	xorlw	UVSWITCH_CTRL_ADC_CYCLES
+	pagesel	AdcCyclesRequest
+	btfsc	STATUS,Z
+	goto	AdcCyclesRequest
 
 	pagesel	wrongstate		; Not a recognized request
 	goto	wrongstate
@@ -80,6 +88,26 @@ SwitchRequest
 	;;  Actually update the switches
 	pagesel	switch_Update
 	call	switch_Update
+
+	; Acknowledge the request
+	pagesel	Send_0Len_pkt
+	call	Send_0Len_pkt
+	return
+
+	;********************* Request to set the number of ADC precharge/integration cycles
+
+	; wIndex :	precharge cycles
+	; wValue:	integration cycles
+AdcCyclesRequest
+	banksel BufferData
+	movf	BufferData+wIndex, w
+	banksel	analog_precharge_samples
+	movwf	analog_precharge_samples
+
+	banksel BufferData
+	movf	BufferData+wValue, w
+	banksel	analog_integration_samples
+	movwf	analog_integration_samples
 
 	; Acknowledge the request
 	pagesel	Send_0Len_pkt

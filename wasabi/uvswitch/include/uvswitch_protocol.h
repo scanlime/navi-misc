@@ -34,6 +34,10 @@
 ;// switch's video output.
 #define UVSWITCH_CTRL_SWITCH	0x01
 
+;// Set the number of precharge cycles (wIndex) and the number of integration cycles (wValue) used
+;// for reading video detector inputs. Both should be between 1 and 255.
+#define UVSWITCH_CTRL_ADC_CYCLES 0x02
+
 ;//************************************************** Endpoints
 
 ;// The EP1 IN endpoint transmits 8-byte packets containing the video detector readings

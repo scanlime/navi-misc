@@ -30,8 +30,8 @@
 #define CMD_SWITCHSET	0xC0	; Video switch command, sets switch states
 #define CMD_MODESET	0x40	; Set switch modes (soft/hard)
 
-#define PRECHARGE_SAMPLES .10	; Number of analog samples to ignore to precharge the ADC hold capacitor
-#define	INTEGRATION_SAMPLES .20	; Number of samples to integrate for every reading
+#define DEF_PRECHARGE_SAMPLES .10	; Default number of analog samples to ignore to precharge the ADC hold capacitor
+#define	DEF_INTEGRATION_SAMPLES .20	; Default number of samples to integrate for every reading
 
 	;; ************************************************ Variables
 
@@ -53,6 +53,9 @@ analog_buffer	res	8
 analog_channel	res 1
 analog_sample	res 1
 
+analog_precharge_samples res 1
+analog_integration_samples res 1
+
 	global	channel_yellow
 	global	channel_white
 	global	channel_red
@@ -61,6 +64,8 @@ analog_sample	res 1
 	global	led_Update
 	global	analog_buffer
 	global	SampleAnalog
+	global	analog_precharge_samples
+	global	analog_integration_samples
 
 	code
 
@@ -114,6 +119,13 @@ io_Init
 
 	pagesel	switch_Update ; Initialize the video switch chips and LEDs
 	call	switch_Update
+
+	movlw	DEF_PRECHARGE_SAMPLES ; Set up default analog tweakables
+	banksel	analog_precharge_samples
+	movwf	analog_precharge_samples
+	movlw	DEF_INTEGRATION_SAMPLES
+	banksel	analog_integration_samples
+	movwf	analog_integration_samples
 
 	return
 
@@ -510,7 +522,8 @@ SampleAnalog
 	movwf	analog_channel
 channelLoop
 
-	movlw	PRECHARGE_SAMPLES	; Take several samples and ignore them, to precharge the hold capacitor.
+	banksel	analog_precharge_samples
+	movf	analog_precharge_samples,w ; Take several samples and ignore them, to precharge the hold capacitor.
 	banksel	analog_sample		; This increases isolation between input channels.
 	movwf	analog_sample
 prechargeLoop
@@ -529,7 +542,8 @@ prechargeConversionLoop
 
 	clrf	INDF				; INDF points to the current sample in our buffer, clear it to prepare to integrate A/D samples
 
-	movlw	INTEGRATION_SAMPLES ; Now take several more samples, adding them to INDF to integrate the video signal over time
+	banksel	analog_integration_samples
+	movf	analog_integration_samples,w ; Now take several more samples, adding them to INDF to integrate the video signal over time
 	banksel	analog_sample
 	movwf	analog_sample
 integrationLoop
