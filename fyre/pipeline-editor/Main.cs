@@ -73,12 +73,7 @@ public class PipelineEditor
 		column.AddAttribute (text_renderer, "text", 1);
 
 		element_list.AppendColumn (column);
-		
-		element_list.AddEvents ((int) Gdk.EventMask.PointerMotionMask);
-		element_list.AddEvents ((int) Gdk.EventMask.LeaveNotifyMask);
 
-		element_list.MotionNotifyEvent += MotionNotifyEvent;
-		element_list.LeaveNotifyEvent += LeaveNotifyEvent;
 		current_tooltip = null;
 		tooltip_timeout = 0;
 
@@ -91,7 +86,7 @@ public class PipelineEditor
 		Application.Run();
 	}
 	
-	void MotionNotifyEvent (object o, MotionNotifyEventArgs args)
+	void ElementListMotionNotifyEvent (object o, MotionNotifyEventArgs args)
 	{
 		System.Console.WriteLine("MotionNotifyEvent!");
 		Gdk.EventMotion ev = args.Event;
@@ -123,8 +118,9 @@ public class PipelineEditor
 		return false;
 	}
 
-        void LeaveNotifyEvent (object o, LeaveNotifyEventArgs args)
+        void ElementListLeaveNotifyEvent (object o, LeaveNotifyEventArgs args)
         {
+        	System.Console.WriteLine ("LeaveNotifyEvent!");
         	if (tooltip_timeout != 0) {
         		GLib.Source.Remove (tooltip_timeout);
         		tooltip_timeout = 0;
