@@ -12,3 +12,7 @@ gboolean initialize_gui() {
 	initialize_preferences_dialog();
 	return TRUE;
 }
+
+int xtext_get_stamp_str (time_t tim, char **ret) {
+	return get_stamp_str("[%H:%M:%S] ", tim, ret);
+}
