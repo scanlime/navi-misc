@@ -67,9 +67,9 @@ public class ainterview
 	 */
 	public String getQuestion()
 	{
-		if(current != null) return null;
+		if(current != null) return "Please answer: " + current.toNet();
 		current = pullfrom.pop();
-		if(current == null) return null;
+		if(current == null) return "No Questions\r\nAt This Time";
 		return current.toNet();
 	}
 	

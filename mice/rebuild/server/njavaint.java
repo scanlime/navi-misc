@@ -64,24 +64,14 @@ public class njavaint extends nbase
 				return;
 			case 'r': //reject
 				view.reject();
-				write(view.getQuestion());//this generates TWO read()s for the client
+				write(view.getQuestion());
 				break;
 			case 's': //submit
-				if(mine == null)
-				{
-					read();
-					break;
-				}
 				view.answer(read());
-				mine = null;
+				write(view.getQuestion());
 				break;
 			case 'g': //get a question
-				if(mine == null)
-					mine = view.getQuestion();
-				if(mine != null)
-					write(mine);
-				else
-					write("No question\r\nIn queue");
+				write(view.getQuestion());//This generates two reads for the client too.
 				break;
 			}
 		}

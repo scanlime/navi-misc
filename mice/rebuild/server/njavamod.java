@@ -75,20 +75,15 @@ public class njavamod extends nbase
 			{
 			case 'a': //Accept the question
 				parsed = Integer.parseInt(read());
-				if(moder.current != null)
-					moder.accept(parsed);
+				moder.accept(parsed);
 				break;
 			case 'r': //Reject the question
-				if(moder.current != null)
-					moder.reject();
+				moder.reject();
 				break;
 			case 'q': //quit the thing
 				return;
 			case 'g': //get a question
-				if(moder.current == null)
-					write(moder.getQuestion());
-				else
-					write("Please accept or reject: " + moder.current.toNet());
+				write(moder.getQuestion());
 				break;
 			case 'n': //send a notice
 				break;
