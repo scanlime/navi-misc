@@ -23,7 +23,17 @@
 #include "gui.h"
 
 void initialize_setup_druid() {
+	GtkWidget *widget;
+	GtkSizeGroup *group;
+
 	gui.setup_druid = GNOME_DRUID(glade_xml_get_widget(gui.xml, "setup druid"));
+
+	group = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
+	widget = glade_xml_get_widget(gui.xml, "setup druid nickname");
+	gtk_size_group_add_widget(group, widget);
+	widget = glade_xml_get_widget(gui.xml, "setup druid realname");
+	gtk_size_group_add_widget(group, widget);
+	g_object_unref(group);
 }
 
 void run_setup_druid() {
