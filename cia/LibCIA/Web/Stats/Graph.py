@@ -50,7 +50,8 @@ class RelatedSection(Template.Section):
         C.parent_path,
         PARENT_TITLE.value,
         C.target_path,
-        TARGET_TITLE.value
+        TARGET_TITLE.value,
+        IF(M_ICON.name IS NOT NULL, M_ICON.name, M_PHOTO.name)
     FROM stats_relations R
         LEFT OUTER JOIN stats_catalog C
             ON (C.target_path = IF(R.target_a_path = %(path)s, R.target_b_path, R.target_a_path))
@@ -58,6 +59,10 @@ class RelatedSection(Template.Section):
             ON (TARGET_TITLE.name = 'title' AND TARGET_TITLE.target_path = C.target_path)
         LEFT OUTER JOIN stats_metadata PARENT_TITLE
             ON (PARENT_TITLE.name = 'title' AND PARENT_TITLE.target_path = C.parent_path)
+        LEFT OUTER JOIN stats_metadata M_PHOTO
+            ON (C.target_path = M_PHOTO.target_path AND M_PHOTO.name = 'photo')
+        LEFT OUTER JOIN stats_metadata M_ICON
+            ON (C.target_path = M_ICON.target_path  AND M_ICON.name  = 'icon')
         WHERE (R.target_a_path = %(path)s or R.target_b_path = %(path)s)
             AND C.parent_path != %(path)s
     ORDER BY C.parent_path, R.freshness DESC
@@ -92,11 +97,18 @@ class RelatedSection(Template.Section):
         currentParentLink = None
         currentParentPath = None
         d = {}
-        for parentPath, parentTitle, targetPath, targetTitle in queryResults:
+        for parentPath, parentTitle, targetPath, targetTitle, iconName in queryResults:
             if parentPath != currentParentPath:
                 currentParentPath = parentPath
                 currentParentLink = self.makeLink(parentPath, parentTitle)
-            d.setdefault(currentParentLink, []).append(self.makeLink(targetPath, targetTitle))
+
+            if iconName:
+                icon = Link.ThumbnailLink(Stats.Target.StatsTarget(targetPath), iconName, (48,32))
+            else:
+                icon = ()
+            link = self.makeLink(targetPath, targetTitle)
+
+            d.setdefault(currentParentLink, []).append([icon, ' ', link])
 
         # Sort these parent sections by decreasing size. We want
         # the most interesting ones at the top, and those are usually the biggest.
