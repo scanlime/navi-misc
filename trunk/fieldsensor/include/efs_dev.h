@@ -37,6 +37,17 @@ struct efs_results {
   int num_samples;
 };
 
+/* An ioctl() that sets one sampling parameter in a particular parameter block.
+ * Accepts an efs_set_param struct.
+ */
+struct efs_set_param {
+  int block;
+  int param;
+  int value;
+};
+#define EFSIO_SET_PARAM   0x3A01
+
+
 #endif /* __EFS_DEV_H */
 
 /* The End */

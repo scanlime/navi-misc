@@ -77,7 +77,7 @@ static int     efs_probe       (struct usb_interface *interface, const struct us
 static void    efs_disconnect  (struct usb_interface *interface);
 
 static void    efs_irq	       (struct urb *urb, struct pt_regs *regs);
-static void    efs_set_param   (struct field_sensor *dev, int block_n, int param_n, unsigned char value);
+static int     efs_set_param   (struct field_sensor *dev, int block_n, int param_n, unsigned char value);
 
 static void    efs_delete      (struct field_sensor *dev);
 
@@ -149,20 +149,15 @@ static void efs_irq (struct urb *urb, struct pt_regs *regs)
 	usb_submit_urb(urb, SLAB_ATOMIC);
 }
 
-static void efs_set_param (struct field_sensor *dev, int block_n, int param_n, unsigned char value)
+static int efs_set_param (struct field_sensor *dev, int block_n, int param_n, unsigned char value)
 {
 	/* Set an EFS_PARAM_* value for one of the sensor's 8 parameter blocks. Each
 	 * parameter block corresponds with one byte in the resulting interrupt packet.
 	 */
-        int retval;
-	retval = usb_control_msg(dev->udev,
-				 usb_sndctrlpipe(dev->udev, 0),
-				 EFS_CTRL_SET_PARAM_BYTE, USB_TYPE_VENDOR,
-				 value, (block_n << 3) + param_n, NULL, 0, REQUEST_TIMEOUT);
-	if (retval) {
-		err("Error sending an EFS_CTRL_SET_PARAM_BYTE request to set (%d,%d) to %d, retval %d\n",
-		    block_n, param_n, value, retval);
-	}
+	return usb_control_msg(dev->udev,
+			       usb_sndctrlpipe(dev->udev, 0),
+			       EFS_CTRL_SET_PARAM_BYTE, USB_TYPE_VENDOR,
+			       value, (block_n << 3) + param_n, NULL, 0, REQUEST_TIMEOUT);
 }
 
 
@@ -220,17 +215,6 @@ static int efs_open(struct inode *inode, struct file *file)
 	 * a URB to start the interrupt requests flowing.
 	 */
 	if (dev->open_count == 1) {
-		int i;
-		for (i=0; i<8; i++) {
-			efs_set_param(dev, i, EFS_PARAM_NUM_HALF_PERIODS, 30);
-			efs_set_param(dev, i, EFS_PARAM_LC_TRIS_INIT,     0x00);
-			efs_set_param(dev, i, EFS_PARAM_LC_PORT_INIT,     0x55);
-			efs_set_param(dev, i, EFS_PARAM_LC_PORT_XOR,      0x03);
-			efs_set_param(dev, i, EFS_PARAM_ADCON_INIT,       0x81);
-			efs_set_param(dev, i, EFS_PARAM_PERIOD,           230);
-			efs_set_param(dev, i, EFS_PARAM_PHASE,            100);
-		}
-
 		usb_submit_urb(dev->irq, GFP_KERNEL);
 	}
 
@@ -294,6 +278,7 @@ static int efs_ioctl(struct inode *inode, struct file *file, unsigned int cmd, u
 	struct efs_fd_private *prv;
 	struct field_sensor *dev;
 	int retval = 0;
+	struct efs_set_param set_param;
 
 	prv =(struct efs_fd_private *)file->private_data;
 	if (prv == NULL) {
@@ -313,6 +298,13 @@ static int efs_ioctl(struct inode *inode, struct file *file, unsigned int cmd, u
 
 	switch(cmd) {
 
+	case EFSIO_SET_PARAM:
+		if (copy_from_user(&set_param, (struct efs_set_param*) arg, sizeof(set_param))) {
+			retval = -EFAULT;
+			break;
+		}
+		retval = efs_set_param(dev, set_param.block, set_param.param, set_param.value);
+		break;
 
 	default:
 		/* Indicate that we didn't understand this ioctl */
