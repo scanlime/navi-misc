@@ -55,6 +55,8 @@
                     <xsl:apply-templates select="document('sets.xml')//sets/set[@level='yellow']"/>
                     <span class="emph">orange</span>
                     <xsl:apply-templates select="document('sets.xml')//sets/set[@level='orange']"/>
+                    <span class="emph">purple</span>
+                    <xsl:apply-templates select="document('sets.xml')//sets/set[@level='purple']"/>
                   </xsl:if>
                 </ul>
               </div>
