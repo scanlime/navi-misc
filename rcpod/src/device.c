@@ -117,7 +117,7 @@ rcpod_dev* rcpod_Open(struct usb_device *usbdev) {
      * with two digits to the right of the decimal point, decode them for an error message.
      */
     char errorBuffer[256];
-    sprintf(errorBuffer, "Protocol version mismatch, device is version %d.%02x, host is version %d.%02x",
+    sprintf(errorBuffer, "Protocol version mismatch, device is version %x.%02x, host is version %x.%02x",
 	    usbdev->descriptor.bcdDevice >> 8, usbdev->descriptor.bcdDevice & 0xFF,
 	    RCPOD_PROTOCOL_VERSION >> 8, RCPOD_PROTOCOL_VERSION & 0xFF);
     handleError("rcpod_Open", 0, errorBuffer);
