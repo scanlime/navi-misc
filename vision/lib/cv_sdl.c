@@ -47,7 +47,7 @@ void cv_sdl_show_yuv_image(IplImage *image) {
 
 /* Show several YUV images, tiled, in one window */
 void cv_sdl_show_yuv_tiles(IplImage **images, int num_images, int width) {
-  int height = (width-1)/num_images + 1;
+  int height = (num_images-1)/width + 1;
   int i, tile_x, tile_y;
   IplImage *ref_image = images[0];
 
