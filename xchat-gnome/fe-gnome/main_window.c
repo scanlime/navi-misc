@@ -69,6 +69,8 @@ void on_go_next_network_activate(GtkWidget *widget, gpointer data);
 void on_go_previous_discussion_activate(GtkWidget *widget, gpointer data);
 void on_go_next_discussion_activate(GtkWidget *widget, gpointer data);
 void on_discussion_jump_activate(GtkAccelGroup *accelgroup, GObject *arg1, guint arg2,GdkModifierType arg3, gpointer data);
+void on_discussion_plus_activate(GtkAccelGroup *accelgroup, GObject *arg1, guint arg2, GdkModifierType arg3, gpointer data);
+void on_discussion_minus_activate(GtkAccelGroup *accelgroup, GObject *arg1, guint arg2, GdkModifierType arg3, gpointer data);
 void on_help_about_menu_activate(GtkWidget *widget, gpointer data);
 
 void on_text_entry_activate(GtkWidget *widget, gpointer data);
@@ -170,6 +172,20 @@ void initialize_main_window() {
 		gtk_accel_group_connect(discussion_accel, gdk_keyval_from_name("0"),
 				GDK_MOD1_MASK, GTK_ACCEL_VISIBLE, closure);
 		g_closure_unref(closure);
+
+    /* alt-+ */
+    closure = g_cclosure_new(G_CALLBACK(on_discussion_plus_activate),
+        NULL, NULL);
+    gtk_accel_group_connect(discussion_accel, gdk_keyval_from_name("equal"),
+        GDK_MOD1_MASK, GTK_ACCEL_VISIBLE, closure);
+    g_closure_unref(closure);
+
+    /* alt-- */
+    closure = g_cclosure_new(G_CALLBACK(on_discussion_minus_activate),
+        NULL, NULL);
+    gtk_accel_group_connect(discussion_accel, gdk_keyval_from_name("minus"),
+        GDK_MOD1_MASK, GTK_ACCEL_VISIBLE, closure);
+    g_closure_unref(closure);
 
 		/* Add the accelgroup to the main window. */
 		gtk_window_add_accel_group(gui.main_window, discussion_accel);
@@ -355,11 +371,11 @@ void on_go_next_network_activate(GtkWidget *widget, gpointer data) {
 }
 
 void on_go_previous_discussion_activate(GtkWidget *widget, gpointer data) {
-  navigation_tree_select_prev_channel(gui.server_tree);
+  navigation_tree_select_prev_channel(gui.server_tree, TRUE);
 }
 
 void on_go_next_discussion_activate(GtkWidget *widget, gpointer data) {
-  navigation_tree_select_next_channel(gui.server_tree);
+  navigation_tree_select_next_channel(gui.server_tree, TRUE);
 }
 
 void on_discussion_jump_activate(GtkAccelGroup *accelgroup, GObject *arg1,
@@ -367,6 +383,15 @@ void on_discussion_jump_activate(GtkAccelGroup *accelgroup, GObject *arg1,
   navigation_tree_select_nth_channel(gui.server_tree, GPOINTER_TO_INT(data));
 }
 
+void on_discussion_plus_activate(GtkAccelGroup *accelgroup, GObject *arg1,
+    guint arg2, GdkModifierType arg3, gpointer data) {
+  navigation_tree_select_next_channel(gui.server_tree, FALSE);
+}
+
+void on_discussion_minus_activate(GtkAccelGroup *accelgroup, GObject *arg1,
+    guint arg2, GdkModifierType arg3, gpointer data) {
+  navigation_tree_select_prev_channel(gui.server_tree, FALSE);
+}
 void on_help_about_menu_activate(GtkWidget *widget, gpointer data) {
 	show_about_dialog();
 }
