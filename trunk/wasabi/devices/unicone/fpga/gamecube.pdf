@@ -96,6 +96,7 @@ gamecube=
 foo=
 1byte=
 2byte=
+emu=
 [OPEN32]
 nMaxFile=10000
 lpstrFile=
