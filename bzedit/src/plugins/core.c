@@ -25,6 +25,7 @@
 #include "teleporter.h"
 #include "pyramid.h"
 #include "world.h"
+#include "plugins.h"
 
 const gchar*
 g_module_check_init (GModule *module)

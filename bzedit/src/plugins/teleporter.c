@@ -102,7 +102,7 @@ teleporter_class_init (TeleporterClass *klass)
 static void
 teleporter_init (Teleporter *teleporter)
 {
-  teleporter->drawables = g_list_alloc ();
+  teleporter->drawables = NULL;
 }
 
 static void

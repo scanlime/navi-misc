@@ -22,8 +22,8 @@
 
 #include "sceneobject.h"
 
-static void   scene_object_class_init (SceneObjectClass *klass);
-static void   scene_object_init       (SceneObject *self);
+static void scene_object_class_init (SceneObjectClass *klass);
+static void scene_object_init       (SceneObject *self);
 
 GType
 scene_object_get_type (void)
@@ -32,7 +32,8 @@ scene_object_get_type (void)
 
   if (!scene_object_type)
     {
-      static const GTypeInfo scene_object_info = {
+      static const GTypeInfo scene_object_info =
+      {
 	sizeof (SceneObjectClass),
 	NULL,               /* base init */
 	NULL,               /* base finalize */

@@ -82,8 +82,8 @@ texture_group_class_init (TextureGroupClass *klass)
 static void
 texture_group_init (TextureGroup *self)
 {
-  self->static_drawables = g_list_alloc ();
-  self->dynamic_drawables = g_list_alloc ();
+  self->static_drawables = NULL;
+  self->dynamic_drawables = NULL;
 }
 
 static void
@@ -140,6 +140,12 @@ texture_group_add (TextureGroup *tg, Drawable *drawable)
     g_list_append (tg->static_drawables, (gpointer) g_object_ref (drawable));
   else
     g_list_append (tg->dynamic_drawables, (gpointer) g_object_ref (drawable));
+}
+
+TextureGroup*
+texture_group_new (void)
+{
+  return TEXTURE_GROUP (g_object_new (texture_group_get_type (), NULL));
 }
 
 GType

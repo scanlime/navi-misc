@@ -82,7 +82,7 @@ box_class_init (BoxClass *klass)
   GObjectClass *object_class;
   SceneObjectClass *so_class;
 
-  parent_class = g_type_class_ref (G_TYPE_OBJECT);
+  parent_class = g_type_class_ref (SCENE_OBJECT_TYPE);
   object_class = (GObjectClass*) klass;
   so_class = (SceneObjectClass*) klass;
 
@@ -102,7 +102,7 @@ box_class_init (BoxClass *klass)
 static void
 box_init (Box *box)
 {
-  box->drawables = g_list_alloc ();
+  box->drawables = NULL;
 }
 
 static void

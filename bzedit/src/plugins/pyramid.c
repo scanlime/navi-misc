@@ -103,7 +103,7 @@ pyramid_class_init (PyramidClass *klass)
 static void
 pyramid_init (Pyramid *pyramid)
 {
-  pyramid->drawables = g_list_alloc ();
+  pyramid->drawables = NULL;
 }
 
 static void
