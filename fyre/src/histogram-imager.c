@@ -447,7 +447,13 @@ void histogram_imager_load_image_file(HistogramImager *self, const gchar *filena
   /* Try to open the given PNG file and load parameters from it */
   const gchar *params;
   GdkPixbuf *pixbuf = gdk_pixbuf_new_from_file(filename, NULL);
-  params = gdk_pixbuf_get_option(pixbuf, "tEXt::de_jong_params");
+
+  params = gdk_pixbuf_get_option(pixbuf, "tEXt::fyre_params");
+
+  /* For backward compatibility with de Jong Explorer and early versions of Fyre */
+  if (!params)
+    params = gdk_pixbuf_get_option(pixbuf, "tEXt::de_jong_params");
+
   if (params)
     parameter_holder_load_string(PARAMETER_HOLDER(self), params);
   else
@@ -465,7 +471,7 @@ void histogram_imager_save_image_file(HistogramImager *self, const gchar *filena
    * is both human-readable and easy to load parameters from automatically.
    */
   params = parameter_holder_save_string(PARAMETER_HOLDER(self));
-  gdk_pixbuf_save(self->image, filename, "png", NULL, "tEXt::de_jong_params", params, NULL);
+  gdk_pixbuf_save(self->image, filename, "png", NULL, "tEXt::fyre_params", params, NULL);
   g_free(params);
 }
 
