@@ -57,32 +57,6 @@ class BaseClient:
         # with the server version and client ID.
         self.tcp.handler = self.expectHelloPacket
 
-    def expectHelloPacket(self, socket, eventLoop):
-        # We should have just received a Hello packet with
-        # the server version and our client ID.
-        hello = socket.readStruct(FromServer.HelloPacket)
-        if hello.version != BZFlag.protocolVersion:
-            raise Protocol.ProtocolError(
-                "Protocol version mismatch: The server is version " +
-                "'%s', this client is version '%s'." % (
-                hello.version, BZFlag.protocolVersion))
-        self.id = hello.clientId
-        
-        # Now we're connected
-        self.connected = 1
-        socket.handler = self.expectMessage
-        self.onConnect()
-
-    def onConnect(self):
-        """This is called after a connection has been established.
-           By default it doesn't do anything, it's up to subclasses
-           to define what this does next.
-           """
-        pass
-
-    def expectMessage(self, socket, eventLoop):
-        print "Message"
-        
     def disconnect(self):
         # Send a MsgExit first as a courtesy
         self.tcp.write(ToServer.MsgExit())
@@ -113,6 +87,32 @@ class BaseClient:
            poll() method.
            """
         Network.EventLoop().run(self.getSockets())
+
+    def expectHelloPacket(self, socket, eventLoop):
+        # We should have just received a Hello packet with
+        # the server version and our client ID.
+        hello = socket.readStruct(FromServer.HelloPacket)
+        if hello.version != BZFlag.protocolVersion:
+            raise Protocol.ProtocolException(
+                "Protocol version mismatch: The server is version " +
+                "'%s', this client is version '%s'." % (
+                hello.version, BZFlag.protocolVersion))
+        self.id = hello.clientId
+        
+        # Now we're connected
+        self.connected = 1
+        socket.handler = self.expectMessage
+        self.onConnect()
+
+    def expectMessage(self, socket, eventLoop):
+        print "Message"
+
+    def onConnect(self):
+        """This is called after a connection has been established.
+           By default it doesn't do anything, it's up to subclasses
+           to define what this does next.
+           """
+        pass
 
 ### The End ###
         
