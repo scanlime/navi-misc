@@ -13,15 +13,6 @@ Known Bugs
   send most lines immediately, but if a connection has been spewing for a while it
   throttles it server-side, eventually leading to a full buffer and a flood-kick.
 
-- Bots will rejoin when kicked from a channel, they need to remove or disable their
-  irc:// ruleset.
-
-  This will become important once the web interface for IRC ruleset editing
-  is written- if someone invites a CIA bot into a channel where it isn't
-  wanted, the channel's ops need to be able to ask it to leave. As it is
-  now, the botnet tries a little too hard and the bot will
-  just immediately rejoin.
-
 - Leading spaces in commit messages aren't handled well. They aren't visible
   in the web interface because they aren't converted to non-breaking spaces
   where necessary, and due to strip()'ing the log in the IRC formatter,
