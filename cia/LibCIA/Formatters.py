@@ -258,6 +258,22 @@ class CommitToXHTML(CommitFormatter):
         return XML.domish.escapeToXml(obj)
 
 
+class CommitToRSS(CommitFormatter):
+    """Converts commit messages to <item> tags for use in RSS feeds"""
+    medium = 'rss'
+
+    def format_default(self, obj):
+        # We need to escape the text twice- once because RSS is XML,
+        # and a second time because the content of RSS tags are expected
+        # to be HTML and we'd rather it just be plain text.
+        return XML.domish.escapeToXml(XML.domish.escapeToXml(obj))
+
+    def format(self, message, input=None):
+        commit = message.xml.body.commit
+        log = self.format_log(str(commit.log).strip())
+        return "<item><description>%s</description></item>" % log
+
+
 class ColortextToXHTML(Message.Formatter):
     """Converts messages with colorText content to XHTML
        with colors represented by CSS 'class' attributes
