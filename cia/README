@@ -81,9 +81,7 @@ with web, IRC, XML-RPC, and email interfaces.
 -------- Requirements
 
  - Python 2.2.1 or later
-
- - Twisted (1.1.1 isn't new enough, get the latest CVS)
-
+ - Twisted 1.1.1 or later
  - pygtk 2.0 or later for the GUI tools
 
 

@@ -22,32 +22,23 @@ by XML documents.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from twisted.web import xmlrpc
 from twisted.xish import domish
 from twisted.xish.xpath import XPathQuery
 from twisted.python import log
 import time
-import XML, Debug
+import XML, RPC
 
 
-class HubInterface(xmlrpc.XMLRPC):
+class HubInterface(RPC.Interface):
     """A simple interface for delivering XML messages to the hub over XML-RPC
        """
     def __init__(self, hub):
-        xmlrpc.XMLRPC.__init__(self)
+        RPC.Interface.__init__(self)
         self.hub = hub
 
-    def xmlrpc_deliver(self, xml, key=None):
-        """Deliver an XML message, returning its result on success or a Fault on failure.
-           This does not yet require a capability key, but it might eventually.
-           """
-        try:
-            result = self.hub.deliver(Message(xml))
-            if result is None:
-                return True
-            return result
-        except:
-            Debug.catchFault("Exception occurred while delivering the message:\n%s\n--------" % xml)
+    def xmlrpc_deliver(self, xml):
+        """Deliver an XML message, returning its result on success or a Fault on failure"""
+        return self.hub.deliver(Message(xml))
 
 
 class Message(XML.XMLObject):
