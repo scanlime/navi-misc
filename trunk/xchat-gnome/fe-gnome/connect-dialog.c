@@ -55,6 +55,17 @@ static void
 dialog_response (ConnectDialog *dialog, gint response, gpointer data)
 {
 	if (response == GTK_RESPONSE_OK) {
+		GtkTreeModel *model;
+		GtkTreeIter iter;
+		GtkTreeSelection *select;
+		gchar *network;
+
+		select = gtk_tree_view_get_selection (GTK_TREE_VIEW (dialog->server_list));
+		if (gtk_tree_selection_get_selected (select, &model, &iter)) {
+			gtk_tree_model_get (model, &iter, 0, &network, -1);
+			servlist_connect_by_netname (NULL, network);
+			g_free (network);
+		}
 	} else {
 		gtk_widget_destroy (GTK_WIDGET (dialog));
 	}
