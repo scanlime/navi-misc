@@ -26,7 +26,9 @@
 #include <calendar/gui/e-cal-config.h>
 #include <shell/es-event.h>
 #include <libgnome/gnome-i18n.h>
+#include <libgnomevfs/gnome-vfs.h>
 #include "url-editor-dialog.h"
+#include "publish-format-ical.h"
 
 static GtkListStore *store = NULL;
 static GHashTable *uri_timeouts = NULL;
@@ -52,8 +54,44 @@ static void
 publish (EPublishUri *uri)
 {
 	if (online) {
+		GnomeVFSURI *vfs_uri;
+		GnomeVFSResult result;
+		GnomeVFSHandle *handle;
+
 		if (g_slist_find (queued_publishes, uri))
 			queued_publishes = g_slist_remove (queued_publishes, uri);
+
+		if (!uri->enabled)
+			return;
+		vfs_uri = gnome_vfs_uri_new (uri->location);
+		if (vfs_uri == NULL) {
+			/* FIXME: show error message */
+			return;
+		}
+
+		result = gnome_vfs_open_uri (&handle, vfs_uri, GNOME_VFS_OPEN_WRITE | GNOME_VFS_OPEN_TRUNCATE);
+		if (result != GNOME_VFS_OK) {
+			/* FIXME: show error message */
+			return;
+		}
+
+		switch (uri->publish_format) {
+		case URI_PUBLISH_AS_ICAL:
+			publish_calendar_as_ical (handle, uri);
+			break;
+		case URI_PUBLISH_AS_HTML:
+/*			publish_calendar_as_html (handle, uri); */
+			break;
+		case URI_PUBLISH_AS_FB:
+/*			publish_calendar_as_fb (handle, uri); */
+			break;
+		}
+
+		result = gnome_vfs_close (handle);
+		if (result != GNOME_VFS_OK) {
+			/* FIXME: show error message */
+			return;
+		}
 	} else {
 		if (g_slist_find (queued_publishes, uri) == NULL)
 			queued_publishes = g_slist_prepend (queued_publishes, uri);
