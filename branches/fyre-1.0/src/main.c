@@ -131,9 +131,15 @@ int main(int argc, char ** argv) {
         }
 
 	case 'n':
+	{
+	    GtkTreeIter iter;
+
 	    animation_load_file(animation, optarg);
 	    animate = TRUE;
+	    gtk_tree_model_get_iter_first(GTK_TREE_MODEL(animation->model), &iter);
+	    animation_keyframe_load(animation, &iter, PARAMETER_HOLDER(map));
 	    break;
+	}
 
 	case 'o':
 	    mode = RENDER;
@@ -233,8 +239,12 @@ int main(int argc, char ** argv) {
 	    if (strcasecmp(ext, ".png") == 0) {
 		histogram_imager_load_image_file(HISTOGRAM_IMAGER(map), argv[optind], &error);
 	    } else if (strcasecmp(ext, ".fa") == 0) {
+	        GtkTreeIter iter;
+
 		animation_load_file(animation, argv[optind]);
 		animate = TRUE;
+	        gtk_tree_model_get_iter_first(GTK_TREE_MODEL(animation->model), &iter);
+	        animation_keyframe_load(animation, &iter, PARAMETER_HOLDER(map));
 	    } else {
 	        usage(argv);
 	        return 1;
