@@ -7,15 +7,37 @@
 ;
 ;###############################################################################
 
-; Default tristate values: the interruption sensor and buttons are inputs.
-#define TRISA_VALUE	0x3F
+; The available hardware models...
+#define HW_RAVINIA	.1			; The cheap but hard to find Ravinia clocks
+#define HW_XP3		.2			; Fascinations XP3 clock
+
+; Define this to indicate the hardware this firmware is for
+;#define HWMODEL		HW_RAVINIA
+#define HWMODEL		HW_XP3
+
+#if HWMODEL == HW_RAVINIA
+#define TRISA_VALUE	0x3F	; Buttons and angle sensor are inputs
 #define TRISB_VALUE	0x00
 #define TRISC_VALUE	0x02
-
-; Default port values: LEDs are active-low
-#define PORTA_VALUE 0x00
+#define PORTA_VALUE 0x00 	; LEDs are active-low, everything off
 #define PORTB_VALUE 0xFF
 #define PORTC_VALUE 0x00
+#define LEDS_ACTIVE_LOW
+#define BUTTON_AND_MASK		0x3F	; We have all six buttons
+#define BUTTON_XOR_MASK		0x00	; Everything's active-high, nothing to do
+#endif
+
+#if HWMODEL == HW_XP3
+#define TRISA_VALUE	0x1F	; Buttons and angle sensor are inputs, but we have no power switch
+#define TRISB_VALUE	0x00
+#define TRISC_VALUE	0x02
+#define PORTA_VALUE 0x00 	; LEDs are active-high, everything off
+#define PORTB_VALUE 0x00
+#define PORTC_VALUE 0x00
+#define LEDS_ACTIVE_HIGH
+#define BUTTON_AND_MASK		0x1F	; We have no power button, mask it to zero
+#define BUTTON_XOR_MASK		0x3F	; Active-low buttons, and force the power button on
+#endif
 
 ; All inputs are digital
 #define ADCON1_VALUE 0x06

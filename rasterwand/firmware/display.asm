@@ -202,6 +202,8 @@ display_save_status
 	incf	FSR, f
 	banksel	BUTTON_PORT			; 8
 	movf	BUTTON_PORT, w
+	andlw	BUTTON_AND_MASK
+	xorlw	BUTTON_XOR_MASK
 	movwf	INDF
 	return
 
@@ -417,7 +419,11 @@ no_reverse_scan
 	; or if no scan has been started. Note that we can perform a page flip at any
 	; time except during an LED scan.
 led_scan_disabled
+#ifdef LEDS_ACTIVE_LOW
 	movlw	0xFF
+#else
+	clrw
+#endif
 	banksel	LED_PORT
 	movwf	LED_PORT
 	bcf		FLAG_DISPLAY_FWD
@@ -460,11 +466,19 @@ scan_in_progress
 	movlw	front_buffer
 	addwf	current_column, w
 	movwf	FSR
+#ifdef LEDS_ACTIVE_LOW
 	comf	INDF, w						; Invert (the LEDs are active-low) and blast to LED_PORT.
 	btfss	mode_flags, RWAND_MODE_ENABLE_DISPLAY_BIT 	; If the display has been disabled, blank the LEDs
 	movlw	0xFF
 	btfsc	FLAG_IN_GAP					; If we're in a gap, blank the LEDs
 	movlw	0xFF
+#else
+	movf	INDF, w
+	btfss	mode_flags, RWAND_MODE_ENABLE_DISPLAY_BIT 	; If the display has been disabled, blank the LEDs
+	clrw
+	btfsc	FLAG_IN_GAP					; If we're in a gap, blank the LEDs
+	clrw
+#endif
 	movwf	LED_PORT					; It's just as fast to invert it while moving as to not invert it,
 										; so we might as well do that here.
 
@@ -597,12 +611,21 @@ coil_max_neq
 
 	banksel	PORTC					; Turn the coil on
 	bsf		COIL_DRIVER
+#ifdef LEDS_ACTIVE_LOW
+	clrw
+#else
+	movlw	0xFF
+#endif
 	btfsc	mode_flags, RWAND_MODE_COIL_DEBUG_BIT	; In debug mode, turn on the LEDs
-	clrf	LED_PORT
+	movwf	LED_PORT
 	return
 
 coil_off
+#ifdef LEDS_ACTIVE_LOW
 	movlw	0xFF
+#else
+	clrw
+#endif
 	btfsc	mode_flags, RWAND_MODE_COIL_DEBUG_BIT	; In debug mode, turn off the LEDs
 	movwf	LED_PORT
 	; ...fall through to coil_disabled
