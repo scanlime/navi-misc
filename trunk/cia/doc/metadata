@@ -35,17 +35,17 @@ stats_metadata.py with no options, is::
 
 Some sample use cases for a project named "pigomatic"::
 
- ./stats_metadata.py -s http://cia.navi.cx project/pigomatic url http://pig-o-matic.sf.net
+ ./stats_metadata.py -s https://cia.navi.cx project/pigomatic url http://pig-o-matic.sf.net
 
- ./stats_metadata.py -s http://cia.navi.cx project/pigomatic title "Pig-O-Matic 2000"
+ ./stats_metadata.py -s https://cia.navi.cx project/pigomatic title "Pig-O-Matic 2000"
 
- ./stats_metadata.py -s http://cia.navi.cx project/pigomatic description "Pig-O-Matic \
+ ./stats_metadata.py -s https://cia.navi.cx project/pigomatic description "Pig-O-Matic \
  is a next generation spam-powered flight simulator designed for the Super Nintendo and \
   Atari 2600 platforms."
 
- ./stats_metadata.py -s http://cia.navi.cx -f -t image/jpeg project/pigomatic photo pigs-on-the-wing.jpeg
+ ./stats_metadata.py -s https://cia.navi.cx -f -t image/jpeg project/pigomatic photo pigs-on-the-wing.jpeg
 
- ./stats_metadata.py -s http://cia.navi.cx -f -t image/png project/pigomatic icon smiling-pig.png
+ ./stats_metadata.py -s https://cia.navi.cx -f -t image/png project/pigomatic icon smiling-pig.png
 
 
 .. _Micah: mailto:micah@navi.cx
