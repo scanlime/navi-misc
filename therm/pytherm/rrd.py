@@ -213,7 +213,7 @@ class DependentResource(CachedResource):
                 elements.append(item.name)
             else:
                 elements.append(str(item))
-        CachedResource.__init__(self, ".".join(elements)[:128])
+        CachedResource.__init__(self, ".".join(elements))
 
     def updateToLatest(self):
         """Commit a new stamp to this resource generated from the latest versions of
