@@ -11,7 +11,7 @@
   <!-- user/passwd entry -->
   <item type="rect">
     <normal alpha="0.0"/>
-    <pos anchor="n" x="50%" y="15%" width="box" height="box"/>
+    <pos anchor="n" x="50%" y="80" width="box" height="box"/>
     <box orientation="vertical" min-width="340" xpadding="30" ypadding="30" spacing="10">
       <item type="label">
         <pos anchor="n" x="50%"/>
