@@ -8,16 +8,16 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- * 
+ *
  */
 
 #include "JetCOW.h"
@@ -36,7 +36,7 @@ class JetCOWDBException : public std::exception {
   ~JetCOWDBException() throw() {};
   virtual const char *what(void) const throw() {
     return s.c_str();
-  }    
+  }
 private:
   std::string s;
 };
@@ -65,7 +65,7 @@ JetCOW::JetCOW(const char *filename, bool readOnly, bool create, Uint32 cacheSiz
     dbp = new Db(NULL,0);
     dbp->set_cachesize(0,cacheSize,0);
     dbp->set_pagesize(pageSize);
-    dbp->open(filename, NULL, DB_BTREE, 
+    dbp->open(filename, NULL, DB_BTREE,
 	      DB_THREAD | (create ? (DB_CREATE | DB_TRUNCATE) : 0) | (readOnly ? DB_RDONLY : 0), 0);
   }
   catch (DbException &e) {
@@ -141,7 +141,7 @@ JetCOW *JetCOW::fork(const char *newFilename, Uint32 cacheSize, Uint32 pageSize)
 
   return forked;
 }
-  
+
 const std::string &JetCOW::getFilename(void) const {
   return filename;
 }
@@ -333,7 +333,7 @@ float JetCOWDictionary::getAttrFloat(char *name) {
 
 void JetCOWDictionary::delAttr(char *name) {
   delAttrProtected(name);
-  loadCachedValues();  
+  loadCachedValues();
 }
 
 void JetCOWDictionary::setAttrProtected(char *name, int value) {
@@ -443,7 +443,7 @@ void JetCOWDictionary::revert(void) {
   intValues.clear();
   stringValues.clear();
   floatValues.clear();
-  
+
   while (dataSize > 0) {
     /* Read the key */
     char *key = (char*) data;
@@ -468,7 +468,7 @@ void JetCOWDictionary::revert(void) {
       dataSize -= 4 - (bytesRead & 3);
       data     += 4 - (bytesRead & 3);
     }
-    
+
     switch (type) {
 
     case 'i': {
@@ -517,7 +517,7 @@ void JetCOWDictionary::revert(void) {
       dirty = false;
       unlock();
       throw JetCOWFormatException(cow, "Unknown data type in dictionary");
-    }    
+    }
   }
 
   dirty = false;
@@ -530,7 +530,7 @@ void JetCOWDictionary::addKeyHeader(std::string &page, std::string key, char typ
   page += key;
   page += '\0';
   page += type;
-  
+
   /* Pad to 32-bit boundary */
   while (page.length() & 3)
     page += '\0';
@@ -584,8 +584,8 @@ JetCOWObject *JetCOW::checkout(const std::string type, Sint32 id) {
     obj = objectInstances[id];
     obj->ref();
   }
-  
-  /* Have to create a completely new object? 
+
+  /* Have to create a completely new object?
    * (Note: This case also works for the header, even though we're not
    * necessarily creating a new object there.)
    */
@@ -656,7 +656,7 @@ JetCOWVector::~JetCOWVector() {
   commit();
   clearAndUnref();
 }
-  
+
 /* Store a flat array of 32-bit JetCOWObject IDs in network byte order */
 void JetCOWVector::revert(void) {
   lock();
@@ -666,14 +666,14 @@ void JetCOWVector::revert(void) {
   get(buffer);
   data = (Uint8*) buffer.c_str();
   dataSize = buffer.size();
-  
+
   clearAndUnref();
   while (dataSize >= sizeof(u32n)) {
     vec.push_back(cow->checkout(requiredType, jet_ntohl(*(s32n*)data)));
     data += sizeof(u32n);
     dataSize -= sizeof(u32n);
   }
-  
+
   dirty = false;
   unlock();
 }
@@ -683,14 +683,14 @@ void JetCOWVector::commit(void) {
   lock();
   std::string page;
   std::vector<JetCOWObject*>::iterator i;
-  
+
   for (i=vec.begin(); i!=vec.end(); i++) {
     u32n n = jet_htonl((*i)->id);
     char *bytes = (char*) &n;
     for (int j=0;j<sizeof(u32n);j++)
       page += bytes[j];
   }
-  
+
   put(page);
   dirty = false;
   unlock();

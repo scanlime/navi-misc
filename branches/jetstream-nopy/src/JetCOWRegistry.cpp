@@ -89,7 +89,7 @@ bool JetCOWRegistry::isSubclass(const std::string &a, const std::string &b) {
 JetCOWObject *JetCOWRegistry::createObject(JetCOW *cow, Sint32 id, const std::string &type) {
   JetCOWObjectTypeBase* tb = typeMap[type];
   if (!tb)
-    throw std::runtime_error("Attempt to create a nonexistant JetCOW object type"); 
+    throw std::runtime_error("Attempt to create a nonexistant JetCOW object type");
   return tb->instantiate(cow,id);
 }
 

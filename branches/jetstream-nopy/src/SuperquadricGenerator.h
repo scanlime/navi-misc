@@ -7,16 +7,16 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- * 
+ *
  */
 
 #ifndef _H_SUPERQUADRICGENERATOR
@@ -33,7 +33,7 @@ class SuperellipsoidGenerator : public SurfaceGenerator {
 				VertexBuffer<SurfacePoint> &vbuffer);
   virtual void updateBounds(SurfaceQuadtreeNode *n, Surface *s);
 
-  /* Dictionary keys: 
+  /* Dictionary keys:
    *
    *   Radius   - Note that the center is always at 0,0,0
    *   xe,ye,ze - x, y, and z exponents
@@ -43,7 +43,7 @@ class SuperellipsoidGenerator : public SurfaceGenerator {
   /* JetCOW hooks - never call directly */
   SuperellipsoidGenerator(JetCOW *cow, Sint32 id,  const char *type="SuperellipsoidGenerator");
   virtual void loadCachedValues(void);
-  virtual void saveCachedValues(void);  
+  virtual void saveCachedValues(void);
 
  protected:
   float radius, xe,ye,ze;

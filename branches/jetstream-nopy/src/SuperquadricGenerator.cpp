@@ -10,16 +10,16 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- * 
+ *
  */
 
 #include "SuperquadricGenerator.h"
@@ -27,7 +27,7 @@
 #include <math.h>
 
 
-SuperellipsoidGenerator::SuperellipsoidGenerator(JetCOW *cow, Sint32 id, const char *type) : 
+SuperellipsoidGenerator::SuperellipsoidGenerator(JetCOW *cow, Sint32 id, const char *type) :
   SurfaceGenerator(cow,id,type) {
   if (id<0) {
     setAttr("Radius", 1.0f);
@@ -75,7 +75,7 @@ void SuperellipsoidGenerator::generateBoundingSphere(Vector3 &center, float &rad
 
 void SuperellipsoidGenerator::generateSeedMesh(std::vector<SurfaceQuadtreeNode> &mesh,
 					       VertexBuffer<SurfacePoint> &vbuffer) {
-  /* Octahedron seed mesh */  
+  /* Octahedron seed mesh */
   SurfacePoint  xPlus(Vector3( radius,      0,      0),Vector3( 1, 0, 0),Vector3( 1, 0, 0));
   SurfacePoint xMinus(Vector3(-radius,      0,      0),Vector3(-1, 0, 0),Vector3(-1, 0, 0));
   SurfacePoint  yPlus(Vector3(      0, radius,      0),Vector3( 0, 1, 0),Vector3( 0, 1, 0));
@@ -106,7 +106,7 @@ void SuperellipsoidGenerator::updateBounds(SurfaceQuadtreeNode *n, Surface *s) {
   Vector3 p(abspow(n->centroid[0], xe),
 	    abspow(n->centroid[1], ye),
 	    abspow(n->centroid[2], ze));
-	    
+
   n->bounds.back = 0.0;
   n->bounds.front = radius - p.length();
 

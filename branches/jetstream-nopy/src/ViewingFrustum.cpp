@@ -11,16 +11,16 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- * 
+ *
  */
 
 #include <GL/gl.h>
@@ -62,7 +62,7 @@ void ViewingFrustum::calculate(void) {
 		 projectionTimesModelview[ 7] + projectionTimesModelview[ 4],
 		 projectionTimesModelview[11] + projectionTimesModelview[ 8],
 		 projectionTimesModelview[15] + projectionTimesModelview[12]);
-  
+
   /* Bottom */
   frustum[2].set(projectionTimesModelview[ 3] + projectionTimesModelview[ 1],
 		  projectionTimesModelview[ 7] + projectionTimesModelview[ 5],
@@ -89,8 +89,8 @@ void ViewingFrustum::calculate(void) {
 
   /* Normalize planes */
   for (int i=0; i<6; i++) {
-    float w = sqrt(frustum[i][0] * frustum[i][0] + 
-		   frustum[i][1] * frustum[i][1] + 
+    float w = sqrt(frustum[i][0] * frustum[i][0] +
+		   frustum[i][1] * frustum[i][1] +
 		   frustum[i][2] * frustum[i][2]);
     frustum[i][0] /= w;
     frustum[i][1] /= w;
@@ -131,7 +131,7 @@ Vector2 ViewingFrustum::pixelProject(const Vector3 &v) {
   calculate();
   Vector2 n = projection.project(v);
   n[0] = ( n[0]*0.5+0.5) * viewport[2];
-  n[1] = (-n[1]*0.5+0.5) * viewport[3];  
+  n[1] = (-n[1]*0.5+0.5) * viewport[3];
   return n;
 }
 
@@ -152,7 +152,7 @@ ViewingFrustum::frustumBitfield ViewingFrustum::testSphere(const Vector3 &a, con
     bits <<= 1;
     bits |= pointFrustumDistance(i,a) < -radius;
   }
-    
+
   return (frustumBitfield) bits;
 }
 
@@ -162,7 +162,7 @@ ViewingFrustum::intersectionCode ViewingFrustum::cullPoint(const Vector3 &a) {
 
 ViewingFrustum::intersectionCode ViewingFrustum::cullSphere(const Vector3 &a, const float radius) {
   bool isFullyInside = true;
-  
+
   for (int p=0;p<6;p++) {
     float d = pointFrustumDistance(p, a);
     if (d < -radius)
@@ -170,7 +170,7 @@ ViewingFrustum::intersectionCode ViewingFrustum::cullSphere(const Vector3 &a, co
     if (d <= radius)
       isFullyInside = false;
   }
-    
+
   if (isFullyInside)
     return fullyInside;
   return overlappingBorder;

@@ -7,16 +7,16 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- * 
+ *
  */
 
 #ifndef _H_SCENE
@@ -52,7 +52,7 @@ class SceneNode : public JetCOWDictionary {
 
   /* JetCOW hooks - Never use these directly! */
   SceneNode(JetCOW *cow, Sint32 id, const char *type="SceneNode");
-  virtual ~SceneNode();  
+  virtual ~SceneNode();
 
  protected:
   JetCOWVector *children;     /* ID stored in "Children" attribute */
@@ -63,7 +63,7 @@ class SceneNode : public JetCOWDictionary {
 /* Root scene node, provides the camera and a main loop handler */
 class Scene : public SceneNode {
  public:
-  
+
   /* Set up camera and OpenGL context */
   virtual void push(void);
   virtual void pop(void);
@@ -104,7 +104,7 @@ class TransformedSceneNode : public SceneNode {
   /* JetCOW hooks - never call directly */
   TransformedSceneNode(JetCOW *cow, Sint32 id,  const char *type="TransformedSceneNode");
   virtual void loadCachedValues(void);
-  virtual void saveCachedValues(void);  
+  virtual void saveCachedValues(void);
 };
 
 

@@ -31,16 +31,16 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- * 
+ *
  */
 
 /* Debugging for this file gives you several things:
@@ -85,7 +85,7 @@
 
 void SurfacePoint::init() {
   morphReset();
-  
+
   /* Default to white */
   this->color[0] = 1;
   this->color[1] = 1;
@@ -138,7 +138,7 @@ bool SurfacePoint::morph(float dt) {
   if (duration > 0) {
     morphWeight += dt / duration;
     if (morphWeight > 1)
-      morphWeight = 1;    
+      morphWeight = 1;
   }
   else {
     morphWeight = 1;
@@ -393,7 +393,7 @@ void SurfaceQuadtreeNode::drawDebug(Surface *s) {
     glColor3f(0,0,0);
     extent = centroid - planeNormal * bounds.back;
     glVertex3f(centroid[0],centroid[1],centroid[2]);
-    glVertex3f(extent[0],extent[1],extent[2]);    
+    glVertex3f(extent[0],extent[1],extent[2]);
 
     for (int i=ab; i<=ca; i++) {
       if (neighbors[i].n) {
@@ -417,11 +417,11 @@ void SurfaceQuadtreeNode::drawDebug(Surface *s) {
 	glColor3f(1,0,0);
       }
 
-      Vector3 va = s->vbuffer[vertices[sideInfo[i].v1]].vertex; 
-      Vector3 vb = s->vbuffer[vertices[sideInfo[i].v2]].vertex; 
+      Vector3 va = s->vbuffer[vertices[sideInfo[i].v1]].vertex;
+      Vector3 vb = s->vbuffer[vertices[sideInfo[i].v2]].vertex;
       va = (va-centroid) * 0.9 + centroid;
       vb = (vb-centroid) * 0.9 + centroid;
-      
+
       /* The triangle side itself, offset inward a bit so
        * we can distinguish neighboring triangles from each other.
        */
@@ -430,14 +430,14 @@ void SurfaceQuadtreeNode::drawDebug(Surface *s) {
 
       if (neighbors[i].n) {
 	Vector3 abmidpoint = (vb-va) * 0.5 + va;
-	
+
 	/* Graphically show the pointer from this triangle to the neighbor */
 	glVertex3f(abmidpoint[0],abmidpoint[1],abmidpoint[2]);
 	glVertex3f(neighbors[i].n->centroid[0],
 		   neighbors[i].n->centroid[1],
 		   neighbors[i].n->centroid[2]);
       }
-    }			
+    }
     glEnd();
   }
   else {
@@ -466,7 +466,7 @@ void SurfaceQuadtreeNode::split(Surface *s) {
       /* Split neighbors if we need to */
       if (neighbors[i].n->neighbors[neighbors[i].side].n != this)
 	neighbors[i].n->split(s);
-      
+
       /* Remove major neighbors from the merge queue */
       if (neighbors[i].n->parent && neighbors[i].n->parent->isEnqueued()) {
 	assert(neighbors[i].n->parent->isLeaf() == false);
@@ -511,7 +511,7 @@ void SurfaceQuadtreeNode::split(Surface *s) {
       else {
 	p.morphReset();
       }
-	
+
       /* This reference is owned by the splitMorphVertices list */
       s->vbuffer.ref(midpoints[i]);
       s->splitMorphVertices.push_back(midpoints[i]);
@@ -522,13 +522,13 @@ void SurfaceQuadtreeNode::split(Surface *s) {
      */
     s->vbuffer.ref(midpoints[i]);
     s->vbuffer.ref(midpoints[i]);
-  }      
+  }
 
   /* Add one new references for each of our original vertices */
   s->vbuffer.ref(vertices[a]);
   s->vbuffer.ref(vertices[b]);
   s->vbuffer.ref(vertices[c]);
-  
+
   /* Generate four child triangles */
   children[a]      = new SurfaceQuadtreeNode(this,   vertices[a], midpoints[ab], midpoints[ca]);
   children[b]      = new SurfaceQuadtreeNode(this, midpoints[ab],   vertices[b], midpoints[bc]);
@@ -560,7 +560,7 @@ void SurfaceQuadtreeNode::split(Surface *s) {
     children[sideInfo[side].v1]->neighbors[side].side = neighbors[side].side;
     children[sideInfo[side].v2]->neighbors[side].side = neighbors[side].side;
   }
-  
+
   /* Internal neighbor links: */
   children[a]->neighbors[bc].n = children[center];
   children[b]->neighbors[ca].n = children[center];
@@ -590,7 +590,7 @@ void SurfaceQuadtreeNode::split(Surface *s) {
   if (isMergable())
     enqueue(s->MergeAbove);
 }
- 
+
 /* Update the node's normal and bounding prism.
  * This should be called any time the surfaceInterpolation vertices change.
  */
@@ -610,9 +610,9 @@ void SurfaceQuadtreeNode::updateGeometry(Surface *s) {
   planeNormal = u % v;
   assert(planeNormal.length2() > 0);
   planeNormal.normalize();
-  
+
   /* Calculate centroid */
-  centroid = (ca + cb + cc) / 3; 
+  centroid = (ca + cb + cc) / 3;
 
   /* Update bounding prism */
   s->generator->updateBounds(this, s);
@@ -665,7 +665,7 @@ void SurfaceQuadtreeNode::mergeTopHalf(Surface *s) {
 void SurfaceQuadtreeNode::mergeBottomHalf(Surface *s) {
   DBG("this=%p, surface=%p\n",this,s);
 
-  /* Dequeue children if they're enqueued 
+  /* Dequeue children if they're enqueued
    * NOTE: Since the split queue determines triangle rendering,
    *       if we do this in the TopHalf the triangles will be invisible during merge!
    */
@@ -686,12 +686,12 @@ void SurfaceQuadtreeNode::mergeBottomHalf(Surface *s) {
       }
 
       /* Enqueue neighbor parent for merging if it can merge */
-      if (neighbors[side].n->parent && 
+      if (neighbors[side].n->parent &&
 	  neighbors[side].n->parent != parent &&
 	  neighbors[side].n->parent->isMergable())
 	neighbors[side].n->parent->mergeEnqueue(s);
 
-      /* Enqueue neighbor for merging if it can merge 
+      /* Enqueue neighbor for merging if it can merge
        * Note: This wasn't present in the original Diamond implementation, but
        *       seems to be necessary to keep mergable nodes from getting 'stuck'
        *       outside the merge queue (red-tinted triangles in the debug mode).
@@ -779,7 +779,7 @@ bool SurfaceQuadtreeNode::isEnqueued() {
 
 bool SurfaceQuadtreeNode::isMergable() {
   /* If we don't have exactly one layer of children, can't merge */
-  if (!children[center] || 
+  if (!children[center] ||
        children[center]->children[center] ||
        children[a]->children[center] ||
        children[b]->children[center] ||
@@ -821,7 +821,7 @@ void SurfaceQuadtreeNode::cull(Surface *s) {
     case ViewingFrustum::fullyOutside:
       culled = true;
       break;
-      
+
       /* Triangle is fully inside */
     case ViewingFrustum::fullyInside:
       culled = false;
@@ -853,7 +853,7 @@ void SurfaceQuadtreeNode::cull(Surface *s) {
       if (fa != bb) break;
       ViewingFrustum::frustumBitfield bc = frustum->testPoint(vc + back);
       if (fa != bc) break;
-							    
+
       culled = true;
     }
     }
@@ -987,8 +987,8 @@ void Surface::draw() {
 	" SplitBelow: %d\n"
 	" MergeBelow: %d\n"
 	"    vbuffer: %.2f%% utilization (%d used / %d allocated)\n"
-	"\n", numTriangles, 
-	SplitAbove.size(), MergeAbove.size(), 
+	"\n", numTriangles,
+	SplitAbove.size(), MergeAbove.size(),
 	SplitBelow.size(), MergeBelow.size(),
 	vbuffer.utilization(), vbuffer.size(), vbuffer.allocatedSize());
   }
@@ -1035,13 +1035,13 @@ void Surface::animate(float dt) {
   /* Test our surface's bounding sphere, used for optimizing quadtree node cull tests */
   boundingSphere.frustumCode = ViewingFrustum::getInstance()->
     cullSphere(boundingSphere.center, boundingSphere.radius);
-  
+
   reprioritize();
 
   /* split all splittable triangles */
   while (!SplitAbove.empty())
     SplitAbove.front()->split(this);
- 
+
   /* morphing for vertices we generated in splitting */
   for (std::list<int>::iterator i=splitMorphVertices.begin(); i!=splitMorphVertices.end();) {
     std::list<int>::iterator j = i;
@@ -1093,7 +1093,7 @@ Surface::~Surface() {
 
 void Surface::loadCachedValues(void) {
   TransformedSceneNode::loadCachedValues();
-  
+
   /* If our Generator has changed, reload it and mark it
    * as invalid so we'll regenerate our trees at the next draw()
    */
@@ -1130,11 +1130,11 @@ void Surface::prepareMesh(void) {
    *    - The neighbor pointer it would connect to
    */
   for (ti=trees.begin(); ti!=trees.end(); ti++) {
-    edges.insert(EdgePair(SurfaceEdge(vbuffer[ti->vertices[SurfaceQuadtreeNode::a]], 
-				      vbuffer[ti->vertices[SurfaceQuadtreeNode::b]]), 
+    edges.insert(EdgePair(SurfaceEdge(vbuffer[ti->vertices[SurfaceQuadtreeNode::a]],
+				      vbuffer[ti->vertices[SurfaceQuadtreeNode::b]]),
 			  EdgeContext(&(*ti), &(ti->neighbors[SurfaceQuadtreeNode::ab]))));
-    edges.insert(EdgePair(SurfaceEdge(vbuffer[ti->vertices[SurfaceQuadtreeNode::b]], 
-				      vbuffer[ti->vertices[SurfaceQuadtreeNode::c]]), 
+    edges.insert(EdgePair(SurfaceEdge(vbuffer[ti->vertices[SurfaceQuadtreeNode::b]],
+				      vbuffer[ti->vertices[SurfaceQuadtreeNode::c]]),
 			  EdgeContext(&(*ti), &(ti->neighbors[SurfaceQuadtreeNode::bc]))));
     edges.insert(EdgePair(SurfaceEdge(vbuffer[ti->vertices[SurfaceQuadtreeNode::c]],
 				      vbuffer[ti->vertices[SurfaceQuadtreeNode::a]]),
@@ -1156,10 +1156,10 @@ void Surface::prepareMesh(void) {
     if (ei->first == eiNext->first) {
       /* An edge is shared, link the two triangles together as neighbors */
       ei->second.second->n = eiNext->second.first;
-      ei->second.second->side = (SurfaceQuadtreeNode::sideNames) 
+      ei->second.second->side = (SurfaceQuadtreeNode::sideNames)
 	(eiNext->second.second - eiNext->second.first->neighbors);
       eiNext->second.second->n = ei->second.first;
-      eiNext->second.second->side = (SurfaceQuadtreeNode::sideNames) 
+      eiNext->second.second->side = (SurfaceQuadtreeNode::sideNames)
 	 (ei->second.second - ei->second.first->neighbors);
     }
   }
@@ -1168,10 +1168,10 @@ void Surface::prepareMesh(void) {
 void Surface::delTree(SurfaceQuadtreeNode &tree) {
   for (int i=SurfaceQuadtreeNode::a;i<=SurfaceQuadtreeNode::c;i++)
     vbuffer.unref(tree.vertices[i]);
-  
+
   if (tree.isEnqueued())
     tree.dequeue();
-  
+
   if (!tree.isLeaf())
     for (int i=SurfaceQuadtreeNode::a;i<=SurfaceQuadtreeNode::center;i++) {
       delTree(*tree.children[i]);

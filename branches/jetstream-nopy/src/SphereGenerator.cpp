@@ -7,16 +7,16 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- * 
+ *
  */
 
 #include "SphereGenerator.h"
@@ -59,12 +59,12 @@ void SphereGenerator::generateBoundingSphere(Vector3 &center, float &radius) {
 void SphereGenerator::generateSeedMesh(std::vector<SurfaceQuadtreeNode> &mesh,
 				       VertexBuffer<SurfacePoint> &vbuffer) {
   /* Icosahedron seed mesh */
-  
+
   float t = 0.8506508084;
   float n = 0.5257311121;
   float tr = t * radius;
   float nr = n * radius;
-  
+
   SurfacePoint za(Vector3( tr, nr,  0),Vector3( t, n, 0),Vector3( t, n, 0));
   SurfacePoint zb(Vector3(-tr, nr,  0),Vector3(-t, n, 0),Vector3(-t, n, 0));
   SurfacePoint zc(Vector3(-tr,-nr,  0),Vector3(-t,-n, 0),Vector3(-t,-n, 0));

@@ -7,16 +7,16 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- * 
+ *
  */
 
 #include "Surface.h"
@@ -27,7 +27,7 @@ void SurfaceGenerator::pop(void) {}
 
 void SurfaceGenerator::animate(float dt) {}
 
-SurfaceGenerator::SurfaceGenerator(JetCOW *cow, Sint32 id,  const char *type) 
+SurfaceGenerator::SurfaceGenerator(JetCOW *cow, Sint32 id,  const char *type)
   : JetCOWDictionary(cow,id,type) {
   dirty = false;
 }
@@ -73,7 +73,7 @@ void SurfaceModifier::generateSeedMesh(std::vector<SurfaceQuadtreeNode> &mesh,
    * are used in the same surface.
    */
   parent->generateSeedMesh(newNodes, vbuffer);
-  
+
   for (i=newNodes.begin();i!=newNodes.end();i++) {
     for (int v=SurfaceQuadtreeNode::a;v<=SurfaceQuadtreeNode::c;v++) {
       SurfacePoint &p = vbuffer[i->vertices[v]];

@@ -7,16 +7,16 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- * 
+ *
  */
 
 #ifndef _H_VIEWINGFRUSTUM
@@ -34,14 +34,14 @@ class ViewingFrustum {
    * modified. Its speed penalty is negligible if you call it multiple times between drawings.
    */
   void invalidate();
-  
+
   /* Return the current OpenGL matrices */
   const Matrix4x4 &getModelview(void);
   const Matrix4x4 &getProjection(void);
   const Matrix4x4 &getProjectionTimesModelview(void);
 
   const int* getViewport(void);
-  
+
   /* Project a point into viewport coordinates using the current OpenGL context.
    * Does not use the modelview matrix, only the projection matrix.
    */
@@ -61,15 +61,15 @@ class ViewingFrustum {
 
   frustumBitfield testPoint(const Vector3 &a);
   frustumBitfield testSphere(const Vector3 &a, const float radius);
-  
+
   /* Do full culling, returning an object's relationship to the frustum: */
-  
+
   enum intersectionCode {
     fullyOutside,
     fullyInside,
     overlappingBorder
   };
-  
+
   intersectionCode cullPoint(const Vector3 &a);
   intersectionCode cullSphere(const Vector3 &a, const float radius);
 
