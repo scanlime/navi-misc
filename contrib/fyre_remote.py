@@ -29,7 +29,15 @@ class FyreServer:
     """This class represents a socket connection to
        a remote Fyre server (fyre -r)
        """
-    def __init__(self, host="localhost", port=7931):
+    defaultPort = 7931
+
+    def __init__(self, host):
+        if host.find(":") >= 0:
+            host, port = host.split(":")
+            port = int(port)
+        else:
+            port = self.defaultPort
+
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.connect((host, port))
         self.file = self.socket.makefile()
@@ -100,10 +108,15 @@ if __name__ == "__main__":
     # This could be extended into a more complex animation, maybe
     # even one based on sensors or a simulation.
 
-    import math
+    import math, sys
 
-    fyre = FyreServer()
-    fyre.command("set_render_time", 0.05)
+    if len(sys.argv) > 1:
+        host = sys.argv[1]
+    else:
+        host = "localhost"
+
+    fyre = FyreServer(host)
+    fyre.command("set_render_time", 0.02)
     fyre.setParams(size = "400x300",
                    exposure = 0.030000,
                    zoom = 0.8,
