@@ -75,6 +75,18 @@ edit_server_clicked (GtkButton *button, IrcNetworkEditor *e)
 }
 
 static void
+remove_server_clicked (GtkButton *button, IrcNetworkEditor *e)
+{
+	GtkTreeSelection *selection;
+	GtkTreeIter iter;
+
+	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (e->servers));
+	if (gtk_tree_selection_get_selected (selection, NULL, &iter)) {
+		gtk_list_store_remove (e->server_store, &iter);
+	}
+}
+
+static void
 server_selection_changed (GtkTreeSelection *selection, IrcNetworkEditor *e)
 {
 	if (gtk_tree_selection_get_selected (selection, NULL, NULL)) {
@@ -189,6 +201,7 @@ irc_network_editor_init (IrcNetworkEditor *dialog)
 	g_signal_connect (G_OBJECT (dialog->use_globals),     "toggled", G_CALLBACK (use_globals_set),          dialog);
 	g_signal_connect (G_OBJECT (dialog->use_custom),      "toggled", G_CALLBACK (use_custom_set),           dialog);
 	g_signal_connect (G_OBJECT (dialog->edit_server),     "clicked", G_CALLBACK (edit_server_clicked),      dialog);
+	g_signal_connect (G_OBJECT (dialog->remove_server),   "clicked", G_CALLBACK (remove_server_clicked),    dialog);
 	g_signal_connect (G_OBJECT (selection),               "changed", G_CALLBACK (server_selection_changed), dialog);
 	g_signal_connect (G_OBJECT (dialog->server_renderer), "edited",  G_CALLBACK (server_edited),            dialog);
 }
