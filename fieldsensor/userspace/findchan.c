@@ -68,7 +68,6 @@ scale (float input, int channel)
 	static float scale[8];
 	static gboolean init = FALSE;
 	int i;
-	float f;
 
 	if (!init) {
 		for (i = 0; i < 8; i++) {
@@ -77,8 +76,7 @@ scale (float input, int channel)
 		init = TRUE;
 	}
 
-	f = (input - mean[channel]) / scale[channel];
-	return 127.0f + (f * 127);
+	return (input - mean[channel]) / scale[channel];
 }
 
 int
