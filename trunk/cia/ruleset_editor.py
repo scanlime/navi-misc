@@ -34,7 +34,7 @@ class RulesetEditor:
        The resulting top-level window is available via the 'window'
        attribute.
        """
-    def __init__(self, gladeFile, ciaServer="http://localhost:3910"):
+    def __init__(self, gladeFile, ciaServer):
         self.xml = gtk.glade.XML(gladeFile)
         self.server = xmlrpclib.ServerProxy(ciaServer)
 
@@ -127,7 +127,7 @@ class RulesetEditor:
 if __name__ == "__main__":
     # Locate our glade file by looking in the 'data' directory wherever our source file is located.
     gladeFile = os.path.join(os.path.dirname(sys.argv[0]), "data", "ruleset_editor.glade")
-    ui = RulesetEditor(gladeFile)
+    ui = RulesetEditor(gladeFile, "http://yoshi:3910")
     ui.window.connect("destroy", gtk.mainquit)
     gtk.main()
 
