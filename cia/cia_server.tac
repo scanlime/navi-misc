@@ -31,13 +31,16 @@ rulesetStorage = Ruleset.RulesetStorage(hub, uriRegistry)
 # Save the 'universe' capability key so it can be used later by the administrative tools
 Security.caps.saveKey('universe', '~/.cia_key')
 
-# Create the web interface. We start with all the static
-# files in 'htdocs' and add dynamic content from there.
+# Create the web interface. We start with all the static files in
+# 'htdocs' and add dynamic content from there.  Most of the web site's
+# content is written in reStructuredText and processed by Web.Doc. We
+# use a StaticJoiner to provide a doc page as the front page.
 webRoot = Web.Server.StaticJoiner('htdocs', Web.Doc.Page('doc/welcome'))
 webRoot.putChild('rulesets', Web.RulesetBrowser.RulesetList(rulesetStorage))
 webRoot.putChild('stats', Web.Stats.Browser.Page())
 webRoot.putChild('info', Web.Info.Page())
 webRoot.putChild('irc', Web.BotStatus.IRCBotPage(botNet))
+webRoot.putChild('doc', Web.Doc.Page('doc'))
 
 # Add a VHostMonster we can use to safely proxy requests from Apache running on a different port
 webRoot.putChild('vhost', vhost.VHostMonsterResource())
