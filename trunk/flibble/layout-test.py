@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import force_directed
+from Flibble import ForceDirected
 
 
 class Edge:
@@ -41,8 +41,8 @@ class Graph:
 
 def runLayout(hlGraph):
     """Given a high-level Graph instance, run layout and write an SVG file"""
-    # Make a force_directed graph from that
-    fdGraph = force_directed.Graph(hlGraph.edgeTuples, len(hlGraph.vertexList))
+    # Make a ForceDirected graph from that
+    fdGraph = ForceDirected.Graph(hlGraph.edgeTuples, len(hlGraph.vertexList))
     print fdGraph
 
     fdGraph.randomize(0, 0, 1000, 1000)
@@ -81,7 +81,7 @@ def runLayout(hlGraph):
 if __name__ == '__main__':
     # Load the CIA dataset, formatted as a sequence of (path_a, path_b, strength, freshness) tuples
     import cPickle
-    rows = cPickle.load(open('cia-dataset.p'))
+    rows = cPickle.load(open('examples/cia-dataset.p'))
 
     # Load the edges into a high-level graph object
     ciaEdges = []
