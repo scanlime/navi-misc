@@ -39,8 +39,12 @@ public class accepted implements ActionListener
 	 */
 	public void actionPerformed(ActionEvent e)
 	{
+		String name, ques;
 		quest.setText("");
 		net.write("accept");
 		net.write(""+ID);
+		name = net.read();
+		ques = net.read();
+		question.setText(name + " Asked: " + ques);
 	}
 }

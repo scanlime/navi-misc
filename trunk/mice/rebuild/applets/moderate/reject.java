@@ -35,7 +35,10 @@ public class reject implements ActionListener
 	 */
 	public void actionPerformed(ActionEvent e)
 	{
+		String name, ques;
 		net.write("reject");
-		quest.setText("");
+		name = net.read();
+		ques = net.read();
+		question.setText(name + " Asked: " + ques);
 	}
 }

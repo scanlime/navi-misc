@@ -76,9 +76,11 @@ public class njavamod extends nbase
 			case 'a': //Accept the question
 				parsed = Integer.parseInt(read());
 				moder.accept(parsed);
+				write(moder.getQuestion());
 				break;
 			case 'r': //Reject the question
 				moder.reject();
+				write(moder.getQuestion());
 				break;
 			case 'q': //quit the thing
 				return;
