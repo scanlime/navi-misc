@@ -1,9 +1,9 @@
 CanvasElement.cs:
-  * Design & implement the internal layout algorithm
-  * Add drawing.  This needs to be able to work both on gdk pixmaps and
+  * Add drawing.  This depends on the internal layout system being designed.
+	This needs to be able to work both on gdk pixmaps and
 	System.Drawing.Graphics surfaces (for clean-looking AA diagrams)
 	so we can use the same code both for drawing on the canvas and
-	creating a drag icon. We might be able to just use System.Drawing
+	creating a drag icon.  We might be able to just use System.Drawing
 	for everything, but I don't know how well that works for GdkBitmap
 	opacity masks.
 
@@ -30,3 +30,18 @@ Plugins all need element-specific implementation
   * serialization
   * custom drawing
   * ...
+
+General things:
+  * Internal layout needs to be designed.
+  * Global layout needs to be designed.  This will have hooks back into
+	PipelineDrawing to manage layout extents, serialize itself,
+	and generally be really slick.  In terms of code structure, it
+	would be handy to have this as a completely separate library
+	(Flibble#)
+  * We'll need something to manage the editing process.  The command stuff
+	seems like it would be handy for this case.
+  * We need to figure out some way to serialize things for use in the
+	clipboard.  This will probably require finagling the Guid stuff
+	a bit.
+
+
