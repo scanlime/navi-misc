@@ -72,7 +72,11 @@ struct gchub_controller_outputs {
 	spinlock_t lock;
 };
 
+struct gchub_dev;
+
 struct gchub_controller {
+	struct gchub_dev *hub;
+
 	struct input_dev dev;
 	int attached;            /* Nonzero if this controller is physically present.
 				  * When it's zero, the controller is assumed to be disconnected.
@@ -119,11 +123,9 @@ struct gchub_dev {
 
 #define STATUS_PACKET_INTERVAL    1  /* Polling interval, in milliseconds per packet */
 
-#define CONTROLLER_RETRY_ATTEMPTS 20 /* Number of times a controller must report no data to be
+#define CONTROLLER_RETRY_ATTEMPTS 5  /* Number of times a controller must report no data to be
 				      * considered disconnected. This gives us tolerance for glitches
-				      * in the received or transmitted packets, and also effectively
-				      * gives us a timeout on controller disconnect. 20 packets
-				      * will take around 0.15 seconds normally.
+				      * in the received or transmitted packets.
 				      */
 
 
@@ -146,6 +148,7 @@ static int    buttons_to_axis          (int                             buttons,
 					int                             neg_mask,
 					int                             pos_mask);
 static int    controller_init          (struct gchub_controller*        ctl,
+					struct gchub_dev*               hub,
 					struct usb_interface*           interface,
 					const char*                     format,
 					int                             port_number);
@@ -184,6 +187,7 @@ static struct usb_driver gchub_driver = {
 /******************************************************************************/
 
 static int controller_init(struct gchub_controller* ctl,
+			   struct gchub_dev* hub,
 			   struct usb_interface* interface,
 			   const char* name_format, int port_number)
 {
@@ -195,6 +199,8 @@ static int controller_init(struct gchub_controller* ctl,
 	spin_lock_init(&ctl->reg_lock);
 	spin_lock_init(&ctl->outputs.lock);
 	ctl->outputs.dirty = 1;
+
+	ctl->hub = hub;
 
 	/* Create a name string for this controller, and copy it to
 	 * a dynamically allocated buffer.
@@ -215,7 +221,6 @@ static int controller_init(struct gchub_controller* ctl,
 		return -ENOMEM;
 	strcpy(ctl->dev.phys, name_buf);
 
-#if 0
 	/* Copy USB bus info to our input device */
 	ctl->dev.id.bustype = BUS_USB;
 	ctl->dev.id.vendor  = usb->descriptor.idVendor;
@@ -225,7 +230,6 @@ static int controller_init(struct gchub_controller* ctl,
 
 	/* Set up callbacks */
 	ctl->dev.private = ctl;
-#endif
 
 	/* Set up work structures for queueing attach/detach operations */
 	INIT_WORK(&ctl->reg_work, controller_attach, ctl);
@@ -399,6 +403,9 @@ static void controller_attach(void *data)
 	ctl->dev_registered = 1;
 	ctl->calibration_valid = 0;
 	ctl->reg_in_progress = 0;
+
+	controller_set_led(ctl, LED_GREEN);
+	gchub_sync_output_status(ctl->hub);
 }
 
 static void controller_detach(void *data)
@@ -410,6 +417,14 @@ static void controller_detach(void *data)
 	input_unregister_device(&ctl->dev);
 	ctl->dev_registered = 0;
 	ctl->reg_in_progress = 0;
+
+	/* Turn off the rumble flag so it doesn't turn on the next
+	 * time a controller is plugged into this port, and extinguish
+	 * the LED.
+	 */
+	controller_set_rumble(ctl, 0);
+	controller_set_led(ctl, LED_OFF);
+	gchub_sync_output_status(ctl->hub);
 }
 
 static void controller_set_rumble(struct gchub_controller* ctl,
@@ -696,12 +711,14 @@ static int gchub_probe(struct usb_interface *interface, const struct usb_device_
 	}
 	memset(dev, 0, sizeof(*dev));
 
+	spin_lock_init(&dev->out_status_lock);
 	dev->udev = udev;
 	dev->interface = interface;
 	usb_set_intfdata(interface, dev);
 
 	for (i=0; i<NUM_PORTS; i++) {
-		retval = controller_init(&dev->ports[i], interface, "Gamecube Controller %d", i);
+		retval = controller_init(&dev->ports[i], dev, interface,
+					 "Gamecube Controller %d", i);
 		if (retval)
 			goto error;
 	}
