@@ -33,7 +33,8 @@ namespace Fyre
 		[Glade.Widget] Gtk.Box			inputs;
 		[Glade.Widget] Gtk.Box			outputs;
 
-		public ElementTooltip (Element e)
+		public
+		ElementTooltip (Element e)
 		{
 			Glade.XML gxml = new Glade.XML (null, "element-tooltip.glade", "tooltip", null);
 			gxml.Autoconnect (this);
@@ -49,22 +50,26 @@ namespace Fyre
 			this.outputs.PackStart (CreateDescTable (e.OutputDesc ()), false, true, 0);
 		}
 
-		public void Show ()
+		public void
+		Show ()
 		{
 			tooltip.ShowAll ();
 		}
 
-		public void Hide ()
+		public void
+		Hide ()
 		{
 			tooltip.HideAll ();
 		}
 
-		public void Move (double x, double y)
+		public void
+		Move (double x, double y)
 		{
 			tooltip.Move ((int) x, (int) y);
 		}
 
-		private Gtk.Table CreateDescTable (string[,] s)
+		private Gtk.Table
+		CreateDescTable (string[,] s)
 		{
 			// Create a 2xn table from a list of strings
 			uint len = (uint) s.Length / 2;
@@ -87,7 +92,8 @@ namespace Fyre
 			return t;
 		}
 
-		string BuildString (string n)
+		string
+		BuildString (string n)
 		{
 			return "<span size=\"small\">" + n + "</span>";
 		}

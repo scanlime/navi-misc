@@ -43,6 +43,7 @@ namespace Fyre
 		// Status bar
 		[Glade.Widget] Gtk.Statusbar		statusbar;
 
+		// D-n-D target data
 		static Gtk.TargetEntry[]		targets;
 		static Gtk.TargetList			target_list;
 		public static Gtk.TargetEntry[]		DragTargets
@@ -64,12 +65,14 @@ namespace Fyre
 			}
 		}
 
-		public static void Main (string[] args)
+		public static void
+		Main (string[] args)
 		{
 			new PipelineEditor (args);
 		}
 
-		public PipelineEditor (string[] args)
+		public
+		PipelineEditor (string[] args)
 		{
 			Gtk.Application.Init();
 
@@ -91,7 +94,8 @@ namespace Fyre
 		}
 
 		// Glade custom widget handler
-		static Gtk.Widget GladeCustomHandler (Glade.XML xml, string func_name, string name, string str1, string str2, int int1, int int2)
+		static Gtk.Widget
+		GladeCustomHandler (Glade.XML xml, string func_name, string name, string str1, string str2, int int1, int int2)
 		{
 			if (func_name == "CreateElementList")
 				return new ElementList (xml.GetWidget ("toplevel"));
@@ -102,9 +106,10 @@ namespace Fyre
 			return null;
 		}
 
-		void SetupDrawingCanvas ()
+		void
+		SetupDrawingCanvas ()
 		{
-			pipeline_drawing.SetScrollAdjustments (drawing_hscroll.Adjustment, drawing_vscroll.Adjustment);
+			pipeline_drawing.SetScrollbars (drawing_hscroll, drawing_vscroll);
 
 			// Set up drag-and-drop for the frame. This looks better than setting it
 			// up for the drawing area, but it doesn't really affect structure, since
@@ -114,7 +119,8 @@ namespace Fyre
 
 		// Event handlers - most of these come from the glade file
 		// Window events
-		public void OnDeleteEvent (object o, Gtk.DeleteEventArgs args)
+		public void
+		OnDeleteEvent (object o, Gtk.DeleteEventArgs args)
 		{
 			Gtk.Application.Quit ();
 			args.RetVal = true;
@@ -123,62 +129,73 @@ namespace Fyre
 		}
 
 		// Shared events - menus/toolbars
-		public void OnNew (object o, System.EventArgs args)
+		public void
+		OnNew (object o, System.EventArgs args)
 		{
 			// FIXME - implement
 		}
 
-		public void OnOpen (object o, System.EventArgs args)
+		public void
+		OnOpen (object o, System.EventArgs args)
 		{
 			// FIXME - implement
 		}
 
-		public void OnSave (object o, System.EventArgs args)
+		public void
+		OnSave (object o, System.EventArgs args)
 		{
 			// FIXME - implement
 		}
 
-		public void OnCut (object o, System.EventArgs args)
+		public void
+		OnCut (object o, System.EventArgs args)
 		{
 			// FIXME - implement
 		}
 
-		public void OnCopy (object o, System.EventArgs args)
+		public void
+		OnCopy (object o, System.EventArgs args)
 		{
 			// FIXME - implement
 		}
 
-		public void OnPaste (object o, System.EventArgs args)
+		public void
+		OnPaste (object o, System.EventArgs args)
 		{
 			// FIXME - implement
 		}
 
 		// 'File' Menu events
-		public void OnMenuFileSaveAs (object o, System.EventArgs args)
+		public void
+		OnMenuFileSaveAs (object o, System.EventArgs args)
 		{
 			// FIXME - implement
 		}
 
-		public void OnMenuFileQuit (object o, System.EventArgs args)
+		public void
+		OnMenuFileQuit (object o, System.EventArgs args)
 		{
 			Gtk.Application.Quit ();
 			// FIXME - check to make sure the pipeline is saved
 		}
 
 		// 'Edit' Menu events
-		public void OnMenuEditDelete (object o, System.EventArgs args)
+		public void
+		OnMenuEditDelete (object o, System.EventArgs args)
 		{
 			// FIXME - implement
 		}
 
 		// 'View' Menu events
-		public void OnMenuViewKeepClean (object o, System.EventArgs args)
+		public void
+		OnMenuViewKeepClean (object o, System.EventArgs args)
 		{
 			// FIXME - implement
 		}
 
 		// 'Help' Menu events
-		public void OnMenuHelpContents (object o, System.EventArgs args)
+		public void
+		OnMenuHelpContents (object o, System.EventArgs args)
 		{
 			// FIXME - implement
 		}

@@ -28,6 +28,8 @@ namespace Fyre
 	{
 		Gtk.Adjustment		hadj;
 		Gtk.Adjustment		vadj;
+		Gtk.Scrollbar		hscroll;
+		Gtk.Scrollbar		vscroll;
 
 		/* The drawing extents are the size of our current drawing area. The
 		 * position depends on the scrollbars, and the size is always the pixel
@@ -42,7 +44,8 @@ namespace Fyre
 		Gdk.Rectangle		drawing_extents;
 		Gdk.Rectangle		layout_extents;
 
-		public PipelineDrawing () : base ()
+		public
+		PipelineDrawing () : base ()
 		{
 			drawing_extents = new Gdk.Rectangle ();
 			layout_extents = new Gdk.Rectangle ();
@@ -59,7 +62,8 @@ namespace Fyre
 			Show ();
 		}
 
-		protected override bool OnExposeEvent (Gdk.EventExpose ev)
+		protected override bool
+		OnExposeEvent (Gdk.EventExpose ev)
 		{
 			Gdk.Drawable d = GdkWindow;
 			Gdk.GC gc = Style.BackgroundGC (Gtk.StateType.Prelight);
@@ -68,7 +72,8 @@ namespace Fyre
 			return true;
 		}
 
-		protected override bool OnConfigureEvent (Gdk.EventConfigure ev)
+		protected override bool
+		OnConfigureEvent (Gdk.EventConfigure ev)
 		{
 			if (hadj != null) {
 				hadj.PageSize = ev.Width;
@@ -89,7 +94,16 @@ namespace Fyre
 			return base.OnConfigureEvent (ev);
 		}
 
-		protected override void OnSetScrollAdjustments (Gtk.Adjustment hadj, Gtk.Adjustment vadj)
+		public void
+		SetScrollbars (Gtk.Scrollbar h, Gtk.Scrollbar v)
+		{
+			hscroll = h;
+			vscroll = v;
+			SetScrollAdjustments (h.Adjustment, v.Adjustment);
+		}
+
+		protected override void
+		OnSetScrollAdjustments (Gtk.Adjustment hadj, Gtk.Adjustment vadj)
 		{
 			hadj.Lower         = 0.0;
 			hadj.Upper         = 0.0;

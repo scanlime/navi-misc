@@ -26,7 +26,8 @@ namespace Fyre
 
 	class UidComparer : IComparer
 	{
-		public int Compare (object x, object y)
+		public int
+		Compare (object x, object y)
 		{
 			byte[] xb = (byte[]) x;
 			byte[] yb = (byte[]) y;
@@ -44,7 +45,8 @@ namespace Fyre
 		private Hashtable	element_store;
 		private UidComparer	comparer;
 
-		public Pipeline ()
+		public
+		Pipeline ()
 		{
 			comparer = new UidComparer ();
 			element_store = new Hashtable (null, comparer);

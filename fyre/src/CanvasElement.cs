@@ -56,12 +56,14 @@ namespace Fyre
 		// When we're drawing on the main canvas, we render at full size.
 		// However, we also want to be able to render smaller for the
 		// navigation box, so there are two versions.
-		public virtual void Draw (System.Drawing.Graphics context, float zoom)
+		public virtual void
+		Draw (System.Drawing.Graphics context, float zoom)
 		{
 			// FIXME
 		}
 
-		public virtual void Draw (System.Drawing.Graphics context)
+		public virtual void
+		Draw (System.Drawing.Graphics context)
 		{
 			// FIXME
 		}

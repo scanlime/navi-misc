@@ -41,7 +41,8 @@ namespace Fyre
 		Gdk.Rectangle			tip_rect;
 		private Gtk.Window		toplevel;
 
-		public ElementList (Gtk.Widget window) : base ()
+		public
+		ElementList (Gtk.Widget window) : base ()
 		{
 			SetupWidgets ();
 
@@ -56,7 +57,8 @@ namespace Fyre
 			ShowAll ();
 		}
 
-		void SetupWidgets ()
+		void
+		SetupWidgets ()
 		{
 			// Tree View data
 			HeadersVisible = false;
@@ -94,7 +96,8 @@ namespace Fyre
 			AppendColumn (column);
 		}
 
-		protected override void OnDragBegin (Gdk.DragContext context)
+		protected override void
+		OnDragBegin (Gdk.DragContext context)
 		{
 			Gtk.TreePath		path;
 			Gtk.TreeViewColumn	column;
@@ -122,14 +125,16 @@ namespace Fyre
 			}
 		}
 
-		protected override void OnDragEnd (Gdk.DragContext context)
+		protected override void
+		OnDragEnd (Gdk.DragContext context)
 		{
 			dragging = false;
 			click_x = -1;
 			click_y = -1;
 		}
 
-		protected override bool OnButtonPressEvent (Gdk.EventButton ev)
+		protected override bool
+		OnButtonPressEvent (Gdk.EventButton ev)
 		{
 			if (current_tooltip != null) {
 				current_tooltip.Hide ();
@@ -147,7 +152,8 @@ namespace Fyre
 			return base.OnButtonPressEvent (ev);
 		}
 
-		protected override bool OnButtonReleaseEvent (Gdk.EventButton ev)
+		protected override bool
+		OnButtonReleaseEvent (Gdk.EventButton ev)
 		{
 			click_x = -1;
 			click_y = -1;
@@ -157,7 +163,8 @@ namespace Fyre
 			return base.OnButtonReleaseEvent (ev);
 		}
 
-		protected override bool OnMotionNotifyEvent (Gdk.EventMotion ev)
+		protected override bool
+		OnMotionNotifyEvent (Gdk.EventMotion ev)
 		{
 			Gtk.TreePath path;
 
@@ -208,7 +215,8 @@ namespace Fyre
 			return true;
 		}
 
-		protected override bool OnLeaveNotifyEvent (Gdk.EventCrossing ev)
+		protected override bool
+		OnLeaveNotifyEvent (Gdk.EventCrossing ev)
 		{
 			if (tooltip_timeout != 0) {
 				GLib.Source.Remove (tooltip_timeout);
@@ -221,7 +229,8 @@ namespace Fyre
 			return true;
 		}
 
-		bool TooltipTimeout ()
+		bool
+		TooltipTimeout ()
 		{
 			Gtk.TreePath path;
 			Gtk.TreeIter iter;
@@ -247,7 +256,8 @@ namespace Fyre
 			return false;
 		}
 
-		public void AddType (System.Type t)
+		public void
+		AddType (System.Type t)
 		{
 			object[] i = {};
 			Element e = (Element) t.GetConstructor(System.Type.EmptyTypes).Invoke(i);
