@@ -32,10 +32,22 @@ as both our web site and our package's standalone documentation.
 
 from docutils import core, writers, nodes
 from Nouvelle import tag, place
-import Template
-import os
+import Template, Server
+import os, posixpath
 from twisted.web import error
 from twisted.web.woven import dirlist
+
+
+class Component(Server.Component):
+    """A component representing the on-disk documentation tree"""
+    name = "Documentation"
+
+    def __init__(self, basePath):
+        self.basePath = basePath
+        self.resource = Page(self)
+
+    def __contains__(self, page):
+        return isinstance(page, Page)
 
 
 class NouvelleTranslator(nodes.NodeVisitor):
@@ -199,46 +211,91 @@ class NullFile:
         pass
 
 
+formattedDocCache = {}
+
+def getFormattedDoc(path):
+    """Returns a NouvelleWriter instance representing a formatted version of the
+       given path. Formatted documents are cached, but the cache is invalidated
+       when the source document's modification date changes.
+       """
+    global formattedDocCache
+    mtime = os.stat(path).st_mtime
+    try:
+        w = formattedDocCache[path]
+        if w.mtime == mtime:
+            return w
+    except KeyError:
+        pass
+    w = NouvelleWriter()
+    core.publish_file(source_path = path,
+                      writer      = w,
+                      destination = NullFile(),
+                      settings_overrides = {'output_encoding': 'unicode'}
+                      )
+    w.mtime = mtime
+    formattedDocCache[path] = w
+    return w
+
+
 class Page(Template.Page):
     """A web page holding a docutils-formatted document"""
-    def __init__(self, path):
+    indexNames = ('index', 'index.txt')
+
+    def __init__(self, component, path=''):
+        self.component = component
         self.path = path
+        self.fsPath = self.getFilesystemPath()
+
+        if os.path.isfile(self.fsPath):
+            self.load(self.fsPath)
+        elif os.path.isdir(self.fsPath):
+            # If we have a directory with no index, make our title the directory name
+            self.mainTitle = self.path.split('/')[-1]
+
         Template.Page.__init__(self)
+
+    def getFilesystemPath(self):
+        """Determine the path on disk that this document should load from,
+           looking for an index file if this page refers to a directory.
+           """
+        p = os.path.join(self.component.basePath, *self.path.split("/"))
+        if os.path.isdir(p):
+            # If this is a directory, try to find an index file for it
+            for indexName in self.indexNames:
+                if os.path.isfile(os.path.join(p, indexName)):
+                    return os.path.join(p, indexName)
+        return p
+
+    def load(self, fspath):
+        """Load the formatted document at the given filesystem path"""
+        self.mainDoc = getFormattedDoc(fspath)
+        self.mainColumn = self.mainDoc.output
+        self.mainTitle = self.mainDoc.docTitle
+        if self.mainDoc.docSubtitle:
+            self.subTitle = self.mainDoc.docSubtitle
+        self.leftColumn = getFormattedDoc(self.findSidebarPath(fspath)).output
 
     def getChild(self, path, request):
         if path and path[0] != '.':
-            return self.__class__(os.path.join(self.path, path))
+            return self.__class__(self.component, os.path.join(self.path, path))
         else:
             return self
 
+    def getURL(self, context):
+        return posixpath.join(self.component.url, self.path)
+
+    def parent(self):
+        if self.path:
+            return Page(self.component, posixpath.split(self.path)[0])
+
     def render(self, request):
-        """Overrides the default render() function for pages. This checks
-           whether our path is really a file or a directory- if it's a
-           directory, we show a directory listing page. If it's a file,
-           this formats our document and passes control on to the usual
-           rendering processes.
+        """Intercept the normal rendering process if necessary to display
+           a 'file not found' error or a directory listing page.
            """
-        path = self.path
-
-        # Is this actually a directory?
-        if os.path.isdir(path):
-            # If we have an 'index' file, show that.. otherwise, a directory listing
-            if os.path.isfile(os.path.join(path, 'index')):
-                path = os.path.join(path, 'index')
-            else:
-                return dirlist.DirectoryLister(path).render(request)
-        elif not os.path.isfile(path):
+        if os.path.isdir(self.fsPath):
+            return dirlist.DirectoryLister(self.fsPath).render(request)
+        elif not os.path.isfile(self.fsPath):
             return error.NoResource("File not found.").render(request)
-
-        # Find a sidebar document and format it
-        self.leftColumn = self.formatDocument(self.findSidebarPath(path)).output
-
-        # Format the main document, storing its body and our titles
-        mainDoc = self.formatDocument(path)
-        self.mainColumn = mainDoc.output
-        self.mainTitle = mainDoc.docTitle
-        if mainDoc.docSubtitle:
-            self.subTitle = mainDoc.docSubtitle
         return Template.Page.render(self, request)
 
     def findSidebarPath(self, path):
@@ -246,17 +303,5 @@ class Page(Template.Page):
             return path + '.sidebar'
         else:
             return os.path.join(os.path.split(path)[0], 'default.sidebar')
-
-    def formatDocument(self, path):
-        """Format a document, returning the NouvelleWriter instance
-           containing the Nouvelle tree and other document information.
-           """
-        w = NouvelleWriter()
-        core.publish_file(source_path = path,
-                          writer      = w,
-                          destination = NullFile(),
-                          settings_overrides = {'output_encoding': 'unicode'}
-                          )
-        return w
 
 ### The End ###

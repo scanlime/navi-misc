@@ -157,6 +157,30 @@ class StaticJoiner(static.File):
         return f
 
 
+class Component:
+    """A component is some top-level area of the site that is explicitly
+       assigned a URL and may be visible to the user in some sort of
+       site-wide navigation system. Every component must have a root URL
+       and a root resource- indeed, the major reason Components exist is
+       to give a subsystem a way to bind itself to a subset of a site's URL
+       space.
+       """
+    # The component's URL, will be set by the Site
+    url = None
+
+    # The component's resource, will be set by the component's constructor.
+    resource = None
+
+    # The component's user-visible name, if it has one
+    name = None
+
+    def __contains__(self, page):
+        """Subclasses must implement this to test whether a page
+           belongs to this component.
+           """
+        return False
+
+
 class Site(server.Site):
     """A twisted.web.server.Site subclass, to use our modified Request class"""
     requestFactory = Request
@@ -165,6 +189,14 @@ class Site(server.Site):
         # Some extra widgets for tracking server uptime and hit count
         self.requestCount = 0
         self.serverStartTime = time.time()
+
+        self.components = []
         server.Site.__init__(self, resource)
+
+    def putComponent(self, childName, component):
+        """Install the given component instance at 'childName'"""
+        component.url = '/' + childName
+        self.resource.putChild(childName, component.resource)
+        self.components.append(component)
 
 ### The End ###

@@ -22,6 +22,7 @@ Classes for forming hyperlinks between stats browser pages
 #
 
 from Nouvelle import tag
+import posixpath
 
 
 class TargetRelativeLink:
@@ -31,7 +32,15 @@ class TargetRelativeLink:
         self.relativePathSegments = tuple(relativePathSegments)
 
     def getURL(self, context):
-        return context['statsRootPath'] + '/'.join(tuple(self.target.pathSegments) + self.relativePathSegments)
+        # Make this an absolute URL- currently it's required for
+        # links placed in the RSS and XML feeds, and won't
+        # hurt elsewhere.
+        protocol, hostname, port = context['request'].host
+        server = "http://" + hostname
+        if port != 80:
+            server += ':' + str(port)
+        return server + posixpath.join(context['component'].url,
+                                       *(tuple(self.target.pathSegments) + self.relativePathSegments))
 
 
 class StatsLink(TargetRelativeLink):

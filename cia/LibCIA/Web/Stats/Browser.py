@@ -24,11 +24,25 @@ to metadata or RSS pages.
 #
 
 from twisted.internet import defer
-from LibCIA.Web import Template, Info
+from LibCIA.Web import Template, Info, Server
 from LibCIA import Stats, Message, TimeUtil, Formatters
 from Nouvelle import tag, place
-import Nouvelle, time, sys
-import Metadata, Link, Catalog, Feed
+import Nouvelle, time, sys, posixpath
+import Metadata, Catalog, Feed, Link
+
+
+class Component(Server.Component):
+    """A server component representing the whole stats interface"""
+    name = "Stats"
+
+    def __init__(self):
+        self.resource = Page(self)
+
+    def __contains__(self, page):
+        for cls in (Page, Metadata.MetadataPage):
+            if isinstance(page, cls):
+                return True
+        return False
 
 
 class Page(Template.Page):
@@ -43,10 +57,19 @@ class Page(Template.Page):
         '.xml':      Feed.XMLFeed,
         }
 
-    def __init__(self, target=None):
+    def __init__(self, component, target=None):
         if target is None:
             target = Stats.StatsTarget()
+        self.component = component
         self.target = target
+
+    def parent(self):
+        parentTarget = self.target.parent()
+        if parentTarget:
+            return self.__class__(self.component, parentTarget)
+
+    def getURL(self, context):
+        return posixpath.join(self.component.url, self.target.path)
 
     def getChildWithDefault(self, name, request):
         """Part of IResource, called by twisted.web to retrieve pages for URIs
@@ -60,34 +83,10 @@ class Page(Template.Page):
             return self.childFactories[name](self)
         else:
             # Return the stats page for a child
-            return self.__class__(self.target.child(name))
-
-    def findRootPath(self, request, additionalDepth=0, absolute=False):
-        """Find the URL path referring to the root of the current stats tree
-           The returned path begins and ends with a slash.
-
-           additionalDepth can be set to a nonzero number if the caller
-           knows the request is actually for a page below this one in the URL tree.
-
-           If 'absolute' is True, a full absolute URL is returned.
-           """
-        pathSegments = [s for s in request.path.split('/') if s]
-        treeDepth = len(self.target.pathSegments) + additionalDepth
-        if treeDepth:
-            pathSegments = pathSegments[:-treeDepth]
-        path = '/' + '/'.join(pathSegments) + '/'
-
-        # Cheesily stick together an absolute URL
-        if absolute:
-            ns, host, port = request.host
-            if port != 80:
-                host += ':' + str(port)
-            path = 'http://' + host + path
-
-        return path
+            return self.__class__(self.component, self.target.child(name))
 
     def preRender(self, context):
-        context['statsRootPath'] = self.findRootPath(context['request'])
+        context['component'] = self.component
 
     def render_mainTitle(self, context):
         return self.target.getTitle()
@@ -108,16 +107,6 @@ class Page(Template.Page):
             LinksSection(self.target),
             Info.Clock(),
             ]
-
-    def render_headingTabs(self, context):
-        """Create tabs linking to all our parent stats targets and to the CIA root"""
-        tabs = []
-        node = self.target.parent()
-        while node:
-            tabs.insert(0, Link.StatsLink(node, Template.headingTab))
-            node = node.parent()
-        tabs.insert(0, Template.headingTab(href='/')['CIA'])
-        return tabs
 
 
 class Counters(Template.Section):

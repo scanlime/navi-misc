@@ -199,11 +199,13 @@ class MetadataPage(Template.Page):
        metadata. Children of this page are pages that render individual metadata keys
        with no extra formatting.
        """
+    subTitle = "Tabloid footprints in your hair, Tabloid footprints everywhere."
+
     def __init__(self, statsPage):
         self.statsPage = statsPage
 
     def preRender(self, context):
-        context['statsRootPath'] = self.statsPage.findRootPath(context['request'], 1)
+        context['component'] = self.statsPage.component
 
     def render_mainTitle(self, context):
         return "Metadata for stats://%s" % "/".join(self.statsPage.target.pathSegments)

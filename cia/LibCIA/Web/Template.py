@@ -26,14 +26,12 @@ from twisted.internet import defer
 from Nouvelle import tag, place, xml, subcontext
 
 
-# Tags with 'class' attributes should be placed in this module
+# Tag templates
 catalogList = tag('ul', _class="catalog")
-headingTab = tag('a', _class="headingtab")
 value = tag('strong')
 error = tag('span', _class="error")
-
-# Stock error tags
 unableToFormat = error[ "Unable to format data" ]
+breadcrumbSeparator = xml(" &raquo; ")
 
 
 def Photo(url, **attrs):
@@ -130,12 +128,51 @@ class StaticSection(Section):
 
 class Page(Nouvelle.Twisted.Page):
     """A template for pages using our CSS- all pages have a heading with
-       title, subtitle, and site name. Pages may have a list of hyperlinked
-       tabs at the bottom of the heading, as well as columns containing
-       Sections.
+       title, subtitle, and site name. The content of each page is in
+       columns holding sections, while each page shares certain navigation
+       features- section tabs at the top, and a 'breadcrumbs' display
+       linking to and showing a page's parent pages.
        """
     siteName = "CIA"
-    subTitle = "More wet kittens than you can shake a cheese grater at"
+    mainTitle = None
+    subTitle = []
+    leftColumn  = []
+    mainColumn  = []
+
+    document = [
+        xml('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" '
+            '"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">\n'),
+
+        tag('html', xmlns="http://www.w3.org/1999/xhtml")[
+            tag('head')[
+                tag('title')[ place("pageTitle") ],
+                tag('style', type="text/css", media="all")[ "@import url(/style.css);" ],
+                ],
+            tag('body')[
+                tag('div', _class="heading")[
+                    tag('table', _class="heading")[ tag('tr', _class="heading")[
+                        tag('td', _class="title")[
+                            tag('div', _class="mainTitle")[ place("mainTitle") ],
+                            tag('div', _class="subTitle")[ place("subTitle") ],
+                        ],
+                        tag('td', _class="sitename")[
+                            tag('a', _class="sitename", href="/")[ place("siteName") ],
+                        ],
+                    ]],
+                    tag('div', _class="tabs")[ place("tabs") ],
+                    tag('div', _class="tabBar")[ place("breadcrumbs") ],
+                ],
+                tag('table', _class="columns")[ tag('tr')[
+                    tag('td', _class="left")[ place("leftColumn") ],
+                    tag('td', _class="main")[ place("mainColumn") ],
+                ]],
+                tag('div', _class="footer")[
+                    tag('a', href="http://navi.cx")[
+                        tag('img', _class="footer", src="/images/navi64.png", width="64", height="39", alt="Navi"),
+                    ],
+                ],
+            ],
+        ]]
 
     def render_pageTitle(self, context):
         return [self.render_mainTitle,
@@ -151,50 +188,53 @@ class Page(Nouvelle.Twisted.Page):
     def render_subTitle(self, context):
         return self.subTitle
 
-    def render_headingTabs(self, context):
-        return self.headingTabs
-
     def render_leftColumn(self, context):
         return self.leftColumn
 
     def render_mainColumn(self, context):
         return self.mainColumn
 
-    leftColumn  = []
-    mainColumn  = []
+    def render_breadcrumbs(self, context):
+        places = [self.render_mainTitle(context)]
+        node = self.parent()
+        # If we don't at least have a parent node, breadcrumbs
+        # are going to be pretty useless. Just stick in a
+        # non-breaking space as a placeholder.
+        if not node:
+            return xml("&nbsp;")
+        while node:
+            places.insert(0, breadcrumbSeparator)
+            places.insert(0, node.render_link(context))
+            node = node.parent()
+        return places
 
-    headingTabs = [
-        headingTab(href='/')['CIA'],
-        ]
+    def render_link(self, context):
+        """Return a serializable object that should be used to link to this page.
+           By default, this returns a plain link with the page's title, pointing
+           to the page's URL.
+           """
+        return tag('a', href=self.getURL(context))[self.render_mainTitle(context)]
 
-    document = [
-        ## Commented out for now, as it seems to break some of the CSS formatting. Why?
-        ##
-        #xml('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" '
-        #    '"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">\n'),
+    def parent(self):
+        """Pages must implement this to return their parent page.
+           This is used for the default implementation of breadcrumbs.
+           """
+        pass
 
-        tag('html', xmlns="http://www.w3.org/1999/xhtml")[
-            tag('head')[
-                tag('title')[ place("pageTitle") ],
-                tag('style', type="text/css", media="all")[ "@import url(/style.css);" ],
-                ],
-            tag('body')[
-                tag('div', _class="heading")[
-                    tag('div', _class="sitename")[ place("siteName") ],
-                    tag('div', _class="title")[ place("mainTitle") ],
-                    tag('div', _class="subtitle")[ place("subTitle") ],
-                    tag('div', _class="headingTabs")[ place("headingTabs") ],
-                ],
-                tag('table', _class="columns")[ tag('tr')[
-                    tag('td', _class="left")[ place("leftColumn") ],
-                    tag('td', _class="main")[ place("mainColumn") ],
-                ]],
-                tag('div', _class="footer")[
-                    tag('a', href="http://navi.cx")[
-                        tag('img', _class="footer", src="/images/navi64.png", width="64", height="39", alt="Navi"),
-                    ],
-                ],
-            ],
-        ]]
+    def render_tabs(self, context):
+        """The page's tabs show all named components"""
+        tabs = []
+        for component in context['request'].site.components:
+            if component.name:
+                if self in component:
+                    id = 'active'
+                else:
+                    id = None
+                tabs.append(tag('a', _class='tab', id=id, href=component.url)[ component.name ])
+        return tabs
+
+    def getURL(self, context):
+        """Retrieve a URL suitable for linking to this page."""
+        pass
 
 ### The End ###
