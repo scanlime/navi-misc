@@ -21,8 +21,8 @@
 ; All inputs are digital
 #define ADCON1_VALUE 0x06
 
-; Timer 1 on, no prescaler
-#define T1CON_VALUE	0x01
+; Timer 1 on, 8:1 prescaler
+#define T1CON_VALUE	0x31
 
 #define LED_PORT 	 PORTB		; All of PORTB are active-low LEDs
 #define COIL_DRIVER  PORTC, 0	; Coil drive transistor

@@ -27,6 +27,7 @@
 	errorlevel -302		; supress "register not in bank0, check page bits" message
 
 	global	display_poll
+	global	edge_buffer
 
 bank0	udata
 
@@ -64,8 +65,9 @@ display_poll
 	movwf	delta_t+1
 	clrf	TMR1H				; Reset the timer
 	clrf	TMR1L
+	nop
 	bsf		T1CON, TMR1ON		; Turn the timer back on
-	movlw	7					; Add back in the 7 cycles we lost
+	movlw	1					; Add back in the 8 cycles we lost (with an 8:1 prescale)
 	addwf	delta_t, f
 	btfsc	STATUS, C			; ...with carry
 	incf	delta_t+1, f
@@ -103,10 +105,11 @@ handle_angle_edge
 	btfsc	ANGLE_SENSOR
 	bsf		FLAG_ASENSOR_TEMP
 
-	banksel	edge_buffer
-	comf	edge_buffer+7, w
-	banksel	PORTB
-	movwf	PORTB
+	; DEBUG
+;	banksel	edge_buffer
+;	comf	edge_buffer+7, w
+;	banksel	PORTB
+;	movwf	PORTB
 
 	banksel	edge_buffer
 	movf	edge_buffer+2, w	; Scroll the edge_buffer
@@ -121,6 +124,8 @@ handle_angle_edge
 	movwf	edge_buffer+4
 	movf	edge_buffer+7, w
 	movwf	edge_buffer+5
+	clrf	edge_buffer+6		; Leaving zeroes to accumulate into
+	clrf	edge_buffer+7
 
 	return
 

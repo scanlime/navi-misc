@@ -37,6 +37,10 @@
 
 bank0	udata
 
+        src_ptr                 res     1
+        dest_ptr                res     1
+        byte_iterator   res     1       
+
 	code
 
 ;********************************************** Vendor-specific request table
@@ -50,6 +54,7 @@ defineRequest	macro	id,	handler
 	endm
 
 CheckVendor
+	defineRequest	RWAND_CTRL_READ_EDGES,	request_readEdges
 
 	pagesel	wrongstate		; Not a recognized request
 	goto	wrongstate
@@ -64,8 +69,59 @@ returnEmpty		macro
 	goto	Send_0Len_pkt
 	endm
 
+    ; Return 'length' bytes of data copied from buffer[w]
+returnBuffer    macro   buffer, length
+    local   loop
+
+    addlw   buffer
+    banksel src_ptr
+    movwf   src_ptr
+
+    banksel BD0IAL
+    movf    low BD0IAL,w    ; Get the address of the EP0 IN buffer
+    banksel dest_ptr
+    movwf   dest_ptr                ; Start a buffer pointer we'll increment...
+
+    movlw   length
+    movwf   byte_iterator
+loop
+
+    bankisel buffer
+    movf    src_ptr, w
+    movwf   FSR
+
+    movf    INDF, w                 ; Save the referenced byte in temp
+    movwf   temp
+
+    movf    dest_ptr,w              ; get address of buffer
+    movwf   FSR
+    bsf     STATUS,IRP              ; indirectly to banks 2-3
+
+    movf    temp, w                 ;  Write the saved byte to our buffer
+    movwf   INDF
+
+    incf    src_ptr, f              ; Next...
+    incf    dest_ptr, f
+    banksel byte_iterator
+    decfsz  byte_iterator, f
+    goto    loop
+
+    banksel BD0IBC
+    bsf     STATUS, RP0
+    movlw   length
+    movwf   BD0IBC                  ; set byte count
+    movlw   0xc8                    ; DATA1 packet, DTS enabled
+    movwf   BD0IST                  ; give buffer back to SIE
+    return
+    endm
+
+
 ;********************************************** Request handlers
 
+request_readEdges
+	extern	edge_buffer
+	clrw
+	returnBuffer edge_buffer, 8
 
 	end
 
