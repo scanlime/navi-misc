@@ -263,8 +263,7 @@ create_weather (ECalBackendWeather *cbw, WeatherForecast *report)
 	e_cal_component_set_description_list (cal_comp, text_list);
 
 	/* Set category and visibility */
-	/* FIXME */
-//	e_cal_component_set_categories (cal_comp, g_strdup_printf ());
+	e_cal_component_set_categories (cal_comp, getConditions (report));
 	e_cal_component_set_classification (cal_comp, E_CAL_COMPONENT_CLASS_PRIVATE);
 
 	/* Weather is shown as free time */
