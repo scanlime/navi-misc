@@ -23,7 +23,6 @@ CGameManger::CGameManger ( CBaseGameLoop * pGameLoop )
 
 CGameManger::~CGameManger()
 {
-
 }
 
 void CGameManger::Set ( CBaseGameLoop * pGameLoop )

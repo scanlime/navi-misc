@@ -66,9 +66,8 @@ public:
   CCommandLineArgs& GetArgs ( void ) {return args;}
   CPrefsManager& GetPrefs ( void ) {return prefs;}
 
-  CInputMananger& GetInput ( void ) {return input;}
+  CInputManager& GetInput ( void ) {return input;}
   CTimer& GetTimer ( void ) {return timer;}
-  const char* GetTypedStrings ( void ){return typedData.c_str();}
 
   // OGRE frame listener
   bool frameStarted(const FrameEvent& evt);
@@ -90,15 +89,13 @@ protected:
 
   CCommandLineArgs  args;
   CPrefsManager     prefs;
-  CInputMananger    input;
+  CInputManager    input;
   CTimer            timer;
 
   Root *mRoot;
   Camera* mCamera;
   SceneManager* mSceneMgr;
   RenderWindow* mWindow;
-
-  std::string typedData;
 
 	bool				quit;
 };

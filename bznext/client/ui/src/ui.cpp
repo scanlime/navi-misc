@@ -47,5 +47,12 @@ void CUserInterface::Release ( void )
 
 bool CUserInterface::Think ( void )
 {
-		return false;
+	bool quit = gameLoop->GetInput()->KeyDown(KC_ESCAPE);
+
+	if (!quit)
+	{
+		// do some stuff here
+	}
+
+	return quit;
 }

@@ -56,10 +56,6 @@ protected:
 
 	// UI core
 	CUserInterface	ui;
-
-  // ogre input stuff ( put all this crap in an input mananger )
-  EventProcessor* mEventProcessor;
-  InputReader* mInputDevice;
 };
 
 #endif //_BZNEXT_LOOP_H_

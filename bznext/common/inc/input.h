@@ -4,373 +4,175 @@
 #ifndef _INPUT_H_
 #define _INPUT_H_
 
-class CInputDevice
+#include "Ogre.h"
+#include "OgreConfigFile.h"
+
+using namespace Ogre;
+
+class CInputManager
 {
-public:
-	CInputDevice();
-	virtual ~CInputDevice();
+	public:
+		CInputManager();
+		~CInputManager();
 
-	virtual bool Init ( void );
-	virtual bool Release ( void );
+		void Init ( RenderWindow *theWindow );
+		void Process ( void );
 
-	virtual bool Update ( void );
+		bool KeyDown ( int key );
 
-	virtual int Bind ( const char *command, const char *item );
-	virtual float GetValue ( const char *command );
-	virtual float GetValue ( int command );
-
-	// used to send in init data or whatnot ( stick number, etc );
-	virtual bool SetItem ( const char *key, int item );
-
-	virtual bool Active ( void );
-
-	virtual const char* GetName ( void );
-
-	virtual const char* GetNextAction ( void );
+protected:
+	// ogre input stuff
+	EventProcessor* mEventProcessor;
+	InputReader* mInputDevice;
 };
 
-class CInputMananger
+// this is lame but it works
+enum KeyCode
 {
-public:
-	CInputMananger();
-	~CInputMananger();
-
-	void Init ( void );
-	void Release ( void );
-
-	void ReadConfig ( const char *file );
-
-	int Bind ( const char *command, const char *device, const char *item );
-	int GetCommandID ( const char *command );
-	void Unbind ( const char *command );
-	void Unbind ( int command );
-
-	void Update ( void );
-
-	void SetPollCommand ( const char* command );
-	void SetPollCommand ( int command );
-	float PollState ( const char *command );
-	float PollState ( int command );
-
-	int GetEvents ( void );
-	bool GetNextEvent ( void );
-	const char *GetEventName ( void );
-	int GetEventID ( void );
-	float GetEventValue ( void );
-
-	int GetNumDevices ( void );
-	CInputDevice* GetDevice ( const char *device );
-	CInputDevice* GetDevice ( int device );
-	
-	int RegisterDevice ( const char * name, CInputDevice *device );
-	
-	// global utils that deal with input
-	void HideOSCursor ( bool hide );
-
-	// interface style mouse and keyboard funcs
-	void GetKeysState ( unsigned char ** keys );
-	void GetMousePos ( int &iX, int &iY, bool bInc );
-	void GetMouseButtons ( bool &b1, bool &b2, bool &b3);
-
-	// call this right before you call update if you want text
-	const char* GetEnteredText( void );
-
-	// called by event handalers
-	int Event(unsigned char event, void* message);
-
-private:
-	bool InitStandardDevices ( void );
-
-	struct trInputInfo;
-	trInputInfo	*info;
+	KC_ESCAPE          =0x01,
+	KC_1               =0x02,
+	KC_2               =0x03,
+	KC_3               =0x04,
+	KC_4               =0x05,
+	KC_5               =0x06,
+	KC_6               =0x07,
+	KC_7               =0x08,
+	KC_8               =0x09,
+	KC_9               =0x0A,
+	KC_0               =0x0B,
+	KC_MINUS           =0x0C,    /* - on main keyboard */
+	KC_EQUALS          =0x0D,
+	KC_BACK            =0x0E,    /* backspace */
+	KC_TAB             =0x0F,
+	KC_Q               =0x10,
+	KC_W               =0x11,
+	KC_E               =0x12,
+	KC_R               =0x13,
+	KC_T               =0x14,
+	KC_Y               =0x15,
+	KC_U               =0x16,
+	KC_I               =0x17,
+	KC_O               =0x18,
+	KC_P               =0x19,
+	KC_LBRACKET        =0x1A,
+	KC_RBRACKET        =0x1B,
+	KC_RETURN          =0x1C,    /* Enter on main keyboard */
+	KC_LCONTROL        =0x1D,
+	KC_A               =0x1E,
+	KC_S               =0x1F,
+	KC_D               =0x20,
+	KC_F               =0x21,
+	KC_G               =0x22,
+	KC_H               =0x23,
+	KC_J               =0x24,
+	KC_K               =0x25,
+	KC_L               =0x26,
+	KC_SEMICOLON       =0x27,
+	KC_APOSTROPHE      =0x28,
+	KC_GRAVE           =0x29,    /* accent grave */
+	KC_LSHIFT          =0x2A,
+	KC_BACKSLASH       =0x2B,
+	KC_Z               =0x2C,
+	KC_X               =0x2D,
+	KC_C               =0x2E,
+	KC_V               =0x2F,
+	KC_B               =0x30,
+	KC_N               =0x31,
+	KC_M               =0x32,
+	KC_COMMA           =0x33,
+	KC_PERIOD          =0x34,    /* . on main keyboard */
+	KC_SLASH           =0x35,    /* '/' on main keyboard */
+	KC_RSHIFT          =0x36,
+	KC_MULTIPLY        =0x37,    /* * on numeric keypad */
+	KC_LMENU           =0x38,    /* left Alt */
+	KC_SPACE           =0x39,
+	KC_CAPITAL         =0x3A,
+	KC_F1              =0x3B,
+	KC_F2              =0x3C,
+	KC_F3              =0x3D,
+	KC_F4              =0x3E,
+	KC_F5              =0x3F,
+	KC_F6              =0x40,
+	KC_F7              =0x41,
+	KC_F8              =0x42,
+	KC_F9              =0x43,
+	KC_F10             =0x44,
+	KC_NUMLOCK         =0x45,
+	KC_SCROLL          =0x46,    /* Scroll Lock */
+	KC_NUMPAD7         =0x47,
+	KC_NUMPAD8         =0x48,
+	KC_NUMPAD9         =0x49,
+	KC_SUBTRACT        =0x4A,    /* - on numeric keypad */
+	KC_NUMPAD4         =0x4B,
+	KC_NUMPAD5         =0x4C,
+	KC_NUMPAD6         =0x4D,
+	KC_ADD             =0x4E,    /* + on numeric keypad */
+	KC_NUMPAD1         =0x4F,
+	KC_NUMPAD2         =0x50,
+	KC_NUMPAD3         =0x51,
+	KC_NUMPAD0         =0x52,
+	KC_DECIMAL         =0x53,    /* . on numeric keypad */
+	KC_OEM_102         =0x56,    /* < > | on UK/Germany keyboards */
+	KC_F11             =0x57,
+	KC_F12             =0x58,
+	KC_F13             =0x64,    /*                     (NEC PC98) */
+	KC_F14             =0x65,    /*                     (NEC PC98) */
+	KC_F15             =0x66,    /*                     (NEC PC98) */
+	KC_KANA            =0x70,    /* (Japanese keyboard)            */
+	KC_ABNT_C1         =0x73,    /* / ? on Portugese (Brazilian) keyboards */
+	KC_CONVERT         =0x79,    /* (Japanese keyboard)            */
+	KC_NOCONVERT       =0x7B,    /* (Japanese keyboard)            */
+	KC_YEN             =0x7D,    /* (Japanese keyboard)            */
+	KC_ABNT_C2         =0x7E,    /* Numpad . on Portugese (Brazilian) keyboards */
+	KC_NUMPADEQUALS    =0x8D,    /* = on numeric keypad (NEC PC98) */
+	KC_PREVTRACK       =0x90,    /* Previous Track (KC_CIRCUMFLEX on Japanese keyboard) */
+	KC_AT              =0x91,    /*                     (NEC PC98) */
+	KC_COLON           =0x92,    /*                     (NEC PC98) */
+	KC_UNDERLINE       =0x93,    /*                     (NEC PC98) */
+	KC_KANJI           =0x94,    /* (Japanese keyboard)            */
+	KC_STOP            =0x95,    /*                     (NEC PC98) */
+	KC_AX              =0x96,    /*                     (Japan AX) */
+	KC_UNLABELED       =0x97,    /*                        (J3100) */
+	KC_NEXTTRACK       =0x99,    /* Next Track */
+	KC_NUMPADENTER     =0x9C,    /* Enter on numeric keypad */
+	KC_RCONTROL        =0x9D,
+	KC_MUTE            =0xA0,    /* Mute */
+	KC_CALCULATOR      =0xA1,    /* Calculator */
+	KC_PLAYPAUSE       =0xA2,    /* Play / Pause */
+	KC_MEDIASTOP       =0xA4,    /* Media Stop */
+	KC_VOLUMEDOWN      =0xAE,    /* Volume - */
+	KC_VOLUMEUP        =0xB0,    /* Volume + */
+	KC_WEBHOME         =0xB2,    /* Web home */
+	KC_NUMPADCOMMA     =0xB3,    /* , on numeric keypad (NEC PC98) */
+	KC_DIVIDE          =0xB5,    /* / on numeric keypad */
+	KC_SYSRQ           =0xB7,
+	KC_RMENU           =0xB8,    /* right Alt */
+	KC_PAUSE           =0xC5,    /* Pause */
+	KC_HOME            =0xC7,    /* Home on arrow keypad */
+	KC_UP              =0xC8,    /* UpArrow on arrow keypad */
+	KC_PGUP            =0xC9,    /* PgUp on arrow keypad */
+	KC_LEFT            =0xCB,    /* LeftArrow on arrow keypad */
+	KC_RIGHT           =0xCD,    /* RightArrow on arrow keypad */
+	KC_END             =0xCF,    /* End on arrow keypad */
+	KC_DOWN            =0xD0,    /* DownArrow on arrow keypad */
+	KC_PGDOWN          =0xD1,    /* PgDn on arrow keypad */
+	KC_INSERT          =0xD2,    /* Insert on arrow keypad */
+	KC_DELETE          =0xD3,    /* Delete on arrow keypad */
+	KC_LWIN            =0xDB,    /* Left Windows key */
+	KC_RWIN            =0xDC,    /* Right Windows key */
+	KC_APPS            =0xDD,    /* AppMenu key */
+	KC_POWER           =0xDE,    /* System Power */
+	KC_SLEEP           =0xDF,    /* System Sleep */
+	KC_WAKE            =0xE3,    /* System Wake */
+	KC_WEBSEARCH       =0xE5,    /* Web Search */
+	KC_WEBFAVORITES    =0xE6,    /* Web Favorites */
+	KC_WEBREFRESH      =0xE7,    /* Web Refresh */
+	KC_WEBSTOP         =0xE8,    /* Web Stop */
+	KC_WEBFORWARD      =0xE9,    /* Web Forward */
+	KC_WEBBACK         =0xEA,    /* Web Back */
+	KC_MYCOMPUTER      =0xEB,    /* My Computer */
+	KC_MAIL            =0xEC,    /* Mail */
+	KC_MEDIASELECT     =0xED     /* Media Select */
 };
-
-void SetInputManager ( CInputMananger *pInput );
-CInputMananger* GetInputManager ( void );
-
-// now the nasty
-// this is just a remap of the SDL keys
-// but we need to do it, just in case somone DOSN"T use SDL.
-
-typedef enum {
-	/* The keyboard syms have been cleverly chosen to map to ASCII */
-	KEY_UNKNOWN		= 0,
-	KEY_FIRST		= 0,
-	KEY_BACKSPACE		= 8,
-	KEY_TAB		= 9,
-	KEY_CLEAR		= 12,
-	KEY_RETURN		= 13,
-	KEY_PAUSE		= 19,
-	KEY_ESCAPE		= 27,
-	KEY_SPACE		= 32,
-	KEY_EXCLAIM		= 33,
-	KEY_QUOTEDBL		= 34,
-	KEY_HASH		= 35,
-	KEY_DOLLAR		= 36,
-	KEY_AMPERSAND		= 38,
-	KEY_QUOTE		= 39,
-	KEY_LEFTPAREN		= 40,
-	KEY_RIGHTPAREN		= 41,
-	KEY_ASTERISK		= 42,
-	KEY_PLUS		= 43,
-	KEY_COMMA		= 44,
-	KEY_MINUS		= 45,
-	KEY_PERIOD		= 46,
-	KEY_SLASH		= 47,
-	KEY_0			= 48,
-	KEY_1			= 49,
-	KEY_2			= 50,
-	KEY_3			= 51,
-	KEY_4			= 52,
-	KEY_5			= 53,
-	KEY_6			= 54,
-	KEY_7			= 55,
-	KEY_8			= 56,
-	KEY_9			= 57,
-	KEY_COLON		= 58,
-	KEY_SEMICOLON		= 59,
-	KEY_LESS		= 60,
-	KEY_EQUALS		= 61,
-	KEY_GREATER		= 62,
-	KEY_QUESTION		= 63,
-	KEY_AT			= 64,
-	/* 
-	   Skip uppercase letters
-	 */
-	KEY_LEFTBRACKET	= 91,
-	KEY_BACKSLASH		= 92,
-	KEY_RIGHTBRACKET	= 93,
-	KEY_CARET		= 94,
-	KEY_UNDERSCORE		= 95,
-	KEY_BACKQUOTE		= 96,
-	KEY_a			= 97,
-	KEY_b			= 98,
-	KEY_c			= 99,
-	KEY_d			= 100,
-	KEY_e			= 101,
-	KEY_f			= 102,
-	KEY_g			= 103,
-	KEY_h			= 104,
-	KEY_i			= 105,
-	KEY_j			= 106,
-	KEY_k			= 107,
-	KEY_l			= 108,
-	KEY_m			= 109,
-	KEY_n			= 110,
-	KEY_o			= 111,
-	KEY_p			= 112,
-	KEY_q			= 113,
-	KEY_r			= 114,
-	KEY_s			= 115,
-	KEY_t			= 116,
-	KEY_u			= 117,
-	KEY_v			= 118,
-	KEY_w			= 119,
-	KEY_x			= 120,
-	KEY_y			= 121,
-	KEY_z			= 122,
-	KEY_DELETE		= 127,
-	/* End of ASCII mapped keysyms */
-
-	/* International keyboard syms */
-	KEY_WORLD_0		= 160,		/* 0xA0 */
-	KEY_WORLD_1		= 161,
-	KEY_WORLD_2		= 162,
-	KEY_WORLD_3		= 163,
-	KEY_WORLD_4		= 164,
-	KEY_WORLD_5		= 165,
-	KEY_WORLD_6		= 166,
-	KEY_WORLD_7		= 167,
-	KEY_WORLD_8		= 168,
-	KEY_WORLD_9		= 169,
-	KEY_WORLD_10		= 170,
-	KEY_WORLD_11		= 171,
-	KEY_WORLD_12		= 172,
-	KEY_WORLD_13		= 173,
-	KEY_WORLD_14		= 174,
-	KEY_WORLD_15		= 175,
-	KEY_WORLD_16		= 176,
-	KEY_WORLD_17		= 177,
-	KEY_WORLD_18		= 178,
-	KEY_WORLD_19		= 179,
-	KEY_WORLD_20		= 180,
-	KEY_WORLD_21		= 181,
-	KEY_WORLD_22		= 182,
-	KEY_WORLD_23		= 183,
-	KEY_WORLD_24		= 184,
-	KEY_WORLD_25		= 185,
-	KEY_WORLD_26		= 186,
-	KEY_WORLD_27		= 187,
-	KEY_WORLD_28		= 188,
-	KEY_WORLD_29		= 189,
-	KEY_WORLD_30		= 190,
-	KEY_WORLD_31		= 191,
-	KEY_WORLD_32		= 192,
-	KEY_WORLD_33		= 193,
-	KEY_WORLD_34		= 194,
-	KEY_WORLD_35		= 195,
-	KEY_WORLD_36		= 196,
-	KEY_WORLD_37		= 197,
-	KEY_WORLD_38		= 198,
-	KEY_WORLD_39		= 199,
-	KEY_WORLD_40		= 200,
-	KEY_WORLD_41		= 201,
-	KEY_WORLD_42		= 202,
-	KEY_WORLD_43		= 203,
-	KEY_WORLD_44		= 204,
-	KEY_WORLD_45		= 205,
-	KEY_WORLD_46		= 206,
-	KEY_WORLD_47		= 207,
-	KEY_WORLD_48		= 208,
-	KEY_WORLD_49		= 209,
-	KEY_WORLD_50		= 210,
-	KEY_WORLD_51		= 211,
-	KEY_WORLD_52		= 212,
-	KEY_WORLD_53		= 213,
-	KEY_WORLD_54		= 214,
-	KEY_WORLD_55		= 215,
-	KEY_WORLD_56		= 216,
-	KEY_WORLD_57		= 217,
-	KEY_WORLD_58		= 218,
-	KEY_WORLD_59		= 219,
-	KEY_WORLD_60		= 220,
-	KEY_WORLD_61		= 221,
-	KEY_WORLD_62		= 222,
-	KEY_WORLD_63		= 223,
-	KEY_WORLD_64		= 224,
-	KEY_WORLD_65		= 225,
-	KEY_WORLD_66		= 226,
-	KEY_WORLD_67		= 227,
-	KEY_WORLD_68		= 228,
-	KEY_WORLD_69		= 229,
-	KEY_WORLD_70		= 230,
-	KEY_WORLD_71		= 231,
-	KEY_WORLD_72		= 232,
-	KEY_WORLD_73		= 233,
-	KEY_WORLD_74		= 234,
-	KEY_WORLD_75		= 235,
-	KEY_WORLD_76		= 236,
-	KEY_WORLD_77		= 237,
-	KEY_WORLD_78		= 238,
-	KEY_WORLD_79		= 239,
-	KEY_WORLD_80		= 240,
-	KEY_WORLD_81		= 241,
-	KEY_WORLD_82		= 242,
-	KEY_WORLD_83		= 243,
-	KEY_WORLD_84		= 244,
-	KEY_WORLD_85		= 245,
-	KEY_WORLD_86		= 246,
-	KEY_WORLD_87		= 247,
-	KEY_WORLD_88		= 248,
-	KEY_WORLD_89		= 249,
-	KEY_WORLD_90		= 250,
-	KEY_WORLD_91		= 251,
-	KEY_WORLD_92		= 252,
-	KEY_WORLD_93		= 253,
-	KEY_WORLD_94		= 254,
-	KEY_WORLD_95		= 255,		/* 0xFF */
-
-	/* Numeric keypad */
-	KEY_KP0		= 256,
-	KEY_KP1		= 257,
-	KEY_KP2		= 258,
-	KEY_KP3		= 259,
-	KEY_KP4		= 260,
-	KEY_KP5		= 261,
-	KEY_KP6		= 262,
-	KEY_KP7		= 263,
-	KEY_KP8		= 264,
-	KEY_KP9		= 265,
-	KEY_KP_PERIOD		= 266,
-	KEY_KP_DIVIDE		= 267,
-	KEY_KP_MULTIPLY	= 268,
-	KEY_KP_MINUS		= 269,
-	KEY_KP_PLUS		= 270,
-	KEY_KP_ENTER		= 271,
-	KEY_KP_EQUALS		= 272,
-
-	/* Arrows + Home/End pad */
-	KEY_UP			= 273,
-	KEY_DOWN		= 274,
-	KEY_RIGHT		= 275,
-	KEY_LEFT		= 276,
-	KEY_INSERT		= 277,
-	KEY_HOME		= 278,
-	KEY_END		= 279,
-	KEY_PAGEUP		= 280,
-	KEY_PAGEDOWN		= 281,
-
-	/* Function keys */
-	KEY_F1			= 282,
-	KEY_F2			= 283,
-	KEY_F3			= 284,
-	KEY_F4			= 285,
-	KEY_F5			= 286,
-	KEY_F6			= 287,
-	KEY_F7			= 288,
-	KEY_F8			= 289,
-	KEY_F9			= 290,
-	KEY_F10		= 291,
-	KEY_F11		= 292,
-	KEY_F12		= 293,
-	KEY_F13		= 294,
-	KEY_F14		= 295,
-	KEY_F15		= 296,
-
-	/* Key state modifier keys */
-	KEY_NUMLOCK		= 300,
-	KEY_CAPSLOCK		= 301,
-	KEY_SCROLLOCK		= 302,
-	KEY_RSHIFT		= 303,
-	KEY_LSHIFT		= 304,
-	KEY_RCTRL		= 305,
-	KEY_LCTRL		= 306,
-	KEY_RALT		= 307,
-	KEY_LALT		= 308,
-	KEY_RMETA		= 309,
-	KEY_LMETA		= 310,
-	KEY_LSUPER		= 311,		/* Left "Windows" key */
-	KEY_RSUPER		= 312,		/* Right "Windows" key */
-	KEY_MODE		= 313,		/* "Alt Gr" key */
-	KEY_COMPOSE		= 314,		/* Multi-key compose key */
-
-	/* Miscellaneous function keys */
-	KEY_HELP		= 315,
-	KEY_PRINT		= 316,
-	KEY_SYSREQ		= 317,
-	KEY_BREAK		= 318,
-	KEY_MENU		= 319,
-	KEY_POWER		= 320,		/* Power Macintosh power key */
-	KEY_EURO		= 321,		/* Some european keyboards */
-	KEY_UNDO		= 322,		/* Atari keyboard has Undo */
-
-	/* Add any other keys here */
-
-	KEY_LAST
-} KEYTypes;
-
-/* Enumeration of valid key mods (possibly OR'd together) */
-typedef enum {
-	KEYMOD_NONE  = 0x0000,
-	KEYMOD_LSHIFT= 0x0001,
-	KEYMOD_RSHIFT= 0x0002,
-	KEYMOD_LCTRL = 0x0040,
-	KEYMOD_RCTRL = 0x0080,
-	KEYMOD_LALT  = 0x0100,
-	KEYMOD_RALT  = 0x0200,
-	KEYMOD_LMETA = 0x0400,
-	KEYMOD_RMETA = 0x0800,
-	KEYMOD_NUM   = 0x1000,
-	KEYMOD_CAPS  = 0x2000,
-	KEYMOD_MODE  = 0x4000,
-	KEYMOD_RESERVED = 0x8000
-} KEYMod;
-
-#define KEYMOD_CTRL	(KEYMOD_LCTRL|KEYMOD_RCTRL)
-#define KEYMOD_SHIFT	(KEYMOD_LSHIFT|KEYMOD_RSHIFT)
-#define KEYMOD_ALT	(KEYMOD_LALT|KEYMOD_RALT)
-#define KEYMOD_META	(KEYMOD_LMETA|KEYMOD_RMETA)
-
-KEYTypes GetCurrentKey ( void ); 
 
 #endif //_INPUT_H_
