@@ -15,9 +15,10 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
-from Box import *
-from Pyramid import *
-from World import *
+from Box import Box
+from Mesh import Mesh
+from Pyramid import Pyramid
+from World import World
 
 typeMap = {
     'arc'           : None,
@@ -28,7 +29,7 @@ typeMap = {
     'dynamicColor'  : None,
     'link'          : None,
     'material'      : None,
-    'mesh'          : None,
+    'mesh'          : Mesh,
     'meshbox'       : None,
     'meshpyr'       : None,
     'options'       : None,
