@@ -167,9 +167,19 @@ static void on_ok_clicked(GtkWidget *widget, AnimationRenderUi *self) {
 }
 
 static void on_cancel_clicked(GtkWidget *widget, AnimationRenderUi *self) {
-    if (self->render_in_progress)
+    if(self->render_in_progress) {
+	if(self->confirm_on) {
+	    gint result;
+	    GtkWidget *dialog;
+
+            dialog = glade_xml_get_widget(self->xml, "confirm_cancel");
+	    result = gtk_dialog_run (GTK_DIALOG(dialog));
+	    gtk_widget_hide (dialog);
+	    if(result == GTK_RESPONSE_REJECT)
+		return;
+	}
 	animation_render_ui_stop(self);
-    else {
+    } else {
 	gtk_widget_destroy(glade_xml_get_widget(self->xml, "window"));
 	g_signal_emit(G_OBJECT(self), animation_render_ui_signals[CLOSED_SIGNAL], 0);
     }
@@ -218,6 +228,11 @@ static gboolean on_delete_event(GtkWidget *widget, GdkEvent *event, AnimationRen
 /************************************************************************ Rendering */
 /************************************************************************************/
 
+static gboolean set_confirm_on(AnimationRenderUi *self) {
+	self->confirm_on = TRUE;
+	return FALSE;
+}
+
 static void animation_render_ui_start(AnimationRenderUi *self) {
     g_object_set(self->map,
 		 "width", self->width,
@@ -240,11 +255,17 @@ static void animation_render_ui_start(AnimationRenderUi *self) {
     /* Set up an idle handler where we'll do the rendering in small chunks */
     self->idler = g_idle_add(animation_render_ui_idle_handler, self);
 
+    /* Set up a timeout so we only ask for confirmation on cancel after 15s */
+    self->confirm_on = FALSE;
+    g_timeout_add(15000, (GSourceFunc) set_confirm_on, self);
+
     self->render_in_progress = TRUE;
 }
 
 static void animation_render_ui_stop(AnimationRenderUi *self) {
     self->render_in_progress = FALSE;
+
+    self->confirm_on = FALSE;
 
     avi_writer_close(self->avi);
     g_object_unref(self->avi);
