@@ -30,6 +30,7 @@
 #include "gameloop.h"
 #include "ui.h"
 #include "Singleton.h"
+#include "listserver.h"
 
 class  CFirestarterLoop : public Singleton<CFirestarterLoop>, public CBaseGameLoop
 {
@@ -60,6 +61,9 @@ protected:
 
 	// UI core
 	CUserInterface	ui;
+
+	// list server
+	CListServerClientConnection	listServer;
 };
 
 #endif //_FIRESTARTER_LOOP_H_

@@ -24,6 +24,7 @@
 #define _LISTSERVER_H_
 
 #include <string>
+#include <vector>
 
 typedef struct 
 {
@@ -38,22 +39,52 @@ typedef struct
 	int						token;
 }trServerInfo;
 
-class CListServerServerConnection
+class CBaseWebConnectClass
+{
+public:
+	virtual ~CBaseWebConnectClass(){return;}
+	virtual size_t writeMemoryCallback(void *ptr, size_t inSize, size_t nmemb, void *data){return 0;}
+};
+
+class CListServerServerConnection : public CBaseWebConnectClass
 {
 public:
 	CListServerServerConnection();
-	~CListServerServerConnection();
+	virtual ~CListServerServerConnection();
 
 	bool add ( trServerInfo &info );
 	bool update ( trServerInfo &info );
 	bool remove ( trServerInfo &info );
 
-	size_t writeMemoryCallback(void *ptr, size_t inSize, size_t nmemb, void *data);
+	virtual size_t writeMemoryCallback(void *ptr, size_t inSize, size_t nmemb, void *data);
 
 protected:
 	void clearPageData ( void );
 	char			*memory;
 	size_t		size;
+};
+
+
+class CListServerClientConnection : public CBaseWebConnectClass
+{
+public:
+	CListServerClientConnection();
+	virtual ~CListServerClientConnection();
+
+	bool get ( void );
+	int count ( void );
+	trServerInfo& info ( int item );
+
+	virtual size_t writeMemoryCallback(void *ptr, size_t inSize, size_t nmemb, void *data);
+
+protected:
+	void clearPageData ( void );
+
+	bool readNextItem( std::string &item, char** data );
+	char			*memory;
+	size_t		size;
+
+	std::vector<trServerInfo> serverList;
 };
 
 #endif //_LISTSERVER_H_

@@ -31,9 +31,8 @@
 
 size_t serverWriteMemoryCallback(void *ptr, size_t size, size_t nmemb, void *data)
 {
-	return ((CListServerServerConnection*)data)->writeMemoryCallback(ptr,size,nmemb,data);
+	return ((CBaseWebConnectClass*)data)->writeMemoryCallback(ptr,size,nmemb,data);
 }
-
 
 CListServerServerConnection::CListServerServerConnection()
 {
@@ -52,7 +51,6 @@ void CListServerServerConnection::clearPageData ( void )
 	memory = NULL;
 	size = 0;
 }
-
 
 bool CListServerServerConnection::add ( trServerInfo &info )
 {
@@ -270,4 +268,176 @@ size_t CListServerServerConnection::writeMemoryCallback(void *ptr, size_t inSize
 		memory[size] = 0;
 	}
 	return realsize;
+}
+
+
+// client stuff
+CListServerClientConnection::CListServerClientConnection()
+{
+	clearPageData();
+}
+
+CListServerClientConnection::~CListServerClientConnection()
+{
+	clearPageData();
+}
+
+bool CListServerClientConnection::readNextItem( std::string &item, char** data )
+{
+	item =**data;
+	(*data)++;
+
+	while (**data != '&')
+	{
+		item +=**data;
+		(*data)++;
+	}
+	return **data != '/0';
+}
+
+bool CListServerClientConnection::get ( void )
+{
+	CURL *curl;
+	CURLcode res;
+
+	std::string		url;
+
+	CCommandLineArgs	&args = CCommandLineArgs::instance();
+	CPrefsManager &prefs = CPrefsManager::instance();
+
+	// get the base URL
+	std::string serverbaseURL = "firestarter.bakadigital.com/list/";
+
+	if (args.Exists("listserver"))
+		serverbaseURL = args.GetDataS("listserver");
+	else if (prefs.ItemExists("listserver"))
+		serverbaseURL = prefs.GetItemS("listserver");
+
+	// buildup the URL
+
+	url = "http://" + serverbaseURL;// add in the base URL
+	url += "listserv.php?"; 
+
+	url += "simpleoutput=1";
+
+	clearPageData();
+
+	curl = curl_easy_init();
+	if(curl)
+	{
+		// set us up the URL
+		curl_easy_setopt(curl, CURLOPT_URL,url.c_str() );
+		/* send all data to this function  */
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, serverWriteMemoryCallback);
+		/* we pass our 'chunk' struct to the callback function */
+		curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)this);
+		res = curl_easy_perform(curl);
+		/* always cleanup */
+		curl_easy_cleanup(curl);
+	}
+	// parse that shit for the token
+	if (size == 0 || res != CURLE_OK)
+		return false;
+
+	char * tag = strstr(memory,"!beginlist");
+	if (!tag)
+		return false;
+
+	tag = strstr(tag,"list:");
+	if (!tag)
+		return false;
+
+	tag += strlen("list:");
+
+	int count = atoi(tag);
+	serverList.clear();
+
+	for (int i = 0; i < count; i++ )
+	{
+			tag = strstr(tag,"&");
+			if (!tag)
+				return false;
+			tag++;
+
+			trServerInfo info;
+			std::string	temp;
+
+			// get server name
+			readNextItem(temp,&tag);
+			tag++;
+			info.name = temp;
+
+			// get server address
+			readNextItem(temp,&tag);
+			tag++;
+			info.address = temp;
+
+			// get server port
+			readNextItem(temp,&tag);
+			tag++;
+			info.port = atoi(temp.c_str());
+
+			// get server game
+			readNextItem(temp,&tag);
+			tag++;
+			info.game = temp;
+
+			// get server version
+			readNextItem(temp,&tag);
+			tag++;
+			info.version = (float)atof(temp.c_str());
+
+			// get server OS
+			readNextItem(temp,&tag);
+			tag++;
+			info.os = temp;
+
+			// get server max players
+			readNextItem(temp,&tag);
+			tag++;
+			info.maxPlayers = atoi(temp.c_str());
+
+			// get server current players
+			readNextItem(temp,&tag);
+			tag++;
+			info.currentPlayers = atoi(temp.c_str());
+
+			// the '&' at the end
+			tag++;
+
+			serverList.push_back(info);
+	}
+	return true;
+}
+
+int CListServerClientConnection::count ( void )
+{
+	return (int)serverList.size();
+}
+
+trServerInfo& CListServerClientConnection::info ( int item )
+{
+	return serverList[item];
+}
+
+size_t CListServerClientConnection::writeMemoryCallback(void *ptr, size_t inSize, size_t nmemb, void *data)
+{
+	size_t realsize = inSize * nmemb;
+
+	memory = (char *)realloc(memory, size + realsize + 1);
+	if (memory)
+	{
+		memcpy(&(memory[size]), ptr, realsize);
+		size += realsize;
+		memory[size] = 0;
+	}
+	return realsize;
+}
+
+void CListServerClientConnection::clearPageData ( void )
+{
+	if (memory)
+		free (memory);
+	memory = NULL;
+	size = 0;
 }
