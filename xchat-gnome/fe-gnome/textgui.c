@@ -42,7 +42,7 @@ initialize_text_gui ()
 
 	gui.xtext = GTK_XTEXT (gtk_xtext_new (colors, TRUE));
 	frame = glade_xml_get_widget (gui.xml, "text area frame");
-	gtk_container_add (GTK_CONTAINER (frame), gui.xtext);
+	gtk_container_add (GTK_CONTAINER (frame), GTK_WIDGET (gui.xtext));
 	scrollbar = glade_xml_get_widget (gui.xml, "text area scrollbar");
 	gtk_range_set_adjustment (GTK_RANGE (scrollbar), gui.xtext->adj);
 
@@ -81,7 +81,7 @@ text_gui_add_text_buffer (struct session *sess)
 {
 	session_gui *tgui;
 
-	tgui = g_new0 (session_gui);
+	tgui = g_new0 (session_gui, 1);
 	tgui->buffer = gtk_xtext_buffer_new (gui.xtext);
 	sess->gui = (struct session_gui *) tgui;
 
@@ -202,7 +202,7 @@ set_gui_topic (session *sess, char *topic)
 	else
 		tgui->topic = g_strdup (topic);
 	if (sess == gui.current_session)
-		topic_label_set_text (gui.topic, tgui->topic);
+		topic_label_set_text (TOPIC_LABEL (gui.topic), tgui->topic);
 }
 
 void
