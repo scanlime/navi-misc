@@ -39,5 +39,7 @@ mvmtOneCello = \relative c, {
 
 	% 50
 	r2 r4 g16 c, g8
-	\repeat "tremolo" 6 { a16 e16 }  \repeat "tremolo" 2 { ais16 e16 }
+	\repeat "tremolo" 6 { a16 e16 }  ais16 e16 ais16 e16
+	\repeat "tremolo" 6 { a16 e16 }  b'16 e,16 b'16 e,16
+	a8 [c r a] r gis [r c]
 }
