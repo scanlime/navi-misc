@@ -59,6 +59,15 @@ edit_clicked (GtkWidget *button, gpointer data)
 static void
 add_clicked (GtkWidget *button, gpointer data)
 {
+	IrcNetwork *n;
+	IrcNetworkEditor *e;
+
+	n = irc_network_new (NULL);
+	e = irc_network_editor_new (n);
+
+	irc_network_editor_run (e);
+	gtk_widget_destroy (GTK_WIDGET (e));
+	g_object_unref (n);
 }
 
 static void
