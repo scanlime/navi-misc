@@ -66,6 +66,8 @@ struct _IrcNetworkEditor
 	GtkWidget *autojoin_channels;
 	GtkWidget *add_autojoin;
 	GtkWidget *remove_autojoin;
+
+	GtkWidget *toplevel;
 };
 
 struct _IrcNetworkEditorClass

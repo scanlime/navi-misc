@@ -62,6 +62,8 @@ irc_network_editor_init (IrcNetworkEditor *dialog)
 	GW(autojoin_channels);
 	GW(add_autojoin);
 	GW(remove_autojoin);
+
+	GW(toplevel);
 #undef GW
 }
 
@@ -108,6 +110,10 @@ irc_network_editor_populate (IrcNetworkEditor *e)
 	gtk_dialog_add_button (GTK_DIALOG (e), GTK_STOCK_APPLY,  GTK_RESPONSE_APPLY);
 	gtk_dialog_add_button (GTK_DIALOG (e), GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL);
 	gtk_dialog_add_button (GTK_DIALOG (e), GTK_STOCK_OK,     GTK_RESPONSE_OK);
+
+	gtk_container_set_border_width (GTK_CONTAINER (e), 6);
+	gtk_container_add (GTK_CONTAINER(GTK_DIALOG(e)->vbox), e->toplevel);
+	gtk_dialog_set_has_separator (GTK_DIALOG (e), FALSE);
 }
 
 IrcNetworkEditor *
