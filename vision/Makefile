@@ -4,11 +4,14 @@ LD = g++
 CC = g++
 CPPFLAGS = $(CFLAGS)
 
-BINS = cam_test face_tracker anaglyph duck_tracker calibration_test camshift
+BINS = cam_test face_tracker anaglyph duck_tracker calibration_test camshift average
 
 all: $(BINS)
 
 cam_test: src/cam_test.o lib/cv_dc1394.o lib/cv_sdl.o
+	$(LD) -o $@ $+ $(LDFLAGS)
+
+average: src/average.o lib/cv_dc1394.o lib/cv_sdl.o
 	$(LD) -o $@ $+ $(LDFLAGS)
 
 face_tracker: src/face_tracker.o lib/cv_dc1394.o
