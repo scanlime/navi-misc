@@ -179,225 +179,225 @@ Cube64 Basic
 N 40400 47000 39600 47000 4
 N 39600 47000 39600 47900 4
 N 39600 47900 38100 47900 4
-C 40400 46100 1 0 0 EMBEDDEDpic16F84A.sym
+C 40400 45800 1 0 0 EMBEDDEDpic16F84A.sym
 [
-B 40700 46100 2100 3000 3 0 0 0 -1 -1 0 -1 -1 -1 -1 -1
-T 40700 49350 5 10 0 0 0 0 1
-device=PIC16C84
-P 40700 48800 40400 48800 1 0 1
-{
-T 40600 48850 5 8 1 1 0 6 1
-pinnumber=1
-T 40600 48750 5 8 0 1 0 8 1
-pinseq=1
-T 40750 48800 9 8 1 1 0 0 1
-pinlabel=RA2
-T 40750 48800 5 8 0 1 0 2 1
-pintype=io
-}
+B 40700 45800 2100 3000 3 0 0 0 -1 -1 0 -1 -1 -1 -1 -1
 P 40700 48500 40400 48500 1 0 1
 {
 T 40600 48550 5 8 1 1 0 6 1
-pinnumber=2
+pinnumber=1
 T 40600 48450 5 8 0 1 0 8 1
-pinseq=2
-T 40750 48500 9 8 1 1 0 0 1
-pinlabel=RA3
+pinseq=1
+T 40750 48500 5 8 1 1 0 0 1
+pinlabel=RA2
 T 40750 48500 5 8 0 1 0 2 1
 pintype=io
 }
 P 40700 48200 40400 48200 1 0 1
 {
 T 40600 48250 5 8 1 1 0 6 1
-pinnumber=3
+pinnumber=2
 T 40600 48150 5 8 0 1 0 8 1
-pinseq=3
-T 40750 48200 9 8 1 1 0 0 1
-pinlabel=RA4/TOCKI
+pinseq=2
+T 40750 48200 5 8 1 1 0 0 1
+pinlabel=RA3
 T 40750 48200 5 8 0 1 0 2 1
 pintype=io
 }
-V 40650 47900 50 6 0 0 0 -1 -1 0 -1 -1 -1 -1 -1
-P 40600 47900 40400 47900 1 0 1
+P 40700 47900 40400 47900 1 0 1
 {
 T 40600 47950 5 8 1 1 0 6 1
-pinnumber=4
+pinnumber=3
 T 40600 47850 5 8 0 1 0 8 1
-pinseq=4
-T 40750 47900 9 8 1 1 0 0 1
-pinlabel=MCLR
+pinseq=3
+T 40750 47900 5 8 1 1 0 0 1
+pinlabel=RA4/TOCKI
 T 40750 47900 5 8 0 1 0 2 1
-pintype=in
+pintype=io
 }
-P 40700 47600 40400 47600 1 0 1
+V 40650 47600 50 6 0 0 0 -1 -1 0 -1 -1 -1 -1 -1
+P 40600 47600 40400 47600 1 0 1
 {
 T 40600 47650 5 8 1 1 0 6 1
-pinnumber=5
+pinnumber=4
 T 40600 47550 5 8 0 1 0 8 1
-pinseq=5
-T 40750 47600 9 8 1 1 0 0 1
-pinlabel=VSS
+pinseq=4
+T 40750 47600 5 8 1 1 0 0 1
+pinlabel=MCLR
 T 40750 47600 5 8 0 1 0 2 1
-pintype=pwr
+pintype=in
 }
 P 40700 47300 40400 47300 1 0 1
 {
 T 40600 47350 5 8 1 1 0 6 1
-pinnumber=6
+pinnumber=5
 T 40600 47250 5 8 0 1 0 8 1
-pinseq=6
-T 40750 47300 9 8 1 1 0 0 1
-pinlabel=RB0/INT
+pinseq=5
+T 40750 47300 5 8 1 1 0 0 1
+pinlabel=VSS
 T 40750 47300 5 8 0 1 0 2 1
-pintype=io
+pintype=pwr
 }
 P 40700 47000 40400 47000 1 0 1
 {
 T 40600 47050 5 8 1 1 0 6 1
-pinnumber=7
+pinnumber=6
 T 40600 46950 5 8 0 1 0 8 1
-pinseq=7
-T 40750 47000 9 8 1 1 0 0 1
-pinlabel=RB1
+pinseq=6
+T 40750 47000 5 8 1 1 0 0 1
+pinlabel=RB0/INT
 T 40750 47000 5 8 0 1 0 2 1
 pintype=io
 }
 P 40700 46700 40400 46700 1 0 1
 {
 T 40600 46750 5 8 1 1 0 6 1
-pinnumber=8
+pinnumber=7
 T 40600 46650 5 8 0 1 0 8 1
-pinseq=8
-T 40750 46700 9 8 1 1 0 0 1
-pinlabel=RB2
+pinseq=7
+T 40750 46700 5 8 1 1 0 0 1
+pinlabel=RB1
 T 40750 46700 5 8 0 1 0 2 1
 pintype=io
 }
 P 40700 46400 40400 46400 1 0 1
 {
 T 40600 46450 5 8 1 1 0 6 1
-pinnumber=9
+pinnumber=8
 T 40600 46350 5 8 0 1 0 8 1
-pinseq=9
-T 40750 46400 9 8 1 1 0 0 1
-pinlabel=RB3
+pinseq=8
+T 40750 46400 5 8 1 1 0 0 1
+pinlabel=RB2
 T 40750 46400 5 8 0 1 0 2 1
 pintype=io
 }
-P 42800 48800 43100 48800 1 0 1
+P 40700 46100 40400 46100 1 0 1
 {
-T 42900 48850 5 8 1 1 0 0 1
-pinnumber=18
-T 42900 48750 5 8 0 1 0 2 1
-pinseq=10
-T 42750 48800 9 8 1 1 0 6 1
-pinlabel=RA1
-T 42750 48800 5 8 0 1 0 8 1
+T 40600 46150 5 8 1 1 0 6 1
+pinnumber=9
+T 40600 46050 5 8 0 1 0 8 1
+pinseq=9
+T 40750 46100 5 8 1 1 0 0 1
+pinlabel=RB3
+T 40750 46100 5 8 0 1 0 2 1
 pintype=io
 }
 P 42800 48500 43100 48500 1 0 1
 {
 T 42900 48550 5 8 1 1 0 0 1
-pinnumber=17
+pinnumber=18
 T 42900 48450 5 8 0 1 0 2 1
-pinseq=11
-T 42750 48500 9 8 1 1 0 6 1
-pinlabel=RA0
+pinseq=10
+T 42750 48500 5 8 1 1 0 6 1
+pinlabel=RA1
 T 42750 48500 5 8 0 1 0 8 1
 pintype=io
 }
-L 42800 48275 42725 48200 3 0 0 0 -1 -1
-L 42800 48125 42725 48200 3 0 0 0 -1 -1
 P 42800 48200 43100 48200 1 0 1
 {
 T 42900 48250 5 8 1 1 0 0 1
-pinnumber=16
+pinnumber=17
 T 42900 48150 5 8 0 1 0 2 1
-pinseq=12
-T 42725 48200 9 8 1 1 0 6 1
-pinlabel=OSC1/CLKIN
+pinseq=11
+T 42750 48200 5 8 1 1 0 6 1
+pinlabel=RA0
 T 42750 48200 5 8 0 1 0 8 1
-pintype=in
+pintype=io
 }
+L 42800 47975 42725 47900 3 0 0 0 -1 -1
+L 42800 47825 42725 47900 3 0 0 0 -1 -1
 P 42800 47900 43100 47900 1 0 1
 {
 T 42900 47950 5 8 1 1 0 0 1
-pinnumber=15
+pinnumber=16
 T 42900 47850 5 8 0 1 0 2 1
-pinseq=13
-T 42750 47900 9 8 1 1 0 6 1
-pinlabel=OSC2/CLKOUT
+pinseq=12
+T 42725 47900 5 8 1 1 0 6 1
+pinlabel=OSC1/CLKIN
 T 42750 47900 5 8 0 1 0 8 1
-pintype=out
+pintype=in
 }
 P 42800 47600 43100 47600 1 0 1
 {
 T 42900 47650 5 8 1 1 0 0 1
-pinnumber=14
+pinnumber=15
 T 42900 47550 5 8 0 1 0 2 1
-pinseq=14
-T 42750 47600 9 8 1 1 0 6 1
-pinlabel=VDD
+pinseq=13
+T 42750 47600 5 8 1 1 0 6 1
+pinlabel=OSC2/CLKOUT
 T 42750 47600 5 8 0 1 0 8 1
-pintype=pwr
+pintype=out
 }
 P 42800 47300 43100 47300 1 0 1
 {
 T 42900 47350 5 8 1 1 0 0 1
-pinnumber=13
+pinnumber=14
 T 42900 47250 5 8 0 1 0 2 1
-pinseq=15
-T 42750 47300 9 8 1 1 0 6 1
-pinlabel=RB7
+pinseq=14
+T 42750 47300 5 8 1 1 0 6 1
+pinlabel=VDD
 T 42750 47300 5 8 0 1 0 8 1
-pintype=io
+pintype=pwr
 }
 P 42800 47000 43100 47000 1 0 1
 {
 T 42900 47050 5 8 1 1 0 0 1
-pinnumber=12
+pinnumber=13
 T 42900 46950 5 8 0 1 0 2 1
-pinseq=16
-T 42750 47000 9 8 1 1 0 6 1
-pinlabel=RB6
+pinseq=15
+T 42750 47000 5 8 1 1 0 6 1
+pinlabel=RB7
 T 42750 47000 5 8 0 1 0 8 1
 pintype=io
 }
 P 42800 46700 43100 46700 1 0 1
 {
 T 42900 46750 5 8 1 1 0 0 1
-pinnumber=11
+pinnumber=12
 T 42900 46650 5 8 0 1 0 2 1
-pinseq=17
-T 42750 46700 9 8 1 1 0 6 1
-pinlabel=RB5
+pinseq=16
+T 42750 46700 5 8 1 1 0 6 1
+pinlabel=RB6
 T 42750 46700 5 8 0 1 0 8 1
 pintype=io
 }
 P 42800 46400 43100 46400 1 0 1
 {
 T 42900 46450 5 8 1 1 0 0 1
-pinnumber=10
+pinnumber=11
 T 42900 46350 5 8 0 1 0 2 1
-pinseq=18
-T 42750 46400 9 8 1 1 0 6 1
-pinlabel=RB4
+pinseq=17
+T 42750 46400 5 8 1 1 0 6 1
+pinlabel=RB5
 T 42750 46400 5 8 0 1 0 8 1
 pintype=io
 }
-L 40750 48025 41150 48025 3 0 0 0 -1 -1
-T 40700 49550 5 10 0 0 0 0 1
+P 42800 46100 43100 46100 1 0 1
+{
+T 42900 46150 5 8 1 1 0 0 1
+pinnumber=10
+T 42900 46050 5 8 0 1 0 2 1
+pinseq=18
+T 42750 46100 5 8 1 1 0 6 1
+pinlabel=RB4
+T 42750 46100 5 8 0 1 0 8 1
+pintype=io
+}
+L 40750 47725 41150 47725 3 0 0 0 -1 -1
+T 40700 49050 5 10 0 0 0 0 1
+device=PIC16C84
+T 40700 49250 5 10 0 0 0 0 1
 footprint=DIP18
-T 40700 49950 5 10 0 0 0 0 1
+T 40700 49650 5 10 0 0 0 0 1
 description=8-bit Flash/EEPROM microcontroller
-T 40700 49750 5 10 0 0 0 0 1
+T 40700 49450 5 10 0 0 0 0 1
 numslots=0
-T 40700 50150 5 10 0 0 0 0 1
+T 40700 49850 5 10 0 0 0 0 1
 documentation=http://www.microchip.com/download/lit/pline/picmicro/families/16f8x/30445c.pdf
-T 40700 49150 3 10 1 0 0 0 1
+T 40700 48850 3 10 1 0 0 0 1
 PIC16F84A
 ]
 {
-T 42800 49200 5 10 1 1 0 6 1
+T 42800 48900 5 10 1 1 0 6 1
 refdes=U1
 }
