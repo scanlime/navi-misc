@@ -179,7 +179,7 @@ static int uvswitch_initCalibration(struct usb_uvswitch *dev)
 	dev->calibration.integration_reads = 50;
 	dev->calibration.interval = 10;
 	dev->calibration.integration_packets = 5;
-	dev->calibration.threshold = 200;
+	dev->calibration.threshold = 100;
 
 	uvswitch_updateCalibration(dev);
 }
