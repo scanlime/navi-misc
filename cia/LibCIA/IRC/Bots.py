@@ -352,7 +352,9 @@ class BotNetwork:
                 del self.servers[bot.server]
         except:
             # The bot might have not been in our server list in the first
-            # place, if it got disconnected before becoming fully connected.
+            # place, if it got disconnected before becoming fully connected
+            # or if its disconnection gets detected in multiple ways (socket
+            # closed, ping timeout, etc)
             pass
 
         self.checkBots()
@@ -396,6 +398,14 @@ class Bot(irc.IRCClient):
 
     # Timeout, in seconds, for joining channels
     joinTimeout = 60
+
+    # How often to ping the server, in seconds
+    pingInterval = 60
+
+    # Important timestamps
+    lastPingTimestamp = None
+    lastPongTimestamp = None
+    signonTimestamp = None
 
     def __init__(self):
         self.emptyChannels()
@@ -548,12 +558,63 @@ class Bot(irc.IRCClient):
 
         log.msg("%r connected" % self)
         self.botNet.botConnected(self)
+        self.signonTimestamp = time.time()
+
+        # Start the cycle of pinging the server to ensure our connection
+        # is still up and measure lag. IRC servers seem to often fail in
+        # ways that leave clients' sockets connected but ignore all data
+        # from them, and this lets us measure lag for free.
+        self.sendServerPing()
+
+    def sendServerPing(self):
+        """Send a ping stamped with the current time and schedule the next one"""
+        self.sendLine("PING %f" % time.time())
+        reactor.callLater(self.pingInterval, self.sendServerPing)
+
+    def irc_PONG(self, prefix, params):
+        """Handle the responses to pings sent with sendServerPing. This compares
+           the timestamp in the pong (from when the ping was sent) and the current
+           time, storing the lag and the current time.
+           """
+        self.lastPingTimestamp = float(params[1])
+        self.lastPongTimestamp = time.time()
 
     def connectionLost(self, reason):
         self.emptyChannels()
         log.msg("%r disconnected" % self)
         self.botNet.botDisconnected(self)
         irc.IRCClient.connectionLost(self)
+
+    def getLag(self):
+        """Calculate a single figure for the lag between us and the server.
+           If pings have been coming back on time this is just the raw lag,
+           but if our latest ping has been particularly late, it's the average
+           of the latest successful ping's lag and the amount of time we've been
+           waiting for this late ping.
+           """
+        if self.lastPongTimestamp is None:
+            # We've never received a successful pong
+            if self.signonTimestamp is None:
+                # Hmm, we've also never signed on. Nothing more we can do
+                return None
+            else:
+                # We've signed on, but never received a good pong. Let's pretend
+                # the time since the last pong is just the time since signon- if
+                # we really have that funky of a connection this will at least eventually
+                # let us detect that.
+                timeSincePong = time.time() - self.signonTimestamp
+            lag = None
+        else:
+            timeSincePong = time.time() - self.lastPongTimestamp
+            lag = self.lastPongTimestamp - self.lastPingTimestamp
+
+        if timeSincePong < self.pingInterval * 2:
+            # We're doing fine, report the raw lag
+            return lag
+        else:
+            # Yikes, it's been a while since we've had a good pong.
+            # Weigh that in to the returned lag figure as described above.
+            return (lag + (timeSincePong - self.pingInterval)) / 2
 
     def join(self, channel):
         """Called by the bot's owner to request that a channel be joined.

@@ -113,6 +113,20 @@ class BotStatusColumn(Nouvelle.Column):
         return ', '.join(indicators)
 
 
+class LagColumn(Nouvelle.Column):
+    heading = 'lag'
+
+    def getValue(self, bot):
+        return bot.getLag()
+
+    def render_data(self, context, bot):
+        lag = bot.getLag()
+        if lag is None:
+            return Template.error["unknown"]
+        else:
+            return "%.2f s" % lag
+
+
 class BotsSection(Template.Section):
     """A section holding a table listing all bots"""
     title = 'bots'
@@ -125,6 +139,7 @@ class BotsSection(Template.Section):
             Nouvelle.AttributeColumn('nickname', 'nickname'),
             ListAttributeColumn('channels', 'channels'),
             ListAttributeColumn('requested', 'requestedChannels'),
+            LagColumn(),
             BotStatusColumn(botNet),
             ]
 
