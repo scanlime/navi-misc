@@ -79,6 +79,8 @@ namespace Fyre
 
 			background.DrawRectangle (white, true, 0, 0, size[0] - 1, size[1] - 1);
 			background.DrawRectangle (black, false, 0, 0, size[0] - 1, size[1] - 1);
+
+			// FIXME - we want to draw our pipeline onto this window
 		}
 
 		void DrawArea (Gdk.Rectangle area)
@@ -118,6 +120,8 @@ namespace Fyre
 			if (mouse[0] == mx && mouse[1] == my)
 				return;
 
+			// We want to only redraw what we have to, so take a union of the
+			// old and new mouse boxes, and use that for our redraw area
 			Gdk.Rectangle oldMouse = new Gdk.Rectangle ();
 			Gdk.Rectangle newMouse = new Gdk.Rectangle ();
 			Gdk.Rectangle area;
