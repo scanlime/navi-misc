@@ -15,6 +15,7 @@ examples = [
     'hexdump',
     'adc_cat',
     'mnetsend',
+    'reset',
     ]
 libs = ['usb']
 libHeader = 'include/rcpod.h'
