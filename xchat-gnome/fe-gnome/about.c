@@ -45,7 +45,7 @@ initialize_about_dialog ()
 	gui.about = GNOME_ABOUT (gnome_about_new(
 		"X-Chat GNOME",
 		"0.2pre",
-		"Copyright (c) 2004",
+		"Copyright © 2004",
 		"It has been well observed that a trombone\nis not a suitable instrument for a gentleman",
 		authors,
 		documentors,
