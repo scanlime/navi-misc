@@ -52,7 +52,11 @@ if have_wasabi_hardware:
 # Our remote has a pretty high repeat rate, make these more sensitive
 EVENTS['global']['VOL+'] = Event('MIXER_VOLUP', arg=2)
 EVENTS['global']['VOL-'] = Event('MIXER_VOLDOWN', arg=2)
-
+EVENTS['video']['REW']   = Event('SEEK', arg=-1)
+EVENTS['video']['FFWD']  = Event('SEEK', arg=1)
+EVENTS['video']['LEFT']  = Event('SEEK', arg=-15)
+EVENTS['video']['RIGHT'] = Event('SEEK', arg=15)
+	
 # Make freevo knowful of Navi
 common_items = [
     ('Navi', '/navi'),
