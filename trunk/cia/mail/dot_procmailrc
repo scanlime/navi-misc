@@ -43,8 +43,9 @@ $CIADIR/mail.log
 | $CIADIR/mail/filter_xfree86.py
 
 
-###### Pass on other messages to the server
+###### Find messages that the server can probably handle, and pass them on via XML-RPC
 
 :0
+* ^Subject: +(Announce|Deliver)
 | $CIADIR/mail/incoming.py
 
