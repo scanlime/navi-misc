@@ -338,6 +338,12 @@ static void on_anim_play_toggled(GtkWidget *widget, gpointer user_data) {
   else {
     self->playing_animation = FALSE;
   }
+
+  /* It's a bad thing for the user to be playing with the curve while animation is playing.
+   * More specifically, it's bad for us to change the contents of the curve while
+   * the user is dragging a control point.
+   */
+  gtk_widget_set_sensitive(GTK_WIDGET(self->anim_curve), !self->playing_animation);
 }
 
 static void explorer_update_animation_length(Explorer *self) {

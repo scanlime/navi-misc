@@ -189,8 +189,15 @@ curve_editor_draw (CurveEditor *c, gint width, gint height)
     curve_editor_interpolate (c, width, height);
 
   state = GTK_STATE_NORMAL;
-  if (!GTK_WIDGET_IS_SENSITIVE (GTK_WIDGET (c)))
+  if (!GTK_WIDGET_IS_SENSITIVE (GTK_WIDGET (c))) {
     state = GTK_STATE_INSENSITIVE;
+
+    /* Release any grabbed point if we're insensitive.
+     * This is important if we become insensitive while the
+     * user is dragging.
+     */
+    c->grab_point = -1;
+  }
 
   style = GTK_WIDGET (c)->style;
 
