@@ -26,8 +26,6 @@
 
 G_BEGIN_DECLS
 
-
-
 #define E_TYPE_CAL_BACKEND_WEATHER            (e_cal_backend_weather_get_type ())
 #define E_CAL_BACKEND_WEATHER(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), E_TYPE_CAL_BACKEND_WEATHER, ECalBackendWeather))
 #define E_CAL_BACKEND_WEATHER_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), E_TYPE_CAL_BACKEND_WEATHER, ECalBackendWeatherClass))
@@ -51,8 +49,6 @@ struct _ECalBackendWeatherClass {
 };
 
 GType	e_cal_backend_weather_get_type (void);
-
-
 
 G_END_DECLS
 
