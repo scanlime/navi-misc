@@ -742,9 +742,12 @@ e_cal_backend_weather_internal_get_default_timezone (ECalBackend *backend)
 static icaltimezone *
 e_cal_backend_weather_internal_get_timezone (ECalBackend *backend, const char *tzid)
 {
-	ECalBackendWeather *cbw = E_CAL_BACKEND_WEATHER (backend);
-
-	return cbw->priv->default_zone;
+	icaltimezone *zone;
+	if (!strcmp (tzid, "UTC"))
+		zone = icaltimezone_get_utc_timezone ();
+	else
+		zone = icaltimezone_get_builtin_timezone_from_tzid (tzid);
+	return zone;
 }
 
 static void
