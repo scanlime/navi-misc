@@ -28,16 +28,20 @@ __module_description__ = 'Collect URLs said and display them in a separate windo
 def grabURL( word, word_eol, user_data ):
     ''' Check a message for a URL. '''
     nick = word[0]
-    start = string.find( word[1], 'http' )
-    if start != -1:
-        end = string.find( word[1][start:], ' ' )
-        url = word[1][start:end + 1]
-
-        print '%s said %s' % (nick, url)
-
+    words = word[1].split()
+    for x in words:
+        if string.find( x, 'http' ) != -1:
+            url = x
+            print '%s said %s' % (nick, url)
+            break
     return xchat.EAT_NONE
 
+def unload( user_data ):
+    ''' Destroy the window and stuff before we go away. '''
+    print 'URL Scraper unloaded.'
+
 xchat.hook_print( 'Channel Message', grabURL )
+xchat.hook_unload( unload )
 
 print 'URL Scraper loaded.'
 ### The End ###
