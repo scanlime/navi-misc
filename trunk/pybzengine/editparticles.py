@@ -15,13 +15,12 @@ viewport.setCaption("Particle System Test")
 
 viewport.mode = Viewport.GL.ClearedMode(clearColor=(0.2, 0.2, 0.2, 1))
 
-view.camera.position = (0,0,6)
+view.camera.position = (0,0,0)
 view.camera.distance = 20
 view.camera.jump()
 
 sky = Environment.Sky()
 view.scene.add(sky)
-view.scene.add(Drawable.Ground(400))
 
 try:
     # Load an existing system if we can
