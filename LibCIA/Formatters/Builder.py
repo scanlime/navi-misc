@@ -23,9 +23,10 @@ from some automated build or test process.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from LibCIA import Message
+from LibCIA import Message, XML
+import Nouvelle
 
-__all__ = ['BuilderToPlaintext', 'BuilderToIRC']
+__all__ = ['BuilderToPlaintext', 'BuilderToIRC', 'BuilderToXHTML']
 
 
 class BuilderFormatter(Message.Formatter):
@@ -81,6 +82,28 @@ class BuilderToPlaintext(BuilderFormatter):
 
     def format_package(self, package):
         return "%s (%s)" % (package.getAttributeNS(None, 'name'), package.getAttributeNS(None, 'arch'))
+
+
+class BuilderToXHTML(BuilderFormatter):
+    """Converts builder messages to plain text"""
+    medium = 'xhtml'
+
+    def format_package(self, package):
+        return "%s (%s)" % (package.getAttributeNS(None, 'name'), package.getAttributeNS(None, 'arch'))
+
+    def joinMessage(self, message, packages):
+        content = []
+
+        branch = XML.digValue(message.xml, str, "message", "source", "branch")
+        if branch:
+            content.append(Nouvelle.tag('strong')[ self.format_branch(branch.strip()) ])
+
+        for package in packages:
+            if content:
+                content.append(Nouvelle.tag('br'))
+            content.append(package)
+
+        return content
 
 
 class BuilderToIRC(BuilderFormatter):
