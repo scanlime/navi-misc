@@ -15,8 +15,9 @@
 #define _TEST_WORLD_H_
 
 #include "gameloop.h"
+#include "baseObject.h"
 
-class CTestWorld
+class CTestWorld : public CBaseObject
 {
 	public:
 		CTestWorld();
@@ -28,10 +29,14 @@ class CTestWorld
 		void Load ( bool draw );		
 		bool Think ( void );
 
+		// functions for the world drawable to call
+		const char* GetValueS ( const char *item );
+
 		// other stuff here for all the other world things that we need to do.
 
 	protected:
 		CBaseGameLoop * gameLoop;
+		int							worldDrawable;
 };
 
 #endif //_TEST_WORLD_H_

@@ -51,6 +51,11 @@ void CTestWorld::Load ( bool draw )
 	mGroundNode->attachObject(mGroundEntity);
 }
 
+const char* CTestWorld::GetValueS ( const char *item )
+{
+	return NULL;
+}
+
 bool CTestWorld::Think ( void )
 {
 	return false;

@@ -1,4 +1,4 @@
-/* 
+/* 3dScreamers
 * Copyright (c) 2002 - 2003 Jeffrey Myers
 *
 * This package is free software;  you can redistribute it and/or
@@ -9,30 +9,22 @@
 * IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED
 * WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 */
-#include "testGame.h"
+// worldDrawables.h
 
-// the drawables for this game
-//#include "worldDrawables"
+#ifndef _WORLD_DRAWABLES_H_
+#define _WORLD_DRAWABLES_H_
 
-void CTestGame::Init ( void )
+#include "baseObject.h"
+
+class CSkyObject : public CBaseDrawable
 {
-	// do one time init stuff here
-	world.Set(gameLoop);
-}
+public:
+	CSkyObject();
+	virtual ~CSkyObject();
+	virtual void Init ( void ) {return;}
+	virtual void Think ( void ){return;}
 
-void CTestGame::Attach ( void )
-{
-	world.Load(true);
-}
+protected:
+};
 
-void CTestGame::Release ( void )
-{
-}
-
-bool CTestGame::Think ( void )
-{
-	if (gameLoop->GetInput().KeyDown(KEY_ESCAPE))
-		return true;
-	// do some game like things
-	return false;
-}
+#endif //_WORLD_DRAWABLES_H_

@@ -53,6 +53,7 @@ int CDrawManager::New ( const char* name, CBaseObject* parent )
 
 	object->SetName(name);
 	object->Set(gameLoop);
+	object->Init();
 	drawables[lastID] = object;
 
 	return lastID;
@@ -82,5 +83,16 @@ void CDrawManager::ClearAll ( void )
 	}
 	drawables.clear();
 	factories.clear();
+}
+
+void CDrawManager::ThinkAll ( void )
+{
+	drawableMap::iterator itr = drawables.begin();
+
+	while (itr != drawables.end())
+	{
+		itr->second->Think();
+		itr++;
+	}
 }
 

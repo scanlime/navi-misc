@@ -23,7 +23,7 @@
 #include <map>
 #include <string>
 #include <stdio.h>
-
+#include "drawManager.h"
 
 void OSSleep ( float time )
 {
@@ -53,6 +53,7 @@ CBaseGameLoop::CBaseGameLoop()
 {
   mRoot = 0;
 	showDebug = false;
+	drawManager = NULL;
 }
 
 CBaseGameLoop::~CBaseGameLoop()
@@ -106,13 +107,13 @@ bool CBaseGameLoop::Run ( void )
 
 	input.Init(GetRenderWindow());
   timer.Init();
+	
+	// set up the draw manager
+	drawManager = new CDrawManager();
+	drawManager->Init(this);
 
 	// load the debug overlay
 	showDebug = args.GetDataB("showDebug");
-
-#ifdef _SHOW_FRAME_OVERLAY
-	showDebug = true;
-#endif
 	showDebugOverlay(showDebug);
 	return false;
 
