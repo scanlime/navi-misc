@@ -96,6 +96,7 @@ class Request(server.Request):
             "pompos",
             "openbot",
             "npbot",
+            "willow",   # "Willow Internet Crawler by Twotrees V2.1"
             ]
 
 
