@@ -22,37 +22,71 @@
 #include "preferences_colors_page.h"
 #include "palette.h"
 
+static void colors_changed(GtkComboBox *combo_box, gpointer data) {
+	GtkWidget **color_buttons = (GtkWidget **) data;
+	int i;
+
+	if(gtk_combo_box_get_active(combo_box) == 2) {
+		for(i = 0; i < 4; i++)
+			gtk_widget_set_sensitive(color_buttons[i], TRUE);
+	} else {
+		for(i = 0; i < 4; i++)
+			gtk_widget_set_sensitive(color_buttons[i], FALSE);
+	}
+}
+
+static void palette_changed(GtkComboBox *combo_box, gpointer data) {
+	GtkWidget **palette_buttons = (GtkWidget **) data;
+	int i;
+
+	if(gtk_combo_box_get_active(combo_box) == 1) {
+		for(i = 0; i < 16; i++)
+			gtk_widget_set_sensitive(palette_buttons[i], TRUE);
+	} else {
+		for(i = 0; i < 16; i++)
+			gtk_widget_set_sensitive(palette_buttons[i], FALSE);
+	}
+}
+
 void initialize_preferences_colors_page() {
-	GtkWidget *table, *button, *widget;
+	GtkWidget *table, *widget;
 	GtkWidget *hbox, *color_schemes, *palette_schemes;
 	GtkSizeGroup *group;
+	static GtkWidget *palette_buttons[16];
+	static GtkWidget *color_buttons[4];
 	int i, j;
 
 	table = glade_xml_get_widget(gui.xml, "palette table");
 	for(i = 0; i < 8; i++) {
 		for(j = 0; j < 2; j++) {
-			button = gtk_color_button_new();
-			gtk_widget_show(button);
-			gtk_color_button_set_color(GTK_COLOR_BUTTON(button), &colors[j * 8 + i]);
-			gtk_table_attach_defaults(GTK_TABLE(table), button, i, i+1, j, j+1);
+			palette_buttons[j * 8 + i] = gtk_color_button_new();
+			gtk_widget_set_sensitive(palette_buttons[j * 8 + i], FALSE);
+			gtk_widget_show(palette_buttons[j * 8 + i]);
+			gtk_color_button_set_color(GTK_COLOR_BUTTON(palette_buttons[j * 8 + i]), &colors[j * 8 + i]);
+			gtk_table_attach_defaults(GTK_TABLE(table), palette_buttons[j * 8 + i], i, i+1, j, j+1);
 		}
 	}
+	color_buttons[0] = gtk_color_button_new();
+	color_buttons[1] = gtk_color_button_new();
+	color_buttons[2] = gtk_color_button_new();
+	color_buttons[3] = gtk_color_button_new();
+	gtk_color_button_set_color(GTK_COLOR_BUTTON(color_buttons[0]), &colors[18]);
+	gtk_color_button_set_color(GTK_COLOR_BUTTON(color_buttons[1]), &colors[19]);
+	gtk_color_button_set_color(GTK_COLOR_BUTTON(color_buttons[2]), &colors[17]);
+	gtk_color_button_set_color(GTK_COLOR_BUTTON(color_buttons[3]), &colors[16]);
+	gtk_widget_set_sensitive(color_buttons[0], FALSE);
+	gtk_widget_set_sensitive(color_buttons[1], FALSE);
+	gtk_widget_set_sensitive(color_buttons[2], FALSE);
+	gtk_widget_set_sensitive(color_buttons[3], FALSE);
+
 	hbox = glade_xml_get_widget(gui.xml, "text color hbox");
-	button = gtk_color_button_new();
-	gtk_color_button_set_color(GTK_COLOR_BUTTON(button), &colors[18]);
-	gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(hbox), color_buttons[0], FALSE, TRUE, 0);
 	hbox = glade_xml_get_widget(gui.xml, "background color hbox");
-	button = gtk_color_button_new();
-	gtk_color_button_set_color(GTK_COLOR_BUTTON(button), &colors[19]);
-	gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(hbox), color_buttons[1], FALSE, TRUE, 0);
 	hbox = glade_xml_get_widget(gui.xml, "foreground mark hbox");
-	button = gtk_color_button_new();
-	gtk_color_button_set_color(GTK_COLOR_BUTTON(button), &colors[17]);
-	gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(hbox), color_buttons[2], FALSE, TRUE, 0);
 	hbox = glade_xml_get_widget(gui.xml, "background mark hbox");
-	button = gtk_color_button_new();
-	gtk_color_button_set_color(GTK_COLOR_BUTTON(button), &colors[16]);
-	gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(hbox), color_buttons[3], FALSE, TRUE, 0);
 
 	group = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
 	widget = glade_xml_get_widget(gui.xml, "color label 1");
@@ -76,10 +110,12 @@ void initialize_preferences_colors_page() {
 	gtk_combo_box_append_text(GTK_COMBO_BOX(color_schemes), "Black on White");
 	gtk_combo_box_append_text(GTK_COMBO_BOX(color_schemes), "Custom");
 	gtk_combo_box_set_active(GTK_COMBO_BOX(color_schemes), 0);
+	g_signal_connect(G_OBJECT(color_schemes), "changed", G_CALLBACK(colors_changed), (gpointer) color_buttons);
 	palette_schemes = gtk_combo_box_new_text();
 	gtk_combo_box_append_text(GTK_COMBO_BOX(palette_schemes), "X-Chat Default");
 	gtk_combo_box_append_text(GTK_COMBO_BOX(palette_schemes), "Custom");
 	gtk_combo_box_set_active(GTK_COMBO_BOX(palette_schemes), 0);
+	g_signal_connect(G_OBJECT(palette_schemes), "changed", G_CALLBACK(palette_changed), (gpointer) palette_buttons);
 
 	hbox = glade_xml_get_widget(gui.xml, "foreground background hbox");
 	gtk_box_pack_start(GTK_BOX(hbox), color_schemes, FALSE, TRUE, 0);
