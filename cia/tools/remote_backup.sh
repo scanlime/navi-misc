@@ -4,7 +4,7 @@
 # an offsite copy of the resulting dump file.
 #
 
-CIA_HOST=cia.navi.cx
+CIA_HOST=beton.hyperreal.info
 REMOTE_BACKUPDIR=backups
 LOCAL_BACKUPDIR=~/backups
 REMOTE_BACKUPSCRIPT=cia/tools/backup.sh
