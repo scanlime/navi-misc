@@ -39,4 +39,21 @@ class IRCProjectName(Message.Formatter):
         else:
             return input
 
+
+class IRCFormat(Message.Formatter):
+    """Apply arbitrary IRC formatting to the input. A color name or other
+       formatting code may be supplied inside this formatter's XML tag.
+       """
+    medium = 'irc'
+    formattingCode = 'normal'
+
+    def format(self, message, input):
+        if input:
+            from LibCIA.IRC.Formatting import format
+            return format(input, self.formattingCode)
+
+    def loadParametersFrom(self, xml):
+        self.formattingCode = str(xml)
+
+
 ### The End ###
