@@ -94,12 +94,12 @@ events_backend_factory_get_type (GTypeModule *module)
 	return type;
 }
 
-static GType weather_type;
+static GType weather_type[1];
 
 void
 eds_module_initialize (GTypeModule *module)
 {
-	weather_type = events_backend_factory_get_type (module);
+	weather_type[0] = events_backend_factory_get_type (module);
 }
 
 void
@@ -110,6 +110,6 @@ eds_module_shutdown (void)
 void
 eds_module_list_types (const GType **types, int *num_types)
 {
-	*types = &weather_type;
+	*types = weather_type;
 	*num_types = 1;
 }
