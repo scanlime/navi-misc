@@ -111,7 +111,7 @@ void CGroundObject::Init ( void )
 			for (int i = 0; i < itr->count; i++)
 			{
 				char name[512];
-				sprintf(name,"tuft:tuft%d-%d",baseName,i);
+				sprintf(name,"flair:flair%d-%d",baseName,i);
 
 				float pos[3];
 				pos[0] = (((float)rand()/(float)RAND_MAX)*xyRange*2)-xyRange + itr->center[0];
