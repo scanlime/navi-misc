@@ -39,6 +39,8 @@ typedef struct {
 	GtkTreeModel *userlist_model;
 	char *topic;
 	char *entry;
+	char *lag_text;
+	gdouble lag_value;
 } session_gui;
 
 #endif

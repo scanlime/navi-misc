@@ -886,7 +886,7 @@
   <child internal-child="appbar">
     <widget class="GnomeAppBar" id="appbar1">
       <property name="visible">True</property>
-      <property name="has_progress">True</property>
+      <property name="has_progress">False</property>
       <property name="has_status">True</property>
     </widget>
     <packing>
