@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<character layout="layout/sheet.xml">
+<character layout="/home/evan/projects/navi-misc/palantir/CharacterSheet/layout/sheet.xml">
 	<level>18</level>
 	<name>Silme</name>
 	<race>Elf</race>

@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<character layout="layout/sheet2.xml">
+<character layout="/home/evan/projects/navi-misc/palantir/CharacterSheet/layout/sheet2.xml">
 	<level>12</level>
 	<exp>10</exp>
 	<name>Bob Dole!</name>
