@@ -35,7 +35,7 @@ class Reader:
             TwoDPoint = float + float
             ThreeDPoint = float + float + float
             globalReference = Word(alphanums + '/:*_?')
-            localReference = Word(alphanums)
+            localReference = Word(alphanums + '/')
             flagShortName = Word(alphas, min=1, max=2)
 
             rgbColor = Group(float + float + float) | Word(alphanums)
@@ -68,7 +68,7 @@ class Reader:
               | Group(shift + ThreeDPoint)
               | Group(scale + ThreeDPoint)
               | Group(shear + ThreeDPoint)
-              | Group(spin + ThreeDPoint)
+              | Group(spin + float + ThreeDPoint)
               | Group(xform + globalReference)
               | objectProperty
               )
@@ -118,10 +118,10 @@ class Reader:
             world = Group(CaselessLiteral('world') + OneOrMore(worldProperty) + end)
 
             teleporterProperty = (
-                CaselessLiteral('border') + float
+                Group(CaselessLiteral('border') + float)
               | obstacleProperty
               )
-            teleporter = Group(CaselessLiteral('teleporter') + OneOrMore(teleporterProperty) + end)
+            teleporter = Group(CaselessLiteral('teleporter') + Optional(localReference) + OneOrMore(teleporterProperty) + end)
 
             teleporterSide = (
                 CaselessLiteral('f')
@@ -163,7 +163,7 @@ class Reader:
               | CaselessLiteral('resetmat')
               | objectProperty
               )
-            material = Group(CaselessLiteral('material') + OneOrMore(materialProperty) + end)
+            material = Group(CaselessLiteral('material') + ZeroOrMore(materialProperty) + end)
 
             curveProperty = (
                 Group(CaselessLiteral('divisions') + int)
