@@ -164,6 +164,8 @@ def main(firstRev, lastRev, outFileName):
             speed, memory = tree.benchmark()
             outfile.write("%r, %r, %r\n" % (rev, speed, memory))
             outfile.flush()
+        except:
+            print sys.exc_info()
         finally:
             ws.clear()
             try:
