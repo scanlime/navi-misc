@@ -284,7 +284,7 @@ pyramid_init_position_params (GObjectClass *object_class)
   spec = g_param_spec_double      ("rotation",
                                    "Rotation",
 				   "Rotation of the pyramid around it's origin",
-				   0, 360, 0,
+				   -360, 360, 0,
 				   G_PARAM_READWRITE | G_PARAM_CONSTRUCT |
 				   G_PARAM_LAX_VALIDATION | PARAM_IN_GUI);
   param_spec_set_group            (spec, current_group);

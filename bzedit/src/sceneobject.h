@@ -43,6 +43,8 @@ struct _SceneObject
   gboolean selected;
   GtkTreeIter iter;
   SceneObject *parent;
+
+  gchar *name;
 };
 
 struct _SceneObjectClass

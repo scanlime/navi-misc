@@ -63,6 +63,12 @@ scene_class_init (SceneClass *klass)
 }
 
 static void
+tree_store_reordered (GtkTreeModel *treemodel, GtkTreePath *arg1, GtkTreeIter *arg2, gpointer arg3, Scene *scene)
+{
+  g_print ("reordered!\n");
+}
+
+static void
 scene_init (Scene *self)
 {
   GList *render_pass_types, *type;
@@ -82,6 +88,7 @@ scene_init (Scene *self)
 
   /* ----------------------------------------- object name -- object icon ---- scene pointer - object pointer */
   self->element_store = gtk_tree_store_new (4, G_TYPE_STRING, GDK_TYPE_PIXBUF, G_TYPE_POINTER, G_TYPE_POINTER);
+  g_signal_connect (G_OBJECT (self->element_store), "rows-reordered", G_CALLBACK (tree_store_reordered), self);
 }
 
 Scene*

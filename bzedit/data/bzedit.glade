@@ -552,7 +552,15 @@
 		      <property name="shadow_type">GTK_SHADOW_NONE</property>
 
 		      <child>
-			<placeholder/>
+			<widget class="GtkHBox" id="pe filler">
+			  <property name="visible">True</property>
+			  <property name="homogeneous">False</property>
+			  <property name="spacing">0</property>
+
+			  <child>
+			    <placeholder/>
+			  </child>
+			</widget>
 		      </child>
 		    </widget>
 		  </child>

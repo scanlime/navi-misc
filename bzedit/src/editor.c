@@ -81,16 +81,15 @@ static void object_selection_changed (GtkTreeSelection *selection, gpointer data
   }
 }
 
-static void
+void
 editor_selected (SceneObject *object, Editor *editor)
 {
   GtkWidget *viewport = glade_xml_get_widget (editor->xml, "property editor viewport");
 
   if (editor->selected)
-  {
     scene_object_deselect (editor->selected);
-    gtk_widget_destroy (editor->pe);
-  }
+
+  gtk_widget_destroy (editor->pe);
 
   editor->pe = parameter_editor_new (PARAMETER_HOLDER (object));
   gtk_container_add (GTK_CONTAINER (viewport), editor->pe);
@@ -165,10 +164,22 @@ import_activate (GtkMenuItem *item, Editor *editor)
   if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT)
   {
     gchar *filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
-    import_bz (filename, editor->scene);
+    import_bz (filename, editor);
     g_free (filename);
   }
   gtk_widget_destroy (dialog);
+}
+
+static void
+name_edited (GtkCellRendererText *cellrenderertext, gchar *cpath, gchar *newname, Editor *editor)
+{
+  GtkTreePath *path;
+  GtkTreeIter iter;
+  GtkTreeStore *store = editor->scene->element_store;
+
+  path = gtk_tree_path_new_from_string (cpath);
+  gtk_tree_model_get_iter (GTK_TREE_MODEL (store), &iter, path);
+  gtk_tree_store_set (store, &iter, 0, newname, -1);
 }
 
 static void
@@ -230,12 +241,13 @@ editor_init (Editor *editor)
 
   icon_renderer = gtk_cell_renderer_pixbuf_new();
   text_renderer = gtk_cell_renderer_text_new();
+  g_signal_connect (G_OBJECT (text_renderer), "edited", G_CALLBACK (name_edited), (gpointer) editor);
   g_object_set (G_OBJECT (text_renderer), "editable", TRUE, NULL);
   column = gtk_tree_view_column_new();
   gtk_tree_view_column_set_spacing (column, 4);
   gtk_tree_view_column_pack_start (column, icon_renderer, FALSE);
   gtk_tree_view_column_set_attributes (column, icon_renderer, "pixbuf", 1, NULL);
-  gtk_tree_view_column_pack_start (column, text_renderer, TRUE);
+  gtk_tree_view_column_pack_end (column, text_renderer, FALSE);
   gtk_tree_view_column_set_attributes (column, text_renderer, "text", 0, NULL);
   gtk_tree_view_append_column (editor->element_list, column);
 
@@ -243,6 +255,8 @@ editor_init (Editor *editor)
   editor->editor_status_context = gtk_statusbar_get_context_id (editor->statusbar, "Editor status");
 
   editor->selected = NULL;
+
+  editor->pe = glade_xml_get_widget (editor->xml, "pe filler");
 
   types = find_type_leaves (PARAMETER_HOLDER_TYPE);
   addmenu = GTK_MENU_ITEM (glade_xml_get_widget (editor->xml, "addmenu"));
