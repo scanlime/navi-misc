@@ -861,6 +861,7 @@ static int rwand_ioctl(struct inode *inode, struct file *file, unsigned int cmd,
 			retval = -EFAULT;
 			break;
 		}
+		dev->settings_dirty = 1;
 		break;
 
 	default:
