@@ -26,5 +26,6 @@ import Stats
 import RulesetBrowser
 import BotStatus
 import Server
+import Doc
 
 ### The End ###
