@@ -10,7 +10,7 @@ import java.io.*;
  */
 public class imain
 {
-	private ServerSocet server = null;
+	private ServerSocket server = null;
 	
 	/**
 	 * This is the main static class thingy that gets the server going
@@ -22,6 +22,7 @@ public class imain
 	{
 		System.out.println("Hello World");
 		imain listener = new imain(8080);
+		listener.handle();
 	}
 	
 	/**
@@ -52,11 +53,84 @@ public class imain
 	 */
 	public void handle()
 	{
-		while(true)
+		Socket link;
+		BufferedReader in;
+		OutputStreamWriter out;
+		try
 		{
-			Socket connection = server.accept();
-			in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-			out = new OutputStreamWriter(connection.getOutputStream());
+			while(true)
+			{
+				link = server.accept();
+				in = new BufferedReader(new InputStreamReader(link.getInputStream()));
+				out = new OutputStreamWriter(link.getOutputStream());
+			
+				switch(clitype(read(link,in)))
+				{
+				case -1:
+					closeConnection(link);
+					break;
+				case 1:
+					System.out.println(read(link,in));
+					System.out.println(read(link,in));
+					closeConnection(link);
+					break;
+				}
+			}
 		}
+		catch(Exception e){}
+	}
+	
+	/**
+	 * This method converts a string from the socket to an integer representing
+	 * the type of client it is.
+	 * @param it The string from the socket
+	 * @author Brandon Smith
+	 * @version 2.0
+	 * @return The numeric code for the client
+	 */
+	public int clitype(String it)
+	{
+		if(it == null) return -1;
+		if(it.compareTo("jsub") == 0) return 1;
+		return -1;
+	}
+	
+	/* Network glue that I can't seem to find a better home for */
+	
+	/**
+	 * This method reads a line from the socket and returns it.
+	 * @param link The socket so it can be closed in the event of an error
+	 * @param in The buffered reader that describes the socket
+	 * @author Brandon Smith
+	 * @version 2.0
+	 * @return The string from the socket
+	 */
+	public String read(Socket link, BufferedReader in)
+	{
+		String toreturn = null;
+		try
+		{
+			toreturn = in.readLine();
+		}
+		catch(IOException exception)
+		{
+			closeConnection(link);
+		}
+		return toreturn;
+	}
+	
+	/**
+	 * This method closes the connection in the event of a rogue client
+	 * @param link The socket so the method knows what to close
+	 * @author Brandon Smith
+	 * @version 2.0
+	 */
+	public void closeConnection(Socket link)
+	{
+		try
+		{
+			link.close();
+		}
+		catch(IOException exception){}
 	}
 }
