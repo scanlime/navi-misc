@@ -8,6 +8,18 @@ mmx_cmod_S = 				\
 	mmx_cmod.S
 endif
 
+schemadir	= $(GCONF_SCHEMA_FILE_DIR)
+schema_DATA	= apps_xchat.schemas.in.in
+
+# @INTLTOOL_SCHEMAS_RULE@
+
+install-data-local:
+	if test -z "$(DESTDIR)" ; then												\
+		for p in $(schema_DATA) ; do											\
+			$(GCONFTOOL) --install-schema-file=$(srcdir)/$$p;	\
+		done														\
+	fi
+
 EXTRA_DIST =				\
 	about.h				\
 	about.c				\
