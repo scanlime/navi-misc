@@ -4,23 +4,29 @@
 # clock on RB0, and data+pullup on RB1.
 #
 
-import pyrcpod
+import time
+import pyrcpod.i2c.maxim
 rcpod = pyrcpod.devices[0].open()
-io = pyrcpod.I2CDevice(rcpod.rb0, rcpod.rb1, 0x42)
+bus = pyrcpod.i2c.Bus(rcpod.rb7, rcpod.rb6)
+io = pyrcpod.i2c.maxim.MAX7300(bus, 0)
 
-# Out of shutdown
-io.write([0x04, 0x01])
+io.resume()
 
 # Start out with the first 8 outputs high
-io.write([0x4C, 0xFF])
+io.busWrite([0x4C, 0xFF])
 
 # Set those 8 ports as outputs
-io.write([0x0B, 0x55])
-io.write([0x0C, 0x55])
+io.busWrite([0x0B, 0x55])
+io.busWrite([0x0C, 0x55])
+io.busWrite([0x0D, 0x55])
+io.busWrite([0x0E, 0x55])
 
-pattern = 0xFE
+pattern = range(12, 22)
+
 while 1:
-    pattern = ((pattern >> 7) | (pattern << 1)) & 0xFF
-    io.write([0x4C, pattern])
-
-
+    for port in pattern:
+        io.pinLow(port)
+        time.sleep(0.05)
+    for port in pattern:
+        io.pinHigh(port)
+        time.sleep(0.05)
