@@ -70,14 +70,14 @@ scan_rate	res	2	; 16-bit big-endian TMR1 adjustment used to control scanning spe
 
 pwm_cycles	res	1	; Number of scan cycles used for PWM, sets our PWM resolution
 
-pwm_table	res	.16	; Table mapping LED brightness codes to PWM values
+pwm_table	res	0x10	; Table mapping LED brightness codes to PWM values
 
-pwm_row		res	.16	; PWM values for the current LED row
+pwm_row		res	0x10	; PWM values for the current LED row
 
 unbanked udata_shr
 
 display_flags	res	1
-pwm_iter	res	1	; Iterates from pwm_cycles down to 1
+pwm_iter	res	1	; Iterates from 0 up to pwm_cycles, inclusive
 
 front_fsr	 res	1	; FSR pointing to the current front buffer
 front_status	 res	1	; STATUS pointing to the current front buffer
@@ -101,6 +101,11 @@ prog3	code
 
 display_init
 	fpset	scan_state, scanner_thread
+
+	;; Clear all video buffers
+	bzero	vram_buffer_1, LEDBOARD_VRAM_SIZE
+	bzero	vram_buffer_2, LEDBOARD_VRAM_SIZE
+	bzero	pwm_table, 0x10
 
 	bankisel vram_buffer_1	; Start the front buffer out at vram_buffer_1
 	movf	STATUS, w
@@ -216,8 +221,8 @@ prepare_pwm_row macro address, column_number, high_nybble
 	;; for its column driver into 'temp'.
 	;; Everything in here stays in bank0.
 shift_pwm_column macro column_number
-	movf	pwm_iter, w
-	subwf	pwm_row + column_number, w
+	movf	pwm_row + column_number, w
+	subwf	pwm_iter, w
 	rrf	temp, f
 	endm
 
@@ -251,6 +256,7 @@ generate_row_pwm
 	;; Macro to scan one row of our display
 scan_row macro prev_port, prev_bit, current_port, current_bit, address
 	local	pwm_cycle_loop
+	local	pwm_row_done
 
 	;; Prepare the pwm_row buffer for the current row.
 	;; We do this before changing row drivers, to reduce the time
@@ -289,17 +295,23 @@ scan_row macro prev_port, prev_bit, current_port, current_bit, address
 
 	;; Loop over each PWM cycle...
 	banksel	pwm_iter
-	movf	pwm_cycles, w
-	movwf	pwm_iter
+	clrf	pwm_iter
 pwm_cycle_loop
 
 	pscall	generate_row_pwm
+	fpsleep	scan_state
 
-	fpsleep	scan_state	; Sleep, then do the next PWM cycle
-	banksel	pwm_iter
-	pagesel	pwm_cycle_loop
-	decfsz	pwm_iter, f
-	goto	pwm_cycle_loop
+	banksel	pwm_iter	; Are we there yet?
+	movf	pwm_cycles, w
+	xorwf	pwm_iter, w
+	pagesel	pwm_row_done
+	btfsc	STATUS, Z
+	goto	pwm_row_done
+
+	incf	pwm_iter, f
+	psgoto	pwm_cycle_loop
+
+pwm_row_done
 	endm
 
 
