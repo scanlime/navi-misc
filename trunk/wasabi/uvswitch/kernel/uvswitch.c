@@ -52,8 +52,17 @@ MODULE_DEVICE_TABLE(usb, uvswitch_table);
 /* We need to be able to receive ADC samples, one for each video channel */
 #define ADC_BUFFER_SIZE  8
 
+/* Status of all the device's switches */
+struct uvswitch_status {
+	unsigned char		video_channel;
+	unsigned char		white_audio_channel;
+	unsigned char		red_audio_channel;
+	unsigned char		bypass_switch;
+};
+
 /* Structure to hold all of our device specific stuff */
 struct usb_uvswitch {
+	struct uvswitch_status	status;			/* Status of the device's switches */
 	struct usb_device *	udev;			/* save off the usb device pointer */
 	struct usb_interface *	interface;		/* the interface for this device */
 	devfs_handle_t		devfs;			/* main devfs device node */
@@ -61,6 +70,7 @@ struct usb_uvswitch {
 	int			open_count;		/* number of times this port has been opened */
 	struct urb		adc_urb;		/* URB for the video detector A/D converters */
        	unsigned char		adc_buffer[ADC_BUFFER_SIZE]; /* Buffer used by adc_urb */
+	unsigned char           adc_values[ADC_BUFFER_SIZE]; /* ADC readings, copied from adc_buffer after reception */
 	struct semaphore	sem;			/* locks this structure */
 };
 
@@ -84,11 +94,7 @@ static DECLARE_MUTEX(minor_table_mutex);
 /************************************************** Function Prototypes *******/
 /******************************************************************************/
 
-static int uvswitch_switch(struct usb_uvswitch *dev,
-			   unsigned char video,
-			   unsigned char w_audio,
-			   unsigned char r_audio,
-			   unsigned char bypass);
+static int uvswitch_updateStatus(struct usb_uvswitch *dev);
 
 static int uvswitch_open(struct inode *inode, struct file *file);
 static int uvswitch_release(struct inode *inode, struct file *file);
@@ -106,16 +112,15 @@ static void __exit usb_uvswitch_exit(void);
 /************************************************** Device Communications *****/
 /******************************************************************************/
 
-static int uvswitch_switch(struct usb_uvswitch *dev,
-			   unsigned char video,
-			   unsigned char w_audio,
-			   unsigned char r_audio,
-			   unsigned char bypass)
+/* Update the device's switches from the current stored status */
+static int uvswitch_updateStatus(struct usb_uvswitch *dev)
 {
 	return usb_control_msg(dev->udev, usb_sndctrlpipe(dev->udev, 0),
 			       UVSWITCH_CTRL_SWITCH, 0x40,
-			       video | (((int)bypass)<<8),
-			       r_audio | (((int)w_audio)<<8),
+			       dev->status.video_channel |
+			       (((int)dev->status.bypass_switch)<<8),
+			       dev->status.red_audio_channel |
+			       (((int)dev->status.white_audio_channel)<<8),
 			       NULL, 0, REQUEST_TIMEOUT);
 }
 
@@ -124,10 +129,12 @@ static void uvswitch_adc_irq(struct urb *urb)
 	/* Callback for processing incoming interrupt transfers from the IR receiver */
 	struct usb_uvswitch *dev = (struct usb_uvswitch*)urb->context;
 
-	if (dev && urb->status == 0 && urb->actual_length > 0) {
-		dbg("%d bytes: %d %d %d %d %d %d %d %d", urb->actual_length,
-		    dev->adc_buffer[0], dev->adc_buffer[1], dev->adc_buffer[2], dev->adc_buffer[3],
-		    dev->adc_buffer[4], dev->adc_buffer[5], dev->adc_buffer[6], dev->adc_buffer[7]);
+	if (dev && urb->status == 0 && urb->actual_length == 8) {
+		/* Make our successfully received buffer current */
+		memcpy(dev->adc_values, dev->adc_buffer, ADC_BUFFER_SIZE);
+	}
+	else {
+		dbg("Bad URB status/size: status=%d, length=%d", urb->status, urb->actual_length);
 	}
 }
 
@@ -277,7 +284,10 @@ static ssize_t uvswitch_write(struct file *file, const char *buffer, size_t coun
 	struct usb_uvswitch *dev = (struct usb_uvswitch *)file->private_data;
 	int retval = 0;
 	char kbuffer[256];
-	unsigned char video, w_audio, r_audio, bypass;
+	char *token;
+	char *pkbuf;
+	static char delim[] = " \t";
+	int v;
 
 	/* lock this object */
 	down(&dev->sem);
@@ -297,13 +307,65 @@ static ssize_t uvswitch_write(struct file *file, const char *buffer, size_t coun
 	}
 	kbuffer[count] = 0;
 	retval = count;
+	pkbuf = kbuffer;
 
-	video = simple_strtol(kbuffer, NULL, 10);
-	w_audio = video;
-	r_audio = video;
-	bypass = 0;
+	/* First token - video/audio channels */
+	token = strsep(&pkbuf, delim);
+	if (token) {
+		v = simple_strtol(token, NULL, 10);
+		if (v < 0 || v > 8) {
+			retval = -EINVAL;
+			goto exit;
+		}
+		dev->status.video_channel = v;
+		dev->status.white_audio_channel = v;
+		dev->status.red_audio_channel = v;
+		dbg("Setting video/audio channels to %d", v);
+	}
 
-	uvswitch_switch(dev, video, video, video, 1);
+	/* Second token - bypass enable */
+	token = strsep(&pkbuf, delim);
+	if (token) {
+		v = simple_strtol(token, NULL, 10);
+		if (v < 0 || v > 1) {
+			retval = -EINVAL;
+			goto exit;
+		}
+		dev->status.bypass_switch = v;
+		dbg("Setting bypass switch to %d", v);
+	}
+
+	/* Third token - white/red audio channel */
+	token = strsep(&pkbuf, delim);
+	if (token) {
+		v = simple_strtol(token, NULL, 10);
+		if (v < 0 || v > 8) {
+			retval = -EINVAL;
+			goto exit;
+		}
+		dev->status.white_audio_channel = v;
+		dev->status.red_audio_channel = v;
+		dbg("Setting audio channels to %d", v);
+	}
+
+	/* Fourth token - red audio channel */
+	token = strsep(&pkbuf, delim);
+	if (token) {
+		v = simple_strtol(token, NULL, 10);
+		if (v < 0 || v > 8) {
+			retval = -EINVAL;
+			goto exit;
+		}
+		dev->status.red_audio_channel = v;
+		dbg("Setting red channel to %d", v);
+	}
+
+	retval = uvswitch_updateStatus(dev);
+
+	if (retval == 0) {
+		/* On success indicate that we've written all bytes */
+		retval = count;
+	}
 
 exit:
 	/* unlock the device */
@@ -388,6 +450,11 @@ static void * uvswitch_probe(struct usb_device *udev, unsigned int ifnum, const 
 	dev->udev = udev;
 	dev->interface = interface;
 	dev->minor = minor;
+
+	/* Put all the switches into a known state (we initialized them
+	 * above in the Big Giant Memset)
+	 */
+	uvswitch_updateStatus(dev);
 
 	/* Initialize the devfs node for this device and register it */
 	sprintf(name, UVSWITCH_DEV_NAMEFORMAT, dev->minor);
