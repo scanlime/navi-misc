@@ -24,12 +24,11 @@
 ############# There are some parameters for this script that you can customize:
 
 # Project information
-project_name="YOUR_PROJECT_HERE"
-return_address="YOUR@EMAIL.ADDRESS.HERE"
+project_name="YOUR_PROJECT_NAME_HERE"
+return_address="YOUR_EMAIL_ADDRESS@HERE"
 
 # System
 sendmail_command="/usr/sbin/sendmail -t"
-
 
 ############# Below this line you shouldn't have to change anything
 
@@ -40,18 +39,15 @@ REV="$2"
 # The email address CIA lives at
 cia_address="cia@navi.cx"
 
-# Look up the author, log message, and diff length
-author=`svnlook author -r "$REV" "$REPOS"`
-log=`svnlook log -r "$REV" "$REPOS"`
+author=`svnlook author -r "$REV" "$REPOS" | sed 's/\&/\&amp;/g;s/</\&lt;/g;s/>/\&gt;/g'`
+log=`svnlook log -r "$REV" "$REPOS" | sed 's/\&/\&amp;/g;s/</\&lt;/g;s/>/\&gt;/g'`
 diff_lines=`svnlook diff -r "$REV" "$REPOS" | wc -l`
-
-# format the list of changed files as a list of <file> tags
-for file in `svnlook changed -r "$REV" "$REPOS"`; do
-    files=$files<file>$file</file>
+for file in `svnlook changed -r "$REV" "$REPOS" | cut -c 3- | sed 's/\&/\&amp;/g;s/</\&lt;/g;s/>/\&gt;/g'`; do
+    files="$files<file>$file</file>"
 done
 
 # Send an email with the final XML message
-cat | $sendmail_command <<EOF
+(cat <<EOF
 From: $return_address
 To: $cia_address
 Subject: DeliverXML
@@ -75,5 +71,6 @@ Subject: DeliverXML
     </body>
 </message>
 EOF
+) | $sendmail_command
 
 ### The End ###

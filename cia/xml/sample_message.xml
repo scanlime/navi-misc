@@ -17,7 +17,7 @@
    <body>
        <commit>
 	   <revision>1132</revision>
-           <user>Professor Wigglepuppy</user>
+           <author>Professor Wigglepuppy</author>
 	   <files>
 	       <file>trunk/cia/LibCIA/Message.py</file>
 	       <file>trunk/cia/LibCIA/IRC.py</file>

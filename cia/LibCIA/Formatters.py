@@ -23,14 +23,14 @@ elsewhere, for example in IRC filters.
 #
 
 import Message, XML
-import re
+import re, os
 
 
 class ColortextToIRC(Message.Formatter):
     """Converts messages with colorText content to plain text
        with IRC color tags.
        """
-    detector = '<find path="/message/body/colorText"/>'
+    detector = Message.Filter('<find path="/message/body/colorText"/>')
     medium = 'irc'
     def __init__(self):
         import IRC
@@ -40,13 +40,105 @@ class ColortextToIRC(Message.Formatter):
         return self.formatter.format(message.xml.body.colorText)
 
 
+class CommitFormatter(Message.Formatter):
+    """Base class for formatters that operate on commit messages.
+       Includes a detector for commit messages, and utilities for
+       extracting useful information from the commits.
+       """
+    detector = Message.Filter('<find path="/message/body/commit"/>')
+
+    def consolidateFiles(self, xmlFiles):
+        """Given a commit, find the directory common to all files
+           and return a 2-tuple with that directory followed by
+           a list of files within that directory.
+           """
+        files = []
+        if xmlFiles:
+            for fileTag in xmlFiles.elements():
+                if fileTag.name == 'file':
+                    files.append(str(fileTag))
+
+        prefix = os.path.commonprefix(files)
+        endings = []
+        for file in files:
+            endings.append(file[len(prefix):])
+        return prefix, endings
+
+    def format(self, message, input=None):
+        """Break the commit message up into pieces that are each formatted with
+           one of our format_* member functions.
+           """
+        commit = message.xml.body.commit
+        segments = []
+        if commit.author:
+            segments.append(self.format_author(str(commit.author)))
+        if commit.revision:
+            segments.append(self.format_revision(str(commit.revision).strip()))
+        if commit.files:
+            segments.append(self.format_files(commit.files))
+
+        return "%s: %s" % (
+            " ".join(segments),
+            self.format_log(str(commit.log))
+            )
+
+    def format_default(self, str):
+        """A hook for formatting that should be applied to all text"""
+        return str
+
+    def format_files(self, files):
+        """Break up our list of files into a common prefix and a sensibly-sized
+           list of filenames after that prefix.
+           """
+        prefix, endings = self.consolidateFiles(files)
+        endingStr = " ".join(endings)
+        if len(endingStr) > 20:
+            endingStr = "%d files" % len(endings)
+        if endingStr:
+            return self.format_default("%s (%s)" % (prefix, endingStr))
+        else:
+            return self.format_default(prefix)
+
+    def format_log(self, logString):
+        return self.format_default(logString)
+
+    def format_author(self, author):
+        return self.format_default(author)
+
+    def format_revision(self, rev):
+        return self.format_default('r' + rev)
+
+
+class CommitToIRC(CommitFormatter):
+    """Converts commit messages to plain text with IRC color tags"""
+    medium = 'irc'
+
+    def format_author(self, author):
+        import IRC
+        return IRC.format(author, 'green')
+
+
+class CommitToXHTML(CommitFormatter):
+    """Converts commit messages to XHTML"""
+    medium = 'xhtml'
+
+    def format_log(self, logString):
+        return XML.domish.escapeToXml(logString)
+
+    def format_author(self, author):
+        return XML.domish.escapeToXml(author)
+
+    def format_files(self, commit):
+        return XML.domish.escapeToXml(CommitFormatter.format_files(self, commit))
+
+
 class ColortextToXHTML(Message.Formatter):
     """Converts messages with colorText content to XHTML
        with colors represented by CSS 'class' attributes
        on <span> tags, and with bold and underline converted
        to <b> and <u> tags.
        """
-    detector = '<find path="/message/body/colorText"/>'
+    detector = Message.Filter('<find path="/message/body/colorText"/>')
     medium = 'xhtml'
 
     def format(self, message, input=None):

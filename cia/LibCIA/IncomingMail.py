@@ -111,8 +111,11 @@ class IncomingMailParser:
 
         # Delete an existing <mailHeaders>
         for i in xrange(len(generator.children)):
-            if generator.children[i].name == "mailHeaders":
-                del generator.children[i]
+            try:
+                if generator.children[i].name == "mailHeaders":
+                    del generator.children[i]
+            except AttributeError:
+                pass
 
         # Add a new <mailHeaders>
         generator.addChild(self.getXMLMailHeaders())
