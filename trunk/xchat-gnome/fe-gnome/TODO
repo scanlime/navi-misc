@@ -17,7 +17,7 @@ autotools:
 * make functions static where possible
 * double clicking on an item in the server config list should open its edit box
 
-* sort the server/channel list in non-case sensitive alphabetical order
+* sort the channel list window in non-case sensitive alphabetical order
 
 * fix the about dialog such that it uses a real copyright symbol (check galeon's source
   for this)
