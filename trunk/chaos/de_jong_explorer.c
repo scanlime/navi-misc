@@ -1,28 +1,28 @@
 #include <gtk/gtk.h>
-#include <boost/numeric/ublas/vector.hpp>
-#include <boost/numeric/ublas/io.hpp>
-#include <cstdlib>
-#include <ctime>
-#include <cmath>
-
-typedef boost::numeric::ublas::vector<double> twov;
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include <time.h>
 
 #define WIDTH   800
 #define HEIGHT  800
-#define COLORS  65536
 
-twov point(2);
+struct {
+  double x,y;
+} point;
+
 GtkWidget *window, *drawing_area, *iterl;
 GtkWidget *as, *bs, *cs, *ds, *ls, *start, *stop, *save;
-GdkPixmap *backb;
+GdkPixbuf *pixbuf;
 int iterations;
-GdkGC *colormap[COLORS], *gc;
+int flippiness;
+GdkGC *gc;
 int data[WIDTH][HEIGHT];
 double a, b, c, d, bright;
 guint idler;
 
-void draw();
 void flip();
+void clear();
 static int draw_more(void *data);
 gboolean expose(GtkWidget *widget, GdkEventExpose *event, gpointer user_data);
 void spinnerchanged(GtkWidget *widget, gpointer user_data);
@@ -30,11 +30,10 @@ void startclick(GtkWidget *widget, gpointer user_data);
 void stopclick(GtkWidget *widget, gpointer user_data);
 void saveclick(GtkWidget *widget, gpointer user_data);
 gboolean deletee(GtkWidget *widget, GdkEvent *event, gpointer user_data);
-twov dejong(float a, float b, float c, float d, boost::numeric::ublas::vector<double> xyn);
 GtkWidget *build_sidebar();
 
 int main(int argc, char ** argv) {
-  std::srand(std::time(NULL));
+  srand(time(NULL));
   gtk_init(&argc, &argv);
 
   GtkWidget *hbox, *vsep;
@@ -58,24 +57,13 @@ int main(int argc, char ** argv) {
   g_signal_connect(G_OBJECT(drawing_area), "expose-event", G_CALLBACK(expose), NULL);
   gtk_widget_show_all(window);
 
-  backb = gdk_pixmap_new(NULL, WIDTH, HEIGHT, 24);
-
-  GdkColor c;
-  for(int i = 0; i < COLORS; i++) {
-    c.red = c.green = c.blue = (COLORS - 1 - i) * 65535 / COLORS;
-    colormap[i] = gdk_gc_new(backb);
-    gdk_gc_set_rgb_bg_color(colormap[i], &c);
-    gdk_gc_set_rgb_fg_color(colormap[i], &c);
-  }
+  pixbuf = gdk_pixbuf_new(GDK_COLORSPACE_RGB, FALSE, 8, WIDTH, HEIGHT);
   gc = gdk_gc_new(drawing_area->window);
 
-  bzero(data, WIDTH * HEIGHT * sizeof(int));
+  clear();
 
-  draw();
-  flip();
-
-  point(0) = std::rand() / RAND_MAX;
-  point(1) = std::rand() / RAND_MAX;
+  point.x = rand() / RAND_MAX;
+  point.y = rand() / RAND_MAX;
 
   idler = g_idle_add(draw_more, NULL);
 
@@ -139,17 +127,19 @@ GtkWidget *build_sidebar() {
   return table;
 }
 
-void draw() {
-  gdk_draw_rectangle(backb, colormap[0], TRUE, 0, 0, WIDTH, HEIGHT);
-}
-
 void flip() {
-  gdk_draw_drawable(drawing_area->window, gc, backb, 0, 0, 0, 0, WIDTH, HEIGHT);
-}
+  /* Using the current point density, scale data[] appropriately, color it,
+   * generate an image in the pixbuf, and copy it to the screen.
+   */
 
-static void plop(int x, int y) {
-  int p = data[x][y] + 1;
-  data[x][y] = p;
+  int rowstride;
+  guchar *pixels, *row, *p;
+  guchar gray;
+  int x, y;
+  float density, scale, luma;
+
+  rowstride = gdk_pixbuf_get_rowstride(pixbuf);
+  pixels = gdk_pixbuf_get_pixels(pixbuf);
 
   /* Scale our data to a luminance between 0 and 1 that gets fed through our
    * colormap[] to generate an actual gdk color. 'p' contains the number of
@@ -157,47 +147,61 @@ static void plop(int x, int y) {
    *
    * iterations / (WIDTH * HEIGHT) gives us the average density of data[].
    */
-  float density = ((float)iterations) / (WIDTH * HEIGHT);
-  float luma = p / density * bright;
+  density = ((float)iterations) / (WIDTH * HEIGHT);
+  scale = bright / density;
 
-  if (luma > 1) luma = 1;
-  gdk_draw_point(backb, colormap[int(luma * (COLORS-1))], x, y);
-}
+  row = pixels;
+  for (y=0; y<HEIGHT; y++) {
+    p = row;
+    for (x=0; x<WIDTH; x++) {
+      luma = data[x][y] * scale;
+      if (luma > 1) luma = 1;
 
-static int draw_more(void *data) {
-  double x, y;
-  const int iterationsAtOnce = 10000;
-  static int xoffset = WIDTH / 2;
-  static int yoffset = HEIGHT / 2;
-  static float xscale = float(xoffset) / 2.5;
-  static float yscale = float(yoffset) / 2.5;
-
-  /* Add in half our iterations before the loop and half after, so
-   * the density calculations in plop() are half correct. We must
-   * have at least one iteration before calling plop(), or we get
-   * a divide by zero, and those are bad.
-   */
-  iterations += iterationsAtOnce / 2;
-
-  for(int i = iterationsAtOnce; i; --i) {
-    point = dejong(a, b, c, d, point);
-    plop(int(point(0) * xscale + xoffset), int(point(1) * yscale + yoffset));
+      gray = 255 - ((int)(luma * 255));
+      *(p++) = gray;  /* Red   */
+      *(p++) = gray;  /* Green */
+      *(p++) = gray;  /* Blue  */
+    }
+    row += rowstride;
   }
 
-  iterations += iterationsAtOnce / 2;
+  gdk_draw_pixbuf(drawing_area->window, gc, pixbuf,
+		  0, 0, 0, 0, WIDTH, HEIGHT,
+		  GDK_RGB_DITHER_NORMAL, 0, 0);
+}
 
+void clear() {
+  memset(data, 0, WIDTH * HEIGHT * sizeof(int));
   flip();
+}
+
+static int draw_more(void *extra) {
+  double x, y;
+  int i;
+  const int iterationsAtOnce = 10000;
+  const double xoffset = WIDTH / 2;
+  const double yoffset = HEIGHT / 2;
+  const double xscale = xoffset / 2.5;
+  const double yscale = yoffset / 2.5;
+
+  for(i=iterationsAtOnce; i; --i) {
+    x = sin(a * point.y) - cos(b * point.x);
+    y = sin(c * point.x) - cos(c * point.y);
+    data[(int)(x * xscale + xoffset)][(int)(y * yscale + yoffset)]++;
+    point.x = x;
+    point.y = y;
+  }
+  iterations += iterationsAtOnce;
+
+  if (flippiness++ > 4) {
+    flip();
+    flippiness = 0;
+  }
+
   gchar *iters = g_strdup_printf("%d", iterations);
   gtk_label_set_text(GTK_LABEL(iterl), iters);
   g_free(iters);
   return 1;
-}
-
-twov dejong(float a, float b, float c, float d, boost::numeric::ublas::vector<double> xyn) {
-  twov r(2);
-  r(0) = std::sin(a * xyn(1)) - std::cos(b * xyn(0));
-  r(1) = std::sin(c * xyn(0)) - std::cos(c * xyn(1));
-  return r;
 }
 
 gboolean expose(GtkWidget *widget, GdkEventExpose *event, gpointer user_data) {
@@ -213,8 +217,7 @@ gboolean deletee(GtkWidget *widget, GdkEvent *event, gpointer user_data) {
 void startclick(GtkWidget *widget, gpointer user_data) {
   gtk_widget_set_sensitive(stop, TRUE);
   gtk_widget_set_sensitive(start, FALSE);
-  bzero(data, WIDTH * HEIGHT * sizeof(int));
-  draw();
+  clear();
   a = gtk_spin_button_get_value(GTK_SPIN_BUTTON(as));
   b = gtk_spin_button_get_value(GTK_SPIN_BUTTON(bs));
   c = gtk_spin_button_get_value(GTK_SPIN_BUTTON(cs));
@@ -254,8 +257,7 @@ void saveclick(GtkWidget *widget, gpointer user_data) {
   if(gtk_dialog_run(GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT) {
     char *filename;
     filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
-    GdkPixbuf *buf = gdk_pixbuf_get_from_drawable(NULL, backb, NULL, 0, 0, 0, 0, WIDTH, HEIGHT);
-    gdk_pixbuf_save(buf, filename, "png", NULL, NULL);
+    gdk_pixbuf_save(pixbuf, filename, "png", NULL, NULL);
     g_free(filename);
   }
   g_object_unref(filter);
