@@ -483,6 +483,9 @@ sendLoop:
 	; to the transmit ring buffer. If not, we set up the interrupt and get it
 	; started sending right away.
 IR_SendByte:
+	banksel	SendTemp
+	movwf	SendTemp	; Save our argument
+
 	; We want to block until there's enough room in the buffer. Since the
 	; buffer can't ever be full (it would appear empty) we wait if it has
 	; BUFFER_SIZE - 2 bytes in it.
@@ -500,6 +503,8 @@ IR_SendByte:
 	goto	enqueueTxByte
 
 	; Send the value immediately, starting the interrupt handler
+	banksel	SendTemp
+	movf	SendTemp, w
 	banksel	ir_tx_Cycles	; Store this value in ir_tx_Cycles for immediate transmission
 	movwf	ir_tx_Cycles
 	clrf	TMR0			; Reset TMR0 so we don't actually start for 258 cycles
@@ -512,7 +517,6 @@ IR_SendByte:
 enqueueTxByte
 	banksel	ir_tx_Buffer	
 	bankisel ir_tx_Buffer
-	movwf	SendTemp		; Save w while we calculate the buffer address
 	movf	ir_tx_Head, w
 	addlw	ir_tx_Buffer
 	movwf	FSR				; ir_tx_Buffer[ir_tx_Head] = SendTemp
