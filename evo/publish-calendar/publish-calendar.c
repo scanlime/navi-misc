@@ -68,6 +68,26 @@ url_list_double_click (GtkTreeView       *treeview,
 {
 }
 
+static void
+url_add_clicked (GtkButton *button, PublishUIData *ui)
+{
+}
+
+static void
+url_edit_clicked (GtkButton *button, PublishUIData *ui)
+{
+}
+
+static void
+url_remove_clicked (GtkButton *button, PublishUIData *ui)
+{
+}
+
+static void
+url_enable_clicked (GtkButton *button, PublishUIData *ui)
+{
+}
+
 void
 publish_calendar_context_activate (EPlugin *ep, ECalPopupTargetSource *target)
 {
@@ -105,9 +125,13 @@ publish_calendar_locations (EPlugin *epl, EConfigHookItemFactoryData *data)
 	g_signal_connect (G_OBJECT (ui->treeview), "row-activated", G_CALLBACK (url_list_double_click), ui);
 
 	ui->url_add = glade_xml_get_widget (xml, "url add");
+	g_signal_connect (G_OBJECT (ui->url_add), "clicked", G_CALLBACK (url_add_clicked), ui);
 	ui->url_edit = glade_xml_get_widget (xml, "url edit");
+	g_signal_connect (G_OBJECT (ui->url_edit), "clicked", G_CALLBACK (url_edit_clicked), ui);
 	ui->url_remove = glade_xml_get_widget (xml, "url remove");
+	g_signal_connect (G_OBJECT (ui->url_remove), "clicked", G_CALLBACK (url_remove_clicked), ui);
 	ui->url_enable = glade_xml_get_widget (xml, "url enable");
+	g_signal_connect (G_OBJECT (ui->url_enable), "clicked", G_CALLBACK (url_enable_clicked), ui);
 
 	toplevel = glade_xml_get_widget (xml, "toplevel");
 	gtk_widget_show_all (toplevel);
