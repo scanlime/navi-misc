@@ -83,6 +83,9 @@ static int            event_loop          (struct server *svr,
 					   int evdev);
 static void           event_from_server   (struct server *svr,
 					   int evdev);
+static void           repack_bits         (unsigned long *src,
+					   unsigned char *dest,
+					   int len);
 
 
 /***********************************************************************/
@@ -265,15 +268,35 @@ static int evdev_new(const char *path)
   return fd;
 }
 
+/* Our bits come from the kernel packed in longs, but for portability
+ * on the network we want them packed in bytes. This copies 'len'
+ * bit mask bytes, rearranging them as necessary.
+ */
+static void repack_bits(unsigned long *src, unsigned char *dest, int len) {
+  int i;
+  unsigned long word;
+  while (len >= sizeof(long)) {
+    word = *src;
+    for (i=0; i<sizeof(long); i++) {
+      *(dest++) = word;
+      word >>= 8;
+    }
+    src++;
+    len -= sizeof(long);
+  }
+}
+
 /* Send all metadata from our event device to the server,
  * and create a corresponding device on the server side.
  */
 static int evdev_send_metadata(int evdev, struct server *svr)
 {
-  unsigned char buffer[1024];
+  unsigned char buffer[512];
+  unsigned char buffer2[512];
   short id[4];
   struct ipipe_input_id ip_id;
-  int i, j;
+  uint32_t i32;
+  int i, axis;
 
   /* Send the device name */
   buffer[0] = '\0';
@@ -292,13 +315,46 @@ static int evdev_send_metadata(int evdev, struct server *svr)
   /* Send bits */
   for (i=0; i<EV_MAX; i++) {
     /* Read these bits, leaving room for the EV_* code at the beginning */
-    int len = ioctl(evdev, EVIOCGBIT(i, sizeof(buffer) - sizeof(uint16_t)),
-		     buffer + sizeof(uint16_t));
-    if (len > 0) {
-      *(uint16_t*)buffer = htons(i);
-      server_write(svr, IPIPE_DEVICE_BITS, len + sizeof(uint16_t), buffer);
+    int len = ioctl(evdev, EVIOCGBIT(i, sizeof(buffer) - sizeof(uint16_t)), buffer);
+    if (len <= 0)
+      continue;
+
+    repack_bits((unsigned long*) buffer, buffer2 + sizeof(uint16_t), len);
+    *(uint16_t*)buffer2 = htons(i);
+    server_write(svr, IPIPE_DEVICE_BITS, len + sizeof(uint16_t), buffer2);
+
+    /* If we just grabbed the EV_ABS bits, look for absolute axes
+     * we need to send IPIPE_DEVICE_ABSINFO packets for.
+     */
+    if (i == EV_ABS) {
+      for (axis=0; axis < len*8; axis++) {
+	/* This ugly mess tests a bit in our bitfield. We have
+	 * to be careful to do this the same way the kernel and
+	 * repack_bits do it, to be portable.
+	 */
+	if (((unsigned long*)buffer)[ axis / (sizeof(long)*8) ] &
+	    (1 << (axis % (sizeof(long)*8)))) {
+
+	  /* We found an axis, get and repackage its input_absinfo struct */
+	  struct input_absinfo absinfo;
+	  struct ipipe_absinfo ip_abs;
+	  ioctl(evdev, EVIOCGABS(axis), &absinfo);
+
+	  ip_abs.axis = htonl(axis);
+	  ip_abs.max = htonl(absinfo.maximum);
+	  ip_abs.min = htonl(absinfo.minimum);
+	  ip_abs.fuzz = htonl(absinfo.fuzz);
+	  ip_abs.flat = htonl(absinfo.flat);
+	  server_write(svr, IPIPE_DEVICE_ABSINFO, sizeof(ip_abs), &ip_abs);
+	}
+      }
     }
   }
+
+  /* Send the number of maximum concurrent force-feedback effects */
+  ioctl(evdev, EVIOCGEFFECTS, &i);
+  i32 = htonl(i);
+  server_write(svr, IPIPE_DEVICE_FF_EFFECTS_MAX, sizeof(i32), &i32);
 
   /* Create the device and flush all this to the server */
   server_write(svr, IPIPE_CREATE, 0, NULL);
@@ -310,8 +366,24 @@ static int evdev_send_metadata(int evdev, struct server *svr)
 static int evdev_send_event(int evdev, struct server *svr)
 {
   struct input_event ev;
+  struct ipipe_event ip_ev;
+
   read(evdev, &ev, sizeof(ev));
 
+  /* Translate and send this event */
+  ip_ev.tv_sec = htonl(ev.time.tv_sec);
+  ip_ev.tv_usec = htonl(ev.time.tv_usec);
+  ip_ev.value = htonl(ev.value);
+  ip_ev.type = htons(ev.type);
+  ip_ev.code = htons(ev.code);
+  server_write(svr, IPIPE_EVENT, sizeof(ip_ev), &ip_ev);
+
+  /* If this was a synchronization event, flush our buffers.
+   * This will group together the individual events for each axis and button
+   * into one frame in the underlying network transport hopefully.
+   */
+  if (ev.type == EV_SYN)
+    server_flush(svr);
 
   return 0;
 }
@@ -387,15 +459,15 @@ static int event_loop(struct server *svr, int evdev) {
 }
 
 
-int main() {
+int main(int argc, char **argv) {
   struct server *svr;
   int evdev;
 
-  svr = server_new("localhost");
+  svr = server_new(argv[1]);
   if (!svr)
     return 1;
 
-  evdev = evdev_new("/dev/input/event1");
+  evdev = evdev_new(argv[2]);
   if (evdev < 0)
     return 1;
 
