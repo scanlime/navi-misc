@@ -12,6 +12,7 @@
 	}
     \score {
      \context PianoStaff <<
+       \set Score.skipBars = ##t
        \context Staff=pianoRight \mvmtOnePianoRight
        \context Dynamics=pianoDynamics \mvmtOnePianoDynamics
        \context Staff=pianoLeft \mvmtOnePianoLeft
@@ -46,19 +47,6 @@
          \PianoStaff
          \accepts Dynamics
          \override VerticalAlignment #'forced-distance = #7
-       }
-     }
-     \midi {
-       \context {
-         \type "Performer_group_performer"
-         \name Dynamics
-         \consists "Piano_pedal_performer"
-         \consists "Span_dynamic_performer"
-         \consists "Dynamic_performer"
-       }
-       \context {
-         \PianoStaff
-         \accepts Dynamics
        }
      }
    }
