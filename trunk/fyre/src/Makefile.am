@@ -10,6 +10,7 @@ CSFLAGS =		\
 	-target:exe
 
 CSFILES =			\
+	CanvasElement.cs	\
 	Element.cs		\
 	ElementTooltip.cs	\
 	Pipeline.cs		\
