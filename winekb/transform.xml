@@ -1,0 +1,91 @@
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+  <xsl:output method="html"/>
+
+  <xsl:template match="kbpage">
+    <html>
+      <head>
+        <title><xsl:value-of select="@title"/></title>
+        <style>
+          body {
+            font-family: Helvetica;
+            background-image: url(glass.png);
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            background-position: bottom right;
+          }
+          
+          .section-link {
+            color: #dddddd;
+            text-decoration: none;
+            float: right;
+          }
+
+          .section-link:hover {
+            text-decoration: underline;
+          }
+
+          .section-header {
+            font-size: larger;
+            font-weight: heavy;
+            border: 1px gray dotted;
+            border-width: 0px 0px 1px 0px;
+            min-width: 90%;
+            margin:5px;
+            color: gray;
+          }
+
+          .title {
+            font-size: xx-large;
+            align: middle;
+            background: lightgrey;
+          }
+
+          .type:before {
+            content: "$  ";
+          }
+          
+          .type {
+            background: black;
+            font-size: +1;
+            color: white;
+            margin: 4px;
+            margin-left: 2em;
+            padding: 4px;
+            border: 1px dotted lightgrey;
+          }
+        </style>
+      </head>
+
+      <body style="margin: 0px">
+        <div class="title"><img align="middle" src="wine.png"/> <xsl:value-of select="@title"/></div>
+
+        <div style="padding: 10px">
+          <xsl:apply-templates/>
+        </div>
+      </body>
+    </html>
+  </xsl:template>
+
+  <xsl:template match="section">
+    <a name="{@title}"/>
+    <div class="section-header"><a class="section-link" href="#{@title}">#</a> <xsl:value-of select="@title"/></div>
+    <pre style="font-size: large">
+      <xsl:apply-templates/>
+    </pre>
+  </xsl:template>
+
+  <xsl:template match="l">
+    <a href="{node()}.xml"><xsl:value-of select="node()"/></a>
+  </xsl:template>
+
+  <xsl:template match="type">
+    <div class="type"> <xsl:apply-templates/> </div>
+  </xsl:template>
+  
+  <xsl:template match="@*|node()">
+    <xsl:copy>
+      <xsl:apply-templates select="@*|node()"/>
+    </xsl:copy>
+  </xsl:template>
+
+</xsl:stylesheet>
