@@ -72,6 +72,8 @@ const char* CBZNextLoop::GetCameraName ( void )
 
 const char*  CBZNextLoop::GetRootResDir ( void )
 {
+	if (prefs.ItemExists("dataDir"))
+		return prefs.GetItemS("dataDir");
   return "../data";
 }
 
