@@ -80,12 +80,15 @@ class CommitFormatter(Message.Formatter):
            """
         commit = message.xml.body.commit
         metadata = []
+
         if commit.author:
-            metadata.append(self.format_author(str(commit.author)))
+            metadata.append(self.format_author(str(commit.author).strip()))
+        if message.xml.source and message.xml.source.branch:
+            metadata.append(self.format_branch(str(message.xml.source.branch).strip()))
+        metadata.append(self.format_asterisk())
         if commit.revision:
             metadata.append(self.format_revision(str(commit.revision).strip()))
-        if commit.files:
-            metadata.append(self.format_files(commit.files))
+        metadata.append(self.format_moduleAndFiles(message))
         return self.joinMessage(metadata, self.format_log(str(commit.log).strip()))
 
     def joinMessage(self, metadata, log):
@@ -98,9 +101,32 @@ class CommitFormatter(Message.Formatter):
         """A hook for formatting that should be applied to all text"""
         return str
 
+    def format_asterisk(self):
+        """Format an asterisk that goes between the author + branch and the
+           rest of the message, to enhance the message visually.
+           """
+        return self.format_default("*")
+
+    def format_moduleAndFiles(self, message):
+        """Format the module name and files, joined together if they are both present."""
+        if message.xml.body.commit.files:
+            formattedFiles = self.format_files(message.xml.body.commit.files)
+        else:
+            formattedFiles = ""
+
+        if message.xml.source and message.xml.source.module:
+            formattedModule = self.format_module(str(message.xml.source.module).strip())
+        else:
+            formattedModule = ""
+
+        if formattedFiles and formattedFiles[0] != '/':
+            return formattedModule + '/' + formattedFiles
+        else:
+            return formattedModule + formattedFiles
+
     def format_files(self, files):
         """Break up our list of files into a common prefix and a sensibly-sized
-           list of filenames after that prefix.
+           list of filenames after that prefix. Prepend the module name if we have one.
            """
         prefix, endings = self.consolidateFiles(files)
         endingStr = " ".join(endings)
@@ -110,6 +136,9 @@ class CommitFormatter(Message.Formatter):
             return self.format_default("%s (%s)" % (prefix, endingStr))
         else:
             return self.format_default(prefix)
+
+    def format_module(self, module):
+        return self.format_default(module)
 
     def format_log(self, logString):
         return self.format_default(logString)
@@ -132,6 +161,14 @@ class CommitToIRC(CommitFormatter):
     def format_revision(self, rev):
         import IRC
         return 'r' + IRC.format(str(rev), 'bold')
+
+    def format_module(self, module):
+        import IRC
+        return IRC.format(module, 'aqua')
+
+    def format_branch(self, branch):
+        import IRC
+        return IRC.format(branch, 'orange')
 
     def joinMessage(self, metadata, log):
         import IRC
