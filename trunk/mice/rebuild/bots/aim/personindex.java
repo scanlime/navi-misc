@@ -89,7 +89,7 @@ public class personindex
 		System.out.println(" who is new to me!");
 		masshead = new person(masshead,bots[currentbot],from);
 		currentbot++;
-		if(currentbot == botcount+1) currentbot = 1;
+		if(currentbot == botcount) currentbot = 1;
 	}
 	
 	/**
