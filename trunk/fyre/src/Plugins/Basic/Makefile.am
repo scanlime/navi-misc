@@ -2,18 +2,19 @@ SUBDIRS = data .
 
 CSC = mcs -g
 
-CSFLAGS =	\
+CSFLAGS =					\
 	-target:library
 
-ASSEMBLIES =		\
-	$(FYRE_LIBS)	\
-	-r:Mono.Posix	\
+ASSEMBLIES =					\
+	$(FYRE_LIBS)				\
+	-r:Mono.Posix				\
+	-r:System.Drawing			\
 	-r:$(top_builddir)/src/Fyre.exe
 
 TARGET = Basic.dll
-TARGET_CSFILES = 		\
-	MatrixMultiply.cs	\
-	StochasticBlur.cs	\
+TARGET_CSFILES = 				\
+	MatrixMultiply.cs			\
+	StochasticBlur.cs			\
 	Transform.cs
 TARGET_RESOURCES =				\
 	-resource:data/MatrixMultiply.png	\
@@ -24,12 +25,12 @@ $(TARGET): $(TARGET_CSFILES) $(top_builddir)/src/Fyre.exe
 	$(CSC) -o $@ $(CSFLAGS) $(ASSEMBLIES) $(TARGET_CSFILES) $(TARGET_RESOURCES)
 
 pluginsdir = $(pkglibdir)/Plugins
-plugins_DATA =	\
+plugins_DATA =					\
 	$(TARGET)
 
-EXTRA_DIST = \
+EXTRA_DIST =					\
 	$(TARGET_CSFILES)
 
-CLEANFILES =		\
-	$(TARGET)	\
+CLEANFILES =					\
+	$(TARGET)				\
 	$(TARGET).mdb

@@ -20,7 +20,8 @@ CSFILES =			\
 
 ASSEMBLIES =			\
 	$(FYRE_LIBS)		\
-	-r:Mono.Posix
+	-r:Mono.Posix		\
+	-r:System.Drawing
 
 RESOURCES =							\
 	-resource:$(top_srcdir)/data/pipeline-editor.glade	\
