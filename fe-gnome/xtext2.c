@@ -414,6 +414,20 @@ xtext2_expose (GtkWidget *widget, GdkEventExpose *event)
 /* ========================================= */
 /* ========== XFT 1 and 2 BACKEND ========== */
 /* ========================================= */
+static void
+backend_init (XText2 *xtext)
+{
+  if (xtext->priv->xft_draw == NULL)
+  {
+    xtext->priv->xft_draw = XftDrawCreate (
+      GDK_WINDOW_XDISPLAY    (xtext->priv->draw_buffer),
+      GDK_WINDOW_XWINDOW     (xtext->priv->draw_buffer),
+      GDK_VISUAL_XVISUAL     (gdk_drawable_get_visual (xtext->priv->draw_buffer)),
+      GDK_COLORMAP_XCOLORMAP (gdk_drawable_get_colormap (xtext->priv->draw_buffer))
+    );
+    XftDrawSetSubwindowMode (xtext->priv->xft_draw, IncludeInferiors);
+  }
+}
 #else
 /* ======================================= */
 /* ============ PANGO BACKEND ============ */
