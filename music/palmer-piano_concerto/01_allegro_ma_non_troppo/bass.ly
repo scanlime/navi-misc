@@ -117,19 +117,20 @@ mvmtOneBass = \relative c {
 		r aes r f r e r g
 		r ees r d r fis r bis,
 	} >>
-	R1*8
+	R1*5
+    \time 6/8
+    R1*6/8*3
 
 	% 140
-	b'4\mf^\pizz r a r
-	gis r r2
-	gis4 r gis r
-	dis' r r e
-	fis r gis r
+	b'4.\mf^\pizz a
+	gis r
+	gis gis
+	dis' r8. e
+	fis4. gis
 
 	% 145
-	ais r a r
-	gis r d r
-	\time 6/8
+	ais a
+	gis d
 	fis4. ais
 	cis cis,
 	fis a
