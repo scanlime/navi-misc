@@ -95,6 +95,11 @@ void CTestGame::Attach ( void )
 	else
 		localPlayer->material = "RedkMK3";
 
+	if (prefs.ItemExists("PlayerMesh"))
+		localPlayer->mesh = prefs.GetItemS("PlayerMesh");
+	else
+		localPlayer->mesh = "MK3.model";
+
 	camera = CDrawManager::instance().New("camera",this);
 }
 
@@ -209,6 +214,7 @@ void CTestGame::OnMessage ( CNetworkPeer &peer, CNetworkMessage &message )
 			outMessage.SetType(_MESSAGE_CLIENT_INFO);
 			outMessage.AddStr(localPlayer->name.c_str());
 			outMessage.AddStr(localPlayer->material.c_str());
+			outMessage.AddStr(localPlayer->mesh.c_str());
 			outMessage.Send(peer,true);
 			break;
 
@@ -255,6 +261,7 @@ void CTestGame::OnMessage ( CNetworkPeer &peer, CNetworkMessage &message )
 				newPlayer->active = true;
 				newPlayer->name = message.ReadStr();
 				newPlayer->material = message.ReadStr();
+				newPlayer->mesh = message.ReadStr();
 
 				// get there current pos
 				message.ReadV(newPlayer->pos);

@@ -14,6 +14,7 @@
 #include "players.h"
 #include <vector>
 #include "timer.h"
+#include "prefs.h"
 
 CPlayerObject::CPlayerObject()
 {
@@ -24,7 +25,7 @@ CPlayerObject::CPlayerObject()
 	rot[0] = rot[1] = rot[2] = 0;
 	vec[0] = vec[1] = vec[2] = 0;
 	updateTime = 0;
-	material = "RedkMK3";
+	material = "default";
 }
 
 CPlayerObject::~CPlayerObject()
@@ -35,10 +36,15 @@ CPlayerObject::~CPlayerObject()
 
 void CPlayerObject::Init ( bool draw )
 {
+	CPrefsManager	&prefs = CPrefsManager::instance();
+
 	Kill();
 
 	if (material.size() ==0)
 		material = "RedkMK3";
+
+	if (mesh.size() ==0)
+		mesh = prefs.GetItemS("PlayerMesh");
 
 	if (draw)
 		drawable = CDrawManager::instance().New("playerTank",this);
@@ -82,7 +88,7 @@ const char* CPlayerObject::GetValueS ( const char *item )
 	}
 
 	if (label == "mesh")
-		return "MK3.mesh";
+		return mesh.c_str();
 
 	return NULL;
 }
