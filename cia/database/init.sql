@@ -69,4 +69,35 @@ CREATE TABLE stats_counters
     PRIMARY KEY(target_path, name)
 );
 
+-- This function returns the parent associated with a given stats path
+CREATE FUNCTION statsParent(VARCHAR) RETURNS VARCHAR AS '
+    SELECT substring($1 from ''(.+)/[^/]+$'')
+' LANGUAGE SQL STRICT;
+
+-- A function that creates a target_path in our stats_catalog if it doesn't
+-- exist, including creating parent entries recursively if necessary.
+-- Really ugly... hopefully there's a better way to do this.
+CREATE FUNCTION createTarget(VARCHAR) RETURNS VARCHAR AS '
+    SELECT createTarget(statsParent($1));
+    INSERT INTO stats_catalog (
+       parent_path,
+       target_path)
+    (
+       SELECT statsParent($1), $1 WHERE NOT EXISTS (
+           SELECT 1 FROM stats_catalog WHERE target_path = $1
+       )
+    );
+    SELECT $1;
+' LANGUAGE SQL STRICT;
+
+-- Rules to automatically create stats_catalog entries when
+-- we try to insert new keys elsewhere for a stats target that
+-- doesn't yet exist.
+CREATE RULE stats_messages_autocreate AS ON INSERT TO stats_messages
+    DO SELECT createTarget(NEW.target_path);
+CREATE RULE stats_metadata_autocreate AS ON INSERT TO stats_metadata
+    DO SELECT createTarget(NEW.target_path);
+CREATE RULE stats_counters_autocreate AS ON INSERT TO stats_counters
+    DO SELECT createTarget(NEW.target_path);
+
 --- The End ---
