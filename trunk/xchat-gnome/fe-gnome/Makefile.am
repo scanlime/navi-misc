@@ -67,6 +67,8 @@ xchat_gnome_SOURCES =			\
 	fe-gnome.c			\
 	gui.h				\
 	gui.c				\
+	guir.h				\
+	guir.c				\
 	main_window.h			\
 	main_window.c			\
 	$(mmx_cmod_S)			\
@@ -131,5 +133,8 @@ channel_list.o:	$(srcdir)/channel_list.c
 
 transfers.o:	$(srcdir)/transfers.c
 	$(COMPILE)  -DXCHATSHAREDIR=\"$(xchatsharedir)\" -c $(srcdir)/transfers.c
+
+guir.o:		$(srcdir)/guir.c
+	$(COMPILE)  -DXCHATSHAREDIR=\"$(xchatsharedir)\" -c $(srcdir)/guir.c
 
 SUBDIRS = data

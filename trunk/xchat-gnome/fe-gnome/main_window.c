@@ -309,7 +309,7 @@ static gboolean tab_complete_nickname(GtkEntry *entry, int start) {
 	char *printtext, *npt;
 	session_gui *tgui;
 
-	completion = userlist_get_nick_completion();
+	completion = userlist_get_completion(u, gui.current_session);
 	g_completion_set_compare(completion, (GCompletionStrncmpFunc) strncasecmp);
 	text = g_strdup(gtk_entry_get_text(entry));
 	length = strlen(text);

@@ -21,6 +21,7 @@
 
 #include "userlist.h"
 #include "palette.h"
+#include "pixmaps.h"
 
 static void userlist_class_init (UserlistClass *klass);
 static void userlist_init       (Userlist *userlist);
@@ -114,6 +115,49 @@ create_userlist (Userlist *userlist, session *sess)
   return store;
 }
 
+static GdkPixbuf*
+get_user_icon (struct server *serv, struct User *user)
+{
+  char *pre;
+  int level;
+
+  if (!user)
+    return NULL;
+
+  switch (user->prefix[0])
+  {
+    case '\0': return NULL;
+    case '@':  return pix_op;
+    case '%':  return pix_hop;
+    case '+':  return pix_voice;
+  }
+
+  /* find out how many levels above Operator this user is */
+  pre = strchr (serv->nick_prefixes, '@');
+  if (pre && pre != serv->nick_prefixes)
+  {
+    pre--;
+    level = 0;
+    while (1)
+    {
+      if (pre[0] == user->prefix[0])
+      {
+	switch (level)
+	{
+	  case 0: return pix_red;
+	  case 1: return pix_purple;
+	}
+	break; /* 3+, no icons */
+      }
+      level++;
+      if (pre == serv->nick_prefixes)
+	break;
+      pre--;
+    }
+  }
+  return NULL;
+}
+
 void
 userlist_insert (Userlist *userlist, session *sess, struct User *newuser, int row, gboolean selected)
 {
@@ -128,7 +172,7 @@ userlist_insert (Userlist *userlist, session *sess, struct User *newuser, int ro
   icon = get_user_icon (sess->server, newuser);
 
   gtk_list_store_insert (store->liststore, &iter, row);
-  gtk_list_store_set (store, &iter, 0, icon, 1, newuser->nick, 2, newuser, 3, newuser->away ? &colors[23] : NULL, -1);
+  gtk_list_store_set (store->liststore, &iter, 0, icon, 1, newuser->nick, 2, newuser, 3, newuser->away ? &colors[23] : NULL, -1);
 
   items = g_list_append (NULL, newuser->nick);
   g_completion_add_items (store->completion, items);
@@ -187,7 +231,7 @@ userlist_update (Userlist *userlist, session *sess, struct User *user)
   g_assert (store != NULL);
 
   iter = find_user (store, user);
-  gtk_tree_model_get (GTK_TREE_MODEL (store->liststore), 1, &nick, -1);
+  gtk_tree_model_get (GTK_TREE_MODEL (store->liststore), iter, 1, &nick, -1);
 
   items = g_list_append (NULL, nick);
   g_completion_remove_items (store->completion, items);
@@ -215,7 +259,7 @@ userlist_move (Userlist *userlist, session *sess, struct User *user, int new_row
   icon = get_user_icon (sess->server, user);
 
   gtk_list_store_insert (store->liststore, &iter2, new_row);
-  gtk_list_store_set (store, &iter2, 0, icon, 1, user->nick, 2, user, 3, user->away ? &colors[23] : NULL, -1);
+  gtk_list_store_set (store->liststore, &iter2, 0, icon, 1, user->nick, 2, user, 3, user->away ? &colors[23] : NULL, -1);
 }
 
 void
@@ -223,7 +267,8 @@ userlist_clear (Userlist *userlist, session *sess)
 {
   Store *store = g_hash_table_lookup (userlist->stores, sess);
 
-  g_assert (store != NULL);
+  if (store == NULL)
+    store = create_userlist (userlist, sess);
 
   g_completion_clear_items (store->completion);
   gtk_list_store_clear (store->liststore);
@@ -246,7 +291,8 @@ GtkListStore*
 userlist_get_store (Userlist *userlist, session *sess)
 {
   Store *store = g_hash_table_lookup (userlist->stores, sess);
-  g_assert (store != NULL);
+  if (store == NULL)
+    store = create_userlist (userlist, sess);
   return store->liststore;
 }
 
