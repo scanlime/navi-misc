@@ -22,11 +22,18 @@
 
 #include "e-weather-source-ccf.h"
 
+EWeatherSource*
+e_weather_source_ccf_new (const char *station)
+{
+	EWeatherSourceCCF *source = E_WEATHER_SOURCE_CCF (g_object_new (e_weather_source_ccf_get_type (), NULL));
+
+	source->station = g_strdup (station);
+	return E_WEATHER_SOURCE (station);
+}
+
 static GList*
 e_weather_source_ccf_parse (EWeatherSource *source, const char *buffer)
 {
-	WeatherForecast *forecasts;
-
 	/* CCF gives us either 7 or 8 days into the future, depending on whether
 	 * we've fetched the morning or afternoon forecast. There are actually
 	 * 14 data points, but we'll just have to "average" them since there's
@@ -54,9 +61,20 @@ e_weather_source_ccf_parse (EWeatherSource *source, const char *buffer)
 	 * SSS. DDHHMM is a date indicator showing when the product was released,
 	 * with day-of-month, hour and minute in UTC.
 	 *
-	 * Note that the station in this header may be completely different from
-	 * any/all stations represented in the file.
+	 * Note that the station in this header will usually be one of the stations
+	 * represented in the file, but this is not always the case.
 	 */
+	WeatherForecast* forecasts;
+	const char* delimiter = " ";
+	char** tokens;
+	char* datetime;
+	char* current;
+
+	tokens = g_strsplit (buffer, delimiter, 0);
+	datetime = tokens[3];
+
+
+	current = tokens[5];
 }
 
 static void
