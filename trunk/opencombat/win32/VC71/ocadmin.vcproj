@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="bzadmin"
+	Name="ocadmin"
 	ProjectGUID="{D3C300C4-FD35-4570-AA5D-AB57B88D0FF5}"
 	SccProjectName=""
 	SccLocalPath="">
@@ -13,8 +13,8 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory=".\..\..\src\bzadmin\Debug"
-			IntermediateDirectory=".\..\..\src\bzadmin\Debug"
+			OutputDirectory=".\..\..\src\ocadmin\Debug"
+			IntermediateDirectory=".\..\..\src\ocadmin\Debug"
 			ConfigurationType="1"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
@@ -27,10 +27,10 @@
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="2"
-				PrecompiledHeaderFile=".\..\..\src\bzadmin\Debug/bzadmin.pch"
-				AssemblerListingLocation=".\..\..\src\bzadmin\Debug/"
-				ObjectFile=".\..\..\src\bzadmin\Debug/"
-				ProgramDataBaseFileName=".\..\..\src\bzadmin\Debug/"
+				PrecompiledHeaderFile=".\..\..\src\ocadmin\Debug/bzadmin.pch"
+				AssemblerListingLocation=".\..\..\src\ocadmin\Debug/"
+				ObjectFile=".\..\..\src\ocadmin\Debug/"
+				ProgramDataBaseFileName=".\..\..\src\ocadmin\Debug/"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				DebugInformationFormat="4"
@@ -40,16 +40,16 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="ws2_32.lib winmm.lib odbc32.lib odbccp32.lib"
-				OutputFile=".\..\..\src\bzadmin\Debug\GTXadmin.exe"
+				OutputFile=".\..\..\src\ocadmin\Debug\GTXadmin.exe"
 				LinkIncremental="0"
 				SuppressStartupBanner="TRUE"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile=".\..\..\src\bzadmin\Debug/bzadmin.pdb"
+				ProgramDatabaseFile=".\..\..\src\ocadmin\Debug/bzadmin.pdb"
 				SubSystem="1"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\..\..\src\bzadmin\Debug/bzadmin.tlb"
+				TypeLibraryName=".\..\..\src\ocadmin\Debug/bzadmin.tlb"
 				HeaderFileName=""/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
@@ -74,8 +74,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory=".\..\..\src\bzadmin"
-			IntermediateDirectory=".\..\..\src\bzadmin"
+			OutputDirectory=".\..\..\src\ocadmin"
+			IntermediateDirectory=".\..\..\src\ocadmin"
 			ConfigurationType="1"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
@@ -90,10 +90,10 @@
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="TRUE"
 				UsePrecompiledHeader="2"
-				PrecompiledHeaderFile=".\..\..\src\bzadmin/bzadmin.pch"
-				AssemblerListingLocation=".\..\..\src\bzadmin/"
-				ObjectFile=".\..\..\src\bzadmin/"
-				ProgramDataBaseFileName=".\..\..\src\bzadmin/"
+				PrecompiledHeaderFile=".\..\..\src\ocadmin/bzadmin.pch"
+				AssemblerListingLocation=".\..\..\src\ocadmin/"
+				ObjectFile=".\..\..\src\ocadmin/"
+				ProgramDataBaseFileName=".\..\..\src\ocadmin/"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				CompileAs="0"/>
@@ -102,15 +102,15 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="ws2_32.lib winmm.lib odbc32.lib odbccp32.lib"
-				OutputFile=".\..\..\src\bzadmin/GTXadmin.exe"
+				OutputFile=".\..\..\src\ocadmin/GTXadmin.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				ProgramDatabaseFile=".\..\..\src\bzadmin/bzadmin.pdb"
+				ProgramDatabaseFile=".\..\..\src\ocadmin/bzadmin.pdb"
 				SubSystem="1"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\..\..\src\bzadmin/bzadmin.tlb"
+				TypeLibraryName=".\..\..\src\ocadmin/bzadmin.tlb"
 				HeaderFileName=""/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
@@ -141,7 +141,7 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
 			<File
-				RelativePath="..\..\src\bzadmin\AutoCompleter.cpp">
+				RelativePath="..\..\src\ocadmin\AutoCompleter.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -161,7 +161,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\bzadmin\bzadmin.cpp">
+				RelativePath="..\..\src\ocadmin\bzadmin.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -181,7 +181,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\bzadmin\BZAdminClient.cpp">
+				RelativePath="..\..\src\ocadmin\BZAdminClient.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -201,10 +201,10 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\bzadmin\BZAdminUI.cpp">
+				RelativePath="..\..\src\ocadmin\BZAdminUI.cpp">
 			</File>
 			<File
-				RelativePath="..\..\src\bzadmin\OptionParser.cpp">
+				RelativePath="..\..\src\ocadmin\OptionParser.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -244,7 +244,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\bzadmin\StdBothUI.cpp">
+				RelativePath="..\..\src\ocadmin\StdBothUI.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -264,7 +264,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\bzadmin\StdInUI.cpp">
+				RelativePath="..\..\src\ocadmin\StdInUI.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -284,7 +284,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\bzadmin\StdOutUI.cpp">
+				RelativePath="..\..\src\ocadmin\StdOutUI.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -304,7 +304,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\bzadmin\UIMap.cpp">
+				RelativePath="..\..\src\ocadmin\UIMap.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -328,34 +328,34 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl">
 			<File
-				RelativePath="..\..\src\bzadmin\AutoCompleter.h">
+				RelativePath="..\..\src\ocadmin\AutoCompleter.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzadmin\BZAdminClient.h">
+				RelativePath="..\..\src\ocadmin\BZAdminClient.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzadmin\BZAdminUI.h">
+				RelativePath="..\..\src\ocadmin\BZAdminUI.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzadmin\CursesUI.h">
+				RelativePath="..\..\src\ocadmin\CursesUI.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzadmin\OptionParser.h">
+				RelativePath="..\..\src\ocadmin\OptionParser.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzadmin\pdcurses_adapter.h">
+				RelativePath="..\..\src\ocadmin\pdcurses_adapter.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzadmin\StdBothUI.h">
+				RelativePath="..\..\src\ocadmin\StdBothUI.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzadmin\StdInUI.h">
+				RelativePath="..\..\src\ocadmin\StdInUI.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzadmin\StdOutUI.h">
+				RelativePath="..\..\src\ocadmin\StdOutUI.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzadmin\UIMap.h">
+				RelativePath="..\..\src\ocadmin\UIMap.h">
 			</File>
 		</Filter>
 		<Filter

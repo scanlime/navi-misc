@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="bzflag"
+	Name="opencombat"
 	SccProjectName=""
 	SccLocalPath="">
 	<Platforms>
@@ -12,8 +12,8 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory=".\..\..\src\bzflag\debug"
-			IntermediateDirectory=".\..\..\src\bzflag\debug"
+			OutputDirectory=".\..\..\src\opencombat\debug"
+			IntermediateDirectory=".\..\..\src\opencombat\debug"
 			ConfigurationType="1"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
@@ -25,10 +25,10 @@
 				PreprocessorDefinitions="_WINDOWS;WIN32;_DEBUG"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				PrecompiledHeaderFile=".\..\..\src\bzflag\debug/bzflag.pch"
-				AssemblerListingLocation=".\..\..\src\bzflag\debug/"
-				ObjectFile=".\..\..\src\bzflag\debug/"
-				ProgramDataBaseFileName=".\..\..\src\bzflag\debug/"
+				PrecompiledHeaderFile=".\..\..\src\opencombat\debug/bzflag.pch"
+				AssemblerListingLocation=".\..\..\src\opencombat\debug/"
+				ObjectFile=".\..\..\src\opencombat\debug/"
+				ProgramDataBaseFileName=".\..\..\src\opencombat\debug/"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				DebugInformationFormat="4"
@@ -39,12 +39,12 @@
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="FALSE"
 				AdditionalDependencies="ws2_32.lib dsound.lib winmm.lib glu32.lib opengl32.lib odbc32.lib odbccp32.lib"
-				OutputFile="..\..\src\bzflag\debug\bzflagGTX.exe"
+				OutputFile="..\..\src\opencombat\debug\bzflagGTX.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="..\..\src\3D\debug"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile=".\..\..\src\bzflag\debug/bzflag.pdb"
+				ProgramDatabaseFile=".\..\..\src\opencombat\debug/bzflag.pdb"
 				SubSystem="2"
 				TargetMachine="1"/>
 			<Tool
@@ -53,12 +53,12 @@
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName=".\..\..\src\bzflag\debug/bzflag.tlb"
+				TypeLibraryName=".\..\..\src\opencombat\debug/bzflag.tlb"
 				HeaderFileName=""/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy..\..\src\bzflag\debug\*.exe ..\..\*.exe
-copy ..\..\src\bzflag\debug\*.pdb ..\..\*.pdb
+				CommandLine="copy..\..\src\opencombat\debug\*.exe ..\..\*.exe
+copy ..\..\src\opencombat\debug\*.pdb ..\..\*.pdb
 copy debug\*.pdb ..\..\*.pdb
 "/>
 			<Tool
@@ -82,8 +82,8 @@ copy debug\*.pdb ..\..\*.pdb
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory=".\..\..\src\bzflag\"
-			IntermediateDirectory=".\..\..\src\bzflag\"
+			OutputDirectory=".\..\..\src\opencombat\"
+			IntermediateDirectory=".\..\..\src\opencombat\"
 			ConfigurationType="1"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
@@ -109,7 +109,7 @@ copy debug\*.pdb ..\..\*.pdb
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="ws2_32.lib dsound.lib winmm.lib glu32.lib opengl32.lib odbc32.lib odbccp32.lib"
-				OutputFile="..\..\src\bzflag\bzflagGTX.exe"
+				OutputFile="..\..\src\opencombat\bzflagGTX.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				ProgramDatabaseFile="../src/bzflag/bzflag.pdb"
@@ -125,7 +125,7 @@ copy debug\*.pdb ..\..\*.pdb
 				HeaderFileName=""/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\src\bzflag\*.exe ..\..\*.exe"/>
+				CommandLine="copy ..\..\src\opencombat\*.exe ..\..\*.exe"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
@@ -153,13 +153,13 @@ copy debug\*.pdb ..\..\*.pdb
 			Name="Source Files"
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
 			<File
-				RelativePath="..\..\src\bzflag\ActionBinding.cpp">
+				RelativePath="..\..\src\opencombat\ActionBinding.cpp">
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\AutoPilot.cpp">
+				RelativePath="..\..\src\opencombat\AutoPilot.cpp">
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\bzflag.cpp">
+				RelativePath="..\..\src\opencombat\bzflag.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -196,7 +196,7 @@ copy debug\*.pdb ..\..\*.pdb
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\callbacks.cpp">
+				RelativePath="..\..\src\opencombat\callbacks.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -216,10 +216,10 @@ copy debug\*.pdb ..\..\*.pdb
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\clientCommands.cpp">
+				RelativePath="..\..\src\opencombat\clientCommands.cpp">
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\ControlPanel.cpp">
+				RelativePath="..\..\src\opencombat\ControlPanel.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -239,10 +239,10 @@ copy debug\*.pdb ..\..\*.pdb
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\FlashClock.cpp">
+				RelativePath="..\..\src\opencombat\FlashClock.cpp">
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\MainWindow.cpp">
+				RelativePath="..\..\src\opencombat\MainWindow.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -262,7 +262,7 @@ copy debug\*.pdb ..\..\*.pdb
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\Region.cpp">
+				RelativePath="..\..\src\opencombat\Region.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -282,7 +282,7 @@ copy debug\*.pdb ..\..\*.pdb
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\ServerLink.cpp">
+				RelativePath="..\..\src\opencombat\ServerLink.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -302,10 +302,10 @@ copy debug\*.pdb ..\..\*.pdb
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\ServerList.cpp">
+				RelativePath="..\..\src\opencombat\ServerList.cpp">
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\ServerListCache.cpp">
+				RelativePath="..\..\src\opencombat\ServerListCache.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -325,7 +325,7 @@ copy debug\*.pdb ..\..\*.pdb
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\sound.cpp">
+				RelativePath="..\..\src\opencombat\sound.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -345,13 +345,13 @@ copy debug\*.pdb ..\..\*.pdb
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\TargetingUtils.cpp">
+				RelativePath="..\..\src\opencombat\TargetingUtils.cpp">
 			</File>
 			<Filter
 				Name="drawing"
 				Filter="">
 				<File
-					RelativePath="..\..\src\bzflag\BackgroundRenderer.cpp">
+					RelativePath="..\..\src\opencombat\BackgroundRenderer.cpp">
 					<FileConfiguration
 						Name="Debug|Win32">
 						<Tool
@@ -371,7 +371,7 @@ copy debug\*.pdb ..\..\*.pdb
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\src\bzflag\daylight.cpp">
+					RelativePath="..\..\src\opencombat\daylight.cpp">
 					<FileConfiguration
 						Name="Debug|Win32">
 						<Tool
@@ -391,7 +391,7 @@ copy debug\*.pdb ..\..\*.pdb
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\src\bzflag\HUDDialog.cpp">
+					RelativePath="..\..\src\opencombat\HUDDialog.cpp">
 					<FileConfiguration
 						Name="Debug|Win32">
 						<Tool
@@ -411,7 +411,7 @@ copy debug\*.pdb ..\..\*.pdb
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\src\bzflag\HUDRenderer.cpp">
+					RelativePath="..\..\src\opencombat\HUDRenderer.cpp">
 					<FileConfiguration
 						Name="Debug|Win32">
 						<Tool
@@ -431,7 +431,7 @@ copy debug\*.pdb ..\..\*.pdb
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\src\bzflag\HUDui.cpp">
+					RelativePath="..\..\src\opencombat\HUDui.cpp">
 					<FileConfiguration
 						Name="Debug|Win32">
 						<Tool
@@ -451,7 +451,7 @@ copy debug\*.pdb ..\..\*.pdb
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\src\bzflag\RadarRenderer.cpp">
+					RelativePath="..\..\src\opencombat\RadarRenderer.cpp">
 					<FileConfiguration
 						Name="Debug|Win32">
 						<Tool
@@ -471,7 +471,7 @@ copy debug\*.pdb ..\..\*.pdb
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\src\bzflag\SceneBuilder.cpp">
+					RelativePath="..\..\src\opencombat\SceneBuilder.cpp">
 					<FileConfiguration
 						Name="Debug|Win32">
 						<Tool
@@ -491,7 +491,7 @@ copy debug\*.pdb ..\..\*.pdb
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\src\bzflag\SceneRenderer.cpp">
+					RelativePath="..\..\src\opencombat\SceneRenderer.cpp">
 					<FileConfiguration
 						Name="Debug|Win32">
 						<Tool
@@ -511,7 +511,7 @@ copy debug\*.pdb ..\..\*.pdb
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\src\bzflag\stars.cpp">
+					RelativePath="..\..\src\opencombat\stars.cpp">
 					<FileConfiguration
 						Name="Debug|Win32">
 						<Tool
@@ -535,13 +535,13 @@ copy debug\*.pdb ..\..\*.pdb
 				Name="game"
 				Filter="">
 				<File
-					RelativePath="..\..\src\bzflag\BaseLocalPlayer.cpp">
+					RelativePath="..\..\src\opencombat\BaseLocalPlayer.cpp">
 				</File>
 				<File
-					RelativePath="..\..\src\bzflag\ComposeDefaultKey.cpp">
+					RelativePath="..\..\src\opencombat\ComposeDefaultKey.cpp">
 				</File>
 				<File
-					RelativePath="..\..\src\bzflag\LocalPlayer.cpp">
+					RelativePath="..\..\src\opencombat\LocalPlayer.cpp">
 					<FileConfiguration
 						Name="Debug|Win32">
 						<Tool
@@ -561,7 +561,7 @@ copy debug\*.pdb ..\..\*.pdb
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\src\bzflag\Player.cpp">
+					RelativePath="..\..\src\opencombat\Player.cpp">
 					<FileConfiguration
 						Name="Debug|Win32">
 						<Tool
@@ -581,7 +581,7 @@ copy debug\*.pdb ..\..\*.pdb
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\src\bzflag\playing.cpp">
+					RelativePath="..\..\src\opencombat\playing.cpp">
 					<FileConfiguration
 						Name="Debug|Win32">
 						<Tool
@@ -601,10 +601,10 @@ copy debug\*.pdb ..\..\*.pdb
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\src\bzflag\RegionPriorityQueue.cpp">
+					RelativePath="..\..\src\opencombat\RegionPriorityQueue.cpp">
 				</File>
 				<File
-					RelativePath="..\..\src\bzflag\RemotePlayer.cpp">
+					RelativePath="..\..\src\opencombat\RemotePlayer.cpp">
 					<FileConfiguration
 						Name="Debug|Win32">
 						<Tool
@@ -624,7 +624,7 @@ copy debug\*.pdb ..\..\*.pdb
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\src\bzflag\RobotPlayer.cpp">
+					RelativePath="..\..\src\opencombat\RobotPlayer.cpp">
 					<FileConfiguration
 						Name="Debug|Win32">
 						<Tool
@@ -644,16 +644,16 @@ copy debug\*.pdb ..\..\*.pdb
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\src\bzflag\Roster.cpp">
+					RelativePath="..\..\src\opencombat\Roster.cpp">
 				</File>
 				<File
-					RelativePath="..\..\src\bzflag\ServerCommandKey.cpp">
+					RelativePath="..\..\src\opencombat\ServerCommandKey.cpp">
 				</File>
 				<File
-					RelativePath="..\..\src\bzflag\SilenceDefaultKey.cpp">
+					RelativePath="..\..\src\opencombat\SilenceDefaultKey.cpp">
 				</File>
 				<File
-					RelativePath="..\..\src\bzflag\World.cpp">
+					RelativePath="..\..\src\opencombat\World.cpp">
 					<FileConfiguration
 						Name="Debug|Win32">
 						<Tool
@@ -673,10 +673,10 @@ copy debug\*.pdb ..\..\*.pdb
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\src\bzflag\WorldBuilder.cpp">
+					RelativePath="..\..\src\opencombat\WorldBuilder.cpp">
 				</File>
 				<File
-					RelativePath="..\..\src\bzflag\WorldPlayer.cpp">
+					RelativePath="..\..\src\opencombat\WorldPlayer.cpp">
 					<FileConfiguration
 						Name="Debug|Win32">
 						<Tool
@@ -699,16 +699,16 @@ copy debug\*.pdb ..\..\*.pdb
 					Name="shots"
 					Filter="">
 					<File
-						RelativePath="..\..\src\bzflag\GuidedMissleStrategy.cpp">
+						RelativePath="..\..\src\opencombat\GuidedMissleStrategy.cpp">
 					</File>
 					<File
-						RelativePath="..\..\src\bzflag\SegmentedShotStrategy.cpp">
+						RelativePath="..\..\src\opencombat\SegmentedShotStrategy.cpp">
 					</File>
 					<File
-						RelativePath="..\..\src\bzflag\ShockWaveStrategy.cpp">
+						RelativePath="..\..\src\opencombat\ShockWaveStrategy.cpp">
 					</File>
 					<File
-						RelativePath="..\..\src\bzflag\ShotPath.cpp">
+						RelativePath="..\..\src\opencombat\ShotPath.cpp">
 						<FileConfiguration
 							Name="Debug|Win32">
 							<Tool
@@ -728,10 +728,10 @@ copy debug\*.pdb ..\..\*.pdb
 						</FileConfiguration>
 					</File>
 					<File
-						RelativePath="..\..\src\bzflag\ShotPathSegment.cpp">
+						RelativePath="..\..\src\opencombat\ShotPathSegment.cpp">
 					</File>
 					<File
-						RelativePath="..\..\src\bzflag\ShotStrategy.cpp">
+						RelativePath="..\..\src\opencombat\ShotStrategy.cpp">
 						<FileConfiguration
 							Name="Debug|Win32">
 							<Tool
@@ -756,58 +756,58 @@ copy debug\*.pdb ..\..\*.pdb
 				Name="menus"
 				Filter="">
 				<File
-					RelativePath="..\..\src\bzflag\AudioMenu.cpp">
+					RelativePath="..\..\src\opencombat\AudioMenu.cpp">
 				</File>
 				<File
-					RelativePath="..\..\src\bzflag\DisplayMenu.cpp">
+					RelativePath="..\..\src\opencombat\DisplayMenu.cpp">
 				</File>
 				<File
-					RelativePath="..\..\src\bzflag\FormatMenu.cpp">
+					RelativePath="..\..\src\opencombat\FormatMenu.cpp">
 				</File>
 				<File
-					RelativePath="..\..\src\bzflag\GUIOptionsMenu.cpp">
+					RelativePath="..\..\src\opencombat\GUIOptionsMenu.cpp">
 				</File>
 				<File
-					RelativePath="..\..\src\bzflag\HelpMenu.cpp">
+					RelativePath="..\..\src\opencombat\HelpMenu.cpp">
 				</File>
 				<File
-					RelativePath="..\..\src\bzflag\HUDDialogStack.cpp">
+					RelativePath="..\..\src\opencombat\HUDDialogStack.cpp">
 				</File>
 				<File
-					RelativePath="..\..\src\bzflag\InputMenu.cpp">
+					RelativePath="..\..\src\opencombat\InputMenu.cpp">
 				</File>
 				<File
-					RelativePath="..\..\src\bzflag\JoinMenu.cpp">
+					RelativePath="..\..\src\opencombat\JoinMenu.cpp">
 				</File>
 				<File
-					RelativePath="..\..\src\bzflag\KeyboardMapMenu.cpp">
+					RelativePath="..\..\src\opencombat\KeyboardMapMenu.cpp">
 				</File>
 				<File
-					RelativePath="..\..\src\bzflag\MainMenu.cpp">
+					RelativePath="..\..\src\opencombat\MainMenu.cpp">
 				</File>
 				<File
-					RelativePath="..\..\src\bzflag\MenuDefaultKey.cpp">
+					RelativePath="..\..\src\opencombat\MenuDefaultKey.cpp">
 				</File>
 				<File
-					RelativePath="..\..\src\bzflag\OptionsMenu.cpp">
+					RelativePath="..\..\src\opencombat\OptionsMenu.cpp">
 				</File>
 				<File
-					RelativePath="..\..\src\bzflag\QuickKeysMenu.cpp">
+					RelativePath="..\..\src\opencombat\QuickKeysMenu.cpp">
 				</File>
 				<File
-					RelativePath="..\..\src\bzflag\QuitMenu.cpp">
+					RelativePath="..\..\src\opencombat\QuitMenu.cpp">
 				</File>
 				<File
-					RelativePath="..\..\src\bzflag\SaveWorldMenu.cpp">
+					RelativePath="..\..\src\opencombat\SaveWorldMenu.cpp">
 				</File>
 				<File
-					RelativePath="..\..\src\bzflag\ServerItem.cpp">
+					RelativePath="..\..\src\opencombat\ServerItem.cpp">
 				</File>
 				<File
-					RelativePath="..\..\src\bzflag\ServerMenu.cpp">
+					RelativePath="..\..\src\opencombat\ServerMenu.cpp">
 				</File>
 				<File
-					RelativePath="..\..\src\bzflag\ServerStartMenu.cpp">
+					RelativePath="..\..\src\opencombat\ServerStartMenu.cpp">
 				</File>
 			</Filter>
 		</Filter>
@@ -815,169 +815,169 @@ copy debug\*.pdb ..\..\*.pdb
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl">
 			<File
-				RelativePath="..\..\src\bzflag\AudioMenu.h">
+				RelativePath="..\..\src\opencombat\AudioMenu.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\BackgroundRenderer.h">
+				RelativePath="..\..\src\opencombat\BackgroundRenderer.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\BaseLocalPlayer.h">
+				RelativePath="..\..\src\opencombat\BaseLocalPlayer.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\callbacks.h">
+				RelativePath="..\..\src\opencombat\callbacks.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\commands.h">
+				RelativePath="..\..\src\opencombat\commands.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\ComposeDefaultKey.h">
+				RelativePath="..\..\src\opencombat\ComposeDefaultKey.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\ControlPanel.h">
+				RelativePath="..\..\src\opencombat\ControlPanel.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\daylight.h">
+				RelativePath="..\..\src\opencombat\daylight.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\DisplayMenu.h">
+				RelativePath="..\..\src\opencombat\DisplayMenu.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\FlashClock.h">
+				RelativePath="..\..\src\opencombat\FlashClock.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\FormatMenu.h">
+				RelativePath="..\..\src\opencombat\FormatMenu.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\GuidedMissleStrategy.h">
+				RelativePath="..\..\src\opencombat\GuidedMissleStrategy.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\GUIOptionsMenu.h">
+				RelativePath="..\..\src\opencombat\GUIOptionsMenu.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\HelpMenu.h">
+				RelativePath="..\..\src\opencombat\HelpMenu.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\HUDDialog.h">
+				RelativePath="..\..\src\opencombat\HUDDialog.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\HUDDialogStack.h">
+				RelativePath="..\..\src\opencombat\HUDDialogStack.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\HUDRenderer.h">
+				RelativePath="..\..\src\opencombat\HUDRenderer.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\HUDui.h">
+				RelativePath="..\..\src\opencombat\HUDui.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\InputMenu.h">
+				RelativePath="..\..\src\opencombat\InputMenu.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\JoinMenu.h">
+				RelativePath="..\..\src\opencombat\JoinMenu.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\KeyboardMapMenu.h">
+				RelativePath="..\..\src\opencombat\KeyboardMapMenu.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\LocalPlayer.h">
+				RelativePath="..\..\src\opencombat\LocalPlayer.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\MainMenu.h">
+				RelativePath="..\..\src\opencombat\MainMenu.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\MainWindow.h">
+				RelativePath="..\..\src\opencombat\MainWindow.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\MenuDefaultKey.h">
+				RelativePath="..\..\src\opencombat\MenuDefaultKey.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\OptionsMenu.h">
+				RelativePath="..\..\src\opencombat\OptionsMenu.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\Player.h">
+				RelativePath="..\..\src\opencombat\Player.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\playing.h">
+				RelativePath="..\..\src\opencombat\playing.h">
 			</File>
 			<File
 				RelativePath="..\..\include\Protocol.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\QuickKeysMenu.h">
+				RelativePath="..\..\src\opencombat\QuickKeysMenu.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\QuitMenu.h">
+				RelativePath="..\..\src\opencombat\QuitMenu.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\RadarRenderer.h">
+				RelativePath="..\..\src\opencombat\RadarRenderer.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\Region.h">
+				RelativePath="..\..\src\opencombat\Region.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\RegionPriorityQueue.h">
+				RelativePath="..\..\src\opencombat\RegionPriorityQueue.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\RemotePlayer.h">
+				RelativePath="..\..\src\opencombat\RemotePlayer.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\RobotPlayer.h">
+				RelativePath="..\..\src\opencombat\RobotPlayer.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\Roster.h">
+				RelativePath="..\..\src\opencombat\Roster.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\SaveWorldMenu.h">
+				RelativePath="..\..\src\opencombat\SaveWorldMenu.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\SceneBuilder.h">
+				RelativePath="..\..\src\opencombat\SceneBuilder.h">
 			</File>
 			<File
 				RelativePath="..\..\include\SceneRenderer.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\SegmentedShotStrategy.h">
+				RelativePath="..\..\src\opencombat\SegmentedShotStrategy.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\ServerCommandKey.h">
+				RelativePath="..\..\src\opencombat\ServerCommandKey.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\ServerItem.h">
+				RelativePath="..\..\src\opencombat\ServerItem.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\ServerLink.h">
+				RelativePath="..\..\src\opencombat\ServerLink.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\ServerListCache.h">
+				RelativePath="..\..\src\opencombat\ServerListCache.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\ServerMenu.h">
+				RelativePath="..\..\src\opencombat\ServerMenu.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\ServerStartMenu.h">
+				RelativePath="..\..\src\opencombat\ServerStartMenu.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\ShockWaveStrategy.h">
+				RelativePath="..\..\src\opencombat\ShockWaveStrategy.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\ShotPath.h">
+				RelativePath="..\..\src\opencombat\ShotPath.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\ShotStrategy.h">
+				RelativePath="..\..\src\opencombat\ShotStrategy.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\SilenceDefaultKey.h">
+				RelativePath="..\..\src\opencombat\SilenceDefaultKey.h">
 			</File>
 			<File
 				RelativePath="..\..\include\Singleton.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\sound.h">
+				RelativePath="..\..\src\opencombat\sound.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\TargetingUtils.h">
+				RelativePath="..\..\src\opencombat\TargetingUtils.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\texture.h">
+				RelativePath="..\..\src\opencombat\texture.h">
 			</File>
 			<File
 				RelativePath="..\..\include\TextureManager.h">
@@ -989,13 +989,13 @@ copy debug\*.pdb ..\..\*.pdb
 				RelativePath="..\..\include\version.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\World.h">
+				RelativePath="..\..\src\opencombat\World.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\WorldBuilder.h">
+				RelativePath="..\..\src\opencombat\WorldBuilder.h">
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\WorldPlayer.h">
+				RelativePath="..\..\src\opencombat\WorldPlayer.h">
 			</File>
 		</Filter>
 		<Filter
