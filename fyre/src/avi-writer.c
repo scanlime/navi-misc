@@ -50,6 +50,13 @@ typedef struct {
 /* Scale factor for video stream length and frame rate */
 #define RATE_SCALE 1000
 
+#define AVIF_HASINDEX           0x00000010
+#define AVIF_MUSTUSEINDEX       0x00000020
+#define AVIF_ISINTERLEAVED      0x00000100
+#define AVIF_TRUSTCKTYPE        0x00000800
+#define AVIF_WASCAPTUREFILE     0x00010000
+#define AVIF_COPYRIGHTED        0x00020000
+
 
 /************************************************************************************/
 /**************************************************** Initialization / Finalization */
@@ -197,8 +204,8 @@ static void avi_writer_write_main_header(AviWriter *self) {
     /* padding granularity */
     write_int32(self->file, 0);
 
-    /* flags */
-    write_int32(self->file, 0x30);
+    /* flags (AVIF_* constants) */
+    write_int32(self->file, 0);
 
     /* total frames (we fill this in later) */
     self->frame_count_offset = ftell(self->file);
