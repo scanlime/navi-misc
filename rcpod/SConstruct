@@ -9,7 +9,7 @@ libSrc = [
     'device.c',
     'command.c',
     ]
-testProgs = [
+examples = [
     'blinkytest',
     'hexdump',
     'adc_cat',
@@ -32,10 +32,10 @@ libSrcPaths = ["src/%s" % file for file in libSrc]
 sharedLib = env.SharedLibrary('rcpod', libSrcPaths, LIBS=libs)
 staticLib= env.StaticLibrary('rcpod', libSrcPaths)
 
-# Build the test programs, using the static library
+# Build the example programs, using the static library
 # (it can be a pain to use shared libs without installing them...)
-for testName in testProgs:
-    env.Program(testName, ['test/%s.c' % testName, staticLib], LIBS=libs)
+for example in examples:
+    env.Program(example, ['examples/%s.c' % example, staticLib], LIBS=libs)
 
 # Installing librcpod
 libDir = "%s/lib" % prefix

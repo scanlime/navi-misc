@@ -25,7 +25,7 @@ source code comments.
        to rcpod's commands. This is based on libusb, so it should be portable
        to any OS supported by it, including linux, various BSDs, and Darwin.
 
- test : Small test programs to demonstrate librcpod
+ example : Small example programs to demonstrate librcpod
 
 
 -------- Installation
