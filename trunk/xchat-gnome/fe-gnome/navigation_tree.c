@@ -4,6 +4,7 @@
 #include "pixmaps.h"
 
 void navigation_selection_changed(GtkTreeSelection *selection, gpointer data);
+gboolean navigation_click(GtkWidget *treeview, GdkEventButton *event, gpointer data);
 
 void initialize_navigation_tree() {
 	GtkWidget *navigation_view;
@@ -27,6 +28,7 @@ void initialize_navigation_tree() {
 	select = gtk_tree_view_get_selection(GTK_TREE_VIEW(navigation_view));
 	gtk_tree_selection_set_mode(select, GTK_SELECTION_SINGLE);
 	g_signal_connect(G_OBJECT(select), "changed", G_CALLBACK(navigation_selection_changed), NULL);
+	g_signal_connect(G_OBJECT(navigation_view), "button_press_event", G_CALLBACK(navigation_click), NULL);
 }
 
 void navigation_tree_create_new_network_entry(struct session *sess) {
@@ -49,7 +51,7 @@ static gboolean navigation_tree_create_new_channel_entry_iterate(GtkTreeModel *m
 		GtkWidget *treeview;
 
 		treeview = glade_xml_get_widget(gui.xml, "server channel list");
-		
+
 		gtk_tree_store_append(GTK_TREE_STORE(model), &child, iter);
 		gtk_tree_store_set(GTK_TREE_STORE(model), &child, 1, "<none>", 2, data, 3, 0, -1);
 		/* make sure the tree expands to show the new channel */
@@ -164,4 +166,14 @@ void navigation_tree_set_hilight(struct session *sess) {
 	store = gtk_tree_view_get_model(GTK_TREE_VIEW(treeview));
 
 	gtk_tree_model_foreach(store, navigation_tree_set_hilight_iterate, (gpointer) sess);
+}
+
+gboolean navigation_click(GtkWidget *treeview, GdkEventButton *event, gpointer data) {
+	if(!event)
+		return FALSE;
+	if(event->button == 3) {
+		g_print("pop up navigation context menu...\n");
+		return TRUE;
+	}
+	return FALSE;
 }
