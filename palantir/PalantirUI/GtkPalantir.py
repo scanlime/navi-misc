@@ -12,7 +12,8 @@ gtk2reactor.portableInstall()
 
 import string, gtk, gtk.glade, gobject, CharacterSheet.GtkSheetElements
 from GtkChatBuffer import GtkChatBuffer
-from PalantirIRC import palantir, palantirIRC
+from PalantirIRC import palantir
+from PalantirIRC.palantirIRCFactory import PalantirClientFactory
 from PalantirIRC.dieRoller import DieRoller
 from CharacterSheet.Character import Character
 from CharacterSheet.Sheet import Sheet
@@ -76,7 +77,7 @@ class PalantirWindow:
     self.tree.get_widget('InputBox').pack_start(self.characterSheetWindow)
 
     # Client factory.
-    self.factory = palantirIRC.PalantirClientFactory('nuku-nuku', ui=self)
+    self.factory = PalantirClientFactory('nuku-nuku', ui=self)
 
     # Create an object to handle die rolls.
     self.dieRoller = DieRoller(self)
