@@ -499,7 +499,7 @@ navigation_tree_select_prev_channel (NavTree *navtree, gboolean wrap)
 			 * so we make path NULL.
 			 */
 			gtk_tree_path_free (path);
-			path = NULL; /* FIXME: extraneous? */
+			path = NULL;
 		}
 	} else {
 		/* If the path isn't a server expand it's parent, just in case. */
@@ -526,8 +526,10 @@ navigation_tree_select_prev_channel (NavTree *navtree, gboolean wrap)
 				path = gtk_tree_model_get_path (model, &previous);
 			} else {
 				gtk_tree_path_up (path);
-				if (!gtk_tree_path_prev (path))
+				if (!gtk_tree_path_prev (path)) {
+					gtk_tree_path_free (path);
 					return;
+				}
 
 				gtk_tree_model_get_iter (model, &iter, path);
 				gtk_tree_path_append_index (path, gtk_tree_model_iter_n_children (model, &iter) - 1);
@@ -535,6 +537,7 @@ navigation_tree_select_prev_channel (NavTree *navtree, gboolean wrap)
 		}
 		/* Select the new path. */
 		gtk_tree_selection_select_path (selection, path);
+		gtk_tree_path_free (path);
 	}
 }
 
