@@ -68,11 +68,16 @@ def rebuildPackage(package):
     """Recursively rebuild all loaded modules in the given package"""
     rebuild.rebuild(package)
     # If this is really a package instead of a module, look for children
+    try:
+        f = package.__file__
+    except AttributeError:
+        return
     if package.__file__.find("__init__") >= 0:
         for item in package.__dict__.itervalues():
             # Is it a module?
             if type(item) == type(package):
                 rebuildPackage(item)
+
 
 def getTypeName(obj):
     """Try as hard and as generically as we can to get a useful type/class name"""
