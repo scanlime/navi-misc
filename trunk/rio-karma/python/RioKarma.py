@@ -69,14 +69,16 @@ class RequestResponseProtocol(protocol.Protocol):
        transfers themselves, are throttled such that the queue remains full
        enough to avoid wasting transmit or receive time, but that we don't
        waste all our CPU filling it. This ideal fill level is set in the
-       constructor.
+       constructor- this number should stay pretty low, or we spend far too
+       much time waiting for Twisted to buffer outgoing packets. Appending
+       to the buffer takes longer the more items are in it currently.
        """
-    def __init__(self, preferredBacklog=10):
+    def __init__(self, preferredBacklog=4):
         self.buffer = ''
 
         # When the queue is less than preferredBacklog deep, we have
         # a list of clients waiting to be notified so they can add more.
-        self.preferredBacklog = 4
+        self.preferredBacklog = preferredBacklog
         self.queueListeners = []
 
         # A list is really a suboptimal data type for this. If we feel like
