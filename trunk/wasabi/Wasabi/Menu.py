@@ -83,6 +83,10 @@ class Menu(Sequencer.Page):
         import Settings
         self.background = HUD.Background(self.overlay, Settings.getCurrentBackground())
 
+    def cancel(self):
+        """Called to cancel the menu without selecting an item"""
+        self.onFinish()
+
 
 class DockMenu(Menu):
     """Base class for menus using one Icon.Dock to hold all their items"""
