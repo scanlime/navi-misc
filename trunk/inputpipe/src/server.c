@@ -57,6 +57,11 @@ struct client {
   int device_created;
   struct uinput_user_dev dev_info;
 
+  /* Saved capability bit indicating whether this client uses
+   * synchronization events. If not, we need to insert them artificially.
+   */
+  int ev_syn_bit;
+
   struct sockaddr_in addr;
   struct packet_socket *socket;
 
@@ -241,6 +246,16 @@ static void client_received_packet(struct client* self,
       }
       ntoh_input_event(&ev, ip_ev);
       write(self->uinput_fd, &ev, sizeof(ev));
+
+      /* If the client isn't generating EV_SYN events, we resort
+       * to artificially inserting one after every received event.
+       */
+      if (!self->ev_syn_bit) {
+	ev.type = EV_SYN;
+	ev.code = 0;
+	ev.value = 0;
+	write(self->uinput_fd, &ev, sizeof(ev));
+      }
     }
     break;
 
@@ -365,9 +380,15 @@ static void client_received_packet(struct client* self,
       for (i=0; i < (length-sizeof(uint16_t)); i++) {
 	byte = p[i];
 	for (j=0; j<8; j++) {
-	  if (byte & 1) {
+	  int bit_value = byte & 1;
+
+	  /* Save the EV_SYN bit */
+	  if (ev==0 && bit==EV_SYN)
+	    self->ev_syn_bit = bit_value;
+
+	  if (bit_value)
 	    ioctl(self->uinput_fd, ioc, bit);
-	  }
+
 	  byte >>= 1;
 	  bit++;
 	}
