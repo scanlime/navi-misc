@@ -19,7 +19,7 @@ Option::Option (string shrt, string lng, string dest,
 	action (act),
 	shrt_flag (shrt),
 	lng_flag (lng),
-  help (hlp),
+	help (hlp),
 	destination (dest)
 {
 }
