@@ -150,6 +150,8 @@ Explorer* explorer_new(IterativeMap *map, Animation *animation) {
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scroll), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
   gtk_window_set_default_size(GTK_WINDOW(window), win_req.width, win_req.height);
   gtk_widget_show(window);
+
+  return self;
 }
 
 
@@ -195,7 +197,7 @@ static void on_widget_toggle(GtkWidget *widget, gpointer user_data) {
   GtkWidget *toggled;
 
   name = gtk_widget_get_name(widget);
-  g_assert(!strncmp(name, "toggle_", 7));
+  g_assert(!strncmp((void *) name, "toggle_", 7));
   toggled = glade_xml_get_widget(self->xml, name+7);
 
   if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget)))
@@ -328,7 +330,7 @@ void explorer_update_gui(Explorer *self) {
 
   /* We don't want to update the status bar if we're trying to show rendering changes quickly */
   if (!HISTOGRAM_IMAGER(self->map)->render_dirty_flag) {
-    gchar *iters = g_strdup_printf("Iterations:    %.3e    \tPeak density:    %d    \tCurrent tool: %s",
+    gchar *iters = g_strdup_printf("Iterations:    %.3e    \tPeak density:    %ld    \tCurrent tool: %s",
 				   self->map->iterations, HISTOGRAM_IMAGER(self->map)->peak_density, self->current_tool);
     if (self->render_status_message_id)
       gtk_statusbar_remove(self->statusbar, self->render_status_context, self->render_status_message_id);

@@ -236,7 +236,7 @@ static void de_jong_init_calc_params(GObjectClass *object_class) {
   spec = g_param_spec_double       ("zoom",
 				    "Zoom",
 				    "Zoom factor",
-				    0.2, 1000, 1,
+				    0.01, 1000, 1,
 				    G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
 				    G_PARAM_LAX_VALIDATION | PARAM_INTERPOLATE | PARAM_IN_GUI);
   param_spec_set_group             (spec, current_group);
@@ -725,6 +725,18 @@ void de_jong_calculate(IterativeMap *map, guint iterations) {
      */
     x = sin(param.a * point_y) - cos(param.b * point_x);
     y = sin(param.c * point_x) - cos(param.d * point_y);
+    /*
+    x = sin(param.a * point_y) + param.c * cos(param.a * point_x);
+    y = sin(param.b * point_x) + param.d * cos(param.b * point_y);
+    */
+    /*
+    x = sin(param.a * point_y) - tanh(param.b * point_x);
+    y = sin(param.c * point_x) - tanh(param.d * point_y);
+    */
+    /*
+    x = sin(point_y * param.b) + param.c * sin(point_x * param.b);
+    y = sin(point_x * param.a) + param.d * sin(point_y * param.a);
+    */
     point_x = x;
     point_y = y;
 

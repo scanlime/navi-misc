@@ -21,8 +21,8 @@
  */
 
 #include "math-util.h"
-#include <math.h>
 #include <glib.h>
+#include <math.h>
 
 
 float uniform_variate() {
