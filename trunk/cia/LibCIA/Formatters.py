@@ -232,7 +232,7 @@ class CommitToIRC(CommitFormatter):
 
     def format_revision(self, rev):
         import IRC
-        return 'r' + IRC.format(CommitFormatter.format_revision(self, rev), 'bold')
+        return 'r' + IRC.format(str(rev).strip(), 'bold')
 
     def format_module(self, module):
         import IRC
