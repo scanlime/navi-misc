@@ -77,6 +77,11 @@ module i2c_slave_serializer (clk, scl, sda, start, stop, write_data, wr);
 		S_WAIT_FOR_SCL_LOW = 1,
 		S_WAIT_FOR_SCL_HIGH = 2;
 	
+	// SDA edge detection
+	reg prev_sda;
+	always @(posedge clk)
+		prev_sda <= sda;
+	
 	always @(posedge clk) case (state)
 
 		S_WAIT_FOR_START: begin
@@ -87,14 +92,14 @@ module i2c_slave_serializer (clk, scl, sda, start, stop, write_data, wr);
 			stop <= 0;
 			bit_count <= 0;
 
-			if (sda) begin
-				// No start condition yet...
-				start <= 0;
-			end
-			else begin
+			if ((!sda) && prev_sda) begin
 				// A start condition. Note it and wait for SCL to go low
 				state <= S_WAIT_FOR_SCL_LOW;
 				start <= 1;
+			end
+			else begin
+				// No start condition yet...
+				start <= 0;
 			end
 		end
 		
@@ -110,7 +115,7 @@ module i2c_slave_serializer (clk, scl, sda, start, stop, write_data, wr);
 				state <= S_WAIT_FOR_SCL_HIGH;
 				stop <= 0;	
 			end
-			else if (sda) begin
+			else if (sda && (!prev_sda)) begin
 				// Stop condition
 				stop <= 1;
 				state <= S_WAIT_FOR_START;
@@ -121,7 +126,7 @@ module i2c_slave_serializer (clk, scl, sda, start, stop, write_data, wr);
 			// SCL is low. When it goes high, another data bit will have been
 			// clocked in. If it's a normal bit, store it- if it's an ACK,
 			// pull SDA low.
-			if (sda) begin
+			if (scl) begin
 				// Is this an ACK bit (bit 8) or a normal bit?
 				if (bit_count == 8) begin
 					// ACK byte. Strobe the data byte we just received.
