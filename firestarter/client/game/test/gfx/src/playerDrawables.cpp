@@ -72,8 +72,17 @@ void CPlayerDrawObject::Init ( void )
 
 	node->attachObject(mShip1);
 
-	node->rotate(Vector3(0,0,1),parent->GetValueF("rotz"));
-	node->translate(parent->GetValueF("posx"),parent->GetValueF("posy"),parent->GetValueF("posz")); 
+	float rot[3];
+	parent->GetRot(rot);
+	rot[2] += 90.0f;
+
+	float pos[3];
+	parent->GetPos(pos);
+	pos[2] += 1.5f;
+
+	node->rotate(Vector3(0,0,1),rot[2]-lastRot);
+	node->translate(pos[0],pos[1],pos[2]); 
+	lastRot = rot[2];
 
 	vis = true;
 }
@@ -85,7 +94,7 @@ void CPlayerDrawObject::Think ( void )
 	{
 		if (!vis)
 		{
-			CFirestarterLoop::instance().GetSceneManager()->getRootSceneNode()->addChild(node);
+		//	CFirestarterLoop::instance().GetSceneManager()->getRootSceneNode()->addChild(node);
 			vis = true;
 		}
 	}
@@ -93,7 +102,7 @@ void CPlayerDrawObject::Think ( void )
 	{
 		if (vis)
 		{
-			CFirestarterLoop::instance().GetSceneManager()->getRootSceneNode()->removeChild(node->getName());
+		//	CFirestarterLoop::instance().GetSceneManager()->getRootSceneNode()->removeChild(node->getName());
 			vis = false;
 		}
 	}
@@ -109,7 +118,9 @@ void CPlayerDrawObject::Think ( void )
 		pos[2] += 1.5f;
 
 		node->rotate(Vector3(0,0,1),rot[2]-lastRot);
-		node->translate(pos[0],pos[1],pos[2]); 
+		node->setPosition(pos[0],pos[1],pos[2]); 
+
+	//	node->translate(0,0,1.5f); 
 
 		lastRot = rot[2];
 	}
