@@ -1,4 +1,4 @@
-BINS = raw_test new_net train_net net_test
+BINS = raw_test new_net train_net net_test pong
 
 LIBSRC = \
 	lib/FieldSensor.o \
