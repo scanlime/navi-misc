@@ -185,7 +185,39 @@ e_weather_source_ccf_do_parse (EWeatherSourceCCF *source)
 static void
 retrieval_done (SoupMessage *message, EWeatherSourceCCF *source)
 {
-	g_print ("retreival done!\n");
+	char *str, *newuri;
+
+	g_print ("Retrieval done.\n");
+
+	/* Handle redirection ourselves */
+	if (SOUP_STATUS_IS_REDIRECTION (message->status_code))
+	{
+		newuri = soup_message_get_header (message->response_headers, "Location");
+
+		g_print ("Redirected to %s\n", newuri);
+
+		if (newuri)
+		{
+			/* FIXME: redirect to newuri */
+		}
+		else
+		{
+			/* FIXME: notify error */
+		}
+
+		return;
+	}
+
+	/* check status code */
+	if (!SOUP_STATUS_IS_SUCCESSFUL (message->status_code))
+	{
+		/* FIXME: notify error */
+	}
+
+	str = g_malloc0 (message->response.length + 1);
+	strncpy (str, message->response.body, message->response.length);
+	g_print ("%s\n", str);
+	g_free (str);
 }
 
 static void
@@ -205,6 +237,8 @@ e_weather_source_ccf_parse (EWeatherSource *source, SourceFinished done)
 	soup_message = soup_message_new (SOUP_METHOD_GET, url);
 	soup_message_set_flags (soup_message, SOUP_MESSAGE_NO_REDIRECT);
 	soup_session_queue_message (ccfsource->soup_session, soup_message, (SoupMessageCallbackFn) retrieval_done, source);
+	g_print ("Retrieval started.\n");
+	g_free (url);
 }
 
 static void
