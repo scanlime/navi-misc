@@ -345,6 +345,11 @@ img.sortIndicator {
   padding: 0em 0.5em;
 }
 
+img.actionIcon {
+  padding: 0em 0.5em;
+  vertical-align: baseline;
+}
+
 img.left-icon {
   padding: 0em 0.5em 0em 0em;
 }
@@ -405,7 +410,7 @@ table.messageHeaders td.value {
   width: 100%;
 }
 
-p.messageBody {
+.messageBody {
   margin: 1.5em 0em;
   padding: 0.25em 0em;
 }

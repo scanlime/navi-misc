@@ -432,6 +432,19 @@ class CommitToXHTMLLong(CommitToXHTML):
     </format>
     """
 
+    _actionIcon = tag('img', width=12, height=12, _class='actionIcon')
+
+    actionIcons = {
+        'add':    _actionIcon(src='/images/file_added.png',
+                              title='File Added', alt='Added'),
+        'remove': _actionIcon(src='/images/file_removed.png',
+                              title='File Removed', alt='Removed'),
+        'rename': _actionIcon(src='/images/file_renamed.png',
+                              title='File Renamed', alt='Renamed'),
+        'modify': _actionIcon(src='/images/file_modified.png',
+                              title='File Modified', alt='Modified'),
+        }
+
     def component_headers(self, element, args):
         """Format all relevant commit metadata in an email-style header box"""
         from LibCIA.Web import Template
@@ -520,6 +533,11 @@ class CommitToXHTMLLong(CommitToXHTML):
             uri = fileTag.getAttributeNS(None, 'uri')
             if uri:
                 return tag('a', href=uri)[ name ]
+
+            # If we have an 'action' attribute, represent it with an icon
+            actionIcon = self.actionIcons.get(fileTag.getAttributeNS(None, 'action'))
+            if actionIcon:
+                name = (name, actionIcon)
 
         return name
 
