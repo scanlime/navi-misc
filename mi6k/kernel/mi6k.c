@@ -116,6 +116,7 @@ static void mi6k_ir_rx_push(struct usb_mi6k *dev, lirc_t x);
 static int mi6k_ir_rx_pop(struct usb_mi6k *dev);
 static void mi6k_ir_rx_store(struct usb_mi6k *dev, unsigned char *buffer, size_t count);
 static void mi6k_ir_tx_send(struct usb_mi6k *dev, lirc_t pulse, lirc_t space);
+static int mi6k_status(struct usb_mi6k *dev);
 static int mi6k_open(struct inode *inode, struct file *file);
 static int mi6k_release(struct inode *inode, struct file *file);
 static ssize_t mi6k_dev_write(struct file *file, const char *buffer, size_t count, loff_t *ppos);
@@ -256,6 +257,16 @@ static void mi6k_ir_rx_irq(struct urb *urb)
 		mi6k_ir_rx_store(dev, dev->ir_rx_tbuffer, urb->actual_length);
 		up(&dev->sem);
 	}
+}
+
+static int mi6k_status(struct usb_mi6k *dev)
+{
+	/* Return MI6K_STATUS_* constants describing the device's state */
+	unsigned char status;
+	usb_control_msg(dev->udev, usb_rcvctrlpipe(dev->udev, 0),
+			MI6K_CTRL_STATUS, 0x40 | USB_DIR_IN, 0, 0, &status, sizeof(status),
+			REQUEST_TIMEOUT);
+	return status;
 }
 
 
@@ -435,6 +446,11 @@ static int mi6k_dev_ioctl(struct inode *inode, struct file *file, unsigned int c
 			break;
 		}
 		mi6k_request(dev, MI6K_CTRL_LED_SET, leds.blue >> 6, leds.white >> 6);
+		break;
+
+	case MI6KIO_STATUS:
+		/* Return MI6K_STATUS_* constants or'ed together */
+		retval = mi6k_status(dev);
 		break;
 
 	default:
