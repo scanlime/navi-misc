@@ -131,5 +131,60 @@
       </locale>
     </schema>
 
+    <schema>
+      <key>/schemas/apps/xchat/keybindings/prev_network</key>
+      <applyto>/apps/xchat/keybindings/prev_network</applyto>
+      <owner>xchat</owner>
+      <type>string</type>
+      <default>&lt;Alt&gt;Up</default>
+      <locale name="C">
+        <short>Previous Network</short>
+      </locale>
+    </schema>
+
+    <schema>
+      <key>/schemas/apps/xchat/keybindings/next_network</key>
+      <applyto>/apps/xchat/keybindings/next_network</applyto>
+      <owner>xchat</owner>
+      <type>string</type>
+      <default>&lt;Alt&gt;Down</default>
+      <locale name="C">
+        <short>Next Network</short>
+      </locale>
+    </schema>
+
+    <schema>
+      <key>/schemas/apps/xchat/keybindings/prev_discussion</key>
+      <applyto>/apps/xchat/keybindings/prev_discussion</applyto>
+      <owner>xchat</owner>
+      <type>string</type>
+      <default>&lt;Control&gt;Up</default>
+      <locale name="C">
+        <short>Previous Discussion</short>
+      </locale>
+    </schema>
+
+    <schema>
+      <key>/schemas/apps/xchat/keybindings/next_discussion</key>
+      <applyto>/apps/xchat/keybindings/next_discussion</applyto>
+      <owner>xchat</owner>
+      <type>string</type>
+      <default>&lt;Control&gt;Down</default>
+      <locale name="C">
+        <short>Next Discussion</short>
+      </locale>
+    </schema>
+
+    <schema>
+      <key>/schemas/apps/xchat/keybindings/close_discussion</key>
+      <applyto>/apps/xchat/keybindings/close_discussion</applyto>
+      <owner>xchat</owner>
+      <type>string</type>
+      <default>&lt;Control&gt;%lt;Shift&gt;W</default>
+      <locale name="C">
+        <short>Close current discussion</short>
+      </locale>
+    </schema>
+
   </schemalist>
 </gconfschemafile>
