@@ -6,14 +6,14 @@
 
 import rcpod
 
-class therm:
+class i2c:
     def __init__(self, pic):
         self.pic	= pic
         self.busmask	= 0x04	# 0000 0100 - i2c bus on RB2
 	self.clockmask	= 0x02	# 0000 0010 - i2c clock on RB1
 	self.b		= 0x00
 
-    def i2c_readbit(self):
+    def readbit(self):
         self.b = self.busmask & ~self.clockmask			# bus high (input), clock low
 	self.pic.TRISB = self.b
 	self.b |= self.clockmask				# clock high
@@ -22,7 +22,7 @@ class therm:
 	self.pic.TRISB = self.b
 	return self.pic.PORTB & self.busmask
 
-    def i2c_start(self):
+    def start(self):
         self.b = self.busmask | self.clockmask			# bus high, clock high
 	self.pic.TRISB = self.b
 	self.b &= ~self.busmask					# bus low
@@ -30,7 +30,7 @@ class therm:
 	self.b &= ~self.clockmask				# clock low
 	self.pic.TRISB = self.b
 
-    def i2c_stop(self):
+    def stop(self):
         self.b = ~self.busmask & self.clockmask			# bus low, clock high
 	self.pic.TRISB = self.b
 	self.b |= self.busmask					# bus high
@@ -38,7 +38,7 @@ class therm:
 	self.b &= ~self.clockmask				# clock low
 	self.pic.TRISB = self.b
 
-    def i2c_writebit(self, v):
+    def writebit(self, v):
         if v:
 	    self.b = self.busmask & ~self.clockmask		# bus high, clock low
 	    self.pic.TRISB = self.b
@@ -51,52 +51,71 @@ class therm:
 	self.pic.TRISB = self.b
         pass
 
-    def i2c_ack(self):
+    def ack(self):
     	# for now, just do a clock cycle but don't read
 	self.b = self.clockmask					# bus high, clock high
 	self.pic.TRISB = self.b
 	self.b &= ~self.clockmask				# bus high, clock low
 	self.pic.TRISB = self.b
 
-    def i2c_writebyte(self, byte):
+    def nack(self):
+        self.writebit(0)
+
+    def writebyte(self, byte):
         for i in range(7, -1, -1):
             bit = (byte >> i) & 0x01
-            self.i2c_writebit(bit)
+            self.writebit(bit)
+	self.ack()
 
-    def i2c_readbyte(self):
+    def readbyte(self):
         # just returns a sequence of stuff on portb - would be
 	# nice to slice out only the active i2c busses
 	a = [0, 0, 0, 0, 0, 0, 0, 0]
 	for i in range(8):
-	    bits = self.i2c_readbit()
+	    bits = self.readbit()
 	    for j in range(8):
 	        a[j] <<= 1
 		a[j] |= (bits >> j) & 0x01
+	self.nack()
 	return a
 
-    def i2c_write(self, address, register, byte):
-        self.i2c_start()
-	self.i2c_writebyte(adress << 1)				# address, r/w bit is 0 (write)
-	self.i2c_ack()
-	self.i2c_writebyte(register)
-	self.i2c_ack()
-	self.i2c_writebyte(byte)
-	self.i2c_ack()
-	self.i2c_stop()
+class eeprom(i2c):
+    def write_byte(self, address, byte):
+        self.start()
+	self.writebyte(0xa0)					# device address + write
+	self.writebyte((address >> 8) & 0xff)			# high byte
+	self.writebyte(address & 0xff)				# low byte
+	self.writebyte(byte)					# data
+	self.stop()
 
-    def i2c_read(self, address, register):
-        self.i2c_start()
-	self.i2c_writebyte(address << 1)			# address, r/w bit is 0 (write)
-	self.i2c_ack()
-	self.i2c_writebyte(register)
-	self.i2c_ack()
-	return self.i2c_recieve(address)
+    def random_read(self, address):
+        self.start()
+	self.writebyte(0xa0)					# device address + write
+	self.writebyte((address >> 8) & 0xff)			# high byte
+	self.writebyte(address & 0xff)				# low byte
+	self.start()
+	self.writebyte(0xa1)					# device address + read
+	blah = self.readbyte()
+	self.stop()
+	return blah
 
-    def i2c_recieve(self, address):
-        self.i2c_start()
-	self.i2c_writebyte(address << 1 | 0x01)			# address, r/w bit is 1 (read)
-	self.i2c_ack()
-	a = self.i2c_readbyte()
-	self.i2c_writebit(0)					# nack
-	self.i2c_stop()
+class therm(i2c):
+    def write(self, address, register, byte):
+        self.start()
+	self.writebyte(adress << 1)				# address, r/w bit is 0 (write)
+	self.writebyte(register)
+	self.writebyte(byte)
+	self.stop()
+
+    def read(self, address, register):
+        self.start()
+	self.writebyte(address << 1)				# address, r/w bit is 0 (write)
+	self.writebyte(register)
+	return self.recieve(address)
+
+    def recieve(self, address):
+        self.start()
+	self.writebyte(address << 1 | 0x01)			# address, r/w bit is 1 (read)
+	a = self.readbyte()
+	self.stop()
 	return a

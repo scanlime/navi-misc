@@ -146,7 +146,7 @@ class Device:
 
     def poke(self, address, data):
         """Store the given address/data pair"""
-        ioctl(self.dev, 0x3701, struct.pack("HB", address, data))
+        ioctl(self.dev, 0x3701, struct.pack("HB", address, data & 0xff))
 
     def __setitem__(self, address, data):
         self.poke(address, data)
