@@ -26,6 +26,11 @@ CBZNextLoop::~CBZNextLoop()
 
 bool CBZNextLoop::OnInit ( void )
 {
+	// some default values
+	SetGameName("susan");
+	SetGameStartString("test");
+
+	// init the shit
 	ui.Set(this);
 	ui.Init();
 	game.Set(this);
