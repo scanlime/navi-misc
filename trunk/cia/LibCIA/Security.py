@@ -9,9 +9,7 @@ Generally the 'universe' key will be saved somewhere only the server's
 owner can access it on startup. The 'universe' key can be used to grant
 other keys, which can then be distributed to other people or machines.
 
-Keys are represented in the database as a chunk of random binary data,
-but they are represented everywhere else base64-encoded, to make them
-XML-friendly.
+Keys are chunks of random base64-encoded binary dat
 
 Note that this system has many of the same qualities as traditional
 capabilities, but is not implemented in the same way. In traditional
@@ -52,18 +50,15 @@ a real capabilities system.
 
 from twisted.web import xmlrpc
 import binascii, os
-import Rack
+import Database
 
 
 class SecurityInterface(xmlrpc.XMLRPC):
-    """An XML-RPC interface to the capabilities database"""
-    def __init__(self, caps):
-        self.caps = caps
-
+    """An XML-RPC interface to the global capabilities database"""
     def xmlrpc_revoke(self, capability, key):
         """Revoke the given capability, invalidating its current key"""
-        self.caps.faultIfMissing(key, 'universe', 'security.revoke')
-        self.caps.revoke(capability)
+        caps.faultIfMissing(key, 'universe', 'security.revoke')
+        caps.revoke(capability)
         return True
 
     def xmlrpc_grant(self, capability, key):
@@ -72,19 +67,19 @@ class SecurityInterface(xmlrpc.XMLRPC):
            to the 'universe' key- this is why there are no 'security' or
            'security.grant' capabilities.
            """
-        self.caps.faultIfMissing(key, 'universe')
+        caps.faultIfMissing(key, 'universe')
         return self.caps.grant(capability)
 
     def xmlrpc_list(self, key):
         """Return a list of all capabilities that have been assigned keys"""
-        self.caps.faultIfMissing(key, 'universe', 'security.list')
+        caps.faultIfMissing(key, 'universe', 'security.list')
         return self.caps.list()
 
     def xmlrpc_test(self, capability, key):
         """Test the given key against a capability, returning True if it
            passes, False if it fails.
            """
-        return self.caps.test(key, capability)
+        return caps.test(key, capability)
 
 
 def createRandomKey(bytes=128):
@@ -114,7 +109,7 @@ class CapabilityDB(object):
     """A simple capability database- capabilities are mapped from a
        short identifier to an actual capability key taking the form of
        an 'unguessable' random number. Capability identifiers are any
-       python object compatible with Rack.KeyPickler.
+       python object- the object's repr() is used as the database key.
 
        This database provides the ability to test a key for some particular
        capability, retrieve the key for a particular capability, and revoke
@@ -197,6 +192,13 @@ class CapabilityDB(object):
     def list(self):
         """Return all capabilities we have in the database"""
         return self.rack.keys()
+
+
+class x:
+    # FIXME- security system needs fixing
+    def faultIfMissing(*args):
+        pass
+caps = x()
 
 
 def _test():

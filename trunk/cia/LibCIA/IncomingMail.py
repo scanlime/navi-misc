@@ -46,8 +46,7 @@ class MailInterface(XMLRPC):
     """An XML-RPC interface for delivering messages via an IncomingMailParser
        to the Message.Hub.
        """
-    def __init__(self, caps, hub):
-        self.caps = caps
+    def __init__(self, hub):
         self.hub = hub
 
     def xmlrpc_deliver(self, message, key=None):

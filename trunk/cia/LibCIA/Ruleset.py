@@ -39,18 +39,19 @@ used to store and query rulesets in a RulesetStorage.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import XML, Message, Debug
+import XML, Message, Debug, Database, Security
 from twisted.python import log
 from twisted.xish.xpath import XPathQuery
 from twisted.web import xmlrpc
+from twisted.internet import defer
+from twisted.enterprise.util import quote as quoteSQL
 import sys, traceback, re
 
 
 class RulesetInterface(xmlrpc.XMLRPC):
     """An XML-RPC interface used to set and query the rulesets in a RulesetStorage"""
-    def __init__(self, caps, storage):
+    def __init__(self, storage):
         xmlrpc.XMLRPC.__init__(self)
-        self.caps = caps
         self.storage = storage
 
     def xmlrpc_store(self, xml, key):
@@ -64,10 +65,9 @@ class RulesetInterface(xmlrpc.XMLRPC):
            """
         try:
             dom = XML.parseString(xml)
-            self.caps.faultIfMissing(key, 'universe', 'ruleset', 'ruleset.store',
+            Security.caps.faultIfMissing(key, 'universe', 'ruleset', 'ruleset.store',
                                      ('ruleset.uri', str(dom['uri'])))
             self.storage.store(dom)
-            self.storage.save()
         except:
             Debug.catchFault()
         return True
@@ -79,8 +79,8 @@ class RulesetInterface(xmlrpc.XMLRPC):
            URI, then hand that to someone else who would only have the ability
            to edit that URI.
            """
-        self.caps.faultIfMissing(key, 'universe', 'ruleset', 'ruleset.getUriKey')
-        return self.caps.grant(('ruleset.uri', str(uri)))
+        Security.caps.faultIfMissing(key, 'universe', 'ruleset', 'ruleset.getUriKey')
+        return Security.caps.grant(('ruleset.uri', str(uri)))
 
     def xmlrpc_getUriList(self):
         """Return a list of all URIs with non-empty rulesets"""
@@ -293,6 +293,12 @@ class Ruleset(XML.XMLFunction):
         # signature as any of our other element implementation functions.
         return f
 
+    def isEmpty(self):
+        """Returns True if the ruleset has no contents"""
+        # Note that the obvious xml.elements() doesn't work- it will
+        # always be true, because the returned object is a generator.
+        return not self.xml.firstChildElement()
+
 
 class BaseURIHandler(object):
     """A URIHandler instance defines a particular URI scheme, actions to
@@ -409,16 +415,54 @@ class URIRegistry(object):
         raise UnsupportedURI("No registered URI handler supports %r" % uri)
 
 
-class RulesetStorage(XML.XMLStorage):
+class RulesetStorage:
     """A persistent list of Rulesets, stored in RulesetDelivery objects
        with URIHandlers looked up from the provided URIRegistry.
        The generated RulesetDelivery objects are automatically added
        to and removed from the supplied Message.Hub.
+
+       At startup, refresh() is called to read in rulesets from the
+       'rulesets' database table.
        """
-    def __init__(self, fileName, hub, uriRegistry):
+    tableSchema = """
+    CREATE TABLE IF NOT EXISTS rulesets (
+        uri TEXT,
+        xml TEXT,
+    )
+    """
+
+    def __init__(self, hub, uriRegistry):
         self.uriRegistry = uriRegistry
         self.hub = hub
-        XML.XMLStorage.__init__(self, fileName, rootName='rulesets')
+        self.emptyStorage()
+        self.refresh()
+
+    def refresh(self):
+        """Begin the process of loading our rulesets in from the SQL database.
+           Returns a Deferred that signals the operation's completion.
+           """
+        # First we ensure the database table exists
+        result = defer.Deferred()
+        log.msg("Starting to refresh rulesets...")
+        d = Database.pool.runOperation(self.tableSchema)
+        d.addCallback(self._queryDbRulesets, result)
+        d.addErrback(result.errback)
+        return result
+
+    def _queryDbRulesets(self, none, result):
+        """The second step in the refresh() process- query the database for all rulesets"""
+        d = Database.pool.runQuery("SELECT xml FROM rulesets")
+        d.addCallback(self._storeDbRulesets, result)
+        d.addErrback(result.errback)
+
+    def _storeDbRulesets(self, rulesets, result):
+        """The last step in the refresh() process, loading the retrieved list of rulesets"""
+        log.msg("%d ruleset%s received from the database" % (len(rulesets), "s"[len(rulesets) == 1:]))
+        self.emptyStorage()
+        for ruleset in rulesets:
+            self._store(Ruleset(ruleset[0]))
+        log.msg("Rulesets refreshed.")
+        return rulesets
 
     def emptyStorage(self):
         # Remove any existing rulesets from the Message.Hub
@@ -440,18 +484,46 @@ class RulesetStorage(XML.XMLStorage):
            It is important that this function doesn't actually
            remove or change the ruleset in quesion unless any possible
            input errors have already been detected.
-           """
-        # Important to make sure the ruleset parses first of all
-        ruleset = Ruleset(rulesetXml)
 
+           This updates both our in-memory mapping of compiled rulesets,
+           and the table of XML rulesets in our database.
+
+           Returns a deferred, the callback of which is executed
+           when the SQL database for this ruleset has been updated.
+           The in-memory database will be updated immediately.
+           """
+        ruleset = Ruleset(rulesetXml)
+        self._store(ruleset)
+
+        # Delete the old ruleset, if there was one
+        result = defer.Deferred()
+        d = Database.pool.runOperation("DELETE FROM rulesets WHERE uri = %s" % quoteSQL(ruleset.uri, 'text'))
+        d.addErrback(result.errback)
+
+        # If we need to insert a new ruleset, do that after the delete finishes
+        if ruleset.isEmpty():
+            d.addCallback(result.callback)
+        else:
+            d.addCallback(self._insertRuleset, result, ruleset)
+        return result
+
+    def _insertRuleset(self, none, result, ruleset):
+        """Callback used by store() to insert a new or modified ruleset into the SQL database"""
+        d = Database.pool.runOperation("INSERT INTO rulesets (uri, xml) values(%s, %s)" % (
+            quoteSQL(ruleset.uri, 'text'), quoteSQL(ruleset.xml.toXml(), 'text')))
+        d.addErrback(result.errback)
+        d.addCallback(result.callback)
+
+    def _store(self, ruleset):
+        """Internal version of store() that doesn't update the database,
+           and requires the ruleset to already be parsed.
+           """
         # We need to find an appropriate URI handler whether our ruleset
         # is empty or not, since we have to be able to notify the handler.
         handler = self.uriRegistry.query(ruleset.uri)
 
         # Is this ruleset non-empty?
-        # Note that the obvious xml.elements() doesn't work- it will
-        # always be true, because the returned object is a generator.
-        if ruleset.xml.firstChildElement():
+        if not ruleset.isEmpty():
             # It's important that we give the URI handler a chance
             # to return errors before removing the old ruleset.
             handler.assigned(ruleset.uri, ruleset)

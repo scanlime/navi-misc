@@ -5,50 +5,49 @@
 
 from twisted.application import service, internet
 from twisted.web import server, xmlrpc, static, vhost
-from LibCIA import Message, Ruleset, IRC, Stats, IncomingMail, Debug, Security
+from LibCIA import Message, Ruleset, IRC, Stats, IncomingMail, Debug, Security, Database
 from LibCIA.Web import StatsBrowser, RulesetBrowser, BotStatus
 
 application = service.Application("cia_server")
 hub = Message.Hub()
 
-# A place to store stats, written to by the StatsURIHandler
-statsStorage = Stats.StatsStorage('data/stats.db')
-
 # A network of IRC bots used to handle irc:// URIs
-botNet = IRC.BotNetwork("CIA-%d")
+#botNet = IRC.BotNetwork("CIA-%d")
+
+class foohandler(Ruleset.BaseURIHandler):
+    scheme = 'foo'
 
 # A list of URI handlers that can be used as targets for rulesets
 uriRegistry = Ruleset.URIRegistry(
-    IRC.IrcURIHandler(botNet),
-    Stats.StatsURIHandler(statsStorage),
+    foohandler(),
+#    IRC.IrcURIHandler(botNet),
+#    Stats.StatsURIHandler(),
     )
 
 # Use a persistent set of rulesets to filter and format messages
-rulesetStorage = Ruleset.RulesetStorage("data/rulesets.xml", hub, uriRegistry)
+rulesetStorage = Ruleset.RulesetStorage(hub, uriRegistry)
 
-# Create the security module's capabilities database and save the 'universe'
-# capability's key so it can be used to retrieve additional keys later.
-caps = Security.CapabilityDB("data/security.db")
-caps.saveKey('universe', 'data/universe.key')
+# # Save the 'universe' capability key so it can be used later to retrieve additional keys
+# Security.db.saveKey('universe', 'data/universe.key')
 
 # Create the web interface. We start with all the static
 # files in 'htdocs' and add dynamic content from there.
 webRoot = static.File("htdocs")
-webRoot.putChild('rulesets', RulesetBrowser.RulesetList(caps, rulesetStorage))
-webRoot.putChild('stats', StatsBrowser.StatsPage(caps, statsStorage))
-webRoot.putChild('irc', BotStatus.IRCBotPage(botNet))
+# webRoot.putChild('rulesets', RulesetBrowser.RulesetList(rulesetStorage))
+# webRoot.putChild('stats', StatsBrowser.StatsPage())
+# webRoot.putChild('irc', BotStatus.IRCBotPage(botNet))
 
 # Add a VHostMonster we can use to safely proxy requests from Apache running on a different port
 webRoot.putChild('vhost', vhost.VHostMonsterResource())
 
 # Create a root XML-RPC object, with interfaces attached for each subsystem
 rpc = xmlrpc.XMLRPC()
-rpc.putSubHandler('hub', Message.HubInterface(caps, hub))
-rpc.putSubHandler('ruleset', Ruleset.RulesetInterface(caps, rulesetStorage))
-rpc.putSubHandler('mail', IncomingMail.MailInterface(caps, hub))
-rpc.putSubHandler('stats', Stats.StatsInterface(caps, statsStorage))
-rpc.putSubHandler('security', Security.SecurityInterface(caps))
-rpc.putSubHandler('debug', Debug.DebugInterface(caps))
+rpc.putSubHandler('hub', Message.HubInterface(hub))
+rpc.putSubHandler('mail', IncomingMail.MailInterface(hub))
+rpc.putSubHandler('ruleset', Ruleset.RulesetInterface(rulesetStorage))
+# rpc.putSubHandler('stats', Stats.StatsInterface())
+# rpc.putSubHandler('security', Security.SecurityInterface())
+#rpc.putSubHandler('debug', Debug.DebugInterface())
 webRoot.putChild('RPC2', rpc)
 
 # Now create an HTTP server holding both our XML-RPC and web interfaces
