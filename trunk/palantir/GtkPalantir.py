@@ -163,7 +163,15 @@ class PalantirWindow:
   def on_preferences_activate(self, widget, data=None):
     ''' Open the color selection dialog. '''
     self.tree.get_widget('colorselectiondialog').show()
-   
+
+  def on_dd_dice_activate(self, widget, data=None):
+    ''' Set the dice system for Dungeons & Dragons. '''
+    self.tree.get_widget('DiffBox').hide()
+
+  def on_white_wolf_dice_activate(self, widget, data=None):
+    ''' Set the dice system for White Wolf games. '''
+    self.tree.get_widget('DiffBox').show()
+
   ### Color Selection Dialog ###
   def on_color_ok_button_clicked(self, widget, data=None):
     dialog = self.tree.get_widget('color_selection')
