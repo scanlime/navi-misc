@@ -277,15 +277,8 @@ navigation_tree_remove (NavTree *navtree, struct session *sess)
 		gtk_tree_model_get_iter_first (sorted, &iter);
 
 		if (gtk_tree_model_iter_next (sorted, &iter)) {
-			printf ("not next iter\n");
 			gtk_tree_path_free (path);
-			printf ("freed path\n");
 			path = gtk_tree_model_get_path (sorted, &iter);
-			printf ("got new path\n");
-			gtk_tree_selection_select_path (select, path);
-			printf ("selected new path\n");
-			navigation_model_remove (navtree->model, sess);
-			printf ("removed from nav model\n");
 		} else {
 			GtkTreeModel *store = gtk_tree_model_sort_get_model (GTK_TREE_MODEL_SORT (sorted));
 
@@ -298,13 +291,12 @@ navigation_tree_remove (NavTree *navtree, struct session *sess)
 		/* Not the first server. */
 		if (!gtk_tree_path_prev (path))
 			gtk_tree_path_up (path);
-		navigation_model_remove (navtree->model, sess);
 	}
 
-	/* Change the selection before we remove the session so that things can be
-	 * ref'ed and unref'ed properly without too much silliness.
-	 */
-	//gtk_tree_selection_select_path (select, path);
+	gtk_tree_selection_select_path (select, path);
+
+	if (gtk_tree_path_compare (root_path, path) != 0)
+		navigation_model_remove (navtree->model, sess);
 
 	gtk_tree_path_free (path);
 	gtk_tree_path_free (root_path);
