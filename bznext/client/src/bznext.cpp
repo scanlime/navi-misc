@@ -15,7 +15,7 @@
 CBZNextLoop::CBZNextLoop()
 {
 	SetQuit(false);
-	inUI = true;
+	inUI = false;
 	numScreenShots = 0;
 }
 
