@@ -1,4 +1,4 @@
-CFLAGS =   -O2 -Wall -fPIC `xmms-config --cflags`
+CFLAGS =   -O2 -Wall -fPIC `xmms-config --cflags` -I ../include
 LFLAGS =   -shared -fPIC -lpthread `xmms-config --cflags`
 
 rwand-analyzer.so: rwand-analyzer.o
