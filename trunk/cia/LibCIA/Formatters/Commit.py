@@ -139,7 +139,7 @@ class CommitFormatter(Message.Formatter):
 
         module = XML.dig(message.xml, "message", "source", "module")
         if module:
-            formattedModule = self.format_module(XML.shallowText(module).strip())
+            formattedModule = self.format_module(module)
         else:
             formattedModule = ""
         return formattedModule + '/' + formattedFiles
