@@ -27,8 +27,7 @@ You can also submit bugs in the "xchat-gnome" product in
 <a href="http://bugzilla.gnome.org/">GNOME Bugzilla</a>
 <br/><br/>
 </p>
-To build a release, just follow the normal autotools procedure. Make sure that
-you pass the --enable-gnomefe flag to configure.<br/><br/>
+To build a release, just follow the normal autotools procedure.<br/><br/>
 To compile from SVN:
 <div class="code">
 $ cvs -d :pserver:anonymous@cvs.sf.net:/cvsroot/xchat co xchat2<br/>
@@ -38,7 +37,7 @@ xchat2$ pushd src<br/>
 src$ svn co <a href="http://navi.cx/svn/misc/trunk/xchat-gnome/fe-gnome/">http://navi.cx/svn/misc/trunk/xchat-gnome/fe-gnome/</a><br/>
 src$ popd<br/>
 xchat2$ ./autogen.sh<br/>
-xchat2$ ./configure --enable-maintainer-mode --enable-gnomefe<br/>
+xchat2$ ./configure --enable-maintainer-mode<br/>
 (make sure that gnome support was found, and gtkspell if desired)<br/>
 xchat2$ make<br/>
 xchat2$ cd src/fe-gnome<br/>
