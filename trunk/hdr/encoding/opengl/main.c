@@ -6,8 +6,12 @@
  */
 
 #include "hdr_test.h"
+#include <math.h>
 
 SDL_Surface *screen;
+float model_x = 0;
+float model_y = 0;
+
 
 void scene_init() {
   GLhandleARB program;
@@ -19,10 +23,7 @@ void scene_init() {
   float m_diffuse[]  = {1, 1, 1, 0};
   float m_specular[] = {0.8, 0.8, 0.8, 0};
 
-  program = shader_link_program(shader_compile_from_files(GL_VERTEX_SHADER_ARB,
-							  DATADIR "/test.vert",
-							  NULL),
-				shader_compile_from_files(GL_FRAGMENT_SHADER_ARB,
+  program = shader_link_program(shader_compile_from_files(GL_FRAGMENT_SHADER_ARB,
 							  DATADIR "/test.frag",
 							  NULL),
 				0);
@@ -58,15 +59,13 @@ void scene_init() {
 }
 
 void scene_draw(float dt) {
-  static float angle = 0;
-
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   glLoadIdentity();
   glTranslatef(0, 0, -9);
 
-  angle += 40 * dt;
-  glRotatef(angle, 0, 1, 0);
+  glRotatef(model_y, 1, 0, 0);
+  glRotatef(model_x, 0, 1, 0);
 
   glRotatef(-90, 1, 0, 0);
   model_draw();
@@ -74,17 +73,17 @@ void scene_draw(float dt) {
   SDL_GL_SwapBuffers();
 }
 
-void fps_report(Uint32 now) {
+void fhz_report(Uint32 now) {
   /* Measure and report the number of frames per second. Called every frame. */
   static Uint32 start_time = 0;
   const Uint32 interval = 1000;
   static int n_frames = 0;
-  float fps;
+  float fhz;
 
   n_frames++;
   if (now > start_time + interval) {
-    fps = n_frames * 1000.0 / (now - start_time);
-    printf("\r%8.02f FPS ", fps);
+    fhz = n_frames * 1000.0 / (now - start_time);
+    printf("\r%8.02f FHz ", fhz);
     fflush(stdout);
 
     n_frames = 0;
@@ -92,9 +91,55 @@ void fps_report(Uint32 now) {
   }
 }
 
-int main() {
-  int done = 0;
+int handle_events(float delta_t) {
   SDL_Event event;
+  static float model_vx, model_vy;
+  static int spin_active = 0;
+  const float mouse_speed = 0.6;
+
+  while (SDL_PollEvent(&event)) {
+    switch (event.type) {
+
+    case SDL_QUIT:
+      return 0;
+      break;
+
+    case SDL_KEYDOWN:
+      if (event.key.keysym.sym == SDLK_SPACE)
+	model_switch();
+      break;
+
+    case SDL_MOUSEBUTTONDOWN:
+      /* Stop it spinning when the user clicks */
+      spin_active = 0;
+      break;
+
+    case SDL_MOUSEBUTTONUP:
+      /* Allow spinning again when the user isn't draggin */
+      spin_active = 1;
+      break;
+
+    case SDL_MOUSEMOTION:
+      if (event.motion.state) {
+	model_vy = event.motion.yrel * mouse_speed;
+	model_vx = event.motion.xrel * mouse_speed;
+	model_y += model_vy;
+	model_x += model_vx;
+      }
+      break;
+    }
+  }
+
+  if (spin_active) {
+    model_x += model_vx * delta_t * 10;
+    model_y += model_vy * delta_t * 10;
+  }
+
+  return 1;
+}
+
+int main() {
+  float delta_t;
   Uint32 now = 0, then = 0;
 
   if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -113,28 +158,17 @@ int main() {
 
   scene_init();
 
-  while (!done) {
-    while (SDL_PollEvent(&event)) {
-      switch (event.type) {
-
-      case SDL_QUIT:
-	done = 1;
-	break;
-
-      case SDL_KEYDOWN:
-	if (event.key.keysym.sym == SDLK_SPACE)
-	  model_switch();
-	break;
-
-      }
-    }
-
+  do {
     then = now;
     now = SDL_GetTicks();
-    scene_draw((now - then) / 1000.0);
-    fps_report(now);
-  }
+    delta_t = (now - then) / 1000.0;
+    fhz_report(now);
 
+    scene_draw(delta_t);
+
+  } while (handle_events(delta_t));
+
+  printf("\n");
   SDL_Quit();
   return 0;
 }
