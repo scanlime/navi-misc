@@ -101,7 +101,7 @@ int main (int argc, char **argv)
 
 	g_type_init ();
 	hi = histogram_imager_new ();
-	g_object_set (G_OBJECT (hi), "exposure", 0.30, "gamma", 1.4, NULL);
+	g_object_set (G_OBJECT (hi), "exposure", 0.05, "gamma", 1.0, NULL);
 	g_object_set (G_OBJECT (hi), "width", 800, "height", 600, NULL);
 
 	srand (time (NULL));
@@ -122,7 +122,7 @@ int main (int argc, char **argv)
 	py (point);
 
 	histogram_imager_get_hist_size (hi, &w, &h);
-	pstring = g_strdup_printf ("%f-%f-%f-%f--%d.png", point[0], point[1], point[2], point[3]);
+	pstring = g_strdup_printf ("%f-%f-%f-%f.png", point[0], point[1], point[2], point[3]);
 
 	fprintf (stderr, "running integration for point (%f, %f, %f, %f)\n", point[0], point[1], point[2], point[3]);
 	while (1) {
@@ -133,7 +133,7 @@ int main (int argc, char **argv)
 		hhrun (point, point);
 
 		histogram_imager_finish_plots (hi, &plot);
-		filename = g_strdup_printf ("%s--%d.png", pstring, points);
+		filename = g_strdup_printf ("%s--%.5d.png", pstring, points);
 		histogram_imager_save_image_file (hi, filename);
 		g_free (filename);
 		g_print ("Completed %lld iterations, %d points plotted\n", iterations, points);
