@@ -269,6 +269,20 @@ mvmtOnePianoSectFourRight = \relative cis'' {
   #(set-octavation 0)
   | <bes, ees,> des'
   | aes ees
+  | gis,,8 b dis16 fis e8 <cis e a>\arpeggio e'
+  | <b fis d> d fis16 a g8 <ais, e' fis cis'>\arpeggio <g' g'>
+  | <fis fis'> r8 \grace {
+        \change Staff = pianoLeft
+        b,,,8[ fis' d' 
+        \change Staff = pianoRight
+        ais' cis e] } 
+    <d b' fis'>8-. <g cis e>8-. r4  % XXX: divide up between hands?
+  | <b b'>8 r8 \grace {
+        \change Staff = pianoLeft
+        d,,,8[ a' e' fis
+        \change Staff = pianoRight
+        cis' cis'] } <fis, d' b'>-. <fis dis' gis>-. r4
+  | r2.
 }
 
 mvmtOnePianoSectFourLeft = \relative a {
@@ -305,6 +319,11 @@ mvmtOnePianoSectFourLeft = \relative a {
       \clef treble
       \appoggiatura des8 des'4.
   | \appoggiatura aes,8 aes'4. \clef bass \appoggiatura ees,8 ees'4.
+  | r4. r8 <a,, g'>4\arpeggio
+  | <d d,>4. fis,
+  | s2.
+  | s2.
+  | r2.
 }
 
 mvmtOnePianoRight = {
