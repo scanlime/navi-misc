@@ -76,6 +76,5 @@ void
 drawable_draw (Drawable *drawable, RenderState *rstate)
 {
   DrawableClass *class = DRAWABLE_CLASS (G_OBJECT_GET_CLASS (drawable));
-  g_print ("drawable_draw()\n");
   class->draw (drawable, rstate);
 }

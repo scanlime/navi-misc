@@ -74,8 +74,6 @@ display_list_build_list (DisplayList *dl)
 {
   DisplayListClass *dlc = DISPLAY_LIST_CLASS (G_OBJECT_GET_CLASS (dl));
 
-  g_print ("display_list_build_list()\n");
-
   if (dl->list == 0)
     dl->list = glGenLists (1);
 
@@ -90,8 +88,6 @@ display_list_draw (Drawable *drawable, RenderState *rstate)
 {
   DisplayList *dl = DISPLAY_LIST (drawable);
   DisplayListClass *dlc = DISPLAY_LIST_CLASS (G_OBJECT_GET_CLASS (drawable));
-
-  g_print ("display_list_draw()\n");
 
   if (dl->dirty)
     dlc->draw_to_list (dl);

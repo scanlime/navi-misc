@@ -74,7 +74,7 @@ struct _GroundDrawable
 {
   DisplayList parent;
 
-  guint base_texture_repeat, overlay_texture_repeat;
+  gfloat base_texture_repeat, overlay_texture_repeat;
   guint size[2];
 };
 
