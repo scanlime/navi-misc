@@ -13,10 +13,11 @@ view = ThreeDRender.View(viewport)
 control = ThreeDControl.Viewing(view, viewport)
 
 # Set up an LIRC client
-try:
-    IR.getDefaultClient().attachToLoop(loop)
-except:
-    pass
+#try:
+#    IR.getDefaultClient().attachToLoop(loop)
+#except:
+#    pass
+IR.getDefaultClient().attachToLoop(loop)
 
 # A sequencer page that displays a piece of text in the center of the screen, over a background image
 class TextPage(Sequencer.Page):
