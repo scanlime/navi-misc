@@ -148,17 +148,20 @@ class Interface(xmlrpc.XMLRPC):
                 caps = caps(path, *args)
 
             # A callback invoked when our key is successfully validated
-            def keyValidated(x=None):
-                d = defer.maybeDeferred(f, *args)
-                d.addBoth(self.logProtectedCall, path, args, user)
-                d.chainDeferred(result)
+            def keyValidated(validationResult):
+                if validationResult is None:
+                    d = defer.maybeDeferred(f, *args)
+                    d.addBoth(self.logProtectedCall, path, args, user)
+                    d.chainDeferred(result)
+                else:
+                    self.logProtectedCall(validationResult, path, args, user, allowed=False)
+                    result.errback(validationResult)
 
             # Check the capabilities asynchronously (requires a database query)
             import Security
-            user = Security.User(key=key)
+            user = Security.User(key=str(key))
             d = user.require(*caps)
-            d.addErrback(self.logProtectedCall, path, args, user, allowed=False)
-            d.addCallbacks(keyValidated, result.errback)
+            d.addCallbacks(keyValidated)
             return result
         return rpcWrapper
 
@@ -218,8 +221,10 @@ class Interface(xmlrpc.XMLRPC):
             caps.append(".".join(base))
         return caps
 
-
-_rootInterface = None
+# rebuild()-friendly mojo
+if '_rootInterface' not in globals():
+    global _rootInterface
+    _rootInterface = None
 
 def getRootInterface():
     # Interface should be a singleton, this retrieves the instance, creating it if necessary
