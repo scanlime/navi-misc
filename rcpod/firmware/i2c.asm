@@ -56,8 +56,6 @@ i2c_ack_count	res	1
 i2c_byte	res	1
 i2c_byte_count	res	1
 i2c_bit_count	res	1
-i2c_irp		res	1
-i2c_fsr		res	1
 
 	code
 
@@ -163,31 +161,10 @@ i2c_clockout
 	return
 
 
-	;; Save the byte count and pointer we were given
-i2c_save_pointer
-	banksel	i2c_byte_count
-	movwf	i2c_byte_count
-	movf	STATUS, w
-	movwf	i2c_irp
-	movf	FSR, w
-	movwf	i2c_fsr
-	return
-
-
-	;; Point INDF at the current buffer byte
-i2c_load_pointer
-	banksel	i2c_irp
-	movf	i2c_irp, w
-	movwf	STATUS
-	movf	i2c_fsr, w
-	movwf	FSR
-	return
-
-
 	;; Macro for looping over the I2C buffer
 i2c_buffer_loop macro	lbl
 	banksel	i2c_byte_count
-	incf	i2c_fsr, f
+	incf	FSR, f
 	pagesel	lbl
 	decfsz	i2c_byte_count, f
 	goto	lbl
@@ -278,7 +255,8 @@ i2c_read_nak
 
 	;; Write 'w' bytes from IRP:FSR to the current bus
 i2c_Write
-	pscall	i2c_save_pointer
+	banksel	i2c_byte_count
+	movwf	i2c_byte_count
 	pscall	i2c_start
 
 	banksel	i2c_address		; Write the address, with the read bit clear
@@ -300,7 +278,6 @@ i2c_Write
 	goto	i2c_Write_done
 
 i2c_Write_loop
-	pscall	i2c_load_pointer	; Load the next i2c_byte
 	movf	INDF, w
 	banksel	i2c_byte
 	movwf	i2c_byte
@@ -322,7 +299,8 @@ i2c_Write_done
 
 	;; Read 'w' bytes into IRP:FSR from the current bus
 i2c_Read
-	pscall	i2c_save_pointer
+	banksel	i2c_byte_count
+	movwf	i2c_byte_count
 	pscall	i2c_start
 
 	banksel	i2c_address		; Write the address, with the read bit set
@@ -351,8 +329,7 @@ i2c_Read_loop
 
 i2c_Read_first_loop
 	pscall	i2c_read_byte		; Read the byte
-	pscall	i2c_load_pointer	; Store it to our current pointer
-	banksel	i2c_byte
+	banksel	i2c_byte		; Store it to our current pointer
 	movf	i2c_byte, w
 	movwf	INDF
 
