@@ -500,7 +500,7 @@ class ModularFormatter(Formatter):
             if f:
                 return f(node, args)
             else:
-                return XML.XMLValidityError("Unknown component name in %s: %r" %
+                raise XML.XMLValidityError("Unknown component name in %s: %r" %
                                             (self.__class__.__name__, node.nodeName))
 
     def walkComponents(self, nodes, args):

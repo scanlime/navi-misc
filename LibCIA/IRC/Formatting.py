@@ -118,6 +118,26 @@ class ColorStack:
         return parent
 
 
+def parseColorElement(xml):
+    """Given a <color> element, return the corresponding list of color code names"""
+    codes = []
+    bg = xml.getAttributeNS(None, 'bg')
+    fg = xml.getAttributeNS(None, 'fg')
+
+    if bg:
+        if bg in ColorText.allowedColors:
+            codes.append(bg)
+            codes.append('reverse')
+        else:
+            raise XML.XMLValidityError("%r is not a color" % bg)
+    if fg:
+        if fg in ColorText.allowedColors:
+            codes.append(fg)
+        else:
+            raise XML.XMLValidityError("%r is not a color" % fg)
+    return codes
+
+
 class ColortextFormatter(XML.XMLObjectParser):
     r"""Given a DOM tree with <colorText>-formatted text
         generate an equivalent message formatted for IRC.
@@ -170,23 +190,7 @@ class ColortextFormatter(XML.XMLObjectParser):
 
     def element_color(self, xml):
         """Generates formatting codes appropriate to represent a foreground and/or background color"""
-        codes = []
-        bg = xml.getAttributeNS(None, 'bg')
-        fg = xml.getAttributeNS(None, 'fg')
-
-        if bg:
-            if bg in ColorText.allowedColors:
-                codes.append(bg)
-                codes.append('reverse')
-            else:
-                raise XML.XMLValidityError("%r is not a color" % bg)
-        if fg:
-            if fg in ColorText.allowedColors:
-                codes.append(fg)
-            else:
-                raise XML.XMLValidityError("%r is not a color" % fg)
-
-        return self.codeWrap(xml, *codes)
+        return self.codeWrap(xml, *parseColorElement(xml))
 
     def parseString(self, text):
         return [text]
