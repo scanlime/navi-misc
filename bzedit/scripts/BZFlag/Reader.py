@@ -115,3 +115,10 @@ class Reader:
               | CaselessLiteral('texcoords') + 2dPoint
               | obstacleProperty
             tetra = CaselessLiteral('tetra') + OneOrMore(tetraProperty)
+
+            zoneProperty =
+                CaselessLiteral('flag') + OneOrMore('good' | 'bad' | Word(alphas, min=1, max=2))
+              | CaselessLiteral('team') + OneOrMore(Word(nums))
+              | CaselessLiteral('safety') + OneOrMore(Word(nums))
+              | locationProperty
+            zone = CaselessLiteral('zone') + OneOrMore(zoneProperty)
