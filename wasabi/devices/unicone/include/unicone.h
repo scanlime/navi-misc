@@ -31,6 +31,26 @@
 #define UNICONE_PRODUCT_ID  0x000C
 #define UNICONE_VERSION     0x0100
 
+#define UNICONE_BOOTLOAD_VENDOR_ID   0x0451
+#define UNICONE_BOOTLOAD_PRODUCT_ID  0x3410
+
+
+/**************************************************************************/
+/********************************************************** Endpoints *****/
+/**************************************************************************/
+
+/* Endpoint for sending firmware, followed by a two-byte length
+ * and one-byte checksum. (simple 8-bit sum of all bytes in firmware)
+ * This is handled by the bootloader (stored in ROM) and only valid when
+ * the device shows up with the special booloader vendor and product IDs.
+ */
+#define UNICONE_EP_BOOTLOAD     1
+
+/* Endpoint for sending FPGA configuration, between UNICONE_REQ_FPGA_CONFIG_BEGIN
+ * and UNICONE_REQ_FPGA_CONFIG_END requests.
+ */
+#define UNICONE_EP_FPGA_CONFIG  1
+
 
 /**************************************************************************/
 /**************************************************** Vendor Requests *****/
