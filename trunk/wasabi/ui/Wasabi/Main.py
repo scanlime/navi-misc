@@ -62,11 +62,11 @@ class Main:
             # Display the logo sequence until user interruption
             Sequencer.FadeOut(0.2, (1,1,1), logoInterrupter),
 
-            # Run the device menu, with fade in and out
+            # Run the main menu, with fade in and out
             Sequencer.FadeIn(0.5, (1,1,1), Sequencer.FadeOut(0.25, (0,0,0), lambda book:
-                                                             DeviceMenu(book, self.hardware)))
+                                                             MainMenu(book, self.hardware)))
 
-            # The device menu will insert additional pages at the end,
+            # The main menu will insert additional pages at the end,
             # depending on the selection made.
             ]
 
@@ -88,7 +88,7 @@ def logoInterrupter(book):
     return Sequencer.PageInterrupter(events, Logos.getLogoSubBook())(book)
 
 
-class DeviceMenu(Menu.RingMenu):
+class MainMenu(Menu.RingMenu):
     """A RingMenu subclass that displays available devices, and lets the user select one.
        Devices can be made available and unavailable during the operation of the menu, with
        the menu properly reflecting this.
