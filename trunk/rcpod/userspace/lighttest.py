@@ -5,22 +5,23 @@
 # into the chip's window and watch the meter respond :)
 #
 
-import rcpod, adctest
+import rcpod
 
-adc = adctest.AnalogSampler()
+pic = rcpod.Device()
+sampler = rcpod.AnalogSampler(pic)
 
 def sampleLight():
     # Sample channel 0 once to charge the ADC's hold capacitor
-    adc.readChannel(0)
+    sampler.readChannel(0)
 
     # Read channel 7 (not connected to a pin, to minimize electrical interference)
     # a few times, letting the capacitor discharge. Save the last reading.
     for i in xrange(8):
-        v = adc.readChannel(7)
+        v = sampler.readChannel(7)
 
     # Invert the value, since more light causes the capacitor to discharge slower
     return [1-v]
 
 
-adctest.ChannelGraph(resolution=(64,320)).run(sampleLight)
+rcpod.ChannelGraph(resolution=(64,320)).run(sampleLight)
 
