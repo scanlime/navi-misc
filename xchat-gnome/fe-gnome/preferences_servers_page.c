@@ -96,12 +96,6 @@ globals_toggled (GtkWidget *widget, GtkWidget *dialog)
 }
 
 static void
-add_clicked (GtkWidget *button, gpointer data)
-{
-	g_print ("add clicked\n");
-}
-
-static void
 edit_global_changed (GtkToggleButton *togglebutton, gpointer data)
 {
 	GtkWidget *nick, *real;
@@ -326,6 +320,33 @@ edit_clicked (GtkWidget *button, gpointer data)
 }
 
 static void
+add_clicked (GtkWidget *button, gpointer data)
+{
+	GtkWidget *treeview;
+	GtkTreeModelSort *model;
+	GtkListStore *store;
+	GtkTreeSelection *select;
+	GtkTreeIter iter, parent;
+	ircnet *net;
+
+	net = servlist_net_add (_("New Network"), "", TRUE);
+	net->encoding = g_strdup (encodings[0]);
+	servlist_server_add (net, "newserver/6667");
+
+	treeview = glade_xml_get_widget (gui.xml, "configure server list");
+	model = GTK_TREE_MODEL_SORT (gtk_tree_view_get_model (GTK_TREE_VIEW (treeview)));
+	store = GTK_LIST_STORE (gtk_tree_model_sort_get_model (model));
+	select = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
+
+	gtk_list_store_prepend (store, &iter);
+	gtk_list_store_set (store, &iter, 0, _("New Network"), 2, net, -1);
+	gtk_tree_model_sort_convert_child_iter_to_iter (model, &parent, &iter);
+	gtk_tree_selection_select_iter (select, &parent);
+
+	edit_clicked (button, data);
+}
+
+static void
 remove_clicked (GtkWidget *button, gpointer data)
 {
 	GtkWidget *treeview;
@@ -350,9 +371,9 @@ remove_clicked (GtkWidget *button, gpointer data)
 	r = gtk_dialog_run (GTK_DIALOG (dialog));
 	if (r == GTK_RESPONSE_OK) {
 		GtkTreeIter child;
-		GtkListStore *store = gtk_tree_model_sort_get_model (GTK_TREE_MODEL_SORT (model));
+		GtkListStore *store = GTK_LIST_STORE (gtk_tree_model_sort_get_model (GTK_TREE_MODEL_SORT (model)));
 		gtk_tree_model_sort_convert_iter_to_child_iter (GTK_TREE_MODEL_SORT (model), &child, &iter);
-		gtk_list_store_remove (GTK_LIST_STORE (store), &child);
+		gtk_list_store_remove (store, &child);
 		servlist_net_remove (net);
 	}
 	gtk_widget_destroy (dialog);
