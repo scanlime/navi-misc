@@ -292,7 +292,11 @@ class Rack(BaseRack):
 
     def _delKey(self, key):
         """Delete a key from the linked list for this namespace"""
-        self._getKeyList().remove(key)
+        try:
+            self._getKeyList().remove(key)
+        except KeyError:
+            # This shouldn't happen, but what do we do if it does?
+            pass
         self._testKeySubNsDel()
 
     def _newChild(self, child):
@@ -302,7 +306,11 @@ class Rack(BaseRack):
 
     def _delChild(self, child):
         """Delete a child from this rack's subnamespace catalog"""
-        self._getSubNsList().remove(child)
+        try:
+            self._getSubNsList().remove(child)
+        except KeyError:
+            # This shouldn't happen, but what do we do if it does?
+            pass
         self._testKeySubNsDel()
 
     def clear(self):
