@@ -50,16 +50,22 @@
 		byte_count
 		bit_count
 		temp
-		gamecube_buffer:8
-		n64_status_buffer:4
-		n64_id_buffer:3
+
+		flags
 
 		;; These four items must be contiguous
 		n64_command:1
 		n64_bus_address:2
 		n64_bus_packet:.32
 		n64_crc
+
+		gamecube_buffer:8
+		n64_status_buffer:4
+		n64_id_buffer:3
 	endc
+
+	#define	FLAG_RUMBLE_MOTOR_ON	flags, 0
+
 
 	;; *******************************************************************************
 	;; ******************************************************  Initialization  *******
@@ -78,14 +84,7 @@ startup
 
 	n64gc_init
 
-	;; Initialize the ID buffer to identify this controller as an N64
-	;; controller with its controller pak slot occupied.
-	movlw	0x05
-	movwf	n64_id_buffer+0
-	movlw	0x00
-	movwf	n64_id_buffer+1
-	movlw	0x01
-	movwf	n64_id_buffer+2
+	clrf	flags
 
 	;; We use the watchdog to implicitly implement controller probing.
 	;; If we have no gamecube controller attached, gamecube_poll_status
@@ -276,8 +275,16 @@ n64_send_status
 	goto	n64_tx
 
 
-	;; The N64 asked for our identity, which we've already prepared
+	;; The N64 asked for our identity. Report that we're an
+	;; N64 controller with the cotnroller pak slot occupied.
 n64_send_id
+	movlw	0x05
+	movwf	n64_id_buffer+0
+	movlw	0x00
+	movwf	n64_id_buffer+1
+	movlw	0x01
+	movwf	n64_id_buffer+2
+
 	movlw	n64_id_buffer		; Transmit the ID buffer
 	movwf	FSR
 	movlw	3
@@ -342,6 +349,9 @@ gamecube_poll_status
 	movwf	gamecube_buffer+1
 	movlw	0x00
 	movwf	gamecube_buffer+2
+
+	btfsc	FLAG_RUMBLE_MOTOR_ON	; Set the low bit of our gamecube command to turn on rumble
+	bsf	gamecube_buffer+2, 0
 
 	movlw	gamecube_buffer		; Transmit the gamecube_buffer
 	movwf	FSR
