@@ -154,6 +154,9 @@ class WriteFileChunk(Pearl.StructRequest):
         self.parameters = (offset, size, fileID, storageID)
         Pearl.StructRequest.__init__(self)
 
+    def __repr__(self):
+        return "<WriteFileChunk: 0x%02X bytes at 0x%02X>" % (self.size, self.offset)
+
     def sendTo(self, fileObj):
         Pearl.StructRequest.sendTo(self, fileObj)
         Pearl.AlignedBlockWriter(self.size).next(self.dataSource, fileObj)
@@ -251,6 +254,10 @@ class ReadFileChunk(Pearl.StructRequest):
         self.destination = destination
         self.parameters = (offset, size, fileID)
         Pearl.StructRequest.__init__(self)
+
+    def __repr__(self):
+        return "<ReadFileChunk: 0x%02X bytes at 0x%02X>" % (
+            self.parameters[1], self.parameters[0])
 
     def receivedResponse(self, source, size, status):
         self.decodeStatus(status)
