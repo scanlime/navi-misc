@@ -139,9 +139,6 @@ class BaseRack(object):
         for k in d.iterkeys():
             self[k] = d[k]
 
-    def __repr__(self):
-        return repr(dict(self.iteritems()))
-
     def _newKey(self, key):
         """A hook that's called when a new key is created in this Rack"""
         pass
@@ -324,6 +321,9 @@ class Rack(BaseRack):
     def catalog(self):
         """Iterate over all child namespaces"""
         return self._getSubNsList().__iter__()
+
+    def __repr__(self):
+        return repr(dict(self.iteritems()))
 
     def iterkeys(self):
         return self.__iter__()
