@@ -61,6 +61,7 @@ $sendmail = '/usr/sbin/sendmail';
 # delay. 5s looks as a safe value, but feel free to increase if you are running
 # this on a slower (or overloaded) machine or if you have really a lot of
 # directories.
+# Increasing this could be a very good idea if you're on Sourceforge ;)
 $sync_delay = 5;
 
 # This script can communicate with CIA either by mail or by an XML-RPC
@@ -150,6 +151,7 @@ while (<STDIN>) {
   last if /^Log Message/;
 }
 
+$logmsg = "";
 while (<STDIN>) {
   next unless ($_ and $_ ne "\n" and $_ ne "\r\n");
   s/&/&amp;/g;
@@ -157,8 +159,6 @@ while (<STDIN>) {
   s/>/&gt;/g;
   $logmsg .= $_;
 }
-
-
 
 ### Remove to-be-ignored files
 
@@ -224,7 +224,7 @@ if (-f $syncfile and -w $syncfile) {
 ### Compose the mail message
 
 
-my ($VERSION) = '2.1';
+my ($VERSION) = '2.2';
 my ($URL) = 'http://cia.navi.cx/clients/cvs/ciabot_cvs.pl';
 my $ts = time;
 
