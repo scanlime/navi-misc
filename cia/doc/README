@@ -102,7 +102,7 @@ Dependencies
 - MySQL (MUST have support for the InnoDB table type)
 - Nouvelle_ (latest svn)
 - Docutils_
-- the `Python Imaging Library`_
+- the `Python Imaging Library`_ (1.1.5a3 or later preferred, but 1.1.4 will work)
 - PyCAPTCHA_ for adding new users via the web interface
 - Graphviz_ and Sodipodi_ to generate graphs
 - Procmail_ for the e-mail interface
