@@ -36,7 +36,7 @@
 ;
 ;################################################################################
 
-#include <p16c745.inc>
+#include <p16c765.inc>
 #include "usb_defs.inc"
 
 	__CONFIG  _H4_OSC & _WDT_OFF & _PWRTE_OFF & _CP_OFF
@@ -68,6 +68,8 @@ rx_count	res	1	; number of bytes received so far
 	global	rx_status
 	global	rx_remaining
 	global	rx_count
+
+	extern	txe_pin
 
 	extern	InitUSB
 	extern	PutEP1
@@ -202,6 +204,13 @@ Main
 	movwf	W_save		; SIE before initializing registers
 	decfsz	W_save,f	; W_save is merely a convienient register
 	goto	$-1			; to use for the delay counter.
+
+	banksel	txe_pin
+	clrf	txe_pin
+	banksel	rx_remaining
+	clrf	rx_remaining
+	banksel	rx_count
+	clrf	rx_count
 
 	pagesel	InitUSB
 	call	InitUSB

@@ -5,11 +5,11 @@
 ; This file is part of the rcpod project. This file contains original code,
 ; released into the public domain.
 ;
-; rcpod modifications done by Micah Dowty <micah@picogui.org>
+; Micah Dowty <micah@picogui.org>
 ;
 ;###############################################################################
 
-#include <p16C745.inc>
+#include <p16C765.inc>
 #include "usb_defs.inc"
 #include "../include/rcpod_protocol.h"
 
@@ -25,6 +25,17 @@
 	extern	rx_status
 	extern	rx_remaining
 	extern	rx_count
+	extern	io_pin
+	extern	io_High
+	extern	io_Low
+	extern	io_Output
+	extern	io_Input
+	extern	io_Read
+
+	global	txe_pin
+
+bank0	udata
+txe_pin	res	1		; Pin number for transmit enable
 
 	code
 
@@ -66,6 +77,42 @@ CheckVendor
 	pagesel	RxEndRequest
 	btfsc	STATUS,Z
 	goto	RxEndRequest
+
+	movf	BufferData+bRequest,w
+	xorlw	RCPOD_CTRL_USART_TXE
+	pagesel	TxeRequest
+	btfsc	STATUS,Z
+	goto	TxeRequest
+
+	movf	BufferData+bRequest,w
+	xorlw	RCPOD_CTRL_PIN_OUTPUT
+	pagesel	PinOutputRequest
+	btfsc	STATUS,Z
+	goto	PinOutputRequest
+
+	movf	BufferData+bRequest,w
+	xorlw	RCPOD_CTRL_PIN_INPUT
+	pagesel	PinInputRequest
+	btfsc	STATUS,Z
+	goto	PinInputRequest
+
+	movf	BufferData+bRequest,w
+	xorlw	RCPOD_CTRL_PIN_HIGH
+	pagesel	PinHighRequest
+	btfsc	STATUS,Z
+	goto	PinHighRequest
+
+	movf	BufferData+bRequest,w
+	xorlw	RCPOD_CTRL_PIN_LOW
+	pagesel	PinLowRequest
+	btfsc	STATUS,Z
+	goto	PinLowRequest
+
+	movf	BufferData+bRequest,w
+	xorlw	RCPOD_CTRL_PIN_READ
+	pagesel	PinReadRequest
+	btfsc	STATUS,Z
+	goto	PinReadRequest
 
 	pagesel	wrongstate		; Not a recognized request
 	goto	wrongstate
@@ -182,7 +229,12 @@ TxRxRequest
 	btfsc	STATUS, Z
 	goto	skipTx
 
-	;; FIXME: turn on transmit enable pin
+	banksel	txe_pin		; turn on the transmit enable pin (0 will have no effect)
+	movf	txe_pin, w
+	banksel	io_pin
+	movwf	io_pin
+	pagesel	io_High
+	call	io_High
 
 txLoop
 	pagesel	txLoop
@@ -199,7 +251,12 @@ txLoop
 	decfsz	BufferData+wValue, f ; Count down the number of bytes to send...
 	goto	txLoop
 
-	;; FIXME: turn off transmit enable pin
+	banksel	txe_pin		; turn off the transmit enable pin (0 will have no effect)
+	movf	txe_pin, w
+	banksel	io_pin
+	movwf	io_pin
+	pagesel	io_Low
+	call	io_Low
 
 skipTx
 
@@ -243,6 +300,98 @@ RxEndRequest
 
 	banksel	rx_count
 	movf	rx_count, w	;  Write the received byte count to our buffer
+	movwf	INDF
+	banksel	BD0IBC
+	bsf 	STATUS, RP0
+	movlw	0x01
+	movwf	BD0IBC		; set byte count to 1
+	movlw	0xc8		; DATA1 packet, DTS enabled
+	movwf	BD0IST		; give buffer back to SIE
+	return
+
+	;********************* Set the USART transmit enable pin
+TxeRequest
+	banksel BufferData
+	movf	BufferData+wValue, w
+	banksel	txe_pin
+	movwf	txe_pin
+
+	; Acknowledge the request
+	pagesel	Send_0Len_pkt
+	call	Send_0Len_pkt
+	return
+
+	;********************* IO pin requests
+
+PinOutputRequest
+	banksel	BufferData
+	movf	BufferData+wValue, w
+	banksel	io_pin
+	movwf	io_pin
+
+	pagesel	io_Output
+	call	io_Output
+
+	pagesel Send_0Len_pkt
+	call	Send_0Len_pkt
+	return
+
+PinInputRequest
+	banksel	BufferData
+	movf	BufferData+wValue, w
+	banksel	io_pin
+	movwf	io_pin
+
+	pagesel	io_Input
+	call	io_Input
+
+	pagesel Send_0Len_pkt
+	call	Send_0Len_pkt
+	return
+
+PinHighRequest
+	banksel	BufferData
+	movf	BufferData+wValue, w
+	banksel	io_pin
+	movwf	io_pin
+
+	pagesel	io_High
+	call	io_High
+
+	pagesel Send_0Len_pkt
+	call	Send_0Len_pkt
+	return
+
+PinLowRequest
+	banksel	BufferData
+	movf	BufferData+wValue, w
+	banksel	io_pin
+	movwf	io_pin
+
+	pagesel	io_Low
+	call	io_Low
+
+	pagesel Send_0Len_pkt
+	call	Send_0Len_pkt
+	return
+
+PinReadRequest
+	banksel	BufferData
+	movf	BufferData+wValue, w
+	banksel	io_pin
+	movwf	io_pin
+
+	pagesel	io_Read
+	call	io_Read
+
+	movwf	temp		; Save the pin value in temp
+
+	banksel	BD0IAL
+	movf	low BD0IAL,w	; get address of buffer
+	movwf	FSR
+	bsf 	STATUS,IRP	; indirectly to banks 2-3
+
+	movf	temp, w		;  Write the saved byte to our buffer
 	movwf	INDF
 	banksel	BD0IBC
 	bsf 	STATUS, RP0

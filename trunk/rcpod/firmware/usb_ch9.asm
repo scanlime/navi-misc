@@ -38,7 +38,7 @@
 ;
 ;################################################################################
 
-#include <p16C745.inc>
+#include <p16C765.inc>
 #include "usb_defs.inc"
 #include "../include/rcpod_protocol.h"
 
