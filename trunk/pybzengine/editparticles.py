@@ -28,7 +28,7 @@ try:
     particles = cPickle.load(open(filename))
 except:
     # Or create a blank one
-    particles = Drawable.SimpleParticles((0,0,3))
+    particles = Drawable.SimpleParticles()
 view.scene.add(particles)
 
 Tweak.Window(particles.getTweakControls(),
