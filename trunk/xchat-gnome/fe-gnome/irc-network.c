@@ -126,7 +126,10 @@ irc_network_new (ircnet *net)
 	n->servers = s2;
 
 	n->password    = g_strdup(net->pass);
-	n->encoding    = GPOINTER_TO_UINT (g_hash_table_lookup (enctoindex, net->encoding));
+	if (net->encoding)
+		n->encoding = GPOINTER_TO_UINT (g_hash_table_lookup (enctoindex, net->encoding));
+	else
+		n->encoding = 0;
 	n->use_global  = net->flags & FLAG_USE_GLOBAL;
 	n->nick        = g_strdup (net->nick);
 	n->real        = g_strdup (net->real);
