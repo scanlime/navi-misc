@@ -150,7 +150,7 @@ class PalantirWindow:
         and userlist from that channel.
 	'''
     self.factory.close(channel, msg)
-    self.tree.get_widget('UserList').get_buffer().set_text('')
+    self.tree.get_widget('UserList').get_model().clear()
     self.tree.get_widget('Topic').set_text('')
 
   # CTCP messages.
@@ -285,10 +285,8 @@ class PalantirWindow:
 
       # If the client has a method for the command execute it and assume the UI has a
       # matching receive method.
-      if hasattr(self.factory, command):
-        getattr(self, command + 'Receive')(self.factory.nickname,
-	    self.factory.channels[0], arg)
-	getattr(self.factory, command)(self.factory.channels[0], arg)
+      if hasattr(self, command):
+        getattr(self, command)(arg)
 
     # If the message isn't a command it's a regular message.
     else:
@@ -336,6 +334,41 @@ class PalantirWindow:
 
     # Roll the dice.
     self.dieRoller.roll([int(time)], data, [int(mods)], int(diff))
+
+  ### IRC commands. ###
+  def nick(self, args):
+    self.factory.nick(args)
+
+  def server(self, args):
+    self.tree.get_widget('SendField').set_text('')
+    self.Connect(args)
+
+  def join(self, args):
+    self.tree.get_widget('SendField').set_text('')
+    self.tree.get_widget('UserList').get_model().clear()
+    if len(self.factory.channels) > 0:
+      self.factory.close(self.factory.channels[0])
+    self.factory.join(args)
+
+  def close(self, args):
+    self.tree.get_widget('SendField').set_text('')
+    self.tree.get_widget('UserList').get_model().clear()
+    self.factory.close(self.factory.channels[0])
+
+  def me(self, args):
+    self.factory.me(self.factory.channels[0], args)
+
+  def ctcp(self, args):
+    print 'Not Done'
+
+  def query(self, args):
+    print 'Not Done'
+
+  def ping(self, args):
+    print 'Not Done'
+
+  def quit(self, args):
+    self.Disconnect()
 
   ### Misc. Necessary Functions ###
   def ConnectionDialog(self):
@@ -405,9 +438,9 @@ class PalantirWindow:
       dialog.destroy()
 
     # Start the reactor.
-    if not hasattr(self.factory, 'client'):
-      reactor.connectTCP(server, 6667, self.factory)
-      reactor.run()
+    #if not hasattr(self.factory, 'client'):
+    reactor.connectTCP(server, 6667, self.factory)
+    reactor.run()
 
   def OpenSheet(self, widget, data=None):
     ''' Open up a character sheet in the client. '''
@@ -451,6 +484,7 @@ class PalantirWindow:
       time = ''
     self.chatWindow.DisplayText(time, '', 'You rolled a ' + str(len(rolls)) + 'd' + str(sides) + ': ' + str(rolls) + ' => ' + str(total) + '\n')
 
+  ### Formatting stuff. ###
   def GetTime(self):
     ''' Return the local hour, minute and seconds. '''
     time = localtime()
@@ -488,7 +522,6 @@ class PalantirWindow:
     self.factory.quit()
     self.tree.get_widget('UserList').get_model().clear()
 
-  ### Formatting stuff. ###
   def GetFormattedTime(self):
     ''' Uses GetTime to retrieve the current time, but formats it in an xchat way. '''
     hour, min, sec = self.GetTime()

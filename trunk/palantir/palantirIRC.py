@@ -73,14 +73,17 @@ class PalantirClientFactory(protocol.ClientFactory):
       '''
   protocol = PalantirClient
 
-  def __init__(self, nick, server='irc.freenode.net', channels='#palantir', ui=None):
+  def __init__(self, nick, server='irc.freenode.net', channels='', ui=None):
     ''' 'channels' should be a string of channels, separated by commas that the client
         will join upon connecting.  'ui' should be a reference to the ui that the client
 	will use.  The rest should be apparent.
 	'''
     self.nickname = nick
     self.server = server
-    self.channels = [channel.strip() for channel in channels.split(',')]
+    if channels != '':
+      self.channels = [channel.strip() for channel in channels.split(',')]
+    else:
+      self.channels = []
     self.ui = ui
 
   def clientConnectionLost(self, connector, reason):
@@ -122,7 +125,7 @@ class PalantirClientFactory(protocol.ClientFactory):
     self.channels.append(channel)
     self.client.join(channel)
 
-  def close(self, channel, reason):
+  def close(self, channel, reason='Leaving...'):
     self.channels.remove(channel)
     self.client.leave(channel, reason)
 
@@ -132,7 +135,7 @@ class PalantirClientFactory(protocol.ClientFactory):
     self.channels = ['']
     self.client = None
 
-  def nick(self, channel, nick):
+  def nick(self, nick):
     ''' Change your nick. '''
     self.nickname = nick
     if hasattr(self, 'client'):
