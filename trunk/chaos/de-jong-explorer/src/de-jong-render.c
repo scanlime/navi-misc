@@ -287,7 +287,7 @@ void de_jong_update_image(DeJong *self) {
 	  for (sample_y=oversample; sample_y; sample_y--) {
 	    for (sample_x=oversample; sample_x; sample_x--) {
 
-	      count = *(count_p++);
+	      count = *(sample_p++);
 	      if (count > count_clamp)
 		sample_pixel.word = color_table[count_clamp];
 	      else
