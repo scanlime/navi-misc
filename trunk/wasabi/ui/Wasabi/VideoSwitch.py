@@ -21,7 +21,9 @@ A PyBZEngine-friendly abstraction for the USB video switch
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from BZEngine import Event
+from BZEngine import Event, Util
+from BZEngine.UI import Sequencer
+from Wasabi import Icon
 import glob
 
 
@@ -132,5 +134,26 @@ class Device(object):
                 self.onChannelInactive(channel)
         self.activeChannels = newActiveChannels
         self.onActiveChannelsChanged()
+
+
+inputDict = None
+
+def getInputDict():
+    """Returns a dictionary mapping port numbers to to icon instances.
+       This executes the 'video_inputs.py' datafile, allows it to
+       manipulate the dictionary as 'input' with all icons in its
+       namespace, then caches the resulting dictionary.
+       """
+    global inputDict
+    if not inputDict:
+        inputDict = {}
+
+        # Run video_inputs.py, with our dict in its namespace
+        # as 'input' and all icons available to it.
+        ns = {'input': inputDict}
+        ns.update(Icon.getIconDict())
+        exec open(Util.dataFile('video_inputs.py')) in ns
+
+    return inputDict
 
 ### The End ###
