@@ -71,7 +71,6 @@ class Filter:
 
     def deliver(self):
         """Deliver the message in self.xml"""
-        print self.xml.toXml()
         xmlrpclib.ServerProxy(self.server).hub.deliver(self.xml.toXml())
 
 
@@ -91,15 +90,5 @@ class CommitFilter(Filter):
 
     def addLog(self, log):
         self.xml.body.commit.addElement('log', content=log)
-
-    def slurpLog(self):
-        """Read in lines until a blank one is hit, and use them as a log message"""
-        lines = []
-        while True:
-            line = self.body.readline().strip()
-            if not line:
-                break
-            lines.append(line)
-        self.addLog("\n".join(lines))
 
 ### The End ###
