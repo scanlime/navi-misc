@@ -167,7 +167,7 @@ create_weather (ECalBackendWeather *cbw, WeatherForecast *report)
 	g_free (temperature);
 
 	/* create the component and event object */
-	ical_comp = icalcomponent_new (ICAL_VEVENT_COMPONENT);
+	ical_comp = icalcomponent_new (ICAL_XWEATHER_COMPONENT);
 	cal_comp = e_cal_component_new ();
 	e_cal_component_set_icalcomponent (cal_comp, ical_comp);
 
