@@ -24,7 +24,7 @@
 
 import Blender
 from Blender import NMesh, Material, Image, Texture
-import math
+import math, string
 
 # create textures
 def createTexture(name, filename):
@@ -70,7 +70,7 @@ try:
 except NameError:
     teleporterBorderMaterial = createTexture('TeleporterBorder', '/usr/share/bzedit/caution.png')
 
-def meshify(vertex, face, material):
+def meshify(vertex, face, material, name = None):
     mesh = NMesh.GetRaw()
     verts = []
     for v in vertex:
@@ -87,6 +87,8 @@ def meshify(vertex, face, material):
     object = NMesh.PutRaw(mesh)
     for i in range(len(material)):
         object.colbits |= 1 << i
+    if name:
+        object.setName(name)
     return object
 
 
@@ -146,6 +148,8 @@ class WorldReader:
             if line:
                 if line[0] == '#':
                     yield CommentLine(line[1:].strip())
+                if line.split()[0] == 'name':
+                    yield line.split()
                 else:
                     # Split the line into tokens, converting them to
                     # floating point numbers where possible.
@@ -246,6 +250,7 @@ class BZObject(object):
        """
     type = None
     comment = None
+    name = None
 
     # Attributes controlling how this BZObject is represented in Blender
     verts = []
@@ -262,6 +267,9 @@ class BZObject(object):
     # and bzflag coordinates such that all other objects are sized
     # and positioned relative to the world.
     world = None
+
+    def set_name(self, *name):
+        self.name = string.join(name, ' ')
 
     def serialize(self, writer):
         """Store this BZFlag object to a world file by calling the
@@ -323,7 +331,7 @@ class BZObject(object):
            The default implementation creates a mesh using our 'verts',
            'faces', and 'materials' attributes.
            """
-        obj = meshify(self.verts, self.faces, self.materialIndex)
+        obj = meshify(self.verts, self.faces, self.materialIndex, self.name)
         obj.setMaterials(self.materials)
         return obj
 
@@ -347,6 +355,8 @@ class BZObject(object):
         object.addProperty('bztype', self.type, 'STRING')
         if self.comment:
             object.addProperty('comment', self.comment, 'STRING')
+        if self.name:
+            object.addProperty('name', self.name, 'STRING')
 
     def loadBlenderProperties(self, object):
         """The inverse of setBlenderProperties, loading info from the Blender
@@ -356,6 +366,10 @@ class BZObject(object):
             self.comment = object.getProperty('comment').getData()
         except AttributeError:
             self.comment = None
+        try:
+            self.name = object.getProperty('name').getData()
+        except AttributeError:
+            self.name = None
 
 
 class ObjectTypeRegistry:
@@ -422,6 +436,7 @@ class World(BZObject):
 
     def __init__(self):
         self.set_size()
+        self.name = ''
 
     def set_size(self, size=400):
         self.size = size
@@ -429,6 +444,8 @@ class World(BZObject):
     def serialize(self, writer):
         BZObject.serialize(self, writer)
         writer(("size", self.size))
+        if self.name != '':
+            writer(("name", self.name))
 
     def transformBlenderObject(self, world):
         # The world always appears to be a constant size in Blender, and other objects
@@ -440,6 +457,8 @@ class World(BZObject):
     def setBlenderProperties(self, object):
         BZObject.setBlenderProperties(self, object)
         object.addProperty('size', float(self.size), 'FLOAT')
+        if self.name != '':
+            object.setName(self.name)
 
     def loadBlenderProperties(self, object):
         BZObject.loadBlenderProperties(self, object)
@@ -448,6 +467,7 @@ class World(BZObject):
         except AttributeError:
             # No property, use the default size
             self.set_size()
+        self.name = object.getName()
 
     def getBzToBlendMatrix(self):
         """Get a 3x3 matrix that converts BZFlag coordinates to Blender coordinates
@@ -533,7 +553,7 @@ class Box(BZObject):
         object.addProperty('driveThrough', self.drive_through, 'INT')
         object.addProperty('shootThrough', self.shoot_through, 'INT')
 
-    def loadBlenderProperties(self, object);
+    def loadBlenderProperties(self, object):
         BZObject.loadBlenderProperties(self, object)
         try:
             self.drive_through = object.getProperty('driveThrough').getData()
@@ -719,5 +739,23 @@ class Teleporter(Box):
         except AttributeError:
             # No property, use the default border
             self.set_border()
+
+class Zone(Box):
+    """A rectangular area with special properties (flag entry, tank entry, etc)"""
+    type = 'zone'
+
+    def __init__(self):
+        Box.__init__(self)
+        self.subtype = 'team' # one of 'flag', 'team' or 'safety'
+
+    def setBlenderProperties(self, object):
+        BZObject.setBlenderProperties(self, object)
+#        if self.subtype == 'flag':
+#        else if self.subtype == 'team':
+#        else if self.subtype == 'safety':
+#            object.addProperty()
+
+    def loadBlenderProperties(self, object):
+        BZObject.loadBlenderProperties(self, object)
 
 ### The End ###
