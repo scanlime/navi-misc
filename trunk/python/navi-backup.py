@@ -191,7 +191,7 @@ class DVDBurner:
             # Append to the disc
             sessionOption = '-M'
 
-        cmd = 'growisofs %s %s -R -J -graft-points -path-list -' % (
+        cmd = 'growisofs %s %s -R -J -D -graft-points -path-list -' % (
             sessionOption, self.device)
         subproc = popen2.Popen4(cmd)
 
@@ -456,6 +456,7 @@ def cmd_auto(paths, assumedOverhead = 0.01, safetyTimer = 3):
     burner = DVDBurner()
     burnPaths = []
 
+    print "Reading disc status..."
     remaining = burner.getFreeSpace()
     print "Remaining space on disc: %.1fMB" % (remaining / (1024.0 * 1024.0))
     print "Assuming %r%% overhead" % (assumedOverhead*100.0)
