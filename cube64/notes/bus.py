@@ -47,6 +47,41 @@ class Bus:
         self._checkCRC(crc, data)
         return data
 
+    def probe(self):
+        """Initialize the controller and probe for the attached pak"""
+        # Identify/initialize the controller itself. This seems
+        # to be necessary for the controller to re-detect the controller pak
+        # if it has been removed or inserted.
+        controllerId = self.bridge.write(chr(0), 3)[1]
+        if controllerId == "\x05\x00\x02":
+            print "Identified an N64 controller with no controller pak"
+            return
+        elif controllerId == "\x05\x00\x01":
+            print "Identified an N64 controller with controller pak"
+        else:
+            print "Unknown controller identity %r" % controllerId
+
+        # Initialize the controller pak by writing to 0x8000
+        if self.write(0x8000, "\xFE" * 32) == 1:
+            print "Inverted CRC, controller pak is initialized"
+        else:
+            print "Non-inverted CRC, controller pak isn't initialized"
+            return
+
+        # Read back 0x8000 to identify the peripheral
+        id = ord(self.read(0x8000)[0])
+
+        if id == 0x80:
+            print "Detected rumble pak"
+            return "rumble"
+
+        elif id == 0x00:
+            print "Detected memory pak"
+            return "memory"
+
+        else:
+            print "Hmm, got back 0x%02X from reading 0x8000 after init" % id
+
 
 def rumbleDemo(b):
     print "Testing rumble pak"
@@ -56,7 +91,6 @@ def rumbleDemo(b):
     # Rumble motor off...
     b.write(0xC000, chr(0) * 32)
 
-
 def memoryDemo(b):
     print "Reading back RAM"
     addr = 0x0000
@@ -64,43 +98,14 @@ def memoryDemo(b):
         print "0x%04X:  %s" % (addr, " ".join(["%02X" % ord(byte) for byte in b.read(addr)]))
         addr += 32
 
-
 def demo():
     b = Bus()
+    id = b.probe()
 
-    # Identify/initialize the controller itself. This seems
-    # to be necessary for the controller to re-detect the controller pak
-    # if it has been removed or inserted.
-    controllerId = b.bridge.write(chr(0), 3)[1]
-    if controllerId == "\x05\x00\x02":
-        print "Identified an N64 controller with no controller pak"
-        return
-    elif controllerId == "\x05\x00\x01":
-        print "Identified an N64 controller with controller pak"
-    else:
-        print "Unknown controller identity %r" % controllerId
-
-    # Initialize the controller pak by writing to 0x8000
-    if b.write(0x8000, "\xFE" * 32) == 1:
-        print "Inverted CRC, controller pak is initialized"
-    else:
-        print "Non-inverted CRC, controller pak isn't initialized"
-        return
-
-    # Read back 0x8000 to identify the peripheral
-    id = ord(b.read(0x8000)[0])
-
-    if id == 0x80:
-        print "Detected rumble pak"
-        rumbleDemo(b)
-
-    elif id == 0x00:
-        print "Detected memory pak"
+    if id == "memory":
         memoryDemo(b)
-
-    else:
-        print "Hmm, got back 0x%02X from reading 0x8000 after init" % id
-
+    elif id == "rumble":
+        rumbleDemo(b)
 
 if __name__ == "__main__":
     demo()
