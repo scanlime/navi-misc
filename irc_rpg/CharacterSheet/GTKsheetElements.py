@@ -326,6 +326,7 @@ class text_box(gtk.Frame, sheetElement):
 
     # Text view.
     self.text = gtk.TextView()
+    self.text.set_editable(gtk.FALSE)
     # Get the buffer.
     self.buffer = self.text.get_buffer()
     self.text.show()
@@ -338,3 +339,7 @@ class text_box(gtk.Frame, sheetElement):
     # The outer frame should be invisible except for the label.
     self.set_shadow_type(gtk.SHADOW_NONE)
     self.add(scroller)
+
+  def addEditable(self, list):
+    ''' Add the text box to the list of editable fields in the sheet. '''
+    list.append(self.text)
