@@ -20,7 +20,7 @@ class RioApp:
         self.main()
 
     def finished(self, retval=None):
-        print "Done"
+        print "\nDone"
         reactor.stop()
 
 
@@ -42,7 +42,11 @@ class Downloader(RioApp):
         print f
         print " -> %s" % filename
 
-        self.fileManager.saveToDisk(f, filename).addCallback(self.nextFile).addErrback(log.err)
+        self.fileManager.saveToDisk(f, filename).addCallback(self.nextFile).addErrback(self.error)
+
+    def error(self, e):
+        log.err(e)
+        self.nextFile()
 
 
 class Uploader(RioApp):

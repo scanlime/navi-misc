@@ -41,6 +41,7 @@ class AuthenticationError(Exception):
 statusExceptionMap = {
     0x8004005E: (ProtocolError,       "A lock required for this operation is not currently held"),
     0xC0040002: (ProtocolError,       "Nonexistant file ID"),
+    0xC0041002: (ProtocolError,       "File content can't be read"),
     0x8004005B: (AuthenticationError, "Password is incorrect"),
     }
 
