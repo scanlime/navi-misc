@@ -354,6 +354,15 @@ display_led_scan
 	banksel	wand_phase
 	jl_16	wand_phase, display_fwd_phase, no_forward_scan
 
+	movf	wand_phase+1, w				; remaining_col_width = display_fwd_phase - wand_phase
+	subwf	display_fwd_phase+1, w		; This results in a negative number telling us how
+	movwf	remaining_col_width+1		; much of our first column we've already used up.
+	movf	wand_phase, w
+	subwf	display_fwd_phase, w
+	movwf	remaining_col_width
+	btfss	STATUS, C
+	decf	remaining_col_width+1, f
+
 	pagesel	start_scan_common			; Do the things common to both types of scans
 	call	start_scan_common
 	bsf		FLAG_DISPLAY_FWD			; Set flags
@@ -369,6 +378,15 @@ no_forward_scan
 	goto	no_reverse_scan
 	banksel	wand_phase
 	jl_16	wand_phase, display_rev_phase, no_reverse_scan
+
+	movf	wand_phase+1, w				; remaining_col_width = display_rev_phase - wand_phase
+	subwf	display_rev_phase+1, w		; This results in a negative number telling us how
+	movwf	remaining_col_width+1		; much of our first column we've already used up.
+	movf	wand_phase, w
+	subwf	display_rev_phase, w
+	movwf	remaining_col_width
+	btfss	STATUS, C
+	decf	remaining_col_width+1, f
 
 	pagesel	start_scan_common			; Do the things common to both types of scans
 	call	start_scan_common
@@ -394,15 +412,44 @@ no_reverse_scan
 	btfsc	FLAG_DISPLAY_REV
 	goto	scan_in_progress
 
-	; Blank the LEDs, clear the scan bits, and return.
+	; Blank the LEDs, clear the scan bits, flip if necessary, and return.
 	; This is invoked at the end of a scan, (once current_column is out of bounds)
-	; or if no scan has been started.
+	; or if no scan has been started. Note that we can perform a page flip at any
+	; time except during an LED scan.
 led_scan_disabled
 	movlw	0xFF
 	banksel	LED_PORT
 	movwf	LED_PORT
 	bcf		FLAG_DISPLAY_FWD
 	bcf		FLAG_DISPLAY_REV
+
+	btfss	FLAG_FLIP_REQUEST			; We're done if we haven't had a page flip request
+	return
+	bcf		FLAG_FLIP_REQUEST
+	banksel	flip_counter
+	incf	flip_counter, f
+
+	clrf	current_column				; Start the blit at the first column
+	pagesel	flip_blit_loop
+flip_blit_loop
+	bankisel back_buffer				; Point IRP:FSR at the back buffer's current column
+	movlw	back_buffer
+	addwf	current_column, w
+	movwf	FSR
+	movf	INDF, w						; Copy to temp
+	movwf	temp
+	bankisel front_buffer				; Point IRP:FSR at the front buffer's current column
+	movlw	front_buffer
+	addwf	current_column, w
+	movwf	FSR
+	movf	temp, w						; Copy from temp
+	movwf	INDF
+	incf	current_column, f			; Next column...
+	movf	current_column, w			; Are we done yet?
+	sublw	NUM_COLUMNS
+	btfss	STATUS, Z
+	goto	flip_blit_loop
+
 	return
 
 	; We have a scan (forward or reverse) in progress
@@ -484,45 +531,14 @@ not_in_gap
 	; NOTE: This uses current_column for a blit if it needs to, so this must be called
 	;       before that is initialized.
 start_scan_common
-	movf	display_column_width, w		; Give this column all its allocated width.
-	movwf	remaining_col_width			; We add the current delta_t, since it will be subtracted later.
-	movf	display_column_width+1, w
-	movwf	remaining_col_width+1
-	movf	delta_t, w
-	addwf	remaining_col_width, f
+	movf	display_column_width, w		; Give the next column all its allocated width.
+	addwf	remaining_col_width, f		; Note that this carries over the error from the last column
 	btfsc	STATUS, C
 	incf	remaining_col_width+1, f
-	movf	delta_t+1, w
+	movf	display_column_width+1, w
 	addwf	remaining_col_width+1, f
 
 	bcf		FLAG_IN_GAP					; Start in a column, not a gap
-
-	btfss	FLAG_FLIP_REQUEST			; We're done if we haven't had a page flip request
-	return
-	bcf		FLAG_FLIP_REQUEST
-	incf	flip_counter, f
-
-	clrf	current_column				; Start the blit at the first column
-	pagesel	flip_blit_loop
-flip_blit_loop
-	bankisel back_buffer				; Point IRP:FSR at the back buffer's current column
-	movlw	back_buffer
-	addwf	current_column, w
-	movwf	FSR
-	movf	INDF, w						; Copy to temp
-	movwf	temp
-	bankisel front_buffer				; Point IRP:FSR at the front buffer's current column
-	movlw	front_buffer
-	addwf	current_column, w
-	movwf	FSR
-	movf	temp, w						; Copy from temp
-	movwf	INDF
-	incf	current_column, f			; Next column...
-	movf	current_column, w			; Are we done yet?
-	sublw	NUM_COLUMNS
-	btfss	STATUS, Z
-	goto	flip_blit_loop
-
 	return	
 
 
