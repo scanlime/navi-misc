@@ -31,8 +31,6 @@ static void editor_class_init   (EditorClass *klass);
 static void editor_init         (Editor      *editor);
 static void editor_dispose      (GObject     *object);
 
-static void on_glarea_realize   (GtkWidget *widget, gpointer data);
-
 GType
 editor_get_type (void)
 {
@@ -168,11 +166,12 @@ editor_init (Editor *editor)
                                       GDK_GL_MODE_DOUBLE);
 
   editor->glarea = gl_drawing_area_new(config);
-  g_signal_connect_after(G_OBJECT(editor->glarea), "realize", G_CALLBACK(on_glarea_realize), (gpointer) editor);
   editor->eventbox = glade_xml_get_widget (editor->xml, "event box");
-  gtk_container_add (GTK_CONTAINER (editor->eventbox), editor->glarea);
 
   editor->scene = scene_new ();
+
+  editor->view = VIEW (view_new (editor->scene, GL_DRAWING_AREA (editor->glarea)));
+  gtk_container_add (GTK_CONTAINER (editor->eventbox), GTK_WIDGET (editor->view));
 
   editor->element_list = GTK_TREE_VIEW (glade_xml_get_widget (editor->xml, "element list"));
   gtk_tree_view_set_model (editor->element_list, GTK_TREE_MODEL (editor->scene->element_store));
@@ -253,17 +252,4 @@ editor_new (void)
   gtk_widget_show_all(self->window);
 
   return self;
-}
-
-static void
-on_glarea_realize (GtkWidget *widget, gpointer data)
-{
-  Editor *editor = EDITOR (data);
-
-  editor->view = view_new (editor->scene, GL_DRAWING_AREA (widget));
-
-  editor->view->camera->azimuth = 45;
-  editor->view->camera->elevation = 25;
-  editor->view->camera->distance = 900;
-  editor->view->camera->position[2] = 4;
 }

@@ -47,7 +47,7 @@ view_get_type (void)
 	(GInstanceInitFunc) view_init,
     };
 
-    view_type = g_type_register_static (G_TYPE_OBJECT, "View", &view_info, 0);
+    view_type = g_type_register_static (GTK_TYPE_VBOX, "View", &view_info, 0);
   }
 
   return view_type;
@@ -144,18 +144,13 @@ view_expose (GLDrawingArea *widget, GdkEventExpose *event, View *view)
   return TRUE;
 }
 
-View*
-view_new (Scene *scene, GLDrawingArea *context)
+static void
+on_gl_context_realize (GLDrawingArea *context, View *view)
 {
-  View *view = VIEW (g_object_new (view_get_type (), NULL));
-
-  if (scene == NULL)
-    scene = scene_new ();
-
-  view->scene = scene;
-  view->context = context;
-
-  scene_add_view (scene, (gpointer) view);
+  view->camera->azimuth = 45;
+  view->camera->elevation = 25;
+  view->camera->distance = 900;
+  view->camera->position[2] = 4;
 
   gl_drawing_area_make_current (context);
 
@@ -166,7 +161,39 @@ view_new (Scene *scene, GLDrawingArea *context)
   g_signal_connect (G_OBJECT (context), "motion-notify-event", G_CALLBACK (view_motion), (gpointer) view);
 
   init_lighting (view);
-  return view;
+
+  scene_add_view (view->scene, (gpointer) view);
+}
+
+GtkWidget*
+view_new (Scene *scene, GLDrawingArea *context)
+{
+  View *view = VIEW (g_object_new (view_get_type (), NULL));
+  GtkWidget *box, *window;
+
+  view->xml = glade_xml_new (GLADEDIR "/view.glade", NULL, NULL);
+  if (!view->xml)
+    return NULL;
+  box = glade_xml_get_widget (view->xml, "view vbox");
+  window = glade_xml_get_widget (view->xml, "window");
+
+  gtk_widget_ref (box);
+  gtk_container_remove (GTK_CONTAINER (window), box);
+  gtk_box_pack_start (GTK_BOX (view), GTK_WIDGET (box), TRUE, TRUE, 0);
+  gtk_widget_unref (box);
+
+  gtk_box_pack_start (GTK_BOX (box), GTK_WIDGET (context), TRUE, TRUE, 0);
+  gtk_box_reorder_child (GTK_BOX (box), GTK_WIDGET (context), 0);
+
+  if (scene == NULL)
+    scene = scene_new ();
+
+  view->scene = scene;
+  view->context = context;
+
+  g_signal_connect_after (G_OBJECT (context), "realize", G_CALLBACK (on_gl_context_realize), (gpointer) view);
+
+  return GTK_WIDGET (view);
 }
 
 void

@@ -3,8 +3,7 @@
 
 <glade-interface>
 
-<widget class="GtkWindow" id="window2">
-  <property name="visible">True</property>
+<widget class="GtkWindow" id="window">
   <property name="title" translatable="yes">window2</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_NONE</property>
@@ -32,11 +31,22 @@
 	  <property name="visible">True</property>
 
 	  <child>
-	    <widget class="GtkMenuItem" id="views1">
+	    <widget class="GtkImageMenuItem" id="views1">
 	      <property name="visible">True</property>
-	      <property name="label" translatable="yes">Views</property>
+	      <property name="label" translatable="yes">Perspective</property>
 	      <property name="use_underline">True</property>
 	      <signal name="activate" handler="on_views1_activate" last_modification_time="Wed, 24 Mar 2004 05:01:36 GMT"/>
+
+	      <child internal-child="image">
+		<widget class="GtkImage" id="image14">
+		  <property name="visible">True</property>
+		  <property name="pixbuf">perspective.png</property>
+		  <property name="xalign">0.5</property>
+		  <property name="yalign">0.5</property>
+		  <property name="xpad">0</property>
+		  <property name="ypad">0</property>
+		</widget>
+	      </child>
 
 	      <child>
 		<widget class="GtkMenu" id="views1_menu">
@@ -49,7 +59,7 @@
 		      <signal name="activate" handler="on_top1_activate" last_modification_time="Wed, 24 Mar 2004 05:01:36 GMT"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image2">
+			<widget class="GtkImage" id="image15">
 			  <property name="visible">True</property>
 			  <property name="pixbuf">top.png</property>
 			  <property name="xalign">0.5</property>
@@ -69,7 +79,7 @@
 		      <signal name="activate" handler="on_front1_activate" last_modification_time="Wed, 24 Mar 2004 05:02:01 GMT"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image3">
+			<widget class="GtkImage" id="image16">
 			  <property name="visible">True</property>
 			  <property name="pixbuf">front.png</property>
 			  <property name="xalign">0.5</property>
@@ -89,9 +99,29 @@
 		      <signal name="activate" handler="on_side1_activate" last_modification_time="Wed, 24 Mar 2004 05:02:12 GMT"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image4">
+			<widget class="GtkImage" id="image17">
 			  <property name="visible">True</property>
 			  <property name="pixbuf">side.png</property>
+			  <property name="xalign">0.5</property>
+			  <property name="yalign">0.5</property>
+			  <property name="xpad">0</property>
+			  <property name="ypad">0</property>
+			</widget>
+		      </child>
+		    </widget>
+		  </child>
+
+		  <child>
+		    <widget class="GtkImageMenuItem" id="perspective1">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">Perspective</property>
+		      <property name="use_underline">True</property>
+		      <signal name="activate" handler="on_perspective1_activate" last_modification_time="Wed, 24 Mar 2004 05:09:09 GMT"/>
+
+		      <child internal-child="image">
+			<widget class="GtkImage" id="image18">
+			  <property name="visible">True</property>
+			  <property name="pixbuf">perspective.png</property>
 			  <property name="xalign">0.5</property>
 			  <property name="yalign">0.5</property>
 			  <property name="xpad">0</property>
@@ -109,6 +139,7 @@
 	  <property name="padding">0</property>
 	  <property name="expand">False</property>
 	  <property name="fill">False</property>
+	  <property name="pack_type">GTK_PACK_END</property>
 	</packing>
       </child>
     </widget>
