@@ -105,6 +105,7 @@ wait_for_stop			; Now look for a stop bit...
 rs232_tx_byte	macro	pin_port, pin_bit, speed, polarity, reg
 	local	wait_for_start
 	local	wait_for_stop
+	local	wait_for_stop_done
 	local	bit_loop
 	local	output_zero
 	local	output_done
@@ -162,13 +163,22 @@ wait_for_stop			; Wait until it's time to start the stop bit
 	clrwdt
 	btfss	INTCON, T0IF
 	goto	wait_for_stop
-	bcf	INTCON, T0IF
 
 	if	polarity
 	bcf	pin_port, pin_bit
 	else
 	bsf	pin_port, pin_bit
 	endif
+
+	bcf	INTCON, T0IF	; Clear the overflow
+	movlw	speed		; Adjust TMR0's speed
+	addwf	TMR0, f
+
+wait_for_stop_done		; Don't return until the stop bit's done, for the next byte's sake
+	clrwdt
+	btfss	INTCON, T0IF
+	goto	wait_for_stop_done
+
 	endm
 
 	;;; The End ;;;
