@@ -25,7 +25,7 @@ links.
 
 from BZFlag.Protocol import Common
 from BZFlag import Protocol, Errors
-import socket, select
+import socket, select, sys
 
 
 class Socket:
@@ -61,15 +61,40 @@ class Socket:
     def write(self, data):
         self.socket.send(str(data))
 
+    def recv(self, size):
+        """Low-level recv() wrapper that just provides a little error handling."""
+        try:
+            data = self.socket.recv(size)
+        except socket.error:
+            # Assume this is "resource temporarily unavailable"
+            return None
+        if not data:
+            raise Errors.ConnectionLost()
+        return data
+                
     def read(self, size=None, bufferSize=64*1024):
-        if size:
+        """High level interface for reading from the socket,
+           includes a buffering scheme that works well for
+           receiving fixed size messages.
+           """
+        if size is None:
+            # Keep reading until there's no more to read
+            received = self.readBuffer
+            self.readBuffer = ''
+            try:
+                while 1:
+                    received += self.recv(bufferSize)
+            except Errors.ConnectionLost:
+                pass
+            return received
+        elif size != 0:
             # Read the amount specified, first from our
             # local read buffer then from the socket itself.
             # If we can't read the complete packet, return
             # None and keep the partial packet buffered.
             received = self.readBuffer[:size]
             while len(received) < size:
-                chunk = self.socket.recv(size - len(received))
+                chunk = self.recv(size - len(received))
                 if not chunk:
                     self.readBuffer = received
                     return None
@@ -77,15 +102,8 @@ class Socket:
             self.readBuffer = received[size:]
             return received[:size]
         else:
-            # Keep reading until there's no more to read
-            received = self.readBuffer
-            self.readBuffer = ''
-            while 1:
-                buffer = self.socket.recv(bufferSize)
-                if not buffer:
-                    break
-                received += buffer
-            return received
+            # Zero size
+            return ''
 
     def unread(self, data):
         """Push the supplied data back into the read buffer,
@@ -99,7 +117,7 @@ class Socket:
            included in the host overrides the port in the arguments
            if present, so you can treat the port argument as a default.
            """
-        if host.find(":"):
+        if host.find(":") >= 0:
             (host, port) = host.split(":")
             port = int(port)
         self.socket.connect((host, port))
@@ -113,10 +131,7 @@ class Socket:
            this is a nonblocking socket) it will return
            uneventfully.
            """
-        try:
-            self.handler(self, eventLoop)
-        except socket.error:
-            pass
+        self.handler(self, eventLoop)
 
     def getSelectable(self):
         """Return an object for this socket that can be passed
@@ -136,11 +151,14 @@ class Socket:
         header = self.readStruct(Common.MessageHeader)
         if not header:
             return None
-        body = self.read(header.length)
-        if not body:
-            # Save the header for later if we can't read the body yet
-            self.unread(header)
-            return None
+        if header.length > 0:
+            body = self.read(header.length)
+            if not body:
+                # Save the header for later if we can't read the body yet
+                self.unread(header)
+                return None
+        else:
+            body = ''
         try:
             msgClass = Common.getMessageDict()[header.id]
         except KeyError:
@@ -160,7 +178,7 @@ class EventLoop:
         selectables = selectDict.keys()
             
         while self.running:
-            (iwtd, owtd, ewtd) = select.select(selectables, [], selectables)
+            (iwtd, owtd, ewtd) = select.select(selectables, [], [])
             readyList = iwtd + owtd + ewtd
             for ready in readyList:
                 try:
