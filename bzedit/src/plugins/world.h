@@ -49,7 +49,7 @@ struct _World
 
   WorldParams param;
   gboolean state_dirty;
-  Drawable *ground;
+  Drawable *ground, *wallsides;
   GList *drawables;
 };
 
@@ -75,7 +75,7 @@ struct _GroundDrawable
   DisplayList parent;
 
   gfloat base_texture_repeat, overlay_texture_repeat;
-  guint size[2];
+  gfloat size[2];
 };
 
 struct _GroundDrawableClass
@@ -85,6 +85,30 @@ struct _GroundDrawableClass
 
 GType     ground_drawable_get_type (void) G_GNUC_CONST;
 Drawable* ground_drawable_new (void);
+
+#define WALL_SIDES_DRAWABLE_TYPE            (wall_sides_drawable_get_type ())
+#define WALL_SIDES_DRAWABLE(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), WALL_SIDES_DRAWABLE_TYPE, WallSidesDrawable))
+#define WALL_SIDES_DRAWABLE_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), WALL_SIDES_DRAWABLE_TYPE, WallSidesDrawableClass))
+#define IS_WALL_SIDES_DRAWABLE(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), WALL_SIDES_DRAWABLE_TYPE))
+#define IS_WALL_SIDES_DRAWABLE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), WALL_SIDES_DRAWABLE_TYPE))
+
+typedef struct _WallSidesDrawable      WallSidesDrawable;
+typedef struct _WallSidesDrawableClass WallSidesDrawableClass;
+
+struct _WallSidesDrawable
+{
+  DisplayList parent;
+
+  gfloat size[3];
+};
+
+struct _WallSidesDrawableClass
+{
+  DisplayListClass parent_class;
+};
+
+GType     wall_sides_drawable_get_type (void) G_GNUC_CONST;
+Drawable* wall_sides_drawable_new      (void);
 
 G_END_DECLS
 

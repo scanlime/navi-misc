@@ -22,19 +22,23 @@
 
 #include "world.h"
 
-static void       world_class_init             (WorldClass *klass);
-static void       world_init                   (World *world);
-static void       world_set_property           (GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec);
-static void       world_get_property           (GObject *object, guint prop_id, GValue *value, GParamSpec *pspec);
-static void       world_finalize               (GObject *object);
-static void       world_init_params            (GObjectClass *object_class);
-static GdkPixbuf* world_get_icon               (void);
-static gboolean   world_creatable              (void);
-static GList*     world_get_drawables          (SceneObject *self);
+static void       world_class_init                 (WorldClass *klass);
+static void       world_init                       (World *world);
+static void       world_set_property               (GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec);
+static void       world_get_property               (GObject *object, guint prop_id, GValue *value, GParamSpec *pspec);
+static void       world_finalize                   (GObject *object);
+static void       world_init_params                (GObjectClass *object_class);
+static GdkPixbuf* world_get_icon                   (void);
+static gboolean   world_creatable                  (void);
+static GList*     world_get_drawables              (SceneObject *self);
 
-static void       ground_drawable_class_init   (GroundDrawableClass *klass);
-static void       ground_drawable_init         (GroundDrawable *gd);
-static void       ground_drawable_draw_to_list (DisplayList *dl);
+static void       ground_drawable_class_init       (GroundDrawableClass *klass);
+static void       ground_drawable_init             (GroundDrawable *gd);
+static void       ground_drawable_draw_to_list     (DisplayList *dl);
+
+static void       wall_sides_drawable_class_init   (WallSidesDrawableClass *klass);
+static void       wall_sides_drawable_init         (WallSidesDrawable *wsd);
+static void       wall_sides_drawable_draw_to_list (DisplayList *dl);
 
 enum
 {
@@ -97,8 +101,10 @@ world_init (World *world)
 {
   world->drawables = NULL;
   world->ground = ground_drawable_new ();
+  world->wallsides = wall_sides_drawable_new ();
 
   world->drawables = g_list_append (world->drawables, (gpointer) world->ground);
+  world->drawables = g_list_append (world->drawables, (gpointer) world->wallsides);
 }
 
 static void
@@ -121,13 +127,17 @@ world_set_property (GObject *object, guint prop_id, const GValue *value, GParamS
     case PROP_X:
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.size[0], 0.9);
       GROUND_DRAWABLE (self->ground)->size[0] = self->param.size[0];
+      WALL_SIDES_DRAWABLE (self->wallsides)->size[0] = self->param.size[0];
       DISPLAY_LIST (self->ground)->dirty = TRUE;
+      DISPLAY_LIST (self->wallsides)->dirty = TRUE;
       break;
 
     case PROP_Y:
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.size[1], 0.9);
       GROUND_DRAWABLE (self->ground)->size[1] = self->param.size[1];
+      WALL_SIDES_DRAWABLE (self->wallsides)->size[1] = self->param.size[1];
       DISPLAY_LIST (self->ground)->dirty = TRUE;
+      DISPLAY_LIST (self->wallsides)->dirty = TRUE;
       break;
 
     case PROP_GRAVITY:
@@ -276,7 +286,6 @@ ground_drawable_init (GroundDrawable *gd)
   Drawable *d = DRAWABLE (gd);
 
   d->texture = g_strdup ("data/textures/ground.png");
-  d->render.statico = FALSE;
   gd->base_texture_repeat = 4.5;
   gd->overlay_texture_repeat = 1;
 }
@@ -324,5 +333,97 @@ ground_drawable_draw_to_list (DisplayList *dl)
 Drawable*
 ground_drawable_new (void)
 {
-  return DRAWABLE (g_object_new (ground_drawable_get_type(), NULL));
+  return DRAWABLE (g_object_new (ground_drawable_get_type (), NULL));
+}
+
+GType
+wall_sides_drawable_get_type (void)
+{
+  static GType wsd_type = 0;
+  if (!wsd_type)
+  {
+    static const GTypeInfo wsd_info =
+    {
+      sizeof (WallSidesDrawableClass),
+      NULL,               /* base init */
+      NULL,               /* base finalize */
+      (GClassInitFunc)    wall_sides_drawable_class_init,
+      NULL,               /* class finalize */
+      NULL,               /* class data */
+      sizeof (WallSidesDrawable),
+      0,                  /* n preallocs */
+      (GInstanceInitFunc) wall_sides_drawable_init,
+    };
+
+    wsd_type = g_type_register_static (DISPLAY_LIST_TYPE, "WallSidesDrawable", &wsd_info, 0);
+  }
+
+  return wsd_type;
+}
+
+static void
+wall_sides_drawable_class_init (WallSidesDrawableClass *klass)
+{
+  DisplayListClass *dlc;
+
+  dlc = (DisplayListClass*) klass;
+  dlc->draw_to_list = wall_sides_drawable_draw_to_list;
+}
+
+static void
+wall_sides_drawable_init (WallSidesDrawable *wsd)
+{
+  Drawable *d = DRAWABLE (wsd);
+
+  d->texture = g_strdup ("data/textures/outer_wall.jpeg");
+  wsd->size[2] = 8.0;
+}
+
+Drawable*
+wall_sides_drawable_new (void)
+{
+  return DRAWABLE (g_object_new (wall_sides_drawable_get_type (), NULL));
+}
+
+static void
+wall_sides_drawable_draw_to_list (DisplayList *dl)
+{
+  WallSidesDrawable *wsd = WALL_SIDES_DRAWABLE (dl);
+  float width, depth, height;
+  float wrep, hrep;
+
+  width = wsd->size[0];
+  depth = wsd->size[1];
+  height = wsd->size[2];
+  wrep = (width * 2) / wsd->size[2];
+  hrep = (depth * 2) / wsd->size[2];
+
+  glPushMatrix ();
+
+  /* We want to draw both sides of the surface. This will have OpenGL
+     automatically flip the surface normals when drawing the back side */
+  glDisable (GL_CULL_FACE);
+  glLightModeli (GL_LIGHT_MODEL_TWO_SIDE, 1);
+
+  glBegin (GL_QUADS);
+
+  glNormal3f (0, -1, 0);
+
+  glTexCoord2f ( wrep,  0);
+  glVertex3f   ( width, depth, 0);
+
+  glTexCoord2f ( wrep,  1);
+  glVertex3f   ( width, depth, height);
+
+  glTexCoord2f ( 0,     1);
+  glVertex3f   (-width, depth, height);
+
+  glTexCoord2f ( 0,     0);
+  glVertex3f   (-width, depth, 0);
+
+  glEnd ();
+
+  glEnable (GL_CULL_FACE);
+  glLightModeli (GL_LIGHT_MODEL_TWO_SIDE, 0);
+  glPopMatrix ();
 }
