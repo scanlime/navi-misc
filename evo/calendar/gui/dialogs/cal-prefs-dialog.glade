@@ -295,7 +295,6 @@
 		      <property name="yalign">0.5</property>
 		      <property name="xpad">0</property>
 		      <property name="ypad">0</property>
-		      <property name="mnemonic_widget">first_day_of_week</property>
 		    </widget>
 		    <packing>
 		      <property name="left_attach">0</property>
@@ -564,7 +563,7 @@
 		  </child>
 
 		  <child>
-		    <widget class="GtkComboBox" id="first_day_of_week">
+		    <widget class="GtkComboBox" id="week_start_day">
 		      <property name="visible">True</property>
 		      <property name="items" translatable="yes">Monday
 Tuesday
@@ -653,7 +652,7 @@ Sunday</property>
 		  <property name="spacing">6</property>
 
 		  <child>
-		    <widget class="GtkCheckButton" id="confirm-delete">
+		    <widget class="GtkCheckButton" id="confirm_delete">
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
 		      <property name="label" translatable="yes">_Ask for confirmation when deleting items</property>
@@ -678,7 +677,7 @@ Sunday</property>
 		      <property name="spacing">4</property>
 
 		      <child>
-			<widget class="GtkCheckButton" id="default-reminder">
+			<widget class="GtkCheckButton" id="default_reminder">
 			  <property name="visible">True</property>
 			  <property name="can_focus">True</property>
 			  <property name="label" translatable="yes">Sh_ow a reminder</property>
@@ -697,7 +696,7 @@ Sunday</property>
 		      </child>
 
 		      <child>
-			<widget class="GtkSpinButton" id="default-reminder-interval">
+			<widget class="GtkSpinButton" id="default_reminder_interval">
 			  <property name="visible">True</property>
 			  <property name="can_focus">True</property>
 			  <property name="climb_rate">1</property>
@@ -716,7 +715,7 @@ Sunday</property>
 		      </child>
 
 		      <child>
-			<widget class="GtkComboBox" id="default-reminder-units">
+			<widget class="GtkComboBox" id="default_reminder_units">
 			  <property name="visible">True</property>
 			  <property name="items" translatable="yes">Minutes
 Hours
@@ -1140,7 +1139,7 @@ Days</property>
 		      <property name="spacing">6</property>
 
 		      <child>
-			<widget class="GtkCheckButton" id="tasks-hide-completed-checkbutton">
+			<widget class="GtkCheckButton" id="tasks_hide_completed">
 			  <property name="visible">True</property>
 			  <property name="can_focus">True</property>
 			  <property name="label" translatable="yes">_Hide completed tasks after</property>
@@ -1159,7 +1158,7 @@ Days</property>
 		      </child>
 
 		      <child>
-			<widget class="GtkSpinButton" id="spinbutton2">
+			<widget class="GtkSpinButton" id="tasks_hide_completed_interval">
 			  <property name="visible">True</property>
 			  <property name="can_focus">True</property>
 			  <property name="climb_rate">1</property>
@@ -1178,7 +1177,7 @@ Days</property>
 		      </child>
 
 		      <child>
-			<widget class="GtkComboBox" id="combobox3">
+			<widget class="GtkComboBox" id="tasks_hide_completed_units">
 			  <property name="visible">True</property>
 			  <property name="items" translatable="yes">Minutes
 Hours
@@ -1568,7 +1567,7 @@ Days</property>
 				  <property name="spacing">2</property>
 
 				  <child>
-				    <widget class="GtkImage" id="image4">
+				    <widget class="GtkImage" id="url_enable_image">
 				      <property name="visible">True</property>
 				      <property name="stock">gtk-yes</property>
 				      <property name="icon_size">4</property>
@@ -1585,7 +1584,7 @@ Days</property>
 				  </child>
 
 				  <child>
-				    <widget class="GtkLabel" id="label31">
+				    <widget class="GtkLabel" id="url_enable_label">
 				      <property name="visible">True</property>
 				      <property name="label" translatable="yes">E_nable</property>
 				      <property name="use_underline">True</property>
