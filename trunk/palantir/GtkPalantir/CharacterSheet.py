@@ -1,11 +1,26 @@
 ''' CharacterSheet.py
 
 Object for dealing with the character sheets loaded into the MainWindow.
-
-  Copyright (C) 2004 W. Evan Sheehan
 '''
-from Palantir.sheet import Sheet
-from Palantir.character import Character
+
+# Copyright (C) 2003 W. Evan Sheehan <evan@navi.cx>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+from Palantir.Sheet import Sheet
+from Palantir.Character import Character
 import SheetElements, gtk, gtk.glade
 
 class CharacterSheet:
