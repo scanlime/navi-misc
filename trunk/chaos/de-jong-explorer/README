@@ -14,12 +14,13 @@ All the images you can create with this program are based on the simple
 Peter de Jong map equations:
 
    x' = sin(a * y) - cos(b * x)
-   y' = sin(c * x) - cos(c * y)
+   y' = sin(c * x) - cos(d * y)
 
-The point (x,y) moves chaotically. The resulting image is a map of the
-probability that the point lies within the area represented by each
-pixel. As you let the de Jong Explorer render longer, it collects more
-samples and this probability map, the image, becomes more accurate.
+For most values of a,b,c and d the point (x,y) moves chaotically. The
+resulting image is a map of the probability that the point lies within
+the area represented by each pixel. As you let the de Jong Explorer
+render longer it collects more samples and this probability map and the
+image becomes more accurate.
 
 The resulting probability map is treated as a High Dynamic Range image.
 This software includes some image manipulation features that let you
