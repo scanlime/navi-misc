@@ -122,28 +122,14 @@ def hexDump(src, dest, bytesPerLine=16, wordSize=2):
 
 class PlaylistDownloader(RioApp):
     def main(self):
-        self.fileIter = iter(self.fileManager.cache.findFiles(type='playlist'))
-        self.fileManager.readLock()
-        self.nextFile()
+        # This operates entirely out of the cache, no need for locking and such
 
-    def nextFile(self, retval=None):
-        try:
-            f = self.fileIter.next()
-        except StopIteration:
-            self.finished()
-            return
+        for playlist in self.fileManager.listPlaylists():
+            print
+            print playlist.encode('ascii', 'replace')
 
-        print
-        print f.details['title'].encode('ascii', 'replace')
-        for keys in f.details['playlist']:
-            print "\t%r\t%r" % (keys, self.fileManager.cache.findFiles(**keys))
-
-        self.nextFile()
-
-    def error(self, e):
-        log.err(e)
-        self.nextFile()
-
+            for file in self.fileManager.getPlaylistFiles(playlist):
+                print "\t%r" % file
 
 
 if __name__ == "__main__":
