@@ -140,9 +140,6 @@ class RequestBotsColumn(Nouvelle.Column):
     heading = 'current bots'
 
     def getValue(self, req):
-        return req.bots
-
-    def render_data(self, context, req):
         return ", ".join([ bot.nickname for bot in req.bots ])
 
 
