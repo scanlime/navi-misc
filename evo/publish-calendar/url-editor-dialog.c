@@ -60,6 +60,10 @@ static void
 publish_service_changed (GtkComboBox *combo, UrlEditorDialog *dialog)
 {
 	gint selected = gtk_combo_box_get_active (combo);
+	EPublishUri *uri;
+
+	uri = dialog->uri;
+	uri->service_type = selected;
 
 	switch (selected) {
 	case TYPE_SMB:
@@ -201,7 +205,7 @@ url_editor_dialog_construct (UrlEditorDialog *dialog)
 	if (uri == NULL) {
 		gtk_combo_box_set_active (GTK_COMBO_BOX (dialog->publish_frequency), 0);
 		gtk_combo_box_set_active (GTK_COMBO_BOX (dialog->type_selector), 0);
-		gtk_combo_box_set_active (GTK_COMBO_BOX (dialog->publish_service), 1);
+		gtk_combo_box_set_active (GTK_COMBO_BOX (dialog->publish_service), 0);
 
 		dialog->uri = g_new0 (EPublishUri, 1);
 		uri = dialog->uri;
@@ -231,8 +235,7 @@ url_editor_dialog_construct (UrlEditorDialog *dialog)
 		gtk_combo_box_set_active (GTK_COMBO_BOX (dialog->publish_frequency), uri->publish_frequency);
 		gtk_combo_box_set_active (GTK_COMBO_BOX (dialog->type_selector), uri->publish_format);
 
-		/* FIXME */
-		/* gtk_combo_box_set_active (GTK_COMBO_BOX (dialog->publish_service), uri->publish_service); */
+		gtk_combo_box_set_active (GTK_COMBO_BOX (dialog->publish_service), uri->service_type);
 
 		uri->password = e_passwords_get_password ("Calendar", uri->location);
 		if (uri->password) {
