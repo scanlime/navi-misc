@@ -1,9 +1,10 @@
-Quick Links
+Vital Links
 ===========
 
 - `Projects </stats/project>`_
 - `Authors </stats/author>`_
 - `All Commits </stats/total/commits>`_
+- `Adding projects </doc/adding-projects>`_
 
 Sections
 ========
@@ -12,12 +13,4 @@ Sections
 - `Rulesets </rulesets>`_
 - `IRC Bots </irc>`_
 - `Server Info </info>`_
-
-Documentation
-=============
-
-- `Welcome </doc/welcome>`_
-- `Adding projects </doc/adding-projects>`_
-- `Known Bugs </doc/BUGS>`_
-- `To-do List </doc/TODO>`_
-
+- `Documentation </doc>`_
