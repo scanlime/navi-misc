@@ -183,19 +183,22 @@ class StaticSection(Section):
         return self.__class__(self.title, [rows])
 
 
-class SiteSearch:
+class SiteSearch(Section):
     """A renderable that provides a Google search of this site"""
+    title = "search this site"
+
     def __init__(self, width=31):
         self.width = width
 
-    def render(self, context):
+    def render_rows(self, context):
         domain = context['request'].host[1]
-        return tag('form', method="get", action="http://www.google.com/search")[
-                   tag('div')[
-                       tag('input', _type='text', _name='q', size=self.width, maxlength=255, value=''),
-                       tag('input', _type='hidden', _name='domains', value=domain),
-                       tag('input', _type='hidden', _name='sitesearch', value=domain),
-                   ]]
+        return [tag('form', method="get", action="http://www.google.com/search")[
+                    tag('div')[
+                        tag('img', src="/images/google32.png", width=70, height=32, alt="Google"), " ",
+                        tag('input', _type='text', _name='q', size=self.width, maxlength=255, value=''),
+                        tag('input', _type='hidden', _name='domains', value=domain),
+                        tag('input', _type='hidden', _name='sitesearch', value=domain),
+                    ]]]
 
 
 class Page(Nouvelle.Twisted.Page):
@@ -211,7 +214,6 @@ class Page(Nouvelle.Twisted.Page):
     leftColumn  = []
     mainColumn  = []
     extraHeaders = []
-    enableSiteSearch = True
 
     document = [
         xml('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" '
@@ -236,7 +238,7 @@ class Page(Nouvelle.Twisted.Page):
                             tag('div', _class="subTitle")[ place("subTitle") ],
                         ],
                         tag('td', _class="topRight")[
-                            place("topRightBox"),
+                            tag('a', _class="sitename", href="/")[ place("siteName") ]
                         ],
                     ]],
                     tag('div', _class="tabs")[ place("tabs") ],
@@ -245,8 +247,13 @@ class Page(Nouvelle.Twisted.Page):
 
                 # The page body. We really shouldn't still be using a table for this...
                 tag('table', _class="columns")[ tag('tr')[
-                    tag('td', _class="left")[ place("leftColumn") ],
-                    tag('td', _class="main")[ place("mainColumn") ],
+                    tag('td', _class="left")[
+                        place("leftColumn"),
+                        SiteSearch(width=20),
+                    ],
+                    tag('td', _class="main")[
+                        place("mainColumn")
+                    ],
                 ]],
 
                 tag('div', _class="footer")[
@@ -285,17 +292,6 @@ class Page(Nouvelle.Twisted.Page):
                 ],
             ],
         ]]
-
-    def render_topRightBox(self, context):
-        if self.enableSiteSearch:
-            # Add a search box
-            return [
-                tag('div', _class='siteSearchTitle')[ "Search ", place("siteName") ],
-                tag('div', _class='siteSearch')[ SiteSearch(width=20) ],
-                ]
-        else:
-            # .. or just a decorative link
-            return tag('a', _class="sitename", href="/")[ place("siteName") ]
 
     def render_pageTitle(self, context):
         # Wait for the title and site name to resolve into strings so we can mess with them a bit more
