@@ -29,6 +29,7 @@
 
 gboolean userlist_click(GtkWidget *view, GdkEventButton *event, gpointer data);
 void userlist_context(GtkWidget *treeview, struct User *user);
+GtkTooltips *tooltips;
 
 void initialize_userlist() {
 	GtkWidget *userlist_view;
@@ -49,6 +50,8 @@ void initialize_userlist() {
 	gtk_tree_selection_set_mode(select, GTK_SELECTION_SINGLE);
 	/* FIXME: selection signal */
 
+	tooltips = gtk_tooltips_new();
+
 	g_signal_connect(G_OBJECT(userlist_view), "button_press_event", G_CALLBACK(userlist_click), NULL);
 }
 
@@ -59,8 +62,14 @@ gboolean userlist_click(GtkWidget *view, GdkEventButton *event, gpointer data) {
 		return FALSE;
 
 	if(event->type == GDK_2BUTTON_PRESS) {
-		g_print("double click!\n");
-		return TRUE;
+		if(gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(view), event->x, event->y, &path, 0, 0, 0)) {
+			g_print("double click!\n");
+	    		gtk_tooltips_set_tip (GTK_TOOLTIPS(tooltips),
+					      view,
+					      "hi", "woof");
+			gtk_tooltips_enable (GTK_TOOLTIPS(tooltips));
+			return TRUE;
+		}
 	}
 
 	if(event->button == 3) {

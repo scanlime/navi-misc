@@ -253,7 +253,7 @@ void on_network_information_menu_activate(GtkWidget *widget, gpointer data) {
 }
 
 void on_network_reconnect_menu_activate(GtkWidget *widget, gpointer data) {
-	/* FIXME: implement */
+	handle_command(gui.current_session, "reconnect", FALSE);
 }
 
 void on_network_disconnect_menu_activate(GtkWidget *widget, gpointer data) {
