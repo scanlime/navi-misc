@@ -53,6 +53,7 @@ In order to compile and use librcpod, the following minimum dependencies must be
 
 Optional components that will make rcpod much more useful:
 
+  - Python 2.2.1 or later
   - SWIG, to generate the Python interface to librcpod (http://swig.org)
   - pygtk, used to provide a GUI for some of the python apps
 

@@ -24,4 +24,13 @@ Remote Controlled PIC of Doom (rcpod) via librcpod.
 
 from device import *
 
+# Check the python version here before we proceed further
+requiredPythonVersion = (2,2,1)
+import sys, string
+if sys.version_info < requiredPythonVersion:
+    raise Exception("%s requires at least Python %s, found %s instead." % (
+        name,
+        string.join(map(str, requiredPythonVersion), "."),
+        string.join(map(str, sys.version_info), ".")))
+
 ### The End ###
