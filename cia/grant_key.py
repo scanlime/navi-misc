@@ -20,6 +20,7 @@ the URI 'irc://irc.freenode.net/tacobeam':
 
 from twisted.python import usage
 from LibCIA import Client
+import os
 
 class Options(Client.Options):
     optParameters = [
@@ -38,8 +39,14 @@ class KeyGranter(Client.App):
     optionsClass = Options
 
     def main(self):
+        # Ask the server to grant us this capability
         key = self.server.security.grant(self.config['capability'], self.key)
-        open(self.config['output'], 'w').write(key)
+
+        # Write the key to disk, setting the file permissions on it such to make it more private
+        fileName = self.config['output']
+        f = open(fileName, 'w')
+        os.chmod(fileName, 0600)
+        f.write(key)
 
 if __name__ == '__main__':
     KeyGranter().main()
