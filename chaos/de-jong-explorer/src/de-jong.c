@@ -338,7 +338,7 @@ void de_jong_calculate(DeJong *self, guint iterations) {
 
   /* Histogram state */
   HistogramPlot plot;
-  guint hist_width, hist_height;
+  int hist_width, hist_height;
 
   /* Toggles to disable features that aren't needed */
   const gboolean rotation_enabled = self->rotation > 0.0001 || self->rotation < -0.0001;

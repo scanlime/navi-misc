@@ -430,7 +430,7 @@ void histogram_imager_load_image_file(HistogramImager *self, const gchar *filena
   /* Try to open the given PNG file and load parameters from it */
   const gchar *params;
   GdkPixbuf *pixbuf = gdk_pixbuf_new_from_file(filename, NULL);
-  params = gdk_pixbuf_get_option(pixbuf, "tEXt::histogram_imager_params");
+  params = gdk_pixbuf_get_option(pixbuf, "tEXt::de_jong_params");
   if (params)
     parameter_holder_load_string(PARAMETER_HOLDER(self), params);
   else
@@ -448,7 +448,7 @@ void histogram_imager_save_image_file(HistogramImager *self, const gchar *filena
    * is both human-readable and easy to load parameters from automatically.
    */
   params = parameter_holder_save_string(PARAMETER_HOLDER(self));
-  gdk_pixbuf_save(self->image, filename, "png", NULL, "tEXt::histogram_imager_params", params, NULL);
+  gdk_pixbuf_save(self->image, filename, "png", NULL, "tEXt::de_jong_params", params, NULL);
   g_free(params);
 }
 
@@ -476,8 +476,8 @@ GdkPixbuf* histogram_imager_make_thumbnail(HistogramImager *self, guint max_widt
 /************************************************************************************/
 
 void histogram_imager_get_hist_size (HistogramImager *self,
-				     guint           *hist_width,
-				     guint           *hist_height) {
+				     int             *hist_width,
+				     int             *hist_height) {
   if (hist_width)
     *hist_width = self->width * self->oversample;
   if (hist_height)
@@ -606,8 +606,6 @@ void histogram_imager_update_image(HistogramImager *self) {
 	}
       }
     }
-
-    self->render_dirty_flag = FALSE;
   }
 }
 
@@ -848,6 +846,7 @@ void histogram_imager_clear(HistogramImager *self) {
 	   self->oversample * self->oversample);
   }
   self->histogram_clear_flag = TRUE;
+  self->render_dirty_flag = TRUE;
   self->total_points_plotted = 0;
   self->peak_density = 0;
 }
