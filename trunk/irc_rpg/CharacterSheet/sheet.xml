@@ -25,9 +25,7 @@
 			</text_field>
 			<drop_down button="true">
 				<drop_down_item>/character/weapons</drop_down_item>
-				<dice label="Roll" sides="10">
-					<times>2</times>
-				</dice>
+				<dice label="Roll" sides="10"/>
 			</drop_down>
 		</tab>
 
