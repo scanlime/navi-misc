@@ -47,6 +47,7 @@ const Spline spline_template_linear = {template_linear_points, sizeof(template_l
 const Spline spline_template_smooth = {template_smooth_points, sizeof(template_smooth_points) / sizeof(SplineControlPoint)};
 
 
+
 GType spline_get_type(void) {
   static GType spline_type = 0;
   if (!spline_type)
@@ -147,16 +148,6 @@ gfloat  spline_solve_and_eval(Spline *spline, gfloat val) {
    * assumes all control points are active.
    */
   gfloat *y2v, result;
-  gint i;
-
-  /* handle degenerate case */
-  if (spline->num_points < 2)
-    {
-      if (spline->num_points > 0)
-	return spline->points[0][1];
-      else
-	return 0;
-    }
 
   y2v = g_malloc (spline->num_points * sizeof (gfloat));
 
@@ -168,6 +159,92 @@ gfloat  spline_solve_and_eval(Spline *spline, gfloat val) {
 
   g_free (y2v);
   return result;
+}
+
+Spline* spline_find_active_points(Spline *spline) {
+  /* Return a new spline with only the active points from the first one
+   */
+  gfloat prev, ry;
+  gint dst, i, next, first_active = -1;
+  Spline *active = g_malloc(sizeof(Spline));
+
+  /* count active points: */
+  prev = -1;
+  for (i = active->num_points = 0; i < spline->num_points; ++i)
+    if (spline->points[i][0] > prev)
+      {
+	if (first_active < 0)
+	  first_active = i;
+	prev = spline->points[i][0];
+	++active->num_points;
+      }
+
+  /* handle degenerate case.
+   * If we have less than two points, create a second false
+   * point with the same Y coordinate so we get a horizontal line.
+   */
+  if (active->num_points < 2)
+    {
+      if (active->num_points > 0)
+	ry = spline->points[first_active][1];
+      else
+	ry = 0;
+      if (ry < 0) ry = 0;
+      if (ry > 1) ry = 1;
+
+      active->num_points = 2;
+      active->points = g_malloc(active->num_points * sizeof(SplineControlPoint));
+
+      active->points[0][0] = 0;
+      active->points[0][1] = ry;
+
+      active->points[0][0] = 1;
+      active->points[0][1] = ry;
+    }
+
+  else
+    {
+      active->points = g_malloc(active->num_points * sizeof(SplineControlPoint));
+
+      prev = -1;
+      for (i = dst = 0; i < spline->num_points; ++i)
+	if (spline->points[i][0] > prev)
+	  {
+	    prev    = spline->points[i][0];
+	    active->points[dst][0] = spline->points[i][0];
+	    active->points[dst][1] = spline->points[i][1];
+	    ++dst;
+	  }
+    }
+
+  return active;
+}
+
+void spline_solve_and_eval_range(Spline *spline,
+				 int     veclen,
+				 gfloat  vector[],
+				 float   lower,
+				 float   upper) {
+  gfloat *y2v, result;
+  int i;
+  float x, dx;
+
+  y2v = g_malloc (spline->num_points * sizeof (gfloat));
+
+  spline_solve(spline, y2v);
+
+  x = lower;
+  dx = (upper - lower) / (veclen - 1);
+
+  for (i=0,x=0; i<veclen; i++,x+=dx)
+    {
+      result = spline_eval(spline, y2v, x);
+      if (result < 0) result = 0;
+      if (result > 1) result = 1;
+      vector[i] = result;
+    }
+
+  g_free (y2v);
 }
 
 /* The End */

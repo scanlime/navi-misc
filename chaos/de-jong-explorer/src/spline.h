@@ -56,7 +56,19 @@ void     spline_free(Spline *spline);
 guchar* spline_serialize(Spline *spline, gsize *size);
 Spline* spline_unserialize(guchar *data, gsize size);
 
+Spline* spline_find_active_points(Spline *spline);
+
+/* Solve the spline and evaluate one point on it */
 gfloat  spline_solve_and_eval(Spline *spline, gfloat val);
+
+/* Solve the spline and fill a provided vector with
+ * points evaluated from the given range.
+ */
+void    spline_solve_and_eval_range(Spline *spline,
+				    int     veclen,
+				    gfloat  vector[],
+				    float   lower,
+				    float   upper);
 
 void    spline_solve(Spline *spline, gfloat y2[]);
 gfloat  spline_eval(Spline *spline, gfloat y2[], gfloat val);
