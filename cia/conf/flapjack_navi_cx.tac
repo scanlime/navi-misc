@@ -142,14 +142,9 @@ site.putComponent('info', Web.Info.Component())
 # Now create an HTTP server holding both our XML-RPC and web interfaces
 internet.TCPServer(3910, site).setServiceParent(application)
 
-# ...and an HTTPS server, which we'll refer to for web logins.
-# XML-RPC clients should also use the secure server when they're sending keys.
-# We run HTTPS on the nonprivileged port 3914- it's visible there from the outside,
-# but for convenience we have an iptables rule forwarding normal https to there.
-# We don't need to give setSecureServer() our custom port.
-#
-sslContext = ssl.DefaultOpenSSLContextFactory("conf/server.key", "conf/server.crt")
-internet.SSLServer(3914, site, sslContext).setServiceParent(application)
+# We don't start our own secure server, apache is running https also
+# and proxying that locally to our HTTP server. We do however need to
+# tell the keyring module that it's running, and on the default port.
 Web.Keyring.setSecureServer()
 
 ### The End ###
