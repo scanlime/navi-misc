@@ -3,10 +3,6 @@
   possibly the commands for changing rulesets. This MUST be done before port 3910
   on navi is opened to the public.
 
-- Getting told to join a nonexistent server probably breaks BotNetwork. This hasn't
-  been tested yet, but as far as I can tell it will enter an infinite loop getting
-  connection failures and reassigning channels to other bots.
-
 - The IRC ruleset load/save code is a bit messy, it should be generalized and
   moved to the XML module
 
