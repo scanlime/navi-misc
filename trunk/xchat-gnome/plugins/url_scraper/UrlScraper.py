@@ -61,6 +61,7 @@ def unload( user_data ):
 
 window = gtk.Window( gtk.WINDOW_TOPLEVEL )
 window.set_default_size( 300, 350 )
+window.set_title( 'URL Scraper' )
 
 scrolled = gtk.ScrolledWindow()
 scrolled.set_policy( gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC )
