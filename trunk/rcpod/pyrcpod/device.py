@@ -85,7 +85,6 @@ class OpenedRcpod:
     def __init__(self, availableDevice, reset=True):
         if availableDevice.opened:
             raise IOError("rcpod device is already open")
-        availableDevice.opened = True
 
         self.dev = rcpod_Open(availableDevice.usbdev)
         self.availableDevice = availableDevice
@@ -101,6 +100,7 @@ class OpenedRcpod:
 
         if reset:
             self.reset()
+        availableDevice.opened = True
 
     def close(self):
         """Terminate our connection to the rcpod. No attributes

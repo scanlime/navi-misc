@@ -28,6 +28,8 @@ class RcpodTestCase(unittest.TestCase):
     devClass = pyrcpod.OpenedRcpod
 
     def setUp(self):
+        if len(pyrcpod.devices) < 1:
+            raise IOError("No rcpod devices found")
         self.rcpod = pyrcpod.devices[0].open(self.devClass)
 
     def tearDown(self):
