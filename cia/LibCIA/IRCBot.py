@@ -72,8 +72,32 @@ class BotFactory(protocol.ClientFactory):
         reactor.connectTCP(allocator.host, allocator.port, self)
 
     def clientConnectionLost(self, connector, reason):
+        """There was a connection, but we lost it. This usually happens because
+           we flooded off, or there was a network problem. Try to reconnect right away.
+           Note that this only handles reconnecting- in the meantime, we probably will
+           have already reassigned this bot's channels to another bot in the allocator's
+           botDisconnected function.
+           """
+        log.msg("Connection to %r lost: %r" % (connector.getDestination(), reason))
         if self.reconnect:
+            log.msg("Reconnecting...")
             connector.connect()
+        else:
+            log.msg("Not reconnecting")
+
+    def clientConnectionFailed(self, connector, reason):
+        """Our connection attempt has failed. The server we were given could be
+           nonexistant, in which case it would be nice to remove whatever it is that's
+           telling us to connect, but it could also be a temporary error. We can't
+           decide that here, so just schedule a reconnect later.
+           """
+        log.msg("Connection to %r failed: %r" % (connector.getDestination(), reason))
+        if self.allocator.newBotRequests:
+            reconnectMinutes = 10
+            log.msg("Looks like this bot is still needed, trying again in %s minutes" % reconnectMinutes)
+            reactor.callLater(60 * reconnectMinutes, connector.connect)
+        else:
+            log.msg("Not reconnecting")
 
 
 class BotAllocator:
