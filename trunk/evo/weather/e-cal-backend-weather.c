@@ -30,13 +30,9 @@
 
 #define WEATHER_UID_EXT "-weather"
 
-
-
 static gboolean reload_cb (ECalBackendWeather *cbw);
 static gboolean begin_retrieval_cb (ECalBackendWeather *cbw);
 static ECalComponent* create_weather (ECalBackendWeather *cbw, WeatherForecast *report);
-
-
 
 /* Private part of the ECalBackendWeather structure */
 struct _ECalBackendWeatherPrivate {
@@ -65,11 +61,7 @@ struct _ECalBackendWeatherPrivate {
 	EWeatherSource *source;
 };
 
-
-
 static ECalBackendSyncClass *parent_class;
-
-
 
 static gboolean
 reload_cb (ECalBackendWeather *cbw)
@@ -209,6 +201,40 @@ getConditions (WeatherForecast *report)
 	}
 }
 
+static const char*
+getCategory (WeatherForecast *report)
+{
+	/* Right now this is based on which icons we have available */
+	switch (report->conditions) {
+		case WEATHER_FAIR:			return _("Weather: Sunny");
+		case WEATHER_SNOW_SHOWERS:		return _("Weather: Snow");
+		case WEATHER_SNOW:			return _("Weather: Snow");
+		case WEATHER_PARTLY_CLOUDY:		return _("Weather: Partly Cloudy");
+		case WEATHER_SMOKE:			return _("Weather: Fog");
+		case WEATHER_THUNDERSTORMS:		return _("Weather: Thunderstorms");
+		case WEATHER_CLOUDY:			return _("Weather: Cloudy");
+		case WEATHER_DRIZZLE:			return _("Weather: Rain");
+		case WEATHER_SUNNY:			return _("Weather: Sunny");
+		case WEATHER_DUST:			return _("Weather: Fog");
+		case WEATHER_CLEAR:			return _("Weather: Sunny");
+		case WEATHER_MOSTLY_CLOUDY:		return _("Weather: Cloudy");
+		case WEATHER_WINDY:			return _("");
+		case WEATHER_RAIN_SHOWERS:		return _("Weather: Rain");
+		case WEATHER_FOGGY:			return _("Weather: Fog");
+		case WEATHER_RAIN_OR_SNOW_MIXED:	return _("Weather: Rain");
+		case WEATHER_SLEET:			return _("Weather: Rain");
+		case WEATHER_VERY_HOT_OR_HOT_HUMID:	return _("Weather: Sunny");
+		case WEATHER_BLIZZARD:			return _("Weather: Snow");
+		case WEATHER_FREEZING_RAIN:		return _("Weather: Rain");
+		case WEATHER_HAZE:			return _("Weather: Fog");
+		case WEATHER_BLOWING_SNOW:		return _("Weather: Snow");
+		case WEATHER_FREEZING_DRIZZLE:		return _("Weather: Rain");
+		case WEATHER_VERY_COLD_WIND_CHILL:	return _("");
+		case WEATHER_RAIN:			return _("Weather: Rain");
+		default:				return NULL;
+	}
+}
+
 static float
 ctof (float c)
 {
@@ -272,7 +298,6 @@ create_weather (ECalBackendWeather *cbw, WeatherForecast *report)
 	itt = icaltime_from_timet (report->date, 1);
 	icaltime_adjust (&itt, 1, 0, 0, 0);
 	dt.value = &itt;
-	dt.value = &itt;
 	dt.tzid = NULL;
 	/* We have to add 1 day to DTEND, as it is not inclusive. */
 	e_cal_component_set_dtend (cal_comp, &dt);
@@ -319,7 +344,7 @@ create_weather (ECalBackendWeather *cbw, WeatherForecast *report)
 	e_cal_component_set_description_list (cal_comp, text_list);
 
 	/* Set category and visibility */
-	e_cal_component_set_categories (cal_comp, getConditions (report));
+	e_cal_component_set_categories (cal_comp, getCategory (report));
 	e_cal_component_set_classification (cal_comp, E_CAL_COMPONENT_CLASS_PRIVATE);
 
 	/* Weather is shown as free time */
@@ -453,6 +478,7 @@ e_cal_backend_weather_get_object_list (ECalBackendSync *backend, EDataCal *cal, 
 	components = e_cal_backend_cache_get_components (priv->cache);
 	for (l = components; l != NULL; l = g_list_next (l)) {
 		if (e_cal_backend_sexp_match_comp (sexp, E_CAL_COMPONENT (l->data), E_CAL_BACKEND (backend))) {
+			g_print ("appending an event!\n");
 			*objects = g_list_append (*objects, e_cal_component_get_as_string (l->data));
 		}
 	}
@@ -687,8 +713,6 @@ free_zone (gpointer data)
 {
 	icaltimezone_free (data, TRUE);
 }
-
-
 
 /* Finalize handler for the weather backend */
 static void
