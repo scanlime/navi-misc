@@ -388,6 +388,9 @@ void load_parameters(const gchar *paramstring) {
   gchar *copy, *line, *nextline;
   gchar *key, *value;
 
+  /* Always start with defaults */
+  set_defaults();
+
   /* Make a copy of the parameters, since we'll be modifying it */
   copy = g_strdup(paramstring);
 
