@@ -97,10 +97,17 @@ static const ToolInfo tool_table[] = {
 /************************************************************************************/
 
 void explorer_init_tools(Explorer *self) {
+  gtk_widget_add_events(self->view,
+			GDK_BUTTON_PRESS_MASK |
+			GDK_BUTTON_RELEASE_MASK |
+			GDK_BUTTON_MOTION_MASK |
+			GDK_POINTER_MOTION_HINT_MASK);
+
   glade_xml_signal_connect_data(self->xml, "on_tool_activate",  G_CALLBACK(on_tool_activate),  self);
-  glade_xml_signal_connect_data(self->xml, "on_motion_notify",  G_CALLBACK(on_motion_notify),  self);
-  glade_xml_signal_connect_data(self->xml, "on_button_press",   G_CALLBACK(on_button_press),   self);
-  glade_xml_signal_connect_data(self->xml, "on_button_release", G_CALLBACK(on_button_release), self);
+
+  g_signal_connect(self->view, "motion_notify_event",  G_CALLBACK(on_motion_notify),  self);
+  g_signal_connect(self->view, "button_press_event",   G_CALLBACK(on_button_press),   self);
+  g_signal_connect(self->view, "button_release_event", G_CALLBACK(on_button_release), self);
 
   self->current_tool = "None";
 }
@@ -206,7 +213,7 @@ gboolean explorer_update_tools(Explorer *self) {
   GTimeVal now;
   memset(&ti, 0, sizeof(ti));
 
-  gdk_window_get_pointer(self->drawing_area->window, &ix, &iy, &ti.state);
+  gdk_window_get_pointer(self->view->window, &ix, &iy, &ti.state);
   ti.absolute_x = ix;
   ti.absolute_y = iy;
   explorer_fill_toolinput_relative_positions(self, &ti);

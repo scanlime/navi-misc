@@ -23,6 +23,7 @@
 #include "explorer.h"
 #include "parameter-editor.h"
 #include "math-util.h"
+#include "histogram-view.h"
 
 
 static void explorer_class_init(ExplorerClass *klass);
@@ -38,7 +39,6 @@ static gboolean limit_update_rate(GTimeVal *last_update, float max_rate);
 
 static gdouble generate_random_param();
 
-static gboolean on_expose(GtkWidget *widget, GdkEventExpose *event, gpointer user_data);
 static void on_randomize(GtkWidget *widget, gpointer user_data);
 static void on_load_defaults(GtkWidget *widget, gpointer user_data);
 static void on_save(GtkWidget *widget, gpointer user_data);
@@ -88,7 +88,6 @@ static void explorer_init(Explorer *self) {
   self->window = glade_xml_get_widget(self->xml, "explorer_window");
 
   /* Connect signal handlers */
-  glade_xml_signal_connect_data(self->xml, "on_expose",                       G_CALLBACK(on_expose),                       self);
   glade_xml_signal_connect_data(self->xml, "on_randomize",                    G_CALLBACK(on_randomize),                    self);
   glade_xml_signal_connect_data(self->xml, "on_load_defaults",                G_CALLBACK(on_load_defaults),                self);
   glade_xml_signal_connect_data(self->xml, "on_save",                         G_CALLBACK(on_save),                         self);
@@ -98,20 +97,9 @@ static void explorer_init(Explorer *self) {
   glade_xml_signal_connect_data(self->xml, "on_viewport_expose",              G_CALLBACK(on_viewport_expose),              self);
   glade_xml_signal_connect_data(self->xml, "on_widget_toggle",                G_CALLBACK(on_widget_toggle),                self);
 
-  /* Set up the drawing area */
-  self->drawing_area = glade_xml_get_widget(self->xml, "main_drawingarea");
-  gtk_widget_add_events(self->drawing_area,
-			GDK_BUTTON_PRESS_MASK |
-			GDK_BUTTON_RELEASE_MASK |
-			GDK_BUTTON_MOTION_MASK |
-			GDK_POINTER_MOTION_HINT_MASK);
-  self->gc = gdk_gc_new(self->drawing_area->window);
-
   /* Set up the statusbar */
   self->statusbar = GTK_STATUSBAR(glade_xml_get_widget(self->xml, "statusbar"));
   self->render_status_context = gtk_statusbar_get_context_id(self->statusbar, "Rendering status");
-
-  explorer_init_tools(self);
 }
 
 static void explorer_dispose(GObject *gobject) {
@@ -142,13 +130,13 @@ Explorer* explorer_new(DeJong *dejong, Animation *animation) {
 		     editor, FALSE, FALSE, 0);
   gtk_widget_show_all(editor);
 
+  /* Create the view */
+  self->view = histogram_view_new(HISTOGRAM_IMAGER(dejong));
+  gtk_container_add(GTK_CONTAINER(glade_xml_get_widget(self->xml, "drawing_area_viewport")), self->view);
+  gtk_widget_show_all(self->view);
+
   explorer_init_animation(self);
-
-  /* Do the first resize, and connect to notify signals for future resizes */
-  explorer_resize_notify(HISTOGRAM_IMAGER(self->dejong), NULL, self);
-  g_signal_connect(self->dejong, "notify::width", G_CALLBACK(explorer_resize_notify), self);
-  g_signal_connect(self->dejong, "notify::height", G_CALLBACK(explorer_resize_notify), self);
-
+  explorer_init_tools(self);
   self->idler = g_idle_add(explorer_idle_handler, self);
 }
 
@@ -273,18 +261,6 @@ void explorer_run_iterations(Explorer *self) {
   g_timer_destroy(timer);
 }
 
-static void explorer_resize_notify(HistogramImager *imager, GParamSpec *spec, Explorer *self) {
-  guint width = HISTOGRAM_IMAGER(self->dejong)->width;
-  guint height = HISTOGRAM_IMAGER(self->dejong)->height;
-
-  gtk_widget_set_size_request(self->drawing_area, width, height);
-
-  /* A bit of a hack to make the default window size more sane */
-  gtk_widget_set_size_request(glade_xml_get_widget(self->xml, "drawing_area_viewport"),
-			      MIN(1000, width+5), MIN(1000, height+5));
-  self->just_resized = TRUE;
-}
-
 static gboolean limit_update_rate(GTimeVal *last_update, float max_rate) {
   /* Limit the frame rate to the given value. This should be called once per
    * frame, and will return FALSE if it's alright to render another frame,
@@ -348,32 +324,7 @@ void explorer_update_gui(Explorer *self) {
     g_free(iters);
   }
 
-  histogram_imager_update_image(HISTOGRAM_IMAGER(self->dejong));
-
-  if (self->image)
-    gdk_pixbuf_unref(self->image);
-
-  if (HISTOGRAM_IMAGER(self->dejong)->fgalpha < 0xFFFF ||
-      HISTOGRAM_IMAGER(self->dejong)->bgalpha < 0xFFFF) {
-    /* If we need to draw with alpha, composite our histogram imager's output on top of a checkerboard */
-    self->image = gdk_pixbuf_composite_color_simple(HISTOGRAM_IMAGER(self->dejong)->image,
-						    HISTOGRAM_IMAGER(self->dejong)->width,
-						    HISTOGRAM_IMAGER(self->dejong)->height,
-						    GDK_INTERP_TILES, 255,
-						    16, 0xaaaaaa, 0x555555);
-  }
-  else {
-    /* If we don't need alpha, just render the histogram imager's pixbuf directly */
-    self->image = gdk_pixbuf_ref(HISTOGRAM_IMAGER(self->dejong)->image);
-  }
-
-  /* Update our entire drawing area.
-   * We use GdkRGB directly here to force ignoring the alpha channel.
-   */
-  gdk_draw_rgb_32_image(self->drawing_area->window, self->gc, 0, 0,
-			HISTOGRAM_IMAGER(self->dejong)->width, HISTOGRAM_IMAGER(self->dejong)->height,
-			GDK_RGB_DITHER_NORMAL, gdk_pixbuf_get_pixels(self->image),
-			HISTOGRAM_IMAGER(self->dejong)->width * 4);
+  histogram_view_update(HISTOGRAM_VIEW(self->view));
 
   HISTOGRAM_IMAGER(self->dejong)->render_dirty_flag = FALSE;
   self->status_dirty_flag = FALSE;
@@ -385,42 +336,6 @@ static gboolean on_viewport_expose(GtkWidget *widget, GdkEventExpose *event, gpo
   if (self->just_resized) {
     gtk_widget_set_size_request(widget, -1, -1);
     self->just_resized = FALSE;
-  }
-  return FALSE;
-}
-
-static gboolean on_expose(GtkWidget *widget, GdkEventExpose *event, gpointer user_data) {
-  Explorer *self = EXPLORER(user_data);
-  GdkRectangle *rects;
-  int n_rects, i;
-
-  if (self->image && !HISTOGRAM_IMAGER(self->dejong)->size_dirty_flag) {
-
-    gdk_region_get_rectangles(event->region, &rects, &n_rects);
-
-    for (i=0; i<n_rects; i++) {
-      /* Clip this rectangle to the image size, since reading outside our buffer is a bad thing */
-      if (rects[i].x + rects[i].width > HISTOGRAM_IMAGER(self->dejong)->width)
-	rects[i].width = HISTOGRAM_IMAGER(self->dejong)->width - rects[i].x;
-      if (rects[i].y + rects[i].height > HISTOGRAM_IMAGER(self->dejong)->height)
-	rects[i].height = HISTOGRAM_IMAGER(self->dejong)->height - rects[i].y;
-      if (rects[i].width <= 0 || rects[i].height <= 0)
-	continue;
-
-      /* Render a rectangle taken from our pixbuf.
-       * We use GdkRGB directly here to force ignoring the alpha channel.
-       */
-      gdk_draw_rgb_32_image(self->drawing_area->window, self->gc,
-			    rects[i].x, rects[i].y,
-			    rects[i].width, rects[i].height,
-			    GDK_RGB_DITHER_NORMAL,
-			    gdk_pixbuf_get_pixels(self->image) +
-			    rects[i].x * 4 +
-			    rects[i].y * HISTOGRAM_IMAGER(self->dejong)->width * 4,
-			    HISTOGRAM_IMAGER(self->dejong)->width * 4);
-    }
-
-    g_free(rects);
   }
   return FALSE;
 }
