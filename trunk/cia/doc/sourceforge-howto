@@ -20,8 +20,11 @@ How CIA works is simple. When you commit something, it runs a script, and then e
 Focus of this How-To:
 ---------------------
 
-Most of the issues with CIA, up to this point, have been with Sourceforge projects. Perhaps this is because, as of this writing, 99% of all activity has occurred from Sourceforge. Hence, this will be the focused on setting up CIA for Sourceforge projects.
+Most of the issues with CIA, up to this point, have been with Sourceforge projects. At the time of this writing, about 14% of all commits on CIA come from the 71 Sourceforge-hosted projects on CIA, and most new projects added to CIA are hosted on Sourceforge. It doesn't help that Sourceforge's CVS services can be confusing at times, or that CVS itself is a bit hard to grasp.
 
+For these reasons, this document will be the focused on setting up CIA for Sourceforge projects.
+It might still be helpful if you're using CIA on a CVS server hosted elsewhere, but some commands
+will need to be adapted.
 
 
 Setting up CIA: Step one, getting the right stuff
