@@ -23,33 +23,35 @@
 
 using System;
 using System.Collections;
-using Gnome;
 using Gtk;
 using GLib;
 
-class PipelineDrawing : Gnome.Canvas
+class PipelineDrawing : Gtk.DrawingArea
 {
 	private Gtk.Adjustment		hadj;
 	private Gtk.Adjustment		vadj;
-	private Gdk.Color		white;
 
 	public PipelineDrawing ()
 	{
-		white = new Gdk.Color (0xff, 0xff, 0xff);
 	}
 
-	protected override void OnDrawBackground (Gdk.Drawable drawable, int x, int y, int w, int h)
+	protected override void OnSetScrollAdjustments (Gtk.Adjustment hadj, Gtk.Adjustment vadj)
 	{
-		Gdk.Colormap.System.AllocColor (ref white, true, true);
+		hadj.Lower         = 0.0;
+		hadj.Upper         = 0.0;
+		hadj.Value         = 0.0;
+		hadj.PageIncrement = 0.0;
+		hadj.PageSize      = 0.0;
+		hadj.StepIncrement = 0.0;
 
-		Gdk.GC gc = new Gdk.GC (drawable);
-		gc.Foreground = white;
+		vadj.Lower         = 0.0;
+		vadj.Upper         = 0.0;
+		vadj.Value         = 0.0;
+		vadj.PageIncrement = 0.0;
+		vadj.PageSize      = 0.0;
+		vadj.StepIncrement = 0.0;
 
-		drawable.DrawRectangle (gc, true, x, y, w, h);
-	}
-
-	protected override void OnRenderBackground (ref CanvasBuf buffer)
-	{
-		// oh, how i wish upon a star, why the fuck can't i use this? :(
+		this.hadj = hadj;
+		this.vadj = vadj;
 	}
 };
