@@ -6,7 +6,7 @@
 #
 # -- Micah Dowty <micah@navi.cx>
 #
-import rasterwand, gtk, Tweak, rtgraph
+import rasterwand, gtk, Tweak, rtgraph, sys
 
 
 class PeriodChannel(rtgraph.Channel):
@@ -21,7 +21,11 @@ class PeriodChannel(rtgraph.Channel):
 
 
 def main():
-    dev = rasterwand.Device()
+    if len(sys.argv) > 1:
+        devnode = sys.argv[1]
+    else:
+        devnode = "/dev/usb/rwand0"
+    dev = rasterwand.Device(devnode)
 
     graph = rtgraph.HScrollLineGraph(channels=[
         PeriodChannel(dev),
