@@ -40,6 +40,18 @@ def catchFault(message="Exception occurred"):
         raise xmlrpc.Fault(e.__class__.__name__, str(e))
 
 
+def rebuildPackage(package):
+    """Recursively rebuild all loaded modules in the given package"""
+    rebuild(package)
+    for item in package.__dict__.itervalues():
+        # Is it a module?
+        if type(item) == type(package):
+            rebuild(item)
+            # Is it also a package?
+            if item.__file__.find("__init__") >= 0:
+                rebuildPackage(item)
+
+
 class SysInterface(xmlrpc.XMLRPC):
     """An interface over XML-RPC to functionality that doesn't belong in any one other module
 
@@ -48,18 +60,11 @@ class SysInterface(xmlrpc.XMLRPC):
     def __init__(self, caps):
         self.caps = caps
 
-    def xmlrpc_rebuild(self, key):
+    def xmlrpc_rebuild(self, key=None):
         """Use twisted.python.rebuild to reload all applicable modules"""
         self.caps.faultIfMissing(key, 'universe', 'sys', 'sys.rebuild')
-
-        # Rebuild our package to make sure we have the latest module list
         import LibCIA
-        rebuild(LibCIA)
-
-        # Now rebuild all loaded modules inside the LibCIA package
-        for item in LibCIA.__dict__.itervalues():
-            if type(item) == type(LibCIA):
-                rebuild(item)
+        rebuildPackage(LibCIA)
         return True
 
 ### The End ###
