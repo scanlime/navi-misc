@@ -7,6 +7,8 @@
   dialogs should still have their buffers available. This should probably manifest itself as
   greying disconnected things out in the navtree
 
+* find a writer to rewrite all the horribly-worded explainations of things!
+
 context menus:
 * list accelerators in the context menus
 * flesh out the userlist context menu
