@@ -148,7 +148,7 @@ enet_socket_accept (ENetSocket socket, ENetAddress * address)
     struct sockaddr_in sin;
     int sinLength = sizeof (struct sockaddr_in);
 
-    result = accept ((SOCKET)socket, 
+    result = accept (socket, 
                      address != NULL ? (struct sockaddr *) &sin : NULL, 
                      address != NULL ? &sinLength : NULL);
 
@@ -267,7 +267,7 @@ enet_socket_wait (ENetSocket socket, enet_uint32 * condition, enet_uint32 timeou
     if (* condition & ENET_SOCKET_WAIT_RECEIVE)
       FD_SET (socket, & readSet);
 
-    selectCount = select (socket + 1, & readSet, & writeSet, NULL, & timeVal);
+    selectCount = select ((int)socket + 1, & readSet, & writeSet, NULL, & timeVal);
 
     if (selectCount < 0)
       return -1;

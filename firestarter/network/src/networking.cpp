@@ -157,7 +157,7 @@ void CDataChunk::AddB ( bool data )
 	trChunkItem	item;
 
 	item.type = eBool;
-	item.offset = info->data.size();
+	item.offset = (int)info->data.size();
 	info->items.push_back(item);
 	
 	unsigned char pack = data;
@@ -169,7 +169,7 @@ void CDataChunk::AddC ( unsigned char data )
 	trChunkItem	item;
 
 	item.type = eChar;
-	item.offset = info->data.size();
+	item.offset = (int)info->data.size();
 	info->items.push_back(item);
 	
 	unsigned char pack = data;
@@ -184,11 +184,11 @@ void CDataChunk::AddStr ( const char *data )
 	trChunkItem	item;
 
 	item.type = eString;
-	item.offset = info->data.size();
+	item.offset = (int)info->data.size();
 	info->items.push_back(item);
 	
 	unsigned short len;
-	WriteInt16(&len,strlen((const char*)data));
+	WriteInt16(&len,(int)strlen((const char*)data));
 	info->data.push_back(((char*)&len)[0]);
 	info->data.push_back(((char*)&len)[1]);
 
@@ -201,7 +201,7 @@ void CDataChunk::AddS ( unsigned short data )
 	trChunkItem	item;
 
 	item.type = eShort;
-	item.offset = info->data.size();
+	item.offset = (int)info->data.size();
 	info->items.push_back(item);
 	
 	unsigned short temp;
@@ -215,7 +215,7 @@ void CDataChunk::AddI ( unsigned int data )
 	trChunkItem	item;
 
 	item.type = eInt;
-	item.offset = info->data.size();
+	item.offset = (int)info->data.size();
 	info->items.push_back(item);
 	
 	unsigned int temp;
@@ -231,7 +231,7 @@ void CDataChunk::AddF ( float data )
 	trChunkItem	item;
 
 	item.type = eFloat;
-	item.offset = info->data.size();
+	item.offset = (int)info->data.size();
 	info->items.push_back(item);
 	
 	float temp;
@@ -247,7 +247,7 @@ void CDataChunk::AddV ( float data[3] )
 	trChunkItem	item;
 
 	item.type = eVector;
-	item.offset = info->data.size();
+	item.offset = (int)info->data.size();
 	info->items.push_back(item);
 	
 	float temp;
@@ -277,7 +277,7 @@ void CDataChunk::AddN ( unsigned int size, void *data )
 	trChunkItem	item;
 
 	item.type = eRaw;
-	item.offset = info->data.size();
+	item.offset = (int)info->data.size();
 	info->items.push_back(item);
 
 	unsigned int len;
@@ -293,7 +293,7 @@ void CDataChunk::AddN ( unsigned int size, void *data )
 	
 int CDataChunk::GetElements ( void )
 {
-	return info->items.size();
+	return (int)info->items.size();
 }
 
 void CDataChunk::SetElelemnt ( void )
@@ -535,7 +535,7 @@ unsigned int CDataChunk::NetReadData( void *data )
 			case eShort:
 			{
 				item.type = eShort;
-				item.offset = info->data.size();
+				item.offset = (int)info->data.size();
 				info->items.push_back(item);
 
 				info->data.push_back(pData[iOffset++]);
@@ -545,7 +545,7 @@ unsigned int CDataChunk::NetReadData( void *data )
 			case eInt:
 			{
 				item.type = eInt;
-				item.offset = info->data.size();
+				item.offset = (int)info->data.size();
 				info->items.push_back(item);
 
 				info->data.push_back(pData[iOffset++]);
@@ -557,7 +557,7 @@ unsigned int CDataChunk::NetReadData( void *data )
 			case eFloat:
 			{
 				item.type = eFloat;
-				item.offset = info->data.size();
+				item.offset = (int)info->data.size();
 				info->items.push_back(item);
 
 				info->data.push_back(pData[iOffset++]);
@@ -569,7 +569,7 @@ unsigned int CDataChunk::NetReadData( void *data )
 			case eVector:
 			{
 				item.type = eFloat;
-				item.offset = info->data.size();
+				item.offset = (int)info->data.size();
 				info->items.push_back(item);
 
 				info->data.push_back(pData[iOffset++]);
@@ -591,7 +591,7 @@ unsigned int CDataChunk::NetReadData( void *data )
 			case eRaw:
 			{
 				item.type = eRaw;
-				item.offset = info->data.size();
+				item.offset = (int)info->data.size();
 				info->items.push_back(item);
 
 				unsigned char temp[4];
@@ -625,7 +625,7 @@ unsigned int CDataChunk::NetWriteData( void *data )
 		return -1;
 
 	// size of the data
-	int newLen = GetElements()+info->data.size()+6;
+	int newLen = GetElements()+(int)info->data.size()+6;
 	if (!data)
 		return newLen;
 
@@ -840,7 +840,7 @@ void CNetworkMessage::SetDataFromPacket( void *packet )
 	if (!packet)
 		return;
 
-	SetDataSize(((ENetPacket*)packet)->dataLength-2);
+	SetDataSize((int)((ENetPacket*)packet)->dataLength-2);
 
 	memcpy(info->data,((ENetPacket*)packet)->data,((ENetPacket*)packet)->dataLength);
 
@@ -890,7 +890,7 @@ void CNetworkMessage::AddStr ( const char *data )
 {
 	int iLen = GetSize();
 
-	int stringLen = strlen((char*)data)+1;
+	int stringLen = (int)strlen((char*)data)+1;
 	SetDataSize(iLen+stringLen);
 	memcpy((char*)(info->data)+iLen+2,data,stringLen);
 }
@@ -990,7 +990,7 @@ const char* CNetworkMessage::ReadStr ( void )
 		return NULL;
 	
 	char *str = (char*)(&((char*)info->data)[info->current]);
-	info->current+= strlen(str)+1;
+	info->current+= (int)strlen(str)+1;
 	return str;
 }
 
