@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 '''	trough
 	Simple command-line interface to trough.
-	It really is.
+	It really is, believe me.
 	'''
 
 from types import *
