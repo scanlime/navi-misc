@@ -56,11 +56,6 @@ PCLATH_save	res	1	;  during ISR
 FSR_save	res	1
 PIRmasked	res	1
 USBMaskedInterrupts  res  1
-epBuffer	res 8
-epBufferSize res 1
-epBufferSizeTemp res 1
-epBufferPtrTemp res 1
-epByteTemp	res 1
 
 	extern	InitUSB
 	extern	USBReset
@@ -201,6 +196,56 @@ Main
 
 	pagesel	InitUSB
 	call	InitUSB
+
+	;; Our row outputs should always be low- we drive them open-collector.
+	;; They're initially inputs, and only become outputs when that row is active.
+	;; The column drivers are always outputs, initially low. The LED and the
+	;; unused pins are also always output.
+	banksel PORTA
+	clrf	PORTA
+	clrf	PORTB
+	clrf	PORTC
+	clrf	PORTD
+	clrf	PORTE
+	banksel TRISA
+	movlw	0xFF
+	movwf	TRISA
+	clrf	TRISB
+	movlw	0x01
+	movwf	TRISC
+	clrf	TRISD
+	movlw	0x03
+	movwf	TRISE
+
+	;; Set up the A/D converter for our one analog input- the LED supply voltage
+	banksel	ADCON0
+	movlw	0x81
+	movwf	ADCON0
+	banksel	ADCON1
+	clrf	ADCON1
+
+	;; Set up our PWM unit. We use CCP1 to drive our status LED with varying intensity
+	banksel	CCPR1L
+	clrf	CCPR1L
+	clrf	CCPR2L
+	banksel	CCP1CON
+	movlw	0x0F
+	movwf	CCP1CON
+	movwf	CCP2CON
+	banksel	T2CON
+	movlw	0x04
+	movwf	T2CON
+	banksel	PR2
+	movlw	0xFF
+	movwf	PR2
+
+	;; Select a 1:16 watchdog prescaler, giving us a nominal timeout of 288ms.
+	;; This seems like a good compromise between protecting the LEDs in case of
+	;; a stall, and allowing slow refresh rates.
+	clrwdt
+	movlw	0xFB
+	banksel	OPTION_REG
+	movwf	OPTION_REG
 
 	pagesel	display_init
 	call	display_init

@@ -25,6 +25,7 @@
 
 #include <p16C765.inc>
 #include "usb_defs.inc"
+#include "macros.inc"
 #include "../include/ledboard_protocol.h"
 
 	errorlevel -302		; suppress "register not in bank0, check page bits" message
@@ -42,6 +43,10 @@
 	extern	display_seek
 	extern	display_seq_write_byte
 	extern	back_buffer
+
+	extern	pwm_cycles
+	extern	pwm_table
+	extern	scan_rate
 
 bank0	udata
 
@@ -68,9 +73,13 @@ CheckVendor
 	defineRequest	LEDBOARD_CTRL_SEQ_WRITE4,	request_seqWrite4
 	defineRequest	LEDBOARD_CTRL_RANDOM_WRITE8,	request_randomWrite8
 	defineRequest	LEDBOARD_CTRL_BLIT,		request_blit
+	defineRequest	LEDBOARD_CTRL_SET_SCAN_RATE,	request_setScanRate
+	defineRequest	LEDBOARD_CTRL_SET_PWM_CYCLES,	request_setPwmCycles
+	defineRequest	LEDBOARD_CTRL_SET_PWM_ENTRY,	request_setPwmEntry
+	defineRequest	LEDBOARD_CTRL_GET_LED_VOLTAGE,	request_getLedVoltage
+	defineRequest	LEDBOARD_CTRL_STATUS_INTENSITY,	request_statusIntensity
 
-	pagesel	wrongstate		; Not a recognized request
-	goto	wrongstate
+	psgoto	wrongstate		; Not a recognized request
 
 
 ;********************************************** Macros
@@ -92,7 +101,7 @@ returnBuffer    macro   buffer, length
 	banksel BD0IAL
 	movf    low BD0IAL,w	; Get the address of the EP0 IN buffer
 	banksel dest_ptr
-	movwf   dest_ptr	; Start a buffer pointer we'll increment... 
+	movwf   dest_ptr	; Start a buffer pointer we'll increment...
 
 	movlw   length
 	movwf   byte_iterator
@@ -301,6 +310,73 @@ ep0loop
 	decfsz  byte_iterator, f
 	goto    ep0loop
 	return
+
+
+	; Set the current LED scan rate, from wValue
+request_setScanRate
+	banksel	BufferData
+	movf	BufferData+wValue, w
+	banksel	scan_rate
+	movwf	scan_rate+1
+
+	banksel	BufferData
+	movf	BufferData+(wValue+1), w
+	banksel	scan_rate
+	movwf	scan_rate
+	returnEmpty
+
+
+	; Set the number of PWM cycles, from wValue low
+request_setPwmCycles
+	banksel	BufferData
+	movf	BufferData+wValue, w
+	banksel	pwm_cycles
+	movwf	pwm_cycles+1
+	returnEmpty
+
+
+	; Set one entry in our PWM table
+request_setPwmEntry
+	banksel	BufferData
+	movf	BufferData+wIndex, w
+	andlw	0x0F
+	addlw	pwm_table
+	bankisel pwm_table
+	movwf	FSR
+	movf	BufferData+wValue, w
+	movwf	INDF
+	returnEmpty
+
+
+	;; Read back the LED supply voltage, from AN0.
+	;; This is nice and simple with no precharge delay, since
+	;; we only have one analog input and it was init'ed in usb_main.
+request_getLedVoltage
+	banksel	ADCON0
+	bsf	ADCON0, GO
+	pagesel	adc_loop
+adc_loop
+	btfsc	ADCON0, NOT_DONE
+	goto	adc_loop
+	movf	ADRES, w
+	returnByte
+
+
+	;; Set the intensity of the status LED (on CCP1) from the
+	;; high 10 bits of wValue.
+request_statusIntensity
+	banksel	BufferData
+	movf	BufferData+(wValue+1), w
+	banksel	CCPR1L
+	movwf	CCPR1L
+	banksel	BufferData
+	rrf	BufferData+wValue, f
+	rrf	BufferData+wValue, w
+	andlw	0x30
+	iorlw	0x0F
+	banksel	CCP1CON
+	movwf	CCP1CON
+	returnEmpty
 
 	end
 
