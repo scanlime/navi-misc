@@ -22,7 +22,6 @@ Remote Controlled PIC of Doom (rcpod) via librcpod.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import librcpod as lib
-#from Device import *
+from device import *
 
 ### The End ###
