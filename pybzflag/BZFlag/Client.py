@@ -28,6 +28,15 @@ from BZFlag import Network, Protocol
 from BZFlag.Protocol import FromServer, ToServer, Common
 
 
+class PlayerInfo:
+    """A simple container for basic player information"""
+    def __init__(self, callSign, team=0):
+        self.type = 0
+        self.callSign = callSign
+        self.team = team
+        self.emailAddress = "PyBZFlag"
+
+
 class BaseClient:
     """Implements a very simple BZFlag client. Subclasses can build
        on this with functionality to implement a player or a UI.
@@ -105,7 +114,7 @@ class BaseClient:
         self.onConnect()
 
     def expectMessage(self, socket, eventLoop):
-        print "Message"
+        pass
 
     def onConnect(self):
         """This is called after a connection has been established.
@@ -113,6 +122,14 @@ class BaseClient:
            to define what this does next.
            """
         pass
+
+    def enterGame(self, playerInfo):
+        msg = ToServer.MsgEnter()
+        msg.playerType = playerInfo.type
+        msg.team = playerInfo.team
+        msg.callSign = playerInfo.callSign
+        msg.emailAddress = playerInfo.emailAddress
+        self.tcp.write(msg)
 
 ### The End ###
         

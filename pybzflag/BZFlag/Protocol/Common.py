@@ -37,6 +37,19 @@ Vector3 = VectorType("fff")
 # A player identifier is now a single unsigned byte (changed from 1.7)
 PlayerId = UInt8
 
+messageDict = None
+
+def getMessageDict():
+    """Return a dictionary mapping message IDs to message classes"""
+    global messageDict
+    from BZFlag.Protocol import FromServer, ToServer
+    if not messageDict:
+        allMessages = FromServer.messages + ToServer.messages
+        messageDict = {}
+        for message in allMessages:
+            messageDict[message.messageId] = message
+    return messageDict
+
 
 class ServerId(Struct):
     """class ServerId from Address.h"""
@@ -110,7 +123,7 @@ class Message(Struct):
     def __init__(self, packed=None):
         self.header = self.headerClass()
         Struct.__init__(self, packed)
-        
+
     def unmarshall(self, packed):
         packed = self.header.unmarshall(packed)
         return Struct.unmarshall(self, packed)

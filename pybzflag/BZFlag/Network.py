@@ -23,7 +23,8 @@ links.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA 
 # 
 
-import BZFlag.Protocol.Common
+from BZFlag.Protocol import Common
+from BZFlag import Protocol
 import socket, select
 
 
@@ -32,6 +33,7 @@ class Socket:
        operations, but also supports sending BZFlag messages.
        """
     def __init__(self, protocol='TCP'):
+        self.readBuffer = ''
         self.socket = getattr(self, "new%sSocket" % protocol)()
     
     def newTCPSocket(self):
@@ -61,16 +63,35 @@ class Socket:
 
     def read(self, size=None, bufferSize=64*1024):
         if size:
-            return self.socket.recv(size)
+            # Read the amount specified, first from our
+            # local read buffer then from the socket itself.
+            # If we can't read the complete packet, return
+            # None and keep the partial packet buffered.
+            received = self.readBuffer[:size]
+            while len(received) < size:
+                chunk = self.socket.recv(size - len(received))
+                if not chunk:
+                    self.readBuffer = received
+                    return None
+                received += chunk
+            self.readBuffer = received[size:]
+            return received[:size]
         else:
             # Keep reading until there's no more to read
-            received = ''
+            received = self.readBuffer
+            self.readBuffer = ''
             while 1:
                 buffer = self.socket.recv(bufferSize)
                 if not buffer:
                     break
                 received += buffer
             return received
+
+    def unread(self, data):
+        """Push the supplied data back into the read buffer,
+           so that it will be the next thing read.
+           """
+        self.readBuffer = str(data) + self.readBuffer
 
     def connect(self, host, port=None):
         """The port can be specified either as part of the host using
@@ -105,11 +126,26 @@ class Socket:
         
     def readStruct(self, structClass):
         struct = structClass()
-        struct.unmarshall(self.read(struct.getSize()))
+        packed = self.read(struct.getSize())
+        if not packed:
+            return None
+        struct.unmarshall(packed)
         return struct
 
     def readMessage(self):
-        pass
+        header = self.readStruct(Common.MessageHeader)
+        if not header:
+            return None
+        body = self.read(header.length)
+        if not body:
+            # Save the header for later if we can't read the body yet
+            self.unread(header)
+            return None
+        try:
+            msgClass = Common.getMessageDict()[header.id]
+        except KeyError:
+            raise Protocol.ProtocolException("Received unknown message type 0x%04X" % header.id)
+        return msgClass(str(header) + body)
 
 
 class EventLoop:
