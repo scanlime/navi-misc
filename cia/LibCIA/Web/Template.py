@@ -169,7 +169,7 @@ class Page(Nouvelle.Twisted.Page):
                 xml('<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />'),
                 tag('title')[ place("pageTitle") ],
                 place('baseTag'),
-                tag('link', rel='stylesheet', href='/style.css', type='text/css'),
+                tag('link', rel='stylesheet', href='/default.css', type='text/css'),
                 place('extraHeaders'),
                 ],
             tag('body')[
