@@ -28,22 +28,26 @@
  * some of the low-order bits will be ignored.
  */
 module pwm_i2c (clk, reset,
-                  scl, sda_in, sda_out,
-                  out);
+                i2c_interface_tx, i2c_interface_rx,
+                out);
         parameter I2C_ADDRESS = 0;
         parameter PWM_BITS = 16;
 
 	input clk, reset;
-	input scl, sda_in;
-	output sda_out, out;
+	output [1:0] i2c_interface_tx;
+	input [19:0] i2c_interface_rx;
+	output out;
+
 	wire [15:0] duty_cycle;
 
 	pwm #(PWM_BITS) p(clk, reset, duty_cycle[15:16-PWM_BITS], out);
-	i2c_slave_reg #(I2C_ADDRESS, 2) i2creg16(
+
+	i2c_slave_reg #(I2C_ADDRESS, 16) i2c_reg16(
 		clk, reset,
-		scl, sda_in, sda_out,
+		i2c_interface_tx, i2c_interface_rx,
 		duty_cycle);
 endmodule
+
 
 /* A simple pulse width modulation module, of arbitrary precision */
 module pwm (clk, reset, duty_cycle, out);
