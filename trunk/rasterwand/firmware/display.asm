@@ -55,6 +55,12 @@ delta_t			res	2	; 16-bit time delta, in cycles, since the last poll
 
 #define FLAG_ASENSOR_TEMP display_flags, 1	; The previous sample recorded from the angle sensor
 
+bank1	udata
+front_buffer	res	.80
+
+bank2	udata
+back_buffer		res	.80
+
 	code
 
 
