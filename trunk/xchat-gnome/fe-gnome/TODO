@@ -2,10 +2,16 @@
 * put automatically connected-to servers at the top of the list
 * fix the about dialog such that it uses a real copyright symbol (check galeon's source for this)
 * make the connect dialog check existing open networks before creating a new connection
+
+* separate the concepts of leaving & closing. disconnected servers, parted channels, and old
+  dialogs should still have their buffers available.
+
+context menus:
 * list accelerators in the context menus
 * flesh out the userlist context menu
-
 * switch context menus to use the gnome-popup-menu stuff
+* make the context menu for navtree stuff actually dependent on context - see above note about
+  leave/close stuff
 
 autotools:
 * slurp the gtkspell check from gaim's configure.in
