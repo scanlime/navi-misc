@@ -20,19 +20,29 @@
 #
 from pyparsing import *
 
+class ASFReader:
+    bones = {}
+    order = []
+    axis = None
+    position = []
+    orientation = []
+
 float = Word(nums + '.e+-')
 comment = Literal('#') + Optional (restOfLine)
 
 axisOrder = oneOf("XYZ XZY YXZ YZX ZXY ZYX")
 ro = oneOf("TX TY TZ RX RY RZ")
 
-rootElement = Group (
+rootElement = Group(
     "order" + ro + ro + ro + ro + ro + ro \
   | "axis" + axisOrder \
   | "position" + float + float + float \
-  | "orientation" + float + float + float)
+  | "orientation" + float + float + float
+  )
+root = Group(OneOrMore(rootElement))
 
 unitElement = Group("mass" + float | "length" + float | "angle" + oneOf("deg rad"))
+unit = Group(OneOrMore(unitElement))
 
 dof = oneOf("rx ry rz")
 triplet = Literal('(').suppress() + float + float + Literal(')').suppress()
@@ -56,24 +66,35 @@ hierarchy = Suppress("begin") + OneOrMore(hierElement)
 docLine = Combine(OneOrMore(Word(alphanums + '!"#$%&\'()*+,-./;<=>?@[\\]^_`{|}~')), joinString=' ', adjacent=False)
 
 sectstart = LineStart() + Literal(':').suppress()
-section = \
+section = Group(
     sectstart + "version" + float \
   | sectstart + "name" + Word(printables) \
-  | sectstart + "units" + OneOrMore(unitElement) \
+  | sectstart + "units" + unit \
   | sectstart + "documentation" + docLine \
-  | sectstart + "root" + OneOrMore(rootElement) \
+  | sectstart + "root" + root \
   | sectstart + "bonedata" + bonedata \
-  | sectstart + "hierarchy" + hierarchy \
+  | sectstart + "hierarchy" + hierarchy
+  )
 
-part = Group(section) | Suppress(comment)
+part = section | Suppress(comment)
 
 asfFile = OneOrMore(part)
 
+def gotRoot(s, loc, toks):
+    print 'root:\t',toks[0]
+def gotUnit(s, loc, toks):
+    print 'units:\t',toks[0]
+def gotBone(s, loc, toks):
+    print 'bone:\t',toks[0]
+root.setParseAction(gotRoot)
+unit.setParseAction(gotUnit)
+bone.setParseAction(gotBone)
+
 # main program
 x = asfFile.parseFile('02.asf')
-print x
 
 s = {}
 for section in x:
     s[section[0]] = section[1:]
-    print section[0]
+
+print s.keys()
