@@ -32,9 +32,9 @@ static EPublishUri *
 migrateURI (const gchar *xml, xmlDocPtr doc)
 {
 	GConfClient *client;
-	GSList *uris, *l;
+	GSList *uris, *l, *events = NULL;
 	xmlChar *location, *enabled, *frequency, *username, *publish_time;
-	xmlNodePtr root;
+	xmlNodePtr root, p;
 	EPublishUri *uri;
 	GnomeVFSURI *vfs_uri;
 	gchar *password, *temp;
@@ -78,6 +78,16 @@ migrateURI (const gchar *xml, xmlDocPtr doc)
 
 	password = e_passwords_get_password ("Calendar", location);
 	e_passwords_forget_password ("Calendar", location);
+
+	for (p = root->children; p != NULL; p = p->next) {
+		xmlChar *uid = xmlGetProp (p, "uid");
+		if (strcmp (p->name, "source") == 0) {
+			events = g_slist_append (events, uid);
+		} else {
+			g_free (uid);
+		}
+	}
+	uri->events = events;
 
 	uris = g_slist_prepend (uris, e_publish_uri_to_xml (uri));
 	gconf_client_set_list (client, "/apps/evolution/calendar/publish/uris", GCONF_VALUE_STRING, uris, NULL);
@@ -139,9 +149,9 @@ e_publish_uri_from_xml (const gchar *xml)
 		xmlChar *uid = xmlGetProp (p, "uid");
 		if (strcmp (p->name, "event") == 0) {
 			events = g_slist_append (events, uid);
-		}
-		else
+		} else {
 			g_free (uid);
+		}
 	}
 	uri->events = events;
 
