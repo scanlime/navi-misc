@@ -5,7 +5,7 @@
 
 from twisted.application import service, internet
 from twisted.web import server, xmlrpc, static, vhost
-from LibCIA import Message, Ruleset, IRC, Stats, IncomingMail, Debug, Security
+from LibCIA import Message, Ruleset, IRC, Stats, IncomingMail, Debug, Security, RpcClient
 from LibCIA.Web import StatsBrowser, RulesetBrowser, BotStatus
 
 application = service.Application("cia_server")
@@ -21,6 +21,7 @@ botNet = IRC.BotNetwork("CIA-%d")
 uriRegistry = Ruleset.URIRegistry(
     IRC.IrcURIHandler(botNet),
     Stats.StatsURIHandler(statsStorage),
+    RpcClient.XmlrpcURIHandler(),
     )
 
 # Use a persistent set of rulesets to filter and format messages
