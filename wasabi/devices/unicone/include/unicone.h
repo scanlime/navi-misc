@@ -76,10 +76,14 @@
  * an unconfigured state and zero'ing its current contents.
  *
  * To complete configuration, the host needs to send, on UNICONE_EP_FPGA_CONFIG:
- *   1. Send a 20-byte SHA-1 version stamp for the bitstream. This isn't checked
- *      by the firmware (the bitstream itself has builtin checksums) but it can
- *      be retrieved later to determine what version of the bitstream is installed.
- *   2. Send the complete bitstream. It will be clocked out as-is to the FPGA
+ *
+ *   1. Send a 20-byte SHA-1 version stamp for the bitstream, in a single
+ *      bulk packet. This isn't checked by the firmware (the bitstream itself has
+ *      builtin checksums) but it can be retrieved later to determine what version
+ *      of the bitstream is installed.
+ *
+ *   2. In a separate bulk transfer, Send the complete bitstream. It will
+ *      be clocked out as-is to the FPGA
  *
  * Then the host sends a UNICONE_REQ_FPGA_CONFIG_END and reads the resulting status.
  */
