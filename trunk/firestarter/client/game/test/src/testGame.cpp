@@ -202,7 +202,7 @@ void CTestGame::OnMessage ( CNetworkPeer &peer, CNetworkMessage &message )
 	{
 		case _MESSAGE_SERVER_INFO:	// the server is telling us our ID and wants us to send back our info
 			// get our ID
-			localPlayer->idNumber = outMessage.ReadI();
+			localPlayer->idNumber = message.ReadI();
 			players[localPlayer->idNumber] = localPlayer;
 			localPlayer->active = false;
 
@@ -220,6 +220,7 @@ void CTestGame::OnMessage ( CNetworkPeer &peer, CNetworkMessage &message )
 				if (!newPlayer)
 				{
 					newPlayer = new CPlayerObject();
+					newPlayer->idNumber = newPlayerID;
 					players[newPlayerID] = newPlayer ;
 				}
 				newPlayer->active = false;
@@ -249,18 +250,20 @@ void CTestGame::OnMessage ( CNetworkPeer &peer, CNetworkMessage &message )
 				if (!newPlayer)
 				{
 					newPlayer = new CPlayerObject();
-					newPlayer->active = true;
+					newPlayer->idNumber = playerID;
 					players[playerID] = newPlayer;
 				}
+				newPlayer->active = true;
 				newPlayer->name = message.ReadStr();
 				newPlayer->material = message.ReadStr();
 
-				newPlayer->Init(true);
 				// get there current pos
 				message.ReadV(newPlayer->pos);
 				message.ReadV(newPlayer->rot);
 				message.ReadV(newPlayer->vec);
 
+				// give them a model
+				newPlayer->Init(true);
 			}
 			break;
 
@@ -277,6 +280,7 @@ void CTestGame::OnMessage ( CNetworkPeer &peer, CNetworkMessage &message )
 					message.ReadV(newPlayer->rot);
 					message.ReadV(newPlayer->vec);
 					newPlayer->active = true;
+					newPlayer->Init(true);
 				}
 			}
 			break;
@@ -304,7 +308,7 @@ void CTestGame::OnMessage ( CNetworkPeer &peer, CNetworkMessage &message )
 			break;
 
 		default:	// hell if I know what this is, but say OK
-			outMessage.SetType("AK");
+			outMessage.SetType(_MESSAGE_ACKNOWLEDGE);
 			outMessage.Send(peer,false);
 	}
 }
@@ -391,7 +395,7 @@ bool CTestGame::processPlayerInput ( void )
 
 	if (localPlayer->pos[2] > 0)
 	{
-		if ( localPlayer->vec[2] <= 0)
+		if ( localPlayer->vec[2] <= 0.1f)
 			localPlayer->vec[2] = grav;
 	}
 	else

@@ -11,7 +11,7 @@
 */
 #include "testGameServer.h"
 #include "timer.h"
-#include "firestarterd.h";
+#include "firestarterd.h"
 
 // messages
 #define	_MESSAGE_SERVER_INFO 0x5349	// SI 
@@ -43,7 +43,11 @@ bool CTestGameServer::think ( void )
 				message.AddV(players->second.pos);
 				message.AddV(players->second.rot);
 				message.AddV(players->second.vec);
-				sendToAllBut(message,-1,false);
+				sendToAllBut(message,players->first,false);
+
+				char temp[512];
+				sprintf(temp,"update for bot ID %d for %f %f %f",players->first,players->second.pos[0],players->second.pos[1],players->second.pos[2]);
+				logOut(temp,"CTestGameServer::think ");
 			}
 		}
 		players++;
@@ -120,6 +124,11 @@ bool CTestGameServer::message ( int playerID, CNetworkPeer &peer, CNetworkMessag
 				message.ReadV(itr->second.pos);
 				message.ReadV(itr->second.rot);
 				message.ReadV(itr->second.vec);
+
+				char temp[512];
+				sprintf(temp,"update from ID %d for %f %f %f",playerID,itr->second.pos[0],itr->second.pos[1],itr->second.pos[2]);
+				logOut(temp,"CTestGameServer::message");
+
 			}
 			break;
 
@@ -168,6 +177,10 @@ bool CTestGameServer::message ( int playerID, CNetworkPeer &peer, CNetworkMessag
 
 bool CTestGameServer::add ( int playerID, CNetworkPeer &peer )
 {
+	char temp[512];
+	sprintf(temp,"add player with ID %d",playerID);
+	logOut(temp,"CTestGameServer::add");
+
 	std::map<int,trPlayerInfo>::iterator itr = users.find(playerID);
 	if (itr != users.end())
 		return true;
@@ -212,6 +225,9 @@ bool CTestGameServer::add ( int playerID, CNetworkPeer &peer )
 	}
 
 	logOut("send _MESSAGE_SERVER_INFO","CTestGameServer::add");
+	sprintf(temp,"player ID: %d",playerID);
+	logOut(temp,"CTestGameServer::add");
+
 	message.ClearData();
 	message.SetType(_MESSAGE_SERVER_INFO);	// ServerInfo
 	message.AddI(playerID);
@@ -230,6 +246,10 @@ void CTestGameServer::addBot (int playerID, const char* name, const char* config
 	std::map<int,trPlayerInfo>::iterator itr = users.find(playerID);
 	if (itr != users.end())
 		return;
+
+	char temp[512];
+	sprintf(temp,"add bot with ID %d",playerID);
+	logOut(temp,"CTestGameServer::addBot");
 
 	trPlayerInfo info;
 	info.name = name;
@@ -336,6 +356,10 @@ void CTestGameServer::kill ( void )
 // game code
 void CTestGameServer::spawnPlayer ( int playerID )
 {
+	char temp[512];
+	sprintf(temp,"generate gpawn for ID %d",playerID);
+	logOut(temp,"CTestGameServer::spawnPlayer");
+
 	std::map<int,trPlayerInfo>::iterator itr = users.find(playerID);
 	if (itr == users.end())
 		return;
@@ -403,9 +427,15 @@ bool CRobotPlayer::think ( void )
 	playerInfo->pos[1] += playerInfo->vec[1]*updateTime;
 	playerInfo->pos[2] += playerInfo->vec[2]*updateTime;
 
+	if (playerInfo->pos[2] < 0 )
+		playerInfo->pos[2] = 0;
+
 	float botUpdateTime = 1.0f/0.5f;
 	if (CTimer::instance().GetTime() - lastUpdateTime > botUpdateTime )
+	{
+		lastUpdateTime = CTimer::instance().GetTime();
 		return true;
+	}
 	else
 		return false;
 }

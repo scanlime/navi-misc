@@ -29,6 +29,7 @@ CPlayerObject::CPlayerObject()
 CPlayerObject::~CPlayerObject()
 {
 	Kill();
+	active = false;
 }
 
 void CPlayerObject::Init ( bool draw )
@@ -46,19 +47,21 @@ bool CPlayerObject::Think ( void )
 {
 	// do some dead reco if we didn't just get this update
 
-	if (updateTime != CTimer::instance().GetTime())
+	//if (updateTime != CTimer::instance().GetTime())
 	{
 		float updateTime = CTimer::instance().GetFrameTime();
 		pos[0] += vec[0]*updateTime;
 		pos[1] += vec[1]*updateTime;
 		pos[2] += vec[2]*updateTime;
+
+		if (pos[2] < 0)
+			pos[2] = 0;
 	}
 	return true;
 }
 
 void CPlayerObject::Kill ( void )
 {
-	active = false;
 	if (drawable != -1)
 		CDrawManager::instance().Delete(drawable);
 
