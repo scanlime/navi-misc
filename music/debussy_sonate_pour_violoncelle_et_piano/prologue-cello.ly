@@ -86,4 +86,35 @@ prologueCello = \notes \relative c {
   b\tenuto\p\< (cis\tenuto d\tenuto e\tenuto)
   b\tenuto\p\< (c\tenuto d\tenuto e\tenuto)
   b\tenuto\p\< (c\tenuto d\tenuto e\tenuto\!) ~
+  \override DynamicText #'extra-offset = #'(0 . -1.5)
+  \override Hairpin #'extra-offset = #'(0 . -1.5)
+  \times 2/3 {e16\mf\< (f g} f8 ~ f16 e d32\!
+  \revert DynamicText #'extra-offset
+  \revert Hairpin #'extra-offset
+  f
+  _\markup {\bold \italic "dim."}
+  e d a16 g f d e f g a)
+  b\tenuto\p\< (c\tenuto d\tenuto e\tenuto)
+  b\tenuto\p\< (cis\tenuto d\tenuto e\tenuto)
+  b\tenuto\p\< (c\tenuto d\tenuto e\tenuto)
+  b\tenuto\p\< (c\tenuto d\tenuto e\tenuto\!)
+  \override DynamicText #'extra-offset = #'(0 . -1.5)
+  \override Hairpin #'extra-offset = #'(0 . -1.5)
+  \times 2/3 {g16\mf\< \(a bes} a8 ~ a16 (c) bes a g\f
+  \revert DynamicText #'extra-offset
+  \revert Hairpin #'extra-offset
+  f d8\> ~ d16 c a\! g\)
+  \slurDown
+  g
+  _\markup {\italic \bold "dim."}
+  (f a8 ~ a16
+  \clef bass
+  c, a g ~ g\p\> c a g ~ g c a g\!) ~
+  g
+  ^\markup {"sur la touche"}
+  ^\animandoPocoAPocoAgitato
+  \pp (c\staccato a\staccato g ~
+  g c\staccato a\staccato g ~
+  g c\staccato a\staccato g ~
+  g c\staccato a\staccato g) ~
 }
