@@ -181,10 +181,28 @@ rcpod_dev* rcpod_InitSimple(void) {
 
 void rcpod_Poke(rcpod_dev* rcpod, int address, unsigned char data) {
   int retval;
+  /* The address and data are sent in the wIndex and wValue parameters, respectively */
   retval = usb_control_msg(rcpod->usbdevh, USB_TYPE_VENDOR, RCPOD_CTRL_POKE,
 			   data, address, NULL, 0, RCPOD_TIMEOUT);
   if (retval < 0)
     handleError("rcpod_Poke", retval);
 }
+
+
+unsigned char rcpod_Peek(rcpod_dev* rcpod, int address) {
+  int retval;
+  unsigned char byte;
+  /* Send the address in wIndex, expect a 1-byte response packet with the data */
+  retval = usb_control_msg(rcpod->usbdevh, USB_TYPE_VENDOR | USB_ENDPOINT_IN,
+			   RCPOD_CTRL_PEEK, 0, address, (char*) &byte, 1, RCPOD_TIMEOUT);
+  if (retval < 0) {
+    handleError("rcpod_Peek", retval);
+    return 0;
+  }
+  return byte;
+}
+
+void rcpod_AnalogSampleAll(rcpod_dev* rcpod, unsigned char buffer[8]);
+
 
 /* The End */

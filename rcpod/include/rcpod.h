@@ -99,7 +99,10 @@ rcpod_dev* rcpod_InitSimple(void);
 void rcpod_Poke(rcpod_dev* rcpod, int address, unsigned char data);
 
 /* Read one byte from the given 9-bit address in the rcpod's RAM */
-unsigned char rcpod_Peek(rcpod_dev* rcpod, unsigned char address);
+unsigned char rcpod_Peek(rcpod_dev* rcpod, int address);
+
+/* Sample all 8 A/D converters, fills the provided buffer */
+void rcpod_AnalogSampleAll(rcpod_dev* rcpod, unsigned char buffer[8]);
 
 
 #endif /* __RCPOD_H */
