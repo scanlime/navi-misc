@@ -33,12 +33,13 @@ class FieldSensor {
   FieldSensor(const char *serialPort="/dev/ttyS0");
   ~FieldSensor(void);
 
-  void reset(void);
   std::vector<float> readPacket(void);
 
  private:
   int fd;
   void sendSlowly(const char *str);
+  void reset(void);
+  void boot(void);
 };
 
 #endif /* __H_FIELDSENSOR */

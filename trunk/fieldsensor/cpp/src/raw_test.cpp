@@ -7,7 +7,7 @@ int main(void) {
   while (1) {
     readings = s.readPacket();
     for (std::vector<float>::iterator i=readings.begin(); i!=readings.end(); i++)
-      printf("%f ", *i);
+      printf("%0.9f ", *i);
     printf("\n");
   }
 
