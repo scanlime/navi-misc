@@ -59,6 +59,16 @@ class BackgroundsMenu(Menu.ImageMenu):
         global backgroundItems
         Menu.ImageMenu.__init__(self, book, backgroundItems)
 
+        # Find the current background, and make it the default selection
+        current = getCurrentBackground()
+        i = 0
+        for item in backgroundItems:
+            if item.file == current:
+                self.dock.selectionIndex = i
+                self.dock.jump()
+                break
+            i += 1
+
     def onSelected(self, item):
         setCurrentBackground(item.file)
 
@@ -89,7 +99,7 @@ def getCurrentBackground():
 
 def setCurrentBackground(path):
     """Save the given path as the current background file"""
-    open(os.path.expanduser("~/.wasabi/current_background"), "w").write(os.path.abspath(path))
+    open(os.path.expanduser("~/.wasabi/current_background"), "w").write(os.path.abspath(path) + "\n")
 
 
 class BackgroundCache:
