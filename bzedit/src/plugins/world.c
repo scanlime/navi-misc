@@ -29,7 +29,6 @@ static void       world_get_property               (GObject *object, guint prop_
 static void       world_finalize                   (GObject *object);
 static void       world_init_params                (GObjectClass *object_class);
 static GdkPixbuf* world_get_icon                   (void);
-static gboolean   world_creatable                  (void);
 static GList*     world_get_drawables              (SceneObject *self);
 
 static void       ground_drawable_class_init       (GroundDrawableClass *klass);
@@ -90,7 +89,8 @@ world_class_init (WorldClass *klass)
   object_class->finalize = world_finalize;
 
   so_class->get_icon = world_get_icon;
-  so_class->creatable = world_creatable;
+  so_class->creatable = FALSE;
+  so_class->autocreate = TRUE;
   so_class->get_drawables = world_get_drawables;
 
   world_init_params (object_class);
@@ -215,9 +215,9 @@ world_init_params (GObjectClass *object_class)
   param_spec_set_increments       (spec, 1, 1, 1);
   g_object_class_install_property (object_class, PROP_X, spec);
 
-  spec = g_param_spec_double      ("height",
-                                   "Height",
-				   "Height of the world",
+  spec = g_param_spec_double      ("breadth",
+                                   "Breadth",
+				   "Breadth of the world",
 				   0, 1000, 400,
 				   G_PARAM_READWRITE | G_PARAM_CONSTRUCT |
 				   G_PARAM_LAX_VALIDATION | PARAM_IN_GUI);
@@ -253,12 +253,6 @@ world_get_icon (void)
   }
 
   return icon;
-}
-
-static gboolean
-world_creatable (void)
-{
-  return FALSE;
 }
 
 static GList*

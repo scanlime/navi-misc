@@ -45,12 +45,14 @@ struct _SceneObjectClass
 {
   ParameterHolderClass parent_class;
 
+  gboolean creatable;
+  gboolean autocreate;
+
   /* signal handlers */
   void       (*dirty)          (SceneObject *self);
 
   void       (*render)         (SceneObject *self, guint name);
   void       (*serialize)      (SceneObject *self, GIOChannel *out);
-  gboolean   (*creatable)      (void);
   GdkPixbuf* (*get_icon)       (void);
   GList*     (*get_drawables)  (SceneObject *self);
 };
