@@ -23,7 +23,7 @@ elsewhere, for example in IRC filters.
 #
 
 import Message, XML
-import re, os
+import re, os, textwrap
 
 
 class ColortextToIRC(Message.Formatter):
@@ -49,6 +49,9 @@ class CommitFormatter(Message.Formatter):
 
     # Subclasses can set this to limit the length of log messages, in lines
     logLinesLimit = None
+
+    # Lines in the log longer than this are wrapped to logWrapWidth
+    logWidthLimit = None
 
     def consolidateFiles(self, xmlFiles):
         """Given a <files> element, find the directory common to all files
@@ -139,7 +142,7 @@ class CommitFormatter(Message.Formatter):
             return self.format_default(prefix)
 
     def format_log(self, logString):
-        # Break the log string into lines...
+        # Break the log string into wrapped lines
         lines = []
         for line in logString.split("\n"):
             # Ignore blank lines
@@ -155,7 +158,7 @@ class CommitFormatter(Message.Formatter):
             lines.insert(0, '')
 
             # Truncate long log messages if we have a limit
-            if self.logLinesLimit and len(lines) > self.logLinesLimit:
+            if self.logLinesLimit and len(lines) > self.logLinesLimit + 1:
                 lines[0] = "(log message trimmed)"
                 del lines[self.logLinesLimit + 1:]
 
