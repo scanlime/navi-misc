@@ -35,6 +35,7 @@ static void colors_changed(GtkComboBox *combo_box, gpointer data) {
 		colors[17] = color_schemes[selection][3];
 		colors[18] = color_schemes[selection][1];
 		colors[19] = color_schemes[selection][0];
+		colors[23] = color_schemes[selection][4];
 		gtk_color_button_set_color(GTK_COLOR_BUTTON(color_buttons[0]), &colors[18]);
 		gtk_color_button_set_color(GTK_COLOR_BUTTON(color_buttons[1]), &colors[19]);
 		gtk_color_button_set_color(GTK_COLOR_BUTTON(color_buttons[2]), &colors[17]);
@@ -46,14 +47,18 @@ static void colors_changed(GtkComboBox *combo_box, gpointer data) {
 
 static void palette_changed(GtkComboBox *combo_box, gpointer data) {
 	GtkWidget **palette_buttons = (GtkWidget **) data;
-	int i;
+	int i, selection;
 
-	if(gtk_combo_box_get_active(combo_box) == 1) {
+	selection = gtk_combo_box_get_active(combo_box);
+	if(selection == 1) {
 		for(i = 0; i < 16; i++)
 			gtk_widget_set_sensitive(palette_buttons[i], TRUE);
 	} else {
-		for(i = 0; i < 16; i++)
+		for(i = 0; i < 16; i++) {
+			colors[i] = default_palette[i];
+			gtk_color_button_set_color(GTK_COLOR_BUTTON(palette_buttons[i]), &colors[i]);
 			gtk_widget_set_sensitive(palette_buttons[i], FALSE);
+		}
 	}
 }
 

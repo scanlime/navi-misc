@@ -21,6 +21,7 @@
 
 #include "textgui.h"
 #include "palette.h"
+#include "preferences.h"
 #include "../common/text.h"
 #include "../common/xchatc.h"
 
@@ -57,7 +58,7 @@ void text_gui_add_text_buffer(struct session *sess) {
 
 	tgui = malloc(sizeof(session_gui));
 	tgui->buffer = gtk_xtext_buffer_new(gui.xtext);
-	sess->gui = tgui;
+	sess->gui = (struct session_gui *) tgui;
 
 	gtk_xtext_buffer_show(gui.xtext, tgui->buffer, TRUE);
 	if(preferences_show_timestamp())
@@ -75,7 +76,7 @@ void text_gui_add_text_buffer(struct session *sess) {
 void text_gui_remove_text_buffer(struct session *sess) {
 	session_gui *tgui;
 
-	tgui = sess->gui;
+	tgui = (session_gui *) sess->gui;
 	gtk_xtext_buffer_free(tgui->buffer);
 	g_object_unref(tgui->topic_buffer);
 	g_object_unref(tgui->entry_buffer);
@@ -142,9 +143,9 @@ void set_nickname(struct server *serv, char *newnick) {
 	}
 }
 
-void set_gui_topic(struct session *sess, char *topic) {
+void set_gui_topic(session *sess, char *topic) {
 	if(sess == gui.current_session) {
-		session_gui *tgui = sess->gui;
+		session_gui *tgui = (session_gui *) sess->gui;
 		if(topic == NULL)
 			if(sess->topic == NULL)
 				gtk_text_buffer_set_text(tgui->topic_buffer, "", 0);

@@ -21,3 +21,4 @@
 
 extern GdkColor colors[];
 extern const GdkColor *color_schemes[];
+extern const GdkColor default_palette[];

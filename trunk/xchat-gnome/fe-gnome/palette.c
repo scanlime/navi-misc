@@ -60,6 +60,7 @@ const GdkColor colors_white_on_black[] = {
 	{0, 0x0000, 0x0000, 0x0000}, /* foreground (black) */
 	{0, 0xa4a4, 0xdfdf, 0xffff}, /* marktext back (blue) */
 	{0, 0x0000, 0x0000, 0x0000}, /* marktext fore (black) */
+	{0, 0x9999, 0x9999, 0x9999}, /* away user (grey) */
 };
 
 const GdkColor colors_black_on_white[] = {
@@ -67,6 +68,26 @@ const GdkColor colors_black_on_white[] = {
 	{0, 0xdf3c, 0xdf3c, 0xdf3c}, /* foreground (white) */
 	{0, 0xa4a4, 0xdfdf, 0xffff}, /* marktext back (blue) */
 	{0, 0xdf3c, 0xdf3c, 0xdf3c}, /* marktext fore (white) */
+	{0, 0x9999, 0x9999, 0x9999}, /* away user (grey) */
+};
+
+const GdkColor default_palette[] = {
+	{0, 0xcf3c, 0xcf3c, 0xcf3c}, /* 0  white */
+	{0, 0x0000, 0x0000, 0x0000}, /* 1  black */
+	{0, 0x0000, 0x0000, 0xcccc}, /* 2  blue */
+	{0, 0x0000, 0xcccc, 0x0000}, /* 3  green */
+	{0, 0xdddd, 0x0000, 0x0000}, /* 4  red */
+	{0, 0xaaaa, 0x0000, 0x0000}, /* 5  light red */
+	{0, 0xbbbb, 0x0000, 0xbbbb}, /* 6  purple */
+	{0, 0xffff, 0xaaaa, 0x0000}, /* 7  orange */
+	{0, 0xeeee, 0xdddd, 0x2222}, /* 8  yellow */
+	{0, 0x3333, 0xdede, 0x5555}, /* 9  green */
+	{0, 0x0000, 0xcccc, 0xcccc}, /* 10 aqua */
+	{0, 0x3333, 0xeeee, 0xffff}, /* 11 light aqua */
+	{0, 0x0000, 0x0000, 0xffff}, /* 12 blue */
+	{0, 0xeeee, 0x2222, 0xeeee}, /* 13 light purple */
+	{0, 0x7777, 0x7777, 0x7777}, /* 14 grey */
+	{0, 0x9999, 0x9999, 0x9999}, /* 15 light grey */
 };
 
 const GdkColor *color_schemes[] = {
