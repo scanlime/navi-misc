@@ -4,7 +4,7 @@ UMASK=033
 
 # Log all incoming messages
 :0 c
-$CIADIR/data/mail.log
+$CIADIR/mail.log
 
 
 ###### Addresses that aren't allowed to send to CIA
