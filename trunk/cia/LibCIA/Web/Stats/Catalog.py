@@ -33,7 +33,9 @@ import Link
 class TargetTitleColumn(Nouvelle.Column):
     """A Column displaying a target's title as a StatsLink. To avoid having to make
        a query for every row in the table, this looks for the title to use in the
-       indicated SQL query column number.
+       indicated SQL query column number. iconIndex should rever to the column
+       number with the metadata key to use for an icon, or None if the target has
+       no icon.
        """
     heading = 'title'
     def __init__(self, pathIndex, titleIndex):
@@ -143,6 +145,24 @@ class IndexedPercentColumn(RankIndexedColumn):
         return "%.03f" % (value / total * 100)
 
 
+class IndexedIconColumn(RankIndexedColumn):
+    """An IndexedColumn that, if its value is nonzero, renders an
+       icon from the named metadata key, thumbnailed to the given max size.
+       """
+    def __init__(self, iconIndex, pathIndex, size=(48,32), heading='icon'):
+        RankIndexedColumn.__init__(self, heading, iconIndex)
+        self.size = size
+        self.pathIndex = pathIndex
+
+    def render_data(self, context, row):
+        name = row[self.index]
+        if name:
+            target = Stats.Target.StatsTarget(row[self.pathIndex])
+            return Link.ThumbnailLink(target, name, self.size)
+        else:
+            return ()
+
+
 class TargetLastEventColumn(Nouvelle.IndexedColumn):
     """A Column displaying the amount of time since the last message was delivered to
        each target, given a column containing the last event timestamp.
@@ -181,6 +201,7 @@ class CatalogSection(Template.Section):
     SELECT
         T.target_path,
         M_TITLE.value,
+        M_PHOTO.name,
         C_TODAY.event_count,
         C_YESTERDAY.event_count,
         C_FOREVER.event_count,
@@ -189,6 +210,7 @@ class CatalogSection(Template.Section):
     FROM stats_catalog T
         LEFT OUTER JOIN stats_catalog  CHILD       ON (CHILD.parent_path = T.target_path)
         LEFT OUTER JOIN stats_metadata M_TITLE     ON (T.target_path = M_TITLE.target_path     AND M_TITLE.name     = 'title')
+        LEFT OUTER JOIN stats_metadata M_PHOTO     ON (T.target_path = M_PHOTO.target_path     AND M_PHOTO.name     = 'photo')
         LEFT OUTER JOIN stats_counters C_TODAY     ON (T.target_path = C_TODAY.target_path     AND C_TODAY.name     = 'today')
         LEFT OUTER JOIN stats_counters C_YESTERDAY ON (T.target_path = C_YESTERDAY.target_path AND C_YESTERDAY.name = 'yesterday')
         LEFT OUTER JOIN stats_counters C_FOREVER   ON (T.target_path = C_FOREVER.target_path   AND C_FOREVER.name   = 'forever')
@@ -196,6 +218,7 @@ class CatalogSection(Template.Section):
     GROUP BY
         T.target_path,
         M_TITLE.value,
+        M_PHOTO.name,
         C_TODAY.event_count,
         C_YESTERDAY.event_count,
         C_FOREVER.event_count,
@@ -203,13 +226,14 @@ class CatalogSection(Template.Section):
     """
 
     columns = [
+        IndexedIconColumn(iconIndex=2, pathIndex=0),
         TargetTitleColumn(pathIndex=0, titleIndex=1),
-        IndexedBargraphColumn('events today', 2),
-        IndexedBargraphColumn('events yesterday', 3),
-        IndexedBargraphColumn('total events', 4),
-        IndexedPercentColumn('% total', 4),
-        TargetLastEventColumn('last event', 5),
-        IndexedUnitColumn('contents', 6),
+        IndexedBargraphColumn('events today', 3),
+        IndexedBargraphColumn('events yesterday', 4),
+        IndexedBargraphColumn('total events', 5),
+        IndexedPercentColumn('% total', 6),
+        TargetLastEventColumn('last event', 6),
+        IndexedUnitColumn('contents', 7),
         ]
 
     def __init__(self, target):
@@ -228,7 +252,9 @@ class CatalogSection(Template.Section):
 
     def _render_rows(self, queryResults, context, result):
         if queryResults:
-            result.callback([Template.Table(list(queryResults), self.columns, id='catalog')])
+            result.callback([Template.Table(list(queryResults), self.columns,
+                                            id = 'catalog',
+                                            defaultSortColumnIndex = 1)])
         else:
             result.callback(None)
 
