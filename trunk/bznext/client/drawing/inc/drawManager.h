@@ -16,41 +16,57 @@
 
 #include "gameloop.h"
 #include "baseObject.h"
+#include <string>
+#include <map>
+#include <vector>
 
-class  CBZNextLoop
+class CBaseDrawable
 {
 public:
-  CBZNextLoop();
-  virtual ~CBZNextLoop();
+	CBaseDrawable(){return;}
+	CBaseDrawable( CBaseObject* pParent ){Set(pParent);}
+	virtual ~CBaseDrawable(){return;}
 
-  virtual bool OnInit ( void );
-  virtual bool OnKill( void );
+	virtual void Set ( CBaseObject* pParent ) = 0;
 
-  virtual bool OnActivate ( void );
-  virtual bool OnDeactivate ( void );
+	// name stuff
+	void SetName ( const char* name ){className = name;}
+	const char* GetName ( void ){return className.c_str();}
+protected:
+	CBaseObject*	parent;
+	std::string		className;
+};
 
-  virtual bool GameLoop ( void );
-  virtual void OnFrameEnd ( void );
+class CBaseDrawableFactory
+{
+public:
+	CBaseDrawableFactory(){return;}
+	virtual ~CBaseDrawableFactory(){return;}
 
-	virtual const char* GetWindowName ( void );
-	virtual SceneType GetSceneType ( void );
-  virtual const char* GetCameraName ( void );
-  virtual const char* GetRootResDir ( void );
-	virtual const char* GetPrefsName ( void );
+	virtual CBaseDrawable* New ( CBaseObject* parent ) = 0;
+	virtual void Delete ( CBaseDrawable* object ) = 0;
+};
 
-	virtual const char* GetGameName ( void );
+class  CDrawManager
+{
+public:
+  CDrawManager();
+  ~CDrawManager();
+
+	void Init ( CBaseGameLoop * pGameLoop );
+	void Register ( CBaseDrawableFactory* factory, const char* name );
+	
+	int New ( const char* name, CBaseObject* parent );
+	bool Delete ( int item );
 
 protected:
-	// global flags
-	bool				inUI;
-	int					numScreenShots;
-	float				lastScreenShotTime;
+	typedef std::map<std::string,CBaseDrawableFactory*> factoryMap;
+	factoryMap	factories;
+	typedef std::map<int,CBaseDrawable*> drawableMap;
+	drawableMap	drawables;
 
-	// game manager
-	CGameManger			game;
-
-	// UI core
-	CUserInterface	ui;
+	CBaseGameLoop		*gameLoop;
+	int							lastID;
 };
 
 #endif //_DRAW_MANAGER_H_
