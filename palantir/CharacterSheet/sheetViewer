@@ -13,25 +13,37 @@ import sys, gtk, gtk.glade
 from GTKsheet import GTKsheet
 from Character import Character
 
-def init():
+def init(filename=None):
   ''' Initialize the window and stuff using glade. '''
   # Create the window from the XML file.
   global tree
   tree = gtk.glade.XML('sheetviewer.glade')
   tree.OpenSheetDialog = tree.get_widget('OpenSheetDialog')
   tree.ViewPort = tree.get_widget('SheetViewPort')
-  tree.sheet = None
+  # Create the window with a sheet already loaded.
+  if filename:
+    tree.sheet = GTKsheet(Character(filename))
+    tree.ViewPort.add(tree.sheet.root)
+    tree.sheet.root.show()
+  # Create the window without a sheet.
+  else:
+    tree.sheet = None
 
   for func in globals().iterkeys():
     if func.startswith('on_'):
       tree.signal_connect(func, globals()[func])
 
 def OpenSheet(filename):
+  ''' Open a new character sheet. '''
   if tree.sheet:
     tree.ViewPort.remove(tree.sheet.root)
 
-  characterData = Character(filename)
-  tree.sheet = GTKsheet(characterData)
+  if tree.characterData:
+    tree.characterData.setNodeAttr('/character', {'layout':filename})
+  else:
+    tree.characterData = Character(filename)
+
+  tree.sheet = GTKsheet(tree.characterData)
   tree.ViewPort.add(tree.sheet.root)
   tree.sheet.root.show()
 
@@ -43,20 +55,29 @@ def on_quit_activate(widget=None, data=None):
   gtk.main_quit()
 
 def on_New_activate(widget, data=None):
-  print 'Not implemented.'
+  tree.characterData = Character()
+  tree.characterData.makeNewDoc()
+  tree.OpenSheetDialog.set_filename('layout/')
+  tree.OpenSheetDialog.show()
 
 def on_Open_activate(widget, data=None):
+  tree.characterData = None
   tree.OpenSheetDialog.set_filename('data/')
   tree.OpenSheetDialog.show()
 
 def on_cancel_button_clicked(widget, data=None):
   tree.OpenSheetDialog.hide()
+  tree.OpenSheetDialog.set_filename('..')
 
 def on_ok_button_clicked(widget, data=None):
   OpenSheet(tree.OpenSheetDialog.get_filename())
   tree.OpenSheetDialog.hide()
+  tree.OpenSheetDialog.set_filename('..')
 
 
 if __name__ == '__main__':
-  init()
+  if len(sys.argv) > 1:
+    init(sys.argv[1])
+  else:
+    init()
   gtk.main()

@@ -11,7 +11,7 @@ import xml.dom.minidom, xml.xpath, string
 
 class Character:
   """ Holds a dom of the character data. """
-  def __init__(self, filename):
+  def __init__(self, filename=None):
     if filename:
       self.readCharacter(filename)
 
@@ -40,6 +40,10 @@ class Character:
 
     return ""
 
+  def makeNewDoc(self):
+    ''' Create a new DOM for character data. '''
+    self.dom = xml.dom.minidom.getDOMImplementation().createDocument(None, 'character', None)
+
   def makeNode(self, path):
     ''' Create the node at path. '''
     # Path to parent.
@@ -51,6 +55,12 @@ class Character:
     parent = xml.xpath.Evaluate(parentPath, self.dom)[0]
     parent.appendChild(node)
     parent.appendChild(self.dom.createTextNode('\n'))
+
+  def setNodeAttr(self, path, attr):
+    ''' Set the attribute(s) of the node at 'path' according to the dictionary 'attr'. '''
+    node = xml.xpath.Evaluate(path, self.dom)[0]
+    for key in attr.iterkeys():
+      node.setAttribute(key, attr[key])
 
   def setData(self, path, data):
     ''' Set the data at the node denoted by path. '''
