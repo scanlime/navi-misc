@@ -95,7 +95,7 @@ class CommitFormatter(Message.ModularFormatter):
            list of filenames after that prefix.
            """
         files = XML.dig(args.message.xml, "message", "body", "commit", "files")
-        if not files:
+        if not (files and XML.hasChildElements(files)):
             return []
 
         prefix, endings = self.consolidateFiles(files)
@@ -401,8 +401,17 @@ class CommitToXHTMLLong(CommitToXHTML):
        suitable for a full page rather than just an item in a listing.
        """
     medium = 'xhtml-long'
+    defaultComponentTree = """
+    <format>
+        <n:h1>Commit Message</n:h1>
+        <headers/>
+        <n:p class='messageBody'><log/></n:p>
+        <autoHide><n:h1>Modified Files</n:h1><files/></autoHide>
+    </format>
+    """
 
-    def format(self, args):
+    def component_headers(self, element, args):
+        """Format all relevant commit metadata in an email-style header box"""
         from LibCIA.Web import Template
 
         message   = args.message
@@ -436,23 +445,15 @@ class CommitToXHTMLLong(CommitToXHTML):
         if url:
             headers['URL'] = tag('a', href=XML.shallowText(url))[ Util.extractSummary(url) ]
 
-        content = [
-            tag('h1')[ "Commit Message" ],
-            Template.MessageHeaders(headers),
-            tag('p', _class="messageBody")[ self.format_log(log) ],
-            ]
+        return [Template.MessageHeaders(headers)]
 
-        files = XML.dig(message.xml, "message", "body", "commit", "files")
-        if files and XML.hasChildElements(files):
-            content.extend([
-                tag('h1')[ "Modified Files" ],
-                self.format_files(files),
-                ])
-        return content
-
-    def format_files(self, xmlFiles):
+    def component_files(self, element, args):
         """Format the contents of our <files> tag as a tree with nested lists"""
         from LibCIA.Web import Template
+
+        files = XML.dig(args.message.xml, "message", "body", "commit", "files")
+        if not (files and XML.hasChildElements(files)):
+            return []
 
         # First we organize the files into a tree of nested dictionaries.
         # The dictionary we ultimately have FileTree render maps each node
@@ -474,7 +475,7 @@ class CommitToXHTMLLong(CommitToXHTML):
                     # The leaf node owns this fileTag
                     node[0] = fileTag
 
-        return Template.FileTree(self.format_file_tree(fileTree))
+        return [Template.FileTree(self.format_file_tree(fileTree))]
 
     def format_file_tree(self, fileTree):
         """This is the second half of format_files- it recursively
@@ -493,12 +494,12 @@ class CommitToXHTMLLong(CommitToXHTML):
            return a Nouvelle-serializable representation.
            """
         if fileTag:
-            
+
             # If we have a 'uri' attribute, make this file a hyperlink
             uri = fileTag.getAttributeNS(None, 'uri')
             if uri:
                 return tag('a', href=uri)[ name ]
-              
+
         return name
 
 ### The End ###
