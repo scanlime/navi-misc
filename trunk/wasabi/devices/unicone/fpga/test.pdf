@@ -10,7 +10,7 @@ top_level=VHDL
 HDL netlist format=Auto
 generics=MAX
 sim_mode=FUNC
-lib_order=133 133 155
+lib_order=155 155 155 155 133 155
 [libraries]
 133=c:\fndtn\active\syslib\simprims
 155=c:\fndtn\active\syslib\xc4000x
@@ -19,7 +19,17 @@ oid=0
 lid=0
 format=19
 source=c:\unicone\fpga\test\test.v
-server_hwnd=1442230
+server_hwnd=655922
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -63,7 +73,7 @@ test.v=21
 [hdl_sheets]
 test.v= 
 [OpenDoc]
-hde/test=393574,1,22,22,982,751,test.v
+hde/test=5111998,1,154,154,1114,883,test.v
 [OPEN32]
 nMaxFile=10000
 lpstrFile=
@@ -94,13 +104,13 @@ Models Stabilization=On
 Pulse Global Reset Net Enabled=On
 Pulse Global Reset Net=1000
 [implement_HDL]
-functional=ver1
-optimized=ver1-Optimized
-design=test,c:\unicone\fpga\test\test.v
 family=2
 xfam=XC4000XL
 part=4010XLPC84-09
 xilinx=4010XLPC84-09
+functional=ver1
+optimized=ver1-Optimized
+design=test,c:\unicone\fpga\test\test.v
 [xilinx]
 family=2
 xfam=XC4000XL
@@ -108,3 +118,10 @@ xact9=On
 [device]
 part=4010XLPC84-09
 xilinx=4010XLPC84-09
+[timings]
+test=
+[designs]
+foo=
+[implement_XIE]
+version=ver1
+revision=rev1

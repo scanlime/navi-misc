@@ -26,25 +26,85 @@ module pwm16 (clk, duty_cycle, out);
 			pwmreg <= 0;
 
 	always @(posedge clk)
-		out <= ( {1'b0, duty_cycle} < pwmreg );		
+		out <= ( {1'b0, duty_cycle} >= pwmreg );		
 endmodule	
 
 // A state machine implementing a simple I2C slave, that responds
-// to one address and stores writes to an output register.
+// to one address and stores writes to a 16-bit register.
 module i2c_slave (clk, scl, sda, out);
-	parameter OUT_BYTES   = 2;
 	parameter I2C_ADDRESS = 7'h42; 
 
 	input clk;
 	input scl;
 	inout sda;
-	output [OUT_BYTES*8-1:0] out;
+	output [15:0] out;
+	reg [15:0] out;
+	reg [15:0] out_buffer;
 
-	reg [OUT_BYTES*8-1:0] out;
-	reg [(OUT_BYTES+1)*8-1:0] shifter;	// Space for output plus our address
-	reg [3:0] bit_count;			// The bit within one byte. 8==ACK
-	reg [1:0] byte_count;
+	wire start, stop, wr;
+	wire [7:0] write_data;
+	i2c_slave_serializer i2cs(clk, scl, sda, start, stop, write_data, wr);
+	
+	reg [2:0] state;
+	parameter
+		S_IDLE = 0,
+		S_STARTED = 1,
+		S_ADDRESSED = 2,
+		S_HAVE_HBYTE = 3,
+		S_HAVE_LBYTE = 4;
 
+	always @(posedge clk) case (state)
+	
+		S_IDLE: begin
+			// Wait for a start condition
+			if (start)
+				state <= S_STARTED;
+		end
+		
+		S_STARTED: begin
+			// Wait for an address byte
+			if (start)
+				state <= S_STARTED;
+			else if (wr) begin
+				// Is this our address?
+				if (write_data == I2C_ADDRESS)
+					state <= S_ADDRESSED;
+				else
+					state <= S_IDLE;
+			end
+		end
+		
+		S_ADDRESSED: begin
+			// We've been addressed, wait for the high byte
+			if (start)
+				state <= S_STARTED;
+			else if (wr) begin
+				out_buffer[15:8] <= write_data;
+				state <= S_HAVE_HBYTE;
+			end
+		end
+		
+		S_HAVE_HBYTE: begin
+			// We have the high byte, wait for the low byte
+			if (start)
+				state <= S_STARTED;
+			else if (wr) begin
+				out_buffer[7:0] <= write_data;
+				state <= S_HAVE_LBYTE;
+			end
+		end
+		
+		S_HAVE_LBYTE: begin
+			// We have everything. If we get a stop condition, latch it all
+			if (start)
+				state <= S_STARTED;
+			else if (stop) begin
+				out <= out_buffer;
+				state <= S_IDLE;
+			end
+		end
+
+	endcase
 endmodule
 
 // Convert I2C to a parallel protocol consisting of strobed 8-bit bytes,
