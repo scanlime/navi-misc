@@ -113,6 +113,10 @@ static void update_color_table() {
     luma = count * pixel_scale;
     luma = pow(luma, 1/render.gamma);
 
+    /* Optionally clamp before interpolating */
+    if (render.clamped && luma > 1)
+      luma = 1;
+
     /* Linearly interpolate between fgcolor and bgcolor */
     r = ((int)(render.bgcolor.red   * (1-luma) + render.fgcolor.red   * luma)) >> 8;
     g = ((int)(render.bgcolor.green * (1-luma) + render.fgcolor.green * luma)) >> 8;

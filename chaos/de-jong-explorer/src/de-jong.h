@@ -49,6 +49,7 @@ struct render_params {
 
   double exposure, gamma;
   GdkColor fgcolor, bgcolor;
+  gboolean clamped;
 
   gboolean dirty_flag;
 };
