@@ -22,13 +22,14 @@ class CRobotPlayer;
 
 typedef struct 
 {
-	bool					player;
+	bool							player;
 	std::string				name;
 	std::string				material;
+	std::string				mesh;
 	CNetworkPeer			*peer;
-	float					pos[3];
-	float					rot[3];
-	float					vec[3];
+	float							pos[3];
+	float							rot[3];
+	float							vec[3];
 	CRobotPlayer			*bot;
 }trPlayerInfo;
 

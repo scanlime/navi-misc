@@ -51,6 +51,7 @@ public:
 	float				rot[3];
 	float				vec[3];	
 	std::string	material;
+	std::string mesh;
 
 	float				updateTime;
 protected:

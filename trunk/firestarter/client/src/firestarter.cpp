@@ -48,6 +48,9 @@ void CFirestarterLoop::verifyDefaults ( void )
 	if (!prefs.ItemExists("PlayerName"))
 		prefs.SetItem("PlayerName","velvetpants");
 
+	if (!prefs.ItemExists("PlayerMesh"))
+		prefs.SetItem("PlayerMesh","mk3.mesh");
+
 	prefs.Update();
 }
 

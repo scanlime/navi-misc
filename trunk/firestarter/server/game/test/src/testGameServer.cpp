@@ -74,6 +74,7 @@ void CTestGameServer::sendClientInfo ( int playerID )
 	message.AddI(playerID);
 	message.AddStr(itr->second.name.c_str());
 	message.AddStr(itr->second.material.c_str());
+	message.AddStr(itr->second.mesh.c_str());
 	message.AddV(itr->second.pos);
 	message.AddV(itr->second.rot);
 	message.AddV(itr->second.vec);
@@ -135,6 +136,7 @@ bool CTestGameServer::message ( int playerID, CNetworkPeer &peer, CNetworkMessag
 			itr->second.player = true;
 			itr->second.name = message.ReadStr();
 			itr->second.material = message.ReadStr();
+			itr->second.mesh = message.ReadStr();
 			sendClientInfo(playerID);
 			break;
 
@@ -239,8 +241,9 @@ bool CTestGameServer::add ( int playerID, CNetworkPeer &peer )
 			message.SetType(_MESSAGE_CLIENT_INFO);	
 			message.AddI(itr->first);
 			message.AddStr(itr->second.name.c_str());
-			message.AddStr(itr->second.material.c_str());	// throw in the last pos too
-			message.AddV(itr->second.pos);
+			message.AddStr(itr->second.material.c_str());
+			message.AddStr(itr->second.mesh.c_str());	
+			message.AddV(itr->second.pos);// throw in the last pos too
 			message.AddV(itr->second.rot);
 			message.AddV(itr->second.vec);
 			message.Send(peer,true);
@@ -421,7 +424,8 @@ void CRobotPlayer::init ( const char* name, const char* config, trPlayerInfo *in
 	if (playerInfo)
 	{
 		playerInfo->name = name;
-		playerInfo->material = "RedkMK3";
+		playerInfo->material = "ht8_red";
+		playerInfo->mesh = "ht8.mesh";
 	}
 	lastUpdateTime = (float)CTimer::instance().GetTime();
 }

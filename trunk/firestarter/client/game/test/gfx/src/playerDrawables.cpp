@@ -52,9 +52,20 @@ void CPlayerDrawObject::Init ( void )
 {
 	char	temp[512];
 
-	Entity* mShip1 = CFirestarterLoop::instance().GetSceneManager()->createEntity(parent->GetValueS("name"), parent->GetValueS("mesh"));
+	std::string	mesh = parent->GetValueS("mesh");
+	if (!mesh.size())
+		mesh = "MK3.mesh";
+
+	std::string name = parent->GetValueS("name");
+
+	Entity* mShip1 = CFirestarterLoop::instance().GetSceneManager()->createEntity(name.c_str(), mesh.c_str());
 	parent->GetMaterial(NULL,temp);
-	mShip1->getMesh()->getSubMeshIterator().getNext()->setMaterialName(temp);
+	Mesh::SubMeshIterator	&itr = mShip1->getMesh()->getSubMeshIterator();
+	while (itr.hasMoreElements())
+	{
+		SubMesh *sub = itr.getNext();
+		sub->setMaterialName(temp);
+	}
 
 	vis = false;
 	if (node)

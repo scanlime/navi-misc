@@ -5,10 +5,12 @@ material ht8_default
 	{
 		pass
 		{
+			lighting on
+			depth_write on
 
 			texture_unit
 			{
-				texture HT-08-MT.JPG
+				texture ht-08-mt.jpg
 			}
 		}
 	}
@@ -20,25 +22,23 @@ material ht8_red
 	{
 		pass
 		{
+			lighting off
+			depth_write off
 
 			texture_unit
 			{
-				texture ht-08-mt-Red.jpg
+				env_map cubic_reflection 
+				cubic_texture grassland.tga combinedUVW
 			}
-		}
-	}
-}
 
-material ht8_blue
-{
-	technique
-	{
-		pass
-		{
+			lighting on
+			depth_write on
 
 			texture_unit
 			{
-				texture ht-08-mt-blue.jpg
+				env_map off
+				colour_op alpha_blend 
+				texture ht-08-mt-red.png
 			}
 		}
 	}
