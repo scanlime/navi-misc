@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-import GTKpalantir, gtk
+import GtkPalantir, gtk
 
 if __name__ == '__main__':
-  window = GTKpalantir.PalantirWindow()
+  window = GtkPalantir.PalantirWindow()
   gtk.main()
