@@ -18,7 +18,7 @@ class SelfTest(RcpodTestCase):
        """
 
     def testPokePeek(self):
-        """poke and peek work on 1 byte, using the scratchpad"""
+        """verify that poke and peek work on 1 byte, using the scratchpad"""
         address = 'scratchpad'
         for byte in testBytes:
             self.rcpod.poke(address, byte)
