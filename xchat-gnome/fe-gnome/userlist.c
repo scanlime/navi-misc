@@ -103,8 +103,8 @@ static GtkTreeIter *find_row(GtkTreeView *view, GtkTreeModel *model, struct User
 				if(gtk_tree_view_get_model(view) == model) {
 					if(gtk_tree_selection_iter_is_selected(gtk_tree_view_get_selection(view), &iter))
 						*selected = TRUE;
-					return &iter;
 				}
+				return &iter;
 			}
 		} while(gtk_tree_model_iter_next(model, &iter));
 	}
@@ -128,6 +128,24 @@ gboolean userlist_remove(session *sess, struct User *user) {
 
 	gtk_list_store_remove(GTK_LIST_STORE(model), iter);
 	return sel;
+}
+
+void userlist_change(session *sess, struct User *user) {
+	GtkTreeIter *iter;
+	GtkWidget *userlist_view;
+	GtkTreeModel *model;
+	int sel;
+	session_gui *s;
+
+	userlist_view = glade_xml_get_widget(gui.xml, "userlist");
+	s = sess->gui;
+	model = s->userlist_model;
+
+	iter = find_row(GTK_TREE_VIEW(userlist_view), model, user, &sel);
+	if(!iter)
+		return;
+	
+	gtk_list_store_set(GTK_LIST_STORE(model), iter, 2, user->nick, 3, user, -1);
 }
 
 void userlist_display(session_gui *sess) {
