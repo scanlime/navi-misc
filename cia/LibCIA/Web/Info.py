@@ -157,7 +157,7 @@ class System(Template.Section):
 class Page(Template.Page):
     """A web page showing information about the server"""
     mainTitle = 'Server Info'
-    subTitle = 'so that everyone needs to hang on tigher just to keep from being thrown to the wolves'
+    subTitle = 'so that everyone needs to hang on tighter just to keep from being thrown to the wolves'
 
     leftColumn = [
         Version(),
