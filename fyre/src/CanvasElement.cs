@@ -19,6 +19,8 @@
  *
  */
 
+using System.Drawing;
+
 namespace Fyre
 {
 
@@ -47,6 +49,10 @@ namespace Fyre
 
 	public class CanvasElement
 	{
+		// width and height are maintained by the internal layout system.
+		// X & Y are maintained by the drawing. we'll probably want get/set
+		// operators on this to trigger redraws, etc
+		public Rectangle position;
 	}
 
 }
