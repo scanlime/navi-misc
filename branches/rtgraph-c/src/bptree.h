@@ -51,7 +51,7 @@ struct _RtgBPTree {
     /* Offsets and lengths within our index nodes */
     struct {
 	int parent_offset;  /* parent index node address */
-	int count_offset;   /* current number of keys */
+	int count_offset;   /* current number of children (one greater than the number of keys) */
 	int keys_offset;
 	int keys_count;
 	int child_offset;
@@ -89,7 +89,7 @@ struct _RtgBPIter {
 };
 
 /* The function called by rtg_bptree_foreach */
-typedef int (*RtgBPTreeCallback)(gpointer key, gpointer value, gpointer user_data);
+typedef gboolean (*RtgBPTreeCallback)(gconstpointer key, gpointer value, gpointer user_data);
 
 
 /************************************************************************************/
@@ -141,15 +141,15 @@ void              rtg_bptree_foreach             (RtgBPTree*        self,
  * If 'iter' is non-NULL, it will be positioned at the new node very quickly.
  */
 void              rtg_bptree_insert              (RtgBPTree*        self,
-						  gpointer          key,
-						  gpointer          value,
+						  gconstpointer     key,
+						  gconstpointer     value,
 						  RtgBPIter*        iter);
 
 /* Position an iterator at the first occurrance of a key exactly equal
  * to the given one.
  */
 void              rtg_bptree_find                (RtgBPTree*        self,
-						  gpointer          key,
+						  gconstpointer     key,
 						  RtgBPIter*        iter);
 
 /* Position one iterator to the nearest item less than the given key,
@@ -158,7 +158,7 @@ void              rtg_bptree_find                (RtgBPTree*        self,
  * in the tree, both returned iterators will point to an instance of it.
  */
 void              rtg_bptree_find_nearest        (RtgBPTree*        self,
-						  gpointer          key,
+						  gconstpointer     key,
 						  RtgBPIter*        less,
 						  RtgBPIter*        greater);
 
@@ -180,7 +180,7 @@ void              rtg_bptree_next                (RtgBPTree*        self,
  * if the tree is modified or if any allocations are performed in
  * the same RtgPageStorage.
  */
-gpointer          rtg_bptree_read_key            (RtgBPTree*        self,
+gconstpointer     rtg_bptree_read_key            (RtgBPTree*        self,
 						  RtgBPIter*        iter);
 gpointer          rtg_bptree_read_value          (RtgBPTree*        self,
 						  RtgBPIter*        iter);
