@@ -30,6 +30,9 @@ libecalbackendweather_la_LIBADD =	\
 	$(top_builddir)/calendar/libedata-cal/libedata-cal-1.2.la	\
 	$(SOUP_LIBS)
 
+libecalbackendweather_la_LDFLAGS =	\
+	-avoid-version
+
 weatherdata_in_files = Locations.xml.in
 weatherdata_DATA = $(weatherdata_in_files:.xml.in=.xml)
 # FIXME - should probably do some sort of intltool merge here
