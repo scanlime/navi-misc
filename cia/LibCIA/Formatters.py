@@ -391,8 +391,7 @@ class ColortextTitle(Message.Formatter):
 
 class ColortextToXHTML(Message.Formatter):
     """Converts messages with colorText content to XHTML (using Nouvelle)
-       with colors represented by CSS 'class' attributes on <span> tags,
-       and with bold and underline converted to <b> and <u> tags.
+       with inline CSS representing the colorText formatting.
        Returns an object that can be serialized into XHTML by a Nouvelle.Serializer.
        """
     detector = Message.Filter('<find path="/message/body/colorText"/>')
@@ -414,7 +413,9 @@ class ColortextToXHTML(Message.Formatter):
             return Nouvelle.tag('b')[ self.element_colorText(element) ]
 
         def element_u(self, element):
-            return Nouvelle.tag('u')[ self.element_colorText(element) ]
+            # We can't use <u> here, it's been deprecated and XHTML
+            # strict can't contain it. Just use some inline CSS instead.
+            return Nouvelle.tag('span', style="text-decoration: underline;")[ self.element_colorText(element) ]
 
         def element_br(self, element):
             return Nouvelle.tag('br')
