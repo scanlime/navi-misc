@@ -53,7 +53,12 @@ class TwistedSerializer(Nouvelle.Serializer):
         """A Deferred callback that renders data when it becomes available, adding the
            result to our 'result' deferred.
            """
-        result.callback(self.render(obj, context))
+	r = self.render(obj, context)
+	# If the render result was a deferred, chain it to our result
+	if isinstance(r, defer.Deferred):
+	    r.addCallback(result.callback).addErrback(result.errback)
+	else:
+            result.callback(r)
         return obj
 
     def render_list(self, obj, context):
