@@ -8,7 +8,7 @@
 #define VERSION "0.2"
 #define MAXURLS 10
 
-#define URLREGEX "(ht|f)tps?://[^a-zA-z0-9]+"
+#define URLREGEX "(ht|f)tps?://[^a-zA-z0-9\\.]+"
 #define EMAILREGEX "[\\w\\.\\-\\+]+@([0-9a-z\\-]+\\.)+[a-z]+"
 
 static xchat_plugin *ph;	// Plugin handle.
@@ -72,7 +72,7 @@ static int grabURL (char **word, void *userdata)
 	size_t len = 1;
 	regmatch_t *match = malloc (len * sizeof (regmatch_t));
 
-	if (regexec(url, word[4], len, match, REG_NOTBOL | REG_NOTEOL) == 0)
+	if (regexec(url, word[4], len, match, 0) == 0)
 	{
 		chan = xchat_get_info (ph, "channel");
 		xchat_print (ph, "URL found.\n");
@@ -87,8 +87,8 @@ static int grabURL (char **word, void *userdata)
 			urls++;
 		}
 
-		gtk_list_store_append (list_store, &iter);
-		gtk_list_store_set (list_store, &iter, 0, word[3], 1, chan, 2, match, -1);
+		//gtk_list_store_append (list_store, &iter);
+		//gtk_list_store_set (list_store, &iter, 0, word[3], 1, chan, 2, match, -1);
 	}
 
 	return XCHAT_EAT_NONE;
@@ -109,7 +109,7 @@ int xchat_plugin_init (xchat_plugin *plugin_handle,
 	//regcomp (&email, EMAILREGEX, REG_ICASE);
 
 	url = malloc (sizeof (regex_t));
-	if (regcomp (url, URLREGEX, REG_EXTENDED | REG_ICASE))
+	if (regcomp (url, URLREGEX, 0))
 	{
 		xchat_print (ph, "URL Scraper failed to load: couldn't compile URL regex.\n");
 		return 0;
