@@ -73,7 +73,6 @@ class SceneRenderer {
     int			getMaxMotionFactor() const;
     bool		isLastFrame() const;
     bool		isSameFrame() const;
-    ViewType		getViewType() const;
 
     void		setZBuffer(bool on);
     void		setZBufferSplit(bool on);
@@ -85,7 +84,6 @@ class SceneRenderer {
     void		setRadarSize(int size);
     void		setMaxMotionFactor(int size);
     void		setDim(bool on);
-    void		setViewType(ViewType);
 
     void		setExposed();
 
@@ -168,7 +166,6 @@ class SceneRenderer {
     int			maxMotionFactor;
     bool		useFogHack;
     bool		useStencilOn;
-    ViewType		viewType;
     RenderNodeList	shadowList;
     RenderNodeGStateList orderedList;
     bool		inOrder;

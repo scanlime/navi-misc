@@ -433,6 +433,9 @@ void			SceneDatabaseBuilder::addBase(SceneDatabase *db,
 void			SceneDatabaseBuilder::addTeleporter(SceneDatabase* db,
 						const Teleporter& o)
 {
+	// it's handled buy the visual element manager
+	return;
+
   // this assumes teleporters have fourteen parts:  12 border sides, 2 faces
   int part = 0;
   WallSceneNode* node;

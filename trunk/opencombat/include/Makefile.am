@@ -1,4 +1,5 @@
 noinst_HEADERS =		\
+	3DView.h	\
 	3DOptionsManager.h	\
 	Address.h		\
 	AdnsHandler.h		\

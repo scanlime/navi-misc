@@ -54,15 +54,15 @@ void DrawablesManager::add (BaseDrawable* item, int texture, int pass,
   if (pIt == list.end())
   {
     drawablesTextureList  tList;
-    list[priority] = tList;
-    pIt = list.find(priority);
+    list[pass] = tList;
+    pIt = list.find(pass);
   }
   drawablesTextureList::iterator tIt = pIt->second.find(texture);
   if (tIt == pIt->second.end())
   {
     drawablesPriortiyList  oList;
     pIt->second[texture] = oList;
-    tIt = pIt->second.find(priority);
+    tIt = pIt->second.find(texture);
   }
   drawablesPriortiyList::iterator oIt = tIt->second.find(priority);
   if (oIt == tIt->second.end())
