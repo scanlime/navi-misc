@@ -105,29 +105,35 @@ class Reader:
             link = Group(CaselessLiteral('link') + OneOrMore(linkProperty) + end)
 
             # FIXME - add material to this object
+            curveProperty =                               \
+                Group(CaselessLiteral('divisions') + int) \
+              | phydrv                                    \
+              | smoothbounce                              \
+              | flatshading
+
             arcProperty =                                                         \
-                Group(CaselessLiteral('divisions') + int)                         \
+                Group(CaselessLiteral('ratio') + float)                           \
               | Group(CaselessLiteral('angle') + float)                           \
-              | Group(CaselessLiteral('ratio') + float)                           \
               | Group(CaselessLiteral('texsize') + float + float + float + float) \
-              | phydrv                                                            \
-              | smoothbounce                                                      \
-              | flatshading                                                       \
+              | curveProperty                                                     \
               | obstacleProperty
             arc = Group(CaselessLiteral('arc') + OneOrMore(arcProperty) + end)
 
-            # FIXME - add material to this object
             hemisphere = CaselessLiteral('hemisphere') | CaselessLiteral('hemi')
             sphereProperty =                                      \
-                Group(CaselessLiteral('divisions') + int)         \
-              | Group(CaselessLiteral('radius') + float)          \
+                Group(CaselessLiteral('radius') + float)          \
               | hemisphere                                        \
               | Group(CaselessLiteral('texsize') + float + float) \
-              | phydrv                                            \
-              | smoothbounce                                      \
-              | flatshading                                       \
+              | curveProperty                                     \
               | obstacleProperty
             sphere = Group(CaselessLiteral('sphere') + OneOrMore(sphereProperty) + end)
+
+            coneProperty =                                        \
+                Group(CaselessLiteral('angle') + float)           \
+              | Group(CaselessLiteral('texsize') + float + float) \
+              | curveProperty                                     \
+              | obstacleProperty
+            cone = Group(CaselessLiteral('cone') + OneOrMore(coneProperty) + end)
 
             # FIXME - add material to this object
             tetraProperty =                              \
@@ -173,6 +179,7 @@ class Reader:
                 arc        \
               | box        \
               | base       \
+              | cone       \
               | link       \
               | physics    \
               | pyramid    \
