@@ -110,6 +110,7 @@ int main(int argc, char ** argv) {
 	    {"hidden",       0, NULL, 1001},
 	    {"chdir",        1, NULL, 1002},   /* Undocumented, used by win32 file associations */
 	    {"pidfile",      1, NULL, 1003},
+	    {"version",      0, NULL, 1004},
 	    {NULL},
 	};
 	c = getopt_long(argc, argv, "hi:n:o:p:s:S:q:rvP:c:C",
@@ -200,6 +201,10 @@ int main(int argc, char ** argv) {
 	case 1003: /* --pidfile */
 	    pidfile = optarg;
 	    break;
+
+	case 1004: /* --version */
+	    printf("%s\n", VERSION);
+	    return 0;
 
 	case 'h':
 	default:
@@ -313,6 +318,8 @@ static void usage(char **argv) {
 	    "  -o, --output FILE       Instead of presenting an interactive GUI, render\n"
 	    "                            an image or animation with the provided settings\n"
 	    "                            noninteractively, and store it in FILE.\n"
+	    "  -h, --help              Display this text.\n"
+	    "  --version               Show the version number and exit.\n"
 	    "\n"
 	    "Clustering:\n"
 	    "  -c LIST, --cluster LIST Use a rendering cluster, given as a comma-separated\n"
