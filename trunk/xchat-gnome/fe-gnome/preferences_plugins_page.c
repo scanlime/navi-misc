@@ -201,3 +201,4 @@ xchat_gnome_plugin_add (char *filename)
 {
 	/* FIXME: Look, Ma!! No code!!! */
 }
+
