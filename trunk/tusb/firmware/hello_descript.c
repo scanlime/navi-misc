@@ -51,7 +51,7 @@ const static struct {
     /* bDescriptorType     */  USB_DT_ENDPOINT,
     /* bEndpointAddress    */  1 | USB_DIR_OUT,
     /* bmAttributes        */  USB_ENDPOINT_XFER_BULK,
-    /* wMaxPacketSize      */  4,
+    /* wMaxPacketSize      */  1,
     /* bInterval           */  0,
   },
 };
