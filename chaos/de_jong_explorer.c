@@ -295,5 +295,7 @@ void saveclick(GtkWidget *widget, gpointer user_data) {
   }
   g_object_unref(filter);
   gtk_widget_destroy(dialog);
+#else
+#warning "If you got gtk 2.3, you'd be able to save images"
 #endif
 }
