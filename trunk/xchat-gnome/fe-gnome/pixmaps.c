@@ -34,6 +34,11 @@ GdkPixbuf *pix_newdata;
 GdkPixbuf *pix_nicksaid;
 GdkPixbuf *pix_msgsaid;
 
+GdkPixbuf *pix_prefs_irc;
+GdkPixbuf *pix_prefs_dcc;
+GdkPixbuf *pix_prefs_networks;
+GdkPixbuf *pix_prefs_plugins;
+
 void
 pixmaps_init (void)
 {
@@ -60,4 +65,17 @@ pixmaps_init (void)
 	pix_newdata = gdk_pixbuf_new_from_file("/usr/share/icons/gnome/24x24/stock/net/stock_post-message.png", 0);
 	pix_nicksaid = gdk_pixbuf_new_from_file("/usr/share/icons/gnome/24x24/stock/generic/stock_edit.png", 0);
 	pix_msgsaid = gdk_pixbuf_new_from_file("data/global-message.png", 0);
+
+	pix_prefs_irc = gdk_pixbuf_scale_simple(
+				gdk_pixbuf_new_from_file("data/irc.png", NULL),
+				16, 16, GDK_INTERP_BILINEAR);
+	pix_prefs_dcc = gdk_pixbuf_scale_simple(
+				gdk_pixbuf_new_from_file("data/dcc.png", NULL),
+				16, 16, GDK_INTERP_BILINEAR);
+	pix_prefs_networks = gdk_pixbuf_scale_simple(
+				gdk_pixbuf_new_from_file("data/servers.png", NULL),
+				16, 16, GDK_INTERP_BILINEAR);
+	pix_prefs_plugins = gdk_pixbuf_scale_simple(
+				gdk_pixbuf_new_from_file("data/plugin-manager.png", NULL),
+				16, 16, GDK_INTERP_BILINEAR);
 }
