@@ -40,13 +40,16 @@ typedef struct _EWeatherSourceCCFClass EWeatherSourceCCFClass;
 
 struct _EWeatherSourceCCF {
 	EWeatherSource parent;
+
+	char *station;
 };
 
 struct _EWeatherSourceCCFClass {
 	EWeatherSourceClass parent_class;
 };
 
-GType	e_weather_source_ccf_get_type (void);
+EWeatherSource*	e_weather_source_ccf_new (const char *station);
+GType		e_weather_source_ccf_get_type (void);
 
 
 
