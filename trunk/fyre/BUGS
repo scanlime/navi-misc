@@ -1,8 +1,16 @@
-Known Bugs
-----------
+Definitely fix before the next release:
 
-- Dragging keysframes in the animation editor will cause a few
-  GLib errors and eventually a segfault
+- Fyre has no icon
+- The win32 build hasn't been tested in a while, make sure it still
+  works with all the new gnet and openexr stuff.
+
+Probably fix before the next release:
+
+- There's no about box (we need somewhere to put the 1.0)
+- The AVI files exported by Fyre don't play in windows media player.
+  Is the exporter broken, or can WMP just not handle uncompressed RGB?
+
+Would be nice to fix, and most of these are simple:
 
 - The bifurcation diagrams only update when they are redrawn,
   such as when your mouse enters or leaves them.
@@ -11,9 +19,6 @@ Known Bugs
 
 - The 'save' menu items actually are 'save as' for now
 
-- There's no about box
-
 - File dialogs don't remember their previous directory
 
-- The AVI files exported by Fyre don't open in windows media player
 
