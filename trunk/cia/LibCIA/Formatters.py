@@ -49,14 +49,28 @@ class CommitFormatter(Message.Formatter):
     detector = Message.Filter('<find path="/message/body/commit"/>')
 
     # Subclasses can set this to limit the length of log messages, in lines
-    logLinesLimit = None
+    lineLimit = None
 
-    # Lines in the log longer than this are wrapped to logWrapWidth
-    logWidthLimit = None
-    logWrapWidth = None
+    # Lines in the log longer than this are wrapped to wrapWidth
+    widthLimit = None
+    wrapWidth = None
 
     # If the list of files ends up longer than this many characters, summarize it
-    fileSummarizationThreshold = 60
+    filesWidthLimit = 60
+
+    def param_lineLimit(self, tag):
+        self.lineLimit = int(str(tag))
+
+    def param_widthLimit(self, tag):
+        self.widthLimit = int(str(tag))
+        if self.wrapWidth > self.widthLimit:
+            self.wrapWidth = self.widthLimit
+
+    def param_wrapWidth(self, tag):
+        self.wrapWidth = int(str(tag))
+
+    def param_filesWidthLimit(self, tag):
+        self.filesWidthLimit = int(str(tag))
 
     def consolidateFiles(self, xmlFiles):
         """Given a <files> element, find the directory common to all files
@@ -135,7 +149,7 @@ class CommitFormatter(Message.Formatter):
            """
         prefix, endings = self.consolidateFiles(files)
         endingStr = " ".join(endings)
-        if len(endingStr) > self.fileSummarizationThreshold:
+        if len(endingStr) > self.filesWidthLimit:
             # If the full file list is too long, give a file summary instead
             endingStr = self.summarizeFiles(endings)
         if prefix.startswith('/'):
@@ -191,19 +205,27 @@ class CommitFormatter(Message.Formatter):
             line = line.replace("\t", " "*8)
 
             # Wrap long lines
-            if self.logWidthLimit and len(line) > self.logWidthLimit:
-                lines.extend(self.wrapLine(line, self.logWrapWidth))
+            if self.widthLimit and len(line) > self.widthLimit:
+                lines.extend(self.wrapLine(line, self.wrapWidth))
             else:
                 lines.append(line)
 
+        # If our lineLimit is 1, don't bother starting long logs on the
+        # next line since there will be no long logs. Instead of the
+        # long (log message trimmed), just add an ellipsis.
+        if self.lineLimit == 1:
+            if len(lines) > 1:
+                lines[0] += ' ...'
+                del lines[1:]
+
         # Multiline logs shouldn't start on the same line as the metadata
-        if len(lines) > 1:
+        elif len(lines) > 1:
             lines.insert(0, '')
 
             # Truncate long log messages if we have a limit
-            if self.logLinesLimit and len(lines) > self.logLinesLimit + 1:
+            if self.lineLimit and len(lines) > self.lineLimit + 1:
                 lines[0] = "(log message trimmed)"
-                del lines[self.logLinesLimit + 1:]
+                del lines[self.lineLimit + 1:]
 
         # Reassemble the log message and send it to the default formatter
         return "\n".join(lines)
@@ -227,9 +249,9 @@ class CommitFormatter(Message.Formatter):
 class CommitToIRC(CommitFormatter):
     """Converts commit messages to plain text with IRC color tags"""
     medium = 'irc'
-    logLinesLimit = 6
-    logWidthLimit = 220
-    logWrapWidth = 80
+    lineLimit = 6
+    widthLimit = 220
+    wrapWidth = 80
 
     def format_author(self, author):
         from IRC.Formatting import format
