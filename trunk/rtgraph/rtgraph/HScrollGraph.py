@@ -42,7 +42,7 @@ class HScrollGraph(Graph):
                  size       = (384,128),
                  channels   = [],
                  gridSize   = 32,
-                 scrollRate = 80,
+                 scrollRate = 50,
                  ):
         Graph.__init__(self, size, channels)
         self.gridSize = gridSize
