@@ -760,9 +760,12 @@ class PolarVectorGraph(StaticGridGraph):
 class ChannelList(gtk.TreeView):
     """A list of available channels, inserted into the given graph
        widget when a 'visible' checkbox is set.
+
        Automatically generates new colors for each channel if autoColor is true.
+       If valueUpdateInterval is specified, the channel values are displayed
+       in the list and updated every valueUpdateInterval milliseconds.
        """
-    def __init__(self, graph, channels, autoColor=True, valueUpdateInterval=50):
+    def __init__(self, graph, channels, autoColor=True, valueUpdateInterval=None):
         self.graph = graph
         self.channels = channels
         self.valueUpdateInterval = valueUpdateInterval
@@ -814,12 +817,13 @@ class ChannelList(gtk.TreeView):
 		)
         self.modelFilled = True
 
-        # Give all values one initial update, then start a callback for updating them regularly.
-        self.oldValueStr = {}
-        for channel in self.channels:
-            self.oldValueStr[channel] = None
-        self.updateValues()
-        self.valueUpdateTimeout = gtk.timeout_add(self.valueUpdateInterval, self.updateValues)
+        if self.valueUpdateInterval:
+            # Give all values one initial update, then start a callback for updating them regularly.
+            self.oldValueStr = {}
+            for channel in self.channels:
+                self.oldValueStr[channel] = None
+            self.updateValues()
+            self.valueUpdateTimeout = gtk.timeout_add(self.valueUpdateInterval, self.updateValues)
 
     def initView(self):
         """Initializes all columns in the model viewed by this class"""
@@ -835,7 +839,8 @@ class ChannelList(gtk.TreeView):
         self.append_column(gtk.TreeViewColumn("Name", gtk.CellRendererText(), text=1))
 
         # Show the current channel value
-        self.append_column(gtk.TreeViewColumn("Value", gtk.CellRendererText(), text=5))
+        if self.valueUpdateInterval:
+            self.append_column(gtk.TreeViewColumn("Value", gtk.CellRendererText(), text=5))
 
     def visibilityToggleCallback(self, cell, path, model):
         """Callback triggered by clicking on a 'visible' checkbox.
@@ -888,10 +893,15 @@ class ChannelList(gtk.TreeView):
 class GraphUI(gtk.VPaned):
     """A paned widget combining a specified graph with
        a ChannelList and a list of tweakable parameters.
-       If the supplied graph is None, this creates a default
-       HScrollLineGraph instance.
+       If the supplied graph is None, this creates a default HScrollLineGraph instance.
+
+       Automatically generates new colors for each channel if autoColor is true.
+       If valueUpdateInterval is specified, the channel values are displayed
+       in the list and updated every valueUpdateInterval milliseconds.
        """
-    def __init__(self, channels, graph=None):
+    def __init__(self, channels, graph=None, autoColor=True, valueUpdateInterval=None):
+        self.autoColor = autoColor
+        self.valueUpdateInterval = valueUpdateInterval
         if not graph:
             graph = HScrollLineGraph()
         self.graph = graph
@@ -934,7 +944,9 @@ class GraphUI(gtk.VPaned):
 
     def createChannelList(self):
         """Create the channel list widget and a scrolling container for it"""
-        self.channelList = ChannelList(self.graph, self.channels)
+        self.channelList = ChannelList(self.graph, self.channels,
+                                       autoColor = self.autoColor,
+                                       valueUpdateInterval = self.valueUpdateInterval)
         self.channelList.show()
 
         scroll = gtk.ScrolledWindow()

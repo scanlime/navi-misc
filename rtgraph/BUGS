@@ -13,6 +13,10 @@ Known bugs for rtgraph:
     like gtk insists on redrawing the whole widget when one of the Value
     fields changes.
 
+    Because of this, the Value column in ChannelList is now disabled
+    by default. Specify a valueUpdateInterval when creating a ChannelList
+    or GraphUI to enable it.
+
   - Pressing Ctrl-C does not immediately kill a program using rtgraph,
     it merely kills one of the timeout handlers. Catching KeyboardInterrupt
     in the timeout handler doesn't solve this.
