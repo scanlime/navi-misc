@@ -9,16 +9,16 @@
   </stances>
   <steps>
     <step>
-      Step back with your left foot into a right neutral bow as you pin your
-      opponent's left hand to your chest with your left hand. Simultaneously
-      execute a right upward block to your opponent's left elbow.
+      Step back with your left foot into a <stance side="right">neutral bow</stance>
+      as you pin your opponent's left hand to your chest with your left hand.
+      Simultaneously execute a <block side="right">upward</block> to your opponent's left elbow.
     </step>
     <step>
-      Execute a right hammering inward block to your opponent's left arm as
+      Execute a <block side="right">hammering inward</block> to your opponent's left arm as
       you release your pin
     </step>
     <step>
-      Execute a right outward hand sword strike to your opponent's neck
+      Execute a <strike side="right">outward hand sword</strike> to your opponent's neck
     </step>
   </steps>
   <notes>
