@@ -49,9 +49,29 @@ public class nperlsub extends nbase
 		}
 		name = name + " (" + postn + ")";
 		name = hexwash(name);
+		name = whitewash(name);
 		question = hexwash(question);
+		question = whitewash(question);
 		asubmit.submit(name,question);
 		closeConnection();
+	}
+	
+	/**
+	 * This method washes ugly whitespace out, and makes it have just normal space
+	 * @param text The text of stuff that needs to get 'whitewashed'
+	 * @author Brandon Smith
+	 * @version 2.0
+	 * @return The whitewashed string
+	 */
+	private String whitewash(String text)
+	{
+		StringTokenizer foo = new StringTokenizer(text);
+		text = "";
+		while(foo.hasMoreTokens())
+		{
+			text = text + " " + foo.nextToken();
+		}
+		return text;
 	}
 	
 	/**
