@@ -174,7 +174,7 @@ userlist_insert (Userlist *userlist, session *sess, struct User *newuser, int ro
   gtk_list_store_insert (store->liststore, &iter, row);
   gtk_list_store_set (store->liststore, &iter, 0, icon, 1, newuser->nick, 2, newuser, 3, newuser->away ? &colors[23] : NULL, -1);
 
-  items = g_list_append (NULL, user->nick);
+  items = g_list_append (NULL, newuser->nick);
   g_completion_add_items (store->completion,items);
   g_free(items);
 }
@@ -233,6 +233,7 @@ userlist_update (Userlist *userlist, session *sess, struct User *user)
   iter = find_user (store, user);
   gtk_tree_model_get (GTK_TREE_MODEL (store->liststore), iter, 1, &nick, -1);
 
+  g_printf("update nick: %s\n",nick);
   items = g_list_append (NULL, nick);
   g_completion_remove_items (store->completion, items);
   g_list_free (items);
