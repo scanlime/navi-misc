@@ -34,6 +34,7 @@ from docutils import core, writers, nodes
 from Nouvelle import tag, place
 import Template
 import os
+from twisted.web.woven import dirlist
 
 
 class NouvelleTranslator(nodes.NodeVisitor):
@@ -177,6 +178,13 @@ class Page(Template.Page):
     """A web page holding a docutils-formatted document"""
     def __init__(self, path):
         self.path = path
+        Template.Page.__init__(self)
+
+    def getChild(self, path, request):
+        if path and path[0] != '.':
+            return self.__class__(os.path.join(self.path, path))
+        else:
+            return self
 
     def render(self, request):
         """Overrides the default render() function for pages. This checks
@@ -187,7 +195,7 @@ class Page(Template.Page):
            """
         # Is this actually a directory
         if os.path.isdir(self.path):
-            return "No directory list yet"
+            return dirlist.DirectoryLister(self.path).render(request)
 
         # Find a sidebar document and format it
         self.leftColumn = self.formatDocument(self.findSidebarPath()).output
