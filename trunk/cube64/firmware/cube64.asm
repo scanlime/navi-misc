@@ -53,6 +53,7 @@
 		bus_byte_count
 		flags
 		virtual_button
+		calibration_count
 
 		;; Stored calibration for each gamecube axis
 		joystick_x_calibration
@@ -96,6 +97,7 @@ startup
 	n64gc_init
 
 	clrf	flags
+	clrf	calibration_count
 
 	movlw	.34			; Reset bus_byte_count to 34. Keeping this set beforehand
 	movwf	bus_byte_count		;   saves a few precious cycles in receiving bus writes.
@@ -201,7 +203,6 @@ map_button_axis macro axis_byte, lower_virtual, upper_virtual, lower_thresh, upp
 	call	set_virtual_button			; C=1, B=0, (upper_thresh+1) <= axis
 	endm
 
-
 map_start macro
 	clrf	n64_status_buffer+0	; Start out with everything zeroed...
 	clrf	n64_status_buffer+1
@@ -249,6 +250,8 @@ done
 	;; stage maps all axes, and maps gamecube buttons to virtual buttons.
 n64_translate_status
 	map_start
+
+	call	check_calibration_combo
 
 	apply_calibration	GC_JOYSTICK_X,	joystick_x_calibration
 	apply_calibration	GC_JOYSTICK_Y,	joystick_y_calibration
@@ -318,6 +321,32 @@ set_virtual_button
 	map_button_to	BTN_C_LEFT,	N64_C_LEFT
 	map_button_to	BTN_C_DOWN,	N64_C_DOWN
 	map_button_to	BTN_C_UP,	N64_C_UP
+	return
+
+
+	;; This runs at the beginning of each key remap to check for the X+Y+Start
+	;; calibration sequence. Since we don't have a good way to measure out exactly
+	;; 3 seconds to emulate the gamecube's behavior, we just count the number of
+	;; status polls the keys are held down for. We don't know the exact polling rate,
+	;; but on most games 30 polls should be around a second, which is long enough
+	;; to avoid accidentally recalibrating.
+check_calibration_combo
+	btfss	gamecube_buffer + GC_X
+	goto	no_calibration_combo
+	btfss	gamecube_buffer + GC_Y
+	goto	no_calibration_combo
+	btfss	gamecube_buffer + GC_START
+	goto	no_calibration_combo
+
+	incf	calibration_count, f
+	movf	calibration_count, w
+	xorlw	.30
+	btfsc	STATUS, Z
+	goto	gamecube_reset_calibration
+	return
+
+no_calibration_combo
+	clrf	calibration_count
 	return
 
 
