@@ -46,6 +46,8 @@ public:
 	virtual bool kick ( int playerID, CNetworkPeer &peer ) = 0;
 
 	virtual void kill ( void ) = 0;
+
+	virtual void addBot (int playerID, const char* name, const char* config ) = 0;
 };
 
 class CServerGameManger : public Singleton<CServerGameManger>

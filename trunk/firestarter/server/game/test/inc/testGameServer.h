@@ -18,16 +18,34 @@
 #include <map>
 #include <string>
 
+class CRobotPlayer;
+
 typedef struct 
 {
-	bool player;
-	std::string name;
-	std::string material;
-	CNetworkPeer	*peer;
+	bool					player;
+	std::string				name;
+	std::string				material;
+	CNetworkPeer			*peer;
 	float					pos[3];
 	float					rot[3];
 	float					vec[3];
+	CRobotPlayer			*bot;
 }trPlayerInfo;
+
+class CRobotPlayer
+{
+public:
+	CRobotPlayer();
+	virtual ~CRobotPlayer();
+
+	virtual void init ( const char* name, const char* config, trPlayerInfo *info );
+	virtual bool think ( void );
+	virtual bool message ( CNetworkMessage &message );
+
+protected:
+	trPlayerInfo *playerInfo;
+	float lastUpdateTime;
+};
 
 class CTestGameServer : public CBaseServerGame
 {
@@ -44,6 +62,8 @@ class CTestGameServer : public CBaseServerGame
 		virtual bool kick ( int playerID, CNetworkPeer &peer );
 
 		virtual void kill ( void );
+
+		virtual void addBot (int playerID, const char* name, const char* config );
 
 	protected:
 		void sendToAllBut ( CNetworkMessage &message, int player, bool relyable = true );
