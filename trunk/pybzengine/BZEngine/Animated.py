@@ -289,14 +289,19 @@ class PerlinNoise:
        offset, frequency, number of octaves, and random seed. This produces
        natural-looking noise in up to 3 dimensions.
        """
-    def __init__(self, amplitude=1, frequency=1, offset=0, octaves=3, persistence=0.5, seed=0):
+    def __init__(self, amplitude=1, frequency=1, offset=0, octaves=3, persistence=0.5, seed=None):
         from BZEngine import Noise
         self.amplitude = amplitude
         self.frequency = frequency
         self.offset = offset
-        self.noise = (Noise.PerlinNoise(seed=seed+1, octaves=octaves, persistence=persistence),
-                      Noise.PerlinNoise(seed=seed+2, octaves=octaves, persistence=persistence),
-                      Noise.PerlinNoise(seed=seed+3, octaves=octaves, persistence=persistence))
+        if seed is None:
+            self.noise = (Noise.PerlinNoise(octaves=octaves, persistence=persistence),
+                          Noise.PerlinNoise(octaves=octaves, persistence=persistence),
+                          Noise.PerlinNoise(octaves=octaves, persistence=persistence))
+        else:
+            self.noise = (Noise.PerlinNoise(seed=seed+1, octaves=octaves, persistence=persistence),
+                          Noise.PerlinNoise(seed=seed+2, octaves=octaves, persistence=persistence),
+                          Noise.PerlinNoise(seed=seed+3, octaves=octaves, persistence=persistence))
         self.time = 0
 
     def __call__(self, value, dt, index=None):
