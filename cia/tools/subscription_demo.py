@@ -109,6 +109,7 @@ class Subscriber(SimpleXMLRPCServer):
            We get the URL of the modified resource, and look up the proper callback.
            """
         self.urlToCallbackMap[url]()
+	return True
 
     def subscribe(self, feed, callback):
         """Subscribe to the provided feed, causing the given callback to be called when it changes"""
