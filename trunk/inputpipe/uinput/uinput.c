@@ -33,7 +33,12 @@
 #include <linux/smp_lock.h>
 #include <linux/fs.h>
 #include <linux/miscdevice.h>
+
+#ifdef LOCAL_UINPUT_H
+#include "uinput.h"
+#else
 #include <linux/uinput.h>
+#endif
 
 static int uinput_dev_open(struct input_dev *dev)
 {
@@ -71,7 +76,7 @@ static int uinput_request_alloc_id(struct input_dev *dev, struct uinput_request 
 	down(&udev->requests_sem);
 	for (id=0; id<UINPUT_NUM_REQUESTS; id++)
 		if (!udev->requests[id]) {
-			udef->requests[id] = request;
+			udev->requests[id] = request;
 			request->id = id;
 			up(&udev->requests_sem);
 			return 0;
@@ -89,8 +94,8 @@ static void uinput_request_init(struct input_dev *dev, struct uinput_request *re
 	init_waitqueue_head(&request->waitq);
 
 	/* Allocate an ID. If none are available right away, wait. */
-	request->retval = wait_event_interruptible(&udev->requests_waitq,
-						   !uinput_request_alloc_id(dev, request));
+	request->retval = wait_event_interruptible(udev->requests_waitq,
+				       !uinput_request_alloc_id(dev, request));
 }
 
 static void uinput_request_submit(struct input_dev *dev, struct uinput_request *request)
@@ -102,7 +107,7 @@ static void uinput_request_submit(struct input_dev *dev, struct uinput_request *
 	uinput_dev_event(dev, EV_UINPUT, request->code, request->id);
 
 	/* Wait for the request to complete */
-	retval = wait_event_interruptible(&request->waitq, request->completed);
+	retval = wait_event_interruptible(request->waitq, request->completed);
 	if (retval)
 		request->retval = retval;
 
