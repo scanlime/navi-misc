@@ -220,12 +220,19 @@ class DVDBurner:
 
     def parseBurnOutput(self, line):
         """This receives lines of output from growisofs and tries to make sense of them"""
+
+        # Is it a progress message?
         match = re.match(r"\s*(\d+\.\d+)\% done, estimate finish (.*)", line)
         if match:
             percent = float(match.group(1))
             finishTime = time.mktime(time.strptime(match.group(2),
                                                    "%a %b %d %H:%M:%S %Y"))
             return self.burnProgress(percent, finishTime)
+
+        # Is it one of those damn annoying iso9660 renaming warnings
+        # that we don't care about at all since we use the rockridge names?
+        if re.match(r"Using [^a-z ]+ for.*", line):
+            return
 
         self.burnMessage(line)
 
