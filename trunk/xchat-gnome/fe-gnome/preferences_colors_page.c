@@ -24,12 +24,21 @@
 
 static void colors_changed(GtkComboBox *combo_box, gpointer data) {
 	GtkWidget **color_buttons = (GtkWidget **) data;
-	int i;
+	int i, selection;
 
-	if(gtk_combo_box_get_active(combo_box) == 2) {
+	selection = gtk_combo_box_get_active(combo_box);
+	if(selection == 2) {
 		for(i = 0; i < 4; i++)
 			gtk_widget_set_sensitive(color_buttons[i], TRUE);
 	} else {
+		colors[16] = color_schemes[selection][2];
+		colors[17] = color_schemes[selection][3];
+		colors[18] = color_schemes[selection][1];
+		colors[19] = color_schemes[selection][0];
+		gtk_color_button_set_color(GTK_COLOR_BUTTON(color_buttons[0]), &colors[18]);
+		gtk_color_button_set_color(GTK_COLOR_BUTTON(color_buttons[1]), &colors[19]);
+		gtk_color_button_set_color(GTK_COLOR_BUTTON(color_buttons[2]), &colors[17]);
+		gtk_color_button_set_color(GTK_COLOR_BUTTON(color_buttons[3]), &colors[16]);
 		for(i = 0; i < 4; i++)
 			gtk_widget_set_sensitive(color_buttons[i], FALSE);
 	}
@@ -106,8 +115,8 @@ void initialize_preferences_colors_page() {
 	g_object_unref(group);
 
 	color_schemes = gtk_combo_box_new_text();
-	gtk_combo_box_append_text(GTK_COMBO_BOX(color_schemes), "White on Black");
 	gtk_combo_box_append_text(GTK_COMBO_BOX(color_schemes), "Black on White");
+	gtk_combo_box_append_text(GTK_COMBO_BOX(color_schemes), "White on Black");
 	gtk_combo_box_append_text(GTK_COMBO_BOX(color_schemes), "Custom");
 	gtk_combo_box_set_active(GTK_COMBO_BOX(color_schemes), 0);
 	g_signal_connect(G_OBJECT(color_schemes), "changed", G_CALLBACK(colors_changed), (gpointer) color_buttons);
