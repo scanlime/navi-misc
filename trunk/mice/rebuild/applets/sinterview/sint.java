@@ -19,7 +19,7 @@ public class sint extends java.applet.Applet implements ActionListener
 	public TextField uname;
 	/** This is for the password */
 	public TextField pword;
-	/** This is for authenticating */
+	/** This is for authenticating, and later, for quitting. */
 	public Button auth;
 	
 	/** Text Area for the question. */
@@ -32,8 +32,6 @@ public class sint extends java.applet.Applet implements ActionListener
 	public Button bsubmit;
 	/** reject a question button */
 	public Button breject;
-	/** quit this sucker button */
-	public Button bquit;
 	
 	/**
 	 * This method initializes the applet, so that it is ready to do stuff.
@@ -56,7 +54,6 @@ public class sint extends java.applet.Applet implements ActionListener
 		bsubmit = new Button("Answer");
 		bget = new Button("Get Question");
 		breject = new Button("Reject");
-		bquit = new Button("Quit");
 		
 		add(uname);
 		add(pword);
@@ -68,7 +65,6 @@ public class sint extends java.applet.Applet implements ActionListener
 		add(bget);
 		add(bsubmit);
 		add(breject);
-		add(bquit);
 	}
 
 	/**
@@ -96,6 +92,7 @@ public class sint extends java.applet.Applet implements ActionListener
 		bsubmit.addActionListener(new submit(this));
 		bget.addActionListener(new get(this));
 		breject.addActionListener(new reject(this));
-		bquit.addActionListener(new quit(this));
+		auth.addActionListener(new quit(this));
+		auth.setLabel("Quit");
 	}
 }
