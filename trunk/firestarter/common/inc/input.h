@@ -177,19 +177,25 @@ enum InputKeyCode
 	KEY_MEDIASELECT     =0xED     /* Media Select */
 };
 
-/*class CInputListener
+/*
+class CAction;
+
+class CActionListener
 {
 public:
-	virtual CInputListener();
+	virtual ~CActionListener();
+	virtual void eventCall ( CAction &caller ) = 0;
 };
 
-class CInputAxis
+typedef std::vector<CActionListener*> tvActionListenerList;
+
+class CAction
 {
 public:
-	CInputAxis();
-	virtual ~CInputAxis();
+	CAction();
+	virtual ~CAction();
 
-	virtual float getRelitive(void);
+	virtual float getRelative(void);
 	virtual float getAbs(void);
 	virtual float getRaw(void);
 
@@ -198,8 +204,27 @@ public:
 
 	virtual float getMaxRaw ( void );
 	virtual float getMinRaw ( void );
+
+	// listener functions
+	void addListener ( CActionListener* listener );
+	void removeListener ( CActionListener *listener );
+
+	// muters
+	void setMute ( bool value ) { mute = value;}
+	bool isMute ( void ) { return mute;}
+
+	// groups
+	void setGroup ( const char* theGroup ) {group = theGroup;}
+	const char* getGroup ( void ) {return group.c_str();}
+
 protected:
-}; */
+	bool									mute;
+	tvActionListenerList	listeners;
+	std::string						group;
+};
+
+typedef std::map<std::string, CAction*> tmActionMap;
+*/
 
 class CInputManager
 {
@@ -212,10 +237,16 @@ class CInputManager
 
 		bool KeyDown ( InputKeyCode key );
 
+		// action API
+//		CAction* getAction ( const char* name );
+
 protected:
 	// ogre input stuff
 	EventProcessor* mEventProcessor;
 	InputReader* mInputDevice;
+
+	// actions
+//	tmActionMap				actions;
 };
 
 #endif //_INPUT_H_
