@@ -81,21 +81,22 @@ pin_deassert macro reg
 	pscall	io_Deassert
 	endm
 
-	;; Make the given pin descriptor an output (TRIS deassert)
+	;; Make the given pin descriptor an output
 pin_output macro reg
 	banksel	reg
 	movf	reg, w
 	iorlw	0x40		; Set the TRIS bit
+	andlw	0x7E		; Clear the HIGH bit
 	banksel	io_pin
 	movwf	io_pin
-	pscall	io_Deassert
+	pscall	io_Assert
 	endm
 
-	;; Make the given pin descriptor an output (TRIS assert)
+	;; Make the given pin descriptor an input
 pin_input macro reg
 	banksel	reg
 	movf	reg, w
-	iorlw	0x40		; Set the TRIS bit
+	iorlw	0xC0		; Set the TRIS and HIGH bits
 	banksel	io_pin
 	movwf	io_pin
 	pscall	io_Assert
