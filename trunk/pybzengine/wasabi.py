@@ -16,7 +16,7 @@ view.camera.elevation = 0
 view.camera.distance = 7
 view.camera.jump()
 
-title = HUD.Text(viewport.region(viewport.rect), "WASABI",
+title = HUD.Text(viewport.region(viewport.rect), "wasabi",
                  color     = (1,1,1,1),
                  fontSize  = 100,
                  alignment = (0.5, 0.75),
