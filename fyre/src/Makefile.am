@@ -15,7 +15,7 @@ fyre_LDADD = \
 
 if HAVE_EXR
 EXR_SRC = \
-	exr.c
+	exr.cpp
 else
 EXR_SRC =
 endif
