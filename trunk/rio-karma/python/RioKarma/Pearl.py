@@ -26,8 +26,9 @@ in Request.py
 
 import struct
 from cStringIO import StringIO
-from twisted.internet import protocol, defer
+from twisted.internet import protocol
 from twisted.python import failure, log
+from RioKarma import Progress
 
 
 class ProtocolError(Exception):
@@ -155,7 +156,7 @@ class BaseRequest:
     id = None
 
     def __init__(self):
-        self.result = defer.Deferred()
+        self.result = Progress.Deferred()
 
     def sendTo(self, fileObj):
         """Send this request to the provided file-like object"""
@@ -252,8 +253,8 @@ class StatefulRequest(BaseRequest):
             step, numSteps = struct.unpack("<II", self.responseBuffer)
             self.responseBuffer = ''
 
-            # FIXME: Once we have progress reporting, this will go somewhere useful
-            print "Busy: %d/%d" % (step, numSteps)
+            # Report status, but we don't know exactly what the device is doing
+            self.result.statusback(step, numSteps, name="Busy")
 
             self.readResponse = self.state_beginResponse
 

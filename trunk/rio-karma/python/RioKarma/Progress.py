@@ -167,7 +167,6 @@ class ConsoleReporter(Reporter):
         buffer = StringIO()
         self._hideMessage(buffer)
         buffer.write(text)
-        self._showMessage(buffer)
         self._savedStderr.write(buffer.getvalue())
 
     def _hideMessage(self, buffer):
@@ -178,6 +177,7 @@ class ConsoleReporter(Reporter):
             buffer.write('\b' * len(self.currentMessage))
             buffer.write(' ' * len(self.currentMessage))
             buffer.write('\b' * len(self.currentMessage))
+            self.currentMessage = None
 
     def _showMessage(self, buffer):
         """Writes as necessary to the supplied file-like object
