@@ -75,6 +75,7 @@ scene_init (Scene *self)
 
   self->objects = g_hash_table_new (g_direct_hash, g_direct_equal);
   self->dirty = FALSE;
+  self->frozen = FALSE;
 
   self->render_passes = NULL;
   render_pass_types = find_type_children (RENDER_PASS_TYPE);
@@ -199,6 +200,9 @@ scene_render (Scene *self, RenderState *rstate)
 {
   GList *pass;
 
+  if (self->frozen)
+    return;
+
   if (self->dirty)
     scene_preprocess (self);
 
@@ -212,7 +216,7 @@ scene_render (Scene *self, RenderState *rstate)
   glEnable (GL_LIGHTING);
   glDisable (GL_LINE_SMOOTH);
   glEnable (GL_NORMALIZE);
-  glColor4f (1.0, 1.0, 1.0, 1.0);
+  glColor4f (1.0f, 1.0f, 1.0f, 1.0f);
 
   for (pass = self->render_passes; pass; pass = pass->next)
   {
@@ -240,6 +244,18 @@ scene_add_view (Scene *self, gpointer view)
   self->views = g_list_append (self->views, view);
   g_hash_table_foreach (self->objects, (GHFunc) scene_add_view_iterate, view);
   view_render (view);
+}
+
+void
+scene_freeze (Scene *self)
+{
+  self->frozen = TRUE;
+}
+
+void
+scene_thaw (Scene *self)
+{
+  self->frozen = FALSE;
 }
 
 SceneObject*

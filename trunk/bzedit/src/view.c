@@ -238,6 +238,7 @@ view_render (View *view)
   scene_render (view->scene, rstate);
 
   gl_drawing_area_swap_buffers (view->context);
+  g_object_unref (rstate);
 }
 
 SceneObject*

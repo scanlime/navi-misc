@@ -443,35 +443,35 @@ teleporter_field_drawable_draw_to_list (DisplayList *dl)
 {
   TeleporterFieldDrawable *tfd = TELEPORTER_FIELD_DRAWABLE (dl);
   Teleporter *t = TELEPORTER (DRAWABLE (dl)->parent);
-  float width, height;
+  gdouble width, height;
 
   width = t->param.size[0];
   height = t->param.size[1];
 
   glPushMatrix ();
-  glTranslatef (t->param.position[0], t->param.position[1], t->param.position[2]);
-  glRotatef (t->param.rotation, 0.0, 0.0, 1.0);
+  glTranslated (t->param.position[0], t->param.position[1], t->param.position[2]);
+  glRotated (t->param.rotation, 0.0, 0.0, 1.0);
 
-  glColor4f (0.0, 0.0, 0.0, 0.6);
+  glColor4f (0.0f, 0.0f, 0.0f, 0.6f);
 
   glBegin (GL_QUADS);
   {
     /* X+ side */
-    glNormal3f (1.0, 0.0, 0.0);
-    glVertex3f (0,  width, 0);
-    glVertex3f (0,  width, height);
-    glVertex3f (0, -width, height);
-    glVertex3f (0, -width, 0);
+    glNormal3f (1.0f, 0.0f, 0.0f);
+    glVertex3d (0,  width, 0);
+    glVertex3d (0,  width, height);
+    glVertex3d (0, -width, height);
+    glVertex3d (0, -width, 0);
 
     /* X- side */
-    glNormal3f (-1.0, 0.0, 0.0);
-    glVertex3f (0, -width, 0);
-    glVertex3f (0, -width, height);
-    glVertex3f (0,  width, height);
-    glVertex3f (0,  width, 0);
+    glNormal3f (-1.0f, 0.0f, 0.0f);
+    glVertex3d (0, -width, 0);
+    glVertex3d (0, -width, height);
+    glVertex3d (0,  width, height);
+    glVertex3d (0,  width, 0);
   }
   glEnd ();
 
-  glColor4f (1.0, 1.0, 1.0, 1.0);
+  glColor4f (1.0f, 1.0f, 1.0f, 1.0f);
   glPopMatrix ();
 }

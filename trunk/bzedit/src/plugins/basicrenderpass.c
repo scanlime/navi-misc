@@ -28,6 +28,7 @@
 static void     texture_group_class_init     (TextureGroupClass *klass);
 static void     texture_group_init           (TextureGroup *self);
 static void     texture_group_draw           (Drawable *d, RenderState *rstate);
+static void     texture_group_dispose        (GObject *object);
 static void     texture_group_picking_draw   (Drawable *d, RenderState *rstate);
 static void     texture_group_draw_to_list   (DisplayList *dl);
 static void     texture_group_add            (TextureGroup *tg, Drawable *drawable);
@@ -70,13 +71,17 @@ texture_group_class_init (TextureGroupClass *klass)
 {
   DrawableClass *dc;
   DisplayListClass *dlc;
+  GObjectClass *oc;
 
   dc = (DrawableClass*) klass;
   dlc = (DisplayListClass*) klass;
+  oc = (GObjectClass*) klass;
 
   dc->draw = texture_group_draw;
 
   dlc->draw_to_list = texture_group_draw_to_list;
+
+  oc->dispose = texture_group_dispose;
 }
 
 static void
@@ -136,6 +141,28 @@ static void
 texture_group_member_dirty (Drawable *drawable, DisplayList *dl)
 {
   dl->dirty = TRUE;
+}
+
+static void
+texture_group_dispose (GObject *object)
+{
+  TextureGroup *tg = (TextureGroup*) object;
+  GList *l;
+
+  for (l = tg->static_drawables; l; l = l->next)
+  {
+    g_signal_handlers_disconnect_by_func (G_OBJECT (l->data), G_CALLBACK (texture_group_member_dirty), (gpointer) tg);
+    g_object_unref (G_OBJECT (l->data));
+  }
+  g_list_free (tg->static_drawables);
+  tg->static_drawables = NULL;
+
+  for (l = tg->dynamic_drawables; l; l = l->next)
+  {
+    g_object_unref (G_OBJECT (l->data));
+  }
+  g_list_free (tg->dynamic_drawables);
+  tg->dynamic_drawables = NULL;
 }
 
 static void
@@ -279,14 +306,21 @@ basic_render_pass_add (RenderPass *pass, Drawable *drawable)
   } else {
     group = texture_group_new ();
     texture_group_add (group, drawable);
-    g_hash_table_insert (brp->texture_groups, (gpointer) drawable->texture, (gpointer) g_object_ref(group));
+    g_hash_table_insert (brp->texture_groups, (gpointer) drawable->texture, (gpointer) group);
   }
+}
+
+static void
+brp_tg_destroy (gchar *texture, TextureGroup *group, gpointer data)
+{
+  g_object_unref (group);
 }
 
 static void
 basic_render_pass_erase (RenderPass *pass)
 {
   BasicRenderPass *brp = BASIC_RENDER_PASS (pass);
+  g_hash_table_foreach_remove (brp->texture_groups, (GHRFunc) brp_tg_destroy, NULL);
   g_free(brp->texture_groups);
   brp->texture_groups = g_hash_table_new (g_str_hash, g_str_equal);
 }

@@ -50,6 +50,7 @@ struct _Scene
   GHashTable* objects;
   gboolean dirty;
   GList* views;
+  gboolean frozen;
 
   GtkTreeStore *element_store;
 };
@@ -66,6 +67,8 @@ void         scene_add           (Scene *self, SceneObject *object);
 void         scene_preprocess    (Scene *self);
 void         scene_render        (Scene *self, RenderState *rstate);
 void         scene_add_view      (Scene *self, gpointer view);
+void         scene_freeze        (Scene *self);
+void         scene_thaw          (Scene *self);
 SceneObject* scene_pick          (Scene *self, RenderState *rstate, guint position[2]);
 
 G_END_DECLS
