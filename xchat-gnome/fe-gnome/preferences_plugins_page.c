@@ -74,7 +74,7 @@ initialize_preferences_plugins_page ()
 
 	load_renderer = gtk_cell_renderer_toggle_new ();
 	g_object_set (G_OBJECT (load_renderer), "activatable", TRUE, NULL);
-	load_column = gtk_tree_view_column_new_with_attributes (_("Loaded"), load_renderer, "active", 4, NULL);
+	load_column = gtk_tree_view_column_new_with_attributes (_("Enable"), load_renderer, "active", 4, NULL);
 	gtk_tree_view_append_column (GTK_TREE_VIEW (treeview), load_column);
 	text_renderer = gtk_cell_renderer_text_new ();
 	text_column = gtk_tree_view_column_new_with_attributes (_("Plugin"), text_renderer, "text", 0, NULL);
