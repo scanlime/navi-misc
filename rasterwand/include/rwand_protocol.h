@@ -97,6 +97,14 @@
 #define RWAND_MODE_COIL_DEBUG_BIT	3
 #define RWAND_MODE_COIL_DEBUG		0x08
 
+;// When this bit is on, the firmware will try to detect wand stalls by comparing
+;// the current entry in the sync edge buffer with the current period. If the sync
+;// edge time is longer, we assume it's stalled and turn off the coil driver and
+;// display driver bits.
+#define RWAND_MODE_STALL_DETECT_BIT	4
+#define RWAND_MODE_STALL_DETECT		0x10
+
+
 
 ;//************************************************** Interrpt Endpoints
 

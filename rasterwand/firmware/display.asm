@@ -53,8 +53,11 @@
 
 bank0	udata
 
-edge_buffer		res	8	; Stores 16-bit duration values at the last 4 angle sensor edges.
+edge_buffer		res	2	; Stores 16-bit duration values at the last 4 angle sensor edges.
 						; Units are 16 instruction cycles, or about 2.666us
+edge_buffer_1	res	2
+edge_buffer_2	res	2
+edge_buffer_3	res	2
 
 display_fwd_phase	res	2	; The wand_phase value to start forward display at
 display_rev_phase	res 2	; The wand_phase value to start reverse display at
@@ -249,6 +252,17 @@ try_tmr1_again
 	btfsc	STATUS, C
 	incf	wand_phase+1, f
 
+	; Detect wand stalls by comparing the latest edge buffer entry with the
+	; current predictor period. If we think the wand's stalled, shut off the
+	; LEDs and coil driver.
+	pagesel	no_stall
+	btfss	mode_flags, RWAND_MODE_STALL_DETECT_BIT
+	goto	no_stall
+	jl_16	edge_buffer_3, wand_period, no_stall
+	bcf		mode_flags, RWAND_MODE_ENABLE_DISPLAY_BIT
+	bcf		mode_flags, RWAND_MODE_ENABLE_COIL_BIT
+no_stall
+
 	; If wand_phase >= wand_period, subtract wand_period
 	jl_16	wand_phase, wand_period, no_phase_rollover
 
@@ -266,6 +280,8 @@ try_tmr1_again
 no_phase_rollover
 
 	return
+
+
 
 
 ;*****************************************************************************************
