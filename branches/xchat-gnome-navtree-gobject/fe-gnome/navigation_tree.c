@@ -386,33 +386,46 @@ navigation_tree_select_next_network (NavTree *navtree)
 {
 	GtkTreeIter iter;
 	GtkTreeModel *model;
+	GtkTreePath *path;
 	GtkTreeSelection *selection;
 
-	/* Get our tree view and selection. */
+	/* Get the GtkTreeSelection. */
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(navtree));
-	model = gtk_tree_view_get_model(GTK_TREE_VIEW(navtree));
 
-	/* Make sure we get our iterator and model. */
-	if(navtree->current_path) {
-		/* Test the depth of the path to make sure we have a server selected
-	 	 * (depth of 1). If we have a channel selected (depth > 1) we need
-	 	 * to move up to the parent (server).
-	 	 */
-		if(gtk_tree_path_get_depth(navtree->current_path) > 1) {
-			GtkTreeIter parent;
-			gtk_tree_model_iter_parent(model, &parent, &iter);
-			iter = parent;
+	/* Try to get the current selection. */
+	if (!gtk_tree_selection_get_selected(selection, &model, &iter)) {
+		model = gtk_tree_view_get_model(GTK_TREE_VIEW(navtree));
+		/* If nothing is selected and we have a current_path set the iter to that path. */
+		if (navtree->current_path) {
+			path = gtk_tree_path_copy(navtree->current_path);
+			gtk_tree_model_get_iter(model, &iter, path);
 		}
-
-		/* Try and move the iter forward, if that fails we're probably at the end
-	 	 * of the list and should wrap around to the first server.
-	 	 */
-		if(!gtk_tree_model_iter_next(model, &iter))
+		/* If we have no current_path and nothing selected select the first server and return. */
+		else {
 			gtk_tree_model_get_iter_first(model, &iter);
-
-	  /* Move the selection to the new position. */
-	  gtk_tree_selection_select_iter(selection, &iter);
+			gtk_tree_selection_select_iter(selection, &iter);
+			return;
+		}
 	}
+	/* If we have something selected we'll need to set path to the iter. */
+	else
+		path = gtk_tree_model_get_path(model, &iter);
+
+	/* If our path is at a depth greater than one it's not a server, make it one. */
+	if (gtk_tree_path_get_depth(path) > 1) {
+		GtkTreeIter parent;
+		gtk_tree_model_iter_parent(model, &parent, &iter);
+		iter = parent;
+	}
+	/* If we can't move to the next we need to move back to the root. Move iter to the root. */
+	if (!gtk_tree_model_iter_next(model, &iter)) {
+		GtkTreeIter root;
+		gtk_tree_model_get_iter_first(model, &root);
+		iter = root;
+	}
+
+	/* Select the iter. */
+	gtk_tree_selection_select_iter(selection, &iter);
 }
 
 void
