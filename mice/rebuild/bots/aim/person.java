@@ -76,14 +76,10 @@ public class person
 		  break;
 		case 2:
 			standmajor = standmajor + "/" + message;
-			send("You are now registered as: " + name + " (" + standmajor + ").  To ask a question, simply greet me, and I will ask you for your question :)");
+			send("You are now registered as: " + name + " (" + standmajor + ").  To ask a question, just send it to me and I'll submit it for you :)");
 			status = 3;
 			break;
 		case 3:
-			send(message + " to you too!  Go ahead and ask your question, or if you accidently messaged me, simply type '*'.");
-			status = 4;
-			break;
-		case 4:
 			if(message.charAt(0) == '*')
 			{
 				send("Ok, your non-question hasn't been submitted.");
