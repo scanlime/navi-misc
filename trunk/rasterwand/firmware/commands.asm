@@ -40,6 +40,7 @@
 	extern	wand_phase
 	extern	coil_window_min
 	extern	coil_window_max
+	extern	mode_flags
 
 bank0	udata
 
@@ -64,6 +65,7 @@ CheckVendor
 	defineRequest	RWAND_CTRL_READ_PREDICTION,	request_readPrediction
 	defineRequest	RWAND_CTRL_SET_PREDICTION,	request_setPrediction
 	defineRequest	RWAND_CTRL_SET_COIL_PHASE,	request_setCoilPhase
+	defineRequest	RWAND_CTRL_SET_MODES,		request_setModes
 
 	pagesel	wrongstate		; Not a recognized request
 	goto	wrongstate
@@ -172,6 +174,13 @@ request_setCoilPhase
 	movf	BufferData+(wIndex+1), w
 	banksel	coil_window_min
 	movwf	coil_window_max+1
+	returnEmpty
+
+	; Set mode flags
+request_setModes
+	banksel	BufferData
+	movf	BufferData+wValue, w
+	movwf	mode_flags
 	returnEmpty
 
 	end
