@@ -324,7 +324,15 @@ class Rack(BaseRack):
 
     def __iter__(self):
         """Iterate over all keys in this rack namespace"""
-        return self._getKeyList().__iter__()
+        # This could be as simple as "return self._getKeyList().__iter__()"
+        # but this performs some extra consistency checking to make sure the
+        # key we iterate to actually exists, to keep us from crashing if
+        # our db is a little out of sync with itself.
+        for item in self._getKeyList():
+            if item in self:
+                yield item
+            else:
+                self._delKey(item)
 
     def catalog(self):
         """Iterate over all child namespaces"""
