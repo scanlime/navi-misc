@@ -33,8 +33,12 @@ env['CPPPATH'] = ['include']
 
 
 # Build shared and static libraries
+# FIXME: The shared lib prefix nonsense here is to prevent a
+#        "Two different sets of overrides were specified for the same target"
+#        when building the python extension.
+#
 libSrcPaths = ["src/%s" % file for file in libSrc]
-sharedLib = env.SharedLibrary('rcpod', libSrcPaths, LIBS=libs)
+sharedLib = env.SharedLibrary('librcpod', libSrcPaths, LIBS=libs, SHLIBPREFIX='')
 staticLib= env.StaticLibrary('rcpod', libSrcPaths)
 
 
@@ -77,8 +81,8 @@ if 'swig' in env['TOOLS']:
         # shared library prefix, since it isn't needed or wanted for building
         # dynamically loadable python extensions.
         pylibrcpod = env.SharedLibrary('pyrcpod/_librcpod',
-                                       ['pyrcpod/librcpod.i'] + libSrcPaths,
-                                       LIBS=libs)
+                                       ['pyrcpod/librcpod.i', libSrcPaths],
+                                       LIBS=libs, SHLIBPREFIX='')
 
 	# If we also have a valid installation path, use it
         if os.path.isdir(pyInstallPath):
