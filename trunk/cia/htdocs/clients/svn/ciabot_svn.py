@@ -84,7 +84,7 @@ import sys, os, re
 class SvnClient:
     """A CIA client for Subversion repositories. Uses svnlook to gather information"""
     name = 'Python Subversion client for CIA'
-    version = '1.1'
+    version = '1.11'
 
     def __init__(self, repository, revision, config):
         self.repository = repository
@@ -105,7 +105,8 @@ class SvnClient:
                 import smtplib
                 smtp = smtplib.SMTP(self.config.smtpServer)
                 smtp.sendmail(self.config.fromAddress, server,
-                              "From: %s\r\nTo: %s\r\n\r\n%s" %
+                              "From: %s\r\nTo: %s\r\n"
+                              "Subject: DeliverXML\r\n\r\n%s" %
                               (self.config.fromAddress, server, message))
 
     def main(self):
