@@ -55,7 +55,6 @@
 	extern	i2c_address
 	extern	i2c_ack_count
 
-	extern	i2c_Reset
 	extern	i2c_Write
 	extern	i2c_Read
 
@@ -529,7 +528,6 @@ request_I2CSet
 	banksel	i2c_data_pin
 	movwf	i2c_data_pin
 
-	pscall	i2c_Reset
 	psgoto	Send_0Len_pkt
 
 

@@ -35,9 +35,6 @@
 
 	global	i2c_ack_count
 
-	;; Put the bus in its idle state, resetting pin directions
-	global	i2c_Reset
-
 	;; Write/read 'w' bytes using the buffer at IRP:FSR and the current bus
 	;; pins, speed, and address. Accumulates successful acks in i2c_ack_count.
 	global	i2c_Write
@@ -111,12 +108,10 @@ pin_input macro reg
 	;; Manipulate the clock output
 clock_high
 	pin_assert i2c_clock_pin
-	pin_output i2c_clock_pin
 	return
 
 clock_low
 	pin_deassert i2c_clock_pin
-	pin_output i2c_clock_pin
 	return
 
 	;; Manipulate the bidirectional open-drain data line
@@ -125,7 +120,6 @@ data_high
 	return
 
 data_low
-	pin_deassert i2c_data_pin
 	pin_output i2c_data_pin
 	return
 
@@ -154,6 +148,8 @@ i2c_stop
 
 i2c_start
 	pscall	clock_high
+	pin_output i2c_clock_pin
+	pin_deassert i2c_data_pin
 	pscall	data_low
 	pscall	i2c_delay
 	pscall	clock_low
@@ -278,11 +274,6 @@ i2c_read_nak
 ;; **********************************************************************************
 ;; *************************************************************** Public Methods ***
 ;; **********************************************************************************
-
-
-	;; Reset the I2C bus to its idle state
-i2c_Reset
-	psgoto	i2c_stop
 
 
 	;; Write 'w' bytes from IRP:FSR to the current bus
