@@ -36,10 +36,24 @@ making keys map to pickled callable objects would be too fragile.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
+from twisted.web import xmlrpc
 from twisted.internet import defer
 from twisted.python import failure
 import string, os, md5, time
+from cStringIO import StringIO
 import Database, RpcServer
+
+# PyCAPTCHA is optional. We use it for certain operations
+# that should be easy for humans to perform but should not
+# be scriptable, like creating new users and granting capabilities to them.
+try:
+    import Captcha
+    import Captcha.Visual.Tests
+    # This trick keeps our factory from being overwritten on rebuild()
+    if 'captchaFactory' not in globals():
+        captchaFactory = Captcha.Factory()
+except ImportError:
+    captchaFactory = None
 
 
 class SecurityInterface(RpcServer.Interface):
@@ -76,6 +90,30 @@ class SecurityInterface(RpcServer.Interface):
            matches any of them, False otherwise.
            """
         return caps.test(key, *capabilities)
+
+    def xmlrpc_newCaptcha(self):
+        """Creates a new CAPTCHA test that the caller can solve to perform
+           certain operations that humans should be able to do easily but
+           shouldn't be scriptable. Returns an ID that uniquely identifies
+           this CAPTCHA test.
+           """
+        if not captchaFactory:
+            raise Exception("PyCAPTCHA is not installed")
+        return captchaFactory.new(Captcha.Visual.Tests.PseudoGimpy).id
+
+    def xmlrpc_renderCaptcha(self, id):
+        """Renders a (value, type) tuple containing a rendered version of
+           the CAPTCHA test with the given ID. Currently the type will
+           always be image/jpeg.
+           """
+        if not captchaFactory:
+            raise Exception("PyCAPTCHA is not installed")
+        test = captchaFactory.get(id)
+        if not test:
+            raise Exception("No test with the given ID was found, it might have expired")
+        io = StringIO()
+        test.render().save(io, "JPEG")
+        return (xmlrpc.Binary(io.getvalue()), "image/jpeg")
 
 
 def createRandomKey(bytes = 24,
