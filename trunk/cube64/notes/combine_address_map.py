@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from crc import bin
 
 # Create a mapping from valid addresses to the resulting start address on the bus.
 # We start by mapping each valid address to 0x0000...
@@ -20,4 +21,7 @@ for code, addr in addrmap.iteritems():
 addrs = codemap.keys()
 addrs.sort()
 for addr in addrs:
-    print "0x%04X : %s" % (addr, " ".join(["0x%04X" % code for code in codemap[addr]]))
+    # Sort the list of codes
+    codes = codemap[addr]
+    codes.sort()
+    print "0x%04X :  %s" % (addr, "  ".join(["0x%04X (%s)" % (code, bin(code, 16)) for code in codes]))
