@@ -883,7 +883,12 @@ class RingBuffer(object):
            """
         key %= self.size
         while count > 0:
-            yield self.db[key]
+            try:
+                yield self.db[key]
+            except KeyError:
+                # This shouldn't happen, but there's really nothing we can do if it does.
+                # Skip over the damaged part of our database, ignoring the missing item.
+                pass
             key = (key + increment) % self.size
             count -= 1
 
