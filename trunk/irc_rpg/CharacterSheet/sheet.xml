@@ -26,7 +26,9 @@
 			<drop_down button="true">
 				<drop_down_item>Sword [1d8]</drop_down_item>
 				<drop_down_item>Dagger [3d4]</drop_down_item>
-				<dice label="Roll" sides="10"/>
+				<dice label="Roll" sides="10">
+					<times>2</times>
+				</dice>
 			</drop_down>
 		</tab>
 
