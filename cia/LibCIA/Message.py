@@ -23,7 +23,7 @@ by XML documents.
 #
 
 from twisted.python import log
-import time, types
+import time, types, re
 import XML, RpcServer
 
 
@@ -444,6 +444,106 @@ class Formatter:
             f = getattr(self, 'param_'+tag.nodeName, None)
             if f:
                 f(tag)
+
+
+class ModularFormatter(Formatter):
+    """A Formatter consisting of multiple components that can be rearranged
+       by changing the 'format' parameter. The current component arrangement
+       is stored as a DOM tree in 'componentTree', generated from the XML
+       string in 'defaultComponentTree'. It is overridden in param_format().
+       """
+    defaultComponentTree = None
+    componentTree = None
+
+    def param_format(self, tree):
+        """Handles the <format> parameter. Note that since the format generally
+           can't be shared between different types of formatters, there is an
+           optional (but recommended) 'appliesTo' attribute that lists one or more
+           space separated formatter names.
+           """
+        appliesTo = tree.getAttributeNS(None, 'appliesTo')
+        if appliesTo:
+            if self.__class__.__name__ not in appliesTo.split():
+                return
+
+        self.componentTree = tree
+
+    def format(self, args):
+        """The formatter entry point. This just finds the current component
+           tree and invokes walkComponents and joinComponents on it.
+           """
+        if self.componentTree:
+            tree = self.componentTree
+        else:
+            tree = XML.parseString(self.defaultComponentTree).documentElement
+        return self.joinComponents(self.walkComponents(tree.childNodes, args))
+
+    def evalComponent(self, node, args):
+        """Given a DOM node for a component, evaluate it and return the result
+           list. An empty list always indicates that the component ran but
+           had nothing to format- we return None if the node is ignored.
+
+           Text nodes return a list with only their data. Newline characters
+           in a text node are converted to spaces, so newlines and tabs can be used
+           to prettify the XML without it affecting the final output- this combined with
+           the redundant whitespace elimination in joinComponents() gives HTML-like
+           semantics. Literal linebreaks can be obtained with the <br/> component.
+
+           Elements invoke the corresponding component_* handler, which must
+           return a sequence.
+           """
+        if node.nodeType == node.TEXT_NODE:
+            return [node.data.replace("\n", " ")]
+
+        elif node.nodeType == node.ELEMENT_NODE:
+            f = getattr(self, "component_" + node.nodeName, None)
+            if f:
+                return f(node, args)
+            else:
+                raise XML.XMLValidityError("Unknown component name in %s: %r" %
+                                            (self.__class__.__name__, node.nodeName))
+
+    def walkComponents(self, nodes, args):
+        """Walk through all the given XML nodes, returning a list of formatted objects."""
+        results = []
+        for node in nodes:
+            results.extend(self.evalComponent(node, args))
+        return results
+
+    def component_autoHide(self, element, args):
+        """A built-in component that evaluates all children, hiding them all if
+           any return an empty list. This makes it easy to add prefixes, suffixes, or
+           other formatting to a component that disappears when it does.
+           """
+        results = []
+        for node in element.childNodes:
+            result = self.evalComponent(node, args)
+            if result is not None and not result:
+                return []
+            results.extend(result)
+        return results
+
+    def component_br(self, element, args):
+        """A built-in component that just returns a newline"""
+        return ["\n"]
+
+    def textComponent(self, element, args, *path):
+        """A convenience function for defining components that just look for a node
+           in the message and return its shallowText.
+           """
+        element = XML.dig(args.message.xml, *path)
+        if element:
+            return [XML.shallowText(element)]
+        else:
+            return []
+
+    def joinComponents(self, results):
+        """Given a list of component results, return the formatter's final result.
+           The default implementation converts to strings, joins, then removes excess
+           whitespace. Subclasses should override this if they're formatting Nouvelle
+           trees or other non-string data types.
+           """
+        return re.sub(r'[ \t]+', ' ', ''.join(map(str, results))).strip()
 
 
 filterCache = {}

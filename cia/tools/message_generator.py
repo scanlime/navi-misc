@@ -12,11 +12,11 @@ import time, random, socket
 class MessageGenerator(Client.App):
     def main(self):
         while True:
-            time.sleep(random.uniform(0, 7))
             try:
                 self.server.hub.deliver(RandomMessage.generate())
             except socket.error:
                 pass
+            time.sleep(random.uniform(0, 7))
 
 if __name__ == '__main__':
     MessageGenerator().main()
