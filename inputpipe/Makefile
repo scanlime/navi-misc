@@ -21,10 +21,10 @@ install: $(BINS)
 	$(INSTALL) inputpipe-client $(INSTDIR)/inputpipe-client
 
 inputpipe-server: $(SERVER_OBJS)
-	gcc -o $@ $(SERVER_OBJS) $(LDFLAGS)
+	$(CC) -o $@ $(SERVER_OBJS) $(LDFLAGS)
 
 inputpipe-client: $(CLIENT_OBJS)
-	gcc -o $@ $(CLIENT_OBJS) $(LDFLAGS)
+	$(CC) -o $@ $(CLIENT_OBJS) $(LDFLAGS)
 
 clean:
 	rm -f $(BINS) $(SERVER_OBJS) $(CLIENT_OBJS)
