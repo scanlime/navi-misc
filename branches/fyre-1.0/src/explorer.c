@@ -40,6 +40,7 @@ static void explorer_dispose     (GObject *gobject);
 static gboolean explorer_auto_limit_update_rate (Explorer *self);
 static gboolean limit_update_rate               (GTimer* timer, float max_rate);
 static gdouble  explorer_get_iter_speed         (Explorer *self);
+static gchar*   explorer_strdup_elapsed         (Explorer *self);
 static gchar*   explorer_strdup_status          (Explorer *self);
 static gchar*   explorer_strdup_speed           (Explorer *self);
 static gchar*   explorer_strdup_quality         (Explorer *self);
@@ -719,21 +720,34 @@ static void explorer_update_status_bar(Explorer *self)
 static gchar*   explorer_strdup_status (Explorer *self)
 {
     gchar *status;
+    gchar *elapsed = explorer_strdup_elapsed(self);
     gchar *speed = explorer_strdup_speed(self);
     gchar *quality = explorer_strdup_quality(self);
 
-    status = g_strdup_printf("Iterations:    %.3e    \t"
+    status = g_strdup_printf("Elapsed time:    %s    \t"
+			     "Iterations:    %.3e    \t"
 			     "Speed:    %s    \t"
 			     "Quality:    %s    \t"
 			     "Current tool: %s",
+			     elapsed,
 			     self->map->iterations,
 			     speed,
 			     quality,
 			     self->current_tool);
 
+    g_free(elapsed);
     g_free(speed);
     g_free(quality);
     return status;
+}
+
+static gchar*   explorer_strdup_elapsed (Explorer *self)
+{
+    gulong elapsed = (gulong) histogram_imager_get_elapsed_time(HISTOGRAM_IMAGER(self->map));
+    return g_strdup_printf("%02d:%02d:%02d",
+			   elapsed / (60*60),
+			   (elapsed / 60) % 60,
+			   elapsed % 60);
 }
 
 static gchar*   explorer_strdup_speed (Explorer *self)

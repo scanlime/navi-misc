@@ -8,11 +8,12 @@
 	* Added the --chuid and --pidfile options for Fyre servers
 	* Replaced the "target density" stopping conditions with a
 	  new quality metric based on the ratio of histogram samples to
-	  distance travelled in color space.
+	  distance travelled in color space
 	* Minor UI bugfixes
 	* Added and updated init scripts and packaging for Linux distros
 	* Automatically retry connections to cluster nodes as long as they
-	  are enabled. Currently it retries every 60 seconds.
+	  are enabled. Currently it retries every 60 seconds
+	* Added elapsed time to the status bar
 
 0.9 (07 February 2005)
 	* Made the about box the coolest thing since sliced cheese
