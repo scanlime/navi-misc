@@ -103,3 +103,28 @@ void CPlayerDrawObject::Think ( void )
 	}
 }
 
+// camera drawables
+CCameraObject::CBaseDrawable()
+{
+}
+
+CCameraObject::~CCameraObject()
+{
+}
+
+void CCameraObject::Think ( void )
+{
+	float pos[3];
+	float rot[3];
+
+	parent->GetPos(pos);
+	parent->GetRot(rot);
+
+	Camera *cam = CFirestarterLoop::instance().GetCamera();
+
+	cam->setFixedYawAxis(true);
+
+	cam->setPosition(pos[0],pos[1],pos[2]);
+	cam->setDirection(rot[0],rot[1],rot[2]);
+}
+

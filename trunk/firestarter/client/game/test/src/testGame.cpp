@@ -16,6 +16,7 @@
 
 // the drawables for this game
 #include "worldDrawables.h"
+#include "playerDrawables.h"
 
 // messages
 #define	_MESSAGE_SERVER_INFO 0x5349	// SI 
@@ -39,6 +40,8 @@ void CTestGame::Init ( void )
 	// do one time init stuff here
 	registerFactory("sky",new CSkyboxObjectFactory);
 	registerFactory("ground",new CGroundObjectFactory);
+	registerFactory("playerTank",new CPlayerObjectFactory);
+	registerFactory("camera",new CCameraObjectFactory);
 }
 
 void CTestGame::Kill ( void )
@@ -51,10 +54,12 @@ void CTestGame::Kill ( void )
 
 void CTestGame::Attach ( void )
 {
+	CPrefsManager &prefs = CPrefsManager::instance();
+	CFirestarterLoop &loop = CFirestarterLoop::instance();
+
 	players.clear();
 	localPlayer = NULL;
 	// get the connection info
-	CFirestarterLoop &loop = CFirestarterLoop::instance();
 
 	// log into that sucker
 	network.SetMesageHandaler(this);
@@ -91,6 +96,9 @@ void CTestGame::Attach ( void )
 	localPlayer = new CPlayerObject;
 	localPlayer->active = false;
 	localPlayer->idNumber = -1;
+	localPlayer->name = prefs.GetItemS("PlayerName");
+	if (prefs.ItemExists("PlayerSkin"))
+		localPlayer->material = prefs.GetItemS("PlayerSkin");
 }
 
 void CTestGame::Release ( void )
@@ -131,19 +139,95 @@ void CTestGame::OnMessage ( CNetworkPeer &peer, CNetworkMessage &message )
 
 	switch(message.GetType())
 	{
-		case _MESSAGE_SERVER_INFO:
+		case _MESSAGE_SERVER_INFO:	// the server is telling us our ID and wants us to send back our info
 			// get our ID
 			localPlayer->idNumber = outMessage.ReadI();
 			players[localPlayer->idNumber] = localPlayer;
+			localPlayer->active = false;
 
 			// send back a client info
 			outMessage.SetType("CI");
-			outMessage.AddStr(prefs.GetItemS("PlayerName"));
+			outMessage.AddStr(localPlayer->name.c_str());
+			outMessage.AddStr(localPlayer->material.c_str());
 			outMessage.Send(peer,true);
 			break;
 
-		default:
+		case _MESSAGE_USER_ADD: // here comes a new chalenger
+			{			
+				int newPlayerID = message.ReadI();
+				CPlayerObject	*newPlayer = new CPlayerObject();
+				newPlayer->active = false;
+				players[newPlayerID] = newPlayer;
+			}
+			break;
+
+		case _MESSAGE_USER_PART:	// somone left
+			{
+				int playerID = message.ReadI();
+				if (playerID != localPlayer->idNumber)	// umm we should never get a part for us
+				{
+					tmPlayerMap::iterator itr = players.find(playerID);
+					if (itr != players.end())
+					{
+						itr->second->Kill();
+						delete(itr->second);
+						players.erase(itr);
+					}
+				}
+			}
+			break;
+
+		case _MESSAGE_CLIENT_INFO:	// we got some info for a new players
+			{
+				CPlayerObject	*newPlayer = players[message.ReadI()];
+				if (newPlayer)
+				{
+					newPlayer->name = message.ReadStr();
+					newPlayer->material = message.ReadStr();
+				}
+			}
+			break;
+
+		case _MESSAGE_SPAWN:	// somone spawned, it may have been us
+			{
+				int playerID = message.ReadI();
+				CPlayerObject	*newPlayer = localPlayer;
+				if (playerID != localPlayer->idNumber)
+					newPlayer = players[playerID];
+
+				if (!newPlayer->active)
+				{
+					newPlayer->Init(true);
+					message.ReadV(newPlayer->pos);
+					message.ReadV(newPlayer->rot);
+					message.ReadV(newPlayer->vec);
+					newPlayer->active = true;
+				}
+			}
+			break;
+
+		case _MESSAGE_UPDATE:// yes we even accept updates to oursleves
+			{	
+				int playerID = message.ReadI();
+				CPlayerObject	*newPlayer = localPlayer;
+				if (playerID != localPlayer->idNumber)
+					newPlayer = players[playerID];
+
+				if (newPlayer->active)
+				{
+					message.ReadV(newPlayer->pos);
+					message.ReadV(newPlayer->rot);
+					message.ReadV(newPlayer->vec);
+				}
+			}
+			break;
+
+		case _MESSAGE_KICK: // um we got kicked for some reason
+
+			break;
+
+		default:	// hell if I know what this is, but say OK
 			outMessage.SetType("AK");
-			outMessage.Send(peer,true);
+			outMessage.Send(peer,false);
 	}
 }

@@ -21,7 +21,7 @@
 #include "networking.h"
 #include "players.h"
 
-class CTestGame : public CBaseGame , CNetworkMessageProcessor
+class CTestGame : public CBaseGame , CNetworkMessageProcessor, CBaseObject
 {
 	public:
 		CTestGame(){return;}
@@ -40,15 +40,20 @@ class CTestGame : public CBaseGame , CNetworkMessageProcessor
 		virtual void OnDisconnect ( CNetworkPeer &peer );
 		virtual void OnMessage ( CNetworkPeer &peer, CNetworkMessage &message );
 
+		// CBaseObject
+		// for the camera
+		bool GetPos ( float *pos );
+		bool GetRot ( float *rot );
+
 	protected:
-	CTestWorld			world;
+		CTestWorld			world;
 
-	void registerFactory (const char* name,CBaseDrawableFactory* factory);
-	std::vector<CBaseDrawableFactory*>	factoryList;
+		void registerFactory (const char* name,CBaseDrawableFactory* factory);
+		std::vector<CBaseDrawableFactory*>	factoryList;
 
-	CNetworkClient			network;
-	tmPlayerMap					players;
-	CPlayerObject				*localPlayer;									
+		CNetworkClient			network;
+		tmPlayerMap					players;
+		CPlayerObject				*localPlayer;									
 };
 
 #endif //_TEST_GAME_H_
