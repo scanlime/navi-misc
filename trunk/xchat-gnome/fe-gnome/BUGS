@@ -1,5 +1,4 @@
 * the progress bar on the dcc window goes to 100% momentarily before dropping back down to the correct length
-* networks/channels are not selected properly when starting up (autoconnect)
 * the completion list is not modified when the user changes nicks
 * the completion list occasionally gets really messed up on autojoin (maybe joining
   a new channel too) - probably rejoin as well
