@@ -40,14 +40,28 @@ public class smain
 	
 	public static void listen()
 	{
-		
+		Socket out;
+		Socket in;
+		try
+		{
+			while(true)
+			{
+				out = server.accept();
+				in = new Socket(host,port);
+				new connection(out,in).start();
+			}
+		}
+		catch(Exception e)
+		{
+			System.out.println(e);
+		}
 	}
 	
 	public static void startserver()
 	{
 		try
 		{
-			
+			server = new ServerSocket(port);
 		}
 		catch(Exception e)
 		{
