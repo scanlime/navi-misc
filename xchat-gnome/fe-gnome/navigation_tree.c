@@ -88,7 +88,7 @@ static gboolean navigation_tree_create_new_channel_entry_iterate(GtkTreeModel *m
 		treeview = glade_xml_get_widget(gui.xml, "server channel list");
 
 		gtk_tree_store_append(GTK_TREE_STORE(model), &child, iter);
-		gtk_tree_store_set(GTK_TREE_STORE(model), &child, 1, "<none>", 2, data, 3, 0, 4, NULL, -1);
+		gtk_tree_store_set(GTK_TREE_STORE(model), &child, 1, data->channel, 2, data, 3, 0, 4, NULL, -1);
 		/* make sure the tree expands to show the new channel */
 		gtk_tree_view_expand_row(GTK_TREE_VIEW(treeview), path, TRUE);
 		return TRUE;
