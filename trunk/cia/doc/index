@@ -54,7 +54,7 @@ CIA is implemented using the Python_ programming language and Twisted_
 networking framework. It is Free Software, licensed under the `GNU GPL`_.
 The source is available from a Subversion_ repository_.
 
-You can read more about CIA's architecture and `adding your project`_ to CIA.
+You can read more about CIA's architecture_ and `adding your project`_ to CIA.
 
 
 History
@@ -121,4 +121,4 @@ CIA uses open standards, including XHTML, CSS2, and XML-RPC.
 .. _repository: http://navi.cx/svn/misc/trunk/cia/
 .. _Subversion: http://subversion.tigris.org/
 .. _PLD Linux: http://pld-linux.orgi
-
+.. _architecture: /doc/how-cia-works
