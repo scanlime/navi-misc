@@ -151,7 +151,7 @@ class IncomingMailParser:
 
         # Since old-style commits didn't have any metadata, the best we can do
         # is to represent the log in a <colorText> element
-        colorText = ColorTextParser().parse(self.message.get_payload())
+        colorText = ColorTextParser().parse(self.message.get_payload()).documentElement
         XML.bury(xml, "message", "body").appendChild(colorText)
         return xml
 
