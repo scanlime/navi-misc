@@ -51,8 +51,12 @@ class StatsStorage(object):
 
     def uriencode(self, s, allowedChars = string.ascii_letters + string.digits + "-_"):
         """Return a URI-encoded version of 's', all characters not in the
-        given list will be replaced with their hexadecimal value prefixed
-        with '%'.
+           given list will be replaced with their hexadecimal value prefixed
+           with '%'.
+           This is like urllib.quote(), but we can't use that since we don't assume
+           the '.' character is safe- it can be used to create hidden files and special
+           directory names, so it's easier to just quote it rather than detecting
+           those special cases.
         """
         chars = []
         for char in s:
