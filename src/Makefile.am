@@ -77,6 +77,7 @@ fyre_SOURCES = 				\
 	batch-image-render.c		\
 	probability-map.c		\
 	prefix.c			\
+	image-fu.c			\
 	$(EXR_SRC)			\
 	$(GETOPT_SRC)			\
 	$(GNET_SRC)
@@ -111,5 +112,5 @@ noinst_HEADERS =			\
 	probability-map.h		\
 	discovery-server.h		\
 	discovery-client.h              \
-        platform.h
-
+        platform.h			\
+	image-fu.h

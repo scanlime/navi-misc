@@ -25,6 +25,7 @@
  */
 
 #include "color-button.h"
+#include "image-fu.h"
 #include <gtk/gtk.h>
 
 
@@ -102,33 +103,32 @@ static void update_color_sample(ColorButton *self) {
     /* Composite together a pixbuf showing a sample of this color, with alpha,
      * and set it as the drawing area's background pixmap.
      */
-    GdkPixbuf *color, *composited;
+    GdkPixbuf *color;
     GdkPixmap *pixmap;
-    const int tile_size = 16;
+    const int width = CHECKERBOARD_TILE_SIZE * 2;
+    const int height = CHECKERBOARD_TILE_SIZE * 2;
 
     /* First make a 1x1 pixbuf of our color */
-    color = gdk_pixbuf_new(GDK_COLORSPACE_RGB, FALSE, 8, 1, 1);
+    color = gdk_pixbuf_new(GDK_COLORSPACE_RGB, TRUE, 8, width, height);
     gdk_pixbuf_fill(color,
 		    ((self->color.red   >> 8) << 24) |
 		    ((self->color.green >> 8) << 16) |
-		    ((self->color.blue  >> 8) <<  8));
+		    ((self->color.blue  >> 8) <<  8) |
+		    ((self->alpha       >> 8)      ));
 
     /* Blend this on top of a checkerboard pattern */
-    composited = gdk_pixbuf_composite_color_simple(color, tile_size*2, tile_size*2,
-						   GDK_INTERP_TILES, self->alpha >> 8,
-						   tile_size, 0xaaaaaa, 0x555555);
+    image_add_checkerboard(color);
 
     /* Make a pixbuf out of it */
-    pixmap = gdk_pixmap_new(self->drawing_area->window, tile_size*2, tile_size*2, -1);
-    gdk_pixbuf_render_to_drawable(composited, pixmap, self->drawing_area->style->fg_gc[GTK_STATE_NORMAL],
-				  0, 0, 0, 0, tile_size*2, tile_size*2, GDK_RGB_DITHER_NORMAL, 0, 0);
+    pixmap = gdk_pixmap_new(self->drawing_area->window, width, height, -1);
+    gdk_pixbuf_render_to_drawable(color, pixmap, self->drawing_area->style->fg_gc[GTK_STATE_NORMAL],
+				  0, 0, 0, 0, width, height, GDK_RGB_DITHER_NORMAL, 0, 0);
 
     /* Set it as a backing pixmap */
     gdk_window_set_back_pixmap(self->drawing_area->window, pixmap, FALSE);
     gdk_window_clear(self->drawing_area->window);
 
     gdk_pixbuf_unref(color);
-    gdk_pixbuf_unref(composited);
     gdk_pixmap_unref(pixmap);
 }
 
