@@ -6,7 +6,7 @@ depend() {
 
 start() {
 	ebegin "Starting fyre"
-	start-stop-daemon --start --quiet --nicelevel 10 --background \
+	start-stop-daemon --start --quiet --nicelevel 19 \
 		--pidfile /var/run/fyre.pid \
 		--startas /usr/local/bin/fyre -- -r
 	eend $?
