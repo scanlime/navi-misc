@@ -1,6 +1,12 @@
 #!/usr/bin/env python
 import gtk
-import rtgraph
+import rtgraph, time, math
+
+
+class SineChannel(rtgraph.Channel):
+    def getValue(self):
+        return sin(time.time() % (math.pi*2)) * 0.5 + 0.5
+
 
 win = gtk.Window(gtk.WINDOW_TOPLEVEL)
 vbox = gtk.VBox()
@@ -11,6 +17,7 @@ win.set_border_width(5)
 for i in xrange(4):
 
     graph = rtgraph.HScrollGraph()
+    graph.channels = [SineChannel()]
     graph.show()
 
     frame = gtk.Frame()
