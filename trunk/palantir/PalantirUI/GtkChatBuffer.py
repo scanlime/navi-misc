@@ -39,18 +39,21 @@ class GtkChatBuffer(gtk.ScrolledWindow):
 
     self.text_view.scroll_to_iter(buffer.get_end_iter(),0.0)
 
+    if nick.find('<') != -1:
+      bounds = buffer.get_end_iter().backward_search(nick.strip('< >'), 1)
+    elif nick.find('*') != -1:
+      bounds = buffer.get_end_iter().backward_search(nick.strip('* '), 1)
+    else:
+      bounds = None
+
     # Apply highlighting tags.
     if highlight:
-      if nick.find('<') != -1:
-        bounds = buffer.get_end_iter().backward_search(nick.strip('< >'), 1)
-      else:
-	bounds = buffer.get_end_iter().backward_search(nick.strip('* '), 1)
       buffer.apply_tag_by_name('highlight', bounds[0], bounds[1])
 
-    #iter = buffer.get_end_iter()
-    #iter.backward_line()
-
-    #for end in nickends:
-    #  bounds = iter.forward_search(end.strip(), 1)
-    #  if bounds:
-    #	buffer.apply_tag_by_name('nickends', bounds[0], bounds[1])
+    if bounds:
+      start = bounds[0].copy()
+      start.backward_chars(2)
+      end = bounds[1].copy()
+      end.forward_char()
+      buffer.apply_tag_by_name('nickends', start,bounds[0])
+      buffer.apply_tag_by_name('nickends', bounds[1], end)
