@@ -236,24 +236,26 @@ class Rack(BaseRack):
           >>> r.items()
           [(12, 'banana'), ('squid', 4), ((1, 2, ('boing', (None,))), [1, 2, 4, 'Poing'])]
        """
-    def child(self, *ns):
+    def child(self, *ns, **kwargs):
         """Return a new Rack object that refers to a namespace within this one.
            The namespace can be any object serializable by KeyPickler.
            If more than one argument is given, this burrows more than one
            level deep in the Rack's namespace hierarchy.
-           """
-        return Rack(self.db, self.path + ns, self.serializer)
 
-    def unlistedChild(self, *ns):
-        """Like Child, but the child doesn't show up in this rack's list of
-           namespaces and doesn't keep its own list of keys. It isn't iterable.
+           An alternate class for the child Rack can be specified with the 'cls'
+           keyword argument.
            """
-        return UnlistedRack(self.db, self.path + ns, self.serializer)
+        cls = kwargs.get('cls')
+        if not cls:
+            cls = self.__class__
+        return cls(self.db, self.path + ns, self.serializer)
 
-    def parent(self):
+    def parent(self, cls=None):
         """Retrieve the parent namespace of this one"""
+        if not cls:
+            cls = self.__class__
         if len(self.path) > 0:
-            return Rack(self.db, self.path[:-1], self.serializer)
+            return cls(self.db, self.path[:-1], self.serializer)
         else:
             return None
 

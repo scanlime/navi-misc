@@ -366,31 +366,35 @@ class RecentMessages(MessageList):
 
 
 class MetadataKeyColumn(Nouvelle.Column):
-    """A column that displays a metadata key as a hyperlink to the proper MetadataValuePage"""
+    """A column that displays a metadata key as a hyperlink to the proper MetadataValuePage.
+       Rows are expected to be (target, key) tuples.
+       """
     heading = 'key'
-
-    def getValue(self, item):
-        return item[0]
-
-    def render_data(self, context, item):
-        if type(item[0]) == str:
-            return MetadataLink(context['statsTarget'], item[0])
-        else:
-            return repr(item[0])
-
-
-class MetadataValueColumn(Nouvelle.Column):
-    """A column that displays a metadata key's associated value, formatted appropriately"""
-    heading = 'value'
 
     def getValue(self, item):
         return item[1]
 
     def render_data(self, context, item):
+        if type(item[1]) == str:
+            return MetadataLink(item[0], item[1])
+        else:
+            return repr(item[1])
+
+
+class MetadataValueColumn(Nouvelle.Column):
+    """A column that displays a metadata key's associated value, formatted appropriately.
+       Rows are expected to be (target, key) tuples.
+       """
+    heading = 'value'
+
+    def getValue(self, item):
+        target, key = item
+        return target.metadata[key]
+
+    def render_data(self, context, item):
         """Farm this off to an appropriate handler for the data's MIME type"""
-        target = context['statsTarget']
-        key, value = item
-        mime = target.getMetadataType(key)
+        target, key = item
+        mime = target.metadata.getType(key)
         try:
             # First look for a handler for one particular MIME type after
             # replacing the / with an underscore
@@ -403,29 +407,44 @@ class MetadataValueColumn(Nouvelle.Column):
             except AttributeError:
                 # Nothing, use a generic handler
                 f = self.renderData_other
-        return f(context, mime, key, value)
+        return f(context, mime, target, key)
 
-    def renderData_text(self, context, mimeType, key, value):
-        return value
+    def renderData_text(self, context, mimeType, target, key):
+        return target.metadata[key]
 
-    def renderData_image(self, context, mimeType, key, value):
+    def renderData_image(self, context, mimeType, target, key):
         """Return an <img> tag linking to the key's value"""
-        return tag('img', src=MetadataLink(context['statsTarget'], key).getURL(context))
+        return tag('img', src=MetadataLink(target, key).getURL(context))
 
-    def renderData_other(self, context, mimeType, key, value):
+    def renderData_other(self, context, mimeType, target, key):
         return "Unable to format data of type %r" % mimeType
+
+
+class MetadataTypeColumn(Nouvelle.Column):
+    """A column that displays a metadata key's MIME type.
+       Rows are expected to be (target, key) tuples.
+       """
+    heading = 'type'
+
+    def getValue(self, item):
+        target, key = item
+        return target.metadata.getType(key)
 
 
 class MetadataSection(Template.Section):
     """A section displaying a table of metadata keys for one stats target"""
     title = "metadata"
 
-    def __init__(self, metadata):
-        self.metadata = metadata
+    def __init__(self, target):
+        self.target = target
 
     def render_rows(self, context):
-        return [Template.Table(self.metadata.items(), [
+        # Each 'row' in our table is actually a (target, key) tuple.
+        # Values and types are looked up lazily.
+        rows = [(self.target, key) for key in self.target.metadata.keys()]
+        return [Template.Table(rows, [
             MetadataKeyColumn(),
+            MetadataTypeColumn(),
             MetadataValueColumn(),
             ])]
 
@@ -443,7 +462,7 @@ class MetadataValuePage(resource.Resource):
         except KeyError:
             return error.NoResource("No such metadata key %r" % self.key).render(request)
 
-        request.setHeader('content-type', self.target.getMetadataType(self.key))
+        request.setHeader('content-type', self.target.metadata.getType(self.key))
         return str(value)
 
 
@@ -470,14 +489,13 @@ class MetadataPage(Template.Page):
 
     def preRender(self, context):
         context['statsRootPath'] = self.statsPage.findRootPath(context['request'], 1)
-        context['statsTarget'] = self.statsPage.target
 
     def render_mainTitle(self, context):
         return "Metadata for stats://%s" % "/".join(self.statsPage.target.pathSegments)
 
     def render_mainColumn(self, context):
         return [
-            MetadataSection(self.statsPage.target.metadata),
+            MetadataSection(self.statsPage.target),
             ]
 
     def getChildWithDefault(self, name, request):

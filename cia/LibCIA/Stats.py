@@ -29,7 +29,7 @@ the actual stats target using part of the message.
 from twisted.web import xmlrpc
 from twisted.python import log
 import Ruleset, Message, Rack, TimeUtil
-import string, os, time
+import string, os, time, types
 
 
 class StatsURIHandler(Ruleset.RegexURIHandler):
@@ -166,6 +166,46 @@ class StatsStorage(object):
         return StatsTarget(self)
 
 
+class MetadataRack(Rack.Rack):
+    """A Rack subclass that only stores strings, but allows retrieval
+       and specification of meta-metadata such as a value's MIME type.
+       """
+    def __setitem__(self, key, value):
+        """Wrap the usual __setitem__ to enforce that keys must be strings"""
+        if type(key) not in types.StringTypes:
+            raise TypeError("MetadataRack's keys must be strings")
+        Rack.Rack.__setitem__(self, key, value)
+
+    def setType(self, key, mimeType):
+        """Set a key's MIME type. None can be used to restore the default."""
+        # This stores the type at (key, 'type'), which can't normally be reached
+        # from outside because our __setitem__ only allows strings.
+        if mimeType is None:
+            try:
+                del self[(key, 'type')]
+            except KeyError:
+                pass
+        else:
+            Rack.Rack.__setitem__(self, (key, 'type'), mimeType)
+
+    def getType(self, key, default="text/plain"):
+        """Get a key's MIME type, returning 'default' if it hasn't been set"""
+        return self.get((key, 'type'), default)
+
+    def __iter__(self):
+        """Return only the string items, so when iterating the metadata our
+           caller doesn't see the internal keys we use to store MIME types.
+           """
+        for item in Rack.Rack.__iter__(self):
+            if type(item) in types.StringTypes:
+                yield item
+
+    def __delitem__(self, key):
+        # After deleting an item, unset its MIME type
+        Rack.Rack.__delitem__(self, key)
+        self.setType(key, None)
+
+
 class StatsTarget(object):
     """Encapsulates all the stats-logging features used for one particular
        target. This can be one project, one class of messages, etc.
@@ -184,8 +224,8 @@ class StatsTarget(object):
         # Child namespaces that are tuples rather than strings are used
         # for our actual resource storage.
         self.counters = Counters(self.rack.child(('counters',)))
-        self.recentMessages = Rack.RingBuffer(self.rack.unlistedChild(('recentMessages',)), 500)
-        self.metadata = self.rack.child(('metadata',))
+        self.recentMessages = Rack.RingBuffer(self.rack.child(('recentMessages',), cls=Rack.UnlistedRack), 500)
+        self.metadata = self.rack.child(('metadata',), cls=MetadataRack)
 
     def deliver(self, message):
         """A message has been received which should be logged by this stats target"""
@@ -218,13 +258,6 @@ class StatsTarget(object):
         if self.pathSegments:
             return self.pathSegments[-1]
         return 'Stats'
-
-    def getMetadataType(self, key):
-        """Return the MIME type for a given metadata key. This is stored in another
-           metadata key, a 2-tuple with (original key, 'type'). The default
-           mime type is text/plain.
-           """
-        return self.metadata.get((key, 'type'), 'text/plain')
 
 
 class Counters(object):
