@@ -67,7 +67,7 @@ box_get_type (void)
 	(GInstanceInitFunc) box_init,
       };
 
-      box_type = g_type_register_static (PARAMETER_HOLDER_TYPE, "Box", &box_info, 0);
+      box_type = g_type_register_static (SCENE_OBJECT_TYPE, "Box", &box_info, 0);
     }
 
   return box_type;
