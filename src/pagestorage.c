@@ -139,8 +139,11 @@ void              rtg_page_storage_init            (RtgPageStorage* self)
     header_p->page_size = self->page_size;
     header_p->first_free = RTG_PAGE_NULL;
 
-    /* Set up the header as the first page in an atom list */
-    rtg_page_atom_init_page(self, RTG_PAGE_HEADER, 0);
+    /* Set up the header as the first page in an atom list.
+     * The space used by the header itself is reserved, but the rest
+     * of the page may hold atoms.
+     */
+    rtg_page_atom_init_page(self, RTG_PAGE_HEADER, sizeof(struct header_page_prefix));
 }
 
 void              rtg_page_storage_resize          (RtgPageStorage* self,

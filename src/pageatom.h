@@ -101,6 +101,10 @@ void              rtg_page_atom_set_value        (RtgPageStorage*   storage,
 						  gpointer          value,
 						  gsize             value_len);
 
+/* A macro turning an atom value into a C lvalue of the given type */
+#define           rtg_page_atom_value(storage, atom, type) \
+    (*(type*)rtg_page_atom_get_value(storage, atom))
+
 /* Delete the current atom, marking it as free space */
 void              rtg_page_atom_delete           (RtgPageStorage*   storage,
 						  RtgPageAtom*      iter);
@@ -123,6 +127,18 @@ gboolean          rtg_page_atom_find             (RtgPageStorage*   storage,
 						  RtgPageAddress    initial,
 						  RtgPageAtom*      iter,
 						  const char*       key);
+
+/* A macro to initialize an iter to an atom with the given key. If an existing
+ * atom exists, it is found. If not, this evaluates the 'default' expression
+ * and creates a new atom of the specified type.
+ */
+#define           rtg_page_atom_find_or_create(storage, initial, iter, key, type, default) \
+    { \
+        if (!rtg_page_atom_find(storage, initial, iter, key)) { \
+	  rtg_page_atom_new(storage, initial, iter, key, sizeof(type)); \
+	  rtg_page_atom_value(storage, iter, type) = (default); \
+	} \
+    } while (0);
 
 /* Create a new atom list, using the supplied page address.
  * Optionally reserves a number of bytes at the beginning of
