@@ -19,6 +19,8 @@
  *
  */
 
+#include <gconf/gconf-client.h>
+
 #include "preferences_plugins_page.h"
 #include "../common/xchat.h"
 #define PLUGIN_C
@@ -35,6 +37,9 @@ typedef void (xchat_plugin_get_info) (char **, char **, char **);
 extern GSList *plugin_list; // xchat's list of loaded plugins.
 extern XChatGUI gui;
 
+static GSList *enabled_plugins;
+static GConfClient *gconf_client;
+
 /* Callbacks */
 static void on_load_toggled (GtkCellRendererToggle *toggle, gchar *arg, gpointer user_data);
 static void on_open_plugin_clicked (GtkButton *button, gpointer user_data);
@@ -50,6 +55,7 @@ static gboolean set_loaded_if_match (GtkTreeModel *model, GtkTreePath *path, Gtk
 		gpointer data);
 static void load_unload (char *filename, gboolean loaded, GtkTreeModel *model,
 		GtkTreeIter iter);
+static void autoload_plugin_cb (gpointer data, gpointer user_data);
 
 static GtkWidget *file_selector; // because everyone needs a file selec-tor!
 
@@ -63,6 +69,7 @@ initialize_preferences_plugins_page ()
 	GtkTreeSelection *select;
 	const gchar *homedir;
 	gchar *xchatdir;
+	GError *err = NULL;
 
 	treeview = glade_xml_get_widget (gui.xml, "plugins list");
 	open = glade_xml_get_widget (gui.xml, "plugin open");
@@ -113,6 +120,11 @@ initialize_preferences_plugins_page ()
 	for_files (xchatdir, "*.sl", xchat_gnome_plugin_add);
 	for_files (xchatdir, "*.py", xchat_gnome_plugin_add);
 	for_files (xchatdir, "*.pl", xchat_gnome_plugin_add);
+
+	/* Get our GConf stuff. */
+	gconf_client = gconf_client_get_default ();
+	enabled_plugins = gconf_client_get_list (gconf_client, "/apps/xchat/plugins/enabled",
+			GCONF_VALUE_STRING, &err);
 }
 
 /* FIXME: As far as I can tell this function is getting called atleast 3 times at the
@@ -146,6 +158,12 @@ preferences_plugins_page_update()
 	}
 }
 
+void
+autoload_plugins ()
+{
+	g_slist_foreach (enabled_plugins, &autoload_plugin_cb, NULL);
+}
+
 static void
 on_load_toggled (GtkCellRendererToggle *toggle, gchar *arg, gpointer user_data)
 {
@@ -161,7 +179,7 @@ on_load_toggled (GtkCellRendererToggle *toggle, gchar *arg, gpointer user_data)
 	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
 
 	if (gtk_tree_selection_get_selected (selection, &model, &iter)) {
-		char *buf;
+		//char *buf;
 		gtk_tree_model_get (model, &iter, 3, &filename, 4, &loaded, -1);
 		/* Some of this code was taken from the fe-gtk plugingui,
 		 * the names have been changed to protect the innocent.
@@ -310,6 +328,7 @@ static void load_unload (char *filename, gboolean loaded, GtkTreeModel *model,
 		GtkTreeIter iter)
 {
 	char *buf;
+	GError *err = NULL;
 
 	if (loaded) {
 		buf = malloc (strlen (filename) + 10);
@@ -320,13 +339,40 @@ static void load_unload (char *filename, gboolean loaded, GtkTreeModel *model,
 
 		/* FIXME: Bad to assume that the plugin was successfully unloaded. */
 		gtk_list_store_set (GTK_LIST_STORE (model), &iter, 4, FALSE, -1);
+
+		enabled_plugins = g_slist_remove (enabled_plugins, filename);
 	} else {
 		buf = malloc (strlen (filename) + 9);
 		if (strchr (filename, ' '))
 			sprintf (buf, "LOAD \"%s\"", filename);
 		else
 			sprintf (buf, "LOAD %s", filename);
+
+		enabled_plugins = g_slist_append (enabled_plugins, filename);
 	}
+
+	handle_command (gui.current_session, buf, FALSE);
+	/* Update the gconf stuffs. Good gods Anderson... What are you
+	 * babbling about?
+	 */
+	gconf_client_set_list (gconf_client, "/apps/xchat/plugins/enabled",
+			GCONF_VALUE_STRING, enabled_plugins, &err);
+	free (buf);
+}
+
+static void autoload_plugin_cb (gpointer data, gpointer user_data)
+{
+	gchar *filename, *buf;
+
+	filename = (gchar*) data;
+	buf = malloc (strlen (filename) + 9);
+
+	printf ("Auto-loading %s\n", filename);
+
+	if (strchr (filename, ' '))
+		sprintf (buf, "LOAD \"%s\"", filename);
+	else
+		sprintf (buf, "LOAD %s", filename);
 
 	handle_command (gui.current_session, buf, FALSE);
 	free (buf);
