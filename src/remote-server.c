@@ -29,6 +29,13 @@
 #include "config.h"
 #include "platform.h"
 
+/* Extra unixy includes for dropping privileges */
+#ifdef HAVE_FORK
+#include <sys/types.h>
+#include <pwd.h>
+#include <unistd.h>
+#endif
+
 #include <gnet.h>
 #include <gtk/gtk.h>
 #include <string.h>
@@ -96,6 +103,7 @@ static void       remote_server_add_gui       (RemoteServer*         self,
 static void       remote_server_init_commands (RemoteServer*         self);
 
 static void       gui_init_none               (RemoteServerConn*     self);
+static void       release_privileges          (RemoteServer*         self);
 
 
 /************************************************************************************/
@@ -120,6 +128,12 @@ void              remote_server_main_loop     (int        port_number,
     if (self.verbose)
 	printf("Fyre server listening on port %d\n", port_number);
 
+    /* At this point, now that we've bound to the port and such,
+     * make sure we aren't running as a privileged user. If so,
+     * ditch all privileges permanently.
+     */
+    release_privileges(&self);
+
     if (have_gtk)
 	gtk_main();
     else
@@ -132,6 +146,33 @@ void              remote_server_main_loop     (int        port_number,
     g_hash_table_destroy(self.command_hash);
     g_hash_table_destroy(self.gui_hash);
 }
+
+
+#ifdef HAVE_FORK
+/* Currently this is only valid on unixy OSes */
+static void release_privileges(RemoteServer* self)
+{
+    struct passwd* nobody;
+
+    if (getuid() != 0)
+	return;
+    if (self->verbose)
+	printf("Fyre is running as root, dropping all privileges\n");
+    
+    nobody = getpwnam("nobody");
+    if (!nobody) {
+	printf("Can't find the 'nobody' user, refusing to run as root.\n");
+	exit(1);
+    }
+
+    if (setuid(nobody->pw_uid) < 0) {
+	perror("setuid");
+	exit(1);
+    }
+}
+#else
+static void release_privileges(RemoteServer* self) {}
+#endif /* HAVE_FORK */
 
 static void       remote_server_connect       (GServer*              gserver,
 					       GConn*                gconn,
