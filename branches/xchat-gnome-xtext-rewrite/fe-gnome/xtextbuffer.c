@@ -141,21 +141,41 @@ xtext_buffer_append_indent (XTextBuffer *buffer, unsigned char *left, int llen, 
   memcpy (str, left, llen);
   str[llen] = ' ';
   memcpy (str + llen + 1, right, rlen);
+
 }
 
 void
 xtext_buffer_clear (XTextBuffer *buffer)
 {
+  textentry *next;
+
+  while (buffer->text_first)
+  {
+    next = buffer->text_first->next;
+    g_free (buffer->text_first);
+    buffer->text_first = next;
+  }
+  buffer->text_last = NULL;
+
+  /* notify listeners */
 }
 
 gboolean
 xtext_buffer_is_empty (XTextBuffer *buffer)
 {
+  return (buffer->text_first == NULL);
 }
 
 void
 xtext_buffer_foreach (XTextBuffer *buffer, XTextBufferForeachFunc func, gpointer user_data)
 {
+  textentry *ent = buffer->text_first;
+
+  while (ent)
+  {
+    func (buffer, ent->str, user_data);
+    ent = ent->next;
+  }
 }
 
 static void
