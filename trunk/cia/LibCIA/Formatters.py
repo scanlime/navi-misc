@@ -262,7 +262,8 @@ class CommitToRSS(CommitFormatter):
         commit = message.xml.body.commit
         return Nouvelle.tag('item')[
             Nouvelle.tag('description')[
-                self.format_log(commit.log),
+                # Quoted again, since this will be interpreted as HTML
+                Nouvelle.quote(self.format_log(commit.log)),
             ],
             Nouvelle.tag('pubDate')[
                 TimeUtil.formatDateRFC822(int(str(message.xml.timestamp))),
@@ -281,7 +282,8 @@ class ColortextToRSS(Message.Formatter):
     def format(self, message, input=None):
         return Nouvelle.tag('item')[
             Nouvelle.tag('description')[
-                XML.allText(message.xml.body.colorText),
+                # Quoted again, since this will be interpreted as HTML
+                Nouvelle.quote(XML.allText(message.xml.body.colorText)),
             ],
             Nouvelle.tag('pubDate')[
                 TimeUtil.formatDateRFC822(int(str(message.xml.timestamp))),
