@@ -83,6 +83,10 @@ class WebServer(Template.Section):
     def render_uptime(self, context):
         return TimeUtil.formatDuration(time.time() - context['request'].site.serverStartTime)
 
+    def render_mtbr(self, context):
+        site = context['request'].site
+        return TimeUtil.formatDuration((time.time() - site.serverStartTime) / site.requestCount)
+
     rows = [
                [
                    Template.value[ place('requestCount') ],
@@ -91,6 +95,10 @@ class WebServer(Template.Section):
                [
                    'The server has been up for ',
                    Template.value[ place('uptime') ],
+               ],
+               [
+                   'On average, there is a request every ',
+                   Template.value[ place('mtbr') ],
                ],
            ]
 
