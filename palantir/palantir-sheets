@@ -9,16 +9,17 @@ files using those layouts.
   Copyright (C) 2003, W. Evan Sheehan <evan@navi.cx>
 '''
 
-import sys, gtk, gtk.glade, GtkSheetElements
+import sys, gtk, gtk.glade
 from random import randint
-from Sheet import Sheet
-from Character import Character
+from CharacterSheet import GtkSheetElements
+from CharacterSheet.Sheet import Sheet
+from CharacterSheet.Character import Character
 
 def init(filename=None):
   ''' Initialize the window and stuff using glade. '''
   # Create the window from the XML file.
   global tree
-  tree = gtk.glade.XML('sheetviewer.glade')
+  tree = gtk.glade.XML('data/sheetviewer.glade')
   tree.OpenSheetDialog = tree.get_widget('OpenSheetDialog')
   tree.SaveSheetDialog = tree.get_widget('SaveSheetDialog')
   tree.ViewPort = tree.get_widget('SheetViewPort')
