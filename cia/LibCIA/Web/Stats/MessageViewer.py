@@ -171,7 +171,15 @@ class MessagePage(Template.Page):
         # use when an entire page is devoted to their one message, possibly showing
         # it in greater detail. 'xhtml' is the formatter most messages should have.
         # 'plaintext' is a nice fallback.
-        for medium in ('xhtml-long', 'xhtml', 'plaintext'):
+        #
+        # This default list of media to try can be overridden with an argument in our URL.
+
+        if 'media' in context['args']:
+            mediaList = context['args']['media'][0].split()
+        else:
+            mediaList = ('xhtml-long', 'xhtml', 'plaintext')
+
+        for medium in mediaList:
             try:
                 formatted = Formatters.factory.findMedium(medium, m).format(m)
             except Message.NoFormatterError:
