@@ -40,8 +40,7 @@ class Page:
        are put into a Book along with other Pages.
 
        A page is active as long as it exists in memory- between when its constructor
-       finishes and when all references to it are gone. Because all communication
-       occurs via Events, cleanup happens automagically.
+       finishes and when its finalize() member is called.
 
        The Book manages instantiating and deleting Pages. A page signals that it's
        job is finished by triggering its onFinish event.
@@ -51,6 +50,10 @@ class Page:
         self.viewport = view.viewport
         self.view = view
         self.time = Animated.Timekeeper()
+
+    def finalize(self):
+        """Optional hook to perform any deinitialization the Page needs"""
+        pass
 
 
 class Book(Page):
@@ -105,6 +108,8 @@ class Book(Page):
             # If the currently active page wasn't created from the spec at the front of the page list,
             # it should no longer be active. Make it so.
             if self.activeSpec is not self.pages[0]:
+                if self.activeInstance:
+                    self.activeInstance.finalize()
                 self.activeSpec = None
                 self.activeInstance = None
 
@@ -125,6 +130,8 @@ class Book(Page):
                 self.activeInstance.onFinish.observe(self.popFront)
         else:
             # No more pages, disable any currently active page and call our onFinish event
+            if self.activeInstance:
+                self.activeInstance.finalize()
             self.activeSpec = None
             self.activeInstance = None
             self.onFinish()
@@ -166,6 +173,10 @@ class WasabiLogo(Page):
         if self.timer > 5:
             self.onFinish()
 
+    def finalize(self):
+        for orbit in self.orbits:
+            self.view.scene.remove(orbit)
+
 
 class Monkey(Page):
     def __init__(self, view):
@@ -173,8 +184,8 @@ class Monkey(Page):
 
         self.viewport.mode = Viewport.GL.ClearedMode(clearColor=(0, 0, 0, 1))
 
-        monkey = Drawable.VRML.load("monkey.wrl")
-        view.scene.add(tuple(monkey.values()))
+        self.meshes = tuple(Drawable.VRML.load("monkey.wrl").values())
+        view.scene.add(self.meshes)
 
         self.view.camera.position = (0,0,0)
         self.view.camera.distance = 73
@@ -187,6 +198,9 @@ class Monkey(Page):
     def setupFrame(self):
         dt = self.time.step()
         self.view.camera.azimuth += dt * 80
+
+    def finalize(self):
+        self.scene.remove(self.meshes)
 
 
 book = Book(view, [WasabiLogo, Monkey])
