@@ -27,25 +27,25 @@
 void
 load_plugins(void)
 {
-	GDir *dir;
-	const gchar *file;
-	GModule *plugin;
+  GDir *dir;
+  const gchar *file;
+  GModule *plugin;
 
-	if (!g_module_supported())
-		return;
+  if (!g_module_supported())
+    return;
 
-	dir = g_dir_open ("src/plugins", 0, NULL);
-	if (dir == NULL)
-		return;
+  dir = g_dir_open ("src/plugins", 0, NULL);
+  if (dir == NULL)
+    return;
 
-	while (file = g_dir_read_name (dir))
-	{
-		gchar *full = g_strdup_printf("src/plugins/%s", file);
-		plugin = g_module_open (full, G_MODULE_BIND_LOCAL);
-		if (plugin != NULL)
-			g_print("loaded plugin '%s'\n", file);
-		g_free(full);
-	}
+  while (file = g_dir_read_name (dir))
+  {
+    gchar *full = g_strdup_printf("src/plugins/%s", file);
+    plugin = g_module_open (full, G_MODULE_BIND_LOCAL);
+    if (plugin != NULL)
+      g_print("loaded plugin '%s'\n", file);
+    g_free(full);
+  }
 
-	g_dir_close (dir);
+  g_dir_close (dir);
 }

@@ -25,7 +25,7 @@
 #include "world.h"
 
 const gchar*
-g_module_check_init(GModule *module)
+g_module_check_init (GModule *module)
 {
   static GType box, world;
 
