@@ -320,11 +320,12 @@ class RrdFile(BuildTarget):
         stepSize = 60
 
         # Define the steps and rows for each RRA in each CF (see the rrdcreate manpage)
+        nSamples = 60*60*24*2 / stepSize
         rraList = [
-            (1,   60*60*24*2 / stepSize),        # Store every sample for the last 2 days
-            (7,   60*60*24*2 / stepSize / 7),    # Every 7th sample for the last 2 weeks
-            (31,  60*60*24*2 / stepSize / 31),   # Every 31st sample for the last 2 months
-            (365, 60*60*24*2 / stepSize / 365),  # Every 365th sample for the last 2 years
+            (1,   nSamples),   # Store every sample for the last 2 days
+            (7,   nSamples),   # Every 7th sample for the last 2 weeks
+            (31,  nSamples),   # Every 31st sample for the last 2 months
+            (365, nSamples),   # Every 365th sample for the last 2 years
             ]
 
         # Start out with the parameters to define our RRD file and data source
