@@ -53,9 +53,10 @@ static void       on_calc_start               (IterativeMap*  map,
 static void       on_calc_stop                (IterativeMap*  map,
 					       ClusterModel*  self);
 
-static void       cluster_foreach_ready_node  (ClusterModel*  self,
+static void       cluster_foreach_node        (ClusterModel*  self,
 					       ClusterForeachCallback callback,
-					       gpointer       user_data);
+					       gpointer       user_data,
+					       gboolean       only_ready_nodes);
 static void       cluster_node_update_param   (ClusterModel  *self,
 					       RemoteClient  *client,
 					       gpointer       user_data);
@@ -68,6 +69,9 @@ static void       cluster_node_stop           (ClusterModel  *self,
 static void       cluster_node_merge_results  (ClusterModel  *self,
 					       RemoteClient  *client,
 					       gpointer       user_data);
+static void       cluster_node_set_min_stream_interval (ClusterModel  *self,
+							RemoteClient  *client,
+							gpointer       user_data);
 
 
 /************************************************************************************/
@@ -268,6 +272,9 @@ RemoteClient*  cluster_model_enable_node      (ClusterModel*         self,
     remote_client_set_status_cb(client, client_status_callback, self);
     remote_client_set_speed_cb(client, client_speed_callback, self);
 
+    if (self->set_min_stream_interval)
+	client->min_stream_interval = self->min_stream_interval;
+
     gtk_list_store_set(GTK_LIST_STORE(self), iter,
 		       CLUSTER_MODEL_CLIENT, client,
 		       CLUSTER_MODEL_ENABLED, TRUE,
@@ -331,6 +338,14 @@ void           cluster_model_show_status      (ClusterModel*         self)
     }
 }
 
+void           cluster_model_set_min_stream_interval (ClusterModel*  self,
+						      gdouble        seconds)
+{
+    self->min_stream_interval = seconds;
+    self->set_min_stream_interval = TRUE;
+    cluster_foreach_node(self, cluster_node_set_min_stream_interval, NULL, FALSE);
+}
+
 
 /************************************************************************************/
 /************************************************************************ Callbacks */
@@ -385,27 +400,27 @@ static void       on_param_notify             (ParameterHolder* holder,
 					       GParamSpec*      spec,
 					       ClusterModel*    self)
 {
-    cluster_foreach_ready_node(self, cluster_node_update_param, spec);
+    cluster_foreach_node(self, cluster_node_update_param, spec, TRUE);
 }
 
 static void       on_calc_finished            (IterativeMap*  map,
 					       ClusterModel*  self)
 {
-    cluster_foreach_ready_node(self, cluster_node_merge_results, NULL);
+    cluster_foreach_node(self, cluster_node_merge_results, NULL, TRUE);
 }
 
 static void       on_calc_start               (IterativeMap*  map,
 					       ClusterModel*  self)
 {
     self->is_running = TRUE;
-    cluster_foreach_ready_node(self, cluster_node_start, NULL);
+    cluster_foreach_node(self, cluster_node_start, NULL, TRUE);
 }
 
 static void       on_calc_stop                (IterativeMap*  map,
 					       ClusterModel*  self)
 {
     self->is_running = FALSE;
-    cluster_foreach_ready_node(self, cluster_node_stop, NULL);
+    cluster_foreach_node(self, cluster_node_stop, NULL, TRUE);
 }
 
 
@@ -413,9 +428,10 @@ static void       on_calc_stop                (IterativeMap*  map,
 /****************************************************************** Cluster Control */
 /************************************************************************************/
 
-static void      cluster_foreach_ready_node      (ClusterModel*  self,
+static void      cluster_foreach_node            (ClusterModel*  self,
 						  ClusterForeachCallback callback,
-						  gpointer       user_data)
+						  gpointer       user_data,
+						  gboolean       only_ready_nodes)
 {
     GtkTreeIter iter;
     RemoteClient* client;
@@ -427,7 +443,7 @@ static void      cluster_foreach_ready_node      (ClusterModel*  self,
 			       CLUSTER_MODEL_CLIENT, &client,
 			       -1);
 	    if (client) {
-		if (remote_client_is_ready(client))
+		if ((!only_ready_nodes) || remote_client_is_ready(client))
 		    callback(self, client, user_data);
 		g_object_unref(client);
 	    }
@@ -462,6 +478,13 @@ static void      cluster_node_merge_results      (ClusterModel  *self,
 						  gpointer       user_data)
 {
     remote_client_merge_results(client, self->master_map);
+}
+
+static void       cluster_node_set_min_stream_interval (ClusterModel  *self,
+							RemoteClient  *client,
+							gpointer       user_data)
+{
+    client->min_stream_interval = self->min_stream_interval;
 }
 
 /* The End */

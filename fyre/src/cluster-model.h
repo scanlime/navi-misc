@@ -46,6 +46,9 @@ struct _ClusterModel {
 
     IterativeMap* master_map;
     gboolean      is_running;
+
+    gdouble       min_stream_interval;  /* Default for new clients */
+    gboolean      set_min_stream_interval;
 };
 
 struct _ClusterModelClass {
@@ -79,6 +82,9 @@ ClusterModel*  cluster_model_get              (IterativeMap*         master_map,
 RemoteClient*  cluster_model_add_node         (ClusterModel*         self,
 					       const gchar*          hostname,
 					       gint                  port);
+
+void           cluster_model_set_min_stream_interval (ClusterModel*  self,
+						      gdouble        seconds);
 
 /* Show the cluster status on stdout. Good for debugging, and batch-mode rendering */
 void           cluster_model_show_status      (ClusterModel*         self);

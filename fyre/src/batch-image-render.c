@@ -45,6 +45,17 @@ void batch_image_render(IterativeMap*  map,
 {
     BatchImageRender self;
 
+#ifdef HAVE_GNET
+    {
+	ClusterModel *cluster = cluster_model_get(map, FALSE);
+	if (cluster) {
+	    /* Stream in new results very infrequently, since this is batch rendering */
+	    cluster_model_set_min_stream_interval(cluster, 10.0);
+	    g_object_unref(cluster);
+	}
+    }
+#endif
+
     self.target_density = target_density;
     self.main_loop = g_main_loop_new(NULL, FALSE);
     self.status_timer = g_timer_new();

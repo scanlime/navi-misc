@@ -37,6 +37,7 @@ static void      on_cluster_list_cursor_changed  (GtkWidget *widget, gpointer us
 static void      on_cluster_add_host             (GtkWidget *widget, gpointer user_data);
 static void      on_cluster_remove_host          (GtkWidget *widget, gpointer user_data);
 static void      on_cluster_host_or_port_changed (GtkWidget *widget, gpointer user_data);
+static void      on_cluster_merge_time_changed   (GtkWidget *widget, gpointer user_data);
 static void      on_node_enabled_toggled         (GtkCellRendererToggle *cell_renderer,
 						  gchar *path, gpointer user_data);
 
@@ -53,9 +54,14 @@ void explorer_init_cluster(Explorer *self)
     glade_xml_signal_connect_data(self->xml, "on_cluster_add_host",              G_CALLBACK(on_cluster_add_host),             self);
     glade_xml_signal_connect_data(self->xml, "on_cluster_remove_host",           G_CALLBACK(on_cluster_remove_host),          self);
     glade_xml_signal_connect_data(self->xml, "on_cluster_host_or_port_changed",  G_CALLBACK(on_cluster_host_or_port_changed), self);
+    glade_xml_signal_connect_data(self->xml, "on_cluster_host_or_port_changed",  G_CALLBACK(on_cluster_host_or_port_changed), self);
+    glade_xml_signal_connect_data(self->xml, "on_cluster_merge_time_changed",    G_CALLBACK(on_cluster_merge_time_changed),   self);
 
     self->cluster_model = cluster_model_get(self->map, TRUE);
     explorer_init_cluster_view(self);
+
+    /* Set the initial merge time */
+    on_cluster_merge_time_changed(glade_xml_get_widget(self->xml, "cluster_merge_time"), self);
 
     explorer_set_port(self, FYRE_DEFAULT_PORT);
 }
@@ -207,6 +213,13 @@ static void explorer_set_port(Explorer *self, int port)
     gchar* text = g_strdup_printf("%d", port);
     gtk_entry_set_text(GTK_ENTRY(glade_xml_get_widget(self->xml, "cluster_port")), text);
     g_free(text);
+}
+
+static void on_cluster_merge_time_changed(GtkWidget *widget, gpointer user_data)
+{
+    Explorer *self = EXPLORER(user_data);
+    cluster_model_set_min_stream_interval(self->cluster_model,
+					  gtk_range_get_adjustment(GTK_RANGE(widget))->value);
 }
 
 /* The End */

@@ -71,6 +71,8 @@ struct _RemoteClosure {
 struct _RemoteClient {
     GObject               object;
 
+    double                min_stream_interval;
+
     /* Private */
 
     const gchar*          host;
@@ -87,9 +89,11 @@ struct _RemoteClient {
     int                   pending_param_changes;
     int                   pending_stream_requests;
 
+    GTimer*               stream_request_timer;
+
     double                prev_iterations;
-    GTimer*               status_timer;
-    GTimer*               stream_timer;
+    GTimer*               status_speed_timer;
+    GTimer*               stream_speed_timer;
     double                iter_accumulator;
     double                byte_accumulator;
     double                iters_per_sec;
@@ -118,12 +122,14 @@ struct _RemoteResponse {
 GType          remote_client_get_type         ();
 RemoteClient*  remote_client_new              (const gchar*          hostname,
 					       gint                  port);
+
 void           remote_client_set_status_cb    (RemoteClient*         self,
 					       RemoteStatusCallback  status_cb,
 					       gpointer              user_data);
 void           remote_client_set_speed_cb     (RemoteClient*         self,
 					       RemoteSpeedCallback   speed_cb,
 					       gpointer              user_data);
+
 void           remote_client_connect          (RemoteClient*         self);
 gboolean       remote_client_is_ready         (RemoteClient*         self);
 
