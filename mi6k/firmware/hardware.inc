@@ -17,6 +17,7 @@
 #define LED_BLUE		PORTC,2
 #define VFD_POWER		PORTB,7
 #define IR_TX			PORTB,6
+#define IR_TX_MASK		0x40
 #define EXT_POWER_SENSE	PORTB,1
 #define IR_RX			PORTB,0
 #define VFD_TX			PORTC,6
