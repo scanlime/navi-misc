@@ -445,9 +445,14 @@ txFinish
 
 skipTx
 
-	banksel	RCREG		; Make sure the receive register is empty, so we
-	movf	RCREG, w	;   don't start receiving on a byte that came in either
-				;   before the command was issued or while we were transmitting
+	; Reset the USART receiver and empty its buffer, so we don't receive a
+	; stale byte from before now (including bytes that may have been echoed
+	; back during transmit on a half-duplex line)
+	banksel	RCSTA
+	bcf		RCSTA, CREN
+	bsf		RCSTA, CREN
+	banksel	RCREG
+	movf	RCREG, w
 
 	banksel	BufferData
 	movf	BufferData+(wValue+1), w ; Store the number of bytes to receive
