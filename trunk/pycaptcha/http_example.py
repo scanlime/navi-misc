@@ -1,4 +1,10 @@
 #!/usr/bin/env python
+#
+# An example that presents CAPTCHA tests in a web environment
+# and gives the user a chance to solve them. Run it, optionally
+# specifying a port number on the command line, then point your web
+# browser at the given URL.
+#
 
 from Captcha.Visual import Tests
 from Captcha import Factory
