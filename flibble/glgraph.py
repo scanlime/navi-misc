@@ -187,10 +187,14 @@ class GraphController:
         if event.button == 1:
             self.dragActive = True
             self.mousePosition = event.pos
+            if self.selectedNode:
+                self.selectedNode.isGrabbed = True
 
     def handleRelease(self, event):
         if event.button == 1:
             self.dragActive = False
+            if self.selectedNode:
+                self.selectedNode.isGrabbed = False
 
     def handleMotion(self, event, minDistance=70):
         self.mousePosition = event.pos
@@ -220,7 +224,6 @@ class GraphController:
             self.selectedNode.circleColor = self.selectedNode.__class__.circleColor
         self.selectedNode = node
         if node:
-            node.isGrabbed = True
             node.circleColor = (0.5, 1, 0.5)
 
 
