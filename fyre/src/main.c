@@ -83,7 +83,7 @@ int main(int argc, char ** argv) {
 	    {"screensaver", 0, NULL, 1000},   /* Undocumented, still experimental */
 	    {NULL},
 	};
-	c = getopt_long(argc, argv, "hi:n:o:p:s:S:d:r",
+	c = getopt_long(argc, argv, "hi:n:o:p:s:S:d:rP:",
 			long_options, &option_index);
 	if (c == -1)
 	    break;
