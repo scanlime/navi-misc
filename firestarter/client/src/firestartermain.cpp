@@ -33,7 +33,7 @@
 int APIENTRY WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmdShow)
 {
   srand(GetTickCount());
-  CBZNextLoop  loop;
+  CFirestarterLoop  loop;
   if (loop.Main(lpCmdLine))
     return 1;
   return 0;

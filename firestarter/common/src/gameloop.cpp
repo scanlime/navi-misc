@@ -337,6 +337,11 @@ void CBaseGameLoop::SetGameName ( const char* name )
 		gameName = name;
 }
 
+const char* CBaseGameLoop::GetGameName (  void )
+{
+	return gameName.c_str();
+}
+
 void CBaseGameLoop::SetGameStartString ( const char *startString )
 {
 	if(!startString)
