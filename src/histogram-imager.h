@@ -77,7 +77,8 @@ struct _HistogramImager {
     struct {
 	guint allocated_size;
 	guint filled_size;
-	guint32 *table;
+	guint32 *table;      /* RGBA colors */
+	float *distances;    /* Cumulative distance travelled in the RGBA hypercube */
     } color_table;
 
     /* Oversampling gamma tables. For particular values of 'oversample',
@@ -141,15 +142,15 @@ gdouble          histogram_imager_get_elapsed_time (HistogramImager *self);
  * In case the image quality can't be calculated (all buckets are empty or
  * saturated, or the color path is zero-length) this returns G_MAXDOUBLE.
  *
- * This is calculated by first measuring the average number of samples per
- * bucket, ignoring buckets that are empty or that are full enough to
- * saturate the image. This average samples per pixel is then divided
- * by the length of the color path we interpolate along. A value of 1.0
- * therefore indicates that the average number of samples exactly matches
- * the number of samples on our interpolation line.
+ * This is calculated by measuring the average number of histogram samples
+ * per image sample, using euclidean distances in the RGBA hypercube.
+ * This ignores buckets that are completely empty or are full enough to
+ * completely saturate the image.  A value of 1.0 therefore indicates that
+ * the average number of histogram samples exactly matches the number of
+ * samples we map to on the RGBA hypercube.
  *
- * Efficiency: O(width * height)
- *             This must scan the histogram to compute an average.
+ * Efficiency: O(width * height), plus the time required to
+ *             update the color table.
  */
 gdouble          histogram_imager_compute_quality (HistogramImager *self);
 
