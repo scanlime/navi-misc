@@ -22,11 +22,11 @@
 #include <gtk/gtk.h>
 #include <glade/glade.h>
 #include <gconf/gconf-client.h>
+#include <libgnome/gnome-i18n.h>
+#include <libgnomevfs/gnome-vfs.h>
 #include <calendar/gui/e-cal-popup.h>
 #include <calendar/gui/e-cal-config.h>
 #include <shell/es-event.h>
-#include <libgnome/gnome-i18n.h>
-#include <libgnomevfs/gnome-vfs.h>
 #include "url-editor-dialog.h"
 #include "publish-format-ical.h"
 
@@ -65,13 +65,15 @@ publish (EPublishUri *uri)
 			return;
 		vfs_uri = gnome_vfs_uri_new (uri->location);
 		if (vfs_uri == NULL) {
-			/* FIXME: show error message */
+			fprintf (stderr, "Couldn't create uri %s\n", uri->location);
+			/* FIXME: EError */
 			return;
 		}
 
-		result = gnome_vfs_open_uri (&handle, vfs_uri, GNOME_VFS_OPEN_WRITE | GNOME_VFS_OPEN_TRUNCATE);
+		result = gnome_vfs_create_uri (&handle, vfs_uri, GNOME_VFS_OPEN_WRITE | GNOME_VFS_OPEN_TRUNCATE, FALSE, 0644);
 		if (result != GNOME_VFS_OK) {
-			/* FIXME: show error message */
+			/* FIXME: EError */
+			fprintf (stderr, "Couldn't open %s: %s\n", uri->location, gnome_vfs_result_to_string (result));
 			return;
 		}
 
@@ -89,9 +91,12 @@ publish (EPublishUri *uri)
 
 		result = gnome_vfs_close (handle);
 		if (result != GNOME_VFS_OK) {
-			/* FIXME: show error message */
+			fprintf (stderr, "Couldn't close %s: %s\n", uri->location, gnome_vfs_result_to_string (result));
+			/* FIXME: EError */
 			return;
 		}
+
+		gnome_vfs_uri_unref (vfs_uri);
 	} else {
 		if (g_slist_find (queued_publishes, uri) == NULL)
 			queued_publishes = g_slist_prepend (queued_publishes, uri);
