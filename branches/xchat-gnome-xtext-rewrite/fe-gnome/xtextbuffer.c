@@ -150,12 +150,11 @@ xtext_buffer_append_indent (XTextBuffer *buffer, unsigned char *left, int llen, 
   memcpy (str, left, llen);
   str[llen] = ' ';
   memcpy (str + llen + 1, right, rlen);
+  str[llen + 1 + rlen] = '\0';
 
   ent->left_len = llen;
   ent->str = str;
   ent->str_len = llen + 1 + rlen;
-
-  /* stamp? */
 
   append_entry (buffer, ent);
 }

@@ -4,54 +4,56 @@
 
 typedef struct _XTextFormat XTextFormat;
 
-static void       xtext2_class_init      (XText2Class *klass);
-static void       xtext2_init            (XText2 *xtext);
+static void           xtext2_class_init      (XText2Class *klass);
+static void           xtext2_init            (XText2 *xtext);
 
-static void       xtext2_dispose         (GObject *object);
-static void       xtext2_finalize        (GObject *object);
-static void       xtext2_set_property    (GObject *object, guint param_id, const GValue *value, GParamSpec *pspec);
-static void       xtext2_get_property    (GObject *object, guint param_id, GValue *value, GParamSpec *pspec);
+static void           xtext2_dispose         (GObject *object);
+static void           xtext2_finalize        (GObject *object);
+static void           xtext2_set_property    (GObject *object, guint param_id, const GValue *value, GParamSpec *pspec);
+static void           xtext2_get_property    (GObject *object, guint param_id, GValue *value, GParamSpec *pspec);
 
-static void       xtext2_realize         (GtkWidget *widget);
-static void       xtext2_unrealize       (GtkWidget *widget);
-static void       xtext2_size_request    (GtkWidget *widget, GtkRequisition *requisition);
-static void       xtext2_size_allocate   (GtkWidget *widget, GtkAllocation *allocation);
-static gboolean   xtext2_expose          (GtkWidget *widget, GdkEventExpose *event);
+static void           xtext2_realize         (GtkWidget *widget);
+static void           xtext2_unrealize       (GtkWidget *widget);
+static void           xtext2_size_request    (GtkWidget *widget, GtkRequisition *requisition);
+static void           xtext2_size_allocate   (GtkWidget *widget, GtkAllocation *allocation);
+static gboolean       xtext2_expose          (GtkWidget *widget, GdkEventExpose *event);
 
-static void       backend_init           (XText2 *xtext);
-static void       backend_deinit         (XText2 *xtext);
-inline static int backend_get_char_width (XText2 *xtext, unsigned char *str, int *mbl_ret);
-static void       backend_font_open      (XText2 *xtext, char *name);
-static void       backend_font_close     (XText2 *xtext);
-static int        backend_get_text_width (XText2 *xtext, char *str, int len, gboolean multibyte);
-static void       backend_draw_text      (XText2 *xtext, gboolean fill, GdkGC *gc, int x, int y, char *str, int len, int width, gboolean multibyte);
+static void           backend_init           (XText2 *xtext);
+static void           backend_deinit         (XText2 *xtext);
+inline static int     backend_get_char_width (XText2 *xtext, unsigned char *str, int *mbl_ret);
+static void           backend_font_open      (XText2 *xtext, char *name);
+static void           backend_font_close     (XText2 *xtext);
+static int            backend_get_text_width (XText2 *xtext, char *str, int len, gboolean multibyte);
+static void           backend_draw_text      (XText2 *xtext, gboolean fill, GdkGC *gc, int x, int y, char *str, int len, int width, gboolean multibyte);
 
-static void       paint                  (GtkWidget *widget, GdkRectangle *area);
-static void       render_page            (XText2 *xtext);
-static int        render_page_timeout    (XText2 *xtext);
-static int        render_line            (XText2 *xtext, XTextFormat *f, textentry *ent, int line, int lines_max, int subline, int win_width);
-static int        render_str             (XText2 *xtext, XTextFormat *f, int y, textentry *ent, unsigned char *str, int len, int win_width, int indent, int line, int left_only);
-static int        render_flush           (XText2 *xtext, int x, int y, unsigned char *str, int len, GdkGC *gc, gboolean multibyte);
-static int        render_ents            (XText2 *xtext, textentry *start, textentry *stop);
-static void       draw_bg                (XText2 *xtext, int x, int y, int width, int height);
-static void       draw_sep               (XText2 *xtext, int y);
-static textentry* nth                    (XText2 *xtext, int line, int *subline);
-static textentry* find_char              (XText2 *xtext, int x, int y, int *offset, gboolean *out_of_bounds);
-static int        find_x                 (XText2 *xtext, int x, textentry *ent, int subline, int line, gboolean *out_of_bounds);
-static int        find_subline           (XText2 *xtext, textentry *ent, int line);
-static void       set_fg                 (XText2 *xtext, GdkGC *gc, int index);
-static void       set_bg                 (XText2 *xtext, GdkGC *gc, int index);
-static int        text_width_8bit        (XText2 *xtext, unsigned char *str, int len);
+static void           paint                  (GtkWidget *widget, GdkRectangle *area);
+static void           render_page            (XText2 *xtext);
+static int            render_page_timeout    (XText2 *xtext);
+static int            render_line            (XText2 *xtext, XTextFormat *f, textentry *ent, int line, int lines_max, int subline, int win_width);
+static int            render_str             (XText2 *xtext, XTextFormat *f, int y, textentry *ent, unsigned char *str, int len, int win_width, int indent, int line, int left_only);
+static int            render_flush           (XText2 *xtext, int x, int y, unsigned char *str, int len, GdkGC *gc, gboolean multibyte);
+static int            render_ents            (XText2 *xtext, textentry *start, textentry *stop);
+static void           draw_bg                (XText2 *xtext, int x, int y, int width, int height);
+static void           draw_sep               (XText2 *xtext, int y);
+static textentry*     nth                    (XText2 *xtext, int line, int *subline);
+static textentry*     find_char              (XText2 *xtext, int x, int y, int *offset, gboolean *out_of_bounds);
+static int            find_x                 (XText2 *xtext, int x, textentry *ent, int subline, int line, gboolean *out_of_bounds);
+static int            find_subline           (XText2 *xtext, textentry *ent, int line);
+static void           set_fg                 (XText2 *xtext, GdkGC *gc, int index);
+static void           set_bg                 (XText2 *xtext, GdkGC *gc, int index);
+static int            text_width             (XText2 *xtext, unsigned char *str, int len, gboolean *mb_ret);
+static int            text_width_8bit        (XText2 *xtext, unsigned char *str, int len);
+static unsigned char* strip_color            (unsigned char *text, int len, unsigned char *outbuf, int *newlen, gboolean *mb_ret);
 
-static int        count_lines_taken      (XText2 *xtext, textentry *ent);
-static int        find_next_wrap         (XText2 *xtext, textentry *ent, unsigned char *str, int win_width, int indent);
-static void       recalc_widths          (XText2 *xtext, gboolean do_str_width);
-static void       calc_lines             (XText2 *xtext, gboolean fire_signal);
-static void       fix_indent             (XText2 *xtext);
-static void       reset                  (XText2 *xtext, gboolean mark, gboolean attribs);
-static void       adjustment_set         (XText2 *xtext, gboolean fire_signal);
-static void       adjustment_changed     (GtkAdjustment *adj, XText2 *xtext);
-static gint       adjustment_timeout     (XText2 *xtext);
+static int            count_lines_taken      (XText2 *xtext, textentry *ent);
+static int            find_next_wrap         (XText2 *xtext, textentry *ent, unsigned char *str, int win_width, int indent);
+static void           recalc_widths          (XText2 *xtext, gboolean do_str_width);
+static void           calc_lines             (XText2 *xtext, gboolean fire_signal);
+static void           fix_indent             (XText2 *xtext);
+static void           reset                  (XText2 *xtext, gboolean mark, gboolean attribs);
+static void           adjustment_set         (XText2 *xtext, gboolean fire_signal);
+static void           adjustment_changed     (GtkAdjustment *adj, XText2 *xtext);
+static gint           adjustment_timeout     (XText2 *xtext);
 
 static gpointer parent_class;
 
@@ -117,6 +119,7 @@ struct _XText2Private
   GdkColor     tint;                 /* tint color */
   gboolean     word_wrap;            /* wrap words? */
   int          fontsize;             /* width in pixels of the space ' ' character */
+  int          max_auto_indent;      /* maximum allowed indent */
   gulong       palette[20];          /* color palette */
   gboolean     overdraw: TRUE;       /* draw twice */
   gboolean     bold: TRUE;           /* draw in bold? */
@@ -172,6 +175,8 @@ struct _XText2Private
   int          hilight_start;
   int          hilight_end;
   textentry   *hilight_ent;
+
+  char         scratch_buffer[4096];
 
   XTextFormat *current_format;
 
@@ -311,8 +316,6 @@ xtext2_class_init (XText2Class *klass)
 static void
 xtext2_init (XText2 *xtext)
 {
-  XTextBuffer *buffer;
-
   xtext->priv = g_new0 (XText2Private, 1);
 
   xtext->priv->buffer_info = g_hash_table_new (g_direct_hash, g_direct_equal);
@@ -322,7 +325,7 @@ xtext2_init (XText2 *xtext)
   xtext->priv->current_buffer = xtext->priv->original_buffer;
   xtext2_show_buffer (xtext, xtext->priv->original_buffer);
 
-  xtext->adj = gtk_adjustment_new (0, 0, 1, 1, 1, 1);
+  xtext->adj = GTK_ADJUSTMENT (gtk_adjustment_new (0, 0, 1, 1, 1, 1));
   g_object_ref (G_OBJECT (xtext->adj));
   gtk_object_sink (GTK_OBJECT (xtext->adj));
 
@@ -330,6 +333,7 @@ xtext2_init (XText2 *xtext)
 
   xtext->priv->indent = TRUE;
   xtext->priv->auto_indent = TRUE;
+  xtext->priv->max_auto_indent = 1000;
   xtext->priv->time_stamp = TRUE;
   xtext->priv->show_separator = TRUE;
   xtext->priv->word_wrap = TRUE;
@@ -904,7 +908,7 @@ paint (GtkWidget *widget, GdkRectangle *area)
   xtext->priv->clip_y2 = 1000000;
 
 xit:
-  x = xtext->priv->current_buffer->indent - ((xtext->priv->spacewidth + 1) / 2);
+  x = f->indent - ((xtext->priv->spacewidth + 1) / 2);
   if (area->x <= x)
     draw_sep (xtext, -1);
 }
@@ -924,11 +928,14 @@ render_page (XText2 *xtext)
   if (!GTK_WIDGET_REALIZED (xtext))
     return;
 
-  /* indent */
+  f = g_hash_table_lookup (xtext->priv->buffer_info, xtext->priv->current_buffer);
+
+  if (f->indent < MARGIN)
+    f->indent = MARGIN;
 
   gdk_drawable_get_size (GTK_WIDGET (xtext)->window, &width, &height);
 
-  if (width < 34 || height < xtext->priv->fontsize /* || indent */)
+  if (width < 34 || height < xtext->priv->fontsize || width < f->indent + 32)
     return;
 
 #ifdef SMOOTH_SCROLL
@@ -936,8 +943,6 @@ render_page (XText2 *xtext)
 #else
   xtext->priv->pixel_offset = 0;
 #endif
-
-  f = g_hash_table_lookup (xtext->priv->buffer_info, xtext->priv->current_buffer);
 
   if (f == NULL)
     return;
@@ -1105,8 +1110,25 @@ render_line (XText2 *xtext, XTextFormat *f, textentry *ent, int line, int lines_
   /* draw each line one-by-one */
   do
   {
-    /* FIXME: prerecorded wrap stuff? */
-    len = find_next_wrap (xtext, ent, str, win_width, indent);
+    /* if it's one of the first 4 wraps, we don't need to recalc it here. */
+    if (entline < RECORD_WRAPS)
+    {
+      if (ent->lines_taken < 2)
+      {
+	len = ent->str_len;
+      }
+      else
+      {
+	if (entline > 0)
+	  len = ent->wrap_offset[entline] - ent->wrap_offset[entline - 1];
+	else
+	  len = ent->wrap_offset[0];
+      }
+    }
+    else
+    {
+      len = find_next_wrap (xtext, ent, str, win_width, indent);
+    }
     entline++;
     y = (xtext->priv->fontsize * line) + xtext->priv->font->ascent + xtext->priv->pixel_offset;
 
@@ -1679,7 +1701,7 @@ draw_sep (XText2 *xtext, int y)
   }
 
   /* draw the separator line */
-  if (xtext->priv->show_separator /* && indent */)
+  if (xtext->priv->show_separator && f->indent)
   {
     light = xtext->priv->light_gc;
     dark  = xtext->priv->dark_gc;
@@ -2034,8 +2056,8 @@ buffer_append (XTextBuffer *buffer, textentry *ent, XText2 *xtext)
 {
   XTextFormat *f;
   textentry *newent;
-
-  g_print ("%s\n", ent->str);
+  int space;
+  int left_width;
 
   f = g_hash_table_lookup (xtext->priv->buffer_info, buffer);
 
@@ -2074,6 +2096,35 @@ buffer_append (XTextBuffer *buffer, textentry *ent, XText2 *xtext)
     f->old_adj = f->num_lines - xtext->adj->page_size;
     if (f->old_adj < 0)
       f->old_adj = 0;
+  }
+
+  /* if we're not indented, we're done */
+  if (ent->left_len == 0)
+    return;
+
+  left_width = text_width (xtext, ent->str, ent->left_len, NULL);
+
+  ent->indent = (f->indent - left_width) - xtext->priv->spacewidth;
+  if (xtext->priv->time_stamp)
+    space = xtext->priv->stamp_width;
+  else
+    space = 0;
+
+  /* do we need to auto-adjust the separator position? */
+  if (xtext->priv->auto_indent && ent->indent < MARGIN + space)
+  {
+    int tempindent = MARGIN + space + xtext->priv->spacewidth + left_width;
+
+    if (tempindent > f->indent)
+      f->indent = tempindent;
+    if (f->indent > xtext->priv->max_auto_indent)
+      f->indent = xtext->priv->max_auto_indent;
+
+    fix_indent (xtext);
+    recalc_widths (xtext, FALSE);
+
+    ent->indent = (f->indent - left_width) - xtext->priv->spacewidth;
+    xtext->priv->indent_changed = TRUE;
   }
 }
 
@@ -2133,10 +2184,27 @@ xtext2_refresh (XText2 *xtext)
 #if defined(USE_XLIB) || defined(WIN32)
     if (xtext->priv->transparent)
     {
+      /*
+      free_trans (xtext);
+      load_trans (xtext);
+      */
     }
 #endif
     render_page (xtext);
   }
+}
+
+static int
+text_width (XText2 *xtext, unsigned char *str, int len, gboolean *mb_ret)
+{
+  unsigned char *new_buf;
+  int new_len, mb;
+  new_buf = strip_color (str, len, xtext->priv->scratch_buffer, &new_len, &mb);
+
+  if (mb_ret)
+    *mb_ret = mb;
+
+  return backend_get_text_width (xtext, new_buf, new_len, mb);
 }
 
 static int
@@ -2152,6 +2220,82 @@ text_width_8bit (XText2 *xtext, unsigned char *str, int len)
     len--;
   }
   return width;
+}
+
+static unsigned char*
+strip_color (unsigned char *text, int len, unsigned char *outbuf, int *newlen, gboolean *mb_ret)
+{
+  int nc = 0;
+  int i = 0;
+  gboolean col = FALSE;
+  unsigned char *new_str;
+  int mbl;
+  gboolean mb = FALSE;
+
+  if (outbuf == NULL)
+    new_str = malloc (len + 2);
+  else
+    new_str = outbuf;
+
+  while (len > 0)
+  {
+    if (text[0] >= 128)
+      mb = TRUE;
+    if ((col && isdigit (text[0]) && nc < 2) ||
+        (col && text[0] == ',' && isdigit (*(text+1)) && nc < 3))
+    {
+      nc++;
+      if (text[0] == ',')
+	nc = 0;
+    }
+    else
+    {
+      col = FALSE;
+      switch (text[0])
+      {
+	case ATTR_COLOR:
+	  col = TRUE;
+	  nc = 0;
+	  break;
+	case ATTR_BEEP:
+	case ATTR_RESET:
+	case ATTR_REVERSE:
+	case ATTR_BOLD:
+	case ATTR_UNDERLINE:
+	  break;
+	default:
+	  mbl = charlen (text);
+	  if (mbl == 1)
+	  {
+	    new_str[i] = text[0];
+	    i++;
+	    text++;
+	    len--;
+	  }
+	  else
+	  {
+	    mb = TRUE;
+	    len -= mbl;
+	    /* safeguard against invalid utf8 */
+	    /* avoid memcpy beyond buffer */
+	    if (len < 0)
+	      mbl += len;
+	    memcpy (&new_str[i], text, mbl);
+	    i += mbl;
+	    text += mbl;
+	  }
+	  continue;
+      }
+    }
+    text++;
+    len--;
+  }
+  new_str[i] = 0;
+  if (newlen != NULL)
+    *newlen = i;
+  if (mb_ret != NULL)
+    *mb_ret = mb;
+  return new_str;
 }
 
 static int
@@ -2179,7 +2323,7 @@ count_lines_taken (XText2 *xtext, textentry *ent)
     len = find_next_wrap (xtext, ent, str, win_width, indent);
     if (taken < RECORD_WRAPS)
       ent->wrap_offset[taken] = (str + len) - ent->str;
-    indent = xtext->priv->indent;
+    indent = f->indent;
     taken++;
     str += len;
   } while (str < ent->str + ent->str_len);
@@ -2292,6 +2436,28 @@ static void
 recalc_widths (XText2 *xtext, gboolean do_str_width)
 {
   textentry *ent;
+  XTextFormat *f;
+
+  f = g_hash_table_lookup (xtext->priv->buffer_info, xtext->priv->current_buffer);
+
+  /* since we have a new font, we have to recalc the text widths */
+  ent = f->wrapped_first;
+  while (ent)
+  {
+    if (do_str_width)
+    {
+      ent->str_width = text_width (xtext, ent->str, ent->str_len, NULL);
+    }
+    if (ent->left_len != -1)
+    {
+      ent->indent = (f->indent - text_width (xtext, ent->str, ent->left_len, NULL)) - xtext->priv->spacewidth;
+      if (ent->indent < MARGIN)
+	ent->indent = MARGIN;
+    }
+    ent = ent->next;
+  }
+
+  calc_lines (xtext, FALSE);
 }
 
 static void
