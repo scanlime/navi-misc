@@ -1,3 +1,7 @@
+/*
+ *   (C) 2004 Brandon Smith smibrand@mscd.edu
+ */
+
 /**
  * This class should be pretty easy to understand.  This is a static class, so
  * the applet can only have one connection at a time, which should be fine.

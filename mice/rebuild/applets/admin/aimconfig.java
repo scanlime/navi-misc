@@ -1,3 +1,7 @@
+/*
+ *   (C) 2004 Brandon Smith smibrand@mscd.edu
+ */
+
 /**
  * This class handles capturing and sending AIM Bot configuration.
  * @author Brandon Smith

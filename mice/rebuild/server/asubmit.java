@@ -1,3 +1,7 @@
+/*
+ *   (C) 2004 Brandon Smith smibrand@mscd.edu
+ */
+
 /**
  * This is the class that handles the abstraction for submitting a question, 
  * thus simplifying the network protocol for it.

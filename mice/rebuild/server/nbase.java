@@ -1,3 +1,7 @@
+/*
+ *   (C) 2004 Brandon Smith smibrand@mscd.edu
+ */
+
 /**
  * A superclass for the services implemented (submission, administration, moderation and answering).
  * It has all the network stuff for the client handlers so as to make them cleaner :)

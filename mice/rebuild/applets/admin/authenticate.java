@@ -1,3 +1,7 @@
+/*
+ *   (C) 2004 Brandon Smith smibrand@mscd.edu
+ */
+
 /**
  * This class handles authentication stuff for the applet.  It is responsible
  * for setting up and taking down the pieces of itself that it uses to get the

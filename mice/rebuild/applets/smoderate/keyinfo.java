@@ -1,3 +1,7 @@
+/*
+ *   (C) 2004 Brandon Smith smibrand@mscd.edu
+ */
+
 /**
  * This is a node in a circular linked list that makes it so that letters are 
  * returned, but not repeated.

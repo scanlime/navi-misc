@@ -52,7 +52,7 @@ public class aimup
 	 */
 	public static void main(String[] args)
 	{
-		botmain interviewbot = initbots(30,"");
+		botmain interviewbot = initbots(30,"metro");
 		sleep(4);
 		startServer(8082);
 		configureServer(interviewbot);

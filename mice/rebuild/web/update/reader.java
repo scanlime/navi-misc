@@ -1,3 +1,7 @@
+/*
+ *   (C) 2004 Brandon Smith smibrand@mscd.edu
+ */
+
 /**
  * This class is all about reading a file in, and setting the headers and stuff.
  * @author Brandon Smith
