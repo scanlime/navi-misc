@@ -50,7 +50,7 @@ typedef struct
 	GtkTreeViewColumn *highlight_column;
 } PreferencesIrcPage;
 
-PreferencesIrcPage *preferences_page_irc_new (gpointer prefs_dialog, GladeXML *xml);
-void preferences_page_irc_free (PreferencesIrcPage *page);
+PreferencesIrcPage *preferences_page_irc_new  (gpointer prefs_dialog, GladeXML *xml);
+void                preferences_page_irc_free (PreferencesIrcPage *page);
 
 #endif

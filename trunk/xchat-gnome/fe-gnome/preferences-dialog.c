@@ -27,6 +27,19 @@
 static GtkDialogClass *parent_class;
 
 static void
+preferences_dialog_finalize (GObject *object)
+{
+	PreferencesDialog *p = (PreferencesDialog *) object;
+
+	preferences_page_irc_free (p->irc_page);
+	preferences_page_colors_free (p->colors_page);
+	preferences_page_dcc_free (p->dcc_page);
+	preferences_page_networks_free (p->networks_page);
+
+	((GObjectClass *) parent_class)->finalize (object);
+}
+
+static void
 preferences_dialog_dispose (GObject *object)
 {
 	PreferencesDialog *p = (PreferencesDialog *) object;
@@ -43,6 +56,7 @@ static void
 preferences_dialog_class_init (PreferencesDialogClass *klass)
 {
 	GObjectClass *parent = (GObjectClass *) klass;
+	parent->finalize = preferences_dialog_finalize;
 	parent->dispose = preferences_dialog_dispose;
 }
 
@@ -111,6 +125,7 @@ preferences_dialog_init (PreferencesDialog *p)
 
 	p->irc_page      = preferences_page_irc_new      (p, xml);
 	p->colors_page   = preferences_page_colors_new   (p, xml);
+	p->dcc_page      = preferences_page_dcc_new      (p, xml);
 	p->networks_page = preferences_page_networks_new (p, xml);
 
 	g_object_unref (xml);
