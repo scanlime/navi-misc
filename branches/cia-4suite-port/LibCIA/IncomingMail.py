@@ -103,46 +103,43 @@ class IncomingMailParser:
              - Adds a correct <mailHeaders> tag to the <generator>
            """
         # Create the <generator> tag if it doesn't exist
-        if not xml.generator:
-            xml.addChild(self.getLocalGenerator())
-        generator = xml.generator
+        if not XML.dig(xml, "message", "generator"):
+            xml.documentElement.appendChild(self.getLocalGenerator(xml))
+        generator = XML.dig(xml, "message", "generator")
 
         # Delete an existing <mailHeaders>
-        for i in xrange(len(generator.children)):
-            try:
-                if generator.children[i].name == "mailHeaders":
-                    del generator.children[i]
-            except AttributeError:
-                pass
+        for child in list(XML.getChildElements(generator)):
+            if child.nodeName == "mailHeaders":
+                generator.removeChild(child)
 
         # Add a new <mailHeaders>
-        generator.addChild(self.getXMLMailHeaders())
+        generator.appendChild(self.getXMLMailHeaders(xml))
         return xml
 
-    def getLocalGenerator(self):
+    def getLocalGenerator(self, document):
         """Return a <generator> tag for messages produced locally"""
-        xml = domish.Element((None, "generator"))
-        xml.addElement("name", content="CIA IncomingMailParser")
-        return xml
+        node = document.createElementNS(None, "generator")
+        XML.addElement(node, "name", content="CIA IncomingMailParser")
+        return node
 
-    def getXMLMailHeaders(self):
+    def getXMLMailHeaders(self, document):
         """Return a <mailHeaders> tag representing a subset of the headers
            for this message. This is placed in the <generator> tag of any
            message passing through this module, to document and log the
            message's true source.
            """
-        xml = domish.Element((None, "mailHeaders"))
+        node = document.createElementNS(None, "mailHeaders")
         for name, value in self.message.items():
             if name in interestingHeaders:
-                xml.addElement("header", content=str(value))['name'] = name
-        return xml
+                XML.addElement(node, "header", content=str(value)).setAttributeNS(None, 'name', name)
+        return node
 
     def command_Announce(self, project):
         """Old-style announcements: Announce <project> in the subject line.
            The body of the email contained the message's text, marked up
            with {color} tags but with no metadata.
            """
-        xml = domish.Element((None, "message"))
+        xml = XML.createRootNode()
 
         # Convert the given project name to a <project> tag inside <source>,
         # after filtering it a bit... in the old CIA project names and IRC channel
@@ -150,12 +147,12 @@ class IncomingMailParser:
         # projects were ignored. We preserve this behaviour.
         if project[0] == "#":
             project = project[1:]
-        xml.addElement("source").addElement("project", content=project)
+        XML.buryValue(xml, project, "message", "source", "project")
 
         # Since old-style commits didn't have any metadata, the best we can do
         # is to represent the log in a <colorText> element
         colorText = ColorTextParser().parse(self.message.get_payload())
-        xml.addElement("body").addChild(colorText)
+        XML.bury(xml, "message", "body").appendChild(colorText)
         return xml
 
     def command_DeliverXML(self):
