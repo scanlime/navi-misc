@@ -77,6 +77,7 @@ navigation_tree_init (NavTree *navtree)
   GtkTreeViewColumn *column;
   GtkTreeSelection *select;
 
+  g_object_set((gpointer)navtree, "headers-visible", FALSE, NULL);
 	navtree->current_path = NULL;
 	navtree->model = NULL;
   navtree->selection_changed_id = 0;
