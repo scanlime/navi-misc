@@ -27,6 +27,7 @@ static void view_init        (View *view);
 static void init_lighting    (View *view);
 static void reset_lighting   (View *view);
 static void default_lighting (View *view);
+static void view_resize      (View *view);
 
 GType
 view_get_type (void)
@@ -65,21 +66,30 @@ view_init (View *view)
   view->camera = camera_new ();
 }
 
-static gboolean
-view_configure (GLDrawingArea *widget, GdkEventConfigure *event, View *view)
+static void
+view_resize (View *view)
 {
-  gl_drawing_area_make_current (widget);
+  gint width, height;
+  gdk_window_get_size (GTK_WIDGET(view->context)->window, &width, &height);
 
-  glViewport(0, 0, event->width, event->height);
+  gl_drawing_area_make_current (view->context);
+
+  glViewport(0, 0, width, height);
   glMatrixMode (GL_PROJECTION);
   glLoadIdentity ();
-  gluPerspective (45.0, (float)event->width / (float)event->height, 0.1, 2500.0);
+  gluPerspective (45.0, (float)width / (float)height, 0.1, 2500.0);
   glMatrixMode (GL_MODELVIEW);
   glLoadIdentity ();
   glDepthRange (0.1, 2000.0);
 
   view_render (view);
+}
 
+static gboolean
+view_configure (GLDrawingArea *widget, GdkEventConfigure *event, View *view)
+{
+  view_resize (view);
+  view_render (view);
   return TRUE;
 }
 
@@ -178,8 +188,9 @@ on_gl_context_realize (GLDrawingArea *context, View *view)
   g_signal_connect (G_OBJECT (context), "motion-notify-event", G_CALLBACK (view_motion), (gpointer) view);
 
   init_lighting (view);
-
   scene_add_view (view->scene, (gpointer) view);
+  view_resize (view);
+  view_render (view);
 }
 
 GtkWidget*
