@@ -37,6 +37,7 @@
 #include <widgets/misc/e-dateedit.h>
 #include <e-util/e-dialog-widgets.h>
 #include <libgnome/gnome-i18n.h>
+#include <string.h>
 
 static const int week_start_day_map[] = {
 	1, 2, 3, 4, 5, 6, 0, -1
@@ -425,40 +426,32 @@ url_list_enable_toggled (GtkCellRendererToggle *renderer,
 static void
 url_edit_clicked (GtkWidget *button, CalendarPrefsDialog *prefs)
 {
-	/* FIXME
-	if (!prefs->url_editor) {
-		GtkTreeSelection *selection;
-		EPublishUri *url = NULL;
-		GtkTreeModel *model;
-		GtkTreeIter iter;
+	GtkTreeSelection *selection;
+	EPublishUri *url = NULL;
+	GtkTreeModel *model;
+	GtkTreeIter iter;
+	GtkWidget *url_editor;
 
-		selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (prefs->url_list));
-		if (gtk_tree_selection_get_selected (selection, &model, &iter))
-			gtk_tree_model_get (model, &iter, URL_LIST_FREE_BUSY_URL_COLUMN, &url, -1);
+	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (prefs->url_list));
+	if (gtk_tree_selection_get_selected (selection, &model, &iter))
+		gtk_tree_model_get (model, &iter, URL_LIST_FREE_BUSY_URL_COLUMN, &url, -1);
 
-		if (url) {
-			prefs->url_editor = url_editor_dialog_new (model, url);
-			prefs->url_editor_dlg = url_editor_dialog_new
+	if (url) {
+		url_editor = url_editor_dialog_new (model, url);
+		url_editor_dialog_run ((UrlEditorDialog *) url_editor);
 
-			gtk_list_store_set ((GtkListStore *) model, &iter, URL_LIST_LOCATION_COLUMN,
-					   g_strdup (url->location), URL_LIST_ENABLED_COLUMN,
-					   url->enabled, URL_LIST_FREE_BUSY_URL_COLUMN, url, -1);
-
-			url_list_changed (prefs);
-
-			if (!GTK_WIDGET_SENSITIVE (prefs->url_remove)) {
-				selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (prefs->url_list));
-				gtk_tree_model_get_iter_first (GTK_TREE_MODEL (model), &iter);
-				gtk_widget_set_sensitive (prefs->url_remove, TRUE);
-				gtk_tree_selection_select_iter (selection, &iter);
-			}
-			prefs->url_editor = FALSE;
-			prefs->url_editor_dlg = NULL;
+		gtk_list_store_set (GTK_LIST_STORE (model), &iter, URL_LIST_LOCATION_COLUMN,
+				    g_strdup (url->location), URL_LIST_ENABLED_COLUMN,
+				    url->enabled, URL_LIST_FREE_BUSY_URL_COLUMN, url, -1);
+		url_list_changed (prefs);
+		if (!GTK_WIDGET_SENSITIVE (prefs->url_remove)) {
+			selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (prefs->url_list));
+			gtk_tree_model_get_iter_first (GTK_TREE_MODEL (model), &iter);
+			gtk_widget_set_sensitive (prefs->url_remove, TRUE);
+			gtk_tree_selection_select_iter (selection, &iter);
 		}
-	} else {
-		gdk_window_raise (prefs->url_editor_dlg->window);
+		gtk_widget_destroy (url_editor);
 	}
-	*/
 }
 
 static void
@@ -477,36 +470,30 @@ url_add_clicked (GtkWidget *button, CalendarPrefsDialog *prefs)
 	GtkTreeModel *model;
 	GtkTreeIter iter;
 	GtkTreeSelection *selection;
+	GtkWidget *url_editor;
 
 	model = gtk_tree_view_get_model (GTK_TREE_VIEW (prefs->url_list));
 	url = g_new0 (EPublishUri, 1);
 	url->enabled = TRUE;
 	url->location = "";
 
-	/* FIXME
-	if (!prefs->url_editor) {
-		prefs->url_editor = url_editor_dialog_new (model, url);
-		if (url->location != "") {
-			gtk_list_store_append(GTK_LIST_STORE (model), &iter);
-			gtk_list_store_set (GTK_LIST_STORE(model), &iter, URL_LIST_ENABLED_COLUMN,
-					    url->enabled, URL_LIST_LOCATION_COLUMN, g_strdup (url->location),
-					    URL_LIST_FREE_BUSY_URL_COLUMN, url, -1);
+	url_editor = url_editor_dialog_new (model, url);
+	url_editor_dialog_run ((UrlEditorDialog *) url_editor);
+	if (strlen (url->location)) {
+		gtk_list_store_append(GTK_LIST_STORE (model), &iter);
+		gtk_list_store_set (GTK_LIST_STORE(model), &iter, URL_LIST_ENABLED_COLUMN,
+				    url->enabled, URL_LIST_LOCATION_COLUMN, g_strdup (url->location),
+				    URL_LIST_FREE_BUSY_URL_COLUMN, url, -1);
 
-			url_list_changed (prefs);
-
-			if (!GTK_WIDGET_SENSITIVE (prefs->url_remove)) {
-				selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (prefs->url_list));
-				gtk_tree_model_get_iter_first (model, &iter);
-				gtk_widget_set_sensitive (prefs->url_remove, TRUE);
-				gtk_tree_selection_select_iter (selection, &iter);
-			}
+		url_list_changed (prefs);
+		if (!GTK_WIDGET_SENSITIVE (prefs->url_remove)) {
+			selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (prefs->url_list));
+			gtk_tree_model_get_iter_first (model, &iter);
+			gtk_widget_set_sensitive (prefs->url_remove, TRUE);
+			gtk_tree_selection_select_iter (selection, &iter);
 		}
-		prefs->url_editor = FALSE;
-		prefs->url_editor_dlg = NULL;
-	} else {
-		gdk_window_raise (prefs->url_editor_dlg->window);
 	}
-	*/
+	gtk_widget_destroy (url_editor);
 }
 
 static void
@@ -522,10 +509,6 @@ url_remove_clicked (GtkWidget *button, CalendarPrefsDialog *prefs)
 	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (prefs->url_list));
 	if (gtk_tree_selection_get_selected (selection, &model, &iter))
 		gtk_tree_model_get (model, &iter, URL_LIST_FREE_BUSY_URL_COLUMN, &url, -1);
-
-	/* make sure we have a valid account selected and that we aren't editing anything... */
-	if (url == NULL || prefs->url_editor)
-		return;
 
 	confirm = gtk_message_dialog_new (GTK_WINDOW (prefs),
 					  GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
