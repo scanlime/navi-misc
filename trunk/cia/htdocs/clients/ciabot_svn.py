@@ -61,7 +61,7 @@ class config:
     server = "http://cia.navi.cx"
 
     # When True, print the message to stdout instead of delivering it to CIA
-    debug = True
+    debug = False
 
 
 ############# Normally the rest of this won't need modification
