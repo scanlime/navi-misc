@@ -645,10 +645,10 @@
       </child>
 
       <child>
-	<widget class="GtkHPaned" id="hpaned3">
+	<widget class="GtkHPaned" id="HPane">
 	  <property name="visible">True</property>
 	  <property name="can_focus">True</property>
-	  <property name="position">150</property>
+	  <property name="position">160</property>
 
 	  <child>
 	    <widget class="GtkVBox" id="vbox41">
@@ -657,7 +657,7 @@
 	      <property name="spacing">0</property>
 
 	      <child>
-		<widget class="GtkVPaned" id="vpaned1">
+		<widget class="GtkVPaned" id="VPane">
 		  <property name="visible">True</property>
 		  <property name="can_focus">True</property>
 		  <property name="position">350</property>
@@ -778,17 +778,42 @@
 	      </child>
 
 	      <child>
-		<widget class="GtkScrolledWindow" id="main text scrolled window">
+		<widget class="GtkHBox" id="hbox59">
 		  <property name="border_width">2</property>
 		  <property name="visible">True</property>
-		  <property name="can_focus">True</property>
-		  <property name="hscrollbar_policy">GTK_POLICY_NEVER</property>
-		  <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
-		  <property name="shadow_type">GTK_SHADOW_IN</property>
-		  <property name="window_placement">GTK_CORNER_TOP_LEFT</property>
+		  <property name="homogeneous">False</property>
+		  <property name="spacing">6</property>
 
 		  <child>
-		    <placeholder/>
+		    <widget class="GtkFrame" id="text area frame">
+		      <property name="visible">True</property>
+		      <property name="label_xalign">0</property>
+		      <property name="label_yalign">0.5</property>
+		      <property name="shadow_type">GTK_SHADOW_ETCHED_IN</property>
+
+		      <child>
+			<placeholder/>
+		      </child>
+		    </widget>
+		    <packing>
+		      <property name="padding">0</property>
+		      <property name="expand">True</property>
+		      <property name="fill">True</property>
+		    </packing>
+		  </child>
+
+		  <child>
+		    <widget class="GtkVScrollbar" id="text area scrollbar">
+		      <property name="visible">True</property>
+		      <property name="update_policy">GTK_UPDATE_CONTINUOUS</property>
+		      <property name="inverted">False</property>
+		      <property name="adjustment">0 0 0 0 0 0</property>
+		    </widget>
+		    <packing>
+		      <property name="padding">0</property>
+		      <property name="expand">False</property>
+		      <property name="fill">True</property>
+		    </packing>
 		  </child>
 		</widget>
 		<packing>

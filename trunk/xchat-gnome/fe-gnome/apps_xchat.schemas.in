@@ -142,6 +142,28 @@
       </locale>
     </schema>
 
+    <!-- main window configuration -->
+    <schema>
+      <key>/schemas/apps/xchat/main_window/vposition</key>
+      <applyto>/apps/xchat/main_window/vposition</applyto>
+      <owner>xchat</owner>
+      <type>int</type>
+      <default>0</default>
+      <locale name="C">
+        <short>Position of VPane</short>
+      </locale>
+    </schema>
+    <schema>
+      <key>/schemas/apps/xchat/main_window/hposition</key>
+      <applyto>/apps/xchat/main_window/hposition</applyto>
+      <owner>xchat</owner>
+      <type>int</type>
+      <default>0</default>
+      <locale name="C">
+        <short>Position of HPane</short>
+      </locale>
+    </schema>
+
     <!-- channel list window -->
     <schema>
       <key>/schemas/apps/xchat/channel_list_window/height</key>

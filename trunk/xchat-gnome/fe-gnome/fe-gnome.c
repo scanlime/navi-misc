@@ -306,7 +306,8 @@ void fe_set_channel(struct session *sess) {
 }
 
 void fe_set_title(struct session *sess) {
-	rename_main_window(sess->server->networkname, sess->channel);
+	if(sess == gui.current_session)
+		rename_main_window(sess->server->networkname, sess->channel);
 }
 
 void fe_set_nonchannel(struct session *sess, int state) {
