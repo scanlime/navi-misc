@@ -33,7 +33,7 @@ migrateURI (const gchar *xml, xmlDocPtr doc)
 {
 	GConfClient *client;
 	GSList *uris, *l, *events = NULL;
-	xmlChar *location, *enabled, *frequency, *username, *publish_time;
+	xmlChar *location, *enabled, *frequency, *username;
 	xmlNodePtr root, p;
 	EPublishUri *uri;
 	GnomeVFSURI *vfs_uri;
@@ -58,7 +58,6 @@ migrateURI (const gchar *xml, xmlDocPtr doc)
 	enabled = xmlGetProp (root, "enabled");
 	frequency = xmlGetProp (root, "frequency");
 	username = xmlGetProp (root, "username");
-	publish_time = xmlGetProp (root, "publish_time");
 
 	vfs_uri = gnome_vfs_uri_new (location);
 	gnome_vfs_uri_set_user_name (vfs_uri, username);
@@ -72,8 +71,6 @@ migrateURI (const gchar *xml, xmlDocPtr doc)
 	if (frequency != NULL)
 		uri->publish_frequency = atoi (frequency);
 	uri->publish_format = URI_PUBLISH_AS_FB;
-	if (publish_time != NULL)
-		uri->last_pub_time = publish_time;
 
 	password = e_passwords_get_password ("Calendar", location);
 	if (password) {
