@@ -81,6 +81,13 @@ class RelationGrapher:
             self._generateDot, f, result).addErrback(result.errback)
         return result
 
+    def dictToAttrs(self, d):
+        """Convert a dictionary to a dot attribute string"""
+        if d:
+            return "[%s]" % ",".join(['%s="%s"' % item for item in d.iteritems()])
+        else:
+            return ""
+
     def _generateDot(self, rows, f, result):
         """Finish generateDot after receiving the SQL query results"""
         f.write("graph G {\n")
@@ -98,23 +105,24 @@ class RelationGrapher:
                 if node in selector:
                     attributes = selector.getAttributes(node)
                     break
-            attrString = ",".join(['%s="%s"' % item for item in attributes.iteritems()])
-            f.write('\t"%s" [%s];\n' % (node, attrString))
+            f.write('\t"%s" %s;\n' % (node, self.dictToAttrs(attributes)))
 
         # Write edges
         for row in rows:
-            f.write('\t"%s" -- "%s";\n' % (row[0], row[1]))
+            attributes = {
+                'len': 5.0,
+                }
+            f.write('\t"%s" -- "%s" %s;\n' % (row[0], row[1], self.dictToAttrs(attributes)))
 
         f.write("}\n")
         result.callback(None)
 
-    def render(self, f, format):
+    def render(self, f, format, bin="neato"):
         """Render a graph in the given format to the file-like object 'f'.
            Returns a deferred that indicates completion or error conditions.
            """
         result = defer.Deferred()
         p = StreamProcessProtocol(self.generateDot, f, result)
-        bin = "neato"
         reactor.spawnProcess(p, bin, [bin, "-T%s" % format], env=None)
         return result
 
@@ -154,11 +162,12 @@ class StreamProcessProtocol(protocol.ProcessProtocol):
 if __name__ == '__main__':
     def done(result):
         print "All done"
+        reactor.stop()
     def oops(result):
         print result
 
     RelationGrapher(
-        PrefixSelector('project/', color='#FF0000'),
+        PrefixSelector('project/', color='#FF0000', shape='box'),
         PrefixSelector('author/', color='#0000FF'),
         ).render(open("output.svg", 'w'), "svg").addCallback(done).addErrback(oops)
     reactor.run()
