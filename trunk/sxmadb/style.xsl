@@ -39,7 +39,12 @@
               <div class="row">
                 <ul>
                   <xsl:if test="/concept"><xsl:apply-templates select="document('concepts.xml')//concepts/concept"/></xsl:if>
-                  <xsl:if test="/technique"><xsl:apply-templates select="document('techniques.xml')//techniques/technique"/></xsl:if>
+                  <xsl:if test="/technique">
+                    <span class="emph">orange</span>
+                    <xsl:apply-templates select="document('techniques.xml')//techniques/technique[@level='orange']"/>
+                    <span class="emph">blue</span>
+                    <xsl:apply-templates select="document('techniques.xml')//techniques/technique[@level='blue']"/>
+                    </xsl:if>
                 </ul>
               </div>
             </div>
