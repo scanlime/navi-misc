@@ -325,7 +325,7 @@ class CommitToXHTML(CommitFormatter):
                 if line and line[0] == ' ':
                     isPreFormatted = True
 
-                if line.startswith("* "):
+                if line.startswith("* ") or line.startswith("- "):
                     # Assume this is a list item, and convert the bullets to
                     # a proper XHTML list.
                     listItems.append(line[2:])
