@@ -1,3 +1,5 @@
 * when a tree in the navigation view is closed, it should not act as a selection
-  (view should stay on the channel they were in)
+  (view should stay on the channel they were in) - this seems to already be the case,
+  except its inconsistent (perhaps the first time the tree is closed? haven't tested
+  sufficiently)
 * tab completion doesn't work - it instead switches focus between widgets
