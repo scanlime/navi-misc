@@ -59,7 +59,9 @@ static void animation_render_main  (IterativeMap   *map,
 				    const gchar    *filename,
 				    double          quality);
 static void acquire_console        (void);
+#ifdef HAVE_GNET
 static void daemonize_to_pidfile   (const char* filename);
+#endif
 
 
 int main(int argc, char ** argv) {
@@ -74,7 +76,9 @@ int main(int argc, char ** argv) {
     const gchar *pidfile = NULL;
     int c, option_index=0;
     double quality = 1.0;
+#ifdef HAVE_GNET
     int port_number = FYRE_DEFAULT_PORT;
+#endif
     GError *error = NULL;
 
     g_random_set_seed(time(NULL));
@@ -422,6 +426,7 @@ static void animation_render_main (IterativeMap *map,
 /* Daemonize this process, saving the new PID to a file if a name
  * is specified. No pidfile is written if the filename is NULL.
  */
+#ifdef HAVE_GNET
 #ifdef HAVE_FORK
 static void daemonize_to_pidfile(const char* filename)
 {
@@ -438,7 +443,7 @@ static void daemonize_to_pidfile(const char* filename)
 	perror("daemon");
 	exit(1);
     }
-    
+
     if (f) {
 	fprintf(f, "%d", getpid());
 	fclose(f);
@@ -447,6 +452,7 @@ static void daemonize_to_pidfile(const char* filename)
 #else
 static void daemonize_to_pidfile(const char* filename) {}
 #endif /* HAVE_FORK */
+#endif /* HAVE_GNET */
 
 
 #ifdef WIN32
