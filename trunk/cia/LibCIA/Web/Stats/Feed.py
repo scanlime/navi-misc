@@ -271,7 +271,14 @@ class RSS1Feed(RSSFeed):
 class XMLFeed(BaseFeed):
     """A web resource representing a feed of unformatted XML commits for a stats target."""
     def formatItems(self, messages, context, result):
-        result.callback([xml(content) for id, content in messages])
+        result.callback([self.formatItem(content) for id, content in messages])
+
+    def formatItem(self, content):
+        # Format one message. The hackishness here chops off XML declarations
+        # if they are present. It would be much cleaner but much slower to use the DOM for this.
+        if content.startswith("<?"):
+            content = content.split(">", 1)[1]
+        return xml(content)
 
     def render_metadata(self, context):
         # Look up all the metadata first
