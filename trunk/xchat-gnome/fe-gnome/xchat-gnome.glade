@@ -390,6 +390,7 @@
 	      <child>
 		<widget class="GtkButton" id="find next button">
 		  <property name="visible">True</property>
+		  <property name="sensitive">False</property>
 		  <property name="can_focus">True</property>
 		  <property name="relief">GTK_RELIEF_NONE</property>
 		  <property name="focus_on_click">True</property>
@@ -539,6 +540,7 @@
 	      <child>
 		<widget class="GtkCheckButton" id="find match case">
 		  <property name="visible">True</property>
+		  <property name="sensitive">False</property>
 		  <property name="can_focus">True</property>
 		  <property name="label" translatable="yes">_Match Case</property>
 		  <property name="use_underline">True</property>
