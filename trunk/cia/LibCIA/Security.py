@@ -186,25 +186,70 @@ class User:
             d[cursor.description[i][0]] = row[i]
         return d
 
+    def saveKey(self, file, *grantCapabilities):
+        """Save a key for this user to disk, after optionally
+           granting them capabilities if necessary. This is here to
+           bootstrap the capability system, since normally creating
+           users and granting capabilities requires one to already have
+           a powerful user's key.
+           """
+        return Database.pool.runInteraction(self._saveKey)
+
+    def _saveKey(self, cursor, file, *grantCapabilities):
+        self._grant(cursor, *grantCapabilities)
+        key = self._getInfo(cursor)['secret_key']
+        f = open(file, "w")
+        os.chmod(file, 0600)
+        f.write(key)
+        f.close()
+
     def test(self, *capabilities):
         """Test this user for one or more of the given capabilities.
            Returns true if the user has any of the given capabilities,
            false if they have none, or raises a NoSuchUser exception
            if this isn't a valid user. Returns its result in a Deferred.
+
+           If the capabilities list is empty, this will always return True
+           for a valid user.
            """
         return Database.pool.runInteraction(self._test, *capabilities)
 
     def _test(self, cursor, *capabilities):
-        pass
+        return bool(cursor.execute(self._createTestQuery(_getUid(cursor, key), capabilities)))
 
-    def getEmail(self):
-        """Return, via a Deferred, this user's email address"""
-        return Database.pool.runInteraction(self._getKey)
+    def grant(self, *capabilities):
+        """Grant all capabilities in the given list, ignoring any the user already has"""
+        return Database.pool.runInteraction(self._grant, *capabilities)
 
-    def _getKey(self, cursor):
+    def _grant(self, cursor, *capabilities):
         uid = self._getUid(cursor)
-        cursor.execute("SELECT secret_key FROM users WHERE uid = %d" % uid)
-        return cursor.fetchone()[0]
+        for capability in capabilities:
+            cursor.execute("INSERT IGNORE INTO capabilities (uid, capability) VALUES(%d, %s)" % (
+                uid, Database.quote(repr(capability), 'text')))
+
+    def require(self, *capabilities):
+        """Like test(), but in case none of the listed capabilities have been
+           granted to this user, raises a SecurityException.
+           """
+        return Database.pool.runInteraction(self._require, *capabilities)
+
+    def _require(self, cursor, *capabilities):
+        if not self._test(cursor, *capabilities):
+            raise SecurityException("One of the following capabilities are required: " +
+                                    repr(capabilities)[1:-1])
+
+    def _createTestQuery(self, uid, capabilities):
+        """Create an SQL query that returns something nonzero if a uid matches any of
+           a list of capabilities. If the capabilities list is empty, this creates a
+           query that always has a nonzero result.
+           """
+        if capabilities:
+            return "SELECT 1 FROM capabilities WHERE uid = %d AND (%s) LIMIT 1" % (
+                uid,
+                " OR ".join(["capability = " + Database.quote(repr(c), 'text') for c in capabilities]),
+                )
+        else:
+            return "SELECT 1"
 
     def _getUidFromKey(self, cursor, key):
         """Find a user by their key"""
@@ -271,153 +316,13 @@ class User:
         else:
             raise NoSuchUser("No such user ID: %d" % uid)
 
-
-class CapabilityDB:
-    """A simple capability database, stored in an SQL table.
-       Keys are unguessable random strings, identifiers are repr()'ed
-       python objects representing what the key allows. The mapping
-       between keys and identifiers doesn't have to be 1 to 1.
-
-       This interface provides the ability to test a key for some particular
-       capability, grant a new key for a particular capability, and revoke keys.
-
-       All functions return a Deferred.
-       """
-    def saveKey(self, capability, file):
-        """Save the key for a capability to the given filename.
-           Useful for saving important keys on initialization so that
-           they can later be used to retrieve other keys.
-           This ensures that the freshly created key isn't readable
-           by other users. Returns a Deferred that indicates the
-           success or failure of the operation.
-           """
-        result = defer.Deferred()
-        d = self.getKey(capability)
-        d.addCallback(self._saveKeyCallback, os.path.expanduser(file), result)
-        d.addErrback(result.errback)
-        return result
-
-    def _saveKeyCallback(self, key, file, result):
-        f = open(file, "w")
-        os.chmod(file, 0600)
-        f.write(key)
-        f.close()
-        result.callback(None)
-
-    def close(self):
-        self.rack.close()
-
-    def getUidFromName(self, name):
-        """Given a full name, return a user ID"""
-        return Database.pool.runInteraction(self._getUidFromName, name)
-
-    def _getUidFromName(self, cursor, name):
-        if name is None:
-            cursor.execute("SELECT uid FROM users WHERE full_name IS NULL")
-        else:
-            cursor.execute("SELECT uid FROM users WHERE full_name = %s" %
-                           Database.quote(name, 'text'))
-        row = cursor.fetchone()
-        if row:
-            return row[0]
-
-    def getKey(self, capability, uid=None):
-        """Find a key for the given capability, creating one if it doesn't exist.
-           Uses the given user ID. If None, looks up the uid for the NULL user.
-           """
-        return Database.pool.runInteraction(self._getKey, capability, uid)
-
-    def _getKey(self, cursor, capability, uid=None):
-        # Get the default (unnamed) user if we don't get an explicit uid
-        if uid is None:
-            uid = self._getUidFromName(cursor, None)
-
-        # If we still don't have a user, we need to create one
-        if uid is None:
-            uid = self._createUser(cursor, None)
-
-        cursor.execute("SELECT secret_key FROM users WHERE uid = %d" % uid)
-        row = cursor.fetchone()
-        if row:
-            return row[0]
-        else:
-            # We need a new key
-            return self._grant(cursor,uid, capability)
-
-    def createUser(self, full_name, email=None):
-        """Create a new user, returning the UID"""
-        return Database.pool.runInteraction(self._createUser, full_name, email)
-
-    def getKeyUser(self, key):
-        """Return the UID for the given key, if it's a valid key. None if the key is invalid."""
-        return Database.pool.runInteraction(self._getKeyUser, key)
-
-    def _getKeyUser(self, cursor, key):
-        cursor.execute("SELECT uid FROM users WHERE secret_key = %s" %
-                       Database.quote(key, 'varchar'))
-        row = cursor.fetchone()
-        if row:
-            return row[0]
-
-    def _createTestQuery(self, uid, capabilities):
-        """Create an SQL query that returns something nonzero if a uid matches any of
-           a list of capabilities. If the capabilities list is empty, this creates a
-           query that always has a nonzero result.
-           """
-        if capabilities:
-            return "SELECT 1 FROM capabilities WHERE uid = %d AND (%s) LIMIT 1" % (
-                uid,
-                " OR ".join(["capability = " + Database.quote(repr(c), 'text') for c in capabilities]),
-                )
-        else:
-            return "SELECT 1"
-
-    def test(self, key, *capabilities):
-        """Test the given key for any of the given capabilities. Returns a Deferred"""
-        return Database.pool.runInteraction(self._test, key, *capabilities)
-
-    def _test(self, cursor, key, *capabilities):
-        uid = self._getKeyUser(cursor, key)
-        if not uid:
-            return False
-        cursor.execute(self._createTestQuery(uid, capabilities))
-        return bool(cursor.fetchone())
-
-    def require(self, key, *capabilities):
-        """Return a deferred that runs its callback if the key matches any of the given
-           capabilities. If not, this raises an error explaining the capabilities required.
-           """
-        return Database.pool.runInteraction(self._require, key, *capabilities)
-
-    def _require(self, cursor, key, *capabilities):
-        if not self._test(cursor, key, *capabilities):
-            raise SecurityException("One of the following capabilities are required: " +
-                                    repr(capabilities)[1:-1])
-
-    def getCapabilities(self, uid):
-        """Return a list of capability names (strings) that the given uid has"""
+    def getCapabilities(self):
+        """Return a list of capability names (strings) that this user has, via a Deferred"""
         return Database.pool.runInteraction(self._getCapabilities, uid)
 
-    def _getCapabilities(self, cursor, uid):
+    def _getCapabilities(self, cursor):
+        uid = self._getUid(cursor)
         cursor.execute("SELECT capability FROM capabilities WHERE uid = %d" % uid)
         return [row[0] for row in cursor.fetchall()]
-
-    def grant(self, capability, owner=None):
-        """Create a new capability to the given user"""
-        newKey = createRandomKey()
-        if owner:
-            owner = Database.quote(owner, 'text')
-        else:
-            owner = "NULL"
-
-        Database.pool.runOperation("INSERT INTO capabilities (key_data, id, owner) values(%s, %s, %s)" % (
-            Database.quote(newKey, 'text'),
-            Database.quote(repr(capability), 'text'),
-            owner,
-            ))
-        return newKey
-
-
-caps = CapabilityDB()
 
 ### The End ###
