@@ -50,7 +50,7 @@ struct _EPublishUri {
 	gint publish_frequency;
 	gchar *username;
 	gchar *password;
-	GSList *calendars;
+	GSList *events, *tasks;
 	gchar *last_pub_time;
 };
 

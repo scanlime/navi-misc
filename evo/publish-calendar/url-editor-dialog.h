@@ -26,6 +26,7 @@
 #include <gtk/gtk.h>
 #include <glade/glade.h>
 #include <libedataserverui/e-source-selector.h>
+#include "publish-location.h"
 
 G_BEGIN_DECLS
 
@@ -49,6 +50,8 @@ struct _UrlEditorDialog2 {
 	GtkDialog parent;
 
 	GtkTreeModel *url_list_model;
+	EPublishUri *uri;
+
 	GladeXML *gui;
 
 	GtkWidget *url_entry;
@@ -56,10 +59,13 @@ struct _UrlEditorDialog2 {
 
 	GtkWidget *type_selector;
 	GtkWidget *publish_events;
-	GtkWidget *events_swin;
-	GtkWidget *events_selector;
 	GtkWidget *publish_tasks;
+	GtkWidget *events_swin;
 	GtkWidget *tasks_swin;
+
+	ESourceList *events_source_list;
+	ESourceList *tasks_source_list;
+	GtkWidget *events_selector;
 	GtkWidget *tasks_selector;
 
 	GtkWidget *username_entry;
@@ -74,7 +80,7 @@ struct _UrlEditorDialogClass2 {
 	GtkDialogClass parent_class;
 };
 
-GtkWidget *url_editor_dialog_new2 (GtkTreeModel *url_list_model);
+GtkWidget *url_editor_dialog_new2 (GtkTreeModel *url_list_model, EPublishUri *uri);
 GType      url_editor_dialog_get_type2 (void);
 void       url_editor_dialog_run2 (UrlEditorDialog2 *dialog);
 

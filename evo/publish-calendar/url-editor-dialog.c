@@ -41,7 +41,6 @@ url_editor_dialog_construct2 (UrlEditorDialog2 *dialog)
 {
 	GladeXML *gui;
 	GtkWidget *toplevel;
-	ESourceList *source_list;
 	GConfClient *gconf;
 	GtkSizeGroup *group;
 
@@ -76,13 +75,13 @@ url_editor_dialog_construct2 (UrlEditorDialog2 *dialog)
 	dialog->ok = gtk_dialog_add_button (GTK_DIALOG (dialog), GTK_STOCK_OK, GTK_RESPONSE_OK);
 	gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_OK);
 
-	source_list = e_source_list_new_for_gconf (gconf, "/apps/evolution/calendar/sources");
-	dialog->events_selector = e_source_selector_new (source_list);
+	dialog->events_source_list = e_source_list_new_for_gconf (gconf, "/apps/evolution/calendar/sources");
+	dialog->events_selector = e_source_selector_new (dialog->events_source_list);
 	gtk_widget_show (dialog->events_selector);
 	gtk_container_add (GTK_CONTAINER (dialog->events_swin), dialog->events_selector);
 
-	source_list = e_source_list_new_for_gconf (gconf, "/apps/evolution/tasks/sources");
-	dialog->tasks_selector = e_source_selector_new (source_list);
+	dialog->tasks_source_list = e_source_list_new_for_gconf (gconf, "/apps/evolution/tasks/sources");
+	dialog->tasks_selector = e_source_selector_new (dialog->tasks_source_list);
 	gtk_widget_show (dialog->tasks_selector);
 	gtk_container_add (GTK_CONTAINER (dialog->tasks_swin), dialog->tasks_selector);
 
@@ -94,8 +93,30 @@ url_editor_dialog_construct2 (UrlEditorDialog2 *dialog)
 	gtk_size_group_add_widget (group, dialog->password_entry);
 	g_object_unref (group);
 
-	gtk_combo_box_set_active (GTK_COMBO_BOX (dialog->publish_frequency), 0);
-	gtk_combo_box_set_active (GTK_COMBO_BOX (dialog->type_selector), 0);
+	if (dialog->uri == NULL) {
+		gtk_combo_box_set_active (GTK_COMBO_BOX (dialog->publish_frequency), 0);
+		gtk_combo_box_set_active (GTK_COMBO_BOX (dialog->type_selector), 0);
+		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (dialog->publish_events), TRUE);
+		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (dialog->publish_tasks), TRUE);
+
+		dialog->uri = g_new0 (EPublishUri, 1);
+	} else {
+		ESource *source;
+		GSList *p;
+
+		for (p = dialog->uri->events; p; p = g_slist_next (p)) {
+			gchar *source_uid = g_strdup (p->data);
+			source = e_source_list_peek_source_by_uid (dialog->events_source_list, source_uid);
+			e_source_selector_select_source ((ESourceSelector *) dialog->events_selector, source);
+			g_free (source_uid);
+		}
+		for (p = dialog->uri->events; p; p = g_slist_next (p)) {
+			gchar *source_uid = g_strdup (p->data);
+			source = e_source_list_peek_source_by_uid (dialog->tasks_source_list, source_uid);
+			e_source_selector_select_source ((ESourceSelector *) dialog->tasks_selector, source);
+			g_free (source_uid);
+		}
+	}
 
 	g_signal_connect (G_OBJECT (dialog->publish_events), "toggled", G_CALLBACK (publish_events_toggled), dialog);
 	g_signal_connect (G_OBJECT (dialog->publish_tasks), "toggled", G_CALLBACK (publish_tasks_toggled), dialog);
@@ -106,12 +127,13 @@ url_editor_dialog_construct2 (UrlEditorDialog2 *dialog)
 }
 
 GtkWidget *
-url_editor_dialog_new2 (GtkTreeModel *url_list_model)
+url_editor_dialog_new2 (GtkTreeModel *url_list_model, EPublishUri *uri)
 {
 	UrlEditorDialog2 *dialog;
 
 	dialog = (UrlEditorDialog2 *) g_object_new (URL_EDITOR_DIALOG_TYPE, NULL);
 	dialog->url_list_model = g_object_ref (url_list_model);
+	dialog->uri = uri;
 
 	if (url_editor_dialog_construct2 (dialog))
 		return GTK_WIDGET (dialog);
