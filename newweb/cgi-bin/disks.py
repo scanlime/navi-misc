@@ -72,7 +72,7 @@ if __name__ == '__main__':
     print """Content-type: text/xml
 
 <?xml version="1.0"?>
-<xml-stylesheet type="text/xsl" href="/new/style.xsl"?>
+<?xml-stylesheet type="text/xsl" href="/new/style.xsl"?>
 
 <page title="Navi disk status" subtitle="It's big. And stuff">
   <section title="charts">
