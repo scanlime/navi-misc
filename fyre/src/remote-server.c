@@ -26,23 +26,50 @@
  *
  */
 
-#include <stdio.h>
+#include <gnet.h>
+#include <gtk/gtk.h>
 #include <string.h>
-#include <stdarg.h>
 #include <stdlib.h>
-#include "animation.h"
 #include "iterative-map.h"
 #include "remote-server.h"
+#include "de-jong.h"
 
-static void       remote_server_class_init    (RemoteServerClass*    klass);
-static void       remote_server_init          (RemoteServer*         self);
-static void       remote_server_dispose       (GObject*              gobject);
+typedef struct _RemoteServer      RemoteServer;
+typedef struct _RemoteServerConn  RemoteServerConn;
 
-static void       remote_server_send_response (RemoteServer*         self,
+struct _RemoteServer {
+    GServer*             gserver;
+    GHashTable*          command_hash;
+    gboolean             have_gtk;
+};
+
+struct _RemoteServerConn {
+    RemoteServer*        server;
+    GConn*               gconn;
+
+    /* State we maintain on behalf of the client */
+    IterativeMap*        map;
+    ParameterHolderPair  frame;
+};
+
+typedef void      (*RemoteServerCallback)     (RemoteServerConn*     self,
+					       const char*           command,
+					       const char*           parameters);
+
+
+static void       remote_server_connect       (GServer*              gserver,
+					       GConn*                gconn,
+					       gpointer              user_data);
+static void       remote_server_callback      (GConn*                gconn,
+					       GConnEvent*           event,
+					       gpointer              user_data);
+static void       remote_server_dispatch_line (RemoteServerConn*     self,
+					       char*                 line);
+static void       remote_server_send_response (RemoteServerConn*     self,
 					       int                   response_code,
 					       const char*           response_message,
 					       ...);
-static void       remote_server_send_binary   (RemoteServer*         self,
+static void       remote_server_send_binary   (RemoteServerConn*     self,
 					       unsigned char*        data,
 					       unsigned long         length);
 static void       remote_server_add_command   (RemoteServer*         self,
@@ -52,140 +79,130 @@ static void       remote_server_init_commands (RemoteServer*         self);
 
 
 /************************************************************************************/
-/**************************************************** Initialization / Finalization */
-/************************************************************************************/
-
-GType remote_server_get_type(void) {
-    static GType anim_type = 0;
-
-    if (!anim_type) {
-	static const GTypeInfo dj_info = {
-	    sizeof(RemoteServerClass),
-	    NULL, /* base_init */
-	    NULL, /* base_finalize */
-	    (GClassInitFunc) remote_server_class_init,
-	    NULL, /* class_finalize */
-	    NULL, /* class_data */
-	    sizeof(RemoteServer),
-	    0,
-	    (GInstanceInitFunc) remote_server_init,
-	};
-
-	anim_type = g_type_register_static(G_TYPE_OBJECT, "RemoteServer", &dj_info, 0);
-    }
-
-    return anim_type;
-}
-
-static void remote_server_class_init(RemoteServerClass *klass) {
-    GObjectClass *object_class;
-    object_class = (GObjectClass*) klass;
-
-    object_class->dispose      = remote_server_dispose;
-}
-
-static void remote_server_dispose(GObject *gobject) {
-    RemoteServer *self = REMOTE_SERVER(gobject);
-
-    if (self->command_hash) {
-	g_hash_table_destroy(self->command_hash);
-	self->command_hash = NULL;
-    }
-}
-
-static void remote_server_init(RemoteServer *self) {
-    self->command_hash = g_hash_table_new(g_str_hash, g_str_equal);
-
-    self->output_f = stdout;
-    self->input_f = stdin;
-
-    remote_server_init_commands(self);
-}
-
-RemoteServer*    remote_server_new        (IterativeMap* map,
-					   Animation*    animation,
-					   gboolean      have_gtk)
-{
-    RemoteServer *self = REMOTE_SERVER(g_object_new(remote_server_get_type(), NULL));
-
-    self->map = map;
-    self->animation = animation;
-    self->have_gtk = have_gtk;
-
-    return self;
-}
-
-
-/************************************************************************************/
 /***************************************************************** I/O Layer ********/
 /************************************************************************************/
 
-static void       remote_server_send_response (RemoteServer*          self,
-					       int              response_code,
-					       const char*      response_message,
-					       ...)
+void              remote_server_main_loop     (int        port_number,
+					       gboolean   have_gtk)
 {
-    va_list ap;
+    RemoteServer self;
 
-    fprintf(self->output_f, "%d ", response_code);
+    self.have_gtk = have_gtk;
+    self.gserver = gnet_server_new(NULL, port_number,
+				   remote_server_connect, &self);
+    self.command_hash = g_hash_table_new(g_str_hash, g_str_equal);
+    remote_server_init_commands(&self);
 
-    va_start(ap, response_message);
-    vfprintf(self->output_f, response_message, ap);
-    va_end(ap);
+    if (have_gtk)
+	gtk_main();
+    else
+	g_main_loop_run(g_main_loop_new(NULL, FALSE));
 
-    fprintf(self->output_f, "\n");
-    fflush(self->output_f);
+    gnet_server_delete(self.gserver);
+    g_hash_table_destroy(self.command_hash);
 }
 
-static void       remote_server_send_binary   (RemoteServer*          self,
-					       unsigned char*   data,
-					       unsigned long    length)
+static void       remote_server_connect       (GServer*              gserver,
+					       GConn*                gconn,
+					       gpointer              user_data)
 {
-    remote_server_send_response(self, FYRE_RESPONSE_BINARY,
-				"%d byte binary response", length);
-    fwrite(data, length, 1, self->output_f);
-    fflush(self->output_f);
-}
+    RemoteServerConn* self = g_new0(RemoteServerConn, 1);
 
-static void       remote_server_add_command   (RemoteServer*          self,
-					       const char*      command,
-					       RemoteServerCallback   callback)
-{
-    g_hash_table_insert(self->command_hash, (void*) command, callback);
-}
+    self->server = (RemoteServer*) user_data;
+    self->gconn = gconn;
+    self->map = ITERATIVE_MAP(de_jong_new());
 
-void              remote_server_main_loop     (RemoteServer* self)
-{
-    char line[1024];
-    char* args;
-    RemoteServerCallback callback;
+    gnet_conn_set_callback(gconn, remote_server_callback, self);
+    gnet_conn_set_watch_error(gconn, TRUE);
+    gnet_conn_readline(gconn);
 
     remote_server_send_response(self, FYRE_RESPONSE_READY,
 				"Fyre rendering server ready");
+}
 
-    while (fgets(line, sizeof(line)-1, self->input_f)) {
-	line[sizeof(line)-1] = '\0';
-	args = strchr(line, '\n');
-	if (args)
-	    *args = '\0';
+static void       remote_server_callback      (GConn*                gconn,
+					       GConnEvent*           event,
+					       gpointer              user_data)
+{
+    RemoteServerConn* self = (RemoteServerConn*) user_data;
+    switch (event->type) {
 
-	args = strchr(line, ' ');
-	if (args) {
-	    *args = '\0';
-	    args++;
-	}
-	else
-	    args = "";
+    case GNET_CONN_READ:
+	remote_server_dispatch_line(self, event->buffer);
+	gnet_conn_readline(gconn);
+	break;
 
-	callback = (RemoteServerCallback) g_hash_table_lookup(self->command_hash, line);
+    case GNET_CONN_CLOSE:
+    case GNET_CONN_TIMEOUT:
+    case GNET_CONN_ERROR:
+	gnet_conn_delete(gconn);
+	g_object_unref(self->map);
+	g_free(self);
+	break;
 
-	if (callback)
-	    callback(self, line, args);
-	else
-	    remote_server_send_response(self, FYRE_RESPONSE_UNRECOGNIZED,
-					"Command not recognized");
-
+    default:
     }
+}
+
+static void       remote_server_dispatch_line (RemoteServerConn*     self,
+					       char*                line)
+{
+    char* args;
+    RemoteServerCallback callback;
+
+    args = strchr(line, ' ');
+    if (args) {
+	*args = '\0';
+	args++;
+    }
+    else
+	args = "";
+
+    callback = (RemoteServerCallback)
+	g_hash_table_lookup(self->server->command_hash, line);
+
+    if (callback)
+	callback(self, line, args);
+    else
+	remote_server_send_response(self, FYRE_RESPONSE_UNRECOGNIZED,
+					"Command not recognized");
+}
+
+static void       remote_server_send_response (RemoteServerConn*  self,
+					       int                response_code,
+					       const char*        response_message,
+					       ...)
+{
+    gchar* full_message;
+    gchar* line;
+    va_list ap;
+
+    va_start(ap, response_message);
+    full_message = g_strdup_vprintf(response_message, ap);
+    va_end(ap);
+
+    line = g_strdup_printf("%d %s\n", response_code, full_message);
+
+    gnet_conn_write(self->gconn, line, strlen(line));
+
+    g_free(full_message);
+    g_free(line);
+}
+
+static void       remote_server_send_binary   (RemoteServerConn*  self,
+					       unsigned char*     data,
+					       unsigned long      length)
+{
+    remote_server_send_response(self, FYRE_RESPONSE_BINARY,
+				"%d byte binary response", length);
+    gnet_conn_write(self->gconn, data, length);
+}
+
+static void       remote_server_add_command   (RemoteServer*          self,
+					       const char*            command,
+					       RemoteServerCallback   callback)
+{
+    g_hash_table_insert(self->command_hash, (void*) command, callback);
 }
 
 
@@ -193,26 +210,28 @@ void              remote_server_main_loop     (RemoteServer* self)
 /******************************************************** Command Implementations ***/
 /************************************************************************************/
 
-static void       cmd_set_param        (RemoteServer*          self,
-					const char*      command,
-					const char*      parameters)
+static void       cmd_set_param        (RemoteServerConn*  self,
+					const char*        command,
+					const char*        parameters)
 {
     parameter_holder_set_from_line(PARAMETER_HOLDER(self->map), parameters);
     remote_server_send_response(self, FYRE_RESPONSE_OK, "ok");
 }
 
-static void       cmd_calculate_timed  (RemoteServer*          self,
-					const char*      command,
-					const char*      parameters)
+static void       cmd_calculate_timed  (RemoteServerConn*  self,
+					const char*        command,
+					const char*        parameters)
 {
+    printf("Starting iterations\n");
     iterative_map_calculate_timed(self->map, atof(parameters));
     remote_server_send_response(self, FYRE_RESPONSE_PROGRESS, "iterations=%.3e density=%ld",
 				self->map->iterations, HISTOGRAM_IMAGER(self->map)->peak_density);
+    printf("Finished\n");
 }
 
-static void       cmd_get_histogram_stream (RemoteServer*          self,
-					    const char*      command,
-					    const char*      parameters)
+static void       cmd_get_histogram_stream (RemoteServerConn*  self,
+					    const char*        command,
+					    const char*        parameters)
 {
     guchar buffer[512 * 1024];
     gsize size;
@@ -222,7 +241,7 @@ static void       cmd_get_histogram_stream (RemoteServer*          self,
     remote_server_send_binary(self, buffer, size);
 }
 
-static void       remote_server_init_commands (RemoteServer*          self)
+static void       remote_server_init_commands (RemoteServer*  self)
 {
     remote_server_add_command(self, "set_param",            cmd_set_param);
     remote_server_add_command(self, "calculate_timed",      cmd_calculate_timed);
