@@ -1,11 +1,14 @@
-# Yes, this needs to be here twice. Not sure why...
-sudo /usr/bin/nvtv -t -r 640,480 -s normal -S NTSC
-sudo /usr/bin/nvtv -t -r 640,480 -s normal -S NTSC
+sudo nvtv -t -S NTSC -r 800,600 -s Large
+sudo nvtv -t -S NTSC -r 800,600 -s Large
 
 export DISPLAY=:0
 xhost +
 
-irexec -d ~/freevo/lircrc
+xset dpms force off
+xset dpms 0 0 0
+xset -dpms
 
-cd ~/freevo
+irexec -d ~/wasabi/lircrc
+
+cd ~/freevo-1.5.2
 while true; do ./freevo; sleep 1; done
