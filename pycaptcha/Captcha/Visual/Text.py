@@ -101,9 +101,10 @@ class TextLayer(Visual.Layer):
         if self.borderSize > 0:
             for bx in (-1,0,1):
                 for by in (-1,0,1):
-                    draw.text((x + bx * self.borderSize,
-                               y + by * self.borderSize),
-                              self.text, font=self.font, fill=self.borderColor)
+                    if bx and by:
+                        draw.text((x + bx * self.borderSize,
+                                   y + by * self.borderSize),
+                                  self.text, font=self.font, fill=self.borderColor)
 
         # And the text itself...
         draw.text((x,y), self.text, font=self.font, fill=self.textColor)

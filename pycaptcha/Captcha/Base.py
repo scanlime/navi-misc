@@ -83,18 +83,17 @@ class Factory(object):
        CAPTCHAs expire after a given amount of time, given in seconds.
        The default is 15 minutes.
        """
-    def __init__(self, cls, lifetime=60*15):
-        self.cls = cls
+    def __init__(self, lifetime=60*15):
         self.lifetime = lifetime
         self.storedInstances = {}
 
-    def new(self, *args, **kwargs):
+    def new(self, cls, *args, **kwargs):
         """Create a new instance of our assigned BaseCaptcha subclass, passing
            it any extra arguments we're given. This stores the result for
            later testing.
            """
         self.clean()
-        inst = self.cls(*args, **kwargs)
+        inst = cls(*args, **kwargs)
         self.storedInstances[inst.id] = inst
         return inst
 

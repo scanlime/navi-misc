@@ -36,9 +36,9 @@ class ImageCaptcha(Captcha.BaseCaptcha):
        """
     defaultSize = (256,96)
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         Captcha.BaseCaptcha.__init__(self)
-        self._layers = self.getLayers()
+        self._layers = self.getLayers(*args, **kwargs)
 
     def getImage(self):
         """Get a PIL image representing this CAPTCHA test, creating it if necessary"""
@@ -47,7 +47,9 @@ class ImageCaptcha(Captcha.BaseCaptcha):
         return self._image
 
     def getLayers(self):
-        """Subclasses must override this to return a list of Layer instances to render"""
+        """Subclasses must override this to return a list of Layer instances to render.
+           Lists within the list of layers are recursively rendered.
+           """
         return []
 
     def render(self, size=None):
@@ -55,8 +57,14 @@ class ImageCaptcha(Captcha.BaseCaptcha):
         if size is None:
             size = self.defaultSize
         img = Image.new("RGB", size)
-        for layer in self._layers:
-            img = layer.render(img) or img
+        return self._renderList(self._layers, Image.new("RGB", size))
+
+    def _renderList(self, l, img):
+        for i in l:
+            if type(i) == tuple or type(i) == list:
+                img = self._renderList(i, img)
+            else:
+                img = i.render(img) or img
         return img
 
 
