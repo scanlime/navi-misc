@@ -29,8 +29,6 @@
 
 G_BEGIN_DECLS
 
-
-
 #define E_TYPE_WEATHER_SOURCE_CCF            (e_weather_source_ccf_get_type ())
 #define E_WEATHER_SOURCE_CCF(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), E_TYPE_WEATHER_SOURCE_CCF, EWeatherSourceCCF))
 #define E_WEATHER_SOURCE_CCF_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), E_TYPE_WEATHER_SOURCE_CCF, EWeatherSourceCCF))
@@ -56,8 +54,6 @@ struct _EWeatherSourceCCFClass {
 
 EWeatherSource*	e_weather_source_ccf_new (const char *uri);
 GType		e_weather_source_ccf_get_type (void);
-
-
 
 G_END_DECLS
 

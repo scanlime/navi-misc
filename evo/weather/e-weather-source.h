@@ -27,8 +27,6 @@
 
 G_BEGIN_DECLS
 
-
-
 typedef enum {
 	WEATHER_FAIR,
 	WEATHER_SNOW_SHOWERS,
@@ -100,8 +98,6 @@ struct _EWeatherSourceClass {
 EWeatherSource*	e_weather_source_new (const char *uri);
 GType	e_weather_source_get_type (void);
 void	e_weather_source_parse (EWeatherSource *source, EWeatherSourceFinished done, gpointer data);
-
-
 
 G_END_DECLS
 
