@@ -321,8 +321,9 @@ class PalantirWindow:
     self.on_quit_activate(widget)
 
   def on_quit_activate(self, widget, data=None):
-    self.factory.quit()
-    reactor.stop()
+    if hasattr(self.factory, 'client'):
+      self.factory.quit()
+      reactor.stop()
     gtk.main_quit()
 
   def on_dice_button_clicked(self, widget, data=10):
