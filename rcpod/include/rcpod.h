@@ -320,6 +320,11 @@ int rcpod_I2CWrite(rcpod_dev* rcpod, rcpod_i2c_dev* idev,
 int rcpod_I2CRead(rcpod_dev* rcpod, rcpod_i2c_dev* idev,
 		  unsigned char* read_buffer, int read_count);
 
+/* Returns nonzero if the rcpod device has firmware-accelerated I2C support.
+ * If not, I2C will still work but it will be very slow.
+ */
+int rcpod_HasAcceleratedI2C(rcpod_dev* rcpod);
+
 
 /*************************************************************************************/
 /************************************************** rcpod constants ******************/
