@@ -44,11 +44,12 @@ can contain many millions of points, exposing far more internal structure.
 \section{Exposition}
 Generally the literature discussing chaotic maps and other systems which
 produce density fields is full of greyscale images created where each pixel
-is darkened as the point moves around the image region. This technique is
-often sufficient for analyzing the structure of a map but does not provide
-a sound basis for the use of the map as an artistic entity. The structure
-of the attractor is only minimally visible using such techniques, because
-a long iteration run will quickly result in a completely black image.
+is darkened as the point or points move around the image region. This
+technique is often sufficient for analyzing the structure of a map but
+does not provide a sound basis for the use of the map as an artistic entity.
+The structure of the attractor is only minimally visible using such
+techniques, because a long iteration run will quickly result in a
+completely black image.
 
 \begin{figure}[htb]
 \centering
@@ -81,12 +82,12 @@ high-dynamic-range image processing techniques can be applied. This includes
 gamma correction, exposure control, and color interpolation at the histogram's
 full precision. By clamping each color component as late as possible in the
 rendering process, the color can provide a visual hint at the higher
-dynamic range of the image. This is typically seen as a convergence towards either
-black or white depending on the color chosen.
+dynamic range of the image. This is typically seen as a convergence towards
+either black or white depending on the colors chosen.
 
 A histogram of infinitely small points can not be antialiased using standard
-coverage techniques, but aliasing artifacts can be reduced by
-oversampling-- using multiple histogram buckets per pixel.
+coverage techniques, but aliasing artifacts can be reduced by oversampling--
+using multiple histogram buckets per pixel.
 
 \section{Conclusion}
 Treating histograms as high-dynamic-range images creates the opportunity to
@@ -103,7 +104,7 @@ to interactively explore the parameter space of a chaotic map allows the
 discovery of beautiful attractors which can then serve as textures or other
 feed material. Possible future directions of this technique involve the use
 of algorithms to automatically detect and avoid parameter sets which
-result in non-chaotic attractors such as fixed points, or computer vision
+result in non-chaotic attractors such as fixed points or computer vision
 techniques for identifying parameters likely to be visually pleasing.
 These new techniques make it easy for artists to exploit the beauty of chaotic
 systems and gives researchers a much more effective visualization tool.
