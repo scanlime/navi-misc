@@ -141,7 +141,7 @@ class VFDupdater:
         else:
             spinner = self.spinnerIdle
 
-	clock = time.strftime("%H:%M:%S", time.localtime())
+	clock = time.strftime("%H:%M", time.localtime())
 
         spinnerChar = self.vfd.userDefinedCharacters[0]
         self.vfd.defineCharacter(spinnerChar, spinner)
