@@ -10,7 +10,7 @@
     <html>
       <head>
         <title><xsl:value-of select="@title"/></title>
-        <style type="text/css" media="all"> @import url(style.css);</style>
+        <style type="text/css" media="all"> @import url(/new/htdocs/style.css);</style>
       <xsl:choose>
         <xsl:when test="/page/@front='true'">
           <style type="text/css">body { background: #ffffff; }</style>
