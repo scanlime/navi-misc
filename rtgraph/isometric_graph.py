@@ -5,25 +5,17 @@
 # -- Micah Dowty <micah@picogui.org>
 #
 
-import gtk
-import rtgraph
+import rtgraph, gtk
 
-win = gtk.Window(gtk.WINDOW_TOPLEVEL)
-
-graph = rtgraph.PolarVectorGraph()
-graph.channels = [
-    PolarFunction(math.sin, 1, (0,0,1)),
-    PolarFunction(math.cos, 1.1, (1,0,0)),
-    PolarFunction(lambda t: 1, 4, (0,0.8,0)),
+functions = [
+    "(sin(t)*0.5+0.5, cos(t)*0.5+0.5, 0)",
+    "(sin(t)*0.5+0.5, 0, cos(t)*0.5+0.5)",
+    "(0, sin(t)*0.5+0.5, cos(t)*0.5+0.5)",
     ]
-graph.show()
 
-frame = gtk.AspectFrame()
-frame.add(graph)
-frame.show()
-
-win.add(frame)
-win.set_border_width(8)
-win.show()
+varDict = {'t': rtgraph.TimeVariable()}
+channels = [rtgraph.FunctionChannel(f, vars=varDict) for f in functions]
+win = rtgraph.GraphUIWindow(channels, rtgraph.IsometricVectorGraph())
 win.connect("destroy", gtk.mainquit)
+win.set_size_request(500,300)
 gtk.main()
