@@ -41,8 +41,8 @@ public class question extends java.applet.Applet implements ActionListener
 	public void init()
 	{
 		//create the fields and buttons
-		name = new TextField(lname,30);
-		position = new TextField(lquest,30);
+		name = new TextField("Name",30);
+		position = new TextField("Standing/Major",30);
 		ques = new TextArea("Question",4,30,TextArea.SCROLLBARS_VERTICAL_ONLY);
 		submit = new Button("Submit");
 		
@@ -71,27 +71,15 @@ public class question extends java.applet.Applet implements ActionListener
 
 		if(qstring.compareTo("") == 0) return;
 
-		if(!(nstring.compareTo(lname + " " + lquest) == 0 && qstring.compareTo("Question") == 0))
-		{
-			openConnection("studentactivities.mscd.edu",8080);
-			read();
-			//write the name string
-			write(nstring);
-			write(".");            
-			//write the question
-			qstring = tokens.nextToken();
-			while(tokens.hasMoreTokens())
-				qstring = qstring + " " + tokens.nextToken();
-			write(qstring);
-			write(".");
-			read();
-			closeConnection();
-			lname = "Question submitted successfully";
-			name.setText("Question submitted successfully");
-			position.setText("Refresh your browser window");
-			ques.setText("");
-			submit.removeActionListener(this);
-		}
+		openConnection("studentactivities.mscd.edu",8080);
+		write("jsub");
+		write(nstring);
+		qstring = tokens.nextToken();
+		while(tokens.hasMoreTokens())
+			qstring = qstring + " " + tokens.nextToken();
+		write(qstring);
+		closeConnection();
+		submit.removeActionListener(this);
 	}
     
 	/* These four methods handle network communication */
