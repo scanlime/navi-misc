@@ -175,7 +175,7 @@ class RelationGrapher:
         graphAttrs = {
             'packmode': 'graph',
             'center': True,
-            'Damping': 0.999,
+            'Damping': 0.9,
             }
 
         f.write("graph G {\n")
