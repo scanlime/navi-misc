@@ -363,17 +363,14 @@ class SelfTest(RcpodTestCase):
             self.rcpod.serialInit(rate)
 
         # Make sure buffers that are too large cause an exception
-        self.assertRaises(IOError, self.rcpod.serialTxRxStart, [0] * (pyrcpod.device.RCPOD_SCRATCHPAD_SIZE + 1), 5)
+        self.assertRaises(IOError, self.rcpod.serialTxRxStart, [0] * (pyrcpod.device.RCPOD_SCRATCHPAD_SIZE + 1))
         # But that buffers that are just big enough don't
-        self.rcpod.serialTxRxStart([0] * pyrcpod.device.RCPOD_SCRATCHPAD_SIZE, 5)
-        # Same with receive size
-        self.assertRaises(IOError, self.rcpod.serialTxRxStart, "", pyrcpod.device.RCPOD_SCRATCHPAD_SIZE+1)
-        self.rcpod.serialTxRxStart("", pyrcpod.device.RCPOD_SCRATCHPAD_SIZE)
+        self.rcpod.serialTxRxStart([0] * pyrcpod.device.RCPOD_SCRATCHPAD_SIZE)
 
-        self.rcpod.serialTxRxStart([1,36,72,3], 5)
-        self.rcpod.serialTxRxStart([], 0)
-        self.rcpod.serialTxRxStart("", 5)
-        self.rcpod.serialTxRxStart("Hello, World!", 0)
+        self.rcpod.serialTxRxStart([1,36,72,3])
+        self.rcpod.serialTxRxStart([])
+        self.rcpod.serialTxRxStart("")
+        self.rcpod.serialTxRxStart("Hello, World!")
 
         txe = self.rcpod.rd4
         txe.output().assert_()
@@ -381,8 +378,7 @@ class SelfTest(RcpodTestCase):
         self.rcpod.serialTx("U" * 20)
         self.rcpod.serialUnsetTxEnable()
         self.assertEqual(self.rcpod.serialRxProgress(), 0)
-        self.assertEqual(self.rcpod.serialRxCheckpoint(), [])
-        self.assertEqual(self.rcpod.serialRxFinish(), [])
+        self.assertEqual(self.rcpod.serialRxRead(), [])
 
 
 if __name__ == '__main__':

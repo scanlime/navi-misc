@@ -25,6 +25,7 @@ a class encapsulating the device.
 #
 
 from librcpod import *
+import re
 
 # These are the symbols that will be pulled from this module
 # into the 'pyrcpod' package.
@@ -135,17 +136,18 @@ class OpenedRcpod:
         self.model = name
 
         # Create pin descriptors corresponding to the ones in librcpod
-        # of the form R*. (The others are building blocks for pin
-        # descriptors, rather than complete descriptors for actual pins)
+        # of the form "R[A-E][0-7]" (The others are building blocks for pin
+        # descriptors, rather than complete descriptors for actual pins,
+        # or pin aliases like RX and TX)
         self.pins = {}
         for key, value in globals().iteritems():
-            if key.startswith("RCPOD_PIN_R"):
-                # Hack off the "RCPOD_PIN_" part and lowercase it
-                pinName = key[10:].lower()
+            match = re.match("RCPOD_PIN_(R[A-E][0-7])", key)
+            if match:
+                pinName = match.group(1).lower()
 
                 # Don't do anything with this pin if it's not implemented
                 # in hardware- this means PORTD and PORTE, on the PIC16C745
-                if self.model == "PIC16C745" and (pinName.startswith('rd' or pinName.startswith('re'))):
+                if self.model == "PIC16C745" and pinName[1] in 'de':
                     continue
 
                 # Wrap it in a Pin class
