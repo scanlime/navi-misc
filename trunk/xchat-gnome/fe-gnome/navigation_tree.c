@@ -36,7 +36,7 @@ void navigation_tree_create_new_network_entry(struct session *sess) {
 	store = GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(treeview)));
 
 	gtk_tree_store_append(store, &iter, NULL);
-	gtk_tree_store_set(store, &iter, 2, sess, -1);
+	gtk_tree_store_set(store, &iter, 1, "<none>", 2, sess, -1);
 }
 
 static gboolean navigation_tree_set_channel_name_iterate(GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, gpointer data) {
