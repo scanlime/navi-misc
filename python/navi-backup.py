@@ -20,65 +20,98 @@ This uses growisofs, and assumes your burner is at /dev/dvd.
     them, and fit as many as possible onto the remaining space
     on the current DVD.
 
+  * navi-backup md5 <paths>
+    Update the MD5 cache for the given paths. This is not necessary,
+    but may be run ahead of time to give a speed boost later on.
+    This also happens to print md5sum-like output for the files
+    in question, in case you want to use navi-backup's cache
+    to get a file's digest.
+
 If the path list is omitted, the current directory is assumed.
-Note that this uses an on-disk md5sum cache, to avoid horrible
-slowness a lot of the time. If you have reason to believe that
-any files may have been corrupted or updated, the md5 cache
-(at ~/.navi_backup_md5cache) should be removed.
 
 -- Micah Dowty <micah@navi.cx>
 """
 
-import time, os, sys, re, shutil, popen2
+import time, os, sys, re
+import shutil, popen2, shelve
 
 
 def shellEscape(s):
     return re.sub(r"([^0-9A-Za-z_\./-])", r"\\\1", s)
 
 
-class MD5Cache:
-    """In-memory and on-disk caches for md5sums. Sums we don't have
-       are computed on navi and returned via ssh. The disk cache
-       is awful cheesy, but better than waiting on a new md5sum.
-       """
-    def __init__(self, filename="~/.navi_backup_md5cache"):
-        self.cache = {}
-        self.filename = os.path.expanduser(filename)
+class CacheDir:
+    """Thin abstraction around a local directory for storing cache data."""
+    def __init__(self, path="~/.navi-backup"):
+        self.path = os.path.expanduser(path)
         try:
-            self.readDiskCache()
-        except IOError:
+            os.mkdir(self.path)
+        except:
             pass
 
-    def readDiskCache(self):
-        for line in open(self.filename):
-            line = line.strip()
-            self.cache[line.split()[1]] = line
+    def getFilename(self, name):
+        return os.path.join(self.path, name)
 
-    def updateDiskCache(self, line):
-        open(self.filename, "a").write(line + "\n")
+    def getDict(self, name):
+        return shelve.open(self.getFilename(name), protocol=-1)
 
-    def calc(self, filename):
-        """Calculate an md5sum remotely"""
+
+class MD5Cache:
+    """In-memory and on-disk caches for md5sums. This stores
+       a mapping of filenames to (sum, size, mtime) tuples.
+       On access, the size and mtime are always verified. If
+       they pass, we assume the sum is still valid. If not,
+       that cache entry is disregarded an the sum is recalc'ed.
+       """
+    def __init__(self):
+        self.cache = CacheDir().getDict('md5-cache')
+
+    def calc(self, *filenames):
+        """Calculate md5sums for one or more files remotely,
+           storing all returned results to the database.
+           """
+        if not filenames:
+            return
         sys.stderr.write("Waiting on md5sum...")
-        sum = os.popen("ssh navi md5sum %s" % shellEscape(shellEscape(filename)),
-                       "r").readline().strip()
-        if not sum:
-            raise IOError("md5sum on %r failed" % filename)
-        sys.stderr.write("\r" + " "*30 + "\r")
-        return sum
 
-    def get(self, filename):
-        """Get a sum from the cache, calculating if necessary"""
+        # Double-escape filenames, since they're going through our
+        # local shell and the shell on the remote machine.
+        cmd = "ssh navi md5sum " + " ".join([
+            shellEscape(shellEscape(os.path.abspath(f))) for f in filenames])
+        results = os.popen(cmd, "r")
+
+        while 1:
+            line = results.readline()
+            if not line:
+                break
+            sum, filename = line.strip().split(" ", 1)
+            filename = filename.lstrip()
+
+            st = os.stat(filename)
+            self.cache[filename] = (sum, st.st_size, st.st_mtime)
+
+        sys.stderr.write("\r" + " "*30 + "\r")
+
+    def isCacheValid(self, filename):
+        """Determine if we have a valid cache entry for the given filename"""
         filename = os.path.abspath(filename)
         try:
-            return self.cache[filename]
+            sum, size, mtime = self.cache[filename]
         except KeyError:
-            sum = self.calc(filename)
-            self.cache[filename] = sum
-            self.updateDiskCache(sum)
-            return sum
+            return False
+        st = os.stat(filename)
+        return st.st_size == size and st.st_mtime == mtime
 
-md5sum = MD5Cache().get
+    def get(self, filename):
+        """Get a sum from the cache, calculating if it doesn't
+           exist or if the cache is stale.
+           """
+        filename = os.path.abspath(filename)
+        if not self.isCacheValid(filename):
+            self.calc(filename)
+        return self.cache[filename][0]
+
+md5cache = MD5Cache()
 
 
 class BurnFailure(Exception):
@@ -254,9 +287,12 @@ class CatalogWriter:
                     self._indexFile(f, os.path.join(root, name))
 
     def _indexFile(self, f, path):
-        sum = md5sum(path)
-        print sum
-        f.write(sum + "\n")
+        """Get an md5 from the cache, and make an md5sum-style line with absolute paths"""
+        path = os.path.abspath(path)
+        sum = md5cache.get(path)
+        line = "%s\t%s" % (sum, path)
+        print line
+        f.write(line + "\n")
 
 
 def flattenPaths(paths):
@@ -269,28 +305,50 @@ def flattenPaths(paths):
                 dirs.sort()
                 files.sort()
                 for name in files:
-                    yield os.path.join(root, name)
+                    fullPath = os.path.join(root, name)
+                    if os.path.isfile(fullPath):
+                        yield fullPath
 
 
 class CatalogIndex:
-    """This is a slow junk-heap for searching the backup catalog.
-       It could be made lots more efficient, but given the speed of
-       my computer and the size of my CD binder, this shouldn't matter.
+    """A searchable index of backup catalogs. This is made persistent by
+       a shelve database mapping filenames to (md5, (date, time)) tuples.
+       The empty string is mapped to the name of the most recent catalog
+       we've indexed.
        """
     def __init__(self):
-        self.empty()
+        self.cache = CacheDir().getDict('catalog-index')
         self.reindexAll()
 
-    def empty(self):
-        self.md5Map = {}
-        self.dateMap = {}
-
-    def reindexAll(self):
-        """Reindex all catalog files, in order"""
+    def iterCatalogs(self):
+        """A generator that returns the full path of all catalog files"""
         catalogs = os.listdir(CatalogWriter.catalogDir)
         catalogs.sort()
         for catalog in catalogs:
-            self.reindexFile(os.path.join(CatalogWriter.catalogDir, catalog))
+            yield os.path.join(CatalogWriter.catalogDir, catalog)
+
+    def reindexAll(self):
+        """Reindex all catalog files, in order, skipping those that
+           we've already stored in the index.
+           """
+        latest = self.cache.get('')
+        i = self.iterCatalogs()
+
+        # Look for the first catalog we haven't seen yet
+        if latest:
+            try:
+                while 1:
+                    file = i.next()
+                    if file == latest:
+                        break
+            except StopIteration:
+                # Oops, our latest catalog doesn't even exist.
+                # Start over from the beginning.
+                i = self.iterCatalogs()
+
+        # All other catalogs need indexing
+        for file in i:
+            self.reindexFile(file)
 
     def prettifyDate(self, date):
         """Convert the filename date codes into a tuple of easier
@@ -310,14 +368,13 @@ class CatalogIndex:
         for line in open(filename):
             sum, filename = line.strip().split(" ", 1)
             filename = filename.lstrip()
-            self.dateMap[filename] = currentDate
-            self.md5Map[filename] = sum
+            self.cache[filename] = (sum, currentDate)
 
     def isFileModified(self, filename):
         """Check whether a file has been modified since it was archived"""
         filename = os.path.abspath(filename)
-        storedSum = self.md5Map[filename]
-        currentSum = md5sum(filename).split()[0]
+        storedSum = self.cache[filename][0]
+        currentSum = md5cache.get(filename)
         return currentSum != storedSum
 
     def needsBackup(self, filename):
@@ -334,7 +391,7 @@ class CatalogIndex:
            by a backup timestamp if one exists, then the filename.
            """
         try:
-            backupDate = self.dateMap[os.path.abspath(filename)][0]
+            backupDate = self.cache[os.path.abspath(filename)][1][0]
         except KeyError:
             status = '?'
             backupDate = ''
@@ -409,6 +466,30 @@ def cmd_auto(paths, assumedOverhead = 0.01, safetyTimer = 3):
         print "Starting burn in %d seconds..." % safetyTimer
         time.sleep(safetyTimer)
         backup(burnPaths, burner)
+
+
+def cmd_md5(paths, filesPerCommand=20):
+    pathGen = flattenPaths(paths)
+    while 1:
+        # At each iteration, look for files that need md5sums until we
+        # run out of source files or we hit the filesPerCommand limit.
+        calcFiles = []
+        allFiles = []
+        try:
+            while len(calcFiles) < filesPerCommand:
+                file = pathGen.next()
+                allFiles.append(file)
+                if not md5cache.isCacheValid(file):
+                    calcFiles.append(file)
+        except StopIteration:
+            pass
+
+        md5cache.calc(*calcFiles)
+        for file in allFiles:
+            print "%s\t%s" % (md5sum(file), file)
+
+        if not allFiles:
+            break
 
 
 def usage():
