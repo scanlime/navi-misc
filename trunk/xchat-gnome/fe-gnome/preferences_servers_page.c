@@ -7,18 +7,21 @@ void preferences_servers_selected(GtkTreeSelection *selection, gpointer data);
 void initialize_preferences_servers_page() {
 	GtkWidget *treeview, *edit_button, *remove_button;
 	GtkListStore *store;
-	GtkCellRenderer *text_renderer;
-	GtkTreeViewColumn *text_column;
+	GtkCellRenderer *text_renderer, *autoconnect_renderer;
+	GtkTreeViewColumn *text_column, *autoconnect_column;
 	GtkTreeSelection *select;
 
 	treeview = glade_xml_get_widget(gui.xml, "configure server list");
 
-	store = gtk_list_store_new(1, G_TYPE_STRING);
+	store = gtk_list_store_new(2, G_TYPE_STRING, G_TYPE_BOOLEAN);
 	gtk_tree_view_set_model(GTK_TREE_VIEW(treeview), GTK_TREE_MODEL(store));
 
 	text_renderer = gtk_cell_renderer_text_new();
 	text_column = gtk_tree_view_column_new_with_attributes("name", text_renderer, "text", 0, NULL);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), text_column);
+	autoconnect_renderer = gtk_cell_renderer_toggle_new();
+	autoconnect_column = gtk_tree_view_column_new_with_attributes("auto-connect", autoconnect_renderer, "active", 1, NULL);
+	gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), autoconnect_column);
 
 	edit_button = glade_xml_get_widget(gui.xml, "servers edit");
 	gtk_widget_set_sensitive(edit_button, FALSE);
@@ -49,7 +52,7 @@ void preferences_servers_page_populate(GtkWidget *treeview, GSList *netlist) {
 	while(netlist) {
 		net = netlist->data;
 		gtk_list_store_append(store, &iter);
-		gtk_list_store_set(store, &iter, 0, net->name, -1);
+		gtk_list_store_set(store, &iter, 0, net->name, 1, FALSE, -1);
 		netlist = netlist->next;
 	}
 }
