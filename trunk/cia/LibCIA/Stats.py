@@ -28,7 +28,8 @@ the actual stats target using part of the message.
 
 from twisted.python import log
 from twisted.web import xmlrpc
-import Ruleset, Message, TimeUtil, RPC
+from twisted.enterprise.util import quote as quoteSQL
+import Ruleset, Message, TimeUtil, RPC, Database
 import string, os, time, types, posixpath
 
 
@@ -205,31 +206,116 @@ class MetadataInterface(xmlrpc.XMLRPC):
             Debug.catchFault()
 
 
-class StatsStorage(object):
-    """A filesystem-like system for storing stats, based on Rack.
-       Every path corresponds with a StatsTarget and a Rack namespace.
+class StatsPathException(Exception):
+    pass
+
+
+class StatsTarget(object):
+    """Encapsulates all the stats-logging features used for one particular
+       target. This can be one project, one class of messages, etc.
+       Every StatsTarget is identified by a UNIX-style pathname.
        """
-    def __init__(self, fileName):
-        self.rack = Rack.open(fileName)
+    def __init__(self, path):
+        self.path = self.normalizePath(path)
+        self.recentMessages = RecentMessages(self)
 
-    def sync(self):
-        """Write out any pending changes to disk"""
-        self.rack.sync()
-
-    def getTarget(self, pathSegments):
-        """Return a StatsTarget representing the stats stored at the given path,
-           represented as one or more nested directories.
+    def normalizePath(self, path):
+        """Remove leading and trailing slashes, remove duplicate
+           slashes, process '.' and '..' directories.
            """
-        return StatsTarget(self, pathSegments)
+        segments = []
+        for segment in path.split('/'):
+            if segment == '..':
+                if segments:
+                    del segments[-1]
+            if segment and segment != '.':
+                segments.append(segment)
+        path = '/'.join(segments)
 
-    def getPathTarget(self, path, *extraSegments):
-        """Like getTarget, but split up 'path' into segments and optionally append extraSegments first"""
-        # Strip empty strings, so that "/" and "" give us (), and paths like "a/////b" turn into ('a', 'b')
-        segments = path.split("/") + list(extraSegments)
-        return self.getTarget([segment for segment in segments if segment])
+        # Our database uses VARCHAR(128), make sure this fits
+        if len(path) > 128:
+            raise StatsPathException("Stats paths are currently limited to 128 characters")
+        return path
 
-    def getRoot(self):
-        return StatsTarget(self)
+    def deliver(self, message):
+        """A message has been received which should be logged by this stats target"""
+        self.recentMessages.push(message)
+
+    def catalog(self):
+        """Return a list of subdirectories of this stats target"""
+        # This is just a list of strings from the rack's subnamespace catalog
+        return [item for item in self.rack.catalog() if type(item) == str]
+
+    def child(self, name):
+        """Return the StatsTarget for the given sub-target name under this one"""
+        return StatsTarget(self.storage, tuple(self.pathSegments) + (str(name),))
+
+    def parent(self):
+        """Return the parent StatsTarget of this one, or None if we're the root"""
+        if self.pathSegments:
+            return StatsTarget(self.storage, self.pathSegments[:-1])
+
+    def getTitle(self):
+        """Return the human-readable title of this stats target-
+           the 'title' metadata key if we have one, otherwise the last
+           section of our path. The root stats target has the special
+           default title 'Stats', since it has no last path segment.
+           """
+        title = self.metadata.get('title')
+        if title:
+            return title
+        if self.pathSegments:
+            return self.pathSegments[-1]
+        return 'Stats'
+
+    def clear(self):
+        """Effectively delete this stats target- delete all of its counters,
+           clear its recent messages, clear all of its metadata.
+           """
+        self.counters.clear()
+        self.recentMessages.clear()
+        self.metadata.clear()
+
+
+class RecentMessages:
+    """Represents the recent messages FIFO for this stats target.
+       Messages for all stats targets are stored in the stats_messages
+       table, which assigns each message an increasing ID number.
+       """
+    maxMessages = 500
+
+    def __init__(self, target):
+        self.target = target
+
+    def push(self, message):
+        """Add a new message to the recent messages list"""
+        return Database.pool.runInteraction(self._push, message)
+
+    def _push(self, cursor, message):
+        """A database interaction that pushes one XML message into the stats_messages
+           table, with this target's path. If we're over our maximum allowed number
+           of messages, this deletes old ones.
+           """
+        cursor.execute("INSERT INTO stats_messages (target_path, xml) VALUES(%s, %s)" % (
+            quoteSQL(self.target.path, 'varchar'),
+            quoteSQL(message, 'text'),
+            ))
+
+        # Figure out how many messages we currently have so we know how many to delete, if any
+        cursor.execute("SELECT COUNT(id) FROM stats_messages WHERE target_path = %s;" %
+                       quoteSQL(self.target.path, 'varchar')
+                       )
+        deleteCount = cursor.fetchall()[0][0] - self.maxMessages
+        if deleteCount > 0:
+            cursor.execute("DELETE FROM stats_messages WHERE target_path = %s ORDER BY id LIMIT %d" % (
+                quoteSQL(self.target.path, 'varchar'),
+                deleteCount,
+                ))
+
+    def clear(self):
+        """Delete all the recent messages for this stats target"""
+        return Database.pool.runOperation("DELETE FROM stats_messages WHERE target_path = %s;" %
+                                          quoteSQL(self.target.path, 'text'))
 
 
 class MetadataRack:
@@ -271,68 +357,6 @@ class MetadataRack:
         Rack.Rack.__delitem__(self, key)
         self.setType(key, None)
 
-
-class StatsTarget(object):
-    """Encapsulates all the stats-logging features used for one particular
-       target. This can be one project, one class of messages, etc.
-       It is constructed around a Rack namespace that stores the various
-       resources this stats target owns.
-
-       Each path segment corresponds to one namespace in the Rack. String
-       rack namespaces are always path segments, other data types like
-       tuples are used for particular stats resources.
-       """
-    def __init__(self, storage, pathSegments=()):
-        self.storage = storage
-        self.pathSegments = pathSegments
-        self.rack = storage.rack.child(*map(str, pathSegments))
-
-        # Child namespaces that are tuples rather than strings are used
-        # for our actual resource storage.
-        self.counters = Counters(self.rack.child(('counters',)))
-        self.recentMessages = Rack.RingBuffer(self.rack.child(('recentMessages',), cls=Rack.UnlistedRack), 500)
-        self.metadata = self.rack.child(('metadata',), cls=MetadataRack)
-
-    def deliver(self, message):
-        """A message has been received which should be logged by this stats target"""
-        self.counters.increment()
-        self.recentMessages.push(str(message))
-        self.storage.sync()
-
-    def catalog(self):
-        """Return a list of subdirectories of this stats target"""
-        # This is just a list of strings from the rack's subnamespace catalog
-        return [item for item in self.rack.catalog() if type(item) == str]
-
-    def child(self, name):
-        """Return the StatsTarget for the given sub-target name under this one"""
-        return StatsTarget(self.storage, tuple(self.pathSegments) + (str(name),))
-
-    def parent(self):
-        """Return the parent StatsTarget of this one, or None if we're the root"""
-        if self.pathSegments:
-            return StatsTarget(self.storage, self.pathSegments[:-1])
-
-    def getTitle(self):
-        """Return the human-readable title of this stats target-
-           the 'title' metadata key if we have one, otherwise the last
-           section of our path. The root stats target has the special
-           default title 'Stats', since it has no last path segment.
-           """
-        title = self.metadata.get('title')
-        if title:
-            return title
-        if self.pathSegments:
-            return self.pathSegments[-1]
-        return 'Stats'
-
-    def clear(self):
-        """Effectively delete this stats target- delete all of its counters,
-           clear its recent messages, clear all of its metadata.
-           """
-        self.counters.clear()
-        self.recentMessages.clear()
-        self.metadata.clear()
 
 
 class Counters(object):
