@@ -103,9 +103,11 @@ Dependencies
 - Nouvelle_ (latest svn)
 - Docutils_
 - the `Python Imaging Library`_
+- PyCAPTCHA_ for adding new users via the web interface
 - Graphviz_ and Sodipodi_ to generate graphs
 - Procmail_ for the e-mail interface
 
+.. _PyCAPTCHA: http://freshmeat.net/projects/pycaptcha/
 .. _Nouvelle: http://freshmeat.net/projects/nouvelle/
 .. _Docutils: http://docutils.sourceforge.net/
 .. _Python Imaging Library: http://www.pythonware.com/products/pil/
