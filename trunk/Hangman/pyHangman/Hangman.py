@@ -13,11 +13,12 @@ keeping track of the number of misses.
 #
 
 import sys, string
+from HTMLParser import HTMLParser
 from urllib2 import urlopen
 from random import seed, choice
 
 __version__ = "0.2"
-__all__ = ["Hangman"]
+#__all__ = ["Hangman"]
 
 class Hangman:
 	""" Functions and data for running a game of Hangman. """
