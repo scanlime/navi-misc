@@ -39,7 +39,7 @@ typedef struct _DeJong      DeJong;
 typedef struct _DeJongClass DeJongClass;
 
 typedef struct {
-  gdouble a, b, c, d, e, f, g, h, i, j, k, l;
+  gdouble a, b, c, d;
 } DeJongParams;
 
 struct _DeJong {
