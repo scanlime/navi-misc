@@ -44,7 +44,7 @@ class PseudoGimpy(ImageCaptcha):
 
 
 class AngryGimpy(ImageCaptcha):
-    """A harder CAPTCHA that looks fairly bad and should be harder to crack"""
+    """A harder but less visually pleasing CAPTCHA"""
     def getLayers(self):
         word = Words.defaultWordList.pick()
         self.addSolution(word)
