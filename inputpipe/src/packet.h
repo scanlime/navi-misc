@@ -25,6 +25,7 @@
 #define __H_PACKET
 
 #include "inputpipe.h"
+#include <linux/input.h>
 #include <stdio.h>
 
 struct packet_socket {
@@ -72,6 +73,27 @@ void                   packet_socket_flush  (struct packet_socket* self);
 int                    packet_socket_read   (struct packet_socket* self,
 					     int*                  length,
 					     void**                content);
+
+/* Conversion between ipipe structs and normal input system structs */
+void                   ntoh_ff_envelope     (struct ff_envelope*       host,
+					     struct ipipe_ff_envelope* net);
+void                   hton_ff_envelope     (struct ipipe_ff_envelope* net,
+					     struct ff_envelope*       host);
+void                   ntoh_ff_effect       (struct ff_effect*         host,
+					     struct ipipe_ff_effect*   net);
+void                   hton_ff_effect       (struct ipipe_ff_effect*   net,
+					     struct ff_effect*         host);
+void                   ntoh_input_event     (struct input_event*       host,
+					     struct ipipe_event*       net);
+void                   hton_input_event     (struct ipipe_event*       net,
+					     struct input_event*       host);
+void                   ntoh_input_id        (struct input_id*          host,
+					     struct ipipe_input_id*    net);
+void                   hton_input_id        (struct ipipe_input_id*    net,
+					     short                     host[4]);
+void                   hton_input_absinfo   (struct ipipe_absinfo*     net,
+					     struct input_absinfo*     host,
+					     int                       axis);
 
 #endif /* __H_PACKET */
 

@@ -73,17 +73,11 @@ struct inputpipe_packet {
  * The server defines versions of these callbacks that send a corresponding
  * packet to the client, with a unique request ID, then blocks until it
  * receives a return value packet with a corresponding ID.
- *
- * IPIPE_UPLOAD_EFFECT and IPIPE_ERASE_EFFECT always flow from server to
- * client, IPIPE_RETURN_INT is sent from client to server in response.
- * Note that if the client does not set the EV_FF bit, these packets will
- * never be sent. If the EV_FF bit is set, however, the client must implement
- * these packets or any apps trying to use force feedback will hang while
- * uploading effects.
  */
 #define IPIPE_UPLOAD_EFFECT          0x0401    /* struct ipipe_upload_effect */
 #define IPIPE_ERASE_EFFECT           0x0402    /* struct ipipe_erase_effect */
-#define IPIPE_RETURN_INT             0x0403    /* struct ipipe_return_int */
+#define IPIPE_UPLOAD_EFFECT_RESPONSE 0x0403    /* struct ipipe_upload_effect_response */
+#define IPIPE_ERASE_EFFECT_RESPONSE  0x0404    /* struct ipipe_erase_effect_response */
 
 
 struct ipipe_event {
@@ -109,22 +103,71 @@ struct ipipe_absinfo {
   int32_t flat;
 };
 
-struct ipipe_upload_effect {
-  uint32_t request_id;
+struct ipipe_ff_envelope {
+  uint16_t attack_length;
+  uint16_t attack_level;
+  uint16_t fade_length;
+  uint16_t fade_level;
+};
 
-  /* ff_effect */
-  uint16_t effect_type;
-  int16_t effect_id;
-  uint16_t effect_direction;
+struct ipipe_ff_effect {
+  uint16_t type;
+  int16_t id;
+  int16_t direction;
 
-  /* ff_trigger */
   uint16_t trigger_button;
   uint16_t trigger_interval;
 
-  /* ff_replay */
   uint16_t replay_length;
   uint16_t replay_delay;
 
+  union {
+
+    struct {
+      int16_t level;
+      struct ipipe_ff_envelope envelope;
+    } constant;
+
+    struct {
+      int16_t start_level;
+      int16_t end_level;
+      struct ipipe_ff_envelope envelope;
+    } ramp;
+
+    struct {
+      uint16_t waveform;
+      uint16_t period;
+      int16_t magnitude;
+      int16_t offset;
+      uint16_t phase;
+      struct ipipe_ff_envelope envelope;
+
+      /* Custom waveforms not yet supported. There
+       * should be a separate packet type that sends
+       * custom waveform data, since it's variable-size.
+       */
+    } periodic;
+
+    struct {
+      uint16_t right_saturation;
+      uint16_t left_saturation;
+      int16_t right_coeff;
+      int16_t left_coeff;
+      uint16_t deadband;
+      int16_t center;
+    } condition[2];
+
+    struct {
+      uint16_t strong_magnitude;
+      uint16_t weak_magnitude;
+    } rumble;
+
+  } u;
+};
+
+struct ipipe_upload_effect {
+  uint32_t request_id;
+  struct ipipe_ff_effect effect;
 };
 
 struct ipipe_erase_effect {
@@ -132,7 +175,13 @@ struct ipipe_erase_effect {
   int16_t effect_id;
 };
 
-struct ipipe_return_int {
+struct ipipe_upload_effect_response {
+  uint32_t request_id;
+  int32_t retval;
+  struct ipipe_ff_effect effect;
+};
+
+struct ipipe_erase_effect_response {
   uint32_t request_id;
   int32_t retval;
 };
