@@ -44,11 +44,14 @@ class IrcURIHandler(Ruleset.RegexURIHandler):
 
           irc://irc.foo.net/muffin,isnick
             Refers to a users with the nick 'muffin' on irc.foo.net's default port
+
+       This is starting to be updated to a newer irc:// draft that recommends
+       including the #, but still supports the above URIs.
        """
     scheme = 'irc'
     regex = r"""
        ^irc://(?P<host>[a-zA-Z]([a-zA-Z0-9.-]*[a-zA-Z0-9])?)
-       (:(?P<port>[0-9]+))?/(?P<target>[^\s#,]+)(?P<isnick>,isnick)?$
+       (:(?P<port>[0-9]+))?/(?P<target>[^\s,]+)(?P<isnick>,isnick)?$
        """
 
     def __init__(self, botNet):
@@ -66,8 +69,11 @@ class IrcURIHandler(Ruleset.RegexURIHandler):
             # This refers to a nickname- deliver private messages to that user
             return PrivateMessageQueue(self.botNet, server, d['target'])
         else:
-            # It's a channel, without the '#'
-            return ChannelMessageQueue(self.botNet, server, '#' + d['target'])
+            # It's a channel. Add the # if necesary.
+            channel = d['target']
+            if channel[0] != '#':
+                channel = '#' + channel
+            return ChannelMessageQueue(self.botNet, server, channel)
 
     def assigned(self, uri, newRuleset):
         # If this URI is new, create a new message queue for it
