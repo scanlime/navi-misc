@@ -265,11 +265,54 @@ void on_go_next_network_activate(GtkWidget *widget, gpointer data) {
 }
 
 void on_go_previous_discussion_activate(GtkWidget *widget, gpointer data) {
-	/* FIXME: implement */
+	GtkTreeIter iter;
+	GtkTreePath *path;
+	GtkTreeModel *model;
+	GtkTreeView *view;
+	GtkTreeSelection *selection;
+
+	/* Grab our treeview and get a gtk selection from it. */
+	view = GTK_TREE_VIEW (glade_xml_get_widget(gui.xml, "server channel list"));
+	selection = gtk_tree_view_get_selection(view);
+
+	/* Make sure we've got something selected and a session. */
+	if(gtk_tree_selection_get_selected(selection, &model, &iter) &&
+			gui.current_session) {
+		/* Get the path to the current selection, move it backward one and
+		 * set the selection to the new path.
+		 */
+		path = gtk_tree_model_get_path(model, &iter);
+		gtk_tree_path_prev(path);
+		if(path == NULL)
+			return;
+		gtk_tree_selection_select_path(selection, path);
+	}
 }
 
 void on_go_next_discussion_activate(GtkWidget *widget, gpointer data) {
-	/* FIXME: implement */
+	GtkTreeIter iter;
+	GtkTreePath *path;
+	GtkTreeModel *model;
+	GtkTreeView *view;
+	GtkTreeSelection *selection;
+
+	/* Grab our treeview and get a gtk selection. */
+	view = GTK_TREE_VIEW (glade_xml_get_widget(gui.xml, "server channel list"));
+	selection = gtk_tree_view_get_selection(view);
+
+	/* Make sure we've got something selected and a session. */
+	if(gtk_tree_selection_get_selected(selection, &model, &iter) &&
+			gui.current_session) {
+		/* iter contains a GtkTreeIter at the selected location. Get the GtkTreePath
+		 * to that location, advance it one space and set the selection to that new
+		 * path.
+		 */
+		path = gtk_tree_model_get_path(model, &iter);
+		gtk_tree_path_next(path);
+		if(path == NULL)
+			return;
+		gtk_tree_selection_select_path(selection, path);
+	}
 }
 
 void on_help_about_menu_activate(GtkWidget *widget, gpointer data) {
