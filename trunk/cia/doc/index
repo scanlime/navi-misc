@@ -49,13 +49,22 @@ History
 - December 13, 2003
 
     Micah finally gets the motivation to rewrite CIA, bringing you what
-    you see here.
+    you see here. Development has been ongoing, improving CIA's
+    usefulness and reliability.
+
+- January 20, 2004
+
+    CIA moves from Navi, a server in Micah's living room on two DSL lines,
+    to a much nicer server provided by the PLD Linux project and
+    Sergiusz Pawlowicz.
 
 
 Brought to you by...
 --------------------
 
 CIA is written and maintained by `Micah Dowty`_.
+
+CIA is hosted by the `PLD Linux`_ project.
 
 CIA makes extensive use of many fine open source projects, including
 Python_, Twisted_, Procmail_, MySQL_, and Apache_.
@@ -73,3 +82,5 @@ CIA uses open standards, including XHTML, CSS2, and XML-RPC.
 .. _CIA itself: /stats/project/navi-misc/cia
 .. _repository: http://navi.cx/svn/misc/trunk/cia/
 .. _Subversion: http://subversion.tigris.org/
+.. _PLD Linux: http://pld-linux.orgi
+
