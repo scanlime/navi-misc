@@ -177,7 +177,7 @@ TEST_PIR1
 	movwf	PIRmasked
 
 	btfss	PIRmasked,USBIF	; USB interrupt flag
-	goto	TryADIF
+	goto	EndISR
 	bcf	PIR1,USBIF
 	
 	banksel UIR
@@ -194,9 +194,8 @@ TEST_PIR1
 	btfsc	USBMaskedInterrupts,USB_RST	; is it a reset?
 	call	USBReset			; yes, reset the SIE
 
-	pagesel TryADIF
 	btfss	USBMaskedInterrupts,TOK_DNE	; is it a Token Done?
-	goto	TryADIF				; no, skip the queueing process
+	goto	EndISR				; no, skip the queueing process
 
 CheckFinishSetAddr
 	banksel UIR
@@ -205,34 +204,11 @@ CheckFinishSetAddr
 	movf	USB_dev_req,w	; yes: Are we waiting for the In transaction ack-ing the end of the set address?
 	xorlw	SET_ADDRESS
 	btfss	STATUS,Z
-	goto	TryADIF		; no - skip the rest.. just queue the USTAT register
+	goto	EndISR		; no - skip the rest.. just queue the USTAT register
 
 	pagesel finish_set_address
 	call	finish_set_address
 	clrf	STATUS		; bank 0
-
-TryADIF
-;	btfsc	PIRmasked,ADIF	; AD Done?
-;	nop
-;	btfsc	PIRmasked,RCIF
-;	nop
-;	btfsc	PIRmasked,TXIF
-;	nop
-;	btfsc	PIRmasked,CCP1IF
-;	nop
-;	btfsc	PIRmasked,TMR2IF
-;	nop
-;	btfsc	PIRmasked,TMR1IF
-;	nop
-TEST_PIR2
-;	banksel	PIR2
-;	movf	PIR2,w
-;	banksel	PIE2
-;	andwf	PIE2,w
-;	banksel	PIRmasked
-;	movwf	PIRmasked
-;	btfsc	PIRmasked,CCP2IF
-;	nop
 
 ; ******************************************************************
 ; End ISR, restore context and return to the Main program
