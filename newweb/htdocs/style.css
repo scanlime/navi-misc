@@ -1,0 +1,52 @@
+body {
+  font: 9pt Verdana, Helvetica, Arial, sans-serif;
+  background: #eef4eb;
+  color: Black;
+  margin: 0;
+  padding: 0;
+}
+
+img {
+  border: none;
+  vertical-align: middle;
+  padding: 0em 1em;
+}
+
+a {
+  color: #000080;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+div.headingTabs {
+  margin: 1em 0em 0em 0em;
+}
+
+a.headingTab {
+  background: #eef4eb;
+  border: 1px solid black;
+  border-bottom: #eef4eb 1px solid;
+  color: #000080;
+  margin: 1.5em 0.5em 0em 0.5em;
+  padding: 0em 0.5em;
+  text-decoration: none;
+}
+
+div.heading {
+  background: White;
+  border-bottom: 1px solid Black;
+  padding: 0.5em 0.5em 0em 0.5em;
+  margin: 0em 0em 2.0em 0em;
+}
+
+div.majorTitle {
+  font: 300% sans-serif;
+  text-align: center;
+}
+
+div.title {
+  font: 250% bold;
+}
