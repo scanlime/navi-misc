@@ -522,6 +522,7 @@ accept_remap_source
 	;; Accept the virtual button code for the remap destination in 'w', and write
 	;; the button mapping to EEPROM.
 accept_remap_dest
+	banksel	EEDATA
 	movwf	EEDATA				; Destination button is data, source is address
 	movf	remap_source_button, w
 	movwf	EEADR
@@ -549,10 +550,12 @@ validate_eeprom
 
 	;; Write an identity mapping and a valid magic word to the EEPROM.
 reset_eeprom
+	banksel	EEADR
 	clrf	EEADR			; Loop over all virtual buttons, writing the identity mapping
 	clrf	EEDATA
 eeprom_reset_loop
 	call	eewrite
+	banksel	EEADR
 	incf	EEADR, f
 	incf	EEDATA, f
 	movf	EEDATA, w
@@ -561,11 +564,13 @@ eeprom_reset_loop
 	goto	eeprom_reset_loop
 
 	movlw	EEPROM_MAGIC_ADDR	; Write the magic word
+	banksel	EEADR
 	movwf	EEADR
 	movlw	EEPROM_MAGIC_WORD >> 8
 	movwf	EEDATA
 	call	eewrite
 	movlw	EEPROM_MAGIC_ADDR+1
+	banksel	EEADR
 	movwf	EEADR
 	movlw	EEPROM_MAGIC_WORD & 0xFF
 	movwf	EEDATA
@@ -573,18 +578,23 @@ eeprom_reset_loop
 
 
 	;; read from address 'w' of the eeprom, return in 'w'.
+	;; Note that we must use banksel here rather than setting the page
+	;; bits manually, since the PIC16F84A and PIC12F629 keep the EEPROM
+	;; registers in different memory banks.
 eeread
+	banksel	EEADR
 	movwf	EEADR
-	bsf	STATUS, RP0
+	banksel	EECON1
 	bsf	EECON1, RD
-	bcf	STATUS, RP0
+	banksel	EEDATA
 	movf	EEDATA, w
+	bcf	STATUS, RP0
 	return
 
 	;; Write to the EEPROM using the current EEADR and EEDATA values,
 	;; block until the write is complete.
 eewrite
-	bsf	STATUS, RP0
+	banksel	EECON1
 	bsf	EECON1, WREN	; Enable write
 	movlw	0x55		; Write the magic sequence to EECON2
 	movwf	EECON2
