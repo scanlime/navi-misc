@@ -180,6 +180,31 @@ class BotNetwork:
         # Start the bot checking cycle
         self.checkBots()
 
+    def findBot(self, host, nickname, port=None):
+        """Find the bot currently on the given server with the given nick.
+           This is mostly for use with the debug console. Note that for
+           convenience, the server is specified as a host and port here.
+           A Server instance will be created.
+           """
+        server = Server(host, port)
+        try:
+            bots = self.servers[server]
+        except KeyError:
+            return None
+        for bot in bots:
+            if bot.nickname == nickname:
+                return bot
+
+    def findRequest(self, host, channel=None, port=None):
+        """Find a request matching the given host, port, and channel.
+           This is mostly for use with the debug console, hence it taking
+           a host and port for convenience rather than a Server instance.
+           """
+        server = Server(host, port)
+        for req in self.requests:
+            if req.server == server and req.channel == channel:
+                return req
+
     def addRequest(self, request):
         """Add a request to be serviced by this bot network. This should
            only be called by the Request class, as it automatically registers
