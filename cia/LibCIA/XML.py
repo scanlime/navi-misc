@@ -150,6 +150,9 @@ def prettyPrint(xml):
        """
     # This is gross, but it works...
     from xml.dom import minidom
-    return minidom.parseString(xml.toXml()).toprettyxml()
+    s = minidom.parseString(xml.toXml()).toprettyxml()
+
+    # Filter out blank lines
+    return "\n".join([line for line in s.split("\n") if line.strip()])
 
 ### The End ###
