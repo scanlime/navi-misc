@@ -50,7 +50,13 @@ class Keyring:
         if 'CIA-set-key' in request.args:
             key = request.args['CIA-set-key'][0]
             if key:
-                self.setKey(request.args['CIA-set-key'][0])
+                # Are we setting it just for this session, or until further notice?
+                if request.args.get('CIA-remember-me', (None,))[0]:
+                    expires = "Sun, 31-Dec-2034 00:00:00 GMT"
+                else:
+                    expires = None
+
+                self.setKey(request.args['CIA-set-key'][0], expires=expires)
             else:
                 self.unsetKey()
 
@@ -78,7 +84,10 @@ class Keyring:
 
     def unsetKey(self):
         """Remove a key set with setKey()"""
-        self.setKey("", presence=0)
+        # The browser should take an expiration date in the past as a cue
+        # to delete the cookie, but even if it doesn't presence=0 will make
+        # it a no-op cookie.
+        self.setKey("", presence=0, expires="Sun, 01-Jan-1990  00:00:00 GMT")
 
 
 def getKeyring(context):
@@ -104,23 +113,39 @@ class SecuritySection(Template.Section):
     """A sidebar section that can be used to log in and show current key info"""
     title = 'security'
 
+    def __init__(self, loginMessage="Enter your key below to log in:"):
+        self.loginMessage = loginMessage
+
     def render_rows(self, context):
         keyring = getKeyring(context)
-        rows = []
 
         if keyring.hasKey:
-            rows.append(tag('strong')[ "Key set" ])
-            actionText = "Replace key"
+            # We have a key, list info about it and give a logout button
+            return [
+                "Available capabilities:",
+                tag('ul')[
+                    tag('li')[ "Key Set" ],
+                ],
+                tag('form', method="post", action=getSecureURL(context))[
+                    tag('div')[
+                        tag('input', _type='hidden', _name='CIA-set-key', value=''),
+                        tag('input', _type='submit', value="Log out"),
+                    ],
+                ]
+            ]
+                    
         else:
-            rows.append("To modify metadata, you must have a key granting the "
-                        "appropriate capabilities. If you have a key, enter it below "
-                        "to begin editing metadata.")
-            actionText = "Set key"
-
-        rows.append(tag('form', method="post", action=getSecureURL(context))[
-            tag('div')[ tag('input',  _type='password', _name='CIA-set-key', size=30) ],
-            tag('div')[ tag('input',  _type='submit', value=actionText) ],
-            ])
-        return rows
+            # We don't have a key, show a login box
+            return [
+                tag('form', method="post", action=getSecureURL(context))[
+                    tag('p')[ self.loginMessage ],
+                    tag('p')[ tag('input',  _type='password', _name='CIA-set-key', size=30) ],
+                    tag('p')[
+                        tag('input', _type='checkbox', _name='CIA-remember-me', value="1"),
+                        " remember me",
+                    ],
+                    tag('p')[ tag('input', _type='submit', value="Set key") ],
+                ]
+            ]
 
 ### The End ###

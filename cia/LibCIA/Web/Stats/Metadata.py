@@ -410,12 +410,17 @@ class MetadataPage(Template.Page):
             return iRoot.call('stats.metadata.set', keyring.key, path, name, value, mimeType)
 
     leftColumn = [
-        Keyring.SecuritySection(),
+        Keyring.SecuritySection(
+            "To modify metadata, you must have a key granting the "
+            "appropriate capabilities. If you have a key, enter it below "
+            "to begin editing metadata."
+        ),
         Template.StaticSection('information', [
-        "This page lists all the metadata associated with a particular stats target.",
-        "A stats target is anything that can keep track of a particular category of "
-        "messages and/or holds other stats targets. Metadata for these stats targets "
-        "control how they are displayed in the stats browser.",
-        ])]
+            "This page lists all the metadata associated with a particular stats target.",
+            "A stats target is anything that can keep track of a particular category of "
+            "messages and/or holds other stats targets. Metadata for these stats targets "
+            "control how they are displayed in the stats browser.",
+        ]),
+    ]
 
 ### The End ###
