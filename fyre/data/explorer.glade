@@ -45,7 +45,7 @@
 		      <accelerator key="o" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image242">
+			<widget class="GtkImage" id="image260">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-open</property>
 			  <property name="icon_size">1</property>
@@ -67,7 +67,7 @@
 		      <accelerator key="d" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image243">
+			<widget class="GtkImage" id="image261">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-clear</property>
 			  <property name="icon_size">1</property>
@@ -89,7 +89,7 @@
 		      <accelerator key="r" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image244">
+			<widget class="GtkImage" id="image262">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-refresh</property>
 			  <property name="icon_size">1</property>
@@ -117,7 +117,7 @@
 		      <accelerator key="s" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image245">
+			<widget class="GtkImage" id="image263">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-save-as</property>
 			  <property name="icon_size">1</property>
@@ -138,7 +138,7 @@
 		      <signal name="activate" handler="on_save_exr" last_modification_time="Sun, 15 Feb 2004 09:08:09 GMT"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image246">
+			<widget class="GtkImage" id="image264">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-save-as</property>
 			  <property name="icon_size">1</property>
@@ -177,7 +177,7 @@
 		      <accelerator key="q" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image247">
+			<widget class="GtkImage" id="image265">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-quit</property>
 			  <property name="icon_size">1</property>
@@ -285,7 +285,7 @@
 		      <property name="visible">True</property>
 		      <property name="label" translatable="yes">Grab</property>
 		      <property name="use_underline">True</property>
-		      <property name="active">False</property>
+		      <property name="active">True</property>
 		      <property name="group">tool_none</property>
 		      <signal name="activate" handler="on_tool_activate" last_modification_time="Wed, 18 Feb 2004 03:57:55 GMT"/>
 		      <accelerator key="g" modifiers="0" signal="activate"/>
@@ -297,7 +297,7 @@
 		      <property name="visible">True</property>
 		      <property name="label" translatable="yes">Blur</property>
 		      <property name="use_underline">True</property>
-		      <property name="active">False</property>
+		      <property name="active">True</property>
 		      <property name="group">tool_none</property>
 		      <signal name="activate" handler="on_tool_activate" last_modification_time="Wed, 18 Feb 2004 03:57:55 GMT"/>
 		      <accelerator key="b" modifiers="0" signal="activate"/>
@@ -309,7 +309,7 @@
 		      <property name="visible">True</property>
 		      <property name="label" translatable="yes">Zoom</property>
 		      <property name="use_underline">True</property>
-		      <property name="active">False</property>
+		      <property name="active">True</property>
 		      <property name="group">tool_none</property>
 		      <signal name="activate" handler="on_tool_activate" last_modification_time="Wed, 18 Feb 2004 03:57:55 GMT"/>
 		      <accelerator key="z" modifiers="0" signal="activate"/>
@@ -321,7 +321,7 @@
 		      <property name="visible">True</property>
 		      <property name="label" translatable="yes">Rotate</property>
 		      <property name="use_underline">True</property>
-		      <property name="active">False</property>
+		      <property name="active">True</property>
 		      <property name="group">tool_none</property>
 		      <signal name="activate" handler="on_tool_activate" last_modification_time="Wed, 18 Feb 2004 03:57:55 GMT"/>
 		      <accelerator key="r" modifiers="0" signal="activate"/>
@@ -333,7 +333,7 @@
 		      <property name="visible">True</property>
 		      <property name="label" translatable="yes">Exposure / Gamma</property>
 		      <property name="use_underline">True</property>
-		      <property name="active">False</property>
+		      <property name="active">True</property>
 		      <property name="group">tool_none</property>
 		      <signal name="activate" handler="on_tool_activate" last_modification_time="Wed, 18 Feb 2004 03:57:55 GMT"/>
 		      <accelerator key="e" modifiers="0" signal="activate"/>
@@ -351,7 +351,7 @@
 		      <property name="visible">True</property>
 		      <property name="label" translatable="yes">A / B</property>
 		      <property name="use_underline">True</property>
-		      <property name="active">False</property>
+		      <property name="active">True</property>
 		      <property name="group">tool_none</property>
 		      <signal name="activate" handler="on_tool_activate" last_modification_time="Wed, 18 Feb 2004 03:57:55 GMT"/>
 		      <accelerator key="a" modifiers="0" signal="activate"/>
@@ -363,7 +363,7 @@
 		      <property name="visible">True</property>
 		      <property name="label" translatable="yes">A / C</property>
 		      <property name="use_underline">True</property>
-		      <property name="active">False</property>
+		      <property name="active">True</property>
 		      <property name="group">tool_none</property>
 		      <signal name="activate" handler="on_tool_activate" last_modification_time="Wed, 18 Feb 2004 03:57:55 GMT"/>
 		    </widget>
@@ -374,7 +374,7 @@
 		      <property name="visible">True</property>
 		      <property name="label" translatable="yes">A / D</property>
 		      <property name="use_underline">True</property>
-		      <property name="active">False</property>
+		      <property name="active">True</property>
 		      <property name="group">tool_none</property>
 		      <signal name="activate" handler="on_tool_activate" last_modification_time="Wed, 18 Feb 2004 03:57:55 GMT"/>
 		    </widget>
@@ -385,7 +385,7 @@
 		      <property name="visible">True</property>
 		      <property name="label" translatable="yes">B / C</property>
 		      <property name="use_underline">True</property>
-		      <property name="active">False</property>
+		      <property name="active">True</property>
 		      <property name="group">tool_none</property>
 		      <signal name="activate" handler="on_tool_activate" last_modification_time="Wed, 18 Feb 2004 03:57:55 GMT"/>
 		    </widget>
@@ -396,7 +396,7 @@
 		      <property name="visible">True</property>
 		      <property name="label" translatable="yes">B / D</property>
 		      <property name="use_underline">True</property>
-		      <property name="active">False</property>
+		      <property name="active">True</property>
 		      <property name="group">tool_none</property>
 		      <signal name="activate" handler="on_tool_activate" last_modification_time="Wed, 18 Feb 2004 03:57:55 GMT"/>
 		    </widget>
@@ -407,7 +407,7 @@
 		      <property name="visible">True</property>
 		      <property name="label" translatable="yes">C / D</property>
 		      <property name="use_underline">True</property>
-		      <property name="active">False</property>
+		      <property name="active">True</property>
 		      <property name="group">tool_none</property>
 		      <signal name="activate" handler="on_tool_activate" last_modification_time="Wed, 18 Feb 2004 03:57:55 GMT"/>
 		      <accelerator key="c" modifiers="0" signal="activate"/>
@@ -425,7 +425,7 @@
 		      <property name="visible">True</property>
 		      <property name="label" translatable="yes">AB / CD</property>
 		      <property name="use_underline">True</property>
-		      <property name="active">False</property>
+		      <property name="active">True</property>
 		      <property name="group">tool_none</property>
 		      <signal name="activate" handler="on_tool_activate" last_modification_time="Wed, 18 Feb 2004 03:57:55 GMT"/>
 		      <accelerator key="d" modifiers="0" signal="activate"/>
@@ -437,7 +437,7 @@
 		      <property name="visible">True</property>
 		      <property name="label" translatable="yes">AC / BD</property>
 		      <property name="use_underline">True</property>
-		      <property name="active">False</property>
+		      <property name="active">True</property>
 		      <property name="group">tool_none</property>
 		      <signal name="activate" handler="on_tool_activate" last_modification_time="Wed, 18 Feb 2004 03:57:55 GMT"/>
 		    </widget>
@@ -454,7 +454,7 @@
 		      <property name="visible">True</property>
 		      <property name="label" translatable="yes">Initial Offset</property>
 		      <property name="use_underline">True</property>
-		      <property name="active">False</property>
+		      <property name="active">True</property>
 		      <property name="group">tool_none</property>
 		      <signal name="activate" handler="on_tool_activate" last_modification_time="Sun, 20 Jun 2004 22:00:50 GMT"/>
 		      <accelerator key="g" modifiers="GDK_SHIFT_MASK" signal="activate"/>
@@ -466,10 +466,44 @@
 		      <property name="visible">True</property>
 		      <property name="label" translatable="yes">Initial Scale</property>
 		      <property name="use_underline">True</property>
-		      <property name="active">False</property>
+		      <property name="active">True</property>
 		      <property name="group">tool_none</property>
 		      <signal name="activate" handler="on_tool_activate" last_modification_time="Sun, 20 Jun 2004 22:00:50 GMT"/>
 		      <accelerator key="z" modifiers="GDK_SHIFT_MASK" signal="activate"/>
+		    </widget>
+		  </child>
+		</widget>
+	      </child>
+	    </widget>
+	  </child>
+
+	  <child>
+	    <widget class="GtkMenuItem" id="help_menu">
+	      <property name="visible">True</property>
+	      <property name="label" translatable="yes">_Help</property>
+	      <property name="use_underline">True</property>
+
+	      <child>
+		<widget class="GtkMenu" id="help_menu_menu">
+
+		  <child>
+		    <widget class="GtkImageMenuItem" id="about">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">_About</property>
+		      <property name="use_underline">True</property>
+		      <signal name="activate" handler="on_about_activate" last_modification_time="Fri, 03 Dec 2004 06:05:31 GMT"/>
+
+		      <child internal-child="image">
+			<widget class="GtkImage" id="image266">
+			  <property name="visible">True</property>
+			  <property name="stock">gtk-about</property>
+			  <property name="icon_size">1</property>
+			  <property name="xalign">0.5</property>
+			  <property name="yalign">0.5</property>
+			  <property name="xpad">0</property>
+			  <property name="ypad">0</property>
+			</widget>
+		      </child>
 		    </widget>
 		  </child>
 		</widget>
@@ -1831,6 +1865,134 @@ to balance interactive response with image quality.</property>
 	  <property name="padding">0</property>
 	  <property name="expand">False</property>
 	  <property name="fill">False</property>
+	</packing>
+      </child>
+    </widget>
+  </child>
+</widget>
+
+<widget class="GtkWindow" id="about_window">
+  <property name="border_width">12</property>
+  <property name="title" translatable="yes">About Fyre</property>
+  <property name="type">GTK_WINDOW_TOPLEVEL</property>
+  <property name="window_position">GTK_WIN_POS_NONE</property>
+  <property name="modal">False</property>
+  <property name="resizable">True</property>
+  <property name="destroy_with_parent">False</property>
+  <property name="decorated">True</property>
+  <property name="skip_taskbar_hint">False</property>
+  <property name="skip_pager_hint">False</property>
+  <property name="type_hint">GDK_WINDOW_TYPE_HINT_NORMAL</property>
+  <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
+
+  <child>
+    <widget class="GtkVBox" id="vbox17">
+      <property name="visible">True</property>
+      <property name="homogeneous">False</property>
+      <property name="spacing">6</property>
+
+      <child>
+	<widget class="GtkImage" id="about image">
+	  <property name="visible">True</property>
+	  <property name="xalign">0.5</property>
+	  <property name="yalign">0.5</property>
+	  <property name="xpad">0</property>
+	  <property name="ypad">0</property>
+	</widget>
+	<packing>
+	  <property name="padding">0</property>
+	  <property name="expand">True</property>
+	  <property name="fill">True</property>
+	</packing>
+      </child>
+
+      <child>
+	<widget class="GtkLabel" id="about version">
+	  <property name="visible">True</property>
+	  <property name="label" translatable="yes"></property>
+	  <property name="use_underline">False</property>
+	  <property name="use_markup">True</property>
+	  <property name="justify">GTK_JUSTIFY_LEFT</property>
+	  <property name="wrap">False</property>
+	  <property name="selectable">False</property>
+	  <property name="xalign">0.5</property>
+	  <property name="yalign">0.5</property>
+	  <property name="xpad">0</property>
+	  <property name="ypad">0</property>
+	</widget>
+	<packing>
+	  <property name="padding">0</property>
+	  <property name="expand">False</property>
+	  <property name="fill">False</property>
+	</packing>
+      </child>
+
+      <child>
+	<widget class="GtkLabel" id="label54">
+	  <property name="visible">True</property>
+	  <property name="label" translatable="yes">&lt;span size=&quot;large&quot;&gt;Lemon curry?&lt;/span&gt;</property>
+	  <property name="use_underline">False</property>
+	  <property name="use_markup">True</property>
+	  <property name="justify">GTK_JUSTIFY_LEFT</property>
+	  <property name="wrap">False</property>
+	  <property name="selectable">False</property>
+	  <property name="xalign">0.5</property>
+	  <property name="yalign">0.5</property>
+	  <property name="xpad">0</property>
+	  <property name="ypad">0</property>
+	</widget>
+	<packing>
+	  <property name="padding">0</property>
+	  <property name="expand">False</property>
+	  <property name="fill">False</property>
+	</packing>
+      </child>
+
+      <child>
+	<widget class="GtkLabel" id="label52">
+	  <property name="visible">True</property>
+	  <property name="label" translatable="yes">&lt;span size=&quot;x-small&quot;&gt;Copyright 2004
+David Trowbridge
+Micah Dowty&lt;/span&gt;</property>
+	  <property name="use_underline">False</property>
+	  <property name="use_markup">True</property>
+	  <property name="justify">GTK_JUSTIFY_CENTER</property>
+	  <property name="wrap">False</property>
+	  <property name="selectable">False</property>
+	  <property name="xalign">0.5</property>
+	  <property name="yalign">0.5</property>
+	  <property name="xpad">0</property>
+	  <property name="ypad">0</property>
+	</widget>
+	<packing>
+	  <property name="padding">0</property>
+	  <property name="expand">False</property>
+	  <property name="fill">False</property>
+	</packing>
+      </child>
+
+      <child>
+	<widget class="GtkHButtonBox" id="hbuttonbox3">
+	  <property name="visible">True</property>
+	  <property name="layout_style">GTK_BUTTONBOX_DEFAULT_STYLE</property>
+	  <property name="spacing">0</property>
+
+	  <child>
+	    <widget class="GtkButton" id="about close">
+	      <property name="visible">True</property>
+	      <property name="can_default">True</property>
+	      <property name="can_focus">True</property>
+	      <property name="label">gtk-close</property>
+	      <property name="use_stock">True</property>
+	      <property name="relief">GTK_RELIEF_NORMAL</property>
+	      <property name="focus_on_click">True</property>
+	    </widget>
+	  </child>
+	</widget>
+	<packing>
+	  <property name="padding">0</property>
+	  <property name="expand">False</property>
+	  <property name="fill">True</property>
 	</packing>
       </child>
     </widget>

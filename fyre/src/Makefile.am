@@ -5,7 +5,7 @@ INCLUDES = \
 	$(PACKAGE_CFLAGS)		\
 	$(EXR_CFLAGS)			\
 	$(GNET_CFLAGS)			\
-	'-DGLADEDIR="data"'
+	'-DFYRE_DATADIR="data"'
 
 fyre_LDADD = \
 	$(BINRELOC_LIBS)		\
