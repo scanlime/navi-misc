@@ -1,4 +1,3 @@
-==========
 To-do List
 ==========
 
@@ -10,8 +9,8 @@ Documentation
 - Add some info on the XML-RPC interface
 
 
-Web
----
+Web Interface
+-------------
 
 - Make CIA more accessable to text browsers and non-CSS browsers. This probably
   means using some tricks like Plone does to have headings and links that are hidden when
@@ -27,14 +26,12 @@ Web
 - Detect changelog entries in commits and represent them as unordered lists. In HTML,
   the asterisks look rather ugly.
 
-Code
------
+- Some of the stats catalogs are getting rather big and it would be good
+  to make the full message list accessable and searchable. An SQL-aware table
+  widget for this has been started in the cia-data-driven-tables branch.
 
-- Port all XML code from twisted's domish to 4Suite's Domlette. This will give
-  CIA a better XPath implementation, faster XML in general, working namespaces,
-  a more stable XML API, and the ability to use XSLT in formatters if appropriate.
-
-- Clean up the relation graphing interface so it isn't stuck hackishly at /graph
+- Clean up the relation graphing interface so it isn't stuck hackishly at /graph.
+  Maybe stats metadata could be used to attach graphs to individual targets?
 
 - Web interface for editing rulesets and stats metadata- how would we handle
   authentication, if necessary?
@@ -64,11 +61,6 @@ Code
     So, perhaps anyone can create an IRC ruleset, then either claim that ruleset
     for themselves (with a key being granted) or leave it open to the public?
 
-- Rulesets could use some sort of subroutine call, maybe by embedding a <ruleset>
-  tag with a different ruleset's URI. A new URI scheme could be added for rulesets
-  that will never be executed on their own but should be referenceable from inside
-  others.
-
 - rrdtool (or similar) for graphing stats target activity
 
 - Link from authors and projects in the stats browser's message lists to the appropriate
@@ -87,4 +79,12 @@ Code
   it hyperlinks to the stats target that results from running the message through that
   ruleset. If there are multiple messages with matching path= attributes, it would have
   some way to determine which one is best.
+
+
+Internals
+---------
+
+- Port all XML code from twisted's domish to 4Suite's Domlette. This will give
+  CIA a better XPath implementation, faster XML in general, working namespaces,
+  a more stable XML API, and the ability to use XSLT in formatters if appropriate.
 
