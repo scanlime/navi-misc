@@ -47,6 +47,8 @@
 		byte_count
 		bit_count
 		gamecube_buffer:8
+		n64_command
+		n64_status_buffer:4
 	endc
 
 	;; *******************************************************************************
@@ -70,37 +72,38 @@ startup
 	movwf	bit_count
 
 main_loop
-
-	call	gamecube_poll_status
-
-	bcf     PORTA, 0
-	btfsc   gamecube_buffer+1, 0
-	bsf	PORTA, 0
-
-	movlw	0xFF
-	movwf	temp
-delay_loop
-	clrwdt
-	goto	$+1
-	goto	$+1
-	goto	$+1
-	goto	$+1
-	goto	$+1
-	goto	$+1
-	goto	$+1
-	goto	$+1
-	goto	$+1
-	goto	$+1
-	goto	$+1
-	goto	$+1
-	goto	$+1
-	goto	$+1
-	goto	$+1
-	goto	$+1
-	decfsz	temp, f
-	goto	delay_loop
-
+	call	gamecube_poll_status	; The gamecube poll takes place during the dead period
+	call	n64_translate_status	;   between incoming N64 commands, hopefully
+	call	n64_wait_for_command
 	goto	main_loop
+
+
+	;; *******************************************************************************
+	;; ******************************************************  N64 Interface *********
+	;; *******************************************************************************
+
+	;; Service commands coming in from the N64
+n64_wait_for_command
+	movlw	n64_command		; Receive 1 command byte
+	movwf	FSR
+	movlw	1
+	call	n64_rx_buffer
+
+	movf	n64_command, w		; 0x01 is a poll request, ignore anything else
+	xorlw	0x01
+	btfss	STATUS, Z
+	goto	n64_wait_for_command
+
+	movlw	n64_status_buffer	; Transmit the status buffer
+	movwf	FSR
+	movlw	4
+	call	n64_tx_buffer
+	return
+
+
+	;; Copy status from the gamecube buffer to the N64 buffer
+n64_translate_status
+	return
 
 
 	;; *******************************************************************************
@@ -269,7 +272,7 @@ gamecube_tx_buffer
 gamecube_rx_buffer
 	rx_buffer GAMECUBE_PIN
 n64_tx_buffer
-	bcf	GAMECUBE_PIN
+	bcf	N64_PIN
 	tx_buffer N64_TRIS
 n64_rx_buffer
 	rx_buffer N64_PIN
