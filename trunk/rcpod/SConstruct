@@ -88,6 +88,12 @@ if 'swig' in env['TOOLS']:
             env.Install(dir=modPath, source='pyrcpod/librcpod.py')
             env.Install(dir=modPath, source='pyrcpod/device.py')
 	    env.Install(dir=modPath, source='pyrcpod/board.py')
+            i2cModPath = os.path.join(modPath, "i2c")
+            installPaths.append(i2cModPath)
+            env.Install(dir=i2cModPath, source='pyrcpod/i2c/__init__.py')
+            env.Install(dir=i2cModPath, source='pyrcpod/i2c/generic.py')
+            env.Install(dir=i2cModPath, source='pyrcpod/i2c/maxim.py')
+            env.Install(dir=i2cModPath, source='pyrcpod/i2c/microchip.py')
 
     else:
         print " - Can't guess the path to Python.h, not building the Python package"
