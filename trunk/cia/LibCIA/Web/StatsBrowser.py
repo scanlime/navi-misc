@@ -545,7 +545,7 @@ class RSSFeed(Nouvelle.Twisted.Page):
         for m in self.target.recentMessages.getLatest(limit):
             i = formatter.format(Message.Message(m))
             if i:
-                items.append(xml(i))
+                items.append(Nouvelle.xml(i))
             else:
                 # We can't find a formatter, stick in a placeholder noting this fact
                 items.append(tag('item')[ tag('description')[
