@@ -30,6 +30,11 @@ struct _XTextBuffer
 struct _XTextBufferClass
 {
   GObjectClass parent_class;
+
+  /* signals */
+  void (*append) (XTextBuffer *buffer, textentry *ent);
+  void (*clear)  (XTextBuffer *buffer);
+  void (*remove) (XTextBuffer *buffer);
 };
 
 GType        xtext_buffer_get_type (void) G_GNUC_CONST;
