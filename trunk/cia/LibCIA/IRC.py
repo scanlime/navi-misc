@@ -87,22 +87,52 @@ class Bot(irc.IRCClient):
        sending messages on behalf of the BotController.
        """
     def connectionMade(self):
+        """Called by IRCClient when we have a socket connection to the server.
+           This allocates the nick we'd like to use.
+           """
+        self.emptyChannels()
         self.nickname = self.factory.allocator.allocateNick()
-        self.channels = []
         irc.IRCClient.connectionMade(self)
 
+    def emptyChannels(self):
+        """Called when we know we're not in any channels and we shouldn't
+           be trying to join any yet.
+           """
+        self.channels = []
+        self.requestedChannels = []
+
     def signedOn(self):
+        """IRCClient is notifying us that we've finished connecting to
+           the IRC server and can finally start joining channels.
+           """
+        self.emptyChannels()
         self.factory.allocator.botConnected(self)
 
     def connectionLost(self, reason):
         self.factory.allocator.botDisconnected(self)
         irc.IRCClient.connectionLost(self)
 
+    def join(self, channel):
+        """Called by the bot's owner to request that a channel be joined.
+           It's added to our list of pending requests. Eventually we expect
+           to get a call to joined() because of this.
+           """
+        self.requestedChannels.append(channel)
+        irc.IRCClient.join(self, channel)
+
     def joined(self, channel):
+        """A channel has successfully been joined"""
+        # Note that if we get a join message for a channel we haven't
+        # requested, this first line will raise an exception and the
+        # message will be effectively ignored.
+        self.requestedChannels.remove(channel)
         self.channels.append(channel)
         self.factory.allocator.botJoined(self, channel)
 
     def left(self, channel):
+        """Called when part() is successful and we've left a channel.
+           Implicitly also called when we're kicked via kickedFrom().
+           """
         # If we no longer are in any channels, turn off
         # automatic reconnect so we can quit without being reconnected.
         self.channels.remove(channel)
@@ -156,7 +186,7 @@ class BotFactory(protocol.ClientFactory):
 
 class BotAllocator:
     """Manages bot allocation for one IRC server"""
-    def __init__(self, server, nickFormat, channelsPerBot=15):
+    def __init__(self, server, nickFormat, channelsPerBot=18):
         self.nickFormat = nickFormat
         self.channelsPerBot = channelsPerBot
         self.host, self.port = server
@@ -167,9 +197,6 @@ class BotAllocator:
 
         # Map channel names to bots
         self.channels = {}
-
-        # Channels we're waiting on existing bots to join
-        self.existingBotRequests = []
 
         # List of channels we want a new bot to join.
         # If this is non-empty, we should already have
@@ -182,21 +209,22 @@ class BotAllocator:
         self.bots[bot.nickname] = bot
 
         # Join as many channels as this bot is allowed to,
-        # transferring those channels from newBotRequests to existingBotRequests.
+        # transferring those channels from newBotRequests to the bot's
+        # individual requestedChannels list.
         for channel in self.newBotRequests[:self.channelsPerBot]:
-            bot.join(channel)
-            self.existingBotRequests.append(channel)
+            log.msg("Requesting that new bot %r on server %r join %r" % (bot.nickname, self.host, channel))
             self.newBotRequests.remove(channel)
+            bot.join(channel)
 
         # If we still have channels that need joining that
         # go beyond this new bot's capabilities, start another new bot.
         if self.newBotRequests:
+            log.msg("Still need another bot, creating one...")
             BotFactory(self)
 
     def botJoined(self, bot, channel):
         """Called by one of our bots when it's successfully joined to a channel"""
         log.msg("Bot %r on server %r joined %r" % (bot.nickname, self.host, channel))
-        self.existingBotRequests.remove(channel)
         self.channels[channel] = bot
 
     def botLeft(self, bot, channel):
@@ -205,7 +233,7 @@ class BotAllocator:
         del self.channels[channel]
 
         # If there's no reason to keep this bot around any more, disconnect it
-        if not bot.channels:
+        if not (bot.channels or bot.requestedChannels):
             bot.quit()
 
     def botKicked(self, bot, channel, kicker, message):
@@ -219,13 +247,17 @@ class BotAllocator:
         """Called when one of our bots has been disconnected"""
         log.msg("Bot %r on server %r disconnected" % (bot.nickname, self.host))
         del self.bots[bot.nickname]
+
+        # Delete any channels in self.channels that are pointed at this bot still
         for channel in self.channels.keys():
             if self.channels[channel] == bot:
-                # This is a channel formerly serviced by the bot that was just disconnected.
-                # Remove it from our list of active channels, but try to get a bot back
-                # in there ASAP.
                 del self.channels[channel]
-                self.addChannel(channel)
+
+        # Reallocate any channels still serviced or requested by this bot
+        for channel in bot.channels:
+            self.addChannel(channel)
+        for channel in bot.requestedChannels:
+            self.addChannel(channel)
 
     def nickInUse(self, nick):
         """Determine if a nickname is in use. Currently this only checks those
@@ -256,17 +288,17 @@ class BotAllocator:
             pass
 
         # Are we already requesting this channel from an existing or new bot?
-        if channel in self.existingBotRequests:
-            return None
         if channel in self.newBotRequests:
             return None
+        for bot in self.bots.itervalues():
+            if channel in bot.requestedChannels:
+                return None
 
         # Check for room in our existing bots
         for bot in self.bots.itervalues():
-            if len(bot.channels) < self.channelsPerBot:
+            if len(bot.channels) + len(bot.requestedChannels) < self.channelsPerBot:
                 log.msg("Requesting that bot %r on server %r join %r" % (bot.nickname, self.host, channel))
                 bot.join(channel)
-                self.existingBotRequests.append(channel)
                 return None
 
         # We'll have to get a new bot to join this channel.
@@ -274,6 +306,7 @@ class BotAllocator:
         # create that new bot if we're the first
         self.newBotRequests.append(channel)
         if len(self.newBotRequests) == 1:
+            log.msg("Creating a new bot on server %r" % self.host)
             BotFactory(self)
 
     def delChannel(self, channel):
@@ -282,13 +315,17 @@ class BotAllocator:
            """
         # Remove it from our requested channel lists if it's there
         try:
-            self.existingBotRequests.remove(channel)
-        except:
-            pass
-        try:
             self.newBotRequests.remove(channel)
+            log.msg("Removing channel %r on server %r from newBotRequests" % (channel, self.host))
         except:
             pass
+        for bot in self.bots.itervalues():
+            try:
+                bot.requestedChannels.remove(channel)
+                log.msg("Removing channel %r on server %r from the requestedChannels for %r" %
+                        (channel, self.host, bot.nickname))
+            except:
+                pass
 
         # If we're already connected to this channel, leave it
         if self.channels.has_key(channel):
