@@ -36,7 +36,7 @@ class HScrollLineGraph(HScrollGraph):
                  size       = (384,128),
                  channels   = [],
                  gridSize   = 32,
-                 scrollRate = 80,
+                 scrollRate = 50,
                  range      = (0,1),
                  ):
         HScrollGraph.__init__(self, size, channels, gridSize, scrollRate)
