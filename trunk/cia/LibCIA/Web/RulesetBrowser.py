@@ -22,6 +22,7 @@ A web interface for CIA's ruleset database
 #
 
 import Template
+import Nouvelle
 from Nouvelle import tag, place
 from twisted.protocols import http
 import urllib
@@ -43,19 +44,52 @@ class RulesetLink:
         return self.tagFactory(href=linkUrl)[self.uri]
 
 
-class URIList(Template.Section):
+class RulesetURIColumn(Nouvelle.Column):
+    """A table column that displays a ruleset's URI"""
+    heading = "URI"
+
+    def getValue(self, ruleset):
+        return ruleset.uri
+
+    def render_data(self, context, ruleset):
+        return RulesetLink(ruleset.uri)
+
+
+class RulesetSchemeColumn(Nouvelle.Column):
+    """A table column that displays a ruleset's URI scheme"""
+    heading = "scheme"
+
+    def getValue(self, ruleset):
+        uri = ruleset.uri
+        if uri.find("://"):
+            return uri.split("://", 1)[0]
+
+
+class RulesetSizeColumn(Nouvelle.Column):
+    """A table column that shows a ruleset's size in bytes"""
+    heading = "size"
+
+    def getValue(self, ruleset):
+        return len(str(ruleset))
+
+    def render_data(self, context, ruleset):
+        return "%d bytes" % self.getValue(ruleset)
+
+
+class RulesetListSection(Template.Section):
     """Displays a list of URIs in a particular RulesetStorage"""
-    title = "URI list"
+    title = "rulesets"
 
     def __init__(self, storage):
-        self.uris = storage.rulesetMap.keys()
-        self.uris.sort()
+        # Extract the rulesets from the RulesetStorage's map of URIs to RulesetDelivery objects
+        self.rulesets = [delivery.ruleset for delivery in storage.rulesetMap.itervalues()]
 
-    def render_list(self, context):
-        return [tag('li')[RulesetLink(uri)] for uri in self.uris]
-
-    rows = [ "There are rulesets registered for the following URIs:",
-             Template.catalogList[ place('list') ] ]
+    def render_rows(self, context):
+        return [Template.Table(self.rulesets, [
+            RulesetURIColumn(),
+            RulesetSizeColumn(),
+            RulesetSchemeColumn(),
+            ])]
 
 
 def singleRulesetPageFactory(caps, storage, uri):
@@ -193,7 +227,7 @@ class RulesetList(Template.Page):
 
     def render_mainColumn(self, context):
         return [
-            URIList(self.storage),
+            RulesetListSection(self.storage),
             ]
 
     def render_leftColumn(self, context):
