@@ -52,14 +52,20 @@ struct rwand_timings {
 	int                     coil_end;
 };
 
-#define FILTER_SIZE_SHIFT       10
-#define FILTER_SIZE             (1<<FILTER_SIZE_SHIFT)
+#define FILTER_SIZE      256    /* Increasing this will smooth out display jitter
+				 * at the expense of responding more slowly to real changes
+				 */
+#define PERIOD_TOLERANCE 20     /* Increasing this will reduce the frequency of small jumps
+				 * in the display alignment at the increased risk of having
+				 * slightly incorrect timing.
+				 */
 
 /* A simple averaging low-pass filter, O(1) */
 struct filter {
-	int                     buffer[FILTER_SIZE];
-	int                     total;
-	int                     pointer;
+	int                     buffer[FILTER_SIZE];    /* Circular buffer */
+	int                     total;                  /* Total of all values currently in the buffer */
+	int                     n_values;               /* Number of values currently in the buffer */
+	int                     pointer;                /* Location to store the next new value in */
 };
 
 struct rwand_dev {
@@ -157,6 +163,7 @@ static void    rwand_calc_timings(struct rwand_settings *settings, int period,
 static void    rwand_update_running_display(struct rwand_dev *dev, struct rwand_status *new_status);
 
 static int     filter_push(struct filter *filter, int new_value);
+static void    filter_reset(struct filter *filter);
 
 
 /******************************************************************************/
@@ -199,14 +206,29 @@ static struct usb_driver rwand_driver = {
 /******************************************************************************/
 
 /* Add a new value to the filter, returning the filter's current value */
-static int filter_push(struct filter *filter, int new_value) {
-	int old_value;
+static int filter_push(struct filter *filter, int new_value)
+{
+	if (filter->n_values > FILTER_SIZE) {
+		/* Remove the old value if we're full */
+		filter->total -= filter->buffer[filter->pointer];
+	}
+	else {
+		filter->n_values++;
+	}
 
-	old_value = filter->buffer[filter->pointer];
+	/* Add the new value */
 	filter->buffer[filter->pointer] = new_value;
-	filter->total += new_value - old_value;
+	filter->total += new_value;
+
 	filter->pointer = (filter->pointer + 1) & (FILTER_SIZE-1);
-	return filter->total >> FILTER_SIZE_SHIFT;
+	return filter->total / filter->n_values;
+}
+
+static void filter_reset(struct filter *filter)
+{
+	filter->total = 0;
+	filter->n_values = 0;
+	filter->pointer = 0;
 }
 
 
@@ -334,14 +356,27 @@ static void rwand_process_status(struct rwand_dev *dev, const unsigned char *pac
 
 static void rwand_update_running_display(struct rwand_dev *dev, struct rwand_status *new_status)
 {
-	int new_filtered_period, period_change;
+	int new_filtered_period;
+
+	/* If our mode has changed, both force a timing update and reset the period filter */
+	if (new_status->mode != dev->status.mode) {
+		dev->settings_dirty = 1;
+		filter_reset(&dev->period_filter);
+	}
 
 	new_filtered_period = filter_push(&dev->period_filter, new_status->period);
-	period_change = abs(new_filtered_period - new_status->period);
 
-	if (period_change > 10 ||
-	    new_status->mode != dev->status.mode ||
-	    dev->settings_dirty) {
+	/* Only actually update the timings if our filtered period is noticeably
+	 * different than the last set period. This is mainly here to reduce
+	 * the bus bandwidth used by all the rwand_nb_request()s below when possible.
+	 */
+	dbg("%d %d", new_filtered_period, dev->filtered_period);
+	if (abs(new_filtered_period - dev->filtered_period) > PERIOD_TOLERANCE) {
+		dev->settings_dirty = 1;
+		dev->filtered_period = new_filtered_period;
+	}
+
+	if (dev->settings_dirty) {
 		struct rwand_timings timings;
 		rwand_calc_timings(&dev->settings, new_filtered_period, &timings);
 		rwand_nb_request(dev, RWAND_CTRL_SET_COIL_PHASE, timings.coil_begin, timings.coil_end);
@@ -350,8 +385,6 @@ static void rwand_update_running_display(struct rwand_dev *dev, struct rwand_sta
 		rwand_nb_request(dev, RWAND_CTRL_SET_NUM_COLUMNS, dev->settings.num_columns, 0);
 		dev->settings_dirty = 0;
 	}
-
-	dev->filtered_period = new_filtered_period;
 }
 
 
