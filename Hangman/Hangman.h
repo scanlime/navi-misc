@@ -8,6 +8,8 @@
  *  Header file for a Hangman game controller.
  * 
  */
+#ifndef
+#define HANGMAN
 
 #include <stdlib.h>
 
@@ -71,3 +73,5 @@ void init_node(struct stack_node *node);			// initialize stack
 void push(stack *stk, char add); 	// add character in 'add' to stk
 char pop(stack *stk);							// remove top item on stack and return the
 																	// character it contained
+
+#endif

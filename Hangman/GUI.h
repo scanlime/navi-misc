@@ -10,8 +10,10 @@
  *
  */
 
-#include <SDL/SDL.h>
+#ifndef
+#define GUI
 
+#include <SDL/SDL.h>
 
 typedef struct GUI_Node {
 	/* x and y are the coordinates of the top left corner of the rectangle.
@@ -48,9 +50,11 @@ typedef struct GUI_Node {
 } GUI_Node;
 
 /* Initialize the node. */
-void GUI_Node_Init(GUI_Node *node);
+GUI_Node* GUI_Node_Init();
+
 
 /************************ Rectangle Splitting *****************************/
+
 /* Split the rectangle horizontally where the top rectangle is 'percent' the size of
  * the initial rectangle and the bottom is the remaining part.
  */
@@ -66,7 +70,20 @@ int split_vertical(GUI_Node *node);
  */
 int margin(GUI_Node *node);
 
+
+/*************************** Node combining *******************************/
+
+/* Combine two nodes that are to be split horizontally
+ */
+GUI_Node* Combine_Horz(GUI_Node* leftNode, GUI_Node* rightNode, int prcnt);
+
+/* combine two nodes that are to be split vertically
+ */
+GUI_Node* Combine_Vert(GUI_Node* leftNode, GUI_Node* rightNode, int prcnt);
+
+
 /**************************** Window Elements *****************************/
+
 /* Produces a button node.
  */
 GUI_Node* make_button();
@@ -79,7 +96,12 @@ GUI_Node* make_textfield();
  */
 GUI_Node* make_drawfield();
 
+
 /**************************** Drawing Functions *****************************/
+
+/* Redraw the entire tree, starting at startNode
+ */
+void draw_tree(GUI_Node* startNode, SDL_Surface* dest);
 
 /* Draw the image of the button to the rectangle.  node is the rectangle to draw the button
  * to, text is printed in the button.
@@ -96,11 +118,8 @@ int draw_textfield(GUI_Node *node, SDL_Surface *dest);
  */
 int draw_drawfield(GUI_Node *node, SDL_Surface *dest);
 
-/* Resize the entire layout tree and re-blit everything.
- */
-int resize(GUI_Node* node);
-
 /********************************* Controls **********************************/
+
 /* Control button behaviour.
  */
 void button_control(GUI_Node *node);
@@ -112,3 +131,5 @@ void textfield_control(GUI_Node *node);
 /* Control draw spaces.
  */
 void drawfield_control(GUI_Node *node);
+
+#endif

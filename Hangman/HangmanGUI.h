@@ -8,26 +8,48 @@
  * Hangman.  
  *
  */
+#ifndef
+#define HANGMANGUI
 
 #include <SDL/SDL.h>
 
-/************************ Drawing Functions *******************************/
-/* Initialize SDL and return the primary SDL_Surface.
- */
-SDL_Surface* GUI_Init(int width, int height);
+#include "GUI.h"
+#include "Hangman.h"
 
-/* Draw the background of the window.
- * Can also be used to clear the screen.
- */
-void GUI_DrawBg(SDL_Surface *screen);
+typedef struct HM_Window
+{
+	/* Screen to draw to. */
+	SDL_Surface* screen;
 
-/* Draw the characters of missed guesses. Draws to *screen the
- * characters contained in *missed.
- */
-void GUI_DrawMiss(SDL_Surface *screen, char *missed);
+	GUI_Node* root;
 
-/* Draw the characters, in order, that are correct. Draws to *screen
- * the characters in *correct.  *correct is the size of the correct answer,
- * unguessed characters are stored as '_'. 
- */
-void GUI_DrawCorr(SDL_Surface *screen, char *correct);
+	/* nodes where actual drawing will occur. */
+	
+	/* text of incorrectly guessed letters. */
+	GUI_Node* missedText;
+	/* text of correctly guessed letters. */
+	GUI_Node* correctText;
+
+	/* drawing of gallows and hangman */
+	GUI_Node* gallows;
+
+	/* field to enter guesses */
+	GUI_Node* guessField;
+
+	/* button to submit guess in guessField */
+	GUI_Node* guessButton;
+} HM_Window;
+
+/* Initialize */
+void HM_Window_Init(HM_Window* window);
+
+/* Create the layout tree */
+int LayoutTree(HM_Window *window);
+
+/* Update layout tree information */
+void UpdateTree(HM_Window* window, Hangman data);
+
+/* Draw the tree to the screen */
+void DrawWindow(HM_Window window);
+
+#endif

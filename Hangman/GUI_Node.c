@@ -18,8 +18,11 @@
 #include "GUI.h"
 
 /********************************* Initialize ******************************/
-void GUI_Node_Init(GUI_Node *node)
+GUI_Node* GUI_Node_Init()
 {
+	GUI_Node* node;
+	
+	node = malloc(sizeof(GUI_Node));
 	node->x = 0;
 	node->y = 0;
 	node->h = 0;
@@ -34,6 +37,8 @@ void GUI_Node_Init(GUI_Node *node)
 
 	node->left = 0;
 	node->right = 0;
+
+	return node;
 }
 
 /**************************** Rectangle Splitting ***************************/
@@ -188,6 +193,26 @@ GUI_Node* make_drawfield()
 	return newField;
 }
 /******************************** Draw Functions *******************************/
+
+void draw_tree(GUI_Node* startNode, SDL_Surface* dest)
+{
+	/* If node has a draw function call it */
+	if (startNode->draw)
+		startNode->draw(startNode, dest);
+	
+	/* If node has a split funciton, split it */
+	if (startNode->split) 
+		startNode->split(startNode);
+
+	/* Recurse */
+	if (startNode->left)
+		draw_tree(startNode->left, dest);
+
+	if (startNode->right)
+		draw_tree(startNode->right, dest);
+}
+
+/*************************************/
 int draw_button(GUI_Node *node, SDL_Surface *dest)
 {
 	SDL_Surface *char_surface;
