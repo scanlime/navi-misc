@@ -24,6 +24,7 @@
 #define __ANIMATION_H__
 
 #include "parameter-holder.h"
+#include "chunked-file.h"
 
 G_BEGIN_DECLS
 
@@ -63,6 +64,11 @@ typedef struct _AnimationIter {
   gdouble time_after_keyframe;
 } AnimationIter;
 
+typedef struct {
+  Animation *self;
+  GtkTreeIter iter;
+} AnimChunkState;
+
 
 /************************************************************************************/
 /******************************************************************* Public Methods */
@@ -70,6 +76,7 @@ typedef struct _AnimationIter {
 
 GType        animation_get_type              ();
 Animation*   animation_new                   ();
+Animation*   animation_copy                  (Animation           *self);
 void         animation_clear                 (Animation           *self);
 
 /* Persistence */
@@ -77,6 +84,18 @@ void         animation_load_file             (Animation           *self,
 					      const gchar         *filename);
 void         animation_save_file             (Animation           *self,
 					      const gchar         *filename);
+
+/* A chunk source and ChunkCallback that can be used to serialize or
+ * copy an animation. These are used internally to implement animation_load_file,
+ * animation_save_file, and animation_copy.
+ */
+void         animation_generate_chunks       (Animation           *self,
+					      ChunkCallback        callback,
+					      gpointer             user_data);
+void         animation_store_chunk           (AnimChunkState      *state,
+					      ChunkType            type,
+					      gsize                length,
+					      const guchar        *data);
 
 /* Keyframe manipulation */
 void         animation_keyframe_store        (Animation           *self,

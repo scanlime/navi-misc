@@ -36,12 +36,21 @@ G_BEGIN_DECLS
 typedef guint32 ChunkType;
 #define CHUNK_TYPE(a,b,c,d)   ((guint32)(((a) << 24) | ((b) << 16) | ((c) << 8) | (d)))
 
+/* A ChunkCallback is any function that can process chunks received from some data source.
+ * chunked_file_write_chunk is compatible with ChunkCallback, and chunked_file_read_all
+ * streams its results to a ChunkCallback. You can use this to copy chunks between two
+ * files, but it's most useful when other objects implement their own ChunkCallbacks.
+ */
+typedef void (*ChunkCallback)(gpointer user_data, ChunkType type, gsize length, const guchar *data);
+
+#define   CHUNK_CALLBACK(o)  ((ChunkCallback)(o))
 
 void      chunked_file_write_signature(FILE* self, const gchar* signature);
 gboolean  chunked_file_read_signature(FILE* self, const gchar* signature);
 
 void      chunked_file_write_chunk(FILE* self, ChunkType type, gsize length, const guchar* data);
 gboolean  chunked_file_read_chunk(FILE* self, ChunkType *type, gsize *length, guchar** data);
+void      chunked_file_read_all(FILE* self, ChunkCallback callback, gpointer user_data);
 void      chunked_file_warn_unknown_type(ChunkType type);
 
 gchar*    chunk_type_to_string(ChunkType type);

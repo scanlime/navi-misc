@@ -99,6 +99,17 @@ Animation* animation_new() {
   return ANIMATION(g_object_new(animation_get_type(), NULL));
 }
 
+Animation* animation_copy(Animation *self) {
+  Animation *copy = animation_new();
+  AnimChunkState state;
+
+  /* Serialize this animation into chunks, loading them into the new animation */
+  state.self = copy;
+  animation_generate_chunks(self, CHUNK_CALLBACK(animation_store_chunk), &state);
+
+  return copy;
+}
+
 
 /************************************************************************************/
 /************************************************************ Keyframe Manipulation */
@@ -194,89 +205,11 @@ gdouble animation_keyframe_get_time(Animation *self, GtkTreeIter *iter) {
 /********************************************************************** Persistence */
 /************************************************************************************/
 
-void animation_load_file(Animation *self, const gchar *filename) {
-  FILE *f;
-  ChunkType type;
-  gsize length;
-  guchar* data;
-  GtkTreeIter iter;
-  gchar *tempstring;
-  Spline *spline;
-  GdkPixdata pixdata;
-
-  g_return_if_fail(f = fopen(filename, "rb"));
-  g_return_if_fail(chunked_file_read_signature(f, FILE_SIGNATURE));
-
-  animation_clear(self);
-
-  while (chunked_file_read_chunk(f, &type, &length, &data)) {
-    switch (type) {
-
-    case CHUNK_KEYFRAME_START:
-      /* Start a new keyframe, point iter at it */
-      animation_keyframe_append_default(self, &iter);
-      break;
-
-    case CHUNK_KEYFRAME_END:
-      /* Ending a keyframe. We don't yet need this for anything */
-      break;
-
-    case CHUNK_DE_JONG_PARAMS:
-      /* Set the de Jong parameters for this keyframe. Note that the
-       * data in the file is not null terminated, hence the need to
-       * copy it into a string we can null-terminate.
-       */
-      tempstring = g_malloc(length+1);
-      tempstring[length] = '\0';
-      memcpy(tempstring, data, length);
-      gtk_list_store_set(self->model, &iter,
-			 ANIMATION_MODEL_PARAMS, tempstring,
-			 -1);
-      g_free(tempstring);
-      break;
-
-    case CHUNK_THUMBNAIL:
-      /* Set the thumbnail for this keyframe */
-      gdk_pixdata_deserialize(&pixdata, length, data, NULL);
-      gtk_list_store_set(self->model, &iter,
-			 ANIMATION_MODEL_THUMBNAIL, gdk_pixbuf_from_pixdata(&pixdata, TRUE, NULL),
-			 -1);
-      break;
-
-    case CHUNK_DURATION:
-      /* The transition duration, as a double */
-      if (length == sizeof(gdouble)) {
-	gtk_list_store_set(self->model, &iter,
-			   ANIMATION_MODEL_DURATION, *(gdouble*)data,
-			   -1);
-      }
-      else {
-	g_log(G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
-	      "Duration chunk is incorrectly sized, %d bytes instead of %d",
-	      length, sizeof(gdouble));
-      }
-      break;
-
-    case CHUNK_SPLINE:
-      /* Spline control points */
-      spline = spline_unserialize(data, length);
-      gtk_list_store_set(self->model, &iter,
-			 ANIMATION_MODEL_SPLINE, spline,
-			 -1);
-      spline_free(spline);
-      break;
-
-    default:
-      chunked_file_warn_unknown_type(type);
-    }
-    g_free(data);
-  }
-
-  fclose(f);
-}
-
-void animation_save_file(Animation *self, const gchar *filename) {
-  FILE *f;
+void animation_generate_chunks(Animation *self, ChunkCallback callback, gpointer user_data) {
+  /* Serialize our animation to a stream of chunks, directed to the given ChunkCallback.
+   * This can be used to save our animation to disk using ChunkedFile, copy it into
+   * another animation, or send it to any other destination that supports a ChunkCallback.
+   */
   GtkTreeModel *model = GTK_TREE_MODEL(self->model);
   GtkTreeIter iter;
   gboolean valid;
@@ -287,10 +220,6 @@ void animation_save_file(Animation *self, const gchar *filename) {
   gdouble duration;
   Spline *spline;
   GdkPixdata pixdata;
-
-  /* Start a new chunked file */
-  g_return_if_fail(f = fopen(filename, "wb"));
-  chunked_file_write_signature(f, FILE_SIGNATURE);
 
   /* Iterate over each keyframe in our model */
   valid = gtk_tree_model_get_iter_first(model, &iter);
@@ -303,34 +232,129 @@ void animation_save_file(Animation *self, const gchar *filename) {
 		       ANIMATION_MODEL_SPLINE,    &spline,
 		       -1);
 
-    chunked_file_write_chunk(f, CHUNK_KEYFRAME_START, 0, NULL);
+    callback(user_data, CHUNK_KEYFRAME_START, 0, NULL);
 
     if (params) {
-      chunked_file_write_chunk(f, CHUNK_DE_JONG_PARAMS, strlen(params), params);
+      callback(user_data, CHUNK_DE_JONG_PARAMS, strlen(params), params);
       g_free(params);
     }
 
     if (thumb_pixbuf) {
       gdk_pixdata_from_pixbuf(&pixdata, thumb_pixbuf, FALSE);
       buffer = gdk_pixdata_serialize(&pixdata, &buffer_len);
-      chunked_file_write_chunk(f, CHUNK_THUMBNAIL, buffer_len, buffer);
+      callback(user_data, CHUNK_THUMBNAIL, buffer_len, buffer);
       g_free(buffer);
     }
 
-    chunked_file_write_chunk(f, CHUNK_DURATION, sizeof(duration), (guchar*) &duration);
+    callback(user_data, CHUNK_DURATION, sizeof(duration), (guchar*) &duration);
 
     if (spline) {
       buffer = spline_serialize(spline, &buffer_len);
-      chunked_file_write_chunk(f, CHUNK_SPLINE, buffer_len, buffer);
+      callback(user_data, CHUNK_SPLINE, buffer_len, buffer);
       g_free(buffer);
       spline_free(spline);
     }
 
-    chunked_file_write_chunk(f, CHUNK_KEYFRAME_END, 0, NULL);
+    callback(user_data, CHUNK_KEYFRAME_END, 0, NULL);
 
     valid = gtk_tree_model_iter_next(model, &iter);
   }
+}
 
+void animation_store_chunk(AnimChunkState *state,
+			   ChunkType       type,
+			   gsize           length,
+			   const guchar   *data) {
+  /* A ChunkCallback implementation that stores chunks into an animation.
+   * This can be used to load serialized animations from disk, copy animations,
+   * or load them from any source that can use a ChunkCallback. An AnimChunkState
+   * structure must be passed in as user_data.
+   */
+  gchar *tempstring;
+  Spline *spline;
+  GdkPixdata pixdata;
+
+  switch (type) {
+
+  case CHUNK_KEYFRAME_START:
+    /* Append a new keyframe */
+    animation_keyframe_append_default(state->self, &state->iter);
+    break;
+
+  case CHUNK_KEYFRAME_END:
+    /* Ending a keyframe. We don't yet need this for anything */
+    break;
+
+  case CHUNK_DE_JONG_PARAMS:
+    /* Set the de Jong parameters for this keyframe. Note that the
+     * data in the file is not null terminated, hence the need to
+     * copy it into a string we can null-terminate.
+     */
+    tempstring = g_malloc(length+1);
+    tempstring[length] = '\0';
+    memcpy(tempstring, data, length);
+    gtk_list_store_set(state->self->model, &state->iter,
+		       ANIMATION_MODEL_PARAMS, tempstring,
+		       -1);
+    g_free(tempstring);
+    break;
+
+  case CHUNK_THUMBNAIL:
+    /* Set the thumbnail for this keyframe */
+    gdk_pixdata_deserialize(&pixdata, length, data, NULL);
+    gtk_list_store_set(state->self->model, &state->iter,
+		       ANIMATION_MODEL_THUMBNAIL, gdk_pixbuf_from_pixdata(&pixdata, TRUE, NULL),
+		       -1);
+    break;
+
+  case CHUNK_DURATION:
+    /* The transition duration, as a double */
+    if (length == sizeof(gdouble)) {
+      gtk_list_store_set(state->self->model, &state->iter,
+			 ANIMATION_MODEL_DURATION, *(gdouble*)data,
+			 -1);
+    }
+    else {
+      g_log(G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
+	    "Duration chunk is incorrectly sized, %d bytes instead of %d",
+	    length, sizeof(gdouble));
+    }
+    break;
+
+    case CHUNK_SPLINE:
+      /* Spline control points */
+      spline = spline_unserialize(data, length);
+      gtk_list_store_set(state->self->model, &state->iter,
+			 ANIMATION_MODEL_SPLINE, spline,
+			 -1);
+      spline_free(spline);
+      break;
+
+  default:
+    chunked_file_warn_unknown_type(type);
+  }
+}
+
+void animation_load_file(Animation *self, const gchar *filename) {
+  FILE *f;
+  AnimChunkState state;
+
+  g_return_if_fail(f = fopen(filename, "rb"));
+  g_return_if_fail(chunked_file_read_signature(f, FILE_SIGNATURE));
+
+  animation_clear(self);
+  state.self = self;
+  chunked_file_read_all(f, CHUNK_CALLBACK(animation_store_chunk), &state);
+
+  fclose(f);
+}
+
+void animation_save_file(Animation *self, const gchar *filename) {
+  FILE *f;
+
+  g_return_if_fail(f = fopen(filename, "wb"));
+  chunked_file_write_signature(f, FILE_SIGNATURE);
+  animation_generate_chunks(self, CHUNK_CALLBACK(chunked_file_write_chunk), f);
   fclose(f);
 }
 

@@ -150,7 +150,7 @@ int main(int argc, char ** argv) {
     if (animate) {
       /* DEBUG */
       gtk_init(&argc, &argv);
-      animation_render_ui_new(animation);
+      g_signal_connect(animation_render_ui_new(animation), "closed", gtk_main_quit, NULL);
       gtk_main();
 
       // animation_render_main(dejong, animation, outputFile, target_density);

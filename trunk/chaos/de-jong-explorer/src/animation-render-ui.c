@@ -30,11 +30,19 @@ static void animation_render_ui_dispose(GObject *gobject);
 static void on_ok_clicked(GtkWidget *widget, AnimationRenderUi *self);
 static void on_cancel_clicked(GtkWidget *widget, AnimationRenderUi *self);
 static void on_select_output_file_clicked(GtkWidget *widget, AnimationRenderUi *self);
+static gboolean on_delete_event(GtkWidget *widget, GdkEvent *event, AnimationRenderUi *self);
 
 static void animation_render_ui_start(AnimationRenderUi *self);
 static void animation_render_ui_stop(AnimationRenderUi *self);
 static int animation_render_ui_idle_handler(gpointer user_data);
 static void animation_render_ui_run_timed_calculation(AnimationRenderUi *self);
+
+enum {
+  CLOSED_SIGNAL,
+  LAST_SIGNAL,
+};
+
+static guint animation_render_ui_signals[LAST_SIGNAL] = { 0 };
 
 
 /************************************************************************************/
@@ -68,6 +76,15 @@ static void animation_render_ui_class_init(AnimationRenderUiClass *klass) {
 
   object_class->dispose = animation_render_ui_dispose;
 
+  animation_render_ui_signals[CLOSED_SIGNAL] = g_signal_new("closed",
+							    G_TYPE_FROM_CLASS(klass),
+							    G_SIGNAL_RUN_FIRST | G_SIGNAL_ACTION,
+							    G_STRUCT_OFFSET(AnimationRenderUiClass, animation_render_ui),
+							    NULL,
+							    NULL,
+							    g_cclosure_marshal_VOID__VOID,
+							    G_TYPE_NONE, 0);
+
   glade_init();
 }
 
@@ -77,6 +94,7 @@ static void animation_render_ui_init(AnimationRenderUi *self) {
   glade_xml_signal_connect_data(self->xml, "on_ok_clicked",                 G_CALLBACK(on_ok_clicked),                 self);
   glade_xml_signal_connect_data(self->xml, "on_cancel_clicked",             G_CALLBACK(on_cancel_clicked),             self);
   glade_xml_signal_connect_data(self->xml, "on_select_output_file_clicked", G_CALLBACK(on_select_output_file_clicked), self);
+  glade_xml_signal_connect_data(self->xml, "on_delete_event",               G_CALLBACK(on_delete_event),              self);
 
   self->dejong = de_jong_new();
   self->frame.a = PARAMETER_HOLDER(de_jong_new());
@@ -112,7 +130,9 @@ static void animation_render_ui_dispose(GObject *gobject) {
 AnimationRenderUi* animation_render_ui_new(Animation *animation) {
   AnimationRenderUi *self = ANIMATION_RENDER_UI(g_object_new(animation_render_ui_get_type(), NULL));
 
-  self->animation = ANIMATION(g_object_ref(animation));
+  self->animation = animation_copy(animation);
+
+  return self;
 }
 
 
@@ -139,8 +159,10 @@ static void on_ok_clicked(GtkWidget *widget, AnimationRenderUi *self) {
 static void on_cancel_clicked(GtkWidget *widget, AnimationRenderUi *self) {
   if (self->render_in_progress)
     animation_render_ui_stop(self);
-  else
+  else {
+    g_signal_emit(G_OBJECT(self), animation_render_ui_signals[CLOSED_SIGNAL], 0);
     gtk_widget_destroy(glade_xml_get_widget(self->xml, "window"));
+  }
 }
 
 static void on_select_output_file_clicked(GtkWidget *widget, AnimationRenderUi *self) {
@@ -155,6 +177,13 @@ static void on_select_output_file_clicked(GtkWidget *widget, AnimationRenderUi *
 		       gtk_file_selection_get_filename(GTK_FILE_SELECTION(dialog)));
   }
   gtk_widget_destroy(dialog);
+}
+
+static gboolean on_delete_event(GtkWidget *widget, GdkEvent *event, AnimationRenderUi *self) {
+  if (self->render_in_progress)
+    animation_render_ui_stop(self);
+  g_signal_emit(G_OBJECT(self), animation_render_ui_signals[CLOSED_SIGNAL], 0);
+  return FALSE;
 }
 
 

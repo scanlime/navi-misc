@@ -189,6 +189,17 @@ gboolean chunked_file_read_chunk(FILE* self, ChunkType *type, gsize *length, guc
   }
 }
 
+void chunked_file_read_all(FILE* self, ChunkCallback callback, gpointer user_data) {
+  ChunkType type;
+  gsize length;
+  guchar* data;
+
+  while (chunked_file_read_chunk(self, &type, &length, &data)) {
+    callback(user_data, type, length, data);
+    g_free(data);
+  }
+}
+
 void chunked_file_warn_unknown_type(ChunkType type) {
   gchar *type_string = chunk_type_to_string(type);
   g_log(G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
