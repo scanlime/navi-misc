@@ -61,7 +61,7 @@ public class PipelineEditor
 		gxml.Autoconnect (this);
 
 		/* Do all the setup for the element tree view */
-		 element_store = new Gtk.TreeStore (typeof (Gdk.Pixbuf), typeof (string), typeof (Type), typeof (ElementTooltip));
+		element_store = new Gtk.TreeStore (typeof (Gdk.Pixbuf), typeof (string), typeof (Type), typeof (ElementTooltip));
 		sorted_store = new Gtk.TreeModelSort (element_store);
 		element_list.Model = sorted_store;
 
@@ -82,7 +82,6 @@ public class PipelineEditor
 		targets[0] = new TargetEntry ("fyre element drag", Gtk.TargetFlags.App, 0);
 		element_list.EnableModelDragSource ((Gdk.ModifierType) 0, targets, Gdk.DragAction.Copy);
 		*/
-		element_list.Reorderable = true;
 
 		current_tooltip = null;
 		tooltip_timeout = 0;
@@ -132,24 +131,24 @@ public class PipelineEditor
 		current_tooltip.Move (x + tip_rect.X + 160, y + tip_rect.Y + 80);
 		current_tooltip.Show ();
 		tooltip_timeout = 0;
-	 	return false;
+		return false;
 	}
 
-        void ElementListLeaveNotifyEvent (object o, LeaveNotifyEventArgs args)
-        {
-        	if (tooltip_timeout != 0) {
-        		GLib.Source.Remove (tooltip_timeout);
-        		tooltip_timeout = 0;
-        	}
-        	if (current_tooltip != null) {
-        		current_tooltip.Hide ();
-        		current_tooltip = null;
-        	}
-        }
+	void ElementListLeaveNotifyEvent (object o, LeaveNotifyEventArgs args)
+	{
+		if (tooltip_timeout != 0) {
+			GLib.Source.Remove (tooltip_timeout);
+			tooltip_timeout = 0;
+		}
+		if (current_tooltip != null) {
+			current_tooltip.Hide ();
+			current_tooltip = null;
+		}
+	}
 
-        private void AddElementType (Type t)
-        {
-        	object[] i = {};
+	private void AddElementType (Type t)
+	{
+		object[] i = {};
 		Element e = (Element) t.GetConstructor(Type.EmptyTypes).Invoke(i);
 		ElementTooltip tt = new ElementTooltip (e);
 
@@ -173,7 +172,7 @@ public class PipelineEditor
 			element_store.AppendValues (iter, pixbuf, name, t, tt);
 			element_list.ExpandAll ();
 		}
-        }
+	}
 
 	/* Event handlers - most of these come from the glade file */
 	/* Window events */
