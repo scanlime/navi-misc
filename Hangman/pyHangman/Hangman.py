@@ -16,13 +16,11 @@ class Hangman:
 	""" Functions and data for running a game of Hangman. """
 	def __init__(self):
 		seed()
+		self.words = []
 		self.answer = None
 		self.guesses = []
 		self.numMissed = 0
 		self.correct = []
-		# This stuff should probably be changed.
-		self.words = open("games/test.txt", 'r').readlines()
-		self.words = [word.strip() for word in self.words]
 
 	def Guess(self, guess):
 		""" Checks the guess against the correct answer.  If it's correct: guess
@@ -90,7 +88,6 @@ class Hangman:
 		else:
 			return entry
 
-# Subclass this under Hangman?
 class HangmanGUI:
 	""" A class for creating and controlling a GUI for Hangman. __init__ creates
 			all the necessary widgets and connects them to the appropriate Hangman 
@@ -99,7 +96,6 @@ class HangmanGUI:
 	def __init__(self):
 		# Game controller.
 		self.controller = Hangman()
-		self.controller.NewGame()
 
 		# Set up the window.
 		self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
@@ -108,7 +104,7 @@ class HangmanGUI:
 		# Minimum window size.
 		self.window.set_size_request(600, 400)
 
-		self.window.connect("delete_event", self.Quit)
+		self.window.connect("delete_event", self.destroy)
 
 		# Text entry field for entering guesses.
 		self.guessField = gtk.Entry(1)
@@ -130,9 +126,12 @@ class HangmanGUI:
 		self.newGame = gtk.Button("New Game")
 		self.newGame.connect("clicked", self.NewGame)
 
+		# Open new file button.
+		self.openButton = gtk.Button("Open File")
+		self.openButton.connect("clicked", self.openFile)
+
 		# Quit button.
 		self.quit = gtk.Button("Quit")
-		self.quit.connect("clicked", self.warning)
 		self.quit.connect("clicked", self.Quit)
 
 		# Gallows.
@@ -147,7 +146,7 @@ class HangmanGUI:
 		
 		# buttonBox: contains the New Game button to the left of the Quit button.
 		buttonBox = self.Pack(gtk.HBox, 
-				[None, self.newGame, self.quit], 
+				[None, self.newGame, self.openButton, self.quit], 
 				[gtk.TRUE, 5])
 		buttonBox.show()
 		
@@ -189,6 +188,34 @@ class HangmanGUI:
 
 	def Quit(self, widget, data=None):
 		""" Quit. """
+		# Create a dialog to check if the user really wants to quit.
+		dialog = gtk.Dialog("Quit", 
+				flags=gtk.DIALOG_DESTROY_WITH_PARENT|gtk.DIALOG_NO_SEPARATOR)
+		
+		# Yes button, they really want to quit.
+		yes = gtk.Button("Yes")
+		yes.connect("clicked", self.destroy)
+		yes.show()
+
+		# No button, they don't actually want to quit.
+		no = gtk.Button("No")
+		no.connect("clicked", lambda w: dialog.destroy())
+		no.show()
+
+		# Pose the question.
+		label = gtk.Label("Are you sure you want to quit?")
+		label.show()
+
+		# Pack the dialog box and show, give focus to the 'no' button.
+		dialog.vbox.pack_start(label)
+		dialog.action_area.pack_start(yes, gtk.TRUE, gtk.TRUE)
+		dialog.action_area.pack_start(no, gtk.TRUE, gtk.TRUE)
+
+		no.grab_focus()
+		dialog.show()
+
+	def destroy(self, widget, event=None):
+		""" Quit gtk.main. """
 		gtk.main_quit()
 		return gtk.FALSE
 
@@ -230,8 +257,12 @@ class HangmanGUI:
 		self.correctText.set_text(updateString[0])
 		self.guessedText.set_text(updateString[1])
 
-	def NewGame(self, widget, data=None):
+	def NewGame(self, widget=None, data=None):
 		""" Begin a new game. """
+		if self.controller.words == []:
+			self.openFile()
+			return
+
 		self.controller.NewGame()
 		# Update window.
 		self.Update(self.controller.gameStat())
@@ -239,6 +270,50 @@ class HangmanGUI:
 		self.guessField.set_text("")
 		self.guessField.set_editable(gtk.TRUE)
 		self.guessField.grab_focus()
+
+	def openFile(self, widget=None, data=None):
+		""" Load the contents of a file into the game. """
+		# File selector.
+		fileWindow = gtk.FileSelection("Hangman")
+
+		# Set up buttons.
+		fileWindow.ok_button.connect("clicked", self.read, fileWindow)
+		fileWindow.ok_button.connect("clicked", self.NewGame)
+		fileWindow.ok_button.connect("clicked", lambda w: fileWindow.destroy())
+		fileWindow.cancel_button.connect("clicked", lambda w: fileWindow.destroy())
+
+		# Show.
+		fileWindow.show()
+
+	def read(self, widget, event=None):
+		filename = event.get_filename()
+		if filename.find(".hmn") == -1:
+			self.error(data="Please choose a .hmn file.")
+			return gtk.TRUE
+		else:
+			self.controller.words = open(filename, 'r').readlines()
+			self.controller.words = [word.strip() for word in self.controller.words]
+
+	def error(self, widget=None, data=None):
+		""" General error message generator.  data is the text to be printed in
+				the dialog box.
+				"""
+		# Create the dialog box.
+		errorBox = gtk.Dialog("Error", flags=gtk.DIALOG_NO_SEPARATOR)
+
+		# Create the label.
+		message = gtk.Label(data)
+		message.show()
+
+		# Ok button.
+		okButton = gtk.Button("Ok")
+		okButton.connect("clicked", lambda w: errorBox.destroy())
+		okButton.show()
+
+		# Pack everything and show.
+		errorBox.vbox.pack_start(message, gtk.TRUE, gtk.TRUE)
+		errorBox.vbox.pack_end(okButton)
+		errorBox.show()
 
 class Gallows(gtk.DrawingArea):
 	""" gtk.DrawingArea subclass for drawing the gallows and hanged man. """
