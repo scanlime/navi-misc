@@ -44,6 +44,7 @@
 
 	extern	temp
 	extern	temp2
+	extern	Send_0Len_pkt
 
 	;; Hardware definitions
 	#define ROW_DRIVE_0	TRISA, 1
@@ -312,12 +313,13 @@ pwm_row_done
 	endm
 
 
-	;; Page flip handler
+	;; Page flip handler. This swaps the front and back
+	;; pointers, and acknowledges the host's page flip request.
 page_flip
 	bcf	FLAG_FLIP_REQUEST
 	swapff	front_fsr, back_fsr
 	swapff	front_status, back_status
-	return
+	psgoto	Send_0Len_pkt
 
 
 	;; This is a cooperatively-multitasked thread that scans through the LED matrix.

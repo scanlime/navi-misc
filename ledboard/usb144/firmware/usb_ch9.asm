@@ -43,6 +43,7 @@
 
 #include <p16C765.inc>
 #include "usb_defs.inc"
+#include "macros.inc"
 #include "../include/ledboard_protocol.h"
 
 	errorlevel -302		; supress "register not in bank0, check page bits" message
@@ -436,8 +437,7 @@ ResetEP0OutBuffer
 	movwf	BD0OBC		; just reset the buffer
 	movlw	0x88
 	movwf	BD0OST		; set OWN and DTS Bit
-	pagesel	Send_0Len_pkt
-	goto	Send_0Len_pkt
+	psgoto	Send_0Len_pkt
 
 tryEP1  ; bank 2
 	xorlw	0x08		; was it EP1?

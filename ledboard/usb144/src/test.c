@@ -64,11 +64,11 @@ int main(int argc, char **argv) {
 	 control_read_byte(d, LEDBOARD_CTRL_GET_LED_VOLTAGE, 0, 0) / 255.0 * 10);
 
   control_write(d, LEDBOARD_CTRL_STATUS_INTENSITY, 0x1000, 0);
-  control_write(d, LEDBOARD_CTRL_SET_PWM_CYCLES, 1, 0);
-  control_write(d, LEDBOARD_CTRL_SET_SCAN_RATE, 0xFD00, 0);
+  control_write(d, LEDBOARD_CTRL_SET_PWM_CYCLES, 20, 0);
+  control_write(d, LEDBOARD_CTRL_SET_SCAN_RATE, 0xFE00, 0);
 
   for (x=0; x<16; x++) {
-    int pwmValue = pow(x/15.0, 2.5) * 20;
+    int pwmValue = pow(x/15.0, 1.1) * 20;
     printf("pwm table: %d -> %d\n", x, pwmValue);
     control_write(d, LEDBOARD_CTRL_SET_PWM_ENTRY,
 		  pwmValue, x);
@@ -77,7 +77,7 @@ int main(int argc, char **argv) {
   control_write(d, LEDBOARD_CTRL_FLIP, 0, 0);
   while (1) {
     for (y=0; y<9; y++)
-      for (x=0; x<16; x+=8)
+      for (x=0; x<16; x+=8) {
 	control_write(d, LEDBOARD_CTRL_SEQ_WRITE4,
 		      (brightness_fn(x+0, y) << 4) |
 		      (brightness_fn(x+1, y) << 0) |
@@ -87,8 +87,10 @@ int main(int argc, char **argv) {
 		      (brightness_fn(x+5, y) << 0) |
 		      (brightness_fn(x+6, y) << 12) |
 		      (brightness_fn(x+7, y) << 8));
+      }
 
     control_write(d, LEDBOARD_CTRL_FLIP, 0, 0);
+    usleep(30000);
   }
 
 
