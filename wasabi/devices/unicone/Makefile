@@ -1,4 +1,8 @@
-BINS = loader_tool test firmware.bin
+BINS = \
+	loader_tool \
+	led_test \
+	gc_test \
+	firmware.bin
 
 COMMON_OBJS = \
 	src/bit_file.o \
@@ -8,8 +12,11 @@ COMMON_OBJS = \
 LOADER_TOOL_OBJS = $(COMMON_OBJS) \
 	src/loader_tool.o
 
-TEST_OBJS = $(COMMON_OBJS) \
-	src/test.o \
+LED_TEST_OBJS = $(COMMON_OBJS) \
+	src/led_test.o \
+
+GC_TEST_OBJS = $(COMMON_OBJS) \
+	src/gc_test.o \
 
 FIRMWARE_OBJS = \
 	firmware/main.rel \
@@ -30,8 +37,11 @@ all: $(BINS)
 loader_tool: $(LOADER_TOOL_OBJS) src/*.h include/*.h
 	$(CC) -o $@ $(LOADER_TOOL_OBJS) $(LDFLAGS)
 
-test: $(TEST_OBJS) src/*.h include/*.h
-	$(CC) -o $@ $(TEST_OBJS) $(LDFLAGS) -lm
+led_test: $(LED_TEST_OBJS) src/*.h include/*.h
+	$(CC) -o $@ $(LED_TEST_OBJS) $(LDFLAGS) -lm
+
+gc_test: $(GC_TEST_OBJS) src/*.h include/*.h
+	$(CC) -o $@ $(GC_TEST_OBJS) $(LDFLAGS)
 
 firmware/firmware.ihx: $(FIRMWARE_OBJS)
 	sdcc -o $@ $(FIRMWARE_OBJS) $(FW_LDFLAGS)
@@ -43,7 +53,7 @@ firmware.bin: firmware/firmware.ihx
 	sdcc -o $@ -c $< $(FW_CFLAGS)
 
 clean:
-	rm -f $(BINS) $(TEST_OBJS) $(LOADER_TOOL_OBJS) $(FIRMWARE_OBJS)
+	rm -f $(BINS) firmware/*.rel src/*.o
 	rm -f firmware/*.ihx firmware/*.lnk firmware/*.lst firmware/*.map
 	rm -f firmware/*.mem firmware/*.rel firmware/*.rst firmware/*.sym
 	rm -f firmware/*.asm

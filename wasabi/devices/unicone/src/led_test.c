@@ -1,3 +1,7 @@
+/*
+ * Demonstrate the LED brightness control device
+ */
+
 #include <usb.h>
 #include <sys/time.h>
 #include <math.h>
