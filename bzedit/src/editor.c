@@ -104,6 +104,7 @@ editor_init (Editor *editor)
   GtkMenuItem *addmenu;
   GtkMenu *am;
   GtkScrolledWindow *swin;
+  GtkToolbar *tbar;
   GtkBox *box;
   ParameterHolder *p;
   GtkWidget *e, *v, *l;
@@ -144,6 +145,7 @@ editor_init (Editor *editor)
   am = GTK_MENU (gtk_menu_new ());
   box = GTK_BOX (gtk_vbox_new (0, 6));
   swin = GTK_SCROLLED_WINDOW (glade_xml_get_widget (editor->xml, "property editor swin"));
+  tbar = GTK_TOOLBAR (glade_xml_get_widget (editor->xml, "object toolbar"));
   gtk_scrolled_window_add_with_viewport (swin, GTK_WIDGET (box));
   for (t = types; t; t = t->next)
   {
@@ -154,9 +156,12 @@ editor_init (Editor *editor)
       if (((SceneObjectClass*) klass)->creatable ())
       {
         GtkMenuItem *item = GTK_MENU_ITEM (gtk_image_menu_item_new_with_label (g_type_name (type)));
-        GtkWidget *image = gtk_image_new_from_pixbuf (((SceneObjectClass*) klass)->get_icon ());
-        gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), image);
+        GtkWidget *image1 = gtk_image_new_from_pixbuf (((SceneObjectClass*) klass)->get_icon ());
+        GtkWidget *image2 = gtk_image_new_from_pixbuf (((SceneObjectClass*) klass)->get_icon ());
+	GtkToolItem *titem = GTK_TOOL_ITEM (gtk_tool_button_new (image2, g_type_name (type)));
+        gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), image1);
         gtk_menu_shell_append (GTK_MENU_SHELL (am), item);
+	gtk_toolbar_insert (tbar, titem, -1);
       }
       v = gtk_hseparator_new();
       gtk_box_pack_start (box, v, FALSE, TRUE, 0);
