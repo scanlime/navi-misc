@@ -24,6 +24,7 @@
 #include "preferences.h"
 #include "../common/text.h"
 #include "../common/xchatc.h"
+#include <libgnome/gnome-url.h> /* gnome_url_show */
 
 int check_word(GtkWidget *xtext, char *word);
 void clicked_word(GtkWidget *xtext, char *word, GdkEventButton *even, gpointer data);
@@ -184,6 +185,31 @@ void clicked_word(GtkWidget *xtext, char *word, GdkEventButton *event, gpointer 
 
 	if(event->button == 1) {
 		/* left click */
+
+		switch (check_word (xtext, word))
+		{
+			case 0:
+			  return;
+			case WORD_URL:
+			case WORD_HOST:
+			{
+			  /* we handle URLs here to be consistent with left-click behavior
+				 * elsewhere in gnome */
+		    GError *err = NULL;
+
+				gnome_url_show (word, &err);
+				if (err != NULL)
+				{
+					/* FIXME: should actually check the contents of the error quark, and
+					 * should eventually output this error in a better way than stdout
+					 */
+					char *msg = g_strdup_printf (_("Unable to activate the URL '%s"), word);
+					g_print (msg);
+					g_free (msg);
+					g_error_free (err);
+				}
+			}
+		}
 		return;
 	}
 	if(event->button == 2) {
