@@ -9,7 +9,6 @@ static gint chanlist_compare_p(gconstpointer a, gconstpointer b, gpointer data) 
 	if(a == NULL)
 		return 1;
 
-	g_print("testing 0x%x against 0x%x\n", a, b);
 	if(as->server == b)
 		return 0;
 	else return 1;
@@ -65,7 +64,6 @@ void create_channel_list(session *sess) {
 	win = g_malloc(sizeof(channel_list_window));
 
 	win->server = sess->server;
-	g_print("creating channel list for 0x%x\n", win->server);
 
 	win->xml = glade_xml_new("channel-list.glade", NULL, NULL);
 	if(!win->xml) {
@@ -89,17 +87,17 @@ void create_channel_list(session *sess) {
 	gtk_widget_set_sensitive(widget, FALSE);
 	g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(chanlist_join), win);
 
-	win->store = gtk_list_store_new(4, G_TYPE_STRING, G_TYPE_INT, G_TYPE_STRING, G_TYPE_STRING);
+	win->store = gtk_list_store_new(4, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_POINTER);
 	gtk_tree_view_set_model(GTK_TREE_VIEW(treeview), GTK_TREE_MODEL(win->store));
 
 	channel_r = gtk_cell_renderer_text_new();
 	channel_c = gtk_tree_view_column_new_with_attributes("Channel Name", channel_r, "text", 0, NULL);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), channel_c);
 	users_r = gtk_cell_renderer_text_new();
-	users_c = gtk_tree_view_column_new_with_attributes("Users", users_r, "text", 2, NULL);
+	users_c = gtk_tree_view_column_new_with_attributes("Users", users_r, "text", 1, NULL);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), users_c);
 	topic_r = gtk_cell_renderer_text_new();
-	topic_c = gtk_tree_view_column_new_with_attributes("Topic", topic_r, "text", 3, NULL);
+	topic_c = gtk_tree_view_column_new_with_attributes("Topic", topic_r, "text", 2, NULL);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), topic_c);
 
 	group = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
@@ -116,7 +114,25 @@ void create_channel_list(session *sess) {
 	g_signal_connect(G_OBJECT(select), "changed", G_CALLBACK(chanlist_selected), win);
 
 	g_slist_append(chanlists, win);
-	g_print("chanlists is now %d long\n", g_slist_length(chanlists));
+}
+
+void channel_list_append(server *serv, char *channel, char *users, char *topic) {
+	GtkWidget *treeview;
+	GtkListStore *store;
+	GtkTreeIter iter;
+	GSList *element;
+	channel_list_window *win;
+
+	element = g_slist_find_custom(chanlists, serv, (GCompareFunc) chanlist_compare_p);
+	if(element == NULL)
+		return;
+
+	win = element->data;
+	treeview = glade_xml_get_widget(win->xml, "channel list");
+	store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(treeview)));
+
+	gtk_list_store_append(store, &iter);
+	gtk_list_store_set(store, &iter, 0, channel, 1, users, 2, topic, 3, serv, -1);
 }
 
 void repopulate_channel_list(channel_list_window *win) {
