@@ -33,9 +33,7 @@ static void update_drawing_area();
 static int interactive_idle_handler(gpointer user_data);
 static float generate_random_param();
 static void read_gui_params();
-static void write_gui_params();
 static void gui_resize(int width, int height);
-static void restart_rendering();
 
 static void tool_grab(double dx, double dy);
 static void tool_blur(double dx, double dy);
@@ -289,7 +287,7 @@ static void read_gui_params() {
   render.bgalpha = color_button_get_alpha(COLOR_BUTTON(glade_xml_get_widget(gui.xml, "param_bgcolor")));
 }
 
-static void write_gui_params() {
+void write_gui_params() {
   gui.writing_params = TRUE;
   gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(gui.xml, "param_a")), params.a);
   gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(gui.xml, "param_b")), params.b);
@@ -312,7 +310,7 @@ static void write_gui_params() {
   gui.writing_params = FALSE;
 }
 
-static void restart_rendering() {
+void restart_rendering() {
   gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(glade_xml_get_widget(gui.xml, "pause_menu")), TRUE);
   clear();
   read_gui_params();
