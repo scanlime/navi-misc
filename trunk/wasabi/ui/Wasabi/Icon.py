@@ -156,14 +156,14 @@ class DockIcon(object):
 
 class Dock(object):
     """A container for icons. The Dock defines a parametric 'track' icons move along,
-       mapping a scalar position in [0,1] to a position and size in screen coordinates.
+       mapping a scalar position to a position and size in screen coordinates.
        Icons are spaced along this track and rotated along it as the user makes a
        selection.
 
        The supplied trackFunction must map a scalar to a (position, height) tuple. The
        position must itself be a 2-tuple.
 
-       If iconSpacing is None, icons are spaced evenly along the entire track. Otherwise,
+       If iconSpacing is None, icons are spaced evenly along the interval [0,1]. Otherwise,
        it is an absolute spacing value in track coordinates.
 
        selectionIndex is the index of the currently selected icon. It may be
