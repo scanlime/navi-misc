@@ -1,5 +1,3 @@
-#!BPY
-#
 # amc_import.py - Import an Acclaim Motion Capture file and apply NLA
 #                 transformations to a matching armature
 #
