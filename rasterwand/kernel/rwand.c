@@ -54,33 +54,6 @@ struct rwand_status {
 	unsigned char           buttons;                /* RWAND_BUTTON_* bits */
 };
 
-struct rwand_settings {
-	int                     display_center;         /* The center of the display. 0 is full left,
-							 * 0xFFFF is full right.
-							 */
-	int                     display_width;          /* The total width of the display, from 0 (nothing)
-							 * to 0xFFFF (the entire wand sweep)
-							 */
-	int                     coil_center;            /* The center of the coil pulse. 0 is full left,
-							 * 0x4000 is the center on the left-right pass,
-							 * 0x8000 is full-right, 0xC000 is center on the
-							 * right-left pass, and 0xFFFF is full left again.
-							 */
-	int                     coil_width;             /* The width of the coil pulse, from 0 (nothing) to
-							 * 0xFFFF (the entire period)
-							 */
-	int                     duty_cycle;             /* The ratio of pixels to gaps. 0xFFFF has no gap,
-							 * 0x0000 is all gap and no pixel.
-							 */
-	int                     fine_adjust;            /* Fine tuning for the front/back alignment */
-	int                     power_mode;             /* RWAND_POWER_* */
-	int                     num_columns;            /* The number of columns actually being displayed */
-
-	int                     dirty;                  /* Set whenever the settings have changed but
-							 * timing has not been updated to reflect them.
-							 */
-};
-
 /* Timing calculated from the current status and settings */
 struct rwand_timings {
 	int                     column_width;
@@ -103,6 +76,10 @@ struct rwand_dev {
 	struct usb_ctrlrequest  status_request;
 
 	struct rwand_settings   settings;
+	int                     settings_dirty;         /* Set whenever the settings have changed but
+							 * timing has not been updated to reflect them.
+							 */
+
 
 	/* Our local model of the device state */
 	unsigned char           fb[RWAND_FB_BYTES+4];   /* Our local copy of the device framebuffer. The 4 here gives
@@ -146,7 +123,6 @@ static DECLARE_MUTEX (disconnect_sem);
 /******************************************************************************/
 
 static ssize_t rwand_write       (struct file *file, const char *buffer, size_t count, loff_t *ppos);
-static ssize_t rwand_read        (struct file *file, char *buffer, size_t count, loff_t *ppos);
 static int     rwand_ioctl       (struct inode *inode, struct file *file, unsigned int cmd, unsigned long arg);
 static int     rwand_open        (struct inode *inode, struct file *file);
 static int     rwand_release     (struct inode *inode, struct file *file);
@@ -193,7 +169,6 @@ static struct file_operations rwand_dev_fops = {
 	.ioctl      =  rwand_ioctl,
 	.open       =  rwand_open,
 	.release    =  rwand_release,
-	.read       =  rwand_read,
 	.write      =  rwand_write,
 };
 
@@ -318,13 +293,13 @@ static void rwand_process_status(struct rwand_dev *dev, const unsigned char *pac
 		/* Update timings if the period, mode, or settings have changed */
 		if (new_status.period != dev->status.period ||
 		    new_status.mode != dev->status.mode ||
-		    dev->settings.dirty) {
+		    dev->settings_dirty) {
 			struct rwand_timings timings;
 			rwand_calc_timings(&dev->settings, &new_status, &timings);
 			rwand_nb_request(dev, RWAND_CTRL_SET_COIL_PHASE, timings.coil_begin, timings.coil_end);
 			rwand_nb_request(dev, RWAND_CTRL_SET_COLUMN_WIDTH, timings.column_width, timings.gap_width);
 			rwand_nb_request(dev, RWAND_CTRL_SET_DISPLAY_PHASE, timings.fwd_phase, timings.rev_phase);
-			dev->settings.dirty = 0;
+			dev->settings_dirty = 0;
 		}
 
 		new_mode =
@@ -473,10 +448,10 @@ static void rwand_request_flip(struct rwand_dev *dev)
 static void rwand_reset_settings(struct rwand_dev *dev)
 {
 	dev->settings.display_center = 0x8000;
-	dev->settings.display_width  = 0x4000;
+	dev->settings.display_width  = 0x6000;
 	dev->settings.coil_center    = 0x4000;
 	dev->settings.coil_width     = 0x7000;
-	dev->settings.duty_cycle     = 0x8000;
+	dev->settings.duty_cycle     = 0xA000;
 	dev->settings.fine_adjust    = 0;
 	dev->settings.power_mode     = RWAND_POWER_AUTO;
 }
@@ -651,6 +626,19 @@ static int rwand_ioctl(struct inode *inode, struct file *file, unsigned int cmd,
 
 	switch(cmd) {
 
+	case RWANDIO_GET_SETTINGS:
+		if (copy_to_user((struct rwand_settings*) arg, &dev->settings, sizeof(dev->settings))) {
+			retval = -EFAULT;
+			break;
+		}
+		break;
+
+	case RWANDIO_PUT_SETTINGS:
+		if (copy_from_user(&dev->settings, (struct rwand_settings*) arg, sizeof(dev->settings))) {
+			retval = -EFAULT;
+			break;
+		}
+		break;
 
 	default:
 		/* Indicate that we didn't understand this ioctl */
@@ -718,38 +706,6 @@ exit:
 	/* unlock the device */
 	up(&dev->sem);
 
-	return retval;
-}
-
-
-static ssize_t rwand_read(struct file *file, char *buffer, size_t count, loff_t *ppos)
-{
-	struct rwand_fd_private *prv;
-	struct rwand_dev *dev;
-	int retval = 0;
-
-	prv =(struct rwand_fd_private *)file->private_data;
-	if (prv == NULL) {
-		dbg("object is NULL");
-		return -ENODEV;
-	}
-	dev = prv->dev;
-
-	/* lock this object */
-	down (&dev->sem);
-
-	/* verify that the device wasn't unplugged */
-	if (dev->udev == NULL) {
-		retval = -ENODEV;
-		goto exit;
-	}
-
-	/* FIXME */
-	retval = count;
-
-exit:
-	/* unlock the device */
-	up(&dev->sem);
 	return retval;
 }
 
