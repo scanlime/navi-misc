@@ -31,7 +31,7 @@ module pwm16 (clk, reset,
 	reg out;
 	reg [16:0] pwmreg;
 
-	always @(posedge clk)
+	always @(posedge clk or posedge reset)
 		if (reset) begin
 			pwmreg <= 0;
 			out <= 0;
