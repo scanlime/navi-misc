@@ -151,6 +151,9 @@
 					RelativePath="..\..\common\src\prefs.cpp">
 				</File>
 				<File
+					RelativePath="..\..\common\src\syncedClock.cpp">
+				</File>
+				<File
 					RelativePath="..\..\common\src\timer.cpp">
 				</File>
 			</Filter>

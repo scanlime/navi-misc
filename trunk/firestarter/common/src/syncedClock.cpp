@@ -1,5 +1,5 @@
 /* Firestarter
-* syncedClock.h :
+* syncedClock.cpp :
 *
 * Copyright (C) 2004 Jeffrey Myers
 *
@@ -21,36 +21,58 @@
 */
 
 
-#ifndef _SYNCED_CLOCK_H_
-#define _SYNCED_CLOCK_H_
+#include "syncedClock.h"
 
-#ifdef _WIN32
-#include <windows.h>
-#endif
-#include "Singleton.h"
-#include "timer.h"
-#include <map>
+template <>
+CSyncedClock* Singleton<CSyncedClock>::_instance = (CSyncedClock*)0;
 
-class CSyncedClock : public Singleton<CSyncedClock>
+
+CSyncedClock::CSyncedClock():timer(CTimer::instance())
 {
-public:
-	CSyncedClock();
-	~CSyncedClock();
-
-	void		Init();
-	void		Update();
-	float		GetTime();
-	float		GetFrameTime();
+	/*
+		float		serverOffset;
+		std::map<int,float>	syncPingMap;
+		int			sentPings;	*/
 	
-	int			GetNewSyncPing ( void );
-	void		ReturnSyncPing ( int ping, float value );
+}
 
-	float		GetServerPingLoss ( void );
-private:
-	float		serverOffset;
-	std::map<int,float>	syncPingMap;
-	int			sentPings;
-	CTimer		&timer;
-};
+CSyncedClock::~CSyncedClock()
+{
 
-#endif
+}
+
+void CSyncedClock::Init()
+{
+
+}
+
+void CSyncedClock::Update()
+{
+
+}
+
+float CSyncedClock::GetTime()
+{
+	return 0;
+}
+
+float CSyncedClock::GetFrameTime()
+{
+	return 0;
+}
+
+int CSyncedClock::GetNewSyncPing ( void )
+{
+	return 0;
+}
+
+void CSyncedClock::ReturnSyncPing ( int ping, float value )
+{
+
+}
+
+float CSyncedClock::GetServerPingLoss ( void )
+{
+	return 0;
+}
+
