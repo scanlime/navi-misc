@@ -40,7 +40,8 @@ void run_setup_dialog ()
 	GtkWidget *real_entry;
 	GtkWidget *button;
 
-	xml = glade_xml_new ("setup-dialog.glade", NULL, NULL);
+	if (g_file_test ("setup-dialog.glade", G_FILE_TEST_EXISTS))
+		xml = glade_xml_new ("setup-dialog.glade", NULL, NULL);
 	if (!xml)
 		xml = glade_xml_new (XCHATSHAREDIR "/setup-dialog.glade", NULL, NULL);
 	if (!xml)
