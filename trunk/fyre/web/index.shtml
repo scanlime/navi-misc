@@ -20,7 +20,16 @@
 	    <td class="body">
 
 	        <div class="heading">07 February 2005 - 0.9 released</div>
-		<p>Hot on the heels of 0.8 comes 0.9. Several new features and a working windows build await your artistic genius <a href="http://flapjack.navi.cx/releases/fyre/">here</a>.</p>
+		<p>Hot on the heels of 0.8 comes 0.9. Most notably this release includes GUI improvements, automatic cluster
+		discovery, and bug fixes. We're also producing Windows binaries once again, now that the build system makes
+		that much easier. Fyre 0.9 is available as:
+		<ul>
+		<li><a href="http://flapjack.navi.cx/releases/fyre/fyre-0.9.tar.gz">Source Code (.tar.gz)</a></li>
+		<li><a href="http://flapjack.navi.cx/releases/fyre/fyre-0.9.tar.bz2">Source Code (.tar.bz2)</a></li>
+		<li><a href="http://flapjack.navi.cx/releases/fyre/fyre-0.9.exe">Windows Installer (recommended)</a></li>
+		<li><a href="http://flapjack.navi.cx/releases/fyre/fyre-0.9.zip">Windows .zip file, doesn't require installation</a></li>
+		</ul>
+		</p>
 
 	        <div class="heading">31 January 2005 - Spiraling Shape</div>
 		<img src="http://flapjack.navi.cx/media/fyre/spiraling-shape-thumb.png" width="96" height="72" class="newsIcon" />
