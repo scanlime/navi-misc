@@ -37,8 +37,8 @@ void clear_buffer(struct session *sess);
 typedef struct {
 	xtext_buffer *buffer;
 	GtkTreeModel *userlist_model;
-	GtkTextBuffer *topic_buffer;
-	GtkTextBuffer *entry_buffer;
+	char *topic;
+	char *entry;
 } session_gui;
 
 #endif
