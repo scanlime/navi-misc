@@ -314,6 +314,7 @@ void           cluster_model_show_status      (ClusterModel*         self)
     gchar* status;
     gchar* speed;
     gchar* bandwidth;
+    gchar* host_and_port;
 
     /* Iterate over all cluster nodes that are ready */
     if (gtk_tree_model_get_iter_first(GTK_TREE_MODEL(self), &iter)) {
@@ -328,11 +329,19 @@ void           cluster_model_show_status      (ClusterModel*         self)
 			       -1);
 	    if (enabled) {
 
-		printf("%s:%d [%s]  %s  %s\n",
-		       host, port, status,
-		       speed ? speed : "",
-		       bandwidth ? bandwidth : "");
+		if (port == FYRE_DEFAULT_PORT)
+		    host_and_port = g_strdup(host);
+		else
+		    host_and_port = g_strdup_printf("%s:%d", host, port);
 
+		/* These widths were chosen to line up somewhat with batch-rendering results */
+		printf("  %-19s %-17s %16s [%s]\n",
+		       host_and_port,
+		       speed ? speed : "",
+		       bandwidth ? bandwidth : "",
+		       status);
+
+		g_free(host_and_port);
 	    }
 	} while (gtk_tree_model_iter_next(GTK_TREE_MODEL(self), &iter));
     }
