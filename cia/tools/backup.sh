@@ -1,4 +1,9 @@
 #!/bin/sh
+#
+# A simple script that runs mysqldump using parameters
+# from ~/.cia_db, and stores a dated bzip2'ed dump file
+# in a backups directory.
+#
 
 BACKUPDIR=~/backups
 
