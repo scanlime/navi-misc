@@ -31,9 +31,10 @@ import Blender
 from Blender.Armature.Bone import ROT, LOC
 import AMCReader
 
-def importData (reader, object, armature, filename):
+def importData (reader, object, filename):
     action = Blender.Armature.NLA.NewAction(filename)
     action.setActive(object)
+    armature = object.getData()
     scene = Blender.Scene.getCurrent()
     context = scene.getRenderingContext()
     b = {}
@@ -75,17 +76,10 @@ def fileSelectedCallback(filename):
         AMCReader.log.err(s)
     else:
         objects = Blender.Object.GetSelected()
-        if len(objects) == 0:
+        if len(objects) != 1:
             AMCReader.log.error('Please select the armature to apply MC data to')
         else:
-            armatures = Blender.Armature.Get()
-            if len(armatures) == 0:
-                AMCReader.log.error('No armatures exist!')
-            else:
-                if len(armatures) == 1:
-                    importData(reader, objects[0], armatures[0], filename)
-                else:
-                    pass
+            importData(reader, objects[0], filename)
 
     if AMCReader.log.numErrors:
         AMCReader.log.report('Errors in loading AMC file')
