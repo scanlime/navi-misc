@@ -379,16 +379,16 @@ class MetadataValueColumn(Nouvelle.Column):
             except AttributeError:
                 # Nothing, use a generic handler
                 f = self.renderData_other
-        return f(context, mime, value)
+        return f(context, mime, key, value)
 
-    def renderData_text(self, context, mimeType, value):
+    def renderData_text(self, context, mimeType, key, value):
         return value
 
-    def renderData_image(self, context, mimeType, value):
+    def renderData_image(self, context, mimeType, key, value):
         """Return an <img> tag linking to the key's value"""
-        return repr(value)
+        return tag('img', src=MetadataLink(context['statsTarget'], key).getURL(context))
 
-    def renderData_other(self, context, mimeType, value):
+    def renderData_other(self, context, mimeType, key, value):
         return "Unable to format data of type %r" % mimeType
 
 
