@@ -59,6 +59,7 @@ struct model_intrinsics {
 	int                  coil_center;
 	int                  coil_width;
 	int                  fine_adjust;
+	int                  starting_edges;  /* Number of edges to successfully exit startup */
 	struct rwand_startup startup;
 };
 
@@ -71,7 +72,6 @@ struct model_intrinsics {
 				 * slightly incorrect timing.
 				 */
 
-#define STARTING_EDGES   20     /* Number of edges to successfully exit startup */
 #define STABILIZER_EDGES 8      /* Number of edges to successfully exit stabilization */
 #define STABILIZER_TIME  HZ     /* Number of jiffies to unsuccessfully exit stabilization */
 
@@ -258,27 +258,29 @@ static struct usb_driver rwand_driver = {
 
 static struct model_intrinsics model_table[] = {
 	{
-		.model         = 1,
-		.name          = "Original Ravinia",
-		.coil_center   = 0x4000,
-		.coil_width    = 0x7000,
-		.fine_adjust   = -185,
-		.startup       = {
+		.model          = 1,
+		.name           = "Original Ravinia",
+		.coil_center    = 0x4000,
+		.coil_width     = 0x7000,
+		.fine_adjust    = -185,
+		.starting_edges = 20,
+		.startup        = {
 			.min_period = 45000,
 			.max_period = 50000,
 			.climb_rate = 700,
 		},
 	},
 	{
-		.model         = 2,
-		.name          = "Fascinations XP3",
-		.coil_center   = 0x4000,
-		.coil_width    = 0x6200,
-		.fine_adjust   = -80,
-		.startup       = {
-			.min_period = 45000,
-			.max_period = 50000,
-			.climb_rate = 700,
+		.model          = 2,
+		.name           = "Fascinations XP3",
+		.coil_center    = 0x4000,
+		.coil_width     = 24620,
+		.fine_adjust    = -80,
+		.starting_edges = 100,
+		.startup        = {
+			.min_period = 42316,
+			.max_period = 42818,
+			.climb_rate = 4662,
 		},
 	},
 	{ }
@@ -387,7 +389,7 @@ static void rwand_update_state_starting(struct rwand_dev *dev, struct rwand_stat
 	rwand_nb_request(dev, RWAND_CTRL_SET_PERIOD, new_period, 0);
 	rwand_nb_request(dev, RWAND_CTRL_SET_COIL_PHASE, timings.coil_begin, timings.coil_end);
 
-	if (dev->edge_count > STARTING_EDGES)
+	if (dev->edge_count > dev->intrinsics->starting_edges)
 		rwand_enter_state_stabilizing(dev);
 }
 
