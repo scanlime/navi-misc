@@ -6,6 +6,10 @@ CFLAGS  += $(shell if grep mmx /proc/cpuinfo > /dev/null; then echo -march=i686;
 # -O3 and -ffast-math should make it go much faster on any system
 CFLAGS  += -O3 -ffast-math
 
+# Disable glibc versions of functions that have faster versions
+# as gcc inlines. This should speed up trig on some systems.
+CFLAGS  += -D__NO_INLINE__
+
 PKGS    += libglade-2.0 gtk+-2.0
 CFLAGS  += '-DGLADEDIR="data"'
 CFLAGS  += $(shell pkg-config --cflags $(PKGS))
