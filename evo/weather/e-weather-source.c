@@ -20,6 +20,7 @@
  */
 
 #include "e-weather-source.h"
+#include "e-weather-source-ccf.h"
 
 void
 e_weather_source_parse (EWeatherSource *source, SourceFinished done)
@@ -63,3 +64,10 @@ e_weather_source_get_type (void)
 	return e_weather_source_type;
 }
 
+EWeatherSource*	e_weather_source_new (const char *uri)
+{
+	const char *base = strchr (uri, ':') + 1;
+	if (strncmp (base, "ccf/", 4) == 0)
+		return g_object_new (e_weather_source_ccf_get_type(), 0);
+	return NULL;
+}
