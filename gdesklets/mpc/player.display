@@ -27,12 +27,12 @@
 
 
 				<!-- the background image -->
-				<group id="bg" width="100%" height="100%" bg-uri="gfx/bg.png"/>
+				<group id="bg" width="100%" height="100%" bg-uri="images/bg.png"/>
 
 				<group id="icon_group" y="0.1cm" width="1cm">
 
 					<!-- This is where we'll display album covers... eventually. -->
-					<image uri="gfx/computer.png" image-width="1cm" image-height="1cm"/>
+					<image uri="images/computer.png" image-width="1cm" image-height="1cm"/>
 					<label anchor="center" x="50%" y="1.3cm" value="100%"
 			   			font="Sans 0.25cm" color="black"/>
 
