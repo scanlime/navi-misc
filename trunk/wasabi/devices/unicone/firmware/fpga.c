@@ -108,11 +108,17 @@ unsigned char fpga_config_end()
 {
   config_in_progress = 0;
 
-  /* Give it a few more CCLKs after the bitstream to release user I/Os */
-  fpga_config_write_byte(0x00);
+  if (fpga_done()) {
+    /* Give it a few more CCLKs after the bitstream to release user I/Os */
+    fpga_config_write_byte(0x00);
 
-  printf(" Done\n");
-  return UNICONE_STATUS_OK;
+    printf(" Done\n");
+    return UNICONE_STATUS_OK;
+  }
+  else{
+    printf(" Error\n");
+    return UNICONE_STATUS_ERROR;
+  }
 }
 
 /* The End */
