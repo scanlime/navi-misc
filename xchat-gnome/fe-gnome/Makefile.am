@@ -67,8 +67,6 @@ xchat_gnome_SOURCES =			\
 	fe-gnome.c			\
 	gui.h				\
 	gui.c				\
-	guir.h				\
-	guir.c				\
 	main_window.h			\
 	main_window.c			\
 	$(mmx_cmod_S)			\
