@@ -1,5 +1,3 @@
-* Ellipsize the URLs.
-
 * When xchat-gnome supports it, add an object for a prefs page that
 	can be sent to xchat-gnome and displayed in the preferences window.
 
@@ -14,11 +12,6 @@
 	scraping is turned on. Maybe something as simple as being able
 	to sort the URL/email column by whether something is an email
 	or URL, so that they'll be grouped together.
-
-? Add an option to change the window title whenever there's a new
-	URL, the title reverts to normal whenever the window gets focused
-	next. Like in Gaim. Or maybe something in the notification area.
-
 
 Python script related:
 
