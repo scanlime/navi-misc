@@ -27,7 +27,10 @@ namespace Fyre
 	public class PipelineEditor
 	{
 		// Plugin stuff
-		PluginManager plugin_manager;
+		PluginManager				plugin_manager;
+
+		// Document
+		Pipeline				pipeline;
 
 		// High-level Widgets
 		[Glade.Widget] Gtk.Window		toplevel;
@@ -85,6 +88,8 @@ namespace Fyre
 
 			Glade.XML gxml = new Glade.XML (null, "pipeline-editor.glade", "toplevel", null);
 			gxml.Autoconnect (this);
+
+			pipeline = new Pipeline ();
 
 			// Set up our drawing canvas
 			SetupDrawingCanvas ();
