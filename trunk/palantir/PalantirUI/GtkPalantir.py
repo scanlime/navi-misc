@@ -308,9 +308,31 @@ class PalantirWindow:
     time = palantir.getTime()
     self.chatWindow.DisplayText(time, '', oldNick + ' is now known as ' + newNick)
 
+  ### If implemented, these are called by palantirIRC when their events
+  ### are received.
   def topicReceive(self, user, channel, topic):
     ''' Recieved a topic change, so set the topic bar to the new topic. '''
     self.tree.get_widget('Topic').set_text(topic)
+
+  def userJoined(self, user, channel):
+    ''' When a new user has joined the channel, add him/her to the user
+        list.
+	'''
+    self.AddUserToList(user)
+    time = palantir.getTime()
+    self.chatWindow.DisplayText(time, '', user + ' has joined ' + channel)
+
+  def userLeft(self, user, channel):
+    ''' When a user leaves the channel display a notification and
+        remove them from the user list.
+	'''
+    time = palantir.getTime()
+    self.tree.get_widget('UserList').get_model().foreach(self.RemoveUserFromList,user)
+    self.chatWindow.DisplayText(time, '', user + ' has left ' + channel)
+
+  def whoReply(self, params):
+    ''' Adds the user in the who reply to the userlist. '''
+    self.AddUserToList(params[5])
 
   # CTCP messages.
   def DM(self, user, channel, data):
@@ -450,12 +472,21 @@ class PalantirWindow:
     self.tree.dialog.get_widget('SheetSelection').destroy()
     self.characterSheetWindow.show()
 
-  def AddUserToList(self, user, channel):
+  def AddUserToList(self, user):
     ''' Add nick the userlist. '''
     nick = palantir.getNick(user)
     list = self.tree.get_widget('UserList')
     store = list.get_model()
     store.set(store.append(), 1, nick)
+
+  def RemoveUserFromList(self, listStore, path, iter, nick):
+    ''' Called in a foreach() on the userlist to remove 'nick' from
+        the user list.
+	'''
+    if listStore.get_value(iter, 1) == nick:
+      listStore.remove(iter)
+      return gtk.TRUE
+    return gtk.FALSE
 
   def SendRoll(self, times, sides, rolls, total):
     ''' Implemented for the DieRoller used when loading character
