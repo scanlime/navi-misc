@@ -64,6 +64,8 @@ enum {
   PROP_BGCOLOR_GDK,
 };
 
+static gpointer parent_class = NULL;
+
 
 /************************************************************************************/
 /**************************************************** Initialization / Finalization */
@@ -93,6 +95,7 @@ GType histogram_imager_get_type(void) {
 
 static void histogram_imager_class_init(HistogramImagerClass *klass) {
   GObjectClass *object_class;
+  parent_class = g_type_class_ref(G_TYPE_OBJECT);
   object_class = (GObjectClass*) klass;
 
   object_class->set_property = histogram_imager_set_property;
@@ -228,6 +231,8 @@ static void histogram_imager_dispose(GObject *gobject) {
     g_free(self->color_table);
     self->color_table = NULL;
   }
+
+  G_OBJECT_CLASS(parent_class)->dispose(gobject);
 }
 
 HistogramImager* histogram_imager_new() {

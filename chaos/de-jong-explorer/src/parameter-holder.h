@@ -69,6 +69,8 @@ typedef struct {
 GType             parameter_holder_get_type           ();
 ParameterHolder*  parameter_holder_new                ();
 
+void              parameter_holder_pair_free          (ParameterHolderPair *self);
+
 void              parameter_holder_reset_to_defaults  (ParameterHolder *self);
 
 void              parameter_holder_set                (ParameterHolder *self,

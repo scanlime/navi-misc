@@ -38,11 +38,15 @@ G_BEGIN_DECLS
 typedef struct _DeJong      DeJong;
 typedef struct _DeJongClass DeJongClass;
 
+typedef struct {
+  gdouble a, b, c, d;
+} DeJongParams;
+
 struct _DeJong {
   HistogramImager parent;
 
   /* Calculation Parameters */
-  gdouble a, b, c, d;
+  DeJongParams param;
   gdouble zoom, xoffset, yoffset, rotation;
   gdouble blur_radius, blur_ratio;
   gboolean tileable;

@@ -41,25 +41,49 @@ G_BEGIN_DECLS
 typedef struct _BifurcationDiagram          BifurcationDiagram;
 typedef struct _BifurcationDiagramClass     BifurcationDiagramClass;
 
-
 typedef struct {
+  /* Stores state information about one column of the bifurcation diagram rendering.
+   * This includes the current point position, the column index, and several sets
+   * of preinterpolated parameters.
+   */
   guint ix;
-  gboolean initialized;
-  gdouble point_x, point_y;
+
   struct {
-    gboolean initialized;
+    gboolean valid;
+    gdouble x, y;
+  } point;
+
+  struct {
+    gboolean valid;
+    DeJongParams param;
     double a,b,c,d;
-  } interpolated[1];
+  } interpolated[8];
+
 } BifurcationColumn;
 
 
 struct _BifurcationDiagram {
   HistogramImager parent;
 
-  DeJong *a, *b;
-  gboolean calc_dirty_flag;
+  /* The interpolation function and data used to produce the bifurcation
+   * diagram's X axis. The calculation dirty flag must be set when the
+   * interpolation function changes in a meaningful way.
+   */
+  ParameterInterpolator *interp;
+  gpointer               interp_data;
+  GFreeFunc              interp_data_free;
+  gboolean               calc_dirty_flag;
+
+  /* Column cache. This starts out empty, (all initialized flags are FALSE)
+   * but is gradually filled in with interpolated coordinates and current points.
+   * Caching the interpolated params speeds up rendering greatly, and caching
+   * the current point is necessary for transients to eventually fade.
+   */
   BifurcationColumn *columns;
-  int current_column;
+  int current_column, num_columns;
+
+  /* Temporary DeJong object used during interpolation, created as needed */
+  DeJong *interpolant;
 };
 
 struct _BifurcationDiagramClass {
@@ -74,10 +98,28 @@ struct _BifurcationDiagramClass {
 GType                bifurcation_diagram_get_type();
 BifurcationDiagram*  bifurcation_diagram_new();
 
-void                 bifurcation_diagram_calculate(BifurcationDiagram     *self,
-						   ParameterInterpolator  *interp,
-						   gpointer                interp_data,
-						   guint                   iterations);
+void                 bifurcation_diagram_calculate            (BifurcationDiagram    *self,
+							       guint                  iterations_total,
+							       guint                  iterations_per_column);
+
+/* The most flexible way to set the interpolation, by
+ * providing a new function and opaque interpolation data.
+ * A free function for the data can also optionally be
+ * provided. This will always cause calculation to start over.
+ */
+void                 bifurcation_diagram_set_interpolator     (BifurcationDiagram    *self,
+							       ParameterInterpolator *interp,
+							       gpointer               interp_data,
+							       GFreeFunc              interp_data_free);
+
+/* An optimized way to set up linear interpolation between
+ * endpoints from two DeJong objects. If the existing interpolation
+ * was already linear, with the same parameters, the calculation
+ * dirty flag will not be set.
+ */
+void                 bifurcation_diagram_set_linear_endpoints (BifurcationDiagram     *self,
+							       DeJong                 *first,
+							       DeJong                 *second);
 
 G_END_DECLS
 
