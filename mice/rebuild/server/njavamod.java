@@ -1,5 +1,5 @@
 /**
- * This class handles the java submission client.
+ * This class handles the java moderation client.
  * @author Brandon Smith
  * @version 2.0
  */
@@ -21,9 +21,7 @@ public class njavamod extends nbase
 	 */
 	public njavamod(Socket gonnection, BufferedReader IN, OutputStreamWriter OUT)
 	{
-		link = gonnection;
-		in = IN;
-		out = OUT;
+		super(gonnection,IN,OUT);
 	}
 	
 	/**
@@ -33,5 +31,6 @@ public class njavamod extends nbase
 	 */
 	public void run()
 	{
+		
 	}
 }
