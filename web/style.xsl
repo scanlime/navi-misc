@@ -39,9 +39,13 @@
             </div>
 	  </td>
 
-          <!--========== Content -->
+          <!--========== Main Content -->
 	  <td class="main">
-            <xsl:apply-templates select="introduction"/>
+            <xsl:apply-templates/>
+	  </td>
+
+	  <!--========== Auxiliary Content -->
+	  <td class="right">
 	  </td>
 
         </table>
@@ -80,15 +84,40 @@
     </li>
   </xsl:template>
 
-  <!--================================== Introduction -->
-
-  <xsl:template match="introduction">
-    <span class="section">Introduction</span>
+  <xsl:template match="projectindex">
+    <span class="section">Project Index</span>
     <div class="section">
       <div class="sectionTop"/>
       <div class="row">
-        <xsl:value-of select="."/>
+        <table>
+          <tr>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Status</th>
+          </tr>
+          <xsl:for-each select="document('projects.xml')//project">
+            <tr>
+              <td><xsl:value-of select="@name"/></td>
+              <td><xsl:value-of select="description"/></td>
+              <td><xsl:value-of select="status"/></td>
+            </tr>
+          </xsl:for-each>
+        </table>
       </div>
+    </div>
+  </xsl:template>
+
+  <!--================================== Content -->
+
+  <xsl:template match="overview">
+    <span class="section">Overview</span>
+    <div class="section">
+      <div class="sectionTop"/>
+      <xsl:for-each select="p">
+        <div class="row">
+          <xsl:value-of select="."/>
+        </div>
+      </xsl:for-each>
     </div>
   </xsl:template>
 
