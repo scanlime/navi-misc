@@ -8,87 +8,11 @@ static void usb_handle_setup();
 static void usb_handle_standard_request();
 static void usb_unhandled_request();
 static void usb_handle_descriptor_request();
+static void usb_leave_setup();
+static void usb_write_ep0_string_descriptor(unsigned char *string);
+static void usb_wait_for_ep0_in();
+static void usb_ack_ep0_in();
 
-
-const static struct usb_device_descriptor dev_descript = {
-  /* bLength            */  sizeof(struct usb_device_descriptor),
-  /* bDescriptorType    */  USB_DT_DEVICE,
-  /* bcdUSB             */  0x0110,
-  /* bDeviceClass       */  USB_CLASS_PER_INTERFACE,
-  /* bDeviceSubClass    */  0,
-  /* bDeviceProtocol    */  0,
-  /* bMaxPacketSize0    */  8,
-  /* idVendor           */  0xE461,
-  /* idProduct          */  0x0007,
-  /* bcdDevice          */  0x0100,
-  /* iManufacturer      */  1,
-  /* iProduct           */  2,
-  /* iSerialNumber      */  0,
-  /* bNumConfigurations */  1,
-};
-
-const static struct {
-  struct usb_config_descriptor config;
-  struct usb_interface_descriptor if0;
-  struct usb_endpoint_descriptor if0_ep0;
-} config_descript = {
-  /* Configuration */
-  {
-    /* bLength             */  sizeof(struct usb_config_descriptor),
-    /* bDescriptorType     */  USB_DT_CONFIG,
-    /* wTotalLength        */  sizeof(config_descript),
-    /* bNumInterfaces      */  1,
-    /* bConfigurationValue */  1,
-    /* iConfiguration      */  0,
-    /* bmAttributes        */  0x80,
-    /* MaxPower            */  50,
-  },
-  /* First interface */
-  {
-    /* bLength             */  sizeof(struct usb_interface_descriptor),
-    /* bDescriptorType     */  USB_DT_INTERFACE,
-    /* bInterfaceNumber    */  0,
-    /* bAlternateSetting   */  0,
-    /* bNumEndpoints       */  1,
-    /* bInterfaceClass     */  USB_CLASS_VENDOR_SPEC,
-    /* bInterfaceSubClass  */  USB_CLASS_VENDOR_SPEC,
-    /* bInterfaceProtocol  */  USB_CLASS_VENDOR_SPEC,
-    /* iInterface          */  0,
-  },
-  /* First interface's first endpoint */
-  {
-    /* bLength             */  sizeof(struct usb_endpoint_descriptor),
-    /* bDescriptorType     */  USB_DT_ENDPOINT,
-    /* bEndpointAddress    */  1 | USB_DIR_OUT,
-    /* bmAttributes        */  USB_ENDPOINT_XFER_BULK,
-    /* wMaxPacketSize      */  64,
-    /* bInterval           */  0,
-  },
-};
-
-const static unsigned char str_lang_table[] = {
-  sizeof(str_lang_table), USB_DT_STRING,
-  0x09, 0x04, /* English */
-};
-
-const static unsigned char str_manufacturer[] = {
-  sizeof(str_manufacturer), USB_DT_STRING,
-  'M',0, 'i',0, 'c',0, 'a',0, 'h',0,
-};
-
-const static unsigned char str_product[] = {
-  sizeof(str_product), USB_DT_STRING,
-  'F',0, 'o',0, 'o',0,
-};
-
-const static struct usb_descriptor_entry descriptor_table[] = {
-  {USB_DT_DEVICE, 0, 0, &dev_descript,    sizeof(dev_descript)},
-  {USB_DT_CONFIG, 0, 0, &config_descript, sizeof(config_descript)},
-  {USB_DT_STRING, 0, 0, str_lang_table,   sizeof(str_lang_table)},
-  {USB_DT_STRING, 1, 0, str_manufacturer, sizeof(str_manufacturer)},
-  {USB_DT_STRING, 2, 0, str_product,      sizeof(str_product)},
-  {0},
-};
 
 static void usb_handle_descriptor_request() {
   /* Search for the requested descriptor and send it
@@ -98,17 +22,26 @@ static void usb_handle_descriptor_request() {
   unsigned char index = (unsigned char) usb_setup_buffer.wValue;
   unsigned short language = usb_setup_buffer.wIndex;
 
-  for (i=0; descriptor_table[i].type; i++) {
-    if (descriptor_table[i].type != type)
+  for (i=0; usb_descriptors[i].type; i++) {
+    if (usb_descriptors[i].type != type)
       continue;
-    if (descriptor_table[i].index != index)
+    if (usb_descriptors[i].index != index)
       continue;
-    if (descriptor_table[i].language != 0 &&
-	descriptor_table[i].language != language)
+    if (usb_descriptors[i].language != 0 &&      /* language==0 is "don't care" */
+	usb_descriptors[i].language != language)
       continue;
 
-    /* Found it, send the descriptor */
-    usb_write_ep0_buffer(descriptor_table[i].buffer, descriptor_table[i].length);
+    if (usb_descriptors[i].type == USB_DT_STRING && usb_descriptors[i].length == 0) {
+      /* Send an ASCII nul-terminated string, converted on the fly to
+       * a USB descriptor with 16-bit wide characters. This makes the
+       * strings far more convenient to enter and store.
+       */
+      usb_write_ep0_string_descriptor(usb_descriptors[i].buffer);
+    }
+    else {
+      /* Send a generic block of RAM verbatim */
+      usb_write_ep0_buffer(usb_descriptors[i].buffer, usb_descriptors[i].length);
+    }
     return;
   }
 
@@ -149,11 +82,29 @@ void usb_write_ack() {
   IEPBCNT_0 = 0;
 }
 
+static void usb_leave_setup() {
+  /* Leave setup if we're in it */
+  USBCTL &= ~SIR;
+  USBSTA = SETUP;
+}
+
+static void usb_wait_for_ep0_in() {
+  /* The host can't read our buffer if we're still in setup */
+  usb_leave_setup();
+
+  /* Wait for the host to read our buffer */
+  while ((IEPBCNT_0 & 0x80) == 0)
+    watchdog_reset();
+}
+
+static void usb_ack_ep0_in() {
+  /* ACK the status stage */
+  OEPBCNT_0 = 0;
+}
+
 void usb_write_ep0_buffer(unsigned char *buffer, int length) {
   /* Sent a response to a request expecting EP0 IN data */
-
   int packet_length;
-  int i;
 
   /* Never send more than the host wants */
   if (length > usb_setup_buffer.wLength)
@@ -167,24 +118,52 @@ void usb_write_ep0_buffer(unsigned char *buffer, int length) {
     else
       packet_length = length;
 
-    /* Put some data in the EP0 IN buffer */
     memcpy(usb_ep0in_buffer, buffer, packet_length);
     IEPBCNT_0 = packet_length;
-
-    /* Leave setup if we're in it */
-    USBCTL &= ~SIR;
-    USBSTA = SETUP;
-
-    /* Wait for the host to read our buffer */
-    while ((IEPBCNT_0 & 0x80) == 0)
-      watchdog_reset();
+    usb_wait_for_ep0_in();
 
     buffer += packet_length;
     length -= packet_length;
   } while (length > 0);
 
-  /* ACK the status stage */
-  OEPBCNT_0 = 0;
+  usb_ack_ep0_in();
+}
+
+static void usb_write_ep0_string_descriptor(unsigned char *string) {
+  /* A version of usb_write_ep0_buffer() that converts an
+   * ASCII NUL-terminated string to a USB string descriptor on the fly.
+   */
+  int remaining_length = usb_setup_buffer.wLength;
+  int total_length = 2 + 2*strlen(string);
+  int packet_length;
+  xdata unsigned char *dest;
+
+  if (remaining_length > total_length)
+    remaining_length = total_length;
+
+  /* The first packet includes a header */
+  dest = usb_ep0in_buffer;
+  *(dest++) = total_length;
+  *(dest++) = USB_DT_STRING;
+  packet_length = 2;
+  remaining_length -= 2;
+
+  do {
+    /* Add more bytes to this packet while we can */
+    while (remaining_length > 0 && packet_length < 8) {
+      *(dest++) = *(string++);
+      *(dest++) = 0;
+      packet_length += 2;
+      remaining_length -= 2;
+    }
+
+    IEPBCNT_0 = packet_length;
+    usb_wait_for_ep0_in();
+    dest = usb_ep0in_buffer;
+    packet_length = 0;
+  } while (remaining_length > 0);
+
+  usb_ack_ep0_in();
 }
 
 static void usb_handle_setup() {
