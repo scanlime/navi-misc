@@ -143,7 +143,7 @@ Endpoint1In
 	retlw	0x03		; Interrupt
 	retlw	0x08		; max packet size (8 bytes) low order byte
 	retlw	0x00		; max packet size (8 bytes) high order byte
-	retlw	0x02		; polling interval (2ms)
+	retlw	0x08		; polling interval (8ms)
 EndConfig1	
 
 

@@ -408,9 +408,9 @@ MainLoop
 	movwf	epBufferSize
 
 	movlw	0xF8		; If we have more than 8 bytes available, clamp it to 8
-	andwf	epBufferSize, w ; The Z flag will be set if epBufferSize >= 8
+	andwf	epBufferSize, w ; The Z flag will be clear if epBufferSize >= 8
 	movlw	0x08		; Prepare our value to clamp to
-	btfsc	STATUS, Z	; Clamp if the Z flag is set
+	btfss	STATUS, Z	; Clamp if the Z flag is clear
 	movwf	epBufferSize
 	
 	movlw	epBuffer	; Copy epBufferSize bytes from the ring buffer to epBuffer
@@ -420,6 +420,7 @@ MainLoop
 epCopyLoop
 
 	bankisel ir_rx_Buffer 	; Pop one byte out of the ir_rx ringbuffer
+	banksel	ir_rx_Buffer
 	movf	ir_rx_Tail, w
 	addlw	ir_rx_Buffer
 	movwf	FSR				; ir_rx_Buffer[ir_rx_Tail]
