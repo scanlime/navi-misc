@@ -39,16 +39,15 @@ unprepareBuild
 echo '*' | import
 
 [Prepare]
-require @gtk.org/gtk 2.4
+require @gtk.org/gtk 2.2
 require @glade.gnome.org/libglade 2.0
 
 [Install]
 installExe ./bin/*
 installData ./share/fyre
 installIcon ./share/icons/hicolor
+installIcon ./share/pixmaps
 
-# we don't use installDesktop for the others because they aren't menu items
-# this API is very poorly named, really. 
 installDesktop "Graphics" ./share/applications/fyre.desktop
 
 installMime share/mime/packages/fyre.xml

@@ -4,7 +4,7 @@
 
 inherit eutils fdo-mime
 
-DESCRIPTION="Gyre provides a rendering of the Peter de Jong map."
+DESCRIPTION="Fyre is a tool for computational art based on a chaotic map"
 SRC_URI="http://flapjack.navi.cx/releases/${PN}/${PN}-${PV}.tar.bz2"
 HOMEPAGE="http://fyre.navi.cx/"
 
@@ -61,7 +61,7 @@ src_compile() {
 
 src_install() {
 	make DESTDIR=${D} install || die
-	dodoc AUTHORS COPYING ChangeLog README NEWS
+	dodoc AUTHORS COPYING ChangeLog README NEWS BUGS
 
 	exeinto /etc/init.d
 	newexe ${S}/contrib/fyre.gentoo-initscript fyre 
