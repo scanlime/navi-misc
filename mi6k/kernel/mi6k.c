@@ -68,8 +68,6 @@ struct usb_mi6k {
 	/* Device administration */
 	struct usb_device *	udev;			/* save off the usb device pointer */
 	struct usb_interface *	interface;		/* the interface for this device */
-	devfs_handle_t		devfs;			/* main devfs device node */
-	devfs_handle_t		lirc_devfs;		/* devfs device node for our LIRC-compatible device */
 	unsigned char		minor;			/* the starting minor number for this device */
 	int			open_count;		/* number of times this port has been opened */
 	struct semaphore	sem;			/* locks this structure */
@@ -79,8 +77,9 @@ struct usb_mi6k {
 	int			ir_rx_head;		/* empty slot for the next received value */
 	int			ir_rx_tail;		/* slot for the oldest value in the buffer */
 	wait_queue_head_t	ir_rx_wait;		/* wait queue for processes reading IR data */
-	struct urb		ir_rx_urb;		/* URB for receiver interrupt transfers */
-	unsigned char		ir_rx_tbuffer[IR_URB_BUFFER_SIZE]; /* Buffer holding one interrupt transfer */
+	struct urb*		ir_rx_urb;		/* URB for receiver interrupt transfers */
+	unsigned char*		ir_rx_tbuffer;          /* Buffer holding one interrupt transfer */
+	dma_addr_t		ir_rx_dma;
 	lirc_t			pulse_flag;		/* flag that alternates, indicating whether we're currently
 							 * receiving a pulse or a space. */
 
@@ -92,14 +91,10 @@ struct usb_mi6k {
 	unsigned char		ir_tx_space;		/* Corresponds with ir_tx_pulse */
 };
 
-/* we can have up to this number of device plugged in at once */
-#define MAX_DEVICES 16
-
-/* array of pointers to our devices that are currently connected */
-static struct usb_mi6k *minor_table[MAX_DEVICES];
-
-/* lock to protect the minor_table structure */
-static DECLARE_MUTEX(minor_table_mutex);
+/* Private data for each file descriptor */
+struct mi6k_fd_private {
+	struct usb_uvswitch	*dev;
+};
 
 /* 1/2 second timeout for control requests */
 #define REQUEST_TIMEOUT (HZ / 2)
@@ -109,6 +104,9 @@ static DECLARE_MUTEX(minor_table_mutex);
 
 /* Number of minor numbers we use per physical device */
 #define MINORS_PER_DEVICE 2
+
+/* prevent races between open() and disconnect() */
+static DECLARE_MUTEX (disconnect_sem);
 
 
 /******************************************************************************/
@@ -135,6 +133,8 @@ static void         mi6k_ir_tx_send_converted (struct usb_mi6k* dev,
 					       lirc_t           pulse,
 					       lirc_t           space);
 static void         mi6k_ir_tx_flush          (struct usb_mi6k* dev);
+static void         mi6k_ir_rx_irq            (struct urb*      urb,
+					       struct pt_regs*  regs);
 
 static int          mi6k_open                 (struct inode*   inode,
 					       struct file*    file);
@@ -164,14 +164,45 @@ static int          mi6k_lirc_ioctl           (struct inode*   inode,
 static unsigned int mi6k_lirc_poll            (struct file*    file,
 					       poll_table*     wait);
 
-static inline void  mi6k_delete               (struct usb_mi6k            *dev);
-static void *       mi6k_probe                (struct usb_device          *udev,
-					       unsigned int                ifnum,
-					       const struct usb_device_id *id);
-static void         mi6k_disconnect           (struct usb_device          *udev,
-					       void                       *ptr);
+static inline void  mi6k_delete               (struct usb_mi6k*            dev);
+static int          mi6k_probe                (struct usb_interface*       interface,
+					       const struct usb_device_id* id);
+static void         mi6k_disconnect           (struct usb_interface*       interface);
 static int __init   usb_mi6k_init             (void);
 static void __exit  usb_mi6k_exit             (void);
+
+
+static struct file_operations mi6k_dev_fops = {
+	.owner	  =  THIS_MODULE,
+	.write	  =  mi6k_dev_write,
+	.ioctl	  =  mi6k_dev_ioctl,
+	.open	  =  mi6k_open,
+	.release  =  mi6k_release,
+};
+
+static struct file_operations mi6k_lirc_fops = {
+	.owner      =  THIS_MODULE,
+	.write      =  mi6k_lirc_write,
+	.read       =  mi6k_lirc_read,
+	.ioctl      =  mi6k_lirc_ioctl,
+	.poll       =  mi6k_lirc_poll,
+	.open       =  mi6k_open,
+	.release    =  mi6k_release,
+};
+
+static struct usb_class_driver mi6k_class = {
+	.name       =  MI6K_DEV_NAMEFORMAT,
+	.fops       =  &mi6k_dev_fops,
+	.mode       =  S_IFCHR | S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP,
+	.minor_base =  MI6K_MINOR_BASE,
+};
+
+static struct usb_driver mi6k_driver = {
+	.name       =  "mi6k",
+	.probe      =  mi6k_probe,
+	.disconnect =  mi6k_disconnect,
+	.id_table   =  mi6k_table,
+};
 
 
 /******************************************************************************/
@@ -310,7 +341,7 @@ static void mi6k_ir_tx_flush(struct usb_mi6k *dev)
 	mi6k_request(dev, MI6K_CTRL_IR_FLUSH, 0, 0);
 }
 
-static void mi6k_ir_rx_irq(struct urb *urb)
+static void mi6k_ir_rx_irq(struct urb *urb, struct pt_regs *regs)
 {
 	/* Callback for processing incoming interrupt transfers from the IR receiver */
 	struct usb_mi6k *dev = (struct usb_mi6k*)urb->context;
@@ -343,38 +374,55 @@ static int mi6k_status(struct usb_mi6k *dev)
 static int mi6k_open(struct inode *inode, struct file *file)
 {
 	struct usb_mi6k *dev = NULL;
+	struct mi6k_fd_private *prv = NULL;
+	struct usb_interface *interface;
 	int subminor;
 	int retval = 0;
 
-	subminor = (MINOR(inode->i_rdev) - MI6K_MINOR_BASE) / MINORS_PER_DEVICE;
-	if ((subminor < 0) ||
-	   (subminor >= MAX_DEVICES)) {
-		return -ENODEV;
+	subminor = iminor(inode);
+
+	/* Prevent disconnects */
+	down(&disconnect_sem);
+
+	interface = usb_find_interface(&mi6k_driver, subminor);
+	if (!interface) {
+		err ("%s - error, can't find device for minor %d",
+		     __FUNCTION__, subminor);
+		retval = -ENODEV;
+		goto exit_no_device;
 	}
 
-	/* lock our minor table and get our local data for this minor */
-	down(&minor_table_mutex);
-	dev = minor_table[subminor];
-	if (dev == NULL) {
-		up(&minor_table_mutex);
-		return -ENODEV;
+	dev = usb_get_intfdata(interface);
+	if (!dev) {
+		retval = -ENODEV;
+		goto exit_no_device;
 	}
 
 	/* lock this device */
-	down(&dev->sem);
-
-	/* unlock the minor table */
-	up(&minor_table_mutex);
+	down (&dev->sem);
 
 	/* increment our usage count for the driver */
 	++dev->open_count;
 
+	/* Allocate a private data struct for this fd */
+	prv = kmalloc(sizeof(struct mi6k_fd_private), GFP_KERNEL);
+	if (dev == NULL) {
+		err("Out of memory");
+		retval = -ENOMEM;
+		goto exit;
+	}
+
 	/* save our object in the file's private structure */
-	file->private_data = dev;
+	memset(prv, 0, sizeof(struct mi6k_fd_private));
+	prv->dev = dev;
+	file->private_data = prv;
 
+exit:
 	/* unlock this device */
-	up(&dev->sem);
+	up (&dev->sem);
 
+exit_no_device:
+	up (&disconnect_sem);
 	return retval;
 }
 
@@ -531,15 +579,6 @@ static int mi6k_dev_ioctl(struct inode *inode, struct file *file, unsigned int c
 	return retval;
 }
 
-static struct file_operations mi6k_dev_fops = {
-	owner:		THIS_MODULE,        /* This automates updating the module's use count */
-
-	write:		mi6k_dev_write,
-	ioctl:		mi6k_dev_ioctl,
-	open:		mi6k_open,
-	release:	mi6k_release,
-};
-
 
 /******************************************************************************/
 /************************************************** LIRC character device *****/
@@ -615,7 +654,7 @@ static ssize_t mi6k_lirc_write(struct file *file, const char *buffer, size_t cou
 {
 	struct usb_mi6k *dev = (struct usb_mi6k *)file->private_data;
 	int retval = 0;
-	lirc_t value, pulse;
+	lirc_t value = 0, pulse = 0;
 	int pulse_flag = 1;
 
 	/* lock this object */
@@ -756,17 +795,6 @@ static unsigned int mi6k_lirc_poll(struct file *file, poll_table *wait)
 	return 0;
 }
 
-static struct file_operations mi6k_lirc_fops = {
-	owner:		THIS_MODULE,        /* This automates updating the module's use count */
-
-	write:		mi6k_lirc_write,
-	read:		mi6k_lirc_read,
-	ioctl:		mi6k_lirc_ioctl,
-	poll:		mi6k_lirc_poll,
-	open:		mi6k_open,
-	release:	mi6k_release,
-};
-
 
 /******************************************************************************/
 /************************************************** USB Housekeeping **********/
@@ -774,76 +802,52 @@ static struct file_operations mi6k_lirc_fops = {
 
 static inline void mi6k_delete(struct usb_mi6k *dev)
 {
-	minor_table[dev->minor] = NULL;
+	if (dev->ir_rx_urb) {
+		usb_unlink_urb(dev->ir_rx_urb);
+		usb_free_urb(dev->ir_rx_urb);
+	}
+	if (dev->ir_rx_tbuffer) {
+		usb_buffer_free(dev->udev, IR_URB_BUFFER_SIZE, dev->ir_rx_tbuffer, dev->ir_rx_dma);
+	}
 	kfree(dev);
 }
 
-static struct usb_driver mi6k_driver = {
-	name:		"mi6k",
-	probe:		mi6k_probe,
-	disconnect:	mi6k_disconnect,
-	fops:		&mi6k_dev_fops,
-	minor:		MI6K_MINOR_BASE,
-	id_table:	mi6k_table,
-};
-
-static void * mi6k_probe(struct usb_device *udev, unsigned int ifnum, const struct usb_device_id *id)
+static int mi6k_probe(struct usb_interface *interface, const struct usb_device_id *id)
 {
+	struct usb_device *udev = interface_to_usbdev(interface);
 	struct usb_mi6k *dev = NULL;
-	struct usb_interface *interface;
-	struct usb_endpoint_descriptor *endpoint;
-	int minor;
-	int buffer_size;
-	int i;
-	char name[10];
-	struct usb_interface_descriptor *iface_desc;
+	struct usb_host_interface *host_interface = interface->cur_altsetting;
+	int retval, i;
 
 	/* See if the device offered us matches what we can accept */
 	if ((udev->descriptor.idVendor != MI6K_VENDOR_ID) ||
 	   (udev->descriptor.idProduct != MI6K_PRODUCT_ID)) {
-		return NULL;
-	}
-
-	/* select a "subminor" number(part of a minor number) */
-	down(&minor_table_mutex);
-	for(minor = 0; minor < MAX_DEVICES; ++minor) {
-		if (minor_table[minor] == NULL)
-			break;
-	}
-	if (minor >= MAX_DEVICES) {
-		info("Too many devices plugged in, can not handle this device.");
-		goto exit;
+		return -ENODEV;
 	}
 
 	/* allocate memory for our device state and intialize it */
 	dev = kmalloc(sizeof(struct usb_mi6k), GFP_KERNEL);
 	if (dev == NULL) {
 		err("Out of memory");
-		goto exit;
+		retval = -ENOMEM;
+		goto error;
 	}
 	memset(dev, 0x00, sizeof(*dev));
-	minor_table[minor] = dev;
-
-	interface = &udev->actconfig->interface[ifnum];
-	iface_desc = &interface->altsetting[interface->act_altsetting];
-	endpoint = &iface_desc->endpoint[0];
 
 	init_MUTEX(&dev->sem);
 	dev->udev = udev;
 	dev->interface = interface;
-	dev->minor = minor;
 	init_waitqueue_head(&dev->ir_rx_wait);
 
-	/* Initialize the devfs node for this device and register it */
-	sprintf(name, MI6K_DEV_NAMEFORMAT, dev->minor);
-	dev->devfs = devfs_register(usb_devfs_handle, name,
-				     DEVFS_FL_DEFAULT, USB_MAJOR,
-				     MI6K_MINOR_BASE + dev->minor*MINORS_PER_DEVICE,
-				     S_IFCHR | S_IRUSR | S_IWUSR |
-				     S_IRGRP | S_IWGRP | S_IROTH,
-				     &mi6k_dev_fops, NULL);
-	info("mi6k device now attached to %s", name);
+	usb_set_intfdata(interface, dev);
+	retval = usb_register_dev(interface, &mi6k_class);
+	if (retval) {
+		/* something prevented us from registering this driver */
+		err ("Not able to get a minor for this device.");
+		goto error;
+	}
 
+#if 0 /* FIXME */
 	/* Initialize our LIRC-compatible character device */
 	sprintf(name, "lirc%d", dev->minor);
 	dev->lirc_devfs = devfs_register(usb_devfs_handle, name,
@@ -859,39 +863,55 @@ static void * mi6k_probe(struct usb_device *udev, unsigned int ifnum, const stru
 	  devfs_mk_symlink(NULL, "lirc", DEVFS_FL_DEFAULT, "usb/lirc0", &slave, NULL);
 	  devfs_auto_unregister(dev->lirc_devfs, slave);
 	}
+#endif
 
-	/* Begin our interrupt transfer polling for received IR data */
-	FILL_INT_URB(&dev->ir_rx_urb, dev->udev,
-		     usb_rcvintpipe(dev->udev, endpoint->bEndpointAddress),
-		     dev->ir_rx_tbuffer, IR_URB_BUFFER_SIZE,
-		     mi6k_ir_rx_irq, dev, 1); //endpoint->bInterval);
-	dbg("Submitting ir_rx_urb, interval %d", endpoint->bInterval);
-	if (usb_submit_urb(&dev->ir_rx_urb)) {
-		dbg("Error submitting URB");
+	/* Allocate some DMA-friendly memory for URB transfers */
+	dev->ir_rx_tbuffer = usb_buffer_alloc(udev, IR_URB_BUFFER_SIZE,
+					      SLAB_ATOMIC, &dev->ir_rx_dma);
+	if (!dev->ir_rx_tbuffer) {
+		retval = -ENOMEM;
+		goto error;
+	}
+	dev->ir_rx_urb = usb_alloc_urb(0, GFP_KERNEL);
+	if (!dev->ir_rx_urb) {
+		retval = -ENODEV;
+		goto error;
 	}
 
-	goto exit;
+	/* Begin our interrupt transfer polling for received IR data */
+	usb_fill_int_urb(dev->ir_rx_urb, dev->udev,
+			 usb_rcvintpipe(dev->udev, host_interface->endpoint[0].desc.bEndpointAddress),
+			 dev->ir_rx_tbuffer, IR_URB_BUFFER_SIZE,
+			 mi6k_ir_rx_irq, dev, 1);
+	i = usb_submit_urb(dev->ir_rx_urb, GFP_KERNEL);
+	if (i) {
+		dbg("Error submitting URB: %d", i);
+	}
+
+	info("mi6k device now attached");
+	return 0;
 
 error:
+	usb_set_intfdata(interface, NULL);
 	mi6k_delete(dev);
-	dev = NULL;
-
-exit:
-	up(&minor_table_mutex);
-	return dev;
+	return retval;
 }
 
-static void mi6k_disconnect(struct usb_device *udev, void *ptr)
+static void mi6k_disconnect(struct usb_interface *interface)
 {
 	struct usb_mi6k *dev;
 	int minor;
 
-	dev =(struct usb_mi6k *)ptr;
+	/* prevent races with open() */
+	down (&disconnect_sem);
 
-	down(&minor_table_mutex);
+	dev = usb_get_intfdata(interface);
+	usb_set_intfdata(interface, NULL);
+
 	down(&dev->sem);
 
 	minor = dev->minor;
+	usb_deregister_dev(interface, &mi6k_class)
 
 	/* remove our devfs node */
 	devfs_unregister(dev->devfs);
@@ -906,11 +926,8 @@ static void mi6k_disconnect(struct usb_device *udev, void *ptr)
 		up(&dev->sem);
 	}
 
-	dbg("disconnect- unlinking URBs");
-	usb_unlink_urb(&dev->ir_rx_urb);
-
+	up(&disconnect_sem);
 	info("mi6k #%d now disconnected", minor);
-	up(&minor_table_mutex);
 }
 
 static int __init usb_mi6k_init(void)
