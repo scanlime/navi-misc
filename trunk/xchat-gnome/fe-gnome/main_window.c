@@ -149,7 +149,7 @@ static GtkActionEntry action_entries [] = {
 	{ "DiscussionSave", GTK_STOCK_SAVE, N_("_Save"), "<control>S", NULL, G_CALLBACK (on_discussion_save_activate) },
 	{ "DiscussionSaveAs", GTK_STOCK_SAVE_AS, N_("Save _As..."), "<control><shift>S", NULL, G_CALLBACK (on_discussion_save_as_activate) },
 	{ "DiscussionLeave", GTK_STOCK_QUIT, N_("_Leave"), "", NULL, G_CALLBACK (on_discussion_leave_activate) },
-	{ "DiscussionClose", GTK_STOCK_CLOSE, N_("Cl_ose"), "<control>W", NULL, G_CALLBACK (on_discussion_close_activate) },
+	{ "DiscussionClose", GTK_STOCK_CLOSE, N_("Cl_ose"), "<shift><control>W", NULL, G_CALLBACK (on_discussion_close_activate) },
 	{ "DiscussionFind", GTK_STOCK_FIND, N_("_Find"), "<control>F", NULL, G_CALLBACK (on_discussion_find_activate) },
 	{ "DiscussionFindNext", NULL, N_("Find Ne_xt"), "<control>G", NULL, G_CALLBACK (on_discussion_find_next_activate) },
 	{ "DiscussionClearWindow", GTK_STOCK_CLEAR, N_("_Clear Window"), "<control>L", NULL, G_CALLBACK (on_discussion_clear_window_activate) },
