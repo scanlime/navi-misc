@@ -110,7 +110,13 @@ class Controller(object):
         """Set an actuator value by name. Throws a KeyError if the
            named actuator doesn't exist.
            """
-        self.actuators[name] = value
+        self.actuators[name].value = value
+
+    def addActuator(self, a):
+        self.actuators[a.name] = a
+
+    def delActuator(self, a):
+        del self.actuators[a.name]
 
     def sync(self):
         """Called when all actuators on this controller have finished
@@ -129,31 +135,60 @@ class EvdevController(Controller):
 
     def __init__(self, filename):
         self.fd = os.open(filename, os.O_RDWR | os.O_NONBLOCK)
-        Controller.__init__(self, self._getDeviceName())
-        self._readDeviceInfo()
+        Controller.__init__(self, linux_input.iocGetName(self.fd))
 
-    def _getDeviceName(self):
-        return ioctl(self.fd, EVIOCGNAME_512, "\0"*512)
+        # Store all the bitfields in a dictionary of lists
+        self.evdevBits = {}
+        for name in linux_input.iocGetBitNames(self.fd, None):
+            try:
+                self.evdevBits[name] = linux_input.iocGetBitNames(self.fd, name)
+            except KeyError:
+                pass
 
-    def _readDeviceInfo(self):
-        # Absolute axes
-        absmap = linux_input.Event.codeMaps['EV_ABS']
-        buffer = "\0" * struct.calcsize("iiiii")
+        # Store info on each absolute axis
         self.absAxisInfo = {}
-        for name, number in absmap.nameMap.iteritems():
-            values = struct.unpack("iiiii", ioctl(self.fd, EVIOCGABS_512 + number, buffer))
-            values = dict(zip(( 'value', 'min', 'max', 'fuzz', 'flat' ),values))
-            self.absAxisInfo[name] = values
+        for name in self.evdevBits['EV_ABS']:
+            self.absAxisInfo = linux_input.iocGetAbs(self.fd, name)
+
+        # Create actuators
+        for bitName, cls in (
+            ('EV_ABS', Axis),
+            ('EV_REL', Axis),
+            ('EV_KEY', Button),
+            ):
+            if bitName in self.evdevBits:
+                for itemName in self.evdevBits[bitName]:
+                    self.addActuator(cls(itemName))
 
     def poll(self):
         """Receive and process all available input events"""
         while 1:
             try:
-                buffer = os.read(self.fd, self.packetSize)
+                buffer = os.read(self.fd, linux_input.Event.length)
             except OSError:
                 return
-            self.update(Event(unpack=buffer))
+            ev = linux_input.Event(unpack=buffer)
+            f = getattr(self, "handle_%s" % ev.type, None)
+            if f:
+                f(ev)
 
-        
+    def handle_EV_KEY(self, ev):
+        self[ev.code] = bool(ev.value)
+
+    def handle_EV_REL(self, ev):
+        self[ev.code] = self[ev.code] + ev.value
+
+    def handle_EV_ABS(self, ev):
+        """Scale the absolute axis into the range [-1, 1] using absAxisInfo"""
+        try:
+            info = self.absAxisInfo[ev.code]
+        except KeyError:
+            return
+        range = float(info['max'] - info['min'])
+        self[ev.code] = (ev.value - info['min']) / range * 2.0 - 1.0
+
+    def handle_EV_SYN(self, ev):
+        self.sync()
+
 
 ### The End ###
