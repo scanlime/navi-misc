@@ -192,9 +192,6 @@ class BotNetwork:
     # botCheckInterval seconds.
     botCheckInterval = 60
 
-    # Timeout, in seconds, for creating new bots
-    newBotTimeout = 60 * 5
-
     # Bots are given this many seconds after being marked inactive before they're
     # disconnected. This way if a request is deleted then immediately replaced
     # with another that has similar requirements, we don't end up replacing
@@ -356,7 +353,7 @@ class BotNetwork:
         # Start trying to connect a bot, and set a timeout.
         log.msg("Creating a new IRC bot for %s" % network)
         BotFactory(self, network)
-        self.newBotNetworks[network] = reactor.callLater(self.newBotTimeout, self.newBotTimedOut, network)
+        self.newBotNetworks[network] = reactor.callLater(network.newBotTimeout, self.newBotTimedOut, network)
 
     def newBotTimedOut(self, network):
         """We just timed out waiting for a new bot connection. Try again."""

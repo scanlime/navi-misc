@@ -38,6 +38,11 @@ class BaseNetwork:
     # Maximum number of IRC channels a single bot is allowed in
     maxChannels = 18
 
+    # Timeout, in seconds, for creating new bots. By default this is 16
+    # minutes, since most of the smaller networks we're on get annoyed
+    # if we retry too quickly. We override this in the larger networks below.
+    newBotTimeout = 60 * 16
+        
     def __str__(self):
         return self.alias
 
@@ -93,6 +98,7 @@ class GenericNetwork(BaseNetwork):
 
 class Freenode(BaseNetwork):
     alias = 'freenode'
+    newBotTimeout = 60 * 4
     servers = (
         ('irc.freenode.net', None),
         ('saberhagen.freenode.net', None),
