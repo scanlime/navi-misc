@@ -549,7 +549,12 @@ static void on_add_widget (GtkUIManager *manager, GtkWidget *menu, GtkWidget *me
 static void
 on_irc_connect_activate (GtkAction *action, gpointer data)
 {
+	ConnectDialog *dialog;
+
+	dialog = connect_dialog_new ();
 	display_connection_dialog ();
+
+	gtk_widget_show_all (dialog);
 }
 
 static void
