@@ -24,7 +24,7 @@ in subclasses.
 # 
 
 import BZFlag
-from BZFlag import Network, Protocol, Errors, Player, Game, World
+from BZFlag import Network, Protocol, Errors, Player, Game, World, Util
 from BZFlag.Protocol import FromServer, ToServer, Common
 
 
@@ -42,11 +42,27 @@ class BaseClient:
          - Event handlers for messages should be of the form onMsgFoo()
          - Event handlers for message replies should be of the form onMsgFooReply()
          - Event handlers for other events should be of the form onFoo()
+
+       Members mentioned in the call to initEvents below are observable.
+       See the Util.Event class for more information about this feature.
        """
     def __init__(self, server=None):
         self.tcp = None
         self.udp = None
         self.connected = 0
+        Util.initEvents(self, 'onConnect', 'onAnyMessage', 'onUnhandledMessage')
+
+        # Add events for all messages, with onUnhandledMessage as an
+        # unhandled event handler.
+        for message in Common.getMessageDict(FromServer).values():
+            eventName =  "on%s" % message.__name__
+            if hasattr(self, eventName):
+                event = Util.Event(getattr(self, eventName))
+            else:
+                event = Util.Event()
+            event.unhandledCallback = self.onUnhandledMessage
+            setattr(self, eventName, event)
+
         if server:
             self.connect(server)
 
@@ -136,25 +152,7 @@ class BaseClient:
             handler = getattr(self, "on%s" % msgName, None)
             if self.onAnyMessage(msg):
                 return
-            if handler:
-                handler(msg)
-            else:
-                self.onUnhandledMessage(msg)
-
-    def onConnect(self):
-        """This is called after a connection has been established.
-           By default it doesn't do anything, it's up to subclasses
-           to define what this does next.
-           """
-        pass
-
-    def onAnyMessage(self, msg):
-        """This is a hook that subclasses can use to easily
-           monitor and intercept messages. It is called before
-           dispatching each message, and if it returns true that
-           message is cancelled.
-           """
-        return None
+            handler(msg)
 
     def onUnhandledMessage(self, msg):
         raise Errors.ProtocolWarning("Unhandled message %s" % msg.__class__.__name__)
@@ -183,6 +181,7 @@ class StatefulClient(BaseClient):
         self.game = Game.Game()
         self.worldCache = None
         BaseClient.__init__(self, server)
+        Util.initEvents(self, 'onLoadWorld', 'onStartWorldDownload')
 
     def onConnect(self):
         """Immediately after connecting, ask for a world hash so
@@ -223,6 +222,7 @@ class StatefulClient(BaseClient):
            This will trigger onMsgGetWorld(), which will send
            more MsgGetWorlds until the entire world has been downloaded.
            """
+        self.onStartWorldDownload()
         self.binaryWorld = ''
         self.tcp.write(ToServer.MsgGetWorld(offset=0))
 
@@ -245,12 +245,6 @@ class StatefulClient(BaseClient):
             del self.binaryWorld
             self.worldDownloaded = 1
             self.onLoadWorld()
-
-    def onLoadWorld(self):
-        """The world has been loaded from the server. This is a hook for
-           subclasses to take further action, like entering the game.
-           """
-        pass
 
     def onMsgFlagUpdate(self, msg):
         pass
@@ -287,6 +281,7 @@ class PlayerClient(StatefulClient):
         self.player = Player.Player(playerIdentity)
         self.inGame = 0
         StatefulClient.__init__(self, server)
+        Util.initEvents(self, 'onEnterGame')
 
     def onLoadWorld(self):
         self.enterGame()
@@ -311,9 +306,6 @@ class PlayerClient(StatefulClient):
         """This is called after we try to enterGame, if it's successful."""
         self.inGame = 1
         self.onEnterGame()
-
-    def onEnterGame(self):
-        pass
 
     def onMsgReject(self, msg):
         """This is called after we try to enterGame, if we failed."""
