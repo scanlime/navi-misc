@@ -11,9 +11,24 @@
 */
 
 #include "DrawablesManager.h"
-#include "VisualElementsManager.h"
+#include "VisualElementManager.h"
 
-class TeleporterDrawable : public BaseVisualElement
+class TeleporterDrawable : public BaseVisualElement, BaseDrawable
 {
+	public:
+	TeleporterDrawable();
+	virtual ~TeleporterDrawable();
 
+	// for the visual element
+	virtual bool init ( void );
+	virtual bool visible ( ViewFrustum *frustum );
+	virtual void draw ( void );
+
+	// or the drawables
+	virtual bool draw ( int texture, int pass, int priority, void* param );
+protected:
+	int	baseTexture;
+	int	fieldTexture;
+	int baseListID;
+	int fieldListID;
 };

@@ -12,7 +12,7 @@
 
 #include "MainDrawables.h"
 #include "DrawablesManager.h"
-#include "VisualElementsManager.h"
+#include "VisualElementManager.h"
 
 
 void registerVisualElements ( void )

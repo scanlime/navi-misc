@@ -1,361 +1,489 @@
 /* bzflag
- * Copyright (c) 1993 - 2004 Tim Riker
- *
- * This package is free software;  you can redistribute it and/or
- * modify it under the terms of the license found in the file
- * named LICENSE that should have accompanied this file.
- *
- * THIS PACKAGE IS PROVIDED ``AS IS'' AND WITHOUT ANY EXPRESS OR
- * IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED
- * WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
- */
+* Copyright (c) 1993 - 2004 Tim Riker
+*
+* This package is free software;  you can redistribute it and/or
+* modify it under the terms of the license found in the file
+* named LICENSE that should have accompanied this file.
+*
+* THIS PACKAGE IS PROVIDED ``AS IS'' AND WITHOUT ANY EXPRESS OR
+* IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED
+* WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+*/
+// MathUtils.h
 
-/*
- * The fast sqrt() implementation contained herein was taken from the
- * public domained nVIDIA Fast Math Routines and adapted for BZFlag's
- * needs as well as wrapping table construction inside a class.
- */
+#ifndef _MATH_UTILS_H_
+#define _MATH_UTILS_H_
 
-#ifndef __MATHUTILS_H__
-#define __MATHUTILS_H__
+#ifndef DEG_RAD
+#define DEG_RAD 0.017453f
+#endif
 
-/* common header comes first */
-#include "common.h"
+#ifndef REALY_SMALL
+#define REALY_SMALL 0.0001f
+#endif
 
-/* system headers */
-#include <math.h>
-#include <iostream>
+#define PI						3.141592653589793238f
+#define	TWO_PI				(PI*2.0f)
+#define rad_con				(PI/180.0f)		// conversion from degrees to radians
+#define deg_con				(180.0f/PI)		// conversion from radians to degrees
 
-/* common headers */
-#include "TimeKeeper.h"
+#define	TWO_PI				(PI*2.0f)
+#define LIN_TOL				0.00005f		// linear tolerance, in inches (50 millionths of an inch)
 
-
-#define FP_BITS(fp) (*(unsigned long *)&(fp))
-#define FP_ABS_BITS(fp) (FP_BITS(fp)&0x7FFFFFFF)
-#define FP_SIGN_BIT(fp) (FP_BITS(fp)&0x80000000)
-#define FP_ONE_BITS 0x3F800000
-
-// r = 1/p
-#define FP_INV(r,p)                                                          \
-{                                                                            \
-    int _i = 2 * FP_ONE_BITS - *(int *)&(p);                                 \
-    r = *(float *)&_i;                                                       \
-    r = r * (2.0f - (p) * r);                                                \
-}
-
-/////////////////////////////////////////////////
-// The following comes from Vincent Van Eeckhout
-// Thanks for sending us the code!
-// It's the same thing in assembly but without this C-needed line:
-//    r = *(float *)&_i;
-
-float   __two = 2.0f;
-
-#define FP_INV2(r,p)                     \
-{                                        \
-    __asm { mov     eax,0x7F000000    }; \
-    __asm { sub     eax,dword ptr [p] }; \
-    __asm { mov     dword ptr [r],eax }; \
-    __asm { fld     dword ptr [p]     }; \
-    __asm { fmul    dword ptr [r]     }; \
-    __asm { fsubr   [__two]           }; \
-    __asm { fmul    dword ptr [r]     }; \
-    __asm { fstp    dword ptr [r]     }; \
-}
-
-#define FP_EXP(e,p)                                                          \
-{                                                                            \
-    int _i;                                                                  \
-    e = -1.44269504f * (float)0x00800000 * (p);                              \
-    _i = (int)e + 0x3F800000;                                                \
-    e = *(float *)&_i;                                                       \
-}
-
-#define FP_NORM_TO_BYTE(i,p)                                                 \
-{                                                                            \
-    float _n = (p) + 1.0f;                                                   \
-    i = *(int *)&_n;                                                         \
-    if (i >= 0x40000000)     i = 0xFF;                                       \
-    else if (i <=0x3F800000) i = 0;                                          \
-    else i = ((i) >> 15) & 0xFF;                                             \
-}
-
-inline unsigned long FP_NORM_TO_BYTE2(float p)                                                 
-{                                                                            
-  float fpTmp = p + 1.0f;                                                      
-  return ((*(unsigned *)&fpTmp) >> 15) & 0xFF;  
-}
-
-inline unsigned long FP_NORM_TO_BYTE3(float p)     
+// 3d variables
+typedef struct
 {
-  float ftmp = p + 12582912.0f;                                                      
-  return ((*(unsigned long *)&ftmp) & 0xFF);
-}
+	float	x,y,z;
+}trVertex3D;
 
+typedef struct
+{
+	float	s,t;
+}trVertex2D;
 
-/** The math_util class contains general routines for common
- * mathematical functions that should be used with care.  The
- * precision and/or accuracy of the routine below are not guaranteed,
- * though the implementation should useful for fast estimates where
- * accuracy is not a stringent concern.
- *
- * For the square root and inverse square root routines below, they
- * are 
-
- */
-class math_util {
-
-private:
-  /** table of precomputed square root values */
-  static unsigned int _fast_sqrt_table[0x10000];  
-  /** keep track of whether the table was precomputed yet */
-  static bool _built_fast_sqrt_table;
-
-  /** table of random floats for performance testing */
-  static float _random_floats[0x10000];
-  /** keep tracke of whether the random floats are set yet */
-  static bool _built_random_floats;
-
-  typedef union FastSqrtUnion
-  {
-    float f;
-    unsigned int i;
-  } FastSqrtUnion;
-
-protected: 
- 
-  static void  build_sqrt_table()
-  {
-    unsigned int i;
-    FastSqrtUnion s;
-    
-    for (i = 0; i <= 0x7FFF; i++) {
-      // Build a float with the bit pattern i as mantissa
-      //  and an exponent of 0, stored as 127
-      s.i = (i << 8) | (0x7F << 23);
-      s.f = (float)sqrt(s.f);
-	
-      // Take the square root then strip the first 7 bits of
-      //  the mantissa into the table
-      _fast_sqrt_table[i + 0x8000] = (s.i & 0x7FFFFF);
-	
-      // Repeat the process, this time with an exponent of 1, 
-      //  stored as 128
-      s.i = (i << 8) | (0x80 << 23);
-      s.f = (float)sqrt(s.f);
-	
-      _fast_sqrt_table[i] = (s.i & 0x7FFFFF);
-    }
-  }
-
-  static void build_random_floats()
-  {
-    unsigned int i;
-    bzfsrand(0); // ensure consistent seed and same rand value order
-    for (i=0; i < 0x10000; i++) {
-      _random_floats[i] = (float)bzfrand();
-    }
-  }
-
-  /* INVERSE SQUARE ROOT */
-
-  /** system implementation of floating point square root estimate 
-   */
-  static inline float fastinvsqrt0(float n)
-  {
-    float f;
-    float p = sqrtf(n);
-    FP_INV(f, p)
-    return f;
-  }
-
-  /** software estimate of inverse square root 
-   */
-  static inline float fastinvsqrt1(float n)
-  {
-    float f;
-    float p = fastsqrt1(n);
-    FP_INV(f, p)
-    return f;
-  }
-
-  /** hardware instruction based inverse square root estimate 
-   */
-  static inline float fastinvsqrt2 (float n)
-  {
-#if defined(__APPLE__)
-    float result;
-    asm ( "frsqrte %0, %1" : /*OUT*/ "=f" (result) : /*IN*/ "f" (n) );
-    return result;
-#else
-    float f;
-    float p = sqrtf(n);
-    FP_INV(f, p)
-    return f;
-#endif
-  }
-
-
-  /* SQUARE ROOT */
-
-  /** system implementation of floating point square root 
-   */
-  static inline float fastsqrt0(float n)
-  {
-    return sqrtf(n);
-  }
-
-  /** software estimate replacement -- this is nvidias fast square
-   * root routine is a table-based solution that trades off memory
-   * utilization for performance.  it's not necessarily a cache
-   * friendly method, but gives impressive results for common use.
-   */
-  static inline float fastsqrt1(float n)
-  {
-    // make sure the table is built
-    if (!_built_fast_sqrt_table) {
-      build_sqrt_table();
-      _built_fast_sqrt_table = true;
-    }
-    
-    // check for square root of 0
-    if (FP_BITS(n) == 0) {
-      return 0.0;
-    }
-    
-    FP_BITS(n) = _fast_sqrt_table[(FP_BITS(n) >> 8) & 0xFFFF] | ((((FP_BITS(n) - 0x3F800000) >> 1) + 0x3F800000) & 0x7F800000);
-    
-    return n;
-  }
-
-  /** hardware instruction based square root estimate 
-   */
-  static inline float fastsqrt2(float n)
-  {
-#if defined(__APPLE__)
-    float f;
-    float p = fastinvsqrt2(n);
-    FP_INV(f, p)
-    return f;
-#else
-    return sqrtf(n);
-#endif
-  }
-
-
+// 3D Point clas
+class C3DVertex
+{
 public:
+	C3DVertex();
+	C3DVertex(const trVertex3D &rVert);
+	C3DVertex(float x , float y, float z = 0);
+	C3DVertex(float *pos);
+	virtual ~C3DVertex();
 
-  /** function pointer to the fastinvsqrt routine that performs best
-   * on this system.
-   */
-  static float (*fastinvsqrt)(float);
+	void Set (const trVertex3D &rVert);
+	void Set (float x = 0, float y = 0, float z = 0);
+	void Set (float* p);
 
-  /** function pointer to the fastsqrt routine that performs best on
-   * this system.
-   */
-  static float (*fastsqrt)(float);
+	float SetX ( float x );
+	float SetY ( float y );
+	float SetZ ( float z );
 
-  /** optimize usage of square root and inverse square root at runtime
-   * to use the fastest available.  A quick timed test is performed on
-   * each of the routines and the function pointers are set to the
-   * fastest.  There is no consideration for tolerance being taken
-   * into account -- they are all assumed to be insufficient if
-   * accuracy is required.
-   */
-  static void optimize() 
-  {
-    /* array of function pointers for testing */
-    float (*mathTest[6])(float) = {fastsqrt0, fastsqrt1, fastsqrt0,
-				   fastinvsqrt0, fastinvsqrt1, fastinvsqrt0};
-    const char *label[6] = {"system square root", "nvidia square root estimate", "hardware-based square root",
-			    "system inverse square root", "nvidia inverse square root estimate", "harware-based inverse square root"};
+	float X (void) const;
+	float Y (void) const;
+	float Z (void) const;
 
-    std::cout << "Optimizing math routines..." << std::endl;
+	void Get ( float* pos );
 
-    if (!_built_random_floats) {
-      std::cout << "...building random float table" << std::endl;
-      build_random_floats();
-      _built_random_floats = true;
-    }
+	// functions
+	float Dot (const C3DVertex &p0) const;
+	float Dot2D (const C3DVertex &p0) const;
 
-    /* minimize cache effect by preloading */
-    double sum = 0.0;
-    for (unsigned int fl = 0; fl < 0x10000; fl++) {
-      sum += _random_floats[fl];
-    }
-    // should always be false, but compiler shouldn't know that
-    if (sum < -1.0f) {
-      std::cerr << "ERROR: should not have reached here in MathUtils.h" << std::endl;
-      exit(1);
-    }
+	void Cross (const C3DVertex &p0, const C3DVertex &p1);
+	float Cross2D (const C3DVertex &p0) const;
 
-    /* test math routine candidates (reverse order) */
-    unsigned int mostIterations = 0;
-    unsigned int bestIndex = 0;
-    for (int i = 0; i < 6; i++) {
-      unsigned int iterations = 0; // how many test iterations were performed
-      sum = 0.0; // make sure optimizer doesn't optimize us away
+	float GetMag (void) const;
+	float GetMag2D (void) const;
+	float GetMagSq (void) const;
 
-      if (i == 0) {
-	std::cout << "...testing square root" << std::flush;
-      } else if (i == 3) {
-	std::cout << "...testing inverse square root" << std::flush;
-      }
+	void SetMag (float scaler);
+	void SetMag2D (float scaler);
 
-      // test for half a second per function
-      TimeKeeper t = TimeKeeper::getCurrent();
-      do {
-	for (unsigned int f = 0; f < 0x10000; f++) {
-	  sum += mathTest[i](_random_floats[f]);
-	}
-	iterations++;
-      } while (TimeKeeper::getCurrent() - t < 0.5f);
-      std::cout << " ... " << iterations;
+	void Normalise (void)							{ SetMag(1);	}
+	void Normalise2D (void)							{ SetMag2D(1);	}
 
-      // should always be false, but compiler shouldn't know that
-      if (sum < -1.0f) {
-	std::cerr << "ERROR: should not have reached here in MathUtils.h" << std::endl;
-	exit(1);
-      }
+	bool Close (const C3DVertex &p0);
+	bool Close2D (const C3DVertex &p0); 
 
-      if (iterations > mostIterations) {
-	mostIterations = iterations;
-	bestIndex = i;
-      }
+	// operators
+	C3DVertex& operator = (const C3DVertex &p0);
+	C3DVertex& operator = (const trVertex3D &p0);
+	C3DVertex operator - (void) const;
+	C3DVertex operator - (const C3DVertex &p0) const;
+	C3DVertex operator + (const C3DVertex &p0) const;
+	C3DVertex operator * (float scaler) const;
+	C3DVertex operator / (float scaler) const;
 
-      if (i == 2) {
-	fastsqrt = mathTest[bestIndex];
-	std::cout << std::endl << "...using " << label[bestIndex] << std::endl;
-	mostIterations = 0;
-	bestIndex = 0;
-      } else if (i == 5) {
-	fastinvsqrt = mathTest[bestIndex];
-	std::cout << std::endl << "...using " << label[bestIndex] << std::endl;
-	mostIterations = 0;
-	bestIndex = 0;
-      }
-    }
-    std::cout << "...done optimizing math routines." << std::endl;
-    return;
-  }
+	void operator -= (const C3DVertex &p0);
+	void operator += (const C3DVertex &p0);
+	void operator *= (const C3DVertex &p0);
+	void operator *= (float scaler);
+	void operator /= (const C3DVertex &p0);
+	void operator /= (float scaler);
 
+	operator trVertex3D& (void)						{ return m_rVertex; }
+	operator const trVertex3D& (void) const			{ return m_rVertex; }
+
+	trVertex3D* GetVertAddress ( void ) { return &m_rVertex; }
+
+	trVertex3D m_rVertex;
 };
 
-/* static initializers */
-unsigned int math_util::_fast_sqrt_table[0x10000] = {0};
-bool math_util::_built_fast_sqrt_table = false;
-float math_util::_random_floats[0x10000] = {0};
-bool math_util::_built_random_floats = false;
-float (*math_util::fastinvsqrt)(float) = math_util::fastinvsqrt0;
-float (*math_util::fastsqrt)(float) = math_util::fastsqrt0;
 
-#endif  /* __MATHUTILS_H__ */
+typedef struct
+{
+	long			aVerts[3];
+	long			aNorms[3];
+	long			aTCs[3];
+	trVertex3D		rFaceNormal;
+}trTriangle;
+
+#include <math.h>
+
+/*--------------------------------- trVertex3D operators -----------------------------------------*/
+
+/*--------------------------------- operator - -----------------------------------------*/
+
+inline trVertex3D operator - (const trVertex3D &p0)
+{
+	trVertex3D p1;
+
+	p1.x = - p0.x;
+	p1.y = - p0.y;
+	p1.z = - p0.z;
+
+	return p1;
+}
+
+/*--------------------------------- operator + -----------------------------------------*/
+
+inline trVertex3D operator + (const trVertex3D &p0, const trVertex3D &p1)
+{
+	trVertex3D p2;
+
+	p2.x = p0.x + p1.x;
+	p2.y = p0.y + p1.y;
+	p2.z = p0.z + p1.z;
+
+	return p2;
+}
+
+/*--------------------------------- operator - -----------------------------------------*/
+
+inline trVertex3D operator - (const trVertex3D &p0, const trVertex3D &p1)
+{
+	trVertex3D p2;
+
+	p2.x = p0.x - p1.x;
+	p2.y = p0.y - p1.y;
+	p2.z = p0.z - p1.z;
+
+	return p2;
+}
+
+/*--------------------------------- operator * -----------------------------------------*/
+
+inline trVertex3D operator * (const trVertex3D &p0, float scalar)
+{
+	trVertex3D p2;
+
+	p2.x = p0.x * scalar;
+	p2.y = p0.y * scalar;
+	p2.z = p0.z * scalar;
+
+	return p2;
+}
+
+/*--------------------------------- operator / -----------------------------------------*/
+
+inline trVertex3D operator / (const trVertex3D &p0, float scalar)
+{
+	trVertex3D p2;
+
+	scalar = 1.0f / scalar;
+	p2.x = p0.x * scalar;
+	p2.y = p0.y * scalar;
+	p2.z = p0.z * scalar;
+
+	return p2;
+}
+
+/*--------------------------------- operator * -----------------------------------------*/
+
+inline trVertex3D operator * (float scalar, const trVertex3D &p0)
+{
+	trVertex3D p2;
+
+	p2.x = p0.x * scalar;
+	p2.y = p0.y * scalar;
+	p2.z = p0.z * scalar;
+
+	return p2;
+}
+
+/*--------------------------------- operator / -----------------------------------------*/
+
+inline trVertex3D operator / (float scalar, const trVertex3D &p0)
+{
+	trVertex3D p2;
+
+	scalar = 1.0f / scalar;
+	p2.x = p0.x * scalar;
+	p2.y = p0.y * scalar;
+	p2.z = p0.z * scalar;
+
+	return p2;
+}
+
+/*--------------------------------- operator += -----------------------------------------*/
+
+inline void operator += (trVertex3D &p0, const trVertex3D &p1)
+{
+	p0.x += p1.x;
+	p0.y += p1.y;
+	p0.z += p1.z;
+}
+
+/*--------------------------------- operator -= -----------------------------------------*/
+
+inline void operator -= (trVertex3D &p0, const trVertex3D &p1)
+{
+	p0.x -= p1.x;
+	p0.y -= p1.y;
+	p0.z -= p1.z;
+}
+
+/*--------------------------------- operator *= -----------------------------------------*/
+
+inline void operator *= (trVertex3D &p0, const trVertex3D &p1)
+{
+	p0.x *= p1.x;
+	p0.y *= p1.y;
+	p0.z *= p1.z;
+}
+
+/*--------------------------------- operator /= -----------------------------------------*/
+
+inline void operator /= (trVertex3D &p0, const trVertex3D &p1)
+{
+	p0.x /= p1.x;
+	p0.y /= p1.y;
+	p0.z /= p1.z;
+}
+
+/*--------------------------------- operator *= -----------------------------------------*/
+
+inline void operator *= (trVertex3D &p0, float scalar)
+{
+	p0.x *= scalar;
+	p0.y *= scalar;
+	p0.z *= scalar;
+}
+
+/*--------------------------------- operator /= -----------------------------------------*/
+
+inline void operator /= (trVertex3D &p0, float scalar)
+{
+	scalar = 1.0f / scalar;
+	p0.x *= scalar;
+	p0.y *= scalar;
+	p0.z *= scalar;
+}
+
+/*------------------------------------- dot ---------------------------------------------*/
+
+inline float dot(const trVertex3D &lhs, const trVertex3D &rhs)
+{
+	return lhs.x * rhs.x + lhs.y * rhs.y + lhs.z * rhs.z;
+}
+
+/*------------------------------------- dot_2d ---------------------------------------------*/
+
+inline float dot_2d(const trVertex3D &lhs, const trVertex3D &rhs)
+{
+	return lhs.x * rhs.x + lhs.y * rhs.y;
+}
+
+/*------------------------------------- cross ---------------------------------------------*/
+
+inline trVertex3D& cross(const trVertex3D &lhs, const trVertex3D &rhs, trVertex3D &result)
+{
+	float temp_x, temp_y;		// this allows result to be same as lhs or rhs
+
+	temp_x = lhs.z * rhs.y - lhs.y * rhs.z;
+	temp_y = lhs.z * rhs.x - lhs.x * rhs.z;
+	result.z = lhs.x * rhs.y - lhs.y * rhs.x;
+	result.x = temp_x;
+	result.y = temp_y;
+	return result;
+}
+
+/*------------------------------------- cross_2d ---------------------------------------------*/
+
+inline float cross_2d(const trVertex3D &lhs, const trVertex3D &rhs)
+{
+	return lhs.x * rhs.y - lhs.y * rhs.x;
+}
+
+/*------------------------------------- get_mag ---------------------------------------------*/
+
+inline float get_mag(const trVertex3D &vec)
+{
+	return (float)sqrt(dot(vec, vec));
+}
+
+/*------------------------------------- get_mag_2d ---------------------------------------------*/
+
+inline float get_mag_2d(const trVertex3D &vec)
+{
+	return (float)sqrt(dot_2d(vec, vec));
+}
+
+/*------------------------------------- set_mag ---------------------------------------------*/
+
+inline bool set_mag(trVertex3D &vec, float mag)
+{
+	float old_mag = get_mag(vec);
+	if (old_mag < 1.0e-15)
+	{
+		vec.x = mag;
+		vec.z = vec.y = 0;
+		return false;
+	}
+	vec *= mag / old_mag;
+	return true;
+}
+
+/*------------------------------------- set_mag_2d ---------------------------------------------*/
+
+inline bool set_mag_2d(trVertex3D &vec, float mag)
+{
+	float old_mag = get_mag_2d(vec);
+	if (old_mag < 1.0e-15)
+	{
+		vec.x = mag;
+		vec.z = vec.y = 0;
+		return false;
+	}
+	mag /= old_mag;
+	vec.x *= mag;
+	vec.y *= mag;
+	return true;
+}
+
+/*------------------------------------- close ---------------------------------------------*/
+inline bool close(const trVertex3D &vec1, const trVertex3D &vec2)
+{
+	if ( fabs(vec1.x-vec2.x)> REALY_SMALL)
+		return false;
+
+	if ( fabs(vec1.y-vec2.y)> REALY_SMALL)
+		return false;
+
+	if ( fabs(vec1.z-vec2.z)> REALY_SMALL)
+		return false;
+
+	return true;
+}
+
+/*------------------------------------- close_2d ---------------------------------------------*/
+inline bool close_2d(const trVertex3D &vec1, const trVertex3D &vec2)
+{
+	if ( fabs(vec1.x-vec2.x)> REALY_SMALL)
+		return false;
+
+	if ( fabs(vec1.y-vec2.y)> REALY_SMALL)
+		return false;
+
+	return true;
+}
+
+#define XFORM_TRANS		1
+#define XFORM_SCALE		2
+#define XFORM_ROT		4
+
+typedef struct
+{
+	char flags;
+	float el[4][4];
+}trMatrix;
+
+typedef enum
+{
+	eXY, 
+	eXZ, 
+	eYZ,
+	eXR,
+	eXD,
+	eNonPrimary
+}tePlanes;
+
+trMatrix *ClassifyMatrix(trMatrix*);
+trMatrix *NormalizeMatrix(trMatrix*);
+trMatrix *GetIdentityMatrix(trMatrix*);
+bool MatrixPlanar(const trMatrix*, bool*);
+tePlanes MatrixPlane(const trMatrix*);
+bool MatrixScaleNonUniform(const trMatrix*);
+bool MatrixScaleNonUniform2d(const trMatrix*);
+trVertex3D *MatrixScale(const trMatrix*, trVertex3D*);
+bool EqualMatrix(const trMatrix*, const trMatrix*);
+bool SamePlaneMatrix(const trMatrix*, const trMatrix*, bool*);
+trMatrix *TranslateMatrix(trMatrix*, const trVertex3D*);
+trMatrix *TranslationMatrix(trMatrix*, const trVertex3D*);
+trMatrix *ScaleMatrix(trMatrix*, const trVertex3D*);
+trMatrix *ScalingMatrix(trMatrix*, const trVertex3D*);
+trMatrix *RotationMatrix(trMatrix*, const trVertex3D*, float, float);
+trMatrix *RotationMatrix(trMatrix*, float, float);
+trMatrix *Rotate2dMatrix(trMatrix*, float, const trVertex3D*);
+trMatrix *MirrorMatrix(trMatrix*, const trVertex3D*, const trVertex3D*);
+trMatrix *ForceDepthMatrix(trMatrix*, double);
+trMatrix *ConcatMatrices(trMatrix*, const trMatrix*);
+trMatrix *InvertMatrix(trMatrix*);
+trVertex3D *TransformPos(trVertex3D*, const trMatrix*);
+trVertex3D *TransformPos2d(trVertex3D*, const trMatrix*);
+trVertex3D *TransformNorm(trVertex3D*, const trMatrix*);
+trVertex3D *TransformNorm2d(trVertex3D*, const trMatrix*);
+trMatrix *MatrixFromAxes(trMatrix*, const trVertex3D*, const trVertex3D*, const trVertex3D*);
+trMatrix *DifferenceMatrix(trMatrix*, const trVertex3D*, const trVertex3D*, const trVertex3D*, const trVertex3D*, const trVertex3D*, const trVertex3D*);
 
 
-// Local Variables: ***
-// mode: C++ ***
-// tab-width: 8 ***
-// c-basic-offset: 2 ***
-// indent-tabs-mode: t ***
-// End: ***
-// ex: shiftwidth=2 tabstop=8
+class CMatrix
+{
+public:
+		CMatrix();
+		CMatrix(const trMatrix &m);
+		CMatrix(const CMatrix &m);
+		CMatrix(const float *m , const char flags);
+		virtual ~CMatrix();
+
+		char GetFlags ( void ) { return matrix.flags; }
+		void SetFlags ( char flag ) { matrix.flags = flag; }
+		void AddFlag ( char flag ) { matrix.flags |= flag; }
+
+		float GetElement ( int row, int col );
+		float SetElement ( float val, int row, int col );
+
+		float *GetElements ( void );
+		void GetElements ( float *m );
+
+		void SetElements ( float *m );
+
+		void Classify( void );
+		void Normalize( void );
+		void GetIdentity( void );
+		bool Planar ( void );
+		tePlanes Plane( void );
+
+		bool ScaleNonUniform( void );
+		bool ScaleNonUniform2d( void );
+		trVertex3D *MatrixScale( trVertex3D *p);
+
+		bool operator == ( const CMatrix &m );	// equal matrix
+		void operator += (const CMatrix &m);	// concat
+		void Concat (const CMatrix &m);	// concat
+
+		bool SamePlane( const CMatrix &m );
+
+		void Invert( void );
+		void Translate( const trVertex3D* p);
+		void Scale( const trVertex3D* p);
+		void Rotate2d(float angle, const trVertex3D* p);
+		void Mirror(const trVertex3D* p, const trVertex3D* p2);
+
+		void TranslationMatrix( const trVertex3D* p);
+		void ScalingMatrix( const trVertex3D* p);
+		void RotationMatrix( const trVertex3D* p, float a, float b);
+		void RotationMatrix( float a, float b);
+		void ForceDepthMatrix( float depth );
+
+		C3DVertex& TransformPos ( C3DVertex& point );
+		C3DVertex& TransformPos2d ( C3DVertex& point );
+		C3DVertex& TransformNorm ( C3DVertex& point );
+		C3DVertex& TransformNorm2d ( C3DVertex& point );
+
+protected:
+	trMatrix		matrix;
+};
+
+
+#endif//mathutils

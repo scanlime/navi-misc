@@ -349,6 +349,9 @@
 				RelativePath="..\..\src\common\Language.cpp">
 			</File>
 			<File
+				RelativePath="..\..\src\common\MathUtils.cpp">
+			</File>
+			<File
 				RelativePath="..\..\src\common\md5.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -594,6 +597,9 @@
 			</File>
 			<File
 				RelativePath="..\..\include\Language.h">
+			</File>
+			<File
+				RelativePath="..\..\include\MathUtils.h">
 			</File>
 			<File
 				RelativePath="..\..\include\md5.h">
