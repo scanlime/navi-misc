@@ -67,6 +67,13 @@ class TimeMaster:
         """Return the current time, according to the master clock"""
         return self.now
 
+    def jump(self):
+        """This should be called after an unusually time consuming operation that
+           all running animations should ignore. All time between the last update()
+           and this call to jump() will be ignored in the next update().
+           """
+        self.then = time.time()
+
 defaultTimeMaster = TimeMaster()
 currentTimeMaster = defaultTimeMaster
 
