@@ -26,14 +26,13 @@ class sheetElement:
   def addEditable(self, list):
     pass
 
-class character_sheet(gtk.Window, sheetElement):
+class character_sheet(gtk.VBox, sheetElement):
   ''' Basic tag that's treated as a gtk.Window. '''
   def __init__(self, node, data):
     self.editables = []
 
-    gtk.Window.__init__(self, gtk.WINDOW_TOPLEVEL)
+    gtk.VBox.__init__(self, gtk.WINDOW_TOPLEVEL)
     sheetElement.__init__(self, node)
-    self.connect("delete_event", lambda w,d: self.destroy())
 
     # Toggle whether the fields are editable.
     self.edit = gtk.CheckButton('Editable')
@@ -43,23 +42,20 @@ class character_sheet(gtk.Window, sheetElement):
     self.apply = gtk.Button('Apply')
     self.apply.connect('clicked', self.applyChanges)
 
-    box2 = gtk.HBox()
-    box2.pack_end(self.apply, gtk.FALSE, gtk.FALSE, 10)
+    box = gtk.HBox()
+    box.pack_end(self.apply, gtk.FALSE, gtk.FALSE, 10)
     self.apply.show()
-    box2.pack_end(self.edit, gtk.FALSE, gtk.FALSE, 10)
+    box.pack_end(self.edit, gtk.FALSE, gtk.FALSE, 10)
     self.edit.show()
 
-    self.box = gtk.VBox()
-    self.box.pack_end(box2, gtk.FALSE, gtk.FALSE, 10)
-    self.box.show()
-    box2.show()
-    self.add(self.box)
+    self.pack_end(box, gtk.FALSE, gtk.FALSE, 10)
+    box.show()
 
   def packChild(self, child):
     ''' Controls how to add children to the parent.  Children are added because
         character_sheet objects are treated like gtk.Window's.
 	'''
-    self.box.pack_start(child)
+    self.pack_start(child)
     child.show()
 
   def editable(self, widget=None, data=None):
