@@ -106,15 +106,23 @@ def largeTableCRC(packet, table):
 def smallTableCRC(packet, table):
     """Table-driven reimplementation of Nintendo's CRC using a 32-byte table"""
     crc = 0xFF
+    x = 0x42
     y = 0xCD
     for byte in xrange(32):
+        tableByte = table[byte]
+        packetByte = packet[byte]
+
         for bit in xrange(8):
-            if table[byte] & 1<<(7-bit):
-                y ^= ((0x42 << bit) | (0x42 >> (8-bit))) & 0xFF
+            if tableByte & 0x80:
+                y ^= x
             e = ((y >> bit) | (y << (8-bit))) & 0xFF
 
-            if packet[byte] & 1<<(7-bit):
+            if packetByte & 0x80:
                 crc ^= e
+
+            x = ((x << 1) | (x >> 7)) & 0xFF
+            tableByte <<= 1
+            packetByte <<= 1
 
     return crc
 
