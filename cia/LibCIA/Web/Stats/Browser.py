@@ -68,25 +68,6 @@ class Page(Template.Page):
         if parentTarget:
             return self.__class__(self.component, parentTarget)
 
-    def render(self, request):
-        """Intercept the normal rendering operations to check our
-           stats target's modification time. If the browser already
-           has a recent copy of this feed, we can get away without
-           rendering at all.
-           """
-        self.target.getMTime().addCallback(
-            self._render, request
-            ).addErrback(request.processingFailed)
-        return server.NOT_DONE_YET
-
-    def _render(self, mtime, request):
-        if (mtime is None) or (request.setLastModified(mtime) is not http.CACHED):
-            # We don't know the mtime or the browser's copy is no good, render as usual
-            Nouvelle.Twisted.Page.render(self, request)
-        else:
-            # Finish without rendering anything
-            request.finish()
-
     def getURL(self, context):
         return posixpath.join(self.component.url, self.target.path)
 
