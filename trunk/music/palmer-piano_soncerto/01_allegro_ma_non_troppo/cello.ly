@@ -5,12 +5,9 @@ mvmtOneCello = \relative c, {
 	\clef bass
 	\key b \minor
 
-	r1
-	r1
-	r1
-	r1
-	r1
-	r1
+	r1*6
 	f4 \f r r r
 	f4 r f r
+	g4 r r r
+	f 
 }
