@@ -248,9 +248,6 @@ n64_bus_write
 	goto	$+1
 	goto	$+1
 	goto	$+1
-	goto	$+1
-	goto	$+1
-	goto	$+1
 
 	call	get_repeated_crc	; Get our limited CRC from the lookup table
 	xorlw	0xFF			; Negate the CRC, we emulate a rumble pak
@@ -260,7 +257,14 @@ n64_bus_write
 	movlw	1
 	call	n64_tx_widestop		; We need a 2us stop bit after all CRCs
 
-	;; FIXME: handle rumble pak writes
+	movf	n64_bus_address, w	; Is this a write to the rumble pak?
+	xorlw	0xC0			; (only check the top 8 bits. This excludes a few address bits and all check bits)
+	btfss	STATUS, Z
+	return				; Nope, return. We ignore the initialization writes to 0x8000
+
+	bcf	FLAG_RUMBLE_MOTOR_ON	; Set the rumble flag from the low bit of the first data byte
+	btfsc	n64_bus_packet+0, 0
+	bsf	FLAG_RUMBLE_MOTOR_ON
 	return
 
 
