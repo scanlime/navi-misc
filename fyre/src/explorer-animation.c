@@ -88,6 +88,12 @@ void explorer_init_animation(Explorer *self) {
 
     explorer_update_animation_length(self);
     explorer_init_keyframe_view(self);
+
+    /* If we started out with an animation (e.g. from the command line)
+     * go ahead and show the animation window.
+     */
+    if (animation_get_length(self->animation) > 0)
+	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(glade_xml_get_widget(self->xml, "toggle_animation_window")), TRUE);
 }
 
 void explorer_dispose_animation(Explorer *self) {
