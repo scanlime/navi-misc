@@ -547,13 +547,13 @@ void de_jong_calculate_bifurcation(DeJong             *self,
     guint *p;
 
     interpolant = de_jong_new();
+    density = self->current_density;
 
     if (!self->columns) {
       /* Create columns */
       self->columns = g_new0(BifurcationColumn, hist_width);
       for (i=0; i<hist_width; i++) {
 	column = &self->columns[i];
-	column->column_number = i;
 	column->point_x = uniform_variate();
 	column->point_y = uniform_variate();
       }
@@ -561,19 +561,19 @@ void de_jong_calculate_bifurcation(DeJong             *self,
 
     for (i=iterations; i;) {
 
-      /* Next column */
-      column = &self->columns[self->current_column++];
-      if (self->current_column >= hist_width)
+      /* Pick the next column */
+      ix = self->current_column++;
+      column = &self->columns[ix];
+      if (self->current_column > hist_width)
 	self->current_column = 0;
 
       /* At each iteration block, we pick a new interpolated set of points
        * and the corresponding X coordinate on our histogram.
        * Vary the alpha parameter within the column to pick up features smaller than a pixel.
        */
-      alpha = (column->column_number + uniform_variate()) / (hist_width - 1);
+      alpha = (ix + uniform_variate()) / (hist_width - 1);
       interp(interpolant, alpha, interp_data);
-      ix = column->column_number;
-      density = column->peak_density;
+
       point_x = column->point_x;
       point_y = column->point_y;
       a = interpolant->a;
@@ -604,16 +604,10 @@ void de_jong_calculate_bifurcation(DeJong             *self,
       }
 
       /* Update the column */
-      column->peak_density = density;
       column->point_x = point_x;
       column->point_y = point_y;
     }
 
-    /* We report the 'peak density' as the lowest column peak density,
-     * rather than the peak over the entire image. This is different
-     * than what happens during normal non-bifurcation-diagram rendering,
-     * but is more meaningful here.
-     */
     self->current_density = density;
     g_object_unref(interpolant);
   }
@@ -641,6 +635,7 @@ static void de_jong_reset_calc(DeJong *self) {
     g_free(self->columns);
     self->columns = NULL;
   }
+  self->current_column = 0;
 
   self->calc_dirty_flag = FALSE;
 }

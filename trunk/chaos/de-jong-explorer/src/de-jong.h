@@ -42,8 +42,6 @@ typedef struct _DeJongClass DeJongClass;
 
 /* DEBUGGATIVE CRUFT */
 typedef struct {
-  guint column_number;
-  gulong peak_density;
   gdouble point_x, point_y;
 } BifurcationColumn;
 
@@ -95,7 +93,7 @@ struct _DeJong {
 
   /* DEBUGGATIVE CRUFT */
   BifurcationColumn *columns;
-  guint current_column;
+  int current_column;
 };
 
 struct _DeJongClass {
