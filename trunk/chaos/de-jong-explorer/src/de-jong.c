@@ -38,7 +38,8 @@ static void de_jong_resize_from_string(DeJong *self, const gchar *s);
 static void update_double_if_necessary(gdouble new_value, gboolean *dirty_flag, gdouble *param, gdouble epsilon);
 static void update_uint_if_necessary(guint new_value, gboolean *dirty_flag, guint *param);
 static void update_boolean_if_necessary(gboolean new_value, gboolean *dirty_flag, gboolean *param);
-static void update_color_if_necessary(const gchar* new_value, gboolean *dirty_flag, GdkColor *param);
+static void update_color_if_necessary(const GdkColor* new_value, gboolean *dirty_flag, GdkColor *param);
+static void update_color_string_if_necessary(const gchar* new_value, gboolean *dirty_flag, GdkColor *param);
 static gchar* describe_color(GdkColor *c);
 
 static void value_transform_string_uint(const GValue *src_value, GValue *dest_value);
@@ -74,7 +75,12 @@ enum {
   PROP_TARGET_DENSITY,
   PROP_DENSITY,
   PROP_ITERATIONS,
+  PROP_FGCOLOR_GDK,
+  PROP_BGCOLOR_GDK,
 };
+
+/* A custom GParamFlag indicating parameters we're interested in serializing */
+#define G_PARAM_SERIALIZED  (1 << (G_PARAM_USER_SHIFT + 0))
 
 
 /************************************************************************************/
@@ -127,7 +133,7 @@ static void de_jong_class_init(DeJongClass *klass) {
 						    "Width",
 						    "Width of the rendered image, in pixels",
 						    0, G_MAXUINT, 600,
-						    G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+						    G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED));
 
   g_object_class_install_property(object_class,
 				  PROP_HEIGHT,
@@ -135,7 +141,7 @@ static void de_jong_class_init(DeJongClass *klass) {
 						    "Height",
 						    "Height of the rendered image, in pixels",
 						    0, G_MAXUINT, 600,
-						    G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+						    G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED));
 
   g_object_class_install_property(object_class,
 				  PROP_OVERSAMPLE,
@@ -143,7 +149,7 @@ static void de_jong_class_init(DeJongClass *klass) {
 						    "Oversampling",
 						    "Oversampling factor, 1 for no oversampling to 4 for heavy oversampling",
 						    1, 4, 1,
-						    G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+						    G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED));
 
   g_object_class_install_property(object_class,
 				  PROP_SIZE,
@@ -151,7 +157,7 @@ static void de_jong_class_init(DeJongClass *klass) {
 						      "Size",
 						      "Image size as a WIDTH or WIDTHxHEIGHT string",
 						      NULL,
-						      G_PARAM_WRITABLE));
+						      G_PARAM_READWRITE));
 
   g_object_class_install_property(object_class,
 				  PROP_A,
@@ -159,7 +165,7 @@ static void de_jong_class_init(DeJongClass *klass) {
 						      "A",
 						      "de Jong parameter A",
 						      -100, 100, 1.41914,
-						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED));
 
   g_object_class_install_property(object_class,
 				  PROP_B,
@@ -167,7 +173,7 @@ static void de_jong_class_init(DeJongClass *klass) {
 						      "B",
 						      "de Jong parameter B",
 						      -100, 100, -2.28413,
-						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED));
 
   g_object_class_install_property(object_class,
 				  PROP_C,
@@ -175,7 +181,7 @@ static void de_jong_class_init(DeJongClass *klass) {
 						      "C",
 						      "de Jong parameter C",
 						      -100, 100, 2.42754,
-						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED));
 
   g_object_class_install_property(object_class,
 				  PROP_D,
@@ -183,7 +189,7 @@ static void de_jong_class_init(DeJongClass *klass) {
 						      "D",
 						      "de Jong parameter D",
 						      -100, 100, -2.17719,
-						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED));
 
   g_object_class_install_property(object_class,
 				  PROP_ZOOM,
@@ -191,7 +197,7 @@ static void de_jong_class_init(DeJongClass *klass) {
 						      "Zoom",
 						      "Zoom factor",
 						      0, 1000, 1,
-						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED));
 
   g_object_class_install_property(object_class,
 				  PROP_XOFFSET,
@@ -199,7 +205,7 @@ static void de_jong_class_init(DeJongClass *klass) {
 						      "X Offset",
 						      "Horizontal image offset",
 						      -10, 10, 0,
-						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED));
 
   g_object_class_install_property(object_class,
 				  PROP_YOFFSET,
@@ -207,7 +213,7 @@ static void de_jong_class_init(DeJongClass *klass) {
 						      "Y Offset",
 						      "Vertical image offset",
 						      -10, 10, 0,
-						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED));
 
   g_object_class_install_property(object_class,
 				  PROP_ROTATION,
@@ -215,7 +221,7 @@ static void de_jong_class_init(DeJongClass *klass) {
 						      "Rotation",
 						      "Rotation angle, in radians",
 						      -10, 10, 0,
-						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED));
 
   g_object_class_install_property(object_class,
 				  PROP_BLUR_RADIUS,
@@ -223,7 +229,7 @@ static void de_jong_class_init(DeJongClass *klass) {
 						      "Blur Radius",
 						      "Gaussian blur radius",
 						      0, 10, 0,
-						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED));
 
   g_object_class_install_property(object_class,
 				  PROP_BLUR_RATIO,
@@ -231,7 +237,7 @@ static void de_jong_class_init(DeJongClass *klass) {
 						      "Blur Ratio",
 						      "Amount of blurred vs non-blurred rendering",
 						      0, 1, 1,
-						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED));
 
   g_object_class_install_property(object_class,
 				  PROP_TILEABLE,
@@ -239,7 +245,7 @@ static void de_jong_class_init(DeJongClass *klass) {
 						       "Tileable",
 						       "When set, the image is wrapped rather than clipped at the edges",
 						       FALSE,
-						       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+						       G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED));
 
   g_object_class_install_property(object_class,
 				  PROP_EXPOSURE,
@@ -247,7 +253,7 @@ static void de_jong_class_init(DeJongClass *klass) {
 						      "Exposure",
 						      "The relative strength, darkness, or brightness of the image",
 						      0, 10, 0.05,
-						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED));
 
   g_object_class_install_property(object_class,
 				  PROP_FGCOLOR,
@@ -255,7 +261,7 @@ static void de_jong_class_init(DeJongClass *klass) {
 						      "Foreground Color",
 						      "The foreground color, as a color name or #RRGGBB hex triple",
 						      "#000000",
-						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED));
 
   g_object_class_install_property(object_class,
 				  PROP_BGCOLOR,
@@ -263,7 +269,23 @@ static void de_jong_class_init(DeJongClass *klass) {
 						      "Background Color",
 						      "The background color, as a color name or #RRGGBB hex triple",
 						      "#FFFFFF",
-						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED));
+
+  g_object_class_install_property(object_class,
+				  PROP_FGCOLOR_GDK,
+				  g_param_spec_boxed("fgcolor_gdk",
+						     "Foreground GdkColor",
+						     "The foreground color, as a GdkColor",
+						     GDK_TYPE_COLOR,
+						     G_PARAM_READWRITE));
+
+  g_object_class_install_property(object_class,
+				  PROP_BGCOLOR_GDK,
+				  g_param_spec_boxed("bgcolor_gdk",
+						     "Background GdkColor",
+						     "The background color, as a GdkColor",
+						     GDK_TYPE_COLOR,
+						     G_PARAM_READWRITE));
 
   g_object_class_install_property(object_class,
 				  PROP_FGALPHA,
@@ -271,7 +293,7 @@ static void de_jong_class_init(DeJongClass *klass) {
 						    "Foreground Alpha",
 						    "The foreground color's opacity",
 						    0, 65535, 65535,
-						    G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+						    G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED));
 
   g_object_class_install_property(object_class,
 				  PROP_BGALPHA,
@@ -279,7 +301,7 @@ static void de_jong_class_init(DeJongClass *klass) {
 						    "Background Alpha",
 						    "The background color's opacity",
 						    0, 65535, 65535,
-						    G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+						    G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED));
 
   g_object_class_install_property(object_class,
 				  PROP_GAMMA,
@@ -287,7 +309,7 @@ static void de_jong_class_init(DeJongClass *klass) {
 						      "Gamma",
 						      "A gamma correction applied while rendering the image",
 						      0, 10, 1,
-						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED));
 
   g_object_class_install_property(object_class,
 				  PROP_CLAMPED,
@@ -295,7 +317,7 @@ static void de_jong_class_init(DeJongClass *klass) {
 						       "Clamped",
 						       "When set, luminances are clamped to [0,1] before linear interpolation",
 						       FALSE,
-						       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+						       G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED));
 
   g_object_class_install_property(object_class,
 				  PROP_TARGET_DENSITY,
@@ -323,6 +345,7 @@ static void de_jong_class_init(DeJongClass *klass) {
 }
 
 static void de_jong_init(DeJong *self) {
+  /* Nothing to do here yet, everything's set up by our G_PARAM_CONSTRUCT properties */
 }
 
 static void de_jong_dispose(GObject *gobject) {
@@ -355,7 +378,15 @@ static void value_transform_string_double(const GValue *src_value, GValue *dest_
 }
 
 static void value_transform_string_boolean(const GValue *src_value, GValue *dest_value) {
-  dest_value->data[0].v_int = strtoul(src_value->data[0].v_pointer, NULL, 10) != 0;
+  if (!g_strcasecmp(src_value->data[0].v_pointer, "true")) {
+    dest_value->data[0].v_int = TRUE;
+  }
+  else if (!g_strcasecmp(src_value->data[0].v_pointer, "false")) {
+    dest_value->data[0].v_int = FALSE;
+  }
+  else {
+    dest_value->data[0].v_int = strtoul(src_value->data[0].v_pointer, NULL, 10) != 0;
+  }
 }
 
 static void value_transform_string_ulong(const GValue *src_value, GValue *dest_value) {
@@ -407,7 +438,14 @@ static void update_boolean_if_necessary(gboolean new_value, gboolean *dirty_flag
   }
 }
 
-static void update_color_if_necessary(const gchar* new_value, gboolean *dirty_flag, GdkColor *param) {
+static void update_color_if_necessary(const GdkColor* new_value, gboolean *dirty_flag, GdkColor *param) {
+  if (new_value->red != param->red || new_value->green != param->green || new_value->blue != param->blue) {
+    *param = *new_value;
+    *dirty_flag = TRUE;
+  }
+}
+
+static void update_color_string_if_necessary(const gchar* new_value, gboolean *dirty_flag, GdkColor *param) {
   GdkColor new;
   gdk_color_parse(new_value, &new);
   if (new.red != param->red || new.green != param->green || new.blue != param->blue) {
@@ -490,11 +528,19 @@ static void de_jong_set_property (GObject *object, guint prop_id, const GValue *
     break;
 
   case PROP_FGCOLOR:
-    update_color_if_necessary(g_value_get_string(value), &self->render_dirty_flag, &self->fgcolor);
+    update_color_string_if_necessary(g_value_get_string(value), &self->render_dirty_flag, &self->fgcolor);
     break;
 
   case PROP_BGCOLOR:
-    update_color_if_necessary(g_value_get_string(value), &self->render_dirty_flag, &self->bgcolor);
+    update_color_string_if_necessary(g_value_get_string(value), &self->render_dirty_flag, &self->bgcolor);
+    break;
+
+  case PROP_FGCOLOR_GDK:
+    update_color_if_necessary((GdkColor*) g_value_get_boxed(value), &self->render_dirty_flag, &self->fgcolor);
+    break;
+
+  case PROP_BGCOLOR_GDK:
+    update_color_if_necessary((GdkColor*) g_value_get_boxed(value), &self->render_dirty_flag, &self->bgcolor);
     break;
 
   case PROP_FGALPHA:
@@ -604,12 +650,24 @@ static void de_jong_get_property (GObject *object, guint prop_id, GValue *value,
     g_value_set_ulong(value, self->target_density);
     break;
 
+  case PROP_SIZE:
+    g_value_set_string_take_ownership(value, g_strdup_printf("%dx%d", self->width, self->height));
+    break;
+
   case PROP_FGCOLOR:
     g_value_set_string_take_ownership(value, describe_color(&self->fgcolor));
     break;
 
   case PROP_BGCOLOR:
     g_value_set_string_take_ownership(value, describe_color(&self->bgcolor));
+    break;
+
+  case PROP_FGCOLOR_GDK:
+    g_value_set_boxed(value, &self->fgcolor);
+    break;
+
+  case PROP_BGCOLOR_GDK:
+    g_value_set_boxed(value, &self->bgcolor);
     break;
 
   case PROP_DENSITY:
@@ -662,6 +720,29 @@ void de_jong_set(DeJong *self, const gchar* property, const gchar* value) {
 
 
 void de_jong_reset_to_defaults(DeJong *self) {
+  /* Reset all G_PARAM_CONSTRUCT properties to their default values
+   */
+  GParamSpec** properties;
+  guint n_properties;
+  int i;
+  GValue val;
+
+  properties = g_object_class_list_properties(G_OBJECT_GET_CLASS(self), &n_properties);
+  for (i=0; i<n_properties; i++) {
+
+    if (properties[i]->flags & G_PARAM_CONSTRUCT) {
+      /* Make a GValue with the default in it */
+      memset(&val, 0, sizeof(val));
+      g_value_init(&val, properties[i]->value_type);
+      g_param_value_set_default(properties[i], &val);
+
+      g_object_set_property(G_OBJECT(self), properties[i]->name, &val);
+
+      g_value_unset(&val);
+    }
+
+  }
+  g_free(properties);
 }
 
 gchar* de_jong_save_string(DeJong *self) {
@@ -686,8 +767,9 @@ gchar* de_jong_save_string(DeJong *self) {
   /* Search for non-default properties, creating lines for each */
   n_lines = 0;
   for (i=0; i<n_properties; i++) {
-    if ((properties[i]->flags & G_PARAM_READABLE) &&
-	(properties[i]->flags & G_PARAM_WRITABLE)) {
+
+    /* We have our own GParamFlag indicating whether a parameter should be serialized */
+    if (properties[i]->flags & G_PARAM_SERIALIZED) {
 
       memset(&val, 0, sizeof(val));
       g_value_init(&val, properties[i]->value_type);

@@ -193,8 +193,13 @@ static void explorer_set_params(Explorer *self) {
 }
 
 static void explorer_get_params(Explorer *self) {
+  GdkColor fg, bg;
+
   if (self->setting_params)
     return;
+
+  color_button_get_color(COLOR_BUTTON(glade_xml_get_widget(self->xml, "param_fgcolor")), &fg);
+  color_button_get_color(COLOR_BUTTON(glade_xml_get_widget(self->xml, "param_bgcolor")), &bg);
 
   g_object_set(self->dejong,
 	       "a",           (gdouble) gtk_spin_button_get_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "param_a"))),
@@ -213,12 +218,9 @@ static void explorer_get_params(Explorer *self) {
 	       "tileable",    gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(glade_xml_get_widget(self->xml, "param_tileable"))),
 	       "fgalpha",     (guint) color_button_get_alpha(COLOR_BUTTON(glade_xml_get_widget(self->xml, "param_fgcolor"))),
 	       "bgalpha",     (guint) color_button_get_alpha(COLOR_BUTTON(glade_xml_get_widget(self->xml, "param_bgcolor"))),
+	       "fgcolor_gdk", &fg,
+	       "bgcolor_gdk", &bg,
 	       NULL);
-
-  /*
-  color_button_get_color(COLOR_BUTTON(glade_xml_get_widget(self->xml, "param_fgcolor")), &render.fgcolor);
-  color_button_get_color(COLOR_BUTTON(glade_xml_get_widget(self->xml, "param_bgcolor")), &render.bgcolor);
-  */
 }
 
 static void on_param_changed(GtkWidget *widget, gpointer user_data) {
@@ -381,13 +383,13 @@ static int explorer_idle_handler(gpointer user_data) {
   GTimer *timer;
   gulong elapsed;
 
-  /* Run as many blocks of iterations as we can in 12 milliseconds */
+  /* Run as many blocks of iterations as we can in 13 milliseconds */
   timer = g_timer_new();
   g_timer_start(timer);
   do {
     de_jong_calculate(self->dejong, 5000);
     g_timer_elapsed(timer, &elapsed);
-  } while (elapsed < 12000);
+  } while (elapsed < 13000);
   g_timer_destroy(timer);
 
   explorer_update(self);
