@@ -35,7 +35,7 @@ class Filter:
        the subclass-defined 'parse' function to generate an XML message.
        """
     project = None
-    server = "http://cia.navi.cx"
+    server = "http://localhost:3910"
     debug = False
 
     def pullLine(self):
