@@ -108,7 +108,7 @@ class Filter(XML.XMLObjectParser):
                            <match var="target_path">project/muffin-deluxe</match> \
                        </not> \
                    </and>').sql
-       "(((parent_path = 'project') OR (parent_path = 'author')) AND (!((target_path = 'project/muffin-deluxe'))))"
+       u"(((parent_path = 'project') OR (parent_path = 'author')) AND (!((target_path = 'project/muffin-deluxe'))))"
 
        """
     resultAttribute = 'sql'
@@ -124,22 +124,24 @@ class Filter(XML.XMLObjectParser):
         """Compare a given variable exactly to the element's content, not including
            leading and trailing whitespace.
            """
-        return "(%s = %s)" % (self.varLookup(element['var']), quote(str(element).strip(), 'varchar'))
+        return "(%s = %s)" % (self.varLookup(element.getAttributeNS(None, 'var')),
+                              quote(XML.shallowText(element).strip(), 'varchar'))
 
     def element_like(self, element):
         """Compare a given variable to the element's content using SQL's 'LIKE' operator,
            not including leading and trailing whitespace. This is case-insensitive, and includes
            the '%' wildcard which may be placed at the beginning or end of the string.
            """
-        return "(%s LIKE %s)" % (self.varLookup(element['var']), quote(str(element).strip(), 'varchar'))
+        return "(%s LIKE %s)" % (self.varLookup(element.getAttributeNS(None, 'var')),
+                                 quote(XML.shallowText(element).strip(), 'varchar'))
 
     def element_and(self, element):
         """Evaluates to True if and only if all child expressions evaluate to True"""
-        return "(%s)" % (" AND ".join([self.parse(child) for child in element.elements()]))
+        return "(%s)" % (" AND ".join([self.parse(node) for node in XML.getChildElements(element)]))
 
     def element_or(self, element):
         """Evaluates to True if and only if any child function evaluates to True"""
-        return "(%s)" % (" OR ".join([self.parse(child) for child in element.elements()]))
+        return "(%s)" % (" OR ".join([self.parse(node) for node in XML.getChildElements(element)]))
 
     def element_not(self, element):
         """The NOR function, returns false if and only if any child expression evaluates to True.
@@ -172,13 +174,5 @@ class Filter(XML.XMLObjectParser):
         newFilter = Filter()
         newFilter.sql = "(!%s)" % self.sql
         return newFilter
-
-
-def _test():
-    import doctest, Database
-    return doctest.testmod(Database)
-
-if __name__ == "__main__":
-    _test()
 
 ### The End ###

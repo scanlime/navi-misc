@@ -41,7 +41,6 @@ used to store and query rulesets in a RulesetStorage.
 
 import XML, Message, Debug, Database, Security, RpcServer, Formatters
 from twisted.python import log
-from twisted.xish.xpath import XPathQuery
 from twisted.internet import defer
 import sys, traceback, re
 
@@ -63,7 +62,7 @@ class RulesetInterface(RpcServer.Interface):
            In addition to the usual ones, allow ('ruleset.uri', x) where x is the
            ruleset's URI.
            """
-        uri = XML.parseString(xml).getAttribute('uri')
+        uri = XML.parseString(xml).documentElement.getAttributeNS(None, 'uri')
         return self.makeDefaultCaps(path) + [('ruleset.uri', uri)]
 
     def protected_getUriKey(self, uri, owner=None):
@@ -77,6 +76,7 @@ class RulesetInterface(RpcServer.Interface):
 
     def xmlrpc_getUriList(self):
         """Return a list of all URIs with non-empty rulesets"""
+        print self.storage.rulesetMap
         return self.storage.rulesetMap.keys()
 
     def xmlrpc_getRuleset(self, uri):
@@ -155,7 +155,7 @@ class Ruleset(XML.XMLFunction):
 
         >>> r = Ruleset('<ruleset><return>Boing</return><formatter medium="irc"/></ruleset>')
         >>> r(msg)
-        'Boing'
+        u'Boing'
 
         >>> r = Ruleset('<ruleset>' +
         ...                 '<formatter medium="irc"/>' +
@@ -165,7 +165,7 @@ class Ruleset(XML.XMLFunction):
         ...                 '</rule>' +
         ...             '</ruleset>')
         >>> r(msg)
-        '*censored*'
+        u'*censored*'
 
         >>> r = Ruleset('<ruleset>' +
         ...                 '<formatter medium="irc"/>' +
@@ -176,7 +176,7 @@ class Ruleset(XML.XMLFunction):
         ...                 '<formatter name="IRCProjectName"/>' +
         ...             '</ruleset>')
         >>> r(msg)
-        '\x02robo-hamster:\x0f \x02Hello\x0fWorld'
+        u'\x02robo-hamster:\x0f \x02Hello\x0fWorld'
 
         >>> r = Ruleset('<ruleset><return/></ruleset>')
         >>> r(msg) is None
@@ -184,7 +184,7 @@ class Ruleset(XML.XMLFunction):
 
         >>> r = Ruleset('<ruleset><return path="/message/source/project"/></ruleset>')
         >>> r(msg)
-        'robo-hamster'
+        u'robo-hamster'
 
         >>> Ruleset('<ruleset/>').uri is None
         True
@@ -200,7 +200,13 @@ class Ruleset(XML.XMLFunction):
            """
         # Go ahead and store the URI attribute if we have one.
         # If not, this will be None.
-        self.uri = element.getAttribute('uri')
+        self.uri = element.getAttributeNS(None, 'uri') or None
+
+        # URIs are always encoded if necessary, since just about everywhere we'd need to
+        # use a URI we can't support Unicode yet. Specific examples are IRC servers/channels
+        # and as dict keys in an XML-RPC response.
+        if type(self.uri) is unicode:
+            self.uri = self.uri.encode()
 
         # Create a function to evaluate this element as a <rule> would be evaluated
         ruleFunc = self.element_rule(element)
@@ -219,18 +225,19 @@ class Ruleset(XML.XMLFunction):
 
     def element_rule(self, element):
         """Evaluate each child element in sequence until one returns False"""
-        childFunctions = [self.parse(child) for child in element.elements()]
+        childFunctions = list(self.childParser(element))
         def rulesetRule(msg):
             for child in childFunctions:
-                if not child(msg):
-                    break
+                if child:
+                    if not child(msg):
+                        break
             return True
         return rulesetRule
 
     def element_return(self, element):
         """Set the current result and exit the ruleset immediately"""
-        if element.hasAttribute('path'):
-            xp = XPathQuery(element['path'])
+        if element.hasAttributeNS(None, 'path'):
+            xp = XML.XPath(element.getAttributeNS(None, 'path'))
             # Define a rulesetReturn function that returns the value of the XPath
             def rulesetReturn(msg):
                 nodes = xp.queryForNodes(msg.xml)
@@ -244,7 +251,7 @@ class Ruleset(XML.XMLFunction):
         else:
             # No path, define a rulesetReturn function that returns this element's string value
             def rulesetReturn(msg):
-                self.result = str(element)
+                self.result = XML.shallowText(element)
                 if not self.result:
                     self.result = None
                 raise RulesetReturnException()
@@ -285,9 +292,7 @@ class Ruleset(XML.XMLFunction):
 
     def isEmpty(self):
         """Returns True if the ruleset has no contents"""
-        # Note that the obvious xml.elements() doesn't work- it will
-        # always be true, because the returned object is a generator.
-        return not self.xml.firstChildElement()
+        return not XML.hasChildElements(self.xml.documentElement)
 
 
 class BaseURIHandler(object):
@@ -458,8 +463,7 @@ class RulesetStorage:
 
     def store(self, rulesetXml):
         """Find a URIHandler for the given ruleset and add it to
-           our mapping and to the hub. 'ruleset' is given as a
-           domish.Element.
+           our mapping and to the hub. 'ruleset' is given as a DOM tree.
 
            Storing an empty ruleset for a particular URI is equivalent
            to removing that URI's ruleset.
@@ -493,7 +497,7 @@ class RulesetStorage:
     def _insertRuleset(self, none, result, ruleset):
         """Callback used by store() to insert a new or modified ruleset into the SQL database"""
         d = Database.pool.runOperation("INSERT INTO rulesets (uri, xml) values(%s, %s)" % (
-            Database.quote(ruleset.uri, 'text'), Database.quote(ruleset.xml.toXml(), 'text')))
+            Database.quote(ruleset.uri, 'text'), Database.quote(XML.toString(ruleset.xml), 'text')))
         d.addCallback(result.callback)
         d.addErrback(result.errback)
 
@@ -538,13 +542,5 @@ class RulesetStorage:
 class InvalidURIException(Exception):
     """An exception that URI handlers can raise when a URI is invalid"""
     pass
-
-
-def _test():
-    import doctest, Ruleset
-    return doctest.testmod(Ruleset)
-
-if __name__ == "__main__":
-    _test()
 
 ### The End ###

@@ -27,7 +27,7 @@ from twisted.internet import defer
 from twisted.protocols import http
 from twisted.web import resource, server
 from LibCIA.Web import Template, Info, Server
-from LibCIA import Stats, Message, TimeUtil, Formatters
+from LibCIA import Stats, Message, TimeUtil, Formatters, XML
 from Nouvelle import tag, place
 import Nouvelle, time, sys, posixpath, re
 import Metadata, Catalog, Feed, Link, MessageViewer, Graph
@@ -235,7 +235,7 @@ class MessageDateColumn(Nouvelle.Column):
     heading = 'date'
 
     def getValue(self, message):
-        return int(str(message.xml.timestamp))
+        return XML.digValue(message.xml, int, "message", "timestamp")
 
     def render_data(self, context, message):
         return TimeUtil.formatDate(self.getValue(message))
@@ -246,8 +246,9 @@ class MessageProjectColumn(Nouvelle.Column):
     heading = 'project'
 
     def getValue(self, message):
-        if message.xml.source:
-            return str(message.xml.source.project)
+        project = XML.dig(message.xml, "message", "source", "project")
+        if project:
+            return XML.shallowText(project)
 
 
 class MessageContentColumn(Nouvelle.Column):

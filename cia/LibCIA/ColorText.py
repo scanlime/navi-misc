@@ -37,8 +37,8 @@ This code gets awfully fun, since the original format allowed goop like
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from twisted.xish import domish
 import copy
+from LibCIA import XML
 
 
 allowedColors = (
@@ -87,44 +87,46 @@ class ColorTextParser:
 
          >>> p = ColorTextParser()
 
-         >>> p.parse('hello').toXml()
+         >>> p.parseToString('hello')
          '<colorText>hello</colorText>'
 
-         >>> p.parse('{bold}hello').toXml()
+         >>> p.parseToString('{bold}hello')
          '<colorText><b>hello</b></colorText>'
 
-         >>> p.parse('{bold}hello{normal} world').toXml()
+         >>> p.parseToString('{bold}hello{normal} world')
          '<colorText><b>hello</b> world</colorText>'
 
        Some pathological examples:
 
-         >>> p.parse('{bold}{dark blue}{reverse}{yellow}hello{normal}{underline} world').toXml()
-         "<colorText><color bg='dark blue'><color fg='yellow'><b>hello</b></color></color><u> world</u></colorText>"
+         >>> p.parseToString('{bold}{dark blue}{reverse}{yellow}hello{normal}{underline} world')
+         '<colorText><color bg="dark blue"><color fg="yellow"><b>hello</b></color></color><u> world</u></colorText>'
 
-         >>> p.parse('{wiggle}').toXml()
+         >>> p.parseToString('{wiggle}')
          '<colorText>{wiggle}</colorText>'
 
-         >>> p.parse('{blue}').toXml()
+         >>> p.parseToString('{blue}')
          '<colorText/>'
 
-         >>> p.parse('<b>').toXml()
+         >>> p.parseToString('<b>')
          '<colorText>&lt;b&gt;</colorText>'
 
-         >>> p.parse('{blue}{normal}hello').toXml()
+         >>> p.parseToString('{blue}{normal}hello')
          '<colorText>hello</colorText>'
        """
     def parse(self, message):
         """Given a string of text in the original CIA commit format, return a <colorText>
-           element representing it as a domish.Element instance.
+           element representing it as a DOM tree.
            """
         # Initialize our model of the current text format in the original message
         self.parsedState = ColorState()
 
-        # Initialize our stack of (domish.Element, ColorState) tuples representing
+        self.document = XML.createRootNode()
+
+        # Initialize our stack of (element, ColorState) tuples representing
         # the state of the XML document being generated. This starts out with
         # our root element in it.
         self.elementStack = [
-            (domish.Element((None, "colorText")), ColorState())
+            (XML.addElement(self.document, "colorText"), ColorState())
             ]
 
         # Break up the message into lines, each with its whitespace stripped.
@@ -139,12 +141,14 @@ class ColorTextParser:
                 lines.append(line)
         for i in xrange(len(lines)):
             if i != 0:
-                self.elementStack[-1][0].addElement('br')
+                XML.addElement(self.elementStack[-1][0], 'br')
             self.lex(lines[i])
             self.closeTags()
 
-        # Yay, we're done.. return the root element
-        return self.elementStack[0][0]
+        return self.document
+
+    def parseToString(self, message):
+        return XML.toString(self.parse(message).documentElement)
 
     def lex(self, message):
         """A simple lexical scanner to convert an incoming message into a stream of text and tag events"""
@@ -198,7 +202,8 @@ class ColorTextParser:
            state of the current XML node and dump the new text in there.
            """
         self.updateState()
-        self.elementStack[-1][0].addContent(text)
+        node = self.elementStack[-1][0]
+        node.appendChild(node.ownerDocument.createTextNode(text))
 
     def closeTags(self):
         """Close all currently opened tags"""
@@ -215,9 +220,9 @@ class ColorTextParser:
            """
         oldTag, oldState = self.elementStack[-1]
 
-        newTag = self.elementStack[-1][0].addElement(name)
+        newTag = XML.addElement(self.elementStack[-1][0], name)
         for key, value in attributes.iteritems():
-            newTag[key] = value
+            newTag.setAttributeNS(None, key, value)
 
         newState = copy.deepcopy(oldState)
         newState.__dict__.update(stateChanges)
@@ -257,12 +262,5 @@ class ColorTextParser:
                          {},
                          {'underline': True},
                          )
-
-def _test():
-    import doctest, ColorText
-    return doctest.testmod(ColorText)
-
-if __name__ == "__main__":
-    _test()
 
 ### The End ###

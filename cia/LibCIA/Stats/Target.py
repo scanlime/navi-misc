@@ -260,8 +260,10 @@ class Messages(object):
 
     def _push(self, cursor, message):
         # Does this message have a timestamp?
+        timestamp = XML.digValue(message.xml, int, "message", "timestamp")
         if message.xml.timestamp:
-            timestamp = Database.quote(str(message.xml.timestamp), 'bigint')
+            # Yep, quote it
+            timestamp = Database.quote(timestamp, 'bigint')
         else:
             # Our message really should have had a timestamp.. don't
             # store it, because without a timestamp it will be immortal.
