@@ -54,9 +54,9 @@ static void on_render_time_changed(GtkWidget *widget, gpointer user_data);
 static void on_calculation_finished(IterativeMap *map, gpointer user_data);
 static gboolean on_interactive_prefs_delete(GtkWidget *widget, GdkEvent *event, gpointer user_data);
 static gboolean on_cluster_window_delete(GtkWidget *widget, GdkEvent *event, gpointer user_data);
-static void on_about_activate(GtkWidget *widget, Explorer *self);
 
 static gchar *file_location = NULL;
+
 
 /************************************************************************************/
 /**************************************************** Initialization / Finalization */
@@ -93,6 +93,7 @@ static void explorer_class_init(ExplorerClass *klass) {
 }
 
 static void explorer_init(Explorer *self) {
+
     if (g_file_test (FYRE_DATADIR "/explorer.glade", G_FILE_TEST_EXISTS))
         self->xml = glade_xml_new (FYRE_DATADIR "/explorer.glade", NULL, NULL);
 #ifdef ENABLE_BINRELOC
@@ -113,7 +114,6 @@ static void explorer_init(Explorer *self) {
     glade_xml_signal_connect_data(self->xml, "on_render_time_changed",          G_CALLBACK(on_render_time_changed),          self);
     glade_xml_signal_connect_data(self->xml, "on_interactive_prefs_delete",     G_CALLBACK(on_interactive_prefs_delete),     self);
     glade_xml_signal_connect_data(self->xml, "on_cluster_window_delete",        G_CALLBACK(on_cluster_window_delete),        self);
-    glade_xml_signal_connect_data(self->xml, "on_about_activate",               G_CALLBACK(on_about_activate),               self);
 
 #ifndef HAVE_EXR
     /* If we don't have OpenEXR support, gray out the menu item
@@ -176,6 +176,7 @@ Explorer* explorer_new(IterativeMap *map, Animation *animation) {
     explorer_init_animation(self);
     explorer_init_tools(self);
     explorer_init_cluster(self);
+    explorer_init_about(self);
 
     /* Start the iterative map rendering in the background, and get a callback every time a block
      * of calculations finish so we can update the GUI.
@@ -662,55 +663,6 @@ static gdouble  explorer_get_iter_speed(Explorer *self)
 	self->iter_speed = iter_diff / elapsed;
     }
     return self->iter_speed;
-}
-
-/************************************************************************************/
-/********************************************************************* About Dialog */
-/************************************************************************************/
-
-static void on_about_close(GtkWidget *widget, Explorer *self)
-{
-    GtkWidget *dialog;
-    dialog = glade_xml_get_widget(self->xml, "about_window");
-    gtk_widget_hide(dialog);
-}
-
-static void on_about_activate(GtkWidget *widget, Explorer *self)
-{
-    GtkWidget *dialog;
-
-    dialog = glade_xml_get_widget (self->xml, "about_window");
-
-    if (!self->about_box_initialized) {
-        GtkWidget *close, *image, *label;
-	GdkPixbuf *pixbuf;
-	gchar *text;
-
-        close = glade_xml_get_widget(self->xml, "about close");
-	image = glade_xml_get_widget(self->xml, "about image");
-	label = glade_xml_get_widget(self->xml, "about version");
-
-	pixbuf = gdk_pixbuf_new_from_file(FYRE_DATADIR "/wicker-shoelace.png", NULL);
-#ifdef ENABLE_BINRELOC
-	if (!pixbuf)
-	    pixbuf = gdk_pixbuf_new_from_file(BR_DATADIR("/fyre/wicker-shoelace.png"), NULL);
-#endif
-	if (pixbuf) {
-	    gtk_image_set_from_pixbuf(GTK_IMAGE (image), pixbuf);
-	    gdk_pixbuf_unref(pixbuf);
-	}
-
-	g_signal_connect(G_OBJECT (dialog), "delete-event", G_CALLBACK(on_about_close), self);
-	g_signal_connect(G_OBJECT (close), "clicked", G_CALLBACK(on_about_close), self);
-
-	text = g_strdup_printf("<span size=\"xx-large\" weight=\"bold\">Fyre %s</span>", VERSION);
-	gtk_label_set_markup(GTK_LABEL(label), text);
-	g_free(text);
-
-	self->about_box_initialized = TRUE;
-    }
-
-    gtk_widget_show_all(dialog);
 }
 
 /* The End */

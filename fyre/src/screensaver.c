@@ -71,6 +71,32 @@ static void screensaver_init(ScreenSaver *self) {
 static void screensaver_dispose(GObject *gobject) {
     ScreenSaver *self = SCREENSAVER(gobject);
 
+    if (self->idler) {
+	g_source_remove(self->idler);
+	self->idler = 0;
+    }
+
+    if (self->frame_renders) {
+	int i;
+	for (i=0; i<self->num_frames; i++)
+	    g_object_unref(self->frame_renders[i]);
+	g_free(self->frame_renders);
+	self->frame_renders = NULL;
+    }
+
+    if (self->frame_parameters) {
+	int i;
+	for (i=0; i<self->num_frames; i++)
+	    g_object_unref(self->frame_parameters[i].a);
+	g_free(self->frame_parameters);
+	self->frame_parameters = NULL;
+    }
+
+    if (self->view) {
+	g_object_unref(self->view);
+	self->view = NULL;
+    }
+
     if (self->map) {
 	g_object_unref(self->map);
 	self->map = NULL;
@@ -78,10 +104,6 @@ static void screensaver_dispose(GObject *gobject) {
     if (self->animation) {
 	g_object_unref(self->animation);
 	self->animation = NULL;
-    }
-    if (self->idler) {
-	g_source_remove(self->idler);
-	self->idler = 0;
     }
 }
 

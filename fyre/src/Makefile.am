@@ -56,6 +56,7 @@ fyre_SOURCES = 				\
 	spline.c			\
 	explorer-tools.c		\
 	explorer-animation.c		\
+	explorer-about.c		\
 	cell-renderer-transition.c	\
 	cell-renderer-bifurcation.c	\
 	histogram-imager.c		\
