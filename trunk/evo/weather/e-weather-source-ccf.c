@@ -157,101 +157,51 @@ e_weather_source_ccf_do_parse (EWeatherSourceCCF *source)
 	 * http://www.crh.noaa.gov/lmk/product_guide/products/forecast/ccf.htm
 	 */
 	WeatherForecast *forecasts = g_new0 (WeatherForecast, 7);
-	GSList *tokens = tokenize (source->buffer);
+//	GSList *tokens = tokenize (source->buffer);
 	GSList *date;
-	GSList *current = tokens;
+//	GSList *current = tokens;
 	GList *fc = NULL;
 	struct tm tms;
 	int i;
 
-	date = g_slist_nth (tokens, 3);
-	date2tm (date->data, &tms);
-	g_print ("date is %s\n", asctime (&tms));
+//	date = g_slist_nth (tokens, 3);
+//	date2tm (date->data, &tms);
+//	g_print ("date is %s\n", asctime (&tms));
 
 	/* fast-forward to the particular station we're interested in */
+	/*
 	current = g_slist_nth (tokens, 5);
 	while (strcmp(current->data, source->station))
 		current = g_slist_next (current);
 
 	for (i = 0; i < 7; i++)
 		fc = g_list_append (fc, &forecasts[i]);
+	*/
 }
 
 static void
-e_weather_source_ccf_finish_read (GnomeVFSAsyncHandle *handle, GnomeVFSResult result, gpointer buffer,
-                                  GnomeVFSFileSize requested, GnomeVFSFileSize body_len, gpointer data)
+retrieval_done (SoupMessage *message, EWeatherSourceCCF *source)
 {
-	EWeatherSourceCCF *source = (EWeatherSourceCCF*) data;
-	char *body;
-
-	g_return_if_fail (source != NULL);
-	g_return_if_fail (handle == source->handle);
-
-	body = (char *) buffer;
-	body[body_len] = '\0';
-
-	if (source->buffer == NULL)
-		source->buffer = g_strdup (body);
-	else
-	{
-		char *temp = g_strdup (source->buffer);
-		g_free (source->buffer);
-		source->buffer = g_strdup_printf ("%s%s", temp, body);
-		g_free (temp);
-	}
-
-	if (result == GNOME_VFS_ERROR_EOF)
-	{
-		e_weather_source_ccf_do_parse (source);
-	}
-	else if (result != GNOME_VFS_OK)
-	{
-		g_print ("%s", gnome_vfs_result_to_string (result));
-		g_warning (_("Failed to get CCF data.\n"));
-	}
-	else
-	{
-		gnome_vfs_async_read (handle, body, DATA_SIZE - 1, e_weather_source_ccf_finish_read, data);
-		return;
-	}
-}
-
-static void
-e_weather_source_ccf_finish_open (GnomeVFSAsyncHandle *handle, GnomeVFSResult result, gpointer data)
-{
-	EWeatherSourceCCF *source = (EWeatherSourceCCF*) data;
-	char *body;
-
-	g_return_if_fail (source != NULL);
-	g_return_if_fail (handle == source->handle);
-
-	body = g_malloc0 (DATA_SIZE);
-	if (source->buffer)
-		g_free (source->buffer);
-	source->buffer = NULL;
-
-	if (result != GNOME_VFS_OK)
-	{
-		g_warning(_("Failed to get CCF data.\n"));
-		source->handle = NULL;
-		g_free (body);
-	}
-	else
-	{
-		gnome_vfs_async_read (handle, body, DATA_SIZE - 1, e_weather_source_ccf_finish_read, data);
-	}
-	return;
+	g_print ("retreival done!\n");
 }
 
 static void
 e_weather_source_ccf_parse (EWeatherSource *source, SourceFinished done)
 {
 	EWeatherSourceCCF *ccfsource = (EWeatherSourceCCF*) source;
+	SoupMessage *soup_message;
 	char *url;
 
+	g_print ("e_weather_source_ccf_parse ()\n");
 	url = g_strdup_printf ("http://www.crh.noaa.gov/data/%s/CCF%s", ccfsource->station, ccfsource->station);
+	g_print ("    trying to open %s\n", url);
 	ccfsource->done = done;
-	gnome_vfs_async_open (&ccfsource->handle, url, GNOME_VFS_OPEN_READ, 0, e_weather_source_ccf_finish_open, source);
+
+	if (!ccfsource->soup_session)
+		ccfsource->soup_session = soup_session_async_new ();
+	soup_message = soup_message_new (SOUP_METHOD_GET, url);
+	soup_message_set_flags (soup_message, SOUP_MESSAGE_NO_REDIRECT);
+	soup_session_queue_message (ccfsource->soup_session, soup_message, (SoupMessageCallbackFn) retrieval_done, source);
 }
 
 static void
@@ -267,8 +217,6 @@ e_weather_source_ccf_class_init (EWeatherSourceCCFClass *class)
 static void
 e_weather_source_ccf_init (EWeatherSourceCCF *source)
 {
-	source->handle = NULL;
-	source->buffer = NULL;
 }
 
 GType
