@@ -75,6 +75,4 @@ mainBook = Sequencer.CyclicBook(view, [
     Sequencer.FadeIn(0.2, (1,1,1), Sequencer.FadeOut(1, (0,0,0), IconTest))
     ])
 
-# Exit our main loop once the mainBook finishes
-mainBook.onFinish.observe(loop.stop)
 loop.run()
