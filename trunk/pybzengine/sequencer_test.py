@@ -52,12 +52,17 @@ class Sparks(Sequencer.Page):
 
 
 class TextureTest(Sequencer.Page):
+    """A scene featuring the texture_test model. The camera zooms in toward one
+       of the crates, then the scene ends
+       """
     def __init__(self, view):
         Sequencer.Page.__init__(self, view)
 
+        # Load the 'texture_test' model into the scene
         self.meshes = tuple(Drawable.VRML.load("texture_test.wrl").values())
         self.view.scene.add(self.meshes)
 
+        # Place the camera somewhat far away, centered on one of the crates
         self.view.camera.position = (-5,-0.337,0)
         self.view.camera.distance = 50
         self.view.camera.azimuth = 57
@@ -67,8 +72,11 @@ class TextureTest(Sequencer.Page):
         self.viewport.onSetupFrame.observe(self.setupFrame)
 
     def setupFrame(self):
+        # Move the camera in closer
         dt = self.time.step()
         self.view.camera.distance -= dt * 8
+
+        # Once the camera is too close to the crate, declare this scene finished
         if self.view.camera.distance < 7:
             self.onFinish()
 
@@ -76,5 +84,19 @@ class TextureTest(Sequencer.Page):
         self.view.scene.remove(self.meshes)
 
 
-book = Sequencer.Book(view, [TextureTest, Monkey])
+# Load a sequence of the above pages into a book
+book = Sequencer.Book(view, [
+
+    # Zoom in on the 'texture_test' model. This page finishes itself when the camera is close enough
+    TextureTest,
+
+    # Show some perty particle systems for 5 seconds, using the PageTimer
+    Sequencer.PageTimer(5, Sparks),
+
+    # Spin the 'monkey' model for 10 seconds
+    Sequencer.PageTimer(10, Monkey),
+    ])
+
+# Run our event loop until the book finishes
+book.onFinish.observe(loop.stop)
 loop.run()
