@@ -3,7 +3,9 @@
  * @author Brandon Smith
  * @version 2.0
  */
- 
+
+import java.io.*;
+
 public class reader
 {
 	/** The header that has all the form stuff and whatnot. */
@@ -23,28 +25,35 @@ public class reader
 	 */
 	public reader(String filename)
 	{
-		BufferedReader infile = new BufferedReader(new FileReader(filename));
-		String line = infile.readLine();
-		while(line.compareTo("<!-- End Header Block -->") != 0)
+		try
 		{
-			header = header + line + "\n";
-			line = infile.readLine();
+			BufferedReader infile = new BufferedReader(new FileReader(filename));
+			String line = infile.readLine();
+			while(line.compareTo("<!-- End Header Block -->") != 0)
+			{
+				header = header + line + "\n";
+				line = infile.readLine();
+			}
+			while(line.compareTo("<!-- End Question Block -->") != 0)
+			{
+				question = question + line + "\n";
+				line = infile.readLine();
+			}
+			while(line.compareTo("!-- End Notice Block -->") != 0)
+			{
+				notice = notice + line + "\n";
+				line = infile.readLine();
+			}
+			while(line != null)
+			{
+				footer = footer + line + "\n";
+				line = infile.readLine();
+			}
+			infile.close();
 		}
-		while(line.compareTo("<!-- End Question Block -->") != 0)
+		catch(Exception foo)
 		{
-			question = question + line + "\n";
-			line = infile.readLine();
+			System.out.println("Something messed up...\n" + foo);
 		}
-		while(line.compareTo("!-- End Notice Block -->") != 0)
-		{
-			notice = notice + line + "\n";
-			line = infile.readLine();
-		}
-		while(line != null)
-		{
-			footer = footer + line + "\n";
-			line = infile.readLine();
-		}
-		infile.close();
 	}
 }

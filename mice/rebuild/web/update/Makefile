@@ -1,7 +1,8 @@
 CLASSES=\
 	keyinfo.class\
 	key.class\
-	element.class
+	element.class\
+	reader.class
 
 update: $(CLASSES)
 
@@ -13,6 +14,9 @@ key.class: key.java
 
 element.class: element.java
 	javac element.java
+
+reader.class: reader.java
+	javac reader.java
 
 clean:
 	rm -Rf *.class *~
