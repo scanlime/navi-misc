@@ -1,10 +1,10 @@
 Index: configure.in
 ===================================================================
 RCS file: /cvsroot/xchat/xchat2/configure.in,v
-retrieving revision 1.73
-diff -u -r1.73 configure.in
---- configure.in	31 Dec 2004 03:46:37 -0000	1.73
-+++ configure.in	23 Jan 2005 03:35:56 -0000
+retrieving revision 1.74
+diff -u -r1.74 configure.in
+--- configure.in	21 Jan 2005 07:08:41 -0000	1.74
++++ configure.in	1 Feb 2005 17:08:44 -0000
 @@ -2,7 +2,7 @@
  
  AC_INIT(src)
@@ -135,7 +135,7 @@ diff -u -r1.73 configure.in
  dnl *********************************************************************
  dnl ** FUNCTIONS/LIBS/CFLAGS ********************************************
  dnl *********************************************************************
-@@ -650,12 +679,16 @@
+@@ -654,12 +683,16 @@
  src/Makefile
  src/common/Makefile
  src/fe-text/Makefile
@@ -152,7 +152,7 @@ diff -u -r1.73 configure.in
  intl/Makefile
  po/Makefile.in
  ])
-@@ -663,10 +696,13 @@
+@@ -667,10 +700,13 @@
  echo
  echo xchat $VERSION
  echo
@@ -175,7 +175,7 @@ RCS file: /cvsroot/xchat/xchat2/plugins/Makefile.am,v
 retrieving revision 1.4
 diff -u -r1.4 Makefile.am
 --- plugins/Makefile.am	13 Jan 2003 07:29:36 -0000	1.4
-+++ plugins/Makefile.am	23 Jan 2005 03:35:57 -0000
++++ plugins/Makefile.am	1 Feb 2005 17:08:44 -0000
 @@ -20,5 +20,9 @@
  tcldir = tcl
  endif
@@ -187,13 +187,14 @@ diff -u -r1.4 Makefile.am
  #SUBDIRS = . $(pythondir) $(perldir) mailcheck xdcc
 -SUBDIRS = . $(pythondir) $(perldir) $(tcldir)
 +SUBDIRS = . $(pythondir) $(perldir) $(tcldir) $(urlscrprdir)
+
 Index: src/Makefile.am
 ===================================================================
 RCS file: /cvsroot/xchat/xchat2/src/Makefile.am,v
 retrieving revision 1.1.1.1
 diff -u -r1.1.1.1 Makefile.am
 --- src/Makefile.am	28 Nov 2002 10:39:00 -0000	1.1.1.1
-+++ src/Makefile.am	23 Jan 2005 03:35:57 -0000
++++ src/Makefile.am	1 Feb 2005 17:08:53 -0000
 @@ -11,4 +11,8 @@
  gtk_fe = fe-gtk
  endif
