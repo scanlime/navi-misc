@@ -4,14 +4,14 @@
 ;
 
 i2c_sda_high macro
-	movlw	BATT_VOLT_MASK | UNUSED_MASK | SDA_MASK
+	movlw	DEFAULT_TRIS | SDA_MASK
 	bsf	STATUS, RP0
 	movwf	TRISIO
 	bcf	STATUS, RP0
 	endm
 
 i2c_sda_low macro
-	movlw	BATT_VOLT_MASK | UNUSED_MASK
+	movlw	DEFAULT_TRIS & (~SDA_MASK)
 	bsf	STATUS, RP0
 	movwf	TRISIO
 	bcf	STATUS, RP0
