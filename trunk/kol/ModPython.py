@@ -1,7 +1,10 @@
 ''' ModPython.py
 
 Module to facilitate the use of Nouvelle with mod_python apache
-module.
+module. Page is the base class for creating webpages with Nouvelle
+and mod_python. Each instance of Page is callable, by setting the document
+attribute of a Page and calling that instance mod_python will create
+the page.
 '''
 # Copyright (C) 2004 W. Evan Sheehan <evan@navi.cx>
 #
@@ -23,8 +26,16 @@ import Nouvelle, string
 from Nouvelle import tag
 
 class Page:
-  serializer = Nouvell.Seralizer
+  ''' Base class for using mod_python with Nouvelle. Creates callable instances
+      that render the webpage when called.
+      '''
+  serializer = Nouvelle.Serializer
 
-  def __call__(self, request):
-    doc = Page.serializer.render(self.document)
-    return string.join(doc)
+  def __init__(self):
+    self.document = None
+
+  def __call__(self):
+    if self.document:
+      doc = Page.serializer().render(self.document)
+      return string.join(doc,'')
+    return ''

@@ -16,6 +16,9 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+import sys
+sys.path.append('/var/www/kol')
+
 import ModPython
 from Nouvelle import tag
 
@@ -23,4 +26,5 @@ class Page(ModPython.Page):
   def __init__(self):
     self.document = tag('html')[tag('body')[tag('h1')['hi']]]
 
-test = Page()
+#test = Page()
+test2 = ModPython.Page()
