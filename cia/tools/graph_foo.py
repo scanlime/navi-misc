@@ -105,7 +105,7 @@ class RelationGrapher:
         graphAttrs = {
             'packmode': 'graph',
             'center': True,
-            'Damping': 0.9,
+            'Damping': 0.999,
             }
 
         f.write("graph G {\n")
@@ -119,13 +119,18 @@ class RelationGrapher:
             nodes[row[1]] = None
 
         # Keep track of node parents, so later we can use them for special cases
+        # and for determining how many children a particular node has.
         parents = {}
         for node in nodes:
             segments = node.split('/')
+            # Make sure all ancestors of this node exist in the parents map
             for i in xrange(len(segments)):
                 parent = '/'.join(segments[:i])
                 if parent:
-                    parents[parent] = True
+                    parents.setdefault(parent, [])
+            # Add the node to its immediate parent
+            if len(segments) > 1:
+                parents[parent].append(node)
 
         # Find a selector for each node, and write out their attributes
         for node in nodes.keys():
@@ -166,12 +171,18 @@ class RelationGrapher:
             unitStrength = math.log(strength) / math.log(maxStrength)
             unitFreshness = 1 - (math.log(now - freshness) / math.log(now - minFreshness))
 
-            # By default, generate a length to correspond to the strength of this edge.
-            # We use a high weight to tell neato that this edge length is important.
+            # Determine the number of children this edge involves, for length scaling purposes
+            children = len(parents.get(a,())) + len(parents.get(b,()))
+
             attributes = {
-                'len': 8.0 - 6 * unitStrength,
-                'weight': 0.1,
-                'label': strength,
+                # The length is semantically unimportant, but try to give the graph a good
+                # layout. Increase the length proportionately with the number of children
+                # our nodes have.
+                'len': 5.0 + math.log(children + 1),
+                'weight': 5.0,
+
+                # Scale the line width according to the edge's strength
+                'style': 'setlinewidth(%d)' % int(unitStrength * 10 + 1),
                 }
 
             f.write('\t%s -- %s %s;\n' % (self.quote(a),
