@@ -53,7 +53,7 @@ def run(runnable=None):
             tweakThread.stop()
     else:
         # If we have no runnable, no need to make a thread
-	gtk.main()
+        gtk.main()
 
 
 class Thread(threading.Thread):

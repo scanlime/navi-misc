@@ -50,14 +50,14 @@ class ChannelList(gtk.TreeView):
         """Fills the model with data, must be called after self.window is valid"""
         for channel in self.channels:
             i = self.model.append()
-	    self.model.set(i,
+            self.model.set(i,
                 0, channel,
                 1, str(channel),
                 2, gtk.FALSE,
                 3, gtk.TRUE,
                 4, self.makeColorSamplePixbuf(channel),
                 5, "",
-		)
+        	)
         self.modelFilled = True
 
         if self.valueUpdateInterval:
