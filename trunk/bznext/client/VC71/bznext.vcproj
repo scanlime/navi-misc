@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../inc;../../common/inc;../../../ogrenew/ogremain/include"
+				AdditionalIncludeDirectories="../inc;../../common/inc;../../../ogrenew/ogremain/include;../ui/inc"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_STLP_USE_DYNAMIC_LIB;OGRE_LIBRARY_IMPORTS"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -147,6 +147,13 @@
 					RelativePath="..\..\common\src\timer.cpp">
 				</File>
 			</Filter>
+			<Filter
+				Name="UI"
+				Filter="">
+				<File
+					RelativePath="..\ui\src\ui.cpp">
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -178,6 +185,13 @@
 				</File>
 				<File
 					RelativePath="..\..\common\inc\timer.h">
+				</File>
+			</Filter>
+			<Filter
+				Name="UI"
+				Filter="">
+				<File
+					RelativePath="..\ui\inc\ui.h">
 				</File>
 			</Filter>
 		</Filter>

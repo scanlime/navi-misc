@@ -18,21 +18,8 @@
 // the app needs to provide a derived CBaseGameLoop
 // as the base on will just quit out
 
-typedef enum
-{
-	eBox,
-	ePyramid
-}teWorldObjectType;
-
-typedef struct 
-{
-	teWorldObjectType	type;
-	float pos[3];
-	float scale[3];
-	float rot;
-}trWorldObject;
-
 #include "gameloop.h"
+#include "ui.h"
 
 class  CBZNextLoop : public CBaseGameLoop
 {
@@ -61,18 +48,15 @@ protected:
   void showDebugOverlay(bool show);
 
   bool        quit;
-  Entity*     mShip;
-  SceneNode*  mShipNode;
-  SceneNode*  mGroundNode;
-  Entity*     mGroundEntity;
-
+	bool				inUI;
   int         excapeID;
 
-  // ogre input stuff
+	// UI core
+	CUserInterface	ui;
+
+  // ogre input stuff ( put all this crap in an input mananger )
   EventProcessor* mEventProcessor;
   InputReader* mInputDevice;
-
-  std::vector<trWorldObject>	world;
 };
 
 #endif //_BZNEXT_LOOP_H_
