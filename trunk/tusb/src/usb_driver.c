@@ -171,9 +171,18 @@ static void usb_write_ep0_string_descriptor(unsigned char *string) {
   int total_length = 2 + 2*strlen(string);
   int packet_length;
   xdata unsigned char *dest;
+  bit explicit_stop;
 
-  if (remaining_length > total_length)
+  if (remaining_length > total_length) {
+    /* The host is asking for more than we have, we need
+     * to make sure we explicitly terminate the transaction.
+     */
+    explicit_stop = 1;
     remaining_length = total_length;
+  }
+  else {
+    explicit_stop = 0;
+  }
 
   /* The first packet includes a header */
   dest = usb_ep0in_buffer;
@@ -182,7 +191,7 @@ static void usb_write_ep0_string_descriptor(unsigned char *string) {
   packet_length = 2;
   remaining_length -= 2;
 
-  do {
+  while (1) {
     /* Add more bytes to this packet while we can */
     while (remaining_length > 0 && packet_length < 8) {
       *(dest++) = *(string++);
@@ -194,8 +203,21 @@ static void usb_write_ep0_string_descriptor(unsigned char *string) {
     IEPBCNT_0 = packet_length;
     usb_wait_for_ep0_in();
     dest = usb_ep0in_buffer;
+
+    if (remaining_length <= 0)
+      break;
+
     packet_length = 0;
-  } while (remaining_length > 0);
+  }
+
+  /* If our last packet wasn't smaller than the maximum packet length
+   * and they asked for more data than we've sent, we need to send
+   * a short packet to explicitly terminate the transction.
+   */
+  if (explicit_stop && packet_length == 8) {
+    IEPBCNT_0 = 0;
+    usb_wait_for_ep0_in();
+  }
 
   usb_ack_ep0_in();
 }
