@@ -29,7 +29,7 @@ public class personindex
 	/** The number of bots that I currently have. */
 	public int botcount;
 	/** The next bot in the array to be assigned. */
-	public int currentbot;
+	public int currentbot = 1;
 	/** The head of the person linked list. */
 	public person masshead;
 	/** The head of the interviewee linked list. */
@@ -85,7 +85,7 @@ public class personindex
 		}
 		masshead = new person(masshead,bots[currentbot],from);
 		currentbot++;
-		if(currentbot == botcount) currentbot = 0;
+		if(currentbot == botcount) currentbot = 1;
 	}
 	
 	/**

@@ -66,6 +66,8 @@ public class nchatint extends nbase
 				if(cmd.compareTo("No Questions\r\nAt This Time") == 0)
 				{
 					write("-ERR");
+					
+					/*
 					while(cmd.compareTo("No Questions\r\nAt This Time") == 0)
 					{
 						try{
@@ -74,9 +76,13 @@ public class nchatint extends nbase
 						catch(Exception e){}
 						cmd = view.getQuestion();
 					}
+					*/
 				}
-				else write("+OK");
-				write(cmd);
+				else
+				{
+					write("+OK");
+					write(cmd);
+				}
 				break;
 			}
 		}
