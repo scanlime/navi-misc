@@ -7,9 +7,13 @@ Known Bugs
 - These invalid messages cause XML parsing errors when formatting the RSS feeds.
   The normal stats summary page explicitly ignores badly formed messages.
 
-- It looks like somehow most DOM Document objects are getting linked to each other,
+- CRITICAL: It looks like somehow most DOM Document objects are getting linked to each other,
   resulting in hundreds of ungarbagecollected messages after a week or so of uptime.
   This makes for a pretty icky memory leak.
+
+- CRITICAL: A few times now the server has completely forgotten about all rulesets.
+  It acts as if the RulesetStorage was explicitly emptied, but I have no idea how
+  that would happen. A call to refresh() through the debug console restores them all.
 
 - Many of the module imports are messy. Relative imports should be removed according
   to section 2.4 of the python programming FAQ, and the order could use some cleanup.
