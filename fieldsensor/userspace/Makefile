@@ -5,7 +5,7 @@ LIBS += -lusb
 
 ALSA_LIBS += -lasound
 
-all:		calibrate findchan tune
+all:		calibrate findchan tune theremin
 
 field-sensor.o:	field-sensor.c field-sensor.h
 	gcc -c -o $@ field-sensor.c $(CFLAGS)
@@ -27,3 +27,9 @@ tune.o:		tune.c field-sensor.h
 
 tune:		tune.o field-sensor.o
 	gcc -o $@ tune.o field-sensor.o $(LIBS)
+
+theremin.o:	theremin.c field-sensor.h
+	gcc -c -o $@ theremin.c $(CFLAGS)
+
+theremin:	theremin.o field-sensor.o
+	gcc -o $@ theremin.o field-sensor.o $(LIBS) $(ALSA_LIBS)
