@@ -19,11 +19,15 @@ and displaying them in a separate window.
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-import xchat, string
+import xchat, string, pygtk, gtk
 
 __module_name__ = 'URL Scraper'
 __module_version__ = '0.1-pre'
 __module_description__ = 'Collect URLs said and display them in a separate window'
+
+window = gtk.Window( gtk.WINDOW_TOPLEVEL )
+window.connect( 'destroy', lambda w: gtk.main.quit() )
+window.show()
 
 def grabURL( word, word_eol, user_data ):
     ''' Check a message for a URL. '''
