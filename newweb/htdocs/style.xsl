@@ -22,6 +22,7 @@
           <xsl:when test="/page/@front='true'">
             <!--========== Front Page -->
             <h1 class="majorTitle"><xsl:value-of select="/page/heading"/></h1>
+            <xsl:value-of select="/page/content/text()"/>
           </xsl:when>
           <xsl:otherwise>
             <!--========== Normal Page -->

@@ -68,6 +68,30 @@ class DiskChart:
             total += percent
         return total
 
+class MountPointChart(DiskChart):
+    """Chart to display information about one mount point"""
+    def __init__(self, page, mount):
+        DiskChart.__init__(self, page)
+        self.mount = mount
+
+    def getName(self):
+        return self.mount.path
+
+    def getPercentsUsed(self):
+        return [self.mount.used * 100.0 / (self.mount.used + self.mount.available)]
+
+    def getPercentsFree(self):
+        return [100 - self.getPercentsUsed()[0]]
+
+    def getTotal(self):
+        return formatSize(self.mount.used + self.mount.available)
+
+    def getUsed(self):
+        return formatSize(self.mount.used)
+
+    def getAvailable(self):
+        return formatSize(self.mount.available)
+
 if __name__ == '__main__':
     print """Content-type: text/xml
 

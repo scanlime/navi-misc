@@ -3,5 +3,7 @@
 
 <page title="Navi" front="true">
   <heading>Hello, Navi.</heading>
-  <img src="/images/web/navi_small.png" alt="Navi logo"/>
+  <content>
+    <img src="http://navi/images/web/navi_small.png" alt="Navi logo"/>
+  </content>
 </page>
