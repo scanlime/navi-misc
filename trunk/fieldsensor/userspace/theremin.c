@@ -25,6 +25,14 @@
 #include <alsa/asoundlib.h>
 #include "field-sensor.h"
 
+guchar phase[]  = {24,     33,     21,     28,     26,     34,     17,     14};
+guchar period[] = {27,     26,     29,     26,     27,     30,     29,     29};
+float  mean[]   = {179.27, 199.08, 190.07, 178.63, 205.96, 167.80, 251.76, 236.91};
+float  lbound[] = {168,    167,    172,    164,    179,    158,    183,    176};
+float  ubound[] = {212,    254,    252,    253,    255,    198,    253,    240};
+
+#define max(n,m) ((n > m) ? (n) : (m))
+
 struct filter {
 	unsigned char *buffer;
 	int *sums;
@@ -57,6 +65,33 @@ filter_append (struct filter *self, unsigned char *sample)
 	self->current = (self->current + 1) % self->num_samples;
 }
 
+float
+scale (float input, int channel)
+{
+	static float scale[8];
+	static gboolean init = FALSE;
+	int i;
+
+	if (!init) {
+		for (i = 0; i < 8; i++) {
+			scale[i] = max (ubound[i] - mean[i], mean[i] - lbound[i]);
+		}
+		init = TRUE;
+	}
+
+	return (input - mean[channel]) / scale[channel];
+}
+
+float
+sum (float input[], int samples)
+{
+        float x = 0.0f;
+        int i;
+        for (i = 0; i < 8; i++)
+            x += scale((float)input[i] / samples, i);
+        return x / 8;
+}
+
 int
 main (int argc, char *argv[])
 {
@@ -69,9 +104,6 @@ main (int argc, char *argv[])
 
 	const int dest_client = 128,
 	          dest_port = 0;
-
-	guchar phase[]  = {24, 33, 21, 28, 26, 34, 17, 14};
-	guchar period[] = {27, 26, 29, 26, 27, 30, 29, 29};
 
 	g_type_init ();
 
@@ -100,6 +132,8 @@ main (int argc, char *argv[])
 	}
 
 	while (1) {
+		float left, right;
+
 		field_sensor_take_reading (sensor, buffer);
 		filter_append (&filter, buffer);
 
@@ -108,12 +142,17 @@ main (int argc, char *argv[])
 		snd_seq_ev_set_source (&ev, port);
 		snd_seq_ev_set_dest (&ev, dest_client, dest_port);
 
-		snd_seq_ev_set_pitchbend (&ev, 0, (float)filter.sums[0] / filter.num_samples * 64 - 8192);
+		/* Use tx3+rx1 and tx1+rx2 to determine horizontal hand position */
+		left  = scale((float)filter.sums[4] / filter.num_samples, 4);
+		right = scale((float)filter.sums[1] / filter.num_samples, 1);
+		snd_seq_ev_set_pitchbend (&ev, 0, (right - left) * 8192);
 		snd_seq_event_output (seq, &ev);
 
-		for (i = 1; i < 6; i++)
-			snd_seq_ev_set_controller (&ev, 0, i, filter.sums[i] / filter.num_samples - 127);
+		/* attach volume to average magnitude */
+		/*
+                snd_seq_ev_set_controller (&ev, 0, 7, sum (filter.sums, filter.num_samples) * 127);
 		snd_seq_event_output (seq, &ev);
+		*/
 
 		snd_seq_drain_output (seq);
 
