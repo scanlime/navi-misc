@@ -47,6 +47,18 @@ public class question
 	}
 	
 	/**
+	 * This method returns a nearly exact copy of the question
+	 * @author Brandon Smith
+	 * @version 2.1
+	 */
+	public question duplicate()
+	{
+		question dupe = newquestion(name,text);
+		dupe.answer = answer;
+		dupe.answeredby = answeredby;
+		return dupe;
+	}
+	/**
 	 * The method adds the answer to the question.
 	 * @param who The name of the person who answered.
 	 * @param ans The answer they gave.
