@@ -1,9 +1,11 @@
-			     BZFlag-GTX Release Notes
+			     OpenCombat Release Notes
 			     ====================
 			     
-BZFlag-GTX 0.0.1  (Inital rework)
+OpenCombat 0.0.1  (Inital rework)
 ---------------------------
 * all files CPP
+* removed blend, stipple, smooth, and flat shade from engine, menu, and bzdb
+* blended shadows
 
 
 BZFlag 1.12.0  (was 1.11.x)
