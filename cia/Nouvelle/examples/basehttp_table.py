@@ -1,8 +1,13 @@
 #!/usr/bin/env python
 #
-# A sandbox for testing the Nouvelle web framework used by CIA
-# This runs a web server at http://localhost:8080
+# A simple Nouvelle example using BaseHTTPServer and Nouvelle.Table
+# This runs a web server at http://localhost:8080, and presents a table
+# that you can resort by clicking the headings.
 #
+
+# So we can find Nouvelle even if it isn't installed...
+import sys, os; sys.path[0] = os.path.join(sys.path[0], '..', '..')
+
 import Nouvelle
 from Nouvelle import tag, place, BaseHTTP
 
