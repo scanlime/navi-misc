@@ -1,18 +1,14 @@
 #!/usr/bin/env python
-import time
+import time, mi6k
 from math import *
 
-f = open("/dev/usb/mi6k0", "w")
-
-def setBrightness(l):
-    f.write("\x19\x30\xFF" + chr(int((1-l) * 0x07)))
-    f.flush()
+vfd = mi6k.Device().vfd
 
 startTime = time.time()
 try:
     while True:
         t = time.time() - startTime
-        setBrightness(sin(t * 10) * 0.5 + 0.5)
+        vfd.setBrightness(sin(t * 10) * 0.5 + 0.5)
         time.sleep(0.01)
 finally:
-    setBrightness(1)
+    vfd.setBrightness(1)

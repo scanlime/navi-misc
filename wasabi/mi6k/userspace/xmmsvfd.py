@@ -149,7 +149,7 @@ class VFDupdater:
 
 
 if __name__ == '__main__':
-    vfdupdater = VFDupdater(mi6k.MI6K().vfd)
+    vfdupdater = VFDupdater(mi6k.Device().vfd)
 
     while True:
         vfdupdater.update()

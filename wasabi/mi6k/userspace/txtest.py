@@ -2,7 +2,8 @@
 #
 # Tiny IR transmitter test
 #
-import time, Tweak
+import time
+from BZEngine.UI import Tweak
 
 class test:
     def __init__(self):
