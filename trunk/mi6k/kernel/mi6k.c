@@ -65,12 +65,16 @@ MODULE_DEVICE_TABLE(usb, mi6k_table);
 
 /* Structure to hold all of our device specific stuff */
 struct usb_mi6k {
+	/* Device administration */
 	struct usb_device *	udev;			/* save off the usb device pointer */
 	struct usb_interface *	interface;		/* the interface for this device */
 	devfs_handle_t		devfs;			/* main devfs device node */
 	devfs_handle_t		lirc_devfs;		/* devfs device node for our LIRC-compatible device */
 	unsigned char		minor;			/* the starting minor number for this device */
 	int			open_count;		/* number of times this port has been opened */
+	struct semaphore	sem;			/* locks this structure */
+
+	/* IR receive */
 	lirc_t			ir_rx_buffer[IR_RECV_BUFFER_SIZE]; /* ring buffer for incoming IR data */
 	int			ir_rx_head;		/* empty slot for the next received value */
 	int			ir_rx_tail;		/* slot for the oldest value in the buffer */
@@ -80,7 +84,13 @@ struct usb_mi6k {
 	unsigned char		ir_rx_tbuffer[IR_URB_BUFFER_SIZE]; /* Buffer holding one interrupt transfer */
 	lirc_t			pulse_flag;		/* flag that alternates, indicating whether we're currently
 							 * receiving a pulse or a space. */
-	struct semaphore	sem;			/* locks this structure */
+
+	/* IR transmit */
+	unsigned char		ir_tx_pulse;		/* Buffer for a pulse awaiting transmission.
+							 * Once two pulses await transmission, they
+							 * are sent and this is cleared.
+							 */
+	unsigned char		ir_tx_space;		/* Corresponds with ir_tx_pulse */
 };
 
 /* the global devfs handle for the USB subsystem */
@@ -116,6 +126,8 @@ static void mi6k_ir_rx_push(struct usb_mi6k *dev, lirc_t x);
 static int mi6k_ir_rx_pop(struct usb_mi6k *dev);
 static void mi6k_ir_rx_store(struct usb_mi6k *dev, unsigned char *buffer, size_t count);
 static void mi6k_ir_tx_send(struct usb_mi6k *dev, lirc_t pulse, lirc_t space);
+static void mi6k_ir_tx_send_converted(struct usb_mi6k *dev, lirc_t pulse, lirc_t space);
+static void mi6k_ir_tx_flush(struct usb_mi6k *dev);
 static int mi6k_status(struct usb_mi6k *dev);
 static int mi6k_open(struct inode *inode, struct file *file);
 static int mi6k_release(struct inode *inode, struct file *file);
@@ -213,33 +225,64 @@ static void mi6k_ir_rx_store(struct usb_mi6k *dev, unsigned char *buffer, size_t
 	wake_up_interruptible(&dev->ir_rx_wait);
 }
 
+/* Convert a pulse or space value from microseconds to the transmitter's ~12.8us units */
 static lirc_t mi6k_ir_tx_convert(lirc_t v)
 {
-	/* Convert a pulse or space value from microseconds to the transmitter's ~12.8us units */
-        v = ((v & PULSE_MASK) * 100 + 50) / 1285 + 1;
-	if (v > 0xFFFF) v = 0xFFFF;
-
-	return v;
+	return ((v & PULSE_MASK) * 100 + 50) / 1285;
 }
 
+/* Queue a pulse/space pair for transmission, converting long pulses/spaces as necessary */
 static void mi6k_ir_tx_send(struct usb_mi6k *dev, lirc_t pulse, lirc_t space)
 {
-	int i;
-
-	/* Send a pulse and space to the device synchronously. */
-	dbg("ir_tx_send unconverted: %d %d", pulse, space);
+	dbg("ir_tx_send: %d %d", pulse, space);
 	pulse = mi6k_ir_tx_convert(pulse);
 	space = mi6k_ir_tx_convert(space);
-	dbg("ir_tx_send converted: %d %d", pulse, space);
+	mi6k_ir_tx_send_converted(dev, pulse, space);
+}
 
-	/* The firmware can only send values in the range [1, 255]. If we have a value
-	 * larger than this, split it into smaller pieces.
-	 */
-	for (i=pulse >> 8; i; i--)
-		mi6k_request(dev, MI6K_CTRL_IR_SEND, 255, 1);
-	mi6k_request(dev, MI6K_CTRL_IR_SEND, pulse & 0xFF, space & 0xFF);
-	for (i=space >> 8; i; i--)
-		mi6k_request(dev, MI6K_CTRL_IR_SEND, 1, 255);
+/* Recursive function used by mi6k_ir_tx_send, sends a pulse and space using already-converted values */
+static void mi6k_ir_tx_send_converted(struct usb_mi6k *dev, lirc_t pulse, lirc_t space)
+{
+	/* Split pulses that are too long */
+	while (pulse > 255) {
+		mi6k_ir_tx_send_converted(dev, 255, 0);
+		pulse -= 255;
+	}
+
+	dbg("ir_tx_send_converted: %d %d", pulse, space & 0xFF);
+
+	/* If we already have one value buffered, send two pulse/space pairs */
+	if (dev->ir_tx_pulse || dev->ir_tx_space) {
+		mi6k_request(dev, MI6K_CTRL_IR_SEND,
+			     dev->ir_tx_pulse | (dev->ir_tx_space << 8),
+			     pulse | ((space & 0xFF) << 8));
+		dev->ir_tx_pulse = dev->ir_tx_space = 0;
+	}
+	else {
+		/* Nope, buffer this one so we can send two pulse/space pairs at a time later */
+		dev->ir_tx_pulse = pulse;
+		dev->ir_tx_space = space & 0xFF;
+	}
+
+	/* Split spaces that are too long */
+	while (space > 255) {
+		mi6k_ir_tx_send_converted(dev, 0, 255);
+		space -= 255;
+	}
+}
+
+/* Send any pending IR data. This includes the one locally buffered pulse/space pair,
+ * and the data being buffered in the mi6k firmware.
+ */
+static void mi6k_ir_tx_flush(struct usb_mi6k *dev)
+{
+	if (dev->ir_tx_pulse || dev->ir_tx_space) {
+		mi6k_request(dev, MI6K_CTRL_IR_SEND,
+			     dev->ir_tx_pulse | (dev->ir_tx_space << 8),
+			     0);
+		dev->ir_tx_pulse = dev->ir_tx_space = 0;
+	}
+	mi6k_request(dev, MI6K_CTRL_IR_FLUSH, 0, 0);
 }
 
 static void mi6k_ir_rx_irq(struct urb *urb)
@@ -592,6 +635,9 @@ static ssize_t mi6k_lirc_write(struct file *file, const char *buffer, size_t cou
 		/* We ended our write on a pulse, send it with a space of zero */
 		mi6k_ir_tx_send(dev, pulse, 0);
 	}
+
+	/* Flush our local buffer and the device's buffer */
+	mi6k_ir_tx_flush(dev);
 
 	/* Ignore any leftover bytes */
 	retval += count;

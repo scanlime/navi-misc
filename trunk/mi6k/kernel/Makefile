@@ -1,5 +1,5 @@
 WARN	:=
-#DEBUG   := -DDEBUG
+DEBUG   := -DDEBUG
 INCLUDE := -isystem /lib/modules/`uname -r`/build/include -I../include
 INSTALLDIR := /lib/modules/`uname -r`/kernel/drivers/usb/
 CFLAGS  := -O2 -DMODULE -D__KERNEL__ ${WARN} ${INCLUDE} ${DEBUG}
@@ -16,7 +16,7 @@ install: ${OBJS}
 	mkdir -p ${INSTALLDIR} || true
 	cp -f ${OBJS} ${INSTALLDIR}
 	/sbin/depmod -a
-	
+
 test: install
 	sync
 	/sbin/rmmod ${MODS} || true
