@@ -526,7 +526,7 @@ static void listener_poll(struct listener* self)
 
 static int main_loop(void) {
   struct listener *tcp_listener;
-  struct client *client_iter;
+  struct client *client_iter, *next_client;
   int n;
 
   FD_ZERO(&fd_request_read);
@@ -553,9 +553,13 @@ static int main_loop(void) {
       listener_poll(tcp_listener);
 
       /* Poll all clients */
-      for (client_iter=client_list_head; client_iter; client_iter=client_iter->next)
+      client_iter = client_list_head;
+      while (client_iter) {
+	/* Save the next client first, as this one might remove itself */
+	next_client = client_iter->next;
 	client_poll(client_iter);
-
+	client_iter = next_client;
+      }
     }
   }
   return 0;
