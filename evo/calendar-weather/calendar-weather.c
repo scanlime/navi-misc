@@ -118,50 +118,6 @@ selection_changed (GtkTreeSelection *selection, GtkDialog *dialog)
 	}
 }
 
-static GtkDialog *
-create_source_selector (ESource *source)
-{
-	GtkWidget *dialog, *treeview, *scrolledwindow;
-	GtkCellRenderer *text;
-	GtkTreeSelection *selection;
-
-	/* FIXME - should show an error here if it fails*/
-	if (store == NULL)
-		return NULL;
-
-	dialog = gtk_dialog_new_with_buttons (
-	    		_("Select a location"),
-	    		NULL, GTK_DIALOG_MODAL,
-			GTK_STOCK_OK, GTK_RESPONSE_OK,
-			GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-			NULL);
-	gtk_container_set_border_width (GTK_CONTAINER (dialog), 6);
-
-	scrolledwindow = gtk_scrolled_window_new (NULL, NULL);
-	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolledwindow), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
-	gtk_widget_show (scrolledwindow);
-	treeview = gtk_tree_view_new_with_model (GTK_TREE_MODEL (store));
-	gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (treeview), FALSE);
-	gtk_widget_show (treeview);
-	gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW (scrolledwindow), treeview);
-	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
-	gtk_tree_selection_set_mode (selection, GTK_SELECTION_BROWSE);
-	g_signal_connect (G_OBJECT (selection), "changed", G_CALLBACK (selection_changed), dialog);
-	g_object_set_data (G_OBJECT (dialog), "treeview", treeview);
-
-	text = gtk_cell_renderer_text_new ();
-	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (treeview), -1, "location", text, "text", 0, NULL);
-
-	gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), scrolledwindow);
-	gtk_container_set_border_width (GTK_CONTAINER (scrolledwindow), 6);
-	gtk_box_set_spacing (GTK_BOX (GTK_DIALOG (dialog)->vbox), 6);
-
-	gtk_dialog_set_response_sensitive (GTK_DIALOG (dialog), GTK_RESPONSE_OK, FALSE);
-	gtk_window_set_default_size (GTK_WINDOW (dialog), 420, 340);
-
-	return GTK_DIALOG (dialog);
-}
-
 static struct
 {
 	gchar **ids;
@@ -194,6 +150,65 @@ find_location (gchar *relative_url)
 
 	g_strfreev (find_data.ids);
 	return find_data.result;
+}
+
+static GtkDialog *
+create_source_selector (ESource *source)
+{
+	GtkWidget *dialog, *treeview, *scrolledwindow;
+	GtkCellRenderer *text;
+	GtkTreeSelection *selection;
+	gchar *uri_text;
+	EUri *uri;
+
+	/* FIXME - should show an error here if it fails*/
+	if (store == NULL)
+		return NULL;
+
+	dialog = gtk_dialog_new_with_buttons (
+	    		_("Select a location"),
+	    		NULL, GTK_DIALOG_MODAL,
+			GTK_STOCK_OK, GTK_RESPONSE_OK,
+			GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+			NULL);
+	gtk_container_set_border_width (GTK_CONTAINER (dialog), 6);
+
+	scrolledwindow = gtk_scrolled_window_new (NULL, NULL);
+	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolledwindow), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+	gtk_widget_show (scrolledwindow);
+	treeview = gtk_tree_view_new_with_model (GTK_TREE_MODEL (store));
+	gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (treeview), FALSE);
+	gtk_widget_show (treeview);
+	gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW (scrolledwindow), treeview);
+	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
+	gtk_tree_selection_set_mode (selection, GTK_SELECTION_BROWSE);
+
+	uri_text = e_source_get_uri (source);
+	uri = e_uri_new (uri_text);
+	if (uri->path && strlen (uri->path)) {
+		GtkTreeIter *iter = find_location (uri_text + 10);
+		GtkTreePath *path = gtk_tree_model_get_path (GTK_TREE_MODEL (store), iter);
+		gtk_tree_view_expand_to_path (GTK_TREE_VIEW (treeview), path);
+		gtk_tree_selection_select_path (selection, path);
+		gtk_tree_path_free (path);
+	}
+	g_free (uri_text);
+	e_uri_free (uri);
+
+	g_signal_connect (G_OBJECT (selection), "changed", G_CALLBACK (selection_changed), dialog);
+	g_object_set_data (G_OBJECT (dialog), "treeview", treeview);
+
+	text = gtk_cell_renderer_text_new ();
+	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (treeview), -1, "location", text, "text", 0, NULL);
+
+	gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), scrolledwindow);
+	gtk_container_set_border_width (GTK_CONTAINER (scrolledwindow), 6);
+	gtk_box_set_spacing (GTK_BOX (GTK_DIALOG (dialog)->vbox), 6);
+
+	gtk_dialog_set_response_sensitive (GTK_DIALOG (dialog), GTK_RESPONSE_OK, FALSE);
+	gtk_window_set_default_size (GTK_WINDOW (dialog), 420, 340);
+
+	return GTK_DIALOG (dialog);
 }
 
 static gchar *
