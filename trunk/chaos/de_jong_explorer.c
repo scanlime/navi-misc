@@ -206,7 +206,7 @@ void flip() {
 
 	gray = 255 - ((dval * iscale) >> 24);
 
-	*(p++) = GUINT32_TO_LE( gray | (gray<<8) | (gray<<16) );
+	*(p++) = GUINT32_TO_LE( gray | (gray<<8) | (gray<<16) | 0xFF000000UL );
       }
     }
     row += rowstride;
@@ -313,8 +313,13 @@ void saveclick(GtkWidget *widget, gpointer user_data) {
   gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog), filter);
   if(gtk_dialog_run(GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT) {
     char *filename;
+    GdkPixbuf *pixbuf;
+
     filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
-    //    gdk_pixbuf_save(pixbuf, filename, "png", NULL, NULL);
+    pixbuf = gdk_pixbuf_new_from_data(pixels, GDK_COLORSPACE_RGB, TRUE,
+				      8, WIDTH, HEIGHT, WIDTH*4, NULL, NULL);
+    gdk_pixbuf_save(pixbuf, filename, "png", NULL, NULL);
+    gdk_pixbuf_unref(pixbuf);
     g_free(filename);
   }
   g_object_unref(filter);
