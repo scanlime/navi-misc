@@ -69,23 +69,18 @@ class StatsInterface(RPC.Interface):
            Note that times are returned as UNIX-style seconds since
            the epoch in UTC.
            """
-        try:
-            return dict(self.storage.getPathTarget(path).counters.getCounter(name))
-        except:
-            Debug.catchFault()
+        return StatsTarget(path).getCounterValues(name)
 
-    def xmlrpc_clearTarget(self, path, key):
+    def protected_clearTarget(self, path):
         """Deletes any data stored at the stats target with the given path.
            This is not recursive.
            """
-        self.caps.faultIfMissing(key, 'universe', 'stats', 'stats.clearTarget', ('stats.path', path))
-        try:
-            self.storage.getPathTarget(path).clear()
-            self.storage.sync()
-            log.msg("Clearing stats path %r" % path)
-            return True
-        except:
-            Debug.catchFault()
+        log.msg("Clearing stats path %r" % path)
+        StatsTarget(path).clear()
+
+    def caps_clearTarget(self, rpcPath, statsPath):
+        """In addition to the usual capabilities, allow ('stats.path', path)"""
+        return self.makeDefaultCaps(rpcPath) + [('stats.path', statsPath)]
 
 
 class MetadataInterface(xmlrpc.XMLRPC):
