@@ -33,3 +33,11 @@ animandoPocoAPocoAgitato = \markup {
   Agitato
   \large\bold ")"
 }
+
+finaleTempo = \markup {
+  \large\bold "Animé ("
+  92
+  \large\bold "="
+  \note #"4" #1
+  \large \bold ")"
+}
