@@ -46,7 +46,6 @@ struct _IrcNetworkEditor
 
 	IrcNetwork *network;
 	GConfClient *gconf;
-	GladeXML *xml;
 
 	GtkWidget *network_name;
 

@@ -208,19 +208,21 @@ irc_network_editor_init (IrcNetworkEditor *dialog)
 	GtkSizeGroup *group;
 	gchar **enc;
 	GtkTreeSelection *server_selection, *autojoin_selection;
+	GladeXML *xml;
 
 	dialog->gconf = NULL;
 	dialog->network = NULL;
+	dialog->toplevel = NULL;
 
-	dialog->xml = NULL;
+	xml = NULL;
 	if (g_file_test ("irc-network-editor.glade", G_FILE_TEST_EXISTS))
-		dialog->xml = glade_xml_new ("irc-network-editor.glade", "toplevel", NULL);
-	if (!dialog->xml)
-		dialog->xml = glade_xml_new (XCHATSHAREDIR "/irc-network-editor.glade", "toplevel", NULL);
-	if (!dialog->xml)
+		xml = glade_xml_new ("irc-network-editor.glade", "toplevel", NULL);
+	if (!xml)
+		xml = glade_xml_new (XCHATSHAREDIR "/irc-network-editor.glade", "toplevel", NULL);
+	if (!xml)
 		return;
 
-#define GW(name) ((dialog->name) = glade_xml_get_widget (dialog->xml, #name))
+#define GW(name) ((dialog->name) = glade_xml_get_widget (xml, #name))
 	GW(network_name);
 
 	GW(autoconnect);
@@ -247,6 +249,8 @@ irc_network_editor_init (IrcNetworkEditor *dialog)
 
 	GW(toplevel);
 #undef GW
+
+	g_object_unref (xml);
 
 	dialog->server_store = gtk_list_store_new (1, G_TYPE_STRING);
 	dialog->autojoin_store = gtk_list_store_new (1, G_TYPE_STRING);
@@ -417,7 +421,7 @@ IrcNetworkEditor *
 irc_network_editor_new (IrcNetwork *network)
 {
 	IrcNetworkEditor *e = g_object_new (irc_network_editor_get_type (), 0);
-	if (e->xml == NULL) {
+	if (e->toplevel == NULL) {
 		g_object_unref (e);
 		return NULL;
 	}
