@@ -344,7 +344,7 @@ void on_randomize(GtkWidget *widget, gpointer user_data) {
 
 void on_load_defaults(GtkWidget *widget, gpointer user_data) {
   set_defaults();
-  resize(render.width, render.height);
+  resize(render.width, render.height, render.oversample);
   gui_resize(render.width, render.height);
   write_gui_params();
   restart_rendering();
@@ -383,7 +383,7 @@ void on_resize_ok(GtkWidget *widget, gpointer user_data) {
   new_height = gtk_spin_button_get_value(height_widget);
   gtk_widget_hide(glade_xml_get_widget(gui.xml, "resize_window"));
 
-  resize(new_width, new_height);
+  resize(new_width, new_height, render.oversample);
   gui_resize(new_width, new_height);
 }
 
