@@ -28,6 +28,7 @@
 #include "parameter-editor.h"
 #include "math-util.h"
 #include "histogram-view.h"
+#include "de-jong.h"
 #include "prefix.h"
 
 static void explorer_class_init  (ExplorerClass *klass);
@@ -50,6 +51,9 @@ static void     on_quit                     (GtkWidget *widget, Explorer* self);
 static void     on_pause_rendering_toggle   (GtkWidget *widget, Explorer* self);
 static void     on_load_from_image          (GtkWidget *widget, Explorer* self);
 static void     on_widget_toggle            (GtkWidget *widget, Explorer* self);
+static void     on_zoom_reset               (GtkWidget *widget, Explorer* self);
+static void     on_zoom_in                  (GtkWidget *widget, Explorer* self);
+static void     on_zoom_out                 (GtkWidget *widget, Explorer* self);
 static void     on_render_time_changed      (GtkWidget *widget, Explorer* self);
 static void     on_calculation_finished     (IterativeMap *map, Explorer* self);
 static gboolean on_interactive_prefs_delete (GtkWidget *widget, GdkEvent *event, Explorer* self);
@@ -110,6 +114,9 @@ static void explorer_init(Explorer *self) {
     glade_xml_signal_connect_data(self->xml, "on_pause_rendering_toggle",       G_CALLBACK(on_pause_rendering_toggle),       self);
     glade_xml_signal_connect_data(self->xml, "on_load_from_image",              G_CALLBACK(on_load_from_image),              self);
     glade_xml_signal_connect_data(self->xml, "on_widget_toggle",                G_CALLBACK(on_widget_toggle),                self);
+    glade_xml_signal_connect_data(self->xml, "on_zoom_reset",                   G_CALLBACK(on_zoom_reset),                   self);
+    glade_xml_signal_connect_data(self->xml, "on_zoom_in",                      G_CALLBACK(on_zoom_in),                      self);
+    glade_xml_signal_connect_data(self->xml, "on_zoom_out",                     G_CALLBACK(on_zoom_out),                     self);
     glade_xml_signal_connect_data(self->xml, "on_render_time_changed",          G_CALLBACK(on_render_time_changed),          self);
     glade_xml_signal_connect_data(self->xml, "on_interactive_prefs_delete",     G_CALLBACK(on_interactive_prefs_delete),     self);
 
@@ -244,11 +251,13 @@ static void on_load_defaults(GtkWidget *widget, Explorer* self) {
 /******************************************************************** Misc GUI goop */
 /************************************************************************************/
 
-static void on_quit(GtkWidget *widget, Explorer* self) {
+static void on_quit(GtkWidget *widget, Explorer* self)
+{
     gtk_main_quit();
 }
 
-static void on_widget_toggle(GtkWidget *widget, Explorer* self) {
+static void on_widget_toggle(GtkWidget *widget, Explorer* self)
+{
     /* Toggle visibility of another widget. This widget should be named
      * toggle_foo to control the visibility of a widget named foo.
      */
@@ -263,6 +272,25 @@ static void on_widget_toggle(GtkWidget *widget, Explorer* self) {
 	gtk_widget_show(toggled);
     else
 	gtk_widget_hide(toggled);
+}
+
+static void on_zoom_reset(GtkWidget *widget, Explorer* self)
+{
+    g_object_set(self->map, "zoom", 1.0, NULL);
+}
+
+static void on_zoom_in(GtkWidget *widget, Explorer* self)
+{
+    g_object_set(self->map,
+		 "zoom", DE_JONG(self->map)->zoom + 2.0,
+		 NULL);
+}
+
+static void on_zoom_out(GtkWidget *widget, Explorer* self)
+{
+    g_object_set(self->map,
+		 "zoom", DE_JONG(self->map)->zoom - 2.0,
+		 NULL);
 }
 
 #if (GTK_CHECK_VERSION(2, 4, 0))
