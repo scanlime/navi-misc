@@ -144,7 +144,7 @@
       <div class="sectionTop"/>
       <xsl:for-each select="step">
         <div class="row">
-          <xsl:number/>
+          <xsl:number format="1. "/>
           <xsl:value-of select="."/>
         </div>
       </xsl:for-each>
