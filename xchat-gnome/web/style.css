@@ -44,6 +44,11 @@ div.content {
   width: 75%;
 }
 
+div.footer {
+  position: absolute;
+  bottom: 0;
+}
+
 div.code {
   border: 1px dashed #AAA;
   font-family: monospace;
