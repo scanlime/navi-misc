@@ -15,7 +15,7 @@ from GtkChatBuffer import GtkChatBuffer
 from time import localtime
 from dieRoller import DieRoller
 from CharacterSheet.Character import Character
-from CharacterSheet.GTKsheet import GTKsheet
+from CharacterSheet.GtkSheet import GtkSheet
 from twisted.internet import reactor
 
 class PalantirWindow:
@@ -366,7 +366,7 @@ class PalantirWindow:
     if hasattr(self, 'sheet'):
       self.tree.get_widget('CharacterViewPort').remove(self.sheet.root)
     # Create a new sheet.
-    self.sheet = GTKsheet(self.data, self.dieRoller)
+    self.sheet = GtkSheet(self.data, self.dieRoller)
     # Store the filename the sheet was read from... (why did I do this?)
     self.sheet.filename = self.tree.dialog.get_widget('SheetSelection').get_filename()
     # Add the sheet to the CharacterViewPort and show it.
