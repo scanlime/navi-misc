@@ -66,7 +66,8 @@ endmodule
  */
 module serializer (clk, reset,
                    par_data, par_ready, par_strobe,
-                   ser_data, ser_ready, ser_strobe);
+                   ser_data, ser_ready, ser_strobe,
+                   is_empty);
 	parameter WIDTH = 8;
 	parameter COUNT_WIDTH = 3;
 	
@@ -77,10 +78,12 @@ module serializer (clk, reset,
 	output ser_data;
 	input ser_ready;
 	output ser_strobe;
+	output is_empty;
 	
 	reg par_strobe;
 	reg ser_data;
 	reg ser_strobe;
+	reg is_empty;
 	reg [COUNT_WIDTH-1:0] bit_count;
 	reg [WIDTH-1:0] shifter;
 	
@@ -98,6 +101,7 @@ module serializer (clk, reset,
 			par_strobe <= 0;
 			ser_strobe <= 0;
 			ser_data <= 0;
+			is_empty <= 1;
 		
 		end
 		else case (state)
@@ -113,10 +117,12 @@ module serializer (clk, reset,
 					par_strobe <= 1;
 					ser_strobe <= 0;
 					state <= S_SHIFT_BIT;
+					is_empty <= 0;
 				end
 				else begin
 					par_strobe <= 0;
 					ser_strobe <= 0;
+					is_empty <= 1;
 				end				
 			end
 						

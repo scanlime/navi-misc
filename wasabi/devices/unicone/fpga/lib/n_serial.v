@@ -146,8 +146,8 @@ module n_serial_tx (clk, reset,
 		{buffered_stopbit, buffered_data}, buffer_clear);
 
 	/* Split the output of the buffer into stop bits and normal bits */
-	wire normal_byte_ready = buffer_full && !tx_stopbit;
-	wire stop_bit_ready = buffer_full && tx_stopbit;
+	wire normal_byte_ready = buffer_full && !buffered_stopbit;
+	wire stop_bit_ready = buffer_full && buffered_stopbit;
 	wire normal_byte_ack;
 	reg stop_bit_ack;
 	assign buffer_clear = normal_byte_ack || stop_bit_ack;
@@ -157,10 +157,10 @@ module n_serial_tx (clk, reset,
 	 * If ser_ready is high and new data is coming in, ser_strobe
 	 * will go high for each new bit output on ser_data.
 	 */
-	wire ser_data, ser_strobe;
+	wire ser_data, ser_strobe, ser_is_empty;
 	reg ser_ready;
 	serializer ser(clk, reset, buffered_data, normal_byte_ready,
-		       normal_byte_ack, ser_data, ser_ready, ser_strobe);
+		       normal_byte_ack, ser_data, ser_ready, ser_strobe, ser_is_empty);
 	
 	/* Our actual serial transmission is divided
 	 * Into four quarters, plus wait states. The four
@@ -191,12 +191,11 @@ module n_serial_tx (clk, reset,
 		else case (state)
 
 			S_WAIT_FOR_BIT: begin
-				// Emit a ser_ready pulse to let the serializer know we're
-				// ready for a bit. This is necessary to ensure we alternate
-				// asking for a bit and checking to see whether we got it-
-				// otherwise we will get two bits when we want one.
+				// This is a wait state we enter any time current_bit is invalid
+				// We fetch a new bit either from the serializer or from any
+				// of our special cases where we need to stuff bits in.
 
-				if (stop_bit_ready) begin
+				if (stop_bit_ready && ser_is_empty) begin
 					// Insert a stop bit
 					current_bit <= 1;
 					ser_ready <= 0;
