@@ -26,14 +26,16 @@ from Captcha.Visual import Tests
 import Captcha
 from mod_python import apache
 
-_factory = Captcha.Factory()
+
+def _getFactory(req):
+    return Captcha.PersistentFactory("/tmp/pycaptcha_%s" % req.interpreter)
 
 
 def test(req, name=Tests.__all__[0]):
     """Show a newly generated CAPTCHA of the given class.
        Default is the first class name given in Tests.__all__
        """
-    test = _factory.new(getattr(Tests, name))
+    test = _getFactory(req).new(getattr(Tests, name))
 
     # Make a list of tests other than the one we're using
     others = []
@@ -76,7 +78,7 @@ Or try...
 
 def image(req, id):
     """Generate an image for the CAPTCHA with the given ID string"""
-    test = _factory.get(id)
+    test = _getFactory(req).get(id)
     if not test:
         raise apache.SERVER_RETURN, apache.HTTP_NOT_FOUND
     req.content_type = "image/jpeg"
@@ -86,7 +88,7 @@ def image(req, id):
 
 def solution(req, id, word):
     """Grade a CAPTCHA given a solution word"""
-    test = _factory.get(id)
+    test = _getFactory(req).get(id)
     if not test:
         raise apache.SERVER_RETURN, apache.HTTP_NOT_FOUND
 
@@ -110,7 +112,7 @@ def solution(req, id, word):
 <p><b>%s</b></p>
 <p>You guessed: %s</p>
 <p>Possible solutions: %s</p>
-<p><a href="/">Try again</a></p>
+<p><a href="test">Try again</a></p>
 </body>
 </html>
 """ % (test.__class__.__name__, test.id, result, word, ", ".join(test.solutions))

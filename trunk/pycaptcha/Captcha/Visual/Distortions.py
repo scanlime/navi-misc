@@ -32,9 +32,10 @@ class WigglyBlocks(Layer):
         self.blockSize = blockSize
         self.sigma = sigma
         self.iterations = iterations
+        self.seed = random.random()
 
     def render(self, image):
-        r = random.Random(self)
+        r = random.Random(self.seed)
         for i in xrange(self.iterations):
             # Select a block
             bx = int(r.uniform(0, image.size[0]-self.blockSize))

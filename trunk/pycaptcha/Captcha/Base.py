@@ -28,9 +28,9 @@ possible solutions.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import random, string, time
+import random, string, time, shelve
 
-__all__ = ["BaseCaptcha", "Factory"]
+__all__ = ["BaseCaptcha", "Factory", "PersistentFactory"]
 
 
 def randomIdentifier(alphabet = string.ascii_letters + string.digits,
@@ -127,5 +127,15 @@ class Factory(object):
             return False
         result = inst.testSolutions(solutions)
         return result
+
+
+class PersistentFactory(Factory):
+    """A simple persistent factory, for use in CGI or multi-process environments
+       where the state must remain across python interpreter sessions.
+       This implementation uses the 'shelve' module.
+       """
+    def __init__(self, filename, lifetime=60*15):
+        Factory.__init__(self, lifetime)
+	self.storedInstances = shelve.open(filename)
 
 ### The End ###

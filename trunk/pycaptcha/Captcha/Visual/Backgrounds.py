@@ -63,29 +63,30 @@ class Grid(Layer):
 class TiledImage(Layer):
     """Pick a random image and a random offset, and tile the rendered image with it"""
     def __init__(self, imageFactory=Pictures.abstract):
-        self.tile = imageFactory.pick()
-        self.offset = (random.uniform(0, self.tile.size[0]),
-                       random.uniform(0, self.tile.size[1]))
+        self.tileName = imageFactory.pick()
+        self.offset = (random.uniform(0, 1),
+                       random.uniform(0, 1))
 
     def render(self, image):
-        for j in xrange(-1, int(image.size[1] / self.tile.size[1]) + 1):
-            for i in xrange(-1, int(image.size[0] / self.tile.size[0]) + 1):
-                dest = (int(self.offset[0] + i*self.tile.size[0]),
-                        int(self.offset[1] + j*self.tile.size[1]))
-                image.paste(self.tile, dest)
+        tile = Image.open(self.tileName)
+        for j in xrange(-1, int(image.size[1] / tile.size[1]) + 1):
+            for i in xrange(-1, int(image.size[0] / tile.size[0]) + 1):
+                dest = (int((self.offset[0] + i) * tile.size[0]),
+                        int((self.offset[1] + j) * tile.size[1]))
+                image.paste(tile, dest)
 
 
 class CroppedImage(Layer):
     """Pick a random image, cropped randomly. Source images should be larger than the CAPTCHA."""
     def __init__(self, imageFactory=Pictures.nature):
-        self.tile = imageFactory.pick()
+        self.imageName = imageFactory.pick()
         self.align = (random.uniform(0,1),
                       random.uniform(0,1))
 
     def render(self, image):
-        image.paste(self.tile,
-                    (int(self.align[0] * (image.size[0] - self.tile.size[0])),
-                     int(self.align[1] * (image.size[1] - self.tile.size[1]))))
+        i = Image.open(self.imageName)
+        image.paste(i, (int(self.align[0] * (image.size[0] - i.size[0])),
+                        int(self.align[1] * (image.size[1] - i.size[1]))))
 
 
 class RandomDots(Layer):
@@ -94,9 +95,10 @@ class RandomDots(Layer):
         self.colors = colors
         self.dotSize = dotSize
         self.numDots = numDots
+	self.seed = random.random()
 
     def render(self, image):
-        r = random.Random(self)
+        r = random.Random(self.seed)
         for i in xrange(self.numDots):
             bx = int(r.uniform(0, image.size[0]-self.dotSize))
             by = int(r.uniform(0, image.size[1]-self.dotSize))
