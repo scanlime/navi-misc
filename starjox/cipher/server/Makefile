@@ -1,5 +1,4 @@
 CLASSES=\
-	keyinfo.class\
 	key.class\
 	dpipe.class\
 	epipe.class\
@@ -18,9 +17,6 @@ server.class: server.java
 
 key.class: key.java
 	javac key.java
-
-keyinfo.class: keyinfo.java
-	javac keyinfo.java
 
 clean:
 	rm -Rf *.jar *.class *~ #*

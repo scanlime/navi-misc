@@ -178,7 +178,7 @@ public class client extends Thread
 	catch(Exception e)
 	{
 	    System.out.println("Usage: java client <local port> <tunnel host> "+
-			       "<target host> <target  port>");
+			       "<target host> <target port>");
 	    System.exit(1);
 	}
 	System.out.println("Starting tunnel from localhost:"+lport+" through "+
