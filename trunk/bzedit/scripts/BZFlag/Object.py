@@ -22,6 +22,16 @@ can serialize itself and be converted to/from blender objects.
 #
 from Blender import NMesh, Material, Image, Texture
 
+def createTexture(name, filename):
+    material = Material.New(name)
+    texture = Texture.New(name)
+    image = Image.Load(filename)
+    texture.image = image
+    texture.setType('Image')
+    material.setTexture(0, texture, Texture.TexCo['OBJECT'])
+    material.spec = 0.1
+    return material
+
 def meshify(vertex, face, material, name=None):
     mesh = NMesh.GetRaw()
     verts = []
