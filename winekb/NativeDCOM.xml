@@ -16,7 +16,11 @@
 
     * Then run it like this: <type> WINEDLLOVERRIDES=ole32,oleaut32,rpcrt4=n wine DCOM98.EXE </type>
 
-    * Now put native overrides for ole32, oleaut32, and rpcrt4 into your <l>ConfigFile</l>.
+    * It will spit out quite a lot of fixmes and errs as it installs,
+      you can ignore these, they are harmless.
+
+    * Now put native overrides for ole32, oleaut32, and rpcrt4 into
+      your <l>ConfigFile</l>.
   </section>
 
 </kbpage>
