@@ -10,8 +10,6 @@ class FieldSensor:
         for block in xrange(8):
             for param in xrange(8):
                 self.setParam(block, param, 0)
-        # Discard the current accumulator since we just changed the definition of our readings
-        #self.readPacket()
 
     def initScan(self):
         """Initialize parameters to scan all TX/RX pairs"""
@@ -27,12 +25,17 @@ class FieldSensor:
                 self.setParam(block, 6, 0xFF-xor) # EFS_PARAM_LC_TRIS_INIT
                 self.setParam(block, 7, 0x55)     # EFS_PARAM_LC_PORT_INIT
                 block += 1
-        #self.readPacket()
 
     def readPacket(self):
+        """Read the current accumulator buffer from our kernel module. Returns
+           the 8 accumulator values and the number of times they have been written to.
+           """
         return struct.unpack("i" * 9, self.dev.read(4*9))
 
     def readAverages(self):
+        """Read the kernel module's accumulator, dividing all accumulators by
+           the store count to get an average value for each sensor being monitored.
+           """
         packet = self.readPacket()
         if packet[8]:
             return [packet[i] / float(packet[8]) for i in xrange(8)]
