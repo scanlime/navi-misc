@@ -34,6 +34,14 @@ void server_context(GtkWidget *treeview, session *selected);
 void channel_context(GtkWidget *treeview, session *selected);
 void dialog_context(GtkWidget *treeview, session *selected);
 
+static gboolean declick(GtkWidget *treeview, GdkEventButton *e, gpointer data) {
+	GtkWidget *entry;
+
+	entry = glade_xml_get_widget(gui.xml, "text entry");
+	gtk_widget_grab_focus(entry);
+	return FALSE;
+}
+
 void initialize_navigation_tree() {
 	GtkWidget *navigation_view;
 	GtkTreeStore *store;
@@ -62,6 +70,7 @@ void initialize_navigation_tree() {
 	gtk_tree_selection_set_mode(select, GTK_SELECTION_SINGLE);
 	g_signal_connect(G_OBJECT(select), "changed", G_CALLBACK(navigation_selection_changed), NULL);
 	g_signal_connect(G_OBJECT(navigation_view), "button_press_event", G_CALLBACK(navigation_click), NULL);
+	g_signal_connect(G_OBJECT(navigation_view), "button_release_event", G_CALLBACK(declick), NULL);
 }
 
 void navigation_tree_create_new_network_entry(struct session *sess) {
@@ -84,6 +93,7 @@ static gboolean navigation_tree_create_new_channel_entry_iterate(GtkTreeModel *m
 	if(s->type == SESS_SERVER && s->server == data->server) {
 		GtkTreeIter child;
 		GtkWidget *treeview;
+		GtkWidget *entry;
 
 		treeview = glade_xml_get_widget(gui.xml, "server channel list");
 
@@ -91,6 +101,9 @@ static gboolean navigation_tree_create_new_channel_entry_iterate(GtkTreeModel *m
 		gtk_tree_store_set(GTK_TREE_STORE(model), &child, 1, data->channel, 2, data, 3, 0, 4, NULL, -1);
 		/* make sure the tree expands to show the new channel */
 		gtk_tree_view_expand_row(GTK_TREE_VIEW(treeview), path, TRUE);
+
+		entry = glade_xml_get_widget(gui.xml, "text entry");
+		gtk_widget_grab_focus(entry);
 		return TRUE;
 	}
 	return FALSE;
