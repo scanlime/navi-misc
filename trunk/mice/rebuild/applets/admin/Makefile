@@ -1,10 +1,10 @@
 CLASSES=\
-	question.class
+	admin.class
 
 app: $(CLASSES)
 
-question.class: question.java
-	javac question.java
+admin.class: admin.java
+	javac admin.java
 
 clean:
 	rm -Rf *.jar *.class *~

@@ -1,5 +1,6 @@
 /**
- * This is the class that handles the abstraction for submitting a question, thus simplifying the network protocol for it.
+ * This is the class that handles the abstraction for submitting a question, 
+ * thus simplifying the network protocol for it.
  * @author Brandon Smith
  * @version 2.0
  */
