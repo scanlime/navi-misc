@@ -151,15 +151,15 @@
      borderopacity="1.0"
      inkscape:pageopacity="1.0000000"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.21707918"
-     inkscape:cx="1203.3409"
-     inkscape:cy="2186.2970"
+     inkscape:zoom="0.61399264"
+     inkscape:cx="2034.4704"
+     inkscape:cy="1039.2964"
      inkscape:window-width="1394"
      inkscape:window-height="1113"
      showgrid="true"
      snaptogrid="true"
-     inkscape:window-x="128"
-     inkscape:window-y="22"
+     inkscape:window-x="140"
+     inkscape:window-y="26"
      showborder="true"
      showguides="true"
      snaptoguides="true"
@@ -332,57 +332,6 @@
        transform="scale(4.790458,4.790458)"><tspan
          id="tspan865"
          style="fill:#000000;fill-opacity:1.0000000;">micah@navi.cx</tspan></text>
-  </g>
-  <g
-     id="g2771"
-     transform="translate(1888.935,-3537.348)"
-     style="fill:#000000;fill-opacity:1.0000000;">
-    <g
-       id="g2749"
-       transform="translate(-370.5256,-411.2428)"
-       style="fill:#000000;fill-opacity:1.0000000;">
-      <image
-         xlink:href="images/base-larger.png"
-         sodipodi:absref="/home/micah/navi-misc/docs/fyre_poster/images/base-larger.png"
-         width="720.00000"
-         height="720.00000"
-         id="image828"
-         x="146.35362"
-         y="7375.7090"
-         style="fill:#000000;fill-opacity:1.0000000;" />
-      <text
-         xml:space="preserve"
-         style="font-size:50.000000;stroke-width:3.0000000pt;font-family:Luxi Sans;font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;text-anchor:start;writing-mode:lr;fill:#000000;fill-opacity:1.0000000;"
-         x="372.37863"
-         y="8122.9928"
-         id="text854"
-         sodipodi:linespacing="100%"><tspan
-           id="tspan855"
-           style="fill:#000000;fill-opacity:1.0000000;">Base Image</tspan></text>
-    </g>
-    <g
-       id="g2754"
-       transform="translate(-427.5296,-411.2428)"
-       style="fill:#000000;fill-opacity:1.0000000;">
-      <image
-         xlink:href="images/increased-exposure-larger.png"
-         sodipodi:absref="/home/micah/navi-misc/docs/fyre_poster/images/increased-exposure-larger.png"
-         width="720.00000"
-         height="720.00000"
-         id="image832"
-         x="883.17694"
-         y="7375.7090"
-         style="fill:#000000;fill-opacity:1.0000000;" />
-      <text
-         xml:space="preserve"
-         style="font-size:50.000000;stroke-width:3.0000000pt;font-family:Luxi Sans;font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;text-anchor:start;writing-mode:lr;fill:#000000;fill-opacity:1.0000000;"
-         x="1020.1020"
-         y="8125.8727"
-         id="text860"
-         sodipodi:linespacing="100%"><tspan
-           id="tspan861"
-           style="fill:#000000;fill-opacity:1.0000000;">Increased Exposure</tspan></text>
-    </g>
   </g>
   <g
      id="g2782"
@@ -793,5 +742,56 @@
        id="image2898"
        x="855.00000"
        y="6885.0000" />
+  </g>
+  <g
+     id="g2771"
+     transform="translate(1888.935,-3537.348)"
+     style="fill:#000000;fill-opacity:1.0000000;">
+    <g
+       id="g2749"
+       transform="translate(-370.5256,-411.2428)"
+       style="fill:#000000;fill-opacity:1.0000000;">
+      <image
+         xlink:href="images/base-larger.png"
+         sodipodi:absref="/home/micah/navi-misc/docs/fyre_poster/images/base-larger.png"
+         width="720.00000"
+         height="720.00000"
+         id="image828"
+         x="146.35362"
+         y="7375.7090"
+         style="fill:#000000;fill-opacity:1.0000000;" />
+      <text
+         xml:space="preserve"
+         style="font-size:50.000000;stroke-width:3.0000000pt;font-family:Luxi Sans;font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;text-anchor:start;writing-mode:lr;fill:#000000;fill-opacity:1.0000000;"
+         x="372.37863"
+         y="8122.9928"
+         id="text854"
+         sodipodi:linespacing="100%"><tspan
+           id="tspan855"
+           style="fill:#000000;fill-opacity:1.0000000;">Base Image</tspan></text>
+    </g>
+    <g
+       id="g2754"
+       transform="translate(-427.5296,-411.2428)"
+       style="fill:#000000;fill-opacity:1.0000000;">
+      <image
+         xlink:href="images/increased-exposure-larger.png"
+         sodipodi:absref="/home/micah/navi-misc/docs/fyre_poster/images/increased-exposure-larger.png"
+         width="720.00000"
+         height="720.00000"
+         id="image832"
+         x="883.17694"
+         y="7375.7090"
+         style="fill:#000000;fill-opacity:1.0000000;" />
+      <text
+         xml:space="preserve"
+         style="font-size:50.000000;stroke-width:3.0000000pt;font-family:Luxi Sans;font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;text-anchor:start;writing-mode:lr;fill:#000000;fill-opacity:1.0000000;"
+         x="1020.1020"
+         y="8125.8727"
+         id="text860"
+         sodipodi:linespacing="100%"><tspan
+           id="tspan861"
+           style="fill:#000000;fill-opacity:1.0000000;">Increased Exposure</tspan></text>
+    </g>
   </g>
 </svg>
