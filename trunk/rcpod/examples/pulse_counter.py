@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import pyrcpod, time, threading
-import gtk.glade
+import gtk.glade, os
 
 class PulseCounter(object):
     """A counter for pulses arriving on RC0 / T1CKI"""
