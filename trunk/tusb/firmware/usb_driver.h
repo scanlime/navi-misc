@@ -194,7 +194,7 @@ volatile xdata at 0xFF00 struct usb_ctrlrequest usb_setup_buffer;
 void usb_init();
 void usb_poll();
 
-/* Request reply functions */
+/* Request reply functions (blocking) */
 void usb_write_ep0_buffer(unsigned char *buffer, int length);
 void usb_write_ack();
 

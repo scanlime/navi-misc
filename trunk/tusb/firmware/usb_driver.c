@@ -66,8 +66,8 @@ static void usb_handle_standard_request() {
     break;
 
   case USB_REQ_SET_CONFIGURATION:
-    /* We only have one configuration, so nothing to do */
-    printf("Setting configuration to %d\n", usb_setup_buffer.wValue);
+  case USB_REQ_SET_INTERFACE:
+    /* We only have one configuration/interface, so nothing to do */
     usb_write_ack();
     break;
 
