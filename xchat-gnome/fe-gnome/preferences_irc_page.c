@@ -28,6 +28,7 @@ static void gconf_font_changed (GConfClient *client, guint cnxn_id, const gchar 
 static void entry_changed (GtkEntry *entry, const gchar *key);
 static void bool_changed (GtkToggleButton *button, const gchar *key);
 static void font_changed (GtkFontButton *button, const gchar *key);
+static void sysfonts_changed (GtkToggleButton *toggle, GtkWidget *font);
 
 void initialize_preferences_irc_page()
 {
@@ -91,6 +92,7 @@ void initialize_preferences_irc_page()
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), toggle);
 	gconf_client_notify_add (client, "/apps/xchat/main_window/use_sys_fonts", (GConfClientNotifyFunc) gconf_bool_changed, NULL, NULL, NULL);
 	g_signal_connect (G_OBJECT (widget), "toggled", G_CALLBACK (bool_changed), "/apps/xchat/main_window/use_sys_fonts");
+	g_signal_connect (G_OBJECT (widget), "toggled", G_CALLBACK (sysfonts_changed), glade_xml_get_widget (gui.xml, "font selection"));
 
 	widget = glade_xml_get_widget (gui.xml, "font selection");
 	text = gconf_client_get_string (client, "/apps/xchat/main_window/font", NULL);
@@ -170,4 +172,10 @@ font_changed (GtkFontButton *button, const gchar *key)
 	client = gconf_client_get_default ();
 	text = gtk_font_button_get_font_name (button);
 	gconf_client_set_string (client, key, text, NULL);
+}
+
+static void
+sysfonts_changed (GtkToggleButton *toggle, GtkWidget *font)
+{
+	gtk_widget_set_sensitive (font, !gtk_toggle_button_get_active (toggle));
 }
