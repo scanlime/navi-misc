@@ -65,55 +65,54 @@ buffer_fsr		res	1
 
 	code
 
+;************************************************** Macros
+
+clearBuffer	macro	address, size
+	local	clearLoop
+	movlw	size
+	banksel	parameter_iter
+	movwf	parameter_iter
+	bankisel address
+	movlw	address
+	movwf	FSR
+	pagesel	clearLoop
+clearLoop
+	clrf	INDF
+	incf	FSR, f
+	decfsz	parameter_iter, f
+	goto	clearLoop
+	endm
+
+
 ;************************************************** Frontend
 
 	; Clear all parameter buffers and the sensor buffer
 sensor_init
-	movlw	8
-	banksel	parameter_iter
-	movwf	parameter_iter
-	bankisel sensor_buffer
-	movlw	sensor_buffer
-	movwf	FSR
-sensorClearLoop
-	clrf	INDF
-	incf	FSR
-	decfsz	parameter_iter
-	goto	sensorClearLoop
-
-	movlw	64
-	movlw	parameter_iter
-	bankisel parameter_buffers
-	movlw	parameter_buffers
-	movwf	FSR
-paramClearLoop	
-	clrf	INDF
-	incf	FSR
-	decfsz	parameter_iter
-	goto	paramClearLoop
+	clearBuffer sensor_buffer, .8
+	clearBuffer	parameter_buffers, .64
 	return
 	
-	
+
 	; Runs sensor_sampler on all active parameter blocks in parameter_buffers
 sensor_sample_all
-	movlw	8
+	clearBuffer sensor_buffer, .8		; Zero out the sensor buffer, so unused sensors read zero
+	movlw	8							; Loop over 8 parameter blocks...
 	banksel	parameter_iter
 	movwf	parameter_iter
-	movlw	parameter_buffers
+	movlw	parameter_buffers			; Start out with buffer_fsr pointing at the first buffer
 	movwf	buffer_fsr
 paramBufferLoop
-	bankisel parameter_buffers
+	bankisel parameter_buffers			; Point IRP:FSR at the current buffer
 	banksel	buffer_fsr
 	movf	buffer_fsr, w
 	movwf	FSR
-	pagesel	sensor_sampler
+	pagesel	sensor_sampler				; Take a reading, storing it in the proper sensor buffer byte
 	call	sensor_sampler
-	banksel	buffer_fsr
-	movf	buffer_fsr, w
-	addlw	8
-	movwf	buffer_fsr
-	pagesel	paramBufferLoop
-	decfsz	parameter_iter
+	banksel	buffer_fsr					; Advance buffer_fsr by 8 to go to the next parameter block
+	movlw	8
+	addwf	buffer_fsr, f
+	pagesel	paramBufferLoop				; Loop until done
+	decfsz	parameter_iter, f
 	goto	paramBufferLoop
 	return
 
