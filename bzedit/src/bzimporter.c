@@ -29,14 +29,24 @@
 static GScannerConfig parser_config =
 {
   (" \t\r\n"),		/* cset_skip_characters */
-  (""),			/* cset_identifier_first */
-  (""),                 /* cset_identifier_nth */
+  (
+  G_CSET_a_2_z
+  G_CSET_A_2_Z
+  "-"
+  G_CSET_DIGITS
+  ),			/* cset_identifier_first */
+  (
+  G_CSET_a_2_z
+  "-"
+  G_CSET_A_2_Z
+  G_CSET_DIGITS
+  ),			/* cset_identifier_nth */
   ("#\n"),		/* cpair_comment_single */
   FALSE,		/* case_sensitive */
   FALSE,		/* skip_comment_multi */
   TRUE,			/* skip_comment_single */
   FALSE,		/* scan_comment_multi */
-  FALSE,		/* scan_identifier */
+  TRUE,			/* scan_identifier */
   FALSE,		/* scan_identifier_1char */
   FALSE,		/* scan_identifier_NULL */
   TRUE,			/* scan_symbols */
@@ -148,7 +158,11 @@ parse_double (SceneObject *object, const gchar *property)
   token = g_scanner_get_next_token (scanner);
   if (token != G_TOKEN_FLOAT)
   {
+    g_scanner_unexp_token (scanner, G_TOKEN_FLOAT, NULL, NULL, NULL, NULL, TRUE);
+    return FALSE;
   }
+  value = g_scanner_cur_value (scanner);
+  g_object_set (G_OBJECT (object), property, value.v_float, NULL);
   return TRUE;
 }
 
@@ -157,8 +171,6 @@ parse_box (Scene *scene)
 {
   GTokenType token;
   SceneObject *b = SCENE_OBJECT (g_object_new (box, NULL));
-
-  g_print ("parse_box ()\n");
 
   g_scanner_set_scope (scanner, BZ_SCOPE_BOX);
 
@@ -186,7 +198,7 @@ parse_box (Scene *scene)
       case BZ_TOKEN_END:
         break;
       default:
-        g_scanner_unexp_token (scanner, token, NULL, NULL, NULL, NULL, TRUE);
+        g_scanner_unexp_token (scanner, G_TOKEN_SYMBOL, NULL, NULL, NULL, NULL, TRUE);
 	goto fail;
     };
   } while (token != BZ_TOKEN_END);
@@ -324,6 +336,7 @@ gboolean
 import_bz (gchar *filename, Scene *scene)
 {
   gint fd;
+  GTokenType token;
 
   if (!initialized)
     initialize_scanner ();
@@ -334,11 +347,8 @@ import_bz (gchar *filename, Scene *scene)
   g_scanner_input_file (scanner, fd);
   scanner->input_name = g_strdup (filename);
 
-  while (!g_scanner_eof (scanner))
+  do
   {
-    GTokenType token;
-    GTokenValue value;
-
     g_scanner_set_scope (scanner, BZ_SCOPE_DEFAULT);
 
     token = g_scanner_get_next_token (scanner);
@@ -360,11 +370,10 @@ import_bz (gchar *filename, Scene *scene)
       case G_TOKEN_EOF:
         break;
       default:
-        g_print ("token is %d\n", token);
         g_scanner_unexp_token (scanner, G_TOKEN_SYMBOL, NULL, "keyword", NULL, NULL, TRUE);
 	goto fail;
     }
-  }
+  } while (token != G_TOKEN_EOF);
   g_free ((gchar*) scanner->input_name);
   close (fd);
   return TRUE;
