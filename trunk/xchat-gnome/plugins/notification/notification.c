@@ -108,7 +108,21 @@ xchat_plugin_deinit ()
 static gboolean
 notification_clicked_cb (GtkWidget *widget, GdkEventButton *event, gpointer data)
 {
-	//xchat_print (ph, "event\n");
+	switch (event->button) {
+		/* Left click. */
+		case 1:
+			xchat_print (ph, "left click\n");
+			break;
+
+		/* Right click. */
+		case 3:
+			xchat_print (ph, "right click\n");
+			break;
+
+		default:
+			xchat_print (ph, "event\n");
+			break;
+	}
 
 	return TRUE;
 }
