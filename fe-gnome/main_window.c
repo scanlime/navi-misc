@@ -163,7 +163,7 @@ void initialize_main_window() {
 		g_closure_unref(closure);
 
 		/* Add the accelgroup to the main window. */
-		gtk_window_add_accel_group(gui.main_window, discussion_accel);
+		gtk_window_add_accel_group (GTK_WINDOW (gui.main_window), discussion_accel);
 	}
 
 #ifdef HAVE_GTKSPELL
@@ -682,7 +682,7 @@ static gboolean tab_complete_nickname(GtkEntry *entry, int start) {
 			printtext = npt;
 		}
 		tgui = (session_gui *) gui.current_session->gui;
-		text_gui_print(tgui->buffer, printtext, TRUE);
+		//text_gui_print(tgui->buffer, printtext, TRUE);
 		g_free(printtext);
 		if(strcasecmp(prefix, new_prefix) != 0) {
 			/* insert the new prefix into the entry */

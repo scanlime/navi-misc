@@ -31,13 +31,14 @@ void clicked_word(GtkWidget *xtext, char *word, GdkEventButton *even, gpointer d
 void initialize_text_gui() {
 	GtkWidget *frame, *scrollbar;
 
-	gui.xtext = GTK_XTEXT(gtk_xtext_new(colors, TRUE));
+	gui.xtext = XTEXT2 (xtext2_new ());
 	frame = glade_xml_get_widget(gui.xml, "text area frame");
-	gtk_container_add(GTK_CONTAINER(frame), gui.xtext);
+	gtk_container_add(GTK_CONTAINER (frame), GTK_WIDGET (gui.xtext));
 	scrollbar = glade_xml_get_widget(gui.xml, "text area scrollbar");
 	gtk_range_set_adjustment(GTK_RANGE(scrollbar), gui.xtext->adj);
 
 	palette_alloc(GTK_WIDGET(gui.xtext));
+	/*
 	gtk_xtext_set_palette(gui.xtext, colors);
 	gtk_xtext_set_max_lines(gui.xtext, 3000);
 	gtk_xtext_set_show_separator(gui.xtext, TRUE);
@@ -46,10 +47,11 @@ void initialize_text_gui() {
 	gtk_xtext_set_thin_separator(gui.xtext, TRUE);
 	gtk_xtext_set_wordwrap(gui.xtext, TRUE);
 	gtk_xtext_set_urlcheck_function(gui.xtext, check_word);
+	*/
 	g_signal_connect(G_OBJECT(gui.xtext), "word_click", G_CALLBACK(clicked_word), NULL);
 
-	if(!gtk_xtext_set_font(gui.xtext, "Bitstream Vera Sans Mono 9"))
-		g_print("Failed to open BV Sans Mono font!\n");
+//	if(!gtk_xtext_set_font(gui.xtext, "Bitstream Vera Sans Mono 9"))
+//		g_print("Failed to open BV Sans Mono font!\n");
 
 	gtk_widget_show_all(GTK_WIDGET(gui.xtext));
 }
@@ -58,12 +60,14 @@ void text_gui_add_text_buffer(struct session *sess) {
 	session_gui *tgui;
 
 	tgui = malloc(sizeof(session_gui));
-	tgui->buffer = gtk_xtext_buffer_new(gui.xtext);
+//	tgui->buffer = gtk_xtext_buffer_new(gui.xtext);
 	sess->gui = (struct session_gui *) tgui;
 
+/*
 	gtk_xtext_buffer_show(gui.xtext, tgui->buffer, TRUE);
 	if(preferences_show_timestamp())
 		gtk_xtext_set_time_stamp(tgui->buffer, TRUE);
+		*/
 	gui.current_session = sess;
 
 	if(sess->topic == NULL)
@@ -79,7 +83,9 @@ void text_gui_remove_text_buffer(struct session *sess) {
 	session_gui *tgui;
 
 	tgui = (session_gui *) sess->gui;
+	/*
 	gtk_xtext_buffer_free(tgui->buffer);
+	*/
 	g_free(tgui->topic);
 	g_free(tgui->entry);
 	if(tgui->lag_text)
@@ -90,6 +96,7 @@ void text_gui_remove_text_buffer(struct session *sess) {
 	sess->gui = NULL;
 }
 
+#if 0
 void text_gui_print_line(xtext_buffer *buf, unsigned char *text, int len, gboolean indent) {
 	int leftlen;
 	unsigned char *tab;
@@ -98,10 +105,13 @@ void text_gui_print_line(xtext_buffer *buf, unsigned char *text, int len, gboole
 
 	/* FIXME: do timestamp */
 	if(!indent) {
+	  /*
 		gtk_xtext_append(buf, text, len);
+		*/
 		return;
 	}
 
+/*
 	tab = strchr(text, '\t');
 	if(tab && tab < (text + len)) {
 		leftlen = tab - text;
@@ -109,6 +119,7 @@ void text_gui_print_line(xtext_buffer *buf, unsigned char *text, int len, gboole
 	} else {
 		gtk_xtext_append_indent(buf, 0, 0, text, len);
 	}
+	*/
 }
 
 void text_gui_print(xtext_buffer *buf, unsigned char *text, gboolean indent) {
@@ -138,6 +149,7 @@ void text_gui_print(xtext_buffer *buf, unsigned char *text, gboolean indent) {
 		}
 	}
 }
+#endif
 
 void set_nickname(struct server *serv, char *newnick) {
 	if(serv == gui.current_session->server) {
@@ -164,13 +176,15 @@ void set_gui_topic(session *sess, char *topic) {
 		GtkWidget *topicbar;
 
 		topicbar = glade_xml_get_widget(gui.xml, "topic entry");
-		gtk_entry_set_text(topicbar, tgui->topic);
+		gtk_entry_set_text(GTK_ENTRY (topicbar), tgui->topic);
 	}
 }
 
 void clear_buffer(struct session *sess) {
 	session_gui *sgui = (session_gui *) sess->gui;
+	/*
 	gtk_xtext_clear(sgui->buffer);
+	*/
 }
 
 int check_word(GtkWidget *xtext, char *word) {

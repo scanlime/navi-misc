@@ -212,7 +212,7 @@ void fe_print_text(struct session *sess, char *text) {
 	session_gui *tgui = (session_gui *) sess->gui;
 	if(tgui == NULL)
 		return;
-	text_gui_print(tgui->buffer, text, TRUE);
+	//text_gui_print(tgui->buffer, text, TRUE);
 	sess->new_data = TRUE;
 	navigation_tree_set_hilight(sess);
 }
@@ -249,6 +249,7 @@ void fe_dcc_add(struct DCC *dcc) {
 			break;
 
 		default:
+		break;
 	}
 }
 
@@ -260,6 +261,7 @@ void fe_dcc_update(struct DCC *dcc) {
 			break;
 
 		default:
+		break;
 	}
 }
 
@@ -272,6 +274,7 @@ void fe_dcc_remove(struct DCC *dcc) {
 			break;
 
 		default:
+	  break;
 	}
 }
 
