@@ -1,9 +1,5 @@
-==========
 Known Bugs
 ==========
-
-Important
----------
 
 - Bots need rate limiting and load balancing to prevent them from flooding off
 
@@ -19,10 +15,6 @@ Important
   wanted, the channel's ops need to be able to ask it to leave. As it is
   now, the botnet tries a little too hard and the bot will
   just immediately rejoin.
-
-
-Not that important
-------------------
 
 - Leading spaces in commit messages aren't handled well. They aren't visible
   in the web interface because they aren't converted to non-breaking spaces
