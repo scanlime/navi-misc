@@ -1,6 +1,7 @@
 #include <gnome.h>
 #include "../common/xchat.h"
 #include "../common/fe.h"
+#include "gui.h"
 
 int fe_args(int argc, char *argv[]) {
   if(argc > 1) {
@@ -15,7 +16,7 @@ int fe_args(int argc, char *argv[]) {
 }
 
 void fe_init(void) {
-  /* FIXME: implement */
+  initialize_gui();
 }
 
 void fe_main(void) {
