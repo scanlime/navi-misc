@@ -125,7 +125,7 @@ class StatsInterface(xmlrpc.XMLRPC):
            module, or this function, but it can also be accessed using a capability
            key that unlocks only a particular path.
            """
-        self.caps.faultIfMissing(key, 'universe', 'stats', 'stats.updateMetadata',
+        self.caps.faultIfMissing(key, 'universe', 'stats', 'stats.metadata',
                                  ('stats.path', path))
         target = self.storage.getPathTarget(path)
         target.open(resource='metadata')
