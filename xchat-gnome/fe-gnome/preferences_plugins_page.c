@@ -36,8 +36,7 @@ extern GSList *plugin_list; // xchat's list of loaded plugins.
 extern XChatGUI gui;
 
 /* Callbacks */
-static void on_load_plugin_clicked (GtkButton *button, gpointer user_data);
-static void on_unload_plugin_clicked (GtkButton *button, gpointer user_data);
+static void on_load_toggled (GtkCellRendererToggle *toggle, gchar *arg, gpointer user_data);
 static void on_open_plugin_clicked (GtkButton *button, gpointer user_data);
 static void on_remove_plugin_clicked (GtkButton *button, gpointer user_data);
 static void on_selection_changed (GtkTreeSelection *selection, gpointer user_data);
@@ -60,8 +59,6 @@ initialize_preferences_plugins_page ()
 	gchar *homedir, *xchatdir;
 
 	treeview = glade_xml_get_widget (gui.xml, "plugins list");
-  load = glade_xml_get_widget (gui.xml, "plugin load");
-  unload = glade_xml_get_widget (gui.xml, "plugin unload");
 	open = glade_xml_get_widget (gui.xml, "plugin open");
 	remove = glade_xml_get_widget (gui.xml, "plugin remove");
 
@@ -70,6 +67,7 @@ initialize_preferences_plugins_page ()
 	gtk_tree_view_set_model (GTK_TREE_VIEW (treeview), GTK_TREE_MODEL (store));
 
 	load_renderer = gtk_cell_renderer_toggle_new ();
+	g_object_set (G_OBJECT (load_renderer), "activatable", TRUE, NULL);
 	load_column = gtk_tree_view_column_new_with_attributes ("Loaded", load_renderer, "active", 4, NULL);
 	gtk_tree_view_append_column (GTK_TREE_VIEW (treeview), load_column);
 	text_renderer = gtk_cell_renderer_text_new ();
@@ -78,9 +76,7 @@ initialize_preferences_plugins_page ()
 
 	select = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
 	gtk_tree_selection_set_mode (select, GTK_SELECTION_SINGLE);
-
-  g_signal_connect (G_OBJECT (load), "clicked", G_CALLBACK (on_load_plugin_clicked), NULL);
-  g_signal_connect (G_OBJECT (unload), "clicked", G_CALLBACK (on_unload_plugin_clicked), NULL);
+	g_signal_connect (G_OBJECT (load_renderer), "toggled", G_CALLBACK (on_load_toggled), NULL);
   g_signal_connect (G_OBJECT (open), "clicked", G_CALLBACK (on_open_plugin_clicked), NULL);
   g_signal_connect (G_OBJECT (remove), "clicked", G_CALLBACK (on_remove_plugin_clicked), NULL);
 	g_signal_connect (G_OBJECT (select), "changed", G_CALLBACK (on_selection_changed), NULL);
@@ -141,71 +137,46 @@ preferences_plugins_page_update()
 	}
 }
 
-
 static void
-on_load_plugin_clicked (GtkButton *button, gpointer user_data)
+on_load_toggled (GtkCellRendererToggle *toggle, gchar *arg, gpointer user_data)
 {
-  GtkWidget *treeview;
-  GtkTreeIter iter;
-  GtkTreeModel *model;
-  GtkTreeSelection *selection;
-  gchar *filename;
+	GtkWidget *treeview;
+	GtkTreeIter iter;
+	GtkTreeModel *model;
+	GtkTreeSelection *selection;
+	gchar *filename;
+	gboolean loaded;
 
-  treeview = glade_xml_get_widget (gui.xml, "plugins list");
-  model = gtk_tree_view_get_model (GTK_TREE_VIEW (treeview));
-  selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
-
-	/* Ooooh... something's highlighted... */
-  if (gtk_tree_selection_get_selected (selection, &model, &iter)) {
-		char *buf;
-		/* Yay! We got a filename! */
-    gtk_tree_model_get (model, &iter, 3, &filename, -1);
-
-		/* Ya know what's more clever than using /LOAD to load the plugin?
-		 * using the plugin_load function provided by the core... way to go
-		 * evan, you dumbass.
-		 *
-		 * Actually, using the LOAD command is probably more betterly because
-		 * then it'll work better with scripts too, jerk.
-		 */
-		buf = malloc (strlen (filename) + 9);
-		if (strchr (filename, ' '))
-			sprintf (buf, "LOAD \"%s\"", filename);
-		else
-			sprintf (buf, "LOAD %s", filename);
-		handle_command (gui.current_session, buf, FALSE);
-		free (buf);
-  }
-}
-
-static void
-on_unload_plugin_clicked (GtkButton *button, gpointer user_data)
-{
-  GtkWidget *treeview;
-  GtkTreeIter iter;
-  GtkTreeModel *model;
-  GtkTreeSelection *selection;
-  gchar *filename;
-
-  treeview = glade_xml_get_widget (gui.xml, "plugins list");
+	treeview = glade_xml_get_widget (gui.xml, "plugins list");
   model = gtk_tree_view_get_model (GTK_TREE_VIEW (treeview));
   selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
 
   if (gtk_tree_selection_get_selected (selection, &model, &iter)) {
 		char *buf;
-    gtk_tree_model_get (model, &iter, 3, &filename, -1);
+    gtk_tree_model_get (model, &iter, 3, &filename, 4, &loaded, -1);
 		/* Some of this code was taken from the fe-gtk plugingui,
 		 * the names have been changed to protect the innocent.
 		 */
-		buf = malloc (strlen (filename) + 10);
-		if (strchr (filename, ' '))
-			sprintf (buf, "UNLOAD \"%s\"", filename);
-		else
-			sprintf (buf, "UNLOAD %s", filename);
+		if (loaded) {
+			buf = malloc (strlen (filename) + 10);
+			if (strchr (filename, ' '))
+				sprintf (buf, "UNLOAD \"%s\"", filename);
+			else
+				sprintf (buf, "UNLOAD %s", filename);
+
+			/* FIXME: Bad to assume that the plugin was successfully unloaded. */
+			gtk_list_store_set (GTK_LIST_STORE (model), &iter, 4, FALSE, -1);
+		}
+		else {
+			buf = malloc (strlen (filename) + 9);
+			if (strchr (filename, ' '))
+				sprintf (buf, "LOAD \"%s\"", filename);
+			else
+				sprintf (buf, "LOAD %s", filename);
+		}
+
 		handle_command (gui.current_session, buf, FALSE);
 		free (buf);
-		/* FIXME: Bad to assume that the plugin was successfully unloaded. */
-		gtk_list_store_set (GTK_LIST_STORE (model), &iter, 4, FALSE, -1);
 	}
 }
 
@@ -254,10 +225,6 @@ on_selection_changed (GtkTreeSelection *selection, gpointer user_data)
 	if (gtk_tree_selection_get_selected (selection, NULL, NULL))
 		sensitive = TRUE;
 
-	button = GTK_BUTTON (glade_xml_get_widget (gui.xml, "plugin load"));
-	gtk_widget_set_sensitive (GTK_WIDGET (button), sensitive);
-	button = GTK_BUTTON (glade_xml_get_widget (gui.xml, "plugin unload"));
-	gtk_widget_set_sensitive (GTK_WIDGET (button), sensitive);
 	button = GTK_BUTTON (glade_xml_get_widget (gui.xml, "plugin remove"));
 	gtk_widget_set_sensitive (GTK_WIDGET (button), sensitive);
 }
