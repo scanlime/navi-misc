@@ -22,7 +22,7 @@ class IconTest(Sequencer.Page):
 
         icon = Icon.Icon('navi512.png', 'Hello Navi', imageAspect=1.623)
 
-        self.dock = Icon.Dock(overlay, self.trackFunction, [icon] * 10)
+        self.dock = Icon.Dock(overlay, self.trackFunction, [icon] * 2)
 
         self.viewport.onKeyDown.observe(self.keyDown)
 
@@ -40,7 +40,7 @@ class IconTest(Sequencer.Page):
            increasing parameters move clockwise. The icon at 0 is the largest.
            """
         radius = self.viewport.size[1] * 0.04
-        theta = -x * 2*pi - pi/2
+        theta = -x * 2*pi + pi/2
         size = pow(sin(theta)*0.5+0.5, 3) * 120 + 40
         center = (self.viewport.size[0] * 0.5,
                   self.viewport.size[1] * 0.25)
