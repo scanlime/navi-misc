@@ -4,4 +4,23 @@ README for XXXXX
 http://www.bzflag.org/
 
 
-fill in some stuff here
+BUILDING
+================
+
+Windows
+----------------
+The only build system right now is for windows, and it is Microsoft Visual C++ 7.1. We do not have project for VC5 or 6..
+
+To build the project you will need several 3rd party librarys to build.
+
+1) SDL. you will need the SDL Development librarys from www.libSDL.org. You will need to install this so that Visual C++ can find the headers and the libs. This can be done by copying the files into the Visual C++ dirs or adding the dirs to the IDE via the prefrences.
+
+2) Ogre. This is the base 3d engine for the system. It is avalabe at www.ogre3d.org. The project asumes that ogre is located one dir level higher then the base appication folder.
+
+3) Ogre Dependencys. These are also avalabe via the ogre site, install them as directed.
+
+Build SDL and Ogre. Then you can build the game.
+
+Before you can run the first time you need to copy the ogre DLLs you have built into the bin and bin/plugins folders. There are text files in each dir that will tell you what DLLs you need. The best place to pull them from is ogrenew/samples/common/bin/
+
+Once you have built you may run. Note Release builds don't run for shit now.
