@@ -228,7 +228,8 @@ struct rx_packet* receiver_read(usb_dev_handle* self, int timeout)
    */
   packet->signal_strength.numerator = noise;
   packet->signal_strength.denominator = total * 4;
-  packet->signal_strength.numerator -= packet->signal_strength.denominator;
+  packet->signal_strength.numerator =
+    packet->signal_strength.denominator - packet->signal_strength.numerator;
   if (packet->signal_strength.numerator < 0)
     packet->signal_strength.numerator = 0;
 
