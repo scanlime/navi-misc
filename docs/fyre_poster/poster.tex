@@ -87,22 +87,22 @@
 
 %%%%% IMAGE COMPARISON - HDR INTERPOLATION
 %%% text
-\put(0.75,14.5){
+\put(0.75,6){
   \parbox{32.75in}{
-    \centering
     \fontsize{60}{70}\selectfont
     Because the image is computed with a high dynamic range, it can be
-    interpolated differently to bring out different details. Because
-    this step is done separately from computing the image, it can be
-    changed in real time, allowing the viewer to tweak the parameters
-    to produce the desired effect.
+    interpolated differently to bring out different details. This
+    step is computationally cheap and done separately from computing
+    the image so it can be changed in real time, allowing the viewer to
+    tweak the parameters to produce the desired result without restarting
+    or even stopping the image computation.
   }
 }
 %%% base image
-\put(0.75,5){
+\put(0.75,9.25){
   \includegraphics[width=8in]{images/base.png}
 }
-\put(0.75,4){
+\put(0.75,8.25){
   \makebox(8,1){
     \centering
     \fontsize{50}{60}\selectfont Base Image
@@ -110,10 +110,10 @@
 }
 
 %%% increased exposure
-\put(8.75,5){
+\put(8.75,9.25){
   \includegraphics[width=8in]{images/increased-exposure.png}
 }
-\put(8.75,4){
+\put(8.75,8.25){
   \makebox(8,1){
     \centering
     \fontsize{50}{60}\selectfont Increased Exposure
@@ -121,10 +121,10 @@
 }
 
 %%% increased gamma
-\put(17.25,5){
+\put(17.25,9.25){
   \includegraphics[width=8in]{images/increased-gamma.png}
 }
-\put(17.25,4){
+\put(17.25,8.25){
   \makebox(8,1){
     \centering
     \fontsize{50}{60}\selectfont Increased Gamma
@@ -132,16 +132,16 @@
 }
 
 %%% decreased exposure, increased gamma
-\put(25.75,5){
+\put(25.75,9.25){
   \includegraphics[width=8in]{images/decreased-exposure-increased-gamma.png}
 }
-\put(25.75,4.347){
+\put(25.75,8.597){
   \makebox(8,1){
     \centering
     \fontsize{50}{60}\selectfont Decreased Exposure,
   }
 }
-\put(25.75,3.6527){
+\put(25.75,7.9027){
   \makebox(8,1){
     \centering
     \fontsize{50}{60}\selectfont Increased Gamma
