@@ -21,6 +21,7 @@
  */
 
 #include <gtk/gtk.h>
+#include <glade/glade.h>
 
 #ifndef __DE_JONG_H_
 #define __DE_JONG_H__
@@ -40,7 +41,7 @@ struct render_params {
   guint width, height;
   guint oversample;
   guint *counts;
-  guint32 *pixels;
+  GdkPixbuf *pixbuf;
 
   guint color_table_size;
   guint32 *color_table;
@@ -51,14 +52,45 @@ struct render_params {
 
   double exposure, gamma;
   GdkColor fgcolor, bgcolor;
+  guint16 fgalpha, bgalpha;
   gboolean clamped;
 
   gboolean dirty_flag;
 };
 
 
+struct gui_state {
+  GladeXML *xml;
+  GtkWidget *window;
+
+  GtkWidget *drawing_area;
+  GdkGC *gc;
+
+  GtkStatusbar *statusbar;
+  guint render_status_message_id;
+  guint render_status_context;
+
+  guint idler;
+  gboolean writing_params;
+  gboolean just_resized;
+
+  gboolean update_calc_params_when_convenient;
+  gboolean update_render_params_when_convenient;
+
+  gchar* current_tool;
+  double last_mouse_x, last_mouse_y;
+
+  struct {
+    GtkListStore *keyframe_list;
+    GtkTreeView *keyframe_view;
+    GtkTreeIter current_keyframe;
+  } anim;
+};
+
+
 extern struct computation_params params;
 extern struct render_params render;
+extern struct gui_state gui;
 
 
 /* main.c */
@@ -77,8 +109,11 @@ void update_pixels();
 void clear();
 void run_iterations(int count);
 
-/* interface.c */
+/* ui-main.c */
 void interactive_main(int argc, char **argv);
+
+/* ui-animation.c */
+void animation_ui_init();
 
 
 #endif /* __DE_JONG_MAIN_H__ */

@@ -1,6 +1,5 @@
 /*
- * interface.c - Implements the GTK+ user interface. Code in this module isn't
- *               used when rendering from the command line.
+ * ui-main.c - Implements most of the GTK+ user interface
  *
  * de Jong Explorer - interactive exploration of the Peter de Jong attractor
  * Copyright (C) 2004 David Trowbridge and Micah Dowty
@@ -21,32 +20,11 @@
  *
  */
 
-#include <gtk/gtk.h>
-#include <glade/glade.h>
 #include "de-jong.h"
 #include "color-button.h"
 
-struct {
-  GladeXML *xml;
-  GtkWidget *window;
+struct gui_state gui;
 
-  GtkWidget *drawing_area;
-  GdkGC *gc;
-
-  GtkStatusbar *statusbar;
-  guint render_status_message_id;
-  guint render_status_context;
-
-  guint idler;
-  gboolean writing_params;
-  gboolean just_resized;
-
-  gboolean update_calc_params_when_convenient;
-  gboolean update_render_params_when_convenient;
-
-  gchar* current_tool;
-  double last_mouse_x, last_mouse_y;
-} gui;
 
 static int limit_update_rate(float max_rate);
 static int auto_limit_update_rate(void);
@@ -119,6 +97,8 @@ void interactive_main(int argc, char **argv) {
   gui.statusbar = GTK_STATUSBAR(glade_xml_get_widget(gui.xml, "statusbar"));
   gui.render_status_context = gtk_statusbar_get_context_id(gui.statusbar, "Rendering status");
   gui.current_tool = "None";
+
+  animation_ui_init();
 
   gui.idler = g_idle_add(interactive_idle_handler, NULL);
   gtk_main();
@@ -218,10 +198,12 @@ static void update_gui() {
 }
 
 static void update_drawing_area() {
-  /* Update our drawing area */
-  gdk_draw_rgb_32_image(gui.drawing_area->window, gui.gc,
-			0, 0, render.width, render.height, GDK_RGB_DITHER_NORMAL,
-			(guchar*) render.pixels, render.width * 4);
+  /* Update our entire drawing area.
+   * We use GdkRGB directly here to force ignoring the alpha channel.
+   */
+    gdk_draw_rgb_32_image(gui.drawing_area->window, gui.gc,
+			  0, 0, render.width, render.height, GDK_RGB_DITHER_NORMAL,
+			  gdk_pixbuf_get_pixels(render.pixbuf), render.width * 4);
 }
 
 static int interactive_idle_handler(gpointer user_data) {
@@ -263,12 +245,14 @@ gboolean on_expose(GtkWidget *widget, GdkEventExpose *event, gpointer user_data)
     if (rects[i].width <= 0 || rects[i].height <= 0)
       continue;
 
-    /* Render a rectangle taken from our pixels[] array */
+    /* Render a rectangle taken from our pixbuf.
+     * We use GdkRGB directly here to force ignoring the alpha channel.
+     */
     gdk_draw_rgb_32_image(gui.drawing_area->window, gui.gc,
 			  rects[i].x, rects[i].y,
 			  rects[i].width, rects[i].height,
 			  GDK_RGB_DITHER_NORMAL,
-			  (guchar*) (render.pixels + rects[i].x + rects[i].y * render.width),
+			  gdk_pixbuf_get_pixels(render.pixbuf) + rects[i].x * 4 + rects[i].y * render.width * 4,
 			  render.width * 4);
   }
 
@@ -301,6 +285,8 @@ static void read_gui_params() {
   params.tileable = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(glade_xml_get_widget(gui.xml, "param_tileable")));
   color_button_get_color(COLOR_BUTTON(glade_xml_get_widget(gui.xml, "param_fgcolor")), &render.fgcolor);
   color_button_get_color(COLOR_BUTTON(glade_xml_get_widget(gui.xml, "param_bgcolor")), &render.bgcolor);
+  render.fgalpha = color_button_get_alpha(COLOR_BUTTON(glade_xml_get_widget(gui.xml, "param_fgcolor")));
+  render.bgalpha = color_button_get_alpha(COLOR_BUTTON(glade_xml_get_widget(gui.xml, "param_bgcolor")));
 }
 
 static void write_gui_params() {
@@ -319,6 +305,8 @@ static void write_gui_params() {
   gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(gui.xml, "param_gamma")), render.gamma);
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(glade_xml_get_widget(gui.xml, "param_clamped")), render.clamped);
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(glade_xml_get_widget(gui.xml, "param_tileable")), params.tileable);
+  color_button_set_alpha(COLOR_BUTTON(glade_xml_get_widget(gui.xml, "param_fgcolor")), render.fgalpha);
+  color_button_set_alpha(COLOR_BUTTON(glade_xml_get_widget(gui.xml, "param_bgcolor")), render.bgalpha);
   color_button_set_color(COLOR_BUTTON(glade_xml_get_widget(gui.xml, "param_fgcolor")), &render.fgcolor);
   color_button_set_color(COLOR_BUTTON(glade_xml_get_widget(gui.xml, "param_bgcolor")), &render.bgcolor);
   gui.writing_params = FALSE;
@@ -454,7 +442,9 @@ void on_resize_ok(GtkWidget *widget, gpointer user_data) {
 GtkWidget *custom_color_button_new(gchar *widget_name, gchar *string1,
 				   gchar *string2, gint int1, gint int2) {
   GtkWidget *w;
-  w = color_button_new(string1, int1 ? &render.fgcolor : &render.bgcolor);
+  w = color_button_new(string1,
+		       int1 ? &render.fgcolor : &render.bgcolor,
+		       int1 ?  render.fgalpha :  render.bgalpha);
   gtk_widget_show_all(w);
   return w;
 }
