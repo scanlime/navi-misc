@@ -1,0 +1,45 @@
+Index: src/common/userlist.h
+===================================================================
+RCS file: /cvsroot/xchat/xchat2/src/common/userlist.h,v
+retrieving revision 1.8
+diff -u -r1.8 userlist.h
+--- src/common/userlist.h	7 Jul 2003 10:51:18 -0000	1.8
++++ src/common/userlist.h	29 Jan 2004 08:49:20 -0000
+@@ -1,5 +1,8 @@
+ #include <time.h>
+ 
++#ifndef XCHAT_USERLIST_H
++#define XCHAT_USERLIST_H
++
+ struct User
+ {
+ 	char nick[NICKLEN];
+@@ -36,3 +39,5 @@
+ void update_all_of (char *name);
+ GSList *userlist_flat_list (session *sess);
+ void userlist_rehash (session *sess);
++
++#endif
+Index: src/common/xchat.h
+===================================================================
+RCS file: /cvsroot/xchat/xchat2/src/common/xchat.h,v
+retrieving revision 1.26
+diff -u -r1.26 xchat.h
+--- src/common/xchat.h	14 Jan 2004 12:03:57 -0000	1.26
++++ src/common/xchat.h	29 Jan 2004 08:49:22 -0000
+@@ -6,6 +6,9 @@
+ #include <glib/gstrfuncs.h>
+ #include <time.h>			/* need time_t */
+ 
++#ifndef XCHAT_H
++#define XCHAT_H
++
+ #include "history.h"
+ 
+ #ifndef HAVE_SNPRINTF
+@@ -467,3 +470,5 @@
+ 	char *cmd;
+ 	char *name;
+ };
++
++#endif
