@@ -45,6 +45,7 @@ int fe_args(int argc, char *argv[]) {
 }
 
 void fe_init(void) {
+	gui.quit = FALSE;
 	servlist_init();
 	palette_init();
 	if(!preferences_exist()) {
@@ -69,7 +70,6 @@ void fe_cleanup(void) {
 }
 
 void fe_exit(void) {
-	xchat_exit();
 	gtk_main_quit();
 }
 
@@ -189,6 +189,7 @@ void fe_text_clear(struct session *sess) {
 
 void fe_close_window(struct session *sess) {
 	navigation_tree_remove(sess);
+	kill_session_callback(sess);
 }
 
 void fe_progressbar_start(struct session *sess) {

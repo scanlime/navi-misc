@@ -35,6 +35,7 @@ typedef struct {
 	GtkXText *xtext;
 	session *current_session;
 	GnomeDruid *setup_druid;
+	gboolean quit;
 } XChatGUI;
 
 extern XChatGUI gui;
