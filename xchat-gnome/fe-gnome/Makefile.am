@@ -14,13 +14,14 @@ schema_DATA	= apps_xchat.schemas.in.in
 # @INTLTOOL_SCHEMAS_RULE@
 
 install-data-local:
-	if test -z "$(DESTDIR)" ; then												\
-		for p in $(schema_DATA) ; do											\
+	if test -z "$(DESTDIR)" ; then						\
+		for p in $(schema_DATA) ; do					\
 			$(GCONFTOOL) --install-schema-file=$(srcdir)/$$p;	\
-		done														\
+		done								\
 	fi
 
 EXTRA_DIST =				\
+	BUGS				\
 	about.h				\
 	about.c				\
 	channel_list.h			\
@@ -64,7 +65,8 @@ EXTRA_DIST =				\
 	userlist_gui.c			\
 	channel-list.glade		\
 	transfers.glade			\
-	xchat-gnome.glade
+	xchat-gnome.glade	\
+	apps_xchat.schemas.in.in
 
 xchat_gnome_LDADD = ../common/libxchatcommon.a $(GUI_LIBS)
 xchat_gnome_SOURCES =			\
@@ -135,6 +137,9 @@ mmx_cmod.h:	@top_srcdir@/src/fe-gtk/mmx_cmod.h
 mmx_cmod.S:	@top_srcdir@/src/fe-gtk/mmx_cmod.S mmx_cmod.h
 	cp -pR @top_srcdir@/src/fe-gtk/mmx_cmod.S .
 
+about.o:	$(srcdir)/about.c
+	$(COMPILE) -DXCHATSHAREDIR=\"$(xchatsharedir)\" -c $(srcdir)/about.c
+
 pixmaps.o:	$(srcdir)/pixmaps.c
 	$(COMPILE) -DXCHATSHAREDIR=\"$(xchatsharedir)\" -c $(srcdir)/pixmaps.c
 
@@ -150,4 +155,4 @@ transfers.o:	$(srcdir)/transfers.c
 guir.o:		$(srcdir)/guir.c
 	$(COMPILE)  -DXCHATSHAREDIR=\"$(xchatsharedir)\" -c $(srcdir)/guir.c
 
-SUBDIRS = data
+SUBDIRS = data pixmaps
