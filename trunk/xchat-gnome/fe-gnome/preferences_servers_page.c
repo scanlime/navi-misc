@@ -41,7 +41,6 @@ static const char *encodings[] =
   NULL
 };
 static GHashTable *enctoindex;
-static GHashTable *indextoenc;
 static gboolean initialized = FALSE;
 
 void preferences_servers_selected(GtkTreeSelection *selection, gpointer data);
@@ -64,8 +63,14 @@ static void edit_global_changed(GtkToggleButton *togglebutton, gpointer data) {
 	}
 }
 
-static void encoding_changed (GtkComboBox *combo, gpointer data)
+static void encoding_changed (GtkComboBox *combo, ircnet *net)
 {
+  guint index;
+  gchar *enc;
+  if (net->encoding)
+    g_free (net->encoding);
+  index = gtk_combo_box_get_active (combo);
+  net->encoding = g_strdup (encodings[index]);
 }
 
 static void edit_ok_clicked(GtkWidget *button, gpointer data) {
@@ -168,13 +173,11 @@ static void edit_clicked(GtkWidget *button, gpointer data) {
 	  char **enc = encodings;
 	  guint index = 0;
 
-	  indextoenc = g_hash_table_new (g_direct_hash, g_direct_equal);
 	  enctoindex = g_hash_table_new (g_str_hash, g_str_equal);
 
 	  do
 	  {
 	    gtk_combo_box_append_text (GTK_COMBO_BOX (encoding), *enc);
-	    g_hash_table_insert (indextoenc, GUINT_TO_POINTER (index), *enc);
 	    g_hash_table_insert (enctoindex, *enc, GUINT_TO_POINTER (index));
 
 	    index++;
@@ -244,7 +247,7 @@ static void edit_clicked(GtkWidget *button, gpointer data) {
 	  }
 	  gtk_combo_box_set_active (GTK_COMBO_BOX (widget), index);
 	}
-	g_signal_connect (G_OBJECT (widget), "changed", G_CALLBACK (encoding_changed), NULL);
+	g_signal_connect (G_OBJECT (widget), "changed", G_CALLBACK (encoding_changed), net);
 
 	gtk_widget_show_all(dialog);
 }
