@@ -6,6 +6,7 @@ class PulseCounter(object):
     """A counter for pulses arriving on RC0 / T1CKI"""
     def __init__(self, rcpod):
         self.rcpod = rcpod
+        self.numSamples = 0
 
     def sample(self, duration, prescale=0):
         """Sample the counter for approximately the specified
@@ -42,6 +43,8 @@ class PulseCounter(object):
 
         self.iTimeCenter = (self.minDuration + self.maxDuration) / 2.0
         self.iTimeError = (self.maxDuration - self.minDuration) / 2.0
+
+        self.numSamples += 1
 
     def sampleFrequency(self, duration):
         self.sample(duration)
@@ -81,7 +84,7 @@ class SamplerWindow:
 
     def synchronize(self):
         self.thread.duration = self.xml.get_widget("sampling_delay").get_adjustment().get_value()
-        if hasattr(self.thread, 'counter') and hasattr(self.thread.counter, 'counts'):
+        if hasattr(self.thread, 'counter') and self.thread.counter.numSamples > 0:
 
             count = str(self.thread.counter.counts)
             if self.thread.counter.overflow:
