@@ -23,7 +23,7 @@ A generic object cache. Arbitrary python objects are mapped to files or strings.
 #
 
 from twisted.internet import defer
-import time, md5, os
+import time, md5, os, random
 
 
 cacheDir = "/tmp/cia-cache"
@@ -79,7 +79,7 @@ class AbstractFileCache:
             perf.hits += 1
 
             result = defer.Deferred()
-            self._returnHit(filename, args, result)
+            self._returnHit(filename, result)
             return result
         else:
             perf.misses += 1
@@ -88,7 +88,7 @@ class AbstractFileCache:
             # to a temporary file then moving that.
             result = defer.Deferred()
             defer.maybeDeferred(self.miss, *args).addCallback(
-                self._returnMiss, filename, args, result).addErrback(result.errback)
+                self._returnMiss, filename, result).addErrback(result.errback)
             return result
 
     def _returnHit(self, filename, result):
@@ -125,9 +125,14 @@ class AbstractFileCache:
         return os.path.join(cacheDir, name)
 
 
-    def getTempFilename(self, args):
+    def getTempFilename(self):
         """Return a suggested temporary file name for miss() to use"""
-        return self.getFilename(args) + "_"
+        if not os.path.isdir(cacheDir):
+            os.makedirs(cacheDir)
+        assert os.path.isdir(cacheDir)
+
+        name = "%s.temp_%d" % (self.__class__.__name__, random.randint(100000, 999999))
+        return os.path.join(cacheDir, name)
 
 
 class AbstractStringCache(AbstractFileCache):
@@ -135,11 +140,11 @@ class AbstractStringCache(AbstractFileCache):
        rather than files. This still uses the same file-based caching mechanism
        as AbstractFileCache.
        """
-    def _returnHit(self, filename, args, result):
+    def _returnHit(self, filename, result):
         result.callback(open(filename, "rb").read())
 
-    def _returnMiss(self, string, filename, args, result):
-        tempFilename = self.getTempFilename(args)
+    def _returnMiss(self, string, filename, result):
+        tempFilename = self.getTempFilename()
         open(tempFilename, "wb").write(string)
         os.rename(tempFilename, filename)
         result.callback(string)
