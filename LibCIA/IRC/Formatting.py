@@ -100,6 +100,14 @@ class ColorStack:
 
     def wrap(self, children):
         parent = self.codes.pop()
+
+        if not children:
+            # If we have nothing to wrap, return nothing. This is important
+            # for the correct operation of the <autoHide> modular formatter
+            # component, since a 'normal' code by itself still prevents it
+            # from hiding the group.
+            return []
+
         parent.extend(children)
 
         # An important optimization- since we're about to insert new codes
