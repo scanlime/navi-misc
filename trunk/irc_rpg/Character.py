@@ -17,5 +17,7 @@ class Character:
 
   def getData(self, path):
     """ Return the data from path. """
-    node = xml.xpath.Evaluate(path, self.dom)[0]
-    return node.childNodes[0].data.strip()
+    nodes = xml.xpath.Evaluate(path, self.dom)
+    if len(nodes) > 0:
+      return nodes[0].childNodes[0].data.strip()
+    return ""

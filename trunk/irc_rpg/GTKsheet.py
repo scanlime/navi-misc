@@ -46,19 +46,18 @@ class GTKsheet:
 
 class sheetElement:
   def __init__(self, node):
-    self.node = node
-    self.attributes = self.getAttrs()
+    self.attributes = self.getAttrs(node)
 
-  def getAttrs(self):
-    return dict([(self.node.attributes.item(i).name,\
-	self.node.getAttribute(self.node.attributes.item(i).name))\
-	for i in range(self.node.attributes.length)])
+  def getAttrs(self, node):
+    return dict([(node.attributes.item(i).name,\
+	node.getAttribute(node.attributes.item(i).name))\
+	for i in range(node.attributes.length)])
 
 class character_sheet(gtk.Window, sheetElement):
   def __init__(self, node, data):
     gtk.Window.__init__(self, gtk.WINDOW_TOPLEVEL)
     sheetElement.__init__(self, node)
-    self.connect("delete_event", lambda w,d: gtk.main_quit())
+    self.connect("delete_event", lambda w,d: self.destroy())
 
   def packChild(self, child):
     gtk.Window.add(self, child)
