@@ -10,7 +10,7 @@ $serverVers = 0.1;
 echo "<html><head></head><body>";
 
 //make sure everyone is current;
-//cleanupdb(date("U"));
+cleanupdb(date("U"));
 
 /* Connecting, selecting database */
 $link = mysql_connect($dbhost, $dbuser, $dbpasswd)
