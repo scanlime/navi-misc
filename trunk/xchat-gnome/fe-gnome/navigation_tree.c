@@ -325,15 +325,15 @@ navigation_tree_select_next_channel (NavTree *navtree)
 
 	/* If we're on a server... */
 	if (gtk_tree_path_get_depth(path) == 1) {
-		/* Expand just in case. */
-		gtk_tree_view_expand_row(GTK_TREE_VIEW(navtree), path, TRUE);
 		/* If we have a child, move to the first one, select it and return. */
 		if (gtk_tree_model_iter_has_child(model, &iter)) {
+		  /* Expand just in case. */
+		  gtk_tree_view_expand_row(GTK_TREE_VIEW(navtree), path, TRUE);
 			gtk_tree_path_down(path);
 			gtk_tree_model_get_iter(model, &iter, path);
 			gtk_tree_selection_select_iter(selection, &iter);
-			return;
 		}
+		return;
 	}
 
 	/* Try to move forward, otherwise select the first channel on this network. */
@@ -479,7 +479,7 @@ navigation_tree_select_prev_network (NavTree *navtree)
 
 	/* If there is nothing selected in the GtkTreeSelection... */
 	if (!gtk_tree_selection_get_selected(selection, &model, &iter)) {
-		/* Set the model. */
+		/* Get the model. */
 		model = gtk_tree_view_get_model(GTK_TREE_VIEW(navtree));
 		/* If there's a current_path set path to that. */
 		if (navtree->current_path) {
@@ -498,7 +498,7 @@ navigation_tree_select_prev_network (NavTree *navtree)
 	if (gtk_tree_path_get_depth(path) > 1)
 		gtk_tree_path_up(path);
 
-	/* If we can't move it forward... */
+	/* If we can't move it back... */
 	if (!gtk_tree_path_prev(path)) {
 		/* Find the last entry in the server. */
 		GtkTreeIter current, previous;
