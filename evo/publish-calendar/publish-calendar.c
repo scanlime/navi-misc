@@ -40,54 +40,12 @@ static GSList *publish_uris = NULL;
 static GSList *queued_publishes = NULL;
 static gint online = 0;
 
-int        e_plugin_lib_enable (EPlugin *ep, int enable);
-void       action_publish (EPlugin *ep, ECalMenuTargetSelect *t);
-void       online_state_changed (EPlugin *ep, ESEventTargetState *target);
-void       publish_calendar_context_activate (EPlugin *ep, ECalPopupTargetSource *target);
-GtkWidget *publish_calendar_locations (EPlugin *epl, EConfigHookItemFactoryData *data);
-
-typedef struct {
-	GConfClient *gconf;
-	GtkWidget   *treeview;
-	GtkWidget   *url_add;
-	GtkWidget   *url_edit;
-	GtkWidget   *url_remove;
-	GtkWidget   *url_enable;
-} PublishUIData;
-
-static void
-update_timestamp (EPublishUri *uri)
-{
-	GConfClient *client;
-	GSList *uris, *l;
-	gchar *xml;
-
-	xml = e_publish_uri_to_xml (uri);
-
-	client = gconf_client_get_default ();
-	uris = gconf_client_get_list (client, "/apps/evolution/calendar/publish/uris", GCONF_VALUE_STRING, NULL);
-	for (l = uris; l; l = g_slist_next (l)) {
-		gchar *d = l->data;
-		if (strcmp (d, xml) == 0) {
-			uris = g_slist_remove (uris, d);
-			g_free (d);
-			break;
-		}
-	}
-	g_free (xml);
-
-	if (uri->last_pub_time)
-		g_free (uri->last_pub_time);
-	uri->last_pub_time = g_strdup_printf ("%d", (int) time (NULL));
-
-	uris = g_slist_prepend (uris, e_publish_uri_to_xml (uri));
-
-	gconf_client_set_list (client, "/apps/evolution/calendar/publish/uris", GCONF_VALUE_STRING, uris, NULL);
-
-	g_slist_foreach (uris, (GFunc) g_free, NULL);
-	g_slist_free (uris);
-	g_object_unref (client);
-}
+int          e_plugin_lib_enable (EPlugin *ep, int enable);
+void         action_publish (EPlugin *ep, ECalMenuTargetSelect *t);
+void         online_state_changed (EPlugin *ep, ESEventTargetState *target);
+void         publish_calendar_context_activate (EPlugin *ep, ECalPopupTargetSource *target);
+GtkWidget   *publish_calendar_locations (EPlugin *epl, EConfigHookItemFactoryData *data);
+static void  update_timestamp (EPublishUri *uri);
 
 static void
 publish (EPublishUri *uri)
@@ -149,12 +107,21 @@ publish (EPublishUri *uri)
 	}
 }
 
+typedef struct {
+	GConfClient *gconf;
+	GtkWidget   *treeview;
+	GtkWidget   *url_add;
+	GtkWidget   *url_edit;
+	GtkWidget   *url_remove;
+	GtkWidget   *url_enable;
+} PublishUIData;
+
 static void
 add_timeout (EPublishUri *uri)
 {
 	guint id;
 
-	/* We set the timeout for now+frequency and trigger an immediate publish */
+	/* Set the timeout for now+frequency */
 	switch (uri->publish_frequency) {
 	case URI_PUBLISH_DAILY:
 		id = g_timeout_add (24 * 60 * 60 * 1000, (GSourceFunc) publish, uri);
@@ -165,9 +132,81 @@ add_timeout (EPublishUri *uri)
 		g_hash_table_insert (uri_timeouts, uri, GUINT_TO_POINTER (id));
 		break;
 	}
+}
 
-	publish (uri);
+static void
+update_timestamp (EPublishUri *uri)
+{
+	GConfClient *client;
+	GSList *uris, *l;
+	gchar *xml;
+	guint id;
 
+	/* Remove timeout if we have one */
+	id = GPOINTER_TO_UINT (g_hash_table_lookup (uri_timeouts, uri));
+	if (id) {
+		g_source_remove (id);
+		add_timeout (uri);
+	}
+
+	/* Update timestamp in gconf */
+	xml = e_publish_uri_to_xml (uri);
+
+	client = gconf_client_get_default ();
+	uris = gconf_client_get_list (client, "/apps/evolution/calendar/publish/uris", GCONF_VALUE_STRING, NULL);
+	for (l = uris; l; l = g_slist_next (l)) {
+		gchar *d = l->data;
+		if (strcmp (d, xml) == 0) {
+			uris = g_slist_remove (uris, d);
+			g_free (d);
+			break;
+		}
+	}
+	g_free (xml);
+
+	if (uri->last_pub_time)
+		g_free (uri->last_pub_time);
+	uri->last_pub_time = g_strdup_printf ("%d", (int) time (NULL));
+
+	uris = g_slist_prepend (uris, e_publish_uri_to_xml (uri));
+
+	gconf_client_set_list (client, "/apps/evolution/calendar/publish/uris", GCONF_VALUE_STRING, uris, NULL);
+
+	g_slist_foreach (uris, (GFunc) g_free, NULL);
+	g_slist_free (uris);
+	g_object_unref (client);
+}
+
+static void
+add_offset_timeout (EPublishUri *uri)
+{
+	guint id;
+	time_t offset = atoi (uri->last_pub_time);
+	time_t current = time (NULL);
+	gint elapsed = current - offset;
+
+	switch (uri->publish_frequency) {
+	case URI_PUBLISH_DAILY:
+		if (elapsed > 24 * 60 * 60) {
+			publish (uri);
+			add_timeout (uri);
+		} else {
+			id = g_timeout_add (((24 * 60 * 60) - elapsed) * 1000, (GSourceFunc) publish, uri);
+			g_hash_table_insert (uri_timeouts, uri, GUINT_TO_POINTER (id));
+			break;
+		}
+		break;
+	case URI_PUBLISH_WEEKLY:
+		if (elapsed > 7 * 24 * 60 * 60) {
+			publish (uri);
+			add_timeout (uri);
+		} else {
+			id = g_timeout_add (((7 * 24 * 60 * 60) - elapsed) * 1000, (GSourceFunc) publish, uri);
+			g_hash_table_insert (uri_timeouts, uri, GUINT_TO_POINTER (id));
+			break;
+		}
+		break;
+	}
 }
 
 static void
@@ -489,9 +528,8 @@ e_plugin_lib_enable (EPlugin *ep, int enable)
 
 			publish_uris = g_slist_prepend (publish_uris, uri);
 
-			/* Add a timeout - we always set it for now+frequency, since we
-			 * publish later on in this function */
-			add_timeout (uri);
+			/* Add a timeout based on the last publish time */
+			add_offset_timeout (uri);
 
 			l = g_slist_next (l);
 		}
