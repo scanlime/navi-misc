@@ -1,9 +1,13 @@
-- Vital Links
+- Stats
 
 Projects :: /stats/project
 Authors :: /stats/author
 All Commits :: /stats/total/commits
+
+- Docs
+
 Adding projects :: /doc/adding-projects
+Clients :: /doc/clients
 
 - Development
 
