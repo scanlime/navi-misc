@@ -34,26 +34,30 @@ on the controller's PCB:
   11  A0
   12  D0
   13  D1
-  14
-  15  power?
+  14  Unknown 0
+  15  3.3v
   16  D2
 
   17  Ground
-  18
-  19
+  18  Unknown 1
+  19  Unknown 2
   20  /WE
   21  A13
   22  A8
   23  A9
   24  A11
-  25  /CS
-  26  D7
-  27  D6
-  28  D5
-  29  D4
-  30  D3
-  31  power?
-  32  D2
+  25  /OE
+  26  A10
+  27  D7
+  28  D6
+  29  D5
+  30  D4
+  31  3.3v
+  32  D3
+
+With 15 address lines, that gives standard memory paks a 32k capacity.
+The Nyko Hyperpak tested has 128k of SRAM, but includes a switch that
+selects between four 32k banks.
 
 
 I. Majora's Mask observed startup sequence
