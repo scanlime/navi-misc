@@ -44,6 +44,10 @@ static void edit_global_changed(GtkToggleButton *togglebutton, gpointer data) {
 	}
 }
 
+static void encoding_changed (GtkComboBox *combo, gpointer data)
+{
+}
+
 static void edit_ok_clicked(GtkWidget *button, gpointer data) {
 	GtkWidget *treeview, *widget, *dialog;
 	GtkTreeSelection *select;
@@ -122,7 +126,7 @@ static void edit_cancel_clicked(GtkWidget *button, gpointer data) {
 }
 
 static void edit_clicked(GtkWidget *button, gpointer data) {
-	GtkWidget *dialog, *password, *nick, *real;
+	GtkWidget *dialog, *password, *nick, *real, *encoding;
 	GtkWidget *treeview, *widget;
 	GtkSizeGroup *group;
 	GtkTreeSelection *select;
@@ -132,14 +136,16 @@ static void edit_clicked(GtkWidget *button, gpointer data) {
 
 	dialog = glade_xml_get_widget(gui.xml, "server configuration");
 
-	group = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
-	password = glade_xml_get_widget(gui.xml, "server config password");
-	gtk_size_group_add_widget(group, password);
-	nick = glade_xml_get_widget(gui.xml, "server config nickname");
-	gtk_size_group_add_widget(group, nick);
-	real = glade_xml_get_widget(gui.xml, "server config realname");
-	gtk_size_group_add_widget(group, real);
-	g_object_unref(group);
+	group = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
+	password = glade_xml_get_widget (gui.xml, "server config password");
+	gtk_size_group_add_widget (group, password);
+	nick = glade_xml_get_widget (gui.xml, "server config nickname");
+	gtk_size_group_add_widget (group, nick);
+	real = glade_xml_get_widget (gui.xml, "server config realname");
+	gtk_size_group_add_widget (group, real);
+	encoding = glade_xml_get_widget (gui.xml, "encoding combo");
+	gtk_size_group_add_widget (group, encoding);
+	g_object_unref (group);
 
 	treeview = glade_xml_get_widget(gui.xml, "configure server list");
 	select = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
@@ -186,6 +192,9 @@ static void edit_clicked(GtkWidget *button, gpointer data) {
 	widget = glade_xml_get_widget(gui.xml, "server config cancel");
 	g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(edit_cancel_clicked), NULL);
 
+	widget = glade_xml_get_widget (gui.xml, "encoding combo");
+	g_signal_connect (G_OBJECT (widget), "changed", G_CALLBACK (encoding_changed), NULL);
+
 	gtk_widget_show_all(dialog);
 }
 
@@ -199,7 +208,7 @@ static void remove_clicked(GtkWidget *button, gpointer data) {
 	treeview = glade_xml_get_widget(gui.xml, "configure server list");
 
 	select = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
-	
+
 	gtk_tree_selection_get_selected(select, &model, &iter);
 /*	gtk_tree_model_get(model, &iter, 2, &net, -1);*/
 
