@@ -36,8 +36,7 @@ void main() {
     c = usb_dma_status(EDB_OEP1);
     if (c) {
       p = ep1_out_x;
-      while (c >= 2) {
-	delay(3000);
+      while (c >= 4) {
 	dac_write(0, p[0]);
 	dac_write(1, p[1]);
 	dac_sync();
