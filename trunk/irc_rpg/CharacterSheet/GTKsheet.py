@@ -42,7 +42,3 @@ class GTKsheet:
       for node in newNode.childNodes:
 	if node.nodeType is xml.dom.Node.ELEMENT_NODE: newObject.packChild(self.makeObjects(node, newObject))
       return newObject
-  
-  def writeOut(self):
-    """ Write the data change to the XML file. """
-    self.character.writeOut()
