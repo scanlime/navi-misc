@@ -53,15 +53,24 @@ def main():
     table = b.readTable()
 
     s = 0
+    prev = 0xCD
     for entry in table:
-        entry = (entry << s) | (entry >> (8-s))
+        entry = (entry << s) | (entry >> (8-s)) & 0xFF
+        diff = entry ^ prev
+        #diff = (diff >> s) | (diff << (8-s)) & 0xFF
+        prev = entry
+
+        #print bin(diff)
+        if diff & 0xFF:
+            print "*",
+        else:
+            print " ",
         s = (s+1) & 7
-        print bin(entry),
         if s == 0:
             print
 
     for i in xrange(10):
-        packet = [random.randint(0,256) for j in xrange(32)]
+        packet = [random.randint(0,255) for j in xrange(32)]
         showCRC(b, packet, table)
 
 if __name__ == "__main__":
