@@ -186,6 +186,13 @@ void flip() {
    */
   fscale = exposure / density;
 
+  /* The very first frame we render will often be very underexposed.
+   * If fscale > 1, this makes dataclamp negative and we get incorrect
+   * results. The lowest usable value of datadlamp is 1.
+   */
+  if (fscale > 0.5)
+    fscale = 0.5;
+
   /* This is the maximum allowed value for data[], corresponding to full black */
   dataclamp = (int)(1 / fscale) - 1;
 
