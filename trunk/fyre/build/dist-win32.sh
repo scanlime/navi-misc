@@ -13,6 +13,8 @@ ALL_LINGUAS=""
 ALL_DOCS="AUTHORS BUGS COPYING README TODO"
 
 FYREDIR=..
+OUTPUTDIR=output
+STAGINGDIR=staging
 
 # The NSIS installer, running under wine. This points
 # to a trivial wrapper script with the right paths.
@@ -20,11 +22,30 @@ NSIS=$HOME/bin/nsis
 
 . $HOME/bin/win32-cross
 
+rm -Rf $OUTPUTDIR $STAGINGDIR
+
+
+################ Shell Links
+
+# It's disgustingly complicated to actually create a windows
+# shell link (".lnk" file) from the command line.. we actually
+# cross-compile a simple public domain tool, then run it under
+# wine. It uses some OLE calls from shell32.dll that need to
+# be registered first. Blah.
+
+mkdir -p $STAGINGDIR
+$CC -o $STAGINGDIR/shlink.exe shlink.c -lole32 -luuid || exit 1
+$STRIP $STAGINGDIR/shlink.exe
+(cd /usr/lib/wine/bin; wine regsvr32 shell32.dll) || exit 1
+SHELLLINK="wine `pwd`/$STAGINGDIR/shlink.exe"
+
+
 ################ Fyre itself
 
 # Check the current version number
 VERSION=`./extract-var.py $FYREDIR/configure.ac VERSION`
-TARGETDIR=staging/fyre-$VERSION
+TARGET_NAME=fyre-$VERSION
+TARGETDIR=$STAGINGDIR/$TARGET_NAME
 
 # Copy data files, as marked in Makefile.am
 DATAFILES=`./extract-var.py $FYREDIR/data/Makefile.am fyredata_DATA`
@@ -42,6 +63,17 @@ $STRIP $TARGETDIR/lib/fyre.exe
 for doc in $ALL_DOCS; do
     cat $FYREDIR/$doc | sed 's/$/\r/' > $TARGETDIR/$doc.txt
 done
+
+# Add some basic links directly to the target directory.
+# These will show up in "Program Files", and in the .zip
+# distributions. They'll be enough to start Fyre, and to make
+# it a little more obvious that the paths won't be correct if
+# you run fyre.exe directly. Note that the links used in the
+# start menu are created later by NSIS.
+
+(cd $TARGETDIR; $SHELLLINK lib\\fyre.exe "Fyre $VERSION.lnk" "." "") || exit 1
+(cd $TARGETDIR; $SHELLLINK lib\\fyre.exe "Fyre Rendering Server.lnk" "." "-vr") || exit 1
+
 
 ################ Dependencies
 
@@ -86,13 +118,21 @@ done
 
 find $TARGETDIR -name "*.dll" -not -name "iconv.dll" -not -name "intl.dll" -print | xargs $STRIP
 
+
+################ Generate a .zip file
+
+mkdir -p $OUTPUTDIR
+(cd $STAGINGDIR; zip -r temp.zip $TARGET_NAME) || exit 1
+ mv $STAGINGDIR/temp.zip $OUTPUTDIR/$TARGET_NAME.zip || exit 1
+
+
 ################ Generate an NSIS installer
 
 $NSIS - <<EOF
 
     Name "Fyre $VERSION"
 
-    OutFile "fyre-$VERSION.exe"
+    OutFile "$OUTPUTDIR\\$TARGET_NAME.exe"
 
     ; The default installation directory
     InstallDir \$PROGRAMFILES\\Fyre
