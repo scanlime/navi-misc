@@ -64,25 +64,19 @@
 <p>There is always something to do.  If you feel you can contribute to any of these things, in any way, please do contact us.</p>
 <h5>Code Base</h5>
 <ul>
-	<li>Get a fix for ogre clear scene methods.</li>
-	<li>Implement drawables manager.</li>
-	<li>Implement world with object list for test world.</li>
-	<li>Implement players, shots, effects, and goodies in test world.</li>
-	<li>Implement some sort of fake input.</li>
-	<li>Implement some basic DR.</li>
-
+	<li>Implement shots, effects, and goodies in test world.</li>
+	<li>Clean up basic DR.</li>
+	<li>Get some sort of messages going that takes into account thrusting, time, rotational velocity, and stoping</li>
+	<li>Hook up some sort of throtle for updates</li>
+	<li>Get Multi-messages working</li>
+	<li>Replace Enet with TNL or SOMETHING THAT DOSN'T SUCK!</li>
+	
 	<li>Implement CInputManager in a device unspecific manner, using classes and listeners for axis and button functions that can map to any device.</li>
 
 	<li>Port/re-implement CSoundManger to work properly. It must play MP3,OGG and WAV files, if possible streaming from standard shoutcast/icecast sources is a bonus. It should use 3d sound hardware on any OS that supports it (FMOD, OPENAL, SDLMixer, or any other suggestions). The ability to read sounds from a zip file would be very nice as well.</li>
 
-	<li>Verify the operation and stability of the enet based network library. Add HTTP protocol and additional DNS functions if needed.</li>
+	<li>Verify the operation and stability of the enet based network library. Add additional DNS functions if needed.</li>
 
-	<li>Implement a list server application. The server should allow for multiple list servers that share data, using ether existing server tech (mysql?), or a custom enet based solution. List server should track who uses it both clients and servers, tracking number of clients from each OS, and what versions of the software connect to it. If possible list server should know current versions of client and server and tell applications to update, and provide an update URL. If possible clients should communicate the protocol version to the server with each request. List server should also use a token system for each connection to help prevent connection faking.</li>
-
-	<li>Implement sample list server connection classes for client, server, and query applications.</li>
-
-	<li>Implement a game server application that can connect to the list server, listen for client connections, and supports multiple named game types. The server must have support for a real-time game state just like the client.</li>
-	<li>Implement a client side connection class to the server and message handling.</li>
 	<li>Implement a client->server time sync that can do it's best to comp for lag (ping/2 at worst).</li>
 
 	<li>Implement client and server message throttling. Create system to queue up positional messages until update throttle time is up, ditching older messages in place of new ones.</li>
@@ -90,7 +84,7 @@
 	<li>Implement a proper menu system, including system settings, user registration info, and list server display system.</li>
 
 	<li>Create build systems for Linux and OSX and any other systems that need it.</li>
-	<li>Implement the client stuff in a game module. Moving common items into a game module base class for ease of use in other game types.</li>
+	<li>Move common items into a game module base class for ease of use in other game types.</li>
 	<li>Implement a model scanning system to determine what models are included on the client system.</li>
 	<li>Implement some sort of content management system.</li>
 	<li>Many other things.</li>
