@@ -64,6 +64,7 @@ struct _IrcNetworkEditor
 	GtkWidget *edit_server;
 	GtkWidget *remove_server;
 	GtkCellRenderer *server_renderer;
+	GtkListStore *server_store;
 
 	GtkWidget *use_globals;
 	GtkWidget *use_custom;
@@ -75,10 +76,9 @@ struct _IrcNetworkEditor
 	GtkWidget *edit_autojoin;
 	GtkWidget *remove_autojoin;
 	GtkCellRenderer *autojoin_renderer;
+	GtkListStore *autojoin_store;
 
 	GtkWidget *toplevel;
-
-	GtkListStore *store;
 };
 
 struct _IrcNetworkEditorClass
