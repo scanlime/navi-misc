@@ -80,6 +80,7 @@ class Reader:
                 CaselessLiteral('f')
               | CaselessLiteral('b')
               | Literal('?')
+              | Literal('*')
             teleporterSpec =
                 Word(digits)
               | Combine(globalReference + Optional(Literal(':') + teleporterSide))
