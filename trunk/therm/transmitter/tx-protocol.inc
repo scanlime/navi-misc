@@ -46,6 +46,47 @@ TX_LONG_DELAY	equ (.258 - (TX_LONG / 4))
 #define	 tx_define_vars	consecutive_ones, crc_reg_high, crc_reg_low
 
 
+;----------------------------------------------------- Packets:	Temperature, protocol 0
+
+tx_packet_proto0 macro
+	call	tx_begin_content
+
+	movlw	0		; 2-bit protocol ID
+	movwf	temp
+	call	tx_content_2bit
+
+	movlw	STATION_ID	; 6-bit station Id
+	movwf	temp
+	call	tx_content_6bit
+
+	movf	packet_seq, w	; 5-bit packet sequence number
+	movwf	temp
+	call	tx_content_5bit
+
+	bsf	STATUS, RP0	; 10-bit battery voltage
+	movf	ADRESL, w
+	bcf	STATUS, RP0
+	movwf	temp
+	call	tx_content_8bit
+	movf	ADRESH, w
+	movwf	temp
+	call	tx_content_2bit
+
+	movf	therm_total_low, w ; 16-bit temperature total
+	movwf	temp
+	call	tx_content_8bit
+	movf	therm_total_high, w
+	movwf	temp
+	call	tx_content_8bit
+
+	movf	therm_count, w	; 8-bit sample count
+	movwf	temp
+	call	tx_content_8bit
+
+	call	tx_end_content
+	endm
+
+
 ;----------------------------------------------------- Protocol: Frame check sequence
 
 	;; A macro to shift a new bit into the CRC

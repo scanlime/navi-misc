@@ -36,7 +36,7 @@ N_THERM_SAMPLES	equ	.15	; Number of temperature readings per RF burst.
 N_PACKETS	equ	.5	; Number of duplicate packets sent in a burst
 
 
-;----------------------------------------------------- Definitions
+;-----------------------------------------------------
 
 include "hardware_p12f683.inc"
 
@@ -69,8 +69,6 @@ SCL_MASK	equ 0x20
 		tx_define_vars
 	endc
 
-
-;----------------------------------------------------- Main Loop
 	org 0
 
 	;; One-time-only setup
@@ -92,7 +90,7 @@ main_loop
 	movlw	N_PACKETS		; Send a burst of packets. Note that the first packet we send after
 	movwf	main_iter		;   powering up will have no therm data (zero samples).
 packet_burst_loop			;   This lets the receiver detect resets or battery changes if necessary.
-	call	tx_packet
+	tx_packet_proto0
 	decfsz	main_iter, f
 	goto	packet_burst_loop
 
@@ -120,45 +118,5 @@ therm_sample_loop
 
 	i2c_define_all
 	tx_define_all_layers
-
-;----------------------------------------------------- Packet Assembly
-
-tx_packet
-	call	tx_begin_content
-
-	movlw	0		; 2-bit protocol ID
-	movwf	temp
-	call	tx_content_2bit
-
-	movlw	STATION_ID	; 6-bit station Id
-	movwf	temp
-	call	tx_content_6bit
-
-	movf	packet_seq, w	; 5-bit packet sequence number
-	movwf	temp
-	call	tx_content_5bit
-
-	bsf	STATUS, RP0	; 10-bit battery voltage
-	movf	ADRESL, w
-	bcf	STATUS, RP0
-	movwf	temp
-	call	tx_content_8bit
-	movf	ADRESH, w
-	movwf	temp
-	call	tx_content_2bit
-
-	movf	therm_total_low, w ; 16-bit temperature total
-	movwf	temp
-	call	tx_content_8bit
-	movf	therm_total_high, w
-	movwf	temp
-	call	tx_content_8bit
-
-	movf	therm_count, w	; 8-bit sample count
-	movwf	temp
-	call	tx_content_8bit
-
-	call	tx_end_content
-	return
 
 	end

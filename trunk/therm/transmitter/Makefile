@@ -1,9 +1,8 @@
-BIN = therm-tx.hex
 
-all: $(BIN)
+all: therm-tc74.hex
 
-install: $(BIN)
-	pista < pista.conf
+install-tc74: therm-tc74.hex
+	(echo "device 12f675"; echo "erase pic:"; echo "copy therm-tx.hex pic:") | pista
 
 %.hex: %.asm *.inc
 	gpasm $<
