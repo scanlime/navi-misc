@@ -25,28 +25,13 @@
 #include <stdlib.h>
 #include <math.h>
 
-
-typedef struct _ToolInput {
-  double delta_x, delta_y;
-  double absolute_x, absolute_y;
-  double click_relative_x, click_relative_y;
-  double delta_time;
-  GdkModifierType state;
-} ToolInput;
-
 typedef void (ToolHandler)(Explorer *self, ToolInput *i);
-
-typedef enum {
-  TOOL_USE_MOTION_EVENTS = 1 << 0,
-  TOOL_USE_IDLE          = 1 << 1,
-} ToolFlags;
 
 typedef struct _ToolInfo {
   gchar *menu_name;
   ToolHandler *handler;
   ToolFlags flags;
 } ToolInfo;
-
 
 static const ToolInfo* explorer_get_current_tool(Explorer *self);
 static void explorer_fill_toolinput_relative_positions(Explorer *self, ToolInput *ti);

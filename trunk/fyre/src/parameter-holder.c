@@ -339,6 +339,11 @@ void parameter_holder_load_string(ParameterHolder *self, const gchar *params) {
   g_free(copy);
 }
 
+GList* parameter_holder_get_tools(ParameterHolder *self) {
+  ParameterHolderClass *class = PARAMETER_HOLDER_CLASS(G_OBJECT_GET_CLASS(self));
+  return class->get_tools();
+}
+
 void param_spec_set_group (GParamSpec  *pspec,
 			   const gchar *group_name) {
   g_param_spec_set_qdata(pspec, g_quark_from_static_string("group-name"), (gpointer) group_name);
