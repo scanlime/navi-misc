@@ -50,7 +50,5 @@ class AMCReader:
                     curFrame = AMCFrame()
                     curFrame.number = int(data[0])
             else:
-                curFrame.bones[data[0]] = data[1:]
-                for j in range(len(data[1:])):
-                    curFrame.bones[data[0]][j] = float(curFrame.bones[data[0]][j])
+                curFrame.bones[data[0]] = [float(n) for n in data[1:]]
         self.frames.append(curFrame)
