@@ -145,13 +145,12 @@ static int draw_more(void *data) {
 
   std::vector<twov> points;
   points.push_back(point);
-  twov newpoint;
 
   for(int i = 0; i < 500; i++) {
-    newpoint = dejong(a, b, c, d, points[i]);
-    points.push_back(newpoint);
-    point = newpoint;
+    points.push_back(dejong(a, b, c, d, points[i]));
   }
+  point = points[points.size()-1];
+
   for(std::vector<twov>::iterator i = ++(points.begin()); i != points.end(); i++) {
 
     plop(int((*i)(0) * 160 + 400), int((*i)(1) * 160 + 400));
