@@ -1,10 +1,8 @@
-""" LibCIA.Formatters
+""" LibCIA.Formatters.Patch
 
-A collection of Formatter subclasses that can be searched and
-instantiated via the 'factory' object here.
-
-This is a package holding modules for each category of formatter.
-The modules are aggregated together here and indexed by the factory.
+Formatters for converting patch messages to other formats.
+Patch messages contain an author, log, and optional URL for new
+patches available from some patch tracker system.
 """
 #
 # CIA open source notification system
@@ -25,12 +23,9 @@ The modules are aggregated together here and indexed by the factory.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from Commit import *
-from ColorText import *
-from Builder import *
-from Other import *
-from Patch import *
+from LibCIA import Message
 
-factory = Message.FormatterFactory(globals())
+
+
 
 ### The End ###
