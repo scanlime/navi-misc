@@ -30,6 +30,8 @@
 #define CMD_SWITCHSET	0xC0	; Video switch command, sets switch states
 #define CMD_MODESET	0x40	; Set switch modes (soft/hard)
 
+#define PRECHARGE_SAMPLES .10	; Number of analog samples to ignore to precharge the ADC hold capacitor
+#define	INTEGRATION_SAMPLES .20	; Number of samples to integrate for every reading
 
 	;; ************************************************ Variables
 
@@ -47,12 +49,18 @@ channel_white	res	1	; Current input for white audio
 channel_red	res	1	; Current input for red audio
 channel_bypass	res	1	; If nonzero, indicates that the bypass input is active
 
+analog_buffer	res	8
+analog_channel	res 1
+analog_sample	res 1
+
 	global	channel_yellow
 	global	channel_white
 	global	channel_red
 	global	channel_bypass
 	global	switch_Update
 	global	led_Update
+	global	analog_buffer
+	global	SampleAnalog
 
 	code
 
@@ -481,6 +489,81 @@ led_Update
 	bsf	YELLOW_LED
 
 	bsf	GREEN_LED	; Power LED on
+
+	return
+
+	;; ************************************************ Video detection ADCs
+
+	; Sample all ADCs, put the results in analog_buffer
+SampleAnalog
+	
+	bankisel analog_buffer		; Point IRP:FSR to our buffer
+	movlw	analog_buffer
+	movwf	FSR
+	
+	movlw	0x81				; Make sure the ADC is on and pointed at the first channel
+	banksel	ADCON0
+	movwf	ADCON0
+
+	movlw	8					; Loop over 8 channels
+	banksel	analog_channel
+	movwf	analog_channel
+channelLoop
+
+	movlw	PRECHARGE_SAMPLES	; Take several samples and ignore them, to precharge the hold capacitor.
+	banksel	analog_sample		; This increases isolation between input channels.
+	movwf	analog_sample
+prechargeLoop
+	
+	banksel	ADCON0		; Take an analog sample
+	bsf		ADCON0, GO
+	pagesel	prechargeConversionLoop
+prechargeConversionLoop
+	btfsc	ADCON0, NOT_DONE
+	goto	prechargeConversionLoop
+
+	banksel	analog_sample		; Next precharge sample
+	pagesel	prechargeLoop
+	decfsz	analog_sample
+	goto	prechargeLoop
+
+	clrf	INDF				; INDF points to the current sample in our buffer, clear it to prepare to integrate A/D samples
+
+	movlw	INTEGRATION_SAMPLES ; Now take several more samples, adding them to INDF to integrate the video signal over time
+	banksel	analog_sample
+	movwf	analog_sample
+integrationLoop
+
+	banksel	ADCON0		; Take an analog sample
+	bsf		ADCON0, GO
+	pagesel	integrationConversionLoop
+integrationConversionLoop
+	btfsc	ADCON0, NOT_DONE
+	goto	integrationConversionLoop
+	
+	banksel	ADRES		; Add the fresh sample to INDF
+	movf	ADRES, w
+	addwf	INDF, f
+	btfss	STATUS, C	; If this caused an overflow, clamp to 0xFF
+	goto	noOverflow
+	movlw	0xFF
+	movwf	INDF
+noOverflow
+
+	banksel	analog_sample		; Next integration sample
+	pagesel	integrationLoop
+	decfsz	analog_sample
+	goto	integrationLoop
+
+	incf	FSR, f		; Next buffer location
+	movlw	0x08		; Next ADC channel
+	banksel	ADCON0
+	addwf	ADCON0, f
+	
+	banksel	analog_channel 	; Loop over all channels...
+	pagesel	channelLoop
+	decfsz	analog_channel
+	goto	channelLoop
 
 	return
 

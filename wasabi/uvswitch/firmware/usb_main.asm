@@ -71,6 +71,8 @@ epByteTemp	res 1
 	extern	finish_set_address
 
 	extern	io_Init
+	extern	SampleAnalog
+	extern	analog_buffer
 
 STARTUP	code
 	pagesel	Main
@@ -211,6 +213,23 @@ MainLoop
 	pagesel MainLoop
 	btfss	STATUS,Z	; Z = 1 when configured
 	goto	MainLoop    ; Wait until we're configured
+
+    ; The rest of this loop makes analog video detection measurements when the
+    ; EP1 endpoint is available, and makes the measurements available to transmit
+    ; back to the host.
+    banksel BD1IST          ; If we don't own the EP1 buffer, keep waiting
+    btfsc   BD1IST, UOWN
+    goto    MainLoop
+
+	pagesel	SampleAnalog	; Get the io module to take a reading
+	call	SampleAnalog
+
+	bankisel analog_buffer ; Submit the finished buffer back to the host
+	movlw	analog_buffer
+	movwf	FSR
+	movlw	8				; 8 bytes long
+	pagesel	PutEP1
+	call	PutEP1
 
 	pagesel	MainLoop
 	goto	MainLoop
