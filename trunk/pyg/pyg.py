@@ -118,10 +118,23 @@ class Editor(vte.Terminal):
                           None, os.getcwd(),
                           gtk.FALSE, gtk.FALSE, gtk.FALSE)
 
+class SourcePage:
+    def __init__(self, notebook):
+        self.editor = Editor()
+        self.notebook = notebook;
+        self.label = gtk.Label('Look Ma! A tab!')
+        self.editor.tab = self
+        notebook.append_page(self.editor, self.label)
+
+        def remove(self):
+            page = self.tab.notebook.get_current_page()
+            self.tab.notebook.remove_page(page)
+        self.editor.connect('child-exited', remove)
+
 main = MainWindow()
 
 sources = SourceNotebook()
-sources.append_page(Editor(), gtk.Label('Look Ma! A tab!'))
+source1 = SourcePage(sources)
 main.set(0, sources)
 
 compiler_output = CompileOutput()
