@@ -3,7 +3,7 @@ import time, struct, fcntl
 class FieldSensor:
     def __init__(self, devName="/dev/usb/efs0"):
         self.dev = open(devName)
-        self.resetParams()
+        self.initScan()
 
     def resetParams(self):
         """Initialize all parameter blocks to zero, stopping all sampling"""

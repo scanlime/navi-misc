@@ -32,8 +32,7 @@ def main():
     gtk.timeout_add(10, poll_handler)
 
     graph = rtgraph.GraphUI(channels,
-                            rtgraph.HScrollLineGraph(range=(0,255)),
-                            valueUpdateInterval = 500)
+                            rtgraph.HScrollLineGraph(range=(0,255)))
 
     tweaker = Tweak.List([
         Tweak.Quantity(ParamTweaker(efs, 3, default=227), 'value', range=(0,255), name="Period"),
