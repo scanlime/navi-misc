@@ -110,9 +110,10 @@ class input(plugin.MainMenuPlugin):
             if active and not self.active:
                 # Our input has just been enabled, add a menu item
                 self.addItem(menuw, VideoInputItem(self))
-            else:
+            elif not active and self.active:
                 # Out input has been disabled
                 self.removeItems(menuw)
+            self.active = active
 
     def addItem(self, menuw, i, makeCurrent=True):
         """Add the given item to freevo's main menu. If it's
@@ -155,6 +156,7 @@ class VideoInputItem(item.Item):
         self.channel = inputPlugin.channel
         self.name = inputPlugin.name
         self.icon = inputPlugin.icon
+        self.menuw = None
 
     def actions(self):
         return [ (self.select, "Select video input") ]
@@ -165,15 +167,16 @@ class VideoInputItem(item.Item):
            """
         self.switch.setChannel(self.channel, False)
         menuw.hide()
+        self.menuw = menuw
         rc.app(self)
 
     def eventhandler(self, event, menuw=None):
         if event == "MENU_BACK_ONE_MENU":
-            self.unselect(menuw)
+            self.unselect()
 
-    def unselect(self, menuw):
+    def unselect(self):
         rc.app(None)
-        menuw.show()
+        self.menuw.show()
         self.switch.reset()
 
 ### The End ###
