@@ -309,8 +309,13 @@ class Rack(BaseRack):
         self._testKeySubNsDel()
 
     def clear(self):
+        # Since we don't want to change the linked list while iterating over it,
+        # first we delete all keys, then we clear the linked list, and finally
+        # check whether this subnamespace needs to be removed.
         for key in self:
-            del self[key]
+            del self.db[self._dumpKey(key)]
+        self._getKeyList().clear()
+        self._testKeySubNsDel()
 
     def __iter__(self):
         """Iterate over all keys in this rack namespace"""
@@ -496,9 +501,7 @@ class LinkedList(object):
 
        When the list is empty, it takes no space in the db:
 
-          >>> l.remove(1)
-          >>> l.remove(3)
-          >>> l.remove(10)
+          >>> l.clear()
           >>> l
           []
           >>> len(l)
@@ -551,6 +554,23 @@ class LinkedList(object):
             return self.db[self._countKey]
         except KeyError:
             return 0
+
+    def clear(self):
+        """Delete the entire contents of this list"""
+        try:
+            i = self.db[self._headKey]
+        except KeyError:
+            # nothing to delete
+            return
+
+        while i:
+            # Save the next key first
+            try:
+                next = self.db[self._getNextKey(i)]
+            except KeyError:
+                next = None
+            self.remove(i)
+            i = next
 
     def append(self, item):
         self.db[self._countKey] = len(self) + 1
