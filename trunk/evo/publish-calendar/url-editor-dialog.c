@@ -63,11 +63,13 @@ publish_service_changed (GtkComboBox *combo, UrlEditorDialog *dialog)
 	EPublishUri *uri;
 
 	uri = dialog->uri;
-	uri->service_type = selected;
 
+	/* Big mess that switches around all the fields to match the source type
+	 * the user has selected. Tries to keep field contents where possible */
 	switch (selected) {
 	case TYPE_SMB:
 		gtk_label_set_text_with_mnemonic (GTK_LABEL (dialog->port_label), "S_hare:");
+		gtk_entry_set_text (GTK_ENTRY (dialog->port_entry), "");
 		break;
 	case TYPE_SSH:
 	case TYPE_FTP:
@@ -75,6 +77,10 @@ publish_service_changed (GtkComboBox *combo, UrlEditorDialog *dialog)
 	case TYPE_DAVS:
 		gtk_label_set_text_with_mnemonic (GTK_LABEL (dialog->server_label), "_Server:");
 		gtk_label_set_text_with_mnemonic (GTK_LABEL (dialog->port_label), "_Port:");
+		if (uri->service_type == TYPE_SMB)
+			gtk_entry_set_text (GTK_ENTRY (dialog->port_entry), "");
+		else if (uri->service_type == TYPE_URI)
+			gtk_entry_set_text (GTK_ENTRY (dialog->server_entry), "");
 		gtk_widget_show (dialog->file_hbox);
 		gtk_widget_show (dialog->optional_label);
 		gtk_widget_show (dialog->port_hbox);
@@ -85,6 +91,10 @@ publish_service_changed (GtkComboBox *combo, UrlEditorDialog *dialog)
 	case TYPE_ANON_FTP:
 		gtk_label_set_text_with_mnemonic (GTK_LABEL (dialog->server_label), "_Server:");
 		gtk_label_set_text_with_mnemonic (GTK_LABEL (dialog->port_label), "_Port:");
+		if (uri->service_type == TYPE_SMB)
+			gtk_entry_set_text (GTK_ENTRY (dialog->port_entry), "");
+		else if (uri->service_type == TYPE_URI)
+			gtk_entry_set_text (GTK_ENTRY (dialog->server_entry), "");
 		gtk_widget_show (dialog->file_hbox);
 		gtk_widget_show (dialog->optional_label);
 		gtk_widget_show (dialog->port_hbox);
@@ -94,6 +104,7 @@ publish_service_changed (GtkComboBox *combo, UrlEditorDialog *dialog)
 		break;
 	case TYPE_URI:
 		gtk_label_set_text_with_mnemonic (GTK_LABEL (dialog->server_label), "_Location (URI):");
+		gtk_entry_set_text (GTK_ENTRY (dialog->server_entry), "");
 		gtk_widget_hide (dialog->file_hbox);
 		gtk_widget_hide (dialog->optional_label);
 		gtk_widget_hide (dialog->port_hbox);
@@ -101,6 +112,7 @@ publish_service_changed (GtkComboBox *combo, UrlEditorDialog *dialog)
 		gtk_widget_hide (dialog->password_hbox);
 		gtk_widget_hide (dialog->remember_pw);
 	}
+	uri->service_type = selected;
 }
 
 static void
