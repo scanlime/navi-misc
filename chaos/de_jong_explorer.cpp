@@ -15,6 +15,7 @@ int iterations;
 GdkGC *grey[65536], *gc;
 int data[800][800];
 double a, b, c, d;
+guint idler;
 
 void draw();
 void flip();
@@ -66,7 +67,7 @@ int main(int argc, char ** argv) {
   point(0) = std::rand() / RAND_MAX;
   point(1) = std::rand() / RAND_MAX;
 
-  g_idle_add(draw_more, NULL);
+  idler = g_idle_add(draw_more, NULL);
 
   iterations = 0;
 
@@ -186,7 +187,7 @@ void startclick(GtkWidget *widget, gpointer user_data) {
   b = gtk_spin_button_get_value(GTK_SPIN_BUTTON(bs));
   c = gtk_spin_button_get_value(GTK_SPIN_BUTTON(cs));
   d = gtk_spin_button_get_value(GTK_SPIN_BUTTON(ds));
-  g_idle_add(draw_more, (gpointer) draw_more);
+  idler = g_idle_add(draw_more, NULL);
 }
 
 void stopclick(GtkWidget *widget, gpointer user_data) {
@@ -197,5 +198,5 @@ void stopclick(GtkWidget *widget, gpointer user_data) {
   gtk_widget_set_sensitive(bs, TRUE);
   gtk_widget_set_sensitive(cs, TRUE);
   gtk_widget_set_sensitive(ds, TRUE);
-  g_idle_remove_by_data((gpointer) draw_more);
+  g_source_remove(idler);
 }
