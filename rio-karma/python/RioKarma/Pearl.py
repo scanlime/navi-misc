@@ -112,25 +112,34 @@ class Protocol(protocol.Protocol):
 
         while self.requestQueue:
             currentRequest = self.requestQueue[0]
-
-            try:
-                currentRequest.readResponse(bufferFile)
-            except:
-                # Any error in this handler belongs to the request, not us
-                if currentRequest.result.called:
-                    log.msg("Request received an error after returning a result:")
-                    log.err(failure.Failure())
-                else:
-                    currentRequest.result.errback(failure.Failure())
-
             if currentRequest.result.called:
                 # This request is done, on to the next
                 del self.requestQueue[0]
                 self._checkQueueListeners()
             else:
-                # This request needs more data. If it did complete, we go around
-                # and let the next request look at our buffer.
-                break
+                # This request is still running
+
+                t = bufferFile.tell()
+                bufferFile.seek(t)
+
+                # Figure out if the buffer is empty, for later
+                wasBufferEmpty = bufferFile.tell() >= bufferFileLength
+
+                try:
+                    currentRequest.readResponse(bufferFile)
+                except:
+                    # Any error in this handler belongs to the request, not us
+                    if currentRequest.result.called:
+                        log.msg("Request received an error after returning a result:")
+                        log.err(failure.Failure())
+                    else:
+                        currentRequest.result.errback(failure.Failure())
+
+                # If the buffer was empty, it doesn't get another
+                # shot. Otherwise, we let the same request keep processing
+                # the buffer, in case it's switching states.
+                if wasBufferEmpty:
+                    break
 
         # All data remaining in our bufferFile after this round gets
         # stowed in self.buffer. The data we already read is discarded.
@@ -188,12 +197,7 @@ class StatefulRequest(BaseRequest):
     def __init__(self):
         BaseRequest.__init__(self)
         self.responseBuffer = ''
-        self.stateTransition(self.state_beginResponse)
-
-    def stateTransition(self, newReader, fileObj=None):
-        self.readResponse = newReader
-        if fileObj is not None:
-            newReader(fileObj)
+        self.readResponse = self.state_beginResponse
 
     def fillResponseBuffer(self, fileObj, size):
         """Read from fileObj, trying to fill self.responseBuffer
@@ -225,7 +229,7 @@ class StatefulRequest(BaseRequest):
 
             if responseId == self.id:
                 # This is the reply we were looking for
-                self.stateTransition(self.state_normalReply, fileObj)
+                self.readResponse = self.state_normalReply
 
             elif responseId == 1:
                 # This is a NAK response, the device rejected our command
@@ -233,7 +237,7 @@ class StatefulRequest(BaseRequest):
 
             elif responseId == 2:
                 # This is a "Busy" response, we have a state for that
-                self.stateTransition(self.state_busyReply, fileObj)
+                self.readResponse = self.state_busyReply
 
             else:
                 # Something wonky...
@@ -251,7 +255,7 @@ class StatefulRequest(BaseRequest):
             # FIXME: Once we have progress reporting, this will go somewhere useful
             print "Busy: %d/%d" % (step, numSteps)
 
-            self.stateTransition(self.state_beginResponse, fileObj)
+            self.readResponse = self.state_beginResponse
 
     def state_normalReply(self, fileObj):
         """This state is implemented by subclasses to receive normal replies"""
@@ -279,9 +283,9 @@ class StructRequest(StatefulRequest):
         if self.fillResponseBuffer(fileObj, self._responseLength):
             response = struct.unpack(self.responseFormat, self.responseBuffer)
             self.responseBuffer = ''
-            self.receivedResponse(fileObj, *response)
+            self.receivedResponse(*response)
 
-    def receivedResponse(self, source, *args):
+    def receivedResponse(self, *args):
         """This is called when a complete decoded response is received, with arguments
            as specified by the responseFormat. It is expected to call self.result with some
            sort of return value, None if necessary.

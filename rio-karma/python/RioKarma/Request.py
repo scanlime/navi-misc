@@ -53,7 +53,7 @@ class Authenticate(Pearl.StructRequest):
         Pearl.StructRequest.__init__(self)
         self.parameters = (md5.md5(salt + password).digest(),)
 
-    def receivedResponse(self, source, status, accessRights):
+    def receivedResponse(self, status, accessRights):
         self.decodeStatus(status)
         if accessRights == 0:
             self.result.callback(('read',))
@@ -68,7 +68,7 @@ class GetDeviceDetails(Pearl.StructRequest):
     id = 5
     responseFormat = '<32s32sI'
 
-    def receivedResponse(self, source, name, version, numStorageDevices):
+    def receivedResponse(self, name, version, numStorageDevices):
         """Trim NULs from the received strings"""
         self.result.callback(( name.replace("\x00", ""),
                                version.replace("\x00", ""),
@@ -87,7 +87,7 @@ class GetStorageDetails(Pearl.StructRequest):
         self.parameters = (storageId,)
         Pearl.StructRequest.__init__(self)
 
-    def receivedResponse(self, source, status, *args):
+    def receivedResponse(self, status, *args):
         self.decodeStatus(status)
         argNames = ('numFiles', 'totalSpace', 'freeSpace', 'highestFileID')
         results = {}
@@ -101,12 +101,12 @@ class GetDeviceSettings(Pearl.StructRequest):
     id = 7
     responseFormat = '<I'
 
-    def receivedResponse(self, source, status):
+    def receivedResponse(self, status):
         self.decodeStatus(status)
         self.properties = Property.PropertyFileWriter({})
 
         self.reader = Pearl.AlignedStringReader()
-        self.stateTransition(self.state_readSettings, source)
+        self.readResponse = self.state_readSettings
 
     def state_readSettings(self, fileObj):
         if not self.reader.next(fileObj, self.properties):
@@ -133,7 +133,7 @@ class RequestIOLock(Pearl.StructRequest):
             raise ProtocolError("Unknown lock type %r" % lockType)
         Pearl.StructRequest.__init__(self)
 
-    def receivedResponse(self, source, status):
+    def receivedResponse(self, status):
         self.decodeStatus(status)
         self.result.callback(None)
 
@@ -143,7 +143,7 @@ class ReleaseIOLock(Pearl.StructRequest):
     id = 10
     responseFormat = '<I'
 
-    def receivedResponse(self, source, status):
+    def receivedResponse(self, status):
         self.decodeStatus(status)
         self.result.callback(None)
 
@@ -170,7 +170,7 @@ class WriteFileChunk(Pearl.StructRequest):
         Pearl.StructRequest.sendTo(self, fileObj)
         Pearl.AlignedBlockWriter(self.size).next(self.dataSource, fileObj)
 
-    def receivedResponse(self, source, status):
+    def receivedResponse(self, status):
         self.decodeStatus(status)
         self.result.callback(None)
 
@@ -186,12 +186,12 @@ class GetAllFileDetails(Pearl.StructRequest):
         self.callback = callback
         Pearl.StructRequest.__init__(self)
 
-    def receivedResponse(self, source, status):
+    def receivedResponse(self, status):
         self.decodeStatus(status)
         self.fileDatabase = Property.FileDatabaseWriter(self.callback)
 
         self.reader = Pearl.AlignedStringReader()
-        self.stateTransition(self.state_readFiles, source)
+        self.readResponse = self.state_readFiles
 
     def state_readFiles(self, fileObj):
         if not self.reader.next(fileObj, self.fileDatabase):
@@ -214,12 +214,12 @@ class GetFileDetails(Pearl.StructRequest):
         self.parameters = (fileID,)
         Pearl.StructRequest.__init__(self)
 
-    def receivedResponse(self, source, status):
+    def receivedResponse(self, status):
         self.decodeStatus(status)
         self.properties = Property.PropertyFileWriter(self.storage)
 
         self.reader = Pearl.AlignedStringReader()
-        self.stateTransition(self.state_readDetails, source)
+        self.readResponse = self.state_readDetails
 
     def state_readDetails(self, fileObj):
         if not self.reader.next(fileObj, self.properties):
@@ -239,7 +239,7 @@ class UpdateFileDetails(Pearl.StructRequest):
         self.properties = Property.PropertyFileReader(data)
         Pearl.StructRequest.__init__(self)
 
-    def receivedResponse(self, source, status):
+    def receivedResponse(self, status):
         self.decodeStatus(status)
         self.result.callback(None)
 
@@ -268,15 +268,15 @@ class ReadFileChunk(Pearl.StructRequest):
         return "<ReadFileChunk: 0x%02X bytes at 0x%02X>" % (
             self.parameters[1], self.parameters[0])
 
-    def receivedResponse(self, source, size, status):
+    def receivedResponse(self, size, status):
         self.decodeStatus(status)
         self.reader = Pearl.AlignedBlockReader(size)
-        self.stateTransition(self.state_readChunk, source)
+        self.readResponse = self.state_readChunk
 
     def state_readChunk(self, fileObj):
         """Wait for the bulk of the file to transfer"""
         if not self.reader.next(fileObj, self.destination):
-            self.stateTransition(self.state_finalStatus, fileObj)
+            self.readResponse = self.state_finalStatus
 
     def state_finalStatus(self, fileObj):
         """Wait for the final status code to arrive, after the file content"""
@@ -302,7 +302,7 @@ class Hangup(Pearl.StructRequest):
     id = 19
     responseFormat = '<I'
 
-    def receivedResponse(self, source, status):
+    def receivedResponse(self, status):
         self.decodeStatus(status)
 
 ### The End ###
