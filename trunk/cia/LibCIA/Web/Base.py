@@ -1,7 +1,6 @@
 """ LibCIA.Web.Base
 
-Base classes acting as document templates subclassed by other modules
-in the web interface for CIA.
+A very simple web objects framework, in the spirit of nevow
 """
 #
 # CIA open source notification system
@@ -22,91 +21,119 @@ in the web interface for CIA.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from nevow import renderer, stan
-from twisted.python import components
-from nevow.iwoven import ISerializable
-from nevow.tags import *
+from twisted.xish import domish
+from twisted.web import resource
 
 
-class Section:
-    """Represents a named section which can be placed in any of the columns on a page.
-       This is a base class with defaults that you probably want to override :)
+class place:
+    """A placeholder for data that can be rendered by a document's owner.
+       For example, place('title') calls render_title() in the object owning
+       the current document, context['owner'].
        """
-    def __init__(self, title, body):
-        self.title = title
-        self.body = body
+    def __init__(self, name):
+        self.name = name
+
+    def render(self, context):
+        return getattr(context['owner'], 'render_' + self.name)(context)
 
 
-class SectionSerializer(components.Adapter):
-    __implements__ = ISerializable,
-
-    def serialize(self, context, stream):
-        return [
-            span(_class="section")[ self.original.title ],
-            div(_class="section")[
-                div(_class="sectionTop")[" "],
-                div(_class="row")[ self.original.body ],
-            ]
-        ]
-
-components.registerAdapter(SectionSerializer, Section, ISerializable)
-
-
-class Template(renderer.Renderer):
-    """The template on which all other pages are built. This defines the overall
-       structure of the page such that the CSS stays happy, with content generated
-       by a set of functions easily overridden in subclasses
+class xml(str):
+    """A marker indicating data that is already represented in raw XML and
+       needs no further processing.
        """
-    def render_pageTitle(self, context, data):
-        """Return the <title> tag contents for this page- by default a combination
-           of the main title and the site name.
-           """
-        return [
-            self.render_mainTitle(context, data),
-            " - ",
-            self.render_siteName(context, data)
-            ]
+    __slots__ = []
 
-    def render_mainTitle(self, context, data):
-        """Return the main title, this is displayed in large type in the heading"""
-        return "Moose-o-Matic"
 
-    def render_subTitle(self, context, data):
-        """Return a subtitle to display below the main title"""
-        return "More wet kittens than you can shake a cheese grater at"
+class Serializer:
+    """Convert arbitrary objects to xml markers recursively. Renderable objects
+       are allowed to render themselves, other types must have renderers looked
+       up in this class's render_* methods.
+       """
+    def render(self, obj, context):
+        """Look up a render_* function based on the object's type"""
+        if hasattr(obj, 'render'):
+            return self.render_renderable(obj, context)
+        try:
+            f = getattr(self, 'render_' + type(obj).__name__)
+        except AttributeError:
+            f = self.render_other
+        return f(obj, context)
 
-    def render_siteName(self, context, data):
-        """Return the site name, which is shown in the header and by default used
-           to create the page title.
-           """
-        return "CIA"
+    def render_xml(self, obj, context):
+        return obj
 
-    def render_headingTabs(self, context, data):
-        return a(_class="headingTab", href="/")["CIA"]
+    def render_list(self, obj, context):
+        return xml(''.join([self.render(o, context) for o in obj]))
 
-    def render_leftColumn(self, context, data):
-        return []
+    def render_tuple(self, obj, context):
+        return xml(''.join([self.render(o, context) for o in obj]))
 
-    def render_mainColumn(self, context, data):
-        return []
+    def render_function(self, obj, context):
+        return self.render(obj(context), context)
 
-    document = html[
-        head[
-            title[ directive("pageTitle") ],
-            style(type="text/css", media="all")[ "@import url(/style.css);" ],
-            ],
-        body[
-            div(_class="heading")[
-                div(_class="sitename")[ directive("siteName") ],
-                div(_class="title")[ directive("mainTitle") ],
-                div(_class="subtitle")[ directive("subTitle") ],
-                div(_class="headingTabs")[ directive("headingTabs") ],
-            ],
-            table(_class="columns")[ tr[
-                td(_class="left")[ directive("leftColumn") ],
-                td(_class="main")[ directive("mainColumn") ],
-            ]],
-        ],
-    ]
+    def render_instancemethod(self, obj, context):
+        return self.render(obj(context), context)
+
+    def render_renderable(self, obj, context):
+        return self.render(obj.render(context), context)
+
+    def render_other(self, obj, context):
+        return xml(domish.escapeToXml(str(obj)))
+
+
+class tag:
+    """A renderable XHTML tag, containing other renderable objects.
+       If an object enclosed doesn't have a 'render' method, it is casted
+       to a string and quoted.
+
+       This class was inspired by nevow, but much simpler. In CIA, dynamically
+       rebuilding the code to implement changes at runtime is more important
+       than speed, and this avoids much of the complexity (and power) of
+       nevow's ISerializable.
+
+       Attributes are quoted and converted to tag attributes. Leading underscores
+       are removed, so they can be used to define attributes that are reserved
+       words in Python.
+       """
+    def __init__(self, name, **attributes):
+        self.name = name
+        self.content = []
+        self.setAttributes(attributes)
+
+    def setAttributes(self, attributes):
+        """Change this tag's attributes, rerendering the opening and closing text"""
+        opening = '<' + self.name
+        for key, value in attributes.iteritems():
+            if key[0] == '_':
+                key = key[1:]
+            opening += ' %s="%s"' % (key, domish.escapeToXml(value, True))
+        opening += '>'
+        self.renderedOpening = xml(opening)
+        self.renderedClosing = xml('</%s>' % self.name)
+
+    def __getitem__(self, content):
+        """Overloads the [] operator used, in Tag, to set the tag's contents"""
+        self.content = content
+        return self
+
+    def render(self, context=None):
+        return [self.renderedOpening, self.content, self.renderedClosing]
+
+
+class DocumentOwner(object):
+    """A base class defining a 'render' function for objects that own a document"""
+    def render(self, context={}):
+        myContext = dict(context)
+        myContext['owner'] = self
+        return Serializer().render(self.document, myContext)
+
+
+class Page(resource.Resource):
+    """A web resource that renders a tree of tag instances from its 'document' attribute"""
+    def render(self, request):
+        return str(Serializer().render(self.document, {
+            'owner': self,
+            'request': request,
+            }))
 
 ### The End ###
