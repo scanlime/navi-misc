@@ -116,7 +116,7 @@ class CapabilityDB:
         result = defer.Deferred()
         d = self.getKey(capability)
         d.addErrback(result.errback)
-        d.addCallback(self._saveKeyCallback, file, result)
+        d.addCallback(self._saveKeyCallback, os.path.expanduser(file), result)
         return result
 
     def _saveKeyCallback(self, key, file, result):

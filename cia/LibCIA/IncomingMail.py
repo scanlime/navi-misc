@@ -51,7 +51,9 @@ class MailInterface(RPC.Interface):
 
     def xmlrpc_deliver(self, message):
         """Given the raw text of an email message, log it and process it if applicable."""
-        return IncomingMailParser().parseString(message)
+        parsed = IncomingMailParser().parseString(message)
+        if parsed:
+            self.hub.deliver(parsed)
 
 
 class IncomingMailParser:
