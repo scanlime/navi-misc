@@ -25,6 +25,7 @@ database.
 
 import MySQLdb
 import MySQLdb.cursors
+import os
 
 
 def prettifyName(str):
@@ -73,7 +74,7 @@ class ThermDatabase:
         # Turn on autocommit. For DB API compliance this is off
         # initially, but it will cause our connection to miss new
         # packets arriving.
-        self.db.autocommit(1)
+        self.db.cursor().execute("SET AUTOCOMMIT=1")
 
     def iterDictQuery(self, query):
         """Perform an SQL query and iterate over the result rows as dictionaries"""
@@ -95,11 +96,21 @@ class ThermDatabase:
         raise KeyError("No such therm source %r" % name)
 
 
+def getDatabaseHost():
+    """Normally the database is located on navi, but if this
+       script is running on navi we shoud specify localhost
+       for the security db to find us.
+       """
+    if os.uname()[1] == "navi":
+        return "localhost"
+    else:
+        return "navi"
+
 # This is a very low-privilege account that can only read
 # from the database, probably no reason not to have
 # all the login info here.
 defaultDatabase = ThermDatabase(
-    db="therm", host="navi",
+    db="therm", host=getDatabaseHost(),
     user="therm_reader", passwd="e5ce14d3")
 
 ### The End ###
