@@ -1,9 +1,8 @@
 /*
  * Media Infrawidget 6000 driver
  *
- * ** This driver is dangerous, and is here only for quick&dirty testing. **
- * ** It needs to be rewritten using usb-skeleton as a guide, to properly **
- * ** handle disconnections, locks, and multiple devices.                 **
+ * This is a module for the Linux kernel, providing a userspace interface
+ * as described in mi6k_dev.h to the USB protocol described in mi6k_protocol.h
  *
  * Copyright(c) 2003 Micah Dowty <micah@picogui.org>
  *
@@ -11,26 +10,28 @@
  *	it under the terms of the GNU General Public License as published by
  *	the Free Software Foundation; either version 2 of the License, or
  *	(at your option) any later version.
- *
- * Currently this is just for experimentation. Eventually it will morph into
- * one or more drivers for some projects I've been cooking up...
  */
 
+
+/************************************************** Main Definitions **********/
+
+#include <linux/config.h>
 #include <linux/kernel.h>
-#include <linux/slab.h>
-#include <linux/module.h>
-#include <linux/init.h>
+#include <linux/sched.h>
+#include <linux/signal.h>
+#include <linux/errno.h>
 #include <linux/poll.h>
+#include <linux/init.h>
+#include <linux/slab.h>
+#include <linux/fcntl.h>
+#include <linux/module.h>
+#include <linux/spinlock.h>
+#include <linux/list.h>
+#include <linux/smp_lock.h>
 #include <linux/devfs_fs_kernel.h>
-#include "../include/protocol.h"
-
-#define DEBUG
 #include <linux/usb.h>
-
-#define MI6K_DEV_NAME     "widget"
-#define MI6K_MINOR_BASE   230
-
-#define BUFFER_SIZE 8
+#include <mi6k_protocol.h>
+#include <mi6k_dev.h>
 
 #define DRIVER_VERSION "v0.1"
 #define DRIVER_AUTHOR "Micah Dowty <micah@picogui.org>"
@@ -40,203 +41,401 @@ MODULE_AUTHOR( DRIVER_AUTHOR );
 MODULE_DESCRIPTION( DRIVER_DESC );
 MODULE_LICENSE("GPL");
 
+/* Table of devices that work with this driver */
+static struct usb_device_id mi6k_table [] = {
+	{ USB_DEVICE(MI6K_VENDOR_ID, MI6K_PRODUCT_ID) },
+	{ } /* End table */
+};
+MODULE_DEVICE_TABLE (usb, mi6k_table);
+
+/* Structure to hold all of our device specific stuff */
+struct usb_mi6k {
+	struct usb_device *	udev;			/* save off the usb device pointer */
+	struct usb_interface *	interface;		/* the interface for this device */
+	devfs_handle_t		devfs;			/* devfs device node */
+	unsigned char		minor;			/* the starting minor number for this device */
+	int			open_count;		/* number of times this port has been opened */
+	struct semaphore	sem;			/* locks this structure */
+};
+
 /* the global usb devfs handle */
 extern devfs_handle_t usb_devfs_handle;
 
-struct mi6k {
-	char name[128];
-	struct usb_device *usbdev;
-	devfs_handle_t devfs;
-	struct urb read_urb;
-	unsigned char read_data[BUFFER_SIZE];
-	struct usb_endpoint_descriptor *endpoint;
-};
+/* we can have up to this number of device plugged in at once */
+#define MAX_DEVICES 16
 
-static void mi6k_read_complete(struct urb *urb)
-{
-	struct mi6k *widget = urb->context;
-	unsigned char *data = widget->read_data;
+/* array of pointers to our devices that are currently connected */
+static struct usb_mi6k *minor_table[MAX_DEVICES];
 
-	if (urb->status) return;
+/* lock to protect the minor_table structure */
+static DECLARE_MUTEX (minor_table_mutex);
 
-       	dbg("Received %d bytes - %02X %02X %02X %02X", urb->actual_length, data[0], data[1], data[2], data[3]);
-}
+#define REQUEST_TIMEOUT  (HZ / 2)   /* 1/2 second timeout for control requests */
 
-static int mi6k_dev_open (struct inode *inode, struct file *file)
-{
-	int retval = 0;
-	MOD_INC_USE_COUNT;
- err_out:
-	return retval;
-}
+/************************************************** Function Prototypes *******/
 
-static int mi6k_dev_release (struct inode *inode, struct file *file)
-{
-	int retval = 0;
-	MOD_DEC_USE_COUNT;
- err_out:
-	return retval;
-}
+static void mi6k_request (struct usb_mi6k *dev, unsigned short request,
+			  unsigned short wValue, unsigned short wIndex);
+static int mi6k_open (struct inode *inode, struct file *file);
+static int mi6k_release (struct inode *inode, struct file *file);
+static ssize_t mi6k_write (struct file *file, const char *buffer, size_t count, loff_t *ppos);
+static int mi6k_ioctl (struct inode *inode, struct file *file, unsigned int cmd, unsigned long arg);
+static inline void mi6k_delete (struct usb_mi6k *dev);
+static void * mi6k_probe(struct usb_device *udev, unsigned int ifnum, const struct usb_device_id *id);
+static void mi6k_disconnect(struct usb_device *udev, void *ptr);
+static int __init usb_mi6k_init(void);
+static void __exit usb_mi6k_exit(void);
 
-/* Send a control request to the device synchronously */
-static void mi6k_request (struct mi6k* widget, unsigned short request,
+
+/************************************************** Device Communications *****/
+
+static void mi6k_request (struct usb_mi6k *dev, unsigned short request,
 			  unsigned short wValue, unsigned short wIndex)
 {
-	usb_control_msg(widget->usbdev, usb_sndctrlpipe(widget->usbdev, 0),
-			request,
-			0x40,     /* Request type: vendor specific, host-to-device */
-			wValue,
-			wIndex,
-			NULL, 0,  /* data (not used) */
-			HZ / 2    /* Timeout: 1/2 second */
-			);
+	/* Send a control request to the device synchronously */
+	usb_control_msg(dev->udev, usb_sndctrlpipe(dev->udev, 0),
+			request, 0x40, wValue, wIndex, NULL, 0, REQUEST_TIMEOUT);
 }
 
-static ssize_t mi6k_dev_write (struct file *file, const char *buffer, size_t count, loff_t *ppos)
+
+/************************************************** Main character device *****/
+
+static int mi6k_open (struct inode *inode, struct file *file)
 {
+	struct usb_mi6k *dev = NULL;
+	int subminor;
 	int retval = 0;
-	struct mi6k *widget = (struct mi6k*) file->private_data;
 
-	if (count) {
-		/* Pad unused bytes with zero, which the display will ignore */
-		unsigned char tbuffer[] = {0, 0, 0, 0};
-		int transfer_length;
-
-		transfer_length = min(sizeof(tbuffer), count);
-		dbg("%d bytes to send, sending %d bytes", count, transfer_length);
-		if (copy_from_user(tbuffer, buffer, transfer_length))
-			return -EFAULT;
-
-		/* Pack 4 bytes of the character stream into the packet's value and index parameters */
-		mi6k_request(widget, MI6K_CTRL_VFD_WRITE,
-			     tbuffer[0] | (((int)tbuffer[1]) << 8),
-			     tbuffer[2] | (((int)tbuffer[3]) << 8));
-
-		retval = transfer_length;
+	subminor = MINOR (inode->i_rdev) - MI6K_MINOR_BASE;
+	if ((subminor < 0) ||
+	    (subminor >= MAX_DEVICES)) {
+		return -ENODEV;
 	}
 
- err_out:
+	/* Increment our usage count for the module.
+	 * This is redundant here, because "struct file_operations"
+	 * has an "owner" field. This line is included here soley as
+	 * a reference for drivers using lesser structures... ;-)
+	 */
+	MOD_INC_USE_COUNT;
+
+	/* lock our minor table and get our local data for this minor */
+	down (&minor_table_mutex);
+	dev = minor_table[subminor];
+	if (dev == NULL) {
+		up (&minor_table_mutex);
+		MOD_DEC_USE_COUNT;
+		return -ENODEV;
+	}
+
+	/* lock this device */
+	down (&dev->sem);
+
+	/* unlock the minor table */
+	up (&minor_table_mutex);
+
+	/* increment our usage count for the driver */
+	++dev->open_count;
+
+	/* save our object in the file's private structure */
+	file->private_data = dev;
+
+	/* unlock this device */
+	up (&dev->sem);
+
 	return retval;
 }
 
-static ssize_t mi6k_dev_ioctl (struct inode *inode, struct file *file, unsigned int cmd,
-			       unsigned long arg)
+static int mi6k_release (struct inode *inode, struct file *file)
 {
-	struct mi6k *widget = (struct mi6k*) file->private_data;
+	struct usb_mi6k *dev;
 	int retval = 0;
 
-	if (cmd == 0x0001)
-	  mi6k_request(widget, MI6K_CTRL_VFD_POWER, arg ? 1 : 0, 0);
-	else if (cmd == 0x0002)
-	  mi6k_request(widget, MI6K_CTRL_LED_SET, arg >> 16, arg & 0xFFFF);
+	dev = (struct usb_mi6k *)file->private_data;
+	if (dev == NULL) {
+		dbg ("object is NULL");
+		return -ENODEV;
+	}
 
- err_out:
+	dbg("minor %d", dev->minor);
+
+	/* lock our minor table */
+	down (&minor_table_mutex);
+
+	/* lock our device */
+	down (&dev->sem);
+
+	if (dev->open_count <= 0) {
+		dbg ("device not opened");
+		retval = -ENODEV;
+		goto exit_not_opened;
+	}
+
+	if (dev->udev == NULL) {
+		/* the device was unplugged before the file was released */
+		up (&dev->sem);
+		mi6k_delete (dev);
+		up (&minor_table_mutex);
+		MOD_DEC_USE_COUNT;
+		return 0;
+	}
+
+	/* decrement our usage count for the device */
+	--dev->open_count;
+	if (dev->open_count <= 0) {
+		/* Unlink URBs here once we have some */
+		dev->open_count = 0;
+	}
+
+	/* decrement our usage count for the module */
+	MOD_DEC_USE_COUNT;
+
+exit_not_opened:
+	up (&dev->sem);
+	up (&minor_table_mutex);
+
 	return retval;
+}
+
+static ssize_t mi6k_write (struct file *file, const char *buffer, size_t count, loff_t *ppos)
+{
+	/* Pad unused bytes with zero, which the display will ignore */
+	unsigned char tbuffer[] = {0, 0, 0, 0};
+	struct usb_mi6k *dev;
+	ssize_t bytes_written = 0;
+	int retval = 0;
+
+	dev = (struct usb_mi6k *)file->private_data;
+
+	dbg("minor %d, count = %d", dev->minor, count);
+
+	/* lock this object */
+	down (&dev->sem);
+
+	/* verify that the device wasn't unplugged */
+	if (dev->udev == NULL) {
+		retval = -ENODEV;
+		goto exit;
+	}
+
+	/* verify that we actually have some data to write */
+	if (count == 0) {
+		dbg("write request of 0 bytes");
+		goto exit;
+	}
+
+	bytes_written = min(sizeof(tbuffer), count);
+	dbg("%d bytes to send, sending %d bytes", count, bytes_written);
+	if (copy_from_user(tbuffer, buffer, bytes_written)) {
+		retval = -EFAULT;
+		goto exit;
+	}
+
+	/* Pack 4 bytes of the character stream into the packet's value and index parameters */
+	mi6k_request(dev, MI6K_CTRL_VFD_WRITE,
+		     tbuffer[0] | (((int)tbuffer[1]) << 8),
+		     tbuffer[2] | (((int)tbuffer[3]) << 8));
+
+	retval = bytes_written;
+
+exit:
+	/* unlock the device */
+	up (&dev->sem);
+
+	return retval;
+}
+
+static int mi6k_ioctl (struct inode *inode, struct file *file, unsigned int cmd, unsigned long arg)
+{
+	struct usb_mi6k *dev;
+
+	dev = (struct usb_mi6k *)file->private_data;
+
+	/* lock this object */
+	down (&dev->sem);
+
+	/* verify that the device wasn't unplugged */
+	if (dev->udev == NULL) {
+		up (&dev->sem);
+		return -ENODEV;
+	}
+
+	dbg("minor %d, cmd 0x%.4x, arg %ld", 
+	    dev->minor, cmd, arg);
+
+
+	/* fill in your device specific stuff here */
+
+	/* unlock the device */
+	up (&dev->sem);
+
+	/* return that we did not understand this ioctl call */
+	return -ENOTTY;
 }
 
 static struct file_operations mi6k_fops = {
+	/*
+	 * The owner field is part of the module-locking
+	 * mechanism. The idea is that the kernel knows
+	 * which module to increment the use-counter of
+	 * BEFORE it calls the device's open() function.
+	 * This also means that the kernel can decrement
+	 * the use-counter again before calling release()
+	 * or should the open() function fail.
+	 *
+	 * Not all device structures have an "owner" field
+	 * yet. "struct file_operations" and "struct net_device"
+	 * do, while "struct tty_driver" does not. If the struct
+	 * has an "owner" field, then initialize it to the value
+	 * THIS_MODULE and the kernel will handle all module
+	 * locking for you automatically. Otherwise, you must
+	 * increment the use-counter in the open() function
+	 * and decrement it again in the release() function
+	 * yourself.
+	 */
 	owner:		THIS_MODULE,
-	write:          mi6k_dev_write,
-	open:		mi6k_dev_open,
-	release:	mi6k_dev_release,
-	ioctl:  	mi6k_dev_ioctl,
+
+	write:		mi6k_write,
+	ioctl:		mi6k_ioctl,
+	open:		mi6k_open,
+	release:	mi6k_release,
 };
 
-static void *mi6k_probe(struct usb_device *dev, unsigned int ifnum,
-			const struct usb_device_id *id)
+
+/************************************************** USB Housekeeping **********/
+
+static inline void mi6k_delete (struct usb_mi6k *dev)
 {
-	struct usb_interface *iface;
-	struct usb_interface_descriptor *interface;
-	struct usb_endpoint_descriptor *endpoint;
-	struct mi6k *widget;
-	int read_pipe;
-	const char *name;
-
-	if ((dev->descriptor.idVendor != MI6K_VENDOR_ID) ||
-	    (dev->descriptor.idProduct != MI6K_PRODUCT_ID))
-		return NULL;
-
-	iface = &dev->actconfig->interface[ifnum];
-	interface = &iface->altsetting[iface->act_altsetting];
-
-	dbg("bNumEndpoints = %d", interface->bNumEndpoints);
-
-	if (interface->bNumEndpoints < 1) return NULL;
-
-	endpoint = interface->endpoint + 0;
-
-	usb_set_idle(dev, interface->bInterfaceNumber, 0, 0);
-
-	if (!(widget = kmalloc(sizeof(struct mi6k), GFP_KERNEL))) return NULL;
-	memset(widget, 0, sizeof(struct mi6k));
-
-	widget->usbdev = dev;
-	widget->endpoint = endpoint;
-
-	/* Create a devfs entry */
-	widget->devfs = devfs_register (usb_devfs_handle, MI6K_DEV_NAME,
-					DEVFS_FL_DEFAULT, USB_MAJOR,
-					MI6K_MINOR_BASE,
-					S_IFCHR | S_IRUSR | S_IWUSR |
-					S_IRGRP | S_IWGRP | S_IROTH,
-					&mi6k_fops, widget);
-	dbg("Registered /dev/usb/%s", MI6K_DEV_NAME);
-
-	/* Initialize read URB */
-	/*
-	  read_pipe = usb_rcvintpipe(dev, endpoint->bEndpointAddress);
-	  usb_fill_int_urb(&widget->read_urb, dev, read_pipe, widget->read_data,
-	  min(usb_maxpacket(dev, read_pipe, usb_pipeout(read_pipe)), BUFFER_SIZE),
-	  mi6k_read_complete, widget, endpoint->bInterval);
-	*/
-
-	/* Start up our interrupt read transfer */
-	/*
-	  widget->read_urb.dev = widget->usbdev;
-	  if (usb_submit_urb(&widget->read_urb))
-	  return NULL;
-	*/
-
-	return widget;
+	minor_table[dev->minor] = NULL;
+	kfree (dev);
 }
-
-static void mi6k_disconnect(struct usb_device *dev, void *ptr)
-{
-	struct mi6k *widget = ptr;
-	usb_unlink_urb(&widget->read_urb);
-	devfs_unregister(widget->devfs);
-	kfree(widget);
-}
-
-static struct usb_device_id mi6k_id_table [] = {
-	{ USB_DEVICE(MI6K_VENDOR_ID, MI6K_PRODUCT_ID) },
-	{ }	/* Terminating entry */
-};
-
-MODULE_DEVICE_TABLE (usb, mi6k_id_table);
 
 static struct usb_driver mi6k_driver = {
 	name:		"mi6k",
 	probe:		mi6k_probe,
 	disconnect:	mi6k_disconnect,
-	id_table:	mi6k_id_table,
+	fops:		&mi6k_fops,
+	minor:		MI6K_MINOR_BASE,
+	id_table:	mi6k_table,
 };
 
-static int __init mi6k_init(void)
+static void * mi6k_probe(struct usb_device *udev, unsigned int ifnum, const struct usb_device_id *id)
 {
-	usb_register(&mi6k_driver);
-	info(DRIVER_VERSION ":" DRIVER_DESC);
-	dbg("Poing!");
+	struct usb_mi6k *dev = NULL;
+	struct usb_interface *interface;
+	struct usb_interface_descriptor *iface_desc;
+	struct usb_endpoint_descriptor *endpoint;
+	int minor;
+	int buffer_size;
+	int i;
+	char name[10];
+
+	/* See if the device offered us matches what we can accept */
+	if ((udev->descriptor.idVendor != MI6K_VENDOR_ID) ||
+	    (udev->descriptor.idProduct != MI6K_PRODUCT_ID)) {
+		return NULL;
+	}
+
+	/* select a "subminor" number (part of a minor number) */
+	down (&minor_table_mutex);
+	for (minor = 0; minor < MAX_DEVICES; ++minor) {
+		if (minor_table[minor] == NULL)
+			break;
+	}
+	if (minor >= MAX_DEVICES) {
+		info ("Too many devices plugged in, can not handle this device.");
+		goto exit;
+	}
+
+	/* allocate memory for our device state and intialize it */
+	dev = kmalloc (sizeof(struct usb_mi6k), GFP_KERNEL);
+	if (dev == NULL) {
+		err ("Out of memory");
+		goto exit;
+	}
+	memset (dev, 0x00, sizeof (*dev));
+	minor_table[minor] = dev;
+
+	interface = &udev->actconfig->interface[ifnum];
+
+	init_MUTEX (&dev->sem);
+	dev->udev = udev;
+	dev->interface = interface;
+	dev->minor = minor;
+
+	/* initialize the devfs node for this device and register it */
+	sprintf(name, MI6K_DEV_NAMEFORMAT, dev->minor);
+	dev->devfs = devfs_register (usb_devfs_handle, name,
+				     DEVFS_FL_DEFAULT, USB_MAJOR,
+				     MI6K_MINOR_BASE + dev->minor,
+				     S_IFCHR | S_IRUSR | S_IWUSR |
+				     S_IRGRP | S_IWGRP | S_IROTH,
+				     &mi6k_fops, NULL);
+
+	/* let the user know what node this device is now attached to */
+	info ("MI6K device now attached to %s", name);
+	goto exit;
+
+error:
+	mi6k_delete (dev);
+	dev = NULL;
+
+exit:
+	up (&minor_table_mutex);
+	return dev;
+}
+
+static void mi6k_disconnect(struct usb_device *udev, void *ptr)
+{
+	struct usb_mi6k *dev;
+	int minor;
+
+	dev = (struct usb_mi6k *)ptr;
+
+	down (&minor_table_mutex);
+	down (&dev->sem);
+
+	minor = dev->minor;
+
+	/* remove our devfs node */
+	devfs_unregister(dev->devfs);
+
+	/* if the device is not opened, then we clean up right now */
+	if (!dev->open_count) {
+		up (&dev->sem);
+		mi6k_delete (dev);
+	} else {
+		dev->udev = NULL;
+		up (&dev->sem);
+	}
+
+	info("MI6K #%d now disconnected", minor);
+	up (&minor_table_mutex);
+}
+
+static int __init usb_mi6k_init(void)
+{
+	int result;
+
+	/* register this driver with the USB subsystem */
+	result = usb_register(&mi6k_driver);
+	if (result < 0) {
+		err("usb_register failed for the "__FILE__" driver. Error number %d",
+		    result);
+		return -1;
+	}
+
+	info(DRIVER_DESC " " DRIVER_VERSION);
 	return 0;
 }
 
-static void __exit mi6k_exit(void)
+static void __exit usb_mi6k_exit(void)
 {
+	/* deregister this driver with the USB subsystem */
 	usb_deregister(&mi6k_driver);
-	dbg("Exiting\n");
 }
 
-module_init(mi6k_init);
-module_exit(mi6k_exit);
+module_init (usb_mi6k_init);
+module_exit (usb_mi6k_exit);
 
 /* The End */
