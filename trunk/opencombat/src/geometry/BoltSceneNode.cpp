@@ -256,7 +256,8 @@ void			BoltSceneNode::BoltRenderNode::render()
 	}
       }
 
-      if (sceneNode->texturing) glDisable(GL_TEXTURE_2D);
+      if (sceneNode->texturing)
+				glDisable(GL_TEXTURE_2D);
       myColor4fv(flareColor);
       glBegin(GL_QUADS);
       for (int i = 0; i < numFlares; i++) {

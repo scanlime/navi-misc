@@ -2294,13 +2294,6 @@ bool			addExplosion(const float* _pos,
   // ignore if no prototypes available;
   if (prototypeExplosions.size() == 0) return false;
 
-  // don't show explosions if quality isn't high
-  if (sceneRenderer->useQuality() < 2) return false;
-
-  // don't add explosion if blending or texture mapping are off
-  if (!BZDBCache::texture)
-    return false;
-
   // pick a random prototype explosion
   const int index = (int)(bzfrand() * (float)prototypeExplosions.size());
 
