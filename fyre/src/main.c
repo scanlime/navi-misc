@@ -388,11 +388,30 @@ static void animation_render_main (IterativeMap *map,
 }
 
 #ifdef WIN32
+static int console_running = 1;
+
 void sleep_at_exit()
 {
     printf("\nFinished.\n");
-    while (1)
-	sleep(10);
+    while (console_running) {
+        Sleep(100);
+        fgetc(stdin);
+    }
+}
+
+BOOL console_control_handler(DWORD control_type)
+{
+    switch (control_type) {
+
+    case CTRL_C_EVENT:
+    case CTRL_CLOSE_EVENT:
+    case CTRL_LOGOFF_EVENT:
+    case CTRL_SHUTDOWN_EVENT:
+        console_running = 0;
+        break;
+
+    }
+    return FALSE;
 }
 
 static void acquire_console()
@@ -413,6 +432,7 @@ static void acquire_console()
     *stdout = *file;
     *stderr = *file;
 
+    SetConsoleCtrlHandler((PHANDLER_ROUTINE) console_control_handler, TRUE);
     atexit(sleep_at_exit);
 }
 #else
