@@ -110,8 +110,8 @@ static void
 box_init (Box *box)
 {
   box->drawables = NULL;
-  box->sides = g_object_ref (box_sides_drawable_new ());
-  box->top = g_object_ref (box_top_drawable_new ());
+  box->sides = g_object_ref (box_sides_drawable_new ((SceneObject*) box));
+  box->top = g_object_ref (box_top_drawable_new ((SceneObject*) box));
   box->sides->parent = (SceneObject*) box;
   box->top->parent = (SceneObject*) box;
 
@@ -158,100 +158,30 @@ box_set_property (GObject *object, guint prop_id, const GValue *value, GParamSpe
   {
     case PROP_POSITION_X:
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.position[0], 0.09);
-      update_float_if_necessary  (g_value_get_double (value), &DISPLAY_LIST (self->sides)->dirty,
-                                  &BOX_SIDES_DRAWABLE (self->sides)->position[0], 0.09);
-      update_float_if_necessary  (g_value_get_double (value), &DISPLAY_LIST (self->top)->dirty,
-                                  &BOX_TOP_DRAWABLE (self->top)->position[0], 0.09);
-      if (self->state_dirty)
-	g_signal_emit_by_name (object, "dirty");
-      if (DISPLAY_LIST (self->sides)->dirty)
-	g_signal_emit_by_name (G_OBJECT (self->sides), "dirty");
-      if (DISPLAY_LIST (self->top)->dirty)
-	g_signal_emit_by_name (G_OBJECT (self->top), "dirty");
       break;
 
     case PROP_POSITION_Y:
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.position[1], 0.09);
-      update_float_if_necessary  (g_value_get_double (value), &DISPLAY_LIST (self->sides)->dirty,
-                                  &BOX_SIDES_DRAWABLE (self->sides)->position[1], 0.09);
-      update_float_if_necessary  (g_value_get_double (value), &DISPLAY_LIST (self->top)->dirty,
-                                  &BOX_TOP_DRAWABLE (self->top)->position[1], 0.09);
-      if (self->state_dirty)
-	g_signal_emit_by_name (object, "dirty");
-      if (DISPLAY_LIST (self->sides)->dirty)
-	g_signal_emit_by_name (G_OBJECT (self->sides), "dirty");
-      if (DISPLAY_LIST (self->top)->dirty)
-	g_signal_emit_by_name (G_OBJECT (self->top), "dirty");
       break;
 
     case PROP_POSITION_Z:
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.position[2], 0.09);
-      update_float_if_necessary  (g_value_get_double (value), &DISPLAY_LIST (self->sides)->dirty,
-                                  &BOX_SIDES_DRAWABLE (self->sides)->position[2], 0.09);
-      update_float_if_necessary  (g_value_get_double (value), &DISPLAY_LIST (self->top)->dirty,
-                                  &BOX_TOP_DRAWABLE (self->top)->position[2], 0.09);
-      if (self->state_dirty)
-	g_signal_emit_by_name (object, "dirty");
-      if (DISPLAY_LIST (self->sides)->dirty)
-	g_signal_emit_by_name (G_OBJECT (self->sides), "dirty");
-      if (DISPLAY_LIST (self->top)->dirty)
-	g_signal_emit_by_name (G_OBJECT (self->top), "dirty");
       break;
 
     case PROP_ROTATION:
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.rotation, 0.09);
-      update_float_if_necessary  (g_value_get_double (value), &DISPLAY_LIST (self->sides)->dirty,
-                                  &BOX_SIDES_DRAWABLE (self->sides)->rotation, 0.09);
-      update_float_if_necessary  (g_value_get_double (value), &DISPLAY_LIST (self->top)->dirty,
-                                  &BOX_TOP_DRAWABLE (self->top)->rotation, 0.09);
-      if (self->state_dirty)
-	g_signal_emit_by_name (object, "dirty");
-      if (DISPLAY_LIST (self->sides)->dirty)
-	g_signal_emit_by_name (G_OBJECT (self->sides), "dirty");
-      if (DISPLAY_LIST (self->top)->dirty)
-	g_signal_emit_by_name (G_OBJECT (self->top), "dirty");
       break;
 
     case PROP_SIZE_X:
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.size[0], 0.09);
-      update_float_if_necessary  (g_value_get_double (value), &DISPLAY_LIST (self->sides)->dirty,
-                                  &BOX_SIDES_DRAWABLE (self->sides)->size[0], 0.09);
-      update_float_if_necessary  (g_value_get_double (value), &DISPLAY_LIST (self->top)->dirty,
-                                  &BOX_TOP_DRAWABLE (self->top)->size[0], 0.09);
-      if (self->state_dirty)
-	g_signal_emit_by_name (object, "dirty");
-      if (DISPLAY_LIST (self->sides)->dirty)
-	g_signal_emit_by_name (G_OBJECT (self->sides), "dirty");
-      if (DISPLAY_LIST (self->top)->dirty)
-	g_signal_emit_by_name (G_OBJECT (self->top), "dirty");
       break;
 
     case PROP_SIZE_Y:
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.size[1], 0.09);
-      update_float_if_necessary  (g_value_get_double (value), &DISPLAY_LIST (self->sides)->dirty,
-                                  &BOX_SIDES_DRAWABLE (self->sides)->size[1], 0.09);
-      update_float_if_necessary  (g_value_get_double (value), &DISPLAY_LIST (self->top)->dirty,
-                                  &BOX_TOP_DRAWABLE (self->top)->size[1], 0.09);
-      if (self->state_dirty)
-	g_signal_emit_by_name (object, "dirty");
-      if (DISPLAY_LIST (self->sides)->dirty)
-	g_signal_emit_by_name (G_OBJECT (self->sides), "dirty");
-      if (DISPLAY_LIST (self->top)->dirty)
-	g_signal_emit_by_name (G_OBJECT (self->top), "dirty");
       break;
 
     case PROP_SIZE_Z:
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.size[2], 0.09);
-      update_float_if_necessary  (g_value_get_double (value), &DISPLAY_LIST (self->sides)->dirty,
-                                  &BOX_SIDES_DRAWABLE (self->sides)->size[2], 0.09);
-      update_float_if_necessary  (g_value_get_double (value), &DISPLAY_LIST (self->top)->dirty,
-                                  &BOX_TOP_DRAWABLE (self->top)->size[2], 0.09);
-      if (self->state_dirty)
-	g_signal_emit_by_name (object, "dirty");
-      if (DISPLAY_LIST (self->sides)->dirty)
-	g_signal_emit_by_name (G_OBJECT (self->sides), "dirty");
-      if (DISPLAY_LIST (self->top)->dirty)
-	g_signal_emit_by_name (G_OBJECT (self->top), "dirty");
       break;
 
     case PROP_DRIVE_THROUGH:
@@ -265,6 +195,14 @@ box_set_property (GObject *object, guint prop_id, const GValue *value, GParamSpe
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
+  }
+  if (self->state_dirty)
+  {
+    DISPLAY_LIST (self->top)->dirty = TRUE;
+    DISPLAY_LIST (self->sides)->dirty = TRUE;
+    g_signal_emit_by_name (object, "dirty");
+    g_signal_emit_by_name (G_OBJECT (self->top), "dirty");
+    g_signal_emit_by_name (G_OBJECT (self->sides), "dirty");
   }
 }
 
@@ -496,29 +434,32 @@ box_sides_drawable_init (BoxSidesDrawable *bsd)
 }
 
 Drawable*
-box_sides_drawable_new (void)
+box_sides_drawable_new (SceneObject *parent)
 {
-  return DRAWABLE (g_object_new (box_sides_drawable_get_type (), NULL));
+  Drawable *d = DRAWABLE (g_object_new (box_sides_drawable_get_type (), NULL));
+  d->parent = parent;
+  return d;
 }
 
 static void
 box_sides_drawable_draw_to_list (DisplayList *dl)
 {
   BoxSidesDrawable *bsd = BOX_SIDES_DRAWABLE (dl);
+  Box *b = BOX (DRAWABLE (dl)->parent);
   float width, depth, height;
   float wrep, drep, hrep;
 
-  width = bsd->size[0];
-  depth = bsd->size[1];
-  height = bsd->size[2];
+  width = b->param.size[0];
+  depth = b->param.size[1];
+  height = b->param.size[2];
 
   wrep = width / 5;
   drep = depth / 5;
   hrep = height / 5;
 
   glPushMatrix ();
-  glTranslatef (bsd->position[0], bsd->position[1], bsd->position[2]);
-  glRotatef (bsd->rotation, 0.0, 0.0, 1.0);
+  glTranslatef (b->param.position[0], b->param.position[1], b->param.position[2]);
+  glRotatef (b->param.rotation, 0.0, 0.0, 1.0);
 
   glBegin (GL_QUADS);
   {
@@ -614,27 +555,30 @@ box_top_drawable_init (BoxTopDrawable *btd)
 }
 
 Drawable*
-box_top_drawable_new (void)
+box_top_drawable_new (SceneObject *parent)
 {
-  return DRAWABLE (g_object_new (box_top_drawable_get_type (), NULL));
+  Drawable *d = DRAWABLE (g_object_new (box_top_drawable_get_type (), NULL));
+  d->parent = parent;
+  return d;
 }
 
 static void
 box_top_drawable_draw_to_list (DisplayList *dl)
 {
   BoxTopDrawable *btd = BOX_TOP_DRAWABLE (dl);
+  Box *b = BOX (DRAWABLE (dl)->parent);
   float width, depth, height;
   float wrep, hrep;
 
-  width = btd->size[0];
-  depth = btd->size[1];
-  height = btd->size[2];
+  width = b->param.size[0];
+  depth = b->param.size[1];
+  height = b->param.size[2];
   wrep = width / 20;
   hrep = height / 20;
 
   glPushMatrix ();
-  glTranslatef (btd->position[0], btd->position[1], btd->position[2]);
-  glRotatef (btd->rotation, 0.0, 0.0, 1.0);
+  glTranslatef (b->param.position[0], b->param.position[1], b->param.position[2]);
+  glRotatef (b->param.rotation, 0.0, 0.0, 1.0);
 
   /* FIXME: should align texcoords with the world */
   glBegin (GL_QUADS);
