@@ -43,12 +43,17 @@ struct _Accumulator {
   HistogramImager parent;
   HistogramPlot plot;
 
+  /* current calculation state */
   gdouble total_iterations;
 };
 
 struct _AccumulatorClass {
   HistogramImagerClass parent_class;
 };
+
+/************************************************************************************/
+/******************************************************************* Public Methods */
+/************************************************************************************/
 
 GType        accumulator_get_type ();
 Accumulator* accumulator_new      ();
