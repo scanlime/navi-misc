@@ -225,8 +225,6 @@ irc_network_editor_init (IrcNetworkEditor *dialog)
 	GW(autoconnect);
 	GW(use_ssl);
 	GW(cycle);
-	GW(autoreconnect);
-	GW(giveup_reconnect);
 
 	GW(password);
 	GW(encoding_hbox);
@@ -376,8 +374,6 @@ irc_network_editor_populate (IrcNetworkEditor *e)
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (e->autoconnect),      e->network->autoconnect);
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (e->use_ssl),          e->network->use_ssl);
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (e->cycle),            e->network->cycle);
-	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (e->autoreconnect),    e->network->reconnect);
-	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (e->giveup_reconnect), e->network->nogiveup_reconnect);
 
 	if (e->network->use_global) {
 		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (e->use_globals), TRUE);
@@ -442,8 +438,6 @@ apply_changes (IrcNetworkEditor *e)
 	net->autoconnect        = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (e->autoconnect));
 	net->use_ssl            = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (e->use_ssl));
 	net->cycle              = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (e->cycle));
-	net->reconnect          = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (e->autoreconnect));
-	net->nogiveup_reconnect = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (e->giveup_reconnect));
 	net->use_global         = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (e->use_globals));
 	net->encoding           = gtk_combo_box_get_active (GTK_COMBO_BOX (e->encoding));
 

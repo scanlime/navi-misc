@@ -111,11 +111,6 @@ irc_network_new (ircnet *net)
 	n->autoconnect = net->flags & FLAG_AUTO_CONNECT;
 	n->use_ssl     = net->flags & FLAG_USE_SSL;
 	n->cycle       = net->flags & FLAG_CYCLE;
-	/* FIXME */
-	/*
-	n->reconnect   = net->flags & FLAG_;
-	n->novegiveup  = net->flags & FLAG_;
-	*/
 
 	for (s1 = net->servlist; s1; s1 = g_slist_next (s1)) {
 		ircserver *s = g_new0(ircserver, 1);
@@ -162,9 +157,6 @@ irc_network_save (IrcNetwork *network)
 	if (network->cycle)       flags |= FLAG_CYCLE;
 	if (network->use_global)  flags |= FLAG_USE_GLOBAL;
 	net->flags = flags;
-
-	/* FIXME - reconnect */
-	/* FIXME - nogiveup */
 
 	for (s = net->servlist; s; s = g_slist_next (s))
 		g_free (((ircserver *) s->data)->hostname);
