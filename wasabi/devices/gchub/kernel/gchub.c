@@ -891,8 +891,6 @@ static void gchub_sync_output_status(struct gchub_dev* dev)
 	int dirty = 0;
 	int i;
 
-	dbg("sync output status");
-
 	/* Are any outputs still dirty? */
 	for (i=0; i<NUM_PORTS; i++)
 		if (dev->ports[i].outputs.dirty)
@@ -901,15 +899,12 @@ static void gchub_sync_output_status(struct gchub_dev* dev)
 	if (!dirty)
 		return;
 
-	dbg("some outputs dirty");
-
 	/* Send out a status packet if one isn't already on its way */
 	spin_lock_irqsave(&dev->out_status_lock, flags);
 	if (dev->out_status_in_progress) {
 		/* A packet is already on its way, but we'll need
 		 * another one to be sent right afterward.
 		 */
-		dbg("Status already on its way");
 		dev->out_status_pending_sync = 1;
 		spin_unlock_irqrestore(&dev->out_status_lock, flags);
 	}
@@ -919,7 +914,6 @@ static void gchub_sync_output_status(struct gchub_dev* dev)
 
 		gchub_fill_output_request(dev);
 		gchub_submit_urb(dev->out_status, SLAB_ATOMIC);
-		dbg("sending request");
 	}
 }
 
@@ -985,8 +979,6 @@ static void gchub_out_request_irq(struct urb* urb)
 {
 	struct gchub_dev *dev = (struct gchub_dev*)urb->context;
 	unsigned long flags;
-
-	dbg("out request irq");
 
 	spin_lock_irqsave(&dev->out_status_lock, flags);
 	if (dev->out_status_pending_sync) {
