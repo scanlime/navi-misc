@@ -22,6 +22,7 @@
 #include <gtk/gtk.h>
 #include <e-util/e-config.h>
 #include <calendar/gui/e-cal-config.h>
+#include <calendar/gui/calendar-component.h>
 #include <libedataserver/e-source.h>
 #include <libedataserver/e-url.h>
 #include <libgnome/gnome-i18n.h>
@@ -34,8 +35,50 @@ GtkWidget *e_calendar_weather_refresh (EPlugin *epl, EConfigHookItemFactoryData 
 GtkWidget *e_calendar_weather_temperature (EPlugin *epl, EConfigHookItemFactoryData *data);
 GtkWidget *e_calendar_weather_snowfall (EPlugin *epl, EConfigHookItemFactoryData *data);
 gboolean   e_calendar_weather_check (EPlugin *epl, EConfigHookPageCheckData *data);
+int        e_plugin_lib_enable (EPluginLib *ep, int enable);
 
 static GtkTreeStore *store = NULL;
+
+#define WEATHER_BASE_URI "weather://"
+
+int
+e_plugin_lib_enable (EPluginLib *ep, int enable)
+{
+	/* Perform a migration step here. This allows us to keep the weather calendar completely
+	 * separate from evolution. If the plugin isn't built, the weather source group won't
+	 * show up in the user's evolution. If it is, this will create it if it doesn't exist */
+	CalendarComponent *component;
+	ESourceList *source_list;
+	ESourceGroup *group;
+	GSList *groups;
+	ESourceGroup *weather;
+
+	component = calendar_component_peek ();
+	source_list = calendar_component_peek_source_list (component);
+
+	groups = e_source_list_peek_groups (source_list);
+	if (groups) {
+		/* groups are already there, we need to search */
+		GSList *g;
+
+		for (g = groups; g; g = g_slist_next (g)) {
+			group = E_SOURCE_GROUP (g->data);
+			if (!weather && !strcmp (WEATHER_BASE_URI, e_source_group_peek_base_uri (group)))
+				weather = g_object_ref (group);
+		}
+	}
+
+	if (!weather) {
+		group = e_source_group_new (_("Weather"), WEATHER_BASE_URI);
+		e_source_list_add_group (source_list, group, -1);
+
+		weather = group;
+	}
+
+	if (weather)
+		g_object_unref (weather);
+	return 0;
+}
 
 static void
 parse_subtree (GtkTreeIter *parent, xmlNode *node)
