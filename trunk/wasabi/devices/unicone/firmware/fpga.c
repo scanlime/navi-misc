@@ -80,7 +80,7 @@ void fpga_config_begin()
 
   fpga_init();
 
-  printf("\nConfiguring FPGA:\n");
+  printf("Configuring FPGA ");
 }
 
 void fpga_config_write(unsigned char *cfgdata, int length)
@@ -111,7 +111,7 @@ unsigned char fpga_config_end()
   /* Give it a few more CCLKs after the bitstream to release user I/Os */
   fpga_config_write_byte(0x00);
 
-  printf("\nDone, wrote %ld bytes\n\n", bytes_configured);
+  printf(" Done\n");
   return UNICONE_STATUS_OK;
 }
 
