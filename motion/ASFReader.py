@@ -20,6 +20,7 @@
 #
 from pyparsing import *
 from Bone import *
+import Blender
 
 def listToDict(list):
     s = {}
@@ -29,6 +30,41 @@ def listToDict(list):
         else:
             s[item[0]] = item[1:]
     return s
+
+class Logger:
+    """This is a singleton that collects error and warning messages, presenting
+       them to the user in batches.
+       """
+    def __init__(self):
+        self.clear()
+
+    def clear(self):
+        self.log = []
+        self.numErrors = 0
+        self.numMessages = 0
+        self.numWarnings = 0
+
+    def msg(self, s):
+        """Log a nonfatal message"""
+        self.log.append(s)
+        self.numMessages += 1
+
+    def err(self, s):
+        """Log an error"""
+        self.log.append('ERROR: %s' % s)
+        self.numErrors += 1
+
+    def warn(self, s):
+        """Log a nonfatal warning"""
+        self.log.append('Warning: %s' % s)
+        self.numWarnings += 1
+
+    def report(self, title='Errors reported'):
+        """Report errors to the user"""
+        Blender.Draw.PupMenu('%s:%%t|%s' % (title, '|'.join(self.log)))
+        self.clear()
+
+log = Logger()
 
 class ASFReader:
     bones = {}
@@ -117,10 +153,3 @@ class ASFReader:
             s = l.split(' ')
             self.hierarchy[s[0]] = s[1:]
         file.close()
-
-# main program
-reader = ASFReader()
-reader.parse('02.asf')
-print 'bones:'
-for bone in reader.bones.keys():
-    print '\t',bone
