@@ -34,6 +34,17 @@ import XML
 from twisted.enterprise.util import quote
 from _mysql import escape_string as quoteBlob
 
+# Disable the silly BLOB-to-array() conversion
+# in the latest versions of python-mysqldb
+def removeBlobConversions():
+    from MySQLdb.converters import conversions
+    from MySQLdb.constants import FIELD_TYPE
+    del conversions[FIELD_TYPE.BLOB]
+try:
+    removeBlobConversions()
+except:
+    pass
+
 
 def readDictFile(path):
     """Read a file formatted as a list of keys and values
