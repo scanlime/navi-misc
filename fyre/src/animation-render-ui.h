@@ -27,6 +27,7 @@
 #include <gtk/gtk.h>
 #include <glade/glade.h>
 #include "iterative-map.h"
+#include "de-jong.h"
 #include "animation.h"
 #include "avi-writer.h"
 
