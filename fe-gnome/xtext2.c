@@ -1,5 +1,6 @@
 #include "xtext2.h"
 #include <string.h>
+#include <ctype.h>
 
 typedef struct _XTextFormat XTextFormat;
 
@@ -29,6 +30,7 @@ static void       paint                  (GtkWidget *widget, GdkRectangle *area)
 static void       render_page            (XText2 *xtext);
 static int        render_line            (XText2 *xtext, XTextFormat *f, textentry *ent, int line, int lines_max, int subline, int win_width);
 static int        render_str             (XText2 *xtext, XTextFormat *f, int y, textentry *ent, unsigned char *str, int len, int win_width, int indent, int line, int left_only);
+static int        render_flush           (XText2 *xtext, int x, int y, unsigned char *str, int len, GdkGC *gc, gboolean multibyte);
 static void       draw_bg                (XText2 *xtext, int x, int y, int width, int height);
 static void       draw_sep               (XText2 *xtext, int y);
 static textentry* nth                    (XText2 *xtext, int line, int *subline);
@@ -96,6 +98,7 @@ struct _XText2Private
   gulong       palette[20];          /* color palette */
   gboolean     overdraw: TRUE;       /* draw twice */
   gboolean     bold: TRUE;           /* draw in bold? */
+  gboolean     time_stamp: TRUE;     /* show timestamp? */
 
   /* drawing data */
   gint         depth;                /* gdk window depth */
@@ -116,14 +119,22 @@ struct _XText2Private
   int          last_win_y;           /* previous Y */
   int          last_pixel_pos;       /* where the window was scrolled to */
   int          jump_in_offset;       /* "" start rendering */
+  int          jump_out_offset;      /* "" stop rendering */
+  int          stamp_width;          /* timestamp width */
+  int          clip_x;
+  int          clip_x2;
+  int          clip_y;
+  int          clip_y2;
   gboolean     dont_render;
   gboolean     dont_render2;
   gboolean     in_hilight;
+  gboolean     un_hilight;
   gboolean     skip_border_fills;
   gboolean     underline;
   gboolean     backcolor;
   gboolean     parsing_color;
   gboolean     parsing_backcolor;
+  gboolean     render_hilights_only;
   int          nc;                   /* offset into xtext->priv->num */
   int          col_fore;
   int          col_back;
@@ -858,6 +869,18 @@ render_line (XText2 *xtext, XTextFormat *f, textentry *ent, int line, int lines_
   indent = ent->indent;
 
 #ifdef XCHAT
+  /* draw the timestamp */
+  if (xtext->priv->auto_indent && xtext->priv->time_stamp && !xtext->priv->skip_stamp)
+  {
+    char *time_str;
+    int stamp_size = get_stamp_str (ent->stamp, &time_str);
+    int tmp = ent->multibyte;
+    y = (xtext->priv->fontsize * line) + xtext->priv->font->ascent - xtext->priv->pixel_offset;
+    ent->multibyte = TRUE;
+    render_str (xtext, f, y, ent, time_str, stamp_size, win_width, 2, line, TRUE);
+    ent->multibyte = tmp;
+    g_free (time_str);
+  }
 #endif
 
   /* draw each line one-by-one */
@@ -922,6 +945,10 @@ render_str (XText2 *xtext, XTextFormat *f, int y, textentry *ent, unsigned char 
       ent->mark_start <= i + offset &&
       ent->mark_end > i + offset)
   {
+    set_bg (xtext, gc, 16);
+    set_fg (xtext, gc, 17);
+    xtext->priv->backcolor = TRUE;
+    mark = TRUE;
   }
 #ifdef MOTION_MONITOR
   if (xtext->priv->hilight_start <= i + offset && xtext->priv->hilight_end > i + offset)
@@ -940,6 +967,19 @@ render_str (XText2 *xtext, XTextFormat *f, int y, textentry *ent, unsigned char 
 
   if (!xtext->priv->skip_border_fills && !xtext->priv->dont_render)
   {
+    /* draw background to the left of the text */
+    if (str == ent->str && indent > MARGIN && xtext->priv->time_stamp)
+    {
+      /* don't overwrite the timestamp */
+      if (indent > xtext->priv->stamp_width)
+	draw_bg (xtext, xtext->priv->stamp_width, y - xtext->priv->font->ascent, indent - xtext->priv->stamp_width, xtext->priv->fontsize);
+    }
+    else
+    {
+      /* fill the indent area with background gc */
+      if (indent >= xtext->priv->clip_x)
+	draw_bg (xtext, 0, y - xtext->priv->font->ascent, MIN (indent, xtext->priv->clip_x2), xtext->priv->fontsize);
+    }
   }
 
   if (xtext->priv->jump_in_offset > 0 && offset < xtext->priv->jump_in_offset)
@@ -947,6 +987,103 @@ render_str (XText2 *xtext, XTextFormat *f, int y, textentry *ent, unsigned char 
 
   while (i < len)
   {
+#ifdef MOTION_MONITOR
+    if (xtext->priv->hilight_ent == ent && xtext->priv->hilight_start == (i + offset))
+    {
+      x += render_flush (xtext, x, y, pstr, j, gc, ent->multibyte);
+      pstr += j;
+      j = 0;
+      if (!xtext->priv->un_hilight)
+      {
+#ifdef COLOR_HILIGHT
+	set_bg (xtext, gc, 2);
+#else
+	xtext->priv->underline = TRUE;
+#endif /* COLOR_HILIGHT */
+      }
+      xtext->priv->in_hilight
+    }
+#endif /* MOTION_MONITOR */
+
+    if ((xtext->priv->parsing_color && isdigit (str[i]) && xtext->priv->nc < 2) ||
+        (xtext->priv->parsing_color && str[i] == ',' && isdigit (str[i+1]) && xtext->priv->nc < 3))
+    {
+    }
+    else
+    {
+    }
+    i += charlen (str + i); /* move to the next utf8 char */
+    /* invalid utf8 safeguard */
+    if (i > len)
+      i = len;
+
+    /* have we been told to stop rendering at this point? */
+    if (xtext->priv->jump_out_offset > 0 && xtext->priv->jump_out_offset <= (i + offset))
+    {
+      render_flush (xtext, x, y, pstr, j, gc, ent->multibyte);
+      ret = 0; /* skip the rest of the lines, we're done */
+      j = 0;
+      break;
+    }
+
+    if (xtext->priv->jump_in_offset > 0 && xtext->priv->jump_in_offset == (i + offset))
+    {
+      x += render_flush (xtext, x, y, pstr, j, gc, ent->multibyte);
+      pstr += j;
+      j = 0;
+      xtext->priv->dont_render2 = FALSE;
+    }
+
+#ifdef MOTION_MONITOR
+    if (xtext->priv->hilight_ent == ent && xtext->priv->hilight_end == (i + offset))
+    {
+      x += render_flush (xtext, x, y, pstr, j, gc, ent->multibyte);
+      pstr += j;
+      j = 0;
+#ifdef COLOR_HILIGHT
+      if (mark)
+      {
+	set_bg (xtext, gc, 16);
+	xtext->priv->backcolor = TRUE;
+      }
+      else
+      {
+	set_bg (xtext, gc, xtext->priv->col_back);
+	xtext->priv->backcolor = (xtext->col_back != 19)
+      }
+#else
+      xtext->priv->underline = FALSE;
+#endif /* COLOR_HILIGHT */
+      xtext->priv->in_hilight = FALSE;
+      if (xtext->priv->render_hilights_only)
+      {
+	/* stop drawing this ent */
+	ret = 0;
+	break;
+      }
+    }
+#endif /* MOTION_MONITOR */
+    if (!mark && ent->mark_start == (i + offset))
+    {
+      x += render_flush (xtext, x, y, pstr, j, gc, ent->multibyte);
+      pstr += j;
+      j = 0;
+      set_bg (xtext, gc, 16);
+      set_fg (xtext, gc, 17);
+      xtext->priv->backcolor = TRUE;
+      mark = TRUE;
+    }
+
+    if (mark && ent->mark_end == (i + offset))
+    {
+      x += render_flush (xtext, x, y, pstr, j, gc, ent->multibyte);
+      pstr += j;
+      j = 0;
+      set_bg (xtext, gc, xtext->priv->col_back);
+      set_fg (xtext, gc, xtext->priv->col_fore);
+      xtext->priv->backcolor = (xtext->priv->col_back != 19);
+      mark = FALSE;
+    }
   }
 
   if (j)
@@ -954,15 +1091,103 @@ render_str (XText2 *xtext, XTextFormat *f, int y, textentry *ent, unsigned char 
 
   if (mark)
   {
+    set_bg (xtext, gc, xtext->priv->col_back);
+    set_fg (xtext, gc, xtext->priv->col_fore);
+    xtext->priv->backcolor = (xtext->priv->col_back != 19);
   }
 
   /* draw background to the right of the text */
   if (!left_only && !xtext->priv->dont_render)
   {
+    /* draw separator now so it doesn't appear to flicker */
+    draw_sep (xtext, y - xtext->priv->font->ascent);
+    if (!xtext->priv->skip_border_fills && xtext->priv->clip_x2 >= x)
+    {
+      int xx = MAX (x, xtext->priv->clip_x);
+      int yy = MIN (xtext->priv->clip_x2 - xx, (win_width + MARGIN) - xx);
+      draw_bg (xtext, xx, y - xtext->priv->font->ascent, yy, xtext->priv->fontsize);
+    }
   }
 
   xtext->priv->dont_render2 = FALSE;
   return ret;
+}
+
+static int
+render_flush (XText2 *xtext, int x, int y, unsigned char *str, int len, GdkGC *gc, gboolean multibyte)
+{
+  int str_width;
+  gboolean fill;
+  GdkDrawable *pix = NULL;
+  int dest_x, dest_y;
+
+  if (xtext->priv->dont_render || len < 1)
+    return 0;
+
+  str_width = backend_get_text_width (xtext, str, len, multibyte);
+
+  if (xtext->priv->dont_render2)
+    return str_width;
+
+  /* roll-your-own clipping (avoiding XftDrawString is always good!) */
+  if (x > xtext->priv->clip_x2 || x + str_width < xtext->priv->clip_x)
+    return str_width;
+  if (y - xtext->priv->font->ascent > xtext->priv->clip_y2 || (y - xtext->priv->font->ascent) + xtext->priv->fontsize < xtext->priv->clip_y)
+    return str_width;
+
+  if (xtext->priv->render_hilights_only)
+  {
+    if (!xtext->priv->in_hilight)
+      return str_width;
+#ifndef COLOR_HILIGHT
+    if (!xtext->priv->un_hilight)
+      goto dounder;
+#endif /* COLOR_HILIGHT */
+  }
+
+#ifdef USE_DB
+#endif /* USE_DB */
+
+  fill = TRUE;
+
+  /* backcolor is always handled by XDrawImageString */
+#if 0
+  if (!xtext->priv->backcolor && xtext->priv->pixmap)
+  {
+    /* draw the background pixmap behind the text - CAUSES FLICKER HERE!! */
+    draw_bg (xtext, x, y - xtext->priv->font->ascent, str_width, xtext->priv->fontsize);
+    fill = FALSE; /* already drawn the background */
+  }
+#endif
+  backend_draw_text (xtext, fill, gc, x, y, str, len, str_width, multibyte);
+
+#ifdef USE_DB
+#endif /* USE_DB */
+
+  if (xtext->priv->underline)
+  {
+#ifdef USE_XFT
+    GdkColor col;
+#endif /* USE_XFT */
+
+#ifndef COLOR_HILIGHT
+dounder:
+#endif /* COLOR_HILIGHT */
+#ifdef USE_XFT
+    col.pixel = xtext->priv->xft_fg->pixel;
+    gdk_gc_set_foreground (gc, &col);
+#endif /* USE_XFT */
+    if (pix)
+      y = dest_y + xtext->priv->font->ascent + 1;
+    else
+    {
+      y++;
+      dest_x = x;
+    }
+    /* draw directly to window, it's out of the range of our DB */
+    gdk_draw_line (xtext->priv->draw_buffer, gc, dest_x, y, dest_x + str_width - 1, y);
+  }
+  return str_width;
 }
 
 static void
