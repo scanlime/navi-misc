@@ -80,8 +80,28 @@ class StatsInterface(xmlrpc.XMLRPC):
         else:
             return []
 
+    def xmlrpc_getCounterValues(self, path, name):
+        """Returns a dictionary with current values for the given counter,
+           in the same format as would be returned by the counter's getValues()
+           member. Note that times are returned as UNIX-style seconds since
+           the epoch in UTC.
+           """
+        counters = self.storage.getPathTarget(path).counters
+        if counters:
+            counter = counters.getCounter(name)
+            if counter:
+                return counter.getValues()
+        return {}
+
     def xmlrpc_getCounters(self, path):
-        """Return counters for the given path as XML"""
+        """Return counters for the given path as XML.
+           It's very important to understand that the counter is returned
+           just as it is stored on disk, so the individual counters may
+           need to be rolled over before their values are accurate. This
+           (and catalogCounters below) are nice if you know what you're doing
+           or you're using the Counter class from here, but in other cases
+           it's best to use getCounterInfo.
+           """
         return self.storage.getPathTarget(path).countersToXml()
 
     def xmlrpc_catalogCounters(self, path):
@@ -589,6 +609,25 @@ class Counter(XML.XMLObject):
         self.loadFromString(other.xml.toXml())
         self.xml['name'] = savedName
         self.name = savedName
+
+    def getValues(self):
+        """Returns a dictionary with important values for this counter.
+           The keys match the names of our get* member functions without
+           the leading 'get', the values correspond to what would be returned
+           from them.
+           """
+        d = {}
+        for key in [
+            'CreationTime',
+            'FirstEventTime',
+            'LastEventTime',
+            'EventCount',
+            ]:
+            value = getattr(self, 'get' + key)()
+            if value is not None:
+                d[key] = value
+        print d
+        return d
 
 
 def _test():
