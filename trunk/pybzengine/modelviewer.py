@@ -3,18 +3,14 @@
 # Simple viewer for the 3D models PyBZEngine uses, in a subset of the VRML format.
 # Give the file name or URL to a .wrl model on the command line.
 #
-from BZEngine.UI import Viewport, ThreeDRender, ThreeDControl, AnaglyphView, StereoView
-from BZEngine.UI.Drawable import Box, VRML
+from BZEngine.UI import Viewport, ThreeDRender, ThreeDControl
+from BZEngine.UI.Drawable import VRML
 from BZEngine import Event, optik
 import sys, os
 
 
 # Command line processing
 parser = optik.OptionParser(usage = "usage: %prog [options] model.wrl")
-parser.add_option("-a", "--anaglyph", action="store_true",
-                  help="Enables anaglyph stereo mode.")
-parser.add_option("-s", "--stereo", action="store_true",
-                  help="Enables dual-channel stereo mode.")
 (options, args) = parser.parse_args()
 
 try:
@@ -22,20 +18,12 @@ try:
 except IndexError:
     parser.error("A model filename must be specified on the command line.")
 
-if options.anaglyph:
-    viewClass = AnaglyphView.AnaglyphView
-elif options.stereo:
-    viewClass = StereoView.StereoView
-else:
-    viewClass = ThreeDRender.View
+viewClass = ThreeDRender.View
 
 
 # Set up a quick 3D renderer view with a controller attached so we can spin the model around
 loop = Event.EventLoop()
-if options.stereo:
-    viewport = Viewport.StereoGLViewport(loop)
-else:
-    viewport = Viewport.OpenGLViewport(loop)
+viewport = Viewport.OpenGLViewport(loop)
 viewport.setCaption("Model Viewer - %s" % fileName)
 view = viewClass(viewport)
 control = ThreeDControl.Viewing(view, viewport)
