@@ -131,8 +131,11 @@ public class PipelineEditor
 		int cell_x, cell_y;
 
 		if (element_list.GetPathAtPos (click_x, click_y, out path, out column, out cell_x, out cell_y)) {
-	//		Gdk.Pixmap icon = element_list.CreateRowDragIcon (path);
-	//		Gtk.Drag.SetIconPixmap (args.Context, icon.Colormap, icon, null, click_x + 1, cell_y);
+			Gdk.Pixmap pixmap = element_list.CreateRowDragIcon (path);
+			Gdk.Rectangle rect = pixmap.VisibleRegion.Clipbox;
+			Gdk.Pixbuf icon = new Gdk.Pixbuf (Gdk.Colorspace.Rgb, false, 8, rect.Width, rect.Height);
+			icon.GetFromDrawable (pixmap, pixmap.Colormap, 0, 0, 0, 0, rect.Width, rect.Height);
+			Gtk.Drag.SetIconPixbuf (args.Context, icon, click_x + 1, cell_y);
 		}
 	}
 
@@ -166,6 +169,8 @@ public class PipelineEditor
 	void ElementListMotionNotifyEvent (object o, MotionNotifyEventArgs args)
 	{
 		Gdk.EventMotion ev = args.Event;
+		Gtk.TreePath path;
+
 		if (tooltip_timeout != 0) {
 			if ((ev.Y > tip_rect.Y) && ((ev.Y - tip_rect.Height) < tip_rect.Y))
 				return;
@@ -178,13 +183,13 @@ public class PipelineEditor
 			/* If we're just continuing a drag, don't do anything */
 			if (dragging)
 				return;
+			/* Check that we're on a child node */
 			/* Start a drag */
 			dragging = true;
 			Gtk.Drag.Begin (element_list, target_list, Gdk.DragAction.Copy, 1, ev);
 			return;
 		}
 
-		Gtk.TreePath path;
 		if (element_list.GetPathAtPos ((int) ev.X, (int) ev.Y, out path)) {
 			tip_rect = element_list.GetCellArea (path, column);
 			tooltip_timeout = GLib.Timeout.Add (200, new GLib.TimeoutHandler(TooltipTimeout));
