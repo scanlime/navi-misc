@@ -16,7 +16,6 @@
         <item label="video" name="Play a Video" image="wasabi/paint_roller.png"/>
         <item label="audio" name="Listen to Music" image="wasabi/paint_roller.png"/>
         <item label="image" name="Browse Images" image="wasabi/paint_roller.png"/>
-        <item label="n64" image="wasabi/n64.png"/>
     </main>
 
     <menuset label="main menu">

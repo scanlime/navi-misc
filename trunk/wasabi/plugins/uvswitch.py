@@ -42,13 +42,10 @@ class VideoSwitch:
         """Return a list of channel numbers identifying inputs
            with active video sources attached.
            """
-        try:
-            f = open(self.device)
-            active = map(int, f.readline().strip().split())
-            f.close()
-            return active
-        except IOError:
-            return []
+        f = open(self.device)
+        active = map(int, f.readline().strip().split())
+        f.close()
+        return active
 
     def setChannel(self, video, bypass=None, audio=None):
         """Set the video channel, optionally also setting
@@ -69,6 +66,7 @@ class VideoSwitch:
         f.write(s + "\n")
         f.close()
 
+
 _globalVideoSwitch = None
 
 def getVideoSwitch(*args, **kwargs):
@@ -83,10 +81,13 @@ def getVideoSwitch(*args, **kwargs):
 
 class detector(plugin.DaemonPlugin):
     def __init__(self, device=None):
-        plugin.DaemonPlugin.__init__(self)
-        self.switch = getVideoSwitch(device)
-        self.previousActive = []
-        self.poll_interval = 100
+        try:
+            self.switch = getVideoSwitch(device)
+            self.previousActive = []
+            self.poll_interval = 100
+            plugin.DaemonPlugin.__init__(self)
+        except IOError:
+            self.reason = "Can't open the uvswitch, disabling it"
 
     def poll(self, menuw=None, arg=None):
         active = self.switch.getActive()
@@ -96,13 +97,13 @@ class detector(plugin.DaemonPlugin):
 
 
 class input(plugin.MainMenuPlugin):
-    def __init__(self, channel, name, icon=None):
+    def __init__(self, channel, name, skin_type=None):
         plugin.MainMenuPlugin.__init__(self)
         self.active = False
 
         self.channel = channel
         self.name = name
-        self.icon = icon
+        self.skin_type = skin_type
 
     def eventhandler(self, event=None, menuw=None, arg=None):
         if plugin.isevent(event) == 'UVSWITCH':
@@ -151,11 +152,10 @@ class VideoInputItem(item.Item):
        is made active, it becomes the current rc.app event handler.
        """
     def __init__(self, inputPlugin):
-        item.Item.__init__(self)
+        item.Item.__init__(self, skin_type=inputPlugin.skin_type)
         self.switch = getVideoSwitch()
         self.channel = inputPlugin.channel
         self.name = inputPlugin.name
-        self.icon = inputPlugin.icon
         self.menuw = None
 
     def actions(self):
