@@ -30,7 +30,7 @@ half4 hdr_encode(half3 color, int subcarrier, float4 wpos) {
 
     /* Compute LSBs with encoded information */
     half3 lsb;
-    lsb.x = 0;
+    lsb.x = fmod(wpos.x, 16) < 8;
     lsb.z = grid.x == 0 && grid.y == 0;
     lsb.y = lsb.x ? lsb.z : (1-lsb.z);
 
