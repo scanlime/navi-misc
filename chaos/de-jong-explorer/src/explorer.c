@@ -508,11 +508,6 @@ void explorer_update_gui(Explorer *self) {
   gdk_draw_rgb_32_image(self->drawing_area->window, self->gc,
 			0, 0, self->dejong->width, self->dejong->height, GDK_RGB_DITHER_NORMAL,
 			gdk_pixbuf_get_pixels(self->dejong->image), self->dejong->width * 4);
-
-  /* Update our icon with the current rendering every 5 seconds
-   */
-  if (!limit_update_rate(&self->last_icon_update, 1/5.0))
-    gtk_window_set_icon(GTK_WINDOW(self->window), self->dejong->image);
 }
 
 static gboolean on_viewport_expose(GtkWidget *widget, GdkEventExpose *event, gpointer user_data) {
