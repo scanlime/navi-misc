@@ -25,6 +25,6 @@ user=root
 # way to do this. Some possibilities are modifying
 # mysqldump to read the password from a file, or using
 # 'expect' to send a password to mysqldump's prompt.
-mysqldump -u $user --password=$passwd $database > $BACKUPDIR/$DUMP_FILE
+mysqldump --opt -u $user --password=$passwd $database > $BACKUPDIR/$DUMP_FILE
 bzip2 $BACKUPDIR/$DUMP_FILE
 
