@@ -29,11 +29,21 @@ class Section(Base.DocumentOwner):
     """A portion of the web page with a title and a body, that may be placed
        in any of the page's columns.
        """
+    def render_title(self, context):
+        return self.title
+
+    def render_rows(self, context):
+        return self.rows
+
+    def render_body(self, context):
+        # Wrap each of the rows returned by render_rows() in a proper <div> tag
+        return [tag('div', _class="row")[r] for r in self.render_rows(context)]
+
     document = [
         tag('span', _class="section")[ place("title") ],
         tag('div', _class="section")[
             tag('div', _class="sectionTop")[" "],
-            tag('div', _class="row")[ place("body") ],
+            place("body"),
         ],
     ]
 
@@ -44,19 +54,22 @@ class Page(Base.Page):
        tabs at the bottom of the heading, as well as columns containing
        Sections.
        """
+    siteName = "CIA"
+    subTitle = "More wet kittens than you can shake a cheese grater at"
+
     def render_pageTitle(self, context):
         return [self.render_mainTitle,
                 ' - ',
                 self.render_siteName]
 
     def render_siteName(self, context):
-        return "CIA"
+        return self.siteName
 
     def render_mainTitle(self, context):
-        return "Moose-O-Matic"
+        return self.mainTitle
 
     def render_subTitle(self, context):
-        return "More wet kittens than you can shake a cheese grater at"
+        return self.subTitle
 
     def render_headingTabs(self, context):
         return self.headingTabs
