@@ -61,16 +61,33 @@ signed char therm_read(unsigned char addr) {
 }
 
 void dac_write(unsigned char addr, unsigned short value) {
+  /* Write a value to the temporary register of the given DAC */
   I2CADR = ((0x4C | (addr<<1)) << 1);  /* Write to the DAC */
   I2CSTA = ERR | S1_4 | TIE;           /* Clear error flag, 400khz mode, no stop condition */
-  LED = 0;
-  i2c_write_byte(0x10, 0);             /* Control byte, load DAC with data */
+  i2c_write_byte(0x00, 0);             /* Control byte, load DAC with data */
   i2c_write_byte(value >> 8, 0);
   i2c_write_byte(value & 0xFF, 1);
 }
 
+void dac_sync() {
+  /* Load the last values set with dac_write() into all DACs simultaneously */
+  I2CADR = (0x48 << 1);                /* Write to the DACs' broadcast address */
+  I2CSTA = ERR | S1_4 | TIE;           /* Clear error flag, 400khz mode, no stop condition */
+  i2c_write_byte(0x30, 0);             /* Control byte, load DAC with data */
+  i2c_write_byte(0, 0);
+  i2c_write_byte(0, 1);
+}
+
 void isr() interrupt 1 using 1 {
-  LED = 1;
+}
+
+int rand() {
+  static int s = 1234567;
+  s ^= 0xFFFFFFFF;
+  s ^= s << 1;
+  s ^= s << 3;
+  s ^= s << 9;
+  return s;
 }
 
 void main() {
@@ -87,11 +104,11 @@ void main() {
   ES  = 0;
   EA  = 1;
 
+  LED = 0;
+
   while (1) {
-    dac_write(0, 0x0000); dac_write(1, 0x0000);
-    dac_write(0, 0xFFFF); dac_write(1, 0x0000);
-    dac_write(0, 0xFFFF); dac_write(1, 0xFFFF);
-    dac_write(0, 0x0000); dac_write(1, 0xFFFF);
+    dac_write(0, rand()); dac_write(1, rand());
+    dac_sync();
   }
 
   /* Set up the first EP1 OUT transfer */
