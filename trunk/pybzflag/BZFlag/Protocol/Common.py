@@ -29,6 +29,12 @@ from BZFlag.Protocol import *
 # An IP address, as defined by struct in_addr in netinet/in.h
 InAddr = VectorType("!BBBB")
 
+# A vector in 3D space
+Vector3 = VectorType("fff")
+
+# A player identifier is now a single unsigned byte (changed from 1.7)
+PlayerId = UInt8
+
 
 class ServerId(Struct):
     """class ServerId from Address.h"""
@@ -38,13 +44,11 @@ class ServerId(Struct):
         StructEntry(Int16,  'number'),          # Local player number
         ]
 
-
 class Address(Struct):
     """class Address from Address.h"""
     entries = [
         StructEntry(InAddr, 'addr'),
         ]
-
 
 class GameInfo(Struct):
     """The game information contained within a PingPacket"""
@@ -69,7 +73,6 @@ class GameInfo(Struct):
         StructEntry(UInt16, 'maxTime'),        # Seconds
         ]
 
-
 class PingPacket(Struct):
     """class PingPacket from Ping.h"""
     entries = [
@@ -77,6 +80,21 @@ class PingPacket(Struct):
         StructEntry(SubStruct(Address),  'sourceAddr'),
         StructEntry(SubStruct(GameInfo), 'gameInfo'),
         ]
+
+class FlagStatus(Struct):
+    entries = [
+        StructEntry(UInt16,   'flagId'),
+        StructEntry(UInt16,   'status'),
+        StructEntry(UInt16,   'type'),
+        StructEntry(PlayerId, 'owner'),
+        StructEntry(Vector3,  'position'),
+        StructEntry(Vector3,  'launch'),
+        StructEntry(Vector3,  'landing'),
+        StructEntry(Float,    'flightTime'),
+        StructEntry(Float,    'flightEndTime'),
+        StructEntry(Float,    'initialVelocity'),
+        ]
+
     
 ### The End ###
         
