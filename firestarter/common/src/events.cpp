@@ -32,6 +32,15 @@
 #include <vector>
 #include <map>
 
+void OSSleep ( float time )
+{
+#ifdef _WIN32
+	Sleep((DWORD)(1000.0f * time));
+#else
+	usleep((unsigned int )(100000 * time));
+#endif
+}
+
 typedef struct
 {
 	tEventHandlerCallBack	callback;

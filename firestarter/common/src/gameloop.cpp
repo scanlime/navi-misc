@@ -41,15 +41,6 @@
 #include <string>
 #include <stdio.h>
 
-void OSSleep ( float time )
-{
-#ifdef _WIN32
-  Sleep((DWORD)(1000.0f * time));
-#else
-  usleep((unsigned int )(100000 * time));
-#endif
-}
-
 std::string GetUpperString( char *szData )
 {
 	const std::string	ret = szData;

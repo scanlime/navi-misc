@@ -33,5 +33,14 @@ void  RemoveEventHandler ( unsigned char event, tEventHandlerCallBack callback, 
 // only used by gameloop
 void CallEventHandler ( unsigned char event, void* message );
 
+
+/** basic sleep method 
+@note
+equvelent to sleep on unix
+@param time
+time in seconds to sleep for
+*/
+void OSSleep ( float time );
+
 #endif //_EVENTS_H_
 
