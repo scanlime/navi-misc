@@ -139,15 +139,15 @@ decodePOP (char data)
 }
 
 static void
-decodeSnowfall (char *data, int *low, int *high)
+decodeSnowfall (char *data, float *low, float *high)
 {
 	char num[3];
 	num[2] = '\0';
 
 	num[0] = data[0]; num[1] = data[1];
-	*low = atoi (num);
+	*low = atof (num);
 	num[0] = data[2]; num[1] = data[3];
-	*high = atoi (num);
+	*high = atof (num);
 }
 
 static float
@@ -205,6 +205,9 @@ e_weather_source_ccf_do_parse (EWeatherSourceCCF *source, const char *buffer)
 		forecasts[1].low  = ftoc (current->data);
 		current = g_slist_next (current);
 		forecasts[2].high = ftoc (current->data);
+		current = g_slist_next (current);
+		forecasts[0].pop = decodePOP (((char*)(current->data))[2]);
+		forecasts[1].pop = decodePOP (((char*)(current->data))[4]);
 	}
 	else
 	{
@@ -216,14 +219,44 @@ e_weather_source_ccf_do_parse (EWeatherSourceCCF *source, const char *buffer)
 		forecasts[1].high = ftoc (current->data);
 		current = g_slist_next (current);
 		forecasts[1].low  = ftoc (current->data);
+		current = g_slist_next (current);
+		forecasts[0].pop = decodePOP (((char*)(current->data))[3]);
+	}
+
+	current = g_slist_next (current);
+	if (strlen (current->data) == 4)
+	{
+		/* we've got the optional snowfall field */
+		if (tms.tm_hour < 12)
+		{
+			decodeSnowfall (current->data, &forecasts[0].low, &forecasts[0].high);
+			current = g_slist_next (g_slist_next (current));
+			decodeSnowfall (current->data, &forecasts[1].low, &forecasts[1].high);
+		}
+		else
+		{
+			current = g_slist_next (current);
+			decodeSnowfall (current->data, &forecasts[0].low, &forecasts[0].high);
+		}
+		current = g_slist_next (current);
+	}
+
+	if (strlen (current->data) == 3)
+	{
+		/* We've got a pre-IFPS station. Realloc and return */
+		WeatherForecast *f = g_new0(WeatherForecast, 2);
+		memcpy (f, forecasts, sizeof (WeatherForecast) * 2);
+		g_free (forecasts);
+		fc = g_list_append (fc, &f[0]);
+		fc = g_list_append (fc, &f[1]);
+		source->done (fc);
 	}
 
 	for (i = 0; i < 7; i++)
 	{
-		WeatherForecast *f = &forecasts[i];
-		g_print ("%s:\n\t%f/%f\n\t%d\n%d%%\n\n", ctime (&f->curtime), f->high, f->low, f->conditions, f->pop);
 		fc = g_list_append (fc, &forecasts[i]);
 	}
+	source->done (fc);
 }
 
 static void
