@@ -284,7 +284,7 @@ class RSSFrontend(resource.Resource):
     def render(self, request):
         # Check the requested RSS version
         version = request.args.get('ver')
-        if version:
+        if version and version[-1]:
             # Pick a feed factory based on the RSS version
             factory = {
                 '1': RSS1Feed,
@@ -299,12 +299,12 @@ class RSSFrontend(resource.Resource):
 
         # Check the requested message medium, defaulting to XHTML
         medium = request.args.get('medium')
-        if medium:
+        if medium and medium[-1]:
             kwargs['medium'] = medium[-1]
 
         # Get the message limit, with BaseFeed's default
         limit = request.args.get('limit')
-        if limit:
+        if limit and limit[-1]:
             kwargs['limit'] = int(limit[-1])
 
         # Now construct the proper feed object and render it
