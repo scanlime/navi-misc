@@ -83,20 +83,22 @@ class MainWindow:
     list.get_column(0).set_spacing(5)
     list.get_column(1).set_spacing(5)
 
+    # Preferences
+    self.prefs = Prefs()
+    self.prefDialog = PrefDialog(self.tree, self.prefs)
+    self.tree.get_widget('Nick').set_text(self.prefs.nickname)
+
     # Create a chat buffer from our custom widget and insert into the
     # gtk.NoteBook.
-    self.chatWindow = ChatBuffer()
+    self.chatWindow = ChatBuffer(self.prefs.highlight,
+        self.prefs.colors.text_color,
+        self.prefs.colors.background_color)
     self.tree.get_widget('Tabs').add(self.chatWindow)
     self.chatWindow.show()
 
     self.characterSheetWindow = gtk.ScrolledWindow()
     self.characterSheetWindow.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
     self.tree.get_widget('InputBox').pack_start(self.characterSheetWindow)
-
-    # Preferences
-    self.prefs = Prefs()
-    self.prefDialog = PrefDialog(self.tree, self.prefs)
-    self.tree.get_widget('Nick').set_text(self.prefs.nickname)
 
     # Client factory.
     self.factory = Factory(self.prefs.nickname, ui=self)
