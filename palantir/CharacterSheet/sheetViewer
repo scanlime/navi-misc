@@ -6,7 +6,7 @@ A small program for viewing and creating character sheets.  Does not build new
 layouts for character sheets, can only use existing layouts and create new data
 files using those layouts.
 
-  Copyright 2003, W. Evan Sheehan <evan@navi.cx>
+  Copyright (C) 2003, W. Evan Sheehan <evan@navi.cx>
 '''
 
 import sys, gtk, gtk.glade
@@ -21,6 +21,7 @@ def init(filename=None):
   tree.OpenSheetDialog = tree.get_widget('OpenSheetDialog')
   tree.SaveSheetDialog = tree.get_widget('SaveSheetDialog')
   tree.ViewPort = tree.get_widget('SheetViewPort')
+  
   # Create the window with a sheet already loaded.
   if filename:
     OpenSheet(filename)
