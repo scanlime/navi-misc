@@ -10,3 +10,5 @@ NET "gc_ports<0>" LOC=P7;
 #NET "gc_ports<1>" LOC=P9;
 #NET "gc_ports<2>" LOC=P20;
 #NET "gc_ports<3>" LOC=P25;
+
+#NET "debug"  LOC="P68";

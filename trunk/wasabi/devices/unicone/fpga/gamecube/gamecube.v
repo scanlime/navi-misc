@@ -82,7 +82,7 @@ module gc_i2c (clk, reset,
 	input scl, sda_in;
 	output sda_out;
 	inout gc_port;
-	
+
 	/* The I/O buffer gives us clean synchronized unidirectional
 	 * tx and rx signals for controlling and monitoring the GC port
 	 */
@@ -111,7 +111,27 @@ endmodule
  * a standard Nintendo Gamecube controller. It emulates the controller
  * identification request, and controller status. Status is returned
  * as an 8-byte packet of all analog and button status.
-*/
+ *
+ * This emulator responds to the following request words from the gamecube:
+ *
+ *    0x00      - Request controller ID.
+ *                Returns CONTROLLER_ID, which defaults to the same ID returned
+ *                by standard gamecube controllers.
+ *
+ *    0x4003XX  - Poll controller status.
+ *                The last byte of the command seems to be a collection of flags
+ *                sent from console to controller. Most are unknown, but the LSB
+ *                is the rumble motor flag. Returns the 8-byte controller state.
+ *
+ *    0x41      - Get origins.
+ *                An official controller appears to respond to this by returning
+ *                a normal 8-byte status packet, but with calibrated origins
+ *                rather than the current status for all analog axes. Buttons
+ *                still show their current state.
+ *                Since I've never seen this command issued at any time other than
+ *                right after controller is plugged in, we currently cheat and
+ *                treat this the same as a normal poll.
+ */
 module gc_controller (clk, reset, tx, rx, controller_state, rumble);
 	/*
 	 * Controller IDs are expained in the gamecube-linux
@@ -128,7 +148,7 @@ module gc_controller (clk, reset, tx, rx, controller_state, rumble);
 	output tx;
 	input [63:0] controller_state;
 	output rumble;
-
+	
 	reg rumble;
 	reg [7:0] rx_poll_flags;
 	reg [63:0] latched_controller_state;
@@ -188,23 +208,39 @@ module gc_controller (clk, reset, tx, rx, controller_state, rumble);
 			end
 
 			S_RX_CMD_0: begin
-				// A request has begun, but we haven't received any of its bytes
-				// yet. When we get one, if it's an identification request (0x00)
-				// we can act on it immediately. If it's the beginning of a polling
-				// command (0x400300) wait for the rest.
+				// A request has begun, but we haven't received any of its bytes yet
 				if (rx_stop || rx_start || rx_error)
 					state <= S_IDLE;
 				else if (rx_strobe) begin
 					
-					if (rx_data == 8'h00)
+					if (rx_data == 8'h00) begin
 						/* An identification request command, send the 1st ID byte */
+
 						state <= S_FINISH_ID_COMMAND;
-					else if (rx_data == 8'h40)
+
+					end
+					else if (rx_data == 8'h40) begin
 						/* The beginning of a polling command */
 						state <= S_RX_POLL_CMD_1;
-					else
-						/* Something we don't care about */
+
+					end
+					else if (rx_data == 8'h41) begin
+						/* A 'get origins' command. We currently treat this
+						 * the same as we would treat a polling command.
+						 * Note that the way this is currently implemented,
+						 * we clear the rx_poll_flags, thus turning off
+						 * the rumble motor. It shouldn't be a problem, since
+						 * this command is only sent at controller init.
+						 */
+						 
+						 rx_poll_flags <= 8'h00;
+						 state <= S_FINISH_POLL_COMMAND;
+
+					end
+					else begin
+						/* An unknown command, ignore it */
 						state <= S_IDLE;
+					end
 						
 				end
 			end
