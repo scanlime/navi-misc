@@ -24,14 +24,24 @@
 #define __CAMSHIFT_FRONTEND__H_
 
 #include <cv.h>
+#include <SDL.h>
 
 class MultiCamshiftUI {
  public:
   MultiCamshiftUI(int n_Cameras, CvSize image_size);
   ~MultiCamshiftUI();
 
+  /* Update mouse and key state independent of any particular events.
+   * For best results, this should be called before the event loop
+   * and track() should be called after it.
+   */
+  void updateEventState();
+
+  /* Try to process an SDL event, returns true if we care about it */
+  bool processEvent(SDL_Event *event);
+
+  /* Track object in the given images, optionally updating the video window */
   CvBox2D *track(IplImage **images, bool show_ui=true, bool show_backprojections=true);
-  bool processEvents();
 
  protected:
   void drawResults(int camera, IplImage *image);
