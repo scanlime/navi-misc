@@ -76,16 +76,24 @@ class GetDeviceDetails(Pearl.StructRequest):
 
 
 class GetStorageDetails(Pearl.StructRequest):
-    """For any storage device, returns the number of files, storage size,
-       free space, and the highest file ID.
+    """For any storage device, returns a dictionary with information on its status.
+       Note that nothing except totalSpace and freeSpace is implemented on current firmware.
        """
     id = 6
     requestFormat = '<I'
-    responseFormat = '<IQQI'
+    responseFormat = '<IIQQI'
 
-    def __init__(self, storageId):
+    def __init__(self, storageId=0):
         self.parameters = (storageId,)
         Pearl.StructRequest.__init__(self)
+
+    def receivedResponse(self, source, status, *args):
+        self.decodeStatus(status)
+        argNames = ('numFiles', 'totalSpace', 'freeSpace', 'highestFileID')
+        results = {}
+        for i in xrange(len(argNames)):
+            results[argNames[i]] = args[i]
+        self.result.callback(results)
 
 
 class GetDeviceSettings(Pearl.StructRequest):

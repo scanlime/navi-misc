@@ -169,7 +169,7 @@ class Cache:
     -- Holds individual strings that only need to be accessed by key
     CREATE TABLE dict
     (
-        name   VARCHAR(32),
+        name   VARCHAR(32) NOT NULL,
         value  TEXT
     );
 
@@ -251,6 +251,9 @@ class Cache:
         self.cursor.execute("INSERT INTO dict (name, value) VALUES ('schemaVersion', '%s')" %
                             self.schemaVersion)
 
+        # Add an initial invalid stamp
+        self.cursor.execute("INSERT INTO dict (name) VALUES ('stamp')")
+
         # Create a fresh new file ID allocator. Put a blank entry in the database for now,
         # then let sync() update it before committing all this to disk.
         self.fileIdAllocator = FileIdAllocator()
@@ -314,6 +317,24 @@ class Cache:
         self.cursor.execute("SELECT COUNT(fid) FROM files")
         return int(self.cursor.fetchone()[0])
 
+    def updateStamp(self, stamp):
+        """The stamp for this cache is any arbitrary value that is expected to
+           change when the actual data on the device changes. It is used to
+           check the cache's validity. This function update's the stamp from
+           a value that is known to match the cache's current contents.
+           """
+        self.cursor.execute("UPDATE dict SET value = '%s' WHERE name = 'stamp'" %
+                            sqlite.encode(repr(stamp)))
+
+    def checkStamp(self, stamp):
+        """Check whether a provided stamp matches the cache's stored stamp.
+           This should be used when you have a stamp that matches the actual
+           data on the device, and you want to see if the cache is still valid.
+           """
+        self.cursor.execute("SELECT name FROM dict WHERE name = 'stamp' AND value = '%s'" %
+                            sqlite.encode(repr(stamp)))
+        return bool(self.cursor.fetchone())
+
 
 class FileManager:
     """The FileManager coordinates the activity of Cache and File objects
@@ -324,7 +345,7 @@ class FileManager:
             cachePath = "~/.riokarma-py/cache.db"
 
         self.protocol = protocol
-        self.writeLockHeld = False
+        self.locksHeld = ()
         self.cache = Cache(cachePath)
         self.cache.open()
 
@@ -344,7 +365,7 @@ class FileManager:
 
         if self.protocol:
 
-            if self.writeLockHeld:
+            if 'write' in self.locksHeld:
                 sys.stderr.write("\n\nReleasing write lock, please wait...\n")
                 d = self.unlock()
                 while not d.called:
@@ -361,6 +382,8 @@ class FileManager:
            operations, but also automatic on syncrhonization. The device
            is still usable as normal when a read lock is active.
            """
+        if not self.locksHeld:
+            self.locksHeld = ('read',)
         return self.protocol.sendRequest(Request.RequestIOLock('read'))
 
     def writeLock(self):
@@ -368,32 +391,55 @@ class FileManager:
            to modify anything, but it puts the device into an unusable
            state. Release this lock as soon as possible after you're done.
            """
-        self.writeLockHeld = True
+        self.locksHeld = ('read', 'write')
         return self.protocol.sendRequest(Request.RequestIOLock('write'))
 
     def unlock(self):
         """Release any locks currently held"""
-        self.writeLockHeld = False
-        return self.protocol.sendRequest(Request.ReleaseIOLock())
+        result = defer.Deferred()
+        self.protocol.sendRequest(Request.ReleaseIOLock()).addCallback(
+            self._updateStamp, result).addErrback(result.errback)
+        return result
+
+    def _updateStamp(self, retval, result):
+        """We just finished asking the device to release locks. Make note
+           that we no longer hold the write lock. If we were holding it,
+           update the cache's stamp to reflect the changes we just made.
+           """
+        self.getStamp().addCallback(
+            self._finishUnlock, result).addErrback(result.errback)
+
+    def _finishUnlock(self, stamp, result):
+        if 'write' in self.locksHeld:
+            self.cache.updateStamp(stamp)
+        self.locksHeld = ()
+        result.callback()
 
     def synchronize(self):
         """Update our local database if necessary. Returns a Deferred
            signalling completion. This has the side-effect of acquiring
            a read lock.
            """
+        # First, see if our cache is valid
         d = defer.Deferred()
-        self.readLock().addCallback(self._startSynchronize, d).addErrback(d.errback)
+        self.getStamp().addCallback(self._startSynchronize, d).addErrback(d.errback)
         return d
 
-    def _startSynchronize(self, retval, d):
-        if self.isCacheDirty():
-            # Empty and rebuild all database files
-            self.cache.empty()
-            self.protocol.sendRequest(Request.GetAllFileDetails(
-                self._synchronizeFile)).addCallback(
-                self._finishSynchronize, d).addErrback(d.errback)
-        else:
+    def _startSynchronize(self, deviceStamp, d):
+        # If the cache is valid, skip all this mess
+        if self.cache.checkStamp(deviceStamp):
             d.callback(None)
+            return
+
+        # We don't really care about the readLock's result, and due to
+        # the queue this is guaranteed to be sent before our actual sync.
+        self.readLock()
+
+        # Empty and rebuild all database files
+        self.cache.empty()
+        self.protocol.sendRequest(Request.GetAllFileDetails(
+            self._synchronizeFile)).addCallback(
+            self._finishSynchronize, d, deviceStamp).addErrback(d.errback)
 
     def _synchronizeFile(self, details):
         # Add one file to the cache
@@ -402,24 +448,33 @@ class FileManager:
         # FIXME: Progress reporter should get poked here
         sys.stderr.write('.')
 
-    def _finishSynchronize(self, retval, d):
+    def _finishSynchronize(self, retval, d, deviceStamp):
         # FIXME: Progress reporter should get poked here
         print "Done"
 
-        # Before signalling completion, sync the cache
+        # Before signalling completion, update the cache stamp and sync it
+        self.cache.updateStamp(deviceStamp)
         self.cache.sync()
         d.callback(None)
 
-    def isCacheDirty(self):
-        """This function determines whether our local cache of the database
-           is still valid. If not, we should retrieve a new copy.
+    def getStamp(self):
+        """This returns an arbitrary value that is expected to change any
+           time the actual content of the device changes. It is used to verify
+           our cache's integrity. This uses the amount of free space on the
+           device- it's likely to change whenever any outside modification
+           is made, and there doesn't seem to be any better choice without
+           downloading the whole database.
+
+           This returns via a Deferred, since it needs to communicate
+           with the device.
            """
-        # FIXME: this should compare datestamps, or free space on the disk, to
-        #        be able to invalidate the cache when the rio is externally modified.
-        if self.cache.countFiles() == 0:
-            return True
-        else:
-            return False
+        result = defer.Deferred()
+        self.protocol.sendRequest(Request.GetStorageDetails()).addCallback(
+            self._getStamp, result).addErrback(result.errback)
+        return result
+
+    def _getStamp(self, storageDetails, result):
+        result.callback(storageDetails['freeSpace'])
 
     def updateFileDetails(self, f):
         """Update our cache and the device itself with the latest details dictionary
@@ -478,6 +533,9 @@ class FileManager:
            """
         dest.close()
         chainTo(retval)
+
+    def getStorageDetails(self):
+        return self.protocol.sendRequest(Request.GetStorageDetails())
 
 
 class File:

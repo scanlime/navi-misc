@@ -17,6 +17,11 @@ class RioApp:
     def connected(self, fileManager):
         self.fileManager = fileManager
         print "Connected. %d files in database." % self.fileManager.cache.countFiles()
+
+        self.fileManager.getStorageDetails().addCallback(self._gotStorageDetails).addErrback(log.err)
+
+    def _gotStorageDetails(self, details):
+        print "Storage: %r" % (details,)
         self.main()
 
     def finished(self, retval=None):
@@ -27,6 +32,7 @@ class RioApp:
 class Downloader(RioApp):
     def main(self):
         self.fileIter = iter(self.fileManager.cache.findFiles(type='taxi'))
+        self.fileManager.readLock()
         self.nextFile()
 
     def nextFile(self, retval=None):
