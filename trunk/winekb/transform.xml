@@ -48,13 +48,13 @@
           
           .type {
             background: black;
+            opacity: 0.5;
             font-size: +1;
             color: white;
             margin: 4px;
             margin-left: 2em;
             padding: 4px;
             border: 1px dotted lightgrey;
-	    width: 50em;
           }
 
           .backlink {
