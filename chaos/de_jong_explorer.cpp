@@ -23,6 +23,7 @@ static int draw_more(void *data);
 gboolean expose(GtkWidget *widget, GdkEventExpose *event, gpointer user_data);
 void startclick(GtkWidget *widget, gpointer user_data);
 void stopclick(GtkWidget *widget, gpointer user_data);
+gboolean deletee(GtkWidget *widget, GdkEvent *event, gpointer user_data);
 twov dejong(float a, float b, float c, float d, boost::numeric::ublas::vector<double> xyn);
 GtkWidget *build_sidebar();
 
@@ -38,6 +39,7 @@ int main(int argc, char ** argv) {
   d = -2.177196;
 
   window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+  g_signal_connect(G_OBJECT(window), "delete-event", G_CALLBACK(deletee), NULL);
   drawing_area = gtk_drawing_area_new();
   gtk_widget_set_size_request(drawing_area, 800, 800);
   vsep = gtk_vseparator_new();
@@ -46,7 +48,7 @@ int main(int argc, char ** argv) {
   gtk_box_pack_start(GTK_BOX(hbox), vsep, FALSE, FALSE, 0);
   gtk_box_pack_end(GTK_BOX(hbox), drawing_area, FALSE, FALSE, 0);
   gtk_container_add(GTK_CONTAINER(window), hbox);
-  gtk_signal_connect(GTK_OBJECT(drawing_area), "expose-event", GTK_SIGNAL_FUNC(expose), NULL);
+  g_signal_connect(G_OBJECT(drawing_area), "expose-event", G_CALLBACK(expose), NULL);
   gtk_widget_show_all(window);
 
   backb = gdk_pixmap_new(NULL, 800, 800, 24);
@@ -172,6 +174,11 @@ gboolean expose(GtkWidget *widget, GdkEventExpose *event, gpointer user_data) {
   return TRUE;
 }
 
+gboolean deletee(GtkWidget *widget, GdkEvent *event, gpointer user_data) {
+  g_source_remove(idler);
+  gtk_main_quit();
+}
+
 void startclick(GtkWidget *widget, gpointer user_data) {
   gtk_widget_set_sensitive(stop, TRUE);
   gtk_widget_set_sensitive(start, FALSE);
@@ -186,6 +193,7 @@ void startclick(GtkWidget *widget, gpointer user_data) {
   b = gtk_spin_button_get_value(GTK_SPIN_BUTTON(bs));
   c = gtk_spin_button_get_value(GTK_SPIN_BUTTON(cs));
   d = gtk_spin_button_get_value(GTK_SPIN_BUTTON(ds));
+  iterations = 0;
   idler = g_idle_add(draw_more, NULL);
 }
 
@@ -198,4 +206,5 @@ void stopclick(GtkWidget *widget, gpointer user_data) {
   gtk_widget_set_sensitive(cs, TRUE);
   gtk_widget_set_sensitive(ds, TRUE);
   g_source_remove(idler);
+  std::cout << "completed " << iterations << " iterations\n";
 }
