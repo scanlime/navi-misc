@@ -52,6 +52,7 @@ struct _DeJong {
   gboolean tileable;
   gboolean emphasize_transient;
   guint transient_iterations;
+  gint initial_conditions;
   gboolean calc_dirty_flag;
 
   /* Current calculation state */

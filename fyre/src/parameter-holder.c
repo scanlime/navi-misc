@@ -27,10 +27,11 @@
 
 static void parameter_holder_class_init(ParameterHolderClass *klass);
 
-static void value_transform_string_uint(const GValue *src_value, GValue *dest_value);
-static void value_transform_string_double(const GValue *src_value, GValue *dest_value);
-static void value_transform_string_boolean(const GValue *src_value, GValue *dest_value);
-static void value_transform_string_ulong(const GValue *src_value, GValue *dest_value);
+static void value_transform_string_uint    (const GValue *src_value, GValue *dest_value);
+static void value_transform_string_double  (const GValue *src_value, GValue *dest_value);
+static void value_transform_string_boolean (const GValue *src_value, GValue *dest_value);
+static void value_transform_string_ulong   (const GValue *src_value, GValue *dest_value);
+static void value_transform_string_enum    (const GValue *src_value, GValue *dest_value);
 
 
 /************************************************************************************/
@@ -70,6 +71,7 @@ static void parameter_holder_class_init(ParameterHolderClass *klass) {
   g_value_register_transform_func(G_TYPE_STRING, G_TYPE_DOUBLE,  value_transform_string_double);
   g_value_register_transform_func(G_TYPE_STRING, G_TYPE_BOOLEAN, value_transform_string_boolean);
   g_value_register_transform_func(G_TYPE_STRING, G_TYPE_ULONG,   value_transform_string_ulong);
+  g_value_register_transform_func(G_TYPE_STRING, G_TYPE_ENUM,    value_transform_string_enum);
 }
 
 ParameterHolder* parameter_holder_new() {
@@ -111,6 +113,18 @@ static void value_transform_string_boolean(const GValue *src_value, GValue *dest
 
 static void value_transform_string_ulong(const GValue *src_value, GValue *dest_value) {
   dest_value->data[0].v_ulong = strtoul(src_value->data[0].v_pointer, NULL, 10);
+}
+
+static void value_transform_string_enum(const GValue *src_value, GValue *dest_value) {
+  GEnumClass *klass = g_type_class_ref(G_VALUE_TYPE(dest_value));
+  GEnumValue *enum_value = g_enum_get_value_by_name(klass, src_value->data[0].v_pointer);
+
+  if (enum_value)
+    dest_value->data[0].v_int = enum_value->value;
+  else
+    dest_value->data[0].v_int = 0;
+
+  g_type_class_unref(klass);
 }
 
 
