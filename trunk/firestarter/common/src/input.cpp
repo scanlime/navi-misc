@@ -24,15 +24,32 @@
 
 // base input manager
 
+class CBaseDeviceAction
+{
+public:
+	CBaseDeviceAction();
+	virtual ~CBaseDeviceAction();
+
+	void updateEvent ( int item, float param, int raw );
+};
+
+typedef std::map<int,CBaseDeviceAction*>	tmBaseDeviceActionMap;
+
 class CBaseDevice
 {
 public:
-	virtual ~CBaseDevice() = 0;
+	virtual ~CBaseDevice(){return;}
 
 	virtual void init ( RenderWindow *theWindow ) = 0;
 	virtual void kill ( void ) = 0;
 
 	virtual void process ( void ) = 0;
+
+	int addListener ( CBaseDeviceAction *action, int item );
+	int addListener ( CBaseDeviceAction *action, const char* item );
+
+protected:
+	tmBaseDeviceActionMap		actions;
 };
 
 class COgreKeyboard : public CBaseDevice , public KeyListener
@@ -45,6 +62,13 @@ public:
 	virtual void kill ( void );
 
 	virtual void process ( void );
+
+	// key event derivations
+	virtual void keyClicked(KeyEvent* e);
+	virtual void keyPressed(KeyEvent* e);
+	virtual void keyReleased(KeyEvent* e);
+	virtual void keyFocusIn(KeyEvent* e);
+	virtual void keyFocusOut(KeyEvent* e);
 
 protected:
 	EventProcessor*		eventProcessor;
@@ -72,7 +96,7 @@ void COgreKeyboard::init ( RenderWindow *theWindow )
 	eventProcessor->initialise(theWindow);
 	eventProcessor->addKeyListener(this);
 
-	eventProcessor->startProcessingEvents()
+	eventProcessor->startProcessingEvents();
 }
 
 void COgreKeyboard::kill ( void )
@@ -81,9 +105,27 @@ void COgreKeyboard::kill ( void )
 
 void COgreKeyboard::process ( void )
 {
-
 }
 
+void COgreKeyboard::keyClicked(KeyEvent* e)
+{
+}
+
+void COgreKeyboard::keyPressed(KeyEvent* e)
+{
+}
+
+void COgreKeyboard::keyReleased(KeyEvent* e)
+{
+}
+
+void COgreKeyboard::keyFocusIn(KeyEvent* e)
+{
+}
+
+void COgreKeyboard::keyFocusOut(KeyEvent* e)
+{
+}
 
 struct CInputManager::trInfo
 {
@@ -113,12 +155,13 @@ void CInputManager::Process ( void )
 	mInputDevice->capture();
 }
 
+bool CInputManager::KeyDown ( InputKeyCode key )
+{
+	return mInputDevice->isKeyDown((KeyCode)key);
+}
+
 void CInputManager::init ( RenderWindow *theWindow )
 {
-	eventProcessor = new EventProcessor;
-
-	eventProcessor->initialise(theWindow);
-
 }
 void CInputManager::update ( void )
 {
