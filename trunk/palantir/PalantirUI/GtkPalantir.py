@@ -57,16 +57,18 @@ class PalantirWindow:
     list.set_model(model=gtk.ListStore(gtk.gdk.Pixbuf, gobject.TYPE_STRING))
 
     # Columns in the tree view.
-    list.append_column(gtk.TreeViewColumn('Icons', gtk.CellRendererPixbuf(), pixbuf=0))
+    list.append_column(gtk.TreeViewColumn('Icons', gtk.CellRendererPixbuf(),
+      pixbuf=0))
     list.append_column(gtk.TreeViewColumn('Users', gtk.CellRendererText(), text=1))
 
     # Set the column spacing, doesn't appear to do anything, ATM.
     list.get_column(0).set_spacing(5)
     list.get_column(1).set_spacing(5)
 
-    # Create a chat buffer from our custom widget.
+    # Create a chat buffer from our custom widget and insert into the
+    # gtk.NoteBook.
     self.chatWindow = GtkChatBuffer()
-    self.tree.get_widget('ChatBox').pack_end(self.chatWindow, padding=5)
+    self.tree.get_widget('Tabs').add(self.chatWindow)
     self.chatWindow.show()
 
     self.characterSheetWindow = gtk.ScrolledWindow()
@@ -79,7 +81,12 @@ class PalantirWindow:
     # Create an object to handle die rolls.
     self.dieRoller = DieRoller(self)
 
-   ### Glade Callbacks ###
+    # tabs keeps track of all the open chat buffers.  The key is the channel/
+    # user name for which the buffer is storing text.
+    self.tabs = {'None':self.chatWindow}
+    self.tree.get_widget('Tabs').set_tab_label_text(self.chatWindow,'None')
+
+  ### Glade Callbacks ###
   # Menu Items.
   def on_new_connection_activate(self, widget, data=None):
     ''' Create a new connection. '''
@@ -144,8 +151,11 @@ class PalantirWindow:
       ctcp = ('UNDM',None)
 
     self.factory.SendCTCP(self.factory.channels[0], [ctcp])
-    self.chatWindow.DisplayText(time, '', text)
+    self.tabs[self.factory.channels[0]].DisplayText(time, '', text)
     store.foreach(self.setUserIcon, (self.factory.nickname, image.get_pixbuf()))
+
+  def on_Tabs_switch_page(self, notebook, page, data=None):
+    self.chatWindow = self.tabs[notebook.get_tab_label_text(self.chatWindow)]
 
   ### Color Selection Dialog ###
   def on_color_ok_button_clicked(self, widget, data=None):
@@ -286,7 +296,12 @@ class PalantirWindow:
       self.factory.client.ctcpMakeQuery(user, [(command, data)])
 
   def query(self, args):
-    print 'Need to implement separate buffers first'
+    ''' Open a query window. '''
+    tabpage = self.tree.get_widget('Tabs')
+    nick = args.split()[0]
+    self.tabs[nick] = GtkChatBuffer()
+    tabpage.append_page(self.tabs[nick], nick)
+    tabpage.set_current_page(tabpage.page_num(self.tabs[nick]))
 
   def ping(self, args=''):
     ''' Ping the server. '''
@@ -314,13 +329,13 @@ class PalantirWindow:
     if not self.tree.get_widget('time_stamps').get_active():
       time = None
 
-    self.chatWindow.DisplayText(time, nick, text, addressed)
+    getattr(self.tabs, channel, self.tabs['None']).DisplayText(time, nick, text, addressed)
 
   def meReceive(self, user, channel, msg):
     ''' When someone does a '/me' display the action. '''
     time, nick, text,addressed = palantir.formatMessage(user, msg,
 	                                         True, self.factory.nickname)
-    self.chatWindow.DisplayText(time, nick, text, addressed)
+    self.tabs[channel].DisplayText(time, nick, text, addressed)
 
   def nickReceive(self, oldNick, channel, newNick):
     ''' When someone changes a nick display it. '''
@@ -328,7 +343,8 @@ class PalantirWindow:
       time = palantir.getTime()
     else:
       time = None
-    self.chatWindow.DisplayText(time, '', oldNick + ' is now known as ' + newNick)
+    self.tabs[channel].DisplayText(time, '',
+	'%s is now known as %s' % (oldNick, newNick))
 
   ### If implemented, these are called by palantirIRC when their events
   ### are received.
@@ -336,11 +352,15 @@ class PalantirWindow:
     ''' Just display a short message saying we joined the channel and send
         a WHO request to get the users in the channel.
 	'''
+    self.tabs[channel] = self.tabs['None']
+    self.tree.get_widget('Tabs').add(self.tabs[channel])
+    self.tree.get_widget('Tabs').set_tab_label_text(self.tabs[channel],channel)
+
     if self.tree.get_widget('time_stamps').get_active():
       time = palantir.getTime()
     else:
       time = None
-    self.chatWindow.DisplayText(time, '', 'Joined ' + channel)
+    self.tabs[channel].DisplayText(time, '', 'Joined ' + channel)
 
   def left(self, channel):
     ''' Clear the userlist when we leave a channel and display a small
@@ -351,7 +371,7 @@ class PalantirWindow:
     else:
       time = None
     self.tree.get_widget('UserList').get_model().clear()
-    self.chatWindow.DisplayText(time, '', 'Left ' + channel)
+    self.tabs[channel].DisplayText(time, '', 'Left ' + channel)
     self.tree.get_widget('Topic').set_text('')
 
   def topicReceive(self, user, channel, topic):
@@ -361,7 +381,8 @@ class PalantirWindow:
     else:
       time = None
     self.tree.get_widget('Topic').set_text(topic)
-    self.chatWindow.DisplayText(time, '', user + ' has changed the topic to: ' + topic)
+    self.tabs[channel].DisplayText(time, '',
+	'%s has changed the topic to: %s' % (user, topic))
 
   def setTopicOnJoin(self, params):
     ''' Handle the topic notification for joining a channel specially. '''
@@ -369,7 +390,8 @@ class PalantirWindow:
       time = palantir.getTime()
     else:
       time = None
-    self.chatWindow.DisplayText(time, '', 'Topic for ' + params[1] + ' is: ' + params[2])
+    self.tabs[params[1]].DisplayText(time, '',
+	'Topic for %s is: %s' % (params[1], params[2]))
     self.tree.get_widget('Topic').set_text(params[2])
 
   def userJoined(self, user, channel):
@@ -381,7 +403,7 @@ class PalantirWindow:
       time = palantir.getTime()
     else:
       time = None
-    self.chatWindow.DisplayText(time, '', user + ' has joined ' + channel)
+    self.tabs[channel].DisplayText(time, '', '%s has joined %s' % (user, channel))
 
   def userLeft(self, user, channel):
     ''' When a user leaves the channel display a notification and
@@ -392,7 +414,7 @@ class PalantirWindow:
     else:
       time = None
     self.tree.get_widget('UserList').get_model().foreach(self.RemoveUserFromList,user)
-    self.chatWindow.DisplayText(time, '', user + ' has left ' + channel)
+    self.tabs[channel].DisplayText(time, '', '%s has left %s' % (user, channel))
 
   def whoReply(self, params):
     print 'Does bubkus.'
@@ -426,7 +448,7 @@ class PalantirWindow:
     image.set_from_file('/usr/share/palantir/pixmaps/dm.png')
     self.tree.get_widget('UserList').get_model().foreach(
 	self.setUserIcon, (nick, image.get_pixbuf()))
-    self.chatWindow.DisplayText(time, '', '*** ' + nick + ' now has DM status.')
+    self.tabs[channel].DisplayText(time, '', '*** %s now has DM status.' % (user))
 
   def UNDM(self, user, channel, data):
     ''' The user who sent this message has removed DM status from
@@ -438,7 +460,8 @@ class PalantirWindow:
     else:
       time = None
     self.tree.get_widget('UserList').get_model().foreach(self.setUserIcon, (nick, None))
-    self.chatWindow.DisplayText(time, '', '*** ' + nick + ' has removed DM status.')
+    self.tabs[channel].DisplayText(time, '',
+	'*** %s has removed DM status.' % (user))
 
   def DMQUERY(self, user, channel, data):
     ''' This is a request for our DM status.  If we have ourselves
@@ -451,12 +474,12 @@ class PalantirWindow:
   def ROLL(self, user, channel, data):
     ''' Someone rolled some dice, so we'll format the results and display. '''
     time,text = palantir.formatRoll(user, *self.dieRoller.getData(data))
-    self.chatWindow.DisplayText(time, '', text)
+    self.tabs[channel].DisplayText(time, '', text)
 
   def unknownCTCP(self, user, channel, data):
     ''' Any non-specific ctcp message just gets displayed as text. '''
     time,text = palantir.formatCTCP(user, channel, data)
-    self.chatWindow.DisplayText(time, '', text)
+    self.tabs[channel].DisplayText(time, '', text)
 
   ### Misc. Necessary Functions ###
   def ConnectionDialog(self):
@@ -585,7 +608,7 @@ class PalantirWindow:
       time = palantir.getTime()
     else:
       time = None
-    self.chatWindow.DisplayText(time, '',
+    self.tabs[self.factory.channels[0]].DisplayText(time, '',
 	'You rolled a '+str(len(rolls))+'d'+str(sides)+': '+str(rolls)+
 	' => '+str(total))
 
