@@ -1,0 +1,11 @@
+This project holds software and firmware used with
+the first generation LED case mod board for Yoshi.
+This board received data over a serial link for
+controlling 72 LEDs with 4-bit brightness control.
+
+Hopefully someday soon I'll get around to finishing
+up the new design that uses an 8x8 matrix (for up
+to 256 LEDs) and has an FPGA.
+
+--Micah <micah@picogui.org>
+

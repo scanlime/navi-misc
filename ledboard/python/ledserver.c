@@ -12,8 +12,7 @@
  *   lf                                - Send a \r to the VFD
  *   (more to come..)
  *
- * PicoGUI small and efficient client/server GUI
- * Copyright (C) 2000-2003 Micah Dowty <micahjd@users.sourceforge.net>
+ * Copyright (C) 2000-2004 Micah Dowty <micahjd@users.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
