@@ -28,6 +28,9 @@ typedef struct session xchat_context;
 #include "../common/outbound.h"
 #include "../common/util.h"
 
+typedef int (xchat_init_func) (xchat_plugin *, char **, char **, char **, char *);
+typedef int (xchat_deinit_func) (xchat_plugin *);
+
 extern GSList *plugin_list; // xchat's list of loaded plugins.
 extern XChatGUI gui;
 static GSList *known_plugins; // Our own list of all the known plugins, loaded or not.
@@ -40,6 +43,8 @@ static void
 on_unload_plugin_clicked (GtkButton *button, gpointer user_data);
 static void
 xchat_gnome_plugin_add (char *filename);
+static void
+plugin_list_add (char *filename, void *handle, xchat_init_func *init_func, xchat_deinit_func * deinit_func);
 
 void
 initialize_preferences_plugins_page ()
@@ -199,7 +204,6 @@ on_unload_plugin_clicked (GtkButton *button, gpointer user_data)
 static void
 xchat_gnome_plugin_add (char *filename)
 {
-	/* FIXME: This is broken and I'm tired.
 	void *handle;
 	xchat_init_func *init_func;
 	xchat_deinit_func *deinit_func;
@@ -218,6 +222,10 @@ xchat_gnome_plugin_add (char *filename)
 		deinit_func = NULL;
 
 	plugin_list_add (filename, handle, init_func, deinit_func);
-	*/
 }
 
+static void
+plugin_list_add (char *filename, void *handle, xchat_init_func *init_func, xchat_deinit_func * deinit_func)
+{
+	/* FIXME: Look, Ma! No code! */
+}
