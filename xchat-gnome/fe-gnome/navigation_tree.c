@@ -95,7 +95,6 @@ void navigation_tree_create_new_channel_entry(struct session *sess) {
 	store = GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(treeview)));
 
 	gtk_tree_model_foreach(store, navigation_tree_create_new_channel_entry_iterate, (gpointer) sess);
-	g_print("creating channel %s, session is 0x%x\n", sess->channel, sess);
 }
 
 static gboolean navigation_tree_remove_iterate(GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, struct session *data) {
@@ -322,7 +321,6 @@ static void leave_dialog(gpointer data, guint action, GtkWidget *widget) {
 		}
 		gtk_tree_store_set(GTK_TREE_STORE(model), &iter, 4, &colors[23], -1);
 	}
-	g_print("leaving channel %s, session is 0x%x\n", s->channel, s);
 }
 
 static void close_dialog(gpointer data, guint action, GtkWidget *widget) {
@@ -346,28 +344,23 @@ static void close_dialog(gpointer data, guint action, GtkWidget *widget) {
 }
 
 void channel_context(GtkWidget *treeview, session *selected) {
-	static GtkItemFactoryEntry entries[] = {
-		{"/Channel",			NULL, NULL,		0, "<Branch>"},
-		{"/Channel/_Save",		NULL, NULL,		0, "<StockItem>", GTK_STOCK_SAVE},
-		{"/Channel/Save _As...",	NULL, NULL,		0, "<StockItem>", GTK_STOCK_SAVE_AS},
-		{"/Channel/Separator1",		NULL, NULL,		0, "<Separator>"},
-		{"/Channel/_Leave",		NULL, leave_dialog,	0, "<StockItem>", GTK_STOCK_QUIT},
-		{"/Channel/Cl_ose",		NULL, close_dialog,	0, "<StockItem>", GTK_STOCK_CLOSE},
-		{"/Channel/Separator2",		NULL, NULL,		0, "<Separator>"},
-		{"/Channel/_Find...",		NULL, NULL,		0, "<StockItem>", GTK_STOCK_FIND},
-		{"/Channel/Find Ne_xt",		NULL, NULL,		0, "<StockItem>", GTK_STOCK_FIND},
-		{"/Channel/_Clear Window",	NULL, clear_dialog,	0, "<StockItem>", GTK_STOCK_CLEAR},
-		{"/Channel/Separator3",		NULL, NULL,		0, "<Separator>"},
-		{"/Channel/_Bans",		NULL, NULL,		0, "<StockItem>", GTK_STOCK_DIALOG_WARNING}
+	static GnomeUIInfo channel_context[] = {
+		GNOMEUIINFO_MENU_SAVE_ITEM(NULL, NULL),
+		GNOMEUIINFO_MENU_SAVE_AS_ITEM(NULL, NULL),
+		GNOMEUIINFO_SEPARATOR,
+		GNOMEUIINFO_ITEM_STOCK("_Leave", leave_dialog, NULL, GTK_STOCK_QUIT),
+		GNOMEUIINFO_MENU_CLOSE_ITEM(close_dialog, NULL),
+		GNOMEUIINFO_SEPARATOR,
+		GNOMEUIINFO_MENU_FIND_ITEM(NULL, NULL),
+		GNOMEUIINFO_MENU_FIND_AGAIN_ITEM(NULL, NULL),
+		GNOMEUIINFO_MENU_CLEAR_ITEM(clear_dialog, NULL),
+		GNOMEUIINFO_SEPARATOR,
+		GNOMEUIINFO_ITEM_STOCK("_Bans", NULL, NULL, GTK_STOCK_DIALOG_WARNING)
 	};
-	GtkItemFactory *factory;
 	GtkWidget *menu;
 
-	factory = gtk_item_factory_new(GTK_TYPE_MENU, "<XChatGnomeNavigationChannelContext>", NULL);
-	gtk_item_factory_create_items(factory, 11, entries, NULL);
-	menu = gtk_item_factory_get_widget(factory, "/Channel");
-
-	gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 0, 0);
+	menu = gnome_popup_menu_new(channel_context);
+	gnome_popup_menu_do_popup(menu, NULL, NULL, NULL, NULL, treeview);
 }
 
 void dialog_context(GtkWidget *treeview, session *selected) {
