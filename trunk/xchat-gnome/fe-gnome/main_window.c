@@ -125,6 +125,13 @@ void run_main_window() {
 	g_signal_connect(G_OBJECT(gui.main_window), "configure-event", G_CALLBACK(on_resize), NULL);
 }
 
+void rename_main_window(gchar *server, gchar *channel) {
+	gchar *new_title;
+	
+	new_title = g_strconcat (server, ": ", channel, NULL);
+	gtk_window_set_title(GTK_WINDOW(gui.main_window), new_title);
+}
+
 void on_irc_connect_menu_activate(GtkWidget *widget, gpointer data) {
 	display_connection_dialog();
 }
@@ -181,7 +188,6 @@ void on_network_file_transfers_menu_activate(GtkWidget *widget, gpointer data) {
 }
 
 void on_network_channels_menu_activate(GtkWidget *widget, gpointer data) {
-	create_channel_list(gui.current_session);
 	/* FIXME: implement */
 }
 
