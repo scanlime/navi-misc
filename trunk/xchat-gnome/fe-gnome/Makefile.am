@@ -52,6 +52,8 @@ EXTRA_DIST =					\
 	fe-gnome.c				\
 	irc-network.c				\
 	irc-network.h				\
+	irc-network-editor.c			\
+	irc-network-editor.h			\
 	gtkutil.h				\
 	gtkutil.c				\
 	gui.h					\
@@ -109,6 +111,8 @@ xchat_gnome_SOURCES =				\
 	fe-gnome.c				\
 	irc-network.c				\
 	irc-network.h				\
+	irc-network-editor.c			\
+	irc-network-editor.h			\
 	gtkutil.h				\
 	gtkutil.c				\
 	gui.h					\
