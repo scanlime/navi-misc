@@ -29,24 +29,29 @@ typedef struct session xchat_context;
 extern GSList *plugin_list;
 
 static void
-load_plugin (GtkButton *button, gpointer user_data);
+on_load_plugin_clicked (GtkButton *button, gpointer user_data);
+static void
+on_unload_plugin_clicked (GtkButton *button, gpointer user_data);
 
 void
 initialize_preferences_plugins_page ()
 {
-	GtkWidget *treeview;
+	GtkWidget *treeview, *load, *unload;
 	GtkListStore *store;
 	GtkCellRenderer *text_renderer, *load_renderer;
 	GtkTreeViewColumn *text_column, *load_column;
 	GtkTreeSelection *select;
 
 	treeview = glade_xml_get_widget (gui.xml, "plugins list");
+  load = glade_xml_get_widget (gui.xml, "plugin load");
+  unload = glade_xml_get_widget (gui.xml, "plugin unload");
 
-	store = gtk_list_store_new (4, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_BOOLEAN);
+  /* Plugin name, version, description, file, loaded (true or false) */
+	store = gtk_list_store_new (5, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_BOOLEAN);
 	gtk_tree_view_set_model (GTK_TREE_VIEW (treeview), GTK_TREE_MODEL (store));
 
 	load_renderer = gtk_cell_renderer_toggle_new ();
-	load_column = gtk_tree_view_column_new_with_attributes ("Loaded", load_renderer, "active", 3, NULL);
+	load_column = gtk_tree_view_column_new_with_attributes ("Loaded", load_renderer, "active", 4, NULL);
 	gtk_tree_view_append_column (GTK_TREE_VIEW (treeview), load_column);
 	text_renderer = gtk_cell_renderer_text_new ();
 	text_column = gtk_tree_view_column_new_with_attributes ("Plugin", text_renderer, "text", 0, NULL);
@@ -54,6 +59,9 @@ initialize_preferences_plugins_page ()
 
 	select = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
 	gtk_tree_selection_set_mode (select, GTK_SELECTION_SINGLE);
+
+  g_signal_connect (G_OBJECT(load), "clicked", G_CALLBACK (on_load_plugin_clicked), NULL);
+  g_signal_connect (G_OBJECT(unload), "clicked", G_CALLBACK (on_unload_plugin_clicked), NULL);
 
 	preferences_plugins_page_populate ();
 }
@@ -79,13 +87,47 @@ preferences_plugins_page_populate()
 		if (plugin->version[0] != 0)
 		{
 			gtk_list_store_append (store, &iter);
-			gtk_list_store_set (store, &iter, 0, plugin->name, 1, plugin->version, 2, plugin->desc, -1);
+			gtk_list_store_set (store, &iter, 0, plugin->name, 1, plugin->version, 2, plugin->desc, 3, plugin->filename, -1);
 		}
 		list = list->next;
 	}
 }
 
 static void
-load_plugin (GtkButton *button, gpointer user_data)
+on_load_plugin_clicked (GtkButton *button, gpointer user_data)
 {
+  GtkWidget *treeview;
+  GtkTreeIter iter;
+  GtkTreeModel *model;
+  GtkTreeSelection *selection;
+  gchar *filename;
+
+  treeview = glade_xml_get_widget (gui.xml, "plugins list");
+  model = gtk_tree_view_get_model (GTK_TREE_VIEW (treeview));
+  selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
+
+  if (gtk_tree_selection_get_selected (selection, &model, &iter)) {
+    gtk_tree_model_get (model, &iter, 3, &filename, -1);
+    printf("%s\n", filename);
+  }
 }
+
+static void
+on_unload_plugin_clicked (GtkButton *button, gpointer user_data)
+{
+  GtkWidget *treeview;
+  GtkTreeIter iter;
+  GtkTreeModel *model;
+  GtkTreeSelection *selection;
+  gchar *filename;
+
+  treeview = glade_xml_get_widget (gui.xml, "plugins list");
+  model = gtk_tree_view_get_model (GTK_TREE_VIEW (treeview));
+  selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
+
+  if (gtk_tree_selection_get_selected (selection, &model, &iter)) {
+    gtk_tree_model_get (model, &iter, 3, &filename, -1);
+    printf("%s\n", filename);
+  }
+}
+
