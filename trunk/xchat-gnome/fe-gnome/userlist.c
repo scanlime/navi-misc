@@ -145,7 +145,7 @@ void userlist_change(session *sess, struct User *user) {
 	if(!iter)
 		return;
 	
-	gtk_list_store_set(GTK_LIST_STORE(model), iter, 2, user->nick, 3, user, -1);
+	gtk_list_store_set(GTK_LIST_STORE(model), iter, 1, user->nick, 2, user, -1);
 }
 
 void userlist_display(session_gui *sess) {

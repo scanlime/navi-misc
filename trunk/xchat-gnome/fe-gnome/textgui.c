@@ -97,7 +97,7 @@ void set_nickname(struct server *serv, char *newnick) {
 void set_gui_topic(struct session *sess, char *topic) {
 	if(sess == gui.current_session) {
 		GtkWidget *topicw = glade_xml_get_widget(gui.xml, "topic entry");
-		if(topic == NULL)
+		if(topic == NULL && sess->topic != NULL)
 			gtk_entry_set_text(GTK_ENTRY(topicw), sess->topic);
 		else
 			gtk_entry_set_text(GTK_ENTRY(topicw), topic);
