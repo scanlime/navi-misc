@@ -66,7 +66,7 @@
             <xsl:if test="/form">
               <xsl:apply-templates select="steps"/>
               <xsl:apply-templates select="contents"/>
-              <xsl:apply-templates select="teaches"/>
+              <xsl:apply-templates select="lessons"/>
               <xsl:apply-templates select="notes"/>
             </xsl:if>
           </td>
@@ -230,6 +230,20 @@
           </ul>
         </div>
       </xsl:if>
+    </div>
+  </xsl:template>
+
+  <xsl:template match="lessons">
+    <span class="section">lessons</span>
+    <div class="section">
+      <div class="sectionTop"/>
+      <div class="row">
+        <ul>
+          <xsl:for-each select="lesson">
+            <li><xsl:value-of select="."/></li>
+          </xsl:for-each>
+        </ul>
+      </div>
     </div>
   </xsl:template>
 
