@@ -1,6 +1,6 @@
 """ LibCIA.Web.RulesetBrowser
 
-A web interface, built using nevow, for viewing and editin CIA's rulesets
+A web interface for CIA's ruleset database
 """
 #
 # CIA open source notification system
@@ -25,8 +25,22 @@ import Template
 
 
 class RulesetPage(Template.Page):
+    """A web page listing all available rulesets. Children
+       of this page are URISchemePage instances, which
+       have SingleRulesetPage instances as children. This
+       lets URLs like /rulesets/irc/irc.freenode.net/commits work.
+       """
     def __init__(self, caps, storage):
         self.caps = caps
         self.storage = storage
+
+    def render_mainTitle(self, context):
+        return "Ruleset List"
+
+    def render_subTitle(self, context):
+        return "the little tidbits of XML that make CIA work"
+
+    def render_mainColumn(self, context):
+        return []
 
 ### The End ###
