@@ -73,6 +73,11 @@ PCLATH_save	res	1	;  during ISR
 FSR_save	res	1
 PIRmasked	res	1
 USBMaskedInterrupts  res  1
+epBuffer	res 8
+epBufferSize res 1
+epBufferSizeTemp res 1
+epBufferPtrTemp res 1
+epByteTemp	res 1
 
 	; Ring buffers for IR receive and transmit. Buffer size must be a power of two.
 	; Head indices point to the next available slot for new data, tail indices
@@ -135,7 +140,7 @@ TEST_TMR0
 	movwf	TMR0
 	movf	ir_tx_Mask, w	; Flip the transmitter bit if necessary
 	xorwf	PORTB, f
-	decfsz	ir_tx_Cycles	; If we finished this batch of transmit cycles, get some more from
+	decfsz	ir_tx_Cycles, f	; If we finished this batch of transmit cycles, get some more from
 	goto	EndISR			; the buffer. If not, return from the interrupt now.
 
 	; Code to execute after each transmitted pulse or space	
@@ -383,8 +388,67 @@ MainLoop
 	btfss	STATUS,Z	; Z = 1 when configured
 	goto	MainLoop    ; Wait until we're configured
 
-	; Code to read and write endpoints goes here
+	; The rest of this main loop is concerned with transferring data from the
+	; ir_rx ringbuffer to the EP1 IN endpoint. This can only happen when the
+	; EP1 buffer is available, and there is at least one byte in the ir_rx
+	; ringbuffer. If a transfer can be made, up to 8 bytes will be sent to the
+	; EP1 buffer to await pickup by the host.
 
+	banksel	BD1IST		; If we don't own the EP1 buffer, keep waiting
+	btfsc	BD1IST, UOWN
+	goto	MainLoop
+
+	banksel	ir_rx_Buffer ; Calculate the number of bytes in the ir_rx buffer
+	movf	ir_rx_Tail, w
+	subwf	ir_rx_Head, w
+	andlw	BUFFER_SIZE-1
+	btfsc	STATUS, Z	; No data? keep waiting
+	goto	MainLoop
+	banksel	epBufferSize ; Store the number of available bytes
+	movwf	epBufferSize
+
+	movlw	0xF8		; If we have more than 8 bytes available, clamp it to 8
+	andwf	epBufferSize, w ; The Z flag will be set if epBufferSize >= 8
+	movlw	0x08		; Prepare our value to clamp to
+	btfsc	STATUS, Z	; Clamp if the Z flag is set
+	movwf	epBufferSize
+	
+	movlw	epBuffer	; Copy epBufferSize bytes from the ring buffer to epBuffer
+	movwf	epBufferPtrTemp ; Initialize loop iterators
+	movf	epBufferSize, w
+	movwf	epBufferSizeTemp
+epCopyLoop
+
+	bankisel ir_rx_Buffer 	; Pop one byte out of the ir_rx ringbuffer
+	movf	ir_rx_Tail, w
+	addlw	ir_rx_Buffer
+	movwf	FSR				; ir_rx_Buffer[ir_rx_Tail]
+	movf	INDF, w
+	banksel	epByteTemp		; Save it in epByteTemp
+	movwf	epByteTemp
+	banksel	ir_rx_Buffer
+	incf	ir_rx_Tail, f	; Increment the buffer tail, modulo BUFFER_SIZE
+	movlw	BUFFER_SIZE-1
+	andwf	ir_rx_Tail, f
+
+	bankisel epBuffer		; Copy epByteTemp to the current epBuffer byte
+	banksel	epBufferPtrTemp	
+	movf	epBufferPtrTemp, w
+	movwf	FSR
+	movf	epByteTemp, w
+	movwf	INDF
+
+	incf	epBufferPtrTemp, f ; Update iterators, loop back for another byte
+	decfsz	epBufferSizeTemp, f
+	goto	epCopyLoop
+	
+	movlw	epBuffer	; Submit the completed buffer for the host to pick up
+	movwf	FSR
+	movf	epBufferSize, w
+	pagesel	PutEP1
+	call	PutEP1
+
+	pagesel	MainLoop
 	goto	MainLoop
 
 
@@ -435,7 +499,6 @@ enqueueTxByte
 	movlw	BUFFER_SIZE-1
 	andwf	ir_tx_Head, f
 	return
-	
 
 	end
 
