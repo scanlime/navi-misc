@@ -150,13 +150,15 @@ class SecuritySection(Template.Section):
 
     def makeCapabilityList(self, key):
         result = defer.Deferred()
-        Security.User(key=key).getCapabilities().addCallback(
-           self._makeCapabilityList, result).addErrback(
-           result.errback)
+        if key:
+            Security.User(key=key).getCapabilities().addBoth(
+               self._makeCapabilityList, result)
+        else:
+            result.callback([])
         return result
 
     def _makeCapabilityList(self, caps, result):
-        if caps:
+        if type(caps) is list:
             result.callback([
                 "Available capabilities:",
                 tag('ul')[[
