@@ -25,7 +25,8 @@
 	  <b>New user status icons</b><br />
 	  <p>The current bullets next to nicknames in the user list which indicate
 	  operator/voice/etc status are inaccessible to colorblind people. In order to
-	  fix this, we need new icons that have distinct silhouettes.</p>
+	  fix this, we need new icons that have distinct silhouettes. This art would
+	  be useful to the main XChat line as well, since it suffers from the same problem.</p>
         </div>
 	<div class="section-title">Documentation Love</div>
 	<div class="section">
@@ -33,6 +34,13 @@
 	  <p>At the moment, we have no user documentation other than the FAQ on this
 	  web site. It would be great to have some documentation that can be shown
 	  both in yelp and on the web.</p>
+	</div>
+	<div class="section-title">Easy Hackery Love</div>
+	<div class="section">
+	  <b>Basic A11y</b><br />
+	  <p>At the moment, the only a11y is what gtk+ gives us for free. It would be
+	  nice if the most important widgets in the xchat-gnome interface were given
+	  a11y metadata in the glade file.</p>
 	</div>
 	<div class="section-title">Medium-Difficulty Hackery Love</div>
 	<div class="section">
@@ -45,6 +53,14 @@
 	  <p>There are a couple parts to this. The first is a parser for the URI that
 	  handles everything in <a href="http://www.ietf.org/internet-drafts/draft-butcher-irc-url-02.tx.txt">this internet draft</a>.
 	  The second is registering URL handlers with gnome.</p>
+	</div>
+	<div class="section-title">Difficult Hackery Love</div>
+	<div class="section">
+	  <b>GtkXText a11y support</b><br />
+	  <p>The XText widget does not include any accessibility support at all. Adding
+	  support for the a11y interfaces is probably not a trivial thing, and is probably
+	  only a job for someone intimately familiar with how a11y works and willing to
+	  deal with a big mess of code in XText.</p>
 	</div>
       </div>
     </div>
