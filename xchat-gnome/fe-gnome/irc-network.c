@@ -117,9 +117,9 @@ irc_network_new (ircnet *net)
 	n->novegiveup  = net->flags & FLAG_;
 	*/
 
-	for (s1 = n->servers; s1; s1 = g_slist_next (s1)) {
+	for (s1 = net->servlist; s1; s1 = g_slist_next (s1)) {
 		ircserver *s = g_new0(ircserver, 1);
-		s->hostname = g_strdup(s1->data);
+		s->hostname = g_strdup(((ircserver *) (s1->data))->hostname);
 		s2 = g_slist_prepend (s2, s);
 	}
 	n->servers = s2;
