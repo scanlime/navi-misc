@@ -12,6 +12,6 @@
 import xmlrpclib
 
 s = xmlrpclib.ServerProxy("http://localhost:3910")
-s.rebuild()
+s.sys.rebuild()
 
 ### The End ###
