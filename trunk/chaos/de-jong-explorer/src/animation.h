@@ -60,6 +60,7 @@ enum {
 
 GType        animation_get_type();
 Animation*   animation_new();
+void         animation_clear(Animation *self);
 
 void         animation_keyframe_store_dejong(Animation *self, GtkTreeIter *iter, DeJong *dejong);
 void         animation_keyframe_load_dejong(Animation *self, GtkTreeIter *iter, DeJong *dejong);
