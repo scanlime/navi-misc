@@ -162,29 +162,30 @@ display_check_flip
 	; packet as described in rwand_protocol.h for RWAND_CTRL_READ_STATUS.
 display_save_status
 	banksel	wand_period
-	movf	wand_period, f		; 1
+	movf	wand_period, w		; 1
 	movwf	INDF
 	incf	FSR, f
-	movf	wand_period+1, f	; 2
+	movf	wand_period+1, w	; 2
 	movwf	INDF
 	incf	FSR, f
-	movf	wand_phase, f		; 3
+	movf	wand_phase, w		; 3
 	movwf	INDF
 	incf	FSR, f
-	movf	wand_phase+1, f		; 4
+	movf	wand_phase+1, w		; 4
 	movwf	INDF
 	incf	FSR, f
-	movf	edge_counter, f		; 5
+	movf	edge_counter, w		; 5
 	movwf	INDF
 	incf	FSR, f
-	movf	mode_flags, f		; 6
+	movf	mode_flags, w		; 6
 	movwf	INDF
 	incf	FSR, f
 	pagesel	display_check_flip	; 7
+	call	display_check_flip
 	movwf	INDF
 	incf	FSR, f
 	banksel	BUTTON_PORT			; 8
-	movf	BUTTON_PORT
+	movf	BUTTON_PORT, w
 	movwf	INDF
 	return
 
