@@ -198,7 +198,6 @@ if __name__ == "__main__":
            </body>
        </message>
        """)
-<<<<<<< .mine
     print msg
     f = Filter('<and><match path="/message/source/project">navi-misc</match></and>')
     print f
@@ -206,11 +205,6 @@ if __name__ == "__main__":
     f = Filter('<match path="/message/source/project">navi-misc</match>')
     print f
     print f(msg)
-=======
-    print msg.xml.toXml()
-    xp = XPathQuery("/message/source/project < 10")
-    print xp.queryForString(msg.xml)
->>>>>>> .r1135
 
 
 ### The End ###
