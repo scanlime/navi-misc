@@ -64,17 +64,19 @@ struct _RemoteClosure {
 };
 
 struct _RemoteClient {
-    GObject object;
-    const gchar* host;
-    gint port;
-    GConn*  gconn;
+    GObject               object;
 
-    RemoteStatusCallback status_callback;
-    gpointer status_callback_user_data;
-    gboolean is_ready;
+    const gchar*          host;
+    gint                  port;
+    GConn*                gconn;
 
-    GQueue* response_queue;
-    RemoteResponse* current_binary_response;
+    RemoteStatusCallback  status_callback;
+    gpointer              status_callback_user_data;
+    gboolean              is_ready;
+    int                   pending_param_changes;
+
+    GQueue*               response_queue;
+    RemoteResponse*       current_binary_response;
 };
 
 struct _RemoteClientClass {
