@@ -24,6 +24,7 @@
 #include <libedata-cal/e-cal-backend-util.h>
 #include <libedata-cal/e-cal-backend-sexp.h>
 #include <libgnome/gnome-i18n.h>
+#include <string.h>
 #include "e-cal-backend-weather.h"
 #include "e-weather-source.h"
 
@@ -208,6 +209,12 @@ getConditions (WeatherForecast *report)
 	}
 }
 
+static float
+ctof (float c)
+{
+	return ((c * 9.0f / 5.0f) + 32.0f);
+}
+
 static ECalComponent*
 create_weather (ECalBackendWeather *cbw, WeatherForecast *report)
 {
@@ -220,8 +227,21 @@ create_weather (ECalBackendWeather *cbw, WeatherForecast *report)
 	GSList *text_list = NULL;
 	ECalComponentText *description;
 	char *pop, *snow;
+	ESource *source;
+	gboolean fahrenheit;
+	const char *format;
 
 	g_return_val_if_fail (E_IS_CAL_BACKEND_WEATHER (cbw), NULL);
+
+	source = e_cal_backend_get_source (E_CAL_BACKEND (cbw));
+	format = e_source_get_property (source, "units");
+	if (format == NULL) {
+		fahrenheit = FALSE;
+	} else {
+		fahrenheit = (strcmp (format, "fahrenheit") == 0);
+	}
+	g_print ("ESource is 0x%x\n", source);
+	g_print ("creating weather entry, fahrenheit is %d\n", fahrenheit);
 
 	/* create the component and event object */
 	ical_comp = icalcomponent_new (ICAL_VEVENT_COMPONENT);
@@ -247,14 +267,19 @@ create_weather (ECalBackendWeather *cbw, WeatherForecast *report)
 	e_cal_component_set_dtend (cal_comp, &dt);
 
 	/* The summary is the high or high/low temperatures */
-	/* FIXME: handle locale */
 	if (report->high == report->low)
 	{
-		comp_summary.value = g_strdup_printf ("%.1fC", report->high);
+		if (fahrenheit)
+			comp_summary.value = g_strdup_printf ("%.1f°F", ctof (report->high));
+		else
+			comp_summary.value = g_strdup_printf ("%.1f°C", report->high);
 	}
 	else
 	{
-		comp_summary.value = g_strdup_printf ("%.1f/%.1fC", report->high, report->low);
+		if (fahrenheit)
+			comp_summary.value = g_strdup_printf ("%.1f/%.1f°F", ctof (report->high), ctof (report->low));
+		else
+			comp_summary.value = g_strdup_printf ("%.1f/%.1f°C", report->high, report->low);
 	}
 	comp_summary.altrep = NULL;
 	e_cal_component_set_summary (cal_comp, &comp_summary);
