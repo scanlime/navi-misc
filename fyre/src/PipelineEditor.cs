@@ -28,28 +28,28 @@ using Glade;
 
 public class PipelineEditor
 {
-	/* Plugin stuff */
+	// Plugin stuff
 	PluginManager plugin_manager;
 
-	/* Widgets */
+	// Widgets
 	[Widget] Gtk.Window		toplevel;
 
-	/* Element list (left) */
+	// Element list (left)
 	private Gtk.TreeStore		element_store;
 	private Gtk.TreeModelSort	sorted_store;
 	private Gtk.TreeViewColumn	column;
 	[Widget] Gtk.TreeView		element_list;
 
-	/* Editor workspace (right) */
+	// Editor workspace (right)
 	[Widget] Gtk.ScrolledWindow	pipeline_window;
 	[Widget] Gtk.DrawingArea	pipeline_drawing;
 
-	/* Current tooltip */
+	// Current tooltip
 	private ElementTooltip		current_tooltip;
 	private uint			tooltip_timeout;
 	private Gdk.Rectangle		tip_rect;
 
-	/* D-n-D private data */
+	// D-n-D private data
 	private int			click_x, click_y;
 	private bool			dragging;
 	private TargetEntry[]		targets;
@@ -67,7 +67,7 @@ public class PipelineEditor
 		Glade.XML gxml = new Glade.XML (null, "pipeline-editor.glade", "toplevel", null);
 		gxml.Autoconnect (this);
 
-		/* Create drag-and-drop target */
+		// Create drag-and-drop target
 		targets = new TargetEntry[1];
 		targets[0] = new TargetEntry ("fyre element drag", Gtk.TargetFlags.App, 0);
 		target_list = new TargetList (targets);
@@ -75,59 +75,59 @@ public class PipelineEditor
 		SetupElementList ();
 		SetupDrawingCanvas ();
 
-		/* These start out nulled */
+		// These start out nulled
 		current_tooltip = null;
 		tooltip_timeout = 0;
 		click_x = -1;
 		click_y = -1;
 		dragging = false;
 
-		/* Set up plugins directory */
+		// Set up plugins directory
 		plugin_manager = new PluginManager (Defines.PLUGINSDIR);
 		foreach (Type t in plugin_manager.plugin_types)
 			AddElementType (t);
 
-		/* Finally, run the application */
+		// Finally, run the application
 		Application.Run();
 	}
 
 	void SetupElementList ()
 	{
-		/*                                         Icon                 Name             Type           Tooltip Window */
+		//                                         Icon                 Name             Type           Tooltip Window
 		element_store = new Gtk.TreeStore (typeof (Gdk.Pixbuf), typeof (string), typeof (Type), typeof (ElementTooltip));
 
-		/* We sort the element list in alphabetical order by name/category,
-		 * since we don't know what order plugins will be loaded in, and
-		 * alphabetical order makes sense to people. */
+		// We sort the element list in alphabetical order by name/category,
+		// since we don't know what order plugins will be loaded in, and
+		// alphabetical order makes sense to people.
 		sorted_store = new Gtk.TreeModelSort (element_store);
 		sorted_store.SetSortColumnId (1, Gtk.SortType.Ascending);
 
-		/* And set it as the model */
+		// And set it as the model
 		element_list.Model = sorted_store;
 
-		/* Create the column and the renderers */
+		// Create the column and the renderers */
 		column = new Gtk.TreeViewColumn ();
 		column.Title = "Elements";
 
-		/* Icon */
+		// Icon
 		Gtk.CellRenderer pixbuf_renderer = new Gtk.CellRendererPixbuf ();
 		column.PackStart (pixbuf_renderer, false);
 		column.AddAttribute (pixbuf_renderer, "pixbuf", 0);
 
-		/* Name */
+		// Name
 		Gtk.CellRenderer text_renderer   = new Gtk.CellRendererText ();
 		column.PackStart (text_renderer, true);
 		column.AddAttribute (text_renderer, "text", 1);
 
 		element_list.AppendColumn (column);
 
-		/* Set up drag-and-drop for our tree view */
+		// Set up drag-and-drop for our tree view
 		Gtk.Drag.SourceSet (element_list, Gdk.ModifierType.Button1Mask, targets, Gdk.DragAction.Copy);
 	}
 
 	void SetupDrawingCanvas ()
 	{
-		/* Set up drag-and-drop for the canvas */
+		// Set up drag-and-drop for the canvas
 		Gtk.Drag.DestSet (pipeline_drawing, Gtk.DestDefaults.All, targets, Gdk.DragAction.Copy);
 	}
 
@@ -181,27 +181,27 @@ public class PipelineEditor
 		if (tooltip_timeout != 0) {
 			if ((ev.Y > tip_rect.Y) && ((ev.Y - tip_rect.Height) < tip_rect.Y))
 				return;
-			/* We've moved outside the current cell. Destroy the
-			   timeout and create a new one */
+			// We've moved outside the current cell. Destroy the
+			// timeout and create a new one
 			GLib.Source.Remove (tooltip_timeout);
 		}
 
 		if (ev.State == Gdk.ModifierType.Button1Mask) {
-			/* If we're just continuing a drag, don't do anything */
+			// If we're just continuing a drag, don't do anything
 			if (dragging)
 				return;
-			/* Check that we have a path */
+			// Check that we have a path
 			if (element_list.GetPathAtPos ((int) ev.X, (int) ev.Y, out path) == false)
 				return;
 
-			/* Check that the path exists */
+			// Check that the path exists
 			Gtk.TreeIter iter;
 			if (sorted_store.GetIter (out iter, path) == false)
 				return;
-			/* Check that the currently selected tree entry is an Element */
+			// Check that the currently selected tree entry is an Element
 			if (sorted_store.GetValue (iter, 2) == null)
 				return;
-			/* Start a drag */
+			// Start a drag
 			dragging = true;
 			Gtk.Drag.Begin (element_list, target_list, Gdk.DragAction.Copy, 1, ev);
 			return;
@@ -274,15 +274,15 @@ public class PipelineEditor
 		}
 	}
 
-	/* Event handlers - most of these come from the glade file */
-	/* Window events */
+	// Event handlers - most of these come from the glade file
+	// Window events
 	public void OnDeleteEvent (object o, DeleteEventArgs args)
 	{
 		Application.Quit ();
 		args.RetVal = true;
 	}
 
-	/* Shared events - menus/toolbars */
+	// Shared events - menus/toolbars
 	public void OnNew (object o, EventArgs args)
 	{
 	}
@@ -307,7 +307,7 @@ public class PipelineEditor
 	{
 	}
 
-	/* 'File' Menu events */
+	// 'File' Menu events
 	public void OnMenuFileSaveAs (object o, EventArgs args)
 	{
 	}
@@ -317,17 +317,17 @@ public class PipelineEditor
 		Application.Quit ();
 	}
 
-	/* 'Edit' Menu events */
+	// 'Edit' Menu events
 	public void OnMenuEditDelete (object o, EventArgs args)
 	{
 	}
 
-	/* 'View' Menu events */
+	// 'View' Menu events
 	public void OnMenuViewKeepClean (object o, EventArgs args)
 	{
 	}
 
-	/* 'Help' Menu events */
+	// 'Help' Menu events
 	public void OnMenuHelpContents (object o, EventArgs args)
 	{
 	}

@@ -65,7 +65,7 @@ public class ElementTooltip
 		tooltip.Move ((int) x, (int) y);
 	}
 
-	/* Create a 2xn table from a list of strings */
+	// Create a 2xn table from a list of strings
 	private Gtk.Table CreateDescTable (string[,] s)
 	{
 		uint len = (uint) s.Length / 2;
