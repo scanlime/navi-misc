@@ -40,6 +40,8 @@ public class aimup
 	    }
 	    catch (InterruptedException ie) {
 	    }
+	    mybot.sendMessage("gonkulator2","Hello, I'm going poof now");
+	    //mybot.sendMessage("lurgyllama","Hi Dan, I love you, bye bye :)");
 	}
     }
 }
