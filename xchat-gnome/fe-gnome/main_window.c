@@ -269,37 +269,35 @@ void
 setup_menu_item (GConfClient *client, GtkActionEntry *entry)
 {
 	GConfEntry *e;
-	GString *key_string;
+	gchar *key_string;
 	GtkAction *action;
 
-	key_string = g_string_new ("/apps/xchat/keybindings/");
-	g_string_append (key_string, entry->name);
+	key_string = g_strdup_printf ("/apps/xchat/keybindings/%s", entry->name);
 
 	gconf_client_notify_add (client,
-		 		 key_string -> str,
+		 		 key_string,
 				 (GConfClientNotifyFunc) &keybinding_key_changed,
 				 entry, NULL, NULL);
 
-	e = gconf_client_get_entry (client, key_string -> str, NULL, TRUE, NULL);
+	e = gconf_client_get_entry (client, key_string, NULL, TRUE, NULL);
 
-	if (e == NULL) /* no GConf data, so let's use the hardcoded values */
-	{
+	if (e == NULL) {
+		/* no GConf data, so let's use the hardcoded values */
 		gtk_action_group_add_actions (gui.action_group, entry, 1, NULL);
 		return;
 	}
 
 	/* Let's still use most of the original hardcoded entry.. */
-	action = gtk_action_new (entry -> name, entry -> label, entry -> tooltip,
-				 entry -> stock_id);
-	g_message ("adding %s", entry -> name);
+	action = gtk_action_new (entry->name, entry->label, entry->tooltip, entry->stock_id);
+	g_message ("adding %s", entry->name);
 
 	/* but.. not the accelerators.. */
 	gtk_action_group_add_action_with_accel (gui.action_group, action,
-						gconf_client_get_string (client, key_string->str, NULL));
+						gconf_client_get_string (client, key_string, NULL));
 
-	if (entry -> callback != NULL)
+	if (entry->callback != NULL)
 		g_signal_connect (action, "activate", G_CALLBACK (entry->callback), gui.xml);
-	g_string_free (key_string, TRUE);
+	g_free (key_string);
 }
 
 void
