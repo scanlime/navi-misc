@@ -1,0 +1,3 @@
+set values for refresh counters
+hook up _commit() in core
+hook up _commit and _abort for plugins
