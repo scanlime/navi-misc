@@ -30,7 +30,6 @@
 
 #include "../e-cal-config.h"
 #include "../e-timezone-entry.h"
-#include "../e-pub-utils.h"
 #include "../calendar-config.h"
 #include "cal-prefs-dialog.h"
 #include <widgets/misc/e-dateedit.h>
