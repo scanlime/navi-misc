@@ -25,57 +25,10 @@ by XML documents.
 from twisted.xish import domish
 from twisted.xish.xpath import XPathQuery
 import time
+import XML
 
 
-class XMLObject(object):
-    """An object based on an XML document tree. This class provides
-       methods to load it from a string or a DOM element tree, and convert
-       it back to an XML string.
-
-       'xml' is either a twisted.xish.domish.Element, a string containing
-       the message in XML, or any object with a read() method.
-       """
-    def __init__(self, xml=None):
-        if isinstance(xml, domish.Element):
-            self.loadFromElement(xml)
-        elif hasattr(xml, 'read'):
-            self.loadFromString(xml.read())
-        elif xml is not None:
-            self.loadFromString(xml)
-
-    def __str__(self):
-        return self.xml.toXml()
-
-    def loadFromString(self, string):
-        """Parse the given string as XML and set the contents of the message"""
-        parser = DomishStringParser()
-        parser.parse(string)
-        self.loadFromElement(parser.root)
-
-    def loadFromElement(self, root):
-        """Set the contents of the Message from a parsed document tree given
-           as a twisted.xish.domish.Element instance.
-           """
-        self.xml = root
-        self.preprocess()
-
-    def preprocess(self):
-        """A hook where subclasses can add code to inspect a freshly
-           loaded XML document and/or fill in any missing information.
-           """
-        pass
-
-
-class XMLValidityError(Exception):
-    """This error is raised by subclasses of XMLObject that encounter problems
-       in the structure of XML documents presented to them. Normally this should
-       correspond with the document not being valid according to its schema,
-       but we don't actually use a validating parser.
-       """
-    pass
-
-
-class Message(XMLObject):
+class Message(XML.XMLObject):
     """Abstract container for a notification message. All messages
        are represented by XML DOM trees. The message document type
        is described with examples and a schema in the 'xml' directory
@@ -103,7 +56,7 @@ class Message(XMLObject):
        """
     def preprocess(self):
         if self.xml.name != "message":
-            raise XMLValidityError("A Message's root node must be named 'message'")
+            raise XML.XMLValidityError("A Message's root node must be named 'message'")
 
         # Stamp it with the current time if it has no timestamp yet
         if not self.xml.timestamp:
@@ -155,7 +108,7 @@ class Hub(object):
         return result
 
 
-class Filter(XMLObject):
+class Filter(XML.XMLObject):
     """A filter is a description of some subset of all valid Message objects,
        described using a simple XML-based format and a subset of XPath. The
        filter document type is described with examples and a schema in the
@@ -310,7 +263,7 @@ class Filter(XMLObject):
         try:
             f = getattr(self, "element_" + element.name)
         except AttributeError:
-            raise XMLValidityError("Unknown element name in Filter: %r" % element.name)
+            raise XML.XMLValidityError("Unknown element name in Filter: %r" % element.name)
         return f(element)
 
     def pathMatchTag(self, element, function):
@@ -439,33 +392,6 @@ class Filter(XMLObject):
         newFilter = Filter()
         newFilter.matchFunc = lambda msg: not self(msg)
         return newFilter
-
-
-class DomishStringParser(domish.SuxElementStream):
-    """Because domish doesn't include a parseString()..."""
-    def __init__(self):
-        domish.SuxElementStream.__init__(self)
-        self.DocumentStartEvent = self.docStart
-        self.ElementEvent = self.elem
-        self.DocumentEndEvent = self.docEnd
-        self.done = 0
-
-    def docStart(self, elem):
-        self.root = elem
-
-    def gotText(self, data):
-        # This is (another) hack that seems to be necessary
-        # to properly parse text included directly into the root node.
-        if self.currElem:
-            domish.SuxElementStream.gotText(self, data)
-        else:
-            self.root.addContent(data)
-
-    def elem(self, elem):
-        self.root.addChild(elem)
-
-    def docEnd(self):
-        self.done = 1
 
 
 def _test():
