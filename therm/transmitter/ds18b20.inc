@@ -1,6 +1,6 @@
 ;
 ; Utilities for sampling the DS18B20 1-wire temperature sensor
-; Copyright 2004, Micah Dowty <micah@navi.cx>
+; Copyright (C) 2004-2005 Micah Dowty <micah@navi.cx>
 ;
 
 ;; DS18B20 function commands

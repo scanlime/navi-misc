@@ -1,6 +1,6 @@
 ;
 ; Wireless temperature sensor, single DS18B20 version
-; Copyright 2004, Micah Dowty <micah@navi.cx>
+; Copyright (C) 2004-2005 Micah Dowty <micah@navi.cx>
 ;
 ; This samples a Dallas 1-wire temperature sensor (DS18B20) and sends back
 ; results over a Laipac 315MHz ASK transmitter. The protocol is described
