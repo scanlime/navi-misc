@@ -50,7 +50,12 @@
                     <xsl:apply-templates select="document('techniques.xml')//techniques/technique[@level='blue']"/>
                   </xsl:if>
                   <xsl:if test="/form"><xsl:apply-templates select="document('forms.xml')//forms/form"/></xsl:if>
-                  <xsl:if test="/set"><xsl:apply-templates select="document('sets.xml')//sets/set"/></xsl:if>
+                  <xsl:if test="/set">
+                    <span class="emph">yellow</span>
+                    <xsl:apply-templates select="document('sets.xml')//sets/set[@level='yellow']"/>
+                    <span class="emph">orange</span>
+                    <xsl:apply-templates select="document('sets.xml')//sets/set[@level='orange']"/>
+                  </xsl:if>
                 </ul>
               </div>
             </div>

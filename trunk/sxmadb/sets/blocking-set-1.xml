@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="../style.xsl"?>
 
-<set name="blocking set 1">
+<set name="blocking set 1" level="yellow">
   <steps>
     <step>right upward block</step>
     <step>right hammering inward block</step>
