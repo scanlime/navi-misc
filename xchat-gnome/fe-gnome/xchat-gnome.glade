@@ -70,6 +70,7 @@
 		      <child>
 			<widget class="GtkCheckMenuItem" id="monkey_bubble_mode1">
 			  <property name="visible">True</property>
+			  <property name="sensitive">False</property>
 			  <property name="label" translatable="yes">Monkey Bubble Mode</property>
 			  <property name="use_underline">True</property>
 			  <property name="active">False</property>
@@ -107,6 +108,7 @@
 		      <child>
 			<widget class="GtkImageMenuItem" id="undo1">
 			  <property name="visible">True</property>
+			  <property name="sensitive">False</property>
 			  <property name="stock_item">GNOMEUIINFO_MENU_UNDO_ITEM</property>
 			  <signal name="activate" handler="on_undo1_activate" last_modification_time="Sat, 31 Jan 2004 06:12:53 GMT"/>
 			</widget>
@@ -121,6 +123,7 @@
 		      <child>
 			<widget class="GtkImageMenuItem" id="cut1">
 			  <property name="visible">True</property>
+			  <property name="sensitive">False</property>
 			  <property name="stock_item">GNOMEUIINFO_MENU_CUT_ITEM</property>
 			  <signal name="activate" handler="on_cut1_activate" last_modification_time="Mon, 19 Jan 2004 23:52:01 GMT"/>
 			</widget>
@@ -129,6 +132,7 @@
 		      <child>
 			<widget class="GtkImageMenuItem" id="copy1">
 			  <property name="visible">True</property>
+			  <property name="sensitive">False</property>
 			  <property name="stock_item">GNOMEUIINFO_MENU_COPY_ITEM</property>
 			  <signal name="activate" handler="on_copy1_activate" last_modification_time="Mon, 19 Jan 2004 23:52:01 GMT"/>
 			</widget>
@@ -137,6 +141,7 @@
 		      <child>
 			<widget class="GtkImageMenuItem" id="paste1">
 			  <property name="visible">True</property>
+			  <property name="sensitive">False</property>
 			  <property name="stock_item">GNOMEUIINFO_MENU_PASTE_ITEM</property>
 			  <signal name="activate" handler="on_paste1_activate" last_modification_time="Mon, 19 Jan 2004 23:52:01 GMT"/>
 			</widget>
@@ -145,6 +150,7 @@
 		      <child>
 			<widget class="GtkImageMenuItem" id="clear2">
 			  <property name="visible">True</property>
+			  <property name="sensitive">False</property>
 			  <property name="stock_item">GNOMEUIINFO_MENU_CLEAR_ITEM</property>
 			  <signal name="activate" handler="on_clear2_activate" last_modification_time="Mon, 19 Jan 2004 23:52:01 GMT"/>
 			</widget>
@@ -180,6 +186,7 @@
 		      <child>
 			<widget class="GtkImageMenuItem" id="insert_color_code1">
 			  <property name="visible">True</property>
+			  <property name="sensitive">False</property>
 			  <property name="label" translatable="yes">Color Code...</property>
 			  <property name="use_underline">True</property>
 			  <signal name="activate" handler="on_insert_color_code1_activate" last_modification_time="Sat, 24 Jan 2004 17:22:02 GMT"/>
@@ -214,6 +221,7 @@
 		      <child>
 			<widget class="GtkImageMenuItem" id="information1">
 			  <property name="visible">True</property>
+			  <property name="sensitive">False</property>
 			  <property name="label" translatable="yes">_Information</property>
 			  <property name="use_underline">True</property>
 			  <signal name="activate" handler="on_information1_activate" last_modification_time="Fri, 23 Jan 2004 03:53:48 GMT"/>
@@ -241,6 +249,7 @@
 		      <child>
 			<widget class="GtkImageMenuItem" id="reconnect1">
 			  <property name="visible">True</property>
+			  <property name="sensitive">False</property>
 			  <property name="tooltip" translatable="yes">Reconnect to this server</property>
 			  <property name="label" translatable="yes">_Reconnect</property>
 			  <property name="use_underline">True</property>
@@ -291,6 +300,7 @@
 		      <child>
 			<widget class="GtkMenuItem" id="downloads1">
 			  <property name="visible">True</property>
+			  <property name="sensitive">False</property>
 			  <property name="tooltip" translatable="yes">Show file transfer progress window</property>
 			  <property name="label" translatable="yes">_File Transfers</property>
 			  <property name="use_underline">True</property>
@@ -324,6 +334,7 @@
 		      <child>
 			<widget class="GtkMenuItem" id="users1">
 			  <property name="visible">True</property>
+			  <property name="sensitive">False</property>
 			  <property name="label" translatable="yes">_Users</property>
 			  <property name="use_underline">True</property>
 			  <signal name="activate" handler="on_users1_activate" last_modification_time="Sat, 24 Jan 2004 00:02:42 GMT"/>
@@ -347,6 +358,7 @@
 		      <child>
 			<widget class="GtkImageMenuItem" id="save_transcript1">
 			  <property name="visible">True</property>
+			  <property name="sensitive">False</property>
 			  <property name="stock_item">GNOMEUIINFO_MENU_SAVE_ITEM</property>
 			  <signal name="activate" handler="on_save_transcript1_activate" last_modification_time="Fri, 23 Jan 2004 03:52:08 GMT"/>
 			</widget>
@@ -355,6 +367,7 @@
 		      <child>
 			<widget class="GtkImageMenuItem" id="save_as1">
 			  <property name="visible">True</property>
+			  <property name="sensitive">False</property>
 			  <property name="stock_item">GNOMEUIINFO_MENU_SAVE_AS_ITEM</property>
 			  <signal name="activate" handler="on_save_as1_activate" last_modification_time="Sat, 24 Jan 2004 18:13:47 GMT"/>
 			</widget>
@@ -390,6 +403,7 @@
 		      <child>
 			<widget class="GtkImageMenuItem" id="close1">
 			  <property name="visible">True</property>
+			  <property name="sensitive">False</property>
 			  <property name="label" translatable="yes">Cl_ose</property>
 			  <property name="use_underline">True</property>
 			  <signal name="activate" handler="on_close1_activate" last_modification_time="Fri, 06 Feb 2004 23:41:13 GMT"/>
@@ -418,6 +432,7 @@
 		      <child>
 			<widget class="GtkImageMenuItem" id="find1">
 			  <property name="visible">True</property>
+			  <property name="sensitive">False</property>
 			  <property name="stock_item">GNOMEUIINFO_MENU_FIND_ITEM</property>
 			  <signal name="activate" handler="on_find1_activate" last_modification_time="Sat, 24 Jan 2004 17:05:51 GMT"/>
 			</widget>
@@ -426,6 +441,7 @@
 		      <child>
 			<widget class="GtkImageMenuItem" id="find_next1">
 			  <property name="visible">True</property>
+			  <property name="sensitive">False</property>
 			  <property name="stock_item">GNOMEUIINFO_MENU_FIND_AGAIN_ITEM</property>
 			  <signal name="activate" handler="on_find_next1_activate" last_modification_time="Sat, 24 Jan 2004 17:05:51 GMT"/>
 			</widget>
@@ -462,6 +478,7 @@
 		      <child>
 			<widget class="GtkImageMenuItem" id="ban_list1">
 			  <property name="visible">True</property>
+			  <property name="sensitive">False</property>
 			  <property name="label" translatable="yes">_Bans</property>
 			  <property name="use_underline">True</property>
 			  <signal name="activate" handler="on_ban_list1_activate" last_modification_time="Fri, 23 Jan 2004 04:17:43 GMT"/>
@@ -497,6 +514,7 @@
 		      <child>
 			<widget class="GtkImageMenuItem" id="previous_network1">
 			  <property name="visible">True</property>
+			  <property name="sensitive">False</property>
 			  <property name="label" translatable="yes">Pre_vious Network</property>
 			  <property name="use_underline">True</property>
 			  <signal name="activate" handler="on_previous_network1_activate" last_modification_time="Sat, 24 Jan 2004 18:10:02 GMT"/>
@@ -519,6 +537,7 @@
 		      <child>
 			<widget class="GtkImageMenuItem" id="next_network1">
 			  <property name="visible">True</property>
+			  <property name="sensitive">False</property>
 			  <property name="label" translatable="yes">Nex_t Network</property>
 			  <property name="use_underline">True</property>
 			  <signal name="activate" handler="on_next_network1_activate" last_modification_time="Sat, 24 Jan 2004 18:10:02 GMT"/>
@@ -547,6 +566,7 @@
 		      <child>
 			<widget class="GtkImageMenuItem" id="previous1">
 			  <property name="visible">True</property>
+			  <property name="sensitive">False</property>
 			  <property name="label" translatable="yes">_Previous Discussion</property>
 			  <property name="use_underline">True</property>
 			  <signal name="activate" handler="on_previous1_activate" last_modification_time="Sat, 24 Jan 2004 17:28:03 GMT"/>
@@ -569,6 +589,7 @@
 		      <child>
 			<widget class="GtkImageMenuItem" id="next1">
 			  <property name="visible">True</property>
+			  <property name="sensitive">False</property>
 			  <property name="label" translatable="yes">_Next Discussion</property>
 			  <property name="use_underline">True</property>
 			  <signal name="activate" handler="on_next1_activate" last_modification_time="Sat, 24 Jan 2004 17:28:03 GMT"/>
