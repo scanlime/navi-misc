@@ -21,9 +21,10 @@ class GTKsheet:
         """
     self.dom = xml.dom.minidom.parse(layoutFile)
 
-    # All character sheets must start with a <character_sheet> tag.
-    if len(self.dom.getElementsByTagName('character_sheet')) != 1:
+    # All character sheets must have atleast one <character_sheet> tag.
+    if len(self.dom.getElementsByTagName('character_sheet')) < 1:
       print 'Tag Error: no <character_sheet>'
+    # For each <character_sheet> create a window.
     else:
       for element in self.dom.getElementsByTagName('character_sheet'):
         self.makeObjects(element, None).show()

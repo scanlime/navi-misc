@@ -121,8 +121,10 @@ class dice(gtk.Button, sheetElement):
     """ Roll the dice. """
     rolls = []
     times = 0
+
     for time in self.data['times']:
       times += time
+
     for i in range(times):
       roll = randint(1, int(self.attributes['sides']))
       for mod in self.data['mods']:
