@@ -171,6 +171,8 @@ editor_init (Editor *editor)
   ParameterHolder *p;
   GtkWidget *e, *v, *l;
   GList *types, *t;
+  GtkTreeDragDestIface *desti;
+  GtkTreeDragSourceIface *srci;
   GtkTargetEntry targets =
   {
     "reordering",
@@ -204,11 +206,13 @@ editor_init (Editor *editor)
 
   gtk_tree_view_enable_model_drag_source (editor->element_list, GDK_BUTTON1_MASK, &targets, 1, GDK_ACTION_MOVE);
   gtk_tree_view_enable_model_drag_dest   (editor->element_list, &targets, 1, GDK_ACTION_MOVE);
-  GTK_TREE_DRAG_SOURCE_GET_IFACE (editor->scene->element_store)->row_draggable = tree_model_row_draggable;
-//  GTK_TREE_DRAG_SOURCE_GET_IFACE (editor->scene->element_store)->drag_data_get = tree_model_drag_data_get;
-//  GTK_TREE_DRAG_SOURCE_GET_IFACE (editor->scene->element_store)->drag_data_delete = tree_model_drag_data_delete;
-  GTK_TREE_DRAG_DEST_GET_IFACE (editor->scene->element_store)->row_drop_possible = tree_model_row_drop_possible;
-  GTK_TREE_DRAG_DEST_GET_IFACE (editor->scene->element_store)->drag_data_received = tree_model_drag_data_received;
+  srci = GTK_TREE_DRAG_SOURCE_GET_IFACE (editor->scene->element_store);
+  desti = GTK_TREE_DRAG_DEST_GET_IFACE (editor->scene->element_store);
+  srci->row_draggable = tree_model_row_draggable;
+  srci->drag_data_get = tree_model_drag_data_get;
+  srci->drag_data_delete = tree_model_drag_data_delete;
+  desti->row_drop_possible = tree_model_row_drop_possible;
+  desti->drag_data_received = tree_model_drag_data_received;
 
   icon_renderer = gtk_cell_renderer_pixbuf_new();
   text_renderer = gtk_cell_renderer_text_new();
