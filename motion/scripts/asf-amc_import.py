@@ -142,6 +142,7 @@ def getRotation (bone, rotation, d):
     # between these two reference frames
     axis = Blender.Mathutils.Euler (map (float, d.asfReader.bones[name].axis[0:3]))
     baxis = bone.getRestMatrix ('worldspace').rotationPart ().toEuler ()
+    baxis = bone.getRestMatrix ('bonespace').rotationPart ().toEuler ()
     correction = Blender.Mathutils.Euler ([
         axis.x - baxis.x,
         axis.y - baxis.y,
@@ -161,17 +162,17 @@ def getRotation (bone, rotation, d):
             euler[2] = rotation[i] + correction.z
 
     euler[0] = -baxis.x
-    euler[1] = -baxis.x
-    euler[2] = -baxis.x
+    euler[1] = -baxis.y
+    euler[2] = -baxis.z
     euler = Blender.Mathutils.Euler (euler)
 
-    parent = bone
-    while parent.hasParent ():
-        parent = parent.getParent ()
-        parentRotation = parent.getQuat ().toEuler ()
-        euler.x = euler.x - parentRotation.x
-        euler.y = euler.y - parentRotation.y
-        euler.z = euler.z - parentRotation.z
+    #parent = bone
+    #while parent.hasParent ():
+        #parent = parent.getParent ()
+        #parentRotation = parent.getQuat ().toEuler ()
+        #euler.x = euler.x - parentRotation.x
+        #euler.y = euler.y - parentRotation.y
+        #euler.z = euler.z - parentRotation.z
 
     return euler.toQuat ()
 
@@ -213,9 +214,9 @@ def loadAMC (filename, d):
         location = [location[0], location[2] * -1, location[1]]
         rotation = Blender.Mathutils.Euler (frame.bones['root'][3:6]).toQuat ()
 
-        d.bones['root'].setLoc (location)
-        d.bones['root'].setQuat (rotation)
-        d.bones['root'].setPose ([ROT, LOC])
+        #d.bones['root'].setLoc (location)
+        #d.bones['root'].setQuat (rotation)
+        #d.bones['root'].setPose ([ROT, LOC])
 
         # Set orientations for each bone for this frame
         for name, rotation in frame.bones.iteritems ():
