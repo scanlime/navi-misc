@@ -171,7 +171,6 @@ initialize_preferences_dialog ()
 	gtk_widget_hide_all (GTK_WIDGET (gui.preferences_dialog));
 	gtk_notebook_set_show_tabs (GTK_NOTEBOOK (glade_xml_get_widget (gui.xml, "settings notebook")), FALSE);
 	initialize_pages_list ();
-	initialize_file_transfers_page ();
 	initialize_preferences_servers_page ();
 	initialize_preferences_plugins_page ();
 /*	initialize_preferences_keybindings_page ();*/
@@ -234,38 +233,6 @@ initialize_pages_list ()
 	gtk_list_store_append (store, &iter);
 	gtk_list_store_set (store, &iter, 0, pix_prefs_keybindings, 1, "Keyboard Shortcuts", 2, 3, -1);
 	*/
-}
-
-void initialize_file_transfers_page() {
-	GtkWidget *widget;
-	GtkSizeGroup *group;
-
-	group = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
-	widget = glade_xml_get_widget (gui.xml, "dcc transfer destination");
-	gtk_size_group_add_widget (group, widget);
-	widget = glade_xml_get_widget (gui.xml, "completed dcc destination");
-	gtk_size_group_add_widget (group, widget);
-	g_object_unref (group);
-
-	group = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
-	widget = glade_xml_get_widget (gui.xml, "download label");
-	gtk_size_group_add_widget (group, widget);
-	widget = glade_xml_get_widget (gui.xml, "completed label");
-	gtk_size_group_add_widget (group, widget);
-	g_object_unref (group);
-
-	group = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
-	widget = glade_xml_get_widget (gui.xml, "dcc ip address");
-	gtk_size_group_add_widget (group, widget);
-	widget = glade_xml_get_widget (gui.xml, "individual send throttle");
-	gtk_size_group_add_widget (group, widget);
-	widget = glade_xml_get_widget (gui.xml, "global send throttle");
-	gtk_size_group_add_widget (group, widget);
-	widget = glade_xml_get_widget (gui.xml, "individual receive throttle");
-	gtk_size_group_add_widget (group, widget);
-	widget = glade_xml_get_widget (gui.xml, "global receive throttle");
-	gtk_size_group_add_widget (group, widget);
-	g_object_unref (group);
 }
 
 void
