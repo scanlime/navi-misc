@@ -54,3 +54,12 @@ div.majorTitle {
 div.title {
   font: 250% bold;
 }
+
+div.footer {
+  background: white;
+  border-top: 1px solid black;
+  border-bottom: 1px solid black;
+  margin: 0em;
+  padding: 1em;
+  text-align: center;
+}
