@@ -6,7 +6,6 @@ Definitely fix before the next release:
 
 Probably fix before the next release:
 
-- We really ought to go through svn history and make a real ChangeLog
 - The AVI files exported by Fyre don't play in windows media player.
   Is the exporter broken, or can WMP just not handle uncompressed RGB?
 
