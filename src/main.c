@@ -263,12 +263,15 @@ static void image_render_main (DeJong     *dejong,
 	   ((int)remaining) / (60*60), (((int)remaining) / 60) % 60, ((int)remaining)%60);
   }
 
+#ifdef HAVE_EXR
   /* Save as an OpenEXR file if it has a .exr extension, otherwise use PNG */
   if (strlen(filename) > 4 && strcmp(".exr", filename + strlen(filename) - 4)==0) {
     printf("Creating OpenEXR image...\n");
     exr_save_image_file(HISTOGRAM_IMAGER(dejong), filename);
   }
-  else {
+  else
+#endif
+  {
     printf("Creating PNG image...\n");
     histogram_imager_save_image_file(HISTOGRAM_IMAGER(dejong), filename);
   }
