@@ -26,7 +26,6 @@
 
 #include <gtk/gtk.h>
 #include <glade/glade.h>
-#include "de-jong.h"
 #include "animation.h"
 #include "animation-render-ui.h"
 

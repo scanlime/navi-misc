@@ -41,7 +41,7 @@ typedef struct _IterativeMapClass IterativeMapClass;
 
 struct _IterativeMap {
   HistogramImager parent;
-  
+
   /* Current calculation state */
   gdouble iterations;
 };

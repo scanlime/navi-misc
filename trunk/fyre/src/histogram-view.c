@@ -93,6 +93,17 @@ static void histogram_view_finalize(GObject *object) {
 
 GtkWidget* histogram_view_new(HistogramImager *imager) {
   HistogramView *self = g_object_new(histogram_view_get_type(), NULL);
+  histogram_view_set_imager(self, imager);
+  return GTK_WIDGET(self);
+}
+
+void histogram_view_set_imager(HistogramView *self, HistogramImager *imager) {
+  if (self->imager) {
+    /* Remove the old imager */
+    g_signal_handlers_disconnect_by_func(self->imager, G_CALLBACK(on_resize_notify), self);
+    g_object_unref(self->imager);
+  }
+
   self->imager = g_object_ref(imager);
 
   /* Do the first resize, and connect to notify signals for future resizes */
@@ -101,8 +112,6 @@ GtkWidget* histogram_view_new(HistogramImager *imager) {
   self->old_height = self->imager->height;
   g_signal_connect(self->imager, "notify::width", G_CALLBACK(on_resize_notify), self);
   g_signal_connect(self->imager, "notify::height", G_CALLBACK(on_resize_notify), self);
-
-  return GTK_WIDGET(self);
 }
 
 

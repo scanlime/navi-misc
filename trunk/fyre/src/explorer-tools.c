@@ -22,6 +22,7 @@
  */
 
 #include "explorer.h"
+#include "de-jong.h"
 #include <stdlib.h>
 #include <math.h>
 
