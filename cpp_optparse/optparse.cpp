@@ -16,11 +16,11 @@ using namespace std;
 
 Option::Option (string shrt, string lng, string dest,
 		string hlp, action_t act):
+	action (act),
 	shrt_flag (shrt),
 	lng_flag (lng),
-	destination (dest),
-	action (act),
-  help (hlp)
+  help (hlp),
+	destination (dest)
 {
 }
 
@@ -37,8 +37,8 @@ Option::operator == (const string & option)
 /******************** OptionParser *******************/
 
 OptionParser::OptionParser (string usage, bool show_opts):
-	use_msg (usage),
-	help_msg_show_opts (show_opts)
+	help_msg_show_opts (show_opts),
+	use_msg (usage)
 {
   // Set the length of the longest flag
   lng_flag_max_len = strlen("--help");
@@ -109,7 +109,7 @@ OptionParser::help ()
 {
 	cout << use_msg << endl;
 	if (help_msg_show_opts) {
-		for (int i=0; i < opts.size(); i++)
+		for (unsigned int i=0; i < opts.size(); i++)
 			printf("  %-*s %-*s  %s\n", shrt_flag_max_len+1, opts[i].shrt_flag.c_str(),
           lng_flag_max_len+2, opts[i].lng_flag.c_str(),
 					opts[i].help.c_str());
@@ -127,7 +127,7 @@ OptionParser::find_opt(char **argv, int &index)
 		help();
 
 	/* Step through our list of known options. */
-	for (int i = 0; i < opts.size(); i++) {
+	for (unsigned int i = 0; i < opts.size(); i++) {
 		/* Uses the overridden == operator for the Options class
 		 * to compare argv[index] to the flags of each Option.
 		 */
