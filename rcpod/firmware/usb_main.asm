@@ -45,8 +45,6 @@
 
 unbanked	udata_shr
 W_save		res	1	; register for saving W during ISR
-tmr1h_save	res 1
-tmr1l_save	res 1
 
 bank1	udata
 Status_save	res	1	; registers for saving context
@@ -111,11 +109,37 @@ PERIPHERALTEST
 	goto	EndISR		; all done....
 
 TEST_PIR1
-	bsf 	STATUS, RP0	; Bank1
+	banksel	PIE1
 	movf	PIE1,w
-	bcf	STATUS, RP0	; Bank0
+	banksel	PIR1
 	andwf	PIR1,w		; mask the enables with the flags
+	banksel	PIRmasked
 	movwf	PIRmasked
+
+testSerialInterrupt
+
+	movf	rx_remaining, w ; Are there any bytes left to receive?
+	btfsc	STATUS, Z
+	goto	testUsbInterrupt
+
+	btfss	PIRmasked, RCIF	; Is there a byte available?
+	goto	testUsbInterrupt
+
+	movf	rx_fsr, w		; Yay, load up IRP:FSR to point to the next buffer location
+	movwf	FSR
+	movf	rx_status, w
+	movwf	STATUS
+
+	banksel	RCREG		; Stow our freshly received byte
+	movf	RCREG, w
+	movwf	INDF
+
+	banksel	rx_fsr		; Update our receive progress
+	incf	rx_fsr, f
+	incf	rx_count, f
+	decf	rx_remaining, f
+
+testUsbInterrupt
 
 	btfss	PIRmasked,USBIF	; USB interrupt flag
 	goto	EndISR
@@ -217,6 +241,9 @@ Main
 	pagesel	InitUSB
 	call	InitUSB
 
+	banksel	PIE1		; Enable the serial receive interrupt
+	bsf		PIE1, RCIE
+
 
 ;******************************************************************* Main Loop
 
@@ -224,48 +251,8 @@ MainLoop
 	pagesel ServiceUSB
 	call	ServiceUSB	; see if there are any USB tokens to process
 
-	ConfiguredUSB		; macro to check configuration status
-	pagesel MainLoop
-	btfss	STATUS,Z	; Z = 1 when configured
-	goto	MainLoop    ; Wait until we're configured
-
-	pagesel	SerialRxPoll
-	call	SerialRxPoll
-
 	pagesel	MainLoop
 	goto	MainLoop
-
-;******************************************************************* Serial receive polling
-
-SerialRxPoll
-	banksel	rx_remaining	; Are there any bytes left to receive?
-	movf	rx_remaining, w
-	btfsc	STATUS, Z
-	return
-
-	banksel	PIR1		; Is there a byte available?
-	btfss	PIR1, RCIF
-	return
-
-	banksel	rx_fsr		; Yay, load up IRP:FSR to point to the next buffer location
-	movf	rx_fsr, w
-	movwf	FSR
-	banksel	rx_status
-	movf	rx_status, w
-	movwf	STATUS
-
-	banksel	RCREG		; Stow our freshly received byte
-	movf	RCREG, w
-	movwf	INDF
-
-	banksel	rx_fsr		; Update our receive progress
-	incf	rx_fsr, f
-	banksel	rx_count
-	incf	rx_count, f
-	banksel	rx_remaining
-	decf	rx_remaining, f
-
-	return
 
 	end
 
