@@ -196,7 +196,7 @@ static void de_jong_class_init(DeJongClass *klass) {
 				  g_param_spec_double("zoom",
 						      "Zoom",
 						      "Zoom factor",
-						      0, 1000, 1,
+						      0.2, 1000, 1,
 						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED));
 
   g_object_class_install_property(object_class,
