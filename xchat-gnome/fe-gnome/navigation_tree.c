@@ -319,7 +319,7 @@ navigation_tree_select_next_channel (NavTree *navtree)
 
 	/* Get a path to the iter. */
 	path = gtk_tree_model_get_path(model, &iter);
-	
+
   /* Get the iter from our path because it became invalid. */
 	gtk_tree_model_get_iter(model, &iter, path);
 
@@ -664,8 +664,7 @@ close_dialog(gpointer data, guint action, GtkWidget *widget)
 			/* FIXME: part reason */
 		}
 
-		navigation_tree_remove(gui.server_tree, s);
-		text_gui_remove_text_buffer(s);
+    fe_close_window(s);
 	}
 }
 
