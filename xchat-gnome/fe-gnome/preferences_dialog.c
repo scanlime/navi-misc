@@ -55,7 +55,7 @@ void initialize_pages_list() {
 	GtkListStore *store;
 	GtkTreeIter iter;
 	GtkCellRenderer *icon_renderer, *text_renderer;
-	GtkTreeViewColumn *icon_column, *text_column;
+	GtkTreeViewColumn *column;
 	GtkTreeSelection *select;
 
 	options_list = glade_xml_get_widget(gui.xml, "settings page list");
@@ -63,12 +63,14 @@ void initialize_pages_list() {
 	store = gtk_list_store_new(3, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_INT);
 	gtk_tree_view_set_model(GTK_TREE_VIEW(options_list), GTK_TREE_MODEL(store));
 
+	column = gtk_tree_view_column_new();
 	icon_renderer = gtk_cell_renderer_pixbuf_new();
-	icon_column = gtk_tree_view_column_new_with_attributes("icon", icon_renderer, "pixbuf", 0, NULL);
-	gtk_tree_view_append_column(GTK_TREE_VIEW(options_list), icon_column);
 	text_renderer = gtk_cell_renderer_text_new();
-	text_column = gtk_tree_view_column_new_with_attributes("name", text_renderer, "text", 1, NULL);
-	gtk_tree_view_append_column(GTK_TREE_VIEW(options_list), text_column);
+	gtk_tree_view_column_pack_start(column, icon_renderer, FALSE);
+	gtk_tree_view_column_set_attributes(column, icon_renderer, "pixbuf", 0, NULL);
+	gtk_tree_view_column_pack_start(column, text_renderer, TRUE);
+	gtk_tree_view_column_set_attributes(column, text_renderer, "text", 1, NULL);
+	gtk_tree_view_append_column(GTK_TREE_VIEW(options_list), column);
 
 	select = gtk_tree_view_get_selection(GTK_TREE_VIEW(options_list));
 	gtk_tree_selection_set_mode(select, GTK_SELECTION_SINGLE);
