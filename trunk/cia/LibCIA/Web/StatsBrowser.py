@@ -145,7 +145,6 @@ class MetadataLink:
         self.text = text
 
     def getURL(self, context):
-        print "root path %r, path segments %r" % (context['statsRootPath'], self.target.pathSegments)
         return context['statsRootPath'] + '/'.join(self.target.pathSegments) + '/.metadata/' + self.key
 
     def render(self, context):
@@ -431,8 +430,8 @@ class MetadataPage(Template.Page):
         self.statsPage = statsPage
 
     def preRender(self, context):
-        # We need our stats page to add its 'statsRootPath' so we can generate hyperlinks properly
-        self.statsPage.preRender(context)
+        context['statsRootPath'] = self.statsPage.findRootPath(context['request'], 1)
+        context['statsTarget'] = self.statsPage.target
 
     def render_mainTitle(self, context):
         return "Metadata for stats://%s" % "/".join(self.statsPage.target.pathSegments)
@@ -482,19 +481,22 @@ class StatsPage(Template.Page):
             return StatsPage(self.caps, self.storage,
                              self.target.child(name))
 
-    def findRootPath(self, request):
+    def findRootPath(self, request, additionalDepth=0):
         """Find the URL path referring to the root of the current stats tree
            The returned path begins and ends with a slash.
+
+           additionalDepth can be set to a nonzero number if the caller
+           knows the request is actually for a page below this one in the URL tree.
            """
         pathSegments = [s for s in request.path.split('/') if s]
-        treeDepth = len(self.target.pathSegments)
+        treeDepth = len(self.target.pathSegments) + additionalDepth
+        print "pathsegments %r, treeDepth %r" % (pathSegments, treeDepth)
         if treeDepth:
             pathSegments = pathSegments[:-treeDepth]
         return '/' + '/'.join(pathSegments) + '/'
 
     def preRender(self, context):
         context['statsRootPath'] = self.findRootPath(context['request'])
-        context['statsTarget'] = self.target
 
     def render_mainTitle(self, context):
         return self.target.getTitle()
