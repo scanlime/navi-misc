@@ -119,12 +119,14 @@ def getDatabaseHost():
     else:
         return "navi"
 
-def open():
+def open(cache=[None]):
     """Open a default database connection, with a very low-privilege
        account that can only read from the database.
        """
-    return ThermDatabase(
-        db="therm", host=getDatabaseHost(),
-        user="therm_reader", passwd="e5ce14d3")
+    if not cache[0]:
+        cache[0] = ThermDatabase(
+            db="therm", host=getDatabaseHost(),
+            user="therm_reader", passwd="e5ce14d3")
+    return cache[0]
 
 ### The End ###

@@ -1,2 +1,0 @@
-# Add the 'therm' directory to our path
-PythonPath "sys.path+[os.path.realpath('..')]"

@@ -1,7 +1,17 @@
-""" index.py
+""" pytherm.web
 
 This is a mod_python frontend for accessing collected therm data.
-It generates the user-friendly HTML interface.
+It generates a user-friendly HTML interface, plus it allows automated
+remote access over HTTP.
+
+This module is a request handler for mod_python. Add something
+like the following to your apache config:
+
+<Location /therm>
+    SetHandler python-program
+    PythonPath "['/path/to/navi-misc/therm'] + sys.path"
+    PythonHandler pytherm.web
+</Location>
 
 """
 #
@@ -27,6 +37,8 @@ from pytherm import database, units
 import time
 import Nouvelle
 from Nouvelle import tag, place, xml, ModPython
+from mod_python import apache
+
 
 css = """
 .footer {
@@ -133,7 +145,7 @@ class IndexPage(ModPython.Page):
 
     def render_sources(self, context):
         results = []
-        for source in therm_db.defaultDatabase.iterSources():
+        for source in database.open().iterSources():
             results.append(self.renderSource(source, context))
         return results
 
@@ -152,7 +164,7 @@ class IndexPage(ModPython.Page):
                 ])
 
         info.extend([
-            tag('div', _class='name')[ therm_db.prettifyName(source.name) ],
+            tag('div', _class='name')[ database.prettifyName(source.name) ],
             tag('div', _class='description')[ source.description ],
             self.getThumbnails(context, source),
             ])
@@ -187,30 +199,14 @@ class IndexPage(ModPython.Page):
         return tag('span', _class="bargraph")[ bars ]
 
     def getThumbnails(self, context, source):
-        results = []
+        # FIXME
+        return []
 
-        tempGraphs = graphTemperature(source)
-        if tempGraphs:
-            results.append(tag('div', _class='thumbnails')[[
-                self.makeThumbnailLink(context, i) for i in tempGraphs
-            ]])
 
-        voltGraphs = graphVoltage(source)
-        if voltGraphs:
-            results.append(tag('div', _class='thumbnails')[[
-                self.makeThumbnailLink(context, i) for i in voltGraphs
-            ]])
-
-        return results
-
-    def makeThumbnailLink(self, context, image):
-        """Make a hyperlinked thumbnail to an image"""
-        thumb = rrd.ScaledImage(image, height=48)
-        thumb.cssClass = 'thumbnail'
-        thumb.alt = "Graph Thumbnail"
-        thumb.make()
-        return tag('a', href=image.getUrl(context))[ thumb ]
-
-index = IndexPage()
+def handler(req):
+    page = IndexPage()(req=req)
+    req.content_type = "text/html"
+    req.write(page)
+    return apache.OK
 
 ### The End ###
