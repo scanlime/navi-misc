@@ -25,6 +25,7 @@ io_tmp  res 1
 io_iterator res 1
 
 io_dummy_port res 1		; FSR is pointed at this by io_SetFSR if the pin descriptor is a no-op
+                        ; Must be in an IRP=0 bank (0 or 1) to match PORT*
 
 	code
 
