@@ -46,6 +46,23 @@ class HubListener(object):
         # Maps (serverTuple, channel) tuples to IRCRuleset instances
         self.rulesets = {}
 
+        # Assign a callback for handling bots that are kicked.
+        # Since we must no longer be wanted, this sends a message that
+        # deletes the associated IRC ruleset.
+        botNet.kickCallback = self.kickCallback
+
+    def kickCallback(self, server, channel):
+        """Called when any of our bots are kicked from a channel-
+           sends a message that removes that bot's IRC rulesets,
+           since it isn't wanted.
+           """
+        xml = XML.domish.Element((None, "message"))
+        body = xml.addElement("body")
+        ircRuleset = body.addElement("ircRuleset")
+        ircRuleset['server'] = "%s:%s" % server
+        ircRuleset['channel'] = channel
+        self.hub.deliver(Message.Message(xml))
+
     def addClients(self):
         """Add all our initial clients to the hub"""
         # This uses an extra level of indirection so that
