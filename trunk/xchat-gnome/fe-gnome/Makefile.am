@@ -44,6 +44,8 @@ EXTRA_DIST =				\
 	eggaccelerators.h		\
 	eggcellrendererkeys.c		\
 	eggcellrendererkeys.h		\
+	error_dialog.c			\
+	error_dialog.h			\
 	fe-gnome.c			\
 	gtkutil.h			\
 	gtkutil.c			\
@@ -97,6 +99,8 @@ xchat_gnome_SOURCES =			\
 	eggaccelerators.h		\
 	eggcellrendererkeys.c		\
 	eggcellrendererkeys.h		\
+	error_dialog.c			\
+	error_dialog.h			\
 	fe-gnome.c			\
 	gtkutil.h			\
 	gtkutil.c			\
