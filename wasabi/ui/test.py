@@ -10,8 +10,8 @@ viewport = Viewport.OpenGLViewport(loop)
 viewport.setCaption("Wasabi Test")
 view = ThreeDRender.View(viewport)
 
-#viewport.display.toggle_fullscreen()
-#pygame.mouse.set_visible(False)
+viewport.display.toggle_fullscreen()
+pygame.mouse.set_visible(False)
 
 class IconTest(Sequencer.Page):
     def __init__(self, book):
@@ -28,6 +28,7 @@ class IconTest(Sequencer.Page):
 	    Icon.Icon('icon_atari.png', 'Atari', imageAspect=1.52),
 	    Icon.Icon('icon_ps2.png', 'Playstation 2', imageAspect=0.983),
 	    Icon.Icon('icon_dreamcast.png', 'Dreamcast', imageAspect=1.66),
+	    Icon.Icon('icon_nes.png', 'Nintendo', imageAspect=1.594),
             ])
 
         self.viewport.onKeyDown.observe(self.keyDown)
