@@ -172,7 +172,6 @@ initialize_preferences_dialog ()
 	gtk_widget_hide_all (GTK_WIDGET (gui.preferences_dialog));
 	gtk_notebook_set_show_tabs (GTK_NOTEBOOK (glade_xml_get_widget (gui.xml, "settings notebook")), FALSE);
 	initialize_pages_list ();
-	initialize_preferences_irc_page ();
 	initialize_file_transfers_page ();
 	initialize_preferences_servers_page ();
 	initialize_preferences_colors_page ();
