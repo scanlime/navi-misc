@@ -15,7 +15,7 @@ the XP3 into a rasterwand device.
    had separate 5v and 15v rails.
 
 4. Remove R1, Y1, C1, and C2. Replace Y1 with a 6 MHz crystal,
-   and replace C1 with a 33pf capacitor. Ensure C3 is 33pf.
+   replace C1 and C2 with 18pf capacitors.
 
 5. Cut traces, near U1, connecting it to the LEDs, coil driver,
    interruption sensor, and switches. We'll have to reroute
