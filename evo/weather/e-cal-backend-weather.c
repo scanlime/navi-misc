@@ -83,7 +83,10 @@ reload_cb (ECalBackendWeather *cbw)
 static void
 source_changed (ESource *source, ECalBackendWeather *cbw)
 {
-	g_print ("source changed!\n");
+	/* FIXME
+	 * We should force a reload of the data when this gets called. Unfortunately,
+	 * this signal isn't getting through from evolution to the backend
+	 */
 }
 
 static void
