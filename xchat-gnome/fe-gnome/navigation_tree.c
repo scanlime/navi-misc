@@ -73,5 +73,6 @@ void navigation_selection_changed(GtkTreeSelection *selection, gpointer data) {
 		sess = s;
 		tgui = sess->gui;
 		gtk_xtext_buffer_show(gui.xtext, tgui->buffer, TRUE);
+		gui.current_session = sess;
 	}
 }
