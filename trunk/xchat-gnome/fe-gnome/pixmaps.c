@@ -35,6 +35,7 @@ GdkPixbuf *pix_nicksaid;
 GdkPixbuf *pix_msgsaid;
 
 GdkPixbuf *pix_prefs_irc;
+GdkPixbuf *pix_prefs_colors;
 GdkPixbuf *pix_prefs_dcc;
 GdkPixbuf *pix_prefs_networks;
 GdkPixbuf *pix_prefs_plugins;
@@ -68,6 +69,9 @@ pixmaps_init (void)
 
 	pix_prefs_irc = gdk_pixbuf_scale_simple(
 				gdk_pixbuf_new_from_file("data/irc.png", NULL),
+				16, 16, GDK_INTERP_BILINEAR);
+	pix_prefs_colors = gdk_pixbuf_scale_simple(
+				gdk_pixbuf_new_from_file("data/color.png", NULL),
 				16, 16, GDK_INTERP_BILINEAR);
 	pix_prefs_dcc = gdk_pixbuf_scale_simple(
 				gdk_pixbuf_new_from_file("data/dcc.png", NULL),
