@@ -1,9 +1,17 @@
 #include "xtextbuffer.h"
 #include <time.h>
+#include <string.h>
+
+#define SCRATCH_BUFFER_SIZE 4096
+#define charlen(str) g_utf8_skip[*(guchar *)(str)]
 
 static void xtext_buffer_class_init (XTextBufferClass *klass);
 static void xtext_buffer_init       (XTextBuffer *buffer);
 static void xtext_buffer_finalize   (GObject *object);
+
+static void append_entry            (XTextBuffer *buffer, textentry *ent);
+static int  lines_taken             (XTextBuffer *buffer, textentry *ent);
+static void remove_top              (XTextBuffer *buffer);
 
 struct _textentry
 {
@@ -87,11 +95,52 @@ xtext_buffer_new (void)
 void
 xtext_buffer_append (XTextBuffer *buffer, unsigned char *text, int len)
 {
+  textentry *ent;
+
+  if (len == -1)
+    len = strlen (text);
+  if (text[len - 1] == '\n')
+    len--;
+  if (len >= SCRATCH_BUFFER_SIZE)
+    len = SCRATCH_BUFFER_SIZE - 1;
+
+  ent = g_malloc0 (len + 1 + sizeof (textentry));
+  ent->str = (unsigned char *) ent + sizeof (textentry);
+  ent->str_len = len;
+  if (len)
+    memcpy (ent->str, text, len);
+  ent->indent = 0;
+  ent->left_len = -1;
+
+  append_entry (buffer, ent);
 }
 
 void
 xtext_buffer_append_indent (XTextBuffer *buffer, unsigned char *left, int llen, unsigned char *right, int rlen)
 {
+  textentry *ent;
+  unsigned char *str;
+  int space;
+  int tempindent;
+  int left_width;
+
+  if (llen == -1)
+    llen = strlen (left);
+  if (rlen == -1)
+    rlen = strlen (right);
+
+  if (rlen >= SCRATCH_BUFFER_SIZE)
+    rlen = SCRATCH_BUFFER_SIZE - 1;
+
+  if (right[rlen - 1] == '\n')
+    rlen--;
+
+  ent = g_malloc0 (llen + rlen + 2 + sizeof (textentry));
+  str = (unsigned char*) ent + sizeof (textentry);
+
+  memcpy (str, left, llen);
+  str[llen] = ' ';
+  memcpy (str + llen + 1, right, rlen);
 }
 
 void
@@ -106,5 +155,60 @@ xtext_buffer_is_empty (XTextBuffer *buffer)
 
 void
 xtext_buffer_foreach (XTextBuffer *buffer, XTextBufferForeachFunc func, gpointer user_data)
+{
+}
+
+static void
+append_entry (XTextBuffer *buffer, textentry *ent)
+{
+  gboolean multibyte;
+  int i;
+
+  /* we don't like tabs */
+  i = 0;
+  while (i < ent->str_len)
+  {
+    if (ent->str[i] == '\t')
+      ent->str[i] = ' ';
+      i += charlen (ent->str + i);
+  }
+
+  ent->stamp = 0;
+//  ent->str_width = text_width ();
+  ent->multibyte = multibyte;
+  ent->mark_start = -1;
+  ent->mark_end = -1;
+  ent->next = NULL;
+
+  // margin?
+
+  /* append to our linked list */
+  if (buffer->text_last)
+    buffer->text_last->next = ent;
+  else
+    buffer->text_first = ent;
+  ent->prev = buffer->text_last;
+
+  /*
+  ent->lines_taken = lines_taken (buffer, ent);
+  buffer->num_lines += ent->lines_taken;
+  */
+
+  if (buffer->max_lines > 2 && buffer->max_lines < buffer->num_lines)
+  {
+    remove_top (buffer);
+  }
+
+  /* notify viewers */
+}
+
+static int
+lines_taken (XTextBuffer *buffer, textentry *ent)
+{
+  /* HELP! */
+}
+
+static void
+remove_top (XTextBuffer *buffer)
 {
 }
