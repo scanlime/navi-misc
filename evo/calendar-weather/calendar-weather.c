@@ -81,7 +81,7 @@ load_locations ()
 
 	LIBXML_TEST_VERSION
 
-	doc = xmlParseFile("/home/jupiter/navi-misc/evo/Locations.xml.in");
+	doc = xmlParseFile (WEATHER_DATADIR "/Locations.xml");
 	if (doc == NULL) {
 		g_warning ("failed to read locations file");
 		return;
