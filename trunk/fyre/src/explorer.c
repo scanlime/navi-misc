@@ -53,7 +53,6 @@ static void on_widget_toggle(GtkWidget *widget, gpointer user_data);
 static void on_render_time_changed(GtkWidget *widget, gpointer user_data);
 static void on_calculation_finished(IterativeMap *map, gpointer user_data);
 static gboolean on_interactive_prefs_delete(GtkWidget *widget, GdkEvent *event, gpointer user_data);
-static gboolean on_cluster_window_delete(GtkWidget *widget, GdkEvent *event, gpointer user_data);
 
 static gchar *file_location = NULL;
 
@@ -113,7 +112,6 @@ static void explorer_init(Explorer *self) {
     glade_xml_signal_connect_data(self->xml, "on_widget_toggle",                G_CALLBACK(on_widget_toggle),                self);
     glade_xml_signal_connect_data(self->xml, "on_render_time_changed",          G_CALLBACK(on_render_time_changed),          self);
     glade_xml_signal_connect_data(self->xml, "on_interactive_prefs_delete",     G_CALLBACK(on_interactive_prefs_delete),     self);
-    glade_xml_signal_connect_data(self->xml, "on_cluster_window_delete",        G_CALLBACK(on_cluster_window_delete),        self);
 
 #ifndef HAVE_EXR
     /* If we don't have OpenEXR support, gray out the menu item
@@ -506,13 +504,6 @@ static gboolean on_interactive_prefs_delete(GtkWidget *widget, GdkEvent *event, 
     /* Just hide the window when the user tries to close it */
     Explorer *self = EXPLORER(user_data);
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(glade_xml_get_widget(self->xml, "toggle_interactive_prefs")), FALSE);
-    return TRUE;
-}
-
-static gboolean on_cluster_window_delete(GtkWidget *widget, GdkEvent *event, gpointer user_data) {
-    /* Just hide the window when the user tries to close it */
-    Explorer *self = EXPLORER(user_data);
-    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(glade_xml_get_widget(self->xml, "toggle_cluster_window")), FALSE);
     return TRUE;
 }
 

@@ -40,6 +40,8 @@ static void      on_cluster_host_or_port_changed (GtkWidget *widget, gpointer us
 static void      on_cluster_merge_time_changed   (GtkWidget *widget, gpointer user_data);
 static void      on_node_enabled_toggled         (GtkCellRendererToggle *cell_renderer,
 						  gchar *path, gpointer user_data);
+static gboolean  on_cluster_window_delete        (GtkWidget *widget, GdkEvent *event,
+						  gpointer user_data);
 
 
 /************************************************************************************/
@@ -56,6 +58,7 @@ void explorer_init_cluster(Explorer *self)
     glade_xml_signal_connect_data(self->xml, "on_cluster_host_or_port_changed",  G_CALLBACK(on_cluster_host_or_port_changed), self);
     glade_xml_signal_connect_data(self->xml, "on_cluster_host_or_port_changed",  G_CALLBACK(on_cluster_host_or_port_changed), self);
     glade_xml_signal_connect_data(self->xml, "on_cluster_merge_time_changed",    G_CALLBACK(on_cluster_merge_time_changed),   self);
+    glade_xml_signal_connect_data(self->xml, "on_cluster_window_delete",         G_CALLBACK(on_cluster_window_delete),        self);
 
     self->cluster_model = cluster_model_get(self->map, TRUE);
     explorer_init_cluster_view(self);
@@ -117,6 +120,13 @@ static void explorer_init_cluster_view(Explorer *self) {
 /************************************************************************************/
 /******************************************************************** GUI Callbacks */
 /************************************************************************************/
+
+static gboolean on_cluster_window_delete(GtkWidget *widget, GdkEvent *event, gpointer user_data) {
+    /* Just hide the window when the user tries to close it */
+    Explorer *self = EXPLORER(user_data);
+    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(glade_xml_get_widget(self->xml, "toggle_cluster_window")), FALSE);
+    return TRUE;
+}
 
 static void on_cluster_list_cursor_changed(GtkWidget *widget, gpointer user_data)
 {
