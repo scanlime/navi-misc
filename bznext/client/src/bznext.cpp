@@ -16,6 +16,7 @@ CBZNextLoop::CBZNextLoop()
 {
 	SetQuit(false);
 	inUI = true;
+	numScreenShots = 0;
 }
 
 CBZNextLoop::~CBZNextLoop()
@@ -91,6 +92,17 @@ const char* CBZNextLoop:: GetGameName ( void )
 
 bool CBZNextLoop::GameLoop ( void )
 {
+	// check for sreenshot
+	float togleTime = 0.5f;
+	if (GetInput().KeyDown(KC_SYSRQ) && (lastScreenShotTime < GetTimer().GetTime()+togleTime))
+	{
+		char tmp[20];
+		sprintf(tmp, "screenshot_%d.png", ++numScreenShots);
+		GetRenderWindow()->writeContentsToFile(tmp);
+		lastScreenShotTime = GetTimer().GetTime();
+		GetRenderWindow()->setDebugText(String("Wrote ") + tmp);
+	}
+
 	if (inUI)
 	{
 		if (ui.Think())
