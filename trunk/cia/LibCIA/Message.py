@@ -131,17 +131,14 @@ class Filter(XMLObject):
         # text to match.
         xp = XPathQuery(element['path'])
         text = str(element).strip()
-        print element.children
-        print repr(element)
         def filterMatch(msg):
             content = xp.queryForString(msg.xml).strip()
-            print "%r, %r" % (text, content)
             return text == content
         return filterMatch
 
     def element_and(self, element):
         """Evaluates to True if all child functions evaluate to True"""
-        childFunctions = [self.parseFilter(child) for child in element.children]
+        childFunctions = [self.parseFilter(child) for child in element.elements()]
         def filterAnd(msg):
             for child in childFunctions:
                 if not child(msg):
@@ -161,6 +158,14 @@ class DomishStringParser(domish.SuxElementStream):
 
     def docStart(self, elem):
         self.root = elem
+
+    def gotText(self, data):
+        # This is (another) hack that seems to be necessary
+        # to properly parse text included directly into the root node.
+        if self.currElem:
+            domish.SuxElementStream.gotText(self, data)
+        else:
+            self.root.addContent(data)
 
     def elem(self, elem):
         self.root.addChild(elem)
@@ -198,12 +203,12 @@ if __name__ == "__main__":
            </body>
        </message>
        """)
-    print msg
+    #print msg
     f = Filter('<and><match path="/message/source/project">navi-misc</match></and>')
-    print f
-    print f(msg)
+    #print f
+    #print f(msg)
     f = Filter('<match path="/message/source/project">navi-misc</match>')
-    print f
+    #print f
     print f(msg)
 
 
