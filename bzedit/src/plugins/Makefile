@@ -8,8 +8,9 @@ PLUGINS		=		\
 		test.so
 
 CORE_SO_OBJS	=		\
-		core.o		\
 		box.o		\
+		core.o		\
+		teleporter.o	\
 		world.o
 
 TEST_SO_OBJS	=		\
