@@ -65,7 +65,7 @@ public class tcppipe extends Thread
 		temp = in.read();
 		out.write(temp);
 		out.flush();
-		System.out.println(label+":"+temp);
+		System.out.println(label+": "+ (char) temp + " " + temp);
 		if(temp == -1) return;
 	    }
 	}
