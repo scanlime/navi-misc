@@ -28,27 +28,12 @@ typedef struct session xchat_context;
 #include "../common/outbound.h"
 #include "../common/util.h"
 
-/* We'll use this struct in our known_plugins list to keep track of plugins
- * for the page.
- */
-typedef struct
-{
-	char *filename;
-	char *name;
-	char *desc;
-	char *version;
-	void *handle;
-} xchat_plugin_info;
-
 typedef int (xchat_init_func) (xchat_plugin *, char **, char **, char **, char *);
 typedef int (xchat_deinit_func) (xchat_plugin *);
 typedef void (xchat_plugin_get_info) (char **, char **, char **);
 
 extern GSList *plugin_list; // xchat's list of loaded plugins.
 extern XChatGUI gui;
-static GSList *known_plugins = NULL;	// Our own list of all the known plugins, loaded or not.
-																			// Known being any .so or .sl file located in either
-																			// XCHATDIR/plugins or ~/.xchat2/plugins.
 
 static void
 on_load_plugin_clicked (GtkButton *button, gpointer user_data);
@@ -56,10 +41,6 @@ static void
 on_unload_plugin_clicked (GtkButton *button, gpointer user_data);
 static void
 xchat_gnome_plugin_add (char *filename);
-static void
-plugin_info_free (xchat_plugin_info *pl);
-static int
-plugin_compare (xchat_plugin_info *pl1, xchat_plugin_info *pl2);
 
 void
 initialize_preferences_plugins_page ()
@@ -69,6 +50,7 @@ initialize_preferences_plugins_page ()
 	GtkCellRenderer *text_renderer, *load_renderer;
 	GtkTreeViewColumn *text_column, *load_column;
 	GtkTreeSelection *select;
+	gchar *homedir, *xchatdir;
 
 	treeview = glade_xml_get_widget (gui.xml, "plugins list");
   load = glade_xml_get_widget (gui.xml, "plugin load");
@@ -91,7 +73,19 @@ initialize_preferences_plugins_page ()
   g_signal_connect (G_OBJECT(load), "clicked", G_CALLBACK (on_load_plugin_clicked), NULL);
   g_signal_connect (G_OBJECT(unload), "clicked", G_CALLBACK (on_unload_plugin_clicked), NULL);
 
-	preferences_plugins_page_populate ();
+	/* Fun little string things that ultimately become the path to ~/.xchat2/plugins.
+	 * FIXME: It might behoove us to store the expanded path string to ~/.xchat2 somewhere
+	 * more permanent...
+	 */
+	homedir = g_get_home_dir();
+	xchatdir = malloc (strlen (homedir) + strlen (".xchat2/plugins") + 1);
+	sprintf (xchatdir, "%s/.xchat2/plugins", homedir);
+
+	/* Create a list of all the plugins in our known directories. */
+	for_files (XCHATLIBDIR"/plugins", "*.so", xchat_gnome_plugin_add);
+	for_files (XCHATLIBDIR"/plugins", "*.sl", xchat_gnome_plugin_add);
+	for_files (xchatdir, "*.so", xchat_gnome_plugin_add);
+	for_files (xchatdir, "*.sl", xchat_gnome_plugin_add);
 }
 
 /* FIXME: As far as I can tell this function is getting called atleast 3 times at the
@@ -103,45 +97,26 @@ void
 preferences_plugins_page_populate()
 {
 	GtkWidget *treeview;
-	GtkTreeIter iter;
 	GtkListStore *store;
 	GSList *list;
-	xchat_plugin_info *plugin;
-	gchar *homedir, *xchatdir;
+	xchat_plugin *plugin;
 
 	treeview = glade_xml_get_widget (gui.xml, "plugins list");
 	store = GTK_LIST_STORE (gtk_tree_view_get_model (GTK_TREE_VIEW (treeview)));
-
-	gtk_list_store_clear (store);
-
-	/* Fun little string things that ultimately become the path to ~/.xchat2/plugins.
-	 * FIXME: It might behoove us to store the expanded path string to ~/.xchat2 somewhere
-	 * more permanent...
-	 */
-	homedir = g_get_home_dir();
-	xchatdir = malloc (strlen (homedir) + strlen (".xchat2/plugins") + 1);
-	sprintf (xchatdir, "%s/.xchat2/plugins", homedir);
-
-	/* Create a list of all the plugins in our known directories. */
-	for_files (XCHATLIBDIR"/plugins", "*.so", xchat_gnome_plugin_add);
-	for_files (XCHATLIBDIR"/plugins", "*.so", xchat_gnome_plugin_add);
-	for_files (xchatdir, "*.sl", xchat_gnome_plugin_add);
-	for_files (xchatdir, "*.sl", xchat_gnome_plugin_add);
 
 	/* Put our fun, happy plugins of joy into the great list store of pluginny goodness.
 	 * starting with the list of plugins we keep and then the list of plugins loaded by
 	 * the xchat core in its infinite wisdom. While we do the loaded plugins we'll add
 	 * them to our list of known plugins.
 	 */
-	list = known_plugins;
+	list = plugin_list;
 	while (list)
 	{
 		plugin = list->data;
-    printf ("%s %s\n", plugin->filename, plugin->name);
 		if (plugin->version[0] != 0)
 		{
-			gtk_list_store_append (store, &iter);
-			gtk_list_store_set (store, &iter, 0, plugin->name, 1, plugin->version, 2, plugin->desc, 3, plugin->filename, -1);
+    	printf ("%s %s\n", plugin->filename, plugin->name);
+			/* FIXME: Code to toggle loaded thingy goes here */
 		}
 		list = list->next;
 	}
@@ -219,10 +194,17 @@ on_unload_plugin_clicked (GtkButton *button, gpointer user_data)
 static void
 xchat_gnome_plugin_add (char *filename)
 {
+	GtkWidget *treeview;
+	GtkListStore *store;
+	GtkTreeIter iter;
+
 	void *handle;
 	xchat_plugin_get_info *info_func;
-	xchat_plugin_info *pl = NULL;
+	char *name, *desc, *version;
 
+	treeview = glade_xml_get_widget (gui.xml, "plugins list");
+	store = GTK_LIST_STORE (gtk_tree_view_get_model (GTK_TREE_VIEW (treeview)));
+	
 	/* For now we are just assuming it's ok to use gmodule, if this is a mistake
 	 * we can change this to match the common plugins stuff so that we use
 	 * gmodule if it's available, otherwise we'll do something else.
@@ -236,33 +218,10 @@ xchat_gnome_plugin_add (char *filename)
 
 	if (g_module_symbol (handle, "xchat_plugin_get_info", (gpointer *)&info_func)) {
 		/* Create a new plugin instance and add it to our list of known plugins. */
-		pl = malloc (sizeof (xchat_plugin_info));
-
-		pl->filename = strdup (filename);
-		pl->handle = handle;
-		((xchat_plugin_get_info*)info_func) (&pl->name, &pl->desc, &pl->version);
-
-		if (g_slist_find_custom (known_plugins, pl, plugin_compare) == NULL) {
-			printf ("Plugin: %s %s, %s\n", pl->name, pl->version, pl->desc);
-			known_plugins = g_slist_prepend (known_plugins, pl);
-		}
-		else {
-			plugin_info_free (pl);
-		}
+		((xchat_plugin_get_info*)info_func) (&name, &desc, &version);
+		gtk_list_store_append (store, &iter);
+		gtk_list_store_set (store, &iter, 0, name, 1, version, 2, desc, 3, filename, -1);
 	}
 	else
 		printf ("%s: No xchat_plugin_info symbol\n", filename);
-}
-
-static void
-plugin_info_free (xchat_plugin_info *pl)
-{
-	g_module_close (pl->handle);
-	free (pl);
-}
-
-static int
-plugin_compare (xchat_plugin_info *pl1, xchat_plugin_info *pl2)
-{
-	return strcmp (pl1->name, pl2->name);
 }
