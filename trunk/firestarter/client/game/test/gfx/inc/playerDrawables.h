@@ -35,6 +35,7 @@ public:
 protected:
 	SceneNode*	node;
 	bool				vis;
+	float			lastRot;
 };
 
 // camera
@@ -52,6 +53,8 @@ public:
 	virtual ~CCameraDrawObject();
 	virtual void Init ( void );
 	virtual void Think ( void );
+protected:
+	float			lastRot;
 };
 
 #endif //_PLAYER_DRAWABLES_H_

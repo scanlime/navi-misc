@@ -55,6 +55,9 @@ class CTestGame : public CBaseGame , CNetworkMessageProcessor, CBaseObject
 		tmPlayerMap					players;
 		CPlayerObject				*localPlayer;						
 
+		float								lastNetUpdateTime;
+
+		int									camera;
 		// game methods
 		bool processPlayerInput ( void );
 };

@@ -78,6 +78,28 @@ void CGroundObject::Init ( void )
 	Entity *mGroundEntity = CFirestarterLoop::instance().GetSceneManager()->createEntity("Ground","GroundPlane");
 	mGroundNode = static_cast<SceneNode*>(CFirestarterLoop::instance().GetSceneManager()->getRootSceneNode()->createChild());
 	mGroundNode->attachObject(mGroundEntity);
+
+#ifdef _DEBUG
+	// make the Xaxis stuff
+	Entity  *ball = CFirestarterLoop::instance().GetSceneManager()->createEntity("xball", "xball.mesh");
+	SceneNode *ballNode = static_cast<SceneNode*>(CFirestarterLoop::instance().GetSceneManager()->getRootSceneNode()->createChild());
+	ballNode->attachObject(ball);
+	ballNode->translate(10,0,0);
+
+	// make the Yaxis stuff
+	ball = CFirestarterLoop::instance().GetSceneManager()->createEntity("yball", "yball.mesh");
+	ballNode = static_cast<SceneNode*>(CFirestarterLoop::instance().GetSceneManager()->getRootSceneNode()->createChild());
+	ballNode->attachObject(ball);
+	ballNode->translate(0,10,0);
+	ballNode->rotate(Vector3(1,0,0),90);
+
+	// make the Zaxis stuff
+	ball = CFirestarterLoop::instance().GetSceneManager()->createEntity("zball", "zball.mesh");
+	ballNode = static_cast<SceneNode*>(CFirestarterLoop::instance().GetSceneManager()->getRootSceneNode()->createChild());
+	ballNode->attachObject(ball);
+	ballNode->translate(0,0,10);
+	ballNode->rotate(Vector3(1,0,0),90);
+#endif //_DEBUG
 }
 
 void CGroundObject::Think ( void )
