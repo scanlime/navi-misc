@@ -16,6 +16,13 @@ schema_DATA	= apps_xchat.schemas.in.in
 desktopdir = $(datadir)/applications
 desktop_DATA = xchat-gnome.desktop
 
+xchat_gnome_DATA =			\
+	channel-list.glade		\
+	transfers.glade			\
+	setup-dialog.glade		\
+	xchat-gnome.glade
+xchat_gnomedir = $(datadir)/xchat
+
 install-data-local:
 	if test -z "$(DESTDIR)" ; then						\
 		for p in $(schema_DATA) ; do					\
@@ -66,10 +73,8 @@ EXTRA_DIST =				\
 	userlist.c			\
 	userlist_gui.h			\
 	userlist_gui.c			\
-	channel-list.glade		\
-	setup-dialog.glade		\
-	transfers.glade			\
-	xchat-gnome.glade		\
+	$(xchat_gnome_DATA)		\
+	$(desktop_DATA)			\
 	apps_xchat.schemas.in.in
 
 xchat_gnome_LDADD = ../common/libxchatcommon.a $(GUI_LIBS)
@@ -118,13 +123,6 @@ xchat_gnome_SOURCES =			\
 	userlist_gui.c			\
 	xtext.h				\
 	xtext.c
-
-xchat_gnome_DATA =			\
-	channel-list.glade		\
-	transfers.glade			\
-	setup-dialog.glade		\
-	xchat-gnome.glade
-xchat_gnomedir = $(datadir)/xchat
 
 about.c:	xtext.h
 
