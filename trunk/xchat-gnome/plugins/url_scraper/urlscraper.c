@@ -8,11 +8,11 @@
 #define VERSION "0.2"
 #define MAXURLS 10
 
-#define URLREGEX "(ht|f)tps?://[a-zA-z0-9\\.]+"
-#define EMAILREGEX "[\\w\\.\\-\\+]+@([0-9a-z\\-]+\\.)+[a-z]+"
+#define URLREGEX "(ht|f)tps?://[~a-z0-9.]+"
+#define EMAILREGEX "[a-z0-9.+]+@([0-9a-z-]+.)+[a-z]+"
 
 static xchat_plugin *ph;	// Plugin handle.
-//static regex_t *email;	// Regex that matches e-mail addresses.
+static regex_t *email;	// Regex that matches e-mail addresses.
 static regex_t *url;		// Regex that matches urls.
 static int urls;			// Current total in the scraper.
 
@@ -67,11 +67,16 @@ static void make_window ()
 static int grabURL (char **word, void *userdata)
 {
 	GtkTreeIter iter;
-	int i;
+	int ret_val;
 	const char *chan;
 	regmatch_t match;
 
-	if (regexec (url, word[2], 1, &match, 0) == 0)
+	ret_val = regexec (url, word[2], 1, &match, REG_NOTBOL | REG_NOTEOL);
+
+	if (ret_val)
+		ret_val = regexec (email, word[2], 1, &match, REG_NOTBOL | REG_NOTEOL);
+
+	if (ret_val == 0)
 	{
 		chan = xchat_get_info (ph, "channel");
 		xchat_print (ph, "URL found.\n");
@@ -89,6 +94,9 @@ static int grabURL (char **word, void *userdata)
 		//gtk_list_store_append (list_store, &iter);
 		//gtk_list_store_set (list_store, &iter, 0, word[3], 1, chan, 2, match, -1);
 	}
+
+	if (chan)
+		free (chan);
 
 	return XCHAT_EAT_NONE;
 }
@@ -112,12 +120,15 @@ int xchat_plugin_init (xchat_plugin *plugin_handle,
 
 	xchat_plugin_get_info (plugin_name, plugin_desc, plugin_version);
 
-	//regcomp (&email, EMAILREGEX, REG_ICASE);
-
 	url = malloc (sizeof (regex_t));
-	if (regcomp (url, URLREGEX, 0))
-	{
+	if (regcomp (url, URLREGEX, REG_ICASE | REG_EXTENDED)) {
 		xchat_print (ph, "URL Scraper failed to load: couldn't compile URL regex.\n");
+		return 0;
+	}
+
+	email = malloc (sizeof (regex_t));
+	if (regcomp (email, EMAILREGEX, REG_ICASE | REG_EXTENDED)) {
+		xchat_print (ph, "URL Scraper failed to load: couldn't compile e-mail regex.\n");
 		return 0;
 	}
 
@@ -136,6 +147,9 @@ int xchat_plugin_init (xchat_plugin *plugin_handle,
 int xchat_plugin_deinit ()
 {
 	gtk_widget_destroy (window);
+
+	regfree (url);
+	regfree (email);
 
 	xchat_print (ph, "URL Scraper unloaded.\n");
 
