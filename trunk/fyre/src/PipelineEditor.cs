@@ -58,9 +58,8 @@ namespace Fyre
 		public static Gtk.TargetList		TargetList
 		{
 			get {
-				if (target_list == null) {
+				if (target_list == null)
 					target_list = new Gtk.TargetList (DragTargets);
-				}
 				return target_list;
 			}
 		}
@@ -119,56 +118,69 @@ namespace Fyre
 		{
 			Gtk.Application.Quit ();
 			args.RetVal = true;
+
+			// FIXME - check to make sure the pipeline is saved
 		}
 
 		// Shared events - menus/toolbars
 		public void OnNew (object o, System.EventArgs args)
 		{
+			// FIXME - implement
 		}
 
 		public void OnOpen (object o, System.EventArgs args)
 		{
+			// FIXME - implement
 		}
 
 		public void OnSave (object o, System.EventArgs args)
 		{
+			// FIXME - implement
 		}
 
 		public void OnCut (object o, System.EventArgs args)
 		{
+			// FIXME - implement
 		}
 
 		public void OnCopy (object o, System.EventArgs args)
 		{
+			// FIXME - implement
 		}
 
 		public void OnPaste (object o, System.EventArgs args)
 		{
+			// FIXME - implement
 		}
 
 		// 'File' Menu events
 		public void OnMenuFileSaveAs (object o, System.EventArgs args)
 		{
+			// FIXME - implement
 		}
 
 		public void OnMenuFileQuit (object o, System.EventArgs args)
 		{
 			Gtk.Application.Quit ();
+			// FIXME - check to make sure the pipeline is saved
 		}
 
 		// 'Edit' Menu events
 		public void OnMenuEditDelete (object o, System.EventArgs args)
 		{
+			// FIXME - implement
 		}
 
 		// 'View' Menu events
 		public void OnMenuViewKeepClean (object o, System.EventArgs args)
 		{
+			// FIXME - implement
 		}
 
 		// 'Help' Menu events
 		public void OnMenuHelpContents (object o, System.EventArgs args)
 		{
+			// FIXME - implement
 		}
 	}
 

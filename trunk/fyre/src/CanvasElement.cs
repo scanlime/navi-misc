@@ -58,10 +58,12 @@ namespace Fyre
 		// navigation box, so there are two versions.
 		public virtual void Draw (System.Drawing.Graphics context, float zoom)
 		{
+			// FIXME
 		}
 
 		public virtual void Draw (System.Drawing.Graphics context)
 		{
+			// FIXME
 		}
 	}
 
