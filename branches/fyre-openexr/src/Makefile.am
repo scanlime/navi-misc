@@ -26,7 +26,7 @@ fyre_SOURCES = 				\
 	animation-render-ui.c		\
 	screensaver.c			\
 	prefix.c			\
-	exr.cpp
+	$(EXR_SOURCES)
 
 noinst_HEADERS =			\
 	animation.h			\
