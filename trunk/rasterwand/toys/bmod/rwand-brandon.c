@@ -46,7 +46,6 @@ void *refresh_thread(void *foo) {
     gettimeofday(&now, NULL);
     dt = (now.tv_sec - then.tv_sec) + (now.tv_usec - then.tv_usec)/1000000.0;
     then = now;
-    
     mean = 0;
 
     for (i=0; i<NUM_COLUMNS; i++) {
@@ -79,11 +78,11 @@ void *refresh_thread(void *foo) {
     for(i=0;i<NUM_COLUMNS; i++)
     {
       tmean = mean;
-      if(tmean != 0)
+      if(tmean != 0) {
 	while(tmean)
 	  frame[i] ^= levels[tmean--];
-      else
-      {	 
+      }
+      else {
 	frame[i] ^= levels[1];
 	if(!frame[i])
 	  frame[i] |= levels[8];
