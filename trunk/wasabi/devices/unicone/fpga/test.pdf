@@ -9,20 +9,42 @@ Type=F21i
 top_level=VHDL
 HDL netlist format=Auto
 generics=MAX
-lib_order=155 155 155 155 155 133 155
+sim_mode=FUNC
+lib_order=133 133 155
 [libraries]
 133=c:\fndtn\active\syslib\simprims
 155=c:\fndtn\active\syslib\xc4000x
-[xilinx]
-libraries=unified
-family=2
-xfam=XC4000XL
-xact9=On
 [APP_95]
 oid=0
 lid=0
 format=19
 source=c:\unicone\fpga\test\test.v
+server_hwnd=1442230
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 Feature:       FPGA-Express-RL2100
 License path:  C:\Fndtn\data\license.dat
@@ -42,25 +64,47 @@ test.v=21
 test.v= 
 [OpenDoc]
 hde/test=393574,1,22,22,982,751,test.v
-[device]
-part=4010XLPC84-09
-xilinx=4010XLPC84-09
+[OPEN32]
+nMaxFile=10000
+lpstrFile=
+lpstrFilter=HDL (*.VHD;*.VER;*.VE;*.V)|*.vhd;*.ver;*.ve;*.v|Schematic (*.SCH)|*.sch|FSM (*.ASF)|*.asf|Xnf Sources (*.XNF)|*.xnf|Edif Sources (*.EDF;*.EDN;*.EDO)|*.edf;*.edn;*.edo|All Files (*.*)|*.*||
+lpstrInitialDir=C:\UNICONE\FPGA\TEST
+lpstrTitle=Add Document
+nFilterIndex=0
+Flags=530964
+HelpID=10380
+HelpFileName=C:\FNDTN\ACTIVE\EXE\PCM.HLP
+cmdLine=-h 168 -hp 234 -m PCM_OPEN_32_MESSAGE -f C:\FNDTN\ACTIVE\PROJECTS\current.pdf
+[netlist]
+external=FALSE
+[Log]
+netlist.log=Simulator Netlist Log
+[sim_config]
+Lower Bound=2048
+Upper Bound=2048
+B0 Period=50
+Transport Delay=On
+Enable Global Netlist Analysis=On
+Forced State=Default
+Output Waveform=Overwrite
+Global Reset=On
+Keep Comments=Off
+Execute Preset=Off
+Models Stabilization=On
+Pulse Global Reset Net Enabled=On
+Pulse Global Reset Net=1000
 [implement_HDL]
+functional=ver1
+optimized=ver1-Optimized
+design=test,c:\unicone\fpga\test\test.v
 family=2
 xfam=XC4000XL
 part=4010XLPC84-09
 xilinx=4010XLPC84-09
-functional=ver1
-optimized=ver1-Optimized
-design=test,c:\unicone\fpga\test\test.v
-[OPEN32]
-nMaxFile=261
-lpstrFile=c:\unicone\fpga\test\test.ucf
-lpstrFilter=User Constraints (*.UCF)|*.ucf||
-lpstrTitle=Select file
-nFilterIndex=0
-Flags=530436
-cmdLine=-h 582 -hp 562 -m PCM_OPEN_32_MESSAGE -f C:\FNDTN\ACTIVE\PROJECTS\current.pdf
-[implement_XIE]
-version=ver1
-revision=rev1
+[xilinx]
+family=2
+xfam=XC4000XL
+xact9=On
+[device]
+part=4010XLPC84-09
+xilinx=4010XLPC84-09
