@@ -129,7 +129,7 @@ class Graph:
         self.edges = list(edges)
         self.viewport = viewport
         viewport.onDrawFrame.observe(self.render)
-        self.temperature = 30
+        self.temperature = 60
 
     def addNode(self, *args, **kwargs):
         node = Node(*args, **kwargs)
@@ -156,7 +156,7 @@ class Graph:
     def render(self):
         # For a simulated simulated-annealing effect, gradually
         # decrease the 'temperature', the amount of random node movement.
-        self.temperature *= 0.98
+        self.temperature *= 0.995
 
         # Let the edges and nodes animate themselves
         for node in self.nodes:
