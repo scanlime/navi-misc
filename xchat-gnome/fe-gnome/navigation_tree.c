@@ -633,12 +633,15 @@ close_dialog(gpointer data, guint action, GtkWidget *widget)
 
 	treeview = GTK_TREE_VIEW(gui.server_tree);
 	select = gtk_tree_view_get_selection(treeview);
+
 	if(gtk_tree_selection_get_selected(select, &model, &iter)) {
 		gtk_tree_model_get(model, &iter, 2, &s, -1);
+
 		if(s->type == SESS_CHANNEL) {
 			s->server->p_part(s->server, s->channel, "ex-chat");
 			/* FIXME: part reason */
 		}
+
 		navigation_tree_remove(gui.server_tree, s);
 		text_gui_remove_text_buffer(s);
 	}
@@ -987,6 +990,7 @@ navigation_model_remove (NavModel *model, struct session *sess)
 	//gtk_tree_model_foreach(GTK_TREE_MODEL(model->store), (GtkTreeModelForeachFunc) navigation_model_remove_iterate, (gpointer) sess);
 	GtkTreeIter *iter = navigation_model_get_unsorted_iter(model, sess);
 	gtk_tree_store_remove(model->store, iter);
+	
   gtk_tree_iter_free(iter);
 }
 
