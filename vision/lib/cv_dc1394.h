@@ -41,6 +41,9 @@ typedef struct _cv_dc1394_camera {
 /* Initialize the module, returning a NULL-terminated list of camera pointers */
 cv_dc1394_camera** cv_dc1394_init();
 
+/* Return the number of cameras detected */
+int cv_dc1394_get_camera_count();
+
 /* Set the frame rate to use, must be called before cv_dc1394_init.
  * The rate must be given as a dc1394 FRAMERATE_* constant.
  */
