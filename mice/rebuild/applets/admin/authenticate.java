@@ -6,6 +6,6 @@
  * @version 2.0
  */
  
- public class authenticate
- {
- }
+public class authenticate
+{
+}

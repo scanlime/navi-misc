@@ -5,6 +5,7 @@
  * @author Brandon Smith
  * @version 2.0
  */
+
 public class moderator
 {
 }
