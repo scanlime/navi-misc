@@ -429,6 +429,7 @@ static void e_cal_backend_weather_start_query (ECalBackend *backend, EDataCalVie
 	ECalBackendWeather *cbw;
 	ECalBackendWeatherPrivate *priv;
 	ECalBackendSExp *sexp;
+	GList *components, *l, *objects;
 
 	cbw = E_CAL_BACKEND_WEATHER (backend);
 	priv = cbw->priv;
@@ -446,7 +447,23 @@ static void e_cal_backend_weather_start_query (ECalBackend *backend, EDataCalVie
 		return;
 	}
 
-	/* FIXME */
+	objects = NULL;
+	components = e_cal_backend_cache_get_components (priv->cache);
+	for (l = components; l != NULL; l = g_list_next (l)) {
+		if (e_cal_backend_sexp_match_comp (sexp, E_CAL_COMPONENT (l->data), backend)) {
+			objects = g_list_append (objects, e_cal_component_get_as_string (l->data));
+		}
+	}
+
+	e_data_cal_view_notify_objects_added (query, (const GList *) objects);
+
+	g_list_foreach (components, (GFunc) g_object_unref, NULL);
+	g_list_free (components);
+	g_list_foreach (objects, (GFunc) g_free, NULL);
+	g_list_free (objects);
+	g_object_unref (sexp);
+
+	e_data_cal_view_notify_done (query, GNOME_Evolution_Calendar_Success);
 }
 
 static CalMode
