@@ -40,7 +40,7 @@ class Main:
         self.loop = Event.EventLoop()
 
         # Detect hardware
-        self.hardware = Hardware.Devices(self.loop)
+        Hardware.initDevices(self.loop)
 
         # An nvidia-widget to sync to vertical blank, to avoid tearing. Should
         # have no effect on platforms where this isn't supported.
@@ -48,7 +48,7 @@ class Main:
 
         # If we're running on actual wasabi hardware, make sure we use the local X display.
         # (Just a convenience, since this will generally be run over ssh for testing)
-        if self.hardware.uvswitch:
+        if Hardware.dev.uvswitch:
             os.environ['DISPLAY'] = ':0'
 
         self.viewport = Viewport.OpenGLViewport(self.loop)
@@ -60,7 +60,7 @@ class Main:
         self.control = ThreeDControl.Viewing(self.view, self.viewport)
 
         # If we're running on actual wasabi hardware, go fullscreen
-        if self.hardware.uvswitch:
+        if Hardware.dev.uvswitch:
             self.viewport.display.toggle_fullscreen()
             pygame.mouse.set_visible(0)
 
@@ -74,8 +74,7 @@ class Main:
             Sequencer.FadeOut(0.2, (1,1,1), Menu.userPageInterrupter(Logos.getLogoSubBook())),
 
             # Run the main menu, with fade in and out
-            Sequencer.FadeIn(0.5, (1,1,1), Sequencer.FadeOut(0.25, (0,0,0), lambda book:
-                                                             MainMenu(book, self.hardware)))
+            Sequencer.FadeIn(0.5, (1,1,1), Sequencer.FadeOut(0.25, (0,0,0), MainMenu))
 
             # The main menu will insert additional pages at the end,
             # depending on the selection made.
@@ -93,18 +92,17 @@ class Main:
                     thread.join()
 
             # Shut down hardware gracefully
-            self.hardware.shutdown()
+            Hardware.dev.shutdown()
 
 
 class VideoChannelPage(Sequencer.Page):
     """A sequencer page that displays video from an external input, via uvswitch"""
-    def __init__(self, view, hardware, channel):
+    def __init__(self, view, channel):
         Sequencer.Page.__init__(self, view)
-        self.hardware = hardware
-        hardware.selectDirectVideo(channel)
+        Hardware.dev.selectDirectVideo(channel)
 
     def finalize(self):
-        self.hardware.selectWasabiVideo()
+        Hardware.dev.selectWasabiVideo()
 
 
 class VideoInput(Menu.PageItem):
@@ -114,7 +112,7 @@ class VideoInput(Menu.PageItem):
     def __init__(self, channel):
         Menu.PageItem.__init__(self,
                                VideoSwitch.getInputDict()[channel],
-                               Menu.userPageInterrupter(lambda book: VideoChannelPage(book, self.menu.hardware, channel))
+                               Menu.userPageInterrupter(lambda book: VideoChannelPage(book, channel))
                                )
 
 
@@ -123,9 +121,7 @@ class MainMenu(Menu.RingMenu):
        Devices can be made available and unavailable during the operation of the menu, with
        the menu properly reflecting this.
        """
-    def __init__(self, book, hardware):
-        self.hardware = hardware
-
+    def __init__(self, book):
         # Add items that always appear on the menu
         menuItems = [
             Menu.Item(Icon.load('navi')),
@@ -133,18 +129,18 @@ class MainMenu(Menu.RingMenu):
             ]
 
         # If we have a video switch device, integrate it with the main menu
-        if self.hardware.uvswitch:
+        if Hardware.dev.uvswitch:
 
             # Add items for video devices that are already active
             self.channelItems = {}
-            for channel in self.hardware.uvswitch.activeChannels:
+            for channel in Hardware.dev.uvswitch.activeChannels:
                 item = VideoInput(channel)
                 self.channelItems[channel] = item
                 menuItems.append(item)
 
             # Observe the video detection events, so icons can be dynamically added and removed
-            self.hardware.uvswitch.onChannelActive.observe(self.addChannel)
-            self.hardware.uvswitch.onChannelInactive.observe(self.removeChannel)
+            Hardware.dev.uvswitch.onChannelActive.observe(self.addChannel)
+            Hardware.dev.uvswitch.onChannelInactive.observe(self.removeChannel)
 
         Menu.RingMenu.__init__(self, book, menuItems)
 
