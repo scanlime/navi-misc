@@ -30,13 +30,18 @@ class GTKsheet:
   def makeObjects(self, newNode, parent):
     """ Make objects out of the node passed. """
     # Tag represents a layout object.
-    if GTKsheetElements.__dict__.has_key(newNode.tagName):
+    try:
       newObject = GTKsheetElements.__dict__[newNode.tagName](newNode, self.character)
 
+    # Should do better error handling
+    except KeyError:
+      print "Unknown tag:", newNode.tagName
+    
+    else:
       for node in newNode.childNodes:
 	if node.nodeType is xml.dom.Node.ELEMENT_NODE: newObject.packChild(self.makeObjects(node, newObject))
       return newObject
-
-    # Should do better error handling
-    else:
-      print "Tag error:", newNode.tagName
+  
+  def writeOut(self):
+    """ Write the data change to the XML file. """
+    self.character.writeOut()
