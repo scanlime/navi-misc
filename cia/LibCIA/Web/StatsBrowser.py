@@ -162,7 +162,17 @@ class TargetBargraphColumn(TargetCounterColumn):
             fraction = math.log(value) / logMax
         else:
             fraction = 1
-        return Template.Bargraph(fraction)[ value ],
+        return Template.Bargraph(fraction)[ value ]
+
+
+class TargetPercentColumn(TargetCounterColumn):
+    """A Column that renders a counter value as a percent of the column's total"""
+    def render_data(self, context, target):
+        value = self.getValue(target)
+        if not value:
+            return ''
+        total = context['table'].reduceColumn(self, sum)
+        return "%.03f" % (value / total * 100)
 
 
 class Catalog(Template.Section):
@@ -186,6 +196,7 @@ class Catalog(Template.Section):
             TargetBargraphColumn('events today', 'today'),
             TargetBargraphColumn('events yesterday', 'yesterday'),
             TargetBargraphColumn('total events', 'forever'),
+            TargetPercentColumn('% total', 'forever'),
             ])]
 
 
