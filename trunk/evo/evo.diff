@@ -1,3 +1,4 @@
+? calendar/gui/.migration.c.swp
 ? calendar/gui/apps_evolution_calendar-2.2.schemas
 ? calendar/gui/dialogs/.calendar-setup.c.swp
 ? help/C/evolution-2.2-C.omf
@@ -9,12 +10,12 @@ RCS file: /cvs/gnome/evolution/calendar/gui/migration.c,v
 retrieving revision 1.30
 diff -u -r1.30 migration.c
 --- calendar/gui/migration.c	22 Jul 2004 03:02:08 -0000	1.30
-+++ calendar/gui/migration.c	24 Sep 2004 08:08:47 -0000
++++ calendar/gui/migration.c	24 Sep 2004 22:49:46 -0000
 @@ -365,6 +365,7 @@
  #define WEBCAL_BASE_URI "webcal://"
  #define CONTACTS_BASE_URI "contacts://"
  #define BAD_CONTACTS_BASE_URI "contact://"
-+#define WEATHER_BASE_URI "weather:"
++#define WEATHER_BASE_URI "weather://"
  #define PERSONAL_RELATIVE_URI "system"
  
  static ESourceGroup *
@@ -119,7 +120,7 @@ RCS file: /cvs/gnome/evolution/calendar/gui/dialogs/calendar-setup.c,v
 retrieving revision 1.29
 diff -u -r1.29 calendar-setup.c
 --- calendar/gui/dialogs/calendar-setup.c	30 Jul 2004 07:37:02 -0000	1.29
-+++ calendar/gui/dialogs/calendar-setup.c	24 Sep 2004 08:08:47 -0000
++++ calendar/gui/dialogs/calendar-setup.c	24 Sep 2004 22:49:46 -0000
 @@ -122,7 +122,7 @@
  {
  	EUri     *uri;
@@ -156,29 +157,73 @@ diff -u -r1.29 calendar-setup.c
  source_is_remote (ESource *source)
  {
  	gchar    *uri_str;
-@@ -277,9 +297,13 @@
+@@ -277,7 +297,19 @@
  		return NULL;
  	}
  
 -	if (source_group_is_remote (group)) {
 +	if (source_group_is_weather (group)) {
-+		g_print ("weather group!\n");
-+		source = e_source_new (source_name, source_location);
++		EUri  *uri;
++		gchar *relative_uri;
++
++		uri = e_uri_new (source_location);
++		relative_uri = print_uri_noproto (uri);
++		e_uri_free (uri);
++
++		/* Create source */
++		source = e_source_new (source_name, relative_uri);
++
++		g_free (relative_uri);
 +	} else if (source_group_is_remote (group)) {
  		EUri  *uri;
  		gchar *relative_uri;
-+		g_print ("remote group!\n");
  
- 		/* Remote source */
+@@ -309,7 +341,9 @@
+ 		e_source_set_relative_uri (source, e_source_peek_uid (source));
+ 	}
  
-@@ -358,7 +382,7 @@
++	g_print ("1\n");
+ 	e_source_group_add_source (group, source, -1);
++	g_print ("2\n");
+ 
+ 	/* create the calendar in the backend */
+ 	cal = e_cal_new (source, source_type);
+@@ -318,8 +352,10 @@
+ 		g_object_unref (source);
+ 		source = NULL;
+ 	}
++	g_print ("3\n");
+ 
+ 	g_object_unref (cal);
++	g_print ("4\n");
+ 
+ 	return source;
+ }
+@@ -358,7 +394,9 @@
  
  	sensitive = sensitive && (source_dialog->source_group != NULL);
  
 -	if (source_group_is_remote (source_dialog->source_group) && source_group_is_mutable (source_dialog->source_group)) {
-+	if (source_group_is_weather (source_dialog->source_group) || source_group_is_remote (source_dialog->source_group) && source_group_is_mutable (source_dialog->source_group)) {
++	if ((!source_group_is_weather (source_dialog->source_group)) &&
++	    source_group_is_remote (source_dialog->source_group) &&
++	    source_group_is_mutable (source_dialog->source_group)) {
  		sensitive = sensitive && remote_page_verify (source_dialog);
  	}
+ 
+@@ -642,12 +680,12 @@
+ new_calendar_add (SourceDialog *source_dialog)
+ {
+ 	source_dialog->source =
+-		create_new_source_with_group (GTK_WINDOW (source_dialog->window), source_dialog->source_group, 
++		create_new_source_with_group (GTK_WINDOW (source_dialog->window), source_dialog->source_group,
+ 					      gtk_entry_get_text (GTK_ENTRY (source_dialog->name_entry)),
+ 					      gtk_entry_get_text (GTK_ENTRY (source_dialog->uri_entry)),
+ 					      E_CAL_SOURCE_TYPE_EVENT);
+ 	dialog_to_source (source_dialog);
+-	
++
+ 	gtk_widget_destroy (source_dialog->window);
+ }
  
 Index: mail/em-filter-i18n.h
 ===================================================================
@@ -186,7 +231,7 @@ RCS file: /cvs/gnome/evolution/mail/em-filter-i18n.h,v
 retrieving revision 1.1
 diff -u -r1.1 em-filter-i18n.h
 --- mail/em-filter-i18n.h	17 Jun 2004 07:34:49 -0000	1.1
-+++ mail/em-filter-i18n.h	24 Sep 2004 08:08:47 -0000
++++ mail/em-filter-i18n.h	24 Sep 2004 22:49:56 -0000
 @@ -4,36 +4,19 @@
  char *s = N_("Assign Score");
  char *s = N_("Attachments");
