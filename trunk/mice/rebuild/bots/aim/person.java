@@ -75,17 +75,11 @@ public class person
 			status = 2;
 		  break;
 		case 2:
-			standmajor = " (" standmajor + "/" + message + ")";
+			standmajor = " (" + standmajor + "/" + message + ")";
 			send("You are now registered as: " + name + standmajor + ".  To ask a question, just send it to me and I'll submit it for you :)");
 			status = 3;
 			break;
 		case 3:
-			if(message.charAt(0) == '*')
-			{
-				send("Ok, your non-question hasn't been submitted.");
-				status = 3;
-				return;
-			}
 			net temp = new net();
 			if(!temp.openConnection("localhost",8080))
 			{

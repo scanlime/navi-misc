@@ -52,7 +52,7 @@ public class aimup
 	 */
 	public static void main(String[] args)
 	{
-		botmain interviewbot = initbots(4,"fakeo");
+		botmain interviewbot = initbots(4,"fakepassword");
 		sleep(4);
 		startServer(8082);
 		configureServer(interviewbot);
@@ -156,7 +156,6 @@ public class aimup
 			sleep(j);
 			bot[0] = new botmain("MICEBot",password,index);
 		}
-		bot[0].sendMessage("gonkulator3","Hello<br>There.");
 
 		index.registerBot(bot[0]);
 		
@@ -174,7 +173,6 @@ public class aimup
 			}
 			index.registerBot(bot[i+1]);
 			sleep(3);
-			bot[i+1].sendMessage("gonkulator3","Hello<br>There.");
 		}
 		return bot[0];
 	}
