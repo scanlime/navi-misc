@@ -32,7 +32,6 @@ class PalantirWindow:
 
     # Client factory.
     self.factory = palantirIRC.PalantirClientFactory('nuku-nuku', ui=self)
-    self.tree.get_widget('Nick').set_text(self.factory.nickname)
 
   def MessageFormat(self, user, msg, action=False):
     ''' Format an incoming message. '''
