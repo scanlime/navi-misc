@@ -174,7 +174,7 @@ userlist_insert (Userlist *userlist, session *sess, struct User *newuser, int ro
   icon = get_user_icon (sess->server, newuser);
 
   gtk_list_store_insert (store->liststore, &iter, row);
-  gtk_list_store_set (store->liststore, &iter, 0, icon, 1, newuser->nick, 2, newuser, 3, newuser->away ? &colors[23] : NULL, -1);
+  gtk_list_store_set (store->liststore, &iter, 0, icon, 1, newuser->nick, 2, newuser, 3, newuser->away ? &colors[40] : NULL, -1);
 
   item = g_list_append (NULL, newuser->nick);
   g_completion_add_items (store->completion, item);
@@ -241,7 +241,7 @@ userlist_update (Userlist *userlist, session *sess, struct User *user)
 	g_completion_remove_items (store->completion, item);
 	g_list_free (item);
 
-  gtk_list_store_set (store->liststore, iter, 1, user->nick, 3, user->away ? &colors[23] : NULL, -1);
+  gtk_list_store_set (store->liststore, iter, 1, user->nick, 3, user->away ? &colors[40] : NULL, -1);
 
 	item = g_list_append (NULL, user->nick);
   g_completion_add_items (store->completion, item);
@@ -263,7 +263,7 @@ userlist_move (Userlist *userlist, session *sess, struct User *user, int new_row
   icon = get_user_icon (sess->server, user);
 
   gtk_list_store_insert (store->liststore, &iter2, new_row);
-  gtk_list_store_set (store->liststore, &iter2, 0, icon, 1, user->nick, 2, user, 3, user->away ? &colors[23] : NULL, -1);
+  gtk_list_store_set (store->liststore, &iter2, 0, icon, 1, user->nick, 2, user, 3, user->away ? &colors[40] : NULL, -1);
 }
 
 void
