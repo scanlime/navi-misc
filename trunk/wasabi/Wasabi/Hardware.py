@@ -26,6 +26,13 @@ the mi6k (both through the mi6k module and through lircd) and the uvswitch
 import IR, Mixer, threading, time, math
 from BZEngine import Animated
 
+# A place for the singleton Devices instance
+dev = None
+
+def initDevices(mainLoop):
+    global dev
+    dev = Devices(mainLoop)
+
 
 class Devices:
     """Container for hardware connected to wasabi. Initializes what hardware
@@ -109,6 +116,11 @@ class Devices:
             self.mi6k.vfd.writeScreen("")
             #self.mi6k.vfd.powerOff()
 
+    def showStatus(self, status):
+        """Display a simple status line on the VFD, if we have one"""
+        if self.mi6k:
+            self.mi6kUpdater.vfdPage = StatusClockVFDPage(status)
+
 
 class Mi6kUpdater(threading.Thread):
     """Thread to update the VFD and LEDs on the mi6k.
@@ -119,7 +131,7 @@ class Mi6kUpdater(threading.Thread):
 
         self.mi6k = mi6k
         self.mi6k.vfd.powerOn()
-        self.vfdPage = StatusClockVFDPage()
+        self.vfdPage = None
 
         IR.defaultClient.onReceivedCode.observe(self.irFeedback)
 
@@ -151,7 +163,7 @@ class Mi6kUpdater(threading.Thread):
             # Don't bother updating it once it's below the smallest
             # light level the hardware can display.
             if value > 0.0001:
-                value *= math.pow(0.005, dt)
+                value *= math.pow(0.001, dt)
                 setattr(lights, color, value)
 
         # update the VFD
@@ -183,12 +195,14 @@ class VFDPage:
 
 
 class StatusClockVFDPage(VFDPage):
-    """A VFD page that displays a clock and a status line"""
-    def __init__(self):
+    """A VFD page that displays a clock and an optional status line.
+       Brightness is faded from the maximum to the minimum, to get the user's
+       attention when this page is first loaded or a new status line is set.
+       """
+    def __init__(self, status=""):
         self.colonIndex = 0
-        self.status = ""
-        self.lastStatus = ""
-        self.brightness = 0
+        self.brightness = 1
+        self.status = status
 
     def integrate(self, dt, vfd):
         # Clock with a flashing colon
@@ -199,9 +213,6 @@ class StatusClockVFDPage(VFDPage):
         clockDate = time.strftime("%a %b %d", localTime)
 
         # If the status has changed, make the VFD bright and dim it gradually
-        if self.status != self.lastStatus:
-            self.brightness = 1
-            self.lastStatus = self.status
         if self.brightness > 0.01:
             self.brightness -= dt * 2
         else:
