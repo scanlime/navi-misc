@@ -33,7 +33,7 @@ int main(int argc, char **argv) {
 
   /* Scan for command line options using getopt(3) */
   while (1) {
-    i = getopt(argc, argv, "hs:d:");
+    i = getopt(argc, argv, "hs:d:t:");
     if (i==-1)
       break;
     switch (i) {
