@@ -15,10 +15,10 @@ struct {
 
 GtkWidget *window, *drawing_area, *iterl;
 GtkWidget *as, *bs, *cs, *ds, *ls, *start, *stop, *save, *randbutton;
-GdkPixbuf *pixbuf;
 gulong iterations;
 GdkGC *gc;
 guint data[WIDTH][HEIGHT];
+guchar pixels[WIDTH * HEIGHT * 4];
 double a, b, c, d, exposure;
 guint idler;
 
@@ -59,7 +59,6 @@ int main(int argc, char ** argv) {
   g_signal_connect(G_OBJECT(drawing_area), "expose-event", G_CALLBACK(expose), NULL);
   gtk_widget_show_all(window);
 
-  pixbuf = gdk_pixbuf_new(GDK_COLORSPACE_RGB, FALSE, 8, WIDTH, HEIGHT);
   gc = gdk_gc_new(drawing_area->window);
 
   clear();
@@ -133,12 +132,13 @@ GtkWidget *build_sidebar() {
 }
 
 void flip() {
-  /* Using the current point density, scale data[] appropriately, color it,
-   * generate an image in the pixbuf, and copy it to the screen.
+  /* Using the current point density, scale data[] appropriately,
+   * color it, and copy it to the screen.
    */
 
-  int rowstride, pixelstride;
-  guchar *pixels, *row, *p;
+  const int rowstride = WIDTH * 4;
+  guchar *row;
+  guint32 *p;
   guint32 gray, iscale;
   guint dataclamp, dval;
   int x, y;
@@ -153,10 +153,8 @@ void flip() {
    * so the user can interactively set initial conditions. After the rendering has
    * been running for a while though, the image changes much less and a very slow
    * frame rate will suffice.
-   * This gives us 100 frames per second after 10000 iterations, decreasing
-   * logarithmically to about 3.5 frames per second after 10 million iterations.
    */
-  max_frame_rate = 100 / (1 + (log(iterations) - 9.21) * 4);
+  max_frame_rate = 1000 / (1 + (log(iterations) - 9.21) * 4);
 
   /* Limit the maximum frame rate, so we're more responsive when dragging parameters */
   gettimeofday(&now, NULL);
@@ -173,10 +171,6 @@ void flip() {
   gchar *iters = g_strdup_printf("%d", iterations);
   gtk_label_set_text(GTK_LABEL(iterl), iters);
   g_free(iters);
-
-  rowstride = gdk_pixbuf_get_rowstride(pixbuf);
-  pixelstride = gdk_pixbuf_get_n_channels(pixbuf);
-  pixels = gdk_pixbuf_get_pixels(pixbuf);
 
   /* Scale our data to a luminance between 0 and 1 that gets fed through our
    * colormap[] to generate an actual gdk color. 'p' contains the number of
@@ -203,7 +197,7 @@ void flip() {
   row = pixels;
   for (y=0; y<HEIGHT; y++) {
     if ((y & PROGRESSIVE_MASK) == progressiveRow) {
-      p = row;
+      p = (guint32*) row;
       for (x=0; x<WIDTH; x++) {
 
 	dval = data[x][y];
@@ -212,9 +206,7 @@ void flip() {
 
 	gray = 255 - ((dval * iscale) >> 24);
 
-	*((guint32*)p) = GUINT32_TO_LE( gray | (gray<<8) | (gray<<16) );
-
-	p += pixelstride;
+	*(p++) = GUINT32_TO_LE( gray | (gray<<8) | (gray<<16) );
       }
     }
     row += rowstride;
@@ -222,9 +214,9 @@ void flip() {
 
   progressiveRow = (progressiveRow + 1) & PROGRESSIVE_MASK;
 
-  gdk_draw_pixbuf(drawing_area->window, gc, pixbuf,
-		  0, 0, 0, 0, WIDTH, HEIGHT,
-		  GDK_RGB_DITHER_NORMAL, 0, 0);
+  gdk_draw_rgb_32_image(drawing_area->window, gc,
+			0, 0, WIDTH, HEIGHT, GDK_RGB_DITHER_NORMAL,
+			pixels, rowstride);
 }
 
 void clear() {
@@ -322,7 +314,7 @@ void saveclick(GtkWidget *widget, gpointer user_data) {
   if(gtk_dialog_run(GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT) {
     char *filename;
     filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
-    gdk_pixbuf_save(pixbuf, filename, "png", NULL, NULL);
+    //    gdk_pixbuf_save(pixbuf, filename, "png", NULL, NULL);
     g_free(filename);
   }
   g_object_unref(filter);
