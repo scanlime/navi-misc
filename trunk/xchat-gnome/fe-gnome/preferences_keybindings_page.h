@@ -21,8 +21,8 @@
 
 #include "gui.h"
 
-#ifndef XCHAT_GNOME_PREFERENCES_PLUGINS_PAGE_H
-#define XCHAT_GNOME_PREFERENCES_PLUGINS_PAGE_H
+#ifndef XCHAT_GNOME_PREFERENCES_KEYBINDINGS_PAGE_H
+#define XCHAT_GNOME_PREFERENCES_KEYBINDINGS_PAGE_H
 
 void initialize_preferences_keybindings_page ();
 void preferences_plugins_keybindings_update ();
