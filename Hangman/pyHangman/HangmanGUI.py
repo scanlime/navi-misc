@@ -263,7 +263,7 @@ class HangmanGUI:
 		self.guessedText.set_text(updateString[1])
 		self.gallows.update(self.controller.numMissed)
 
-	def NewGame(self, widget=None, data=None):
+	def NewGame(self, data=None, widget=None):
 		""" Begin a new game. """
 		if data == 1:
 			self.controller.NetGame()

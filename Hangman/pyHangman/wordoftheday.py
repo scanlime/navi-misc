@@ -21,8 +21,11 @@ class wordoftheday(HTMLParser):
 		self.isword = False
 
 	def handle_data(self, data):
-		""" Overridden from HTMLParser, called when a start tag is encountered.
+		""" Overridden from HTMLParser.  If the last tag grabbed is the tag
+				for dictionary.com's word of the day.  Store it in self.word if
+				the tags match and the data is longer than 1 character.
 				"""
-		if self.get_starttag_text() == '<a href="/wordoftheday/">':
+		# Test the last tag touched and make sure the data is longer than a character
+		# to insure it isn't garbage data.
+		if self.get_starttag_text() == '<a href="/wordoftheday/">' and len(data) > 1:
 			self.word = data
-			print self.word
