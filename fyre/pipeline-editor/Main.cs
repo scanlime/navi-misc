@@ -70,34 +70,38 @@ public class PipelineEditor
 
 		/* Set up plugins directory */
 		plugin_manager = new PluginManager ("/usr/share/fyre/2.0");
-		foreach (Type t in plugin_manager.plugin_types) {
-			object[] i = {};
-			Element e = (Element) t.GetConstructor(Type.EmptyTypes).Invoke(i);
-
-			string name = e.Name ();
-			string category = e.Category ();
-			Gdk.Pixbuf pixbuf = e.Icon ();
-			bool found = false;
-
-			Gtk.TreeIter iter;
-			if (element_store.GetIterFirst (out iter)) {
-				do {
-					string cat = (string) element_store.GetValue (iter, 1);
-					if (cat.Equals (category)) {
-						found = true;
-						element_store.AppendValues (iter, pixbuf, name, t);
-					}
-				} while (element_store.IterNext (ref iter));
-			}
-			if (!found) {
-				iter = element_store.AppendValues (null, category);
-				element_store.AppendValues (iter, pixbuf, name, t);
-				element_list.ExpandAll ();
-			}
-		}
+		foreach (Type t in plugin_manager.plugin_types)
+			AddElementType (t);
 
 		/* Finally, run the application */
 		Application.Run();
+        }
+        
+        private void AddElementType (Type t)
+        {
+        	object[] i = {};
+		Element e = (Element) t.GetConstructor(Type.EmptyTypes).Invoke(i);
+
+		string name = e.Name ();
+		string category = e.Category ();
+		Gdk.Pixbuf pixbuf = e.Icon ();
+		bool found = false;
+
+		Gtk.TreeIter iter;
+		if (element_store.GetIterFirst (out iter)) {
+			do {
+				string cat = (string) element_store.GetValue (iter, 1);
+				if (cat.Equals (category)) {
+					found = true;
+					element_store.AppendValues (iter, pixbuf, name, t);
+				}
+			} while (element_store.IterNext (ref iter));
+		}
+		if (!found) {
+			iter = element_store.AppendValues (null, category);
+			element_store.AppendValues (iter, pixbuf, name, t);
+			element_list.ExpandAll ();
+		}
         }
 
 	/* Event handlers - most of these come from the glade file */
