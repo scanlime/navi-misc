@@ -26,6 +26,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <ctype.h>
 
 static void parameter_holder_class_init(ParameterHolderClass *klass);
 
@@ -336,33 +337,29 @@ void parameter_holder_load_string(ParameterHolder *self, const gchar *params) {
   /* Load all recognized parameters from a string given in the same
    * format as the one produced by save_parameters()
    */
-  gchar *copy, *line, *nextline;
-  gchar *key, *value;
+  gchar** lines = g_strsplit(params, "\n", 0);
+  gchar** line;
 
   /* Always start with defaults */
   parameter_holder_reset_to_defaults(self);
 
-  /* Make a copy of the parameters, since we'll be modifying it */
-  copy = g_strdup(params);
+  for (line=lines; *line; line++) {
+    /* Split each line into key and value */
+    gchar** tokens = g_strsplit(*line, "=", 2);
 
-  /* Iterate over lines... */
-  line = copy;
-  while (line) {
-    nextline = strchr(line, '\n');
-    if (nextline) {
-      *nextline = '\0';
-      nextline++;
+    if (!(tokens[0] && tokens[1])) {
+      /* Need at least two tokens, ignore this invalid line */
+      continue;
     }
 
-    /* Separate it into key and value */
-    key = g_malloc(strlen(line)+1);
-    value = g_malloc(strlen(line)+1);
-    if (sscanf(line, " %s = %s", key, value) == 2)
-      parameter_holder_set(self, key, value);
-    g_free(key);
-    line = nextline;
+    g_strstrip(tokens[0]);
+    g_strstrip(tokens[1]);
+
+    parameter_holder_set(self, tokens[0], tokens[1]);
+
+    g_strfreev(tokens);
   }
-  g_free(copy);
+  g_strfreev(lines);
 }
 
 ToolInfoPH* parameter_holder_get_tools(ParameterHolder *self) {
