@@ -3,12 +3,12 @@
 
 int main(void) {
   FieldSensor s;
-  double readings[8];
+  VECTOR readings;
 
   while (1) {
-    s.readPacket(readings);
-    for (int i=0;i<8;i++)
-      printf("%0.9f ", readings[i]);
+    readings = s.readPacket();
+    for (VECTOR::iterator i=readings.begin();i!=readings.end();i++)
+      printf("%0.9f ", *i);
     printf("\n");
   }
 

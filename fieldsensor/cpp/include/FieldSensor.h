@@ -26,15 +26,24 @@
 #ifndef __H_FIELDSENSOR
 #define __H_FIELDSENSOR
 
+/* annie is the neural net library we use */
+#include <annie.h>
+using namespace annie;
+
 class FieldSensor {
  public:
-  FieldSensor(const char *serialPort="/dev/ttyS0");
+  FieldSensor(const char *serialPort="/dev/ttyS0", const char *netFile="data/current.net");
   ~FieldSensor(void);
 
-  void readPacket(double *packet);
+  /* Read a raw packet from the sensor */
+  VECTOR readPacket(void);
+
+  /* Read a packet and use the neural net to infer position */
+  VECTOR readPosition(void);
 
  private:
   int fd;
+  annie::TwoLayerNetwork net;
   void sendSlowly(const char *str);
   void reset(void);
   void boot(void);
