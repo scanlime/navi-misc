@@ -165,9 +165,11 @@ def loadAMC (filename, d):
         # freaking slow would be nicer
         Blender.Window.DrawProgressBar (float (frame.number) / totalFrames, 'Frame %d of %d' % (frame.number, totalFrames))
 
-        # Set root position/orientation. We need to and scale this just like we
-        # did for the positions of the individual bones
+        # Set root position/orientation. We need to swizzle and scale this just
+        # like we did for the positions of the individual bones, but we also need
+        # to flip the Z orientation, for some reason.
         location = [(n * 0.1) for n in frame.bones['root'][0:3]]
+        location = [location[0], location[2] * -1, location[1]]
         rotation = Blender.Mathutils.Euler (frame.bones['root'][3:6]).toQuat ()
 
         d.bones['root'].setLoc (location)
