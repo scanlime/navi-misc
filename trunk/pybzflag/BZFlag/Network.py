@@ -24,7 +24,7 @@ links.
 # 
 
 import BZFlag.Protocol.Common
-import socket
+import socket, select
 
 
 class Socket:
@@ -52,6 +52,9 @@ class Socket:
     def close(self):
         self.socket.close()
         self.socket = None
+
+    def setBlocking(self, flag):
+        self.socket.setblocking(flag)
     
     def write(self, data):
         self.socket.send(str(data))
@@ -80,6 +83,26 @@ class Socket:
             port = int(port)
         self.socket.connect((host, port))
 
+    def poll(self, eventLoop):
+        """This is designed for event driven programming with
+           one or more sockets. The event loop should call this
+           method when it detects activity on the socket, then
+           this method will call the current socket handler.
+           If there really wasn't any data available (assuming
+           this is a nonblocking socket) it will return
+           uneventfully.
+           """
+        try:
+            self.handler(self, eventLoop)
+        except socket.error:
+            pass
+
+    def getSelectable(self):
+        """Return an object for this socket that can be passed
+           to select()
+           """
+        return self.socket.fileno()
+        
     def readStruct(self, structClass):
         struct = structClass()
         struct.unmarshall(self.read(struct.getSize()))
@@ -87,6 +110,27 @@ class Socket:
 
     def readMessage(self):
         pass
+
+
+class EventLoop:
+    def run(self, sockets):
+        self.running = 1
+
+        # Make a dictionary for quickly detecting which socket has activity
+        selectDict = {}
+        for socket in sockets:
+            selectable = socket.getSelectable()
+            selectDict[selectable] = socket
+        selectables = selectDict.keys()
+            
+        while self.running:
+            (iwtd, owtd, ewtd) = select.select(selectables, [], selectables)
+            readyList = iwtd + owtd + ewtd
+            for ready in readyList:
+                selectDict[ready].poll(self)
+
+    def stop(self):
+        self.running = 0
 
 ### The End ###
         

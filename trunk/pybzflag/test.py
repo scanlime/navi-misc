@@ -8,8 +8,8 @@ import BZFlag.ListServer
 server = BZFlag.ListServer.getDefault().filteredList()[0]
 print server.info()
 
-# Connect a client
-client = BZFlag.Client.BaseClient(server.name)
-print client.id
-client.disconnect()
+class TestClient(BZFlag.Client.BaseClient):
+    def onConnect(self):
+        print "Connected, got client id %d" % self.id
 
+TestClient(server.name).run()
