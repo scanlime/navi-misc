@@ -22,7 +22,7 @@ A small library for managing multiple IRC bots on multiple IRC networks
 #
 
 from twisted.protocols import irc
-from twisted.internet import protocol, reactor
+from twisted.internet import protocol, reactor, defer
 from twisted.python import log
 import time
 
@@ -114,6 +114,32 @@ class Server:
         return hash((self.host, self.port))
 
 
+class SequentialNickAllocator:
+    """A nick allocator is responsible for determining what constitutes a valid nick,
+       and generating a list of valid nicks. This particular implementation
+       uses sequentially numbered bots starting with a given prefix.
+       """
+    def __init__(self, prefix):
+        self.prefix = prefix
+
+    def isValid(self, nick):
+        if not nick.startswith(self.prefix):
+            return False
+        numericPart = nick[len(self.prefix):]
+        try:
+            int(numericPart)
+            return True
+        except ValueError:
+            return False
+
+    def generate(self):
+        """Generate a sequence of valid nicks, starting with the most preferable"""
+        i = 1
+        while True:
+            yield self.prefix + str(i)
+            i += 1
+
+
 class BotNetwork:
     """A collection of IRC bots that work to satisfy a collection of Request objects.
        Users should interact with the BotNetwork via Request instances.
@@ -134,7 +160,8 @@ class BotNetwork:
 
     botCheckTimer = None
 
-    def __init__(self, nickFormat):
+    def __init__(self, nickAllocator):
+        self.nickAllocator = nickAllocator
         self.requests = []
 
         # A map from Server to list of Bots
@@ -325,14 +352,92 @@ class Bot(irc.IRCClient):
         return len(self.channels) + len(self.requestedChannels) >= self.maxChannels
 
     def connectionMade(self):
-        """Called by IRCClient when we have a socket connection to the server.
-           This allocates the nick we'd like to use.
-           """
+        """Called by IRCClient when we have a socket connection to the server."""
         self.emptyChannels()
         self.server = self.factory.server
         self.botNet = self.factory.botNet
-        self.nickname = "squiggly"
+        self.nickname = self.findNickQuickly()
         irc.IRCClient.connectionMade(self)
+
+    def nickChanged(self, newname):
+        irc.IRCClient.nickChanged(self, newname)
+        if not self.botNet.nickAllocator.isValid(newname):
+            # We got a bad nick, try to find a better one
+            log.msg("%r got an unsuitable nickname, trying to find a better one..." % self)
+            self.findNick().addCallback(self.foundBetterNick)
+
+    def foundBetterNick(self, nick):
+        log.msg("%r found a better nick, renaming to %r" % (self, nick))
+        self.setNick(nick)
+
+    def findNickQuickly(self):
+        """This is used to get an initial nick during registration, before
+           we're allowed to make WHOIS queries. It only checks whether a nick
+           is already in use by one of our bots. If we happened to grab a nick
+           that's already in use, the server will rename us and our nickChanged()
+           handler will try to find a better nick.
+           """
+        for nick in self.botNet.nickAllocator.generate():
+            if not nick in self.botNet.servers.get(self.server, []):
+                return nick
+
+    def findNick(self):
+        """Find a new unused nickname for this bot. As this requires
+           testing whether each desired nickname is in use, it returns a Deferred.
+           """
+        result = defer.Deferred()
+        self._findNick(True, None, self.botNet.nickAllocator.generate(), result)
+        return result
+
+    def _findNick(self, isUsed, testedNick, generator, result):
+        """Callback implementing the guts of findNick.
+           On the first call, isUsed is True and testedNick is None.
+           We grab the next nick from the provided generator and
+           start testing it, providing this function as the deferred's
+           callback. If the nick isn't used, we send the nick to
+           our result callback. Otherwise, the cycle continues.
+           """
+        if isUsed:
+            nextNick = generator.next()
+            self.isNickUsed(nextNick).addCallback(self._findNick, nextNick, generator, result)
+        else:
+            result.callback(testedNick)
+
+    def isNickUsed(self, nick):
+        """Determine if the given nick is in use, using WHOIS.
+           Returns a Deferred that eventually resolves to a boolean.
+
+           If the server doesn't respond to the WHOIS, we assume the nick
+           isn't in use. This way if we're on a server that somehow has a broken
+           WHOIS, we end up with an ugly nick rather than sitting in an infinite loop.
+           """
+        result = defer.Deferred()
+
+        # First check whether any of our own bots are using this nick
+        for bot in self.botNet.servers.get(self.server, []):
+            if nick == bot.nickname:
+                result.callback(True)
+                return result
+
+        # It's not that easy- try a WHOIS query
+        result.setTimeout(30, result.callback, False)
+        self.sendLine("WHOIS %s" % nick)
+        self.currentWhoisDeferred = result
+        return result
+
+    def irc_RPL_WHOISUSER(self, prefix, params):
+        """Reply to the WHOIS command we use to evaluate if a nick is used or not.
+           This one would indicate that the nick is indeed used.
+           """
+        self.currentWhoisDeferred.callback(True)
+        del self.currentWhoisDeferred
+
+    def irc_ERR_NOSUCHNICK(self, prefix, params):
+        """Reply to the WHOIS command we use to evaluate if a nick is used or not.
+           This indicates that the nick is available.
+           """
+        self.currentWhoisDeferred.callback(False)
+        del self.currentWhoisDeferred
 
     def emptyChannels(self):
         """Called when we know we're not in any channels and we shouldn't
@@ -350,6 +455,10 @@ class Bot(irc.IRCClient):
            the IRC server and can finally start joining channels.
            """
         self.emptyChannels()
+
+        # Important to check whether the nick we got was any good
+        self.nickChanged(self.nickname)
+
         log.msg("%r connected" % self)
         self.botNet.botConnected(self)
 

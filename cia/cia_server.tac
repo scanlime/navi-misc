@@ -13,7 +13,7 @@ application = service.Application("cia_server")
 hub = Message.Hub()
 
 # A network of IRC bots used to handle irc:// URIs
-botNet = IRC.Bots.BotNetwork("CIA-%d")
+botNet = IRC.Bots.BotNetwork(IRC.Bots.SequentialNickAllocator("CIA-"))
 
 # Set up periodic maintenance of our stats database
 Stats.Maintenance().run()
