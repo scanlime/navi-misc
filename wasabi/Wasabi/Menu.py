@@ -161,9 +161,9 @@ class ArcMenu(DockMenu):
         """A track function that moves the icons along an arc on the right side of the screen.
            Icons are spaced apart by 1 unit, positive is down.
            """
-        thetaExp = 0.5
-        thetaCoeff = 0.05
-        sizeExp = 5
+        thetaExp = 1
+        thetaCoeff = 0.3
+        sizeExp = 2.5
         maxSize = self.viewport.size[0] * 0.15
         radius = self.viewport.size[0] * 0.7
         vCenter = self.viewport.size[1] * 0.5
