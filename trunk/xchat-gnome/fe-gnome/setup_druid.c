@@ -82,8 +82,14 @@ void initialize_setup_druid() {
 }
 
 void run_setup_druid() {
+	GtkWidget *druid_window;
+    
 	druid_finished = FALSE;
+	druid_window = glade_xml_get_widget(gui.xml, "setup druid window");
+
 	gtk_widget_show_all(GTK_WIDGET(gui.setup_druid));
+	gtk_widget_show_all(GTK_WIDGET(druid_window));
+
 	while(!druid_finished) {
 		g_main_context_iteration(NULL, TRUE);
 	}
