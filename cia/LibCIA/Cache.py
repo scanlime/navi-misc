@@ -25,6 +25,7 @@ an access time and an optional expiration date.
 
 from LibCIA import Database
 from twisted.internet import defer
+import time, md5
 
 
 class AbstractStringCache:
@@ -40,8 +41,7 @@ class AbstractStringCache:
 
            Returns a Deferred instance.
            """
-        id = self.hash(self, *args)
-        print "%r hashes to %r" % (args, id)
+        id = self.hash(*args)
         result = defer.Deferred()
         Database.pool.runQuery("SELECT value, expiration FROM cache WHERE id = %s" %
                                Database.quote(id, 'varchar')).addCallback(
@@ -54,17 +54,20 @@ class AbstractStringCache:
            hasn't expired yet, return that. Otherwise, we can start creating the
            data to return.
            """
-        if rows and rows[0][1] > time.time():
-            # It's a cache hit, yay. Update the access time asynchronously,
-            # and return the cached result immediately.
-            result.callback(rows[0][0])
-            Database.pool.runOperation("UPDATE cache SET atime = %s WHERE id = %s" %
-                                       (Database.quote(int(time.time()), 'bigint'),
-                                        Database.quote(id, 'varchar')))
-        else:
-            # Darn, a cache miss. Start generating the data, possibly asynchronously
-            defer.maybeDeferred(self.miss, *args).addCallback(
-                self.returnAndStoreValue, result, id).addErrback(result.errback)
+        if rows:
+            value, expiration = rows[0]
+            if expiration is None or expiration > time.time():
+                # It's a cache hit, yay. Update the access time asynchronously,
+                # and return the cached result immediately.
+                result.callback(rows[0][0])
+                Database.pool.runOperation("UPDATE cache SET atime = %s WHERE id = %s" %
+                                           (Database.quote(int(time.time()), 'bigint'),
+                                            Database.quote(id, 'varchar')))
+                return
+
+        # Darn, a cache miss. Start generating the data, possibly asynchronously
+        defer.maybeDeferred(self.miss, *args).addCallback(
+            self.returnAndStoreValue, result, id).addErrback(result.errback)
 
     def returnAndStoreValue(self, value, result, id):
         """This is called after we've finished generating a value to return, when
@@ -93,10 +96,12 @@ class AbstractStringCache:
 
     def hash(self, *args):
         """Convert our arguments to something that will fit in the
-           database's varchar(32) id field. This uses a hash()
-           of the arguments plus our class, so each subclass of the
+           database's varchar(32) id field. hash() can easily become
+           instable across multiple invocations, so this uses an md5sum
+           of the object's repr().
+           The name of our class is included, so each subclass of the
            abstract cache will have a different id space.
            """
-        return str(hash((self.__class__, args)))
+        return md5.md5(repr( (self.__class__.__name__, args) )).hexdigest()
 
 ### The End ###
