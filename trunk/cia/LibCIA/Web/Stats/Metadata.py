@@ -54,7 +54,7 @@ class Info(Template.Section):
         if url:
             rows.append(tag('a', href=url)[url])
         if hasPhoto:
-            rows.append(Template.Photo(Link.MetadataLink(self.target, 'photo').getURL(context)))
+            rows.append(Template.Photo(Link.ThumbnailLink(self.target, 'photo', (250,400)).getURL(context)))
         if description:
             rows.append(description)
         result.callback(rows)
@@ -111,7 +111,7 @@ class MetadataValueColumn(Nouvelle.Column):
         """Return an <img> tag linking to the key's value"""
         # The alt attribute here is rather useless, but required by XHTML
         return tag('img',
-                   src = Link.MetadataLink(context['target'], name).getURL(context),
+                   src = Link.ThumbnailLink(context['target'], name, (128,128)).getURL(context),
                    alt = '%r metadata' % name,
                    )
 

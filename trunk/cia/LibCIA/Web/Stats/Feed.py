@@ -102,7 +102,7 @@ class RSSFeed(FormattedFeed):
     def _render_photo(self, hasPhoto, context, result):
         if hasPhoto:
             result.callback(tag('image')[
-                tag('url')[ Link.MetadataLink(self.target, 'photo').getURL(context) ],
+                tag('url')[ Link.ThumbnailLink(self.target, 'photo', (144,400)).getURL(context) ],
                 tag('title')[ place('title') ],
                 tag('link')[ place('link') ],
                 ])
