@@ -75,11 +75,12 @@ static void animation_class_init(AnimationClass *klass) {
 }
 
 static void animation_init(Animation *self) {
-  self->model = gtk_list_store_new(4,
-				   GDK_TYPE_PIXBUF,   /* ANIMATION_MODEL_THUMBNAIL */
-				   G_TYPE_STRING,     /* ANIMATION_MODEL_PARAMS    */
-				   G_TYPE_DOUBLE,     /* ANIMATION_MODEL_DURATION  */
-				   TYPE_SPLINE);      /* ANIMATION_MODEL_SPLINE    */
+  self->model = gtk_list_store_new(5,
+				   GDK_TYPE_PIXBUF,     /* ANIMATION_MODEL_THUMBNAIL */
+				   G_TYPE_STRING,       /* ANIMATION_MODEL_PARAMS    */
+				   G_TYPE_DOUBLE,       /* ANIMATION_MODEL_DURATION  */
+				   TYPE_SPLINE,         /* ANIMATION_MODEL_SPLINE    */
+				   GTK_TYPE_TREE_ITER); /* ANIMATION_MODEL_ITER      */
 }
 
 static void animation_dispose(GObject *gobject) {
@@ -129,7 +130,12 @@ void animation_keyframe_load_dejong(Animation *self, GtkTreeIter *iter, DeJong *
 
 void animation_keyframe_append(Animation *self, DeJong *dejong) {
   GtkTreeIter iter;
+
   gtk_list_store_append(self->model, &iter);
+  gtk_list_store_set(self->model, &iter,
+		     ANIMATION_MODEL_ITER, &iter,
+		     -1);
+
   animation_keyframe_store_dejong(self, &iter, dejong);
   animation_set_default_transition(self, &iter);
 }

@@ -1,5 +1,6 @@
 /*
- * cell-renderer-transition.h - A GtkCellRenderer for viewing and editing animation transitions
+ * cell-renderer-transition.h - A GtkCellRenderer for viewing a keyframe's transition,
+ *                              including the transition curve and duration.
  *
  * de Jong Explorer - interactive exploration of the Peter de Jong attractor
  * Copyright (C) 2004 David Trowbridge and Micah Dowty

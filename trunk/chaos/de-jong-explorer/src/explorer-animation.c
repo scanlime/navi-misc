@@ -23,6 +23,7 @@
 #include "explorer.h"
 #include "curve-editor.h"
 #include "cell-renderer-transition.h"
+#include "cell-renderer-bifurcation.h"
 #include <stdlib.h>
 #include <math.h>
 
@@ -136,6 +137,27 @@ static void explorer_init_keyframe_view(Explorer *self) {
   gtk_tree_view_column_set_attributes(col, renderer,
 				      "spline", ANIMATION_MODEL_SPLINE,
 				      "duration", ANIMATION_MODEL_DURATION,
+				      NULL);
+
+  gtk_tree_view_append_column(tv, col);
+
+  /* The third column uses another custom cell renderer to show a bifurcation
+   * diagram of the transition between this keyframe and the next, given
+   * the iterator and animation.
+   */
+  col = gtk_tree_view_column_new();
+  gtk_tree_view_column_set_title(col, "Bifurcation Diagram");
+
+  renderer = cell_renderer_bifurcation_new();
+  g_object_set(renderer,
+	       "xpad", 0,
+	       "ypad", 0,
+	       "animation", self->animation,
+	       NULL);
+
+  gtk_tree_view_column_pack_start(col, renderer, TRUE);
+  gtk_tree_view_column_set_attributes(col, renderer,
+				      "iter", ANIMATION_MODEL_ITER,
 				      NULL);
 
   gtk_tree_view_append_column(tv, col);
