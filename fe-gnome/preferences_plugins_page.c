@@ -52,8 +52,6 @@ void initialize_preferences_plugins_page() {
 	select = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
 	gtk_tree_selection_set_mode(select, GTK_SELECTION_SINGLE);
 
-	plugin_auto_load(NULL);
-
 	preferences_plugins_page_populate();
 }
 
