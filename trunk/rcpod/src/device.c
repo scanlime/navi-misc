@@ -124,15 +124,11 @@ struct usb_device* rcpod_GetDevices(void) {
 rcpod_dev* rcpod_Open(struct usb_device *usbdev) {
   rcpod_dev* rcpod;
 
-  if (usbdev->descriptor.bcdDevice != RCPOD_PROTOCOL_VERSION) {
-    /* We had a version mismatch. Both version numbers are stored as BCD integers
-     * with two digits to the right of the decimal point, decode them for an error message.
-     */
-    char errorBuffer[256];
-    sprintf(errorBuffer, "Protocol version mismatch, device is version %x.%02x, host is version %x.%02x",
-	    usbdev->descriptor.bcdDevice >> 8, usbdev->descriptor.bcdDevice & 0xFF,
-	    RCPOD_PROTOCOL_VERSION >> 8, RCPOD_PROTOCOL_VERSION & 0xFF);
-    rcpod_HandleError("rcpod_Open", 0, errorBuffer);
+  /* We stay fairly compatible with all RCPOD devices version 1.10 and
+   * later, but before 1.10 things were just too crazy.
+   */
+  if (usbdev->descriptor.bcdDevice < 0x0110) {
+    rcpod_HandleError("rcpod_Open", 0, "librcpod doesn't support devices with firmware older than protocol version 1.10");
     return NULL;
   }
 
