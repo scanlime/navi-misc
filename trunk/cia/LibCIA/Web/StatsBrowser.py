@@ -22,7 +22,7 @@ A web interface for CIA's stats:// namespace
 #
 
 from __future__ import division
-import time, math, posixpath
+import time, math
 import Template, Nouvelle
 import Nouvelle.Twisted
 from LibCIA import TimeUtil, Message
@@ -120,8 +120,7 @@ class TargetRelativeLink:
         self.relativePathSegments = tuple(relativePathSegments)
 
     def getURL(self, context):
-        return context['statsRootPath'] + posixpath.join(*(
-            tuple(self.target.pathSegments) + self.relativePathSegments))
+        return context['statsRootPath'] + '/'.join(tuple(self.target.pathSegments) + self.relativePathSegments)
 
 
 class StatsLink(TargetRelativeLink):
