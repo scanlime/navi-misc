@@ -326,4 +326,9 @@ public class PipelineEditor
 	public void OnMenuViewKeepClean (object o, EventArgs args)
 	{
 	}
+
+	/* 'Help' Menu events */
+	public void OnMenuHelpContents (object o, EventArgs args)
+	{
+	}
 }
