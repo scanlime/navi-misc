@@ -226,7 +226,7 @@ class ThermMenu(gtk.Menu):
 
 
 class ThermApplet:
-    def __init__(self, applet, iid, url="http://navi.cx/therm", updateInterval=5):
+    def __init__(self, applet, iid, url="http://navi.cx/therm", updateInterval=60):
         self.applet = applet
         self.server = ThermServer(url)
 
