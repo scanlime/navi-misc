@@ -45,7 +45,10 @@ class XMLObject(object):
         elif hasattr(xml, 'read'):
             self.loadFromStream(xml, uri)
         elif hasattr(xml, 'nodeType'):
-            self.loadFromDom(xml)
+            # FIXME: This is loading via a string since loadFromDom
+            #        currently has a memory leak.
+            self.loadFromString(toString(xml), uri)
+            #self.loadFromDom(xml)
 
     def __str__(self):
         return toString(self.xml)
@@ -65,6 +68,8 @@ class XMLObject(object):
 
     def loadFromDom(self, root):
         """Set the contents of the Message from a parsed DOM tree"""
+        # FIXME: This method leaks memory
+
         if hasattr(root, "documentElement"):
             self.xml = root
         else:
