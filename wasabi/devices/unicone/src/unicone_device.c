@@ -589,7 +589,7 @@ int                       unicone_device_set_led          (struct unicone_device
 							   float                     brightness,
 							   float                     decay_rate)
 {
-  if (usb_control_msg(self->usbdev, USB_TYPE_VENDOR | 0x80,
+  if (usb_control_msg(self->usbdev, USB_TYPE_VENDOR,
 		      UNICONE_REQ_SET_LED,
 		      brightness * 0xFFFF + 0.5,
 		      decay_rate * 0xFFFF + 0.5,

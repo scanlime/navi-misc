@@ -39,6 +39,7 @@ class UniconeDevice(object):
     def __init__(self):
         unicone_usb_init()
         self._dev = unicone_device_new()
+        self._progress_c = progress_reporter_console_new()
         if not self._dev:
             raise IOError("Unable to open Unicone device")
 
@@ -48,25 +49,53 @@ class UniconeDevice(object):
         if self._progress_c:
             progress_reporter_delete(self._progress_c)
 
-    def configure(self, bitstream,
-                  firmware = "firmware.bin"):
+    def configure(self, bitstream, firmware = "firmware.bin"):
+        """Ensure that the Unicone device has the given FPGA bitstream
+           and microcontroller firmware. If the firmware and bitstream
+           are already installed, this returns quickly. If any downloads
+           have to be performed, the current progress object reports
+           status.
+           """
         if unicone_device_configure(self._dev, firmware,
                                     bitstream, self._progress_c) < 0:
             raise IOError("Error configuring unicone device")
 
     def setLed(self, brightness, decayRate=0):
-        unicone_device_set_led(self._dev, brightness, decayRate)
+        """Set the brightness of the device's status LED,
+           optionally also specifying a decay rate. The brightness
+           is a number in the range [0, 1] with 16-bit resolution.
+
+           The decay rate is also in the range [0, 1], in arbitrary
+           units dependent on the speed of the microcontroller's
+           main loop. It has no timer hardware that could be used
+           to calibrate this.
+           """
+        if unicone_device_set_led(self._dev, brightness, decayRate) < 0:
+            raise IOError("Error setting LED brightness")
+
+    def i2cWrite(self, address, data):
+        """Write an arbitrary packet to an I2C device with the
+           given 7-bit address.
+           """
+        if unicone_device_i2c_write(self._dev, address, data) < 0:
+            raise IOError("Error sending I2C write request")
 
     def _setProgress(self, progress):
         self._progress_py = progress
         if self._progress_c:
             progress_reporter_delete(self._progress_c)
-        self._progress_c = progress_reporter_python_new(progress)
+        if progress:
+            self._progress_c = progress_reporter_python_new(progress)
+        else:
+            self._progress_c = None
 
     def _getProgress(self):
         return self._progress_py
 
     progress = property(_getProgress, _setProgress)
-
+    """By default, progress is reported on stdout. A Python implementation
+       of a progress reporting object may be assigned to this property to
+       report using it instead.
+       """
 
 ### The End ###
