@@ -31,9 +31,14 @@ import types
 import Nouvelle
 from xml.dom.ext.reader import Sax2
 import xml.dom.ext
+import xml.dom.Event
 import xml.xpath
 from cStringIO import StringIO
 from twisted.python import log
+
+# This is a hack to disable DOM2 event support, hopefully with a dramatic
+# decrease in the number of empty lists we have lying around.
+del xml.dom.Event.supportedEvents[:]
 
 
 class XMLObject(object):
