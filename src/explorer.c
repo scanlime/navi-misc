@@ -105,8 +105,6 @@ static void explorer_init(Explorer *self) {
     if (!self->xml)
 	self->xml = glade_xml_new(BR_DATADIR("/fyre/explorer.glade"), NULL, NULL);
 
-    self->paused = FALSE;
-
     self->window = glade_xml_get_widget(self->xml, "explorer_window");
     fyre_set_icon_later(self->window);
     fyre_set_icon_later(glade_xml_get_widget(self->xml, "animation_window"));
@@ -543,15 +541,46 @@ static gboolean on_interactive_prefs_delete(GtkWidget *widget, GdkEvent *event, 
 /************************************************************************************/
 
 static void on_pause_rendering_toggle(GtkWidget *widget, Explorer* self) {
-    self->paused = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget));
-    if (self->paused)
+    if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget)))
 	iterative_map_stop_calculation(self->map);
     else
 	iterative_map_start_calculation(self->map);
 
+    /* Since the user is changing the pause state, let's refrain from
+     * messing with it on explorer_restore_pause().
+     */
+    self->unpause_on_restore = FALSE;
+
     /* Update the speed shown in the status bar */
     self->status_dirty_flag = TRUE;
     explorer_update_gui(self);
+}
+
+void      explorer_force_pause           (Explorer *self)
+{
+    /* Force rendering to pause now, but keep note of its original state
+     * so that explorer_restore_pause() can undo this as necessary.
+     */
+    GtkCheckMenuItem *paused = GTK_CHECK_MENU_ITEM(glade_xml_get_widget(self->xml, "pause_menu"));
+    gboolean original_state = gtk_check_menu_item_get_active(paused);
+    gtk_check_menu_item_set_active(paused, TRUE);
+
+    /* Now, on_pause_rendering_toggle just disabled unpause_on_restore since
+     * typically only a user changes the pause_menu state. We want to turn
+     * that back on if we just paused it and originally it was unpaused,
+     * so that explorer_restore_pause() does the Right Thing (tm).
+     */
+    self->unpause_on_restore = !original_state;
+}
+
+void      explorer_restore_pause         (Explorer *self)
+{
+    if (self->unpause_on_restore) {
+	GtkCheckMenuItem *paused = GTK_CHECK_MENU_ITEM(glade_xml_get_widget(self->xml, "pause_menu"));
+
+	self->unpause_on_restore = FALSE;
+	gtk_check_menu_item_set_active(paused, FALSE);
+    }
 }
 
 static void on_calculation_finished(IterativeMap *map, Explorer* self)
