@@ -116,7 +116,8 @@ void userlist_insert(session *sess, struct User *newuser, int row, int sel) {
 	store = GTK_LIST_STORE(s->userlist_model);
 
 	completion = g_object_get_data(G_OBJECT(store), "userlist_completion");
-	g_completion_add_items(completion, g_list_append(NULL, newuser->nick));
+	if(g_list_find(completion, newuser->nick) == NULL)
+		g_completion_add_items(completion, g_list_append(NULL, newuser->nick));
 
 	pix = get_user_icon(sess->server, newuser);
 
