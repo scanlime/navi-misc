@@ -28,6 +28,7 @@
 #include "channel_list.h"
 #include "main_window.h"
 #include "topiclabel.h"
+#include "../common/servlist.h"
 
 /***** NavTree *****/
 static void navigation_tree_init         (NavTree *navtree);
@@ -856,7 +857,15 @@ navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_dat
 		set_nickname(sess->server, NULL);
 
 		/* Change the window name. */
-		rename_main_window(sess->server->networkname, sess->channel);
+		if (sess->server->network == NULL)
+		{
+			rename_main_window (NULL, sess->channel);
+		}
+		else
+		{
+			ircnet *net = sess->server->network;
+			rename_main_window (net->name, sess->channel);
+		}
 
 		/* remove any icon that exists */
 		store = gtk_tree_model_sort_get_model(GTK_TREE_MODEL_SORT(model));

@@ -330,8 +330,18 @@ void fe_set_channel(struct session *sess) {
 }
 
 void fe_set_title(struct session *sess) {
-	if(sess == gui.current_session)
-		rename_main_window(sess->server->networkname, sess->channel);
+	if (sess == gui.current_session)
+	{
+		if (sess->server->network == NULL)
+		{
+			rename_main_window (NULL, sess->channel);
+		}
+		else
+		{
+			ircnet *net = sess->server->network;
+			rename_main_window (net->name, sess->channel);
+		}
+	}
 }
 
 void fe_set_nonchannel(struct session *sess, int state) {
