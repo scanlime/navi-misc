@@ -1,7 +1,7 @@
 ;                            Software License Agreement
 ;
 ; The software supplied herewith by Microchip Technology Incorporated (the "Company")
-; for its PICmicro® Microcontroller is intended and supplied to you, the Company’s
+; for its PICmicro Microcontroller is intended and supplied to you, the Company's
 ; customer, for use solely and exclusively on Microchip PICmicro Microcontroller
 ; products.
 ;
@@ -19,7 +19,7 @@
 ;
 ; ###############################################################################
 ;	filename:		USB_DEFS.INC
-; 
+;
 ; Definitions used throughout the Chapter 9 code
 ;
 ; ###############################################################################
