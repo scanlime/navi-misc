@@ -60,18 +60,14 @@ class OpenedDevice:
     """Wraps an opened rcpod device, represented in librcpod
        by the rcpod_dev* opaque type.
        """
-    def __init__(self, dev):
+    def __init__(self, dev, availableDevice):
         self.dev = dev
+        self.availableDevice = availableDevice
 
         # Make the scratchpad location more easily accessable
         self.scratchpadRange = (RCPOD_REG_SCRATCHPAD,
                                 RCPOD_REG_SCRATCHPAD + RCPOD_SCRATCHPAD_SIZE)
 
-    def __del__(self):
-        try:
-            self.close()
-        except:
-            pass
 
     def close(self):
         """Terminate our connection to the rcpod. No attributes
@@ -80,6 +76,7 @@ class OpenedDevice:
         if self.dev:
             rcpod_Close(self.dev)
             self.dev = None
+            self.availableDevice.opened = False
 
     def reset(self):
         """Reset I/O-related registers to their power-on state.
@@ -164,12 +161,16 @@ class AvailableDevice:
        """
     def __init__(self, usbdev):
         self.usbdev = usbdev
+        self.opened = False
 
     def open(self, reset=True):
         """Open the device, and wrap it in an OpenedDevice class.
            By default the device is reset, though this can be overridden.
            """
-        opened = OpenedDevice(rcpod_Open(self.usbdev))
+        if self.opened:
+            raise IOError("rcpod device is already opened")
+        self.opened = True
+        opened = OpenedDevice(rcpod_Open(self.usbdev), self)
         if reset:
             opened.reset()
         return opened
