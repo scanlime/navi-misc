@@ -1,0 +1,28 @@
+<character_sheet>
+	<tab_view>
+		<tab label="Info">
+			<text_field label="Name:" path="/character/name">
+			</text_field>
+
+			<text_field label="Race:" path="/character/race">
+			</text_field>
+
+			<text_field label="Class:" path="/character/class">
+			</text_field>
+
+			<text_field label="Exp:" path="/character/exp">
+			</text_field>
+		</tab>
+
+		<tab label="Attrs">
+			<text_field label="Strength" path="/character/strength">
+			</text_field>
+
+			<text_field label="Dexterity" path="/character/dexterity">
+			</text_field>
+		</tab>
+
+		<tab label="Combat">
+		</tab>
+	</tab_view>
+</character_sheet>
