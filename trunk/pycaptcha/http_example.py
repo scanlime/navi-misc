@@ -85,7 +85,11 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         if not test:
             return self.handle404()
 
-        if test.testSolutions([word]):
+        if not test.valid:
+            # Invalid tests will always return False, to prevent
+            # random trial-and-error attacks. This could be confusing to a user...
+            result = "Test invalidated, try another test"
+        elif test.testSolutions([word]):
             result = "Correct"
         else:
             result = "Incorrect"
