@@ -21,7 +21,7 @@ function cleanupdb($thetime)
 	{
 		if ($thetime - $line[10] > 5*60 )	// if it's over 5 min
 		{
-			$deletequery = "DELETE * FROM servers WHERE 'id' = 'line[id]'";
+			$deletequery = "DELETE * FROM servers WHERE id = $line[id]";
 			mysql_query($deletequery)
 				or die("cleanupdb::delete failed : " . mysql_error());
 		}
