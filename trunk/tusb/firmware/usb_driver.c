@@ -122,14 +122,20 @@ static void usb_handle_standard_request() {
     /* Set the device address and send a 0-length response */
     printf("Setting address to %d\n", usb_setup_buffer.wValue);
     FUNADR = usb_setup_buffer.wValue;
-    OEPCNFG_0 |= STALL;
-    IEPBCNT_0 = 0;
+    usb_write_ack();
     break;
 
   case USB_REQ_GET_DESCRIPTOR:
+    /* Send back one of our descriptors from the table */
     printf("Descriptor 0x%04X requested, language 0x%04X, length %d\n",
 	   usb_setup_buffer.wValue, usb_setup_buffer.wIndex, usb_setup_buffer.wLength);
     usb_handle_descriptor_request();
+    break;
+
+  case USB_REQ_SET_CONFIGURATION:
+    /* We only have one configuration, so nothing to do */
+    printf("Setting configuration to %d\n", usb_setup_buffer.wValue);
+    usb_write_ack();
     break;
 
   default:
@@ -137,7 +143,15 @@ static void usb_handle_standard_request() {
   }
 }
 
+void usb_write_ack() {
+  /* Send a response to a dataless request */
+  OEPCNFG_0 |= STALL;
+  IEPBCNT_0 = 0;
+}
+
 void usb_write_ep0_buffer(unsigned char *buffer, int length) {
+  /* Sent a response to a request expecting EP0 IN data */
+
   int packet_length;
   int i;
 
