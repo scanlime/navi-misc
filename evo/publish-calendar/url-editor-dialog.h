@@ -57,8 +57,10 @@ struct _UrlEditorDialog2 {
 	GtkWidget *type_selector;
 	GtkWidget *publish_events;
 	GtkWidget *events_swin;
+	GtkWidget *events_selector;
 	GtkWidget *publish_tasks;
 	GtkWidget *tasks_swin;
+	GtkWidget *tasks_selector;
 
 	GtkWidget *username_entry;
 	GtkWidget *password_entry;
