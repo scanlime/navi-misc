@@ -62,7 +62,7 @@ initialize_preferences_plugins_page ()
 	remove = glade_xml_get_widget (gui.xml, "plugin remove");
 
   /* Plugin name, version, description, file, loaded (true or false) */
-	store = gtk_list_store_new (5, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_BOOLEAN);
+	store = gtk_list_store_new (6, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_BOOLEAN, G_TYPE_POINTER);
 	gtk_tree_view_set_model (GTK_TREE_VIEW (treeview), GTK_TREE_MODEL (store));
 
 	load_renderer = gtk_cell_renderer_toggle_new ();
@@ -186,13 +186,30 @@ on_open_plugin_clicked (GtkButton *button, gpointer user_data)
 	homedir = g_get_home_dir();
 	plugindir = malloc (strlen (homedir) + strlen ("/.xchat2/plugins") + 1);
 	sprintf (plugindir, "%s/.xchat2/plugins", homedir);
-	//gtk_file_selection_set_filename( GTK_FILE_SELECTION (file_selector), plugindir);
-	gtk_widget_show (file_selector);
+	gtk_file_selection_set_filename( GTK_FILE_SELECTION (file_selector), plugindir);
 }
 
 static void
 on_remove_plugin_clicked (GtkButton *button, gpointer user_data)
 {
+	GtkWidget *treeview;
+	GtkTreeModel *model;
+	GtkTreeIter iter;
+	GtkTreeSelection *selection;
+	gboolean loaded;
+	char *filename;
+
+	treeview = glade_xml_get_widget (gui.xml, "plugins list");
+	model = gtk_tree_view_get_model (GTK_TREE_VIEW (treeview));
+	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
+
+	if (gtk_tree_selection_get_selected (selection, &model, &iter)) {
+		gtk_tree_model_get (model, &iter, 3, &filename, 4, &loaded, -1);
+		/* If the plugin is loaded unload it. */
+		if (loaded)
+			plugin_kill (filename, TRUE);
+		gtk_list_store_remove (GTK_LIST_STORE (model), &iter);
+	}
 }
 
 static void
@@ -228,11 +245,14 @@ xchat_gnome_plugin_add (char *filename)
 		((xchat_plugin_get_info*)info_func) (&name, &desc, &version);
 		gtk_list_store_set (store, &iter, 0, name, 1, version, 2, desc, 3, filename, -1);
 	}
+	/* In the event that this foolish plugin has no get_info function we'll just use
+	 * the file name.
+	 */
 	else {
 		name = rindex (filename, '/') + 1;
 		version = "unknown";
 		desc = "unkown";
-		gtk_list_store_set (store, &iter, 0, name, 1, version, 2, desc, 3, filename, -1);
+		gtk_list_store_set (store, &iter, 0, name, 1, version, 2, desc, 3, filename, 5, handle, -1);
 	}
 }
 

@@ -3542,9 +3542,8 @@
 		      </child>
 
 		      <child>
-			<widget class="GtkButton" id="button43">
+			<widget class="GtkButton" id="plugin remove">
 			  <property name="visible">True</property>
-			  <property name="sensitive">False</property>
 			  <property name="can_default">True</property>
 			  <property name="can_focus">True</property>
 			  <property name="label">gtk-remove</property>
