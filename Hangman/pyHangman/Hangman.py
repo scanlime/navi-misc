@@ -189,9 +189,9 @@ class HangmanGUI:
 		self.quit.connect("clicked", self.Quit)
 
 		# Gallows.
-		gallowsFrame = gtk.Frame()
-		gallowsFrame.set_shadow_type(gtk.SHADOW_IN)
 		self.gallows = Gallows()
+		gallowsFrame = gtk.AspectFrame(ratio=self.gallows.imageAspect,obey_child=gtk.FALSE)
+		gallowsFrame.set_shadow_type(gtk.SHADOW_IN)
 		gallowsFrame.add(self.gallows)
 		self.gallows.show()
 		gallowsFrame.show()
@@ -262,6 +262,7 @@ class HangmanGUI:
 				("/File/_Quit", "<control>Q", self.Quit, 0, None),
 				("/_Options", None, None, 0, "<Branch>"),
 				("/Options/Enable clues", None, self.toggleClues, 0, "<CheckItem>"),
+				("/Options/Game Style", None, None, 0, None),
 				("/_Help", None, None, 0, "<Branch>"),
 				("/Help/_About Hangman", None, None, 0, None))
 
@@ -414,8 +415,8 @@ class Gallows(gtk.DrawingArea):
 		# Event handlers.
 		self.connect_after("configure_event", self.gallowsConfigure)
 		self.connect("expose_event", self.redraw)
-		self.image = gtk.Image()
-		self.image = gtk.gdk.pixbuf_new_from_file("graphics/burton-gallows.png")
+		self.image = gtk.gdk.pixbuf_new_from_file("graphics/gallows.png")
+		self.imageAspect = float(self.image.get_width()) / self.image.get_height()
 
 	def gallowsConfigure(self, widget, event):
 		""" When the drawing area is realized set up a graphics context for it. """
@@ -430,31 +431,28 @@ class Gallows(gtk.DrawingArea):
 
 	def redraw(self, widget, event):
 		""" Redraw the screen because of an expose_event. """
-		widget.window.draw_rectangle(self.bg_gc, gtk.TRUE,
-																 0, 0, self.width, self.height)
-
-		x, y, width, height = self.drawingArea((0, 0, self.width, self.height))
-		widget.window.draw_rectangle(self.fg_gc, gtk.FALSE, x, y, width, height)
-
-		self.image.render_to_drawable(self.window, self.fg_gc, 0, 0,
-																	0, 0, self.width, self.height, gtk.gdk.RGB_DITHER_NORMAL,
+		x, y, width, height = self.drawingArea()
+		image = self.image.scale_simple(width, height, gtk.gdk.INTERP_BILINEAR)
+		image.render_to_drawable(self.window, self.fg_gc, 0, 0,
+																	x, y, width, height, gtk.gdk.RGB_DITHER_NORMAL,
 																	0, 0)
-	def drawingArea(self, data):
+
+	def drawingArea(self):
 		""" Calculate a square area within the gtk.DrawingArea in which to draw
 				the gallows, data must be a list or tuple of x, y, height and width.
 				Return a tuple contianing the x, y coordinates of the top left corner
 				and the width and height.  Allows for rescalable images.
 				"""
-		x, y, width, height = data
 
 		# Width is limiting factor.
-		if width < height:
-			area = (x, height/2 - width/2, width, width)
+		if self.width < self.height or self.width == self.height:
+			height = self.width / self.imageAspect
+			y = self.height / 2 - height/2
+			return (0, y, self.width, height)
 		# Height is limiting factor.
-		elif height < width:
-			area = (width/2 - height/2, y, height, height)
-		# Square drawing area.
-		else:
-			area = (x, y, width, height)
+		elif self.height < self.width:
+			width = self.height * self.imageAspect
+			x = self.width / 2 - width/2
+			return (x, 0, width, self.height)
 
 		return area
