@@ -80,8 +80,8 @@ static DECLARE_MUTEX(minor_table_mutex);
 /************************************************** Function Prototypes *******/
 /******************************************************************************/
 
-static unsigned char rcpod_request(struct usb_rcpod *dev, unsigned short request,
-			 unsigned short wValue, unsigned short wIndex);
+static void rcpod_poke(struct usb_rcpod *dev, unsigned short address, unsigned short data);
+static unsigned char rcpod_peek(struct usb_rcpod *dev, unsigned short address);
 static int rcpod_open(struct inode *inode, struct file *file);
 static int rcpod_release(struct inode *inode, struct file *file);
 static int rcpod_dev_ioctl(struct inode *inode, struct file *file, unsigned int cmd, unsigned long arg);
@@ -96,14 +96,20 @@ static void __exit usb_rcpod_exit(void);
 /************************************************** Device Communications *****/
 /******************************************************************************/
 
-static unsigned char rcpod_request(struct usb_rcpod *dev, unsigned short request,
-				   unsigned short wValue, unsigned short wIndex)
+static void rcpod_poke(struct usb_rcpod *dev, unsigned short address, unsigned short data)
 {
-	/* Send a control request to the device synchronously */
-	unsigned char status;
 	usb_control_msg(dev->udev, usb_sndctrlpipe(dev->udev, 0),
-			request, 0x40, wValue, wIndex, &status, sizeof(status), REQUEST_TIMEOUT);
-	return status;
+			RCPOD_CTRL_POKE, 0x40, data, address,
+			NULL, 0, REQUEST_TIMEOUT);
+}
+
+static unsigned char rcpod_peek(struct usb_rcpod *dev, unsigned short address)
+{
+	unsigned char c;
+	usb_control_msg(dev->udev, usb_rcvctrlpipe(dev->udev, 0),
+			RCPOD_CTRL_PEEK, 0x40 | USB_DIR_IN, 0, address, &c, sizeof(c),
+			REQUEST_TIMEOUT);
+	return c;
 }
 
 
@@ -218,11 +224,11 @@ static int rcpod_ioctl(struct inode *inode, struct file *file, unsigned int cmd,
 			retval = -EFAULT;
 			break;
 		}
-		rcpod_request(dev, RCPOD_CTRL_POKE, p.address, p.data);
+		rcpod_poke(dev, p.address, p.data);
 		break;
 
 	case RCPODIO_PEEK:
-		retval = rcpod_request(dev, RCPOD_CTRL_PEEK, arg, 0);
+		retval = rcpod_peek(dev, arg);
 		break;
 
 	default:
