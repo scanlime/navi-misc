@@ -83,7 +83,7 @@
 ;// Either byte of wValue can be zero to perform only a transmit or only a receive.
 #define RCPOD_CTRL_USART_TXRX   0x20
 
-;// Cancels an ongoing USART receive
+;// Cancels an ongoing USART receive, returns the number of bytes actually received
 #define RCPOD_CTRL_USART_RX_END 0x21
 
 ;// Sets the pin descriptor to use as a USART transmit enable. When transmitting,

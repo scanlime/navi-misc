@@ -50,8 +50,9 @@ static rcpod_errorHandler *handleError = defaultErrorHandler;
 static struct usb_device *deviceList = NULL;
 
 
-/************************************************** Low-level initialization */
-
+/*************************************************************************************/
+/************************************************** Low-level initialization *********/
+/*************************************************************************************/
 
 void rcpod_Init(void) {
   /* Nothing to do here yet, it's just in the API to allow for future initialization needs... */
@@ -164,10 +165,41 @@ rcpod_errorHandler *rcpod_SetErrorHandler(rcpod_errorHandler *handler) {
 }
 
 
-/************************************************** High-level initialization */
+void rcpod_Reset(rcpod_dev *rcpod) {
+  /* This resets relevant registers to their power-on defaults,
+   * as per the PIC16C745/765 data sheet.
+   */
+  rcpod_CmdPoke(rcpod, RCPOD_REG_PORTA, 0);
+  rcpod_CmdPoke(rcpod, RCPOD_REG_PORTB, 0);
+  rcpod_CmdPoke(rcpod, RCPOD_REG_PORTC, 0);
+  rcpod_CmdPoke(rcpod, RCPOD_REG_PORTD, 0);
+  rcpod_CmdPoke(rcpod, RCPOD_REG_PORTE, 0);
+
+  rcpod_CmdPoke(rcpod, RCPOD_REG_TRISA, 0xFF);
+  rcpod_CmdPoke(rcpod, RCPOD_REG_TRISB, 0xFF);
+  rcpod_CmdPoke(rcpod, RCPOD_REG_TRISC, 0xFF);
+  rcpod_CmdPoke(rcpod, RCPOD_REG_TRISD, 0xFF);
+  rcpod_CmdPoke(rcpod, RCPOD_REG_TRISE, 0x03);
+
+  rcpod_CmdPoke(rcpod, RCPOD_REG_T1CON, 0);
+  rcpod_CmdPoke(rcpod, RCPOD_REG_T2CON, 0);
+
+  rcpod_CmdPoke(rcpod, RCPOD_REG_CCP1CON, 0);
+  rcpod_CmdPoke(rcpod, RCPOD_REG_CCP2CON, 0);
+
+  rcpod_CmdPoke(rcpod, RCPOD_REG_ADCON0, 0);
+  rcpod_CmdPoke(rcpod, RCPOD_REG_ADCON1, 0);
+
+  rcpod_CmdPoke(rcpod, RCPOD_REG_RCSTA, 0);
+  rcpod_CmdPoke(rcpod, RCPOD_REG_TXSTA, 1);
+}
 
 
-rcpod_dev* rcpod_InitSimple(void) {
+/*************************************************************************************/
+/************************************************** High-level initialization ********/
+/*************************************************************************************/
+
+rcpod_dev* rcpod_InitSimpleWithoutReset(void) {
   /* Init libusb */
   usb_init();
   usb_find_busses();
@@ -188,39 +220,102 @@ rcpod_dev* rcpod_InitSimple(void) {
 }
 
 
-/************************************************** Low-level commands */
+rcpod_dev* rcpod_InitSimple(void) {
+  rcpod_dev* rcpod = rcpod_InitSimpleWithoutReset();
+  rcpod_Reset(rcpod);
+  return rcpod;
+}
 
 
-void rcpod_Poke(rcpod_dev* rcpod, int address, unsigned char data) {
+/*************************************************************************************/
+/************************************************** Low-level commands ***************/
+/*************************************************************************************/
+
+
+void rcpod_CmdPoke(rcpod_dev* rcpod, int address, unsigned char data) {
   int retval;
   /* The address and data are sent in the wIndex and wValue parameters, respectively */
   retval = usb_control_msg(rcpod->usbdevh, USB_TYPE_VENDOR, RCPOD_CTRL_POKE,
 			   data, address, NULL, 0, RCPOD_TIMEOUT);
   if (retval < 0)
-    handleError("rcpod_Poke", -retval, strerror(-retval));
+    handleError("rcpod_CmdPoke", -retval, strerror(-retval));
 }
 
 
-unsigned char rcpod_Peek(rcpod_dev* rcpod, int address) {
+unsigned char rcpod_CmdPeek(rcpod_dev* rcpod, int address) {
   int retval;
   unsigned char byte;
   /* Send the address in wIndex, expect a 1-byte response packet with the data */
   retval = usb_control_msg(rcpod->usbdevh, USB_TYPE_VENDOR | USB_ENDPOINT_IN,
 			   RCPOD_CTRL_PEEK, 0, address, (char*) &byte, 1, RCPOD_TIMEOUT);
   if (retval < 0) {
-    handleError("rcpod_Peek", -retval, strerror(-retval));
+    handleError("rcpod_CmdPeek", -retval, strerror(-retval));
     return 0;
   }
   return byte;
 }
 
 
-void rcpod_AnalogSampleAll(rcpod_dev* rcpod, unsigned char buffer[8]) {
+void rcpod_CmdPoke4(rcpod_dev* rcpod, unsigned char data[4]) {
+}
+
+
+void rcpod_CmdPeek8(rcpod_dev* rcpod, int address, unsigned char data[8]) {
+  int retval;
+  retval = usb_control_msg(rcpod->usbdevh, USB_TYPE_VENDOR | USB_ENDPOINT_IN,
+			   RCPOD_CTRL_PEEK8, 0, address, (char*) data, 8, RCPOD_TIMEOUT);
+  if (retval < 0)
+    handleError("rcpod_CmdPeek8", -retval, strerror(-retval));
+}
+
+
+void rcpod_CmdAnalogAll(rcpod_dev* rcpod, unsigned char buffer[8]) {
   int retval;
   retval = usb_control_msg(rcpod->usbdevh, USB_TYPE_VENDOR | USB_ENDPOINT_IN,
 			   RCPOD_CTRL_ANALOG_ALL, 0, 0, (char*) buffer, 8, RCPOD_TIMEOUT);
   if (retval < 0)
-    handleError("rcpod_AnalogSampleAll", -retval, strerror(-retval));
+    handleError("rcpod_CmdAnalogAll", -retval, strerror(-retval));
 }
+
+
+void rcpod_CmdUsartTxRx(rcpod_dev* rcpod, int address, int txBytes, int rxBytes) {
+}
+
+
+int rcpod_CmdUsartRxEnd(rcpod_dev* rcpod) {
+}
+
+
+void rcpod_CmdUsartTxe(rcpod_dev* rcpod, rcpod_pin txe) {
+}
+
+
+void rcpod_CmdGpioAssert(rcpod_dev* rcpod, rcpod_pin pins[4]) {
+  int retval;
+  /* All pin descriptors are packed into the four bytes of wValue and wIndex such
+   * that in the control message header the bytes are contiguous.
+   */
+  retval = usb_control_msg(rcpod->usbdevh, USB_TYPE_VENDOR, RCPOD_CTRL_POKE,
+			   pins[0] | (((int)pins[1])<<8),
+			   pins[2] | (((int)pins[3])<<8),
+			   NULL, 0, RCPOD_TIMEOUT);
+  if (retval < 0)
+    handleError("rcpod_CmdGpioAssert", -retval, strerror(-retval));
+}
+
+
+int rcpod_CmdGpioRead(rcpod_dev* rcpod, rcpod_pin pin) {
+  int retval;
+  unsigned char byte;
+  /* Send the address in wIndex, expect a 1-byte response packet with the data */
+  retval = usb_control_msg(rcpod->usbdevh, USB_TYPE_VENDOR | USB_ENDPOINT_IN,
+			   RCPOD_CTRL_GPIO_READ, 0, pin, (char*) &byte, 1, RCPOD_TIMEOUT);
+  if (retval < 0) {
+    handleError("rcpod_CmdGpioRead", -retval, strerror(-retval));
+    return 0;
+  }
+  return byte;
+}
+
 
 /* The End */

@@ -7,7 +7,7 @@
 int main() {
   int lineAddr, i;
   unsigned char lineBuffer[16];
-  rcpod_dev *rcpod = rcpod_InitSimple();
+  rcpod_dev *rcpod = rcpod_InitSimpleWithoutReset();
 
   /* Simple hex dump, hardcoded to 16 bytes per line
    * and without support for partial lines.
@@ -16,8 +16,8 @@ int main() {
     printf("%04X:  ", lineAddr);
 
     /* Fill the line buffer */
-    for (i=0; i<16; i++)
-      lineBuffer[i] = rcpod_Peek(rcpod, lineAddr+i);
+    rcpod_CmdPeek8(rcpod, lineAddr, lineBuffer);
+    rcpod_CmdPeek8(rcpod, lineAddr+8, lineBuffer+8);
 
     /* Hex values for this line */
     for (i=0; i<16; i++)
