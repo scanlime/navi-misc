@@ -70,12 +70,12 @@ void main()
 
 void led_set_brightness(int v)
 {
-  printf("LED brightness: 0x%04X\n", v);
-
   /* Send the brightness to our FPGA over I2C */
   i2c_start(0x21);
   i2c_write_byte(v >> 8, 0);
   i2c_write_byte(v & 0xFF, 1);
+  if (i2c_status() < 0)
+    printf("I2C error when setting LED brightness\n");
 }
 
 void usb_handle_vendor_request()

@@ -23,6 +23,9 @@
 #include <stdio.h>
 #include <tusb.h>
 
+int i2c_error_flag = 0;
+
+
 void i2c_write_byte(unsigned char b, bit is_last)
 {
   I2CADR &= ~1;       /* Write */
@@ -34,10 +37,9 @@ void i2c_write_byte(unsigned char b, bit is_last)
 
   I2CDAO = b;
   while ((I2CSTA & TXE) == 0) {
-    /* Waiting for the transmission.. check for errors */
     if (I2CSTA & ERR) {
       I2CSTA |= ERR;
-      printf("I2C Error\n");
+      i2c_error_flag = 1;
       return;
     }
   }
@@ -54,10 +56,9 @@ unsigned char i2c_read_byte(bit is_last)
   I2CDAO = 0;         /* Dummy byte starts the read transfer */
 
   while ((I2CSTA & RXF) == 0) {
-    /* Waiting for the transmission.. check for errors */
     if (I2CSTA & ERR) {
       I2CSTA |= ERR;
-      printf("I2C Error\n");
+      i2c_error_flag = 1;
       return 0;
     }
   }
@@ -66,8 +67,21 @@ unsigned char i2c_read_byte(bit is_last)
 
 void i2c_start(unsigned char addr)
 {
+  i2c_error_flag = 0;
+
   I2CADR = (addr<<1);
   I2CSTA = ERR | S1_4;      /* Clear error flag, 400khz mode, no stop condition */
+
+  if (I2CSTA & ERR)
+    i2c_error_flag = 1;
+}
+
+int i2c_status(void)
+{
+  if (i2c_error_flag)
+    return -1;
+
+  return 0;
 }
 
 /* The End */
