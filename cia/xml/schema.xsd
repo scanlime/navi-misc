@@ -29,6 +29,7 @@
     <xsd:element name="log" type="xsd:string"/>
     <xsd:element name="url" type="xsd:string"/>
     <xsd:element name="files" type="fileList"/>
+    <xsd:element name="diffLines" type="xsd:integer"/>
   </xsd:choice>
 </xsd:complexType>
 
@@ -105,7 +106,7 @@
 <xsd:complexType name="message-generator">
   <xsd:choice maxOccurs="unbounded">
     <xsd:element name="name" type="xsd:string"/>
-    <xsd:element name="version" type="xsd:decimal"/>
+    <xsd:element name="version" type="xsd:string"/>
     <xsd:element name="url" type="xsd:anyURI"/>
   </xsd:choice>
 </xsd:complexType>
