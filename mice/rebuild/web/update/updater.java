@@ -39,6 +39,7 @@ public class updater
 			System.exit(0);
 		}
 	}
+	/*
 		mykey = key.keygen();
 		write(mykey);
 		password = key.decrypt(mykey,read());
@@ -90,7 +91,7 @@ public class updater
 		}
 		exchange = read();
 		}
-	}
+	}*/
 
 	//this just writes what is in the files to the page
 	public static void updatePage()
