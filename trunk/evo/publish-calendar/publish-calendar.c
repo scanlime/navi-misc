@@ -93,12 +93,14 @@ publish (EPublishUri *uri)
 		case URI_PUBLISH_AS_ICAL:
 			publish_calendar_as_ical (handle, uri);
 			break;
-		case URI_PUBLISH_AS_HTML:
-/*			publish_calendar_as_html (handle, uri); */
-			break;
 		case URI_PUBLISH_AS_FB:
 			publish_calendar_as_fb (handle, uri);
 			break;
+/*
+		case URI_PUBLISH_AS_HTML:
+			publish_calendar_as_html (handle, uri);
+			break;
+*/
 		}
 
 		result = gnome_vfs_close (handle);
