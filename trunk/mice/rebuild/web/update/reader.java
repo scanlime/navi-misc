@@ -56,7 +56,6 @@ public class reader
 		}
 		catch(Exception foo)
 		{
-			System.out.println("Something messed up...\n" + foo);
 		}
 	}
 }

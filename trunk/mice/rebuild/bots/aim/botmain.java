@@ -39,6 +39,9 @@ public class botmain implements JaimEventListener
 	/** A connection to the person index, so it can reply correctly. */
 	public personindex index;
 	
+	/** This holds the value of connected (true for true, false for false). */
+	public boolean connected = false;
+	
 	/**
 	 * This method constructs a new bot.
 	 * @param username The username the bot has.
@@ -52,17 +55,16 @@ public class botmain implements JaimEventListener
 		index = foo;
 		try
 		{
+			System.out.print("Logging " + username + " in......");
 			b = new JaimConnection("toc.oscar.aol.com",9898);
 	    b.connect();
-
-	    b.addEventListener(this);
-	    b.watchBuddy("gonkulator2");
-
-	    b.logIn(username,password,5000);
+			b.watchBuddy("gonkulator2");
+	    b.logIn(username,password,20000);
 	    b.addBlock("");
-
-	    b.setInfo("This is a bot based on <a href=\"http://jaimlib.sourceforge.net\">jaimlib</a>.");
-	    
+	    b.setInfo("This is a bot based on <a href=\"http://jaimlib.sourceforge.net\">jaimlib</a>.\nFor more information on MICE <a href=\"http://studentactivities.mscd.edu/\">check it out</a>");
+			b.addEventListener(this);
+			System.out.println("Complete");
+			connected = true;
 		}
 		catch(Exception e)
 		{

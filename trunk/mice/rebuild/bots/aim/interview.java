@@ -124,9 +124,6 @@ public class interview
 			send(tname + " Asks: " + tques);
 			state = 2;
 			break;
-		case 4:
-			send("Hold your horses! I said I would message you when I got a message.");
-			break;
 		}
 	}
 	

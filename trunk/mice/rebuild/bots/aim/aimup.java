@@ -52,9 +52,9 @@ public class aimup
 	 */
 	public static void main(String[] args)
 	{
-		botmain interviewbot = initbots(20,"nope");
+		botmain interviewbot = initbots(4,"fakeo");
+		sleep(4);
 		startServer(8082);
-		sleep(1);
 		configureServer(interviewbot);
 		updateLoop();
 		link.closeConnection();
@@ -145,16 +145,36 @@ public class aimup
 	public static botmain initbots(int count, String password)
 	{
 		int i,j;
-		index = new personindex(count);
-		bot = new botmain[count];
+		index = new personindex(count+1);
+		bot = new botmain[count+1];
 		bot[0] = new botmain("MICEBot",password,index);
+		j=5;
+		while(!bot[0].connected)
+		{
+			j += j;
+			System.out.println("failed");
+			sleep(j);
+			bot[0] = new botmain("MICEBot",password,index);
+		}
+		bot[0].sendMessage("gonkulator3","Hello<br>There.");
+
 		index.registerBot(bot[0]);
 		
-		for(i=1;i<count;i++)
+		for(i=0;i<count;i++)
 		{
+			sleep(7);
+			bot[i+1] = new botmain("MICEBot"+(i+1),password,index);
+			j=5;
+			while(!bot[i+1].connected)
+			{
+				j+=j;
+				System.out.println("failed");
+				sleep(j);
+				bot[i+1] = new botmain("MICEBot"+(i+1),password,index);
+			}
+			index.registerBot(bot[i+1]);
 			sleep(3);
-			bot[i] = new botmain("MICEBot"+i,password,index);
-			index.registerBot(bot[i]);
+			bot[i+1].sendMessage("gonkulator3","Hello<br>There.");
 		}
 		return bot[0];
 	}

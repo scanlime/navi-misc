@@ -71,21 +71,25 @@ public class personindex
 	 */
 	public void handleMessage(String from, String message)
 	{
+		System.out.print("Message from " + from);
 		interview othertemp = findInterview(from);
 		if(othertemp != null)
 		{
+			System.out.println(" who is an interviewee");
 			othertemp.handle(message);
 			return;
 		}
 		person found = findPerson(from);
 		if(found != null)
 		{
+			System.out.println(" who is a normal listener");
 			found.handle(message);
 			return;
 		}
+		System.out.println(" who is new to me!");
 		masshead = new person(masshead,bots[currentbot],from);
 		currentbot++;
-		if(currentbot == botcount) currentbot = 1;
+		if(currentbot == botcount+1) currentbot = 1;
 	}
 	
 	/**
