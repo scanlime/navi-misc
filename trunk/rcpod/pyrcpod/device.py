@@ -109,7 +109,6 @@ class OpenedDevice:
         else:
             self.model = None
             raise ValueError('Incorrect value of TRISD after reset (0x%02X)' % trisd)
-        print self.model
 
     def poke(self, address, data):
         """Put the given 8-bit value into an address in the PIC's RAM.
