@@ -30,7 +30,7 @@ from Nouvelle import tag, place
 
 
 class Clock(Template.Section):
-    title = "UTC Clock"
+    title = "UTC clock"
 
     def render_rows(self, context):
         return [TimeUtil.formatDate(time.time())]
@@ -136,21 +136,28 @@ class MetadataLink:
     """An anchor tag linking to an item in the given stats target's metadata.
        Text for the link may be specified, but by default the key is used.
 
-       This class only works for keys that are strings.
+       This class only works for keys that are strings. A key of None links
+       to the metadata index.
        """
-    def __init__(self, target, key, tagFactory=tag('a'), text=None):
+    def __init__(self, target, key=None, tagFactory=tag('a'), text=None):
         self.target = target
         self.tagFactory = tagFactory
         self.key = key
         self.text = text
 
     def getURL(self, context):
-        return context['statsRootPath'] + '/'.join(self.target.pathSegments) + '/.metadata/' + self.key
+        url = context['statsRootPath'] + '/'.join(self.target.pathSegments) + '/.metadata'
+        if self.key is not None:
+            url += '/' + self.key
+        return url
 
     def render(self, context):
         text = self.text
         if text is None:
-            text = self.key
+            if self.key is None:
+                text = "View/Edit Metadata"
+            else:
+                text = self.key
         return self.tagFactory(href=self.getURL(context))[text]
 
 
@@ -440,6 +447,19 @@ class MetadataValuePage(resource.Resource):
         return str(value)
 
 
+class StatsLinksSection(Template.Section):
+    """A section displaying useful links for a particular stats target"""
+    title = 'links'
+
+    def __init__(self, target):
+        self.target = target
+
+    def render_rows(self, context):
+        return [
+            MetadataLink(self.target),
+            ]
+
+
 class MetadataPage(Template.Page):
     """A web page providing an interface for viewing and editing a StatsTarget's
        metadata. Children of this page are pages that render individual metadata keys
@@ -469,6 +489,11 @@ class MetadataPage(Template.Page):
             return self
         else:
             return MetadataValuePage(self.statsPage.target, name)
+
+    def render_headingTabs(self, context):
+        tabs = self.statsPage.render_headingTabs(context)
+        tabs.append(StatsLink(self.statsPage.target, Template.headingTab))
+        return tabs
 
 
 class StatsPage(Template.Page):
@@ -533,7 +558,8 @@ class StatsPage(Template.Page):
     def render_leftColumn(self, context):
         return [
             Info(self.target),
-            Clock()
+            StatsLinksSection(self.target),
+            Clock(),
             ]
 
     def render_headingTabs(self, context):
