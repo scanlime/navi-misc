@@ -22,6 +22,7 @@ Classes for forming hyperlinks between stats browser pages
 #
 
 from Nouvelle import tag
+from LibCIA.Web import Template
 import posixpath
 
 
@@ -113,19 +114,21 @@ class ThumbnailLink(TargetRelativeLink):
 
 class RSSLink(TargetRelativeLink):
     """An anchor tag linking to the default RSS feed for a particular stats target"""
-    def __init__(self, target, tagFactory=tag('a'), text="RSS 2.0 Feed", extraSegments=()):
+    def __init__(self, target, text="RSS 2.0 Feed", extraSegments=()):
         TargetRelativeLink.__init__(self, target, ('.rss',) + extraSegments)
-        self.tagFactory = tagFactory
         self.text = text
 
     def render(self, context):
-        return self.tagFactory(href=self.getURL(context))[self.text]
+        return Template.SubscriptionLink(self.getURL(context), self.text)
 
 
 class RSSCustomizer(RSSLink):
     """An anchor tag leading to a page that lets the user customize the generated RSS"""
-    def __init__(self, target, tagFactory=tag('a'), text="Customized RSS"):
-        RSSLink.__init__(self, target, tagFactory, text, ('customize',))
+    def __init__(self, target, text="Customized RSS"):
+        RSSLink.__init__(self, target, text, ('customize',))
+
+    def render(self, context):
+        return tag('a', href=self.getURL(context))[self.text]
 
 
 class XMLLink(TargetRelativeLink):

@@ -324,6 +324,10 @@ img.sortIndicator {
   padding: 0em 0.5em;
 }
 
+img.xml-icon {
+  padding: 0em 0.5em 0em 0em;
+}
+
 div.formChoice {
   padding: 0.25em;
   margin: 1em 2em;
@@ -383,6 +387,76 @@ table.messageHeaders td.value {
 p.messageBody {
   margin: 1.5em 0em;
   padding: 0.25em 0em;
+}
+
+/* quickSub Style Sheet */
+/* www.methodize.org/quicksub/ */
+
+#quickSub {
+  position: absolute;
+  font: normal 7pt verdana;
+  border: 1px solid #000066;
+  visibility: hidden;
+  z-index: 1000;
+}
+
+/* header - contains title and window closer ([x])  */
+#quickSub .qsheader {
+  background-color: #006699;
+  color: #FFFFFF;
+  font: bold 7pt verdana;
+  padding: 2px 2px 2px 3px;
+  border-bottom: 1px solid #000066;
+}
+
+#quickSub .qsheader a {
+  margin-left: 3px;
+  color: #FFFFFF;
+  text-decoration: none;
+}
+
+/* content - contains aggregator and newsreader links */
+#quickSub .qscontent {
+  background-color: #EEEEEE;
+  color: #000000;
+  padding: 1px 3px 2px 2px;
+}
+
+#quickSub a {
+  margin-left: 3px;
+  text-decoration: none;
+}
+
+#quickSub a:hover {
+  text-decoration: underline;
+}
+
+#quickSub .qscontent a:visited { color: #800080; }
+#quickSub .qscontent a:link { color: #0000ff; }
+#quickSub .qsfooterWhat a:visited { color: #800080; }
+#quickSub .qsfooterWhat a:link { color: #0000ff; }
+
+/* footerWhat - contains 'What Is This?' link */
+#quickSub .qsfooterWhat {
+  background-color: #EEEEEE;
+  text-align: right;
+  padding: 1px 3px 2px 3px;
+  font: 7pt verdana;
+}
+
+/* footer - contains quickSub link */
+#quickSub .qsfooter {
+  background-color: #006699;
+  color: #FFFFFF;
+  text-align: right;
+  font: 7pt verdana;
+  padding: 2px 2px 2px 3px;
+  border-bottom: 1px solid #000066;
+}
+
+#quickSub .qsfooter a {
+  color: #FFFFFF;
+  text-decoration: none;
 }
 
 /* The End */
