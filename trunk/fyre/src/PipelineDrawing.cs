@@ -132,13 +132,13 @@ namespace Fyre
 		void
 		ButtonPressHandler (object o, Gtk.ButtonPressEventArgs args)
 		{
-			GdkWindow.Cursor = hand_cursor;
+			event_box.GdkWindow.Cursor = hand_cursor;
 		}
 
 		void
 		ButtonReleaseHandler (object o, Gtk.ButtonReleaseEventArgs args)
 		{
-			GdkWindow.Cursor = hand_cursor;
+			event_box.GdkWindow.Cursor = hand_cursor;
 		}
 
 		void
@@ -149,7 +149,7 @@ namespace Fyre
 		void
 		LeaveNotifyHandler (object o, Gtk.LeaveNotifyEventArgs args)
 		{
-			GdkWindow.Cursor = pointer_cursor;
+			event_box.GdkWindow.Cursor = pointer_cursor;
 		}
 	}
 
