@@ -99,11 +99,18 @@ static DECLARE_MUTEX(minor_table_mutex);
 /******************************************************************************/
 
 static void mi6k_request(struct usb_mi6k *dev, unsigned short request,
-			  unsigned short wValue, unsigned short wIndex);
+			 unsigned short wValue, unsigned short wIndex);
+static int mi6k_ir_rx_available(struct usb_mi6k *dev);
+static void mi6k_ir_rx_push(struct usb_mi6k *dev, lirc_t x);
+static int mi6k_ir_rx_pop(struct usb_mi6k *dev);
 static int mi6k_open(struct inode *inode, struct file *file);
 static int mi6k_release(struct inode *inode, struct file *file);
-static ssize_t mi6k_write(struct file *file, const char *buffer, size_t count, loff_t *ppos);
-static int mi6k_ioctl(struct inode *inode, struct file *file, unsigned int cmd, unsigned long arg);
+static ssize_t mi6k_dev_write(struct file *file, const char *buffer, size_t count, loff_t *ppos);
+static int mi6k_dev_ioctl(struct inode *inode, struct file *file, unsigned int cmd, unsigned long arg);
+static ssize_t mi6k_lirc_read(struct file *file, char *buffer, size_t count, loff_t *ppos);
+static ssize_t mi6k_lirc_write(struct file *file, const char *buffer, size_t count, loff_t *ppos);
+static int mi6k_lirc_ioctl(struct inode *inode, struct file *file, unsigned int cmd, unsigned long arg);
+static unsigned int mi6k_lirc_poll(struct file *file, poll_table *wait);
 static inline void mi6k_delete(struct usb_mi6k *dev);
 static void * mi6k_probe(struct usb_device *udev, unsigned int ifnum, const struct usb_device_id *id);
 static void mi6k_disconnect(struct usb_device *udev, void *ptr);
@@ -131,13 +138,13 @@ static int mi6k_ir_rx_available(struct usb_mi6k *dev)
 	return (dev->ir_rx_head - dev->ir_rx_tail) & (IR_RECV_BUFFER_SIZE - 1);
 }
 
-static int mi6k_ir_rx_push(struct usb_mi6k *dev, lirc_t x)
+static void mi6k_ir_rx_push(struct usb_mi6k *dev, lirc_t x)
 {
 	/* Push a value into the receive ring buffer
 	 * It is assumed that dev->sem has already been locked.
 	 * This will overwrite data if the ring buffer is full.
 	 */
-	dev->ir_rx_buffer[ir_rx_head] = x;
+	dev->ir_rx_buffer[dev->ir_rx_head] = x;
 	dev->ir_rx_head = (dev->ir_rx_head + 1) & (IR_RECV_BUFFER_SIZE - 1);
 }
 
@@ -147,8 +154,9 @@ static int mi6k_ir_rx_pop(struct usb_mi6k *dev)
 	 * It is assumed that dev->sem has already been locked.
 	 * This function will return an undefined value if the ring buffer is empty.
 	 */
-	lirc_t result =	dev->ir_rx_buffer[ir_rx_tail];
+	lirc_t result =	dev->ir_rx_buffer[dev->ir_rx_tail];
 	dev->ir_rx_tail = (dev->ir_rx_tail + 1) & (IR_RECV_BUFFER_SIZE - 1);
+	return result;
 }
 
 
@@ -408,12 +416,14 @@ static ssize_t mi6k_lirc_read(struct file *file, char *buffer, size_t count, lof
 	/* If we're still running successfully, start shuffling values from
 	 * the ring buffer into the process' provided userspace buffer.
 	 */
+	/*
 	if (retval == 0) {
 		while (count > 0 && mi6k_ir_rx_available(dev)
 
 
 
 	}
+	*/
 
 exit:
 	/* unlock the device */
