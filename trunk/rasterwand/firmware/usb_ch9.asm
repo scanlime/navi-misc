@@ -41,6 +41,7 @@
 
 #include <p16C745.inc>
 #include "usb_defs.inc"
+#include "hardware.inc"
 #include "../include/rwand_protocol.h"
 
 	errorlevel -302		; supress "register not in bank0, check page bits" message
@@ -62,6 +63,7 @@ GPtemp			res	1	; temporary storage location used in Get and PutEPn
 	global	EP0_end
 	global	wrongstate
 	global	Send_0Len_pkt
+	extern	display_save_status
 
 bank0	udata
 BufferDescriptor	res	3
@@ -383,6 +385,9 @@ TokenDone
 	banksel	USB_USTAT
 	movwf	USB_USTAT	; Save USTAT in bank 2
 
+	banksel	PORTC
+	bsf		DEBUG_PIN
+
 ; check UOWN bit here if desired
 	banksel	BufferDescriptor
 	movf	BufferDescriptor,w  ; get the first byte of the BD
@@ -443,7 +448,27 @@ tryEP1  ; bank 2
 	btfss	STATUS,Z
 	goto	tryEP2
 
-; **** Add Callout here to service EP1 in transactions.  ****
+	;******************* Service EP1 IN packets, with display status
+
+	movlw	8				; Set byte count
+	banksel	BD1IBC
+	movwf	BD1IBC
+
+	; We need this to breathe
+	movf	BD1IAL, w		; Point IRP:FSR at the EP1 buffer
+	movwf	FSR
+	bsf		STATUS, IRP
+
+	pagesel	display_save_status	; Save the status packet
+	call	display_save_status
+
+	banksel	BD1IST
+	movf	BD1IST,w
+	andlw	0x40		; save only the data 0/1 bit
+	xorlw	0x40		; toggle the data o/1 bit
+	iorlw	0x88		; set owns bit and DTS bit
+	movwf	BD1IST
+
 	return
 
 tryEP2  ; bank 2

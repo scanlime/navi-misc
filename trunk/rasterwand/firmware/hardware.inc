@@ -28,6 +28,8 @@
 #define COIL_DRIVER  PORTC, 0	; Coil drive transistor
 #define ANGLE_SENSOR PORTC, 1	; Interruption sensor used to synchronize wand motion
 
+#define DEBUG_PIN    PORTC, 2	; Not connected, used for firmware debugging
+
 ; Our display is 80x8 pixels. The vertical resolution is limited by the number
 ; of LEDs on our wand, but the horizontal is only limited in practise by our memory.
 #define	NUM_COLUMNS	0x50
