@@ -41,9 +41,17 @@ class MainWindow:
         main_vbox.pack_start(menubar, gtk.FALSE, gtk.TRUE, 0)
 
         hpane = gtk.HPaned()
+        left = gtk.VPaned()
+        hpane.pack1(left, gtk.TRUE, gtk.FALSE)
+        right = gtk.VPaned()
+        hpane.pack2(right, gtk.TRUE, gtk.FALSE)
+
+        left.pack1(gtk.Label('  Left Top '), gtk.TRUE, gtk.FALSE)
+        left.pack2(gtk.Label('Left Bottom'), gtk.TRUE, gtk.FALSE)
+        right.pack1(gtk.Label(' Right Top  '), gtk.TRUE, gtk.FALSE)
+        right.pack2(gtk.Label('Right Bottom'), gtk.TRUE, gtk.FALSE)
+
         main_vbox.pack_start(hpane, gtk.TRUE, gtk.TRUE, 0)
-        hpane.pack1(gtk.Label('Left '), gtk.TRUE, gtk.FALSE)
-        hpane.pack2(gtk.Label('Right'), gtk.TRUE, gtk.FALSE)
 
         window.show_all()
 
