@@ -92,10 +92,6 @@ namespace Fyre
 			column.AddAttribute (text_renderer, "text", 1);
 
 			AppendColumn (column);
-
-			// Set up drag-and-drop
-			Gtk.TargetEntry[] targets = PipelineEditor.DragTargets;
-			Gtk.Drag.SourceSet (this, Gdk.ModifierType.Button1Mask, targets, Gdk.DragAction.Copy);
 		}
 
 		protected override void OnDragBegin (Gdk.DragContext context)
@@ -103,6 +99,11 @@ namespace Fyre
 			Gtk.TreePath		path;
 			Gtk.TreeViewColumn	column;
 			int			cell_x, cell_y;
+
+			if (!dragging) {
+				Gdk.Drag.Abort (context, 0);
+				return;
+			}
 
 			if (GetPathAtPos (click_x, click_y, out path, out column, out cell_x, out cell_y)) {
 				Gdk.Pixmap pixmap = new Gdk.Pixmap (null, 200, 150, 24);
@@ -139,8 +140,9 @@ namespace Fyre
 			click_x = (int) ev.X;
 			click_y = (int) ev.Y;
 			check_drag = false;
+			dragging = false;
 
-			return true;
+			return base.OnButtonPressEvent (ev);
 		}
 
 		protected override bool OnButtonReleaseEvent (Gdk.EventButton ev)
@@ -148,8 +150,9 @@ namespace Fyre
 			click_x = -1;
 			click_y = -1;
 			check_drag = false;
+			dragging = false;
 
-			return true;
+			return base.OnButtonReleaseEvent (ev);
 		}
 
 		protected override bool OnMotionNotifyEvent (Gdk.EventMotion ev)
@@ -166,14 +169,13 @@ namespace Fyre
 			}
 
 			if (ev.State == Gdk.ModifierType.Button1Mask) {
-				// If we're just continuing a drag, don't do anything
-				if (dragging)
+				// If we're just continuing a drag or we've already checked
+				// the validity of the drag, don't do anything
+				if (dragging || check_drag)
 					return true;
-				// If we've already checked this drag, don't do anything either
-				if (check_drag)
-					return true;
+
 				// Check that we have a path
-				if (GetPathAtPos ((int) ev.X, (int) ev.Y, out path) == false) {
+				if (GetPathAtPos (click_x, click_y, out path) == false) {
 					check_drag = true;
 					return true;
 				}
@@ -184,11 +186,13 @@ namespace Fyre
 					check_drag = true;
 					return true;
 				}
+
 				// Check that we're in a leaf node
-				if (!sorted_store.IterParent (out iter, iter)) {
+				if (sorted_store.GetValue (iter, 3) == null) {
 					check_drag = true;
 					return true;
 				}
+
 				// Start a drag
 				dragging = true;
 				Gtk.Drag.Begin (this, PipelineEditor.TargetList, Gdk.DragAction.Copy, 1, ev);
@@ -254,6 +258,8 @@ namespace Fyre
 			bool found = false;
 			Gtk.TreeIter iter;
 
+			// If we can find the category already in the list, use it.
+			// If not, add the category before we store the element data.
 			if (element_store.GetIterFirst (out iter)) {
 				do {
 					string cat = (string) element_store.GetValue (iter, 1);
@@ -264,7 +270,7 @@ namespace Fyre
 				} while (element_store.IterNext (ref iter));
 			}
 			if (!found) {
-				iter = element_store.AppendValues (null, category);
+				iter = element_store.AppendValues (null, category, null, null);
 				element_store.AppendValues (iter, pixbuf, name, t, tt);
 				ExpandAll ();
 			}
