@@ -32,25 +32,69 @@ public class njavaadmin extends nbase
 	{
 		int moderators, interviews;
 		if(!auth()) return;
-		moderators = mods();
-		interviews = ints();
-		dbaseinit(interviews,moderators);
-		closeConnection();
+		switch(aadmin.confstate)
+		{
+		case 0:
+			moderators = mods();
+		case 1:
+			interviews = ints();
+			dbaseinit();
+		case 2:
+			webinit();
+		case 3:
+			aiminit();
+		case 4:
+			noticeloop();
+			closeConnection();
+		}
 	}
 	
 	/**
-	 * This handles the bits of communication that set up the update services.
+	 * This method handles the notice loop type stuff.
+	 */
+	public void noticeloop()
+	{
+		String cmd;
+		while(true)
+		{
+			cmd = read();
+			if(cmd.compareTo("notice") == 0)
+				System.out.println("Notice: " + read());
+			if(cmd.compareTo("quit") == 0)
+				return;
+		}
+	}
+	
+	/**
+	 * This handles the bits of communication that set up the web update services.
 	 * @author Brandon Smith
 	 * @version 2.0
 	 */
-	public void serviceinit()
+	public void webinit()
 	{
 		String host;
 		int port;
 		host = read();
 		port = Integer.parseInt(read());
-		/* Start the damn server */
+		/* Start the web service client thingy */
 		write("+OK");
+		aadmin.confstate = 3;
+	}
+	
+	/**
+	 * This handles the bits of communication that set up the AIM services.
+	 * @author Brandon Smith
+	 * @version 2.0
+	 */
+	public void aiminit()
+	{
+		String host;
+		int port;	
+		host = read();
+		port = Integer.parseInt(read());
+		/* Start the aim service client thingy */
+		write("+OK");
+		aadmin.confstate = 4;
 	}
 	
 	/**
@@ -60,15 +104,13 @@ public class njavaadmin extends nbase
 	 * @author Brandon Smith
 	 * @version 2.0
 	 */
-	public void dbaseinit(int inter, int moder)
+	public void dbaseinit()
 	{
-		System.out.print("database initialization...    ");
-		imain.database = new qbase(inter,moder);
+		imain.database = new qbase(aadmin.muns.length, aadmin.iuns.length);
 		imain.database.moduser = aadmin.muns;
 		imain.database.modpass = aadmin.mpas;
 		imain.database.interviewuser = aadmin.iuns;
 		imain.database.interviewpass = aadmin.ipas;
-		System.out.println("...complete");
 	}
 	
 	/**

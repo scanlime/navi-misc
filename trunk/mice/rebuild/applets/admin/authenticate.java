@@ -56,7 +56,7 @@ public class authenticate implements ActionListener
 	public void actionPerformed(ActionEvent e)
 	{
 		String mykey,user,pass;
-		if(!net.openConnection("localhost",8080))
+		if(!net.openConnection(admin.host,admin.port))
 		{
 			admin.help.setText("Failed to open connection, try again.");
 			return;

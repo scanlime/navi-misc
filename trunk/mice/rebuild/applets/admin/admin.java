@@ -16,8 +16,20 @@ public class admin extends java.applet.Applet implements ActionListener
 	/** The start button */
 	public Button start;
 	
+	/** The hostbox */
+	public TextField hostbox;
+	
+	/** The portbox */
+	public TextField portbox;
+	
 	/** The Help TextArea */
 	public static TextArea help;
+	
+	/** The host to connect to */
+	public static String host;
+	
+	/** The port to connect to on the host */
+	public static int port;
 	
 	/**
 	 * This method initializes the applet and makes it all well and good
@@ -30,6 +42,11 @@ public class admin extends java.applet.Applet implements ActionListener
 		admin.help = new TextArea("This is the information window, it will tell you everything you could want to know about what you need to do, and what stuff is.  Please press start to continue.",6,60,TextArea.SCROLLBARS_VERTICAL_ONLY);
 		//authenticate auth = new authenticate();
 		add(admin.help);
+		
+		hostbox = new TextField("localhost",40);
+		portbox = new TextField("8080",6);
+		add(hostbox);
+		add(portbox);
 		start = new Button("Start");
 		start.addActionListener(this);
 		add(start);
@@ -42,7 +59,10 @@ public class admin extends java.applet.Applet implements ActionListener
 	{
 		start.removeActionListener(this);
 		remove(start);
-		//new moderator(this);
+		admin.host = hostbox.getText();
+		admin.port = Integer.parseInt(portbox.getText());
+		remove(hostbox);
+		remove(portbox);
 		new authenticate(this);
 	}
 	

@@ -32,7 +32,18 @@ public class notice implements ActionListener
 	
 	public void actionPerformed(ActionEvent e)
 	{
-		text.setText("Submit Notice Clicked");
+		if(text.getText().charAt(0) == '*')
+		{
+			destroy();
+			net.write("quit");
+			net.closeConnection();
+		}
+		else
+		{
+			net.write("notice");
+			net.write(text.getText());
+			text.setText("Submit Notice Clicked");
+		}
 	}
 	
 	public void destroy()
