@@ -191,15 +191,19 @@ void interactive_camshift(int n_cameras = 1,
 
 	  if (uinput_mouse_enabled) {
 	    /* Emulate a mouse using uinput */
-	    float dx = box.center.x - prev_box_center.x;
-	    float dy = box.center.y - prev_box_center.y;
+	    if (prev_box_center_valid) {
+	      float dx = box.center.x - prev_box_center.x;
+	      float dy = box.center.y - prev_box_center.y;
 
-	    uinput_mouse_move((int)(dx * 2.5),
-			      (int)(dy * 2.5));
+	      uinput_mouse_move((int)(dx * 2.5),
+				(int)(dy * 2.5));
+	    }
 
-	    prev_box_center = box.center;
-	    prev_box_center_valid = true;
+	    
 	  }
+
+	  prev_box_center = box.center;
+	  prev_box_center_valid = true;
 	}
 	else {
 	  /* If not, reset our search window */
