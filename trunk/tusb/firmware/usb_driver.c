@@ -203,42 +203,22 @@ void usb_init() {
   USBCTL |= CONT;
 }
 
-void usb_dma_write_setup(int ep, xdata unsigned char *buffer, unsigned char buffer_size) {
-  ep = ep - 1 + EDB_IEP1;
-  EDB[ep].config = STALL | UBME;
+void usb_dma_setup(unsigned char ep, xdata unsigned char *buffer, unsigned char buffer_size) {
   EDB[ep].x_base = (((unsigned short)buffer) >> 3) & 0xFF;
   EDB[ep].buffer_size = buffer_size;
   EDB[ep].x_count = 0;
 }
 
-void usb_dma_write_stall(int ep) {
-  ep = ep - 1 + EDB_IEP1;
+void usb_dma_stall(unsigned char ep) {
   EDB[ep].config = UBME | STALL;
 }
 
-int  usb_dma_write_status(int ep) {
-  unsigned char c = EDB[ep-1+EDB_IEP1].x_count;
-  if (c & 0x80)
-    return c & 0x7F;
-  else
-    return 0;
-}
-
-void usb_dma_read_setup(int ep, xdata unsigned char *buffer, unsigned char buffer_size) {
-  ep = ep - 1 + EDB_OEP1;
+void usb_dma_unstall(unsigned char ep) {
   EDB[ep].config = UBME;
-  EDB[ep].x_base = (((unsigned short)buffer) >> 3) & 0xFF;
-  EDB[ep].buffer_size = buffer_size;
-  EDB[ep].x_count = 0;
 }
 
-void usb_dma_read_stall(int ep) {
-  ep = ep - 1 + EDB_OEP1;
-  EDB[ep].config = UBME | STALL;
-}
-
-int  usb_dma_read_status(int ep) {
-  unsigned char c = EDB[ep-1+EDB_OEP1].x_count;
+int usb_dma_status(unsigned char ep) {
+  unsigned char c = EDB[ep].x_count;
   if (c & 0x80)
     return c & 0x7F;
   else

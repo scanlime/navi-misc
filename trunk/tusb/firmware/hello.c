@@ -10,7 +10,41 @@
 volatile xdata at 0xFD00 unsigned char ep1_out_x[64];
 unsigned char c;
 
+void io_tester() {
+  while (1) {
+    P3_0 = 1;
+    P3_3 = 1;
+    P3_4 = 0;
+    delay(4000);
+    I2CADR = 0x80;
+    I2CDAO = 0x00;
+
+    P3_0 = 1;
+    P3_3 = 0;
+    P3_4 = 1;
+    delay(4000);
+    I2CADR = 0x40;
+    I2CDAO = 0x00;
+
+    P3_0 = 0;
+    P3_3 = 1;
+    P3_4 = 1;
+    delay(4000);
+    I2CADR = 0x20;
+    I2CDAO = 0x00;
+
+    P3_0 = 1;
+    P3_3 = 0;
+    P3_4 = 1;
+    delay(4000);
+    I2CADR = 0x10;
+    I2CDAO = 0x00;
+  }
+}
+
 void main() {
+  //io_tester();
+
   uart_init();
   puts("\n---- Startup ----");
 
@@ -18,17 +52,18 @@ void main() {
   puts("USB initialized");
 
   /* Set up the first EP1 OUT transfer */
-  usb_dma_read_setup(1, ep1_out_x, sizeof(ep1_out_x));
+  usb_dma_unstall(EDB_OEP1);
+  usb_dma_setup(EDB_OEP1, ep1_out_x, sizeof(ep1_out_x));
 
   while (1) {
     watchdog_reset();
     usb_poll();
 
-    c = usb_dma_read_status(1);
+    c = usb_dma_status(EDB_OEP1);
     if (c) {
       printf("Received %d bytes on EP1 OUT: %02X %02X %02X %02x...\n", c,
 	     ep1_out_x[0], ep1_out_x[1], ep1_out_x[2], ep1_out_x[3]);
-      usb_dma_read_setup(1, ep1_out_x, sizeof(ep1_out_x));
+      usb_dma_setup(EDB_OEP1, ep1_out_x, sizeof(ep1_out_x));
     }
   }
 }
