@@ -10,6 +10,50 @@
 
 static void alloc_string_from_file(const char* filename, GLcharARB **string, GLint *length);
 
+int shader_create_lookup_table(int xres, int yres, int wrap, int filter,
+			       void (*callback)(float s, float t, float* color)) {
+  GLint texture;
+  unsigned char *data, *p;
+  int x, y, i;
+  float color[4];
+
+  data = malloc(4 * xres * yres);
+
+  glGenTextures(1, &texture);
+  glBindTexture(GL_TEXTURE_2D, texture);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
+
+  p = data;
+  for (y=0; y<yres; y++)
+    for (x=0; x<xres; x++) {
+      for (i=0; i<4; i++)
+	color[i] = 0.0;
+      callback(x / (xres - 1.0), y / (yres - 1.0), color);
+      for (i=0; i<4; i++) {
+	int c = color[i] * 255 + 0.5;
+	if (c < 0)
+	  c = 0;
+	if (c > 255)
+	  c = 255;
+	*(p++) = c;
+      }
+    }
+
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, xres, yres, 0, GL_RGBA,
+	       GL_UNSIGNED_BYTE, data);
+  free(data);
+  return texture;
+}
+
+void shader_install_texture(GLhandleARB program, const char *var_name, int tex_unit, int texture) {
+  glActiveTextureARB(GL_TEXTURE0 + tex_unit);
+  glBindTexture(GL_TEXTURE_2D, texture);
+  glUniform1iARB(glGetUniformLocationARB(program, var_name), tex_unit);
+}
+
 /* Create a new program object formed by linking the given 0-terminated list of shaders */
 GLhandleARB shader_link_program(GLhandleARB first_shader, ...) {
   GLhandleARB program, shader;

@@ -18,6 +18,10 @@ void model_switch();
 /* shader.c */
 GLhandleARB shader_compile_from_files(GLenum shaderType, ...);
 GLhandleARB shader_link_program(GLhandleARB first_shader, ...);
+int shader_create_lookup_table(int xres, int yres, int wrap, int filter,
+			       void (*callback)(float s, float t, float* color));
+void shader_install_texture(GLhandleARB program, const char *var_name, int tex_unit, int texture);
 void shader_show_info_log(GLhandleARB object);
+
 
 #endif /* __HDR_TEST_H */

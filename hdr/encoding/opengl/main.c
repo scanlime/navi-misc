@@ -12,9 +12,30 @@ SDL_Surface *screen;
 float model_x = 0;
 float model_y = 0;
 
+void encoding_pattern(float s, float t, float* color) {
+  int x = s * 3 + 0.5;
+  int y = (1-t) * 3 + 0.5;
+  int i = x + y*4;
+
+  if (i < 8)
+    color[0] = (1 << ( 7-(i-8) + 1)) / 255.0;
+  else
+    color[0] = 2.0 / 255.0;
+
+  color[2] = i==0 ? 1.0 : 0.0;
+}
+
+void lsb_pattern(float s, float t, float* color) {
+  int x = s * 255 + 0.5;
+  x &= 0xFE;
+  if (t > 0.5)
+    x += 1;
+  color[0] = x / 255.0;
+}
 
 void scene_init() {
   GLhandleARB program;
+  int encoding_pattern_lut, lsb_pattern_lut;
 
   float diffuse[] = {0.5, 0.5, 0.52, 0};
   float specular[] = {1.0, 1.0, 0.8, 0};
@@ -23,12 +44,18 @@ void scene_init() {
   float m_diffuse[]  = {1, 1, 1, 0};
   float m_specular[] = {0.8, 0.8, 0.8, 0};
 
+  /* Compile, link, and activate our shaders */
   program = shader_link_program(shader_compile_from_files(GL_FRAGMENT_SHADER_ARB,
 							  DATADIR "/test.frag",
 							  NULL),
 				0);
 
+  encoding_pattern_lut = shader_create_lookup_table(4, 4, GL_REPEAT, GL_NEAREST, encoding_pattern);
+  lsb_pattern_lut = shader_create_lookup_table(256, 2, GL_CLAMP, GL_NEAREST, lsb_pattern);
+
   glUseProgramObjectARB(program);
+  shader_install_texture(program, "EncodingPattern", 0, encoding_pattern_lut);
+  shader_install_texture(program, "LSBPattern", 1, lsb_pattern_lut);
 
   glViewport(0, 0, screen->w, screen->h);
   glMatrixMode(GL_PROJECTION);
@@ -58,8 +85,33 @@ void scene_init() {
   glMaterialf(GL_FRONT, GL_SHININESS, 30);
 }
 
+void background_draw() {
+  const float depth = 1.0;
+
+  glDisable(GL_LIGHTING);
+  glMatrixMode(GL_PROJECTION);
+  glPushMatrix();
+  glLoadIdentity();
+  glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity();
+
+  glBegin(GL_QUADS);
+  glColor3f(0, 0, 0.2);
+  glVertex3f(-1,-1, depth);
+  glVertex3f( 1,-1, depth);
+  glColor3f(0.5, 0.5, 0.5);
+  glVertex3f( 1, 1, depth);
+  glVertex3f(-1, 1, depth);
+  glEnd();
+
+  glMatrixMode(GL_PROJECTION);
+  glPopMatrix();
+  glMatrixMode(GL_MODELVIEW);
+  glEnable(GL_LIGHTING);
+}
+
 void scene_draw(float dt) {
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  glClear(GL_DEPTH_BUFFER_BIT);
 
   glLoadIdentity();
   glTranslatef(0, 0, -9);
@@ -69,6 +121,9 @@ void scene_draw(float dt) {
 
   glRotatef(-90, 1, 0, 0);
   model_draw();
+
+  /* Draw the background last, to reduce overdraw */
+  background_draw();
 
   SDL_GL_SwapBuffers();
 }
@@ -83,7 +138,7 @@ void fhz_report(Uint32 now) {
   n_frames++;
   if (now > start_time + interval) {
     fhz = n_frames * 1000.0 / (now - start_time);
-    printf("\r%8.02f FHz ", fhz);
+    printf("\r%8.02f FHz  (Effective fill rate: %.02f Pixel MHz)", fhz, fhz * screen->w * screen->h / 1000000.0);
     fflush(stdout);
 
     n_frames = 0;
@@ -93,8 +148,9 @@ void fhz_report(Uint32 now) {
 
 int handle_events(float delta_t) {
   SDL_Event event;
-  static float model_vx, model_vy;
-  static int spin_active = 0;
+  static float model_vx = 3;
+  static float model_vy = 0;
+  static int spin_active = 1;
   const float mouse_speed = 0.6;
 
   while (SDL_PollEvent(&event)) {
@@ -112,6 +168,7 @@ int handle_events(float delta_t) {
     case SDL_MOUSEBUTTONDOWN:
       /* Stop it spinning when the user clicks */
       spin_active = 0;
+      model_vx = model_vy = 0;
       break;
 
     case SDL_MOUSEBUTTONUP:
