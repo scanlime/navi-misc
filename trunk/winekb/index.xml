@@ -1,0 +1,12 @@
+<?xml-stylesheet href="transform.xml" type="text/xsl"?>
+
+<kbpage title="Wine Knowledge Base">
+
+  <section title="Users">
+    * Installing <l>NativeMSI</l> and <l>NativeDCOM</l>
+  </section>
+  
+  <section title="Developers">
+  </section>
+  
+</kbpage>
