@@ -7,12 +7,13 @@
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
   <!-- ================================ Document Root -->
-  <xsl:template match="/concept|/technique">
+  <xsl:template match="/concept|/technique|/form">
     <html>
       <head>
         <title>
           <xsl:if test="/concept">Concept: </xsl:if>
           <xsl:if test="/technique">Technique: </xsl:if>
+          <xsl:if test="/form">Form: </xsl:if>
           <xsl:value-of select="@name"/>
         </title>
         <style type="text/css" media="all"> @import url(style.css);</style>
@@ -33,6 +34,7 @@
             <span class="section">
               <xsl:if test="/concept">concepts</xsl:if>
               <xsl:if test="/technique">techniques</xsl:if>
+              <xsl:if test="/form">forms</xsl:if>
             </span>
             <div class="section">
               <div class="sectionTop"/>
@@ -44,7 +46,8 @@
                     <xsl:apply-templates select="document('techniques.xml')//techniques/technique[@level='orange']"/>
                     <span class="emph">blue</span>
                     <xsl:apply-templates select="document('techniques.xml')//techniques/technique[@level='blue']"/>
-                    </xsl:if>
+                  </xsl:if>
+                  <xsl:if test="/form"><xsl:apply-templates select="document('forms.xml')//forms/form"/></xsl:if>
                 </ul>
               </div>
             </div>
@@ -58,6 +61,12 @@
             </xsl:if>
             <xsl:if test="/technique">
               <xsl:apply-templates select="steps"/>
+              <xsl:apply-templates select="notes"/>
+            </xsl:if>
+            <xsl:if test="/form">
+              <xsl:apply-templates select="steps"/>
+              <xsl:apply-templates select="contents"/>
+              <xsl:apply-templates select="teaches"/>
               <xsl:apply-templates select="notes"/>
             </xsl:if>
           </td>
@@ -180,6 +189,39 @@
           </div>
         </xsl:if>
       </xsl:for-each>
+    </div>
+  </xsl:template>
+
+  <xsl:template match="contents">
+    <span class="section">contains</span>
+    <div class="section">
+      <div class="sectionTop"/>
+      <xsl:if test="overview">
+        <div class="row">
+          <span class="emph">overview: </span>
+          <xsl:value-of select="overview"/>
+        </div>
+      </xsl:if>
+      <xsl:if test="stances">
+        <div class="row">
+          <span class="emph">stances</span>
+          <ul>
+            <xsl:for-each select="stances/stance">
+              <li><xsl:value-of select="."/></li>
+            </xsl:for-each>
+          </ul>
+        </div>
+      </xsl:if>
+      <xsl:if test="blocks">
+        <div class="row">
+          <span class="emph">blocks</span>
+          <ul>
+            <xsl:for-each select="blocks/block">
+              <li><xsl:value-of select="."/></li>
+            </xsl:for-each>
+          </ul>
+        </div>
+      </xsl:if>
     </div>
   </xsl:template>
 
