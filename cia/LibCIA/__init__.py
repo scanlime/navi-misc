@@ -42,4 +42,15 @@ if sys.version_info < requiredPythonVersion:
 del sys
 del string
 
+# Use psyco to speed this up if we have it
+from twisted.python import log
+try:
+    import psyco
+    psyco.full()
+    log.msg("optimized using psyco")
+    del psyco
+except ImportError:
+    log.msg("psyco not found")
+del log
+
 ### The End ###
