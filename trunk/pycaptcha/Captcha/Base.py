@@ -46,6 +46,7 @@ class BaseCaptcha(object):
 
     def __init__(self):
         self.solutions = []
+        self.valid = True
 
         # Each test has a unique identifier, used to refer to that test
         # later, and a creation time so it can expire later.
@@ -56,7 +57,14 @@ class BaseCaptcha(object):
         self.solutions.append(solution)
 
     def testSolutions(self, solutions):
-        """Test whether the given solutions are sufficient for this CAPTCHA"""
+        """Test whether the given solutions are sufficient for this CAPTCHA.
+           A given CAPTCHA can only be tested once, after that it is invalid
+           and always returns False. This makes random guessing much less effective.
+           """
+        if not self.valid:
+            return False
+        self.valid = False
+
         numCorrect = 0
         numIncorrect = 0
 
@@ -72,15 +80,10 @@ class BaseCaptcha(object):
 
 class Factory(object):
     """Creates BaseCaptcha instances on demand, and tests solutions.
-       A given CAPTCHA can only be tested once. Success or not, we delete it.
-       This prevents attacks where the answer to a CAPTCHA is repeatedly
-       guessed. If a human gets the test wrong, they'll have to pick a different
-       one to solve rather than getting the same one again.
-
-       Unsolved CAPTCHAs expire after a given amount of time, given in seconds.
-       The default is 1 hour.
+       CAPTCHAs expire after a given amount of time, given in seconds.
+       The default is 15 minutes.
        """
-    def __init__(self, cls, lifetime=60*60):
+    def __init__(self, cls, lifetime=60*15):
         self.cls = cls
         self.lifetime = lifetime
         self.storedInstances = {}
@@ -124,7 +127,6 @@ class Factory(object):
         if not inst:
             return False
         result = inst.testSolutions(solutions)
-        del self.storedInstances[id]
         return result
 
 ### The End ###
