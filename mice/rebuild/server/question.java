@@ -40,7 +40,7 @@ public class question
 		name = NAME;
 		text = TEXT;
 		time = new Date().toString();
-		System.out.println(this);
+		//System.out.println(this);
 		//add this question to the log file
 	}
 	
