@@ -51,7 +51,8 @@ def collectObjects():
     blendObjects = []
     typeReg = bzflag.getTypeRegistry()
 
-    for object in Blender.Object.Get():
+    scene = Blender.Scene.GetCurrent()
+    for object in scene.getChildren():
         try:
             bztype = object.getProperty("bztype").getData()
         except AttributeError:
