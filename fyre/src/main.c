@@ -20,6 +20,12 @@
  *
  */
 
+#ifdef WIN32
+#include <windows.h>
+#include <io.h>
+#include <fcntl.h>
+#endif
+
 #include <gtk/gtk.h>
 #include <stdlib.h>
 #include <time.h>
@@ -38,7 +44,7 @@ static void animation_render_main  (DeJong      *dejong,
 static void image_render_main      (DeJong      *dejong,
 				    const gchar *filename,
 				    gulong       target_density);
-
+static void acquire_console        (void);
 
 int main(int argc, char ** argv) {
   DeJong* dejong;
@@ -150,6 +156,7 @@ int main(int argc, char ** argv) {
     break;
 
   case RENDER:
+    acquire_console();
     if (animate)
       animation_render_main(dejong, animation, outputFile, target_density);
     else
@@ -167,7 +174,9 @@ int main(int argc, char ** argv) {
 }
 
 static void usage(char **argv) {
-  printf("Usage: %s [options]\n"
+  acquire_console();
+  fprintf(stderr,
+     "Usage: %s [options]\n"
 	 "Interactive exploration of the Peter de Jong attractor\n"
 	 "\n"
 	 "Actions:\n"
@@ -297,5 +306,36 @@ static void animation_render_main (DeJong      *dejong,
   avi_writer_close(avi);
 }
 
+#ifdef WIN32
+void sleep_at_exit()
+{
+  printf("\nFinished.\n");
+  while (1)
+    sleep(10);
+}
+
+static void acquire_console()
+{
+  /* This will give us a new console window- a little disconcerting
+   * when running Fyre from the command line, but still usable. We
+   * have to use a little bit of black magic to reattach that to stdout
+   * and stderr.
+   */
+  HANDLE hfile;
+  int fd;
+  FILE *file;
+
+  AllocConsole();
+  hfile = GetStdHandle(STD_OUTPUT_HANDLE);
+  fd = _open_osfhandle((LONG) hfile, O_WRONLY);
+  file = fdopen(fd, "w");
+  *stdout = *file;
+  *stderr = *file;
+  
+  atexit(sleep_at_exit);
+}
+#else
+static void acquire_console() {}
+#endif
 
 /* The End */

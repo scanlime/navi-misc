@@ -61,7 +61,7 @@ OBJS    = \
 
 # Extra files for things only needed on windows
 CFLAGS += -Isrc/platform
-CFLAGS += -mms-bitfields -mwindows
+CFLAGS += -mms-bitfields
 LDFLAGS += -mwindows -Wl,--subsystem,windows
 OBJS += \
 	src/platform/getopt.o \
