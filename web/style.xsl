@@ -14,6 +14,7 @@
         <style type="text/css" media="all"> @import url(style.css);</style>
       </head>
       <body>
+        <!--========== Heading -->
         <div class="heading">
           <div class="siteName">navi-misc</div>
           <div class="title"><xsl:value-of select="@title"/></div>
@@ -24,11 +25,14 @@
 	  </div>
         </div>
 
+        <!--========== Navigation -->
 	<div class="navbar">
 	    <div class="section">
               <div class="sectionTop">Projects</div>
-	      <div class="row">
-	        boing
+              <div class="row">
+                <ul>
+		  <xsl:apply-templates select="document('projects.xml')/projects/project"/>
+                </ul>
               </div>
             </div>
 	</div>
@@ -39,6 +43,20 @@
 
       </body>
     </html>
+  </xsl:template>
+
+  <!--================================== Projects -->
+
+  <xsl:template match="project">
+    <li>
+      <a>
+        <xsl:attribute name="href"><xsl:value-of select="@href"/></xsl:attribute>
+        <xsl:value-of select="@name"/>
+      </a>
+      <ul>
+        <xsl:apply-templates select="project"/>
+      </ul>
+    </li>
   </xsl:template>
 
   <!--================================== Introduction -->
