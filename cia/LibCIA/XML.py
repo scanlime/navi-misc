@@ -61,6 +61,46 @@ class XMLObject(object):
         pass
 
 
+class XMLFunction(XMLObject):
+    """An XMLObject that is parsed on creation into a function,
+       making this class callable. The parser relies on member functions
+       starting with 'element_' to recursively parse each element of the XML
+       tree, returning a function implementing it.
+       """
+    requiredRootElement = None
+
+    def preprocess(self):
+        """Upon creating this object, parse the XML tree recursively
+           into a function that will be invoked by __call__.
+           """
+        # Validate the root element type if the subclass wants us to.
+        # This is hard to do elsewhere, since the element handlers don't
+        # know where they are in the XML document.
+        if self.requiredRootElement is not None and self.xml.name != self.requiredRootElement:
+            raise XMLValidityError("Found a %r element where a root element of %r is required" %
+                                   (self.xml.name, self.requiredRootElement))
+
+        self.f = self.parse(self.xml)
+
+    def __call__(self, *args, **kwargs):
+        return self.f(*args, **kwargs)
+
+    def parse(self, element):
+        """Given an XML element, recursively builds a python function
+           implementing the functionality it describes.
+           """
+        # Pass control on to the appropriate element_* function
+        try:
+            f = getattr(self, "element_" + element.name)
+        except AttributeError:
+            return self.unknownElement(element)
+        return f(element)
+
+    def unknownElement(self, element):
+        """An unknown element was found, by default just generates an exception"""
+        raise XMLValidityError("Unknown element name in %s: %r" % (self.__class__.__name__, element.name))
+
+
 class XMLValidityError(Exception):
     """This error is raised by subclasses of XMLObject that encounter problems
        in the structure of XML documents presented to them. Normally this should

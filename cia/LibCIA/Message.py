@@ -108,7 +108,7 @@ class Hub(object):
         return result
 
 
-class Filter(XML.XMLObject):
+class Filter(XML.XMLFunction):
     """A filter is a description of some subset of all valid Message objects,
        described using a simple XML-based format and a subset of XPath. The
        filter document type is described with examples and a schema in the
@@ -242,30 +242,6 @@ class Filter(XML.XMLObject):
          True
 
        """
-    def preprocess(self):
-        """Upon loading an XML document, this recursively converts the XML filter
-           to a self.__call__() function that, when called with a Message instance,
-           returns a boolean indicating whether it passes the filter.
-           """
-        self.matchFunc = self.parseFilter(self.xml)
-
-    def __call__(self, message):
-        """Test the given message against the filter defined by this class,
-           returning a boolean value.
-           """
-        return self.matchFunc(message)
-
-    def parseFilter(self, element):
-        """Given an XML element, recursively builds a python function
-           implementing the filter it describes.
-           """
-        # Pass control on to the appropriate element_* function
-        try:
-            f = getattr(self, "element_" + element.name)
-        except AttributeError:
-            raise XML.XMLValidityError("Unknown element name in Filter: %r" % element.name)
-        return f(element)
-
     def pathMatchTag(self, element, function):
         """Implements the logic common to all tags that test the text matched by
            an XPath against the text inside our element. The given function is used
@@ -333,7 +309,7 @@ class Filter(XML.XMLObject):
 
     def element_and(self, element):
         """Evaluates to True if and only if all child functions evaluate to True"""
-        childFunctions = [self.parseFilter(child) for child in element.elements()]
+        childFunctions = [self.parse(child) for child in element.elements()]
         def filterAnd(msg):
             for child in childFunctions:
                 if not child(msg):
@@ -343,7 +319,7 @@ class Filter(XML.XMLObject):
 
     def element_or(self, element):
         """Evaluates to True if and only if any child function evaluates to True"""
-        childFunctions = [self.parseFilter(child) for child in element.elements()]
+        childFunctions = [self.parse(child) for child in element.elements()]
         def filterOr(msg):
             for child in childFunctions:
                 if child(msg):
@@ -355,7 +331,7 @@ class Filter(XML.XMLObject):
         """The NOR function, returns false if and only if any child function evaluates to True.
            For the reasoning behind calling this 'not', see the doc string for this class.
            """
-        childFunctions = [self.parseFilter(child) for child in element.elements()]
+        childFunctions = [self.parse(child) for child in element.elements()]
         def filterNot(msg):
             for child in childFunctions:
                 if child(msg):
@@ -378,19 +354,19 @@ class Filter(XML.XMLObject):
     def __and__(self, other):
         """Perform a logical 'and' on two Filters without evaluating them"""
         newFilter = Filter()
-        newFilter.matchFunc = lambda msg: self(msg) and other(msg)
+        newFilter.f = lambda msg: self(msg) and other(msg)
         return newFilter
 
     def __or__(self, other):
         """Perform a logical 'or' on two Filters without evaluating them"""
         newFilter = Filter()
-        newFilter.matchFunc = lambda msg: self(msg) or other(msg)
+        newFilter.f = lambda msg: self(msg) or other(msg)
         return newFilter
 
     def __invert__(self):
         """Perform a logical 'not' on this Filter without evaluating it"""
         newFilter = Filter()
-        newFilter.matchFunc = lambda msg: not self(msg)
+        newFilter.f = lambda msg: not self(msg)
         return newFilter
 
 
@@ -416,19 +392,19 @@ class Formatter(object):
 
 
 class AutoFormatter(Formatter):
-    """A meta-formatter that, based on the provided output medium, automatically
-       finds an applicable formatter and runs it.
+    r"""A meta-formatter that, based on the provided output medium, automatically
+        finds an applicable formatter and runs it.
 
-       The AutoFormatter is constructed with the target medium you're interested in.
-       All formatters with that target medium are loaded. When a message must be
-       formatted, the first one with a matching detector filter is chosen and
-       invoked.
+        The AutoFormatter is constructed with the target medium you're interested in.
+        All formatters with that target medium are loaded. When a message must be
+        formatted, the first one with a matching detector filter is chosen and
+        invoked.
 
-       >>> f = AutoFormatter('irc')
-       >>> msg = Message('<message><body><colorText><b>Hello</b>World</colorText></body></message>')
-       >>> f.format(msg)
-       '\x02Hello\x0fWorld'
-       """
+          >>> f = AutoFormatter('irc')
+          >>> msg = Message('<message><body><colorText><b>Hello</b>World</colorText></body></message>')
+          >>> f.format(msg)
+          '\x02Hello\x0fWorld'
+        """
     def __init__(self, medium):
         # Load all formatters with the given medium and a non-None detector
         import Formatters
@@ -467,37 +443,144 @@ class NamedFormatter(Formatter):
         return self.formatter.format(message, input)
 
 
-class Ruleset(XML.XMLObject):
-    """A ruleset is a tree that makes decisions about an incoming message
-       using filters and generates output using formatters.
-       A ruleset may contain the following elements, which are evaluated sequentially.
-       The output from the last formatter is returned from evaluate(), and each formatter
-       is given the previous formatter's output as input, so they may be stacked.
-
-       <formatter name="foo">   : Applies the formatter named 'foo'
-       <formatter medium="irc"> : Automatically picks a formatter for the particular
-                                  input message and the given medium type
-       any Filter tag           : Evaluates the filter, terminating the current rule
-                                  if it returns false.
-       <rule>                   : Marks a section of the ruleset that can be exited
-                                  when a filter returns false. A <rule> with a filter
-                                  as the first child can be used to create conditionals.
-
-       For example:
-
-          <ruleset>
-               <formatter medium="irc"/>
-               <rule>
-                   <match path="/message/source/project">navi-misc</match>
-                   <formatter name="addMoreMetadata"/>
-               </rule>
-          </ruleset>
-
-       This would always run the first <formatter> to automatically format the
-       message for IRC. Then, if the message comes from the 'navi-misc' project,
-       the filter 'addMoreMetadata' would be applied.
+class RulesetReturnException(Exception):
+    """Used to implement <return> in a Ruleset.
+       This exception is caught in the <ruleset> root node,
+       causing it to return with the current result value right away.
        """
     pass
+
+
+class Ruleset(XML.XMLFunction):
+    r"""A ruleset is a tree that makes decisions about an incoming message
+        using filters and generates output using formatters.
+        A ruleset may contain the following elements, which are evaluated sequentially.
+        The output from the last formatter is returned upon calling this ruleset, and
+        each formatter is given the previous formatter's output as input, so they may be stacked.
+
+        <formatter name="foo">   : Applies the formatter named 'foo'
+        <formatter medium="irc"> : Automatically picks a formatter for the particular
+                                   input message and the given medium type
+        any Filter tag           : Evaluates the filter, terminating the current rule
+                                   if it returns false.
+        <rule>                   : Marks a section of the ruleset that can be exited
+                                   when a filter returns false. A <rule> with a filter
+                                   as the first child can be used to create conditionals.
+        <return>                 : Normally the result of the last formatter is returned,
+                                   this causes the text inside the <return>
+                                   tag to be returned immediately. An empty <return>
+                                   tag causes None to be returned from this ruleset..
+
+        >>> msg = Message('<message>' +
+        ...                   '<source>' +
+        ...                       '<project>robo-hamster</project>' +
+        ...                   '</source>' +
+        ...                   '<body>' +
+        ...                       '<colorText>' +
+        ...                           '<b>Hello</b>World' +
+        ...                       '</colorText>' +
+        ...                   '</body>' +
+        ...               '</message>')
+
+        >>> r = Ruleset('<ruleset><formatter medium="irc"/></ruleset>')
+        >>> r(msg)
+        '\x02Hello\x0fWorld'
+
+        >>> r = Ruleset('<ruleset><return>Boing</return><formatter medium="irc"/></ruleset>')
+        >>> r(msg)
+        'Boing'
+
+        >>> r = Ruleset('<ruleset>' +
+        ...                 '<formatter medium="irc"/>' +
+        ...                 '<rule>' +
+        ...                    '<match path="/message/source/project">robo-hamster</match>' +
+        ...                    '<return>*censored*</return>' +
+        ...                 '</rule>' +
+        ...             '</ruleset>')
+        >>> r(msg)
+        '*censored*'
+
+        >>> r = Ruleset('<ruleset>' +
+        ...                 '<formatter medium="irc"/>' +
+        ...                 '<rule>' +
+        ...                    '<match path="/message/source/project">duck-invader</match>' +
+        ...                    '<return>Quack</return>' +
+        ...                 '</rule>' +
+        ...                 '<formatter name="IRCProjectName"/>' +
+        ...             '</ruleset>')
+        >>> r(msg)
+        '\x02robo-hamster:\x0f \x02Hello\x0fWorld'
+
+        """
+    requiredRootElement = "ruleset"
+
+    def element_ruleset(self, element):
+        """<ruleset> for the most part works just like <rule>, but since
+           it's the root node it's responsible for initializing and returning
+           the ruleset's result.
+           """
+        # Create a function to evaluate this element as a <rule> would be evaluated
+        ruleFunc = self.element_rule(element)
+
+        # Now wrap this function in one that performs our initialization and such
+        def rulesetRoot(msg):
+            self.result = None
+            try:
+                ruleFunc(msg)
+            except RulesetReturnException:
+                pass
+            result = self.result
+            del self.result
+            return result
+        return rulesetRoot
+
+    def element_rule(self, element):
+        """Evaluate each child element in sequence until one returns False"""
+        childFunctions = [self.parse(child) for child in element.elements()]
+        def rulesetRule(msg):
+            for child in childFunctions:
+                if not child(msg):
+                    break
+            return True
+        return rulesetRule
+
+    def element_return(self, element):
+        """Set the current result and exit the ruleset immediately"""
+        def rulesetReturn(msg):
+            self.result = str(element)
+            if not self.result:
+                self.result = None
+            raise RulesetReturnException()
+        return rulesetReturn
+
+    def element_formatter(self, element):
+        """Creates a Formatter instance matching the element's description,
+           returns a function that applies the formatter against the current
+           message and result.
+           """
+        if element.hasAttribute('name'):
+            formatter = NamedFormatter(element['name'])
+        elif element.hasAttribute('medium'):
+            formatter = AutoFormatter(element['medium'])
+        else:
+            raise XML.XMLValidityError("<formatter> must have a 'name' or 'medium' attribute")
+
+        def rulesetFormatter(msg):
+            self.result = formatter.format(msg, self.result)
+            return True
+        return rulesetFormatter
+
+    def unknownElement(self, element):
+        """Check whether this element is a filter before giving up"""
+        try:
+            f = Filter(element)
+        except XMLValidityError:
+            # Nope, not a filter.. let XMLFunction give an error
+            XML.XMLFunction.unknownElement(self, element)
+
+        # We can just return the filter, since it has the same calling
+        # signature as any of our other element implementation functions.
+        return f
 
 
 def _test():
