@@ -669,8 +669,21 @@ class Teleporter(Box):
     def serialize(self, writer):
         BZObject.serialize(self, writer)
         writer(("position",) + tuple(self.position))
-        writer(("size") + tuple(self.size))
+        print self.size
+        writer(("size", 0.0, self.size[1], self.size[2]))
         writer(("rotation", self.rotation))
         writer(("border", self.border))
+
+    def setBlenderProperties(self, object):
+        BZObject.setBlenderProperties(self, object)
+        object.addProperty('border', float(self.border), 'FLOAT')
+
+    def loadBlenderProperties(self, object):
+        BZObject.loadBlenderProperties(self, object)
+        try:
+            self.border = object.getProperty('border').getData()
+        except AttributeError:
+            # No property, use the default border
+            self.set_border()
 
 ### The End ###
