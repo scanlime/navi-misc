@@ -72,10 +72,19 @@ struct rwand_status {
   unsigned char   buttons;    /* RWAND_BUTTON_* bits */
 };
 
+/* Startup timings */
+struct rwand_startup {
+  int  min_period;            /* Minimum period, in 2.66us units */
+  int  max_period;            /* Maximum period, in 2.66us units */
+  int  climb_rate;            /* Period climb rate, in 2.66us units per jiffy */
+};
+
 
 #define RWANDIO_GET_SETTINGS    0x3B01
 #define RWANDIO_PUT_SETTINGS    0x3B02
 #define RWANDIO_GET_STATUS      0x3B03
+#define RWANDIO_GET_STARTUP     0x3B04
+#define RWANDIO_PUT_STARTUP     0x3B05
 
 
 #endif /* __RWAND_DEV_H */

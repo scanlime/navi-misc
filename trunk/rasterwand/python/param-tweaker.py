@@ -10,8 +10,6 @@ import rasterwand, gtk, Tweak, rtgraph, sys
 
 
 class PeriodChannel(rtgraph.Channel):
-    _struct = "HHBBBB"
-
     def __init__(self, dev):
         rtgraph.Channel.__init__(self)
         self.dev = dev
@@ -38,6 +36,9 @@ def main():
         Tweak.Quantity(dev.params, 'coil_width', range=(0,0xFFFF)),
         Tweak.Quantity(dev.params, 'duty_cycle', range=(0,0xFFFF)),
         Tweak.Quantity(dev.params, 'fine_adjust', range=(-1000,1000)),
+        Tweak.Quantity(dev.startup, 'min_period', range=(0,0xFFFF)),
+        Tweak.Quantity(dev.startup, 'max_period', range=(0,0xFFFF)),
+        Tweak.Quantity(dev.startup, 'climb_rate', range=(0,100)),
         ])
 
     win = gtk.Window(gtk.WINDOW_TOPLEVEL)
