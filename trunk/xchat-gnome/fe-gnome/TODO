@@ -1,6 +1,8 @@
 before 0.2:
   * fix the completely-broken druid (probably replace with a simple dialog)
   * make it install the .desktop file
+  * change button should be either desensitized or hidden in places without
+    a topic (dialogs, etc)
 
 autotools:
   * check for an adequate version of gnome-icon-theme, etc
