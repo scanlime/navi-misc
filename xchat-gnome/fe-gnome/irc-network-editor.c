@@ -146,7 +146,7 @@ irc_network_editor_init (IrcNetworkEditor *dialog)
 	GW(toplevel);
 #undef GW
 
-	dialog->store = gtk_list_store_new (2, G_TYPE_STRING, G_TYPE_POINTER);
+	dialog->store = gtk_list_store_new (1, G_TYPE_STRING);
 	dialog->server_renderer = gtk_cell_renderer_text_new ();
 
 	gtk_tree_view_set_model (GTK_TREE_VIEW (dialog->servers), GTK_TREE_MODEL (dialog->store));
@@ -219,7 +219,7 @@ populate_server_list (IrcNetworkEditor *e)
 		serv = s->data;
 
 		gtk_list_store_append (e->store, &iter);
-		gtk_list_store_set (e->store, &iter, 0, serv->hostname, 1, serv, -1);
+		gtk_list_store_set (e->store, &iter, 0, serv->hostname, -1);
 	}
 }
 
@@ -291,6 +291,11 @@ static void
 apply_changes (IrcNetworkEditor *e)
 {
 	IrcNetwork *net;
+	GSList *s;
+	GtkTreeIter iter;
+
+	net = e->network;
+
 	if (net->name)     g_free (net->name);
 	if (net->password) g_free (net->password);
 	if (net->nick)     g_free (net->nick);
@@ -309,6 +314,22 @@ apply_changes (IrcNetworkEditor *e)
 	net->reconnect          = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (e->autoreconnect));
 	net->nogiveup_reconnect = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (e->giveup_reconnect));
 	net->use_global         = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (e->use_globals));
+
+	for (s = net->servers; s; s = g_slist_next (s)) {
+		ircserver *serv = s->data;
+		g_free (serv->hostname);
+		g_free (serv);
+	}
+	g_slist_free (s);
+	s = NULL;
+	if (gtk_tree_model_get_iter_first (GTK_TREE_MODEL (e->store), &iter)) {
+		do {
+			char *text;
+			ircserver *serv = g_new0 (ircserver, 1);
+			gtk_tree_model_get (GTK_TREE_MODEL (e->store), &iter, 0, &text, -1);
+			serv->hostname = g_strdup (text);
+		} while (gtk_tree_model_iter_next (GTK_TREE_MODEL (e->store), &iter));
+	}
 
 	irc_network_save (net);
 }
