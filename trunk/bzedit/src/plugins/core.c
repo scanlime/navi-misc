@@ -21,6 +21,7 @@
  */
 
 #include <gmodule.h>
+#include "base.h"
 #include "box.h"
 #include "teleporter.h"
 #include "pyramid.h"
@@ -31,7 +32,7 @@
 const gchar*
 g_module_check_init (GModule *module)
 {
-  static GType box, group, pyramid, teleporter, world;
+  static GType base, box, group, pyramid, teleporter, world;
 
   /* permanently insert ourself */
   g_module_make_resident (module);
@@ -40,6 +41,7 @@ g_module_check_init (GModule *module)
   box = BOX_TYPE;
   pyramid = PYRAMID_TYPE;
   teleporter = TELEPORTER_TYPE;
+  base = BASE_TYPE;
   group = GROUP_TYPE;
   world = WORLD_TYPE;
 

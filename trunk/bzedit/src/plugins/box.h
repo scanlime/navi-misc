@@ -28,7 +28,7 @@
 
 G_BEGIN_DECLS
 
-#define BOX_TYPE		(box_get_type())
+#define BOX_TYPE		(box_get_type ())
 #define BOX(obj)		(G_TYPE_CHECK_INSTANCE_CAST ((obj), BOX_TYPE, Box))
 #define BOX_CLASS(klass)	(G_TYPE_CHECK_CLASS_CAST ((klass), BOX_TYPE, BoxClass))
 #define IS_BOX(obj)		(G_TYPE_CHECK_INSTANCE_TYPE ((obj), BOX_TYPE))

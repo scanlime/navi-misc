@@ -8,6 +8,7 @@ PLUGINS			=			\
 			renderpasses.so
 
 CORE_SO_OBJS		=			\
+			base.o			\
 			box.o			\
 			core.o			\
 			group.o			\

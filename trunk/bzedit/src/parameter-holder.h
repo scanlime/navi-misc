@@ -134,6 +134,9 @@ void              param_spec_set_increments (GParamSpec  *pspec,
 
 const gchar*      param_spec_get_group      (GParamSpec  *pspec);
 
+void              param_spec_set_enum_func  (GParamSpec  *pspec,
+                                             GList* (*func) (void));
+
 const ParameterIncrements* param_spec_get_increments (GParamSpec  *pspec);
 
 

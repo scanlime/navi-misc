@@ -368,4 +368,9 @@ const ParameterIncrements* param_spec_get_increments (GParamSpec  *pspec) {
   return g_param_spec_get_qdata(pspec, g_quark_from_static_string("increments"));
 }
 
+void
+param_spec_set_enum_func (GParamSpec  *pspec, GList* (*func) (void))
+{
+}
+
 /* The End */
