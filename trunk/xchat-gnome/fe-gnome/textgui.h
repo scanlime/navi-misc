@@ -41,6 +41,8 @@ typedef struct {
 	char *entry;
 	char *lag_text;
 	gdouble lag_value;
+	char *queue_text;
+	gdouble queue_value;
 } session_gui;
 
 #endif

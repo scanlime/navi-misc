@@ -72,6 +72,7 @@ void text_gui_add_text_buffer(struct session *sess) {
 		tgui->topic = g_strdup(sess->topic);
 	tgui->entry = g_strdup("");
 	tgui->lag_text = NULL;
+	tgui->queue_text = NULL;
 }
 
 void text_gui_remove_text_buffer(struct session *sess) {
@@ -81,6 +82,10 @@ void text_gui_remove_text_buffer(struct session *sess) {
 	gtk_xtext_buffer_free(tgui->buffer);
 	g_free(tgui->topic);
 	g_free(tgui->entry);
+	if(tgui->lag_text)
+		free(tgui->lag_text);
+	if(tgui->queue_text)
+		free(tgui->queue_text);
 	free(tgui);
 	sess->gui = NULL;
 }

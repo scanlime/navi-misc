@@ -350,7 +350,7 @@ void fe_set_lag(server *serv, int lag) {
 	per = (double)((double)lag / 40.0);
 	if(per > 1.0)
 		per = 1.0;
-	snprintf(tip, sizeof(tip) - 1, "Lag: %s%d.%ds", serv->lag_sent ? "+" : "", lag / 10, lag % 10);
+	snprintf(tip, sizeof(tip) - 1, "%s%d.%ds lag", serv->lag_sent ? "+" : "", lag / 10, lag % 10);
 	while(list) {
 		sess = list->data;
 		if(sess->server == serv) {
@@ -368,7 +368,35 @@ void fe_set_lag(server *serv, int lag) {
 }
 
 void fe_set_throttle (server *serv) {
-	/* FIXME: implement */
+	GSList *list = sess_list;
+	session *sess;
+	gdouble per;
+	char tip[64];
+	session_gui *tgui;
+
+	per = (gdouble) serv->sendq_len / 1024.0;
+	if(per > 1.0)
+		per = 1.0;
+
+	snprintf(tip, sizeof(tip) - 1, "%d bytes buffered", serv->sendq_len);
+	while(list) {
+		sess = list->data;
+		if(sess->server == serv) {
+			tgui = (session_gui*) sess->gui;
+			tgui->queue_value = per;
+			if(tgui->queue_text)
+				free(tgui->queue_text);
+			if(per != 0) {
+				tgui->queue_text = strdup(tip);
+			} else {
+				tgui->queue_text = NULL;
+			}
+		}
+		list = list->next;
+	}
+	if(serv == gui.current_session->server) {
+		set_statusbar();
+	}
 }
 
 void fe_set_away(server *serv) {
