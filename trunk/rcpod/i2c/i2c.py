@@ -27,7 +27,7 @@ class i2c_bus:
     def readbit(self):
         self.pic.poke('trisb', self.busmask)			# bus high (input)
         self.pic.poke('porta', 0x01)				# clock high
-        bit = self.pic.peek('trisb')				# read when the clock is high
+        bit = self.pic.peek('portb')				# read when the clock is high
         self.pic.poke('porta', 0x00)				# clock low
         return bit
 
