@@ -217,7 +217,7 @@ int rcpod_SerialSetTxEnable(rcpod_dev* rcpod, rcpod_pin pin);
 
 
 /*************************************************************************************/
-/************************************************** Constants ************************/
+/************************************************** rcpod constants ******************/
 /*************************************************************************************/
 
 /* Size of the address space reachable via peek and poke */
@@ -357,6 +357,18 @@ int rcpod_SerialSetTxEnable(rcpod_dev* rcpod, rcpod_pin pin);
 #define RCPOD_PIN_RE0      (RCPOD_PIN_PORTE | RCPOD_PIN_PORT | RCPOD_PIN_BIT0 | RCPOD_PIN_HIGH)
 #define RCPOD_PIN_RE1      (RCPOD_PIN_PORTE | RCPOD_PIN_PORT | RCPOD_PIN_BIT1 | RCPOD_PIN_HIGH)
 #define RCPOD_PIN_RE2      (RCPOD_PIN_PORTE | RCPOD_PIN_PORT | RCPOD_PIN_BIT2 | RCPOD_PIN_HIGH)
+
+
+/*************************************************************************************/
+/************************************************** rcpod boards *********************/
+/*************************************************************************************/
+
+/* This section contains definitions of hardware on various boards using the rcpod */
+
+/* Definitions for the rcpod-485 board */
+#define RCPOD485_RS485_TXE   RCPOD_PIN_RD4       /* Transmit enable for RS-485 */
+#define RCPOD485_LED1        RCPOD_PIN_RC2       /* Two indicator LEDs */
+#define RCPOD485_LED2        RCPOD_PIN_RC1
 
 
 #endif /* __RCPOD_H */
