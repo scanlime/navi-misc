@@ -42,12 +42,12 @@ class Component(Server.Component):
 class TotalsSection(Template.Section):
     """A Section that displays fun-filled facts about our BotNetwork"""
     def __init__(self, botNet):
-        self.totalServers = 0
+        self.totalNetworks = 0
         self.totalBots = 0
         self.totalChannels = 0
-        for server in botNet.servers.iterkeys():
-            self.totalServers += 1
-            for bot in botNet.servers[server]:
+        for network in botNet.networks.iterkeys():
+            self.totalNetworks += 1
+            for bot in botNet.networks[network]:
                 self.totalBots += 1
                 self.totalChannels += len(bot.channels)
 
@@ -63,8 +63,8 @@ class TotalsSection(Template.Section):
                [
                    Template.value[ place('totalBots') ],
                    ' total IRC bots across ',
-                   Template.value[ place('totalServers') ],
-                   ' servers, inhabiting ',
+                   Template.value[ place('totalNetworks') ],
+                   ' networks, inhabiting ',
                    Template.value[ place('totalChannels') ],
                    ' channels.',
                ],
@@ -135,7 +135,7 @@ class BotsSection(Template.Section):
         self.botNet = botNet
 
         self.columns = [
-            Nouvelle.AttributeColumn('server', 'server'),
+            Nouvelle.AttributeColumn('network', 'network'),
             Nouvelle.AttributeColumn('nickname', 'nickname'),
             ListAttributeColumn('channels', 'channels'),
             ListAttributeColumn('requested', 'requestedChannels'),
@@ -145,8 +145,8 @@ class BotsSection(Template.Section):
 
     def render_rows(self, context):
         bots = []
-        for serverBots in self.botNet.servers.itervalues():
-            bots.extend(serverBots)
+        for networkBots in self.botNet.networks.itervalues():
+            bots.extend(networkBots)
         if bots:
             return [Template.Table(bots, self.columns, id='bots')]
         else:
@@ -221,12 +221,12 @@ class MessageBotColumn(Nouvelle.Column):
         return msg.bot.nickname
 
 
-class MessageServerColumn(Nouvelle.Column):
-    """Shows the name of the server a bot is on"""
-    heading = 'server'
+class MessageNetworkColumn(Nouvelle.Column):
+    """Shows the name of the network a bot is on"""
+    heading = 'network'
 
     def getValue(self, msg):
-        return str(msg.bot.factory.server)
+        return str(msg.bot.factory.network)
 
 
 class MessageParamsColumn(Nouvelle.Column):
@@ -244,7 +244,7 @@ class MessageLogSection(Template.Section):
     columns = [
         DateColumn('time', 'timestamp'),
         MessageBotColumn(),
-        MessageServerColumn(),
+        MessageNetworkColumn(),
         Nouvelle.AttributeColumn('code', 'command'),
         MessageParamsColumn(),
        ]
@@ -266,7 +266,7 @@ class RequestsSection(Template.Section):
 
     columns = [
         OptionalAttributeStringColumn('channel', 'channel'),
-        OptionalAttributeStringColumn('server', 'server'),
+        OptionalAttributeStringColumn('network', 'network'),
         OptionalAttributeStringColumn('# of bots', 'numBots'),
         RequestStatusColumn(),
         RequestUsersColumn(),
@@ -297,8 +297,8 @@ class NewBotsSection(Template.Section):
 
     def render_rows(self, context):
         newBots = []
-        for server, timer in self.botNet.newBotServers.iteritems():
-            newBots.append((server, TimeUtil.formatDuration(timer.getTime() - time.time())))
+        for network, timer in self.botNet.newBotNetworks.iteritems():
+            newBots.append((str(network), TimeUtil.formatDuration(timer.getTime() - time.time())))
         if newBots:
             return [Template.Table(newBots, self.columns, id='newBots')]
         else:

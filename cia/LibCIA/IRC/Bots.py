@@ -25,22 +25,23 @@ from twisted.protocols import irc
 from twisted.internet import protocol, reactor, defer
 from twisted.python import log, util
 import time, random
+import Network
 
 
 class Request:
-    """The Request object specifies a server, optionally a channel, and
-       a number of bots that need to inhabit that server/channel.
+    """The Request object specifies a network, optionally a channel, and
+       a number of bots that need to inhabit that network/channel.
 
        When a request is created, it registers itself with the BotNetwork,
        which then tries its hardest to keep the request satisfied. The
        bots satisfying this request are available in its 'bots' member.
        """
-    def __init__(self, botNet, server, channel=None, numBots=1):
+    def __init__(self, botNet, network, channel=None, numBots=1):
         self.bots = []
         self._active = True
 
         self.botNet = botNet
-        self.server = server
+        self.network = network
         self.channel = channel
         self.numBots = numBots
 
@@ -56,7 +57,7 @@ class Request:
             chanInfo = " in %s" % self.channel
         else:
             chanInfo = ''
-        return "<Request for %s%s on %s>" % (botInfo, chanInfo, self.server)
+        return "<Request for %s%s on %s>" % (botInfo, chanInfo, self.network)
 
     def active(self):
         """Return True if this request is still active, similar to DelayedCall's interface"""
@@ -70,11 +71,11 @@ class Request:
 
     def findBots(self):
         """Find bots that match this request, storing them in self.bots"""
-        # Look for our server and channel in the map from servers to bot lists
+        # Look for our network and channel in the map from networks to bot lists
         matches = []
-        if self.server in self.botNet.servers:
+        if self.network in self.botNet.networks:
             # Look for our channel in the map from channel names to bot lists
-            for bot in self.botNet.servers[self.server]:
+            for bot in self.botNet.networks[self.network]:
                 if (not self.channel) or (self.channel in bot.channels):
                     matches.append(bot)
 
@@ -95,35 +96,6 @@ class Request:
             nicks = self.bots[0].channels[self.channel].nicks
             if nicks:
                 return len(nicks) - len(self.bots)
-
-
-class Server:
-    """Represents an IRC server, by host and optional port number"""
-    defaultPort = 6667
-
-    def __init__(self, host, port=None):
-        if port is None:
-            port = self.defaultPort
-        self.host = host
-        self.port = int(port)
-
-    def __str__(self):
-        if self.port == self.defaultPort:
-            return self.host
-        else:
-            return "%s:%d" % (self.host, self.port)
-
-    def __repr__(self):
-        return "<Server at %s>" % self
-
-    def __cmp__(self, other):
-        if not isinstance(other, Server):
-            return cmp(self.__class__, other.__class__)
-        else:
-            return cmp((self.host, self.port), (other.host, other.port))
-
-    def __hash__(self):
-        return hash((self.host, self.port))
 
 
 class NickAllocator:
@@ -241,12 +213,12 @@ class BotNetwork:
         self.requests = []
         self.unknownMessageLog = UnknownMessageLog()
 
-        # A map from Server to list of Bots
-        self.servers = {}
+        # A map from Network to list of Bots
+        self.networks = {}
 
-        # A list of all servers for which bots are being created currently.
-        # Maps from Server instance to a DelayedCall signalling a timeout.
-        self.newBotServers = {}
+        # A list of all networks for which bots are being created currently.
+        # Maps from BaseNetwork instance to a DelayedCall signalling a timeout.
+        self.newBotNetworks = {}
 
         # Lists all bots we're thinking about deleting due to inactivity.
         # Maps from Bot instance to a DelayedCall.
@@ -256,14 +228,14 @@ class BotNetwork:
         self.checkBots()
 
     def findBot(self, host, nickname, port=None):
-        """Find the bot currently on the given server with the given nick.
+        """Find the bot currently on the given network with the given nick.
            This is mostly for use with the debug console. Note that for
-           convenience, the server is specified as a host and port here.
-           A Server instance will be created.
+           convenience, the network is specified as a host and port here.
+           A BaseNetwork instance will be created.
            """
-        server = Server(host, port)
+        network = Network.find(host, port)
         try:
-            bots = self.servers[server]
+            bots = self.networks[network]
         except KeyError:
             return None
         for bot in bots:
@@ -273,11 +245,11 @@ class BotNetwork:
     def findRequest(self, host, channel=None, port=None):
         """Find a request matching the given host, port, and channel.
            This is mostly for use with the debug console, hence it taking
-           a host and port for convenience rather than a Server instance.
+           a host and port for convenience rather than a BaseNetwork instance.
            """
-        server = Server(host, port)
+        network = Network.find(host, port)
         for req in self.requests:
-            if req.server == server and req.channel == channel:
+            if req.network == network and req.channel == channel:
                 return req
 
     def addRequest(self, request):
@@ -321,8 +293,8 @@ class BotNetwork:
                     del self.inactiveBots[reqBot]
 
         # Now look for unused bots and/or channels
-        for server in self.servers.itervalues():
-            for bot in server:
+        for network in self.networks.itervalues():
+            for bot in network:
                 if bot in usedBots:
                     usedChannels = usedBots[bot]
 
@@ -360,8 +332,8 @@ class BotNetwork:
         neededBots = request.numBots - len(request.bots)
 
         # Do we have any existing bots that can join a channel to fulfill the request?
-        if request.channel and request.server in self.servers:
-            for bot in self.servers[request.server]:
+        if request.channel and request.network in self.networks:
+            for bot in self.networks[request.network]:
                 if bot not in request.bots:
                     # If the bot's already trying to connect to our channel,
                     # decrease the needed bots count so we don't end up asking
@@ -374,22 +346,22 @@ class BotNetwork:
                     if neededBots <= 0:
                         return
 
-        # Nope... how about asking more bots to join the request's server?
-        if not request.server in self.newBotServers:
-            self.createBot(request.server)
+        # Nope... how about asking more bots to join the request's network?
+        if not request.network in self.newBotNetworks:
+            self.createBot(request.network)
 
-    def createBot(self, server):
-        """Create a new bot for the given server, retrying if necessary"""
+    def createBot(self, network):
+        """Create a new bot for the given network, retrying if necessary"""
         # We're not already trying to connect a bot, or our previous attempt failed.
         # Start trying to connect a bot, and set a timeout.
-        log.msg("Creating a new IRC bot for %s" % server)
-        BotFactory(self, server)
-        self.newBotServers[server] = reactor.callLater(self.newBotTimeout, self.newBotTimedOut, server)
+        log.msg("Creating a new IRC bot for %s" % network)
+        BotFactory(self, network)
+        self.newBotNetworks[network] = reactor.callLater(self.newBotTimeout, self.newBotTimedOut, network)
 
-    def newBotTimedOut(self, server):
+    def newBotTimedOut(self, network):
         """We just timed out waiting for a new bot connection. Try again."""
-        log.msg("Timed out waiting for an IRC bot to connect to %s" % server)
-        del self.newBotServers[server]
+        log.msg("Timed out waiting for an IRC bot to connect to %s" % network)
+        del self.newBotNetworks[network]
         # Don't immediately assume that we need to try again, but give us a chance to check
         self.checkBots()
 
@@ -400,13 +372,13 @@ class BotNetwork:
 
     def botConnected(self, bot):
         """Called by a bot when it has been successfully connected."""
-        self.servers.setdefault(bot.server, []).append(bot)
+        self.networks.setdefault(bot.network, []).append(bot)
 
         try:
-            timer = self.newBotServers[bot.server]
+            timer = self.newBotNetworks[bot.network]
             if timer.active():
                 timer.cancel()
-            del self.newBotServers[bot.server]
+            del self.newBotNetworks[bot.network]
         except KeyError:
             # Hmm, we weren't waiting for this bot to connect?
             # Oh well, this bot will be garbage collected soon if that's really the case.
@@ -419,11 +391,11 @@ class BotNetwork:
            check right away.
            """
         try:
-            self.servers[bot.server].remove(bot)
-            if not self.servers[bot.server]:
-                del self.servers[bot.server]
+            self.networks[bot.network].remove(bot)
+            if not self.networks[bot.network]:
+                del self.networks[bot.network]
         except:
-            # The bot might have not been in our server list in the first
+            # The bot might have not been in our network list in the first
             # place, if it got disconnected before becoming fully connected
             # or if its disconnection gets detected in multiple ways (socket
             # closed, ping timeout, etc)
@@ -462,15 +434,13 @@ class ChannelInfo:
 
 
 class Bot(irc.IRCClient):
-    """An IRC bot connected to one server any any number of channels,
+    """An IRC bot connected to one network any any number of channels,
        sending messages on behalf of the BotController.
 
        The Bot class is responsible for keeping track of the timers and
        limits associated with joining channels, but it doesn't map itself
        onto Requests, nor does it manage bot connection and disconnection.
        """
-    maxChannels = 18
-
     # Timeout, in seconds, for joining channels
     joinTimeout = 60
 
@@ -505,15 +475,15 @@ class Bot(irc.IRCClient):
         self.requestedChannels = util.InsensitiveDict()
 
     def __repr__(self):
-        return "<Bot %r on server %s>" % (self.nickname, self.server)
+        return "<Bot %r on network %s>" % (self.nickname, self.network)
 
     def isFull(self):
-        return len(self.channels) + len(self.requestedChannels) >= self.maxChannels
+        return len(self.channels) + len(self.requestedChannels) >= self.network.maxChannels
 
     def connectionMade(self):
         """Called by IRCClient when we have a socket connection to the server."""
         self.emptyChannels()
-        self.server = self.factory.server
+        self.network = self.factory.network
         self.botNet = self.factory.botNet
 
         # Start picking an initial nickname. If this one is in use, we get
@@ -562,7 +532,7 @@ class Bot(irc.IRCClient):
            handler will try to find a better nick.
            """
         for nick in self.botNet.nickAllocator.generate():
-            if not nick in self.botNet.servers.get(self.server, []):
+            if not nick in self.botNet.networks.get(self.network, []):
                 return nick
 
     def findNick(self):
@@ -598,7 +568,7 @@ class Bot(irc.IRCClient):
         result = defer.Deferred()
 
         # First check whether any of our own bots are using this nick
-        for bot in self.botNet.servers.get(self.server, []):
+        for bot in self.botNet.networks.get(self.network, []):
             if nick == bot.nickname:
                 result.callback(True)
                 return result
@@ -827,15 +797,15 @@ class BotFactory(protocol.ClientFactory):
     """Twisted ClientFactory for creating Bot instances"""
     protocol = Bot
 
-    def __init__(self, botNet, server):
+    def __init__(self, botNet, network):
         self.botNet = botNet
-        self.server = server
-        reactor.connectTCP(server.host, server.port, self)
+        self.network = network
+        self.network.connect(self)
 
     def clientConnectionLost(self, connector, reason):
-        log.msg("IRC Connection to %r lost: %r" % (self.server, reason))
+        log.msg("IRC Connection to %r lost: %r" % (self.network, reason))
 
     def clientConnectionFailed(self, connector, reason):
-        log.msg("IRC Connection to %r failed: %r" % (self.server, reason))
+        log.msg("IRC Connection to %r failed: %r" % (self.network, reason))
 
 ### The End ###
