@@ -90,7 +90,7 @@ class text_field(gtk.HBox, sheetElement):
   def writeOut(self, widget):
     self.characterData.setData(self.attributes['path'], self.text.get_text())
     self.characterData.writeOut()
-    
+
   def show(self):
     """ Provide a way to show this object identical to showing normal
         gtk widgets.
@@ -108,7 +108,6 @@ class dice(gtk.Button, sheetElement):
     sheetElement.__init__(self, node)
     gtk.Button.__init__(self, self.attributes.get('label', ''))
     self.node = node
-    # Will this work?
     self.connect("clicked", self.roll)
     self.data = {'times':[], 'mods':[]}
 
@@ -150,16 +149,41 @@ class mods:
     else:
       self.data = int(node.childNodes[0].data)
 
-class drop_down(gtk.Combo, sheetElement):
+class drop_down(hbox):
   """ Drop down menu. """
   def __init__(self, node, character):
-    gtk.Combo.__init__(self)
-    sheetElement.__init__(self, node)
+    hbox.__init__(self, node, character)
+    #self.menu = []
     self.items = {}
+    self.button = None
+    self.menu = gtk.Combo()
+    self.menu.list.connect('selection-changed', self.setButton)
+    self.pack_start(self.menu)
+    #for i in range(int(self.attributes.get('quantity', "1"))):
+      #self.menu.append(gtk.Combo())
+      #self.menu[i].connect("activate", self.setButton)
+      #self.items.append({})
+
+  def setButton(self, widget):
+    print "setButton"
+    if self.button != None:
+      print self.menu.entry.get_text()[self.menu.entry.get_text().index('['):]
+      #self.button.data['times'] = value[0]
+      #self.button.attributes['sides'] = value[1]
 
   def packChild(self, child):
-    self.items[child.name] = child.data
-    self.set_popdown_strings(self.items.keys())
+    if isinstance(child, dice) and self.button is None:
+      self.button = child
+      self.pack_end(self.button)
+    else:
+      self.items[child.name] = child.data
+      self.menu.set_popdown_strings(self.items.keys())
+
+  def show(self):
+    self.menu.show()
+    if self.button is not None:
+      self.button.show()
+    hbox.show(self)
 
 class drop_down_item(sheetElement):
   def __init__(self, node, character):
@@ -168,6 +192,6 @@ class drop_down_item(sheetElement):
     if node.childNodes[0].data.count('/') > 0:
       self.data = int(character.getData(node.childNodes[0].data))
     else:
-      self.data = int(node.childNodes[0].data)
-    
+      self.data = node.childNodes[0].data
+
     self.name = self.attributes.get('label', self.data)

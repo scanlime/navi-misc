@@ -38,7 +38,7 @@ class GTKsheet:
     # Should do better error handling
     except KeyError:
       print "Unknown tag:", newNode.tagName
-    
+
     else:
       for node in newNode.childNodes:
 	if node.nodeType is xml.dom.Node.ELEMENT_NODE: newObject.packChild(self.makeObjects(node, newObject))
