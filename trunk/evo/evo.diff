@@ -10,7 +10,7 @@ RCS file: /cvs/gnome/evolution/calendar/gui/migration.c,v
 retrieving revision 1.30
 diff -u -r1.30 migration.c
 --- calendar/gui/migration.c	22 Jul 2004 03:02:08 -0000	1.30
-+++ calendar/gui/migration.c	24 Sep 2004 22:49:46 -0000
++++ calendar/gui/migration.c	25 Sep 2004 06:42:57 -0000
 @@ -365,6 +365,7 @@
  #define WEBCAL_BASE_URI "webcal://"
  #define CONTACTS_BASE_URI "contacts://"
@@ -120,7 +120,7 @@ RCS file: /cvs/gnome/evolution/calendar/gui/dialogs/calendar-setup.c,v
 retrieving revision 1.29
 diff -u -r1.29 calendar-setup.c
 --- calendar/gui/dialogs/calendar-setup.c	30 Jul 2004 07:37:02 -0000	1.29
-+++ calendar/gui/dialogs/calendar-setup.c	24 Sep 2004 22:49:46 -0000
++++ calendar/gui/dialogs/calendar-setup.c	25 Sep 2004 06:42:59 -0000
 @@ -122,7 +122,7 @@
  {
  	EUri     *uri;
@@ -210,15 +210,27 @@ diff -u -r1.29 calendar-setup.c
  		sensitive = sensitive && remote_page_verify (source_dialog);
  	}
  
-@@ -642,12 +680,12 @@
+@@ -641,13 +679,20 @@
+ static void
  new_calendar_add (SourceDialog *source_dialog)
  {
- 	source_dialog->source =
+-	source_dialog->source =
 -		create_new_source_with_group (GTK_WINDOW (source_dialog->window), source_dialog->source_group, 
-+		create_new_source_with_group (GTK_WINDOW (source_dialog->window), source_dialog->source_group,
- 					      gtk_entry_get_text (GTK_ENTRY (source_dialog->name_entry)),
- 					      gtk_entry_get_text (GTK_ENTRY (source_dialog->uri_entry)),
- 					      E_CAL_SOURCE_TYPE_EVENT);
+-					      gtk_entry_get_text (GTK_ENTRY (source_dialog->name_entry)),
+-					      gtk_entry_get_text (GTK_ENTRY (source_dialog->uri_entry)),
+-					      E_CAL_SOURCE_TYPE_EVENT);
++	if (source_group_is_weather (source_dialog->source_group))
++		source_dialog->source =	create_new_source_with_group (
++		    				GTK_WINDOW (source_dialog->window), source_dialog->source_group,
++						gtk_entry_get_text (GTK_ENTRY (source_dialog->name_entry)),
++						gtk_entry_get_text (GTK_ENTRY (source_dialog->uri_entry)),
++						E_CAL_SOURCE_TYPE_WEATHER);
++	else
++		source_dialog->source =	create_new_source_with_group (
++		    				GTK_WINDOW (source_dialog->window), source_dialog->source_group,
++						gtk_entry_get_text (GTK_ENTRY (source_dialog->name_entry)),
++						gtk_entry_get_text (GTK_ENTRY (source_dialog->uri_entry)),
++						E_CAL_SOURCE_TYPE_EVENT);
  	dialog_to_source (source_dialog);
 -	
 +
@@ -231,7 +243,7 @@ RCS file: /cvs/gnome/evolution/mail/em-filter-i18n.h,v
 retrieving revision 1.1
 diff -u -r1.1 em-filter-i18n.h
 --- mail/em-filter-i18n.h	17 Jun 2004 07:34:49 -0000	1.1
-+++ mail/em-filter-i18n.h	24 Sep 2004 22:49:56 -0000
++++ mail/em-filter-i18n.h	25 Sep 2004 06:43:03 -0000
 @@ -4,36 +4,19 @@
  char *s = N_("Assign Score");
  char *s = N_("Attachments");
