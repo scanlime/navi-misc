@@ -138,12 +138,17 @@ class BotsSection(Template.Section):
 class OptionalAttributeStringColumn(Nouvelle.AttributeColumn):
     """A column displaying an object's attribute that converts the
        result into a string and allows it to be blank if the attribute
-       doesn't exist in a particular object.
+       doesn't exist in a particular object. Callable attributes
+       are called, and their results used.
        """
     def getValue(self, obj):
         value = getattr(obj, self.attribute, '')
-        value = getattr(value, '__name__', value)
-        return str(value)
+        if callable(value):
+            value = value()
+        if value is None:
+            return ()
+        else:
+            return str(value)
 
 
 class RequestBotsColumn(Nouvelle.Column):
@@ -177,6 +182,7 @@ class RequestsSection(Template.Section):
         OptionalAttributeStringColumn('server', 'server'),
         OptionalAttributeStringColumn('# of bots', 'numBots'),
         RequestStatusColumn(),
+        OptionalAttributeStringColumn('# of users', 'getUserCount'),
         RequestBotsColumn(),
        ]
 

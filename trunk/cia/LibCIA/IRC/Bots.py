@@ -84,6 +84,15 @@ class Request:
     def isFulfilled(self):
         return len(self.bots) == self.numBots
 
+    def getUserCount(self):
+        """Return the number of users this request services directly.
+           This only works with requests for a channel, as we can't really
+           tell for channel requests. The returned number is the number of
+           users in the channel minus the number of bots we're using.
+           """
+        if self.channel and self.bots:
+            return len(self.bots[0].channels[self.channel].nicks) - len(self.bots)
+
 
 class Server:
     """Represents an IRC server, by host and optional port number"""
@@ -356,6 +365,22 @@ class BotNetwork:
         pass
 
 
+class ChannelInfo:
+    """A container for information about an IRC channel. Currently
+       this just holds things we will be told without asking, like the
+       channel's occupants and its topic.
+       """
+    def __init__(self, name):
+        self.name = name
+        self.nicks = []
+        self.topic = None
+
+        # This list collects names mentioned in an RPL_NAMREPLY.
+        # Upon receiving an RPL_ENDOFNAMES this is transferred to
+        # 'nicks' and replaced with a new empty list.
+        self.nickCollector = []
+
+
 class Bot(irc.IRCClient):
     """An IRC bot connected to one server any any number of channels,
        sending messages on behalf of the BotController.
@@ -370,9 +395,12 @@ class Bot(irc.IRCClient):
     joinTimeout = 60
 
     def __init__(self):
-        self.channels = []
+        # Map from channel name to ChannelInfo instance. This only holds
+        # channels we're actually in, not those we've been asked to join
+        # but aren't in yet.
+        self.channels = {}
 
-        # a map from channel name to a DelayedCall instance representing its timeout
+        # A map from channel name to a DelayedCall instance representing its timeout
         self.requestedChannels = {}
 
     def __repr__(self):
@@ -498,7 +526,7 @@ class Bot(irc.IRCClient):
         """Called when we know we're not in any channels and we shouldn't
            be trying to join any yet.
            """
-        self.channels = []
+        self.channels = {}
 
         for timer in self.requestedChannels.itervalues():
             if timer.active():
@@ -556,7 +584,7 @@ class Bot(irc.IRCClient):
         """A channel has successfully been joined"""
         log.msg("%r joined %r" % (self, channel))
         self.cancelRequest(channel)
-        self.channels.append(channel)
+        self.channels[channel] = ChannelInfo(channel)
         self.factory.botNet.botJoined(self, channel)
 
     def left(self, channel):
@@ -564,7 +592,7 @@ class Bot(irc.IRCClient):
            Implicitly also called when we're kicked via kickedFrom().
            """
         log.msg("%r left %r" % (self, channel))
-        self.channels.remove(channel)
+        del self.channels[channel]
         self.factory.botNet.botLeft(self, channel)
 
     def kickedFrom(self, channel, kicker, message):
@@ -578,11 +606,67 @@ class Bot(irc.IRCClient):
            """
         pass
 
-    def irc_unknown(self, prefix, command, params):
+    def irc_unknown(self, *args):
         """Log unknown commands, making debugging easier. This also lets
            us see responses in the log for commands sent via debug_tool.
            """
-        log.msg("Unknown IRC command %r received with parameters %r" % (command, params))
+        log.msg("%r received unknown IRC command %r" % (self, args))
+
+    def topicUpdated(self, user, channel, newTopic):
+        self.channels[channel].topic = newTopic
+
+    def irc_RPL_NAMREPLY(self, prefix, params):
+        """Collect usernames from this channel. Several of these
+           messages may be sent to cover the channel's full nicklist.
+           An RPL_ENDOFNAMES signals the end of the list.
+           """
+        # We just separate these into individual nicks and stuff them in
+        # the nickCollector, transferred to 'nicks' when we get the RPL_ENDOFNAMES.
+        channel = self.channels[params[2]]
+        for name in params[3].split():
+            # Remove operator and voice prefixes
+            if name[0] in '@+':
+                name = name[1:]
+            channel.nickCollector.append(name)
+
+    def irc_RPL_ENDOFNAMES(self, prefix, params):
+        """This is sent after zero or more RPL_NAMREPLY commands to
+           terminate the list of users in a channel.
+           """
+        channel = self.channels[params[1]]
+        channel.nicks = channel.nickCollector
+        channel.nickCollector = []
+
+    def userJoined(self, user, channel):
+        """Update the channel's nick list when we see someone join"""
+        self.channels[channel].nicks.append(user)
+
+    def irc_QUIT(self, prefix, params):
+        # Another user quit, remove them from any of our channel lists
+        nick = prefix.split('!')[0]
+        for channel in self.channels.itervalues():
+            try:
+                channel.nicks.remove(nick)
+            except ValueError:
+                pass
+
+    def userLeft(self, user, channel):
+        """Update the channel's nick list when a user voluntarily leaves"""
+        self.channels[channel].nicks.remove(user)
+
+    def userKicked(self, user, channel, kicker, message):
+        """Update the channel's nick list when a user is kicked"""
+        self.channels[channel].nicks.remove(user)
+
+    def userRenamed(self, oldname, newname):
+        # Blah, this doesn't give us a channel name. Search for this user
+        # in each of our channels, renaming them.
+        for channel in self.channels.itervalues():
+            try:
+                channel.nicks.remove(oldname)
+                channel.nicks.append(newname)
+            except ValueError:
+                pass
 
 
 class BotFactory(protocol.ClientFactory):
