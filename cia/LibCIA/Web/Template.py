@@ -54,7 +54,7 @@ def SubscriptionLink(url, content, icon="/images/xml.png", iconSize=(36,14)):
     return tag('a', href = url,
                onmouseout  = "return timeqs();",
                onmouseover = "return quicksub(this, %r);" % str(url))[
-                  tag('img', src=icon, _class="xml-icon",
+                  tag('img', src=icon, _class="xml-icon", alt="XML",
                       width=iconSize[0], height=iconSize[1]),
                   content,
               ]
