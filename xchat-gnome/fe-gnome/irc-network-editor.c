@@ -476,6 +476,8 @@ apply_changes (IrcNetworkEditor *e)
 static gboolean
 check_input (IrcNetworkEditor *editor)
 {
+	GtkTreeIter iter;
+
 	if (!strlen (gtk_entry_get_text (GTK_ENTRY (editor->network_name)))) {
 		gtk_notebook_set_current_page (GTK_NOTEBOOK (editor->toplevel), 0);
 		gtk_widget_grab_focus (editor->network_name);
@@ -495,6 +497,12 @@ check_input (IrcNetworkEditor *editor)
 			error_dialog (_("Invalid input"), _("You must enter a real name"));
 			return FALSE;
 		}
+	}
+	if (!gtk_tree_model_get_iter_first (GTK_TREE_MODEL (editor->server_store), &iter)) {
+		gtk_notebook_set_current_page (GTK_NOTEBOOK (editor->toplevel), 2);
+		gtk_widget_grab_focus (editor->add_server);
+		error_dialog (_("No Servers"), _("You must add at least one server for this network"));
+		return FALSE;
 	}
 	return TRUE;
 }
