@@ -68,6 +68,16 @@ def format(text, *codeNames):
         return text
 
 
+class FormattingCode(object):
+    """Represents a formattingCode in a way that can be distinguished from plain text"""
+    def __init__(self, name):
+        self.name = name
+        self.value = formattingCodes[name]
+
+    def __str__(self):
+        return self.value
+
+
 class ColortextFormatter(object):
     r"""Given a domish.Element tree with <colorText>-formatted text
         generate an equivalent message formatted for IRC.
@@ -83,13 +93,21 @@ class ColortextFormatter(object):
         ...        "</color></color>" +
         ...        "<u> world</u>" +
         ...    "</colorText>"))
+        '\x0302\x16\x0308\x02hello\x0f\x1f world\x0f'
 
         """
-    def format(self, xml, codeStack=[]):
+    def format(self, xml):
+        """Format the entire given XML tree, returns a string with the finished
+           text ready to send to IRC.
+           """
+        return self.flatten(self.formatElement(xml))
+
+    def formatElement(self, xml, codeStack=[]):
         """Recursively format the given XML tree, passing elements on to their
            respective handlers and letting text fall straight through.
            codeStack is used to keep track of the formatting codes we're 'inside'
            so they can be restored if we have to issue a 'normal' code.
+           Returns a list of strings and/or FormattingCode instances.
            """
         if isinstance(xml, XML.domish.Element):
             # It's an element, act on it based on its name
@@ -104,23 +122,47 @@ class ColortextFormatter(object):
         else:
             raise TypeError("XML elements or strings required")
 
+    def flatten(self, codes):
+        """Return a flat string representing the FormattingCode instances and/or strings
+           in the given codes list.
+           """
+        return "".join([str(code) for code in codes])
+
     def formatChildren(self, xml, codeStack):
         """Format each child of the given node, appending the results"""
-        return "".join([self.format(child, codeStack) for child in xml.children])
+        codes = []
+        for child in xml.children:
+            codes.extend(self.formatElement(child, codeStack))
+        return codes
 
     def element_colorText(self, xml, codeStack):
         """Ignore the root node of the <colorText> document"""
         return self.formatChildren(xml, codeStack)
 
-    def codeWrap(self, xml, codeStack, *codes):
+    def codeWrap(self, xml, codeStack, *codeNames):
         """Wrap the children of the given xml element with the given formatting codes.
            This prepends the code list and appends a 'normal' tag, using codeStack
            to restore any codes we don't want to disable with the 'normal' tag.
            """
-        text = "".join([formattingCodes[code] for code in codes])
-        text += self.formatChildren(xml, codeStack + list(codes))
-        text += formattingCodes['normal'] + "".join([formattingCodes[code] for code in codeStack])
-        return text
+        # Apply all the codes we're given
+        codes = [FormattingCode(name) for name in codeNames]
+
+        # Insert the children here
+        codes.extend(self.formatChildren(xml, codeStack + codes))
+
+        # An important optimization- since we're about to insert new codes
+        # for everything in codeStack, remove codes from our 'codes' list until
+        # we hit actual text. This prevents sequences from appearing in the output
+        # where several codes are applied then immediately erased by a 'normal' code.
+        # This also handles optimizing out formatting codes with no children.
+        while isinstance(codes[-1], FormattingCode):
+            del codes[-1]
+
+        # Now stick on a 'normal' code and the contents of our codeStack
+        # to revert the codes we were given.
+        codes.append(FormattingCode('normal'))
+        codes.extend(codeStack)
+        return codes
 
     def element_b(self, xml, codeStack):
         """Just wrap our contents in a bold tag"""
