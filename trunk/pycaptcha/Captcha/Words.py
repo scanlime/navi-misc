@@ -66,4 +66,6 @@ class WordList(object):
 basic_english      = WordList("basic-english")
 basic_english_min5 = WordList("basic-english", minLength=5)
 
+defaultWordList = basic_english_min5
+
 ### The End ###

@@ -22,4 +22,7 @@ This package contains functionality specific to visual CAPTCHA tests.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
+# Convenience imports
+from Base import *
+
 ### The End ###
