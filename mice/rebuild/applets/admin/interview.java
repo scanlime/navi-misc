@@ -84,6 +84,8 @@ public class interview implements ActionListener
 				{
 					myadmin.rm(usernames[i]);
 					myadmin.rm(passwords[i]);
+					myadmin.rm(java[i]);
+					myadmin.rm(aim[i]);
 				}
 				myadmin.rm(submit);
 			}

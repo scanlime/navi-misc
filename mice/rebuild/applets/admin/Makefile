@@ -33,5 +33,8 @@ admin.class: admin.java
 clean:
 	rm -Rf *.jar *.class *~
 
+jar: app
+	jar cvf admin.jar *.class
+
 run: app
 	open index.html
