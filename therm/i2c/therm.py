@@ -184,6 +184,5 @@ class MultiTherm:
                 temps[busNum] = readings[busNum] - 256
             else:
                 temps[busNum] = readings[busNum]
-
         return temps
 
