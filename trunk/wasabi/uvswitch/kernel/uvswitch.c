@@ -74,8 +74,15 @@ struct usb_uvswitch {
 	int			adc_accumulated[UVSWITCH_CHANNELS]; /* Finished ADC values */
 	int			active_inputs[UVSWITCH_CHANNELS]; /* Nonzero values for active video inputs */
 	int			adc_samples;		/* Number of samples in adc_accumulator */
+	wait_queue_head_t	adc_wait;		/* Processes waiting for video detection input changes */
 
 	struct semaphore	sem;			/* locks this structure */
+};
+
+/* Private data for each file descriptor */
+struct uvswitch_fd_private {
+	struct usb_uvswitch	*dev;
+	int			read_count;
 };
 
 /* the global devfs handle for the USB subsystem */
@@ -143,10 +150,10 @@ static int uvswitch_updateCalibration(struct usb_uvswitch *dev)
 /* Set up default values for the ADC calibration */
 static int uvswitch_initCalibration(struct usb_uvswitch *dev)
 {
-	dev->calibration.precharge_reads = 10;
+	dev->calibration.precharge_reads = 80;
 	dev->calibration.integration_reads = 150;
-	dev->calibration.integration_packets = 10;
-	dev->calibration.threshold = 200;
+	dev->calibration.integration_packets = 20;
+	dev->calibration.threshold = 400;
 
 	uvswitch_updateCalibration(dev);
 }
@@ -190,6 +197,7 @@ static void uvswitch_adc_irq(struct urb *urb)
 				    dev->active_inputs[0], dev->active_inputs[1], dev->active_inputs[2], dev->active_inputs[3],
 				    dev->active_inputs[4], dev->active_inputs[5], dev->active_inputs[6], dev->active_inputs[7]);
 
+				wake_up_interruptible(&dev->adc_wait);
 			}
 		}
 	}
@@ -205,6 +213,7 @@ static void uvswitch_adc_irq(struct urb *urb)
 static int uvswitch_open(struct inode *inode, struct file *file)
 {
 	struct usb_uvswitch *dev = NULL;
+	struct uvswitch_fd_private *prv = NULL;
 	int subminor;
 	int retval = 0;
 
@@ -231,8 +240,20 @@ static int uvswitch_open(struct inode *inode, struct file *file)
 	/* increment our usage count for the driver */
 	++dev->open_count;
 
+	/* Allocate a private data struct for this fd */
+	prv = kmalloc(sizeof(struct uvswitch_fd_private), GFP_KERNEL);
+	if (dev == NULL) {
+		err("Out of memory");
+		retval = -ENOMEM;
+		goto exit;
+	}
+
 	/* save our object in the file's private structure */
-	file->private_data = dev;
+	prv->dev = dev;
+	prv->read_count = 0;
+	file->private_data = prv;
+
+ exit:
 
 	/* unlock this device */
 	up(&dev->sem);
@@ -242,14 +263,16 @@ static int uvswitch_open(struct inode *inode, struct file *file)
 
 static int uvswitch_release(struct inode *inode, struct file *file)
 {
+	struct uvswitch_fd_private *prv;
 	struct usb_uvswitch *dev;
 	int retval = 0;
 
-	dev =(struct usb_uvswitch *)file->private_data;
-	if (dev == NULL) {
+	prv =(struct uvswitch_fd_private *)file->private_data;
+	if (prv == NULL) {
 		dbg("object is NULL");
 		return -ENODEV;
 	}
+	dev = prv->dev;
 
 	/* lock our minor table */
 	down(&minor_table_mutex);
@@ -277,6 +300,10 @@ static int uvswitch_release(struct inode *inode, struct file *file)
 		dev->open_count = 0;
 	}
 
+	/* Free this device's private data */
+	kfree(prv);
+	file->private_data = NULL;
+
 exit_not_opened:
 	up(&dev->sem);
 	up(&minor_table_mutex);
@@ -287,10 +314,16 @@ exit_not_opened:
 
 static int uvswitch_ioctl(struct inode *inode, struct file *file, unsigned int cmd, unsigned long arg)
 {
+	struct uvswitch_fd_private *prv;
 	struct usb_uvswitch *dev;
-	int retval=0;
+	int retval = 0;
 
-	dev =(struct usb_uvswitch *)file->private_data;
+	prv =(struct uvswitch_fd_private *)file->private_data;
+	if (prv == NULL) {
+		dbg("object is NULL");
+		return -ENODEV;
+	}
+	dev = prv->dev;
 
 	/* lock this object */
 	down(&dev->sem);
@@ -336,8 +369,20 @@ static int uvswitch_ioctl(struct inode *inode, struct file *file, unsigned int c
 
 static ssize_t uvswitch_read(struct file *file, char *buffer, size_t count, loff_t *ppos)
 {
-	struct usb_uvswitch *dev = (struct usb_uvswitch *)file->private_data;
+	DECLARE_WAITQUEUE(wait, current);
+	struct uvswitch_fd_private *prv;
+	struct usb_uvswitch *dev;
 	int retval = 0;
+	char kbuffer[512];
+	char *p;
+	int i;
+
+	prv =(struct uvswitch_fd_private *)file->private_data;
+	if (prv == NULL) {
+		dbg("object is NULL");
+		return -ENODEV;
+	}
+	dev = prv->dev;
 
 	/* lock this object */
 	down (&dev->sem);
@@ -348,8 +393,57 @@ static ssize_t uvswitch_read(struct file *file, char *buffer, size_t count, loff
 		goto exit;
 	}
 
-	/* Not implemented yet :) */
-	retval = -ENOTNAM;
+	/* If this isn't the first read, wait for new data */
+	if (prv->read_count) {
+		if (file->f_flags & O_NONBLOCK) {
+			retval = -EAGAIN;
+			goto exit;
+		}
+
+		add_wait_queue(&dev->adc_wait, &wait);
+		current->state = TASK_INTERRUPTIBLE;
+
+		up(&dev->sem);
+		schedule();
+		down(&dev->sem);
+
+		current->state = TASK_RUNNING;
+		remove_wait_queue(&dev->adc_wait, &wait);
+
+		if (signal_pending(current)) {
+			retval = -ERESTARTSYS;
+			goto exit;
+		}
+	}
+
+
+	/* Scan for active inputs */
+	p = kbuffer;
+	for (i=0; i<UVSWITCH_CHANNELS; i++) {
+		if (dev->active_inputs[i]) {
+			/* If this isn't the first find, separate with a space */
+			if (p != kbuffer) {
+				*(p++) = ' ';
+			}
+
+			/* Add this input number */
+			p += sprintf(p, "%d", i+1);
+		}
+	}
+
+	/* Add a newline */
+	*(p++) = '\n';
+
+	/* Check length and copy to userspace */
+	if (count > p - kbuffer)
+		count = p - kbuffer;
+	if (copy_to_user(buffer, kbuffer, count)) {
+		retval = -EFAULT;
+		goto exit;
+	}
+	retval = count;
+
+	prv->read_count++;
 
 exit:
 	/* unlock the device */
@@ -359,13 +453,21 @@ exit:
 
 static ssize_t uvswitch_write(struct file *file, const char *buffer, size_t count, loff_t *ppos)
 {
-	struct usb_uvswitch *dev = (struct usb_uvswitch *)file->private_data;
+	struct uvswitch_fd_private *prv;
+	struct usb_uvswitch *dev;
 	int retval = 0;
 	char kbuffer[256];
 	char *token;
 	char *pkbuf;
 	static char delim[] = " \t";
 	int v;
+
+	prv =(struct uvswitch_fd_private *)file->private_data;
+	if (prv == NULL) {
+		dbg("object is NULL");
+		return -ENODEV;
+	}
+	dev = prv->dev;
 
 	/* lock this object */
 	down(&dev->sem);
@@ -528,6 +630,7 @@ static void * uvswitch_probe(struct usb_device *udev, unsigned int ifnum, const 
 	dev->udev = udev;
 	dev->interface = interface;
 	dev->minor = minor;
+	init_waitqueue_head(&dev->adc_wait);
 
 	/* Put all the switches into a known state (we initialized them
 	 * above in the Big Giant Memset)
