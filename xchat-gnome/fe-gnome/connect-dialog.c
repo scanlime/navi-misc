@@ -22,7 +22,6 @@
 #include "connect-dialog.h"
 #include "navigation-tree.h"
 #include "gui.h"
-#include "util.h"
 #include "../common/xchat.h"
 #include "../common/servlist.h"
 
@@ -68,8 +67,6 @@ dialog_response (ConnectDialog *dialog, gint response, gpointer data)
 			gtk_tree_model_get (model, &iter, 0, &network, -1);
 			if (!navigation_tree_server_connected (gui.server_tree, network))
 				servlist_connect_by_netname (NULL, network);
-			else
-				error_dialog (_("Connection"), _("Already connected"));
 			g_free (network);
 			gtk_widget_destroy (dialog);
 		}
