@@ -24,7 +24,7 @@
 
 /* An I2C-attached PWM module. The I2C register is always
  * two bytes, but the actual precision of the PWM generator
- * may be adjusted. If the precision is less than 16 bits, 
+ * may be adjusted. If the precision is less than 16 bits,
  * some of the low-order bits will be ignored.
  */
 module pwm_i2c (clk, reset,
@@ -32,7 +32,7 @@ module pwm_i2c (clk, reset,
                   out);
         parameter I2C_ADDRESS = 0;
         parameter PWM_BITS = 16;
-               
+
 	input clk, reset;
 	input scl, sda_in;
 	output sda_out, out;
