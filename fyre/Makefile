@@ -38,7 +38,8 @@ OBJS    = \
 	src/avi-writer.o	\
 	src/parameter-editor.o	\
 	src/histogram-view.o	\
-	src/animation-render-ui.o
+	src/animation-render-ui.o \
+	src/screensaver.o
 
 
 $(BIN): $(OBJS)

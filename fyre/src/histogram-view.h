@@ -59,9 +59,11 @@ struct _HistogramViewClass {
 /******************************************************************* Public Methods */
 /************************************************************************************/
 
-GType      histogram_view_get_type (void);
-GtkWidget* histogram_view_new      (HistogramImager *imager);
-void       histogram_view_update   (HistogramView   *self);
+GType      histogram_view_get_type   (void);
+GtkWidget* histogram_view_new        (HistogramImager *imager);
+void       histogram_view_update     (HistogramView   *self);
+void       histogram_view_set_imager (HistogramView   *self,
+				      HistogramImager *imager);
 
 G_END_DECLS
 

@@ -28,6 +28,7 @@
 #include "animation.h"
 #include "explorer.h"
 #include "avi-writer.h"
+#include "screensaver.h"
 
 static void usage                  (char       **argv);
 static void animation_render_main  (DeJong      *dejong,
@@ -43,7 +44,7 @@ int main(int argc, char ** argv) {
   DeJong* dejong;
   Animation* animation;
   gboolean animate = FALSE;
-  enum {INTERACTIVE, RENDER} mode = INTERACTIVE;
+  enum {INTERACTIVE, RENDER, SCREENSAVER} mode = INTERACTIVE;
   const gchar *outputFile;
   int c, option_index=0;
   gulong target_density = 10000;
@@ -75,6 +76,7 @@ int main(int argc, char ** argv) {
       {"fg-alpha",    1, NULL, 1007},
       {"bg-alpha",    1, NULL, 1008},
       {"animate",     1, NULL, 'n'},
+      {"screensaver", 0, NULL, 1009},
       NULL,
     };
     c = getopt_long(argc, argv, "hi:o:a:b:c:d:x:y:z:r:e:g:s:t:n:",
@@ -119,6 +121,10 @@ int main(int argc, char ** argv) {
       animate = TRUE;
       break;
 
+    case 1009:
+      mode = SCREENSAVER;
+      break;
+
     case 't':
       target_density = atol(optarg);
       break;
@@ -148,6 +154,12 @@ int main(int argc, char ** argv) {
       animation_render_main(dejong, animation, outputFile, target_density);
     else
       image_render_main(dejong, outputFile, target_density);
+    break;
+
+  case SCREENSAVER:
+    gtk_init(&argc, &argv);
+    screensaver_new(ITERATIVE_MAP(dejong), animation);
+    gtk_main();
     break;
   }
 
