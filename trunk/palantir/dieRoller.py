@@ -48,14 +48,18 @@ class DieRoller:
       for roll in range(totalTimes):
 	# Get the die roll.
 	score = randint(1, sides)
-	# Add the modifiers.
-	for mod in mods:
-	  score += mod
+	# Critical failure.
+	if score == 1:
+	  total -= 1
+	else:
+	  # Add the modifiers.
+	  for mod in mods:
+	    score += mod
+	  # If it's a success increase the total by one.
+	  if score >= diff:
+	    total += 1
 	# Append the roll to the list of rolls.
-	rolls.append(score)
-	# If it's a success increase the total by one.
-	if score >= diff:
-	  total += 1
+        rolls.append(score)
 
     # Send the results to the channel.
     self.ui.SendRoll(totalTimes, sides, rolls, total)
