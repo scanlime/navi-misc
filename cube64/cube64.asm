@@ -21,6 +21,7 @@
 	;;   http://www.int03.co.uk/crema/hardware/gamecube/gcpad1.cpp
 	;;   http://www.gc-linux.org/docs/yagcd/chap8.html
 	;;   http://instruct1.cit.cornell.edu/courses/ee476/FinalProjects/s2002/jew17/lld.html
+	;;   http://www.mixdown.ca/n64dev/
 	;;
 
 	list	p=16f84a
@@ -49,6 +50,7 @@
 		gamecube_buffer:8
 		n64_command
 		n64_status_buffer:4
+		n64_id_buffer:3
 	endc
 
 	;; *******************************************************************************
@@ -71,6 +73,18 @@ startup
 	movlw	8
 	movwf	bit_count
 
+	;; Initialize the ID buffer with values measured from an official nintendo
+	;; controller with no rumble pak or memory pak attached. The page at
+	;; http://www.mixdown.ca/n64dev/ mentioned the existence of this ID command,
+	;; but I obtained this value myself. In the future this might be changed to
+	;; support the N64 rumble pak via the gamecube controller's built-in motor.
+	movlw	0x05
+	movwf	n64_id_buffer+0
+	movlw	0x00
+	movwf	n64_id_buffer+1
+	movlw	0x02
+	movwf	n64_id_buffer+2
+
 main_loop
 	call	gamecube_poll_status	; The gamecube poll takes place during the dead period
 	call	n64_translate_status	;   between incoming N64 commands, hopefully
@@ -89,16 +103,26 @@ n64_wait_for_command
 	movlw	1
 	call	n64_rx_buffer
 
-	movf	n64_command, w		; 0x01 is a poll request, ignore anything else
+	movf	n64_command, w
+	btfsc	STATUS, Z
+	goto	n64_send_id		; 0x00 sends a controller identification packet
 	xorlw	0x01
-	btfss	STATUS, Z
-	goto	n64_wait_for_command
+	btfsc	STATUS, Z
+	goto	n64_send_status		; 0x01 sends a status packet
 
+	goto	n64_wait_for_command	; Ignore other commands
+
+n64_send_status
 	movlw	n64_status_buffer	; Transmit the status buffer
 	movwf	FSR
 	movlw	4
-	call	n64_tx_buffer
-	return
+	goto	n64_tx_buffer
+
+n64_send_id
+	movlw	n64_id_buffer		; Transmit the ID buffer
+	movwf	FSR
+	movlw	3
+	goto	n64_tx_buffer
 
 
 	;; Copy status from the gamecube buffer to the N64 buffer
@@ -230,7 +254,7 @@ not_last_bit
 	;; Since receives often have to be started extremely quickly after a transmit
 	;; ends, some of the setup work for this loop occurs inside tx_buffer above,
 	;; during otherwise wasted cycles.
-rx_buffer macro port, bit
+rx_buffer macro port, bit, clear_watchdog
 	local	bit_loop
 	movwf	byte_count	; Stow our byte count
 
@@ -243,6 +267,9 @@ rx_buffer macro port, bit
 	;; The overhead from sampling to the beginning of the next poll needs to
 	;; be less than 2us (10 cycles)
 bit_loop
+	if	clear_watchdog
+	clrwdt
+	endif
 	btfsc	port, bit	; 0.0us  Poll for the beginning of the bit, max 0.6us jitter
 	goto	bit_loop	; 0.2us
 	rlf	INDF, f		; 0.4us  Make room for the new bit
@@ -264,17 +291,22 @@ bit_loop
 
 
 	;; Implementations of the above macros for particular devices.
+	;;
 	;; Before transmitting, we explicitly force the output latch low- it may have
 	;; been left high by a read-modify-write operation elsewhere.
+	;;
+	;; Also note that we clrwdt when waiting on the N64, since that's the
+	;; normal mode of operation.. but we don't when waiting on the gamecube
+	;; since it should always respond quickly.
 gamecube_tx_buffer
 	bcf	GAMECUBE_PIN
 	tx_buffer GAMECUBE_TRIS
 gamecube_rx_buffer
-	rx_buffer GAMECUBE_PIN
+	rx_buffer GAMECUBE_PIN, 0
 n64_tx_buffer
 	bcf	N64_PIN
 	tx_buffer N64_TRIS
 n64_rx_buffer
-	rx_buffer N64_PIN
+	rx_buffer N64_PIN, 1
 
 	end
