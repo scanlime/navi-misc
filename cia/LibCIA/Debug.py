@@ -1,7 +1,7 @@
-""" LibCIA.Interface
+""" LibCIA.Debug
 
-Remote interfaces for CIA's functionality that aren't specific to
-any one other module.
+Remote interfaces for debugging and dynamic reloading while
+CIA is running.
 """
 #
 # CIA open source notification system
@@ -24,21 +24,23 @@ any one other module.
 
 from twisted.web import xmlrpc
 from twisted.python.rebuild import rebuild
-import sys, traceback
-from twisted.python import log
 import gc
 
 
-def catchFault(message="Exception occurred"):
-    """Put this in the 'except' section of a try block to convert the exception
-       that just occurred to an XMLRPC Fault and log it.
-       """
-    e = sys.exc_info()[1]
-    if isinstance(e, xmlrpc.Fault):
-        raise
-    else:
-        log.msg(message + "\n" + "".join(traceback.format_exception(*sys.exc_info())))
-        raise xmlrpc.Fault(e.__class__.__name__, str(e))
+class DebugInterface(xmlrpc.XMLRPC):
+    """An XML-RPC interface for remote debugging and dynamic reloading of CIA."""
+    def __init__(self, caps):
+        xmlrpc.XMLRPC.__init__(self)
+        self.caps = caps
+        self.putSubHandler('gc', GcInterface(caps))
+
+    def xmlrpc_rebuild(self, package, key):
+        """Use twisted.python.rebuild to reload the given package or module
+           and all loaded packages or modules within it.
+           """
+        self.caps.faultIfMissing(key, 'universe', 'debug', 'debug.rebuild')
+        rebuildPackage(__import__(package))
+        return True
 
 
 def rebuildPackage(package):
@@ -53,26 +55,15 @@ def rebuildPackage(package):
                 rebuildPackage(item)
 
 
-class SysInterface(xmlrpc.XMLRPC):
-    """An interface over XML-RPC to functionality that doesn't belong in any one other module
-
-       caps : The CapabilityDB used to authorize access to these functions
-
-       FIXME: rename this to DebugInterface
-       """
+class GcInterface(xmlrpc.XMLRPC):
+    """Memory debugging and profiling via python's garbage collector interface"""
     def __init__(self, caps):
+        xmlrpc.XMLRPC.__init__(self)
         self.caps = caps
-
-    def xmlrpc_rebuild(self, key):
-        """Use twisted.python.rebuild to reload all applicable modules"""
-        self.caps.faultIfMissing(key, 'universe', 'sys', 'sys.rebuild')
-        import LibCIA
-        rebuildPackage(LibCIA)
-        return True
 
     def xmlrpc_gcGarbageInfo(self, key):
         """Return a string representation of the items in gc.garbage"""
-        self.caps.faultIfMissing(key, 'universe', 'sys', 'sys.gc', 'sys.gcGarbageInfo')
+        self.caps.faultIfMissing(key, 'universe', 'debug', 'debug.rebuild')
         return map(repr, gc.garbage)
 
     def xmlrpc_gcObjectsInfo(self, key):

@@ -56,6 +56,7 @@ class StatsURIHandler(Ruleset.RegexURIHandler):
 class StatsInterface(xmlrpc.XMLRPC):
     """An XML-RPC interface used to query stats"""
     def __init__(self, caps, storage):
+        xmlrpc.XMLRPC.__init__(self)
         self.caps = caps
         self.storage = storage
 
