@@ -42,10 +42,10 @@ class AnalogSampler:
 
 
 class ChannelGraph:
-    def __init__(self):
+    def __init__(self, resolution=(512,320), title="rcpod A/D Test"):
         pygame.init()
-        self.screen = pygame.display.set_mode((512,320))
-        pygame.display.set_caption("rcpod A/D Test")
+        self.screen = pygame.display.set_mode(resolution)
+        pygame.display.set_caption(title)
 
     def drawChannels(self, channels, border=1, bgColor=(0,0,0), fgColor=(102,103,174)):
         """Draws bargraphs for the given list of channels"""
@@ -59,13 +59,14 @@ class ChannelGraph:
             x += chWidth
 
     def run(self, sampler):
-        """Run until our window is closed, drawing data from the given sampler"""
+        """Run until our window is closed, drawing data from the given sampler function"""
         while 1:
             for event in pygame.event.get():
                 if event.type == QUIT:
                     return
-            self.drawChannels(sampler.readAll())
+            self.drawChannels(sampler())
             pygame.display.flip()
 
 
-ChannelGraph().run(AnalogSampler())
+if __name__ == '__main__':
+    ChannelGraph().run(AnalogSampler().readAll)
