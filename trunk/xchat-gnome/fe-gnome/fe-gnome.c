@@ -20,6 +20,7 @@
  */
 
 #include <gnome.h>
+#include <config.h>
 #include "../common/xchat.h"
 #include "../common/xchatc.h"
 #include "../common/servlist.h"
@@ -48,7 +49,7 @@ fe_args (int argc, char *argv[])
 			return 0;
 		}
 	}
-	gnome_program_init ("xchat-gnome", "0.3", LIBGNOMEUI_MODULE, argc, argv, NULL);
+	gnome_program_init ("xchat-gnome", VERSION, LIBGNOMEUI_MODULE, argc, argv, NULL);
 
 	/* FIXME: this is kind of a silly place to put this, but it seems to want to
 		  follow gnome_program_init */
