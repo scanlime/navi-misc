@@ -86,9 +86,6 @@ Code
   ruleset. If there are multiple messages with matching path= attributes, it would have
   some way to determine which one is best.
 
-- We have an RSS 2.0 interface now, but it doesn't yet display much. The formatters for
-  the 'rss' medium should be enhanced.
-
 - Implement the RSS <cloud> tag, and the RssInterface for XML-RPC necessary to support it.
   Leases could be stored in a separate XML-RPC table that's cleaned of old leases during
   stats maintenance. This would finally make it possible to use standard protocols (RSS,
