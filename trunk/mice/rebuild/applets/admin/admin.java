@@ -21,8 +21,39 @@ public class admin extends java.applet.Applet
 	public void init()
 	{
 		//net.openConnection("localhost",8080);
-		info.help = new TextArea("This is the information window, it will tell you everything you could want to know about what you need to do, and what stuff is.",6,70,TextArea.SCROLLBARS_VERTICAL_ONLY);
+		info.help = new TextArea("This is the information window, it will tell you everything you could want to know about what you need to do, and what stuff is.",6,60,TextArea.SCROLLBARS_VERTICAL_ONLY);
 		//authenticate auth = new authenticate();
 		add(info.help);
+		info.auth = new authenticate(this);
+	}
+	
+	public void rm(TextField foo)
+	{
+		remove(foo);
+	}
+	
+	public void rm(TextArea foo)
+	{
+		remove(foo);
+	}
+	
+	public void rm(Button foo)
+	{
+		remove(foo);
+	}
+	
+	public void ad(TextField foo)
+	{
+		add(foo);
+	}
+	
+	public void ad(TextArea foo)
+	{
+		add(foo);
+	}
+	
+	public void ad(Button foo)
+	{
+		add(foo);
 	}
 }

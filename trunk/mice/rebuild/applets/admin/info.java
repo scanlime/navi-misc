@@ -15,4 +15,11 @@ import java.io.*;
 public class info
 {
 	public static TextArea help;
+	
+	public static Button submit;
+	
+	public static TextField username;
+	public static TextField password;
+	
+	public static authenticate auth;
 }
