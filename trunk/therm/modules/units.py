@@ -63,6 +63,13 @@ class UnitCollection:
             s = s[:-2]
         return s + ' ' + unit
 
+    def lookupName(self, name, cache={}):
+        if name not in cache:
+            for singular, plural, multiplier in self.units:
+                cache[singular] = multiplier
+                cache[plural] = multiplier
+        return cache[name]
+
 
 class TimeUnits(UnitCollection):
     """Time units, standard unit is 1 second"""
@@ -78,6 +85,6 @@ class TimeUnits(UnitCollection):
         ('microsecond', 'microseconds', 0.000001),
         ]
 
-formatTime = TimeUnits().format
+time = TimeUnits()
 
 ### The End ###
