@@ -1,5 +1,5 @@
 /*
- * error_dialog.h: Simple helper for showing error dialogs
+ * util.h: Helper functions for miscellaneous tasks
  *
  * Copyright (C) 2005 David Trowbridge
  *

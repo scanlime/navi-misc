@@ -48,8 +48,6 @@ EXTRA_DIST =					\
 	eggaccelerators.h			\
 	eggcellrendererkeys.c			\
 	eggcellrendererkeys.h			\
-	error_dialog.c				\
-	error_dialog.h				\
 	fe-gnome.c				\
 	irc-network.c				\
 	irc-network.h				\
@@ -89,6 +87,8 @@ EXTRA_DIST =					\
 	userlist.c				\
 	userlist_gui.h				\
 	userlist_gui.c				\
+	util.h					\
+	util.c					\
 	$(xchat_gnome_DATA)			\
 	$(desktop_DATA)				\
 	apps_xchat.schemas.in.in
@@ -105,8 +105,6 @@ xchat_gnome_SOURCES =				\
 	eggaccelerators.h			\
 	eggcellrendererkeys.c			\
 	eggcellrendererkeys.h			\
-	error_dialog.c				\
-	error_dialog.h				\
 	fe-gnome.c				\
 	irc-network.c				\
 	irc-network.h				\
@@ -147,6 +145,8 @@ xchat_gnome_SOURCES =				\
 	userlist.c				\
 	userlist_gui.h				\
 	userlist_gui.c				\
+	util.h					\
+	util.c					\
 	xtext.h					\
 	xtext.c
 

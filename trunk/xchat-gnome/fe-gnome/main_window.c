@@ -34,7 +34,7 @@
 #include "textgui.h"
 #include "palette.h"
 #include "transfers.h"
-#include "error_dialog.h"
+#include "util.h"
 
 #ifdef HAVE_GTKSPELL
 #include <gtkspell/gtkspell.h>

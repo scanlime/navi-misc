@@ -22,9 +22,9 @@
 #include <gconf/gconf-client.h>
 #include "preferences_servers_page.h"
 #include "preferences.h"
-#include "error_dialog.h"
 #include "irc-network.h"
 #include "irc-network-editor.h"
+#include "util.h"
 #include "../common/xchat.h"
 #include "../common/servlist.h"
 

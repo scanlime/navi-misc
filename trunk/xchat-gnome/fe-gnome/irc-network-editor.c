@@ -20,7 +20,7 @@
  */
 
 #include "irc-network-editor.h"
-#include "error_dialog.h"
+#include "util.h"
 #include <gtk/gtk.h>
 #include <string.h>
 

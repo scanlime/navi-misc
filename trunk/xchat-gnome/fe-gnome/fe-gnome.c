@@ -37,7 +37,7 @@
 #include "preferences_plugins_page.h"
 #include "channel_list.h"
 #include "transfers.h"
-#include "error_dialog.h"
+#include "util.h"
 
 int
 fe_args (int argc, char *argv[])
