@@ -138,11 +138,23 @@ int mnetsend(int source, int destination, const unsigned char *data, int dataByt
   usleep(((unsigned long)timeout) * 1000);
   packetBytes = rcpod_SerialRxFinish(rcpod, packet, sizeof(packet));
 
+  /* Was there any response at all? */
+  if (!packetBytes) {
+    printf("\n* No response\n");
+    return 1;
+  }
+
   /* Show the raw received packet */
   printf("Received %d byte%s:", packetBytes, packetBytes==1 ? "" : "s");
   for (i=0; i<packetBytes; i++)
     printf(" %02X", packet[i]);
   printf("\n\n");
+
+  /* Make sure we got at least enough bytes to frame a packet */
+  if (packetBytes < 4) {
+    printf("* Packet too short\n");
+    return 1;
+  }
 
   /* Check the source and destination bytes, they should be opposite those of our sent packet */
   if (packet[0] != source || packet[1] != destination) {
