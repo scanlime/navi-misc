@@ -8,7 +8,7 @@ for the IRC stuff.
 
 # Install the gtk2reactor since we're using gtk2.
 from twisted.internet import gtk2reactor
-gtk2reactor.install()
+gtk2reactor.portableInstall()
 
 import string, re, gtk, gtk.glade, gobject, palantirIRC
 from GtkChatBuffer import GtkChatBuffer
@@ -31,7 +31,9 @@ class PalantirWindow:
       if func.startswith('on_'):
         self.tree.signal_connect(func, getattr(self, func))
 
-    # Connect up the dice buttons separately.
+    # Connect up the dice buttons separately because I don't know how to tell
+    # glade to send data along with the callback and I don't think we need
+    # separate callbacks for each of these buttons.
     self.tree.get_widget('d4').connect('clicked',
 	lambda w,d: self.on_dice_button_clicked(w,d), 4)
     self.tree.get_widget('d6').connect('clicked',
@@ -52,9 +54,11 @@ class PalantirWindow:
     # Set up our user list with a column for pixbufs and a column for text.
     list = self.tree.get_widget('UserList')
     list.set_model(model=gtk.ListStore(gtk.gdk.Pixbuf, gobject.TYPE_STRING))
+
     # Columns in the tree view.
     list.append_column(gtk.TreeViewColumn('Icons', gtk.CellRendererPixbuf(), pixbuf=0))
     list.append_column(gtk.TreeViewColumn('Users', gtk.CellRendererText(), text=1))
+
     # Set the column spacing, doesn't appear to do anything, ATM.
     list.get_column(0).set_spacing(5)
     list.get_column(1).set_spacing(5)
@@ -71,54 +75,72 @@ class PalantirWindow:
     self.dieRoller = DieRoller(self)
 
   def GetFormattedTime(self):
+    ''' Uses GetTime to retrieve the current time, but formats it in an xchat way. '''
     hour, min, sec = self.GetTime()
     time = '[' + hour + ':' + min + ':' + sec + '] '
     return time
 
   def GetNick(self, user):
+    ''' Separates out the nick from the long string returned by IRC. '''
     return re.search('([^!]*).*', user).group(1)
 
   ### Must be implemented for palantirIRC to work.  These methods are called by the
   ### the client when it receives certain events and needs to display them in the UI.
   def messageReceive(self, user, channel, msg):
-    ''' When the client receives a privmsg it calls this function to display the message
-        in the UI, however the UI sees fit.
+    ''' This handles the formatting of regular conversation.  Gets the nick of the
+        person who said it, encloses it in <>, if timestamps are visible it grabs
+	the formatted time and determines if we need to highlight the nick. It sends
+	all this to the chat buffer UI.
 	'''
+    # If there's a user associated with the message, get the nick.
     if user:
       nick = self.GetNick(user)
       nickends = (' <','> ')
     else:
       nickends = ('','')
       nick = ''
+
+    # If we're showing timestamps get the time.
     if self.tree.get_widget('time_stamps').get_active():
       time = self.GetFormattedTime()
     else:
       time = ''
+
+    # If we're being addressed in this message.
     if msg.find(self.factory.nickname) is not -1:
       addressed = True
     else:
       addressed = False
+
+    # Display the message in the chat window.
     self.chatWindow.DisplayText(time, nick, msg, nickends, addressed)
 
   def meReceive(self, user, channel, msg):
     ''' When someone does a '/me' display the action. '''
     nick = self.GetNick(user)
+    # Get the time if we're displaying timestamps.
     if self.tree.get_widget('time_stamps').get_active():
       time = self.GetFormattedTime()
     else:
       time = ''
+
+    # If our name is in the message we need to tell the chat window to highlight it.
     if msg.find(self.factory.nickname) is not -1:
       addressed = True
     else:
       addressed = False
+
+    # Send the message to the chat window.
     self.chatWindow.DisplayText(time, nick, msg, (' * ',' '), addressed)
 
   def nickReceive(self, oldNick, channel, newNick):
     ''' When someone changes a nick display it. '''
+    # If we're using timestamps get the time.
     if self.tree.get_widget('time_stamps').get_active():
       time = self.GetFormattedTime()
     else:
       time = ''
+
     self.chatWindow.DisplayText(time, '', oldNick + ' is now known as ' + newNick)
 
   def topicReceive(self, user, channel, topic):
@@ -141,7 +163,7 @@ class PalantirWindow:
     self.tree.get_widget('Topic').set_text('')
 
   def ctcpReceive(self, user, channel, messages):
-    nick = re.search('([^!]*).*', user).group(1)
+    nick = self.GetNick(user)
     # If the ctcp message is a dice roll format the message to display the roll.
     if 'ROLL' in messages[0]:
       data = re.search('(\[.*\]) ([0-9]*) ([0-9]*)', messages[0][1])

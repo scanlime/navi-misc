@@ -90,7 +90,7 @@ class PalantirClientFactory(protocol.ClientFactory):
 
   def clientConnectionFailed(self, connector, reason):
     print 'Connection failed:', reason
-    reactor.stop()
+    connector.connect()
 
   def buildProtocol(self, addr):
     ''' Overridden to save a reference to the instance of the actual IRC client
