@@ -420,8 +420,7 @@
 		      <child>
 			<widget class="GtkComboBox" id="publish_frequency">
 			  <property name="visible">True</property>
-			  <property name="items" translatable="yes">Whenever changes are made
-Daily
+			  <property name="items" translatable="yes">Daily
 Weekly
 Manual (via Actions menu)</property>
 			</widget>
@@ -438,7 +437,6 @@ Manual (via Actions menu)</property>
 			<widget class="GtkComboBox" id="type_selector">
 			  <property name="visible">True</property>
 			  <property name="items" translatable="yes">iCal
-HTML
 Free/Busy</property>
 			</widget>
 			<packing>
