@@ -450,3 +450,10 @@ void fe_ctrl_gui(session *sess, int action, int arg) {
 void
 fe_confirm (const char *message, void (*yesproc)(void *), void (*noproc)(void *), void *ud) {
 }
+
+int
+fe_gui_info (session *sess, int info_type)
+{
+	/* FIXME: implement */
+	return -1;
+}
