@@ -253,7 +253,7 @@ class IndexPage(ModPython.Page):
         latest = source.getLatestPacket()
         info = []
 
-        if latest.get('average'):
+        if latest and latest.get('average'):
             info.append(renderTemperature(latest))
 
         info.extend([
@@ -269,12 +269,12 @@ class IndexPage(ModPython.Page):
             ]],
         ])
 
-        if latest.get('voltage'):
+        if latest and latest.get('voltage'):
             info.append(tag('div', _class='extraInfo')[
                 renderBatteryBargraph(latest),
                 ])
 
-        if latest.get('time'):
+        if latest and latest.get('time'):
             info.append(tag('div', _class='extraInfo')[
                 renderTimestamp(latest),
                 ])
@@ -361,14 +361,15 @@ class SourcePage(ModPython.Page):
             return self.renderLatest()
 
         graphs = []
-        if self.latest.get('average'):
-            graphs.append('temperature')
-        if self.latest.get('voltage'):
-            graphs.append('voltage')
-        if self.latest.get('signal_strength'):
-            graphs.append('signal')
+        if self.latest:
+            if self.latest.get('average'):
+                graphs.append('temperature')
+            if self.latest.get('voltage'):
+                graphs.append('voltage')
+            if self.latest.get('signal_strength'):
+                graphs.append('signal')
 
-        return tag('div', _class='graphs')[[
+        return tag('div', _class='graphs')[" ", [
                 tag('img', _class='graph',
                     width=691, height=205,
                     alt="%s graph" % name,
@@ -377,20 +378,23 @@ class SourcePage(ModPython.Page):
                 ]]
 
     def renderLatest(self):
-        info = []
+        if self.latest:
+            info = []
 
-        if self.latest.get('average'):
-            info.append(renderTemperature(self.latest))
+            if self.latest.get('average'):
+                info.append(renderTemperature(self.latest))
 
-        if self.latest.get('voltage'):
-            info.append(tag('div', _class='extraInfo')[
-                renderBatteryBargraph(self.latest),
-                ])
+            if self.latest.get('voltage'):
+                info.append(tag('div', _class='extraInfo')[
+                    renderBatteryBargraph(self.latest),
+                    ])
 
-        if self.latest.get('time'):
-            info.append(tag('div', _class='extraInfo')[
-                renderTimestamp(self.latest),
-                ])
+            if self.latest.get('time'):
+                info.append(tag('div', _class='extraInfo')[
+                    renderTimestamp(self.latest),
+                    ])
+        else:
+            info = ["No data"]
 
         return tag('div', _class='source')[info]
 
