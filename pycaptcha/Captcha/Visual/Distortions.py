@@ -34,17 +34,18 @@ class WigglyBlocks(Layer):
         self.iterations = iterations
 
     def render(self, image):
+        r = random.Random(self)
         for i in xrange(self.iterations):
             # Select a block
-            bx = int(random.uniform(0, image.size[0]-self.blockSize))
-            by = int(random.uniform(0, image.size[1]-self.blockSize))
+            bx = int(r.uniform(0, image.size[0]-self.blockSize))
+            by = int(r.uniform(0, image.size[1]-self.blockSize))
             block = image.crop((bx, by, bx+self.blockSize-1, by+self.blockSize-1))
 
             # Figure out how much to move it.
             # The call to floor() is important so we always round toward
             # 0 rather than to -inf. Just int() would bias the block motion.
-            mx = int(math.floor(random.normalvariate(0, self.sigma)))
-            my = int(math.floor(random.normalvariate(0, self.sigma)))
+            mx = int(math.floor(r.normalvariate(0, self.sigma)))
+            my = int(math.floor(r.normalvariate(0, self.sigma)))
 
             # Now actually move the block
             image.paste(block, (bx+mx, by+my))

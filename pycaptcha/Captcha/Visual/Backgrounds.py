@@ -46,24 +46,28 @@ class Grid(Layer):
     def __init__(self, size=16, foreground="black"):
         self.size = size
         self.foreground = foreground
+        self.offset = (random.uniform(0, self.size),
+                       random.uniform(0, self.size))
 
     def render(self, image):
-        # Random grid alignment
-        xa = random.uniform(0, self.size)
-        ya = random.uniform(0, self.size)
         draw = ImageDraw.Draw(image)
 
         for i in xrange(image.size[0] / self.size + 1):
-            draw.line( (i*self.size+xa, 0,
-                        i*self.size+xa, image.size[1]), fill=self.foreground)
+            draw.line( (i*self.size+self.offset[0], 0,
+                        i*self.size+self.offset[0], image.size[1]), fill=self.foreground)
 
         for i in xrange(image.size[0] / self.size + 1):
-            draw.line( (0, i*self.size+ya,
-                        image.size[0], i*self.size+ya), fill=self.foreground)
+            draw.line( (0, i*self.size+self.offset[1],
+                        image.size[0], i*self.size+self.offset[1]), fill=self.foreground)
 
 
 class TiledImage(Layer):
     """Pick a random image and a random offset, and tile the rendered image with it"""
+    def __init__(self):
+        self.tile = self.pickTile()
+        self.offset = (random.uniform(0, self.tile.size[0]),
+                       random.uniform(0, self.tile.size[1]))
+
     def pickTile(self):
         """Return the image we'll use for tiling"""
         bgDir = os.path.join(Captcha.dataDir, "backgrounds")
@@ -75,16 +79,10 @@ class TiledImage(Layer):
         return Image.open(random.choice(files))
 
     def render(self, image):
-        # Random image
-        tile = self.pickTile()
-
-        # Random offset
-        xa = random.uniform(0, tile.size[0])
-        ya = random.uniform(0, tile.size[1])
-
-        for j in xrange(-1, int(image.size[1] / tile.size[1]) + 1):
-            for i in xrange(-1, int(image.size[0] / tile.size[0]) + 1):
-                dest = (int(xa+i*tile.size[0]), int(ya+j*tile.size[1]))
-                image.paste(tile, dest)
+        for j in xrange(-1, int(image.size[1] / self.tile.size[1]) + 1):
+            for i in xrange(-1, int(image.size[0] / self.tile.size[0]) + 1):
+                dest = (int(self.offset[0] + i*self.tile.size[0]),
+                        int(self.offset[1] + j*self.tile.size[1]))
+                image.paste(self.tile, dest)
 
 ### The End ###
