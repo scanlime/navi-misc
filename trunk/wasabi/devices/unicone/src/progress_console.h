@@ -1,6 +1,5 @@
 /*
- * libunicone.i - Swig interface between python and our C code for configuring
- *                the device and low-level communication with it.
+ * progress_console.h - A simple progress reporter that uses stderr
  *
  * Universal Controller Emulator project
  * Copyright (C) 2004 Micah Dowty
@@ -21,15 +20,13 @@
  *
  */
 
-%module libunicone
+#ifndef _H_PROGRESS_CONSOLE
+#define _H_PROGRESS_CONSOLE
 
-%{
-#include <unicone_device.h>
-#include <progress_python.h>
-%}
+#include "progress.h"
 
-%include unicone_device.h
-%include progress.h
-%include progress_python.h
+struct progress_reporter* progress_reporter_console_new();
+
+#endif /* _H_PROGRESS_CONSOLE */
 
 /* The End */

@@ -18,6 +18,7 @@ GC_TEST_OBJS = $(COMMON_OBJS) \
 	src/gc_test.o
 
 PYUNICONE_OBJS = $(COMMON_OBJS) \
+	src/progress_python.o \
 	pyunicone/libunicone_wrap.o
 
 FIRMWARE_OBJS = \
@@ -28,8 +29,7 @@ FIRMWARE_OBJS = \
 
 TUSB_DIR = ../../../tusb
 
-CFLAGS    += -I include -I src
-PY_CFLAGS += -I /usr/include/python2.3
+CFLAGS    += -I include -I src -I /usr/include/python2.3
 LDFLAGS   += -lusb
 SWIGFLAGS += -python -Isrc -Iinclude
 
@@ -62,9 +62,6 @@ firmware.bin: firmware/firmware.ihx
 
 pyunicone/libunicone_wrap.c: pyunicone/libunicone.i include/*.h src/*.h
 	swig $(SWIGFLAGS) $<
-
-pyunicone/libunicone_wrap.o: pyunicone/libunicone_wrap.c include/*.h src/*.h
-	$(CC) -o $@ -c $< $(CFLAGS) $(PY_CFLAGS)
 
 clean:
 	rm -f $(BINS)

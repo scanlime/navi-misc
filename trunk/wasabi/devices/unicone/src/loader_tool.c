@@ -24,7 +24,7 @@
 #include <stdio.h>
 #include <getopt.h>
 #include "unicone_device.h"
-#include "progress.h"
+#include "progress_console.h"
 
 static int    config_force_bitstream = 0;
 static int    config_force_firmware = 0;

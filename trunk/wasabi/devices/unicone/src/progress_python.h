@@ -1,6 +1,7 @@
 /*
- * libunicone.i - Swig interface between python and our C code for configuring
- *                the device and low-level communication with it.
+ * progress_python.h - A progress reporter object that wraps an analogous
+ *                     set of Python objects implementing a progress reporter
+ *                     and progress operations.
  *
  * Universal Controller Emulator project
  * Copyright (C) 2004 Micah Dowty
@@ -21,15 +22,19 @@
  *
  */
 
-%module libunicone
+#ifndef _H_PROGRESS_PYTHON
+#define _H_PROGRESS_PYTHON
 
-%{
-#include <unicone_device.h>
-#include <progress_python.h>
-%}
+#include <Python.h>
+#include "progress.h"
 
-%include unicone_device.h
-%include progress.h
-%include progress_python.h
+/* The supplied python object is expected to have 'start', 'message',
+ * and 'error' methods, matching the signature of the corresponding
+ * C functions in progress_reporter. The 'start' method should
+ * return another python object with 'update' and 'finish' methods.
+ */
+struct progress_reporter* progress_reporter_python_new(PyObject *pyo);
+
+#endif /* _H_PROGRESS_PYTHON */
 
 /* The End */

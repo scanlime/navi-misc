@@ -1,5 +1,10 @@
 /*
- * progress.h - A simple object for reporting progress in an abstract way
+ * progress.h - An abstract base class for reporting progress. Progress
+ *              can be reported in the form of simple error and status
+ *              messages, or a task can be broken into any number of
+ *              'operations' whose completion can be reported as a number
+ *              between 0 and 1. Operations can complete successfully,
+ *              or with an error string.
  *
  * Universal Controller Emulator project
  * Copyright (C) 2004 Micah Dowty
@@ -61,9 +66,6 @@ void                       progress_message          (struct progress_reporter* 
 						      const char*                message);
 void                       progress_error            (struct progress_reporter*  self,
 						      const char*                error);
-
-/* Constructors for concrete implementations of progress reporters */
-struct progress_reporter*  progress_reporter_console_new();
 
 #endif /* _H_PROGRESS */
 
