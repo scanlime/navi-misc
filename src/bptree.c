@@ -177,6 +177,20 @@ static void       rtg_bptree_invalidate_iters    (RtgBPTree*        self)
 }
 #endif
 
+static void       init_namespaced_page_atom      (RtgPageStorage*   storage,
+						  RtgPageAtom*      atom,
+						  const char*       tree_name,
+						  const char*       page_name)
+{
+    /* Init a RtgPageAtom to hold a page address with a particular name,
+     * namespaced within our tree name.
+     */
+    gchar *name = g_strdup_printf("RtgBPTree/%s/%s", tree_name, page_name);
+    rtg_page_atom_find_or_create(storage, RTG_PAGE_HEADER, atom, name,
+				 RtgPageAddress, RTG_PAGE_NULL);
+    g_free(name);
+}
+
 
 /************************************************************************************/
 /******************************************************************* Public Methods */
@@ -201,21 +215,10 @@ RtgBPTree*        rtg_bptree_new                 (RtgPageStorage*   storage,
     index_init(self);
     leaf_init(self);
 
-    /* Find/create atoms for our important page references */
-    rtg_page_atom_find_or_create(storage, RTG_PAGE_HEADER, &self->root,
-				 "BPFoo", RtgPageAddress, RTG_PAGE_NULL);
-    rtg_page_atom_find_or_create(storage, RTG_PAGE_HEADER, &self->root,
-				 "blarrrrr", RtgPageAddress, RTG_PAGE_NULL);
-    rtg_page_atom_find_or_create(storage, RTG_PAGE_HEADER, &self->root,
-				 "blarrrrr", RtgPageAddress, RTG_PAGE_NULL);
-    rtg_page_atom_find_or_create(storage, RTG_PAGE_HEADER, &self->root,
-				 "blarrrrr", RtgPageAddress, RTG_PAGE_NULL);
-    rtg_page_atom_find_or_create(storage, RTG_PAGE_HEADER, &self->root,
-				 "yepski", RtgPageAddress, RTG_PAGE_NULL);
-    rtg_page_atom_find_or_create(storage, RTG_PAGE_HEADER, &self->root,
-				 "BPFoo", RtgPageAddress, RTG_PAGE_NULL);
-    rtg_page_atom_find_or_create(storage, RTG_PAGE_HEADER, &self->root,
-				 "noooooooooope", RtgPageAddress, RTG_PAGE_NULL);
+    /* Initialize atoms that link this tree to pages in storage */
+    init_namespaced_page_atom(storage, &self->root, name, "root");
+    init_namespaced_page_atom(storage, &self->first_leaf, name, "first_leaf");
+    init_namespaced_page_atom(storage, &self->last_leaf, name, "last_leaf");
 
     return self;
 }
