@@ -1,0 +1,9 @@
+module test (clk, foo);
+
+input clk;
+output foo;
+
+
+assign foo = clk;
+
+endmodule
