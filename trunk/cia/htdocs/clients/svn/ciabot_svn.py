@@ -43,31 +43,21 @@ class config:
     # convention though that works similarly to CVS's modules, tags,
     # and branches.
     #
-    # If non-None, this is a regex that matches a directory, with
-    # group names 'branch' and 'module'. If it matches, it is replaced
-    # with the empty string and the groups, if present, are stored in
-    # the commit message.
+    # This is a list of regular expressions that are tested against
+    # paths in the order specified. If a regex matches, the 'branch'
+    # and 'module' groups are stored and the matching section of the
+    # path is removed.
     #
-    # For example, in a repository containing paths like:
-    #   trunk/module1
-    #   trunk/module2
-    #   branches/moose
-    #   tags/plastic-42
-    #
-    # The following regex would extract the module and branch, leaving
-    # the filename within the particular branch/module:
-    #
-    #   pathRegex = r"""
-    #     ^(                                       # Start at beginning of path
-    #       ( trunk/ (?P<module>[^/]+) ) |         # Module in trunk...
-    #       ( (branches|tags)/ (?P<branch>[^/]+) ) # ...or a branch or a tag?
-    #      )/?                                     # Slurp up trailing slash
-    #     """
-    #
-    # Note that whitespace and comments in the regex are ignored.
-    #
-    pathRegex = None
-
+    # Several common directory structure styles are below as defaults.
+    # Uncomment the ones you're using, or add your own regexes.
+    # Whitespace in the each regex are ignored.
+    
+    pathRegexes = [
+    #   r"^ trunk/           (?P<module>[^/]+) ",
+    #   r"^ (branches|tags)/ (?P<branch>[^/]+) ",
+    #   r"^ (branches|tags)/ (?P<module>[^/]+)/ (?P<branch>[^/]+) ",
+        ]
+    
     # If your repository is accessable over the web, put its base URL here
     # and 'uri' attributes will be given to all <file> elements. This means
     # that in CIA's online message viewer, each file in the tree will link
@@ -143,7 +133,7 @@ class SvnClient:
     """A CIA client for Subversion repositories. Uses svnlook to
     gather information"""
     name = 'Python Subversion client for CIA'
-    version = '1.14'
+    version = '1.15'
 
     def __init__(self, repository, revision, config):
         self.repository = repository
@@ -239,33 +229,48 @@ class SvnClient:
                 status = line[0]
                 files.append(File(path, status))
 
-        if self.config.pathRegex:
-            # We have a regex we'll be applying to each path to try to
-            # extract information out of it.  We only apply any of the
-            # modifications if the regex matches each path with the
-            # same results.
-            prevMatchDict = None
-            regex = re.compile(self.config.pathRegex, re.VERBOSE)
-            for file in files:
-                match = regex.match(file.fullPath)
-                if not match:
-                    # Give up, it must match every file
-                    return files
-                matchDict = match.groupdict()
-                if prevMatchDict is not None and prevMatchDict != matchDict:
-                    # Also give up, it must match each time with the
-                    # same results
-                    return files
-                prevMatchDict = matchDict
-
-            # If we got this far, the regex matched every file with
-            # the same results.  Now filter the matched portion out of
-            # each file and store the matches we found.
-            self.__dict__.update(prevMatchDict)
-            for file in files:
-                file.path = regex.sub('', file.fullPath)
+        # Try each of our several regexes. To be applied, the same
+        # regex must mach every file under consideration and they must
+        # all return the same results. If we find one matching regex,
+        # or we try all regexes without a match, we're done.
+        matchDict = None
+        for regex in self.config.pathRegexes:
+            matchDict = matchAgainstFiles(regex, files)
+            if matchDict is not None:
+                self.__dict__.update(matchDict)
+                break
 
         return files
+
+
+def matchAgainstFiles(regex, files):
+    """Try matching a regex against all File objects in the provided list.
+       If the regex returns the same matches for every file, the matches
+       are returned in a dict and the matched portions are filtered out.
+       If not, returns None.
+       """
+    prevMatchDict = None
+    compiled = re.compile(regex, re.VERBOSE)
+    for f in files:
+
+        match = compiled.match(f.fullPath)
+        if not match:
+            # Give up, it must match every file
+            return None
+
+        matchDict = match.groupdict()
+        if prevMatchDict is not None and prevMatchDict != matchDict:
+            # Give up, we got conflicting matches
+            return None
+
+        prevMatchDict = matchDict
+
+    # If we got this far, the regex matched every file with
+    # the same results.  Now filter the matched portion out of
+    # each file and store the matches we found.
+    for f in files:
+        f.path = compiled.sub('', f.fullPath)
+    return prevMatchDict
 
 
 def escapeToXml(text, isAttrib=0):
