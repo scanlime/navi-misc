@@ -217,9 +217,13 @@ void CTestGame::OnMessage ( CNetworkPeer &peer, CNetworkMessage &message )
 		case _MESSAGE_USER_ADD: // here comes a new chalenger
 			{			
 				int newPlayerID = message.ReadI();
-				CPlayerObject	*newPlayer = new CPlayerObject();
+				CPlayerObject	*newPlayer = players[newPlayerID];
+				if (!newPlayer)
+				{
+					newPlayer = new CPlayerObject();
+					players[newPlayerID] = newPlayer ;
+				}
 				newPlayer->active = false;
-				players[newPlayerID] = newPlayer;
 			}
 			break;
 
@@ -239,14 +243,24 @@ void CTestGame::OnMessage ( CNetworkPeer &peer, CNetworkMessage &message )
 			}
 			break;
 
-		case _MESSAGE_CLIENT_INFO:	// we got some info for a new players
+		case _MESSAGE_CLIENT_INFO:	// we got some info for a new players, IF for some reason we don't have it, then get it
 			{
-				CPlayerObject	*newPlayer = players[message.ReadI()];
-				if (newPlayer)
+				int playerID = message.ReadI();
+				CPlayerObject	*newPlayer = players[playerID];
+				if (!newPlayer)
 				{
-					newPlayer->name = message.ReadStr();
-					newPlayer->material = message.ReadStr();
+					newPlayer = new CPlayerObject();
+					newPlayer->active = true;
+					players[playerID] = newPlayer;
 				}
+				newPlayer->name = message.ReadStr();
+				newPlayer->material = message.ReadStr();
+
+				// get there current pos
+				message.ReadV(newPlayer->pos);
+				message.ReadV(newPlayer->rot);
+				message.ReadV(newPlayer->vec);
+
 			}
 			break;
 
@@ -257,7 +271,7 @@ void CTestGame::OnMessage ( CNetworkPeer &peer, CNetworkMessage &message )
 				if (playerID != localPlayer->idNumber)
 					newPlayer = players[playerID];
 
-				if (!newPlayer->active)
+				if (newPlayer && !newPlayer->active)
 				{
 					newPlayer->Init(true);
 					message.ReadV(newPlayer->pos);
