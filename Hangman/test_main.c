@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "Hangman.h"
+#include "HangmanGUI.h"
 
 #define HOST "dictionary.com"
 #define PATH "/home/evan/Hangman/"
@@ -20,11 +21,16 @@ const int MAX_Guess = 6;
 int
 main (int argc, char **argv)
 {
-  Hangman controller;
+  Hangman controller;	/* access to Hangman engine */
+	HM_Window window;		/* access to Hangman gui */
+
   char guess[32];
   char filename[32];
   int count = 0;
   int win = 0;
+
+	HM_Window_Init(&window);
+	LayoutTree(&window);
 
   // contains debugging statements to indicate where in the program execution is
 
