@@ -29,7 +29,7 @@ or IDs to use for new files.
 
 import os, time, sys, cPickle
 import sqlite
-from twisted.internet import defer
+from twisted.internet import defer, reactor
 from RioKarma import Request, Metadata
 
 
@@ -324,8 +324,26 @@ class FileManager:
             cachePath = "~/.riokarma-py/cache.db"
 
         self.protocol = protocol
+        self.writeLockHeld = False
         self.cache = Cache(cachePath)
         self.cache.open()
+
+        # Make sure that we get a chance to sync our cache and release
+        # any I/O locks before we exit- otherwise the Rio might get stuck
+        # on the data transfer screen, and our db might be out of sync.
+        reactor.addSystemEventTrigger('before', 'shutdown', self.shutdown)
+
+    def shutdown(self):
+        """Cleanly shut down the file manager"""
+        if self.cache:
+            self.cache.close()
+            self.cache = None
+
+        if self.writeLockHeld:
+            print "Releasing write lock..."
+            d = self.unlock()
+            while not d.called:
+                reactor.iterate(0.1)
 
     def readLock(self):
         """Acquire a read-only lock on this filesystem- necessary for most
@@ -339,10 +357,12 @@ class FileManager:
            to modify anything, but it puts the device into an unusable
            state. Release this lock as soon as possible after you're done.
            """
+        self.writeLockHeld = True
         return self.protocol.sendRequest(Request.RequestIOLock('write'))
 
     def unlock(self):
         """Release any locks currently held"""
+        self.writeLockHeld = False
         return self.protocol.sendRequest(Request.ReleaseIOLock())
 
     def synchronize(self):
