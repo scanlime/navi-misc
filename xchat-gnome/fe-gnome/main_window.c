@@ -51,27 +51,6 @@ void initialize_main_window() {
 	gtk_widget_show_all(GTK_WIDGET(gui.main_window));
 	gtk_xtext_buffer_show(text, text->buffer, TRUE);
 	gtk_xtext_refresh(text, FALSE);
-
-	initialize_navigation_tree();
-}
-
-void initialize_navigation_tree() {
-	GtkWidget *navigation_view;
-	GtkTreeStore *store;
-	GtkCellRenderer *icon_renderer, *text_renderer;
-	GtkTreeViewColumn *icon_column, *text_column;
-
-	navigation_view = glade_xml_get_widget(gui.xml, "server channel list");
-
-	store = gtk_tree_store_new(2, GDK_TYPE_PIXBUF, G_TYPE_STRING);
-	gtk_tree_view_set_model(GTK_TREE_VIEW(navigation_view), GTK_TREE_MODEL(store));
-
-	icon_renderer = gtk_cell_renderer_pixbuf_new();
-	icon_column = gtk_tree_view_column_new_with_attributes("icon", icon_renderer, "pixbuf", 0, NULL);
-	gtk_tree_view_append_column(GTK_TREE_VIEW(navigation_view), icon_column);
-	text_renderer = gtk_cell_renderer_text_new();
-	text_column = gtk_tree_view_column_new_with_attributes("name", text_renderer, "text", 1, NULL);
-	gtk_tree_view_append_column(GTK_TREE_VIEW(navigation_view), text_column);
 }
 
 void on_preferences_menu_activate(GtkWidget *widget, gpointer data) {

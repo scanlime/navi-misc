@@ -4,6 +4,7 @@
 #include "../common/servlist.h"
 #include "../common/fe.h"
 #include "gui.h"
+#include "navigation_tree.h"
 
 int fe_args(int argc, char *argv[]) {
 	if(argc > 1) {
@@ -48,14 +49,11 @@ void fe_timeout_remove(int tag) {
 
 void fe_new_window(struct session *sess) {
 	g_print("creating a new window of type %d\n", sess->type);
-	server_fill_her_up(sess->server);
-	g_print("server is %s:%s\n\n", sess->server->hostname, sess->server->servername);
-	sess->server->p_join(sess->server, "#tacobeam", "");
-	/* FIXME: implement */
+	g_print("channel is currently %s\n", sess->channel);
+	navigation_tree_create_new_network_entry(sess);
 }
 
 void fe_new_server(struct server *serv) {
-	server_fill_her_up(serv);
 	g_print("creating a new server - %s:%s\n", serv->hostname, serv->servername);
 	/* FIXME: implement */
 }
@@ -65,6 +63,7 @@ void fe_add_rawlog(struct server *serv, char *text, int len, int outbound) {
 }
 
 void fe_message(char *msg, int wait) {
+	g_print("fe_message()\n");
 	/* FIXME: implement */
 }
 
@@ -96,6 +95,7 @@ void fe_idle_add(void *func, void *data) {
 }
 
 void fe_set_topic(struct session *sess, char *topic) {
+	g_print("fe_set_topic()\n");
 	/* FIXME: implement */
 }
 
@@ -226,10 +226,12 @@ void fe_clear_channel(struct session *sess) {
 }
 
 void fe_session_callback(struct session *sess) {
+	g_print("fe_session_callback()\n");
 	/* FIXME: implement */
 }
 
 void fe_server_callback(struct server *serv) {
+	g_print("fe_server_callback()\n");
 	/* FIXME: implement */
 }
 
@@ -254,6 +256,7 @@ void fe_dcc_send_filereq(struct session *sess, char *nick, int maxcps, int passi
 }
 
 void fe_set_channel(struct session *sess) {
+	navigation_tree_set_channel_name(sess);
 	/* FIXME: implement */
 }
 
@@ -262,6 +265,7 @@ void fe_set_title(struct session *sess) {
 }
 
 void fe_set_nonchannel(struct session *sess, int state) {
+	g_print("fe_set_nonchannel()\n");
 	/* FIXME: implement */
 }
 

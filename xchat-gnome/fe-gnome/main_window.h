@@ -4,6 +4,5 @@
 #define XCHAT_GNOME_MAIN_WINDOW_H
 
 void initialize_main_window();
-void initialize_navigation_tree();
 
 #endif
