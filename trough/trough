@@ -17,12 +17,12 @@ parser.add_option('-a','--add',dest='add',action="store_true",
 		help="recursively add path(s) to the playlist")
 parser.add_option('-b','--break',dest='breakup',action="store_true",
 		help="break up grouped files already in tree")
-parser.add_option('-p','--playlist',dest="path",
-		help="path to playlist file")
+parser.add_option('-p','--playlist',dest="playlist",type="string",
+		help="path to playlist file",default="~/.trough-playlist")
 parser.add_option('-r','--remove',dest='remove',action="store_true",
 		help="recursively remove path(s) to the playlist")
-parser.add_option('-i','--info',dest='info',action="store_true",
-		help="retrieve information on current playlist")
+#parser.add_option('-i','--info',dest='info',action="store_true",
+#		help="retrieve information on current playlist")
 parser.add_option('-v','--verbose',dest="verbose",action="store_true",
 		help="give verbose output")
 (options,arguments) = parser.parse_args()
@@ -31,7 +31,8 @@ parser.add_option('-v','--verbose',dest="verbose",action="store_true",
 #
 import Select
 from PlayList import PlayList
-playlist = PlayList()
+
+playlist = PlayList(options.playlist)
 if options.add and options.remove:
 	parser.error("can't simultaneously add and remove")
 if options.add:
