@@ -299,12 +299,11 @@ class HangmanGUI:
 		# Show.
 		fileWindow.show()
 
-	def read(self, widget, data=None):
+	def read(self, data, widget):
 		""" Callback for file selection from openFile().  Get the file name
 				and send it to be opened and read into the controller.
 				"""
-		filename = "file://" + data.get_filename()
-		self.controller.openFile(filename)
+		self.controller.openFile(widget.get_filename())
 
 	def error(self, parent=None, data=None):
 		""" General error message generator.  data is the text to be printed in
