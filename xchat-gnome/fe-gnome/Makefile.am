@@ -2,8 +2,13 @@ bin_PROGRAMS = xchat-gnome
 
 INCLUDES = $(GUI_CFLAGS)
 
-xchat_gnome_LDADD = ../common/libxchatcommon.a $(GUI_LIBS)
-xchat_gnome_SOURCES =		\
+if USE_MMX
+mmx_cmod_S = 			\
+	mmx_cmod.h		\
+	mmx_cmod.S
+endif
+
+EXTRA_DIST =			\
 	fe-gnome.c		\
 	gui.h			\
 	gui.c			\
@@ -11,3 +16,28 @@ xchat_gnome_SOURCES =		\
 	main_window.c		\
 	preferences_dialog.h	\
 	preferences_dialog.c
+
+xchat_gnome_LDADD = ../common/libxchatcommon.a $(GUI_LIBS)
+xchat_gnome_SOURCES =		\
+	fe-gnome.c		\
+	gui.h			\
+	gui.c			\
+	main_window.h		\
+	main_window.c		\
+	$(mmx_cmod_S)		\
+	preferences_dialog.h	\
+	preferences_dialog.c	\
+	xtext.h			\
+	xtext.c
+
+xtext.h: @top_srcdir@/src/fe-gtk/xtext.h
+	cp -pR @top_srcdir@/src/fe-gtk/xtext.h .
+
+xtext.c: @top_srcdir@/src/fe-gtk/xtext.c xtext.h
+	cp -pR @top_srcdir@/src/fe-gtk/xtext.c .
+
+mmx_cmod.h:	@top_srcdir@/src/fe-gtk/mmx_cmod.h
+	cp -pR @top_srcdir@/src/fe-gtk/mmx_cmod.h .
+
+mmx_cmod.S:	@top_srcdir@/src/fe-gtk/mmx_cmod.S mmx_cmod.h
+	cp -pR @top_srcdir@/src/fe-gtk/mmx_cmod.S .

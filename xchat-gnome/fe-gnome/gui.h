@@ -13,5 +13,6 @@ typedef struct {
 extern XChatGUI gui;
 
 gboolean initialize_gui();
+int xtext_get_stamp_str (time_t tim, char **ret);
 
 #endif
