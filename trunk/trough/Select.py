@@ -1,10 +1,14 @@
 #!/usr/bin/env python
 
 import random
+import sys
 from types import *
 from Pieces import Pieces
 
 def Select(pieces):
+	if pieces.getCount() == 0:
+		sys.stderr.write("warning: no files to choose from\n")
+		return []
 	s = random.randint(0,pieces.getCount()-1)
 	return pieces.getPiece(s).getWhere()
 	 
