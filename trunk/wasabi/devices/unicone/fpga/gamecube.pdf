@@ -11,7 +11,7 @@ HDL netlist format=Auto
 generics=MAX
 sim_mode=FUNC
 library_net=ON
-lib_order=155 155 133 155
+lib_order=155 155 155 155 133 155
 [libraries]
 133=c:\fndtn\active\syslib\simprims
 155=c:\fndtn\active\syslib\xc4000x
@@ -19,7 +19,7 @@ lib_order=155 155 133 155
 oid=0
 lid=0
 format=19
-source=c:\unicone\fpga\gamecube\gamecube.v
+source=C:\unicone\fpga\lib\n_serial.v
 server_hwnd=5505528
 
 
@@ -97,6 +97,7 @@ foo=
 1byte=
 2byte=
 emu=
+poll=
 [OPEN32]
 nMaxFile=10000
 lpstrFile=

@@ -169,7 +169,7 @@ module gc_controller (clk, reset, tx, rx, controller_state, rumble);
 				// A request has begun, but we haven't received any of its bytes
 				// yet. When we get one, if it's an identification request (0x00)
 				// we can act on it immediately. If it's the beginning of a polling
-				// command (0x40030) wait for the rest.
+				// command (0x400300) wait for the rest.
 				if (rx_stop || rx_start || rx_error)
 					state <= S_IDLE;
 				else if (rx_strobe) begin
@@ -290,7 +290,7 @@ module gc_controller (clk, reset, tx, rx, controller_state, rumble);
 					
 					// Wait one cycle for the transmitter
 					// to update its queue status
-					state <= S_TX_ID_WAIT;
+					state <= S_TX_STATE_WAIT;
 				end
 			end
 
