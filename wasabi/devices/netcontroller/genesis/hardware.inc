@@ -22,10 +22,13 @@
 ; The PIC16C745 power and USB are connected as
 ; described in the data sheet. I/Os are allocated
 ; as follows. Note that all controller pins were
-; connected via 47k resistors so that externally
+; connected via resistors so that externally
 ; attached controllers can override the USB interface.
 ; This is unnecessary if you're connecting this to the
-; genesis externally.
+; genesis externally. The multiplexed outputs on PORTA
+; used 1k resistors, (for speed) others used 47k
+; resistors (to avoid overpowering the controller's
+; 10k pull-up resistors)
 ;
 ;   RB4: Controller 1, pin 7 (select)
 ;   RB5: Controller 2, pin 7 (select)
