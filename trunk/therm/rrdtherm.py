@@ -45,12 +45,32 @@ def alphaNum(s):
     return re.sub("[^a-zA-Z0-9\-]", "_", s)
 
 
+def lerp(a, b, alpha):
+    """Linear interpolation, returns a when alpha=0, b when alpha=1"""
+    if type(a) == type([]) or type(a) == type(()):
+        # If we have lists, recursively lerp all items in them
+        return [lerp(a[i], b[i], alpha) for i in xrange(len(a))]
+    else:
+        return a*(1-alpha) + b*alpha
+
+
 class Color:
-    """Represents an RGB color. When converted to a string, a hex color in #RRGGBB form
+    """Represents an RGB color, which may be accessed in RGB or HSV colorspaces.
+       When converted to a string, a hex color in #RRGGBB form
        results. Component values are floating point, between 0 and 1.
+       Colors can commonly be constructed in the following forms:
+
+          RGB:  Color(1, 0.5, 0)
+          RGB:  Color(rgb=(1, 0.5, 0))
+          HSV:  Color(hsv=(0.2, 1, 1))
        """
-    def __init__(self, red, green, blue):
-        self.rgb = (red, green, blue)
+    def __init__(self, red=0, green=0, blue=0, rgb=None, hsv=None):
+        if hsv:
+            self.rgb = colorsys.hsv_to_rgb(*hsv)
+        elif rgb:
+            self.rgb = rgb
+        else:
+            self.rgb = (red, green, blue)
 
     def __str__(self):
         bytes = [int(component * 255 + 0.49) for component in self.rgb]
@@ -59,11 +79,16 @@ class Color:
     def blend(self, color, alpha):
         """Blend this color with the given color according to the given alpha value.
            When alpha==0, returns this color. When alpha==1, returns the given color.
+           Blends in RGB colorspace.
            """
-        newRgb = []
-        for i in xrange(3):
-            newRgb.append(self.rgb[i] * (1-alpha) + color.rgb[i] * alpha)
-        return Color(*newRgb)
+        return Color(rgb=lerp(self.rgb, color.rgb, alpha))
+
+    def hsvBlend(self, color, alpha):
+        """Like blend, but in HSV colorspace"""
+        return Color(hsv=lerp(
+            colorsys.rgb_to_hsv(*self.rgb),
+            colorsys.rgb_to_hsv(*color.rgb),
+            alpha))
 
 
 class Graph:
@@ -140,14 +165,14 @@ class Therm:
         lineColor = Color(0,0,1)
         noDataColor = Color(1,1,0).blend(Color(1,1,1), 0.8)
         freezingColor = Color(0,0,0)
-        
-        params = [     
+
+        params = [
             # Graph options
             "--start", "-%d" % interval[1],
             "--vertical-label", "Degrees Fahrenheit",
             "--width", str(self.config['graphSize'][0]),
             "--height", str(self.config['graphSize'][1]),
-            
+
             # Data sources
             "DEF:temp_min=%s:temp:MIN" % self.rrdFile,
             "DEF:temp_max=%s:temp:MAX" % self.rrdFile,
@@ -171,7 +196,7 @@ class Therm:
                 tempMax = "INF"
 
             warmthAvg = (warmthMin + warmthMax)/2.0
-            color = Color(0.1, 0.2, 1).blend(Color(1, 0.5, 0.2), warmthAvg)
+            color = Color(0, 0, 1).hsvBlend(Color(1, 0.5, 0), warmthAvg)
 
             params.extend([
                 "CDEF:s%d=temp_average,%s,%s,LIMIT" % (sliceNum, tempMin, tempMax),
@@ -188,7 +213,7 @@ class Therm:
 
             # Min/max ranges for each therm
             "AREA:temp_min",
-            "STACK:temp_span%s" % lineColor.blend(Color(1,1,1), 0.7),    
+            "STACK:temp_span%s" % lineColor.blend(Color(1,1,1), 0.7),
 
             # Average line
             "LINE1:temp_average%s:%s" % (lineColor, self.description),
@@ -301,7 +326,7 @@ class ThermGrapher:
         for interval, fileName in pageMap.iteritems():
             tempFilePath = os.path.join(self.config['webDir'], "temp-" + fileName)
             filePath = os.path.join(self.config['webDir'], fileName)
-            
+
             f = open(os.path.join(self.config['webDir'], tempFilePath), "w")
             f.write("<html>\n")
             f.write('<meta HTTP-EQUIV="Refresh" CONTENT="%d">' % self.config['webRefreshPeriod'])
