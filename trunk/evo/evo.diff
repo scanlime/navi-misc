@@ -1,600 +1,16 @@
-? calendar/gui/.e-day-view-top-item.c.swp
-? calendar/gui/.e-day-view.c.swp
 ? calendar/gui/apps_evolution_calendar-2.2.schemas
+? calendar/gui/dialogs/.calendar-setup.c.swp
 ? help/C/evolution-2.2-C.omf
 ? help/C/evolution-2.2.xml
 ? mail/evolution-mail-2.2.schemas
-Index: calendar/gui/calendar-component.c
-===================================================================
-RCS file: /cvs/gnome/evolution/calendar/gui/calendar-component.c,v
-retrieving revision 1.183
-diff -u -r1.183 calendar-component.c
---- calendar/gui/calendar-component.c	23 Sep 2004 13:10:56 -0000	1.183
-+++ calendar/gui/calendar-component.c	29 Sep 2004 18:35:35 -0000
-@@ -736,11 +736,11 @@
- 	icalcomponent *tmp_icalcomp;
- 
- 	uid = (char *) icalcomponent_get_uid (icalcomp);
--	
-+
- 	if (e_cal_get_object (client, uid, NULL, &tmp_icalcomp, NULL))
- 		return e_cal_modify_object (client, icalcomp, CALOBJ_MOD_ALL, NULL);
- 
--	return e_cal_create_object (client, icalcomp, &uid, NULL);	
-+	return e_cal_create_object (client, icalcomp, &uid, NULL);
- }
- 
- static gboolean
-@@ -750,7 +750,7 @@
- 	icalcomponent_kind kind;
- 
- 	kind = icalcomponent_isa (icalcomp);
--	if (kind == ICAL_VTODO_COMPONENT || kind == ICAL_VEVENT_COMPONENT)
-+	if (kind == ICAL_VTODO_COMPONENT || kind == ICAL_VEVENT_COMPONENT || kind == ICAL_XWEATHER_COMPONENT)
- 		return update_single_object (client, icalcomp);
- 	else if (kind != ICAL_VCALENDAR_COMPONENT)
- 		return FALSE;
-@@ -771,7 +771,8 @@
- 			if (!success)
- 				return success;
- 		} else if (kind == ICAL_VTODO_COMPONENT ||
--			   kind == ICAL_VEVENT_COMPONENT) {
-+			   kind == ICAL_VEVENT_COMPONENT ||
-+			   kind == ICAL_XWEATHER_COMPONENT) {
- 			success = update_single_object (client, subcomp);
- 			if (!success)
- 				return success;
-Index: calendar/gui/e-cal-model.c
-===================================================================
-RCS file: /cvs/gnome/evolution/calendar/gui/e-cal-model.c,v
-retrieving revision 1.45
-diff -u -r1.45 e-cal-model.c
---- calendar/gui/e-cal-model.c	24 Sep 2004 13:54:21 -0000	1.45
-+++ calendar/gui/e-cal-model.c	29 Sep 2004 18:35:36 -0000
-@@ -1853,6 +1853,7 @@
- 	case ICAL_VEVENT_COMPONENT :
- 		comp = cal_comp_event_new_with_defaults (client);
- 		break;
-+	case ICAL_XWEATHER_COMPONENT :
- 	case ICAL_VTODO_COMPONENT :
- 		comp = cal_comp_task_new_with_defaults (client);
- 		break;
-Index: calendar/gui/e-calendar-view.h
-===================================================================
-RCS file: /cvs/gnome/evolution/calendar/gui/e-calendar-view.h,v
-retrieving revision 1.26
-diff -u -r1.26 e-calendar-view.h
---- calendar/gui/e-calendar-view.h	14 Jul 2004 02:20:55 -0000	1.26
-+++ calendar/gui/e-calendar-view.h	29 Sep 2004 18:35:37 -0000
-@@ -131,6 +131,8 @@
- 
- void           e_calendar_view_add_event (ECalendarView *cal_view, ECal *client, time_t dtstart, 
- 				     icaltimezone *default_zone, icalcomponent *icalcomp, gboolean in_top_canvas);
-+void           e_calendar_view_add_weather (ECalendarView *cal_view, ECal *client, time_t dtstart, 
-+				     icaltimezone *default_zone, icalcomponent *icalcomp, gboolean in_top_canvas);
- void           e_calendar_view_new_appointment_for (ECalendarView *cal_view,
- 						    time_t dtstart,
- 						    time_t dtend,
-Index: calendar/gui/e-day-view-top-item.c
-===================================================================
-RCS file: /cvs/gnome/evolution/calendar/gui/e-day-view-top-item.c,v
-retrieving revision 1.41
-diff -u -r1.41 e-day-view-top-item.c
---- calendar/gui/e-day-view-top-item.c	9 Jul 2004 16:29:44 -0000	1.41
-+++ calendar/gui/e-day-view-top-item.c	29 Sep 2004 18:35:37 -0000
-@@ -49,6 +49,13 @@
- 						 int		  y,
- 						 int		  width,
- 						 int		  height);
-+static void e_day_view_top_item_draw_weather_event (EDayViewTopItem *dvtitem,
-+						 gint		  event_num,
-+						 GdkDrawable	 *drawable,
-+						 int		  x,
-+						 int		  y,
-+						 int		  width,
-+						 int		  height);
- static void e_day_view_top_item_draw_long_event	(EDayViewTopItem *dvtitem,
- 						 gint		  event_num,
- 						 GdkDrawable	 *drawable,
-@@ -290,6 +297,14 @@
- 		}
- 	}
- 
-+	/* Draw the weather events. */
-+	for (event_num = 0; event_num < day_view->weather_events->len;
-+	     event_num++) {
-+		e_day_view_top_item_draw_weather_event (dvtitem, event_num,
-+		                                        drawable,
-+							x, y, width, height);
-+	}
-+
- 	/* Draw the long events. */
- 	for (event_num = 0; event_num < day_view->long_events->len;
- 	     event_num++) {
-@@ -299,6 +314,18 @@
- 	}
- }
- 
-+/* This draws a weather event in the top canvas. */
-+static void
-+e_day_view_top_item_draw_weather_event (EDayViewTopItem *dvtitem,
-+                                        gint             event_num,
-+					GdkDrawable     *drawable,
-+					int              x,
-+					int              y,
-+					int              width,
-+					int              height)
-+{
-+	g_print ("e_day_view_top_item_draw_weather_event ()\n");
-+}
- 
- /* This draws one event in the top canvas. */
- static void
-Index: calendar/gui/e-day-view.c
-===================================================================
-RCS file: /cvs/gnome/evolution/calendar/gui/e-day-view.c,v
-retrieving revision 1.252
-diff -u -r1.252 e-day-view.c
---- calendar/gui/e-day-view.c	2 Aug 2004 07:33:38 -0000	1.252
-+++ calendar/gui/e-day-view.c	29 Sep 2004 18:35:47 -0000
-@@ -221,6 +221,8 @@
- 						 GdkWindow *window,
- 						 gint *x_return,
- 						 gint *y_return);
-+static void e_day_view_update_weather_event_resize (EDayView *day_view,
-+                                                    gint day);
- static void e_day_view_update_long_event_resize (EDayView *day_view,
- 						 gint day);
- static void e_day_view_update_resize (EDayView *day_view,
-@@ -317,6 +319,9 @@
- static void e_day_view_update_long_event_label (EDayView *day_view,
- 						gint event_num);
- 
-+static void e_day_view_reshape_weather_events (EDayView *day_view);
-+static void e_day_view_reshape_weather_event (EDayView *day_view,
-+                                              gint event_num);
- static void e_day_view_reshape_long_events (EDayView *day_view);
- static void e_day_view_reshape_long_event (EDayView *day_view,
- 					   gint event_num);
-@@ -536,10 +541,13 @@
- 	   or computing a new layout. */
- 	if (e_day_view_find_event_from_uid (day_view, uid, &day, &event_num)) {
- 		ECalComponent *tmp_comp;
--		
-+
- 		if (day == E_DAY_VIEW_LONG_EVENT)
- 			event = &g_array_index (day_view->long_events,
- 						EDayViewEvent, event_num);
-+		else if (day == E_DAY_VIEW_WEATHER_EVENT)
-+			event = &g_array_index (day_view->weather_events,
-+						EDayViewEvent, event_num);
- 		else
- 			event = &g_array_index (day_view->events[day],
- 						EDayViewEvent, event_num);
-@@ -657,6 +665,9 @@
- 	if (day == E_DAY_VIEW_LONG_EVENT) {
- 		event = &g_array_index (day_view->long_events, EDayViewEvent,
- 					event_num);
-+	} else if (day == E_DAY_VIEW_WEATHER_EVENT) {
-+		event = &g_array_index (day_view->weather_events, EDayViewEvent,
-+					event_num);
- 	} else {
- 		event = &g_array_index (day_view->events[day], EDayViewEvent,
- 					event_num);
-@@ -741,6 +752,11 @@
- 	day_view->long_events_need_layout = FALSE;
- 	day_view->long_events_need_reshape = FALSE;
- 
-+	day_view->weather_events = g_array_new (FALSE, FALSE,
-+	                                        sizeof (EDayViewEvent));
-+	day_view->weather_events_sorted = TRUE;
-+	day_view->weather_events_need_layout = FALSE;
-+
- 	day_view->layout_timeout_id = 0;
- 
- 	for (day = 0; day < E_DAY_VIEW_MAX_DAYS; day++) {
-@@ -1129,7 +1145,12 @@
- 		g_array_free (day_view->long_events, TRUE);
- 		day_view->long_events = NULL;
- 	}
--	
-+
-+	if (day_view->weather_events) {
-+		g_array_free (day_view->weather_events, TRUE);
-+		day_view->weather_events = NULL;
-+	}
-+
- 	for (day = 0; day < E_DAY_VIEW_MAX_DAYS; day++) {
- 		if (day_view->events[day]) {
- 			g_array_free (day_view->events[day], TRUE);
-@@ -1670,6 +1691,9 @@
- 	if (day == E_DAY_VIEW_LONG_EVENT) {
- 		event = &g_array_index (day_view->long_events, EDayViewEvent,
- 					event_num);
-+	} else if (day == E_DAY_VIEW_WEATHER_EVENT) {
-+		event = &g_array_index (day_view->weather_events, EDayViewEvent,
-+					event_num);
- 	} else {
- 		event = &g_array_index (day_view->events[day], EDayViewEvent,
- 					event_num);
-@@ -1681,6 +1705,9 @@
- 	if (day == E_DAY_VIEW_LONG_EVENT) {
- 		e_day_view_update_long_event_label (day_view, event_num);
- 		e_day_view_reshape_long_event (day_view, event_num);
-+	} else if (day == E_DAY_VIEW_WEATHER_EVENT) {
-+		e_day_view_update_weather_event_label (day_view, event_num);
-+		e_day_view_reshape_weather_event (day_view, event_num);
- 	} else {
- 		e_day_view_update_event_label (day_view, day, event_num);
- 		e_day_view_reshape_day_event (day_view, day, event_num);
-@@ -1727,6 +1754,16 @@
- 				  data))
- 			return;
- 	}
-+
-+	for (event_num = day_view->weather_events->len - 1;
-+	     event_num >= 0;
-+	     event_num--) {
-+		event = &g_array_index (day_view->weather_events,
-+		                        EDayViewEvent, event_num);
-+		if (!(*callback) (day_view, E_DAY_VIEW_WEATHER_EVENT, event_num,
-+		                  data))
-+			return;
-+	}
- }
- 
- 
-@@ -1771,6 +1808,18 @@
- 				return;
- 		}
- 	}
-+
-+	for (event_num = day_view->weather_events->len - 1;
-+	     event_num >= 0;
-+	     event_num--) {
-+		event = &g_array_index (day_view->weather_events,
-+		                        EDayViewEvent, event_num);
-+		u = icalcomponent_get_uid (event->comp_data->icalcomp);
-+		if (u && !strcmp (uid, u)) {
-+			if (!(*callback) (day_view, E_DAY_VIEW_WEATHER_EVENT, event_num, data))
-+				return;
-+		}
-+	}
- }
- 
- 
-@@ -1790,6 +1839,9 @@
- 	if (day == E_DAY_VIEW_LONG_EVENT)
- 		event = &g_array_index (day_view->long_events,
- 					EDayViewEvent, event_num);
-+	else if (day == E_DAY_VIEW_WEATHER_EVENT)
-+		event = &g_array_index (day_view->weather_events,
-+		                        EDayViewEvent, event_num);
- 	else
- 		event = &g_array_index (day_view->events[day],
- 					EDayViewEvent, event_num);
-@@ -1808,6 +1860,9 @@
- 	if (day == E_DAY_VIEW_LONG_EVENT) {
- 		g_array_remove_index (day_view->long_events, event_num);
- 		day_view->long_events_need_layout = TRUE;
-+	} else if (day == E_DAY_VIEW_WEATHER_EVENT) {
-+		g_array_remove_index (day_view->weather_events, event_num);
-+		day_view->weather_events_need_layout = TRUE;
- 	} else {
- 		g_array_remove_index (day_view->events[day], event_num);
- 		day_view->need_layout[day] = TRUE;
-@@ -1972,6 +2027,17 @@
- 		}
- 	}
- 
-+	for (event_num = 0; event_num < day_view->weather_events->len;
-+	     event_num++) {
-+		event = &g_array_index (day_view->weather_events,
-+		                        EDayViewEvent, event_num);
-+		if (event->canvas_item == item) {
-+			*day_return = E_DAY_VIEW_WEATHER_EVENT;
-+			*event_num_return = event_num;
-+			return TRUE;
-+		}
-+	}
-+
- 	return FALSE;
- }
- 
-@@ -2024,6 +2090,18 @@
- 		}
- 	}
- 
-+	for (event_num = 0; event_num < day_view->weather_events->len;
-+	     event_num++) {
-+		event = &g_array_index (day_view->weather_events,
-+		                        EDayViewEvent, event_num);
-+		u = icalcomponent_get_uid (event->comp_data->icalcomp);
-+		if (u && !strcmp (uid, u)) {
-+			*day_return = E_DAY_VIEW_WEATHER_EVENT;
-+			*event_num_return = event_num;
-+			return TRUE;
-+		}
-+	}
-+
- 	return FALSE;
- }
- 
-@@ -2554,7 +2632,7 @@
- 					 gint		 event_num,
- 					 gpointer	 data)
- {
--	if (day != E_DAY_VIEW_LONG_EVENT) {
-+	if (day != E_DAY_VIEW_LONG_EVENT && day != E_DAY_VIEW_WEATHER_EVENT) {
- 		e_day_view_update_event_label (day_view, day, event_num);
- 	}
- 
-@@ -3312,6 +3390,7 @@
- 
- 	g_return_val_if_fail (E_IS_DAY_VIEW (day_view), NULL);
- 
-+	/* We can't have weather events selected */
- 	if (day_view->editing_event_num != -1) {
- 		if (day_view->editing_event_day == E_DAY_VIEW_LONG_EVENT)
- 			event = &g_array_index (day_view->long_events,
-@@ -4061,6 +4140,7 @@
- 
- 
- 	e_day_view_free_event_array (day_view, day_view->long_events);
-+	e_day_view_free_event_array (day_view, day_view->weather_events);
- 
- 	for (day = 0; day < E_DAY_VIEW_MAX_DAYS; day++)
- 		e_day_view_free_event_array (day_view, day_view->events[day]);
-@@ -4175,6 +4255,15 @@
- 		}
- 	}
- 
-+	if (icalcomponent_isa (event.comp_data->icalcomp) == ICAL_XWEATHER_COMPONENT)
-+	{
-+		g_array_append_val (add_event_data->day_view->weather_events, event);
-+		add_event_data->day_view->weather_events_sorted = FALSE;
-+		add_event_data->day_view->weather_events_need_layout = TRUE;
-+		return TRUE;
-+	}
-+
-+
- 	/* The event wasn't within one day so it must be a long event,
- 	   i.e. shown in the top canvas. */
- 	g_array_append_val (add_event_data->day_view->long_events, event);
-@@ -4236,6 +4325,12 @@
- 		}
- 	}
- 
-+	if (day_view->weather_events_need_layout
-+	    || day_view->weather_events_need_reshape)
-+		e_day_view_reshape_weather_events (day_view);
-+
-+	day_view->weather_events_need_layout = FALSE;
-+	day_view->weather_events_need_reshape = FALSE;
- 
- 	if (day_view->long_events_need_layout
- 	    || day_view->long_events_need_reshape)
-@@ -4247,6 +4342,118 @@
- 
- 
- static void
-+e_day_view_reshape_weather_events (EDayView *day_view)
-+{
-+	EDayViewEvent *event;
-+	gint event_num;
-+
-+	for (event_num = 0; event_num < day_view->weather_events->len;
-+	     event_num++) {
-+		event = &g_array_index (day_view->weather_events, EDayViewEvent,
-+		                        event_num);
-+		if (event->num_columns == 0) {
-+			if (event->canvas_item) {
-+				gtk_object_destroy (GTK_OBJECT (event->canvas_item));
-+				event->canvas_item = NULL;
-+			}
-+		} else {
-+			e_day_view_reshape_weather_event (day_view, event_num);
-+		}
-+	}
-+}
-+
-+static void
-+e_day_view_reshape_weather_event (EDayView *day_view,
-+                                  gint event_num)
-+{
-+	EDayViewEvent *event;
-+	gint start_day, end_day, item_x, item_y, item_w, item_h;
-+	gint icon_width, text_width, text_x, text_w, line_len;
-+	gchar *text, *end_of_line;
-+	ECalComponent *comp;
-+	PangoFontDescription *font_desc;
-+	PangoContext *pango_context;
-+	PangoLayout *layout;
-+
-+	event = &g_array_index (day_view->long_events, EDayViewEvent,
-+	                        event_num);
-+
-+	if (!e_day_view_get_weather_event_position (day_view, event_num,
-+	                                            &start_day, &end_day,
-+						    &item_x, &item_y,
-+						    &item_w, &item_h)) {
-+		if (event->canvas_item) {
-+			gtk_object_destroy (GTK_OBJECT (event->canvas_item));
-+			event->canvas_item = NULL;
-+		}
-+	}
-+
-+	comp = e_cal_component_new ();
-+	e_cal_component_set_icalcomponent (comp, icalcomponent_new_clone (event->comp_data->icalcomp));
-+
-+	/* Set up Pango prerequisites */
-+	font_desc = gtk_widget_get_style (GTK_WIDGET (day_view))->font_desc;
-+	pango_context = gtk_widget_get_pango_context (GTK_WIDGET (day_view));
-+	layout = pango_layout_new (pango_context);
-+
-+	/* FIXME: select icon based on summary field */
-+
-+	if (!event->canvas_item) {
-+		event->canvas_item =
-+			gnome_canvas_item_new (GNOME_CANVAS_GROUP (GNOME_CANVAS (day_view->top_canvas)->root),
-+					       e_text_get_type (),
-+					       "anchor", GTK_ANCHOR_NW,
-+					       "clip", TRUE,
-+					       "max_lines", 1,
-+					       "editable", TRUE,
-+					       "use_ellipsis", TRUE,
-+					       "draw_background", FALSE,
-+					       "fill_color_rgba", GNOME_CANVAS_COLOR (0, 0, 0),
-+					       "im_context", E_CANVAS (day_view->top_canvas)->im_context,
-+					       NULL);
-+		/* no need to hook up events */
-+		g_signal_emit_by_name (G_OBJECT (day_view), "event_added", event);
-+
-+		/* FIXME */
-+		//e_day_view_update_weather_event_label (day_view, event_num);
-+	}
-+
-+	/* Calculate its position. We first calculate the ideal position which
-+	 * is centered with the icon. We then make sure we haven't gone off
-+	 * the left edge of the available space. Finally, we make sure we don't
-+	 * go off the right edge. */
-+	icon_width = E_DAY_VIEW_ICON_WIDTH + E_DAY_VIEW_ICON_X_PAD +
-+	             E_DAY_VIEW_LONG_EVENT_ICON_R_PAD;
-+
-+	/* FIXME: test all lines of text */
-+	g_object_get (G_OBJECT (event->canvas_item), "text", &text, NULL);
-+	text_width = 0;
-+	if (text) {
-+		end_of_line = strchr (text, '\n');
-+		if (end_of_line)
-+			line_len = end_of_line - text;
-+		else
-+			line_len = strlen (text);
-+		pango_layout_set_text (layout, text, line_len);
-+		pango_layout_get_pixel_size (layout, &text_width, NULL);
-+		g_free (text);
-+	}
-+
-+	text_x = item_x + (item_w - (text_width + icon_width)) / 2;
-+
-+	text_w = item_x + item_w - text_x;
-+	text_w = MIN ((text_width + icon_width), text_w);
-+
-+	gnome_canvas_item_set (event->canvas_item,
-+	                       "clip_width", (gdouble) text_w,
-+			       "clip_height", (gdouble) item_h,
-+			       NULL);
-+	e_canvas_item_move_absolute (event->canvas_item,
-+	                             text_x, item_y);
-+	g_object_unref (layout);
-+}
-+
-+static void
- e_day_view_reshape_long_events (EDayView *day_view)
- {
- 	EDayViewEvent *event;
-@@ -4628,6 +4835,15 @@
- 		day_view->long_events_sorted = TRUE;
- 	}
- 
-+	/* Sort the weather events. */
-+	if (!day_view->weather_events_sorted) {
-+		qsort (day_view->weather_events->data,
-+		       day_view->weather_events->len,
-+		       sizeof (EDayViewEvent),
-+		       e_day_view_event_sort_func);
-+		day_view->weather_events_sorted = TRUE;
-+	}
-+
- 	/* Sort the events for each day. */
- 	for (day = 0; day < day_view->days_shown; day++) {
- 		if (!day_view->events_sorted[day]) {
-@@ -6365,6 +6581,19 @@
- 	return TRUE;
- }
- 
-+gboolean
-+e_day_view_get_weather_event_position   (EDayView       *day_view,
-+                                         gint            event_num,
-+					 gint           *start_day,
-+					 gint           *end_day,
-+					 gint           *item_x,
-+					 gint           *item_y,
-+					 gint           *item_w,
-+					 gint           *item_h)
-+{
-+	/* FIXME */
-+	return TRUE;
-+}
- 
- gboolean
- e_day_view_get_long_event_position	(EDayView	*day_view,
-Index: calendar/gui/e-day-view.h
-===================================================================
-RCS file: /cvs/gnome/evolution/calendar/gui/e-day-view.h,v
-retrieving revision 1.61
-diff -u -r1.61 e-day-view.h
---- calendar/gui/e-day-view.h	19 Apr 2004 15:19:32 -0000	1.61
-+++ calendar/gui/e-day-view.h	29 Sep 2004 18:35:48 -0000
-@@ -47,6 +47,9 @@
-    of a normal event. */
- #define E_DAY_VIEW_LONG_EVENT		E_DAY_VIEW_MAX_DAYS
- 
-+/* This is a special code signifying weather reports. */
-+#define E_DAY_VIEW_WEATHER_EVENT	E_DAY_VIEW_MAX_DAYS + 1
-+
- /* The maximum number of columns of appointments within a day. */
- #define E_DAY_VIEW_MAX_COLUMNS		6
- 
-@@ -227,21 +230,25 @@
- 
- 	/* An array of EDayViewEvent elements for the top view and each day. */
- 	GArray *long_events;
-+	GArray *weather_events;
- 	GArray *events[E_DAY_VIEW_MAX_DAYS];
- 
- 	/* These are set to FALSE whenever an event in the corresponding array
- 	   is changed. Any function that needs the events sorted calls
- 	   e_day_view_ensure_events_sorted(). */
- 	gboolean long_events_sorted;
-+	gboolean weather_events_sorted;
- 	gboolean events_sorted[E_DAY_VIEW_MAX_DAYS];
- 
- 	/* This is TRUE if we need to relayout the events before drawing. */
- 	gboolean long_events_need_layout;
-+	gboolean weather_events_need_layout;
- 	gboolean need_layout[E_DAY_VIEW_MAX_DAYS];
- 
- 	/* This is TRUE if we need to reshape the canvas items, but a full
- 	   layout is not necessary. */
- 	gboolean long_events_need_reshape;
-+	gboolean weather_events_need_reshape;
- 	gboolean need_reshape[E_DAY_VIEW_MAX_DAYS];
- 
- 	/* The ID of the timeout function for doing a new layout. */
-@@ -526,6 +533,14 @@
- gboolean   e_day_view_get_event_position	(EDayView	*day_view,
- 						 gint		 day,
- 						 gint		 event_num,
-+						 gint		*item_x,
-+						 gint		*item_y,
-+						 gint		*item_w,
-+						 gint		*item_h);
-+gboolean  e_day_view_get_weather_event_position (EDayView       *day_view,
-+                                                 gint            event_num,
-+						 gint           *start_day,
-+						 gint		*end_day,
- 						 gint		*item_x,
- 						 gint		*item_y,
- 						 gint		*item_w,
 Index: calendar/gui/migration.c
 ===================================================================
 RCS file: /cvs/gnome/evolution/calendar/gui/migration.c,v
-retrieving revision 1.30
-diff -u -r1.30 migration.c
---- calendar/gui/migration.c	22 Jul 2004 03:02:08 -0000	1.30
-+++ calendar/gui/migration.c	29 Sep 2004 18:35:49 -0000
-@@ -365,6 +365,7 @@
+retrieving revision 1.31
+diff -u -r1.31 migration.c
+--- calendar/gui/migration.c	28 Sep 2004 15:57:33 -0000	1.31
++++ calendar/gui/migration.c	30 Sep 2004 11:02:07 -0000
+@@ -366,6 +366,7 @@
  #define WEBCAL_BASE_URI "webcal://"
  #define CONTACTS_BASE_URI "contacts://"
  #define BAD_CONTACTS_BASE_URI "contact://"
@@ -602,7 +18,7 @@ diff -u -r1.30 migration.c
  #define PERSONAL_RELATIVE_URI "system"
  
  static ESourceGroup *
-@@ -392,7 +393,8 @@
+@@ -394,7 +395,8 @@
  			 ESourceGroup **on_this_computer,
  			 ESource **personal_source,
  			 ESourceGroup **on_the_web,
@@ -612,15 +28,7 @@ diff -u -r1.30 migration.c
  {
  	GSList *groups;
  	ESourceGroup *group;
-@@ -401,6 +403,7 @@
- 	*on_this_computer = NULL;
- 	*on_the_web = NULL;
- 	*contacts = NULL;
-+	*weather = NULL;
- 	*personal_source = NULL;
- 
- 	base_uri = g_build_filename (calendar_component_peek_base_directory (component),
-@@ -474,7 +477,14 @@
+@@ -487,7 +489,14 @@
  
  		*contacts = group;
  	}
@@ -636,27 +44,7 @@ diff -u -r1.30 migration.c
  	g_free (base_uri_proto);
  	g_free (base_uri);
  }
-@@ -659,30 +669,30 @@
- 				unlink (filename);
- 			xmlhash = e_xmlhash_new (filename);
- 			g_free (filename);
--			
-+
- 			e_dbhash_foreach_key (dbhash, migrate_pilot_db_key, xmlhash);
--			
-+
- 			e_dbhash_destroy (dbhash);
--			
-+
- 			e_xmlhash_write (xmlhash);
- 			e_xmlhash_destroy (xmlhash);
- 		}
- 	}
--	
-+
- 	closedir (dir);
- }
- 
+@@ -699,14 +708,14 @@
  gboolean
  migrate_calendars (CalendarComponent *component, int major, int minor, int revision, GError **err)
  {
@@ -673,139 +61,45 @@ diff -u -r1.30 migration.c
  
  	if (major == 1) {
  		xmlDocPtr config_doc = NULL;
-@@ -693,18 +703,18 @@
- 		if (lstat (conf_file, &st) == 0 && S_ISREG (st.st_mode)) 
- 			config_doc = xmlParseFile (conf_file);
- 		g_free (conf_file);
--		
-+
- 		if (config_doc && minor <= 2) {
- 			GConfClient *gconf;	
- 			int res = 0;
--			
-+
- 			/* move bonobo config to gconf */
- 			gconf = gconf_client_get_default ();
--			
-+
- 			res = e_bconf_import (gconf, config_doc, calendar_remap_list);
--			
-+
- 			g_object_unref (gconf);
--			
-+
- 			xmlFreeDoc(config_doc);
+@@ -842,6 +851,8 @@
+ 		g_object_unref (on_the_web);
+ 	if (contacts)
+ 		g_object_unref (contacts);
++	if (weather)
++		g_object_unref (weather);
+ 	if (personal_source)
+ 		g_object_unref (personal_source);
  
- 			if (res != 0) {
 Index: calendar/gui/dialogs/calendar-setup.c
 ===================================================================
 RCS file: /cvs/gnome/evolution/calendar/gui/dialogs/calendar-setup.c,v
 retrieving revision 1.29
 diff -u -r1.29 calendar-setup.c
 --- calendar/gui/dialogs/calendar-setup.c	30 Jul 2004 07:37:02 -0000	1.29
-+++ calendar/gui/dialogs/calendar-setup.c	29 Sep 2004 18:35:51 -0000
-@@ -122,7 +122,7 @@
- {
- 	EUri     *uri;
- 	gboolean  is_remote = FALSE;
--	
-+
- 	if (!group)
++++ calendar/gui/dialogs/calendar-setup.c	30 Sep 2004 11:02:07 -0000
+@@ -187,12 +187,13 @@
+ 	 * silently translate an explicit file:// into http:// though. */
+ 	if (uri->protocol &&
+ 	    strcmp (uri->protocol, "http") &&
+-	    strcmp (uri->protocol, "webcal")) {
++	    strcmp (uri->protocol, "webcal") &&
++	    strcmp (uri->protocol, "weather")) {
+ 		e_uri_free (uri);
+ 
+ 		if (interactive)
+ 			e_notice (parent, GTK_MESSAGE_ERROR,
+-				  _("The source location '%s' is not a webcal source."),
++				  _("The source location '%s' is not a weather or webcal source."),
+ 				  source_location);
  		return FALSE;
- 
-@@ -138,6 +138,26 @@
- }
- 
- static gboolean
-+source_group_is_weather (ESourceGroup *group)
-+{
-+	EUri	*uri;
-+	gboolean is_weather = FALSE;
-+
-+	if (!group)
-+		return FALSE;
-+
-+	uri = e_uri_new (e_source_group_peek_base_uri (group));
-+	if (!uri)
-+		return FALSE;
-+
-+	if (uri->protocol && uri->protocol[0] && !strcmp (uri->protocol, "weather"))
-+		is_weather = TRUE;
-+
-+	e_uri_free (uri);
-+	return is_weather;
-+}
-+
-+static gboolean
- source_is_remote (ESource *source)
- {
- 	gchar    *uri_str;
-@@ -277,7 +297,19 @@
- 		return NULL;
  	}
- 
--	if (source_group_is_remote (group)) {
-+	if (source_group_is_weather (group)) {
-+		EUri  *uri;
-+		gchar *relative_uri;
-+
-+		uri = e_uri_new (source_location);
-+		relative_uri = print_uri_noproto (uri);
-+		e_uri_free (uri);
-+
-+		/* Create source */
-+		source = e_source_new (source_name, relative_uri);
-+
-+		g_free (relative_uri);
-+	} else if (source_group_is_remote (group)) {
- 		EUri  *uri;
- 		gchar *relative_uri;
- 
-@@ -358,7 +390,9 @@
- 
- 	sensitive = sensitive && (source_dialog->source_group != NULL);
- 
--	if (source_group_is_remote (source_dialog->source_group) && source_group_is_mutable (source_dialog->source_group)) {
-+	if ((!source_group_is_weather (source_dialog->source_group)) &&
-+	    source_group_is_remote (source_dialog->source_group) &&
-+	    source_group_is_mutable (source_dialog->source_group)) {
- 		sensitive = sensitive && remote_page_verify (source_dialog);
- 	}
- 
-@@ -641,13 +675,20 @@
- static void
- new_calendar_add (SourceDialog *source_dialog)
- {
--	source_dialog->source =
--		create_new_source_with_group (GTK_WINDOW (source_dialog->window), source_dialog->source_group, 
--					      gtk_entry_get_text (GTK_ENTRY (source_dialog->name_entry)),
--					      gtk_entry_get_text (GTK_ENTRY (source_dialog->uri_entry)),
--					      E_CAL_SOURCE_TYPE_EVENT);
-+	if (source_group_is_weather (source_dialog->source_group))
-+		source_dialog->source =	create_new_source_with_group (
-+		    				GTK_WINDOW (source_dialog->window), source_dialog->source_group,
-+						gtk_entry_get_text (GTK_ENTRY (source_dialog->name_entry)),
-+						gtk_entry_get_text (GTK_ENTRY (source_dialog->uri_entry)),
-+						E_CAL_SOURCE_TYPE_WEATHER);
-+	else
-+		source_dialog->source =	create_new_source_with_group (
-+		    				GTK_WINDOW (source_dialog->window), source_dialog->source_group,
-+						gtk_entry_get_text (GTK_ENTRY (source_dialog->name_entry)),
-+						gtk_entry_get_text (GTK_ENTRY (source_dialog->uri_entry)),
-+						E_CAL_SOURCE_TYPE_EVENT);
- 	dialog_to_source (source_dialog);
--	
-+
- 	gtk_widget_destroy (source_dialog->window);
- }
- 
 Index: mail/em-filter-i18n.h
 ===================================================================
 RCS file: /cvs/gnome/evolution/mail/em-filter-i18n.h,v
 retrieving revision 1.1
 diff -u -r1.1 em-filter-i18n.h
 --- mail/em-filter-i18n.h	17 Jun 2004 07:34:49 -0000	1.1
-+++ mail/em-filter-i18n.h	29 Sep 2004 18:36:02 -0000
++++ mail/em-filter-i18n.h	30 Sep 2004 11:02:09 -0000
 @@ -4,36 +4,19 @@
  char *s = N_("Assign Score");
  char *s = N_("Attachments");
