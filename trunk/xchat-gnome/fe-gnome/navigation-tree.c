@@ -1,5 +1,5 @@
 /*
- * navtree.c - functions to create and maintain the navigation tree
+ * navigation-tree.c - functions to create and maintain the navigation tree
  *
  * Copyright (C) 2004-2005 xchat-gnome team
  *
@@ -20,14 +20,14 @@
  */
 
 #include <gconf/gconf-client.h>
-#include "navigation_tree.h"
-#include "userlist_gui.h"
+#include "navigation-tree.h"
+#include "userlist-gui.h"
 #include "userlist.h"
 #include "textgui.h"
 #include "pixmaps.h"
 #include "palette.h"
-#include "channel_list.h"
-#include "main_window.h"
+#include "channel-list.h"
+#include "main-window.h"
 #include "util.h"
 #include "../common/fe.h"
 #include "../common/servlist.h"

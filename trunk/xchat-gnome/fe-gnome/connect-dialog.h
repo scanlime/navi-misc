@@ -1,5 +1,5 @@
 /*
- * preferences_servers_page.h - helpers for the servers preferences page
+ * connect-dialog.h - utilities for displaying the connect dialog
  *
  * Copyright (C) 2004-2005 xchat-gnome team
  *
@@ -19,12 +19,13 @@
  *
  */
 
+
 #include "gui.h"
 
-#ifndef XCHAT_GNOME_PREFERENCES_SERVERS_PAGE_H
-#define XCHAT_GNOME_PREFERENCES_SERVERS_PAGE_H
+#ifndef XCHAT_GNOME_CONNECT_DIALOG_H
+#define XCHAT_GNOME_CONNECT_DIALOG_H
 
-void initialize_preferences_servers_page ();
-void preferences_servers_page_populate ();
+void initialize_connection_dialog ();
+void display_connection_dialog ();
 
 #endif

@@ -1,5 +1,5 @@
 /*
- * connect_dialog.c - utilities for displaying the connect dialog
+ * connect-dialog.c - utilities for displaying the connect dialog
  *
  * Copyright (C) 2004-2005 xchat-gnome team
  *
@@ -19,7 +19,7 @@
  *
  */
 
-#include "connect_dialog.h"
+#include "connect-dialog.h"
 #include "../common/xchat.h"
 #include "../common/servlist.h"
 

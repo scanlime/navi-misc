@@ -1,5 +1,5 @@
 /*
- * setup_dialog.c - Initial setup dialog for first-time users
+ * setup-dialog.c - Initial setup dialog for first-time users
  *
  * Copyright (C) 2004-2005 xchat-gnome team
  *
@@ -24,7 +24,7 @@
 #include <gtk/gtk.h>
 #include <string.h>
 #include <config.h>
-#include "setup_dialog.h"
+#include "setup-dialog.h"
 
 static GladeXML *xml = NULL;
 static gboolean done;

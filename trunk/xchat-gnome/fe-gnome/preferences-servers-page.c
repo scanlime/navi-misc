@@ -1,5 +1,5 @@
 /*
- * preferences_servers_page.c - helpers for the servers preferences page
+ * preferences-servers-page.c - helpers for the servers preferences page
  *
  * Copyright (C) 2004-2005 xchat-gnome team
  *
@@ -20,7 +20,7 @@
  */
 
 #include <gconf/gconf-client.h>
-#include "preferences_servers_page.h"
+#include "preferences-servers-page.h"
 #include "preferences.h"
 #include "irc-network.h"
 #include "irc-network-editor.h"

@@ -24,7 +24,7 @@
 #include "../fe-gtk/xtext.h"
 #include "../common/xchat.h"
 #include "userlist.h"
-#include "navigation_tree.h"
+#include "navigation-tree.h"
 
 #include <gtk/gtkactiongroup.h>
 #include <gtk/gtkuimanager.h>

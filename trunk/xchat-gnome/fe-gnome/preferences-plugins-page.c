@@ -1,5 +1,5 @@
 /*
- * preferences_plugins_page.h - helpers for the plugins preferences page
+ * preferences-plugins-page.h - helpers for the plugins preferences page
  *
  * Copyright (C) 2004-2005 xchat-gnome team
  *
@@ -21,7 +21,7 @@
 
 #include <gconf/gconf-client.h>
 
-#include "preferences_plugins_page.h"
+#include "preferences-plugins-page.h"
 #include "../common/xchat.h"
 #define PLUGIN_C
 typedef struct session xchat_context;

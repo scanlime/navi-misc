@@ -20,13 +20,12 @@
  */
 
 #include "gui.h"
-#include "main_window.h"
-#include "preferences_dialog.h"
-#include "connect_dialog.h"
-#include "navigation_tree.h"
+#include "main-window.h"
+#include "preferences-dialog.h"
+#include "connect-dialog.h"
 #include "about.h"
 #include "textgui.h"
-#include "userlist_gui.h"
+#include "userlist-gui.h"
 #include "pixmaps.h"
 #include "transfers.h"
 #include "../common/text.h"

@@ -1,5 +1,5 @@
 /*
- * main_window.c - main GUI window functions
+ * main-window.c - main GUI window functions
  *
  * Copyright (C) 2004-2005 xchat-gnome team
  *
@@ -21,16 +21,16 @@
 
 #include <libgnome/libgnome.h>
 #include <gconf/gconf-client.h>
-#include "main_window.h"
-#include "connect_dialog.h"
+#include "main-window.h"
+#include "connect-dialog.h"
 #include "about.h"
-#include "userlist_gui.h"
+#include "userlist-gui.h"
 #include "../common/xchatc.h"
 #include "../common/outbound.h"
 #include "gui.h"
-#include "channel_list.h"
+#include "channel-list.h"
 #include "preferences.h"
-#include "navigation_tree.h"
+#include "navigation-tree.h"
 #include "textgui.h"
 #include "palette.h"
 #include "transfers.h"

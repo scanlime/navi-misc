@@ -1,5 +1,5 @@
 /*
- * channel_list.h - channel list
+ * preferences-irc-page.h - helpers for the irc preferences page
  *
  * Copyright (C) 2004-2005 xchat-gnome team
  *
@@ -19,23 +19,11 @@
  *
  */
 
-#include "../common/xchat.h"
-#include <glade/glade.h>
+#include "gui.h"
 
-#ifndef XCHAT_GNOME_CHANNEL_LIST_H
-#define XCHAT_GNOME_CHANNEL_LIST_H
+#ifndef XCHAT_GNOME_PREFERENCES_IRC_PAGE_H
+#define XCHAT_GNOME_PREFERENCES_IRC_PAGE_H
 
-typedef struct
-{
-	GtkListStore *store;
-	GtkTreeModelSort *sort;
-	GladeXML *xml;
-	struct server *server;
-} channel_list_window;
-
-gboolean channel_list_exists (server *serv);
-void create_channel_list (session *sess);
-void channel_list_append (server *serv, char *channel, char *users, char *topic);
-void repopulate_channel_list (channel_list_window *win);
+void initialize_preferences_irc_page ();
 
 #endif

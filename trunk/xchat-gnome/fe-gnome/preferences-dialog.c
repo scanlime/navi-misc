@@ -1,5 +1,5 @@
 /*
- * preferences_dialog.c - helpers for the preference dialog
+ * preferences-dialog.c - helpers for the preference dialog
  *
  * Copyright (C) 2004-2005 xchat-gnome team
  *
@@ -19,12 +19,12 @@
  *
  */
 
-#include "preferences_dialog.h"
-#include "preferences_irc_page.h"
-#include "preferences_servers_page.h"
-#include "preferences_colors_page.h"
-#include "preferences_keybindings_page.h"
-#include "preferences_plugins_page.h"
+#include "preferences-dialog.h"
+#include "preferences-irc-page.h"
+#include "preferences-servers-page.h"
+#include "preferences-colors-page.h"
+#include "preferences-keybindings-page.h"
+#include "preferences-plugins-page.h"
 #include "pixmaps.h"
 
 void initialize_pages_list ();

@@ -1,5 +1,5 @@
 /*
- * connect_dialog.h - utilities for displaying the connect dialog
+ * main-window.h - main GUI window functions
  *
  * Copyright (C) 2004-2005 xchat-gnome team
  *
@@ -19,13 +19,14 @@
  *
  */
 
-
 #include "gui.h"
 
-#ifndef XCHAT_GNOME_CONNECT_DIALOG_H
-#define XCHAT_GNOME_CONNECT_DIALOG_H
+#ifndef XCHAT_GNOME_MAIN_WINDOW_H
+#define XCHAT_GNOME_MAIN_WINDOW_H
 
-void initialize_connection_dialog ();
-void display_connection_dialog ();
+void initialize_main_window ();
+void run_main_window ();
+void rename_main_window (gchar *server, gchar *channel);
+void set_statusbar ();
 
 #endif

@@ -1,5 +1,5 @@
 /*
- * setup_dialog.h - Initial setup dialog for first-time users
+ * preferences-colors-page.h - helpers for the colors preferences page
  *
  * Copyright (C) 2004-2005 xchat-gnome team
  *
@@ -19,9 +19,11 @@
  *
  */
 
-#ifndef XCHAT_GNOME_SETUP_DIALOG_H
-#define XCHAT_GNOME_SETUP_DIALOG_H
+#include "gui.h"
 
-void run_setup_dialog ();
+#ifndef XCHAT_GNOME_PREFERENCES_COLORS_PAGE_H
+#define XCHAT_GNOME_PREFERENCES_COLORS_PAGE_H
+
+void initialize_preferences_colors_page ();
 
 #endif
