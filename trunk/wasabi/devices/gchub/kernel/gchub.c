@@ -81,6 +81,30 @@
 #define EFFECT_CHECK_OWNERSHIP(id, ctl) (test_bit(EFFECT_USED, (ctl)->ff_effects[id].flags) \
                                         && CHECK_OWNERSHIP((ctl)->ff_effects[id]))
 
+/* Compatibility with Linux 2.4's task queues. Makes them look just like 2.6 work queues */
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(2,5,44))
+#define work_struct tq_struct
+#define schedule_work(q) \
+        MOD_INC_USE_COUNT; \
+        if (schedule_task((q)) == 0) \
+                MOD_DEC_USE_COUNT;
+static inline void flush_scheduled_work(void)
+{
+        flush_scheduled_tasks();
+}
+static inline void INIT_WORK(struct tq_struct *tq,
+                             void (*routine)(void *), void *data)
+{
+        INIT_LIST_HEAD(&tq->list);
+        tq->sync = 0;
+        tq->routine = routine;
+        tq->data = data;
+}
+#define FINISH_WORK MOD_DEC_USE_COUNT
+#else
+#define FINISH_WORK
+#endif
+
 struct gchub_controller_status {
 	int buttons;
 	int joystick[2];
@@ -466,7 +490,10 @@ static void controller_report_status(struct gchub_controller* ctl,
 	input_report_abs(&ctl->dev, ABS_HAT0Y, buttons_to_axis(status->buttons,
 							       GCHUB_BUTTON_DPAD_UP,
 							       GCHUB_BUTTON_DPAD_DOWN));
+
+#ifdef EV_SYN  	/* Linux 2.4's input system didn't sync :( */
 	input_sync(&ctl->dev);
+#endif
 }
 
 static void controller_attach(void *data)
@@ -483,6 +510,8 @@ static void controller_attach(void *data)
 	controller_set_led(ctl, LED_GREEN);
 	controller_set_rumble(ctl, 0);
 	gchub_sync_output_status(ctl->hub);
+
+	FINISH_WORK;
 }
 
 static void controller_detach(void *data)
@@ -502,6 +531,8 @@ static void controller_detach(void *data)
 	controller_set_rumble(ctl, 0);
 	controller_set_led(ctl, LED_OFF);
 	gchub_sync_output_status(ctl->hub);
+
+	FINISH_WORK;
 }
 
 static void controller_set_rumble(struct gchub_controller* ctl,
