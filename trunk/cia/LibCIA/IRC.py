@@ -416,8 +416,10 @@ class FormattingCode(object):
         "dark green"  : "\x0303",
         "green"       : "\x0303",
         "red"         : "\x0304",
-        "brown"       : "\x0305",
+        "light red"   : "\x0304",
+        "dark red"    : "\x0305",
         "purple"      : "\x0306",
+        "brown"       : "\x0307",  # On some clients this is orange, others it is brown
         "orange"      : "\x0307",
         "yellow"      : "\x0308",
         "light green" : "\x0309",
