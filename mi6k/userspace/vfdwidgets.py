@@ -308,10 +308,10 @@ class LayoutLine:
            if we succeed or False if this line is full.
            """
         self.totalMinWidth += min(widget.minWidth, self.maxWidth)
-        if self.totalMinWidth + len(self.widgets) > self.maxWidth:
-            return False
         self.widgets.append(widget)
         self.height = max(self.height, widget.height)
+        if self.totalMinWidth + len(self.widgets) - 1 > self.maxWidth:
+            return False
         return True
 
     def layout(self, widgetRects):
@@ -465,43 +465,18 @@ class Surface(object):
            Normally this doesn't need to be called directly, since
            draw() will layout first if the layoutRequired flag is set.
            """
-        # We always remove widgets in priority order, but we can place
-        # them in any order since they get sorted again later.
-        toRemove = list(self.widgets)
-        toRemove.sort(lambda a,b: cmp(a.priority, b.priority))
         toPlace = [widget for widget in self.widgets if widget.visible]
-
-        # Attempt the layout, removing a widget each time it fails
-        while True:
-            result = self.layoutIteration(toPlace)
-            if result is True:
-                return
-            elif result is False:
-                # Vertical failure, remove the lowest priority widget no matter what
-                try:
-                    toPlace.remove(toRemove[0])
-                except ValueError:
-                    pass
-                del toRemove[0]
-            else:
-                # Horizontal failure, remove one of the suggested widgets, starting
-                # with the lowest priorities
-                for w in toRemove:
-                    if w in result:
-                        toPlace.remove(w)
-                        toRemove.remove(w)
-                        break
-
+        while not self.layoutIteration(toPlace):
+            pass
         self.layoutRequired = False
 
     def layoutIteration(self, widgets):
         """Attempt to lay out all given widgets. Returns True on success.
-           If we have a horizontal placement error this returns a list of
-           widgets we should try to remove. If we have a vertical placement
-           error, returns False.
+           On failure it tries to correct the problem then returns False.
            """
         # Divide all widgets into layout lines according to their Y gravity
         layoutLines = {}
+        failedLines = {}
         for widget in widgets:
             try:
                 line = layoutLines[widget.gravity[1]]
@@ -509,15 +484,32 @@ class Surface(object):
                 line = LayoutLine(self.width, widget.gravity[1])
                 layoutLines[widget.gravity[1]] = line
             if not line.add(widget):
-                # For now we'll consider all widgets on this line
-                # as possible candidates for removal
-                return widgets
+                failedLines[line] = True
+
+        # If any horizontal lines failed, remove the lowest priority widget
+        # from each of them and return with a failure.
+        if failedLines:
+            for line in failedLines.iterkeys():
+                line.widgets.sort(lambda a,b: cmp(a.priority, b.priority))
+                widgets.remove(line.widgets[0])
+            return False
 
         # See if we ran out of vertical space
         totalHeight = 0
         for line in layoutLines.itervalues():
             totalHeight += line.height
         if totalHeight > self.height:
+            # Yep, vertical placement error. Add up the priorities of every layout line,
+            # then remove all widgets from the lowest priority line.
+            lineprios = []
+            for line in layoutLines.itervalues():
+                total = 0
+                for widget in line.widgets:
+                    total += widget.priority
+                lineprios.append((total, line))
+            lineprios.sort()
+            for widget in lineprios[0][1].widgets:
+                widgets.remove(widget)
             return False
 
         # Sort the layout lines, and assign each a rectangle
