@@ -19,8 +19,10 @@
 #define	YELLOW_LED	PORTC, 1
 #define RED_LEDS	PORTD
 
-#define	SCL		TRISC, 6 ; The I2C lines are used as open-collector outputs
-#define	SDA		TRISC, 7
+#define	SCL_TRIS	TRISC, 6 ; The I2C lines are used as open-collector outputs
+#define	SDA_TRIS	TRISC, 7
+#define SCL_PORT	PORTC, 6
+#define SDA_PORT	PORTC, 7
 
 #define U2_ADDRESS	0x68	; I2C address of video switch U2
 #define U3_ADDRESS	0x6A	; I2C address of video switch U3
@@ -122,10 +124,48 @@ i2c_Delay
 	nop
 	return
 
+sdaHigh	macro
+	pagesel	i2c_Delay
+	call	i2c_Delay
+	banksel	TRISA
+	bsf		SDA_TRIS
+	call	i2c_Delay
+	endm
+
+sdaLow	macro
+	pagesel	i2c_Delay
+	call	i2c_Delay
+	banksel	PORTA
+	bcf		SDA_PORT
+	banksel	TRISA
+	bcf		SDA_TRIS
+	call	i2c_Delay
+	endm
+
+sclHigh	macro
+	pagesel	i2c_Delay
+	call	i2c_Delay
+	banksel	TRISA
+	bsf		SCL_TRIS
+	call	i2c_Delay
+	endm
+
+sclLow	macro
+	pagesel	i2c_Delay
+	call	i2c_Delay
+	banksel	PORTA
+	bcf		SCL_PORT
+	banksel	TRISA
+	bcf		SCL_TRIS
+	call	i2c_Delay
+	endm
+
+
 	;; Clock out a byte, in w, and the corresponding acknowledge bit
 i2c_Byte
 	banksel	i2c_byte
 	movwf	i2c_byte
+
 	movlw	8
 	banksel i2c_iterator
 	movwf	i2c_iterator	; Loop over all bits
@@ -135,57 +175,31 @@ bitLoop
 	pagesel	bitSet
 	btfsc	STATUS, C	; Transfer the bit from C to SDA
 	goto	bitSet
-	banksel	TRISC
-	bcf	SDA
+	sdaLow
 	pagesel	bitClear
 	goto	bitClear
 bitSet
-	banksel	TRISC
-	bsf	SDA
+	sdaHigh
 bitClear
 
-	pagesel i2c_Delay
-	call	i2c_Delay
-	banksel	TRISC
-	bsf	SCL		; Clock out this bit
-	pagesel i2c_Delay
-	call	i2c_Delay
-	banksel	TRISC
-	bcf	SCL
+	sclHigh					; Clock out this bit
+	sclLow
 
 	banksel	i2c_iterator
 	decfsz	i2c_iterator, f	; Next bit...
 	goto	bitLoop
 
-	pagesel i2c_Delay
-	call	i2c_Delay
-	banksel	TRISC
-	bsf	SDA		; Let the device send an acknowledge bit, but ignore it
-	pagesel i2c_Delay
-	call	i2c_Delay
-	banksel	TRISC
-	bsf	SCL
-	pagesel i2c_Delay
-	call	i2c_Delay
-	banksel	TRISC
-	bcf	SCL
-	pagesel i2c_Delay
-	call	i2c_Delay
+	sdaHigh					; Let the device send an acknowledge bit, but ignore it
+	sclHigh
+	sclLow
 	return
 
 
 	;; Send a word-long I2C packet
 i2c_Send
-	banksel	TRISC
-	bsf	SCL		; Start condition
-	pagesel i2c_Delay
-	call	i2c_Delay
-	banksel	TRISC
-	bcf	SDA
-	pagesel i2c_Delay
-	call	i2c_Delay
-	banksel	TRISC
-	bcf	SCL
+	sclHigh		; Start condition
+	sdaLow
+	sclLow
 
 	banksel	i2c_address
 	pagesel	i2c_Byte
@@ -207,14 +221,8 @@ i2c_Send
 	movf	i2c_low, w
 	call	i2c_Byte
 
-	pagesel i2c_Delay
-	call	i2c_Delay
-	banksel	TRISC
-	bsf	SCL		; Stop condition
-	pagesel i2c_Delay
-	call	i2c_Delay
-	banksel	TRISC
-	bsf	SDA
+	sclHigh		; Stop condition
+	sdaHigh
 	return
 
 
