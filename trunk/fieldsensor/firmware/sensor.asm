@@ -69,9 +69,10 @@ sensor_sampler
 	incf	FSR, f
 
 	movf	INDF, w			; 2. EFS_PARAM_ADCON_INIT
-	banksel	ADCON1
-	movwf	ADCON1
+	banksel	ADCON0
+	movwf	ADCON0
 	incf	FSR, f
+	bsf		ADCON0, ADON	; (Make sure the ADC is at least turned on)
 
 	movf	INDF, w			; 3. EFS_PARAM_PERIOD
 	banksel	period
@@ -147,6 +148,7 @@ page_4 code
 	
 	; Start the ADC and wait for it to finish conversion
 	bsf		ADCON0, GO
+	pagesel	adFinishLoop
 adFinishLoop
 	btfsc	ADCON0, NOT_DONE
 	goto	adFinishLoop
