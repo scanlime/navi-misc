@@ -1,0 +1,38 @@
+Index: src/fe-gtk/xtext.h
+===================================================================
+RCS file: /cvsroot/xchat/xchat2/src/fe-gtk/xtext.h,v
+retrieving revision 1.20
+diff -u -r1.20 xtext.h
+--- src/fe-gtk/xtext.h	23 Nov 2003 14:08:51 -0000	1.20
++++ src/fe-gtk/xtext.h	15 Feb 2004 02:21:36 -0000
+@@ -231,5 +231,6 @@
+ xtext_buffer *gtk_xtext_buffer_new (GtkXText *xtext);
+ void gtk_xtext_buffer_free (xtext_buffer *buf);
+ void gtk_xtext_buffer_show (GtkXText *xtext, xtext_buffer *buf, int render);
++GtkType gtk_xtext_get_type (void);
+ 
+ #endif
+Index: src/fe-gtk/xtext.c
+===================================================================
+RCS file: /cvsroot/xchat/xchat2/src/fe-gtk/xtext.c,v
+retrieving revision 1.90
+diff -u -r1.90 xtext.c
+--- src/fe-gtk/xtext.c	21 Dec 2003 09:57:31 -0000	1.90
++++ src/fe-gtk/xtext.c	15 Feb 2004 02:21:38 -0000
+@@ -141,7 +141,6 @@
+ static unsigned char *
+ gtk_xtext_strip_color (unsigned char *text, int len, unsigned char *outbuf,
+ 							  int *newlen, int *mb_ret);
+-static GtkType gtk_xtext_get_type (void);
+ 
+ /* some utility functions first */
+ 
+@@ -2234,7 +2233,7 @@
+ 	xtext_class->word_click = NULL;
+ }
+ 
+-static GtkType
++GtkType
+ gtk_xtext_get_type (void)
+ {
+ 	static GtkType xtext_type = 0;
