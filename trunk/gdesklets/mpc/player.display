@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <!-- Built from the side candy template. -->
 <display id="win" anchor="ne"
 		 window-flags="sticky, below">
@@ -15,10 +16,10 @@
 	<frame id="border">
 
 		<group id="slider"
-		 on-click="if (sc_behavior == 'click'): slide(self, SC_IN, SC_OUT)"
-		 on-doubleclick="if (sc_behavior == 'double'): slide(self, SC_IN, SC_OUT)"
-		 on-enter="if (sc_behavior == 'enter'): slide(self, SC_IN, SC_OUT)"
-		 on-leave="if (sc_behavior == 'enter'): slide(self, SC_IN, SC_OUT)">
+		 	on-click="if (sc_behavior == 'click'): slide(self, SC_IN, SC_OUT)"
+		 	on-doubleclick="if (sc_behavior == 'double'): slide(self, SC_IN, SC_OUT)"
+		 	on-enter="if (sc_behavior == 'enter'): slide(self, SC_IN, SC_OUT)"
+		 	on-leave="if (sc_behavior == 'enter'): slide(self, SC_IN, SC_OUT)">
 
 			<group id="panel" width="5cm" height="2cm">
 
@@ -33,28 +34,19 @@
 					<!-- This is where we'll display album covers... eventually. -->
 					<image uri="gfx/computer.png" image-width="1cm" image-height="1cm"/>
 					<label anchor="center" x="50%" y="1.3cm" value="100%"
-			   font="Sans 0.25cm" color="black"/>
-
-					<!-- ********************************************************************** -->
+			   			font="Sans 0.25cm" color="black"/>
 
 				</group>
 
 				<group id="info_group" y="0.1cm">
 
-					<!-- **********************************************************************
-	 * This is the main area of the display.
-	 * Put your stuff in here:
-	 ********************************************************************** -->
-
 					<label font="Sans Bold 0.3cm" color="black" value="SideCandy rocks!"/>
 
 					<label y="0.4cm" font="Sans 0.2cm" color="navy"
-			   value="...though this is just a template."/>
+			   			value="...though this is just a template."/>
 
 					<label x="0.5cm" y="1cm" font="Sans Bold 0.3cm" color="navy"
-			   value="Put your stuff here!"/>
-
-					<!-- ********************************************************************** -->
+			   			value="Put your stuff here!"/>
 
 				</group>
 
