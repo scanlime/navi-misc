@@ -138,13 +138,10 @@ class BotsSection(Template.Section):
 class OptionalAttributeStringColumn(Nouvelle.AttributeColumn):
     """A column displaying an object's attribute that converts the
        result into a string and allows it to be blank if the attribute
-       doesn't exist in a particular object. Callable attributes
-       are called, and their results used.
+       doesn't exist in a particular object.
        """
     def getValue(self, obj):
         value = getattr(obj, self.attribute, '')
-        if callable(value):
-            value = value()
         if value is None:
             return ()
         else:
@@ -173,6 +170,25 @@ class RequestStatusColumn(Nouvelle.Column):
             return Template.error["not fulfilled"]
 
 
+class RequestUsersColumn(Nouvelle.Column):
+    """A column that displays the number of users a request serves"""
+    heading = '# of users'
+
+    def getValue(self, req):
+        return req.getUserCount()
+
+    def render_data(self, context, req):
+        uc = req.getUserCount()
+        if uc is None:
+            return Template.error["unavailable"]
+        else:
+            return uc
+
+    def cmp(self, a, b):
+        # Reverse sort
+        return cmp(b.getUserCount(), a.getUserCount())
+
+
 class RequestsSection(Template.Section):
     """A section listing all requests being asked of the BotNetwork"""
     title = 'requests'
@@ -182,7 +198,7 @@ class RequestsSection(Template.Section):
         OptionalAttributeStringColumn('server', 'server'),
         OptionalAttributeStringColumn('# of bots', 'numBots'),
         RequestStatusColumn(),
-        OptionalAttributeStringColumn('# of users', 'getUserCount'),
+        RequestUsersColumn(),
         RequestBotsColumn(),
        ]
 

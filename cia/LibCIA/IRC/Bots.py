@@ -89,9 +89,12 @@ class Request:
            This only works with requests for a channel, as we can't really
            tell for channel requests. The returned number is the number of
            users in the channel minus the number of bots we're using.
+           If the number of users can't be determined, this returns None.
            """
         if self.channel and self.bots:
-            return len(self.bots[0].channels[self.channel].nicks) - len(self.bots)
+            nicks = self.bots[0].channels[self.channel].nicks
+            if nicks:
+                return len(nicks) - len(self.bots)
 
 
 class Server:
