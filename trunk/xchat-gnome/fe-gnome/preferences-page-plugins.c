@@ -109,7 +109,7 @@ load_unload (char *filename, gboolean loaded, PreferencesPluginsPage *page, GtkT
 
 	} else {
 		/* Load the plugin. */
-		gchar *err = plugin_load (gui.current_session, filename, NULL);
+		gchar *err = load_plugin (gui.current_session, filename, NULL);
 		if ( err == NULL) {
 			gtk_list_store_set (page->plugin_store, &iter, 4, TRUE, -1);
 			enabled_plugins = g_slist_append (enabled_plugins, filename);
@@ -181,7 +181,7 @@ remove_plugin_clicked (GtkButton *button, PreferencesPluginsPage *page)
 	if (gtk_tree_selection_get_selected (select, &model, &iter)) {
 		gtk_tree_model_get (model, &iter, 3, &filename, 4, &loaded, -1);
 		if (loaded)
-			plugin_kill (filename, TRUE);
+			unload_plugin (filename);
 		gtk_list_store_remove (GTK_LIST_STORE (model), &iter);
 	}
 }
