@@ -74,10 +74,19 @@ To reset all mappings to the above defaults:
      feel a brief rumble.
 
 
-The adaptor handles calibration the same way a Gamecube does- if your joystick
-is drifting or nonresponsive during gameplay, you should be able to fix it either
-by turning the N64 off then back on, or by holding down X, Y, and Start for a couple
-seconds. It will also recalibrate whenever a new Gamecube controller is plugged in.
+The adaptor handles calibration in almost the exact same way a Gamecube does. If
+your joystick is drifting or nonresponsive during gameplay, you should be able to
+recalibrate it by performing any of the following actions without touching the
+joystick, C-stick, L button, or R button:
+
+  1. Hold down X, Y, and Start for a couple seconds during gameplay
+
+  2. Unplug the controller from the adaptor and plug it back in
+
+  3. Unplug the adaptor from the N64 and plug it back in
+
+  4. Turn off the N64 then turn it back on. (The reset button won't
+     recalibrate, since the adaptor doesn't lose power or get reinitialized)
 
 
 Status
