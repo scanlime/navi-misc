@@ -19,9 +19,9 @@ class TestBot(SingleServerIRCBot):
         for target in [
             "doug",
             "file",
-	    "creeperz",
-	    "cell",
-	    "mikeeusa",
+            "creeperz",
+            "cell",
+            "mikeeusa",
             ]:
             if string.find(string.lower(e._source),target) != -1:
                 if random.random() < 0.2:
@@ -41,10 +41,10 @@ class TestBot(SingleServerIRCBot):
                     "kiwi",
                     "picogui",
                     "crys",
-		    "zip",
-		    "ignore",
-		    "BYE",
-		    "fuck",
+        	    "zip",
+        	    "ignore",
+        	    "BYE",
+        	    "fuck",
                     ]:
                     if string.find(string.lower(e._arguments[0]),i) != -1:
                         self.sud(c, e._target, target)
