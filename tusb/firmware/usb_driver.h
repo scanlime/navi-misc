@@ -13,6 +13,11 @@ struct usb_ctrlrequest {
   unsigned short wLength;
 };
 
+struct usb_descriptor_header {
+  unsigned char  bLength;
+  unsigned char  bDescriptorType;
+};
+
 struct usb_device_descriptor {
   unsigned char  bLength;
   unsigned char  bDescriptorType;
@@ -65,13 +70,15 @@ struct usb_endpoint_descriptor {
 struct usb_descriptor_entry {
   unsigned char type;
   unsigned char index;
-  unsigned short language;  /* 0 for "don't care" */
   code unsigned char *buffer;
-  int length;
+  int length;                    /* If this is 0 and type is USB_DT_STRING,
+				  * the 'buffer' is treated as an ASCII string
+				  * terminated with a NUL, rather than as a full
+				  * USB string descriptor. This can't handle Unicode,
+				  * but it makes strings infinitely easier to input.
+				  */
+  unsigned short language;       /* 0 for "don't care" */
 };
-
-typedef struct usb_descriptor_entry* usb_descriptor_table;
-
 
 /* The setup and EP0 buffers are in fixed locations in RAM */
 volatile xdata at 0xFEF0 unsigned char usb_ep0out_buffer[8];
@@ -158,27 +165,6 @@ volatile xdata at 0xFF00 struct usb_ctrlrequest usb_setup_buffer;
 #define USB_ENDPOINT_XFER_INT		3
 
 /*
- * USB Packet IDs (PIDs)
- */
-#define USB_PID_UNDEF_0			0xf0
-#define USB_PID_OUT			0xe1
-#define USB_PID_ACK			0xd2
-#define USB_PID_DATA0			0xc3
-#define USB_PID_PING			0xb4	/* USB 2.0 */
-#define USB_PID_SOF			0xa5
-#define USB_PID_NYET			0x96	/* USB 2.0 */
-#define USB_PID_DATA2			0x87	/* USB 2.0 */
-#define USB_PID_SPLIT			0x78	/* USB 2.0 */
-#define USB_PID_IN			0x69
-#define USB_PID_NAK			0x5a
-#define USB_PID_DATA1			0x4b
-#define USB_PID_PREAMBLE		0x3c	/* Token mode */
-#define USB_PID_ERR			0x3c	/* USB 2.0: handshake mode */
-#define USB_PID_SETUP			0x2d
-#define USB_PID_STALL			0x1e
-#define USB_PID_MDATA			0x0f	/* USB 2.0 */
-
-/*
  * Standard requests
  */
 #define USB_REQ_GET_STATUS		0x00
@@ -208,12 +194,13 @@ volatile xdata at 0xFF00 struct usb_ctrlrequest usb_setup_buffer;
 void usb_init();
 void usb_poll();
 
-/* Reply functions */
+/* Request reply functions */
 void usb_write_ep0_buffer(unsigned char *buffer, int length);
 void usb_write_ack();
 
-/* Application-defined functions */
+/* Application-defined */
 void usb_handle_vendor_request();
+extern const struct usb_descriptor_entry usb_descriptors[];
 
 
 #endif /* __USB_DRIVER_H */
