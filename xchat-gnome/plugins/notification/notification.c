@@ -24,8 +24,9 @@
 #include <gconf/gconf-client.h>
 #include <dlfcn.h>
 
+#include "navigation-tree.h"
+#include "plugins.h"
 #include "xchat-plugin.h"
-//#include "navigation_tree.h"
 #include "eggtrayicon.h"
 
 #define NOTIFICATION_VERSION "0.1"
@@ -160,6 +161,11 @@ xchat_plugin_init (xchat_plugin *plugin_handle, char **plugin_name,
 	xchat_print (ph, "Notification plugin loaded.\n");
 
 	return TRUE;
+}
+
+int
+xchat_gnome_plugin_init (xchat_gnome_plugin *xg_ph)
+{
 }
 
 int
