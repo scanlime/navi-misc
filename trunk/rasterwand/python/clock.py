@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import os, time
+import os, time, sys
 
 class Font:
 
@@ -124,7 +124,12 @@ class Font:
         return "".join(bytes)
 
 
-f = os.open("/dev/usb/rwand0", os.O_RDWR)
+if len(sys.argv) > 1:
+    dev = sys.argv[1]
+else:
+    dev = "/dev/usb/rwand0"
+
+f = os.open(dev, os.O_RDWR)
 font = Font()
 while 1:
     os.write(f, font.encode(time.strftime("%H:%M:%S")))
