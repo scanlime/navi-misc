@@ -11,7 +11,9 @@
 	  distance travelled in color space.
 	* Minor UI bugfixes
 	* Added and updated init scripts and packaging for Linux distros
-
+	* Automatically retry connections to cluster nodes as long as they
+	  are enabled. Currently it retries every 60 seconds.
+	
 0.9 (07 February 2005)
 	* Made the about box the coolest thing since sliced cheese
 	* Added keybindings for zoom presets
