@@ -44,7 +44,7 @@ typedef enum
 static xchat_plugin *ph;			// Plugin handle.
 //static NotifStatus status = NOTIF_NONE;		// Current status level.
 static gboolean window_visible = TRUE;		// Keep track of whether the window is visible.
-//static NavTree *nav_tree;			// A reference to the navigation tree.
+static NavTree *nav_tree;			// A reference to the navigation tree.
 static EggTrayIcon *notification;		// Notification area icon.
 //static GtkMenu *menu;				// The menu that pops up.
 static GtkWidget *image;			// The image displayed by the icon.
@@ -164,8 +164,11 @@ xchat_plugin_init (xchat_plugin *plugin_handle, char **plugin_name,
 }
 
 int
-xchat_gnome_plugin_init (xchat_gnome_plugin *xg_ph)
+xchat_gnome_plugin_init (xchat_gnome_plugin *xg_plugin)
 {
+	nav_tree = xg_plugin->xg_get_nav_tree();
+
+	return 1;
 }
 
 int
