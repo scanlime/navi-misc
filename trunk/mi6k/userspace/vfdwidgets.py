@@ -181,18 +181,17 @@ class LoopingScroller(Text):
                  scrollRate    = 10,
                  visible       = True,
                  ):
+        self.pauseDuration = pauseDuration
+        self.padding = padding
+        self.scrollRate = scrollRate
         Text.__init__(self, text, gravity, align, priority,
                       background, visible=visible)
-        self.padding = padding
-        self.pauseDuration = pauseDuration
-        self.scrollRate = scrollRate
-
-        self.offset = (0,0)
-        self.scroll = 0
-        self.pauseRemaining = self.pauseDuration
 
     def textChanged(self, lines):
         Text.textChanged(self, lines)
+        self.offset = (0,0)
+        self.scroll = 0
+        self.pauseRemaining = self.pauseDuration
         self.fullWidth = self.minWidth
         self.minWidth = 0
 
@@ -242,11 +241,11 @@ class Clock(Text):
             if self.blinkRemaining < 0:
                 self.blinkState = not self.blinkState
                 self.blinkRemaining += self.blinkTime
-        self.text = time.strftime(format, time.localtime(self.getTime()))
+        self.text = time.strftime(format, self.getTime())
 
     def getTime(self):
         """Subclasses may override this to provide an alternate time to display"""
-        return time.time()
+        return time.localtime(time.time())
 
 
 class Rect:
@@ -413,13 +412,19 @@ class Surface(object):
 
         # Update the lifetimes of widgets that can expire
         for widget in self.lifetimes.keys():
-            self.lifetimes[widget] -= dt
-            if self.lifetimes[widget] <= 0:
-                try:
-                    self.widgets.remove(widget)
-                    self.layoutRequired = True
-                except ValueError:
-                    pass
+            try:
+                self.lifetimes[widget] -= dt
+                if self.lifetimes[widget] <= 0:
+                    try:
+                        self.widgets.remove(widget)
+                        self.layoutRequired = True
+                    except ValueError:
+                        # It was already removed some other way
+                        pass
+            except KeyError:
+                # The widget might have been removed just
+                # now by another thread, leave it be
+                pass
 
         # Perform individual widget updates
         for widget in self.widgets:
@@ -486,10 +491,9 @@ class Surface(object):
     def layoutIteration(self, widgets):
         """Attempt to lay out all given widgets. Returns True on success.
            If we have a horizontal placement error this returns a list of
-           failed widgets. If we have a vertical placement error, returns False.
+           widgets we should try to remove. If we have a vertical placement
+           error, returns False.
            """
-        unplaceable = []
-
         # Divide all widgets into layout lines according to their Y gravity
         layoutLines = {}
         for widget in widgets:
@@ -499,10 +503,9 @@ class Surface(object):
                 line = LayoutLine(self.width, widget.gravity[1])
                 layoutLines[widget.gravity[1]] = line
             if not line.add(widget):
-                unplaceable.append(widget)
-
-        if unplaceable:
-            return unplaceable
+                # For now we'll consider all widgets on this line
+                # as possible candidates for removal
+                return widgets
 
         # See if we ran out of vertical space
         totalHeight = 0
