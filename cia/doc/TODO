@@ -23,17 +23,6 @@ Web
 Code
 -----
 
-- Currently the stats maintenance just deletes messages that are more than 6 months
-  old. This is silly, it would be much nicer to just keep a fixed number of messages
-  per stats target. Say, 1000 or 500 messages. This is what the old Rack-based system
-  does, and it would be good justification for storing each stats target's messages
-  separately like we do now ;)
-
-  The way I started doing this in PostgreSQL earlier was to count the total number of
-  messages in each stats target, figure out how many to delete, if any, then delete
-  all messages from that target using something like "ORDER BY id LIMIT foo". If this
-  works in MySQL too, this should be easy (though potentially slow)
-
 - Web interface for editing rulesets and stats metadata- how would we handle
   authentication, if necessary?
 
