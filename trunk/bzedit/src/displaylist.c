@@ -24,7 +24,6 @@
 
 static void display_list_class_init (DisplayListClass *klass);
 static void display_list_init       (DisplayList *dl);
-static void display_list_draw       (Drawable *drawable, RenderState *rstate);
 
 GType
 display_list_get_type (void)
@@ -83,13 +82,12 @@ display_list_build_list (DisplayList *dl)
   dl->dirty = FALSE;
 }
 
-static void
+void
 display_list_draw (Drawable *drawable, RenderState *rstate)
 {
   DisplayList *dl = DISPLAY_LIST (drawable);
-  DisplayListClass *dlc = DISPLAY_LIST_CLASS (G_OBJECT_GET_CLASS (drawable));
 
   if (dl->dirty)
-    dlc->draw_to_list (dl);
+    display_list_build_list (dl);
   glCallList (dl->list);
 }

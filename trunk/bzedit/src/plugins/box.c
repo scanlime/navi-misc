@@ -32,8 +32,6 @@ static void       box_init_size_params            (GObjectClass *object_class);
 static void       box_init_other_params           (GObjectClass *object_class);
 static GdkPixbuf* box_get_icon                    (void);
 static GList*     box_get_drawables               (SceneObject *self);
-static void       box_select                      (SceneObject *self);
-static void       box_deselect                    (SceneObject *self);
 
 static void       box_sides_drawable_class_init   (BoxSidesDrawableClass *klass);
 static void       box_sides_drawable_init         (BoxSidesDrawable *bsd);
@@ -98,8 +96,6 @@ box_class_init (BoxClass *klass)
   so_class->get_icon = box_get_icon;
   so_class->creatable = TRUE;
   so_class->get_drawables = box_get_drawables;
-  so_class->select = box_select;
-  so_class->deselect = box_deselect;
 
   object_class->set_property = box_set_property;
   object_class->get_property = box_get_property;
@@ -114,7 +110,6 @@ static void
 box_init (Box *box)
 {
   box->drawables = NULL;
-  box->selected = FALSE;
   box->sides = g_object_ref (box_sides_drawable_new ((SceneObject*) box));
   box->top = g_object_ref (box_top_drawable_new ((SceneObject*) box));
 
@@ -146,35 +141,44 @@ static void
 box_set_property (GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec)
 {
   Box *self = BOX (object);
+  SceneObject *so = SCENE_OBJECT (object);
 
   switch (prop_id)
   {
     case PROP_POSITION_X:
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.position[0], 0.09);
+      so->bb.position[0] = self->param.position[0];
       break;
 
     case PROP_POSITION_Y:
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.position[1], 0.09);
+      so->bb.position[1] = self->param.position[1];
       break;
 
     case PROP_POSITION_Z:
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.position[2], 0.09);
+      so->bb.position[2] = self->param.position[2] + self->param.size[2] / 2.0;
       break;
 
     case PROP_ROTATION:
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.rotation, 0.09);
+      so->bb.rotation = self->param.rotation;
       break;
 
     case PROP_SIZE_X:
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.size[0], 0.09);
+      so->bb.size[0] = self->param.size[0];
       break;
 
     case PROP_SIZE_Y:
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.size[1], 0.09);
+      so->bb.size[1] = self->param.size[1];
       break;
 
     case PROP_SIZE_Z:
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.size[2], 0.09);
+      so->bb.position[2] = self->param.position[2] + self->param.size[2] / 2.0;
+      so->bb.size[2] = self->param.size[2] / 2.0;
       break;
 
     case PROP_DRIVE_THROUGH:
@@ -384,26 +388,6 @@ box_get_drawables (SceneObject *self)
   return b->drawables;
 }
 
-static void
-box_select (SceneObject *self)
-{
-  Box *b = BOX (self);
-  b->selected = TRUE;
-  g_signal_emit_by_name (G_OBJECT (b->sides), "dirty");
-  g_signal_emit_by_name (G_OBJECT (b->top), "dirty");
-  g_signal_emit_by_name (G_OBJECT (b), "dirty");
-}
-
-static void
-box_deselect (SceneObject *self)
-{
-  Box *b = BOX (self);
-  b->selected = FALSE;
-  g_signal_emit_by_name (G_OBJECT (b->sides), "dirty");
-  g_signal_emit_by_name (G_OBJECT (b->top), "dirty");
-  g_signal_emit_by_name (G_OBJECT (b), "dirty");
-}
-
 GType
 box_sides_drawable_get_type (void)
 {
@@ -474,9 +458,6 @@ box_sides_drawable_draw_to_list (DisplayList *dl)
   glTranslated (b->param.position[0], b->param.position[1], b->param.position[2]);
   glRotated (b->param.rotation, 0.0, 0.0, 1.0);
 
-  if (b->selected)
-    glColor4f (1.0f, 0.5f, 0.5f, 1.0f);
-
   glBegin (GL_QUADS);
   {
     /* Y+ side */
@@ -524,8 +505,6 @@ box_sides_drawable_draw_to_list (DisplayList *dl)
     glVertex3d   (-width,  depth, 0);
   }
   glEnd ();
-
-  glColor4f (1.0f, 1.0f, 1.0f, 1.0f);
 
   glPopMatrix();
 }
@@ -598,9 +577,6 @@ box_top_drawable_draw_to_list (DisplayList *dl)
   glTranslated (b->param.position[0], b->param.position[1], b->param.position[2]);
   glRotated (b->param.rotation, 0.0, 0.0, 1.0);
 
-  if (b->selected)
-    glColor4f (1.0f, 0.5f, 0.5f, 1.0f);
-
   /* FIXME: should align texcoords with the world */
   glBegin (GL_QUADS);
   {
@@ -627,8 +603,6 @@ box_top_drawable_draw_to_list (DisplayList *dl)
     glVertex3d   ( width, -depth, 0);
   }
   glEnd ();
-
-  glColor4f (1.0f, 1.0f, 1.0f, 1.0f);
 
   glPopMatrix ();
 }

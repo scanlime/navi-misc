@@ -22,8 +22,12 @@
 
 #include "sceneobject.h"
 
-static void scene_object_class_init (SceneObjectClass *klass);
-static void scene_object_init       (SceneObject *self);
+static void scene_object_class_init         (SceneObjectClass *klass);
+static void scene_object_init               (SceneObject *self);
+
+static void selection_drawable_class_init   (SelectionDrawableClass *klass);
+static void selection_drawable_init         (SelectionDrawable *sd);
+static void selection_drawable_draw         (Drawable *d, RenderState *rstate);
 
 enum
 {
@@ -94,6 +98,11 @@ scene_object_init (SceneObject *self)
   self->selected = FALSE;
   self->parent = NULL;
   self->name = NULL;
+  self->selection = selection_drawable_new (self);
+
+  self->bb.position[0] = 0.0; self->bb.position[1] = 0.0; self->bb.position[2] = 0.0;
+  self->bb.rotation = 0.0;
+  self->bb.size[0] = 0.0; self->bb.size[1] = 0.0; self->bb.size[2] = 0.0;
 }
 
 void
@@ -114,7 +123,8 @@ GList*
 scene_object_get_drawables (SceneObject *self)
 {
   SceneObjectClass *klass = SCENE_OBJECT_CLASS (G_OBJECT_GET_CLASS (self));
-  return klass->get_drawables (self);
+  GList *drawables = klass->get_drawables (self);
+  return g_list_append (drawables, self->selection);
 }
 
 void
@@ -134,4 +144,159 @@ scene_object_deselect (SceneObject *self)
   self->selected = FALSE;
   if (klass->deselect)
     klass->deselect (self);
+}
+
+GType
+selection_drawable_get_type (void)
+{
+  static GType sd_type = 0;
+  if (!sd_type)
+  {
+    static const GTypeInfo sd_info =
+    {
+      sizeof (SelectionDrawableClass),
+      NULL,               /* base init */
+      NULL,               /* base finalize */
+      (GClassInitFunc)    selection_drawable_class_init,
+      NULL,               /* class finalize */
+      NULL,               /* class data */
+      sizeof (SelectionDrawable),
+      0,                  /* n preallocs */
+      (GInstanceInitFunc) selection_drawable_init,
+    };
+
+    sd_type = g_type_register_static (DRAWABLE_TYPE, "SelectionDrawable", &sd_info, 0);
+  }
+
+  return sd_type;
+}
+
+static void
+selection_drawable_class_init (SelectionDrawableClass *klass)
+{
+  DrawableClass *dc;
+
+  dc = (DrawableClass*) klass;
+
+  dc->draw = selection_drawable_draw;
+}
+
+static void
+selection_drawable_init (SelectionDrawable *sd)
+{
+  Drawable *d = DRAWABLE (sd);
+  d->texture = g_strdup ("");
+  d->render.statico = FALSE;
+}
+
+Drawable*
+selection_drawable_new (SceneObject *parent)
+{
+  Drawable *d = DRAWABLE (g_object_new (selection_drawable_get_type (), NULL));
+  d->parent = parent;
+  return d;
+}
+
+static void
+selection_drawable_draw (Drawable *d, RenderState *rstate)
+{
+  SceneObject *so = d->parent;
+  gdouble offset = 2.5;
+  gdouble len = 5.0;
+  gdouble x, y, z;
+
+  if (!so->selected)
+    return;
+
+  glDisable (GL_LIGHTING);
+  glDisable (GL_TEXTURE_2D);
+
+  glPushMatrix ();
+  glTranslated (so->bb.position[0], so->bb.position[1], so->bb.position[2]);
+  glRotated (so->bb.rotation, 0.0, 0.0, 1.0);
+
+  glColor4f (0.0, 1.0, 1.0, 1.0);
+
+  glBegin (GL_LINES);
+  {
+    /* X+ Y+ Z+ corner */
+    x = so->bb.size[0]; y = so->bb.size[1]; z = so->bb.size[2];
+    glVertex3f (x + offset,       y + offset,       z + offset);
+    glVertex3f (x + offset - len, y + offset,       z + offset);
+    glVertex3f (x + offset,       y + offset,       z + offset);
+    glVertex3f (x + offset,       y + offset - len, z + offset);
+    glVertex3f (x + offset,       y + offset,       z + offset);
+    glVertex3f (x + offset,       y + offset,       z + offset - len);
+
+    /* X- Y+ Z+ corner */
+    x = -so->bb.size[0]; y = so->bb.size[1]; z = so->bb.size[2];
+    glVertex3f (x - offset,       y + offset,       z + offset);
+    glVertex3f (x - offset + len, y + offset,       z + offset);
+    glVertex3f (x - offset,       y + offset,       z + offset);
+    glVertex3f (x - offset,       y + offset - len, z + offset);
+    glVertex3f (x - offset,       y + offset,       z + offset);
+    glVertex3f (x - offset,       y + offset,       z + offset - len);
+
+    /* X- Y- Z+ corner */
+    x = -so->bb.size[0]; y = -so->bb.size[1]; z = so->bb.size[2];
+    glVertex3f (x - offset,       y - offset,       z + offset);
+    glVertex3f (x - offset + len, y - offset,       z + offset);
+    glVertex3f (x - offset,       y - offset,       z + offset);
+    glVertex3f (x - offset,       y - offset + len, z + offset);
+    glVertex3f (x - offset,       y - offset,       z + offset);
+    glVertex3f (x - offset,       y - offset,       z + offset - len);
+
+    /* X+ Y- Z+ corner */
+    x = so->bb.size[0]; y = -so->bb.size[1]; z = so->bb.size[2];
+    glVertex3f (x + offset,       y - offset,       z + offset);
+    glVertex3f (x + offset - len, y - offset,       z + offset);
+    glVertex3f (x + offset,       y - offset,       z + offset);
+    glVertex3f (x + offset,       y - offset + len, z + offset);
+    glVertex3f (x + offset,       y - offset,       z + offset);
+    glVertex3f (x + offset,       y - offset,       z + offset - len);
+
+    /* X+ Y+ Z- corner */
+    x = so->bb.size[0]; y = so->bb.size[1]; z = -so->bb.size[2];
+    glVertex3f (x + offset,       y + offset,       z - offset);
+    glVertex3f (x + offset - len, y + offset,       z - offset);
+    glVertex3f (x + offset,       y + offset,       z - offset);
+    glVertex3f (x + offset,       y + offset - len, z - offset);
+    glVertex3f (x + offset,       y + offset,       z - offset);
+    glVertex3f (x + offset,       y + offset,       z - offset + len);
+
+    /* X- Y+ Z- corner */
+    x = -so->bb.size[0]; y = so->bb.size[1]; z = -so->bb.size[2];
+    glVertex3f (x - offset,       y + offset,       z - offset);
+    glVertex3f (x - offset + len, y + offset,       z - offset);
+    glVertex3f (x - offset,       y + offset,       z - offset);
+    glVertex3f (x - offset,       y + offset - len, z - offset);
+    glVertex3f (x - offset,       y + offset,       z - offset);
+    glVertex3f (x - offset,       y + offset,       z - offset + len);
+
+    /* X- Y- Z- corner */
+    x = -so->bb.size[0]; y = -so->bb.size[1]; z = -so->bb.size[2];
+    glVertex3f (x - offset,       y - offset,       z - offset);
+    glVertex3f (x - offset + len, y - offset,       z - offset);
+    glVertex3f (x - offset,       y - offset,       z - offset);
+    glVertex3f (x - offset,       y - offset + len, z - offset);
+    glVertex3f (x - offset,       y - offset,       z - offset);
+    glVertex3f (x - offset,       y - offset,       z - offset + len);
+
+    /* X+ Y- Z- corner */
+    x = so->bb.size[0]; y = -so->bb.size[1]; z = -so->bb.size[2];
+    glVertex3f (x + offset,       y - offset,       z - offset);
+    glVertex3f (x + offset - len, y - offset,       z - offset);
+    glVertex3f (x + offset,       y - offset,       z - offset);
+    glVertex3f (x + offset,       y - offset + len, z - offset);
+    glVertex3f (x + offset,       y - offset,       z - offset);
+    glVertex3f (x + offset,       y - offset,       z - offset + len);
+  }
+  glEnd ();
+
+  glPopMatrix ();
+
+  glColor4f (1.0, 1.0, 1.0, 1.0);
+
+  glEnable (GL_TEXTURE_2D);
+  glEnable (GL_LIGHTING);
 }

@@ -24,6 +24,7 @@
 #define __SCENE_OBJECT_H__
 
 #include "parameter-holder.h"
+#include "drawable.h"
 
 G_BEGIN_DECLS
 
@@ -36,6 +37,14 @@ G_BEGIN_DECLS
 typedef struct _SceneObject      SceneObject;
 typedef struct _SceneObjectClass SceneObjectClass;
 
+typedef struct
+{
+  /* symmetric in -all three- directions! */
+  gdouble position[3];
+  gdouble rotation;
+  gdouble size[3];
+} BoundingBox;
+
 struct _SceneObject
 {
   ParameterHolder holder;
@@ -43,6 +52,9 @@ struct _SceneObject
   gboolean selected;
   GtkTreeIter iter;
   SceneObject *parent;
+  Drawable *selection;
+
+  BoundingBox bb;
 
   gchar *name;
 };
@@ -75,6 +87,28 @@ void       scene_object_serialize     (SceneObject *self, GIOChannel *out);
 GList*     scene_object_get_drawables (SceneObject *self);
 void       scene_object_select        (SceneObject *self);
 void       scene_object_deselect      (SceneObject *self);
+
+#define SELECTION_DRAWABLE_TYPE            (selection_drawable_get_type ())
+#define SELECTION_DRAWABLE(obj)            (G_TYPE_CHECK_INSTANCE_TYPE ((obj), SELECTION_DRAWABLE_TYPE, SelectionDrawable))
+#define SELECTION_DRAWABLE_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), SELECTION_DRAWABLE_TYPE, SelectionDrawableClass))
+#define IS_SELECTION_DRAWABLE(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), SELECTION_DRAWABLE_TYPE))
+#define IS_SELECTION_DRAWABLE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), SELECTION_DRAWABLE_TYPE))
+
+typedef struct _SelectionDrawable      SelectionDrawable;
+typedef struct _SelectionDrawableClass SelectionDrawableClass;
+
+struct _SelectionDrawable
+{
+  Drawable parent;
+};
+
+struct _SelectionDrawableClass
+{
+  DrawableClass parent_class;
+};
+
+GType     selection_drawable_get_type (void) G_GNUC_CONST;
+Drawable* selection_drawable_new      (SceneObject *parent);
 
 G_END_DECLS
 

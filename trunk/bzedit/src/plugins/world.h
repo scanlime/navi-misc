@@ -75,7 +75,6 @@ struct _GroundDrawable
   DisplayList parent;
 
   gfloat base_texture_repeat, overlay_texture_repeat;
-  gfloat size[2];
 };
 
 struct _GroundDrawableClass
@@ -84,7 +83,7 @@ struct _GroundDrawableClass
 };
 
 GType     ground_drawable_get_type (void) G_GNUC_CONST;
-Drawable* ground_drawable_new      (void);
+Drawable* ground_drawable_new      (SceneObject *parent);
 
 #define WALL_SIDES_DRAWABLE_TYPE            (wall_sides_drawable_get_type ())
 #define WALL_SIDES_DRAWABLE(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), WALL_SIDES_DRAWABLE_TYPE, WallSidesDrawable))
@@ -98,8 +97,6 @@ typedef struct _WallSidesDrawableClass WallSidesDrawableClass;
 struct _WallSidesDrawable
 {
   DisplayList parent;
-
-  gfloat size[3];
 };
 
 struct _WallSidesDrawableClass
@@ -108,7 +105,7 @@ struct _WallSidesDrawableClass
 };
 
 GType     wall_sides_drawable_get_type (void) G_GNUC_CONST;
-Drawable* wall_sides_drawable_new      (void);
+Drawable* wall_sides_drawable_new      (SceneObject *parent);
 
 G_END_DECLS
 
