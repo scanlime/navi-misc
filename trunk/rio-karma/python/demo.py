@@ -115,10 +115,10 @@ class PlaylistUploader(RioApp):
         boing = self.fileManager.createFile("[Boing]")
         yield self.fileManager.setPlaylistFiles(boing, self.fileManager.cache.findFiles(artist="Kirsty MacColl"))
 
-        zop = self.fileManager.createFile("/Zop/Pow")
-        yield self.fileManager.setPlaylistFiles(zop, self.fileManager.cache.findFiles(artist="Air"))
+        bar = self.fileManager.createFile("Taxi Files")
+        yield self.fileManager.setPlaylistFiles(bar, self.fileManager.cache.findFiles(type='taxi'))
 
-        yield self.fileManager.setPlaylistFiles(root, [foo, boing, zop])
+        yield self.fileManager.setPlaylistFiles(root, [foo, boing, bar])
 
 
 if __name__ == "__main__":
@@ -126,8 +126,8 @@ if __name__ == "__main__":
         Uploader().run()
     else:
         #Downloader().run()
-        PlaylistDownloader().run()
-        #PlaylistUploader().run()
+        #PlaylistDownloader().run()
+        PlaylistUploader().run()
 
 ### The End ###
 
