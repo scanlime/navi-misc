@@ -7,16 +7,16 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- * 
+ *
  */
 
 #ifndef _H_EMBEDDEDPGSERVER
@@ -26,7 +26,6 @@
 #include <string>
 extern "C" {
 #include <pgserver/common.h>
-#include <Python.h>
 }
 #include "ConfigProvider.h"
 #include "Engine.h"
@@ -45,11 +44,11 @@ class EmbeddedPGserver : public ConfigProvider, public Mutex {
   void init(void);
   void shutdown(void);
 
-  /* We use a PyObject here instead of std::string because Boost's 
+  /* We use a PyObject here instead of std::string because Boost's
    * converters don't work on strings with zero bytes.
    */
-  void write(PyObject *req);
-  PyObject *read(int bytes);
+  void write(std::string req);
+  std::string read(int bytes);
 
   /* There will only be one EmbeddedPGserver, this returns it */
   static EmbeddedPGserver *getInstance(void);
