@@ -1,8 +1,27 @@
 /*
- * USB descriptors for the Therm Receiver
+ * descript.c - USB descriptors used during normal operation
+ *
+ * Wireless therm system
+ * Copyright (C) 2004 Micah Dowty
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ *
  */
 
 #include "usb_driver.h"
+#include <therm-rx-protocol.h>
 
 const static struct usb_device_descriptor dev_descript = {
   /* bLength            */  sizeof(struct usb_device_descriptor),
@@ -12,9 +31,9 @@ const static struct usb_device_descriptor dev_descript = {
   /* bDeviceSubClass    */  0,
   /* bDeviceProtocol    */  0,
   /* bMaxPacketSize0    */  8,
-  /* idVendor           */  0xE461,
-  /* idProduct          */  0x0011,
-  /* bcdDevice          */  0x0100,
+  /* idVendor           */  THERMRX_VENDOR_ID,
+  /* idProduct          */  THERMRX_PRODUCT_ID,
+  /* bcdDevice          */  THERMRX_REVISION,
   /* iManufacturer      */  1,
   /* iProduct           */  2,
   /* iSerialNumber      */  0,
@@ -53,7 +72,7 @@ const static struct {
   {
     /* bLength             */  sizeof(struct usb_endpoint_descriptor),
     /* bDescriptorType     */  USB_DT_ENDPOINT,
-    /* bEndpointAddress    */  1 | USB_DIR_IN,
+    /* bEndpointAddress    */  0x81,
     /* bmAttributes        */  USB_ENDPOINT_XFER_BULK,
     /* wMaxPacketSize      */  64,
     /* bInterval           */  0,
