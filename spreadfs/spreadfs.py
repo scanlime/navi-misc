@@ -124,13 +124,13 @@ class SpreadFileBase(pinefs.fsbase.FileObj):
        DiskSet. This is an abstract base class, subclasses implement
        files and directories.
        """
-    def __init__(self, fs, path, type, size=0, blocks=0):
+    def __init__(self, fs, path, type, size=0):
         self.path = path
         self.fs = fs
         self.type = type
         self.dir = dir
         self.size = size
-        self.blocks = blocks
+        self.blocks = (size-1)/self.blocksize+1
 
         # Register our file ID
         self.fileid = self.fs.handleFactory.next()
@@ -169,9 +169,12 @@ class SpreadFile(SpreadFileBase):
         self.fileStat = os.stat(self.absPath)
         self.openedFile = None
 
+        self.mode = self.fileStat.st_mode
+        self.uid = self.fileStat.st_uid
+        self.gid = self.fileStat.st_gid
+
         SpreadFileBase.__init__(self, fs, path, rfc1094.NFREG,
-                                size=self.fileStat.st_size,
-                                blocks=self.fileStat.st_blocks)
+                                size=self.fileStat.st_size)
 
     def isValid(self):
         return os.path.isfile(self.absPath)
