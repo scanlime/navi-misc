@@ -93,6 +93,8 @@ back_buffer		res	NUM_COLUMNS
 ;************************************************************************** Entry Points *
 ;*****************************************************************************************
 
+	; Initialize important things, don't bother setting parameters
+	; that won't matter until the host sets them and turns on the proper flags.
 display_init
 	pagesel	edge_buffer
 	clrf	edge_buffer
@@ -107,10 +109,6 @@ display_init
 	clrf	wand_period+1
 	clrf	wand_phase
 	clrf	wand_phase+1
-	clrf	coil_window_min
-	clrf	coil_window_min+1
-	clrf	coil_window_max
-	clrf	coil_window_max+1
 	clrf	mode_flags
 	clrf	display_flags
 	clrf	edge_counter
@@ -321,7 +319,7 @@ scan_in_progress
 										; so we might as well do that here.
 
 	; Subtract our delta-t from the current column width. If we borrow, it's time for a new column.
-	movf	delta_t, f					; Subtract the low byte
+	movf	delta_t, w					; Subtract the low byte
 	subwf	remaining_col_width, f
 	pagesel	no_colwidth_borrow
 	btfsc	STATUS, C
@@ -333,7 +331,7 @@ scan_in_progress
 	btfsc	STATUS, Z
 	goto	next_column					; Yep, it rolled over. Next column.
 no_colwidth_borrow
-	movf	delta_t+1, f				; Subtract the high byte
+	movf	delta_t+1, w				; Subtract the high byte
 	subwf	remaining_col_width+1, f
 	pagesel	next_column
 	btfss	STATUS, C
@@ -345,7 +343,11 @@ no_colwidth_borrow
 
 	; This is invoked when the current column runs out of time. Switch to the next column.
 next_column
+	btfsc	FLAG_DISPLAY_FWD			; Increment/decrement the current column
 	incf	current_column, f
+	btfsc	FLAG_DISPLAY_REV
+	decf	current_column, f
+
 	movf	display_column_width, w		; Give this column all its allocated width
 	movwf	remaining_col_width
 	movf	display_column_width+1, w
