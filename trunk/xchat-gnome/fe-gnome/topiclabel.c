@@ -298,6 +298,7 @@ topic_label_size_allocate (GtkWidget *widget, GtkAllocation *allocation)
 static gint
 topic_label_expose (GtkWidget *widget, GdkEventExpose  *event)
 {
+  /*
   TopicLabel *label;
   gint x, y;
 
@@ -347,6 +348,7 @@ topic_label_expose (GtkWidget *widget, GdkEventExpose  *event)
       topic_label_draw_cursor (label, x, y);
     }
   }
+  */
   return FALSE;
 }
 
