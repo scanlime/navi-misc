@@ -47,5 +47,5 @@ EXTRA_DIST =			\
 	fyre.desktop.in		\
 	fyre-fa.desktop.in	\
 	fyre-png.desktop.in	\
-	x-fyre-animation.xml	\
+	fyre.xml		\
 	x-fyre-animation.png
