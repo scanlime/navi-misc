@@ -63,10 +63,10 @@
 #define PIN_C1_LEFT	PORTB, 2
 #define PIN_C1_RIGHT	PORTB, 3
 
-#define PIN_C2_UP	PORTB, 0
-#define PIN_C2_DOWN	PORTB, 1
-#define PIN_C2_LEFT	PORTB, 2
-#define PIN_C2_RIGHT	PORTB, 6
+#define PIN_C2_UP	PORTC, 0
+#define PIN_C2_DOWN	PORTC, 1
+#define PIN_C2_LEFT	PORTC, 2
+#define PIN_C2_RIGHT	PORTC, 6
 
 #define PIN_RESET	PORTA, 5   ; Pulls high when active, high-z when inactive
 #define TRIS_RESET	TRISA, 5

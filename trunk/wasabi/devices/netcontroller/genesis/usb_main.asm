@@ -219,7 +219,7 @@ Main
 	;; Initialize I/O...
 
 	banksel PORTA
-	movlw	0x0F		; Active-high controllers, active-low reset
+	movlw	0x2F		; Active-high controllers, reset latch always on
 	movwf	PORTA
 	movlw	0x0F		; Active-high controllers
 	movwf	PORTB
@@ -227,7 +227,7 @@ Main
 	movwf	PORTC
 
 	banksel	TRISA
-	movlw	0x1F		; controller outputs, reset is input when inactive
+	movlw	0x20		; controller outputs, reset is input when inactive
 	movwf	TRISA
 	movlw	0x30		; controller outputs, two select inputs
 	movwf	TRISB
@@ -235,7 +235,7 @@ Main
 	movwf	TRISC
 
 	banksel	porta_select	; Put sane initial PORTA values on porta_select
-	movlw	0x0F		;   *before* enabling any interrupts
+	movlw	0x2F		;   *before* enabling any interrupts
 	movwf	porta_select+0
 	movwf	porta_select+1
 	movwf	porta_select+2
