@@ -246,16 +246,19 @@ class StatefulClient(BaseClient):
             self.worldDownloaded = 1
             self.onLoadWorld()
 
+
+    def onMsgAddPlayer(self, msg):
+        self.game.addPlayer(Player.fromMessage(msg))
+        pass
+
+    def onMsgRemovePlayer(self, msg):
+        self.game.removePlayer(msg.id)
+        pass
+
     def onMsgFlagUpdate(self, msg):
         pass
 
     def onMsgTeamUpdate(self, msg):
-        pass
-
-    def onMsgAddPlayer(self, msg):
-        pass
-
-    def onMsgRemovePlayer(self, msg):
         pass
 
     def onMsgNewRabbit(self, msg):
@@ -284,20 +287,34 @@ class PlayerClient(StatefulClient):
        provides actual player interaction, or a bot AI.
        """
     def __init__(self, server, playerIdentity):
-        self.player = Player.Player(playerIdentity)
+        # We won't have a player instance until we get a MsgAddPlayer
+        # back for ourselves and StatefulClient adds it to the Game.
+        # We do need to store the identity used for joining the game
+        # of course.
+        self.player = None
+        self.joinIdentity = playerIdentity
+
         self.inGame = 0
         StatefulClient.__init__(self, server)
-        Util.initEvents(self, 'onEnterGame')
+        Util.initEvents(self, 'onEnterGame', 'onInitPlayer')
+
+        # Set up an observer for the game's onAddPlayer that will set
+        # up our player member whenever that MsgAddPlayer is received.
+        def onAddPlayer(game, player):
+            if player.identity.playerId == self.id:
+                self.player = player
+                self.onInitPlayer()
+        self.game.onAddPlayer.observe(onAddPlayer)
 
     def onLoadWorld(self):
         self.enterGame()
 
     def enterGame(self):
         msg = ToServer.MsgEnter()
-        msg.playerType = self.player.identity.type
-        msg.team = self.player.identity.team
-        msg.callSign = self.player.identity.callSign
-        msg.emailAddress = self.player.identity.emailAddress
+        msg.playerType = self.joinIdentity.type
+        msg.team = self.joinIdentity.team
+        msg.callSign = self.joinIdentity.callSign
+        msg.emailAddress = self.joinIdentity.emailAddress
         self.tcp.write(msg)
 
     def disconnect(self):

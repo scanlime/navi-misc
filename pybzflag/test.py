@@ -5,11 +5,13 @@ from BZFlag import Player
 
 client = PlayerClient("brlcad.org:4242", Player.Identity("Bob the Avenger"))
 
-# Show diagnostic information for the connection
+# Stick some instrumentation in select events
 client.onConnect.trace("Connected.")
 client.onStartWorldDownload.trace("Downloading world...")
 client.onLoadWorld.trace("World loaded.")
 client.onEnterGame.trace("Entered the game.")
+client.game.onAddPlayer.trace("Added player %(2)s")
+client.game.onRemovePlayer.trace("Removed player %(2)s")
 
 # Show messages
 def message(msg):
