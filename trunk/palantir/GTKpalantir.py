@@ -19,10 +19,12 @@ def Init():
       tree.signal_connect(func, globals()[func])
 
   global client
-  client = palantirIRC.PalantirClientFactory('Silme')
+  client = palantirIRC.PalantirClient()
+  client.factory = palantirIRC.PalantirClientFactory('Silme')
 
 def on_new_connection_activate(widget, data=None):
-  palantirIRC.Connect(client)
+  client.makeConnection(palantirIRC.Connect(client.factory))
+  palantirIRC.Start()
 
 def on_character_sheet_activate(widget, data=None):
   if tree.get_widget('character_sheet').get_active():
