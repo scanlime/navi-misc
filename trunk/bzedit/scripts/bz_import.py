@@ -1,7 +1,7 @@
 #!BPY
 #
-# bz_add.py - A simple script that makes new BZFlag objects
-#             accessable via the "Add" menu.
+# bz_import.py - Import an existing BZFlag world into a collection
+#                of specially tagged Blender objects.
 #
 # Blender-based BZFlag World Editor
 # Copyright (C) 2004 David Trowbridge and Micah Dowty
@@ -22,16 +22,14 @@
 #
 
 """ Registration info for Blender menus:
-Name: 'BZFlag Object...'
+Name: 'BZFlag World...'
 Blender: 234
-Group: 'Add'
-Submenu: 'Box' box
-Submenu: 'Pyramid' pyramid
-Submenu: 'World' world
-Tip: 'Add a new BZFlag object'
+Group: 'Import'
+Tip: 'Imports a BZFlag world file into specially tagged Blender objects'
 """
 
 import Blender
+import math
 
 try:
     import bzflag
@@ -42,12 +40,18 @@ except ImportError:
                          "path properly.")
     bzflag = None
 
-if bzflag:
-    # Create a new BZObject and convert that to a new Blender object
-    bzo = bzflag.getTypeRegistry().dict[__script__.arg]()
-    object = bzo.toBlender()
+def fileSelectedCallback(filename):
+    try:
+        reader = bzflag.WorldReader(filename)
+    except IOError, s:
+        bzflag.log.err(s)
+    else:
+        for object in reader.readObjects():
+            object.toBlender()
+    if bzflag.log.numErrors:
+        bzflag.log.report("Errors in loading world file")
 
-    # Put the new object at the cursor
-    object.setLocation(*Blender.Window.GetCursorPos())
+if bzflag:
+    Blender.Window.FileSelector(fileSelectedCallback, "Load BZFlag World")
 
 ### The End ###
