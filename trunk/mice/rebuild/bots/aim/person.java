@@ -36,6 +36,8 @@ public class person
 	public person next;
 	/** Conversations are state based, this holds the status of this convo. */
 	private int status;
+	/** Is this person sendable to? */
+	private boolean sendable = false;
 	
 	/**
 	 * This constructs the person when a message comes from them.
@@ -51,6 +53,7 @@ public class person
 		nick = ick;
 		status = 0;
 		next = previous;
+		mybot.sendMessage(nick,"Hello " + nick + " to make me be quiet, just type 'quit' at any time.");
 		mybot.sendMessage(nick,"What is your name (this is what it will appear as if you ask any questions)");
 	}
 	
@@ -66,20 +69,31 @@ public class person
 		{
 		case 0:
 			name = message;
-			send("Thanks " + name + ", now what is your standing (Freshman/Sophomore/Junior/Senior), of if you're a faculty, what is your position?");
+			mybot.sendMessage(nick,"Thanks " + name + ", now what is your standing (Freshman/Sophomore/Junior/Senior), of if you're a faculty, what is your position?");
 			status = 1;
 			break;
 		case 1:
 			standmajor = message;
-			send("Alright, and what is your major or department?");
+			mybot.sendMessage(nick,"Alright, and what is your major or department?");
 			status = 2;
 		  break;
 		case 2:
 			standmajor = " (" + standmajor + "/" + message + ")";
-			send("You are now registered as: " + name + standmajor + ".  To ask a question, just send it to me and I'll submit it for you :)");
+			mybot.sendMessage(nick,"You are now registered as: " + name + standmajor + ".  To ask a question, just send it to me and I'll submit it for you :)");
 			status = 3;
 			break;
 		case 3:
+			if(message.startsWith("quit"))
+			{
+				sendable = false;
+				mybot.sendMessage(nick,"Alright, I'll be quiet.  Send me a message, and I'll start talking again.");
+				return;
+			}
+			if(!sendable)
+			{
+				sendable = true;
+				return;
+			}
 			net temp = new net();
 			if(!temp.openConnection("localhost",8080))
 			{
@@ -105,6 +119,7 @@ public class person
 	 */
 	public void send(String tosend)
 	{
-		mybot.sendMessage(nick,tosend);
+		if(sendable)
+			mybot.sendMessage(nick,tosend);
 	}
 }
