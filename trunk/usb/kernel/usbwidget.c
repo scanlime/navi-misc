@@ -77,17 +77,26 @@ static ssize_t usb_widget_dev_write (struct file *file, const char *buffer, size
 	struct usb_widget *widget = (struct usb_widget*) file->private_data;
 
 	if (count) {
-		/* We have at least one byte to write, write one */
-		unsigned char byte;
+		/* Pad unused bytes with zero, which the display will ignore */
+		unsigned char tbuffer[] = {0, 0, 0, 0};
+		int transfer_length;
 
-		if (copy_from_user(&byte, buffer, 1))
+		transfer_length = min(sizeof(tbuffer), count);
+		dbg("%d bytes to send, sending %d bytes", count, transfer_length);
+		if (copy_from_user(tbuffer, buffer, transfer_length))
 			return -EFAULT;
-		dbg("Sending 0x%02X", byte);
 
+		/* Pack 4 bytes of the character stream into the packet's value and index parameters */
 		usb_control_msg(widget->usbdev, usb_sndctrlpipe(widget->usbdev, 0),
-				0, 0x40, byte, 0, NULL, 0, HZ / 2);
+				0,        /* Request: VFD_WRITE */
+				0x40,     /* Request type: vendor specific, host-to-device */
+				tbuffer[0] | (((int)tbuffer[1]) << 8),  /* value */
+				tbuffer[2] | (((int)tbuffer[3]) << 8),  /* index */
+				NULL, 0,  /* data (not used) */
+				HZ / 2    /* Timeout: 1/2 second */
+				);
 
-		return 1;
+		return transfer_length;
 	}
 	else {
 		/* Nothing to do */
