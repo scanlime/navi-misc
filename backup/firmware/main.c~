@@ -1,0 +1,189 @@
+/*
+ * SDCC source for the electric field sensor box
+ * Copyright (C) 2003  Micah Dowty <micah@navi.picogui.org>
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ *
+ * --------------------------------------------------------------------------
+ *
+ * This box has essentially the same transmit and receive
+ * hardware as the LazyFish. There are 6 electrodes arranged
+ * under the lid of the project's enclosure. A PIC16F877
+ * microcontroller was chosen, for easy in-circuit programming
+ * using the WLoader bootloader firmware.
+ *
+ * Hardware connections:
+ * 
+ *   RB0-3:	Front panel LEDs, active high
+ *   RB4-7:	Transmit electrodes
+ *   RA0-1:	Receive electrodes
+ *   RE2:	WLoader serial transmit and receive
+ * 
+ *   20MHz crystal oscillator
+ *
+ *   USB port is currently only used for power. It
+ *   is planned to eventually add a separate USB chip,
+ *   or use a PIC with built-in USB.
+ * 
+ * --------------------------------------------------------------------------
+ */
+
+#define __16F877
+#include "p16f877.h"
+
+/* Timing constants */
+#define CRYSTAL_HZ           20000000             /* Crystal oscillator frequency */
+#define RESONATION_HZ        100000               /* Frequency transmit/receive circuits are tuned to */
+#define SERIAL_HZ            115200               /* Baud rate for serial communications */
+#define INSTRUCTION_CLOCK_HZ (CRYSTAL_HZ / 4)     /* Instructions per second */
+#define INTERRUPT_HZ         (RESONATION_HZ * 2)
+#define TMR0_LOAD_VALUE      (265 - (INSTRUCTION_CLOCK_HZ / INTERRUPT_HZ))
+#define TMR1_LOAD_VALUE      (65535 - (INSTRUCTION_CLOCK_HZ / INTERRUPT_HZ))
+
+/* Globals */
+BIT_AT(PORTB_ADDR,0) Light0;
+BIT_AT(PORTB_ADDR,1) Light1;
+BIT_AT(PORTB_ADDR,2) Light2;
+BIT_AT(PORTB_ADDR,3) Light3;
+unsigned char transmitMask = 0;
+
+/* transmitMask values for each transmit channel */
+#define Transmit0   0x10
+#define Transmit1   0x20
+#define Transmit2   0x40
+#define Transmit3   0x80
+#define TransmitOff 0x00
+
+/* ADCON0 values for each receive channel */
+#define Receive0   0x81
+#define Receive1   0x89
+
+/* Functions */
+void timerInterrupt(void) interrupt 0;
+void initialize(void);
+void transmitEnable(int transmitter);
+void transmitDisable(void);
+void readADC(unsigned char channel);
+void delayCycles(int num);
+void putc(unsigned char byte);
+
+
+/****************************************************** Main program ******/
+
+void main(void) {
+  unsigned char r;
+
+  initialize();
+
+  transmitMask = Transmit0;
+
+  while (1) {
+    readADC(Receive0);
+    r = ADRESL;
+
+  }    
+}
+
+/****************************************************** Utilities ******/
+
+void initialize(void) {
+  /* Set port directions */
+  TRISA = 0xFF;
+  TRISB = 0x00;
+  TRISC = 0x00;
+  TRISD = 0x00;
+  TRISE = 0x04;
+
+  /* Clear port outputs */
+  PORTA = 0x00;
+  PORTB = 0x00;
+  PORTC = 0x00;
+  PORTD = 0x00;
+  PORTE = 0x00;
+}
+
+/* Delay approximately by a particular number of cycles, using Timer 1 */
+void delayCycles(int num) {
+  
+  
+
+
+/****************************************************** Sensor I/O ******/
+
+void timerInterrupt(void) interrupt 0 {
+  /* Reset timer and clear interupt flag */
+  TMR0 = TMR0_LOAD_VALUE;
+  T0IF = 0;
+
+  /* Operate all enabled transmitters */
+  PORTB ^= transmitMask;
+}
+
+void transmitEnable(int transmitter) {
+  /* Enable the interrupt if it isn't already */
+  if (!transmitMask) {
+    T0CS = 0;                /* Clock source = INSTRUCTION_CLOCK_HZ */
+    PSA = 1;                 /* No prescaler on TMR0 */
+    T0IE = 1;                /* Enable timer interrupt */
+    T0IF = 0;                /* Clear interrupt flag */
+    TMR0 = TMR0_LOAD_VALUE;  /* Prime the timer0 */
+    GIE = 1;                 /* Global interrupt enable */
+  }
+
+  /* Set the transmit mask to this transmitter, disable the other ones */
+  PORTB &= 0x0F;
+  transmitMask = transmitter;
+}
+
+void transmitDisable(void) {
+  /* Disable interrupts */
+  GIE = 0;
+
+  /* Disable all transmitters */
+  PORTB &= 0x0F;
+  transmitMask = 0;
+}
+
+void readADC(unsigned char channel) {
+  ADCON1 = 0x82;
+  ADCON0 = channel;
+  GO_DONE = 1;
+  while (NOT_DONE);
+}
+
+
+/****************************************************** Serial Port ******/
+
+/* NOTE: The PIC16F877 has a built-in USART which it would make a lot of
+ *       sense to use here, but we're bit-banging instead so the hardware can
+ *       be shared by this app and WLoader. This also supports migrating this
+ *       code to other PICs without a USART.
+ *
+ *       This code uses Timer 1: Timer 0 is already used for the transmitter
+ *       interrupt, plus it's too small to handle a slow baud rate like 19200.
+ *       Timed loops would only work if the transmit interrupt were disabled.
+ */
+
+void putc(unsigned char byte) {
+  unsigned char bitnum;
+
+  /* Set up timer 1 to run at Fosc/4 */
+  T1CON = 0x01;
+ 
+  
+  
+}
+
+/* The End */

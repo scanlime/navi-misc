@@ -1,0 +1,462 @@
+gpasm-0.10.6 alpha              main.asm    2-25-2003  02:14:57          PAGE  1
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+               00001         ;;
+               00002         ;; Electric field sensor box
+               00003         ;; Copyright 2003, Micah Dowty <micah@navi.picogui.org>
+               00004         ;;
+               00005         ;; This box has essentially the same transmit and receive
+               00006         ;; hardware as the LazyFish. There are 6 electrodes arranged
+               00007         ;; under the lid of the project's enclosure. A PIC16F877
+               00008         ;; microcontroller was chosen, for easy in-circuit programming
+               00009         ;; using the WLoader bootloader firmware.
+               00010         ;;
+               00011         ;; Hardware connections:
+               00012         ;; 
+               00013         ;;   RB0-3:     Front panel LEDs, active high
+               00014         ;;   RB4-7:     Transmit electrodes
+               00015         ;;   RA0-1:     Receive electrodes
+               00016         ;;   RE2:       WLoader serial transmit and receive
+               00017         ;; 
+               00018         ;;   20MHz crystal oscillator
+               00019         ;;
+               00020         ;;   USB port is currently only used for power. It
+               00021         ;;   is planned to eventually add a separate USB chip,
+               00022         ;;   or use a PIC with built-in USB.
+               00023         ;; 
+               00024         
+               00025         list    p=16f877
+               00026         #include p16f877.inc
+               00001         LIST
+               00002 ; P16F877.INC  Standard Header File, Version 1.00    Microchip Technology, Inc.
+               00373         LIST
+               00027 
+               00028 
+               00029 ;----------------------------------------------------- Constants
+               00030 
+               00031 ; I/O
+               00032 #define Light0          PORTB, 0
+               00033 #define Light1          PORTB, 1
+               00034 #define Light2          PORTB, 2
+               00035 #define Light3          PORTB, 3
+               00036 #define Transmit0       PORTB, 4
+               00037 #define Transmit1       PORTB, 5
+               00038 #define Transmit2       PORTB, 6
+               00039 #define Transmit3       PORTB, 7
+               00040 #define Receive0        PORTA, 0
+               00041 #define Receive1        PORTA, 1
+               00042 #define DefaultTrisA    B'00000011'
+               00043 #define DefaultTrisB    B'00000000'
+               00044 #define DefaultTrisC    B'00000000'
+               00045 #define DefaultTrisD    B'00000000'
+               00046 #define DefaultTrisE    B'00000100'
+               00047 
+               00048         
+               00049 ;----------------------------------------------------- Variables
+               00050 
+               00051         cblock 0C
+gpasm-0.10.6 alpha              main.asm    2-25-2003  02:14:57          PAGE  2
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+               00052           delayTemp1, delayTemp2, delayTemp3
+               00053         endc
+               00054 
+               00055 
+               00056 ;----------------------------------------------------- Main program
+0000           00057         org 0
+               00058 
+               00059         ;; I/O Initialization
+0000 1683      00060         bsf     STATUS, RP0     ; TRIS registers in page 1
+0001 3003      00061         movlw   DefaultTrisA
+Message [302] : Register in operand not in bank 0. Ensure bank bits are correct.
+0002 0085      00062         movwf   TRISA
+0003 3000      00063         movlw   DefaultTrisB
+Message [302] : Register in operand not in bank 0. Ensure bank bits are correct.
+0004 0086      00064         movwf   TRISB
+0005 3000      00065         movlw   DefaultTrisC
+Message [302] : Register in operand not in bank 0. Ensure bank bits are correct.
+0006 0087      00066         movwf   TRISC
+0007 3000      00067         movlw   DefaultTrisD
+Message [302] : Register in operand not in bank 0. Ensure bank bits are correct.
+0008 0088      00068         movwf   TRISD
+0009 3004      00069         movlw   DefaultTrisE
+Message [302] : Register in operand not in bank 0. Ensure bank bits are correct.
+000A 0089      00070         movwf   TRISE
+000B 1283      00071         bcf     STATUS, RP0
+000C 0185      00072         clrf    PORTA           ; Clear ports
+000D 0186      00073         clrf    PORTB
+000E 0187      00074         clrf    PORTC
+000F 0188      00075         clrf    PORTD
+0010 0189      00076         clrf    PORTE
+               00077 
+0011           00078 blinkyloop
+0011 1406      00079         bsf     Light0
+0012 2024      00080         call    delay
+0013 1006      00081         bcf     Light0
+               00082         
+0014 1486      00083         bsf     Light1
+0015 2024      00084         call    delay
+0016 1086      00085         bcf     Light1
+               00086 
+0017 1506      00087         bsf     Light2
+0018 2024      00088         call    delay
+0019 1106      00089         bcf     Light2
+               00090 
+001A 1586      00091         bsf     Light3
+001B 2024      00092         call    delay
+001C 1186      00093         bcf     Light3
+               00094 
+001D 1506      00095         bsf     Light2
+001E 2024      00096         call    delay
+001F 1106      00097         bcf     Light2
+               00098 
+0020 1486      00099         bsf     Light1
+0021 2024      00100         call    delay
+gpasm-0.10.6 alpha              main.asm    2-25-2003  02:14:57          PAGE  3
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+0022 1086      00101         bcf     Light1
+               00102 
+0023 2811      00103         goto    blinkyloop
+               00104 
+0024           00105 delay
+0024 30D5      00106         movlw   0D5
+0025 008C      00107         movwf   delayTemp1
+0026           00108 delayLoop1
+0026 30FF      00109         movlw   0FF
+0027 008D      00110         movwf   delayTemp2
+0028           00111 delayLoop2
+0028 30FF      00112         movlw   0FF
+0029 008E      00113         movwf   delayTemp3
+002A           00114 delayLoop3
+002A 0B8E      00115         decfsz  delayTemp3, f
+002B 282A      00116         goto    delayLoop3
+002C 0B8D      00117         decfsz  delayTemp2, f
+002D 2828      00118         goto    delayLoop2
+002E 0B8C      00119         decfsz  delayTemp1, f
+002F 2826      00120         goto    delayLoop1
+0030 0008      00121         return  
+               00122         
+gpasm-0.10.6 alpha              main.asm    2-25-2003  02:14:57          PAGE  4
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+ACKDT                             00000005
+ACKEN                             00000004
+ACKSTAT                           00000006
+ADCON0                            0000001F
+ADCON1                            0000009F
+ADCS0                             00000006
+ADCS1                             00000007
+ADDEN                             00000003
+ADFM                              00000007
+ADIE                              00000006
+ADIF                              00000006
+ADON                              00000000
+ADRESH                            0000001E
+ADRESL                            0000009E
+BCLIE                             00000003
+BCLIF                             00000003
+BF                                00000000
+BRGH                              00000002
+C                                 00000000
+CCP1CON                           00000017
+CCP1IE                            00000002
+CCP1IF                            00000002
+CCP1M0                            00000000
+CCP1M1                            00000001
+CCP1M2                            00000002
+CCP1M3                            00000003
+CCP1X                             00000005
+CCP1Y                             00000004
+CCP2CON                           0000001D
+CCP2IE                            00000000
+CCP2IF                            00000000
+CCP2M0                            00000000
+CCP2M1                            00000001
+CCP2M2                            00000002
+CCP2M3                            00000003
+CCP2X                             00000005
+CCP2Y                             00000004
+CCPR1H                            00000016
+CCPR1L                            00000015
+CCPR2H                            0000001C
+CCPR2L                            0000001B
+CHS0                              00000003
+CHS1                              00000004
+CHS2                              00000005
+CKE                               00000006
+CKP                               00000004
+CREN                              00000004
+CSRC                              00000007
+D                                 00000005
+DATA_ADDRESS                      00000005
+DC                                00000001
+D_A                               00000005
+EEADR                             0000010D
+gpasm-0.10.6 alpha              main.asm    2-25-2003  02:14:57          PAGE  5
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+EEADRH                            0000010F
+EECON1                            0000018C
+EECON2                            0000018D
+EEDATA                            0000010C
+EEDATH                            0000010E
+EEIE                              00000004
+EEIF                              00000004
+EEPGD                             00000007
+F                                 00000001
+FERR                              00000002
+FSR                               00000004
+GCEN                              00000007
+GIE                               00000007
+GO                                00000002
+GO_DONE                           00000002
+I2C_DATA                          00000005
+I2C_READ                          00000002
+I2C_START                         00000003
+I2C_STOP                          00000004
+IBF                               00000007
+IBOV                              00000005
+INDF                              00000000
+INTCON                            0000000B
+INTE                              00000004
+INTEDG                            00000006
+INTF                              00000001
+IRP                               00000007
+NOT_A                             00000005
+NOT_ADDRESS                       00000005
+NOT_BO                            00000000
+NOT_BOR                           00000000
+NOT_DONE                          00000002
+NOT_PD                            00000003
+NOT_POR                           00000001
+NOT_RBPU                          00000007
+NOT_RC8                           00000006
+NOT_T1SYNC                        00000002
+NOT_TO                            00000004
+NOT_TX8                           00000006
+NOT_W                             00000002
+NOT_WRITE                         00000002
+OBF                               00000006
+OERR                              00000001
+OPTION_REG                        00000081
+P                                 00000004
+PCFG0                             00000000
+PCFG1                             00000001
+PCFG2                             00000002
+PCFG3                             00000003
+PCL                               00000002
+PCLATH                            0000000A
+PCON                              0000008E
+PEIE                              00000006
+PEN                               00000002
+gpasm-0.10.6 alpha              main.asm    2-25-2003  02:14:57          PAGE  6
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+PIE1                              0000008C
+PIE2                              0000008D
+PIR1                              0000000C
+PIR2                              0000000D
+PORTA                             00000005
+PORTB                             00000006
+PORTC                             00000007
+PORTD                             00000008
+PORTE                             00000009
+PR2                               00000092
+PS0                               00000000
+PS1                               00000001
+PS2                               00000002
+PSA                               00000003
+PSPIE                             00000007
+PSPIF                             00000007
+PSPMODE                           00000004
+R                                 00000002
+RBIE                              00000003
+RBIF                              00000000
+RC8_9                             00000006
+RC9                               00000006
+RCD8                              00000000
+RCEN                              00000003
+RCIE                              00000005
+RCIF                              00000005
+RCREG                             0000001A
+RCSTA                             00000018
+RD                                00000000
+READ_WRITE                        00000002
+RP0                               00000005
+RP1                               00000006
+RSEN                              00000001
+RX9                               00000006
+RX9D                              00000000
+R_W                               00000002
+S                                 00000003
+SEN                               00000000
+SMP                               00000007
+SPBRG                             00000099
+SPEN                              00000007
+SREN                              00000005
+SSPADD                            00000093
+SSPBUF                            00000013
+SSPCON                            00000014
+SSPCON2                           00000091
+SSPEN                             00000005
+SSPIE                             00000003
+SSPIF                             00000003
+SSPM0                             00000000
+SSPM1                             00000001
+SSPM2                             00000002
+SSPM3                             00000003
+SSPOV                             00000006
+gpasm-0.10.6 alpha              main.asm    2-25-2003  02:14:57          PAGE  7
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+SSPSTAT                           00000094
+STATUS                            00000003
+SYNC                              00000004
+T0CS                              00000005
+T0IE                              00000005
+T0IF                              00000002
+T0SE                              00000004
+T1CKPS0                           00000004
+T1CKPS1                           00000005
+T1CON                             00000010
+T1INSYNC                          00000002
+T1OSCEN                           00000003
+T1SYNC                            00000002
+T2CKPS0                           00000000
+T2CKPS1                           00000001
+T2CON                             00000012
+TMR0                              00000001
+TMR1CS                            00000001
+TMR1H                             0000000F
+TMR1IE                            00000000
+TMR1IF                            00000000
+TMR1L                             0000000E
+TMR1ON                            00000000
+TMR2                              00000011
+TMR2IE                            00000001
+TMR2IF                            00000001
+TMR2ON                            00000002
+TOUTPS0                           00000003
+TOUTPS1                           00000004
+TOUTPS2                           00000005
+TOUTPS3                           00000006
+TRISA                             00000085
+TRISB                             00000086
+TRISC                             00000087
+TRISD                             00000088
+TRISE                             00000089
+TRISE0                            00000000
+TRISE1                            00000001
+TRISE2                            00000002
+TRMT                              00000001
+TX8_9                             00000006
+TX9                               00000006
+TX9D                              00000000
+TXD8                              00000000
+TXEN                              00000005
+TXIE                              00000004
+TXIF                              00000004
+TXREG                             00000019
+TXSTA                             00000098
+UA                                00000001
+W                                 00000000
+WCOL                              00000007
+WR                                00000001
+WREN                              00000002
+gpasm-0.10.6 alpha              main.asm    2-25-2003  02:14:57          PAGE  8
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+WRERR                             00000003
+Z                                 00000002
+_BODEN_OFF                        00003FBF
+_BODEN_ON                         00003FFF
+_CPD_OFF                          00003FFF
+_CPD_ON                           00003EFF
+_CP_ALL                           00000FCF
+_CP_HALF                          00001FDF
+_CP_OFF                           00003FFF
+_CP_UPPER_256                     00002FEF
+_DEBUG_OFF                        00003FFF
+_DEBUG_ON                         000037FF
+_HS_OSC                           00003FFE
+_LP_OSC                           00003FFC
+_LVP_OFF                          00003F7F
+_LVP_ON                           00003FFF
+_PWRTE_OFF                        00003FFF
+_PWRTE_ON                         00003FF7
+_RC_OSC                           00003FFF
+_WDT_OFF                          00003FFB
+_WDT_ON                           00003FFF
+_WRT_ENABLE_OFF                   00003DFF
+_WRT_ENABLE_ON                    00003FFF
+_XT_OSC                           00003FFD
+__16F877                          00000001
+blinkyloop                        00000011
+delay                             00000024
+delayLoop1                        00000026
+delayLoop2                        00000028
+delayLoop3                        0000002A
+delayTemp1                        0000000C
+delayTemp2                        0000000D
+delayTemp3                        0000000E
+DefaultTrisA                      B'00000011'
+DefaultTrisB                      B'00000000'
+DefaultTrisC                      B'00000000'
+DefaultTrisD                      B'00000000'
+DefaultTrisE                      B'00000100'
+Light0                            PORTB, 0
+Light1                            PORTB, 1
+Light2                            PORTB, 2
+Light3                            PORTB, 3
+Receive0                          PORTA, 0
+Receive1                          PORTA, 1
+Transmit0                         PORTB, 4
+Transmit1                         PORTB, 5
+Transmit2                         PORTB, 6
+Transmit3                         PORTB, 7
+
+
+MEMORY USAGE MAP ('X' = Used,  '-' = Unused)
+
+0000 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX X---------------
+
+gpasm-0.10.6 alpha              main.asm    2-25-2003  02:14:57          PAGE  9
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+All other memory blocks unused.
+
+Program Memory Words Used: 49
+
+
+Errors   :       0
+Warnings :       0 reported,       0 suppressed
+Messages :       5 reported,       0 suppressed
+
