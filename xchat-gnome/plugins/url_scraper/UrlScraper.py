@@ -34,6 +34,7 @@ class URLScraper:
     def __init__( self ):
         self.urls = 0
         self.new_urls = 0
+        self.loaded = True
 
         # Set up gconf stuff.
         self.client = gconf.client_get_default()
@@ -131,6 +132,7 @@ class URLScraper:
 
     def unload( self, user_data ):
         ''' Destroy the window and stuff before we go away. '''
+        self.loaded = False
         self.window.destroy()
         print 'URL Scraper unloaded.'
 
@@ -139,7 +141,8 @@ class URLScraper:
         # FIXME: In the future this might just hide the window if we can add a
         #        item to the main window that would allow us to show the window,
         #        in which case we wouldn't unload the plugin here.
-        xchat.command( 'py unload '+__module_name__ )
+        if self.loaded:
+            xchat.command( 'py unload '+__module_name__ )
 
 scraper = URLScraper()
 xchat.hook_print( 'Channel Message', scraper.grabURL )
