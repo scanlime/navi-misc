@@ -93,7 +93,10 @@ initialize_text_gui ()
 	if (gconf_client_get_bool(client, "/apps/xchat/main_window/use_sys_fonts", NULL))
 		font = gconf_client_get_string (client, "/desktop/gnome/interface/font_name", NULL);
 	else
-		font = gconf_client_get_string(client, "/apps/xchat/main_window/font", NULL);
+		font = gconf_client_get_string (client, "/apps/xchat/main_window/font", NULL);
+
+	if (font == NULL)
+		font = g_strdup ("fixed 11");
 
 	gtk_xtext_set_font (GTK_XTEXT (gui.xtext), font);
 	g_object_unref (client);
