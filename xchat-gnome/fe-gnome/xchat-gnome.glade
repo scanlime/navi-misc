@@ -541,7 +541,7 @@
 			  <property name="label" translatable="yes">Pre_vious Network</property>
 			  <property name="use_underline">True</property>
 			  <signal name="activate" handler="on_go_previous_network_activate" last_modification_time="Sat, 03 Apr 2004 07:22:15 GMT"/>
-			  <accelerator key="Up" modifiers="GDK_MOD1_MASK" signal="activate"/>
+			  <accelerator key="Up" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 			  <child internal-child="image">
 			    <widget class="GtkImage" id="image1472">
@@ -563,7 +563,7 @@
 			  <property name="label" translatable="yes">Nex_t Network</property>
 			  <property name="use_underline">True</property>
 			  <signal name="activate" handler="on_go_next_network_activate" last_modification_time="Sat, 03 Apr 2004 07:22:15 GMT"/>
-			  <accelerator key="Down" modifiers="GDK_MOD1_MASK" signal="activate"/>
+			  <accelerator key="Down" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 			  <child internal-child="image">
 			    <widget class="GtkImage" id="image1473">
@@ -591,7 +591,7 @@
 			  <property name="label" translatable="yes">_Previous Discussion</property>
 			  <property name="use_underline">True</property>
 			  <signal name="activate" handler="on_previous1_activate" last_modification_time="Sat, 24 Jan 2004 17:28:03 GMT"/>
-			  <accelerator key="Up" modifiers="GDK_CONTROL_MASK" signal="activate"/>
+			  <accelerator key="Up" modifiers="GDK_MOD1_MASK" signal="activate"/>
 
 			  <child internal-child="image">
 			    <widget class="GtkImage" id="image1474">
@@ -613,7 +613,7 @@
 			  <property name="label" translatable="yes">_Next Discussion</property>
 			  <property name="use_underline">True</property>
 			  <signal name="activate" handler="on_next1_activate" last_modification_time="Sat, 24 Jan 2004 17:28:03 GMT"/>
-			  <accelerator key="Down" modifiers="GDK_CONTROL_MASK" signal="activate"/>
+			  <accelerator key="Down" modifiers="GDK_MOD1_MASK" signal="activate"/>
 
 			  <child internal-child="image">
 			    <widget class="GtkImage" id="image1475">
