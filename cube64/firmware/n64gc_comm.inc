@@ -227,7 +227,8 @@ n64gc_rx_buffer macro port, bit, clear_watchdog
 	local	bit_loop
 	local	not_last_bit
 	local	not_last_byte
-	local	edge_det_loop
+	local	edge_det_1
+	local	edge_det_2
 
 	movwf	byte_count	; Stow our byte count
 
@@ -238,17 +239,12 @@ n64gc_rx_buffer macro port, bit, clear_watchdog
 	;; The overhead from sampling to the beginning of the next poll needs to
 	;; be less than 2us (10 cycles)
 bit_loop
-	btfss	port, bit	; Before looking for the falling edge, make sure the line is 1.
-	goto	bit_loop	; This is necessary if the loop below is speedy enough to finish
-				; before the end of the low portion of a bit.
-
-edge_det_loop
 	if	clear_watchdog
 	clrwdt
 	endif
 
 	btfsc	port, bit	; 0.0us  Poll for the beginning of the bit, max 0.6us jitter
-	goto	edge_det_loop	; 0.2us
+	goto	bit_loop	; 0.2us
 	rlf	INDF, f		; 0.4us  Make room for the new bit
 	bcf	INDF, 0		; 0.6us  Assume it's 0 to begin with
 	decfsz	bit_count, f	; 0.8us  Is this the last bit?
@@ -270,14 +266,18 @@ not_last_byte
 	bsf	INDF, 0		; 2.2us
 	incf	FSR, f		; 2.4us  Next byte...
 	movwf	bit_count	; 2.6us  Reset bit count
-	goto	bit_loop	; 2.8us
+	btfsc	port, bit	; 2.8us  Wait for the data line to go back high
+	goto	bit_loop	; 3.0us
+	goto	$-2		; 3.2us
 
 not_last_bit
 	nop			; 1.4us
 	goto	$+1		; 1.6us
 	btfsc	port, bit	; 2.0us  Sample the incoming bit
 	bsf	INDF, 0		; 2.2us
-	goto	bit_loop	; 2.4us
+	btfsc	port, bit	; 2.4us  Wait for the data line to go back high
+	goto	bit_loop	; 2.6us
+	goto	$-2		; 2.8us
 	endm
 
 	;;; The End ;;;
