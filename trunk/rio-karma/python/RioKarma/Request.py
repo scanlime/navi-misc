@@ -163,7 +163,8 @@ class WriteFileChunk(Pearl.StructRequest):
         Pearl.StructRequest.__init__(self)
 
     def __repr__(self):
-        return "<WriteFileChunk: 0x%02X bytes at 0x%02X>" % (self.size, self.offset)
+        return "<WriteFileChunk: 0x%02X bytes at 0x%02X>" % (
+            self.parameters[1], self.parameters[0])
 
     def sendTo(self, fileObj):
         Pearl.StructRequest.sendTo(self, fileObj)

@@ -359,23 +359,32 @@ class FileManager:
            waiting for a write lock to be released, if one was held. If you'd rather
            not block, release the lock before calling this.
            """
+        if self.protocol:
+            if 'write' in self.locksHeld:
+                sys.stderr.write("\n\nReleasing write lock, please wait...\n")
+                self.unlock()
+
+                # Note that we're waiting on locksHeld, rather than the result
+                # of this call to unlock(). This is in case someone else already
+                # started an unlock that we're not aware of.
+                while self.locksHeld:
+                    reactor.iterate(0.1)
+
+            # In case, while waiting for a lock, someone else beat us to it...
+            if self.protocol:
+                self.protocol.sendRequest(Request.Hangup())
+                self.protocol = None
+
+        # Close the cache *after* releasing locks, since releasing a
+        # write lock will want to update the cache's stamp.
         if self.cache:
             self.cache.close()
             self.cache = None
 
-        if self.protocol:
-
-            if 'write' in self.locksHeld:
-                sys.stderr.write("\n\nReleasing write lock, please wait...\n")
-                d = self.unlock()
-                while not d.called:
-                    reactor.iterate(0.1)
-
-            self.protocol.sendRequest(Request.Hangup())
-            self.protocol = None
-
         # We only needed this once.. don't want this object to leak
-        reactor.removeSystemEventTrigger(self._shutdownTrigger)
+        if self._shutdownTrigger:
+            reactor.removeSystemEventTrigger(self._shutdownTrigger)
+            self._shutdownTrigger = None
 
     def readLock(self):
         """Acquire a read-only lock on this filesystem- necessary for most
@@ -413,7 +422,7 @@ class FileManager:
         if 'write' in self.locksHeld:
             self.cache.updateStamp(stamp)
         self.locksHeld = ()
-        result.callback()
+        result.callback(None)
 
     def synchronize(self):
         """Update our local database if necessary. Returns a Deferred
@@ -460,21 +469,21 @@ class FileManager:
     def getStamp(self):
         """This returns an arbitrary value that is expected to change any
            time the actual content of the device changes. It is used to verify
-           our cache's integrity. This uses the amount of free space on the
-           device- it's likely to change whenever any outside modification
-           is made, and there doesn't seem to be any better choice without
-           downloading the whole database.
+           our cache's integrity. This returns via a Deferred, since it needs
+           to communicate with the device.
 
-           This returns via a Deferred, since it needs to communicate
-           with the device.
+           This is implemented with the 'device_generation' field in the
+           response from GetDeviceSettings- it seems to be exactly what we need.
+           If this turns out to in fact not be quite right, the amount of free
+           space on the device would also make a decent stamp.
            """
         result = defer.Deferred()
-        self.protocol.sendRequest(Request.GetStorageDetails()).addCallback(
+        self.protocol.sendRequest(Request.GetDeviceSettings()).addCallback(
             self._getStamp, result).addErrback(result.errback)
         return result
 
-    def _getStamp(self, storageDetails, result):
-        result.callback(storageDetails['freeSpace'])
+    def _getStamp(self, deviceSettings, result):
+        result.callback(int(deviceSettings['device_generation']))
 
     def updateFileDetails(self, f):
         """Update our cache and the device itself with the latest details dictionary
