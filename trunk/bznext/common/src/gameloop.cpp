@@ -41,6 +41,13 @@ void OSSleep ( float time )
 {
 #ifdef _WIN32
   Sleep((DWORD)(1000.0f * time));
+
+	MSG  msg;
+	while( PeekMessage( &msg, NULL, 0U, 0U, PM_REMOVE ) )
+	{
+		TranslateMessage( &msg );
+		DispatchMessage( &msg );
+	}
 #else
   usleep((unsigned int )(100000 * time));
 #endif
@@ -127,7 +134,6 @@ bool CBaseGameLoop::Run ( void )
 	// load the debug overlay
 	showDebug = args.GetDataB("showDebug");
 	showDebugOverlay(showDebug);
-	return false;
 
   if(OnInit())
   {
