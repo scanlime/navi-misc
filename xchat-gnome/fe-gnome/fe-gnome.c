@@ -342,3 +342,7 @@ void fe_get_int(char *prompt, int def, void *callback, void *ud) {
 void fe_ctrl_gui(session *sess, int action, int arg) {
 	/* FIXME: implement */
 }
+
+void
+fe_confirm (const char *message, void (*yesproc)(void *), void (*noproc)(void *), void *ud) {
+}

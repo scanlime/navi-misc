@@ -1,5 +1,5 @@
 /*
- * gui.c - main gui initialization and helper functions
+ * setup_druid.c - helpers for the initial setup druid
  *
  * Copyright (C) 2004 David Trowbridge and Dan Kuester
  *
@@ -19,35 +19,13 @@
  *
  */
 
-#include "gui.h"
-#include "main_window.h"
-#include "preferences_dialog.h"
-#include "connect_dialog.h"
-#include "navigation_tree.h"
-#include "about.h"
-#include "textgui.h"
-#include "userlist.h"
 #include "setup_druid.h"
-#include "pixmaps.h"
+#include "gui.h"
 
-XChatGUI gui;
-
-gboolean initialize_gui() {
-	gui.xml = glade_xml_new("xchat-gnome.glade", NULL, NULL);
-	if(!gui.xml)
-		return FALSE;
-	gui.current_session = NULL;
-	pixmaps_init();
-	initialize_main_window();
-	initialize_text_gui();
-	initialize_preferences_dialog();
-	initialize_connection_dialog();
-	initialize_navigation_tree();
-	initialize_setup_druid();
-	initialize_userlist();
-	return TRUE;
+void initialize_setup_druid() {
+	gui.setup_druid = GNOME_DRUID(glade_xml_get_widget(gui.xml, "setup druid"));
 }
 
-int xtext_get_stamp_str (time_t tim, char **ret) {
-	return get_stamp_str("[%H:%M:%S] ", tim, ret);
+void run_setup_druid() {
+	gtk_widget_show_all(GTK_WIDGET(gui.setup_druid));
 }

@@ -1,5 +1,5 @@
 /*
- * gui.h - main gui information structure
+ * setup_druid.h - helpers for the initial setup druid
  *
  * Copyright (C) 2004 David Trowbridge and Dan Kuester
  *
@@ -19,27 +19,10 @@
  *
  */
 
-#include <glade/glade.h>
-#include <gnome.h>
-#include "../fe-gtk/xtext.h"
-#include "../common/xchat.h"
+#ifndef XCHAT_GNOME_SETUP_DRUID_H
+#define XCHAT_GNOME_SETUP_DRUID_H
 
-#ifndef XCHAT_GNOME_GUI_H
-#define XCHAT_GNOME_GUI_H
-
-typedef struct {
-	GladeXML *xml;
-	GnomeApp *main_window;
-	GtkDialog *preferences_dialog;
-	GnomeAbout *about;
-	GtkXText *xtext;
-	session *current_session;
-	GnomeDruid *setup_druid;
-} XChatGUI;
-
-extern XChatGUI gui;
-
-gboolean initialize_gui();
-int xtext_get_stamp_str (time_t tim, char **ret);
+void initialize_setup_druid();
+void run_setup_druid();
 
 #endif
