@@ -23,9 +23,6 @@
 
 - FIXME for hardcoding URLs in the ruleset browser
 
-- Message filters (for scraping mailing lists) are in dire need of refactoring,
-  and should be made to use the XML-RPC interface instead of sending email
-
 ######## Enhancements
 
 - Web interface for editing rulesets and stats metadata- how would we handle
@@ -41,12 +38,7 @@
   formatter that could instead prepend a module name, for channels that only
   display one project
 
-- Client scripts should be updated for the XML message format, and the formatters
-  enhanced where necessary.
-
-- Look into moving from Rack to SQL (e.g. sqlite) for the stats database
-
-- Support for deleting stats targets
+- Support for deleting and merging stats targets
 
 - documentation
 
