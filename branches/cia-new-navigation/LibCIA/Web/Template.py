@@ -136,6 +136,43 @@ class Page(Nouvelle.Twisted.Page):
     siteName = "CIA"
     mainTitle = None
     subTitle = []
+    leftColumn  = []
+    mainColumn  = []
+
+    document = [
+        ## Commented out for now, as it seems to break some of the CSS formatting. Why?
+        ##
+        #xml('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" '
+        #    '"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">\n'),
+
+        tag('html', xmlns="http://www.w3.org/1999/xhtml")[
+            tag('head')[
+                tag('title')[ place("pageTitle") ],
+                tag('style', type="text/css", media="all")[ "@import url(/style.css);" ],
+                ],
+            tag('body')[
+                tag('div', _class="heading")[
+                    tag('table', _class="heading")[ tag('tr', _class="heading")[
+                        tag('td', _class="title")[
+                            tag('div', _class="mainTitle")[ place("mainTitle") ],
+                            tag('div', _class="subTitle")[ place("subTitle") ],
+                        ],
+                        tag('td', _class="sitename")[ place("siteName") ],
+                    ]],
+                    tag('div', _class="tabs")[ place("tabs") ],
+                    tag('div', _class="tabBar")[ place("breadcrumbs") ],
+                ],
+                tag('table', _class="columns")[ tag('tr')[
+                    tag('td', _class="left")[ place("leftColumn") ],
+                    tag('td', _class="main")[ place("mainColumn") ],
+                ]],
+                tag('div', _class="footer")[
+                    tag('a', href="http://navi.cx")[
+                        tag('img', _class="footer", src="/images/navi64.png", width="64", height="39", alt="Navi"),
+                    ],
+                ],
+            ],
+        ]]
 
     def render_pageTitle(self, context):
         return [self.render_mainTitle,
@@ -207,44 +244,6 @@ class Page(Nouvelle.Twisted.Page):
            By default it will be relative to this site. If
            'absolute' is true, this will be a fully qualified URL.
            """
-        return 'boing'
-
-    leftColumn  = []
-    mainColumn  = []
-
-    document = [
-        ## Commented out for now, as it seems to break some of the CSS formatting. Why?
-        ##
-        #xml('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" '
-        #    '"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">\n'),
-
-        tag('html', xmlns="http://www.w3.org/1999/xhtml")[
-            tag('head')[
-                tag('title')[ place("pageTitle") ],
-                tag('style', type="text/css", media="all")[ "@import url(/style.css);" ],
-                ],
-            tag('body')[
-                tag('div', _class="heading")[
-                    tag('table', _class="heading")[ tag('tr', _class="heading")[
-                        tag('td', _class="title")[
-                            tag('div', _class="mainTitle")[ place("mainTitle") ],
-                            tag('div', _class="subTitle")[ place("subTitle") ],
-                        ],
-                        tag('td', _class="sitename")[ place("siteName") ],
-                    ]],
-                    tag('div', _class="tabs")[ place("tabs") ],
-                    tag('div', _class="tabBar")[ place("breadcrumbs") ],
-                ],
-                tag('table', _class="columns")[ tag('tr')[
-                    tag('td', _class="left")[ place("leftColumn") ],
-                    tag('td', _class="main")[ place("mainColumn") ],
-                ]],
-                tag('div', _class="footer")[
-                    tag('a', href="http://navi.cx")[
-                        tag('img', _class="footer", src="/images/navi64.png", width="64", height="39", alt="Navi"),
-                    ],
-                ],
-            ],
-        ]]
+        pass
 
 ### The End ###
