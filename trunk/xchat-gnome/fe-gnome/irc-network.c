@@ -44,17 +44,17 @@ static void
 irc_network_finalize (GObject *object)
 {
 	IrcNetwork *network = IRC_NETWORK (object);
+	GSList *s;
 
 	g_free (network->name);
 	g_free (network->password);
 	g_free (network->nick);
 	g_free (network->real);
 
+	for (s = network->servers; s; s = g_slist_next (s))
+		g_free (((ircserver *) s->data)->hostname);
 	g_slist_foreach (network->servers, g_free, NULL);
 	g_slist_free (network->servers);
-
-	g_slist_foreach (network->autojoin, g_free, NULL);
-	g_slist_free (network->autojoin);
 }
 
 static void
@@ -117,8 +117,11 @@ irc_network_new (ircnet *net)
 	n->novegiveup  = net->flags & FLAG_;
 	*/
 
-	for (s1 = n->servers; s1; s1 = g_slist_next (s1))
-		s2 = g_slist_prepend (s2, g_strdup (s1->data));
+	for (s1 = n->servers; s1; s1 = g_slist_next (s1)) {
+		ircserver *s = g_new0(ircserver, 1);
+		s->hostname = g_strdup(s1->data);
+		s2 = g_slist_prepend (s2, s);
+	}
 	n->servers = s2;
 
 	n->password    = g_strdup(net->pass);
