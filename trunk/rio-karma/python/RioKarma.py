@@ -43,6 +43,14 @@ class AuthenticationError(Exception):
     pass
 
 
+# Most of these errors were guessed based on expected behavior, might be incorrect
+statusExceptionMap = {
+    0x8004005E: (ProtocolError,       "A read lock is required for this operation"),
+    0xC0040002: (ProtocolError,       "Nonexistant file ID"),
+    0x8004005B: (AuthenticationError, "Password is incorrect"),
+    }
+
+
 class RequestResponseProtocol(protocol.Protocol):
     """The 'Pearl' protocol consists of client-initiated request/response
        pairs. Each request/response has a common header, but the data may be
@@ -127,12 +135,12 @@ class PearlRequest:
         # Get out fast if we were successful
         if status == 0:
             return
-
-        if status == 0x8004005B:
-            raise AuthenticationError("Password is incorrect")
-
-        raise ProtocolError("Unexpected status 0x%08X for request %r" %
-                            (status, self))
+        try:
+            exc = statusExceptionMap[status]
+        except KeyError:
+            raise ProtocolError("Unexpected status 0x%08X for request %r" %
+                                (status, self))
+        raise exc[0](*exc[1:])
 
 
 class StructRequest(PearlRequest):
@@ -331,12 +339,10 @@ class Request_GetDeviceSettings(VariableRequest):
             self.result.callback(self.properties)
 
 
-class FIXME:
-    pass
-
-
-class Request_UpdateDeviceSettings(FIXME):
+class Request_UpdateDeviceSettings(VariableRequest):
     id = 8
+    def __init__(self):
+        raise NotImplementedError
 
 
 class Request_RequestIOLock(StructRequest):
@@ -361,6 +367,7 @@ class Request_RequestIOLock(StructRequest):
 
     def receivedResponse(self, status):
         self.decodeStatus(status)
+        self.result.callback(None)
 
 
 class Request_ReleaseIOLock(StructRequest):
@@ -370,26 +377,59 @@ class Request_ReleaseIOLock(StructRequest):
 
     def receivedResponse(self, status):
         self.decodeStatus(status)
+        self.result.callback(None)
 
 
-class Request_WriteFileChunk(FIXME):
+class Request_WriteFileChunk(VariableRequest):
     id = 12
+    def __init__(self):
+        raise NotImplementedError
 
 
-class Request_GetAllFileDetails(FIXME):
+class Request_GetAllFileDetails(VariableRequest):
     id = 13
+    responseFormat = 'I'
+
+    def receivedResponse(self, status):
+        self.decodeStatus(status)
+        self.properties = PropertiesFile()
+        self.readResponse = self.readSettings
+
+    def readSettings(self, fileObj):
+        if self.readNullTerminated(fileObj, self.properties):
+            self.result.callback(self.properties)
 
 
-class Request_GetFileDetails(FIXME):
+class Request_GetFileDetails(VariableRequest):
+    """Reads a PropertyFile object containing details for one file, specified by ID"""
     id = 14
+    requestFormat = 'I'
+    responseFormat = 'I'
+
+    def __init__(self, fileID):
+        self.parameters = (fileID,)
+        VariableRequest.__init__(self)
+
+    def receivedResponse(self, status):
+        self.decodeStatus(status)
+        self.properties = PropertiesFile()
+        self.readResponse = self.readDetails
+
+    def readDetails(self, fileObj):
+        if self.readNullTerminated(fileObj, self.properties):
+            self.result.callback(self.properties)
 
 
-class Request_UpdateFileDetails(FIXME):
+class Request_UpdateFileDetails(VariableRequest):
     id = 15
+    def __init__(self):
+        raise NotImplementedError
 
 
-class Request_ReadFileChunk(FIXME):
+class Request_ReadFileChunk(VariableRequest):
     id = 16
+    def __init__(self):
+        raise NotImplementedError
 
 
 class Request_DeleteFile(StructRequest):
@@ -506,14 +546,20 @@ class Request_Hangup(StructRequest):
 
 
 if __name__ == "__main__":
-    def show(v):
-        print "Response: %r" % (v,)
 
     class TestProtocol(AuthenticatedProtocol):
         def authenticated(self, rights):
             print "Authenticated"
-            self.sendRequest(Request_GetDeviceSettings()
-                             ).addCallback(show).addErrback(log.err)
+            self.sendRequest(Request_RequestIOLock('read')).addCallback(
+                self.locked).addErrback(log.err)
+
+        def locked(self, result):
+            print "Lock acquired"
+            self.sendRequest(Request_GetFileDetails(2768)).addCallback(
+                self.show).addErrback(log.err)
+
+        def show(self, v):
+            print "Response: %r" % (v,)
 
     factory = protocol.ClientFactory()
     factory.password = "orange"
