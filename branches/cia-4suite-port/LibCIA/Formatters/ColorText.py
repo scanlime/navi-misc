@@ -92,7 +92,8 @@ class ColortextToXHTML(ColortextFormatter):
     medium = 'xhtml'
 
     def format(self, args):
-        return self.Parser(XML.dig(args.message.xml, "message", "body", "colorText")).result
+        colorText = XML.dig(args.message.xml, "message", "body", "colorText")
+        return self.Parser(colorText).result
 
     class Parser(XML.XMLObjectParser):
         requiredRootElement = 'colorText'
@@ -120,7 +121,7 @@ class ColortextToXHTML(ColortextFormatter):
             }
 
         def element_colorText(self, element):
-            return [self.parse(e) for e in element.children]
+            return list(self.childParser(element))
 
         def parseString(self, s):
             return s
@@ -149,9 +150,10 @@ class ColortextToXHTML(ColortextFormatter):
                 ('fg', 'color'),
                 ('bg', 'background'),
                 ):
-                if element.hasAttribute(attr):
+                attrValue = element.getAttributeNS(None, attr)
+                if attrValue:
                     try:
-                        style = "%s%s: %s;" % (style, css, self.colorTable[element[attr]])
+                        style = "%s%s: %s;" % (style, css, self.colorTable[attrValue])
                     except KeyError:
                         pass
             return Nouvelle.tag('span', style=style)[self.element_colorText(element)]
