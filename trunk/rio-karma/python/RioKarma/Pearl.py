@@ -245,7 +245,7 @@ class StatefulRequest(BaseRequest):
             self.responseBuffer = ''
 
             # FIXME: Once we have progress reporting, this will go somewhere useful
-            print "Busy: %d/%d" % (step, numSteps)
+            #print "Busy: %d/%d" % (step, numSteps)
 
             self.stateTransition(self.state_beginResponse, fileObj)
 
