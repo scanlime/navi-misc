@@ -211,6 +211,13 @@ void rcpod_SerialTx(rcpod_dev* rcpod, unsigned char* buffer, int count);
  */
 void rcpod_SerialRxStart(rcpod_dev* rcpod, int count);
 
+/* Return the number of bytes received so far, without stopping
+ * the receive in progress. Optionally a buffer can be provided
+ * where the received bytes, up to a maximum of 'count', are copied.
+ * If the received data itself is not yet necessary, set count = 0.
+ */
+int rcpod_SerialRxProgress(rcpod_dev* rcpod, unsigned char* buffer, int count);
+
 /* Stop a currently in progress serial receive, copying up to 'count' received
  * bytes into the provided buffer. Returns the actual number of bytes received
  * (may be greater than the number of bytes copied, if it's larger than 'count')
