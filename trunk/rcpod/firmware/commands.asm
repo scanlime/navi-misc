@@ -635,6 +635,7 @@ request_I2CW1Read8
 	btfss	STATUS, Z
 	goto	Send_0Len_pkt
 
+	banksel	BD0IST
 	movlw	0xc8			; DATA1 packet, DTS enabled
 	movwf	BD0IST			; give buffer back to SIE
 	return
