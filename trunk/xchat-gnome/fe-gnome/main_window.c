@@ -66,6 +66,7 @@ void on_go_previous_network_activate(GtkWidget *widget, gpointer data);
 void on_go_next_network_activate(GtkWidget *widget, gpointer data);
 void on_go_previous_discussion_activate(GtkWidget *widget, gpointer data);
 void on_go_next_discussion_activate(GtkWidget *widget, gpointer data);
+void on_discussion_jump_activate(GtkAccelGroup *accelgroup, GObject *arg1, guint arg2,GdkModifierType arg3, gpointer data);
 void on_help_about_menu_activate(GtkWidget *widget, gpointer data);
 
 void on_text_entry_activate(GtkWidget *widget, gpointer data);
@@ -119,6 +120,49 @@ void initialize_main_window() {
 	g_signal_connect(G_OBJECT(pane), "notify::position", G_CALLBACK(on_vpane_move), NULL);
 	pane = glade_xml_get_widget(gui.xml, "HPane");
 	g_signal_connect(G_OBJECT(pane), "notify::position", G_CALLBACK(on_hpane_move), NULL);
+
+	/* Hook up accelerators for alt-#. */
+	{
+		GtkAccelGroup *discussion_accel;
+		GClosure *closure;
+		int i;
+		gchar num[2] = {0,0}; /* Will be used to help determine the keyval. */
+
+		/* Create our accelerator group. */
+		discussion_accel = gtk_accel_group_new();
+
+		/* For alt-1 through alt-9 we just loop to set up the accelerators.
+		 * We want the data passed with the callback to be one less then the
+		 * button pressed (e.g. alt-1 requests the channel who's path is 0:0)
+		 * so we loop from 0 <= i < 1. We use i for the user data and the ascii
+		 * value of i+1 for the keyval.
+		 */ 
+		for(i = 0; i < 9; i++) {
+			/* num is a string containing the ascii value of i+1. */
+			num[0] = i + '1';
+
+			/* Set up our GClosure with user data set to i. */
+			closure = g_cclosure_new(G_CALLBACK(on_discussion_jump_activate),
+					GINT_TO_POINTER(i), NULL);
+
+			/* Connect up the accelerator. */
+			gtk_accel_group_connect(discussion_accel, gdk_keyval_from_name(num),
+					GDK_MOD1_MASK, GTK_ACCEL_VISIBLE, closure);
+
+			/* Delete the reference to the GClosure. */
+			g_closure_unref(closure);
+		}
+
+		/* Now we set up keypress alt-0 with user data 9. */
+		closure = g_cclosure_new(G_CALLBACK(on_discussion_jump_activate),
+				GUINT_TO_POINTER(9), NULL);
+		gtk_accel_group_connect(discussion_accel, gdk_keyval_from_name("0"),
+				GDK_MOD1_MASK, GTK_ACCEL_VISIBLE, closure);
+		g_closure_unref(closure);
+
+		/* Add the accelgroup to the main window. */
+		gtk_window_add_accel_group(gui.main_window, discussion_accel);
+	}
 
 #ifdef HAVE_GTKSPELL
 #if 0
@@ -453,6 +497,55 @@ void on_go_next_discussion_activate(GtkWidget *widget, gpointer data) {
 		if(path == NULL)
 			return;
 		gtk_tree_selection_select_path(selection, path);
+	}
+}
+
+void on_discussion_jump_activate(GtkAccelGroup *accelgroup, GObject *arg1,
+		guint arg2,GdkModifierType arg3, gpointer data) {
+	GtkTreeView *view;
+	GtkTreeSelection *selection;
+	GtkTreeIter iter, first;
+	GtkTreeModel *model;
+	gint kids, chan_num;
+
+	/* Get the channel number to jump to. */
+	chan_num = GPOINTER_TO_INT(data);
+
+	/* Get our selection and tree view. */
+	view = GTK_TREE_VIEW(glade_xml_get_widget(gui.xml, "server channel list"));
+	selection = gtk_tree_view_get_selection(view);
+
+	/* Make sure we get the information we need about our selection and get
+	 * an iter for the first server.
+	 */
+	if(gtk_tree_selection_get_selected(selection, &model, &iter) &&
+			gtk_tree_model_get_iter_first(model, &first) &&
+			gui.current_session) {
+		/* Loop until we run out of channels or until we find the one
+		 * we're looking for.
+		 */
+		do {
+			/* Get the number of channels on the current server starting
+			 * with the first.
+			 */
+			kids = gtk_tree_model_iter_n_children(model, &first);
+			/* If the server has enough channels to contain the one we're looking
+			 * for select it and return.
+			 */
+			if(chan_num < kids) {
+				GtkTreeIter new_iter;
+				gtk_tree_model_iter_nth_child(model, &new_iter, &first, chan_num);
+				gtk_tree_selection_select_iter(selection, &new_iter);
+				return;
+			}
+			/* If our number wants a channel out of the range of this server
+			 * subtract the number of channels in the current server so that
+			 * when we find the server that contains the channel we want chan_num
+			 * will be the channel's position in the list.
+			 */
+			chan_num -= kids;
+		/* Move to the next channel, if possible. */
+		}while (gtk_tree_model_iter_next(model, &first));
 	}
 }
 
