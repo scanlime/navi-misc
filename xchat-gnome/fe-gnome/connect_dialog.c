@@ -26,10 +26,12 @@
 void connection_dialog_close (GtkWidget *widget, gpointer data);
 void connection_dialog_connect (GtkWidget *widget, gpointer data);
 
+static void close_window (GtkWidget *widget, GdkEvent *event, gpointer data);
+
 void
 initialize_connection_dialog ()
 {
-	GtkWidget *treeview, *close_button, *connect_button;
+	GtkWidget *treeview, *close_button, *connect_button, *window;
 	GtkListStore *store;
 	GtkCellRenderer *text_renderer;
 	GtkTreeViewColumn *text_column;
@@ -52,6 +54,8 @@ initialize_connection_dialog ()
 	g_signal_connect (G_OBJECT (close_button), "clicked", G_CALLBACK (connection_dialog_close), NULL);
 	connect_button = glade_xml_get_widget(gui.xml, "connect to server");
 	g_signal_connect (G_OBJECT (connect_button), "clicked", G_CALLBACK (connection_dialog_connect), NULL);
+	window = glade_xml_get_widget (gui.xml, "connect to network");
+	g_signal_connect (G_OBJECT (window), "delete-event", G_CALLBACK (close_window), NULL);
 }
 
 void
@@ -106,4 +110,10 @@ connection_dialog_connect (GtkWidget *widget, gpointer data)
 		connection_dialog_close (widget, data);
 		g_free (network);
 	}
+}
+
+static void
+close_window (GtkWidget *widget, GdkEvent *Event, gpointer data)
+{
+	connection_dialog_close (widget, data);
 }

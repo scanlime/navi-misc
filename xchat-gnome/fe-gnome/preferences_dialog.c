@@ -32,6 +32,8 @@ void hide_preferences_dialog (GtkWidget *widget, gpointer data);
 void initialize_file_transfers_page ();
 void settings_page_changed (GtkTreeSelection *selection, gpointer data);
 
+static void close_window (GtkWidget *widget, GdkEvent *event, gpointer user_data);
+
 void
 initialize_preferences_dialog ()
 {
@@ -51,12 +53,22 @@ initialize_preferences_dialog ()
 
 	close_button = glade_xml_get_widget (gui.xml, "close preferences");
 	g_signal_connect (G_OBJECT (close_button), "clicked", G_CALLBACK (hide_preferences_dialog), NULL);
+
+	/* (>")> Prevent the prefs window from being destroyed when the close button is clicked. */
+	close_button = glade_xml_get_widget (gui.xml, "preferences");
+	g_signal_connect (G_OBJECT (close_button), "delete-event", G_CALLBACK (close_window), NULL);
 }
 
 void
 hide_preferences_dialog (GtkWidget *widget, gpointer data)
 {
 	gtk_widget_hide_all (GTK_WIDGET (gui.preferences_dialog));
+}
+
+static void
+close_window (GtkWidget *widget, GdkEvent *event, gpointer user_data)
+{
+	hide_preferences_dialog (widget, user_data);
 }
 
 void
