@@ -164,6 +164,16 @@ void              leaf_init                      (RtgBPTree*        self)
 #define leaf_value(tree, page, i)  (DYNAMIC_STRUCT_ITEM(tree, page, leaf.values, gpointer) + (tree)->sizeof_value*(i))
 
 
+/* The complement to leaf_origin- gets the last index in use on a page */
+static int leaf_last_index (RtgBPTree*     tree,
+			    RtgPageAddress page)
+{
+    int count = leaf_count(tree, page);
+    g_assert(count > 0);
+    return (leaf_origin(tree, page) + count - 1) % tree->leaf.key_value_count;
+}
+
+
 /************************************************************************************/
 /****************************************************************** Private Methods */
 /************************************************************************************/
@@ -255,36 +265,54 @@ void              rtg_bptree_foreach             (RtgBPTree*        self,
 						  RtgBPTreeCallback func,
 						  gpointer          user_data)
 {
-}
+    RtgBPIter iter;
 
-void              rtg_bptree_insert              (RtgBPTree*        self,
-						  gpointer          key,
-						  gpointer          value,
-						  RtgBPIter*        iter)
-{
-}
+    rtg_bptree_first(self, &iter);
+    while (rtg_bptree_iter_is_valid(self, &iter)) {
 
-void              rtg_bptree_find                (RtgBPTree*        self,
-						  gpointer          key,
-						  RtgBPIter*        iter)
-{
-}
+	if (func( rtg_bptree_read_key(self, &iter),
+		  rtg_bptree_read_value(self, &iter),
+		  user_data ))
+	    break;
 
-void              rtg_bptree_find_nearest        (RtgBPTree*        self,
-						  gpointer          key,
-						  RtgBPIter*        less,
-						  RtgBPIter*        greater)
-{
+	rtg_bptree_next(self, &iter);
+    }
 }
 
 void              rtg_bptree_first               (RtgBPTree*        self,
 						  RtgBPIter*        iter)
 {
+    /* Start with the first leaf page. It will be invalid if our tree is empty */
+    iter->leaf_page = rtg_page_atom_value(storage, &self->first_leaf, RtgPageAddress);
+    if (iter->leaf_page == RTG_PAGE_NULL) {
+	iter->stamp = INVALID_STAMP;
+	return;
+    }
+
+    /* Start with the first index in this leaf's ring buffer */
+    iter->leaf_index = leaf_origin(self, iter->leaf_page);
+
+    /* Mark the iter as valid */
+    iter->stamp = self->tree;
 }
 
 void              rtg_bptree_last                (RtgBPTree*        self,
 						  RtgBPIter*        iter)
 {
+    int count;
+
+    /* Start with the last leaf page. It will be invalid if our tree is empty */
+    iter->leaf_page = rtg_page_atom_value(storage, &self->last_leaf, RtgPageAddress);
+    if (iter->leaf_page == RTG_PAGE_NULL) {
+	iter->stamp = INVALID_STAMP;
+	return;
+    }
+
+    /* Find the last index in this leaf's ring buffer */
+    iter->leaf_index = leaf_last_index(self, iter->leaf_page);
+
+    /* Mark the iter as valid */
+    iter->stamp = self->tree;
 }
 
 void              rtg_bptree_prev                (RtgBPTree*        self,
@@ -293,6 +321,26 @@ void              rtg_bptree_prev                (RtgBPTree*        self,
     if (!validate_iter(self, iter))
 	return;
 
+    if (iter->leaf_index == leaf_origin(self, iter->leaf_page)) {
+	/* We're at the beginning of this leaf already. Head to the previous leaf. */
+
+	iter->leaf_page = leaf_prev(self, iter->leaf_page);
+	if (iter->leaf_page == RTG_PAGE_NULL) {
+	    iter->stamp = INVALID_STAMP;
+	    return;
+	}
+
+	/* Find the last index in this leaf's ring buffer */
+	iter->leaf_index = leaf_last_index(self, iter->leaf_page);
+    }
+    else {
+	/* Just hit the previous item in this leaf's ring buffer */
+
+	if (iter->leaf_index == 0)
+	    iter->leaf_index = self->leaf.key_value_count;
+	else
+	    iter->leaf_index--;
+    }
 }
 
 void              rtg_bptree_next                (RtgBPTree*        self,
@@ -301,6 +349,25 @@ void              rtg_bptree_next                (RtgBPTree*        self,
     if (!validate_iter(self, iter))
 	return;
 
+    if (iter->leaf_index == leaf_last_index(self, iter->leaf_page)) {
+	/* We're at the end of this leaf, head to the next one */
+
+	iter->leaf_page = leaf_next(self, iter->leaf_page);
+	if (iter->leaf_page == RTG_PAGE_NULL) {
+	    iter->stamp = INVALID_STAMP;
+	    return;
+	}
+
+	iter->leaf_index = leaf_origin(self, iter->leaf_page);
+    }
+    else {
+	/* Just hit the next item in this leaf's ring buffer */
+
+	if (iter->leaf_index == tree->leaf.key_value_count-1)
+	    iter->leaf_index = 0;
+	else
+	    iter->leaf_index++;
+    }
 }
 
 gpointer          rtg_bptree_read_key            (RtgBPTree*        self,
@@ -325,7 +392,29 @@ void              rtg_bptree_write_value         (RtgBPTree*        self,
 {
     if (!validate_iter(self, iter))
 	return;
+    memcpy(leaf_value(self, iter->leaf_page, iter->leaf_index),
+	   key, self->sizeof_value);
+}
 
+void              rtg_bptree_find                (RtgBPTree*        self,
+						  gpointer          key,
+						  RtgBPIter*        iter)
+{
+    
+}
+
+void              rtg_bptree_find_nearest        (RtgBPTree*        self,
+						  gpointer          key,
+						  RtgBPIter*        less,
+						  RtgBPIter*        greater)
+{
+}
+
+void              rtg_bptree_insert              (RtgBPTree*        self,
+						  gpointer          key,
+						  gpointer          value,
+						  RtgBPIter*        iter)
+{
 }
 
 void              rtg_bptree_remove              (RtgBPTree*        self,
