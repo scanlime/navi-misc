@@ -231,7 +231,7 @@ Main
 	movwf	TRISA
 	movlw	0x30		; controller outputs, two select inputs
 	movwf	TRISB
-	movlw	0xFF		; controller and power switch outputs
+	movlw	0x00		; controller and power switch outputs
 	movwf	TRISC
 
 	banksel	porta_select	; Put sane initial PORTA values on porta_select
