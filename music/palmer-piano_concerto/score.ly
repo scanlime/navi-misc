@@ -4,6 +4,8 @@
 \include "01_allegro_ma_non_troppo/flute.ly"
 \include "01_allegro_ma_non_troppo/piano.ly"
 \include "01_allegro_ma_non_troppo/timpani.ly"
+\include "01_allegro_ma_non_troppo/tempo.ly"
+\include "context.ly"
 
 \book {
 	\header {
@@ -12,6 +14,7 @@
 	}
 	\score {
 		<<
+            \context Tempo \mvmtOneTempo
 			\context StaffGroup = "winds" <<
 				\context Staff = "flute" {
 					\set Staff.instrument = "Flute"
@@ -34,12 +37,10 @@
 				\set PianoStaff.instrument = "Piano"
 				\set PianoStaff.instr = "Pno."
 				#(set-accidental-style 'piano)
-				\context Staff = "pianoRight" {
-					\mvmtOnePianoRight
-				}
-				\context Staff = "pianoLeft" {
-					\mvmtOnePianoLeft
-				}
+                \context Staff=pianoRight \mvmtOnePianoRight
+                \context Dynamics=pianoDynamics \mvmtOnePianoDynamics
+                \context Staff=pianoLeft \mvmtOnePianoLeft
+                \context Dynamics=pianoPedal \mvmtOnePianoPedal
 			>>
 			\context StaffGroup = "strings" <<
 				\context Staff = "cello" {

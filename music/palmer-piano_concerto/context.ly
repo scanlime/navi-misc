@@ -34,6 +34,7 @@
 
     \consists "Text_engraver"
     \override TextScript #'font-size = #2
+    \override TextScript #'extra-offset = #'(0 . 2)
 
     \consists "Skip_event_swallow_translator"
     \consists "Axis_group_engraver"
@@ -48,6 +49,11 @@
 
   \context {
     \Staff
+    \accepts Tempo
+  }
+
+  \context {
+    \Score
     \accepts Tempo
   }
 }

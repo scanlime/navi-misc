@@ -5,7 +5,7 @@ mvmtOneTimpani = \relative c {
 	\clef bass
 	\key b \minor
 
-	R1*2^\allegroMaNonTroppo
+	R1*2
 	b4\f r4 r2
 	b4 r fis r
 
@@ -49,9 +49,9 @@ mvmtOneTimpani = \relative c {
 	R1*8
 
 	\time 6/8
-	R1*6/8*20^\andante
+	R1*6/8*20
 	\time 4/4
-	R1^\tempoI
+	R1
 
 	% 90
 	r4 fis\mf r fis
@@ -76,7 +76,7 @@ mvmtOneTimpani = \relative c {
 	R1*3
 
 	\time 6/8
-	R1*6/8*21^\andante
+	R1*6/8*21
 	r4. \times 2/3 {fis16\mp \< fis fis fis fis fis fis fis fis\!}
 	b8\ff r4 r4.
 	R1*6/8*7
@@ -88,7 +88,7 @@ mvmtOneTimpani = \relative c {
 	\repeat "percent" 4 {fis2.:32}
 	fis4. \< fis8 fis fis \!
 	\time 4/4
-	b4\ff^\moderatoMaestoso fis fis fis
+	b4\ff fis fis fis
 	e e e fis
 	e e fis fis
 

@@ -5,7 +5,7 @@ mvmtOneCello = \relative c, {
 	\clef bass
 	\key b \minor
 
-	R1*6^\allegroMaNonTroppo
+	R1*6
 	fis4 \f r r r
 	fis4 r fis r
 	g4 r r r
@@ -66,7 +66,7 @@ mvmtOneCello = \relative c, {
 	e2^\solo) r2 \fermata
 
 	\time 6/8
-	R1*6/8^\andante
+	R1*6/8
 	R1*6/8*9
 
 	<< {
@@ -92,7 +92,7 @@ mvmtOneCello = \relative c, {
 	\setHairpinDecresc
 	\time 4/4
 	\once \override TextScript #'extra-offset = #'(0 . 1.0)
-	\times 4/6 {<gis cis>8->^\tempoI [<gis cis> <gis cis>-. <gis cis>-. <gis cis>-. <gis cis>-.]}
+	\times 4/6 {<gis cis>8-> [<gis cis> <gis cis>-. <gis cis>-. <gis cis>-. <gis cis>-.]}
         \times 4/6 {<g c>8-> [<g c> <g c>-. <g c>-. <g c>-. <g c>-.]}
 
 	% 90
@@ -150,7 +150,7 @@ mvmtOneCello = \relative c, {
 	}
 	\time 6/8
 	\once \override TextScript #'extra-offset = #'(-2.0 . 0.5)
-	R1*6/8*4^\andante
+	R1*6/8*4
 	gis4.\mf^\oneCello gis4 (fis8
 	b4.) a4.
 	\appoggiatura gis8 gis'4. fis4 eis8
@@ -195,7 +195,7 @@ mvmtOneCello = \relative c, {
 	\time 4/4
 	% 177
 	<< {
-		b8^\divisi^\moderatoMaestoso r d r e r fis r
+		b8^\divisi r d r e r fis r
 		g r gis r gis r ais r
 		g r g r fis r fis r
 		b, r b r cis r fis, r
@@ -224,7 +224,7 @@ mvmtOneCello = \relative c, {
 	b'4\p^\tuttiPizz ais a gis
 	\repeat "unfold" 2 {b4 ais a gis}
 	g fis f e
-	e^\tempoI r r2
+	e r r2
 	R1*6
 	\bar "|."
 }
