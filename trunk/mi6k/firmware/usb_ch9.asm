@@ -1820,16 +1820,16 @@ LEDSetRequest
 	banksel	CCP2CON
 	bcf		CCP2CON, 4					; Transfer bit from C to CCP2CON:4
 	btfsc	STATUS, C
-	bsf		CCP1CON, 4
+	bsf		CCP2CON, 4
 	banksel BufferData
 	rrf		BufferData+(wIndex+1), f	; Shift LSB of wIndex into C
 	rrf		BufferData+wIndex, f
 	banksel	CCP2CON
 	bcf		CCP2CON, 5					; Transfer bit from C to CCP2CON:5
 	btfsc	STATUS, C
-	bsf		CCP1CON, 5
+	bsf		CCP2CON, 5
 	banksel BufferData
-	movf	BufferData+wValue, w		; Remaining bits are for CCPR2L
+	movf	BufferData+wIndex, w		; Remaining bits are for CCPR2L
 	banksel	CCPR2L
 	movwf	CCPR2L
 
