@@ -38,6 +38,11 @@ enum _e_cal_event_target_t {
 	E_CAL_EVENT_TARGET_SOURCE,
 };
 
+/* Flags that describe TARGET_SOURCE */
+enum {
+	E_CAL_EVENT_SOURCE_CALENDAR_CHANGED = 1 << 0,
+};
+
 typedef struct _ECalEventTargetSource ECalEventTargetSource;
 
 struct _ECalEventTargetSource {
@@ -58,7 +63,7 @@ struct _ECalEventClass {
 
 GType                  e_cal_event_get_type ();
 ECalEvent*             e_cal_event_peek ();
-ECalEventTargetSource* e_cal_event_target_new_source (ECalEvent *ece, struct _ESource *source);
+ECalEventTargetSource* e_cal_event_target_new_source (ECalEvent *ece, struct _ESource *source, guint32 flags);
 
 /* ********************************************************************** */
 
