@@ -68,7 +68,7 @@ For us to consider a new host for CIA, it must meet the following requirements:
     It needs a decent amount of RAM and CPU. In the current setup it uses
     around 20MB of RAM and depending on the page serves maybe 10 requests
     per second on a 1GHz Athlon XP. Of course optimization and caching is
-    expected to reduce this load dramatically, the host should still be
+    expected to reduce this load dramatically, but the host should still be
     decently speedy.
 
 - CIA probably doesn't need that much bandwidth, but it might...
