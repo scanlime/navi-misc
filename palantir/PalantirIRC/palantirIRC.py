@@ -36,7 +36,6 @@ class PalantirClient(irc.IRCClient):
     ''' When we join a channel get a list of who is in the channel. '''
     if hasattr(self.factory.ui, 'joined'):
       self.factory.ui.joined(channel)
-
     self.ctcpMakeQuery(channel, [('DMQUERY',None)])
 
   def left(self, channel):

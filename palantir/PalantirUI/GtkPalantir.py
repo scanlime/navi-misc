@@ -254,7 +254,7 @@ class PalantirWindow:
     self.tree.get_widget('SendField').set_text('')
     self.tree.get_widget('UserList').get_model().clear()
     if self.factory.channels[0]:
-      self.factory.close(self.factory.channels[0])
+      self.close()
     self.factory.join(args)
 
   def close(self, args="Leaving..."):
@@ -315,7 +315,7 @@ class PalantirWindow:
         a WHO request to get the users in the channel.
 	'''
     time = palantir.getTime()
-    self.factory.client.sendLine('WHO' + channel)
+    self.factory.client.sendLine('WHO ' + channel)
     self.chatWindow.DisplayText(time, '', 'Joined ' + channel)
 
   def left(self, channel):
