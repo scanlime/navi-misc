@@ -97,6 +97,7 @@ struct _EWeatherSourceClass {
 	void (*parse)	(EWeatherSource *source, SourceFinished done);
 };
 
+EWeatherSource*	e_weather_source_new (const char *uri);
 GType	e_weather_source_get_type (void);
 void	e_weather_source_parse (EWeatherSource *source, SourceFinished done);
 
