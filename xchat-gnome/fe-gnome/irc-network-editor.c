@@ -48,6 +48,7 @@ static void
 irc_network_editor_init (IrcNetworkEditor *dialog)
 {
 	GtkCellRenderer *renderer;
+	GtkSizeGroup *group;
 
 	dialog->gconf = NULL;
 	dialog->network = NULL;
@@ -97,6 +98,12 @@ irc_network_editor_init (IrcNetworkEditor *dialog)
 	dialog->encoding = gtk_combo_box_new_text ();
 	gtk_widget_show (dialog->encoding);
 	gtk_box_pack_start (GTK_BOX (dialog->encoding_hbox), dialog->encoding, FALSE, TRUE, 0);
+
+	group = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
+	gtk_size_group_add_widget (group, dialog->network_name);
+	gtk_size_group_add_widget (group, dialog->encoding);
+	gtk_size_group_add_widget (group, dialog->password);
+	g_object_unref (group);
 }
 
 GType
@@ -203,6 +210,7 @@ irc_network_editor_populate (IrcNetworkEditor *e)
 	gtk_dialog_add_button (GTK_DIALOG (e), GTK_STOCK_APPLY,  GTK_RESPONSE_APPLY);
 	gtk_dialog_add_button (GTK_DIALOG (e), GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL);
 	gtk_dialog_add_button (GTK_DIALOG (e), GTK_STOCK_OK,     GTK_RESPONSE_OK);
+	gtk_dialog_set_default_response (GTK_DIALOG (e), GTK_RESPONSE_OK);
 
 	gtk_container_set_border_width (GTK_CONTAINER (e), 6);
 	gtk_container_add (GTK_CONTAINER(GTK_DIALOG(e)->vbox), e->toplevel);
@@ -231,11 +239,22 @@ irc_network_editor_new (IrcNetwork *network)
 	return e;
 }
 
+static void
+apply_changes (IrcNetworkEditor *editor)
+{
+}
+
 void
 irc_network_editor_run (IrcNetworkEditor *editor)
 {
 	gint response;
 
 	response = gtk_dialog_run (GTK_DIALOG (editor));
+	while (response == GTK_RESPONSE_APPLY) {
+		apply_changes (editor);
+		response = gtk_dialog_run (GTK_DIALOG (editor));
+	}
+	if (response == GTK_RESPONSE_OK)
+		apply_changes (editor);
 	gtk_widget_hide (GTK_WIDGET (editor));
 }
