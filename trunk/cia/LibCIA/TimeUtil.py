@@ -23,7 +23,7 @@ dates and durations.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from __future__ import division
+import Units
 import time, datetime, calendar
 
 
@@ -115,41 +115,7 @@ class Interval(object):
         return (beginning, end)
 
 
-# A table of time units, represented as a list of (name, seconds) tuples
-units = [
-    ('years',   365 * 24 * 60 * 60),
-    ('months',  30 * 24 * 60 * 60),
-    ('weeks',   7 * 24 * 60 * 60),
-    ('days',    24 * 60 * 60),
-    ('hours',   60 * 60),
-    ('minutes', 60),
-    ('seconds', 1),
-    ('milliseconds', 0.001),
-    ('microseconds', 0.000001),
-    ]
-
-
-def formatDuration(dt, threshold=0.8, format="%.02f %s"):
-    """Given a duration in seconds, picks more appropriate units
-       and accuracy to represent it with and returns a string.
-       We convert to the first unit in which the given value would
-       be greater than the given threshold.
-
-       >>> formatDuration(3236523)
-       '1.25 months'
-
-       >>> formatDuration(40)
-       '40.00 seconds'
-
-       >>> formatDuration(50)
-       '0.83 minutes'
-       """
-    for name, seconds in units:
-        converted = dt / seconds
-        if converted > threshold:
-            break
-    return format % (converted, name)
-
+formatDuration = Units.TimeUnits().format
 
 def formatDate(t):
     """Format a date, in UTC seconds since the epoch"""
