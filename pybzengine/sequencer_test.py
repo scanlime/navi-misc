@@ -95,9 +95,10 @@ book = Sequencer.Book(view, [
     # Fade in from white quickly, fade out to white quickly.
     Sequencer.FadeIn(0.1, (1,1,1), Sequencer.FadeOut(0.1, (1,1,1), Sequencer.PageTimer(5, Sparks))),
 
-    # Spin the 'monkey' model for 10 seconds
+    # Spin the 'monkey' model until any key or mouse button is pressed.
     # Also fade in from white quickly, fade out to black slowly.
-    Sequencer.FadeIn(0.1, (1,1,1), Sequencer.FadeOut(10, (0,0,0), Sequencer.PageTimer(10, Monkey))),
+    Sequencer.FadeIn(0.1, (1,1,1), Sequencer.FadeOut(3, (0,0,0), Sequencer.PageInterrupter([
+    viewport.onKeyDown, viewport.onMouseButtonDown], Monkey))),
     ])
 
 # Run our event loop until the book finishes

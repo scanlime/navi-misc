@@ -233,4 +233,29 @@ def FadeOut(duration, color, page):
     return lambda view: FadeOutWrapper(view, page(view), duration, color)
 
 
+def PageInterrupter(events, page):
+    """Returns a factory function that creates the given page then attaches
+       its onFinish event to all events in the given list. This makes it easy
+       to specify a list of events that will automatically terminate the given
+       page if it's active. All parameters given by the events are ignored.
+       """
+    def factory(view):
+        # Actually instantiate the page
+        p = page(view)
+
+        # Wrapper to ignore all arguments from the event
+        def finish(*args, **kw):
+            p.onFinish()
+
+            # We're using strong references so we need to explicitly unobserve
+            for event in events:
+                event.unobserve(finish)
+
+        # Set up all observers. Use strong references, so they won't be
+        # garbage collected as soon as this function returns.
+        for event in events:
+            event.strongObserve(finish)
+        return p
+    return factory
+
 ### The End ###
