@@ -274,13 +274,13 @@ update_image_preview (GtkFileChooser *chooser, GtkImage *image) {
 
     filename = gtk_file_chooser_get_filename (chooser);
 
-    image_pixbuf = gdk_pixbuf_new_from_file_at_scale (filename, 112, 112, TRUE, NULL);
+    image_pixbuf = gdk_pixbuf_new_from_file_at_size (filename, 112, 112, NULL);
     have_preview = (image_pixbuf != NULL);
 
     pixmap = gdk_pixmap_new (GTK_WIDGET (image)->window, 128, 128, -1);
     gdk_draw_rectangle (pixmap, GTK_WIDGET (image)->style->bg_gc[GTK_STATE_NORMAL], TRUE, 0, 0, 128, 128);
-    gdk_draw_pixbuf (pixmap, NULL, image_pixbuf, 0, 0, 0, 0, 116, 116, GDK_RGB_DITHER_NONE, 0, 0);
-    gdk_draw_pixbuf (pixmap, NULL, emblem_pixbuf, 0, 0, 104, 104, 24, 24, GDK_RGB_DITHER_NONE, 0, 0);
+    gdk_draw_pixbuf (pixmap, NULL, image_pixbuf, 0, 0, 0, 0, 115, 115, GDK_RGB_DITHER_NONE, 0, 0);
+    gdk_draw_pixbuf (pixmap, NULL, emblem_pixbuf, 0, 0, 104, 104, 23, 23, GDK_RGB_DITHER_NONE, 0, 0);
 
     if (image_pixbuf)
 	gdk_pixbuf_unref (image_pixbuf);
