@@ -102,7 +102,7 @@ int main(int argc, char ** argv) {
 	switch (c) {
 
 	case 'i':
-	    histogram_imager_load_image_file(HISTOGRAM_IMAGER(map), optarg);
+	    histogram_imager_load_image_file(HISTOGRAM_IMAGER(map), optarg, NULL);
 	    break;
 
 	case 'n':

@@ -309,6 +309,9 @@ update_image_preview (GtkFileChooser *chooser, GtkImage *image) {
 static void on_load_from_image (GtkWidget *widget, gpointer user_data) {
     Explorer *self = EXPLORER (user_data);
     GtkWidget *dialog, *image;
+    gboolean success = FALSE;
+    GError *error = NULL;
+    gchar *filename = NULL;
 
 #if (GTK_CHECK_VERSION(2, 4, 0))
     dialog = gtk_file_chooser_dialog_new ("Open Image Parameters",
@@ -322,21 +325,35 @@ static void on_load_from_image (GtkWidget *widget, gpointer user_data) {
     g_signal_connect (G_OBJECT (dialog), "update-preview", G_CALLBACK (update_image_preview), image);
 
     if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_OK) {
-	gchar *filename;
 	filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
-	histogram_imager_load_image_file (HISTOGRAM_IMAGER (self->map), filename);
-	g_free (filename);
+	success = histogram_imager_load_image_file (HISTOGRAM_IMAGER (self->map), filename, &error);
     }
 #else
     dialog = gtk_file_selection_new ("Open Image Parameters");
 
     if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_OK) {
-	const gchar *filename;
 	filename = gtk_file_selection_get_filename (GTK_FILE_SELECTION (dialog));
-	histogram_imager_load_image_file (HISTOGRAM_IMAGER (self->map), filename);
+	success = histogram_imager_load_image_file (HISTOGRAM_IMAGER (self->map), filename, &error);
     }
 #endif
     gtk_widget_destroy (dialog);
+
+    if (!success) {
+	GtkWidget *dialog, *label;
+	gchar *text;
+
+	dialog = glade_xml_get_widget (self->xml, "error dialog");
+	label = glade_xml_get_widget (self->xml, "error label");
+
+	text = g_strdup_printf ("<span weight=\"bold\" size=\"larger\">Could not load \"%s\"</span>\n\n%s", filename, error->message);
+	gtk_label_set_markup (GTK_LABEL (label), text);
+	g_free (text);
+	g_error_free (error);
+
+	gtk_dialog_run (GTK_DIALOG (dialog));
+	gtk_widget_hide_all (dialog);
+    }
+    g_free (filename);
 }
 
 static void on_save (GtkWidget *widget, gpointer user_data) {
