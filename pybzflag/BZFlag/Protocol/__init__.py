@@ -20,6 +20,8 @@ Conventions for the classes herein:
   - Unless there's a good reason otherwise (which must be documented),
     the structure's members, as named in the appropriate BZFlag
     headers, must be accessable as attributes of that class.
+
+This module is safe for use with 'from BZFlag.Protocol import *'
 """
 # 
 # Python BZFlag Protocol Package
@@ -41,6 +43,12 @@ Conventions for the classes herein:
 #
 
 import struct
+
+__all__ = [
+    'EntryType', 'ScalarType', 'VectorType', 'SubStruct', 'StructEntry',
+    'StructPadding', 'Struct', 'Int8', 'UInt8', 'Int16', 'UInt16', 'Int32',
+    'UInt32', 'Float', 'Double'
+    ]
 
 
 class EntryType:
@@ -102,7 +110,7 @@ class SubStruct(EntryType):
        """
     def __init__(self, struct):
         self.struct = struct
-        self.size = struct.getSize(struct)
+        self.size = struct().getSize()
 
     def unmarshall(self, packed):
         return self.struct(packed)
@@ -137,7 +145,7 @@ class StructEntry:
         return packed + self.entryType.marshall(getattr(struct, self.entryName))
 
     def getSize(self, packed=None):
-        return self.entryType.getSize(self, packed)
+        return self.entryType.getSize(packed)
 
 
 class StructPadding:
@@ -163,9 +171,10 @@ class Struct:
        instances will be responsible for marshalling and unmarshalling
        individual variables.
        """
-    def __init__(self, packed):
-        for entry in self.entries:
-            packed = entry.unmarshall(self, packed)
+    def __init__(self, packed=None):
+        if packed:
+            for entry in self.entries:
+                packed = entry.unmarshall(self, packed)
       
     def __str__(self):
         packed = ''
@@ -173,7 +182,7 @@ class Struct:
             packed = entry.marshall(self, packed)
         return packed
 
-    def getSize(self):
+    def getSize(self, packed=None):
         total = 0
         for entry in self.entries:
             total += entry.getSize()

@@ -41,11 +41,24 @@ class ServerInfo:
         self.ip = None
         self.title = None
         if specifier:
+            from BZFlag.Protocol import Common
+            import binascii
             (self.name, self.version, self.gameinfo, self.ip, self.title) = specifier.split(" ",4)
+            self.gameinfo = Common.GameInfo(binascii.a2b_hex(self.gameinfo))
 
     def __str__(self):
         return self.name
 
+    def info(self):
+        s  = "%s\n" % self.name
+        s += "       Title: %s\n" % self.title
+        s += "     Version: %s\n" % self.version
+        s += "          IP: %s\n" % self.ip
+        s += "   Game Info:\n"
+        for key in self.gameinfo.__dict__:
+            s += "  %s = %s\n" % (key, self.gameinfo.__dict__[key])
+        return s
+    
 
 class ListServer:
     """List server abstract base class. This should be subclassed with either
