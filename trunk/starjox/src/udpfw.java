@@ -36,7 +36,7 @@ public class udpfw extends Thread
 	/** The port on the internal network (what it gets forwarded to). */
 	public int iport;
 	/** The proxy server's listening socket. */
-	public ServerSocket server;
+	public DatagramSocket server;
 	
 	/**
 	 * This sets up the udp forwarder to run with the info given.
@@ -72,29 +72,13 @@ public class udpfw extends Thread
 	 */
 	public void listen()
 	{
-		Socket sout = null;
-		Socket sin = null;
-		OutputStream out = null;
-		InputStream in = null;
+		byte[] buf = new byte[4096*16];
+		
 		try
 		{
 			while(true)
 			{
-				// get the sockets
-				sout = server.accept();
-				sin = new Socket(host,iport);
-
-				//slot a into tab a
-				out = sout.getOutputStream();
-				in = sin.getInputStream();
-				new udppipe(in,out).start();
-				//slot b into tab b
-				out = sin.getOutputStream();
-				in = sout.getInputStream();
-				new udppipe(in,out).start();
 				
-				//tell the world I am happy!
-				System.out.println("Connection from "+sout.getInetAddress().getHostAddress());
 			}
 		}
 		catch(Exception e)
@@ -112,36 +96,13 @@ public class udpfw extends Thread
 	{
 		try
 		{
-			server = new ServerSocket(eport);
+			server = new DatagramSocket(eport);
 		}
 		catch(Exception e)
 		{
 			System.out.println("Java says\n" + e + "\nThat probably means something is wrong");
 			System.exit(1);
 		}
-	}
-	
-	/**
-	 * This method is responsible for argument parsing and variable init stuff.
-	 * @param args The raw command line arguments.
-	 * @author Brandon Smith
-	 * @version 1.0
-	 */
-	public void argparse(String[] args)
-	{
-		try
-		{
-			host = args[0];
-			eport = Integer.parseInt(args[1]);
-			if(args.length > 2)
-				iport = Integer.parseInt(args[2]);
-			else
-				iport = eport;
-		}
-		catch(Exception e)
-		{
-			System.out.println("Usage: java <host to proxy to> <port to proxy on>");
-			System.exit(1);
-		}
+		System.out.println("Set to forward udp: localhost:"+eport+" to "+host+":"+iport);
 	}
 }
