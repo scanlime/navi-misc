@@ -290,8 +290,10 @@ class MessageList(Template.Section):
             ]
 
     def render_rows(self, context):
-        return [Template.Table(self.messages, self.columns,
-                               defaultSortReversed = True)]
+        return [
+            Template.Table(self.messages, self.columns,
+                           defaultSortReversed = True),
+            ]
 
 
 class RecentMessages(MessageList):
@@ -305,6 +307,54 @@ class RecentMessages(MessageList):
 
     def isVisible(self, context):
         return len(self.messages) != 0
+
+
+class MetadataKeyColumn(Nouvelle.Column):
+    """A column that displays a metadata key as a hyperlink to the proper MetadataValuePage"""
+    heading = 'key'
+
+    def getValue(self, item):
+        return item[0]
+
+
+class MetadataValueColumn(Nouvelle.Column):
+    """A column that displays a metadata key's associated value, formatted appropriately"""
+    heading = 'value'
+
+    def getValue(self, item):
+        return item[1]
+
+
+class MetadataSection(Template.Section):
+    """A section displaying a table of metadata keys for one stats target"""
+    title = "metadata"
+
+    def __init__(self, metadata):
+        self.metadata = metadata
+
+    def render_rows(self, context):
+        return [Template.Table(self.metadata.items(), [
+            MetadataKeyColumn(),
+            MetadataValueColumn(),
+            ])]
+
+
+class MetadataPage(Template.Page):
+    """A web page providing an interface for viewing and editing a StatsTarget's
+       metadata. Children of this page are pages that render individual metadata keys
+       with no extra formatting.
+       """
+    def __init__(self, caps, target):
+        self.caps = caps
+        self.target = target
+
+    def render_mainTitle(self, context):
+        return "Metadata for stats://%s" % "/".join(self.target.pathSegments)
+
+    def render_mainColumn(self, context):
+        return [
+            MetadataSection(self.target.metadata),
+            ]
 
 
 class StatsPage(Template.Page):
@@ -324,12 +374,16 @@ class StatsPage(Template.Page):
         """Part of IResource, called by twisted.web to retrieve pages for URIs
            below this one. This just creates a StatsPage instance for our StatsTarget's child.
            """
-        if name:
-            return StatsPage(self.caps, self.storage,
-                             self.target.child(name))
-        else:
+        if not name:
             # Ignore empty path sections
             return self
+        elif name == '.metadata':
+            # Return a special page that accesses this stats target's metadata
+            return MetadataPage(self.caps, self.target)
+        else:
+            # Return the stats page for a child
+            return StatsPage(self.caps, self.storage,
+                             self.target.child(name))
 
     def findRootPath(self, request):
         """Find the URL path referring to the root of the current stats tree
