@@ -131,11 +131,12 @@ void flip() {
    * generate an image in the pixbuf, and copy it to the screen.
    */
 
-  int rowstride;
+  int rowstride, pixelstride;
   guchar *pixels, *row, *p;
-  guchar gray;
+  guint32 gray, iscale;
+  guint dataclamp, dval;
   int x, y;
-  float density, scale, luma;
+  float density, luma, fscale;
   struct timeval now;
   suseconds_t diff;
 
@@ -151,6 +152,7 @@ void flip() {
   last_flip = now;
 
   rowstride = gdk_pixbuf_get_rowstride(pixbuf);
+  pixelstride = gdk_pixbuf_get_n_channels(pixbuf);
   pixels = gdk_pixbuf_get_pixels(pixbuf);
 
   /* Scale our data to a luminance between 0 and 1 that gets fed through our
@@ -160,19 +162,35 @@ void flip() {
    * iterations / (WIDTH * HEIGHT) gives us the average density of data[].
    */
   density = ((float)iterations) / (WIDTH * HEIGHT);
-  scale = exposure / density;
+
+  /* fscale is a floating point number that, when multiplied by a raw
+   * data[] value, gives values between 0 and 1 corresponding to full
+   * white and full black.
+   */
+  fscale = exposure / density;
+
+  /* This is the maximum allowed value for data[], corresponding to full black */
+  dataclamp = (int)(1 / fscale) - 1;
+
+  /* Convert fscale to a 16:16 fixed point number that will map data[]
+   * values to gray levels between 0 and 255.
+   */
+  iscale = (guint32)(fscale * 255 * 65536);
 
   row = pixels;
   for (y=0; y<HEIGHT; y++) {
     p = row;
     for (x=0; x<WIDTH; x++) {
-      luma = data[x][y] * scale;
-      if (luma > 1) luma = 1;
 
-      gray = 255 - ((int)(luma * 255));
-      *(p++) = gray;  /* Red   */
-      *(p++) = gray;  /* Green */
-      *(p++) = gray;  /* Blue  */
+      dval = data[x][y];
+      if (dval > dataclamp)
+	dval = dataclamp;
+
+      gray = 255 - ((dval * iscale) >> 16);
+
+      *((guint32*)p) = GUINT32_TO_LE( gray | (gray<<8) | (gray<<16) );
+
+      p += pixelstride;
     }
     row += rowstride;
   }
