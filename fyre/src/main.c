@@ -29,6 +29,10 @@
 #include <fcntl.h>
 #endif
 
+#ifdef HAVE_FORK
+#include <unistd.h>
+#endif
+
 #include <gtk/gtk.h>
 #include <stdlib.h>
 #include <string.h>
@@ -183,6 +187,13 @@ int main(int argc, char ** argv) {
 
     case REMOTE:
 #ifdef HAVE_GNET
+#  ifdef HAVE_FORK
+	/* FIXME: Don't assume HAVE_FORK means that daemon() will work */
+	if (daemon(0, 0) < 0) {
+	    perror("daemon");
+	    return 1;
+	}
+#  endif
 	remote_server_main_loop(port_number, have_gtk);
 #else
 	fprintf(stderr,
