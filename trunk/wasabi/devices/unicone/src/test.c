@@ -1,24 +1,27 @@
 #include <usb.h>
+#include <math.h>
 #include <unicone.h>
 #include "device.h"
 
 int main()
 {
   struct unicone_device* dev;
-  int brightness;
+  float theta, brightness;
 
   unicone_usb_init();
   dev = unicone_device_new();
   if (!dev)
     return 1;
 
-  brightness = 0;
+  theta = 0;
   while (1) {
-    brightness = (brightness + 100) & 0xFFFF;
+    theta += 0.1;
 
-    printf("Brightness = 0x%04X\n", brightness);
+    brightness = sin(theta) * 0.4 + 0.5;
+    brightness = pow(brightness, 1.8);
+
     if (usb_control_msg(dev->usbdev, USB_TYPE_VENDOR, UNICONE_REQ_LED_BRIGHTNESS,
-			brightness, 0, NULL, 0, 1000) < 0) {
+			(int)(brightness * 0xFFFF + 0.5), 0, NULL, 0, 1000) < 0) {
       perror("usb_control_msg");
       return 1;
     }

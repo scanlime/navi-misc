@@ -31,7 +31,7 @@ loader_tool: $(LOADER_TOOL_OBJS) src/*.h include/*.h
 	$(CC) -o $@ $(LOADER_TOOL_OBJS) $(LDFLAGS)
 
 test: $(TEST_OBJS) src/*.h include/*.h
-	$(CC) -o $@ $(TEST_OBJS) $(LDFLAGS)
+	$(CC) -o $@ $(TEST_OBJS) $(LDFLAGS) -lm
 
 firmware/firmware.ihx: $(FIRMWARE_OBJS)
 	sdcc -o $@ $(FIRMWARE_OBJS) $(FW_LDFLAGS)
