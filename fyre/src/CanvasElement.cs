@@ -22,6 +22,24 @@
 namespace Fyre
 {
 
+	/*
+	 * The basic structure of an element on the canvas has 3 pieces:
+	 * 	name
+	 * 	pads
+	 * 	element-specific data
+	 *
+	 * Name and pads are provided by this class. If an element requires
+	 * custom drawings (such as equations, etc), it will subclass
+	 * CanvasElement.
+	 *
+	 * At the lowest zoom level, dimensions are:
+	 * 	name:			20px
+	 * 	pad:			20px
+	 * 	inter-pad distance:	10px
+	 * 	top-to-pad:		8px
+	 * 	pad-to-bottom:		6px
+	 */
+
 	public class CanvasElement
 	{
 	}
