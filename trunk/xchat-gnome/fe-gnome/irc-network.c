@@ -143,6 +143,7 @@ irc_network_save (IrcNetwork *network)
 {
 	ircnet *net = network->net;
 	guint32 flags = 0;
+	GSList *s;
 
 	if (net->name) g_free (net->name);
 	if (net->pass) g_free (net->pass);
@@ -164,6 +165,12 @@ irc_network_save (IrcNetwork *network)
 	/* FIXME - encoding */
 	/* FIXME - reconnect */
 	/* FIXME - nogiveup */
+
+	for (s = net->servlist; s; s = g_slist_next (s))
+		g_free (((ircserver *) s->data)->hostname);
+	g_slist_foreach (net->servlist, g_free, NULL);
+	g_slist_free (net->servlist);
+	net->servlist = network->servers;
 
 	servlist_save ();
 }
