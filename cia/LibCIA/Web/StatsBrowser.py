@@ -22,12 +22,32 @@ A web interface, built using nevow, for CIA's stats:// namespace
 #
 
 import Base
+import time
+from LibCIA import TimeUtil
 
 
-class StatsPage(Base.Base):
+class Clock(Base.Section):
+    """Display the current time in UTC"""
+    def getTime(self):
+        return TimeUtil.formatDate(time.time())
+
+    title = "UTC Clock"
+    body = getTime
+
+
+
+class StatsPage(Base.Template):
     def __init__(self, caps, storage):
         self.caps = caps
         self.storage = storage
-        Base.Base.__init__(self)
+        Base.Template.__init__(self)
+
+    def getDynamicChild(self, name, request):
+        return self
+
+    def render_leftColumn(self, context, data):
+        return [
+            Base.Section()
+            ]
 
 ### The End ###
