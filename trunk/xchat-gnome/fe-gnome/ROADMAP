@@ -3,7 +3,7 @@ This is just a preliminary roadmap, subject to whatever people want to work on.
 0.3:
 -	Color palette/schemes					- David (complete)
 -	Network/server configuration				- David
--	URLScraper plugin					- Evan
+-	URLScraper plugin					- Evan (complete enough)
 -	Verify that all hardcoded strings are
 	enclosed in intltool _() macros
 -	Implement searching (firefox style would be nice!)
