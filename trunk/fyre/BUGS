@@ -1,3 +1,5 @@
+* Micah, that dastardly creature, has told gnet that we only want
+  IPv4. We really should support both v4 and v6.
 * The AVI files exported by Fyre don't play in windows media player.
   Is the exporter broken, or can WMP just not handle uncompressed RGB?
   This is probably actually the lack of an index
