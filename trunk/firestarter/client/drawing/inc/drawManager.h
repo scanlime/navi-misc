@@ -62,7 +62,7 @@ public:
 	virtual void Delete ( CBaseDrawable* object ) = 0;
 };
 
-class CDrawManager// : public Singleton<CDrawManager>
+class CDrawManager : public Singleton<CDrawManager>
 {
 public:
   CDrawManager();
