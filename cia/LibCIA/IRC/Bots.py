@@ -119,8 +119,10 @@ class SequentialNickAllocator:
        and generating a list of valid nicks. This particular implementation
        uses sequentially numbered bots starting with a given prefix.
        """
-    def __init__(self, prefix):
+    def __init__(self, prefix, username='CIA', realname='CIA Bot (http://cia.navi.cx)'):
         self.prefix = prefix
+        self.username = username
+        self.realname = realname
 
     def isValid(self, nick):
         if not nick.startswith(self.prefix):
@@ -356,8 +358,19 @@ class Bot(irc.IRCClient):
         self.emptyChannels()
         self.server = self.factory.server
         self.botNet = self.factory.botNet
-        self.nickname = self.findNickQuickly()
+
+        # Start picking an initial nickname. If this one is in use, we get
+        # an ERR_NICKNAMEINUSE which we handle by picking the next name
+        # from this generator and re-registering.
+        self.initialNickGenerator = self.botNet.nickAllocator.generate()
+        self.nickname = self.initialNickGenerator.next()
         irc.IRCClient.connectionMade(self)
+
+    def irc_ERR_NICKNAMEINUSE(self, prefix, params):
+        """An alternate nickname-in-use error handler that picks the next
+           nick from our allocator instead of using those blasted underscores
+           """
+        self.register(self.initialNickGenerator.next())
 
     def nickChanged(self, newname):
         irc.IRCClient.nickChanged(self, newname)
@@ -365,6 +378,20 @@ class Bot(irc.IRCClient):
             # We got a bad nick, try to find a better one
             log.msg("%r got an unsuitable nickname, trying to find a better one..." % self)
             self.findNick().addCallback(self.foundBetterNick)
+
+    def register(self, nickname, hostname='foo', servername='bar'):
+        """Twisted's default register() is silly in that it doesn't let us
+           specify a new username. We want all the usernames to be the
+           same, so filters can be written and things are just in general
+           better when bots are renaming themselves dynamically.
+           """
+        if self.password is not None:
+            self.sendLine("PASS %s" % self.password)
+        self.setNick(nickname)
+        self.sendLine("USER %s %s %s :%s" % (self.botNet.nickAllocator.username,
+                                             hostname,
+                                             servername,
+                                             self.botNet.nickAllocator.realname))
 
     def foundBetterNick(self, nick):
         log.msg("%r found a better nick, renaming to %r" % (self, nick))
