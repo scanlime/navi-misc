@@ -187,9 +187,6 @@
 					<Filter
 						Name="gfx"
 						Filter="">
-						<File
-							RelativePath="..\game\test\gfx\src\worldDrawables.cpp">
-						</File>
 					</Filter>
 				</Filter>
 			</Filter>
@@ -198,6 +195,9 @@
 				Filter="">
 				<File
 					RelativePath="..\drawing\src\drawManager.cpp">
+				</File>
+				<File
+					RelativePath="..\game\test\gfx\src\worldDrawables.cpp">
 				</File>
 			</Filter>
 		</Filter>

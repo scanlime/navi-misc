@@ -19,6 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				AdditionalIncludeDirectories="../inc;../../common/inc;../game/inc;../game/test/inc;../../network/inc;../../network/enet/inc"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -31,6 +32,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="WSOCK32.LIB Ws2_32.lib"
 				OutputFile="$(OutDir)/firestarterd.exe"
 				LinkIncremental="2"
 				GenerateDebugInformation="TRUE"
@@ -66,6 +68,7 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalIncludeDirectories="../inc;../../common/inc;../game/inc;../game/test/inc"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				RuntimeLibrary="4"
 				UsePrecompiledHeader="0"
@@ -112,11 +115,101 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
+			<File
+				RelativePath="..\src\firestarterd.cpp">
+			</File>
+			<Filter
+				Name="Core"
+				Filter="">
+				<File
+					RelativePath="..\..\common\src\commandargs.cpp">
+				</File>
+				<File
+					RelativePath="..\..\common\src\osfile.cpp">
+				</File>
+			</Filter>
+			<Filter
+				Name="network"
+				Filter="">
+				<File
+					RelativePath="..\..\network\src\networking.cpp">
+				</File>
+				<Filter
+					Name="enet"
+					Filter="">
+					<File
+						RelativePath="..\..\network\enet\src\host.cpp">
+					</File>
+					<File
+						RelativePath="..\..\network\enet\src\list.cpp">
+					</File>
+					<File
+						RelativePath="..\..\network\enet\src\memory.cpp">
+					</File>
+					<File
+						RelativePath="..\..\network\enet\src\packet.cpp">
+					</File>
+					<File
+						RelativePath="..\..\network\enet\src\peer.cpp">
+					</File>
+					<File
+						RelativePath="..\..\network\enet\src\protocol.cpp">
+					</File>
+					<File
+						RelativePath="..\..\network\enet\src\win32.cpp">
+					</File>
+				</Filter>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
+			<Filter
+				Name="Core"
+				Filter="">
+				<File
+					RelativePath="..\..\common\inc\commandargs.h">
+				</File>
+				<File
+					RelativePath="..\..\common\inc\osfile.h">
+				</File>
+			</Filter>
+			<Filter
+				Name="network"
+				Filter="">
+				<File
+					RelativePath="..\..\network\inc\networking.h">
+				</File>
+				<Filter
+					Name="enet"
+					Filter="">
+					<File
+						RelativePath="..\..\network\enet\inc\enet\enet.h">
+					</File>
+					<File
+						RelativePath="..\..\network\enet\inc\enet\list.h">
+					</File>
+					<File
+						RelativePath="..\..\network\enet\inc\enet\memory.h">
+					</File>
+					<File
+						RelativePath="..\..\network\enet\inc\enet\protocol.h">
+					</File>
+					<File
+						RelativePath="..\..\network\enet\inc\enet\time.h">
+					</File>
+					<File
+						RelativePath="..\..\network\enet\inc\enet\types.h">
+					</File>
+					<File
+						RelativePath="..\..\network\enet\inc\enet\utility.h">
+					</File>
+					<File
+						RelativePath="..\..\network\enet\inc\enet\win32.h">
+					</File>
+				</Filter>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Resource Files"
