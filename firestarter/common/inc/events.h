@@ -25,13 +25,13 @@
 
 // registration for handling of raw SDL Events
 // param is some pointer passed by the handler that is passed back when the event is called
-typedef int (*tEventHandalerCallBack)(unsigned char event, void* message, void *param);
+typedef int (*tEventHandlerCallBack)(unsigned char event, void* message, void *param);
 
-void  RegisterEventHandaler ( unsigned char event, tEventHandalerCallBack callback, void* param );
-void  RemoveEventHandaler ( unsigned char event, tEventHandalerCallBack callback, void* param ); 
+void  RegisterEventHandler ( unsigned char event, tEventHandlerCallBack callback, void* param );
+void  RemoveEventHandler ( unsigned char event, tEventHandlerCallBack callback, void* param ); 
 
 // only used by gameloop
-void CallEventHandaler ( unsigned char event, void* message );
+void CallEventHandler ( unsigned char event, void* message );
 
 #endif //_EVENTS_H_
 

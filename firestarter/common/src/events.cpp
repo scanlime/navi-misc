@@ -34,16 +34,16 @@
 
 typedef struct
 {
-	tEventHandalerCallBack	callback;
+	tEventHandlerCallBack	callback;
 	void *					param;
-}trEventHandaler;
+}trEventHandler;
 
-typedef std::vector<trEventHandaler> tvEventList;
+typedef std::vector<trEventHandler> tvEventList;
 typedef std::map<unsigned char,tvEventList> tvEventMap;
 
 tvEventMap		theEventMap;
 
-void RegisterEventHandaler ( unsigned char event, tEventHandalerCallBack callback, void *param )
+void RegisterEventHandler ( unsigned char event, tEventHandlerCallBack callback, void *param )
 {
 	tvEventMap::iterator	itr = theEventMap.find(event);
 
@@ -53,15 +53,15 @@ void RegisterEventHandaler ( unsigned char event, tEventHandalerCallBack callbac
 		theEventMap[event] = list;
 	}
 
-	trEventHandaler handaler;
+	trEventHandler handler;
 	
-	handaler.callback = callback;
-	handaler.param = param;
+	handler.callback = callback;
+	handler.param = param;
 
-	theEventMap[event].push_back(handaler);
+	theEventMap[event].push_back(handler);
 }
 
-void RemoveEventHandaler ( unsigned char event, tEventHandalerCallBack callback, void *param )
+void RemoveEventHandler ( unsigned char event, tEventHandlerCallBack callback, void *param )
 {
 	if (theEventMap.find(event) == theEventMap.end())
 		return;
@@ -80,7 +80,7 @@ void RemoveEventHandaler ( unsigned char event, tEventHandalerCallBack callback,
 }
 
 // only used by gameloop
-void CallEventHandaler ( unsigned char event, void* message )
+void CallEventHandler ( unsigned char event, void* message )
 {
 	if (theEventMap.find(event) == theEventMap.end())
 		return;

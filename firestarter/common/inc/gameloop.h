@@ -212,7 +212,7 @@ public:
   bool frameStarted(const FrameEvent& evt);
   bool frameEnded(const FrameEvent& evt);
 
-	// global quit handaler
+	// global quit handler
 	void SetQuit ( bool set ) {quit = set;}
 
 	void SetGameName ( const char* name );
