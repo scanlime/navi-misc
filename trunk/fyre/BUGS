@@ -4,6 +4,7 @@ Definitely fix before the next release:
 
 Probably fix before the next release, definitely for 1.0:
 	* Fyre has no icon
+	* Should write a .desktop file
 	* The AVI files exported by Fyre don't play in windows media player.
 	  Is the exporter broken, or can WMP just not handle uncompressed RGB?
 	  This is probably actually the lack of an index
