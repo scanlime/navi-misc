@@ -21,10 +21,47 @@
 
 #include <gconf/gconf-client.h>
 #include "preferences-irc-page.h"
+#include "preferences-dialog.h"
 
 PreferencesIrcPage *
 preferences_page_irc_new (gpointer prefs_dialog, GladeXML *xml)
 {
+	PreferencesIrcPage *page = g_new0 (PreferencesIrcPage, 1);
+	PreferencesDialog *p = (PreferencesDialog *) prefs_dialog;
+	GtkTreeIter iter;
+
+#define GW(name) ((page->name) = glade_xml_get_widget (xml, #name))
+	GW(nick_name);
+	GW(real_name);
+	GW(quit_message);
+	GW(part_message);
+	GW(away_message);
+
+	GW(highlight_list);
+	GW(highlight_add);
+	GW(highlight_edit);
+	GW(highlight_remove);
+
+	GW(usesysfonts);
+	GW(usethisfont);
+	GW(font_selection);
+
+	GW(show_colors);
+	GW(show_timestamps);
+#undef GW
+
+	page->icon = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/irc.png", NULL);
+
+	gtk_list_store_append (p->page_store, &iter);
+	gtk_list_store_set (p->page_store, &iter, 0, page->icon, 1, "IRC Preferences", 2, 0, -1);
+
+	return page;
+}
+
+void
+preferences_page_irc_free (PreferencesIrcPage *page)
+{
+	gdk_pixbuf_unref (page->icon);
 }
 
 /*******************************************************************************

@@ -44,9 +44,13 @@ typedef struct
 
 	GtkWidget *show_colors;
 	GtkWidget *show_timestamps;
+
+	GdkPixbuf *icon;
 } PreferencesIrcPage;
 
-void initialize_preferences_irc_page ();
 PreferencesIrcPage *preferences_page_irc_new (gpointer prefs_dialog, GladeXML *xml);
+void preferences_page_irc_free (PreferencesIrcPage *page);
+
+void initialize_preferences_irc_page ();
 
 #endif
