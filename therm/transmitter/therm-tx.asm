@@ -16,15 +16,15 @@
 ;
 ; The protocol is designed to be relatively radio-friendly, but still
 ; possible to receive using a UART designed for RS-232. Ideally, ones
-; are transmitted as 156.3us high followed by 364.6us low, and zeroes
-; are transmitted as 364.6us high followed by 156.3us low. This gives
-; a constant bit period of 520.8us. Our data rate is 1920 bits per second,
-; and it can be received or transmitted using a UART set to 19200 baud.
+; are transmitted as 312.5us high followed by 729.2us low, and zeroes
+; are transmitted as 729.9us high followed by 312.5us low. This gives
+; a constant bit period of 1.0417ms. Our data rate is 960 bits per second,
+; and it can be received or transmitted using a UART set to 9600 baud.
 ;
 ; Note that the radio signal is inverted from normal TTL-level RS-232,
-; such that when idle it isn't transmitting. The receiver counts the number
-; of bits set in each received byte to determine whether it's a zero or a one.
-; This should provide a good amount of noise immunity.
+; such that when idle it isn't transmitting. The receiver tests each received
+; byte against the two ideal bit patterns, selecting the closest match and
+; using the number of differences as a measure of signal strength.
 ;
 ; Packets are framed using an HDLC-like method. The bit sequence 011110
 ; is a 'flag', and signifies the beginning and/or end of a packet. When
@@ -58,7 +58,7 @@
 
 STATION_ID	equ	1	; A unique ID between 0 and 63
 TC74_ADDR	equ	7	; The address marked on this station's TC74
-SLEEP_TIME	equ	4	; Time to sleep between readings, in 2.3 second units
+SLEEP_TIME	equ	1	; Time to sleep between readings, in 2.3 second units
 
 
 ;----------------------------------------------------- Constants
@@ -80,14 +80,20 @@ SCL_MASK	equ 0x20
 TC74_ADDR_READ	equ (0x91 | (TC74_ADDR << 1))
 TC74_ADDR_WRITE	equ (0x90 | (TC74_ADDR << 1))
 
-TX_SHORT_DELAY	equ .200	; Tuned on the transmit side so that we get the ideal
-TX_LONG_DELAY	equ .53		;    waveform on the receive side.
+PREAMBLE_LENGTH	equ .64
+
+TX_SHORT	equ .312	; Transmit timings, in microseconds
+TX_LONG		equ .730
+
+TX_SHORT_DELAY	equ (.258 - (TX_SHORT / 4))
+TX_LONG_DELAY	equ (.258 - (TX_LONG / 4))
 
 
 ;----------------------------------------------------- Variables
 
 	cblock 0x20
 		temp, consecutive_ones, crc_reg, temp2, packet_seq
+		iolatch
 	endc
 
 
@@ -97,6 +103,7 @@ start
 
 	; Initialize I/O
 	movlw	POWER_MASK | SCL_MASK
+	movwf	iolatch
 	movwf	GPIO
 	movlw	BATT_VOLT_MASK | UNUSED_MASK | SDA_MASK
 	bsf	STATUS, RP0
@@ -118,10 +125,10 @@ start
 	bcf	STATUS, RP0
 
 	;; Initialize TMR0 and the watchdog timer. Initially, we assign
-	;; a 1:2 prescaler to TMR0 so we can time delays long enough for our
+	;; a 1:4 prescaler to TMR0 so we can time delays long enough for our
 	;; slow bits. Before sleeping we swap that over to the WDT.
 	clrwdt
-	movlw	0xD0
+	movlw	0xD1
 	bsf	STATUS, RP0
 	movwf	OPTION_REG
 	bcf	STATUS, RP0
@@ -133,6 +140,9 @@ start
 	clrf	crc_reg
 	clrf	consecutive_ones
 
+
+;----------------------------------------------------- Temperature Sampling
+
 	;; Turn on the TC74
 	call	i2c_start
 	movlw	TC74_ADDR_WRITE	; Address it
@@ -141,10 +151,15 @@ start
 	movlw	0x01		; Select the CONFIG register
 	movwf	temp
 	call	i2c_send_byte
-	movlw	0x80		; Out of standby mode
+	movlw	0x00		; Out of standby mode
 	movwf	temp
 	call	i2c_send_byte
 	call	i2c_stop
+
+	;; Send the preamble while waiting for a sample
+	call	tx_send_preamble
+
+	;; Point at the TEMP register
 	call	i2c_start
 	movlw	TC74_ADDR_WRITE	; Address it
 	movwf	temp
@@ -154,13 +169,13 @@ start
 	call	i2c_send_byte
 	call	i2c_stop
 
+	;; Get ready to read the temperature below
 	call	i2c_start
-	movlw	TC74_ADDR_READ	; Address the TC74 for reading
+	movlw	TC74_ADDR_READ
 	movwf	temp
 	call	i2c_send_byte
 
-
-;----------------------------------------------------- Main Program
+;----------------------------------------------------- Packet Contents
 
 	call	tx_begin_content
 	incf	packet_seq, f
@@ -193,17 +208,17 @@ start
 
 	call	tx_end_content
 
-
 ;----------------------------------------------------- Shutdown
 
 	clrf	GPIO		; Turn off external peripherals
+	clrf	iolatch
 	clrf	ADCON0		; Turn off the A/D converter
 
 	;; Assign a 1:128 prescaler to the WDT. Each 'sleep' we do now
 	;; will last as long as possible, about 2.3 seconds.
 	clrwdt			; Clear the watchdog
 	clrf	TMR0		; Clear the prescaler
-	movlw	0xDF		; Reassign prescaler
+	movlw	0xDC		; Reassign prescaler
 	bsf	STATUS, RP0
 	movwf	OPTION_REG
 	bcf	STATUS, RP0
@@ -235,12 +250,14 @@ i2c_sda_low macro
 	endm
 
 i2c_scl_high macro
-	movlw	POWER_MASK | SCL_MASK
+	bsf	iolatch, SCL_PIN
+	movf	iolatch, w
 	movwf	GPIO
 	endm
 
 i2c_scl_low macro
-	movlw	POWER_MASK
+	bcf	iolatch, SCL_PIN
+	movf	iolatch, w
 	movwf	GPIO
 	endm
 
@@ -305,6 +322,7 @@ i2c_send_byte
 	call	i2c_send_bit
 	i2c_scl_high		; Clock in and ignore the ACK
 	i2c_scl_low
+	return
 
 	;; Read a bit from I2C and transmit it as packet content
 tx_i2c_bit
@@ -327,7 +345,10 @@ tx_i2c_byte
 	call	tx_i2c_bit
 	call	tx_i2c_bit
 	call	tx_i2c_bit
-	goto	tx_i2c_bit
+	call	tx_i2c_bit
+	i2c_scl_high		; Clock in and ignore the ACK
+	i2c_scl_low
+	return
 
 
 ;----------------------------------------------------- Protocol: Frame check sequence
@@ -463,40 +484,39 @@ keep_waiting
 
 	;; Bring the transmit pin high
 tx_pin_high macro
-	movlw	POWER_MASK | SCL_MASK | TX_MASK
+	bsf	iolatch, TX_PIN
+	movf	iolatch, w
 	movwf	GPIO
 	endm
 
 	;; Bring the transmit pin low
 tx_pin_low macro
-	movlw	POWER_MASK | SCL_MASK
+	bcf	iolatch, TX_PIN
+	movf	iolatch, w
 	movwf	GPIO
 	endm
 
-	;; A longish delay used in the synchronization preamble
-sync_delay
-	clrf	temp
-sync_loop
-	clrwdt
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
+	;; Send the preamble, a square wave that helps the
+	;; receiver's automatic gain control settle.
+	;; This can be done while we do other fun things, like
+	;; let the temperature A/D conversion run.
+tx_send_preamble
+	movlw	PREAMBLE_LENGTH
+	movwf	temp
+preamble_loop
+	tx_wait_timer
+	tx_add_timer	TX_SHORT_DELAY
+	tx_pin_high
+	tx_wait_timer
+	tx_add_timer	TX_SHORT_DELAY
+	tx_pin_low
 	decfsz	temp, f
-	goto	sync_loop
+	goto	preamble_loop
 	return
 
-	;; Start a new transmission. This sends a sequence intended to let
-	;; the receiver's bias level stabilize and to let the transmitter warm up.
+	;; Start a new transmission
 tx_send_start
-	tx_pin_high
-	call	sync_delay
 	tx_pin_low
-	call	sync_delay
 	tx_set_timer 0
 	return
 
