@@ -38,7 +38,11 @@ class AnalogUpdaterThread(threading.Thread):
                 try:
                     c = self.pinChannelMap[pin]
                 except KeyError:
-                    c = AdcChannel(name="Pin %d" % pin)
+                    if pin <= 10:
+                        fmt = "Pin %d (0-5V only)"
+                    else:
+                        fmt = "Pin %d (0-28V)"
+                    c = AdcChannel(name=fmt % pin)
                     self.pinChannelMap[pin] = c
                     self.channels.append(c)
                 c.value = value
