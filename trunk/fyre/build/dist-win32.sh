@@ -73,7 +73,9 @@ function copy_dir()
     cp -av $PREFIX/$sourcedir/$source $TARGETDIR/$dest/$prefix || exit 1
 }
 
-copy_dir bin     gnet-2.0.dll                                   lib
+copy_dir  bin    gnet-2.0.dll                                   lib
+copy_dir  bin    libglade-2.0-0.dll                             lib
+copy_dir  bin    libxml2.dll                                    lib
 
 copy_dir  etc    gtk-2.0                                        etc
 copy_dir  etc    pango						etc
@@ -100,7 +102,9 @@ for lang in $ALL_LINGUAS; do
     copy_dir lib locale/$lang lib
 done
 
-find $TARGETDIR -name "*.dll" -not -name "iconv.dll" -not -name "intl.dll" -not -name "libwimp.dll" -print | xargs $STRIP
+find $TARGETDIR -name "*.dll" -not -name "iconv.dll" -not \
+    -name "intl.dll" -not -name "libwimp.dll" -not -name "libxml2.dll" \
+    -print | xargs $STRIP
 
 # Customize the gtkrc
 cp gtkrc-win32 $TARGETDIR/etc/gtk-2.0/gtkrc || exit 1
