@@ -46,8 +46,11 @@ dnl # Output the Makefiles
 dnl ################################################################
 AC_OUTPUT([
 Makefile
+data/Makefile
 src/Makefile
 src/Plugins/Makefile
 src/Plugins/Basic/Makefile
+src/Plugins/Basic/data/Makefile
 src/Plugins/HistogramImager/Makefile
+src/Plugins/HistogramImager/data/Makefile
 ])

@@ -1,3 +1,5 @@
+SUBDIRS = data .
+
 CSC = mcs -g
 
 CSFLAGS =	\
@@ -11,8 +13,8 @@ ASSEMBLIES =		\
 TARGET = HistogramImager.dll
 TARGET_CSFILES = 		\
 	HistogramImager.cs
-TARGET_RESOURCES =					\
-	-resource:$(top_srcdir)/data/HistogramImager.png
+TARGET_RESOURCES =				\
+	-resource:data/HistogramImager.png
 
 $(TARGET): $(TARGET_CSFILES) $(top_builddir)/src/Fyre.exe
 	$(CSC) -o $@ $(CSFLAGS) $(ASSEMBLIES) $(TARGET_CSFILES) $(TARGET_RESOURCES)
