@@ -44,11 +44,16 @@ src_unpack() {
 	cvs_src_unpack
 	cd ${S}
 
+	# Point svn at some garbage directory rather than
+	# using /root/.subversion for config, since that breaks
+	# in the sandbox.
+	SVN=svn --config-dir .
+
 	epatch ${FILESDIR}/${PN}-fe-text.patch
-	svn cat http://navi.cx/svn/misc/trunk/xchat-gnome/buildsystem.diff | patch -p0
-	svn co http://navi.cx/svn/misc/trunk/xchat-gnome/plugins
+	$SVN cat http://navi.cx/svn/misc/trunk/xchat-gnome/buildsystem.diff | patch -p0
+	$SVN co http://navi.cx/svn/misc/trunk/xchat-gnome/plugins
 	pushd src
-	svn co http://navi.cx/svn/misc/trunk/xchat-gnome/fe-gnome/
+	$SVN co http://navi.cx/svn/misc/trunk/xchat-gnome/fe-gnome/
 	popd
 	./autogen.sh
 }
