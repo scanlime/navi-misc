@@ -18,8 +18,8 @@ servers will need to place it in a different file.
 The stats_metadata.py tool has fewer dependencies than the rest of CIA, but
 you will need Python_ 2.2.1 or later and Twisted_.
 
-The full usage information, as given by running
-stats_metadata.py with no options, are::
+The full usage text, as given by running
+stats_metadata.py with no options, is::
 
  Usage: stats_metadata.py [options] path key [value]
  Options:
@@ -33,7 +33,7 @@ stats_metadata.py with no options, are::
        --version    
        --help       Display this help and exit.
 
-Some sample use cases for a project named 'pigomatic'::
+Some sample use cases for a project named "pigomatic"::
 
  ./stats_metadata.py -s http://cia.navi.cx project/pigomatic url http://pig-o-matic.sf.net
 
