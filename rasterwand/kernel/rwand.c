@@ -52,6 +52,16 @@ struct rwand_timings {
 	int                     coil_end;
 };
 
+#define FILTER_SIZE_SHIFT       8
+#define FILTER_SIZE             (1<<FILTER_SIZE_SHIFT)
+
+/* A simple averaging low-pass filter, O(1) */
+struct filter {
+	int                     buffer[FILTER_SIZE];
+	int                     total;
+	int                     pointer;
+};
+
 struct rwand_dev {
 	struct usb_device *	udev;			/* save off the usb device pointer */
 	struct input_dev        input;                  /* Input device for the rwand's buttons */
@@ -68,13 +78,18 @@ struct rwand_dev {
 							 * timing has not been updated to reflect them.
 							 */
 
-
-	/* Our local model of the device state */
 	unsigned char           fb[RWAND_FB_BYTES+4];   /* Our local copy of the device framebuffer. The 4 here gives
 							 * us some slack for reading past the end of the framebuffer
 							 * when doing writes in blocks of 4, 8, or 12 bytes.
 							 */
 	struct rwand_status     status;
+
+	struct filter           period_filter;          /* We store the last several periods recorded, and actually
+							 * perform the timing calculation using their mean. This prevents
+							 * small electrical or mechanical glitches from having much
+							 * effect on the display.
+							 */
+	int                     filtered_period;
 
 	int                     page_flip_pending;      /* Are we waiting on a page flip? */
 	wait_queue_head_t       page_flip_waitq;        /* Processes waiting on a page flip */
@@ -95,7 +110,7 @@ static DECLARE_MUTEX (disconnect_sem);
 /* 1/10 second timeout for control requests */
 #define REQUEST_TIMEOUT    (HZ/10)
 
-#define STATUS_PACKET_SIZE 8
+#define STATUS_PACKET_SIZE 6
 
 /* Mapping between rwand buttons and linux input system buttons */
 #define MAPPED_BTN_SQUARE    KEY_ENTER
@@ -135,9 +150,11 @@ static void    rwand_request_flip(struct rwand_dev *dev);
 static void    rwand_decode_status (const unsigned char *in, struct rwand_status *out);
 static void    rwand_process_status(struct rwand_dev *dev, const unsigned char *packet);
 static void    rwand_reset_settings(struct rwand_dev *dev);
-static void    rwand_calc_timings(struct rwand_settings *settings,
-				  struct rwand_status *status,
+static void    rwand_calc_timings(struct rwand_settings *settings, int period,
 				  struct rwand_timings *timings);
+static void    rwand_update_running_display(struct rwand_dev *dev, struct rwand_status *new_status);
+
+static int     filter_push(struct filter *filter, int new_value);
 
 
 /******************************************************************************/
@@ -173,6 +190,22 @@ static struct usb_driver rwand_driver = {
 	.disconnect =  rwand_disconnect,
 	.id_table   =  rwand_table,
 };
+
+
+/******************************************************************************/
+/************************************************************** Utilities *****/
+/******************************************************************************/
+
+/* Add a new value to the filter, returning the filter's current value */
+static int     filter_push(struct filter *filter, int new_value) {
+	int old_value;
+
+	old_value = filter->buffer[filter->pointer];
+	filter->buffer[filter->pointer] = new_value;
+	filter->total += new_value - old_value;
+	filter->pointer = (filter->pointer + 1) & (FILTER_SIZE-1);
+	return filter->total >> FILTER_SIZE_SHIFT;
+}
 
 
 /******************************************************************************/
@@ -277,20 +310,7 @@ static void rwand_process_status(struct rwand_dev *dev, const unsigned char *pac
 
 	if (power) {
 		/* The display should be on. Is it? */
-
-		/* Update timings if the period, mode, or settings have changed */
-		if (new_status.period != dev->status.period ||
-		    new_status.mode != dev->status.mode ||
-		    dev->settings_dirty) {
-			struct rwand_timings timings;
-			rwand_calc_timings(&dev->settings, &new_status, &timings);
-			rwand_nb_request(dev, RWAND_CTRL_SET_COIL_PHASE, timings.coil_begin, timings.coil_end);
-			rwand_nb_request(dev, RWAND_CTRL_SET_COLUMN_WIDTH, timings.column_width, timings.gap_width);
-			rwand_nb_request(dev, RWAND_CTRL_SET_DISPLAY_PHASE, timings.fwd_phase, timings.rev_phase);
-			rwand_nb_request(dev, RWAND_CTRL_SET_NUM_COLUMNS, dev->settings.num_columns, 0);
-			dev->settings_dirty = 0;
-		}
-
+		rwand_update_running_display(dev, &new_status);
 		new_mode =
 			RWAND_MODE_STALL_DETECT |
 			RWAND_MODE_ENABLE_SYNC |
@@ -307,6 +327,29 @@ static void rwand_process_status(struct rwand_dev *dev, const unsigned char *pac
 		rwand_nb_request(dev, RWAND_CTRL_SET_MODES, new_mode, 0);
 
 	dev->status = new_status;
+}
+
+
+static void rwand_update_running_display(struct rwand_dev *dev, struct rwand_status *new_status)
+{
+	int new_filtered_period, period_change;
+
+	new_filtered_period = filter_push(&dev->period_filter, new_status->period);
+	period_change = abs(new_filtered_period - new_status->period);
+
+	if (period_change > 10 ||
+	    new_status->mode != dev->status.mode ||
+	    dev->settings_dirty) {
+		struct rwand_timings timings;
+		rwand_calc_timings(&dev->settings, new_filtered_period, &timings);
+		rwand_nb_request(dev, RWAND_CTRL_SET_COIL_PHASE, timings.coil_begin, timings.coil_end);
+		rwand_nb_request(dev, RWAND_CTRL_SET_COLUMN_WIDTH, timings.column_width, timings.gap_width);
+		rwand_nb_request(dev, RWAND_CTRL_SET_DISPLAY_PHASE, timings.fwd_phase, timings.rev_phase);
+		rwand_nb_request(dev, RWAND_CTRL_SET_NUM_COLUMNS, dev->settings.num_columns, 0);
+		dev->settings_dirty = 0;
+	}
+
+	dev->filtered_period = new_filtered_period;
 }
 
 
@@ -446,35 +489,35 @@ static void rwand_reset_settings(struct rwand_dev *dev)
 }
 
 /* Calculate all the fun little timing parameters needed by the hardware */
-static void rwand_calc_timings(struct rwand_settings *settings,
-			       struct rwand_status *status,
+static void rwand_calc_timings(struct rwand_settings *settings, int period,
 			       struct rwand_timings *timings)
 {
-	int col_and_gap_width, total_width, fudge_factor;
+  int col_and_gap_width, total_width;
+
+	/* I'm not sure why this is necessary yet, but this formula was experimentally determined
+	 * according to the necessary fine_adjust settings before it was added.
+	 */
+	const int fudge_factor = -185;
 
 	/* The coil driver just needs to have its relative timings
 	 * multiplied by our predictor's current period. This is fixed
 	 * point math with 16 digits to the right of the binary point.
 	 */
-	timings->coil_begin = (status->period * (settings->coil_center - settings->coil_width/2)) >> 16;
-	timings->coil_end   = (status->period * (settings->coil_center + settings->coil_width/2)) >> 16;
+	timings->coil_begin = (period * (settings->coil_center - settings->coil_width/2)) >> 16;
+	timings->coil_end   = (period * (settings->coil_center + settings->coil_width/2)) >> 16;
 
 	if (settings->num_columns > 0) {
 		/* Now calculate the display timings. We start out with the precise
 		 * width of our columns, so that the width of the whole display
 		 * can be calculated accurately.
 		 */
-		col_and_gap_width = (status->period / settings->num_columns * settings->display_width) >> 17;
+		col_and_gap_width = (period / settings->num_columns * settings->display_width) >> 17;
 		timings->column_width = (col_and_gap_width * settings->duty_cycle) >> 16;
 		timings->gap_width = col_and_gap_width - timings->column_width;
 		total_width =
-		  (settings->num_columns+1) * timings->column_width +
-		  settings->num_columns * timings->gap_width;
+		  (settings->num_columns) * timings->column_width +
+		  (settings->num_columns-1) * timings->gap_width;
 
-		/* I'm not sure why this is necessary yet, but this formula was experimentally determined
-		 * according to the necessary fine_adjust settings before it was added.
-		 */
-		fudge_factor = col_and_gap_width - 185;
 
 		/* Now that we know the true width of the display, we can calculate the
 		 * two phase timings. These indicate when it starts the forward scan and the
@@ -482,8 +525,8 @@ static void rwand_calc_timings(struct rwand_settings *settings,
 		 * the forward and backward scans should be calculated correctly, but it
 		 * can be tweaked using settings->fine_adjust.
 		 */
-		timings->fwd_phase = ((status->period * settings->display_center) >> 17) - total_width/2;
-		timings->rev_phase = status->period - timings->fwd_phase - total_width + fudge_factor + settings->fine_adjust;
+		timings->fwd_phase = ((period * settings->display_center) >> 17) - total_width/2;
+		timings->rev_phase = period - timings->fwd_phase - total_width + fudge_factor + settings->fine_adjust;
 	}
 	else {
 		/* We can't calculate timings for a zero-width display without dividing by
@@ -660,7 +703,7 @@ static ssize_t rwand_write(struct file *file, const char *buffer, size_t count, 
 {
 	struct rwand_fd_private *prv;
 	struct rwand_dev *dev;
-	int retval = 0;
+	int retval = 0, wait_retval;
 	int bytes_written;
 	unsigned char new_fb[RWAND_FB_BYTES];
 
@@ -692,18 +735,20 @@ static ssize_t rwand_write(struct file *file, const char *buffer, size_t count, 
 		goto exit;
 	}
 
-	/* Make sure the device's backbuffer is available,
-	 * rather than waiting for a sync from us. This can
-	 * fail, so return its error if so.
-	 */
-	retval = rwand_wait_for_fb(dev);
-	if (retval)
-		goto exit;
-
 	/* Change the framebuffer size if necessary and write its new content */
 	rwand_update_fb(dev, bytes_written, new_fb);
 	rwand_request_flip(dev);
 	retval = bytes_written;
+
+	/* Wait for the sync to actually complete. We could return to the process
+	 * faster by moving this check above, before writing the new content.
+	 * However, for an app that's constantly streaming new frames to the display,
+	 * as most are, this results in less latency between the app and the display
+	 * refreshes.
+	 */
+	wait_retval = rwand_wait_for_fb(dev);
+	if (wait_retval)
+		retval = wait_retval;
 
 exit:
 	/* unlock the device */
