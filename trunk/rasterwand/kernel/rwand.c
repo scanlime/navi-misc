@@ -4,6 +4,13 @@
  * This is a module for the Linux kernel, providing a userspace interface
  * to the Raster Wand hardware via the USB protocol described in efs_protocol.h.
  *
+ * This drive exposes three basic interfaces:
+ *
+ *   - Buttons turn into events for the linux input layer
+ *   - Frames can be written to /dev/usb/rwand*
+ *   - Timing parameters all have sane defaults, but can be tweaked with ioctl()
+ *
+ *
  * Copyright(c) 2004 Micah Dowty <micah@picogui.org>
  *
  *	This program is free software; you can redistribute it and/or modify
@@ -23,6 +30,7 @@
 #include <linux/init.h>
 #include <linux/slab.h>
 #include <linux/module.h>
+#include <linux/input.h>
 #include <linux/smp_lock.h>
 #include <linux/completion.h>
 #include <asm/uaccess.h>
@@ -68,6 +76,7 @@ struct rwand_settings {
 
 struct rwand_dev {
 	struct usb_device *	udev;			/* save off the usb device pointer */
+	struct input_dev        input;                  /* Input device for the rwand's buttons */
 	struct usb_interface *	interface;		/* the interface for this device */
 	unsigned char		minor;			/* the starting minor number for this device */
 
@@ -102,9 +111,15 @@ static DECLARE_MUTEX (disconnect_sem);
 /* 1/10 second timeout for control requests */
 #define REQUEST_TIMEOUT    (HZ/10)
 
-#define IRQ_INTERVAL       10          /* Polling interval, in milliseconds */
 #define STATUS_PACKET_SIZE 8
-#define IRQ_SIZE           STATUS_PACKET_SIZE
+
+/* Mapping between rwand buttons and linux input system buttons */
+#define MAPPED_BTN_SQUARE    KEY_ENTER
+#define MAPPED_BTN_RIGHT     KEY_RIGHT
+#define MAPPED_BTN_LEFT      KEY_LEFT
+#define MAPPED_BTN_UP        KEY_UP
+#define MAPPED_BTN_DOWN      KEY_DOWN
+#define MAPPED_BTN_POWER     KEY_POWER
 
 
 /******************************************************************************/
@@ -193,7 +208,7 @@ static void rwand_status_irq(struct urb *urb, struct pt_regs *regs)
 		return;
 	}
 
-	if (urb->status != 0 || urb->actual_length != IRQ_SIZE) {
+	if (urb->status != 0 || urb->actual_length != STATUS_PACKET_SIZE) {
 		err("Bad URB status/size: status=%d, length=%d", urb->status, urb->actual_length);
 		return;
 	}
@@ -225,7 +240,15 @@ static void rwand_decode_status(const unsigned char *in, struct rwand_status *ou
 static void rwand_process_status(struct rwand_dev *dev, const unsigned char *packet)
 {
 	rwand_decode_status(packet, &dev->status);
-	dbg("Buttons: %02X", dev->status.buttons);
+
+	/* Report button status to the input subsystem */
+	input_report_key(&dev->input, MAPPED_BTN_SQUARE, dev->status.buttons & RWAND_BUTTON_SQUARE);
+	input_report_key(&dev->input, MAPPED_BTN_RIGHT, dev->status.buttons & RWAND_BUTTON_RIGHT);
+	input_report_key(&dev->input, MAPPED_BTN_LEFT, dev->status.buttons & RWAND_BUTTON_LEFT);
+	input_report_key(&dev->input, MAPPED_BTN_UP, dev->status.buttons & RWAND_BUTTON_UP);
+	input_report_key(&dev->input, MAPPED_BTN_DOWN, dev->status.buttons & RWAND_BUTTON_DOWN);
+	input_report_key(&dev->input, MAPPED_BTN_POWER, dev->status.buttons & RWAND_BUTTON_POWER);
+	input_sync(&dev->input);
 }
 
 
@@ -549,7 +572,7 @@ static void rwand_delete(struct rwand_dev *dev)
 		usb_free_urb(dev->irq);
 	}
 	if (dev->irq_data) {
-		usb_buffer_free(dev->udev, IRQ_SIZE, dev->irq_data, dev->irq_dma);
+		usb_buffer_free(dev->udev, STATUS_PACKET_SIZE, dev->irq_data, dev->irq_dma);
 	}
 	kfree(dev);
 }
@@ -558,7 +581,6 @@ static int rwand_probe(struct usb_interface *interface, const struct usb_device_
 {
 	struct usb_device *udev = interface_to_usbdev(interface);
 	struct rwand_dev *dev = NULL;
-	struct usb_host_interface *host_interface = &interface->altsetting[interface->act_altsetting];
 	int retval;
 
 	/* See if the device offered us matches what we can accept */
@@ -587,6 +609,22 @@ static int rwand_probe(struct usb_interface *interface, const struct usb_device_
 		goto error;
 	}
 
+	/* Register an input device for our buttons */
+	dev->input.private = dev;
+	dev->input.name = "Raster Wand";
+	dev->input.id.bustype = BUS_USB;
+	dev->input.id.vendor = udev->descriptor.idVendor;
+	dev->input.id.product = udev->descriptor.idProduct;
+	dev->input.id.version = udev->descriptor.bcdDevice;
+        set_bit(EV_KEY, dev->input.evbit);
+        set_bit(MAPPED_BTN_SQUARE, dev->input.keybit);
+        set_bit(MAPPED_BTN_RIGHT, dev->input.keybit);
+        set_bit(MAPPED_BTN_LEFT, dev->input.keybit);
+        set_bit(MAPPED_BTN_UP, dev->input.keybit);
+        set_bit(MAPPED_BTN_DOWN, dev->input.keybit);
+        set_bit(MAPPED_BTN_POWER, dev->input.keybit);
+	input_register_device(&dev->input);
+
 	/* Allocate some DMA-friendly memory and a URB used for periodic
 	 * transfers carrying predictor status, button status, and page flip status.
 	 * Currently these are implemented as periodic control requests. Interrupt
@@ -596,7 +634,7 @@ static int rwand_probe(struct usb_interface *interface, const struct usb_device_
 	dev->status_request.bRequestType = USB_TYPE_VENDOR;
 	dev->status_request.bRequest = RWAND_CTRL_READ_STATUS;
 
-	dev->irq_data = usb_buffer_alloc(udev, IRQ_SIZE, SLAB_ATOMIC, &dev->irq_dma);
+	dev->irq_data = usb_buffer_alloc(udev, STATUS_PACKET_SIZE, SLAB_ATOMIC, &dev->irq_dma);
 	if (!dev->irq_data) {
 		retval = -ENOMEM;
 		goto error;
@@ -609,7 +647,7 @@ static int rwand_probe(struct usb_interface *interface, const struct usb_device_
 
 	usb_fill_control_urb(dev->irq, udev, usb_rcvctrlpipe(udev, 0),
 			     (unsigned char*) &dev->status_request,
-			     dev->irq_data, IRQ_SIZE, rwand_status_irq, dev);
+			     dev->irq_data, STATUS_PACKET_SIZE, rwand_status_irq, dev);
 
 	/* Keep the flow of interrupt requests going as long as the device is attached.
 	 * Even when our device node isn't open we need to be able to deal with input
@@ -642,6 +680,7 @@ static void rwand_disconnect(struct usb_interface *interface)
 	down (&dev->sem);
 
 	minor = dev->minor;
+	input_unregister_device(&dev->input);
 	usb_deregister_dev(interface, &rwand_class);
 
 	/* if the device is not opened, then we clean up right now */
