@@ -3,7 +3,6 @@
 #include <cv_dc1394.h>
 #include <cv_sdl.h>
 #include <camshift_frontend.h>
-#include <uinput_mouse.h>
 #include <getopt.h>
 
 void interactive_camshift(int n_cameras) {
@@ -100,7 +99,6 @@ int main(int argc, char **argv) {
   }
 
   cv_dc1394_init();
-  uinput_mouse_init("CamShift");
 
   interactive_camshift(n_cameras);
   return 0;

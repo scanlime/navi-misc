@@ -4,7 +4,7 @@ LD = g++
 CC = g++
 CPPFLAGS = $(CFLAGS)
 
-BINS = cam_test face_tracker anaglyph duck_tracker camera_calibrator camshift_demo average hdr
+BINS = cam_test face_tracker anaglyph duck_tracker camera_calibrator camshift_demo average hdr tracker
 
 all: $(BINS)
 
@@ -26,7 +26,10 @@ anaglyph: src/anaglyph.o lib/cv_dc1394.o lib/cv_sdl.o
 duck_tracker: src/duck_tracker.o lib/cv_dc1394.o lib/cv_sdl.o
 	$(LD) -o $@ $+ $(LDFLAGS)
 
-camshift_demo: src/camshift_demo.o lib/cv_dc1394.o lib/cv_sdl.o lib/uinput_mouse.o lib/camshift_frontend.o
+camshift_demo: src/camshift_demo.o lib/cv_dc1394.o lib/cv_sdl.o lib/camshift_frontend.o
+	$(LD) -o $@ $+ $(LDFLAGS)
+
+tracker: src/tracker.o lib/cv_dc1394.o lib/cv_sdl.o lib/camshift_frontend.o
 	$(LD) -o $@ $+ $(LDFLAGS)
 
 camera_calibrator: src/camera_calibrator.o lib/cv_dc1394.o lib/cv_sdl.o
