@@ -99,7 +99,7 @@ class ColorTextParser:
        Some pathological examples:
 
          >>> p.parseToString('{bold}{dark blue}{reverse}{yellow}hello{normal}{underline} world')
-         "<colorText><color bg='dark blue'><color fg='yellow'><b>hello</b></color></color><u> world</u></colorText>"
+         '<colorText><color bg="dark blue"><color fg="yellow"><b>hello</b></color></color><u> world</u></colorText>'
 
          >>> p.parseToString('{wiggle}')
          '<colorText>{wiggle}</colorText>'
@@ -108,7 +108,7 @@ class ColorTextParser:
          '<colorText/>'
 
          >>> p.parseToString('<b>')
-         '<colorText>&lt;b></colorText>'
+         '<colorText>&lt;b&gt;</colorText>'
 
          >>> p.parseToString('{blue}{normal}hello')
          '<colorText>hello</colorText>'

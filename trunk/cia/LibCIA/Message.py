@@ -643,7 +643,7 @@ class FormatterFactory:
            If 'message' is None and a medium is requested rather than a particular
            formatter, this will return None after validating the medium.
            """
-        attrNames = [attr.name for attr in xml.attributes.itervalues()]
+        attrNames = [attr.name for attr in xml.attributes.values()]
 
         if attrNames == ['name']:
             f = self.findName(xml.getAttributeNS(None, 'name'))

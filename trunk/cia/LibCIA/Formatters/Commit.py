@@ -348,7 +348,7 @@ class CommitToXHTML(CommitFormatter):
            """
         if node.nodeType == node.ELEMENT_NODE and node.nodeName.startswith("n:"):
             attrs = {}
-            for attr in node.attributes.itervalues():
+            for attr in node.attributes.values():
                 attrs[str(attr.name)] = attr.value
             return [tag(node.nodeName[2:], **attrs)[ self.walkComponents(node.childNodes, args) ]]
         return CommitFormatter.evalComponent(self, node, args)
