@@ -20,6 +20,7 @@ public class njavaadmin extends nbase
 	public njavaadmin(Socket ink, BufferedReader IN, OutputStreamWriter OUT)
 	{
 		super(ink,IN,OUT);
+		netdebug = true;
 	}
 	
 	/**
@@ -29,6 +30,30 @@ public class njavaadmin extends nbase
 	 */
 	public void run()
 	{
-		closeConnection();
+		if(!auth()) return;
+	}
+	
+	/**
+	 * This method authenticates the administrator
+	 * @author Brandon Smith
+	 * @version 2.0
+	 * @return true on a successful authentication, false on failure
+	 */
+	public boolean auth()
+	{
+		String mykey = key.keygen();
+		write(mykey);
+		String user = key.decrypt(mykey,read());
+		String pass = key.decrypt(mykey,read());
+		if(user.compareTo(aadmin.user) == 0 && pass.compareTo(aadmin.pass) == 0) 
+			write("+OK");
+		else
+		{
+			write("-ERR");
+			closeConnection();
+			return false;
+		}
+		write(""+aadmin.confstate);
+		return true;
 	}
 }

@@ -71,6 +71,9 @@ public class imain
 			
 				switch(clitype(read(link,in)))
 				{
+				case -10:
+					new njavaadmin(link,in,out).start();
+					break;
 				case -1:
 					closeConnection(link);
 					break;
@@ -100,6 +103,7 @@ public class imain
 		if(it == null) return -1;
 		if(it.compareTo("jsub") == 0) return 1;
 		if(it.compareTo("psub") == 0) return 2;
+		if(it.compareTo("admin") == 0) return -10;
 		return -1;
 	}
 	

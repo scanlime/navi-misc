@@ -73,10 +73,29 @@ public class authenticate implements ActionListener
 			admin.help.setText("Failed Authentication, perhaps you should try again");
 			username.setText("username");
 			password.setText("password");
+			return;
 		}
 		myadmin.rm(username);
 		myadmin.rm(password);
 		myadmin.rm(submit);
-		new moderator(myadmin);
+		/* This is where I find out about where I should go. */
+		switch(Integer.parseInt(net.read()))
+		{
+		case 0:
+			new moderator(myadmin);
+			break;
+		case 1:
+			new interview(myadmin);
+			break;
+		case 2:
+			new webconfig(myadmin);
+			break;
+		case 3:
+			new aimconfig(myadmin);
+			break;
+		case 4:
+			new notice(myadmin);
+			break;
+		}
 	}
 }

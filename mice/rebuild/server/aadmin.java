@@ -8,5 +8,19 @@
 
 public class aadmin
 {
-		
+	/**
+	 * This stores the level of configuration <br>
+	 * 0 => Not configured at all <br>
+	 * 1 => Moderators are set <br>
+	 * 2 => Interviewees are set <br>
+	 * 3 => Web based updates are set <br>
+	 * 4 => AIM based updates are set <br>
+	 */
+	public static int confstate = 0;
+	
+	/** This holds the username for the admin */
+	public static String user = "chulk";
+	
+	/** This holds the password for the admin */
+	public static String pass = "pizze";
 }
