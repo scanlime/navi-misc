@@ -21,6 +21,7 @@
  */
 
 #include <config.h>
+#include "pagestorage.h"
 
 #include <sys/mman.h>
 #include <unistd.h>
@@ -29,7 +30,6 @@
 #include <fcntl.h>
 #include <errno.h>
 
-#include "pagestorage.h"
 
 /* Use structure embedding to store our private data */
 typedef struct _RtgPageStorageMapped RtgPageStorageMapped;
@@ -46,7 +46,7 @@ static void       mapped_storage_resize            (RtgPageStorage*   _self,
     size_t old_length = self->map_length;
 
     self->map_length = RTG_ROUND_CEIL(new_num_pages * self->super.page_size, getpagesize());
-    rtg_page_storage_set_num_pages(self, self->map_length / self->super.page_size);
+    rtg_page_storage_set_num_pages(&self->super, self->map_length / self->super.page_size);
 
     ftruncate(self->fd, self->map_length);
     self->super.base_address = mremap(self->super.base_address, old_length, self->map_length, 1);
@@ -144,7 +144,7 @@ RtgPageStorage*   rtg_page_storage_mapped_new      (const char*       filename,
      * If it's a new file, init the header. We need a temporary length
      * of at least one page so we can address the header.
      */
-    rtg_page_storage_set_num_pages(self, 1);
+    rtg_page_storage_set_num_pages(&self->super, 1);
     if (new_file) {
 	rtg_page_storage_init(&self->super);
     }
@@ -159,7 +159,7 @@ RtgPageStorage*   rtg_page_storage_mapped_new      (const char*       filename,
     /* Now that we know the page size (either the one set
      * above, or loaded from the file header) we can set the num_pages
      */
-    rtg_page_storage_set_num_pages(self, self->map_length / self->super.page_size);
+    rtg_page_storage_set_num_pages(&self->super, self->map_length / self->super.page_size);
 
     /* Growing a file shouldn't be a costly operation, use a smallish growth margin */
     self->super.grow_margin = 0.1;

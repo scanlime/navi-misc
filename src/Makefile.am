@@ -4,18 +4,19 @@ INCLUDES = -I ../include $(PACKAGE_CFLAGS)
 
 rtgraph_demo_SOURCES =			\
 	pagestorage.c			\
+	pageatom.c			\
 	pagestorage-posix.c		\
-	demo.c				\
-	bptree.c
+	bptree.c			\
+	demo.c
 
 
 #	channel.c			\
 
 noinst_HEADERS =			\
-	bptree.h			\
-	mem-util.h			\
+	rtgmem.h			\
 	pagestorage.h			\
-	rtgmem.h
+	pageatom.h			\
+	bptree.h
 
 rtgraph_demo_LDADD = \
 	$(PACKAGE_LIBS)

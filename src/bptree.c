@@ -166,6 +166,7 @@ void              leaf_init                      (RtgBPTree*        self)
 /****************************************************************** Private Methods */
 /************************************************************************************/
 
+#if 0
 static void       rtg_bptree_invalidate_iters    (RtgBPTree*        self)
 {
     self->stamp++;
@@ -174,6 +175,7 @@ static void       rtg_bptree_invalidate_iters    (RtgBPTree*        self)
     if (self->stamp == INVALID_STAMP)
 	self->stamp++;
 }
+#endif
 
 
 /************************************************************************************/
