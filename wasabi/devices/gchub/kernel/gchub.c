@@ -60,8 +60,12 @@ struct gchub_controller_status {
 
 struct gchub_controller {
 	struct input_dev dev;
-	int attached;
-	int dev_registered;
+	int attached;            /* Nonzero if this controller is physically present */
+	int dev_registered;      /* Nonzero if 'dev' has been registered */
+	int reg_in_progress;     /* Nonzero if a registration/unregistration is pending */
+
+	struct work_struct reg_work, unreg_work;
+	spinlock_t reg_lock;
 
 	struct gchub_controller_status current_status;
 	struct gchub_controller_status prev_status;
@@ -110,8 +114,8 @@ static int    controller_init      (struct gchub_controller*    ctl,
 				    int                         port_number);
 static void   controller_delete    (struct gchub_controller*    ctl);
 static void   controller_sync      (struct gchub_controller*    ctl);
-static void   controller_attach    (struct gchub_controller*    ctl);
-static void   controller_detach    (struct gchub_controller*    ctl);
+static void   controller_attach    (void*                       data);
+static void   controller_detach    (void*                       data);
 
 
 /* Table of devices that work with this driver */
@@ -143,6 +147,7 @@ static int controller_init(struct gchub_controller* ctl,
 	struct usb_device* usb = interface_to_usbdev(interface);
 
 	memset(ctl, 0, sizeof(*ctl));
+	spin_lock_init(&ctl->reg_lock);
 
 	/* Create a name string for this controller, and copy it to
 	 * a dynamically allocated buffer.
@@ -172,6 +177,10 @@ static int controller_init(struct gchub_controller* ctl,
 
 	/* Set up callbacks */
 	ctl->dev.private = ctl;
+
+	/* Set up work structures for queueing attach/detach operations */
+	INIT_WORK(&ctl->reg_work, controller_attach, ctl);
+	INIT_WORK(&ctl->unreg_work, controller_detach, ctl);
 
 	/* Set up this input device's capabilities */
 	set_bit(EV_KEY, ctl->dev.evbit);
@@ -221,6 +230,8 @@ static int controller_init(struct gchub_controller* ctl,
 
 static void controller_delete(struct gchub_controller* ctl)
 {
+	flush_scheduled_work();
+
 	if (ctl->dev_registered) {
 		controller_detach(ctl);
 	}
@@ -246,14 +257,30 @@ static int buttons_to_axis(int buttons, int neg_mask, int pos_mask)
 
 static void controller_sync(struct gchub_controller *ctl)
 {
-	/* Create and/or destroy the device as necessary */
-	if (ctl->attached && !ctl->dev_registered)
-		controller_attach(ctl);
-	if (ctl->dev_registered && !ctl->attached)
-		controller_detach(ctl);
+	unsigned long flags;
 
-	return;
-	if (ctl->attached) {
+	/* Create and/or destroy the device as necessary. Be careful to
+	 * avoid a race condition resulting in multiple schedulings of
+	 * the same registration operation.
+	 */
+	spin_lock_irqsave(&ctl->reg_lock, flags);
+	if (!ctl->reg_in_progress) {
+		if (ctl->attached && !ctl->dev_registered) {
+			ctl->reg_in_progress = 1;
+			spin_unlock_irqrestore(&ctl->reg_lock, flags);
+			schedule_work(&ctl->reg_work);
+		}
+		else if (ctl->dev_registered && !ctl->attached) {
+			ctl->reg_in_progress = 1;
+			spin_unlock_irqrestore(&ctl->reg_lock, flags);
+			schedule_work(&ctl->unreg_work);
+		}
+		else {
+			spin_unlock_irqrestore(&ctl->reg_lock, flags);
+		}
+	}
+
+	if (ctl->dev_registered && ctl->attached) {
 		input_report_key(&ctl->dev, BTN_Z,     ctl->current_status.buttons & GCHUB_BUTTON_Z);
 		input_report_key(&ctl->dev, BTN_TR,    ctl->current_status.buttons & GCHUB_BUTTON_R);
 		input_report_key(&ctl->dev, BTN_TL,    ctl->current_status.buttons & GCHUB_BUTTON_L);
@@ -280,18 +307,26 @@ static void controller_sync(struct gchub_controller *ctl)
 	}
 }
 
-static void controller_attach(struct gchub_controller *ctl)
+static void controller_attach(void *data)
 {
+	struct gchub_controller *ctl = (struct gchub_controller*) data;
+
+	/* In process context, via a work queue */
 	dbg("Attached '%s'", ctl->dev.name);
 	input_register_device(&ctl->dev);
 	ctl->dev_registered = 1;
+	ctl->reg_in_progress = 0;
 }
 
-static void controller_detach(struct gchub_controller *ctl)
+static void controller_detach(void *data)
 {
+	struct gchub_controller *ctl = (struct gchub_controller*) data;
+
+	/* In process context, via a work queue */
 	dbg("Removed '%s'", ctl->dev.name);
 	input_unregister_device(&ctl->dev);
 	ctl->dev_registered = 0;
+	ctl->reg_in_progress = 0;
 }
 
 
