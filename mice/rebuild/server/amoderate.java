@@ -12,7 +12,11 @@ public class amoderate
 	private qqueue rjct;
 	private qqueue[] targets;
 	private String[] names;
-
+	
+	//These give ID to this moderator for logging purposes.
+	private int ID;
+	private static int nextID = 0;
+	
 	/**
 	 * Initializes the moderator interface
 	 * @param root The question database that the moderator pulls from
@@ -25,6 +29,7 @@ public class amoderate
 		rjct = root.rejected;
 		targets = root.waiting;
 		names = root.interviewuser;
+		ID = amoderate.nextID++;
 	}
 
 	/**
@@ -82,4 +87,8 @@ public class amoderate
 		rjct.add(current);
 		current = null;
 	}
+	
+	/**
+	 * This method handles logging
+	 */
 }

@@ -61,6 +61,7 @@ public class question
 	 * @return A string representation of the question
 	 * @author Brandon Smith
 	 * @version 2.0
+	 * @return A string that is ready for network sending.
 	 */
 	public String toNet()
 	{
@@ -71,10 +72,26 @@ public class question
 	}
 	
 	/**
+	 * This method returns the question in a log friendly manner.
+	 * @return A string representation of the question
+	 * @author Brandon Smith
+	 * @version 2.0
+	 * @return A string that has just the facts for the log file.
+	 */
+	public String toLog()
+	{
+		if(answer == null)
+			return name + "\n" + text;
+		else
+			return name + "\n" + text + "\n" + answeredby + "\n" + answer;
+	}
+	
+	/**
 	 * This method returns the question in a screen friendly manner.
 	 * @return A string representation of the question.
 	 * @author Brandon Smith
 	 * @version 2.0
+	 * @return A String that quickly and easily read by the human eye.
 	 */
 	public String toString()
 	{
