@@ -187,7 +187,6 @@ class SpreadFile(SpreadFileBase):
         if not self.openedFile:
             self.open()
 
-        print "%s (%d @%d)" % (self.absPath, count, offset)
         self.openedFile.seek(offset)
         return self.openedFile.read(count)
 
