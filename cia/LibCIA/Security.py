@@ -179,6 +179,18 @@ class CapabilityDB:
             raise SecurityException("One of the following capabilities are required: " +
                                     repr(capabilities)[1:-1])
 
+    def getCapabilities(self, key):
+        """Return a list of capability names (strings) that the given key grants"""
+        result = defer.Deferred()
+        Database.pool.runQuery("SELECT id FROM capabilities WHERE key_data = %s" %
+                               Database.quote(key, 'text')).addCallback(
+            self._getCapabilities, result).addErrback(
+            result.errback)
+        return result
+
+    def _getCapabilities(self, rows, result):
+        result.callback([row[0] for row in rows])
+            
     def grant(self, capability, owner=None):
         """Create a new key for some capability. The key is generated and returned
            immediately, and the process of adding it to the database is started.
