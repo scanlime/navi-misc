@@ -31,12 +31,12 @@ update_xdgmime = /bin/true
 endif
 
 install-data-hook:
-	$(update_xdgmime)
-	$(update_fdodesktop)
+	$(update_xdgmime) || true
+	$(update_fdodesktop) || true
 
 uninstall-hook:
-	$(update_xdgmime)
-	$(update_fdodesktop)
+	$(update_xdgmime) || true
+	$(update_fdodesktop) || true
 
 EXTRA_DIST =			\
 	$(fyredata_DATA)	\
