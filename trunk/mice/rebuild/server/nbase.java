@@ -20,6 +20,13 @@ public class nbase extends Thread
 	protected boolean netdebug = false;
 	
 	/**
+	 * This is an empty constructor for those who do it themselves.
+	 * @author Brandon Smith
+	 * @version 2.0
+	 */
+	public nbase(){}
+
+	/**
 	 * This is the default constructor for setting the network stuff up.
 	 * @param gonnection the socket descriptor passed in.
 	 * @param IN the buffered reader thingy for input.
