@@ -541,8 +541,9 @@ gboolean on_button_press(GtkWidget *widget, GdkEvent *event) {
 }
 
 static void tool_grab(double dx, double dy) {
-  params.xoffset += dx * 0.005 / params.zoom;
-  params.yoffset += dy * 0.005 / params.zoom;
+  double scale = 5.0 / params.zoom / render.width;
+  params.xoffset += dx * scale;
+  params.yoffset += dy * scale;
   gui.update_calc_params_when_convenient = TRUE;
 }
 
