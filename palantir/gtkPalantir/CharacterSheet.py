@@ -6,17 +6,17 @@ Object for dealing with the character sheets loaded into the MainWindow.
 '''
 from Palantir.sheet import Sheet
 from Palantir.character import Character
-import SheetElements
+import SheetElements, gtk, gtk.glade
 
 class CharacterSheet:
   def __init__(self, viewport):
     self.sheet = None
     self.view = viewport
 
-  def openSheet(self):
-    self.tree.dialog = gtk.glade.XML('data/sheetselection.glade')
-    self.tree.dialog.get_widget('SheetSelection').set_filename('CharacterSheet/data/')
-    self.tree.dialog.signal_autoconnect({ 'on_ok_button_clicked':self.installSheet,
+  def openSheet(self, widget=None, data=None):
+    self.dialog = gtk.glade.XML('data/sheetselection.glade')
+    self.dialog.get_widget('SheetSelection').set_filename('CharacterSheet/data/')
+    self.dialog.signal_autoconnect({ 'on_ok_button_clicked':self.installSheet,
       'on_cancel_button_clicked':lambda w: self.tree.dialog.get_widget('SheetSelection').destroy()})
 
   def installSheet(self, widget, data=None):
@@ -38,5 +38,5 @@ class CharacterSheet:
     self.sheet.root.show()
 
     # Kill the file selector.
-    self.tree.dialog.get_widget('SheetSelection').destroy()
+    self.dialog.get_widget('SheetSelection').destroy()
     self.view.show()
