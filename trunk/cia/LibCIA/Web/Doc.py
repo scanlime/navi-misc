@@ -247,17 +247,19 @@ class Page(Template.Page):
             self.mainTitle = self.mainDoc.docTitle
             if self.mainDoc.docSubtitle:
                 self.subTitle = self.mainDoc.docSubtitle
-            self.leftColumn = getFormattedDoc(self.findSidebarPath(self.fsPath)).output
+            self.leftColumn = self.loadSidebar(self.findSidebarPath(self.fsPath))
 
         elif os.path.isdir(self.fsPath):
             # If we have a directory with no index, make our title the directory name
             self.mainTitle = self.path.split('/')[-1]
 
     def getChild(self, path, request):
-        if path and path[0] != '.':
-            return self.__class__(self.component, os.path.join(self.path, path))
-        else:
+        if not path:
             return self
+        elif path[0] == '.':
+            return error.NoResource("Dotfiles are restricted")
+        else:
+            return self.__class__(self.component, os.path.join(self.path, path))
 
     def getURL(self, context):
         return posixpath.join(self.component.url, self.path)
@@ -282,10 +284,33 @@ class Page(Template.Page):
             return error.NoResource("File not found.").render(request)
         return Template.Page.render(self, request)
 
-    def findSidebarPath(self, path):
-        if os.path.isfile(path + '.sidebar'):
-            return path + '.sidebar'
+    def findSidebarPath(self, path, format=".%s.sidebar"):
+        if os.path.isfile(format % path):
+            return format % path
         else:
-            return os.path.join(os.path.split(path)[0], 'default.sidebar')
+            return os.path.join(os.path.split(path)[0], format % 'default')
+
+    def loadSidebar(self, path):
+        """Load sidebar links from a simple text file format.
+           Lines beginning with a dash specify a new section heading,
+           links are made by lines of the form 'title :: URL'.
+           Other lines are ignored.
+           """
+        sections = []
+        for line in open(path).xreadlines():
+            line = line.strip()
+            if not line:
+                continue
+
+            if line[0] == '-':
+                sections.append(Template.StaticSection(line[1:].strip()))
+                continue
+
+            pieces = line.split("::", 1)
+            if len(pieces) > 1:
+                title, url = pieces
+                sections[-1].rows.append( tag('a', href=url.strip())[title.strip()] )
+
+        return sections
 
 ### The End ###
