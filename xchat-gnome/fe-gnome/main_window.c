@@ -61,7 +61,6 @@ static void on_pgdn (GtkAccelGroup *accelgroup, GObject *arg1, guint arg2, GdkMo
 /* action callbacks */
 static void on_irc_connect_activate (GtkAction *action, gpointer data);
 static void on_irc_downloads_activate (GtkAction *action, gpointer data);
-static void on_irc_monkey_bubble_mode_activate (GtkAction *action, gpointer data);
 static void on_irc_quit_activate (GtkAction *action, gpointer data);
 static void on_edit_undo_activate (GtkAction *action, gpointer data);
 static void on_edit_cut_activate (GtkAction *action, gpointer data);
@@ -75,7 +74,6 @@ static void on_network_reconnect_activate (GtkAction *action, gpointer data);
 static void on_network_disconnect_activate (GtkAction *action, gpointer data);
 static void on_network_channels_activate (GtkAction *action, gpointer data);
 static void on_network_users_activate (GtkAction *action, gpointer data);
-static void on_network_collapse_expand_activate (GtkAction *action, gpointer data);
 static void on_discussion_save_activate (GtkAction *action, gpointer data);
 static void on_discussion_save_as_activate (GtkAction *action, gpointer data);
 static void on_discussion_leave_activate (GtkAction *action, gpointer data);
@@ -144,7 +142,6 @@ static GtkActionEntry action_entries [] = {
 	{ "NetworkDisconnect", GTK_STOCK_STOP, _("_Disconnect"), "", NULL, G_CALLBACK (on_network_disconnect_activate) },
 	{ "NetworkChannels", GTK_STOCK_INDEX, _("_Channels"), "<alt>C", NULL, G_CALLBACK (on_network_channels_activate) },
 	{ "NetworkUsers", NULL, _("_Users"), "<alt>U", NULL, G_CALLBACK (on_network_users_activate) },
-	{ "NetworkCollapseExpand", NULL, _("Collapse/Expand"), "<control>space", NULL, G_CALLBACK (on_network_collapse_expand_activate) },
 
 	/* Discussion menu */
 	{ "DiscussionSave", GTK_STOCK_SAVE, _("_Save"), "<control>S", NULL, G_CALLBACK (on_discussion_save_activate) },
@@ -169,11 +166,6 @@ static GtkActionEntry action_entries [] = {
 #else
 	{ "HelpAbout", NULL, _("_About"), "", NULL, G_CALLBACK (on_help_about_activate) },
 #endif
-};
-
-static GtkToggleActionEntry toggle_action_entries [] = {
-	/* IRC Menu */
-	{ "IRCMonkeyBubbleMode", NULL, _("Monkey Bubble Mode"), "<control>M", NULL, G_CALLBACK (on_irc_monkey_bubble_mode_activate) },
 };
 
 /*
@@ -361,7 +353,6 @@ initialize_main_window ()
 //	gtk_action_group_add_actions (gui.action_group, action_entries,
 //				      G_N_ELEMENTS (action_entries), NULL);
 	setup_menu ();
-	gtk_action_group_add_toggle_actions (gui.action_group, toggle_action_entries, G_N_ELEMENTS (toggle_action_entries), NULL);
 //	initialize_gconf_accels();
 
 	gui.manager = gtk_ui_manager_new ();
@@ -656,11 +647,6 @@ on_irc_downloads_activate (GtkAction *action, gpointer data)
 }
 
 static void
-on_irc_monkey_bubble_mode_activate (GtkAction *action, gpointer data)
-{
-}
-
-static void
 on_network_channels_activate (GtkAction *action, gpointer data)
 {
 	create_channel_list (gui.current_session);
@@ -670,34 +656,6 @@ static void
 on_network_users_activate (GtkAction *action, gpointer data)
 {
 	/* FIXME: implement */
-}
-
-static void
-on_network_collapse_expand_activate (GtkAction *action, gpointer data)
-{
-	GtkTreeView *view;
-	GtkTreeModel *model;
-	GtkTreeSelection *selection;
-	GtkTreeIter current;
-
-	view = GTK_TREE_VIEW (glade_xml_get_widget (gui.xml, "server channel list"));
-	selection = gtk_tree_view_get_selection (view);
-
-	if (gtk_tree_selection_get_selected (selection, &model, &current) && gui.current_session) {
-		GtkTreePath *path;
-
-		if (!gtk_tree_model_iter_has_child (model, &current)) {
-			GtkTreeIter parent;
-			gtk_tree_model_iter_parent (model, &parent, &current);
-			current = parent;
-		}
-
-		path = gtk_tree_model_get_path (model, &current);
-		if (gtk_tree_view_row_expanded (view, path))
-			gtk_tree_view_collapse_row (view, path);
-		else
-			gtk_tree_view_expand_row (view, path, FALSE);
-	}
 }
 
 static void
