@@ -31,6 +31,8 @@
 	;; The serial format is the same as that used by the gamecube: zeroes
 	;; are 1us off 3us on, ones are 3us off 1us on. All packets are a multiple
 	;; of 8 bits long not including the single '1' bit used as a stop bit.
+	;; The 0x02 and 0x03 packets use a 2us wide stop bit after the CRC rather
+	;; than the usual 1us.
 	;;
 	;; The N64 initiates communications by sending a 1-byte command packet. The
 	;; following commands have been observed:
@@ -38,34 +40,46 @@
 	;;   0x00 :   Asks the controller to identify itself. Returns a 24-bit word.
 	;;            An official N64 controller will respond with 0x050002 if it has
 	;;            nothing in the expansion slot, 0x050001 if it has a memory or
-	;;            rumble pak installed.
+	;;            rumble pak installed. I've seen 0x050003 from a controller with
+	;;            a memory pak, but I don't know what the extra bit signifies.
+	;;
+	;;            This command has the side-effect of causing the controller to
+	;;            re-check whether a new controller pak has been plugged in.
 	;;
 	;;   0x01 :   Returns a 32-bit status word including all button and axis state.
 	;;            The format of this status word is documented in the sources above.
 	;;
 	;;   0x02 :   Read 32 bytes from the controller pak bus. The N64 follows the 0x02
-	;;            with two bytes that have an unknown relation to the address on the
-	;;            controller bus. The controller returns 32 bytes of data.
+	;;            with a two-byte encoded address. The controller returns 32 bytes
+	;;            of data followed by a 1-byte CRC.
 	;;
 	;;   0x03 :   Write 32 bytes to the controller pak bus. The 0x03 is followed by
-	;;            two address bytes using the same encoding as the read command,
-	;;            then 32 data bytes. The controller responds with a 1-byte status
-	;;            code. 0x1E indicates that no controler pak is attached, 0xE1 seems
-	;;            to indicate success.
+	;;            a two-byte encoded address and 32 data bytes. The controller
+	;;            responds with a 1-byte CRC.
+	;;
+	;; The address encoding is such that all reads and writes are aligned on 32-byte
+	;; boundaries, and the low 5 bits are used as a sort of CRC to validate the address.
+	;; The address encoding and data CRC are both described and implemented in the
+	;; accompanying 'notes' directory. The CRC is inverted if a controller pak is
+	;; connected.
+	;;
+	;; The controller pak bus reads and writes use a 16-bit address, however the
+	;; controller pak only includes 32 bytes of SRAM. The top half of memory is
+	;; therefore reserved for memory mapped I/O used by non-memory peripherals.
+	;;
+	;; 0x8000 is the initiralization/identification word. At startup, a packet
+	;; of all 0xFE bytes is written there to initialize the controller pak. The
+	;; N64 then reads back either all 0x80, indicating a rumble pak or 0x00,
+	;; indicating a normal SRAM controller pak. Other peripherals like the
+	;; microphone probably have different identifying bytes.
+	;;
+	;; The rumble pak motor is a memory mapped latch at 0xC000. 0x01 is written there
+	;; to turn it on, 0x00 to turn it off.
 	;;
 	;; Most games work fine if only the 0x00 and 0x01 commands are implemented,
 	;; but some games will attempt to use the controller pak read/write commands
 	;; and report that no controller is found if they fail. This includes Ocarina of
 	;; Time and Majora's Mask.
-	;;
-	;; The exact meanings of the address and status bytes in the controller pak
-	;; reads/writes are still unknown. At startup, the N64 writes 0xFE bytes to
-	;; addresses 0x0000 through 0x003F using the command 03 80 01. It then reads back
-	;; the same addresses using 02 80 01. The Rumble Pak returns all 0x80 bytes, while
-	;; the memory pak returns all 0x00. It's still unknown why the memory pak doesn't
-	;; return 0xFE instead. It's possible that some bits in the address word and one
-	;; of the still unknown pins on the controller pak connector are used as a chip
-	;; select for the RAM.
 	;;
 
 
@@ -79,6 +93,10 @@
 	#define N64_COMMAND_STATUS	0x01
 	#define N64_COMMAND_READ_BUS	0x02
 	#define N64_COMMAND_WRITE_BUS	0x03
+
+	;; Controller pak identities
+	#define N64_PAK_MEMORY		0x00
+	#define	N64_PAK_RUMBLE		0x80
 
 	;; Gamecube buttons (byte and bit offset in status packet)
 	#define	GC_A		0, 0
