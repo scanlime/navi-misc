@@ -30,6 +30,21 @@ else
 GNET_SRC =
 endif
 
+if HAVE_BINRELOC
+BINRELOC_SRC = \
+	prefix.c
+else
+BINRELOC_SRC =
+endif
+
+if HAVE_GETOPT
+GETOPT_SRC =
+else
+GETOPT_SRC = \
+	getopt.c \
+	getopt1.c
+endif
+
 fyre_SOURCES = 				\
 	main.c				\
 	de-jong.c			\
@@ -53,10 +68,11 @@ fyre_SOURCES = 				\
 	histogram-view.c		\
 	animation-render-ui.c		\
 	screensaver.c			\
-	prefix.c			\
 	batch-image-render.c		\
 	probability-map.c		\
 	$(EXR_SRC)			\
+	$(BINRELOC_SRC)			\
+	$(GETOPT_SRC)			\
 	$(GNET_SRC)
 
 noinst_HEADERS =			\
