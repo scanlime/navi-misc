@@ -2,6 +2,7 @@
 #include "main_window.h"
 #include "preferences_dialog.h"
 #include "connect_dialog.h"
+#include "about.h"
 
 XChatGUI gui;
 
@@ -12,6 +13,7 @@ gboolean initialize_gui() {
 	initialize_main_window();
 	initialize_preferences_dialog();
 	initialize_connection_dialog();
+	initialize_about_dialog();
 	return TRUE;
 }
 

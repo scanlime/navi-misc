@@ -3561,7 +3561,6 @@
 <widget class="GnomeAbout" id="about dialog">
   <property name="border_width">5</property>
   <property name="destroy_with_parent">True</property>
-  <property name="logo">soap.png</property>
   <property name="copyright" translatable="yes">Copyright © 2004
 David Trowbridge and Daniel Kuester</property>
   <property name="comments" translatable="yes">It has been well observed that a trombone
