@@ -25,18 +25,12 @@
 #include <calendar/gui/e-cal-popup.h>
 #include <calendar/gui/e-cal-config.h>
 #include <libgnome/gnome-i18n.h>
+#include "url-editor-dialog.h"
 
 static GtkListStore *store = NULL;
 
 void       publish_calendar_context_activate (EPlugin *ep, ECalPopupTargetSource *target);
 GtkWidget *publish_calendar_locations (EPlugin *epl, EConfigHookItemFactoryData *data);
-
-enum {
-	URL_LIST_ENABLED_COLUMN,
-	URL_LIST_LOCATION_COLUMN,
-	URL_LIST_URL_COLUMN,
-	URL_LIST_N_COLUMNS,
-};
 
 typedef struct {
 	GConfClient *gconf;
@@ -83,6 +77,14 @@ url_list_double_click (GtkTreeView       *treeview,
 static void
 url_add_clicked (GtkButton *button, PublishUIData *ui)
 {
+	GtkTreeModel *model;
+	GtkTreeIter iter;
+	GtkTreeSelection *selection;
+	GtkWidget *url_editor;
+
+	model = gtk_tree_view_get_model (GTK_TREE_VIEW (ui->treeview));
+	url_editor = url_editor_dialog_new (model);
+	url_editor_dialog_run ((UrlEditorDialog *) url_editor);
 }
 
 static void
@@ -150,4 +152,6 @@ publish_calendar_locations (EPlugin *epl, EConfigHookItemFactoryData *data)
 	toplevel = glade_xml_get_widget (xml, "toplevel");
 	gtk_widget_show_all (toplevel);
 	gtk_box_pack_start (GTK_BOX (data->parent), toplevel, FALSE, TRUE, 0);
+
+	return toplevel;
 }

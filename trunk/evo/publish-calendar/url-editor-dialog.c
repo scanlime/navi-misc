@@ -24,10 +24,20 @@
 
 static GtkDialogClass *parent_class = NULL;
 
-static void
+static gboolean
 url_editor_dialog_construct (UrlEditorDialog *dialog)
 {
-	/* FIXME */
+	GladeXML *gui;
+	GtkWidget *toplevel;
+
+	gui = glade_xml_new (PLUGINDIR "/publish-calendar.glade", "publish vbox", NULL);
+	dialog->gui = gui;
+
+	g_return_val_if_fail (gui != NULL, FALSE);
+
+	toplevel = glade_xml_get_widget (gui, "publish vbox");
+	gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), toplevel);
+	return TRUE;
 }
 
 GtkWidget *
@@ -38,10 +48,9 @@ url_editor_dialog_new (GtkTreeModel *url_list_model)
 	dialog = (UrlEditorDialog *) g_object_new (URL_EDITOR_DIALOG_TYPE, NULL);
 	dialog->url_list_model = g_object_ref (url_list_model);
 
-	url_editor_dialog_construct (dialog);
-
-	if (dialog->gui)
+	if (url_editor_dialog_construct (dialog))
 		return GTK_WIDGET (dialog);
+
 	g_object_unref (dialog);
 	return NULL;
 }
