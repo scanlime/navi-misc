@@ -39,14 +39,15 @@ class DonationSection(Web.Template.Section):
         ],
     ]
 
-# Add some extras to the web template- add a notice from our hosting
-# provider. Remove the non-main CIA server notice, since this is in fact the
-# main server.
+# Add some extras to the web template- add a notice from our wonderfully
+# reliable hosting provider, remove the non-main CIA server notice,
+# since this is in fact the main server.
 #
 Web.Template.Page.site_hostingNotice = [
-        tag('a', href="http://pld-linux.org")[
-            tag('img', src="http://pld-linux.org/Powered",
-                alt="Powered by PLD Linux", height=81, width=67, _class="footer"),
+        "Hosting provided by:",
+        tag('a', href="http://hyperreal.info/")[
+            tag('img', src="http://hyperreal.info/sys/ads/adview.php.gif",
+                alt="Hosting provider", width=88, height=31, _class="footer"),
         ],
     ]
 Web.Template.Page.site_mainServerNotice = []
