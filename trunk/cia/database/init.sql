@@ -1,10 +1,12 @@
---
--- This file initializes CIA's PostgreSQL database.
---
--- For example:
---   dbcreate cia
---   psql -f init.sql cia
---
+/*
+ * This file initializes CIA's PostgreSQL database.
+ *
+ * For example:
+ *   dbcreate cia
+ *   psql -f init.sql cia
+ *
+ * -- Micah Dowty
+ */
 
 ----------------------------------------------------------- Security
 
@@ -23,7 +25,7 @@ CREATE TABLE rulesets
     xml TEXT NOT NULL
 );
 
------------------------------------------------------------ Stats
+----------------------------------------------------------- Stats Tables
 
 -- Generates unique IDs for all messages we store
 CREATE SEQUENCE stats_message_id;
@@ -69,6 +71,19 @@ CREATE TABLE stats_counters
     PRIMARY KEY(target_path, name)
 );
 
+----------------------------------------------------------- Stats functions/rules
+
+-- Cleanup: uncomment to remove old versions of the below functions and rules
+/*
+DROP RULE stats_messages_autocreate ON stats_messages;
+DROP RULE stats_metadata_autocreate ON stats_metadata;
+DROP RULE stats_counters_autocreate ON stats_counters;
+DROP FUNCTION statsParent(VARCHAR);
+DROP FUNCTION statsCreateTarget(VARCHAR);
+DROP FUNCTION statsIncrementCounter(VARCHAR, VARCHAR);
+DROP FUNCTION statsIncrement(VARCHAR);
+*/
+
 -- This function returns the parent associated with a given stats path
 CREATE FUNCTION statsParent(VARCHAR) RETURNS VARCHAR AS '
     SELECT substring($1 from ''(.+)/[^/]+$'')
@@ -80,6 +95,7 @@ CREATE FUNCTION statsParent(VARCHAR) RETURNS VARCHAR AS '
 --
 CREATE FUNCTION statsCreateTarget(VARCHAR) RETURNS VARCHAR AS '
     SELECT statsCreateTarget(statsParent($1));
+    LOCK TABLE stats_catalog IN SHARE MODE;
     INSERT INTO stats_catalog (
        parent_path,
        target_path)
