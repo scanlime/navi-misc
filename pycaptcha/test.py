@@ -1,20 +1,17 @@
-import Captcha.Visual.Text
-import Captcha.Words
+#!/usr/bin/env python
+from Captcha.Visual import Text, Backgrounds, Distortions, ImageCaptcha
+from Captcha import Words, Factory
 
-
-class BgLayer(Captcha.Visual.Layer):
-    def render(self, image):
-        image.paste("white")
-
-
-class PseudoGimpy(Captcha.Visual.ImageCaptcha):
+class PseudoGimpy(ImageCaptcha):
     def getLayers(self):
-        word = Captcha.Words.defaultWordList.pick()
+        word = Words.defaultWordList.pick()
         self.addSolution(word)
         return [
-            BgLayer(),
-            Captcha.Visual.Text.TextLayer(word),
+            Backgrounds.Grid(),
+            Text.TextLayer(word),
+            Distortions.WigglyBlocks(),
             ]
 
-g = Captcha.Factory(PseudoGimpy).new()
+g = Factory(PseudoGimpy).new()
 g.render().show()
+print g.solutions
