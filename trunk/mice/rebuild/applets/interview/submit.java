@@ -21,7 +21,7 @@ public class submit implements ActionListener
 		net.write("submit");
 		answ = head.answer.getText();
 		a = new StringTokenizer(answ,"\n",false);
-		while(a.hasMoreTokens) net.write(a.nextToken());
+		while(a.hasMoreTokens()) net.write(a.nextToken());
 		net.write(".");
 		name = net.read();
 		ques = net.read();
