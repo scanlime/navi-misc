@@ -36,13 +36,17 @@ namespace Fyre
 			visible = new int[2];
 			mouse = new int[2];
 
-			// set window size
+			// Set window size
 			size[0] = w;
 			size[1] = h;
 
-			// set visible size
+			// Set visible size
 			visible[0] = vw;
 			visible[1] = vh;
+
+			// Initialize mouse to nothing
+			mouse[0] = -1;
+			mouse[1] = -1;
 
 			// Before we can access any gdk internals, we need
 			// to realize the window.
@@ -77,27 +81,40 @@ namespace Fyre
 			background.DrawRectangle (black, false, 0, 0, size[0] - 1, size[1] - 1);
 		}
 
+		void Draw ()
+		{
+			int vx =  visible[0] / 2;
+			int vy =  visible[1] / 2;
+			backing.DrawDrawable (white, background, 0, 0, 0, 0, size[0], size[1]);
+			if (mouse[0] == -1)
+				return;
+
+			backing.DrawRectangle (black, false, mouse[0] - vx, mouse[1] - vy, visible[0], visible[1]);
+		}
+
 		protected override bool OnExposeEvent (Gdk.EventExpose ev)
 		{
+			Draw ();
+
 			Gdk.Rectangle r = ev.Area;
-			backing.DrawDrawable (white, background, r.X, r.Y, r.X, r.Y, r.Width, r.Height);
-			// FIXME - mouse box
 			GdkWindow.DrawDrawable (white, backing, r.X, r.Y, r.X, r.Y, r.Width, r.Height);
+
 			return true;
 		}
 
 		public void SetMouse (int mx, int my)
 		{
-			// FIXME: trigger draw
-		}
+			if (mouse[0] == mx && mouse[1] == my)
+				return;
 
-		public void DrawVisible (int mx, int my)
-		{
-			int vx =  visible[0] / 2;
-			int vy =  visible[1] / 2;
-			backing.DrawDrawable (white, background, 0, 0, 0, 0, size[0], size[1]);
-			backing.DrawRectangle (black, false, mx - vx, my - vy, visible[0], visible[1]);
-			GdkWindow.DrawDrawable (white, backing, 0, 0, 0, 0, size[0], size[1]);
+			mouse[0] = mx;
+			mouse[1] = my;
+
+			Gdk.Rectangle r = new Gdk.Rectangle ();
+			r.X = 0; r.Y = 0;
+			r.Width  = size[0];
+			r.Height = size[1];
+			GdkWindow.InvalidateRect (r, true);
 		}
 	}
 
@@ -150,6 +167,13 @@ namespace Fyre
 			position.Y = GetWindowPosition (mouse_y, position.Height, screen.Height);
 
 			window.Move (position.X, position.Y);
+
+			mouse_x -= position.X;
+			mouse_y -= position.Y;
+			ClampMouse (ref mouse_x, position.Width,  visible[0]);
+			ClampMouse (ref mouse_y, position.Height, visible[1]);
+			window.SetMouse (mouse_x, mouse_y);
+
 			window.Show ();
 
 			return true;
@@ -167,9 +191,9 @@ namespace Fyre
 		{
 			int v = visible / 2;
 			if (mouse < v)
-				mouse = v;
+				mouse = v + 1;
 			else if (mouse >= size - v)
-				mouse = size - v - 1;
+				mouse = size - v - 2;
 		}
 
 		protected override bool OnMotionNotifyEvent (Gdk.EventMotion ev)
@@ -177,10 +201,10 @@ namespace Fyre
 			int mx = ((int) ev.XRoot) - position.X;
 			int my = ((int) ev.YRoot) - position.Y;
 
-			ClampMouse (ref mx, position.Width, visible[0]);
+			ClampMouse (ref mx, position.Width,  visible[0]);
 			ClampMouse (ref my, position.Height, visible[1]);
 
-			window.DrawVisible (mx, my);
+			window.SetMouse (mx, my);
 			return true;
 		}
 	}
