@@ -102,7 +102,7 @@ struct _ExplorerClass {
 /************************************************************************************/
 
 GType      explorer_get_type();
-Explorer*  explorer_new(IterativeMap *map, Animation *animation);
+Explorer*  explorer_new (IterativeMap *map, Animation *animation);
 
 
 /************************************************************************************/
