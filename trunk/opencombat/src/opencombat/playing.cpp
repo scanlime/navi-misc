@@ -4026,13 +4026,15 @@ void renderManagedDialog ( void )
 		glMatrixMode(GL_MODELVIEW);
 		glPushMatrix();
 		glLoadIdentity(); */
-	/*	glBegin(GL_LINES);
+		static float shiftX = 0;
+		static float shiftY = 0;
+		glBegin(GL_LINES);
 			glColor4f(1,1,1,1);
 			glVertex3f(0,0,-1);
-			glVertex3f(width,height,-1);
-		glEnd();*/
+			glVertex3f(width+shiftX++,height+shiftY++,-1);
+		glEnd();
 //		OpenGLGState::resetState();
-	HUDDialogStack::get()->render();
+	//HUDDialogStack::get()->render();
 
 //		OpenGLGState::resetState();
 

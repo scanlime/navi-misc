@@ -22,7 +22,7 @@ WinVisual::WinVisual(const WinDisplay* _display) :
   pfd.nVersion		= 1;
   pfd.dwFlags		= PFD_DRAW_TO_WINDOW |
 			  PFD_SUPPORT_OPENGL |
-			  PFD_DEPTH_DONTCARE;
+			  PFD_DOUBLEBUFFER;
   pfd.iPixelType	= PFD_TYPE_RGBA;
   pfd.cColorBits	= 0;
   pfd.cRedBits		= 0;
@@ -38,7 +38,7 @@ WinVisual::WinVisual(const WinDisplay* _display) :
   pfd.cAccumGreenBits	= 0;
   pfd.cAccumBlueBits	= 0;
   pfd.cAccumAlphaBits	= 0;
-  pfd.cDepthBits	= 0;
+  pfd.cDepthBits	= 32;
   pfd.cStencilBits	= 0;
   pfd.cAuxBuffers	= 0;
   pfd.iLayerType	= PFD_MAIN_PLANE;
