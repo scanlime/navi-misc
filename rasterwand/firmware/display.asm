@@ -37,6 +37,8 @@
 	global	coil_window_max
 	global	mode_flags
 
+	extern	temp
+
 bank0	udata
 
 edge_buffer		res	8	; Stores 16-bit duration values at the last 4 angle sensor edges.
@@ -208,6 +210,7 @@ display_led_scan
 	pagesel	led_scan_disabled
 	btfss	mode_flags, RWAND_MODE_ENABLE_DISPLAY_BIT
 	goto	led_scan_disabled
+	banksel	wand_phase
 
 	; Check for the beginning of a forward scan
 	pagesel	no_forward_scan
@@ -229,13 +232,12 @@ display_led_scan
 
 	; Yay, start a forward display scan
 start_forward_scan
+	pagesel	start_scan_common			; Do the things common to both types of scans
+	call	start_scan_common
 	bsf		FLAG_DISPLAY_FWD			; Set flags
 	bsf		FLAG_FWD_TRIGGERED
+	banksel	current_column
 	clrf	current_column				; Start at the beginning
-	movf	display_column_width, w		; Give this column all its allocated width
-	movwf	remaining_col_width	
-	movf	display_column_width+1, w
-	movwf	remaining_col_width+1
 no_forward_scan
 
 	; Check for the beginning of a reverse scan
@@ -258,14 +260,13 @@ no_forward_scan
 
 	; Yay, start a reverse display scan
 start_reverse_scan
+	pagesel	start_scan_common			; Do the things common to both types of scans
+	call	start_scan_common
 	bsf		FLAG_DISPLAY_REV			; Set flags
 	bsf		FLAG_REV_TRIGGERED
 	movlw	NUM_COLUMNS-1				; Start at the end
+	banksel	current_column
 	movwf	current_column
-	movf	display_column_width, w		; Give this column all its allocated width
-	movwf	remaining_col_width	
-	movf	display_column_width+1, w
-	movwf	remaining_col_width+1
 no_reverse_scan
 
 	; Bounds check the current column. If it's out of range, disable current scans
@@ -296,11 +297,86 @@ led_scan_disabled
 	; We have a scan (forward or reverse) in progress
 scan_in_progress
 	
+	bankisel front_buffer				; Point IRP:FSR at the front buffer's current column
+	banksel	LED_PORT
+	movlw	front_buffer
+	addwf	current_column, w
+	movwf	FSR
+	comf	INDF, w						; Invert (the LEDs are active-low) and blast to LED_PORT.
+	movwf	LED_PORT					; It's just as fast to invert it while moving as to not invert it,
+										; so we might as well do that here.
+
+	; Subtract our delta-t from the current column width. If we borrow, it's time for a new column.
+	movf	delta_t, f					; Subtract the low byte
+	subwf	remaining_col_width, f
+	pagesel	no_colwidth_borrow
+	btfsc	STATUS, C
+	goto	no_colwidth_borrow			; Skip the next bit if it didn't borrow (B=0, C=1)
+	decf	remaining_col_width+1, f	; Decrement the high byte, for borrowative purposes...
+	movf	remaining_col_width+1, w	; Compare it to 255 to see if we just caused the whole thing to roll over
+	sublw	0xFF
+	pagesel	next_column
+	btfsc	STATUS, Z
+	goto	next_column					; Yep, it rolled over. Next column.
+no_colwidth_borrow
+	movf	delta_t+1, f				; Subtract the high byte
+	subwf	remaining_col_width+1, f
+	pagesel	next_column
+	btfss	STATUS, C
+	goto	next_column					; C=0, B=1
+
+	; Looks like we're done for now...
+	return
 	
 
-
+	; This is invoked when the current column runs out of time. Switch to the next column.
+next_column
+	incf	current_column, f
+	movf	display_column_width, w		; Give this column all its allocated width
+	movwf	remaining_col_width
+	movf	display_column_width+1, w
+	movwf	remaining_col_width+1
 	return
 
+
+	; Do the things common to starting forward and reverse scans. This
+	; currently includes allocating width for the first column, and doing a back->front
+	; blit if we need one.
+	;
+	; NOTE: This uses current_column for a blit if it needs to, so this must be called
+	;       before that is initialized.
+start_scan_common
+	movf	display_column_width, w		; Give this column all its allocated width
+	movwf	remaining_col_width			; FIXME: I'm not sure yet if this will be noticeable,
+	movf	display_column_width+1, w	;        but the first column should actually get more width
+	movwf	remaining_col_width+1		;        than this for nonzero delta_t.
+
+	btfss	FLAG_FLIP_REQUEST			; We're done if we haven't had a page flip request
+	return
+	bcf		FLAG_FLIP_REQUEST
+
+	clrf	current_column				; Start the blit at the first column
+	pagesel	flip_blit_loop
+flip_blit_loop
+	bankisel back_buffer				; Point IRP:FSR at the back buffer's current column
+	movlw	back_buffer
+	addwf	current_column, w
+	movwf	FSR
+	movf	INDF, w						; Copy to temp
+	movwf	temp
+	bankisel front_buffer				; Point IRP:FSR at the front buffer's current column
+	movlw	front_buffer
+	addwf	current_column, w
+	movwf	FSR
+	movf	temp, w						; Copy from temp
+	movwf	INDF
+	incf	current_column, f			; Next column...
+	movf	current_column, w			; Are we done yet?
+	sublw	NUM_COLUMNS
+	btfss	STATUS, Z
+	goto	flip_blit_loop
+
+	return	
 
 
 ;*****************************************************************************************
@@ -315,6 +391,7 @@ display_drive_coil
 	pagesel	coil_disabled
 	btfss	mode_flags, RWAND_MODE_ENABLE_COIL_BIT
 	goto	coil_disabled
+	banksel	coil_window_min
 
 	; Are we within the window in which the coil driver should be on?
 	movf	coil_window_min+1, w	; Test high byte of wand_phase - coil_window_min
