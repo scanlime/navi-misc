@@ -34,8 +34,8 @@ parser.add_option('-v','--verbose',dest="verbose",action="store_true",
 
 # Deal with command line options & arguments
 #
-import Select
-from PlayList import PlayList
+import Trough.Select
+from Trough.PlayList import PlayList
 
 playlist = PlayList(options.playlist)
 if options.add and options.remove:
@@ -62,5 +62,5 @@ p = playlist.getPieces()
 
 print playlist.getPieces().getCount()
                                                                                 
-for x in Select.Select(p):
+for x in Trough.Select.Select(p):
 	print x.getPath()
