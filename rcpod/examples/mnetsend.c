@@ -124,19 +124,21 @@ int mnetsend(int source, int destination, const unsigned char *data, int dataByt
 
   rcpod = rcpod_InitSimple();                                 /* Initialize the rcpod */
   rcpod_SerialInit(rcpod, 9600);                              /* Turn on the UART, set it to 9600 bps */
-  rcpod_GpioAssert(rcpod, RCPOD_OUTPUT(RCPOD485_RS485_TXE));  /* Make the transmit enable pin an output */
+  rcpod_GpioAssert(rcpod, RCPOD_OUTPUT(RCPOD_PIN_TX));        /* Set pin directions */
+  rcpod_GpioAssert(rcpod, RCPOD_INPUT(RCPOD_PIN_RX));
+  rcpod_GpioAssert(rcpod, RCPOD_OUTPUT(RCPOD485_RS485_TXE));
   rcpod_SerialSetTxEnable(rcpod, RCPOD485_RS485_TXE);         /* Set the transmit enable pin */
 
   /* Send our packet and start receiving a response */
   printf("Sending...\n");
-  rcpod_SerialTxRxStart(rcpod, packet, packetBytes, sizeof(packet));
+  rcpod_SerialTxRxStart(rcpod, packet, packetBytes);
 
   /* Wait for a response. The rcpod will be receiving it to its
    * scratchpad RAM. We then pick up whatever it has to offer us into our own buffer.
    */
   printf("Waiting %dms for a response...\n", timeout);
   usleep(((unsigned long)timeout) * 1000);
-  packetBytes = rcpod_SerialRxFinish(rcpod, packet, sizeof(packet));
+  packetBytes = rcpod_SerialRxRead(rcpod, packet, sizeof(packet));
 
   /* Was there any response at all? */
   if (!packetBytes) {
