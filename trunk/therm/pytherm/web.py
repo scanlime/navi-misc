@@ -260,7 +260,10 @@ class SourcePage(ModPython.Page):
 
     def __init__(self, source):
         self.source = source
-        self.children = dict(graph=SourceGraphs(source))
+        self.children = dict(
+            graph=SourceGraphs(source),
+            latest=SourceLatestPage(source))
+
         self.latest = source.getLatestPacket()
 
     def render_navigation(self, context):
@@ -420,6 +423,32 @@ class SourceGraphs(ModPython.Page):
                              yLabel="Duplicate Packets")
         graph.updateToLatest()
         return graph
+
+
+class SourceLatestPage(ModPython.Page):
+    """A page that returns the latest info for a particular source. Children return a single key"""
+    contentType = "text/plain"
+    def __init__(self, source, key=None):
+        self.source = source
+        self.key = key
+
+    def getChild(self, name):
+        if not self.key:
+            return SourceLatestPage(self.source, name)
+
+    def render(self, context):
+        req = context['request']
+        latest = self.source.getLatestPacket()
+        if self.key and self.key not in latest:
+            return apache.HTTP_NOT_FOUND
+        req.content_type = self.contentType
+
+        if self.key:
+            req.write(str(latest[self.key]))
+        else:
+            for key, value in latest.iteritems():
+                req.write("%s: %s\n" % (key, value))
+        return apache.OK
 
 
 class ImageResourcePage(ModPython.Page):
