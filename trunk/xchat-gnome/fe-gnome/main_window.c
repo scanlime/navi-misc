@@ -19,6 +19,7 @@
  *
  */
 
+#include <libgnome/libgnome.h>
 #include "main_window.h"
 #include "connect_dialog.h"
 #include "about.h"
@@ -86,7 +87,7 @@ gboolean on_hpane_move(GtkPaned *widget, GParamSpec *param_spec, gpointer data);
 static void entry_context(GtkEntry *entry, GtkMenu *menu, gpointer user_data);
 
 void initialize_main_window() {
-	GtkWidget *entry, *pane, *topicbox;
+	GtkWidget *entry, *topicbox;
 
 	gui.main_window = GNOME_APP(glade_xml_get_widget(gui.xml, "xchat-gnome"));
 	g_signal_connect(G_OBJECT(gui.main_window), "delete-event", G_CALLBACK(on_main_window_close), NULL);
@@ -132,11 +133,6 @@ void initialize_main_window() {
 	gtk_box_reorder_child (GTK_BOX (topicbox), gui.topic, 1);
 	// FIXME
 //	g_signal_connect(G_OBJECT(entry), "activate", G_CALLBACK(on_topic_entry_activate), NULL);
-
-	pane = glade_xml_get_widget(gui.xml, "VPane");
-	g_signal_connect(G_OBJECT(pane), "notify::position", G_CALLBACK(on_vpane_move), NULL);
-	pane = glade_xml_get_widget(gui.xml, "HPane");
-	g_signal_connect(G_OBJECT(pane), "notify::position", G_CALLBACK(on_hpane_move), NULL);
 
 	/* Hook up accelerators for alt-#. */
 	{
@@ -195,14 +191,18 @@ void initialize_main_window() {
 }
 
 void run_main_window() {
+	GtkWidget *pane;
 	int width, height;
 	int v, h;
 
-	preferences_get_main_window_size(&width, &height);
-	gtk_widget_show_all(GTK_WIDGET(gui.main_window));
-	if(!(width == 0 || height == 0))
+	width = gnome_config_get_int_with_default ("/xchat-gnome/main_window/width", 0);
+	height = gnome_config_get_int_with_default ("/xchat-gnome/main_window/height", 0);
+	if(width == 0 || height == 0)
+		gtk_window_set_default_size(GTK_WINDOW(gui.main_window), 800, 550);
+	else
 		gtk_window_set_default_size(GTK_WINDOW(gui.main_window), width, height);
-	preferences_get_main_window_positions(&v, &h);
+	v = gnome_config_get_int_with_default ("/xchat-gnome/main_window/vpane", 0);
+	h = gnome_config_get_int_with_default ("/xchat-gnome/main_window/hpane", 0);
 	if(h != 0) {
 		GtkWidget *hpane = glade_xml_get_widget(gui.xml, "HPane");
 		gtk_paned_set_position(GTK_PANED(hpane), h);
@@ -212,6 +212,12 @@ void run_main_window() {
 		gtk_paned_set_position(GTK_PANED(vpane), v);
 	}
 	g_signal_connect(G_OBJECT(gui.main_window), "configure-event", G_CALLBACK(on_resize), NULL);
+	pane = glade_xml_get_widget(gui.xml, "VPane");
+	g_signal_connect(G_OBJECT(pane), "notify::position", G_CALLBACK(on_vpane_move), NULL);
+	pane = glade_xml_get_widget(gui.xml, "HPane");
+	g_signal_connect(G_OBJECT(pane), "notify::position", G_CALLBACK(on_hpane_move), NULL);
+
+	gtk_widget_show_all(GTK_WIDGET(gui.main_window));
 }
 
 void rename_main_window(gchar *server, gchar *channel) {
@@ -588,19 +594,23 @@ gboolean on_text_entry_key(GtkWidget *widget, GdkEventKey *key, gpointer data) {
 }
 
 gboolean on_resize(GtkWidget *widget, GdkEventConfigure *event, gpointer data) {
-	preferences_set_main_window_size(event->width, event->height);
+	gnome_config_set_int ("/xchat-gnome/main_window/width", event->width);
+	gnome_config_set_int ("/xchat-gnome/main_window/height", event->height);
+	gnome_config_sync ();
 	return FALSE;
 }
 
 gboolean on_vpane_move(GtkPaned *widget, GParamSpec *param_spec, gpointer data) {
 	int pos = gtk_paned_get_position(widget);
-	preferences_set_main_window_v_position(pos);
+	gnome_config_set_int ("/xchat-gnome/main_window/vpane", pos);
+	gnome_config_sync ();
 	return FALSE;
 }
 
 gboolean on_hpane_move(GtkPaned *widget, GParamSpec *param_spec, gpointer data) {
 	int pos = gtk_paned_get_position(widget);
-	preferences_set_main_window_h_position(pos);
+	gnome_config_set_int ("/xchat-gnome/main_window/hpane", pos);
+	gnome_config_sync ();
 	return FALSE;
 }
 
