@@ -1727,6 +1727,8 @@ CheckVendor
 	movf	BufferData+wValue, w
 	pagesel	VFD_SendByte
 	call	VFD_SendByte
+	pagesel	Send_0Len_pkt
+	call	Send_0Len_pkt
 	return
 
 	end
