@@ -1,0 +1,6 @@
+[ProjectGroup]
+Version=1.0
+[Project1]
+ProjectPath=rcpodi2c.PrjPCB
+[Project2]
+ProjectPath=sensor.PrjPCB
