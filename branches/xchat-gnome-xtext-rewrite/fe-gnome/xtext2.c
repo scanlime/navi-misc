@@ -2095,7 +2095,9 @@ buffer_append (XTextBuffer *buffer, textentry *ent, XText2 *xtext)
   newent->prev = f->wrapped_last;
   f->wrapped_last = newent;
 
-  newent->lines_taken = count_lines_taken (xtext, ent);
+  newent->str_width = text_width (xtext, newent->str, newent->str_len, NULL);
+
+  newent->lines_taken = count_lines_taken (xtext, newent);
   f->num_lines += newent->lines_taken;
 
   if (xtext->priv->current_buffer == buffer)
@@ -2124,21 +2126,19 @@ buffer_append (XTextBuffer *buffer, textentry *ent, XText2 *xtext)
   }
 
   /* if we're not indented, we're done */
-  if (ent->left_len == 0)
+  if (newent->left_len == 0)
     return;
 
-  left_width = text_width (xtext, ent->str, ent->left_len, NULL);
+  left_width = text_width (xtext, newent->str, newent->left_len, NULL);
 
-  ent->indent = (f->indent - left_width) - xtext->priv->spacewidth;
+  newent->indent = (f->indent - left_width) - xtext->priv->spacewidth;
   if (xtext->priv->time_stamp)
     space = xtext->priv->stamp_width;
   else
     space = 0;
 
-  ent->str_width = text_width (xtext, ent->str, ent->str_len, NULL);
-
   /* do we need to auto-adjust the separator position? */
-  if (xtext->priv->auto_indent && ent->indent < MARGIN + space)
+  if (xtext->priv->auto_indent && newent->indent < MARGIN + space)
   {
     int tempindent = MARGIN + space + xtext->priv->spacewidth + left_width;
 
@@ -2148,10 +2148,10 @@ buffer_append (XTextBuffer *buffer, textentry *ent, XText2 *xtext)
       f->indent = xtext->priv->max_auto_indent;
 
     fix_indent (xtext);
-    recalc_widths (xtext, FALSE);
 
-    ent->indent = (f->indent - left_width) - xtext->priv->spacewidth;
+    newent->indent = (f->indent - left_width) - xtext->priv->spacewidth;
     xtext->priv->indent_changed = TRUE;
+    recalc_widths (xtext, FALSE);
   }
 }
 
@@ -2336,7 +2336,8 @@ count_lines_taken (XText2 *xtext, textentry *ent)
 
   f = g_hash_table_lookup (xtext->priv->buffer_info, xtext->priv->current_buffer);
 
-  win_width = f->window_width - MARGIN;
+  gdk_drawable_get_size (GTK_WIDGET (xtext)->window, &win_width, NULL);
+  win_width -= MARGIN;
 
   if (ent->str_width + ent->indent < win_width)
     return 1;
@@ -2467,8 +2468,6 @@ recalc_widths (XText2 *xtext, gboolean do_str_width)
 
   f = g_hash_table_lookup (xtext->priv->buffer_info, xtext->priv->current_buffer);
 
-  g_print ("recalc_widths ()\n");
-
   /* since we have a new font, we have to recalc the text widths */
   ent = f->wrapped_first;
   while (ent)
@@ -2527,8 +2526,6 @@ fix_indent (XText2 *xtext)
   XTextFormat *f;
 
   f = g_hash_table_lookup (xtext->priv->buffer_info, xtext->priv->current_buffer);
-
-  g_print ("fix_indent ()\n");
 
   /* make indent a multiple of the space width */
   if (f->indent && xtext->priv->spacewidth)

@@ -2,8 +2,6 @@
 #include <time.h>
 #include <string.h>
 
-#define SCRATCH_BUFFER_SIZE 4096
-#define MARGIN 2
 #define charlen(str) g_utf8_skip[*(guchar *)(str)]
 
 static void     xtext_buffer_class_init (XTextBufferClass *klass);
@@ -113,15 +111,15 @@ xtext_buffer_append (XTextBuffer *buffer, unsigned char *text, int len)
     len = strlen (text);
   if (text[len - 1] == '\n')
     len--;
-  if (len >= SCRATCH_BUFFER_SIZE)
-    len = SCRATCH_BUFFER_SIZE - 1;
+  if (len >= 4096)
+    len = 4095;
 
   ent = g_malloc0 (len + 1 + sizeof (textentry));
   ent->str = (unsigned char *) ent + sizeof (textentry);
   ent->str_len = len;
   if (len)
     memcpy (ent->str, text, len);
-  ent->indent = 0;
+  ent->indent = -1;
   ent->left_len = -1;
 
   append_entry (buffer, ent);
@@ -138,8 +136,8 @@ xtext_buffer_append_indent (XTextBuffer *buffer, unsigned char *left, int llen, 
   if (rlen == -1)
     rlen = strlen (right);
 
-  if (rlen >= SCRATCH_BUFFER_SIZE)
-    rlen = SCRATCH_BUFFER_SIZE - 1;
+  if (rlen >= 4096)
+    rlen = 4095;
 
   if (right[rlen - 1] == '\n')
     rlen--;
@@ -210,14 +208,11 @@ append_entry (XTextBuffer *buffer, textentry *ent)
 
   multibyte = mb (ent->str, ent->str_len);
 
-  ent->stamp = 0;
+  ent->stamp = time(NULL);
   ent->multibyte = multibyte;
   ent->mark_start = -1;
   ent->mark_end = -1;
   ent->next = NULL;
-
-  if (ent->indent < MARGIN)
-    ent->indent = MARGIN;
 
   /* append to our linked list */
   if (buffer->text_last)
