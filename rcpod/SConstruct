@@ -11,6 +11,7 @@ libSrc = [
 testProgs = [
     'blinkytest',
     'hexdump',
+    'analogtest',
     ]
 libs = ['usb']
 libHeader = 'include/rcpod.h'
