@@ -27,8 +27,40 @@ irc_network_editor_class_init (IrcNetworkEditorClass *klass)
 }
 
 static void
-irc_network_editor_init (IrcNetworkEditor *obj)
+irc_network_editor_init (IrcNetworkEditor *dialog)
 {
+	dialog->xml = NULL;
+	if (g_file_test ("irc-network-editor.glade", G_FILE_TEST_EXISTS))
+		dialog->xml = glade_xml_new ("irc-network-editor.glade", "toplevel", NULL);
+	if (!dialog->xml)
+		dialog->xml = glade_xml_new (XCHATSHAREDIR "/irc-network-editor.glade", "toplevel", NULL);
+	if (!dialog->xml)
+		return;
+
+#define GW(name) ((dialog->name) = glade_xml_get_widget (dialog->xml, #name))
+	GW(network_name);
+
+	GW(autoconnect);
+	GW(use_ssl);
+	GW(cycle);
+	GW(autoreconnect);
+	GW(giveup_reconnect);
+
+	GW(password);
+	GW(encoding);
+
+	GW(servers);
+	GW(add_server);
+	GW(remove_server);
+
+	GW(use_globals);
+	GW(nickname);
+	GW(realname);
+
+	GW(autojoin_channels);
+	GW(add_autojoin);
+	GW(remove_autojoin);
+#undef GW
 }
 
 GType
