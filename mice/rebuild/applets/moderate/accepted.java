@@ -45,6 +45,6 @@ public class accepted implements ActionListener
 		net.write(""+ID);
 		name = net.read();
 		ques = net.read();
-		question.setText(name + " Asked: " + ques);
+		quest.setText(name + " Asked: " + ques);
 	}
 }
