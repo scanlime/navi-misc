@@ -1,6 +1,11 @@
 before release:
 * add/remove in the server list
 * set unimplemented controls unsensitive
+* split the transfers window into separate send & recieve windows
+* the way it looks up the icon is *really* expensive, and this happens every
+  time a row is updated. Should probably move the icon theme initialization
+  to be "global" and only look up the icon on a new add
+
   autotools:
     * check for an adequate version of gnome-icon-theme, etc
 

@@ -20,6 +20,7 @@
  */
 
 #include <gnome.h>
+#include <libgnomevfs/gnome-vfs-mime-utils.h>
 #include "transfers.h"
 #include "preferences.h"
 
@@ -31,6 +32,7 @@ static gchar *get_proper_units(int value);
 static int get_file_divisor(int value);
 static gchar *get_transfer_status(struct DCC *dcc);
 static gchar *get_start_time_string(struct DCC *dcc);
+static gchar *get_pretty_size_string(struct DCC *dcc);
 
 static void expanded(GtkExpander *exp, GParamSpec *param_spec, gpointer data) {
 	GtkWidget *details = glade_xml_get_widget(transfer_gui.xml, "details");
@@ -57,14 +59,8 @@ static void update_details(GtkTreeIter *iter, struct DCC *dcc) {
 	gtk_label_set_text(GTK_LABEL(label), dcc->nick);
 	label = glade_xml_get_widget(transfer_gui.xml, "status label");
 	if(dcc->dccstat == STAT_ACTIVE) {
-		float d = get_file_divisor(dcc->size);
-		float t = (float)dcc->pos / d;
-		gchar *u = get_proper_units(dcc->size);
-		gchar *v = get_proper_units(dcc->cps);
-		s = g_strdup_printf("%1.1f of %1.1f%s at %1.1f%s/s", t, get_divided_size(dcc->size), u, get_divided_size(dcc->cps), v);
+		s = get_pretty_size_string(dcc);
 		gtk_label_set_text(GTK_LABEL(label), s);
-		g_free(u);
-		g_free(v);
 		g_free(s);
 	} else {
 		s = get_transfer_status(dcc);
@@ -105,10 +101,15 @@ static void selection_changed(GtkTreeSelection *selection, gpointer data) {
 	}
 }
 
+static gboolean transfers_delete(GtkWidget *window, GdkEvent *event, gpointer data) {
+	hide_transfers_window();
+	return TRUE;
+}
+
 void initialize_transfers_window() {
 	GtkWidget *expander, *box, *widget, *details, *treeview;
 	GtkSizeGroup *group;
-	GtkCellRenderer *percent_r, *filename_r, *size_r, *eta_r, *status_r;
+	GtkCellRenderer *percent_r, *filename_r, *size_r, *eta_r, *status_r, *icon_r;
 	GtkTreeViewColumn *percent_c, *filename_c, *size_c, *eta_c, *status_c;
 	GtkTreeSelection *select;
 	int width, height;
@@ -155,11 +156,24 @@ void initialize_transfers_window() {
 	gtk_size_group_add_widget(group, widget);
 	g_object_unref(group);
 
-	transfer_gui.store = gtk_list_store_new(7, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_INT, G_TYPE_POINTER);
+	transfer_gui.store = gtk_list_store_new(8, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_INT, G_TYPE_POINTER, GDK_TYPE_PIXBUF);
 	treeview = glade_xml_get_widget(transfer_gui.xml, "treeview1");
 	gtk_tree_view_set_model(GTK_TREE_VIEW(treeview), GTK_TREE_MODEL(transfer_gui.store));
 	gtk_tree_view_set_headers_clickable(GTK_TREE_VIEW(treeview), TRUE);
 
+	filename_r = gtk_cell_renderer_text_new();
+	icon_r = gtk_cell_renderer_pixbuf_new();
+	filename_c = gtk_tree_view_column_new();
+	gtk_tree_view_column_set_title(filename_c, "Filename");
+	gtk_tree_view_column_pack_start(filename_c, icon_r, FALSE);
+	gtk_tree_view_column_set_attributes(filename_c, icon_r, "pixbuf", 7, NULL);
+	gtk_tree_view_column_pack_start(filename_c, filename_r, FALSE);
+	gtk_tree_view_column_set_attributes(filename_c, filename_r, "markup", 1, NULL);
+	gtk_tree_view_column_set_resizable(filename_c, TRUE);
+	gtk_tree_view_column_set_sort_column_id(filename_c, 1);
+	gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), filename_c);
+	icon_r = gtk_cell_renderer_pixbuf_new();
+	/*
 	status_r = gtk_cell_renderer_text_new();
 	status_c = gtk_tree_view_column_new_with_attributes("Status", status_r, "text", 4, NULL);
 	gtk_tree_view_column_set_resizable(status_c, TRUE);
@@ -170,11 +184,6 @@ void initialize_transfers_window() {
 	gtk_tree_view_column_set_resizable(percent_c, TRUE);
 	gtk_tree_view_column_set_sort_column_id(percent_c, 5);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), percent_c);
-	filename_r = gtk_cell_renderer_text_new();
-	filename_c = gtk_tree_view_column_new_with_attributes("Filename", filename_r, "text", 1, NULL);
-	gtk_tree_view_column_set_resizable(filename_c, TRUE);
-	gtk_tree_view_column_set_sort_column_id(filename_c, 1);
-	gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), filename_c);
 	size_r = gtk_cell_renderer_text_new();
 	size_c = gtk_tree_view_column_new_with_attributes("Size", size_r, "text", 2, NULL);
 	gtk_tree_view_column_set_resizable(size_c, TRUE);
@@ -185,12 +194,14 @@ void initialize_transfers_window() {
 	gtk_tree_view_column_set_resizable(eta_c, TRUE);
 	gtk_tree_view_column_set_sort_column_id(eta_c, 3);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), eta_c);
+	*/
 
 	select = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
 	gtk_tree_selection_set_mode(select, GTK_SELECTION_SINGLE);
 	g_signal_connect(G_OBJECT(select), "changed", G_CALLBACK(selection_changed), NULL);
 
 	widget = glade_xml_get_widget(transfer_gui.xml, "window1");
+	g_signal_connect(G_OBJECT(widget), "delete-event", transfers_delete, NULL);
 	details = glade_xml_get_widget(transfer_gui.xml, "details");
 	preferences_get_transfers_window_size(&width, &height);
 	gtk_widget_show_all(widget);
@@ -295,20 +306,81 @@ static gchar *get_start_time_string(struct DCC *dcc) {
 	return g_strdup_printf("0:%.2d", seconds);
 }
 
+static GdkPixbuf *get_file_icon(char *filename) {
+	char *mime = gnome_vfs_get_mime_type(filename);
+	GnomeIconTheme *theme;
+	GdkPixbuf *p;
+	char *icon;
+
+	if(mime == NULL)
+		return NULL;
+
+	theme = gnome_icon_theme_new();
+	gnome_icon_theme_set_allow_svg(theme, TRUE);
+
+	icon = gnome_icon_lookup(theme, NULL, NULL, NULL, NULL, mime, GNOME_ICON_LOOKUP_FLAGS_NONE, NULL);
+
+	if(!g_path_is_absolute(icon)) {
+		char *path;
+
+		path = gnome_icon_theme_lookup_icon(theme, icon, 48, NULL, NULL);
+		g_free(icon);
+		icon = path;
+	}
+	g_object_unref(theme);
+
+	p = gdk_pixbuf_new_from_file(icon, NULL);
+
+	g_free(icon);
+	g_free(mime);
+	return p;
+}
+
+static gchar *get_markedup_name(struct DCC *dcc) {
+	gchar *s, *t, *u;
+	if(dcc->dccstat == STAT_ACTIVE) {
+		t = get_pretty_size_string(dcc);
+		u = get_eta_string(dcc);
+		s = g_strdup_printf("<span weight=\"bold\">%s</span>\n    <span size=\"small\" weight=\"bold\">Progress: </span><span size=\"small\">%s</span>\n    <span size=\"small\" weight=\"bold\">Time Remaining: </span><span size=\"small\">%s</span>", dcc->file, t, u);
+		g_free(t);
+		g_free(u);
+	} else {
+		t = get_transfer_status(dcc);
+		s = g_strdup_printf("<span weight=\"bold\">%s</span>\n    <span size=\"small\">%s</span>\n", dcc->file, t);
+		g_free(t);
+	}
+	return s;
+}
+
+static gchar *get_pretty_size_string(struct DCC *dcc) {
+	float d = get_file_divisor(dcc->size);
+	float t = (float)dcc->pos / d;
+	gchar *u = get_proper_units(dcc->size);
+	gchar *v = get_proper_units(dcc->cps);
+	gchar *s = g_strdup_printf("%1.1f of %1.1f%s at %1.1f%s/s", t, get_divided_size(dcc->size), u, get_divided_size(dcc->cps), v);
+	g_free(u);
+	g_free(v);
+	return s;
+}
+
 static void update_transfer_info(GtkTreeIter *iter, struct DCC *dcc) {
 	int per;
-	gchar *percent, *size, *stat, *eta;
+	gchar *markedupname, *percent, *size, *eta;
+	GdkPixbuf *icon;
 
 	per = (int) ((dcc->pos * 100.0) / dcc->size);
+	markedupname = get_markedup_name(dcc);
 	percent = g_strdup_printf("%d%%", per);
 	size = get_file_size(dcc);
-	stat = get_transfer_status(dcc);
 	eta = get_eta_string(dcc);
-	gtk_list_store_set(transfer_gui.store, iter, 0, percent, 1, dcc->file, 2, size, 3, eta, 4, stat, 5, per, 6, dcc, -1);
+	icon = get_file_icon(dcc->destfile);
+	gtk_list_store_set(transfer_gui.store, iter, 0, percent, 1, markedupname, 2, size, 3, eta, 4, stat, 5, per, 6, dcc, 7, icon, -1);
 	g_free(percent);
 	g_free(size);
-	g_free(stat);
+	g_free(markedupname);
 	g_free(eta);
+	if(G_IS_OBJECT(icon))
+		gdk_pixbuf_unref(icon);
 	if(transfer_gui.selected == dcc)
 		update_details(iter, dcc);
 }
