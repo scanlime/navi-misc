@@ -532,6 +532,33 @@ topic_label_ensure_layout (TopicLabel *label)
       GtkWidgetAuxInfo *aux_info;
       gint longest_paragraph;
       gint width, height;
+
+      aux_info = _gtk_widget_get_aux_info (widget, FALSE);
+      if (aux_info && aux_info->width > 0)
+      {
+	pango_layout_set_width (label->layout, aux_info->width * PANGO_SCALE);
+      }
+      else
+      {
+	GdkScreen *screen = gtk_widget_get_screen (GTK_WIDGET (label));
+
+	pango_layout_set_width (label->layout, -1);
+	pango_layout_get_extents (label->layout, NULL, &logical_rect);
+
+	width = logical_rect.width;
+
+	/* try to guess a reasonable maximum width */
+	longest_paragraph = width;
+	width = MIN (width, PANGO_SCALE * (gdk_screen_get_width (screen) + 1) / 2);
+	pango_layout_set_width (label->layout, width);
+	pango_layout_get_extents (label->layout, NULL, &logical_rect);
+	width = logical_rect.width;
+	height = logical_rect.height;
+      }
+    }
+    else /* !label->wrap */
+    {
+      pango_layout_set_width (label->layout, -1);
     }
   }
 }
