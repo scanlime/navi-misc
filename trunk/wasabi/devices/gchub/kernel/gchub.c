@@ -3,10 +3,14 @@
  *
  * This is a Linux 2.6 kernel module that exposes linux input devices corresponding
  * to all controllers attached to the gchub. It handles basic calibration, and rumble
- * support is provided using the linux force feedback interface.
+ * support is provided using the linux force feedback interface's FF_RUMBLE effect.
  *
  * Each controller is given a name that both identifies it as a GC controller and
- * gives the port numer it's connected to. The button/axis mapping is as follows:
+ * gives the port numer it's connected to. Additionally, the physical location of
+ * each input device is of the form "<usb-device>/port%d", also identifying the
+ * port number of a controller on the gchub.
+ *
+ * The button/axis mapping is as follows:
  *
  *   BTN_A     : A button
  *   BTN_B     : B button
@@ -25,6 +29,9 @@
  *   ABS_RY    : C-stick Y axis
  *   ABS_HAT0X : D-pad X axis
  *   ABS_HAT0Y : D-pad Y axis
+ *
+ * Thanks to Zinx Verituse for writing the hid-tmff module, which served as a good
+ * reference for implementing force feedback support in this module.
  *
  * Copyright(c) 2004 Micah Dowty <micah@navi.cx>
  *
@@ -54,8 +61,23 @@
 #define LED_OFF        0
 #define LED_RED        1
 #define LED_GREEN      2
-#define LED_ORANGE     (LED_RED | LED_GREEN)
+#define LED_ORANGE     (LED_RED | LED_GREEN)   /* On the prototype at least, this
+						* looks orange rather than yellow */
 
+#define EFFECTS_MAX    8
+
+/* Effect flags */
+#define EFFECT_STARTED 0         /* effect is going to play after some time */
+#define EFFECT_PLAYING 1	 /* effect is playing */
+#define EFFECT_USED    2         /* effect has been uploaded */
+
+#define CHECK_OWNERSHIP(f)              (current->pid == 0 \
+                                        || (f).owner == current->pid)
+
+#define EFFECT_CHECK_ID(id)	        ((id) >= 0 && (id) < EFFECTS_MAX)
+
+#define EFFECT_CHECK_OWNERSHIP(id, ctl) (test_bit(EFFECT_USED, (ctl)->ff_effects[id].flags) \
+                                        && CHECK_OWNERSHIP((ctl)->ff_effects[id]))
 
 struct gchub_controller_status {
 	int buttons;
@@ -70,6 +92,13 @@ struct gchub_controller_outputs {
 
 	int dirty;
 	spinlock_t lock;
+};
+
+struct gchub_ff_effect {
+	struct ff_effect effect;
+
+	pid_t owner;
+	unsigned long flags[1];
 };
 
 struct gchub_dev;
@@ -88,6 +117,9 @@ struct gchub_controller {
 	int dev_registered;      /* Nonzero if 'dev' has been registered */
 	int reg_in_progress;     /* Nonzero if a registration/unregistration is pending */
 	int calibration_valid;   /* If zero, we'll sample calibration_status next chance we get */
+
+	struct gchub_ff_effect ff_effects[EFFECTS_MAX];
+	spinlock_t ff_lock;
 
 	struct work_struct reg_work, unreg_work;
 	spinlock_t reg_lock;
@@ -166,6 +198,22 @@ static void   controller_set_rumble    (struct gchub_controller*        ctl,
 static void   controller_set_led       (struct gchub_controller*        ctl,
 					int                             led_color);
 
+/* Input device callbacks */
+static int    controller_event         (struct input_dev*               dev,
+					unsigned int                    type,
+					unsigned int                    code,
+					int                             value);
+static int    controller_upload_effect (struct input_dev*               dev,
+					struct ff_effect*               effect);
+static int    controller_erase_effect  (struct input_dev*               dev,
+					int                             effect_id);
+static int    controller_flush         (struct input_dev*               dev,
+					struct file*                    file);
+static int    controller_ff_event      (struct gchub_controller*        ctl,
+					unsigned int                    code,
+					int                             value);
+
+
 /* Table of devices that work with this driver */
 static struct usb_device_id gchub_table [] = {
 	{ USB_DEVICE(GCHUB_VENDOR_ID, GCHUB_PRODUCT_ID) },
@@ -197,9 +245,10 @@ static int controller_init(struct gchub_controller* ctl,
 
 	memset(ctl, 0, sizeof(*ctl));
 	spin_lock_init(&ctl->reg_lock);
+	spin_lock_init(&ctl->ff_lock);
 	spin_lock_init(&ctl->outputs.lock);
-	ctl->outputs.dirty = 1;
 
+	ctl->outputs.dirty = 1;
 	ctl->hub = hub;
 
 	/* Create a name string for this controller, and copy it to
@@ -230,6 +279,10 @@ static int controller_init(struct gchub_controller* ctl,
 
 	/* Set up callbacks */
 	ctl->dev.private = ctl;
+	ctl->dev.event = controller_event;
+	ctl->dev.upload_effect = controller_upload_effect;
+	ctl->dev.erase_effect = controller_erase_effect;
+	ctl->dev.flush = controller_flush;
 
 	/* Set up work structures for queueing attach/detach operations */
 	INIT_WORK(&ctl->reg_work, controller_attach, ctl);
@@ -238,6 +291,10 @@ static int controller_init(struct gchub_controller* ctl,
 	/* Set up this input device's capabilities */
 	set_bit(EV_KEY, ctl->dev.evbit);
 	set_bit(EV_ABS, ctl->dev.evbit);
+	set_bit(EV_FF, ctl->dev.evbit);
+
+	set_bit(FF_RUMBLE, ctl->dev.ffbit);
+	ctl->dev.ff_effects_max = EFFECTS_MAX;
 
 	set_bit(BTN_A, ctl->dev.keybit);
 	set_bit(BTN_B, ctl->dev.keybit);
@@ -405,6 +462,7 @@ static void controller_attach(void *data)
 	ctl->reg_in_progress = 0;
 
 	controller_set_led(ctl, LED_GREEN);
+	controller_set_rumble(ctl, 0);
 	gchub_sync_output_status(ctl->hub);
 }
 
@@ -445,6 +503,140 @@ static void controller_set_led(struct gchub_controller* ctl,
 	ctl->outputs.led_color = led_color;
 	ctl->outputs.dirty = 1;
 	spin_unlock_irqrestore(&ctl->outputs.lock, flags);
+}
+
+
+/******************************************************************************/
+/*************************************************** Controller Callbacks *****/
+/******************************************************************************/
+
+static int controller_event(struct input_dev* dev, unsigned int type,
+			    unsigned int code, int value)
+{
+	struct gchub_controller *ctl = (struct gchub_controller*) dev->private;
+	switch (type) {
+
+	case EV_FF:
+		return controller_ff_event(ctl, code, value);
+
+	}
+	return -EINVAL;
+}
+
+static int controller_ff_event(struct gchub_controller* ctl,
+			       unsigned int code, int value)
+{
+	dbg("ff_event code=%d value=%d", code, value);
+
+	if (!EFFECT_CHECK_ID(code))
+		return -EINVAL;
+	if (!EFFECT_CHECK_OWNERSHIP(code, ctl))
+		return -EACCES;
+	if (value < 0)
+		return -EINVAL;
+
+	/* FIXME: make this correct and stuff */
+
+	dbg("setting rumble to %d on controller '%s'", value, ctl->dev.name);
+	controller_set_rumble(ctl, value);
+	controller_set_led(ctl, value ? LED_RED : LED_GREEN);
+	gchub_sync_output_status(ctl->hub);
+
+	return 0;
+}
+
+static int controller_upload_effect(struct input_dev* dev,
+				    struct ff_effect* effect)
+{
+	struct gchub_controller *ctl = (struct gchub_controller*) dev->private;
+	unsigned long flags;
+	int id;
+
+	if (!test_bit(effect->type, dev->ffbit))
+		return -EINVAL;
+
+	spin_lock_irqsave(&ctl->ff_lock, flags);
+
+	if (effect->id == -1) {
+		/* Find a free effect ID */
+		for (id=0; id < EFFECTS_MAX; id++) {
+			if (!test_bit(EFFECT_USED, ctl->ff_effects[id].flags))
+				break;
+		}
+		if (id >= EFFECTS_MAX) {
+			spin_unlock_irqrestore(&ctl->ff_lock, flags);
+			return -ENOSPC;
+		}
+		effect->id = id;
+	}
+	else {
+		/* Validate the ID they gave us */
+		id = effect->id;
+		if (!EFFECT_CHECK_ID(id)) {
+			spin_unlock_irqrestore(&ctl->ff_lock, flags);
+			return -EINVAL;
+		}
+		if (!EFFECT_CHECK_OWNERSHIP(id, ctl)) {
+			spin_unlock_irqrestore(&ctl->ff_lock, flags);
+			return -EACCES;
+		}
+	}
+
+	/* Upload the effect */
+	ctl->ff_effects[id].owner = current->pid;
+	ctl->ff_effects[id].flags[0] = 0;
+	set_bit(EFFECT_USED, ctl->ff_effects[id].flags);
+	ctl->ff_effects[id].effect = *effect;
+
+	spin_unlock_irqrestore(&ctl->ff_lock, flags);
+	return 0;
+}
+
+static int controller_erase_effect(struct input_dev* dev, int id)
+{
+	struct gchub_controller *ctl = (struct gchub_controller*) dev->private;
+	unsigned long flags;
+
+	spin_lock_irqsave(&ctl->ff_lock, flags);
+
+	if (!EFFECT_CHECK_ID(id)) {
+		spin_unlock_irqrestore(&ctl->ff_lock, flags);
+		return -EINVAL;
+	}
+	if (!EFFECT_CHECK_OWNERSHIP(id, ctl)) {
+		spin_unlock_irqrestore(&ctl->ff_lock, flags);
+		return -EACCES;
+	}
+
+	ctl->ff_effects[id].flags[0] = 0;
+
+	spin_unlock_irqrestore(&ctl->ff_lock, flags);
+	return 0;
+}
+
+/* Erase all effects owned by the current process */
+static int controller_flush(struct input_dev* dev, struct file* file)
+{
+	struct gchub_controller *ctl = (struct gchub_controller*) dev->private;
+	unsigned long flags;
+	int id;
+
+	spin_lock_irqsave(&ctl->ff_lock, flags);
+
+	for (id=0; id < EFFECTS_MAX; id++) {
+		if (ctl->ff_effects[id].owner == current->pid &&
+		    test_bit(EFFECT_USED, ctl->ff_effects[id].flags)) {
+
+			/* We don't use controller_erase effect
+			 * here because we already hold the lock,
+			 * and we don't need its extra parameter validation.
+			 */
+			ctl->ff_effects[id].flags[0] = 0;
+		}
+	}
+
+	spin_unlock_irqrestore(&ctl->ff_lock, flags);
+	return 0;
 }
 
 
@@ -573,6 +765,7 @@ static void gchub_sync_output_status(struct gchub_dev* dev)
 	for (i=0; i<NUM_PORTS; i++)
 		if (dev->ports[i].outputs.dirty)
 			dirty++;
+
 	if (!dirty)
 		return;
 
@@ -620,6 +813,8 @@ static void   gchub_fill_output_request(struct gchub_dev* dev)
 	if (outputs[1].rumble) rumble_bits |= GCHUB_RUMBLE_PORT1;
 	if (outputs[2].rumble) rumble_bits |= GCHUB_RUMBLE_PORT2;
 	if (outputs[3].rumble) rumble_bits |= GCHUB_RUMBLE_PORT3;
+
+	dbg("rumble_bits = %d\n", rumble_bits);
 
 	led_bits = 0;
 	if (outputs[0].led_color & LED_RED) led_bits |= GCHUB_LED_PORT0_RED;

@@ -48,8 +48,8 @@
 
 #define GCHUB_RUMBLE_PORT0       0x01
 #define GCHUB_RUMBLE_PORT1       0x02
-#define GCHUB_RUMBLE_PORT2       0x03
-#define GCHUB_RUMBLE_PORT3       0x04
+#define GCHUB_RUMBLE_PORT2       0x04
+#define GCHUB_RUMBLE_PORT3       0x08
 
 #define GCHUB_LED_PORT0_RED      0x80
 #define GCHUB_LED_PORT0_GREEN    0x40
