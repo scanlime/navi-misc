@@ -29,3 +29,6 @@
 - Message filters (for scraping mailing lists) are in dire need of refactoring,
   and should be made to use the XML-RPC interface instead of sending email
 
+- When twistd.log rolls over to twistd.log.1, something in twisted is folding
+  it, which makes all the XML snippets with long lines look really horribly
+  disgusting. This needs to be disabled.
