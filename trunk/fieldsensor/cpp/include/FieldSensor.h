@@ -75,8 +75,14 @@ class FieldSensor {
    *  K: filter gain
    *  z: New measurement
    */
-  Vector3 x, z;
-  Matrix3x3 P, Q, R, K;
+  Vector3 x, z, P, Q, R, K, A;
+
+  /* Physics model variables:
+   *  p: Position
+   *  v: Velocity
+   *  a: Acceleration
+   */
+  Vector3 p, v, a;
 };
 
 #endif /* __H_FIELDSENSOR */

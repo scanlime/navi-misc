@@ -58,9 +58,10 @@ FieldSensor::FieldSensor(const char *serialPort, const char *netFile)
   boot();
 
   /* Initial conditions for the Kalman filter */
-  Q = 0.001;                                   /* Process variance */
-  x.set(0.5, 0.5, 0.5);                        /* Initial estimate */
-  P.set(1,1,1);                                /* Initial variance estimate */
+  Q.set(0.001,0.001,0.001);        /* Process noise variance */
+  R.set(0.7,0.7,0.7);              /* Measurement noise variance */
+  x.set(0.5,0.5,0.5);              /* Initial estimate */
+  P.set(1.0,1.0,1.0);              /* Initial variance estimate */
 }
 
 FieldSensor::~FieldSensor(void) {
@@ -147,20 +148,34 @@ Vector3 FieldSensor::rawPosition(bool blocking) {
   return Vector3(netOutput[0], netOutput[1], netOutput[2]);
 }
 
-/* A Kalman filter to predict the actual position given noisy measurements */
 Vector3 FieldSensor::readPosition(bool blocking) {
+  bool dataIsNew = true;
 
-  /* Time update equations */
+  Vector3 newReading = rawPosition(blocking);
+  if (newReading == z)
+    dataIsNew = false;
+  z = newReading;
 
-  x = x;       /* FIXME: assuming x is constant. replace this with a velocity model */
-  P = P + Q;   /* Add process noise to error covariance estimate */
-  
-  /* Measurement update equations */
-  
-  z = rawPosition();
-  K = P * (P+R).invert();
+  /* A simple 1D Kalman filter on each axis */
+  for (int i=0;i<3;i++) {
+    /* Time update equations */
+    P[i] += Q[i];
+    
+    if (dataIsNew) {
+      /* Measurement update equations */
+      K[i] = P[i]/(P[i]+R[i]);
+      x[i] += K[i]*(z[i]-x[i]);
+      P[i] *= 1-K[i];
+    }
+  }
+
+  /* Use the Kalman filter to adjust a simple physics model */
+  p += v;
+  v += a;
+
   
 
+  return x;
 }
 
 /* The End */
