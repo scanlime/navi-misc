@@ -145,7 +145,7 @@ preferences_plugins_page_update()
 	model = gtk_tree_view_get_model (GTK_TREE_VIEW (treeview));
 
 	/* Put our fun, happy plugins of joy into the great list store of pluginny goodness.
-	 * starting with the list of plugins we keep and then the list of plugins loaded by
+	 * Starting with the list of plugins we keep and then the list of plugins loaded by
 	 * the xchat core in its infinite wisdom. While we do the loaded plugins we'll add
 	 * them to our list of known plugins.
 	 */
@@ -166,21 +166,20 @@ autoload_plugins ()
 }
 
 static void
-on_load_toggled (GtkCellRendererToggle *toggle, gchar *arg, gpointer user_data)
+on_load_toggled (GtkCellRendererToggle *toggle, gchar *pathstr, gpointer user_data)
 {
 	GtkWidget *treeview;
+	GtkTreePath *path;
 	GtkTreeIter iter;
 	GtkTreeModel *model;
-	GtkTreeSelection *selection;
 	gchar *filename;
 	gboolean loaded;
 
 	treeview = glade_xml_get_widget (gui.xml, "plugins list");
 	model = gtk_tree_view_get_model (GTK_TREE_VIEW (treeview));
-	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
+	path = gtk_tree_path_new_from_string (pathstr);
 
-	if (gtk_tree_selection_get_selected (selection, &model, &iter)) {
-		//char *buf;
+	if (gtk_tree_model_get_iter (model, &iter, path)) {
 		gtk_tree_model_get (model, &iter, 3, &filename, 4, &loaded, -1);
 		/* Some of this code was taken from the fe-gtk plugingui,
 		 * the names have been changed to protect the innocent.
