@@ -86,7 +86,7 @@ class CIAClient(object):
     def setRuleset(self, uri, ruleset):
         """Set a new ruleset for the given URI, also updating our cache"""
         self.message(ruleset)
-        self.rulesetCache[uri] = ruleset
+        self.rulesetCache[uri] = [ruleset]
 
     def clearCache(self):
         """Clear our ruleset cache"""
@@ -209,8 +209,14 @@ class RulesetEditor(GladeUI):
         self.xml.get_widget('ApplyButton').set_sensitive(modified)
 
     def on_RevertButton_clicked(self, button):
-        # Reload our current ruleset, discarding changes
+        """Reload our current ruleset, discarding changes"""
         self.setCurrentURI(self.currentURI)
+
+    def on_ApplyButton_clicked(self, button):
+        """Send a modified ruleset to the server"""
+        ruleset = self.buffer.get_text(*self.buffer.get_bounds())
+        self.client.setRuleset(self.currentURI, ruleset)
+        self.buffer.set_modified(gtk.FALSE)
 
 
 class RulesetWindow(GladeUI):
