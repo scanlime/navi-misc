@@ -25,6 +25,7 @@
 #include "preferences-page-colors.h"
 #include "preferences-page-dcc.h"
 #include "preferences-page-networks.h"
+#include "preferences-page-plugins.h"
 
 #ifndef XCHAT_GNOME_PREFERENCES_DIALOG_H
 #define XCHAT_GNOME_PREFERENCES_DIALOG_H
@@ -55,6 +56,7 @@ struct _PreferencesDialog
 	PreferencesColorsPage   *colors_page;
 	PreferencesDCCPage      *dcc_page;
 	PreferencesNetworksPage *networks_page;
+	PreferencesPluginsPage  *plugins_page;
 };
 
 struct _PreferencesDialogClass
@@ -64,8 +66,6 @@ struct _PreferencesDialogClass
 
 GType              preferences_dialog_get_type (void) G_GNUC_CONST;
 PreferencesDialog *preferences_dialog_new ();
-
-void initialize_preferences_dialog ();
 
 G_END_DECLS
 
