@@ -25,7 +25,7 @@
 static GtkDialogClass *parent_class = NULL;
 
 static gboolean
-url_editor_dialog_construct (UrlEditorDialog *dialog)
+url_editor_dialog_construct2 (UrlEditorDialog2 *dialog)
 {
 	GladeXML *gui;
 	GtkWidget *toplevel;
@@ -41,14 +41,14 @@ url_editor_dialog_construct (UrlEditorDialog *dialog)
 }
 
 GtkWidget *
-url_editor_dialog_new (GtkTreeModel *url_list_model)
+url_editor_dialog_new2 (GtkTreeModel *url_list_model)
 {
-	UrlEditorDialog *dialog;
+	UrlEditorDialog2 *dialog;
 
-	dialog = (UrlEditorDialog *) g_object_new (URL_EDITOR_DIALOG_TYPE, NULL);
+	dialog = (UrlEditorDialog2 *) g_object_new (URL_EDITOR_DIALOG_TYPE, NULL);
 	dialog->url_list_model = g_object_ref (url_list_model);
 
-	if (url_editor_dialog_construct (dialog))
+	if (url_editor_dialog_construct2 (dialog))
 		return GTK_WIDGET (dialog);
 
 	g_object_unref (dialog);
@@ -56,9 +56,9 @@ url_editor_dialog_new (GtkTreeModel *url_list_model)
 }
 
 static void
-url_editor_dialog_dispose (GObject *obj)
+url_editor_dialog_dispose2 (GObject *obj)
 {
-	UrlEditorDialog *dialog = (UrlEditorDialog *) obj;
+	UrlEditorDialog2 *dialog = (UrlEditorDialog2 *) obj;
 
 	if (dialog->url_list_model) {
 		g_object_unref (dialog->url_list_model);
@@ -69,38 +69,37 @@ url_editor_dialog_dispose (GObject *obj)
 }
 
 static void
-url_editor_dialog_class_init (UrlEditorDialogClass *klass)
+url_editor_dialog_class_init2 (UrlEditorDialogClass2 *klass)
 {
 	GObjectClass *object_class;
 
 	object_class = (GObjectClass *) klass;
 	parent_class = g_type_class_ref (GTK_TYPE_DIALOG);
 
-	object_class->dispose = url_editor_dialog_dispose;
+	object_class->dispose = url_editor_dialog_dispose2;
 }
 
 static void
-url_editor_dialog_init (UrlEditorDialog *dialog)
+url_editor_dialog_init2 (UrlEditorDialog2 *dialog)
 {
 }
 
 GType
-url_editor_dialog_get_type (void)
+url_editor_dialog_get_type2 (void)
 {
 	static GType type = 0;
 
 	if (!type) {
 		static GTypeInfo info = {
-			sizeof (UrlEditorDialogClass),
+			sizeof (UrlEditorDialogClass2),
 			NULL, NULL,
-			(GClassInitFunc) url_editor_dialog_class_init,
+			(GClassInitFunc) url_editor_dialog_class_init2,
 			NULL, NULL,
-			sizeof (UrlEditorDialog),
+			sizeof (UrlEditorDialog2),
 			0,
-			(GInstanceInitFunc) url_editor_dialog_init,
+			(GInstanceInitFunc) url_editor_dialog_init2,
 		};
 
-		/* FIXME: remove 2 when UrlEditorDialog is removed from mainline */
 		type = g_type_register_static (GTK_TYPE_DIALOG, "UrlEditorDialog2", &info, 0);
 	}
 
@@ -108,7 +107,8 @@ url_editor_dialog_get_type (void)
 }
 
 void
-url_editor_dialog_run (UrlEditorDialog *dialog)
+url_editor_dialog_run2 (UrlEditorDialog2 *dialog)
 {
+	gtk_dialog_run (GTK_DIALOG (dialog));
 	/* FIXME */
 }
