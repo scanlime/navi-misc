@@ -54,6 +54,7 @@ class Menu(Sequencer.Page):
     def __init__(self, book):
         Sequencer.Page.__init__(self, book)
         Event.attach(self, 'onSelected')
+        self.bindings = Input.load(self.viewport, self, self.keyFile)
 
         # Create an ortho mode viewport over the whole screen
         self.overlay = self.viewport.region(Layout.Rect(self.viewport))
@@ -62,12 +63,53 @@ class Menu(Sequencer.Page):
         self.background = HUD.Background(self.overlay, "calm.png")
 
 
-class RingMenu(Menu):
-    def __init__(self, book, items=[]):
+class DockMenu(Menu):
+    """Base class for menus using one Icon.Dock to hold all their items"""
+    def __init__(self, book, items=[], **kwargs):
         Menu.__init__(self, book)
         self.items = items
-        self.dock = Icon.Dock(self.overlay, self.trackFunction, [item.icon for item in items])
-        self.bindings = Input.load(self.viewport, self, 'ringmenu_keys.py')
+        self.dock = Icon.Dock(self.overlay, self.trackFunction,
+                              [item.icon for item in items], **kwargs)
+
+    def finalize(self):
+        # Forcibly break a few circular references that python's GC seems
+        # to have trouble with, at least in version 2.2.3
+        self.dock = None
+        self.items = None
+        self.bindings = None
+
+    def add(self, *items):
+        """Adds one or more items to the menu"""
+        self.items.extend(items)
+        self.dock.add(*[item.icon for item in items])
+
+    def remove(self, *items):
+        """Removes one or more items from the menu"""
+        for item in items:
+            self.items.remove(item)
+        self.dock.remove(*[item.icon for item in items])
+
+
+
+class RingMenu(DockMenu):
+    """A circular menu, showing the current item large and near the middle of the screen"""
+    keyFile = 'ringmenu_keys.py'
+    def trackFunction(self, x):
+        """A track function that moves the icons along a circle in
+           the middle of the screen. The bottom of the circle is at 0,
+           increasing parameters move clockwise. The icon at 0 is the largest.
+           """
+        radius = self.viewport.size[1] * 0.04
+        theta = -x * 2*pi + pi/2
+        size = (pow(sin(theta)*0.5+0.5, 3) * 0.20 + 0.06) * self.viewport.size[1]
+        center = (self.viewport.size[0] * 0.5,
+                  self.viewport.size[1] * 0.25)
+        aspect = 2.9
+        return (
+            (cos(theta) * aspect * (radius + size) + center[0],
+             sin(theta) * (radius + size) + center[1]),
+            size
+            )
 
     def spinLeft(self):
         """Spin to the next icon leftwardsly"""
@@ -90,39 +132,58 @@ class RingMenu(Menu):
         self.onSelected(item)
         self.onFinish()
 
+
+class ArcMenu(DockMenu):
+    """A menu that forms an arc along the right side of the screen, with a title shown to the left"""
+    keyFile = 'arcmenu_keys.py'
+    def __init__(self, book, items=[], title=None):
+        DockMenu.__init__(self, book, items, iconSpacing=1)
+        if title:
+            self.titleText = HUD.Text(self.overlay, title,
+                                      fontSize = self.viewport.size[1] / 15,
+                                      alignment = (0.3, 0.5),
+                                      shadow = True
+                                      )
+
     def trackFunction(self, x):
-        """A track function that moves the icons along a circle in
-           the middle of the screen. The bottom of the circle is at 0,
-           increasing parameters move clockwise. The icon at 0 is the largest.
+        """A track function that moves the icons along an arc on the right side of the screen.
+           Icons are spaced apart by 1 unit, positive is down.
            """
-        radius = self.viewport.size[1] * 0.04
-        theta = -x * 2*pi + pi/2
-        size = (pow(sin(theta)*0.5+0.5, 3) * 0.20 + 0.06) * self.viewport.size[1]
-        center = (self.viewport.size[0] * 0.5,
-                  self.viewport.size[1] * 0.25)
-        aspect = 2.9
+        thetaExp = 0.5
+        thetaCoeff = 0.05
+        sizeExp = 1.2
+        maxSize = self.viewport.size[0] * 0.15
+        radius = self.viewport.size[0] * 0.75
+        vCenter = self.viewport.size[1] * 0.5
+        hCenter = 0
+
+        if x>0:
+            theta = pow(thetaCoeff * x, thetaExp)
+        else:
+            theta = -pow(-thetaCoeff * x, thetaExp)
+
         return (
-            (cos(theta) * aspect * (radius + size) + center[0],
-             sin(theta) * (radius + size) + center[1]),
-            size
+            (hCenter + cos(theta) * radius,
+             vCenter + sin(theta) * radius),
+            maxSize / pow(1 + abs(x), sizeExp)
             )
 
-    def finalize(self):
-        # Forcibly break a few circular references that python's GC seems
-        # to have trouble with, at least in version 2.2.3
-        self.dock = None
-        self.items = None
-        self.bindings = None
+    def spinUp(self):
+        """Spin to the next icon upwardsly"""
+        if self.dock.selectionIndex > 0:
+            self.dock.selectionIndex -= 1
 
-    def add(self, *items):
-        """Adds one or more items to the menu"""
-        self.items.extend(items)
-        self.dock.add(*[item.icon for item in items])
+    def spinDown(self):
+        """Spin to the next icon upwardsly"""
+        if self.dock.selectionIndex < len(self.items) - 1:
+            self.dock.selectionIndex += 1
 
-    def remove(self, *items):
-        """Removes one or more items from the menu"""
-        for item in items:
-            self.items.remove(item)
-        self.dock.remove(*[item.icon for item in items])
+    def selectCurrent(self):
+        index = int(floor(self.dock.selectionIndex + 0.5))
+        item = self.items[index]
+
+        item.onSelected(self)
+        self.onSelected(item)
+        self.onFinish()
 
 ### The End ###
