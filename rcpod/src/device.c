@@ -182,7 +182,7 @@ void rcpod_Reset(rcpod_dev *rcpod) {
   rcpod_Poke(rcpod, RCPOD_REG_ADCON1, 0);
 
   rcpod_Poke(rcpod, RCPOD_REG_RCSTA, 0);
-  rcpod_Poke(rcpod, RCPOD_REG_TXSTA, 1);
+  rcpod_Poke(rcpod, RCPOD_REG_TXSTA, 2);
 }
 
 
