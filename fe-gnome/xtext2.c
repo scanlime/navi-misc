@@ -41,6 +41,12 @@ static void       fix_indent             (XText2 *xtext);
 
 static gpointer parent_class;
 
+#ifdef SCROLL_HACK
+#define dontscroll(xtext) ((xtext)->last_pixel_pos = 2147483647)
+#else
+#define dontscroll(xtext)
+#endif
+
 #define MARGIN 2 /* left margin (in pixels) */
 #define WORDWRAP_LIMIT 24
 
@@ -101,6 +107,9 @@ struct _XText2Private
   int          pixel_offset;         /* number of pixels the top line is chopped by */
   int          window_width;         /* width of the window when last rendered */
   int          window_height;        /* height of the window when last rendered */
+  int          last_win_x;           /* previous X */
+  int          last_win_y;           /* previous Y */
+  int          last_pixel_pos;       /* where the window was scrolled to */
 
   /* state associated with rendering specific buffers */
   GHashTable  *buffer_info;          /* stores an XTextFormat for each buffer we observe */
@@ -692,6 +701,45 @@ paint (GtkWidget *widget, GdkRectangle *area)
   XText2 *xtext = XTEXT2 (widget);
   textentry *ent_start, *ent_end;
   int x, y;
+
+#if defined(USE_XLIB) || defined (WIN32)
+  if (xtext->priv->transparent)
+  {
+    gdk_window_get_origin (widget->window, &x, &y);
+    /* update transparency only if it moved */
+    if (xtext->priv->last_win_x != x || xtext->priv->last_win_y != y)
+    {
+      xtext->priv->last_win_x = x;
+      xtext->priv->last_win_y = y;
+#if !defined(USE_SHM) && !defined(WIN32)
+      if (xtext->priv->shaded)
+      {
+	/* FIXME
+	xtext->priv->recycle = TRUE;
+	load_trans (xtext);
+	xtext->priv->recycle = FALSE;
+	*/
+      }
+      else
+#endif /* !USE_SHM && !WIN32 */
+      {
+	/* FIXME
+	free_trans (xtext);
+	load_trans (xtext);
+	*/
+      }
+    }
+  }
+#endif /* USE_XLIB || WIN32 */
+
+  if (area->x == 0 && area->y == 0 &&
+      area->height == widget->allocation.height &&
+      area->width  == widget->allocation.width)
+  {
+    dontscroll (xtext); /* force scrolling off */
+    render_page (xtext);
+    return;
+  }
 
   ent_start = find_char (xtext, area->x, area->y, NULL, NULL);
   if (!ent_start)
