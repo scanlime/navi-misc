@@ -50,109 +50,106 @@ public class question extends java.applet.Applet implements ActionListener
 		submit.addActionListener(this);
         
 		//put stuff in the applet.
-        add(name);
-        add(position);
-        add(ques);
-        add(submit);
-    }
-    
+		add(name);
+		add(position);
+		add(ques);
+		add(submit);
+	}
 
-    public void actionPerformed(ActionEvent e)
-    {
-        nstring = name.getText() + " (" + position.getText() + ")";
-        qstring = ques.getText();
-        
-        StringTokenizer tokens = new StringTokenizer(qstring,"\n");
-
-        if(qstring.compareTo("") == 0) return;
-
-        if(!(nstring.compareTo(lname + " " + lquest) == 0 && qstring.compareTo("Question") == 0))
-        {
-            openConnection("studentactivities.mscd.edu",8080);
-            read();
-            //write the name string
-            write(nstring);
-            write(".");            
-            //write the question
-            qstring = tokens.nextToken();
-            while(tokens.hasMoreTokens())
-                qstring = qstring + " " + tokens.nextToken();
-            write(qstring);
-            write(".");
-            read();
-            closeConnection();
-            lname = "Question submitted successfully";
-            name.setText("Question submitted successfully");
-            position.setText("Refresh your browser window");
-            ques.setText("");
-            submit.removeActionListener(this);
-        }
-    }
-    
-    /* These four methods handle network communication */
-    
-    /*
-     * This method opens a connection and takes care of all the pre/post conditions for read and write.
-     */
-    public boolean openConnection(String host, int port)
-    {
-        //Initialize everything
-	try
+	public void actionPerformed(ActionEvent e)
 	{
+		nstring = name.getText() + " (" + position.getText() + ")";
+		qstring = ques.getText();
+		
+		StringTokenizer tokens = new StringTokenizer(qstring,"\n");
+
+		if(qstring.compareTo("") == 0) return;
+
+		if(!(nstring.compareTo(lname + " " + lquest) == 0 && qstring.compareTo("Question") == 0))
+		{
+			openConnection("studentactivities.mscd.edu",8080);
+			read();
+			//write the name string
+			write(nstring);
+			write(".");            
+			//write the question
+			qstring = tokens.nextToken();
+			while(tokens.hasMoreTokens())
+				qstring = qstring + " " + tokens.nextToken();
+			write(qstring);
+			write(".");
+			read();
+			closeConnection();
+			lname = "Question submitted successfully";
+			name.setText("Question submitted successfully");
+			position.setText("Refresh your browser window");
+			ques.setText("");
+			submit.removeActionListener(this);
+		}
+	}
+    
+	/* These four methods handle network communication */
+
+	/*
+	 * This method opens a connection and takes care of all the pre/post conditions for read and write.
+	 */
+	public boolean openConnection(String host, int port)
+	{
+		//Initialize everything
+		try
+		{
 	    link = new Socket(host,port);
 	    in = new BufferedReader(new InputStreamReader(link.getInputStream()));
 	    out = new OutputStreamWriter(link.getOutputStream());
+		}
+		catch(IOException exception) {
+			return false;
+		}
+		write("SUBM");
+		return true;
 	}
-	catch(IOException exception) {
-	    return false;
-	}
-        write("SUBM");
-	return true;
-    }
     
-    //Close the connection
-    public void closeConnection()
-    {
-	write("QUIT");
-	try 
+	//Close the connection
+	public void closeConnection()
 	{
+		write("QUIT");
+		try 
+		{
 	    link.close();
+		}
+		catch(IOException exception){}
 	}
-	catch(IOException exception) 
-	{
-	}
-    }
     
-    //Read a single line from the socket
-    public String read()
-    {
-	String toreturn = null;
-	try
+	//Read a single line from the socket
+	public String read()
 	{
-	    toreturn = in.readLine();
-	}
-	catch(IOException exception)
-	{
-	    System.out.println("Error in recieving: " + exception);
+		String toreturn = null;
+		try
+		{
+			toreturn = in.readLine();
+		}
+		catch(IOException exception)
+		{
+			System.out.println("Error in recieving: " + exception);
 	    closeConnection();
 	    System.exit(1);
+		}
+		return toreturn;
 	}
-	return toreturn;
-    }
     
-    //Write a single line to the socket
-    public void write(String tosend)
-    {
-	try
+	//Write a single line to the socket
+	public void write(String tosend)
 	{
+		try
+		{
 	    out.write(tosend + "\r\n");
 	    out.flush();
-	}
-	catch(IOException exception)
-	{
+		}
+		catch(IOException exception)
+		{
 	    System.out.println("Error in sending:" + exception);
 	    closeConnection();
 	    System.exit(1);
+		}
 	}
-    }
 }
