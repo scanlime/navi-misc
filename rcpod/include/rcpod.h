@@ -23,6 +23,10 @@
 #ifndef __RCPOD_H
 #define __RCPOD_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*************************************************************************************/
 /************************************************** Data types ***********************/
 /*************************************************************************************/
@@ -194,39 +198,71 @@ unsigned char rcpod_AnalogReadChannel(rcpod_dev* rcpod, int channel);
 
 /* Initialize the serial port for asynchronous 8-N-1 transmit and receive
  * at the specified baud rate.
+ *
+ * Note that this does not set the RX and TX pins' directions. In most circumstances
+ * you would want RX as an input and TX as an output, but not all. In the normal case,
+ * code like the following will do the trick:
+ *
+ *  rcpod_GpioAssert(rcpod, RCPOD_OUTPUT(RCPOD_PIN_TX));
+ *  rcpod_GpioAssert(rcpod, RCPOD_INPUT(RCPOD_PIN_RX));
  */
 void rcpod_SerialInit(rcpod_dev* rcpod, int baudRate);
 
-/* Transmit the given buffer of length 'txBytes' (txBytes <= RCPOD_SCRATCHPAD_SIZE)
- * then immediately begin receiving data until either 'rxBytes' bytes are received
- * or rcpod_SerialRxFinish is called.
+/* Transmit the given buffer of length 'txBytes' then immediately begin receiving data.
+ * Currently the maximum size for txBytes is RCPOD_SCRATCHPAD_SIZE. The error handler
+ * will be called if this maximum is exceeded. The data will start being received
+ * into the rcpod's (tiny) internal buffer.
+ * Currently this buffer is of size RCPOD_SCRATCHPAD_SIZE, and it will wrap around
+ * when full. The receive will continue until the next call to any of the
+ * following functions:
+ *    SerialTxRxStart, SerialTx, SerialRxStart, or SerialRxFinish
  */
-void rcpod_SerialTxRxStart(rcpod_dev* rcpod, unsigned char* buffer, int txBytes, int rxBytes);
+void rcpod_SerialTxRxStart(rcpod_dev* rcpod, unsigned char* buffer, int count);
 
-/* Transmit the given buffer of 'count' bytes (count <= RCPOD_SCRATCHPAD_SIZE) */
+/* Transmit the given buffer of 'count' bytes. The same transmit buffer size
+ * limitation exists as in SerialTxRxStart.
+ */
 void rcpod_SerialTx(rcpod_dev* rcpod, unsigned char* buffer, int count);
 
-/* Start receiving up to 'count' bytes. The received data can be collected
- * with a call to rcpod_SerialRxFinish.
+/* Start receiving data into the rcpod's (tiny) internal buffer.
+ * Currently this buffer is of size RCPOD_SCRATCHPAD_SIZE, and it will wrap around
+ * when full. The receive will continue until the next call to any of the
+ * following functions:
+ *    SerialTxRxStart, SerialTx, SerialRxStart, or SerialRxFinish
  */
-void rcpod_SerialRxStart(rcpod_dev* rcpod, int count);
+void rcpod_SerialRxStart(rcpod_dev* rcpod);
 
-/* Return the number of bytes received so far, without stopping
- * the receive in progress. Optionally a buffer can be provided
- * where the received bytes, up to a maximum of 'count', are copied.
- * If the received data itself is not yet necessary, set count = 0.
+/* Cancel the current receive. Normally this does not need to be done explicitly,
+ * but if you need to use the rcpod's scratchpad buffer for some other purpose,
+ * it may be.
  */
-int rcpod_SerialRxProgress(rcpod_dev* rcpod, unsigned char* buffer, int count);
+void rcpod_SerialRxFinish(rcpod_dev* rcpod);
 
-/* Stop a currently in progress serial receive, copying up to 'count' received
- * bytes into the provided buffer. Returns the actual number of bytes received
- * (may be greater than the number of bytes copied, if it's larger than 'count')
+/* Return the number of bytes received so far, without stopping the
+ * receive in progress or retrieving any data. This will also detect
+ * a buffer overflow condition if one exists on the rcpod. If the
+ * rcpod's internal buffer overflows, the error handler will be invoked
+ * and this function will return -1.
  */
-int rcpod_SerialRxFinish(rcpod_dev* rcpod, unsigned char* buffer, int count);
+int rcpod_SerialRxProgress(rcpod_dev* rcpod);
+
+/* Read up to 'count' available bytes from the rcpod's on-chip serial receive
+ * buffer, making that space available for continued reception.
+ * Returns the number of bytes actually placed in the buffer. A buffer
+ * overflow is treated as an error condition, and will cause the error handler
+ * to be invoked and -1 to be returned.
+ */
+int rcpod_SerialRxRead(rcpod_dev* rcpod, unsigned char* buffer, int count);
 
 /* Use the given pin as a transmit enable- it is asserted before transmitting,
  * and deasserted as soon as a transmission has completely finished.
  * This feature can be disabled by passing RCPOD_PIN_NONE.
+ *
+ * Note that this doesn't automatically make 'pin' an output, use RCPOD_OUTPUT()
+ * and rcpod_GpioAssert() for that. In most cases you do want 'pin' to be an output,
+ * but, for example, you could make a simple multidrop TTL serial bus by setting
+ * the transmit enable pin to RCPOD_OUTPUT(RCPOD_PIN_TX), and tying all device's
+ * RX and TX pins to one common wire.
  */
 int rcpod_SerialSetTxEnable(rcpod_dev* rcpod, rcpod_pin pin);
 
@@ -239,7 +275,7 @@ int rcpod_SerialSetTxEnable(rcpod_dev* rcpod, rcpod_pin pin);
 #define RCPOD_MEM_SIZE          0x0200
 
 /* The PIC's first bank of general-purpose RAM is designated as a scratchpad area.
- * Note that this is used in librcpod for serial I/O.
+ * Note that this is used in librcpod for buffering serial transmission and reception.
  */
 #define RCPOD_REG_SCRATCHPAD    0x0020
 #define RCPOD_SCRATCHPAD_SIZE   0x005D
@@ -373,6 +409,12 @@ int rcpod_SerialSetTxEnable(rcpod_dev* rcpod, rcpod_pin pin);
 #define RCPOD_PIN_RE1      (RCPOD_PIN_PORTE | RCPOD_PIN_PORT | RCPOD_PIN_BIT1 | RCPOD_PIN_HIGH)
 #define RCPOD_PIN_RE2      (RCPOD_PIN_PORTE | RCPOD_PIN_PORT | RCPOD_PIN_BIT2 | RCPOD_PIN_HIGH)
 
+/* Synonyms for multifunction pins */
+#define RCPOD_PIN_CCP1     RCPOD_PIN_RC2    /* Capture/compare/PWM units */
+#define RCPOD_PIN_CCP2     RCPOD_PIN_RC1
+#define RCPOD_PIN_TX       RCPOD_PIN_RC6    /* USART */
+#define RCPOD_PIN_RX       RCPOD_PIN_RC7
+
 
 /*************************************************************************************/
 /************************************************** rcpod boards *********************/
@@ -385,6 +427,10 @@ int rcpod_SerialSetTxEnable(rcpod_dev* rcpod, rcpod_pin pin);
 #define RCPOD485_LED1        RCPOD_PIN_RC2       /* Two indicator LEDs */
 #define RCPOD485_LED2        RCPOD_PIN_RC1
 
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __RCPOD_H */
 

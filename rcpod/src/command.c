@@ -95,19 +95,16 @@ void rcpod_UsartTxRx(rcpod_dev* rcpod, int address, int txBytes, int rxBytes) {
 			   txBytes | (((int)rxBytes) << 8), address, NULL, 0, RCPOD_TIMEOUT);
   if (retval < 0)
     rcpod_HandleError("rcpod_UsartTxRx", errno, strerror(errno));
-}
 
+  /* Zero our our receive tracking info, since this has cancelled any receive in progress */
+  memset(&rcpod->rx, 0, sizeof(rcpod->rx));
 
-int rcpod_UsartRxEnd(rcpod_dev* rcpod) {
-  int retval;
-  unsigned char byteCount;
-  retval = usb_control_msg(rcpod->usbdevh, USB_TYPE_VENDOR | USB_ENDPOINT_IN,
-			   RCPOD_CTRL_USART_RX_END, 0, 0, (char*) &byteCount, 1, RCPOD_TIMEOUT);
-  if (retval < 0) {
-    rcpod_HandleError("rcpod_UsartRxEnd", errno, strerror(errno));
-    return 0;
+  /* Prepare our rx structure for tracking this receive, if we just started one */
+  if (rxBytes) {
+    rcpod->rx.address = address;
+    rcpod->rx.size = rxBytes;
+    /* Zero is the proper default for all other fields */
   }
-  return byteCount;
 }
 
 
@@ -318,62 +315,112 @@ void rcpod_SerialInit(rcpod_dev* rcpod, int baudRate) {
   rcpod_Poke(rcpod, RCPOD_REG_SPBRG, spbrg);        /* Set baud rate */
   rcpod_Poke(rcpod, RCPOD_REG_RCSTA, 0x90);         /* Enable the serial port */
   rcpod_Poke(rcpod, RCPOD_REG_TXSTA, 0x22 | brgh);  /* Enable async transmitter, set BRGH */
-
-  rcpod_GpioAssert(rcpod, RCPOD_OUTPUT(RCPOD_PIN_RC6));  /* Transmit pin should be output */
-  rcpod_GpioAssert(rcpod, RCPOD_INPUT(RCPOD_PIN_RC7));   /* Receive pin should be input */
 }
 
 
-void rcpod_SerialTxRxStart(rcpod_dev* rcpod, unsigned char* buffer, int txBytes, int rxBytes) {
-  if (txBytes > RCPOD_SCRATCHPAD_SIZE || rxBytes > RCPOD_SCRATCHPAD_SIZE) {
-    rcpod_HandleError("rcpod_SerialTxRxStart", EINVAL, "Size of transmission/reception exceeds scratchpad size");
+void rcpod_SerialTxRxStart(rcpod_dev* rcpod, unsigned char* buffer, int count) {
+  if (count > RCPOD_SCRATCHPAD_SIZE) {
+    rcpod_HandleError("rcpod_SerialTxRxStart", EINVAL, "Size of transmission exceeds scratchpad buffer size");
     return;
   }
 
   /* Load the transmission into the scratchpad, if we have one */
-  if (txBytes > 0)
-    rcpod_PokeBuffer(rcpod, RCPOD_REG_SCRATCHPAD, buffer, txBytes);
+  if (count > 0)
+    rcpod_PokeBuffer(rcpod, RCPOD_REG_SCRATCHPAD, buffer, count);
 
-  /* Perform the transmission, and start the receive */
-  rcpod_UsartTxRx(rcpod, RCPOD_REG_SCRATCHPAD, txBytes, rxBytes);
+  /* Perform the transmission, and start the receive. Give it the entire
+   * scratchpad as a receive buffer.
+   */
+  rcpod_UsartTxRx(rcpod, RCPOD_REG_SCRATCHPAD, count, RCPOD_SCRATCHPAD_SIZE);
 }
 
 
 void rcpod_SerialTx(rcpod_dev* rcpod, unsigned char* buffer, int count) {
-  rcpod_SerialTxRxStart(rcpod, buffer, count, 0);
-}
+  if (count > RCPOD_SCRATCHPAD_SIZE) {
+    rcpod_HandleError("rcpod_SerialTx", EINVAL, "Size of transmission exceeds scratchpad buffer size");
+    return;
+  }
 
-
-void rcpod_SerialRxStart(rcpod_dev* rcpod, int count) {
-  rcpod_SerialTxRxStart(rcpod, NULL, 0, count);
-}
-
-
-int rcpod_SerialRxFinish(rcpod_dev* rcpod, unsigned char* buffer, int count) {
-  int receivedBytes;
-  receivedBytes = rcpod_UsartRxEnd(rcpod);
-
-  /* Copy back the received data from the rcpod's scratchpad */
-  if (count > receivedBytes)
-    count = receivedBytes;
+  /* Load the transmission into the scratchpad, if we have one */
   if (count > 0)
-    rcpod_PeekBuffer(rcpod, RCPOD_REG_SCRATCHPAD, buffer, count);
+    rcpod_PokeBuffer(rcpod, RCPOD_REG_SCRATCHPAD, buffer, count);
 
-  return receivedBytes;
+  /* No receive */
+  rcpod_UsartTxRx(rcpod, RCPOD_REG_SCRATCHPAD, count, 0);
 }
 
 
-int rcpod_SerialRxProgress(rcpod_dev* rcpod, unsigned char* buffer, int count) {
-  int receivedBytes;
-  receivedBytes = rcpod_UsartRxProgress(rcpod);
+void rcpod_SerialRxStart(rcpod_dev* rcpod) {
+  /* No transmit, receive into the entire scratchpad */
+  rcpod_UsartTxRx(rcpod, RCPOD_REG_SCRATCHPAD, 0, RCPOD_SCRATCHPAD_SIZE);
+}
 
-  /* Copy back the received data from the rcpod's scratchpad */
-  if (count > receivedBytes)
-    count = receivedBytes;
-  if (count > 0)
-    rcpod_PeekBuffer(rcpod, RCPOD_REG_SCRATCHPAD, buffer, count);
 
-  return receivedBytes;
+void rcpod_SerialRxFinish(rcpod_dev* rcpod) {
+  /* No new transmit or receive, just cancel the current receive */
+  rcpod_UsartTxRx(rcpod, RCPOD_REG_SCRATCHPAD, 0, 0);
+}
+
+
+int rcpod_SerialRxProgress(rcpod_dev* rcpod) {
+  /* This function is actually a good bit more important than the API reference
+   * makes it seem- it reads the firmware's rx_count counter using rcpod_UsartRxProgress,
+   * however this counter is only 8-bit. We need to detect rollovers in that counter,
+   * and update the number of unreceived bytes available.
+   * Internally this function is called by rcpod_SerialRxRead.
+   */
+  int count8 = rcpod_UsartRxProgress(rcpod);
+  int newBytes;
+
+  newBytes = count8 - rcpod->rx.last_count8;
+  if (newBytes < 0) {
+    /* The rcpod's 8-bit count variable overflowed */
+    newBytes += 256;
+  }
+  rcpod->rx.last_count8 = count8;
+
+  /* Update total byte count and unread byte count */
+  rcpod->rx.count += newBytes;
+  rcpod->rx.unread += newBytes;
+
+  /* Check for buffer overflows */
+  if (rcpod->rx.unread > rcpod->rx.size) {
+    rcpod_HandleError("rcpod_SerialRxProgress", EIO, "Internal serial receive buffer overflow");
+    return -1;
+  }
+
+  return rcpod->rx.count;
+}
+
+
+int rcpod_SerialRxRead(rcpod_dev* rcpod, unsigned char* buffer, int count) {
+  int retval = 0;
+
+  /* First update the count information in rcpod->rx and check for overflows */
+  rcpod_SerialRxProgress(rcpod);
+
+  /* Now we can just funnel bytes from the rcpod's ring buffer into our provided buffer... */
+  while (count > 0 && rcpod->rx.unread > 0) {
+    int blockSize;
+
+    /* Determine the maximum amount we can read in one contiguous block.
+     * This is limited by the caller's buffer, the number of unread
+     * bytes, and the number of bytes before the buffer wraps around.
+     */
+    blockSize = count;
+    if (blockSize > rcpod->rx.unread)
+      blockSize = rcpod->rx.unread;
+    if (blockSize + rcpod->rx.tail_index > rcpod->rx.size)
+      blockSize = rcpod->rx.size - rcpod->rx.tail_index;
+
+    rcpod_PeekBuffer(rcpod, rcpod->rx.address + rcpod->rx.tail_index, buffer, blockSize);
+    retval += blockSize;
+    rcpod->rx.unread -= blockSize;
+    rcpod->rx.tail_index += blockSize;
+    rcpod->rx.tail_index &= rcpod->rx.size;
+  }
+
+  return retval;
 }
 
 
