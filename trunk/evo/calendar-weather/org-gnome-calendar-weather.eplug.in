@@ -14,11 +14,11 @@
 	     check="e_calendar_weather_check">
 	        <item
 		 type="item_table"
-		 path="00.general/00.source/30.location"
+		 path="00.general/00.source/40.location"
 		 factory="e_calendar_weather_location"/>
 		<item
 		 type="item_table"
-		 path="00.general/00.source/40.refresh"
+		 path="00.general/00.source/50.refresh"
 		 factory="e_calendar_weather_refresh"/>
 	    </group>
 	</hook>

@@ -19,6 +19,7 @@
  *
  */
 
+#include <gtk/gtkversion.h>
 #include <gtk/gtktable.h>
 #include <gtk/gtkspinbutton.h>
 #include <gtk/gtkoptionmenu.h>
@@ -43,7 +44,7 @@ GtkWidget *
 e_calendar_weather_location (EPlugin *epl, EConfigHookItemFactoryData *data)
 {
 	static GtkWidget *label;
-	GtkWidget *button, *parent;
+	GtkWidget *button, *parent, *text;
 	int row;
 	ECalConfigTargetSource *t = (ECalConfigTargetSource *) data->target;
 	ESource *source = t->source;
@@ -74,9 +75,17 @@ e_calendar_weather_location (EPlugin *epl, EConfigHookItemFactoryData *data)
 	gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
 	gtk_table_attach (GTK_TABLE (parent), label, 0, 1, row, row+1, GTK_FILL, 0, 0, 0);
 
-	button = gtk_button_new_with_label (_("..."));
+	button = gtk_button_new ();
 	gtk_widget_show (button);
-	gtk_table_attach (GTK_TABLE (parent), label, 1, 2, row, row+1, GTK_EXPAND | GTK_FILL, 0, 0, 0);
+
+	text = gtk_label_new (_("None"));
+	gtk_widget_show (text);
+#if (GTK_CHECK_VERSION(2, 6, 0))
+	gtk_label_set_ellipsize (GTK_LABEL (text), PANGO_ELLIPSIZE_START);
+#endif
+	gtk_container_add (GTK_CONTAINER (button), text);
+
+	gtk_table_attach (GTK_TABLE (parent), button, 1, 2, row, row+1, GTK_EXPAND | GTK_FILL, 0, 0, 0);
 
 	return button;
 }
