@@ -427,6 +427,8 @@ class PalantirWindow:
       self.Disconnect()
 
     # Set the channel name to join.
+    if channel == '':
+      channel = None
     self.factory.channels[0] = channel
 
     # Set the server name.

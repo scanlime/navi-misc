@@ -4,3 +4,4 @@
 * Tweak dice rolling systems to handle critical failures
 * Store user preferences in the chat client
 * Character sheet builder
+* Change colors in the chat buffer
