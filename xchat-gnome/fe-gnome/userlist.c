@@ -1,7 +1,43 @@
 #include "userlist.h"
+#include "pixmaps.h"
 #include "textgui.h"
 #include "../common/xchat.h"
 #include "../common/userlist.h"
+
+GdkPixbuf *get_user_icon(struct server *serv, struct User *user) {
+	char *pre;
+	int level;
+
+	if(!user)
+		return NULL;
+
+	switch(user->prefix[0]) {
+	case '\0': return NULL;
+	case '@': return pix_op;
+	case '%': return pix_hop;
+	case '+': return pix_voice;
+	}
+
+	/* find out how many levels above Operator this user is */
+	pre = strchr(serv->nick_prefixes, '@');
+	if(pre && pre != serv->nick_prefixes) {
+		pre--;
+		level = 0;
+		while(1) {
+			if(pre[0] == user->prefix[0]) {
+				switch(level) {
+					case 0: return pix_red; /* 1 level */
+					case 1: return pix_purple; /* 2 levels */
+				}
+				break; /* 3+, no icons */
+			}
+			level++;
+			if(pre == serv->nick_prefixes)
+				break;
+			pre--;
+		}
+	}
+}
 
 void initialize_userlist() {
 	GtkWidget *userlist_view;
@@ -47,8 +83,10 @@ void userlist_insert(session *sess, struct User *newuser, int row, int sel) {
 	s = sess->gui;
 	store = GTK_LIST_STORE(s->userlist_model);
 
+	pix = get_user_icon(sess->server, newuser);
+
 	gtk_list_store_insert(store, &iter, row);
-	gtk_list_store_set(store, &iter, 1, newuser->nick, 2, newuser, -1);
+	gtk_list_store_set(store, &iter, 0, pix, 1, newuser->nick, 2, newuser, -1);
 	/* FIXME: colors, away status, icons, selection */
 }
 

@@ -22,6 +22,8 @@ EXTRA_DIST =				\
 	navigation_tree.c		\
 	palette.h			\
 	palette.c			\
+	pixmaps.h			\
+	pixmaps.c			\
 	preferences_dialog.h		\
 	preferences_dialog.c		\
 	preferences_servers_page.h	\
@@ -47,6 +49,8 @@ xchat_gnome_SOURCES =			\
 	navigation_tree.c		\
 	palette.h			\
 	palette.c			\
+	pixmaps.h			\
+	pixmaps.c			\
 	preferences_dialog.h		\
 	preferences_dialog.c		\
 	preferences_servers_page.h	\
@@ -69,3 +73,6 @@ mmx_cmod.h:	@top_srcdir@/src/fe-gtk/mmx_cmod.h
 
 mmx_cmod.S:	@top_srcdir@/src/fe-gtk/mmx_cmod.S mmx_cmod.h
 	cp -pR @top_srcdir@/src/fe-gtk/mmx_cmod.S .
+
+pixmaps.o:	$(srcdir)/pixmaps.c
+	$(COMPILE) -DXCHATSHAREDIR=\"$(xchatsharedir)\" -c $(srcdir)/pixmaps.c
