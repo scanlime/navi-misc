@@ -23,7 +23,7 @@ sendmail_command="/usr/sbin/sendmail -t"
 REV="$1"
 
 # The email address CIA lives at
-cia_address="cia@navi.cx"
+cia_address="cia@cia.navi.cx"
 
 author=`echo $BK_USER | sed 's/\&/\&amp;/g;s/</\&lt;/g;s/>/\&gt;/g'`
 module=`basename $BKD_ROOT | sed 's/\&/\&amp;/g;s/</\&lt;/g;s/>/\&gt;/g'`
