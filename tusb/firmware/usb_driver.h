@@ -65,8 +65,8 @@ struct usb_endpoint_descriptor {
 struct usb_descriptor_entry {
   unsigned char type;
   unsigned char index;
-  unsigned short language;
-  void *buffer;
+  unsigned short language;  /* 0 for "don't care" */
+  code unsigned char *buffer;
   int length;
 };
 
@@ -209,7 +209,7 @@ void usb_init();
 void usb_poll();
 
 /* Reply functions */
-void usb_write_ep0_buffer(void *buffer, int length);
+void usb_write_ep0_buffer(unsigned char *buffer, int length);
 
 /* Application-defined functions */
 void usb_handle_vendor_request();
