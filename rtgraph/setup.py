@@ -1,0 +1,11 @@
+#!/usr/bin/env python
+from distutils.core import setup
+setup (name = "rtgraph",
+       version = "0.1",
+       description = "A collection of real-time graphing widgets for PyGTK"
+       maintainer = "Micah Dowty",
+       maintainer_email = "micah@picogui.org",
+       license = "LGPL",
+       packages = ['rtgraph'],
+       )
+
