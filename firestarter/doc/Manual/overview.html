@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>General Overview</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+</head>
+<body>
+<table width="100%">
+<tr>
+<td>
+<h2>General Overview of Firestarter project</h2>
+</td>
+</tr>
+<tr>
+<td>
+<p>The basic idea here is to implement a new framework for the bzflag game system. 
+        The redesign will not be bounded by any of the current coding conventions, 
+        platform limits, or hardware limits. The project will use a new &quot;from 
+        the ground up&quot; specification, which takes what is wanted from the 
+        existing project and adds to it.</p>
+<p>The goal is to create a stable modern platform for the game so that it may grow into the future.
+ This includes extensive use of 3rd party libraries and engines when available to allow the project to concentrate on: 1) the game,
+  and to 2) create a more up to date experience for the end user.</p>
+      <table border="0" cellpadding="0" cellspacing="0">
+        <tr>
+          <td bgcolor="#CCCCCC"><i>The design goals of the project are.</i> </td>
+</tr>
+<tr>
+          <td bgcolor="#EEEEEE"> 
+            <ol>
+<li> Create a game system that runs on Windows, Linux, and the Macintosh; which is also portable to other systems if needed.</li>
+<li> Use a framework that is easily extensible and allows reuse of common code sections.</li>
+<li> Frameworks that will allow any application to run with or with out display.</li>
+<li> Use Enet for reliable UDP networking connections.</li>
+<li> A multi-homed list server for redundancy.</li>
+<li> A list server that tracks data.</li>
+<li> A list server that provides update notifications and URLs.</li>
+<li> A user registration server.</li>
+<li> Game and Client servers that support multiple game types and those types are easily extended.</li>
+<li> Game Servers that keep a full game state and provide authoritative information to all clients.</li>
+<li> Game Servers that are able to time sync, lag comp, and bandwidth throttle all data transitions.</li>
+<li> Game modules that play like current Bzflag with enhancements to graphics and speed.</li>
+<li> Client Graphics systems that can download content on demand for use as player avatars and world data.</li>
+<li> New Game modules that play different then current Bzflag.</li>
+<li> World modules that allow for any type of arbitrary geometry.</li>
+<li> Sound system that supports background music ether from a local source, or streamed from some server.</li>
+<li> Sound system that supports real time voice chat on a peer to peer basis.</li>
+<li> Clients and servers that have integrated league tracking/management systems.</li>
+</ol>
+</td>
+</tr>
+</table>
+<p>Towards this goal, Ogre has been chosen as the initial client 3d engine ( <a href="http://www.ogre3d.org/">http://www.ogre3d.org</a>).
+ For a sound system FMOD will work but is not 100% open source (but it is free, <a href="http://www.fmod.org/">http://www.fmod.org</a>),
+  so different modules may need to be made.</p>
+<p>Each current Bzflag game type will be made into a separate game module.
+ The game types will share a common base class for the parts of the games that are the same (world, physics, shots, etc...).</p>
+<p>New game modes will be made that allow for things like terrain, tiling objects and the like.</p>
+</td>
+</tr>
+<tr>
+<td>
+<a href="http://validator.w3.org/check/referer"><img
+src="http://www.w3.org/Icons/valid-xhtml10"
+alt="Valid XHTML 1.0!" height="31" width="88" /></a>
+</td>
+</tr>
+</table>
+</body>
+</html>
