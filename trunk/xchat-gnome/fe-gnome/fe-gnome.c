@@ -47,9 +47,8 @@ void fe_init(void) {
 	initialize_gui();
 	if(!preferences_exist()) {
 		run_setup_druid();
-	} else {
-		strcpy(prefs.nick1, "flobidob");
 	}
+	strcpy(prefs.nick1, preferences_nickname(NULL));
 	run_main_window();
 	prefs.use_server_tab = TRUE;
 }

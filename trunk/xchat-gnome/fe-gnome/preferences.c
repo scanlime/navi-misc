@@ -34,3 +34,15 @@ gboolean preferences_exist() {
 	   previous versions when new features are added */
 	return TRUE;
 }
+
+char *preferences_nickname(struct ircnet *net) {
+	GConfClient *client;
+
+	client = gconf_client_get_default();
+
+	if(net == NULL) {
+		return gconf_client_get_string(client, "/apps/xchat/irc/nickname", NULL);
+	}
+	/* FIXME: check to see if there's a per-server pref for this */
+	return gconf_client_get_string(client, "/apps/xchat/irc/nickname", NULL);
+}
