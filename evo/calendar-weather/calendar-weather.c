@@ -33,8 +33,10 @@ GtkWidget *e_calendar_weather_location (EPlugin *epl, EConfigHookItemFactoryData
 GtkWidget *e_calendar_weather_refresh (EPlugin *epl, EConfigHookItemFactoryData *data);
 gboolean   e_calendar_weather_check (EPlugin *epl, EConfigHookPageCheckData *data);
 
+static GtkTreeStore *store = NULL;
+
 static void
-parse_subtree (GtkTreeStore *store, GtkTreeIter *parent, xmlNode *node)
+parse_subtree (GtkTreeIter *parent, xmlNode *node)
 {
 	GtkTreeIter iter;
 	xmlNode *child;
@@ -49,53 +51,51 @@ parse_subtree (GtkTreeStore *store, GtkTreeIter *parent, xmlNode *node)
 			gtk_tree_store_set (store, &iter, 0, child->content, -1);
 
 			for (attr = node->properties; attr; attr = attr->next) {
-			}
-		} else {
-			xmlAttr *attr;
-
-			for (child = node->children; child; child = child->next)
-				parse_subtree (store, &iter, child);
-
-			for (attr = node->properties; attr; attr = attr->next) {
-				if (strcmp (attr->name, "name") == 0)
-					gtk_tree_store_set (store, &iter, 0, attr->children->content, -1);
-				else if (strcmp (attr->name, "code") == 0)
+				if (strcmp (attr->name, "code") == 0)
 					gtk_tree_store_set (store, &iter, 1, attr->children->content, -1);
 				else if (strcmp (attr->name, "url") == 0)
 					gtk_tree_store_set (store, &iter, 2, attr->children->content, -1);
 				else if (strcmp (attr->name, "type") == 0)
 					gtk_tree_store_set (store, &iter, 3, attr->children->content, -1);
 			}
+		} else {
+			xmlAttr *attr;
+
+			for (child = node->children; child; child = child->next)
+				parse_subtree (&iter, child);
+
+			for (attr = node->properties; attr; attr = attr->next)
+				if (strcmp (attr->name, "name") == 0)
+					gtk_tree_store_set (store, &iter, 0, attr->children->content, -1);
 		}
 	}
 }
 
-static GtkTreeStore *
+static void
 load_locations ()
 {
 	xmlDoc *doc;
 	xmlNode *root, *child;
-	GtkTreeStore *store;
 
 	LIBXML_TEST_VERSION
 
 	doc = xmlParseFile("/home/jupiter/navi-misc/evo/Locations.xml.in");
 	if (doc == NULL) {
 		g_warning ("failed to read locations file");
-		return NULL;
+		return;
 	}
 
-	store = gtk_tree_store_new (4,
-		G_TYPE_STRING,	/* name */
-		G_TYPE_STRING,	/* code */
-		G_TYPE_STRING,	/* URL  */
-		G_TYPE_STRING);	/* type */
+	if (store == NULL)
+		store = gtk_tree_store_new (4,
+			G_TYPE_STRING,	/* name */
+			G_TYPE_STRING,	/* code */
+			G_TYPE_STRING,	/* URL  */
+			G_TYPE_STRING);	/* type */
 
 	root = xmlDocGetRootElement (doc);
 	for (child = root->children; child; child = child->next)
-		parse_subtree (store, NULL, child);
+		parse_subtree (NULL, child);
 	xmlFreeDoc (doc);
-	return store;
 }
 
 static void
@@ -105,8 +105,8 @@ selection_changed (GtkTreeSelection *selection, GtkDialog *dialog)
 	GtkTreeIter iter;
 
 	if (gtk_tree_selection_get_selected (selection, &model, &iter)) {
-		gchar *code;
-		gtk_tree_model_get (model, &iter, 1, code, -1);
+		gchar *code = NULL;
+		gtk_tree_model_get (model, &iter, 1, &code, -1);
 		if (code != NULL)
 			gtk_dialog_set_response_sensitive (GTK_DIALOG (dialog), GTK_RESPONSE_OK, TRUE);
 	} else {
@@ -119,10 +119,12 @@ create_source_selector ()
 {
 	GtkWidget *dialog, *treeview, *scrolledwindow;
 	GtkCellRenderer *text;
-	GtkTreeStore *store;
 	GtkTreeSelection *selection;
 
-	store = load_locations ();
+	/* Try to load - if it still fails, quit */
+	/* FIXME - should show an error here */
+	if (store == NULL)
+		load_locations ();
 	if (store == NULL)
 		return NULL;
 
@@ -140,6 +142,10 @@ create_source_selector ()
 	gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (treeview), FALSE);
 	gtk_widget_show (treeview);
 	gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW (scrolledwindow), treeview);
+	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
+	gtk_tree_selection_set_mode (selection, GTK_SELECTION_BROWSE);
+	g_signal_connect (G_OBJECT (selection), "changed", G_CALLBACK (selection_changed), dialog);
+	g_object_set_data (G_OBJECT (dialog), "treeview", treeview);
 
 	text = gtk_cell_renderer_text_new ();
 	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (treeview), -1, "location", text, "text", 0, NULL);
@@ -149,11 +155,26 @@ create_source_selector ()
 	gtk_dialog_set_response_sensitive (GTK_DIALOG (dialog), GTK_RESPONSE_OK, FALSE);
 	gtk_window_set_default_size (GTK_WINDOW (dialog), 420, 340);
 
-	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
-	gtk_tree_selection_set_mode (selection, GTK_SELECTION_BROWSE);
-	g_signal_connect (G_OBJECT (selection), "changed", G_CALLBACK (selection_changed), dialog);
-
 	return GTK_DIALOG (dialog);
+}
+
+static gchar *
+build_location_path (GtkTreeModel *model, GtkTreeIter *iter)
+{
+	GtkTreeIter parent;
+	gchar *path, *temp1, *temp2;
+
+	gtk_tree_model_get (model, iter, 0, &temp1, -1);
+	path = g_strdup (temp1);
+
+	while (gtk_tree_model_iter_parent (model, &parent, iter)) {
+		gtk_tree_model_get (model, &parent, 0, &temp1, -1);
+		temp2 = g_strdup_printf ("%s : %s", temp1, path);
+		g_free (path);
+		path = temp2;
+		iter = gtk_tree_iter_copy (&parent);
+	}
+	return path;
 }
 
 static void
@@ -162,12 +183,29 @@ location_clicked (GtkButton *button, gpointer data)
 	GtkDialog *dialog = create_source_selector ();
 	gint response;
 
+	if (dialog == NULL)
+		return;
+
 	response = gtk_dialog_run (dialog);
 
 	if (response == GTK_RESPONSE_OK) {
+		GtkTreeView *view = GTK_TREE_VIEW (g_object_get_data (G_OBJECT (dialog), "treeview"));
+		GtkTreeSelection *selection = gtk_tree_view_get_selection (view);
+		GtkTreeModel *model;
+		GtkTreeIter iter;
+		GtkWidget *label;
+		gchar *type, *url, *name;
+		gchar *path;
+
+		gtk_tree_selection_get_selected (selection, &model, &iter);
+		gtk_tree_model_get (model, &iter, 0, &name, 2, &url, 3, &type, -1);
+		path = build_location_path (model, &iter);
+
+		label = gtk_bin_get_child (GTK_BIN (button));
+		gtk_label_set_text (GTK_LABEL (label), path);
 	}
 
-	gtk_widget_destroy (dialog);
+	gtk_widget_destroy (GTK_WIDGET (dialog));
 }
 
 GtkWidget *
