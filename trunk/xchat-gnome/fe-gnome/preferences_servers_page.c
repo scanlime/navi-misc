@@ -252,6 +252,18 @@ populate_servers_list (GtkListStore *store, ircnet *net)
 	}
 }
 
+autojoin_entry_edited (GtkCellRendererText *renderer, gchar *arg1, gchar *arg2, GtkTreeView *view)
+{
+	GtkTreeSelection *selection;
+	GtkTreeModel *model;
+	GtkTreeIter iter;
+	ircserver *serv;
+
+	selection = gtk_tree_view_get_selection (view);
+	if (gtk_tree_selection_get_selected (selection, &model, &iter))
+		gtk_list_store_set (GTK_LIST_STORE (model), &iter, 0, arg2, -1);
+}
+
 static void
 autojoin_selection_changed (GtkTreeSelection *selection, gpointer data)
 {
@@ -301,13 +313,10 @@ server_entry_edited (GtkCellRendererText *renderer, gchar *arg1, gchar *arg2, Gt
 	GtkTreeSelection *selection;
 	GtkTreeModel *model;
 	GtkTreeIter iter;
-	ircserver *serv;
 
 	selection = gtk_tree_view_get_selection (view);
-	if (gtk_tree_selection_get_selected (selection, &model, &iter)) {
-		gtk_tree_model_get (model, &iter, 1, &serv, -1);
+	if (gtk_tree_selection_get_selected (selection, &model, &iter))
 		gtk_list_store_set (GTK_LIST_STORE (model), &iter, 0, arg2, -1);
-	}
 }
 
 static void
@@ -440,16 +449,16 @@ edit_clicked (GtkWidget *button, gpointer data)
 		gtk_tree_view_column_set_attributes (column, renderer, "text", 0, NULL);
 		gtk_tree_view_append_column (GTK_TREE_VIEW (widget), column);
 		g_object_set (G_OBJECT (renderer), "editable", TRUE, NULL);
-		g_signal_connect (G_OBJECT (renderer), "edited", G_CALLBACK(server_entry_edited), widget);
+		g_signal_connect (G_OBJECT (renderer), "edited", G_CALLBACK (server_entry_edited), widget);
 
 		select = gtk_tree_view_get_selection (GTK_TREE_VIEW (widget));
-		g_signal_connect (G_OBJECT (select), "changed", G_CALLBACK(server_selection_changed), NULL);
+		g_signal_connect (G_OBJECT (select), "changed", G_CALLBACK (server_selection_changed), NULL);
 
 		widget = glade_xml_get_widget (gui.xml, "server config add server");
-		g_signal_connect (G_OBJECT (widget), "clicked", G_CALLBACK(add_server_clicked), NULL);
+		g_signal_connect (G_OBJECT (widget), "clicked", G_CALLBACK (add_server_clicked), NULL);
 		widget = glade_xml_get_widget (gui.xml, "server config remove server");
 		gtk_widget_set_sensitive (widget, FALSE);
-		g_signal_connect (G_OBJECT (widget), "clicked", G_CALLBACK(remove_server_clicked), NULL);
+		g_signal_connect (G_OBJECT (widget), "clicked", G_CALLBACK (remove_server_clicked), NULL);
 	} else {
 		gtk_list_store_clear (store);
 	}
@@ -468,6 +477,7 @@ edit_clicked (GtkWidget *button, gpointer data)
 		gtk_tree_view_column_set_attributes (column, renderer, "text", 0, NULL);
 		gtk_tree_view_append_column (GTK_TREE_VIEW (widget), column);
 		g_object_set (G_OBJECT (renderer), "editable", TRUE, NULL);
+		g_signal_connect (G_OBJECT (renderer), "edited", G_CALLBACK (autojoin_entry_edited), widget);
 
 		select = gtk_tree_view_get_selection (GTK_TREE_VIEW (widget));
 		g_signal_connect (G_OBJECT (select), "changed", G_CALLBACK (autojoin_selection_changed), NULL);
