@@ -56,7 +56,36 @@ enum {
   PROP_TILEABLE,
   PROP_EMPHASIZE_TRANSIENT,
   PROP_TRANSIENT_ITERATIONS,
+  PROP_INITIAL_CONDITIONS,
 };
+
+typedef void (*initial_conditions_t)(gdouble *x, gdouble *y);
+
+void initial_func_square_uniform    (gdouble *x, gdouble *y);
+void initial_func_gaussian          (gdouble *x, gdouble *y);
+void initial_func_circular_uniform  (gdouble *x, gdouble *y);
+void initial_func_radial            (gdouble *x, gdouble *y);
+
+static const
+GEnumValue initial_conditions_enum[] =
+{
+  { 0, "circular_uniform",  "Circular uniform"  },
+  { 1, "square_uniform",    "Square uniform"    },
+  { 2, "gaussian",          "Gaussian"          },
+  { 3, "radial",            "Radial"            },
+  { 0 },
+};
+
+static const
+initial_conditions_t initial_conditions_table[] =
+{
+  initial_func_circular_uniform,
+  initial_func_square_uniform,
+  initial_func_gaussian,
+  initial_func_radial,
+};
+
+static GType initial_conditions_enum_get_type(void);
 
 static void tool_grab(ParameterHolder *self, ToolInput *i);
 static void tool_blur(ParameterHolder *self, ToolInput *i);
@@ -115,6 +144,15 @@ GType de_jong_get_type(void) {
   }
 
   return dj_type;
+}
+
+static GType initial_conditions_enum_get_type(void) {
+  static GType t = 0;
+
+  if (!t)
+    t = g_enum_register_static ("InitialConditions", initial_conditions_enum);
+
+  return t;
 }
 
 static void de_jong_class_init(DeJongClass *klass) {
@@ -287,6 +325,17 @@ static void de_jong_init_calc_params(GObjectClass *object_class) {
   param_spec_set_increments        (spec, 1, 10, 0);
   param_spec_set_dependency        (spec, emphasize_transient);
   g_object_class_install_property  (object_class, PROP_TRANSIENT_ITERATIONS, spec);
+
+  spec = g_param_spec_enum         ("initial_conditions",
+				    "Initial conditions",
+				    "Selects the function used to generate initial conditions, when 'Emphasize transient' is enabled",
+				    initial_conditions_enum_get_type(),
+				    0,
+				    G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
+				    PARAM_IN_GUI);
+  param_spec_set_group             (spec, current_group);
+  param_spec_set_dependency        (spec, emphasize_transient);
+  g_object_class_install_property  (object_class, PROP_INITIAL_CONDITIONS, spec);
 }
 
 static void de_jong_init(DeJong *self) {
@@ -322,6 +371,14 @@ static void update_uint_if_necessary(guint new_value, gboolean *dirty_flag, guin
     *dirty_flag = TRUE;
   }
 }
+
+static void update_enum_if_necessary(gint new_value, gboolean *dirty_flag, gint *param) {
+  if (new_value != *param) {
+    *param = new_value;
+    *dirty_flag = TRUE;
+  }
+}
+
 
 static void de_jong_set_property (GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec) {
   DeJong *self = DE_JONG(object);
@@ -382,6 +439,10 @@ static void de_jong_set_property (GObject *object, guint prop_id, const GValue *
 
   case PROP_TRANSIENT_ITERATIONS:
     update_uint_if_necessary(g_value_get_uint(value), &self->calc_dirty_flag, &self->transient_iterations);
+    break;
+
+  case PROP_INITIAL_CONDITIONS:
+    update_enum_if_necessary(g_value_get_enum(value), &self->calc_dirty_flag, &self->initial_conditions);
     break;
 
   default:
@@ -451,6 +512,10 @@ static void de_jong_get_property (GObject *object, guint prop_id, GValue *value,
     g_value_set_uint(value, self->transient_iterations);
     break;
 
+  case PROP_INITIAL_CONDITIONS:
+    g_value_set_enum(value, self->initial_conditions);
+    break;
+
   default:
     G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
     break;
@@ -493,6 +558,7 @@ void de_jong_calculate(IterativeMap *map, guint iterations) {
   double scale, xcenter, ycenter;
   int i, ix, iy;
   guint remaining_transient_iterations;
+  initial_conditions_t initial_func;
 
   /* Reset calculation if we need to */
   if (self->calc_dirty_flag || HISTOGRAM_IMAGER(self)->histogram_clear_flag)
@@ -551,6 +617,7 @@ void de_jong_calculate(IterativeMap *map, guint iterations) {
   point_x = self->point_x;
   point_y = self->point_y;
   remaining_transient_iterations = self->remaining_transient_iterations;
+  initial_func = initial_conditions_table[self->initial_conditions];
 
   for(i=iterations; i; --i) {
 
@@ -565,8 +632,7 @@ void de_jong_calculate(IterativeMap *map, guint iterations) {
       }
       else {
 	remaining_transient_iterations = self->transient_iterations-1;
-	point_x = uniform_variate();
-	point_y = uniform_variate();
+	initial_func(&point_x, &point_y);
       }
     }
 
@@ -673,13 +739,55 @@ static void de_jong_reset_calc(DeJong *self) {
   ITERATIVE_MAP(self)->iterations = 0;
   self->remaining_transient_iterations = 0;
 
-  /* Random starting point */
+  /* Random starting point, use a simple uniform variate
+   * for this. We have more complex initial condition controls
+   * we use when emphasize_transient is on, but when it's off
+   * the initial conditions have no effect on the image as iterations
+   * approach infinity.
+   */
   self->point_x = uniform_variate();
   self->point_y = uniform_variate();
 
   HISTOGRAM_IMAGER(self)->histogram_clear_flag = FALSE;
   self->calc_dirty_flag = FALSE;
 }
+
+
+/************************************************************************************/
+/*************************************************************** Initial Conditions */
+/************************************************************************************/
+
+void initial_func_square_uniform (gdouble *x, gdouble *y) {
+  /* From -1 to +1. The default used to be 0 to 1, which produced
+   * some neat effects, but made a silly default. This, by default,
+   * looks a lot like circular_uniform but with corners.
+   */
+  *x = uniform_variate()*2 - 1;
+  *y = uniform_variate()*2 - 1;
+}
+
+void initial_func_gaussian (gdouble *x, gdouble *y) {
+  *x = normal_variate();
+  *y = normal_variate();
+}
+
+void initial_func_circular_uniform (gdouble *x, gdouble *y) {
+  gdouble i, j;
+  do {
+    i = uniform_variate()*2 - 1;
+    j = uniform_variate()*2 - 1;
+  } while ( (i*i + j*j) > 1 );
+  *x = i;
+  *y = j;
+}
+
+void initial_func_radial (gdouble *x, gdouble *y) {
+  gdouble theta = uniform_variate() * M_PI * 2;
+  gdouble radius = uniform_variate();
+  *x = cos(theta) * radius;
+  *y = sin(theta) * radius;
+}
+
 
 /************************************************************************************/
 /**************************************************************************** Tools */
