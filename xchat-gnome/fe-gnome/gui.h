@@ -32,6 +32,7 @@
 typedef struct
 {
 	GladeXML *xml;
+	GladeXML *setup_xml;
 	GnomeApp *main_window;
 	GtkDialog *preferences_dialog;
 	GnomeAbout *about;

@@ -33,7 +33,6 @@
 #include "navigation_tree.h"
 #include "textgui.h"
 #include "palette.h"
-#include "topiclabel.h"
 
 #ifdef HAVE_GTKSPELL
 #include <gtkspell/gtkspell.h>
@@ -130,7 +129,7 @@ initialize_main_window ()
 	g_signal_connect (G_OBJECT (entry), "populate-popup", G_CALLBACK (entry_context), NULL);
 
   /* XXX: Is this a leak?? */
-	gui.topic = topic_label_new ();
+	gui.topic = glade_xml_get_widget (gui.xml, "topic label");
 	topicbox = glade_xml_get_widget (gui.xml, "topic hbox");
 	gtk_box_pack_start (GTK_BOX (topicbox), gui.topic, TRUE, TRUE, 0);
 	gtk_box_reorder_child (GTK_BOX (topicbox), gui.topic, 1);

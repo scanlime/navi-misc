@@ -55,8 +55,6 @@ EXTRA_DIST =				\
 	setup_druid.c			\
 	textgui.h			\
 	textgui.c			\
-	topiclabel.h			\
-	topiclabel.c			\
 	transfers.h			\
 	transfers.c			\
 	userlist.h			\
@@ -104,8 +102,6 @@ xchat_gnome_SOURCES =			\
 	setup_druid.c			\
 	textgui.h			\
 	textgui.c			\
-	topiclabel.h			\
-	topiclabel.c			\
 	transfers.h			\
 	transfers.c			\
 	userlist.h			\
@@ -146,6 +142,9 @@ gui.o:		$(srcdir)/gui.c
 
 channel_list.o:	$(srcdir)/channel_list.c
 	$(COMPILE)  -DXCHATSHAREDIR=\"$(xchat_gnomedir)\" -c $(srcdir)/channel_list.c
+
+setup_druid.o:	$(srcdir)/setup_druid.c
+	$(COMPILE)  -DXCHATSHAREDIR=\"$(xchat_gnomedir)\" -c $(srcdir)/setup_druid.c
 
 transfers.o:	$(srcdir)/transfers.c
 	$(COMPILE)  -DXCHATSHAREDIR=\"$(xchat_gnomedir)\" -c $(srcdir)/transfers.c
