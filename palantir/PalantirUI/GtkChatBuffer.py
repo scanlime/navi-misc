@@ -26,6 +26,12 @@ class GtkChatBuffer(gtk.ScrolledWindow):
     self.text_view.set_editable(gtk.FALSE)
     self.text_view.set_cursor_visible(gtk.FALSE)
 
+    # For now the default colors are white on black, this needs to be configurable.
+    bg = gtk.gdk.color_parse("black")
+    fg = gtk.gdk.color_parse("white")
+    self.text_view.modify_text(gtk.STATE_NORMAL, fg)
+    self.text_view.modify_base(gtk.STATE_NORMAL, bg)
+
     # Add the text view to the scrolled window.
     self.add(self.text_view)
 
