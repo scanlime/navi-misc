@@ -44,7 +44,7 @@ def wrapLine(line, width):
     return lines
 
 
-def extractSummary(self, element, widthLimit=80):
+def extractSummary(element, widthLimit=80):
     """Extract all text from the given XML element, remove extra
        whitespace, and truncate it to no longer than the given width.
        """
