@@ -13,7 +13,21 @@ menu/mainMenu
 		height 128
 		material menu/logoMaterial
 	}
+	
+	zorder 150
+	container Panel(main/selection)
+	{	
+		metrics_mode pixels
+		horz_align center
+		vert_align top
+		top 10
+		left -256
+		width 64
+		height 64
+		material menu/menuArrowMaterial
+	}
 
+	zorder 250
 	container Panel(main/menuPanel)
 	{
 		metrics_mode pixels
@@ -24,7 +38,7 @@ menu/mainMenu
 		width 512
 		height 512
 
-		element TextArea(main/Join)
+		element TextArea(main/join)
 		{
 			metrics_mode pixels
 			left 0
@@ -38,7 +52,21 @@ menu/mainMenu
 			colour_bottom 1 1 1
 		}
 
-		element TextArea(main/Enter)
+		element TextArea(main/setings)
+		{
+			metrics_mode pixels
+			left 0
+			top 100
+			width 256
+			height 128
+			font_name HanSolo64
+			char_height 50
+			caption Settings
+			colour_top 1 1 1
+			colour_bottom 1 1 1
+		}
+
+		element TextArea(main/exit)
 		{
 			metrics_mode pixels
 			left 64
@@ -47,7 +75,7 @@ menu/mainMenu
 			height 128
 			font_name HanSolo64
 			char_height 18
-			caption Press Enter To Begin
+			caption Press escape to quit
 			colour_top 1 1 1
 			colour_bottom 1 1 1
 		}

@@ -63,7 +63,6 @@ bool CFirestarterLoop::OnInit ( void )
 	else
 		game.Attach();
 
-
 	return false;
 }
 
