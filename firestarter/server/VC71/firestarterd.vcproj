@@ -183,6 +183,13 @@
 				<File
 					RelativePath="..\game\src\serverGameManager.cpp">
 				</File>
+				<Filter
+					Name="test"
+					Filter="">
+					<File
+						RelativePath="..\game\test\src\testGameServer.cpp">
+					</File>
+				</Filter>
 			</Filter>
 		</Filter>
 		<Filter
@@ -264,6 +271,13 @@
 				<File
 					RelativePath="..\game\inc\serverGameManager.h">
 				</File>
+				<Filter
+					Name="test"
+					Filter="">
+					<File
+						RelativePath="..\game\test\inc\testGameServer.h">
+					</File>
+				</Filter>
 			</Filter>
 		</Filter>
 		<Filter

@@ -42,6 +42,8 @@ bool CServerListener::init ( const char* gameType, int port, int maxListens )
 	if (!game)
 		return false;
 
+	game->init();
+
 	server.SetMesageHandaler(this);
 	server.Start(maxListens,-1,-1,port);
 	return game != NULL;
@@ -55,10 +57,11 @@ int CServerListener::getCurrentPlayers ( void )
 bool CServerListener::update ( void )
 {
 	if (!game)
-		return false;
+		return true;
 
-	game->think();
-	return true;
+	if (game->think())
+		return true;
+	return false;
 }
 
 void CServerListener::kill ( void )
