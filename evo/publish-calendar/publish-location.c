@@ -24,6 +24,8 @@
 #include "publish-location.h"
 #include <libxml/tree.h>
 #include <gconf/gconf-client.h>
+#include <libgnomevfs/gnome-vfs.h>
+#include <libedataserverui/e-passwords.h>
 #include <string.h>
 
 static EPublishUri *
@@ -31,20 +33,22 @@ migrateURI (const gchar *xml, xmlDocPtr doc)
 {
 	GConfClient *client;
 	GSList *uris, *l;
-	xmlChar *location, *enabled, *frequency, *username;
+	xmlChar *location, *enabled, *frequency, *username, *publish_time;
 	xmlNodePtr root;
 	EPublishUri *uri;
-	gchar *password;
+	GnomeVFSURI *vfs_uri;
+	gchar *password, *temp;
 
 	client = gconf_client_get_default ();
 	uris = gconf_client_get_list (client, "/apps/evolution/calendar/publish/uris", GCONF_VALUE_STRING, NULL);
 	l = uris;
-	while (l) {
+	while (l && l->data) {
 		gchar *str = l->data;
 		if (strcmp (xml, str) == 0) {
 			uris = g_slist_remove (uris, str);
 			g_free (str);
 		}
+		l = g_slist_next (l);
 	}
 
 	uri = g_new0 (EPublishUri, 1);
@@ -54,15 +58,37 @@ migrateURI (const gchar *xml, xmlDocPtr doc)
 	enabled = xmlGetProp (root, "enabled");
 	frequency = xmlGetProp (root, "frequency");
 	username = xmlGetProp (root, "username");
+	publish_time = xmlGetProp (root, "publish_time");
+
+	vfs_uri = gnome_vfs_uri_new (location);
+	gnome_vfs_uri_set_user_name (vfs_uri, username);
+	temp = gnome_vfs_uri_to_string (vfs_uri, GNOME_VFS_URI_HIDE_TOPLEVEL_METHOD | GNOME_VFS_URI_HIDE_PASSWORD);
+	uri->location = g_strdup_printf ("dav://%s", temp);
+	g_free (temp);
+	gnome_vfs_uri_unref (vfs_uri);
+
+	if (enabled != NULL)
+		uri->enabled = atoi (enabled);
+	if (frequency != NULL)
+		uri->publish_frequency = atoi (frequency);
+		/* FIXME - migrate #s */
+	uri->publish_format = URI_PUBLISH_AS_FB;
+	if (publish_time != NULL)
+		uri->last_pub_time = publish_time;
 
 	password = e_passwords_get_password ("Calendar", location);
 	e_passwords_forget_password ("Calendar", location);
 
-	uris = g_list_prepend (uris, e_publish_uri_to_xml (uri));
+	uris = g_slist_prepend (uris, e_publish_uri_to_xml (uri));
 	gconf_client_set_list (client, "/apps/evolution/calendar/publish/uris", GCONF_VALUE_STRING, uris, NULL);
 	g_slist_foreach (uris, (GFunc) g_free, NULL);
 	g_slist_free (uris);
 	g_object_unref (client);
+
+	xmlFree (location);
+	xmlFree (enabled);
+	xmlFree (frequency);
+	xmlFreeDoc (doc);
 
 	return uri;
 }
