@@ -15,7 +15,7 @@
 			<text_field label="Exp:" path="/character/exp">
 			</text_field>
 		</hbox>
-		<text_box label="History"/>
+		<text_box label="History" path="/character/history"/>
 		</tab>
 
 		<tab label="Attrs">
@@ -43,8 +43,8 @@
 
 		<tab label="Misc">
 			<hbox>
-				<text_box label="Appearance"/>
-				<text_box label="Coterie"/>
+				<text_box label="Appearance" path="/character/appearance"/>
+				<text_box label="Coterie" path="/character/coteri"/>
 			</hbox>
 		</tab>
 	</tab_view>

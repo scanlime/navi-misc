@@ -2,8 +2,11 @@
 
 import sys, gtk
 from GTKsheet import GTKsheet
+from Character import Character
 
-sheet = GTKsheet(sys.argv[1])
+character = Character()
+character.readCharacter(sys.argv[1])
+sheet = GTKsheet(character)
 
 window = gtk.Window(gtk.WINDOW_TOPLEVEL)
 window.connect('delete_event', lambda w, d: gtk.main_quit())

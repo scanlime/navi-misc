@@ -38,17 +38,29 @@ class Character:
 
   def makeNode(self, path):
     ''' Create the node at path. '''
+    # Path to parent.
     parentPath = path[:path.rfind('/')]
+    # Create new node and append a blank text node to it.
     node = self.dom.createElement(path[path.rfind('/')+1:])
     node.appendChild(self.dom.createTextNode(' '))
+    # Get the parent node and append the new child.
     parent = xml.xpath.Evaluate(parentPath, self.dom)[0]
     parent.appendChild(node)
     parent.appendChild(self.dom.createTextNode('\n'))
-    self.writeOut()
 
   def setData(self, path, data):
     ''' Set the data at the node denoted by path. '''
-    xml.xpath.Evaluate(path, self.dom)[0].childNodes[0].data = data
+    nodes = xml.xpath.Evaluate(path, self.dom)
+    # If the node doesn't exist create it and re-evalute the path.
+    if len(nodes) is 0:
+      self.makeNode(path)
+      nodes = xml.xpath.Evaluate(path, self.dom)
+    # If the node has a child set the data.
+    if nodes[0].childNodes:
+      nodes[0].childNodes[0].data = data
+    # Otherwise create the child using 'data'.
+    else:
+      nodes[0].appendChild(self.dom.createTextNode(data))
 
   def writeOut(self):
     """ Write the dom back out to the file. """

@@ -14,9 +14,8 @@ class GTKsheet:
   ''' Assemble the character sheet from the specified XML file using the
       objects in GTKsheetElements.
       '''
-  def __init__(self, dataFile):
-    self.character = Character()
-    self.character.readCharacter(dataFile)
+  def __init__(self, characterData):
+    self.character = characterData
     self.readSheet(self.character.dom.getElementsByTagName('character')[0].getAttribute('layout'))
 
   def readSheet(self, layoutFile):
