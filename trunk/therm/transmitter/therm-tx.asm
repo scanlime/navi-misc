@@ -54,30 +54,36 @@
 	errorlevel -302
 	__CONFIG _CPD_OFF & _CP_OFF & _BODEN_ON & _MCLRE_OFF & _PWRTE_ON & _WDT_ON & _INTRC_OSC_NOCLKOUT
 
+
+;----------------------------------------------------- Device configuration
+
+STATION_ID	equ	1
+
+
 ;----------------------------------------------------- Constants
 
-BATT_VOLT_PIN  equ 0
-TX_PIN         equ 1
-TX_POWER_PIN   equ 2
-SDA_PIN	       equ 3
-SCL_PIN	       equ 4
-I2C_POWER_PIN  equ 5
+BATT_VOLT_PIN	equ 0
+TX_PIN		equ 1
+TX_POWER_PIN	equ 2
+SDA_PIN		equ 3
+SCL_PIN		equ 4
+I2C_POWER_PIN	equ 5
 
-BATT_VOLT_MASK equ 0x01
-TX_MASK        equ 0x02
-TX_POWER_MASK  equ 0x04
-SDA_MASK       equ 0x08
-SCL_MASK       equ 0x10
-I2C_POWER_MASK equ 0x20
+BATT_VOLT_MASK	equ 0x01
+TX_MASK		equ 0x02
+TX_POWER_MASK	equ 0x04
+SDA_MASK	equ 0x08
+SCL_MASK	equ 0x10
+I2C_POWER_MASK	equ 0x20
 
-TX_SHORT_DELAY equ .178		; 156.3us
-TX_LONG_DELAY  equ .74		; 364.6us
+TX_SHORT_DELAY	equ .178		; 156.3us
+TX_LONG_DELAY	equ .74		; 364.6us
 
 
 ;----------------------------------------------------- Variables
 
 	cblock 0x20
-		temp, consecutive_ones, crc_reg, temp2
+		temp, consecutive_ones, crc_reg, temp2, packet_seq
 	endc
 
 
@@ -119,12 +125,24 @@ start
 ;----------------------------------------------------- Main Program
 
 	call	tx_begin_content
+	incf	packet_seq, f
 
-	movlw	0x4F
+	movlw	0		; 2-bit protocol ID
 	movwf	temp
-	call	tx_content_8bit
+	call	tx_content_2bit
+
+	movlw	STATION_ID	; 6-bit station Id
+	movwf	temp
+	call	tx_content_6bit
+
+	movf	packet_seq, w	; 5-bit packet sequence number
+	movwf	temp
+	call	tx_content_5bit
 
 	call	tx_end_content
+
+
+;----------------------------------------------------- Shutdown
 
 	;; Turn off all peripherals, assign a 1:128 prescaler to the WDT, and hit the sack
 	clrf	GPIO		; Peripherals off
@@ -134,8 +152,9 @@ start
 	bsf	STATUS, RP0
 	movwf	OPTION_REG
 	bcf	STATUS, RP0
-	sleep			; Clear the watchdog and sleep until it resets us
+	;; 	sleep			; Clear the watchdog and sleep until it resets us
 	goto	start		; Reinitialize and send another packet
+
 
 ;----------------------------------------------------- Protocol: Frame check sequence
 
