@@ -155,7 +155,9 @@ class Page(Nouvelle.Twisted.Page):
                             tag('div', _class="mainTitle")[ place("mainTitle") ],
                             tag('div', _class="subTitle")[ place("subTitle") ],
                         ],
-                        tag('td', _class="sitename")[ place("siteName") ],
+                        tag('td', _class="sitename")[
+                            tag('a', _class="sitename", href="/")[ place("siteName") ],
+                        ],
                     ]],
                     tag('div', _class="tabs")[ place("tabs") ],
                     tag('div', _class="tabBar")[ place("breadcrumbs") ],
