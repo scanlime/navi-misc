@@ -103,6 +103,20 @@ decodeConditions (char code)
 	}
 }
 
+static int
+decodePOP (char data)
+{
+	int ret;
+	switch (data)
+	{
+		case '-': ret = 5;
+		case '+': ret = 95;
+		case '/': ret = -1;	/* missing data */
+		default: ret = (data - '0') * 10;
+	}
+	return ret;
+}
+
 static float
 ftoc (char *data)
 {
