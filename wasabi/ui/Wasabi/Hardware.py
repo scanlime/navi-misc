@@ -23,6 +23,9 @@ the mi6k (both through the mi6k module and through lircd) and the uvswitch
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
+import IR
+
+
 class Devices:
     """Container for hardware connected to wasabi. Initializes what hardware
        is available, and provides functionality to tie the hardware and
@@ -31,7 +34,6 @@ class Devices:
     def __init__(self, eventLoop):
         # Try to connect to lircd
         try:
-            import IR
             IR.initDefaultClient(eventLoop)
         except IOError:
             import sys
@@ -55,8 +57,48 @@ class Devices:
             self.warn("Can't connect to the uvswitch, %s" % sys.exc_info()[1])
             self.uvswitch= None
 
+        # FIXME: Testing IR and such..
+            self.mi6k.vfd.powerOn()
+        IR.defaultClient.onReceivedCode.observe(self.foo)
+
+    def foo(self, code):
+        if code.repeat == 0:
+            self.mi6k.lights.blue = 1
+            self.mi6k.vfd.writeScreen(code.name)
+            self.mi6k.lights.blue = 0
+
     def warn(self, msg):
         """Issue a warning related to hardware initialization"""
         print "*** Warning: %s" % msg
+
+
+class PowerManager:
+    """This module maintains timers to automatically put wasabi into a blanked mode
+       after a period of time, then into a fully off mode after a longer period.
+
+       FIXME: This isn't used yet, and won't be until I know more about how the
+              hardware is used in other parts of the UI software.
+       """
+    def __init__(self, hardware, eventLoop):
+        self.hardware = hardware
+        self.eventLoop = eventLoop
+
+    def poke(self):
+        """Indicate that wasabi is still active, and that the blank and off
+           timers should be reset.
+           """
+        pass
+
+    def blank(self):
+        """Enter the blank state"""
+        if self.hardware.mi6k:
+            # Clear the VFD
+            self.hardware.mi6k.vfd.clear()
+            self.hardware.mi6k.vfd.cursorOff()
+            self.hardware.mi6k.vfd.flush()
+
+            # Turn off the LEDs
+            self.hardware.mi6k.lights.set(0,0)
+
 
 ### The End ###

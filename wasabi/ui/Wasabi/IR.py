@@ -99,8 +99,11 @@ class ButtonPress(Event.Event):
        are all optional. None is treated as a wildcard.
        This uses the default IR client. If an IR device has not
        been successfully initialized, this event never fires.
+
+       Note that the 'viewport' parameter is not required, but is
+       accepted for compatibility with events in the Input module.
        """
-    def __init__(self, viewport, name=None, remote=None, repeat=0):
+    def __init__(self, viewport=None, name=None, remote=None, repeat=0):
         global defaultClient
         Event.Event.__init__(self)
         self.name = name

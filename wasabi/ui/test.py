@@ -41,7 +41,7 @@ class TestMenu(Menu.RingMenu):
 def logoInterrupter(book):
     events = [
         Input.KeyPress(book.viewport, pygame.K_SPACE),
-	IR.ButtonPress(book.viewport),
+	IR.ButtonPress(),
 	]
     return Sequencer.PageInterrupter(events, Logos.getLogoSubBook())(book)
 
