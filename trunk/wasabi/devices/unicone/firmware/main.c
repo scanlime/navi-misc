@@ -106,7 +106,8 @@ void usb_handle_vendor_request()
 
   case UNICONE_REQ_REBOOT:
     usb_write_ack();
-    while (1);
+    fpga_config_begin();   /* Reset the FPGA too */
+    while (1);             /* Wait for the WDT to reset us */
     break;
 
   default:
