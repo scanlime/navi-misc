@@ -41,6 +41,13 @@ blockquote {
   padding: 0em;
 }
 
+pre.literal-block {
+  margin: 0em 2em;
+  padding: 0em;
+  background: #dee7ec;
+  border: 1px solid #8CACBB;
+}  
+
 ul {
   list-style-image: url(/images/bullet.png);
   padding: 0em 0em 0em 3em;
