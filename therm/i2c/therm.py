@@ -43,7 +43,7 @@ class Therm:
     def __init__(self, bus, address, id, description=None):
         self.bus = bus
         self.address = address
-	self.id = id
+        self.id = id
         self.description = description
         self.value = None
         self.avgTotal = 0
@@ -128,7 +128,7 @@ class MultiTherm:
            Sends identical data to this device address on all busses.
            """
         self.i2c.start()
-        self.i2c.writebyte(address << 1)			# address, r/w bit is 0 (write)
+        self.i2c.writebyte(address << 1)        		# address, r/w bit is 0 (write)
         self.i2c.writebyte(register)
         self.i2c.writebyte(byte)
         self.i2c.stop()
@@ -138,7 +138,7 @@ class MultiTherm:
            Returns a list of the results received from each I2C bus.
            """
         self.i2c.start()
-        self.i2c.writebyte(address << 1)			# address, r/w bit is 0 (write)
+        self.i2c.writebyte(address << 1)        		# address, r/w bit is 0 (write)
         self.i2c.writebyte(register)
         return self.receive(address)
 

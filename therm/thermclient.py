@@ -14,7 +14,7 @@ desc = s.getDescriptions()
 avg = s.getAverages()
 for id in desc.keys():
     if avg.has_key(id):
-    	reading = "%.01f F" % avg[id]
+            reading = "%.01f F" % avg[id]
     else:
         reading = "No data"
     print "%30s : %s" % (desc[id], reading)
