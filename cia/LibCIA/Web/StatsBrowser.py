@@ -21,8 +21,16 @@ A web interface using Woven for browsing CIA's stats:// namespace
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
+from twisted.web import static
 from twisted.web.woven import page, widgets
 import os, urllib
+
+
+def pathSplit(s):
+    """Given a path as a string, return it split into directories,
+       ignoring leading and trailing slashes or multiple slashes.
+       """
+    return [i for i in s.split('/') if i]
 
 
 class StatsPage(page.Page):
@@ -50,6 +58,21 @@ class StatsPage(page.Page):
         """The default implementation of this chokes when name is None"""
         return name and hasattr(self, "wmfactory_"+name)
 
+    def getPathTo(self, request, destination):
+        """Assuming this is the page requested, return a relative URI to the given page"""
+        # Figure out how many levels deep we are in the stats path
+        # and what levels there are in the destination, and start
+        # cancelling out what we can to create an optimized relative path.
+        selfPath = pathSplit(self.path)
+        upLevels = len(selfPath)
+        down = pathSplit(destination.path)
+        print selfPath, upLevels, down
+        while selfPath and down and selfPath[0] == down[0]:
+            del selfPath[0]
+            del down[0]
+            upLevels -= 1
+        return '/'.join(['..'] * upLevels + down + [''])
+
     def wmfactory_uri(self, request):
         return "stats://" + self.path
 
@@ -76,15 +99,27 @@ class StatsPage(page.Page):
            is loaded from the 'title' metadata item if that exists, otherwise
            it's an un-URI-encoded version of the last item in our path.
            """
-        if self.target.metadata and self.target.metadata.dict.has_key('title'):
-            return self.target.metadata.dict['title']
-        return urllib.unquote(self.path.split('/')[-1])
+        # First try to return the 'title' metadata key
+        if self.target.metadata:
+            try:
+                title = self.target.metadata.dict['title']
+                if title:
+                    return title
+            except KeyError:
+                pass
+
+        # Now try the path
+        title = urllib.unquote(self.path.split('/')[-1])
+        if title:
+            return title
+
+        # If that failed, we're at the root- make up a default root title
+        return "Stats"
 
     def wvfactory_statsLink(self, request, node, data):
         """Create a widget for viewing a StatsPage instance as a hyperlink"""
-        print dir(request)
         a = widgets.Anchor()
-        a.setLink(data.path.split('/')[-1] + '/')
+        a.setLink(self.getPathTo(request, data))
         a.setText(data.wmfactory_title(request))
         return a
 

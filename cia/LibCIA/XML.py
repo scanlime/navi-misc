@@ -107,6 +107,8 @@ class XMLStorage(object):
        as child nodes of a given root element. This is an abstract implementation
        that doesn't specify how the items are stored in memory.
        """
+    separator = "\n\n"
+
     def __init__(self, fileName, rootName='storage', heading='', lazyLoad=False):
         self.fileName = fileName
         self.rootName = rootName
@@ -175,10 +177,10 @@ class XMLStorage(object):
            """
         objects = self.flatten()
         objects.sort(lambda a, b: cmp(a.xml.attributes, b.xml.attributes))
-        return '<?xml version="1.0"?>\n%s<%s>\n\n%s\n\n</%s>\n' % (
-            self.heading, self.rootName,
-            '\n\n'.join([obj.xml.toXml() for obj in objects]),
-            self.rootName)
+        return '<?xml version="1.0"?>\n%s<%s>%s%s%s</%s>\n' % (
+            self.heading, self.rootName, self.separator,
+            self.separator.join([obj.xml.toXml() for obj in objects]),
+            self.separator, self.rootName)
 
     def emptyStorage(self):
         """Subclasses must implement this to clear whatever storage is being
@@ -203,6 +205,10 @@ class XMLDict(XMLStorage):
     """A simple XMLStorage subclass for storing a dictionary in which keys are
        converted to XML <key> elements and values are the elements' contents as strings.
        """
+    # No blank lines between the items like XMLStorage will add by default,
+    # our items are small enough it just looks silly.
+    separator = '\n'
+
     def emptyStorage(self):
         self.dict = {}
 
@@ -217,7 +223,7 @@ class XMLDict(XMLStorage):
         keys.sort()
         for key in keys:
             element = domish.Element((None, 'key'))
-            element['name'] = key
+            element['name'] = str(key)
             value = str(self.dict[key])
             element.addContent(value)
             results.append(XMLObject(element))
