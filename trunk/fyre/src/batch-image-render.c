@@ -83,7 +83,7 @@ void batch_image_render(IterativeMap*  map,
 #endif
 	{
 	    printf("Creating PNG image...\n");
-	    histogram_imager_save_image_file(HISTOGRAM_IMAGER(map), filename);
+	    histogram_imager_save_image_file(HISTOGRAM_IMAGER(map), filename, NULL);
 	}
 }
 

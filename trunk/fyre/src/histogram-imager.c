@@ -30,27 +30,27 @@
 #include <string.h>
 #include <math.h>
 
-static void histogram_imager_class_init(HistogramImagerClass *klass);
-static void histogram_imager_init_size_params(GObjectClass *object_class);
-static void histogram_imager_init_render_params(GObjectClass *object_class);
-static void histogram_imager_dispose(GObject *gobject);
+static void histogram_imager_class_init (HistogramImagerClass *klass);
+static void histogram_imager_init_size_params (GObjectClass *object_class);
+static void histogram_imager_init_render_params (GObjectClass *object_class);
+static void histogram_imager_dispose (GObject *gobject);
 static void histogram_imager_set_property (GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec);
 static void histogram_imager_get_property (GObject *object, guint prop_id, GValue *value, GParamSpec *pspec);
-static void histogram_imager_resize_from_string(HistogramImager *self, const gchar *s);
+static void histogram_imager_resize_from_string (HistogramImager *self, const gchar *s);
 
-static void histogram_imager_generate_color_table(HistogramImager *self);
+static void histogram_imager_generate_color_table (HistogramImager *self);
 
-static void histogram_imager_check_dirty_flags(HistogramImager *self);
-static void histogram_imager_require_histogram(HistogramImager *self);
-static void histogram_imager_require_image(HistogramImager *self);
-static void histogram_imager_require_oversample_tables(HistogramImager *self);
+static void histogram_imager_check_dirty_flags (HistogramImager *self);
+static void histogram_imager_require_histogram (HistogramImager *self);
+static void histogram_imager_require_image (HistogramImager *self);
+static void histogram_imager_require_oversample_tables (HistogramImager *self);
 static gulong histogram_imager_get_max_usable_density (HistogramImager *self);
 
-static gboolean update_double_if_necessary(gdouble new_value, gboolean *dirty_flag, gdouble *param, gdouble epsilon);
-static gboolean update_uint_if_necessary(guint new_value, gboolean *dirty_flag, guint *param);
-static gboolean update_boolean_if_necessary(gboolean new_value, gboolean *dirty_flag, gboolean *param);
-static gboolean update_color_if_necessary(const GdkColor* new_value, gboolean *dirty_flag, GdkColor *param);
-static gchar* describe_color(GdkColor *c);
+static gboolean update_double_if_necessary (gdouble new_value, gboolean *dirty_flag, gdouble *param, gdouble epsilon);
+static gboolean update_uint_if_necessary (guint new_value, gboolean *dirty_flag, guint *param);
+static gboolean update_boolean_if_necessary (gboolean new_value, gboolean *dirty_flag, gboolean *param);
+static gboolean update_color_if_necessary (const GdkColor* new_value, gboolean *dirty_flag, GdkColor *param);
+static gchar* describe_color (GdkColor *c);
 
 enum {
     PROP_0,
@@ -75,50 +75,56 @@ static gpointer parent_class = NULL;
 
 #define fyre_histogram_imager_error_quark() (g_quark_from_string("FYRE_HISTOGRAM_IMAGER_ERROR"))
 typedef enum {
-  FYRE_HISTOGRAM_IMAGER_ERROR_NO_METADATA,
+    FYRE_HISTOGRAM_IMAGER_ERROR_NO_METADATA,
 } FyreHistogramImagerError;
 
 /************************************************************************************/
 /**************************************************** Initialization / Finalization */
 /************************************************************************************/
 
-GType histogram_imager_get_type(void) {
+GType
+histogram_imager_get_type (void)
+{
     static GType dj_type = 0;
 
     if (!dj_type) {
 	static const GTypeInfo dj_info = {
-	    sizeof(HistogramImagerClass),
+	    sizeof (HistogramImagerClass),
 	    NULL, /* base_init */
 	    NULL, /* base_finalize */
 	    (GClassInitFunc) histogram_imager_class_init,
 	    NULL, /* class_finalize */
 	    NULL, /* class_data */
-	    sizeof(HistogramImager),
+	    sizeof (HistogramImager),
 	    0,
 	    NULL, /* instance init */
 	};
 
-	dj_type = g_type_register_static(PARAMETER_HOLDER_TYPE, "HistogramImager", &dj_info, 0);
+	dj_type = g_type_register_static (PARAMETER_HOLDER_TYPE, "HistogramImager", &dj_info, 0);
     }
 
     return dj_type;
 }
 
-static void histogram_imager_class_init(HistogramImagerClass *klass) {
+static void
+histogram_imager_class_init (HistogramImagerClass *klass)
+{
     GObjectClass *object_class;
 
-    parent_class = g_type_class_ref(G_TYPE_OBJECT);
+    parent_class = g_type_class_ref (G_TYPE_OBJECT);
     object_class = (GObjectClass*) klass;
 
     object_class->set_property = histogram_imager_set_property;
     object_class->get_property = histogram_imager_get_property;
     object_class->dispose      = histogram_imager_dispose;
 
-    histogram_imager_init_size_params(object_class);
-    histogram_imager_init_render_params(object_class);
+    histogram_imager_init_size_params (object_class);
+    histogram_imager_init_render_params (object_class);
 }
 
-static void histogram_imager_init_size_params(GObjectClass *object_class) {
+static void
+histogram_imager_init_size_params (GObjectClass *object_class)
+{
     GParamSpec *spec;
     const gchar *current_group = "Image Size";
 
@@ -165,7 +171,9 @@ static void histogram_imager_init_size_params(GObjectClass *object_class) {
 }
 
 
-static void histogram_imager_init_render_params(GObjectClass *object_class) {
+static void
+histogram_imager_init_render_params (GObjectClass *object_class)
+{
     GParamSpec *spec;
     const gchar *current_group = "Rendering";
 
@@ -258,35 +266,39 @@ static void histogram_imager_init_render_params(GObjectClass *object_class) {
     g_object_class_install_property  (object_class, PROP_CLAMPED, spec);
 }
 
-static void histogram_imager_dispose(GObject *gobject) {
-    HistogramImager *self = HISTOGRAM_IMAGER(gobject);
+static void
+histogram_imager_dispose (GObject *gobject)
+{
+    HistogramImager *self = HISTOGRAM_IMAGER (gobject);
 
     if (self->histogram) {
-	g_free(self->histogram);
+	g_free (self->histogram);
 	self->histogram = NULL;
     }
     if (self->image) {
-	gdk_pixbuf_unref(self->image);
+	gdk_pixbuf_unref (self->image);
 	self->image = NULL;
     }
     if (self->color_table.table) {
-	g_free(self->color_table.table);
+	g_free (self->color_table.table);
 	self->color_table.table = NULL;
     }
     if (self->oversample_tables.linearize) {
-	g_free(self->oversample_tables.linearize);
+	g_free (self->oversample_tables.linearize);
 	self->oversample_tables.linearize = NULL;
     }
     if (self->oversample_tables.nonlinearize) {
-	g_free(self->oversample_tables.nonlinearize);
+	g_free (self->oversample_tables.nonlinearize);
 	self->oversample_tables.nonlinearize = NULL;
     }
 
-    G_OBJECT_CLASS(parent_class)->dispose(gobject);
+    G_OBJECT_CLASS (parent_class)->dispose (gobject);
 }
 
-HistogramImager* histogram_imager_new() {
-    return HISTOGRAM_IMAGER(g_object_new(histogram_imager_get_type(), NULL));
+HistogramImager*
+histogram_imager_new ()
+{
+    return HISTOGRAM_IMAGER (g_object_new (histogram_imager_get_type (), NULL));
 }
 
 
@@ -294,27 +306,33 @@ HistogramImager* histogram_imager_new() {
 /*********************************************************************** Properties */
 /************************************************************************************/
 
-static gchar* describe_color(GdkColor *c) {
+static gchar*
+describe_color (GdkColor *c)
+{
     /* Convert a GdkColor back to a gdk_color_parse compatible hex value.
      * Returns a freshly allocated buffer that should be freed.
      */
-    return g_strdup_printf("#%02X%02X%02X", c->red >> 8, c->green >> 8, c->blue >> 8);
+    return g_strdup_printf ("#%02X%02X%02X", c->red >> 8, c->green >> 8, c->blue >> 8);
 }
 
-static void histogram_imager_resize_from_string(HistogramImager *self, const gchar *s) {
+static void
+histogram_imager_resize_from_string (HistogramImager *self, const gchar *s)
+{
     /* Set the current width and height from a WIDTH or WIDTHxHEIGHT in the given string */
     char *cptr;
     guint width, height;
-    width = strtol(s, &cptr, 10);
+    width = strtol (s, &cptr, 10);
     if (*cptr == 'x')
-	height = atoi(cptr+1);
+	height = atoi (cptr+1);
     else
 	height = width;
-    g_object_set(self, "width", width, "height", height, NULL);
+    g_object_set (self, "width", width, "height", height, NULL);
 }
 
-static gboolean update_double_if_necessary(double new_value, gboolean *dirty_flag, double *param, double epsilon) {
-    if (fabs(new_value - *param) > epsilon) {
+static gboolean
+update_double_if_necessary (double new_value, gboolean *dirty_flag, double *param, double epsilon)
+{
+    if (fabs (new_value - *param) > epsilon) {
 	*param = new_value;
 	*dirty_flag = TRUE;
 	return TRUE;
@@ -322,7 +340,9 @@ static gboolean update_double_if_necessary(double new_value, gboolean *dirty_fla
     return FALSE;
 }
 
-static gboolean update_uint_if_necessary(guint new_value, gboolean *dirty_flag, guint *param) {
+static gboolean
+update_uint_if_necessary (guint new_value, gboolean *dirty_flag, guint *param)
+{
     if (new_value != *param) {
 	*param = new_value;
 	*dirty_flag = TRUE;
@@ -331,7 +351,9 @@ static gboolean update_uint_if_necessary(guint new_value, gboolean *dirty_flag, 
     return FALSE;
 }
 
-static gboolean update_boolean_if_necessary(gboolean new_value, gboolean *dirty_flag, gboolean *param) {
+static gboolean
+update_boolean_if_necessary (gboolean new_value, gboolean *dirty_flag, gboolean *param)
+{
     if (new_value != *param) {
 	*param = new_value;
 	*dirty_flag = TRUE;
@@ -340,7 +362,9 @@ static gboolean update_boolean_if_necessary(gboolean new_value, gboolean *dirty_
     return FALSE;
 }
 
-static gboolean update_color_if_necessary(const GdkColor* new_value, gboolean *dirty_flag, GdkColor *param) {
+static gboolean
+update_color_if_necessary (const GdkColor* new_value, gboolean *dirty_flag, GdkColor *param)
+{
     if (new_value->red != param->red || new_value->green != param->green || new_value->blue != param->blue) {
 	*param = *new_value;
 	*dirty_flag = TRUE;
@@ -349,39 +373,41 @@ static gboolean update_color_if_necessary(const GdkColor* new_value, gboolean *d
     return FALSE;
 }
 
-static void histogram_imager_set_property (GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec) {
+static void
+histogram_imager_set_property (GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec)
+{
     HistogramImager *self = HISTOGRAM_IMAGER(object);
     GdkColor gdkc;
 
     switch (prop_id) {
 
     case PROP_WIDTH:
-	update_uint_if_necessary(g_value_get_uint(value), &self->size_dirty_flag, &self->width);
+	update_uint_if_necessary (g_value_get_uint (value), &self->size_dirty_flag, &self->width);
 	break;
 
     case PROP_HEIGHT:
-	update_uint_if_necessary(g_value_get_uint(value), &self->size_dirty_flag, &self->height);
+	update_uint_if_necessary (g_value_get_uint (value), &self->size_dirty_flag, &self->height);
 	break;
 
     case PROP_OVERSAMPLE:
-	if (update_uint_if_necessary(g_value_get_uint(value), &self->size_dirty_flag, &self->oversample))
-	    g_object_notify(object, "oversample-enabled");
+	if (update_uint_if_necessary (g_value_get_uint (value), &self->size_dirty_flag, &self->oversample))
+	    g_object_notify (object, "oversample-enabled");
 	break;
 
     case PROP_SIZE:
-	histogram_imager_resize_from_string(self, g_value_get_string(value));
+	histogram_imager_resize_from_string (self, g_value_get_string (value));
 	break;
 
     case PROP_EXPOSURE:
-	update_double_if_necessary(g_value_get_double(value), &self->render_dirty_flag, &self->exposure, 0.00009);
+	update_double_if_necessary (g_value_get_double (value), &self->render_dirty_flag, &self->exposure, 0.00009);
 	break;
 
     case PROP_GAMMA:
-	update_double_if_necessary(g_value_get_double(value), &self->render_dirty_flag, &self->gamma, 0.00009);
+	update_double_if_necessary (g_value_get_double (value), &self->render_dirty_flag, &self->gamma, 0.00009);
 	break;
 
     case PROP_OVERSAMPLE_GAMMA:
-	update_double_if_necessary(g_value_get_double(value), &self->render_dirty_flag, &self->oversample_gamma, 0.00009);
+	update_double_if_necessary (g_value_get_double (value), &self->render_dirty_flag, &self->oversample_gamma, 0.00009);
 	break;
 
     case PROP_FGCOLOR:
@@ -389,34 +415,34 @@ static void histogram_imager_set_property (GObject *object, guint prop_id, const
 	 * so that notify signals attached to fgcolor-gdk are sent properly, and in
 	 * general makes it cleaner.
 	 */
-	gdk_color_parse(g_value_get_string(value), &gdkc);
-	g_object_set(self, "fgcolor-gdk", &gdkc, NULL);
+	gdk_color_parse (g_value_get_string (value), &gdkc);
+	g_object_set (self, "fgcolor-gdk", &gdkc, NULL);
 	break;
 
     case PROP_BGCOLOR:
 	/* And the same goes for background... */
-	gdk_color_parse(g_value_get_string(value), &gdkc);
-	g_object_set(self, "bgcolor-gdk", &gdkc, NULL);
+	gdk_color_parse (g_value_get_string (value), &gdkc);
+	g_object_set (self, "bgcolor-gdk", &gdkc, NULL);
 	break;
 
     case PROP_FGCOLOR_GDK:
-	update_color_if_necessary((GdkColor*) g_value_get_boxed(value), &self->render_dirty_flag, &self->fgcolor);
+	update_color_if_necessary ((GdkColor*) g_value_get_boxed (value), &self->render_dirty_flag, &self->fgcolor);
 	break;
 
     case PROP_BGCOLOR_GDK:
-	update_color_if_necessary((GdkColor*) g_value_get_boxed(value), &self->render_dirty_flag, &self->bgcolor);
+	update_color_if_necessary ((GdkColor*) g_value_get_boxed (value), &self->render_dirty_flag, &self->bgcolor);
 	break;
 
     case PROP_FGALPHA:
-	update_uint_if_necessary(g_value_get_uint(value), &self->render_dirty_flag, &self->fgalpha);
+	update_uint_if_necessary (g_value_get_uint (value), &self->render_dirty_flag, &self->fgalpha);
 	break;
 
     case PROP_BGALPHA:
-	update_uint_if_necessary(g_value_get_uint(value), &self->render_dirty_flag, &self->bgalpha);
+	update_uint_if_necessary (g_value_get_uint (value), &self->render_dirty_flag, &self->bgalpha);
 	break;
 
     case PROP_CLAMPED:
-	update_boolean_if_necessary(g_value_get_boolean(value), &self->render_dirty_flag, &self->clamped);
+	update_boolean_if_necessary (g_value_get_boolean (value), &self->render_dirty_flag, &self->clamped);
 	break;
 
     default:
@@ -425,69 +451,71 @@ static void histogram_imager_set_property (GObject *object, guint prop_id, const
     }
 }
 
-static void histogram_imager_get_property (GObject *object, guint prop_id, GValue *value, GParamSpec *pspec) {
-    HistogramImager *self = HISTOGRAM_IMAGER(object);
+static void
+histogram_imager_get_property (GObject *object, guint prop_id, GValue *value, GParamSpec *pspec)
+{
+    HistogramImager *self = HISTOGRAM_IMAGER (object);
 
     switch (prop_id) {
 
     case PROP_WIDTH:
-	g_value_set_uint(value, self->width);
+	g_value_set_uint (value, self->width);
 	break;
 
     case PROP_HEIGHT:
-	g_value_set_uint(value, self->height);
+	g_value_set_uint (value, self->height);
 	break;
 
     case PROP_OVERSAMPLE:
-	g_value_set_uint(value, self->oversample);
+	g_value_set_uint (value, self->oversample);
 	break;
 
     case PROP_OVERSAMPLE_ENABLED:
-	g_value_set_boolean(value, self->oversample > 1);
+	g_value_set_boolean (value, self->oversample > 1);
 	break;
 
     case PROP_CLAMPED:
-	g_value_set_boolean(value, self->clamped);
+	g_value_set_boolean (value, self->clamped);
 	break;
 
     case PROP_EXPOSURE:
-	g_value_set_double(value, self->exposure);
+	g_value_set_double (value, self->exposure);
 	break;
 
     case PROP_GAMMA:
-	g_value_set_double(value, self->gamma);
+	g_value_set_double (value, self->gamma);
 	break;
 
     case PROP_OVERSAMPLE_GAMMA:
-	g_value_set_double(value, self->oversample_gamma);
+	g_value_set_double (value, self->oversample_gamma);
 	break;
 
     case PROP_FGALPHA:
-	g_value_set_uint(value, self->fgalpha);
+	g_value_set_uint (value, self->fgalpha);
 	break;
 
     case PROP_BGALPHA:
-	g_value_set_uint(value, self->bgalpha);
+	g_value_set_uint (value, self->bgalpha);
 	break;
 
     case PROP_SIZE:
-	g_value_set_string_take_ownership(value, g_strdup_printf("%dx%d", self->width, self->height));
+	g_value_set_string_take_ownership (value, g_strdup_printf ("%dx%d", self->width, self->height));
 	break;
 
     case PROP_FGCOLOR:
-	g_value_set_string_take_ownership(value, describe_color(&self->fgcolor));
+	g_value_set_string_take_ownership (value, describe_color (&self->fgcolor));
 	break;
 
     case PROP_BGCOLOR:
-	g_value_set_string_take_ownership(value, describe_color(&self->bgcolor));
+	g_value_set_string_take_ownership (value, describe_color (&self->bgcolor));
 	break;
 
     case PROP_FGCOLOR_GDK:
-	g_value_set_boxed(value, &self->fgcolor);
+	g_value_set_boxed (value, &self->fgcolor);
 	break;
 
     case PROP_BGCOLOR_GDK:
-	g_value_set_boxed(value, &self->bgcolor);
+	g_value_set_boxed (value, &self->bgcolor);
 	break;
 
     default:
@@ -501,14 +529,14 @@ static void histogram_imager_get_property (GObject *object, guint prop_id, GValu
 /************************************************************************ Image I/O */
 /************************************************************************************/
 
-gboolean
+void
 histogram_imager_load_image_file (HistogramImager *self, const gchar *filename, GError **error)
 {
     /* Try to open the given PNG file and load parameters from it */
     const gchar *params;
     GdkPixbuf *pixbuf = gdk_pixbuf_new_from_file (filename, error);
     if (!pixbuf)
-	return FALSE;
+	return;
 
     params = gdk_pixbuf_get_option (pixbuf, "tEXt::fyre_params");
 
@@ -525,31 +553,33 @@ histogram_imager_load_image_file (HistogramImager *self, const gchar *filename, 
 				          "The image does not contain Fyre metadata");
 	    *error = nerror;
 	}
-	return FALSE;
     }
     gdk_pixbuf_unref (pixbuf);
-    return TRUE;
 }
 
-void histogram_imager_save_image_file(HistogramImager *self, const gchar *filename) {
+void
+histogram_imager_save_image_file (HistogramImager *self, const gchar *filename, GError **error)
+{
     /* Save our current image to a .PNG file */
     gchar *params;
 
-    histogram_imager_update_image(self);
+    histogram_imager_update_image (self);
 
     /* Save our current parameters in a tEXt chunk, using a format that
      * is both human-readable and easy to load parameters from automatically.
      */
-    params = parameter_holder_save_string(PARAMETER_HOLDER(self));
-    gdk_pixbuf_save(self->image, filename, "png", NULL, "tEXt::fyre_params", params, NULL);
-    g_free(params);
+    params = parameter_holder_save_string (PARAMETER_HOLDER(self));
+    gdk_pixbuf_save (self->image, filename, "png", NULL, "tEXt::fyre_params", params, error);
+    g_free (params);
 }
 
-GdkPixbuf* histogram_imager_make_thumbnail(HistogramImager *self, guint max_width, guint max_height) {
+GdkPixbuf*
+histogram_imager_make_thumbnail (HistogramImager *self, guint max_width, guint max_height)
+{
     float aspect = ((float)self->width) / ((float)self->height);
     guint width, height;
 
-    histogram_imager_update_image(self);
+    histogram_imager_update_image (self);
 
     if (aspect > 1) {
 	width = max_width;
@@ -560,7 +590,7 @@ GdkPixbuf* histogram_imager_make_thumbnail(HistogramImager *self, guint max_widt
 	width = height * aspect;
     }
 
-    return gdk_pixbuf_scale_simple(self->image, width, height, GDK_INTERP_BILINEAR);
+    return gdk_pixbuf_scale_simple (self->image, width, height, GDK_INTERP_BILINEAR);
 }
 
 
@@ -568,17 +598,21 @@ GdkPixbuf* histogram_imager_make_thumbnail(HistogramImager *self, guint max_widt
 /************************************************************************* Plotting */
 /************************************************************************************/
 
-void histogram_imager_get_hist_size (HistogramImager *self,
-				     int             *hist_width,
-				     int             *hist_height) {
+void
+histogram_imager_get_hist_size (HistogramImager *self,
+				int             *hist_width,
+				int             *hist_height)
+{
     if (hist_width)
 	*hist_width = self->width * self->oversample;
     if (hist_height)
 	*hist_height = self->height * self->oversample;
 }
 
-void histogram_imager_prepare_plots (HistogramImager *self,
-				     HistogramPlot   *plot) {
+void
+histogram_imager_prepare_plots (HistogramImager *self,
+				HistogramPlot   *plot)
+{
     histogram_imager_check_dirty_flags(self);
     histogram_imager_require_histogram(self);
     plot->histogram = self->histogram;
@@ -587,8 +621,10 @@ void histogram_imager_prepare_plots (HistogramImager *self,
     plot->plot_count = 0;
 }
 
-void histogram_imager_finish_plots (HistogramImager *self,
-				    HistogramPlot   *plot) {
+void
+histogram_imager_finish_plots (HistogramImager *self,
+			       HistogramPlot   *plot)
+{
     self->total_points_plotted += plot->plot_count;
     if (plot->density > self->peak_density)
 	self->peak_density = plot->density;
@@ -599,14 +635,16 @@ void histogram_imager_finish_plots (HistogramImager *self,
 /************************************************************************ Rendering */
 /************************************************************************************/
 
-void histogram_imager_update_image(HistogramImager *self) {
+void
+histogram_imager_update_image (HistogramImager *self)
+{
     /* Convert our histogram counts to an 8-bit ARGB image data using our color lookup table,
      * downsampling by combining all count buckets that represent each of our output pixels.
      */
-    histogram_imager_check_dirty_flags(self);
-    histogram_imager_require_histogram(self);
-    histogram_imager_require_image(self);
-    histogram_imager_generate_color_table(self);
+    histogram_imager_check_dirty_flags (self);
+    histogram_imager_require_histogram (self);
+    histogram_imager_require_image (self);
+    histogram_imager_generate_color_table (self);
 
     {
 	guint32 *pixel_p;
@@ -616,7 +654,7 @@ void histogram_imager_update_image(HistogramImager *self) {
 	const guint oversample = self->oversample;
 	int x, y;
 
-	pixel_p = (guint32*) gdk_pixbuf_get_pixels(self->image);
+	pixel_p = (guint32*) gdk_pixbuf_get_pixels (self->image);
 	hist_p = self->histogram;
 
 	/* Clamp count values to the size of our color table.
@@ -645,7 +683,7 @@ void histogram_imager_update_image(HistogramImager *self) {
 		} channels;
 	    } sample_pixel;
 
-	    histogram_imager_require_oversample_tables(self);
+	    histogram_imager_require_oversample_tables (self);
 	    linearize_table = self->oversample_tables.linearize;
 	    nonlinearize_table = self->oversample_tables.nonlinearize;
 
@@ -707,7 +745,9 @@ void histogram_imager_update_image(HistogramImager *self) {
     }
 }
 
-static void histogram_imager_resize_color_table(HistogramImager *self, gulong size) {
+static void
+histogram_imager_resize_color_table (HistogramImager *self, gulong size)
+{
     /* Resize the color table to exactly 'size' entries. Upon completion,
      * self->color_table.filled_size will equal 'size', and
      * self->color_table.allocated_size will be at least 'size'.
@@ -728,16 +768,18 @@ static void histogram_imager_resize_color_table(HistogramImager *self, gulong si
     if ((self->color_table.allocated_size < size) ||
 	(self->color_table.allocated_size > 10 * size)) {
 	if (self->color_table.table)
-	    g_free(self->color_table.table);
+	    g_free (self->color_table.table);
 
 	/* Allocate it to double the size we need now, as we expect our needs to grow. */
 	self->color_table.allocated_size = size * 2;
-	self->color_table.table = g_malloc(self->color_table.allocated_size *
-					   sizeof(self->color_table.table[0]));
+	self->color_table.table = g_malloc (self->color_table.allocated_size *
+					    sizeof(self->color_table.table[0]));
     }
 }
 
-float histogram_imager_get_pixel_scale(HistogramImager *self) {
+float
+histogram_imager_get_pixel_scale (HistogramImager *self)
+{
     /* Calculate the scale factor for converting histogram counts to
      * luminance values between 0 and 1.
      */
@@ -766,14 +808,16 @@ float histogram_imager_get_pixel_scale(HistogramImager *self) {
     return fscale;
 }
 
-static void histogram_imager_generate_color_table(HistogramImager *self) {
+static void
+histogram_imager_generate_color_table (HistogramImager *self)
+{
     /* Regenerate the contents of the color mapping table, a mapping from all
      * possible histogram values to the corresponding ARGB color, in the current image.
      */
     guint count;
     int r, g, b, a;
-    float pixel_scale = histogram_imager_get_pixel_scale(self);
-    gulong usable_density = histogram_imager_get_max_usable_density(self);
+    float pixel_scale = histogram_imager_get_pixel_scale (self);
+    gulong usable_density = histogram_imager_get_max_usable_density (self);
     float luma;
     double one_over_gamma = 1/self->gamma;
 
@@ -785,7 +829,7 @@ static void histogram_imager_generate_color_table(HistogramImager *self) {
 	usable_density = self->peak_density;
 
     /* Make sure our table is appropriately sized */
-    histogram_imager_resize_color_table(self, usable_density + 1);
+    histogram_imager_resize_color_table (self, usable_density + 1);
 
     /* Generate one color for every currently-possible count value that
      * doesn't fully saturate our image, as determined by histogram_imager_get_max_usable_density
@@ -817,7 +861,9 @@ static void histogram_imager_generate_color_table(HistogramImager *self) {
     }
 }
 
-static gulong histogram_imager_get_max_usable_density(HistogramImager *self) {
+static gulong
+histogram_imager_get_max_usable_density (HistogramImager *self)
+{
     /* This determines the highest histogram count value that will
      * produce any change in the color value of a pixel. This can be
      * used as an upper limit on the size of the color table. Note that
@@ -906,9 +952,11 @@ static gulong histogram_imager_get_max_usable_density(HistogramImager *self) {
 /***************************************************************** Stream Buffering */
 /************************************************************************************/
 
-gsize histogram_imager_export_stream(HistogramImager *self,
-				     guchar          *buffer,
-				     gsize            buffer_size) {
+gsize
+histogram_imager_export_stream (HistogramImager *self,
+				guchar          *buffer,
+				gsize            buffer_size)
+{
     /* This encodes the contents of our histogram buffer
      * in a platform-independent and compact format suitable
      * for loading later with histogram_imager_merge_stream().
@@ -948,7 +996,7 @@ gsize histogram_imager_export_stream(HistogramImager *self,
 		/* Output a skip value, if we skipped any
 		 * buckets prior to the current one.
 		 */
-		i = var_int_write(output_p, skipped << 1);
+		i = var_int_write (output_p, skipped << 1);
 		output_p += i;
 		output_remaining -= i;
 		if (output_remaining < 0)
@@ -957,7 +1005,7 @@ gsize histogram_imager_export_stream(HistogramImager *self,
 	    }
 
 	    /* Output this bucket's value, then clear it */
-	    i = var_int_write(output_p, (bucket << 1) | 1);
+	    i = var_int_write (output_p, (bucket << 1) | 1);
 	    output_p += i;
 	    output_remaining -= i;
 	    *hist_p = 0;
@@ -973,9 +1021,11 @@ gsize histogram_imager_export_stream(HistogramImager *self,
     return output_p - buffer;
 }
 
-void histogram_imager_merge_stream(HistogramImager *self,
-				   const guchar    *buffer,
-				   gsize            buffer_size) {
+void
+histogram_imager_merge_stream (HistogramImager *self,
+			       const guchar    *buffer,
+			       gsize            buffer_size)
+{
 
     /* The inverse of histogram_imager_export_stream(). This follows
      * the skip/plot instructions in the given buffer, merging the
@@ -990,7 +1040,7 @@ void histogram_imager_merge_stream(HistogramImager *self,
     HistogramPlot plot;
     int i;
 
-    histogram_imager_prepare_plots(self, &plot);
+    histogram_imager_prepare_plots (self, &plot);
 
     hist_p = self->histogram;
     hist_remaining = self->width * self->height *
@@ -1000,7 +1050,7 @@ void histogram_imager_merge_stream(HistogramImager *self,
     input_remaining = buffer_size;
 
     while (hist_remaining > 0 && input_remaining > 0) {
-	i = var_int_read(input_p, &token);
+	i = var_int_read (input_p, &token);
 	input_p += i;
 	input_remaining -= i;
 
@@ -1024,7 +1074,7 @@ void histogram_imager_merge_stream(HistogramImager *self,
 	}
     }
 
-    histogram_imager_finish_plots(self, &plot);
+    histogram_imager_finish_plots (self, &plot);
 }
 
 
@@ -1032,7 +1082,9 @@ void histogram_imager_merge_stream(HistogramImager *self,
 /************************************************************************ Utilities */
 /************************************************************************************/
 
-static void histogram_imager_check_dirty_flags(HistogramImager *self) {
+static void
+histogram_imager_check_dirty_flags (HistogramImager *self)
+{
     /* Check dirty flags, invalidating stale data */
 
     if (self->size_dirty_flag) {
@@ -1041,11 +1093,11 @@ static void histogram_imager_check_dirty_flags(HistogramImager *self) {
 	 * calc dirty flags.
 	 */
 	if (self->histogram) {
-	    g_free(self->histogram);
+	    g_free (self->histogram);
 	    self->histogram = NULL;
 	}
 	if (self->image) {
-	    gdk_pixbuf_unref(self->image);
+	    gdk_pixbuf_unref (self->image);
 	    self->image = NULL;
 	}
 
@@ -1054,46 +1106,56 @@ static void histogram_imager_check_dirty_flags(HistogramImager *self) {
     }
 }
 
-static void histogram_imager_require_histogram(HistogramImager *self) {
+static void
+histogram_imager_require_histogram (HistogramImager *self)
+{
     /* Allocate a histogram if we don't have one already */
     if (!self->histogram) {
-	self->histogram = g_malloc(sizeof(self->histogram[0]) *
-				   self->width * self->height *
-				   self->oversample * self->oversample);
-	histogram_imager_clear(self);
+	self->histogram = g_malloc (sizeof (self->histogram[0]) *
+				    self->width * self->height *
+				    self->oversample * self->oversample);
+	histogram_imager_clear (self);
     }
 }
 
-void histogram_imager_clear(HistogramImager *self) {
-    histogram_imager_check_dirty_flags(self);
+void
+histogram_imager_clear (HistogramImager *self)
+{
+    histogram_imager_check_dirty_flags (self);
     if (self->histogram) {
-	memset(self->histogram, 0, sizeof(self->histogram[0]) *
-	       self->width * self->height *
-	       self->oversample * self->oversample);
+	memset (self->histogram, 0, sizeof (self->histogram[0]) *
+	        self->width * self->height *
+	        self->oversample * self->oversample);
     }
     self->histogram_clear_flag = TRUE;
     self->render_dirty_flag = TRUE;
     self->total_points_plotted = 0;
     self->peak_density = 0;
-    g_get_current_time(&self->render_start_time);
+    g_get_current_time (&self->render_start_time);
 }
 
-gdouble histogram_imager_get_elapsed_time (HistogramImager *self) {
+gdouble
+histogram_imager_get_elapsed_time (HistogramImager *self)
+{
     GTimeVal now;
-    g_get_current_time(&now);
+    g_get_current_time (&now);
     return ((now.tv_usec - self->render_start_time.tv_usec) / 1000000.0 +
 	    (now.tv_sec  - self->render_start_time.tv_sec ));
 }
 
-static void histogram_imager_require_image(HistogramImager *self) {
+static void
+histogram_imager_require_image (HistogramImager *self)
+{
     /* Allocate an image pixbuf if we don't have one already */
     if (!self->image) {
-	self->image = gdk_pixbuf_new(GDK_COLORSPACE_RGB, TRUE, 8, self->width, self->height);
+	self->image = gdk_pixbuf_new (GDK_COLORSPACE_RGB, TRUE, 8, self->width, self->height);
 	self->render_dirty_flag = TRUE;
     }
 }
 
-static void histogram_imager_require_oversample_tables(HistogramImager *self) {
+static void
+histogram_imager_require_oversample_tables (HistogramImager *self)
+{
     /* Allocate or regenerate the oversample tables as necessary. */
     gboolean need_realloc = FALSE;
     gboolean need_regenerate = FALSE;
@@ -1116,11 +1178,11 @@ static void histogram_imager_require_oversample_tables(HistogramImager *self) {
 
     if (need_realloc) {
 	if (self->oversample_tables.linearize)
-	    g_free(self->oversample_tables.linearize);
+	    g_free (self->oversample_tables.linearize);
 	self->oversample_tables.linearize = g_new(guint, 256);
 
 	if (self->oversample_tables.nonlinearize)
-	    g_free(self->oversample_tables.nonlinearize);
+	    g_free (self->oversample_tables.nonlinearize);
 	self->oversample_tables.nonlinearize = g_new(guint8, nonlinearize_table_size);
 
 	self->oversample_tables.oversample = self->oversample;
