@@ -15,7 +15,7 @@ begin
 end
 begin
     prog = freevo
-    button = enter
+    button = menu
     config = ENTER
 end
 begin
@@ -80,12 +80,12 @@ begin
 end
 begin
     prog = freevo
-    button = menu
+    button = power
     config = MENU
 end
 begin
     prog = freevo
-    button = band
+    button = enter
     config = SELECT
 end
 begin
