@@ -45,8 +45,8 @@ public class pipe extends Thread
 			while(true)
 			{
 				temp = in.read();
-				if(temp == -1) return;
 				out.write(temp);
+				if(temp == -1) return;
 			}
 		}
 		catch(Exception e)
