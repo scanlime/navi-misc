@@ -124,7 +124,7 @@ class SourceTree:
         server = xmlrpclib.ServerProxy("http://localhost:3910", allow_none=True)
         self.loadRulesets(server)
 
-        speed = RandomMessage.benchmark(server, 1000)
+        speed = RandomMessage.benchmark(server)
         memory = getProcRSS(self.pid)
 
         self.stopServer()
@@ -134,17 +134,34 @@ class SourceTree:
 
 class Workspace:
     """Working area for checking out CIA revisions"""
-    def __init__(self, format="/tmp/cia-regression-%d"):
+    def __init__(self, 
+                 format="/tmp/cia-regression-%d",
+                 repos="http://navi.cx/svn/misc/trunk/cia"):
         self.path = format % os.getpid()
+        self.repos = repos
 
-    def checkout(self, revision, repos="http://navi.cx/svn/misc/trunk/cia"):
+    def isRevApplicable(self, revision):
+        """Determine whether the given revision is applicable to
+           CIA's source tree. Returns True if there were any changes
+           to the 'cia' directory in it.
+           """
+        log = os.popen("svn log -r %d %s" % (revision, self.repos)).readlines()
+        if len(log) > 1:
+            for line in log:
+                print line
+            return True
+        else:
+            print "Skipping revision %d" % revision
+            return False
+
+    def checkout(self, revision):
         """Check out one revision of CIA, return its path"""
         try:
             os.mkdir(self.path)
         except OSError:
             pass
         wc = os.path.join(self.path, "cia-%d" % revision)
-        os.system("svn co -r %d %s %s" % (revision, repos, wc))
+        os.system("svn co -r %d %s %s" % (revision, self.repos, wc))
         return wc
 
     def clear(self):
@@ -158,6 +175,8 @@ def main(firstRev, lastRev, outFileName):
     outfile.flush()
 
     for rev in xrange(firstRev, lastRev+1):
+        if not ws.isRevApplicable(rev):
+            continue
         print "Testing revision %d..." % rev
         try:
             tree = SourceTree(ws.checkout(rev))
