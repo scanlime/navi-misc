@@ -83,7 +83,7 @@ url_add_clicked (GtkButton *button, PublishUIData *ui)
 	GtkWidget *url_editor;
 
 	model = gtk_tree_view_get_model (GTK_TREE_VIEW (ui->treeview));
-	url_editor = url_editor_dialog_new2 (model);
+	url_editor = url_editor_dialog_new2 (model, NULL);
 	url_editor_dialog_run2 ((UrlEditorDialog2 *) url_editor);
 }
 
