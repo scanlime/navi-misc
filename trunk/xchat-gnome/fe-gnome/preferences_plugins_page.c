@@ -274,17 +274,11 @@ xchat_gnome_plugin_add (char *filename)
 	 */
 	handle = g_module_open (filename, 0);
 
-	if (handle == NULL) {
-		printf ("Null handle in plugin_add\n");
-		return;
-	}
-
 	gtk_list_store_append (store, &iter);
 
-	if (g_module_symbol (handle, "xchat_plugin_get_info", (gpointer *)&info_func)) {
+	if (handle != NULL && g_module_symbol (handle, "xchat_plugin_get_info", (gpointer *)&info_func)) {
 		/* Create a new plugin instance and add it to our list of known plugins. */
 		((xchat_plugin_get_info*)info_func) (&name, &desc, &version);
-		gtk_list_store_set (store, &iter, 0, name, 1, version, 2, desc, 3, filename, -1);
 	}
 	/* In the event that this foolish plugin has no get_info function we'll just use
 	 * the file name.
@@ -293,8 +287,9 @@ xchat_gnome_plugin_add (char *filename)
 		name = rindex (filename, '/') + 1;
 		version = "unknown";
 		desc = "unkown";
-		gtk_list_store_set (store, &iter, 0, name, 1, version, 2, desc, 3, filename, 5, handle, -1);
 	}
+
+	gtk_list_store_set (store, &iter, 0, name, 1, version, 2, desc, 3, filename, 5, handle, -1);
 }
 
 static gboolean
