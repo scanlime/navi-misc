@@ -59,7 +59,7 @@ typedef enum {
 
 typedef struct {
 	/* date, in UTC */
-	time_t curtime;
+	time_t date;
 	/* expected conditions */
 	WeatherConditions conditions;
 	/* internal storage is always in celcius and should be

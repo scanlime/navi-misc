@@ -186,6 +186,7 @@ e_weather_source_ccf_do_parse (EWeatherSourceCCF *source, const char *buffer)
 	GList *fc = NULL;
 	struct tm tms;
 	int i;
+	time_t base;
 
 	date = g_slist_nth (tokens, 3);
 	date2tm (date->data, &tms);
@@ -248,6 +249,12 @@ e_weather_source_ccf_do_parse (EWeatherSourceCCF *source, const char *buffer)
 		current = g_slist_next (current);
 	}
 
+	base = mktime (&tms);
+	if (tms.tm_hour >= 12)
+		base += 43200;
+	forecasts[0].date = base;
+	forecasts[1].date = base + 86400;
+
 	if (current == NULL || strlen (current->data) == 3)
 	{
 		/* We've got a pre-IFPS station. Realloc and return */
@@ -265,6 +272,12 @@ e_weather_source_ccf_do_parse (EWeatherSourceCCF *source, const char *buffer)
 	forecasts[4].conditions = decodeConditions (((char*)(current->data))[2]);
 	forecasts[5].conditions = decodeConditions (((char*)(current->data))[3]);
 	forecasts[6].conditions = decodeConditions (((char*)(current->data))[4]);
+
+	forecasts[2].date = base + 86400*2;
+	forecasts[3].date = base + 86400*3;
+	forecasts[4].date = base + 86400*4;
+	forecasts[5].date = base + 86400*5;
+	forecasts[6].date = base + 86400*6;
 
 	/* Temperature forecasts */
 	current = g_slist_next (current);
