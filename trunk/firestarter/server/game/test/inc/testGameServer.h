@@ -74,8 +74,8 @@ class CTestGameServer : public CBaseServerGame
 
 		// message senders
 		void sendClientInfo ( int playerID );
-		void sendUpdate( int playerID );
-
+		void sendUpdate ( int playerID );
+		void sendClockPing ( int playerID, int pingID ); 
 };
 
 #endif //_TEST_GAME_H_
