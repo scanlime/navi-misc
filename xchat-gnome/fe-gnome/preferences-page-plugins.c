@@ -94,13 +94,16 @@ load_unload (char *filename, gboolean loaded, PreferencesPluginsPage *page, GtkT
 	if (loaded) {
 		/* Unload the plugin. */
 		GSList *removed_plugin;
-
-		if (plugin_kill (filename, 1) == 1) {
+		gint err = plugin_kill (filename, 1);
+		if ( err == 1) {
 			gtk_list_store_set (page->plugin_store, &iter, 4, FALSE, -1);
 
 			if ((removed_plugin = g_slist_find_custom (enabled_plugins, filename, &filename_test)) != NULL) {
 				enabled_plugins = g_slist_delete_link (enabled_plugins, removed_plugin);
 			}
+		} else {
+			gchar *errmsg = g_strdup_printf (_("An error occured unloading %s"), filename);
+			error_dialog (_("Plugin Unload Failed"), errmsg);
 		}
 
 	} else {
