@@ -94,6 +94,9 @@ url_editor_dialog_construct2 (UrlEditorDialog2 *dialog)
 	gtk_size_group_add_widget (group, dialog->password_entry);
 	g_object_unref (group);
 
+	gtk_combo_box_set_active (GTK_COMBO_BOX (dialog->publish_frequency), 0);
+	gtk_combo_box_set_active (GTK_COMBO_BOX (dialog->type_selector), 0);
+
 	g_signal_connect (G_OBJECT (dialog->publish_events), "toggled", G_CALLBACK (publish_events_toggled), dialog);
 	g_signal_connect (G_OBJECT (dialog->publish_tasks), "toggled", G_CALLBACK (publish_tasks_toggled), dialog);
 
