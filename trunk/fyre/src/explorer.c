@@ -20,13 +20,13 @@
  *
  */
 
+#include <string.h>
 #include "explorer.h"
 #include "parameter-editor.h"
 #include "math-util.h"
 #include "histogram-view.h"
 #include "prefix.h"
-#include <string.h>
-
+#include "config.h"
 
 static void explorer_class_init(ExplorerClass *klass);
 static void explorer_init(Explorer *self);
@@ -41,6 +41,7 @@ static gdouble generate_random_param();
 static void on_randomize(GtkWidget *widget, gpointer user_data);
 static void on_load_defaults(GtkWidget *widget, gpointer user_data);
 static void on_save(GtkWidget *widget, gpointer user_data);
+static void on_save_exr(GtkWidget *widget, gpointer user_data);
 static void on_quit(GtkWidget *widget, gpointer user_data);
 static void on_pause_rendering_toggle(GtkWidget *widget, gpointer user_data);
 static void on_load_from_image(GtkWidget *widget, gpointer user_data);
@@ -93,10 +94,18 @@ static void explorer_init(Explorer *self) {
   glade_xml_signal_connect_data(self->xml, "on_randomize",                    G_CALLBACK(on_randomize),                    self);
   glade_xml_signal_connect_data(self->xml, "on_load_defaults",                G_CALLBACK(on_load_defaults),                self);
   glade_xml_signal_connect_data(self->xml, "on_save",                         G_CALLBACK(on_save),                         self);
+  glade_xml_signal_connect_data(self->xml, "on_save_exr",                     G_CALLBACK(on_save_exr),                     self);
   glade_xml_signal_connect_data(self->xml, "on_quit",                         G_CALLBACK(on_quit),                         self);
   glade_xml_signal_connect_data(self->xml, "on_pause_rendering_toggle",       G_CALLBACK(on_pause_rendering_toggle),       self);
   glade_xml_signal_connect_data(self->xml, "on_load_from_image",              G_CALLBACK(on_load_from_image),              self);
   glade_xml_signal_connect_data(self->xml, "on_widget_toggle",                G_CALLBACK(on_widget_toggle),                self);
+
+#ifndef HAVE_EXR
+  /* If we don't have OpenEXR support, gray out the menu item
+   * so it sits there taunting the user and not breaking HIG
+   */
+  gtk_widget_set_sensitive(glade_xml_get_widget(self->xml, "on_save_exr"), FALSE);
+#endif
 
   /* Set up the statusbar */
   self->statusbar = GTK_STATUSBAR(glade_xml_get_widget(self->xml, "statusbar"));
@@ -227,7 +236,7 @@ static void on_save(GtkWidget *widget, gpointer user_data) {
   Explorer *self = EXPLORER(user_data);
   GtkWidget *dialog;
 
-  dialog = gtk_file_selection_new("Save PNG Image");
+  dialog = gtk_file_selection_new("Save Image");
   gtk_file_selection_set_filename(GTK_FILE_SELECTION(dialog), "rendering.png");
 
   if(gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_OK) {
@@ -238,6 +247,22 @@ static void on_save(GtkWidget *widget, gpointer user_data) {
   gtk_widget_destroy(dialog);
 }
 
+static void on_save_exr(GtkWidget *widget, gpointer user_data) {
+#ifdef HAVE_EXR
+  Explorer *self = EXPLORER(user_data);
+  GtkWidget *dialog;
+
+  dialog = gtk_file_selection_new("Save OpenEXR Image");
+  gtk_file_selection_set_filename(GTK_FILE_SELECTION(dialog), "rendering.exr");
+
+  if(gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_OK) {
+    const gchar *filename;
+    filename = gtk_file_selection_get_filename(GTK_FILE_SELECTION(dialog));
+    exr_save_image_file(HISTOGRAM_IMAGER(self->map), filename);
+  }
+  gtk_widget_destroy(dialog);
+#endif
+}
 
 /************************************************************************************/
 /************************************************************************ Rendering */

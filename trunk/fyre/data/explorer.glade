@@ -106,13 +106,34 @@
 		  <child>
 		    <widget class="GtkImageMenuItem" id="save_image_as">
 		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">Save image _as...</property>
+		      <property name="label" translatable="yes">Save image _as PNG...</property>
 		      <property name="use_underline">True</property>
 		      <signal name="activate" handler="on_save" last_modification_time="Sun, 15 Feb 2004 09:08:09 GMT"/>
 		      <accelerator key="s" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 		      <child internal-child="image">
 			<widget class="GtkImage" id="image226">
+			  <property name="visible">True</property>
+			  <property name="stock">gtk-save-as</property>
+			  <property name="icon_size">1</property>
+			  <property name="xalign">0.5</property>
+			  <property name="yalign">0.5</property>
+			  <property name="xpad">0</property>
+			  <property name="ypad">0</property>
+			</widget>
+		      </child>
+		    </widget>
+		  </child>
+
+		  <child>
+		    <widget class="GtkImageMenuItem" id="save_image_as_exr">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">Save image as OpenEXR...</property>
+		      <property name="use_underline">True</property>
+		      <signal name="activate" handler="on_save_exr" last_modification_time="Sun, 15 Feb 2004 09:08:09 GMT"/>
+
+		      <child internal-child="image">
+		        <widget class="GtkImage" id="image227">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-save-as</property>
 			  <property name="icon_size">1</property>

@@ -37,12 +37,12 @@ static void histogram_imager_get_property (GObject *object, guint prop_id, GValu
 static void histogram_imager_resize_from_string(HistogramImager *self, const gchar *s);
 
 static void histogram_imager_generate_color_table(HistogramImager *self);
-static gulong histogram_imager_get_max_usable_density(HistogramImager *self);
 
 static void histogram_imager_check_dirty_flags(HistogramImager *self);
 static void histogram_imager_require_histogram(HistogramImager *self);
 static void histogram_imager_require_image(HistogramImager *self);
 static void histogram_imager_require_oversample_tables(HistogramImager *self);
+static gulong histogram_imager_get_max_usable_density (HistogramImager *self);
 
 static gboolean update_double_if_necessary(gdouble new_value, gboolean *dirty_flag, gdouble *param, gdouble epsilon);
 static gboolean update_uint_if_necessary(guint new_value, gboolean *dirty_flag, guint *param);
@@ -719,7 +719,7 @@ static void histogram_imager_resize_color_table(HistogramImager *self, gulong si
   }
 }
 
-static float histogram_imager_get_pixel_scale(HistogramImager *self) {
+float histogram_imager_get_pixel_scale(HistogramImager *self) {
   /* Calculate the scale factor for converting histogram counts to
    * luminance values between 0 and 1.
    */

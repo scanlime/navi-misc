@@ -121,6 +121,8 @@ void             histogram_imager_load_image_file (HistogramImager *self,
 						   const gchar     *filename);
 void             histogram_imager_save_image_file (HistogramImager *self,
 						   const gchar     *filename);
+void             exr_save_image_file              (HistogramImager *hi,
+						   const gchar     *filename);
 
 void             histogram_imager_get_hist_size   (HistogramImager *self,
 						   int             *hist_width,
@@ -151,6 +153,13 @@ void             histogram_imager_finish_plots    (HistogramImager *self,
       (plot).density = bucket; \
     } \
 } while (0)
+
+
+/************************************************************************************/
+/****************************************************************** Private Methods */
+/************************************************************************************/
+
+float histogram_imager_get_pixel_scale(HistogramImager *self);
 
 
 G_END_DECLS
