@@ -37,9 +37,9 @@
 ;
 ;################################################################################
 
-#include <p16C765.inc>
+#include <p16C745.inc>
 #include "usb_defs.inc"
-#include "../include/fieldsensor_protocol.h"
+#include "../include/efs_protocol.h"
 
 USBBANK	code
 	global	Config_desc_index

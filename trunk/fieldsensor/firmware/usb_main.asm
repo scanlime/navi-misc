@@ -37,7 +37,7 @@
 ;
 ;################################################################################
 
-#include <p16c765.inc>
+#include <p16c745.inc>
 #include "usb_defs.inc"
 
 	errorlevel -302		; supress "register not in bank0, check page bits" message

@@ -21,7 +21,7 @@ file_001=usb_ch9.asm
 file_002=usb_main.asm
 file_003=commands.asm
 file_004=usb_defs.inc
-file_005=C:\navi-misc\fieldsensor\include\fieldsensor_protocol.h
+file_005=C:\navi-misc\fieldsensor\include\efs_protocol.h
 file_006=16c765.lkr
 [SUITE_INFO]
 suite_guid={6B3DAA78-59C1-46DD-B6AA-DBDAE4E06484}
