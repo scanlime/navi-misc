@@ -12,9 +12,13 @@ bindings.add(MousePress, 1).observe(command.selectCurrent)
 bindings.add(KeyPress, pygame.K_SPACE).observe(command.selectCurrent)
 bindings.add(KeyPress, pygame.K_RETURN).observe(command.selectCurrent)
 bindings.add(KeyPress, pygame.K_UP).observe(command.selectCurrent)
+bindings.add(KeyPress, pygame.K_DOWN).observe(command.cancel)
+bindings.add(KeyPress, pygame.K_ESCAPE).observe(command.cancel)
 
 from Wasabi import IR
 bindings.add(IR.ButtonPress, 'left').observe(command.spinLeft)
 bindings.add(IR.ButtonPress, 'right').observe(command.spinRight)
 bindings.add(IR.ButtonPress, 'enter').observe(command.selectCurrent)
 bindings.add(IR.ButtonPress, 'up').observe(command.selectCurrent)
+bindings.add(IR.ButtonPress, 'down').observe(command.cancel)
+bindings.add(IR.ButtonPress, 'exit').observe(command.cancel)
