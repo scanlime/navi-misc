@@ -85,36 +85,14 @@ class IrcURIHandler(Ruleset.RegexURIHandler):
 
 class MessageQueue:
     """Abstract base class for a queue we can deliver IRC messages to"""
+    def __init__(self, botNet, server, channel, target):
+        self.target = target
+        self.request = Bots.Request(botNet, server, channel)
+        self.queuedLines = []
+
     def cancel(self):
         """Cancel the request associated with this message queue"""
         self.request.cancel()
-
-    def send(self, message):
-        """Subclasses implement this to send a possibly-multiline message"""
-        pass
-
-
-class PrivateMessageQueue(MessageQueue):
-    """Send private messages to a particular user, using one bot"""
-    def __init__(self, botNet, server, nick):
-        self.nick = nick
-        self.request = Bots.Request(botNet, server, None)
-
-    def send(self, message):
-        for line in message.split("\n"):
-            self.request.bots[0].msg(self.nick, line)
-
-
-class ChannelMessageQueue(MessageQueue):
-    """A way to deliver buffered messages to a particular IRC server and
-       channel, handling flood protection and load balancing when necessary.
-
-       This object creates a Request that is responsible for keeping
-       a proper number of bots in our channel.
-       """
-    def __init__(self, botNet, server, channel):
-        self.request = Bots.Request(botNet, server, channel)
-        self.queuedLines = []
 
     def send(self, message):
         """Split up a message into lines and queue it for transmission"""
@@ -130,8 +108,19 @@ class ChannelMessageQueue(MessageQueue):
                 # flush it when this happens.
                 del self.queuedLines[:]
                 return
-            self.request.bots[0].msg(self.request.channel, self.queuedLines[0])
+            self.request.bots[0].msg(self.target, self.queuedLines[0])
             del self.queuedLines[0]
 
+
+class PrivateMessageQueue(MessageQueue):
+    """Send private messages to a particular user, using one bot"""
+    def __init__(self, botNet, server, nick):
+        MessageQueue.__init__(self, botNet, server, None, nick)
+
+
+class ChannelMessageQueue(MessageQueue):
+    """Send messages to a channel, using multiple bots if necessary"""
+    def __init__(self, botNet, server, channel):
+        MessageQueue.__init__(self, botNet, server, channel, channel)
 
 ### The End ###
