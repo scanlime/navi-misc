@@ -239,6 +239,7 @@ static int    controller_init          (struct gchub_controller*        ctl,
 					struct usb_interface*           interface,
 					const char*                     format,
 					int                             port_number);
+static void   controller_init_inputdev (struct gchub_controller*        ctl);
 static void   controller_delete        (struct gchub_controller*        ctl);
 static void   controller_sync          (struct gchub_controller*        ctl);
 static void   controller_report_status (struct gchub_controller*        ctl,
@@ -300,7 +301,6 @@ static int controller_init(struct gchub_controller* ctl,
 			   const char* name_format, int port_number)
 {
 	char name_buf[80];
-	int axis;
 
 	memset(ctl, 0, sizeof(*ctl));
 	spin_lock_init(&ctl->reg_lock);
@@ -346,6 +346,19 @@ static int controller_init(struct gchub_controller* ctl,
 	}
 #endif
 
+	return 0;
+}
+
+static void controller_init_inputdev(struct gchub_controller* ctl)
+{
+	/* This performs input device initialization that we should
+	 * do each time we attach the device. The callbacks will get
+	 * reset on unregistration, and the LED bits might be in a
+	 * strange state. The rest just doesn't hurt.
+	 */
+
+	int axis;
+
 	/* Set up callbacks */
 	ctl->dev.private = ctl;
 	ctl->dev.event = controller_event;
@@ -358,6 +371,7 @@ static int controller_init(struct gchub_controller* ctl,
 	/* We support one LED, to change the color of the port from green to red */
 	set_bit(EV_LED, ctl->dev.evbit);
 	set_bit(LED_MISC, ctl->dev.ledbit);
+	memset(ctl->dev.led, 0, sizeof(ctl->dev.led));
 
 	/* Support the rumble motor via the FF_RUMBLE force feedback bit */
 	set_bit(EV_FF, ctl->dev.evbit);
@@ -416,8 +430,6 @@ static int controller_init(struct gchub_controller* ctl,
 		}
 		set_bit(axis, ctl->dev.absbit);
 	}
-
-	return 0;
 }
 
 static void controller_delete(struct gchub_controller* ctl)
@@ -551,6 +563,7 @@ static void controller_attach(void *data)
 
 	/* In process context, via a work queue */
 	info("Attached '%s'", ctl->dev.name);
+	controller_init_inputdev(ctl);
 	input_register_device(&ctl->dev);
 	ctl->dev_registered = 1;
 	ctl->calibration_valid = 0;
