@@ -98,9 +98,9 @@ gconf_font_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, GtkFo
 }
 
 static void
-sysfonts_changed (GtkToggleButton *toggle, GtkWidget *font)
+sysfonts_changed (GtkToggleButton *toggle, PreferencesIrcPage *page)
 {
-	gtk_widget_set_sensitive (font, !gtk_toggle_button_get_active (toggle));
+	gtk_widget_set_sensitive (page->font_selection, !gtk_toggle_button_get_active (toggle));
 }
 
 static void
@@ -249,7 +249,7 @@ preferences_page_irc_new (gpointer prefs_dialog, GladeXML *xml)
 	g_signal_connect (G_OBJECT (page->part_message),     "changed",  G_CALLBACK (entry_changed),    "/apps/xchat/irc/partmsg");
 	g_signal_connect (G_OBJECT (page->away_message),     "changed",  G_CALLBACK (entry_changed),    "/apps/xchat/irc/awaymsg");
 	g_signal_connect (G_OBJECT (page->usesysfonts),      "toggled",  G_CALLBACK (bool_changed),     "/apps/xchat/main_window/use_sys_fonts");
-	g_signal_connect (G_OBJECT (page->usesysfonts),      "toggled",  G_CALLBACK (sysfonts_changed), NULL);
+	g_signal_connect (G_OBJECT (page->usesysfonts),      "toggled",  G_CALLBACK (sysfonts_changed), page);
 	g_signal_connect (G_OBJECT (page->font_selection),   "font-set", G_CALLBACK (font_changed),     "/apps/xchat/main_window/font");
 	g_signal_connect (G_OBJECT (page->show_colors),      "toggled",  G_CALLBACK (bool_changed),     "/apps/xchat/irc/showcolors");
 	g_signal_connect (G_OBJECT (page->show_timestamps),  "toggled",  G_CALLBACK (bool_changed),     "/apps/xchat/irc/showtimestamps");
@@ -288,7 +288,10 @@ preferences_page_irc_new (gpointer prefs_dialog, GladeXML *xml)
 	g_free (text);
 
 	toggle = gconf_client_get_bool (p->gconf, "/apps/xchat/main_window/use_sys_fonts", NULL);
-	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (page->usesysfonts), toggle);
+	if (toggle)
+		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (page->usesysfonts), TRUE);
+	else
+		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (page->usethisfont), TRUE);
 	gtk_widget_set_sensitive (page->font_selection, !toggle);
 
 	text = gconf_client_get_string (p->gconf, "/apps/xchat/main_window/font", NULL);
