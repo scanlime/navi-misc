@@ -13,7 +13,9 @@
  */
 
 
+/******************************************************************************/
 /************************************************** Main Definitions **********/
+/******************************************************************************/
 
 #include <linux/config.h>
 #include <linux/kernel.h>
@@ -32,6 +34,7 @@
 #include <linux/usb.h>
 #include <mi6k_protocol.h>
 #include <mi6k_dev.h>
+#include <lirc.h>
 
 #define DRIVER_VERSION "v0.1"
 #define DRIVER_AUTHOR "Micah Dowty <micah@picogui.org>"
@@ -77,7 +80,9 @@ static DECLARE_MUTEX (minor_table_mutex);
 #define VFD_POWER_DELAY  (HZ / 8)
 
 
+/******************************************************************************/
 /************************************************** Function Prototypes *******/
+/******************************************************************************/
 
 static void mi6k_request (struct usb_mi6k *dev, unsigned short request,
 			  unsigned short wValue, unsigned short wIndex);
@@ -92,7 +97,9 @@ static int __init usb_mi6k_init(void);
 static void __exit usb_mi6k_exit(void);
 
 
+/******************************************************************************/
 /************************************************** Device Communications *****/
+/******************************************************************************/
 
 static void mi6k_request (struct usb_mi6k *dev, unsigned short request,
 			  unsigned short wValue, unsigned short wIndex)
@@ -103,7 +110,9 @@ static void mi6k_request (struct usb_mi6k *dev, unsigned short request,
 }
 
 
-/************************************************** Main character device *****/
+/******************************************************************************/
+/************************************************** Shared device functions ***/
+/******************************************************************************/
 
 static int mi6k_open (struct inode *inode, struct file *file)
 {
@@ -117,19 +126,11 @@ static int mi6k_open (struct inode *inode, struct file *file)
 		return -ENODEV;
 	}
 
-	/* Increment our usage count for the module.
-	 * This is redundant here, because "struct file_operations"
-	 * has an "owner" field. This line is included here soley as
-	 * a reference for drivers using lesser structures... ;-)
-	 */
-	MOD_INC_USE_COUNT;
-
 	/* lock our minor table and get our local data for this minor */
 	down (&minor_table_mutex);
 	dev = minor_table[subminor];
 	if (dev == NULL) {
 		up (&minor_table_mutex);
-		MOD_DEC_USE_COUNT;
 		return -ENODEV;
 	}
 
@@ -162,8 +163,6 @@ static int mi6k_release (struct inode *inode, struct file *file)
 		return -ENODEV;
 	}
 
-	dbg("minor %d", dev->minor);
-
 	/* lock our minor table */
 	down (&minor_table_mutex);
 
@@ -181,7 +180,6 @@ static int mi6k_release (struct inode *inode, struct file *file)
 		up (&dev->sem);
 		mi6k_delete (dev);
 		up (&minor_table_mutex);
-		MOD_DEC_USE_COUNT;
 		return 0;
 	}
 
@@ -192,9 +190,6 @@ static int mi6k_release (struct inode *inode, struct file *file)
 		dev->open_count = 0;
 	}
 
-	/* decrement our usage count for the module */
-	MOD_DEC_USE_COUNT;
-
 exit_not_opened:
 	up (&dev->sem);
 	up (&minor_table_mutex);
@@ -202,7 +197,12 @@ exit_not_opened:
 	return retval;
 }
 
-static ssize_t mi6k_write (struct file *file, const char *buffer, size_t count, loff_t *ppos)
+
+/******************************************************************************/
+/************************************************** Main character device *****/
+/******************************************************************************/
+
+static ssize_t mi6k_dev_write (struct file *file, const char *buffer, size_t count, loff_t *ppos)
 {
 	/* Pad unused bytes with zero, which the display will ignore */
 	unsigned char tbuffer[] = {0, 0, 0, 0};
@@ -211,8 +211,6 @@ static ssize_t mi6k_write (struct file *file, const char *buffer, size_t count, 
 	int retval = 0;
 
 	dev = (struct usb_mi6k *)file->private_data;
-
-	dbg("minor %d, count = %d", dev->minor, count);
 
 	/* lock this object */
 	down (&dev->sem);
@@ -230,7 +228,6 @@ static ssize_t mi6k_write (struct file *file, const char *buffer, size_t count, 
 	}
 
 	bytes_written = min(sizeof(tbuffer), count);
-	dbg("%d bytes to send, sending %d bytes", count, bytes_written);
 	if (copy_from_user(tbuffer, buffer, bytes_written)) {
 		retval = -EFAULT;
 		goto exit;
@@ -250,7 +247,7 @@ exit:
 	return retval;
 }
 
-static int mi6k_ioctl (struct inode *inode, struct file *file, unsigned int cmd, unsigned long arg)
+static int mi6k_dev_ioctl (struct inode *inode, struct file *file, unsigned int cmd, unsigned long arg)
 {
 	struct usb_mi6k *dev;
 	int retval=0;
@@ -266,9 +263,6 @@ static int mi6k_ioctl (struct inode *inode, struct file *file, unsigned int cmd,
 		up (&dev->sem);
 		return -ENODEV;
 	}
-
-	dbg("minor %d, cmd 0x%.4x, arg %ld", 
-	    dev->minor, cmd, arg);
 
 	switch (cmd) {
 
@@ -307,36 +301,96 @@ static int mi6k_ioctl (struct inode *inode, struct file *file, unsigned int cmd,
 	return retval;
 }
 
-static struct file_operations mi6k_fops = {
-	/*
-	 * The owner field is part of the module-locking
-	 * mechanism. The idea is that the kernel knows
-	 * which module to increment the use-counter of
-	 * BEFORE it calls the device's open() function.
-	 * This also means that the kernel can decrement
-	 * the use-counter again before calling release()
-	 * or should the open() function fail.
-	 *
-	 * Not all device structures have an "owner" field
-	 * yet. "struct file_operations" and "struct net_device"
-	 * do, while "struct tty_driver" does not. If the struct
-	 * has an "owner" field, then initialize it to the value
-	 * THIS_MODULE and the kernel will handle all module
-	 * locking for you automatically. Otherwise, you must
-	 * increment the use-counter in the open() function
-	 * and decrement it again in the release() function
-	 * yourself.
-	 */
-	owner:		THIS_MODULE,
+static struct file_operations mi6k_dev_fops = {
+	owner:		THIS_MODULE,        /* This automates updating the module's use count */
 
-	write:		mi6k_write,
-	ioctl:		mi6k_ioctl,
+	write:		mi6k_dev_write,
+	ioctl:		mi6k_dev_ioctl,
 	open:		mi6k_open,
 	release:	mi6k_release,
 };
 
 
+/******************************************************************************/
+/************************************************** LIRC character device *****/
+/******************************************************************************/
+
+static ssize_t mi6k_lirc_write (struct file *file, const char *buffer, size_t count, loff_t *ppos)
+{
+	struct usb_mi6k *dev;
+	ssize_t bytes_written = 0;
+	int retval = 0;
+
+	dev = (struct usb_mi6k *)file->private_data;
+
+	/* lock this object */
+	down (&dev->sem);
+
+	/* verify that the device wasn't unplugged */
+	if (dev->udev == NULL) {
+		retval = -ENODEV;
+		goto exit;
+	}
+
+	/* verify that we actually have some data to write */
+	if (count == 0) {
+		dbg("write request of 0 bytes");
+		goto exit;
+	}
+
+	bytes_written = 4;
+	retval = bytes_written;
+
+exit:
+	/* unlock the device */
+	up (&dev->sem);
+
+	return retval;
+}
+
+static int mi6k_lirc_ioctl (struct inode *inode, struct file *file, unsigned int cmd, unsigned long arg)
+{
+	struct usb_mi6k *dev;
+	int retval=0;
+	struct mi6k_leds leds;
+
+	dev = (struct usb_mi6k *)file->private_data;
+
+	/* lock this object */
+	down (&dev->sem);
+
+	/* verify that the device wasn't unplugged */
+	if (dev->udev == NULL) {
+		up (&dev->sem);
+		return -ENODEV;
+	}
+
+	switch (cmd) {
+
+	default:
+		/* Indicate that we didn't understand this ioctl */
+		retval = -ENOTTY;
+		break;
+	}
+
+	/* unlock the device */
+	up (&dev->sem);
+
+	return retval;
+}
+
+static struct file_operations mi6k_lirc_fops = {
+	owner:		THIS_MODULE,        /* This automates updating the module's use count */
+
+	write:		mi6k_lirc_write,
+	ioctl:		mi6k_lirc_ioctl,
+	open:		mi6k_open,
+	release:	mi6k_release,
+};
+
+/******************************************************************************/
 /************************************************** USB Housekeeping **********/
+/******************************************************************************/
 
 static inline void mi6k_delete (struct usb_mi6k *dev)
 {
@@ -348,7 +402,7 @@ static struct usb_driver mi6k_driver = {
 	name:		"mi6k",
 	probe:		mi6k_probe,
 	disconnect:	mi6k_disconnect,
-	fops:		&mi6k_fops,
+	fops:		&mi6k_dev_fops,
 	minor:		MI6K_MINOR_BASE,
 	id_table:	mi6k_table,
 };
@@ -404,7 +458,7 @@ static void * mi6k_probe(struct usb_device *udev, unsigned int ifnum, const stru
 				     MI6K_MINOR_BASE + dev->minor,
 				     S_IFCHR | S_IRUSR | S_IWUSR |
 				     S_IRGRP | S_IWGRP | S_IROTH,
-				     &mi6k_fops, NULL);
+				     &mi6k_dev_fops, NULL);
 
 	/* let the user know what node this device is now attached to */
 	info ("MI6K device now attached to %s", name);
