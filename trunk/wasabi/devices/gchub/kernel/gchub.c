@@ -299,6 +299,9 @@ static void controller_sync(struct gchub_controller *ctl)
 			spin_unlock_irqrestore(&ctl->reg_lock, flags);
 		}
 	}
+	else {
+		spin_unlock_irqrestore(&ctl->reg_lock, flags);
+	}
 
 	if (ctl->dev_registered && ctl->attached) {
 		struct gchub_controller_status calibrated;
