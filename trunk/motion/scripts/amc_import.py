@@ -73,6 +73,8 @@ def importData (reader, object, filename):
 
         # set root position/rotation
         loc = frame.bones['root'][0:3]
+
+        # swizzle, scale & invert
         (loc[0], loc[2], loc[1]) = (loc[0] * -0.1, loc[1] * 0.1, loc[2] * -0.1)
         rot = frame.bones['root'][3:6]
         euler = Blender.Mathutils.Euler(rot)
@@ -96,6 +98,7 @@ def importData (reader, object, filename):
                 #parent = parent.getParent()
                 #quat += parent.getQuat()
             b[bname].setQuat(quat + pquat)
+            #b[bname].setQuat(quat)
             b[bname].setPose([ROT, LOC, SIZE])
 
     Blender.Window.RedrawAll()
