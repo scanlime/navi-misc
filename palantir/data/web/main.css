@@ -60,6 +60,8 @@ div.topic {
 
 div.date {
   font-variant: small-caps;
+  font-style: italic;
+  text-decoration: underline;
 }
 
 img.header {
