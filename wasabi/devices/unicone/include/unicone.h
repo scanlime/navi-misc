@@ -23,9 +23,39 @@
 #ifndef _H_UNICONE
 #define _H_UNICONE
 
+/**************************************************************************/
+/*********************************************************** Identity *****/
+/**************************************************************************/
+
 #define UNICONE_VENDOR_ID   0xE461
 #define UNICONE_PRODUCT_ID  0x000C
 #define UNICONE_VERSION     0x0100
+
+
+/**************************************************************************/
+/**************************************************** Vendor Requests *****/
+/**************************************************************************/
+
+/* Start programming the FPGA. This has the side effect of putting it into
+ * an unconfigured state and zero'ing its current contents. After waiting
+ * long enough for the FPGA to reset itself, the host should begin sending
+ * the configuration bitstream on EP1 OUT.
+ */
+#define UNICONE_REQ_FPGA_CONFIG_BEGIN    0x01
+
+/* Finish programming the FPGA. This finishes clocking the bitstream
+ * into the FPGA and checks the 'DONE' pin. Returns a 1-byte status code.
+ */
+#define UNICONE_REQ_FPGA_CONFIG_END      0x02
+
+
+/**************************************************************************/
+/******************************************************* Status Codes *****/
+/**************************************************************************/
+
+#define UNICONE_STATUS_OK                0x00
+#define UNICONE_STATUS_ERROR             0x01   /* Generic error code */
+
 
 #endif /* _H_UNICONE */
 
