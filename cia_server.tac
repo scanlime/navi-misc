@@ -55,5 +55,9 @@ rpc.putSubHandler('security', Security.SecurityInterface())
 rpc.putSubHandler('debug', Debug.DebugInterface())
 webRoot.putChild('RPC2', rpc)
 
+site = Web.Server.Site(webRoot)
+
+site.putComponent('rulesets', Web.RulesetBrowser.Component(rulesetStorage))
+
 # Now create an HTTP server holding both our XML-RPC and web interfaces
-internet.TCPServer(3910, Web.Server.Site(webRoot)).setServiceParent(application)
+internet.TCPServer(3910, site).setServiceParent(application)
