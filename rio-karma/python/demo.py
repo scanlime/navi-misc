@@ -7,6 +7,7 @@ from cStringIO import StringIO
 import sys, time
 
 import RioKarma
+from RioKarma import Progress
 
 #defer.Deferred.debug = True
 
@@ -37,17 +38,20 @@ class RioApp:
 
 class Downloader(RioApp):
     def main(self):
+        reporter = Progress.ConsoleReporter()
+
         print "Obtaining read lock..."
         yield self.fileManager.readLock()
 
-        for f in self.fileManager.cache.findFiles(type='taxi'):
+        for f in self.fileManager.cache.findFiles():
             filename = f.suggestFilename()
 
-            print "\n"
-            print f.details
-            print " -> %s" % filename
+            print "%s -> %s" % (f, filename)
 
-            yield self.fileManager.saveToDisk(f, filename)
+            yield self.fileManager.saveToDisk(f, filename).addStatusback(reporter.statusback)
+
+    def progress(self, completed, total, units=None, name=None):
+        print "%s: %s/%s [%s]" % (name, completed, total, units)
 
 
 class Uploader(RioApp):
@@ -123,8 +127,8 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         Uploader().run()
     else:
-        #Downloader().run()
-        PlaylistDownloader().run()
+        Downloader().run()
+        #PlaylistDownloader().run()
         #PlaylistUploader().run()
 
 ### The End ###
