@@ -23,13 +23,14 @@ class PalantirWindow:
     for func in self.__class__.__dict__.iterkeys():
       if func.startswith('on_'):
         self.tree.signal_connect(func, getattr(self, func))
-    # Chat buffer.
-    self.chatBuffer = self.tree.get_widget('ChatWindow').get_buffer()
     # Client factory.
-    self.factory = palantirIRC.PalantirClientFactory('darth_balls',
+    self.factory = palantirIRC.PalantirClientFactory('nuku-nuku',
 	channels=('#palantir'), ui=self)
     self.tree.get_widget('Nick').set_text(self.factory.nickname)
-    self.tabs = {'none':self.tree.get_widget('ChatWindow')}
+    self.currentTab = ChatWindowUI()
+    self.tabs = {'none':[self.currentTab]}
+    self.currentTab.show()
+    self.tree.get_widget('ChannelTabs').add(self.currentTab.window)
 
   ### Must be implemented for palantirIRC to work. ###
   def messageReceive(self, user, channel, msg):
@@ -64,6 +65,8 @@ class PalantirWindow:
     self.tabs = {self.factory.channels:self.tabs['none']}
     self.tree.get_widget('DefaultTab').set_text(self.factory.channels)
     reactor.run()
+
+  #def on_new_tab_activate(self, widget, data=None):
 
   def on_character_sheet_activate(self, widget, data=None):
     if self.tree.get_widget('character_sheet').get_active():
@@ -121,3 +124,12 @@ class PalantirWindow:
 
   def on_quit_activate(self, widget, data=None):
     gtk.main_quit()
+
+class ChatWindowUI:
+  def __init__(self):
+    self.channel = 'none'
+    tree = gtk.glade.XML('chat.glade')
+    self.window = tree.get_widget('ChatScroller')
+
+  def show(self):
+    self.window.show()
