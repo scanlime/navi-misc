@@ -24,11 +24,12 @@ to metadata or RSS pages.
 #
 
 from twisted.internet import defer
+from twisted.web import resource
 from LibCIA.Web import Template, Info, Server
 from LibCIA import Stats, Message, TimeUtil, Formatters
 from Nouvelle import tag, place
 import Nouvelle, time, sys, posixpath
-import Metadata, Catalog, Feed, Link
+import Metadata, Catalog, Feed, Link, MessageViewer
 
 
 class Component(Server.Component):
@@ -42,6 +43,7 @@ class Component(Server.Component):
         for cls in (Page,
                     Metadata.MetadataPage,
                     Feed.CustomizeRSS,
+                    MessageViewer.MessagePage,
                     ):
             if isinstance(page, cls):
                 return True
@@ -75,6 +77,7 @@ class Page(Template.Page):
            """
         childFactories = {
             '.metadata': Metadata.MetadataPage,
+            '.message':  MessageViewer.RootPage,
             '.rss':      Feed.RSSFrontend,
             '.xml':      Feed.XMLFeed,
             }

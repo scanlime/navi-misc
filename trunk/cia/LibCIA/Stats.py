@@ -446,6 +446,20 @@ class Messages(object):
                              limitClause))
         return cursor.fetchall()
 
+    def getMessageById(self, id):
+        """Return a single message from this stats target's archive, by ID.
+           Returns None if the message isn't in our database.
+           """
+        return Database.pool.runInteraction(self._getMessageById, id)
+
+    def _getMessageById(self, cursor, id):
+        cursor.execute("SELECT xml FROM stats_messages WHERE target_path = %s AND id = %s" %
+                       (Database.quote(self.target.path, 'varchar'),
+                        Database.quote(id, 'bigint')))
+        row = cursor.fetchone()
+        if row:
+            return row[0]
+
 
 class Metadata:
     """An abstraction for the metadata that may be stored for any stats target.
