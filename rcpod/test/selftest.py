@@ -117,33 +117,37 @@ class SelfTest(RcpodTestCase):
                     else:
                         pin = originalPin
 
-                    # Make all ports output, pulled low
+                    # Make all ports output, pulled to our current initial value
                     for reg in ('trisa', 'trisb', 'trisc', 'trisd', 'trise'):
                         self.rcpod.poke(reg, 0x00)
                     for reg in ('porta', 'portb', 'portc', 'portd', 'porte'):
                         self.rcpod.poke(reg, initialValue)
 
+                    # Make a list of registers to check, and record 'before' values
+                    regs = ('trisa', 'trisb', 'trisc', 'trisd', 'trise',
+                            'porta', 'portb', 'portc', 'portd', 'porte')
+                    before = {}
+                    for reg in regs:
+                        before[reg] = self.rcpod.peek(reg)
+
+                    # Create expected values
+                    expected = dict(before)
+                    port = 'port' + name[1]
+                    bit = int(name[2])
+                    if negated:
+                        expected[port] &= ~(1<<bit)
+                    else:
+                        expected[port] |= 1<<bit
+
                     # Assert this pin descriptor
                     pin.assert_()
 
-                    # Ensure all ports are still output
-                    for reg in ('trisa', 'trisb', 'trisc', 'trisd', 'trise'):
-                        self.assertEquals(self.rcpod.peek(reg), 0x00, "%s not still set to 0x00 after asserting %s" % (reg, pin))
+                    # Record 'after' values
+                    after = {}
+                    for reg in regs:
+                        after[reg] = self.rcpod.peek(reg)
 
-                    # Verify all port contents
-                    for reg in ('porta', 'portb', 'portc', 'portd', 'porte'):
-                        expectedValue = initialValue
-                        if reg[-1] == name[1]:
-                            # Our pin is on this port, turn on/off its bit
-                            bit = int(name[2:])
-                            if negated:
-                                expectedValue &= ~(1 << bit)
-                            else:
-                                expectedValue |= 1 << bit
-                        regValue = self.rcpod.peek(reg)
-                        self.assertEquals(regValue, expectedValue,
-                                          "%s has the wrong value (0x%02X, not 0x%02X) after asserting %s" %
-                                          (reg, regValue, expectedValue, pin))
+                    self.assertEquals(expected, after)
 
     def testPinDescTris(self):
         """test input/output assertion by peek'ing port tristate registers"""
@@ -163,22 +167,58 @@ class SelfTest(RcpodTestCase):
                     for reg in ('trisa', 'trisb', 'trisc', 'trisd', 'trise'):
                         self.rcpod.poke(reg, initialValue)
 
+                    # Make a list of registers to check, and record 'before' values
+                    regs = ('trisa', 'trisb', 'trisc', 'trisd', 'trise')
+                    before = {}
+                    for reg in regs:
+                        before[reg] = self.rcpod.peek(reg)
+
+                    # Create expected values
+                    expected = dict(before)
+                    port = 'tris' + name[1]
+                    bit = int(name[2])
+                    if input:
+                        expected[port] |= 1<<bit
+                    else:
+                        expected[port] &= ~(1<<bit)
+
                     # Assert this pin descriptor
                     pin.assert_()
 
+                    # Record 'after' values
+                    after = {}
+                    for reg in regs:
+                        after[reg] = self.rcpod.peek(reg)
+
+                    self.assertEquals(expected, after)
+
+    def testPinDescTrisRead(self):
+        """test reading tristate values using pin descriptors"""
+        for name, originalPin in self.rcpod.pins.iteritems():
+
+            # Test with all tristates initially set to 0 and to 1
+            for initialValue in (0x00, 0xFF):
+
+                # Test input, and output descriptors
+                for pin, polarity in (
+                    (originalPin.input(), 1),
+                    (originalPin.output(), 0),
+                    ):
+
+                    # Set tristates to the initial value, turning on/off
+                    # the one we're testing.
+                    bit = int(name[2])
                     for reg in ('trisa', 'trisb', 'trisc', 'trisd', 'trise'):
-                        expectedValue = initialValue
                         if reg[-1] == name[1]:
-                            # Our pin is on this port, turn on/off its bit
-                            bit = int(name[2:])
-                            if input:
-                                expectedValue |= 1 << bit
+                            # This is the port we're testing, flip a bit
+                            if polarity:
+                                self.rcpod.poke(reg, initialValue | (1<<bit))
                             else:
-                                expectedValue &= ~(1 << bit)
-                        regValue = self.rcpod.peek(reg)
-                        self.assertEquals(regValue, expectedValue,
-                                          "%s has the wrong value (0x%02X, not 0x%02X) after asserting %s" %
-                                          (reg, regValue, expectedValue, pin))
+                                self.rcpod.poke(reg, initialValue & ~(1<<bit))
+                        else:
+                            self.rcpod.poke(reg, initialValue)
+
+                    self.assert_(pin.test(), str(pin))
 
     def testAnalogAllSanity(self):
         """show that analogReadAll returns the right number of values and that they are all within range"""
