@@ -52,11 +52,7 @@ namespace Fyre
 			Gtk.DrawingArea da = new Gtk.DrawingArea ();
 			window.Add (da);
 
-			window.DefaultWidth = 0;
-			window.DefaultHeight = 0;
-			window.Show ();
-
-			Gdk.Screen screen = window.GdkWindow.Screen;
+			Gdk.Screen screen = GdkWindow.Screen;
 
 			int mouse_x = (int) ev.XRoot;
 			int mouse_y = (int) ev.YRoot;
@@ -70,6 +66,7 @@ namespace Fyre
 
 			window.Move (win_x, win_y);
 			window.Resize (width, height);
+			window.ShowAll ();
 
 			return true;
 		}
