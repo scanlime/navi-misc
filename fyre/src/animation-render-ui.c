@@ -215,12 +215,6 @@ static void animation_render_ui_start(AnimationRenderUi *self) {
   gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(glade_xml_get_widget(self->xml, "animation_progress")), 0);
   gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(glade_xml_get_widget(self->xml, "frame_progress")), 0);
 
-  /* Start out rendering 1000 iterations per idle handler invocation.
-   * Every time we calculate, it gets timed, and this figure is automatically
-   * adjusted to balance efficiency with responsiveness.
-   */
-  self->iterations_per_idle = 1000;
-
   /* Set up an idle handler where we'll do the rendering in small chunks */
   self->idler = g_idle_add(animation_render_ui_idle_handler, self);
 
@@ -291,33 +285,10 @@ static int animation_render_ui_idle_handler(gpointer user_data) {
 }
 
 static void animation_render_ui_run_timed_calculation(AnimationRenderUi *self) {
-  /* This runs the actual de jong calculations, timing them to automatically
-   * tweak the number of iterations we run at a time. More iterations at a time
-   * is more efficient, but can also cause the UI to get unresponsive. We adjust
-   * the number of iterations so that this takes a fixed amount of time to run,
-   * set below in microseconds.
-   */
-  const gdouble target_microseconds = 25000;
-  GTimer *timer;
-  gulong elapsed;
-
-  timer = g_timer_new();
-  g_timer_start(timer);
-
-  iterative_map_calculate_motion(ITERATIVE_MAP(self->map), self->iterations_per_idle, self->continuation,
-			         PARAMETER_INTERPOLATOR(parameter_holder_interpolate_linear),
-			         &self->frame);
-
-  g_timer_elapsed(timer, &elapsed);
-  g_timer_destroy(timer);
-
-  self->iterations_per_idle *= target_microseconds / elapsed;
-
-  /* Put a lower limit on the iterations per idle, so even really slow
-   * or heavily loaded machines will get a tiny bit of work done.
-   */
-  if (self->iterations_per_idle < 1000)
-    self->iterations_per_idle = 1000;
+  iterative_map_calculate_motion_timed(ITERATIVE_MAP(self->map),
+				       0.025, self->continuation,
+				       PARAMETER_INTERPOLATOR(parameter_holder_interpolate_linear),
+				       &self->frame);
 }
 
 /* The End */
