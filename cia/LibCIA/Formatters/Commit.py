@@ -178,6 +178,9 @@ class CommitFormatter(Message.Formatter):
     def format_log(self, log):
         # Break the log string into wrapped lines
         lines = []
+        if not log:
+            return ""	
+
         for line in XML.shallowText(log).strip().split("\n"):
             # Ignore blank lines
             if not line.strip():
