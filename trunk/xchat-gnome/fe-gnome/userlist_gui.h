@@ -25,6 +25,6 @@
 #ifndef XCHAT_GNOME_USERLIST_GUI_H
 #define XCHAT_GNOME_USERLIST_GUI_H
 
-void initialize_userlist();
+void initialize_userlist ();
 
 #endif

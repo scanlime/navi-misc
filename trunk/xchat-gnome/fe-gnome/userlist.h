@@ -39,14 +39,14 @@ typedef struct _UserlistClass UserlistClass;
 
 struct _Userlist
 {
-  GObject parent;
+	GObject parent;
 
-  GHashTable *stores;
+	GHashTable *stores;
 };
 
 struct _UserlistClass
 {
-  GObjectClass parent_class;
+	GObjectClass parent_class;
 };
 
 GType         userlist_get_type       (void) G_GNUC_CONST;
