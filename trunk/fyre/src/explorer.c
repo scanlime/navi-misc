@@ -326,8 +326,9 @@ static void on_load_from_image (GtkWidget *widget, gpointer user_data) {
 		                          GTK_WINDOW (glade_xml_get_widget (self->xml, "explorer_window")),
 					  GTK_FILE_CHOOSER_ACTION_OPEN,
 					  GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-					  GTK_STOCK_OK, GTK_RESPONSE_OK,
+					  GTK_STOCK_OPEN, GTK_RESPONSE_OK,
 					  NULL);
+    gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_OK);
     image = gtk_image_new ();
     gtk_file_chooser_set_preview_widget (GTK_FILE_CHOOSER (dialog), image);
     g_signal_connect (G_OBJECT (dialog), "update-preview", G_CALLBACK (update_image_preview), image);
@@ -375,8 +376,9 @@ static void on_save (GtkWidget *widget, gpointer user_data) {
 		                          GTK_WINDOW (glade_xml_get_widget (self->xml, "explorer_window")),
 					  GTK_FILE_CHOOSER_ACTION_SAVE,
 					  GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-					  GTK_STOCK_OK, GTK_RESPONSE_OK,
+					  GTK_STOCK_SAVE, GTK_RESPONSE_OK,
 					  NULL);
+    gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_OK);
     gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (dialog), "rendering.png");
     if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_OK) {
 	filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
@@ -424,8 +426,9 @@ static void on_save_exr (GtkWidget *widget, gpointer user_data) {
 		                          GTK_WINDOW (glade_xml_get_widget (self->xml, "explorer_window")),
 					  GTK_FILE_CHOOSER_ACTION_SAVE,
 					  GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-					  GTK_STOCK_OK, GTK_RESPONSE_OK,
+					  GTK_STOCK_SAVE, GTK_RESPONSE_OK,
 					  NULL);
+    gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_OK);
     gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (dialog), "rendering.exr");
 
     if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_OK) {
