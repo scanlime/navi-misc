@@ -11,6 +11,7 @@ from twisted.internet import gtk2reactor
 gtk2reactor.install()
 
 import re, gtk, gtk.glade, palantirIRC
+from random import randint
 from CharacterSheet.Character import Character
 from CharacterSheet.GTKsheet import GTKsheet
 from twisted.internet import reactor
@@ -22,7 +23,7 @@ class PalantirWindow:
     self.tree = gtk.glade.XML('palantirMain.glade')
 
     # Connect the functions to their appropriate widgets.  By convention all callbacks
-    # for the window start with 'on_' and match the name of the callback defined in 
+    # for the window start with 'on_' and match the name of the callback defined in
     # the .glade file.
     for func in self.__class__.__dict__.iterkeys():
       if func.startswith('on_'):
@@ -33,7 +34,7 @@ class PalantirWindow:
     self.tree.get_widget('Nick').set_text(self.factory.nickname)
 
   ### Must be implemented for palantirIRC to work.  These methods are called by the
-  ### the client when 
+  ### the client when
   def messageReceive(self, user, channel, msg):
     ''' When the client receives a privmsg it calls this function to display the message
         in the UI, however the UI sees fit.
@@ -161,6 +162,9 @@ class PalantirWindow:
 
   ### Misc. Necessary Functions ###
   def ConnectionDialog(self):
+    ''' Brings up a small dialog for creating a connection, prompts for a server and a
+        channel name.
+	'''
     dialog = gtk.Dialog('Connection', self.tree.get_widget('Main'),
 	                gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT)
 
@@ -187,7 +191,7 @@ class PalantirWindow:
                                                  channelArea.get_text(),
 						 dialog))
     ok.show()
-    
+
     cancel = gtk.Button(stock=gtk.STOCK_CANCEL)
     cancel.connect('clicked', lambda w: dialog.destroy())
     cancel.show()
@@ -217,7 +221,7 @@ class PalantirWindow:
     if hasattr(self, 'sheet'):
       self.tree.get_widget('CharacterViewPort').remove(self.sheet.root)
     # Create a new sheet.
-    self.sheet = GTKsheet(self.data)
+    self.sheet = GTKsheet(self.data, DieRoller(self))
     # Store the filename the sheet was read from... (why did I do this?)
     self.sheet.filename = self.tree.dialog.get_widget('SheetSelection').get_filename()
     # Add the sheet to the CharacterViewPort and show it.
@@ -238,6 +242,40 @@ class PalantirWindow:
     buffer.insert(buffer.get_end_iter(), text)
     self.tree.get_widget('ChatArea').scroll_to_iter(buffer.get_end_iter(), 0.0)
 
+
+class DieRoller:
+  ''' This is the class that handles the dice rolling for the client.  When a character
+      sheet is loaded into the window it will get an instance of this class to use for
+      button presses.
+      '''
+  def __init__(self, ui):
+    ''' The roller needs to have a reference to the UI so that it can display the results
+        of the dice rolls.
+	'''
+    self.ui = ui
+
+  # All action objects for the character sheet are required to have this function.
+  def roll(self, times, sides, mods):
+    ''' Roll the dice. '''
+    total = 0
+    totalTimes = 0
+    rolls = []
+
+    # Roll the dice and store each individual roll as well as a running total
+    for time in times:
+      totalTimes += time
+
+    for roll in range(totalTimes):
+	rolls.append(randint(1, sides))
+	total += rolls[len(rolls) - 1]
+
+    # Add the modifiers to the total.
+    for mod in mods:
+      total += mod
+
+    # For now we're just printing this to stdout.
+    self.ui.factory.Send(self.ui.factory.channels[0],
+	'Rolled: ' + str(totalTimes) + 'd' + str(sides) + ' => ' + str(total))
 
 ### This was created for doing tabbed chatting, so that you could connect to multiple
 ### channels.  The client still supports multiple channels, but the UI does not.  I'm
