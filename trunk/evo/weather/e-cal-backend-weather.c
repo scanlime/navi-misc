@@ -80,8 +80,6 @@ reload_cb (ECalBackendWeather *cbw)
 	if (priv->is_loading)
 		return TRUE;
 
-	g_print ("Reload!\n");
-
 	priv->reload_timeout_id = 0;
 	priv->opened = TRUE;
 	begin_retrieval_cb (cbw);
@@ -96,8 +94,6 @@ maybe_start_reload_timeout (ECalBackendWeather *cbw)
 	const gchar *refresh_str;
 
 	priv = cbw->priv;
-
-	g_print ("Setting reload timeout.\n");
 
 	if (priv->reload_timeout_id)
 		return;
@@ -124,8 +120,6 @@ finished_retrieval_cb (GList *forecasts, ECalBackendWeather *cbw)
 
 	priv = cbw->priv;
 
-	g_print ("Retrieval finished.\n");
-
 	if (forecasts == NULL) {
 		e_cal_backend_notify_error (E_CAL_BACKEND (cbw), _("Could not retrieve weather data"));
 		return;
@@ -138,6 +132,7 @@ finished_retrieval_cb (GList *forecasts, ECalBackendWeather *cbw)
 		comp = create_weather (cbw, l->data);
 		e_cal_backend_cache_put_component (priv->cache, comp);
 		icomp = e_cal_component_get_icalcomponent (comp);
+		g_print ("%s\n\n", icalcomponent_as_ical_string (icomp));
 		e_cal_backend_notify_object_created (E_CAL_BACKEND (cbw), icalcomponent_as_ical_string (icomp));
 	}
 }
@@ -152,10 +147,6 @@ begin_retrieval_cb (ECalBackendWeather *cbw)
 
 	maybe_start_reload_timeout (cbw);
 
-	g_print ("Starting retrieval...\n");
-
-	g_print ("uri is %s\n", e_cal_backend_get_uri (E_CAL_BACKEND (cbw)));
-
 	if (priv->source == NULL)
 		priv->source = e_weather_source_new (e_cal_backend_get_uri (E_CAL_BACKEND (cbw)));
 
@@ -166,7 +157,6 @@ begin_retrieval_cb (ECalBackendWeather *cbw)
 
 	e_weather_source_parse (priv->source, (EWeatherSourceFinished) finished_retrieval_cb, cbw);
 
-	g_print ("Retrieval started.\n");
 	return FALSE;
 }
 
@@ -528,8 +518,6 @@ static void e_cal_backend_weather_start_query (ECalBackend *backend, EDataCalVie
 	cbw = E_CAL_BACKEND_WEATHER (backend);
 	priv = cbw->priv;
 
-	g_print (G_STRLOC ": Starting query (%s)", e_data_cal_view_get_text (query));
-
 	if (!priv->cache) {
 		e_data_cal_view_notify_done (query, GNOME_Evolution_Calendar_NoSuchCal);
 		return;
@@ -668,8 +656,6 @@ e_cal_backend_weather_init (ECalBackendWeather *cbw, ECalBackendWeatherClass *cl
 	priv->opened = FALSE;
 	priv->source = NULL;
 	priv->cache = NULL;
-
-	g_print ("Creating a new weather backend! Yippee!\n");
 
 	priv->zones = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, free_zone);
 }

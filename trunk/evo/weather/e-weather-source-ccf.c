@@ -189,7 +189,6 @@ e_weather_source_ccf_do_parse (EWeatherSourceCCF *source, char *buffer)
 
 	date = g_slist_nth (tokens, 3);
 	date2tm (date->data, &tms);
-	g_print ("date is %s\n", asctime (&tms));
 
 	/* fast-forward to the particular station we're interested in */
 	current = g_slist_nth (tokens, 5);
@@ -342,14 +341,10 @@ retrieval_done (SoupMessage *message, EWeatherSourceCCF *source)
 	char *str;
 	const char *newuri;
 
-	g_print ("Retrieval done.\n");
-
 	/* Handle redirection ourselves */
 	if (SOUP_STATUS_IS_REDIRECTION (message->status_code))
 	{
 		newuri = soup_message_get_header (message->response_headers, "Location");
-
-		g_print ("Redirected to %s\n", newuri);
 
 		if (newuri)
 		{
@@ -389,9 +384,7 @@ e_weather_source_ccf_parse (EWeatherSource *source, EWeatherSourceFinished done,
 
 	ccfsource->finished_data = data;
 
-	g_print ("e_weather_source_ccf_parse ()\n");
 	url = g_strdup_printf ("http://www.crh.noaa.gov/data/%s/CCF%s", ccfsource->station, ccfsource->station);
-	g_print ("    trying to open %s\n", url);
 	ccfsource->done = done;
 
 	if (!ccfsource->soup_session)
@@ -399,7 +392,6 @@ e_weather_source_ccf_parse (EWeatherSource *source, EWeatherSourceFinished done,
 	soup_message = soup_message_new (SOUP_METHOD_GET, url);
 	soup_message_set_flags (soup_message, SOUP_MESSAGE_NO_REDIRECT);
 	soup_session_queue_message (ccfsource->soup_session, soup_message, (SoupMessageCallbackFn) retrieval_done, source);
-	g_print ("Retrieval started.\n");
 	g_free (url);
 }
 
