@@ -93,15 +93,41 @@ class StatsInterface(RPC.Interface):
 
 class MetadataInterface(RPC.Interface):
     """An XML-RPC interface for querying and modifying stats metadata"""
+    def wrapTuple(self, t):
+        """Wrap the value in a (value, type) tuple in an xmlrpc.Binary
+           if the type doesn't start with text/.
+           """
+        if t and not t[1].startswith("text/"):
+            return (xmlrpc.Binary(t[0]), t[1])
+        else:
+            return t
+
     def xmlrpc_get(self, path, name, default=False):
         """Get a (value, type) tuple for the metadata key with the given
            name, returning 'default' if it isn't found
            """
-        return StatsTarget(path).metadata.get(name, default)
+        result = defer.Deferred()
+        StatsTarget(path).metadata.get(name, default).addCallback(
+            self._get, result).addErrback(result.errback)
+        return result
+
+    def _get(self, t, result):
+        """Backend for get() that ensures the results are serializable"""
+        result.callback(self.wrapTuple(t))
 
     def xmlrpc_dict(self, path):
         """Return a mapping of names to (value, type) tuples for the given path"""
-        return StatsTarget(path).metadata.dict()
+        result = defer.Deferred()
+        StatsTarget(path).metadata.dict().addCallback(
+            self._dict, result).addErrback(result.errback)
+        return result
+
+    def _dict(self, original, result):
+        """Backend for dict() that ensures the results are serializable"""
+        d = {}
+        for name, t in original.iteritems():
+            d[name] = self.wrapTuple(t)
+        result.callback(d)
 
     def protected_set(self, path, name, value, mimeType='text/plain'):
         """Set a metadata key's value and MIME type"""
@@ -368,10 +394,12 @@ class Metadata:
            'insert ignore' to ensure that the row exists in our table, then
            runs an update to change its value.
            """
-        # Just to make sure our row exists...
-        cursor.execute("INSERT IGNORE INTO stats_metadata (target_path, name) VALUES(%s, %s)" %
-                       (Database.quote(self.target.path, 'varchar'),
-                        Database.quote(name, 'varchar')))
+        # Make sure our row exists. This is wrapped in an autoCreateTargetFor
+        # so that if the stats target doesn't exist, it is also automatically created.
+        self.target._autoCreateTargetFor(cursor, cursor.execute,
+                                         "INSERT IGNORE INTO stats_metadata (target_path, name) VALUES(%s, %s)" %
+                                         (Database.quote(self.target.path, 'varchar'),
+                                          Database.quote(name, 'varchar')))
 
         # Now actually set the value
         cursor.execute("UPDATE stats_metadata SET mime_type = %s, value = '%s' WHERE target_path = %s AND name = %s" %
