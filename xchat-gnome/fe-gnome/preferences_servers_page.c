@@ -26,22 +26,6 @@
 #include "../common/xchat.h"
 #include "../common/servlist.h"
 
-static const char *encodings[] =
-{
-	"UTF-8",
-	"ISO-8859-15 (Western Europe)",
-	"ISO-8859-2 (Central Europe)",
-	"ISO-8859-7 (Greek)",
-	"ISO-8859-8 (Hebrew)",
-	"ISO-8859-9 (Turkish)",
-	"ISO-2022-JP (Japanese)",
-	"SJIS (Japanese)",
-	"CP949 (Korean)",
-	"CP1251 (Cyrillic)",
-	"CP1256 (Arabic)",
-	"GB18030 (Chinese)",
-	NULL
-};
 static GHashTable *enctoindex;
 static gboolean initialized = FALSE;
 
@@ -109,16 +93,6 @@ edit_global_changed (GtkToggleButton *togglebutton, gpointer data)
 		gtk_widget_set_sensitive (nick, TRUE);
 		gtk_widget_set_sensitive (real, TRUE);
 	}
-}
-
-static void
-encoding_changed (GtkComboBox *combo, ircnet *net)
-{
-	guint index;
-	if (net->encoding)
-		g_free (net->encoding);
-	index = gtk_combo_box_get_active (combo);
-	net->encoding = g_strdup (encodings[index]);
 }
 
 static void
@@ -252,18 +226,6 @@ populate_servers_list (GtkListStore *store, ircnet *net)
 	}
 }
 
-autojoin_entry_edited (GtkCellRendererText *renderer, gchar *arg1, gchar *arg2, GtkTreeView *view)
-{
-	GtkTreeSelection *selection;
-	GtkTreeModel *model;
-	GtkTreeIter iter;
-	ircserver *serv;
-
-	selection = gtk_tree_view_get_selection (view);
-	if (gtk_tree_selection_get_selected (selection, &model, &iter))
-		gtk_list_store_set (GTK_LIST_STORE (model), &iter, 0, arg2, -1);
-}
-
 static void
 autojoin_selection_changed (GtkTreeSelection *selection, gpointer data)
 {
@@ -322,209 +284,11 @@ server_entry_edited (GtkCellRendererText *renderer, gchar *arg1, gchar *arg2, Gt
 static void
 edit_clicked (GtkWidget *button, gpointer data)
 {
-	GtkWidget *dialog, *password, *nick, *real, *encoding;
-	GtkWidget *treeview, *widget;
-	GtkSizeGroup *group;
-	GtkTreeSelection *select;
-	GtkTreeIter iter;
-	GtkTreeModel *model;
-	GtkCellRenderer *renderer;
-	GtkTreeViewColumn *column;
-	GtkListStore *store;
-	GConfClient *client;
-	ircnet *net;
-
-	client = gconf_client_get_default ();
-
-	treeview = glade_xml_get_widget (gui.xml, "configure server list");
-	select = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
-	gtk_tree_selection_get_selected (select, &model, &iter);
-	gtk_tree_model_get (model, &iter, 2, &net, -1);
-
-	dialog = glade_xml_get_widget (gui.xml, "server configuration");
-
-	group = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
-	password = glade_xml_get_widget (gui.xml, "server config password");
-	gtk_size_group_add_widget (group, password);
-
-	widget = glade_xml_get_widget (gui.xml, "server config network name");
-	gtk_entry_set_text (GTK_ENTRY (widget), net->name);
-	g_signal_connect (G_OBJECT (widget), "changed", G_CALLBACK (check_input), dialog);
-	gtk_size_group_add_widget (group, widget);
-
-	encoding = glade_xml_get_widget (gui.xml, "encoding combo");
-	if (!initialized) {
-		char **enc = (char **) encodings;
-		guint index = 0;
-
-		enctoindex = g_hash_table_new (g_str_hash, g_str_equal);
-
-		/* Add encodings to the drop-down */
-		do {
-			gtk_combo_box_append_text (GTK_COMBO_BOX (_(encoding)), *enc);
-			g_hash_table_insert (enctoindex, *enc, GUINT_TO_POINTER (index));
-
-			index++;
-			enc++;
-		} while (*enc);
-		initialized = TRUE;
-	}
-	gtk_size_group_add_widget (group, encoding);
-	g_object_unref (group);
-
-	group = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
-	nick = glade_xml_get_widget (gui.xml, "server config nickname");
-	g_signal_connect (G_OBJECT (nick), "changed", G_CALLBACK (check_input), dialog);
-	gtk_size_group_add_widget (group, nick);
-	real = glade_xml_get_widget (gui.xml, "server config realname");
-	g_signal_connect (G_OBJECT (real), "changed", G_CALLBACK (check_input), dialog);
-	gtk_size_group_add_widget (group, real);
-	g_object_unref (group);
-
-	if (net->pass != NULL)
-		gtk_entry_set_text (GTK_ENTRY (password), net->pass);
-
-	widget = glade_xml_get_widget (gui.xml, "server config usedefaults");
-	g_signal_connect (G_OBJECT (widget), "toggled", G_CALLBACK (globals_toggled), dialog);
-	if (net->flags & FLAG_USE_GLOBAL) {
-		gchar *text;
-		text = gconf_client_get_string (client, "/apps/xchat/irc/nickname", NULL);
-		gtk_entry_set_text (GTK_ENTRY (nick), text);
-		g_free (text);
-		text = gconf_client_get_string (client, "/apps/xchat/irc/realname", NULL);
-		gtk_entry_set_text (GTK_ENTRY(real), text);
-		g_free (text);
-		gtk_widget_set_sensitive (nick, FALSE);
-		gtk_widget_set_sensitive (real, FALSE);
-		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), TRUE);
-	} else {
-		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), FALSE);
-		gtk_widget_set_sensitive (nick, TRUE);
-		gtk_widget_set_sensitive (real, TRUE);
-		if (net->nick != NULL)
-			gtk_entry_set_text (GTK_ENTRY (nick), net->nick);
-		if (net->real != NULL)
-			gtk_entry_set_text (GTK_ENTRY (real), net->real);
-	}
-	g_signal_connect (G_OBJECT (widget), "toggled", G_CALLBACK (edit_global_changed), NULL);
-
-	widget = glade_xml_get_widget (gui.xml, "server config autoconnect");
-	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), (net->flags & FLAG_AUTO_CONNECT));
-
-	widget = glade_xml_get_widget (gui.xml, "server config ssl");
-	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), (net->flags & FLAG_USE_SSL));
-
-	widget = glade_xml_get_widget (gui.xml, "server config cycle");
-	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), (net->flags & FLAG_CYCLE));
-
-	widget = glade_xml_get_widget (gui.xml, "server config ok");
-	g_signal_connect (G_OBJECT (widget), "clicked", G_CALLBACK (edit_ok_clicked), NULL);
-
-	widget = glade_xml_get_widget (gui.xml, "server config cancel");
-	g_signal_connect (G_OBJECT (widget), "clicked", G_CALLBACK (edit_cancel_clicked), NULL);
-
-	widget = glade_xml_get_widget (gui.xml, "encoding combo");
-	/* Set current encoding */
-	{
-		guint index;
-		if (net->encoding == NULL) {
-			index = 0;
-			net->encoding = g_strdup (encodings[0]);
-		} else {
-			index = GPOINTER_TO_UINT (g_hash_table_lookup (enctoindex, net->encoding));
-		}
-		gtk_combo_box_set_active (GTK_COMBO_BOX (widget), index);
-	}
-	g_signal_connect (G_OBJECT (widget), "changed", G_CALLBACK (encoding_changed), net);
-
-	/* servers list */
-	widget = glade_xml_get_widget (gui.xml, "server config servers");
-	store = GTK_LIST_STORE (gtk_tree_view_get_model (GTK_TREE_VIEW (widget)));
-	if (store == NULL) {
-		store = gtk_list_store_new (2, G_TYPE_STRING, G_TYPE_POINTER);
-		gtk_tree_view_set_model (GTK_TREE_VIEW (widget), GTK_TREE_MODEL (store));
-		renderer = gtk_cell_renderer_text_new ();
-		column = gtk_tree_view_column_new ();
-		gtk_tree_view_column_pack_start (column, renderer, TRUE);
-		gtk_tree_view_column_set_attributes (column, renderer, "text", 0, NULL);
-		gtk_tree_view_append_column (GTK_TREE_VIEW (widget), column);
-		g_object_set (G_OBJECT (renderer), "editable", TRUE, NULL);
-		g_signal_connect (G_OBJECT (renderer), "edited", G_CALLBACK (server_entry_edited), widget);
-
-		select = gtk_tree_view_get_selection (GTK_TREE_VIEW (widget));
-		g_signal_connect (G_OBJECT (select), "changed", G_CALLBACK (server_selection_changed), NULL);
-
-		widget = glade_xml_get_widget (gui.xml, "server config add server");
-		g_signal_connect (G_OBJECT (widget), "clicked", G_CALLBACK (add_server_clicked), NULL);
-		widget = glade_xml_get_widget (gui.xml, "server config remove server");
-		gtk_widget_set_sensitive (widget, FALSE);
-		g_signal_connect (G_OBJECT (widget), "clicked", G_CALLBACK (remove_server_clicked), NULL);
-	} else {
-		gtk_list_store_clear (store);
-	}
-
-	populate_servers_list (store, net);
-
-	/* channels list */
-	widget = glade_xml_get_widget (gui.xml, "server config channels");
-	store = GTK_LIST_STORE (gtk_tree_view_get_model (GTK_TREE_VIEW (widget)));
-	if (store == NULL) {
-		store = gtk_list_store_new (1, G_TYPE_STRING);
-		gtk_tree_view_set_model (GTK_TREE_VIEW (widget), GTK_TREE_MODEL (store));
-		renderer = gtk_cell_renderer_text_new ();
-		column = gtk_tree_view_column_new ();
-		gtk_tree_view_column_pack_start (column, renderer, TRUE);
-		gtk_tree_view_column_set_attributes (column, renderer, "text", 0, NULL);
-		gtk_tree_view_append_column (GTK_TREE_VIEW (widget), column);
-		g_object_set (G_OBJECT (renderer), "editable", TRUE, NULL);
-		g_signal_connect (G_OBJECT (renderer), "edited", G_CALLBACK (autojoin_entry_edited), widget);
-
-		select = gtk_tree_view_get_selection (GTK_TREE_VIEW (widget));
-		g_signal_connect (G_OBJECT (select), "changed", G_CALLBACK (autojoin_selection_changed), NULL);
-
-		widget = glade_xml_get_widget (gui.xml, "add autojoin channel");
-		g_signal_connect (G_OBJECT (widget), "clicked", G_CALLBACK (add_autojoin_clicked), NULL);
-		widget = glade_xml_get_widget (gui.xml, "remove autojoin channel");
-		gtk_widget_set_sensitive (widget, FALSE);
-		g_signal_connect (G_OBJECT (widget), "clicked", G_CALLBACK (remove_autojoin_clicked), NULL);
-	} else {
-		gtk_list_store_clear (store);
-	}
-
-	populate_channels_list (store, net);
-
-	gtk_widget_show_all (dialog);
-
-	g_object_unref (client);
-
-	check_input (NULL, dialog);
 }
 
 static void
 add_clicked (GtkWidget *button, gpointer data)
 {
-	GtkWidget *treeview;
-	GtkTreeModelSort *model;
-	GtkListStore *store;
-	GtkTreeSelection *select;
-	GtkTreeIter iter, parent;
-	ircnet *net;
-
-	net = servlist_net_add (_("New Network"), "", TRUE);
-	net->encoding = g_strdup (encodings[0]);
-	servlist_server_add (net, "newserver/6667");
-
-	treeview = glade_xml_get_widget (gui.xml, "configure server list");
-	model = GTK_TREE_MODEL_SORT (gtk_tree_view_get_model (GTK_TREE_VIEW (treeview)));
-	store = GTK_LIST_STORE (gtk_tree_model_sort_get_model (model));
-	select = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
-
-	gtk_list_store_prepend (store, &iter);
-	gtk_list_store_set (store, &iter, 0, _("New Network"), 2, net, -1);
-	gtk_tree_model_sort_convert_child_iter_to_iter (model, &parent, &iter);
-	gtk_tree_selection_select_iter (select, &parent);
-
-	edit_clicked (button, data);
 }
 
 static void

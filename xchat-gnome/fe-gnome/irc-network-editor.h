@@ -59,6 +59,7 @@ struct _IrcNetworkEditor
 	GtkWidget *remove_server;
 
 	GtkWidget *use_globals;
+	GtkWidget *use_custom;
 	GtkWidget *nickname;
 	GtkWidget *realname;
 
