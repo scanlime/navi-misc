@@ -20,17 +20,7 @@ CDrawManager::CDrawManager()
 
 CDrawManager::~CDrawManager()
 {
-	//drawables
-
-	drawableMap::iterator itr = drawables.begin();
-
-	while (itr != drawables.end())
-	{
-		factories[itr->second->GetName()]->Delete(itr->second);
-		itr++;
-	}
-	drawables.clear();
-	factories.clear();
+	ClearAll();
 }
 
 void CDrawManager::Init ( CBaseGameLoop * pGameLoop )
@@ -80,3 +70,17 @@ bool CDrawManager::Delete ( int item )
 
 	return true;
 }
+
+void CDrawManager::ClearAll ( void )
+{
+	drawableMap::iterator itr = drawables.begin();
+
+	while (itr != drawables.end())
+	{
+		factories[itr->second->GetName()]->Delete(itr->second);
+		itr++;
+	}
+	drawables.clear();
+	factories.clear();
+}
+
