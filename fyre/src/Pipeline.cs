@@ -19,11 +19,36 @@
  *
  */
 
+using System.Collections;
+
 namespace Fyre
 {
 
+	class UidComparer : IComparer
+	{
+		public int Compare (object x, object y)
+		{
+			byte[] xb = (byte[]) x;
+			byte[] yb = (byte[]) y;
+
+			for (int i = 0; i < 16; i++) {
+				if (xb[i] < yb[i]) return -1;
+				if (xb[i] > yb[i]) return 1;
+			}
+			return 0;
+		}
+	}
+
 	class Pipeline
 	{
+		private Hashtable	element_store;
+		private UidComparer	comparer;
+
+		public Pipeline ()
+		{
+			comparer = new UidComparer ();
+			element_store = new Hashtable (null, comparer);
+		}
 	}
 
 }
