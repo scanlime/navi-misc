@@ -114,7 +114,7 @@ def getPacketLossRrd(source, sequenceMask=31):
     def dataGenerator(stamp):
         # Get an initial value for the previous sequence number
         try:
-            prev = source.iterPacketsBeforeOrEqual(stamp).next().get('sequence')
+            prev = source.iterPacketsBeforeOrEqual(stamp, 1).next().get('sequence')
         except StopIteration:
             prev = 0
 

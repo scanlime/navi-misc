@@ -58,19 +58,27 @@ class ThermSource:
             self.packetQuery, self.id)):
             return row
 
-    def iterPacketsAfter(self, id):
+    def iterPacketsAfter(self, id, limit=None):
         """Iterate over packets after the given ID"""
+        if limit:
+            limit = "LIMIT %d" % limit
+        else:
+            limit = ''
         return self.db.iterDictQuery(
-            "%s WHERE source = %d AND P.id > %d ORDER BY P.time" % (
-            self.packetQuery, self.id, id))
+            "%s WHERE source = %d AND P.id > %d ORDER BY P.id %s" % (
+            self.packetQuery, self.id, id, limit))
 
-    def iterPacketsBeforeOrEqual(self, id):
+    def iterPacketsBeforeOrEqual(self, id, limit=None):
         """The complement to iterPacketsAfter- iterates backwards over
            all packets with an ID less than or equal to the given one.
            """
+        if limit:
+            limit = "LIMIT %d" % limit
+        else:
+            limit = ''
         return self.db.iterDictQuery(
-            "%s WHERE source = %d AND P.id <= %d ORDER BY P.time DESC" % (
-            self.packetQuery, self.id, id))
+            "%s WHERE source = %d AND P.id <= %d ORDER BY P.id DESC %s" % (
+            self.packetQuery, self.id, id, limit))
 
     def pollNewPackets(self, afterId=None, pollInterval=0.5):
         """Iterate over new packets as they arrive. If an ID is given,
