@@ -1,3 +1,12 @@
+Wed Mar 17 22:27:58 PST 2004  Christian Hammond <chipx86@gnupdate.org>
+
+	* src/IsoMapData.cpp:
+	* src/IsoMapData.h:
+	* src/MapData.cpp:
+	* src/MapData.h:
+	  - Moved the implementation of MapData::getNeighbor() to
+	    IsoMapData. Made MapData::getNeighbor() pure virtual.
+
 Wed Mar 17 22:14:10 PST 2004  Christian Hammond <chipx86@gnupdate.org>
 
 	* src/IsoMapTile.cpp:

@@ -9,6 +9,8 @@ class IsoMapData : public MapData
 		IsoMapData(int width, int height);
 		virtual ~IsoMapData();
 
+		MapObject *getNeighbor(int x, int y, Direction dir);
+
 		virtual bool areNeighbors(const MapLocation &loc1,
 								  const MapLocation &loc2) const;
 
