@@ -25,6 +25,9 @@ using Glade;
 
 public class PipelineEditor
 {
+	private Gtk.TreeStore	element_store;
+	[Widget] Gtk.TreeView	element_list;
+
         public static void Main (string[] args)
         {
                 new PipelineEditor (args);
@@ -36,11 +39,26 @@ public class PipelineEditor
 
                 Glade.XML gxml = new Glade.XML (null, "pipeline-editor.glade", "window1", null);
                 gxml.Autoconnect (this);
+                
+                this.element_store = new Gtk.TreeStore (typeof (Gdk.Pixbuf), typeof (string));
+                element_list.Model = this.element_store;
+                
+                Gtk.CellRenderer pixbuf_renderer = new Gtk.CellRendererPixbuf ();
+                Gtk.CellRenderer text_renderer   = new Gtk.CellRendererText ();
+                Gtk.TreeViewColumn column = new Gtk.TreeViewColumn ();
+
+                column.Title = "Elements";
+                column.PackStart (pixbuf_renderer, false);
+                column.AddAttribute (pixbuf_renderer, "pixbuf", 0);
+                column.PackStart (text_renderer, true);
+                column.AddAttribute (text_renderer, "text", 1);
+                
+                element_list.AppendColumn (column);
+                
                 Application.Run();
         }
 
         /* Event handlers - most of these come from the glade file */
-        
         /* Window events */
         public void OnDeleteEvent (object o, DeleteEventArgs args) 
         {
@@ -49,46 +67,47 @@ public class PipelineEditor
         }
         
         /* Shared events - menus/toolbars */
-		public void OnNew (object o, EventArgs args)
-		{
-		}
+	public void OnNew (object o, EventArgs args)
+	{
+	}
+	
+	public void OnOpen (object o, EventArgs args)
+	{
+	}
 		
-		public void OnOpen (object o, EventArgs args)
-		{
-		}
+	public void OnSave (object o, EventArgs args)
+	{
+	}
 		
-		public void OnSave (object o, EventArgs args)
-		{
-		}
+	public void OnCut (object o, EventArgs args)
+	{
+	}
 		
-		public void OnCut (object o, EventArgs args)
-		{
-		}
+	public void OnCopy (object o, EventArgs args)
+	{
+	}
 		
-		public void OnCopy (object o, EventArgs args)
-		{
-		}
-		
-		public void OnPaste (object o, EventArgs args)
-		{
-		}
+	public void OnPaste (object o, EventArgs args)
+	{
+	}
 
-		/* 'File' Menu events */
-		public void OnMenuFileSaveAs (object o, EventArgs args)
-		{
-		}
+	/* 'File' Menu events */
+	public void OnMenuFileSaveAs (object o, EventArgs args)
+	{
+	}
 		
-		public void OnMenuFileQuit (object o, EventArgs args)
-		{
-				Application.Quit ();
-		}
+	public void OnMenuFileQuit (object o, EventArgs args)
+	{
+		Application.Quit ();
+	}
 		
-		/* 'Edit' Menu events */		
-		public void OnMenuEditDelete (object o, EventArgs args)
-		{
-		}
-		
-		public void OnMenuHelpAbout (object o, EventArgs args)
-		{
-		}
+	/* 'Edit' Menu events */		
+	public void OnMenuEditDelete (object o, EventArgs args)
+	{
+	}
+	
+	/* 'Help' Menu events */
+	public void OnMenuHelpAbout (object o, EventArgs args)
+	{
+	}
 }
