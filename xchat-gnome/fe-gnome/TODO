@@ -1,8 +1,11 @@
+before 0.2:
+	finish topic stuff
+	fix the completely-broken druid (probably replace with a simple dialog)
+
 autotools:
   * check for an adequate version of gnome-icon-theme, etc
   * autogenerate inline pngs during build
 
-* lastlog
 * make strings translateable --> _("blah")
 * if a word-check function is installed into xtext, should make URLs blue
 * add/remove in the server list
@@ -12,9 +15,6 @@ autotools:
 * split the transfers window into separate send & recieve windows
 * split other dialogs out of xchat-gnome.glade (difficult at this point)
 * make functions static where possible
-* hook up pgup/pgdn
-* topic bar should be a label with a (sometimes insensitive) "change" button
-  if using gtk+ 2.5+, allow ellipsizing with an expander, if not just wrap
 * double clicking on an item in the server config list should open its edit box
 
 * sort the server/channel list in non-case sensitive alphabetical order
