@@ -176,6 +176,9 @@ class RecentMessages(MessageList):
         messages.reverse()
         MessageList.__init__(self, [Message.Message(m) for m in messages])
 
+    def isVisible(self, context):
+        return len(self.messages) != 0
+
 
 class StatsPage(Template.Page):
     """A web page providing an interface to one StatsTarget.
