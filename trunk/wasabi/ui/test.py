@@ -55,6 +55,10 @@ class IconTest(Sequencer.Page):
             size
             )
 
+    def finalize(self):
+        # UGLY HACK!!!!!!!!!
+        self.dock = None
+
 
 mainBook = Sequencer.CyclicBook(view, [
     # Cycle through wasabi logos until user intervention, then fade out
