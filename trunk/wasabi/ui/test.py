@@ -21,7 +21,7 @@ class IconTest(Sequencer.Page):
         self.icon = Icon.Icon('navi512.png', 'Hello Navi', imageAspect=1.623)
         overlay.onDrawFrame.observe(self.drawFrame)
 
-        self.size = Animated.Value(Animated.SineFunction(range=(200,300)))
+        self.size = Animated.Value(Animated.SineFunction(range=(20,30)))
 
     def drawFrame(self):
         self.size.integrate(self.time.step())
@@ -29,7 +29,7 @@ class IconTest(Sequencer.Page):
         GLOrtho.setup()
         GLOrtho.translate(self.viewport.size[0] * 0.5,
                           self.viewport.size[1] * 0.5)
-        self.icon.draw(Icon.LargeIconStyle, self.size.value)
+        self.icon.draw(Icon.ListIconStyle, self.size.value)
 
 
 mainBook = Sequencer.CyclicBook(view, [
