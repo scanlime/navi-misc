@@ -9,9 +9,7 @@ class PulseCounter(object):
 
     def sample(self, duration, prescale=0):
         """Sample the counter for approximately the specified
-           number of seconds. This returns a tuple with upper
-           and lower bounds on the sampling time, stored as
-           attributes.
+           number of seconds.
            """
         timer_off = 0x06 | (prescale << 4)
         timer_on = timer_off | 0x01
@@ -20,6 +18,9 @@ class PulseCounter(object):
         self.rcpod.poke('t1con', timer_off)
         self.rcpod.poke('tmr1l', 0)
         self.rcpod.poke('tmr1h', 0)
+
+        # Clear the overflow flag
+        self.rcpod.poke('pir1', 0)
 
         # Start timing, bracketing the start time
         t1 = time.time()
@@ -34,6 +35,8 @@ class PulseCounter(object):
         t4 = time.time()
 
         self.counts = self.rcpod.peek('tmr1l') | (self.rcpod.peek('tmr1h') << 8)
+        self.overflow = bool(self.rcpod.peek('pir1') & 0x01)
+
         self.minDuration = t3 - t2
         self.maxDuration = t4 - t1
 
@@ -79,9 +82,14 @@ class SamplerWindow:
     def synchronize(self):
         self.thread.duration = self.xml.get_widget("sampling_delay").get_adjustment().get_value()
         if hasattr(self.thread, 'counter') and hasattr(self.thread.counter, 'counts'):
+
+            count = str(self.thread.counter.counts)
+            if self.thread.counter.overflow:
+                count = "%s (overflow)" % count
+
             for widget, value in (
 
-                ("pulse_count", str(self.thread.counter.counts)),
+                ("pulse_count", count),
                 ("integration_time", "%.04f" % self.thread.counter.iTimeCenter),
                 ("integration_time_error", "%.04f" % self.thread.counter.iTimeError),
                 ("frequency", "%.01f" % self.thread.counter.frequency),
