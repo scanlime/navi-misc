@@ -23,21 +23,23 @@ $result = mysql_query ($query) or die ("Rss-gen query failed: error " . mysql_er
     // Append to $content
     while ($row = mysql_fetch_array ($result)) {
     	$content .= "  <item>\n";
-	$content .= "    <title>$row[servername]</title>\n";
-	$content .= "    <id>$row[id]</id>\n";
-	$content .= "    <servername>$row[servername]</servername>\n";
-	$content .= "    <address>$row[address]</address>\n";
-	$content .= "    <port>$row[port]</port>\n";
-	$content .= "    <game>$row[game]</game>\n";
-	$content .= "    <version>$row[version]</version>\n";
-	$content .= "    <os>$row[os]</os>\n";
-	$content .= "    <maxplayers>$row[maxplayers]</maxplayers>\n";
-	$content .= "    <currentplayers>$row[currentplayers]</currentplayers>\n";
-	$content .= "    <lastupdate>$row[lastupdate]</lastupdate>\n";
-	$content .= "  </item>\n";
+		$content .= "    <title>$row[servername]</title>\n";
+		$content .= "    <id>$row[id]</id>\n";
+		$content .= "    <servername>$row[servername]</servername>\n";
+		$content .= "    <address>$row[address]</address>\n";
+		$content .= "    <port>$row[port]</port>\n";
+		$content .= "    <game>$row[game]</game>\n";
+		$content .= "    <version>$row[version]</version>\n";
+		$content .= "    <os>$row[os]</os>\n";
+		$content .= "    <maxplayers>$row[maxplayers]</maxplayers>\n";
+		$content .= "    <currentplayers>$row[currentplayers]</currentplayers>\n";
+		$content .= "    <lastupdate>$row[lastupdate]</lastupdate>\n";
+		$content .= "  </item>\n";
     }
+	// Finish off the channel and the RSS feed.
     $content .= "  </channel>\n";
     $content .= "</rss>\n";
+	
 // Display the content
 	echo ($content);
 
