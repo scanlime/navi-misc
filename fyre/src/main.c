@@ -36,6 +36,7 @@
 #include "explorer.h"
 #include "avi-writer.h"
 #include "screensaver.h"
+#include "remote.h"
 #include "config.h"
 
 static void usage                  (char       **argv);
@@ -52,13 +53,15 @@ int main(int argc, char ** argv) {
   DeJong* dejong;
   Animation* animation;
   gboolean animate = FALSE;
-  enum {INTERACTIVE, RENDER, SCREENSAVER} mode = INTERACTIVE;
+  gboolean have_gtk;
+  enum {INTERACTIVE, RENDER, SCREENSAVER, REMOTE} mode = INTERACTIVE;
   const gchar *outputFile = NULL;
   int c, option_index=0;
   gulong target_density = 10000;
 
   g_random_set_seed(time(NULL));
   g_type_init();
+  have_gtk = gtk_init_check(&argc, &argv);
 
   dejong = de_jong_new();
   animation = animation_new();
@@ -73,10 +76,11 @@ int main(int argc, char ** argv) {
       {"size",        1, NULL, 's'},
       {"oversample",  1, NULL, 'S'},
       {"density",     1, NULL, 'd'},
+      {"remote",      0, NULL, 'r'},
       {"screensaver", 0, NULL, 1000},   /* Undocumented, still experimental */
       {NULL},
     };
-    c = getopt_long(argc, argv, "hi:n:o:p:s:S:d:",
+    c = getopt_long(argc, argv, "hi:n:o:p:s:S:d:r",
 		    long_options, &option_index);
     if (c == -1)
       break;
@@ -113,6 +117,10 @@ int main(int argc, char ** argv) {
       target_density = atol(optarg);
       break;
 
+    case 'r':
+      mode = REMOTE;
+      break;
+
     case 1000:
       mode = SCREENSAVER;
       break;
@@ -132,7 +140,10 @@ int main(int argc, char ** argv) {
   switch (mode) {
 
   case INTERACTIVE:
-    gtk_init(&argc, &argv);
+    if (!have_gtk) {
+      fprintf(stderr, "GTK intiailization failed, can't start in interactive mode\n");
+      return 1;
+    }
     explorer_new(ITERATIVE_MAP(dejong), animation);
     gtk_main();
     break;
@@ -145,8 +156,15 @@ int main(int argc, char ** argv) {
       image_render_main(dejong, outputFile, target_density);
     break;
 
+  case REMOTE:
+    remote_main(ITERATIVE_MAP(dejong), animation, have_gtk);
+    break;
+
   case SCREENSAVER:
-    gtk_init(&argc, &argv);
+    if (!have_gtk) {
+      fprintf(stderr, "GTK intiailization failed, can't start in screensaver mode\n");
+      return 1;
+    }
     screensaver_new(ITERATIVE_MAP(dejong), animation);
     gtk_main();
     break;
@@ -169,6 +187,8 @@ static void usage(char **argv) {
 	 "  -o, --output FILE       Instead of presenting an interactive GUI, render\n"
 	 "                            an image or animation with the provided settings\n"
 	 "                            noninteractively, and store it in FILE.\n"
+	 "  -r, --remote            Remote control mode. This is an automation-friendly\n"
+	 "                            interface provided on stdin and stdout.\n"
 	 "\n"
 	 "Parameters:\n"
 	 "  -p, --param KEY=VALUE   Set a calculation or rendering parameter, using the\n"
