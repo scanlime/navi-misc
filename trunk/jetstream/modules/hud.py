@@ -25,11 +25,11 @@ class Hud:
         self.game = game
         self.app = game.app
         # Load our widget template, importing widgets from it
-	self.template = self.app.newTemplate(open("data/hud.wt").read())
-	self.inst = self.template.instantiate([
-	    'Velocity',
-	    'Lasers',
-	    ])
+        self.template = self.app.newTemplate(open("data/hud.wt").read())
+        self.inst = self.template.instantiate([
+            'Velocity',
+            'Lasers',
+            ])
 
     def setVelocity(self, v):
         self.inst.Velocity.text = str(v)
