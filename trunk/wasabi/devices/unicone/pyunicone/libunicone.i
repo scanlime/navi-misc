@@ -26,10 +26,19 @@
 %{
 #include <unicone_device.h>
 #include <progress_python.h>
+#include <progress_console.h>
 %}
+
+%include typemaps.i
+
+%typemap(in) (const unsigned char *data, int length) {
+   $1 = PyString_AsString($input);
+   $2 = PyString_Size($input);
+}
 
 %include unicone_device.h
 %include progress.h
 %include progress_python.h
+%include progress_console.h
 
 /* The End */

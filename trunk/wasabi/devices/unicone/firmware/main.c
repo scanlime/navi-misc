@@ -164,9 +164,9 @@ void usb_handle_vendor_request()
     break;
 
   case UNICONE_REQ_SET_LED:
-    usb_write_ack();
     led_brightness = usb_setup_buffer.wValue;
     led_decay_rate = usb_setup_buffer.wIndex;
+    usb_write_ack();
     break;
 
   default:
