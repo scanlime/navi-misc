@@ -35,6 +35,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
+void on_main_window_close(GtkWidget *widget, GdkEvent *event, gpointer data);
 void on_irc_quit_menu_activate(GtkWidget *widget, gpointer data);
 void on_irc_connect_menu_activate(GtkWidget *widget, gpointer data);
 void on_edit_cut_menu_activate(GtkWidget *widget, gpointer data);
@@ -68,6 +69,7 @@ void initialize_main_window() {
 	GtkWidget *entry;
 
 	gui.main_window = GNOME_APP(glade_xml_get_widget(gui.xml, "xchat-gnome"));
+	g_signal_connect(G_OBJECT(gui.main_window), "delete-event", G_CALLBACK(on_main_window_close), NULL);
 	/* hook up the menus */
 	g_signal_connect(G_OBJECT(glade_xml_get_widget(gui.xml, "connect1")), "activate", G_CALLBACK(on_irc_connect_menu_activate), NULL);
 	g_signal_connect(G_OBJECT(glade_xml_get_widget(gui.xml, "quit1")), "activate", G_CALLBACK(on_irc_quit_menu_activate), NULL);
@@ -112,6 +114,11 @@ void run_main_window() {
 
 void on_irc_connect_menu_activate(GtkWidget *widget, gpointer data) {
 	display_connection_dialog();
+}
+
+void on_main_window_close(GtkWidget *widget, GdkEvent *event, gpointer data) {
+	gui.quit = TRUE;
+	xchat_exit();
 }
 
 void on_irc_quit_menu_activate(GtkWidget *widget, gpointer data) {

@@ -10,7 +10,7 @@ typedef struct {
 	struct server *server;
 } channel_list_window;
 
-void initialize_channel_lists();
+gboolean channel_list_exists(server *serv);
 void create_channel_list(session *sess);
 void repopulate_channel_list(channel_list_window *win);
 
