@@ -51,6 +51,7 @@ struct _Box
 
   BoxParams param;
   gboolean state_dirty;
+  GList *drawables;
 };
 
 struct _BoxClass

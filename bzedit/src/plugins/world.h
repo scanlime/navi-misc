@@ -24,6 +24,7 @@
 #define __WORLD_H__
 
 #include "sceneobject.h"
+#include "displaylist.h"
 
 G_BEGIN_DECLS
 
@@ -48,6 +49,7 @@ struct _World
 
   WorldParams param;
   gboolean state_dirty;
+  GList *drawables;
 };
 
 struct _WorldClass
@@ -57,6 +59,31 @@ struct _WorldClass
 
 GType  world_get_type (void) G_GNUC_CONST;
 World* world_new      (void);
+
+#define GROUND_DRAWABLE_TYPE            (ground_drawable_get_type ())
+#define GROUND_DRAWABLE(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), GROUND_DRAWABLE_TYPE, GroundDrawable))
+#define GROUND_DRAWABLE_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass, GROUND_DRAWABLE_TYPE, GroundDrawableClass))
+#define IS_GROUND_DRAWABLE(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), GROUND_DRAWABLE_TYPE))
+#define IS_GROUND_DRAWABLE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), GROUND_DRAWABLE_TYPE))
+
+typedef struct _GroundDrawable      GroundDrawable;
+typedef struct _GroundDrawableClass GroundDrawableClass;
+
+struct _GroundDrawable
+{
+  DisplayList parent;
+
+  guint base_texture_repeat, overlay_texture_repeat;
+  guint size;
+};
+
+struct _GroundDrawableClass
+{
+  DisplayListClass parent_class;
+};
+
+GType     ground_drawable_get_type (void) G_GNUC_CONST;
+Drawable* ground_drawable_new (void);
 
 G_END_DECLS
 
