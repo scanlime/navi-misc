@@ -32,10 +32,11 @@ class Channel(object):
        The 'value' property gets and sets this channel's value, updating its timestamp
        when set.
        """
-    def __init__(self, value=None, color=(0,0,1)):
+    def __init__(self, value=None, color=(0,0,1), name=None):
         self._value = value
         self._timestamp = None
         self.timeMap = {}
+        self.name = name
         self.setColor(color)
 
     def getValue(self):
@@ -103,5 +104,12 @@ class Channel(object):
         else:
             self.timeMap[obj] = self._timestamp
             return True
+
+    def __str__(self):
+        """Returns the channels name, if it has one, or the repr() otherwise"""
+        if self.name is not None:
+            return self.name
+        else:
+            return repr(self)
 
 ### The End ###

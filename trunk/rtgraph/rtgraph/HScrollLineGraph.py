@@ -59,11 +59,14 @@ class HScrollLineGraph(HScrollGraph):
         """Scrolls our old pen vectors along with the graph,
            culling out old vectors while we're at it.
            """
-        for channel in self.penVectors.iterkeys():
+        # Note that it's important to use items() here,
+        # ince the penVectors dict might change while we're
+        # iterating.
+        for channel, penVector in self.penVectors.items():
             if channel in self.channels:
                 self.penVectors[channel] = (
-                    self.penVectors[channel][0] - nPixels,
-                    self.penVectors[channel][1])
+                    penVector[0] - nPixels,
+                    penVector[1])
             else:
                 del self.penVectors[channel]
 
