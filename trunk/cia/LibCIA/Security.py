@@ -180,7 +180,6 @@ class CapabilityDB(object):
     def faultIfMissing(self, key, *capabilities):
         """Raise a fault if the given key doesn't match any of the given capabilities"""
         for capability in capabilities:
-            print self.test(key, capability), capability
             if self.test(key, capability):
                 return
         import xmlrpclib
