@@ -127,12 +127,22 @@ class LagColumn(Nouvelle.Column):
             return "%.2fs" % lag
 
 
-class StringAttributeColumn(Nouvelle.AttributeColumn):
-    """A column that has a fixed heading and returns some attribute
-       from each row, forced into a string.
+class BotServerColumn(Nouvelle.Column):
+    """A column showing the server a bot is connected to.
+       For sorting purposes, this returns the network, so
+       bots on the same network are grouped together.
        """
-    def getValue(self, row):
-        return str(getattr(row, self.attribute))
+    heading = 'server'
+
+    def getValue(self, bot):
+        return str(bot.network)
+
+    def render_data(self, context, bot):
+        host, port = bot.transport.addr
+	if port == 6667:
+	    return host
+        else:
+	    return "%s:%d" % (host, port)
 
 
 class BotsSection(Template.Section):
@@ -143,7 +153,7 @@ class BotsSection(Template.Section):
         self.botNet = botNet
 
         self.columns = [
-            StringAttributeColumn('network', 'network'),
+            BotServerColumn(),
             Nouvelle.AttributeColumn('nickname', 'nickname'),
             ListAttributeColumn('channels', 'channels'),
             ListAttributeColumn('requested', 'requestedChannels'),
