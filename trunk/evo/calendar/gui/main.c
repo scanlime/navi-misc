@@ -140,8 +140,6 @@ initialize (void)
 
 	launch_alarm_daemon ();
 	
-	/* Initialize Calendar Publishing */
-	calendar_component_init_publishing ();
 
 	/* Initialize plugin system */
 	e_plugin_hook_register_type (e_cal_popup_hook_get_type());

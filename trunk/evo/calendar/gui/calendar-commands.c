@@ -330,12 +330,6 @@ delete_occurrence_cmd (BonoboUIComponent *uic, gpointer data, const gchar *path)
 }
 
 static void
-publish_freebusy_cmd (BonoboUIComponent *uic, gpointer data, const gchar *path)
-{
-	/* FIXME */
-}
-
-static void
 purge_cmd (BonoboUIComponent *uic, gpointer data, const gchar *path)
 {
 	GnomeCalendar *gcal;
@@ -615,7 +609,6 @@ static BonoboUIVerb verbs [] = {
 	BONOBO_UI_VERB ("ShowMonthView", show_month_view_clicked),
 	BONOBO_UI_VERB ("ShowListView", show_list_view_clicked),
 
-	BONOBO_UI_VERB ("PublishFreeBusy", publish_freebusy_cmd),
 	BONOBO_UI_VERB ("CalendarPurge", purge_cmd),
 
 	BONOBO_UI_VERB_END
