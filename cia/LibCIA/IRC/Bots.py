@@ -155,8 +155,11 @@ class Server:
     def __repr__(self):
         return "<Server at %s>" % self
 
-    def __eq__(self, other):
-        return self.host == other.host and self.port == other.port
+    def __cmp__(self, other):
+        if not isinstance(other, Server):
+            return cmp(self.__class__, other.__class__)
+        else:
+            return cmp((self.host, self.port), (other.host, other.port))
 
     def __hash__(self):
         return hash((self.host, self.port))
