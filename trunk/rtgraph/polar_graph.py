@@ -33,4 +33,5 @@ graph.show()
 
 win.add(graph)
 win.show()
+win.connect("destroy", gtk.mainquit)
 gtk.main()

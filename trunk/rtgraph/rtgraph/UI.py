@@ -173,5 +173,6 @@ def GraphUIWindow(availableChannels, graph=None, title=None):
     ui.show()
     win.add(ui)
     win.show()
+    return win
 
 ### The End ###
