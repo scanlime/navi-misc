@@ -37,7 +37,7 @@ making keys map to pickled callable objects would be too fragile.
 #
 
 from twisted.internet import defer
-import string, os
+import string, os, md5
 import Database, RpcServer
 
 
@@ -224,8 +224,11 @@ class User:
     def _grant(self, cursor, *capabilities):
         uid = self._getUid(cursor)
         for capability in capabilities:
-            cursor.execute("INSERT IGNORE INTO capabilities (uid, capability) VALUES(%d, %s)" % (
-                uid, Database.quote(repr(capability), 'text')))
+            rep = repr(capability)
+            cursor.execute("INSERT IGNORE INTO capabilities (uid, cap_md5, cap_repr) VALUES(%d, %s, %s)" % (
+                uid,
+                Database.quote(md5.new(rep).hexdigest(), 'char'),
+                Database.quote(rep, 'text')))
 
     def require(self, *capabilities):
         """Like test(), but in case none of the listed capabilities have been
@@ -246,7 +249,8 @@ class User:
         if capabilities:
             return "SELECT 1 FROM capabilities WHERE uid = %d AND (%s) LIMIT 1" % (
                 uid,
-                " OR ".join(["capability = " + Database.quote(repr(c), 'text') for c in capabilities]),
+                " OR ".join(["cap_md5 = " + Database.quote(md5.new(repr(c)).hexdigest(),
+                                                           'char') for c in capabilities]),
                 )
         else:
             return "SELECT 1"
@@ -322,7 +326,7 @@ class User:
 
     def _getCapabilities(self, cursor):
         uid = self._getUid(cursor)
-        cursor.execute("SELECT capability FROM capabilities WHERE uid = %d" % uid)
+        cursor.execute("SELECT cap_repr FROM capabilities WHERE uid = %d" % uid)
         return [row[0] for row in cursor.fetchall()]
 
 ### The End ###
