@@ -342,11 +342,7 @@ class Page(Nouvelle.Twisted.Page):
         """Return an HTML <base> tag pointing at this page's original URL.
            This keeps the page from breaking if it's saved to disk or copied elsewhere.
            """
-        protocol, hostname, port = context['request'].host
-        server = "http://" + hostname
-        if port != 80:
-            server += ':' + str(port)
-        return tag('base', href = server + context['request'].path)
+        return tag('base', href = context['request'].prePathURL())
 
     def render_link(self, context):
         """Return a serializable object that should be used to link to this page.
