@@ -98,11 +98,14 @@ DeJong*    de_jong_new();
 
 void       de_jong_reset_to_defaults(DeJong *self);
 void       de_jong_set(DeJong *self, const gchar* property, const gchar* value);
-void       de_jong_interpolate_linear(DeJong *self, DeJong *a, DeJong *b, double alpha);
 
 void       de_jong_calculate(DeJong *self, guint iterations);
 void       de_jong_update_image(DeJong *self);
 GdkPixbuf* de_jong_make_thumbnail(DeJong *self, guint max_width, guint max_height);
+
+void       de_jong_interpolate_linear(DeJong *self, DeJong *a, DeJong *b, double alpha);
+void       de_jong_calculate_motion(DeJong *self, DeJong *a, DeJong *b,
+				    guint iterations, gboolean continuation);
 
 void       de_jong_load_string(DeJong *self, const gchar *params);
 gchar*     de_jong_save_string(DeJong *self);

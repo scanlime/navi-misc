@@ -53,6 +53,13 @@ enum {
   ANIMATION_MODEL_DURATION,     /* The duration of the following transition, in seconds */
 };
 
+typedef struct _AnimationIter {
+  GtkTreeIter keyframe;
+  gboolean valid;
+  gdouble absolute_time;
+  gdouble time_after_keyframe;
+} AnimationIter;
+
 
 /************************************************************************************/
 /******************************************************************* Public Methods */
@@ -62,12 +69,21 @@ GType        animation_get_type();
 Animation*   animation_new();
 void         animation_clear(Animation *self);
 
+/* Persistence */
+void         animation_load_file(Animation *self, const gchar *filename);
+void         animation_save_file(Animation *self, const gchar *filename);
+
+/* Keyframe manipulation */
 void         animation_keyframe_store_dejong(Animation *self, GtkTreeIter *iter, DeJong *dejong);
 void         animation_keyframe_load_dejong(Animation *self, GtkTreeIter *iter, DeJong *dejong);
 void         animation_keyframe_append(Animation *self, DeJong *dejong);
 
-void         animation_load_file(Animation *self, const gchar *filename);
-void         animation_save_file(Animation *self, const gchar *filename);
+/* Animation iterators */
+gdouble      animation_get_length(Animation *self);
+void         animation_iter_get_first(Animation *self, AnimationIter *iter);
+void         animation_iter_seek(Animation *self, AnimationIter *iter, gdouble absolute_time);
+void         animation_iter_seek_relative(Animation *self, AnimationIter *iter, gdouble delta_time);
+void         animation_iter_load_dejong(Animation *self, AnimationIter *iter, DeJong *dejong);
 
 G_END_DECLS
 
