@@ -86,3 +86,17 @@ the XP3 into a rasterwand device.
 18. Connect PORTB on U1 (pins 21 through 28) to the bases of Q4 through Q11,
     respectively. These 8 wires carry the LED drive pattern.
 
+19. Replace the 8 resistors R9 through R15 (150 ohms) with 47 ohm
+    resistors. This is necessary to get adequate brightness with the
+    reduced LED supply voltage (15v to 5v).
+
+20. Install rasterwand firmware, with the MODEL set to XP3. The firmware
+    needs to account for a few hardware differences:
+
+    - LEDs are active-high
+    - Buttons are active-low
+    - There's no power button
+    - The kernel module needs to use different coil timings, since
+      mechanically the XP3 and ravinia clocks are slightly different.
+
+--- The End ---
