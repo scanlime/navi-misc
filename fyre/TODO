@@ -2,6 +2,5 @@ Win32 build
 Cluster autodetection (UDP broadcast)
 	- command line option to disable broadcast responses
 	- command line and GUI to autodetect remote servers
-No-detach and verbose cluster mode (show clients, show render status)
 Remote control of GUI
 File associations (both linux & windows)
