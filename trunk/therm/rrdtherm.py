@@ -157,7 +157,7 @@ class Therm:
 
         # Create a color gradient indicating the hot/coldness of the current temperature.
         warmthMin = 0
-        warmthMax = 0.05
+        warmthMax = 0.02
         sliceNum = 0
         while warmthMin < 1:
             # Convert the current 'warmth' values to a color and a temperature range
@@ -169,7 +169,9 @@ class Therm:
                 tempMax = warmthMax * 100
             else:
                 tempMax = "INF"
-            color = Color(*colorsys.hsv_to_rgb(0.5 + (warmthMin + warmthMax) / 4.0, 0.2, 1))
+
+            warmthAvg = (warmthMin + warmthMax)/2.0
+            color = Color(0.1, 0.2, 1).blend(Color(1, 0.5, 0.2), warmthAvg)
 
             params.extend([
                 "CDEF:s%d=temp_average,%s,%s,LIMIT" % (sliceNum, tempMin, tempMax),
