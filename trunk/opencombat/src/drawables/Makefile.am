@@ -7,7 +7,8 @@ endif
 
 libGeometry_a_SOURCES  =		\
 	MainDrawables.cpp			\
-	TeleporterDrawable.cpp		
+	TeleporterDrawable.cpp		\
+	TeleporterDrawable.h
 
 EXTRA_DIST = \
 	README

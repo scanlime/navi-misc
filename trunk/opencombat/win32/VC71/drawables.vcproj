@@ -104,6 +104,13 @@
 			<File
 				RelativePath="..\..\src\drawables\MainDrawables.cpp">
 			</File>
+			<Filter
+				Name="Drawables"
+				Filter="">
+				<File
+					RelativePath="..\..\src\drawables\TeleporterDrawable.cpp">
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -112,6 +119,13 @@
 			<File
 				RelativePath="..\..\include\MainDrawables.h">
 			</File>
+			<Filter
+				Name="Drawables"
+				Filter="">
+				<File
+					RelativePath="..\..\src\drawables\TeleporterDrawable.h">
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Resource Files"
