@@ -30,12 +30,15 @@ parser.add_option('-v','--verbose',dest="verbose",
 import Select
 from PlayList import PlayList
 playlist = PlayList()
+if options.add and options.remove:
+	parser.error("can't simultaneously add and remove")
 if options.add:
 	print 'adding ',arguments
 	playlist.getPieces().addPaths(arguments)
 	playlist.dump()
 	sys.exit(0)
 if options.remove:
+	print 'removing',arguments
 	playlist.getPieces().remove(arguments)
 	playlist.dump()
 	sys.exit(0)
