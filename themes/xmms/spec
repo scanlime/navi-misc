@@ -8,3 +8,8 @@ Position bar:
 	about 249px x 10px
 	starts at about 14,72
 	indicator: 29px x 10px
+
+Balance:
+	38px x 13px
+	position 177,55
+	slider: 14px x 11px
