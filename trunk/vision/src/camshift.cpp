@@ -97,6 +97,7 @@ int main() {
   IplImage *backprojection;
   CvHistogram* object_hist[N_CAMERAS];
   int i, j;
+  CvRect windowIn[N_CAMERAS];
   int sample_square_size = 32;
 
   cv_dc1394_init();
@@ -113,10 +114,22 @@ int main() {
 
   /* Allocate histograms */
   for (i=0; i<N_CAMERAS; i++) {
-    int hist_size[] = {64, 64, 64};
-    float channel_range[] = {0, 255};
-    float* ranges[] = {channel_range, channel_range, channel_range};
+    int hist_size[] = {180, 128, 32};
+    float h_range[] = {0, 180};
+    float sv_range[] = {0, 255};
+    float* ranges[] = {h_range, sv_range, sv_range};
     object_hist[i] = cvCreateHist(3, hist_size, CV_HIST_ARRAY, ranges, 1);
+  }
+
+  /* Initialize the search windows for CAMSHIFT. Subsequently these
+   * will be set to the previously located image, to exploit
+   * frame coherence for speed.
+   */
+  for (i=0; i<N_CAMERAS; i++) {
+    windowIn[i].x = 0;
+    windowIn[i].y = 0;
+    windowIn[i].width = images[i]->width;
+    windowIn[i].height = images[i]->height;
   }
 
   /* Tile cameras horizontally, with original image on
@@ -145,10 +158,11 @@ int main() {
 
       /* Run the output through the CAMSHIFT algorithm to locate objects */
       CvBox2D box;
-      cvCamShift(backprojection,
-		  cvRect(0, 0, images[i]->width, images[i]->height),
-		  cvTermCriteria(CV_TERMCRIT_ITER, 10, 0),
-		  NULL, &box);
+      CvConnectedComp comp;
+      cvCamShift(backprojection, windowIn[i],
+		 cvTermCriteria(CV_TERMCRIT_EPS, 0, 0.1),
+		 &comp, &box);
+      windowIn[i] = comp.rect;
       draw_box(images[i], box);
     }
 
@@ -164,12 +178,12 @@ int main() {
 
       /* The < and > keys change the size of the sample square */
       if (keystate[',']) {
-	sample_square_size--;
+	sample_square_size -= 4;
 	if (sample_square_size < 1)
 	  sample_square_size = 1;
       }
       if (keystate['.']) {
-	sample_square_size++;
+	sample_square_size += 4;
       }
 
       /* Get the current sampling rect, centered on the mouse cursor */
