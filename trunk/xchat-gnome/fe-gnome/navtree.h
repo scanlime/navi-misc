@@ -27,9 +27,10 @@
 
 G_BEGIN_DECLS
 
-typedef struct _NavTree      NavTree;
-typedef struct _NavTreeClass NavTreeClass;
-
+typedef struct _NavTree       NavTree;
+typedef struct _NavTreeClass  NavTreeClass;
+typedef struct _NavModel      NavModel;
+typedef struct _NavModelClass NavModelClass;
 /***** NavTree *****/
 #define NAVTREE_TYPE            (navigation_tree_get_type ())
 #define NAVTREE(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), NAVTREE_TYPE, NavTree))
@@ -77,13 +78,11 @@ void navigation_tree_set_hilight      (NavTree *navtree, struct session *sess);
 #define IS_NAVMODEL(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), NAVMODEL_TYPE))
 #define IS_NAVMODEL_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), NAVMODEL_TYPE))
 
-typedef struct _NavModel      NavModel;
-typedef struct _NavModelClass NavModelClass;
-
 struct _NavModel
 {
   GObject parent;
-  GtkTreeModel *model;
+  GtkTreeModel *sorted;
+  GtkTreeStore *store;
 };
 
 struct _NavModelClass
