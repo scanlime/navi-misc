@@ -2,6 +2,5 @@
 
 import GTKsheet, gtk
 
-sheet = GTKsheet.GTKsheet()
-sheet.readSheet('sheet.xml')
+sheet = GTKsheet.GTKsheet('sheetData.xml')
 gtk.main()

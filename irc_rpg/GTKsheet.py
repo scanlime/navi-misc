@@ -7,8 +7,13 @@ Copyright (C) 2003 W. Evan Sheehan <evan@navi.picogui.org>
 """
 
 import xml.dom, xml.dom.minidom, gtk
-
+from Character import Character
 class GTKsheet:
+  def __init__(self, dataFile):
+    self.character = Character()
+    self.character.readCharacter(dataFile)
+    self.readSheet(self.character.getData('/character/layoutSheet'))
+
   def readSheet(self, layoutFile):
     """ Read the XML file specified by layoutFile into a layout tree.
         """
@@ -24,7 +29,7 @@ class GTKsheet:
     """ Make objects out of the node passed. """
     # Tag represents a layout object.
     if globals().has_key(newNode.tagName):
-      newObject = globals()[newNode.tagName](newNode)
+      newObject = globals()[newNode.tagName](newNode, self.character)
       #newObject.setAttributes(newNode)
 
       for node in newNode.childNodes:
@@ -50,7 +55,7 @@ class sheetElement:
 	for i in range(self.node.attributes.length)])
 
 class character_sheet(gtk.Window, sheetElement):
-  def __init__(self, node):
+  def __init__(self, node, data):
     gtk.Window.__init__(self, gtk.WINDOW_TOPLEVEL)
     sheetElement.__init__(self, node)
     self.connect("delete_event", lambda w,d: gtk.main_quit())
@@ -63,7 +68,7 @@ class tab_view(gtk.Notebook, sheetElement):
   """ gtk.Notebook subclassed for tabbed elements in the character
       sheet.
       """
-  def __init__(self, node):
+  def __init__(self, node, data):
     sheetElement.__init__(self, node)
     gtk.Notebook.__init__(self)
     self.set_tab_pos(gtk.POS_TOP)
@@ -73,7 +78,7 @@ class tab_view(gtk.Notebook, sheetElement):
     child.show()
 
 class tab(gtk.VBox, sheetElement):
-  def __init__(self, node):
+  def __init__(self, node, data):
     sheetElement.__init__(self, node)
     gtk.VBox.__init__(self, homogeneous=gtk.TRUE)
     self.label = gtk.Label(self.attributes.get('label', ''))
@@ -83,9 +88,9 @@ class tab(gtk.VBox, sheetElement):
     child.show()
 
 class hbox(gtk.HBox, sheetElement):
-  def __init__(self, node):
+  def __init__(self, node, data):
     sheetElement.__init__(self, node)
-    gtk.HBox.__init__(self, homogeneous=gtk.TRUE)
+    gtk.HBox.__init__(self)
 
   def packChild(self, child):
     gtk.HBox.pack_start(self, child, padding=5)
@@ -95,11 +100,12 @@ class text_field(gtk.HBox, sheetElement):
   """ The text_field widget is a combination of a gtk.Label and a
       gtk.Entry packed into a gtk.HBox.
       """
-  def __init__(self, node):
+  def __init__(self, node, data):
     sheetElement.__init__(self, node)
-    gtk.HBox.__init__(self)
+    gtk.HBox.__init__(self, spacing=5)
     self.label = gtk.Label(self.attributes.get('label', ''))
     self.text = gtk.Entry()
+    self.text.set_text(data.getData(self.attributes.get('path', '')))
     self.pack_start(self.label)
     self.pack_start(self.text)
     self.node = node
@@ -117,7 +123,7 @@ class dice(gtk.Button, sheetElement):
       the widget, such as a reference to the dom node that created
       it.
       """
-  def __init__(self, node):
+  def __init__(self, node, data):
     sheetElement.__init__(self, node)
     gtk.Button.__init__(self, self.attributes.get('label', ''))
     self.node = node

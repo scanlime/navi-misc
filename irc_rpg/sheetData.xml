@@ -1,4 +1,5 @@
 <character>
+	<layoutSheet>sheet.xml</layoutSheet>
 	<name>Silme</name>
 	<race>Elf</race>
 	<class>Bard</class>
