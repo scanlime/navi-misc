@@ -75,8 +75,8 @@ main(int argc, char **argv)
 	{
 		for (int x = 0; x < mapData->getWidth(); x++)
 		{
-			if ((x == 0 && y % 2 == 1) || y == 0 ||
-				(x == mapData->getWidth() - 1 && y % 2 == 1) ||
+			if ((x == 0 && y % 2 == 0) || y == 0 ||
+				(x == mapData->getWidth() - 1 && y % 2 == 0) ||
 				y == mapData->getHeight() - 1)
 			{
 				MapLocation loc(x, y);
@@ -93,6 +93,11 @@ main(int argc, char **argv)
 			}
 		}
 	}
+
+	mapData->addMapObject(
+		objFactory->makeObject(MAP_OBJECT_SHEEP), MapLocation(1, 4, 1));
+	mapData->addMapObject(
+		objFactory->makeTile(MAP_TILE_GRASS_BROWN), MapLocation(1, 5, 1));
 
 	mapData->addMapObject(
 		objFactory->makeTile(MAP_TILE_GRASS_BROWN), MapLocation(4, 10, 1));
