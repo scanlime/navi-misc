@@ -111,7 +111,7 @@ class ChannelList(gtk.TreeView):
         else:
             self.graph.channels.remove(channel)
 
-    def makeColorSamplePixbuf(self, channel, width=24, height=12):
+    def makeColorSamplePixbuf(self, channel, width=26, height=14):
         """Create a small pixbuf giving a color sample for the given channel"""
         # Create a pixmap first, since they're much easier to draw on
         pixmap = gtk.gdk.Pixmap(self.window, width, height)
@@ -122,8 +122,8 @@ class ChannelList(gtk.TreeView):
         # unfilled rectangles are actually 1 pixel wider in each dimension than the width
         # and height we give draw_rectangle.
         pixmap.draw_rectangle(channel.getGC(self), gtk.TRUE, 2, 2, width-4, height-4)
-        pixmap.draw_rectangle(self.get_style().white_gc, gtk.FALSE, 1, 1, width-3, height-3)
-        pixmap.draw_rectangle(self.get_style().black_gc, gtk.FALSE, 0, 0, width-1, height-1)
+        pixmap.draw_rectangle(self.get_style().black_gc, gtk.FALSE, 1, 1, width-3, height-3)
+        pixmap.draw_rectangle(self.get_style().white_gc, gtk.FALSE, 0, 0, width-1, height-1)
 
         # Convert it to a pixbuf
         pixbuf = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, 0, 8, width, height)
