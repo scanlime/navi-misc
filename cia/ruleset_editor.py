@@ -35,6 +35,10 @@ class RulesetEditor:
        attribute.
        """
     def __init__(self, gladeFile, ciaServer):
+        # The message envelope is a format string we stick our actual message
+        # body inside. It includes information about this program in its <generator> tag.
+        self.envelope = "<message><generator>PyGTK/Glade IRC ruleset editor for CIA</generator><body>%s</body></message>"
+
         self.xml = gtk.glade.XML(gladeFile)
         self.server = xmlrpclib.ServerProxy(ciaServer)
 
@@ -60,7 +64,7 @@ class RulesetEditor:
            mapping from server and channel to ruleset.
            """
         self.rulesets = {}
-        results = self.server.deliverMessage("<message><body><queryIrcRulesets/></body></message>")
+        results = self.server.deliverMessage(self.envelope % "<queryIrcRulesets/>")
         for ircRuleset in results:
             # Just think, all of LibCIA could be this gross if we used
             # minidom or a real dom instead of twisted's domish :)
@@ -169,9 +173,9 @@ class RulesetEditor:
         channel, server = self.currentChannel
         buffer = self.xml.get_widget('RulesetEditor').get_buffer()
         ruleset = buffer.get_text(*buffer.get_bounds())
-        self.server.deliverMessage(
-            "<message><body><ircRuleset channel=%r server=%r>%s</ircRuleset></body></message>" %
-            (channel, server, ruleset))
+        self.server.deliverMessage(self.envelope %
+                                   ("<ircRuleset channel=%r server=%r>%s</ircRuleset>" %
+                                    (channel, server, ruleset)))
 
     def on_NewButton_clicked(self, button):
         """Show our dialog box for creating new rulesets for a given channel"""
@@ -187,9 +191,9 @@ class RulesetEditor:
         # Delete the ruleset in our local channel list and on the server
         del self.rulesets[self.currentChannel]
         self.loadChannelListModel()
-        self.server.deliverMessage(
-            "<message><body><ircRuleset channel=%r server=%r/></body></message>" %
-            self.currentChannel)
+        self.server.deliverMessage(self.envelope %
+                                   ("<ircRuleset channel=%r server=%r/>" %
+                                    self.currentChannel))
         self.unsetCurrentChannel()
 
     def on_RulesetDialogOk_clicked(self, button):
