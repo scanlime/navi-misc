@@ -40,27 +40,6 @@ AnnotateStartValue=1
 AnnotateSuffix=
 DoLibraryUpdate=1
 DoDatabaseUpdate=1
-[Document5]
-DocumentPath=..\..\..\..\..\Program Files\Altium\Library\Miscellaneous Devices.IntLib
-AnnotationEnabled=1
-AnnotateStartValue=1
-AnnotateSuffix=
-DoLibraryUpdate=1
-DoDatabaseUpdate=1
-[Document6]
-DocumentPath=..\..\..\..\..\Program Files\Altium\Library\Pcb\Vertical, Single-Row, Flange Mount with Tab.PcbLib
-AnnotationEnabled=1
-AnnotateStartValue=1
-AnnotateSuffix=
-DoLibraryUpdate=1
-DoDatabaseUpdate=1
-[Document7]
-DocumentPath=..\..\..\..\..\Program Files\Altium\Library\Pcb\SOT 23 - 5 and 6 Leads.PcbLib
-AnnotationEnabled=1
-AnnotateStartValue=1
-AnnotateSuffix=
-DoLibraryUpdate=1
-DoDatabaseUpdate=1
 [OutputGroup1]
 Name=Netlist Outputs
 Description=
