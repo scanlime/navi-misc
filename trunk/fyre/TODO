@@ -1,0 +1,26 @@
+CanvasElement.cs:
+  * Design & implement the internal layout algorithm
+  * Add drawing. This needs to be able to work both on pixmaps and bitmaps,
+	so we can use the same code both for drawing on the canvas and
+	creating a drag icon.
+
+Element.cs:
+  * Implement XML serialization
+
+Pipeline.cs:
+  * This needs lots of design work before implementation can go forward.
+
+PipelineDrawing.cs:
+  * Add document extents tracking. This needs to be able to take feedback
+	from the global layout algorithm and the scrollbars, to allow the
+	drawing to grow as needed.
+  * Add drawing code
+
+NavigationImage.cs:
+  * Optimize drawing. Right now we just redraw the entire navigation window
+	when we move the mouse. This isn't terrible, but it would be much
+	nicer to just blit what we need, when we need it. This probably
+	involves some tracking to see when/how far the mouse actually moves
+	in the context of the window's area.
+
+Plugins all need element-specific implementation
