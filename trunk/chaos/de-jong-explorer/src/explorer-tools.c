@@ -130,8 +130,6 @@ static void explorer_fill_toolinput_relative_positions(Explorer *self, ToolInput
   /* Compute delta position */
   ti->delta_x = ti->absolute_x - self->last_mouse_x;
   ti->delta_y = ti->absolute_y - self->last_mouse_y;
-  self->last_mouse_x = ti->absolute_x;
-  self->last_mouse_y = ti->absolute_y;
 
   /* Compute click-relative position */
   ti->click_relative_x = ti->absolute_x - self->last_click_x;
@@ -157,6 +155,8 @@ static gboolean on_motion_notify(GtkWidget *widget, GdkEvent *event, gpointer us
     ti.state = event->motion.state;
   }
   explorer_fill_toolinput_relative_positions(self, &ti);
+  self->last_mouse_x = ti.absolute_x;
+  self->last_mouse_y = ti.absolute_y;
 
   if (tool && (tool->flags & TOOL_USE_MOTION_EVENTS)) {
     tool->handler(self, &ti);
