@@ -1,8 +1,7 @@
 """ LibCIA.Cache
 
-A generic object cache. Arbitrary python objects are mapped to strings,
-possibly containing arbitrary binary data. Every item in the cache has
-an access time and an optional expiration date.
+A generic object cache. Arbitrary python objects are mapped to files or strings.
+
 """
 #
 # CIA open source notification system
@@ -23,10 +22,11 @@ an access time and an optional expiration date.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from LibCIA import Database
 from twisted.internet import defer
-import time, md5
+import time, md5, os
 
+
+cacheDir = "/tmp/cia-cache"
 
 class CachePerformance:
     """Collects performance information about a cache.
@@ -57,9 +57,9 @@ def getCachePerformanceList():
     return _cachePerformanceStorage.itervalues()
 
 
-class AbstractStringCache:
+class AbstractFileCache:
     """An abstract cache mapping arbitrary python parameters to
-       a string. Subclasses should define the miss() function to
+       a files. Subclasses should define the miss() function to
        generate the data being cached in the event of a cache miss.
        """
     lifespan = None
@@ -70,113 +70,86 @@ class AbstractStringCache:
            with the same arguments to generate the item, and adds it
            to the cache.
 
-           Returns a Deferred instance.
+           Returns a Deferred instance that eventually results in a file object.
            """
-        id = self.hash(*args)
-        result = defer.Deferred()
-        Database.pool.runQuery("SELECT value, expiration FROM cache WHERE id = %s" %
-                               Database.quote(id, 'varchar')).addCallback(
-            self._get, result, id, args).addErrback(result.errback)
-        return result
+        filename = self.getFilename(args)
+        perf = getNamedCachePerformance(self.__class__.__name__)
 
-    def _get(self, rows, result, id, args):
-        """This gets called after we've checked our database and either received
-           a cached copy of the data or nothing. If we have a cached copy and it
-           hasn't expired yet, return that. Otherwise, we can start creating the
-           data to return.
-           """
-        if rows:
-            value, expiration = rows[0]
-            if expiration is None or expiration > time.time():
-                # It's a cache hit, yay. Update the access time asynchronously,
-                # and return the cached result immediately.
-                getNamedCachePerformance(self.__class__.__name__).hits += 1
-                result.callback(rows[0][0])
-                Database.pool.runOperation("UPDATE cache SET atime = %s WHERE id = %s" %
-                                           (Database.quote(int(time.time()), 'bigint'),
-                                            Database.quote(id, 'varchar')))
-                return
+        if os.path.isfile(filename):
+            perf.hits += 1
 
-        # Darn, a cache miss. Start generating the data, possibly asynchronously
-        getNamedCachePerformance(self.__class__.__name__).misses += 1
-        defer.maybeDeferred(self.miss, *args).addCallback(
-            self.returnAndStoreValue, result, id).addErrback(result.errback)
+            result = defer.Deferred()
+            self._returnHit(filename, args, result)
+            return result
+        else:
+            perf.misses += 1
 
-    def returnAndStoreValue(self, value, result, id):
-        """This is called after we've finished generating a value to return, when
-           there was a cache miss. We report this value to the caller ASAP, then update
-           our cache database asynchronously.
-           """
-        result.callback(value)
-        Database.pool.runInteraction(self.storeValue, value, id)
+            # We need to create the file. Do this atomically by first writing
+            # to a temporary file then moving that.
+            result = defer.Deferred()
+            defer.maybeDeferred(self.miss, *args).addCallback(
+                self._returnMiss, filename, args, result).addErrback(result.errback)
+            return result
 
-    def storeValue(self, cursor, value, id):
-        """A database interaction to store or update the current cache value for a given id"""
-        cursor.execute("DELETE FROM cache WHERE id = %s" %
-                       Database.quote(id, 'varchar'))
-        # This has to be "INSERT IGNORE" so we don't kerpode if
-        # two cache misses happened concurrently.
-        cursor.execute("INSERT IGNORE INTO cache (id, value, atime, expiration)"
-                       " VALUES (%s, '%s', %s, %s)" %
-                       (Database.quote(id, 'varchar'),
-                        Database.quoteBlob(str(value)),
-                        Database.quote(int(time.time()), 'bigint'),
-                        Database.quote(self.getExpiration(), 'bigint')))
+    def _returnHit(self, filename, result):
+        result.callback(open(filename))
+
+    def _returnMiss(self, tempFilename, filename, result):
+        os.rename(tempFilename, filename)
+        result.callback(open(filename))
 
     def miss(self, *args):
         """Subclasses must implement this to generate the data we're supposed
-           to be caching in the event of a cache miss. The return value
-           can be the result itself or a Deferred that will eventually yield the result.
+           to be caching in the event of a cache miss. Returns a filename where
+           the result can be found- this file will then be moved to the correct
+           place in the cache.
+
+           Implementations are encouraged, but not required, to get their file
+           name from self.getTempFilename().
+
+           The return value can optionally be passed via a Deferred.
            """
         pass
 
-    def hash(self, *args):
-        """Convert our arguments to something that will fit in the
-           database's varchar(32) id field. hash() can easily become
-           instable across multiple invocations, so this uses an md5sum
-           of the object's repr().
-           The name of our class is included, so each subclass of the
-           abstract cache will have a different id space.
+    def getFilename(self, args):
+        """Return a filename for a cached object corresponding to the provided args
+           and this data type. This combines a hash of args with the name of this class.
+           We create the cache directory if necessary.
            """
-        return md5.md5(repr( (self.__class__.__name__, args) )).hexdigest()
+        if not os.path.isdir(cacheDir):
+            os.makedirs(cacheDir)
+        assert os.path.isdir(cacheDir)
 
-    def getExpiration(self):
-        """By default, items never expire. This can return a timestamp at
-           which a newly stored value should expire, if self.lifespan is
-           a non-None lifespan for new nodes, in seconds.
-           """
-        if self.lifespan is None:
-            return None
-        else:
-            return int(time.time() + self.lifespan)
+        hash = md5.md5(repr(args)).hexdigest()
+        name = "%s.%s" % (self.__class__.__name__, hash)
+        return os.path.join(cacheDir, name)
+
+
+    def getTempFilename(self, args):
+        """Return a suggested temporary file name for miss() to use"""
+        return self.getFilename(args) + "_"
+
+
+class AbstractStringCache(AbstractFileCache):
+    """Based on AbstractFileCache, this cache provides an interface based on strings
+       rather than files. This still uses the same file-based caching mechanism
+       as AbstractFileCache.
+       """
+    def _returnHit(self, filename, args, result):
+        result.callback(open(filename, "rb").read())
+
+    def _returnMiss(self, string, filename, args, result):
+        tempFilename = self.getTempFilename(args)
+        open(tempFilename, "wb").write(string)
+        os.rename(tempFilename, filename)
+        result.callback(string)
 
 
 class Maintenance:
     """Maintenance operations we run regularly to keep the cache in shape:"""
-    # Maximum number of items we keep in the cache
-    maxItems = 300
 
     def run(self):
-        """This is the entry point for all maintenance procedures"""
-        return Database.pool.runInteraction(self._run)
-
-    def _run(self, cursor):
-        """A database interaction implementing all maintenance operations"""
-        self.pruneItems(cursor)
-
-    def pruneItems(self, cursor):
-        """Limit the cache to a fixed number of items, delete the ones
-           we have accessed the least if necessary.
-           """
-        # Count the total number of items.
-        # I think this should be fast on MyISAM tables...
-        cursor.execute("SELECT COUNT(*) FROM cache")
-        count = cursor.fetchone()[0]
-
-        deleteLimit = count - self.maxItems
-        if deleteLimit > 0:
-            # Delete items starting with those that haven't been accessed
-            # in the longest amount of time.
-            cursor.execute("DELETE FROM cache ORDER BY atime LIMIT %d" % deleteLimit)
+        # FIXME: implement this for the new filesystem-based cache
+        pass
 
 ### The End ###
