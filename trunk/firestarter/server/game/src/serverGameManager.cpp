@@ -21,6 +21,7 @@
 */
 
 #include "serverGameManager.h"
+#include "testGameServer.h"
 
 template <>
 CServerGameManger* Singleton<CServerGameManger>::_instance = (CServerGameManger*)0;
@@ -67,4 +68,5 @@ CBaseServerGame* CServerGameManger::get ( const char* name )
 
 void CServerGameManger::RegisterGameModules ( void )
 {
+	gameModules[std::string("test")] = new CTestGameServer;
 }
