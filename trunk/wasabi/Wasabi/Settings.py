@@ -22,7 +22,7 @@ Implements Wasabi's settings menu and its submenus.
 #
 
 from __future__ import division
-from Wasabi import Menu, Icon
+from Wasabi import Menu, Icon, Hardware
 from BZEngine.UI import Texture
 from BZEngine import Util
 import os, md5, cPickle, Image, glob
@@ -37,6 +37,7 @@ class SettingsMenu(Menu.ArcMenu):
             Menu.defaultFades(BackgroundsMenu),
             ])
             ]
+        Hardware.dev.showStatus("Settings")
         Menu.ArcMenu.__init__(self, book, items, "Settings")
 
 
@@ -58,6 +59,7 @@ class BackgroundLoader(Menu.LoaderPage):
 class BackgroundsMenu(Menu.ImageMenu):
     def __init__(self, book):
         global backgroundItems
+        Hardware.dev.showStatus("Backgrounds")
         Menu.ImageMenu.__init__(self, book, backgroundItems)
 
         # Find the current background, and make it the default selection

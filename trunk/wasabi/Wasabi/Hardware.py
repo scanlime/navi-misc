@@ -163,7 +163,7 @@ class Mi6kUpdater(threading.Thread):
             # Don't bother updating it once it's below the smallest
             # light level the hardware can display.
             if value > 0.0001:
-                value *= math.pow(0.001, dt)
+                value *= 0.2
                 setattr(lights, color, value)
 
         # update the VFD
@@ -174,13 +174,10 @@ class Mi6kUpdater(threading.Thread):
         """Visual feedback for received IR codes"""
         if code.remote == "wasabi":
             # A button on wasabi's remote
-            self.mi6k.lights.blue = 0.3
+            self.mi6k.lights.blue = 0.1
         else:
             # Any other recognized remote
-            self.mi6k.lights.white = 0.3
-
-        if hasattr(self.vfdPage, 'status'):
-            self.vfdPage.status = "%s - %s" % (code.remote, code.name)
+            self.mi6k.lights.white = 0.1
 
 
 class VFDPage:

@@ -26,7 +26,7 @@ these logos.
 
 from BZEngine.UI import Sequencer, Viewport, HUD, Drawable
 from BZEngine import Util, Animated, Geometry
-import cPickle, math
+import cPickle, math, Hardware
 from Numeric import *
 
 
@@ -57,6 +57,8 @@ class OrbitingLogo(Sequencer.Page):
     """Base class for logos based on a background of orbiting green particle systems"""
     def __init__(self, view):
         Sequencer.Page.__init__(self, view)
+
+        Hardware.dev.showStatus("Wasabi")
 
         self.view.camera.position = (0, 0, 0)
         self.view.camera.distance = 7.5
