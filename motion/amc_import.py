@@ -28,6 +28,7 @@ Tip: 'Imports an Acclaim AMC file and applies motion capture data to an armature
 """
 
 import Blender
+from Blender.Armature.Bone import ROT, LOC
 import AMCReader
 
 def importData (reader, object, armature, filename):
@@ -43,8 +44,28 @@ def importData (reader, object, armature, filename):
 
     for frame in reader.frames:
         context.currentFrame(frame.number)
+
+        # set root position/rotation
         loc = frame.bones['root'][0:3]
+        loc[0], loc[2], loc[1] = loc
+        rot = frame.bones['root'][3:6]
+        rot[0], rot[2], rot[1] = rot
+        euler = Blender.Mathutils.Euler(rot)
+        quat = euler.toQuat()
         b['root'].setLoc(loc)
+        b['root'].setQuat(quat)
+        b['root'].setPose([ROT,LOC], action)
+
+        for bname, bone in frame.bones.iteritems():
+            if bname == 'root':
+                continue
+            rot = frame.bones[bname]
+            print bname, rot
+            rot[0], rot[2], rot[1] = rot
+            euler = Blender.Mathutils.Euler(rot)
+            quat = euler.toQuat()
+            b[bname].setQuat(quat)
+            b[bname].setPose([ROT], action)
 
 def fileSelectedCallback(filename):
     reader = AMCReader.AMCReader()
