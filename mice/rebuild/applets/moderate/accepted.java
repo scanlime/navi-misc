@@ -46,6 +46,12 @@ public class accepted implements ActionListener
 		String name, ques;
 		quest.setText("");
 		net.write("accept");
+		/*
+		 This is where code will go to see who all its good for. 
+		 The first number is the number of people who get the question.  It is also
+		 the number of reads the server will perform to get that many approved ints.
+		*/
+		net.write("1");
 		net.write(""+ID);
 		name = net.read();
 		ques = net.read();

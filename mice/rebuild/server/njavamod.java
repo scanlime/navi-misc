@@ -71,14 +71,19 @@ public class njavamod extends nbase
 	public void modloop()
 	{
 		String cmd;
-		int parsed;
+		int i;
+		int[] parsed;
+		int parsecount;
 		while(true)
 		{
 			cmd = read();
 			switch(cmd.charAt(0))
 			{
 			case 'a': //Accept the question
-				parsed = Integer.parseInt(read());
+				parsecount = Integer.parseInt(read());
+				parsed = new int[parsecount];
+				for(i=0;i<parsed.length;i++)
+					parsed[i] = Integer.parseInt(read());
 				moder.accept(parsed);
 				write(moder.getQuestion());
 				break;

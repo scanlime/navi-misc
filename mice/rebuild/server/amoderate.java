@@ -72,11 +72,25 @@ public class amoderate
 	 * @author Brandon Smith
 	 * @version 2.0
 	 */
-	public void accept(int queue)
+	public void accept(int[] queue)
 	{
+		//if there is no question being moderated, forget anyone said anything
 		if(current == null) return;
-		if(queue >= targets.length) return;
-		targets[queue].add(current);
+		
+		//cycle through and push these into the accepted queues.
+		int i;
+		for(i=0;i<queue.length;i++)
+		{
+			//lets make sure I'm in the range with this
+			if(queue[i] < targets.length && queue[i] >= 0)
+			{
+				if(i ==0)
+					targets[queue[i]].add(current);
+				else
+					targets[queue[i]].add(current.duplicate());
+			}
+		}
+		//all done, lets clean up a tad.
 		current = null;
 	}
 
