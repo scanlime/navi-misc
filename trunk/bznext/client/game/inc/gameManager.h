@@ -1,4 +1,4 @@
-//* XXXXX
+/* XXXXX
 * gameManager.h :
 *
 * Copyright (C) 2004 Jeffrey Myers
