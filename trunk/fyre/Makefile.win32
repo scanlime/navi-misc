@@ -61,14 +61,15 @@ OBJS    = \
 
 # Extra files for things only needed on windows
 CFLAGS += -Isrc/platform
-CFLAGS += -mms-bitfields
+CFLAGS += -mms-bitfields -mwindows
+LDFLAGS += -mwindows -Wl,--subsystem,windows
 OBJS += \
 	src/platform/getopt.o \
 	src/platform/getopt1.o
 
 
 $(BIN): $(OBJS)
-	$(CC) -o $@ $(OBJS) $(LIBS)
+	$(CC) -o $@ $(OBJS) $(LDFLAGS) $(LIBS)
 
 %.o: %.c src/*.h
 	$(CC) -c -o $@ $< $(CFLAGS)
