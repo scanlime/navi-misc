@@ -1,10 +1,24 @@
-''' GTKpalantir.py
+''' GTKPalantir.py
 
 This module creates a UI for a Palantir client using GTK, it uses palantirIRC
 for the IRC stuff.
-
-  Copyright (C) 2004 W. Evan Sheehan
 '''
+
+# Copyright (C) 2004 W. Evan Sheehan <evan@navi.cx>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 # Install the gtk2reactor since we're using gtk2.
 from twisted.internet import gtk2reactor
@@ -14,9 +28,9 @@ import string, gtk, gtk.glade, gobject
 
 from ChatBuffer import ChatBuffer
 from CharacterSheet import CharacterSheet
-from Palantir import palantir
-from Palantir.factory import Factory
-from Palantir.dieRoller import DieRoller
+from Palantir import Palantir
+from Palantir.Factory import Factory
+from Palantir.DieRoller import DieRoller
 
 from twisted.internet import reactor
 
@@ -134,7 +148,7 @@ class MainWindow:
     image = gtk.Image()
 
     if self.tree.get_widget('time_stamps').get_active():
-      time = palantir.getTime()
+      time = Palantir.getTime()
     else:
       time = None
 
@@ -206,7 +220,7 @@ class MainWindow:
       text = self.tree.get_widget('SendField').get_text()
       model = self.tree.get_widget('UserList').get_model()
       model.foreach(self.getUsers, nicks)
-      matched = palantir.nickComplete(text, nicks)
+      matched = Palantir.nickComplete(text, nicks)
 
       self.tree.get_widget('SendField').set_text(matched[0])
       self.tree.get_widget('SendField').set_position(-1)
@@ -319,7 +333,7 @@ class MainWindow:
     self.factory.client.msg(nick, msg)
 
     if self.tree.get_widget('time_stamps').get_active():
-      time = palantir.getTime()
+      time = Palantir.getTime()
     else:
       time = None
 
@@ -357,16 +371,16 @@ class MainWindow:
   ### Must be implemented for palantirIRC to work.  These methods are called by the
   ### the client when it receives certain events and needs to display them in the UI.
   def messageReceive(self, user, channel, msg):
-    ''' When we receive a message call palantir.formatMessage() to
+    ''' When we receive a message call Palantir.formatMessage() to
         format the text and then display it in the cat buffer.
 	'''
-    time,nick,text,addressed = palantir.formatMessage(user, msg,
+    time,nick,text,addressed = Palantir.formatMessage(user, msg,
 	                                         ourName=self.factory.nickname)
     if not self.tree.get_widget('time_stamps').get_active():
       time = None
 
     if channel == self.factory.nickname and user:
-      channel = palantir.getNick(user)
+      channel = Palantir.getNick(user)
       if not self.tabs.has_key(channel):
         notebook = self.tree.get_widget('Tabs')
 	label = gtk.Label()
@@ -380,14 +394,14 @@ class MainWindow:
 
   def meReceive(self, user, channel, msg):
     ''' When someone does a '/me' display the action. '''
-    time, nick, text,addressed = palantir.formatMessage(user, msg,
+    time, nick, text,addressed = Palantir.formatMessage(user, msg,
 	                                         True, self.factory.nickname)
     self.tabs[channel].DisplayText(time, nick, text, addressed)
 
   def nickReceive(self, oldNick, channel, newNick):
     ''' When someone changes a nick display it. '''
     if self.tree.get_widget('time_stamps').get_active():
-      time = palantir.getTime()
+      time = Palantir.getTime()
     else:
       time = None
     self.tabs[channel].DisplayText(time, '',
@@ -405,7 +419,7 @@ class MainWindow:
     self.tree.get_widget('Tabs').set_tab_label_text(self.tabs[channel],channel)
 
     if self.tree.get_widget('time_stamps').get_active():
-      time = palantir.getTime()
+      time = Palantir.getTime()
     else:
       time = None
 
@@ -417,7 +431,7 @@ class MainWindow:
         message saying we've left.
 	'''
     if self.tree.get_widget('time_stamps').get_active():
-      time = palantir.getTime()
+      time = Palantir.getTime()
     else:
       time = None
 
@@ -434,7 +448,7 @@ class MainWindow:
   def topicReceive(self, user, channel, topic):
     ''' Recieved a topic change, so set the topic bar to the new topic. '''
     if self.tree.get_widget('time_stamps').get_active():
-      time = palantir.getTime()
+      time = Palantir.getTime()
     else:
       time = None
     self.tree.get_widget('Topic').set_text(topic)
@@ -444,7 +458,7 @@ class MainWindow:
   def setTopicOnJoin(self, params):
     ''' Handle the topic notification for joining a channel specially. '''
     if self.tree.get_widget('time_stamps').get_active():
-      time = palantir.getTime()
+      time = Palantir.getTime()
     else:
       time = None
     self.tabs[params[1]].DisplayText(time, '',
@@ -457,7 +471,7 @@ class MainWindow:
 	'''
     self.AddUserToList(user)
     if self.tree.get_widget('time_stamps').get_active():
-      time = palantir.getTime()
+      time = Palantir.getTime()
     else:
       time = None
     self.tabs[channel].DisplayText(time, '', '%s has joined %s' % (user, channel))
@@ -467,7 +481,7 @@ class MainWindow:
         remove them from the user list.
 	'''
     if self.tree.get_widget('time_stamps').get_active():
-      time = palantir.getTime()
+      time = Palantir.getTime()
     else:
       time = None
     self.tree.get_widget('UserList').get_model().foreach(self.RemoveUserFromList,user)
@@ -485,7 +499,7 @@ class MainWindow:
   def pong(self, user, secs):
     ''' Handle reply from a ping. '''
     if self.tree.get_widget('time_stamps').get_active():
-      time = palantir.getTime()
+      time = Palantir.getTime()
     else:
       time = ''
     self.chatWindow.DisplayText(time, '',
@@ -496,9 +510,9 @@ class MainWindow:
     ''' The user who sent this message has DM status, so we
         display that icon next to their name in the user list.
 	'''
-    nick = palantir.getNick(user, False)
+    nick = Palantir.getNick(user, False)
     if self.tree.get_widget('time_stamps').get_active():
-      time = palantir.getTime()
+      time = Palantir.getTime()
     else:
       time = None
     image = gtk.Image()
@@ -511,9 +525,9 @@ class MainWindow:
     ''' The user who sent this message has removed DM status from
         themselves, so remove the icon from next to their name.
 	'''
-    nick = palantir.getNick(user, False)
+    nick = Palantir.getNick(user, False)
     if self.tree.get_widget('time_stamps').get_active():
-      time = palantir.getTime()
+      time = Palantir.getTime()
     else:
       time = None
     self.tree.get_widget('UserList').get_model().foreach(self.setUserIcon, (nick, None))
@@ -530,12 +544,12 @@ class MainWindow:
 
   def ROLL(self, user, channel, data):
     ''' Someone rolled some dice, so we'll format the results and display. '''
-    time,text = palantir.formatRoll(user, *self.dieRoller.getData(data))
+    time,text = Palantir.formatRoll(user, *self.dieRoller.getData(data))
     self.tabs[channel].DisplayText(time, '', text)
 
   def unknownCTCP(self, user, channel, data):
     ''' Any non-specific ctcp message just gets displayed as text. '''
-    time,text = palantir.formatCTCP(user, channel, data)
+    time,text = Palantir.formatCTCP(user, channel, data)
     self.tabs[channel].DisplayText(time, '', text)
 
   ### Misc. Necessary Functions ###
@@ -618,7 +632,7 @@ class MainWindow:
 
   def AddUserToList(self, user):
     ''' Add nick the userlist. '''
-    nick = palantir.getNick(user)
+    nick = Palantir.getNick(user)
     list = self.tree.get_widget('UserList')
     store = list.get_model()
     store.set(store.append(), 1, nick)
@@ -642,7 +656,7 @@ class MainWindow:
 
     # Format the text to display in our window.
     if self.tree.get_widget('time_stamps').get_active():
-      time = palantir.getTime()
+      time = Palantir.getTime()
     else:
       time = None
     self.tabs[self.factory.channels[0]].DisplayText(time, '',
