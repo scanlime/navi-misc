@@ -58,7 +58,7 @@ ece_class_init (GObjectClass *klass)
 }
 
 GType
-e_cal_event_get_type ()
+e_cal_event_get_type (void)
 {
 	static GType type = 0;
 
@@ -79,7 +79,7 @@ e_cal_event_get_type ()
 }
 
 ECalEvent *
-e_cal_event_peek ()
+e_cal_event_peek (void)
 {
 	static ECalEvent *e_cal_event = NULL;
 	if (!e_cal_event) {
@@ -100,6 +100,17 @@ e_cal_event_target_new_source (ECalEvent *ece, struct _ESource *source, guint32 
 	return t;
 }
 
+ECalEventTargetComponent *
+e_cal_event_target_new_component (ECalEvent *ece, struct _CalendarComponent *component, guint32 flags)
+{
+	ECalEventTargetComponent *t = e_event_target_new (&ece->event, E_CAL_EVENT_TARGET_COMPONENT, sizeof (*t));
+
+	t->component = g_object_ref (component);
+	t->target.mask = ~flags;
+
+	return t;
+}
+
 /* ********************************************************************** */
 
 static void *eceh_parent_class;
@@ -109,8 +120,14 @@ static const EEventHookTargetMask eceh_source_masks[] = {
 	{ 0 },
 };
 
+static const EEventHookTargetMask eceh_component_masks[] = {
+	{ "initialized", E_CAL_EVENT_COMPONENT_INITIALIZED },
+	{ 0 },
+};
+
 static const EEventHookTargetMap eceh_targets[] = {
 	{ "source", E_CAL_EVENT_TARGET_SOURCE, eceh_source_masks },
+	{ "component", E_CAL_EVENT_TARGET_COMPONENT, eceh_component_masks },
 	{ 0 },
 };
 
