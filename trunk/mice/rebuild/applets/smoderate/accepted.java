@@ -19,6 +19,7 @@ public class accepted implements ActionListener
 {
 	private int ID;
 	
+	/** The text area that the question goes into. */
 	public TextArea quest;
 	
 	/**
