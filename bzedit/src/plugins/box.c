@@ -22,14 +22,15 @@
 
 #include "box.h"
 
-static void box_class_init           (BoxClass *klass);
-static void box_init                 (Box *box);
-static void box_set_property         (GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec);
-static void box_get_property         (GObject *object, guint prop_id, GValue *value, GParamSpec *pspec);
-static void box_finalize             (GObject *object);
-static void box_init_position_params (GObjectClass *object_class);
-static void box_init_size_params     (GObjectClass *object_class);
-static void box_init_other_params    (GObjectClass *object_class);
+static void       box_class_init           (BoxClass *klass);
+static void       box_init                 (Box *box);
+static void       box_set_property         (GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec);
+static void       box_get_property         (GObject *object, guint prop_id, GValue *value, GParamSpec *pspec);
+static void       box_finalize             (GObject *object);
+static void       box_init_position_params (GObjectClass *object_class);
+static void       box_init_size_params     (GObjectClass *object_class);
+static void       box_init_other_params    (GObjectClass *object_class);
+static GdkPixbuf* box_get_icon             (SceneObject *object);
 
 enum
 {
@@ -77,9 +78,13 @@ static void
 box_class_init (BoxClass *klass)
 {
   GObjectClass *object_class;
+  SceneObjectClass *so_class;
 
   parent_class = g_type_class_ref (G_TYPE_OBJECT);
   object_class = (GObjectClass*) klass;
+  so_class = (SceneObjectClass*) klass;
+
+  so_class->get_icon = box_get_icon;
 
   object_class->set_property = box_set_property;
   object_class->get_property = box_get_property;
@@ -328,4 +333,17 @@ Box*
 box_new (void)
 {
   return BOX (g_object_new (box_get_type (), NULL));
+}
+
+static GdkPixbuf*
+box_get_icon (SceneObject *object)
+{
+  static GdkPixbuf *icon = NULL;
+
+  if (icon == NULL)
+  {
+    icon = gdk_pixbuf_new_from_file ("data/boxicon.png", NULL);
+  }
+
+  return gdk_pixbuf_ref (icon);
 }

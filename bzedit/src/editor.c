@@ -140,9 +140,15 @@ editor_init (Editor *editor)
   am = GTK_MENU (gtk_menu_new ());
   for (t = types; t; t = t->next)
   {
-    if (GPOINTER_TO_UINT (t->data) != 0)
+    GType type = GPOINTER_TO_UINT (t->data);
+    if (type != 0)
     {
-      gtk_menu_append (am, gtk_menu_item_new_with_label (g_type_name (GPOINTER_TO_UINT (t->data))));
+      gpointer klass = g_type_class_ref (type);
+      GtkMenuItem *item = GTK_MENU_ITEM (gtk_image_menu_item_new_with_label (g_type_name (type)));
+      GtkWidget *image = gtk_image_new_from_pixbuf (((SceneObjectClass*) klass)->get_icon (NULL));
+      gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), image);
+      gtk_menu_shell_append (GTK_MENU_SHELL (am), item);
+      g_type_class_unref (klass);
     }
   }
   gtk_menu_item_set_submenu (addmenu, GTK_WIDGET (am));

@@ -22,12 +22,13 @@
 
 #include "world.h"
 
-static void world_class_init   (WorldClass *klass);
-static void world_init         (World *world);
-static void world_set_property (GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec);
-static void world_get_property (GObject *object, guint prop_id, GValue *value, GParamSpec *pspec);
-static void world_finalize     (GObject *object);
-static void world_init_params  (GObjectClass *object_class);
+static void       world_class_init   (WorldClass *klass);
+static void       world_init         (World *world);
+static void       world_set_property (GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec);
+static void       world_get_property (GObject *object, guint prop_id, GValue *value, GParamSpec *pspec);
+static void       world_finalize     (GObject *object);
+static void       world_init_params  (GObjectClass *object_class);
+static GdkPixbuf* world_get_icon     (SceneObject *object);
 
 enum
 {
@@ -68,13 +69,17 @@ static void
 world_class_init (WorldClass *klass)
 {
   GObjectClass *object_class;
+  SceneObjectClass *so_class;
 
   parent_class = g_type_class_ref (G_TYPE_OBJECT);
   object_class = (GObjectClass*) klass;
+  so_class = (SceneObjectClass*) klass;
 
   object_class->set_property = world_set_property;
   object_class->get_property = world_get_property;
   object_class->finalize = world_finalize;
+
+  so_class->get_icon = world_get_icon;
 
   world_init_params (object_class);
 }
@@ -188,4 +193,17 @@ World*
 world_new (void)
 {
   return WORLD (g_object_new (world_get_type (), NULL));
+}
+
+static GdkPixbuf*
+world_get_icon (SceneObject *object)
+{
+  static GdkPixbuf *icon = NULL;
+
+  if (icon == NULL)
+  {
+    icon = gdk_pixbuf_new_from_file ("data/groundicon.png", NULL);
+  }
+
+  return icon;
 }

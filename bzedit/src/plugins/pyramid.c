@@ -22,14 +22,15 @@
 
 #include "pyramid.h"
 
-static void pyramid_class_init           (PyramidClass *klass);
-static void pyramid_init                 (Pyramid *pyramid);
-static void pyramid_set_property         (GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec);
-static void pyramid_get_property         (GObject *object, guint prop_id, GValue *value, GParamSpec *pspec);
-static void pyramid_finalize             (GObject *object);
-static void pyramid_init_position_params (GObjectClass *object_class);
-static void pyramid_init_size_params     (GObjectClass *object_class);
-static void pyramid_init_other_params    (GObjectClass *object_class);
+static void       pyramid_class_init           (PyramidClass *klass);
+static void       pyramid_init                 (Pyramid *pyramid);
+static void       pyramid_set_property         (GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec);
+static void       pyramid_get_property         (GObject *object, guint prop_id, GValue *value, GParamSpec *pspec);
+static void       pyramid_finalize             (GObject *object);
+static void       pyramid_init_position_params (GObjectClass *object_class);
+static void       pyramid_init_size_params     (GObjectClass *object_class);
+static void       pyramid_init_other_params    (GObjectClass *object_class);
+static GdkPixbuf* pyramid_get_icon             (SceneObject *object);
 
 enum
 {
@@ -77,13 +78,17 @@ static void
 pyramid_class_init (PyramidClass *klass)
 {
   GObjectClass *object_class;
+  SceneObjectClass *so_class;
 
   parent_class = g_type_class_ref (G_TYPE_OBJECT);
   object_class = (GObjectClass*) klass;
+  so_class = (SceneObjectClass*) klass;
 
   object_class->set_property = pyramid_set_property;
   object_class->get_property = pyramid_get_property;
   object_class->finalize = pyramid_finalize;
+
+  so_class->get_icon = pyramid_get_icon;
 
   pyramid_init_position_params (object_class);
   pyramid_init_size_params (object_class);
@@ -328,4 +333,17 @@ Pyramid*
 pyramid_new (void)
 {
   return PYRAMID (g_object_new (pyramid_get_type (), NULL));
+}
+
+static GdkPixbuf*
+pyramid_get_icon (SceneObject *object)
+{
+  static GdkPixbuf *icon = NULL;
+
+  if (icon == NULL)
+  {
+    icon = gdk_pixbuf_new_from_file ("data/pyricon.png", NULL);
+  }
+
+  return icon;
 }
