@@ -1,5 +1,13 @@
 #!/usr/bin/env python
-import struct, os, fcntl, Tweak
+#
+# Interactive parameter tweaker for Raster Wand.
+# This lets you adjust all timing parameters, and graphs
+# the wand period in real-time. Requires rtgraph.
+#
+# -- Micah Dowty <micah@navi.cx>
+#
+import struct, os, fcntl
+import gtk, Tweak, rtgraph
 
 
 class Params:
@@ -34,15 +42,50 @@ class Params:
         self.put()
 
 
-p = Params(os.open("/dev/usb/rwand0", os.O_RDWR))
+class PeriodChannel(rtgraph.Channel):
+    _struct = "HHBBBB"
 
-Tweak.Window(
-    Tweak.Quantity(p, 'display_center', range=(0,0xFFFF)),
-    Tweak.Quantity(p, 'display_width', range=(0,0xFFFF)),
-    Tweak.Quantity(p, 'coil_center', range=(0,0xFFFF)),
-    Tweak.Quantity(p, 'coil_width', range=(0,0xFFFF)),
-    Tweak.Quantity(p, 'duty_cycle', range=(0,0xFFFF)),
-    Tweak.Quantity(p, 'fine_adjust', range=(-500,500)),
-    )
+    def __init__(self, fd):
+        rtgraph.Channel.__init__(self)
+        self.fd = fd
 
-Tweak.run()
+    def getValue(self):
+        buffer = chr(0)*struct.calcsize(self._struct)
+        f = struct.unpack(self._struct, fcntl.ioctl(self.fd, 0x3B03, buffer))
+        return f[0] / 60000.0
+
+
+def main():
+    fd = os.open("/dev/usb/rwand0", os.O_RDWR)
+    p = Params(fd)
+
+    graph = rtgraph.HScrollLineGraph(channels=[
+        PeriodChannel(fd),
+        ])
+
+    tweaker = Tweak.List([
+        Tweak.Quantity(p, 'display_center', range=(0,0xFFFF)),
+        Tweak.Quantity(p, 'display_width', range=(0,0xFFFF)),
+        Tweak.Quantity(p, 'coil_center', range=(0,0xFFFF)),
+        Tweak.Quantity(p, 'coil_width', range=(0,0xFFFF)),
+        Tweak.Quantity(p, 'duty_cycle', range=(0,0xFFFF)),
+        Tweak.Quantity(p, 'fine_adjust', range=(-800,800)),
+        ])
+
+    win = gtk.Window(gtk.WINDOW_TOPLEVEL)
+    vbox = gtk.VBox()
+    win.add(vbox)
+    win.set_border_width(5)
+    frame = gtk.Frame()
+    frame.add(graph)
+    vbox.pack_start(frame)
+    vbox.pack_start(tweaker, gtk.FALSE)
+    win.connect("destroy", gtk.mainquit)
+    win.show_all()
+    gtk.main()
+
+
+if __name__ == "__main__":
+    main()
+
+### The End ###
