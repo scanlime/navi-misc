@@ -18,7 +18,7 @@
 ;// The protocol version, stored in binary coded decimal.
 ;// This is available from the device in the bcdDevice field
 ;// of its DEVICE descriptor.
-#define RCPOD_PROTOCOL_VERSION  0x0103
+#define RCPOD_PROTOCOL_VERSION  0x0104
 
 ;// Device vendor and product IDs.
 ;// The RCPOD's device class and protocol are both set to 'vendor-specific'.
@@ -91,6 +91,9 @@
 ;// complete it is deasserted. This feature is disabled by setting the pin to
 ;// zero (a no-op pin descriptor)
 #define RCPOD_CTRL_USART_TXE    0x23
+
+;// Returns the number of bytes received so far in the current serial receive
+#define RCPOD_CTRL_USART_RX_PROGRESS 0x24
 
 ;//------------------ General purpose I/O
 

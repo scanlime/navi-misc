@@ -95,6 +95,12 @@ CheckVendor
 	goto	RxEndRequest
 
 	movf	BufferData+bRequest,w
+	xorlw	RCPOD_CTRL_USART_RX_PROGRESS
+	pagesel	RxProgressRequest
+	btfsc	STATUS,Z
+	goto	RxProgressRequest
+
+	movf	BufferData+bRequest,w
 	xorlw	RCPOD_CTRL_USART_TXE
 	pagesel	TxeRequest
 	btfsc	STATUS,Z
@@ -470,13 +476,19 @@ skipTx
 	;********************* Request to cancel USART reception
 	; Cancels an ongoing USART receive, and returns the number of bytes received.
 RxEndRequest
+	banksel	rx_remaining	; Disable the receive
+	clrf	rx_remaining
+	
+	pagesel	RxProgressRequest ; Now just return the number of bytes received
+	goto	RxProgressRequest
+
+	;********************* Request to get USART reception progress
+	; Returns the number of bytes received without cancelling the reception
+RxProgressRequest
 	banksel	BD0IAL
 	movf	low BD0IAL,w	; get address of buffer
 	movwf	FSR
 	bsf 	STATUS,IRP	; indirectly to banks 2-3
-
-	banksel	rx_remaining	; Disable the receive
-	clrf	rx_remaining
 
 	banksel	rx_count
 	movf	rx_count, w	;  Write the received byte count to our buffer
