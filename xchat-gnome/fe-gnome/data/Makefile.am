@@ -13,4 +13,7 @@ xchat_gnome_DATA = 			\
 	xchat-gnome-small.png
 xchat_gnomedir = $(datadir)/xchat
 
+icondir = $(datadir)/pixmaps
+icon_DATA = xchat-gnome.png
+
 EXTRA_DIST = $(xchat_gnome_DATA)

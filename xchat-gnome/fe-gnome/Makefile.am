@@ -13,6 +13,9 @@ schema_DATA	= apps_xchat.schemas.in.in
 
 # @INTLTOOL_SCHEMAS_RULE@
 
+desktopdir = $(datadir)/applications
+desktop_DATA = xchat-gnome.desktop
+
 install-data-local:
 	if test -z "$(DESTDIR)" ; then						\
 		for p in $(schema_DATA) ; do					\
