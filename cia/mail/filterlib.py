@@ -69,6 +69,9 @@ class Filter:
     def addModule(self, module):
         self.xml.source.addElement('module', content=module)
 
+    def addBranch(self, branch):
+        self.xml.source.addElement('branch', content=branch)
+
     def deliver(self):
         """Deliver the message in self.xml"""
         xmlrpclib.ServerProxy(self.server).hub.deliver(self.xml.toXml())
