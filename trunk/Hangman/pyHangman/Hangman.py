@@ -13,7 +13,7 @@ keeping track of the number of misses.
 #
 
 import sys, string
-from HTMLParser import HTMLParser
+import webpageParser
 from urllib2 import urlopen
 from random import seed, choice
 
@@ -140,22 +140,8 @@ class Hangman:
 		""" Start a new game using the word of the day from dictionary.com.
 				"""
 		page = urlopen("http://www.dictionary.com").readlines()
-		parser = webParser()
+		parser = webpageParser()
 		parser.feed(page)
 		self.wordlist[0] = page[parser.handle_starttag('a',[('href','/wordoftheday/')]):
 														parser.handle_endtag('a')]
 		self.NewGame()
-
-class webParser(HTMLParser):
-	""" Small class to parse some data from dictionary.com for me.
-			"""
-	def handle_starttag(self, tag, attrs):
-		""" Return the position of the beginning of the text immediately
-				following the tag.
-				"""
-		return self.getpos()
-
-	def handle_endtag(self, tag):
-		""" Return the position of the end tag.
-				"""
-		return self.getpos()
