@@ -29,7 +29,7 @@ any files may have been corrupted or updated, the md5 cache
 -- Micah Dowty <micah@navi.cx>
 """
 
-import time, os, sys, re, shutil
+import time, os, sys, re, shutil, popen2
 
 
 def shellEscape(s):
@@ -92,6 +92,7 @@ class DVDBurner:
     """DVD burner abstraction, using dvd+rw-tools"""
     def __init__(self, device="/dev/dvd"):
         self.device = device
+        self.messageMode = None
 
     def iterMediaInfo(self):
         """Iterate over the key, value pairs returned by dvd+rw-mediainfo"""
@@ -133,6 +134,10 @@ class DVDBurner:
     def burn(self, pathMap):
         """Burn a new session to the current disc, with the given dict
            mapping paths on the disc to paths in our filesystem.
+
+           This invokes growisofs (and therefore mkisofs) in a subprocess,
+           feeding in a list of path mappings via stdin and getting
+           progress information via stderr.
            """
         if self.isBlank():
             # Record an initial session
@@ -143,13 +148,67 @@ class DVDBurner:
 
         cmd = 'growisofs %s %s -R -J -graft-points -path-list -' % (
             sessionOption, self.device)
+        subproc = popen2.Popen4(cmd)
 
-        pipe = os.popen(cmd, "w")
+        # Write the path mapping list and close stdin
         for disc, fs in pathMap.iteritems():
-            pipe.write(self._graftEscape(disc) + "=" + self._graftEscape(fs) + "\n")
-        retval = pipe.close()
-        if retval != None:
+            subproc.tochild.write(self._graftEscape(disc) + "=" + self._graftEscape(fs) + "\n")
+        subproc.tochild.close()
+
+        # Read all the output until stdout/stderr is closed
+        while 1:
+            line = subproc.fromchild.readline()
+            if not line:
+                break
+            self.parseBurnOutput(line.strip())
+
+        retval = subproc.wait()
+        if retval != 0:
             raise BurnFailure("%r failed with error code %r" % (cmd, retval))
+
+    def parseBurnOutput(self, line):
+        """This receives lines of output from growisofs and tries to make sense of them"""
+        match = re.match(r"\s*(\d+\.\d+)\% done, estimate finish (.*)", line)
+        if match:
+            percent = float(match.group(1))
+            finishTime = time.mktime(time.strptime(match.group(2),
+                                                   "%a %b %d %H:%M:%S %Y"))
+            return self.burnProgress(percent, finishTime)
+
+        self.burnMessage(line)
+
+    def burnMessage(self, line):
+        """Unparsed messages from our burn command go here"""
+        self.setMessageMode("other")
+        print line
+
+    def getProgressBar(self, percent, width=50):
+        """Create a textual progress bar representing some percentage completion"""
+        complete = int(percent / 100.0 * width + 0.5)
+        return "#"*complete + "-"*(width-complete)
+
+    def burnProgress(self, percent, finishTime):
+        """This receives burn progress updates, in the form of a percent
+           completion and a projected completion time.
+           """
+        self.setMessageMode("progress")
+        now = time.time()
+        remaining = max(0, finishTime - now)
+        status = "%7.2f%% %s (%d:%02d remaining)" % (
+            percent, self.getProgressBar(percent), int(remaining/60),
+            int(remaining)%60)
+        sys.stderr.write("\r" + " "*75 + "\r" + status + " ")
+
+    def setMessageMode(self, mode):
+        """Keep track of what we're outputting, and put in a separator
+           if it changes.
+           """
+        if mode != self.messageMode:
+            if self.messageMode == "progress":
+                # An extra blank line, since the progress meter didn't have a \n
+                print
+            print
+        self.messageMode = mode
 
 
 class CatalogWriter:
@@ -345,9 +404,10 @@ def cmd_auto(paths, assumedOverhead = 0.01, safetyTimer = 3):
 
     print "Found %d files to back up, a total of %.1fMB. About %.1fMB will be left on the disc." % (
         len(burnPaths), total / (1024.0 * 1024.0), remaining / (1024.0 * 1024.0))
-    print "Starting burn in %d seconds..." % safetyTimer
-    time.sleep(safetyTimer)
-    backup(burnPaths, burner)
+    if burnPaths:
+        print "Starting burn in %d seconds..." % safetyTimer
+        time.sleep(safetyTimer)
+        backup(burnPaths, burner)
 
 
 def usage():
