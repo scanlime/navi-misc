@@ -1,10 +1,14 @@
 #include "navigation_tree.h"
+#include "textgui.h"
+
+void navigation_selection_changed(GtkTreeSelection *selection, gpointer data);
 
 void initialize_navigation_tree() {
 	GtkWidget *navigation_view;
 	GtkTreeStore *store;
 	GtkCellRenderer *icon_renderer, *text_renderer;
 	GtkTreeViewColumn *icon_column, *text_column;
+	GtkTreeSelection *select;
 
 	navigation_view = glade_xml_get_widget(gui.xml, "server channel list");
 
@@ -17,13 +21,17 @@ void initialize_navigation_tree() {
 	text_renderer = gtk_cell_renderer_text_new();
 	text_column = gtk_tree_view_column_new_with_attributes("name", text_renderer, "text", 1, NULL);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(navigation_view), text_column);
+
+	select = gtk_tree_view_get_selection(GTK_TREE_VIEW(navigation_view));
+	gtk_tree_selection_set_mode(select, GTK_SELECTION_SINGLE);
+	g_signal_connect(G_OBJECT(select), "changed", G_CALLBACK(navigation_selection_changed), NULL);
 }
 
 void navigation_tree_create_new_network_entry(struct session *sess) {
 	GtkTreeStore *store;
 	GtkWidget *treeview;
 	GtkTreeIter iter;
-	
+
 	treeview = glade_xml_get_widget(gui.xml, "server channel list");
 	store = GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(treeview)));
 
@@ -37,8 +45,9 @@ static gboolean navigation_tree_set_channel_name_iterate(GtkTreeModel *model, Gt
 	if(s == data) {
 		struct session *sess = s;
 		gtk_tree_store_set(GTK_TREE_STORE(model), iter, 1, (sess->channel), -1);
+		return TRUE;
 	}
-	return TRUE;
+	return FALSE;
 }
 
 void navigation_tree_set_channel_name(struct session *sess) {
@@ -50,4 +59,19 @@ void navigation_tree_set_channel_name(struct session *sess) {
 	store = gtk_tree_view_get_model(GTK_TREE_VIEW(treeview));
 
 	gtk_tree_model_foreach(store, navigation_tree_set_channel_name_iterate, sess);
+}
+
+void navigation_selection_changed(GtkTreeSelection *selection, gpointer data) {
+	GtkTreeIter iter;
+	GtkTreeModel *model;
+	gpointer *s;
+	session *sess;
+	session_gui *tgui;
+
+	if(gtk_tree_selection_get_selected(selection, &model, &iter)) {
+		gtk_tree_model_get(model, &iter, 2, &s, -1);
+		sess = s;
+		tgui = sess->gui;
+		gtk_xtext_buffer_show(gui.xtext, tgui->buffer, TRUE);
+	}
 }
