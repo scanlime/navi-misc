@@ -28,7 +28,7 @@ toggles sorting by that column and the direction of the sort.
 #
 
 from __future__ import generators
-from Serial import tag
+from Serial import tag, xml
 import re
 
 __all__ = ['BaseTable', 'Column', 'AttributeColumn', 'IndexedColumn',
@@ -179,6 +179,8 @@ class ResortableTable(BaseTable):
        used to keep the table's state across page views.
        """
     headingLinkTag = tag('a')
+    sortIndicator = xml(" &darr;")
+    reversedSortIndicator = xml(" &uarr;")
     sortArgPrefix = "s_"
 
     def __init__(self, rows, columns,
@@ -202,9 +204,21 @@ class ResortableTable(BaseTable):
         return BaseTable.render(self, context)
 
     def render_heading(self, context, column):
-        """Override render_heading to insert hyperlinks generated with createSortCookie"""
+        """Override render_heading to insert hyperlinks generated with createSortCookie,
+           and indicators on the current sort column.
+           """
         url = self.getCookieHyperlink(context, self.getSortCookie(column))
-        return self.headingLinkTag(href=url)[column.render_heading(context)]
+        heading = self.headingLinkTag(href=url)[column.render_heading(context)]
+        if self.columns[self.sortColumnIndex] is column:
+            heading = self.addSortIndicator(heading, self.sortReversed)
+        return heading
+
+    def addSortIndicator(self, heading, reversed=False):
+        if reversed:
+            indicator = self.reversedSortIndicator
+        else:
+            indicator = self.sortIndicator
+        return [heading, indicator]
 
     def setSortFromCookie(self, cookie):
         """Set our current sort using the given cookie.
