@@ -97,6 +97,8 @@ class CommitFormatter(Message.Formatter):
         if message.xml.source and message.xml.source.branch:
             metadata.append(self.format_branch(message.xml.source.branch))
         metadata.append(self.format_asterisk())
+        if commit.version:
+            metadata.append(self.format_version(commit.version))
         if commit.revision:
             metadata.append(self.format_revision(commit.revision))
         metadata.append(self.format_moduleAndFiles(message))
@@ -215,6 +217,9 @@ class CommitFormatter(Message.Formatter):
     def format_branch(self, branch):
         return str(branch).strip()
 
+    def format_version(self, version):
+        return str(rev).strip()
+
     def format_revision(self, rev):
         return 'r' + str(rev).strip()
 
@@ -229,6 +234,10 @@ class CommitToIRC(CommitFormatter):
     def format_author(self, author):
         import IRC
         return IRC.format(CommitFormatter.format_author(self, author), 'green')
+
+    def format_version(self, version):
+        import IRC
+        return IRC.format(str(version).strip(), 'bold')
 
     def format_revision(self, rev):
         import IRC
