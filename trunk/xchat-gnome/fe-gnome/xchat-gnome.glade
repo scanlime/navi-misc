@@ -3490,7 +3490,7 @@
 		      <property name="spacing">0</property>
 
 		      <child>
-			<widget class="GtkCheckButton" id="checkbutton3">
+			<widget class="GtkCheckButton" id="server config autoconnect">
 			  <property name="visible">True</property>
 			  <property name="can_focus">True</property>
 			  <property name="label" translatable="yes">Automatically connect to network</property>
@@ -3508,7 +3508,7 @@
 		      </child>
 
 		      <child>
-			<widget class="GtkCheckButton" id="checkbutton5">
+			<widget class="GtkCheckButton" id="server config ssl">
 			  <property name="visible">True</property>
 			  <property name="can_focus">True</property>
 			  <property name="label" translatable="yes">Use secure connection (SSL)</property>
@@ -3526,7 +3526,7 @@
 		      </child>
 
 		      <child>
-			<widget class="GtkCheckButton" id="checkbutton4">
+			<widget class="GtkCheckButton" id="server config cycle">
 			  <property name="visible">True</property>
 			  <property name="can_focus">True</property>
 			  <property name="label" translatable="yes">Cycle until connected</property>
@@ -3544,7 +3544,7 @@
 		      </child>
 
 		      <child>
-			<widget class="GtkCheckButton" id="checkbutton7">
+			<widget class="GtkCheckButton" id="server config autoreconnect">
 			  <property name="visible">True</property>
 			  <property name="can_focus">True</property>
 			  <property name="label" translatable="yes">Automatically re-connect</property>
@@ -3562,7 +3562,7 @@
 		      </child>
 
 		      <child>
-			<widget class="GtkCheckButton" id="checkbutton8">
+			<widget class="GtkCheckButton" id="server config give up reconnect">
 			  <property name="visible">True</property>
 			  <property name="can_focus">True</property>
 			  <property name="label" translatable="yes">Never give up re-connect</property>
@@ -3715,7 +3715,7 @@
 		      <property name="spacing">6</property>
 
 		      <child>
-			<widget class="GtkCheckButton" id="checkbutton6">
+			<widget class="GtkCheckButton" id="server config usedefaults">
 			  <property name="visible">True</property>
 			  <property name="can_focus">True</property>
 			  <property name="label" translatable="yes">Abide global user settings</property>
