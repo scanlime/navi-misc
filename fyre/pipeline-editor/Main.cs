@@ -51,7 +51,8 @@ public class PipelineEditor
 
                 Glade.XML gxml = new Glade.XML (null, "pipeline-editor.glade", "window1", null);
                 gxml.Autoconnect (this);
-                
+
+                /* Do all the setup for the element tree view */
                 this.element_store = new Gtk.TreeStore (typeof (Gdk.Pixbuf), typeof (string));
                 element_list.Model = this.element_store;
                 
@@ -66,7 +67,8 @@ public class PipelineEditor
                 column.AddAttribute (text_renderer, "text", 1);
                 
                 element_list.AppendColumn (column);
-                
+
+		/* Finally, run the application */
                 Application.Run();
         }
 
@@ -115,11 +117,6 @@ public class PipelineEditor
 		
 	/* 'Edit' Menu events */		
 	public void OnMenuEditDelete (object o, EventArgs args)
-	{
-	}
-	
-	/* 'Help' Menu events */
-	public void OnMenuHelpAbout (object o, EventArgs args)
 	{
 	}
 }
