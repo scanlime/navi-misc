@@ -78,6 +78,7 @@ void completion_store_set_value(CompletionStore *cs, GtkTreeIter *iter, gint col
 }
 
 void completion_store_clear(CompletionStore *cs) {
+	gtk_list_store_clear(&cs->store);
 }
 
 gboolean completion_store_set_completion_column(CompletionStore *cs, gint column) {
