@@ -134,7 +134,8 @@ create_channel_list (session *sess)
 
 	win->server = sess->server;
 
-	win->xml = glade_xml_new ("channel-list.glade", NULL, NULL);
+	if (g_file_test ("channel-list.glade", G_FILE_TEST_EXISTS))
+		win->xml = glade_xml_new ("channel-list.glade", NULL, NULL);
 	if (!win->xml)
 		win->xml = glade_xml_new (XCHATSHAREDIR"/channel-list.glade", NULL, NULL);
 	if (!win->xml) {

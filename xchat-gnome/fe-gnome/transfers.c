@@ -126,7 +126,8 @@ initialize_transfers_window ()
 	GtkTreeSelection *select;
 	int width, height;
 
-	transfer_gui.xml = glade_xml_new ("transfers.glade", NULL, NULL);
+	if (g_file_test ("transfers.glade", G_FILE_TEST_EXISTS))
+		transfer_gui.xml = glade_xml_new ("transfers.glade", NULL, NULL);
 	if (!transfer_gui.xml)
 		transfer_gui.xml = glade_xml_new (XCHATSHAREDIR "/transfers.glade", NULL, NULL);
 	if (!transfer_gui.xml)

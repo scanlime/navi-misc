@@ -1051,7 +1051,7 @@ on_hpane_move (GtkPaned *widget, GParamSpec *param_spec, gpointer data)
 static void
 on_topic_change (GtkButton *widget, gpointer data)
 {
-	GladeXML *xml;
+	GladeXML *xml = NULL;
 	GtkWidget *dialog;
 	GtkWidget *entry;
 	GtkWidget *text_entry;
@@ -1059,7 +1059,8 @@ on_topic_change (GtkButton *widget, gpointer data)
 	GtkTextBuffer *buffer;
 	gchar *title;
 
-	xml = glade_xml_new ("topic-change.glade", NULL, NULL);
+	if (g_file_test ("topic-change.glade", G_FILE_TEST_EXISTS))
+		xml = glade_xml_new ("topic-change.glade", NULL, NULL);
 	if (!xml)
 		xml = glade_xml_new (XCHATSHAREDIR "/topic-change.glade", NULL, NULL);
 	if (!xml) {
