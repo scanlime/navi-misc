@@ -111,6 +111,16 @@ irc_network_editor_get_type (void)
 static void
 use_globals_set (GtkRadioButton *button, IrcNetworkEditor *e)
 {
+	gchar *text;
+
+	text = gconf_client_get_string (e->gconf, "/apps/xchat/irc/nickname", NULL);
+	gtk_entry_set_text (GTK_ENTRY (e->nickname), text);
+	g_free (text);
+
+	text = gconf_client_get_string (e->gconf, "/apps/xchat/irc/realname", NULL);
+	gtk_entry_set_text (GTK_ENTRY (e->realname), text);
+	g_free (text);
+
 	gtk_widget_set_sensitive (e->nickname, FALSE);
 	gtk_widget_set_sensitive (e->realname, FALSE);
 }
@@ -141,6 +151,9 @@ irc_network_editor_populate (IrcNetworkEditor *e)
 	} else {
 		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (e->use_custom), TRUE);
 		use_custom_set (GTK_RADIO_BUTTON (e->use_custom), e);
+
+		gtk_entry_set_text (GTK_ENTRY (e->nickname), e->network->nick);
+		gtk_entry_set_text (GTK_ENTRY (e->realname), e->network->real);
 	}
 
 	gtk_entry_set_text           (GTK_ENTRY         (e->password),         e->network->password);
