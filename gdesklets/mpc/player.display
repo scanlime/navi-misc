@@ -1,7 +1,150 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- Put the display on all workspaces, always below everything else. -->
-<display id="window" anchor="ne"
-	window-flags="sticky, below">
+
+<!-- **********************************************************************
+     * This is the SideCandy template.
+     * You can use the template for your own desklets in SideCandy style.
+     ********************************************************************** -->
+
+<display id="win" anchor="ne"
+         window-flags="sticky, below">
+
+
+<!-- **********************************************************************
+     * Enter your name and other meta information here:
+     ********************************************************************** -->
+
+  <meta name="SideCandy CPU"
+        version="0.10"
+        preview="gfx/computer.png"
+        author="Martin Grimme"
+        description="A TEMPLATE in SideCandy style."/>
+
+<!-- ********************************************************************** -->
+
+
+<frame id="border">
+
+  <group id="slider"
+         on-click="if (sc_behavior == 'click'): slide(self, SC_IN, SC_OUT)"
+         on-doubleclick="if (sc_behavior == 'double'): slide(self, SC_IN, SC_OUT)"
+         on-enter="if (sc_behavior == 'enter'): slide(self, SC_IN, SC_OUT)"
+         on-leave="if (sc_behavior == 'enter'): slide(self, SC_IN, SC_OUT)">
+
+
+<!-- **********************************************************************
+     * You can change the height of the display here.
+     * But please leave the width as it is to ensure a uniform look between
+     * all SideCandies!
+     ********************************************************************** -->
+
+    <group id="panel" width="5cm" height="2cm">
+
+<!-- ********************************************************************** -->
+
+
+      <!-- the background image -->
+      <group id="bg" width="100%" height="100%" bg-uri="gfx/bg.png"/>
+
+
+      <group id="icon_group" y="0.1cm" width="1cm">
+
+
+<!-- **********************************************************************
+     * The icon area is a narrow area where SideCandies show an icon or
+     * information in a compressed way. This area is visible when the
+     * display is slid in.
+     ********************************************************************** -->
+
+        <image uri="gfx/computer.png" image-width="1cm" image-height="1cm"/>
+        <label anchor="center" x="50%" y="1.3cm" value="100%"
+               font="Sans 0.25cm" color="black"/>
+
+<!-- ********************************************************************** -->
+
+      </group>
+
+
+      <group id="info_group" y="0.1cm">
+
+
+<!-- **********************************************************************
+     * This is the main area of the display.
+     * Put your stuff in here:
+     ********************************************************************** -->
+
+        <label font="Sans Bold 0.3cm" color="black" value="SideCandy rocks!"/>
+
+        <label y="0.4cm" font="Sans 0.2cm" color="navy"
+               value="...though this is just a template."/>
+
+        <label x="0.5cm" y="1cm" font="Sans Bold 0.3cm" color="navy"
+               value="Put your stuff here!"/>
+
+<!-- ********************************************************************** -->
+
+      </group>
+
+    </group>
+
+  </group>
+
+</frame>
+
+
+  <!-- the preferences dialog -->
+  <prefs callback="sc_prefs_cb">
+
+    <page label="SideCandy">
+
+      <title label="Sliding"/>
+      <enum label="Orientation:" bind="sc_side"
+            help="The orientation of the display.">
+        <item label="Left" value="left"/>
+        <item label="Right" value="right"/>
+      </enum>
+      <integer label="Delay:" bind="sc_slide_timer"/>
+      <enum label="Behavior:" bind="sc_behavior">
+        <item label="Slide on mouse click" value="click"/>
+        <item label="Slide on double click" value="double"/>
+        <item label="Slide on entering" value="enter"/>
+        <item label="Never slide" value="never"/>
+      </enum>
+
+      <title label="Borders"/>
+      <enum label="Border style:" bind="sc_border">
+        <item label="LTVCandy" value="lt"/>
+        <item label="Round" value="round"/>
+        <item label="Drop Shadow" value="tmkt"/>
+      </enum>
+      <boolean label="Left border" bind="sc_border_left"/>
+      <boolean label="Right border" bind="sc_border_right"/>
+      <boolean label="Top border" bind="sc_border_top"/>
+      <boolean label="Bottom border" bind="sc_border_bottom"/>
+
+      <title label="Background"/>
+      <uri label="Background image:" bind="Dsp.bg.bg_uri"/>
+      <boolean label="Show background" bind="Dsp.bg.visible"/>
+    </page>
+
+
+<!-- **********************************************************************
+     * Put your preferences stuff here:
+     ********************************************************************** -->
+
+    <page label="TEMPLATE">
+
+      <title label="Put your stuff here"/>
+
+    </page>
+
+<!-- ********************************************************************** -->
+
+  </prefs>
+
+
+  <!-- this loads the SideCandy magic -->
+  <script uri="candy.script"/>
+
 
 </display>
