@@ -65,10 +65,10 @@ render_pass_init (RenderPass *pass)
 }
 
 void
-render_pass_render (RenderPass *pass)
+render_pass_render (RenderPass *pass, RenderState *rstate)
 {
   RenderPassClass *klass = RENDER_PASS_CLASS (G_OBJECT_GET_CLASS (pass));
-  klass->render (pass);
+  klass->render (pass, rstate);
 }
 
 gboolean

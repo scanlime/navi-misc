@@ -28,6 +28,7 @@
 #include <gtk/gtk.h>
 #include <GL/gl.h>
 #include "drawable.h"
+#include "renderstate.h"
 
 G_BEGIN_DECLS
 
@@ -49,7 +50,7 @@ struct _RenderPassClass
 {
   GObjectClass parent_class;
 
-  void     (*render)     (RenderPass *pass);
+  void     (*render)     (RenderPass *pass, RenderState *rstate);
   gboolean (*filter)     (RenderPass *pass, Drawable *drawable);
   void     (*preprocess) (RenderPass *pass);
   void     (*add)        (RenderPass *pass, Drawable *drawable);
@@ -61,7 +62,7 @@ struct _RenderPassClass
 };
 
 GType    render_pass_get_type   (void) G_GNUC_CONST;
-void     render_pass_render     (RenderPass *pass);
+void     render_pass_render     (RenderPass *pass, RenderState *rstate);
 gboolean render_pass_filter     (RenderPass *pass, Drawable *drawable);
 void     render_pass_preprocess (RenderPass *pass);
 void     render_pass_add        (RenderPass *pass, Drawable *drawable);

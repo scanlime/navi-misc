@@ -131,13 +131,33 @@ scene_preprocess (Scene *self)
 
   self->dirty = FALSE;
 
-  g_list_free (render_sort);
+  g_list_free (self->render_passes);
+  self->render_passes = render_sort;
   g_list_free (filter_sort);
 }
 
 void
 scene_render (Scene *self, RenderState *rstate)
 {
+  GList *pass;
+
+  if (self->dirty)
+    scene_preprocess (self);
+
+  glDisable (GL_BLEND);
+  glEnable (GL_DEPTH_TEST);
+  glEnable (GL_CULL_FACE);
+  glEnable (GL_COLOR_MATERIAL);
+  glEnable (GL_LIGHTING);
+  glDisable (GL_LINE_SMOOTH);
+  glColor4f (1.0, 1.0, 1.0, 1.0);
+
+  for (pass = self->render_passes; pass; pass = pass->next)
+  {
+    RenderPass *rpass = RENDER_PASS (pass->data);
+    if (!render_pass_is_empty (rpass))
+      render_pass_render (rpass, rstate);
+  }
 }
 
 SceneObject*

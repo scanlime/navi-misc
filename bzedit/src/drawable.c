@@ -73,8 +73,8 @@ drawable_init (Drawable *drawable)
 }
 
 void
-drawable_draw (Drawable *drawable)
+drawable_draw (Drawable *drawable, RenderState *rstate)
 {
   DrawableClass *class = DRAWABLE_CLASS (G_OBJECT_GET_CLASS (drawable));
-  class->draw (drawable);
+  class->draw (drawable, rstate);
 }

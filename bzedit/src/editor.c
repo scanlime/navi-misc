@@ -138,7 +138,7 @@ editor_init (Editor *editor)
         GtkWidget *image2 = gtk_image_new_from_pixbuf (((SceneObjectClass*) klass)->get_icon ());
 	GtkToolItem *titem = GTK_TOOL_ITEM (gtk_tool_button_new (image2, g_type_name (type)));
         gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), image1);
-        gtk_menu_shell_append (GTK_MENU_SHELL (am), item);
+        gtk_menu_shell_append (GTK_MENU_SHELL (am), GTK_WIDGET (item));
 	gtk_toolbar_insert (tbar, titem, -1);
       }
       v = gtk_hseparator_new();
