@@ -31,6 +31,7 @@ url_editor_dialog_construct2 (UrlEditorDialog2 *dialog)
 	GtkWidget *toplevel;
 	ESourceList *source_list;
 	GConfClient *gconf;
+	GtkSizeGroup *group;
 
 	gconf = gconf_client_get_default ();
 
@@ -72,6 +73,14 @@ url_editor_dialog_construct2 (UrlEditorDialog2 *dialog)
 	dialog->tasks_selector = e_source_selector_new (source_list);
 	gtk_widget_show (dialog->tasks_selector);
 	gtk_container_add (GTK_CONTAINER (dialog->tasks_swin), dialog->tasks_selector);
+
+	group = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
+	gtk_size_group_add_widget (group, dialog->url_entry);
+	gtk_size_group_add_widget (group, dialog->publish_frequency);
+	gtk_size_group_add_widget (group, dialog->type_selector);
+	gtk_size_group_add_widget (group, dialog->username_entry);
+	gtk_size_group_add_widget (group, dialog->password_entry);
+	g_object_unref (group);
 
 	g_object_unref (gconf);
 
