@@ -41,6 +41,7 @@ used to store and query rulesets in a RulesetStorage.
 
 import XML, Message
 from twisted.python import log
+import sys, traceback
 
 
 class RulesetReturnException(Exception):
@@ -266,9 +267,21 @@ class RulesetDelivery(object):
         self.uriHandler = uriHandler
 
     def __call__(self, message):
-        result = self.ruleset(message)
-        if result:
-            self.uriHandler.message(self.ruleset.uri, result)
+        # We catch exceptions here and log them, preventing one bad ruleset
+        # or URI handler from preventing message delivery to other clients.
+        # We can't do this in the Message.Hub because sometimes it's good for
+        # exceptions to be propagated to the original sender of the message.
+        # In ruleset delivery however, messages never have a return value
+        # and shouldn't raise exceptions.
+        try:
+            result = self.ruleset(message)
+            if result:
+                self.uriHandler.message(self.ruleset.uri, result)
+        except:
+            e = sys.exc_info()[1]
+            log.msg("Exception occurred in RulesetDelivery\n" +
+                    "--- Original message\n%s\n--- Exception\n%s" %
+                    (message, "".join(traceback.format_exception(*sys.exc_info()))))
 
 
 class UnsupportedURI(Exception):
