@@ -49,7 +49,7 @@ struct input_absinfo {
   __s32 maximum;
   __s32 fuzz;
   __s32 flat;
-};                                        
+};
 #endif
 
 struct buffer {
@@ -494,7 +494,7 @@ static int event_loop(struct server *svr, int evdev) {
       event_from_server(svr, evdev);
     }
 
-    /* Can we read from the event device? 
+    /* Can we read from the event device?
      * Poll it whether or not we see any read
      * activity, to detect device disconnects.
      */
