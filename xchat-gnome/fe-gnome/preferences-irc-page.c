@@ -23,6 +23,8 @@
 #include "preferences-irc-page.h"
 #include "preferences-dialog.h"
 
+extern struct xchatprefs prefs;
+
 static void
 entry_changed (GtkEntry *entry, const gchar *key)
 {
@@ -71,6 +73,8 @@ preferences_page_irc_new (gpointer prefs_dialog, GladeXML *xml)
 	gboolean toggle;
 	GtkSizeGroup *group;
 	GtkTreeSelection *select;
+	gchar **tokens;
+	gint i;
 
 #define GW(name) ((page->name) = glade_xml_get_widget (xml, #name))
 	GW(nick_name);
@@ -95,11 +99,6 @@ preferences_page_irc_new (gpointer prefs_dialog, GladeXML *xml)
 	page->icon = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/irc.png", NULL);
 	gtk_list_store_append (p->page_store, &iter);
 	gtk_list_store_set (p->page_store, &iter, 0, page->icon, 1, "IRC Preferences", 2, 0, -1);
-
-	page->highlight_store = gtk_list_store_new (1, G_TYPE_STRING);
-	gtk_tree_view_set_model (GTK_TREE_VIEW (page->highlight_list), GTK_TREE_MODEL (page->highlight_store));
-	renderer = gtk_cell_renderer_text_new ();
-	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (page->highlight_list), 0, "highlight", renderer, "text", 0, NULL);
 
 	group = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
 	gtk_size_group_add_widget (group, page->nick_name);
@@ -150,10 +149,22 @@ preferences_page_irc_new (gpointer prefs_dialog, GladeXML *xml)
 	gtk_font_button_set_font_name (GTK_FONT_BUTTON (page->font_selection), text);
 	g_free (text);
 
+	/* highlight list */
+	page->highlight_store = gtk_list_store_new (1, G_TYPE_STRING);
+	gtk_tree_view_set_model (GTK_TREE_VIEW (page->highlight_list), GTK_TREE_MODEL (page->highlight_store));
+	renderer = gtk_cell_renderer_text_new ();
+	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (page->highlight_list), 0, "highlight", renderer, "text", 0, NULL);
 	gtk_widget_set_sensitive (page->highlight_edit, FALSE);
 	gtk_widget_set_sensitive (page->highlight_remove, FALSE);
 	select = gtk_tree_view_get_selection (GTK_TREE_VIEW (page->highlight_list));
 	g_signal_connect (G_OBJECT (select), "changed", G_CALLBACK (highlight_selection_changed), page);
+
+	tokens = g_strsplit (prefs.bluestring, ",", 0);
+	for (i = 0; tokens[i]; i++) {
+		gtk_list_store_append (page->highlight_store, &iter);
+		gtk_list_store_set (page->highlight_store, &iter, 0, tokens[i], -1);
+	}
+	g_strfreev (tokens);
 
 	return page;
 }
@@ -169,7 +180,6 @@ preferences_page_irc_free (PreferencesIrcPage *page)
  *******************************************************************************/
 
 static GtkListStore *hilight_store;
-extern struct xchatprefs prefs;
 
 static void gconf_entry_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, GtkEntry *gtkentry);
 static void gconf_bool_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, GtkToggleButton *button);
