@@ -1,17 +1,15 @@
 #!/bin/sh
 #
-# Run backup.sh on the CIA server remotely, then save
-# an offsite copy of the resulting dump file.
+# Streams a mysqldump from the CIA server into a file locally.
+# This avoids storing the backup on the CIA server itself, so we
+# minimize the impact this has on our I/O quota.
 #
 
-CIA_HOST=beton.hyperreal.info
-REMOTE_BACKUPDIR=backups
-LOCAL_BACKUPDIR=~/backups
-REMOTE_BACKUPSCRIPT=cia/tools/backup.sh
+CIA_HOST=cia@flapjack
+BACKUPDIR=/navi/backups/cia
 
-# Name this backup according to the date
 DUMP_FILE=`date "+cia-%F.dump.bz2"`
 
-ssh $CIA_HOST "$REMOTE_BACKUPSCRIPT"
-scp -q $CIA_HOST:$REMOTE_BACKUPDIR/$DUMP_FILE $LOCAL_BACKUPDIR
+ssh $CIA_HOST 'database=cia; user=root; . ~/.cia_db; nice -n 19 mysqldump -u $user --password=$passwd $database | bzip2' > $BACKUPDIR/$DUMP_FILE
+
 
