@@ -22,7 +22,7 @@ Site and Request classes.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from twisted.web import server, error
+from twisted.web import server, error, static
 from twisted.protocols import http
 from twisted.python import log
 from Nouvelle import tag, place, Serializer, Twisted
@@ -128,6 +128,34 @@ class Request(server.Request):
         # Count this request, yay
         server.Request.process(self)
         self.site.requestCount += 1
+
+
+class StaticJoiner(static.File):
+    """This web page acts mostly like a static.File, and all children
+       are files under the given directory- however this page itself
+       renders the provided 'index' page. This can be used to create
+       a dynamically generated front page that references static pages
+       or images as its children.
+       """
+    def __init__(self, path, indexPage, defaultType="text/html", ignoredExts=(), registry=None, allowExt=0):
+        self.indexPage = indexPage
+        static.File.__init__(self, path, defaultType, ignoredExts, registry, allowExt)
+
+    def getChild(self, path, request):
+        if path:
+            return static.File.getChild(self, path, request)
+        else:
+            return self
+
+    def render(self, request):
+        return self.indexPage.render(request)
+
+    def createSimilarFile(self, path):
+        print path
+        f = static.File(path, self.defaultType, self.ignoredExts, self.registry)
+        f.processors = self.processors
+        f.indexNames = self.indexNames[:]
+        return f
 
 
 class Site(server.Site):

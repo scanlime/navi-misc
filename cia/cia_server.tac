@@ -5,7 +5,7 @@
 #
 
 from twisted.application import service, internet
-from twisted.web import static, vhost
+from twisted.web import vhost
 from LibCIA import Message, Ruleset, IRC, Stats, IncomingMail
 from LibCIA import Debug, Security, RpcServer, RpcClient, Web
 
@@ -33,7 +33,7 @@ Security.caps.saveKey('universe', '~/.cia_key')
 
 # Create the web interface. We start with all the static
 # files in 'htdocs' and add dynamic content from there.
-webRoot = static.File("htdocs")
+webRoot = Web.Server.StaticJoiner('htdocs', Web.Doc.Page('doc/welcome'))
 webRoot.putChild('rulesets', Web.RulesetBrowser.RulesetList(rulesetStorage))
 webRoot.putChild('stats', Web.Stats.Browser.Page())
 webRoot.putChild('info', Web.Info.Page())

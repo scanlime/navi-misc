@@ -130,6 +130,13 @@ class NouvelleTranslator(nodes.NodeVisitor):
             self.docSubtitle = ''.join(map(str, node.children))
         raise nodes.SkipNode
 
+    def visit_reference(self, node):
+        if node.has_key('refuri'):
+            self.enterTag(tag('a', href=node['refuri']))
+        else:
+            # Internal links not supported yet
+            self.stack.append(self.stack[-1])
+
     tagMap = {
         'paragraph':       tag('p'),
         'enumerated_list': tag('ol'),
@@ -177,6 +184,8 @@ class Page(Template.Page):
     def __init__(self, source_path=None, source=None):
         self.source = source
         self.source_path = source_path
+
+    def preRender(self, context):
         self.writer = self.writerFactory()
 
         out = ObjectOutput()
