@@ -201,7 +201,7 @@ static void histogram_imager_init_render_params(GObjectClass *object_class) {
 				    GDK_TYPE_COLOR,
 				    G_PARAM_READWRITE | PARAM_INTERPOLATE | PARAM_IN_GUI);
   param_spec_set_group             (spec, current_group);
-  g_param_spec_set_qdata           (spec, g_quark_from_static_string("opacity-property"), "fgalpha");
+  g_param_spec_set_qdata           (spec, g_quark_from_static_string("opacity-property"), "bgalpha");
   g_object_class_install_property  (object_class, PROP_BGCOLOR_GDK, spec);
 
   spec = g_param_spec_uint         ("fgalpha",
