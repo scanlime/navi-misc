@@ -259,9 +259,41 @@ static void on_widget_toggle(GtkWidget *widget, gpointer user_data) {
 	gtk_widget_hide(toggled);
 }
 
+#if (GTK_CHECK_VERSION(2, 4, 0))
+static void
+update_image_preview (GtkFileChooser *chooser, GtkImage *image) {
+    GdkPixbuf *image_pixbuf;
+    static GdkPixbuf *emblem_pixbuf = NULL;
+    gchar *filename;
+    gboolean have_preview;
+    GdkPixmap *pixmap;
+
+    if (emblem_pixbuf == NULL) {
+	emblem_pixbuf = gdk_pixbuf_new_from_file (FYRE_DATADIR "/metadata-emblem.png", NULL);
+    }
+
+    filename = gtk_file_chooser_get_filename (chooser);
+
+    image_pixbuf = gdk_pixbuf_new_from_file_at_scale (filename, 112, 112, TRUE, NULL);
+    have_preview = (image_pixbuf != NULL);
+
+    pixmap = gdk_pixmap_new (GTK_WIDGET (image)->window, 128, 128, -1);
+    gdk_draw_rectangle (pixmap, GTK_WIDGET (image)->style->bg_gc[GTK_STATE_NORMAL], TRUE, 0, 0, 128, 128);
+    gdk_draw_pixbuf (pixmap, NULL, image_pixbuf, 0, 0, 0, 0, 116, 116, GDK_RGB_DITHER_NONE, 0, 0);
+    gdk_draw_pixbuf (pixmap, NULL, emblem_pixbuf, 0, 0, 104, 104, 24, 24, GDK_RGB_DITHER_NONE, 0, 0);
+
+    if (image_pixbuf)
+	gdk_pixbuf_unref (image_pixbuf);
+
+    gtk_image_set_from_pixmap (GTK_IMAGE (image), pixmap, NULL);
+    gdk_pixmap_unref (pixmap);
+    gtk_file_chooser_set_preview_widget_active (chooser, have_preview);
+}
+#endif
+
 static void on_load_from_image (GtkWidget *widget, gpointer user_data) {
     Explorer *self = EXPLORER (user_data);
-    GtkWidget *dialog;
+    GtkWidget *dialog, *image;
 
 #if (GTK_CHECK_VERSION(2, 4, 0))
     dialog = gtk_file_chooser_dialog_new ("Open Image Parameters",
@@ -270,6 +302,9 @@ static void on_load_from_image (GtkWidget *widget, gpointer user_data) {
 					  GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
 					  GTK_STOCK_OK, GTK_RESPONSE_OK,
 					  NULL);
+    image = gtk_image_new ();
+    gtk_file_chooser_set_preview_widget (GTK_FILE_CHOOSER (dialog), image);
+    g_signal_connect (G_OBJECT (dialog), "update-preview", G_CALLBACK (update_image_preview), image);
 
     if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_OK) {
 	gchar *filename;
