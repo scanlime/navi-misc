@@ -58,7 +58,10 @@ protected:
 	CBaseGameLoop * gameLoop;
 	bool						activeGame;
 
-	typedef std::map<std::string,CBaseGame*>	gameModules;
+	void RegisterGameModules ( void );
+
+	typedef std::map<std::string,CBaseGame*>	gameModuleMap;
+	gameModuleMap	gameModules;
 	CBaseGame*	theGame;
 };
 

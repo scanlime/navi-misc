@@ -31,8 +31,8 @@ CMainMenu::Init ( CBaseGameLoop * pGameLoop )
 
 void CMainMenu::Attach ( void )
 {
-	Overlay* o = (Overlay*)OverlayManager::getSingleton().getByName("menu/mainMenu");
-	o->show();
+	mainMenu = (Overlay*)OverlayManager::getSingleton().getByName("menu/mainMenu");
+	mainMenu->show();
 
 	gameLoop->GetCamera()->moveRelative(Vector3(0,1.5f,0));
 
@@ -48,7 +48,7 @@ void CMainMenu::Attach ( void )
 	Mesh* mesh = MeshManager::getSingleton().createPlane("GroundPlane", Plane (Vector3(0,1,0),Vector3(0,0,0),Vector3(1,0,0)),800, 800,1,1,true,1,60,60);
 	mesh->getSubMeshIterator().getNext()->setMaterialName("ground_mat");
 	Entity *mGroundEntity = gameLoop->GetSceneManager()->createEntity("Ground","GroundPlane");
-	SceneNode * mGroundNode = static_cast<SceneNode*>(gameLoop->GetSceneManager()->getRootSceneNode()->createChild());
+	mGroundNode = static_cast<SceneNode*>(gameLoop->GetSceneManager()->getRootSceneNode()->createChild());
 	mGroundNode->attachObject(mGroundEntity);
 
 	// make some ships
@@ -86,7 +86,31 @@ void CMainMenu::Attach ( void )
 
 void CMainMenu::Release ( void )
 {
+	mainMenu->hide();
+//	OverlayManager::getSingleton().unload(mainMenu);
+	mainMenu = NULL;
+
+/*	gameLoop->GetSceneManager()->getRootSceneNode()->removeAllChildren();
+	gameLoop->GetSceneManager()->destroyAllOverlays();
+	gameLoop->GetSceneManager()->removeAllEntities();
+	gameLoop->GetSceneManager()->removeAllLights();
+
+	return;
+	ships[0]->detachAllObjects();
+	gameLoop->GetSceneManager()->destroySceneNode(ships[0]->getName());
+	ships[1]->detachAllObjects();
+	gameLoop->GetSceneManager()->destroySceneNode(ships[1]->getName());
+	ships[2]->detachAllObjects();
+	gameLoop->GetSceneManager()->destroySceneNode(ships[2]->getName());
+	ships[3]->detachAllObjects();
+	gameLoop->GetSceneManager()->destroySceneNode(ships[3]->getName()); */
 	ships[0] = ships[1] = ships[2] = ships[3] = NULL;
+
+//	mGroundNode->detachAllObjects();
+//	gameLoop->GetSceneManager()->destroySceneNode(mGroundNode->getName());
+	mGroundNode = NULL;
+
+	gameLoop->ClearScene();
 }
 
 tePanelReturn CMainMenu::Process ( std::string &next )
