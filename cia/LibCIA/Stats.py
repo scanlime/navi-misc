@@ -632,6 +632,7 @@ class MetadataThumbnailCache(Cache.AbstractStringCache):
 
     def makeThumbnail(self, imageData, size, result):
         i = Image.open(StringIO(imageData))
+        i = i.convert("RGB")
         i.thumbnail(size, Image.ANTIALIAS)
         s = StringIO()
         i.save(s, 'PNG')
