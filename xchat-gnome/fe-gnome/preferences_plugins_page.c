@@ -26,6 +26,7 @@ typedef struct session xchat_context;
 #include "../common/xchat-plugin.h"
 #include "../common/plugin.h"
 #include "../common/outbound.h"
+#include "../common/util.h"
 
 extern GSList *plugin_list;
 extern XChatGUI gui;
@@ -83,7 +84,7 @@ preferences_plugins_page_populate()
 
 	gtk_list_store_clear (store);
 
-  for_files (XCHATLIBDIR"/plugins", "*.so", plugin_add);
+  //for_files (XCHATLIBDIR"/plugins", "*.so", plugin_add);
 
 	list = known_plugins;
 	while (list)
@@ -98,10 +99,6 @@ preferences_plugins_page_populate()
 	}
 }
 
-static void
-plugin_add (char* dirname)
-{
-}
 
 static void
 on_load_plugin_clicked (GtkButton *button, gpointer user_data)
