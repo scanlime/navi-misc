@@ -50,16 +50,18 @@ class Reader:
             shift = CaselessLiteral('shift')
             size = CaselessLiteral('size')
             spin = CaselessLiteral('spin')
+            xform = CaselessLiteral('xform')
 
             objectProperty = Group(name + Word(alphanums))
-            locationProperty =      \
-                Group(pos + ThreeDPoint)   \
-              | Group(size + ThreeDPoint)  \
-              | Group(rot + float)         \
-              | Group(shift + ThreeDPoint) \
-              | Group(scale + ThreeDPoint) \
-              | Group(shear + ThreeDPoint) \
-              | Group(spin + ThreeDPoint)  \
+            locationProperty =                 \
+                Group(pos + ThreeDPoint)       \
+              | Group(size + ThreeDPoint)      \
+              | Group(rot + float)             \
+              | Group(shift + ThreeDPoint)     \
+              | Group(scale + ThreeDPoint)     \
+              | Group(shear + ThreeDPoint)     \
+              | Group(spin + ThreeDPoint)      \
+              | Group(xform + globalReference) \
               | objectProperty
             obstacleProperty =                  \
                 CaselessLiteral('drivethrough') \
@@ -195,12 +197,21 @@ class Reader:
               | Group(CaselessLiteral('fixedscale') + TwoDPoint) \
               | Group(CaselessLiteral('fixedspin') + float) \
               | Group(CaselessLiteral('fixedcenter') + TwoDPoint) \
-              | Group(CaselessLiteral('shift') + float + float) \
-              | Group(CaselessLiteral('spin') + float) \
-              | Group(CaselessLiteral('scale') + float + float + float + float) \
+              | Group(shift + float + float) \
+              | Group(spin + float) \
+              | Group(scale + float + float + float + float) \
               | Group(CaselessLiteral('center') + TwoDPoint) \
               | objectProperty
             textureMatrix = Group(CaselessLiteral('textureMatrix') + OneOrMore(textureMatrixProperty) + end)
+
+            transformProperty = \
+                Group(shift + ThreeDPoint) \
+              | Group(scale + ThreeDPoint) \
+              | Group(shear + ThreeDPoint) \
+              | Group(spin + float + ThreeDPoint) \
+              | Group(xform + globalReference) \
+              | objectProperty
+            transform = Group(CaselessLiteral('transform') + OneOrMore(transformProperty) + end)
 
             worldObject =     \
                 arc           \
@@ -215,6 +226,7 @@ class Reader:
               | teleporter    \
               | tetra         \
               | textureMatrix \
+              | transform     \
               | waterLevel    \
               | weapon        \
               | world         \
