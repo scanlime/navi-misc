@@ -79,36 +79,6 @@ void load_preferences() {
 	load_palette(palette_scheme);
 }
 
-char *preferences_nickname() {
-	GConfClient *client;
-	client = gconf_client_get_default();
-	return gconf_client_get_string(client, "/apps/xchat/irc/nickname", NULL);
-}
-
-char *preferences_realname() {
-	GConfClient *client;
-	client = gconf_client_get_default();
-	return gconf_client_get_string(client, "/apps/xchat/irc/realname", NULL);
-}
-
-char *preferences_quitmsg() {
-	GConfClient *client;
-	client = gconf_client_get_default();
-	return gconf_client_get_string(client, "/apps/xchat/irc/quitmsg", NULL);
-}
-
-char *preferences_partmsg() {
-	GConfClient *client;
-	client = gconf_client_get_default();
-	return gconf_client_get_string(client, "/apps/xchat/irc/partmsg", NULL);
-}
-
-char *preferences_awaymsg() {
-	GConfClient *client;
-	client = gconf_client_get_default();
-	return gconf_client_get_string(client, "/apps/xchat/irc/awaymsg", NULL);
-}
-
 gboolean preferences_show_timestamp() {
 	GConfClient *client;
 

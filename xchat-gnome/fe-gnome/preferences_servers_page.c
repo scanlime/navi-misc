@@ -19,6 +19,7 @@
  *
  */
 
+#include <gconf/gconf-client.h>
 #include "preferences_servers_page.h"
 #include "preferences.h"
 #include "../common/xchat.h"
@@ -157,7 +158,10 @@ static void edit_clicked(GtkWidget *button, gpointer data) {
 	GtkTreeSelection *select;
 	GtkTreeIter iter;
 	GtkTreeModel *model;
+	GConfClient *client;
 	ircnet *net;
+
+	client = gconf_client_get_default ();
 
 	dialog = glade_xml_get_widget(gui.xml, "server configuration");
 
@@ -199,8 +203,13 @@ static void edit_clicked(GtkWidget *button, gpointer data) {
 
 	widget = glade_xml_get_widget(gui.xml, "server config usedefaults");
 	if(net->flags & FLAG_USE_GLOBAL) {
-		gtk_entry_set_text(GTK_ENTRY(nick), preferences_nickname());
-		gtk_entry_set_text(GTK_ENTRY(real), preferences_realname());
+		gchar *text;
+		text = gconf_client_get_string (client, "/apps/xchat/irc/nickname", NULL);
+		gtk_entry_set_text(GTK_ENTRY(nick), text);
+		g_free (text);
+		text = gconf_client_get_string (client, "/apps/xchat/irc/realname", NULL);
+		gtk_entry_set_text(GTK_ENTRY(real), text);
+		g_free (text);
 		gtk_widget_set_sensitive(nick, FALSE);
 		gtk_widget_set_sensitive(real, FALSE);
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), TRUE);
