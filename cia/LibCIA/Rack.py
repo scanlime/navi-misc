@@ -43,234 +43,244 @@ from __future__ import generators
 import cPickle, struct
 
 
-# class Rack(object):
-#     """A dictionary-like object that, instead of representing in-memory data,
-#        represents objects stored in a database or other dictionary-like
-#        object that accepts strings for keys and values, such as an anydbm
-#        database. This module includes an open() function that opens a
-#        database file with anydbm and constructs a Rack around it.
+class RackSerializer(object):
+    """Encapsulates the key and value serialization used by all
+       classes inheriting from BaseRack. By default, this uses cPickle
+       for values and KeyPickler for keys.
+       """
+    def __init__(self, keyPickler=None, pickleProtocol=-1):
+        if not keyPickler:
+            keyPickler = KeyPickler()
+        self.keyPickler = keyPickler
+        self.pickleProtocol = pickleProtocol
 
-#        Values can be any object serializable by cPickle. Keys and namespaces
-#        can be any object serializable by KeyPickler.
+    def dumpKey(self, obj):
+        return self.keyPickler.dumps(obj)
 
-#        Basic usage:
+    def loadKey(self, s):
+        return cPickle.loads(s)
 
-#           >>> db = {}
-#           >>> r = Rack(db)
-#           >>> r[12] = 'banana'
-#           >>> r['squid'] = 4
-#           >>> r[1,2,('boing', (None,))] = [1, 2, 4, 'Poing']
+    def dumpValue(self, obj):
+        return cPickle.dumps(obj, self.pickleProtocol)
 
-#           >>> del r
-#           >>> r = Rack(db)
+    def loadValue(self, s):
+        return cPickle.loads(s)
 
-#           >>> r['squid']
-#           4
-#           >>> r[1,2,('boing', (None,))]
-#           [1, 2, 4, 'Poing']
 
-#        Note that keys are a subset of pickleable objects while values
-#        can be any pickleable object:
+class BaseRack(object):
+    """The base class of both Rack and InternalRack. This supports the key
+       and value serialization necessary for both, but doesn't handle assigning
+       namespaces or keeping iterable lists of namespaces and keys.
+       """
+    def __init__(self, db,
+                 namespaces = (),
+                 serializer = None,
+                 ):
+        if serializer is None:
+            serializer = RackSerializer()
+        self.db = db
+        self.namespaces = namespaces
+        self.serializer = serializer
+        self._internalNs = None
 
-#           >>> r[6] = 5.2
-#           >>> r[5.2] = 6
-#           Traceback (most recent call last):
-#           ...
-#           TypeError: KeyPickler does not support <type 'float'>
+    def _dumpKey(self, key):
+        """Return a string representation of the given key, in the current namespace"""
+        return self.serializer.dumpKey((self.namespaces, self._internalNs, key))
 
-#        Namespaces:
+    def close(self):
+        self.db.close()
 
-#           >>> eggs = r.namespace('eggs')
-#           >>> eggs[12]
-#           Traceback (most recent call last):
-#           ...
-#           KeyError: '12'
-#           >>> eggs[12] = ('spatula', 27)
-#           >>> r[12]
-#           'banana'
-#           >>> eggs[12]
-#           ('spatula', 27)
+    def sync(self):
+        self.db.sync()
 
-#        Other mapping operators:
+    def turn(self):
+        """Turn the rack!"""
+        self.db.sync()
 
-#           >>> 6 in r
-#           True
-#           >>> 6 in eggs
-#           False
-#           >>> del r[6]
-#           >>> 6 in r
-#           False
+    def __setitem__(self, key, value):
+        skey = self._dumpKey(key)
+        if not self.db.has_key(skey):
+            self._newKey(key)
+        self.db[skey] = self.serializer.dumpValue(value)
 
-#        Rack supports keys(), values(), items(), and the iterator
-#        version of each on the root and any namespace:
+    def __getitem__(self, key):
+        try:
+            return self.serializer.loadValue(self.db[self._dumpKey(key)])
+        except KeyError:
+            raise KeyError(repr(key))
 
-#           >>> r.items()
-#           [(12, 'banana'), ('squid', 4), ((1, 2, ('boing', (None,))), [1, 2, 4, 'Poing'])]
-#           >>> eggs.items()
-#           [(12, ('spatula', 27))]
-#        """
-#     def __init__(self, db,
-#                  namespaces     = (),
-#                  pickleProtocol = -1,
-#                  keyPickler     = None,
-#                  ):
-#         if not keyPickler:
-#             keyPickler = KeyPickler()
-#         self.db = db
-#         self.namespaces = namespaces
-#         self.pickleProtocol = pickleProtocol
-#         self.keyPickler = keyPickler
-#         self._sysNs = None
+    def has_key(self, key):
+        return self.db.has_key(self._dumpKey(key))
 
-#     def __copy__(self):
-#         n = self.__class__(self.db,
-#                            self.namespaces,
-#                            self.pickleProtocol,
-#                            self.keyPickler)
-#         n._sysNs = self._sysNs
-#         return n
+    def __contains__(self, key):
+        return self.db.has_key(self._dumpKey(key))
 
-#     def namespace(self, *ns):
-#         """Return a new Rack object that refers to a namespace within this one.
-#            The namespace can be any object serializable by KeyPickler.
-#            If more than one argument is given, this burrows more than one
-#            level deep in the Rack's namespace hierarchy.
-#            """
-#         n = self.__copy__()
-#         n.namespaces += tuple(ns)
-#         return n
+    def get(self, key, default=None):
+        try:
+            return self[key]
+        except KeyError:
+            return default
 
-#     def _enterSysNs(self, sysNs):
-#         """Return a new Rack object that refers to the given object in the
-#            system namespace, a single namespace that runs orthogonal to each
-#            namespace set up with the namespace() method.
-#            All Racks used outside this class should have sysNs=None, but
-#            other values of sysNs are used to associate metadata with each
-#            normal Rack namespace.
+    def setdefault(self, key, default=None):
+        try:
+            return self[key]
+        except KeyError:
+            self[key] = default
+            return default
 
-#            sysNs values can be any python objects supported by KeyPickler,
-#            but small integers are the most space efficient.
-#            """
-#         n = self.__copy__()
-#         n._sysNs = sysNs
-#         return n
+    def __delitem__(self, key):
+        try:
+            del self.db[self._dumpKey(key)]
+        except KeyError:
+            raise KeyError(repr(key))
+        self._delKey(key)
 
-#     def _getKeyList(self):
-#         """Return a LinkedList holding all keys in this namespace"""
-#         return LinkedList(self.enterSysNs(1))
+    def update(self, d):
+        for k in d.iterkeys():
+            self[k] = d[k]
 
-#     def _getSubNsList(self):
-#         """Return a LinkedList holding all namespaces directly under this one"""
-#         return LinkedList(self.enterSysNs(2))
+    def __repr__(self):
+        return repr(dict(self.iteritems()))
 
-#     def _dumpKey(self, key):
-#         """Return a string representation of the given key.
-#            By default this is the result of running KeyPickler on
-#            (namespaces, sysNs, key).
-#            """
-#         return self.keyPickler.dumps((self.namespaces, self._sysNs, key))
+    def _newKey(self, key):
+        """A hook that's called when a new key is created in this Rack"""
+        pass
 
-#     def _dumpValue(self, value):
-#         """Return a string representation of the given value. By default
-#            this uses cPickle with the current protocol version set in
-#            our constructor.
-#            """
-#         return cPickle.dumps(value, self.pickleProtocol)
+    def _delKey(self, key):
+        """A hook that's called when a key is removed from this Rack"""
+        pass
 
-#     def _loadValue(self, s):
-#         """Deserialize a value dumped by _dumpValue. By default this uses
-#            cPickle to unpickle the value.
-#            """
-#         return cPickle.loads(s)
 
-#     def close(self):
-#         self.db.close()
+class InternalRack(BaseRack):
+    """A BaseRack subclass used to store metadata in a namespace orthogonal
+       to the normal user-accessable namespaces.
+       """
+    def __init__(self, externalRack, name):
+        BaseRack.__init__(self,
+                          externalRack.db,
+                          externalRack.namespaces,
+                          externalRack.serializer)
+        self._internalNs = name
 
-#     def sync(self):
-#         self.db.sync()
 
-#     def turn(self):
-#         """Turn the rack!"""
-#         self.db.sync()
+class Rack(BaseRack):
+    """A dictionary-like object that, instead of representing in-memory data,
+       represents objects stored in a database or other dictionary-like
+       object that accepts strings for keys and values, such as an anydbm
+       database. This module includes an open() function that opens a
+       database file with anydbm and constructs a Rack around it.
 
-#     def __setitem__(self, key, value):
-#         skey = self._dumpKey(key)
-#         if not self.db.has_key(skey):
-#             self._newKey(key)
-#         self.db[skey] = self._dumpValue(value)
+       Values can be any object serializable by cPickle. Keys and namespaces
+       can be any object serializable by KeyPickler. This class builds on
+       BaseRack by allowing iteration over keys and namespaces.
 
-#     def __getitem__(self, key):
-#         try:
-#             return self._loadValue(self.db[self._dumpKey(key)])
-#         except KeyError:
-#             raise KeyError(repr(key))
+       Basic usage:
 
-#     def has_key(self, key):
-#         return self.db.has_key(self._dumpKey(key))
+          >>> db = {}
+          >>> r = Rack(db)
+          >>> r[12] = 'banana'
+          >>> r['squid'] = 4
+          >>> r[1,2,('boing', (None,))] = [1, 2, 4, 'Poing']
 
-#     def __contains__(self, key):
-#         return self.db.has_key(self._dumpKey(key))
+          >>> del r
+          >>> r = Rack(db)
 
-#     def get(self, key, default=None):
-#         try:
-#             return self[key]
-#         except KeyError:
-#             return default
+          >>> r['squid']
+          4
+          >>> r[1,2,('boing', (None,))]
+          [1, 2, 4, 'Poing']
 
-#     def setdefault(self, key, default=None):
-#         try:
-#             return self[key]
-#         except KeyError:
-#             self[key] = default
-#             return default
+       Note that keys are a subset of pickleable objects while values
+       can be any pickleable object:
 
-#     def __delitem__(self, key):
-#         try:
-#             del self.db[self._dumpKey(key)]
-#         except KeyError:
-#             raise KeyError(repr(key))
-#         self._delKey(key)
+          >>> r[6] = 5.2
+          >>> r[5.2] = 6
+          Traceback (most recent call last):
+          ...
+          TypeError: KeyPickler does not support <type 'float'>
 
-#     def __repr__(self):
-#         return repr(dict(self.iteritems()))
+       Namespaces:
 
-#     def _newKey(self, key):
-#         """Append a new key to the linked list for this namespace"""
+          >>> eggs = r.namespace('eggs')
+          >>> eggs[12]
+          Traceback (most recent call last):
+          ...
+          KeyError: '12'
+          >>> eggs[12] = ('spatula', 27)
+          >>> r[12]
+          'banana'
+          >>> eggs[12]
+          ('spatula', 27)
 
-#     def _delKey(self, key):
-#         """Delete a key from the linked list for this namespace"""
+       Other mapping operators:
 
-#     def __iter__(self):
-#         """A generator that iterates over this namespace's linked list of keys"""
-#         return
+          >>> 6 in r
+          True
+          >>> 6 in eggs
+          False
+          >>> del r[6]
+          >>> 6 in r
+          False
 
-#     def update(self, d):
-#         for k in d.iterkeys():
-#             self[k] = d[k]
+       Rack supports keys(), values(), items(), and the iterator
+       version of each on the root and any namespace:
 
-#     def clear(self):
-#         for key in self:
-#             del self[key]
+          >>> r.items()
+          [(12, 'banana'), ('squid', 4), ((1, 2, ('boing', (None,))), [1, 2, 4, 'Poing'])]
+          >>> eggs.items()
+          [(12, ('spatula', 27))]
+       """
+    def namespace(self, *ns):
+        """Return a new Rack object that refers to a namespace within this one.
+           The namespace can be any object serializable by KeyPickler.
+           If more than one argument is given, this burrows more than one
+           level deep in the Rack's namespace hierarchy.
+           """
+        return Rack(self.db, self.namespaces + ns, self.serializer)
 
-#     def iterkeys(self):
-#         return self.__iter__()
+    def _getKeyList(self):
+        """Return a LinkedList holding all keys in this namespace"""
+        return LinkedList(InternalRack(self, 1))
 
-#     def itervalues(self):
-#         for key in self.iterkeys():
-#             yield self[key]
+    def _getSubNsList(self):
+        """Return a LinkedList holding all namespaces directly under this one"""
+        return LinkedList(InternalRack(self, 2))
 
-#     def iteritems(self):
-#         for key in self.iterkeys():
-#             yield key, self[key]
+    def _newKey(self, key):
+        """Append a new key to the linked list for this namespace"""
+        pass
 
-#     def keys(self):
-#         return list(self.keys())
+    def _delKey(self, key):
+        """Delete a key from the linked list for this namespace"""
+        pass
 
-#     def values(self):
-#         return list(self.values())
+    def clear(self):
+        for key in self:
+            del self[key]
 
-#     def items(self):
-#         return list(self.iteritems())
+    def __iter__(self):
+        """Iterate over all keys in this rack namespace"""
+        return self._getKeyList().__iter__()
+
+    def iterkeys(self):
+        return self.__iter__()
+
+    def itervalues(self):
+        for key in self.iterkeys():
+            yield self[key]
+
+    def iteritems(self):
+        for key in self.iterkeys():
+            yield key, self[key]
+
+    def keys(self):
+        return list(self.keys())
+
+    def values(self):
+        return list(self.values())
+
+    def items(self):
+        return list(self.iteritems())
 
 
 class KeyPickler(object):
