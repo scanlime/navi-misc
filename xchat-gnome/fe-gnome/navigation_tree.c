@@ -230,8 +230,19 @@ navigation_tree_select_session (NavTree *navtree, struct session *sess)
 
   if (iter) {
 	  GtkTreeIter sorted_iter;
+		GtkTreePath *path;
     GtkTreeSelection *selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(navtree));
+
+		/* Convert the iter from the store to an iter for the model sort. */
 		gtk_tree_model_sort_convert_child_iter_to_iter(GTK_TREE_MODEL_SORT(navtree->model->sorted),&sorted_iter, iter);
+
+		/* Make sure that if we're selecting a channel it's server is expanded. */
+	  path = gtk_tree_model_get_path(navtree->model->sorted, &sorted_iter);
+		if (gtk_tree_path_get_depth(path) > 1) {
+			gtk_tree_path_up(path);
+			gtk_tree_view_expand_row(GTK_TREE_VIEW(navtree), path, TRUE);
+		}
+
     gtk_tree_selection_select_iter(selection, &sorted_iter);
 	}
 }
