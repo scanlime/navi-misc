@@ -43,12 +43,10 @@ class AMCReader:
                 continue
             data = line.split(' ')
             if len(data) == 1:
-                if curFrame is None:
-                    curFrame = AMCFrame()
-                else:
+                if curFrame is not None:
                     self.frames.append(curFrame)
-                    curFrame = AMCFrame()
-                    curFrame.number = int(data[0])
+                curFrame = AMCFrame()
+                curFrame.number = int(data[0])
             else:
                 curFrame.bones[data[0]] = [float(n) for n in data[1:]]
         self.frames.append(curFrame)
