@@ -38,6 +38,7 @@ particular identity.
 from twisted.web import xmlrpc
 import anydbm, cPickle, base64, os
 
+
 class SecurityInterface(xmlrpc.XMLRPC):
     """An XML-RPC interface to the capabilities database"""
     def __init__(self, caps):
@@ -56,7 +57,7 @@ class SecurityInterface(xmlrpc.XMLRPC):
            'security.grant' capabilities.
            """
         self.caps.faultIfMissing(key, 'universe')
-        return self.caps.get(capability)
+        return self.caps.grant(capability)
 
     def xmlrpc_list(self):
         """Return a list of all capabilities that have been assigned keys"""
@@ -103,7 +104,7 @@ class CapabilityDB(object):
            """
         f = open(file, "w")
         os.chmod(file, 0600)
-        f.write(self.get(capability))
+        f.write(self.grant(capability))
         f.close()
 
     def close(self):
@@ -119,7 +120,7 @@ class CapabilityDB(object):
 
     def test(self, key, capability):
         """Test the given key for some capability"""
-        return key and self.get(capability, create=False) == key
+        return key and self.grant(capability, create=False) == key
 
     def faultIfMissing(self, key, *capabilities):
         """Raise a fault if the given key doesn't match any of the given capabilities"""
@@ -131,7 +132,7 @@ class CapabilityDB(object):
                               "One of the following capabilities are required: " +
                               repr(capabilities)[1:-1])
 
-    def get(self, capability, create=True):
+    def grant(self, capability, create=True):
         """Return the key for some capability, optionally creating it
            if it doesn't exist. If it doesn't exist and create is False,
            returns None.

@@ -71,6 +71,16 @@ class RulesetInterface(xmlrpc.XMLRPC):
             Interface.catchFault()
         return True
 
+    def xmlrpc_getUriKey(self, uri, key):
+        """Returns a key for the capability ('ruleset.uri', uri).
+           This can be used to delegate control of a particular URI's ruleset-
+           an administrator would call this function to retrieve a key for a particular
+           URI, then hand that to someone else who would only have the ability
+           to edit that URI.
+           """
+        self.caps.faultIfMissing(key, 'universe', 'ruleset', 'ruleset.getUriKey')
+        return self.caps.grant(('ruleset.uri', str(uri)))
+
     def xmlrpc_getUriList(self):
         """Return a list of all URIs with non-empty rulesets"""
         return self.storage.rulesetMap.keys()
