@@ -21,20 +21,23 @@ PYUNICONE_OBJS = $(COMMON_OBJS) \
 	src/progress_python.o \
 	pyunicone/libunicone_wrap.o
 
+TUSB_DIR = ../../../tusb
+
 FIRMWARE_OBJS = \
 	firmware/main.rel \
 	firmware/descript.rel \
 	firmware/fpga.rel \
-	firmware/i2c.rel
-
-TUSB_DIR = ../../../tusb
+	firmware/i2c.rel \
+	$(TUSB_DIR)/src/uart_driver.rel \
+	$(TUSB_DIR)/src/usb_driver.rel \
+	$(TUSB_DIR)/src/util.rel
 
 CFLAGS    += -I include -I src -I /usr/include/python2.3
 LDFLAGS   += -lusb
 SWIGFLAGS += -python -Isrc -Iinclude
 
 FW_CFLAGS = -I $(TUSB_DIR)/include -I include
-FW_LDFLAGS = --xram-loc 0xF800 --xram-size 0x500 -L $(TUSB_DIR)/src -ltusb
+FW_LDFLAGS = --xram-loc 0xF800 --xram-size 0x500
 FW_CC = sdcc
 
 all: $(BINS)
