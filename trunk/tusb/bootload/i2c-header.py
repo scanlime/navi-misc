@@ -16,8 +16,10 @@ instance to the global variable 'device'. This script then serializes
 that device and writes it to the given output file.
 
 For a full idea of what's possible in the description file, read the
-doc strings and source. Here is a simple example that sets the
-vendor and product ID, and the two default string descriptors:
+doc strings and source.
+
+Here is a simple example for the TUSB3410 that sets the vendor and
+product ID, and the two default string descriptors:
 
 device = BootDevice()[
 
@@ -46,6 +48,15 @@ device = BootDevice()[
         StringDescriptor("Widget Express Pro"),
     ],
 
+]
+
+Note that different devices support different types of boot blocks.
+This is an example for setting the vendor/product ID on a TUSB3210:
+
+device = BootDevice("TUSB3210")[
+    BasicInfoBootBlock(idVendor  = 0x1234,
+                       idProduct = 0x5678,
+                       ),
 ]
 
 """
@@ -127,6 +138,10 @@ class BootDevice(Container):
         assert product[0:4] == "TUSB"
         self.signature = int(product[4:8], 16)
 
+        # The TUSB3210 is really a TUSB2136 in disguise
+        if self.signature == 0x3210:
+            self.signature = 0x2136
+
     def attachHeader(self, joined):
         return ''.join(map(str, [
             Int16(self.signature),
@@ -158,19 +173,70 @@ class BootBlock(Container):
             ]))
 
 
+class BasicInfoBootBlock(BootBlock):
+    """This boot block contains only basic information about
+       the USB device- mostly its vendor and product ID. This
+       is the only way to modify the bootloader descriptors
+       on the devices that use it.
+       Supported by the TUSB3210, TUSB2136, and TUSB5152.
+       """
+    blockType = 1
+
+    def __init__(self,
+                 idVendor       = 0x0451,
+                 idProduct      = 0x2136,
+                 idHubProduct   = 0x2136,
+                 selfPowerBit   = 0x00,
+                 powerGoodTime  = 0,
+                 hubCurrent     = 50):
+        self.bootInfo = Container()[
+            Int8(selfPowerBit),
+            Int16(idVendor),
+            Int16(idHubProduct),
+            Int16(idProduct),
+            Int8(powerGoodTime),
+            Int8(hubCurrent),
+            ]
+
+    def attachHeader(self, joined):
+        return BootBlock.attachHeader(
+            self, str(self.bootInfo) + joined)
+
+
+class ApplicationCodeBootBlock(BootBlock):
+    """This is a boot block holding an application firmware
+       image. It performs the same function as the later
+       AutoexecFirmwareBootBlock, but it prepends an application
+       code revision number to the firmware image.
+       Supported by the TUSB3210, TUSB2136, and TUSB5152.
+       """
+    blockType = 2
+
+    def __init__(self, revision=1):
+        self.revision = revision
+
+    def attachHeader(self, joined):
+        return BootBlock.attachHeader(
+            self, str(Int16(self.revision)) + joined)
+
+
 class DeviceDescriptorBootBlock(BootBlock):
-    """This boot block contains only the USB device descriptor"""
+    """This boot block contains only the USB device descriptor.
+       Supported by the TUSB3410.
+       """
     blockType = 3
 
 class ConfigurationDescriptorBootBlock(BootBlock):
     """This boot block contains all configuration descriptors,
        and associated endpoint and interface descriptors.
+       Supported by the TUSB3410.
        """
     blockType = 4
 
 class StringDescriptorBootBlock(BootBlock):
     """This boot block contains all string descriptors,
        including the language table.
+       Supported by the TUSB3410.
        """
     blockType = 5
 
@@ -182,6 +248,8 @@ class AutoexecFirmwareBootBlock(BootBlock):
        The content of this block is generally a BinaryFile object,
        however other objects may be implemented for loading Intel HEX
        or other firmware formats.
+
+       Supported by the TUSB3410.
        """
     blockType = 7
 
