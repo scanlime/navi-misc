@@ -98,7 +98,7 @@ InterruptServiceVector
 
 	swapf	PORTB, w
 	andlw	0x03
-	addwf	porta_select, w
+	addlw	porta_select
 	movwf	FSR
 	movf	INDF, w
 	movwf	PORTA
