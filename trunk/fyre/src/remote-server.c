@@ -143,6 +143,7 @@ static void       remote_server_callback      (GConn*                gconn,
 					       gpointer              user_data)
 {
     RemoteServerConn* self = (RemoteServerConn*) user_data;
+
     switch (event->type) {
 
     case GNET_CONN_READ:
@@ -183,7 +184,7 @@ static void       remote_server_dispatch_line (RemoteServerConn*     self,
     RemoteServerCallback callback;
 
     if (self->server->verbose)
-	printf("[%s:%d] - %s\n", line);
+	printf("[%s:%d] - %s\n", self->gconn->hostname, self->gconn->port, line);
 
     args = strchr(line, ' ');
     if (args) {
