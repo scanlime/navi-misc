@@ -45,8 +45,6 @@ public:
 
 	virtual const char* GetGameName ( void );
 protected:
-  void ProcessInput ( void );
-  void CreateGroundPlane ( void );
   void updateStats ( void );
   void showDebugOverlay(bool show);
 

@@ -150,7 +150,6 @@ bool CBaseGameLoop::SetupConfigure ( void )
       prefs.SetItem("VERSION",1);
       prefs.Update();
     }
-
     return configed;
 }
 
