@@ -29,7 +29,7 @@ import XML, ColorText, Ruleset
 import types
 
 
-class URIHandler(Ruleset.RegexURIHandler):
+class IrcURIHandler(Ruleset.RegexURIHandler):
     """Handles irc:// URIs in rulesets. This is responsible for
        keeping a BotNetwork in sync with the channels and servers
        required of us by the rulesets, and dispatching completed

@@ -30,7 +30,7 @@ import Ruleset, XML
 import re, string, os, time
 
 
-class URIHandler(Ruleset.RegexURIHandler):
+class StatsURIHandler(Ruleset.RegexURIHandler):
     """Handles stats:// URIs. The message passed to a stats:// URI is
        URI-encoded and added to the end of the stats:// URI to form
        a path identifying a class of messages that stats are collected for.
@@ -77,7 +77,7 @@ class StatsTarget(object):
         self.createIfNecessary(path)
         self.counters = CounterList(os.path.join(self.path, 'counters.xml'))
 
-    def createIfNecessary(path):
+    def createIfNecessary(self, path):
         try:
             os.makedirs(path)
         except OSError:
@@ -85,7 +85,8 @@ class StatsTarget(object):
 
     def increment(self):
         """An event has occurred which should be logged in this stats target"""
-        self.counters.increment()
+        self.counters.getCounter("foo").increment()
+        self.counters.save()
 
 
 class CounterList(XML.XMLStorage):
