@@ -44,8 +44,6 @@ struct _HistogramView {
     GtkDrawingArea parent;
 
     HistogramImager *imager;
-    GdkPixbuf *viewable_image;
-
     int old_width, old_height;
 };
 

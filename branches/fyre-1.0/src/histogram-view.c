@@ -22,6 +22,7 @@
  */
 
 #include "histogram-view.h"
+#include "image-fu.h"
 #include <gtk/gtk.h>
 
 static void histogram_view_class_init(HistogramViewClass *klass);
@@ -31,8 +32,10 @@ static void histogram_view_finalize(GObject *object);
 static gboolean on_expose(GtkWidget *widget, GdkEventExpose *event);
 static void on_resize_notify(HistogramImager *imager, GParamSpec *spec, HistogramView *self);
 
-static void histogram_view_draw_image_region(HistogramView *self, GdkRegion *region);
-static void histogram_view_draw_background_region(HistogramView *self, GdkRegion *region);
+static void       histogram_view_draw_image_region(HistogramView *self, GdkRegion *region);
+static void       histogram_view_draw_background_region(HistogramView *self, GdkRegion *region);
+static GdkRegion* histogram_view_get_full_image_region(HistogramView *self);
+
 
 
 /************************************************************************************/
@@ -85,11 +88,6 @@ static void histogram_view_finalize(GObject *object) {
 	g_object_unref(self->imager);
 	self->imager = NULL;
     }
-
-    if (self->viewable_image) {
-	gdk_pixbuf_unref(self->viewable_image);
-	self->viewable_image = NULL;
-    }
 }
 
 GtkWidget* histogram_view_new(HistogramImager *imager) {
@@ -120,7 +118,21 @@ void histogram_view_set_imager(HistogramView *self, HistogramImager *imager) {
 /************************************************************************ Rendering */
 /************************************************************************************/
 
-static void on_resize_notify(HistogramImager *imager, GParamSpec *spec, HistogramView *self) {
+static GdkRegion* histogram_view_get_full_image_region(HistogramView *self)
+{
+    /* Create a GdkRegion for the entire image */
+    GdkRectangle image_rect;
+
+    image_rect.x = 0;
+    image_rect.y = 0;
+    image_rect.width = self->imager->width;
+    image_rect.height = self->imager->height;
+
+    return gdk_region_rectangle(&image_rect);
+}
+
+static void on_resize_notify(HistogramImager *imager, GParamSpec *spec, HistogramView *self)
+{
     GdkRegion *old, *new;
     GdkRectangle rect;
 
@@ -149,32 +161,14 @@ static void on_resize_notify(HistogramImager *imager, GParamSpec *spec, Histogra
 }
 
 void histogram_view_update(HistogramView *self) {
+    GdkRegion *update_region;
+
     histogram_imager_update_image(self->imager);
 
-    /* We're about to get a new viewable_image, free the old one */
-    if (self->viewable_image)
-	gdk_pixbuf_unref(self->viewable_image);
-
-    if (self->imager->fgalpha < 0xFFFF ||
-	self->imager->bgalpha < 0xFFFF) {
-	/* If we need to draw with alpha, composite our histogram imager's output on top of a checkerboard */
-	self->viewable_image = gdk_pixbuf_composite_color_simple(self->imager->image,
-								 self->imager->width, self->imager->height,
-								 GDK_INTERP_TILES, 255,
-								 16, 0xaaaaaa, 0x555555);
-    }
-    else {
-	/* If we don't need alpha, just render the histogram imager's pixbuf directly */
-	self->viewable_image = gdk_pixbuf_ref(self->imager->image);
-    }
-
-    /* Update our entire drawing area.
-     * We use GdkRGB directly here to force ignoring the alpha channel.
-     */
-    gdk_draw_rgb_32_image(GTK_WIDGET(self)->window, GTK_WIDGET(self)->style->fg_gc[GTK_STATE_NORMAL],
-			  0, 0, self->imager->width, self->imager->height,
-			  GDK_RGB_DITHER_NORMAL, gdk_pixbuf_get_pixels(self->viewable_image),
-			  self->imager->width * 4);
+    /* Draw the whole thing */
+    update_region = histogram_view_get_full_image_region(self);
+    histogram_view_draw_image_region(self, update_region);
+    gdk_region_destroy(update_region);
 
     self->imager->render_dirty_flag = FALSE;
 }
@@ -184,6 +178,16 @@ static void histogram_view_draw_image_region(HistogramView *self, GdkRegion *reg
     int n_rects, i;
     gdk_region_get_rectangles(region, &rects, &n_rects);
 
+    if (self->imager->fgalpha < 0xFFFF || self->imager->bgalpha < 0xFFFF) {
+	/* If we need to draw with alpha, composite our histogram imager's output
+	 * onto a checkerboard. It's a little messy writing directly to the imager's
+	 * pixbuf, but since we update the image before saving it anyway this shouldn't
+	 * cause any problems. This should give us a speed boost compared to doing
+	 * a separate compositing step like we used to.
+	 */
+	image_add_checkerboard(self->imager->image);
+    }
+
     for (i=0; i<n_rects; i++) {
 	/* Render a rectangle taken from our pixbuf.
 	 * We use GdkRGB directly here to force ignoring the alpha channel.
@@ -192,7 +196,7 @@ static void histogram_view_draw_image_region(HistogramView *self, GdkRegion *reg
 			      rects[i].x, rects[i].y,
 			      rects[i].width, rects[i].height,
 			      GDK_RGB_DITHER_NORMAL,
-			      gdk_pixbuf_get_pixels(self->viewable_image) +
+			      gdk_pixbuf_get_pixels(self->imager->image) +
 			      rects[i].x * 4 +
 			      rects[i].y * self->imager->width * 4,
 			      self->imager->width * 4);
@@ -217,18 +221,13 @@ static void histogram_view_draw_background_region(HistogramView *self, GdkRegion
 static gboolean on_expose(GtkWidget *widget, GdkEventExpose *event) {
     HistogramView *self = HISTOGRAM_VIEW(widget);
     GdkRegion *image_rect_region, *outside_image;
-    GdkRectangle image_rect;
 
-    if (self->viewable_image && !self->imager->size_dirty_flag) {
+    if (self->imager->image && !self->imager->size_dirty_flag) {
 	/* Separate the expose region into a region inside our image and a region outside
 	 * our image. Draw the first with histogram_view_draw_image_region and the second
 	 * with histogram_view_draw_background_region.
 	 */
-	image_rect.x = 0;
-	image_rect.y = 0;
-	image_rect.width = self->imager->width;
-	image_rect.height = self->imager->height;
-	image_rect_region = gdk_region_rectangle(&image_rect);
+	image_rect_region = histogram_view_get_full_image_region(self);
 
 	outside_image = gdk_region_copy(event->region);
 	gdk_region_subtract(outside_image, image_rect_region);
