@@ -20,11 +20,11 @@ with web, IRC, XML-RPC, and email interfaces.
 
   - mail
 
-    Tools to filter incoming email with procmail and dispatch it to the CIA server
+    Filter incoming email with procmail and dispatch it to the CIA server
 
-  - ruleset_editor.py
+  - tools
 
-    A PyGTK/Glade editor for CIA's rulesets
+    Administration and debugging tools that access CIA over XML-RPC
 
   - htdocs
 
