@@ -31,7 +31,8 @@ import os, time
 class ThermSource:
     """One data source in the therm database"""
     packetQuery = """
-        SELECT * FROM packets P
+        SELECT P.id, P.time, P.num_copies, P.sequence, P.signal_strength,
+               T.average, V.voltage FROM packets P
             LEFT OUTER JOIN temperatures T ON (T.packet = P.id)
             LEFT OUTER JOIN battery_voltage V ON (V.packet = P.id)
         """
@@ -54,7 +55,7 @@ class ThermSource:
 
     def getLatestPacket(self):
         for row in self.db.iterDictQuery(
-            "%s WHERE source = %d ORDER BY P.id DESC LIMIT 1" % (
+            "%s WHERE P.source = %d ORDER BY P.id DESC LIMIT 1" % (
             self.packetQuery, self.id)):
             return row
 
@@ -65,7 +66,7 @@ class ThermSource:
         else:
             limit = ''
         return self.db.iterDictQuery(
-            "%s WHERE source = %d AND P.id > %d ORDER BY P.id %s" % (
+            "%s WHERE P.source = %d AND P.id > %d ORDER BY P.id %s" % (
             self.packetQuery, self.id, id, limit))
 
     def iterPacketsBeforeOrEqual(self, id, limit=None):
@@ -77,7 +78,7 @@ class ThermSource:
         else:
             limit = ''
         return self.db.iterDictQuery(
-            "%s WHERE source = %d AND P.id <= %d ORDER BY P.id DESC %s" % (
+            "%s WHERE P.source = %d AND P.id <= %d ORDER BY P.id DESC %s" % (
             self.packetQuery, self.id, id, limit))
 
     def pollNewPackets(self, afterId=None, pollInterval=0.5):
@@ -95,6 +96,11 @@ class ThermSource:
 
 
 class ThermDatabase:
+    sourceQuery = """
+        SELECT id, medium, protocol, station_id, name, description,
+            micro_type, sensor_type FROM sources
+        """
+
     def __init__(self, **params):
         self.db = MySQLdb.connect(**params)
 
@@ -112,13 +118,13 @@ class ThermDatabase:
 
     def iterSources(self):
         """Iterate over all source objects in the database"""
-        for row in self.iterDictQuery("SELECT * FROM sources ORDER BY name"):
+        for row in self.iterDictQuery("%s ORDER BY name" % self.sourceQuery):
             yield ThermSource(self, **row)
 
     def getSource(self, name):
         """Look up a source by name"""
-        for row in self.iterDictQuery("SELECT * FROM sources WHERE name = '%s'" % (
-            self.db.escape_string(name))):
+        for row in self.iterDictQuery("%s WHERE name = '%s'" % (
+            self.sourceQuery, self.db.escape_string(name))):
             return ThermSource(self, **row)
         raise KeyError("No such therm source %r" % name)
 
