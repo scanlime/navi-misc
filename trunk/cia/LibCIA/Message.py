@@ -483,10 +483,12 @@ class ModularFormatter(Formatter):
         """The formatter entry point. This just finds the current component
            tree and invokes walkComponents and joinComponents on it.
            """
-        if self.componentTree:
-            tree = self.componentTree
-        else:
-            tree = XML.parseString(self.defaultComponentTree).documentElement
+        # Parse the default component tree only once
+        if not self.__class__.componentTree:
+            self.__class__.componentTree = XML.parseString(self.__class__.defaultComponentTree).documentElement
+
+        # This will use the default component tree if it hasn't been overridden in this instance
+        tree = self.componentTree
         return self.joinComponents(self.walkComponents(tree.childNodes, args))
 
     def evalComponent(self, node, args):
