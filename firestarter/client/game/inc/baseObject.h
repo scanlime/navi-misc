@@ -1,4 +1,4 @@
-/* XXXXX
+/* Firestarter
 * baseObject.h :
 *
 * Copyright (C) 2004 Jeffrey Myers

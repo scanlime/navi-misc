@@ -1,4 +1,4 @@
-/* XXXXX
+/* Firestarter
 * input.h : base SDL input class.
 *
 * Copyright (C) 2004 Jeffrey Myers

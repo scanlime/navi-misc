@@ -1,4 +1,4 @@
-/* XXXXX
+/* Firestarter
 * events.cpp : basic event handling
 *
 * Copyright (C) 2004 Jeffrey Myers
