@@ -18,15 +18,17 @@ Handles reading and writing of user prefs.
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-import string
+import string, os.path
+from Common.Palantir import dataDir
 
 class Prefs:
   def __init__(self):
-    try:
-      # FIXME: filename.
-      file = open('palantirrc', 'r')
-    except IOError:
-      return
+    if os.path.exists(os.path.abspath('.palantirrc')):
+      file = open(os.path.abspath('.palantirrc'))
+      print 'opening ~/.palantirrc'
+    else:
+      file = open(os.path.join(dataDir, 'palantirrc'))
+      print 'opening %s/palantirrc' % dataDir
 
     lines = file.readlines()
     for line in lines:

@@ -32,6 +32,7 @@ from PrefDialog import PrefDialog
 from Common import Palantir
 from Common.Factory import Factory
 from Common.DieRoller import DieRoller
+from Common.Prefs import Prefs
 
 from twisted.internet import reactor
 
@@ -39,8 +40,7 @@ class MainWindow:
   ''' Creates the main window. '''
   def __init__(self):
     ''' Create the layout tree from the .glade file and connect everything. '''
-    datadir = os.path.join(os.path.split(os.path.split(os.path.abspath(__file__))[0])[0], 'data')
-    self.tree = gtk.glade.XML(os.path.join(datadir, 'palantirMain.glade'))
+    self.tree = gtk.glade.XML(os.path.join(Palantir.dataDir, 'palantirMain.glade'))
 
     # Connect the functions to their appropriate widgets.  By convention all callbacks
     # for the window start with 'on_' and match the name of the callback defined in
@@ -94,11 +94,12 @@ class MainWindow:
     self.tree.get_widget('InputBox').pack_start(self.characterSheetWindow)
 
     # Preferences
-    self.prefs = PrefDialog(self.tree)
-    self.tree.get_widget('Nick').set_text(self.prefs.GetNick())
+    self.prefs = Prefs()
+    self.prefDialog = PrefDialog(self.tree, self.prefs)
+    self.tree.get_widget('Nick').set_text(self.prefs.nickname)
 
     # Client factory.
-    self.factory = Factory(self.prefs.GetNick(), ui=self)
+    self.factory = Factory(self.prefs.nickname, ui=self)
 
     # Create an object to handle die rolls.
     self.dieRoller = DieRoller(self)
@@ -356,7 +357,7 @@ class MainWindow:
     self.factory.client.ping(self.factory.nickname, self.factory.client.host)
 
   def quit(self, args=None):
-    if args == None: args = self.prefs.GetQuitMsg()
+    if args == None: args = self.prefs.quitmsg
 
     # Clear the text field.
     self.tree.get_widget('SendField').set_text('')

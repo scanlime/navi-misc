@@ -22,14 +22,17 @@ import gtk, gtk.glade, gobject
 from Common.Prefs import Prefs
 
 class PrefDialog:
-  def __init__(self, tree):
+  def __init__(self, tree, prefs=None):
     self.tree = tree
     dialog = tree.get_widget('Preferences')
     tree.get_widget('pref notebook').set_show_tabs(gtk.FALSE)
 
     self.SetUpNav()
 
-    self.prefs = Prefs()
+    if prefs==None:
+      self.prefs = Prefs()
+    else:
+      self.prefs = prefs
 
     # Create an object for the general prefs.
     self.general = GenPrefs(self.tree)
