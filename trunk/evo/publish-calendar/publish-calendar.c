@@ -136,6 +136,7 @@ url_add_clicked (GtkButton *button, PublishUIData *ui)
 				    URL_LIST_LOCATION_COLUMN, uri->location,
 				    URL_LIST_URL_COLUMN, uri, -1);
 		url_list_changed (ui);
+		publish_uris = g_slist_prepend (publish_uris, uri);
 	} else {
 		g_free (uri);
 	}
@@ -213,6 +214,8 @@ url_remove_clicked (GtkButton *button, PublishUIData *ui)
 			gtk_widget_set_sensitive (ui->url_remove, FALSE);
 			gtk_widget_set_sensitive (ui->url_enable, FALSE);
 		}
+
+		publish_uris = g_slist_remove (publish_uris, url);
 
 		g_free (url);
 		url_list_changed (ui);
