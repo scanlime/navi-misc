@@ -28,6 +28,7 @@ import string, gtk, gtk.glade, gobject
 
 from ChatBuffer import ChatBuffer
 from CharacterSheet import CharacterSheet
+from PrefDialog import PrefDialog
 from Palantir import Palantir
 from Palantir.Factory import Factory
 from Palantir.DieRoller import DieRoller
@@ -96,6 +97,8 @@ class MainWindow:
 
     # Create an object to handle die rolls.
     self.dieRoller = DieRoller(self)
+
+    self.prefs = PrefDialog()
 
     # Character sheet object.
     self.sheet = CharacterSheet(self.tree.get_widget('character sheet view'))
@@ -166,15 +169,6 @@ class MainWindow:
 
   def on_Tabs_switch_page(self, notebook, page, data=None):
     self.chatWindow = self.tabs[notebook.get_tab_label_text(self.chatWindow)]
-
-  ### FIXME: Color Selection Dialog ###
-  def on_color_ok_button_clicked(self, widget, data=None):
-    dialog = self.tree.get_widget('color_selection')
-    self.chatWindow.background.modify_bg(gtk.STATE_NORMAL, dialog.get_current_color())
-    self.tree.get_widget('colorselectiondialog').hide()
-
-  def on_color_cancel_button_clicked(self, widget, data=None):
-    self.tree.get_widget('colorselectiondicalog').hide()
 
   # Not Menu Items.
   def on_SendButton_clicked(self, widget, data=None):
