@@ -8,6 +8,5 @@
   nodes automatically when they restart, which currently isn't possible
   even with cluster autodetection.
 
-- Add another optional command line argument for opening a file,
-  where the file type is determined by extension. Once this is added,
-  the multiple .desktop files should be merged into a single one
+- Merge the .desktop files now that we have a uniform way to open
+  any files that fyre can read
