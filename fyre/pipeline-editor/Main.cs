@@ -71,9 +71,35 @@ public class PipelineEditor
 		column.AddAttribute (text_renderer, "text", 1);
 
 		element_list.AppendColumn (column);
-		
+
 		/* Set up plugins directory */
 		plugin_manager = new PluginManager ("/home/david/projects/navi-misc/fyre/pipeline-editor/plugins/basic/bin/Debug");
+		foreach (Type t in plugin_manager.plugin_types) {
+			object[] i = {};
+			Element e = (Element) t.GetConstructor(Type.EmptyTypes).Invoke(i);
+
+			string name = e.Name;
+			string category = e.Category;
+			bool found = false;
+
+			Gtk.TreeIter iter;
+			if (element_store.GetIterFirst (out iter)) {
+				do {
+					string cat = (string) element_store.GetValue (iter, 1);
+					if (cat.Equals (category)) {
+						found = true;
+						object[] row = {null, name};
+						element_store.AppendValues (iter, row);
+					}
+				} while (element_store.IterNext (ref iter));
+			}
+			if (!found) {
+				object[] row = {null, category};
+				iter = element_store.AppendValues (row);
+				row[1] = name;
+				element_store.AppendValues (iter, row);
+			}
+		}
 
 		/* Finally, run the application */
 		Application.Run();
