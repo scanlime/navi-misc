@@ -1,7 +1,6 @@
-<!-- FIXME: GSP appears in both North Dakota and South Carolina! -->
-
 <?xml version="1.0"?>
 <evolutionweather format="1.0">
+    <!-- FIXME: GSP appears in both North Dakota and South Carolina! -->
     <region name="Atlantic Ocean">
 	<territory name="Puerto Rico">
 	    <location type="ccf" code="SJU" url="http://www.crh.noaa.gov/data/JSJ/CCFSJU">San Juan</location>
