@@ -43,15 +43,16 @@ a {
 }
 
 div.navigation {
-  min-width:	150pt;
+  min-width:	180pt;
   position:	fixed;
 }
 
 div.content {
   padding-top: 1.5em;
   padding-bottom: 2em;
-  width: 75%;
-  margin-left:	150pt;
+  margin-left:	200pt;
+  margin-right: 20pt;
+  text-align: justify;
 }
 
 div.footer {
