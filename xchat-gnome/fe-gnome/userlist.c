@@ -5,6 +5,8 @@
 #include "../common/xchat.h"
 #include "../common/userlist.h"
 
+gboolean userlist_click(GtkWidget *view, GdkEventButton *event, gpointer data);
+
 GdkPixbuf *get_user_icon(struct server *serv, struct User *user) {
 	char *pre;
 	int level;
@@ -58,7 +60,9 @@ void initialize_userlist() {
 
 	select = gtk_tree_view_get_selection(GTK_TREE_VIEW(userlist_view));
 	gtk_tree_selection_set_mode(select, GTK_SELECTION_SINGLE);
-	/* FIXME: signale */
+	/* FIXME: selection signal */
+
+	g_signal_connect(G_OBJECT(userlist_view), "button_press_event", G_CALLBACK(userlist_click), NULL);
 }
 
 void create_userlist(session *sess) {
@@ -154,4 +158,18 @@ void userlist_display(session_gui *sess) {
 
 	treeview = glade_xml_get_widget(gui.xml, "userlist");
 	gtk_tree_view_set_model(GTK_TREE_VIEW(treeview), sess->userlist_model);
+}
+
+static gboolean userlist_click(GtkWidget *view, GdkEventButton *event, gpointer data) {
+	if(!event)
+		return FALSE;
+
+	if(event->type == GDK_2BUTTON_PRESS) {
+		g_print("double click!\n");
+		return TRUE;
+	}
+
+	if(event->button == 3) {
+		g_print("pop up context menu...\n");
+	}
 }
