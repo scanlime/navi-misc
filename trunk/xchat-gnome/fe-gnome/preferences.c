@@ -48,16 +48,20 @@ void load_preferences() {
 	strcpy(prefs.partreason, gconf_client_get_string(client, "/apps/xchat/irc/partmsg", NULL));
 }
 
-char *preferences_nickname(struct ircnet *net) {
+char *preferences_nickname() {
 	GConfClient *client;
 
 	client = gconf_client_get_default();
 
-	if(net == NULL) {
-		return gconf_client_get_string(client, "/apps/xchat/irc/nickname", NULL);
-	}
-	/* FIXME: check to see if there's a per-server pref for this */
 	return gconf_client_get_string(client, "/apps/xchat/irc/nickname", NULL);
+}
+
+char *preferences_realname() {
+	GConfClient *client;
+
+	client = gconf_client_get_default();
+
+	return gconf_client_get_string(client, "/apps/xchat/irc/realname", NULL);
 }
 
 gboolean preferences_show_timestamp() {
