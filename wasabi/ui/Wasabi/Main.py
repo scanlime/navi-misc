@@ -36,6 +36,10 @@ class Main:
         # Detect hardware
         self.hardware = Hardware.Devices(self.loop)
 
+        # An nvidia-widget to sync to vertical blank, to avoid tearing. Should
+        # have no effect on platforms where this isn't supported.
+        os.environ['__GL_SYNC_TO_VBLANK'] = '1'
+
         # If we're running on actual wasabi hardware, make sure we use the local X display.
         # (Just a convenience, since this will generally be run over ssh for testing)
         if self.hardware.uvswitch:
@@ -88,6 +92,19 @@ def logoInterrupter(book):
     return Sequencer.PageInterrupter(events, Logos.getLogoSubBook())(book)
 
 
+class VideoInput(Menu.Item):
+    """A menu item representing a video input. This is added to the MainMenu whenever
+       it becomes active as specified by the video switch.
+       """
+    def __init__(self, mainMenu, channel):
+        self.mainMenu = mainMenu
+        self.channel = channel
+        Menu.Item.__init__(self, VideoSwitch.getInputDict()[channel])
+
+    def onSelected(self, item):
+        print self.channel
+
+
 class MainMenu(Menu.RingMenu):
     """A RingMenu subclass that displays available devices, and lets the user select one.
        Devices can be made available and unavailable during the operation of the menu, with
@@ -103,15 +120,8 @@ class MainMenu(Menu.RingMenu):
 
         # Add items for video devices that are already active
         for channel in self.hardware.uvswitch.activeChannels:
-            menuItems.append(Menu.Item(VideoSwitch.getInputDict()[channel]))
+            menuItems.append(VideoInput(channel))
 
         Menu.RingMenu.__init__(self, book, menuItems)
-
-    def onSelected(self, item):
-        # Debuggative cruft
-        if self.hardware.mi6k:
-            self.hardware.mi6k.vfd.powerOn()
-            self.hardware.mi6k.vfd.writeScreen(item.icon.text)
-        print item.icon.text
 
 ### The End ###
