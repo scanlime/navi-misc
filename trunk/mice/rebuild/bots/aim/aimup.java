@@ -31,15 +31,18 @@ public class aimup
 	public static void main(String[] args)
 	{
 		int i,j;
-		personindex index = new personindex(6);
-		bot = new botmain[6];
+		personindex index = new personindex(1);
+		bot = new botmain[1];
 		bot[0] = new botmain("MICEBot","password",index);
+		index.registerBot(bot[0]);
+		/*
 		for(i=1;i<6;i++)
 		{
 			sleep(3);
 			bot[i] = new botmain("MICEBot"+i,"password",index);
+			index.registerBot(bot[i]);
 		}
-		
+		*/
 		while(true)
 		{
 			sleep(100);
