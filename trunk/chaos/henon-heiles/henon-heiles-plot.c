@@ -4,7 +4,8 @@
 #include <stdio.h>
 #include <time.h>
 
-#define INDEX(w,lb,hb,p) (((hb)-(lb))/(w)*(p) + (lb))
+// #define INDEX(w,lb,hb,p) (((hb)-(lb))/(w)*(p) + (lb))
+#define INDEX(length, min, max, value)   (((value)-(min))*(length)/((max)-(min)))
 // #define ENERGY 0.08333
 #define ENERGY 0.125
 
@@ -48,7 +49,7 @@ void hhrun (float *point)
   a = point1;
   b = point2;
 
-  for (i = 0; i < 5000000; i++)
+  for (i = 0; i < 50000000; i++)
   {
     rk (ode, a, b, 5, t, tdelt);
     if (a[0] < 0 && b[0] > 0)
@@ -64,8 +65,8 @@ void hhrun (float *point)
       vector_scale (q, dy / dy0, q, 5);
       vector_add (a, q, q, 5);
 //      printf ("%f %f\n", q[1], q[3]);
-      printf ("%f %f\n", a[1], a[3]);
-      xi = INDEX (w, -0.5, 1.0, a[1]);
+//      printf ("%f %f\n", a[1], a[3]);
+      xi = INDEX (w, -0.6, 0.8, a[1]);
       yi = INDEX (h, -0.5, 0.5, a[3]);
       HISTOGRAM_IMAGER_PLOT (plot, xi, yi);
     }
@@ -75,12 +76,10 @@ void hhrun (float *point)
     c = a;
     a = b;
     b = c;
-    if (i % 500000 == 0)
-    {
-      fprintf (stderr, "   %d iterations\n", i);
-      fflush (stdout);
-    }
+    if (i % 1000000 == 0)
+      fprintf (stderr, ".");
   }
+  fprintf (stderr, "\n");
 }
 
 int main (int argc, char **argv)
@@ -91,7 +90,7 @@ int main (int argc, char **argv)
   g_type_init ();
   hi = histogram_imager_new ();
   g_object_set (G_OBJECT (hi), "exposure", 0.10, "gamma", 2.0, NULL);
-  g_object_set (G_OBJECT (hi), "width", 800, "height", 800);
+  g_object_set (G_OBJECT (hi), "width", 800, "height", 600);
 
   srand (time (NULL));
 
@@ -102,17 +101,22 @@ int main (int argc, char **argv)
   point[2] = 0;
   point[4] = 0;
 
-  for (i = 0; i < 10; i++)
+  for (i = 0; i < 50; i++)
   {
     point[0] = (rand () * 0.6) / RAND_MAX - 0.3;
     point[1] = (rand () * 0.5) / RAND_MAX - 0.25;
     py (point);
-    fprintf (stderr, "running integration for point (%f, %f, %f, %f)\n", point[0], point[1], point[2], point[3]);
+    fprintf (stderr, "running integration for point (%f, %f, %f, %f)\n    ", point[0], point[1], point[2], point[3]);
     hhrun (point);
 
     point[0] = -point[0];
     hhrun (point);
+    histogram_imager_finish_plots (hi, &plot);
+    histogram_imager_save_image_file (hi, "test.png");
+    if (i % 5 == 0)
+      fprintf (stderr, "  %d trajectories plotted so far\n");
   }
+  fprintf (stderr, "  50 trajectories finished\n");
 
   histogram_imager_finish_plots (hi, &plot);
   histogram_imager_save_image_file (hi, "test.png");
