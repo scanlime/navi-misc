@@ -1,3 +1,3 @@
 * add a a column in the server list in the preferences dialog indicating the servers being connected to automagically
 * put automatically connected-to servers at the top of the list
-* add a plugins/scripts section to the settings window
+* fix the about dialog such that it uses a real copyright symbol (check galeon's source for this)
