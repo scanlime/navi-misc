@@ -22,6 +22,7 @@
 #include "irc-network.h"
 #include <gtk/gtkdialog.h>
 #include <gtk/gtkliststore.h>
+#include <gtk/gtkcellrenderer.h>
 #include <glade/glade.h>
 #include <gconf/gconf-client.h>
 
@@ -62,6 +63,7 @@ struct _IrcNetworkEditor
 	GtkWidget *add_server;
 	GtkWidget *edit_server;
 	GtkWidget *remove_server;
+	GtkCellRenderer *server_renderer;
 
 	GtkWidget *use_globals;
 	GtkWidget *use_custom;
@@ -72,6 +74,7 @@ struct _IrcNetworkEditor
 	GtkWidget *add_autojoin;
 	GtkWidget *edit_autojoin;
 	GtkWidget *remove_autojoin;
+	GtkCellRenderer *autojoin_renderer;
 
 	GtkWidget *toplevel;
 
