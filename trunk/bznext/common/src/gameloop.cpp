@@ -86,6 +86,7 @@ bool CBaseGameLoop::Run ( void )
 
   TextureManager::getSingleton().setDefaultNumMipMaps(5);
 
+	input.Init(GetRenderWindow());
   timer.Init();
 
   if(OnInit())
@@ -225,9 +226,9 @@ bool CBaseGameLoop::Process ( void )
     CallEventHandaler(event.type,&event);
   }  
   
-  typedData = input.GetEnteredText();
+  input.Process();
   timer.Update();
-
+	
   if (!bDone)
     bDone = GameLoop();
 
