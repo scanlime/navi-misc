@@ -62,6 +62,11 @@ enum {
     PROP_ANIMATION,
 };
 
+typedef struct {
+    GtkTreeView *view;
+    GdkRectangle rect;
+} RedrawInfo;
+
 
 /************************************************************************************/
 /**************************************************** Initialization / Finalization */
@@ -251,6 +256,13 @@ static void cell_renderer_bifurcation_get_size(GtkCellRenderer  *cell,
     /* We don't bother suggesting a size yet, just use whatever's available */
 }
 
+static gboolean cell_queue_redraw (RedrawInfo *info) {
+    gtk_widget_queue_draw_area (GTK_WIDGET (info->view),
+		                info->rect.x, info->rect.y,
+				info->rect.width, info->rect.height);
+    return FALSE;
+}
+
 static void cell_renderer_bifurcation_render(GtkCellRenderer      *cell,
 					     GdkWindow            *window,
 					     GtkWidget            *widget,
@@ -261,6 +273,7 @@ static void cell_renderer_bifurcation_render(GtkCellRenderer      *cell,
     CellRendererBifurcation *self = CELL_RENDERER_BIFURCATION(cell);
     BifurcationDiagram *bd = get_bifurcation_diagram(self);
     GtkStateType state;
+    RedrawInfo *nr;
 
     if (!bd)
 	return;
@@ -313,9 +326,14 @@ static void cell_renderer_bifurcation_render(GtkCellRenderer      *cell,
 		    0, 0, cell_area->x, cell_area->y, cell_area->width, cell_area->height,
 		    GDK_RGB_DITHER_NONE, 0, 0);
 
-    gtk_widget_queue_draw_area(GTK_WIDGET(self->tree),
-			       cell_area->x, cell_area->y,
-			       cell_area->width, cell_area->height);
+    nr = g_new (RedrawInfo, 1);
+    nr->view = self->tree;
+    nr->rect.x = cell_area->x;
+    nr->rect.y = cell_area->y;
+    nr->rect.width = cell_area->width;
+    nr->rect.height = cell_area->height;
+
+    g_timeout_add (20, (GSourceFunc) cell_queue_redraw, nr);
 }
 
 /* The End */
