@@ -87,6 +87,9 @@ class ChannelList(gtk.TreeView):
         self.modelFilled = True
 
         # Give all values one initial update, then start a callback for updating them regularly.
+        self.oldValueStr = {}
+        for channel in self.channels:
+            self.oldValueStr[channel] = None
         self.updateValues()
         self.valueUpdateTimeout = gtk.timeout_add(self.valueUpdateInterval, self.updateValues)
 
@@ -144,8 +147,12 @@ class ChannelList(gtk.TreeView):
         """Update the 'value' column for all channels"""
         row = 0
         for channel in self.channels:
-            i = self.model.get_iter(row)
-            self.model.set_value(i, 5, str(channel.strValue()))
+            s = str(channel.strValue())
+            # Only set the model value if our string has changed
+            if s != self.oldValueStr[channel]:
+                i = self.model.get_iter(row)
+                self.model.set_value(i, 5, s)
+                self.oldValueStr[channel] = s
             row += 1
         return gtk.TRUE
 
