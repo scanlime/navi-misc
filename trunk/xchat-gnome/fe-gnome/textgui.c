@@ -32,7 +32,21 @@ void clicked_word (GtkWidget *xtext, char *word, GdkEventButton *even, gpointer 
 void font_changed (GConfClient *client, guint cnxn_id, const gchar* key, GConfValue* value, gboolean is_default, gpointer user_data);
 static void gconf_timestamps_changed (GConfClient *client, guint cnxn_id, const gchar *key, GConfValue *value, gboolean is_default, gpointer data);
 
+static void open_url (GtkAction *action, gpointer data);
+static void copy_text (GtkAction *action, gpointer data);
+static void send_email (GtkAction *action, gpointer data);
+
 GHashTable *notify_table;
+
+static GtkActionEntry action_entries[] = {
+	/* URL Popup */
+	{ "TextURLOpen", GTK_STOCK_OPEN, N_("_Open Link in Browser"), NULL, NULL, G_CALLBACK (open_url) },
+	{ "TextURLCopy", GTK_STOCK_COPY, N_("_Copy Link Location"), NULL, NULL, G_CALLBACK (copy_text) },
+
+	/* Email Popup */
+	{ "TextEmailSend", GNOME_STOCK_MAIL, N_("Se_nd Message To..."), NULL, NULL, G_CALLBACK (send_email) },
+	{ "TextEmailCopy", GTK_STOCK_COPY, N_("_Copy Address"), NULL, NULL, G_CALLBACK (copy_text) },
+};
 
 void
 initialize_text_gui ()
@@ -41,6 +55,7 @@ initialize_text_gui ()
 	/* For setting the font from gconf. */
 	GConfClient *client;
 	gchar *font;
+	GtkActionGroup *action_group;
 
 	gui.xtext = GTK_XTEXT (gtk_xtext_new (colors, TRUE));
 	frame = glade_xml_get_widget (gui.xml, "text area frame");
@@ -60,6 +75,12 @@ initialize_text_gui ()
 	gtk_xtext_set_wordwrap (gui.xtext, TRUE);
 	gtk_xtext_set_urlcheck_function (gui.xtext, check_word);
 	g_signal_connect (G_OBJECT (gui.xtext), "word_click", G_CALLBACK (clicked_word), NULL);
+
+	/* Set menus */
+	action_group = gtk_action_group_new ("TextPopups");
+	gtk_action_group_add_actions (action_group, action_entries, G_N_ELEMENTS (action_entries), NULL);
+	gtk_ui_manager_insert_action_group (gui.manager, action_group, 0);
+	g_object_unref (action_group);
 
 	/* Set the font. */
 	client = gconf_client_get_default ();
@@ -290,37 +311,42 @@ clicked_word (GtkWidget *xtext, char *word, GdkEventButton *event, gpointer data
 		}
 		return;
 	}
-	if (event->button == 2)
-	{
+	if (event->button == 2) {
 		/* middle click */
 		return;
 	}
-	switch (check_word (xtext, word))
-	{
-		case 0:
-			/* FIXME: show default context menu */
-			return;
-		case WORD_URL:
-		case WORD_HOST:
-			/* FIXME: show url context menu */
-			g_print ("its a url!\n");
-			return;
-		case WORD_NICK:
-			/* FIXME: show nickname context menu */
-			g_print ("its a nickname!\n");
-			return;
-		case WORD_CHANNEL:
-			/* FIXME: show nickname context menu */
-			g_print ("its a channel!\n");
-			return;
-		case WORD_EMAIL:
-			/* FIXME: show nickname context menu */
-			g_print ("its a email address!\n");
-			return;
-		case WORD_DIALOG:
-			/* FIXME: show nickname context menu */
-			g_print ("its a nickname dialog!\n");
-			return;
+	if (event->button == 3) {
+		switch (check_word (xtext, word)) {
+			case 0:
+				/* FIXME: show default context menu */
+				return;
+			case WORD_URL:
+			case WORD_HOST:
+				{
+					GtkWidget *menu;
+					menu = gtk_ui_manager_get_widget (gui.manager, "/TextURLPopup");
+					g_return_if_fail (menu != NULL);
+					gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 3, gtk_get_current_event_time ());
+					return;
+				}
+			case WORD_NICK:
+				/* FIXME: show nickname context menu */
+				return;
+			case WORD_CHANNEL:
+				/* FIXME: show channel context menu */
+				return;
+			case WORD_EMAIL:
+				{
+					GtkWidget *menu;
+					menu = gtk_ui_manager_get_widget (gui.manager, "/TextEmailPopup");
+					g_return_if_fail (menu != NULL);
+					gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 3, gtk_get_current_event_time ());
+					return;
+				}
+			case WORD_DIALOG:
+				/* FIXME: show dialog(?) context menu */
+				return;
+		}
 	}
 }
 
@@ -342,7 +368,23 @@ font_changed (GConfClient *client, guint cnxn_id, const gchar* key, GConfValue* 
 	g_free (font);
 }
 
-static void gconf_timestamps_changed (GConfClient *client, guint cnxn_id, const gchar *key, GConfValue *value, gboolean is_default, gpointer data)
+static void
+gconf_timestamps_changed (GConfClient *client, guint cnxn_id, const gchar *key, GConfValue *value, gboolean is_default, gpointer data)
 {
 	gtk_xtext_set_time_stamp (data, gconf_client_get_bool (client, key, NULL));
+}
+
+static void
+open_url (GtkAction *action, gpointer data)
+{
+}
+
+static void
+copy_text (GtkAction *action, gpointer data)
+{
+}
+
+static void
+send_email (GtkAction *action, gpointer data)
+{
 }

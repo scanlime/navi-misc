@@ -105,4 +105,14 @@
                 <menuitem name="DialogFindAgain" action="DialogFindAgain"/>
                 <menuitem name="DialogClear" action="DialogClear"/>
         </popup>
+
+        <popup name="TextURLPopup" action="PopupAction">
+                <menuitem name="TextURLOpen" action="TextURLOpen"/>
+                <menuitem name="TextURLCopy" action="TextURLCopy"/>
+        </popup>
+
+        <popup name="TextEmailPopup" action="PopupAction">
+                <menuitem name="TextEmailSend" action="TextEmailSend"/>
+                <menuitem name="TextEmailCopy" action="TextEmailCopy"/>
+        </popup>
 </ui>
