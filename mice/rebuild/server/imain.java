@@ -114,7 +114,7 @@ public class imain
 		if(it.compareTo("csub") == 0) return 3; //Chat Submission
 		if(it.compareTo("jmod") == 0) return 4; //Java Moderation
 		if(it.compareTo("jint") == 0) return 5; //Java Interview
-		if(it.compareTo("cmod") == 0) return 6; //Chat Interview
+		if(it.compareTo("cint") == 0) return 6; //Chat Interview
 		
 		if(it.compareTo("admin") == 0) return -10;
 		return -1;

@@ -27,16 +27,61 @@ public class interview
 	/** The next interview person in the linked list. */
 	public interview next;
 
-	/** The nickname of the person */
+	/** The nickname of the person. */
 	public String nick;
+	
+	/** The password for this person. */
+	public String pass;
+	
+	/** The real name of the person. */
+	public String name;
+	
+	/** The Bot I do communications through. */
+	public botmain mybot;
+	
+	/** The network connection to the server. */
+	public net com;
 
-	public interview(interview prev, botmain bot, String NICK)
+	public int state;
+	
+	public interview(interview prev, botmain bot, String NICK, String PASS)
 	{
 		next = prev;
 		nick = NICK;
+		com = new net();
+		state = 0;
 	}
 	
 	public void handle(String message)
 	{
+		switch(state)
+		{
+		case 0:
+			send("What is your name?  This way I get your real name with your answers.");
+			state = 1;
+			break;
+		case 1:
+			name = message;
+			if(!com.openConnection("localhost",8080))
+			{
+				send("Connection to server failed, contact the administrator");
+				return;
+			}
+			com.write("cint");
+			send("Go ahead and send me a message when you're ready for your first question");
+			state = 2;
+			break;
+		case 2:
+			
+			break;
+		case 3:
+			break;
+		case 4:
+		}
+	}
+	
+	public void send(String message)
+	{
+		mybot.sendMessage(nick,message);
 	}
 }
