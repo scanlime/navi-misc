@@ -229,6 +229,10 @@ class DependentResource(CachedResource):
 
         # Our new stamp is the greatest out of all deps' stamps
         stamp = max(latest.itervalues())
+
+        # Update only if we need to
+        if self.getLatestStamp() >= stamp:
+            return
         self.updateStamp(latest, stamp)
 
         # Clean old versions if that was successful
