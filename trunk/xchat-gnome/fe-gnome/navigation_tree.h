@@ -92,7 +92,9 @@ struct _NavModel
   GObject parent;
   GtkTreeModel *sorted;
   GtkTreeStore *store;
-	/* Stores an iter for each session in the model. */
+	/* Stores an iter for each session in the model. These iters are for the unsorted
+	 * store.
+	 */
   GHashTable *session_iters;
 };
 
