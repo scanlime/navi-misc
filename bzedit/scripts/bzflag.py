@@ -23,9 +23,12 @@
 #
 
 import Blender
-from Blender import NMesh
+from Blender import NMesh, Material
 import math
 
+boxMaterial = Material.New('newMat')
+boxMaterial.rgbCol = [1.0, 0.6, 0.6]
+boxMaterial.setName('BoxColor')
 
 def meshify(vertex, face):
     mesh = NMesh.GetRaw()
@@ -324,7 +327,7 @@ class Box(BZObject):
     def set_rotation(self, degrees=0):
         self.rotation = degrees
 
-    def set_size(self, x=1, y=1, z=0.942):
+    def set_size(self, x=10, y=10, z=9.42):
         self.size = [x,y,z]
 
     def serialize(self, writer):
@@ -354,6 +357,8 @@ class Box(BZObject):
         self.setTransform(box)
         return box
 
+        box.setMaterials([boxMaterial])
+
     def setTransform(self, obj):
         """Set the transformation on the given Blender object
            to match our position, size, and rotation. This will
@@ -377,7 +382,7 @@ class Pyramid(Box):
     """A tetrahedron, pointing straight up or down, with rotation in the Z axis"""
     type = 'pyramid'
 
-    def set_size(self, x=0.82, y=0.82, z=1.025):
+    def set_size(self, x=8.2, y=8.2, z=10.25):
         # Pyramids have different size defaults than the box
         self.size = [x,y,z]
 
