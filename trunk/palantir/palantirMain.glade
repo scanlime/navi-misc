@@ -101,19 +101,22 @@
 			<widget class="GtkMenu" id="dice_system_menu">
 
 			  <child>
-			    <widget class="GtkMenuItem" id="d&amp;d_dice">
+			    <widget class="GtkRadioMenuItem" id="d&amp;d_dice">
 			      <property name="visible">True</property>
 			      <property name="label" translatable="yes">D&amp;D</property>
 			      <property name="use_underline">True</property>
+			      <property name="active">False</property>
 			      <signal name="activate" handler="on_d&amp;d_dice_activate" last_modification_time="Sat, 10 Jan 2004 09:41:03 GMT"/>
 			    </widget>
 			  </child>
 
 			  <child>
-			    <widget class="GtkMenuItem" id="white_wolf_dice">
+			    <widget class="GtkRadioMenuItem" id="white_wolf_dice">
 			      <property name="visible">True</property>
 			      <property name="label" translatable="yes">White Wolf</property>
 			      <property name="use_underline">True</property>
+			      <property name="active">False</property>
+			      <property name="group">d&amp;d_dice</property>
 			      <signal name="activate" handler="on_white_wolf_dice_activate" last_modification_time="Sat, 10 Jan 2004 09:41:03 GMT"/>
 			    </widget>
 			  </child>
