@@ -34,6 +34,7 @@ mvmtOneCello = \relative c, {
 
 	% 45
 	eis fis
+	\once \override TextScript #'extra-offset = #'(0 . 0.5)
 	d8-.^\tutti e'-. e16 d e r r2
 	R1*3
 
@@ -86,7 +87,7 @@ mvmtOneCello = \relative c, {
 	b8-> r4 r8 a'16 b a8-.->
 	d,8-> r4 r8 c16 b a8-.->
 	\setTextDecresc
-	gis8 r4 cis16-> \> cis \! cis-. cis-. cis-. cis-.
+	gis8 r4 cis16^\accent \> cis \! cis-. cis-. cis-. cis-.
 	\setHairpinDecresc
 	\time 4/4
 	\times 4/6 {<gis cis>8-> [<gis cis> <gis cis>-. <gis cis>-. <gis cis>-. <gis cis>-.]}
@@ -96,6 +97,7 @@ mvmtOneCello = \relative c, {
 	<g c>4\pp aes8->\mf r8 r4 g8-> r8
 	fis8-> r8 r4 r2
 	R1*7
+	\once \override DynamicText #'extra-offset = #'(0 . -0.5)
 	g8\f (b d g) fis (e) f (ees)
 
 	% 100
@@ -118,7 +120,7 @@ mvmtOneCello = \relative c, {
 	fis1\p \trill
 	\> fis1 \! \trill
 
-	R1*19
+	R1*10 | R1*9
 	r8 fis'\ff r gis r fis r a
 
 	% 130
@@ -130,7 +132,9 @@ mvmtOneCello = \relative c, {
 		a4 (
 		b a)
 	} \\ {
+		\once \override DynamicText #'extra-offset = #'(-1.5 . -1.5)
 		a4\mf (
+		\once \override Hairpin #'extra-offset = #'(0 . -1.0)
 		d, \> dis) \!
 	} >>
 	r2
@@ -175,6 +179,7 @@ mvmtOneCello = \relative c, {
 	r4. r16\f <fis b>16 \< <fis b> <fis cis'> <fis cis'> <fis cis'> \!
 	<fis b>8 fis32 (g fis e \repeat "unfold" 3 {fis32 g fis e} fis32 g fis e)
 	\repeat "percent" 4 {fis32 (g fis e \repeat "unfold" 4 {fis32 g fis e} fis32 g fis e) }
+	\once \override Hairpin #'extra-offset = #'(0 . -1.5)
 	fis32 \< (g fis e fis32 g fis e fis32 g fis e) fis8 fis fis \!
 
 	\time 4/4
