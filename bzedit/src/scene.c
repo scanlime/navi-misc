@@ -73,6 +73,24 @@ tree_store_reordered (GtkTreeModel *treemodel, GtkTreePath *arg1, GtkTreeIter *a
 }
 
 static void
+tree_store_row_inserted (GtkTreeModel *treemodel, GtkTreePath *arg1, GtkTreeIter *arg2, Scene *scene)
+{
+  g_print ("row inserted!\n");
+}
+
+static void
+tree_store_row_deleted (GtkTreeModel *treemodel, GtkTreePath *arg1, Scene *scene)
+{
+  g_print ("row deleted!\n");
+}
+
+static void
+tree_store_row_changed (GtkTreeModel *treemodel, GtkTreePath *arg1, GtkTreeIter *arg2, Scene *scene)
+{
+  g_print ("row changed!\n");
+}
+
+static void
 scene_init (Scene *self)
 {
   GList *render_pass_types, *type;
@@ -96,6 +114,9 @@ scene_init (Scene *self)
   /* ----------------------------------------- object pin----- pin icon ------- obj visible --- visible icon */
                                                G_TYPE_BOOLEAN, GDK_TYPE_PIXBUF, G_TYPE_BOOLEAN, GDK_TYPE_PIXBUF);
   g_signal_connect (G_OBJECT (self->element_store), "rows-reordered", G_CALLBACK (tree_store_reordered), self);
+  g_signal_connect (G_OBJECT (self->element_store), "row-inserted", G_CALLBACK (tree_store_row_inserted), self);
+  g_signal_connect (G_OBJECT (self->element_store), "row-deleted", G_CALLBACK (tree_store_row_deleted), self);
+  g_signal_connect (G_OBJECT (self->element_store), "row-changed", G_CALLBACK (tree_store_row_changed), self);
 }
 
 Scene*
