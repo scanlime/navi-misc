@@ -2338,7 +2338,6 @@ allocate_buffer (XText2 *xtext, XTextBuffer *buffer)
 {
   XTextFormat *f = g_new0 (XTextFormat, 1);
   g_hash_table_insert (xtext->priv->buffer_info, buffer, f);
-  /* FIXME: should copy existing lines & set wraps here */
   f->old_adj = -1;
   f->wrapped_first = NULL;
   f->wrapped_last  = NULL;
