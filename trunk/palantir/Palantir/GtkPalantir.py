@@ -290,6 +290,12 @@ class PalantirWindow:
     # Reset the text in the text field.
     widget.set_text('')
 
+  def on_SendField_key_press_event(self, widget, data):
+    if data == gtk.gdk.Tab:
+      print 'hi'
+      return gtk.TRUE
+    return gtk.FALSE
+
   def on_ChannelTabs_switch_page(self, widget, data, tab):
     ''' When the current tab is changed, update self.currentTab to reflect that. '''
     self.currentTab = self.tree.get_widget('ChannelTabs').get_nth_page(tab)
