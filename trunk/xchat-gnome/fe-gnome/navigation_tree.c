@@ -164,6 +164,8 @@ void navigation_selection_changed(GtkTreeSelection *selection, gpointer data) {
 		gtk_xtext_buffer_show(gui.xtext, tgui->buffer, TRUE);
 		topic = glade_xml_get_widget(gui.xml, "topic entry");
 		gtk_text_view_set_buffer(GTK_TEXT_VIEW(topic), tgui->topic_buffer);
+		entry = glade_xml_get_widget(gui.xml, "text entry");
+		gtk_text_view_set_buffer(GTK_TEXT_VIEW(entry), tgui->entry_buffer);
 		gui.current_session = sess;
 		userlist_display(tgui);
 		set_nickname(sess->server, NULL);
