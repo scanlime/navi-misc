@@ -177,13 +177,13 @@ enum InputKeyCode
 	KEY_MEDIASELECT     =0xED     /* Media Select */
 };
 
-/*
+
 class CAction;
 
 class CActionListener
 {
 public:
-	virtual ~CActionListener();
+	virtual ~CActionListener() {return;}
 	virtual void eventCall ( CAction &caller ) = 0;
 };
 
@@ -224,7 +224,7 @@ protected:
 };
 
 typedef std::map<std::string, CAction*> tmActionMap;
-*/
+
 
 class CInputManager
 {
