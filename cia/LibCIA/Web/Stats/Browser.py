@@ -329,6 +329,12 @@ class RelatedSection(Template.Section):
     """A section showing links to related stats targets. This works by looking for
        nodes connected to this one in the stats_relations graph. The paths and
        titles of related nodes are fetched using one SQL query, for efficiency.
+
+       The query sorts first by parent path, so we can extract each section in one
+       piece, and second in descending order by freshness. This way, instead of
+       constantly having the strongest associations at the top, every time an
+       association is reinforced it pops up to the top, showing our visitors what's
+       cool and hip.
        """
     title = 'related'
 
@@ -345,9 +351,12 @@ class RelatedSection(Template.Section):
             ON (TARGET_TITLE.name = 'title' AND TARGET_TITLE.target_path = C.target_path)
         LEFT OUTER JOIN stats_metadata PARENT_TITLE
             ON (PARENT_TITLE.name = 'title' AND PARENT_TITLE.target_path = C.parent_path)
-        WHERE R.target_a_path = %(path)s or R.target_b_path = %(path)s
+        WHERE (R.target_a_path = %(path)s or R.target_b_path = %(path)s)
+            AND C.parent_path != %(path)s
     ORDER BY C.parent_path, R.freshness DESC
     """
+
+    sectionLimit = 15
 
     def __init__(self, target):
         self.target = target
@@ -370,25 +379,38 @@ class RelatedSection(Template.Section):
         return result
 
     def _render_rows(self, queryResults, context, result):
-        rows = []
-        currentParent = None
-        insertionPoint = None
-
+        # From the rows returned from our SQL query, construct a
+        # dictionary that maps from a parent hyperlink to a list
+        # of child hyperlinks sorted by decreasing freshness.
+        currentParentLink = None
+        currentParentPath = None
+        d = {}
         for parentPath, parentTitle, targetPath, targetTitle in queryResults:
+            if parentPath != currentParentPath:
+                currentParentPath = parentPath
+                currentParentLink = self.makeLink(parentPath, parentTitle)
+            d.setdefault(currentParentLink, []).append(self.makeLink(targetPath, targetTitle))
 
-            # Starting a new parent section?
-            if parentPath != currentParent:
-                currentParent = parentPath
-                insertionPoint = []
-                rows.append([
-                    tag('strong')[ self.makeLink(parentPath, parentTitle) ],
-                    tag('p')[ insertionPoint ],
-                    ])
+        # Sort these parent sections by decreasing size. We want
+        # the most interesting ones at the top, and those are usually the biggest.
+        sections = d.keys()
+        sections.sort(lambda a,b: cmp(len(d[b]), len(d[a])))
+        result.callback([self.render_section(section, d[section]) for section in sections])
 
-            if insertionPoint:
-                insertionPoint.append(tag('br'))
-            insertionPoint.append(self.makeLink(targetPath, targetTitle))
+    def render_section(self, section, contents):
+        """Given a heading renderable and a list of contents for that
+           heading, render one section of the 'related' box.
+           """
+        # Truncate the contents if we need to
+        if len(contents) > self.sectionLimit:
+            contents = contents[:self.sectionLimit] + ['(%d others)' % (len(contents) - self.sectionLimit)]
 
-        result.callback(rows)
+        return [
+            tag('div', _class='relatedHeading')[ section ],
+            tag('ul', _class='related')[[
+                tag('li', _class='related')[ item ]
+                for item in contents
+            ]],
+        ]
 
 ### The End ###
