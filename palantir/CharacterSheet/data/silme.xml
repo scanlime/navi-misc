@@ -1,0 +1,15 @@
+<?xml version="1.0" ?>
+<character layout="sheet.xml">
+	<level>18</level>
+	<name>Silme</name>
+	<race>Elf</race>
+	<class>Bard/Thief</class>
+
+	<strength>12</strength>
+	<dexterity>20</dexterity>
+<exp></exp>
+<history>asdfasdf</history>
+<weapons></weapons>
+<appearance></appearance>
+<coteri></coteri>
+</character>
