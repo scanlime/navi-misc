@@ -26,6 +26,7 @@ namespace Fyre
 	class NavigationImage : Gtk.EventBox
 	{
 		Gtk.Image	image;
+		Gtk.Window	window;
 
 		public NavigationImage()
 		{
@@ -34,6 +35,30 @@ namespace Fyre
 			Add (image);
 
 			ShowAll ();
+		}
+
+		protected override bool OnButtonPressEvent (Gdk.EventButton ev)
+		{
+			window = new Gtk.Window (Gtk.WindowType.Popup);
+			Gtk.DrawingArea da = new Gtk.DrawingArea ();
+			window.Add (da);
+			window.DefaultWidth = 200;
+			window.DefaultHeight = 150;
+
+			int x = (int) ev.XRoot - 100;
+			int y = (int) ev.YRoot - 75;
+			window.Move (x, y);
+			window.ShowAll ();
+
+			return true;
+		}
+
+		protected override bool OnButtonReleaseEvent (Gdk.EventButton ev)
+		{
+			window.Hide ();
+			window = null;
+
+			return true;
 		}
 	}
 
