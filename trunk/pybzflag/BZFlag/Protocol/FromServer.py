@@ -93,6 +93,18 @@ class MsgPlayerUpdate(Common.Message):
         StructEntry(Float,           'angularVelocity'),
         ]
 
+class MsgLagPing(Common.Message):
+    messageId = 0x7069
+    entries = [
+        StructEntry(UInt16, 'sequence'),
+        ]
+
+class MsgNewRabbit(Common.Message):
+    messageId = 0x6e52
+    entries = [
+        StructEntry(Common.PlayerId, 'id'),
+        ]
+
 ### The End ###
         
     

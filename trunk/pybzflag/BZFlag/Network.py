@@ -146,7 +146,8 @@ class Socket:
         struct.unmarshall(packed)
         return struct
 
-    def readMessage(self):
+    def readMessage(self, msgModule):
+        """Read a message, using the supplied module full of Message subclasses."""
         header = self.readStruct(Common.MessageHeader)
         if not header:
             return None
@@ -159,7 +160,7 @@ class Socket:
         else:
             body = ''
         try:
-            msgClass = Common.getMessageDict()[header.id]
+            msgClass = Common.getMessageDict(msgModule)[header.id]
         except KeyError:
             raise Errors.ProtocolException("Received unknown message type 0x%04X" % header.id)
         return msgClass(str(header) + body)

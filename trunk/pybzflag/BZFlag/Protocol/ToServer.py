@@ -38,6 +38,19 @@ class MsgEnter(Common.Message):
         StructEntry(ScalarType("128s"), 'emailAddress'),
         ]
 
+class MsgAlive(Common.Message):
+    messageId = 0x616C
+    entries = [
+        StructEntry(Common.Vector3, 'position'),
+        StructEntry(Common.Vector3, 'forward'),
+        ]
+
+class MsgLagPing(Common.Message):
+    messageId = 0x7069
+    entries = [
+        StructEntry(UInt16, 'sequence'),
+        ]
+
 ### The End ###
         
     
