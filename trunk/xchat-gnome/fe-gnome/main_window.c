@@ -271,9 +271,9 @@ void on_help_about_menu_activate(GtkWidget *widget, gpointer data) {
 }
 
 void on_text_entry_activate(GtkWidget *widget, gpointer data) {
-	const char *entry_text = g_strdup(gtk_entry_get_text(GTK_ENTRY(widget)));
+	char *entry_text = g_strdup(gtk_entry_get_text(GTK_ENTRY(widget)));
 	gtk_entry_set_text(GTK_ENTRY(widget), "");
-	handle_multiline(gui.current_session, entry_text, TRUE, FALSE);
+	handle_multiline(gui.current_session, (const char *) entry_text, TRUE, FALSE);
 	g_free(entry_text);
 }
 
@@ -295,7 +295,7 @@ static void history_key_up(GtkEntry *entry) {
 	}
 }
 
-static void tab_complete_nickname(GtkEntry *entry, int start) {
+static gboolean tab_complete_nickname(GtkEntry *entry, int start) {
 	GCompletion *completion;
 	int cursor, length;
 	char *text;
@@ -320,7 +320,7 @@ static void tab_complete_nickname(GtkEntry *entry, int start) {
 		options = g_completion_complete(completion, prefix, &new_prefix);
 		if(g_list_length(options) == 0) {
 			g_free(text);
-			return;
+			return FALSE;
 		}
 		if(g_list_length(options) == 1) {
 			int pos;
@@ -337,7 +337,7 @@ static void tab_complete_nickname(GtkEntry *entry, int start) {
 			gtk_editable_set_position(GTK_EDITABLE(entry), pos);
 			g_free(npt);
 			g_free(text);
-			return;
+			return TRUE;
 		}
 		/* we have more than one match - print a list of options to the window */
 		list = options;
@@ -359,10 +359,11 @@ static void tab_complete_nickname(GtkEntry *entry, int start) {
 			gtk_editable_set_position(GTK_EDITABLE(entry), start + strlen(new_prefix));
 		}
 		g_free(text);
+		return TRUE;
 	}
 }
 
-static void tab_complete(GtkEntry *entry) {
+static gboolean tab_complete(GtkEntry *entry) {
 	const char *text;
 	int start, cursor_pos;
 
@@ -370,7 +371,7 @@ static void tab_complete(GtkEntry *entry) {
 	cursor_pos = gtk_editable_get_position(GTK_EDITABLE(entry));
 
 	if(cursor_pos == 0)
-		return;
+		return FALSE;
 
 	/* search backwards to find /, #, ' ' or start */
 	for(start = cursor_pos; start >= 0; --start) {
@@ -390,10 +391,10 @@ static void tab_complete(GtkEntry *entry) {
 
 		/* check if we can match a nickname */
 		if(start == 0 || text[start] == ' ') {
-			tab_complete_nickname(entry, start == 0 ? start : start + 1);
-			return;
+			return tab_complete_nickname(entry, start == 0 ? start : start + 1);
 		}
 	}
+	return FALSE;
 }
 
 gboolean on_text_entry_key(GtkWidget *widget, GdkEventKey *key, gpointer data) {
@@ -406,8 +407,7 @@ gboolean on_text_entry_key(GtkWidget *widget, GdkEventKey *key, gpointer data) {
 		return TRUE;
 	}
 	if(key->keyval == GDK_Tab) {
-		tab_complete(GTK_ENTRY(widget));
-		return TRUE;
+		return tab_complete(GTK_ENTRY(widget));
 	}
 	return FALSE;
 }
