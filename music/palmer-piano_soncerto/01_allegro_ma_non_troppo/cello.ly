@@ -67,21 +67,17 @@ mvmtOneCello = \relative c, {
 	\time 6/8
 	R1*6/8*10
 
-	<<
-		{
+	<< {
 		s4. bes (
 		cis d)
 		s a (
 		c des)
-		}
-	\\
-		{
-		r4. bes
-		a f
-		r a
-		aes fis
-		}
-	>>
+	} \\ {
+		r4. bes (
+		a f)
+		r a (
+		aes fis)
+	} >>
 	r4. r8 dis'16 e dis8-.->
 	gis,8-> r4 r4.
 
@@ -95,4 +91,24 @@ mvmtOneCello = \relative c, {
 
 	% 90
 	<g c>4\pp ais8->\mf r8 r4 g8-> r8
+	f8-> r8 r4 r2
+	R1*7
+	g8 (b d g) fis (e) f (eis)
+
+	% 100
+	e (dis) e (cis) d (cis) d (b)
+	c16\mf ees d ees f ees d ees c ees fes ees d ees f ees
+	c\ff (ees d ees a, ees' d ees) d (a bes ees d c b a)
+	aes8 r8 r4 r4 r16 fis\mf r8
+	g16 r r8 fis4 (f e
+
+	% 105
+	f)
+	<< {
+		d' (ees c
+		des)
+	} \\ {
+		g, (bes a
+		bes)
+	} >> r4 r2
 }
