@@ -6,7 +6,7 @@
 
 from twisted.application import service, internet
 from twisted.web import vhost
-from LibCIA import Message, Ruleset, IRC, Stats, IncomingMail
+from LibCIA import Message, Ruleset, IRC, Stats, IncomingMail, Cron
 from LibCIA import Debug, Security, RpcServer, RpcClient, Web
 
 application = service.Application("cia_server")
@@ -15,8 +15,10 @@ hub = Message.Hub()
 # A network of IRC bots used to handle irc:// URIs
 botNet = IRC.Bots.BotNetwork(IRC.Bots.SequentialNickAllocator("CIA-"))
 
-# Set up periodic maintenance of our stats database
-Stats.Maintenance().run()
+# Set up periodic maintenance tasks
+Cron.Scheduler(
+    Cron.Event(Cron.hourly, Stats.Maintenance().run, "stats maintenance"),
+    )
 
 # A list of URI handlers that can be used as targets for rulesets
 uriRegistry = Ruleset.URIRegistry(

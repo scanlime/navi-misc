@@ -688,32 +688,22 @@ class Counters:
 
 class Maintenance:
     """This class performs periodic maintenance of the stats database, including
-       counter rollover and removing old messages. The maintenance cycle is run
-       once on startup, and periodically afterwards.
+       counter rollover and removing old messages.
        """
     # Maximum number of messages to keep around for each stats target
     maxTargetMessages = 200
 
-    scheduledRun = None
-
     def run(self):
-        """Triggers one maintenance cycle, and sets up the next one"""
-        log.msg("Initiating stats maintenance...")
-        Database.pool.runInteraction(self._run)
-
-        if self.scheduledRun and self.scheduledRun.active():
-            log.msg("Cancelling previously scheduled stats maintenance run")
-            self.scheduledRun.cancel()
-
-        log.msg("Scheduling another maintenance cycle in 1 hour")
-        self.scheduledRun = reactor.callLater(60*60, self.run)
+        """Performs one stats maintenance cycle, returning a Deferred that
+           yields None when the maintenance is complete.
+           """
+        return Database.pool.runInteraction(self._run)
 
     def _run(self, cursor):
         """Database interaction implementing the maintenance cycle"""
         self.checkRollovers(cursor)
         self.pruneSubscriptions(cursor)
         self.pruneTargets(cursor)
-        log.msg("Stats maintenance completed")
 
     def checkOneRollover(self, cursor, previous, current):
         """Check for rollovers in one pair of consecutive time intervals,
