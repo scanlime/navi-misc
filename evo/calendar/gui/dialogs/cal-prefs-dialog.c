@@ -406,7 +406,7 @@ show_task_list_config (CalendarPrefsDialog *prefs)
 
 	/* Hide Completed Tasks Units. */
 	units = calendar_config_get_hide_completed_tasks_units ();
-	e_dialog_option_menu_set (prefs->tasks_hide_completed_units, units, hide_completed_units_map);
+	e_dialog_combo_box_set (prefs->tasks_hide_completed_units, units, hide_completed_units_map);
 
 	/* Hide Completed Tasks Value. */
 	e_dialog_spin_set (prefs->tasks_hide_completed_interval, calendar_config_get_hide_completed_tasks_value ());
@@ -438,7 +438,7 @@ show_config (CalendarPrefsDialog *prefs)
 
 	/* Week Start Day. */
 	week_start_day = calendar_config_get_week_start_day ();
-	e_dialog_option_menu_set (prefs->week_start_day, week_start_day, week_start_day_map);
+	e_dialog_combo_box_set (prefs->week_start_day, week_start_day, week_start_day_map);
 
 	/* Start of Day. */
 	e_date_edit_set_time_of_day (E_DATE_EDIT (prefs->start_of_day), calendar_config_get_day_start_hour (), calendar_config_get_day_start_minute ());
@@ -459,8 +459,7 @@ show_config (CalendarPrefsDialog *prefs)
 
 	/* Time Divisions. */
 	time_divisions = calendar_config_get_time_divisions ();
-	e_dialog_option_menu_set (prefs->time_divisions, time_divisions,
-				  time_division_map);
+	e_dialog_combo_box_set (prefs->time_divisions, time_divisions, time_division_map);
 
 	/* Show Appointment End Times. */
 	e_dialog_toggle_set (prefs->show_end_times, calendar_config_get_show_event_end ());
@@ -481,7 +480,7 @@ show_config (CalendarPrefsDialog *prefs)
 	e_dialog_toggle_set (prefs->confirm_delete, calendar_config_get_confirm_delete ());
 	e_dialog_toggle_set (prefs->default_reminder, calendar_config_get_use_default_reminder ());
 	e_dialog_spin_set (prefs->default_reminder_interval, calendar_config_get_default_reminder_interval ());
-	e_dialog_option_menu_set (prefs->default_reminder_units, calendar_config_get_default_reminder_units (), default_reminder_units_map);
+	e_dialog_combo_box_set (prefs->default_reminder_units, calendar_config_get_default_reminder_units (), default_reminder_units_map);
 }
 
 /* plugin meta-data */
