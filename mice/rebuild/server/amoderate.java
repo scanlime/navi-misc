@@ -76,6 +76,7 @@ public class amoderate
 	{
 		//if there is no question being moderated, forget anyone said anything
 		if(current == null) return;
+		if(queue.length == 0) return;
 		
 		//cycle through and push these into the accepted queues.
 		int i;
