@@ -7,7 +7,7 @@
 # -- Micah Dowty <micah@picogui.org>
 #
 
-import gtk, time, threading, rcpod
+import gtk, time, threading, pyrcpod
 
 
 class ScrollingLineGraph(gtk.DrawingArea):
@@ -205,7 +205,7 @@ class AnalogUpdaterThread(threading.Thread):
     def __init__(self, graph):
         threading.Thread.__init__(self)
         self.graph = graph
-        self.dev = rcpod.lib.rcpod_InitSimple()
+        self.dev = pyrcpod.lib.rcpod_InitSimple()
         self.running = True
         self.start()
 
@@ -213,9 +213,9 @@ class AnalogUpdaterThread(threading.Thread):
         print self.dev
         while self.running:
             # Perform an analog reading, using the array helpers
-            results = rcpod.lib.uchar_array(8)
-            rcpod.lib.rcpod_AnalogReadAll(self.dev, results)
-            self.graph.channels = [rcpod.lib.uchar_array_get(results, i) / 255.0 for i in range(8)]
+            results = pyrcpod.lib.uchar_array(8)
+            pyrcpod.lib.rcpod_AnalogReadAll(self.dev, results)
+            self.graph.channels = [pyrcpod.lib.uchar_array_get(results, i) / 255.0 for i in range(8)]
             time.sleep(0.01)
 
 
