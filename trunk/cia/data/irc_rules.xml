@@ -1,0 +1,548 @@
+<?xml version="1.0"?>
+<ircRuleSets>
+
+<ircRuleset channel='#gallery' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>gallery</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#openembedded' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>openembedded</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#zwiki' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>zwiki</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#winehq' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>winehq</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#hurd-commits' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>hurd</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#gfsgl' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>gfsgl</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#adium' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>adium</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#inode' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>inode</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#handhelds.org' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>handhelds.org</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#ispman' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>ispman</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#gphoto' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>gphoto</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#gnupdate' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>gnupdate</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#aof' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>aof</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#phpopentracker' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>phpopentracker</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#gnue-commits' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>gnue</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#bloat' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>bloat</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#lyx' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>lyx</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#t-net' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>t-net</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#pykota' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>pykota</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#itonamaton' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>itonamaton</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#freeworldircd-commits' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>freeworldircd</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#xiph' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>xiph</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#gaim-commits' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>gaim</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#gentoo-bots' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>gentoo</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#transitexecutive' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>transitexecutive</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#darkhope' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>darkhope</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#beclan' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>beclan</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#freecnc' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>freecnc</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#tikiwiki' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>tikiwiki</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#svn' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>svn</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#nel' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>nel</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#ghostscript' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>ghostscript</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#ankhsvn' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>ankhsvn</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#ntfs' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>ntfs</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#spca50x' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>spca50x</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#gemrb' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>gemrb</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#beosimkit' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>beosimkit</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#netjuke' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>netjuke</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#doi' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>doi</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#tacobeam' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>navi-misc</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#picogui' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>picogui</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#bzflag' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>bzflag</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#gift' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>gift</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#newsphpeek' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>newsphpeek</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#commits' server='irc.freenode.net:6667'>
+<ruleset>
+	<not><and>
+		<match path='/message/source/project'>gentoo</match>
+		<find path='/message/body'>(Manifest)</find>
+	</and></not>
+
+	<formatter medium='irc'/>
+	<formatter name='IRCProjectName'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#plone' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>plone</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#cdk' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>cdk</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#nsp' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>nsp</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#tvtime' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>tvtime</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#grisbi' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>grisbi</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#only-commits' server='irc.freenode.net:6667'>
+<ruleset>
+	<formatter medium='irc'/>
+	<formatter name='IRCProjectName'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#prelude' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>prelude</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#ircopoly' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>ircopoly</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#awemud' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>awemud</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#crystalspace-commits' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>crystalspace</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#dasher' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>dasher</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#preludefr' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>preludefr</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#pld' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>pld</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#zsnes' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>zsnes</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#oprofile' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>oprofile</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#project24' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>project24</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#snort-gui' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>snort-gui</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#autopackage' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>autopackage</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#bankiz' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>bankiz</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#elinks' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>elinks</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#debian-oo' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>debian-oo</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#kde-commits' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>kde</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#keso' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>keso</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#giftcurs' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>giftcurs</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#stratagus' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>stratagus</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#fresco' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>fresco</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#dylan' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>dylan</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#sguil' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>sguil</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#dolibarr' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>dolibarr</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#kryten' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>kryten</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#gtk-gnutella' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>gtk-gnutella</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+<ircRuleset channel='#freebsd-src' server='irc.freenode.net:6667'>
+<ruleset>
+	<match path='/message/source/project'>freebsd-src</match>
+	<formatter medium='irc'/>
+</ruleset>
+</ircRuleset>
+
+</ircRuleSets>
