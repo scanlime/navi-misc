@@ -10,9 +10,8 @@ for the IRC stuff.
 from twisted.internet import gtk2reactor
 gtk2reactor.portableInstall()
 
-import string, re, gtk, gtk.glade, gobject, palantirIRC, CharacterSheet.GtkSheetElements
+import gtk, gtk.glade, gobject, palantir, palantirIRC, CharacterSheet.GtkSheetElements
 from GtkChatBuffer import GtkChatBuffer
-from time import localtime
 from dieRoller import DieRoller
 from CharacterSheet.Character import Character
 from CharacterSheet.Sheet import Sheet
@@ -79,113 +78,7 @@ class PalantirWindow:
     # Create an object to handle die rolls.
     self.dieRoller = DieRoller(self)
 
-  ### Must be implemented for palantirIRC to work.  These methods are called by the
-  ### the client when it receives certain events and needs to display them in the UI.
-  def messageReceive(self, user, channel, msg):
-    ''' This handles the formatting of regular conversation.  Gets the nick of the
-        person who said it, encloses it in <>, if timestamps are visible it grabs
-	the formatted time and determines if we need to highlight the nick. It sends
-	all this to the chat buffer UI.
-	'''
-    # If there's a user associated with the message, get the nick.
-    if user:
-      nick = self.GetNick(user)
-      nickends = (' <','> ')
-    else:
-      nickends = ('','')
-      nick = ''
-
-    # If we're showing timestamps get the time.
-    if self.tree.get_widget('time_stamps').get_active():
-      time = self.GetFormattedTime()
-    else:
-      time = ''
-
-    # If we're being addressed in this message.
-    if msg.find(self.factory.nickname) is not -1 and nick != self.factory.nickname:
-      addressed = True
-    else:
-      addressed = False
-
-    # Display the message in the chat window.
-    self.chatWindow.DisplayText(time, nick, msg, nickends, addressed)
-
-  def meReceive(self, user, channel, msg):
-    ''' When someone does a '/me' display the action. '''
-    nick = self.GetNick(user)
-    # Get the time if we're displaying timestamps.
-    if self.tree.get_widget('time_stamps').get_active():
-      time = self.GetFormattedTime()
-    else:
-      time = ''
-
-    # If our name is in the message we need to tell the chat window to highlight it.
-    if msg.find(self.factory.nickname) is not -1:
-      addressed = True
-    else:
-      addressed = False
-
-    # Send the message to the chat window.
-    self.chatWindow.DisplayText(time, nick, msg, (' * ',' '), addressed)
-
-  def nickReceive(self, oldNick, channel, newNick):
-    ''' When someone changes a nick display it. '''
-    # If we're using timestamps get the time.
-    if self.tree.get_widget('time_stamps').get_active():
-      time = self.GetFormattedTime()
-    else:
-      time = ''
-
-    self.chatWindow.DisplayText(time, '', oldNick + ' is now known as ' + newNick)
-
-  def topicReceive(self, user, channel, topic):
-    ''' Recieved a topic change, so set the topic bar to the new topic. '''
-    self.tree.get_widget('Topic').set_text(topic)
-
-  # CTCP messages.
-  def DM(self, user, channel, data):
-    ''' The user who sent this message has DM status, so we display that icon next to their
-        name in the user list.
-	'''
-    nick = self.GetNick(user)
-    image = gtk.Image()
-    image.set_from_file('/usr/share/palantir/pixmaps/dm.png')
-    self.tree.get_widget('UserList').get_model().foreach(self.setUserIcon, (nick, image.get_pixbuf()))
-    self.messageReceive(None, channel, '*** ' + nick + ' now has DM status.')
-
-  def UNDM(self, user, channel, data):
-    ''' The user who sent this message has removed DM status from themselves, so remove the
-        icon from next to their name.
-	'''
-    nick = self.GetNick(user)
-    self.tree.get_widget('UserList').get_model().foreach(self.setUserIcon, (nick, None))
-    self.messageReceive(None, channel, '*** ' + nick + ' has removed DM status.')
-
-  def DMQUERY(self, user, channel, data):
-    ''' This is a request for our DM status.  If we have ourselves marked as DM we send a
-        send a CTCP DM message to the person who made the query, otherwise do nothing.
-	'''
-    if self.tree.get_widget('dungeon_master').get_active():
-      self.factory.SendCTCP(self.GetNick(user), [('DM',None)])
-
-  def ROLL(self, user, channel, data):
-    ''' Someone rolled some dice, so we'll format the results and display. '''
-    nick = self.GetNick(user)
-    data = re.search('(\[.*\]) ([0-9]*) ([0-9]*)', messages[0][1])
-    text = nick + ' rolled a ' + str(len(data.group(1).split())) + 'd' + data.group(2) + ': ' + data.group(1) + ' => ' + data.group(3)
-    self.messageReceive(None, channel, text)
-
-  def unknownCTCP(self, user, channel, data):
-    ''' Any non-specific ctcp message just gets displayed as text. '''
-    nick = self.GetNick(user)
-    if messages[0][1]:
-      message = string.join(messages[0])
-    else:
-      message = messages[0][0]
-    text = 'Received a CTCP ' + message + ' from ' + nick + ' (to ' + channel + ')'
-    self.messageReceive(None, channel, text)
-
-  ### Glade Callbacks ###
+   ### Glade Callbacks ###
   # Menu Items.
   def on_new_connection_activate(self, widget, data=None):
     ''' Create a new connection. '''
@@ -234,6 +127,8 @@ class PalantirWindow:
 	'''
     store = self.tree.get_widget('UserList').get_model()
     image = gtk.Image()
+    time = palantir.getTime()
+
     if widget.get_active():
       image.set_from_file('/usr/share/palantir/pixmaps/dm.png')
       text = '*** You now have DM status.'
@@ -243,7 +138,7 @@ class PalantirWindow:
       ctcp = ('UNDM',None)
 
     self.factory.SendCTCP(self.factory.channels[0], [ctcp])
-    self.messageReceive(None, self.factory.channels[0], text)
+    self.chatWindow.DisplayText(time, text)
     store.foreach(self.setUserIcon, (self.factory.nickname, image.get_pixbuf()))
 
   ### Color Selection Dialog ###
@@ -296,33 +191,36 @@ class PalantirWindow:
       nicks = []
       text = self.tree.get_widget('SendField').get_text()
       model = self.tree.get_widget('UserList').get_model()
-      iter = model.get_iter_root()
+      model.foreach(self.getUsers, nicks)
+      matched = palantir.nickComplete(text, nicks)
+
+      self.tree.get_widget('SendField').set_text(matched[0])
+      self.tree.get_widget('SendField').set_position(-1)
+
+      if len(matched) > 1:
+	self.messageReceive(None, self.factory.channels[0], string.join(nicks[1:]))
 
       # If we got a valid iter from the treeview.
-      if iter:
+      #if iter:
 	# Loop through the nicks looking for any that contain the substring.
-	while iter:
-	  if model.get_value(iter, 1).find(text) != -1:
+	#while iter:
+	  #if model.get_value(iter, 1).find(text) != -1:
 	    # If we find a match add it to the list of possibles.
-	    nicks.append(model.get_value(iter, 1))
-	  iter = model.iter_next(iter)
+	    #nicks.append(model.get_value(iter, 1))
+	  #iter = model.iter_next(iter)
 
 	# If we've only got one match put it in the send field.
-        if len(nicks) == 1:
-	  self.tree.get_widget('SendField').set_text(nicks[0] + ': ')
+        #if len(nicks) == 1:
+	  #self.tree.get_widget('SendField').set_text(nicks[0] + ': ')
 
 	# Multiple matches get displayed in the chat buffer.
-	elif len(nicks) > 1:
-	  self.messageReceive(None, self.factory.channels[0], string.join(nicks))
-      self.tree.get_widget('SendField').set_position(-1)
+	#elif len(nicks) > 1:
+	  #self.messageReceive(None, self.factory.channels[0], string.join(nicks))
+      #self.tree.get_widget('SendField').set_position(-1)
       # If we do our nick completion don't call the default handler.
       return gtk.TRUE
 
     return gtk.FALSE
-
-  def on_ChannelTabs_switch_page(self, widget, data, tab):
-    ''' When the current tab is changed, update self.currentTab to reflect that. '''
-    self.currentTab = self.tree.get_widget('ChannelTabs').get_nth_page(tab)
 
   def on_Topic_activate(self, widget, data=None):
     ''' Change the topic. '''
@@ -405,6 +303,74 @@ class PalantirWindow:
     self.messageReceive(None, None, '*** You disconnected.')
     self.Disconnect()
 
+  ### Must be implemented for palantirIRC to work.  These methods are called by the
+  ### the client when it receives certain events and needs to display them in the UI.
+  def messageReceive(self, user, channel, msg):
+    ''' This handles the formatting of regular conversation.  Gets the nick of the
+        person who said it, encloses it in <>, if timestamps are visible it grabs
+	the formatted time and determines if we need to highlight the nick. It sends
+	all this to the chat buffer UI.
+	'''
+    time,text,addressed = palantir.formatMessage(user, msg,
+	                                         ourName=self.factory.nickname)
+    self.chatWindow.DisplayText(time, text, addressed)
+
+  def meReceive(self, user, channel, msg):
+    ''' When someone does a '/me' display the action. '''
+    time,text,addressed = palantir.formatMessage(user, msg,
+	                                         True, self.factory.nickname)
+    self.chatWindow.DisplayText(time, text, addressed)
+
+  def nickReceive(self, oldNick, channel, newNick):
+    ''' When someone changes a nick display it. '''
+    time = palantir.getTime()
+    self.chatWindow.DisplayText(time, oldNick + ' is now known as ' + newNick)
+
+  def topicReceive(self, user, channel, topic):
+    ''' Recieved a topic change, so set the topic bar to the new topic. '''
+    self.tree.get_widget('Topic').set_text(topic)
+
+  # CTCP messages.
+  def DM(self, user, channel, data):
+    ''' The user who sent this message has DM status, so we display that icon next to their
+        name in the user list.
+	'''
+    nick = palantir.getNick(user, False)
+    time = palantir.getTime()
+    image = gtk.Image()
+    image.set_from_file('/usr/share/palantir/pixmaps/dm.png')
+    self.tree.get_widget('UserList').get_model().foreach(self.setUserIcon, (nick, image.get_pixbuf()))
+    self.chatWindow.DisplayText(time, '*** ' + nick + ' now had DM status.')
+
+  def UNDM(self, user, channel, data):
+    ''' The user who sent this message has removed DM status from themselves, so remove the
+        icon from next to their name.
+	'''
+    nick = palantir.getNick(user, False)
+    time = palantir.getTime()
+    self.tree.get_widget('UserList').get_model().foreach(self.setUserIcon, (nick, None))
+    self.chatWindow.DisplayText(time, '*** ' + nick + ' has removed DM status.')
+
+  def DMQUERY(self, user, channel, data):
+    ''' This is a request for our DM status.  If we have ourselves marked as DM we send a
+        send a CTCP DM message to the person who made the query, otherwise do nothing.
+	'''
+    if self.tree.get_widget('dungeon_master').get_active():
+      self.factory.SendCTCP(self.GetNick(user), [('DM',None)])
+
+  def ROLL(self, user, channel, data):
+    ''' Someone rolled some dice, so we'll format the results and display. '''
+    time,text = palantir.formatRoll(user, *self.dieRoller.getData(data))
+    #data = re.search('(\[.*\]) ([0-9]*) ([0-9]*)', messages[0][1])
+    #text = nick + ' rolled a ' + str(len(data.group(1).split())) + 'd' + data.group(2) + ': ' + data.group(1) + ' => ' + data.group(3)
+    #self.messageReceive(None, channel, text)
+    self.chatWindow.DisplayText(time, text)
+
+  def unknownCTCP(self, user, channel, data):
+    ''' Any non-specific ctcp message just gets displayed as text. '''
+    time,text = palantir.formatCTCP(user, channel, data)
+    self.chatWindow.DisplayText(time, text)
+
   ### Misc. Necessary Functions ###
   def ConnectionDialog(self):
     ''' Brings up a small dialog for creating a connection, prompts for a server and a
@@ -478,6 +444,11 @@ class PalantirWindow:
     reactor.connectTCP(server, 6667, self.factory)
     reactor.run()
 
+  def Disconnect(self):
+    ''' Disconnect from the current server. '''
+    self.factory.quit()
+    self.tree.get_widget('UserList').get_model().clear()
+
   def OpenSheet(self, widget, data=None):
     ''' Open up a character sheet in the client. '''
     # Store the character data.
@@ -521,21 +492,6 @@ class PalantirWindow:
     self.chatWindow.DisplayText(time, '', 'You rolled a ' + str(len(rolls)) + 'd' + str(sides) + ': ' + str(rolls) + ' => ' + str(total) + '\n')
 
   ### Formatting stuff. ###
-  def GetTime(self):
-    ''' Return the local hour, minute and seconds. '''
-    time = localtime()
-
-    hour = str(time[3])
-    if len(hour) is 1: hour = '0'+hour
-
-    min = str(time[4])
-    if len(min) is 1: min = '0'+min
-
-    sec = str(time[5])
-    if len(sec) is 1: sec = '0'+sec
-
-    return (hour, min, sec)
-
   def setUserIcon(self, listStore, path, iter, data):
     ''' Sets the icon next to the username in the userlist, return gtk.TRUE if and when we find the
         user specified in data, return gtk.FALSE otherwise.  data is a list or tuple of
@@ -552,18 +508,3 @@ class PalantirWindow:
       return gtk.TRUE
     else:
       return gtk.FALSE
-
-  def Disconnect(self):
-    ''' Disconnect from the current server. '''
-    self.factory.quit()
-    self.tree.get_widget('UserList').get_model().clear()
-
-  def GetFormattedTime(self):
-    ''' Uses GetTime to retrieve the current time, but formats it in an xchat way. '''
-    hour, min, sec = self.GetTime()
-    time = '[' + hour + ':' + min + ':' + sec + '] '
-    return time
-
-  def GetNick(self, user):
-    ''' Separates out the nick from the long string returned by IRC. '''
-    return re.search('([^!]*).*', user).group(1)
