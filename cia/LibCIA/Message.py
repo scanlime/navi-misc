@@ -432,7 +432,8 @@ class FormatterFactory:
             try:
                 if issubclass(obj, Formatter):
                     self.nameMap[name] = obj
-                    self.mediumMap.setdefault(obj.medium, []).append(obj)
+                    if obj.detector and obj.medium:
+                        self.mediumMap.setdefault(obj.medium, []).append(obj)
             except TypeError:
                 pass
 
