@@ -253,6 +253,9 @@ class SpreadDirectory(SpreadFileBase):
            the most recent mtime isn't enough to detect all changes.
            """
         path = self.fs.diskSet.find(self.path)
+        if path is None:
+            return
+
         st = os.stat(path)
         self.mode = st.st_mode | pinefs.fsbase.typ_to_mode[self.type]
         self.uid = st.st_uid
