@@ -93,9 +93,9 @@ void fe_timeout_remove(int tag) {
 
 void fe_new_window(struct session *sess) {
 	if(sess->type == SESS_SERVER)
-		navigation_tree_create_new_network_entry(sess);
+		navigation_tree_create_new_network_entry(gui.server_tree, sess);
 	else if(sess->type == SESS_CHANNEL || sess->type == SESS_DIALOG)
-		navigation_tree_create_new_channel_entry(sess);
+		navigation_tree_create_new_channel_entry(gui.server_tree, sess);
 	text_gui_add_text_buffer(sess);
 }
 
@@ -143,7 +143,7 @@ void fe_set_topic(struct session *sess, char *topic) {
 }
 
 void fe_set_hilight(struct session *sess) {
-	navigation_tree_set_hilight(sess);
+	navigation_model_set_hilight(gui.tree_model, sess);
 }
 
 void fe_set_tab_color(struct session *sess, int col, int flash) {
@@ -196,7 +196,8 @@ void fe_text_clear(struct session *sess) {
 }
 
 void fe_close_window(struct session *sess) {
-	navigation_tree_remove(sess);
+	if (!gui.quit)
+  	navigation_tree_remove(gui.server_tree, sess);
 	kill_session_callback(sess);
 }
 
@@ -214,7 +215,7 @@ void fe_print_text(struct session *sess, char *text) {
 		return;
 	text_gui_print(tgui->buffer, text, TRUE);
 	sess->new_data = TRUE;
-	navigation_tree_set_hilight(sess);
+	navigation_model_set_hilight(gui.tree_model, sess);
 }
 
 void fe_userlist_insert(struct session *sess, struct User *newuser, int row, int sel) {
@@ -249,7 +250,7 @@ void fe_dcc_add(struct DCC *dcc) {
 			break;
 
 		default:
-		break;
+		  break;
 	}
 }
 
@@ -261,7 +262,7 @@ void fe_dcc_update(struct DCC *dcc) {
 			break;
 
 		default:
-		break;
+		  break;
 	}
 }
 
@@ -274,7 +275,7 @@ void fe_dcc_remove(struct DCC *dcc) {
 			break;
 
 		default:
-	  break;
+		  break;
 	}
 }
 
@@ -291,7 +292,7 @@ int fe_dcc_open_chat_win(int passive) {
 }
 
 void fe_clear_channel(struct session *sess) {
-	navigation_tree_set_disconn(sess);
+	navigation_model_set_disconn(gui.tree_model, sess);
 }
 
 void fe_session_callback(struct session *sess) {
@@ -325,7 +326,7 @@ void fe_dcc_send_filereq(struct session *sess, char *nick, int maxcps, int passi
 }
 
 void fe_set_channel(struct session *sess) {
-	navigation_tree_set_channel_name(sess);
+	navigation_tree_set_channel_name(gui.server_tree, sess);
 }
 
 void fe_set_title(struct session *sess) {
@@ -448,4 +449,11 @@ void fe_ctrl_gui(session *sess, int action, int arg) {
 
 void
 fe_confirm (const char *message, void (*yesproc)(void *), void (*noproc)(void *), void *ud) {
+}
+
+int
+fe_gui_info (session *sess, int info_type)
+{
+	/* FIXME: implement */
+	return -1;
 }

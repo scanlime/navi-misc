@@ -32,6 +32,7 @@ typedef struct
 {
   GtkListStore *liststore;
   GCompletion *completion;
+	GList *completion_items;
 } Store;
 
 GType
@@ -110,6 +111,7 @@ create_userlist (Userlist *userlist, session *sess)
 
   store->liststore = gtk_list_store_new (4, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_POINTER, GDK_TYPE_COLOR);
   store->completion = g_completion_new (NULL);
+	store->completion_items = NULL;
 
   g_hash_table_insert (userlist->stores, sess, store);
   return store;
@@ -164,7 +166,7 @@ userlist_insert (Userlist *userlist, session *sess, struct User *newuser, int ro
   Store *store = (Store*) g_hash_table_lookup (userlist->stores, sess);
   GtkTreeIter iter;
   GdkPixbuf *icon;
-  GList *items;
+	GList *item;
 
   if (!store)
     store = create_userlist (userlist, sess);
@@ -174,9 +176,9 @@ userlist_insert (Userlist *userlist, session *sess, struct User *newuser, int ro
   gtk_list_store_insert (store->liststore, &iter, row);
   gtk_list_store_set (store->liststore, &iter, 0, icon, 1, newuser->nick, 2, newuser, 3, newuser->away ? &colors[23] : NULL, -1);
 
-  items = g_list_append (NULL, newuser->nick);
-  g_completion_add_items (store->completion, items);
-  g_list_free (items);
+  item = g_list_append (NULL, newuser->nick);
+  g_completion_add_items (store->completion, item);
+  store->completion_items = g_list_concat (store->completion_items, item);
 }
 
 static GtkTreeIter*
@@ -203,7 +205,7 @@ userlist_remove (Userlist *userlist, session *sess, struct User *user)
 {
   Store *store = (Store*) g_hash_table_lookup (userlist->stores, sess);
   GtkTreeIter *iter;
-  GList *items;
+  GList *item;
 
   g_return_val_if_fail (store != NULL, FALSE);
 
@@ -213,9 +215,10 @@ userlist_remove (Userlist *userlist, session *sess, struct User *user)
 
   gtk_list_store_remove (store->liststore, iter);
 
-  items = g_list_append (NULL, user->nick);
-  g_completion_remove_items (store->completion, items);
-  g_list_free (items);
+  item = g_list_find_custom (store->completion_items, user->nick, (GCompareFunc) strcmp);
+	store->completion_items = g_list_remove_link (store->completion_items, item);
+  g_completion_remove_items (store->completion, item);
+  g_list_free (item);
 
   return TRUE;
 }
@@ -226,22 +229,23 @@ userlist_update (Userlist *userlist, session *sess, struct User *user)
   Store *store = g_hash_table_lookup (userlist->stores, sess);
   GtkTreeIter *iter;
   gchar *nick;
-  GList *items;
+  GList *item;
 
   g_assert (store != NULL);
 
   iter = find_user (store, user);
   gtk_tree_model_get (GTK_TREE_MODEL (store->liststore), iter, 1, &nick, -1);
 
-  items = g_list_append (NULL, nick);
-  g_completion_remove_items (store->completion, items);
-  g_list_free (items);
+  item = g_list_find_custom (store->completion_items, nick, (GCompareFunc) strcmp);
+	store->completion_items = g_list_remove_link (store->completion_items, item);
+	g_completion_remove_items (store->completion, item);
+	g_list_free (item);
 
   gtk_list_store_set (store->liststore, iter, 1, user->nick, 3, user->away ? &colors[23] : NULL, -1);
 
-  items = g_list_append (NULL, user->nick);
-  g_completion_add_items (store->completion, items);
-  g_list_free (items);
+	item = g_list_append (NULL, user->nick);
+  g_completion_add_items (store->completion, item);
+  store->completion_items = g_list_concat (store->completion_items, item);
 }
 
 void

@@ -2377,6 +2377,8 @@ xtext2_show_buffer (XText2 *xtext, XTextBuffer *buffer)
 
   gdk_drawable_get_size (GTK_WIDGET (xtext)->window, &w, &h);
 
+  xtext->priv->current_buffer = buffer;
+
   if (f == NULL)
   {
     textentry *ent;
@@ -2391,9 +2393,6 @@ xtext2_show_buffer (XText2 *xtext, XTextBuffer *buffer)
     }
   }
 
-
-  /* FIXME: recalc stuff! */
-  xtext->priv->current_buffer = buffer;
   xtext->adj->value = f->old_adj;
   xtext->adj->upper = f->num_lines;
   if (xtext->adj->upper == 0)

@@ -29,6 +29,7 @@
 
 gboolean userlist_click(GtkWidget *view, GdkEventButton *event, gpointer data);
 void userlist_context(GtkWidget *treeview, struct User *user);
+GtkTooltips *tooltips;
 
 void initialize_userlist() {
 	GtkWidget *userlist_view;
@@ -49,33 +50,9 @@ void initialize_userlist() {
 	gtk_tree_selection_set_mode(select, GTK_SELECTION_SINGLE);
 	/* FIXME: selection signal */
 
+	tooltips = gtk_tooltips_new();
+
 	g_signal_connect(G_OBJECT(userlist_view), "button_press_event", G_CALLBACK(userlist_click), NULL);
-}
-
-gboolean userlist_click(GtkWidget *view, GdkEventButton *event, gpointer data) {
-	GtkTreePath *path;
-	GtkTreeSelection *select;
-	if(!event)
-		return FALSE;
-
-	if(event->type == GDK_2BUTTON_PRESS) {
-		g_print("double click!\n");
-		return TRUE;
-	}
-
-	if(event->button == 3) {
-		if(gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(view), event->x, event->y, &path, 0, 0, 0)) {
-			select = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
-			gtk_tree_selection_unselect_all(select);
-			gtk_tree_selection_select_path(select, path);
-			gtk_tree_path_free(path);
-		}
-		struct User *u = userlist_get_selected();
-		if(u != NULL)
-			userlist_context(view, u);
-		return TRUE;
-	}
-	return FALSE;
 }
 
 struct User *userlist_get_selected() {
@@ -92,6 +69,38 @@ struct User *userlist_get_selected() {
 		return u;
 	}
 	return NULL;
+}
+
+gboolean userlist_click(GtkWidget *view, GdkEventButton *event, gpointer data) {
+	GtkTreePath *path;
+	GtkTreeSelection *select;
+	if(!event)
+		return FALSE;
+
+	if(event->type == GDK_2BUTTON_PRESS) {
+		if(gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(view), event->x, event->y, &path, 0, 0, 0)) {
+			g_print("double click!\n");
+	    		gtk_tooltips_set_tip (GTK_TOOLTIPS(tooltips),
+					      view,
+					      "hi", "woof");
+			gtk_tooltips_enable (GTK_TOOLTIPS(tooltips));
+			return TRUE;
+		}
+	}
+
+	if(event->button == 3) {
+		if(gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(view), event->x, event->y, &path, 0, 0, 0)) {
+			select = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
+			gtk_tree_selection_unselect_all(select);
+			gtk_tree_selection_select_path(select, path);
+			gtk_tree_path_free(path);
+		}
+		struct User *u = userlist_get_selected();
+		if(u != NULL)
+			userlist_context(view, u);
+		return TRUE;
+	}
+	return FALSE;
 }
 
 void userlist_context(GtkWidget *treeview, struct User *user) {

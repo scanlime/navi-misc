@@ -46,14 +46,22 @@ gboolean initialize_gui_1() {
 }
 
 gboolean initialize_gui_2() {
+	GtkWidget *widget;
+
 	gui.current_session = NULL;
 	pixmaps_init();
 	initialize_main_window();
 	initialize_text_gui();
 	initialize_preferences_dialog();
 	initialize_connection_dialog();
-	initialize_navigation_tree();
 	initialize_userlist();
 	initialize_transfers_window();
+
+	gui.tree_model = navigation_model_new();
+	gui.server_tree = navigation_tree_new(gui.tree_model);
+	widget = glade_xml_get_widget(gui.xml, "server channel list");
+	gtk_widget_show(GTK_WIDGET(gui.server_tree));
+	gtk_container_add(GTK_CONTAINER(widget), GTK_WIDGET(gui.server_tree));
+
 	return TRUE;
 }

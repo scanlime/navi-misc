@@ -146,13 +146,13 @@ void initialize_preferences_colors_page() {
 	gtk_combo_box_append_text(GTK_COMBO_BOX(color_schemes), "Black on White");
 	gtk_combo_box_append_text(GTK_COMBO_BOX(color_schemes), "White on Black");
 	gtk_combo_box_append_text(GTK_COMBO_BOX(color_schemes), "Custom");
-	gtk_combo_box_set_active(GTK_COMBO_BOX(color_schemes), preferences_get_color_scheme());
 	g_signal_connect(G_OBJECT(color_schemes), "changed", G_CALLBACK(colors_changed), (gpointer) color_buttons);
+	gtk_combo_box_set_active(GTK_COMBO_BOX(color_schemes), preferences_get_color_scheme());
 	palette_schemes = gtk_combo_box_new_text();
 	gtk_combo_box_append_text(GTK_COMBO_BOX(palette_schemes), "X-Chat Default");
 	gtk_combo_box_append_text(GTK_COMBO_BOX(palette_schemes), "Custom");
-	gtk_combo_box_set_active(GTK_COMBO_BOX(palette_schemes), preferences_get_palette_scheme());
 	g_signal_connect(G_OBJECT(palette_schemes), "changed", G_CALLBACK(palette_changed), (gpointer) palette_buttons);
+	gtk_combo_box_set_active(GTK_COMBO_BOX(palette_schemes), preferences_get_palette_scheme());
 
 	hbox = glade_xml_get_widget(gui.xml, "foreground background hbox");
 	gtk_box_pack_start(GTK_BOX(hbox), color_schemes, FALSE, TRUE, 0);
