@@ -29,6 +29,8 @@
 #include "events.h"
 #include "osfile.h"
 
+#include "input.h"
+
 // C RunTime Header Files
 #include <stdlib.h>
 #include <map>
@@ -92,7 +94,7 @@ void CBaseGameLoop::ClearScene ( void )
 	MeshManager::getSingleton().unloadAndDestroyAll();
 	CreateCamera();
 	CreateViewports();
-	input.Init(GetRenderWindow());
+	CInputManager::instance().Init(GetRenderWindow());
 	showDebugOverlay(showDebug);
 }
 
@@ -112,7 +114,7 @@ bool CBaseGameLoop::Run ( void )
 
   TextureManager::getSingleton().setDefaultNumMipMaps(5);
 
-	input.Init(GetRenderWindow());
+	CInputManager::instance().Init(GetRenderWindow());
   timer.Init();
 	
 	// set up the draw manager
@@ -237,7 +239,7 @@ bool CBaseGameLoop::Process ( void )
 {
   bool bDone = false;
 
-  input.Process();
+  CInputManager::instance().Process();
   timer.Update();
 	
   if (!bDone)

@@ -21,17 +21,14 @@
 */
 #include "ui.h"
 
+#include "firestarter.h"
+#include "input.h"
+
 // the individual menu items
 #include "mainMenu.h"
 
 CUserInterface::CUserInterface()
 {
-	gameLoop = NULL;
-}
-
-CUserInterface::CUserInterface ( CBaseGameLoop * pGameLoop )
-{
-	Set(pGameLoop);
 }
 
 CUserInterface::~CUserInterface()
@@ -46,10 +43,6 @@ CUserInterface::~CUserInterface()
 	panelStack.clear();
 }
 
-void CUserInterface::Set ( CBaseGameLoop * pGameLoop )
-{
-	gameLoop = pGameLoop;
-}
 
 void CUserInterface::Init ( void )
 {
@@ -64,7 +57,7 @@ void CUserInterface::LoadPanels ( void )	// load and init all panels
 
 	panelmap::iterator itr = panels.begin();
 	while (itr != panels.end())
-		(itr++)->second->Init(gameLoop);
+		(itr++)->second->Init();
 
 	panelStack.push_back(panels["mainMenu"]);
 }
@@ -82,7 +75,9 @@ void CUserInterface::Release ( void )	// let the panel display go, we are going 
 
 bool CUserInterface::Think ( void )
 {
-	bool quit = gameLoop->GetInput().KeyDown(KEY_ESCAPE);	//kinda lame but it's what we do during dev, one key to bail
+	CFirestarterLoop &gameLoop = CFirestarterLoop::instance();
+
+	bool quit = CInputManager::instance().KeyDown(KEY_ESCAPE);	//kinda lame but it's what we do during dev, one key to bail
 	bool exitUI = false;	// do we exit to the game or not?
 
 	if (!quit)
@@ -132,7 +127,7 @@ bool CUserInterface::Think ( void )
 	}
 
 	if (quit)	// tell the game loop to exit the app
-		gameLoop->SetQuit(true);
+		gameLoop.SetQuit(true);
 
 	return exitUI;
 }

@@ -23,7 +23,6 @@
 #ifndef _UI_H_
 #define _UI_H_
 
-#include "gameloop.h"
 #include <string>
 #include <map>
 #include <vector>
@@ -40,26 +39,23 @@ typedef enum
 class CBaseUIPanel
 {
 public:
-	CBaseUIPanel(){gameLoop = NULL;}
+	CBaseUIPanel(){return;}
 	virtual ~CBaseUIPanel(){return;}
 
-	virtual Init ( CBaseGameLoop * pGameLoop ){gameLoop = pGameLoop;}
+	virtual void Init ( void ){return;}
 	virtual void Attach ( void ) = 0;
 	virtual void Release ( void ) = 0;
 	virtual tePanelReturn Process ( std::string &next ) = 0;
 
 protected:
-	CBaseGameLoop * gameLoop;
 };
 
 class CUserInterface
 {
 public:
 		CUserInterface();
-		CUserInterface ( CBaseGameLoop * pGameLoop );
 		~CUserInterface();
 
-		void Set ( CBaseGameLoop * pGameLoop );
 
 		void Init ( void );
 		void Attach ( void );
@@ -70,7 +66,6 @@ public:
 protected:
 	void LoadPanels ( void );
 
-	CBaseGameLoop * gameLoop;
 	std::vector<CBaseUIPanel*>	panelStack;
 
 	typedef std::map<std::string, CBaseUIPanel*>	panelmap;

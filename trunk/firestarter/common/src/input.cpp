@@ -24,6 +24,9 @@
 
 // base input manager
 
+template <>
+CInputManager* Singleton<CInputManager>::_instance = (CInputManager*)0;
+
 class CBaseDeviceAction
 {
 public:

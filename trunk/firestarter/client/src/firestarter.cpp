@@ -21,6 +21,11 @@
 */
 
 #include "firestarter.h"
+#include "input.h"
+
+template <>
+CFirestarterLoop* Singleton<CFirestarterLoop>::_instance = (CFirestarterLoop*)0;
+
 
 CFirestarterLoop::CFirestarterLoop()
 {
@@ -43,7 +48,6 @@ bool CFirestarterLoop::OnInit ( void )
 	inUI = !args.GetDataB("forceGame");
 
 	// init the shit
-	ui.Set(this);
 	ui.Init();
 	game.Set(this);
 	game.Init();
@@ -102,7 +106,7 @@ bool CFirestarterLoop::GameLoop ( void )
 {
 	// check for sreenshot
 	float togleTime = 0.5f;
-	if (GetInput().KeyDown(KEY_SYSRQ) && (lastScreenShotTime < GetTimer().GetTime()+togleTime))
+	if (CInputManager::instance().KeyDown(KEY_SYSRQ) && (lastScreenShotTime < GetTimer().GetTime()+togleTime))
 	{
 		char tmp[20];
 		sprintf(tmp, "screenshot_%d.png", ++numScreenShots);

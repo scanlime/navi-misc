@@ -25,7 +25,7 @@
 #define _MAIN_MENU_H_
 
 #include "ui.h"
-
+#include "gameloop.h"
 
 class CMainMenu : public CBaseUIPanel
 {
@@ -33,7 +33,7 @@ public:
 	CMainMenu();
 	virtual ~CMainMenu();
 
-	virtual Init ( CBaseGameLoop * pGameLoop );
+	virtual void Init ( void  );
 	virtual void Attach ( void );
 	virtual void Release ( void );
 	virtual tePanelReturn Process ( std::string &next );
