@@ -27,26 +27,30 @@ static void navigation_tree_class_init (NavTreeClass *klass);
 static void navigation_tree_dispose    (GObject *object);
 static void navigation_tree_finalize   (GObject *object);
 
+/* Callback. */
 void navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_data);
 
 GType
 navigation_tree_get_type (void)
 {
   static GType navigation_tree_type = 0;
+
+	/* If we haven't registered the type yet. */
   if (!navigation_tree_type) {
     static const GTypeInfo navigation_tree_info =
     {
       sizeof (NavTreeClass),
-      NULL,
-      NULL,
+      NULL, /* base init. */
+      NULL, /* base finalize. */
       (GClassInitFunc) navigation_tree_class_init,
-      NULL,
-      NULL,
+      NULL, /* class finalize. */
+      NULL, /* class data. */
       sizeof (NavTree),
-      0,
+      0,    /* n_preallocs. */
       (GInstanceInitFunc) navigation_tree_init,
     };
 
+		/* Register the type. */
     navigation_tree_type = g_type_register_static(G_TYPE_OBJECT, "NavTree", &navigation_tree_info, 0);
   }
 
@@ -104,6 +108,7 @@ click(GtkWidget *treeview, GdkEventButton *event, gpointer data)
 			gtk_tree_path_free(path);
 		}
 
+		/* FIXME */
 		/*session *s = navigation_get_selected();
 		if(s != NULL)
 			navigation_context(treeview, s);*/
@@ -133,26 +138,35 @@ navigation_tree_new (NavModel *model)
   GtkTreeViewColumn *column;
   GtkTreeSelection *select;
 
-  /* FIXME: something tells me this is a horrible idea. */
-  new_tree->parent = *GTK_TREE_VIEW(glade_xml_get_widget(gui.xml, "server channel list"));
-
+	/* Create the new NavTree. */
 	new_tree = NAVTREE(g_object_new(navigation_tree_get_type(), NULL));
+
+	/* Assign a NavModel to the NavTree. */
 	new_tree->model = model;
   gtk_tree_view_set_model(GTK_TREE_VIEW(new_tree), new_tree->model->sorted);
 
+	/* FIXME: I think this sets our NavTree's parent to point to the server channel list. */
+	(GtkTreeView*)new_tree = glade_xml_get_widget(gui.xml, "server channel list");
+
+	/* This sets up all our columns. */
   column = gtk_tree_view_column_new();
   icon_renderer = gtk_cell_renderer_pixbuf_new();
   text_renderer = gtk_cell_renderer_text_new();
+	/* Icon columns. */
   gtk_tree_view_column_pack_start(column, icon_renderer, FALSE);
   gtk_tree_view_column_set_attributes(column, icon_renderer, "pixbuf", 0, NULL);
+	/* text columns. */
   gtk_tree_view_column_pack_start(column, text_renderer, TRUE);
   gtk_tree_view_column_set_attributes(column, text_renderer, "text", 1, "foreground-gdk", 4, NULL);
+	/* Add the column to the TreeView. */
   gtk_tree_view_append_column(GTK_TREE_VIEW(new_tree),column);
 
+	/* Set our selction mode. */
   select = gtk_tree_view_get_selection(GTK_TREE_VIEW(new_tree));
   gtk_tree_selection_set_mode(select, GTK_SELECTION_SINGLE);
-/*
-  g_signal_connect(G_OBJECT(select), "changed", G_CALLBACK(navigation_selection_changed), NULL);*/
+
+	/* Connect the callbacks. */
+  /*g_signal_connect(G_OBJECT(select), "changed", G_CALLBACK(navigation_selection_changed), NULL);*/
   g_signal_connect(G_OBJECT(new_tree), "button_press_event", G_CALLBACK(click), NULL);
   g_signal_connect(G_OBJECT(new_tree), "button_release_event", G_CALLBACK(declick), NULL);
 
@@ -173,20 +187,23 @@ GType
 navigation_model_get_type (void)
 {
   static GType navigation_model_type = 0;
+
+	/* If we haven't registered our type yet. */
   if (!navigation_model_type) {
     static const GTypeInfo navigation_model_info =
     {
       sizeof (NavTreeClass),
-      NULL,
-      NULL,
+      NULL, /* base init. */
+      NULL, /* base finalize. */
       (GClassInitFunc) navigation_model_class_init,
-      NULL,
-      NULL,
+      NULL, /* class_finalize. */
+      NULL, /* class_data. */
       sizeof(NavModel),
-      0,
+      0,    /* n_preallocs. */
       (GInstanceInitFunc) navigation_model_init,
     };
 
+		/* Register the type. */
     navigation_model_type = g_type_register_static(G_TYPE_OBJECT, "NavModel", &navigation_model_info, 0);
   }
 
