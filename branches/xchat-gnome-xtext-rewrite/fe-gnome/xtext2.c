@@ -21,6 +21,7 @@ inline static int backend_get_char_width (XText2 *xtext, unsigned char *str, int
 static void       backend_font_open      (XText2 *xtext, char *name);
 static void       backend_font_close     (XText2 *xtext);
 static int        backend_get_text_width (XText2 *xtext, char *str, int len, gboolean multibyte);
+static void       backend_draw_text      (XText2 *xtext, gboolean fill, GdkGC *gc, int x, int y, char *str, int len, int width, gboolean multibyte);
 
 static void       paint                  (GtkWidget *widget, GdkRectangle *area);
 static void       render_page            (XText2 *xtext);
@@ -82,6 +83,8 @@ struct _XText2Private
   gboolean     word_wrap;            /* wrap words? */
   int          fontsize;             /* width in pixels of the space ' ' character */
   gulong       palette[20];          /* color palette */
+  gboolean     overdraw: TRUE;       /* draw twice */
+  gboolean     bold: TRUE;           /* draw in bold? */
 
   /* drawing data */
   gint         depth;                /* gdk window depth */
@@ -516,7 +519,7 @@ backend_font_open (XText2 *xtext, char *name)
   {
     font = XftFontOpenName (xdisplay, screen, name);
     if (font == NULL)
-      font = XftFontOpenName (xdisplay, screen, "sans-12");
+      font = XftFontOpenName (xdisplay, screen, "sans-11");
   }
   xtext->priv->font->font = font;
 }
@@ -530,6 +533,11 @@ backend_font_close (XText2 *xtext)
 
 static int
 backend_get_text_width (XText2 *xtext, char *str, int len, gboolean multibyte)
+{
+}
+
+static void
+backend_draw_text (XText2 *xtext, gboolean fill, GdkGC *gc, int x, int y, char *str, int len, int width, gboolean multibyte)
 {
 }
 
@@ -578,6 +586,40 @@ backend_get_char_width (XText2 *xtext, unsigned char *str, int *mbl_ret)
 static void
 backend_font_open (XText2 *xtext, char *name)
 {
+  PangoLanguage *lang;
+  PangoContext *context;
+  PangoFontMetrics *metrics;
+
+  xtext->priv->font = &xtext->priv->pango_font;
+
+  xtext->priv->font->font = pango_font_description_from_string (name);
+  if (!xtext->priv->font->font)
+    xtext->priv->font->font = pango_font_description_from_string ("sans 11");
+
+  if (xtext->priv->font->font)
+  {
+    if (pango_font_description_get_size (xtext->priv->font->font) == 0)
+    {
+      pango_font_description_free (xtext->priv->font->font);
+      xtext->priv->font->font = pango_font_description_from_string ("sans 11");
+    }
+  }
+  else
+  {
+    xtext->priv->font = NULL;
+    return;
+  }
+
+  backend_init (xtext);
+  pango_layout_set_font_description (xtext->priv->layout, xtext->priv->font->font);
+
+  /* vte does it this way */
+  context = gtk_widget_get_pango_context (GTK_WIDGET (xtext));
+  lang = pango_context_get_language (context);
+  metrics = pango_context_get_metrics (context, xtext->priv->font->font, lang);
+  xtext->priv->font->ascent  = pango_font_metrics_get_ascent  (metrics) / PANGO_SCALE;
+  xtext->priv->font->descent = pango_font_metrics_get_descent (metrics) / PANGO_SCALE;
+  pango_font_metrics_unref (metrics);
 }
 
 static void
@@ -602,6 +644,44 @@ backend_get_text_width (XText2 *xtext, char *str, int len, gboolean multibyte)
   pango_layout_get_pixel_size (xtext->priv->layout, &width, NULL);
 
   return width;
+}
+
+static void
+backend_draw_text (XText2 *xtext, gboolean fill, GdkGC *gc, int x, int y, char *str, int len, int width, gboolean multibyte)
+{
+  GdkGCValues val;
+  GdkColor col;
+  PangoLayoutLine *line;
+
+  pango_layout_set_text (xtext->priv->layout, str, len);
+
+  if (fill)
+  {
+#ifdef WIN32
+    if (xtext->priv->transparent && !xtext->priv->backcolor)
+    {
+      win32_draw_bg (xtext, x, y - xtext->priv->font->ascent, width, xtext->priv->fontsize);
+    }
+    else
+#endif
+    {
+      gdk_gc_get_values (gc, &val);
+      col.pixel = val.background.pixel;
+      gdk_gc_set_foreground (gc, &col);
+      gdk_draw_rectangle (xtext->priv->draw_buffer, gc, 1, x, y - xtext->priv->font->ascent, width, xtext->priv->fontsize);
+      col.pixel = val.foreground.pixel;
+      gdk_gc_set_foreground (gc, &col);
+    }
+  }
+
+  line = pango_layout_get_lines (xtext->priv->layout)->data;
+  gdk_draw_layout_line_with_colors (xtext->priv->draw_buffer, gc, x, y, line, 0, 0);
+
+  if (xtext->priv->overdraw)
+    gdk_draw_layout_line_with_colors (xtext->priv->draw_buffer, gc, x, y, line, 0, 0);
+
+  if (xtext->priv->bold)
+    gdk_draw_layout_line_with_colors (xtext->priv->draw_buffer, gc, x + 1, y, line, 0, 0);
 }
 
 #endif
