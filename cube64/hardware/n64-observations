@@ -21,46 +21,56 @@ Command summary:
 Expansion bus pinout, numbered according to the silkscreen markings
 on the controller's PCB:
 
-  1   Ground
-  2   A14
-  3   A12
-  4   A7
-  5   A6
-  6   A5
-  7   A4
-  8   A3
-  9   A2
-  10  A1
-  11  A0
-  12  D0
-  13  D1
-  14  Unknown 0
-  15  3.3v
-  16  D2
+  Pin   Name      Note
+-----------------------
+  1     Ground
+  2     A14       (1)
+  3     A12
+  4     A7
+  5     A6
+  6     A5
+  7     A4
+  8     A3
+  9     A2
+  10    A1
+  11    A0
+  12    D0
+  13    D1
+  14    Detect    (2)
+  15    3.3v
+  16    D2
 
-  17  Ground
-  18  Unknown 1
-  19  Unknown 2
-  20  /WE
-  21  A13
-  22  A8
-  23  A9
-  24  A11
-  25  /OE
-  26  A10
-  27  D7
-  28  D6
-  29  D5
-  30  D4
-  31  3.3v
-  32  D3
+  17    Ground
+  18    Unknown 1
+  19    Unknown 2
+  20    /WE
+  21    A13
+  22    A8
+  23    A9
+  24    A11
+  25    /OE
+  26    A10
+  27    D7
+  28    D6
+  29    D5
+  30    D4
+  31    3.3v
+  32    D3
 
-With 15 address lines, that gives standard memory paks a 32k capacity.
-The Nyko Hyperpak tested has 128k of SRAM, but includes a switch that
-selects between four 32k banks.
+ Note 1:
+   With 15 address lines, that gives standard memory paks a 32k capacity.
+   The Nyko Hyperpak tested has 128k of SRAM, but includes a switch that
+   selects between four 32k banks.
+
+ Note 2:
+   There's a 3k resistor between detect and +3.3v in the controller pak.
+   When this signal is high, the controller thinks a controller pak is
+   present- it will attempt to read and write from it, and it acknowledges
+   to the N64 with an 0xE1. When this signal is low, the controller doesn't
+   attempt any writes or reads and it acknowledges with 0x1E.
 
 
-I. Majora's Mask observed startup sequence
+Majora's Mask observed startup sequence
 
 	1. N64 sends identify command, 0x00
 	   Controller responds with 05 00 02 with no controller pak,
@@ -76,7 +86,7 @@ I. Majora's Mask observed startup sequence
 	   The response has no stop bit! instead, the data line
 	   goes low for 2us immediately after the last data bit.
 
-II. Majora's Mask title screen polling sequence
+Majora's Mask title screen polling sequence
 
 	1. Status request (0x01)
 
@@ -86,5 +96,16 @@ II. Majora's Mask title screen polling sequence
 
 	4. N64 sends:
 	   02 80 01
+
+
+Hooked up the controller pak to the logic analyzer. Looks like 0x03 is
+indeed a write, and the 32 bytes are all data directed at the controller
+pak bus. The two preceeding bytes probably indicate the address. At least
+one of the unknown pins in the pinout are probably high bits in the address,
+not used by the RAM but maybe used by the rumble pak or other controller paks.
+
+Saved trace "WR1" with rumble pak attached, during game play in Super Smash.
+Can't make out a whole lot, but it's clear how the 0x03 packets work.
+
 
 
