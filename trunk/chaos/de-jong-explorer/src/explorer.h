@@ -27,6 +27,7 @@
 #include <glade/glade.h>
 #include "de-jong.h"
 #include "animation.h"
+#include "animation-render-ui.h"
 
 G_BEGIN_DECLS
 
@@ -73,6 +74,8 @@ struct _Explorer {
   gboolean seeking_animation_transition;
   gboolean playing_animation;
   GTimeVal last_anim_frame_time;
+
+  AnimationRenderUi *render_window;
 };
 
 struct _ExplorerClass {

@@ -29,9 +29,6 @@
 #include "explorer.h"
 #include "avi-writer.h"
 
-/* DEBUG */
-#include "animation-render-ui.h"
-
 static void usage                  (char       **argv);
 static void animation_render_main  (DeJong      *dejong,
 				    Animation   *animation,
@@ -147,17 +144,10 @@ int main(int argc, char ** argv) {
     break;
 
   case RENDER:
-    if (animate) {
-      /* DEBUG */
-      gtk_init(&argc, &argv);
-      g_signal_connect(animation_render_ui_new(animation), "closed", gtk_main_quit, NULL);
-      gtk_main();
-
-      // animation_render_main(dejong, animation, outputFile, target_density);
-    }
-    else {
+    if (animate)
+      animation_render_main(dejong, animation, outputFile, target_density);
+    else
       image_render_main(dejong, outputFile, target_density);
-    }
     break;
   }
 

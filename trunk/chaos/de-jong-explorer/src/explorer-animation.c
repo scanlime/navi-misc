@@ -24,13 +24,13 @@
 #include "curve-editor.h"
 #include "cell-renderer-transition.h"
 #include "cell-renderer-bifurcation.h"
-#include <stdlib.h>
-#include <math.h>
+#include <gtk/gtk.h>
 
 static void explorer_update_animation_length(Explorer *self);
 static void explorer_init_keyframe_view(Explorer *self);
 
 static void on_anim_play_toggled(GtkWidget *widget, gpointer user_data);
+static void on_close(GtkWidget *widget, gpointer user_data);
 static void on_keyframe_add(GtkWidget *widget, gpointer user_data);
 static void on_keyframe_replace(GtkWidget *widget, gpointer user_data);
 static void on_keyframe_delete(GtkWidget *widget, gpointer user_data);
@@ -45,6 +45,8 @@ static void on_anim_transition_scale_changed(GtkWidget *widget, gpointer user_da
 static void on_anim_set_linear(GtkWidget *widget, gpointer user_data);
 static void on_anim_set_smooth(GtkWidget *widget, gpointer user_data);
 static void on_anim_curve_changed(GtkWidget *widget, gpointer user_data);
+static void on_anim_render(GtkWidget *widget, gpointer user_data);
+static void on_anim_render_closed(GtkWidget *widget, gpointer user_data);
 static void on_keyframe_duration_change(GtkWidget *widget, gpointer user_data);
 
 
@@ -56,6 +58,7 @@ void explorer_init_animation(Explorer *self) {
 
   /* Connect signal handlers
    */
+  glade_xml_signal_connect_data(self->xml, "on_close",                         G_CALLBACK(on_close),                         self);
   glade_xml_signal_connect_data(self->xml, "on_anim_play_toggled",             G_CALLBACK(on_anim_play_toggled),             self);
   glade_xml_signal_connect_data(self->xml, "on_keyframe_add",                  G_CALLBACK(on_keyframe_add),                  self);
   glade_xml_signal_connect_data(self->xml, "on_keyframe_replace",              G_CALLBACK(on_keyframe_replace),              self);
@@ -71,6 +74,7 @@ void explorer_init_animation(Explorer *self) {
   glade_xml_signal_connect_data(self->xml, "on_anim_set_linear",               G_CALLBACK(on_anim_set_linear),               self);
   glade_xml_signal_connect_data(self->xml, "on_anim_set_smooth",               G_CALLBACK(on_anim_set_smooth),               self);
   glade_xml_signal_connect_data(self->xml, "on_keyframe_duration_change",      G_CALLBACK(on_keyframe_duration_change),      self);
+  glade_xml_signal_connect_data(self->xml, "on_anim_render",                   G_CALLBACK(on_anim_render),                   self);
 
   /* Add our CurveEditor, a modified GtkCurve widget
    */
@@ -88,6 +92,10 @@ void explorer_dispose_animation(Explorer *self) {
   if (self->animation) {
     g_object_unref(self->animation);
     self->animation = NULL;
+  }
+  if (self->render_window) {
+    g_object_unref(self->render_window);
+    self->render_window = NULL;
   }
 }
 
@@ -478,6 +486,11 @@ static gboolean on_anim_window_delete(GtkWidget *widget, GdkEvent *event, gpoint
   return TRUE;
 }
 
+static void on_close(GtkWidget *widget, gpointer user_data) {
+  Explorer *self = EXPLORER(user_data);
+  gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(glade_xml_get_widget(self->xml, "toggle_animation_window")), FALSE);
+}
+
 static void on_anim_new(GtkWidget *widget, gpointer user_data) {
   Explorer *self = EXPLORER(user_data);
   animation_clear(self->animation);
@@ -516,6 +529,27 @@ static void on_anim_save_as(GtkWidget *widget, gpointer user_data) {
     animation_save_file(self->animation, filename);
   }
   gtk_widget_destroy(dialog);
+}
+
+static void on_anim_render(GtkWidget *widget, gpointer user_data) {
+  Explorer *self = EXPLORER(user_data);
+
+  /* The user probably wants the main window to pause, so it doesn't
+   * suck up CPU they would rather be using for animation...
+   */
+  gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(glade_xml_get_widget(self->xml, "pause_menu")), TRUE);
+
+  gtk_widget_set_sensitive(glade_xml_get_widget(self->xml, "anim_render"), FALSE);
+  self->render_window = animation_render_ui_new(self->animation);
+  g_signal_connect(self->render_window, "closed", G_CALLBACK(on_anim_render_closed), self);
+}
+
+static void on_anim_render_closed(GtkWidget *widget, gpointer user_data) {
+  Explorer *self = EXPLORER(user_data);
+
+  g_object_unref(self->render_window);
+  self->render_window = NULL;
+  gtk_widget_set_sensitive(glade_xml_get_widget(self->xml, "anim_render"), TRUE);
 }
 
 /* The End */
