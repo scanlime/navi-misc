@@ -17,6 +17,7 @@ public class webconfig implements ActionListener
 	private admin myadmin;
 	private TextField host;
 	private TextField port;
+	private TextField filename;
 	private Button submit;
 	
 	/**
@@ -30,10 +31,12 @@ public class webconfig implements ActionListener
 		admin.help.setText("Please enter the hostname and port that the web updater is running on");
 		host = new TextField("Web bot hostname",40);
 		port = new TextField("port",6);
+		filename = new TextField("The filename for the web update thing");
 		submit = new Button("Submit");
 		myadmin = my;
 		myadmin.ad(host);
 		myadmin.ad(port);
+		myadmin.ad(filename);
 		myadmin.ad(submit);
 		submit.addActionListener(this);
 	}
@@ -49,11 +52,11 @@ public class webconfig implements ActionListener
 		String temp;
 		net.write(host.getText());
 		net.write(port.getText());
-		
+		net.write(filename.getText());
 		temp = net.read();
 		if(temp.charAt(0) == '-')
 		{
-			admin.help.setText("check your host and port, the connection failed");
+			admin.help.setText("You got the following error:\n" + temp);
 			return;
 		}
 		myadmin.rm(submit);

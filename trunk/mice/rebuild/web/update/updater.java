@@ -1,5 +1,7 @@
 /**
  * This handles the updating of the web page.
+ * @author Brandon Smith
+ * @version 2.0
  */
 
 import java.lang.*;
@@ -9,9 +11,13 @@ import java.io.*;
 
 public class updater
 {
+	/** This is for reading from the socket. */
 	public static BufferedReader in;
+	/** This is for writing to the socket. */
 	public static OutputStreamWriter out;
+	/** This is the socket itself. */
 	public static Socket connection;
+	/** This is for holding the questions and stuff. */
 	public static element head = null;
 	
 	/**
@@ -62,6 +68,7 @@ public class updater
 		String cmd;
 		String notice;
 		String qb, qt, ab, at;
+		updatePage(filename);
 		while(true)
 		{
 			cmd = read();

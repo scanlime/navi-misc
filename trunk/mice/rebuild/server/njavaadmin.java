@@ -74,11 +74,23 @@ public class njavaadmin extends nbase
 	 */
 	public void webinit()
 	{
-		String host;
+		nhtmlup web = new nhtmlup(imain.database.updater);
+		String host, filename;
 		int port;
 		host = read();
 		port = Integer.parseInt(read());
+		filename = read();
 		/* Start the web service client thingy */
+		if(!web.connect(host,port))
+		{
+			write("-ERR No server on that host/port.");
+			return;
+		}
+		if(!web.init(filename))
+		{
+			write("-ERR Specified filename for the HTML file was not writeable.");
+			return;
+		}
 		write("+OK");
 		aadmin.confstate = 3;
 	}
