@@ -83,6 +83,7 @@ static DECLARE_MUTEX(minor_table_mutex);
 static int rcpod_poke(struct usb_rcpod *dev, unsigned short address, unsigned short data);
 static int rcpod_peek(struct usb_rcpod *dev, unsigned short address);
 static int rcpod_analog_all(struct usb_rcpod *dev, unsigned char *buffer);
+static int rcpod_usart_txrx(struct usb_rcpod *dev, unsigned short address, unsigned char tx_bytes, unsigned char rx_bytes);
 
 static int rcpod_open(struct inode *inode, struct file *file);
 static int rcpod_release(struct inode *inode, struct file *file);
@@ -123,6 +124,14 @@ static int rcpod_analog_all(struct usb_rcpod *dev, unsigned char *buffer)
 			       RCPOD_CTRL_ANALOG_ALL, 0x40 | USB_DIR_IN, 0, 0, buffer, 8,
 			       REQUEST_TIMEOUT);
 }
+
+static int rcpod_usart_txrx(struct usb_rcpod *dev, unsigned short address, unsigned char tx_bytes, unsigned char rx_bytes)
+{
+	return usb_control_msg(dev->udev, usb_sndctrlpipe(dev->udev, 0),
+			       RCPOD_CTRL_USART_TXRX, 0x40, tx_bytes | (((int)rx_bytes) << 8), address,
+			       NULL, 0, REQUEST_TIMEOUT);
+}
+
 
 
 /******************************************************************************/
@@ -217,6 +226,7 @@ static int rcpod_ioctl(struct inode *inode, struct file *file, unsigned int cmd,
 	struct usb_rcpod *dev;
 	int retval=0;
 	struct rcpod_pair p;
+	struct rcpod_txrx txrx;
 	char analog_buffer[8];
 
 	dev =(struct usb_rcpod *)file->private_data;
@@ -251,6 +261,15 @@ static int rcpod_ioctl(struct inode *inode, struct file *file, unsigned int cmd,
 			break;
 		}
 		break;
+
+	case RCPODIO_USART_TXRX:
+		if (copy_from_user(&txrx,(struct rcpod_txrx*) arg, sizeof(txrx))) {
+			retval = -EFAULT;
+			break;
+		}
+		retval = rcpod_usart_txrx(dev, txrx.address, txrx.tx_bytes, txrx.rx_bytes);
+		break;
+
 
 	default:
 		/* Indicate that we didn't understand this ioctl */
