@@ -69,7 +69,7 @@ class XMLObjectParser(XMLObject):
        to parseString when it comes to character data.
        """
     requiredRootElement = None
-    resultAttribute = 'obj'
+    resultAttribute = 'result'
 
     def preprocess(self):
         """Upon creating this object, parse the XML tree recursively
