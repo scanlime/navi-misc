@@ -104,14 +104,9 @@ static ssize_t mi6k_dev_write (struct file *file, const char *buffer, size_t cou
 		mi6k_request(widget, MI6K_CTRL_LED_SET, 0x50, 0x50);
 
 		/* Pack 4 bytes of the character stream into the packet's value and index parameters */
-		usb_control_msg(widget->usbdev, usb_sndctrlpipe(widget->usbdev, 0),
-				MI6K_CTRL_VFD_WRITE,
-				0x40,     /* Request type: vendor specific, host-to-device */
-				tbuffer[0] | (((int)tbuffer[1]) << 8),  /* value */
-				tbuffer[2] | (((int)tbuffer[3]) << 8),  /* index */
-				NULL, 0,  /* data (not used) */
-				HZ / 2    /* Timeout: 1/2 second */
-				);
+		mi6k_request(widget, MI6K_CTRL_VFD_WRITE,
+			     tbuffer[0] | (((int)tbuffer[1]) << 8),
+			     tbuffer[2] | (((int)tbuffer[3]) << 8));
 
 		return transfer_length;
 	}
