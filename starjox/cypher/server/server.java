@@ -75,7 +75,7 @@ public class server extends Thread
 	    {
 		// get the sockets
 		sout = server.accept();
-		nukey = sendKey();
+		nukey = sendKey(sout);
 		sin = initConnection(sout);
 		
 		//slot a into tab a
@@ -95,19 +95,19 @@ public class server extends Thread
 	}
     }
 
-    public key sendKey(Socket client)
+    public key sendKey(Socket client) throws Exception
     {
 	int i;
 	key foo = new key();
 	String kei = foo.getKey();
 	OutputStream out = client.getOutputStream();
 	for(i=0;i<256;i++)
-	    out.write(foo.charAt(i));
+	    out.write(kei.charAt(i));
 	out.flush();
 	return foo;
     }
 
-    public Socket initConnection(Socket client)
+    public Socket initConnection(Socket client) throws Exception
     {
 	String host = "";
 	String tport = "";
@@ -149,7 +149,7 @@ public class server extends Thread
 	}
 	catch(Exception e)
 	{
-	    System.out.println("Java says\n" + e + "\nThat probably means something is wrong");
+	    System.out.println(e);
 	    System.exit(1);
 	}
     }

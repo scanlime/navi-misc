@@ -27,20 +27,16 @@ import java.net.*;
 import java.io.*;
 import java.util.*;
 
-public class dpipe extends Thread
+public class epipe extends Thread
 {
-    /** for ID output stuff. */
-    public static int nextID = 0;
-    
     /** The input stream this tcppipe reads from. */
     public InputStream in;
     /** The output stream this tcppipe writes to. */
     public OutputStream out;
     /** The String for outputting what I transmit */
     public String label;
-    /** My ID */
-    public int ID;
-    /** For encryption/decryption stuff */
+    /** For encryption the to client data (from real server) */
+    public key nukey;
     
     /**
      * A constructor for the tcppipe object
@@ -49,13 +45,11 @@ public class dpipe extends Thread
      * @author Brandon Smith
      * @version 1.0
      */
-    public dpipe(InputStream from, OutputStream to, key akey)
+    public epipe(InputStream from, OutputStream to, key akey)
     {
 	in = from;
 	out = to;
-	label = nope;
-	ID = tcppipe.nextID++;
-	
+	nukey = akey;
     }
     
     /**
@@ -66,14 +60,20 @@ public class dpipe extends Thread
     public void run()
     {
 	int temp;
+	String s;
 	try
 	{
 	    while(true)
 	    {
 		temp = in.read();
+		if(temp != -1) 
+		{
+		    s = "" + (char) temp;
+		    s = nukey.encrypt(s);
+		    temp = s.charAt(0);
+		}
 		out.write(temp);
 		out.flush();
-		logger.log(ID,label,temp);
 		if(temp == -1) return;
 	    }
 	}
