@@ -105,6 +105,10 @@ my @dirfiles;  # This array is mapped to the @dir array and contains files
 # names given to us on the command line. This is the separator used internally.
 # Now we can handle filenames containing spaces, and probably anything except
 # strings of 4 commas or the ASCII bell character.
+#
+# This was inspired by the suggestion in:
+#  http://mail.gnu.org/archive/html/info-cvs/2003-04/msg00267.html
+#
 $" = "\7";
 
 ### Input data loading
