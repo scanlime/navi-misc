@@ -1584,43 +1584,6 @@ int WINAPI		WinMain(HINSTANCE instance, HINSTANCE, LPSTR _cmdLine, int)
 
   LPCTSTR cmdLine2 = GetCommandLine();
 
-
-  if (cmdLine2[0] == '\"') 
-	{
-    // quoted
-    cmdLine2++;
-    LPCTSTR argv0End = cmdLine2;
-
-    while (*argv0End && *argv0End != '\"')
-			argv0End++;
-
-    const int len = argv0End - cmdLine2;
-
-    appName = new char[len + 1];
-
-    for (int i = 0; i < len; i++)
-      appName[i] = (char)cmdLine2[i];
-
-    appName[len] = '\0';
-  }
-  else 
-	{
-    // not quoted
-    LPCTSTR argv0End = cmdLine2;
-
-    while (*argv0End && !isspace(*argv0End))
-			argv0End++;
-
-    const int len = argv0End - cmdLine2;
-
-    appName = new char[len + 1];
-
-    for (int i = 0; i < len; i++)
-      appName[i] = (char)cmdLine2[i];
-
-    appName[len] = '\0';
-  }
-
   // make argument list and assign arguments
   char** argv = new char*[argc];
 
