@@ -32,7 +32,7 @@ typedef struct
 {
   GtkListStore *liststore;
   GCompletion *completion;
-	GList *completion_items;
+  GList *completion_items;
 } Store;
 
 GType

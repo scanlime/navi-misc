@@ -33,9 +33,6 @@ autotools:
 
 * migrate all menus (main, context, etc) to use GtkUIManager
 
-* Figure out what causes the TreeIters to become invalid after a call to
-  navigation_model_*_ref/unref
-
 context menus:
 * flesh out the userlist context menu
 * make the context menu for navtree stuff actually dependent on context - see above note
