@@ -12,10 +12,13 @@ CODEPAGE   NAME=page3    START=0x1800   END=0x1FFF
 CODEPAGE   NAME=.idlocs  START=0x2000   END=0x2003
 CODEPAGE   NAME=.config  START=0x2007   END=0x2007
 
-SHAREBANK  NAME=gprnobnk START=0x70     END=0x7F
-SHAREBANK  NAME=gprnobnk START=0xF0     END=0xFF
-SHAREBANK  NAME=gprnobnk START=0x170    END=0x17F
-SHAREBANK  NAME=gprnobnk START=0x1F0    END=0x1FF
+// Make the shared bank just barely large enough,
+// to leave the largest possible contiguous region
+// for the scratchpad starting in bank0.
+SHAREBANK  NAME=gprnobnk START=0x7D     END=0x7F
+SHAREBANK  NAME=gprnobnk START=0xFD     END=0xFF
+SHAREBANK  NAME=gprnobnk START=0x17D    END=0x17F
+SHAREBANK  NAME=gprnobnk START=0x1FD    END=0x1FF
 
 // We leave out bank0, since it's reserved for use as a scratchpad by the host
 DATABANK   NAME=gpr1     START=0xA0     END=0xEF
