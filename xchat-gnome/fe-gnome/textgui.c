@@ -20,7 +20,7 @@ void initialize_text_gui() {
 	gtk_xtext_set_max_indent(gui.xtext, 500);
 	gtk_xtext_set_thin_separator(gui.xtext, TRUE);
 	gtk_xtext_set_wordwrap(gui.xtext, TRUE);
-//	gtk_xtext_set_urlcheck_function(gui.xtext, check_url);
+//	gtk_xtext_set_urlcheck_function(gui.xtext, check_word);
 //	g_signal_connect(G_OBJECT(gui.xtext), "word_click", G_CALLBACK(clicked_word), NULL);
 
 	if(!gtk_xtext_set_font(gui.xtext, "Bitstream Vera Sans Mono 9"))
@@ -119,10 +119,14 @@ void clear_buffer(struct session *sess) {
 }
 
 int check_word(GtkWidget *xtext, char *word) {
+	if(word == NULL)
+		return 0;
 	return text_word_check(word);
 }
 
 void clicked_word(GtkWidget *xtext, char *word, GdkEventButton *event, session *sess) {
+	if(word == NULL)
+		return;
 	sess = gui.current_session;
 
 	if(event->button == 1) {
