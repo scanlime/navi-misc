@@ -27,26 +27,47 @@ import java.util.*;
 public class aimup
 {
 	public static botmain[] bot;
+	
+	public static ServerSocket server;
 
 	public static void main(String[] args)
 	{
-		int i,j;
-		personindex index = new personindex(1);
-		bot = new botmain[1];
-		bot[0] = new botmain("MICEBot","password",index);
-		index.registerBot(bot[0]);
-		/*
-		for(i=1;i<6;i++)
-		{
-			sleep(3);
-			bot[i] = new botmain("MICEBot"+i,"password",index);
-			index.registerBot(bot[i]);
-		}
-		*/
+		botmain interviewbot = initbots(1,"pass");
+		startServer(8082);
 		while(true)
 		{
 			sleep(100);
 		}
+	}
+	
+	public static void startServer(int port)
+	{
+		try 
+		{
+			server = new ServerSocket(port);
+		}
+		catch(IOException exception)
+		{
+			System.out.println(exception);
+			System.exit(0);
+		}
+	}
+	
+	public static botmain initbots(int count, String password)
+	{
+		int i,j;
+		personindex index = new personindex(1);
+		bot = new botmain[1];
+		bot[0] = new botmain("MICEBot",password,index);
+		index.registerBot(bot[0]);
+		
+		for(i=1;i<count;i++)
+		{
+			sleep(3);
+			bot[i] = new botmain("MICEBot"+i,password,index);
+			index.registerBot(bot[i]);
+		}
+		return bot[0];
 	}
 	
 	public static void sleep(int seconds)
