@@ -1,7 +1,9 @@
-""" Wasabi
+""" Wasabi.Hardware
 
-This is a Python package providing modules used to implement Wasabi's
-user interface software.
+This package contains Twisted-friendly interfaces to all hardware
+devices used by wasabi. This includes custom hardware like the MI6K's
+display and the uvswitch, and normal hardware like LIRC remotes and
+audio mixers.
 """
 #
 # Wasabi Project
@@ -21,17 +23,5 @@ user interface software.
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-
-name    = "Wasabi"
-version = "svn-dev"
-
-# Check the python version here before we proceed further
-requiredPythonVersion = (2,2,1)
-import sys, string
-if sys.version_info < requiredPythonVersion:
-    raise Exception("%s requires at least Python %s, found %s instead." % (
-        name,
-        string.join(map(str, requiredPythonVersion), "."),
-        string.join(map(str, sys.version_info), ".")))
 
 ### The End ###
