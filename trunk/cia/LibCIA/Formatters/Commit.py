@@ -303,20 +303,53 @@ class CommitToXHTML(CommitFormatter):
     def format_log(self, log):
         """Convert the log message to HTML. If the message seems to be preformatted
            (it has some lines with indentation) it is stuck into a <pre>. Otherwise
-           it is converted to HTML by replacing newlines with <br> tags.
+           it is converted to HTML by replacing newlines with <br> tags and converting
+           bulletted lists.
            """
         content = []
         lines = Util.getNormalizedLog(log)
+        nonListItemLines = []
+        listItems = []
+
         if lines:
-            # Determine if we think it's preformatted
+            # Scan the message, applying a few heuristics. If we see lines
+            # that are still starting with a space after getNormalizedLog
+            # has done its thing, assume the text is preformatted. Also
+            # look for lines that appear to be list items.
             isPreFormatted = False
             for line in lines:
                 if line and line[0] == ' ':
                     isPreFormatted = True
 
+                if line.startswith("* "):
+                    # Assume this is a list item, and convert the bullets to
+                    # a proper XHTML list.
+                    listItems.append(line[2:])
+                else:
+                    if listItems:
+                        # It's a continuation of the last item
+                        listItems[-1] = listItems[-1] + " " + line.strip()
+                    else:
+                        # If we haven't seen a list yet, stick this in nonListItemLines.
+                        # If this log message isn't a list at all, everything will end
+                        # up there but it will be safely ignored
+                        nonListItemLines.append(line)
+
             if isPreFormatted:
+                # This is probably a preformatted message, stick it in a <pre>
                 content.append(tag('pre')[ "\n".join(lines) ])
+
+            elif listItems:
+                # It looks like a bulleted list. First output the nonListItemLines,
+                # then stick the items inside a list.
+                for line in nonListItemLines:
+                    if content:
+                        content.append(tag('br'))
+                    content.append(line)
+                content.append(tag('ul')[[ tag('li')[item] for item in listItems ]])
+
             else:
+                # Plain old text, just stick <br>s between the lines
                 for line in lines:
                     if content:
                         content.append(tag('br'))
