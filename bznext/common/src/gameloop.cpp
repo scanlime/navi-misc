@@ -73,10 +73,17 @@ bool CBaseGameLoop::Main ( int argc, char *argv[] )
 void CBaseGameLoop::ClearScene ( void )
 {
 //	return;
+
 	mWindow->removeAllViewports();
+	GetSceneManager()->removeAllCameras();
 	GetSceneManager()->clearScene();
+	ChooseSceneManager();
 	CreateCamera();
 	CreateViewports();
+
+	TextureManager::getSingleton().setDefaultNumMipMaps(5);
+	input.Init(GetRenderWindow());
+
 }
 
 bool CBaseGameLoop::Run ( void )

@@ -10,11 +10,12 @@
 * WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 */
 #include "gameManager.h"
+#include "testGame.h"
 
 CGameManger::CGameManger()
 {
 	gameLoop = NULL;
-	activeGame = false;
+	theGame = NULL;
 }
 
 CGameManger::CGameManger ( CBaseGameLoop * pGameLoop )
@@ -24,6 +25,17 @@ CGameManger::CGameManger ( CBaseGameLoop * pGameLoop )
 
 CGameManger::~CGameManger()
 {
+	if (theGame)
+		theGame->Release();
+
+	gameModuleMap::iterator itr =	gameModules.begin();
+	while (itr != gameModules.end())
+	{
+		delete(itr->second);
+		itr++;
+	}
+	gameModules.clear();
+	theGame = NULL;
 }
 
 void CGameManger::Set ( CBaseGameLoop * pGameLoop )
@@ -33,26 +45,55 @@ void CGameManger::Set ( CBaseGameLoop * pGameLoop )
 
 void CGameManger::Init ( void )
 {
-
+	RegisterGameModules();
 	activeGame = true;
 }
+
+void CGameManger::RegisterGameModules ( void )
+{
+	gameModules["test"] = new CTestGame;
+
+	gameModuleMap::iterator itr =	gameModules.begin();
+	while (itr != gameModules.end())
+	{
+		itr->second->Set(gameLoop);
+		itr++;
+	}
+}
+
 void CGameManger::Attach ( void )
 {
-	gameLoop->ClearScene();
+	if (theGame)
+		theGame->Release();
+	theGame = NULL;
+//	gameLoop->ClearScene();
+
+	std::string name = gameLoop->GetGameName();
+	gameModuleMap::iterator itr =	gameModules.find(name);
+	if (itr != gameModules.end())
+	{
+		theGame = itr->second;
+		theGame->Attach();
+	}
 }
 
 void CGameManger::Release ( void )
 {
-
+	if (theGame)
+		theGame->Release();
+	gameLoop->ClearScene();
+	theGame = NULL;
 }
 
 bool CGameManger::Think ( void )
 {
-		return false;
+	if (!theGame)
+		return true;
+	return theGame->Think();
 }
 
 bool CGameManger::GameActive ( void )
 {	
-	return activeGame;
+	return theGame!= NULL;
 }
 
