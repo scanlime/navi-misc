@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="../style.xsl"?>
+
+<technique name="scraping hoof" level="orange" category="hugs-and-holds"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:noNamespaceSchemaLocation="schema.xsd">
+  <attack>attempted full nelson</attack>
+  <stances>
+    <attacker><stance>natural</stance></attacker>
+    <defender><stance>natural</stance></defender>
+  </stances>
+  <steps>
+    <step>
+      <footManeuver side="left">step</footManeuver> toward 9:00 into a
+      <stance>horse</stance> as you pin your arms at your sides.
+    </step>
+    <step>
+      <footManeuver>pivot</footManeuver> to your right into a
+      <stance side="right">cat</stance> as you execute a
+      <kick side="right">back snapping heel</kick> to your opponent's left inner knee.
+    </step>
+    <step>
+      Execute a <kick side="right">knife-edge side</kick> to the inside of your
+      opponent's right knee.
+    </step>
+    <step>
+      Execute a <kick side="right">side stomp</kick> to the inside of your opponent's
+      right ankle.
+    </step>
+    <step>
+      <footManeuver side="right">side cover</footManeuver> as you execute a
+      <strike side="right">outward elbow</strike> to your opponent's jaw.
+    </step>
+  </steps>
+</technique>

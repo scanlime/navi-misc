@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="../style.xsl"?>
+
+<technique name="grasp of death" level="yellow" category="chokes-and-locks"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:noNamespaceSchemaLocation="schema.xsd">
+  <attack>right-arm left-flank headlock</attack>
+  <stances>
+    <attacker><stance side="right">neutral bow</stance></attacker>
+    <defender>down on left knee</defender>
+  </stances>
+  <steps>
+    <step>
+      Turn your head to the left to avoid being choked while you grab your opponent's
+      right wrist with your right hand.
+    </step>
+    <step>
+      Execute a <fingerTechnique side="left">horse-bite pinch</fingerTechnique> to
+      your opponent's left upper-inner thigh.
+    </step>
+    <step>
+      Allow your opponent to release you from the headlock while maintaining your grip
+      on their right wrist.
+    </step>
+    <step>
+      Stand up to a <stance side="right">forward bow</stance> while executing a
+      <strike side="left">upward elbow</strike> to your opponent's right tricep.
+    </step>
+    <step>
+      <footManeuver side="left">step</footManeuver> toward 12:00 into a
+      <stance side="left">neutral bow</stance> while executing a
+      <block side="left">hammering inward</block> to your opponent's right elbow.
+      Simultaneously pull their right wrist to your right hip with your
+      right hand.
+    </step>
+    <step>
+      <footManeuver>pivot</footManeuver> into a <stance side="left">forward bow</stance>
+      while executing a <punch side="left">vertical reverse punch</punch> to your
+      opponent's right ear. Simultaneously pin your opponent's right arm to your
+      stomach with your right hand.
+    </step>
+  </steps>
+</technique>
