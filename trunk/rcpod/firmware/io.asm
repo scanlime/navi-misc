@@ -139,6 +139,8 @@ io_SetFSR
 	subwf	io_tmp, w
 	btfss	STATUS, C	; If B=1, C=0 and the port is bad
 	retlw	1
+	decfsz	io_tmp, f	; Port 0 is a no-op
+	retlw	1
 
 	movf	io_base_fsr, w	; FSR = io_base_fsr + io_tmp
 	addwf	io_tmp, w
