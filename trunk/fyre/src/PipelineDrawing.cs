@@ -44,7 +44,13 @@ namespace Fyre
 
 		static int		layout_buffer = 50;
 
+		// We can't get events on a drawing area, so we have an event box on top
+		// of it.
 		Gtk.EventBox		event_box;
+
+		// Internal data wrt to dragging
+		bool			dragging;
+		int			drag_x, drag_y;
 
 		// FIXME - Monodoc says that Gdk.Pixmap.CreateBitmapFromData is unimplemented,
 		// but according to tberman it's not. However, we *are* getting garbage
@@ -104,6 +110,17 @@ namespace Fyre
 				if (pointer_cursor == null)
 					pointer_cursor = new Gdk.Cursor (Gdk.CursorType.LeftPtr);
 				return pointer_cursor;
+			}
+		}
+
+		// Temporary
+		Gdk.Cursor fleur_cursor;
+		Gdk.Cursor FleurCursor
+		{
+			get {
+				if (fleur_cursor == null)
+					fleur_cursor = new Gdk.Cursor (Gdk.CursorType.Fleur);
+				return fleur_cursor;
 			}
 		}
 
@@ -209,8 +226,8 @@ namespace Fyre
 
 			SetScrollbars ();
 
-			hadj.Value         = layout_extents.X - layout_buffer;
-			vadj.Value         = layout_extents.Y - layout_buffer;
+			hadj.Value = layout_extents.X - layout_buffer;
+			vadj.Value = layout_extents.Y - layout_buffer;
 		}
 
 		void
@@ -232,16 +249,45 @@ namespace Fyre
 		void
 		ButtonPressHandler (object o, Gtk.ButtonPressEventArgs args)
 		{
+			Gdk.EventButton ev = args.Event;
+
+			drag_x = (int) ev.X;
+			drag_y = (int) ev.Y;
+
+			dragging = true;
+
+			event_box.GdkWindow.Cursor = FleurCursor;
 		}
 
 		void
 		ButtonReleaseHandler (object o, Gtk.ButtonReleaseEventArgs args)
 		{
+			dragging = false;
+			event_box.GdkWindow.Cursor = PointerCursor;
 		}
 
 		void
 		MotionNotifyHandler (object o, Gtk.MotionNotifyEventArgs args)
 		{
+			Gdk.EventMotion ev = args.Event;
+
+			if (dragging && ev.State == Gdk.ModifierType.Button1Mask) {
+				// Compute the offset from the last event we got, and move
+				// our view appropriately.
+				int offset_x = ((int) ev.X) - drag_x;
+				int offset_y = ((int) ev.Y) - drag_y;
+
+				drawing_extents.X -= offset_x;
+				drawing_extents.Y -= offset_y;
+				SetScrollbars ();
+				hadj.Value = drawing_extents.X;
+				vadj.Value = drawing_extents.Y;
+
+				// Set these so we'll get proper offsets next time there's
+				// an event.
+				drag_x = (int) ev.X;
+				drag_y = (int) ev.Y;
+			}
 		}
 
 		void
