@@ -30,28 +30,6 @@ import Tweak
 __all__ = ['ChannelList', 'GraphUI', 'GraphUIWindow']
 
 
-def autoColorChannels(channels):
-    """Automatically assign hopefully-unique colors to the given channels"""
-    # List of colors to choose from, the most preferable ones on the top
-    availableColors = [
-        (0,   0,   1  ),
-        (1,   0,   0  ),
-        (0,   0.8, 0  ),
-        (0,   0,   0.5),
-        (0.5, 0,   0  ),
-        (1,   0.5, 0  ),
-        (0,   0.5, 0.5),
-        ]
-
-    colors = []
-    for channel in channels:
-        # If we do run out of colors, loop through the ones we have
-        if not colors:
-            colors = availableColors[:]
-        channel.color = colors[0]
-        del colors[0]
-
-
 class ChannelList(gtk.TreeView):
     """A list of available channels, inserted into the given graph
        widget when a 'visible' checkbox is set.
@@ -61,7 +39,9 @@ class ChannelList(gtk.TreeView):
         self.graph = graph
 
         if autoColor:
-            autoColorChannels(availableChannels)
+            i = None
+            for channel in availableChannels:
+                i = channel.autoColor(i)
 
         # Create the model behind our TreeView:
         model = gtk.ListStore(gobject.TYPE_PYOBJECT,  # (0) Channel instance

@@ -34,6 +34,8 @@ class FunctionChannel(rtgraph.Channel):
 channels = [
     FunctionChannel("0"),
     FunctionChannel("sin(t)"),
+    FunctionChannel("cos(t)"),
+    FunctionChannel("sin(10*t)"),
     FunctionChannel("sin(5*t) * 0.5"),
     FunctionChannel("random() - 0.5"),
     FunctionChannel("t % 1"),
