@@ -20,10 +20,13 @@
  */
 
 #include <gnome.h>
+#include "../common/xchat.h"
+#include "../common/servlist.h"
 
 #ifndef XCHAT_GNOME_PREFERENCES_H
 #define XCHAT_GNOME_PREFERENCES_H
 
 gboolean preferences_exist();
+char *preferences_nickname(struct ircnet *net);
 
 #endif
