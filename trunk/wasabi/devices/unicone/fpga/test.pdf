@@ -9,7 +9,7 @@ Type=F21i
 top_level=VHDL
 HDL netlist format=Auto
 generics=MAX
-lib_order=155 155 133 155
+lib_order=155 155 155 155 155 133 155
 [libraries]
 133=c:\fndtn\active\syslib\simprims
 155=c:\fndtn\active\syslib\xc4000x
@@ -22,7 +22,7 @@ xact9=On
 oid=0
 lid=0
 format=19
-source=c:\fndtn\active\projects\test\test.v
+source=c:\unicone\fpga\test\test.v
 
 Feature:       FPGA-Express-RL2100
 License path:  C:\Fndtn\data\license.dat
@@ -41,6 +41,7 @@ test.v=21
 [hdl_sheets]
 test.v= 
 [OpenDoc]
+hde/test=393574,1,22,22,982,751,test.v
 [device]
 part=4010XLPC84-09
 xilinx=4010XLPC84-09
@@ -59,7 +60,7 @@ lpstrFilter=User Constraints (*.UCF)|*.ucf||
 lpstrTitle=Select file
 nFilterIndex=0
 Flags=530436
-cmdLine=-h 352 -hp 670 -m PCM_OPEN_32_MESSAGE -f C:\FNDTN\ACTIVE\PROJECTS\current.pdf
+cmdLine=-h 582 -hp 562 -m PCM_OPEN_32_MESSAGE -f C:\FNDTN\ACTIVE\PROJECTS\current.pdf
 [implement_XIE]
 version=ver1
 revision=rev1
