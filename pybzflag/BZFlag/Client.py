@@ -31,6 +31,10 @@ from BZFlag.Protocol import FromServer, ToServer, Common
 class PlayerIdentity:
     """A simple container for basic player information"""
     def __init__(self, callSign, team=0, emailAddress="PyBZFlag"):
+        # FIXME: Player type and callsign need to be converted from strings
+        #        to enumerations... should probably add a system like
+        #        PicoGUI's python client has to convert between enumerated
+        #        values and strings.
         self.type = 0
         self.callSign = callSign
         self.team = team
@@ -114,6 +118,7 @@ class BaseClient:
         self.onConnect()
 
     def expectMessage(self, socket, eventLoop):
+        
         pass
 
     def onConnect(self):
