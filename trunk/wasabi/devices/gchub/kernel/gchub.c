@@ -935,7 +935,9 @@ static void   gchub_fill_output_request(struct gchub_dev* dev)
 
 	/* Reset the URB each time. This isn't necessary under 2.6, but it doesn't hurt. */
 	usb_unlink_urb(dev->out_status);
+#ifndef NEW_USB_SUBSYSTEM
 	memset(dev->out_status, 0, sizeof(*dev->out_status));
+#endif
 	gchub_fill_control_urb(dev->out_status, dev->udev, usb_sndctrlpipe(dev->udev, 0),
 			       (unsigned char*) &dev->out_status_request, NULL,
 			       0, gchub_out_request_irq, dev);
