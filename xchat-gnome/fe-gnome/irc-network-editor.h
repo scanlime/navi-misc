@@ -60,6 +60,7 @@ struct _IrcNetworkEditor
 
 	GtkWidget *servers;
 	GtkWidget *add_server;
+	GtkWidget *edit_server;
 	GtkWidget *remove_server;
 
 	GtkWidget *use_globals;
@@ -69,6 +70,7 @@ struct _IrcNetworkEditor
 
 	GtkWidget *autojoin_channels;
 	GtkWidget *add_autojoin;
+	GtkWidget *edit_autojoin;
 	GtkWidget *remove_autojoin;
 
 	GtkWidget *toplevel;
