@@ -14,9 +14,26 @@
 #include "firestarterd.h"
 
 #include "messages.h"
+#include "commandargs.h"
 
 void CTestGameServer::init ( void )
 {
+	CCommandLineArgs	&args = CCommandLineArgs::instance();
+	
+	bool mapLoaded = false;
+
+	if (args.Exists("map"))
+		mapLoaded = world.init(args.GetDataS("map"));
+	else
+		logOut("worldfile load failed","CTestGameServer::init",eLogLevel1);
+	
+	if (!mapLoaded)
+	{
+		logOut("loading default world","CTestGameServer::init",eLogLevel1);
+		world.initDefaultWorld();
+	}
+	else
+		logOut("loaded worldfile","CTestGameServer::init",eLogLevel1);
 }
 
 bool CTestGameServer::think ( void )
@@ -260,6 +277,8 @@ bool CTestGameServer::add ( int playerID, CNetworkPeer &peer )
 	message.SetType(_MESSAGE_SERVER_INFO);	// ServerInfo
 	message.AddI(playerID);
 	message.Send(peer,true);
+
+	world.sendMapTo(peer);
 
 	// send an add to everyone else
 	logOut("send _MESSAGE_USER_ADD","CTestGameServer::add::everyone else",eLogLevel4);

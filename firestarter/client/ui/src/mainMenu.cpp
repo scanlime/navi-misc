@@ -105,7 +105,7 @@ void CMainMenu::Attach ( void )
 
 	//random tufts
 
-	int numTuft = 100;
+	int numTuft = 500;
 	float xyRange = 200;
 
 	for (int i = 0; i < numTuft; i++)

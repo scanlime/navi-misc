@@ -17,6 +17,7 @@
 #include "serverGameManager.h"
 #include <map>
 #include <string>
+#include "testWorld.h"
 
 class CRobotPlayer;
 
@@ -77,6 +78,8 @@ class CTestGameServer : public CBaseServerGame
 		void sendClientInfo ( int playerID );
 		void sendUpdate ( int playerID );
 		void sendClockPing ( int playerID, int pingID ); 
+
+		CTestWorld	world;
 };
 
 #endif //_TEST_GAME_H_
