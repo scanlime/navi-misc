@@ -27,6 +27,12 @@
           </xsl:otherwise>
         </xsl:choose>
         <xsl:apply-templates select="img"/>
+
+        <div class="footer">
+          <a href="/">
+            <img src="http://navi/images/web/navi64.png" width="64" height="39" alt="Navi"/>
+          </a>
+        </div>
       </body>
     </html>
   </xsl:template>
@@ -42,7 +48,6 @@
   <!--================================== Images -->
   <xsl:template match="img">
     <img class="centered">
-      <xsl:attribute name="class">centered</xsl:attribute>
       <xsl:attribute name="src"><xsl:value-of select="@src"/></xsl:attribute>
       <xsl:attribute name="alt"><xsl:value-of select="@alt"/></xsl:attribute>
     </img>
