@@ -26,11 +26,11 @@ comment = Literal('#') + Optional (restOfLine)
 axisOrder = oneOf("XYZ XZY YXZ YZX ZXY ZYX")
 ro = oneOf("TX TY TZ RX RY RZ")
 
-rootElement = \
+rootElement = Group (
     "order" + ro + ro + ro + ro + ro + ro \
   | "axis" + axisOrder \
   | "position" + float + float + float \
-  | "orientation" + float + float + float
+  | "orientation" + float + float + float)
 
 unitElement = Group("mass" + float | "length" + float | "angle" + oneOf("deg rad"))
 
@@ -53,14 +53,14 @@ hierElement = Group(OneOrMore(Word(alphanums)))
 #hierarchy = Group("begin" + OneOrMore(hierElement) + "end")
 hierarchy = Suppress("begin") + OneOrMore(hierElement)
 
-docLine = OneOrMore(Word(alphanums + '!"#$%&\'()*+,-./;<=>?@[\\]^_`{|}~'))
+docLine = Combine(OneOrMore(Word(alphanums + '!"#$%&\'()*+,-./;<=>?@[\\]^_`{|}~')), joinString=' ', adjacent=False)
 
 sectstart = LineStart() + Literal(':').suppress()
 section = \
     sectstart + "version" + float \
   | sectstart + "name" + Word(printables) \
   | sectstart + "units" + OneOrMore(unitElement) \
-  | sectstart + "documentation" + ZeroOrMore(docLine) \
+  | sectstart + "documentation" + docLine \
   | sectstart + "root" + OneOrMore(rootElement) \
   | sectstart + "bonedata" + bonedata \
   | sectstart + "hierarchy" + hierarchy \
