@@ -42,7 +42,7 @@ class AnalogUpdaterThread(threading.Thread):
 def main():
     channels = [AdcChannel(name="Analog channel %d" % i) for i in xrange(8)]
     graph = rtgraph.HScrollLineGraph(range=(0,255))
-    win = rtgraph.GraphUIWindow(channels, graph)
+    win = rtgraph.GraphUIWindow(channels, graph, valueUpdateInterval=500)
     win.connect("destroy", gtk.mainquit)
 
     analogThread = AnalogUpdaterThread(channels)
