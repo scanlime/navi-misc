@@ -38,6 +38,7 @@ class ASFReader:
     orientation = []
     grammar = None
     units = {}
+    hierarchy = {}
 
     def gotRoot(self, s, loc, toks):
         s = listToDict(toks[0])
@@ -45,21 +46,12 @@ class ASFReader:
         self.position    = s['position']
         self.order       = s['order']
         self.axis        = s['axis']
-        print 'root:'
-        print '\torientation:\t',self.orientation
-        print '\tposition:\t',self.position
-        print '\torder:\t\t',self.order
-        print '\taxis:\t\t',self.axis
     def gotUnit(self, s, loc, toks):
         self.units = listToDict(toks[0])
-        #for (key, value) in self.units.items():
-            #self.units[key] = value[0]
-        print 'units:\t',self.units
     def gotBone(self, s, loc, toks):
         dict = listToDict(toks[0])
         bone = Bone(dict)
         self.bones[bone.name] = bone
-        print 'bone:\t',dict.keys()
 
     def getGrammar(self):
         if self.grammar is None:
@@ -89,8 +81,6 @@ class ASFReader:
               )
             bone = Suppress("begin") + Group(OneOrMore(boneElement)) + Suppress("end")
             bonedata = ZeroOrMore(bone)
-            hierElement = Group(OneOrMore(Word(alphanums)))
-            hierarchy = Suppress("begin") + OneOrMore(hierElement)
             docLine = Combine(OneOrMore(Word(alphanums + '!"#$%&\'()*+,-./;<=>?@[\\]^_`{|}~')), joinString=' ', adjacent=False)
             sectstart = LineStart() + Literal(':').suppress()
             section = Group(
@@ -100,7 +90,7 @@ class ASFReader:
               | sectstart + "documentation" + docLine \
               | sectstart + "root" + root \
               | sectstart + "bonedata" + bonedata \
-              | sectstart + "hierarchy" + hierarchy
+              | sectstart + "hierarchy" + docLine
               )
             part = section | Suppress(comment)
             self.grammar = OneOrMore(part)
@@ -111,10 +101,26 @@ class ASFReader:
 
         return self.grammar
 
+    def parse(self, filename):
+        g = self.getGrammar()
+        g.parseFile(filename)
+        file = open(filename)
+        lines = file.readlines()
+        for i in range(len(lines)):
+            if lines[i][:10] == ':hierarchy':
+                break
+        i += 2
+        for i in range(i, len(lines)):
+            l = lines[i].strip(' \n\r')
+            if l == 'end':
+                break
+            s = l.split(' ')
+            self.hierarchy[s[0]] = s[1:]
+        file.close()
+
 # main program
 reader = ASFReader()
-asfFile = reader.getGrammar()
-x = asfFile.parseFile('02.asf')
-s = listToDict(x)
-print s.keys()
-print reader.bones.keys()
+reader.parse('02.asf')
+print 'bones:'
+for bone in reader.bones.keys():
+    print '\t',bone
