@@ -30,6 +30,7 @@
 #include "preferences.h"
 #include "navigation_tree.h"
 #include "textgui.h"
+#include "palette.h"
 
 #ifdef HAVE_GTKSPELL
 #include <gtkspell/gtkspell.h>
@@ -74,6 +75,8 @@ gboolean on_resize(GtkWidget *widget, GdkEventConfigure *event, gpointer data);
 gboolean on_vpane_move(GtkWidget *widget, gpointer data);
 gboolean on_hpane_move(GtkWidget *widget, gpointer data);
 
+static void entry_context(GtkEntry *entry, GtkMenu *menu, gpointer user_data);
+
 void initialize_main_window() {
 	GtkWidget *entry, *pane;
 
@@ -110,6 +113,7 @@ void initialize_main_window() {
 	entry = glade_xml_get_widget(gui.xml, "text entry");
 	g_signal_connect(G_OBJECT(entry), "activate", G_CALLBACK(on_text_entry_activate), NULL);
 	g_signal_connect_after(G_OBJECT(entry), "key_press_event", G_CALLBACK(on_text_entry_key), NULL);
+	g_signal_connect(G_OBJECT(entry), "populate-popup", G_CALLBACK(entry_context), NULL);
 
 	pane = glade_xml_get_widget(gui.xml, "VPane");
 	g_signal_connect(G_OBJECT(pane), "accept-position", G_CALLBACK(on_vpane_move), NULL);
@@ -441,4 +445,85 @@ void set_statusbar() {
 	if(tgui->lag_text != NULL) {
 		gnome_appbar_set_status(GNOME_APPBAR(appbar), tgui->lag_text);
 	}
+}
+
+static GtkWidget *get_color_icon(int c, GtkStyle *s) {
+	GtkWidget *image;
+	GdkPixmap *pixmap;
+	GdkGC *color;
+
+	pixmap = gdk_pixmap_new(NULL, 16, 16, 24);
+
+	color = gdk_gc_new(GDK_DRAWABLE(pixmap));
+	gdk_gc_set_foreground(color, &s->dark[GTK_STATE_NORMAL]);
+	gdk_draw_rectangle(GDK_DRAWABLE(pixmap), color, TRUE, 0, 0, 16, 16);
+	gdk_gc_set_foreground(color, &colors[c]);
+	gdk_draw_rectangle(GDK_DRAWABLE(pixmap), color, TRUE, 1, 1, 14, 14);
+
+	image = gtk_image_new_from_pixmap(pixmap, NULL);
+	gdk_pixmap_unref(pixmap);
+	return image;
+}
+
+static void entry_context(GtkEntry *entry, GtkMenu *menu, gpointer user_data) {
+	GtkWidget *item;
+	GtkWidget *submenu;
+
+	item = gtk_menu_item_new_with_mnemonic("I_nsert Color Code");
+	gtk_widget_show(item);
+
+	submenu = gtk_menu_new();
+	gtk_menu_item_set_submenu(GTK_MENU_ITEM(item), submenu);
+	gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
+
+	item = gtk_image_menu_item_new_with_label("Black");
+	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), get_color_icon(1, gtk_widget_get_style(item)));
+	gtk_menu_shell_append(GTK_MENU_SHELL(submenu), item);
+	item = gtk_image_menu_item_new_with_label("Dark Blue");
+	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), get_color_icon(2, gtk_widget_get_style(item)));
+	gtk_menu_shell_append(GTK_MENU_SHELL(submenu), item);
+	item = gtk_image_menu_item_new_with_label("Dark Green");
+	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), get_color_icon(3, gtk_widget_get_style(item)));
+	gtk_menu_shell_append(GTK_MENU_SHELL(submenu), item);
+	item = gtk_image_menu_item_new_with_label("Red");
+	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), get_color_icon(4, gtk_widget_get_style(item)));
+	gtk_menu_shell_append(GTK_MENU_SHELL(submenu), item);
+	item = gtk_image_menu_item_new_with_label("Brown");
+	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), get_color_icon(5, gtk_widget_get_style(item)));
+	gtk_menu_shell_append(GTK_MENU_SHELL(submenu), item);
+	item = gtk_image_menu_item_new_with_label("Purple");
+	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), get_color_icon(6, gtk_widget_get_style(item)));
+	gtk_menu_shell_append(GTK_MENU_SHELL(submenu), item);
+	item = gtk_image_menu_item_new_with_label("Orange");
+	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), get_color_icon(7, gtk_widget_get_style(item)));
+	gtk_menu_shell_append(GTK_MENU_SHELL(submenu), item);
+	item = gtk_image_menu_item_new_with_label("Yellow");
+	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), get_color_icon(8, gtk_widget_get_style(item)));
+	gtk_menu_shell_append(GTK_MENU_SHELL(submenu), item);
+	item = gtk_image_menu_item_new_with_label("Light Green");
+	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), get_color_icon(9, gtk_widget_get_style(item)));
+	gtk_menu_shell_append(GTK_MENU_SHELL(submenu), item);
+	item = gtk_image_menu_item_new_with_label("Aqua");
+	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), get_color_icon(10, gtk_widget_get_style(item)));
+	gtk_menu_shell_append(GTK_MENU_SHELL(submenu), item);
+	item = gtk_image_menu_item_new_with_label("Light Blue");
+	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), get_color_icon(11, gtk_widget_get_style(item)));
+	gtk_menu_shell_append(GTK_MENU_SHELL(submenu), item);
+	item = gtk_image_menu_item_new_with_label("Blue");
+	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), get_color_icon(12, gtk_widget_get_style(item)));
+	gtk_menu_shell_append(GTK_MENU_SHELL(submenu), item);
+	item = gtk_image_menu_item_new_with_label("Violet");
+	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), get_color_icon(13, gtk_widget_get_style(item)));
+	gtk_menu_shell_append(GTK_MENU_SHELL(submenu), item);
+	item = gtk_image_menu_item_new_with_label("Grey");
+	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), get_color_icon(14, gtk_widget_get_style(item)));
+	gtk_menu_shell_append(GTK_MENU_SHELL(submenu), item);
+	item = gtk_image_menu_item_new_with_label("Light Grey");
+	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), get_color_icon(15, gtk_widget_get_style(item)));
+	gtk_menu_shell_append(GTK_MENU_SHELL(submenu), item);
+	item = gtk_image_menu_item_new_with_label("White");
+	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), get_color_icon(0, gtk_widget_get_style(item)));
+	gtk_menu_shell_append(GTK_MENU_SHELL(submenu), item);
+
+	gtk_widget_show_all(submenu);
 }
