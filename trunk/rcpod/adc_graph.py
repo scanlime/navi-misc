@@ -9,7 +9,15 @@
 # -- Micah Dowty <micah@picogui.org>
 #
 
+from __future__ import division
 import gtk, rtgraph, threading, pyrcpod, time
+
+
+class AdcChannel(rtgraph.Channel):
+    def strValue(self):
+        """Represent this channel's value as a voltage"""
+        if self.value is not None:
+            return "%.02f V" % (self.value * 5 / 255)
 
 
 class AnalogUpdaterThread(threading.Thread):
@@ -32,7 +40,7 @@ class AnalogUpdaterThread(threading.Thread):
 
 
 def main():
-    channels = [rtgraph.Channel(name="Analog channel %d" % i) for i in xrange(8)]
+    channels = [AdcChannel(name="Analog channel %d" % i) for i in xrange(8)]
     graph = rtgraph.HScrollLineGraph(range=(0,255))
     win = rtgraph.GraphUIWindow(channels, graph)
     win.connect("destroy", gtk.mainquit)
