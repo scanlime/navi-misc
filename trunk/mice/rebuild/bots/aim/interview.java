@@ -61,7 +61,7 @@ public class interview
 	public interview(interview prev, botmain bot, String NICK, String PASS)
 	{
 		next = prev;
-		nick = NICK;
+		nick = NICK.toUpperCase();
 		pass = PASS;
 		mybot = bot;
 		com = new net();
