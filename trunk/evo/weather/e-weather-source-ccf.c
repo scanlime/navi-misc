@@ -20,6 +20,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
  */
 
+#include <string.h>
 #include "e-weather-source-ccf.h"
 
 EWeatherSource*
@@ -28,7 +29,24 @@ e_weather_source_ccf_new (const char *station)
 	EWeatherSourceCCF *source = E_WEATHER_SOURCE_CCF (g_object_new (e_weather_source_ccf_get_type (), NULL));
 
 	source->station = g_strdup (station);
-	return E_WEATHER_SOURCE (station);
+	return E_WEATHER_SOURCE (source);
+}
+
+static GSList*
+tokenize (const char *buffer)
+{
+	char *token;
+	char *buffer2 = g_strdup (buffer);
+	char *tokbuf = g_strdup (buffer);
+	GSList *ret;
+
+	token = strtok_r (buffer2, " \n", &tokbuf);
+	ret = g_slist_append (NULL, g_strdup (token));
+	while (token = strtok_r (NULL, " \n", &tokbuf))
+		ret = g_slist_append (ret, g_strdup (token));
+	g_free (buffer2);
+	g_free (tokbuf);
+	return ret;
 }
 
 static GList*
@@ -64,17 +82,15 @@ e_weather_source_ccf_parse (EWeatherSource *source, const char *buffer)
 	 * Note that the station in this header will usually be one of the stations
 	 * represented in the file, but this is not always the case.
 	 */
-	WeatherForecast* forecasts;
-	const char* delimiter = " ";
-	char** tokens;
-	char* datetime;
-	char* current;
+	EWeatherSourceCCF *ccfsource = (EWeatherSourceCCF*) source;
+	WeatherForecast *forecasts;
+	GSList *tokens = tokenize (buffer);
+	GSList *current = tokens;
 
-	tokens = g_strsplit (buffer, delimiter, 0);
-	datetime = tokens[3];
-
-
-	current = tokens[5];
+	do
+	{
+		g_print ("%s\n", current->data);
+	} while (current = g_slist_next (current));
 }
 
 static void
