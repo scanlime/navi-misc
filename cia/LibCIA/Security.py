@@ -48,6 +48,10 @@ class SecurityInterface(RpcServer.Interface):
            that the capability to use this function is effectively equivalent
            to the 'universe' key
            """
+        # XML-RPC will munge tuples into lists, when we really want a tuple
+        if type(capability) == list:
+            capability = tuple(capability)
+
         return caps.grant(capability, owner)
 
     def xmlrpc_test(self, key, *capabilities):
