@@ -12,6 +12,7 @@ CSFLAGS =		\
 CSFILES =			\
 	Element.cs		\
 	ElementTooltip.cs	\
+	Pipeline.cs		\
 	PipelineDrawing.cs	\
 	PipelineEditor.cs	\
 	PluginManager.cs
