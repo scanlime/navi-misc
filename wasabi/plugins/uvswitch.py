@@ -116,8 +116,8 @@ class detector(plugin.DaemonPlugin):
         try:
             self.switch = getVideoSwitch(device)
             self.previousActive = []
-            self.poll_interval = 100
             plugin.DaemonPlugin.__init__(self)
+            self.poll_interval = 10
         except IOError:
             self.reason = "Can't open the uvswitch, disabling it"
 
