@@ -11,11 +11,11 @@ HOMEPAGE="http://fyre.navi.cx/"
 SLOT="0"
 LICENSE="GPL-2"
 KEYWORDS="~x86"
-IUSE="binreloc binreloc-threads cluster exr"
+IUSE="cluster openexr"
 
 DEPEND="media-libs/libpng
 	cluster? ( >=net-libs/gnet-2.0 )
-	exr? ( media-libs/openexr )
+	openexr? ( media-libs/openexr )
 	dev-util/pkgconfig
 	>=dev-libs/glib-2.0
 	>=gnome-base/libglade-2.0
@@ -23,12 +23,6 @@ DEPEND="media-libs/libpng
 
 PATCHES="${FILESDIR}/${P}-nomimeupdates.diff
 	 ${FILESDIR}/${P}-initscript.diff"
-
-pkg_setup() {
-	if ! use binreloc && use binreloc-threads; then
-		ewarn "+binreloc-threads implies +binreloc!"
-	fi
-}
 
 src_unpack() {
 	unpack ${A}
@@ -50,12 +44,13 @@ src_unpack() {
 }
 
 src_compile() {
-	local myconf=""
-	use cluster || myconf="${myconf} --disable-gnet"
-	use exr     || myconf="${myconf} --disable-openexr"
+	# Fyre 0.9 can't find its datadir without binreloc,
+	# and it won't autodetect binreloc-safety correctly
+	# if we're in the sandbox.
+	local myconf="--enable-binreloc"
 
-	(use binreloc || use bin-reloc-threads) && myconf="${myconf} --enable-binreloc"
-	use binreloc-threads && myconf="${myconf} --enable-binreloc-threads"
+	use cluster || myconf="${myconf} --disable-gnet"
+	use openexr || myconf="${myconf} --disable-openexr"
 
 	econf \
 		--disable-dependency-tracking \
@@ -75,3 +70,4 @@ src_install() {
 pkg_postinst() {
 	update-mime-database /usr/share/mime
 }
+
