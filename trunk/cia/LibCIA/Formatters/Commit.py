@@ -58,6 +58,13 @@ class CommitFormatter(Message.ModularFormatter):
     # If the list of files ends up longer than this many characters, summarize it
     filesWidthLimit = 60
 
+    # Instead of using our default pseudo-smart whitespace normalizing algorithm,
+    # we can optionally replace all whitespace with single space characters.
+    crunchWhitespace = False
+
+    def param_crunchWhitespace(self, tag):
+        self.crunchWhitespace = True
+
     def param_lineLimit(self, tag):
         self.lineLimit = int(XML.shallowText(tag))
 
@@ -116,9 +123,14 @@ class CommitFormatter(Message.ModularFormatter):
         if not log:
             return [Message.MarkAsHidden()]
 
+        if self.crunchWhitespace:
+            inputLines = [Util.getCrunchedLog(log)]
+        else:
+            inputLines = Util.getNormalizedLog(log)
+
         # Break the log string into wrapped lines
         lines = []
-        for line in Util.getNormalizedLog(log):
+        for line in inputLines:
             # Ignore blank lines
             if not line:
                 continue
