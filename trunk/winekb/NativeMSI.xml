@@ -1,6 +1,6 @@
 <?xml-stylesheet href="transform.xml" type="text/xsl"?>
 
-<kbpage title="Installing native MSI">
+<kbpage title="Installing native MSI" backlink="index">
 
   <section title="Installing native MSI">
     * Firstly, download it from <a
