@@ -698,6 +698,9 @@ navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_dat
 
 	treeview = GTK_TREE_VIEW (glade_xml_get_widget (gui.xml, "userlist"));
 
+	/* XXX: This sets model to be the GtkTreeModelSort used by the NavTree, it is
+	 *      not a GtkTreeModel. The iter is for that ModelSort.
+	 */
 	if(gtk_tree_selection_get_selected(treeselection, &model, &iter) && gui.current_session) {
 		GtkWidget *topic, *entry;
 
@@ -709,42 +712,52 @@ navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_dat
 		entry = glade_xml_get_widget(gui.xml, "text entry");
 		tgui->entry = g_strdup(gtk_entry_get_text(GTK_ENTRY(entry)));
 
+		/* Update current_path. */
+		if(gui.server_tree->current_path)
+		  gtk_tree_path_free(gui.server_tree->current_path);
+	  gui.server_tree->current_path = gtk_tree_model_get_path(model, &iter);
+
 		/* Get the session for the new selection. */
 		gtk_tree_model_get(model, &iter, 2, &s, -1);
 		sess = (session *) s;
+
 		/* Clear the icons. */
 		sess->nick_said = FALSE;
 		sess->msg_said = FALSE;
 		sess->new_data = FALSE;
+
 		/* Set tgui to the gui of the new session. */
 		tgui = (session_gui *) sess->gui;
 		if(tgui == NULL)
 			return;
+
 		/* Show the xtext buffer for the session. */
 		gtk_xtext_buffer_show(gui.xtext, tgui->buffer, TRUE);
+
 		/* Set the topic. */
 		topic = glade_xml_get_widget(gui.xml, "topic entry");
 		gtk_entry_set_text(GTK_ENTRY(topic), tgui->topic);
+
 		/* Set the text entry field to whatever is in the text entry of this session. */
 		entry = glade_xml_get_widget(gui.xml, "text entry");
 		gtk_entry_set_text(GTK_ENTRY(entry), tgui->entry);
+
 		/* Make this our current session. */
 		gui.current_session = sess;
+
 		/* Change the model in the userlist to the one for this session. */
 		gtk_tree_view_set_model (treeview, GTK_TREE_MODEL (userlist_get_store (u, sess)));
+
 		/* Set our nick. */
 		set_nickname(sess->server, NULL);
+
 		/* Change the window name. */
 		rename_main_window(sess->server->networkname, sess->channel);
+
 		/* remove any icon that exists */
 		store = gtk_tree_model_sort_get_model(GTK_TREE_MODEL_SORT(model));
 		gtk_tree_model_sort_convert_iter_to_child_iter(GTK_TREE_MODEL_SORT(model), &newiter, &iter);
 		gtk_tree_store_set(GTK_TREE_STORE(store), &newiter, 0, NULL, 3, 0, -1);
-
-		/* Update current_path. */
-		if(gui.server_tree->current_path)
-		  gtk_tree_path_free(gui.server_tree->current_path);
-	  gui.server_tree->current_path = gtk_tree_model_get_path(GTK_TREE_MODEL(model), &iter);
 	}
 }
 
