@@ -556,7 +556,6 @@ class StatsPage(Template.Page):
            """
         pathSegments = [s for s in request.path.split('/') if s]
         treeDepth = len(self.target.pathSegments) + additionalDepth
-        print "pathsegments %r, treeDepth %r" % (pathSegments, treeDepth)
         if treeDepth:
             pathSegments = pathSegments[:-treeDepth]
         return '/' + '/'.join(pathSegments) + '/'
