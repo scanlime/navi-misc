@@ -6,7 +6,7 @@ widgets.
 Copyright (C) 2003 W. Evan Sheehan <evan@navi.picogui.org>
 '''
 
-import gtk, re, traceback
+import gtk, re, traceback, string
 from Character import Character
 from random import randint
 
@@ -35,9 +35,11 @@ class character_sheet(gtk.Window, sheetElement):
     sheetElement.__init__(self, node)
     self.connect("delete_event", lambda w,d: self.destroy())
 
+    # Toggle whether the fields are editable.
     self.edit = gtk.CheckButton('Editable')
     self.edit.connect('toggled', self.editable)
 
+    # Write all fields out to the data file.
     self.apply = gtk.Button('Apply')
     self.apply.connect('clicked', self.applyChanges)
 
@@ -67,7 +69,8 @@ class character_sheet(gtk.Window, sheetElement):
 
   def applyChanges(self, widget=None, data=None):
     ''' Apply the changes in all of the fields to the data file. '''
-    print 'Not implemented'
+    for field in self.editables:
+      field.writeOut()
 
 class tab_view(gtk.Notebook, sheetElement):
   ''' gtk.Notebook subclassed for tabbed elements in the character
@@ -134,7 +137,7 @@ class text_field(gtk.HBox, sheetElement):
     self.characterData = characterData
     self.text.connect("activate", self.writeOut)
 
-  def writeOut(self, widget):
+  def writeOut(self, widget=None, data=None):
     ''' Save the data in text field to the XML data file. '''
     self.characterData.setData(self.attributes['path'], self.text.get_text())
     self.characterData.writeOut()
@@ -149,7 +152,10 @@ class text_field(gtk.HBox, sheetElement):
 
   def addEditable(self, list):
     ''' Add any editable fields to the list. '''
-    list.append(self.text)
+    list.append(self)
+
+  def set_editable(self, is_editable):
+    self.text.set_editable(is_editable)
 
 class dice(gtk.Button, sheetElement):
   ''' gtk.Button subclass to add some additional information about
@@ -219,10 +225,19 @@ class drop_down(hbox):
     #self.menu = []
 
     self.items = []
+    self.paths = []
+    self.characterData = character
     self.button = None
+
     self.menu = gtk.Combo()
     self.menu.entry.set_editable(gtk.FALSE)
     self.pack_start(self.menu)
+    self.editScroller = gtk.ScrolledWindow()
+    self.editBox = gtk.TextView()
+    self.buffer = self.editBox.get_buffer()
+    self.editScroller.add(self.editBox)
+    self.editBox.show()
+    self.pack_start(self.editScroller)
 
     #for i in range(int(self.attributes.get('quantity', "1"))):
       #self.menu.append(gtk.Combo())
@@ -237,6 +252,7 @@ class drop_down(hbox):
       self.button = child.copyWithCallback(self.roll)
       self.pack_end(self.button, padding=5)
     elif isinstance(child, drop_down_item):
+      if child.path: self.paths.append(child.path)
       for item in child.data:
         self.items.append(item)
       self.menu.set_popdown_strings(self.items)
@@ -252,6 +268,7 @@ class drop_down(hbox):
     ''' Roll the dice object. '''
     # Get the data from the menu: number of times, number of sides and modifiers.
     values = re.search('\[([1-9]+)d([1-9]+)\+?([1-9]*)\]', self.menu.entry.get_text())
+    print values.group(2)
     if values:
       self.button.attributes['sides'] = values.group(2)
       self.button.data['times'] = [int(values.group(1))]
@@ -259,9 +276,25 @@ class drop_down(hbox):
 	self.button.data['mods'] = [int(values.group(3))]
       self.button.roll()
 
+  def writeOut(self):
+    ''' Write out the data in the menu. '''
+    self.characterData.setData(self.paths[0], self.buffer.get_text(self.buffer.get_start_iter(), self.buffer.get_end_iter()))
+    self.characterData.writeOut()
+
   def addEditable(self, list):
     ''' Add the entry field to the list of editable things. '''
-    list.append(self.menu.entry)
+    list.append(self)
+
+  def set_editable(self, is_editable):
+    if is_editable:
+      self.buffer.set_text(string.join(self.items, '\n'))
+      self.menu.hide()
+      self.editScroller.show()
+    else:
+      self.items = self.buffer.get_text(self.buffer.get_start_iter(), self.buffer.get_end_iter()).split('\n')
+      self.menu.set_popdown_strings(self.items)
+      self.editScroller.hide()
+      self.menu.show()
 
 class drop_down_item(sheetElement):
   ''' Items in a drop down menu. '''
@@ -272,6 +305,8 @@ class drop_down_item(sheetElement):
     if node.childNodes[0].data.count('/') > 0:
       self.data = character.getData(node.childNodes[0].data).split('\n')
       self.data = [item.strip() for item in self.data]
+      self.path = node.childNodes[0].data.strip()
     # The data is constant in the layout sheet, so just save it.
     else:
       self.data = [node.childNodes[0].data]
+      self.path = None
