@@ -50,17 +50,8 @@ class BaseFeed(Nouvelle.Twisted.Page):
         context['component'] = self.statsPage.component
         context['request'].setHeader('content-type', self.mimeType)
 
-    def render_title(self, context):
-        return self.target.getTitle()
-
-    def render_link(self, context):
-        return self.target.metadata.getValue('url', Link.StatsLink(self.target).getURL(context))
-
-    def render_description(self, context):
-        return self.target.metadata.getValue('description', 'CIA Stats')
-
     def render_items(self, context):
-        """Renders the most recent commits as items in the RSS feed"""
+        """Renders the most recent commits as items in the feed"""
         # Get the messages, render them in our Deferred
         result = defer.Deferred()
         self.target.messages.getLatest(self.limit).addCallback(
@@ -99,8 +90,8 @@ class FormattedFeed(BaseFeed):
         return xml(self.formatMessage(m, 'plaintext'))
 
 
-class RSS2Feed(FormattedFeed):
-    """A web resource representing an RSS 2.0 feed for a particular stats target."""
+class RSSFeed(FormattedFeed):
+    """An abstract base class for code shared between versions of the RSS format"""
     def render_photo(self, context):
         # First figure out if we have a photo. Actually render it in the Deferred if we do.
         result = defer.Deferred()
@@ -118,12 +109,26 @@ class RSS2Feed(FormattedFeed):
         else:
             result.callback([])
 
+    def render_title(self, context):
+        return self.target.getTitle()
+
+    def render_link(self, context):
+        return self.target.metadata.getValue('url', Link.StatsLink(self.target).getURL(context))
+
+    def render_description(self, context):
+        return self.target.metadata.getValue('description', 'CIA Stats')
+
     def formatItems(self, messages, context, result):
         items = []
         for m in messages:
             items.append(tag('item')[self.messageToItemContent(Message.Message(m))])
         result.callback(items)
 
+
+class RSS2Feed(RSSFeed):
+    """A web resource representing an RSS 2.0 feed for a particular stats target,
+       constructed according to the spec at http://blogs.law.harvard.edu/tech/rss
+       """
     def messageToItemContent(self, m):
         """Render an XML message as the content of an RSS <item>"""
         # We can always get a timestamp
@@ -142,18 +147,105 @@ class RSS2Feed(FormattedFeed):
 
         return tags
 
-    document = tag('rss', version='2.0')[ tag('channel')[
-        tag('title')[ place('title') ],
-        tag('link')[ place('link') ],
-        tag('ttl')[ 15 ],
-        tag('description')[ place('description') ],
-        place('photo'),
-        place('items'),
-        ]]
+    document = [
+        xml('<?xml version="1.0"?>\n'),
+        tag('rss', version='2.0')[
+            tag('channel')[
+                tag('title')[ place('title') ],
+                tag('link')[ place('link') ],
+                tag('description')[ place('description') ],
+                place('photo'),
+                place('items'),
+            ],
+        ],
+    ]
 
 
-class RSS1Feed(BaseFeed):
-    document = "Moose"
+class RSS1Feed(RSSFeed):
+    """A web resource representing an RSS 1.0 feed for a particular stats target,
+       constructed according to the standard at http://web.resource.org/rss/1.0/spec
+       """
+    def messageToItemContent(self, m):
+        return []
+
+    document = [
+        xml('<?xml version="1.0"?>\n'),
+        tag('rdf:RDF', **{
+            'xmlns:rdf': "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+            'xmlns': "http://purl.org/rss/1.0/",
+        })[
+            tag('channel')[
+                tag('title')[ place('title') ],
+                tag('link')[ place('link') ],
+                tag('description')[ place('description') ],
+                place('photo'),
+
+                tag('items')[
+                    tag('rdf:Seq')[
+                        place('items'),
+                    ],
+                ],
+            ],
+        ],
+    ]
+
+
+class XMLFeed(BaseFeed):
+    """A web resource representing a feed of unformatted XML commits for a stats target."""
+    def formatItems(self, messages, context, result):
+        result.callback(map(xml, messages))
+
+    def render_metadata(self, context):
+        # Look up all the metadata first
+        result = defer.Deferred()
+        self.target.metadata.dict().addCallback(
+            self._render_metadata, context, result).addErrback(result.errback)
+        return result
+
+    def _render_metadata(self, metadict, context, result):
+        result.callback([self.renderMetadataItem(name, t[0], t[1], context)
+                         for name, t in metadict.iteritems()])
+
+    def renderMetadataItem(self, name, value, mimeType, context):
+        """Render a single metadata item. If the content is short and in
+           a text format, we include it directly. Otherwise, just link to it.
+           """
+        if mimeType.startswith('text/') and len(value) < 1024:
+            valueTag = tag('value', _type=mimeType)[ value ]
+        else:
+            valueTag = tag('url')[ Link.MetadataLink(self.target, name).getURL(context) ]
+        return tag('item', _name=name)[ valueTag ]
+
+    def render_counters(self, context):
+        # Look up all the counters first
+        result = defer.Deferred()
+        self.target.counters.dict().addCallback(
+            self._render_counters, context, result).addErrback(result.errback)
+        return result
+
+    def _render_counters(self, counterdict, context, result):
+        tags = []
+        for name, valueDict in counterdict.iteritems():
+            eventCount = valueDict.get('eventCount', 0)
+            try:
+                del valueDict['eventCount']
+            except KeyError:
+                pass
+            tags.append(tag('counter', _name = name, **valueDict)[ eventCount ])
+        result.callback(tags)
+
+    def render_statsLink(self, context):
+        return Link.StatsLink(self.target).getURL(context)
+
+    document = [
+        xml('<?xml version="1.0"?>\n'),
+        tag('statsTarget')[
+            tag('link')[ place('statsLink') ],
+            tag('counters')[ place('counters') ],
+            tag('metadata')[ place('metadata') ],
+            tag('recentMessages') [ place('items') ],
+        ],
+    ]
 
 
 class CustomizeRSS(Template.Page):
@@ -336,60 +428,5 @@ class RSSFrontend(resource.Resource):
 
         # Now construct the proper feed object and render it
         return factory(self.statsPage, **kwargs).render(request)
-
-
-class XMLFeed(BaseFeed):
-    """A web resource representing a feed of unformatted XML commits for a stats target."""
-    def formatItems(self, messages, context, result):
-        result.callback(map(xml, messages))
-
-    def render_metadata(self, context):
-        # Look up all the metadata first
-        result = defer.Deferred()
-        self.target.metadata.dict().addCallback(
-            self._render_metadata, context, result).addErrback(result.errback)
-        return result
-
-    def _render_metadata(self, metadict, context, result):
-        result.callback([self.renderMetadataItem(name, t[0], t[1], context)
-                         for name, t in metadict.iteritems()])
-
-    def renderMetadataItem(self, name, value, mimeType, context):
-        """Render a single metadata item. If the content is short and in
-           a text format, we include it directly. Otherwise, just link to it.
-           """
-        if mimeType.startswith('text/') and len(value) < 1024:
-            valueTag = tag('value', _type=mimeType)[ value ]
-        else:
-            valueTag = tag('url')[ Link.MetadataLink(self.target, name).getURL(context) ]
-        return tag('item', _name=name)[ valueTag ]
-
-    def render_counters(self, context):
-        # Look up all the counters first
-        result = defer.Deferred()
-        self.target.counters.dict().addCallback(
-            self._render_counters, context, result).addErrback(result.errback)
-        return result
-
-    def _render_counters(self, counterdict, context, result):
-        tags = []
-        for name, valueDict in counterdict.iteritems():
-            eventCount = valueDict.get('eventCount', 0)
-            try:
-                del valueDict['eventCount']
-            except KeyError:
-                pass
-            tags.append(tag('counter', _name = name, **valueDict)[ eventCount ])
-        result.callback(tags)
-
-    def render_statsLink(self, context):
-        return Link.StatsLink(self.target).getURL(context)
-
-    document = tag('statsTarget')[
-        tag('link')[ place('statsLink') ],
-        tag('counters')[ place('counters') ],
-        tag('metadata')[ place('metadata') ],
-        tag('recentMessages') [ place('items') ],
-        ]
 
 ### The End ###
