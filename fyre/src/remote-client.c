@@ -26,18 +26,28 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdarg.h>
+#include <stdlib.h>
 #include "remote-client.h"
 
 static void       remote_client_class_init    (RemoteClientClass*    klass);
 static void       remote_client_init          (RemoteClient*         self);
 static void       remote_client_dispose       (GObject*              gobject);
+static void       remote_client_callback      (GConn*                gconn,
+					       GConnEvent*           event,
+					       gpointer              user_data);
+static void       remote_client_recv_binary   (RemoteClient*         self,
+					       GConnEvent*           event);
+static void       remote_client_recv_line     (RemoteClient*         self,
+					       GConnEvent*           event);
 
 
 /************************************************************************************/
 /**************************************************** Initialization / Finalization */
 /************************************************************************************/
 
-GType remote_client_get_type(void) {
+GType remote_client_get_type(void)
+{
     static GType anim_type = 0;
 
     if (!anim_type) {
@@ -59,50 +69,162 @@ GType remote_client_get_type(void) {
     return anim_type;
 }
 
-static void remote_client_class_init(RemoteClientClass *klass) {
+static void remote_client_class_init(RemoteClientClass *klass)
+{
     GObjectClass *object_class;
     object_class = (GObjectClass*) klass;
 
     object_class->dispose      = remote_client_dispose;
 }
 
-static void remote_client_dispose(GObject *gobject) {
+static void remote_client_dispose(GObject *gobject)
+{
     RemoteClient *self = REMOTE_CLIENT(gobject);
 
-    if (self->output_f) {
-	fclose(self->output_f);
-	self->output_f = NULL;
+    if (self->gconn) {
+	gnet_conn_delete(self->gconn);
+	self->gconn = NULL;
     }
-    if (self->input_f) {
-	fclose(self->input_f);
-	self->input_f = NULL;
+
+    if (self->response_queue) {
+	/* Empty the queue of any outstanding requests */
+	RemoteClosure *closure;
+	while ((closure = g_queue_pop_tail(self->response_queue)))
+	    g_free(closure);
+
+	/* Free it */
+	g_queue_free(self->response_queue);
+	self->response_queue = NULL;
     }
 }
 
-static void remote_client_init(RemoteClient *self) {
+static void remote_client_init(RemoteClient *self)
+{
+    self->response_queue = g_queue_new();
 }
 
-RemoteClient*  remote_client_new_from_streams (FILE*    output_f,
-					       FILE*    input_f)
+RemoteClient*  remote_client_new              (const gchar*      hostname,
+					       gint              port)
 {
     RemoteClient *self = REMOTE_CLIENT(g_object_new(remote_client_get_type(), NULL));
 
-    self->output_f = output_f;
-    self->input_f = input_f;
+    self->gconn = gnet_conn_new(hostname, port, remote_client_callback, self);
+    gnet_conn_set_watch_error(self->gconn, TRUE);
+    gnet_conn_readline(self->gconn);
 
     return self;
 }
 
-RemoteClient*  remote_client_new_from_command (char*    shell_command)
+gboolean       remote_client_is_connected     (RemoteClient*     self)
 {
-    FILE *in, *out;
-
-
-    return remote_client_new_from_streams(out, in);
+    return gnet_conn_is_connected(self->gconn);
 }
 
+
 /************************************************************************************/
-/***************************************************************** I/O Layer ********/
+/************************************************************** Low-level Interface */
 /************************************************************************************/
+
+void           remote_client_command          (RemoteClient*     self,
+					       RemoteCallback    callback,
+					       gpointer          user_data,
+					       const gchar*      format,
+					       ...)
+{
+    RemoteClosure *closure = g_new0(RemoteClosure, 1);
+    gchar* full_message;
+    gchar* line;
+    va_list ap;
+
+    /* Add the response callback to our queue */
+    closure->callback = callback;
+    closure->user_data = user_data;
+    g_queue_push_head(self->response_queue, closure);
+
+    /* Assemble the caller's formatted string */
+    va_start(ap, format);
+    full_message = g_strdup_vprintf(format, ap);
+    va_end(ap);
+
+    /* Send a one-line command */
+    line = g_strdup_printf("%s\n", full_message);
+    gnet_conn_write(self->gconn, line, strlen(line));
+    g_free(full_message);
+    g_free(line);
+}
+
+static void       remote_client_callback      (GConn*                gconn,
+					       GConnEvent*           event,
+					       gpointer              user_data)
+{
+    RemoteClient* self = (RemoteClient*) user_data;
+    switch (event->type) {
+
+    case GNET_CONN_READ:
+	if (self->current_binary_response)
+	    remote_client_recv_binary(self, event);
+	else
+	    remote_client_recv_line(self, event);
+	break;
+
+    default:
+	break;
+    }
+}
+
+static void       remote_client_recv_binary   (RemoteClient*         self,
+					       GConnEvent*           event)
+{
+    RemoteClosure* closure = g_queue_pop_tail(self->response_queue);
+    RemoteResponse* response = self->current_binary_response;
+    self->current_binary_response = NULL;
+
+    g_assert(closure != NULL);
+
+    response->data = event->buffer;
+    closure->callback(self, response, closure->user_data);
+
+    g_free(closure);
+    g_free(response->message);
+    g_free(response);
+
+    gnet_conn_readline(self->gconn);
+}
+
+static void       remote_client_recv_line     (RemoteClient*         self,
+					       GConnEvent*           event)
+{
+    RemoteResponse *response = g_new0(RemoteResponse, 1);
+
+    response->code = strtol(event->buffer, &response->message, 10);
+    if (*response->message)
+	response->message++;
+    response->message = g_strdup(response->message);
+
+    if (response->code == FYRE_RESPONSE_BINARY) {
+	/* Extract the length of the binary response, then start
+	 * reading the binary data itself.
+	 */
+	response->data_length = strtol(response->message, &response->message, 10);
+	if (*response->message)
+	    response->message++;
+
+	self->current_binary_response = response;
+	gnet_conn_readn(self->gconn, response->data_length);
+    }
+    else {
+	/* We're done, signal the callback and start waiting
+	 * for another normal response line.
+	 */
+	RemoteClosure* closure = g_queue_pop_tail(self->response_queue);
+	g_assert(closure != NULL);
+	closure->callback(self, response, closure->user_data);
+	g_free(closure);
+	g_free(response->message);
+	g_free(response);
+
+	gnet_conn_readline(self->gconn);
+    }
+}
 
 /* The End */
