@@ -21,14 +21,6 @@ $CIADIR/data/mail.log
 | $CIADIR/mail/filter_kde.py
 
 :0
-* ^Subject:.*\[mythtv-commits\]
-| $CIADIR/mail/filter_mythtv.py
-
-:0
-* ^Mailing-List: contact perl5-changes-help@perl.org
-| $CIADIR/mail/filter_perl5.py
-
-:0
 * ^To: plone-cvs@lists.sourceforge.net
 | $CIADIR/mail/filter_plone.py
 
@@ -39,10 +31,6 @@ $CIADIR/data/mail.log
 :0
 * ^List-Id:.*XFree86
 | $CIADIR/mail/filter_xfree86.py
-
-:0
-* ^Subject: \[Emacs-commit\]
-| $CIADIR/mail/filter_emacs.py
 
 ###### Pass on other messages to the server
 
