@@ -368,6 +368,10 @@ class CommitToXHTMLLong(CommitToXHTML):
             headers['Version'] = str(commit.version)
         if commit.revision:
             headers['Revision'] = str(commit.revision)
+        if commit.diffLines:
+            headers['Changed Lines'] = str(commit.diffLines)
+        if commit.url:
+            headers['URL'] = tag('a', href=str(commit.url))[ Util.extractSummary(commit.url) ]
 
         return [
             tag('h1')[ "Commit Message" ],
@@ -398,10 +402,16 @@ class CommitToXHTMLLong(CommitToXHTML):
         keys.sort()
         items = []
         for key in keys:
+            if not key:
+                # This can happen when there's a trailing slash, for example because a new directory
+                # was added. (in clients that are smart enough to detect that) Ignore it here for now.
+                continue
+
             if tree[key]:
                 items.append( tag('li', _class='directory')[ key, self.renderFileTree(tree[key]) ])
             else:
                 items.append( tag('li', _class='file')[ key ])
+
         return tag('ul', _class='fileTree')[ items ]
 
 ### The End ###
