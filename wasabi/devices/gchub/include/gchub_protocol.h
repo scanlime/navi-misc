@@ -38,12 +38,27 @@
 #define GCHUB_VENDOR_ID               0xE461
 #define GCHUB_PRODUCT_ID              0x000A
 
+
 ;//************************************************** Control requests
 
 ;// Set the rumble motor and LED status. LEDs are packed into
 ;// the low 8 bits of wIndex, the rumble motor enable bits for
 ;// each controller are in the four LSBs of wValue.
 #define GCHUB_CTRL_SET_STATUS    0x01
+
+#define GCHUB_RUMBLE_PORT0       0x01
+#define GCHUB_RUMBLE_PORT1       0x02
+#define GCHUB_RUMBLE_PORT2       0x03
+#define GCHUB_RUMBLE_PORT3       0x04
+
+#define GCHUB_LED_PORT0_RED      0x80
+#define GCHUB_LED_PORT0_GREEN    0x40
+#define GCHUB_LED_PORT1_RED      0x20
+#define GCHUB_LED_PORT1_GREEN    0x10
+#define GCHUB_LED_PORT2_RED      0x08
+#define GCHUB_LED_PORT2_GREEN    0x04
+#define GCHUB_LED_PORT3_RED      0x02
+#define GCHUB_LED_PORT3_GREEN    0x01
 
 
 ;//************************************************** Endpoints
@@ -78,22 +93,22 @@
 ;//   6. Right analog trigger
 #define GCHUB_PACKET_ANALOG      0x20
 
-;// Packets containing button information
-;//   1. Button bitfield:
-;//       Bit 0: A button
-;//       Bit 1: B button
-;//       Bit 2: X button
-;//       Bit 3: Y button
-;//       Bit 4: Start button
-;//   2. Button bitfield:
-;//       Bit 0: D-pad Left
-;//       Bit 1: D-pad Right
-;//       Bit 2: D-pad down
-;//       Bit 3: D-pad up
-;//       Bit 4: Z button
-;//       Bit 5: R button
-;//       Bit 6: L button
+;// Packets containing button information, as a 16-bit
+;// big-endian bitfield containing GCHUB_BUTTON_* flags.
 #define GCHUB_PACKET_BUTTONS     0x30
+
+#define GCHUB_BUTTON_DPAD_LEFT   0x0001
+#define GCHUB_BUTTON_DPAD_RIGHT  0x0002
+#define GCHUB_BUTTON_DPAD_DOWN   0x0004
+#define GCHUB_BUTTON_DPAD_UP     0x0008
+#define GCHUB_BUTTON_Z           0x0010
+#define GCHUB_BUTTON_R           0x0020
+#define GCHUB_BUTTON_L           0x0040
+#define GCHUB_BUTTON_A           0x0100
+#define GCHUB_BUTTON_B           0x0200
+#define GCHUB_BUTTON_X           0x0400
+#define GCHUB_BUTTON_Y           0x0800
+#define GCHUB_BUTTON_START       0x1000
 
 #endif
 
