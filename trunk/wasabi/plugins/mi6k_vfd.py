@@ -21,6 +21,7 @@ Copyright (C) 2004 Micah Dowty <micah@navi.cx>
 
 import plugin
 import config
+import audio.player
 from event import *
 
 import mi6k
@@ -125,11 +126,18 @@ class PluginInterface(plugin.DaemonPlugin):
                                              gravity=(0,-10),
                                              priority=-1))
 
-        # A scrolling multi-purpose title widget that's used for most things
-        self.title = vfdwidgets.LoopingScroller(visible=False,
-                                                gravity=(0,-1),
-                                                priority=10)
-        self.surface.add(self.title)
+        # The title of the currently selected item
+        self.selectionTitle = vfdwidgets.LoopingScroller(visible=False,
+                                                         gravity=(0,-5),
+                                                         priority=1)
+        self.surface.add(self.selectionTitle)
+
+        # A relatively high priority widget with the title of the
+        # currently playing video or audio track.
+        self.playerTitle = vfdwidgets.LoopingScroller(visible=False,
+                                                      gravity=(0,-1),
+                                                      priority=10)
+        self.surface.add(self.playerTitle)
 
         # Add another two higher-priority clocks at the lower-right
         # to show our progress through media files.
@@ -147,9 +155,10 @@ class PluginInterface(plugin.DaemonPlugin):
            for the current object type. This resets all widgets to an
            inactive state, so widgets we aren't using will go away.
            """
-        self.title.visible = False
+        self.selectionTitle.visible = False
         self.elapsedTime.visible = False
         self.totalTime.visible = False
+        self.playerTitle.visible = False
 
     def draw(self, (type, object), osd):
         """This handler gives plugins a chance to draw extra information
@@ -204,13 +213,19 @@ class PluginInterface(plugin.DaemonPlugin):
            work well enough to give us basic navigation even with
            the TV turned off.
            """
-        menu = menuw.menustack[-1]
-        self.title.visible = True
-        self.title.text = menu.selected.name
+        # If audio is playing anyway, the audio player is probably
+        # running in detached mode. Show its status too, even if it
+        # covers up menu status.
+        if audio.player.get() and audio.player.get().player:
+            self.draw_player(audio.player.get().item)
 
-    def draw_player(self, player, osd):
-        self.title.visible = True
-        self.title.text = player.getattr('title') or player.getattr('name')
+        menu = menuw.menustack[-1]
+        self.selectionTitle.visible = True
+        self.selectionTitle.text = menu.selected.name
+
+    def draw_player(self, player, osd=None):
+        self.playerTitle.visible = True
+        self.playerTitle.text = player.getattr('title') or player.getattr('name')
 
         if hasattr(player, 'elapsed'):
             self.elapsedTime.visible = True
