@@ -27,6 +27,10 @@ from pinefs import rfc1094
 import psyco
 psyco.full()
 
+def log(msg):
+    print msg
+    open("spreadfs.log", "a").write(msg + "\n")
+
 
 class DiskSet:
     """This class represents a group of other mounts that a spread
@@ -57,7 +61,16 @@ class DiskSet:
         for p in self.findIter(dir, os.path.isdir):
             try:
                 for f in os.listdir(p):
-                    contents[f] = 1
+
+                    # Duplicate directories are fine, but duplicate files
+                    # should be flagged with warnings. We use the full path
+                    # in 'contents' only for these warning messages.
+                    fullpath = os.path.join(p, f)
+                    if os.path.isfile(fullpath) and f in contents:
+                        log("*** File %r duplicated in at least two places:\n\t%r\n\t%r" % (
+                            f, fullpath, contents[f]))
+
+                    contents[f] = fullpath
             except OSError:
                 pass
         return contents.iterkeys()
