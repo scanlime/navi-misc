@@ -23,7 +23,7 @@ A simple Python interface to rrdtool
 #
 
 from Nouvelle import tag
-import os, time, popen2, sys, re, colorsys, sha
+import os, time, popen2, sys, re, colorsys, random
 import Image
 from pytherm import units
 
@@ -58,6 +58,95 @@ def rrd(*args):
     if child.wait():
         raise Exception("Error in rrdtool")
     return size
+
+
+def getTempDir():
+    """Return a temporary directory to use. This is in /tmp, and is
+       based on a hash of our path- so individual installations of
+       the therm software get distinct temp directories.
+       """
+    return "/tmp/therm-%08X" % abs(hash(__file__))
+
+
+def escapeForPath(s:
+    """Escape a string such that any characters unsuitable for use
+       in a file or directory name are gone"""
+    return s.replace(os.sep, ".")
+
+
+class CachedResource:
+    """A resource, represented as a file on disk, that is generated
+       and cached atomically. Cached items are identified by a name
+       and a stamp- the name identifies the cached resource at any
+       point in time, the stamp represents the object's freshness.
+
+       On disk, every resource name is assigned to a directory. Files
+       named according to the stamp are stored within. While a resource
+       is being created, a temporary file is created. When it's finished,
+       it is atomically installed by renaming.
+       """
+    stampType = int
+
+    def __init__(self, name):
+        self.name = name
+        self.path = os.path.join(getTempDir(), "r_%s" % escapeForPath(name))
+        try:
+            os.makedirs(self.path)
+        except OSError:
+            pass
+
+    def getFile(self, stamp):
+        """Get the final file name for a particular stamp"""
+        return os.path.join(self.path, escapeForPath(str(stamp)))
+
+    def iterStamps(self):
+        """Iterate over all stamps for which we have finished resources"""
+        for name in os.listdir(self.path):
+            if name and name[0] != '.':
+                try:
+                    yield self.stampType(name)
+                except:
+                    pass
+
+    def cleanStampsBefore(self, stamp):
+        """Remove all versions of this resource older than the one indicated"""
+        for s in self.iterStamps():
+            if s < stamp:
+                os.unlink(self.getFile(s))
+
+    def newVersion(self, timeout=60*10):
+        """To start writing out a new version of this resource, this
+           returns a suitable temporary file name to use. It has the side
+           effect of clearing out any expired temporary files. The new file
+           will expire after the given number of seconds.
+           """
+        tempDir = os.path.join(self.path, "unfinished")
+        try:
+            os.makedirs(tempDir)
+        except OSError:
+            pass
+
+        # File names are an expiration time and a random identifier,
+        # separated by an underscore. Look for expired files.
+        now = time.time()
+        for filename in os.listdir(tempDir):
+            filepath = os.path.join(tempDir, filename)
+            try:
+                time, randomness = name.split("_")
+                if float(time) > now:
+                    # Expired, delete it
+                    os.unlink(filepath)
+            except:
+                # Badly formed file, delete it
+                os.unlink(filepath)
+
+        # Generate a new name
+        randomness = abs(hash(random.random()) ^ os.getpid())
+        return os.path.join(tempDir, "%s_%s" % (now + timeout, randomness)
+
+    def commitVersion(Self, tempFile, stamp):
+        """Commit a finished temporary file by renaming it atomically"""
+        os.rename(tempFile, self.getFile(stamp))
 
 
 class Timestamped:
