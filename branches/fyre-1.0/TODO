@@ -1,14 +1,3 @@
-* Fyre really needs new stopping conditions, the 'target density' is
-  easily confused by spirals and other statistically odd images.
-  An easy workaround would be to add a way to limit by iterations
-  or wallclock time, but that would be silly.
-
-  Currently, highest on my list of things to try is doing a
-  1-D histogram of the values in our HistogramImager- then use that
-  to throw out extremes and compute an average samples per bucket
-  for the remainder of the image. This would let us have a 'quality'
-  parameter that's proportional to samples per bucket.
-
 * Undo/redo
 
 * Install the icon into the xdg icon theme (hicolor/NxN/apps)
