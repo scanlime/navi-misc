@@ -1,0 +1,63 @@
+/*
+ * PerlinNoise.h - A model of SurfaceModifier that applies Perlin noise
+ *                 along the surface's normal.
+ *
+ * Copyright (C) 2002-2003 Micah Dowty and David Trowbridge
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * 
+ */
+
+#ifndef _H_PERLINNOISE
+#define _H_PERLINNOISE
+
+#include "JetCOW.h"
+#include "Surface.h"
+
+
+/* This uses the following dictionary keys:
+ *
+ *   Seed         - integer seed value for random number generator
+ *   Persistence  - floating point parameter between 0 and 1 representing
+ *                  the ratio of amplitudes between octaves. Higher values
+ *                  give you noise with larger high frequency components.
+ *   Octaves      - integer number of octaves of noise to generate
+ *   Amplitude    - Amplitude along the surface normal
+ *   Fundamental  - Fundamental frequency of the noise
+ *
+ */
+class PerlinNoise : public SurfaceModifier {
+ public:
+  /* Do not call directly */
+  PerlinNoise(JetCOW *cow, Sint32 id=0, const char *type="PerlinNoise");
+
+  virtual void f(SurfacePoint &f);
+
+ protected:
+  float noise(int x, int y);
+  float noise(float x, float y);
+  float smoothNoise(float x, float y);
+  float interpolatedNoise(float x, float y);
+  float perlinNoise(float x, float y);
+  float interpolate(float a, float b, float x);
+
+  virtual void loadCachedValues(void);
+  virtual void saveCachedValues(void);
+
+  int seed, octaves;
+  float persistence, amplitude, fundamental;
+};
+
+#endif /* _H_PERLINNOISE */

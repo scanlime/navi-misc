@@ -1,0 +1,16 @@
+/* Theme objects containing textures */
+
+object "jetengine/grass" bitmap1 = LoadBitmap("marsh.png");
+object "jetengine/ship" bitmap1 = LoadBitmap("ship.png");
+object "jetengine/ship" bitmap1 = LoadBitmap("ship.png");
+object "jetengine/ship" bitmap1 = LoadBitmap("ship.png");
+
+object "skyboxes/malrav11/left" bitmap1 = LoadBitmap("malrav11-left.png");
+object "skyboxes/malrav11/right" bitmap1 = LoadBitmap("malrav11-right.png");
+object "skyboxes/malrav11/front" bitmap1 = LoadBitmap("malrav11-front.png");
+object "skyboxes/malrav11/back" bitmap1 = LoadBitmap("malrav11-back.png");
+object "skyboxes/malrav11/top" bitmap1 = LoadBitmap("malrav11-top.png");
+object "skyboxes/malrav11/bottom" bitmap1 = LoadBitmap("malrav11-bottom.png");
+
+object "particles/spark" bitmap1 = LoadBitmap("spark.png");
+

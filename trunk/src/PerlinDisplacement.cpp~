@@ -1,0 +1,95 @@
+/*
+ * PerlinDisplacement.cpp - Surface modifier for midpoint displacement
+ *                          using perlin noise.
+ *
+ *    Terrain references:
+ *        http://www.vterrain.org/Elevation/artificial.html
+ *        http://www.dgp.toronto.edu/~dh/screenshots.html
+ *        http://www.wizardnet.com/musgrave/dissertation.pdf
+ *        Game Programming Gems, section 4.18
+ *        http://users.bestweb.net/~hogdog/fractal.htm
+ *
+ * Copyright (C) 2002-2003 Micah Dowty and David Trowbridge
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * 
+ */
+
+#include "Surface.h"
+#include "SurfaceGenerator.h"
+#include "PerlinDisplacement.h"
+#include "Noise.h"
+#include <math.h>
+#include <SDL/SDL_timer.h>
+
+
+PerlinDisplacement::PerlinDisplacement(JetCOW *cow, Sint32 id,  const char *type) : 
+  SurfaceModifier(cow,id,type) {
+  if (id<0) {
+    /* Defaults */
+    setAttr("Fundamental", 1.0f);
+    setAttr("Amplitude", 1.0f);
+    setAttr("Persistence", 1.0f);
+    setAttr("Octaves", 1);
+    setAttr("Seed", (int)SDL_GetTicks());
+  }
+}
+
+void PerlinDisplacement::loadCachedValues(void) {
+  float persistence;
+  int seed, octaves;
+  
+  SurfaceModifier::loadCachedValues();
+  fundamental = getAttrFloatProtected("Fundamental");
+  amplitude = getAttrFloatProtected("Amplitude");
+  persistence = getAttrFloatProtected("Persistence");
+  seed = getAttrIntProtected("Seed");
+  octaves = getAttrIntProtected("Octaves");
+  noise.set(seed,octaves,persistence);
+  dirty = true;
+}
+
+void PerlinDisplacement::saveCachedValues(void) {
+  SurfaceModifier::saveCachedValues();
+  setAttrProtected("Fundamental", fundamental);
+  setAttrProtected("Amplitude", amplitude);
+  setAttrProtected("Octaves", noise.octaves);
+  setAttrProtected("Persistence", noise.persistence);
+  setAttrProtected("Seed", noise.seed);
+}
+
+void PerlinDisplacement::f(SurfacePoint &p, SurfaceQuadtreeNode *qn) {
+  Vector3 param = p.vertex * fundamental;
+  p.vertex += p.normal * noise.getValue(param) * amplitude;
+  Vector3 grad = noise.getGradient(param);
+  p.normal = grad;
+  p.normal.normalize();
+}
+
+void PerlinDisplacement::generateBoundingSphere(Vector3 &center, float &radius) {
+  parent->generateBoundingSphere(center,radius);
+  radius += amplitude;
+}
+
+void PerlinDisplacement::updateBounds(SurfaceQuadtreeNode *n, Surface *s) {
+  parent->updateBounds(n,s);
+
+  if (n->depth > 4)
+    n->bounds.front = 0;
+  else
+    n->bounds.front = 30;
+}
+
+/* The End */
