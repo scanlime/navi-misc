@@ -120,7 +120,50 @@ mvmtOneBass = \relative c {
 	R1*8
 
 	% 140
-	b4\mf^\pizz r a r
+	b'4\mf^\pizz r a r
 	gis r r2
-	gis r gis r
+	gis4 r gis r
+	dis' r r e
+	fis r gis r
+
+	% 145
+	ais r a r
+	gis r d r
+	\time 6/8
+	fis4. ais
+	cis cis,
+	fis a
+
+	% 150
+	cis cis,
+	fis eis
+	e e,
+	dis' d
+	cis c
+
+	% 155
+	<< {
+		gis'16->^\divisi gis-. gis-. gis-. gis-. gis-. \repeat "tremolo" 6 gis^\simile
+		\repeat "tremolo" 6 gis \repeat "tremolo" 6 gis
+		\repeat "tremolo" 6 e \repeat "tremolo" 6 dis
+		\repeat "tremolo" 6 d \repeat "tremolo" 6 cis
+		fis\tenuto fis\tenuto fis-. fis-. fis-. fis-. \repeat "tremolo" 6 ais,^\simile
+		\repeat "tremolo" 6 dis
+	} \\ {
+		cis->\mf cis-. cis-. cis-. cis-. cis-. \repeat "tremolo" 6 cis
+		\repeat "tremolo" 6 b \repeat "tremolo" 6 ais
+		\repeat "tremolo" 6 a \repeat "tremolo" 6 gis
+		\repeat "tremolo" 6 g \< \repeat "tremolo" 6 fis \!
+		b\mf\tenuto b\tenuto b-. b-. b-. b-. \repeat "tremolo" 6 ais
+		\repeat "tremolo" 6 gis
+	} >>
+	\repeat "tremolo" 6 b
+	R1*6/8
+	r4. \repeat "tremolo" 6 fis16
+	\repeat "tremolo" 6 b \repeat "tremolo" 6 a
+	\repeat "tremolo" 6 c \repeat "tremolo" 6 fis,
+
+	% 165
+	\repeat "tremolo" 6 b \repeat "tremolo" 6 b
+	\repeat "tremolo" 6 fis \< \repeat "tremolo" 6 fis \!
 }
