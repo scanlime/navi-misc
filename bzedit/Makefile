@@ -6,6 +6,7 @@ LIBS	+= $(shell pkg-config --libs $(PKGS))
 BIN	= bzedit
 
 OBJS	= 			\
+	src/bzimporter.o	\
 	src/camera.o		\
 	src/displaylist.o	\
 	src/drawable.o		\
