@@ -127,22 +127,58 @@ class GraphPage(resource.Resource):
        """
     def __init__(self, *args, **kwargs):
         self.grapher = Stats.Graph.RelationGrapher(*args, **kwargs)
-        self.layout = Stats.Graph.GraphLayout(self.grapher)
 
     def render(self, request):
-        # Get the resolution from our page arguments, but put an upper
-        # limit on it so we don't use all our memory trying to rasterize this.
-        dpi = min(60, float(request.args.get('dpi',[3])[0]))
+        """Figure out what format the user wants this graph in, and
+           call one of our format_* functions.
 
-        # Cache the rasterized graph
-        r = Stats.Graph.SvgRasterizer(self.layout, dpi=dpi, background='white')
-        Stats.Graph.RenderCache().get(r).addCallback(
-            self._render, request).addErrback(request.processingFailed)
+           Each format function must return an object with a render(f)
+           method that writes the finished page to a file-like object
+           and returns a Deferred signalling completion.
+
+           The format function probably also should be setting the
+           content-type header to an appropriate value.
+           """
+        format = request.args.get('format', ['png'])[0]
+        render = getattr(self, 'format_'+format)(request).render
+        render(request).addCallback(
+            self._renderDone, request).addErrback(
+            request.processingFailed)
         return server.NOT_DONE_YET
 
-    def _render(self, image, request):
-        request.setHeader('content-type', 'image/png')
-        request.write(image)
+    def _renderDone(self, x, request):
         request.finish()
+
+    def format_dot(self, request):
+        """Return the graph in its original .dot source format"""
+        request.setHeader('content-type', 'text/plain')
+        return Stats.Graph.RenderCache(self.grapher)
+
+    def format_svg(self, request):
+        """Perform graph layout but not rasterization, and return the SVG"""
+        request.setHeader('content-type', 'image/svg+xml')
+        graphCache = Stats.Graph.RenderCache(self.grapher)
+        layout = Stats.Graph.GraphLayout(graphCache)
+        return Stats.Graph.RenderCache(layout)
+
+    def format_png(self, request, defaultWidth=600, maxWidth=2000):
+        """Return a fully rasterized graph image at a specified
+           size, with caching at every interesting stage.
+           """
+        # Let our user specify a width, up to a preset maximum.
+        # Height will follow automatically to keep the aspect ratio correct.
+        width = min(int(request.args.get('width', [defaultWidth])[0]), maxWidth)
+
+        # Let the user specify a background color, or the empty string
+        # to leave the background transparent.
+        bg = request.args.get('bg', ['white'])[0]
+        if not bg:
+            bg = None
+
+        request.setHeader('content-type', 'image/png')
+        graphCache = Stats.Graph.RenderCache(self.grapher)
+        layoutCache = Stats.Graph.RenderCache(Stats.Graph.GraphLayout(graphCache))
+        raster = Stats.Graph.SvgRasterizer(layoutCache, width=width, background=bg)
+        return Stats.Graph.RenderCache(raster)
 
 ### The End ###

@@ -33,6 +33,8 @@ class AbstractStringCache:
        a string. Subclasses should define the miss() function to
        generate the data being cached in the event of a cache miss.
        """
+    lifespan = None
+
     def get(self, *args):
         """Retrieve the item associated with some set of arguments.
            If the item doesn't exist in the cache, this calls miss()
@@ -83,10 +85,12 @@ class AbstractStringCache:
                        Database.quote(id, 'varchar'))
         # This has to be "INSERT IGNORE" so we don't kerpode if
         # two cache misses happened concurrently.
-        cursor.execute("INSERT IGNORE INTO cache (id, value, atime) VALUES (%s, '%s', %s)" %
+        cursor.execute("INSERT IGNORE INTO cache (id, value, atime, expiration)"
+                       " VALUES (%s, '%s', %s, %s)" %
                        (Database.quote(id, 'varchar'),
                         Database.quoteBlob(str(value)),
-                        Database.quote(int(time.time()), 'bigint')))
+                        Database.quote(int(time.time()), 'bigint'),
+                        Database.quote(self.getExpiration(), 'bigint')))
 
     def miss(self, *args):
         """Subclasses must implement this to generate the data we're supposed
@@ -104,6 +108,16 @@ class AbstractStringCache:
            abstract cache will have a different id space.
            """
         return md5.md5(repr( (self.__class__.__name__, args) )).hexdigest()
+
+    def getExpiration(self):
+        """By default, items never expire. This can return a timestamp at
+           which a newly stored value should expire, if self.lifespan is
+           a non-None lifespan for new nodes, in seconds.
+           """
+        if self.lifespan is None:
+            return None
+        else:
+            return int(time.time() + self.lifespan)
 
 
 class Maintenance:
