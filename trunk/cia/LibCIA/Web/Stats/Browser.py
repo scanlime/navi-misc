@@ -26,7 +26,7 @@ to metadata or RSS pages.
 from twisted.internet import defer
 from twisted.web import resource
 from LibCIA.Web import Template, Info, Server
-from LibCIA import Stats, Message, TimeUtil, Formatters
+from LibCIA import Stats, Message, TimeUtil, Formatters, Database
 from Nouvelle import tag, place
 import Nouvelle, time, sys, posixpath
 import Metadata, Catalog, Feed, Link, MessageViewer
@@ -111,6 +111,7 @@ class Page(Template.Page):
         return [
             Metadata.Info(self.target),
             LinksSection(self.target),
+            RelatedSection(self.target),
             Info.Clock(),
             ]
 
@@ -322,5 +323,72 @@ class LinksSection(Template.Section):
             Link.RSSCustomizer(self.target),
             Link.XMLLink(self.target),
             ]
+
+
+class RelatedSection(Template.Section):
+    """A section showing links to related stats targets. This works by looking for
+       nodes connected to this one in the stats_relations graph. The paths and
+       titles of related nodes are fetched using one SQL query, for efficiency.
+       """
+    title = 'related'
+
+    query = """
+    SELECT
+        C.parent_path,
+        PARENT_TITLE.value,
+        C.target_path,
+        TARGET_TITLE.value
+    FROM stats_relations R
+        LEFT OUTER JOIN stats_catalog C
+            ON (C.target_path = IF(R.target_a_path = %(path)s, R.target_b_path, R.target_a_path))
+        LEFT OUTER JOIN stats_metadata TARGET_TITLE
+            ON (TARGET_TITLE.name = 'title' AND TARGET_TITLE.target_path = C.target_path)
+        LEFT OUTER JOIN stats_metadata PARENT_TITLE
+            ON (PARENT_TITLE.name = 'title' AND PARENT_TITLE.target_path = C.parent_path)
+        WHERE R.target_a_path = %(path)s or R.target_b_path = %(path)s
+    ORDER BY C.parent_path, R.freshness DESC
+    """
+
+    def __init__(self, target):
+        self.target = target
+
+    def makeLink(self, path, title):
+        """Link to a stats target when we already know the title"""
+        target = Stats.Target.StatsTarget(path)
+        if title is None:
+            title = target.name
+        return Link.StatsLink(target, text=title)
+
+    def render_rows(self, context):
+        # Run our big SQL query to get all data for this section first
+        result = defer.Deferred()
+        Database.pool.runQuery(self.query % {
+            'path': Database.quote(self.target.path, 'varchar'),
+            }).addCallback(
+            self._render_rows, context, result
+            ).addErrback(result.errback)
+        return result
+
+    def _render_rows(self, queryResults, context, result):
+        rows = []
+        currentParent = None
+        insertionPoint = None
+
+        for parentPath, parentTitle, targetPath, targetTitle in queryResults:
+
+            # Starting a new parent section?
+            if parentPath != currentParent:
+                currentParent = parentPath
+                insertionPoint = []
+                rows.append([
+                    tag('strong')[ self.makeLink(parentPath, parentTitle) ],
+                    tag('p')[ insertionPoint ],
+                    ])
+
+            if insertionPoint:
+                insertionPoint.append(tag('br'))
+            insertionPoint.append(self.makeLink(targetPath, targetTitle))
+
+        result.callback(rows)
 
 ### The End ###
