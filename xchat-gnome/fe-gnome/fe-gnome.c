@@ -99,7 +99,6 @@ void fe_idle_add(void *func, void *data) {
 }
 
 void fe_set_topic(struct session *sess, char *topic) {
-	g_print("setting topic to \"%s\"\n", topic);
 	set_gui_topic(sess, topic);
 }
 
