@@ -59,7 +59,7 @@ public class interview extends java.applet.Applet implements ActionListener
 	public void actionPerformed(ActionEvent e)
 	{
 		String mykey;
-		net.openConnection("ion.picogui.org",8080);
+		net.openConnection("studentactivities.mscd.edu",8080);
 		net.write("jint");
 		mykey = net.read();
 		net.write(realname.getText());

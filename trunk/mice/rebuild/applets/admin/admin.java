@@ -45,7 +45,7 @@ public class admin extends java.applet.Applet implements ActionListener
 		admin.help = new TextArea("This is the information window, it will tell you everything you could want to know about what you need to do, and what stuff is.  Please press start to continue.",6,60,TextArea.SCROLLBARS_VERTICAL_ONLY);
 		add(admin.help);
 		
-		hostbox = new TextField("ion.picogui.org",40);
+		hostbox = new TextField("studentactivities.mscd.edu",40);
 		portbox = new TextField("8080",6);
 		add(hostbox);
 		add(portbox);
