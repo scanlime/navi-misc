@@ -21,6 +21,7 @@
 
 #include "irc-network.h"
 #include <gtk/gtkdialog.h>
+#include <glade/glade.h>
 
 #ifndef __XCHAT_GNOME_IRC_NETWORK_EDITOR_H__
 #define __XCHAT_GNOME_IRC_NETWORK_EDITOR_H__
@@ -38,6 +39,32 @@ typedef struct _IrcNetworkEditorClass IrcNetworkEditorClass;
 struct _IrcNetworkEditor
 {
 	GtkDialog parent;
+
+	IrcNetwork *network;
+	GladeXML *xml;
+
+	GtkWidget *network_name;
+
+	GtkWidget *autoconnect;
+	GtkWidget *use_ssl;
+	GtkWidget *cycle;
+	GtkWidget *autoreconnect;
+	GtkWidget *giveup_reconnect;
+
+	GtkWidget *password;
+	GtkWidget *encoding;
+
+	GtkWidget *servers;
+	GtkWidget *add_server;
+	GtkWidget *remove_server;
+
+	GtkWidget *use_globals;
+	GtkWidget *nickname;
+	GtkWidget *realname;
+
+	GtkWidget *autojoin_channels;
+	GtkWidget *add_autojoin;
+	GtkWidget *remove_autojoin;
 };
 
 struct _IrcNetworkEditorClass
