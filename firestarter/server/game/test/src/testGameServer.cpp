@@ -98,6 +98,21 @@ void CTestGameServer::sendUpdate ( int playerID )
 	sendToAllBut(message,playerID,false);
 }
 
+void CTestGameServer::sendClockPing ( int playerID, int pingID )
+{
+	CNetworkMessage message;
+
+	std::map<int,trPlayerInfo>::iterator itr = users.find(playerID);
+	if (itr == users.end())
+		return;
+
+	message.SetType(_MESSAGE_TIME_PING);
+	message.AddI(pingID);
+	message.AddF((float)CTimer::instance().GetTime());
+
+	message.Send(*itr->second.peer,false);
+}
+
 bool CTestGameServer::message ( int playerID, CNetworkPeer &peer, CNetworkMessage &message )
 {
 	std::map<int,trPlayerInfo>::iterator itr = users.find(playerID);
@@ -153,6 +168,11 @@ bool CTestGameServer::message ( int playerID, CNetworkPeer &peer, CNetworkMessag
 				
 				sendUpdate(playerID);
 			}
+			break;
+
+		case _MESSAGE_TIME_PING:
+			logOut("receve _MESSAGE_TIME_PING","CTestGameServer::message",eLogLevel5);
+			sendClockPing(playerID, message.ReadI());
 			break;
 
 		default:
