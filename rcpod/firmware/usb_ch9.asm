@@ -451,48 +451,6 @@ USBError
 	clrf	UEIR
 	banksel	USBMaskedErrors ; switch to bank 2
 	movwf	USBMaskedErrors	; save the masked errors
-#ifdef COUNTERRORS
-	pagesel CRC5Error
-	btfss	USBMaskedErrors,PID_ERR
-	goto	CRC5Error
-	INCREMENT16 USB_PID_ERR
-CRC5Error
-	pagesel CRC16Error
-	btfss	USBMaskedErrors,CRC5
-	goto	CRC16Error
-	INCREMENT16 USB_CRC5_ERR
-CRC16Error
-	pagesel DFN8Error
-	btfss	USBMaskedErrors,CRC16
-	goto	DFN8Error
-	INCREMENT16 USB_CRC16_ERR
-DFN8Error
-	pagesel BTOError
-	btfss	USBMaskedErrors,DFN8
-	goto	BTOError
-	INCREMENT16 USB_DFN8_ERR
-BTOError
-	pagesel WRTError
-	btfss	USBMaskedErrors,BTO_ERR
-	goto	WRTError
-	INCREMENT16 USB_BTO_ERR
-WRTError
-	pagesel OWNError
-	btfss	USBMaskedErrors,WRT_ERR
-	goto	OWNError
-	INCREMENT16 USB_WRT_ERR
-OWNError
-	pagesel BTSError
-	btfss	USBMaskedErrors,OWN_ERR
-	goto	BTSError
-	INCREMENT16 USB_OWN_ERR
-BTSError
-	pagesel	EndError
-	btfss	USBMaskedErrors,BTS_ERR
-	goto	EndError
-	INCREMENT16 USB_BTS_ERR
-EndError
-#endif
 	bcf	STATUS,RP1	; Bank 0
 	return
 

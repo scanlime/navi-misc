@@ -90,8 +90,7 @@ rx_count		res 1	; Total number of received bytes, modulo 256
 	extern	finish_set_address
 
 STARTUP	code
-	pagesel	Main
-	goto	Main
+	psgoto	Main
 	nop
 InterruptServiceVector
 	movwf	W_save		; save W
@@ -111,57 +110,57 @@ InterruptServiceVector
 
 PERIPHERALTEST
 	pagesel	EndISR
-	btfss	INTCON,PEIE	; is there a peripheral interrupt?
-	goto	EndISR		; all done....
+	btfss	INTCON,PEIE			; is there a peripheral interrupt?
+	goto	EndISR				; all done....
 
 TEST_PIR1
 	banksel PIE1
 	movf	PIE1,w
 	banksel	PIR1
-	andwf	PIR1,w		; mask the enables with the flags
+	andwf	PIR1,w				; mask the enables with the flags
 	banksel	PIRmasked
 	movwf	PIRmasked
 
 testSerialInterrupt
 
-    btfss   PIRmasked, RCIF    ; Is there a byte available?
-    goto    testUsbInterrupt
+	btfss   PIRmasked, RCIF			; Is there a byte available?
+	goto    testUsbInterrupt
 
-    movf    rx_remaining, w    ; Are there any bytes left to receive?
-    btfsc   STATUS, Z
-    goto    ignoreSerialInterrupt
+	movf    rx_remaining, w			; Are there any bytes left to receive?
+	btfsc   STATUS, Z
+	goto    ignoreSerialInterrupt
 
-    movf    rx_fsr, w          ; Yay, load up IRP:FSR to point to the next buffer location
-    movwf   FSR
-    movf    rx_status, w
-    movwf   STATUS
+	movf    rx_fsr, w			; Yay, load up IRP:FSR to point to the next buffer location
+	movwf   FSR
+	movf    rx_status, w
+	movwf   STATUS
 
-    banksel RCREG              ; Stow our freshly received byte
-    movf    RCREG, w
-    movwf   INDF
+	banksel RCREG				; Stow our freshly received byte
+	movf    RCREG, w
+	movwf   INDF
 
-    banksel rx_fsr             ; Update our receive progress
-    incf    rx_fsr, f
-    incf    rx_count, f
-    decfsz  rx_remaining, f		; If rx_remaining is nonzero, we can move on to the USB interrupt
-    goto    testUsbInterrupt
+	banksel rx_fsr				; Update our receive progress
+	incf    rx_fsr, f
+	incf    rx_count, f
+	decfsz  rx_remaining, f			; If rx_remaining is nonzero, we can move on to the USB interrupt
+	goto    testUsbInterrupt
 
-	; We just ran out of buffer bytes, wrap back to the beginning
+	;; We just ran out of buffer bytes, wrap back to the beginning
 	movf	rx_fsr_initial, w
 	movwf	rx_fsr
 	movf	rx_size, w
 	movwf	rx_remaining
 
-    goto    testUsbInterrupt
+	goto    testUsbInterrupt
 
-ignoreSerialInterrupt          ; We have new serial data, but we aren't in the middle of a receive.
-                               ; Grab it and do nothing with it, to clear the receive interrupt flag.
-    banksel RCREG
-    movf    RCREG, w
+ignoreSerialInterrupt				; We have new serial data, but we aren't in the middle of a receive.
+						; Grab it and do nothing with it, to clear the receive interrupt flag.
+	banksel RCREG
+	movf    RCREG, w
 
 testUsbInterrupt
 
-	btfss	PIRmasked,USBIF	; USB interrupt flag
+	btfss	PIRmasked,USBIF			; USB interrupt flag
 	goto	EndISR
 	banksel	PIR1
 	bcf		PIR1,USBIF
@@ -180,20 +179,21 @@ testUsbInterrupt
 	btfsc	USBMaskedInterrupts,USB_RST	; is it a reset?
 	call	USBReset			; yes, reset the SIE
 
+	pagesel	EndISR
 	btfss	USBMaskedInterrupts,TOK_DNE	; is it a Token Done?
 	goto	EndISR				; no, skip the queueing process
 
 CheckFinishSetAddr
 	banksel UIR
-	bcf	UIR, TOK_DNE	; clear Token Done
+	bcf	UIR, TOK_DNE			; clear Token Done
 	banksel	USB_dev_req
-	movf	USB_dev_req,w	; yes: Are we waiting for the In transaction ack-ing the end of the set address?
+	movf	USB_dev_req,w			; yes: Are we waiting for the In transaction ack-ing the end of the set address?
 	xorlw	SET_ADDRESS
+	pagesel	EndISR
 	btfss	STATUS,Z
-	goto	EndISR		; no - skip the rest.. just queue the USTAT register
+	goto	EndISR				; no - skip the rest.. just queue the USTAT register
 
-	pagesel finish_set_address
-	call	finish_set_address
+	pscall	finish_set_address
 
 ; ******************************************************************
 ; End ISR, restore context and return to the Main program
@@ -246,10 +246,10 @@ ServiceUSB
 ;******************************************************************* Setup
 
 Main
-	movlw	.30			; delay 16 uS to wait for USB to reset
+	movlw	.30		; delay 16 uS to wait for USB to reset
 	movwf	W_save		; SIE before initializing registers
 	decfsz	W_save,f	; W_save is merely a convienient register
-	goto	$-1			; to use for the delay counter.
+	goto	$-1		; to use for the delay counter.
 
 	banksel	txe_pin
 	clrf	txe_pin
@@ -260,19 +260,15 @@ Main
 	pagesel	InitUSB
 	call	InitUSB
 
-    banksel PIE1            ; Enable the serial receive interrupt
-    bsf     PIE1, RCIE
+	banksel PIE1		; Enable the serial receive interrupt
+	bsf     PIE1, RCIE
 
 ;******************************************************************* Main Loop
 
 MainLoop
 	clrwdt
-
-	pagesel ServiceUSB
-	call	ServiceUSB	; see if there are any USB tokens to process
-
-	pagesel	MainLoop
-	goto	MainLoop
+	pscall	ServiceUSB
+	psgoto	MainLoop
 
 
 ;******************************************************************* Serial Receiver Reset
