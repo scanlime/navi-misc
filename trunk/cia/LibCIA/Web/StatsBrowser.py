@@ -23,7 +23,7 @@ A web interface using Woven for browsing CIA's stats:// namespace
 
 from twisted.web import static, domhelpers
 from twisted.web.woven import page, widgets, model
-import os, urllib
+import os, urllib, time
 
 
 def pathSplit(s):
@@ -64,14 +64,17 @@ class CounterModel(model.MethodModel):
     def wmfactory_firstEventTime(self, request):
         if self.original:
             return self.original.getFirstEventTime()
+        return ''
 
     def wmfactory_lastEventTime(self, request):
         if self.original:
             return self.original.getLastEventTime()
+        return ''
 
     def wmfactory_creationTime(self, request):
         if self.original:
             return self.original.getCreationTime()
+        return ''
 
     def wmfactory_meanPeriod(self, request):
         if self.original:
@@ -80,6 +83,7 @@ class CounterModel(model.MethodModel):
             count = self.original.getEventCount()
             if lastTime and firstTime and count > 1:
                 return float(lastTime - firstTime) / count
+        return ''
 
 
 class Conditional(widgets.Widget):
@@ -145,6 +149,27 @@ class StatsPage(page.Page):
         except:
             return None
 
+    def addTimeUnits(self, original):
+        """Convert a time in seconds to a time in some other appropriate units"""
+        # A table of various units, listed in decreasing order.
+        # We convert to the first unit in which the given value would
+        # be greater than some threshold
+        threshold = 0.8
+        units = (
+            ('years',   365 * 24 * 60 * 60),
+            ('months',  30 * 24 * 60 * 60),
+            ('weeks',   7 * 24 * 60 * 60),
+            ('days',    24 * 60 * 60),
+            ('hours',   60 * 60),
+            ('minutes', 60),
+            ('seconds', 1),
+            )
+        for name, seconds in units:
+            converted = original / seconds
+            if converted > threshold:
+                break
+        return "%.02f %s" % (converted, name)
+
 
     ######################################### Submodel Factories
 
@@ -209,34 +234,18 @@ class StatsPage(page.Page):
 
     def wvfactory_duration(self, request, node, data):
         """Given a duration in seconds, convert it to more appropriate units"""
-        # A table of various units, listed in decreasing order.
-        # We convert to the first unit in which the given value would
-        # be greater than some threshold
-        threshold = 0.8
-        units = (
-            ('years',   365 * 24 * 60 * 60),
-            ('months',  30 * 24 * 60 * 60),
-            ('weeks',   7 * 24 * 60 * 60),
-            ('days',    24 * 60 * 60),
-            ('hours',   60 * 60),
-            ('minutes', 60),
-            ('seconds', 1),
-            )
-        for name, seconds in units:
-            converted = data.original / seconds
-            if converted > threshold:
-                break
-
-        # By default we give two digits of precision
-        s = "%.02f" % converted
-
-        # If it's close enough to one, de-pluralize the unit
-        if s == "1.00":
-            name = name[:-1]
-        return widgets.Text("%s %s" % (s, name))
+        return widgets.Text(self.addTimeUnits(data.original))
 
     def wvfactory_conditional(self, request, node, data):
-        print data
-        return Conditional(condition=0)
+        """Hide the children of this widget if our model evaluates to False"""
+        return Conditional(condition=data.original)
+
+    def wvfactory_fullDate(self, request, node, data):
+        """Convert UNIX time in UTC to a complete date and time"""
+        return widgets.Text(time.strftime("%c", time.gmtime(data.original)))
+
+    def wvfactory_relativeDate(self, request, node, data):
+        """Convert a UTC UNIX time in the past to an indication of how long ago it was"""
+        return widgets.Text(self.addTimeUnits(time.time() - data.original))
 
 ### The End ###
