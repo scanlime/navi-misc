@@ -49,6 +49,9 @@ public class PipelineEditor
 	private uint			tooltip_timeout;
 	private Gdk.Rectangle		tip_rect;
 
+	/* D-n-D private data */
+	private int			click_x, click_y;
+
 	public static void Main (string[] args)
 	{
 		new PipelineEditor (args);
@@ -66,6 +69,8 @@ public class PipelineEditor
 		/* These start out nulled */
 		current_tooltip = null;
 		tooltip_timeout = 0;
+		click_x = -1;
+		click_y = -1;
 
 		/* Set up plugins directory */
 		plugin_manager = new PluginManager (Defines.PLUGINSDIR);
@@ -116,7 +121,34 @@ public class PipelineEditor
 
 	void ElementListDragBegin (object o, DragBeginArgs args)
 	{
-		System.Console.WriteLine ("drag begin!");
+		Gtk.TreePath path;
+		Gtk.TreeViewColumn column;
+		int cell_x, cell_y;
+
+		if (element_list.GetPathAtPos (click_x, click_y, out path, out column, out cell_x, out cell_y)) {
+			Gdk.Pixmap icon = element_list.CreateRowDragIcon (path);
+			Gtk.Drag.SetIconPixmap (args.Context, icon.Colormap, icon, null, click_x + 1, cell_y);
+		}
+	}
+
+	void ElementListButtonPressEvent (object o, ButtonPressEventArgs args)
+	{
+		if (current_tooltip != null) {
+			current_tooltip.Hide ();
+			current_tooltip = null;
+		}
+		if (tooltip_timeout != 0) {
+			GLib.Source.Remove (tooltip_timeout);
+			tooltip_timeout = 0;
+		}
+		click_x = (int) args.Event.X;
+		click_y = (int) args.Event.Y;
+	}
+
+	void ElementListButtonReleaseEvent (object o, ButtonReleaseEventArgs args)
+	{
+		click_x = -1;
+		click_y = -1;
 	}
 
 	void ElementListMotionNotifyEvent (object o, MotionNotifyEventArgs args)
@@ -129,6 +161,11 @@ public class PipelineEditor
 			   timeout and create a new one */
 			GLib.Source.Remove (tooltip_timeout);
 		}
+
+		/* If we've got our left button down, we're starting or
+		 * continuing a drag. Don't pop up a tooltip in this case */
+		if (ev.State == Gdk.ModifierType.Button1Mask)
+			return;
 
 		Gtk.TreePath path;
 		if (element_list.GetPathAtPos ((int) ev.X, (int) ev.Y, out path)) {
