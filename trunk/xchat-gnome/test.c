@@ -51,6 +51,9 @@ void init_settings() {
   gtk_size_group_add_widget(group, widget);
   widget = glade_xml_get_widget(xml, "completed dcc destination");
   gtk_size_group_add_widget(group, widget);
+  g_object_unref(group);
+
+  group = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
   widget = glade_xml_get_widget(xml, "dcc ip address");
   gtk_size_group_add_widget(group, widget);
   widget = glade_xml_get_widget(xml, "individual send throttle");
