@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://navi.picogui.org/sxmadb" xmlns="http://navi.picogui.org/sxmadb" elementFormName="qualified">
+
+<xs:element name="stance">
+  <xs:attribute name="side">
+    <xs:simpleType>
+      <xs:restriction base="xs:string">
+        <xs:enumeration value="right"/>
+        <xs:enumeration value="left"/>
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:attribute>
+  <xs:simpleType>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="natural"/>
+      <xs:enumeration value="neutral bow"/>
+      <xs:enumeration value="forward bow"/>
+      <xs:enumeration value="rear bow"/>
+      <xs:enumeration value="close kneel"/>
+      <xs:enumeration value="wide kneel"/>
+      <xs:enumeration value="engaged"/>
+      <xs:enumeration value="cat"/>
+      <xs:enumeration value="twist"/>
+    </xs:restriction>
+  </xs:simpleType>
+</xs:element>
+
+<xs:element name="kick">
+  <xs:attribute name="side">
+    <xs:simpleType>
+      <xs:restriction base="xs:string">
+        <xs:enumeration value="right"/>
+        <xs:enumeration value="left"/>
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:attribute>
+  <xs:simpleType>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="front snap"/>
+      <xs:enumeration value="back thrusting heel"/>
+      <xs:enumeration value="downward looping roundhouse"/>
+      <xs:enumeration value="knife-edge side"/>
+      <xs:enumeration value="scoop"/>
+    </xs:restriction>
+  </xs:simpleType>
+</xs:element>
+
+</xs:schema>
