@@ -1,54 +1,35 @@
 #!/usr/bin/env python
-from efs import FieldSensor
-import gtk, rtgraph, Tweak
-
-class ParamTweaker(object):
-    def __init__(self, efs, num, default):
-        self.efs = efs
-        self.num = num
-        self.set(default)
-
-    def set(self, value):
-        for block in xrange(8):
-            self.efs.setParam(block, self.num, value)
-        self._value = value
-
-    def get(self):
-        return self._value
-
-    value = property(get, set)
-
+import gtk, rtgraph, sys, fcntl, os
 
 def main():
-    channels = [rtgraph.Channel(name="Parameter block %d" % i) for i in xrange(8)]
-    efs = FieldSensor()
+    channels = [rtgraph.Channel (name="Parameter block %d" % i) for i in xrange (8)]
 
-    def poll_handler():
-        averages = efs.readAverages()
-        if averages:
+    graph = rtgraph.GraphUI (channels,
+                             rtgraph.HScrollLineGraph(range=(0,255)))
+
+    win = gtk.Window (gtk.WINDOW_TOPLEVEL)
+    vbox = gtk.VBox ()
+    win.add (vbox)
+    win.set_border_width (5)
+    vbox.pack_start (graph, gtk.TRUE)
+    win.set_default_size (400,400)
+    win.show_all ()
+    win.connect ("destroy", gtk.mainquit)
+
+    stdin = sys.stdin.fileno()
+
+    flags = fcntl.fcntl (stdin, fcntl.F_GETFL)
+    fcntl.fcntl (stdin, fcntl.F_SETFL, flags | os.O_NONBLOCK)
+
+    while True:
+        try:
+            values = os.read(stdin, 4096).split(' ')
             for i in xrange(8):
-                channels[i].value = averages[i]
-        gtk.timeout_add(10, poll_handler)
-    gtk.timeout_add(10, poll_handler)
-
-    graph = rtgraph.GraphUI(channels,
-                            rtgraph.HScrollLineGraph(range=(0,255)))
-
-    tweaker = Tweak.List([
-        Tweak.Quantity(ParamTweaker(efs, 3, default=227), 'value', range=(0,255), name="Period"),
-        Tweak.Quantity(ParamTweaker(efs, 4, default=233), 'value', range=(0,255), name="Phase"),
-        ])
-
-    win = gtk.Window(gtk.WINDOW_TOPLEVEL)
-    vbox = gtk.VBox()
-    win.add(vbox)
-    win.set_border_width(5)
-    vbox.pack_start(graph, gtk.TRUE)
-    vbox.pack_start(tweaker, gtk.FALSE)
-    win.set_default_size(400,400)
-    win.show_all()
-    win.connect("destroy", gtk.mainquit)
-    gtk.main()
+                channels[i].value = float(values[i])
+        except:
+            pass
+        while gtk.events_pending():
+            gtk.main_iteration()
 
 if __name__ == "__main__":
     main()
