@@ -41,11 +41,17 @@ struct inputpipe_packet {
   uint16_t length;
 };
 
-/* Packets that can be sent after a device is created */
+/* Packets that can be sent after a device is created. Input
+ * events can be sent in either direction between client and server,
+ * but most devices only generate events, not accept them. Sending
+ * events to devices is required to set LED status, or control
+ * force-feedback effects.
+ */
 #define IPIPE_EVENT                  0x0101    /* struct ipipe_event */
 
 /* Packets to set device characteristics before one is created.
  * All of these are optional, but the device name is recommended.
+ * These must be sent from client to server before IPIPE_CREATE.
  */
 #define IPIPE_DEVICE_NAME            0x0201    /* string */
 #define IPIPE_DEVICE_ID              0x0202    /* struct ipipe_input_id */
@@ -55,8 +61,29 @@ struct inputpipe_packet {
 
 /* After all the IPIPE_DEVICE_* packets you wish to send,
  * this actually creates a new input device on the server machine.
+ * Always sent from client to server.
  */
 #define IPIPE_CREATE                 0x0301    /* none */
+
+/* These packets allow force-feedback over inputpipe. Effects are started
+ * and stopped using normal input events, but the input subsystem defines
+ * upload_effect and erase_effect callbacks that the device implements
+ * to set up effects.
+ *
+ * The server defines versions of these callbacks that send a corresponding
+ * packet to the client, with a unique request ID, then blocks until it
+ * receives a return value packet with a corresponding ID.
+ *
+ * IPIPE_UPLOAD_EFFECT and IPIPE_ERASE_EFFECT always flow from server to
+ * client, IPIPE_RETURN_INT is sent from client to server in response.
+ * Note that if the client does not set the EV_FF bit, these packets will
+ * never be sent. If the EV_FF bit is set, however, the client must implement
+ * these packets or any apps trying to use force feedback will hang while
+ * uploading effects.
+ */
+#define IPIPE_UPLOAD_EFFECT          0x0401    /* struct ipipe_upload_effect */
+#define IPIPE_ERASE_EFFECT           0x0402    /* struct ipipe_erase_effect */
+#define IPIPE_RETURN_INT             0x0403    /* struct ipipe_return_int */
 
 
 struct ipipe_event {
@@ -80,6 +107,34 @@ struct ipipe_absinfo {
   int32_t min;
   int32_t fuzz;
   int32_t flat;
+};
+
+struct ipipe_upload_effect {
+  uint32_t request_id;
+
+  /* ff_effect */
+  uint16_t effect_type;
+  int16_t effect_id;
+  uint16_t effect_direction;
+
+  /* ff_trigger */
+  uint16_t trigger_button;
+  uint16_t trigger_interval;
+
+  /* ff_replay */
+  uint16_t replay_length;
+  uint16_t replay_delay;
+
+};
+
+struct ipipe_erase_effect {
+  uint32_t request_id;
+  int16_t effect_id;
+};
+
+struct ipipe_return_int {
+  uint32_t request_id;
+  int32_t retval;
 };
 
 #endif /* __H_INPUTPIPE */
