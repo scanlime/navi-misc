@@ -33,7 +33,7 @@ caps.saveKey('universe', 'data/universe.key')
 # files in 'htdocs' and add dynamic content from there.
 webRoot = static.File("htdocs")
 webRoot.putChild('rulesets', RulesetBrowser.RulesetPage(caps, rulesetStorage))
-webRoot.putChild('stats', StatsBrowser.StatsPage(caps, statsStorage.getRoot()))
+webRoot.putChild('stats', StatsBrowser.StatsPage(caps, statsStorage))
 
 # Add a VHostMonster we can use to safely proxy requests from Apache running on a different port
 webRoot.putChild('vhost', vhost.VHostMonsterResource())
