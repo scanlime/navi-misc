@@ -52,10 +52,11 @@ class Version(Template.Section):
     title = 'version'
 
     def render_rows(self, context):
-        rows = [LibCIA.__version__]
+        rows = [Template.value[LibCIA.__version__]]
         svnRev = self.getSvnRevision()
         if svnRev:
-            rows.append("Revision %s" % svnRev)
+            rows.append(["SVN revision ", Template.value[svnRev]])
+        rows.append(["Database version ", self.getDbVersion()])
         return rows
 
     def getSvnRevision(self):
@@ -74,6 +75,18 @@ class Version(Template.Section):
         except:
             return None
 
+    def getDbVersion(self):
+        """Return our database's schema version via a Deferred"""
+        return Database.pool.runInteraction(self._getDbVersion)
+
+    def _getDbVersion(self, cursor):
+        cursor.execute("SELECT value FROM meta WHERE name = 'version'")
+        row = cursor.fetchone()
+        if row:
+            return Template.value[ row[0] ]
+        else:
+            return Template.error["unknown"]
+        
 
 class WebServer(Template.Section):
     title = 'web server'
