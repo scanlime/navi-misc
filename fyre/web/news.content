@@ -2,10 +2,12 @@
 <p>
     It's finally here! Sporting a flashy new "go" menu for browsing image history,
     a new quality metric for rendering better animations faster and a small mountain
-    of bugfixes, 1.0 is ready.  At this point, the 1.0 branch is being considered
+    of bugfixes, 1.0.0 is ready.  At this point, the 1.0 branch is being considered
     feature complete, but there are big plans for 2.0, which we'll be writing about
     soon.
     <ul>
+        <li>The Fyre 1.0.0 <a href="http://navi.cx/svn/misc/tags/fyre-1.0.0/README">README</a> and
+            <a href="http://navi.cx/svn/misc/tags/fyre-1.0.0/ChangeLog">ChangeLog</a></li>
         <li><a href="http://flapjack.navi.cx/releases/fyre/fyre-1.0.0.tar.gz">Source Code (.tar.gz)</a></li>
         <li><a href="http://flapjack.navi.cx/releases/fyre/fyre-1.0.0.tar.bz2">Source Code (.tar.bz2)</a></li>
 	<li><a href="http://flapjack.navi.cx/releases/fyre/fyre-1.0.0.x86.package">Linux x86 Autopackage</a></li>
