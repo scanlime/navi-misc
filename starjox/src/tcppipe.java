@@ -29,12 +29,18 @@ import java.util.*;
 
 public class tcppipe extends Thread
 {
+    /** for ID output stuff. */
+    public static int nextID = 0;
+    
     /** The input stream this tcppipe reads from. */
     public InputStream in;
     /** The output stream this tcppipe writes to. */
     public OutputStream out;
     /** The String for outputting what I transmit */
     public String label;
+    /** My ID */
+    public int ID;
+   
     
     /**
      * A constructor for the tcppipe object
@@ -48,6 +54,7 @@ public class tcppipe extends Thread
 	in = from;
 	out = to;
 	label = nope;
+	ID = tcppipe.nextID++;
     }
     
     /**
@@ -65,7 +72,7 @@ public class tcppipe extends Thread
 		temp = in.read();
 		out.write(temp);
 		out.flush();
-		System.out.println(label+": "+ (char) temp + " " + temp);
+		logger.log(ID,label,temp);
 		if(temp == -1) return;
 	    }
 	}

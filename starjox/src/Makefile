@@ -1,10 +1,14 @@
 CLASSES =\
+	logger.class\
 	tcppipe.class\
 	tcpfw.class\
 	udpfw.class\
 	run.class
 
 prog: $(CLASSES)
+
+logger.class: logger.java
+	javac logger.java
 
 tcppipe.class: tcppipe.java
 	javac tcppipe.java
