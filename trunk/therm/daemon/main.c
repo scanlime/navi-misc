@@ -34,7 +34,7 @@
 
 void   store_packet              (MYSQL* mysql, struct rx_packet* packet);
 void   store_packet_therm0       (MYSQL* mysql, struct rx_packet* packet);
-void   store_local_temperature   (MYSQL* mysql, float temperature);
+void   store_local_temperature   (MYSQL* mysql, struct fraction* temperature);
 void   average_local_temperature (MYSQL* mysql, int temperature);
 
 
@@ -119,7 +119,7 @@ void store_packet_therm0(MYSQL* mysql, struct rx_packet* packet)
   /* Store a packet using temperature protocol 0 */
   int packet_id, source_id;
   int station_id, sequence, temp_total, temp_count;
-  float voltage;
+  struct fraction voltage;
   static struct rx_packet* previous_packet = NULL;
   static int previous_packet_id = -1;
 
@@ -139,7 +139,8 @@ void store_packet_therm0(MYSQL* mysql, struct rx_packet* packet)
   /* Unpack the packet */
   station_id = packet_read_int(packet, 6);
   sequence = packet_read_int(packet, 5);
-  voltage = packet_read_int(packet, 10) / 1024.0 * 10.0;
+  voltage.numerator = packet_read_int(packet, 10) * 10;
+  voltage.denominator = 1024;
   temp_total = packet_read_int(packet, 16);
   temp_count = packet_read_int(packet, 8);
 
@@ -149,22 +150,24 @@ void store_packet_therm0(MYSQL* mysql, struct rx_packet* packet)
     return;
 
   /* Allocate a new packet ID */
-  packet_id = db_packet_new_full(mysql, source_id, sequence, packet->signal_strength);
+  packet_id = db_packet_new_full(mysql, source_id,
+				 sequence, &packet->signal_strength);
   if (packet_id < 0) {
     printf("Error allocating a therm0 packet\n");
     return;
   }
 
   /* We always have a battery voltage, store that */
-  db_packet_add_batt_volts(mysql, packet_id, voltage);
+  db_packet_add_batt_volts(mysql, packet_id, &voltage);
 
   /* Only store temperatures if we actually have any- if the sensor is having
    * problems or the battery has just been inserted, there won't be any samples.
    */
   if (temp_count > 0) {
-    db_packet_add_temperature(mysql, packet_id,
-			      ((float) temp_total) / temp_count,
-			      temp_count);
+    struct fraction f;
+    f.numerator = temp_total;
+    f.denominator = temp_count;
+    db_packet_add_temperature(mysql, packet_id, &f, temp_count);
   }
 
   /* This is now the previous packet */
@@ -173,7 +176,7 @@ void store_packet_therm0(MYSQL* mysql, struct rx_packet* packet)
   previous_packet_id = packet_id;
 }
 
-void store_local_temperature(MYSQL* mysql, float temperature)
+void store_local_temperature(MYSQL* mysql, struct fraction* temperature)
 {
   int source_id, packet_id;
 
@@ -182,13 +185,16 @@ void store_local_temperature(MYSQL* mysql, float temperature)
   if (source_id < 0)
     return;
 
-  /* Create a new empty packet. We have no sequence number or signal strength to report */
+  /* Create a new empty packet. We have no sequence number
+   * or signal strength to report
+   */
   packet_id = db_packet_new(mysql, source_id);
   if (packet_id < 0)
     return;
 
   /* Store our lone temperature average */
-  db_packet_add_temperature(mysql, packet_id, temperature, LOCAL_SAMPLES_PER_STORE);
+  db_packet_add_temperature(mysql, packet_id, temperature,
+			    LOCAL_SAMPLES_PER_STORE);
 }
 
 void average_local_temperature(MYSQL* mysql, int temperature)
@@ -200,7 +206,10 @@ void average_local_temperature(MYSQL* mysql, int temperature)
   n_samples++;
 
   if (n_samples >= LOCAL_SAMPLES_PER_STORE) {
-    store_local_temperature(mysql, ((float) total) / n_samples);
+    struct fraction f;
+    f.numerator = total;
+    f.denominator = n_samples;
+    store_local_temperature(mysql, &f);
     total = 0;
     n_samples = 0;
   }

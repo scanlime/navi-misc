@@ -27,12 +27,17 @@
 #include <stdarg.h>
 #include <mysql.h>
 
+struct fraction {
+  int numerator;
+  int denominator;
+};
+
 struct rx_packet {
-  int buffer_bytes;
-  int buffer_bits;
-  float signal_strength;
-  unsigned char* buffer;
-  int current_bit;
+  int                buffer_bytes;
+  int                buffer_bits;
+  struct fraction    signal_strength;
+  unsigned char*     buffer;
+  int                current_bit;
 };
 
 void              packet_free     (struct rx_packet* self);
@@ -63,14 +68,30 @@ int               receiver_get_local_temp (usb_dev_handle* self, int *temperatur
 char*  strdup_vprintf            (const char* format, va_list ap);
 char*  strdup_printf             (const char* format, ...);
 
-char*  db_strdup_escape          (MYSQL* mysql, const char* string);
-int    db_query_printf           (MYSQL* mysql, const char* format, ...);
-int    db_find_source            (MYSQL* mysql, const char *medium, int protocol, int station_id);
-int    db_packet_new             (MYSQL* mysql, int source_id);
-int    db_packet_new_full        (MYSQL* mysql, int source_id, int sequence, float strength);
-void   db_packet_mark_duplicate  (MYSQL* mysql, int packet_id);
-void   db_packet_add_batt_volts  (MYSQL* mysql, int packet_id, float volts);
-void   db_packet_add_temperature (MYSQL* mysql, int packet_id, float average, int num_samples);
+char*  db_strdup_escape          (MYSQL*                mysql,
+				  const char*           string);
+int    db_query_printf           (MYSQL*                mysql,
+				  const char*           format,
+				  ...);
+int    db_find_source            (MYSQL*                mysql,
+				  const char*           medium,
+				  int                   protocol,
+				  int                   station_id);
+int    db_packet_new             (MYSQL*                mysql,
+				  int                   source_id);
+int    db_packet_new_full        (MYSQL*                mysql,
+				  int                   source_id,
+				  int                   sequence,
+                                  struct fraction*      strength);
+void   db_packet_mark_duplicate  (MYSQL*                mysql,
+				  int                   packet_id);
+void   db_packet_add_batt_volts  (MYSQL*                mysql,
+				  int                   packet_id,
+				  struct fraction*      volts);
+void   db_packet_add_temperature (MYSQL*                mysql,
+				  int                   packet_id,
+				  struct fraction*      average,
+				  int                   num_samples);
 
 #endif /* __THERM_DAEMON_H */
 
