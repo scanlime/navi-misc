@@ -5,10 +5,10 @@
 
 	;; Initialize I/O with the transmitter off
 init_low_power macro
-	movlw	SCL_MASK
+	movlw	DEFAULT_GPIO
 	movwf	iolatch
 	movwf	GPIO
-	movlw	BATT_VOLT_MASK | UNUSED_MASK | SDA_MASK
+	movlw	DEFAULT_TRIS
 	bsf	STATUS, RP0
 	movwf	TRISIO
 	bcf	STATUS, RP0
@@ -18,10 +18,10 @@ init_low_power macro
 
 	; Initialize I/O with the transmitter on
 init_high_power macro
-	movlw	POWER_MASK | SCL_MASK
+	movlw	DEFAULT_GPIO | TX_POWER_MASK
 	movwf	iolatch
 	movwf	GPIO
-	movlw	BATT_VOLT_MASK | UNUSED_MASK | SDA_MASK
+	movlw	DEFAULT_TRIS
 	bsf	STATUS, RP0
 	movwf	TRISIO
 	bcf	STATUS, RP0
