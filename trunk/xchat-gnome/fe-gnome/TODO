@@ -7,6 +7,7 @@ before release:
 -----
 
 * topic bar should have a tooltip with the entire topic
+* position of panes should be saved
 * double clicking on an item in the server config list should open its edit box
 * need to be able to add new servers
 
