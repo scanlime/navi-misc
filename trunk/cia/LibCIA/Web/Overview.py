@@ -37,7 +37,7 @@ from twisted.internet import defer
 
 
 class ActivitySection(Template.Section):
-    """A                                    Section displaying links to the most or least active items within
+    """A Section displaying links to the most or least active items within
        a given stats target.
        """
     query = """
@@ -61,7 +61,7 @@ class ActivitySection(Template.Section):
                  counter       = 'today',
                  counterAttrib = 'event_count',
                  sort          = 'DESC',
-                 columnTitle   = 'commits today',
+                 columnTitle   = 'events today',
                  ):
         self.targetPath = targetPath
         self.title = title
@@ -113,7 +113,7 @@ class TimestampSection(ActivitySection):
                  counter       = 'forever',
                  counterAttrib = 'first_time',
                  sort          = 'DESC',
-                 columnTitle   = 'first commit',
+                 columnTitle   = 'first event',
                  ):
         ActivitySection.__init__(self, targetPath, title, numItems,
                                  counter, counterAttrib, sort, columnTitle)
@@ -158,7 +158,7 @@ class OverviewPage(Template.Page):
                         TimestampSection("project", "Least active projects",
                                          counterAttrib = 'last_time',
                                          sort = '',
-                                         columnTitle = 'latest commit'),
+                                         columnTitle = 'latest event'),
                     ],
                 ),
             ]
