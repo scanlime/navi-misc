@@ -5,16 +5,26 @@
 #
 
 import sys; sys.path[0] += '/..'
+import time
 import mi6k, vfdwidgets
 
 vfd = mi6k.Device().vfd
 vfd.powerOn()
+vfd.setBrightness(0)
 surface = vfdwidgets.Surface(20, 2)
 
-surface.widgets.append(vfdwidgets.Text("Top", (0, -1)))
-surface.widgets.append(vfdwidgets.Text("--", (-1, 1)))
-surface.widgets.append(vfdwidgets.Text("--", (-1, 1)))
-surface.widgets.append(vfdwidgets.Text("Boing", (1, 1)))
-surface.widgets.append(vfdwidgets.Text("*", (0, 1)))
+surface.widgets.append(vfdwidgets.LoopingScroller("Wibble wibble wibble wibble splat", priority=10))
+surface.widgets.append(vfdwidgets.LoopingScroller("Whee", (0, 1)))
+surface.widgets.append(vfdwidgets.Text("Boingski", (2, 1)))
+surface.widgets.append(vfdwidgets.Text("*", (1, 1), background='~'))
 
-vfd.writeLines(surface.draw())
+osd = vfdwidgets.Text('OSD Message', gravity=(0, 10), priority=100)
+surface.widgets.append(osd)
+
+while 1:
+    osd.visible = not osd.visible
+    surface.layout()
+    for i in xrange(50):
+        surface.update()
+        vfd.writeLines(surface.draw())
+
