@@ -1,8 +1,4 @@
 #!/usr/bin/env python
-#
-#
-#
-
 from Captcha.Visual.Tests import PseudoGimpy
 from Captcha import Factory
 
