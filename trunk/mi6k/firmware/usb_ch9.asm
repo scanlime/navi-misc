@@ -1790,12 +1790,12 @@ VFDWriteRequest
 
 	;********************* Request to send IR pulses
 IRSendRequest
-	banksel BufferData
+	banksel BufferData			; Send the low byte of wValue (pulse)
 	pagesel	IR_SendByte
 	movf	BufferData+wValue, w
 	call	IR_SendByte
 	
-	banksel BufferData
+	banksel BufferData			; Send the low byte of wIndex (space)
 	pagesel	IR_SendByte
 	movf	BufferData+wIndex, w
 	call	IR_SendByte

@@ -83,7 +83,6 @@ epByteTemp	res 1
 	; Head indices point to the next available slot for new data, tail indices
 	; point to the oldest stored data.
 bank1	udata
-#define BUFFER_SIZE .32
 ir_rx_Buffer res BUFFER_SIZE
 ir_rx_Head	res 1
 ir_rx_Tail	res 1
@@ -478,11 +477,23 @@ sendLoop:
 	goto	sendLoop
 	return
 
-	; Push a byte onto the transmit buffer from 'w', return without waiting.
+	; Push a byte onto the transmit buffer from 'w'. If the buffer is full, this
+	; blocks until it isn't.
 	; If the TMR0 interrupt is already running, we have to push the value on
 	; to the transmit ring buffer. If not, we set up the interrupt and get it
 	; started sending right away.
 IR_SendByte:
+	; We want to block until there's enough room in the buffer. Since the
+	; buffer can't ever be full (it would appear empty) we wait if it has
+	; BUFFER_SIZE - 2 bytes in it.
+	banksel	ir_tx_Buffer ; Calculate the number of bytes in the ir_tx buffer
+	movf	ir_tx_Tail, w
+	subwf	ir_tx_Head, w
+	andlw	BUFFER_SIZE-1 ; Wrap to the buffer size
+	xorlw	BUFFER_SIZE-2 ; Test for BUFFER_SIZE-2 bytes
+	btfsc	STATUS, Z	 ; Loop if it passes
+	goto	IR_SendByte
+
 	global	IR_SendByte
 	banksel	INTCON			; If the TMR0 interrupt is already running, we have to enqueue our value
 	btfsc	INTCON, T0IE
