@@ -71,7 +71,7 @@ module gc_i2c (clk, reset,
 	inout [3:0] gc_ports;
 
 	/* Our I2C core, a dual-port SRAM */
-	wire [7:0] ram_addr;
+	reg [7:0] ram_addr;
 	wire ram_data;
 	i2c_slave_256bit_sram #(I2C_ADDRESS) i2c_ram(
 		clk, reset, i2c_interface_tx, i2c_interface_rx,
@@ -79,21 +79,47 @@ module gc_i2c (clk, reset,
 
 	/* Timeslice access to this RAM among our four controller emulators.
 	 * This also maps each port into a different quarter of our address space.
+	 * This is done synchronously, since the SRAM is one of our latency hotspots.
 	 */
-	reg [1:0] ram_state;
-	always @(posedge clk or posedge reset)
-		if (reset)
-			ram_state <= 0;
-		else
-			ram_state <= ram_state + 1;
+	// First phase, before the SRAM
+	reg [3:0] active_ram_ports;
 	wire [5:0] port1_addr;
 	wire [5:0] port2_addr;
 	wire [5:0] port3_addr;
 	wire [5:0] port4_addr;
-	assign ram_addr = (ram_state == 0) ? {2'b00, port1_addr} :
-	                  (ram_state == 1) ? {2'b01, port2_addr} :
-	                  (ram_state == 2) ? {2'b10, port3_addr} :
-	                                     {2'b11, port4_addr};
+	always @(posedge clk or posedge reset)
+		if (reset) begin
+			active_ram_ports <= 4'b0001;
+			ram_addr <= 0;
+		end
+		else if (active_ram_ports == 4'b0001) begin
+			active_ram_ports <= 4'b0010;
+			ram_addr <= {2'b01, port2_addr};
+		end
+		else if (active_ram_ports == 4'b0010) begin
+			active_ram_ports <= 4'b0100;
+			ram_addr <= {2'b10, port3_addr};
+		end
+		else if (active_ram_ports == 4'b0100) begin
+			active_ram_ports <= 4'b1000;
+			ram_addr <= {2'b11, port4_addr};
+		end
+		else begin
+			active_ram_ports <= 4'b0001;
+			ram_addr <= {2'b00, port1_addr};
+		end
+	// Second phase, after the SRAM
+	reg ram_data_out;
+	reg [3:0] active_ram_ports_out;
+	always @(posedge clk or posedge reset)
+		if (reset) begin
+			ram_data_out <= 0;
+			active_ram_ports_out <= 0;
+		end
+		else begin
+			ram_data_out <= ram_data;
+			active_ram_ports_out <= active_ram_ports;
+		end
 
 	/* A shared tranmsitter timebase for all controller ports */
 	wire [2:0] tx_timing;
@@ -107,13 +133,13 @@ module gc_i2c (clk, reset,
 	 */
 	wire [3:0] rumble;
 	gc_controller port1(clk, reset, tx_timing, gc_ports[0], rumble[0],
-	                    port1_addr, ram_data, ram_state==0);
+	                    port1_addr, ram_data_out, active_ram_ports_out[0]);
 	gc_controller port2(clk, reset, tx_timing, gc_ports[1], rumble[1],
-	                    port2_addr, ram_data, ram_state==1);
+	                    port2_addr, ram_data_out, active_ram_ports_out[1]);
 	gc_controller port3(clk, reset, tx_timing, gc_ports[2], rumble[2],
-	                    port3_addr, ram_data, ram_state==2);
+	                    port3_addr, ram_data_out, active_ram_ports_out[2]);
 	gc_controller port4(clk, reset, tx_timing, gc_ports[3], rumble[3],
-	                    port4_addr, ram_data, ram_state==3);
+	                    port4_addr, ram_data_out, active_ram_ports_out[3]);
 endmodule
 
 
@@ -157,7 +183,9 @@ endmodule
  *
  * This retrieves the controller state as it is needed using an interface designed
  * for time-multiplexed access to SRAM. The required address, in bits, is placed on
- * state_addr. Once it's our turn to access the RAM, state_ack should be high.
+ * state_addr. Once it's our turn to access the RAM, state_ack should be high. A lot
+ * of latency between sampling state_addr and providing the data is acceptable- up
+ * to almost one bit-period.
  *
  */
 module gc_controller (clk, reset, tx_timing, gc_port, rumble,
