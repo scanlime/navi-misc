@@ -6,8 +6,15 @@ class KdeFilter(CommitFilter):
     project = 'kde'
 
     def parse(self):
-        # Directory name is the first token in the subject
-        dirName = self.message['subject'].split(" ")[0]
+        subjectTokens = self.message['subject'].split(" ")
+
+        # If the first token in the subject ends with a colon, that's the branch
+        # and the next one is the directory- otherwise the first one is the directory
+        if subjectTokens[0].endswith(':'):
+            dirName = subjectTokens[1]
+            self.addBranch(subjectTokens[0][:-1])
+        else:
+            dirName = subjectTokens[0]
 
         # Extract the first directory in the subject as the module name
         if dirName.find('/'):
@@ -54,6 +61,8 @@ class KdeFilter(CommitFilter):
 
         self.addLog("\n".join(logLines))
 
+        # Currently we only store file names, but this could be easily extended
+        # to send all the provided info about each file
         for info in fileInfo:
             self.addFile(posixpath.join(dirName, info['file']))
 
