@@ -60,10 +60,6 @@ div.relatedHeading {
   font-weight: bold;
 }
 
-ul.related {
-  padding: 0em 0em 0em 2em;
-}
-
 td > p {
   /* Another spacing hack for paragraphs inside any table cell */
   padding: 0em;

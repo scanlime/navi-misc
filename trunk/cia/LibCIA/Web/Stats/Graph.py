@@ -27,9 +27,10 @@ from twisted.internet import defer
 from LibCIA.Web import Template
 from LibCIA import Stats, Database
 from Nouvelle import tag
+import Nouvelle
 from twisted.web import resource, server
 import LibCIA.Stats.Graph
-import Link
+import Link, Columns
 
 
 class RelatedSection(Template.Section):
@@ -70,6 +71,11 @@ class RelatedSection(Template.Section):
 
     sectionLimit = 15
 
+    columns = [
+        Columns.IndexedIconColumn(iconIndex=2, pathIndex=0),
+        Columns.TargetTitleColumn(pathIndex=0, titleIndex=1),
+        ]
+
     def __init__(self, target):
         self.target = target
 
@@ -93,7 +99,7 @@ class RelatedSection(Template.Section):
     def _render_rows(self, queryResults, context, result):
         # From the rows returned from our SQL query, construct a
         # dictionary that maps from a parent hyperlink to a list
-        # of child hyperlinks sorted by decreasing freshness.
+        # of child rows sorted by decreasing freshness.
         currentParentLink = None
         currentParentPath = None
         d = {}
@@ -101,14 +107,7 @@ class RelatedSection(Template.Section):
             if parentPath != currentParentPath:
                 currentParentPath = parentPath
                 currentParentLink = self.makeLink(parentPath, parentTitle)
-
-            if iconName:
-                icon = Link.ThumbnailLink(Stats.Target.StatsTarget(targetPath), iconName, (48,32))
-            else:
-                icon = ()
-            link = self.makeLink(targetPath, targetTitle)
-
-            d.setdefault(currentParentLink, []).append([icon, ' ', link])
+            d.setdefault(currentParentLink, []).append((targetPath, targetTitle, iconName))
 
         # Sort these parent sections by decreasing size. We want
         # the most interesting ones at the top, and those are usually the biggest.
@@ -116,21 +115,24 @@ class RelatedSection(Template.Section):
         sections.sort(lambda a,b: cmp(len(d[b]), len(d[a])))
         result.callback([self.render_section(section, d[section]) for section in sections])
 
-    def render_section(self, section, contents):
-        """Given a heading renderable and a list of contents for that
+    def render_section(self, section, rows):
+        """Given a heading renderable and a list of rows for that
            heading, render one section of the 'related' box.
            """
-        # Truncate the contents if we need to
-        if len(contents) > self.sectionLimit:
-            contents = contents[:self.sectionLimit] + ['(%d others)' % (len(contents) - self.sectionLimit)]
+        # Truncate the rows if we need to
+        if len(rows) > self.sectionLimit:
+            rows = rows[:self.sectionLimit]
+            footer = tag('div', _class='relatedFooter')[
+                '(%d others)' % (len(rows) - self.sectionLimit)
+                ]
+        else:
+            footer = ()
 
         return [
             tag('div', _class='relatedHeading')[ section ],
-            tag('ul', _class='related')[[
-                tag('li', _class='related')[ item ]
-                for item in contents
-            ]],
-        ]
+            Nouvelle.BaseTable(rows, self.columns, showHeading=False),
+            footer,
+            ]
 
 
 class GraphPage(resource.Resource):
