@@ -22,9 +22,13 @@
 #include "setup_druid.h"
 #include "gui.h"
 
+static gboolean druid_finished;
+void setup_druid_finish(GnomeDruidPage *druidpage, GtkWidget *widget, gpointer user_data);
+
 void initialize_setup_druid() {
 	GtkWidget *widget;
 	GtkSizeGroup *group;
+	GtkWidget *finish_page;
 
 	gui.setup_druid = glade_xml_get_widget(gui.xml, "setup druid");
 
@@ -34,8 +38,19 @@ void initialize_setup_druid() {
 	widget = glade_xml_get_widget(gui.xml, "setup druid realname");
 	gtk_size_group_add_widget(group, widget);
 	g_object_unref(group);
+
+	finish_page = glade_xml_get_widget(gui.xml, "setup druid finish");
+	g_signal_connect(G_OBJECT(finish_page), "finish", setup_druid_finish, NULL);
 }
 
 void run_setup_druid() {
+	druid_finished = FALSE;
 	gtk_widget_show_all(GTK_WIDGET(gui.setup_druid));
+	while(!druid_finished) {
+		g_main_context_iteration(NULL, TRUE);
+	}
+}
+
+void setup_druid_finish(GnomeDruidPage *druidpage, GtkWidget *widget, gpointer user_data) {
+	druid_finished = TRUE;
 }
