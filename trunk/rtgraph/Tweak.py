@@ -23,6 +23,8 @@ that can be tweaked in real-time.
 from __future__ import division
 import gtk, threading
 
+__version__ = "0.70"
+
 
 def Window(*controlLists):
     """Creates a gtk Window containing a Tweak.List.
