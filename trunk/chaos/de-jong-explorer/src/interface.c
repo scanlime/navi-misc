@@ -40,8 +40,11 @@ struct {
   guint idler;
   gboolean writing_params;
   gboolean just_resized;
-  gboolean params_dirty;
 
+  gboolean update_calc_params_when_convenient;
+  gboolean update_render_params_when_convenient;
+
+  gchar* current_tool;
   double last_mouse_x, last_mouse_y;
 } gui;
 
@@ -60,6 +63,7 @@ static void tool_grab(double dx, double dy);
 static void tool_blur(double dx, double dy);
 static void tool_zoom(double dx, double dy);
 static void tool_rotate(double dx, double dy);
+static void tool_exposure_gamma(double dx, double dy);
 
 gboolean on_expose(GtkWidget *widget, GdkEventExpose *event, gpointer user_data);
 void on_param_spinner_changed(GtkWidget *widget, gpointer user_data);
@@ -74,6 +78,7 @@ void on_load_from_image(GtkWidget *widget, gpointer user_data);
 void on_resize(GtkWidget *widget, gpointer user_data);
 void on_resize_cancel(GtkWidget *widget, gpointer user_data);
 void on_resize_ok(GtkWidget *widget, gpointer user_data);
+void on_tool_activate(GtkWidget *widget, gpointer user_data);
 gboolean on_viewport_expose(GtkWidget *widget, gpointer user_data);
 gboolean on_motion_notify(GtkWidget *widget, GdkEvent *event);
 gboolean on_button_press(GtkWidget *widget, GdkEvent *event);
@@ -104,6 +109,7 @@ void interactive_main(int argc, char **argv) {
 
   gui.statusbar = GTK_STATUSBAR(glade_xml_get_widget(gui.xml, "statusbar"));
   gui.render_status_context = gtk_statusbar_get_context_id(gui.statusbar, "Rendering status");
+  gui.current_tool = "None";
 
   gui.idler = g_idle_add(interactive_idle_handler, NULL);
   gtk_main();
@@ -181,7 +187,8 @@ static void update_gui() {
       return;
 
     /* Update the iteration counter, removing the previous one if it existed */
-    iters = g_strdup_printf("Iterations:    %.3e        Peak density:    %d", render.iterations, render.current_density);
+    iters = g_strdup_printf("Iterations:    %.3e    \tPeak density:    %d    \tCurrent tool: %s",
+			    render.iterations, render.current_density, gui.current_tool);
     if (gui.render_status_message_id)
       gtk_statusbar_remove(gui.statusbar, gui.render_status_context, gui.render_status_message_id);
     gui.render_status_message_id = gtk_statusbar_push(gui.statusbar, gui.render_status_context, iters);
@@ -212,10 +219,19 @@ static int interactive_idle_handler(gpointer user_data) {
   /* An idle handler used for interactively rendering. This runs a relatively
    * small number of iterations, then calls update_gui() to update our visible image.
    */
-  if (gui.params_dirty) {
+
+  if (gui.update_calc_params_when_convenient || gui.update_render_params_when_convenient) {
     write_gui_params();
+  }
+
+  if (gui.update_calc_params_when_convenient) {
     restart_rendering();
-    gui.params_dirty = FALSE;
+    gui.update_calc_params_when_convenient = FALSE;
+  }
+
+  if (gui.update_render_params_when_convenient) {
+    render.dirty_flag = TRUE;
+    gui.update_render_params_when_convenient = FALSE;
   }
 
   run_iterations(10000);
@@ -461,10 +477,11 @@ gboolean on_motion_notify(GtkWidget *widget, GdkEvent *event) {
     void (*handler)(double dx, double dy);
   } tools[] = {
 
-    {"tool_grab",   tool_grab},
-    {"tool_blur",   tool_blur},
-    {"tool_zoom",   tool_zoom},
-    {"tool_rotate", tool_rotate},
+    {"tool_grab",           tool_grab},
+    {"tool_blur",           tool_blur},
+    {"tool_zoom",           tool_zoom},
+    {"tool_rotate",         tool_rotate},
+    {"tool_exposure_gamma", tool_exposure_gamma},
 
     {NULL, NULL},
   };
@@ -480,6 +497,11 @@ gboolean on_motion_notify(GtkWidget *widget, GdkEvent *event) {
   return FALSE;
 }
 
+void on_tool_activate(GtkWidget *widget, gpointer user_data) {
+  if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget)))
+    gtk_label_get(GTK_LABEL(gtk_bin_get_child(GTK_BIN(widget))), &gui.current_tool);
+}
+
 gboolean on_button_press(GtkWidget *widget, GdkEvent *event) {
   gui.last_mouse_x = event->button.x;
   gui.last_mouse_y = event->button.y;
@@ -489,23 +511,29 @@ gboolean on_button_press(GtkWidget *widget, GdkEvent *event) {
 static void tool_grab(double dx, double dy) {
   params.xoffset += dx * 0.005 / params.zoom;
   params.yoffset += dy * 0.005 / params.zoom;
-  gui.params_dirty = TRUE;
+  gui.update_calc_params_when_convenient = TRUE;
 }
 
 static void tool_blur(double dx, double dy) {
   params.blur_ratio += dx * 0.002;
-  params.blur_radius += -dy * 0.001;
-  gui.params_dirty = TRUE;
+  params.blur_radius -= dy * 0.001;
+  gui.update_calc_params_when_convenient = TRUE;
 }
 
 static void tool_zoom(double dx, double dy) {
-  params.zoom += -dy * 0.01;
-  gui.params_dirty = TRUE;
+  params.zoom -= dy * 0.01;
+  gui.update_calc_params_when_convenient = TRUE;
 }
 
 static void tool_rotate(double dx, double dy) {
-  params.rotation += -dx * 0.008;
-  gui.params_dirty = TRUE;
+  params.rotation -= dx * 0.008;
+  gui.update_calc_params_when_convenient = TRUE;
+}
+
+static void tool_exposure_gamma(double dx, double dy) {
+  render.exposure -= dy * 0.001;
+  render.gamma += dx * 0.001;
+  gui.update_render_params_when_convenient = TRUE;
 }
 
 /* The End */
