@@ -3,6 +3,7 @@
   <a href="downloads.shtml">Downloads</a><br />
   <a href="faq.shtml">FAQ</a><br />
   <a href="screenshots.shtml">Screenshots</a><br />
+  <a href="love.shtml">Love</a><br />
   <a href="contact.shtml">Contact</a><br />
 </div>
 <div class="sidebar-section">
