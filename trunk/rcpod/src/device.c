@@ -42,7 +42,8 @@ rcpod_errorHandler *rcpod_HandleError = rcpod_DefaultErrorHandler;
  * to data allocated by libusb, so they should not be freed and they
  * may be invalid if usb_find_devices/usb_find_busses are called again.
  */
-static struct usb_device *deviceList = NULL;
+static struct usb_device *deviceList_head = NULL;
+static struct usb_device *deviceList_tail = NULL;
 
 
 void rcpod_Init(void) {
@@ -55,11 +56,12 @@ void rcpod_FindDevices(void) {
   struct usb_bus *bus;
 
   /* Free any devices already in the list */
-  while (deviceList) {
-    dev = deviceList;
-    deviceList = dev->next;
+  while (deviceList_head) {
+    dev = deviceList_head;
+    deviceList_head = dev->next;
     free(dev);
   }
+  deviceList_tail = NULL;
 
   /* Loop through all attached devices... */
   for (bus=usb_get_busses(); bus; bus=bus->next) {
@@ -77,18 +79,19 @@ void rcpod_FindDevices(void) {
 	}
 	memcpy(newdev, dev, sizeof(struct usb_device));
 
-	/* Prepend it, out of laziness :) */
-	if (deviceList) {
-	  newdev->next = deviceList;
-	  newdev->prev = NULL;
-	  deviceList->prev = newdev;
-	  deviceList = newdev;
+	/* Append it to the list */
+	if (deviceList_tail) {
+	  newdev->prev = deviceList_tail;
+	  newdev->next = NULL;
+	  deviceList_tail->next = newdev;
+	  deviceList_tail = newdev;
 	}
 	else {
 	  /* First item inserted into an empty list */
 	  newdev->next = NULL;
 	  newdev->prev = NULL;
-	  deviceList = newdev;
+	  deviceList_head = newdev;
+	  deviceList_tail = newdev;
 	}
       }
     }
@@ -97,7 +100,7 @@ void rcpod_FindDevices(void) {
 
 
 struct usb_device* rcpod_GetDevices(void) {
-  return deviceList;
+  return deviceList_head;
 }
 
 
@@ -201,13 +204,13 @@ rcpod_dev* rcpod_InitSimpleWithoutReset(void) {
   rcpod_FindDevices();
 
   /* Give up if there's no rcpod device */
-  if (!deviceList) {
+  if (!deviceList_head) {
     rcpod_HandleError("rcpod_InitSimple", ENODEV, "No device found");
     return NULL;
   }
 
   /* Open the first one */
-  return rcpod_Open(deviceList);
+  return rcpod_Open(deviceList_head);
 }
 
 
