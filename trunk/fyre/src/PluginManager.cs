@@ -49,17 +49,26 @@ namespace Fyre {
 			string current_dir = Directory.GetCurrentDirectory();
 
 			if (current_dir.IndexOf (Defines.DATADIR) == -1) {
-				// Fyre is being run from the install dir.
-				current_dir = String.Concat (current_dir, "/Plugins");
-				string [] dirs = Directory.GetDirectories (current_dir);
-
 				// Before make install is run, the plugins are in the Plugins/<plugin name>
 				// directory. So we go through each dir in the Plugins/ dir and look
 				// for dll's. The nested for loops are a bit gross, but it's not likely
-				// that there's a huge amount of stuff in this directory.
-				foreach (string d in dirs) {
-					foreach (string file in Directory.GetFiles (d, "*.dll"))
-						files.Add (file);
+				// that there's a huge amount of stuff in these directory.
+
+				string plugins = String.Concat (current_dir, "/Plugins"),			// ./Plugins
+					   src_plugins = String.Concat (current_dir, "/src/Plugins");	// ./src/Plugins
+
+				if (Directory.Exists (plugins)) {
+					foreach (string dir in Directory.GetDirectories (plugins)) {
+						foreach (string file in Directory.GetFiles (dir, "*.dll"))
+							files.Add (file);
+					}
+				}
+
+				if (Directory.Exists (src_plugins)) {
+					foreach (string dir in Directory.GetDirectories (src_plugins)) {
+						foreach (string file in Directory.GetFiles (dir, "*.dll"))
+							files.Add (file);
+					}
 				}
 			}
 
