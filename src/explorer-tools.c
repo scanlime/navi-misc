@@ -190,6 +190,7 @@ static gboolean on_button_press(GtkWidget *widget, GdkEvent *event, gpointer use
 static gboolean on_button_release(GtkWidget *widget, GdkEvent *event, gpointer user_data) {
   Explorer *self = EXPLORER(user_data);
   self->tool_active = FALSE;
+  return FALSE;
 }
 
 gboolean explorer_update_tools(Explorer *self) {

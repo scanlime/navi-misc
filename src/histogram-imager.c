@@ -24,6 +24,7 @@
 
 #include "histogram-imager.h"
 #include <stdlib.h>
+#include <stdio.h>
 #include <math.h>
 
 static void histogram_imager_class_init(HistogramImagerClass *klass);
