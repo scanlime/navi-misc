@@ -342,7 +342,16 @@ class PalantirWindow:
     if not self.tree.get_widget('time_stamps').get_active():
       time = None
 
-    if not self.tabs.has_key(channel):
+    if channel == self.factory.nickname and user:
+      channel = nick
+      if not self.tabs.has_key(nick):
+        notebook = self.tree.get_widget('Tabs')
+	label = gtk.Label()
+	label.set_text(nick)
+        self.tabs[nick] = GtkChatBuffer()
+	notebook.append_page(self.tabs[nick], label)
+	self.tabs[nick].show()
+    else:
       channel = 'None'
     self.tabs[channel].DisplayText(time, nick, text, addressed)
 
