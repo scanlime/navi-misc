@@ -30,11 +30,13 @@ class place:
        For example, place('title') calls render_title() in the object owning
        the current document, context['owner'].
        """
-    def __init__(self, name):
+    def __init__(self, name, *args, **kwargs):
         self.name = name
+        self.args = args
+        self.kwargs = kwargs
 
     def render(self, context):
-        return getattr(context['owner'], 'render_' + self.name)(context)
+        return getattr(context['owner'], 'render_' + self.name)(context, *self.args, **self.kwargs)
 
 
 class xml(str):
@@ -106,7 +108,8 @@ class tag:
         for key, value in attributes.iteritems():
             if key[0] == '_':
                 key = key[1:]
-            opening += ' %s="%s"' % (key, domish.escapeToXml(value, True))
+            if value:
+                opening += ' %s="%s"' % (key, domish.escapeToXml(value, True))
         opening += '>'
         self.renderedOpening = xml(opening)
         self.renderedClosing = xml('</%s>' % self.name)
@@ -131,9 +134,17 @@ class DocumentOwner(object):
 class Page(resource.Resource):
     """A web resource that renders a tree of tag instances from its 'document' attribute"""
     def render(self, request):
-        return str(Serializer().render(self.document, {
+        context  = {
             'owner': self,
             'request': request,
-            }))
+            }
+        self.preRender(context)
+        return str(Serializer().render(self.document, context))
+
+    def preRender(self, context):
+        """Called prior to rendering each request, subclasses can use this to annotate
+           'context' with extra information or perform other important setup tasks.
+           """
+        pass
 
 ### The End ###
