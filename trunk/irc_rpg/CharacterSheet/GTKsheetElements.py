@@ -23,19 +23,51 @@ class sheetElement:
 	node.getAttribute(node.attributes.item(i).name))\
 	for i in range(node.attributes.length)])
 
+  def addEditable(self, list):
+    pass
+
 class character_sheet(gtk.Window, sheetElement):
   ''' Basic tag that's treated as a gtk.Window. '''
   def __init__(self, node, data):
+    self.editables = []
+
     gtk.Window.__init__(self, gtk.WINDOW_TOPLEVEL)
     sheetElement.__init__(self, node)
     self.connect("delete_event", lambda w,d: self.destroy())
+
+    self.edit = gtk.CheckButton('Editable')
+    self.edit.connect('toggled', self.editable)
+
+    self.apply = gtk.Button('Apply')
+    self.apply.connect('clicked', self.applyChanges)
+
+    box2 = gtk.HBox()
+    box2.pack_end(self.apply, gtk.FALSE, gtk.FALSE, 10)
+    self.apply.show()
+    box2.pack_end(self.edit, gtk.FALSE, gtk.FALSE, 10)
+    self.edit.show()
+
+    self.box = gtk.VBox()
+    self.box.pack_end(box2, gtk.FALSE, gtk.FALSE, 10)
+    self.box.show()
+    box2.show()
+    self.add(self.box)
 
   def packChild(self, child):
     ''' Controls how to add children to the parent.  Children are added because
         character_sheet objects are treated like gtk.Window's.
 	'''
-    gtk.Window.add(self, child)
+    self.box.pack_start(child)
     child.show()
+
+  def editable(self, widget=None, data=None):
+    ''' Toggle the editable fields in the sheet. '''
+    for field in self.editables:
+      field.set_editable(self.edit.get_active())
+
+  def applyChanges(self, widget=None, data=None):
+    ''' Apply the changes in all of the fields to the data file. '''
+    print 'Not implemented'
 
 class tab_view(gtk.Notebook, sheetElement):
   ''' gtk.Notebook subclassed for tabbed elements in the character
@@ -115,6 +147,10 @@ class text_field(gtk.HBox, sheetElement):
     self.label.show()
     gtk.HBox.show(self)
 
+  def addEditable(self, list):
+    ''' Add any editable fields to the list. '''
+    list.append(self.text)
+
 class dice(gtk.Button, sheetElement):
   ''' gtk.Button subclass to add some additional information about
       the widget, such as a reference to the dom node that created
@@ -139,7 +175,7 @@ class dice(gtk.Button, sheetElement):
     newDie.data = self.data
     return newDie
 
-  def roll(self, widget=None, data=None): 
+  def roll(self, widget=None, data=None):
     ''' Roll the dice. '''
     rolls = []
     times = 0
@@ -158,7 +194,7 @@ class dice(gtk.Button, sheetElement):
     print rolls
 
 
-class times:
+class times(sheetElement):
   ''' Number of times to roll the dice. '''
   def __init__(self, node, character):
     self.name = node.tagName
@@ -222,6 +258,10 @@ class drop_down(hbox):
       if values.group(3):
 	self.button.data['mods'] = [int(values.group(3))]
       self.button.roll()
+
+  def addEditable(self, list):
+    ''' Add the entry field to the list of editable things. '''
+    list.append(self.menu.entry)
 
 class drop_down_item(sheetElement):
   ''' Items in a drop down menu. '''
