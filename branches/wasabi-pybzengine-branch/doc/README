@@ -1,0 +1,24 @@
+The Wasabi Project
+------------------
+
+An integrated media thingy, consisting of...
+
+ - Software
+    - Linux, Gentoo, XFree86, and other open source components
+    - The PyBZEngine python 3D engine (also in this repository)
+    - The Wasabi UI
+    - Kernel modules and libraries to support the hardware components
+
+ - Hardware
+    - A standard PC with a fast 3D accelerator
+    - The Media Infrawidget 6000, an I/O device for infrared and visual feedback
+    - The UVSwitch, an 8-port USB-attached video and audio switch
+
+The components are released under multiple licenses:
+
+ - Microchip-provided parts of the firmware are under their original license
+ - New firmware code is public domain
+ - Kernel modules are GPL
+ - All other software is LGPL
+
+

@@ -1,0 +1,24 @@
+Hardware:
+
+ - mi6k IR transmitter still not working
+
+ - mi6k receiver doesn't work in lircd properly until mode2 is run
+
+ - uvswitch gets interference between input channels, possibly
+   an issue with a DC bias and the clamping diodes
+
+UI:
+
+ - After exiting VideoChannelPage, an extra IR button event
+   kills the logo immediately
+
+ - Icons being added or removed dynamically animate incorrectly
+
+ - Video detected on an unbound input channel crashes the UI
+
+ - Video inputs becoming inactive during VideoChannelPage crashes the UI
+
+ - The UI will use all available CPU even if the menu isn't being animated.
+   The ThreeDView and/or Viewport need to become smarter about animation and
+   only run the ContinuousTimer for redrawing frames when there's an active
+   animation.
