@@ -32,8 +32,10 @@
     <type> cp /mnt/cdrive/windows/system32/quartz.dll ~/.wine/drive_c/windows/system </type>
     <type> regsvr32 ~/.wine/drive_c/windows/system/quartz.dll </type>
 
-    Remember the second step! It often won't make a difference but sometimes is
-    necessary.
+    Remember the second step! It often won't make a difference but
+    sometimes is necessary. If it prints "DllRegisterServer not
+    implemented in [dll]" then this DLL doesn't need it and you can
+    ignore the error.
 
     Now put this in the <b>[DllOverrides]</b> section of your config file:
 
