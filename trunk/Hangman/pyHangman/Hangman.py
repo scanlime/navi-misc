@@ -116,7 +116,7 @@ class Hangman:
 				the dictionary in self.words.
 				"""
 		# Get the strings from the file.
-		wordList = urlopen(filename).readlines()
+		wordList = open(filename).readlines()
 		wordList = [word.strip() for word in wordList]
 
 		# Make the dictionary.
@@ -134,3 +134,27 @@ class Hangman:
 		else:
 			index = wordList[i].find(' ')
 			return (wordList[i][:index].strip(),wordList[i][index:].strip())
+
+	def NetGame(self):
+		""" Start a new game using the word of the day from dictionary.com.
+				"""
+		page = urlopen("http://www.dictionary.com").readlines()
+		parser = webParser()
+		parser.feed(page)
+		self.wordlist[0] = page[parser.handle_starttag('a',[('href','/wordoftheday/')]):
+														parser.handle_endtag('a')]
+		self.NewGame()
+
+class webParser(HTMLParser):
+	""" Small class to parse some data from dictionary.com for me.
+			"""
+	def handle_starttag(self, tag, attrs):
+		""" Return the position of the beginning of the text immediately
+				following the tag.
+				"""
+		return self.getpos()
+
+	def handle_endtag(self, tag):
+		""" Return the position of the end tag.
+				"""
+		return self.getpos()
