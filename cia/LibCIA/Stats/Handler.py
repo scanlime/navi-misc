@@ -32,7 +32,7 @@ class StatsURIHandler(Ruleset.RegexURIHandler):
        and the message is delivered to it.
        """
     scheme = 'stats'
-    regex = r"^stats://(?P<path>([a-zA-Z0-9_-]+(/[a-zA-Z0-9_-]+)*)?)$"
+    regex = r"^stats://(?P<path>([^/]+(/[^/]+)*)?)$"
 
     def __init__(self):
         self.lastMessage = None
