@@ -27,21 +27,21 @@ import java.net.*;
 import java.io.*;
 import java.util.*;
 
-public class pipe extends Thread
+public class udppipe extends Thread
 {
-	/** The input stream this pipe reads from. */
+	/** The input stream this udppipe reads from. */
 	public InputStream in;
-	/** The output stream this pipe writes to. */
+	/** The output stream this udppipe writes to. */
 	public OutputStream out;
 	
 	/**
-	 * A constructor for the pipe object
+	 * A constructor for the udppipe object
 	 * @param from The input stream to read 'from'
 	 * @param to The output stream to write 'to'
 	 * @author Brandon Smith
 	 * @version 1.0
 	 */
-	public pipe(InputStream from, OutputStream to)
+	public udppipe(InputStream from, OutputStream to)
 	{
 		in = from;
 		out = to;
