@@ -19,5 +19,5 @@ context menus:
 
 autotools:
 * slurp the gtkspell check from gaim's configure.in
-* check for an adequate version of gnome-icon-theme
+* check for an adequate version of gtk, gnome, gnome-icon-theme, etc
 * make the autotools stuff install the gnome frontend
