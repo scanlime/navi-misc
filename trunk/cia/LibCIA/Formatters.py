@@ -27,26 +27,7 @@ import Nouvelle
 import re, os, posixpath
 
 
-class ColortextToIRC(Message.Formatter):
-    """Converts messages with colorText content to plain text
-       with IRC color tags.
-       """
-    detector = Message.Filter('<find path="/message/body/colorText"/>')
-    medium = 'irc'
-    color = True
-
-    def param_noColor(self, tag):
-        self.color = False
-
-    def __init__(self):
-        from IRC.Formatting import ColortextFormatter
-        self.formatter = ColortextFormatter()
-
-    def format(self, message, input=None):
-        if self.color:
-            return self.formatter.format(message.xml.body.colorText)
-        else:
-            return XML.allText(message.xml.body.colorText)
+################################################### Commit messages
 
 
 class CommitFormatter(Message.Formatter):
@@ -382,9 +363,34 @@ class CommitTitle(CommitFormatter):
         return log
 
 
+################################################## colorText Messages
+
+
 class ColortextFormatter(Message.Formatter):
     """Abstract base class for formatters that operate on colorText messages"""
     detector = Message.Filter('<find path="/message/body/colorText"/>')
+
+
+class ColortextToIRC(Message.Formatter):
+    """Converts messages with colorText content to plain text
+       with IRC color tags.
+       """
+    detector = Message.Filter('<find path="/message/body/colorText"/>')
+    medium = 'irc'
+    color = True
+
+    def param_noColor(self, tag):
+        self.color = False
+
+    def __init__(self):
+        from IRC.Formatting import ColortextFormatter
+        self.formatter = ColortextFormatter()
+
+    def format(self, message, input=None):
+        if self.color:
+            return self.formatter.format(message.xml.body.colorText)
+        else:
+            return XML.allText(message.xml.body.colorText)
 
 
 class ColortextTitle(ColortextFormatter):
@@ -479,6 +485,9 @@ class ColortextToXHTML(ColortextFormatter):
                     except KeyError:
                         pass
             return Nouvelle.tag('span', style=style)[self.element_colorText(element)]
+
+
+################################################## Other formatters
 
 
 class IRCProjectName(Message.Formatter):
