@@ -184,9 +184,11 @@ void userlist_display(session_gui *sess) {
 	treeview = glade_xml_get_widget(gui.xml, "userlist");
 	gtk_tree_view_set_model(GTK_TREE_VIEW(treeview), sess->userlist_model);
 
+/*
 	entry = glade_xml_get_widget(gui.xml, "text entry");
 	completion = gtk_entry_get_completion(GTK_ENTRY(entry));
 	gtk_entry_completion_set_model(completion, sess->userlist_model);
+*/
 }
 
 gboolean userlist_click(GtkWidget *view, GdkEventButton *event, gpointer data) {
