@@ -24,7 +24,7 @@
 /************************************************** Device node ***************/
 
 /* Information about the uvswitch's device node in /dev/usb/ */
-#define UVSWITCH_DEV_NAMEFORMAT   "uvswitch%d"
+#define UVSWITCH_DEV_NAMEFORMAT   "usb/uvswitch%d"
 #define UVSWITCH_MINOR_BASE       220
 
 
