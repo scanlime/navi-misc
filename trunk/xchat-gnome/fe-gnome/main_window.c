@@ -63,7 +63,7 @@ void on_go_previous_discussion_activate(GtkWidget *widget, gpointer data);
 void on_go_next_discussion_activate(GtkWidget *widget, gpointer data);
 void on_help_about_menu_activate(GtkWidget *widget, gpointer data);
 
-void on_text_entry_activate(GtkWidget *widget, GdkEventKey *event, gpointer data);
+void on_text_entry_activate(GtkWidget *widget, gpointer data);
 
 gboolean on_resize(GtkWidget *widget, GdkEventConfigure *event, gpointer data);
 
@@ -101,7 +101,7 @@ void initialize_main_window() {
 	g_signal_connect(G_OBJECT(glade_xml_get_widget(gui.xml, "about1")), "activate", G_CALLBACK(on_help_about_menu_activate), NULL);
 
 	entry = glade_xml_get_widget(gui.xml, "text entry");
-	g_signal_connect(G_OBJECT(entry), "key-release-event", G_CALLBACK(on_text_entry_activate), NULL);
+	g_signal_connect(G_OBJECT(entry), "activate", G_CALLBACK(on_text_entry_activate), NULL);
 
 #ifdef HAVE_GTKSPELL
 #if 0
@@ -239,19 +239,10 @@ void on_help_about_menu_activate(GtkWidget *widget, gpointer data) {
 	show_about_dialog();
 }
 
-void on_text_entry_activate(GtkWidget *widget, GdkEventKey *event, gpointer data) {
-	GtkTextBuffer *buffer;
-	const gchar *entry_text;
-	GtkTextIter start, end;
-
-	if(event->keyval == GDK_Return) {
-		buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(widget));
-		gtk_text_buffer_get_start_iter(buffer, &start);
-		gtk_text_buffer_get_end_iter(buffer, &end);
-		entry_text = gtk_text_buffer_get_text(buffer, &start, &end, FALSE);
-		handle_multiline(gui.current_session, entry_text, TRUE, FALSE);
-		gtk_text_buffer_set_text(buffer, "", -1);
-	}
+void on_text_entry_activate(GtkWidget *widget, gpointer data) {
+	const char *entry_text = gtk_entry_get_text(GTK_ENTRY(widget));
+	handle_multiline(gui.current_session, entry_text, TRUE, FALSE);
+	gtk_entry_set_text(GTK_ENTRY(widget), "");
 }
 
 gboolean on_resize(GtkWidget *widget, GdkEventConfigure *event, gpointer data) {
