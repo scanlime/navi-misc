@@ -56,6 +56,8 @@ void *refresh_thread(void *foo) {
 	if (level > 8)
 	  level = 8;
 	frame[i] = levels[level];
+	//emphasize the bass a tad more.
+	if(i < (NUM_COLUMNS / 4)) mean += level;
 	mean += level;
       }
       else {
