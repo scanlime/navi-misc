@@ -91,6 +91,7 @@ void CTestGame::Attach ( void )
 	localPlayer = new CPlayerObject;
 	localPlayer->active = false;
 	localPlayer->idNumber = -1;
+	localPlayer->forceHidden = true;
 	localPlayer->name = prefs.GetItemS("PlayerName");
 	if (prefs.ItemExists("PlayerSkin"))
 		localPlayer->material = prefs.GetItemS("PlayerSkin");
@@ -364,9 +365,10 @@ bool CTestGame::processPlayerInput ( void )
 	float rotspeed = 60.0f;
 	float linspeed = 100.0f;
 	float reversemod = -0.5f;
-	float	friction = 0.85f;
+	float friction = 0.5f;
 	float stoptol = 1.0f;
 	float grav = -10.0f;
+	float tankRad = 2.0f;
 
 	float frameTime = timer.GetFrameTime();
 
@@ -386,25 +388,40 @@ bool CTestGame::processPlayerInput ( void )
 	h = cos((localPlayer->rot[2]+90)*deg2rad);
 	v = sin((localPlayer->rot[2]+90)*deg2rad);
 
+	bool bCanMove = (localPlayer->pos[2] < 0.01);
+	bool moved = false;
+
 	// compute new thrust vector
-	if (input.KeyDown(KEY_UP))
+	if (bCanMove)
 	{
-		localPlayer->vec[0] = linspeed*h;
-		localPlayer->vec[1] = linspeed*v;
+		if (input.KeyDown(KEY_UP))
+		{
+			localPlayer->vec[0] = linspeed*h;
+			localPlayer->vec[1] = linspeed*v;
+			moved = true;
+		}
+		else if (input.KeyDown(KEY_DOWN))
+		{
+			localPlayer->vec[0] = linspeed*h*reversemod;
+			localPlayer->vec[1] = linspeed*v*reversemod;
+			moved = true;
+		}
 	}
-	else if (input.KeyDown(KEY_DOWN))
-	{
-		localPlayer->vec[0] = linspeed*h*reversemod;
-		localPlayer->vec[1] = linspeed*v*reversemod;
-	}
-	else
+	
+	if (!moved)
 	{
 		localPlayer->vec[0] -= localPlayer->vec[0]*friction*frameTime;
 		localPlayer->vec[1] -= localPlayer->vec[1]*friction*frameTime;
-
-		if (localPlayer->vec[0]*localPlayer->vec[0] + localPlayer->vec[1]*localPlayer->vec[1] < stoptol*stoptol)
-			localPlayer->vec[0] = localPlayer->vec[1] = 0;
 	}
+
+	if (input.KeyDown(KEY_END))
+	{
+		localPlayer->vec[0] = 0;
+		localPlayer->vec[1] = 0;
+	}
+
+	if (localPlayer->vec[0]*localPlayer->vec[0] + localPlayer->vec[1]*localPlayer->vec[1] < stoptol*stoptol)
+		localPlayer->vec[0] = localPlayer->vec[1] = 0;
 
 	// apply gravity if above 0;
 
@@ -415,6 +432,47 @@ bool CTestGame::processPlayerInput ( void )
 	}
 	else
 		localPlayer->vec[2] = 0;
+
+	bool smack = false;
+
+	float bounceFriction = -0.5f;
+	float bonceBuffer = 0.1f;
+
+	if ( localPlayer->pos[0] > world.GetXSize()*0.5f-tankRad )
+	{
+		localPlayer->vec[0] *= bounceFriction;
+		localPlayer->vec[1] *= (float)fabs(bounceFriction);
+		localPlayer->pos[0] = world.GetXSize()*0.5f-tankRad-bonceBuffer;
+		smack = true;
+	}
+	else if ( localPlayer->pos[0] < world.GetXSize()*-0.5f+tankRad )
+	{
+		localPlayer->vec[0] *= bounceFriction;
+		localPlayer->vec[1] *= (float)fabs(bounceFriction);;
+		localPlayer->pos[0] = world.GetXSize()*-0.5f+tankRad+bonceBuffer;
+		smack = true;
+	}
+	
+	if ( localPlayer->pos[1] > world.GetYSize()*0.5f-tankRad )
+	{
+		localPlayer->vec[0] *= (float)fabs(bounceFriction);;
+		localPlayer->vec[1] *= bounceFriction;
+		localPlayer->pos[1] = world.GetYSize()*0.5f-tankRad-bonceBuffer;
+		smack = true;
+	}
+	else if ( localPlayer->pos[1] < world.GetYSize()*-0.5f+tankRad )
+	{
+		localPlayer->vec[0] *= (float)fabs(bounceFriction);;
+		localPlayer->vec[1] *= bounceFriction;
+		localPlayer->pos[1] = world.GetYSize()*-0.5f+tankRad+bonceBuffer;
+		smack = true;
+	}
+
+	if (smack)
+	{
+	//	localPlayer->vec[0] = 0;
+	//	localPlayer->vec[1] = 0;
+	}
 
 	return false;
 }

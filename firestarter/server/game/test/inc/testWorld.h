@@ -38,6 +38,9 @@ public:
 	virtual void sendMapTo ( CNetworkPeer &peer );
 
 	virtual	bool initDefaultWorld ( void );
+
+	virtual float getScaleX ( void ) {return size[0];}
+	virtual float getScaleY ( void ) {return size[1];}
 protected:
 	std::string		name;
 	std::string		skybox;

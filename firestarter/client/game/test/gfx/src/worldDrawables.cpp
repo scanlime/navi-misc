@@ -83,8 +83,10 @@ void CGroundObject::Init ( void )
 
 #ifdef _DEBUG
 	// make the Xaxis stuff
-/*	Entity  *ball = CFirestarterLoop::instance().GetSceneManager()->createEntity("xball", "xball.mesh");
-	SceneNode *ballNode = static_cast<SceneNode*>(CFirestarterLoop::instance().GetSceneManager()->getRootSceneNode()->createChild());
+	Entity  *ball;
+	SceneNode *ballNode;
+/*	ball = CFirestarterLoop::instance().GetSceneManager()->createEntity("xball", "xball.mesh");
+	ballNode = static_cast<SceneNode*>(CFirestarterLoop::instance().GetSceneManager()->getRootSceneNode()->createChild());
 	ballNode->attachObject(ball);
 	ballNode->translate(10,0,0);
 

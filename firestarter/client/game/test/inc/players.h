@@ -42,7 +42,7 @@ public:
 
 	bool GetMaterial ( int item, char *szMaterial );
 	bool GetMaterial (  const char * item, char *szMaterial );
-	bool Visible ( void ) { return active; }
+	bool Visible ( void ) { return forceHidden ?  false :active; }
 
 	int					idNumber;
 	bool				active;
@@ -53,6 +53,7 @@ public:
 	std::string	material;
 	std::string mesh;
 
+	bool				forceHidden;
 	float				updateTime;
 protected:
 	int					drawable;
