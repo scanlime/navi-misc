@@ -66,10 +66,24 @@ public class interview extends java.applet.Applet implements ActionListener
 		add(question);
 		add(answer);
 		add(button1);
-		button1.addActionListener(new submit());
+		button1.addActionListener(new submit(this));
 		add(button2);
-		button2.addActionListener(new reject());
+		button2.addActionListener(new reject(this));
 		add(button3);
-		button3.addActionListener(new quit());
+		button3.addActionListener(new quit(this));
+	}
+	
+	/**
+	 * This removes all the stuff from the applet
+	 * @author Brandon Smith
+	 * @version 2.0
+	 */
+	public void rmbuttons()
+	{
+		remove(question);
+		remove(answer);
+		remove(button1);
+		remove(button2);
+		remove(button3);
 	}
 }
