@@ -5,18 +5,17 @@
 
 import time, sys
 
-def crc8(bits):
-    reg = 0x00
-    for bit in bits + "00000000":
+def crc16(bits):
+    reg = 0x0000
+    for bit in bits + "0"*16:
         # Shift in a bit
         reg <<= 1
         if bit == "1":
             reg |= 1
-
         # If a one came out, XOR with the polynomial
-        if reg & 0x100:
-            reg &= 0xFF
-            reg ^= 0x07
+        if reg & 0x10000:
+            reg &= 0xFFFF
+            reg ^= 0x8005
     return reg
 
 def unstuff(bits):
@@ -54,10 +53,12 @@ def receiveBits(device):
         # of data. We can measure noise by checking how closely it
         # matches the ideal bit patterns.
         b = port.read(1)
-        if bitCounts[ord(b)] < 4:
-            yield ("1", bitCounts[ord(b) ^ 0xC0])
+        noise1 = bitCounts[ord(b) ^ 0xC0]
+        noise0 = bitCounts[ord(b) ^ 0xFC]
+        if noise1 < noise0:
+            yield ("1", noise1)
         else:
-            yield ("0", bitCounts[ord(b) ^ 0xFC])
+            yield ("0", noise0)
 
 
 def receiveFrames(device, flag="011110"):
@@ -95,13 +96,13 @@ def receiveContent(device):
     for bits, signalStrength in receiveFrames(device):
         # Unstuff it. Is it too short?
         bits = unstuff(bits)
-        if len(bits) < 8:
+        if len(bits) < 16:
             continue
 
         # Check the CRC
-        content = bits[:-8]
-        crc = unpack(bits[-8:])
-        if crc8(content) != crc:
+        content = bits[:-16]
+        crc = unpack(bits[-16:])
+        if crc16(content) != crc:
             continue
 
         # Yay, it's valid
@@ -120,11 +121,12 @@ def log(*values):
 
 
 if __name__ == "__main__":
-    log("time", "signalStrength", "protocol", "station", "sequence", "voltage", "temperature")
+    log("time", "signalStrength", "protocol", "station", "sequence",
+        "voltage", "temperature", "sample_count")
     startTime = time.time()
 
     for content, signalStrength in receiveContent("/dev/usb/tts/0"):
-        if len(content) != 31:
+        if len(content) != 47:
             continue
 
         try:
@@ -132,14 +134,23 @@ if __name__ == "__main__":
             station = unpack(content[2:8])
             sequence = unpack(content[8:13])
             voltage = unpack(content[13:23]) / 1024.0 * 10
-            temperature = int(content[23:31], 2)
-            if temperature & 0x80:
-                temperature -= 0x100
+            therm_total = unpack(content[23:39])
+            therm_count = unpack(content[39:47])
+
+            print therm_total, therm_count
+
+            if therm_total & 0x8000:
+                therm_total -= 0x10000
+            if therm_count:
+                temperature = float(therm_total) / therm_count
+            else:
+                temperature = 0
 
             log("%.04f" % (time.time() - startTime),
                 "%.04f" % signalStrength,
                 protocol, station, sequence,
                 "%.04f" % voltage,
-                temperature)
+                "%.04f" % temperature,
+                therm_count)
         except:
             print sys.exc_info()[1]
