@@ -225,10 +225,12 @@ class drop_down(hbox):
     self.characterData = character
     self.button = None
 
+    # Drop down box.
     self.menu = gtk.Combo()
     self.menu.entry.set_editable(gtk.FALSE)
     self.pack_start(self.menu)
 
+    # Text field for edit mode.
     self.editScroller = gtk.ScrolledWindow()
     self.editBox = gtk.TextView()
     self.buffer = self.editBox.get_buffer()
@@ -315,3 +317,24 @@ class drop_down_item(sheetElement):
     else:
       self.data = [node.childNodes[0].data]
       self.path = None
+
+class text_box(gtk.Frame, sheetElement):
+  ''' Text box for holding long strings of data. '''
+  def __init__(self, node, character):
+    sheetElement.__init__(self, node)
+    gtk.Frame.__init__(self, self.attributes.get('label', ''))
+
+    # Text view.
+    self.text = gtk.TextView()
+    # Get the buffer.
+    self.buffer = self.text.get_buffer()
+    self.text.show()
+
+    # Give the text view a scroller.
+    scroller = gtk.ScrolledWindow()
+    scroller.add_with_viewport(self.text)
+    scroller.show()
+
+    # The outer frame should be invisible except for the label.
+    self.set_shadow_type(gtk.SHADOW_NONE)
+    self.add(scroller)
