@@ -34,6 +34,7 @@ class GTKsheet:
       for child in node.childNodes:
 	if child.nodeType is xml.dom.Node.ELEMENT_NODE: 
 	  self.root.packChild(self.makeObjects(child, self.root, editables))
+      self.root.editables = editables
 
   def makeObjects(self, newNode, parent, editList):
     ''' Make objects out of the node passed. '''
@@ -49,7 +50,5 @@ class GTKsheet:
       newObject.addEditable(editList)
       for node in newNode.childNodes:
 	if node.nodeType is xml.dom.Node.ELEMENT_NODE: newObject.packChild(self.makeObjects(node, newObject, editList))
-
-      if hasattr(newObject, 'editables'): newObject.editables = editList
 
       return newObject

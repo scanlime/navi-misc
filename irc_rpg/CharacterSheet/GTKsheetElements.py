@@ -228,10 +228,14 @@ class drop_down(hbox):
     self.menu = gtk.Combo()
     self.menu.entry.set_editable(gtk.FALSE)
     self.pack_start(self.menu)
+
     self.editScroller = gtk.ScrolledWindow()
     self.editBox = gtk.TextView()
     self.buffer = self.editBox.get_buffer()
-    self.editScroller.add(self.editBox)
+    frame = gtk.Frame()
+    frame.add(self.editBox)
+    frame.show()
+    self.editScroller.add(frame)
     self.editBox.show()
     self.pack_start(self.editScroller)
 
@@ -260,7 +264,7 @@ class drop_down(hbox):
       self.button.show()
     hbox.show(self)
 
-  def roll(self, widget=None):
+  def roll(self, widget=None, data=None):
     ''' Roll the dice object. '''
     # Get the data from the menu: number of times, number of sides and modifiers.
     values = re.search('\[([1-9]+)d([1-9]+)\+?([1-9]*)\]', self.menu.entry.get_text())
@@ -282,15 +286,20 @@ class drop_down(hbox):
     list.append(self)
 
   def set_editable(self, is_editable):
+    ''' Make the drop down menu editable. '''
     if is_editable:
       self.buffer.set_text(string.join(self.items, '\n'))
       self.menu.hide()
       self.editScroller.show()
+      if self.button is not None:
+	self.button.hide()
     else:
-      self.items = self.buffer.get_text(self.buffer.get_start_iter(), self.buffer.get_end_iter()).split('\n')
-      self.menu.set_popdown_strings(self.items)
       self.editScroller.hide()
       self.menu.show()
+      self.items = self.buffer.get_text(self.buffer.get_start_iter(), self.buffer.get_end_iter()).split('\n')
+      self.menu.set_popdown_strings(self.items)
+      if self.button is not None:
+	self.button.show()
 
 class drop_down_item(sheetElement):
   ''' Items in a drop down menu. '''
