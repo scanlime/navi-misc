@@ -140,6 +140,7 @@ CREATE TABLE IF NOT EXISTS stats_counters
 --
 CREATE TABLE IF NOT EXISTS stats_subscriptions
 (
+    id           BIGINT PRIMARY KEY AUTO_INCREMENT,
     target_path  VARCHAR(128) NOT NULL,
     expiration   BIGINT NOT NULL,
     scope        VARCHAR(32),
