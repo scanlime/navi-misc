@@ -128,13 +128,13 @@ map_axis macro src_byte, dest_byte
 	;; Map an 8-bit 0x80-centered axis to two buttons, given lower and upper thresholds
 map_button_axis macro axis_byte, lower_byte, lower_bit, upper_byte, upper_bit, lower_thresh, upper_thresh
 	movlw	lower_thresh
-	subwf	gamecube_buffer+axis_byte, w	; Axis - lower_thresh
+	subwf	gamecube_buffer+axis_byte, w			; Axis - lower_thresh
 	btfss	STATUS, C
-	bsf	lower_byte, lower_bit		; C=0, B=1, lower_thresh > axis
+	bsf	n64_status_buffer+lower_byte, lower_bit		; C=0, B=1, lower_thresh > axis
 	movlw	upper_thresh+1
-	subwf	gamecube_buffer+axis_byte, w	; Axis - (upper_thresh+1)
+	subwf	gamecube_buffer+axis_byte, w			; Axis - (upper_thresh+1)
 	btfsc	STATUS, C
-	bsf	upper_byte, upper_bit		; C=1, B=0, (upper_thresh+1) <= axis
+	bsf	n64_status_buffer+upper_byte, upper_bit		; C=1, B=0, (upper_thresh+1) <= axis
 	endm
 
 
