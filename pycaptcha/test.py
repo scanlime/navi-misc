@@ -7,9 +7,8 @@ class PseudoGimpy(ImageCaptcha):
         word = Words.defaultWordList.pick()
         self.addSolution(word)
         return [
-            #Backgrounds.Grid(),
             Backgrounds.TiledImage(),
-            Text.TextLayer(word),
+            Text.TextLayer(word, borderSize=1),
             Distortions.WigglyBlocks(),
             ]
 
