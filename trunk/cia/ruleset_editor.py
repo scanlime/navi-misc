@@ -1,9 +1,12 @@
 #!/usr/bin/env python
-""" ruleset_editor.py
-
+"""
 A PyGTK and Glade UI for editing CIA's rulesets interactively.
 A ruleset defines the filters and formatters used to select and
 represent messages for a particular URI.
+
+Rulesets may be browsed without loading a capabilities key. To
+modify, add, or delete rulesets, an appropriate key must be
+provided.
 """
 #
 # CIA open source notification system
@@ -24,7 +27,8 @@ represent messages for a particular URI.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import gtk, gobject, sys, os, gtk.glade, xmlrpclib
+from LibCIA import Client
+import gtk, gobject, sys, os, gtk.glade
 
 
 class GladeUI(object):
@@ -46,14 +50,11 @@ class GladeUI(object):
                 self.xml.signal_connect(name, getattr(self, name))
 
 
-class CIAClient(object):
-    """A simple client interface to the CIA server, providing
-       a slightly higher level interface to it than XML-RPC.
-       Includes functions for querying and installing rulesets,
-       with a simple cache.
-       """
-    def __init__(self, serverURL):
-        self.server = xmlrpclib.ServerProxy(serverURL)
+class RulesetClient(object):
+    """A cached client interface to CIA's ruleset module"""
+    def __init__(self, server, key=None):
+        self.server = server
+        self.key = key
         self.clearCache()
         self.queryRulesets()
 
@@ -75,7 +76,7 @@ class CIAClient(object):
 
     def setRuleset(self, ruleset, uri=None):
         """Set a new ruleset for the given URI, also updating our cache"""
-        self.server.ruleset.store(ruleset)
+        self.server.ruleset.store(ruleset, self.key)
         if uri:
             self.rulesetCache[uri] = [ruleset]
 
@@ -287,32 +288,28 @@ class RulesetWindow(GladeUI):
     """A class which holds and initializes all the UI elements necessary
        for a complete CIA ruleset editor.
        """
-    def __init__(self, xml, server):
+    def __init__(self, xml, client):
         GladeUI.__init__(self, xml)
-
-        self.client = CIAClient(server)
-        self.editor = RulesetEditor(self.xml, self.client)
-        self.uriList = URIList(self.xml, self.client, self.editor.setCurrentURI)
-
-        # Add our server name to the window title
+        self.editor = RulesetEditor(self.xml, client)
+        self.uriList = URIList(self.xml, client, self.editor.setCurrentURI)
         self.window = self.xml.get_widget('RulesetWindow')
-        self.window.set_title(self.window.get_title() + " - " + server)
 
 
-def main():
-    # Locate our glade file by looking in the same directory as our source
-    gladeFile = os.path.join(os.path.dirname(sys.argv[0]), "ruleset_editor.glade")
+class App(Client.App):
+    def main(self):
+        # Locate our glade file by looking in the same directory as our source
+        gladeFile = os.path.join(os.path.dirname(sys.argv[0]), "ruleset_editor.glade")
 
-    # Default to connecting to navi, but let the user override that on the command line
-    server = "http://navi.picogui.org:3910"
-    if len(sys.argv) > 1:
-        server = sys.argv[1]
+        client = RulesetClient(self.server, self.key)
+        ui = RulesetWindow(gladeFile, client)
 
-    ui = RulesetWindow(gladeFile, server)
-    ui.window.connect("destroy", gtk.mainquit)
-    gtk.main()
+        # Put our server name in the window title
+        ui.window.set_title(ui.window.get_title() + " - " + self.config['server'])
+
+        ui.window.connect("destroy", gtk.mainquit)
+        gtk.main()
 
 if __name__ == "__main__":
-    main()
+    App().main()
 
 ### The End ###
