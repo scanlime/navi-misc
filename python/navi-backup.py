@@ -347,7 +347,7 @@ class CatalogWriter:
         self.name = self._getName()
         self.temp_name = "/tmp/navi_backup_%r.catalog" % os.getpid()
         self.cd_name = os.path.join("catalog", self.name)
-        self.archive_name = os.path.join(self.catalogDir, self.name)
+        self.archive_name = os.path.join(Catalog.catalogDir, self.name)
 
     def _getName(self):
         """Determine the name of our catalog, based on the current time and
