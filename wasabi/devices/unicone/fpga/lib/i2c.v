@@ -43,14 +43,14 @@ module i2c_io_buffer (clk, reset,
 	reg [1:2] sda_in_sync;
 	reg [1:2] scl_in_sync;
 	reg sda_out_sync;
-	
+
 	/* An open-collector driver for ext_sda using our sync'ed sda_out */
 	assign ext_sda = sda_out_sync ? 1'bz : 1'b0;
-	
+
 	/* Our internal I2C bus is driven by the sync'ed inputs */
 	assign int_scl = scl_in_sync[2];
 	assign int_sda_in = sda_in_sync[2];
-	
+
 	always @(posedge clk or posedge reset)
 		if (reset) begin
 			sda_in_sync <= 2'b11;
@@ -63,7 +63,7 @@ module i2c_io_buffer (clk, reset,
 			sda_in_sync[2] <= sda_in_sync[1];
 			scl_in_sync[1] <= ext_scl;
 			scl_in_sync[2] <= scl_in_sync[1];
-			
+
 			/* Sync output once */
 			sda_out_sync <= int_sda_out;
 		end
@@ -96,7 +96,7 @@ module i2c_slave_32byte_sram (clk, reset,
 	output sda_out;
 	input [4:0] user_addr;
 	output [7:0] user_data;
-	
+
 	wire start, stop, wr;
 	reg wr_ack;
 	wire [7:0] write_data;
@@ -111,7 +111,7 @@ module i2c_slave_32byte_sram (clk, reset,
 	sram_32byte_dualport ram(clk, ram_write, write_data,
 	                         current_addr, current_ram_contents,
 	                         user_addr, user_data);
-	
+
 	reg [2:0] state;
 	parameter
 		S_IDLE = 0,
@@ -122,12 +122,12 @@ module i2c_slave_32byte_sram (clk, reset,
 
 	always @(posedge clk or posedge reset)
 		if (reset) begin
-			
+
 			current_addr <= 0;
 			ram_write <= 0;
 			state <= S_IDLE;
 			wr_ack <= 0;
-		
+
 		end
 		else case (state)
 
@@ -152,10 +152,10 @@ module i2c_slave_32byte_sram (clk, reset,
 					else begin
 						state <= S_IDLE;
 						wr_ack <= 0;
-					end	
+					end
 				end
 			end
-			
+
 			S_WAIT_FOR_MEM_ADDRESS: begin
 				// Wait for our current memory address
 				if (start)
@@ -245,13 +245,13 @@ module i2c_slave_reg (clk, reset,
 
 	always @(posedge clk or posedge reset)
 		if (reset) begin
-		
+
 			reg_out <= DEFAULT_VALUE;
 			out_buffer <= 0;
 			byte_count <= 0;
 			state <= S_IDLE;
 			wr_ack <= 0;
-		
+
 		end
 		else case (state)
 
@@ -275,7 +275,7 @@ module i2c_slave_reg (clk, reset,
 					else begin
 						state <= S_IDLE;
 						wr_ack <= 0;
-					end	
+					end
 				end
 			end
 
@@ -290,7 +290,7 @@ module i2c_slave_reg (clk, reset,
 						out_buffer <= {out_buffer[BITS_WIDE-9:0], write_data};
 					else
 						out_buffer <= write_data;
-					
+
 					wr_ack <= 1;
 					if (byte_count == BYTES_WIDE-1) begin
 						state <= S_WAIT_FOR_STOP;
@@ -370,7 +370,7 @@ module i2c_slave_serializer (clk, reset,
 
 	always @(posedge clk or posedge reset)
 		if (reset) begin
-		
+
 			sda_out <= 1;
 			write_data <= 0;
 			wr <= 0;
@@ -378,7 +378,7 @@ module i2c_slave_serializer (clk, reset,
 			stop <= 0;
 			bit_count <= 0;
 			state <= S_WAIT_FOR_START;
-		
+
 		end
 		else case (state)
 
@@ -445,7 +445,7 @@ module i2c_slave_serializer (clk, reset,
 							wr <= 1;
 						else
 							wr <= 0;
-					
+
 						// Normal bit
 						bit_count <= bit_count + 1;
 						sda_out <= 1;

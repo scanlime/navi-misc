@@ -36,13 +36,13 @@ module gamecube (clk, reset,
 	i2c_io_buffer i2cbuf(
 		clk, reset, scl, sda,
 		int_scl, int_sda_in, int_sda_out == 2'b11);
-	
+
 	/* Add an I2C-addressable LED brightness control */
 	pwm16_i2c #(7'h21) led_core(
-		clk, reset, 
+		clk, reset,
 		int_scl, int_sda_in, int_sda_out[0],
 		led);
-		
+
 	/* Four I2C-addressable Gamecube controller emulators */
 	gc_i2c #(7'h40) gc_core(
 		clk, reset,
@@ -60,7 +60,7 @@ module gc_i2c (clk, reset,
                scl, sda_in, sda_out,
                gc_ports);
         parameter I2C_ADDRESS = 0;
-               
+
 	input clk, reset;
 	input scl, sda_in;
 	output sda_out;
@@ -100,7 +100,7 @@ module gc_i2c (clk, reset,
 	n_serial_io_buffer iobuffer3(clk, reset, gc_ports[2], tx[2], rx[2]);
 	n_serial_io_buffer iobuffer4(clk, reset, gc_ports[3], tx[3], rx[3]);
 
-	/* The controller simulator core, one for each port. It makes 
+	/* The controller simulator core, one for each port. It makes
 	 * requests for each byte of controller state it needs, as it's
 	 * inefficient to pass the whole 64-bit monstrosity around.
 	 * Each core also gives us a rumble bit.
@@ -120,7 +120,7 @@ endmodule
 /*
  * The controller emulator state machine. This receives requests
  * from the console, and transmits back responses to emulate
- * a standard Nintendo Gamecube controller. 
+ * a standard Nintendo Gamecube controller.
  *
  * This emulator responds to the following request words from the gamecube:
  *
@@ -216,7 +216,7 @@ module gc_controller (clk, reset, tx, rx, rumble,
 		S_RX_CMD_0 = 1,
 		S_RX_POLL_CMD_1 = 2,
 		S_RX_POLL_CMD_2 = 3,
-		
+
 		/* Acting on commands, setting up responses */
 		S_FINISH_ID_COMMAND = 4,
 		S_FINISH_POLL_COMMAND = 5,
@@ -234,20 +234,20 @@ module gc_controller (clk, reset, tx, rx, rumble,
 		/* Transmitting 'get origins' response */
 		S_TX_ORIGINS_BYTE = 12,
 		S_TX_ORIGINS_WAIT = 13,
-		
+
 		/* Common to all transmissions */
 		S_TX_STOPBIT = 14;
 
 	always @(posedge clk or posedge reset)
 		if (reset) begin
-		
+
 			tx_stopbit <= 0;
 			tx_strobe <= 0;
 			tx_data <= 0;
 
 			rumble <= 0;
 			rx_poll_flags <= 0;
-			
+
 			byte_count <= 0;
 			state_request <= 0;
 
@@ -274,7 +274,7 @@ module gc_controller (clk, reset, tx, rx, rumble,
 				if (rx_stop || rx_start || rx_error)
 					state <= S_IDLE;
 				else if (rx_strobe) begin
-					
+
 					if (rx_data == 8'h00) begin
 						/* An identification request command */
 
@@ -298,10 +298,10 @@ module gc_controller (clk, reset, tx, rx, rumble,
 
 						state <= S_IDLE;
 
-					end						
+					end
 				end
 			end
-			
+
 			S_RX_POLL_CMD_1: begin
 				// We have the first byte of a polling command, look for the second
 				if (rx_stop || rx_start || rx_error)
@@ -313,7 +313,7 @@ module gc_controller (clk, reset, tx, rx, rumble,
 						state <= S_IDLE;
 				end
 			end
-			
+
 			S_RX_POLL_CMD_2: begin
 				// We have the first two bytes of a polling command, accept the last one.
 				// We don't validate this byte, since it seems to be a status bitfield
@@ -325,14 +325,14 @@ module gc_controller (clk, reset, tx, rx, rumble,
 				else if (rx_strobe) begin
 
 					rx_poll_flags <= rx_data;
-					state <= S_FINISH_POLL_COMMAND;				
+					state <= S_FINISH_POLL_COMMAND;
 
 				end
 			end
 
-			
+
 			/************************* Acting on commands, setting up responses ****/
-			
+
 			S_FINISH_ID_COMMAND: begin
 				// We've recieved an ID command's start pulse and content- wait for a stop,
 				// to conclude the ID command, then start sending the response.
@@ -343,7 +343,7 @@ module gc_controller (clk, reset, tx, rx, rumble,
 					state <= S_TX_ID_BYTE;
 				end
 			end
-			
+
 			S_FINISH_POLL_COMMAND: begin
 				// We've recieved a polling command's start pulse and content- wait for a stop,
 				// to conclude the command, then start sending the response and latch our flags.
@@ -356,10 +356,10 @@ module gc_controller (clk, reset, tx, rx, rumble,
 
 					// Prepare to send a response
 					byte_count <= 0;
-					state <= S_TX_STATE_WAIT_FOR_RAM;					
+					state <= S_TX_STATE_WAIT_FOR_RAM;
 				end
 			end
-	
+
 			S_FINISH_ORIGINS_COMMAND: begin
 				// We've recieved a 'get origins' command. Wait for the stop, then assemble
 				// and start sending a big response.
@@ -369,11 +369,11 @@ module gc_controller (clk, reset, tx, rx, rumble,
 					byte_count <= 0;
 					state <= S_TX_ORIGINS_BYTE;
 				end
-			end		
+			end
 
 
 			/************************* Transmitting controller state ****/
-				
+
 			S_TX_STATE_WAIT_FOR_RAM: begin
 				// We're ready to send the controller state, but we need
 				// to wait for a data byte from our RAM interface
@@ -390,7 +390,7 @@ module gc_controller (clk, reset, tx, rx, rumble,
 					state_request <= 1;
 				end
 			end
-			
+
 			S_TX_STATE_WAIT: begin
 				// Do nothing for one cycle while we let the transmitter update its flags
 				state <= S_TX_STATE_WAIT_FOR_TRANSMITTER;
@@ -429,7 +429,7 @@ module gc_controller (clk, reset, tx, rx, rumble,
 					byte_count <= byte_count + 1;
 				end
 			end
-			
+
 			S_TX_ID_WAIT: begin
 				// Give the transmitter one cycle to update status
 				tx_strobe <= 0;
@@ -460,11 +460,11 @@ module gc_controller (clk, reset, tx, rx, rumble,
 						5:   tx_data <= 8'h80;
 						6:   tx_data <= 8'h00;
 						7:   tx_data <= 8'h00;
-					
+
 						// The last two bytes are, for now, magic numbers
 						8:   tx_data <= 8'h02;
 						9:   tx_data <= 8'h02;
-					
+
 					endcase
 					tx_strobe <= 1;
 					tx_stopbit <= 0;
@@ -472,7 +472,7 @@ module gc_controller (clk, reset, tx, rx, rumble,
 					byte_count <= byte_count + 1;
 				end
 			end
-			
+
 			S_TX_ORIGINS_WAIT: begin
 				// Give the transmitter one cycle to update status
 				tx_strobe <= 0;

@@ -32,14 +32,14 @@ module rising_edge_detector (clk, reset, in, edge_detected);
 
 	reg in_prev;
 	assign edge_detected = in && !in_prev;
-	
+
 	always @(posedge clk or posedge reset)
 		if (reset)
 			/* Defaulting to '1' prevents spurious edge detection */
 			in_prev <= 1;
 		else
 			in_prev <= in;
-endmodule	
+endmodule
 
 
 /*
@@ -53,7 +53,7 @@ module falling_edge_detector (clk, reset, in, edge_detected);
 
 	reg in_prev;
 	assign edge_detected = in_prev && !in;
-	
+
 	always @(posedge clk or posedge reset)
 		if (reset)
 			/* Defaulting to '0' prevents spurious edge detection */
@@ -114,7 +114,7 @@ module sram_32byte_dualport (clk, we, d1_in, a1, d1_out, a2, d2_out);
 	                               high_d1_out, a2[3:0], high_d2_out);
 
 endmodule
- 
+
 module sram_16byte_dualport (clk, we, d1_in, a1, d1_out, a2, d2_out);
 	input clk, we;
 	input [7:0] d1_in;
@@ -186,13 +186,13 @@ module sram_arbiter4 (clk, reset, addr_out,
 	input [ADDR_WIDTH-1:0] dev4_addr;
 	input dev4_request;
 	output dev4_ack;
-	
+
 	reg addr_out;
 	reg dev1_ack;
 	reg dev2_ack;
 	reg dev3_ack;
 	reg dev4_ack;
-	
+
 	/* Generate the 'pending' signals for each device. They go high
 	 * when a request edge is detected, and low on ack.
 	 */
@@ -204,49 +204,49 @@ module sram_arbiter4 (clk, reset, addr_out,
 	rising_edge_latch dev2_pending_latch(clk, reset, dev2_request, dev2_ack, dev2_pending);
 	rising_edge_latch dev3_pending_latch(clk, reset, dev3_request, dev3_ack, dev3_pending);
 	rising_edge_latch dev4_pending_latch(clk, reset, dev4_request, dev4_ack, dev4_pending);
-		
+
 	always @(posedge clk or posedge reset)
-		if (reset) begin	
+		if (reset) begin
 			addr_out <= 0;
 			dev1_ack <= 0;
 			dev2_ack <= 0;
 			dev3_ack <= 0;
-			dev4_ack <= 0;	
+			dev4_ack <= 0;
 		end
 		else if (dev1_pending) begin
 			addr_out <= dev1_addr;
 			dev1_ack <= 1;
 			dev2_ack <= 0;
 			dev3_ack <= 0;
-			dev4_ack <= 0;	
+			dev4_ack <= 0;
 		end
 		else if (dev2_pending) begin
 			addr_out <= dev2_addr;
 			dev1_ack <= 0;
 			dev2_ack <= 1;
 			dev3_ack <= 0;
-			dev4_ack <= 0;	
+			dev4_ack <= 0;
 		end
 		else if (dev3_pending) begin
 			addr_out <= dev3_addr;
 			dev1_ack <= 0;
 			dev2_ack <= 0;
 			dev3_ack <= 1;
-			dev4_ack <= 0;	
+			dev4_ack <= 0;
 		end
 		else if (dev4_pending) begin
 			addr_out <= dev4_addr;
 			dev1_ack <= 0;
 			dev2_ack <= 0;
 			dev3_ack <= 0;
-			dev4_ack <= 1;	
+			dev4_ack <= 1;
 		end
 		else begin
 			dev1_ack <= 0;
 			dev2_ack <= 0;
 			dev3_ack <= 0;
-			dev4_ack <= 0;	
-		end		
+			dev4_ack <= 0;
+		end
 endmodule
 
 
@@ -277,7 +277,7 @@ module serializer (clk, reset,
                    is_empty);
 	parameter WIDTH = 8;
 	parameter COUNT_WIDTH = 3;
-	
+
 	input clk, reset;
 	input [WIDTH-1:0] par_data;
 	input par_ready;
@@ -286,14 +286,14 @@ module serializer (clk, reset,
 	input ser_ready;
 	output ser_strobe;
 	output is_empty;
-	
+
 	reg par_strobe;
 	reg ser_data;
 	reg ser_strobe;
 	reg is_empty;
 	reg [COUNT_WIDTH-1:0] bit_count;
 	reg [WIDTH-1:0] shifter;
-	
+
 	reg state;
 	parameter
 		S_WAIT_FOR_PAR = 0,
@@ -309,7 +309,7 @@ module serializer (clk, reset,
 			ser_strobe <= 0;
 			ser_data <= 0;
 			is_empty <= 1;
-		
+
 		end
 		else case (state)
 
@@ -330,18 +330,18 @@ module serializer (clk, reset,
 					par_strobe <= 0;
 					ser_strobe <= 0;
 					is_empty <= 1;
-				end				
+				end
 			end
-						
+
 			S_SHIFT_BIT: begin
 				// Normal operation, when we're not in a parallel wait state
-				
+
 				if (ser_ready) begin
 					// Clock out the next serial bit
-				
+
 					ser_data <= shifter[WIDTH-1];
 					ser_strobe <= 1;
-				
+
 					if (bit_count == WIDTH-1) begin
 						// Last bit- if we have parallel data ready, pull
 						// it in without missing a beat. If not, insert a
@@ -367,10 +367,10 @@ module serializer (clk, reset,
 				else begin
 					par_strobe <= 0;
 					ser_strobe <= 0;
-				end	
+				end
 			end
 
-		endcase	
+		endcase
 endmodule
 
 
@@ -405,7 +405,7 @@ module shallow_buffer (clk, reset, full,
 	wire in_edge, out_edge;
 	rising_edge_detector in_edgedet(clk, reset, in_strobe, in_edge);
 	rising_edge_detector out_edgedet(clk, reset, out_strobe, out_edge);
-	
+
 	always @(posedge clk or posedge reset)
 		if (reset) begin
 			full <= 0;

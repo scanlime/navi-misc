@@ -26,8 +26,8 @@
 module pwm16_i2c (clk, reset,
                   scl, sda_in, sda_out,
                   out);
-        parameter I2C_ADDRESS = 0;   
-               
+        parameter I2C_ADDRESS = 0;
+
 	input clk, reset;
 	input scl, sda_in;
 	output sda_out, out;
@@ -38,8 +38,8 @@ module pwm16_i2c (clk, reset,
 		clk, reset,
 		scl, sda_in, sda_out,
 		duty_cycle);
-endmodule             
-                  
+endmodule
+
 
 /* A simple 16-bit pulse width modulation module */
 module pwm16 (clk, reset,
@@ -61,7 +61,7 @@ module pwm16 (clk, reset,
 			else
 				pwmreg <= 0;
 			out <= ( {1'b0, duty_cycle} >= pwmreg );
-		end			
+		end
 endmodule
 
 /* The End */
