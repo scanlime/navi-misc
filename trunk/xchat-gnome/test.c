@@ -37,7 +37,7 @@ void settings_page_changed(GtkTreeSelection *selection, gpointer data) {
 }
 
 void init_settings() {
-  GtkWidget *widget, *options_list;
+  GtkWidget *widget, *options_list, *notebook;
   GtkSizeGroup *group;
   GtkListStore *store;
   GtkTreeIter iter;
@@ -96,6 +96,9 @@ void init_settings() {
   gtk_list_store_set(store, &iter, 0, irc_prefs, 1, "IRC Preferences", 2, 0, -1);
   gtk_list_store_append(store, &iter);
   gtk_list_store_set(store, &iter, 0, file_transfers, 1, "File Transfers", 2, 1, -1);
+
+  notebook = glade_xml_get_widget(xml, "settings notebook");
+  gtk_notebook_set_show_tabs(GTK_NOTEBOOK(notebook), FALSE);
 }
 
 void init_userlist() {
