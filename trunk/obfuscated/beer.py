@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import pickle
 print pickle.loads("c__builtin__\neval\n(S\""
 "reduce(lambda x,y:x+y,[(a+'%d bottle%s of b"
