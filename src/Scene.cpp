@@ -7,20 +7,19 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- * 
+ *
  */
 
 #include "Scene.h"
-#include "Skybox.h"
 #include "ViewingFrustum.h"
 #include "JetCOWRegistry.h"
 
@@ -79,7 +78,7 @@ SceneNode::~SceneNode() {
   children->unref();
 }
 
-Scene::Scene(JetCOW *cow, Sint32 id, const char *type) : 
+Scene::Scene(JetCOW *cow, Sint32 id, const char *type) :
   SceneNode(cow,id,type),
   mainHandler(this,Engine::priority_drawScene, &Scene::mainloopIteration) {
   wireframe = false;
@@ -91,7 +90,7 @@ Scene::~Scene() {}
 
 void Scene::push(void) {
   camera.setMatrix();
-  
+
   glPolygonMode(GL_FRONT_AND_BACK, wireframe ? GL_LINE : GL_FILL);
   if (wireframe)
     glClearColor(bgShade,bgShade,bgShade,0.0f);
@@ -99,7 +98,7 @@ void Scene::push(void) {
   glCullFace(GL_FRONT);
   if (disableBackfaceCull)
     glDisable(GL_CULL_FACE);
-  else 
+  else
     glEnable(GL_CULL_FACE);
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_LIGHTING);

@@ -77,7 +77,7 @@
 #include "ViewingFrustum.h"
 #include "SurfaceGenerator.h"
 #include <string.h>
-#include <SDL.h>
+#include <SDL/SDL.h>
 #include <math.h>
 
 
