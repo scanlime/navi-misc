@@ -51,7 +51,7 @@ class Devices:
         # Try to initialize the uvswitch
         try:
             import VideoSwitch
-            self.uvswitch = VideoSwitch.Device()
+            self.uvswitch = VideoSwitch.Device(eventLoop=eventLoop)
         except IOError:
             import sys
             self.warn("Can't connect to the uvswitch, %s" % sys.exc_info()[1])
