@@ -1,5 +1,5 @@
 /*
- * preferences-colors-page.c - helpers for the colors preferences page
+ * preferences-page-colors.c - helpers for the colors preferences page
  *
  * Copyright (C) 2004-2005 xchat-gnome team
  *
@@ -20,7 +20,7 @@
  */
 
 #include <gconf/gconf-client.h>
-#include "preferences-colors-page.h"
+#include "preferences-page-colors.h"
 #include "preferences-dialog.h"
 #include "palette.h"
 #include "gui.h"
