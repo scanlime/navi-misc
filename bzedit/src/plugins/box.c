@@ -603,7 +603,7 @@ box_top_drawable_class_init (BoxTopDrawableClass *klass)
   dlc->draw_to_list = box_top_drawable_draw_to_list;
 }
 
-static void 
+static void
 box_top_drawable_init (BoxTopDrawable *btd)
 {
   Drawable *d = DRAWABLE (btd);

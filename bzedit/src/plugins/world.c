@@ -441,7 +441,7 @@ wall_sides_drawable_draw_to_list (DisplayList *dl)
     glVertex3f   (-width,  depth, height);
     glTexCoord2f ( 0,      1);
     glVertex3f   (-width, -depth, height);
-    glTexCoord2f ( 0,      1);
+    glTexCoord2f ( 0,      0);
     glVertex3f   (-width, -depth, 0);
 
     glNormal3f (0, 1, 0);

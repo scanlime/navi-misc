@@ -126,9 +126,10 @@ texture_group_draw_to_list (DisplayList *dl)
 {
   GList *d;
   TextureGroup *tg = TEXTURE_GROUP (dl);
+  RenderState *rstate = render_state_new ();
 
   for (d = tg->static_drawables; d; d = d->next)
-    display_list_build_list (DISPLAY_LIST (d->data));
+    drawable_draw (DRAWABLE (d->data), rstate);
 }
 
 static void
@@ -278,7 +279,7 @@ basic_render_pass_add (RenderPass *pass, Drawable *drawable)
   } else {
     group = texture_group_new ();
     texture_group_add (group, drawable);
-    g_hash_table_insert (brp->texture_groups, (gpointer) drawable->texture, (gpointer) group);
+    g_hash_table_insert (brp->texture_groups, (gpointer) drawable->texture, (gpointer) g_object_ref(group));
   }
 }
 
