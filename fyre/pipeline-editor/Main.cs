@@ -57,7 +57,7 @@ public class PipelineEditor
 		gxml.Autoconnect (this);
 
 		/* Do all the setup for the element tree view */
-		this.element_store = new Gtk.TreeStore (typeof (Gdk.Pixbuf), typeof (string));
+		this.element_store = new Gtk.TreeStore (typeof (Gdk.Pixbuf), typeof (string), typeof (Type));
 		element_list.Model = this.element_store;
 
 		Gtk.CellRenderer pixbuf_renderer = new Gtk.CellRendererPixbuf ();
@@ -73,13 +73,14 @@ public class PipelineEditor
 		element_list.AppendColumn (column);
 
 		/* Set up plugins directory */
-		plugin_manager = new PluginManager ("/home/david/projects/navi-misc/fyre/pipeline-editor/plugins/basic/bin/Debug");
+		plugin_manager = new PluginManager ("/usr/share/fyre/2.0");
 		foreach (Type t in plugin_manager.plugin_types) {
 			object[] i = {};
 			Element e = (Element) t.GetConstructor(Type.EmptyTypes).Invoke(i);
 
 			string name = e.Name ();
 			string category = e.Category ();
+			Gdk.Pixbuf pixbuf = e.Icon ();
 			bool found = false;
 
 			Gtk.TreeIter iter;
@@ -88,13 +89,13 @@ public class PipelineEditor
 					string cat = (string) element_store.GetValue (iter, 1);
 					if (cat.Equals (category)) {
 						found = true;
-						element_store.AppendValues (iter, null, name);
+						element_store.AppendValues (iter, pixbuf, name, t);
 					}
 				} while (element_store.IterNext (ref iter));
 			}
 			if (!found) {
 				iter = element_store.AppendValues (null, category);
-				element_store.AppendValues (iter, null, name);
+				element_store.AppendValues (iter, pixbuf, name, t);
 			}
 		}
 
