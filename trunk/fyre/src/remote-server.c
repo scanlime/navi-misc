@@ -252,7 +252,7 @@ static void       cmd_calc_status      (RemoteServerConn*  self,
 					const char*        command,
 					const char*        parameters)
 {
-    remote_server_send_response(self, FYRE_RESPONSE_PROGRESS, "iterations=%.3e density=%ld",
+    remote_server_send_response(self, FYRE_RESPONSE_PROGRESS, "iterations=%.20e density=%ld",
 				self->map->iterations, HISTOGRAM_IMAGER(self->map)->peak_density);
 }
 

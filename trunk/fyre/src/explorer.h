@@ -62,6 +62,9 @@ struct _Explorer {
     gboolean status_dirty_flag;
 
     GTimeVal last_gui_update;
+    GTimer* speed_timer;
+    double last_iterations;
+    double iter_speed;
 
     gchar* current_tool;
     gboolean tool_active;
