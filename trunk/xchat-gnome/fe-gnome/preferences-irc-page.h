@@ -47,6 +47,7 @@ typedef struct
 
 	GdkPixbuf *icon;
 	GtkListStore *highlight_store;
+	GtkTreeViewColumn *highlight_column;
 } PreferencesIrcPage;
 
 PreferencesIrcPage *preferences_page_irc_new (gpointer prefs_dialog, GladeXML *xml);
