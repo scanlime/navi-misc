@@ -1,9 +1,0 @@
-* trough 0.2 is a lot slower than 0.1, probably because it was nearly completely rewritten and has not been optimized for anything yet; so.. make this happier.
-* Error handling needs to be more flexible and robust
-* Read a .properties file in the tree being read, to allow sane defaults to be set
-* The plugin architecture is still quite flimsy and inefficient, and needs to be overhauled.  Also, it could easily support more stuff without becoming bloated (like parsing the name out of the path for each plugin), because as it stands now, one-call plugins are kind of silly.
-* A fair amount of d11n went away when the old code was overhauled.. gotta bring it back
-* With the improved tree architecture, arbitrary properties can be added; this allows for plenty of interesting stuff, like weights for the random selection.  This could lead to yet scarier stuff like learning algorithms, but that may be going somewhat far.
-* No reason not to build a graphical interface at this point (could be ideal for manipulating trees), except for the unpleasant lack of happiness in the the python gstreamer plugins.. hopefully this will change
-* Regex support
-* Write an INSTALL files
