@@ -614,14 +614,16 @@ fe_serverlist_open (session *sess)
 void
 fe_ctrl_gui(session *sess, int action, int arg)
 {
-	GtkWidget *window = glade_xml_get_widget (gui.xml, "");
+	GtkWidget *window = glade_xml_get_widget (gui.xml, "xchat-gnome");
 
 	switch (action) {
 		case 0:
+			gtk_window_iconify (GTK_WINDOW (window));
 			gtk_widget_hide (window);
 			break;
 
 		case 1:
+			gtk_window_deiconify (GTK_WINDOW (window));
 			gtk_widget_show (window);
 			gtk_window_present (GTK_WINDOW (window));
 			break;
@@ -649,7 +651,18 @@ fe_confirm (const char *message, void (*yesproc)(void *), void (*noproc)(void *)
 int
 fe_gui_info (session *sess, int info_type)
 {
-	
+	GtkWidget *window = glade_xml_get_widget (gui.xml, "xchat-gnome");
+
+	switch (info_type) {
+		case 0:
+			if (!GTK_WIDGET_VISIBLE (GTK_WINDOW (window)))
+				return 2;
+			if (gtk_window_is_active (GTK_WINDOW (window)))
+				return 1;
+			return 0;
+			break;
+	}
+
 	return -1;
 }
 
