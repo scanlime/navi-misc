@@ -1,12 +1,11 @@
-get/set value for refresh counter in e-weather
+frontend:
+	field verification - need to find some way of setting ok button sensitivity
 
-accelerators
+webcal:
 
-come up with some method of representing separate city entries with the same station
-	- could just combine them with / in xml
-
-field verification - need to find some way of setting ok button sensitivity
-
-find duplicate/incorrect entries in xml file
-
-change eds module to use Locations.xml and weather://ccf/STA
+weather:
+	get/set value for refresh counter in e-weather-plugin
+	come up with some method of representing separate city entries with the same station
+		- could just combine them with / in xml
+	find duplicate/incorrect entries in xml file
+	change eds module to use Locations.xml and weather://ccf/STA
