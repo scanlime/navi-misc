@@ -43,7 +43,9 @@ public class submit implements ActionListener
 		answ = "";
 		while(a.hasMoreTokens()) answ = answ + a.nextToken() + "<br>";
 		net.write(answ);
-		head.question.setText("");
 		head.answer.setText("");
+		name = net.read();
+		ques = net.read();
+		head.question.setText(name + " Asks: " + ques);
 	}
 }

@@ -50,7 +50,7 @@ public class amoderate
 	public String getQuestion()
 	{
 		if(current != null)
-			return "No Questions\r\nAt This Time";
+			return "Please accept or reject: " + current.toNet();
 		current = input.pop();
 		if(current == null)
 			return "No Questions\r\nAt This Time";
