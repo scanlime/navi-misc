@@ -230,6 +230,11 @@ class URIList(GladeUI):
         self.client.message(ruleset)
         self.refresh()
 
+    def on_DeleteButton_clicked(self, button):
+        # Send an empty ruleset to delete it
+        self.client.message("<ruleset uri=%r/>" % self.currentURI)
+        self.refresh()
+
 
 class RulesetEditor(GladeUI):
     """Implements the actual ruleset editor widget, the current ruleset
