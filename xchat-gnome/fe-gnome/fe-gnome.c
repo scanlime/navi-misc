@@ -496,6 +496,9 @@ fe_set_lag (server *serv, int lag)
 	unsigned long nowtim;
 	session_gui *tgui;
 
+	if (gui.quit)
+		return;
+
 	if (lag == -1)
 	{
 		if (!serv->lag_sent)
@@ -538,6 +541,9 @@ fe_set_throttle (server *serv)
 	gdouble per;
 	char tip[64];
 	session_gui *tgui;
+
+	if (gui.quit)
+		return;
 
 	per = (gdouble) serv->sendq_len / 1024.0;
 	if (per > 1.0)
