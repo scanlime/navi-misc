@@ -83,7 +83,7 @@ class SamplerThread(Thread):
 
                 # Toggle our LED as an indication of happiness and life
                 self.led.assert_()
-		self.led = self.led.negate()
+        	self.led = self.led.negate()
 
                 if not self.running:
                     return
