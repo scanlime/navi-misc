@@ -6,7 +6,7 @@
 ; USB firmware distributed by Microchip for use with the PIC16C745 and PIC16C765
 ; microcontrollers. New code added for the MI6K project is placed in the public domain.
 ;
-; MI6K modifications done by Micah Dowty <micah@picogui.org>
+; MI6K modifications done by Micah Dowty <micah@navi.cx>
 ;
 ;###############################################################################
 ;
@@ -222,27 +222,19 @@ String1
 	retlw	0x00
 	retlw	'@'
 	retlw	0x00
-	retlw	'p'
+	retlw	'n'
 	retlw	0x00
-	retlw	'i'
+	retlw	'a'
 	retlw	0x00
-	retlw	'c'
-	retlw	0x00
-	retlw	'o'
-	retlw	0x00
-	retlw	'g'
-	retlw	0x00
-	retlw	'u'
+	retlw	'v'
 	retlw	0x00
 	retlw	'i'
 	retlw	0x00
 	retlw	'.'
 	retlw	0x00
-	retlw	'o'
+	retlw	'c'
 	retlw	0x00
-	retlw	'r'
-	retlw	0x00
-	retlw	'g'
+	retlw	'x'
 	retlw	0x00
 	retlw	'>'
 	retlw	0x00
