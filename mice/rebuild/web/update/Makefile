@@ -14,5 +14,8 @@ reader.class: reader.java
 updater.class: updater.java
 	javac updater.java
 
+jar: update
+	jar cmf .manifest web.jar *.class
+
 clean:
 	rm -Rf *.class *~

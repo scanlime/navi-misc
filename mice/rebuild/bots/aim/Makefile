@@ -35,7 +35,10 @@ aimup.class: aimup.java
 	javac aimup.java
 
 clean:
-	rm -Rf *.class *~
+	rm -Rf *.class *~ *.jar
+
+jar: bot
+	jar cvmf .manifest aim.jar *.class jaim/*.class
 
 run: bot
 	java aimup
