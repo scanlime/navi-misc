@@ -56,65 +56,67 @@ def loadASF (filename):
         ASFReader.log.err (s)
 
     if ASFReader.log.numErrors:
-        # Report any errors we encountered.
+        # Report any errors we encountered and quit
         ASFReader.log.report ('Errors in loading ASF')
-    else:
-        # Load our data into an armature.
-        scene = Blender.Scene.getCurrent ()
-        armatureObj = Blender.Object.New ('Armature', reader.name)
-        armature = Blender.Armature.New ()
+        return
 
-        bones = {}
 
-        # Create all the bones. for now, they're just positioned at the origin.
-        for name, data in reader.bones.iteritems ():
-            bone = Blender.Armature.Bone.New (name)
+    # Load our data into an armature.
+    scene = Blender.Scene.getCurrent ()
+    armatureObj = Blender.Object.New ('Armature', reader.name)
+    armature = Blender.Armature.New ()
 
-            # Head is at the origin. Tail is direction * length. Scale by 1/10
-            # to better fit within blender's coordinate system.
+    bones = {}
 
-            # FIXME - should probably do something more intelligent with scaling,
-            # but that's a hard problem.
-            bone.setHead (0.0, 0.0, 0.0)
-            tail = [(float(n) * 0.1 * data.length) for n in data.direction]
-            # Swizzle Y and Z here. ASF has Y pointing up, but blender has a more
-            # traditional Z-up.
-            bone.setTail ([tail[0], tail[2], tail[1]])
+    # Create all the bones. for now, they're just positioned at the origin.
+    for name, data in reader.bones.iteritems ():
+        bone = Blender.Armature.Bone.New (name)
 
-            bones[name] = bone
+        # Head is at the origin. Tail is direction * length. Scale by 1/10
+        # to better fit within blender's coordinate system.
 
-        # Create the root and add it to the armature.
-        bone = Blender.Armature.Bone.New ('root')
+        # FIXME - should probably do something more intelligent with scaling,
+        # but that's a hard problem.
         bone.setHead (0.0, 0.0, 0.0)
-        bone.setTail (0.0, 0.0, 0.0)
-        bones['root'] = bone
-        armature.addBone (bone)
+        tail = [(float(n) * 0.1 * data.length) for n in data.direction]
+        # Swizzle Y and Z here. ASF has Y pointing up, but blender has a more
+        # traditional Z-up.
+        bone.setTail ([tail[0], tail[2], tail[1]])
 
-        # Iterate through the hierarchy and position child bones at the tails of
-        # their parents. Blender doesn't require a bone and its parent to be
-        # touching, but ASF does.
-        for set in reader.hierarchy:
-            parent = set[0]
-            for child in set[1:]:
-                bones[child].setTail (addVectors (bones[child].tail, bones[parent].tail))
-                bones[child].setHead (addVectors (bones[child].head, bones[parent].tail))
+        bones[name] = bone
 
-        # Iterate through the hierarchy again, linking bones to their parents and
-        # adding them to the armature object.
-        for set in reader.hierarchy:
-            parent = set[0]
-            for child in set[1:]:
-                bones[child].setParent (bones[parent])
-                armature.addBone (bones[child])
+    # Create the root and add it to the armature.
+    bone = Blender.Armature.Bone.New ('root')
+    bone.setHead (0.0, 0.0, 0.0)
+    bone.setTail (0.0, 0.0, 0.0)
+    bones['root'] = bone
+    armature.addBone (bone)
 
-        # Link the armature to it's object, add it to the scene and queue a window redraw.
-        armatureObj.link (armature)
-        scene.link (armatureObj)
-        armatureObj.makeDisplayList ()
-        Blender.Window.RedrawAll ()
+    # Iterate through the hierarchy and position child bones at the tails of
+    # their parents. Blender doesn't require a bone and its parent to be
+    # touching, but ASF does.
+    for set in reader.hierarchy:
+        parent = set[0]
+        for child in set[1:]:
+            bones[child].setTail (addVectors (bones[child].tail, bones[parent].tail))
+            bones[child].setHead (addVectors (bones[child].head, bones[parent].tail))
 
-        # Finally, pop up a file selector for importing the AMC
-        Blender.Window.FileSelector (loadAMC, 'Load AMC Motion Capture')
+    # Iterate through the hierarchy again, linking bones to their parents and
+    # adding them to the armature object.
+    for set in reader.hierarchy:
+        parent = set[0]
+        for child in set[1:]:
+            bones[child].setParent (bones[parent])
+            armature.addBone (bones[child])
+
+    # Link the armature to it's object, add it to the scene and queue a window redraw.
+    armatureObj.link (armature)
+    scene.link (armatureObj)
+    armatureObj.makeDisplayList ()
+    Blender.Window.RedrawAll ()
+
+    # Finally, pop up a file selector for importing the AMC
+    Blender.Window.FileSelector (loadAMC, 'Load AMC Motion Capture')
 
 def loadAMC (filename):
     armature = None
