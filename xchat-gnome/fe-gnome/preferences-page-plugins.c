@@ -142,7 +142,6 @@ open_plugin_clicked (GtkButton *button, PreferencesPluginsPage *page)
 	gchar *filename;
 	gint response;
 
-
 	file_selector = gtk_file_chooser_dialog_new (_("Open Plugin"), NULL, GTK_FILE_CHOOSER_ACTION_OPEN, GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL, GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, NULL);
 
 	homedir = g_get_home_dir();

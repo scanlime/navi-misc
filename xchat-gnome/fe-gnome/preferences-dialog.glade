@@ -593,7 +593,7 @@
 				      <property name="spacing">6</property>
 
 				      <child>
-					<widget class="GtkButton" id="hilight_add">
+					<widget class="GtkButton" id="highlight_add">
 					  <property name="visible">True</property>
 					  <property name="can_default">True</property>
 					  <property name="can_focus">True</property>
@@ -2439,7 +2439,7 @@
 		      <property name="spacing">6</property>
 
 		      <child>
-			<widget class="GtkButton" id="plugin_open">
+			<widget class="GtkButton" id="plugins_open">
 			  <property name="visible">True</property>
 			  <property name="can_default">True</property>
 			  <property name="can_focus">True</property>
@@ -2451,7 +2451,7 @@
 		      </child>
 
 		      <child>
-			<widget class="GtkButton" id="plugin_remove">
+			<widget class="GtkButton" id="plugins_remove">
 			  <property name="visible">True</property>
 			  <property name="sensitive">False</property>
 			  <property name="can_default">True</property>
