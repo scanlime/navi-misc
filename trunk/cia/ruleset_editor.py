@@ -95,7 +95,10 @@ class RulesetEditor:
         model = gtk.ListStore(gobject.TYPE_STRING,   # (0) channel
                               gobject.TYPE_STRING,   # (1) server
                               )
-        for (channel, server), ruleset in self.rulesets.iteritems():
+        # Sort the list of rulesets by channel name
+        rulesetItems = self.rulesets.items()
+        rulesetItems.sort(lambda a, b: cmp(a[0][0], b[0][0]))
+        for (channel, server), ruleset in rulesetItems:
             i = model.append()
             model.set(i,
                 0, channel,
