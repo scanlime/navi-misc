@@ -43,9 +43,12 @@ class IRCProjectName(Message.Formatter):
     """Prepends the project name to each line of the input message, boldinated for IRC"""
     medium = 'irc'
     def format(self, message, input):
-        import IRCColor
-        prefix = IRCColor.format("%s:" % message.xml.source.project, 'bold') + " "
-        return "\n".join([prefix + line for line in input.split("\n")])
+        if message.xml.source and message.xml.source.project:
+            import IRCColor
+            prefix = IRCColor.format("%s:" % message.xml.source.project, 'bold') + " "
+            return "\n".join([prefix + line for line in input.split("\n")])
+        else:
+            return input
 
 
 ### The End ###

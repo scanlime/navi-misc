@@ -48,9 +48,11 @@ class HubListener(object):
 
     def addClients(self):
         """Add all our initial clients to the hub"""
-        self.hub.addClient(self.setIrcRuleset, Message.Filter(
+        # This uses an extra level of indirection so that
+        # rebuild can replace references to our callbacks correctly.
+        self.hub.addClient(lambda msg: self.setIrcRuleset(msg), Message.Filter(
             '<find path="/message/body/setIrcRuleset">'))
-        self.hub.addClient(self.getIrcRuleset, Message.Filter(
+        self.hub.addClient(lambda msg: self.getIrcRuleset(msg), Message.Filter(
             '<find path="/message/body/getIrcRuleset">'))
 
     def setIrcRuleset(self, message):
@@ -111,9 +113,12 @@ class HubListener(object):
             # Install the new ruleset
             self.rulesets[(serverTuple, channel)] = ircRuleset
             self.hub.addClient(ircRuleset)
+            log.msg("Set IRC ruleset for channel %r on server %r:\n%s" %
+                    (channel, serverTuple, XML.prettyPrint(ruleset.xml)))
         else:
             # No ruleset, we're removing this channel
             self.botNet.delChannel(serverTuple, channel)
+            log.msg("Removed IRC ruleset for channel %r on server %r" % (channel, serverTuple))
 
     def getIrcRuleset(self, message):
         """Return the current <ircFilters> tag with attributes matching

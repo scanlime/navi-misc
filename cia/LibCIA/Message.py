@@ -24,6 +24,7 @@ by XML documents.
 
 from twisted.xish import domish
 from twisted.xish.xpath import XPathQuery
+from twisted.python import log
 import time
 import XML
 
@@ -98,6 +99,8 @@ class Hub(object):
         """Given a Message instance, determine who's interested
            in its contents and delivers it to them.
            """
+        log.msg("Received message:\n%s" % XML.prettyPrint(message.xml))
+
         result = None
         for callable, filter in self.clientItems:
             if filter and not filter(message):
