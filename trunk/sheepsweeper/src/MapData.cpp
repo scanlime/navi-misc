@@ -98,7 +98,70 @@ MapData::getMapObject(const MapLocation &location)
 MapObject *
 MapData::getMapObject(int x, int y)
 {
+	if (x < 0 || x >= getWidth() || y < 0 || y >= getHeight())
+		return NULL;
+
 	return mapData[y][x];
+}
+
+MapObject *
+MapData::getNeighbor(const MapLocation &location, Direction dir)
+{
+	return getNeighbor(location.getX(), location.getY(), dir);
+}
+
+MapObject *
+MapData::getNeighbor(int x, int y, Direction dir)
+{
+	int tx = x, ty = y;
+
+	if (dir == NORTH)
+		ty -= 2;
+	else if (dir == EAST)
+		tx++;
+	else if (dir == SOUTH)
+		ty += 2;
+	else if (dir == WEST)
+		tx--;
+	else
+	{
+		if (y % 2 == 0)
+		{
+			if (dir == NORTH_EAST)
+				ty--;
+			else if (dir == SOUTH_EAST)
+				ty++;
+			else if (dir == SOUTH_WEST)
+			{
+				tx--;
+				ty++;
+			}
+			else if (dir == NORTH_WEST)
+			{
+				tx--;
+				ty--;
+			}
+		}
+		else
+		{
+			if (dir == NORTH_EAST)
+			{
+				tx++;
+				ty--;
+			}
+			else if (dir == SOUTH_EAST)
+			{
+				tx++;
+				ty++;
+			}
+			else if (dir == SOUTH_WEST)
+				ty++;
+			else if (dir == NORTH_WEST)
+				ty--;
+		}
+	}
+
+	return getMapObject(tx, ty);
 }
 
 MapLocation

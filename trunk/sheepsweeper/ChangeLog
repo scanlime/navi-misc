@@ -1,3 +1,9 @@
+Wed Mar 17 22:03:35 PST 2004  Christian Hammond <chipx86@gnupdate.org>
+
+	* src/MapData.cpp:
+	* src/MapData.h:
+	  - Added MapData::getNeighbor().
+
 Wed Mar 17 21:56:23 PST 2004  Christian Hammond <chipx86@gnupdate.org>
 
 	* src/MapLocation.cpp:
