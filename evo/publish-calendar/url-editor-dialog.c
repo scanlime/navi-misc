@@ -27,15 +27,8 @@
 static GtkDialogClass *parent_class = NULL;
 
 static void
-publish_events_toggled (GtkToggleButton *button, UrlEditorDialog2 *dialog)
+url_entry_changed (GtkEntry *entry, UrlEditorDialog2 *dialog)
 {
-	gtk_widget_set_sensitive (dialog->events_selector, gtk_toggle_button_get_active (button));
-}
-
-static void
-publish_tasks_toggled (GtkToggleButton *button, UrlEditorDialog2 *dialog)
-{
-	gtk_widget_set_sensitive (dialog->tasks_selector, gtk_toggle_button_get_active (button));
 }
 
 static gboolean
@@ -57,9 +50,7 @@ url_editor_dialog_construct2 (UrlEditorDialog2 *dialog)
 	GW(publish_frequency);
 
 	GW(type_selector);
-	GW(publish_events);
 	GW(events_swin);
-	GW(publish_tasks);
 	GW(tasks_swin);
 
 	GW(username_entry);
@@ -101,8 +92,6 @@ url_editor_dialog_construct2 (UrlEditorDialog2 *dialog)
 	if (uri == NULL) {
 		gtk_combo_box_set_active (GTK_COMBO_BOX (dialog->publish_frequency), 0);
 		gtk_combo_box_set_active (GTK_COMBO_BOX (dialog->type_selector), 0);
-		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (dialog->publish_events), TRUE);
-		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (dialog->publish_tasks), TRUE);
 
 		dialog->uri = g_new0 (EPublishUri, 1);
 		uri = dialog->uri;
@@ -110,27 +99,17 @@ url_editor_dialog_construct2 (UrlEditorDialog2 *dialog)
 		ESource *source;
 		GSList *p;
 
-		if (g_slist_length (uri->events) == 0) {
-			gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (dialog->publish_events), FALSE);
-		} else {
-			gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (dialog->publish_events), TRUE);
-			for (p = uri->events; p; p = g_slist_next (p)) {
-				gchar *source_uid = g_strdup (p->data);
-				source = e_source_list_peek_source_by_uid (dialog->events_source_list, source_uid);
-				e_source_selector_select_source ((ESourceSelector *) dialog->events_selector, source);
-				g_free (source_uid);
-			}
+		for (p = uri->events; p; p = g_slist_next (p)) {
+			gchar *source_uid = g_strdup (p->data);
+			source = e_source_list_peek_source_by_uid (dialog->events_source_list, source_uid);
+			e_source_selector_select_source ((ESourceSelector *) dialog->events_selector, source);
+			g_free (source_uid);
 		}
-		if (g_slist_length (uri->tasks) == 0) {
-			gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (dialog->publish_tasks), FALSE);
-		} else {
-			gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (dialog->publish_tasks), TRUE);
-			for (p = uri->events; p; p = g_slist_next (p)) {
-				gchar *source_uid = g_strdup (p->data);
-				source = e_source_list_peek_source_by_uid (dialog->tasks_source_list, source_uid);
-				e_source_selector_select_source ((ESourceSelector *) dialog->tasks_selector, source);
-				g_free (source_uid);
-			}
+		for (p = uri->events; p; p = g_slist_next (p)) {
+			gchar *source_uid = g_strdup (p->data);
+			source = e_source_list_peek_source_by_uid (dialog->tasks_source_list, source_uid);
+			e_source_selector_select_source ((ESourceSelector *) dialog->tasks_selector, source);
+			g_free (source_uid);
 		}
 
 		if (uri->location && strlen (uri->location)) {
@@ -152,8 +131,7 @@ url_editor_dialog_construct2 (UrlEditorDialog2 *dialog)
 		}
 	}
 
-	g_signal_connect (G_OBJECT (dialog->publish_events), "toggled", G_CALLBACK (publish_events_toggled), dialog);
-	g_signal_connect (G_OBJECT (dialog->publish_tasks), "toggled", G_CALLBACK (publish_tasks_toggled), dialog);
+	g_signal_connect (G_OBJECT (dialog->url_entry), "changed", G_CALLBACK (url_entry_changed), dialog);
 
 	g_object_unref (gconf);
 
