@@ -34,6 +34,41 @@ public class njavaadmin extends nbase
 		if(!auth()) return;
 		moderators = mods();
 		interviews = ints();
+		dbaseinit(interviews,moderators);
+		closeConnection();
+	}
+	
+	/**
+	 * This handles the bits of communication that set up the update services.
+	 * @author Brandon Smith
+	 * @version 2.0
+	 */
+	public void serviceinit()
+	{
+		String host;
+		int port;
+		host = read();
+		port = Integer.parseInt(read());
+		/* Start the damn server */
+		write("+OK");
+	}
+	
+	/**
+	 * This just initializes the other users and their passwords
+	 * @param inter The number of interviewees
+	 * @param moder The number of moderators
+	 * @author Brandon Smith
+	 * @version 2.0
+	 */
+	public void dbaseinit(int inter, int moder)
+	{
+		System.out.print("database initialization...    ");
+		imain.database = new qbase(inter,moder);
+		imain.database.moduser = aadmin.muns;
+		imain.database.modpass = aadmin.mpas;
+		imain.database.interviewuser = aadmin.iuns;
+		imain.database.interviewpass = aadmin.ipas;
+		System.out.println("...complete");
 	}
 	
 	/**

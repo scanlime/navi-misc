@@ -25,8 +25,9 @@ public class imain
 
 	/** The server socket that listens for stuff */
 	private ServerSocket server = null;
+
 	/** The question database */
-	private qbase database = null;
+	public static qbase database = null;
 	
 	/**
 	 * This method constructs the server, and handles the basic initialization
