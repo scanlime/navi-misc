@@ -4,13 +4,13 @@ RCS file: /cvsroot/xchat/xchat2/configure.in,v
 retrieving revision 1.73
 diff -u -r1.73 configure.in
 --- configure.in	31 Dec 2004 03:46:37 -0000	1.73
-+++ configure.in	16 Jan 2005 22:26:04 -0000
++++ configure.in	23 Jan 2005 03:35:56 -0000
 @@ -2,7 +2,7 @@
  
  AC_INIT(src)
  AM_CONFIG_HEADER(config.h)
 -AM_INIT_AUTOMAKE(xchat, 2.4.1)
-+AM_INIT_AUTOMAKE(xchat-gnome, 0.2)
++AM_INIT_AUTOMAKE(xchat-gnome, 0.3pre)
  AM_MAINTAINER_MODE
  AC_PROG_CC
  AC_PROG_CPP
@@ -175,7 +175,7 @@ RCS file: /cvsroot/xchat/xchat2/plugins/Makefile.am,v
 retrieving revision 1.4
 diff -u -r1.4 Makefile.am
 --- plugins/Makefile.am	13 Jan 2003 07:29:36 -0000	1.4
-+++ plugins/Makefile.am	16 Jan 2005 22:26:04 -0000
++++ plugins/Makefile.am	23 Jan 2005 03:35:57 -0000
 @@ -20,5 +20,9 @@
  tcldir = tcl
  endif
@@ -193,7 +193,7 @@ RCS file: /cvsroot/xchat/xchat2/src/Makefile.am,v
 retrieving revision 1.1.1.1
 diff -u -r1.1.1.1 Makefile.am
 --- src/Makefile.am	28 Nov 2002 10:39:00 -0000	1.1.1.1
-+++ src/Makefile.am	16 Jan 2005 22:26:04 -0000
++++ src/Makefile.am	23 Jan 2005 03:35:57 -0000
 @@ -11,4 +11,8 @@
  gtk_fe = fe-gtk
  endif
