@@ -90,7 +90,9 @@ namespace Fyre {
 				} catch (Exception e) {
 					// FIXME - aggregate all exceptions that get caught here into a single
 					// message and show the user an ErrorDialog.
-					Console.WriteLine ("Error loading plugin: {0}", e);
+					ErrorDialog err = new ErrorDialog ("Load Error", "Could not load a plugin");
+					err.Run();
+					err.Destroy();
 				}
 			}
 
