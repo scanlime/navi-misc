@@ -23,12 +23,14 @@
 #ifndef _H_HARDWARE
 #define _H_HARDWARE
 
-/* We have a status LED connected to the UART's DTR pin, these
- * functions turn it on and off. Note that the LED will only
- * work after uart_init.
- */
-#define led_on()    do { MCR |= MCR_DTR;  } while (0)
-#define led_off()   do { MCR &= ~MCR_DTR; } while (0)
+
+/* FPGA configuration pins */
+#define fpga_program_on()   do { MCR |= MCR_RTS;  } while (0)
+#define fpga_program_off()  do { MCR &= ~MCR_RTS; } while (0)
+#define fpga_din_on()       do { MCR |= MCR_DTR;  } while (0)
+#define fpga_din_off()      do { MCR &= ~MCR_DTR; } while (0)
+#define fpga_cclk_on()      do { P3_0 = 1;        } while (0)
+#define fpga_cclk_off()     do { P3_0 = 0;        } while (0)
 
 
 #endif /* _H_HARDWARE */
