@@ -44,7 +44,7 @@ class StochasticBlur : Element
 	public override Gdk.Pixbuf Icon ()
 	{
 		if (icon == null)
-			icon = new Gdk.Pixbuf ("/usr/share/fyre/2.0/StochasticBlur.png");
+			icon = new Gdk.Pixbuf ("StochasticBlur.png");
 		return icon;
 	}
 
