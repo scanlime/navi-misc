@@ -3,9 +3,11 @@
 #include <string.h>
 #include <math.h>
 #include <time.h>
+#include <sys/time.h>
 
 #define WIDTH   800
 #define HEIGHT  800
+#define MAX_FRAME_RATE 10
 
 struct {
   double x,y;
@@ -20,6 +22,7 @@ GdkGC *gc;
 int data[WIDTH][HEIGHT];
 double a, b, c, d, bright;
 guint idler;
+struct timeval last_flip;
 
 void flip();
 void clear();
@@ -61,6 +64,7 @@ int main(int argc, char ** argv) {
   gc = gdk_gc_new(drawing_area->window);
 
   clear();
+  flip();
 
   point.x = rand() / RAND_MAX;
   point.y = rand() / RAND_MAX;
@@ -137,6 +141,19 @@ void flip() {
   guchar gray;
   int x, y;
   float density, scale, luma;
+  struct timeval now;
+  suseconds_t diff;
+
+  /* Limit the maximum frame rate, so we're more responsive when dragging parameters */
+  gettimeofday(&now, NULL);
+  if (now.tv_sec - last_flip.tv_sec < 2) {
+    diff = now.tv_usec - last_flip.tv_usec;
+    if (now.tv_sec != last_flip.tv_sec)
+      diff += 1000000;
+    if (diff < 1000000 / MAX_FRAME_RATE)
+      return;
+  }
+  last_flip = now;
 
   rowstride = gdk_pixbuf_get_rowstride(pixbuf);
   pixels = gdk_pixbuf_get_pixels(pixbuf);
@@ -172,7 +189,6 @@ void flip() {
 
 void clear() {
   memset(data, 0, WIDTH * HEIGHT * sizeof(int));
-  flip();
 }
 
 static int draw_more(void *extra) {
