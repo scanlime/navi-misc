@@ -438,13 +438,15 @@ gboolean on_hpane_move(GtkWidget *widget, gpointer data) {
 void set_statusbar() {
 	GtkWidget *appbar;
 	session_gui *tgui;
+	char *text;
+
 	if(gui.current_session == NULL)
 		return;
 	appbar = glade_xml_get_widget(gui.xml, "appbar1");
 	tgui = (session_gui *) gui.current_session->gui;
-	if(tgui->lag_text != NULL) {
-		gnome_appbar_set_status(GNOME_APPBAR(appbar), tgui->lag_text);
-	}
+	text = g_strdup_printf("%s%s%s", tgui->lag_text ? tgui->lag_text : "", (tgui->queue_text && tgui->lag_text) ? ", " : "", tgui->queue_text ? tgui->queue_text : "");
+	gnome_appbar_set_status(GNOME_APPBAR(appbar), text);
+	g_free(text);
 }
 
 static GtkWidget *get_color_icon(int c, GtkStyle *s) {
