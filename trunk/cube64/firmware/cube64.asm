@@ -50,7 +50,7 @@
 		byte_count
 		bit_count
 		temp
-
+		bus_byte_count
 		flags
 
 		;; These four items must be contiguous.
@@ -87,6 +87,9 @@ startup
 	n64gc_init
 
 	clrf	flags
+
+	movlw	.34			; Reset bus_byte_count to 34. Keeping this set beforehand
+	movwf	bus_byte_count		;   saves a few precious cycles in receiving bus writes.
 
 	;; We use the watchdog to implicitly implement controller probing.
 	;; If we have no gamecube controller attached, gamecube_poll_status
@@ -171,8 +174,8 @@ n64_translate_status
 	map_axis	GC_JOYSTICK_X,	N64_JOYSTICK_X	; Joystick
 	map_axis	GC_JOYSTICK_Y,	N64_JOYSTICK_Y
 
-	map_button_axis	GC_CSTICK_X,    N64_C_LEFT,	N64_C_RIGHT,	0x60, 0xA0 ; C-Button emulation
-	map_button_axis	GC_CSTICK_Y,    N64_C_DOWN,	N64_C_UP,	0x60, 0xA0
+	map_button_axis	GC_CSTICK_X,    N64_C_LEFT,	N64_C_RIGHT,	0x50, 0xB0 ; C-Button emulation
+	map_button_axis	GC_CSTICK_Y,    N64_C_DOWN,	N64_C_UP,	0x50, 0xB0
 	return
 
 
@@ -186,7 +189,6 @@ n64_wait_for_command
 
 	movlw	n64_command		; Receive 1 command byte
 	movwf	FSR
-	movlw	1
 	call	n64_rx_command
 
 	;; We need to handle controller pak writes very fast because there's no pause
@@ -203,9 +205,8 @@ n64_wait_for_command
 	;;
 	movlw	N64_COMMAND_WRITE_BUS
 	xorwf	n64_command, w
-	movlw	.34
 	btfsc	STATUS, Z
-	call	n64_rx			; Do another receive if this was a write_bus command.
+	call	n64_rx_bus		; Do another receive if this was a write_bus command.
 
 	movlw	n64_command		; n64_command itself might be invalid now. If FSR changed,
 	xorwf	FSR, w			;   n64_command is invalid and we're doing a bus write.
@@ -247,7 +248,9 @@ n64_bus_write
 	goto	$+1			;   want to begin transmitting before the stop bit is over.
 	goto	$+1
 	goto	$+1
-	goto	$+1
+
+	movlw	.34			; Reset bus_byte_count to 34. Keeping this set beforehand
+	movwf	bus_byte_count		;   saves a few precious cycles in receiving bus writes.
 
 	call	get_repeated_crc	; Get our limited CRC from the lookup table
 	xorlw	0xFF			; Negate the CRC, we emulate a rumble pak
@@ -351,11 +354,13 @@ n64_tx_widestop
 	bcf	N64_PIN
 	n64gc_tx_buffer N64_TRIS, 1
 
-n64_rx
-	n64gc_rx_buffer N64_PIN, 0
+n64_rx_bus
+	n64gc_rx_buffer N64_PIN, bus_byte_count, 0
 
 n64_rx_command
-	n64gc_rx_buffer N64_PIN, 1		; Clear the watchdog while waiting for commands
+	movlw	.1
+	movwf	byte_count
+	n64gc_rx_buffer N64_PIN, byte_count, 1		; Clear the watchdog while waiting for commands
 
 
 	;; *******************************************************************************
@@ -391,7 +396,8 @@ gamecube_tx
 	bcf	GAMECUBE_PIN
 	n64gc_tx_buffer GAMECUBE_TRIS, 0
 gamecube_rx
-	n64gc_rx_buffer GAMECUBE_PIN, 0
+	movwf	byte_count
+	n64gc_rx_buffer GAMECUBE_PIN, byte_count, 0
 
 
 	;; *******************************************************************************
