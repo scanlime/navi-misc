@@ -34,12 +34,13 @@
   </section>
 
   <section title="An even better way">
-    An even better way is to install <a href="http://svk.elixus.org/">SVK</a>
-    and branch the repository. SVK is a distributed form of Subversion and makes
-    it very easy to branch the knowledge base and hack on your local copy,
-    committing whenever you like. It's very easy to work with. Firstly install
-    it, by using your local Perl/CPAN installation to install module "SVK". Or
-    see the website for packages.
+    An even better way is to install <a href="http://svk.elixus.org/">SVK</a> and branch the repository. 
+
+    SVK is a distributed form of Subversion and makes it very easy to
+    branch the knowledge base and hack on your local copy, committing
+    whenever you like. It's very easy to work with. Firstly install
+    it, by using your local Perl/CPAN installation to install module
+    "SVK". Or see the website for packages.
 
     Now initialize SVK on your system: <type> svk depotmap --init </type>
     and then mirror my repository locally like so: <type> svk mirror http://navi.cx/svn/misc/winekb //winekb/remote

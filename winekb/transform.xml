@@ -54,6 +54,7 @@
             margin-left: 2em;
             padding: 4px;
             border: 1px dotted lightgrey;
+	    width: 50em;
           }
 
           .backlink {
