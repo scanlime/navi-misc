@@ -40,7 +40,6 @@ void on_about_menu_activate(GtkWidget *widget, gpointer data) {
 void on_text_entry_activate(GtkWidget *widget, gpointer data) {
 	const gchar *entry_text;
 	entry_text = gtk_entry_get_text(GTK_ENTRY(widget));
-	g_print("Entry contents: %s\n", entry_text);
 	handle_multiline(gui.current_session, entry_text, TRUE, FALSE);
 	gtk_entry_set_text(GTK_ENTRY(widget), "");
 }

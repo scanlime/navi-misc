@@ -1,0 +1,2 @@
+* when a tree in the navigation view is closed, it should not act as a selection
+  (view should stay on the channel they were in)
