@@ -448,7 +448,7 @@ curve_editor_set_spline(CurveEditor* self, const Spline *spline)
 
 Spline*
 curve_editor_get_spline(CurveEditor* self) {
-  return &self->spline;
+  return spline_copy(&self->spline);
 }
 
 static void
