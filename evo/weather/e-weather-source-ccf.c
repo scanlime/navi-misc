@@ -249,11 +249,12 @@ e_weather_source_ccf_do_parse (EWeatherSourceCCF *source, const char *buffer)
 		current = g_slist_next (current);
 	}
 
+	/* set dates */
 	base = mktime (&tms);
 	if (tms.tm_hour >= 12)
 		base += 43200;
-	forecasts[0].date = base;
-	forecasts[1].date = base + 86400;
+	for (i = 0; i < 7; i++)
+		forecasts[i].date = base + 86400*i;
 
 	if (current == NULL || strlen (current->data) == 3)
 	{
@@ -272,12 +273,6 @@ e_weather_source_ccf_do_parse (EWeatherSourceCCF *source, const char *buffer)
 	forecasts[4].conditions = decodeConditions (((char*)(current->data))[2]);
 	forecasts[5].conditions = decodeConditions (((char*)(current->data))[3]);
 	forecasts[6].conditions = decodeConditions (((char*)(current->data))[4]);
-
-	forecasts[2].date = base + 86400*2;
-	forecasts[3].date = base + 86400*3;
-	forecasts[4].date = base + 86400*4;
-	forecasts[5].date = base + 86400*5;
-	forecasts[6].date = base + 86400*6;
 
 	/* Temperature forecasts */
 	current = g_slist_next (current);
@@ -358,11 +353,16 @@ retrieval_done (SoupMessage *message, EWeatherSourceCCF *source)
 
 		if (newuri)
 		{
-			/* FIXME: redirect to newuri */
+			SoupMessage *soup_message;
+			soup_message = soup_message_new (SOUP_METHOD_GET, newuri);
+			soup_message_set_flags (soup_message, SOUP_MESSAGE_NO_REDIRECT);
+			soup_session_queue_message (source->soup_session, soup_message, (SoupMessageCallbackFn) retrieval_done, source);
+			g_free (newuri);
+			return;
 		}
 		else
 		{
-			/* FIXME: notify error */
+			source->done (NULL);
 		}
 
 		return;
@@ -371,7 +371,7 @@ retrieval_done (SoupMessage *message, EWeatherSourceCCF *source)
 	/* check status code */
 	if (!SOUP_STATUS_IS_SUCCESSFUL (message->status_code))
 	{
-		/* FIXME: notify error */
+		source->done (NULL);
 	}
 
 	str = g_malloc0 (message->response.length + 1);
