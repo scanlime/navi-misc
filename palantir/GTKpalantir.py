@@ -10,7 +10,7 @@ for the IRC stuff.
 from twisted.internet import gtk2reactor
 gtk2reactor.install()
 
-import re, gtk, gtk.glade, palantirIRC
+import string, re, gtk, gtk.glade, palantirIRC
 from time import localtime
 from dieRoller import DieRoller
 from CharacterSheet.Character import Character
@@ -34,40 +34,41 @@ class PalantirWindow:
     self.factory = palantirIRC.PalantirClientFactory('nuku-nuku', ui=self)
     self.tree.get_widget('Nick').set_text(self.factory.nickname)
 
+  def MessageFormat(self, user, msg, action=False):
+    ''' Format an incoming message. '''
+    text = ''
+    if self.tree.get_widget('time_stamps').get_active():
+      hour, min, sec = self.GetTime()
+      time = '[' + hour + ':' + min + ':' + sec + '] '
+      text = time
+
+    if user:
+      nick = re.search('([^!]*).*', user).group(1)
+      if action:
+	nick = '* ' + nick
+      else:
+	nick = '<' + nick + '>  '
+      text += nick
+    text += msg + '\n'
+    return text
+
   ### Must be implemented for palantirIRC to work.  These methods are called by the
   ### the client when it receives certain events and needs to display them in the UI.
   def messageReceive(self, user, channel, msg):
     ''' When the client receives a privmsg it calls this function to display the message
         in the UI, however the UI sees fit.
 	'''
-    # Format the nick if there is one, otherwise just display the text.
-    if user:
-      nick = re.search('([^!]*)!?[^@]*@?.*', user).group(1)
-      text = '<' + nick + '> ' + msg + '\n'
-    else:
-      text = msg + '\n'
-
-    if self.tree.get_widget('time_stamps').get_active():
-      hour, min, sec = self.GetTime()
-      text = '[' + str(hour) + ':' + str(min) + ':' + str(sec) + '] ' + text
-
+    text = self.MessageFormat(user, msg)
     self.PrintText(text)
 
   def meReceive(self, user, channel, msg):
     ''' When someone does a '/me' display the action. '''
-    # Format the nick.
-    nick = re.search('([^!]*).*', user).group(1)
-    text = '* ' + nick + ' ' + msg + '\n'
-
-    if self.tree.get_widget('time_stamps').get_active():
-      hour, min, sec = self.GetTime()
-      text = '[' + str(hour) + ':' + str(min) + ':' + str(sec) + '] ' + text
-
+    text = self.MessageFormat(user, msg, True)
     self.PrintText(text)
 
   def nickReceive(self, oldNick, channel, newNick):
     ''' When someone changes a nick display it. '''
-    text = oldNick + ' is now known as ' + newNick + '\n'
+    text = self.MessageFormat(None, oldNick + ' is now known as ' + newNick)
     self.PrintText(text)
 
   def topicReceive(self, user, channel, topic):
@@ -89,13 +90,21 @@ class PalantirWindow:
     self.tree.get_widget('UserList').get_buffer().set_text('')
     self.tree.get_widget('Topic').set_text('')
 
+  def ctcpReceive(self, user, channel, messages):
+    if 'roll' in messages[0]:
+      print messages
+    else:
+      nick = re.search('([^!]*).*', user).group(1)
+      message = string.join(messages[0])
+      text = 'Received a CTCP ' + message + ' from ' + nick + ' (to ' + channel + ')'
+
+    self.messageReceive(None, channel, text)
+
   ### Glade Callbacks ###
   # Menu Items.
   def on_new_connection_activate(self, widget, data=None):
     ''' Create a new connection. '''
     self.ConnectionDialog()
-    #reactor.connectTCP('irc.freenode.net', 6667, self.factory)
-    #reactor.run()
 
   def on_character_sheet_activate(self, widget, data=None):
     '''Show the part of the window that displays character sheets. '''
@@ -182,6 +191,9 @@ class PalantirWindow:
     serverLabel = gtk.Label('Server:')
     serverLabel.show()
     serverArea = gtk.Entry()
+    serverArea.connect('activate', lambda w: self.Connect(serverArea.get_text(),
+                                                          channelArea.get_text(),
+							  dialog))
     serverArea.show()
     serverBox = gtk.HBox(spacing=7)
     serverBox.pack_start(serverLabel)
@@ -191,6 +203,9 @@ class PalantirWindow:
     channelLabel = gtk.Label('Channel:')
     channelLabel.show()
     channelArea = gtk.Entry()
+    channelArea.connect('activate', lambda w: self.Connect(serverAre.get_text(),
+                                                           channelArea.get_text(),
+							   dialog))
     channelArea.show()
     channelBox = gtk.HBox()
     channelBox.pack_start(channelLabel)
@@ -253,18 +268,27 @@ class PalantirWindow:
     buffer.insert(buffer.get_end_iter(), text)
     self.tree.get_widget('ChatArea').scroll_to_iter(buffer.get_end_iter(), 0.0)
 
-  def SendRoll(self, times, sides, total):
+  def SendRoll(self, times, sides, rolls, total):
     ''' Implemented for the DieRoller used when loading character sheets.  Sends a CTCP
         to the channel with the roll information and displays the information on your
 	screen as well.
 	'''
-    text = str(times) + 'd' + str(sides) + ' => ' + str(total)
-    self.messageReceive(None, self.factory.channels[0], 'You rolled: ' + text)
+    self.factory.SendCTCP(self.factory.channels[0], [('roll', [rolls, sides, total])])
 
   def GetTime(self):
     ''' Return the local hour, minute and seconds. '''
     time = localtime()
-    return (time[3], time[4], time[5])
+
+    hour = str(time[3])
+    if len(hour) is 1: hour = '0'+hour
+
+    min = str(time[4])
+    if len(min) is 1: min = '0'+min
+
+    sec = str(time[5])
+    if len(sec) is 1: sec = '0'+sec
+
+    return (hour, min, sec)
 
 ### This was created for doing tabbed chatting, so that you could connect to multiple
 ### channels.  The client still supports multiple channels, but the UI does not.  I'm
