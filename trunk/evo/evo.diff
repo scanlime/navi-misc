@@ -1,17 +1,132 @@
+? calendar/gui/.comp-util.c.swp
+? calendar/gui/.e-cal-model.c.swp
 ? calendar/gui/.e-day-view-top-item.c.swp
 ? calendar/gui/.e-day-view.c.swp
-? calendar/gui/.e-day-view.h.swp
 ? calendar/gui/apps_evolution_calendar-2.2.schemas
 ? help/C/evolution-2.2-C.omf
 ? help/C/evolution-2.2.xml
 ? mail/evolution-mail-2.2.schemas
+Index: calendar/gui/calendar-component.c
+===================================================================
+RCS file: /cvs/gnome/evolution/calendar/gui/calendar-component.c,v
+retrieving revision 1.183
+diff -u -r1.183 calendar-component.c
+--- calendar/gui/calendar-component.c	23 Sep 2004 13:10:56 -0000	1.183
++++ calendar/gui/calendar-component.c	26 Sep 2004 20:11:58 -0000
+@@ -736,6 +736,8 @@
+ 	icalcomponent *tmp_icalcomp;
+ 
+ 	uid = (char *) icalcomponent_get_uid (icalcomp);
++
++	g_print ("update_single_object (%s)\n", uid);
+ 	
+ 	if (e_cal_get_object (client, uid, NULL, &tmp_icalcomp, NULL))
+ 		return e_cal_modify_object (client, icalcomp, CALOBJ_MOD_ALL, NULL);
+@@ -750,7 +752,7 @@
+ 	icalcomponent_kind kind;
+ 
+ 	kind = icalcomponent_isa (icalcomp);
+-	if (kind == ICAL_VTODO_COMPONENT || kind == ICAL_VEVENT_COMPONENT)
++	if (kind == ICAL_VTODO_COMPONENT || kind == ICAL_VEVENT_COMPONENT || kind == ICAL_XWEATHER_COMPONENT)
+ 		return update_single_object (client, icalcomp);
+ 	else if (kind != ICAL_VCALENDAR_COMPONENT)
+ 		return FALSE;
+@@ -771,7 +773,8 @@
+ 			if (!success)
+ 				return success;
+ 		} else if (kind == ICAL_VTODO_COMPONENT ||
+-			   kind == ICAL_VEVENT_COMPONENT) {
++			   kind == ICAL_VEVENT_COMPONENT ||
++			   kind == ICAL_XWEATHER_COMPONENT) {
+ 			success = update_single_object (client, subcomp);
+ 			if (!success)
+ 				return success;
+Index: calendar/gui/e-cal-model.c
+===================================================================
+RCS file: /cvs/gnome/evolution/calendar/gui/e-cal-model.c,v
+retrieving revision 1.45
+diff -u -r1.45 e-cal-model.c
+--- calendar/gui/e-cal-model.c	24 Sep 2004 13:54:21 -0000	1.45
++++ calendar/gui/e-cal-model.c	26 Sep 2004 20:11:59 -0000
+@@ -1347,6 +1347,8 @@
+ 	ECalModelPrivate *priv;
+ 	GList *l;
+ 
++	g_print ("e_cal_view_objects_added_cb()\n");
++
+ 	priv = model->priv;
+ 
+ 	for (l = objects; l; l = l->next) {
+@@ -1371,6 +1373,8 @@
+ 			comp_data->client = g_object_ref (e_cal_view_get_client (query));
+ 			comp_data->icalcomp = icalcomponent_new_clone (l->data);
+ 
++			g_print ("    %s\n", icalcomponent_get_uid(comp_data->icalcomp));
++
+ 			g_ptr_array_add (priv->objects, comp_data);
+ 			e_table_model_row_inserted (E_TABLE_MODEL (model), priv->objects->len - 1);
+ 		}
+@@ -1456,10 +1460,13 @@
+ 	
+ 	priv = model->priv;
+ 
++	g_print ("e_cal_view_objects_removed_cb ()\n");
++
+ 	for (l = uids; l; l = l->next) {
+ 		ECalModelComponent *comp_data;
+ 		int pos;
+ 
++		g_print ("    %s\n", l->data);
+ 		e_table_model_pre_change (E_TABLE_MODEL (model));
+ 		
+ 		/* make sure we remove all objects with this UID */
+@@ -1851,6 +1858,7 @@
+ 
+ 	switch (priv->kind) {
+ 	case ICAL_VEVENT_COMPONENT :
++	case ICAL_XWEATHER_COMPONENT :
+ 		comp = cal_comp_event_new_with_defaults (client);
+ 		break;
+ 	case ICAL_VTODO_COMPONENT :
+Index: calendar/gui/e-calendar-view.h
+===================================================================
+RCS file: /cvs/gnome/evolution/calendar/gui/e-calendar-view.h,v
+retrieving revision 1.26
+diff -u -r1.26 e-calendar-view.h
+--- calendar/gui/e-calendar-view.h	14 Jul 2004 02:20:55 -0000	1.26
++++ calendar/gui/e-calendar-view.h	26 Sep 2004 20:11:59 -0000
+@@ -131,6 +131,8 @@
+ 
+ void           e_calendar_view_add_event (ECalendarView *cal_view, ECal *client, time_t dtstart, 
+ 				     icaltimezone *default_zone, icalcomponent *icalcomp, gboolean in_top_canvas);
++void           e_calendar_view_add_weather (ECalendarView *cal_view, ECal *client, time_t dtstart, 
++				     icaltimezone *default_zone, icalcomponent *icalcomp, gboolean in_top_canvas);
+ void           e_calendar_view_new_appointment_for (ECalendarView *cal_view,
+ 						    time_t dtstart,
+ 						    time_t dtend,
+Index: calendar/gui/e-day-view.c
+===================================================================
+RCS file: /cvs/gnome/evolution/calendar/gui/e-day-view.c,v
+retrieving revision 1.252
+diff -u -r1.252 e-day-view.c
+--- calendar/gui/e-day-view.c	2 Aug 2004 07:33:38 -0000	1.252
++++ calendar/gui/e-day-view.c	26 Sep 2004 20:12:01 -0000
+@@ -531,6 +531,8 @@
+ 
+ 	e_cal_component_get_uid (comp, &uid);
+ 
++	g_print ("processing component - uid %s\n", uid);
++
+ 	/* If the event already exists and the dates didn't change, we can
+ 	   update the event fairly easily without changing the events arrays
+ 	   or computing a new layout. */
 Index: calendar/gui/migration.c
 ===================================================================
 RCS file: /cvs/gnome/evolution/calendar/gui/migration.c,v
 retrieving revision 1.30
 diff -u -r1.30 migration.c
 --- calendar/gui/migration.c	22 Jul 2004 03:02:08 -0000	1.30
-+++ calendar/gui/migration.c	25 Sep 2004 10:44:11 -0000
++++ calendar/gui/migration.c	26 Sep 2004 20:12:01 -0000
 @@ -365,6 +365,7 @@
  #define WEBCAL_BASE_URI "webcal://"
  #define CONTACTS_BASE_URI "contacts://"
@@ -121,7 +236,7 @@ RCS file: /cvs/gnome/evolution/calendar/gui/dialogs/calendar-setup.c,v
 retrieving revision 1.29
 diff -u -r1.29 calendar-setup.c
 --- calendar/gui/dialogs/calendar-setup.c	30 Jul 2004 07:37:02 -0000	1.29
-+++ calendar/gui/dialogs/calendar-setup.c	25 Sep 2004 10:44:11 -0000
++++ calendar/gui/dialogs/calendar-setup.c	26 Sep 2004 20:12:01 -0000
 @@ -122,7 +122,7 @@
  {
  	EUri     *uri;
@@ -223,7 +338,7 @@ RCS file: /cvs/gnome/evolution/mail/em-filter-i18n.h,v
 retrieving revision 1.1
 diff -u -r1.1 em-filter-i18n.h
 --- mail/em-filter-i18n.h	17 Jun 2004 07:34:49 -0000	1.1
-+++ mail/em-filter-i18n.h	25 Sep 2004 10:44:15 -0000
++++ mail/em-filter-i18n.h	26 Sep 2004 20:12:03 -0000
 @@ -4,36 +4,19 @@
  char *s = N_("Assign Score");
  char *s = N_("Attachments");
