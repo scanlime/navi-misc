@@ -738,7 +738,7 @@ Settings&lt;/b&gt;</property>
 			  <property name="snap_to_ticks">False</property>
 			  <property name="wrap">False</property>
 			  <property name="adjustment">0 -9.999 9.999 0.001 0.01 0.01</property>
-			  <signal name="value_changed" handler="on_param_spinner_changed" last_modification_time="Sun, 15 Feb 2004 07:48:22 GMT"/>
+			  <signal name="value_changed" handler="on_param_changed" last_modification_time="Sat, 21 Feb 2004 10:43:53 GMT"/>
 			</widget>
 			<packing>
 			  <property name="left_attach">1</property>
@@ -760,7 +760,7 @@ Settings&lt;/b&gt;</property>
 			  <property name="snap_to_ticks">False</property>
 			  <property name="wrap">False</property>
 			  <property name="adjustment">0 -9.999 9.999 0.001 0.01 0.01</property>
-			  <signal name="value_changed" handler="on_param_spinner_changed" last_modification_time="Sun, 15 Feb 2004 07:48:17 GMT"/>
+			  <signal name="value_changed" handler="on_param_changed" last_modification_time="Sat, 21 Feb 2004 10:43:57 GMT"/>
 			</widget>
 			<packing>
 			  <property name="left_attach">1</property>
@@ -782,7 +782,7 @@ Settings&lt;/b&gt;</property>
 			  <property name="snap_to_ticks">False</property>
 			  <property name="wrap">False</property>
 			  <property name="adjustment">0 -9.999 9.999 0.001 0.01 0.01</property>
-			  <signal name="value_changed" handler="on_param_spinner_changed" last_modification_time="Sun, 15 Feb 2004 07:48:12 GMT"/>
+			  <signal name="value_changed" handler="on_param_changed" last_modification_time="Sat, 21 Feb 2004 10:44:01 GMT"/>
 			</widget>
 			<packing>
 			  <property name="left_attach">1</property>
@@ -804,7 +804,7 @@ Settings&lt;/b&gt;</property>
 			  <property name="snap_to_ticks">False</property>
 			  <property name="wrap">False</property>
 			  <property name="adjustment">1 0.2 99.99 0.01 0.1 0.1</property>
-			  <signal name="value_changed" handler="on_param_spinner_changed" last_modification_time="Sun, 15 Feb 2004 07:48:07 GMT"/>
+			  <signal name="value_changed" handler="on_param_changed" last_modification_time="Sat, 21 Feb 2004 10:44:05 GMT"/>
 			</widget>
 			<packing>
 			  <property name="left_attach">1</property>
@@ -826,7 +826,7 @@ Settings&lt;/b&gt;</property>
 			  <property name="snap_to_ticks">False</property>
 			  <property name="wrap">False</property>
 			  <property name="adjustment">0 -9.999 9.999 0.001 0.01 0.01</property>
-			  <signal name="value_changed" handler="on_param_spinner_changed" last_modification_time="Sun, 15 Feb 2004 05:08:05 GMT"/>
+			  <signal name="value_changed" handler="on_param_changed" last_modification_time="Sat, 21 Feb 2004 10:44:11 GMT"/>
 			</widget>
 			<packing>
 			  <property name="left_attach">1</property>
@@ -848,7 +848,7 @@ Settings&lt;/b&gt;</property>
 			  <property name="snap_to_ticks">False</property>
 			  <property name="wrap">False</property>
 			  <property name="adjustment">0 -9.999 9.999 0.001 0.01 0.01</property>
-			  <signal name="value_changed" handler="on_param_spinner_changed" last_modification_time="Sun, 15 Feb 2004 05:08:14 GMT"/>
+			  <signal name="value_changed" handler="on_param_changed" last_modification_time="Sat, 21 Feb 2004 10:44:17 GMT"/>
 			</widget>
 			<packing>
 			  <property name="left_attach">1</property>
@@ -870,7 +870,7 @@ Settings&lt;/b&gt;</property>
 			  <property name="snap_to_ticks">False</property>
 			  <property name="wrap">False</property>
 			  <property name="adjustment">0 -9.999 9.999 0.001 0.01 0.01</property>
-			  <signal name="value_changed" handler="on_param_spinner_changed" last_modification_time="Sun, 15 Feb 2004 05:08:21 GMT"/>
+			  <signal name="value_changed" handler="on_param_changed" last_modification_time="Sat, 21 Feb 2004 10:44:21 GMT"/>
 			</widget>
 			<packing>
 			  <property name="left_attach">1</property>
@@ -891,8 +891,8 @@ Settings&lt;/b&gt;</property>
 			  <property name="update_policy">GTK_UPDATE_ALWAYS</property>
 			  <property name="snap_to_ticks">False</property>
 			  <property name="wrap">False</property>
-			  <property name="adjustment">0 0 1 0.0001 0.001 0.001</property>
-			  <signal name="value_changed" handler="on_param_spinner_changed" last_modification_time="Sun, 15 Feb 2004 05:08:35 GMT"/>
+			  <property name="adjustment">0 0 1 1e-04 0.001 0.001</property>
+			  <signal name="value_changed" handler="on_param_changed" last_modification_time="Sat, 21 Feb 2004 10:44:27 GMT"/>
 			</widget>
 			<packing>
 			  <property name="left_attach">1</property>
@@ -914,7 +914,7 @@ Settings&lt;/b&gt;</property>
 			  <property name="snap_to_ticks">False</property>
 			  <property name="wrap">False</property>
 			  <property name="adjustment">0 0 1 0.01 0.1 0.1</property>
-			  <signal name="value_changed" handler="on_param_spinner_changed" last_modification_time="Sun, 15 Feb 2004 05:08:47 GMT"/>
+			  <signal name="value_changed" handler="on_param_changed" last_modification_time="Sat, 21 Feb 2004 10:44:32 GMT"/>
 			</widget>
 			<packing>
 			  <property name="left_attach">1</property>
@@ -936,7 +936,7 @@ Settings&lt;/b&gt;</property>
 			  <property name="snap_to_ticks">False</property>
 			  <property name="wrap">False</property>
 			  <property name="adjustment">0 -9.999 9.999 0.001 0.01 0.01</property>
-			  <signal name="value_changed" handler="on_param_spinner_changed" last_modification_time="Sun, 15 Feb 2004 07:48:27 GMT"/>
+			  <signal name="value_changed" handler="on_param_changed" last_modification_time="Sat, 21 Feb 2004 10:43:43 GMT"/>
 			</widget>
 			<packing>
 			  <property name="left_attach">1</property>
@@ -981,7 +981,7 @@ Settings&lt;/b&gt;</property>
 			  <property name="active">False</property>
 			  <property name="inconsistent">False</property>
 			  <property name="draw_indicator">True</property>
-			  <signal name="toggled" handler="on_render_spinner_changed" last_modification_time="Sun, 15 Feb 2004 19:33:28 GMT"/>
+			  <signal name="toggled" handler="on_param_changed" last_modification_time="Sat, 21 Feb 2004 10:45:18 GMT"/>
 			</widget>
 			<packing>
 			  <property name="left_attach">1</property>
@@ -1097,7 +1097,7 @@ Settings&lt;/b&gt;</property>
 			  <property name="int1">0</property>
 			  <property name="int2">0</property>
 			  <property name="last_modification_time">Sun, 15 Feb 2004 05:09:21 GMT</property>
-			  <signal name="changed" handler="on_color_changed" last_modification_time="Sun, 15 Feb 2004 06:11:33 GMT"/>
+			  <signal name="changed" handler="on_param_changed" last_modification_time="Sat, 21 Feb 2004 10:45:11 GMT"/>
 			</widget>
 			<packing>
 			  <property name="left_attach">1</property>
@@ -1118,7 +1118,7 @@ Settings&lt;/b&gt;</property>
 			  <property name="int1">1</property>
 			  <property name="int2">0</property>
 			  <property name="last_modification_time">Sun, 15 Feb 2004 04:24:16 GMT</property>
-			  <signal name="changed" handler="on_color_changed" last_modification_time="Sun, 15 Feb 2004 06:11:26 GMT"/>
+			  <signal name="changed" handler="on_param_changed" last_modification_time="Sat, 21 Feb 2004 10:45:06 GMT"/>
 			</widget>
 			<packing>
 			  <property name="left_attach">1</property>
@@ -1141,7 +1141,7 @@ Settings&lt;/b&gt;</property>
 			  <property name="snap_to_ticks">False</property>
 			  <property name="wrap">False</property>
 			  <property name="adjustment">1 0 9.999 0.01 0.1 0.1</property>
-			  <signal name="value_changed" handler="on_render_spinner_changed" last_modification_time="Sun, 15 Feb 2004 05:09:10 GMT"/>
+			  <signal name="value_changed" handler="on_param_changed" last_modification_time="Sat, 21 Feb 2004 10:44:54 GMT"/>
 			</widget>
 			<packing>
 			  <property name="left_attach">1</property>
@@ -1163,7 +1163,7 @@ Settings&lt;/b&gt;</property>
 			  <property name="snap_to_ticks">False</property>
 			  <property name="wrap">False</property>
 			  <property name="adjustment">0 0 9.999 0.001 0.01 0.01</property>
-			  <signal name="value_changed" handler="on_render_spinner_changed" last_modification_time="Sun, 15 Feb 2004 05:09:03 GMT"/>
+			  <signal name="value_changed" handler="on_param_changed" last_modification_time="Sat, 21 Feb 2004 10:44:45 GMT"/>
 			</widget>
 			<packing>
 			  <property name="left_attach">1</property>
@@ -1247,7 +1247,7 @@ Settings&lt;/b&gt;</property>
 			  <property name="active">False</property>
 			  <property name="inconsistent">False</property>
 			  <property name="draw_indicator">True</property>
-			  <signal name="toggled" handler="on_param_spinner_changed" last_modification_time="Wed, 18 Feb 2004 06:13:40 GMT"/>
+			  <signal name="toggled" handler="on_param_changed" last_modification_time="Sat, 21 Feb 2004 10:44:36 GMT"/>
 			</widget>
 			<packing>
 			  <property name="left_attach">1</property>

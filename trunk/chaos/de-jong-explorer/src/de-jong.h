@@ -26,8 +26,6 @@
 #ifndef __DE_JONG_H__
 #define __DE_JONG_H__
 
-#include <glib.h>
-#include <glib-object.h>
 #include <gtk/gtk.h>
 
 G_BEGIN_DECLS

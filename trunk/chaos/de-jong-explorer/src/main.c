@@ -25,7 +25,7 @@
 #include <time.h>
 #include <getopt.h>
 #include "de-jong.h"
-#include "main.h"
+#include "explorer.h"
 
 static void usage(char **argv);
 static void render_main(DeJong *dejong, const gchar *filename);
@@ -109,7 +109,9 @@ int main(int argc, char ** argv) {
   switch (mode) {
 
   case INTERACTIVE:
-    //    interactive_main(dejong, argc, argv);
+    gtk_init(&argc, &argv);
+    explorer_new(dejong);
+    gtk_main();
     break;
 
   case RENDER:
@@ -182,18 +184,11 @@ static void render_main(DeJong *dejong, const char *filename) {
   GTimeVal start_time, now;
   float elapsed, remaining;
   double iterations;
-  gulong current_density, target_density;
 
   g_get_current_time(&start_time);
-  g_object_get(dejong, "target_density", &target_density, NULL);
-  current_density = 0;
 
-  while (current_density < target_density) {
+  while (dejong->current_density < dejong->target_density) {
     de_jong_calculate(dejong, 1000000);
-    g_object_get(dejong,
-		 "density", &current_density,
-		 "iterations", &iterations,
-		 NULL);
 
     /* This should be a fairly accurate time estimate, since (asymptotically at least)
      * current_density increases linearly with the number of iterations performed.
@@ -202,16 +197,16 @@ static void render_main(DeJong *dejong, const char *filename) {
     g_get_current_time(&now);
     elapsed = ((now.tv_usec - start_time.tv_usec) / 1000000.0 +
 	       (now.tv_sec  - start_time.tv_sec ));
-    remaining = elapsed * target_density / current_density - elapsed;
+    remaining = elapsed * dejong->target_density / dejong->current_density - elapsed;
 
     /* After each batch of iterations, show the percent completion, number
      * of iterations (in scientific notation), iterations per second,
      * density / target density, and elapsed time / remaining time.
      */
     printf("%6.02f%%   %.3e   %.2e/sec   %6d / %d   %02d:%02d:%02d / %02d:%02d:%02d\n",
-	   100.0 * current_density / target_density,
-	   iterations, iterations / elapsed,
-	   current_density, target_density,
+	   100.0 * dejong->current_density / dejong->target_density,
+	   dejong->iterations, dejong->iterations / elapsed,
+	   dejong->current_density, dejong->target_density,
 	   ((int)elapsed) / (60*60), (((int)elapsed) / 60) % 60, ((int)elapsed)%60,
 	   ((int)remaining) / (60*60), (((int)remaining) / 60) % 60, ((int)remaining)%60);
   }
