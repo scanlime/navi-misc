@@ -23,9 +23,10 @@
 	  <a class="download" href="http://navi.cx/releases/xchat-gnome-0.2.tar.gz">http://navi.cx/releases/xchat-gnome-0.2.tar.gz</a><br />
 	  <a class="download" href="http://navi.cx/releases/xchat-gnome-0.2.tar.bz2">http://navi.cx/releases/xchat-gnome-0.2.tar.bz2</a><br />
 	  i386 RPMs:<br />
-	  <a class="download" href="http://files.hadess.net/redhat/perso/i386/xchat-gnome-0.2-0.i386.rpm">http://files.hadess.net/redhat/perso/i386/xchat-gnome-0.2-0.i386.rpm</><br />
-	  <a class="download" href="http://files.hadess.net/redhat/perso/i386/xchat-gnome-perl-0.2-0.i386.rpm">http://files.hadess.net/redhat/perso/i386/xchat-gnome-perl-0.2-0.i386.rpm</><br />
+	  <a class="download" href="http://files.hadess.net/redhat/perso/i386/xchat-gnome-0.2-0.i386.rpm">http://files.hadess.net/redhat/perso/i386/xchat-gnome-0.2-0.i386.rpm</a><br />
+	  <a class="download" href="http://files.hadess.net/redhat/perso/i386/xchat-gnome-perl-0.2-0.i386.rpm">http://files.hadess.net/redhat/perso/i386/xchat-gnome-perl-0.2-0.i386.rpm</a><br />
 	  <a class="download" href="http://files.hadess.net/redhat/perso/i386/xchat-gnome-python-0.2-0.i386.rpm">http://files.hadess.net/redhat/perso/i386/xchat-gnome-python-0.2-0.i386.rpm</a><br />
+	  <a class="download" href="http://files.hadess.net/redhat/perso/i386/xchat-gnome-debuginfo-0.2-0.i386.rpm">http://files.hadess.net/redhat/perso/i386/xchat-gnome-debuginfo-0.2-0.i386.rpm</a><br />
 	  source RPMs:<br />
 	  <a class="download" href="http://files.hadess.net/redhat/perso/source/xchat-gnome-0.2-0.src.rpm">http://files.hadess.net/redhat/perso/source/xchat-gnome-0.2-0.src.rpm</a><br />
         </div>
