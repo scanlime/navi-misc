@@ -1,5 +1,3 @@
-'''
-'''
 # Copyright (C) 2004 W. Evan Sheehan <evan@navi.cx>
 #
 # This program is free software; you can redistribute it and/or modify
@@ -17,14 +15,24 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 import sys,os
-sys.path.append(os.getcwd())
+sys.path.append('/var/www/localhost/htdocs/kol')
 
 import ModPython
 from Nouvelle import tag
 
 class Page(ModPython.Page):
-  def __init__(self):
-    self.document = tag('html')[tag('body')[tag('h1')['hi']]]
+  def __init__(self, document):
+    self.document = tag('html')[document]
 
-#test = Page()
-test2 = ModPython.Page()
+test = Page( tag('body') [
+                tag('h1') [ 'header' ],
+                tag('p') ['This is a test of the emergency broadcast system.']
+              ]
+            )
+
+test2 = Page( tag('body') [
+                tag('h3') ['header3'],
+                tag('p') ['test #2']
+              ]
+             )
+test3 = ModPython.Page()
