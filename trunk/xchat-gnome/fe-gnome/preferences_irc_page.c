@@ -40,7 +40,7 @@ static void hilight_selection (GtkTreeSelection *selection, gpointer data);
 
 void initialize_preferences_irc_page()
 {
-	GtkWidget *widget;
+	GtkWidget *widget, *widget2;
 	GtkSizeGroup *group;
 	char *text;
 	gboolean toggle;
@@ -126,9 +126,13 @@ void initialize_preferences_irc_page()
 	gconf_client_notify_add (client, "/apps/xchat/irc/showtimestamps", (GConfClientNotifyFunc) gconf_bool_changed, widget, NULL, NULL);
 	g_signal_connect (G_OBJECT (widget), "toggled", G_CALLBACK (bool_changed), "/apps/xchat/irc/showtimestamps");
 
+	/* Create a radio button group for the font radio buttons. */
 	widget = glade_xml_get_widget (gui.xml, "usesysfonts");
+	widget2 = glade_xml_get_widget (gui.xml, "usethisfont");
+	gtk_radio_button_set_group (GTK_RADIO_BUTTON(widget2), gtk_radio_button_get_group (GTK_RADIO_BUTTON(widget)));
 	toggle = gconf_client_get_bool (client, "/apps/xchat/main_window/use_sys_fonts", NULL);
-	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), toggle);
+	/* Toggle the second button if necessary. */
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget2), !toggle);
 	gconf_client_notify_add (client, "/apps/xchat/main_window/use_sys_fonts", (GConfClientNotifyFunc) gconf_bool_changed, widget, NULL, NULL);
 	g_signal_connect (G_OBJECT (widget), "toggled", G_CALLBACK (bool_changed), "/apps/xchat/main_window/use_sys_fonts");
 	g_signal_connect (G_OBJECT (widget), "toggled", G_CALLBACK (sysfonts_changed), glade_xml_get_widget (gui.xml, "font selection"));
