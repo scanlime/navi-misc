@@ -36,11 +36,11 @@ class PulseCounter(object):
         t2 = time.clock()
 
         while 1:
+            while gtk.events_pending():
+                gtk.main_iteration()
             t3 = time.clock()
             if t3 > t1 + duration:
                 break
-            while gtk.events_pending():
-                gtk.main_iteration()
 
         # Start timing, bracketing the end time
         self.rcpod.poke('t1con', timer_off)
@@ -61,7 +61,7 @@ class PulseCounter(object):
         self.sample(duration)
         minFrequency = self.counts / (self.iTimeCenter + self.iTimeError)
         maxFrequency = self.counts / (self.iTimeCenter - self.iTimeError)
-        
+
         self.frequency = (minFrequency + maxFrequency) / 2.0
         self.frequencyError = (maxFrequency - minFrequency) / 2.0
 
