@@ -23,6 +23,7 @@
 #include <gconf/gconf-client.h>
 #include "preferences-page-irc.h"
 #include "preferences-page-colors.h"
+#include "preferences-page-networks.h"
 
 #ifndef XCHAT_GNOME_PREFERENCES_DIALOG_H
 #define XCHAT_GNOME_PREFERENCES_DIALOG_H
@@ -49,8 +50,9 @@ struct _PreferencesDialog
 
 	GtkListStore *page_store;
 
-	PreferencesIrcPage    *irc_page;
-	PreferencesColorsPage *colors_page;
+	PreferencesIrcPage      *irc_page;
+	PreferencesColorsPage   *colors_page;
+	PreferencesNetworksPage *networks_page;
 };
 
 struct _PreferencesDialogClass

@@ -20,8 +20,8 @@
  */
 
 #include <gconf/gconf-client.h>
-#include "preferences-servers-page.h"
-#include "preferences.h"
+#include "preferences-page-networks.h"
+#include "preferences-dialog.h"
 #include "irc-network.h"
 #include "irc-network-editor.h"
 #include "util.h"
@@ -29,7 +29,7 @@
 #include "../common/servlist.h"
 
 static void
-populate (PreferencesNetworkPage *page)
+populate (PreferencesNetworksPage *page)
 {
 	GtkTreeIter iter;
 	ircnet *net;
@@ -40,19 +40,18 @@ populate (PreferencesNetworkPage *page)
 
 	while (netlist) {
 		net = netlist->data;
-		gtk_list_store_append (store, &iter);
-		gtk_list_store_set (store, &iter, 0, net->name, 2, net, -1);
+		gtk_list_store_append (page->network_store, &iter);
+		gtk_list_store_set (page->network_store, &iter, 0, net->name, 1, net, -1);
 
 		netlist = g_slist_next (netlist);
 	}
 }
 
 static void
-add_clicked (GtkWidget *button, PreferencesNetworkPage *page)
+add_clicked (GtkWidget *button, PreferencesNetworksPage *page)
 {
 	IrcNetwork *n;
 	IrcNetworkEditor *e;
-	GtkWidget *treeview;
 
 	n = irc_network_new (NULL);
 	e = irc_network_editor_new (n);
@@ -147,8 +146,8 @@ preferences_page_networks_new (gpointer prefs_dialog, GladeXML *xml)
 	GW(network_remove);
 #undef GW
 
-	gtk_widget_set_sensitive (page->network_edit);
-	gtk_widget_set_sensitive (page->network_remove);
+	gtk_widget_set_sensitive (page->network_edit, FALSE);
+	gtk_widget_set_sensitive (page->network_remove, FALSE);
 
 	page->icon = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/servers.png", NULL);
 	gtk_list_store_append (p->page_store, &iter);
@@ -156,7 +155,7 @@ preferences_page_networks_new (gpointer prefs_dialog, GladeXML *xml)
 
 	page->network_store = gtk_list_store_new (2, G_TYPE_STRING, G_TYPE_POINTER);
 	page->sort_model = GTK_TREE_MODEL_SORT (gtk_tree_model_sort_new_with_model (GTK_TREE_MODEL (page->network_store)));
-	gtk_tree_sortable_set_sort_column_id (GTK_TREE_SORTABLE (page->sort_model), 1, GTK_SORT_DESCENDING);
+	gtk_tree_sortable_set_sort_column_id (GTK_TREE_SORTABLE (page->sort_model), 0, GTK_SORT_ASCENDING);
 	gtk_tree_view_set_model (GTK_TREE_VIEW (page->network_list), GTK_TREE_MODEL (page->sort_model));
 
 	renderer = gtk_cell_renderer_text_new ();
@@ -167,47 +166,16 @@ preferences_page_networks_new (gpointer prefs_dialog, GladeXML *xml)
 	g_signal_connect (G_OBJECT (page->network_edit),   "clicked", G_CALLBACK (edit_clicked),   page);
 	g_signal_connect (G_OBJECT (page->network_remove), "clicked", G_CALLBACK (remove_clicked), page);
 
-	select = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
+	select = gtk_tree_view_get_selection (GTK_TREE_VIEW (page->network_list));
 	gtk_tree_selection_set_mode (select, GTK_SELECTION_SINGLE);
 	g_signal_connect (G_OBJECT (select), "changed", G_CALLBACK (selection_changed), page);
 
 	populate (page);
+
+	return page;
 }
 
 void
 preferences_page_networks_free (PreferencesNetworksPage *page)
 {
-}
-
-/*******************************************************************************
- * CRUFT BARRIER ***************************************************************
- *******************************************************************************/
-
-void preferences_servers_selected (GtkTreeSelection *selection, gpointer data);
-
-void
-initialize_preferences_servers_page ()
-{
-}
-
-void
-preferences_servers_page_populate (GtkWidget *treeview, GSList *netlist)
-{
-	GtkListStore *store;
-	GtkTreeModel *model;
-	GtkTreeIter iter;
-	ircnet *net;
-
-	if (!netlist)
-		netlist = network_list;
-	model = gtk_tree_view_get_model (GTK_TREE_VIEW (treeview));
-	store = GTK_LIST_STORE (gtk_tree_model_sort_get_model (GTK_TREE_MODEL_SORT (model)));
-	gtk_list_store_clear (store);
-
-	while (netlist) {
-		net = netlist->data;
-		gtk_list_store_append (store, &iter);
-		gtk_list_store_set (store, &iter, 0, net->name, 1, (net->flags & FLAG_AUTO_CONNECT), 2, net, -1);
-		netlist = g_slist_next (netlist);
-	}
 }

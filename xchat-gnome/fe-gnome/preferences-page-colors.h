@@ -22,8 +22,8 @@
 #include "gui.h"
 #include <glade/glade-xml.h>
 
-#ifndef XCHAT_GNOME_PREFERENCES_COLORS_PAGE_H
-#define XCHAT_GNOME_PREFERENCES_COLORS_PAGE_H
+#ifndef XCHAT_GNOME_PREFERENCES_PAGE_COLORS_H
+#define XCHAT_GNOME_PREFERENCES_PAGE_COLORS_H
 
 typedef struct
 {
