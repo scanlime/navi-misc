@@ -463,6 +463,18 @@ const char* OSFile::getOSName ( void )
 	return info->osName.c_str();
 }
 
+bool OSFile::exists ( void )
+{
+	if (isOpen())
+		return true;
+
+	if (!open("rb"))
+		return false;
+
+	close();
+	return true;
+}
+
 bool OSFile::isOpen ( void )
 {
 	return info->fp != NULL;
