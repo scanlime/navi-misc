@@ -8,10 +8,10 @@
    width="210mm"
    height="297mm"
    sodipodi:docname="/home/evan/projects/navi-misc/palantir/svgs/palantir-logo"
+   sodipodi:docbase="/home/evan/projects/navi-misc/palantir/svgs/"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:xlink="http://www.w3.org/1999/xlink"
-   sodipodi:docbase="/home/evan/projects/navi-misc/palantir/svgs/">
+   xmlns:xlink="http://www.w3.org/1999/xlink">
   <defs
      id="defs581">
     <linearGradient
@@ -972,5 +972,33 @@ Palantir</tspan>
        id="tspan742"
        style="stroke:#ffffff;stroke-opacity:0.4422;stroke-width:1.7500;stroke-dasharray:none;fill:#9797ff;fill-opacity:1.0000;">
 Palantir</tspan>
+  </text>
+  <text
+     style="fill:#9797ff;stroke:#333433;font-family:Dobkin;font-style:normal;font-weight:normal;font-size:36;fill-opacity:1;stroke-opacity:0.44898;stroke-width:1.7500;stroke-linejoin:miter;stroke-linecap:butt;text-anchor:start;writing-mode:lr;stroke-dasharray:none;"
+     x="-650.615112"
+     y="712.881958"
+     id="text742"
+     sodipodi:linespacing="100%">
+    <tspan
+       x="-650.615112"
+       y="712.881958"
+       sodipodi:role="line"
+       id="tspan749"
+       style="fill:#9797ff;fill-opacity:1;stroke:#333433;stroke-opacity:0.44898;">
+Q:</tspan>
+  </text>
+  <text
+     style="fill:#9797ff;stroke:#333433;font-family:Dobkin;font-style:normal;font-weight:normal;font-size:36;fill-opacity:1;stroke-opacity:0.447059;stroke-width:1.75;stroke-linejoin:miter;stroke-linecap:butt;text-anchor:start;writing-mode:lr;stroke-dasharray:none;"
+     x="-661.279404"
+     y="789.902039"
+     id="text751"
+     sodipodi:linespacing="100%">
+    <tspan
+       x="-661.279419"
+       y="789.902039"
+       sodipodi:role="line"
+       id="tspan752"
+       style="fill:#9797ff;fill-opacity:1;stroke:#333433;stroke-opacity:0.447059;stroke-width:1.75;stroke-dasharray:none;">
+A:</tspan>
   </text>
 </svg>
