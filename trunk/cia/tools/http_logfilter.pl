@@ -4,6 +4,6 @@
 #
 
 while (<>) {
-    print "$2\n" if /^\d{4}\/\d\d\/\d\d \d\d:\d\d ... \[(\-|HTTPChannel[^ \]]+)\] (\d+\.\d+\.\d+\.\d+ .*)/;
+    print "$2\n" if /^\d{4}\/\d\d\/\d\d \d\d:\d\d [A-Z]+ \[(\-|HTTPChannel[^ \]]+)\] (\d+\.\d+\.\d+\.\d+ .*)/;
 }
 
