@@ -31,8 +31,28 @@ e_weather_source_ccf_parse (EWeatherSource *source, const char *buffer)
 	 * we've fetched the morning or afternoon forecast. There are actually
 	 * 14 data points, but we'll just have to "average" them since there's
 	 * no real way to create a "nighttime" event. In general, we can just
-	 * display the daytime forecast, and the current day's weather will
+	 * display the daytime precipitation, high temperature and conditions
+	 * and the nighttime low temperature, and the current day's weather will
 	 * update to be the nighttime version when it fetches the afternoon forecast.
+	 *
+	 * Supposedly, the CCF format is described in NOAA document 10-503, but I've
+	 * been unable to find a copy of this online. The real meat of the format
+	 * is summarized pretty well at
+	 * http://www.crh.noaa.gov/lmk/product_guide/products/forecast/ccf.htm
+	 *
+	 * There are a few fields left out of the summary which are located at the
+	 * top of the file. These are:
+	 *
+	 * 000
+	 * FPUSxx KSSS DDHHMM
+	 * CCFSSS
+	 *
+	 * The first line is zeroed in all the files I've seen. FPUSxx is some
+	 * identifier, but without real documentation it will remain forever a
+	 * mystery to us non-NWS folk. KSSS is the location code for the station,
+	 * and CCFSSS indicates that the file is a CCF product put out by station
+	 * SSS. DDHHMM is a date indicator showing when the product was released,
+	 * with day-of-month, hour and minute in UTC.
 	 */
 }
 
