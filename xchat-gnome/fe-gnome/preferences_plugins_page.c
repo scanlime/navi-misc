@@ -199,6 +199,25 @@ on_unload_plugin_clicked (GtkButton *button, gpointer user_data)
 static void
 xchat_gnome_plugin_add (char *filename)
 {
-	/* FIXME: Look, Ma!! No code!!! */
+	/* FIXME: This is broken and I'm tired.
+	void *handle;
+	xchat_init_func *init_func;
+	xchat_deinit_func *deinit_func;
+
+	handle = g_module_open (filename, 0);
+
+	if (handle == NULL)
+		return;
+
+	if (!g_module_symbol (handle, "xchat_plugin_init", (gpointer *)&init_func)) {
+		printf ("%s has no init\n", filename);
+		g_module_close (handle);
+		return;
+	}
+	if (!g_module_symbol (handle, "xchat_plugin_deinit", (gpointer *)&deinit_func))
+		deinit_func = NULL;
+
+	plugin_list_add (filename, handle, init_func, deinit_func);
+	*/
 }
 
