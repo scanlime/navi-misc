@@ -467,6 +467,39 @@ class NamedFormatter(Formatter):
         return self.formatter.format(message, input)
 
 
+class Ruleset(XML.XMLObject):
+    """A ruleset is a tree that makes decisions about an incoming message
+       using filters and generates output using formatters.
+       A ruleset may contain the following elements, which are evaluated sequentially.
+       The output from the last formatter is returned from evaluate(), and each formatter
+       is given the previous formatter's output as input, so they may be stacked.
+
+       <formatter name="foo">   : Applies the formatter named 'foo'
+       <formatter medium="irc"> : Automatically picks a formatter for the particular
+                                  input message and the given medium type
+       any Filter tag           : Evaluates the filter, terminating the current rule
+                                  if it returns false.
+       <rule>                   : Marks a section of the ruleset that can be exited
+                                  when a filter returns false. A <rule> with a filter
+                                  as the first child can be used to create conditionals.
+
+       For example:
+
+          <ruleset>
+               <formatter medium="irc"/>
+               <rule>
+                   <match path="/message/source/project">navi-misc</match>
+                   <formatter name="addMoreMetadata"/>
+               </rule>
+          </ruleset>
+
+       This would always run the first <formatter> to automatically format the
+       message for IRC. Then, if the message comes from the 'navi-misc' project,
+       the filter 'addMoreMetadata' would be applied.
+       """
+    pass
+
+
 def _test():
     import doctest, Message
     return doctest.testmod(Message)
