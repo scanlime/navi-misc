@@ -6,14 +6,33 @@ import java.net.*;
 import java.util.*;
 import java.io.*;
 
+/**
+ * This class handles the click of the submission button
+ * @author Brandon Smith
+ * @version 2.0
+ */
 public class submit implements ActionListener
 {
+	/** This holds the head information, so it can mess with text fields. */
 	public interview head;
+
+	/**
+	 * This method creates a new submission handler.
+	 * @param nope The textfield information thingy.
+	 * @author Brandon Smith
+	 * @version 2.0
+	 */
 	public submit(interview nope)
 	{
 		head = nope;
 	}
 	
+	/**
+	 * This method handles the click of the submit button
+	 * @param e An unused parameter that I have to take...
+	 * @author Brandon Smith
+	 * @version 2.0
+	 */
 	public void actionPerformed(ActionEvent e)
 	{
 		String name, ques, answ;
