@@ -29,6 +29,61 @@
 #include <calendar/common/authentication.h>
 #include "publish-format-ical.h"
 
+static gboolean
+write_calendar (gchar *uid, ESourceList *source_list, GnomeVFSHandle *handle, ECalSourceType type)
+{
+	ESource *source;
+	ECal *client = NULL;
+	GError *error = NULL;
+	GList *objects;
+	icalcomponent *top_level;
+
+	source = e_source_list_peek_source_by_uid (source_list, uid);
+	if (source)
+		client = auth_new_cal_from_source (source, type);
+	if (!client) {
+		g_warning (G_STRLOC ": Could not publish calendar: Calendar backend no longer exists");
+		return FALSE;
+	}
+
+	if (!e_cal_open (client, TRUE, &error)) {
+		/* FIXME: show error */
+		g_object_unref (client);
+		g_error_free (error);
+		return FALSE;
+	}
+
+	top_level = e_cal_util_new_top_level ();
+	error = NULL;
+
+	if (e_cal_get_object_list (client, "#t", &objects, &error)) {
+		char *ical_string;
+		GnomeVFSFileSize bytes_written;
+		GnomeVFSResult result;
+
+		while (objects) {
+			icalcomponent *icalcomp = objects->data;
+			icalcomponent_add_component (top_level, icalcomp);
+			objects = g_list_remove (objects, icalcomp);
+		}
+
+		ical_string = icalcomponent_as_ical_string (top_level);
+		if ((result = gnome_vfs_write (handle, (gconstpointer) ical_string, strlen (ical_string), &bytes_written)) != GNOME_VFS_OK) {
+			/* FIXME: show error */
+			gnome_vfs_close (handle);
+			return FALSE;
+		}
+	} else {
+		/* FIXME: show error */
+		g_object_unref (client);
+		g_error_free (error);
+		return FALSE;
+	}
+
+	g_object_unref (client);
+	return TRUE;
+}
+
 void
 publish_calendar_as_ical (GnomeVFSHandle *handle, EPublishUri *uri)
 {
@@ -43,54 +98,7 @@ publish_calendar_as_ical (GnomeVFSHandle *handle, EPublishUri *uri)
 	l = uri->events;
 	while (l) {
 		gchar *uid = l->data;
-		ESource *source;
-		ECal *client = NULL;
-		GError *error = NULL;
-
-		GList *objects;
-		icalcomponent *top_level;
-
-		source = e_source_list_peek_source_by_uid (source_list, uid);
-		if (source)
-			client = auth_new_cal_from_source (source, E_CAL_SOURCE_TYPE_EVENT);
-		if (!client) {
-			g_warning (G_STRLOC ": Could not publish calendar: Calendar backend no longer exists");
-			continue;
-		}
-
-		if (!e_cal_open (client, TRUE, &error)) {
-			/* FIXME: show error */
-			g_object_unref (client);
-			g_error_free (error);
-			return;
-		}
-
-		top_level = e_cal_util_new_top_level ();
-		error = NULL;
-		if (e_cal_get_object_list (client, "#t", &objects, &error)) {
-			char *ical_string;
-			GnomeVFSFileSize bytes_written;
-			GnomeVFSResult result;
-
-			while (objects) {
-				icalcomponent *icalcomp = objects->data;
-				icalcomponent_add_component (top_level, icalcomp);
-				objects = g_list_remove (objects, icalcomp);
-			}
-
-			ical_string = icalcomponent_as_ical_string (top_level);
-			if ((result = gnome_vfs_write (handle, (gconstpointer) ical_string, strlen (ical_string), &bytes_written)) != GNOME_VFS_OK) {
-				/* FIXME: show error */
-				gnome_vfs_close (handle);
-				return;
-			}
-		} else {
-			/* FIXME: show error */
-			g_error_free (error);
-			return;
-		}
-
-		g_object_unref (client);
+		write_calendar (uid, source_list, handle, E_CAL_SOURCE_TYPE_EVENT);
 		l = g_slist_next (l);
 	}
 	g_object_unref (source_list);
@@ -100,8 +108,7 @@ publish_calendar_as_ical (GnomeVFSHandle *handle, EPublishUri *uri)
 	l = uri->tasks;
 	while (l) {
 		gchar *uid = l->data;
-		g_print ("publishing task '%s'\n", uid);
-
+		write_calendar (uid, source_list, handle, E_CAL_SOURCE_TYPE_TODO);
 		l = g_slist_next (l);
 	}
 	g_object_unref (source_list);
