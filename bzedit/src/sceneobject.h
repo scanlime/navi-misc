@@ -41,6 +41,7 @@ struct _SceneObject
   ParameterHolder parent;
 
   gboolean selected;
+  GtkTreeIter iter;
 };
 
 struct _SceneObjectClass
