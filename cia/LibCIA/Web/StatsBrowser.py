@@ -25,8 +25,9 @@ from __future__ import division
 import time, math
 import Template, Nouvelle
 import Nouvelle.Twisted
-from LibCIA import TimeUtil, Message
+from LibCIA import TimeUtil, Message, Stats
 from twisted.web import resource, error
+from twisted.internet import defer
 from Nouvelle import tag, place
 
 
@@ -265,7 +266,8 @@ class TargetSubTargetsColumn(Nouvelle.Column):
     heading = "contents"
 
     def getValue(self, target):
-        return len(target.catalog())
+        #return len(target.catalog())
+        return 12345
 
     def isVisible(self, context):
         # Hide this column if none of the targets have children
@@ -289,14 +291,20 @@ class Catalog(Template.Section):
 
     def __init__(self, target):
         self.target = target
-        self.names = target.catalog()
-        self.names.sort(lambda a,b: cmp(a.lower(), b.lower()))
-        self.childTargets = [self.target.child(name) for name in self.names]
 
     def isVisible(self, context):
         return len(self.names) != 0
 
     def render_rows(self, context):
+        # We can't actually render anything without querying the database
+        result = defer.Deferred()
+        self.target.catalog().addCallback(self._render_rows, context, result).addErrback(result.errback)
+        return result
+
+    def _render_rows(self, childTargets, context, result):
+        # Deferred callback to render the table once we have our list of children
+        return [tar.name for tar in childTargets]
+
         return [Template.Table(self.childTargets, [
             TargetTitleColumn(),
             TargetBargraphColumn('events today', 'today'),
@@ -367,17 +375,15 @@ class MessageList(Template.Section):
        """
     title = "messages"
 
-    def __init__(self, messages):
-        self.messages = messages
-        self.columns = [
-            MessageDateColumn(),
-            MessageProjectColumn(),
-            MessageContentColumn(),
-            ]
+    columns = [
+        MessageDateColumn(),
+        MessageProjectColumn(),
+        MessageContentColumn(),
+        ]
 
-    def render_rows(self, context):
+    def renderMessages(self, context, messages):
         return [
-            Template.Table(self.messages, self.columns,
+            Template.Table(messages, self.columns,
                            defaultSortReversed = True,
                            id = 'message'),
             ]
@@ -388,12 +394,21 @@ class RecentMessages(MessageList):
     title = "recent messages"
 
     def __init__(self, target, limit=20):
-        messages = target.recentMessages.getLatest(limit)
-        messages.reverse()
-        MessageList.__init__(self, [Message.Message(m) for m in messages])
+        self.target = target
+        self.limit = limit
 
     def isVisible(self, context):
         return len(self.messages) != 0
+
+    def render_rows(self, context):
+        result = defer.Deferred()
+        self.target.messages.getLatest(self.limit).addCallback(
+            self._render_rows, context, result).addErrback(result.errback)
+        return result
+
+    def _render_rows(self, messages, context, result):
+        """Actually render the rows, called after the message list has been retrieved"""
+        result.callback(self.renderMessages(context, messages))
 
 
 class MetadataKeyColumn(Nouvelle.Column):
@@ -545,7 +560,7 @@ class RSSFeed(Nouvelle.Twisted.Page):
         formatter = Message.AutoFormatter('rss')
         items = []
         # Get the latest message, in reverse chronological order
-        latest = self.target.recentMessages.getLatest(limit)
+        latest = self.target.messages.getLatest(limit)
         latest.reverse()
         for m in latest:
             i = formatter.format(Message.Message(m))
@@ -630,11 +645,9 @@ class StatsPage(Template.Page):
        capabilities database and StatsStorage. Children will
        be automatically created with child targets.
        """
-    def __init__(self, caps, storage, target=None):
+    def __init__(self, target=None):
         if target is None:
-            target = storage.getRoot()
-        self.caps = caps
-        self.storage = storage
+            target = Stats.StatsTarget()
         self.target = target
 
     def getChildWithDefault(self, name, request):
@@ -653,8 +666,7 @@ class StatsPage(Template.Page):
             return RSSFeed(self)
         else:
             # Return the stats page for a child
-            return StatsPage(self.caps, self.storage,
-                             self.target.child(name))
+            return StatsPage(self.target.child(name))
 
     def findRootPath(self, request, additionalDepth=0, absolute=False):
         """Find the URL path referring to the root of the current stats tree

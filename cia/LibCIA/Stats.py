@@ -231,22 +231,22 @@ class StatsTarget:
     def setPath(self, path):
         # Remove leading and trailing slashes, remove duplicate
         # slashes, process '.' and '..' directories.
-        segments = []
+        self.pathSegments = []
         for segment in path.split('/'):
             if segment == '..':
-                if segments:
-                    del segments[-1]
+                if self.pathSegments:
+                    del self.pathSegments[-1]
             elif segment and segment != '.':
-                segments.append(segment)
-        self.path = '/'.join(segments)
+                self.pathSegments.append(segment)
+        self.path = '/'.join(self.pathSegments)
 
         # Our database uses VARCHAR(128), make sure this fits
         if len(self.path) > 128:
             raise StatsPathException("Stats paths are currently limited to 128 characters")
 
         # Our name is the last path segment, or None if we're the root
-        if segments:
-            self.name = segments[-1]
+        if self.pathSegments:
+            self.name = self.pathSegments[-1]
         else:
             self.name = None
 
@@ -369,10 +369,18 @@ class Messages(object):
         return Database.pool.runInteraction(self._push, message)
 
     def _push(self, transaction, message):
+        # Does this message have a timestamp?
+        if message.xml.timestamp:
+            timestamp = quoteSQL(str(message.xml.timestamp), 'bigint')
+        else:
+            timestamp = NULL
+
         self.target._autoCreateTargetFor(transaction, transaction.execute,
-                                         "INSERT INTO stats_messages (target_path, xml) VALUES(%s, %s)" %
+                                         "INSERT INTO stats_messages (target_path, xml, timestamp)"
+                                         " VALUES(%s, %s, %s)" %
                                          (quoteSQL(self.target.path, 'varchar'),
-                                          quoteSQL(message, 'text')))
+                                          quoteSQL(message, 'text'),
+                                          timestamp))
 
     def getLatest(self, limit=None):
         """Return the most recent messages as XML strings, optionally up to a provided
@@ -405,6 +413,12 @@ class Metadata:
     def __init__(self, target):
         self.target = target
 
+    def get(self, name, default=None):
+        return default
+
+    def __contains__(self, name):
+        return False
+
 
 class Counters:
     """A set of counters which are used together to track events
@@ -422,7 +436,8 @@ class Counters:
            lastEventTime  : The time when the most recent event occurred
            eventCount     : The number of events that have occurred
            """
-        return self.rack.child(name)
+        return {}
+        #return self.rack.child(name)
 
     def incrementCounter(self, name, evTime=None):
         """Increment the counter with the given name.

@@ -22,6 +22,7 @@ Template classes for building web pages using our particular style
 #
 
 import Nouvelle.Twisted
+from twisted.internet import defer
 from Nouvelle import tag, place, xml
 
 
@@ -53,7 +54,15 @@ class Section(Nouvelle.DocumentOwner):
 
     def render_body(self, context):
         # Wrap each of the rows returned by render_rows() in a proper <div> tag
-        return [tag('div', _class="row")[r] for r in self.render_rows(context)]
+        result = defer.Deferred()
+        defer.maybeDeferred(self.render_rows, context).addCallback(
+            self._assembleRows, result).addErrback(result.errback)
+        if result.called:
+            return result.result
+        return result
+
+    def _assembleRows(self, rows, result):
+        result.callback([tag('div', _class="row")[r] for r in rows])
 
     document = [
         tag('span', _class="section")[ place("title") ],
