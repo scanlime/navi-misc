@@ -1,39 +1,37 @@
 #!/usr/bin/env python
-import sys, email, smtplib
-from StringIO import StringIO
+from filterlib import CommitFilter
+import re
 
-returnAddress = "kde_commits@picogui.org"
-toAddress = "commits@picogui.org"
-projectName = "kde"
-logFile = "/home/commits/mail.log"
+class KdeFilter(CommitFilter):
+    project = 'kde'
 
-message = email.message_from_file(sys.stdin)
-body = StringIO(message.get_payload())
+    def parse(self):
+        # Directory name is the first token in the subject
+        dirName = self.message['subject'].split(" ")[0]
 
-# If this appears to be a reply, ignore it
-if message['subject'].strip().lower().find("re") == 0:
-    sys.exit(0)
+        # Author is the last token of the first line, with a trailing colon
+        self.addAuthor(self.body.readline().strip().split(" ")[-1][:-1])
 
-# Directory name is the first token in the subject
-dirName = message['subject'].split(" ")[0]
+        # The body is the set of non-blank lines starting on the third line
+        lines = []
+        self.body.readline()
+        while True:
+            line = self.body.readline().strip()
+            if not line:
+                break
+            lines.append(line)
+        self.addLog("\n".join(lines))
 
-# Author is the last token of the first line, with a trailing colon
-author = body.readline().strip().split(" ")[-1][:-1]
+        # Slurp up the rest of the message looking for files
+        while True:
+            line = self.body.readline()
+            if not line:
+                break
+            try:
+                status, added, removed, name, revision = re.split("[ \t]+", line.strip())
+            except:
+                continue
+            self.addFile(dirName + '/' + name)
 
-# The body is the set of non-blank lines starting on the third line
-log = ""
-body.readline()
-while True:
-    line = body.readline().strip()
-    if not line:
-        break
-    log += line + "\n"
-
-ciaMessage = "%s {green}%s{normal}: %s" % (dirName, author, log)
-
-s = smtplib.SMTP()
-s.connect()
-s.sendmail(returnAddress, toAddress,
-           "From: %s\nTo: %s\nSubject: Announce %s\n\n%s" % \
-           (returnAddress, toAddress, projectName, ciaMessage))
-s.close()
+if __name__ == '__main__':
+    KdeFilter().main()
