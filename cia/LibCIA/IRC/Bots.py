@@ -607,17 +607,22 @@ class Bot(irc.IRCClient, pb.Referenceable):
         self.setNick(tempNick)
 
     def nickChanged(self, newname):
-        print "nickchanged: %r" % newname
-        
         irc.IRCClient.nickChanged(self, newname)
         if self.botNet.nickAllocator.isValid(newname):
             # The nick was valid. If we aren't completely connected yet, fix that
             if self.signonTimestamp is None:
                 self.finishConnection()
         else:
-            # We got a bad nick, try to find a better one
+            # We got a bad nick, try to find a better one. If it doesn't
+            # work within 1 minute, self-destruct.
             log.msg("%r starting nick negotiation" % self)
+            reactor.callLater(60, self.enforceNickDeadline)
             self.findNick().addCallback(self.foundBetterNick)
+
+    def enforceNickDeadline(self):
+        """If this bot doesn't have a valid nick yet, kill it."""
+        if not self.botNet.nickAllocator.isValid(self.nickname):
+            self.sendLine("QUIT")
 
     def register(self, nickname, hostname='foo', servername='bar'):
         """Twisted's default register() is silly in that it doesn't let us
