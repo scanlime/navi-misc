@@ -446,218 +446,6 @@ class Formatter:
                 f(tag)
 
 
-class CompositeFormatter(Formatter):
-    """A composite formatter builds a new formatter from other formatters
-       and simple built-in primitives. A composite formatter is defined
-       only by its XML parameters, which may consist of any of the elements
-       described below. The results from these elements are concatenated.
-
-        <formatter *>         : Chooses and applies another formatter, according
-                                to the rules in FormatterFactory.fromXml.
-
-        <join [sep=...]>      : Explicitly join the contents, optionally using a separator string
-
-        <value path=...>      : Evaluate an XPath from the message being formatted
-
-        <value preference=...> : Evaluate a preference, using the element's contents as a default.
-
-        <value>text</value>   : Literal text. (<value> is very similar to a ruleset's <return>)
-                                Text may be included anywhere, but it is usually stripped of leading
-                                and trailing whitespace. <value> does not do this.
-
-        <input>               : The input to this formatter
-
-        <pipe>                : This element must have two child elements.
-                                The first element is evaluated normally, then its
-                                output is used as input when evaluating the second element.
-
-        <tag name=...>        : Generate a Nouvelle tag. Attributes can be defined with <attribute> elements,
-                                or by attributes of the <tag> element. The contents of this element are concatenated
-                                and placed inside the Nouvelle tag.
-
-        <attribute name=...>  : Define an attribute on the enclosing <tag>
-
-        <preference name=...> : Set a preference to the enclosed string if it hasn't already been set.
-                                This only affects formatters below it, not formatters above it.
-                                Only the first preference of a particular name is used- this makes
-                                the outermost user of a formatter ultimately responsible for setting preferences,
-                                while inner formatters can still easily set defaults.
-       """
-    def loadParametersFrom(self, xml):
-        self.format = CompositeFormatterParser(xml).result
-
-
-class CompositeFormatterParser(XML.XMLObjectParser):
-    """Parses CompositeFormatter's arguments into a format() function"""
-    def join(self, l, args, separator=""):
-        """Given a list of literals and functions, reduces them to a
-           single string or list as appropriate, optionally inserting
-           a separator string between each.
-           """
-        results = []
-        allStrings = True
-        for f in l:
-            if f is None:
-                # Ignore Nones
-                continue
-            elif callable(f):
-                # Call child functions, recording their result
-                result = f(args)
-                if not result:
-                    continue
-            elif f:
-                # Allow non-callable parse results for literals
-                result = f
-
-            results.append(result)
-            if type(result) not in types.StringTypes:
-                allStrings = False
-
-        # If all results are strings, we can join the list now.
-        # This might not be the case if, for example, we're generating
-        # a Nouvelle document tree.
-        if allStrings:
-            return separator.join(results)
-        else:
-            joinedResultList = []
-            for result in results:
-                if joinedResultList:
-                    joinedResultList.append(separator)
-                joinedResultList.append(result)
-            return joinedResultList
-
-    def element_formatter(self, element):
-        """Another formatter, or possibly our root element. If it has any
-           attributes, we need to get a formatter using the FormatterFactory.
-           If not, parse and concatenate the child elements.
-           """
-        if element.attributes:
-            # We need to let the formatter factory resolve this
-            import Formatters
-
-            # Evaluate once at parse time to check validity
-            Formatters.getFactory().fromXml(element)
-
-            def formatUsingFactory(args):
-                # This must bind to a particular formatter at runtime rather than parse time
-                # to handle autoformatting properly.
-                return Formatters.getFactory().fromXml(element, args.message).format(args)
-            return formatUsingFactory
-
-        else:
-            # This is a nested CompositeFormatterParser, we must handle these
-            # here since that's what this class is for. We always have at least
-            # one of these, at the root of the parsed XML document.
-            children = list(self.childParser(element))
-            def joinChildren(args):
-                return self.join(children, args)
-            return joinChildren
-
-    def element_join(self, element):
-        children = list(self.childParser(element))
-        sep = element.attributes.get("sep", "")
-        def explicitJoin(args):
-            return self.join(children, args, sep)
-        return explicitJoin
-
-    def element_value(self, element):
-        """Include a value obtained from an XPath, a preference, or from this element's contents"""
-        if element.hasAttributeNS(None, 'path'):
-            xp = XML.XPath(element.getAttributeNS(None, 'path'))
-            def formatXPathValue(args):
-                nodes = xp.queryForNodes(args.message.xml)
-                if nodes:
-                    return XML.allText(nodes[0]).strip()
-            return formatXPathValue
-
-        elif element.hasAttributeNS(None, 'preference'):
-            name = element.getAttributeNS(None, 'preference')
-            default = XML.shallowText(element)
-            def evaluatePref(args):
-                return args.getPreference(name, default)
-            return evaluatePref
-
-        else:
-            # No path, return this node's contents
-            return str(element)
-
-    def element_preference(self, element):
-        """Generates no output on its own, but sets a preference in the current FormatterArgs"""
-        name = element.getAttributeNS(None, 'name')
-        value = XML.shallowText(element)
-        def setPreference(args):
-            args.preferences.setdefault(name, value)
-        return setPreference
-
-    def element_input(self, element):
-        """Returns the formatter's input"""
-        def formatInput(args):
-            return args.input
-        return formatInput
-
-    def element_pipe(self, element):
-        """Evaluate the first child element, using its result as the input to the second child"""
-        children = list(XML.getChildElements(element))
-        if len(children) != 2:
-            raise XML.XMLValidityError("<pipe> must have exactly two child elements")
-        pipeInput = self.parse(children[0])
-        pipeOutput = self.parse(children[1])
-
-        def formatPipe(args):
-            return pipeOutput(args.copy(input = pipeInput(args)))
-        return formatPipe
-
-    def element_attribute(self, element):
-        """<attribute> elements inside a <tag> are handled by element_tag(), this just
-           returns an error if an attribute is found elsewhere.
-           """
-        raise XML.XMLValidityError("<attribute> is only allowed inside a <tag>")
-
-    def element_tag(self, element):
-        """Support for generating Nouvelle tags"""
-        from Nouvelle import tag
-
-        # Make a dict of attributes defined in the element,
-        # as these are always static. Other attributes may depend
-        # on the input or message, so they have to be filled in dynamically.
-        staticAttrs = dict(element.attributes)
-        tagName = staticAttrs['name']
-        del staticAttrs['name']
-
-        # For each dynamically defined attribute, this maps an attribute
-        # name to a parsed element list that can be passed to self.join()
-        dynamicAttrs = {}
-
-        # Scan child nodes, separating them into attributes and data. Attributes
-        # get parsed, and sorted into staticAttrs and dynamicAttrs. Other children
-        # get parsed and added to
-        children = []
-        for child in element.childNodes:
-            if child.nodeType == child.ELEMENT_NODE and child.nodeName == "attribute":
-                attrName = child.getAttributeNS(None, 'name')
-                dynamicAttrs[attrName] = self.childParser(child)
-            else:
-                children.append(child)
-
-        def formatTag(args):
-            # Generate a final attribute list from both static and dynamic attributes
-            attrs = dict(staticAttrs)
-            for name, value in attrs.iteritems():
-                attrs[name] = self.join(value, args)
-
-            # Join our non-attribute children to form the tag's content
-            content = self.join(children, args)
-
-            return tag(tagName, **attrs)[ content ]
-        return formatTag
-
-    def parseString(self, element):
-        """If there is any non-whitespace text, include it literally"""
-        text = str(element).strip()
-        if text:
-            return text
-
-
 filterCache = {}
 
 def getCachedFilter(xml):
@@ -673,13 +461,6 @@ def getCachedFilter(xml):
         f = Filter(xml)
         filterCache[xml] = f
         return f
-
-
-def parseCompositeFormatter(xml):
-    """A convenience function for defining format functions as XML
-       composite formatters at import-time.
-       """
-    return CompositeFormatterParser(xml).result
 
 
 class NoFormatterError(Exception):
@@ -745,28 +526,21 @@ class FormatterFactory:
         """Create a formatter to match the given <formatter> element.
            The formatter element may have a 'name' attribute to specify a particular
            formatter class or a 'medium' attribute to automatically find a matching
-           formatter to output to a given medium. If neither of these are given,
-           a CompositeFormatter is created.
+           formatter to output to a given medium.
 
            If 'message' is None and a medium is requested rather than a particular
            formatter, this will return None after validating the medium.
            """
         attrNames = [attr.name for attr in xml.attributes.itervalues()]
 
-        if not attrNames:
-            f = CompositeFormatter()
-
-        elif attrNames == ['name']:
+        if attrNames == ['name']:
             f = self.findName(xml.getAttributeNS(None, 'name'))
 
         elif attrNames == ['medium']:
             f = self.findMedium(xml.getAttributeNS(None, 'medium'), message)
 
         else:
-            # It's important to disallow unknown attributes here, so that we know for
-            # sure which formatters must be delegated to this method and which can be
-            # handled by CompositeFormatter safely.
-            raise XML.XMLValidityError("<formatter> must have either a 'name' attribute, a 'medium' attribute, or no attributes")
+            raise XML.XMLValidityError("<formatter> must have either a 'name' attribute or a 'medium' attribute")
 
         if f:
             f.loadParametersFrom(xml)
