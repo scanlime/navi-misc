@@ -33,7 +33,6 @@
 #include "../e-pub-utils.h"
 #include "../calendar-config.h"
 #include "cal-prefs-dialog.h"
-#include "url-editor-dialog.h"
 #include <widgets/misc/e-dateedit.h>
 #include <e-util/e-dialog-widgets.h>
 #include <libgnome/gnome-i18n.h>
@@ -358,255 +357,11 @@ set_color_picker (GtkWidget *picker, const char *spec)
 	gtk_color_button_set_color (GTK_COLOR_BUTTON (picker), &color);
 }
 
-static void
-url_list_changed (CalendarPrefsDialog *prefs)
-{
-	GtkTreeModel *model = NULL;
-	GSList *url_list = NULL;
-	GtkTreeIter iter;
-	gboolean valid;
-
-	url_list = NULL;
-
-	model = gtk_tree_view_get_model (GTK_TREE_VIEW (prefs->url_list));
-
-	valid = gtk_tree_model_get_iter_first (model, &iter);
-	while (valid) {
-		EPublishUri *url;
-		char *xml;
-
-		gtk_tree_model_get (model, &iter, URL_LIST_FREE_BUSY_URL_COLUMN, &url, -1);
-
-		if ((xml = e_pub_uri_to_xml (url)))
-			url_list = g_slist_append (url_list, xml);
-
-		valid = gtk_tree_model_iter_next (model, &iter);
-	}
-
-	calendar_config_set_free_busy (url_list);
-
-	g_slist_free (url_list);
-}
-
-static void
-url_list_enable_toggled (GtkCellRendererToggle *renderer,
-		         const char            *path_string,
-			 CalendarPrefsDialog   *prefs)
-{
-	GtkTreeSelection * selection;
-	EPublishUri *url = NULL;
-	GtkTreeModel *model;
-	GtkTreePath *path;
-	GtkTreeIter iter;
-
-	path = gtk_tree_path_new_from_string (path_string);
-	model = gtk_tree_view_get_model (GTK_TREE_VIEW (prefs->url_list));
-	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (prefs->url_list));
-
-	if (gtk_tree_model_get_iter (model, &iter, path)) {
-		gtk_tree_model_get (model, &iter, URL_LIST_FREE_BUSY_URL_COLUMN, &url, -1);
-
-		url->enabled = !url->enabled;
-		gtk_list_store_set(GTK_LIST_STORE (model), &iter, URL_LIST_ENABLED_COLUMN, url->enabled, -1);
-
-		if (gtk_tree_selection_iter_is_selected (selection, &iter)) {
-			gtk_label_set_text (GTK_LABEL (prefs->url_enable_label),
-					    url->enabled ? _("Disable") : _("Enable"));
-			gtk_image_set_from_stock (GTK_IMAGE (prefs->url_enable_image),
-					          url->enabled ? GTK_STOCK_YES : GTK_STOCK_NO,
-						  GTK_ICON_SIZE_BUTTON);
-		}
-
-		url_list_changed (prefs);
-	}
-
-	gtk_tree_path_free (path);
-}
-
-static void
-url_edit_clicked (GtkWidget *button, CalendarPrefsDialog *prefs)
-{
-	GtkTreeSelection *selection;
-	EPublishUri *url = NULL;
-	GtkTreeModel *model;
-	GtkTreeIter iter;
-	GtkWidget *url_editor;
-
-	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (prefs->url_list));
-	if (gtk_tree_selection_get_selected (selection, &model, &iter))
-		gtk_tree_model_get (model, &iter, URL_LIST_FREE_BUSY_URL_COLUMN, &url, -1);
-
-	if (url) {
-		url_editor = url_editor_dialog_new (model, url);
-		url_editor_dialog_run ((UrlEditorDialog *) url_editor);
-
-		gtk_list_store_set (GTK_LIST_STORE (model), &iter, URL_LIST_LOCATION_COLUMN,
-				    g_strdup (url->location), URL_LIST_ENABLED_COLUMN,
-				    url->enabled, URL_LIST_FREE_BUSY_URL_COLUMN, url, -1);
-		url_list_changed (prefs);
-		if (!GTK_WIDGET_SENSITIVE (prefs->url_remove)) {
-			selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (prefs->url_list));
-			gtk_tree_model_get_iter_first (GTK_TREE_MODEL (model), &iter);
-			gtk_widget_set_sensitive (prefs->url_remove, TRUE);
-			gtk_tree_selection_select_iter (selection, &iter);
-		}
-		gtk_widget_destroy (url_editor);
-	}
-}
-
-static void
-url_list_double_click (GtkTreeView *treeview,
-		       GtkTreePath *path,
-		       GtkTreeViewColumn *column,
-		       CalendarPrefsDialog *prefs)
-{
-	url_edit_clicked  (NULL, prefs);
-}
-
-static void
-url_add_clicked (GtkWidget *button, CalendarPrefsDialog *prefs)
-{
-	EPublishUri *url = NULL;
-	GtkTreeModel *model;
-	GtkTreeIter iter;
-	GtkTreeSelection *selection;
-	GtkWidget *url_editor;
-
-	model = gtk_tree_view_get_model (GTK_TREE_VIEW (prefs->url_list));
-	url = g_new0 (EPublishUri, 1);
-	url->enabled = TRUE;
-	url->location = "";
-
-	url_editor = url_editor_dialog_new (model, url);
-	url_editor_dialog_run ((UrlEditorDialog *) url_editor);
-	if (strlen (url->location)) {
-		gtk_list_store_append(GTK_LIST_STORE (model), &iter);
-		gtk_list_store_set (GTK_LIST_STORE(model), &iter, URL_LIST_ENABLED_COLUMN,
-				    url->enabled, URL_LIST_LOCATION_COLUMN, g_strdup (url->location),
-				    URL_LIST_FREE_BUSY_URL_COLUMN, url, -1);
-
-		url_list_changed (prefs);
-		if (!GTK_WIDGET_SENSITIVE (prefs->url_remove)) {
-			selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (prefs->url_list));
-			gtk_tree_model_get_iter_first (model, &iter);
-			gtk_widget_set_sensitive (prefs->url_remove, TRUE);
-			gtk_tree_selection_select_iter (selection, &iter);
-		}
-	}
-	gtk_widget_destroy (url_editor);
-}
-
-static void
-url_remove_clicked (GtkWidget *button, CalendarPrefsDialog *prefs)
-{
-	EPublishUri *url = NULL;
-	GtkTreeSelection * selection;
-	GtkTreeModel *model;
-	GtkWidget *confirm;
-	GtkTreeIter iter;
-	int ans;
-
-	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (prefs->url_list));
-	if (gtk_tree_selection_get_selected (selection, &model, &iter))
-		gtk_tree_model_get (model, &iter, URL_LIST_FREE_BUSY_URL_COLUMN, &url, -1);
-
-	confirm = gtk_message_dialog_new (NULL, GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
-					  GTK_MESSAGE_QUESTION, GTK_BUTTONS_NONE,
-					  _("Are you sure you want to remove this URL?"));
-
-	gtk_dialog_add_button (GTK_DIALOG (confirm), GTK_STOCK_CANCEL, GTK_RESPONSE_NO);
-	gtk_dialog_add_button (GTK_DIALOG (confirm), GTK_STOCK_REMOVE, GTK_RESPONSE_YES);
-	gtk_dialog_set_default_response (GTK_DIALOG (confirm), GTK_RESPONSE_CANCEL);
-
-	ans = gtk_dialog_run (GTK_DIALOG (confirm));
-	gtk_widget_destroy (confirm);
-
-	if (ans == GTK_RESPONSE_YES) {
-		int len;
-
-		gtk_list_store_remove (GTK_LIST_STORE (model), &iter);
-
-		len = gtk_tree_model_iter_n_children (model, NULL);
-		if (len > 0) {
-			gtk_tree_selection_select_iter (selection, &iter);
-		} else {
-			gtk_widget_set_sensitive (GTK_WIDGET (prefs->url_edit), FALSE);
-			gtk_widget_set_sensitive (GTK_WIDGET (prefs->url_remove), FALSE);
-			gtk_widget_set_sensitive (GTK_WIDGET (prefs->url_enable), FALSE);
-		}
-		g_free (url);
-		url_list_changed (prefs);
-	}
-}
-
-static void
-url_enable_clicked (GtkWidget *button, CalendarPrefsDialog *prefs)
-{
-	EPublishUri *url = NULL;
-	GtkTreeSelection * selection;
-	GtkTreeModel *model;
-	GtkTreeIter iter;
-
-	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (prefs->url_list));
-	if (gtk_tree_selection_get_selected (selection, &model, &iter)) {
-		gtk_tree_model_get (model, &iter, URL_LIST_FREE_BUSY_URL_COLUMN, &url, -1);
-		url->enabled = !url->enabled;
-		gtk_tree_selection_select_iter (selection, &iter);
-		gtk_list_store_set (GTK_LIST_STORE (model), &iter, URL_LIST_ENABLED_COLUMN, url->enabled, -1);
-		gtk_label_set_text (GTK_LABEL (prefs->url_enable_label),
-				    url->enabled ? _("Disable") : _("Enable"));
-		gtk_image_set_from_stock (GTK_IMAGE (prefs->url_enable_image),
-				          url->enabled ? GTK_STOCK_YES : GTK_STOCK_NO,
-					  GTK_ICON_SIZE_BUTTON);
-		url_list_changed (prefs);
-	}
-}
-
 /* Shows the current Free/Busy settings in the dialog */
 static void
 show_fb_config (CalendarPrefsDialog *prefs)
 {
-	GSList *url_config_list = NULL;
-	GtkListStore *model;
-	GtkTreeIter iter;
 	gchar *template_url;
-
-	model = GTK_LIST_STORE (gtk_tree_view_get_model (GTK_TREE_VIEW (prefs->url_list)));
-	gtk_list_store_clear (model);
-
-	/* restore urls from gconf */
-	url_config_list = calendar_config_get_free_busy();
-
-	if (!url_config_list) {
-		/* list is empty-disable edit, remove, and enable buttons */
-		gtk_widget_set_sensitive (prefs->url_edit, FALSE);
-		gtk_widget_set_sensitive (prefs->url_remove, FALSE);
-		gtk_widget_set_sensitive (prefs->url_enable, FALSE);
-	}	else {
-		gtk_widget_set_sensitive (prefs->url_edit, TRUE);
-		gtk_widget_set_sensitive (prefs->url_remove, TRUE);
-		gtk_widget_set_sensitive (prefs->url_enable, TRUE);
-	}
-
-	while (url_config_list) {
-		gchar *xml = (gchar *)url_config_list->data;
-		EPublishUri *url;
-		url = g_new0 (EPublishUri, 1);
-
-		e_pub_uri_from_xml (url, xml);
-		if (url->location) {
-			gtk_list_store_append (model, &iter);
-			gtk_list_store_set (model, &iter, URL_LIST_ENABLED_COLUMN, url->enabled,
-					   URL_LIST_LOCATION_COLUMN, url->location,
-					   URL_LIST_FREE_BUSY_URL_COLUMN, url, -1);
-		}
-
-		url_config_list = g_slist_next (url_config_list);
-		g_free (xml);
-	}
-
-	g_slist_foreach (url_config_list, (GFunc) g_free, NULL);
-	g_slist_free (url_config_list);
 
 	template_url = calendar_config_get_free_busy_template ();
 	gtk_entry_set_text (GTK_ENTRY (prefs->template_url), template_url);
@@ -717,8 +472,7 @@ static ECalConfigItem eccp_items[] = {
 	{ E_CONFIG_SECTION,       "10.display/00.general",        "displayGeneral",      eccp_widget_glade },
 	{ E_CONFIG_SECTION,       "10.display/10.taskList",       "taskList",            eccp_widget_glade },
 	{ E_CONFIG_PAGE,          "20.freeBusy",                  "freebusy",            eccp_widget_glade },
-	{ E_CONFIG_SECTION,       "20.freeBusy/00.publishing",    "publishing",          eccp_widget_glade },
-	{ E_CONFIG_SECTION,       "20.freeBusy/10.defaultServer", "defaultFBServer",     eccp_widget_glade },
+	{ E_CONFIG_SECTION,       "20.freeBusy/00.defaultServer", "defaultFBServer",     eccp_widget_glade },
 };
 
 static void
@@ -736,9 +490,6 @@ calendar_prefs_dialog_construct (CalendarPrefsDialog *prefs)
 	int i;
 	GtkWidget *toplevel;
 	GSList *l;
-	GtkCellRenderer *renderer = NULL;
-	GtkTreeSelection *selection;
-	GtkListStore *model;
 	const char *working_day_names[] = {
 		"sun_button",
 		"mon_button",
@@ -794,35 +545,7 @@ calendar_prefs_dialog_construct (CalendarPrefsDialog *prefs)
 	prefs->tasks_hide_completed_units = glade_xml_get_widget (gui, "tasks_hide_completed_units");
 
 	/* Free/Busy tab */
-	prefs->url_add = glade_xml_get_widget (gui, "url_add");
-	prefs->url_edit = glade_xml_get_widget (gui, "url_edit");
-	prefs->url_remove = glade_xml_get_widget (gui, "url_remove");
-	prefs->url_enable = glade_xml_get_widget (gui, "url_enable");
-	prefs->url_enable_label = glade_xml_get_widget (gui, "url_enable_label");
-	prefs->url_enable_image = glade_xml_get_widget (gui, "url_enable_image");
-	prefs->url_list = glade_xml_get_widget (gui, "url_list");
 	prefs->template_url = glade_xml_get_widget (gui, "template_url");
-	g_signal_connect (G_OBJECT (prefs->url_add), "clicked", G_CALLBACK (url_add_clicked), prefs);
-	g_signal_connect (G_OBJECT (prefs->url_edit), "clicked", G_CALLBACK (url_edit_clicked), prefs);
-	g_signal_connect (G_OBJECT (prefs->url_remove), "clicked", G_CALLBACK (url_remove_clicked), prefs);
-	g_signal_connect (G_OBJECT (prefs->url_enable), "clicked", G_CALLBACK (url_enable_clicked), prefs);
-	renderer = gtk_cell_renderer_toggle_new ();
-	g_object_set (G_OBJECT (renderer), "activatable", TRUE, NULL);
-	model = gtk_list_store_new (URL_LIST_N_COLUMNS, G_TYPE_BOOLEAN, G_TYPE_STRING, G_TYPE_POINTER);
-	gtk_tree_view_set_model (GTK_TREE_VIEW (prefs->url_list), GTK_TREE_MODEL (model));
-	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (prefs->url_list),
-			                             -1, _("Enabled"), renderer, "active",
-			                             URL_LIST_ENABLED_COLUMN, NULL);
-	g_signal_connect (renderer, "toggled", G_CALLBACK (url_list_enable_toggled), prefs);
-	renderer = gtk_cell_renderer_text_new ();
-	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (prefs->url_list),
-			                             -1, _("Location"), renderer, "text",
-			                             URL_LIST_LOCATION_COLUMN, NULL);
-	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (prefs->url_list));
-	gtk_tree_selection_set_mode (selection, GTK_SELECTION_SINGLE);
-	gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (prefs->url_list), TRUE);
-	g_signal_connect (prefs->url_list, "row-activated", G_CALLBACK (url_list_double_click), prefs);
-
 	target = e_cal_config_target_new_prefs (ec, prefs->gconf);
 	e_config_set_target ((EConfig *)ec, (EConfigTarget *) target);
 	toplevel = e_config_create_widget ((EConfig *)ec);
