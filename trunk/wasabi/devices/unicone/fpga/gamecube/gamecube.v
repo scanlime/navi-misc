@@ -38,11 +38,15 @@ module gamecube (clk, reset,
 		int_scl, int_sda_in, int_sda_out == 2'b11);
 
 	/* Add an I2C-addressable LED brightness control */
-	pwm16_i2c #(7'h21) led_core(
+/*
+	pwm_i2c #(7'h21) led_core(
 		clk, reset,
 		int_scl, int_sda_in, int_sda_out[0],
 		led);
-
+*/
+	assign led = 1;
+	assign int_sda_out[0] = 1;
+		
 	/* Four I2C-addressable Gamecube controller emulators */
 	gc_i2c #(7'h40) gc_core(
 		clk, reset,
@@ -68,7 +72,7 @@ module gc_i2c (clk, reset,
 
 	/* Our I2C core, a dual-port SRAM */
 	wire [4:0] ram_addr;
-	wire [4:0] ram_data;
+	wire [7:0] ram_data;
 	i2c_slave_32byte_sram i2c_ram(clk, reset, scl, sda_in, sda_out,
 	                              ram_addr, ram_data);
 
@@ -100,19 +104,26 @@ module gc_i2c (clk, reset,
 	n_serial_io_buffer iobuffer3(clk, reset, gc_ports[2], tx[2], rx[2]);
 	n_serial_io_buffer iobuffer4(clk, reset, gc_ports[3], tx[3], rx[3]);
 
+	/* A shared tranmsitter timebase for all controller ports */
+	wire tx_tick;
+	wire tx_tick_sync_reset = 0;
+	wire tx_tick_sync_center = 0;
+	n_serial_timebase #(4) tx_timebase(
+		clk, reset, tx_tick, tick_sync_reset, tick_sync_center);
+
 	/* The controller simulator core, one for each port. It makes
 	 * requests for each byte of controller state it needs, as it's
 	 * inefficient to pass the whole 64-bit monstrosity around.
 	 * Each core also gives us a rumble bit.
 	 */
 	wire [3:0] rumble;
-	gc_controller port1(clk, reset, tx[0], rx[0], rumble[0],
+	gc_controller port1(clk, reset, tx_tick, tx[0], rx[0], rumble[0],
 	                    port1_addr, port1_request, ram_data, port1_ack);
-	gc_controller port2(clk, reset, tx[1], rx[1], rumble[1],
+	gc_controller port2(clk, reset, tx_tick, tx[1], rx[1], rumble[1],
 	                    port2_addr, port2_request, ram_data, port2_ack);
-	gc_controller port3(clk, reset, tx[2], rx[2], rumble[2],
+	gc_controller port3(clk, reset, tx_tick, tx[2], rx[2], rumble[2],
 	                    port3_addr, port3_request, ram_data, port3_ack);
-	gc_controller port4(clk, reset, tx[3], rx[3], rumble[3],
+	gc_controller port4(clk, reset, tx_tick, tx[3], rx[3], rumble[3],
 	                    port4_addr, port4_request, ram_data, port4_ack);
 endmodule
 
@@ -164,7 +175,7 @@ endmodule
  * includes double-buffering.
  *
  */
-module gc_controller (clk, reset, tx, rx, rumble,
+module gc_controller (clk, reset, tx_tick, tx, rx, rumble,
                       state_addr, state_request, state_data, state_ack);
 	/*
 	 * Controller IDs are expained in the gamecube-linux
@@ -176,7 +187,7 @@ module gc_controller (clk, reset, tx, rx, rumble,
 	 */
 	parameter CONTROLLER_ID = 24'h090000;
 
-	input clk, reset;
+	input clk, reset, tx_tick;
 	input rx;
 	output tx;
 	output rumble;
@@ -202,7 +213,7 @@ module gc_controller (clk, reset, tx, rx, rumble,
 	wire tx_busy;
 	reg tx_stopbit, tx_strobe;
 	reg [7:0] tx_data;
-	n_serial_tx tx_core(clk, reset, tx_busy, tx_stopbit,
+	n_serial_tx tx_core(clk, reset, tx_tick, tx_busy, tx_stopbit,
 	                    tx_data, tx_strobe, tx);
 
 	// state_ack is edge triggered
