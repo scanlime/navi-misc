@@ -93,22 +93,21 @@ class RulesetListSection(Template.Section):
             ], id='ruleset')]
 
 
-def singleRulesetPageFactory(caps, storage, uri):
+def singleRulesetPageFactory(storage, uri):
     """Create and return a SingleRulesetPage instance appropriate
        for the given parameters.
        """
     if uri in storage.rulesetMap:
-        return SingleRulesetEditor(caps, storage, uri)
+        return SingleRulesetEditor(storage, uri)
     else:
-        return Ruleset404(caps, storage, uri)
+        return Ruleset404(storage, uri)
 
 
 class SingleRulesetPage(Template.Page):
     """A viewer/editor for one ruleset. This is a base class for all
        pages that refer to a single ruleset.
        """
-    def __init__(self, caps, storage, uri):
-        self.caps = caps
+    def __init__(self, storage, uri):
         self.storage = storage
         self.uri = uri
 
@@ -120,7 +119,7 @@ class SingleRulesetPage(Template.Page):
             newUri = self.uri + '://' + name
         else:
             newUri = self.uri + '/' + name
-        return singleRulesetPageFactory(self.caps, self.storage, newUri)
+        return singleRulesetPageFactory(self.storage, newUri)
 
     def render_mainTitle(self, context):
         return self.uri
@@ -200,8 +199,7 @@ class RulesetList(Template.Page):
        have SingleRulesetPage instances as children. This
        lets URLs like /rulesets/irc/irc.freenode.net/commits work.
        """
-    def __init__(self, caps, storage):
-        self.caps = caps
+    def __init__(self, storage):
         self.storage = storage
 
     def findRootPath(self, request):
@@ -219,7 +217,7 @@ class RulesetList(Template.Page):
         context['rulesetsRootPath'] = self.findRootPath(context['request'])
 
     def getChildWithDefault(self, name, request):
-        return singleRulesetPageFactory(self.caps, self.storage, name)
+        return singleRulesetPageFactory(self.storage, name)
 
     def render_mainColumn(self, context):
         return [

@@ -22,47 +22,36 @@ CIA is running.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from twisted.web import xmlrpc
 from twisted.python import rebuild, log
+import RPC
 import gc
 import sys, traceback
 
 
-class DebugInterface(xmlrpc.XMLRPC):
+class DebugInterface(RPC.Interface):
     """An XML-RPC interface for remote debugging and dynamic reloading of CIA."""
-    def __init__(self, caps):
-        xmlrpc.XMLRPC.__init__(self)
-        self.caps = caps
-        self.putSubHandler('gc', GcInterface(caps))
+    def __init__(self):
+        RPC.Interface.__init__(self)
+        self.putSubHandler('gc', GcInterface())
 
-    def xmlrpc_rebuild(self, packageName, key):
+    def protected_rebuild(self, packageName):
         """Use twisted.python.rebuild to reload the given package or module
            and all loaded packages or modules within it.
            """
-        self.caps.faultIfMissing(key, 'universe', 'debug', 'debug.rebuild')
-        try:
-            log.msg("Starting a rebuild at the package %r" % packageName)
-            # The non-empty fromlist tells __import__ we want the module referred
-            # to by the given path, not just its top-level module.
-            package = __import__(packageName, globals(), locals(), [''])
-            rebuildPackage(package)
-            return True
-        except:
-            catchFault()
+        log.msg("Starting a rebuild at the package %r" % packageName)
+        # The non-empty fromlist tells __import__ we want the module referred
+        # to by the given path, not just its top-level module.
+        package = __import__(packageName, globals(), locals(), [''])
+        rebuildPackage(package)
 
-    def xmlrpc_eval(self, code, key):
+    def protected_eval(self, code):
         """Evaluate arbitrary code in the context of this module.
-           Requires the universe key, since it would be trivial to use this
-           to access CapabilityDB or SecurityInterface directly and ask for
-           the universe key.
            Returns the repr() of the result.
+           NOTE: This is an extremely powerful function, so a 'debug' or 'debug.eval'
+                 key should be treated with equivalent respect to a 'universe' key.
            """
-        self.caps.faultIfMissing(key, 'universe')
-        try:
-            log.msg("Executing code in debug.eval: %r" % code)
-            return repr(eval(code))
-        except:
-            catchFault()
+        log.msg("Executing code in debug.eval: %r" % code)
+        return repr(eval(code))
 
 
 def typeInstances(t):
@@ -127,45 +116,35 @@ def getTypeName(obj):
     return t
 
 
-class GcInterface(xmlrpc.XMLRPC):
+class GcInterface(RPC.Interface):
     """Memory debugging and profiling via python's garbage collector interface"""
-    def __init__(self, caps):
-        xmlrpc.XMLRPC.__init__(self)
-        self.caps = caps
-
-    def xmlrpc_garbageInfo(self, key):
+    def protected_garbageInfo(self):
         """Return a string representation of the items in gc.garbage"""
-        self.caps.faultIfMissing(key, 'universe', 'debug', 'debug.gc', 'debug.gc.garbageInfo')
         return map(repr, gc.garbage)
 
-    def xmlrpc_objectsInfo(self, key):
+    def protected_objectsInfo(self):
         """Return a string representation of the items in gc.get_objects().
            This can take a while and be very big!
            """
-        self.caps.faultIfMissing(key, 'universe', 'debug', 'debug.gc', 'debug.gc.objectsInfo')
         return map(repr, gc.get_objects())
 
-    def xmlrpc_typeInstances(self, t, key):
+    def protected_typeInstances(self, t):
         """Return all objects of any one type, using the same type names as typeProfile"""
-        self.caps.faultIfMissing(key, 'universe', 'debug', 'debug.gc', 'debug.gc.typeInstances')
         return typeInstances(t)
 
-    def xmlrpc_collect(self, key):
+    def protected_collect(self):
         """Force the garbage collector to run"""
-        self.caps.faultIfMissing(key, 'universe', 'debug', 'debug.gc', 'debug.gc.collect')
         log.msg("Forcing garbage collection")
         gc.collect()
-        return True
 
-    def xmlrpc_typeProfile(self, key):
-        """Print a chart showing the most frequently occurring types in memory"""
-        self.caps.faultIfMissing(key, 'universe', 'debug', 'debug.gc', 'debug.gc.typeProfile')
-
+    def protected_typeProfile(self):
+        """Return a chart showing the most frequently occurring types in memory"""
         # Create a mapping from type name to frequency,
         # and a mapping from type name to example instances
+        objects = gc.get_objects()
         typeFreq = {}
         typeInstances = {}
-        for object in gc.get_objects():
+        for object in objects:
             t = getTypeName(object)
             # Increment the frequency
             typeFreq[t] = typeFreq.setdefault(t, 0) + 1
