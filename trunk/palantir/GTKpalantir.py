@@ -10,7 +10,7 @@ for the IRC stuff.
 from twisted.internet import gtk2reactor
 gtk2reactor.install()
 
-import string, re, gtk, gtk.glade, palantirIRC
+import string, re, gtk, gtk.glade, gobject, palantirIRC
 from time import localtime
 from dieRoller import DieRoller
 from CharacterSheet.Character import Character
@@ -30,6 +30,9 @@ class PalantirWindow:
       if func.startswith('on_'):
         self.tree.signal_connect(func, getattr(self, func))
 
+    list = self.tree.get_widget('UserList')
+    list.set_model(model=gtk.ListStore(gobject.TYPE_STRING))
+    list.append_column(gtk.TreeViewColumn())
     # Client factory.
     self.factory = palantirIRC.PalantirClientFactory('nuku-nuku', ui=self)
 
@@ -265,8 +268,10 @@ class PalantirWindow:
 
   def AddUserToList(self, nick, channel):
     ''' Add nick the userlist. '''
-    buffer = self.tree.get_widget('UserList').get_buffer()
-    buffer.insert(buffer.get_end_iter(), nick + '\n')
+    list = self.tree.get_widget('UserList')
+    store = list.get_model()
+    store.set_value(store.append([gobject.TYPE_STRING]), 1, nick)
+
 
   def PrintText(self, text):
     ''' Print the text in the chat buffer. '''
