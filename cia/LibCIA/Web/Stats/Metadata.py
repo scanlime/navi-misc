@@ -24,7 +24,7 @@ Viewers and editors for the metadata associated with each stats target
 from twisted.internet import defer
 from twisted.web import resource, server, error
 from twisted.protocols import http
-from LibCIA.Web import Template
+from LibCIA.Web import Template, Keyring
 from LibCIA import Units, Stats
 from Nouvelle import tag, subcontext
 import Nouvelle
@@ -301,6 +301,7 @@ class MetadataPage(Template.Page):
         return tabs
 
     leftColumn = [
+        Keyring.SecuritySection(),
         Template.StaticSection('information', [
         "This page lists all the metadata associated with a particular stats target.",
         "A stats target is anything that can keep track of a particular category of "

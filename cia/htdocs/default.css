@@ -389,6 +389,11 @@ p.messageBody {
   padding: 0.25em 0em;
 }
 
+form {
+  margin: 0em;
+  padding: 0em;
+}
+
 /* quickSub Style Sheet */
 /* www.methodize.org/quicksub/ */
 
