@@ -8,6 +8,7 @@ INCLUDES = $(COMMON_CFLAGS) \
 		   $(GTK_CFLAGS) \
 		   $(GUI_CFLAGS) \
 		   -I$(srcdir)/.. \
+		   -I$(srcdir)/fe-gnome \
 		   -DEGG_COMPILATION \
 		   -DGTK_DISABLE_DEPRECATED \
 		   -DGDK_DISABLE_DEPRECATED \
