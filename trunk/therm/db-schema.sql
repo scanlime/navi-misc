@@ -53,12 +53,13 @@ CREATE TABLE IF NOT EXISTS packets
     id            BIGINT PRIMARY KEY AUTO_INCREMENT,
     time          DOUBLE NOT NULL,
     source        INTEGER NOT NULL,
-    
+
     num_copies      INTEGER NOT NULL DEFAULT 1,
     sequence        INTEGER,
     signal_strength FLOAT,
 
     FOREIGN KEY (source) REFERENCES sources(id) ON DELETE CASCADE,
+    INDEX (source),
     INDEX (time)
 ) TYPE=INNODB;
 
