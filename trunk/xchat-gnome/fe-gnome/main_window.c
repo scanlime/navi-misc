@@ -100,7 +100,9 @@ void initialize_main_window() {
 	g_signal_connect(G_OBJECT(entry), "key-release-event", G_CALLBACK(on_text_entry_activate), NULL);
 
 #ifdef HAVE_GTKSPELL
+#if 0
 	gtkspell_new_attach(GTK_TEXT_VIEW(entry), NULL, NULL);
+#endif
 #endif
 }
 
