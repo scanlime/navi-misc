@@ -37,6 +37,7 @@ public class submit implements ActionListener
 	{
 		String name, ques, answ;
 		StringTokenizer a;
+		if(head.answer.getText().compareTo("") == 0) return;
 		net.write("submit");
 		answ = head.answer.getText();
 		a = new StringTokenizer(answ,"\n",false);
