@@ -29,7 +29,8 @@ class PalantirClient(irc.IRCClient):
   def signedOn(self):
     ''' Join the channels in factory.channels upon connecting. '''
     for channel in self.factory.channels:
-      self.join(channel)
+      if len(channel) > 0:
+        self.join(channel)
 
   def joined(self, channel):
     ''' When we join a channel get a list of who is in the channel. '''

@@ -75,16 +75,6 @@ class PalantirWindow:
     # Create an object to handle die rolls.
     self.dieRoller = DieRoller(self)
 
-  def GetFormattedTime(self):
-    ''' Uses GetTime to retrieve the current time, but formats it in an xchat way. '''
-    hour, min, sec = self.GetTime()
-    time = '[' + hour + ':' + min + ':' + sec + '] '
-    return time
-
-  def GetNick(self, user):
-    ''' Separates out the nick from the long string returned by IRC. '''
-    return re.search('([^!]*).*', user).group(1)
-
   ### Must be implemented for palantirIRC to work.  These methods are called by the
   ### the client when it receives certain events and needs to display them in the UI.
   def messageReceive(self, user, channel, msg):
@@ -401,7 +391,7 @@ class PalantirWindow:
     ''' Connect to the server and channel, if one is specified. '''
     # Make sure we aren't still connected to anything.
     if hasattr(self.factory, 'client') and self.factory.client:
-      self.factory.quit()
+      self.Disconnect()
 
     # Set the channel name to join.
     if channel:
@@ -415,8 +405,9 @@ class PalantirWindow:
       dialog.destroy()
 
     # Start the reactor.
-    reactor.connectTCP(server, 6667, self.factory)
-    reactor.run()
+    if not hasattr(self.factory, 'client'):
+      reactor.connectTCP(server, 6667, self.factory)
+      reactor.run()
 
   def OpenSheet(self, widget, data=None):
     ''' Open up a character sheet in the client. '''
@@ -491,3 +482,19 @@ class PalantirWindow:
       return gtk.TRUE
     else:
       return gtk.FALSE
+
+  def Disconnect(self):
+    ''' Disconnect from the current server. '''
+    self.factory.quit()
+    self.tree.get_widget('UserList').get_model().clear()
+
+  ### Formatting stuff. ###
+  def GetFormattedTime(self):
+    ''' Uses GetTime to retrieve the current time, but formats it in an xchat way. '''
+    hour, min, sec = self.GetTime()
+    time = '[' + hour + ':' + min + ':' + sec + '] '
+    return time
+
+  def GetNick(self, user):
+    ''' Separates out the nick from the long string returned by IRC. '''
+    return re.search('([^!]*).*', user).group(1)
