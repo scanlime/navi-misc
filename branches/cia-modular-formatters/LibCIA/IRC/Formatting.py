@@ -79,6 +79,45 @@ def format(text, *codeNames):
         return text
 
 
+class ColorStack:
+    """This is An important building block for converting tree-structured documents
+       with color into IRC-formatted text. The document is represented as a list of
+       FormattingCodes and/or strings. This document can be wrapped in additional
+       formatting layers, using our stack to restore codes properly after a 'normal'
+       code is issued.
+
+       Normal usage is to push() a list of formatting codes, evaluate all children
+       of that formatting level, then wrap() the result of that evaluation.
+       """
+    def __init__(self):
+        self.empty()
+
+    def empty(self):
+        self.codes = []
+
+    def push(self, *codeNames):
+        self.codes.append([FormattingCode(name) for name in codeNames])
+
+    def wrap(self, children):
+        parent = self.codes.pop()
+        parent.extend(children)
+
+        # An important optimization- since we're about to insert new codes
+        # for everything in codeStack, remove codes from our 'parent' list until
+        # we hit actual text. This prevents sequences from appearing in the output
+        # where several codes are applied then immediately erased by a 'normal' code.
+        # This also handles optimizing out formatting codes with no children.
+        while parent and isinstance(parent[-1], FormattingCode):
+            del parent[-1]
+
+        # Now stick on a 'normal' code and the contents of our stack,
+        # to revert the codes we were given.
+        parent.append(FormattingCode('normal'))
+        for level in self.codes:
+            parent.extend(level)
+        return parent
+
+
 class ColortextFormatter(XML.XMLObjectParser):
     r"""Given a DOM tree with <colorText>-formatted text
         generate an equivalent message formatted for IRC.
@@ -101,49 +140,35 @@ class ColortextFormatter(XML.XMLObjectParser):
     def element_colorText(self, node):
         # The root element converts our list of formatting codes to a flat string
         codes = []
-        for childCodes in self.childParser(node, ()):
+        self.colorStack = ColorStack()
+        for childCodes in self.childParser(node):
             codes.extend(childCodes)
-        return "".join([str(code) for code in codes])
+        return "".join(map(str, codes))
 
-    def codeWrap(self, node, codeStack, *codeNames):
+    def codeWrap(self, node, *codeNames):
         """Wrap the children of the given xml element with the given formatting codes.
-           This prepends the code list and appends a 'normal' tag, using codeStack
+           This prepends the code list and appends a 'normal' tag, using colorStack
            to restore any codes we don't want to disable with the 'normal' tag.
            """
-        # Apply all the codes we're given
-        codes = [FormattingCode(name) for name in codeNames]
+        self.colorStack.push(*codeNames)
+        children = []
+        for child in self.childParser(node):
+            children.extend(child)
+        return self.colorStack.wrap(children)
 
-        # Insert the children here
-        for childCodes in self.childParser(node, codeStack + tuple(codes)):
-            codes.extend(childCodes)
-
-        # An important optimization- since we're about to insert new codes
-        # for everything in codeStack, remove codes from our 'codes' list until
-        # we hit actual text. This prevents sequences from appearing in the output
-        # where several codes are applied then immediately erased by a 'normal' code.
-        # This also handles optimizing out formatting codes with no children.
-        while codes and isinstance(codes[-1], FormattingCode):
-            del codes[-1]
-
-        # Now stick on a 'normal' code and the contents of our codeStack
-        # to revert the codes we were given.
-        codes.append(FormattingCode('normal'))
-        codes.extend(codeStack)
-        return codes
-
-    def element_b(self, xml, codeStack):
+    def element_b(self, xml):
         """Just wrap our contents in a bold tag"""
-        return self.codeWrap(xml, codeStack, 'bold')
+        return self.codeWrap(xml, 'bold')
 
-    def element_u(self, xml, codeStack):
+    def element_u(self, xml):
         """Just wrap our contents in an underline tag"""
-        return self.codeWrap(xml, codeStack, 'underline')
+        return self.codeWrap(xml, 'underline')
 
-    def element_br(self, xml, codeStack):
+    def element_br(self, xml):
         """Insert a literal newline"""
         return ["\n"]
 
-    def element_color(self, xml, codeStack):
+    def element_color(self, xml):
         """Generates formatting codes appropriate to represent a foreground and/or background color"""
         codes = []
         bg = xml.getAttributeNS(None, 'bg')
@@ -161,9 +186,9 @@ class ColortextFormatter(XML.XMLObjectParser):
             else:
                 raise XML.XMLValidityError("%r is not a color" % fg)
 
-        return self.codeWrap(xml, codeStack, *codes)
+        return self.codeWrap(xml, *codes)
 
-    def parseString(self, text, codeStack):
+    def parseString(self, text):
         return [text]
 
 ### The End ###

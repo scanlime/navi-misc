@@ -39,9 +39,14 @@ class CommitFormatter(Message.ModularFormatter):
        extracting useful information from the commits.
        """
     filter = '<find path="/message/body/commit"/>'
-    defaultComponentTree = """<format>
-    <author/> <branch/> * <version/> <autoHide>r<revision/></autoHide> <module/>/<files/>: <log/>
-    </format>"""
+    defaultComponentTree = """
+    <format>
+        <author/> <branch/> *
+        <version/><autoHide>r<revision/></autoHide>
+        <module/>/<files/>:
+        <log/>
+    </format>
+    """
 
     # Subclasses can set this to limit the length of log messages, in lines
     lineLimit = None
@@ -188,7 +193,9 @@ class CommitFormatter(Message.ModularFormatter):
 
 
 class CommitToIRC(CommitFormatter):
-    """Converts commit messages to plain text with IRC color tags"""
+    """Converts commit messages to plain text with IRC color tags.
+       This adds colorText elements to the component vocabulary defined by CommitFormatter.
+       """
     medium = 'irc'
     lineLimit = 6
     widthLimit = 220
