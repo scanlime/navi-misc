@@ -4,6 +4,7 @@
 	* Used the new icon in Win32 and on individual Fyre windows
 	* Added an index to AVI files created with the animation renderer,
 	  allowing them to be played in Windows Media Player
+	* Added cluster autodetection using UDP broadcast packets
 	* Added file associations for image/png and
 	  application/x-fyre-animation on linux
 	* Minor bugfixes and UI polishing
