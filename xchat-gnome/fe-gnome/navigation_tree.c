@@ -157,15 +157,43 @@ navigation_tree_new (NavModel *model)
 void
 navigation_tree_create_new_network_entry (NavTree *navtree, struct session *sess)
 {
+  GtkTreeIter *iter;
+
 	navigation_model_add_new_network(navtree->model, sess);
+
+  /* Because we added a network it is likely that the path to the current session has changed
+   * so we update it.
+   */
+  iter = navigation_model_get_sorted_iter(navtree->model, gui.current_session);
+  if (iter) {
+    navtree->current_path = gtk_tree_model_get_path(GTK_TREE_MODEL(navtree->model->sorted),iter);
+    gtk_tree_iter_free(iter);
+  }
+
 	navigation_tree_select_session(navtree, sess);
 }
 
 void
 navigation_tree_create_new_channel_entry (NavTree *navtree, struct session *sess)
 {
+  GtkTreeIter *iter;
+
 	navigation_model_add_new_channel(navtree->model, sess);
+
+  /* Because we're adding a new channel it's possible that the path to the current
+   * session has changed, so we'll update it.
+   * XXX: We could probably add some kind of test to only update current_path
+   *      if it's truly necessary (e.g. the new channel is on the same network as
+   *      the old one), but do we need to bother?
+   */
+  iter = navigation_model_get_sorted_iter(navtree->model, gui.current_session);
+  if (iter) {
+    navtree->current_path = gtk_tree_model_get_path(GTK_TREE_MODEL(navtree->model->sorted), iter);
+    gtk_tree_iter_free(iter);
+  }
+
 	navigation_tree_select_session(navtree, sess);
+
 }
 
 void
@@ -181,6 +209,9 @@ navigation_tree_remove (NavTree *navtree, struct session *sess)
 		}
 	}
 
+  /* Change the selection before we remove the session so that things can be
+   * ref'ed and unref'ed properly without too much silliness.
+   */
 	gtk_tree_selection_select_path(select, path);
 	navigation_model_remove (navtree->model, sess);
 
@@ -288,9 +319,8 @@ navigation_tree_select_next_channel (NavTree *navtree)
 
 	/* Get a path to the iter. */
 	path = gtk_tree_model_get_path(model, &iter);
-	/* Unref the current selection. */
-	navigation_model_sorted_iter_unref(navtree->model, &iter);
-	/* Get the iter from our path because it became invalid. */
+	
+  /* Get the iter from our path because it became invalid. */
 	gtk_tree_model_get_iter(model, &iter, path);
 
 	/* If we're on a server... */
@@ -331,7 +361,6 @@ navigation_tree_select_prev_channel (NavTree *navtree)
 	/* Try to get the currently selected item. */
   if (gtk_tree_selection_get_selected(selection, &model, &iter)) {
     path = gtk_tree_model_get_path(model, &iter);
-		navigation_model_path_deref(navtree->model, path);
 	}
 	/* If nothing is selected... */
   else {
@@ -339,7 +368,6 @@ navigation_tree_select_prev_channel (NavTree *navtree)
 		/* If we have a current path stored set path to that. */
 		if (navtree->current_path) {
 		  path = gtk_tree_path_copy(navtree->current_path);
-			navigation_model_path_deref(navtree->model, path);
 		}
 		/* Otherwise make path point to the root of the tree. */
     else
@@ -421,10 +449,6 @@ navigation_tree_select_next_network (NavTree *navtree)
 		path = gtk_tree_model_get_path(model, &iter);
 	}
 
-	/* Unref the current path. */
-	navigation_model_path_deref(navtree->model, path);
-	gtk_tree_model_get_iter(model, &iter, path);
-
 	/* If our path is at a depth greater than one it's not a server, make it one. */
 	if (gtk_tree_path_get_depth(path) > 1) {
 		GtkTreeIter parent;
@@ -460,7 +484,6 @@ navigation_tree_select_prev_network (NavTree *navtree)
 		/* If there's a current_path set path to that. */
 		if (navtree->current_path) {
 			path = gtk_tree_path_copy(navtree->current_path);
-			navigation_model_path_deref(navtree->model, path);
 		}
 		/* Otherwise set path to the root. */
 		else
@@ -469,7 +492,6 @@ navigation_tree_select_prev_network (NavTree *navtree)
 	/* If there is a selection set path to that point. */
 	else {
 		path = gtk_tree_model_get_path(model, &iter);
-		navigation_model_path_deref(navtree->model, path);
 	}
 
 	/* If the path isn't a server move it up one. */
@@ -703,11 +725,6 @@ click(GtkWidget *treeview, GdkEventButton *event, gpointer data)
 		return FALSE;
 
 	select = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
-
-	if (gtk_tree_selection_get_selected(select, NULL, &iter))
-		navigation_model_sorted_iter_unref(gui.tree_model, &iter);
-	else if (gui.server_tree->current_path)
-		navigation_model_path_deref(gui.tree_model, gui.server_tree->current_path);
 
 	if(event->button == 3) {
 		if(gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(treeview), event->x, event->y, &path, 0, 0, 0)) {
@@ -997,16 +1014,21 @@ navigation_model_remove (NavModel *model, struct session *sess)
 GtkTreeIter*
 navigation_model_get_sorted_iter (NavModel *model, struct session *sess)
 {
-  GtkTreeIter *iter = g_new(GtkTreeIter, 1);
+  GtkTreeIter *iter = NULL;
   GtkTreePath *path, *sorted;
+  GtkTreeRowReference *row;
 
-  path = gtk_tree_row_reference_get_path((GtkTreeRowReference*)g_hash_table_lookup(model->session_rows, (gpointer)sess));
-  sorted = gtk_tree_model_sort_convert_child_path_to_path(GTK_TREE_MODEL_SORT(model->sorted), path);
+  row = (GtkTreeRowReference*)g_hash_table_lookup(model->session_rows, (gpointer)sess);
+  if (row) {
+    iter = g_new(GtkTreeIter, 1);
+    path = gtk_tree_row_reference_get_path(row);
+    sorted = gtk_tree_model_sort_convert_child_path_to_path(GTK_TREE_MODEL_SORT(model->sorted), path);
 
-  gtk_tree_model_get_iter(model->sorted, iter, sorted);
+    gtk_tree_model_get_iter(model->sorted, iter, sorted);
 
-  gtk_tree_path_free(sorted);
-  gtk_tree_path_free(path);
+    gtk_tree_path_free(sorted);
+    gtk_tree_path_free(path);
+  }
 
 	return iter;
 }
@@ -1087,6 +1109,7 @@ navigation_model_path_ref (NavModel *model, GtkTreePath *path)
 	gtk_tree_model_get_iter(GTK_TREE_MODEL(model->store), &iter, unsorted);
 	gtk_tree_model_get(GTK_TREE_MODEL(model->store), &iter, 5, &ref_count, -1);
 	gtk_tree_store_set(model->store, &iter, 5, ref_count+1, -1);
+
 	gtk_tree_path_free(unsorted);
 }
 
@@ -1097,12 +1120,13 @@ navigation_model_path_deref (NavModel *model, GtkTreePath *path)
 	GtkTreeIter iter;
 	GtkTreePath *unsorted = gtk_tree_model_sort_convert_path_to_child_path(GTK_TREE_MODEL_SORT(model->sorted),path);
 
-	gtk_tree_model_get_iter(GTK_TREE_MODEL(model->store), &iter, unsorted);
-	gtk_tree_model_get(GTK_TREE_MODEL(model->store), &iter, 5, &ref_count, -1);
+  gtk_tree_model_get_iter(GTK_TREE_MODEL(model->store), &iter, unsorted);
+  gtk_tree_model_get(GTK_TREE_MODEL(model->store), &iter, 5, &ref_count, -1);
 
-	if (ref_count > 0)
-		gtk_tree_store_set(model->store, &iter, 5, ref_count-1, -1);
-	gtk_tree_path_free(unsorted);
+  if (ref_count > 0)
+	  gtk_tree_store_set(model->store, &iter, 5, ref_count-1, -1);
+
+  gtk_tree_path_free(unsorted);
 }
 
 void
