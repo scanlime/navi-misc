@@ -10,30 +10,41 @@ view = ThreeDRender.View(viewport)
 control = ThreeDControl.Viewing(view, viewport)
 
 
-class Monkey(Sequencer.Page):
-    def __init__(self, book):
+class SpinningModel(Sequencer.Page):
+    """A generic sequencer page that shows a spinning VRML model"""
+    def __init__(self, book, modelName,
+                 cameraDistance  = 70,
+                 cameraAzimuth   = 270,
+                 cameraElevation = 0,
+                 azimuthSpeed    = 80,
+                 elevationSpeed  = 0
+                 ):
         Sequencer.Page.__init__(self, book)
+        self.azimuthSpeed = azimuthSpeed
+        self.elevationSpeed = elevationSpeed
 
-        self.meshes = Drawable.VRML.load("monkey.wrl").values()
+        self.meshes = Drawable.VRML.load(modelName).values()
         self.view.scene.add(self.meshes)
 
         self.view.camera.position = (0,0,0)
-        self.view.camera.distance = 73
-        self.view.camera.azimuth = 210
-        self.view.camera.elevation = -2
+        self.view.camera.distance = cameraDistance
+        self.view.camera.azimuth = cameraAzimuth
+        self.view.camera.elevation = cameraElevation
         self.view.camera.jump()
 
         self.viewport.onSetupFrame.observe(self.setupFrame)
 
     def setupFrame(self):
         dt = self.time.step()
-        self.view.camera.azimuth += dt * 80
+        self.view.camera.azimuth += dt * self.azimuthSpeed
+        self.view.camera.elevation += dt * self.elevationSpeed
 
     def finalize(self):
         self.view.scene.remove(self.meshes)
 
 
 class Sparks(Sequencer.Page):
+    """A page showing two particle systems generating sparks and smoke"""
     def __init__(self, book):
         Sequencer.Page.__init__(self, book)
 
@@ -84,7 +95,9 @@ class TextureTest(Sequencer.Page):
 
 
 class Warp(Sequencer.Page):
-    """A warp-like particle system"""
+    """A warp-like particle system, performing integration steps during
+       initialization to start in the middle of the animation.
+       """
     def __init__(self, book):
         Sequencer.Page.__init__(self, book)
 
@@ -106,31 +119,41 @@ class Warp(Sequencer.Page):
         self.view.scene.remove(self.particle)
 
 
-# Define some transitions
+# Define some common transitions
 fromWhiteFast = lambda page: Sequencer.FadeIn(0.1, (1,1,1), page)
 toWhiteFast   = lambda page: Sequencer.FadeOut(0.1, (1,1,1), page)
 whiteFast     = lambda page: fromWhiteFast(toWhiteFast(page))
+toBlackSlow   = lambda page: Sequencer.FadeOut(2, (0,0,0), page)
+fromBlackSlow = lambda page: Sequencer.FadeIn(2, (0,0,0), page)
+blackSlow     = lambda page: fromBlackSlow(toBlackSlow(page))
+
+# Specific versions of the general SpinningModel page
+SpinningMonkey = lambda page: SpinningModel(page, 'monkey.wrl')
+SpinningBox    = lambda page: SpinningModel(page, 'metal_box.wrl',
+                                            cameraDistance  = 6,
+                                            cameraAzimuth   = 20,
+                                            cameraElevation = 40,
+                                            azimuthSpeed    = 20,
+                                            elevationSpeed  = -10)
 
 # A looping SubBook, cycling between TextureTest, Warp, and MetalBox
 zoomSparkCycle = Sequencer.SubBook(Sequencer.CyclicBook, [
     whiteFast(TextureTest),
     whiteFast(Sequencer.PageTimer(2, Warp)),
+    whiteFast(Sequencer.PageTimer(2, SpinningBox)),
     ])
 
-# Load a sequence of the above pages into a book. CyclicBook resets itself after its
-# onFinish event, efectively looping our animation.
+# Our main book, running only once
 mainBook = Sequencer.Book(view, [
 
-    # Execute the zoomSparkCycle book until user input
-    Sequencer.UserPageInterrupter(zoomSparkCycle),
+    # Execute the zoomSparkCycle book until user input, then fade to black slowly
+    toBlackSlow(Sequencer.UserPageInterrupter(zoomSparkCycle)),
 
-    # Show some perty particle systems for 5 seconds, using the PageTimer
-    # Fade in and out from white quickly
-    Sequencer.FadeOut(0.1, (1,1,1), Sequencer.FadeIn(0.1, (1,1,1), Sequencer.PageTimer(5, Sparks))),
+    # Show some perty particle systems for 4 seconds, using the PageTimer
+    fromBlackSlow(toWhiteFast(Sequencer.PageTimer(4, Sparks))),
 
     # Spin the 'monkey' model until any key or mouse button is pressed.
-    # Also fade in from white quickly, fade out to black slowly.
-    Sequencer.FadeIn(0.1, (1,1,1), Sequencer.FadeOut(1, (0,0,0), Sequencer.UserPageInterrupter(Monkey))),
+    fromWhiteFast(toBlackSlow(Sequencer.UserPageInterrupter(SpinningMonkey))),
     ])
 
 # Exit our main loop once the mainBook finishes
