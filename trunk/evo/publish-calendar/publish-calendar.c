@@ -315,3 +315,11 @@ publish_calendar_locations (EPlugin *epl, EConfigHookItemFactoryData *data)
 
 	return toplevel;
 }
+
+int e_plugin_lib_enable (EPlugin *ep, int enable)
+{
+	if (enable) {
+	}
+
+	return 0;
+}
