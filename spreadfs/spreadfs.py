@@ -28,6 +28,7 @@ import psyco
 psyco.full()
 
 def log(msg):
+    msg = "[%s] %s" % (time.ctime, msg)
     print msg
     open("spreadfs.log", "a").write(msg + "\n")
 
@@ -277,11 +278,24 @@ class SpreadDirectory(SpreadFileBase):
     def onMonitorEvent(self, event):
         code = event.code2str()
 
+        # We don't care at all about exists/endExist events for now.
+        # In the future we might be able to use these to replace directory
+        # listing completely, saving us the pain of listdir() on giant directories
+        if code in ('exists', 'endExist'):
+            return
+
+        # Sometimes FAM gives us absolute paths- we always want paths
+        # relative to this directory, so strip off everything before the last slash
+        filename = event.filename.rsplit(os.sep, 1)[-1]
+
         # Transform deletion events into changed events when the underlying
         # path still exists on at least one other disk.
-        fullPath = os.path.join(self.path, event.filename)
+        fullPath = os.path.join(self.path, filename)
         if code == 'deleted' and self.fs.diskSet.find(fullPath) is not None:
             code = 'changed'
+
+        # Log the events we might be interested in for now, mostly for debugging
+        log("Transformed FAM event: %r reported %r %r" % (self.path, filename, code))
 
         # Do we have a cached object this affects?
         obj = self.fs.mapper.objectCache.get(fullPath)
@@ -302,11 +316,11 @@ class SpreadDirectory(SpreadFileBase):
             # so for now this only handles 'deleted' and 'created'.
             if code == 'deleted':
                 try:
-                    del self.dirCache[event.filename]
+                    del self.dirCache[filename]
                 except KeyError:
                     pass
             elif code == 'created':
-                self.dirCache[event.filename] = self.getChild(event.filename).fileHandle
+                self.dirCache[filename] = self.getChild(filename).fileHandle
 
         # Might this have caused a stat() change?
         if code in ('deleted', 'changed', 'created'):
