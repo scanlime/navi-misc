@@ -28,6 +28,9 @@
 
 #include <gtk/gtk.h>
 
+/* DEBUGGATIVE CRUFT */
+#include "heap.h"
+
 G_BEGIN_DECLS
 
 #define DE_JONG_TYPE            (de_jong_get_type ())
@@ -83,6 +86,9 @@ struct _DeJong {
   guint color_table_allocated_size;
   guint color_table_filled_size;
   guint32 *color_table;
+
+  /* DEBUGGATIVE CRUFT */
+  Heap *column_heap;
 };
 
 struct _DeJongClass {

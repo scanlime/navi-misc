@@ -25,6 +25,9 @@
 #include <string.h>
 #include <math.h>
 
+/* DEBUGGATIVE CRUFT */
+#include "heap.h"
+
 static void de_jong_check_dirty_flags(DeJong *self);
 static void de_jong_reset_calc(DeJong *self);
 static void de_jong_require_histogram(DeJong *self);
@@ -37,6 +40,16 @@ static gulong de_jong_get_max_usable_density(DeJong *self);
 static float uniform_variate();
 static float normal_variate();
 static int find_upper_pow2(int x);
+
+typedef struct {
+  guint column_number;
+  gulong peak_density;
+  gdouble point_x, point_y;
+} BifurcationColumn;
+
+static int column_cmp_inverse_density(const BifurcationColumn *a,
+				      const BifurcationColumn *b,
+				      gpointer data);
 
 
 /************************************************************************************/
@@ -525,6 +538,16 @@ static gulong de_jong_get_max_usable_density(DeJong *self) {
 /************************************************************* Bifurcation Diagrams */
 /************************************************************************************/
 
+static int column_cmp_inverse_density(const BifurcationColumn *a,
+				      const BifurcationColumn *b,
+				      gpointer data) {
+  if (a->peak_density > b->peak_density)
+    return -1;
+  else if (a->peak_density < b->peak_density)
+    return 1;
+  return 0;
+}
+
 void de_jong_calculate_bifurcation(DeJong             *self,
 				   DeJongInterpolator *interp,
 				   gpointer            interp_data,
@@ -539,40 +562,49 @@ void de_jong_calculate_bifurcation(DeJong             *self,
     const gdouble y_min = -5;
     const gdouble y_max = 5;
 
+    BifurcationColumn *column;
     DeJong *interpolant;
     double x, y, a, b, c, d, alpha, point_x, point_y;
-    gulong density, bucket;
+    gulong density, column_density, bucket;
     int i, block, ix, iy;
     guint *p;
-    struct {
-      double x, y;
-    } *points;
 
     density = self->current_density;
     interpolant = de_jong_new();
-    points = g_malloc0(hist_width * sizeof(points[0]));
+
+    if (!self->column_heap) {
+      /* Create columns, toss them on the heap */
+      self->column_heap = heap_new(hist_width, column_cmp_inverse_density, NULL);
+      for (i=0; i<hist_width; i++) {
+	column = g_new0(BifurcationColumn, 1);
+	column->column_number = i;
+	column->point_x = uniform_variate();
+	column->point_y = uniform_variate();
+	heap_insert(self->column_heap, column);
+      }
+    }
 
     for (i=iterations; i;) {
 
+      /* Using the heap, find the column with the lowest peak density. */
+      column = heap_extract_maximum(self->column_heap);
+
+      printf("minimum peak density %d\n", column->peak_density);
+
       /* At each iteration block, we pick a new interpolated set of points
        * and the corresponding X coordinate on our histogram.
+       * Vary the alpha parameter within the column to pick up features smaller than a pixel.
        */
-      alpha = uniform_variate();
+      alpha = (column->column_number + uniform_variate()) / (hist_width - 1);
       interp(interpolant, alpha, interp_data);
-      ix = alpha * (hist_width - 1);
-
+      ix = column->column_number;
+      column_density = column->peak_density;
+      point_x = column->point_x;
+      point_y = column->point_y;
       a = interpolant->a;
       b = interpolant->b;
       c = interpolant->c;
       d = interpolant->d;
-
-      /* If we haven't seen this point recently, make a new random starting point */
-      point_x = points[ix].x;
-      point_y = points[ix].y;
-      if (point_x == 0 && point_y == 0) {
-	point_x = uniform_variate();
-	point_y = uniform_variate();
-      }
 
       for(block=500; i && block; --i, --block) {
 	/* These are the actual Peter de Jong map equations. The new point value
@@ -591,18 +623,22 @@ void de_jong_calculate_bifurcation(DeJong             *self,
 	  bucket = *p = *p + 1;
 	  if (bucket > density)
 	    density = bucket;
+	  if (bucket > column_density)
+	    column_density = bucket;
 
 	  self->iterations++;
 	}
       }
 
-      points[ix].x = point_x;
-      points[ix].y = point_y;
+      /* Update the column and re-add it to the heap */
+      column->peak_density = column_density;
+      column->point_x = point_x;
+      column->point_y = point_y;
+      heap_insert(self->column_heap, column);
     }
 
     self->current_density = density;
     g_object_unref(interpolant);
-    g_free(points);
   }
 }
 
@@ -622,6 +658,12 @@ static void de_jong_reset_calc(DeJong *self) {
   /* Random starting point */
   self->point_x = uniform_variate();
   self->point_y = uniform_variate();
+
+  /* DEBUGGATIVE CRUFT */
+  if (self->column_heap) {
+    heap_free(self->column_heap, g_free);
+    self->column_heap = NULL;
+  }
 
   self->calc_dirty_flag = FALSE;
 }
