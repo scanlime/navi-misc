@@ -13,4 +13,3 @@
   and add all the results to the tree. Should probably set the refresh button inactive
   until at least some results come in.
 * doesn't save paned positions properly
-* status icons
