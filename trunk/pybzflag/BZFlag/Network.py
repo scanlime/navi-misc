@@ -185,7 +185,7 @@ class EventLoop:
                 except Errors.NonfatalException:
                     # Catch nonfatal exceptions
                     import sys
-                    print "*** %s: %s" % (sys.exc_info()[0], sys.exc_info()[1])
+                    print "*** %s : %s" % (sys.exc_info()[1].__class__.__name__, sys.exc_info()[1])
 
     def stop(self):
         self.running = 0
