@@ -110,7 +110,7 @@ class IndexPage(ModPython.Page):
 
         .temperatures {
             float: right;
-            margin: 0.5;
+            margin: 0.5em;
         }
         .mainTemperature {
             font: 180% sans-serif;
@@ -153,15 +153,20 @@ class IndexPage(ModPython.Page):
         }
     """
 
-    document = tag('html')[
-                   tag('head')[
-                       tag('title')[ "Navi - Therm Server" ],
-                       tag('style', type='text/css')[ css ],
-                   ],
-                   tag('body')[
-                       place('sources'),
-                   ],
-               ]
+    document = [
+        xml('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"'
+            ' "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">\n'),
+        tag('html', xmlns="http://www.w3.org/1999/xhtml")[
+            tag('head')[
+                tag('title')[ "Navi - Therm Server" ],
+                xml('<meta http-equiv="refresh" content="30" />'),
+                tag('style', type='text/css')[ css ],
+            ],
+            tag('body')[
+                place('sources'),
+            ],
+        ],
+    ]
 
     def render_sources(self, context):
         results = []
