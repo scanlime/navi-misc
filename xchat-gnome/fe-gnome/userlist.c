@@ -11,7 +11,7 @@ void initialize_userlist() {
 
 	userlist_view = glade_xml_get_widget(gui.xml, "userlist");
 
-	store = gtk_list_store_new(2, GDK_TYPE_PIXBUF, G_TYPE_STRING);
+	store = gtk_list_store_new(3, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_POINTER, G_TYPE_POINTER);
 	gtk_tree_view_set_model(GTK_TREE_VIEW(userlist_view), GTK_TREE_MODEL(store));
 
 	icon_renderer = gtk_cell_renderer_pixbuf_new();
@@ -36,6 +36,6 @@ void userlist_insert(session *sess, struct User *newuser, int row, int sel) {
 	store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(userlist_view)));
 
 	gtk_list_store_insert(store, &iter, row);
-	gtk_list_store_set(store, &iter, 1, newuser->nick, -1);
+	gtk_list_store_set(store, &iter, 1, newuser->nick, 2, newuser, 3, sess, -1);
 	/* FIXME: colors, away status, icons, selection */
 }
