@@ -19,9 +19,6 @@ and displaying them in a separate window.
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-import sys
-print sys.path
-
 import xchat, string, pygtk, gtk, gobject, re
 
 __module_name__ = 'URL Scraper'
@@ -65,6 +62,8 @@ def unload( user_data ):
 window = gtk.Window( gtk.WINDOW_TOPLEVEL )
 window.set_default_size( 300, 350 )
 
+scrolled = gtk.ScrolledWindow()
+scrolled.set_policy( gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC )
 store = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING )
 
 view = gtk.TreeView( store )
@@ -78,7 +77,8 @@ view.append_column( nick_col )
 view.append_column( chan_col )
 view.append_column( url_col )
 
-window.add( view )
+scrolled.add_with_viewport( view )
+window.add( scrolled )
 window.connect( 'destroy', close )
 window.show_all()
 
