@@ -15,6 +15,7 @@
 #define _TEST_GAME_H_
 
 #include "gameManager.h"
+#include "world.h"
 
 class CTestGame : public CBaseGame
 {
@@ -30,6 +31,7 @@ class CTestGame : public CBaseGame
 		virtual bool Think ( void );
 
 	protected:
+	CTestWorld			world;
 };
 
 #endif //_TEST_GAME_H_

@@ -21,7 +21,7 @@ class CTestWorld
 	public:
 		CTestWorld();
 		CTestWorld ( CBaseGameLoop * pGameLoop );
-		~CTestGame();
+		~CTestWorld();
 		
 		void Set ( CBaseGameLoop * pGameLoop );
 
@@ -31,7 +31,7 @@ class CTestWorld
 		// other stuff here for all the other world things that we need to do.
 
 	protected:
-		CBaseGameLoop * gameLoop
+		CBaseGameLoop * gameLoop;
 };
 
 #endif //_TEST_WORLD_H_
