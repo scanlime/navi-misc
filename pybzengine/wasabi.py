@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from BZEngine.UI import Viewport, ThreeDRender, ThreeDControl, HUD, Layout
+from BZEngine.UI import Viewport, ThreeDRender, ThreeDControl, HUD
 from BZEngine import Event
 import cPickle
 
