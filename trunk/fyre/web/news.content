@@ -8,6 +8,7 @@
     <ul>
         <li><a href="http://flapjack.navi.cx/releases/fyre/fyre-1.0.0.tar.gz">Source Code (.tar.gz)</a></li>
         <li><a href="http://flapjack.navi.cx/releases/fyre/fyre-1.0.0.tar.bz2">Source Code (.tar.bz2)</a></li>
+	<li><a href="http://flapjack.navi.cx/releases/fyre/fyre-1.0.0.x86.package">Linux x86 Autopackage</a></li>
         <li><a href="http://flapjack.navi.cx/releases/fyre/fyre-1.0.0.exe">Windows Installer (recommended)</a></li>
         <li><a href="http://flapjack.navi.cx/releases/fyre/fyre-1.0.0.zip">Windows .zip file, doesn't require installation</a></li>
     </ul>
