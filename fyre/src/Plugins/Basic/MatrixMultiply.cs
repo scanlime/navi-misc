@@ -21,6 +21,8 @@
  *
  */
 
+using System.Xml;
+
 class MatrixMultiply : Fyre.Element
 {
 	static Gdk.Pixbuf icon;
@@ -66,5 +68,13 @@ class MatrixMultiply : Fyre.Element
 			outputs[0,0] = "<i>v<sub>1</sub></i>";	outputs[0,1] = "new point";
 		}
 		return outputs;
+	}
+
+	public override void Serialize (XmlWriter writer)
+	{
+	}
+
+	public override void DeSerialize (XmlReader reader)
+	{
 	}
 }

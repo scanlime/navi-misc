@@ -20,6 +20,8 @@
  *
  */
 
+using System.Xml;
+
 namespace Fyre
 {
 
@@ -35,7 +37,12 @@ namespace Fyre
 		abstract public string[,]	InputDesc ();
 		abstract public string[,]	OutputDesc ();
 
-		private System.Guid id;
+		abstract public void		Serialize (XmlWriter writer);
+		abstract public void		DeSerialize (XmlReader reader);
+
+		// private element-specific data
+		private System.Guid		id;
+		//public CanvasElement		canvas_element;
 
 		protected void NewID ()
 		{

@@ -22,6 +22,8 @@
  *
  */
 
+using System.Xml;
+
 class StochasticBlur : Fyre.Element
 {
 	static Gdk.Pixbuf icon;
@@ -68,5 +70,13 @@ class StochasticBlur : Fyre.Element
 			outputs[0,0] = "<i>v<sub>1</sub></i>";	outputs[0,1] = "new point";
 		}
 		return outputs;
+	}
+
+	public override void Serialize (XmlWriter writer)
+	{
+	}
+
+	public override void DeSerialize (XmlReader reader)
+	{
 	}
 }

@@ -22,6 +22,8 @@
  *
  */
 
+using System.Xml;
+
 class TwoDTransform : Fyre.Element
 {
 	static Gdk.Pixbuf icon;
@@ -69,5 +71,13 @@ class TwoDTransform : Fyre.Element
 			outputs[0,0] = "<b>M</b>";	outputs[0,1] = "matrix";
 		}
 		return outputs;
+	}
+
+	public override void Serialize (XmlWriter writer)
+	{
+	}
+
+	public override void DeSerialize (XmlReader reader)
+	{
 	}
 }
