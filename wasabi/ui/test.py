@@ -26,10 +26,11 @@ class IconTest(Sequencer.Page):
         self.dock = Icon.Dock(overlay, self.trackFunction, [
             Icon.Icon('icon_navi.png', 'Navi', imageAspect=1.623),
             Icon.Icon('icon_n64.png', 'Nintendo 64', imageAspect=1.04),
-	    Icon.Icon('icon_atari.png', 'Atari', imageAspect=1.52),
-	    Icon.Icon('icon_ps2.png', 'Playstation 2', imageAspect=0.983),
-	    Icon.Icon('icon_dreamcast.png', 'Dreamcast', imageAspect=1.66),
-	    Icon.Icon('icon_nes.png', 'Nintendo', imageAspect=1.594),
+            Icon.Icon('icon_atari.png', 'Atari', imageAspect=1.52),
+            Icon.Icon('icon_ps2.png', 'Playstation 2', imageAspect=0.983),
+            Icon.Icon('icon_dreamcast.png', 'Dreamcast', imageAspect=1.66),
+            Icon.Icon('icon_nes.png', 'Nintendo', imageAspect=1.594),
+	    Icon.Icon('icon_sega.png', 'Genesis', imageAspect=3.44),
             ])
 
         self.viewport.onKeyDown.observe(self.keyDown)
