@@ -211,17 +211,17 @@ module gc_controller (clk, reset, tx_timing, gc_port, rumble,
 	//
 	
 	// ID request: 00
-	reg req_id;
-	wire req_id_complete = req_id && rx_stop && (bit_count == 8);
+	reg req_id_matched;
+	wire req_id_complete = req_id_matched && rx_stop && (bit_count == 8);
 	always @(posedge clk or posedge reset)
 		if (reset)
-			req_id <= 1;
+			req_id_matched <= 1;
 		else if (rx_start)
-			req_id <= 1;
-		else if (!req_id)
-			req_id <= 0;
+			req_id_matched <= 1;
+		else if (!req_id_matched)
+			req_id_matched <= 0;
 		else if (rx_strobe)
-			req_id <= !rx_data;	// All bits zero
+			req_id_matched <= !rx_data;    // All zeroes
 
 	// ID response: 09 00 00 stop
 	wire resp_id_data = (bit_count == 4) || (bit_count == 7) || (bit_count == 24);
@@ -229,26 +229,26 @@ module gc_controller (clk, reset, tx_timing, gc_port, rumble,
 	wire resp_id_done = bit_count > 24;
 
 	// Get origins: 41
-	reg req_origins;
-	wire req_origins_complete = req_origins && rx_stop && (bit_count == 8);
+	reg req_origins_matched;
+	wire req_origins_complete = req_origins_matched && rx_stop && (bit_count == 8);
 	always @(posedge clk or posedge reset)
 		if (reset)
-			req_origins <= 1;
+			req_origins_matched <= 1;
 		else if (rx_start)
-			req_origins <= 1;
-		else if (!req_origins)
-			req_origins <= 0;
+			req_origins_matched <= 1;
+		else if (!req_origins_matched)
+			req_origins_matched <= 0;
 		else if (rx_strobe)
 			case (bit_count)
-				0:  req_origins <= !rx_data;  // Expect 0
-				1:  req_origins <=  rx_data;  // Expect 1
-				2:  req_origins <= !rx_data;  // Expect 0
-				3:  req_origins <= !rx_data;  // Expect 0		
-				4:  req_origins <= !rx_data;  // Expect 0		
-				5:  req_origins <= !rx_data;  // Expect 0		
-				6:  req_origins <= !rx_data;  // Expect 0		
-				7:  req_origins <=  rx_data;  // Expect 1
-				default: req_origins <= 1;    // Don't care		
+				0:  req_origins_matched <= !rx_data;  // Expect 0
+				1:  req_origins_matched <=  rx_data;  // Expect 1
+				2:  req_origins_matched <= !rx_data;  // Expect 0
+				3:  req_origins_matched <= !rx_data;  // Expect 0		
+				4:  req_origins_matched <= !rx_data;  // Expect 0		
+				5:  req_origins_matched <= !rx_data;  // Expect 0		
+				6:  req_origins_matched <= !rx_data;  // Expect 0		
+				7:  req_origins_matched <=  rx_data;  // Expect 1
+				default: req_origins_matched <= 1;    // Don't care		
 			endcase
 
 	// Get origins response: 00 80 80 80 80 80 00 00 02 02 stop
@@ -262,41 +262,41 @@ module gc_controller (clk, reset, tx_timing, gc_port, rumble,
 	// Get status: 40 03 XX
 	// The last byte has flags sent from GC to controller:
 	//   Bit 0:  Rumble flag
-	reg req_status;
+	reg req_status_matched;
 	reg rumble;
-	wire req_status_complete = req_status && rx_stop && (bit_count == 24);
+	wire req_status_complete = req_status_matched && rx_stop && (bit_count == 24);
 	always @(posedge clk or posedge reset)
 		if (reset) begin
-			req_status <= 1;
+			req_status_matched <= 1;
 			rumble <= 0;
 		end
 		else if (rx_start)
-			req_status <= 1;
-		else if (!req_status)
-			req_status <= 0;
+			req_status_matched <= 1;
+		else if (!req_status_matched)
+			req_status_matched <= 0;
 		else if (rx_strobe)
 			case (bit_count)
-				0:  req_status <= !rx_data;  // Expect 0
-				1:  req_status <=  rx_data;  // Expect 1
-				2:  req_status <= !rx_data;  // Expect 0
-				3:  req_status <= !rx_data;  // Expect 0
-				4:  req_status <= !rx_data;  // Expect 0
-				5:  req_status <= !rx_data;  // Expect 0
-				6:  req_status <= !rx_data;  // Expect 0
-				7:  req_status <= !rx_data;  // Expect 0
-				8:  req_status <= !rx_data;  // Expect 0
-				9:  req_status <= !rx_data;  // Expect 0
-				10: req_status <= !rx_data;  // Expect 0
-				11: req_status <= !rx_data;  // Expect 0
-				12: req_status <= !rx_data;  // Expect 0
-				13: req_status <= !rx_data;  // Expect 0
-				14: req_status <=  rx_data;  // Expect 1
-				15: req_status <=  rx_data;  // Expect 1
+				0:  req_status_matched <= !rx_data;  // Expect 0
+				1:  req_status_matched <=  rx_data;  // Expect 1
+				2:  req_status_matched <= !rx_data;  // Expect 0
+				3:  req_status_matched <= !rx_data;  // Expect 0
+				4:  req_status_matched <= !rx_data;  // Expect 0
+				5:  req_status_matched <= !rx_data;  // Expect 0
+				6:  req_status_matched <= !rx_data;  // Expect 0
+				7:  req_status_matched <= !rx_data;  // Expect 0
+				8:  req_status_matched <= !rx_data;  // Expect 0
+				9:  req_status_matched <= !rx_data;  // Expect 0
+				10: req_status_matched <= !rx_data;  // Expect 0
+				11: req_status_matched <= !rx_data;  // Expect 0
+				12: req_status_matched <= !rx_data;  // Expect 0
+				13: req_status_matched <= !rx_data;  // Expect 0
+				14: req_status_matched <=  rx_data;  // Expect 1
+				15: req_status_matched <=  rx_data;  // Expect 1
 				23: begin
-				    req_status <= 1;         // Don't care
-				    rumble <= rx_data;       // Save rumble bit
+				    req_status_matched <= 1;         // Don't care
+				    rumble <= rx_data;               // Save rumble bit
 				    end
-				default: req_status <= 1;    // Don't care		
+				default: req_status_matched <= 1;    // Don't care		
 			endcase
 
 	// Status response: 64 bits, read as we need them from external RAM, plus stop bit
@@ -312,10 +312,10 @@ module gc_controller (clk, reset, tx_timing, gc_port, rumble,
 	// receive/transmit state machine.
 	parameter
 		REQ_NONE    = 3'b000,
-		REQ_ID      = 3'b100,
-		REQ_STATUS  = 3'b010,
+		REQ_STATUS  = 3'b100,
+		REQ_ID      = 3'b010,
 		REQ_ORIGINS = 3'b001;
-	wire rx_request = {req_id_complete, req_status_complete, req_origins_complete};
+	wire [2:0] rx_request = {req_status_complete, req_id_complete, req_origins_complete};
 	reg [2:0] tx_request;
 	assign tx_data         = (tx_request == REQ_ID)      ? resp_id_data :
 	                         (tx_request == REQ_STATUS)  ? resp_status_data :
@@ -388,9 +388,9 @@ module gc_controller (clk, reset, tx_timing, gc_port, rumble,
 					if (wait_for_tx) begin
 						wait_for_tx <= 0;
 						tx_strobe <= 0;
+						bit_count <= bit_count + 1;
 					end
 					else begin
-						bit_count <= bit_count + 1;
 						tx_strobe <= 1;
 						wait_for_tx <= 1;
 					end
