@@ -97,8 +97,8 @@ int main (int argc, char **argv)
 
 	g_type_init ();
 	hi = histogram_imager_new ();
-	g_object_set (G_OBJECT (hi), "exposure", 0.10, "gamma", 2.0, NULL);
-	g_object_set (G_OBJECT (hi), "width", 800, "height", 600);
+	g_object_set (G_OBJECT (hi), "exposure", 0.30, "gamma", 1.4, NULL);
+	g_object_set (G_OBJECT (hi), "width", 800, "height", 600, NULL);
 
 	srand (time (NULL));
 
@@ -123,6 +123,9 @@ int main (int argc, char **argv)
 	fprintf (stderr, "running integration for point (%f, %f, %f, %f)\n", point[0], point[1], point[2], point[3]);
 	while (1) {
 		iterations += hhrun (point);
+		point[0] = -point[0];
+		iterations += hhrun (point);
+		point[0] = -point[0];
 
 		histogram_imager_finish_plots (hi, &plot);
 		filename = g_strdup_printf ("%f-%f-%f-%f--%d.png", point[0], point[1], point[2], point[3], iterations);
