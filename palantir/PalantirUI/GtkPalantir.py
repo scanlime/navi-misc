@@ -315,7 +315,6 @@ class PalantirWindow:
         a WHO request to get the users in the channel.
 	'''
     time = palantir.getTime()
-    self.factory.client.sendLine('WHO ' + channel)
     self.chatWindow.DisplayText(time, '', 'Joined ' + channel)
 
   def left(self, channel):
@@ -356,8 +355,13 @@ class PalantirWindow:
     self.chatWindow.DisplayText(time, '', user + ' has left ' + channel)
 
   def whoReply(self, params):
-    ''' Adds the user in the who reply to the userlist. '''
-    self.AddUserToList(params[5])
+    print 'Does bubkus.'
+
+  def nameReply(self, params):
+    ''' Adds the users to the userlist. '''
+    users = params[3].split()
+    for user in users:
+      self.AddUserToList(user)
 
   # CTCP messages.
   def DM(self, user, channel, data):

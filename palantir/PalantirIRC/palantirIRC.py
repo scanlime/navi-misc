@@ -53,6 +53,10 @@ class PalantirClient(irc.IRCClient):
     if hasattr(self.factory.ui, 'setTopicOnJoin'):
       self.factory.ui.setTopicOnJoin(params)
 
+  def irc_RPL_NAMREPLY(self, prefix, params):
+    if hasattr(self.factory.ui, 'nameReply'):
+      self.factory.ui.nameReply(params)
+
   def noticed(self, user, channel, message):
     self.factory.ui.messageReceive(user, channel, message)
 
