@@ -74,6 +74,9 @@ struct _XText2Private
 
   /* state associated with rendering specific buffers */
   GHashTable  *buffer_info;          /* stores an XTextFormat for each buffer we observe */
+  XTextBuffer *current_buffer;
+  XTextBuffer *original_buffer;
+  XTextBuffer *selection_buffer;
 };
 
 typedef struct _XTextFormat XTextFormat;
@@ -496,6 +499,17 @@ set_bg (XText2 *xtext, GdkGC *gc, int index)
 static void
 buffer_destruction_notify (XText2 *xtext, XTextBuffer *buffer)
 {
+  XTextFormat *f;
+
+  if (xtext->priv->current_buffer == buffer)
+    xtext2_show_buffer (xtext, xtext->priv->original_buffer);
+  if (xtext->priv->selection_buffer == buffer)
+    xtext->priv->selection_buffer = NULL;
+
+  f = g_hash_table_lookup (xtext->priv->buffer_info, buffer);
+  g_hash_table_remove (xtext->priv->buffer_info, buffer);
+
+  g_free (f);
 }
 
 static XTextFormat*
