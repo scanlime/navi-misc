@@ -1,14 +1,20 @@
 Known Bugs
 ==========
 
-- Bots need rate limiting and load balancing to prevent them from flooding off
+- IRC bots flood off relatively frequently. For Freenode at least, flood-kicking
+  is decided based on the number of untransmitted bytes in an IRC client's connection
+  buffer. Preventing flood kicks will probably require a simulation of the server's
+  buffer, with the CIA bot automatically throttling as appropriate to keep that buffer
+  under a preset limit.
 
-- Some of the stats catalogs are getting rather big and it would be good
-  to make the full message list accessable and searchable. An SQL-aware table
-  widget for this has been started in the cia-data-driven-tables branch.
+  This is necessary rather than just throttling using a fixed number of lines/second
+  for several reasons. The server flood-kicks based on bytes in the connection buffer,
+  so it's connection-wide rather than local to one channel. Secondly, the server will
+  send most lines immediately, but if a connection has been spewing for a while it
+  throttles it server-side, eventually leading to a full buffer and a flood-kick.
 
-- Bots need to remove or disable their irc:// ruleset when kicked from a
-  channel.
+- Bots will rejoin when kicked from a channel, they need to remove or disable their
+  irc:// ruleset.
 
   This will become important once the web interface for IRC ruleset editing
   is written- if someone invites a CIA bot into a channel where it isn't
@@ -29,4 +35,4 @@ Known Bugs
   given out as text/plain.
 
 - The XML parser (somewhat hacked up domish) breaks when messages specify
-  a namespace.
+  a namespace. This should be fixed by porting from domish to 4Suite.
