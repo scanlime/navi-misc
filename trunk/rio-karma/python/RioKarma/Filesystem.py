@@ -154,12 +154,6 @@ class FileIdAllocator:
     def findFirst(self):
         return self.tree.findFirst() << 4
 
-    def next(self):
-        i = self.findFirst()
-        if i is not None:
-            self.allocate(i)
-        return i
-
 
 class Cache:
     """This is a container for the various bits that make up our on-disk cache
@@ -405,8 +399,11 @@ class FileManager:
         return self.protocol.sendRequest(Request.UpdateFileDetails(f.id, f.details))
 
     def createFile(self):
-        """Allocate a new file ID, and return a new File object representing it"""
-        return File(id=self.cache.fileIdAllocator.next())
+        """Allocate a new file ID, and return a new File object representing it.
+           Beware that a file isn't actually allocated until its details are uploaded
+           for the first time, so multiple new files shouldn't be created at once.
+           """
+        return File(id=self.cache.fileIdAllocator.findFirst())
 
     def loadFromDisk(self, remoteFile, localFilename, blockSize=None):
         """Load a file's metadata and content from a file on disk.
@@ -478,10 +475,16 @@ class File:
 
         self.id = id
         self.details = details
+        self._metadataLoadedFrom = None
 
     def loadMetadataFrom(self, filename):
-        """Populate this object's metadata from a real file on disk"""
-        Metadata.Converter().detailsFromDisk(filename, self.details)
+        """Populate this object's metadata from a real file on disk. This is cached,
+           such that if it is convenient to call this in multiple places to ensure
+           that the file has valid metadata, this won't cause a performance penalty.
+           """
+        if self._metadataLoadedFrom != filename:
+            Metadata.Converter().detailsFromDisk(filename, self.details)
+            self._metadataLoadedFrom = filename
 
     def suggestFilename(self, **options):
         return Metadata.Converter().filenameFromDetails(self.details, **options)

@@ -62,6 +62,12 @@ class Uploader(RioApp):
         print "\n\nUploading: %s" % filename
 
         f = self.fileManager.createFile()
+        f.loadMetadataFrom(filename)
+
+        if self.fileManager.cache.findFiles(rid=f.details['rid']):
+            print "Already exists on device"
+            self.nextFile()
+
         self.fileManager.loadFromDisk( f, filename ).addCallback(
             self.nextFile).addCallback(
             self.showSpeed, f, time.time()).addErrback(
