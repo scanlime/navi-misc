@@ -138,6 +138,8 @@ finished_retrieval_cb (GList *forecasts, ECalBackendWeather *cbw)
 		icomp = e_cal_component_get_icalcomponent (comp);
 		e_cal_backend_notify_object_created (E_CAL_BACKEND (cbw), icalcomponent_as_ical_string (icomp));
 	}
+
+	priv->is_loading = FALSE;
 }
 
 static gboolean
@@ -251,9 +253,9 @@ create_weather (ECalBackendWeather *cbw, WeatherForecast *report)
 	if (report->pop != 0)
 		pop = g_strdup_printf ("%d%% chance of precipitation\n", report->pop);
 	else
-		pop = g_strdup_printf ("");
+		pop = g_strdup_printf ("\0");
 	if (report->snowhigh == 0)
-		snow = g_strdup_printf ("");
+		snow = g_strdup_printf ("\0");
 	else if (report->snowhigh == report->snowlow)
 		snow = g_strdup_printf ("%d\" snowfall\n", (int) report->snowhigh);
 	else
@@ -262,7 +264,7 @@ create_weather (ECalBackendWeather *cbw, WeatherForecast *report)
 	description->value = g_strdup_printf ("%s\n%s%s", getConditions (report), pop, snow);
 	description->altrep = g_strdup_printf ("");
 	text_list = g_slist_append (text_list, description);
-//	e_cal_component_set_description_list (cal_comp, text_list);
+	e_cal_component_set_description_list (cal_comp, text_list);
 
 	/* Set category and visibility */
 	e_cal_component_set_categories (cal_comp, getConditions (report));
