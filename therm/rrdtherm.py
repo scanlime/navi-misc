@@ -380,7 +380,7 @@ def daemonize(pidfile=None):
         if pidfile:
             open(pidfile, "w").write(str(pid))
         sys.exit(0)
- 
+
 
 if __name__ == '__main__':
     # The -f option forks into the background

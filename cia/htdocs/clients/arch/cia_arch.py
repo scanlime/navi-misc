@@ -13,7 +13,7 @@ server = "http://cia.navi.cx"
 # you may wish to use your computers name here, as arch archives are often personal in nature
 project = "littlegreen"
 
-###############    
+###############
 
 archname = sys.argv[1]
 

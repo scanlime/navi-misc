@@ -45,7 +45,7 @@ class Ground(DisplayList):
 
         glBegin(GL_QUADS)
         glNormal3f(0, 0, 1);
-        
+
         glTexCoord2f(self.baseTexRepeats, self.baseTexRepeats)
         glMultiTexCoord2fARB(GL_TEXTURE1_ARB, self.overlayTexRepeats, self.overlayTexRepeats)
         glVertex3f(self.size, self.size, 0)

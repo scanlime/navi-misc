@@ -100,7 +100,7 @@ class ThermSampler:
         # For each address in use, scan the whole bus
         for addr, addrTherms in addrs.items():
             temps = self.mtherm.readTemp(addr | 0x48)
-            
+
             # File away our temperature readings into the proper therm devices.
             # Not the most efficient method, but who cares :)
             for addrTherm in addrTherms:
@@ -158,7 +158,7 @@ class MultiTherm:
            Returns a dictionary mapping bus number to temperature reading, since any number of devices
            may report that they have data available.
            """
-        temps = {}            
+        temps = {}
 
         # Take the therms out of standby mode
         self.write(address, 0x01, 0x00)

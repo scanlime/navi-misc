@@ -86,7 +86,7 @@ class Version(Template.Section):
             return Template.value[ row[0] ]
         else:
             return Template.error["unknown"]
-        
+
 
 class WebServer(Template.Section):
     title = 'web server'

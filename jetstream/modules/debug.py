@@ -7,12 +7,12 @@
 # modify it under the terms of the GNU General Public License
 # as published by the Free Software Foundation; either version 2
 # of the License, or (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -30,11 +30,11 @@ class DebugPanel(PicoGUI.Widget):
 
     def closeHandler(self, ev, widget):
         self.destroy()
-        
+
     def destroy(self):
         self.app.delWidget(self)
 
-        
+
 class CameraControl(DebugPanel):
     "A set of debugging widgets for controlling the camera"
     def __init__(self, name="Camera Control Panel"):
@@ -128,7 +128,7 @@ class Flythrough:
     def mouseMove(self, ev, widget):
         maxAcceleration = 400
         deadZone = 0.05
-        
+
         r = engine.world.camera.getRotation()
         r.thrust = 0
         w = self.canvas.width
@@ -160,7 +160,7 @@ class Flythrough:
         self.buttons |= ev.buttons
         self.updateButtons()
         self.app.server.focus(self.canvas.handle)
-        
+
     def mouseUp(self, ev, widget):
         self.buttons &= ~ev.buttons
         self.updateButtons()
@@ -238,7 +238,7 @@ class VectorAdjuster:
         self.panel.app.delWidget(self.value)
         self.panel.app.delWidget(self.box)
 
-        
+
 class AngleAdjuster:
     "A set of sliders to control an angle, arranged at the edges of the panel"
     def __init__(self,panel,vector):
@@ -252,7 +252,7 @@ class AngleAdjuster:
         self.vector.set((self.y.value-1800)/10.0,
                         (self.x.value-1800)/10.0,
                        (-self.z.value+1800)/10.0)
-        
+
     def degreeScroll(self, side):
         s = self.panel.addWidget('scroll','inside')
         s.side = side

@@ -108,7 +108,7 @@ class Recorder:
                                                    self.encoder,
                                                    self.frameRate))
 
-        
+
 class MovieTimeMaster(Animated.TimeMaster):
     """Replacement TimeMaster class that keeps the global timebase in
        sync with a recording's constant frame rate.
@@ -156,7 +156,7 @@ class Transcoder:
             return None
 
         img = Image.open(StringIO(data))
-            
+
         # Flip the image vertically as we output it, since it was stored
         # in OpenGL's bottom-up orientation.
         return img.tostring('raw', 'RGB', 0, -1)
@@ -170,7 +170,7 @@ class Transcoder:
         cmdline = "%s - -rawvideo on:fps=%s:w=%d:h=%d:format=0x52474218:size=%d " % \
                   (program, self.frameRate, self.size[0], self.size[1], self.size[0] * self.size[1] * 3)
         cmdline += options
-        
+
         print cmdline + "\n"
         encoder = os.popen(cmdline, 'w')
 

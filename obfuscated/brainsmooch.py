@@ -33,7 +33,7 @@ languageDefinition = {
     ':(':  ('<', 'pointer_decrement'),
     ':p':  ('-', 'memory_decrement'),
     ':-}': (']', 'end_loop'),
-    ':-*': ('+', 'memory_increment'),   
+    ':-*': ('+', 'memory_increment'),
     '^_^': ('.', 'output'),
     '^o^': (',', 'input'),
     }
@@ -128,7 +128,7 @@ class Interpreter:
                 self.programCounter += 1
                 if not nesting:
                     break
-            
+
     def end_loop(self):
         # Jump to the matching start_loop
         nesting = 0
@@ -142,7 +142,7 @@ class Interpreter:
             if not nesting:
                 break
             self.programCounter -= 1
-        
+
 if __name__ == '__main__':
     # Cheesy command line interface
     if len(sys.argv) > 1 and sys.argv[1] == 'bf_to_bs':
@@ -154,7 +154,7 @@ if __name__ == '__main__':
         if len(sys.argv) > 1:
             stream = open(sys.argv[1])
         Interpreter(readTokens(stream)).run()
-        
+
 # :p :-} :-* :-* :-* :-* :-* :-* :-* :-* :-*
 # :) :-{ :( :p :) :p :-} :) :) :-* :) :-{ :( :-{ :p :-} :( :( :-* :) :)
 # :) :p :-} :) :-{ :p :-} :-* :( :( :-{ :) :-* :) :p :( :( :p :-} :( :(

@@ -7,12 +7,12 @@
 # modify it under the terms of the GNU General Public License
 # as published by the Free Software Foundation; either version 2
 # of the License, or (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -30,7 +30,7 @@ class EngineGlobals:
     about = """jetstream (http://jetstream.babylonia.flatirons.org)
 Version %s
 """ % (version)
-    
+
     help = """
 %s
 usage: jetstream [-fhirw] [-m WxH[xD]] [--fullscreen] [--help] [--record]
@@ -118,7 +118,7 @@ Initial video recorder settings:
         if startRecording:
             self.videoRecorder.start()
 
-                
+
     def __init__(self):
         self.engine = Engine()
         self.videoRecorder = VideoRecorder()
@@ -138,7 +138,7 @@ Initial video recorder settings:
             'engineIteration': self.engine.iteration,
             'eventPoll': self.app.eventPoll,
             }
-        
+
     def run(self):
         while self.engine.running:
             for i in self.frameHandlers.keys():
@@ -162,7 +162,7 @@ class World:
         self.scene = self.cow.newScene()
         self.cow.getHeader().setAttrInt("MainScene", self.scene.id)
         self.createShortcuts()
-        
+
     def createShortcuts(self):
         self.scene.wireframe = globals.defaultWireframe
         self.camera = self.scene.getCamera()

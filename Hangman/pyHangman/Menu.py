@@ -1,6 +1,6 @@
 """ Menu.py
 
-Some preliminary excursions into the world of Python. ^^  
+Some preliminary excursions into the world of Python. ^^
 Creates a menu out of the dictionary menuItems and returns the
 function call that the user selects.
 """
@@ -20,13 +20,13 @@ def menu(title, menuItems):
   print title
   itemNum = 0
   itemDict = {}
- 
+
   # print menu and set up dictionary for selection.
   for item, value in menuItems.iteritems():
     itemNum += 1
     print "%d. %s" % (itemNum, item)
     itemDict[itemNum] = value
-  
+
   print "Enter a number:"
 
   # Error Handling.
