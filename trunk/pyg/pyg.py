@@ -71,31 +71,39 @@ class MainWindow:
         self.right = gtk.VPaned()
         self.hpane.pack2(self.right, gtk.TRUE, gtk.FALSE)
 
-        self.ul = gtk.Frame(label=None)
-        self.left.pack1(self.ul, gtk.TRUE, gtk.FALSE)
-        self.ll = gtk.Frame(label=None)
-        self.left.pack2(self.ll, gtk.TRUE, gtk.FALSE)
-        self.ur = gtk.Frame(label=None)
-        self.right.pack1(self.ur, gtk.TRUE, gtk.FALSE)
-        self.lr = gtk.Frame(label=None)
-        self.right.pack2(self.lr, gtk.TRUE, gtk.FALSE)
+        self.quads = [
+            gtk.Frame(label=None),  # upper left
+            gtk.Frame(label=None),  # lower left
+            gtk.Frame(label=None),  # upper right
+            gtk.Frame(label=None),  # lower right
+            ]
 
-        self.ur.add(gtk.Label(' Right Top  '))
-        self.lr.add(gtk.Label('Right Bottom'))
-
-        self.compiler_output = gtk.TextView(buffer=None)
-        self.compiler_output.set_editable(gtk.FALSE)
-        self.compiler_output.set_cursor_visible(gtk.FALSE)
-        self.ll.add(self.compiler_output)
-
-        self.sources = gtk.Notebook()
-        self.sources.set_scrollable(gtk.TRUE)
-        self.sources.append_page(gtk.Label('Left Top Squad!'), gtk.Label('Look Ma! A Tab!'))
-        self.ul.add(self.sources)
+        self.left.pack1(self.quads[0], gtk.TRUE, gtk.FALSE)
+        self.left.pack2(self.quads[1], gtk.TRUE, gtk.FALSE)
+        self.right.pack1(self.quads[2], gtk.TRUE, gtk.FALSE)
+        self.right.pack2(self.quads[3], gtk.TRUE, gtk.FALSE)
 
         self.main_vbox.pack_start(self.hpane, gtk.TRUE, gtk.TRUE, 0)
 
         self.window.show_all()
 
+    def set(self, quad, item):
+        self.quads[quad].add(item)
+	item.show_all()
+
 main = MainWindow()
+
+sources = gtk.Notebook()
+sources.set_scrollable(gtk.TRUE)
+sources.append_page(gtk.Label('Left Top Squad!'), gtk.Label('Look Ma! A Tab!'))
+main.set(0, sources)
+
+compiler_output = gtk.TextView(buffer=None)
+compiler_output.set_editable(gtk.FALSE)
+compiler_output.set_cursor_visible(gtk.FALSE)
+main.set(1, compiler_output)
+
+main.set(2, gtk.Label(' Right Top  '))
+main.set(3, gtk.Label('Right Bottom'))
+
 gtk.main()
