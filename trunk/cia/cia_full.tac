@@ -11,7 +11,7 @@
 from twisted.application import service, internet
 from twisted.web import vhost
 from twisted.internet import ssl
-from LibCIA import Message, Ruleset, IRC, Stats, IncomingMail, Cron
+from LibCIA import Message, Ruleset, IRC, Stats, IncomingMail, Cron, Database
 from LibCIA import Debug, Security, RpcServer, RpcClient, Web, Cache
 
 Database.init()
