@@ -1,6 +1,6 @@
 Nouvelle web framework
 ----------------------
-Version pre-0.91
+Version pre-0.92
 
 Nouvelle is a very simple web framework, similar to the 'nevow'
 package in Quotient. Nouvelle has many similarities to nevow,
