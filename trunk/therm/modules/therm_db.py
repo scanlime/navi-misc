@@ -70,6 +70,11 @@ class ThermDatabase:
     def __init__(self, **params):
         self.db = MySQLdb.connect(**params)
 
+        # Turn on autocommit. For DB API compliance this is off
+        # initially, but it will cause our connection to miss new
+        # packets arriving.
+        self.db.autocommit(1)
+
     def iterDictQuery(self, query):
         """Perform an SQL query and iterate over the result rows as dictionaries"""
         cursor = MySQLdb.cursors.DictCursor(self.db)
@@ -82,11 +87,19 @@ class ThermDatabase:
         for row in self.iterDictQuery("SELECT * FROM sources"):
             yield ThermSource(self, **row)
 
+    def getSource(self, name):
+        """Look up a source by name"""
+        for row in self.iterDictQuery("SELECT * FROM sources WHERE name = '%s'" % (
+            self.db.escape_string(name))):
+            return ThermSource(self, **row)
+        raise KeyError("No such therm source %r" % name)
+
 
 # This is a very low-privilege account that can only read
 # from the database, probably no reason not to have
 # all the login info here.
 defaultDatabase = ThermDatabase(
-    db="therm", user="therm_reader", passwd="e5ce14d3")
+    db="therm", host="navi",
+    user="therm_reader", passwd="e5ce14d3")
 
 ### The End ###
