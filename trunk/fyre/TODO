@@ -9,7 +9,4 @@
   for the remainder of the image. This would let us have a 'quality'
   parameter that's proportional to samples per bucket.
 
-* We need to check that we're using shared-mime-info and have the right
-  .desktop utils before running update-mime-info & update-desktop-info
-
 * Get .fa document icon working in linux
