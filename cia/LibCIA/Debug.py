@@ -197,8 +197,8 @@ def getTypeName(obj):
 
 _leakTracker = None
 
-def debugLeaks(reset=False, quiet=False):
-    """Show representations of all object instances tracked by the garbage collector that
+def debugLeaks(reset=False, quiet=False, interestedTypes=None):
+    """Show representations of all objects tracked by the garbage collector that
        were not present at the last invocation.
        """
     global _leakTracker
@@ -212,13 +212,16 @@ def debugLeaks(reset=False, quiet=False):
     newCount = 0
     instCount = 0
     for object in objlist:
-        if type(object) != types.InstanceType:
-            continue
+        typename = getTypeName(object)
+        if interestedTypes is not None:
+            if not typename in interestedTypes:
+                continue
+
         instCount += 1
-        if _leakTracker.get(id(object)) is object.__class__:
+        if _leakTracker.get(id(object)) == typename:
             continue
         newCount += 1
-        _leakTracker[id(object)] = object.__class__
+        _leakTracker[id(object)] = typename
 
         if not quiet:
             print repr(object)
