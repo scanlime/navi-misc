@@ -22,17 +22,17 @@
 
 #include "math-util.h"
 #include <math.h>
-#include <stdlib.h>
+#include <glib.h>
 
 
 float uniform_variate() {
   /* A uniform random variate between 0 and 1 */
-  return ((float) rand()) / RAND_MAX;
+  return g_random_double();
 }
 
 float normal_variate() {
   /* A unit-normal random variate, implemented with the Box-Muller method */
-  return sqrt(-2*log(uniform_variate())) * cos(uniform_variate() * (2*M_PI));
+  return sqrt(-2*log(g_random_double())) * cos(g_random_double() * (2*M_PI));
 }
 
 int find_upper_pow2(int x) {
