@@ -23,7 +23,8 @@ OBJS    = \
 	src/chunked-file.o	\
 	src/curve-editor.o	\
 	src/spline.o		\
-	src/explorer-tools.o
+	src/explorer-tools.o	\
+	src/explorer-animation.o
 
 
 $(BIN): $(OBJS)
