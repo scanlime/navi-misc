@@ -62,7 +62,6 @@
 #include "print.h"
 #include "dialogs/cal-prefs-dialog.h"
 #include "itip-utils.h"
-#include "e-pub-utils.h"
 #include "e-cal-list-view.h"
 #include "evolution-shell-component-utils.h"
 #include "e-util/e-icon-factory.h"
