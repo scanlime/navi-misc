@@ -7,13 +7,14 @@
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
   <!-- ================================ Document Root -->
-  <xsl:template match="/concept|/technique|/form">
+  <xsl:template match="/concept|/technique|/form|/set">
     <html>
       <head>
         <title>
           <xsl:if test="/concept">Concept: </xsl:if>
           <xsl:if test="/technique">Technique: </xsl:if>
           <xsl:if test="/form">Form: </xsl:if>
+          <xsl:if test="/set">Set: </xsl:if>
           <xsl:value-of select="@name"/>
         </title>
         <style type="text/css" media="all"> @import url(style.css);</style>
@@ -35,6 +36,7 @@
               <xsl:if test="/concept">concepts</xsl:if>
               <xsl:if test="/technique">techniques</xsl:if>
               <xsl:if test="/form">forms</xsl:if>
+              <xsl:if test="/set">sets</xsl:if>
             </span>
             <div class="section">
               <div class="sectionTop"/>
@@ -48,6 +50,7 @@
                     <xsl:apply-templates select="document('techniques.xml')//techniques/technique[@level='blue']"/>
                   </xsl:if>
                   <xsl:if test="/form"><xsl:apply-templates select="document('forms.xml')//forms/form"/></xsl:if>
+                  <xsl:if test="/set"><xsl:apply-templates select="document('sets.xml')//sets/set"/></xsl:if>
                 </ul>
               </div>
             </div>
@@ -69,10 +72,13 @@
               <xsl:apply-templates select="lessons"/>
               <xsl:apply-templates select="notes"/>
             </xsl:if>
+            <xsl:if test="/set">
+              <xsl:apply-templates select="steps"/>
+            </xsl:if>
           </td>
 
           <!-- ==== Random Stuff -->
-          <xsl:if test="//origin|//attack|//stances|/technique@level">
+          <xsl:if test="//origin|//attack|/technique//stances|/technique@level">
             <td class="right">
               <span class="section">other</span>
               <div class="section">
@@ -128,6 +134,14 @@
     </li>
   </xsl:template>
   <xsl:template match="//forms/form">
+    <li>
+      <a>
+        <xsl:attribute name="href"><xsl:value-of select="@href"/></xsl:attribute>
+        <xsl:value-of select="@name"/>
+      </a>
+    </li>
+  </xsl:template>
+  <xsl:template match="//sets/set">
     <li>
       <a>
         <xsl:attribute name="href"><xsl:value-of select="@href"/></xsl:attribute>
