@@ -55,6 +55,7 @@ void usage();
 void resize(int w, int h);
 void set_defaults();
 float get_pixel_scale();
+void update_drawing_area();
 void load_parameters_from_file(const char *name);
 void interactive_main(int argc, char **argv);
 void render_main(const char *filename, guint targetDensity);
@@ -542,6 +543,10 @@ void update_gui() {
   /* Update our pixels[] from counts[], 1/4 of the rows at a time */
   fast_update_pixels(4);
 
+  update_drawing_area();
+}
+
+void update_drawing_area() {
   /* Update our drawing area */
   gdk_draw_rgb_32_image(drawing_area->window, gc,
 			0, 0, width, height, GDK_RGB_DITHER_NORMAL,
@@ -594,7 +599,7 @@ int interactive_idle_handler(gpointer user_data) {
 }
 
 gboolean expose(GtkWidget *widget, GdkEventExpose *event, gpointer user_data) {
-  update_gui();
+  update_drawing_area();
   return TRUE;
 }
 
