@@ -187,7 +187,7 @@ class PluginThread(threading.Thread):
     def run(self):
         self.mpav = MPAVClient()
         rw = RasterBargraph()
-        mpav.onIdle = rw.clear
+        self.mpav.onIdle = rw.clear
         delayed = Delay(30, self.mpav.waitForBuffer)
         viz = Visualizer()
         while not self.stop:
