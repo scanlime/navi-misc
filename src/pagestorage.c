@@ -427,7 +427,7 @@ void              rtg_page_storage_resize          (RtgPageStorage* self,
 						    gsize           new_num_pages)
 {
     gsize old_num_pages = self->num_pages;
-    RtgPageAddress page;
+    gulong page_num;
 
     if (new_num_pages > self->num_pages) {
 	/* We're increasing the storage size. Give it some extra margin */
@@ -445,8 +445,16 @@ void              rtg_page_storage_resize          (RtgPageStorage* self,
     self->resize(self, new_num_pages);
 
     /* Mark new pages as free */
-    for (page=old_num_pages; page<self->num_pages; page++)
-	rtg_page_storage_free(self, page);
+    for (page_num=old_num_pages; page_num<self->num_pages; page_num++)
+	rtg_page_storage_free(self, rtg_page_num_to_address(self, page_num));
+}
+
+void              rtg_page_storage_set_num_pages   (RtgPageStorage* self,
+						    gsize           new_num_pages)
+{
+    new_num_pages = MAX(new_num_pages, 1);
+    self->num_pages = new_num_pages;
+    self->page_addr_max = (new_num_pages-1) * self->page_size;
 }
 
 
@@ -457,7 +465,7 @@ void              rtg_page_storage_resize          (RtgPageStorage* self,
 static void       temp_storage_resize            (RtgPageStorage*   self,
 						  gsize             new_num_pages)
 {
-    self->num_pages = new_num_pages;
+    rtg_page_storage_set_num_pages(self, new_num_pages);
     self->base_address = g_realloc(self->base_address, self->num_pages * self->page_size);
 }
 
@@ -471,14 +479,9 @@ RtgPageStorage*   rtg_page_storage_temp_new      (gsize             page_size)
 {
     RtgPageStorage* self = g_new0(RtgPageStorage, 1);
 
-    if (page_size == 0) {
-#ifdef PAGESIZE
-	page_size = PAGESIZE;
-#else
-#warning No OS-defined PAGESIZE
-	page_size = 4096;
-#endif
-    }
+    /* Just some arbitrary default */
+    if (page_size == 0)
+      page_size = 1024;
 
     self->page_size = page_size;
     self->resize = temp_storage_resize;
@@ -486,7 +489,7 @@ RtgPageStorage*   rtg_page_storage_temp_new      (gsize             page_size)
 
     /* Start out with one page */
     self->base_address = g_malloc(page_size);
-    self->num_pages = 1;
+    rtg_page_storage_set_num_pages(self, 1);
 
     self->grow_margin = 0.5;
 
