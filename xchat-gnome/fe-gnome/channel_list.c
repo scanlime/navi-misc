@@ -1,19 +1,44 @@
 #include <gnome.h>
 #include "channel_list.h"
 
-channel_list_window *create_channel_list(session *sess) {
+static GSList *chanlists = NULL;
+
+void initialize_channel_lists() {
+	chanlists = g_slist_alloc();
+}
+
+static gint chanlist_compare(gconstpointer a, gconstpointer b, gpointer data) {
+	channel_list_window *as = (channel_list_window *) a;
+
+	if(as->server == b)
+		return 0;
+	else return 1;
+}
+
+void create_channel_list(session *sess) {
 	channel_list_window *win;
 	GtkWidget *treeview, *widget;
 	GtkCellRenderer *channel_r, *users_r, *topic_r;
 	GtkTreeViewColumn *channel_c, *users_c, *topic_c;
 	GtkSizeGroup *group;
-/*	GtkTreeSelection *select; */
+	GtkTreeSelection *select;
+
+	if(sess == NULL)
+		return;
+
+	/* check to see if we already have a channel list GUI available */
+	if(g_slist_find_custom(chanlists, sess, (GCompareFunc) chanlist_compare) != NULL)
+		return;
 
 	win = malloc(sizeof(channel_list_window));
 
+	win->server = sess->server;
+
 	win->xml = glade_xml_new("channel-list.glade", NULL, NULL);
-	if(!win->xml)
-		return NULL;
+	if(!win->xml) {
+		free(win);
+		return;
+	}
 
 	treeview = glade_xml_get_widget(win->xml, "channel list");
 
@@ -39,5 +64,11 @@ channel_list_window *create_channel_list(session *sess) {
 	gtk_size_group_add_widget(group, widget);
 	g_object_unref(group);
 
-	return win;
+	select = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
+	gtk_tree_selection_set_mode(select, GTK_SELECTION_SINGLE);
+
+	g_slist_append(chanlists, win);
+}
+
+void repopulate_channel_list(channel_list_window *win) {
 }

@@ -34,6 +34,8 @@ EXTRA_DIST =				\
 	preferences_dialog.c		\
 	preferences_irc_page.h		\
 	preferences_irc_page.c		\
+	preferences_plugins_page.h	\
+	preferences_plugins_page.c	\
 	preferences_servers_page.h	\
 	preferences_servers_page.c	\
 	setup_druid.h			\
@@ -71,6 +73,8 @@ xchat_gnome_SOURCES =			\
 	preferences_dialog.c		\
 	preferences_irc_page.h		\
 	preferences_irc_page.c		\
+	preferences_plugins_page.h	\
+	preferences_plugins_page.c	\
 	preferences_servers_page.h	\
 	preferences_servers_page.c	\
 	setup_druid.h			\
