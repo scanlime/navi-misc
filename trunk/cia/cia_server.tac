@@ -13,19 +13,24 @@ application = service.Application("cia_server")
 # The central point all messages pass through
 hub = Message.Hub()
 
+# A place to store stats, written to by the StatsURIHandler and queried
+# by the StatsInterface over XML-RPC
+statsStorage = Stats.StatsStorage('data/stats')
+
 # A list of URI handlers that can be used as targets for rulesets
-uriRegistry = Ruleset.URIRegistry([
+uriRegistry = Ruleset.URIRegistry(
     IRC.IrcURIHandler(hub, IRC.BotNetwork("CIA-%d")),
-    Stats.StatsURIHandler(hub, 'data/stats'),
-    ])
+    Stats.StatsURIHandler(statsStorage),
+    )
 
 # Use a persistent set of rulesets to filter and format messages
-storage = Ruleset.RulesetStorage("data/rulesets.xml", hub, uriRegistry)
+rulesetStorage = Ruleset.RulesetStorage("data/rulesets.xml", hub, uriRegistry)
 
 # Add XML-RPC interfaces for the components that need them
 root = xmlrpc.XMLRPC()
 root.putSubHandler('sys', Interface.SysInterface())
 root.putSubHandler('hub', Message.HubInterface(hub))
-root.putSubHandler('ruleset', Ruleset.RulesetInterface(storage))
+root.putSubHandler('ruleset', Ruleset.RulesetInterface(rulesetStorage))
 root.putSubHandler('mail', IncomingMail.MailInterface(hub))
+root.putSubHandler('stats', Stats.StatsInterface(statsStorage))
 internet.TCPServer(3910, server.Site(root)).setServiceParent(application)

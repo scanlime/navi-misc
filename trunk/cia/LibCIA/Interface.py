@@ -32,7 +32,7 @@ def catchFaults(callable, *args, **kwargs):
     """Call the provided function with the provided arguments.
        If an exception is raised, it is logged and converted to
        an XML-RPC Fault, and that is returned. If not, the value
-       of the callable is returned. A None result is converted to False.
+       of the callable is returned. A None result is converted to True.
        """
     try:
         result = callable(*args, **kwargs)
@@ -43,7 +43,7 @@ def catchFaults(callable, *args, **kwargs):
         return xmlrpc.Fault(e.__class__.__name__, str(e))
     if result is not None:
         return result
-    return False
+    return True
 
 
 class SysInterface(xmlrpc.XMLRPC):
