@@ -407,11 +407,29 @@ class ColortextTitle(ColortextFormatter):
 
 
 class ColortextToPlaintext(ColortextFormatter):
+
+    def format(self, message, input=None):
+        return XML.allText(message.xml.body.colorText).strip()
+
+
+class ColortextToPlaintext(ColortextFormatter):
     """Extracts uncolorized plaintext from colorText messages"""
     medium = 'plaintext'
 
     def format(self, message, input=None):
-        return XML.allText(message.xml.body.colorText).strip()
+        return self.Parser(message.xml.body.colorText).result
+
+    class Parser(XML.XMLObjectParser):
+        requiredRootElement = 'colorText'
+
+        def parseString(self, s):
+            return s
+
+        def element_br(self, element):
+            return "\n"
+
+        def unknownElement(self, element):
+            return ''.join([self.parse(e) for e in element.children])
 
 
 class ColortextToXHTML(ColortextFormatter):
