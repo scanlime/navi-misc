@@ -26,28 +26,48 @@
 #ifndef __H_FIELDSENSOR
 #define __H_FIELDSENSOR
 
+#include <list>
+
 /* annie is the neural net library we use */
 #include <annie.h>
 using namespace annie;
+
+/* Vector classes borrowed from Jetstream */
+#include <Vector.h>
+
 
 class FieldSensor {
  public:
   FieldSensor(const char *serialPort="/dev/ttyS0", const char *netFile="data/current.net");
   ~FieldSensor(void);
 
-  /* Read a raw packet from the sensor */
-  VECTOR readPacket(void);
+  /* Read a packet- if 'blocking' is false and no new data is
+   * available this returns the previous packet received.
+   */
+  VECTOR readPacket(bool blocking=true);
 
-  /* Read a packet and use the neural net to infer position */
-  VECTOR readPosition(void);
+  /* Like readPacket, but also decodes the packet 
+   * into a position using the supplied neural net file.
+   */
+  Vector3 rawPosition(bool blocking=true);
+
+  /* Put the position through a filter to eliminate most of the noise. */
+  Vector3 readPosition(bool blocking=false);
 
  private:
+  /* Low-level communications */
   int fd;
-  annie::TwoLayerNetwork net;
   void sendSlowly(const char *str);
   void reset(void);
   void boot(void);
   void waitForData(void);
+  VECTOR resultBuffer;
+
+  /* Neural net */
+  TwoLayerNetwork net;
+
+  /* Filter */
+  Vector3 filterPosition;
 };
 
 #endif /* __H_FIELDSENSOR */
