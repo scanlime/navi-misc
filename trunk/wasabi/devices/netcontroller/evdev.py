@@ -57,6 +57,15 @@ class Device:
         elif event.type == "EV_REL":
             self.axes[event.code] += event.value
 
+    def __getitem__(self, name):
+        """Retrieve the current value of an axis or button,
+           or zero if no data has been received for it yet.
+           """
+        if name in self.axes:
+            return self.axes[name]
+        else:
+            return self.buttons.get(name, 0)
+
 
 class EnumDict:
     """A 1:1 mapping from numbers to strings or other objects, for enumerated
