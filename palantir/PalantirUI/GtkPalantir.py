@@ -106,7 +106,7 @@ class PalantirWindow:
     ''' Open a character sheet, it will displayed in the
         CharacterSheetPane if that is visible.
 	'''
-    self.tree.dialog = gtk.glade.XML('CharacterSheet/sheetselection.glade')
+    self.tree.dialog = gtk.glade.XML('data/sheetselection.glade')
     self.tree.dialog.get_widget('SheetSelection').set_filename('CharacterSheet/data/')
     self.tree.dialog.signal_autoconnect({ 'on_ok_button_clicked':self.OpenSheet,
       'on_cancel_button_clicked':
@@ -327,12 +327,20 @@ class PalantirWindow:
     else:
       time = None
 
+    # If there is a query window open with this person, display our message
+    # in that window.
     if self.tabs.has_key(nick):
       self.tabs[nick].DisplayText(time, ' <%s> '%(self.factory.nickname), msg)
+    # If no query window is open display it in the default window with that special
+    # >< thing around our nick.
     else:
       self.tabs['None'].DisplayText(time, ' >%s< '%(self.factory.nickname), msg)
 
   def who(self, args=''):
+    ''' Send a WHO command to the server.
+
+        Not finished.
+	'''
     self.factory.client.sendLine('WHO %s'%(args))
 
   def ping(self, args=''):
