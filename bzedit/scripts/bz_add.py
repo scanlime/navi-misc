@@ -14,6 +14,8 @@ Submenu: 'World' world
 Tip: 'Add a new BZFlag object'
 """
 
+import Blender
+
 try:
     import bzflag
 except ImportError:
@@ -23,6 +25,11 @@ except ImportError:
                          "path properly.")
     bzflag = None
 
-bzflag.getTypeRegistry().dict[__script__.arg]().toBlender()
+# Create a new BZObject and convert that to a new Blender object
+bzo = bzflag.getTypeRegistry().dict[__script__.arg]()
+object = bzo.toBlender()
+
+# Put the new object at the cursor
+object.setLocation(*Blender.Window.GetCursorPos())
 
 ### The End ###

@@ -351,7 +351,7 @@ class Box(BZObject):
                 ]
 
         box = meshify(verts, faces)
-        self.setTransform(obj)
+        self.setTransform(box)
         return box
 
     def setTransform(self, obj):
