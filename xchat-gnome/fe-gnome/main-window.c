@@ -33,7 +33,6 @@
 #include "navigation-tree.h"
 #include "textgui.h"
 #include "palette.h"
-#include "transfers.h"
 #include "util.h"
 #include "preferences-dialog.h"
 
@@ -204,7 +203,7 @@ static void
 keybinding_key_changed (GConfClient *client, guint cnxn_id, GConfEntry *e, gpointer user_data)
 {
 	GConfValue *value;
-	gchar *name;
+	gchar *name, *accel;
 	GtkAction *action, *oldaction;
 	GtkActionEntry *entry;
 
@@ -231,11 +230,9 @@ keybinding_key_changed (GConfClient *client, guint cnxn_id, GConfEntry *e, gpoin
 	}
 
 	g_message("name is %s",name);
-	oldaction = gtk_action_group_get_action (gui.action_group,
-						 gconf_entry_get_key (e));
+	oldaction = gtk_action_group_get_action (gui.action_group, gconf_entry_get_key (e));
 
-	action = gtk_action_new (entry -> name, entry -> label,
-				 entry -> tooltip, entry -> stock_id);
+	action = gtk_action_new (entry->name, entry->label, entry->tooltip, entry->stock_id);
 
 	if (oldaction == NULL) {
 		g_warning ("couldn't find the old action");
@@ -243,10 +240,11 @@ keybinding_key_changed (GConfClient *client, guint cnxn_id, GConfEntry *e, gpoin
 	}
 	gtk_action_group_remove_action (gui.action_group, oldaction);
 
-	gtk_action_group_add_action_with_accel (gui.action_group, action,
-						gconf_client_get_string (client, gconf_entry_get_key(e), NULL));
+	accel = gconf_client_get_string (client, gconf_entry_get_key(e), NULL);
+	gtk_action_group_add_action_with_accel (gui.action_group, action, accel);
+	g_free (accel);
 
-	if (entry -> callback != NULL)
+	if (entry->callback != NULL)
 		g_signal_connect (action, "activate", G_CALLBACK (entry->callback), gui.xml);
 
 	g_message ("somebody changed a keybinding!");
@@ -260,7 +258,7 @@ void
 setup_menu_item (GConfClient *client, GtkActionEntry *entry)
 {
 	GConfEntry *e;
-	gchar *key_string;
+	gchar *key_string, *accel;
 	GtkAction *action;
 
 	key_string = g_strdup_printf ("/apps/xchat/keybindings/%s", entry->name);
@@ -282,12 +280,15 @@ setup_menu_item (GConfClient *client, GtkActionEntry *entry)
 	action = gtk_action_new (entry->name, entry->label, entry->tooltip, entry->stock_id);
 
 	/* but.. not the accelerators.. */
-	gtk_action_group_add_action_with_accel (gui.action_group, action,
-						gconf_client_get_string (client, key_string, NULL));
+	accel = gconf_client_get_string (client, key_string, NULL);
+	gtk_action_group_add_action_with_accel (gui.action_group, action, accel);
+	g_free (accel);
 
 	if (entry->callback != NULL)
 		g_signal_connect (action, "activate", G_CALLBACK (entry->callback), gui.xml);
+
 	g_free (key_string);
+	gconf_entry_free (e);
 }
 
 void
@@ -554,7 +555,6 @@ on_irc_connect_activate (GtkAction *action, gpointer data)
 static void
 on_main_window_close (GtkWidget *widget, GdkEvent *event, gpointer data)
 {
-	hide_transfers_window ();
 	gui.quit = TRUE;
 	xchat_exit ();
 }
@@ -562,7 +562,6 @@ on_main_window_close (GtkWidget *widget, GdkEvent *event, gpointer data)
 static void
 on_irc_quit_activate (GtkAction *action, gpointer data)
 {
-	hide_transfers_window ();
 	gtk_widget_hide (GTK_WIDGET (gui.main_window));
 	gui.quit = TRUE;
 	xchat_exit ();
@@ -634,7 +633,6 @@ on_network_disconnect_activate (GtkAction *action, gpointer data)
 static void
 on_irc_downloads_activate (GtkAction *action, gpointer data)
 {
-	show_transfers_window ();
 }
 
 static void

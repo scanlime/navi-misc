@@ -27,7 +27,6 @@
 #include "textgui.h"
 #include "userlist-gui.h"
 #include "pixmaps.h"
-#include "transfers.h"
 #include "../common/text.h"
 
 XChatGUI gui;
@@ -56,7 +55,6 @@ initialize_gui_2 ()
 	initialize_text_gui ();
 	initialize_connection_dialog ();
 	initialize_userlist ();
-	initialize_transfers_window ();
 
 	gui.tree_model = navigation_model_new ();
 	gui.server_tree = navigation_tree_new (gui.tree_model);

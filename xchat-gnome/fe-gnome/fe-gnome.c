@@ -36,7 +36,6 @@
 #include "palette.h"
 #include "preferences-page-plugins.h"
 #include "channel-list.h"
-#include "transfers.h"
 #include "util.h"
 #include "plugins.h"
 
@@ -334,46 +333,16 @@ fe_userlist_clear (struct session *sess)
 void
 fe_dcc_add (struct DCC *dcc)
 {
-	switch (dcc->type)
-	{
-		case TYPE_RECV:
-		case TYPE_SEND:
-			add_transfer (dcc);
-			break;
-
-		default:
-		  break;
-	}
 }
 
 void
 fe_dcc_update(struct DCC *dcc)
 {
-	switch (dcc->type)
-	{
-		case TYPE_RECV:
-		case TYPE_SEND:
-			update_transfer (dcc);
-			break;
-
-		default:
-		  break;
-	}
 }
 
 void
 fe_dcc_remove (struct DCC *dcc)
 {
-	switch (dcc->type)
-	{
-		case TYPE_RECV:
-		case TYPE_SEND:
-			remove_transfer (dcc);
-			break;
-
-		default:
-		  break;
-	}
 }
 
 int fe_dcc_open_recv_win(int passive) {

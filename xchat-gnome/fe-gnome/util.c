@@ -37,9 +37,16 @@ error_dialog (const gchar *header, const gchar *message)
 gint gtk_tree_iter_sort_func_nocase (GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpointer data)
 {
 	gchar *as, *bs;
+	gint result;
 	gtk_tree_model_get (model, a, 1, &as, -1);
 	gtk_tree_model_get (model, b, 1, &bs, -1);
 	if (as == NULL) return 1;
-	if (bs == NULL) return -1;
-	return strcasecmp (as, bs);
+	if (bs == NULL) {
+		g_free (as);
+		return -1;
+	}
+	result = strcasecmp (as, bs);
+	g_free (as);
+	g_free (bs);
+	return result;
 }

@@ -237,6 +237,8 @@ userlist_update (Userlist *userlist, session *sess, struct User *user)
 	item = g_list_append (NULL, user->nick);
 	g_completion_add_items (store->completion, item);
 	store->completion_items = g_list_concat (store->completion_items, item);
+
+	g_free (nick);
 }
 
 void
