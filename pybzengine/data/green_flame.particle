@@ -29,13 +29,13 @@ ta(S'self.emitter'
 p13
 S'spawnRate'
 p14
-I100
+F100
 ta(g13
 S'speedRange'
 p15
 (lp16
-F4.6299999999999999
-aI0
+F0
+aF0.314
 ata(g13
 S'direction'
 p17
@@ -46,7 +46,7 @@ tp18
 ta(g13
 S'directionRandomness'
 p19
-F0.18799999356269836
+F1
 ta(g13
 S'position'
 p20
@@ -63,8 +63,8 @@ ta(S'self.fader'
 p24
 S'sizeRange'
 p25
-(I0
-I1
+(F2.1299999999999999
+F0
 tta(g24
 S'colorRange'
 p26
@@ -89,7 +89,7 @@ p31
 g27
 ((I3
 tS'l'
-S'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+S'\x00\x00\x00\x00\x00\x00\x00\x00\x05\x00\x00\x00'
 I1
 tRp32
 tab.
