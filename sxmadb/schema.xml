@@ -45,4 +45,38 @@
   </xs:simpleType>
 </xs:element>
 
+<xs:element name="strike">
+  <xs:attribute name="side">
+    <xs:simpleType>
+      <xs:restriction base="xs:string">
+        <xs:enumeration value="right"/>
+        <xs:enumeration value="left"/>
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:attribute>
+  <xs:simpleType>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="straight punch"/>
+      <xs:enumeration value="reverse punch"/>
+      <xs:enumeration value="vertical reverse punch"/>
+      <xs:enumeration value="outward back knuckle"/>
+      <xs:enumeration value="uppercut"/>
+      <xs:enumeration value="chopping punch"/>
+
+      <xs:enumeration value="outward hand sword"/>
+      <xs:enumeration value="inward hand sword"/>
+      <xs:enumeration value="downward hand sword"/>
+      <xs:enumeration value="obscure hand sword"/>
+
+      <xs:enumeration value="thrusting palm heel"/>
+      <xs:enumeration value="inward horizontal palm heel"/>
+      <xs:enumeration value="inward circular palm heel claw"/>
+
+      <xs:enumeration value="inward horizontal elbow"/>
+
+      <xs:enumeration value="back hammer fist"/>
+    </xs:restriction>
+  </xs:simpleType>
+</xs:element>
+
 </xs:schema>
