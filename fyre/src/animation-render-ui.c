@@ -23,6 +23,7 @@
  */
 
 #include "animation-render-ui.h"
+#include "gui-util.h"
 #include "prefix.h"
 
 static void animation_render_ui_class_init(AnimationRenderUiClass *klass);

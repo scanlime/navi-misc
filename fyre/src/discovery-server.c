@@ -30,6 +30,7 @@
  */
 
 #include "discovery-server.h"
+#include <string.h>
 
 static void       discovery_server_class_init    (DiscoveryServerClass*  klass);
 static void       discovery_server_init          (DiscoveryServer*       self);

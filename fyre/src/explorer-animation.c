@@ -51,6 +51,7 @@ static void on_anim_render_closed(GtkWidget *widget, gpointer user_data);
 static void on_keyframe_duration_change(GtkWidget *widget, gpointer user_data);
 
 static char *current_filename = NULL;
+static int n_keyframes = 0;
 
 /************************************************************************************/
 /**************************************************** Initialization / Finalization */
@@ -382,6 +383,7 @@ static void explorer_update_animation_length(Explorer *self) {
     /* Recalculate the length of the animation and update the anim_scale accordingly
      */
     GtkWidget *scale = glade_xml_get_widget(self->xml, "anim_scale");
+    GtkWidget *render_menu = glade_xml_get_widget(self->xml, "anim_render");
     gdouble length = animation_get_length(self->animation);
     gboolean enable = length > 0.0001;
 
@@ -393,6 +395,7 @@ static void explorer_update_animation_length(Explorer *self) {
 			     GTK_ADJUSTMENT(gtk_adjustment_new(gtk_range_get_value(GTK_RANGE(scale)), 0, length, 0.01, 1, 0)));
     gtk_widget_set_sensitive(scale, enable);
     gtk_widget_set_sensitive(glade_xml_get_widget(self->xml, "anim_play_button"), enable);
+    gtk_widget_set_sensitive(GTK_WIDGET(render_menu), enable);
 }
 
 static void on_anim_scale_changed(GtkWidget *widget, gpointer user_data) {
