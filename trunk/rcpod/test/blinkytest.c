@@ -1,29 +1,26 @@
-/* Flashes an LED connected to RC2 (pin 13) */
+/* Flashes an LED connected to RC2 (pin 13).
+ * An example for GPIOs and pin descriptors.
+ */
 
 #include <rcpod.h>
 #include <unistd.h>
 
 int main() {
   rcpod_dev *rcpod = rcpod_InitSimple();
-  rcpod_pin pins[] = {0,0,0,0};
+  rcpod_pin led;
 
-  printf("%d\n", RCPOD_PIN(0, 1, 3, 2));
-
-  printf("%d\n", rcpod_CmdGpioRead(rcpod, RCPOD_PIN(1, 1, 3, 2)));
+  /* Define the LED pin once, then demonstrate pin descriptor manipulation
+   * to turn its port into an output and toggle it on and off.
+   */
+  led = RCPOD_PIN_RC2;
 
   /* Make the pin an output */
-  pins[0] = RCPOD_PIN(0, 1, 3, 2);
-  rcpod_CmdGpioAssert(rcpod, pins);
-
-  printf("%d\n", rcpod_CmdGpioRead(rcpod, RCPOD_PIN(1, 1, 3, 2)));
+  rcpod_GpioAssert(rcpod, RCPOD_OUTPUT(led));
 
   while (1) {
-    pins[0] = RCPOD_PIN(0, 0, 3, 2);
-    rcpod_CmdGpioAssert(rcpod, pins);
-    usleep(50000);
-
-    pins[0] = RCPOD_PIN(1, 0, 3, 2);
-    rcpod_CmdGpioAssert(rcpod, pins);
+    /* In every iteration, negate the LED's current value and assert the new pin descriptor */
+    led = RCPOD_NEGATE(led);
+    rcpod_GpioAssert(rcpod, led);
     usleep(50000);
   }
 

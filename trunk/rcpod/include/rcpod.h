@@ -44,18 +44,11 @@ typedef struct {
 typedef void (rcpod_errorHandler)(const char *function, int err, const char *message);
 
 /* A pin descriptor, used in the low-level commands to specify general purpose
- * I/O pins in a generic way. Constructed using the RCPOD_PIN macro.
+ * I/O pins in a generic way. It is made up of several bitfields described in detail in
+ * rcpod_protocol.h. Pin descriptors can be constructed and manipulated using the RCPOD_PIN* 
+ * constants and macros defined below.
  */
 typedef unsigned char rcpod_pin;
-
-/* Construct a pin descriptor, used to describe I/O ports to the low-level commands.
- *   polarity:  0 = active low, 1 = active high
- *   tristate:  0 = port bit, 1 = tristate bit
- *       port:  1 = PORTA ... 5 = PORTE
- *        bit:  0 = LSB ... 7 = MSB
- */
-#define RCPOD_PIN(polarity, tristate, port, bit) \
-        ( ((polarity)<<7) | ((tristate)<<6) | ((port)<<3) | (bit))
 
 
 /*************************************************************************************/
@@ -130,46 +123,93 @@ rcpod_dev* rcpod_InitSimpleWithoutReset(void);
  */
 
 /* Write one byte to the given 9-bit address in the rcpod's RAM */
-void rcpod_CmdPoke(rcpod_dev* rcpod, int address, unsigned char data);
+void rcpod_Poke(rcpod_dev* rcpod, int address, unsigned char data);
 
 /* Read one byte from the given 9-bit address in the rcpod's RAM */
-unsigned char rcpod_CmdPeek(rcpod_dev* rcpod, int address);
+unsigned char rcpod_Peek(rcpod_dev* rcpod, int address);
 
 /* Write 4 bytes after the last byte poke'd */
-void rcpod_CmdPoke4(rcpod_dev* rcpod, unsigned char data[4]);
+void rcpod_Poke4(rcpod_dev* rcpod, unsigned char data[4]);
 
 /* Read 8 bytes starting at the given 9-bit address in the rcpod's RAM,
  * into the provided buffer
  */
-void rcpod_CmdPeek8(rcpod_dev* rcpod, int address, unsigned char data[8]);
+void rcpod_Peek8(rcpod_dev* rcpod, int address, unsigned char data[8]);
 
 /* Sample all 8 of the 8-bit A/D converter channels, fills the provided buffer */
-void rcpod_CmdAnalogAll(rcpod_dev* rcpod, unsigned char buffer[8]);
+void rcpod_AnalogReadAll(rcpod_dev* rcpod, unsigned char buffer[8]);
 
 /* Using current USART settings, transmit 'txBytes' bytes from the buffer at the
  * given address in the rcpod's RAM. Then, start listening for up to 'rxBytes'
  * to be placed in the same buffer. The receive runs in the background until
- * this byte count has been reached, or CmdUsartRxEnd is called. Either byte
+ * this byte count has been reached, or UsartRxEnd is called. Either byte
  * count may be zero to perform only a transmit/receive.
  */
-void rcpod_CmdUsartTxRx(rcpod_dev* rcpod, int address, int txBytes, int rxBytes);
+void rcpod_UsartTxRx(rcpod_dev* rcpod, int address, int txBytes, int rxBytes);
 
-/* Cancel the current receive started with CmdUsartTxRx, return the number of
+/* Cancel the current receive started with UsartTxRx, return the number of
  * bytes actually received
  */
-int rcpod_CmdUsartRxEnd(rcpod_dev* rcpod);
+int rcpod_UsartRxEnd(rcpod_dev* rcpod);
 
 /* Set the pin descriptor used as a USART transmit enable, for RS-485 or similar
  * protocols that require enabling a line driver. May be zero (a no-op pin descriptor)
  * to disable this feature.
  */
-void rcpod_CmdUsartTxe(rcpod_dev* rcpod, rcpod_pin txe);
+void rcpod_UsartTxe(rcpod_dev* rcpod, rcpod_pin txe);
 
 /* Assert the given four pin descriptors, setting them to their active state */
-void rcpod_CmdGpioAssert(rcpod_dev* rcpod, rcpod_pin pins[4]);
+void rcpod_GpioAssert4(rcpod_dev* rcpod, rcpod_pin pins[4]);
 
 /* Read the value of the given pin descriptor */
-int rcpod_CmdGpioRead(rcpod_dev* rcpod, rcpod_pin pin);
+int rcpod_GpioRead(rcpod_dev* rcpod, rcpod_pin pin);
+
+
+/*************************************************************************************/
+/************************************************** Higher-level commands ************/
+/*************************************************************************************/
+
+/*
+ * These commands are convenience functions and hardware abstractions based
+ * on the low-level commands defined above
+ */
+
+/* Peek an arbitrary-sized block of the PIC's address space in the most efficient way.
+ * reads 'bytes' bytes of data from the indicated address into the provided buffer.
+ * The result is undefined if the reads extend past the PIC's address space.
+ */
+void rcpod_PeekBuffer(rcpod_dev* rcpod, int address, unsigned char *buffer, int bytes);
+
+/* Write an arbitrary-sized block of data into the PIC's address space in the most
+ * efficient way. Writes 'bytes' bytes of data from the given buffer into the
+ * indicated address. The result is undefined if the writes extend past the PIC's
+ * address space.
+ */
+void rcpod_PokeBuffer(rcpod_dev* rcpod, int address, unsigned char *buffer, int bytes);
+
+/* Read one of the 8 8-bit A/D converter channels.
+ * The result is undefined if the channel is not in the range [0,7].
+ */
+unsigned char rcpod_AnalogReadChannel(rcpod_dev* rcpod, int channel);
+
+/* Assert one pin descriptor, setting it to its active state */
+void rcpod_GpioAssert(rcpod_dev* rcpod, rcpod_pin pin);
+
+/* Assert a block of pin descriptors in the most efficient way, in the order
+ * given. Processes 'count' pin descriptors from the given array.
+ */
+void rcpod_GpioAssertBuffer(rcpod_dev* rcpod, rcpod_pin *pins, int count);
+
+/* Deassert one pin descriptor, setting it to its inactive state.
+ * Note that the terms assert/deassert are used rather than specifying the
+ * logic level, since a pin descriptor may be active high or active low.
+ */
+void rcpod_GpioDeassert(rcpod_dev* rcpod, rcpod_pin pin);
+
+/* Deassert a block of pin descriptors in the most efficient way, in the order
+ * given. Processes 'count' pin descriptors from the given array.
+ */
+void rcpod_GpioDeassertBuffer(rcpod_dev* rcpod, rcpod_pin *pins, int count);
 
 
 /*************************************************************************************/
@@ -222,6 +262,77 @@ int rcpod_CmdGpioRead(rcpod_dev* rcpod, rcpod_pin pin);
 #define RCPOD_REG_TXSTA	        0x0098
 #define RCPOD_REG_SPBRG	        0x0099
 #define RCPOD_REG_ADCON1        0x009F
+
+/* A pin descriptor should be a logical or of one constant from each of the following sections... */
+#define RCPOD_PIN_PORTA    (1 << 3)
+#define RCPOD_PIN_PORTB    (1 << 3)
+#define RCPOD_PIN_PORTC    (1 << 3)
+#define RCPOD_PIN_PORTD    (1 << 3)
+#define RCPOD_PIN_PORTE    (1 << 3)
+
+#define RCPOD_PIN_TRIS     (1 << 6)
+#define RCPOD_PIN_PORT     0
+
+#define RCPOD_PIN_BIT(n)   (n)        /* Encodes the bit position of the I/O pin in its port */
+
+#define RCPOD_PIN_LOW      0
+#define RCPOD_PIN_HIGH     (1 << 7)
+
+/* Given any pin descriptor, create one which will convert the given pin into an output.
+ * Note that deasserting/negating the returned pin descriptor will convert the given
+ * pin into an input.
+ */
+#define RCPOD_OUTPUT(pin)    (((pin) | RCPOD_PIN_TRIS) & ~RCPOD_PIN_HIGH)
+
+/* Like RCPOD_OUTPUT, but convert the given pin into an input */
+#define RCPOD_INPUT(pin)    ((pin) | RCPOD_PIN_TRIS | RCPOD_PIN_HIGH)
+
+/* Inverts the polarity of the given pin descriptor (swaps active low and active high) */
+#define RCPOD_NEGATE(pin)  ((pin) ^ RCPOD_PIN_HIGH)
+
+/* Macros for normal active high I/O port pin descriptors. Combined with the RCPOD_TRIS
+ * and RCPOD_NEGATE macros, the above RCPOD_PIN_* constants shouldn't have to be used
+ * directly by most programs. Note that this doesn't include all possible ports and pins,
+ * only those that physically exist on the PIC16C765.
+ *
+ * Note that most of these pins default to general purpose I/O but that may be overridden
+ * by using the PIC's built-in peripherals. Also note that RA4 is an open-drain output
+ * (only able to drive to 0v or float, can't drive to 5v)
+ */
+#define RCPOD_PIN_RA0      (RCPOD_PIN_PORTA | RCPOD_PIN_PORT | RCPOD_PIN_BIT(0) | RCPOD_PIN_HIGH)
+#define RCPOD_PIN_RA1      (RCPOD_PIN_PORTA | RCPOD_PIN_PORT | RCPOD_PIN_BIT(1) | RCPOD_PIN_HIGH)
+#define RCPOD_PIN_RA2      (RCPOD_PIN_PORTA | RCPOD_PIN_PORT | RCPOD_PIN_BIT(2) | RCPOD_PIN_HIGH)
+#define RCPOD_PIN_RA3      (RCPOD_PIN_PORTA | RCPOD_PIN_PORT | RCPOD_PIN_BIT(3) | RCPOD_PIN_HIGH)
+#define RCPOD_PIN_RA4      (RCPOD_PIN_PORTA | RCPOD_PIN_PORT | RCPOD_PIN_BIT(4) | RCPOD_PIN_HIGH)
+#define RCPOD_PIN_RA5      (RCPOD_PIN_PORTA | RCPOD_PIN_PORT | RCPOD_PIN_BIT(5) | RCPOD_PIN_HIGH)
+
+#define RCPOD_PIN_RB0      (RCPOD_PIN_PORTB | RCPOD_PIN_PORT | RCPOD_PIN_BIT(0) | RCPOD_PIN_HIGH)
+#define RCPOD_PIN_RB1      (RCPOD_PIN_PORTB | RCPOD_PIN_PORT | RCPOD_PIN_BIT(1) | RCPOD_PIN_HIGH)
+#define RCPOD_PIN_RB2      (RCPOD_PIN_PORTB | RCPOD_PIN_PORT | RCPOD_PIN_BIT(2) | RCPOD_PIN_HIGH)
+#define RCPOD_PIN_RB3      (RCPOD_PIN_PORTB | RCPOD_PIN_PORT | RCPOD_PIN_BIT(3) | RCPOD_PIN_HIGH)
+#define RCPOD_PIN_RB4      (RCPOD_PIN_PORTB | RCPOD_PIN_PORT | RCPOD_PIN_BIT(4) | RCPOD_PIN_HIGH)
+#define RCPOD_PIN_RB5      (RCPOD_PIN_PORTB | RCPOD_PIN_PORT | RCPOD_PIN_BIT(5) | RCPOD_PIN_HIGH)
+#define RCPOD_PIN_RB6      (RCPOD_PIN_PORTB | RCPOD_PIN_PORT | RCPOD_PIN_BIT(6) | RCPOD_PIN_HIGH)
+#define RCPOD_PIN_RB7      (RCPOD_PIN_PORTB | RCPOD_PIN_PORT | RCPOD_PIN_BIT(7) | RCPOD_PIN_HIGH)
+
+#define RCPOD_PIN_RC0      (RCPOD_PIN_PORTC | RCPOD_PIN_PORT | RCPOD_PIN_BIT(0) | RCPOD_PIN_HIGH)
+#define RCPOD_PIN_RC1      (RCPOD_PIN_PORTC | RCPOD_PIN_PORT | RCPOD_PIN_BIT(1) | RCPOD_PIN_HIGH)
+#define RCPOD_PIN_RC2      (RCPOD_PIN_PORTC | RCPOD_PIN_PORT | RCPOD_PIN_BIT(2) | RCPOD_PIN_HIGH)
+#define RCPOD_PIN_RC6      (RCPOD_PIN_PORTC | RCPOD_PIN_PORT | RCPOD_PIN_BIT(6) | RCPOD_PIN_HIGH)
+#define RCPOD_PIN_RC7      (RCPOD_PIN_PORTC | RCPOD_PIN_PORT | RCPOD_PIN_BIT(7) | RCPOD_PIN_HIGH)
+
+#define RCPOD_PIN_RD0      (RCPOD_PIN_PORTD | RCPOD_PIN_PORT | RCPOD_PIN_BIT(0) | RCPOD_PIN_HIGH)
+#define RCPOD_PIN_RD1      (RCPOD_PIN_PORTD | RCPOD_PIN_PORT | RCPOD_PIN_BIT(1) | RCPOD_PIN_HIGH)
+#define RCPOD_PIN_RD2      (RCPOD_PIN_PORTD | RCPOD_PIN_PORT | RCPOD_PIN_BIT(2) | RCPOD_PIN_HIGH)
+#define RCPOD_PIN_RD3      (RCPOD_PIN_PORTD | RCPOD_PIN_PORT | RCPOD_PIN_BIT(3) | RCPOD_PIN_HIGH)
+#define RCPOD_PIN_RD4      (RCPOD_PIN_PORTD | RCPOD_PIN_PORT | RCPOD_PIN_BIT(4) | RCPOD_PIN_HIGH)
+#define RCPOD_PIN_RD5      (RCPOD_PIN_PORTD | RCPOD_PIN_PORT | RCPOD_PIN_BIT(5) | RCPOD_PIN_HIGH)
+#define RCPOD_PIN_RD6      (RCPOD_PIN_PORTD | RCPOD_PIN_PORT | RCPOD_PIN_BIT(6) | RCPOD_PIN_HIGH)
+#define RCPOD_PIN_RD7      (RCPOD_PIN_PORTD | RCPOD_PIN_PORT | RCPOD_PIN_BIT(7) | RCPOD_PIN_HIGH)
+
+#define RCPOD_PIN_RE0      (RCPOD_PIN_PORTE | RCPOD_PIN_PORT | RCPOD_PIN_BIT(0) | RCPOD_PIN_HIGH)
+#define RCPOD_PIN_RE1      (RCPOD_PIN_PORTE | RCPOD_PIN_PORT | RCPOD_PIN_BIT(1) | RCPOD_PIN_HIGH)
+#define RCPOD_PIN_RE2      (RCPOD_PIN_PORTE | RCPOD_PIN_PORT | RCPOD_PIN_BIT(2) | RCPOD_PIN_HIGH)
 
 
 #endif /* __RCPOD_H */
