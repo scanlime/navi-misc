@@ -115,6 +115,7 @@ highlight_selection_changed (GtkTreeSelection *select, PreferencesIrcPage *page)
 	}
 }
 
+#if 0
 static void
 save_highlight ()
 {
@@ -136,8 +137,8 @@ save_highlight ()
 	strncpy (prefs.bluestring, hilight, 300);
 	g_free (hilight);
 }
+#endif
 
-static void
 PreferencesIrcPage *
 preferences_page_irc_new (gpointer prefs_dialog, GladeXML *xml)
 {
@@ -270,53 +271,6 @@ preferences_page_irc_free (PreferencesIrcPage *page)
  * CRUFT BARRIER ***************************************************************
  *******************************************************************************/
 
-static GtkListStore *hilight_store;
-
-static void hilight_add_clicked (GtkButton *button, gpointer data);
-static void hilight_remove_clicked (GtkButton *button, GtkTreeView *view);
-static void hilight_selection (GtkTreeSelection *selection, gpointer data);
-
 void initialize_preferences_irc_page()
 {
-}
-
-hilight_add_clicked (GtkButton *button, gpointer data)
-{
-	GtkDialog *dialog;
-	GtkWidget *text;
-	gint response;
-	GtkTreeIter iter;
-
-	dialog = GTK_DIALOG (gtk_dialog_new_with_buttons ("Add Highlight Trigger",
-			GTK_WINDOW (gui.main_window),
-			GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_MODAL,
-			GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-			GTK_STOCK_OK, GTK_RESPONSE_OK,
-			NULL));
-	text = gtk_entry_new ();
-	gtk_widget_show (text);
-	gtk_container_add (GTK_CONTAINER (dialog->vbox), text);
-	gtk_box_set_spacing (GTK_BOX (dialog->vbox), 12);
-	gtk_container_set_border_width (GTK_CONTAINER (dialog), 12);
-	response = gtk_dialog_run (dialog);
-	if (response == GTK_RESPONSE_OK) {
-		gtk_list_store_append (hilight_store, &iter);
-		gtk_list_store_set (hilight_store, &iter, 0, g_strdup (gtk_entry_get_text (GTK_ENTRY (text))), -1);
-		save_hilight ();
-	}
-	gtk_widget_destroy (GTK_WIDGET (dialog));
-}
-
-static void
-hilight_remove_clicked (GtkButton *button, GtkTreeView *view)
-{
-	GtkTreeSelection *selection;
-	GtkTreeIter iter;
-	GtkTreeModel *model = GTK_TREE_MODEL (hilight_store);
-
-	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (view));
-	if (gtk_tree_selection_get_selected (selection, &model, &iter)) {
-		gtk_list_store_remove (hilight_store, &iter);
-		save_hilight ();
-	}
 }
