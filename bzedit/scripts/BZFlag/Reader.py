@@ -30,6 +30,7 @@ class Reader:
                             Optional(Literal('.') + Optional(Word(nums))) +
                             Optional(CaselessIteral('E') + Word('+-'+nums, nums)))
             3dPoint = float + float + float
+            globalReference = Word(alphanums + '/:*')
 
             end = CaselessLiteral('end')
             name = CaselessLiteral('name')
@@ -75,9 +76,13 @@ class Reader:
               | obstacleProperty
             teleporter = CaselessLiteral('teleporter') + OneOrMore(teleporterProperty) + end
 
+            teleporterSide =
+                CaselessLiteral('f')
+              | CaselessLiteral('b')
+              | Literal('?')
             teleporterSpec =
                 Word(digits)
-              | Combine(Word(alphanums + '*/') + Literal(':') + (CaselessLiteral('f') | CaselessLiteral('b')))
+              | Combine(globalReference + Optional(Literal(':') + teleporterSide))
             linkProperty =
                 CaselessLiteral('to') + teleporterSpec
               | CaselessLiteral('from') + teleporterSpec
