@@ -122,6 +122,8 @@ void create_channel_list(session *sess) {
 	gtk_size_group_add_widget(group, widget);
 	widget = glade_xml_get_widget(win->xml, "text filter");
 	gtk_size_group_add_widget(group, widget);
+	widget = glade_xml_get_widget(win->xml, "toggles hbox");
+	gtk_size_group_add_widget(group, widget);
 	g_object_unref(group);
 
 	group = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
