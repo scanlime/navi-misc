@@ -85,4 +85,21 @@ class TiledImage(Layer):
                         int(self.offset[1] + j*self.tile.size[1]))
                 image.paste(self.tile, dest)
 
+
+class RandomDots(Layer):
+    """Draw random colored dots"""
+    def __init__(self, colors=("white", "black"), dotSize=4, numDots=400):
+        self.colors = colors
+        self.dotSize = dotSize
+        self.numDots = numDots
+
+    def render(self, image):
+        r = random.Random(self)
+        for i in xrange(self.numDots):
+            bx = int(r.uniform(0, image.size[0]-self.dotSize))
+            by = int(r.uniform(0, image.size[1]-self.dotSize))
+            image.paste(r.choice(self.colors), (bx, by,
+                                                bx+self.dotSize-1,
+                                                by+self.dotSize-1))
+
 ### The End ###
