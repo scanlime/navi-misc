@@ -10,5 +10,6 @@ clean:
 	rm -rf *.o
 
 test: mi6k.o
+	sync
 	rmmod mi6k || true
 	insmod mi6k.o
