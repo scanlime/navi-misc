@@ -410,8 +410,19 @@ static int uinput_ioctl(struct inode *inode, struct file *file, unsigned int cmd
 	udev = (struct uinput_device *)file->private_data;
 
 	/* device attributes can not be changed after the device is created */
-	if (cmd >= UI_SET_EVBIT && test_bit(UIST_CREATED, &(udev->state)))
-		return -EINVAL;
+	switch (cmd) {
+		case UI_SET_EVBIT:
+		case UI_SET_KEYBIT:
+		case UI_SET_RELBIT:
+		case UI_SET_ABSBIT:
+		case UI_SET_MSCBIT:
+		case UI_SET_LEDBIT:
+		case UI_SET_SNDBIT:
+		case UI_SET_FFBIT:
+		case UI_SET_PHYS:
+			if (test_bit(UIST_CREATED, &(udev->state)))
+				return -EINVAL;
+	}
 
 	switch (cmd) {
 		case UI_DEV_CREATE:
