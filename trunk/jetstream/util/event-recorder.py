@@ -5,7 +5,7 @@
 #                     mouse, keyboard, joystick, or any future events supported
 #                     by the PicoGUI server.
 #
-# Copyright (C) 2002-2003 Micah Dowty
+# Copyright (C) 2002-2004 Micah Dowty
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
