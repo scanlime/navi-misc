@@ -143,6 +143,7 @@ url_editor_dialog_construct2 (UrlEditorDialog2 *dialog)
 
 		dialog->uri = g_new0 (EPublishUri, 1);
 		uri = dialog->uri;
+		uri->enabled = TRUE;
 	} else {
 		ESource *source;
 		GSList *p;
@@ -153,7 +154,7 @@ url_editor_dialog_construct2 (UrlEditorDialog2 *dialog)
 			e_source_selector_select_source ((ESourceSelector *) dialog->events_selector, source);
 			g_free (source_uid);
 		}
-		for (p = uri->events; p; p = g_slist_next (p)) {
+		for (p = uri->tasks; p; p = g_slist_next (p)) {
 			gchar *source_uid = g_strdup (p->data);
 			source = e_source_list_peek_source_by_uid (dialog->tasks_source_list, source_uid);
 			e_source_selector_select_source ((ESourceSelector *) dialog->tasks_selector, source);
@@ -263,12 +264,22 @@ url_editor_dialog_run2 (UrlEditorDialog2 *dialog)
 
 	response = gtk_dialog_run (GTK_DIALOG (dialog));
 	if (response == GTK_RESPONSE_OK) {
+		GSList *l, *p;
+
 		if (dialog->uri->location)
 			g_free (dialog->uri->location);
 		if (dialog->uri->username)
 			g_free (dialog->uri->username);
 		if (dialog->uri->password)
 			g_free (dialog->uri->password);
+		if (dialog->uri->events) {
+			g_slist_foreach (dialog->uri->events, (GFunc) g_free, NULL);
+			dialog->uri->events = NULL;
+		}
+		if (dialog->uri->tasks) {
+			g_slist_foreach (dialog->uri->tasks, (GFunc) g_free, NULL);
+			dialog->uri->tasks = NULL;
+		}
 
 		dialog->uri->location = g_strdup (gtk_entry_get_text (GTK_ENTRY (dialog->url_entry)));
 		dialog->uri->username = g_strdup (gtk_entry_get_text (GTK_ENTRY (dialog->username_entry)));
@@ -280,6 +291,14 @@ url_editor_dialog_run2 (UrlEditorDialog2 *dialog)
 		} else {
 			e_passwords_forget_password ("Calendar", dialog->uri->location);
 		}
+
+		l = e_source_selector_get_selection (E_SOURCE_SELECTOR (dialog->events_selector));
+		for (p = l; p; p = g_slist_next (p))
+			dialog->uri->events = g_slist_append (dialog->uri->events, g_strdup (e_source_peek_uid (p->data)));
+
+		l = e_source_selector_get_selection (E_SOURCE_SELECTOR (dialog->tasks_selector));
+		for (p = l; p; p = g_slist_next (p))
+			dialog->uri->tasks = g_slist_append (dialog->uri->tasks, g_strdup (e_source_peek_uid (p->data)));
 	}
 	gtk_widget_hide_all (GTK_WIDGET (dialog));
 }
