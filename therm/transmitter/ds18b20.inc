@@ -49,8 +49,8 @@ ds18b20_read macro
 	movf	temp, w
 	addwf	therm_total_high, f
 
-	movlw	0x10			; Add 0x10 to the denominator, since we have four bits to
-	addwf	therm_count, f		;  the right of the binary point.
+	movlw	SAMPLE_DIVISOR		; Add to the denominator
+	addwf	therm_count, f
 	endm
 
 
