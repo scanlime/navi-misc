@@ -55,7 +55,7 @@ class HistogramImager : Element
 	public override string[,] InputDesc ()
 	{
 		if (inputs == null) {
-			inputs = new string[4,2];
+			inputs = new string[3,2];
 			inputs[0,0] = "<i>v</i>";	inputs[0,1] = "point";
 			inputs[1,0] = "<i>w</i>";	inputs[1,1] = "width";
 			inputs[2,0] = "<i>h</i>";	inputs[2,1] = "height";
