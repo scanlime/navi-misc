@@ -176,7 +176,7 @@ static void on_select_output_file_clicked(GtkWidget *widget, AnimationRenderUi *
 
 #if (GTK_CHECK_VERSION(2, 4, 0))
     dialog = gtk_file_chooser_dialog_new ("Select Output File",
-		                          glade_xml_get_widget (self->xml, "window"),
+		                          GTK_WINDOW (glade_xml_get_widget (self->xml, "window")),
 		                          GTK_FILE_CHOOSER_ACTION_SAVE,
 					  GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
 					  GTK_STOCK_OK, GTK_RESPONSE_OK,
