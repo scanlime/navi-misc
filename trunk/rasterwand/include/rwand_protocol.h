@@ -91,11 +91,17 @@
 
 ;//************************************************** Interrpt Endpoints
 
-;// The following packets are broadcast on the EP1 endpoint:
-
-;// Bye
+;// Endpoing EP1 sends packets in the same format as RWAND_CTRL_READ_STATUS
 
 
+;//************************************************** Button bits
+
+#define RWAND_BUTTON_SQUARE	0x10
+#define RWAND_BUTTON_RIGHT	0x08
+#define RWAND_BUTTON_LEFT       0x04
+#define RWAND_BUTTON_UP         0x02
+#define RWAND_BUTTON_DOWN       0x01
+#define RWAND_BUTTON_POWER      0x20
 
 #endif
 
