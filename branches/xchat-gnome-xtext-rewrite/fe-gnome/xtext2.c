@@ -564,7 +564,26 @@ buffer_destruction_notify (XText2 *xtext, XTextBuffer *buffer)
   f = g_hash_table_lookup (xtext->priv->buffer_info, buffer);
   g_hash_table_remove (xtext->priv->buffer_info, buffer);
 
+  g_signal_handler_disconnect (G_OBJECT (buffer), f->append_handler);
+  g_signal_handler_disconnect (G_OBJECT (buffer), f->clear_handler);
+  g_signal_handler_disconnect (G_OBJECT (buffer), f->remove_handler);
+
   g_free (f);
+}
+
+static void
+buffer_append (XTextBuffer *buffer, textentry *ent, XText2 *xtext)
+{
+}
+
+static void
+buffer_clear (XTextBuffer *buffer, XText2 *xtext)
+{
+}
+
+static void
+buffer_remove (XTextBuffer *buffer, XText2 *xtext)
+{
 }
 
 static XTextFormat*
@@ -572,6 +591,9 @@ allocate_buffer (XText2 *xtext, XTextBuffer *buffer)
 {
   XTextFormat *f = g_new0 (XTextFormat, 1);
   g_hash_table_insert (xtext->priv->buffer_info, buffer, f);
+  f->append_handler = g_signal_connect (G_OBJECT (buffer), "append", G_CALLBACK (buffer_append), (gpointer) xtext);
+  f->clear_handler  = g_signal_connect (G_OBJECT (buffer), "clear",  G_CALLBACK (buffer_clear),  (gpointer) xtext);
+  f->remove_handler = g_signal_connect (G_OBJECT (buffer), "remove", G_CALLBACK (buffer_remove), (gpointer) xtext);
   g_object_weak_ref (G_OBJECT (buffer), (GWeakNotify) buffer_destruction_notify, xtext);
 }
 
