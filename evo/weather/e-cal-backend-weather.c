@@ -145,12 +145,18 @@ static ECalComponent*
 create_weather (ECalBackendWeather *cbw, WeatherForecast *report)
 {
 	ECalComponent *cal_comp;
+	ECalComponentText comp_summary;
+	icalcomponent *ical_comp;
+	struct icaltimetype itt;
+	ECalComponentDateTime dt;
 	char *summary;
 	const char *name, *uid;
 	char *temperature;
 	char *snowfall;
 	char *conditions;
 	char *pop;
+
+	g_return_val_if_fail (E_IS_CAL_BACKEND_WEATHER (cbw), NULL);
 
 	uid = g_strdup_printf ("%s%s", (char *) /* FIXME */ "BLARG!", WEATHER_UID_EXT);
 	if (report->high == report->low)
@@ -160,11 +166,45 @@ create_weather (ECalBackendWeather *cbw, WeatherForecast *report)
 	summary = g_strdup_printf ("%s\n", temperature);
 	g_free (temperature);
 
-	//cal_comp = create_component (cbw, uid, /* FIXME */ date, summary);
+	/* create the component and event object */
+	ical_comp = icalcomponent_new (ICAL_VEVENT_COMPONENT);
+	cal_comp = e_cal_component_new ();
+	e_cal_component_set_icalcomponent (cal_comp, ical_comp);
+
+	/* set uid */
+	e_cal_component_set_uid (cal_comp, uid);
+
+	/* Set all-day event's date from forecast data */
+	itt = icaltime_from_timet (report->date, 1);
+	dt.value = &itt;
+	dt.tzid = NULL;
+	e_cal_component_set_dtstart (cal_comp, &dt);
+
+	itt = icaltime_from_timet (report->date, 1);
+	icaltime_adjust (&itt, 1, 0, 0, 0);
+	dt.value = &itt;
+	dt.value = &itt;
+	dt.tzid = NULL;
+	/* We have to add 1 day to DTEND, as it is not inclusive. */
+	e_cal_component_set_dtend (cal_comp, &dt);
+
+	/* Create summary */
+	comp_summary.value = summary;
+	comp_summary.altrep = NULL;
+	e_cal_component_set_summary (cal_comp, &comp_summary);
+
+	/* Set category and visibility */
+	/* e_cal_component_set_categories (cal_comp, _("Conditions")); */
+	e_cal_component_set_classification (cal_comp, E_CAL_COMPONENT_CLASS_PRIVATE);
+
+	/* Weather is shown as free time */
+	e_cal_component_set_transparency (cal_comp, E_CAL_COMPONENT_TRANSP_TRANSPARENT);
+
+	e_cal_component_commit_sequence (cal_comp);
+
 	g_free (summary);
 
-	//return cal_comp;
-	return NULL;
+	return cal_comp;
 }
 
 static ECalBackendSyncStatus
