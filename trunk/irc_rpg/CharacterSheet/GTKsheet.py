@@ -128,7 +128,15 @@ class dice(gtk.Button, sheetElement):
     self.node = node
     # Will this work?
     self.connect("clicked", self.roll)
-    self.times = 0
+    self.times = []
+
+  def packChild(self, child):
+    self.times.append(child.node.childNodes[0].data.strip())
 
   def roll(self, widget):
-    print "roll not implemented"
+    for time in self.times:
+      print time
+
+class times:
+  def __init__(self, node, data):
+    self.node = node
