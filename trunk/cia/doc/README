@@ -102,7 +102,7 @@ Dependencies
 - Nouvelle_ 0.91 or later
 - Docutils_
 - the `Python Imaging Library`_
-- Graphviz_
+- Graphviz_ and Sodipodi_ to generate graphs
 - Procmail_ for the e-mail interface
 
 .. _Nouvelle: http://freshmeat.net/projects/nouvelle/
@@ -110,6 +110,7 @@ Dependencies
 .. _Python Imaging Library: http://www.pythonware.com/products/pil/
 .. _Graphviz:  http://www.research.att.com/sw/tools/graphviz/
 .. _Procmail: http://www.procmail.org
+.. _Sodipodi: http://sodipodi.com
 
 
 Contacts

@@ -26,8 +26,10 @@ have been implemented here.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from LibCIA import Database
+from LibCIA import Database, Cache
+from twisted.python import log
 from twisted.internet import reactor, defer, protocol, error
+from cStringIO import StringIO
 import time, math
 
 
@@ -98,6 +100,9 @@ class PrefixSelector(Selector):
         self.prefix = prefix
         self.style = style
 
+    def __repr__(self):
+        return "<PrefixSelector %r %r>" % (self.prefix, self.style)
+
     def getSQL(self, varName):
         return "%s LIKE '%s%%'" % (varName, self.prefix)
 
@@ -111,12 +116,17 @@ class PrefixSelector(Selector):
 
 
 class RelationGrapher:
-    """Creates graphs showing relationships between stats targets,
-       using the Graphviz package. One or more Selectors are used
-       to find interesting nodes and describe how they should be drawn.
+    """Creates graphs showing relationships between stats targets.
+       One or more Selectors are used to find interesting nodes and
+       describe how they should be drawn. The output is given as a
+       'dot' file that can be passed to the 'neato' utility in the
+       AT&T Graphviz package.
        """
     def __init__(self, *selectors):
         self.selectors = selectors
+
+    def __repr__(self):
+        return "<RelationGrapher %r>" % (self.selectors,)
 
     def getAllSelectorsSQL(self, varName):
         """Return an SQL expression that is true if any selector is
@@ -133,7 +143,7 @@ class RelationGrapher:
             self.getAllSelectorsSQL("target_a_path"),
             self.getAllSelectorsSQL("target_b_path")))
 
-    def generateDot(self, f):
+    def render(self, f):
         """Generate the 'dot' code for our graph, writing it to the given
            file-like object. Returns a Deferred signaling completion.
            """
@@ -250,17 +260,7 @@ class RelationGrapher:
                                           self.dictToAttrs(attributes)))
 
         f.write("}\n")
-        print "Wrote dot source, %d nodes and %d edges" % (len(nodes), len(rows))
         result.callback(None)
-
-    def render(self, f, format, bin="neato"):
-        """Render a graph in the given format to the file-like object 'f'.
-           Returns a deferred that indicates completion or error conditions.
-           """
-        result = defer.Deferred()
-        p = StreamProcessProtocol(self.generateDot, f, result)
-        reactor.spawnProcess(p, bin, [bin, "-T%s" % format], env=None)
-        return result
 
 
 class StreamProcessProtocol(protocol.ProcessProtocol):
@@ -288,6 +288,9 @@ class StreamProcessProtocol(protocol.ProcessProtocol):
     def outReceived(self, data):
         self.stdoutStream.write(data)
 
+    def errReceived(self, data):
+        log.err(data)
+
     def processEnded(self, reason):
         if isinstance(reason.value, error.ProcessDone):
             self.resultDeferred.callback(None)
@@ -295,18 +298,110 @@ class StreamProcessProtocol(protocol.ProcessProtocol):
             self.resultDeferred.errback(reason)
 
 
+class GraphLayout:
+    """Given an object with a render(f) function that writes 'dot' source to
+       a file-like object, this runs Graphviz's 'neato' utility to lay out the
+       graph and produce a vector image.
+       """
+    def __init__(self, dataSource, format="svg", bin="neato"):
+        self.dataSource = dataSource
+        self.bin = bin
+        self.args = [bin, "-T%s" % format]
+
+    def __repr__(self):
+        return "<GraphLayout for %r using %r>" % (self.dataSource, self.args)
+
+    def render(self, f):
+        """Lay out a graph using input from our data source, writing
+           the completed graph to the given file-like object.
+           """
+        result = defer.Deferred()
+        p = StreamProcessProtocol(self.dataSource.render, f, result)
+        reactor.spawnProcess(p, self.bin, self.args, env=None)
+        return result
+
+
+class HeaderChoppingProtocol(StreamProcessProtocol):
+    """This is a protocol that works around sodipodi's tencency to spew some
+       debuggative cruft to stdout rather than to stderr. Ignores all writes
+       we get before the first one >= 1 kB.
+       """
+    inhibit = True
+
+    def outReceived(self, data):
+        if self.inhibit:
+            if len(data) < 1024:
+                return
+            self.inhibit = False
+        self.stdoutStream.write(data)
+
+
+class SvgRasterizer:
+    """Uses sodipodi to rasterize SVG vector images into PNG bitmaps.
+       dataSource is any object with a render(f) function that can
+       write an SVG to a file-like object and might return a deferred.
+       This provides a render() function that writes the resulting PNG
+       image to a file-like object.
+       """
+    def __init__(self, dataSource, dpi=None, background=None, bin="sodipodi"):
+        self.dataSource = dataSource
+        self.bin = bin
+        self.args = [bin, "-f", "-", "-e", "/dev/stdout"]
+        if dpi:
+            self.args.extend(["-d", str(dpi)])
+        if background:
+            self.args.extend(["-b", str(background)])
+
+    def __repr__(self):
+        return "<SvgRasterizer for %r using %r>" % (self.dataSource, self.args)
+
+    def render(self, f):
+        result = defer.Deferred()
+        p = HeaderChoppingProtocol(self.dataSource.render, f, result)
+        reactor.spawnProcess(p, self.bin, self.args, env=None)
+        return result
+
+
+class RenderCache(Cache.AbstractStringCache):
+    """A cache for the results of running a class' render() function
+       on a file-like object. The results are captured in a StringIO and
+       stored in the cache.
+
+       The class must have a repr() that uniquely represents its state
+       for the cache to work properly.
+       """
+    def miss(self, obj):
+        f = StringIO()
+        result = defer.Deferred()
+        defer.maybeDeferred(obj.render, f).addCallback(
+            self._finishedRendering, f, result).addErrback(result.errback)
+        return result
+
+    def _finishedRendering(self, d, f, result):
+        result.callback(f.getvalue())
+
+
 def main():
+    f = open("foo.png", "w")
+
     def done(result):
-        print "All done"
+        print result
+        f.flush()
+        f.close()
         reactor.stop()
     def oops(result):
         print result
         reactor.stop()
 
-    RelationGrapher(
+    g = RelationGrapher(
         PrefixSelector('project/', color='#FF0000', shape='box'),
         PrefixSelector('author/', color='#0000FF'),
-        ).render(open("output.svg", 'w'), "svg").addCallback(done).addErrback(oops)
+        )
+    l = GraphLayout(g)
+    r = SvgRasterizer(l, dpi=3, background='white')
+
+#    RenderCache().get(r).addCallback(done).addErrback(oops)
+    r.render(f).addCallback(done).addErrback(oops)
     reactor.run()
 
 ### The End ###
