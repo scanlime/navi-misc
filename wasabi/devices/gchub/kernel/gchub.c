@@ -665,12 +665,14 @@ static int controller_event(struct input_dev* dev, unsigned int type,
 static int controller_ff_event(struct gchub_controller* ctl,
 			       unsigned int code, int value)
 {
-	if (!EFFECT_CHECK_ID(code))
+        /*
+        if (!EFFECT_CHECK_ID(code))
 		return -EINVAL;
 	if (!EFFECT_CHECK_OWNERSHIP(code, ctl))
 		return -EACCES;
 	if (value < 0)
 		return -EINVAL;
+        */
 
 	/* FIXME: implement support for timers */
 	controller_set_rumble(ctl, value);
