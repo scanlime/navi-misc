@@ -76,7 +76,6 @@ class RulesetInterface(RpcServer.Interface):
 
     def xmlrpc_getUriList(self):
         """Return a list of all URIs with non-empty rulesets"""
-        print self.storage.rulesetMap
         return self.storage.rulesetMap.keys()
 
     def xmlrpc_getRuleset(self, uri):
