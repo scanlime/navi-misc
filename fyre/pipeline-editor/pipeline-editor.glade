@@ -292,6 +292,7 @@
 
 	      <child>
 		<widget class="GtkScrolledWindow" id="scrolledwindow1">
+		  <property name="width_request">180</property>
 		  <property name="visible">True</property>
 		  <property name="can_focus">True</property>
 		  <property name="hscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
@@ -325,8 +326,8 @@
 
 		  <child>
 		    <widget class="GtkImage" id="element_image">
-		      <property name="width_request">36</property>
-		      <property name="height_request">36</property>
+		      <property name="width_request">24</property>
+		      <property name="height_request">24</property>
 		      <property name="visible">True</property>
 		      <property name="xalign">0.5</property>
 		      <property name="yalign">0.5</property>
