@@ -1,9 +1,7 @@
 <?xml version="1.0"?>
-<!--
-  The master list of techniques
--->
+
 <techniques>
-  <technique name="lone kimono" href="lone-kimono.xml" level="orange" category="grab"/>
-  <technique name="broken ram" href="broken-ram.xml" level="blue" category="grab"/>
-  <technique name="shield and mace" href="shield-and-mace.xml" level="blue" category="punch"/>
+	<technique category="grab" href="broken-ram.xml" level="blue" name="broken ram"/>
+	<technique category="punch" href="shield-and-mace.xml" level="blue" name="shield and mace"/>
+	<technique category="grab" href="lone-kimono.xml" level="orange" name="lone kimono"/>
 </techniques>
