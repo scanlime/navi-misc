@@ -17,6 +17,7 @@ class BlinkyThread(threading.Thread):
     def __init__(self, availableDevice):
         threading.Thread.__init__(self)
         openedDevice = availableDevice.open()
+        print repr(openedDevice)
         self.led = openedDevice.rc2
         self.led.output().assert_()
         self.running = True

@@ -117,6 +117,9 @@ struct usb_device* rcpod_GetDevices(void);
 /* Given a libusb usb_device, open it as an rcpod, returning an rcpod_dev */
 rcpod_dev* rcpod_Open(struct usb_device *usbdev);
 
+/* Get the libusb handle corresponding with an open rcpod device */
+struct usb_dev_handle* rcpod_GetDevHandle(rcpod_dev *rcpod);
+
 /* Close an rcpod_dev and free all memory associated with it */
 void rcpod_Close(rcpod_dev *rcpod);
 
