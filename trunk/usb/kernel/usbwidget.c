@@ -9,9 +9,9 @@
 #define USB_WIDGET_VENDOR_ID	0xe461
 #define USB_WIDGET_PRODUCT_ID	0x0001
 
-#define DRIVER_VERSION "v0.0"
+#define DRIVER_VERSION "v0.1"
 #define DRIVER_AUTHOR "The Unknown Tribble"
-#define DRIVER_DESC "USB HID Boot Protocol widget driver"
+#define DRIVER_DESC "USB Widget Driver"
 
 MODULE_AUTHOR( DRIVER_AUTHOR );
 MODULE_DESCRIPTION( DRIVER_DESC );
