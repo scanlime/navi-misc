@@ -27,6 +27,7 @@
 #include <unistd.h>
 #include <sys/time.h>
 
+
 struct {
   double x,y;
 } point;
@@ -39,13 +40,16 @@ struct {
 struct {
   guint width, height;
   guint *counts;
-  guchar *pixels;
+  guint32 *pixels;
+
+  guint color_table_size;
+  guint32 *color_table;
 
   double iterations;
-  guint currentDensity;
+  guint current_density;
 
   double exposure;
-  guint targetDensity;
+  guint target_density;
 } render;
 
 struct {
@@ -57,11 +61,6 @@ struct {
 } gui;
 
 
-/* Convert a gray level from 0 to 255 to an ARGB color in little endian.
- * This macro can be redefined to colorize the image differently.
- */
-#define GRAY_TO_RGBA(gray) (GUINT32_TO_LE( gray | (gray<<8) | (gray<<16) | 0xFF000000UL ))
-
 void usage(char **argv);
 void interactive_main(int argc, char ** argv);
 void render_main(const char *filename);
@@ -71,7 +70,7 @@ void resize(int w, int h);
 int limit_update_rate(float max_rate);
 int auto_limit_update_rate(void);
 float get_pixel_scale();
-void fast_update_pixels(int steps);
+void update_color_table();
 void update_pixels();
 void update_gui();
 void update_drawing_area();
@@ -109,15 +108,17 @@ int main(int argc, char ** argv) {
       break;
 
     switch (opt) {
-    case 'a':  params.a             = atof(optarg);  break;
-    case 'b':  params.b             = atof(optarg);  break;
-    case 'c':  params.c             = atof(optarg);  break;
-    case 'd':  params.d             = atof(optarg);  break;
-    case 'x':  params.xoffset       = atof(optarg);  break;
-    case 'y':  params.yoffset       = atof(optarg);  break;
-    case 'z':  params.zoom          = atof(optarg);  break;
-    case 'e':  render.exposure      = atof(optarg);  break;
-    case 't':  render.targetDensity = atol(optarg);  break;
+
+    case 'a':  params.a       = atof(optarg);  break;
+    case 'b':  params.b       = atof(optarg);  break;
+    case 'c':  params.c       = atof(optarg);  break;
+    case 'd':  params.d       = atof(optarg);  break;
+    case 'x':  params.xoffset = atof(optarg);  break;
+    case 'y':  params.yoffset = atof(optarg);  break;
+    case 'z':  params.zoom    = atof(optarg);  break;
+
+    case 'e':  render.exposure       = atof(optarg);  break;
+    case 't':  render.target_density = atol(optarg);  break;
 
     case 's':
       /* A single number can be given to make a square image,
@@ -198,7 +199,7 @@ void usage(char **argv) {
 	 "                       in PNG format to FILE.\n",
 	 argv[0],
 	 params.a, params.b, params.c, params.d, params.xoffset, params.yoffset, params.zoom,
-	 render.exposure, render.width, render.targetDensity);
+	 render.exposure, render.width, render.target_density);
 }
 
 void interactive_main(int argc, char ** argv) {
@@ -231,19 +232,19 @@ void interactive_main(int argc, char ** argv) {
 
 void render_main(const char *filename) {
   /* Main function for noninteractive rendering. This renders an image with the
-   * current settings until render.currentDensity reaches targetDensity. We show helpful
+   * current settings until render.current_density reaches target_density. We show helpful
    * progress doodads on stdout while the poor user has to wait.
    */
   time_t start_time, now, elapsed, remaining;
   start_time = time(NULL);
 
-  while (render.currentDensity < render.targetDensity) {
+  while (render.current_density < render.target_density) {
     run_iterations(1000000);
 
-    /* This should be a fairly accurate time estimate, since currentDensity increases linearly */
+    /* This should be a fairly accurate time estimate, since current_density increases linearly */
     now = time(NULL);
     elapsed = now - start_time;
-    remaining = ((float)elapsed) * render.targetDensity / render.currentDensity - elapsed;
+    remaining = ((float)elapsed) * render.target_density / render.current_density - elapsed;
 
     /* After each batch of iterations, show the percent completion, number
      * of iterations (in scientific notation), iterations per second,
@@ -251,9 +252,9 @@ void render_main(const char *filename) {
      */
     if (elapsed > 0) {
       printf("%6.02f%%   %.3e   %.2e/sec   %6d / %d   %02d:%02d:%02d / %02d:%02d:%02d\n",
-	     100.0 * render.currentDensity / render.targetDensity,
+	     100.0 * render.current_density / render.target_density,
 	     render.iterations, render.iterations / elapsed,
-	     render.currentDensity, render.targetDensity,
+	     render.current_density, render.target_density,
 	     elapsed / (60*60), (elapsed / 60) % 60, elapsed % 60,
 	     remaining / (60*60), (remaining / 60) % 60, remaining % 60);
     }
@@ -334,7 +335,7 @@ GtkWidget *build_sidebar() {
     gtk_table_attach(GTK_TABLE(table), gui.ds, 1, 2, 3, 4, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
     g_signal_connect(G_OBJECT(gui.ds), "changed", G_CALLBACK(param_spinner_changed), NULL);
 
-    gui.zs = gtk_spin_button_new_with_range(0.01, 100, 0.01);
+    gui.zs = gtk_spin_button_new_with_range(0.20, 100, 0.01);
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui.zs), params.zoom);
     gtk_table_attach(GTK_TABLE(table), gui.zs, 1, 2, 4, 5, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
     g_signal_connect(G_OBJECT(gui.zs), "changed", G_CALLBACK(param_spinner_changed), NULL);
@@ -464,87 +465,57 @@ float get_pixel_scale() {
   return fscale;
 }
 
-void fast_update_pixels(int steps) {
-  /* Progressively update the pixels[] with RGBA values corresponding to the
-   * raw point counts in counts[]. This uses an interlacing method where only
-   * 1/steps of the image is updated each call. The entire image will be updated
-   * if steps == 1.
-   *
-   * 'steps' MUST be a power of two!
+void update_color_table() {
+  /* Reallocate the color table if necessary, then regenerate its contents
+   * to match the current_density, exposure, gamma, and other rendering parameters.
+   * The color tabls is what maps counts[] values to pixels[] values quickly.
    */
-  const int rowstride = render.width * 4;
-  const int progressive_mask = steps - 1;
-  guchar *row;
-  guint32 *p;
-  guint32 gray, iscale;
-  guint countsclamp, dval, *count_p, *count_row;
-  int x, y;
-  static int progressive_row = 0;
-  float fscale = get_pixel_scale();
+  guint required_size = render.current_density + 1;
+  guint count, r, g, b, a;
+  float pixel_scale = get_pixel_scale();
+  float luma;
 
-  /* This is the maximum allowed value for counts[], corresponding to full black */
-  countsclamp = (int)(1 / fscale) - 1;
+  /* Current table too small? */
+  if (render.color_table_size < required_size) {
+    if (render.color_table)
+      g_free(render.color_table);
 
-  /* Convert fscale to an 8:24 fixed point number that will map counts[]
-   * values to gray levels between 0 and 255.
-   */
-  iscale = (guint32)(fscale * 0xFF000000L);
-
-  row = render.pixels;
-  count_row = render.counts;
-  for (y=0; y<render.height; y++) {
-    if ((y & progressive_mask) == progressive_row) {
-      p = (guint32*) row;
-      count_p = count_row;
-      for (x=0; x<render.width; x++) {
-
-	dval = *(count_p++);
-	if (dval > countsclamp)
-	  dval = countsclamp;
-
-	gray = 255 - ((dval * iscale) >> 24);
-
-	*(p++) = GRAY_TO_RGBA(gray);
-      }
-    }
-    row += rowstride;
-    count_row += render.width;
+    /* Allocate it to double the size we need now, as we expect our needs to grow. */
+    render.color_table_size = required_size * 2;
+    render.color_table = g_malloc(render.color_table_size * sizeof(render.color_table[0]));
   }
 
-  progressive_row = (progressive_row + 1) & progressive_mask;
+  /* Generate one color for every currently-possible count value... */
+  for (count=0; count<=render.current_density; count++) {
+    luma = count * pixel_scale;
+
+    if (luma > 1)
+      luma = 1;
+
+    a = 255;
+    r = 255 - luma*255;
+    g = 255 - luma*255;
+    b = 255 - luma*255;
+
+    /* Colors are always ARGB order in little endian */
+    render.color_table[count] = GUINT32_TO_LE( (a<<24) | (r<<16) | (g<<8) | b );
+  }
 }
 
 void update_pixels() {
-  /* A slower but higher quality method of converting counts[] to pixels[].
-   * This uses floating point math, and doesn't perform any progressive rendering.
-   */
-  const int rowstride = render.width * 4;
-  guchar *row;
-  guint32 *p;
-  guint32 gray;
-  guint *count_p, *count_row;
+  /* Convert counts[] to colored 8-bit ARGB image data using our color lookup table */
+  guint32 *pixel_p;
+  guint *count_p;
   int x, y;
-  float fscale = get_pixel_scale();
-  float luma;
 
-  row = render.pixels;
-  count_row = render.counts;
+  update_color_table();
 
-  for (y=0; y<render.height; y++) {
-    p = (guint32*) row;
-    count_p = count_row;
-    for (x=0; x<render.width; x++) {
+  pixel_p = render.pixels;
+  count_p = render.counts;
 
-      luma = *(count_p++) * fscale;
-      if (luma > 1)
-	luma = 1;
-
-      gray = 255 - (luma * 255);
-      *(p++) = GRAY_TO_RGBA(gray);
-    }
-    row += rowstride;
-    count_row += render.width;
-  }
+  for (y=render.height; y; y--)
+    for (x=render.width; x; x--)
+      *(pixel_p++) = render.color_table[*(count_p++)];
 }
 
 void update_gui() {
@@ -558,13 +529,11 @@ void update_gui() {
     return;
 
   /* Update the iteration counter */
-  iters = g_strdup_printf("Iterations:\n%.3e\n\nmax density:\n%d", render.iterations, render.currentDensity);
+  iters = g_strdup_printf("Iterations:\n%.3e\n\nmax density:\n%d", render.iterations, render.current_density);
   gtk_label_set_text(GTK_LABEL(gui.iterl), iters);
   g_free(iters);
 
-  /* Update our pixels[] from counts[], 1/4 of the rows at a time */
-  fast_update_pixels(4);
-
+  update_pixels();
   update_drawing_area();
 }
 
@@ -572,12 +541,12 @@ void update_drawing_area() {
   /* Update our drawing area */
   gdk_draw_rgb_32_image(gui.drawing_area->window, gui.gc,
 			0, 0, render.width, render.height, GDK_RGB_DITHER_NORMAL,
-			render.pixels, render.width * 4);
+			(guchar*) render.pixels, render.width * 4);
 }
 
 void clear() {
   memset(render.counts, 0, render.width * render.height * sizeof(int));
-  render.currentDensity = 0;
+  render.current_density = 0;
   render.iterations = 0;
   point.x = ((float) rand()) / RAND_MAX;
   point.y = ((float) rand()) / RAND_MAX;
@@ -607,8 +576,8 @@ void run_iterations(int count) {
     if (ix < render.width && iy < render.height) {
       p = render.counts + ix + render.width * iy;
       d = *p = *p + 1;
-      if (d > render.currentDensity)
-	render.currentDensity = d;
+      if (d > render.current_density)
+	render.current_density = d;
     }
   }
   render.iterations += count;
@@ -660,7 +629,7 @@ void param_spinner_changed(GtkWidget *widget, gpointer user_data) {
 
 void exposure_changed(GtkWidget *widget, gpointer user_data) {
   render.exposure = gtk_spin_button_get_value(GTK_SPIN_BUTTON(gui.ls));
-  fast_update_pixels(1);
+  update_pixels();
   update_drawing_area();
 }
 
@@ -766,7 +735,7 @@ void save_to_file(const char *name) {
   /* Get a higher quality rendering */
   update_pixels();
 
-  pixbuf = gdk_pixbuf_new_from_data(render.pixels, GDK_COLORSPACE_RGB, TRUE,
+  pixbuf = gdk_pixbuf_new_from_data((guchar*) render.pixels, GDK_COLORSPACE_RGB, TRUE,
 				    8, render.width, render.height, render.width*4, NULL, NULL);
 
   /* Save our current parameters in a tEXt chunk, using a format that
