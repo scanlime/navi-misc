@@ -1,11 +1,14 @@
 0.9
 	* Made the about box the coolest thing since sliced cheese
 	* Added keybindings for zoom presets
+	* Used the new icon in Win32 and on individual Fyre windows
 	* Added an index to AVI files created with the animation renderer,
 	  allowing them to be played in Windows Media Player
 	* Added file associations for image/png and
 	  application/x-fyre-animation on linux
 	* Minor bugfixes and UI polishing
+	* Added GUI support to remote control mode
+	* Added a Python example client for Fyre's remote control mode
 
 0.8 (27 January 2005)
 	* Minor bugfixes
