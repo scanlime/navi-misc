@@ -51,7 +51,7 @@ webRoot.putChild('graph', Web.Stats.Graph.GraphPage(
     ))
 
 # Create a root XML-RPC object, with interfaces attached for each subsystem
-rpc = RpcServer.Interface()
+rpc = RpcServer.getRootInterface()
 rpc.putSubHandler('hub', Message.HubInterface(hub))
 rpc.putSubHandler('mail', IncomingMail.MailInterface(hub))
 rpc.putSubHandler('ruleset', Ruleset.RulesetInterface(rulesetStorage))

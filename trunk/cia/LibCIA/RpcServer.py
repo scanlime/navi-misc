@@ -82,6 +82,12 @@ class Interface(xmlrpc.XMLRPC):
             )
         return server.NOT_DONE_YET
 
+    def call(self, fqname, *args):
+        """A convenience function for calling methods in the RPC tree internally.
+           Returns a Deferred.
+           """
+        return defer.maybeDeferred(self._getFunction(fqname), *args)
+
     def _getFunction(self, fqname):
         """Functions named xmlrpc_* are found and returned as-is, without any capability testing.
 
@@ -175,5 +181,15 @@ class Interface(xmlrpc.XMLRPC):
             base.append(str(segment))
             caps.append(".".join(base))
         return caps
+
+
+_rootInterface = None
+
+def getRootInterface():
+    # Interface should be a singleton, this retrieves the instance, creating it if necessary
+    global _rootInterface
+    if not _rootInterface:
+        _rootInterface = Interface()
+    return _rootInterface
 
 ### The End ###

@@ -25,7 +25,7 @@ from twisted.internet import defer
 from twisted.web import resource, server, error
 from twisted.protocols import http
 from LibCIA.Web import Template, Keyring
-from LibCIA import Units, Stats
+from LibCIA import Units, Stats, RpcServer
 from Nouvelle import tag, subcontext
 import Nouvelle
 import Link
@@ -174,7 +174,9 @@ class MetadataViewSection(Template.Section):
 
 
 class MetadataUploadSection(Template.Section):
-    """A section providing a way to upload metadata using the Keyring for security"""
+    """A section providing a way to upload metadata, only visible if
+       a key has been set with the Keyring.
+       """
     title = "upload metadata"
 
     def __init__(self, target):
@@ -184,11 +186,6 @@ class MetadataUploadSection(Template.Section):
         keyring = Keyring.getKeyring(context)
         if not keyring.hasKey:
             return []
-
-        # Process the results of this form, if we have them
-        args = context['request'].args
-        if args.get('metadata-key'):
-            self.processResults(keyring.key, args)
 
         return [tag('form', method="post", enctype="multipart/form-data",
                     action=Keyring.getSecureURL(context))[
@@ -215,19 +212,7 @@ class MetadataUploadSection(Template.Section):
                         ],
                     ]
                 ]]
-
-    def processResults(self, key, args):
-        """Process the results of submitting our metadata modification form"""
-        name = args.get('metadata-key')[0]
-        mimeType = args.get('metadata-type')[0]
-        value = args.get('metadata-value', (None,))[0]
-        valueFile = args.get('metadata-value-file', (None,))[0]
-
-        # A file takes precedence over the entry field if we have one
-        value = valueFile or value
-
-        #self.target.metadata.set(name, value, mimeType)
-        
+ 
 
 class MetadataValuePage(resource.Resource):
     """A web resource that returns the raw value of a metadata key, with the proper MIME type"""
@@ -337,10 +322,27 @@ class MetadataPage(Template.Page):
         return "Metadata for stats://%s" % "/".join(self.statsPage.target.pathSegments)
 
     def render_mainColumn(self, context):
-        return [
+        # We process our upload results, if necessary, before
+        # doing anything with the main column. This is necessary
+        # to avoid race conditions with displaying and setting the
+        # same metadata, and we also need this for showing errors.
+        result = defer.Deferred()
+        self.processUploadResults(context).addBoth(
+            self._render_mainColumn, context, result)
+        return result
+
+    def _render_mainColumn(self, uploadResult, context, result):
+        # uploadResult will be None or a Failure instance
+        sections = []
+
+        if uploadResult:
+            sections.append(str(uploadResult))
+
+        sections.extend([
             MetadataViewSection(self.statsPage.target),
             MetadataUploadSection(self.statsPage.target),
-            ]
+            ])
+        result.callback(sections)
 
     def getChildWithDefault(self, name, request):
         """Part of IResource, called by twisted.web to retrieve pages for URIs
@@ -356,6 +358,32 @@ class MetadataPage(Template.Page):
         tabs = self.statsPage.render_headingTabs(context)
         tabs.append(Link.StatsLink(self.statsPage.target, Template.headingTab))
         return tabs
+
+    def processUploadResults(self, context):
+        """Process the results of submitting our metadata modification form,
+           returns a Deferred indicating completion of the operation.
+           """
+        args = context['request'].args
+        keyring = Keyring.getKeyring(context)
+        
+        name = args.get('metadata-key', (None,))[0]
+        mimeType = args.get('metadata-type', (None,))[0]
+        value = args.get('metadata-value', (None,))[0]
+        valueFile = args.get('metadata-value-file', (None,))[0]
+
+        if not name:
+            # Nothing to do, return an already complted Deferred
+            result = defer.Deferred()
+            result.callback(None)
+            return result
+
+        # A file takes precedence over the entry field if we have one
+        value = valueFile or value
+
+        # We actually do the metadata setting via the RPC tree,
+        # so we can ensure it has the exact same security semantics.
+        return RpcServer.getRootInterface().call('stats.metadata.set', keyring.key, 
+                                                 self.statsPage.target.path, name, value, mimeType)
 
     leftColumn = [
         Keyring.SecuritySection(),
