@@ -76,7 +76,8 @@ class PalantirClient(irc.IRCClient):
       self.factory.ui.topicReceive(user, channel, newTopic)
 
   def ctcpUnknownQuery(self, user, channel, tag, data):
-    getattr(self.factory.ui, tag, 'unknownTCP')(user, channel, data)
+    if hasattr(self.factory.ui, 'unknownCTCP'):
+      self.factory.ui.unknownCTCP(user, channel, data)
 
   def userJoined(self, user, channel):
     if hasattr(self.factory.ui, 'userJoined'):

@@ -273,10 +273,20 @@ class PalantirWindow:
     self.meReceive(self.factory.nickname, self.factory.channels[0], args)
 
   def ctcp(self, args):
-    print 'Not Done'
+    ''' Send a CTCP message. '''
+    self.tree.get_widget('SendField').set_text('')
+    args = args.split()
+    if len(args) > 1:
+      user = args[0]
+      command = args[1]
+      if len(args) > 2:
+        data = string.join(args[2:])
+      else:
+	data = None
+      self.factory.client.ctcpMakeQuery(user, [(command, data)])
 
   def query(self, args):
-    print 'Not Done'
+    print 'Need to implement separate buffers first'
 
   def ping(self, args=''):
     ''' Ping the server. '''
@@ -416,7 +426,7 @@ class PalantirWindow:
     image.set_from_file('/usr/share/palantir/pixmaps/dm.png')
     self.tree.get_widget('UserList').get_model().foreach(
 	self.setUserIcon, (nick, image.get_pixbuf()))
-    self.chatWindow.DisplayText(time, '', '*** ' + nick + ' now had DM status.')
+    self.chatWindow.DisplayText(time, '', '*** ' + nick + ' now has DM status.')
 
   def UNDM(self, user, channel, data):
     ''' The user who sent this message has removed DM status from
