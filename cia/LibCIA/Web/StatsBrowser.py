@@ -21,7 +21,8 @@ A web interface for CIA's stats:// namespace
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import time
+from __future__ import division
+import time, math
 import Template, Nouvelle
 from LibCIA import TimeUtil, Message
 from Nouvelle import tag, place
@@ -133,6 +134,37 @@ class TargetTitleColumn(Nouvelle.Column):
         return StatsLink(target)
 
 
+class TargetCounterColumn(Nouvelle.Column):
+    """A Column displaying a counter value from each target"""
+    def __init__(self, heading, counterName):
+        self.heading = heading
+        self.counterName = counterName
+
+    def getValue(self, target):
+        return target.counters.getCounter(self.counterName).get('eventCount', 0)
+
+    def cmp(self, a, b):
+        # Reverse the default sort, show larger counters first
+        return -Nouvelle.Column.cmp(self, a, b)
+
+    def isVisible(self, context):
+        return context['table'].reduceColumn(self, max) > 0
+
+
+class TargetBargraphColumn(TargetCounterColumn):
+    """A Column that renders a counter value as a logarithmic bar chart"""
+    def render_data(self, context, target):
+        value = self.getValue(target)
+        if not value:
+            return ''
+        logMax = math.log(context['table'].reduceColumn(self, max))
+        if logMax > 0:
+            fraction = math.log(value) / logMax
+        else:
+            fraction = 1
+        return Template.Bargraph(fraction)[ value ],
+
+
 class Catalog(Template.Section):
     """A Section displaying links to all children of a StatsTarget, with
        other information about the children displayed as applicable.
@@ -151,6 +183,9 @@ class Catalog(Template.Section):
     def render_rows(self, context):
         return [Template.Table(self.childTargets, [
             TargetTitleColumn(),
+            TargetBargraphColumn('events today', 'today'),
+            TargetBargraphColumn('events yesterday', 'yesterday'),
+            TargetBargraphColumn('total events', 'forever'),
             ])]
 
 
