@@ -99,8 +99,8 @@ Dependencies
 - Twisted 1.1.1 or later
 - PyGTK 2.0 or later for the GUI tools
 - 4Suite
-- MySQL with support for the InnoDB table type
-- Nouvelle_ 0.91 or later
+- MySQL (MUST have support for the InnoDB table type)
+- Nouvelle_ (latest svn)
 - Docutils_
 - the `Python Imaging Library`_
 - Graphviz_ and Sodipodi_ to generate graphs

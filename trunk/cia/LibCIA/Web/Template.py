@@ -21,11 +21,15 @@ Template classes for building web pages using our particular style
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
+import Nouvelle
 import Nouvelle.Twisted
 from twisted.internet import defer
 from Nouvelle import tag, place, xml, subcontext
 import types
 
+# Verify we have a new enough Nouvelle
+if (not hasattr(Nouvelle, "version_info")) or Nouvelle.version_info < (0, 92, 1):
+    raise Exception("The installed copy of Nouvelle is too old")
 
 # Tag templates
 catalogList = tag('ul', _class="catalog")
@@ -142,39 +146,10 @@ class Section:
 
 class Table(Nouvelle.ResortableTable):
     """Add sorting indicators to Nouvelle's normal ResortableTable"""
-    def render_heading(self, context, column):
-        if self.columns[self.sortColumnIndex] == column:
-            # This is the sort column, indicate the direction
-            if self.sortReversed:
-                indicator = tag('img', _class='sortIndicator', width=11, height=7,
+    reversedSortIndicator = tag('img', _class='sortIndicator', width=11, height=7,
                                 src="/images/sort_up.png", alt="Reversed sort column")
-            else:
-                indicator = tag('img', _class='sortIndicator', width=11, height=7,
-                                src="/images/sort_down.png", alt="Sort column")
-        else:
-            # Not the sort column
-            indicator = []
-
-        return [
-            Nouvelle.ResortableTable.render_heading(self, context, column),
-            indicator,
-            ]
-
-    def getCookieHyperlink(self, context, cookie):
-        """Since CIA can sometimese use POST requests with large amounts
-           of possibly security sensitive data, we hack this up a bit to only
-           include existing args that were passed through a GET.
-           """
-        if context['request'].method == "GET":
-            newArgs = dict(context['args'])
-        else:
-            newArgs = {}
-        newArgs[self.sortArgName] = [cookie]
-        pairs = []
-        for key in newArgs:
-            for value in newArgs[key]:
-                pairs.append('%s=%s' % (key, value))
-        return '?' + '&'.join(pairs)
+    sortIndicator = tag('img', _class='sortIndicator', width=11, height=7,
+                        src="/images/sort_down.png", alt="Sort column")
 
 
 class StaticSection(Section):
