@@ -189,4 +189,10 @@ class Device:
         """Scan all analog to digital converters, return their values"""
         return struct.unpack("BBBBBBBB", ioctl(self.dev, 0x3703, struct.pack("xxxxxxxx")))
 
+    def usartTxRx(self, bufferAddress, transmitBytes=0, receiveBytes=0):
+        """Using a buffer at the given location in the PIC's address space, transmit the given
+           number of bytes then begin waiting for up to receiveBytes.
+           """
+        ioctl(self.dev, 0x3704, struct.pack("HBB", bufferAddress, transmitBytes, receiveBytes))
+
 ### The End ###

@@ -42,6 +42,18 @@ struct rcpod_pair {
 /* Given a pointer to an 8-byte buffer, reads all A/D converters and fills the buffer */
 #define RCPODIO_ANALOG_ALL   0x3703
 
+struct rcpod_txrx {
+	__u16 address;
+	__u8 tx_bytes;
+	__u8 rx_bytes;
+};
+
+/* Given a pointer to a rcpod_txrx structure, transmit 'tx_bytes' bytes from the buffer
+ * at the given location in the PIC's address space, then start receiving up to 'rx_bytes'
+ * to the same buffer location.
+ */
+#define RCPODIO_USART_TXRX   0x3704
+
 #endif /* __RCPOD_DEV_H */
 
 /* The End */
