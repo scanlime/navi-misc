@@ -1,5 +1,5 @@
+#!/usr/bin/env python
 import sys
-
 
 def menu(title, items):
     while True:
@@ -15,7 +15,7 @@ def menu(title, items):
             return itemMap[choice]
         except ValueError:
             print "Not a number, you dork"
-        except IndexError:
+        except KeyError:
             print "Choose something on the menu!"
         print
 
