@@ -30,6 +30,8 @@
 
 #include <netinet/in.h>
 
+#define IPIPE_DEFAULT_PORT    7192
+
 /* Every input event or configuration request is packaged into
  * a packet. The header simply identifies the type of packet and
  * its size. Unknown packets types are typically ignored.
@@ -38,8 +40,6 @@ struct inputpipe_packet {
   uint16_t type;
   uint16_t length;
 };
-
-#define IPIPE_MAX_PACKET_SIZE 32
 
 /* Packets that can be sent after a device is created */
 #define IPIPE_EVENT                  0x0101    /* struct ipipe_event */
@@ -51,14 +51,7 @@ struct inputpipe_packet {
 #define IPIPE_DEVICE_ID              0x0202    /* struct ipipe_input_id */
 #define IPIPE_DEVICE_FF_EFFECTS_MAX  0x0203    /* uint32_t */
 #define IPIPE_DEVICE_ABSINFO         0x0204    /* struct ipipe_absinfo */
-#define IPIPE_DEVICE_SET_EVBIT       0x0205    /* uint32_t */
-#define IPIPE_DEVICE_SET_KEYBIT      0x0206    /* uint32_t */
-#define IPIPE_DEVICE_SET_RELBIT      0x0207    /* uint32_t */
-#define IPIPE_DEVICE_SET_ABSBIT      0x0208    /* uint32_t */
-#define IPIPE_DEVICE_SET_MSCBIT      0x0209    /* uint32_t */
-#define IPIPE_DEVICE_SET_LEDBIT      0x020A    /* uint32_t */
-#define IPIPE_DEVICE_SET_SNDBIT      0x020B    /* uint32_t */
-#define IPIPE_DEVICE_SET_FFBIT       0x020C    /* uint32_t */
+#define IPIPE_DEVICE_BITS            0x0205    /* uint16_t + bit map */
 
 /* After all the IPIPE_DEVICE_* packets you wish to send,
  * this actually creates a new input device on the server machine.

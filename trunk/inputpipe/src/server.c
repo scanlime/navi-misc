@@ -33,6 +33,7 @@
 #include <sys/select.h>
 #include <sys/time.h>
 #include <sys/select.h>
+#include <linux/tcp.h>
 
 #include <linux/input.h>
 #include <linux/uinput.h>
@@ -78,7 +79,7 @@ struct listener {
 
 /* Configuration options */
 static char* config_uinput_path = "/dev/uinput";
-static int   config_tcp_port    = 5591;
+static int   config_tcp_port    = IPIPE_DEFAULT_PORT;
 static int   config_verbose     = 1;
 
 /* Global doubly-linked list of clients */
@@ -102,10 +103,6 @@ static void             client_received_packet (struct client* self,
 						int type,
 						int length,
 						void* content);
-static void             client_set_bit         (struct client* self,
-						int length,
-						void* content,
-						int ioc);
 
 static void             client_list_remove     (struct client* client);
 static void             client_list_insert     (struct client* client);
@@ -328,29 +325,53 @@ static void client_received_packet(struct client* self,
     }
     break;
 
-  case IPIPE_DEVICE_SET_EVBIT:
-    client_set_bit(self, length, content, UI_SET_EVBIT);
-    break;
-  case IPIPE_DEVICE_SET_KEYBIT:
-    client_set_bit(self, length, content, UI_SET_KEYBIT);
-    break;
-  case IPIPE_DEVICE_SET_RELBIT:
-    client_set_bit(self, length, content, UI_SET_RELBIT);
-    break;
-  case IPIPE_DEVICE_SET_ABSBIT:
-    client_set_bit(self, length, content, UI_SET_ABSBIT);
-    break;
-  case IPIPE_DEVICE_SET_MSCBIT:
-    client_set_bit(self, length, content, UI_SET_MSCBIT);
-    break;
-  case IPIPE_DEVICE_SET_LEDBIT:
-    client_set_bit(self, length, content, UI_SET_LEDBIT);
-    break;
-  case IPIPE_DEVICE_SET_SNDBIT:
-    client_set_bit(self, length, content, UI_SET_SNDBIT);
-    break;
-  case IPIPE_DEVICE_SET_FFBIT:
-    client_set_bit(self, length, content, UI_SET_FFBIT);
+  case IPIPE_DEVICE_BITS:
+    {
+      int bit, ev, ioc, i, j;
+      unsigned char *p;
+      unsigned char byte;
+
+      if (length < sizeof(uint16_t)) {
+	client_message(self, "Received IPIPE_DEVICE_BITS with incorrect length");
+	return;
+      }
+
+      /* Our packet starts with the EV_* type code */
+      ev = ntohs(*(uint16_t*)content);
+
+      /* Convert the type code into a uinput ioctl */
+      switch (ev) {
+      case      0: ioc = UI_SET_EVBIT;  break;
+      case EV_KEY: ioc = UI_SET_KEYBIT; break;
+      case EV_REL: ioc = UI_SET_RELBIT; break;
+      case EV_ABS: ioc = UI_SET_ABSBIT; break;
+      case EV_MSC: ioc = UI_SET_MSCBIT; break;
+      case EV_LED: ioc = UI_SET_LEDBIT; break;
+      case EV_SND: ioc = UI_SET_SNDBIT; break;
+      case EV_FF:  ioc = UI_SET_FFBIT;  break;
+      default:
+	ioc = 0;
+      }
+
+      if (!ioc) {
+	client_message(self, "Received bits for unknown event type %d", ev);
+	break;
+      }
+
+      /* Start unpacking the bits and setting them in ioctl()s */
+      p = ((unsigned char *)content)+sizeof(uint16_t);
+      bit = 0;
+      for (i=0; i < (length-sizeof(uint16_t)); i++) {
+	byte = p[i];
+	for (j=0; j<8; j++) {
+	  if (byte & 1) {
+	    ioctl(self->uinput_fd, ioc, bit);
+	  }
+	  byte >>= 1;
+	  bit++;
+	}
+      }
+    }
     break;
 
   case IPIPE_CREATE:
@@ -368,16 +389,6 @@ static void client_received_packet(struct client* self,
   default:
     client_message(self, "Received unknown packet type 0x%04X", type);
   }
-}
-
-static void client_set_bit(struct client* self, int length,
-			     void* content, int ioc)
-{
-  if (length != sizeof(uint32_t)) {
-    client_message(self, "Received a bit setting packet with incorrect length");
-    return;
-  }
-  ioctl(self->uinput_fd, ioc, ntohl(*(uint32_t*)content));
 }
 
 
@@ -446,7 +457,17 @@ static struct listener* listener_new(int sock_type, int port)
 
   opt = 1;
   if (setsockopt(self->fd, SOL_SOCKET, SO_REUSEADDR, (char*) &opt, sizeof(opt))) {
-    perror("setsockopt");
+    perror("Setting SO_REUSEADDR");
+    listener_delete(self);
+    return NULL;
+  }
+
+  /* Try disabling the "Nagle algorithm" or "tinygram prevention".
+   * This will keep our latency low, and we do our own write buffering.
+   */
+  opt = 1;
+  if (setsockopt(self->fd, 6 /*PROTO_TCP*/, TCP_NODELAY, (void *)&opt, sizeof(opt))) {
+    perror("Setting TCP_NODELAY");
     listener_delete(self);
     return NULL;
   }
