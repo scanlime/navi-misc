@@ -58,6 +58,12 @@ class RecentMessagesModel(model.Wrapper):
         return model.ListModel([])
 
 
+class StatsChildrenModel(model.Wrapper):
+    """Wraps a StatsPage, providing access to its child pages"""
+    def getSubmodel(self, request, name):
+        return self.original.getDynamicChild(name)
+
+
 class CounterModel(model.MethodModel):
     """A Model representing a single event counter, providing submodels
        for retrieving the total event count, creation date, most recent
@@ -125,7 +131,7 @@ class StatsPage(page.Page):
         self.path = path
         self.target = self.storage.getPathTarget(path)
 
-    def getDynamicChild(self, name, request):
+    def getDynamicChild(self, name, request=None):
         if self.path == '' or self.path[-1] == '/':
             newPath = self.path + name
         else:
@@ -241,6 +247,21 @@ class StatsPage(page.Page):
            """
         return RecentMessagesModel(self.target.recentMessages)
 
+    def wmfactory_currentTime(self, request):
+        """Always returns the current time"""
+        return time.time()
+
+    def wmfactory_root(self, request):
+        """Returns the root StatsPage"""
+        return StatsPage(caps    = self.caps,
+                         storage = self.storage)
+
+    def wmfactory_child(self, request):
+        """Returns a model representing the children of this StatsPage.
+           Each submodel of the returned model looks for a child with that name.
+           """
+        return StatsChildrenModel(self)
+
 
     ######################################### Widget Factories
 
@@ -275,6 +296,5 @@ class StatsPage(page.Page):
         """Use AutoFormatter to display a message in XHTML"""
         html = Message.AutoFormatter('xhtml').format(Message.Message(data.original))
         return widgets.RawText(html)
-
 
 ### The End ###

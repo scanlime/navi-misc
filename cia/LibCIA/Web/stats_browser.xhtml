@@ -14,57 +14,64 @@
     <table class="columns">
         <td class="left">
 
-	    <div view="if" model="catalog">
-		<span class="section">catalog</span>
-		<div class="section">
-		    <div class="sectionTop"/>
-		    <div class="row"><ul model="catalog" view="List">
-		        <li pattern="listItem"><a view="statsLink"/></li>
-                    </ul></div>
-		</div>
+            <span class="section">UTC clock</span>
+            <div class="section">
+                <div class="sectionTop"/>
+                <div class="row" model="currentTime" view="fullDate"/>
+            </div>
+
+            <span class="section">catalog</span>
+            <div class="section">
+                <div class="sectionTop"/>
+                <div class="row"><ul model="catalog" view="List">
+                    <li pattern="listItem"><a view="statsLink"/></li>
+                </ul></div>
             </div>
 
         </td>
         <td class="main">
 
-	    <div view="if" model="counters/forever/eventCount">
-		<span class="section">event counters</span>
-		<div class="section">
-		    <div class="sectionTop"/>
-		    <div class="row">
-		        The last message was received
-			<b model="counters/today/lastEventTime" view="relativeDate"/>
-			ago, at
-			<b model="counters/today/lastEventTime" view="fullDate"/>
-		    </div>
-		    <div class="row">
-		    	<b model="counters/today/eventCount" view="Text"/> messages today
-		    </div>
-		    <div class="row">
-		    	<b model="counters/thisWeek/eventCount" view="Text"/> messages this week
-		    </div>
-		    <div class="row">
-		    	<b model="counters/thisMonth/eventCount" view="Text"/> messages this month
-		    </div>
-		    <div class="row">
-		    	<b model="counters/forever/eventCount" view="Text"/>
-			messages since the first one
-		    	<b model="counters/forever/firstEventTime" view="relativeDate"/>
-			ago
-		    </div>
-		</div>
+            <div view="if" model="counters/forever/eventCount">
+                <span class="section">event counters</span>
+                <div class="section">
+                    <div class="sectionTop"/>
+                    <div class="row" view="if" model="counters/forever/lastEventTime">
+                        The last message was received
+                        <b model="counters/forever/lastEventTime" view="relativeDate"/>
+                        ago, at
+                        <b model="counters/forever/lastEventTime" view="fullDate"/>
+                    </div>
+                    <div class="row">
+                        <b model="counters/today/eventCount" view="Text"/> messages today,
+                        <b model="counters/yesterday/eventCount" view="Text"/> messages yesterday
+                    </div>
+                    <div class="row">
+                        <b model="counters/thisWeek/eventCount" view="Text"/> messages this week,
+                        <b model="counters/lastWeek/eventCount" view="Text"/> messages last week
+                    </div>
+                    <div class="row">
+                        <b model="counters/thisMonth/eventCount" view="Text"/> messages this month,
+                        <b model="counters/lastMonth/eventCount" view="Text"/> messages last month
+                    </div>
+                    <div class="row">
+                        <b model="counters/forever/eventCount" view="Text"/>
+                        messages since the first one,
+                        <b model="counters/forever/firstEventTime" view="relativeDate"/>
+                        ago
+                    </div>
+                </div>
             </div>
 
-	    <div view="if" model="recentMessages/1">
-		<span class="section">recent messages</span>
-		<div class="section">
-		    <div class="sectionTop"/>
-		    <div class="terminalBox">
-			<ul model="recentMessages/10" view="List">
-			    <li pattern="listItem"><span view="message"/></li>
-			</ul>
-		    </div>
-		</div>
+            <div view="if" model="recentMessages/1">
+                <span class="section">recent messages</span>
+                <div class="section">
+                    <div class="sectionTop"/>
+                    <div class="terminalBox">
+                        <ul model="recentMessages/10" view="List">
+                            <li pattern="listItem"><span view="message"/></li>
+                        </ul>
+                    </div>
+                </div>
             </div>
 
         </td>
