@@ -1,0 +1,21 @@
+Known bugs in rcpod firmware/software
+(Doesn't include hardware bugs, those are listed as ERRATA for each revision)
+-----------------------------------------------------------------------------
+
+- Serial receive seems to become inoperative at odd times. Try running
+  the rs485commtest, then unplugging the RS-485 link during a test.
+  Run it again, and one or both rcpods will fail to receive any data.
+
+- The maximum send/receive size is currently 80 bytes, limited to the size of
+  the scratchpad page. Packets received from the CX science microcontroller
+  will be larger, so there needs to be a way to use multiple memory banks
+  or possibly part of the unbanked memory as a larger buffer.
+
+- There is currently no way to list all data received over RS-485, just ways
+  to capture data in a given interval. This could be fixed by making the
+  receiver use a ring buffer, providing functions to query the current buffer
+  pointers and increment the tail pointer by a given amount.
+
+
+
+
