@@ -32,7 +32,7 @@ Details
 How does CIA work?
 
 Every project that is 'connected' to CIA has some way of representing
-its commit messages, bug tracker updates, and other messages in XML.
+its commit messages, bug tracker updates, or other messages in XML.
 The CIA project defines a format that these messages must adhere to.
 The messages are then delivered to CIA using XML-RPC or e-mail.
 
