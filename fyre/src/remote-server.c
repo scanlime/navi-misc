@@ -408,6 +408,11 @@ static void       cmd_set_gui_style    (RemoteServerConn*  self,
      */
     RemoteGUIInitializer callback;
 
+    if (!self->server->have_gtk) {
+	remote_server_send_response(self, FYRE_RESPONSE_UNSUPPORTED, "No GUI is available");
+	return;
+    }
+
     callback = (RemoteGUIInitializer)
 	g_hash_table_lookup(self->server->gui_hash, parameters);
 
