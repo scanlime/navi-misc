@@ -26,6 +26,7 @@ from twisted.web import xmlrpc
 from twisted.python.rebuild import rebuild
 import sys, traceback
 from twisted.python import log
+import gc
 
 
 def catchFault(message="Exception occurred"):
@@ -56,15 +57,83 @@ class SysInterface(xmlrpc.XMLRPC):
     """An interface over XML-RPC to functionality that doesn't belong in any one other module
 
        caps : The CapabilityDB used to authorize access to these functions
+
+       FIXME: rename this to DebugInterface
        """
     def __init__(self, caps):
         self.caps = caps
 
-    def xmlrpc_rebuild(self, key=None):
+    def xmlrpc_rebuild(self, key):
         """Use twisted.python.rebuild to reload all applicable modules"""
         self.caps.faultIfMissing(key, 'universe', 'sys', 'sys.rebuild')
         import LibCIA
         rebuildPackage(LibCIA)
         return True
+
+    def xmlrpc_gcGarbageInfo(self, key):
+        """Return a string representation of the items in gc.garbage"""
+        self.caps.faultIfMissing(key, 'universe', 'sys', 'sys.gc', 'sys.gcGarbageInfo')
+        return map(repr, gc.garbage)
+
+    def xmlrpc_gcObjectsInfo(self, key):
+        """Return a string representation of the items in gc.get_objects().
+           This can take a while and be very big!
+           """
+        self.caps.faultIfMissing(key, 'universe', 'sys', 'sys.gc', 'sys.gcObjectsInfo')
+        return map(repr, gc.get_objects())
+
+    def getTypeName(self, obj):
+        # Try as hard and as generically as we can to get a useful type/class name
+        try:
+            t = obj.__class__
+        except:
+            t = type(obj)
+        try:
+            t = t.__name__
+        except:
+            pass
+        t = str(t)
+        return t
+
+    def xmlrpc_getTypeObjects(self, t, key):
+        """Return all objects of any one type, using the same type names as gcObjectProfile"""
+        self.caps.faultIfMissing(key, 'universe', 'sys', 'sys.gc', 'sys.gcTypeObjects')
+        results = []
+        for object in gc.get_objects():
+            if self.getTypeName(object) == t:
+                results.append(repr(object))
+        return results
+
+    def xmlrpc_gcCollect(self, key):
+        self.caps.faultIfMissing(key, 'universe', 'sys', 'sys.gc', 'sys.gcCollect')
+        gc.collect()
+        return True
+
+    def xmlrpc_gcObjectProfile(self, key):
+        """Print a chart showing the most frequently occurring types in memory"""
+        self.caps.faultIfMissing(key, 'universe', 'sys', 'sys.gc', 'sys.gcObjectProfile')
+
+        # Create a mapping from type name to frequency,
+        # and a mapping from type name to example instances
+        typeFreq = {}
+        typeInstances = {}
+        for object in gc.get_objects():
+            t = self.getTypeName(object)
+            # Increment the frequency
+            typeFreq[t] = typeFreq.setdefault(t, 0) + 1
+
+            # Add to our list of example instances if it isn't already too big
+            inst = typeInstances.setdefault(t, [])
+            if len(inst) < 100:
+                inst.append(repr(object))
+
+        # Sort by frequency
+        keys = typeFreq.keys()
+        keys.sort(lambda a,b: cmp(typeFreq[a],typeFreq[b]))
+
+        # And return a nice table
+        return "\n".join([
+            "%30s :  %-10d %s..." % (key, typeFreq[key], ", ".join(typeInstances[key])[:80])
+            for key in keys])
 
 ### The End ###
