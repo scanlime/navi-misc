@@ -60,6 +60,8 @@ IplImage** cv_dc1394_capture_yuv(int num_images);
 /* Like above, but convert the captured images to RGB */
 IplImage** cv_dc1394_capture_rgb(int num_images);
 
+/* ...or in grayscale */
+IplImage** cv_dc1394_capture_gray(int num_images);
 
 #endif /* __CV_DC1394__H_ */
 
