@@ -6,6 +6,7 @@
 #include "gui.h"
 #include "navigation_tree.h"
 #include "textgui.h"
+#include "userlist.h"
 
 int fe_args(int argc, char *argv[]) {
 	if(argc > 1) {
@@ -173,7 +174,7 @@ void fe_print_text(struct session *sess, char *text) {
 }
 
 void fe_userlist_insert(struct session *sess, struct User *newuser, int row, int sel) {
-	/* FIXME: implement */
+	userlist_insert(sess, newuser, row, sel);
 }
 
 int fe_userlist_remove(struct session *sess, struct User *user) {
