@@ -42,6 +42,7 @@ public class admin extends java.applet.Applet implements ActionListener
 	{
 		start.removeActionListener(this);
 		remove(start);
+		//new moderator(this);
 		new authenticate(this);
 	}
 	

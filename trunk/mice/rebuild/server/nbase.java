@@ -110,5 +110,6 @@ public class nbase extends Thread
 		{
 			System.out.println(exception);
 		}
+		if(netdebug) System.out.println("Connection Closed");
 	}
 }
