@@ -22,6 +22,7 @@
 #include "textgui.h"
 #include "palette.h"
 #include "preferences.h"
+#include "topiclabel.h"
 #include "../common/text.h"
 #include "../common/xchatc.h"
 #include <libgnome/gnome-url.h> /* gnome_url_show */
@@ -183,7 +184,7 @@ void set_gui_topic(session *sess, char *topic) {
 		GtkWidget *topicbar;
 
 		topicbar = glade_xml_get_widget(gui.xml, "topic label");
-		gtk_label_set_text(topicbar, tgui->topic);
+		topic_label_set_text (topicbar, tgui->topic);
 	}
 }
 

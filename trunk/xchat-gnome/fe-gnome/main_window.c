@@ -31,6 +31,7 @@
 #include "navigation_tree.h"
 #include "textgui.h"
 #include "palette.h"
+#include "topiclabel.h"
 
 #ifdef HAVE_GTKSPELL
 #include <gtkspell/gtkspell.h>
@@ -85,7 +86,7 @@ gboolean on_hpane_move(GtkPaned *widget, GParamSpec *param_spec, gpointer data);
 static void entry_context(GtkEntry *entry, GtkMenu *menu, gpointer user_data);
 
 void initialize_main_window() {
-	GtkWidget *entry, *pane, *topic;
+	GtkWidget *entry, *pane, *topic, *topicbox;
 
 	gui.main_window = GNOME_APP(glade_xml_get_widget(gui.xml, "xchat-gnome"));
 	g_signal_connect(G_OBJECT(gui.main_window), "delete-event", G_CALLBACK(on_main_window_close), NULL);
@@ -125,7 +126,12 @@ void initialize_main_window() {
 	g_signal_connect(G_OBJECT(entry), "populate-popup", G_CALLBACK(entry_context), NULL);
 
   /* XXX: Is this a leak?? */
-	topic = glade_xml_get_widget(gui.xml, "topic label");
+	/*
+	topic = topic_label_new ();
+	topicbox = glade_xml_get_widget (gui.xml, "topic hbox");
+	gtk_box_pack_start (GTK_BOX (topicbox), topic, TRUE, TRUE, 0);
+	gtk_box_reorder_child (GTK_BOX (topicbox), topic, 1);
+	*/
 	// FIXME
 //	g_signal_connect(G_OBJECT(entry), "activate", G_CALLBACK(on_topic_entry_activate), NULL);
 
