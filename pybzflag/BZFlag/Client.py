@@ -288,7 +288,7 @@ class PlayerClient(StatefulClient):
         self.inGame = 0
         StatefulClient.__init__(self, server)
 
-    def onDownloadWorld(self):
+    def onLoadWorld(self):
         self.enterGame()
 
     def enterGame(self):

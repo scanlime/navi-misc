@@ -26,15 +26,37 @@ from BZFlag.Protocol import BinaryWorld, Common
 from BZFlag import Errors
 import os
 
+
+class Octree:
+    def add(self, block):
+        pass
+
+
+class TeleporterSide:
+    """Represent one side of a teleporter. This is used to link teleporters together"""
+    def __init__(self, teleporter, side):
+        self.teleporter = teleporter
+        self.side = side
+
+    def link(self, to):
+        if not hasattr(self.teleporter, 'links'):
+            self.teleporter.links = [None, None]
+        self.teleporter.links[self.side] = to
+
+
 class World:
     """Abstraction for a BZFlag world. Currently this can only be created
        from binary worlds downloaded from the server, but eventually this
        will need to be able to read textual bzflag world files as well.
        """
+    def __init__(self, sceneClass=Octree):
+        self.sceneClass = sceneClass
+        self.erase()
+    
     def loadBinary(self, bin):
         """Load a binary world from the supplied file-like object"""
         blockDict = Common.getMessageDict(BinaryWorld)
-        blocks = []
+        self.erase()
         while 1:
             # Read the block header
             header = BinaryWorld.BlockHeader()
@@ -57,13 +79,46 @@ class World:
             if len(packedBody) < (block.getSize() - len(packedHeader)):
                 raise Errors.ProtocolError("Incomplete block in binary world data")
             block.unmarshall(packedHeader + packedBody)
-            blocks.append(block)
+            self.storeBlock(block)
+        self.postprocess()
 
-        #for block in blocks:
-        #    print block.__class__.__name__
-        #    print block.__dict__
-        print "%d blocks in world. Done." % (len(blocks))
 
+    def erase(self):
+        """Reset all internal structures, prepare to load a world"""
+        self.blocks = []
+        self.teleporters = []
+        self.teleporterLinks = []
+        self.scene = self.sceneClass()
+        self.gameStyle = None
+
+    def storeBlock(self, block):
+        """Store one block class. This will be called while loading a world,
+           between erase() and postprocess().
+           """
+        # File this block in the appropriate lists
+        self.blocks.append(block)
+        if isinstance(block, BinaryWorld.Style):
+            self.gameStyle = block
+        if hasattr(block, 'center'):
+            self.scene.add(block)
+        if isinstance(block, BinaryWorld.TeleporterLink):
+            self.teleporterLinks.append(block)
+        if isinstance(block, BinaryWorld.Teleporter):
+            self.teleporters.append(block)
+
+    def postprocess(self):
+        """Performs any checks or calculations necessary
+           after a world has completed loading.
+           """
+        # Link teleporters to each other.
+        # Note that this creates circular links, so the world will not
+        # be automatically garbage collected! This isn't a problem yet,
+        # since only one world should be loaded.
+        for link in self.teleporterLinks:
+            fromSide = TeleporterSide(self.teleporters[link.fromSide >> 1], link.fromSide & 1)
+            toSide = TeleporterSide(self.teleporters[link.toSide >> 1], link.toSide & 1)
+            fromSide.link(toSide)
+        
 
 class Cache:
     """Cache worlds on disk according to a server-generated hash,

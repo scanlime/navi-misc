@@ -110,8 +110,8 @@ class MsgAlive(Common.Message):
     messageId = 0x616C
     entries = [
         StructEntry(Common.PlayerId, 'id'),
-        StructEntry(Common.Vector3, 'position'),
-        StructEntry(Common.Vector3, 'forward'),
+        StructEntry(Common.Vector3,  'position'),
+        StructEntry(Common.Vector3,  'forward'),
         ]
 
 class MsgNetworkRelay(Common.Message):

@@ -2,18 +2,6 @@
 
 from BZFlag.Client import PlayerClient
 from BZFlag import ListServer, Player
-import sys
-
-
-if len(sys.argv) > 1:
-    # There was a server name on the command line
-    serverName = sys.argv[1]
-else:
-    # Just pick the first server on the list that's compatible with us
-    server = ListServer.getDefault().filteredList()[0]
-    serverName = server.name
-    print server.info()
-
 
 class TestClient(PlayerClient):
     def onConnect(self):
@@ -24,6 +12,10 @@ class TestClient(PlayerClient):
         print "Downloading world..."
         PlayerClient.downloadWorld(self)
 
+    def onLoadWorld(self):
+        print "World loaded - %d blocks" % (len(self.game.world.blocks))
+        PlayerClient.onLoadWorld(self)
+
     def onMsgMessage(self, msg):
         print "Message from %s to %s: %s" % (msg.fromId, msg.toId, msg.message)
 
@@ -31,6 +23,4 @@ class TestClient(PlayerClient):
         print "Entered the game."
 
 
-playerIdent = Player.Identity("Bob the Avenger")
-client = TestClient(serverName, playerIdent)
-client.run()
+TestClient("brlcad.org:4242", Player.Identity("Bob the Avenger")).run()

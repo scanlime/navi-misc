@@ -111,8 +111,8 @@ class Teleporter(Block):
 class TeleporterLink(Block):
     messageId = 0x6C6E
     entries = [
-        StructEntry(UInt16, 'from'),
-        StructEntry(UInt16, 'to'),
+        StructEntry(UInt16, 'fromSide'),
+        StructEntry(UInt16, 'toSide'),
         ]
 
 class EndOfData(Block):
