@@ -24,6 +24,7 @@
 #include <highgui.h>
 
 int image_scale = 10;
+int gamma = 100;
 IplImage *image = NULL, *accumulator = NULL;
 
 void update_image() {
@@ -38,17 +39,6 @@ void on_trackbar(int h) {
   update_image();
 }
 
-void sample_to_accumulator(IplImage **acc) {
-  IplImage *frame;
-  const int total_frames = 100;
-  int i;
-
-  for (i=0; i<total_frames; i++) {
-    printf("%d / %d\n", i+1, total_frames);
-  }
-  cvScale(*acc, *acc,  1.0 / total_frames);
-}
-
 int main(int argc, char **argv) {
   IplImage *frame, *black_level = NULL;
   int frame_count = 0;
@@ -58,7 +48,8 @@ int main(int argc, char **argv) {
 
   cv_dc1394_init();
   cvNamedWindow("image", 1);
-  cvCreateTrackbar("scale", "image", &image_scale, 1000, on_trackbar);
+  cvCreateTrackbar("scale x10", "image", &image_scale, 1000, on_trackbar);
+  cvCreateTrackbar("gamma x100", "image", &gamma, 1000, on_trackbar);
 
   if (argv[1]) {
     CvFileStorage *fs = cvOpenFileStorage(argv[1], NULL, CV_STORAGE_READ);
@@ -80,6 +71,7 @@ int main(int argc, char **argv) {
     cvScale(accumulator, image, 1.0 / frame_count);
     if (black_level)
       cvSub(image, black_level, image);
+    cvPow(image, image, 1.0 / (gamma / 100.0));
 
     update_image();
   }
