@@ -34,6 +34,7 @@ class Reader:
             TwoDPoint = float + float
             ThreeDPoint = float + float + float
             globalReference = Word(alphanums + '/:*_?')
+            flagShortName = Word(alphas, min=1, max=2)
 
             end = Suppress(CaselessLiteral('end'))
             name = CaselessLiteral('name')
@@ -108,7 +109,7 @@ class Reader:
               | CaselessLiteral('smoothbounce')                            \
               | CaselessLiteral('flatshading')                             \
               | obstacleProperty
-            arc = CaselessLiteral('arc') + OneOrMore(arcProperty) + end
+            arc = Group(CaselessLiteral('arc') + OneOrMore(arcProperty) + end)
 
             # FIXME - add material to this object
             tetraProperty =                              \
@@ -116,18 +117,25 @@ class Reader:
               | CaselessLiteral('normals') + ThreeDPoint \
               | CaselessLiteral('texcoords') + TwoDPoint \
               | obstacleProperty
-            tetra = Group(CaselessLiteral('tetra') + OneOrMore(tetraProperty))
+            tetra = Group(CaselessLiteral('tetra') + OneOrMore(tetraProperty) + end)
 
             flagSpec =                  \
                 CaselessLiteral('good') \
               | CaselessLiteral('bad')  \
-              | Word(alphas, min=1, max=2)
+              | flagShortName
             zoneProperty =                                        \
                 CaselessLiteral('flag') + OneOrMore(flagSpec)     \
               | CaselessLiteral('team') + OneOrMore(Word(nums))   \
               | CaselessLiteral('safety') + OneOrMore(Word(nums)) \
               | locationProperty
-            zone = CaselessLiteral('zone') + OneOrMore(zoneProperty)
+            zone = Group(CaselessLiteral('zone') + OneOrMore(zoneProperty) + end)
+
+            weaponProperty = \
+                Group(CaselessLiteral('initdelay') + float)        \
+              | Group(CaselessLiteral('delay') + OneOrMore(float)) \
+              | Group(CaselessLiteral('type') + flagShortName)     \
+              | locationProperty
+            weapon = Group(CaselessLiteral('weapon') + OneOrMore(weaponProperty) + end)
 
             worldObject =  \
                 box        \
