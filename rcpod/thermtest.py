@@ -6,3 +6,6 @@ i2cb = i2c.i2c_bus(dev)
 therm = i2c.therm(i2cb)
 
 print therm.read(0x48, 0x00)	# address 1001 000 (A0), RTR
+print therm.recieve(0x48)	# address 1001 000
+print therm.read(0x48, 0x01)	# address 1001 000 (A0), RWCR
+print therm.recieve(0x48)	# address 1001 000

@@ -2,38 +2,39 @@ class i2c_bus:
     def __init__(self, pic):
         self.pic	= pic
         self.busmask	= 0x01					# 0000 0001 - i2c bus on RB0
+	self.pic.poke('trisa', 0x00)				# all output
 
     def start(self):
-        self.pic.poke('portb', self.busmask)			# bus high
+        self.pic.poke('trisb', self.busmask)			# bus high
         self.pic.poke('porta', 0x01)				# clock high
-        self.pic.poke('portb', ~self.busmask)			# bus low
+        self.pic.poke('trisb', ~self.busmask)			# bus low
         self.pic.poke('porta', 0x00)				# clock low
 
     def stop(self):
-        self.pic.poke('portb', ~self.busmask)			# bus low
+        self.pic.poke('trisb', ~self.busmask)			# bus low
         self.pic.poke('porta', 0x01)				# clock high
-        self.pic.poke('portb', self.busmask)			# bus high
+        self.pic.poke('trisb', self.busmask)			# bus high
         self.pic.poke('porta', 0x00)				# clock low
 
     def writebit(self, v):
         if v:
-            self.pic.poke('portb', self.busmask)		# bus high
+            self.pic.poke('trisb', self.busmask)		# bus high
         else:
-            self.pic.poke('portb', ~self.busmask)		# bus low
+            self.pic.poke('trisb', ~self.busmask)		# bus low
         self.pic.poke('porta', 0x01)				# clock high
         self.pic.poke('porta', 0x00)				# clock low
 
     def readbit(self):
-        self.pic.poke('portb', self.busmask)			# bus high (input)
+        self.pic.poke('trisb', self.busmask)			# bus high (input)
         self.pic.poke('porta', 0x01)				# clock high
-        bit = self.pic.peek('portb')				# read when the clock is high
+        bit = self.pic.peek('trisb')				# read when the clock is high
         self.pic.poke('porta', 0x00)				# clock low
         return bit
 
     def ack(self):
         # for now, just do a clock cycle - should really read the
         # value and check for correctness
-        self.pic.poke('portb', self.busmask)			# bus high (input)
+        self.pic.poke('trisb', self.busmask)			# bus high (input)
         self.pic.poke('porta', 0x01)				# clock high
         self.pic.poke('porta', 0x00)				# clock low
 
@@ -47,7 +48,7 @@ class i2c_bus:
         self.ack()
 
     def readbyte(self, ack=False):
-        # just returns a sequence of stuff on portb - would be
+        # just returns a sequence of stuff on trisb - would be
         # nice to slice out only the active i2c busses
         a = [0, 0, 0, 0, 0, 0, 0, 0]
         for i in range(8):
