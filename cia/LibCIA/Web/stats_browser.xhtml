@@ -3,6 +3,10 @@
 
         <h3 model="title" view="Text"/>
 
+	<span view="conditional" model="counters/forever/meanPeriod">
+            <p view="duration" model="counters/forever/meanPeriod"/>
+	</span>
+
         <ul model="catalog" view="List">
             <li pattern="listItem">
                 <a view="statsLink"/>

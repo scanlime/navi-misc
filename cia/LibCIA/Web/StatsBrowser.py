@@ -21,8 +21,8 @@ A web interface using Woven for browsing CIA's stats:// namespace
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from twisted.web import static
-from twisted.web.woven import page, widgets
+from twisted.web import static, domhelpers
+from twisted.web.woven import page, widgets, model
 import os, urllib
 
 
@@ -31,6 +31,69 @@ def pathSplit(s):
        ignoring leading and trailing slashes or multiple slashes.
        """
     return [i for i in s.split('/') if i]
+
+
+class CounterListModel(model.Wrapper):
+    """A Model representing a set of event counters, constructed
+       around a Stats.CounterList. Submodels are dictionaries as
+       returned by the counter's getValues() member.
+       """
+    def getSubmodel(self, request, name):
+        if self.original:
+            counter = self.original.getCounter(name, create=False)
+            return CounterModel(counter)
+        return CounterModel(None)
+
+
+class CounterModel(model.MethodModel):
+    """A Model representing a single event counter, providing submodels
+       for retrieving the total event count, creation date, most recent
+       event date, and mean time between events. This may be constructed
+       with None to stand in for a nonexistent counter, returning default
+       values.
+
+       Times are returned in UNIX-style seconds since the epoch, in UTC.
+       The meanPeriod is in seconds.
+       """
+    def wmfactory_eventCount(self, request):
+        if self.original:
+            return self.original.getEventCount()
+        else:
+            return 0
+
+    def wmfactory_firstEventTime(self, request):
+        if self.original:
+            return self.original.getFirstEventTime()
+
+    def wmfactory_lastEventTime(self, request):
+        if self.original:
+            return self.original.getLastEventTime()
+
+    def wmfactory_creationTime(self, request):
+        if self.original:
+            return self.original.getCreationTime()
+
+    def wmfactory_meanPeriod(self, request):
+        if self.original:
+            lastTime = self.original.getLastEventTime()
+            firstTime = self.original.getFirstEventTime()
+            count = self.original.getEventCount()
+            if lastTime and firstTime and count > 1:
+                return float(lastTime - firstTime) / count
+
+
+class Conditional(widgets.Widget):
+    """A widget that hides its children if it is constructed with a value
+       that doesn't evaluate to True.
+       """
+    def initialize(self, condition=True):
+        self.condition = condition
+
+    def generateDOM(self, request, node):
+        node = widgets.Widget.generateDOM(self, request, node)
+        if not self.condition:
+            domhelpers.clearNode(node)
+        return node
 
 
 class StatsPage(page.Page):
@@ -66,12 +129,24 @@ class StatsPage(page.Page):
         selfPath = pathSplit(self.path)
         upLevels = len(selfPath)
         down = pathSplit(destination.path)
-        print selfPath, upLevels, down
         while selfPath and down and selfPath[0] == down[0]:
             del selfPath[0]
             del down[0]
             upLevels -= 1
         return '/'.join(['..'] * upLevels + down + [''])
+
+    def getNodeModel(self, request, node, submodel):
+        """Override the default getNodeModel so that nodes we can't find
+           turn into None rather than causing an exception. This makes
+           our 'conditional' widget work.
+           """
+        try:
+            page.Page.getNodeModel(self, request, node, submodel)
+        except:
+            return None
+
+
+    ######################################### Submodel Factories
 
     def wmfactory_uri(self, request):
         return "stats://" + self.path
@@ -116,11 +191,52 @@ class StatsPage(page.Page):
         # If that failed, we're at the root- make up a default root title
         return "Stats"
 
+    def wmfactory_counters(self, request):
+        """Return a CountersModel instance that can be used to access
+           the event counters stored at this stats path.
+           """
+        return CounterListModel(self.target.counters)
+
+
+    ######################################### Widget Factories
+
     def wvfactory_statsLink(self, request, node, data):
         """Create a widget for viewing a StatsPage instance as a hyperlink"""
         a = widgets.Anchor()
         a.setLink(self.getPathTo(request, data))
         a.setText(data.wmfactory_title(request))
         return a
+
+    def wvfactory_duration(self, request, node, data):
+        """Given a duration in seconds, convert it to more appropriate units"""
+        # A table of various units, listed in decreasing order.
+        # We convert to the first unit in which the given value would
+        # be greater than some threshold
+        threshold = 0.8
+        units = (
+            ('years',   365 * 24 * 60 * 60),
+            ('months',  30 * 24 * 60 * 60),
+            ('weeks',   7 * 24 * 60 * 60),
+            ('days',    24 * 60 * 60),
+            ('hours',   60 * 60),
+            ('minutes', 60),
+            ('seconds', 1),
+            )
+        for name, seconds in units:
+            converted = data.original / seconds
+            if converted > threshold:
+                break
+
+        # By default we give two digits of precision
+        s = "%.02f" % converted
+
+        # If it's close enough to one, de-pluralize the unit
+        if s == "1.00":
+            name = name[:-1]
+        return widgets.Text("%s %s" % (s, name))
+
+    def wvfactory_conditional(self, request, node, data):
+        print data
+        return Conditional(condition=0)
 
 ### The End ###
