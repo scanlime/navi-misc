@@ -165,7 +165,7 @@ static void de_jong_class_init(DeJongClass *klass) {
 						      "A",
 						      "de Jong parameter A",
 						      -100, 100, 1.41914,
-						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED));
+						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED | G_PARAM_LAX_VALIDATION));
 
   g_object_class_install_property(object_class,
 				  PROP_B,
@@ -173,7 +173,7 @@ static void de_jong_class_init(DeJongClass *klass) {
 						      "B",
 						      "de Jong parameter B",
 						      -100, 100, -2.28413,
-						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED));
+						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED | G_PARAM_LAX_VALIDATION));
 
   g_object_class_install_property(object_class,
 				  PROP_C,
@@ -181,7 +181,7 @@ static void de_jong_class_init(DeJongClass *klass) {
 						      "C",
 						      "de Jong parameter C",
 						      -100, 100, 2.42754,
-						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED));
+						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED | G_PARAM_LAX_VALIDATION));
 
   g_object_class_install_property(object_class,
 				  PROP_D,
@@ -189,7 +189,7 @@ static void de_jong_class_init(DeJongClass *klass) {
 						      "D",
 						      "de Jong parameter D",
 						      -100, 100, -2.17719,
-						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED));
+						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED | G_PARAM_LAX_VALIDATION));
 
   g_object_class_install_property(object_class,
 				  PROP_ZOOM,
@@ -197,7 +197,7 @@ static void de_jong_class_init(DeJongClass *klass) {
 						      "Zoom",
 						      "Zoom factor",
 						      0.2, 1000, 1,
-						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED));
+						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED | G_PARAM_LAX_VALIDATION));
 
   g_object_class_install_property(object_class,
 				  PROP_XOFFSET,
@@ -205,7 +205,7 @@ static void de_jong_class_init(DeJongClass *klass) {
 						      "X Offset",
 						      "Horizontal image offset",
 						      -10, 10, 0,
-						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED));
+						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED | G_PARAM_LAX_VALIDATION));
 
   g_object_class_install_property(object_class,
 				  PROP_YOFFSET,
@@ -213,7 +213,7 @@ static void de_jong_class_init(DeJongClass *klass) {
 						      "Y Offset",
 						      "Vertical image offset",
 						      -10, 10, 0,
-						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED));
+						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED | G_PARAM_LAX_VALIDATION));
 
   g_object_class_install_property(object_class,
 				  PROP_ROTATION,
@@ -221,7 +221,7 @@ static void de_jong_class_init(DeJongClass *klass) {
 						      "Rotation",
 						      "Rotation angle, in radians",
 						      -10, 10, 0,
-						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED));
+						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED | G_PARAM_LAX_VALIDATION));
 
   g_object_class_install_property(object_class,
 				  PROP_BLUR_RADIUS,
@@ -229,7 +229,7 @@ static void de_jong_class_init(DeJongClass *klass) {
 						      "Blur Radius",
 						      "Gaussian blur radius",
 						      0, 10, 0,
-						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED));
+						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED | G_PARAM_LAX_VALIDATION));
 
   g_object_class_install_property(object_class,
 				  PROP_BLUR_RATIO,
@@ -237,7 +237,7 @@ static void de_jong_class_init(DeJongClass *klass) {
 						      "Blur Ratio",
 						      "Amount of blurred vs non-blurred rendering",
 						      0, 1, 1,
-						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED));
+						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED | G_PARAM_LAX_VALIDATION));
 
   g_object_class_install_property(object_class,
 				  PROP_TILEABLE,
@@ -253,7 +253,7 @@ static void de_jong_class_init(DeJongClass *klass) {
 						      "Exposure",
 						      "The relative strength, darkness, or brightness of the image",
 						      0, 10, 0.05,
-						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED));
+						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED | G_PARAM_LAX_VALIDATION));
 
   g_object_class_install_property(object_class,
 				  PROP_FGCOLOR,
@@ -309,7 +309,7 @@ static void de_jong_class_init(DeJongClass *klass) {
 						      "Gamma",
 						      "A gamma correction applied while rendering the image",
 						      0, 10, 1,
-						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED));
+						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED | G_PARAM_LAX_VALIDATION));
 
   g_object_class_install_property(object_class,
 				  PROP_CLAMPED,
