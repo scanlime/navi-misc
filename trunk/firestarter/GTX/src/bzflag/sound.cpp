@@ -91,7 +91,7 @@ static const char*	soundFiles[] = {
 				"explosion",
 				"flag_grab",
 				"boom",
-				"killteam",
+	//			"killteam",
 				"phantom",
 				"missile",
 				"lock",
