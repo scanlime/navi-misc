@@ -34,7 +34,7 @@ rulesetStorage = Ruleset.RulesetStorage(hub, uriRegistry)
 Security.caps.saveKey('universe', '~/.cia_key')
 
 # Our front page renders the documentation root, but unless otherwise specified
-# we load other pages form the 'htdocs' directory, as static files.
+# we load other pages from the 'htdocs' directory, as static files.
 doc = Web.Doc.Component('doc')
 webRoot = Web.Server.StaticJoiner('htdocs', doc.resource)
 site = Web.Server.Site(webRoot)
