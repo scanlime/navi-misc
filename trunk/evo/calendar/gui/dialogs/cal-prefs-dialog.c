@@ -1,7 +1,10 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 
 /*
- * Authors: David Trowbridge <trowbrds@cs.colorado.edu>
+ * Authors:
+ *  David Trowbridge <trowbrds@cs.colorado.edu>
+ *  Damon Chaplin <damon@ximian.com>
+ *  Ettore Perazzoli <ettore@ximian.com>
  *
  * Copyright (C) 2005 Novell, Inc. (www.novell.com)
  *
