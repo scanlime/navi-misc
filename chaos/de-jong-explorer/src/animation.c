@@ -79,7 +79,7 @@ static void animation_init(Animation *self) {
 				   GDK_TYPE_PIXBUF,   /* ANIMATION_MODEL_THUMBNAIL */
 				   G_TYPE_STRING,     /* ANIMATION_MODEL_PARAMS    */
 				   G_TYPE_DOUBLE,     /* ANIMATION_MODEL_DURATION  */
-				   SPLINE_TYPE);      /* ANIMATION_MODEL_SPLINE    */
+				   TYPE_SPLINE);      /* ANIMATION_MODEL_SPLINE    */
 }
 
 static void animation_dispose(GObject *gobject) {
