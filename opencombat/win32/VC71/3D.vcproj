@@ -119,6 +119,9 @@
 			<File
 				RelativePath="..\..\src\3d\TextureManager.cpp">
 			</File>
+			<File
+				RelativePath="..\..\src\3d\VisualElementManager.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -138,6 +141,9 @@
 			</File>
 			<File
 				RelativePath="..\..\include\TextureManager.h">
+			</File>
+			<File
+				RelativePath="..\..\include\VisualElementManager.h">
 			</File>
 		</Filter>
 		<Filter
