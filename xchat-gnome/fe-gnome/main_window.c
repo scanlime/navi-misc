@@ -272,16 +272,11 @@ static void tab_complete_nickname(GtkEntry *entry, int start) {
 	GCompletion *completion;
 	int cursor, length;
 	const char *text;
-	GList *items = NULL, *list;
+	GList *list;
 
 
-/*	completion = userlist_get_nick_completion();*/
-	completion = g_completion_new(NULL);
+	completion = userlist_get_nick_completion();
 	g_completion_set_compare(completion, (GCompletionStrncmpFunc) strncasecmp);
-	items = g_list_append(items, "captain_proton");
-	items = g_list_append(items, "Cae");
-	items = g_list_append(items, "scanline");
-	g_completion_add_items(completion, items);
 	text = gtk_entry_get_text(entry);
 	length = strlen(text);
 	cursor = gtk_editable_get_position(GTK_EDITABLE(entry));
@@ -303,8 +298,6 @@ static void tab_complete_nickname(GtkEntry *entry, int start) {
 		g_list_free(options);
 		g_print("\n\n");
 	}
-	/* FIXME: remove */
-	g_completion_free(completion);
 }
 
 static void tab_complete(GtkEntry *entry) {

@@ -31,5 +31,6 @@ void userlist_insert(session *sess, struct User *newuser, int row, int sel);
 gboolean userlist_remove(session *sess, struct User *user);
 void userlist_change(session *sess, struct User *user);
 void userlist_display(session_gui *sess);
+GCompletion *userlist_get_nick_completion();
 
 #endif

@@ -97,6 +97,7 @@ void create_userlist(session *sess) {
 	treeview = glade_xml_get_widget(gui.xml, "userlist");
 
 	store = gtk_list_store_new(4, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_POINTER, GDK_TYPE_COLOR);
+	g_object_set_data(G_OBJECT(store), "userlist_completion", g_completion_new(NULL));
 	s = (session_gui *) sess->gui;
 	s->userlist_model = GTK_TREE_MODEL(store);
 	gtk_tree_view_set_model(GTK_TREE_VIEW(treeview), GTK_TREE_MODEL(store));
@@ -108,16 +109,19 @@ void userlist_insert(session *sess, struct User *newuser, int row, int sel) {
 	GdkPixbuf *pix;
 	GtkTreeIter iter;
 	session_gui *s;
+	GCompletion *completion;
 
 	userlist_view = glade_xml_get_widget(gui.xml, "userlist");
 	s = (session_gui *) sess->gui;
 	store = GTK_LIST_STORE(s->userlist_model);
 
+	completion = g_object_get_data(G_OBJECT(store), "userlist_completion");
+	g_completion_add_items(completion, g_list_append(NULL, newuser->nick));
+
 	pix = get_user_icon(sess->server, newuser);
 
 	gtk_list_store_insert(store, &iter, row);
 	gtk_list_store_set(store, &iter, 0, pix, 1, newuser->nick, 2, newuser, 3, newuser->away? &colors[23] : NULL, -1);
-	/* FIXME: colors, away status, selection */
 }
 
 static GtkTreeIter *find_row(GtkTreeView *view, GtkTreeModel *model, struct User *user, gboolean *selected) {
@@ -146,10 +150,14 @@ gboolean userlist_remove(session *sess, struct User *user) {
 	GtkTreeModel *model;
 	gboolean sel;
 	session_gui *s;
+	GCompletion *completion;
 
 	userlist_view = glade_xml_get_widget(gui.xml, "userlist");
 	s = (session_gui *) sess->gui;
 	model = s->userlist_model;
+
+	completion = g_object_get_data(G_OBJECT(model), "userlist_completion");
+	g_completion_remove_items(completion, g_list_append(NULL, user->nick));
 
 	iter = find_row(GTK_TREE_VIEW(userlist_view), model, user, &sel);
 	if(!iter)
@@ -165,10 +173,15 @@ void userlist_change(session *sess, struct User *user) {
 	GtkTreeModel *model;
 	int sel;
 	session_gui *s;
+	GList *completion;
 
 	userlist_view = glade_xml_get_widget(gui.xml, "userlist");
 	s = (session_gui *) sess->gui;
 	model = s->userlist_model;
+
+	completion = g_object_get_data(G_OBJECT(model), "userlist_completion");
+	/* FIXME: probably have to rebuild entire list here, unless there's an easy way
+		  to determine their prior nick */
 
 	iter = find_row(GTK_TREE_VIEW(userlist_view), model, user, &sel);
 	if(!iter)
@@ -237,4 +250,15 @@ void userlist_context(GtkWidget *treeview, struct User *user) {
 
 	menu = gnome_popup_menu_new(userlist_context);
 	gnome_popup_menu_do_popup(menu, NULL, NULL, NULL, NULL, treeview);
+}
+
+GCompletion *userlist_get_nick_completion() {
+	session *sess = gui.current_session;
+	session_gui *tgui = sess->gui;
+	GtkTreeModel *model = tgui->userlist_model;
+	GCompletion *completion;
+
+	completion = g_object_get_data(G_OBJECT(model), "userlist_completion");
+
+	return completion;
 }
