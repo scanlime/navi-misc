@@ -13,7 +13,7 @@ public class nperlsub extends nbase
 {
 	/**
 	 * This method initializes this thread with the new connection information
-	 * @param gonnection The socket descriptor for the connection type stuff
+	 * @param ink The socket descriptor for the connection type stuff
 	 * @param IN The buffered reader that reads data from the socket
 	 * @param OUT The output stream writer that writes data to the socket
 	 */

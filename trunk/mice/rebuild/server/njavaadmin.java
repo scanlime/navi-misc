@@ -13,7 +13,7 @@ public class njavaadmin extends nbase
 {
 	/**
 	 * This method constructs the administrator interface thingy
-	 * @param gonnection The socket descriptor for the connection type stuff
+	 * @param ink The socket descriptor for the connection type stuff
 	 * @param IN The buffered reader that reads data from the socket
 	 * @param OUT The output stream writer that writes data to the socket
 	 */
@@ -90,19 +90,19 @@ public class njavaadmin extends nbase
 	 */
 	public void aiminit()
 	{
+		nchatup aim;
 		String host;
-		int port;	
+		int port;
 		host = read();
 		port = Integer.parseInt(read());
 		/* Start the aim service client thingy */
+		aim = new nchatup(host,port);
 		write("+OK");
 		aadmin.confstate = 4;
 	}
 	
 	/**
 	 * This just initializes the other users and their passwords
-	 * @param inter The number of interviewees
-	 * @param moder The number of moderators
 	 * @author Brandon Smith
 	 * @version 2.0
 	 */

@@ -14,6 +14,9 @@ public class ainterview
 	
 	private String identifier; //the name associated with this interviewee
 
+	//holds the updating class
+	private aupdate update;
+
 	/**
 	 * The interview contstructor, a new instance is created with each client
 	 * @param outname The name that goes out with every question answered
@@ -23,21 +26,6 @@ public class ainterview
 	public ainterview(String outname)
 	{
 		identifier = outname;
-	}
-	
-	/**
-	 * The interview initialization method without authentication
-	 * @param root The question database this pulls from
-	 * @param name The identifier for this interviewee
-	 * @author Brandon Smith
-	 * @version 2.0
-	 */
-	public void intinit(qbase root, String name)
-	{
-		pullfrom = root.getIntQqueue(name);
-		answ = root.answered;
-		rjct = root.rejected;
-		current = null;
 	}
 
 	/**
@@ -56,6 +44,7 @@ public class ainterview
 		answ = root.answered;
 		rjct = root.rejected;
 		current = null;
+		update = root.updater;
 		return true;
 	}
 	
@@ -86,8 +75,9 @@ public class ainterview
 		answ.add(current);
 		//
 		//hit the abstract interface for outgoing stuff
-		System.out.println(current);
 		//
+		System.out.println(current);
+		update.sendAnswer(current);
 		current = null;
 	}
 	

@@ -17,7 +17,6 @@ public class get implements ActionListener
 	
 	/**
 	 * This method sets the ID as its the constructor.
-	 * @param ident The ID of the person that this will be approved for
 	 * @param quest The TextArea that has the question in it.
 	 * @author Brandon Smith
 	 * @version 2.0

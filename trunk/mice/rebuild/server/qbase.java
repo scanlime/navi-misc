@@ -25,9 +25,12 @@ public class qbase
 	/** An array of passwords for the moderator(s). */
 	public String[] modpass;
 	
+	/** Handles the updating of the clients. */
+	public aupdate updater;
+	
 	/**
 	 * Creates a new question database
-	 * @param interview The number of people being interviewed
+	 * @param interviews The number of people being interviewed
 	 * @param moderators The number of moderators that will be used
 	 * @author Brandon Smith
 	 * @version 2.0
@@ -47,11 +50,13 @@ public class qbase
 		
 		moduser = new String[moderators];
 		modpass = new String[moderators];
+		
+		updater = new aupdate();
 	}
 	
 	/**
 	 * This method gives the question queue for the interviewee
-	 * @param the username of the interviewee
+	 * @param user the username of the interviewee
 	 * @author Brandon Smith
 	 * @version 2.0
 	 * @return The interviewee's queue of waiting questions.
