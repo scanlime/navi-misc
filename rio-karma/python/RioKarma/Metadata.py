@@ -142,6 +142,7 @@ class Converter:
         # Later we'll mark supported formats as music.
         details['length'] = st.st_size
         details['type'] = 'taxi'
+        details['rid'] = RidCalculator().fromFile(filename, st.st_size, info)
 
         # We get the bulk of our metadata via mmpython if possible
         if info:
@@ -154,15 +155,9 @@ class Converter:
             # Taxi files also always get a codec of 'taxi'
             details['codec'] = 'taxi'
 
-        else:
-            # All non-taxi files...
-
-            # Music files that still don't get a title get their filename minus the extension
-            if not details.get('title'):
-                details['title'] = os.path.splitext(os.path.basename(filename))[0]
-
-            # Music files get an 'RID' message digest
-            details['rid'] = RidCalculator().fromFile(filename, st.st_size, info)
+        # Music files that still don't get a title get their filename minus the extension
+        if not details.get('title'):
+            details['title'] = os.path.splitext(os.path.basename(filename))[0]
 
     def detailsFromMM(self, info, details):
         """Update Rio-style 'details' metadata from MMPython info"""
