@@ -26,6 +26,7 @@ PATCHES="${FILESDIR}/${P}-nomimeupdates.diff
 
 src_unpack() {
 	unpack ${A}
+    einfo ${S}
 	cd ${S}
 
 	# Path the data/Makefile.am file to not do mime-updates
