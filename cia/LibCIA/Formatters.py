@@ -133,7 +133,7 @@ class CommitToIRC(CommitFormatter):
         import IRC
         return 'r' + IRC.format(str(rev), 'bold')
 
-    def join_message(self, metadata, log):
+    def joinMessage(self, metadata, log):
         import IRC
         return "%s%s %s" % (" ".join(metadata), IRC.format(':', 'bold'), log)
 
