@@ -13,4 +13,4 @@ $(BIN): $(OBJS)
 	gcc -c -o $@ $< $(CFLAGS)
 
 clean:
-	rm -f $(BIN) *.o
+	rm -f $(BIN) src/*.o
