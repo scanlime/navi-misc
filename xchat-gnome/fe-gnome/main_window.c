@@ -308,7 +308,7 @@ void on_discussion_leave_activate(GtkWidget *widget, gpointer data) {
 		s->server->p_part(s->server, s->channel, "ex-chat");
 		/* FIXME: part reason */
 	}
-	navigation_tree_remove(s);
+	navigation_tree_remove(gui.server_tree, s);
 	text_gui_remove_text_buffer(s);
 }
 
@@ -330,274 +330,24 @@ void on_discussion_bans_activate(GtkWidget *widget, gpointer data) {
 }
 
 void on_go_previous_network_activate(GtkWidget *widget, gpointer data) {
-	GtkTreeIter iter;
-	GtkTreePath *path;
-	GtkTreeModel *model;
-	GtkTreeView *view;
-	GtkTreeSelection *selection;
-
-	/* Get our tree view and selection. */
-	view = GTK_TREE_VIEW (glade_xml_get_widget(gui.xml, "server channel list"));
-	selection = gtk_tree_view_get_selection(view);
-
-	/* Make sure we get our iterator and model and that we have a gui session. */
-	if(!gtk_tree_selection_get_selected(selection, &model, &iter)) {
-		model = gtk_tree_view_get_model(view);
-		gtk_tree_model_get_iter_first(model, &iter);
-	}
-	
-	/* Store the path to the iterator. */
-	path = gtk_tree_model_get_path(model, &iter);
-
-	/* If the path depth is greater than one we need to move up a level
-	 * (there are only two levels possible) to select a server, instead
-	 * of a channel.
-	 */
-	if(gtk_tree_path_get_depth(path) > 1)
-		gtk_tree_path_up(path);
-
-	/* Try to move the path to the previous node, if this fails we will
-	 * move iter forward one node until we reach the end.
-	 */
-	if(!gtk_tree_path_prev(path)) {
-		GtkTreeIter last_iter;
-		/* Keep track of the last valid position of the iter before
-		 * trying to advance it.
-		 */
-		last_iter = iter;
-		/* Advance the iter til we reach the end of the list.
-		 * XXX:(Is there a more efficient way to find the end
-		 * of the list?)
-		 */
-		while(gtk_tree_model_iter_next(model, &iter))
-			last_iter = iter;
-
-		/* Adjust the path to point to the end of the list. */
-		path = gtk_tree_model_get_path(model, &last_iter);
-	}
-
-	/* Move the selection to the new path. */
-	gtk_tree_selection_select_path(selection, path);
+	navigation_tree_select_prev_network(gui.server_tree);
 }
 
 void on_go_next_network_activate(GtkWidget *widget, gpointer data) {
-	GtkTreeIter iter;
-	GtkTreeModel *model;
-	GtkTreeView *view;
-	GtkTreeSelection *selection;
-
-	/* Get our tree view and selection. */
-	view = GTK_TREE_VIEW (glade_xml_get_widget(gui.xml, "server channel list"));
-	selection = gtk_tree_view_get_selection(view);
-
-	/* Make sure we get our iterator and model. */
-	if(gtk_tree_selection_get_selected(selection, &model, &iter)) {
-		GtkTreePath *path;
-
-		/* Get the path to our iter. */
-		path = gtk_tree_model_get_path(model, &iter);
-
-		/* Test the depth of the path to make sure we have a server selected
-	 	 * (depth of 1). If we have a channel selected (depth > 1) we need
-	 	 * to move up to the parent (server).
-	 	 */
-		if(gtk_tree_path_get_depth(path) > 1) {
-			GtkTreeIter parent;
-			gtk_tree_model_iter_parent(model, &parent, &iter);
-			iter = parent;
-		}
-
-		/* Try and move the iter forward, if that fails we're probably at the end
-	 	 * of the list and should wrap around to the first server.
-	 	 */
-		if(!gtk_tree_model_iter_next(model, &iter))
-			gtk_tree_model_get_iter_first(model, &iter);
-	}
-	/* If nothing was selected to start we'll just select the first server. */
-	else {
-		model = gtk_tree_view_get_model(view);
-		gtk_tree_model_get_iter_first(model, &iter);
-	}
-
-	/* Move the selection to the new position. */
-	gtk_tree_selection_select_iter(selection, &iter);
+  navigation_tree_select_next_network(gui.server_tree);
 }
 
 void on_go_previous_discussion_activate(GtkWidget *widget, gpointer data) {
-	GtkTreeIter iter;
-	GtkTreePath *path;
-	GtkTreeModel *model;
-	GtkTreeView *view;
-	GtkTreeSelection *selection;
-
-	/* Grab our treeview and get a gtk selection from it. */
-	view = GTK_TREE_VIEW (glade_xml_get_widget(gui.xml, "server channel list"));
-	selection = gtk_tree_view_get_selection(view);
-
-	/* Make sure we've got something selected and a session. */
-	if(!gtk_tree_selection_get_selected(selection, &model, &iter)) {
-		model = gtk_tree_view_get_model(view);
-		gtk_tree_model_get_iter_first(model, &iter);
-	}
-
-	/* Get the path to the current selection. */
-	path = gtk_tree_model_get_path(model, &iter);
-
-	/* If the iter has a child we have a server selected so we move
-	 * our path down one level to select a channel.
-	 */
-	if(gtk_tree_model_iter_has_child(model, &iter)) {
-		/* If the row is collapsed expand it. */
-		if(!gtk_tree_view_row_expanded(view, path))
-			gtk_tree_view_expand_row(view, path, FALSE);
-		gtk_tree_path_down(path);
-		gtk_tree_model_get_iter(model, &iter, path);
-	}
-
-	/* If our path depth is greater than one we are sure that we're on a
-	 * channel, and not a server with no channels. Try to move the path
-	 * back one node, if we can't, wrap around to the last channel in
-	 * the list.
-	 */
-	if(gtk_tree_path_get_depth(path) > 1 && !gtk_tree_path_prev(path)) {
-		GtkTreeIter parent;
-		gint children;
-
-		/* Get the parent (server) of our current channel. */
-		gtk_tree_model_iter_parent(model, &parent, &iter);
-
-		/* Move iter to the last child of parent. */
-		children = gtk_tree_model_iter_n_children(model, &parent);
-		gtk_tree_model_iter_nth_child(model, &iter, &parent, children-1);
-
-		/* Set path to the last child. */
-		path = gtk_tree_model_get_path(model, &iter);
-	}
-
-	/* Return if we don't have a path, otherwise move the selection to the
-	 * new path.
-	 */
-	if(path == NULL)
-		return;
-	gtk_tree_selection_select_path(selection, path);
+  navigation_tree_select_prev_channel(gui.server_tree);
 }
 
 void on_go_next_discussion_activate(GtkWidget *widget, gpointer data) {
-	GtkTreeIter iter;
-	GtkTreePath *path;
-	GtkTreeModel *model;
-	GtkTreeView *view;
-	GtkTreeSelection *selection;
-
-	/* Grab our treeview and get a gtk selection. */
-	view = GTK_TREE_VIEW (glade_xml_get_widget(gui.xml, "server channel list"));
-	selection = gtk_tree_view_get_selection(view);
-
-	/* If nothing is selected we'll select the top server in the list. */
-	if(!gtk_tree_selection_get_selected(selection, &model, &iter)) {
-		model = gtk_tree_view_get_model(view);
-		gtk_tree_model_get_iter_first(model, &iter);
-	}
-
-	/* Get the path for iter. */
-	path = gtk_tree_model_get_path(model, &iter);
-
-
-	/* If our iter has a child we know it's a server and we need
-	 * to move down one level to get to a channel.
-	 */
-	if(gtk_tree_model_iter_has_child(model, &iter)) {
-		/* If the server is collapsed expand it. */
-		if(!gtk_tree_view_row_expanded(view, path))
-			gtk_tree_view_expand_row(view, path, FALSE);
-		
-		gtk_tree_path_down(path);
-	}
-
-	/* As long as our path depth is greater than one we know we have
-	 * a channel selected, and not a server without any channels.
-	 */
-	else if(gtk_tree_path_get_depth(path) > 1) {
-		GtkTreePath *path_to_bottom;
-		GtkTreeIter parent;
-
-		/* Get the path to the last node for comparison later. */
-		gtk_tree_model_iter_parent(model, &parent, &iter);
-		gtk_tree_model_iter_nth_child(model, &iter, &parent,
-				gtk_tree_model_iter_n_children(model, &parent) - 1);
-		path_to_bottom = gtk_tree_model_get_path(model, &iter);
-
-		/* Advance the path one node. */
-		gtk_tree_path_next(path);
-
-		/* If our new path goes beyond the path to the last node
-		 * we need to wrap around to the top.
-		 */
-		if(gtk_tree_path_compare(path_to_bottom, path) == -1) {
-			gtk_tree_path_up(path);
-			gtk_tree_path_down(path);
-		}
-	}
-
-	/* If we don't have a valid path, return, otherwise move
-	 * the selection to our new path.
-	 */
-	if(path == NULL)
-		return;
-	gtk_tree_selection_select_path(selection, path);
+  navigation_tree_select_next_channel(gui.server_tree);
 }
 
 void on_discussion_jump_activate(GtkAccelGroup *accelgroup, GObject *arg1,
 		guint arg2,GdkModifierType arg3, gpointer data) {
-	GtkTreeView *view;
-	GtkTreeSelection *selection;
-	GtkTreeIter server;
-	GtkTreeModel *model;
-	gint kids, chan_num;
-	GtkTreePath *path;
-
-	/* Get the channel number to jump to. */
-	chan_num = GPOINTER_TO_INT(data);
-
-	/* Get our selection and tree view. */
-	view = GTK_TREE_VIEW(glade_xml_get_widget(gui.xml, "server channel list"));
-	selection = gtk_tree_view_get_selection(view);
-	model = gtk_tree_view_get_model(view);
-
-	/* Make sure we get the an iter in the tree. */
-	if(model != NULL && gtk_tree_model_get_iter_first(model, &server)) {
-		/* Loop until we run out of channels or until we find the one
-		 * we're looking for.
-		 */
-		do {
-			/* Get path to current server. */
-			path = gtk_tree_model_get_path(model, &server);
-
-			/* Only count the channels in the server if the list is expanded. */
-			if(gtk_tree_view_row_expanded(view, path)) {
-				/* Get the number of channels on the current server starting
-			 	 * with the first.
-			 	 */
-				kids = gtk_tree_model_iter_n_children(model, &server);
-				/* If the server has enough channels to contain the one we're looking
-			 	 * for select it and return.
-			 	 */
-				if(chan_num < kids) {
-					GtkTreeIter new_iter;
-					gtk_tree_model_iter_nth_child(model, &new_iter, &server, chan_num);
-					gtk_tree_selection_select_iter(selection, &new_iter);
-					return;
-				}
-				/* If our number wants a channel out of the range of this server
-			 	 * subtract the number of channels in the current server so that
-			 	 * when we find the server that contains the channel we want chan_num
-			 	 * will be the channel's position in the list.
-			 	 */
-				chan_num -= kids;
-			}
-		/* Move to the next channel, if possible. */
-		}while (gtk_tree_model_iter_next(model, &server));
-	}
+  navigation_tree_select_nth_channel(gui.server_tree, GPOINTER_TO_INT(data));
 }
 
 void on_help_about_menu_activate(GtkWidget *widget, gpointer data) {
