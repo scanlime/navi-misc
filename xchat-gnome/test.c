@@ -88,14 +88,11 @@ void init_settings() {
 
   file_transfers = gdk_pixbuf_scale_simple(gdk_pixbuf_new_from_file("data/dcc.png", NULL), 24, 24, GDK_INTERP_BILINEAR);
   irc_prefs = gdk_pixbuf_scale_simple(gdk_pixbuf_new_from_file("data/irc.png", NULL), 24, 24, GDK_INTERP_BILINEAR);
-  user_interface = gdk_pixbuf_scale_simple(gdk_pixbuf_new_from_file("data/ui.png", NULL), 24, 24, GDK_INTERP_BILINEAR);
 
   gtk_list_store_append(store, &iter);
   gtk_list_store_set(store, &iter, 0, irc_prefs, 1, "IRC Preferences", 2, 0, -1);
   gtk_list_store_append(store, &iter);
-  gtk_list_store_set(store, &iter, 0, user_interface, 1, "User Interface", 2, 1, -1);
-  gtk_list_store_append(store, &iter);
-  gtk_list_store_set(store, &iter, 0, file_transfers, 1, "File Transfers", 2, 2, -1);
+  gtk_list_store_set(store, &iter, 0, file_transfers, 1, "File Transfers", 2, 1, -1);
 }
 
 void init_userlist() {
