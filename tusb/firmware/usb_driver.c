@@ -108,8 +108,6 @@ static void usb_handle_descriptor_request() {
       continue;
 
     /* Found it, send the descriptor */
-    printf("i=%d, sending buffer %p length %d\n",
-	   i, descriptor_table[i].buffer, descriptor_table[i].length);
     usb_write_ep0_buffer(descriptor_table[i].buffer, descriptor_table[i].length);
     return;
   }
@@ -129,7 +127,8 @@ static void usb_handle_standard_request() {
     break;
 
   case USB_REQ_GET_DESCRIPTOR:
-    printf("\nDescriptor 0x%04X 0x%04X requested\n", usb_setup_buffer.wValue, usb_setup_buffer.wIndex);
+    printf("Descriptor 0x%04X requested, language 0x%04X, length %d\n",
+	   usb_setup_buffer.wValue, usb_setup_buffer.wIndex, usb_setup_buffer.wLength);
     usb_handle_descriptor_request();
     break;
 
@@ -154,20 +153,9 @@ void usb_write_ep0_buffer(unsigned char *buffer, int length) {
     else
       packet_length = length;
 
-    printf("packet_length %d, length %d, buffer %p\n", packet_length, length, buffer);
-
     /* Put some data in the EP0 IN buffer */
-    printf("buffer: %02X %02X %02X %02X %02X %02X %02X %02X\n",
-	   usb_ep0in_buffer[0], usb_ep0in_buffer[1], usb_ep0in_buffer[2], usb_ep0in_buffer[3],
-	   usb_ep0in_buffer[4], usb_ep0in_buffer[5], usb_ep0in_buffer[6], usb_ep0in_buffer[7]);
-
     memcpy(usb_ep0in_buffer, buffer, packet_length);
     IEPBCNT_0 = packet_length;
-
-    printf("buffer: %02X %02X %02X %02X %02X %02X %02X %02X\n",
-	   usb_ep0in_buffer[0], usb_ep0in_buffer[1], usb_ep0in_buffer[2], usb_ep0in_buffer[3],
-	   usb_ep0in_buffer[4], usb_ep0in_buffer[5], usb_ep0in_buffer[6], usb_ep0in_buffer[7]);
-
 
     /* Leave setup if we're in it */
     USBCTL &= ~SIR;
