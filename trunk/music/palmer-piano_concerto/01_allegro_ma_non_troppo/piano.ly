@@ -8,22 +8,22 @@
 mvmtOnePianoSectOneRight = \relative b' {
   % 1
   r1 r1
-  | b8\f d fis b ais gis fis4
+  | b8 d fis b ais gis fis4
   | g8 fis e fis d cis fis,4
   | g8 b d g fis e fis4
   | g,8 e d' b gis' eis fis, \times 2/3 { fis'16 fis fis } 
   
   % 7
-  | b,8\ff d fis b ais gis fis4
+  | b,8 d fis b ais gis fis4
   | g8 fis e fis d cis fis,4
   | g8 c e g fis e fis4
   | <fis, fis,>8 <e e,> <d' d,> <b b,> 
       \times 2/3 { <e e,> <cis cis,> <b b,> } <ais ais,>4~
   
   % 11
-  | <ais g ais,>1\mf
+  | <ais g ais,>1
   | <g' ais,>
-  | <e, ais g'>\arpeggio\f~
+  | <e, ais g'>\arpeggio~
   | <e ais g'>
 }
 
@@ -65,7 +65,7 @@ mvmtOnePianoSectTwoBase = \relative b, {
 
 mvmtOnePianoSectTwoRight = \relative b {
   \clef bass
-  << \mvmtOnePianoSectTwoBase { s1\f } >>
+  \mvmtOnePianoSectTwoBase
   
   % 27
   | a16( fis cis fis 
@@ -76,10 +76,10 @@ mvmtOnePianoSectTwoRight = \relative b {
   | fis\<( dis a fis) g( e cis g) dis''( a fis dis)
       \clef bass
       cis( g e b)\!
-  | fis\ff( g a g fis a g fis) e cis dis e a, d cis c
+  | fis( g a g fis a g fis) e cis dis e a, d cis c
 
   % 31
-  | r\fp a' fis g cis fis, a g r a fis g cis fis, a g
+  | r a' fis g cis fis, a g r a fis g cis fis, a g
   | r a fis g d' g, b a r a fis g d' gis, b a
   | r a fis gis d' gis, b ais r ais fis g e' g, b a
   | r b fis g fis' gis, b cis g' d cis g fis e d cis
@@ -120,7 +120,7 @@ mvmtOnePianoSectTwoLeft = \relative b, {
 
 mvmtOnePianoSectThreeRight = \relative b' {
   % 36
-  | b16\mp a fis d cis'8. b16 g8. cis16 fis8. e16
+  | b16 a fis d cis'8. b16 g8. cis16 fis8. e16
   | ais,8 g' fis e d8. fis16 b8. a16
   | << 
        { gis2 g2 } \\
@@ -136,12 +136,12 @@ mvmtOnePianoSectThreeRight = \relative b' {
   | g16 cis, fis, cis ais e
       \clef bass
       ais, e d\< fis b d fis, a c e\!
-  | d\mf b g d cis fis ais cis d b fis d e a cis e
+  | d b g d cis fis ais cis d b fis d e a cis e
   | fis\< d a fis e g c e fis dis a fis gis b d gis\!
   
   % 44
   \clef treble
-  | fis8\fp e gis4. fis8 d4~
+  | fis8 e gis4. fis8 d4~
   | d8 f \stemUp cis'4. b8 a g-.\sf \stemNeutral  % XXX sf conflicts
   | fis8 <e b f>-.\sf gis4 r8 gis16 a d8 <e bes>
   
@@ -150,12 +150,12 @@ mvmtOnePianoSectThreeRight = \relative b' {
        { r16 bes a g a f bes c des bes e,8~ e4 } >>
   | << { f'8 e g\> f a g~ g f\! } \\
        { d,16 a' cis d e cis a d c a b g a bes~ bes d } >>
-  | g8\mp e'16 f e f d e cis d e8 a16-. e-. a,-. e-.
+  | g8 e'16 f e f d e cis d e8 a16-. e-. a,-. e-.
   | f8 
       \clef bass
       g,,16 a g a f g e f g e c'-. g-. c,-. g-.
   % 51
-  | a8\mp
+  | a8
       \clef treble
       a'\glissando a'4
       << { e'8 f~ f g } \\
@@ -166,7 +166,7 @@ mvmtOnePianoSectThreeRight = \relative b' {
   | cis8\< e,16 a <cis cis,>8 a16 cis <e e,>8 fis,16 bis <dis dis,>8 cis16 dis\!
   
   % 54
-  | <eis eis,>8\f gis,16[ a fis gis] fis[ gis e fis] eis'[ fis dis eis d e]
+  | <eis eis,>8 gis,16[ a fis gis] fis[ gis e fis] eis'[ fis dis eis d e]
   | <cis eis, cis>8 a,16 b gis a gis a fis g fis' gis e fis d e
   | <cis gis>8\> r8 r4\! r2
 
@@ -856,3 +856,6 @@ mvmtOnePianoLeft = {
   \mvmtOnePianoSectEightLeft
   \mvmtOnePianoSectNineLeft
 }
+
+mvmtOnePianoDynamics = {}
+mvmtOnePianoPedal = {}
