@@ -194,7 +194,7 @@ class WorldWriter:
         elif type(content) is tuple:
             self.stream.write(" ".join([str(i) for i in content]) + "\n")
         elif isinstance(content, CommentLine):
-            self.stream.write("# %s" % content)
+            self.stream.write("# %s\n" % content)
         else:
             raise TypeError("Unsupported type in WorldWriter.writeLine()")
 
@@ -240,7 +240,7 @@ class BZObject(object):
            data.
            """
         if self.comment:
-            for line in comment.split("\n"):
+            for line in self.comment.split("\n"):
                 writer(CommentLine(line))
 
     def deserialize(self, reader):
@@ -253,7 +253,7 @@ class BZObject(object):
         commentLines = []
         for line in reader:
             if isinstance(line, CommentLine):
-                commentLines = str(line)
+                commentLines.append(str(line))
             else:
                 f = getattr(self, "set_%s" % line[0], None)
                 if f:
@@ -265,6 +265,7 @@ class BZObject(object):
                         log.warn("line %r probably has the wrong number of parameters" % line)
                 else:
                     log.warn("ignoring unknown line type %r in %r object" % (line[0], self.type))
+        self.comment = "\n".join(commentLines)
 
     def toBlender(self):
         """Create a new Blender object representing this one,
@@ -277,9 +278,12 @@ class BZObject(object):
 
     def fromBlender(self, object):
         """Load this object's settings from the given Blender object.
-           Must be implemented by subclasses.
+           The default implementation uses loadBlenderTransform() to retrieve
+           information from the object's location and loadBlenderProperties
+           to retrieve property info.
            """
-        pass
+        self.loadBlenderTransform(object)
+        self.loadBlenderProperties(object)
 
     def createBlenderObject(self):
         """Create a new blender object representing this BZFlag object.
@@ -296,12 +300,29 @@ class BZObject(object):
            """
         pass
 
+    def loadBlenderTransform(self, object):
+        """The inverse of transformBlenderObject- looks at an existing
+           Blender object, and figures out our object-specific BZFlag properties.
+           """
+        pass
+
     def setBlenderProperties(self, object):
         """This sets extra properties on our corresponding Blender object.
            The default implementation only sets 'bztype', but subclasses
            may add more properties to this.
            """
         object.addProperty('bztype', self.type, 'STRING')
+        if self.comment:
+            object.addProperty('comment', self.comment, 'STRING')
+
+    def loadBlenderProperties(self, object):
+        """The inverse of setBlenderProperties, loading info from the Blender
+           object's extra properties.
+           """
+        try:
+            self.comment = object.getProperty('comment').getData()
+        except AttributeError:
+            self.comment = None
 
 
 class ObjectTypeRegistry:
@@ -371,6 +392,7 @@ class World(BZObject):
         self.size = size
 
     def serialize(self, writer):
+        BZObject.serialize(self, writer)
         writer(("size", self.size))
 
     def transformBlenderObject(self, world):
@@ -421,6 +443,7 @@ class Box(BZObject):
         self.size = [x,y,z]
 
     def serialize(self, writer):
+        BZObject.serialize(self, writer)
         writer(("position",) + tuple(self.position))
         writer(("size",) + tuple(self.size))
         writer(("rotation", self.rotation))
