@@ -21,6 +21,7 @@ BZFlag.Object providing a 'material'
 #
 import Object
 import Blender
+import string
 
 class Material(Object.Object):
     type = 'material'
@@ -29,7 +30,13 @@ class Material(Object.Object):
         self.material = Blender.Material.New()
         if list is not None:
             for property in list[1:]:
-                getattr(self, "set_%s" % property[0])(property[1:])
+                try:
+                    getattr(self, "set_%s" % property[0])(property[1:])
+                except Exception, e:
+                    print e
+
+    def set_name(self, name):
+        self.material.setName(string.join(name, ' '))
 
     def set_texture(self, texture):
         pass
@@ -40,8 +47,15 @@ class Material(Object.Object):
     def set_diffuse(self, diffuse):
         pass
 
+    def set_emission(self, emission):
+        # FIXME - need to set emission color
+        self.material.setEmit(float(emission[4]))
+
     def set_specular(self, specular):
-        pass
+        if (len(specular) == 4):
+            self.material.setSpecCol([float(n) for n in specular[:3]])
+        else:
+            self.material.setSpecCol([float(n) for n in specular])
 
     def set_shininess(self, shininess):
-        pass
+        self.material.setSpec(float(shininess[0]) / 128)
