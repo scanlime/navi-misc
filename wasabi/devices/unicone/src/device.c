@@ -37,22 +37,21 @@
 #define MAX_FIRMWARE_SIZE     (CODESPACE_SIZE - SHA1_STAMP_SIZE)
 #define FIRMWARE_HEADER_SIZE  3
 
-static void               unicone_device_delete_content   (struct unicone_device*    self);
-static int                sha_raw_file                    (const char*               filename,
-							   unsigned char*            buffer);
-static int                sha_bitstream_file              (const char*               filename,
-							   unsigned char*            buffer);
-static char*              sha_to_string                   (unsigned char*            buffer);
-static int                sha_compare                     (unsigned char*            buffer1,
-							   unsigned char*            buffer2);
-static int                send_bulk_ep_buffer             (struct unicone_device*    self,
-							   int                       endpoint,
-							   unsigned char*            buffer,
-							   int                       length,
-							   struct progress_reporter* progress,
-							   void*                     progress_op);
-static int                arith_checksum_8bit             (const unsigned char*      buffer,
-							   int                       length);
+static void               unicone_device_delete_content   (struct unicone_device*     self);
+static int                sha_raw_file                    (const char*                filename,
+							   unsigned char*             buffer);
+static int                sha_bitstream_file              (const char*                filename,
+							   unsigned char*             buffer);
+static char*              sha_to_string                   (unsigned char*             buffer);
+static int                sha_compare                     (unsigned char*             buffer1,
+							   unsigned char*             buffer2);
+static int                send_bulk_ep_buffer             (struct unicone_device*     self,
+							   int                        endpoint,
+							   unsigned char*             buffer,
+							   int                        length,
+							   struct progress_operation* progress_op);
+static int                arith_checksum_8bit             (const unsigned char*       buffer,
+							   int                        length);
 
 
 /******************************************************************************/
@@ -144,15 +143,14 @@ void                      unicone_device_delete           (struct unicone_device
 int                       unicone_device_reconnect        (struct unicone_device *self,
 							   struct progress_reporter* progress)
 {
-  void *progress_op;
+  struct progress_operation* progress_op;
   const char *error = NULL;
   struct unicone_device *new_dev;
   int ms_completed;
   const int ms_timeout = 700;
   const int ms_step = 20;
 
-  if (progress)
-    progress_op = progress->start(progress, "Reconnecting");
+  progress_op = progress_operation_new(progress, "Reconnecting");
 
   /* Disconnect our current device, but leave the unicone_device struct allocated */
   unicone_device_delete_content(self);
@@ -167,8 +165,7 @@ int                       unicone_device_reconnect        (struct unicone_device
     if (new_dev)
       break;
 
-    if (progress)
-      progress->report(progress, progress_op, ((float) ms_completed) / ms_timeout);
+    progress_operation_update(progress_op, ((float) ms_completed) / ms_timeout);
   }
 
   if (!new_dev) {
@@ -181,8 +178,7 @@ int                       unicone_device_reconnect        (struct unicone_device
   free(new_dev);
 
  done:
-  if (progress)
-    progress->finish(progress, progress_op, error);
+  progress_operation_finish(progress_op, error);
   if (error)
     return -1;
   return 0;
@@ -247,7 +243,8 @@ static int                sha_compare                     (unsigned char        
 }
 
 int                       unicone_device_compare_firmware (struct unicone_device*    self,
-							   const char*               filename)
+							   const char*               filename,
+							   struct progress_reporter* progress)
 {
   unsigned char file_sha1[32];
   unsigned char device_sha1[32];
@@ -259,8 +256,10 @@ int                       unicone_device_compare_firmware (struct unicone_device
     return 1;
 
   /* Take the SHA-1 digest of the whole firmware file */
-  if (sha_raw_file(filename, file_sha1) < 0)
+  if (sha_raw_file(filename, file_sha1) < 0) {
+    progress_error(progress, "Can't read firmware file");
     return -1;
+  }
 
   /* Ask the device for it's current SHA-1 digest */
   if (usb_control_msg(self->usbdev, USB_TYPE_VENDOR | 0x80,
@@ -272,7 +271,8 @@ int                       unicone_device_compare_firmware (struct unicone_device
 }
 
 int                       unicone_device_compare_bitstream(struct unicone_device*    self,
-							   const char*               filename)
+							   const char*               filename,
+							   struct progress_reporter* progress)
 {
   unsigned char file_sha1[32];
   unsigned char device_sha1[32];
@@ -285,8 +285,10 @@ int                       unicone_device_compare_bitstream(struct unicone_device
     return 1;
 
   /* Take the SHA-1 digest of the whole bitstream file */
-  if (sha_bitstream_file(filename, file_sha1) < 0)
+  if (sha_bitstream_file(filename, file_sha1) < 0) {
+    progress_error(progress, "Can't read bitstream file");
     return -1;
+  }
 
   /* Ask the device for it's current SHA-1 digest */
   if (usb_control_msg(self->usbdev, USB_TYPE_VENDOR | 0x80,
@@ -305,7 +307,7 @@ int                       unicone_device_configure        (struct unicone_device
   int retval;
 
   /* Check our firmware */
-  retval = unicone_device_compare_firmware(self, firmware_file);
+  retval = unicone_device_compare_firmware(self, firmware_file, progress);
   if (retval < 0)
     return retval;
 
@@ -313,7 +315,7 @@ int                       unicone_device_configure        (struct unicone_device
     /* Firmware needs upgrading or needs initial installation */
 
     if (self->firmware_installed) {
-      /* Reboot to clear its current firmware */
+      progress_message(progress, "Rebooting to remove existing firmware");
       unicone_device_remove_firmware(self);
       if (unicone_device_reconnect(self, progress) < 0)
 	return -1;
@@ -327,7 +329,7 @@ int                       unicone_device_configure        (struct unicone_device
   }
 
   /* Decide whether we need to install a bitstream */
-  retval = unicone_device_compare_bitstream(self, bitstream_file);
+  retval = unicone_device_compare_bitstream(self, bitstream_file, progress);
   if (retval < 0)
     return retval;
 
@@ -345,12 +347,11 @@ int                       unicone_device_configure        (struct unicone_device
 /**************************************************** Firmware / FPGA Upload **/
 /******************************************************************************/
 
-static int                send_bulk_ep_buffer             (struct unicone_device*    self,
-							   int                       endpoint,
-							   unsigned char*            buffer,
-							   int                       length,
-							   struct progress_reporter* progress,
-							   void*                     progress_op)
+static int                send_bulk_ep_buffer             (struct unicone_device*     self,
+							   int                        endpoint,
+							   unsigned char*             buffer,
+							   int                        length,
+							   struct progress_operation* progress_op)
 {
   /* Send a large block of data to the given USB bulk endpoint, in small blocks,
    * giving updates to the indicated progress reporter. Returns negative on error,
@@ -377,8 +378,7 @@ static int                send_bulk_ep_buffer             (struct unicone_device
     remaining -= retval;
     current += retval;
 
-    if (progress)
-      progress->report(progress, progress_op, ((float) bytes_uploaded) / length);
+    progress_operation_update(progress_op, ((float) bytes_uploaded) / length);
   }
   return bytes_uploaded;
 }
@@ -398,7 +398,7 @@ int                       unicone_device_upload_firmware  (struct unicone_device
 							   const char *filename,
 							   struct progress_reporter *progress)
 {
-  void *progress_op;
+  struct progress_operation *progress_op;
   const char *error = NULL;
   int bytes_uploaded;
   int firmware_size;
@@ -411,8 +411,7 @@ int                       unicone_device_upload_firmware  (struct unicone_device
   assert(self);
   assert(!self->firmware_installed);
 
-  if (progress)
-    progress_op = progress->start(progress, "Uploading firmware");
+  progress_op = progress_operation_new(progress, "Uploading firmware");
 
   fw_file = fopen(filename, "rb");
   if (!fw_file) {
@@ -454,15 +453,14 @@ int                       unicone_device_upload_firmware  (struct unicone_device
 
   bytes_uploaded = send_bulk_ep_buffer(self, UNICONE_EP_BOOTLOAD,
 				       fw_buffer, FIRMWARE_HEADER_SIZE + CODESPACE_SIZE,
-				       progress, progress_op);
+				       progress_op);
   if (bytes_uploaded < 0)
     error = "USB write error";
 
  done:
   if (fw_file)
     fclose(fw_file);
-  if (progress)
-    progress->finish(progress, progress_op, error);
+  progress_operation_finish(progress_op, error);
   if (error)
     return -1;
   return bytes_uploaded;
@@ -481,7 +479,7 @@ int                       unicone_device_upload_bitstream (struct unicone_device
 							   const char*               filename,
 							   struct progress_reporter* progress)
 {
-  void *progress_op;
+  struct progress_operation* progress_op;
   const char *error = NULL;
   int bytes_uploaded = 0;
   struct bitfile* bf = NULL;
@@ -493,8 +491,7 @@ int                       unicone_device_upload_bitstream (struct unicone_device
   assert(self);
   assert(self->firmware_installed);
 
-  if (progress)
-    progress_op = progress->start(progress, "Configuring FPGA");
+  progress_op = progress_operation_new(progress, "Configuring FPGA");
 
   bf = bitfile_new_from_path(filename);
   if (!bf) {
@@ -532,7 +529,7 @@ int                       unicone_device_upload_bitstream (struct unicone_device
   /* Send the whole buffer, giving progress updates on the way */
   bytes_uploaded = send_bulk_ep_buffer(self, UNICONE_EP_FPGA_CONFIG,
 				       buffer, buffer_size,
-				       progress, progress_op);
+				       progress_op);
   if (bytes_uploaded < 0) {
     error = "USB write error";
     goto done;
@@ -557,8 +554,7 @@ int                       unicone_device_upload_bitstream (struct unicone_device
     bitfile_delete(bf);
   if (buffer)
     free(buffer);
-  if (progress)
-    progress->finish(progress, progress_op, error);
+  progress_operation_finish(progress_op, error);
   if (error)
     return -1;
   return bytes_uploaded;

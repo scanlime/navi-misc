@@ -28,7 +28,7 @@
 
 static int    config_force_bitstream = 0;
 static int    config_force_firmware = 0;
-static char*  config_bitstream_path = "fpga/test/test.bit";
+static char*  config_bitstream_path = NULL;
 static char*  config_firmware_path = "firmware.bin";
 
 static int loader()
@@ -49,7 +49,7 @@ static int loader()
   if (config_force_firmware)
     need_firmware_install = 1;
   else {
-    retval = unicone_device_compare_firmware(dev, config_firmware_path);
+    retval = unicone_device_compare_firmware(dev, config_firmware_path, progress);
     if (retval < 0) {
       printf("Error checking firmware version\n");
       return 1;
@@ -80,7 +80,7 @@ static int loader()
   if (config_force_bitstream)
     need_bitstream_install = 1;
   else {
-    retval = unicone_device_compare_bitstream(dev, config_bitstream_path);
+    retval = unicone_device_compare_bitstream(dev, config_bitstream_path, progress);
     if (retval < 0) {
       printf("Error checking bitstream version\n");
       return 1;
@@ -103,26 +103,21 @@ static int loader()
 static void usage(char *progname)
 {
   fprintf(stderr,
-	  "Usage: %s [options]\n"
+	  "Usage: %s [options] bitstream-file\n"
 	  "\n"
 	  "Configure an attached Unicone device with firmware and an FPGA\n"
-	  "bitstream. By default, any existing firmware or bitstream on the\n"
-	  "device will not be disturbed, but this may be overridden\n"
-	  "the indicated server. In addition to or instead of the explicit\n"
-	  "devices given on the command line, this can automatically detect\n"
-	  "categories of devices to send to the server using the --hotplug-*\n"
-	  "command line options.\n"
+	  "bitstream. By default, this uses SHA-1 digests to avoid reloading\n"
+	  "the firmware or bitstream if an identical copy is already installed.\n"
+	  "The provided bitstream must be in Xilinx .bit format.\n"
 	  "\n"
 	  "  -h, --help                     This text\n"
 	  "  -f PATH, --firmware PATH       Set the raw binary file to load TUSB3410\n"
           "                                 firmware from [%s]\n"
-	  "  -b PATH, --bitstream PATH      Set the Xilinx .bit file to load FPGA\n"
-	  "                                 configuration from [%s]\n"
 	  "  -F, --force-firmware           Always load firmware, even if the device\n"
           "                                 already has firmware installed on it\n"
 	  "  -B, --force-bitstream          Always load a bitstream, even if the\n"
 	  "                                 FPGA has already been configured\n",
-	  progname, config_firmware_path, config_bitstream_path);
+	  progname, config_firmware_path);
 }
 
 
@@ -168,6 +163,14 @@ int main(int argc, char **argv)
     }
   }
 
+  /* The bitstream filename should be on the command line */
+  if (!argv[optind]) {
+    usage(argv[0]);
+    return 1;
+  }
+  config_bitstream_path = argv[optind++];
+
+  /* Should be no more arguments left */
   if (argv[optind]) {
     usage(argv[0]);
     return 1;
