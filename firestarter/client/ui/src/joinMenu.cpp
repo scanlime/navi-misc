@@ -201,7 +201,7 @@ tePanelReturn CJoinMenu::Process ( std::string &next )
 
 		gameLoop.SetGameName(info.game.c_str());
 		char temp[512];
-		sprintf(temp,"%s:%d",info.address,info.port);
+		sprintf(temp,"%s:%d",info.address.c_str(),info.port);
 		gameLoop.SetGameStartString(temp);
 		return ePanelStart;
 	}

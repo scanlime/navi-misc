@@ -204,7 +204,7 @@ public:
 	void SetGameStartString ( const char *startString );
 
 	const char* GetGameName ( void );
-	const char* GetGameStartString ( void );
+	const char* GetGameStartString ( void ){ return gameStartString.c_str();}
 
 protected:
 	bool LoadPlugins ( void );

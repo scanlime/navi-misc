@@ -19,7 +19,9 @@
 #include "drawManager.h"
 #include <vector>
 
-class CTestGame : public CBaseGame
+#include "networking.h"
+
+class CTestGame : public CBaseGame , CNetworkMessageProcessor
 {
 	public:
 		CTestGame(){return;}
@@ -33,11 +35,18 @@ class CTestGame : public CBaseGame
 
 		virtual void Kill ( void );
 
+		//CNetworkMessageProcessor
+		virtual void OnConnect ( CNetworkPeer &peer );
+		virtual void OnDisconnect ( CNetworkPeer &peer );
+		virtual void OnMessage ( CNetworkPeer &peer, CNetworkMessage &message );
+
 	protected:
 	CTestWorld			world;
 
 	void registerFactory (const char* name,CBaseDrawableFactory* factory);
 	std::vector<CBaseDrawableFactory*>	factoryList;
+
+	CNetworkClient			network;
 };
 
 #endif //_TEST_GAME_H_

@@ -202,6 +202,9 @@
 			<Filter
 				Name="drawing"
 				Filter="">
+				<File
+					RelativePath="..\drawing\src\drawManager.cpp">
+				</File>
 			</Filter>
 			<Filter
 				Name="network"
@@ -303,9 +306,6 @@
 				Filter="">
 				<File
 					RelativePath="..\..\common\inc\commandargs.h">
-				</File>
-				<File
-					RelativePath="..\drawing\src\drawManager.cpp">
 				</File>
 				<File
 					RelativePath="..\..\common\inc\events.h">

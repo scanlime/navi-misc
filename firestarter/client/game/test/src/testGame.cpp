@@ -11,6 +11,7 @@
 */
 #include "testGame.h"
 #include "input.h"
+#include "firestarter.h"
 
 // the drawables for this game
 #include "worldDrawables.h"
@@ -38,6 +39,28 @@ void CTestGame::Kill ( void )
 
 void CTestGame::Attach ( void )
 {
+	// get the connection info
+	CFirestarterLoop &loop = CFirestarterLoop::instance();
+
+	// log into that sucker
+	network.SetMesageHandaler(this);
+
+	std::string url = loop.GetGameStartString();
+	
+	char temp2[512];
+	strcpy(temp2,url.c_str());
+	char *portChr = strrchr(temp2,':');
+	int port = 2501;
+	if (portChr)
+	{
+		portChr++;
+		port = atoi(portChr);
+		*(portChr-1)= '\0';
+	}
+
+	network.Connect(temp2,port);
+
+	// build up some simple world
 	trWorldInfo	info;
 
 	info.ambientColor[0] = info.ambientColor[1] = info.ambientColor[2] = 0.5f;
@@ -58,8 +81,29 @@ void CTestGame::Release ( void )
 
 bool CTestGame::Think ( void )
 {
+	if (network.Connected())
+		network.ProcessMessages();
+
 	if (CInputManager::instance().KeyDown(KEY_ESCAPE))
 		return true;
 	// do some game like things
 	return false;
+}
+
+void CTestGame::OnConnect ( CNetworkPeer &peer )
+{
+	CNetworkMessage message;
+	message.SetType("AK");
+	message.Send(peer,true);
+}
+void CTestGame::OnDisconnect ( CNetworkPeer &peer )
+{
+
+}
+void CTestGame::OnMessage ( CNetworkPeer &peer, CNetworkMessage &message )
+{
+	CNetworkMessage message2;
+	message2.SetType("AK");
+	message2.Send(peer,true);
+
 }
