@@ -94,13 +94,6 @@ class NouvelleTranslator(nodes.NodeVisitor):
             self.stack.append(self.stack[-1])
 
     def unknown_departure(self, node):
-        # HTML sucks, paragraphs give us extra whitespace.
-        # Remove paragraphs if we have only one of them.
-        if len(self.stack[-1]) == 1:
-            obj = self.stack[-1][0]
-            if isinstance(obj, tag) and obj.name == 'p':
-                self.stack[-1][0] = obj.content
-
         del self.stack[-1]
 
     def visit_Text(self, node):
