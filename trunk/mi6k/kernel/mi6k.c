@@ -54,8 +54,14 @@ static struct usb_device_id mi6k_table [] = {
 };
 MODULE_DEVICE_TABLE(usb, mi6k_table);
 
-/* Size of the buffer for received IR data. Must be a power of two */
+/* Size of the ring buffer for received IR data. Must be a power of two */
 #define IR_RECV_BUFFER_SIZE 512
+
+/* Size of the URB buffer for incoming interrupt transfers. This should match
+ * the maximum transfer size used by the hardware, making it any larger just
+ * wastes memory.
+ */
+#define IR_URB_BUFFER_SIZE  8
 
 /* Structure to hold all of our device specific stuff */
 struct usb_mi6k {
@@ -70,6 +76,8 @@ struct usb_mi6k {
 	int			ir_rx_tail;		/* slot for the oldest value in the buffer */
 	wait_queue_head_t	ir_rx_wait;		/* wait queue for processes reading IR data */
 	int			ir_rx_clients;		/* number of processes reading from the IR device */
+	struct urb		ir_rx_urb;		/* URB for receiver interrupt transfers */
+	unsigned char		ir_rx_tbuffer[IR_URB_BUFFER_SIZE]; /* Buffer holding one interrupt transfer */
 	struct semaphore	sem;			/* locks this structure */
 };
 
@@ -170,9 +178,14 @@ static void mi6k_ir_rx_store(struct usb_mi6k *dev, unsigned char *buffer, size_t
 	 * This involves converting from the receiver's 4/3us unit to microseconds,
 	 * and setting the pulse/space flag appropriately. It also extends overflowed
 	 * timers to the highest value lirc_t supports.
+	 * This assumes dev->sem is already locked.
 	 */
 	lirc_t pulse_flag = PULSE_BIT;
 	lirc_t value;
+
+	/* If nobody's listening, don't bother saving the data */
+	if (dev->ir_rx_clients == 0)
+		return;
 
 	while (count >= sizeof(lirc_t)) {
 		value = (*(lirc_t *)buffer);
@@ -204,6 +217,19 @@ static void mi6k_ir_tx_send(struct usb_mi6k *dev, lirc_t pulse, lirc_t space)
 
 	dbg("ir_send %d %d", pulse, space);
 	mi6k_request(dev, MI6K_CTRL_IR_SEND, pulse, space);
+}
+
+static void mi6k_ir_rx_irq(struct urb *urb)
+{
+	/* Callback for processing incoming interrupt transfers from the IR receiver */
+	struct usb_mi6k *dev = (struct usb_mi6k*)urb->context;
+
+	dbg("ir_rx_irq, status %d, length %d", urb->status, urb->actual_length);
+	if (urb->status == 0 && urb->actual_length > 0) {
+		down(&dev->sem);
+		mi6k_ir_rx_store(dev, dev->ir_rx_tbuffer, urb->actual_length);
+		up(&dev->sem);
+	}
 }
 
 
@@ -242,6 +268,23 @@ static int mi6k_open(struct inode *inode, struct file *file)
 
 	/* save our object in the file's private structure */
 	file->private_data = dev;
+
+	/* If this is the first process opening our device, submit the IR receive URB */
+	if (dev->open_count == 1) {
+		struct usb_interface_descriptor *interface =
+			&dev->interface->altsetting[dev->interface->act_altsetting];
+		struct usb_endpoint_descriptor *endpoint = &interface->endpoint[0];
+
+		FILL_INT_URB(&dev->ir_rx_urb, dev->udev,
+			     usb_rcvintpipe(dev->udev, endpoint->bEndpointAddress),
+			     dev->ir_rx_tbuffer, IR_URB_BUFFER_SIZE,
+			     mi6k_ir_rx_irq, dev, endpoint->bInterval);
+
+		dbg("Submitting ir_rx_urb");
+		if (usb_submit_urb(&dev->ir_rx_urb)) {
+			dbg("Error submitting URB");
+		}
+	}
 
 	/* unlock this device */
 	up(&dev->sem);
@@ -283,8 +326,11 @@ static int mi6k_release(struct inode *inode, struct file *file)
 	/* decrement our usage count for the device */
 	--dev->open_count;
 	if (dev->open_count <= 0) {
-		/* Unlink URBs here once we have some */
 		dev->open_count = 0;
+
+		/* This is the last process closing us, unlink our URBs */
+		dbg("unlinking URBs");
+		usb_unlink_urb(&dev->ir_rx_urb);
 	}
 
 exit_not_opened:
@@ -429,6 +475,8 @@ static ssize_t mi6k_lirc_read(struct file *file, char *buffer, size_t count, lof
 		goto exit;
 	}
 
+	dev->ir_rx_clients++;
+
 	/* If there's no data available yet, release our lock temporarily and
 	 * block the process until there is data available.
 	 */
@@ -452,6 +500,7 @@ static ssize_t mi6k_lirc_read(struct file *file, char *buffer, size_t count, lof
 			down(&dev->sem);
 		}
 
+		dev->ir_rx_clients--;
 		current->state = TASK_RUNNING;
 		remove_wait_queue(&dev->ir_rx_wait, &wait);
 	}
@@ -650,7 +699,6 @@ static void * mi6k_probe(struct usb_device *udev, unsigned int ifnum, const stru
 {
 	struct usb_mi6k *dev = NULL;
 	struct usb_interface *interface;
-	struct usb_interface_descriptor *iface_desc;
 	struct usb_endpoint_descriptor *endpoint;
 	int minor;
 	int buffer_size;
