@@ -99,7 +99,7 @@ class PalantirWindow:
     if hasattr(self, 'data'):
       nick = self.data.getData('/character/name')
       if nick is not '':
-	self.factory.nick(self.factory.channels[0], str(nick))
+	self.factory.client.setNick(str(nick))
 	self.tree.get_widget('Nick').set_text(nick)
 
   def on_open_sheet_activate(self, widget, data=None):
@@ -224,7 +224,7 @@ class PalantirWindow:
 
   def on_Topic_activate(self, widget, data=None):
     ''' Change the topic. '''
-    self.factory.topic(self.factory.channels[0], widget.get_text())
+    self.factory.client.topic(self.factory.channels[0], widget.get_text())
 
   # Closing stuff.
   def on_Main_destroy(self, widget, data=None):
@@ -259,7 +259,7 @@ class PalantirWindow:
 
   ### IRC commands. ###
   def nick(self, args):
-    self.factory.nick(args)
+    self.factory.client.setNick(args)
 
   def server(self, args):
     self.tree.get_widget('SendField').set_text('')
@@ -281,7 +281,7 @@ class PalantirWindow:
       self.factory.close(self.factory.channels[0])
 
   def me(self, args):
-    self.factory.me(self.factory.channels[0], args)
+    self.factory.client.me(self.factory.channels[0], args)
     self.meReceive(self.factory.nickname, self.factory.channels[0], args)
 
   def ctcp(self, args):
