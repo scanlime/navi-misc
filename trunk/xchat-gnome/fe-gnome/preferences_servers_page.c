@@ -363,6 +363,7 @@ remove_clicked (GtkWidget *button, gpointer data)
 		gtk_tree_model_sort_convert_iter_to_child_iter (GTK_TREE_MODEL_SORT (model), &child, &iter);
 		gtk_list_store_remove (store, &child);
 		servlist_net_remove (net);
+		servlist_save ();
 	}
 	gtk_widget_destroy (dialog);
 }
