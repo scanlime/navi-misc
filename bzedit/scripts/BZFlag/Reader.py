@@ -61,72 +61,83 @@ class Reader:
             xform = CaselessLiteral('xform')
 
             objectProperty = Group(name + Word(alphanums))
-            locationProperty =                 \
-                Group(pos + ThreeDPoint)       \
-              | Group(size + ThreeDPoint)      \
-              | Group(rot + float)             \
-              | Group(shift + ThreeDPoint)     \
-              | Group(scale + ThreeDPoint)     \
-              | Group(shear + ThreeDPoint)     \
-              | Group(spin + ThreeDPoint)      \
-              | Group(xform + globalReference) \
+            locationProperty = (
+                Group(pos + ThreeDPoint)
+              | Group(size + ThreeDPoint)
+              | Group(rot + float)
+              | Group(shift + ThreeDPoint)
+              | Group(scale + ThreeDPoint)
+              | Group(shear + ThreeDPoint)
+              | Group(spin + ThreeDPoint)
+              | Group(xform + globalReference)
               | objectProperty
-            obstacleProperty =                  \
-                drivethrough                    \
-              | shootthrough                    \
-              | passable                        \
+              )
+            obstacleProperty = (
+                drivethrough
+              | shootthrough
+              | passable
               | locationProperty
+              )
 
-            channel =                    \
-                CaselessLiteral('red')   \
-              | CaselessLiteral('green') \
-              | CaselessLiteral('blue')  \
+            channel = (
+                CaselessLiteral('red')
+              | CaselessLiteral('green')
+              | CaselessLiteral('blue')
               | CaselessLiteral('alpha')
+              )
             dynamicColorState = Literal('0') | Literal('1') | Literal('2')
-            dynamicColorProperty = \
-                Group(channel + CaselessLiteral('limits') + float + float) \
-              | Group(channel + CaselessLiteral('sinusoid') + float + float + float) \
-              | Group(channel + CaselessLiteral('clampup') + float + float + float) \
-              | Group(channel + CaselessLiteral('clampdown') + float + float + float) \
-              | Group(channel + CaselessLiteral('sequence') + float + float + OneOrMore(dynamicColorState)) \
+            dynamicColorProperty = (
+                Group(channel + CaselessLiteral('limits') + float + float)
+              | Group(channel + CaselessLiteral('sinusoid') + float + float + float)
+              | Group(channel + CaselessLiteral('clampup') + float + float + float)
+              | Group(channel + CaselessLiteral('clampdown') + float + float + float)
+              | Group(channel + CaselessLiteral('sequence') + float + float + OneOrMore(dynamicColorState))
               | objectProperty
+              )
             dynamicColor = Group(CaselessLiteral('dynamicColor') + OneOrMore(dynamicColorProperty) + end)
 
             box = Group(CaselessLiteral('box') + OneOrMore(obstacleProperty) + end)
 
-            pyramidProperty =            \
-                CaselessLiteral('flipz') \
+            pyramidProperty = (
+                CaselessLiteral('flipz')
               | obstacleProperty
+              )
             pyramid = Group(CaselessLiteral('pyramid') + OneOrMore(pyramidProperty) + end)
 
-            baseProperty =                     \
-                CaselessLiteral('color') + int \
+            baseProperty = (
+                CaselessLiteral('color') + int
               | obstacleProperty
+              )
             base = Group(CaselessLiteral('base') + OneOrMore(baseProperty) + end)
 
-            worldProperty =                           \
-                size + float                          \
-              | CaselessLiteral('flagHeight') + float \
+            worldProperty = (
+                size + float
+              | CaselessLiteral('flagHeight') + float
               | objectProperty
+              )
             world = Group(CaselessLiteral('world') + OneOrMore(worldProperty) + end)
 
-            teleporterProperty =                  \
-                CaselessLiteral('border') + float \
+            teleporterProperty = (
+                CaselessLiteral('border') + float
               | obstacleProperty
+              )
             teleporter = Group(CaselessLiteral('teleporter') + OneOrMore(teleporterProperty) + end)
 
-            teleporterSide =         \
-                CaselessLiteral('f') \
-              | CaselessLiteral('b') \
-              | Literal('?')         \
+            teleporterSide = (
+                CaselessLiteral('f')
+              | CaselessLiteral('b')
+              | Literal('?')
               | Literal('*')
-            teleporterSpec = \
-                int          \
+              )
+            teleporterSpec = (
+                int
               | Combine(globalReference + Optional(Literal(':') + teleporterSide))
-            linkProperty =                                      \
-                Group(CaselessLiteral('to') + teleporterSpec)   \
-              | Group(CaselessLiteral('from') + teleporterSpec) \
+              )
+            linkProperty = (
+                Group(CaselessLiteral('to') + teleporterSpec)
+              | Group(CaselessLiteral('from') + teleporterSpec)
               | objectProperty
+              )
             link = Group(CaselessLiteral('link') + OneOrMore(linkProperty) + end)
 
             filename = Word(printables)
@@ -135,234 +146,257 @@ class Reader:
             specular = CaselessLiteral('specular')
             emission = CaselessLiteral('emission')
             shininess = CaselessLiteral('shininess')
-            materialProperty =                                    \
-                Group(CaselessLiteral('texture') + filename)      \
-              | Group(CaselessLiteral('addTexture') + filename)   \
-              | CaselessLiteral('notextures')                     \
-              | CaselessLiteral('notexcolor')                     \
-              | CaselessLiteral('notexalpha')                     \
-              | Group(CaselessLiteral('texmat') + localReference) \
-              | Group(CaselessLiteral('dyncol') + localReference) \
-              | Group(ambient + rgbaColor)                        \
-              | Group(diffuse + rgbaColor)                        \
-              | Group(specular + rgbaColor)                       \
-              | Group(emission + rgbaColor)                       \
-              | Group(shininess + float)                          \
-              | Group(CaselessLiteral('matref') + localReference) \
-              | CaselessLiteral('resetmat')                       \
+            materialProperty = (
+                Group(CaselessLiteral('texture') + filename)
+              | Group(CaselessLiteral('addTexture') + filename)
+              | CaselessLiteral('notextures')
+              | CaselessLiteral('notexcolor')
+              | CaselessLiteral('notexalpha')
+              | Group(CaselessLiteral('texmat') + localReference)
+              | Group(CaselessLiteral('dyncol') + localReference)
+              | Group(ambient + rgbaColor)
+              | Group(diffuse + rgbaColor)
+              | Group(specular + rgbaColor)
+              | Group(emission + rgbaColor)
+              | Group(shininess + float)
+              | Group(CaselessLiteral('matref') + localReference)
+              | CaselessLiteral('resetmat')
               | objectProperty
+              )
             material = Group(CaselessLiteral('material') + OneOrMore(materialProperty) + end)
 
-            curveProperty =                               \
-                Group(CaselessLiteral('divisions') + int) \
-              | phydrv                                    \
-              | smoothbounce                              \
+            curveProperty = (
+                Group(CaselessLiteral('divisions') + int)
+              | phydrv
+              | smoothbounce
               | flatshading
+              )
 
-            meshboxSide =                    \
-                CaselessLiteral('top')       \
-              | CaselessLiteral('bottom')    \
-              | CaselessLiteral('inside')    \
-              | CaselessLiteral('outside')   \
-              | CaselessLiteral('startside') \
+            meshboxSide = (
+                CaselessLiteral('top')
+              | CaselessLiteral('bottom')
+              | CaselessLiteral('inside')
+              | CaselessLiteral('outside')
+              | CaselessLiteral('startside')
               | CaselessLiteral('endside')
-            meshboxProperty =                                                     \
-                Group(CaselessLiteral('angle') + float)                           \
-              | Group(CaselessLiteral('ratio') + float)                           \
-              | Group(CaselessLiteral('texsize') + float + float + float + float) \
-              | materialProperty                                                  \
-              | Group(meshboxSide + materialProperty)                             \
-              | curveProperty                                                     \
+              )
+            meshboxProperty = (
+                Group(CaselessLiteral('angle') + float)
+              | Group(CaselessLiteral('ratio') + float)
+              | Group(CaselessLiteral('texsize') + float + float + float + float)
+              | materialProperty
+              | Group(meshboxSide + materialProperty)
+              | curveProperty
               | obstacleProperty
+              )
             meshbox = Group(CaselessLiteral('meshbox') + OneOrMore(meshboxProperty) + end)
 
-            meshpyrSide =                    \
-                CaselessLiteral('edge')      \
-              | CaselessLiteral('bottom')    \
-              | CaselessLiteral('startside') \
+            meshpyrSide = (
+                CaselessLiteral('edge')
+              | CaselessLiteral('bottom')
+              | CaselessLiteral('startside')
               | CaselessLiteral('endside')
-            meshpyrProperty =                                     \
-                Group(CaselessLiteral('angle') + float)           \
-              | Group(CaselessLiteral('ratio') + float)           \
-              | Group(CaselessLiteral('texsize') + float + float) \
-              | CaselessLiteral('flipz')                          \
-              | materialProperty                                  \
-              | Group(meshpyrSide + materialProperty)             \
-              | curveProperty                                     \
+              )
+            meshpyrProperty = (
+                Group(CaselessLiteral('angle') + float)
+              | Group(CaselessLiteral('ratio') + float)
+              | Group(CaselessLiteral('texsize') + float + float)
+              | CaselessLiteral('flipz')
+              | materialProperty
+              | Group(meshpyrSide + materialProperty)
+              | curveProperty
               | obstacleProperty
+              )
             meshpyr = Group(CaselessLiteral('meshpyr') + OneOrMore(meshpyrProperty) + end)
 
-            arcProperty =                                                         \
-                Group(CaselessLiteral('ratio') + float)                           \
-              | Group(CaselessLiteral('angle') + float)                           \
-              | Group(CaselessLiteral('texsize') + float + float + float + float) \
-              | materialProperty                                                  \
-              | Group(meshboxSide + materialProperty)                             \
-              | curveProperty                                                     \
+            arcProperty = (
+                Group(CaselessLiteral('ratio') + float)
+              | Group(CaselessLiteral('angle') + float)
+              | Group(CaselessLiteral('texsize') + float + float + float + float)
+              | materialProperty
+              | Group(meshboxSide + materialProperty)
+              | curveProperty
               | obstacleProperty
+              )
             arc = Group(CaselessLiteral('arc') + OneOrMore(arcProperty) + end)
 
             hemisphere = CaselessLiteral('hemisphere') | CaselessLiteral('hemi')
-            sphereSide = \
-                CaselessLiteral('edge') \
+            sphereSide = (
+                CaselessLiteral('edge')
               | CaselessLiteral('bottom')
-            sphereProperty =                                      \
-                Group(CaselessLiteral('radius') + float)          \
-              | hemisphere                                        \
-              | Group(CaselessLiteral('texsize') + float + float) \
-              | materialProperty                                  \
-              | Group(sphereSide + materialProperty)              \
-              | curveProperty                                     \
+              )
+            sphereProperty = (
+                Group(CaselessLiteral('radius') + float)
+              | hemisphere
+              | Group(CaselessLiteral('texsize') + float + float)
+              | materialProperty
+              | Group(sphereSide + materialProperty)
+              | curveProperty
               | obstacleProperty
+              )
             sphere = Group(CaselessLiteral('sphere') + OneOrMore(sphereProperty) + end)
 
-            coneProperty =                                        \
-                Group(CaselessLiteral('angle') + float)           \
-              | Group(CaselessLiteral('texsize') + float + float) \
-              | materialProperty                                  \
-              | Group(meshpyrSide + materialProperty)             \
-              | curveProperty                                     \
+            coneProperty = (
+                Group(CaselessLiteral('angle') + float)
+              | Group(CaselessLiteral('texsize') + float + float)
+              | materialProperty
+              | Group(meshpyrSide + materialProperty)
+              | curveProperty
               | obstacleProperty
+              )
             cone = Group(CaselessLiteral('cone') + OneOrMore(coneProperty) + end)
 
-            tetraProperty =                              \
-                CaselessLiteral('vertex') + ThreeDPoint  \
-              | CaselessLiteral('normals') + ThreeDPoint \
-              | CaselessLiteral('texcoords') + TwoDPoint \
-              | materialProperty                         \
+            tetraProperty = (
+                CaselessLiteral('vertex') + ThreeDPoint
+              | CaselessLiteral('normals') + ThreeDPoint
+              | CaselessLiteral('texcoords') + TwoDPoint
+              | materialProperty
               | obstacleProperty
+              )
             tetra = Group(CaselessLiteral('tetra') + OneOrMore(tetraProperty) + end)
 
-            flagSpec =                  \
-                CaselessLiteral('good') \
-              | CaselessLiteral('bad')  \
+            flagSpec = (
+                CaselessLiteral('good')
+              | CaselessLiteral('bad')
               | flagShortName
-            zoneProperty =                                    \
-                CaselessLiteral('flag') + OneOrMore(flagSpec) \
-              | CaselessLiteral('team') + OneOrMore(int)      \
-              | CaselessLiteral('safety') + OneOrMore(int)    \
+              )
+            zoneProperty = (
+                CaselessLiteral('flag') + OneOrMore(flagSpec)
+              | CaselessLiteral('team') + OneOrMore(int)
+              | CaselessLiteral('safety') + OneOrMore(int)
               | locationProperty
+              )
             zone = Group(CaselessLiteral('zone') + OneOrMore(zoneProperty) + end)
 
-            weaponProperty = \
-                Group(CaselessLiteral('initdelay') + float)        \
-              | Group(CaselessLiteral('delay') + OneOrMore(float)) \
-              | Group(CaselessLiteral('type') + flagShortName)     \
+            weaponProperty = (
+                Group(CaselessLiteral('initdelay') + float)
+              | Group(CaselessLiteral('delay') + OneOrMore(float))
+              | Group(CaselessLiteral('type') + flagShortName)
               | locationProperty
+              )
             weapon = Group(CaselessLiteral('weapon') + OneOrMore(weaponProperty) + end)
 
-            waterLevelProperty =                         \
-                Group(CaselessLiteral('height') + float) \
-              | materialProperty                         \
+            waterLevelProperty = (
+                Group(CaselessLiteral('height') + float)
+              | materialProperty
               | objectProperty
+              )
             waterLevel = Group(CaselessLiteral('waterLevel') + OneOrMore(waterLevelProperty) + end)
 
-            physicsProperty =                                   \
-                Group(CaselessLiteral('linear') + ThreeDPoint)  \
-              | Group(CaselessLiteral('angular') + ThreeDPoint) \
-              | Group(CaselessLiteral('slide') + float)         \
-              | Group(CaselessLiteral('death') + restOfLine)    \
+            physicsProperty = (
+                Group(CaselessLiteral('linear') + ThreeDPoint)
+              | Group(CaselessLiteral('angular') + ThreeDPoint)
+              | Group(CaselessLiteral('slide') + float)
+              | Group(CaselessLiteral('death') + restOfLine)
               | objectProperty
+              )
             physics = Group(CaselessLiteral('physics') + OneOrMore(physicsProperty) + end)
 
-            textureMatrixProperty = \
-                Group(CaselessLiteral('fixedshift') + TwoDPoint) \
-              | Group(CaselessLiteral('fixedscale') + TwoDPoint) \
-              | Group(CaselessLiteral('fixedspin') + float) \
-              | Group(CaselessLiteral('fixedcenter') + TwoDPoint) \
-              | Group(shift + float + float) \
-              | Group(spin + float) \
-              | Group(scale + float + float + float + float) \
-              | Group(CaselessLiteral('center') + TwoDPoint) \
+            textureMatrixProperty = (
+                Group(CaselessLiteral('fixedshift') + TwoDPoint)
+              | Group(CaselessLiteral('fixedscale') + TwoDPoint)
+              | Group(CaselessLiteral('fixedspin') + float)
+              | Group(CaselessLiteral('fixedcenter') + TwoDPoint)
+              | Group(shift + float + float)
+              | Group(spin + float)
+              | Group(scale + float + float + float + float)
+              | Group(CaselessLiteral('center') + TwoDPoint)
               | objectProperty
+              )
             textureMatrix = Group(CaselessLiteral('textureMatrix') + OneOrMore(textureMatrixProperty) + end)
 
-            transformProperty = \
-                Group(shift + ThreeDPoint) \
-              | Group(scale + ThreeDPoint) \
-              | Group(shear + ThreeDPoint) \
-              | Group(spin + float + ThreeDPoint) \
-              | Group(xform + globalReference) \
+            transformProperty = (
+                Group(shift + ThreeDPoint)
+              | Group(scale + ThreeDPoint)
+              | Group(shear + ThreeDPoint)
+              | Group(spin + float + ThreeDPoint)
+              | Group(xform + globalReference)
               | objectProperty
+              )
             transform = Group(CaselessLiteral('transform') + OneOrMore(transformProperty) + end)
 
-            faceProperty =                                                       \
-                Group(CaselessLiteral('vertices') + int + int + OneOrMore(int))  \
-              | Group(CaselessLiteral('normals') + int + int + OneOrMore(int))   \
-              | Group(CaselessLiteral('texcoords') + int + int + OneOrMore(int)) \
-              | materialProperty                                                 \
-              | phydrv                                                           \
-              | smoothbounce                                                     \
-              | noclusters                                                       \
-              | drivethrough                                                     \
-              | shootthrough                                                     \
+            faceProperty = (
+                Group(CaselessLiteral('vertices') + int + int + OneOrMore(int))
+              | Group(CaselessLiteral('normals') + int + int + OneOrMore(int))
+              | Group(CaselessLiteral('texcoords') + int + int + OneOrMore(int))
+              | materialProperty
+              | phydrv
+              | smoothbounce
+              | noclusters
+              | drivethrough
+              | shootthrough
               | passable
+              )
             face = Group(CaselessLiteral('face') + OneOrMore(faceProperty) + CaselessLiteral('endface').suppress())
 
-            meshProperty =                                      \
-                face                                            \
-              | Group(CaselessLiteral('inside') + ThreeDPoint)  \
-              | Group(CaselessLiteral('outside') + ThreeDPoint) \
-              | Group(CaselessLiteral('vertex') + ThreeDPoint)  \
-              | Group(CaselessLiteral('normal') + ThreeDPoint)  \
-              | Group(CaselessLiteral('texcoord') + TwoDPoint)  \
-              | materialProperty                                \
-              | phydrv                                          \
-              | smoothbounce                                    \
-              | noclusters                                      \
+            meshProperty = (
+                face
+              | Group(CaselessLiteral('inside') + ThreeDPoint)
+              | Group(CaselessLiteral('outside') + ThreeDPoint)
+              | Group(CaselessLiteral('vertex') + ThreeDPoint)
+              | Group(CaselessLiteral('normal') + ThreeDPoint)
+              | Group(CaselessLiteral('texcoord') + TwoDPoint)
+              | materialProperty
+              | phydrv
+              | smoothbounce
+              | noclusters
               | obstacleProperty
+              )
             mesh = Group(CaselessLiteral('mesh') + OneOrMore(meshProperty) + end)
 
             options = Group(CaselessLiteral('options') + SkipTo(LineStart() + end, include=True))
 
-            groupProperty = \
-                Group(CaselessLiteral('team') + int) \
-              | Group(CaselessLiteral('tint') + rgbaColor) \
-              | Group(CaselessLiteral('matref') + localReference) \
-              | phydrv \
+            groupProperty = (
+                Group(CaselessLiteral('team') + int)
+              | Group(CaselessLiteral('tint') + rgbaColor)
+              | Group(CaselessLiteral('matref') + localReference)
+              | phydrv
               | obstacleProperty
+              )
             group = Group(CaselessLiteral('group') + OneOrMore(groupProperty) + end)
 
-            groupMember =  \
-                arc        \
-              | box        \
-              | base       \
-              | cone       \
-              | group      \
-              | mesh       \
-              | meshbox    \
-              | meshpyr    \
-              | pyramid    \
-              | sphere     \
-              | teleporter \
+            groupMember = (
+                arc
+              | box
+              | base
+              | cone
+              | group
+              | mesh
+              | meshbox
+              | meshpyr
+              | pyramid
+              | sphere
+              | teleporter
               | tetra
+              )
             define = Group(CaselessLiteral('define') + Word(alphanums) + OneOrMore(groupMember) + CaselessLiteral('enddef'))
 
-            worldObject =     \
-                arc           \
-              | box           \
-              | base          \
-              | cone          \
-              | define        \
-              | dynamicColor  \
-              | group         \
-              | link          \
-              | material      \
-              | mesh          \
-              | meshbox       \
-              | meshpyr       \
-              | options       \
-              | physics       \
-              | pyramid       \
-              | sphere        \
-              | teleporter    \
-              | tetra         \
-              | textureMatrix \
-              | transform     \
-              | waterLevel    \
-              | weapon        \
-              | world         \
+            worldObject = (
+                arc
+              | box
+              | base
+              | cone
+              | define
+              | dynamicColor
+              | group
+              | link
+              | material
+              | mesh
+              | meshbox
+              | meshpyr
+              | options
+              | physics
+              | pyramid
+              | sphere
+              | teleporter
+              | tetra
+              | textureMatrix
+              | transform
+              | waterLevel
+              | weapon
+              | world
               | zone
+              )
 
             self.grammar = OneOrMore(worldObject)
             self.grammar.ignore(comment)
