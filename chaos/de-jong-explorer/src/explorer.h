@@ -72,6 +72,7 @@ struct _Explorer {
   gboolean selecting_keyframe;
 
   gboolean seeking_animation;
+  gboolean seeking_animation_transition;
   gboolean playing_animation;
   GTimeVal last_anim_frame_time;
 };
