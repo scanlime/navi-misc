@@ -7,6 +7,9 @@
 #define VERSION "0.2"
 #define MAXURLS 10
 
+#define URLREGEX "(ht|f)tps?://[^\\s\\>\\]\\)]+"
+#define EMAILREGEX "[\\w\\.\\-\\+]+@([0-9a-z\\-]+\\.)+[a-z]+"
+
 static xchat_plugin *ph;	// Plugin handle.
 static regex_t email;		// Regex that matches e-mail addresses.
 static regex_t url;			// Regex that matches urls.
@@ -70,7 +73,8 @@ static int grabURL (char **word, void *userdata)
 
 	if (regexec(&url, word[4], len, match, 0) == 0)
 	{
-		chan = xchat_get_info(ph, "channel");
+		chan = xchat_get_info (ph, "channel");
+		xchat_print (ph, "URL found.\n");
 
 		if (urls >= MAXURLS)
 		{
@@ -101,8 +105,12 @@ int xchat_plugin_init (xchat_plugin *plugin_handle,
 	*plugin_desc = "Grabs URLs and puts them in a separate window for easy viewing.";
 	*plugin_version = VERSION;
 
-	regcomp (&email, "[\\w\\.\\-\\+]+@([0-9a-z\\-]+\\.)+[a-z]+", REG_ICASE);
-	regcomp (&url, "(ht|f)tps?://[^\\s\\>\\]\\)]+", REG_ICASE);
+	//regcomp (&email, EMAILREGEX, REG_ICASE);
+	if (regcomp (&url, URLREGEX, REG_ICASE))
+	{
+		xchat_print (ph, "URL Scraper failed to load: couldn't compile URL regex.\n");
+		return 0;
+	}
 
 	urls = 0;
 
