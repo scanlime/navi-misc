@@ -26,7 +26,7 @@
 #include <assert.h>
 
 #include <unicone.h>
-#include "device.h"
+#include "unicone_device.h"
 #include "progress.h"
 #include "bit_file.h"
 #include "sha1.h"
