@@ -50,7 +50,7 @@ class StochasticBlur : Element
 
 	public override string Description ()
 	{
-		return "Creates a blur by\nstochastically perturbing\na point within the\ngiven radius\n";
+		return "Creates a blur by\nstochastically perturbing\na point within the\ngiven radius";
 	}
 
 	public override string[,] InputDesc ()
