@@ -111,4 +111,41 @@ mvmtOneCello = \relative c, {
 		g, (bes a
 		bes)
 	} >> r4 r2
+	r1
+	fis1\p \trill
+	fis1 \trill
+
+	R1*19
+	r8 fis' r gis r fis r a
+
+	% 130
+	r8 aes r f r e r g
+	r8 ees r d r fis r bis,
+	r1
+	r2 r4
+	<< {
+		a4 (
+		b a)
+	} \\ {
+		a4\mf (
+		d, \> dis) \!
+	} >>
+	r2
+	R1*2
+	\time 6/8
+	R1*6/8*4
+	gis4.\mf gis4 (fis8
+	b4.) a4.
+	\appoggiatura gis8 gis'4. fis4 eis8
+	e8. dis8. ~ dis8. bis8.
+	cis4. e
+	gis d
+	cis r
+	R1*6/8*5
+	r4. r8.\mp cis16 \< cis-. cis-. \!
+	<fis,-. cis'>16 r16 r4 r4.
+	cis'16-.->\mf cis16-. cis16-. cis16-. cis16-. cis16-. \repeat "tremolo" 6 bis16^\simile
+	\repeat "tremolo" 6 b16 \repeat "tremolo" 6 ais
+	\repeat "tremolo" 6 a16 \repeat "tremolo" 6 gis
+	\repeat "tremolo" 6 g16 \repeat "tremolo" 6 fis
 }
