@@ -8,3 +8,4 @@ xtext.c
 .libs
 .deps
 .*.swp
+.*.swo
