@@ -28,7 +28,7 @@ the actual stats target using part of the message.
 
 from twisted.web import xmlrpc
 from twisted.python import log
-import Ruleset, Message, Rack, TimeUtil
+import Ruleset, Message, Rack, TimeUtil, Debug
 import string, os, time, types
 
 
@@ -58,85 +58,163 @@ class StatsInterface(xmlrpc.XMLRPC):
         xmlrpc.XMLRPC.__init__(self)
         self.caps = caps
         self.storage = storage
-
-    def dictify(self, d):
-        """Cast an object into a dictionary, converting lists to tuples
-           to make sure the keys end up hashable, and converting xmlrpclib.Binary
-           objects to 8-bit strings.
-           """
-        if type(d) == dict:
-            return d
-        newDict = {}
-        for key, value in d:
-            if type(key) == list:
-                key = tuple(key)
-
-            try:
-                if isinstance(value, xmlrpc.Binary):
-                    value = str(value)
-            except TypeError:
-                pass
-
-            newDict[key] = value
-        return newDict
+        self.putSubHandler('metadata', MetadataInterface(self.caps, self.storage))
 
     def xmlrpc_catalog(self, path=''):
         """Return a list of subdirectories within this stats path.
            Defaults to the root of the stats:// namespace if 'path'
            isn't specified.
            """
-        return self.storage.getPathTarget(path).catalog()
+        try:
+            return self.storage.getPathTarget(path).catalog()
+        except:
+            Debug.catchFault()
 
     def xmlrpc_getLatestMessages(self, path, limit=None):
         """Return 'limit' latest messages delivered to this stats target,
            or all available recent messages if 'limit' isn't specified.
            """
-        return self.storage.getPathTarget(path).recentMessages.getLatest(limit)
+        try:
+            return self.storage.getPathTarget(path).recentMessages.getLatest(limit)
+        except:
+            Debug.catchFault()
 
     def xmlrpc_getCounterValues(self, path, name):
         """Returns a dictionary with current values for the given counter.
            Note that times are returned as UNIX-style seconds since
            the epoch in UTC.
            """
-        return dict(self.storage.getPathTarget(path).counters.getCounter(name))
-
-    def xmlrpc_getMetadata(self, path):
-        """Return a dictionary holding all metadata for a particular stats path"""
-        return dict(self.storage.getPathTarget(path).metadata)
-
-    def xmlrpc_updateMetadata(self, path, d, key):
-        """Merge the given dictionary into a path's metadata.
-           This requires one of the usual capability keys for everything, this
-           module, or this function, but it can also be accessed using a capability
-           key that unlocks only a particular path.
-
-           The provided dictionary 'd' can optionally be a list of (key, value)
-           tuples, to facilitate setting metadata keys that aren't strings.
-           """
-        self.caps.faultIfMissing(key, 'universe', 'stats', 'stats.metadata',
-                                 ('stats.path', path))
-        self.storage.getPathTarget(path).metadata.update(self.dictify(d))
-        log.msg("Updating metadata for stats path %r\n%r" % (path, d))
-        return True
-
-    def xmlrpc_setMetadata(self, path, d, key):
-        """Replace a path's metadata with the given dictionary
-
-           The provided dictionary 'd' can optionally be a list of (key, value)
-           tuples, to facilitate setting metadata keys that aren't strings.
-           """
-        self.caps.faultIfMissing(key, 'universe', 'stats', 'stats.metadata',
-                                 ('stats.path', path))
-        metadata = self.storage.getPathTarget(path).metadata
-        metadata.clear()
-        metadata.update(self.dictify(d))
-        log.msg("Replacing metadata for stats path %r\n%r" % (path, d))
-        return True
+        try:
+            return dict(self.storage.getPathTarget(path).counters.getCounter(name))
+        except:
+            Debug.catchFault()
 
     def xmlrpc_sync(self):
         """Force any pending changes to the StatsStorage to be written to disk"""
-	self.storage.sync()
-	return True
+        try:
+            self.storage.sync()
+            return True
+        except:
+            Debug.catchFault()
+
+
+class MetadataInterface(xmlrpc.XMLRPC):
+    """An XML-RPC interface for querying and modifying stats metadata"""
+    def __init__(self, caps, storage):
+        xmlrpc.XMLRPC.__init__(self)
+        self.caps = caps
+        self.storage = storage
+
+    def getKeyValue(self, metadata, key):
+        """Return the value of a particular metadata key, enclosing it
+           in a Binary object if its mime type isn't in text/*.
+           """
+        if metadata.getType(key).startswith("text/"):
+            return metadata[key]
+        else:
+            return xmlrpc.Binary(metadata[key])
+
+    def xmlrpc_getKeyList(self, path):
+        """Return a list of metadata keys for a particular stats path"""
+        try:
+            return self.storage.getPathTarget(path).metadata.keys()
+        except:
+            Debug.catchFault()
+
+    def xmlrpc_getKeyValues(self, path, keys=None):
+        """Return a mapping from key to value. If a key list is specified,
+           only keys in that list are returned- otherwise all available keys
+           are returned.
+           """
+        try:
+            metadata = self.storage.getPathTarget(path).metadata
+            results = {}
+            for key in metadata:
+                if keys is None or key in keys:
+                    results[key] = self.getKeyValue(metadata, key)
+            return results
+        except:
+            Debug.catchFault()
+
+    def xmlrpc_getKeyTypes(self, path, keys=None):
+        """Return a mapping from key to MIME type. If a key list is specified,
+           only keys in that list are returned- otherwise all available keys
+           are returned.
+           """
+        try:
+            metadata = self.storage.getPathTarget(path).metadata
+            results = {}
+            for key in metadata:
+                if keys is None or key in keys:
+                    results[key] = metadata.getType(key)
+            return results
+        except:
+            Debug.catchFault()
+
+    def xmlrpc_getKeys(self, path, keys=None):
+        """Return a mapping from key to a mapping of all information available
+           for that key. The mapping includes 'value' and 'type' currently.
+           If a key list is specified, only keys in that list are returned-
+           otherwise all available keys are returned.
+           """
+        try:
+            metadata = self.storage.getPathTarget(path).metadata
+            results = {}
+            for key in metadata:
+                if keys is None or key in keys:
+                    results[key] = {
+                        'type': metadata.getType(key),
+                        'value': self.getKeyValue(metadata, key),
+                        }
+            return results
+        except:
+            Debug.catchFault()
+
+    def xmlrpc_setKeyValues(self, path, keyMap, key):
+        """For each key/value pair in the given map, set the corresponding
+           key in the given path's metadata. Requires a capability key
+           for this module or for the particular path in question.
+           """
+        self.caps.faultIfMissing(key, 'universe', 'stats', 'stats.metadata',
+                                 ('stats.path', path))
+        try:
+            self.storage.getPathTarget(path).metadata.update(keyMap)
+            log.msg("Updating metadata values for stats path %r\n%r" % (path, keyMap))
+            return True
+        except:
+            Debug.catchFault()
+
+    def xmlrpc_setKeyTypes(self, path, keyMap, key):
+        """For each key/value pair in the given map, set the corresponding
+           MIME type in the given path's metadata. Requires a capability key
+           for this module or for the particular path in question.
+           """
+        self.caps.faultIfMissing(key, 'universe', 'stats', 'stats.metadata',
+                                 ('stats.path', path))
+        try:
+            metadata = self.storage.getPathTarget(path).metadata
+            for mdKey, mdType in keyMap.iteritems():
+                metadata.setType(mdKey, mdType)
+            log.msg("Updating metadata types for stats path %r\n%r" % (path, keyMap))
+            return True
+        except:
+            Debug.catchFault()
+
+    def xmlrpc_delKeys(self, path, metadataKeys, key):
+        """Delete zero or more metadata keys from the given list.
+           Requires a capability key for this module or for the particular
+           path in question.
+           """
+        self.caps.faultIfMissing(key, 'universe', 'stats', 'stats.metadata',
+                                 ('stats.path', path))
+        try:
+            metadata = self.storage.getPathTarget(path).metadata
+            for mdKey in metadataKeys:
+                del metadata[mdKey]
+                log.msg("Deleted metadata key %r for stats path %r" % (mdKey, path))
+            return True
+        except:
+            Debug.catchFault()
 
 
 class StatsStorage(object):
