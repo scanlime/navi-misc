@@ -23,7 +23,10 @@
 #include <gtk/gtkspinbutton.h>
 #include <gtk/gtkoptionmenu.h>
 #include <gtk/gtklabel.h>
+#include <gtk/gtkhbox.h>
 #include <gtk/gtkbutton.h>
+#include <gtk/gtkmenu.h>
+#include <gtk/gtkmenuitem.h>
 #include <e-util/e-config.h>
 #include <calendar/gui/e-cal-config.h>
 #include <libedataserver/e-source.h>
@@ -196,7 +199,7 @@ e_calendar_weather_refresh (EPlugin *epl, EConfigHookItemFactoryData *data)
 	hbox = gtk_hbox_new (FALSE, 6);
 	gtk_widget_show (hbox);
 
-	spin = gtk_spin_button_with_range (0, 100, 1);
+	spin = gtk_spin_button_new_with_range (0, 100, 1);
 	gtk_label_set_mnemonic_widget (GTK_LABEL (label), spin);
 	gtk_widget_show (spin);
 	gtk_box_pack_start (GTK_BOX (hbox), spin, FALSE, TRUE, 0);
@@ -236,7 +239,7 @@ e_calendar_weather_check (EPlugin *epl, EConfigHookPageCheckData *data)
 	gboolean ok = FALSE;
 	ESourceGroup *group = e_source_peek_group (t->source);
 
-	if (strcmp (e_source_group_peek_base_uri (group), "weather"))
+	if (strncmp (e_source_group_peek_base_uri (group), "weather", 7))
 		return TRUE;
 
 	uri = e_uri_new (e_source_get_uri (t->source));

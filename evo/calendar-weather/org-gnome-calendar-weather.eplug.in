@@ -2,7 +2,7 @@
 <e-plugin-list>
     <e-plugin
      type="shlib"
-     locaiton="@PLUGINDIR@/liborg-gnome-calendar-weather.so"
+     location="@PLUGINDIR@/liborg-gnome-calendar-weather.so"
      id="org.gnome.evolution.calendar.weather"
      name="Weather Calendars">
         <description>Provides core functionality for weather calendars</description>
